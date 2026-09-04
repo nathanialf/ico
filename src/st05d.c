@@ -17,12 +17,12 @@ extern void _ACTWait(int a0);
 extern int func_0012AA80(int a0);
 extern void func_0017B258(int a0);
 extern void lt_fade_status(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt05dDoor2(volatile int a0) {
     if (D_00631AE8 == 0) { _ACTWait(0); }
-    while (scpSleepEnemyOne(a0, D_00631AE8, 200.0f) == 0) { _ACTWait(1); }
+    while (scpTriggerBall(a0, D_00631AE8, 200.0f) == 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     func_0017B258(0xAA);
     _ACTWait(0xA);
@@ -92,59 +92,59 @@ void func_0021F588(int x) {
     *(int *)(p + 0x16C) = 0;
 }
 
-extern int scpDoorTypeUpUp(int a0);
+extern int scpIsTorchLightOn(int a0);
 
 void func_0021F5B0(volatile int a0) {
-    while (scpDoorTypeUpUp(0x402) == 0) {
+    while (scpIsTorchLightOn(0x402) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xB8);
 }
 
 void func_0021F5F8(volatile int a0) {
-    while (scpDoorTypeUpUp(0x403) == 0) {
+    while (scpIsTorchLightOn(0x403) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xB9);
 }
 
 void func_0021F640(volatile int a0) {
-    while (scpDoorTypeUpUp(0x454) == 0) {
+    while (scpIsTorchLightOn(0x454) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xBA);
 }
 
 void func_0021F688(volatile int a0) {
-    while (scpDoorTypeUpUp(0x455) == 0) {
+    while (scpIsTorchLightOn(0x455) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xBB);
 }
 
 void func_0021F6D0(volatile int a0) {
-    while (scpDoorTypeUpUp(0x456) == 0) {
+    while (scpIsTorchLightOn(0x456) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xBE);
 }
 
 void func_0021F718(volatile int a0) {
-    while (scpDoorTypeUpUp(0x457) == 0) {
+    while (scpIsTorchLightOn(0x457) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xBF);
 }
 
 void func_0021F760(volatile int a0) {
-    while (scpDoorTypeUpUp(0x406) == 0) {
+    while (scpIsTorchLightOn(0x406) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xBC);
 }
 
 void func_0021F7A8(volatile int a0) {
-    while (scpDoorTypeUpUp(0x407) == 0) {
+    while (scpIsTorchLightOn(0x407) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xBD);
@@ -161,7 +161,7 @@ void func_0021F7F0(void)
     return soundSeVolSet(D_00633A00);
 }
 
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void func_0021F828(void)
 {
@@ -201,9 +201,9 @@ void func_0021F828(void)
         stage_KillPlayBgAnimation(0x136, 0, -1);
     }
     if (func_0017B230(0xE5) == 0) {
-        AddWayPointTop(1, 0);
+        SetWayGroupActive(1, 0);
     } else {
-        AddWayPointTop(1, 1);
+        SetWayGroupActive(1, 1);
     }
     if (func_0017B230(0xEA) == 0) {
         stage_KillPlayBgAnimation(0x127, 0, 0);

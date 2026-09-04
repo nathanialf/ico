@@ -9,13 +9,13 @@ typedef union {
 
 extern char *D_006321DC;
 extern int isysGObjProcPausePtr();
-extern int iosOmBeforeFuncStandard(char *self_arg, int val5, int val6);
+extern int iosOmSendMail(char *self_arg, int val5, int val6);
 INCLUDE_ASM("asm/nonmatchings/src/act", actChangeActBrain);
 
 extern char D_002A4C48[];
 extern char D_0061AEF0[];
 extern char D_0061AF10[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void isysGObjProcAddS();
 extern int isysGObjProcPause(void *a0, void *a1, int a2, void *a3);
 extern int isysGObjProcPauseAll(void *a0, void *a1, int a2, void *a3, long long a4);
@@ -32,10 +32,10 @@ void actChangeActMain(void *a0, void *a1, void **a2) {
     }
     *a2 = (void *)ret;
     if (old != 0) {
-        debug_assertMessage(D_0061AEF0, a0, ret);
+        debug_StdPrintfDummy(D_0061AEF0, a0, ret);
         isysGObjProcAddS(old);
     } else {
-        debug_assertMessage(D_0061AF10, a0, ret);
+        debug_StdPrintfDummy(D_0061AF10, a0, ret);
     }
 }
 
@@ -47,10 +47,10 @@ void actCreateMotionThread(void *a0, void *a1, void **a2) {
     int ret = isysGObjProcPause(D_006321DC, a0, 0, a1);
     *a2 = (void *)ret;
     if (old != 0) {
-        debug_assertMessage(D_0061AF30, *(int *)((char *)old + 4), ret);
+        debug_StdPrintfDummy(D_0061AF30, *(int *)((char *)old + 4), ret);
         isysGObjProcAddS(old);
     } else {
-        debug_assertMessage(D_0061AF50, ret, ret);
+        debug_StdPrintfDummy(D_0061AF50, ret, ret);
     }
 }
 
@@ -63,7 +63,7 @@ extern char D_0061AFA0[];
 extern int D_00632024;
 extern int D_006321E0;
 extern int func_0013A0F8(int, int, const char *, int);
-extern void func_002641D8(void *, int, int);
+extern void memset(void *, int, int);
 
 char *actInitialize(char *obj)
 {
@@ -73,7 +73,7 @@ char *actInitialize(char *obj)
 
     s = (char *)func_0013A0F8(D_00632024, 0x840, D_0061AFA0, 0x382);
     *(char **)(obj + 0x164) = s;
-    func_002641D8(s, 0, 0x840);
+    memset(s, 0, 0x840);
 
     ((CondU *)(s + 0x18))->w.lo = 0;
     ((CondU *)(s + 0x20))->w.hi = 0;
@@ -138,15 +138,15 @@ char *actInitialize(char *obj)
 
     __builtin_memcpy(s + 0x1D8, D_00280FC0, 0xF0);
 
-    func_002641D8(s + 0x160, 0, 0x20);
-    func_002641D8(s + 0x124, 0, 8);
-    func_002641D8(s + 0x180, 0, 0x20);
-    func_002641D8(s + 0x46C, 0, 0x10);
-    func_002641D8(s + 0x47C, 0, 0x10);
-    func_002641D8(s + 0x48C, 0, 0x10);
-    func_002641D8(s + 0x4A0, 0, 0x1D0);
-    func_002641D8(s + 0x2C8, 0, 0x60);
-    func_002641D8(s + 0x328, 0, 0x18);
+    memset(s + 0x160, 0, 0x20);
+    memset(s + 0x124, 0, 8);
+    memset(s + 0x180, 0, 0x20);
+    memset(s + 0x46C, 0, 0x10);
+    memset(s + 0x47C, 0, 0x10);
+    memset(s + 0x48C, 0, 0x10);
+    memset(s + 0x4A0, 0, 0x1D0);
+    memset(s + 0x2C8, 0, 0x60);
+    memset(s + 0x328, 0, 0x18);
     return s;
 }
 
@@ -169,7 +169,7 @@ int ACTReserveTarget(int *self, int a1, int a2)
         goto ret0;
     p[0x12C / 4] = (int)self;
     p[0x130 / 4] = a2;
-    iosOmBeforeFuncStandard(self, a2, a1);
+    iosOmSendMail(self, a2, a1);
     return 1;
 ret0:
     return 0;
@@ -230,12 +230,12 @@ int actCreateSubThread(void *a0, int a1) {
     int r;
     if (D_00632D88 != 0) {
         char *sub = *(char **)((char *)D_006321DC + 0x164);
-        debug_assertMessage(D_0061AF70, D_006321DC);
-        debug_assertMessage(D_0061AF80, *(int *)((char *)D_006321DC + 8));
-        debug_assertMessage(D_0061AF80, *(int *)((char *)D_006321DC + 0xC));
+        debug_StdPrintfDummy(D_0061AF70, D_006321DC);
+        debug_StdPrintfDummy(D_0061AF80, *(int *)((char *)D_006321DC + 8));
+        debug_StdPrintfDummy(D_0061AF80, *(int *)((char *)D_006321DC + 0xC));
         if (sub != 0) {
-            debug_assertMessage(D_0061AF90, sub);
-            debug_assertMessage(D_0061AF80, *(int *)(sub + 0x30));
+            debug_StdPrintfDummy(D_0061AF90, sub);
+            debug_StdPrintfDummy(D_0061AF80, *(int *)(sub + 0x30));
         }
     }
     r = isysGObjProcPause(D_006321DC, a0, 0, (void *)a1);

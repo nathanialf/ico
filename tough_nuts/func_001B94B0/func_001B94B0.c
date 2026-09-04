@@ -125,28 +125,28 @@ typedef struct { float m[16]; } Mtx44;
 
 extern void func_0010D540(int dst, int src);
 extern float func_00118320(int dst, int v);
-extern int *func_0010EB60(float f);
+extern int *GetTableArcCos(float f);
 extern void func_00118350(int dst, int v, int src);
 extern void func_001182F0(int dst, int src);
-extern void func_0010DCF8(int dst, int p, int src);
-extern void func_0010DDB8(int dst, int a, int b);
+extern void SetQuaternionByAxisRotateV(int dst, int p, int src);
+extern void MultiQuaternion(int dst, int a, int b);
 extern char D_004BEB00[];
 extern char D_00275890[];
 
 extern int *func_0013A0F8(int tag, int size, int name, int id);
-extern int func_00264D60(void);
-extern void func_00118678(int dst);
+extern int rand(void);
+extern void _UnitMatrix(int dst);
 extern int *func_0019F310(int n, int *arg1);
 extern void func_00139598(int x);
 extern int func_00109F10(int *self, int v);
 extern void func_001AD748(int a, int b, int c);
-extern void func_00263FF0(int a, int b, int c);
+extern void __assert(int a, int b, int c);
 extern int func_001CEF90(int a, int b, int c);
 extern void func_00105F00(int a, int b);
 extern void func_00102850(int p, int *self);
 extern void func_00104508(int p, int *self);
 extern void func_00104140(int dst, int *self);
-extern void func_00118648(int a, int b, int c);
+extern void _ApplyMatrix(int a, int b, int c);
 extern int D_00632010;
 extern int D_00632024;
 extern char D_004BEC00[];
@@ -199,14 +199,14 @@ void func_001B8CE0(int *self, int arg2)
 
     func_00102850((int)&l70, self);
     func_0010D540((int)&m20, (int)&l70);
-    func_00118648((int)&l0, (int)&m20, (int)D_004BEB00);
+    _ApplyMatrix((int)&l0, (int)&m20, (int)D_004BEB00);
     f = func_00118320((int)&l0, arg2);
-    r = func_0010EB60(f);
+    r = GetTableArcCos(f);
     if (r != 0) {
         func_00118350((int)&l10, arg2, (int)&l0);
         func_001182F0((int)&l10, (int)&l10);
-        func_0010DCF8((int)&l60, (int)r, (int)&l10);
-        func_0010DDB8((int)&l70, (int)&l60, (int)&l70);
+        SetQuaternionByAxisRotateV((int)&l60, (int)r, (int)&l10);
+        MultiQuaternion((int)&l70, (int)&l60, (int)&l70);
         func_00102870((int)self, (int)&l70);
     }
 }
@@ -223,21 +223,21 @@ void func_001B8DC8(int *self, int arg2)
 
     func_00102850((int)&l70, self);
     func_0010D540((int)&m20, (int)&l70);
-    func_00118648((int)&l0, (int)&m20, (int)D_00275890);
+    _ApplyMatrix((int)&l0, (int)&m20, (int)D_00275890);
     f = func_00118320((int)&l0, arg2);
-    r = func_0010EB60(f);
+    r = GetTableArcCos(f);
     if (r != 0) {
         func_00118350((int)&l10, arg2, (int)&l0);
         func_001182F0((int)&l10, (int)&l10);
-        func_0010DCF8((int)&l60, (int)r, (int)&l10);
-        func_0010DDB8((int)&l70, (int)&l60, (int)&l70);
+        SetQuaternionByAxisRotateV((int)&l60, (int)r, (int)&l10);
+        MultiQuaternion((int)&l70, (int)&l60, (int)&l70);
         func_00102870((int)self, (int)&l70);
     }
 }
 extern void func_001183B8(int a, int b, int c);
-extern void func_00118490(int a, int b, int c, float f);
+extern void _InterVector(int a, int b, int c, float f);
 extern void func_0010D838(int dst, int src);
-extern int func_0010EC08(float a, float b);
+extern int GetTableArcTan2(float a, float b);
 extern char D_004BEB20[];
 extern char D_004BEB60[];
 extern char D_004BEC10[];
@@ -273,7 +273,7 @@ int func_001B94B0(int *self)
 
     func_00104508((int)&l0, self);
     func_00104140((int)&l20, self);
-    func_00118648((int)&l10, (int)&l20, (int)(p + 0x1B0));
+    _ApplyMatrix((int)&l10, (int)&l20, (int)(p + 0x1B0));
 
     i = 0;
     for (k = 0; k < 4; k++) {
@@ -289,7 +289,7 @@ int func_001B94B0(int *self)
                   (int)((char *)((GObj *)(self))->p_15C + 0x130), (int)&l10);
 
     func_00105E70((int)&l60, (int)&l20);
-    func_00118648((int)&lA0, (int)&l60, (int)((char *)((GObj *)(self))->p_15C + 0x130));
+    _ApplyMatrix((int)&lA0, (int)&l60, (int)((char *)((GObj *)(self))->p_15C + 0x130));
 
     *(float *)(p + 0x1C4) = lA0.m[0];
     MEM_BARRIER();
@@ -326,12 +326,12 @@ struct Frame12 {
 
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B9638);
 
-extern float func_00118510(int a, int b);
+extern float _GetLength(int a, int b);
 extern void func_001183A0(int a, int b, int c);
 extern int func_00105570(float a, float b, float c);
-extern void func_00105268(void);
+extern void MatrixDrive_PopMatrix(void);
 extern void func_00104F20(void);
-extern void func_00104FC0(int a);
+extern void MatrixDrive_RotMatrixY(int a);
 extern void func_001D12A8(int self, int n);
 extern void func_00181BF8(int self, int a1, int a2, int a3, float f);
 extern char D_004BEB10[];
@@ -346,10 +346,10 @@ extern void func_00102858(int *self);
 extern void func_00105F20(int a, int b);
 extern void func_0010E0B8(int dst, short v);
 extern void func_0010E1F8(int dst, short v);
-extern void func_0010DEC0(int dst, int a, int b);
-extern void func_001184B8(int a, int b, int c, float f);
+extern void GetMatrixFromQuaternionPos(int dst, int a, int b);
+extern void _InterVectorXYZ(int a, int b, int c, float f);
 extern void func_0010DA78(int a, int b, int c, float f);
-extern void func_001185D0(int a, int b, int c);
+extern void _MulMatrix(int a, int b, int c);
 extern float D_004BEE10[];
 extern char D_004BEE20[];
 extern float D_00631128;
@@ -378,18 +378,18 @@ void func_001BA090(int *self)
     func_00102850((int)&l10, self);
     func_0010E0B8((int)&l10, (int)(*(float *)(p + 0x1C8) * 8192.0f));
     func_0010E0B8((int)&l10, (int)(*(float *)(p + 0x1C0) * 4096.0f));
-    func_0010DEC0((int)&l20, (int)&l10, (int)&l0);
-    func_00118648((int)&l0, (int)&l20, (int)D_004BEE10);
+    GetMatrixFromQuaternionPos((int)&l20, (int)&l10, (int)&l0);
+    _ApplyMatrix((int)&l0, (int)&l20, (int)D_004BEE10);
     func_0010E1F8((int)&l10, (int)(-*(float *)(p + 0x1C4) * 2048.0f));
 
     {
         char *q1d0 = p + 0x1D0;
         char *q1e0 = p + 0x1E0;
         char *q1f0 = p + 0x1F0;
-        func_001184B8((int)q1e0, (int)&l0, (int)q1e0, 0.5f);
+        _InterVectorXYZ((int)q1e0, (int)&l0, (int)q1e0, 0.5f);
         func_0010DA78((int)q1d0, (int)&l10, (int)q1d0, D_00631128);
-        func_0010DEC0((int)q1f0, (int)q1d0, (int)q1e0);
-        func_001185D0(((int *)((GObj *)(self))->p_15C)[0xC / 4], (int)q1f0, (int)D_004BEE20);
+        GetMatrixFromQuaternionPos((int)q1f0, (int)q1d0, (int)q1e0);
+        _MulMatrix(((int *)((GObj *)(self))->p_15C)[0xC / 4], (int)q1f0, (int)D_004BEE20);
     }
 }
 
@@ -412,8 +412,8 @@ extern int func_00105278(void);
 extern int func_001CF930(int a, int b, float f);
 extern const float D_0063112C_a __asm__("D_0063112C");
 extern const float D_00631130_a __asm__("D_00631130");
-extern void func_00105038(int a);
-extern void func_00104F48(int a);
+extern void MatrixDrive_RotMatrixZ(int a);
+extern void MatrixDrive_RotMatrixX(int a);
 extern void func_001A6E28(int a);
 
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001BA330);
@@ -524,7 +524,7 @@ check:
     {
         Sub15C *sub = ((GObj *)(self))->p_15C;
         Obj800 *q = ((Sub15C *)(sub))->p_800;
-        func_00118648((int)((char *)sub + 0x130), (int)((char *)q + 0x230), a2);
+        _ApplyMatrix((int)((char *)sub + 0x130), (int)((char *)q + 0x230), a2);
     }
     return 1;
 ret0:

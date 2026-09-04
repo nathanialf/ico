@@ -26,8 +26,8 @@ void InitGirlForceFieldGeo(void *a0, int a1, int a2) {
 extern RotEnt D_0029F270[];
 extern NestEnt D_002A4C48[];
 extern void *D_00631AE8;
-extern void GetRootMatrixByDObj(void *dst, void *src);
-extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+extern void GetRootPosition(void *dst, void *src);
+extern float FSqrt(float a0);
 extern void func_00102850(void *dst, void *self);
 extern void func_00102858(void *a0);
 extern float stage_SetParentOfGObjWithLocalRotationFlag(void *parent, void *vecA, void *vecB, float a3, float a4);
@@ -42,11 +42,11 @@ void GirlForceFieldDL(GObj *self) {
     void *tgt;
 
     func_00102858(self);
-    GetRootMatrixByDObj(&self_vec, self);
+    GetRootPosition(&self_vec, self);
     tgt = D_00631AE8;
     if (tgt != 0) {
         float d;
-        GetRootMatrixByDObj(&target_vec, tgt);
+        GetRootPosition(&target_vec, tgt);
         __asm__ __volatile__(
             "lqc2 $vf1, 0x0(%1)\n"
             "lqc2 $vf2, 0x0(%2)\n"
@@ -58,7 +58,7 @@ void GirlForceFieldDL(GObj *self) {
             "mtc1 $2, %0\n"
             : "=f"(d) : "r"(&target_vec), "r"(&self_vec) : "$2");
         if (d < o->f_0 * o->f_0) {
-            float angle = MatrixDrive_GetTurnYAngleXZ(d);
+            float angle = FSqrt(d);
             float w = 1.0f - angle * o->f_4;
             w = (w < 0.0f) ? 0.0f : w;
             func_00102850(&buf, self);

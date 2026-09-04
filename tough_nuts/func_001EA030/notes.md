@@ -34,14 +34,14 @@ glabel func_001EA030
     /* EA058 001EA058 2D282002 */  daddu      $5, $17, $0
     /* EA05C 001EA05C 5010040C */  jal        func_00104140
     /* EA060 001EA060 2D204000 */   daddu     $4, $2, $0
-    /* EA064 001EA064 F013040C */  jal        func_00104FC0
+    /* EA064 001EA064 F013040C */  jal        MatrixDrive_RotMatrixY
     /* EA068 001EA068 20000486 */   lh        $4, 0x20($16)
     /* EA06C 001EA06C 9E14040C */  jal        func_00105278
     /* EA070 001EA070 00000000 */   nop
     /* EA074 001EA074 2700063C */  lui        $6, %hi(D_00275890)
     /* EA078 001EA078 2D284000 */  daddu      $5, $2, $0
     /* EA07C 001EA07C 9058C624 */  addiu      $6, $6, %lo(D_00275890)
-    /* EA080 001EA080 9261040C */  jal        func_00118648
+    /* EA080 001EA080 9261040C */  jal        _ApplyMatrix
     /* EA084 001EA084 2D20A003 */   daddu     $4, $29, $0
     /* EA088 001EA088 0400A0AF */  sw         $0, 0x4($29)
     /* EA08C 001EA08C 2D20A003 */  daddu      $4, $29, $0
@@ -52,14 +52,14 @@ glabel func_001EA030
     /* EA0A0 001EA0A0 EA17040C */  jal        func_00105FA8
     /* EA0A4 001EA0A4 2D204000 */   daddu     $4, $2, $0
     /* EA0A8 001EA0A8 0000ACC7 */  lwc1       $f12, 0x0($29)
-    /* EA0AC 001EA0AC 7679090C */  jal        func_0025E5D8
+    /* EA0AC 001EA0AC 7679090C */  jal        atan2f
     /* EA0B0 001EA0B0 0800ADC7 */   lwc1      $f13, 0x8($29)
     /* EA0B4 001EA0B4 D88A81C7 */  lwc1       $f1, (D_006313C8) /* gp_rel: (D_006313C8) */
     /* EA0B8 001EA0B8 02000146 */  mul.s      $f0, $f0, $f1
     /* EA0BC 001EA0BC 64000046 */  .word      0x46000064                    # cvt.w.s    $f1, $f0 # 00000000 <InstrIdType: CPU_COP1_FPUS>
     /* EA0C0 001EA0C0 00080444 */  mfc1       $4, $f1
     /* EA0C4 001EA0C4 00240400 */  sll        $4, $4, 16
-    /* EA0C8 001EA0C8 F013040C */  jal        func_00104FC0
+    /* EA0C8 001EA0C8 F013040C */  jal        MatrixDrive_RotMatrixY
     /* EA0CC 001EA0CC 03240400 */   sra       $4, $4, 16
     /* EA0D0 001EA0D0 9E14040C */  jal        func_00105278
     /* EA0D4 001EA0D4 00000000 */   nop

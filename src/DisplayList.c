@@ -13,7 +13,7 @@ typedef struct {
 
 
 
-extern void debug_assertMessage(char *fmt, ...);
+extern void debug_StdPrintfDummy(char *fmt, ...);
 extern int D_0061ABF0[];
 extern DlEntry D_00710D10[];
 extern int D_00633F70;
@@ -77,8 +77,8 @@ extern int D_0063378C;
 extern void dl_GetPri();
 extern void dpk_Init(int a0, int a1, int a2);
 extern void dpk_SwapBuffer(int a0);
-extern void func_001007A0(int a0);
-extern void func_00244980(int a0, int a1);
+extern void FlushCache(int a0);
+extern void sceDmaSend(int a0, int a1);
 
 void dl_CloseDma(void)
 {
@@ -98,11 +98,11 @@ void dl_CloseDma(void)
         dl_GetPri();
         i = j;
     } while (j < 0xC);
-    func_001007A0(0);
+    FlushCache(0);
     if (D_00631C4C) {
-        func_00244980(D_0063378C, D_00710D10[11].pad_20 & 0xFFFFFFF);
+        sceDmaSend(D_0063378C, D_00710D10[11].pad_20 & 0xFFFFFFF);
     } else {
-        func_00244980(D_0063378C, D_00710D10[0].pad_20 & 0xFFFFFFF);
+        sceDmaSend(D_0063378C, D_00710D10[0].pad_20 & 0xFFFFFFF);
     }
     dl_Debug();
 }
@@ -112,9 +112,9 @@ extern char D_0061ABA0[];
 extern int D_00633810;
 extern char D_00633818[];
 extern int D_00710F80[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001AD768(char *file, int line);
-extern void func_00263FF0(char *file, int line, void *expr);
+extern void __assert(char *file, int line, void *expr);
 
 void dl_Out(void) {
     if (D_00633810 < 7) {
@@ -122,9 +122,9 @@ void dl_Out(void) {
         D_00710F80[i] = D_00633F70;
         D_00633810 = i + 1;
     } else {
-        debug_assertMessage(D_0061ABA0);
+        debug_StdPrintfDummy(D_0061ABA0);
         func_001AD768(D_0061AB88, 0x20E);
-        func_00263FF0(D_0061AB88, 0x20E, D_00633818);
+        __assert(D_0061AB88, 0x20E, D_00633818);
     }
 }
 
@@ -136,9 +136,9 @@ void dl_SetDLPriority(void) {
         D_00633810 = i;
         D_00633F70 = D_00710F80[i];
     } else {
-        debug_assertMessage(D_0061ABC8);
+        debug_StdPrintfDummy(D_0061ABC8);
         func_001AD768(D_0061AB88, 0x220);
-        func_00263FF0(D_0061AB88, 0x220, D_00633818);
+        __assert(D_0061AB88, 0x220, D_00633818);
     }
 }
 
@@ -148,7 +148,7 @@ void dl_OpenDma(void)
     unsigned int end = entry[9];
     unsigned int start = entry[1];
     unsigned int count = (end - start) >> 4;
-    return debug_assertMessage(D_0061ABF0, count - 1);
+    return debug_StdPrintfDummy(D_0061ABF0, count - 1);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_GetPri);

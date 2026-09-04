@@ -37,36 +37,36 @@ int GetNbMotionFrames(void *a0, float f12) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", GetMotionPlaySpeedRatio);
+INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getFinalMatrixCore);
 
 extern char *D_00633478;
 extern char *D_00633F4C;
-extern void func_00105258(void);
-extern void func_00105268(void);
+extern void MatrixDrive_PushMatrixWithNoCopy(void);
+extern void MatrixDrive_PopMatrix(void);
 extern void *func_00105278(void);
-extern void func_001D88B8(int id);
+extern void _calcNaturalGeometry(int id);
 
-void execFrameTrigger(int id) {
+void pursueNaturalGeometry(int id) {
     char *e = D_00633478 + id * 0x40;
     int child = *(int *)(e + 0x30);
     int next = *(int *)(e + 0x34);
     char *o;
     void *m;
-    func_00105258();
-    func_001D88B8(id);
+    MatrixDrive_PushMatrixWithNoCopy();
+    _calcNaturalGeometry(id);
     o = D_00633F4C + id * 0x10;
     m = func_00105278();
     MatrixDrive_TurnObjectMatrix((void *)o, (char *)m + 0x30);
     if (child != -1) {
-        execFrameTrigger(child);
+        pursueNaturalGeometry(child);
     }
-    func_00105268();
+    MatrixDrive_PopMatrix();
     if (next != -1) {
-        execFrameTrigger(next);
+        pursueNaturalGeometry(next);
     }
 }
 
-void UpdateFrameCounter(int a0, int a1)
+void GetWallVector(int a0, int a1)
 {
     MatrixDrive_TurnObjectMatrix(a0, a1 + 0xA0);
     *(int *)(a0 + 0xC) = 0;
@@ -74,7 +74,7 @@ void UpdateFrameCounter(int a0, int a1)
 
 extern void ChangeFieldCollisionDebugMode();
 
-int sendStateMail(char *a0, float f) {
+int upperFieldCheck(char *a0, float f) {
     char buf[0xC0] __attribute__((aligned(16)));
     MatrixDrive_TurnObjectMatrix((void *)buf, a0);
     MatrixDrive_TurnObjectMatrix((void *)(buf + 0x10), a0);
@@ -86,7 +86,7 @@ int sendStateMail(char *a0, float f) {
 extern char *D_0063347C;
 extern void func_001DF368(int a, int b);
 
-void shiftMotionData(void) {
+void getGeometryOfMotion(void) {
     ShiftBlk buf;
     int x, y;
     char *p;
@@ -120,10 +120,10 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", shiftMotionOrientBeginFu
 
 extern char D_0061C710[];
 extern char D_00612068[], D_006120C0[], D_00612100[], D_006334C0[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001AD748(char *a0, int a1, char *a2);
-extern void func_00263FF0(char *a0, int a1, char *a2);
-extern void func_00264DF8(char *buf, const char *fmt, ...);
+extern void __assert(char *a0, int a1, char *a2);
+extern void sprintf(char *buf, const char *fmt, ...);
 
 float ForTest_ForceShiftMotion(int a0) {
     char buf[0x100];
@@ -138,10 +138,10 @@ float ForTest_ForceShiftMotion(int a0) {
         if (*(int *)(f148 + nidx * 0x190) != 0xE4) {
             char *dc8 = D + 0xC8;
             char *p = dc8 + off;
-            debug_assertMessage(D_00619738, p);
-            func_00264DF8(buf, D_00619790, p);
+            debug_StdPrintfDummy(D_00619738, p);
+            sprintf(buf, D_00619790, p);
             func_001AD748(D_006197D0, 0x98, buf);
-            func_00263FF0(D_006197D0, 0x98, D_006334C0);
+            __assert(D_006197D0, 0x98, D_006334C0);
         }
         r = D - (-(nidx * 0x190));
     }
@@ -152,7 +152,7 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", normalMotionShift);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", parallelMotionShift);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", SetMotionRequest);
+INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", sendStateMail);
 
 const char D_00619800[0x48] = "何らかの理由でSEの内部処理がおかしいようです。杉山に報告してください。\n\0";
 
@@ -194,8 +194,8 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getMotionOrient);
 
 extern char D_00275850[];
 extern int GetPureVerticalPlane(void *a0, void *a1, void *a2, int a3);
-extern void GetRootProjectionPosOfGObj(void *dst, void *src, int n);
-extern void _PushVu0Registers(void *a0, void *a1, float a2);
+extern void CopyMotion(void *dst, void *src, int n);
+extern void _ScaleVectorXYZ(void *a0, void *a1, float a2);
 extern void calcFootIK(void *a0, void *a1);
 extern void func_001DFBC8(void *a0, void *a1, void *a2, void *a3, void *a4, int n, float f);
 
@@ -209,7 +209,7 @@ void CopyBlendMotionDataSource(void *a0, void *a1) {
     if (GetPureVerticalPlane(buf, local, a1, *(int *)(p + 0x8C))) {
         char *q = *(char **)((char *)a0 + 0x15C);
         if (*(int *)(q + 0x660)) {
-            _PushVu0Registers(local, local, f20);
+            _ScaleVectorXYZ(local, local, f20);
             q = *(char **)((char *)a0 + 0x15C);
         }
         local[0] = local[0] - *(float *)(q + 0x670);
@@ -218,7 +218,7 @@ void CopyBlendMotionDataSource(void *a0, void *a1) {
         func_001DFBC8(a0, buf, buf, local, D_00275850, -1, 1.0f);
         {
             char *r = *(char **)((char *)a0 + 0x15C);
-            GetRootProjectionPosOfGObj(*(void **)(r + 0x78C), buf, *(int *)(r + 0x88));
+            CopyMotion(*(void **)(r + 0x78C), buf, *(int *)(r + 0x88));
         }
         {
             char *s = *(char **)((char *)a0 + 0x15C);

@@ -10,7 +10,7 @@ extern char D_00617308[];
 extern int func_0013EAE8(int x);
 extern void func_001A6E28();
 extern void func_001AD768(const char *file, int line);
-extern int func_00263FF0(const char *file, int line, const void *p);
+extern int __assert(const char *file, int line, const void *p);
 
 void func_001B7B88(int a0)
 {
@@ -31,7 +31,7 @@ void func_001B7B88(int a0)
         if (rhw == ra0) {
             func_001A6E28(D_00617298, parent);
             func_001AD768(D_006172E0, 0x1E7);
-            func_00263FF0(D_006172E0, 0x1E7, D_00633190);
+            __assert(D_006172E0, 0x1E7, D_00633190);
         }
         func_001A6E28(D_006172F8, parent);
         *(int *)(*(int *)(ra0 + 0x15C)) = rhw;
@@ -40,5 +40,5 @@ void func_001B7B88(int a0)
     }
     func_001A6E28(D_00617308, parent);
     func_001AD768(D_006172E0, 0x1F0);
-    func_00263FF0(D_006172E0, 0x1F0, D_00633190);
+    __assert(D_006172E0, 0x1F0, D_00633190);
 }

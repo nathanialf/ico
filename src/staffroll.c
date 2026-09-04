@@ -51,7 +51,7 @@ extern int D_00633EDC;
 extern int D_00633EE8;
 extern int D_00633EEC;
 extern unsigned char D_00706F70[];
-extern void func_002641D8(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 
 void staffRollMain(int a0, float arg) {
     int z = 0;
@@ -66,7 +66,7 @@ void staffRollMain(int a0, float arg) {
     D_00633EE8 = z;
     D_006331A0 = D_00633ED4;
     D_0063319C = D_00633ED4;
-    func_002641D8(D_00706F70, z, 0x12C0);
+    memset(D_00706F70, z, 0x12C0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollWide);

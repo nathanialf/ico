@@ -1,5 +1,5 @@
 /* func_001F3A28 — weapon.c — rc3 seed (debug circle: 16 segs, radius 30, sin/cos
- * via func_0010E9A0/func_0010E950). rc71->8 (frame/struct-align/FP-const/layout +
+ * via GetTableCos/func_0010E950). rc71->8 (frame/struct-align/FP-const/layout +
  * permuter do{}while(0) barrier), then 8->3 via `int angB=(int)angA+0x1000` (no
  * (short) re-trunc, angA-sourced). Residual 2 sites: angB addiu sources from
  * angA(s0) not i(s2)+i-fusion — gcc shares a shifted IV for any i-sourced
@@ -20,7 +20,7 @@ extern void func_00112148(int a);
 extern void func_00112188(int a);
 extern void func_00111FA8(int a, int b, int c);
 extern void func_001D4A58(void *a, void *b, void *c, void *d, int e);
-extern float func_0010E9A0(short angle);
+extern float GetTableCos(short angle);
 extern float func_0010E950(short angle);
 extern void func_0010F630(void);
 
@@ -44,12 +44,12 @@ void func_001F3A28(int *self)
         int angB = (int)angA + 0x1000;
         i += 0x1000;
         do { } while (0);
-        buf[1].x = func_0010E9A0(angA) * 30.0f;
+        buf[1].x = GetTableCos(angA) * 30.0f;
         buf[1].pad = 0;
         buf[1].y = func_0010E950(angA) * 30.0f + 130.0f;
         buf[1].w = 1.0f;
         buf[0] = buf[1];
-        buf[2].x = func_0010E9A0(angB) * 30.0f;
+        buf[2].x = GetTableCos(angB) * 30.0f;
         buf[2].pad = 0;
         buf[2].y = func_0010E950(angB) * 30.0f + 130.0f;
         buf[2].w = 1.0f;

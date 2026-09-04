@@ -106,7 +106,7 @@ unsigned int D_005559F8[28] = { 0x00555AF8, 0x002751E0, 0x00000000, 0x000000FF, 
 #include "include_asm.h"
 #include "regpin.h"
 
-extern void func_001FAA58(void);
+extern void bga_ResetAnimation(void);
 extern int D_00274ED4[];
 extern void func_00117768(void);
 extern void func_001FAA30(int a0, int a1, int a2, int a3);
@@ -121,7 +121,7 @@ INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00129970);
 
 void func_00129A78(void)
 {
-    func_001FAA58();
+    bga_ResetAnimation();
     if (D_00274ED4[0] != 0) return;
     func_00117768();
 }
@@ -169,7 +169,7 @@ extern int func_001FA6D8(int);
 extern int func_001FA898(int);
 extern void func_001A6E28(const char *);
 extern void func_001AD768(const char *file, int line);
-extern void func_00263FF0(const char *file, int line, const char *fmt);
+extern void __assert(const char *file, int line, const char *fmt);
 extern const char D_00555D78[];
 extern const char D_00555BF8[];
 extern const char D_00631D88[];
@@ -195,7 +195,7 @@ int func_0012AA80(int key)
     }
     func_001A6E28(D_00555D78);
     func_001AD768(D_00555BF8, 0x360);
-    func_00263FF0(D_00555BF8, 0x360, D_00631D88);
+    __assert(D_00555BF8, 0x360, D_00631D88);
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AB50);

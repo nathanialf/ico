@@ -5,7 +5,7 @@ Asm source: asm/nonmatchings/src/enemyParts/func_001CEC88.s
 
 ## Attempt at 2026-05-31
 
-**Reason parked:** rc11 STRUCTURE-PERFECT near-miss; sole residual is a v0/v1 birth-order swap (ROM: arithmetic-chain 60->num->quotient in v0, D-base+store-base in v1; built reversed). FP/*0.0f/divzero-guard/2 calls/offsets all match. 6 forms tried (inline/pointer-base/sixty-first/named-locals all identical rc11; num-before-calls rc29 frame-inflate; int-return rc13 over-extends q). func_001886D0-class v0/v1 allocator tie-break; ideal regalloc-swap permuter target for auto_permute.
+**Reason parked:** rc11 STRUCTURE-PERFECT near-miss; sole residual is a v0/v1 birth-order swap (ROM: arithmetic-chain 60->num->quotient in v0, D-base+store-base in v1; built reversed). FP/*0.0f/divzero-guard/2 calls/offsets all match. 6 forms tried (inline/pointer-base/sixty-first/named-locals all identical rc11; num-before-calls rc29 frame-iosCdvdBackGroundMgrInit; int-return rc13 over-extends q). func_001886D0-class v0/v1 allocator tie-break; ideal regalloc-swap permuter target for auto_permute.
 
 **TU:** `src/enemyParts.c`
 

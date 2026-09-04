@@ -36,12 +36,12 @@ extern float        D_006313C8;
 extern int  *func_0013A0F8(int handle, int size, char *file, int line);
 extern int   func_00105278(void);
 extern void  func_00104140(int v, int *self);
-extern void  func_00104FC0(int x);
+extern void  MatrixDrive_RotMatrixY(int x);
 extern void  func_00105F00(int *out, int *src);
-extern void  func_00118648(int *out, int v, unsigned int *src);
+extern void  _ApplyMatrix(int *out, int v, unsigned int *src);
 extern void  func_001182F0(int *out, int *in);
 extern void  func_00105FA8(int v);
-extern float func_0025E5D8(float a, float b);
+extern float atan2f(float a, float b);
 extern void  func_00105F20(int a, int b);
 extern void  func_0010ECB8(int *self);
 
@@ -123,19 +123,19 @@ void func_001EA030(int *self)
 
     v0 = func_00105278();
     func_00104140(v0, self);
-    func_00104FC0((int)actor[0x20 / 2]);
+    MatrixDrive_RotMatrixY((int)actor[0x20 / 2]);
 
     v0 = func_00105278();
-    func_00118648(sp, v0, D_00275890);
+    _ApplyMatrix(sp, v0, D_00275890);
     sp[1] = 0;
     func_001182F0(sp, sp);
 
     v0 = func_00105278();
     func_00105FA8(v0);
 
-    f = func_0025E5D8(*(float *)&sp[0], *(float *)&sp[2]);
+    f = atan2f(*(float *)&sp[0], *(float *)&sp[2]);
     f *= D_006313C8;
-    func_00104FC0((int)(short)(int)f);
+    MatrixDrive_RotMatrixY((int)(short)(int)f);
 
     v0 = func_00105278();
     func_00105F20(c_field, v0);

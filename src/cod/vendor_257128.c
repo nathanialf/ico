@@ -6,7 +6,7 @@
 #include "math_private.h"
 #include "math_private.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_257128", func_00257128);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_257128", _outputFrame);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_257128", func_002571E0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_257128", _updateRefImage);
 

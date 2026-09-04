@@ -358,7 +358,7 @@ INCLUDE_ASM_NOP_PAD(func_0019BAA4);
 extern void func_0019C558(void);
 extern int D_00632010;
 extern int func_0013A0F8(int handle, int size, const char *file, int line);
-extern void func_002641D8(int *buf, int val, int size);
+extern void memset(int *buf, int val, int size);
 extern void func_00104508(int *buf, int *self);
 int *func_0019BAA8(int *self)
 {
@@ -366,7 +366,7 @@ int *func_0019BAA8(int *self)
     int *buf;
     p = (int *)((GObj *)(self))->p_15C;
     buf = (int *)func_0013A0F8(D_00632010, 0x30, D_0055C690, 0x3DA);
-    func_002641D8(buf, 0, 0x30);
+    memset(buf, 0, 0x30);
     (int)((Sub15C *)(p))->p_800 = (int)buf;
     *((float *)((char *)buf + 0x14)) = 300.0f;
     func_00104508(buf, self);
@@ -391,7 +391,7 @@ int *func_0019BC58(int *self)
     p = (int *)((GObj *)(s))->p_15C;
     buf = (int *)func_0013A0F8(D_00632010, 0x20, D_0055C690, 0x4F4);
     (int)((Sub15C *)(p))->p_800 = (int)buf;
-    func_002641D8(buf, 0, 0x20);
+    memset(buf, 0, 0x20);
     *((int *)((char *)buf + 0x14)) = 0;
     func_00104508(buf, s);
     func_00202208(s);

@@ -286,7 +286,7 @@ void func_0012C3D0(unsigned char *a0, unsigned char *a1) {
     }
     func_001A6E28(D_00556088, a1, a0[0x12], *(int *)(a1 + 0x108), *(int *)(a1 + 0xE4), a1);
     func_001AD768((const char *)D_00555ED8, 0x443);
-    func_00263FF0((const char *)D_00555ED8, D_00631DD8, 0x443);
+    __assert((const char *)D_00555ED8, D_00631DD8, 0x443);
 tail:
     func_0012C050(a0, a1);
 }

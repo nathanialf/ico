@@ -36,24 +36,24 @@ author's, not an allocator's. Combined with (1), the trailing `sq` in the
 
 ## Per-function state
 
-### func_00243B60 (4 insns) — MATCHED
+### sceVu0CopyVector (4 insns) — MATCHED
 Whole-function `__asm__` block at file scope with `.set noreorder` and an
 explicit `jr $31` + `sq $6,0x0($4)` in the slot, plus the trailing pad `nop`
-after `.size` — the same form already used by `func_002439F8` in this TU.
-The C prototype stays for the in-TU callers in `func_00244058`.
+after `.size` — the same form already used by `sceVu0InversMatrix` in this TU.
+The C prototype stays for the in-TU callers in `sceVu0LightColorMatrix`.
 
-### func_00243B70 (10 insns) — MATCHED
+### sceVu0CopyMatrix (10 insns) — MATCHED
 Same form. `lq $6/$7/$8/$9` from `0/0x10/0x20/0x30($5)`, then
 `sq $6/$7/$8`, `jr $31`, `sq $9,0x30($4)` in the slot, trailing `nop`.
 
-### func_002439B0 (18 insns) — MATCHED
+### sceVu0TransposeMatrix (18 insns) — MATCHED
 Same form. MMI 4x4 transpose (`pextlw`/`pextuw`/`pcpyld`/`pcpyud` on
 `$8..$15`), `jr $31` with `sq $11,0x30($4)` in the slot, trailing `nop`.
 
 `ninja` after these three: `verify_elf: OK (build/ico.rom
 sha1=fbf50c75cd5911273511c4f9af90503ff8423582)`.
 
-### func_00244598 (24 insns) — MATCHED
+### sceVpu0Reset (24 insns) — MATCHED
 Real C. Two mechanisms:
 * **The FIFO store must be non-volatile so gcc can hoist it into the `jr` slot.**
   gcc's reorg refuses any trial insn that references a volatile MEM
@@ -75,7 +75,7 @@ Real C. Two mechanisms:
   and `pkt` in a nested block AFTER the asm block is load-bearing: at function
   scope their address setup is scheduled above `sync.p`.
 
-### func_00244958 (10 insns) — STALLED, restored to INCLUDE_ASM
+### sceDmaPutStallAddr (10 insns) — STALLED, restored to INCLUDE_ASM
 
 Two measured gcc rules collide. Every hypothesis tried is excluded by one or
 the other, so this is a characterised impasse rather than a random plateau.
@@ -122,7 +122,7 @@ performs NO branch-delay swapping at all — a hand `.s` with
 at `-O0`, `-O` and `-O2` alike. So the fill has to come from gcc, not gas.
 
 Not yet tried, if someone resumes: whatever makes gcc keep a NON-volatile
-SImode constant address in a register (the TImode accesses in func_00244598
+SImode constant address in a register (the TImode accesses in sceVpu0Reset
 get this for free because TImode has no constant-address form). Writing the
 function as a whole-function `__asm__` block would reproduce the bytes but it
 is not a VU0/MMI body, so it was left as INCLUDE_ASM.
@@ -131,16 +131,16 @@ is not a VU0/MMI body, so it was left as INCLUDE_ASM.
 
 `ninja`: `verify_elf: OK (build/ico.rom
 sha1=fbf50c75cd5911273511c4f9af90503ff8423582)` — whole image byte-identical
-with func_00243B60, func_00243B70, func_002439B0 and func_00244598 landed in
-`src/cod/vendor_2418A0.c` and func_00244958 still INCLUDE_ASM.
+with sceVu0CopyVector, sceVu0CopyMatrix, sceVu0TransposeMatrix and sceVpu0Reset landed in
+`src/cod/vendor_2418A0.c` and sceDmaPutStallAddr still INCLUDE_ASM.
 
-`QUEUE.md` rows 1, 2, 7, 8 are resolved; row 3 (func_00244958) remains, with
+`QUEUE.md` rows 1, 2, 7, 8 are resolved; row 3 (sceDmaPutStallAddr) remains, with
 the residual above. Rows 4–6 (enemy.c, Packet.c) were out of scope here.
 
-## 2026-08-05 — round 2 on func_00244958 (7 probe compiles, dump forensics,
+## 2026-08-05 — round 2 on sceDmaPutStallAddr (7 probe compiles, dump forensics,
 ## gcse.c/combine.c/local-alloc.c source reads). Result: measured impossibility
 ## argument for plain C under the single non-filling assembler; and a
-## CORRECTION to the recorded func_001010C8 mechanism.
+## CORRECTION to the recorded kputchar mechanism.
 
 Full lab notes: scratchpad/func_00244958_r2_notes.md (probes 1-7 with
 predictions and dumps under scratchpad/r958/).
@@ -171,7 +171,7 @@ predictions and dumps under scratchpad/r958/).
    INVALID one gets the init moved adjacent. No rescue for SImode loads
    ((mem:SI C) is always valid).
 
-### Why func_00244958's bytes are unreachable from plain C here
+### Why sceDmaPutStallAddr's bytes are unreachable from plain C here
 
 Bytes pin: address materialization (lui/ori) + non-volatile register-form
 `lw $2,0($2)` in the ENTRY block (pre-beq; the slot fill must be gcc reorg's
@@ -184,7 +184,7 @@ load to the slot-ineligible `lw $r,<abs>` macro. Every alternative geometry
 base|offset in B0, extendsidi2 long-long load, copies, post-increment) is
 excluded by the measured facts above — see the notes file for each trace.
 
-### CORRECTION to commit 56df1a4e's mechanism claim (func_001010C8)
+### CORRECTION to commit 56df1a4e's mechanism claim (kputchar)
 
 Measured (probe7): cse does NOT rewrite that ior to a constant, loop.c does
 NOT hoist it, and reload does NOT rematerialise. The real mechanism is:

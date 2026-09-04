@@ -12,14 +12,14 @@ extern void func_0010E1F8();
 extern void func_0010E158();
 extern void func_0010E0B8();
 extern int D_00660A40[];
-extern void func_0010DDB8();
+extern void MultiQuaternion();
 extern int D_00631B7C;
 INCLUDE_ASM("asm/nonmatchings/src/quaternion", MultiCurrentQuaternion);
 
 void InvertCurrentQuaternion(int a0)
 {
     int *p = &D_00660A40[D_00631B7C * 4];
-    func_0010DDB8(p, p, a0);
+    MultiQuaternion(p, p, a0);
 }
 
 void SetCurrentQuaternion(void)
@@ -51,19 +51,19 @@ void PushQuaternion(short a0)
 extern char D_00553E00[];
 extern char D_00553E28[];
 extern void SetIdentityQuaternion(void);
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 
 void InitQuaternionDrive(void) {
     int v = D_00631B7C;
     if (v < 0) {
-        debug_assertMessage(D_00553E00);
+        debug_StdPrintfDummy(D_00553E00);
         SetIdentityQuaternion();
         v = D_00631B7C;
     }
     v++;
     D_00631B7C = v;
     if (v >= 0x40) {
-        debug_assertMessage(D_00553E28);
+        debug_StdPrintfDummy(D_00553E28);
         v = 0x3F;
         D_00631B7C = v;
     }
@@ -125,7 +125,7 @@ void getQuaternionFromMatrix(char *a0, char *a1) {
 
 INCLUDE_ASM("asm/nonmatchings/src/quaternion", GetQuaternionFromMatrix);
 
-extern void func_001186C8(void *a0, void *a1);
+extern void _TransposeMatrix(void *a0, void *a1);
 
 /* GetQuaternionFromMatrix is a function nested inside CopyQuaternion: ROM's
    callee spills its incoming $2 (STATIC_CHAIN_REGNUM) to its context slot at
@@ -135,7 +135,7 @@ extern void func_001186C8(void *a0, void *a1);
 void CopyQuaternion(void *a0, void *a1) {
     auto void GetQuaternionFromMatrix(void *a, void *b) __asm__("GetQuaternionFromMatrix");
     char local[0x40];
-    func_001186C8(local, a1);
+    _TransposeMatrix(local, a1);
     GetQuaternionFromMatrix(a0, local);
 }
 
@@ -145,16 +145,16 @@ int a0, a1, a2, a3;
     MatrixDrive_TurnObjectMatrix(a0, a1, a2, a3);
 }
 
-extern void _PushVu0Registers(int a0, int a1, float f);
+extern void _ScaleVectorXYZ(int a0, int a1, float f);
 
 void RegularizeQuaternion(int a0, int a1)
 {
     GetInverseQuaternion(a0, a1);
-    _PushVu0Registers(a0, a1, -1.0f);
+    _ScaleVectorXYZ(a0, a1, -1.0f);
 }
 
-extern void _InverseCurrentMatrix(void *a, void *b, float c);
-extern float func_00117C20(float);
+extern void _ScaleVector(void *a, void *b, float c);
+extern float _Sqrt(float);
 
 void GetSlerpQuaternionNoRegularize(void *a0) {
     register float d __asm__("$f12");
@@ -170,7 +170,7 @@ void GetSlerpQuaternionNoRegularize(void *a0) {
         "mtc1 $2, $f12\n"
         ".set reorder\n"
         : "=f"(d) : "r"(a0) : "$2");
-    _InverseCurrentMatrix(a0, a0, 1.0f / func_00117C20(d));
+    _ScaleVector(a0, a0, 1.0f / _Sqrt(d));
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/quaternion", GetSlerpQuaternion);

@@ -37,7 +37,7 @@ glabel func_001F16F8
     /* F1738 001F1738 64000046 */  .word      0x46000064                    # cvt.w.s    $f1, $f0 # 00000000 <InstrIdType: CPU_COP1_FPUS>
     /* F173C 001F173C 00080444 */  mfc1       $4, $f1
     /* F1740 001F1740 00240400 */  sll        $4, $4, 16
-    /* F1744 001F1744 F013040C */  jal        func_00104FC0
+    /* F1744 001F1744 F013040C */  jal        MatrixDrive_RotMatrixY
     /* F1748 001F1748 03240400 */   sra       $4, $4, 16
     /* F174C 001F174C 00000486 */  lh         $4, 0x0($16)
     /* F1750 001F1750 40240400 */  sll        $4, $4, 17
@@ -47,7 +47,7 @@ glabel func_001F16F8
     /* F1760 001F1760 64000046 */  .word      0x46000064                    # cvt.w.s    $f1, $f0 # 00000000 <InstrIdType: CPU_COP1_FPUS>
     /* F1764 001F1764 00080444 */  mfc1       $4, $f1
     /* F1768 001F1768 00240400 */  sll        $4, $4, 16
-    /* F176C 001F176C D213040C */  jal        func_00104F48
+    /* F176C 001F176C D213040C */  jal        MatrixDrive_RotMatrixX
     /* F1770 001F1770 03240400 */   sra       $4, $4, 16
     /* F1774 001F1774 9E14040C */  jal        func_00105278
     /* F1778 001F1778 00000000 */   nop

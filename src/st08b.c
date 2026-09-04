@@ -19,13 +19,13 @@ extern void func_0017B258(int a0);
 extern void lt_fade_status(int a0);
 extern void scpActivateAllWithKind(void);
 extern void scpDispOnAllWithKind(void);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
-extern int scpSubAdpcmPlay(int a0);
+extern int scpTriggerBall(int a0, int a1, float f);
+extern int scpIsBombExplode(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt08bDoor(volatile int a0) {
     int r;
-    while ((r = scpSubAdpcmPlay(0x13)) == 0 || scpSleepEnemyOne(a0, r, 350.0f) == 0) {
+    while ((r = scpIsBombExplode(0x13)) == 0 || scpTriggerBall(a0, r, 350.0f) == 0) {
         _ACTWait(1);
     }
     lt_fade_status(0x33);
@@ -61,12 +61,12 @@ void actSt08bDoorUpChk(volatile int a0) {
 
 extern void _ACTWait(int a0);
 extern void func_0017B258(int a0);
-extern int scpDoorTypeUpUp(int a0);
+extern int scpIsTorchLightOn(int a0);
 
 void actSt08bDoorDownChk(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x518) == 0) {
+    while (scpIsTorchLightOn(0x518) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xF1);
@@ -75,7 +75,7 @@ void actSt08bDoorDownChk(int a0) {
 void actSt08bKuren(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x519) == 0) {
+    while (scpIsTorchLightOn(0x519) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xF2);
@@ -84,7 +84,7 @@ void actSt08bKuren(int a0) {
 void actSt08bEne(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x566) == 0) {
+    while (scpIsTorchLightOn(0x566) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xF3);
@@ -93,7 +93,7 @@ void actSt08bEne(int a0) {
 void actSt08bEnemy1(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x567) == 0) {
+    while (scpIsTorchLightOn(0x567) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xF4);
@@ -102,7 +102,7 @@ void actSt08bEnemy1(int a0) {
 void actSt08bEnemy2(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x568) == 0) {
+    while (scpIsTorchLightOn(0x568) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xF7);
@@ -111,7 +111,7 @@ void actSt08bEnemy2(int a0) {
 void actSt08bKurenMain(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x569) == 0) {
+    while (scpIsTorchLightOn(0x569) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xF8);
@@ -120,7 +120,7 @@ void actSt08bKurenMain(int a0) {
 void actSt08aGirlYoro(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x51C) == 0) {
+    while (scpIsTorchLightOn(0x51C) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xF5);
@@ -129,7 +129,7 @@ void actSt08aGirlYoro(int a0) {
 void actSt08bDoorEvent(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x51D) == 0) {
+    while (scpIsTorchLightOn(0x51D) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0xF6);

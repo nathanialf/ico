@@ -61,7 +61,7 @@ typedef struct { char pad[4]; float f4; } CCPResult;
 
 extern void ACTWay_SetBeginPositionIllegal();
 extern void SetRootMatrixWithTransOffset();
-extern void GetCylinderCollisionWithExceptOwnCollision();
+extern void SetDirectRootPosition();
 extern int D_006AAB40[];
 extern unsigned char D_006AAB30[];
 extern void WeaponCurPos(int *self, int *other, int a2);
@@ -72,7 +72,7 @@ extern unsigned char D_00633CEC;
 extern long long D_006AAAE8[];
 extern void _ACTWait();
 extern void funcCommonJumpDircorrect();
-extern void HandCameraCorrect();
+extern void _RotyGV();
 extern void BeforeFunc2();
 void findChainInJump(void) {}
 
@@ -93,18 +93,18 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand200);
 
 extern int D_006321DC;
 extern char D_00558230[];
-extern void debug_assertMessage(void *msg);
-extern void iosOmBeforeFuncStandard(void *a0, int a1, int a2);
+extern void debug_StdPrintfDummy(void *msg);
+extern void iosOmSendMail(void *a0, int a1, int a2);
 extern void BoxBarSoundOn(void *a0, int a1);
 
 void hand_heroin(volatile int a0)
 {
     int *m = *(int **)((char *)a0 + 0x164);
 
-    debug_assertMessage(D_00558230);
+    debug_StdPrintfDummy(D_00558230);
     while (1) {
         if (D_00631AE8 != 0) {
-            iosOmBeforeFuncStandard(D_00631AE8, 0x55, D_006321DC);
+            iosOmSendMail(D_00631AE8, 0x55, D_006321DC);
         }
         if (*(int *)((char *)m + 0xD0) & 1) {
             break;
@@ -121,7 +121,7 @@ void hand_heroin(volatile int a0)
     _ACTWait(1);
     while (1) {
         if (D_00631AE8 != 0) {
-            iosOmBeforeFuncStandard(D_00631AE8, 0x56, D_006321DC);
+            iosOmSendMail(D_00631AE8, 0x56, D_006321DC);
         }
         if (*(int *)((char *)m + 0xD0) & 2) {
             break;
@@ -147,14 +147,14 @@ extern int D_00631AF0;
 extern int D_006AAAF0[16];
 extern int ForMotionViewer_GetCurrentAnimationFrame(void *a0, int a1);
 extern int actGirlBecall(void *a0, int a1);
-extern int actSt25aQueenDead(int a0, void *a1, void *a2, float a3, float a4);
-extern float func_0014B358(int a0);
+extern int RequestStageChange(int a0, void *a1, void *a2, float a3, float a4);
+extern float _ACTGame_GetParamF(int a0);
 extern union { long long fl[2]; int ix[16]; } D_006AAAE0u __asm__("D_006AAAE0");
 
 void CheckCollisionAttr(void *a0) {
     void *sub = *(void**)((char*)a0 + 0x15C);
     int i, hit = 0, flag20 = 1;
-    if (func_0014B358(2) < *(float*)((char*)sub + 0x560)) return;
+    if (_ACTGame_GetParamF(2) < *(float*)((char*)sub + 0x560)) return;
     if (*(int*)((char*)*(void**)((char*)a0+0x164) + 0x30) == 0x16) return;
     if (D_00631AF0 != 0) return;
     for (i = 1; i < 0x10; i++) {
@@ -165,8 +165,8 @@ void CheckCollisionAttr(void *a0) {
         if (ACTEnvGetTest()) hit = 1;
         else if (D_00631AE8 != 0) { if (actGirlBecall(D_00631990, i)) hit = 1; }
         if (hit) { D_006AAAE0u.fl[1] |= (1LL<<35);
-                   actSt25aQueenDead(i, D_00631AE4, D_00631AE8, 1.0f, 8.0f); }
-        else       actSt25aQueenDead(i, D_00631AE4, 0,          1.0f, 8.0f);
+                   RequestStageChange(i, D_00631AE4, D_00631AE8, 1.0f, 8.0f); }
+        else       RequestStageChange(i, D_00631AE4, 0,          1.0f, 8.0f);
     }
     if (flag20) D_006AAAF0[0] = 0xFF;
 done: ;
@@ -176,13 +176,13 @@ done: ;
 extern BgaEntry D_00281C10[];
 extern char D_005582C8[];
 extern char D_00632290[];
-extern void func_0014B660(void *a0, void *a1, int a2);
+extern void ActGame_GetOrientQ(void *a0, void *a1, int a2);
 extern void func_001945B8(void *a0, float a1);
-extern void func_001947D0(void *a0, void *a1, void *a2);
+extern void _OrientXZGV(void *a0, void *a1, void *a2);
 extern void func_001AD768(char *file, int line);
-extern void func_00243AD0(void *a0, void *a1, void *a2);
-extern void func_00243B18(void *a0, void *a1, float a2);
-extern void func_00263FF0(char *file, int line, char *msg);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern void __assert(char *file, int line, char *msg);
 extern float stage_SetParentOfGObj(int a0, void *a1, void *a2, float a3);
 
 void BoyBgaManager(void *a0, int a1, int *a2) {
@@ -198,15 +198,15 @@ void BoyBgaManager(void *a0, int a1, int *a2) {
             buf_a[2] = ((float *) subCommonIdle(a0))[2];
         } else {
             void *g = isysGObjSearchFromObjLayoutID(0x2E);
-            func_001947D0(buf_a, ContinueCorrectPosition(g), ContinueCorrectPosition(a0));
+            _OrientXZGV(buf_a, ContinueCorrectPosition(g), ContinueCorrectPosition(a0));
         }
-        func_00243B18(buf_a, buf_a, e->f10);
-        func_0014B660(e->f30, buf_a, 0);
-        func_00243B18(buf_b, subCommonIdle(a0), e->f8);
-        func_00243AD0(e->f20, ContinueCorrectPosition(a0), buf_b);
-        func_00243B18(buf_b, subCommonIdle(a0), e->f4);
+        sceVu0ScaleVector(buf_a, buf_a, e->f10);
+        ActGame_GetOrientQ(e->f30, buf_a, 0);
+        sceVu0ScaleVector(buf_b, subCommonIdle(a0), e->f8);
+        sceVu0AddVector(e->f20, ContinueCorrectPosition(a0), buf_b);
+        sceVu0ScaleVector(buf_b, subCommonIdle(a0), e->f4);
         func_001945B8(buf_b, 1.5707964f);
-        func_00243AD0(e->f20, e->f20, buf_b);
+        sceVu0AddVector(e->f20, e->f20, buf_b);
         e->f24 = e->f24 + (float) e->fD;
     }
     i = 0;
@@ -224,7 +224,7 @@ void BoyBgaManager(void *a0, int a1, int *a2) {
     }
     found = 0;
     func_001AD768(D_005582C8, 0x607);
-    func_00263FF0(D_005582C8, 0x607, D_00632290);
+    __assert(D_005582C8, 0x607, D_00632290);
 have_found:
     if (*a2 >= 0) {
         if (found->fC != 0) {
@@ -242,7 +242,7 @@ have_found:
 }
 
 extern void BoySekikaTexScroll(void *a0, int a1);
-extern void CylinderCollision(void *a0, void *a1);
+extern void SetDirectRootPositionNoFitting(void *a0, void *a1);
 extern unsigned char D_00633CEE;
 extern unsigned char D_00633CEF;
 extern unsigned char D_00633CF0;
@@ -251,8 +251,8 @@ extern int func_0017B230(int a0);
 extern void func_0017B288(int a0);
 extern void func_0017B528(void *a0);
 extern void func_0017B568(void *a0);
-extern void func_00243AD0(void *a0, void *a1, void *a2);
-extern void func_00243B18(void *a0, void *a1, float a2);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern int staffRollScroll(void *a0, int a1, int a2, int *p, int *q, int *r);
 
 void E3_StageStartBoy(void *a0) {
@@ -260,9 +260,9 @@ void E3_StageStartBoy(void *a0) {
     int w10, w14, w18;
 
     if (D_00633CEE) {
-        func_00243B18(buf, subCommonIdle(a0), 100.0f);
-        func_00243AD0(buf, buf, ContinueCorrectPosition(a0));
-        CylinderCollision(a0, buf);
+        sceVu0ScaleVector(buf, subCommonIdle(a0), 100.0f);
+        sceVu0AddVector(buf, buf, ContinueCorrectPosition(a0));
+        SetDirectRootPositionNoFitting(a0, buf);
     }
     if (func_0017B230(0x15C)) {
         func_0017B288(0x15C);
@@ -373,11 +373,11 @@ ASM_LIT4_SLOT(D_00630BF4, 40000.0f);
 
 extern int ACTEnvGetTest(void);
 extern void ActOrientTest(void *out, void *src, int mode);
-extern float ClearHandCameraCorrect(CCPResult *a, CCPResult *b);
-extern int func_00263FB0(float);
-extern int func_00262BE8(int, double);
-extern int func_00262B80(double, int);
-extern float func_002633B8(int);
+extern float _DistGV(CCPResult *a, CCPResult *b);
+extern int fptodp(float);
+extern int dpmul(int, double);
+extern int dpsub(double, int);
+extern float dptofp(int);
 extern void func_0014B330(void *a0, int a1, float a2);
 extern int D_00274EC0[];
 
@@ -395,7 +395,7 @@ void func_00151868(int *volatile a0) {
             int cnt;
             ActOrientTest(buf2, D_00631AE4, 2);
             ActOrientTest(buf1, D_00631AE8, 0x12);
-            d = ClearHandCameraCorrect((CCPResult *)buf1, (CCPResult *)buf2);
+            d = _DistGV((CCPResult *)buf1, (CCPResult *)buf2);
             cnt = ((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) * 0x64 / 0x3C;
             if (cnt < *(int *)((char *)s4 + 0x48) && 80.0f < d) {
                 float clamped;
@@ -405,10 +405,10 @@ void func_00151868(int *volatile a0) {
                 if (d < 0.0f) clamped = 0.0f;
                 else if (1.0f < d) clamped = 1.0f;
                 else clamped = d;
-                r1 = func_00263FB0(clamped);
-                r2 = func_00262BE8(r1, 0.2);
-                r3 = func_00262B80(0.9, r2);
-                r4 = func_002633B8(r3);
+                r1 = fptodp(clamped);
+                r2 = dpmul(r1, 0.2);
+                r3 = dpsub(0.9, r2);
+                r4 = dptofp(r3);
                 func_0014B330((void *)a0, 2, r4);
             }
         }
@@ -425,7 +425,7 @@ void func_001519D8(int *volatile a0) {
             int cnt;
             ActOrientTest(buf2, D_00631AE4, 2);
             ActOrientTest(buf1, D_00631AE8, 0x12);
-            d = ClearHandCameraCorrect((CCPResult *)buf1, (CCPResult *)buf2);
+            d = _DistGV((CCPResult *)buf1, (CCPResult *)buf2);
             cnt = ((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) * 0x64 / 0x3C;
             if (cnt < *(int *)((char *)s4 + 0x48) && 90.0f < d) {
                 float clamped;
@@ -435,10 +435,10 @@ void func_001519D8(int *volatile a0) {
                 if (d < 0.0f) clamped = 0.0f;
                 else if (1.0f < d) clamped = 1.0f;
                 else clamped = d;
-                r1 = func_00263FB0(clamped);
-                r2 = func_00262BE8(r1, 0.2);
-                r3 = func_00262B80(0.7, r2);
-                r4 = func_002633B8(r3);
+                r1 = fptodp(clamped);
+                r2 = dpmul(r1, 0.2);
+                r3 = dpsub(0.7, r2);
+                r4 = dptofp(r3);
                 func_0014B330((void *)a0, 2, r4);
             }
         }
@@ -466,7 +466,7 @@ void func_00151D78(int *volatile a0) {
         buf20[0] = ((float *)ContinueCorrectPosition(a0))[0];
         buf20[1] = ((float *)ContinueCorrectPosition(a0))[1];
         buf20[2] = ((float *)ContinueCorrectPosition(a0))[2];
-        func_001947D0(buf30, buf10, buf20);
+        _OrientXZGV(buf30, buf10, buf20);
         if (first) {
             dispPlane(a0, buf30);
             first = 0;
@@ -497,9 +497,9 @@ void func_00152508(int *arg){
     void *obj=*(void**)((char*)(*(int * volatile *)&arg)+0x164);
     float lo,hi;
     switch (state) {
-    case 0x64: if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5C; break;
-    case 0xC8: if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5D; break;
-    case 0x12C:if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5E; break;
+    case 0x64: if (D_00631AE8) iosOmSendMail(D_00631AE8,0x4D,D_006321DC); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5C; break;
+    case 0xC8: if (D_00631AE8) iosOmSendMail(D_00631AE8,0x4D,D_006321DC); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5D; break;
+    case 0x12C:if (D_00631AE8) iosOmSendMail(D_00631AE8,0x4D,D_006321DC); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5E; break;
     }
     lo=0.99f;hi=0.1f;
     while (1) {
@@ -532,11 +532,11 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00153318);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyWalk);
 
-void actBoyRun(int a0)
+void CorrectStickInfo(int a0)
 {
     int buf[4];
     BeforeFunc2(buf);
-    HandCameraCorrect(buf, a0);
+    _RotyGV(buf, a0);
 
 }
 
@@ -576,8 +576,8 @@ void actBoyTakeWeapon(volatile unsigned int a0)
 }
 
 extern int D_006321DC;
-extern void iosOmBeforeFuncStandard(void *a0, int a1, int a2);
-extern void debug_assertMessage(void *a0);
+extern void iosOmSendMail(void *a0, int a1, int a2);
+extern void debug_StdPrintfDummy(void *a0);
 extern void BoxBarSoundOn(void *a0, int a1);
 extern void *subCommonIdle(void *a0);
 extern CCPResult *ContinueCorrectPosition(void *a0);
@@ -585,7 +585,7 @@ extern char D_00558640[];
 
 void pullup_check_heroin_position(int *volatile a0) {
     int *obj = *(int **)((char *)a0 + 0x164);
-    debug_assertMessage(D_00558640);
+    debug_StdPrintfDummy(D_00558640);
     *(int *)((char *)obj + 0x30) = 5;
     while (1) {
         _ACTWait(1);
@@ -596,11 +596,11 @@ extern char D_00558688[];
 
 void func_00153A30(volatile int a0) {
     int *obj = *(int **)((char *)a0 + 0x164);
-    debug_assertMessage(D_00558688);
+    debug_StdPrintfDummy(D_00558688);
     *(int *)((char *)obj + 0x30) = 9;
     _ACTWait(2);
     if (D_00631AE8 != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3D, D_006321DC);
+        iosOmSendMail(D_00631AE8, 0x3D, D_006321DC);
     }
     while (1) {
         if (!(*(int *)((char *)obj + 0x2D0) & 8)) {
@@ -621,9 +621,9 @@ extern char D_005586A0[];
 
 void func_00153AD8(volatile int a0) {
     float buf[4];
-    debug_assertMessage(D_005586A0);
+    debug_StdPrintfDummy(D_005586A0);
     while (1) {
-        func_00243B18(buf, subCommonIdle((void *)a0), 15.0f);
+        sceVu0ScaleVector(buf, subCommonIdle((void *)a0), 15.0f);
         BoxBarSoundOn((void *)a0, 0xB7);
         _ACTWait(1);
     }
@@ -641,7 +641,7 @@ void func_00153B38(volatile int a0) {
         if (D_00631AE8 != 0) {
             brainInitGirlSet();
             if (D_00631AE8 != 0) {
-                iosOmBeforeFuncStandard(D_00631AE8, 0x3A, D_006321DC);
+                iosOmSendMail(D_00631AE8, 0x3A, D_006321DC);
             }
         }
         BoxBarSoundOn((void *)a0, 0x117);
@@ -692,7 +692,7 @@ extern void *D_00633CF8;
 
 void func_00153DA0(volatile int a0) {
     void *obj = (char *)*(void **)((char *)a0 + 0x15C) + 0x130;
-    func_00243B18(obj, subCommonIdle(D_00633CF8), 30.0f);
+    sceVu0ScaleVector(obj, subCommonIdle(D_00633CF8), 30.0f);
     while (1) {
         BoxBarSoundOn((void *)a0, 0x127);
         _ACTWait(1);
@@ -709,7 +709,7 @@ void func_00153DF8(volatile int a0) {
 void func_00153E28(volatile int a0) {
     while (1) {
         if (D_00631AE8 != 0) {
-            iosOmBeforeFuncStandard(D_00631AE8, 0x161, D_006321DC);
+            iosOmSendMail(D_00631AE8, 0x161, D_006321DC);
         }
         BoxBarSoundOn((void *)a0, 0x15F);
         _ACTWait(1);
@@ -738,7 +738,7 @@ void func_00153E68(volatile int a0) {
 void func_00153EC8(volatile int a0) {
     while (1) {
         if (D_00631AE8 != 0) {
-            iosOmBeforeFuncStandard(D_00631AE8, 0x163, D_006321DC);
+            iosOmSendMail(D_00631AE8, 0x163, D_006321DC);
         }
         BoxBarSoundOn((void *)a0, 0xB7);
         _ACTWait(1);
@@ -768,7 +768,7 @@ void func_00153F68(volatile int a0) {
             (*(int *)((char *)obj + 0x2D0) & 0x10)) {
             BoxBarSoundOn((void *)a0, 0x174);
             if (D_00631AE8 != 0) {
-                iosOmBeforeFuncStandard(D_00631AE8, 0x177, D_006321DC);
+                iosOmSendMail(D_00631AE8, 0x177, D_006321DC);
             }
         }
         _ACTWait(1);
@@ -785,19 +785,19 @@ unsigned char func_00153FE8(void)
 extern void BoxBarSoundOn(void *a0, int a1);
 extern char D_00558200[];
 extern char D_00558218[];
-extern void debug_assertMessage(void *msg);
+extern void debug_StdPrintfDummy(void *msg);
 extern void func_00154070();
 
 void ditch_check_heroin_position(int *volatile a0) {
     int *obj = *(int **)((char *)a0 + 0x164);
-    debug_assertMessage(D_00558200);
+    debug_StdPrintfDummy(D_00558200);
     *(int *)((char *)obj + 0x30) = 0x4F;
     *(void **)((char *)obj + 0x14) = (void *)func_00154070;
     *(int *)((char *)obj + 0xD0) = 0;
     do {
         _ACTWait(1);
     } while ((*(int *)((char *)obj + 0xD0) & 0x10) == 0);
-    debug_assertMessage(D_00558218);
+    debug_StdPrintfDummy(D_00558218);
     while (1) {
         BoxBarSoundOn(a0, 0x59);
         _ACTWait(1);
@@ -806,12 +806,12 @@ void ditch_check_heroin_position(int *volatile a0) {
 
 extern char D_005581F0[];
 extern int D_006321DC;
-extern void iosOmBeforeFuncStandard(void *a0, int a1, int a2);
+extern void iosOmSendMail(void *a0, int a1, int a2);
 
 void func_00154070(volatile int a0) {
-    debug_assertMessage(D_005581F0);
+    debug_StdPrintfDummy(D_005581F0);
     if (D_00631AE8 != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x59, D_006321DC);
+        iosOmSendMail(D_00631AE8, 0x59, D_006321DC);
     }
 }
 
@@ -821,14 +821,14 @@ extern void func_00154128();
 
 void actBoyPullupReady(int *volatile a0) {
     int *obj = *(int **)((char *)a0 + 0x164);
-    debug_assertMessage(D_00558248);
+    debug_StdPrintfDummy(D_00558248);
     *(int *)((char *)obj + 0x30) = 0x50;
     *(void **)((char *)obj + 0x14) = (void *)func_00154128;
     *(int *)((char *)obj + 0xD0) = 0;
     do {
         _ACTWait(1);
     } while ((*(int *)((char *)obj + 0xD0) & 0x10) == 0);
-    debug_assertMessage(D_00558260);
+    debug_StdPrintfDummy(D_00558260);
     while (1) {
         BoxBarSoundOn(a0, 0x5E);
         _ACTWait(1);
@@ -836,9 +836,9 @@ void actBoyPullupReady(int *volatile a0) {
 }
 
 void func_00154128(volatile int a0) {
-    debug_assertMessage(D_005581F0);
+    debug_StdPrintfDummy(D_005581F0);
     if (D_00631AE8 != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x5E, D_006321DC);
+        iosOmSendMail(D_00631AE8, 0x5E, D_006321DC);
     }
 }
 
@@ -847,14 +847,14 @@ extern void func_001541E0();
 
 void actBoyPullupGo(int *volatile a0) {
     int *obj = *(int **)((char *)a0 + 0x164);
-    debug_assertMessage(D_00558298);
+    debug_StdPrintfDummy(D_00558298);
     *(int *)((char *)obj + 0x30) = 0x51;
     *(void **)((char *)obj + 0x14) = (void *)func_001541E0;
     *(int *)((char *)obj + 0xD0) = 0;
     do {
         _ACTWait(1);
     } while ((*(int *)((char *)obj + 0xD0) & 0x10) == 0);
-    debug_assertMessage(D_00558260);
+    debug_StdPrintfDummy(D_00558260);
     while (1) {
         BoxBarSoundOn(a0, 0x63);
         _ACTWait(1);
@@ -862,16 +862,16 @@ void actBoyPullupGo(int *volatile a0) {
 }
 
 void func_001541E0(volatile int a0) {
-    debug_assertMessage(D_005581F0);
+    debug_StdPrintfDummy(D_005581F0);
     if (D_00631AE8 != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x63, D_006321DC);
+        iosOmSendMail(D_00631AE8, 0x63, D_006321DC);
     }
 }
 
-extern float ClearHandCameraCorrect(CCPResult *a, CCPResult *b);
+extern float _DistGV(CCPResult *a, CCPResult *b);
 extern CCPResult *ContinueCorrectPosition(void *a0);
-extern void func_00243AE8(void *, CCPResult *, CCPResult *);
-extern void *isysGObjSearchFromObjKindID_begin(void *);
+extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
+extern void *isysGObjSearchFromObjKindID_next(void *);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 extern void *subCommonIdle(void *a0);
 
@@ -888,16 +888,16 @@ void actBoyBelift(void *a0, int *out_id, float *out_vec) {
         do {
             if (*(int *)((char *)node + 0x16C) != 0) {
                 CCPResult *r1 = ContinueCorrectPosition(a0);
-                if (ClearHandCameraCorrect(r1, ContinueCorrectPosition(node)) < thresh) {
+                if (_DistGV(r1, ContinueCorrectPosition(node)) < thresh) {
                     int sign;
                     int dist;
                     CCPResult *r4 = ContinueCorrectPosition(node);
-                    func_00243AE8(buf, r4, ContinueCorrectPosition(a0));
-                    sign = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    sceVu0SubVector(buf, r4, ContinueCorrectPosition(a0));
+                    sign = ((int (*)(void *, void *))_RotyGV)(buf, subCommonIdle(a0));
                     if (sign < 0) {
-                        dist = -((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                        dist = -((int (*)(void *, void *))_RotyGV)(buf, subCommonIdle(a0));
                     } else {
-                        dist = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                        dist = ((int (*)(void *, void *))_RotyGV)(buf, subCommonIdle(a0));
                     }
                     if (dist < best) {
                         best = dist;
@@ -908,17 +908,17 @@ void actBoyBelift(void *a0, int *out_id, float *out_vec) {
                     }
                 }
             }
-            node = isysGObjSearchFromObjKindID_begin(node);
+            node = isysGObjSearchFromObjKindID_next(node);
         } while (node != 0);
     }
 }
 
-extern void CylinderCollision(void *a0, void *a1);
+extern void SetDirectRootPositionNoFitting(void *a0, void *a1);
 extern void *D_00631990;
 extern int D_006AAB48[];
 extern void ExecWeaponHitReaction(void *a0);
-extern int func_001AE420(int a0, int a1, int a2, void *a3);
-extern void func_002641D8(void *a0, int a1, int a2);
+extern int gamesysObjInfoPosSetStage(int a0, int a1, int a2, void *a3);
+extern void memset(void *a0, int a1, int a2);
 
 void actBoyRescueReady(void) {
     union { float f[4]; int i[4]; } buf;
@@ -927,10 +927,10 @@ void actBoyRescueReady(void) {
     s16 = *(int **)((char *)D_00631AE4 + 0x164);
     if (*(int *)((char *)s16 + 0x140) != 0) {
         ExecWeaponHitReaction(*(void **)((char *)s16 + 0x140));
-        func_002641D8(&buf, 0, 0x10);
+        memset(&buf, 0, 0x10);
         buf.f[0] = 10000000.0f;
-        CylinderCollision((void *)*(int *)((char *)s16 + 0x140), &buf);
-        func_001AE420(*(int *)((char *)s16 + 0x140), 0, 0, D_00631990);
+        SetDirectRootPositionNoFitting((void *)*(int *)((char *)s16 + 0x140), &buf);
+        gamesysObjInfoPosSetStage(*(int *)((char *)s16 + 0x140), 0, 0, D_00631990);
         *(int *)(*(int *)((char *)s16 + 0x140) + 0x16C) = 0;
     }
     D_006AAB48[0] = 0;
@@ -954,7 +954,7 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154448);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154520);
 
-int GetBoyWeaponGObj(void) {
+int IsGirlEscortedInNextStage(void) {
     return (int)((unsigned char)((unsigned long long)D_006AAAE8[0] >> 35)) & 1;
 }
 
@@ -1003,7 +1003,7 @@ void func_00154668(int *self)
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001546C0);
 
-int actBoyCall(void)
+int GetEfStageCameraTargetID(void)
 {
     if (D_006AAB30[0]) {
         return *(int *)(D_006AAB30 + 4);
@@ -1076,7 +1076,7 @@ void actBoyReadyMove(void) {
     *(HB_S8 *)dst->c50 = *(HB_S8 *)(src + 0);
 }
 
-void actBoyBeslam(void *a0, int a1, int a2, int *out_id, float *out_vec, float thresh) {
+void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float thresh) {
     float buf[4];
     void *node;
     int best;
@@ -1088,16 +1088,16 @@ void actBoyBeslam(void *a0, int a1, int a2, int *out_id, float *out_vec, float t
         do {
             if (*(int *)((char *)node + 0x16C) != 0) {
                 CCPResult *r1 = ContinueCorrectPosition(a0);
-                if (ClearHandCameraCorrect(r1, ContinueCorrectPosition(node)) < thresh) {
+                if (_DistGV(r1, ContinueCorrectPosition(node)) < thresh) {
                     int sign;
                     int dist;
                     CCPResult *r4 = ContinueCorrectPosition(node);
-                    func_00243AE8(buf, r4, ContinueCorrectPosition(a0));
-                    sign = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    sceVu0SubVector(buf, r4, ContinueCorrectPosition(a0));
+                    sign = ((int (*)(void *, void *))_RotyGV)(buf, subCommonIdle(a0));
                     if (sign < 0) {
-                        dist = -((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                        dist = -((int (*)(void *, void *))_RotyGV)(buf, subCommonIdle(a0));
                     } else {
-                        dist = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                        dist = ((int (*)(void *, void *))_RotyGV)(buf, subCommonIdle(a0));
                     }
                     if (dist < best) {
                         best = dist;
@@ -1108,7 +1108,7 @@ void actBoyBeslam(void *a0, int a1, int a2, int *out_id, float *out_vec, float t
                     }
                 }
             }
-            node = isysGObjSearchFromObjKindID_begin(node);
+            node = isysGObjSearchFromObjKindID_next(node);
         } while (node != 0);
     }
 }
@@ -1116,12 +1116,12 @@ void actBoyBeslam(void *a0, int a1, int a2, int *out_id, float *out_vec, float t
 extern S12 D_00282660;
 extern char D_006322C0[];
 extern void _ACTGame_SearchGObj(void *a0, int a1, int a2, int a3, void *a4, int a5, int a6);
-extern void debug_assertMessage(void *msg);
+extern void debug_StdPrintfDummy(void *msg);
 
-void actBoyRescueSrc(volatile int a0) {
+void afterBoySwim(volatile int a0) {
     _ACTGame_SearchGObj((void *)a0, 0, 3, 0, 0, 0, 0);
     *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = D_00282660;
-    debug_assertMessage(D_006322C0);
+    debug_StdPrintfDummy(D_006322C0);
 }
 
 void actBoySupportGBBegin(int a0) {
@@ -1146,7 +1146,7 @@ void func_00154BC0(int *volatile a0) {
     if (s1 != s0) {
         if (s0 == 0) {
             func_001AD768(D_005582C8, 0xAC5);
-            func_00263FF0(D_005582C8, 0xAC5, D_006322B0);
+            __assert(D_005582C8, 0xAC5, D_006322B0);
         } else {
             int w;
             WeaponCurPos((int *)s0, p, 0x16);
@@ -1156,8 +1156,8 @@ void func_00154BC0(int *volatile a0) {
             if (s1 != 0) {
                 ExecWeaponHitReaction((void *)s1);
                 InitSwapWeapon();
-                func_001AE420(s1, 0, 0, D_00631990);
-                ((void (*)(char *, int, int))debug_assertMessage)(D_005584E8, *(int *)((char *)s1 + 0x8), *(int *)((char *)s0 + 0x8));
+                gamesysObjInfoPosSetStage(s1, 0, 0, D_00631990);
+                ((void (*)(char *, int, int))debug_StdPrintfDummy)(D_005584E8, *(int *)((char *)s1 + 0x8), *(int *)((char *)s0 + 0x8));
             }
         }
     }
@@ -1190,22 +1190,22 @@ void func_00154CE8(int *a0, int *a1)
     }
 }
 
-extern void GetRootMatrixByDObj(void *dest, void *dobj);
-extern float HandyCamera_TargetMoveType(void *a0, void *a1);
+extern void GetRootPosition(void *dest, void *dobj);
+extern float _DistSqGV(void *a0, void *a1);
 
 void actBoySupportBGBegin(float *out) {
     void *o = D_00631AE4;
     float buf[4];
     char *s16 = *(char **)((char *)o + 0x164);
     char *p;
-    GetRootMatrixByDObj(buf, o);
+    GetRootPosition(buf, o);
     p = s16 + 0x100;
-    if (HandyCamera_TargetMoveType(buf, p) < 40000.0f) {
+    if (_DistSqGV(buf, p) < 40000.0f) {
         out[0] = *(float *)(s16 + 0x100);
         out[1] = *(float *)(s16 + 0x104);
         out[2] = *(float *)(s16 + 0x108);
     } else {
-        GetRootMatrixByDObj(p, o);
+        GetRootPosition(p, o);
         out[0] = buf[0];
         out[1] = buf[1];
         out[2] = buf[2];
@@ -1221,7 +1221,7 @@ void actBoyDitch3mExec(void) {
 
 void actBoyHangG3M(int a0, int a1, int a2, int a3)
 {
-    GetCylinderCollisionWithExceptOwnCollision(a0, a1, a2, a3);
+    SetDirectRootPosition(a0, a1, a2, a3);
 }
 
 void IsAbleBoyControl(int a0, int a1, int a2, int a3)

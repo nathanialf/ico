@@ -18,6 +18,6 @@ void func_0016A5F0(int *a0, int *a1)
     {
         register int base =
             *(int *)(*(int *)((char *)a1 + 0x15C) + 0xC);
-        func_002438B8(a0, base + (idx << 6), (char *)a0);
+        sceVu0ApplyMatrix(a0, base + (idx << 6), (char *)a0);
     }
 }

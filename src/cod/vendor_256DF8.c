@@ -6,11 +6,11 @@
 #include "math_private.h"
 #include "math_private.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_256DF8", func_00256DF8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_256DF8", _quantMatrixExtension);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_256DF8", func_00256EA8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_256DF8", _pictureDisplayExtension);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_256DF8", func_00256F98);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_256DF8", _copyrightExtension);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_256DF8", func_00257048);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_256DF8", _decPicture);
 

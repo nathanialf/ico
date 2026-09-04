@@ -6,32 +6,32 @@
 #include "math_private.h"
 #include "math_private.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2564E0", func_002564E0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2564E0", _nextBit);
 
-extern void func_00255F80(void);
+extern void _waitIpuIdle(void);
 
-void func_00256648(void) {
+void _nextStartCode(void) {
     int v;
-    func_00255F80();
+    _waitIpuIdle();
     v = (-(*(volatile int *)0x10002020 & 7)) & 7;
-    if (v) func_002563C8(v);
-    while (func_00256290(0x18) != 1) {
-        func_002563C8(8);
+    if (v) _flushBuf(v);
+    while (_peepBit(0x18) != 1) {
+        _flushBuf(8);
     }
 }
 
 extern int D_00552700[];
 extern int D_00552D80[];
-extern void func_00256BF8(void);
+extern void _extrainfo(void);
 
-int func_002566B0(void) {
+int _sliceB(void) {
     int *p = D_00552700;
-    *p = func_002564E0(5);
-    if (func_002564E0(1)) {
+    *p = _nextBit(5);
+    if (_nextBit(1)) {
         int *q = D_00552D80;
-        *q = func_002564E0(1);
-        func_002563C8(7);
-        func_00256BF8();
+        *q = _nextBit(1);
+        _flushBuf(7);
+        _extrainfo();
     } else {
         D_00552D80[0] = 0;
     }
@@ -42,29 +42,29 @@ extern void *D_005524A4[];
 extern int D_0055263C[];
 extern long long D_00552D48[];
 extern long long D_00552D50[];
-extern void *func_00251CF8(void *a0, void *a1);
-extern void func_002526E0(void);
-extern void func_00256848(void);
-extern void func_00256D10(void);
+extern void *_dispatchMpegCallback(void *a0, void *a1);
+extern void _sequenceHeader(void);
+extern void _pictureHeader(void);
+extern void _groupOfPicturesHeader(void);
 
-int func_00256720(void) {
+int _nextHeader(void) {
     struct { int f0; long long f8; long long f10; } local;
 
     while (1) {
-        func_00256648();
-        switch ((unsigned int) func_002564E0(0x20)) {
+        _nextStartCode();
+        switch ((unsigned int) _nextBit(0x20)) {
         case 0x1B3:
-            func_002526E0();
+            _sequenceHeader();
             break;
         case 0x1B8:
-            func_00256D10();
+            _groupOfPicturesHeader();
             break;
         case 0x100:
-            func_00256848();
+            _pictureHeader();
             local.f0 = 5;
             local.f8 = -1;
             local.f10 = -1;
-            func_00251CF8(D_005524A4[0], &local);
+            _dispatchMpegCallback(D_005524A4[0], &local);
             D_00552D48[0] = local.f8;
             D_00552D50[0] = local.f10;
             return D_0055263C[0];
@@ -74,9 +74,9 @@ int func_00256720(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2564E0", func_00256848);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2564E0", _pictureHeader);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2564E0", func_00256918);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2564E0", _extensionAndUserData);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2564E0", func_002569C8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2564E0", _pictureCodingExtension);
 

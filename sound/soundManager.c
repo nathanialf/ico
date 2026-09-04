@@ -8,16 +8,16 @@
 
 
 extern void ActPara_GetDefTbl(char *self, int bit);
-extern int setParticleEffect();
+extern int DispMultiBgaManagerWithKind();
 extern void ACTLookTargetSystem_Exec(void);
 extern const char D_00557ED0[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void _ACTGame_SearchGObj();
 extern int *D_00631AE4;
 extern void *D_00631AE8;
-extern void ExecIcoMisc();
+extern void gamesysObjInfoCls();
 extern unsigned char D_005F2FB8[];
-extern void soundAllocIopFree(int a0);
+extern void soundReverbDepthSet(int a0);
 extern void soundSeEnvDefaultSet(int idx);
 extern void AdpcmFadeCloseAll(int val);
 extern void soundVBlank(int arg);
@@ -37,7 +37,7 @@ int sndInit(void)
     int i = 0x2F;
     do {
         if (*(int *)(e + 0x30) != 0) {
-            debug_assertMessage((int)D_00557E78, *(short *)(e + 0x10),
+            debug_StdPrintfDummy((int)D_00557E78, *(short *)(e + 0x10),
                           (unsigned int)(*(int *)(e + 0x38) - (int)D_005D49E0) / sz);
         }
         e += 0x40;
@@ -61,7 +61,7 @@ void func_001447E0(int idx)
     soundSeEnvDefaultSet(idx);
     AdpcmFadeCloseAll(0);
     new_var = 0x18C;
-    soundAllocIopFree(*((unsigned short *) ((((char *) D_005F2FB8) + (idx * 0x194)) + new_var)));
+    soundReverbDepthSet(*((unsigned short *) ((((char *) D_005F2FB8) + (idx * 0x194)) + new_var)));
 }
 
 /* soundManager .rodata run 0x557E78..0x558150 -- byte-verified against
@@ -77,12 +77,12 @@ const char D_00557F00[0x10] = "src/act-game.c";
 
 INCLUDE_ASM("asm/nonmatchings/sound/soundManager", func_001448D8);
 
-void func_00144928(int a0)
+void ACTGame_DeleteActorInformation(int a0)
 {
-    ExecIcoMisc(*(int *)(a0 + 0xC), *(int *)(a0 + 0x8));
+    gamesysObjInfoCls(*(int *)(a0 + 0xC), *(int *)(a0 + 0x8));
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/soundManager", func_00144938);
+INCLUDE_ASM("asm/nonmatchings/sound/soundManager", EXITDATA_GetNextPosition);
 
 INCLUDE_ASM("asm/nonmatchings/sound/soundManager", func_00144A08);
 
@@ -101,10 +101,10 @@ void func_00144E10(void)
 void func_00144E30(void)
 {
     ACTLookTargetSystem_Exec();
-    debug_assertMessage(D_00557ED0);
+    debug_StdPrintfDummy(D_00557ED0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/soundManager", func_00144E58);
+INCLUDE_ASM("asm/nonmatchings/sound/soundManager", ACTCheckView);
 
 INCLUDE_ASM("asm/nonmatchings/sound/soundManager", func_00145048);
 
@@ -116,7 +116,7 @@ void func_00145300(int *a0)
     if (a1 == 0) {
         return;
     }
-    return setParticleEffect(0x1B1, a1, 1);
+    return DispMultiBgaManagerWithKind(0x1B1, a1, 1);
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/soundManager", func_00145328);

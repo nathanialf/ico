@@ -16,9 +16,9 @@ const char D_005575E0[16] = "DISCONNECT";
 extern int D_006A6990[];
 extern void func_001A6E28(const char *fmt, ...);
 extern void func_001AD768(const char *file, int line);
-extern void func_00263FF0(const char *file, int line, const char *expr);
-extern int func_00100530(int x);
-extern int func_00100540();
+extern void __assert(const char *file, int line, const char *expr);
+extern int DeleteSema(int x);
+extern int SignalSema();
 extern const char D_006320F0[];
 extern const char D_006320E8[];
 
@@ -35,11 +35,11 @@ void func_0013A220(int *a0)
     new_a0 = v1[0x2C / 4];
     v1[0x10 / 4] = v0;
     a1[0x44 / 4] = 0;
-    return func_00100540(new_a0, a1);
+    return SignalSema(new_a0, a1);
 }
 
 INCLUDE_ASM_NOP_PAD(func_0013A248);
-extern int func_00100520(int *p);
+extern int CreateSema(int *p);
 
 void func_0013A250(int *self, int a1, int a2)
 {
@@ -51,12 +51,12 @@ void func_0013A250(int *self, int a1, int a2)
     self[0x0 / 4] = a1;
     self[0x18 / 4] = (self[0xC / 4] = a2);
     self[0x24 / 4] = 1;
-    ret = func_00100520((int *)((char *) self + 0x14));
+    ret = CreateSema((int *)((char *) self + 0x14));
     self[0x2C / 4] = ret;
     if (ret < 0)
     {
         func_001AD768(D_00557540, 0x78);
-        func_00263FF0(D_00557540, 0x78, D_006320E8);
+        __assert(D_00557540, 0x78, D_006320E8);
     }
     {
         int idx = self[0x2C / 4];
@@ -72,11 +72,11 @@ void func_0013A2F8(int *self)
     idx = self[0x2C / 4];
     if (idx < 0) {
         func_001AD768(D_00557540, 0x88);
-        func_00263FF0(D_00557540, 0x88, D_006320E8);
+        __assert(D_00557540, 0x88, D_006320E8);
         idx = self[0x2C / 4];
     }
     D_006A6990[idx] = 0;
-    func_00100530(idx);
+    DeleteSema(idx);
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A380);
@@ -125,8 +125,8 @@ void func_0013A580(void)
 }
 
 INCLUDE_ASM_NOP_PAD(func_0013A5B4);
-extern void func_00100590(int a0, int *buf);
-extern void func_00100560(int a0);
+extern void ReferSemaStatus(int a0, int *buf);
+extern void WaitSema(int a0);
 
 int func_0013A5B8(int *self, int a1, int a2)
 {
@@ -135,9 +135,9 @@ int func_0013A5B8(int *self, int a1, int a2)
     {
         func_001A6E28(D_00557560);
         func_001AD768(D_00557540, 0x125);
-        func_00263FF0(D_00557540, 0x125, D_006320E8);
+        __assert(D_00557540, 0x125, D_006320E8);
     }
-    func_00100590(self[0x2C / 4], buf);
+    ReferSemaStatus(self[0x2C / 4], buf);
     if (self[0x8 / 4] == buf[0x4 / 4])
     {
         if (a2 != 1)
@@ -145,13 +145,13 @@ int func_0013A5B8(int *self, int a1, int a2)
             func_001A6E28(D_00557578);
             return -1;
         }
-        func_00100560(self[0x2C / 4]);
+        WaitSema(self[0x2C / 4]);
     }
     ((int *) self[0])[(self[0x4 / 4] + self[0x8 / 4]) % buf[0x4 / 4]] = a1;
     self[0x8 / 4] += 1;
     if (buf[0xC / 4] > 0)
     {
-        func_00100540(self[0x2C / 4]);
+        SignalSema(self[0x2C / 4]);
     }
     return 0;
 }
@@ -163,9 +163,9 @@ int func_0013A6C0(int *self, int *out, int a2)
     {
         func_001A6E28(D_00557560);
         func_001AD768(D_00557540, 0x149);
-        func_00263FF0(D_00557540, 0x149, D_006320E8);
+        __assert(D_00557540, 0x149, D_006320E8);
     }
-    func_00100590(self[0x2C / 4], buf);
+    ReferSemaStatus(self[0x2C / 4], buf);
     {
         register int cnt REG("$3") = self[0x8 / 4];
         if (cnt == 0)
@@ -174,7 +174,7 @@ int func_0013A6C0(int *self, int *out, int a2)
             {
                 return -1;
             }
-            func_00100560(self[0x2C / 4]);
+            WaitSema(self[0x2C / 4]);
         }
     }
     *out = ((int *) self[0])[self[0x4 / 4]];
@@ -185,7 +185,7 @@ int func_0013A6C0(int *self, int *out, int a2)
     {
         if (buf[0xC / 4] > 0)
         {
-            func_00100540(self[0x2C / 4]);
+            SignalSema(self[0x2C / 4]);
         }
     }
     return 0;

@@ -8,9 +8,9 @@ typedef struct GObj__p4 {
 
 
 extern void stage_KillPlayBgAnimation();
-extern void AddWayPointTop();
+extern void SetWayGroupActive();
 extern int func_0017B230(int a0);
-extern void AdpcmClose(int a0);
+extern void AdpcmPlay(int a0);
 extern int D_00275250[];
 extern int D_0061B7F0[];
 extern int D_00631AE4;
@@ -19,10 +19,10 @@ extern void _ACTWait(int a0);
 extern void actCreateSubThread(void *fn, int a1);
 extern void actDejaDemo(volatile int a0);
 extern int actInitialize(int a0);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
-extern int actSt25aQueenDeadEvent(void);
-extern void debug_assertMessage(int *a0);
+extern void scpFadeOut(int a0, int a1, int a2, float f);
+extern void RequestStageChange(int a0, int a1, int a2, float f12, float f13);
+extern int scpFadeChk(void);
+extern void debug_StdPrintfDummy(int *a0);
 extern int func_0017B258(int a0);
 
 void actDejaChk(volatile int a0) {
@@ -34,13 +34,13 @@ void actDejaChk(volatile int a0) {
         _ACTWait(1);
     }
     func_0017B258(0x145);
-    debug_assertMessage(D_0061B7F0);
-    AdpcmClose(*(int *)(D_006338EC + 0x2C));
-    actSt25aQueenBeforeChk(0, 0, 0, 4.0f);
-    while (actSt25aQueenDeadEvent() != 0) {
+    debug_StdPrintfDummy(D_0061B7F0);
+    AdpcmPlay(*(int *)(D_006338EC + 0x2C));
+    scpFadeOut(0, 0, 0, 4.0f);
+    while (scpFadeChk() != 0) {
         _ACTWait(1);
     }
-    actSt25aQueenDead(1, D_00631AE4, 0, 255.0f, 16.0f);
+    RequestStageChange(1, D_00631AE4, 0, 255.0f, 16.0f);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/deja", actDejaDemo);
@@ -67,7 +67,7 @@ void actDejaAfterChk(volatile int a0) {
         if (D_00631AE4 != 0) {
             gflagOff(D_00631AE4, 0);
         }
-        actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+        scpFadeOut(0, 0, 0, 255.0f);
         lt_fade_status(0x33);
         stage_KillPlayBgAnimation(0x1F, 0, 0);
         stage_KillPlayBgAnimation(0x19, 0, -1);
@@ -92,18 +92,18 @@ void actDejaAfterChk(volatile int a0) {
 extern int D_006338F0;
 extern int D_00633F90;
 extern int D_00633F94;
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void actE3CageFall(volatile int a0);
-extern void iosSemaWait(int a0, int a1);
+extern void iosThreadSetPri(int a0, int a1);
 extern void soundSeVolSet(int a0);
 
 void actDeja(volatile int a0) {
     while (D_00633F94 == 0 || (D_00275250[1] & 0x800) == 0) {
         _ACTWait(1);
     }
-    iosSemaWait(D_00633F90 + 0x24, 0x22);
-    actSt25aQueenBeforeChk(0, 0, 0, 8.0f);
-    while (actSt25aQueenDeadEvent() != 0) {
+    iosThreadSetPri(D_00633F90 + 0x24, 0x22);
+    scpFadeOut(0, 0, 0, 8.0f);
+    while (scpFadeChk() != 0) {
         _ACTWait(1);
     }
     soundSeVolSet(D_006338F0);
@@ -118,7 +118,7 @@ void actDeja(volatile int a0) {
     stage_KillPlayBgAnimation(0x216, -1, -2);
     stage_KillPlayBgAnimation(0x217, -1, -2);
     stage_KillPlayBgAnimation(0x229, 1, 0);
-    actConte11Jimaku(6.0f);
+    scpFadeIn(6.0f);
     actCreateSubThread(actE3CageFall, 0x15);
 }
 
@@ -126,9 +126,9 @@ INCLUDE_ASM("asm/nonmatchings/src/deja", actEnemySleep);
 
 void func_00208740(void)
 {
-    AddWayPointTop(7, 0);
+    SetWayGroupActive(7, 0);
     if (func_0017B230(0x148) != 0) {
-        AddWayPointTop(9, 0);
+        SetWayGroupActive(9, 0);
     }
 }
 

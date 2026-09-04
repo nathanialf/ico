@@ -13,10 +13,10 @@ typedef struct DLN {
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", isysGObjProcessInit);
 
 extern int D_00281AD0[];
-extern void isysGObjMoveObjDLHead(int *self);
+extern void cut_gobj_dl_link(int *self);
 
 void isysGObjProcAdd_(DLN *self, DLN *obj) {
-    isysGObjMoveObjDLHead((int *)self);
+    cut_gobj_dl_link((int *)self);
     self->id = obj->id;
     self->prev = obj;
     self->next = obj->next;
@@ -30,7 +30,7 @@ void isysGObjProcAdd_(DLN *self, DLN *obj) {
 extern int D_00281AB0[];
 
 void cut_gobj_process_link(DLN *self, DLN *obj) {
-    isysGObjMoveObjDLHead((int *)self);
+    cut_gobj_dl_link((int *)self);
     self->id = obj->id;
     self->prev = obj->prev;
     self->next = obj;

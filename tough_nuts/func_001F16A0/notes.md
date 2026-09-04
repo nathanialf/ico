@@ -11,7 +11,7 @@ Seed upgraded from the non-compiling KEEP_LIVE form to a **clean rc1** form.
 
 ### Root cause: a deliberately-DEAD value the original keeps via KEEP_LIVE
 
-The function: alloc `buf` (func_0013A0F8, 2 bytes), `*buf = (short)func_00264D60()`,
+The function: alloc `buf` (func_0013A0F8, 2 bytes), `*buf = (short)rand()`,
 `return buf`. Plus a dead `if (v < 0) <compute v + 0xFFFF>` whose result the
 original puts in `$v0` (the return reg) then UNCONDITIONALLY overwrites with buf:
 
@@ -85,7 +85,7 @@ glabel func_001F16A0
     /* F16B8 001F16B8 2000BFFF */  sd         $31, 0x20($29)
     /* F16BC 001F16BC 3EE8040C */  jal        func_0013A0F8
     /* F16C0 001F16C0 0C000724 */   addiu     $7, $0, 0xC
-    /* F16C4 001F16C4 5893090C */  jal        func_00264D60
+    /* F16C4 001F16C4 5893090C */  jal        rand
     /* F16C8 001F16C8 2D804000 */   daddu     $16, $2, $0
     /* F16CC 001F16CC 2D184000 */  daddu      $3, $2, $0
     /* F16D0 001F16D0 03006104 */  bgez       $3, .L001F16E0

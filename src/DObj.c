@@ -20,7 +20,7 @@ int initMatrixDObj(volatile int *self) {
     return 0;
 }
 
-void allocObjectData(int *p) {
+void voBufDecCount(int *p) {
     if (*(volatile int *)(p + 3) > 0) {
         --(*(volatile int *)(p + 3));
     }
@@ -54,11 +54,11 @@ INCLUDE_ASM("asm/nonmatchings/src/DObj", func_0019F4E8);
 typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } DObjBlk8;
 
 extern DObjBlk8 D_006323C0;
-extern void SetRootMatrixRotOffsetByDObj(void *a0);
+extern void GlobalizeGeometry(void *a0);
 
 void func_0019F530(void *a0)
 {
-    SetRootMatrixRotOffsetByDObj(a0);
+    GlobalizeGeometry(a0);
     *(DObjBlk8 *)(*(char **)((char *)a0 + 0x15C)) = D_006323C0;
 }
 

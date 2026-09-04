@@ -4,30 +4,30 @@
 
 extern void func_001E9920();
 extern void func_001E9918();
-extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void GetRootPosition(void *a0, void *a1);
 extern void MatrixDrive_TransMatrix(void *a0, int a1);
 extern void SlopeIKControl(void *a0, void *a1, void *a2, float a3);
-extern void func_001048C8(void *a0, void *a1, void *a2);
-extern void func_00168CC8(void *a0, void *a1);
-extern void func_002438B8(void *a0, void *a1, void *a2);
-extern void func_00243978(void *a0, void *a1);
-extern void func_00244448(void *a0, void *a1, float a2);
+extern void GetProjectionPosOfPlane(void *a0, void *a1, void *a2);
+extern void GetGlobalWallPlane(void *a0, void *a1);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
+extern void sceVu0Normalize(void *a0, void *a1);
+extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
 
-void moveStartSE(void *a0, void *a1, void *a2, void *a3) {
+void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3) {
     char buf[0x60];
 
-    GetRootMatrixByDObj(buf + 0x10, a3);
-    func_00168CC8(buf, a2);
-    func_00244448(a1, buf, -1.0f);
+    GetRootPosition(buf + 0x10, a3);
+    GetGlobalWallPlane(buf, a2);
+    sceVu0ScaleVectorXYZ(a1, buf, -1.0f);
     *(int *)((char *)a1 + 0xC) = 0;
     SlopeIKControl(a0, a2, buf + 0x10, 10.0f);
-    func_001048C8(a0, buf, a0);
+    GetProjectionPosOfPlane(a0, buf, a0);
     MatrixDrive_TransMatrix(buf + 0x20,
         *(int *)(*(char **)(*(int *)a2 + 0x15C) + 0xC) + (*(int *)((char *)a2 + 4) << 6));
-    func_002438B8(a0, buf + 0x20, a0);
-    func_002438B8(a1, buf + 0x20, a1);
+    sceVu0ApplyMatrix(a0, buf + 0x20, a0);
+    sceVu0ApplyMatrix(a1, buf + 0x20, a1);
     *(float *)((char *)a0 + 4) = -50.0f;
-    func_00243978(a1, a1);
+    sceVu0Normalize(a1, a1);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", func_001E9A78);

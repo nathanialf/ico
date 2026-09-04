@@ -4,7 +4,7 @@ VRAM 0x001F3A28, file_off 0x0F3A28. TU src/weapon (coalesced). FP, frame 0xC0.
 
 ## What it is
 Debug circle-draw: 16 line segments (radius 30, center y=130, fixed-pt angle
-0x10000=full turn). func_0010E9A0=cos, func_0010E950=sin (short angle -> float).
+0x10000=full turn). GetTableCos=cos, func_0010E950=sin (short angle -> float).
 Per iter builds 2 vertices {x,pad,y,w} (DbgVtx, 8-aligned), draws via func_001D4A58.
 
 ## Progress rc71 -> rc3 (cracked)

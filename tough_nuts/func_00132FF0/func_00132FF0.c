@@ -242,9 +242,9 @@ unsigned int D_00564A70[36] = { 0x6F63692F, 0x79732E6E, 0x00000073, 0x00000000, 
 #include "include_asm.h"
 
 extern void func_0013A5B8(int *a0, int a1, int a2);
-extern int func_0024DA80(int a0);
+extern int sceCdStStop(int a0);
 extern int func_0024D7B0(void);
-extern void func_0024A1E0(int a0);
+extern void sceSifFreeIopHeap(int a0);
 
 /* 0x30-stride record at the far .sdata table D_0027E520 (file id / size + a
  * 0x28-byte name). Shared with func_001332B8 below. */
@@ -261,14 +261,14 @@ extern struct E001332B8 D_tbl_0027E520[] __asm__("D_0027E520");
 
 extern int D_00631F54;
 extern void func_001A6E28();
-extern int func_0026527C(int *name);
-extern int func_00265024(int *name, const char *entry);
-extern int func_0024C6B8(int *dst, int *name);
+extern int strlen(int *name);
+extern int strcmp(int *name, const char *entry);
+extern int sceCdSearchFile(int *dst, int *name);
 /* int return (value discarded) so $v0 stays reserved across the call and the
  * following D_00631F54 reload lands in $v1, as in the ROM. */
-extern int func_00265570(void *dst, int *src, int n);
+extern int strncpy(void *dst, int *src, int n);
 
-/* iosCdvdMgrSearchFile request object: name string at 0x34, recovered id/size
+/* tex_RemakeRegistersSampleMin request object: name string at 0x34, recovered id/size
  * at 0x134/0x138. */
 typedef struct
 {
@@ -281,7 +281,7 @@ typedef struct
     int fileSize;       /* 0x138 */
 } CdvdReq;
 
-/* iosCdvdMgrSearchFile: length-check req->name, linear-search the D_0027E528
+/* tex_RemakeRegistersSampleMin: length-check req->name, linear-search the D_0027E528
  * name table; on a hit copy the existing id/size into req, else register a new
  * entry in D_0027E520 / D_0027E528. */
 void func_001312F0(int *self)
@@ -290,11 +290,11 @@ void func_001312F0(int *self)
     int found = 1;
     volatile int i; /* the loop index lives on the stack (reloaded each pass) */
 
-    if ((unsigned int) func_0026527C((int *) req->name) < 0x28)
+    if ((unsigned int) strlen((int *) req->name) < 0x28)
     {
         for (i = 0; i < D_00631F54; i++)
         {
-            found = func_00265024((int *) req->name, (const char *) &D_0027E528[i * 0x30]);
+            found = strcmp((int *) req->name, (const char *) &D_0027E528[i * 0x30]);
             if (found == 0)
             {
                 break;
@@ -314,7 +314,7 @@ void func_001312F0(int *self)
     else
     {
         req->unk_C = 0;
-        if (func_0024C6B8(&req->fileId, (int *) req->name) == 0)
+        if (sceCdSearchFile(&req->fileId, (int *) req->name) == 0)
         {
             req->unk_C = 0x64;
         }
@@ -323,7 +323,7 @@ void func_001312F0(int *self)
             int n = D_00631F54;
             D_tbl_0027E520[n].f0 = req->fileId;
             D_tbl_0027E520[n].f1 = req->fileSize;
-            func_00265570(D_tbl_0027E520[n].pad, (int *) req->name, 0x28);
+            strncpy(D_tbl_0027E520[n].pad, (int *) req->name, 0x28);
             D_00631F54 = D_00631F54 + 1;
         }
         else
@@ -338,9 +338,9 @@ extern int D_0063286C;
 extern int func_00135EB8(int a0, const char *fmt, int line);
 /* int return (discarded): keeps $v0 reserved across the call so the following
  * D_00633C78 reload lands in $v1, as in the ROM. */
-extern int func_0024D9B8(int a0, int a1, int a2);
-extern int func_0024D9E8(int a0, int a1);
-extern int func_00135A48(int a0, int a1);
+extern int sceCdStInit(int a0, int a1, int a2);
+extern int sceCdStStart(int a0, int a1);
+extern int open_inflate_handler(int a0, int a1);
 extern void func_00133570(void);
 extern int func_0024D7B0(void);
 
@@ -364,21 +364,21 @@ void func_00131480(int *a0)
     a0[0x160 / 4] = sz;
     rounded = (sz + 0xF) & 0xFFFFFFF0u;
     a0[0x164 / 4] = rounded;
-    func_0024D9B8(0x50, 5, rounded);
+    sceCdStInit(0x50, 5, rounded);
     {
         unsigned int limit = a0[0x138 / 4];
         if (limit > (unsigned int)(D_00633C78 << 11))
         {
             int r;
             a0[0x14 / 4] = s1;
-            r = func_0024D9E8(s1, (int)((char *) a0 + 0x158));
+            r = sceCdStStart(s1, (int)((char *) a0 + 0x158));
             if (r == 0)
             {
                 a0[0xC / 4] = func_0024D7B0();
             }
         }
     }
-    a0[0x15C / 4] = func_00135A48((int) func_00133570, (int) a0);
+    a0[0x15C / 4] = open_inflate_handler((int) func_00133570, (int) a0);
 }
 extern void func_001354B8(int a0);
 
@@ -387,12 +387,12 @@ void func_00131560(int a0)
     int *self = (int *) a0;
     long long err;
     self[0xC / 4] = 0;
-    err = func_0024DA80(a0);
+    err = sceCdStStop(a0);
     if (err == 0)
     {
         self[0xC / 4] = func_0024D7B0();
     }
-    func_0024A1E0(self[0x160 / 4]);
+    sceSifFreeIopHeap(self[0x160 / 4]);
     func_001354B8(self[0x15C / 4]);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001315A8);
@@ -410,7 +410,7 @@ void func_00131780(int a0, char *name, int size, int a3, int a4, int a5, int seg
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131818);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131C90);
-extern int func_00135580(int a0, void *buf, int n);
+extern int inflate(int a0, void *buf, int n);
 
 void func_00132038(int *a0, void *buf, int n)
 {
@@ -418,7 +418,7 @@ void func_00132038(int *a0, void *buf, int n)
     long long ret;
     for (;;)
     {
-        ret = func_00135580(a0[0x15C / 4], p, n);
+        ret = inflate(a0[0x15C / 4], p, n);
         if (ret <= 0)
         {
             break;
@@ -491,12 +491,12 @@ INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132630);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132930);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132B90);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132DC0);
-extern char *func_00265730(char *s, int c);
-extern int func_0024D120(int a0);
+extern char *strrchr(char *s, int c);
+extern int sceCdDiskReady(int a0);
 extern int func_0024D718(void);
 extern int func_00133218(int a0);
-extern void func_00264DF8(unsigned char *buf, const char *fmt, int a0);
-extern int func_00265168(int a0, unsigned char *buf);
+extern void sprintf(unsigned char *buf, const char *fmt, int a0);
+extern int strcpy(int a0, unsigned char *buf);
 extern char D_0062FC79[];
 extern char D_00631F70[];
 
@@ -514,10 +514,10 @@ void func_00132FF0(int *self)
     int got;
     int rounded;
 
-    base = func_00265730(name, '/');
-    func_00264DF8(buf, D_00556A10, base ? (int) (base + 1) : (int) name);
-    func_00265168((int) name, buf);
-    func_00264DF8(namebuf, D_00631F70, (int) name);
+    base = strrchr(name, '/');
+    sprintf(buf, D_00556A10, base ? (int) (base + 1) : (int) name);
+    strcpy((int) name, buf);
+    sprintf(namebuf, D_00631F70, (int) name);
     {
         unsigned char *p = namebuf;
         unsigned char c = namebuf[0];
@@ -542,13 +542,13 @@ void func_00132FF0(int *self)
             c = *p;
         } while (c != 0);
     }
-    func_00265168((int) name, namebuf);
+    strcpy((int) name, namebuf);
 
     *((char *) self + 0x158) = 0;
     *((char *) self + 0x159) = 0;
     *((char *) self + 0x15A) = 0;
     self[0x24 / 4] = 0;
-    if (func_0024D120(1) != 2)
+    if (sceCdDiskReady(1) != 2)
     {
         *(long long *) disk = *(long long *) D_005567F0;
         *(int *) (disk + 8) = *(int *) (D_005567F0 + 8);
@@ -556,8 +556,8 @@ void func_00132FF0(int *self)
         do
         {
             func_001A6E28(D_00556800);
-            func_0024D120(0);
-        } while (func_0024D718() != 0x12 || func_0024C6B8((int *) namebuf, (int *) disk) == 0);
+            sceCdDiskReady(0);
+        } while (func_0024D718() != 0x12 || sceCdSearchFile((int *) namebuf, (int *) disk) == 0);
     }
     self[0xC / 4] = 0;
     func_001312F0(self);
@@ -568,8 +568,8 @@ void func_00132FF0(int *self)
     self[0x160 / 4] = got;
     rounded = (got + 0xF) & 0xFFFFFFF0;
     self[0x164 / 4] = rounded;
-    func_0024D9B8(0x240, 0x24, rounded);
-    func_0024D9E8(self[0x134 / 4], (int) ((char *) self + 0x158));
+    sceCdStInit(0x240, 0x24, rounded);
+    sceCdStStart(self[0x134 / 4], (int) ((char *) self + 0x158));
     *(int *) ((char *) self + 0x8180) = self[0x138 / 4];
 }
 
@@ -580,16 +580,16 @@ void func_001331D8(int a0)
     /* statement boundary: keep this store out of the following call's
      * setup so it isn't reordered into the jal delay slot. */
     do { self[0xC / 4] = 0; } while (0);
-    err = func_0024DA80(a0);
+    err = sceCdStStop(a0);
     if (err == 0)
     {
         self[0xC / 4] = func_0024D7B0();
     }
-    return func_0024A1E0(self[0x160 / 4]);
+    return sceSifFreeIopHeap(self[0x160 / 4]);
 }
 
-extern void func_00264DF8(unsigned char *buf, const char *fmt, int a0);
-extern int func_00265168(int a0, unsigned char *buf);
+extern void sprintf(unsigned char *buf, const char *fmt, int a0);
+extern int strcpy(int a0, unsigned char *buf);
 extern char D_0062FC79[];
 extern char D_00631F70[];
 
@@ -601,7 +601,7 @@ int func_00133218(int a0)
     unsigned char *p = buf;
     unsigned char c;
     unsigned char nc;
-    func_00264DF8(buf, D_00631F70, a0);
+    sprintf(buf, D_00631F70, a0);
     c = buf[0];
     do
     {
@@ -627,11 +627,11 @@ int func_00133218(int a0)
         nc = *p;
         c = nc;
     } while (nc != 0);
-    return func_00265168(a0, buf);
+    return strcpy(a0, buf);
 }
 extern const char D_00631F68[];
 extern void func_001AD768(const char *file, int line);
-extern void func_00263FF0(const char *file, int line, const char *expr);
+extern void __assert(const char *file, int line, const char *expr);
 
 int func_001332B8(int *name, int *out)
 {
@@ -640,7 +640,7 @@ int func_001332B8(int *name, int *out)
     {
         do
         {
-            if (func_00265024(name, (const char *) &D_0027E528[i * 0x30]) == 0)
+            if (strcmp(name, (const char *) &D_0027E528[i * 0x30]) == 0)
             {
                 goto found;
             }
@@ -648,7 +648,7 @@ int func_001332B8(int *name, int *out)
         } while (i < (int) D_00631F54);
     }
     func_001AD768(D_00556818, 0x1E3);
-    func_00263FF0(D_00556818, 0x1E3, D_00631F68);
+    __assert(D_00556818, 0x1E3, D_00631F68);
 found:
     out[0] = D_tbl_0027E520[i].f1;
     return D_tbl_0027E520[i].f0;

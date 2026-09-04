@@ -7,7 +7,7 @@
  *
  * `GObj` = the game object passed as `self` to per-object functions. The
  * name is the engine's own term, re-derived from the public PAL ICO-decomp's
- * Char/GObj list API (GetCharGObjList / MakeCharGObjList) — a reference, not
+ * Char/GObj list API (GetCharGObjList / CylinderCollisionWithControlDynamics) — a reference, not
  * a verbatim copy. Sub-object struct and field names are MECHANICAL
  * (offset-derived); a field gets a meaningful name only when the binary gives
  * evidence (e.g. a debug string). Padding is explicit so every field sits at

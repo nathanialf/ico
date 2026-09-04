@@ -13,14 +13,14 @@ extern int actBoyReadyMove();
 extern int GetsizeGeneratorPacket(void);
 extern int ReadGeneratorPacket();
 extern int *GetbufpGeneratorPacket(void);
-extern void func_00264128();
+extern void memcpy();
 extern char D_006168F8[];
-extern void debug_assertMessage(char *fmt, ...);
+extern void debug_StdPrintfDummy(char *fmt, ...);
 extern int D_00632F74;
-extern void func_001AE8A0(int *self, int a1, int a2);
+extern void gamesysMemoryHandlerRead(int *self, int a1, int a2);
 extern char D_004B3B68[];
 extern char D_004B3D10[];
-extern void func_002641D8();
+extern void memset();
 extern void func_001A1008(void);
 extern int AllocPObj();
 extern int D_002A31B8[];
@@ -33,7 +33,7 @@ INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", ParentSimpleObjDL);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", InitParentSimpleObjGeo);
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001ACCD0);
+INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", display);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD0E8);
 
@@ -44,17 +44,17 @@ extern char D_006167E0[];
 extern char D_00616818[];
 extern char D_00616848[];
 extern char D_00632F18[];
-extern void func_00265168(char *a0, void *a1);
+extern void strcpy(char *a0, void *a1);
 
 void func_001AD668(void *a0) {
-    func_00265168(D_004B3468, a0);
-    debug_assertMessage(D_006167E0);
-    debug_assertMessage(D_00616818);
-    debug_assertMessage(D_00632F18, a0);
-    debug_assertMessage(D_00616848);
+    strcpy(D_004B3468, a0);
+    debug_StdPrintfDummy(D_006167E0);
+    debug_StdPrintfDummy(D_00616818);
+    debug_StdPrintfDummy(D_00632F18, a0);
+    debug_StdPrintfDummy(D_00616848);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD6C8);
+INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", debugExceptionInit);
 
 void func_001AD740(void) {}
 
@@ -71,22 +71,22 @@ void func_001AD768(char *a0, int a1)
 }
 
 extern int D_00632ED0;
-extern void func_002450A8(void *a0, int a1);
-extern void func_002450B8(void *a0);
+extern void sceVif1PkInit(void *a0, int a1);
+extern void sceVif1PkReset(void *a0);
 extern void func_00245120(void *a0, int a1);
-extern void func_002451D0(void *a0, int a1);
+extern void sceVif1PkOpenDirectCode(void *a0, int a1);
 
 void func_001AD788(void *a0) {
-    func_002450A8(a0, (D_00632ED0 << 13) | 0x70000000);
-    func_002450B8(a0);
+    sceVif1PkInit(a0, (D_00632ED0 << 13) | 0x70000000);
+    sceVif1PkReset(a0);
     func_00245120(a0, 0);
-    func_002451D0(a0, 0);
+    sceVif1PkOpenDirectCode(a0, 0);
     D_00632ED0 = (D_00632ED0 + 1) & 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD7F0);
+INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", SetPrimColor);
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD8E8);
+INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", SetPrimColorTex);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001ADA08);
 
@@ -96,7 +96,7 @@ void func_001ADB70(void) {
     D_00633E64 = 0;
 }
 
-int func_001ADB88(void)
+int debug_TargetGObj_Func(void)
 {
     int rc = AllocPObj();
     return (int)((char *)D_002A31B8 + *(int *)(rc + 0xC) * 0x64);
@@ -110,19 +110,19 @@ void func_001ADBC0(void)
         a[i][1] = 0;
         a[i][2] = 0xFFFF;
     }
-    func_002641D8(D_004B3B68, 0, 0x1A0);
+    memset(D_004B3B68, 0, 0x1A0);
     func_001A1008();
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001ADC18);
 
 void func_001ADCB0(int self) {
-    func_001AE8A0(self, &D_00632F74, 4);
-    func_001AE8A0(self, (int *)D_004B3D10, 0x2D80);
-    func_001AE8A0(self, (int *)D_004B3B68, 0x1A0);
+    gamesysMemoryHandlerRead(self, &D_00632F74, 4);
+    gamesysMemoryHandlerRead(self, (int *)D_004B3D10, 0x2D80);
+    gamesysMemoryHandlerRead(self, (int *)D_004B3B68, 0x1A0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001ADD00);
+INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", gamesysObjInfoEmptyAreaSearch);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001ADED8);
 
@@ -142,10 +142,10 @@ void func_001AE188(void)
 void func_001AE1B8(int *self, int n, int a2)
 {
     if (n != 0) {
-        func_00264128(self[0] + self[1], n);
+        memcpy(self[0] + self[1], n);
     }
     self[1] += a2;
-    debug_assertMessage(D_006168F8, self[1]);
+    debug_StdPrintfDummy(D_006168F8, self[1]);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AE210);
@@ -155,7 +155,7 @@ void func_001AE258(int *a0)
     int s1 = GetbufpGeneratorPacket();
     int s2 = GetsizeGeneratorPacket();
     if (s1 != 0) {
-        func_00264128(s1, a0[0] + a0[1], s2);
+        memcpy(s1, a0[0] + a0[1], s2);
     }
     a0[1] += s2;
     return ReadGeneratorPacket();
@@ -168,7 +168,7 @@ void func_001AE308(int *a0)
     int s1 = func_001547A0();
     int s2 = func_001547B0();
     if (s1 != 0) {
-        func_00264128(s1, a0[0] + a0[1], s2);
+        memcpy(s1, a0[0] + a0[1], s2);
     }
     a0[1] += s2;
     return actBoyReadyMove();
@@ -188,7 +188,7 @@ void func_001AE370(void)
     } while (i >= 0);
 }
 
-void func_001AE3B0(void)
+void gamesysObjInfoStageInitFlagCls(void)
 {
     long long mask = -2LL;
     long long *p = (long long *)D_004B3D10;
@@ -214,7 +214,7 @@ void func_001AE3E8(void)
 
 extern int *func_001ADED8(int *self, int a1);
 
-int *func_001AE420(int *self, int a1, int a2, int a3)
+int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
 {
     int *p = func_001ADED8(self, a3);
     p[0xC] = a1;
@@ -222,5 +222,5 @@ int *func_001AE420(int *self, int a1, int a2, int a3)
     return p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AE460);
+INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", gamesysObjInfoUniqDataSet);
 

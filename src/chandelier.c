@@ -9,7 +9,7 @@ extern void actClipCollisionCore();
 INCLUDE_ASM("asm/nonmatchings/src/chandelier", ChandelierGeo);
 
 extern void HoldRope();
-extern void MatrixDrive_TurnXObjectMatrixYZ();
+extern void CopyMatrix();
 extern int func_00105278();
 extern void func_00105308(float, float, float);
 extern int isysGObjSearchFromObjLayoutID();
@@ -17,7 +17,7 @@ extern int isysGObjSearchFromObjLayoutID();
 void ChandelierDL(char *a0) {
     int obj = isysGObjSearchFromObjLayoutID(0x14);
     if (obj != 0) {
-        MatrixDrive_TurnXObjectMatrixYZ(func_00105278(), *(int *)(*(char **)(a0 + 0x15C) + 0xC));
+        CopyMatrix(func_00105278(), *(int *)(*(char **)(a0 + 0x15C) + 0xC));
         func_00105308(0.0f, 50.0f, 250.0f);
         HoldRope(obj, func_00105278() + 0x30, 0);
     }

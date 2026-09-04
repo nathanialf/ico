@@ -35,18 +35,18 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_002669E8);
 
 const unsigned int D_00630190[0xC] = { 0x0001000A, 0x00030002, 0x00050004, 0x00070006, 0x00090008, 0x000B000A, 0x000D000C, 0x000F000E, 0x00000010, 0x00000000, 0x00000000, 0x00000000 };
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00267F00);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", cvt);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_002680B0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", exponent);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268190);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __svfscanf);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268C98);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __sccl);
 
 extern int D_00553244[];
 extern int func_00266970();
 
-int func_00268DA0(void *out, void *a1, void *a2) {
+int vsprintf(void *out, void *a1, void *a2) {
     char s[0x60];
     int n;
     *(void **)(s + 0x0) = out;
@@ -60,7 +60,7 @@ int func_00268DA0(void *out, void *a1, void *a2) {
     return n;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268DF8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __swsetup);
 
 /* Both callees are declared elsewhere in this TU with signatures that
  * contradict the ones this loop needs; bind correctly-typed names to the
@@ -82,28 +82,28 @@ int func_00268F28(int a0) {
     return func_0026E5C8(a0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268F48);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", quorem);
 
 const char D_00630600[0x10] = "Infinity";
 INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630610);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00269160);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _dtoa_r);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026A330);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", fflush);
 
-extern int func_0026D558();
-extern long func_0026D5C0(void *a0, int a1, int a2);
-extern long func_0026D640(void *a0, int a1, int a2);
-extern int func_0026D6A8(void *a0);
+extern int __sread();
+extern long __swrite(void *a0, int a1, int a2);
+extern long __sseek(void *a0, int a1, int a2);
+extern int __sclose(void *a0);
 
-void func_0026A438(char *a0, short a1, short a2, int a3) {
+void std(char *a0, short a1, short a2, int a3) {
     *(int *)(a0 + 0x54) = a3;
     *(short *)(a0 + 0xC) = a1;
     *(short *)(a0 + 0xE) = a2;
-    *(void **)(a0 + 0x20) = (void *)func_0026D558;
-    *(void **)(a0 + 0x24) = (void *)func_0026D5C0;
-    *(void **)(a0 + 0x28) = (void *)func_0026D640;
-    *(void **)(a0 + 0x2C) = (void *)func_0026D6A8;
+    *(void **)(a0 + 0x20) = (void *)__sread;
+    *(void **)(a0 + 0x24) = (void *)__swrite;
+    *(void **)(a0 + 0x28) = (void *)__sseek;
+    *(void **)(a0 + 0x2C) = (void *)__sclose;
     *(int *)(a0 + 0x4) = 0;
     *(int *)(a0 + 0x8) = 0;
     *(int *)(a0 + 0x10) = 0;
@@ -112,15 +112,15 @@ void func_0026A438(char *a0, short a1, short a2, int a3) {
     *(int *)(a0 + 0x0) = 0;
 }
 
-extern void func_002641D8(void *a0, int a1, int a2);
-extern void *func_0026B548(void *a0, int a1);
+extern void memset(void *a0, int a1, int a2);
+extern void *_malloc_r(void *a0, int a1);
 
-void *func_0026A490(void *a0, int a1) {
+void *__sfmoreglue(void *a0, int a1) {
     int sz;
     char *p;
     char *body;
     sz = a1 * 0x58;
-    p = (char *)func_0026B548(a0, sz + 0xC);
+    p = (char *)_malloc_r(a0, sz + 0xC);
     if (p == 0) {
         return 0;
     }
@@ -128,17 +128,17 @@ void *func_0026A490(void *a0, int a1) {
     *(int *)(p + 0x4) = a1;
     *(int *)(p + 0x0) = 0;
     *(int *)(p + 0x8) = (int)body;
-    func_002641D8(body, 0, sz);
+    memset(body, 0, sz);
     return p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026A500);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __sfp);
 
-extern int func_0026A330(void);
-extern void func_0026B018(int a0, void *a1);
+extern int fflush(void);
+extern void _fwalk(int a0, void *a1);
 
 void func_0026A5E0(int a0) {
-    func_0026B018(a0, func_0026A330);
+    _fwalk(a0, fflush);
 }
 
 extern int D_00553244[];
@@ -148,22 +148,22 @@ void func_0026A5F0(void) {
     func_0026A5E0(D_00553244[0]);
 }
 
-void func_0026A600(char *a0) {
+void __sinit(char *a0) {
     char *p = a0 + 0x1E4;
     *(void **)(a0 + 0x3C) = (void *)func_0026A5E0;
     *(int *)(a0 + 0x38) = 1;
-    func_0026A438(p, 4, 0, (int)a0);
-    func_0026A438(a0 + 0x23C, 9, 1, (int)a0);
-    func_0026A438(a0 + 0x294, 0xA, 2, (int)a0);
+    std(p, 4, 0, (int)a0);
+    std(a0 + 0x23C, 9, 1, (int)a0);
+    std(a0 + 0x294, 0xA, 2, (int)a0);
     *(char **)(a0 + 0x1E0) = p;
     *(int *)(a0 + 0x1DC) = 3;
     *(int *)(a0 + 0x1D8) = 0;
 }
 
-extern int func_00264128(char *a0, char *a1, int a2);
-extern int func_0026CF30(StreamBuf *s);
+extern int memcpy(char *a0, char *a1, int a2);
+extern int __srefill(StreamBuf *s);
 
-int func_0026A690(char *dst, int size, int count, StreamBuf *s) {
+int fread(char *dst, int size, int count, StreamBuf *s) {
     unsigned int total = count * size;
     int len;
     unsigned int avail;
@@ -183,34 +183,34 @@ int func_0026A690(char *dst, int size, int count, StreamBuf *s) {
     p = dst;
     if (avail < total) {
         do {
-            func_00264128(p, s->pos, avail);
+            memcpy(p, s->pos, avail);
             total -= avail;
             p += avail;
             s->pos += avail;
-            if (func_0026CF30(s) != 0) {
+            if (__srefill(s) != 0) {
                 return (total_orig - total) / size;
             }
             avail = s->len;
         } while (avail < total);
     }
-    func_00264128(p, s->pos, total);
+    memcpy(p, s->pos, total);
     s->len -= total;
     s->pos += total;
     return count;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026A7B0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _free_r);
 
 extern int D_00553678[];
 extern int D_00553690[];
 extern struct D520 D_00553260;
-extern long long func_00261BA8(long long a0, long long a1);
-extern long long func_00261C08(long long a0, long long a1);
+extern long long __muldi3(long long a0, long long a1);
+extern long long __udivdi3(long long a0, long long a1);
 extern void func_0026BEE0(void);
 extern void func_0026BEE8();
-extern int func_0026D128(int *self, int a1);
+extern int _sbrk_r(int *self, int a1);
 
-int func_0026AAD0(int *self, unsigned int a1) {
+int _malloc_trim_r(int *self, unsigned int a1) {
     long long A;
     long long need;
     long long newlen;
@@ -218,18 +218,18 @@ int func_0026AAD0(int *self, unsigned int a1) {
 
     func_0026BEE0();
     A = D_00553260.blk->size & 0xFFFFFFFC;
-    need = func_00261C08((A - a1) + 0xFEF, 0x1000);
-    newlen = func_00261BA8(need - 1, 0x1000);
+    need = __udivdi3((A - a1) + 0xFEF, 0x1000);
+    newlen = __muldi3(need - 1, 0x1000);
     if (newlen < 0x1000) {
         goto fail;
     }
-    if (func_0026D128(self, 0) != (int)D_00553260.blk + (int)A) {
+    if (_sbrk_r(self, 0) != (int)D_00553260.blk + (int)A) {
         goto fail;
     }
-    if (func_0026D128(self, -(int)newlen) != 0xFFFFFFFFU) {
+    if (_sbrk_r(self, -(int)newlen) != 0xFFFFFFFFU) {
         goto adjust;
     }
-    r4 = func_0026D128(self, 0);
+    r4 = _sbrk_r(self, 0);
     A = r4 - (int)D_00553260.blk;
     if (A >= 0x10) {
         D_00553690[0] = r4 - D_00553678[0];
@@ -245,18 +245,18 @@ adjust:
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026AC40);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __sfvwrite);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026B018);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _fwalk);
 
 extern int D_00630688[];
 extern const unsigned int D_00630698[];
-extern int func_00265024(int *p, int *buf);
+extern int strcmp(int *p, int *buf);
 
-int func_0026B0B0(void *a0, int a1, int a2) {
+int _setlocale_r(void *a0, int a1, int a2) {
     if (a2 == 0) goto no_check;
-    if (func_00265024(a2, D_00630698) == 0) goto found;
-    if (func_00265024(a2, D_00630688) != 0) return 0;
+    if (strcmp(a2, D_00630698) == 0) goto found;
+    if (strcmp(a2, D_00630688) != 0) return 0;
 found:
     *(int *)((char *)a0 + 0x30) = a1;
     *(int *)((char *)a0 + 0x34) = a2;
@@ -272,20 +272,20 @@ void *func_0026B138(int a0) {
 
 
 int func_0026B148(int a0, int a1) {
-    return func_0026B0B0(D_00553244[0], a0, a1);
+    return _setlocale_r(D_00553244[0], a0, a1);
 }
 
 void *func_0026B178(void) {
     return func_0026B138(D_00553244[0]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026B1A0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __smakebuf);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026B2F0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", malloc_extend_top);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026B548);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _malloc_r);
 
-int func_0026BCC0(int a0, int *a1, unsigned char *a2, int a3) {
+int _mbtowc_r(int a0, int *a1, unsigned char *a2, int a3) {
     int local;
     int *p = &local;
     if (a1 != 0) p = a1;
@@ -299,9 +299,9 @@ store:
     return *a2 != 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026BCFC);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", memchr);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026BDDC);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", memmove);
 
 void func_0026BEE0(void) {
 }
@@ -309,9 +309,9 @@ void func_0026BEE0(void) {
 void func_0026BEE8() {
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026BEF0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _Balloc);
 
-void func_0026BF98(char *a0, int *a1) {
+void _Bfree(char *a0, int *a1) {
     if (a1) {
         int off = a1[1] * 4;
         int *slot;
@@ -323,12 +323,12 @@ void func_0026BF98(char *a0, int *a1) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026BFC8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _multadd);
 
-extern int *func_0026BEF0(void *a0, int a1);
-extern int *func_0026BFC8(void *a0, int *a1, int a2, int a3);
+extern int *_Balloc(void *a0, int a1);
+extern int *_multadd(void *a0, int *a1, int a2, int a3);
 
-int func_0026C0E0(void *a0, char *a1, int a2, int a3, int a4)
+int _s2b(void *a0, char *a1, int a2, int a3, int a4)
 {
     int n3 = (a3 + 8) / 9;
     int p = 1;
@@ -344,7 +344,7 @@ int func_0026C0E0(void *a0, char *a1, int a2, int a3, int a4)
         } while (p < n3);
     }
     i18 = a2 < 10;
-    r5 = func_0026BEF0(a0, five);
+    r5 = _Balloc(a0, five);
     i17 = 9;
     r5[5] = a4;
     r5[4] = 1;
@@ -352,7 +352,7 @@ int func_0026C0E0(void *a0, char *a1, int a2, int a3, int a4)
         a1 += 9;
         do {
             i17++;
-            r5 = func_0026BFC8(a0, r5, 10, a1[0] - 0x30);
+            r5 = _multadd(a0, r5, 10, a1[0] - 0x30);
             a1++;
         } while (i17 < a2);
         a1++;
@@ -362,7 +362,7 @@ int func_0026C0E0(void *a0, char *a1, int a2, int a3, int a4)
     if (i17 < a3) {
         i17 = a3 - i17;
         do {
-            r5 = func_0026BFC8(a0, r5, 10, a1[0] - 0x30);
+            r5 = _multadd(a0, r5, 10, a1[0] - 0x30);
             a1++;
             i17--;
         } while (i17 != 0);
@@ -370,7 +370,7 @@ int func_0026C0E0(void *a0, char *a1, int a2, int a3, int a4)
     return (int)r5;
 }
 
-int func_0026C228(unsigned int a0) {
+int _hi0bits(unsigned int a0) {
     int n = 0;
     if ((a0 & 0xFFFF0000) == 0) { n = 16; a0 <<= 16; }
     if ((a0 & 0xFF000000) == 0) { n += 8; a0 <<= 8; }
@@ -385,7 +385,7 @@ int func_0026C228(unsigned int a0) {
     return n;
 }
 
-int func_0026C2B0(int *p) {
+int _lo0bits(int *p) {
     unsigned int v = *p;
     int n;
     if (v & 7) {
@@ -429,20 +429,20 @@ int func_0026C2B0(int *p) {
     return n;
 }
 
-void *func_0026C370(void *a0, int a1) {
-    int *r = func_0026BEF0(a0, 1);
+void *_i2b(void *a0, int a1) {
+    int *r = _Balloc(a0, 1);
     r[5] = a1;
     r[4] = 1;
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026C3A8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _multiply);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026C5D8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _pow5mult);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026C6D8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _lshift);
 
-int func_0026C850(unsigned int *a, unsigned int *b) {
+int __mcmp(unsigned int *a, unsigned int *b) {
  int n = a[4] - b[4]; unsigned int *pa, *pb, *pae, *pbe;
  if (n != 0) return n;
  n = b[4]; pa = a + 5; pb = b + 5; pae = pa + n; pbe = pb + n;
@@ -450,40 +450,40 @@ int func_0026C850(unsigned int *a, unsigned int *b) {
  return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026C8B8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __mdiff);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026CA48);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _ulp);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026CAE0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _b2d);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026CC60);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _d2b);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026CDE0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _ratio);
 
 extern const long D_006306B0[];
-extern long func_00262BE8(long a, long b);
+extern long dpmul(long a, long b);
 
-long func_0026CEA0(int n) {
+long _mprec_log10(int n) {
     long acc = (long)0xFFC0 << 46;
     if (n < 0x18) {
         return D_006306B0[n];
     }
     while (n > 0) {
-        acc = func_00262BE8(acc, (long)0x8048 << 47);
+        acc = dpmul(acc, (long)0x8048 << 47);
         n--;
     }
     return acc;
 }
 
-extern int func_0026A330(void);
+extern int fflush(void);
 
 int func_0026CF10(void) {
-    return func_0026A330();
+    return fflush();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026CF30);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __srefill);
 
-int func_0026D0A8(long long x)
+int isinf(long long x)
 {
     int lx, hx;
     do { lx = (int)x; hx = (int)(x >> 32); } while (0);
@@ -493,7 +493,7 @@ int func_0026D0A8(long long x)
     return 1 - (int)(((unsigned int)(hx | (-hx))) >> 31);
 }
 
-int func_0026D0F0(long long x)
+int isnan(long long x)
 {
     int lx, hx;
     do { lx = (int)x; hx = (int)(x >> 32); } while (0);
@@ -504,13 +504,13 @@ int func_0026D0F0(long long x)
 }
 
 extern int D_00633FF0[];
-extern unsigned int func_002455A8(int a0);
+extern unsigned int sbrk(int a0);
 
-int func_0026D128(int *self, int a1)
+int _sbrk_r(int *self, int a1)
 {
     unsigned int ret;
     D_00633FF0[0] = 0;
-    ret = func_002455A8(a1);
+    ret = sbrk(a1);
     if (ret == 0xFFFFFFFF) {
         if (D_00633FF0[0] != 0) {
             self[0] = D_00633FF0[0];
@@ -519,11 +519,11 @@ int func_0026D128(int *self, int a1)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026D188);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _init_signal_r);
 
-extern int func_0026D188(int a0);
+extern int _init_signal_r(int a0);
 
-unsigned int func_0026D1F8(void *a0, int a1, int a2) {
+unsigned int _signal_r(void *a0, int a1, int a2) {
     unsigned int *base;
     unsigned int old;
     if ((unsigned int)a1 >= 0x20) {
@@ -531,7 +531,7 @@ unsigned int func_0026D1F8(void *a0, int a1, int a2) {
         return 0xFFFFFFFFU;
     }
     if (*(int *)((char *)a0 + 0x1D4) == 0) {
-        if (func_0026D188((int)a0) != 0) {
+        if (_init_signal_r((int)a0) != 0) {
             return 0xFFFFFFFFU;
         }
     }
@@ -541,37 +541,37 @@ unsigned int func_0026D1F8(void *a0, int a1, int a2) {
     return old;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026D288);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _raise_r);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026D378);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __sigtramp_r);
 
-extern int func_0026D288(int a0, int a1);
+extern int _raise_r(int a0, int a1);
 
 int func_0026D430(int a0) {
-    return func_0026D288(D_00553244[0], a0);
+    return _raise_r(D_00553244[0], a0);
 }
 
 int func_0026D458(int a0, int a1) {
-    return func_0026D1F8(D_00553244[0], a0, a1);
+    return _signal_r(D_00553244[0], a0, a1);
 }
 
 void *func_0026D488(void) {
-    return func_0026D188(D_00553244[0]);
+    return _init_signal_r(D_00553244[0]);
 }
 
-extern int func_0026D378(int a0, int a1);
+extern int __sigtramp_r(int a0, int a1);
 
 int func_0026D4B0(int a0) {
-    return func_0026D378(D_00553244[0], a0);
+    return __sigtramp_r(D_00553244[0], a0);
 }
 
-extern int func_00245680(int a0, void *a1);
+extern int kill(int a0, void *a1);
 
 int func_0026D4D8(int *self, int a1, int a2)
 {
     int ret;
     D_00633FF0[0] = 0;
-    ret = func_00245680(a1, a2);
+    ret = kill(a1, a2);
     if (ret == -1) {
         if (D_00633FF0[0] != 0) {
             self[0] = D_00633FF0[0];
@@ -588,7 +588,7 @@ int func_0026D538(void) {
 
 extern int func_0026ED28(int *self, int a1, int a2, int a3);
 
-int func_0026D558(void *a0, int a1, int a2) {
+int __sread(void *a0, int a1, int a2) {
     long v = func_0026ED28((int *)*(int *)((char *)a0 + 0x54), *(short *)((char *)a0 + 0xE), a1, a2);
     if ((int)v >= 0) {
         *(int *)((char *)a0 + 0x50) = *(int *)((char *)a0 + 0x50) + (int)v;
@@ -601,7 +601,7 @@ int func_0026D558(void *a0, int a1, int a2) {
 extern int func_0026EAF0(int *self, int a1, int a2, int a3);
 extern int func_0026ECC8(int *self, int a1, int a2, int a3);
 
-long func_0026D5C0(void *a0, int a1, int a2) {
+long __swrite(void *a0, int a1, int a2) {
     unsigned short flag = *(unsigned short *)((char *)a0 + 0xC);
     if (flag & 0x100) {
         func_0026ECC8((int *)*(int *)((char *)a0 + 0x54), *(short *)((char *)a0 + 0xE), 0, 2);
@@ -614,7 +614,7 @@ long func_0026D5C0(void *a0, int a1, int a2) {
     }
 }
 
-long func_0026D640(void *a0, int a1, int a2) {
+long __sseek(void *a0, int a1, int a2) {
     unsigned long r = (unsigned long)func_0026ECC8((int *)*(int *)((char *)a0 + 0x54), *(short *)((char *)a0 + 0xE), a1, a2);
     if (r == -1) {
         *(unsigned short *)((char *)a0 + 0xC) &= 0xEFFF;
@@ -625,10 +625,10 @@ long func_0026D640(void *a0, int a1, int a2) {
     return r;
 }
 
-extern int func_0026EC10(int *self, int a1);
+extern int _close_r(int *self, int a1);
 
-int func_0026D6A8(void *a0) {
-    return func_0026EC10((int *)*(int *)((char *)a0 + 0x54), *(short *)((char *)a0 + 0xE));
+int __sclose(void *a0) {
+    return _close_r((int *)*(int *)((char *)a0 + 0x54), *(short *)((char *)a0 + 0xE));
 }
 
 INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630620);
@@ -654,7 +654,7 @@ const unsigned int D_00630778[0x8] = { 0x37E08000, 0x4341C379, 0xB5056E17, 0x469
 INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630798);
 const unsigned int D_006307A0[0xC] = { 0x97D889BC, 0x3C9CD2B2, 0xD5A8A733, 0x3949F623, 0x44F4A73D, 0x32A50FFD, 0xCF8C979D, 0x255BBA08, 0x64AC6F43, 0x0AC80628, 0x00000000, 0x00000000 };
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026D6C8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _strtod_r);
 
 INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630888);
 INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630890);
@@ -670,41 +670,41 @@ __asm__(
     "    .section .text\n"
 );
 
-extern unsigned int func_0026D6C8(void *a0, int a1, int a2);
+extern unsigned int _strtod_r(void *a0, int a1, int a2);
 
 int func_0026E5C8(a0, a1)
 int a0;
 int a1;
 {
-    return func_0026D6C8(D_00553244[0], a0, a1);
+    return _strtod_r(D_00553244[0], a0, a1);
 }
 
-extern int func_002633B8(long a0);
+extern int dptofp(long a0);
 extern int func_0026E5C8();
 
-int func_0026E5F8(void) {
-    return func_002633B8(func_0026E5C8());
+int strtodf(void) {
+    return dptofp(func_0026E5C8());
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026E620);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _strtoul_r);
 
-extern long long func_0026E620(void *a0, void *a1, int a2, int a3);
+extern long long _strtoul_r(void *a0, void *a1, int a2, int a3);
 
 long long func_0026E840(void *a0, int a1, int a2) {
-    return func_0026E620((void *)D_00553244[0], a0, a1, a2);
+    return _strtoul_r((void *)D_00553244[0], a0, a1, a2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026E878);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", __submore);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026E968);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", ungetc);
 
-extern int func_00245470(int a1, int a2, int a3);
+extern int write(int a1, int a2, int a3);
 
 int func_0026EAF0(int *self, int a1, int a2, int a3)
 {
     int ret;
     D_00633FF0[0] = 0;
-    ret = func_00245470(a1, a2, a3);
+    ret = write(a1, a2, a3);
     if (ret == -1) {
         if (D_00633FF0[0] != 0) {
             self[0] = D_00633FF0[0];
@@ -713,11 +713,11 @@ int func_0026EAF0(int *self, int a1, int a2, int a3)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026EB50);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _calloc_r);
 
 extern int func_00245590(int a1);
 
-int func_0026EC10(int *self, int a1)
+int _close_r(int *self, int a1)
 {
     int ret;
     D_00633FF0[0] = 0;
@@ -730,13 +730,13 @@ int func_0026EC10(int *self, int a1)
     return ret;
 }
 
-extern int func_00245660(void *a0, void *a1);
+extern int fstat(void *a0, void *a1);
 
 int func_0026EC68(int *self, int a1, int a2)
 {
     int ret;
     D_00633FF0[0] = 0;
-    ret = func_00245660(a1, a2);
+    ret = fstat(a1, a2);
     if (ret == -1) {
         if (D_00633FF0[0] != 0) {
             self[0] = D_00633FF0[0];
@@ -760,13 +760,13 @@ int func_0026ECC8(int *self, int a1, int a2, int a3)
     return ret;
 }
 
-extern int func_002454F0(int a1, int a2, int a3);
+extern int read(int a1, int a2, int a3);
 
 int func_0026ED28(int *self, int a1, int a2, int a3)
 {
     int ret;
     D_00633FF0[0] = 0;
-    ret = func_002454F0(a1, a2, a3);
+    ret = read(a1, a2, a3);
     if (ret == -1) {
         if (D_00633FF0[0] != 0) {
             self[0] = D_00633FF0[0];
@@ -775,16 +775,16 @@ int func_0026ED28(int *self, int a1, int a2, int a3)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026ED88);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", _realloc_r);
 
 __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_0026F2F8\n"
-    ".type func_0026F2F8, @function\n"
+    ".global _sceSDC\n"
+    ".type _sceSDC, @function\n"
     "    .align 3\n"
-    "func_0026F2F8:\n"
+    "_sceSDC:\n"
     "    lui $7, (0xFFFFF000 >> 16)\n"
     "    daddu $6, $0, $0\n"
     "    ori $7, $7, (0xFFFFF000 & 0xFFFF)\n"
@@ -829,7 +829,7 @@ __asm__(
     "    nop\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_0026F2F8, . - func_0026F2F8\n"
+    ".size _sceSDC, . - _sceSDC\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -855,20 +855,20 @@ __asm__(
     "    and   $16, $16, $2\n"
     "    beqz  $16, 1f\n"
     "    nop\n"
-    "    jal   func_00101A40\n"
+    "    jal   DIntr\n"
     "    nop\n"
     "1:\n"
     "    lui   $4, 0xFFFF\n"
     "    ori   $4, $4, 0xFFC0\n"
     "    and   $5, $17, $4\n"
-    "    jal   func_0026F2F8\n"
+    "    jal   _sceSDC\n"
     "    and   $4, $18, $4\n"
     "    beqz  $16, 2f\n"
     "    ld    $31, 0x30($29)\n"
     "    ld    $18, 0x20($29)\n"
     "    ld    $17, 0x10($29)\n"
     "    ld    $16, 0x0($29)\n"
-    "    j     func_00101A88\n"
+    "    j     EIntr\n"
     "    addiu $29, $29, 0x40\n"
     "2:\n"
     "    ld    $18, 0x20($29)\n"
@@ -882,20 +882,20 @@ __asm__(
     "    .set at\n"
 );
 
-extern void func_0026F2F8(int a0, int a1);
+extern void _sceSDC(int a0, int a1);
 
 void func_0026F420(int a0, int a1) {
-    func_0026F2F8(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
+    _sceSDC(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
 }
 
 __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_0026F438\n"
-    ".type func_0026F438, @function\n"
+    ".global _sceIDC\n"
+    ".type _sceIDC, @function\n"
     "    .align 3\n"
-    "func_0026F438:\n"
+    "_sceIDC:\n"
     "    lui $7, (0xFFFFF000 >> 16)\n"
     "    daddu $6, $0, $0\n"
     "    ori $7, $7, (0xFFFFF000 & 0xFFFF)\n"
@@ -940,7 +940,7 @@ __asm__(
     "    nop\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_0026F438, . - func_0026F438\n"
+    ".size _sceIDC, . - _sceIDC\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -966,20 +966,20 @@ __asm__(
     "    and   $16, $16, $2\n"
     "    beqz  $16, 1f\n"
     "    nop\n"
-    "    jal   func_00101A40\n"
+    "    jal   DIntr\n"
     "    nop\n"
     "1:\n"
     "    lui   $4, 0xFFFF\n"
     "    ori   $4, $4, 0xFFC0\n"
     "    and   $5, $17, $4\n"
-    "    jal   func_0026F438\n"
+    "    jal   _sceIDC\n"
     "    and   $4, $18, $4\n"
     "    beqz  $16, 2f\n"
     "    ld    $31, 0x30($29)\n"
     "    ld    $18, 0x20($29)\n"
     "    ld    $17, 0x10($29)\n"
     "    ld    $16, 0x0($29)\n"
-    "    j     func_00101A88\n"
+    "    j     EIntr\n"
     "    addiu $29, $29, 0x40\n"
     "2:\n"
     "    ld    $18, 0x20($29)\n"
@@ -993,8 +993,8 @@ __asm__(
     "    .set at\n"
 );
 
-extern void func_0026F438(int a0, int a1);
+extern void _sceIDC(int a0, int a1);
 
 void func_0026F560(int a0, int a1) {
-    func_0026F438(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
+    _sceIDC(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
 }

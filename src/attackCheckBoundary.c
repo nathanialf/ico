@@ -6,7 +6,7 @@ struct BStr { int cnt; int f4; int f8; struct BEl *arr; };
 
 
 
-extern void playSEConditionID(int a0, int a1);
+extern void ExecuteSEPackage(int a0, int a1);
 extern void _ACTWait();
 extern int actInitialize();
 extern void actInitialize_ext_charcter();
@@ -115,10 +115,10 @@ void GetAttackCheckBoundaryManagerStatus(void *a0) {
 extern int D_00632CC8;
 extern char D_004BEFC0[];
 extern void gif_SpriteOffset(int a0);
-extern void gsb_Reduction(int a0);
-extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void gif_SetZTest(int a0);
+extern void gif_SetAlpha(int a0, int a1, int a2);
 extern int func_00105278(void);
-extern void func_00118678(int a0);
+extern void _UnitMatrix(int a0);
 extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
 extern float func_001BBFD0(void *a0);
 extern void reg_dispBoxLine(void *a0, int a1, int a2, float a3);
@@ -131,9 +131,9 @@ int switchOnSE(void *a0) {
     if (D_00632CC8 == 0) goto end;
     if (*(int *)(g + 4) != 0) goto end;
     gif_SpriteOffset(0xB);
-    gsb_Reduction(1);
-    gsb_SetFrame(1, 5, 0x80);
-    func_00118678(func_00105278());
+    gif_SetZTest(1);
+    gif_SetAlpha(1, 5, 0x80);
+    _UnitMatrix(func_00105278());
     m = func_00105278();
     MatrixDrive_TurnObjectMatrix(m + 0x30,
         *(int *)(*(char **)((char *)a0 + 0x15C) + 0xC) + 0x30);
@@ -174,12 +174,12 @@ void func_001BC098(void *a0, int a1) {
 
 void func_001BC0A8(int a0)
 {
-    playSEConditionID(a0, 0x3D);
+    ExecuteSEPackage(a0, 0x3D);
 }
 
 void func_001BC0B0(int a0)
 {
-    playSEConditionID(a0, 0x3E);
+    ExecuteSEPackage(a0, 0x3E);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC0B8);
@@ -198,29 +198,29 @@ INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC7F0);
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC870);
 
-void func_001BC9A0(int a0)
+void landingSE(int a0)
 {
-    playSEConditionID(a0, 0x2);
+    ExecuteSEPackage(a0, 0x2);
 }
 
-void func_001BC9A8(int a0)
+void fallDownStartSE(int a0)
 {
-    playSEConditionID(a0, 0x24);
+    ExecuteSEPackage(a0, 0x24);
 }
 
-void func_001BC9B0(int a0)
+void pushStartSE(int a0)
 {
-    playSEConditionID(a0, 0x4);
+    ExecuteSEPackage(a0, 0x4);
 }
 
-void func_001BC9B8(int a0)
+void pullStartSE(int a0)
 {
-    playSEConditionID(a0, 0xD);
+    ExecuteSEPackage(a0, 0xD);
 }
 
-void func_001BC9C0(int a0)
+void wallHitSE(int a0)
 {
-    playSEConditionID(a0, 0x1E);
+    ExecuteSEPackage(a0, 0x1E);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC9C8);

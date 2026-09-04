@@ -6,28 +6,28 @@ typedef struct { float m[16]; } Mtx44;
 
 extern void func_0010D540(int dst, int src);
 extern float func_00118320(int dst, int v);
-extern int *func_0010EB60(float f);
+extern int *GetTableArcCos(float f);
 extern void func_00118350(int dst, int v, int src);
 extern void func_001182F0(int dst, int src);
-extern void func_0010DCF8(int dst, int p, int src);
-extern void func_0010DDB8(int dst, int a, int b);
+extern void SetQuaternionByAxisRotateV(int dst, int p, int src);
+extern void MultiQuaternion(int dst, int a, int b);
 extern char D_004BEB00[];
 extern char D_00275890[];
 
 extern int *func_0013A0F8(int tag, int size, int name, int id);
-extern int func_00264D60(void);
-extern void func_00118678(int dst);
+extern int rand(void);
+extern void _UnitMatrix(int dst);
 extern int *func_0019F310(int n, int *arg1);
 extern void func_00139598(int x);
 extern int func_00109F10(int *self, int v);
 extern void func_001AD748(int a, int b, int c);
-extern void func_00263FF0(int a, int b, int c);
+extern void __assert(int a, int b, int c);
 extern int func_001CEF90(int a, int b, int c);
 extern void func_00105F00(int a, int b);
 extern void func_00102850(int p, int *self);
 extern void func_00104508(int p, int *self);
 extern void func_00104140(int dst, int *self);
-extern void func_00118648(int a, int b, int c);
+extern void _ApplyMatrix(int a, int b, int c);
 extern int D_00632010;
 extern int D_00632024;
 extern char D_004BEC00[];
@@ -86,7 +86,7 @@ int *func_001B8720(int *self, int *arg1)
     this[0x0 / 4] = a30;
     this[0x8 / 4] = 7;
     {
-        int r264 = func_00264D60();
+        int r264 = rand();
         char *eb = (char *)D_00623468;
         float f18;
         int eidx = this[0x0 / 4] * 0x20;
@@ -98,8 +98,8 @@ int *func_001B8720(int *self, int *arg1)
         ((struct Bec *)D_004BEC00)->f8 = f18;
     }
     func_00105F00((int)((char *)this + 0x1B0), (int)D_004BEC00);
-    func_00118678((int)((char *)this + 0x1F0));
-    func_00118678((int)((char *)this + 0x230));
+    _UnitMatrix((int)((char *)this + 0x1F0));
+    _UnitMatrix((int)((char *)this + 0x230));
     func_00102850((int)((char *)this + 0x1D0), self);
     func_00104508((int)((char *)this + 0x1E0), self);
 
@@ -125,8 +125,8 @@ int *func_001B8720(int *self, int *arg1)
         }
         func_00104140((int)&mtx, self);
         for (k = 3; k >= 0; k--) {
-            func_00118648((int)node, (int)&mtx, (int)bb);
-            func_00118648((int)(node + 0x10), (int)&mtx, (int)bb);
+            _ApplyMatrix((int)node, (int)&mtx, (int)bb);
+            _ApplyMatrix((int)(node + 0x10), (int)&mtx, (int)bb);
             bb += 0x10;
             node += 0x50;
         }
@@ -246,7 +246,7 @@ int *func_001B8720(int *self, int *arg1)
             out[0] = r;
             if (r == neg1) {
                 func_001AD748((int)FN8550, 0x10D, (int)D_00618560);
-                func_00263FF0((int)FN8550, 0x10D, (int)A33210);
+                __assert((int)FN8550, 0x10D, (int)A33210);
             }
             out++;
             q++;

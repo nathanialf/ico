@@ -6,21 +6,21 @@
 
 
 
-extern void func_0010DEC0();
+extern void GetMatrixFromQuaternionPos();
 extern void func_002438E8();
 extern void MatrixDrive_TransMatrix();
-extern void func_002438B8();
+extern void sceVu0ApplyMatrix();
 extern void MatrixDrive_TurnObjectMatrix();
-extern void func_00243978();
+extern void sceVu0Normalize();
 extern int * func_00105278();
 extern void func_00104F20();
-extern void func_0010DF70();
-extern void func_00105268();
-extern void MatrixDrive_TurnXObjectMatrixYZ();
-extern void func_0010DDB8();
+extern void MultiMatrixByQuaternion();
+extern void MatrixDrive_PopMatrix();
+extern void CopyMatrix();
+extern void MultiQuaternion();
 extern void RegularizeQuaternion();
 #include "ico/types.h"
-extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
+extern void CopyMatrix(void *dst, void *src);
 extern void func_00105308(float a, float b, float c);
 
 void GetRootQuaternionByDObj(void *a0)
@@ -32,10 +32,10 @@ void GetRootQuaternionByDObj(void *a0)
     float b = rf13;
     float c = rf14;
     func_00104F20();
-    MatrixDrive_TurnXObjectMatrixYZ(func_00105278(), (void *)((char *)a0 + 0x20));
+    CopyMatrix(func_00105278(), (void *)((char *)a0 + 0x20));
     func_00105308(a, b, c);
-    MatrixDrive_TurnXObjectMatrixYZ((void *)*(int *)((char *)a0 + 0xC), func_00105278());
-    func_00105268();
+    CopyMatrix((void *)*(int *)((char *)a0 + 0xC), func_00105278());
+    MatrixDrive_PopMatrix();
 }
 
 void UpdateRootMatrixByDObj(int a0)
@@ -43,34 +43,34 @@ void UpdateRootMatrixByDObj(int a0)
     GetRootQuaternionByDObj((int)((GObj *)(a0))->p_15C);
 }
 
-void GetRootQuaternion(int a0, int a1)
+void GetRootMatrixRotOffsetByDObj(int a0, int a1)
 {
     RegularizeQuaternion(a0, a1 + 0x60);
-    func_0010DDB8(a0, a0, *(int *)(a1 + 0x10));
+    MultiQuaternion(a0, a0, *(int *)(a1 + 0x10));
 }
 
 void UpdateRootMatrix(void *a0, int a1) {
-    GetRootQuaternion(a0, *(void **)(a1 + 0x15C));
+    GetRootMatrixRotOffsetByDObj(a0, *(void **)(a1 + 0x15C));
 }
 
-void SetRootBaseQuaternion(int *self, int *other)
+void SetRootMatrixRotOffsetByDObj(int *self, int *other)
 {
     func_00104F20();
-    MatrixDrive_TurnXObjectMatrixYZ(func_00105278(), (char *)self + 0x20);
-    func_0010DF70(other);
-    MatrixDrive_TurnXObjectMatrixYZ((void *)self[0xC/4], func_00105278());
-    func_00105268();
-    func_0010DDB8((void *)self[0x10/4], (char *)self + 0x60, other);
+    CopyMatrix(func_00105278(), (char *)self + 0x20);
+    MultiMatrixByQuaternion(other);
+    CopyMatrix((void *)self[0xC/4], func_00105278());
+    MatrixDrive_PopMatrix();
+    MultiQuaternion((void *)self[0x10/4], (char *)self + 0x60, other);
 }
 
 
 void SetRootQuaternion(int a0, void *a1) {
-    SetRootBaseQuaternion(*(void **)(a0 + 0x15C), a1);
+    SetRootMatrixRotOffsetByDObj(*(void **)(a0 + 0x15C), a1);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootMatrixWithTransOffsetByDObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00102C10);
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePointXZ);
 
 extern void SetMotionBlendlessNode(void *a0);
 extern void SetRootMatrixWithTransOffsetByDObj(void *a0);
@@ -80,9 +80,9 @@ void SetRootMatrixWithTransOffset(void *a0) {
     SetMotionBlendlessNode(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootMatrixRotOffsetByDObj);
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", LocalizeGeometry);
 
-void GetRootMatrixRotOffset(int *self, int *other, char *p)
+void GetGlobalDirectionOrient(int *self, int *other, char *p)
 {
     MatrixDrive_TurnObjectMatrix((int)self, (int)p);
     {
@@ -92,45 +92,21 @@ void GetRootMatrixRotOffset(int *self, int *other, char *p)
             char *inner_struct = ((GObj *)(a))->p_15C;
             int inner_field = *(int *)(inner_struct + 0xC);
             int idx = *(int *)(sub + 0x4);
-            func_002438B8(self, inner_field + (idx << 6), p);
+            sceVu0ApplyMatrix(self, inner_field + (idx << 6), p);
         }
     }
     *(int *)((char *)self + 0x4) = 0;
-    func_00243978(self, self);
+    sceVu0Normalize(self, self);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootMatrixRotOffsetByDObj);
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GlobalizeGeometry);
 
-void SetRootMatrixRotOffset(int a0, int a1)
+void GetRootVelocity(int a0, int a1)
 {
     MatrixDrive_TurnObjectMatrix(a0, (int)((GObj *)(a1))->p_15C + 0x130);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePoint);
-
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionWithNodePoint);
-
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", LocalizeGeometry);
-
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetGlobalDirectionOrient);
-
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GlobalizeGeometry);
-
-void GetRootVelocity(int *self, int *a1)
-{
-    int buf[16];
-    char *obj = (char *)a1[0];
-    char *ctx = ((GObj *)(obj))->p_15C;
-    MatrixDrive_TurnXObjectMatrixYZ(buf, (void *)(*(int *)(ctx + 0xC) + (a1[1] << 6)));
-    MatrixDrive_TransMatrix((char *)buf, (char *)buf);
-    func_002438B8((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520), (int)buf,
-                  (char *)((GObj *)((char *)self))->p_15C + 0x520);
-    func_00243978((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520),
-                  (int *)((char *)((GObj *)((char *)self))->p_15C + 0x520));
-    ((GObj *)((char *)self))->p_15C->f_52C = 0;
-}
-
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialInverseMatrixByDObj);
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialInverseMatrix);
 
@@ -138,10 +114,34 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialSkeltonMatrixByDOb
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", MakeCharGObjList);
 
-void cylinderCollisionCheck(void *a0, char *src)
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", cylinderCollisionCheck);
+
+void LocalizeDirectionOrient(int *self, int *a1)
+{
+    int buf[16];
+    char *obj = (char *)a1[0];
+    char *ctx = ((GObj *)(obj))->p_15C;
+    CopyMatrix(buf, (void *)(*(int *)(ctx + 0xC) + (a1[1] << 6)));
+    MatrixDrive_TransMatrix((char *)buf, (char *)buf);
+    sceVu0ApplyMatrix((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520), (int)buf,
+                  (char *)((GObj *)((char *)self))->p_15C + 0x520);
+    sceVu0Normalize((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520),
+                  (int *)((char *)((GObj *)((char *)self))->p_15C + 0x520));
+    ((GObj *)((char *)self))->p_15C->f_52C = 0;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetCylinderCollision);
+
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetCylinderCollisionWithExceptOwnCollision);
+
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", CylinderCollision);
+
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", CylinderCollisionWithControlDynamics);
+
+void GetRootMatrixByDObj(void *a0, char *src)
 {
     float *p = (float *)(src + 0xA0);
-    func_0010DEC0(a0, src + 0xD0, p);
+    GetMatrixFromQuaternionPos(a0, src + 0xD0, p);
     {
         int *g = *(int **)src;
         if (g) {
@@ -153,11 +153,11 @@ void cylinderCollisionCheck(void *a0, char *src)
     *(float *)((char *)a0 + 0x34) += p[0x30];
 }
 
-void LocalizeDirectionOrient(void *a0, char *outer)
+void GetRootMatrix(void *a0, char *outer)
 {
     char *src = ((GObj *)(outer))->p_15C;
     float *p = (float *)(src + 0xA0);
-    func_0010DEC0(a0, src + 0xD0, p);
+    GetMatrixFromQuaternionPos(a0, src + 0xD0, p);
     {
         int *g = *(int **)src;
         if (g) {
@@ -169,13 +169,13 @@ void LocalizeDirectionOrient(void *a0, char *outer)
     *(float *)((char *)a0 + 0x34) += p[0x30];
 }
 
-void GetCylinderCollision(void *a0, char *src)
+void GetRootPositionByDObj(void *a0, char *src)
 {
     float *p = (float *)(src + 0xA0);
     float f0;
     int *g = *(int **)src;
     if (g) {
-        func_002438B8((int *)a0,
+        sceVu0ApplyMatrix((int *)a0,
                       *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
                       (char *)p);
     } else {
@@ -186,20 +186,20 @@ void GetCylinderCollision(void *a0, char *src)
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetCylinderCollisionWithExceptOwnCollision);
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPosition);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", CylinderCollision);
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFitting);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", CylinderCollisionWithControlDynamics);
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootPosition);
 
-void GetRootMatrixByDObj(void *a0, char *outer)
+void GetRootPosition(void *a0, char *outer)
 {
     char *src = ((GObj *)(outer))->p_15C;
     float *p = (float *)(src + 0xA0);
     float f0;
     int *g = *(int **)src;
     if (g) {
-        func_002438B8((int *)a0,
+        sceVu0ApplyMatrix((int *)a0,
                       *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
                       (char *)p);
     } else {

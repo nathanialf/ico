@@ -12,7 +12,7 @@
  *
  * Usage:
  *     #include "syscall.h"
- *     SYSCALL_WRAPPER(func_00100110, 0x1)
+ *     SYSCALL_WRAPPER(ResetEE, 0x1)
  *
  * Constraints:
  *   - The function name must be a valid identifier matching the address.

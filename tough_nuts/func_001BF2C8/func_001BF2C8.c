@@ -26,8 +26,8 @@ void func_001BEF58(void *self);
 int func_001BE120(void *self);
 void func_001BE6A8(void *self);
 void func_001A6E28(const char *fmt, ...);
-void func_002641D8(int p, int q, int r);
-void func_00118648(void *a, int b, void *c);
+void memset(int p, int q, int r);
+void _ApplyMatrix(void *a, int b, void *c);
 void func_0010D838(void *self, void *p);
 void func_00102870(void *self, void *p);
 extern float D_0063118C;
@@ -69,11 +69,11 @@ void func_001BF2C8(int *self)
       skip_body:
       q = local;
 
-      func_002641D8((int) q, 0, 0x10);
+      memset((int) q, 0, 0x10);
       *((float *) (((char *) local) + 0x8)) = 1.0f;
       {
         int *p15c = (int *) self[0x15C / 4];
-        func_00118648(((char *) p15c) + 0x520, p15c[0xC / 4], local);
+        _ApplyMatrix(((char *) p15c) + 0x520, p15c[0xC / 4], local);
       }
       goto end_reload;
     }

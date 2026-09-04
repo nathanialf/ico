@@ -27,7 +27,7 @@ Disassembly excerpt:
 glabel func_001A3340
     /* A3340 001A3340 F0FFBD27 */  addiu      $sp, $sp, -0x10
     /* A3344 001A3344 0000BFFF */  sd         $ra, 0x0($sp)
-    /* A3348 001A3348 BAA7060C */  jal        func_001A9EE8
+    /* A3348 001A3348 BAA7060C */  jal        debug_ClearFontWindow
     /* A334C 001A334C 00000000 */   nop
     /* A3350 001A3350 0010023C */  lui        $v0, (0x10000010 >> 16)
     /* A3354 001A3354 A0A380AF */  sw         $zero, %gp_rel(D_00632C90)($gp)
@@ -63,7 +63,7 @@ Disassembly excerpt:
 glabel func_001A3340
     /* A3340 001A3340 F0FFBD27 */  addiu      $sp, $sp, -0x10
     /* A3344 001A3344 0000BFFF */  sd         $ra, 0x0($sp)
-    /* A3348 001A3348 BAA7060C */  jal        func_001A9EE8
+    /* A3348 001A3348 BAA7060C */  jal        debug_ClearFontWindow
     /* A334C 001A334C 00000000 */   nop
     /* A3350 001A3350 0010023C */  lui        $v0, (0x10000010 >> 16)
     /* A3354 001A3354 A0A380AF */  sw         $zero, %gp_rel(D_00632C90)($gp)

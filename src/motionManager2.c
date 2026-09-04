@@ -19,18 +19,18 @@ typedef struct { long long w[62]; } _0x1F0;
 extern _0x1F0 D_00275DB0;
 extern int soundSePlayModeStop(void);
 extern int D_00631B48;
-extern void func_00243AD0();
+extern void sceVu0AddVector();
 extern char D_00275850[];
-extern void GetRootMatrixByDObj();
+extern void GetRootPosition();
 extern void GetMatrixFromQuaternion();
-extern float func_00168C18();
-extern int func_00168A80();
-extern void _SetCurrentMatrix();
-extern void func_00168AE0();
-extern void LoadCollision();
+extern float GetYProjectionOfPlane();
+extern int CompareAttribute();
+extern void _NormalizeVector();
+extern void GetWallGlobalInfo();
+extern void ClipFloorE();
 extern void ChangeFieldCollisionDebugMode();
-extern void MatrixDrive_GetTurnXAngleZY();
-extern void GetRootMatrixRotOffset();
+extern void SubVectorXYZ();
+extern void GetGlobalDirectionOrient();
 #include "ico/types.h"
 
 typedef struct { long long x; int y; } __attribute__((packed, aligned(4))) HrcNode;
@@ -50,10 +50,10 @@ void CheckFieldContact(int a0, int a1)
     MatrixDrive_TurnObjectMatrix(a0, (int)((GObj *)(a1))->p_15C + 0x590);
 }
 
-extern void GetRootVelocity(char *a0, void *a1);
+extern void LocalizeDirectionOrient(char *a0, void *a1);
 extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
-extern float func_00168C18(void *a0, void *a1);
-extern void func_00243978(int *a0, int *a1);
+extern float GetYProjectionOfPlane(void *a0, void *a1);
+extern void sceVu0Normalize(int *a0, int *a1);
 
 void dispPlane(void *a0, float *a1) {
     char *base = *(char **)((char *)a0 + 0x15C);
@@ -67,17 +67,17 @@ void dispPlane(void *a0, float *a1) {
     MatrixDrive_TurnObjectMatrix((int)m, a1);
     *(float *)(s2 + 0xB4) = 0.0f;
     *(float *)(s2 + 0xBC) = 1.0f;
-    func_00243978((int *)m, (int *)m);
+    sceVu0Normalize((int *)m, (int *)m);
     ctrl = *(char **)((char *)a0 + 0x15C);
     if (*(int *)ctrl == 0) {
         return;
     }
-    GetRootVelocity(a0, ctrl);
+    LocalizeDirectionOrient(a0, ctrl);
 }
 
 void GetOrientOfWallOfGObj(int a0, int a1)
 {
-    GetRootMatrixRotOffset(a0, a1, (int)((GObj *)(a1))->p_15C + 0x520);
+    GetGlobalDirectionOrient(a0, a1, (int)((GObj *)(a1))->p_15C + 0x520);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetOrientOfCliffOfGObj);
@@ -89,17 +89,17 @@ void SetMotionDirection(int a0, int *a1)
   char *new_var;
   new_var = ((char *) p) + 0xA0;
   MatrixDrive_TurnObjectMatrix(a0, (int) (((char *) p) + 0x130));
-  MatrixDrive_GetTurnXAngleZY(a0, a0, (int) new_var);
+  SubVectorXYZ(a0, a0, (int) new_var);
 }
 
 extern int D_00553BE0[];
-extern void debug_assertMessage(void *msg);
+extern void debug_StdPrintfDummy(void *msg);
 
 void _GetMotionDirection(int *a0) {
     char *o = (char *)a0[0x57];
     char *sub = o + 0xA0;
-    *(float *)(sub + 0x1B4) = func_00168C18(o + 0x1D0, o + 0x250);
-    debug_assertMessage(D_00553BE0);
+    *(float *)(sub + 0x1B4) = GetYProjectionOfPlane(o + 0x1D0, o + 0x250);
+    debug_StdPrintfDummy(D_00553BE0);
 }
 
 void SetMotionDirectionWithLimit(int a0, int a1)
@@ -115,7 +115,7 @@ void GetRootPosOfNextFrame(int a0, int a1)
     MatrixDrive_TurnObjectMatrix(a0, a1);
     MatrixDrive_TurnObjectMatrix(a0 + 0x10, a0);
     *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
-    LoadCollision(a0);
+    ClipFloorE(a0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", AdjustMotionHeightToField);
@@ -149,9 +149,9 @@ void DispSkelton(int *self, int *p, int *cfg)
     int *p15c = (int *)((GObj *)(obj))->p_15C;
     int v_c = p15c[0xC / 4];
 
-    func_00168AE0(self, p, cfg[2], v_c + sh);
+    GetWallGlobalInfo(self, p, cfg[2], v_c + sh);
     p[1] = 0;
-    _SetCurrentMatrix(p, p);
+    _NormalizeVector(p, p);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SlopeIKControl);
@@ -172,8 +172,8 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _getMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetMotion);
 
 extern void RegularizeQuaternion(float *dst, float *src);
-extern void func_0010DDB8(void *a0, void *a1, void *a2);
-extern void func_0010DFB8(float *a0, float *a1, unsigned int a2);
+extern void MultiQuaternion(void *a0, void *a1, void *a2);
+extern void GetMirrorQuaternion(float *a0, float *a1, unsigned int a2);
 
 int GetStreamMotion(StreamElem *a, StreamNode *b) {
     int i;
@@ -190,9 +190,9 @@ int GetStreamMotion(StreamElem *a, StreamNode *b) {
             goto swap;
         }
         RegularizeQuaternion(buf, b[i].q);
-        func_0010DDB8(buf, buf, a[i].q);
-        func_0010DFB8(buf, buf, 4);
-        func_0010DDB8(a[i].q, b[i].q, buf);
+        MultiQuaternion(buf, buf, a[i].q);
+        GetMirrorQuaternion(buf, buf, 4);
+        MultiQuaternion(a[i].q, b[i].q, buf);
         continue;
     swap:
         {
@@ -202,8 +202,8 @@ int GetStreamMotion(StreamElem *a, StreamNode *b) {
             *pi = *pn;
             *pn = tmp;
         }
-        func_0010DFB8(a[i].q, a[i].q, 4);
-        func_0010DFB8(a[b[i].idx].q, a[b[i].idx].q, 4);
+        GetMirrorQuaternion(a[i].q, a[i].q, 4);
+        GetMirrorQuaternion(a[b[i].idx].q, a[b[i].idx].q, 4);
     }
 }
 
@@ -274,22 +274,22 @@ void SetRootUpdateMode(char *self) {
 
 int ForMotionViewer_GetCurrentAnimationFrame(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    return func_00168A80(*(int *)(sub + 0x5F8));
+    return CompareAttribute(*(int *)(sub + 0x5F8));
 }
 
 int ForMotionViewer_GetCurrentMotion(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    return func_00168A80(*(int *)(sub + 0x5F4));
+    return CompareAttribute(*(int *)(sub + 0x5F4));
 }
 
 int EnableMotionOrientUpdate(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    return func_00168A80(*(int *)(sub + 0x5EC));
+    return CompareAttribute(*(int *)(sub + 0x5EC));
 }
 
 int DisableMotionOrientUpdate(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    return func_00168A80(*(int *)(sub + 0x5F0));
+    return CompareAttribute(*(int *)(sub + 0x5F0));
 }
 
 int CheckFloorAttribute(float *dst, FloorAttr *a1) {
@@ -305,7 +305,7 @@ int CheckFloorAttribute(float *dst, FloorAttr *a1) {
     return 0;
 }
 
-extern float func_00168BD0(float *plane, float *pos);
+extern float GetYDistanceFromPlane(float *plane, float *pos);
 
 float CheckWallAttribute(void *a0, int a1) {
     char *ctrl;
@@ -313,7 +313,7 @@ float CheckWallAttribute(void *a0, int a1) {
 
     ctrl = *(char **)((char *)a0 + 0x15C);
     idx = *(signed char *)(*(char **)(ctrl + 0x810) + a1);
-    return func_00168BD0((float *)(ctrl + 0x3F0),
+    return GetYDistanceFromPlane((float *)(ctrl + 0x3F0),
                          (float *)(*(int *)(ctrl + 0xC) + (idx << 6) + 0x30));
 }
 
@@ -323,7 +323,7 @@ float CheckPureWallAttribute(void *a0, int a1) {
 
     ctrl = *(char **)((char *)a0 + 0x15C);
     idx = *(signed char *)(*(char **)(ctrl + 0x810) + a1);
-    return func_00168BD0((float *)(ctrl + 0x1D0),
+    return GetYDistanceFromPlane((float *)(ctrl + 0x1D0),
                          (float *)(*(int *)(ctrl + 0xC) + (idx << 6) + 0x30));
 }
 
@@ -358,12 +358,12 @@ void GetDifferenceFromLowerField(char *self) {
     *(int *)(sub + 0x4D0) = 0;
 }
 
-float GetDifferenceFromWallLowerPlane(char *self) {
+float GetRopeHangablePos(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
     return *(float *)(sub + 0x618);
 }
 
-int GetDifferenceFromWallUpperPlane(char *self) {
+int GetMotionFrameFlag1(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
     return *(int *)(sub + 0x600);
 }
@@ -380,18 +380,18 @@ float EnableChangeRootUpdateMode(int *a, int *b)
     float r1;
     float r2;
     pa = (int *)((GObj *)(a))->p_15C;
-    r1 = func_00168C18((int *)((char *)pa + 0x1D0), (int *)((char *)pa + 0xA0));
+    r1 = GetYProjectionOfPlane((int *)((char *)pa + 0x1D0), (int *)((char *)pa + 0xA0));
     pb = (int *)((GObj *)(b))->p_15C;
-    r2 = func_00168C18((int *)((char *)pb + 0x1D0), (int *)((char *)pb + 0xA0));
+    r2 = GetYProjectionOfPlane((int *)((char *)pb + 0x1D0), (int *)((char *)pb + 0xA0));
     return r1 - r2;
 }
 
-float GetRopeHangablePos(char *self) {
+float GetHeightOfWallFromGObj(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
     return *(float *)(sub + 0x5A0);
 }
 
-float GetMotionFrameFlag1(char *self) {
+float GetHeightOfCliffFromGObj(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
     return *(float *)(sub + 0x580);
 }
@@ -416,13 +416,13 @@ loop:
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetHeightOfFieldPlaneDifference);
 
-void GetHeightOfWallFromGObj(int a0, int a1)
+void GetRootProjectionPosOfGObj(int a0, int a1)
 {
-    GetRootMatrixByDObj(a0, a1);
+    GetRootPosition(a0, a1);
     *(float *)(a0 + 0x4) += *(float *)((int)((GObj *)(a1))->p_15C + 0x270);
 }
 
-void GetHeightOfCliffFromGObj(char *self, float val) {
+void SetMotionPlaySpeedRatio(char *self, float val) {
     *(float *)(*(char **)(self + 0x15C) + 0x4B8) = val;
 }
 
@@ -433,7 +433,7 @@ void InitMotionRotElem(int *self)
   int *p2 = (int *) (((char *) p) + 0xA0);
   int ret;
   MatrixDrive_TurnObjectMatrix(p1, D_00275850);
-  func_00243AD0((int *) (((char *) p) + 0x250), p2, p1);
+  sceVu0AddVector((int *) (((char *) p) + 0x250), p2, p1);
   ret = -1;
   *((int *) (((char *) p2) + 0x180)) = ret;
   return ret;
@@ -443,7 +443,7 @@ void SetMotionNodeFixModeParameter(int val) {
     D_00631B48 = val;
 }
 
-void GetRootProjectionPosOfGObj(struct Pack32 *dst, struct Pack32 *src, int n)
+void CopyMotion(struct Pack32 *dst, struct Pack32 *src, int n)
 {
     if (n <= 0) return;
     do {
@@ -454,7 +454,7 @@ void GetRootProjectionPosOfGObj(struct Pack32 *dst, struct Pack32 *src, int n)
     } while (n != 0);
 }
 
-void SetMotionPlaySpeedRatio(float *dst, void *a1, int idx)
+void GetMotionRootPos(float *dst, void *a1, int idx)
 {
     float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
     float t1, t0;
@@ -472,11 +472,11 @@ void SetMotionPlaySpeedRatio(float *dst, void *a1, int idx)
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", ClearMotionGeometryInfo);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SetSkeltonDispSwitch);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetBlendedMotion);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CopyMotion);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetFloatingMotionRootPos);
 
-void GetMotionRootPos(float *dst, char *a1, int idx, int count)
+void GetShapeMotion(float *dst, char *a1, int idx, int count)
 {
     int i = 0;
     int m = *(int *)a1 - 1;

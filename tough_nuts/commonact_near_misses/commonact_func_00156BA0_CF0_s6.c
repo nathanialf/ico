@@ -1,7 +1,7 @@
 extern void *subCommonIdle__56b(int a0) __asm__("subCommonIdle");
-extern float func_00194630(void *a0);
-extern int func_00194960(int a0);
-extern void func_002641D8(void *a0, int a1, int a2);
+extern float _GetDirection(void *a0);
+extern int RoundDegGV(int a0);
+extern void memset(void *a0, int a1, int a2);
 extern void func_001945B8(void *a0, float f);
 extern int ContinueCorrectPosition__56b(void *a0) __asm__("ContinueCorrectPosition");
 extern void InitCameraEditor(int a0, void *a1, int a2, int a3, int a4, float f);
@@ -22,7 +22,7 @@ void func_00156BA0(volatile int a0) {
     int lim = 0x12;
     int j = 0;
     int i = 0;
-    float r = func_00194630(subCommonIdle__56b(a0));
+    float r = _GetDirection(subCommonIdle__56b(a0));
     float A = D_00630C30;
     float k0 = 180.0f;
     float d = A;
@@ -30,10 +30,10 @@ void func_00156BA0(volatile int a0) {
     int n = (int)(r / A * k0);
     for (;;) {
         float v;
-        func_002641D8(buf10, 0, 0x10);
+        memset(buf10, 0, 0x10);
         i++;
         *(float *)&buf10[2] = 1.0f;
-        v = (float)func_00194960(n + j) * d / k;
+        v = (float)RoundDegGV(n + j) * d / k;
         j += 5;
         func_001945B8(buf10, v);
         InitCameraEditor(ContinueCorrectPosition__56b((void *)a0), buf10, 0xFF, 0,
@@ -52,7 +52,7 @@ void func_00156CF0(volatile int a0) {
     int lim = 0x12;
     int j = 0;
     int i = 0;
-    float r = func_00194630(subCommonIdle__56b(a0));
+    float r = _GetDirection(subCommonIdle__56b(a0));
     float A = D_00630C34;
     float k0 = 180.0f;
     float d = A;
@@ -60,10 +60,10 @@ void func_00156CF0(volatile int a0) {
     int n = (int)(r / A * k0);
     for (;;) {
         float v;
-        func_002641D8(buf10, 0, 0x10);
+        memset(buf10, 0, 0x10);
         i++;
         *(float *)&buf10[2] = 1.0f;
-        v = (float)func_00194960(n + j) * d / k;
+        v = (float)RoundDegGV(n + j) * d / k;
         j += 5;
         func_001945B8(buf10, v);
         InitCameraEditor(ContinueCorrectPosition__56b((void *)a0), buf10, 0xFF, 0,

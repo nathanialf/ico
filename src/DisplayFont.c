@@ -36,11 +36,11 @@ void font_Init(int val) {
     D_006337B4 = val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", func_001FAA58);
+INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", bga_ResetAnimation);
 
 extern float D_006337B0;
 
-float func_001FAAA8(void)
+float bga_GetZoom(void)
 {
     return D_006337B0;
 }

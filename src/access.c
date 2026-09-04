@@ -33,10 +33,10 @@ void func_0023A9E0(int x) {
 extern long long D_0061C350[];
 extern int D_00631AE8;
 extern void actSt25aQueenTalkChk(int a0, int a1, int *buf, int a3, float f);
-extern void func_002641D8(void *a0, int a1, int a2);
-extern void actSwordEffXL(int a0, int a1, int *a2, int a3);
+extern void memset(void *a0, int a1, int a2);
+extern void RequestStageChangeDirect(int a0, int a1, int *a2, int a3);
 extern void scpActivateAllWithKind(void);
-extern void saveEditedDataBinary(void);
+extern void brainUnlockGirl(void);
 
 void func_0023A9F0(volatile int a0)
 {
@@ -45,12 +45,12 @@ void func_0023A9F0(volatile int a0)
     buf[0] = D_0061C350[0];
     buf[1] = D_0061C350[1];
     actSt25aQueenTalkChk(D_00631AE8, 0, (int *)buf, 0, 100.0f);
-    func_002641D8(pos, 0, 0x10);
-    actSwordEffXL(D_00631AE8, 0xB, pos, 0xB4);
+    memset(pos, 0, 0x10);
+    RequestStageChangeDirect(D_00631AE8, 0xB, pos, 0xB4);
     scpActivateAllWithKind();
     lt_fade_status(0x32);
     D_006325B4 = 0;
-    saveEditedDataBinary();
+    brainUnlockGirl();
 }
 
 void func_0023AA88(int x) {
@@ -179,8 +179,8 @@ void func_0023AD58(int x) {
     volatile int local = x;
 }
 
-extern int scpSubAdpcmPlay(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpIsBombExplode(int a0);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void func_0017B258(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int func_0012AA80(int a0);
@@ -188,7 +188,7 @@ extern int func_0012AA80(int a0);
 void func_0023AD68(volatile int a0)
 {
     int v0;
-    while ((v0 = scpSubAdpcmPlay(0x13)) == 0 || scpSleepEnemyOne(a0, v0, 350.0f) == 0) {
+    while ((v0 = scpIsBombExplode(0x13)) == 0 || scpTriggerBall(a0, v0, 350.0f) == 0) {
         _ACTWait(1);
     }
     lt_fade_status(0x33);
@@ -397,8 +397,8 @@ void func_0023B278(volatile int a0) {
     _ACTWait(0);
 }
 
-extern void scpPlayMotDirSmz(float a0, float a1, float a2, float a3, float a4, float a5);
-extern void scpTorchLightOn(int a0, int a1);
+extern void scpGetWallCollision(float a0, float a1, float a2, float a3, float a4, float a5);
+extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 
 void func_0023B2E0(volatile int a0)
 {
@@ -407,10 +407,10 @@ void func_0023B2E0(volatile int a0)
     *(int *)(*(int *)(v0 + 0x15C) + 0x4E8) = 1;
     v0 = actSt25aQueenDeadChk(0xAE7);
     *(int *)(*(int *)(v0 + 0x15C) + 0x4E8) = 0;
-    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(0x3C);
     stage_KillPlayBgAnimation(0x1B8, 1, 0);
-    scpTorchLightOn(0xAE7, 0x1B8);
+    scpLinkBGAtoLayoutedTarget(0xAE7, 0x1B8);
     while (func_0012AA80(0x1B8) == 0) {
         _ACTWait(1);
     }
@@ -424,10 +424,10 @@ void func_0023B390(volatile int a0)
     *(int *)(*(int *)(v0 + 0x15C) + 0x4E8) = 1;
     v0 = actSt25aQueenDeadChk(0xAE8);
     *(int *)(*(int *)(v0 + 0x15C) + 0x4E8) = 0;
-    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(0x3C);
     stage_KillPlayBgAnimation(0x1AC, 1, 0);
-    scpTorchLightOn(0xAE8, 0x1AC);
+    scpLinkBGAtoLayoutedTarget(0xAE8, 0x1AC);
     while (func_0012AA80(0x1AC) == 0) {
         _ACTWait(1);
     }
@@ -441,10 +441,10 @@ void func_0023B440(volatile int a0)
     *(int *)(*(int *)(v0 + 0x15C) + 0x4E8) = 1;
     v0 = actSt25aQueenDeadChk(0xAE9);
     *(int *)(*(int *)(v0 + 0x15C) + 0x4E8) = 0;
-    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(0x3C);
     stage_KillPlayBgAnimation(0x1AD, 1, 0);
-    scpTorchLightOn(0xAE9, 0x1AD);
+    scpLinkBGAtoLayoutedTarget(0xAE9, 0x1AD);
     while (func_0012AA80(0x1AD) == 0) {
         _ACTWait(1);
     }

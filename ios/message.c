@@ -3,7 +3,7 @@
 
 extern int D_006A6990[];
 
-extern void func_00100540(int sema);
+extern void SignalSema(int sema);
 
 typedef struct IosMsg {
     char pad0[0x44];
@@ -17,20 +17,20 @@ typedef struct IosMsgQueue {
     int sema;                   /* 0x2C */
 } IosMsgQueue;
 
-void iosMsgQueueCreate(IosMsgQueue *self)
+void deq_mes_th(IosMsgQueue *self)
 {
     IosMsg *msg = self->head;
 
     if (msg != 0) {
         self->head = msg->next;
         msg->next = 0;
-        func_00100540(self->sema);
+        SignalSema(self->sema);
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueDestroy);
+INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueCreate);
 
-INCLUDE_ASM("asm/nonmatchings/ios/message", send_signal_message);
+INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueDestroy);
 
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgSetEvent);
 
@@ -51,7 +51,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgSend);
 
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgRecv);
 
-extern int send_signal_message(int a0);
+extern int iosMsgQueueDestroy(int a0);
 
 void iosMsgQueueDestroyAll(void) {
     int *p;
@@ -61,7 +61,7 @@ void iosMsgQueueDestroyAll(void) {
     do {
         p = *q++;
         if (p != 0) {
-            send_signal_message(p);
+            iosMsgQueueDestroy(p);
         }
         i--;
     } while (i >= 0);

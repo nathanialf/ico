@@ -18,7 +18,7 @@ INCLUDE_ASM("asm/nonmatchings/src/seMail", func_00204F58);
 
 INCLUDE_ASM("asm/nonmatchings/src/seMail", func_00204FA8);
 
-INCLUDE_ASM("asm/nonmatchings/src/seMail", func_00205000);
+INCLUDE_ASM("asm/nonmatchings/src/seMail", WayPointWithRangeFromGObj);
 
 int func_00205048(float *a, float *b)
 {
@@ -35,9 +35,9 @@ INCLUDE_ASM("asm/nonmatchings/src/seMail", func_00205388);
 
 INCLUDE_ASM("asm/nonmatchings/src/seMail", func_00205400);
 
-INCLUDE_ASM("asm/nonmatchings/src/seMail", func_00205498);
+INCLUDE_ASM("asm/nonmatchings/src/seMail", DeleteWayGroup);
 
-void func_00205518(int idx)
+void CloseWayGroup(int idx)
 {
     int *node = (int *)((char *)D_004CAEC0 + idx * 0x34);
     int v1 = node[8 / 4];

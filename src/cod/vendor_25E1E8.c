@@ -68,18 +68,18 @@ static inline PCmpV *func_0025FE30_div(PCmpV *a, PCmpV *b) {
     return a;
 }
 
-extern void func_002591F0(int a0, int a1, int a2, int a3);
+extern void _SgSetPkAdd(int a0, int a1, int a2, int a3);
 
-void func_0025E1E8(unsigned long long a0, unsigned int a1, int a2)
+void SgStPcmVolume(unsigned long long a0, unsigned int a1, int a2)
 {
     if (a1 <= 0x7FFF && a2 >= 0 && a2 <= 0x7FFF && (a0 & 0xFF000000) == 0) {
-        func_002591F0(0x4A, (int)a0, a1, a2);
+        _SgSetPkAdd(0x4A, (int)a0, a1, a2);
     }
 }
 
 extern int func_00258CE0(void);
 
-int func_0025E238(unsigned int a0)
+int SgStPcmIopReadAddr(unsigned int a0)
 {
     int ret = 0;
     if (a0 < 0x10) {
@@ -89,21 +89,21 @@ int func_0025E238(unsigned int a0)
     return ret;
 }
 
-int func_0025E280(int a0, long a1, int a2) {
+int SgStPcmBufMode(int a0, long a1, int a2) {
     int ret;
     ret = -1;
     if ((unsigned int)a0 < 2 && (unsigned int)a2 <= 0x1FFFFF && (a1 & 0xFF000000) == 0) {
-        func_002591F0(0x4F, a1, a2, a0);
+        _SgSetPkAdd(0x4F, a1, a2, a0);
         ret = 0;
     }
     return ret;
 }
 
-extern int func_0025F548(float x, float *y);
-extern float func_0025FA60(float x, float y);
-extern float func_00260508(float x, float y, int iy);
+extern int __ieee754_rem_pio2f(float x, float *y);
+extern float __kernel_cosf(float x, float y);
+extern float __kernel_sinf(float x, float y, int iy);
 
-float func_0025E2E8(float x) {
+float sinf(float x) {
     float y[2];
     int n;
     int ix;
@@ -112,20 +112,20 @@ float func_0025E2E8(float x) {
     ix &= 0x7fffffff;
 
     if (ix <= 0x3f490fd8) {
-        return func_00260508(x, 0.0f, 0);
+        return __kernel_sinf(x, 0.0f, 0);
     } else if (ix >= 0x7f800000) {
         return x - x;
     } else {
-        n = func_0025F548(x, y);
+        n = __ieee754_rem_pio2f(x, y);
         switch (n & 3) {
         case 0:
-            return func_00260508(y[0], y[1], 1);
+            return __kernel_sinf(y[0], y[1], 1);
         case 1:
-            return func_0025FA60(y[0], y[1]);
+            return __kernel_cosf(y[0], y[1]);
         case 2:
-            return -func_00260508(y[0], y[1], 1);
+            return -__kernel_sinf(y[0], y[1], 1);
         default:
-            return -func_0025FA60(y[0], y[1]);
+            return -__kernel_cosf(y[0], y[1]);
         }
     }
 }
@@ -134,17 +134,17 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025E3D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025E4D8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025E5D8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", atan2f);
 
 extern int D_0062F7D8[];
-extern int func_00260610(void *);
+extern int matherr(void *);
 extern int func_00264050(void);
-extern int func_002609E8(float);
-extern int func_00263FB0(float);
-extern float func_002633B8(long);
+extern int isnanf(float);
+extern int fptodp(float);
+extern float dptofp(long);
 
-float func_0025E700(float a, float b) {
-    extern float func_0025F2F8(float a0, float a1);
+float fmodf(float a, float b) {
+    extern float __ieee754_fmodf(float a0, float a1);
     extern int D_0062F2D8[];
     extern long D_0062F2E0[];
     struct {
@@ -158,15 +158,15 @@ float func_0025E700(float a, float b) {
     float f22;
     int s0;
 
-    f22 = func_0025F2F8(a, b);
+    f22 = __ieee754_fmodf(a, b);
     s0 = D_0062F7D8[0];
     if (s0 == -1) {
         goto early;
     }
-    if (func_002609E8(b)) {
+    if (isnanf(b)) {
         goto early;
     }
-    if (func_002609E8(a)) {
+    if (isnanf(a)) {
         goto early;
     }
     if (b != 0.0f) {
@@ -175,35 +175,35 @@ float func_0025E700(float a, float b) {
     buf.f0 = 1;
     buf.f4 = D_0062F2D8;
     buf.f20 = 0;
-    buf.f8 = func_00263FB0(a);
-    buf.f10 = func_00263FB0(b);
+    buf.f8 = fptodp(a);
+    buf.f10 = fptodp(b);
     if (s0 == 0) {
-        buf.f18 = func_00263FB0(a);
+        buf.f18 = fptodp(a);
     } else {
         buf.f18 = D_0062F2E0[0];
     }
-    if (D_0062F7D8[0] == 2 || func_00260610(&buf) == 0) {
+    if (D_0062F7D8[0] == 2 || matherr(&buf) == 0) {
         *(int *)func_00264050() = 0x21;
     }
     if (buf.f20 != 0) {
         *(int *)func_00264050() = buf.f20;
     }
-    return func_002633B8(buf.f18);
+    return dptofp(buf.f18);
 early:
     return f22;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025E840);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __ieee754_acosf);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025EC70);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __ieee754_asinf);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025F010);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __ieee754_atan2f);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025F2F8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __ieee754_fmodf);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025F548);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __ieee754_rem_pio2f);
 
-float func_0025F928(float x) {
+float __ieee754_sqrtf(float x) {
     int ix, s, q, m, t, i;
     unsigned int r;
     float z;
@@ -253,7 +253,7 @@ float func_0025F928(float x) {
     return z;
 }
 
-float func_0025FA60(float x, float y) {
+float __kernel_cosf(float x, float y) {
     float a, hz, qx, z;
     int ix;
     register int cmp __asm__("$2");
@@ -327,30 +327,30 @@ float func_0025FA60(float x, float y) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025FBB8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __kernel_rem_pio2f);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260508);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __kernel_sinf);
 
-extern int func_00263110(long a0, long a1);
+extern int dpcmp(long a0, long a1);
 
-int func_00260610(void *a0) {
+int matherr(void *a0) {
     long p = *(long *)((char *)a0 + 8);
-    func_00263110(p, p);
+    dpcmp(p, p);
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260638);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", atanf);
 
-float func_002608E0(float a0) {
+float fabsf(float a0) {
     unsigned int ix;
     GET_FLOAT_WORD(ix, a0);
     SET_FLOAT_WORD(a0, ix & 0x7fffffff);
     return a0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260900);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", floorf);
 
-int func_002609E8(float x) {
+int isnanf(float x) {
     int hx;
     GET_FLOAT_WORD(hx, x);
     hx &= 0x7fffffff;
@@ -358,9 +358,9 @@ int func_002609E8(float x) {
     return (unsigned)hx >> 31;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260A10);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", scalbnf);
 
-float func_00260B70(float a0, float a1) {
+float copysignf(float a0, float a1) {
     unsigned int ix, iy;
     GET_FLOAT_WORD(ix, a0);
     GET_FLOAT_WORD(iy, a1);
@@ -370,70 +370,70 @@ float func_00260B70(float a0, float a1) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260BA0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260BF8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __do_global_ctors);
 
 extern int D_0071EB68[];
-extern void func_00260BF8();
+extern void __do_global_ctors();
 
-void func_00260CA8(void)
+void __main(void)
 {
     if (D_0071EB68[0] == 0) {
         D_0071EB68[0] = 1;
-        func_00260BF8();
+        __do_global_ctors();
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260CC8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __divdi3);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002613B8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __fixunsdfdi);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002614A8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __floatdidf);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00261540);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __moddi3);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00261BA8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __muldi3);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00261C08);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __udivdi3);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002621D8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __umoddi3);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00262718);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __pack_d);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00262848);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __unpack_d);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002628E8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", _fpadd_parts);
 
-extern long long func_00262718(void *s);
-extern void func_00262848(void *in, void *out);
-extern void *func_002628E8(void *a, void *b, void *c);
+extern long long __pack_d(void *s);
+extern void __unpack_d(void *in, void *out);
+extern void *_fpadd_parts(void *a, void *b, void *c);
 
-void func_00262B28(long a0, long a1) {
+void dpadd(long a0, long a1) {
     struct { int a, b, c, pad; long long d; } x, y, z;
-    func_00262848(&a0, &x);
-    func_00262848(&a1, &y);
-    func_00262718(func_002628E8(&x, &y, &z));
+    __unpack_d(&a0, &x);
+    __unpack_d(&a1, &y);
+    __pack_d(_fpadd_parts(&x, &y, &z));
 }
 
-long long func_00262B80(long a0, long a1) {
+long long dpsub(long a0, long a1) {
     struct { int a, b, c, pad; long long d; } x, y, z;
-    func_00262848(&a0, &x);
-    func_00262848(&a1, &y);
+    __unpack_d(&a0, &x);
+    __unpack_d(&a1, &y);
     y.b ^= 1;
-    return func_00262718(func_002628E8(&x, &y, &z));
+    return __pack_d(_fpadd_parts(&x, &y, &z));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00262BE8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", dpmul);
 
 extern char D_71EB70[];
 
-void func_00262E90(long a0, long a1) {
+void dpdiv(long a0, long a1) {
     struct { int a, b, c, pad; long long d; } x, y, *p;
     void *r;
     unsigned long long m1, m2, bit, q;
     int exp;
 
-    func_00262848(&a0, &x);
-    func_00262848(&a1, &y);
+    __unpack_d(&a0, &x);
+    __unpack_d(&a1, &y);
     p = &x;
     if ((unsigned int) x.a >= 2) goto op2check;
     r = &x;
@@ -492,10 +492,10 @@ divide:
     }
     r = p;
 pack:
-    func_00262718(r);
+    __pack_d(r);
 }
 
-int func_00262FF8(PCmpV2 *a, PCmpV2 *b) {
+int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b) {
     unsigned int at = a->type;
     unsigned int bt;
     if (at < 2) {
@@ -559,98 +559,98 @@ int func_00262FF8(PCmpV2 *a, PCmpV2 *b) {
     }
 }
 
-int func_00263110(long a0, long a1) {
+int dpcmp(long a0, long a1) {
     struct { int a, b, c, pad; long long d; } x, y;
-    func_00262848(&a0, &x);
-    func_00262848(&a1, &y);
-    return func_00262FF8(&x, &y);
+    __unpack_d(&a0, &x);
+    __unpack_d(&a1, &y);
+    return __fpcmp_parts_d(&x, &y);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00263160);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", litodp);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00263218);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", dptoli);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002632B0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", dptoul);
 
-void func_00263350(long long a0) {
+void __negdf2(long long a0) {
     struct { int a, b, c, pad; long long d; } s;
     long long t = a0;
-    func_00262848(&t, &s);
+    __unpack_d(&t, &s);
     s.b = (s.b == 0);
-    func_00262718(&s);
+    __pack_d(&s);
 }
 
-int func_00263388(int a0, int a1, int a2, long long a3) {
+int __make_dp(int a0, int a1, int a2, long long a3) {
     struct { int a, b, c, pad; long long d; } s;
     s.a = a0;
     s.b = a1;
     s.c = a2;
     s.d = a3;
-    func_00262718(&s);
+    __pack_d(&s);
 }
 
-extern void func_00263F80(int a0, int a1, int a2, int a3);
+extern void __make_fp(int a0, int a1, int a2, int a3);
 
-float func_002633B8(long a0) {
+float dptofp(long a0) {
     struct { int f0; int f4; int f8; int fC; long long f10; } buf;
     long long m; int hi, t;
-    func_00262848(&a0, &buf);
+    __unpack_d(&a0, &buf);
     m = buf.f10;
     hi = (int)(m >> 30);
     t = hi | 1;
     if ((m & 0x3FFFFFFF) == 0) t = hi;
-    func_00263F80(buf.f0, buf.f4, buf.f8, t);
+    __make_fp(buf.f0, buf.f4, buf.f8, t);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00263410);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __pack_f);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00263520);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", __unpack_f);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002635B0);
 
-extern int func_00263410(void *s);
-extern void func_00263520(void *in, void *out);
+extern int __pack_f(void *s);
+extern void __unpack_f(void *in, void *out);
 extern int func_002635B0();
 
-int func_002637E8(float a0, float a1) {
+int fpadd(float a0, float a1) {
     char buf[0x40];
     int ret;
     *(float *)(buf + 0x30) = a0;
     *(float *)(buf + 0x34) = a1;
-    func_00263520(buf + 0x30, buf);
-    func_00263520(buf + 0x34, buf + 0x10);
+    __unpack_f(buf + 0x30, buf);
+    __unpack_f(buf + 0x34, buf + 0x10);
     ret = func_002635B0(buf, buf + 0x10, buf + 0x20);
-    return func_00263410(ret);
+    return __pack_f(ret);
 }
 
-int func_00263840(float a0, float a1) {
+int fpsub(float a0, float a1) {
     char buf[0x40];
     int ret;
     *(float *)(buf + 0x30) = a0;
     *(float *)(buf + 0x34) = a1;
-    func_00263520(buf + 0x30, buf);
-    func_00263520(buf + 0x34, buf + 0x10);
+    __unpack_f(buf + 0x30, buf);
+    __unpack_f(buf + 0x34, buf + 0x10);
     *(int *)(buf + 0x14) ^= 1;
     ret = func_002635B0(buf, buf + 0x10, buf + 0x20);
-    return func_00263410(ret);
+    return __pack_f(ret);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002638A8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", fpmul);
 
 
-int func_00263AA0(float a0, float a1) {
+int fpdiv(float a0, float a1) {
     PCmpV a, b;
     float fa, fb;
 
     fa = a0;
     fb = a1;
-    func_00263520(&fa, &a);
-    func_00263520(&fb, &b);
+    __unpack_f(&fa, &a);
+    __unpack_f(&fb, &b);
 
-    return func_00263410(func_0025FE30_div(&a, &b));
+    return __pack_f(func_0025FE30_div(&a, &b));
 }
 
-int func_00263C00(PCmpV *a, PCmpV *b) {
+int __fpcmp_parts_f(PCmpV *a, PCmpV *b) {
     unsigned int at = a->type;
     unsigned int bt;
     if (at < 2) {
@@ -714,65 +714,65 @@ int func_00263C00(PCmpV *a, PCmpV *b) {
     }
 }
 
-int func_00263D18(float a0, float a1) {
+int fpcmp(float a0, float a1) {
     char buf[0x30];
     *(float *)(buf + 0x20) = a0;
     *(float *)(buf + 0x24) = a1;
-    func_00263520(buf + 0x20, buf);
-    func_00263520(buf + 0x24, buf + 0x10);
-    return func_00263C00(buf, buf + 0x10);
+    __unpack_f(buf + 0x20, buf);
+    __unpack_f(buf + 0x24, buf + 0x10);
+    return __fpcmp_parts_f(buf, buf + 0x10);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00263D68);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", sitofp);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00263E20);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", fptosi);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00263EB0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", fptoui);
 
-int func_00263F48(float f12)
+int __negsf2(float f12)
 {
     int o[4];
     float in[4];
     in[0] = f12;
-    func_00263520(in, o);
+    __unpack_f(in, o);
     o[1] = (o[1] == 0);
-    return func_00263410(o);
+    return __pack_f(o);
 }
 
-void func_00263F80(int a0, int a1, int a2, int a3) {
+void __make_fp(int a0, int a1, int a2, int a3) {
     int buf[4];
     buf[0] = a0;
     buf[1] = a1;
     buf[2] = a2;
     buf[3] = a3;
-    func_00263410(buf);
+    __pack_f(buf);
 }
 
-int func_00263FB0(float f12)
+int fptodp(float f12)
 {
     int local0[4];
     float local1[4];
     long long a3_val;
     local1[0] = f12;
-    func_00263520(local1, local0);
+    __unpack_f(local1, local0);
     a3_val = (long long)(unsigned int)local0[3] << 32;
-    return func_00263388(local0[0], local0[1], local0[2],
+    return __make_dp(local0[0], local0[1], local0[2],
                          (long long)((unsigned long long)a3_val >> 2));
 }
 
 extern int D_00553244[];
 extern char D_0062FC48[];
-extern void func_00264060(int a0, int a1, ...);
+extern void fiprintf(int a0, int a1, ...);
 extern void func_00268F08(void);
 
-void func_00263FF0(int a0, int a1, int a2) {
-    func_00264060(*(int *)(D_00553244[0] + 0xC), (int)D_0062FC48, a2, a0, a1);
+void __assert(int a0, int a1, int a2) {
+    fiprintf(*(int *)(D_00553244[0] + 0xC), (int)D_0062FC48, a2, a0, a1);
     func_00268F08();
 }
 
 extern long long func_00265AF0(void *a0, int a1, int a2);
 
-int func_00264028(void *a0) {
+int atoi(void *a0) {
     return (int)func_00265AF0(a0, 0, 0xA);
 }
 
@@ -782,23 +782,23 @@ int func_00264050(void) {
 
 extern void func_00265C28(int a0, int a1, void *args);
 
-void func_00264060(int a0, int a1, ...) {
+void fiprintf(int a0, int a1, ...) {
     char *ap = (char *)__builtin_next_arg(a1) - 48;
     func_00265C28(a0, a1, ap);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264094);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", memcmp);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264128);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", memcpy);
 
 __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    "    .global func_002641D8\n"
-    "    .type func_002641D8, @function\n"
+    "    .global memset\n"
+    "    .type memset, @function\n"
     "    .align 3\n"
-    "func_002641D8:\n"
+    "memset:\n"
     "    sltiu  $2, $6, 0x8\n"
     "    bnez   $2, .L002641D8002605E8\n"
     "    daddu  $3, $4, $0\n"
@@ -859,14 +859,14 @@ __asm__(
     ".L002641D800260620:\n"
     "    jr     $31\n"
     "    daddu  $2, $4, $0\n"
-    "    .size func_002641D8, . - func_002641D8\n"
+    "    .size memset, . - memset\n"
     "    .set reorder\n"
     "    .set at\n"
 );
 
 extern int func_002669E8(int *self, int subj, int b, void *args);
 
-int func_00264298(int *self, int b, ...)
+int _printf_r(int *self, int b, ...)
 {
     void *args = (char *)__builtin_next_arg(b) - 0x30;
     return func_002669E8(self, self[2], b, args);
@@ -874,29 +874,29 @@ int func_00264298(int *self, int b, ...)
 
 extern int func_00266970();
 
-void func_002642D8(void *a0, ...) {
+void printf(void *a0, ...) {
     void *args = (char *)__builtin_next_arg(a0) - 0x38;
     int s = D_00553244[0];
     *(int *)(*(int *)(s + 8) + 0x54) = s;
     func_00266970(*(int *)(s + 8), a0, args);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264328);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", qsort);
 
 
-void func_00264D50(int a0) {
+void srand(int a0) {
     char *p = (char *)D_00553244[0];
     *(int *)(p + 0x58) = a0;
 }
 
-int func_00264D60(void) {
+int rand(void) {
     char *p = (char *)D_00553244[0];
     int s = *(int *)(p + 0x58) * 0x41C64E6D + 0x3039;
     *(int *)(p + 0x58) = s;
     return s & 0x7fffffff;
 }
 
-int func_00264D90(void *a0, int a1, int a2, ...) {
+int _sprintf_r(void *a0, int a1, int a2, ...) {
     char buf[0x60];
     char *va = (char *)__builtin_next_arg(a2) - 40;
     int n;
@@ -912,7 +912,7 @@ int func_00264D90(void *a0, int a1, int a2, ...) {
 }
 
 
-int func_00264DF8(void *a0, int a1, ...) {
+int sprintf(void *a0, int a1, ...) {
     char buf[0x60];
     char *va = (char *)__builtin_next_arg(a1) - 48;
     int n;
@@ -931,16 +931,16 @@ int func_00264E68(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264E70);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", sscanf);
 
 __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    "    .global func_00264EF8\n"
-    "    .type func_00264EF8, @function\n"
+    "    .global strcat\n"
+    "    .type strcat, @function\n"
     "    .align 3\n"
-    "func_00264EF8:\n"
+    "strcat:\n"
     "    addiu  $29, $29, -0x20\n"
     "    sq     $16, 0x0($29)\n"
     "    daddu  $16, $4, $0\n"
@@ -1017,29 +1017,29 @@ __asm__(
     "    nop\n"
     "    bnel   $2, $0, .L0026137C\n"
     "    addiu  $4, $4, 0x1\n"
-    "    jal    func_00265168\n"
+    "    jal    strcpy\n"
     "    nop\n"
     "    daddu  $2, $16, $0\n"
     "    lq     $31, 0x10($29)\n"
     "    lq     $16, 0x0($29)\n"
     "    jr     $31\n"
     "    addiu  $29, $29, 0x20\n"
-    "    .size func_00264EF8, . - func_00264EF8\n"
+    "    .size strcat, . - strcat\n"
     "    .set reorder\n"
     "    .set at\n"
 );
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00265024);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", strcmp);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00265168);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", strcpy);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0026527C);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", strlen);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002653B8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", strncmp);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00265570);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", strncpy);
 
-char *func_00265730(char *s, char c) {
+char *strrchr(char *s, char c) {
     char *last = 0;
     while (*s != 0) {
         if (*s == c) {
@@ -1050,11 +1050,11 @@ char *func_00265730(char *s, char c) {
     return (*s == c) ? s : last;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00265780);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", strstr);
 
 extern int func_00265818(int a0, int a1, int a2);
 
-int func_002657F0(int a0, int a1) {
+int strtok(int a0, int a1) {
     return func_00265818(a0, a1, D_00553244[0] + 0x5C);
 }
 
@@ -1119,7 +1119,7 @@ long long func_00265AF0(void *a0, int a1, int a2) {
     return func_002658B8((void *)D_00553244[0], a0, a1, a2);
 }
 
-extern int func_0026AC40();
+extern int __sfvwrite();
 
 int func_00265B28(int a0, int *a1) {
     int ret;
@@ -1127,7 +1127,7 @@ int func_00265B28(int a0, int *a1) {
         a1[1] = 0;
         return 0;
     }
-    ret = func_0026AC40(a0, a1);
+    ret = __sfvwrite(a0, a1);
     a1[2] = 0;
     a1[1] = 0;
     return ret;
@@ -1145,7 +1145,7 @@ int func_00266870(int a0, int *a1) {
         a1[1] = 0;
         return 0;
     }
-    ret = func_0026AC40(a0, a1);
+    ret = __sfvwrite(a0, a1);
     a1[2] = 0;
     a1[1] = 0;
     return ret;

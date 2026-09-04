@@ -7,7 +7,7 @@ typedef struct { float f0; float f4; float f8; } LoadImg;
 
 
 extern void func_00203D90();
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispClear);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", stageSE17bstrong);
 ASM_LIT4_SLOT(D_0063186C, -5500.0f);
 ASM_LIT4_SLOT(D_00631870, -3800.0f);
 ASM_LIT4_SLOT(D_00631874, 1700.0f);
@@ -28,7 +28,7 @@ extern int D_00633B4C;
 extern float DispWireLetter(void *a0);
 extern void *UpdateRootPosition(void);
 
-int setImageSize(void *a0) {
+int stageSE19astrong(void *a0) {
     float *p = *(float **)((char *)a0 + 0x34);
     float f;
     p[0] = 1548.0f;
@@ -45,7 +45,7 @@ int setImageSize(void *a0) {
     return 1;
 }
 
-int sendDispEnv(int *self)
+int stageSE19arain(int *self)
 {
     float *p = (float *)self[0xD];
     register float a = 3190.0f;
@@ -58,7 +58,7 @@ int sendDispEnv(int *self)
 }
 
 
-int dispCreate(void *a0) {
+int stageSE20astrong(void *a0) {
     float *p = *(float **)((char *)a0 + 0x34);
     float f;
     float a = -746.0f, b = -685.0f;
@@ -91,7 +91,7 @@ int dispSetTags(void *a0) {
     return -1;
 }
 
-int dispSwitch(void *a0) {
+int stageSE22astrong(void *a0) {
     float f;
     if (D_00633B4C == D_00631960) {
         f = D_00633B48;
@@ -107,7 +107,7 @@ int dispSwitch(void *a0) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", stageSE22arain);
 ASM_LIT4_SLOT(D_00631898, -1355.0f);
 ASM_LIT4_SLOT(D_0063189C, 6645.0f);
 ASM_LIT4_SLOT(D_006318A0, 0.3f);
@@ -127,7 +127,7 @@ int dispDelete(void *a0) {
 }
 
 
-unsigned int loadImage(char *a0) {
+unsigned int stageSE24arain(char *a0) {
     LoadImg *p = *(LoadImg **)(a0 + 0x34);
     p->f0 = 1771.0f;
     p->f8 = -4949.0f;
@@ -145,16 +145,16 @@ int handler_endimage(char *self) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", startDisplay);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", stageSE47anoise);
 ASM_LIT4_SLOT(D_006318B4, -3422.0f);
 ASM_LIT4_SLOT(D_006318B8, 3300.0f);
 
-extern int setDMAscTag(void *p);
+extern int GetDataFileName2(void *p);
 typedef struct { char pad[0x194]; } DispBuf;
 extern DispBuf D_005F3038[];
 extern char D_00633B60[];
 
-int endDisplay(int a0) {
+int GetDataFileName(int a0) {
     int buf[0x40];
     void *p;
     if (a0 == -1) {
@@ -162,10 +162,10 @@ int endDisplay(int a0) {
     } else {
         p = (void *)&D_005F3038[a0];
     }
-    return setDMAscTag(p);
+    return GetDataFileName2(p);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setDMAscTag);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", GetDataFileName2);
 
 extern void brainStatusDel(float a0);
 
@@ -173,7 +173,7 @@ void setGIFtag(void) {
     brainStatusDel(0.1f);
 }
 
-extern int func_002641D8(void *a0, int a1, int a2);
+extern int memset(void *a0, int a1, int a2);
 extern int MoveNextStage_Clear(int a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
 extern char D_0028A890[];
 extern int func_00182000(void *a0, int a1, int a2);
@@ -181,7 +181,7 @@ extern int func_00182000(void *a0, int a1, int a2);
 int setGIFad(void) {
     char buf[0x40];
     int r;
-    func_002641D8(buf, 0, 0x40);
+    memset(buf, 0, 0x40);
     *(float *)(buf + 0x20) = 1.0f;
     *(float *)(buf + 0x24) = 1.0f;
     *(float *)(buf + 0x28) = 1.0f;
@@ -191,8 +191,8 @@ int setGIFad(void) {
 }
 
 extern int D_00632DB8;
-extern void GetCylinderCollisionWithExceptOwnCollision(void *a0);
-extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void SetDirectRootPosition(void *a0);
+extern void GetRootPosition(void *a0, void *a1);
 extern void brainGetLevel(void *a0, float f, int b, int c);
 extern void func_00102858(void *a0);
 
@@ -215,9 +215,9 @@ void setTEXFLUSH(void *a0, int a1, float *a2)
             v17 = 1;
         }
     }
-    GetCylinderCollisionWithExceptOwnCollision(a0);
+    SetDirectRootPosition(a0);
     func_00102858(a0);
-    GetRootMatrixByDObj(buf, a0);
+    GetRootPosition(buf, a0);
     brainGetLevel(a0, f, v17, v18);
 }
 
@@ -250,15 +250,15 @@ void setTEX0_1(int a0) {
     }
 }
 
-extern void *func_0013ECF8(void *a0);
-extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
-extern void *isysGObjRemoveObjDL(void);
+extern void *isysGObjGetExist_next(void *a0);
+extern void iosOmSendMail(void *a0, int a1, void *a2);
+extern void *isysGObjGetExist_begin(void);
 
-void setPRIM(void *a0, int a1) {
-    void *p = isysGObjRemoveObjDL();
+void ObjAction_Mail(void *a0, int a1) {
+    void *p = isysGObjGetExist_begin();
     while (p != 0) {
-        iosOmBeforeFuncStandard(p, a1, a0);
-        p = func_0013ECF8(p);
+        iosOmSendMail(p, a1, a0);
+        p = isysGObjGetExist_next(p);
     }
 }
 
@@ -280,11 +280,11 @@ void setUV(void *a0, int a1)
             }
             {
                 int v18 = D_00621F78[idx];
-                void *o = isysGObjRemoveObjDL();
+                void *o = isysGObjGetExist_begin();
                 if (o != 0) {
                     do {
-                        iosOmBeforeFuncStandard(o, v18, a0);
-                        o = func_0013ECF8(o);
+                        iosOmSendMail(o, v18, a0);
+                        o = isysGObjGetExist_next(o);
                     } while (o != 0);
                 }
             }

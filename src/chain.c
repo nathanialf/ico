@@ -19,7 +19,7 @@ union PendCopy {
     long long q[4];
 };
 
-void StartPendulum(void *dst, float *out) {
+void GetCameraInfo_tmp(void *dst, float *out) {
     union PendCopy *s = (union PendCopy *)D_006D0680;
     union PendCopy *d = (union PendCopy *)dst;
     d->q[0] = s->q[0];

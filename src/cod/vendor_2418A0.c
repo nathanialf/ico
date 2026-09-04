@@ -22,7 +22,7 @@ typedef struct {
 } CEntry;
 
 extern CEntry D_004D4230[];
-extern void _ApplyCurrentMatrix(void *a0, void *a1, void *a2);
+extern void _AddVector(void *a0, void *a1, void *a2);
 extern void func_002412D8(void *a0, int a1);
 extern void *func_002413F0(void *a0, void *a1, int a2);
 
@@ -43,11 +43,11 @@ void *func_002418A0(void *a0, void *a1, int a2) {
         int n = *(int *)(sub + 0x94);
         for (k = 0; k < n; k++) {
             char *m = *(char **)(sub + 0x90) + k * 0x10;
-            _ApplyCurrentMatrix(m, m, vec);
+            _AddVector(m, m, vec);
         }
         for (k = 0; k < 8; k++) {
             char *m = *(char **)((char *)obj + 0x44) + i * 0x80 + k * 0x10;
-            _ApplyCurrentMatrix(m, m, vec);
+            _AddVector(m, m, vec);
         }
     }
     func_002412D8(obj, a2);
@@ -55,27 +55,27 @@ void *func_002418A0(void *a0, void *a1, int a2) {
 }
 
 extern const char D_0062E020[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
-void func_00241A00(void) {
+void FreePObj(void) {
     do {
-        debug_assertMessage(D_0062E020);
+        debug_StdPrintfDummy(D_0062E020);
     } while (0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00241A20);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", DrawVObj);
 
 extern void *func_00105278(void);
 extern void func_001052A8(int a0);
-extern void func_00243BD8(void *a0);
+extern void sceVu0UnitMatrix(void *a0);
 
-void func_00241AE8(int a0, void *a1) {
-    func_00243BD8(func_00105278());
+void SetVObjRT(int a0, void *a1) {
+    sceVu0UnitMatrix(func_00105278());
     *(float *)((char *)a1 + 0xC) = 1.0f;
     func_001052A8((int)a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00241B28);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsResetGraph);
 
 extern int D_005506A0[];
 
@@ -87,10 +87,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    "    .global func_00241C48\n"
-    "    .type func_00241C48, @function\n"
+    "    .global sceGsResetPath\n"
+    "    .type sceGsResetPath, @function\n"
     "    .align 3\n"
-    "func_00241C48:\n"
+    "sceGsResetPath:\n"
     "    lui   $2, 0x1000\n"
     "    addiu $7, $0, 0x1\n"
     "    ori   $2, $2, 0x3C10\n"
@@ -117,7 +117,7 @@ __asm__(
     "    sq    $2, 0x0($6)\n"
     "    jr    $31\n"
     "    sw    $7, 0x0($3)\n"
-    "    .size func_00241C48, . - func_00241C48\n"
+    "    .size sceGsResetPath, . - sceGsResetPath\n"
     "    .set reorder\n"
     "    .set at\n"
 );
@@ -126,7 +126,7 @@ const char D_0062E020[0x10] = "free object\n";
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00241CB0);
 
-void func_00241F20(void *a0) {
+void sceGsPutDispEnv(void *a0) {
     long *s = (long *)a0;
     if (*(short *)((char *)func_00241C38() + 6) == 1) {
         *(volatile long *)0x12000000 = s[0];
@@ -142,32 +142,32 @@ void func_00241F20(void *a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00241FE0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsSetDefDrawEnv);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002421C8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsPutDrawEnv);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002422B0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsSetDefDBuff);
 
-int func_00242548(void *a0, int a1) {
+int sceGsSwapDBuff(void *a0, int a1) {
     int s0 = a1 & 1;
     int ret;
-    func_00241F20((char *)a0 + s0 * 0x28);
+    sceGsPutDispEnv((char *)a0 + s0 * 0x28);
     if (!s0) goto zero_path;
-    ret = func_002421C8((char *)a0 + 0x140);
+    ret = sceGsPutDrawEnv((char *)a0 + 0x140);
     goto done;
 zero_path:
-    ret = func_002421C8((char *)a0 + 0x50);
+    ret = sceGsPutDrawEnv((char *)a0 + 0x50);
 done:
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002425A8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsSyncV);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242640);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsSyncPath);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242958);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsSetDefTexEnv);
 
-int func_00242A68(long long *a0, int a1) {
+int sceGsSetDefAlphaEnv(long long *a0, int a1) {
     short t = a1;
     a0[1] = 0x42;
     a0[0] = 0x44;
@@ -181,26 +181,26 @@ int func_00242A68(long long *a0, int a1) {
     return 4;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242AC8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsSetDefLoadImage);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242CB0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsSetDefStoreImage);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242DF0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsExecLoadImage);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242F70);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsExecStoreImage);
 
 const char D_0062E560[0x18] = "libdma: sync timeout\n";
 
-extern int func_00100840(void);
-extern void func_00100860(void *a0);
+extern int GsGetIMR(void);
+extern void GsPutIMR(void *a0);
 
-int func_00243600(void *a0) {
-    int r = func_00100840();
-    func_00100860(a0);
+int sceGsPutIMR(void *a0) {
+    int r = GsGetIMR();
+    GsPutIMR(a0);
     return r;
 }
 
-void func_00243640(void *a0, short a1, short a2, short a3) {
+void sceGsSetHalfOffset(void *a0, short a1, short a2, short a3) {
     unsigned long long v = *(unsigned long long *)((char *)a0 + 0x30);
     long long a, b, ta, t, hi;
     b = (short)a2;
@@ -215,15 +215,15 @@ void func_00243640(void *a0, short a1, short a2, short a3) {
 
 void func_002436C8(void) {
     do {
-        func_00100840();
+        GsGetIMR();
     } while (0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002436E8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGszbufaddr);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002437B0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceGsSetDefClear);
 
-void func_002438B8(void *a0, void *a1, void *a2) {
+void sceVu0ApplyMatrix(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x10, 5);
     VU0_LSV(lqc2, 6, 0x20, 5);
@@ -259,7 +259,7 @@ void func_002438E8(void *a0, void *a1, void *a2) {
         ::: "$7", "memory");
 }
 
-void func_00243930(void *a0, void *a1, void *a2) {
+void sceVu0OuterProduct(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
     VU0_V3OP_ACC(vopmula.xyz, 4, 5);
@@ -268,7 +268,7 @@ void func_00243930(void *a0, void *a1, void *a2) {
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-float func_00243950(void *a0, void *a1) {
+float sceVu0InnerProduct(void *a0, void *a1) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -284,7 +284,7 @@ float func_00243950(void *a0, void *a1) {
     return ret;
 }
 
-void func_00243978(void *a0, void *a1) {
+void sceVu0Normalize(void *a0, void *a1) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_REG("vmul.xyz $vf5, $vf4, $vf4");
     VU0_REG("vaddy.x $vf5, $vf5, $vf5y");
@@ -301,19 +301,19 @@ void func_00243978(void *a0, void *a1) {
 
 /* 4x4 matrix transpose via the MMI pack/unpack ops — hand-written assembly
  * in the original, same class and same whole-function `__asm__` form as
- * func_002439F8 below: the $t0..$t7 register budget is the author's, and the
+ * sceVu0InversMatrix below: the $t0..$t7 register budget is the author's, and the
  * trailing `sq` in the `jr` delay slot has to be written explicitly (gcc's
  * reorg cannot schedule an inline-asm insn into a delay slot, and
  * ee-as 2.9-991111 fills no slots). */
-void func_002439B0(void *a0, void *a1);
+void sceVu0TransposeMatrix(void *a0, void *a1);
 __asm__(
     ".section .text\n"
     "    .align 3\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    "    .global func_002439B0\n"
-    "    .type func_002439B0, @function\n"
-    "func_002439B0:\n"
+    "    .global sceVu0TransposeMatrix\n"
+    "    .type sceVu0TransposeMatrix, @function\n"
+    "sceVu0TransposeMatrix:\n"
     "    lq    $8, 0x0($5)\n"
     "    lq    $9, 0x10($5)\n"
     "    lq    $10, 0x20($5)\n"
@@ -331,7 +331,7 @@ __asm__(
     "    sq    $10, 0x20($4)\n"
     "    jr    $31\n"
     "    sq    $11, 0x30($4)\n"
-    "    .size func_002439B0, . - func_002439B0\n"
+    "    .size sceVu0TransposeMatrix, . - sceVu0TransposeMatrix\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -342,9 +342,9 @@ __asm__(
     "    .align 3\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    "    .global func_002439F8\n"
-    "    .type func_002439F8, @function\n"
-    "func_002439F8:\n"
+    "    .global sceVu0InversMatrix\n"
+    "    .type sceVu0InversMatrix, @function\n"
+    "sceVu0InversMatrix:\n"
     "    lq    $8, 0x0($5)\n"
     "    lq    $9, 0x10($5)\n"
     "    lq    $10, 0x20($5)\n"
@@ -372,13 +372,13 @@ __asm__(
     "    sq    $10, 0x20($4)\n"
     "    jr    $31\n"
     "    sqc2  $vf4, 0x30($4)\n"
-    "    .size func_002439F8, . - func_002439F8\n"
+    "    .size sceVu0InversMatrix, . - sceVu0InversMatrix\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
 );
 
-void func_00243A68(void *a0, void *a1, float a2) {
+void sceVu0DivVector(void *a0, void *a1, float a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(8, 12);
@@ -390,7 +390,7 @@ void func_00243A68(void *a0, void *a1, float a2) {
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void func_00243A88(void *a0, void *a1, float a2) {
+void sceVu0DivVectorXYZ(void *a0, void *a1, float a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(8, 12);
@@ -402,7 +402,7 @@ void func_00243A88(void *a0, void *a1, float a2) {
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void func_00243AA8(void *a0, void *a1, void *a2, float t) {
+void sceVu0InterVector(void *a0, void *a1, void *a2, float t) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
     VU0_NOREORDER_BEGIN();
@@ -416,35 +416,35 @@ void func_00243AA8(void *a0, void *a1, void *a2, float t) {
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
-void func_00243AD0(void *a0, void *a1, void *a2) {
+void sceVu0AddVector(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
     VU0_V3OP(vadd.xyzw, 6, 4, 5);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void func_00243AE8(void *a0, void *a1, void *a2) {
+void sceVu0SubVector(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
     VU0_V3OP(vsub.xyzw, 6, 4, 5);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void func_00243B00(void *a0, void *a1, void *a2) {
+void sceVu0MulVector(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
     VU0_V3OP(vmul.xyzw, 6, 4, 5);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void func_00243B18(void *a0, void *a1, float a2) {
+void sceVu0ScaleVector(void *a0, void *a1, float a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf5\n .set reorder" ::: "memory");
     VU0_V3OP_BC(vmulx.xyzw, 6, 4, 5, x);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void func_00243B30(void *a0, void *a1, void *a2) {
+void sceVu0TransMatrix(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 4, 0x0, 6);
     VU0_LSV(lqc2, 5, 0x30, 5);
     VU0_LSGP(lq, 7, 0x0, 5);
@@ -468,20 +468,20 @@ void func_00243B30(void *a0, void *a1, void *a2) {
  * inline-asm insn into the `jr` delay slot (reorg cannot schedule asm), so
  * the trailing `sq` sitting in the slot has to be written there explicitly —
  * ee-as 2.9-991111 does no delay-slot filling of its own. Same whole-function
- * `__asm__` form as func_002439F8 above. */
-void func_00243B60(void *a0, void *a1);
+ * `__asm__` form as sceVu0InversMatrix above. */
+void sceVu0CopyVector(void *a0, void *a1);
 __asm__(
     ".section .text\n"
     "    .align 3\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    "    .global func_00243B60\n"
-    "    .type func_00243B60, @function\n"
-    "func_00243B60:\n"
+    "    .global sceVu0CopyVector\n"
+    "    .type sceVu0CopyVector, @function\n"
+    "sceVu0CopyVector:\n"
     "    lq    $6, 0x0($5)\n"
     "    jr    $31\n"
     "    sq    $6, 0x0($4)\n"
-    "    .size func_00243B60, . - func_00243B60\n"
+    "    .size sceVu0CopyVector, . - sceVu0CopyVector\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -492,9 +492,9 @@ __asm__(
     "    .align 3\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    "    .global func_00243B70\n"
-    "    .type func_00243B70, @function\n"
-    "func_00243B70:\n"
+    "    .global sceVu0CopyMatrix\n"
+    "    .type sceVu0CopyMatrix, @function\n"
+    "sceVu0CopyMatrix:\n"
     "    lq    $6, 0x0($5)\n"
     "    lq    $7, 0x10($5)\n"
     "    lq    $8, 0x20($5)\n"
@@ -504,37 +504,37 @@ __asm__(
     "    sq    $8, 0x20($4)\n"
     "    jr    $31\n"
     "    sq    $9, 0x30($4)\n"
-    "    .size func_00243B70, . - func_00243B70\n"
+    "    .size sceVu0CopyMatrix, . - sceVu0CopyMatrix\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
 );
 
-void func_00243B98(void *a0, void *a1) {
+void sceVu0FTOI4Vector(void *a0, void *a1) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vftoi4.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-void func_00243BA8(void *a0, void *a1) {
+void sceVu0FTOI0Vector(void *a0, void *a1) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vftoi0.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-void func_00243BB8(void *a0, void *a1) {
+void sceVu0ITOF4Vector(void *a0, void *a1) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vitof4.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-void func_00243BC8(void *a0, void *a1) {
+void sceVu0ITOF0Vector(void *a0, void *a1) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vitof0.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-void func_00243BD8(void *a0) {
+void sceVu0UnitMatrix(void *a0) {
     __asm__ __volatile__(
         "vsub.xyzw $vf4, $vf0, $vf0\n"
         "vadd.w $vf4, $vf4, $vf0\n"
@@ -773,14 +773,14 @@ extern void func_00243C78(int a, int b, float f);
 extern void func_00243D20(int a, int b, float f);
 extern void func_00243DC8(int a, int b, float f);
 
-void func_00243E70(int a0, int a1, float *fa)
+void sceVu0RotMatrix(int a0, int a1, float *fa)
 {
     func_00243C78(a0, a1, fa[2]);
     func_00243DC8(a0, a0, fa[1]);
     func_00243D20(a0, a0, fa[0]);
 }
 
-void func_00243EC0(void *a0, void *a1, float a2, float a3) {
+void sceVu0ClampVector(void *a0, void *a1, float a2, float a3) {
     VU0_MFC1(8, 12);
     VU0_MFC1(9, 13);
     VU0_LSV(lqc2, 6, 0x0, 5);
@@ -791,28 +791,28 @@ void func_00243EC0(void *a0, void *a1, float a2, float a3) {
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-extern void func_002439F8(void *a0, void *a1);
+extern void sceVu0InversMatrix(void *a0, void *a1);
 
-void func_00243EE8(void *a0, void *a1, void *a2, void *a3) {
+void sceVu0CameraMatrix(void *a0, void *a1, void *a2, void *a3) {
     char buf[0x50];
-    func_00243BD8(buf);
-    func_00243930(buf + 0x40, a3, a2);
-    func_00243978(buf, buf + 0x40);
-    func_00243978(buf + 0x20, a2);
-    func_00243930(buf + 0x10, buf + 0x20, buf);
-    func_00243B30(buf, buf, a1);
-    func_002439F8(a0, buf);
+    sceVu0UnitMatrix(buf);
+    sceVu0OuterProduct(buf + 0x40, a3, a2);
+    sceVu0Normalize(buf, buf + 0x40);
+    sceVu0Normalize(buf + 0x20, a2);
+    sceVu0OuterProduct(buf + 0x10, buf + 0x20, buf);
+    sceVu0TransMatrix(buf, buf, a1);
+    sceVu0InversMatrix(a0, buf);
 }
 
 
-void func_00243F98(void *a0, void *a1, void *a2, void *a3) {
+void sceVu0NormalLightMatrix(void *a0, void *a1, void *a2, void *a3) {
     float buf[4];
-    func_00243B18(buf, a1, -1.0f);
-    func_00243978(a0, buf);
-    func_00243B18(buf, a2, -1.0f);
-    func_00243978((char *)a0 + 0x10, buf);
-    func_00243B18(buf, a3, -1.0f);
-    func_00243978((char *)a0 + 0x20, buf);
+    sceVu0ScaleVector(buf, a1, -1.0f);
+    sceVu0Normalize(a0, buf);
+    sceVu0ScaleVector(buf, a2, -1.0f);
+    sceVu0Normalize((char *)a0 + 0x10, buf);
+    sceVu0ScaleVector(buf, a3, -1.0f);
+    sceVu0Normalize((char *)a0 + 0x20, buf);
     {
         float fzero = 0.0f;
         *(float *)((char *)a0 + 0x38) = fzero;
@@ -820,20 +820,20 @@ void func_00243F98(void *a0, void *a1, void *a2, void *a3) {
         *(float *)((char *)a0 + 0x34) = fzero;
         *(float *)((char *)a0 + 0x30) = fzero;
     }
-    func_002439B0(a0, a0);
+    sceVu0TransposeMatrix(a0, a0);
 }
 
 
-void func_00244058(void *a0, void *a1, void *a2, void *a3, void *a4) {
-    func_00243B60((void *)a0, a1);
-    func_00243B60((char *)a0 + 0x10, a2);
-    func_00243B60((char *)a0 + 0x20, a3);
-    func_00243B60((char *)a0 + 0x30, a4);
+void sceVu0LightColorMatrix(void *a0, void *a1, void *a2, void *a3, void *a4) {
+    sceVu0CopyVector((void *)a0, a1);
+    sceVu0CopyVector((char *)a0 + 0x10, a2);
+    sceVu0CopyVector((char *)a0 + 0x20, a3);
+    sceVu0CopyVector((char *)a0 + 0x30, a4);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002440C0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceVu0ViewScreenMatrix);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002441C8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceVu0DropShadowMatrix);
 
 void func_00244358(void *a0, void *a1, void *a2, int a3, int a4) {
     __asm__ __volatile__(
@@ -884,13 +884,13 @@ void func_002443B0(void *a0, void *a1, void *a2, int a3) {
     VU0_LSV(sqc2, 10, 0x0, 4);
 }
 
-void func_002443F8(void *a0, void *a1) {
+void sceVu0CopyVectorXYZ(void *a0, void *a1) {
     ((float *)a0)[0] = ((float *)a1)[0];
     ((float *)a0)[1] = ((float *)a1)[1];
     ((float *)a0)[2] = ((float *)a1)[2];
 }
 
-void func_00244418(void *a0, void *a1, void *a2, float a3) {
+void sceVu0InterVectorXYZ(void *a0, void *a1, void *a2, float a3) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
     VU0_NOREORDER_BEGIN();
@@ -905,14 +905,14 @@ void func_00244418(void *a0, void *a1, void *a2, float a3) {
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
-void func_00244448(void *a0, void *a1, float a2) {
+void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf5\n .set reorder" ::: "memory");
     VU0_V3OP_BC(vmulx.xyz, 4, 4, 5, x);
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-int func_00244460(void *a0) {
+int sceVu0ClipScreen(void *a0) {
     register int r __asm__("$2");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -937,7 +937,7 @@ int func_00244460(void *a0) {
     return r & 0xC0;
 }
 
-int func_002444A8(void *a0, void *a1, void *a2) {
+int sceVu0ClipScreen3(void *a0, void *a1, void *a2) {
     register int ret __asm__("$2");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -1021,7 +1021,7 @@ __asm__(
 
 extern int D_005506F0[];
 
-void func_00244598(void) {
+void sceVpu0Reset(void) {
     *(volatile int *)0x10003830 = 0;
     *(volatile int *)0x10003820 = 0;
     *(volatile int *)0x10003810 = 1;
@@ -1044,7 +1044,7 @@ void func_00244598(void) {
     }
 }
 
-void func_002445F8(unsigned char *a0, int a1) {
+void memclr(unsigned char *a0, int a1) {
     int i;
     for (i = a1 - 1; i != -1; i--) {
         *a0++ = 0;
@@ -1053,18 +1053,18 @@ void func_002445F8(unsigned char *a0, int a1) {
 
 extern int D_00550710[];
 
-int func_00244630(unsigned int a0) {
+int sceDmaGetChan(unsigned int a0) {
     if (a0 < 0xA) {
         return D_00550710[a0];
     }
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244658);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaReset);
 
 extern int D_00550738[];
 
-int func_00244738(int a0) {
+int sceDmaDebug(int a0) {
     int old = D_00550738[0];
     D_00550738[0] = a0;
     return old;
@@ -1079,7 +1079,7 @@ struct __attribute__((packed)) S_244920 {
 };
 extern struct S_244920 D_005507A8;
 
-void *func_00244920(void *a0) {
+void *sceDmaGetEnv(void *a0) {
     *(struct S_244920 *)a0 = D_005507A8;
     return a0;
 }
@@ -1090,30 +1090,30 @@ void *func_00244920(void *a0) {
  * does but makes the insn ineligible for gcc's delay-slot pass — or non-volatile,
  * which folds the address back into a 2-insn `lw $r,<const>` macro that is
  * ineligible for a different reason. */
-/* func_00244958 — parked. Its recovered C is stashed verbatim at
+/* sceDmaPutStallAddr — parked. Its recovered C is stashed verbatim at
  * tough_nuts/delayslot_unfilled/vendor_2418A0_func_00244958.c and matches ONLY
  * under a delay-slot-filling assembler; under the one period assembler
  * (ee-as 2.9-991111, which fills nothing) the ROM's `lw v0,0(v0)` in the
  * `beq a0,v1` slot is left in front. Assembler swapping was tried 2026-08-05
  * and reverted — the remaining work is a source shape that makes gcc's OWN
  * reorg fill the slot. See tough_nuts/delayslot_unfilled/QUEUE.md row 3. */
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244958);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaPutStallAddr);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244980);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaSend);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244A58);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaSendN);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244B40);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaSendI);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244C28);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaRecv);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244CF0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaRecvN);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244DE0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaRecvI);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244ED0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaSync);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244F98);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceDmaWatch);
 
 int func_00245068(void *a0) {
     int v = *(int *)a0;
@@ -1127,20 +1127,20 @@ int func_00245088(void *a0) {
     return ((unsigned int)v >> 8) & 1;
 }
 
-void func_002450A8(int *a0, int a1) {
+void sceVif1PkInit(int *a0, int a1) {
     a0[1] = a1;
     a0[0] = a1;
     a0[2] = 0;
 }
 
-int func_002450B8(int *a0) {
+int sceVif1PkReset(int *a0) {
     int v = a0[1];
     a0[2] = 0;
     a0[0] = v;
     return v;
 }
 
-int *func_002450C8(int **a0) {
+int *sceVif1PkTerminate(int **a0) {
     int *p = a0[0];
     int *q = (int *)a0[2];
     while ((int)p & 0xC) {
@@ -1160,7 +1160,7 @@ void func_00245120(int *a1, unsigned int a2) {
     int *a0;
     int s0;
     int v0;
-    v0 = func_002450C8(a1);
+    v0 = sceVif1PkTerminate(a1);
     a0 = (int *)a1[0];
     do { s0 = a2 | 0x10000000; } while (0);
     a1[2] = v0;
@@ -1175,7 +1175,7 @@ void func_00245178(int *a1, unsigned int a2) {
     int *a0;
     int s0;
     int v0;
-    v0 = func_002450C8(a1);
+    v0 = sceVif1PkTerminate(a1);
     a0 = (int *)a1[0];
     do { s0 = a2 | 0x70000000; } while (0);
     a1[2] = v0;
@@ -1186,12 +1186,12 @@ void func_00245178(int *a1, unsigned int a2) {
     a0[0] = 0;
 }
 
-extern void func_00245318(void *a0, int a1, int a2);
+extern void sceVif1PkAlign(void *a0, int a1, int a2);
 
-void func_002451D0(void *a0, int a1) {
+void sceVif1PkOpenDirectCode(void *a0, int a1) {
     int *v;
     int w;
-    func_00245318(a0, 2, 3);
+    sceVif1PkAlign(a0, 2, 3);
     v = *(int **)a0;
     w = a1 ? 0xD0000000 : 0x50000000;
     *v = w;
@@ -1199,7 +1199,7 @@ void func_002451D0(void *a0, int a1) {
     *(int **)a0 = v + 1;
 }
 
-int func_00245228(Pool241748 *a0) {
+int sceVif1PkCloseDirectCode(Pool241748 *a0) {
     int n = (int)a0->end - 4;
     int *p = a0->cur;
     a0->cur = 0;
@@ -1209,7 +1209,7 @@ int func_00245228(Pool241748 *a0) {
     return n;
 }
 
-void func_00245258(void *a0, u128_241778 a1) {
+void sceVif1PkOpenGifTag(void *a0, u128_241778 a1) {
     void **pp = (void **)a0;
     void *p = *pp;
     *(u128_241778 *)p = a1;
@@ -1217,11 +1217,11 @@ void func_00245258(void *a0, u128_241778 a1) {
     *pp = (char *)p + 0x10;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00245270);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceVif1PkCloseGifTag);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00245318);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", sceVif1PkAlign);
 
-void func_00245398(int **a0, long long a1) {
+void sceVif1PkAddGsData(int **a0, long long a1) {
     int *p = *a0;
     *p++ = (int)a1;
     *a0 = p + 1;

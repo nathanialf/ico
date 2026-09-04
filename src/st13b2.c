@@ -5,12 +5,12 @@ typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } BoxObj_st13b2;
 extern int D_00631AE8;
 extern int D_006325B4;
 extern void _ACTWait(int a0);
-extern void actConte11(int a0);
+extern void scpKillEnemyOne(int a0);
 extern int func_0012AA80(int a0);
 extern void func_0017B258(int a0);
 extern void func_0017B288(int a0);
-extern void func_0017C8C0(int a0);
-extern void func_0017C8F8(int a0);
+extern void scpWakeupEnemyOne(int a0);
+extern void scpSleepEnemyOne(int a0);
 extern void func_0017C990(int a0);
 extern void lt_fade_status(int a0);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
@@ -23,16 +23,16 @@ void actSt13b2Generator(volatile int a0) {
     while (scpSleepSpiderGroupOne(D_00631AE8, 0x5000000) == 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     D_006325B4 = 1;
-    func_0017C8F8(0xD7D);
+    scpSleepEnemyOne(0xD7D);
     func_0017B288(0x166);
     func_0017B258(0x45);
     func_0017B258(0x47);
     _ACTWait(0x3C);
     save = D_00632110;
     D_00632110 = 0;
-    actConte11(0x130);
-    actConte11(0x131);
-    actConte11(0x132);
+    scpKillEnemyOne(0x130);
+    scpKillEnemyOne(0x131);
+    scpKillEnemyOne(0x132);
     func_0017C990(0x133);
     stage_KillPlayBgAnimation(0x5A, 1, 0);
     while (func_0012AA80(0x5A) == 0) { _ACTWait(1); }
@@ -40,10 +40,10 @@ void actSt13b2Generator(volatile int a0) {
     D_00632110 = save;
     lt_fade_status(0x32);
     D_006325B4 = 0;
-    func_0017C8C0(0xD7D);
+    scpWakeupEnemyOne(0xD7D);
 }
 
-extern void AddWayPointTop();
+extern void SetWayGroupActive();
 extern void scpDispOnAllWithKind(void);
 extern void scpActivateAllWithKind(void);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
@@ -63,7 +63,7 @@ void func_0022A2C8(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    AddWayPointTop(0xB, 1);
+    SetWayGroupActive(0xB, 1);
     scpActivateAllWithKind();
     D_006325B4 = 0;
     lt_fade_status(0x32);
@@ -87,7 +87,7 @@ void func_0022A398(volatile int a0)
         BoxBarSoundOn((int)a0, 0x18D);
         _ACTWait(0);
     } else {
-        AddWayPointTop(0xB, 1);
+        SetWayGroupActive(0xB, 1);
         stage_KillPlayBgAnimation(0x5B, 0, -1);
     }
 }
@@ -255,11 +255,11 @@ void func_0022A8E8(volatile int a0) {
 }
 
 extern int *D_00631AE4;
-extern int scpSleepEnemyOne(int a0, int *a1, float f);
+extern int scpTriggerBall(int a0, int *a1, float f);
 
 void func_0022A940(volatile int a0)
 {
-    while (scpSleepEnemyOne(a0, D_00631AE4, 100.0f) == 0) {
+    while (scpTriggerBall(a0, D_00631AE4, 100.0f) == 0) {
         _ACTWait(1);
     }
     lt_fade_status(0x33);
@@ -293,13 +293,13 @@ extern int actCreateSubThread(void *fn, int a1);
 extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
 extern int scpPlayEnd(void);
 extern void scpTrans(int a0, int a1);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
-extern int actSt25aQueenDeadEvent(void);
-extern void iosSemaWait(int a0, int a1);
+extern void scpFadeOut(int a0, int a1, int a2, float f);
+extern int scpFadeChk(void);
+extern void iosThreadSetPri(int a0, int a1);
 extern void gflagOff(int a0, int a1);
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void CageDL(int a0);
-extern void GetCylinderCollisionWithExceptOwnCollision(int a0, void *a1);
+extern void SetDirectRootPosition(int a0, void *a1);
 
 void func_0022A9E8(volatile int a0)
 {
@@ -337,14 +337,14 @@ void func_0022A9E8(volatile int a0)
     while (D_00633FB0 == 0 && ((D_00275254[0] & 0x800) == 0 || scpPlayEnd() != 0)) {
         _ACTWait(1);
     }
-    iosSemaWait(th + 0x24, 0x22);
+    iosThreadSetPri(th + 0x24, 0x22);
     if (sub != 0) {
-        iosSemaWait(sub + 0x24, 0x22);
+        iosThreadSetPri(sub + 0x24, 0x22);
     }
     if (D_00633FB0 == 0) {
         scpTrans(st, 0x80);
-        actSt25aQueenBeforeChk(0, 0, 0, 16.0f);
-        while (actSt25aQueenDeadEvent() != 0) {
+        scpFadeOut(0, 0, 0, 16.0f);
+        while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
         stage_KillPlayBgAnimation(0x14F, 1, frames - 0x3C);
@@ -356,14 +356,14 @@ void func_0022A9E8(volatile int a0)
             gflagOff(D_00631AE8, 0x202);
             if (func_0017B230(0x49) != 0) {
                 b1 = D_0061C040;
-                GetCylinderCollisionWithExceptOwnCollision(D_00631AE8, &b1);
+                SetDirectRootPosition(D_00631AE8, &b1);
             } else {
                 b2 = D_0061C050;
                 b2.f[1] += *(float *)(*(int *)(*(int *)(D_00631AE8 + 0x15C) + 0x8C) + 0x14);
-                GetCylinderCollisionWithExceptOwnCollision(D_00631AE8, &b2);
+                SetDirectRootPosition(D_00631AE8, &b2);
             }
         }
-        actConte11Jimaku(3.0f);
+        scpFadeIn(3.0f);
     }
     while (func_0012AB50(0x14F, frames, 1) == 0) {
         _ACTWait(1);
@@ -442,8 +442,8 @@ void func_0022AFA8(volatile int a0)
     int x = a0;
     BoxObj_st13b2 *gobj = (BoxObj_st13b2 *)actInitialize(a0);
     _ACTWait(1);
-    if (scpSleepEnemyOne(a0, D_00631AE4, 200.0f) != 0 ||
-        (D_00631AE8 != 0 && scpSleepEnemyOne(a0, (int *)D_00631AE8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, D_00631AE4, 200.0f) != 0 ||
+        (D_00631AE8 != 0 && scpTriggerBall(a0, (int *)D_00631AE8, 400.0f) != 0)) {
         stage_KillPlayBgAnimation(0x151, 0, 0);
         _ACTWait(0x3C);
         D_004D2BE0[1] = (int)func_0022B228;
@@ -465,7 +465,7 @@ extern struct QBuf_st13b2 D_0061C060;
 extern int D_004D2C20[];
 extern void actSt13cConte04(volatile int a0);
 extern int scpKillSpiderGroup(int a0, int a1);
-extern void func_0017E870(float a0, float a1, float a2, float a3);
+extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 
 void func_0022B0B0(volatile int a0)
 {
@@ -476,7 +476,7 @@ void func_0022B0B0(volatile int a0)
     }
     _ACTWait(0xF);
     actCreateSubThread(actSt13cConte04, 0x15);
-    func_0017E870(-1189.0f, -2326.0f, -408.0f, 100.0f);
+    scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
     stage_KillPlayBgAnimation(0x150, 1, 0);
     buf = D_0061C060;
     soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);

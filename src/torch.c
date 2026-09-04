@@ -37,15 +37,15 @@ int TorchGeo(void *a0) {
     return ((Obj7F0 *)GOBJ_SUB(a0)->p_800)->f_4;
 }
 
-extern void GetRootMatrixByDObj(void *a0, void *a1);
-extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void GetRootPosition(void *a0, void *a1);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 
 void *InitTorchGeo(void *a0, float radius) {
     int buf0[4];
     int buf1[4];
     register float r2 __asm__("$f20") = radius * radius;
-    GetRootMatrixByDObj(buf0, a0);
+    GetRootPosition(buf0, a0);
     {
         char *g = isysGObjSearchFromObjLayoutID(0xA);
         if (g != 0) {
@@ -54,7 +54,7 @@ void *InitTorchGeo(void *a0, float radius) {
                     *(int *)(*(char **)(*(char **)(g + 0x15C) + 0x800) + 0x4) != 0 &&
                     *(int *)(g + 0x16C) != 0) {
                     register float d2 __asm__("$f0");
-                    GetRootMatrixByDObj(buf1, g);
+                    GetRootPosition(buf1, g);
                     VU0_LSV_R(lqc2, 1, 0x0, buf1);
                     VU0_LSV_R(lqc2, 2, 0x0, buf0);
                     VU0_V3OP(vsub.xyzw, 3, 1, 2);
@@ -67,7 +67,7 @@ void *InitTorchGeo(void *a0, float radius) {
                         return g;
                     }
                 }
-                g = isysGObjSearchFromObjKindID_begin(g);
+                g = isysGObjSearchFromObjKindID_next(g);
             } while (g != 0);
         }
     }

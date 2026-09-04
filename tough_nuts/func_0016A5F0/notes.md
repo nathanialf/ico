@@ -54,7 +54,7 @@ glabel func_0016A5F0
     /* 6A664 0016A664 0C00628C */  lw         $2, 0xC($3)
     /* 6A668 0016A668 0000B0DF */  ld         $16, 0x0($29)
     /* 6A66C 0016A66C 21284500 */  addu       $5, $2, $5
-    /* 6A670 0016A670 2E0E0908 */  j          func_002438B8
+    /* 6A670 0016A670 2E0E0908 */  j          sceVu0ApplyMatrix
     /* 6A674 0016A674 3000BD27 */   addiu     $29, $29, 0x30
 endlabel func_0016A5F0
 ```

@@ -12,12 +12,12 @@ extern int D_004BEE60[];
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", standAI);
 
 extern void FlagGeo();
-extern void GetRootMatrixByDObj();
+extern void GetRootPosition();
 extern void func_00102850();
 
 void walkAI(char *a0) {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x800);
-    GetRootMatrixByDObj(p + 0x1E0, a0);
+    GetRootPosition(p + 0x1E0, a0);
     func_00102850(p + 0x1D0, a0);
     FlagGeo(*(int *)(p + 0x19C));
 }
@@ -109,7 +109,7 @@ int AP1BeforeFunc(void *a0) {
     return 1;
 }
 
-extern void func_00118648(int a, int b, int c);
+extern void _ApplyMatrix(int a, int b, int c);
 
 int actAP1Start(void *a0, int a1, void *a2) {
     int flag;
@@ -127,7 +127,7 @@ check:
     if (flag != 0) {
         int *pp = *(int **)((char *)a0 + 0x15C);
         AP1Geo *qq = *(AP1Geo **)((char *)pp + 0x800);
-        func_00118648((char *)pp + 0x130, (char *)qq + 0x230, a2);
+        _ApplyMatrix((char *)pp + 0x130, (char *)qq + 0x230, a2);
         return 1;
     }
     return 0;

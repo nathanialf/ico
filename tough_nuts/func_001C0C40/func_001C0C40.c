@@ -79,8 +79,8 @@ int func_001C0690(char *self_) {
     return p->f_58;
 }
 
-extern void func_001BC9B0(void);
-extern void func_001BC9B8(void);
+extern void pushStartSE(void);
+extern void pullStartSE(void);
 
 int func_001C06A0(char *self_, int a1)
 {
@@ -90,9 +90,9 @@ int func_001C06A0(char *self_, int a1)
     register int f58 REG("$3") = s0->f_58;
     if (f58 == 0 || s0->f_110 == 0) {
         if (a1 >= 0) {
-            func_001BC9B0();
+            pushStartSE();
         } else {
-            func_001BC9B8();
+            pullStartSE();
         }
         s0->f_114 = 0;
     }
@@ -105,7 +105,7 @@ int func_001C06A0(char *self_, int a1)
 extern void func_001D12D8(int *self);
 extern void func_001D12C0(int *self, int v);
 extern void func_001D12A8(int *self, int v);
-extern void func_001BC9C0(int *self);
+extern void wallHitSE(int *self);
 
 void func_001C0708(int *self)
 {
@@ -117,7 +117,7 @@ void func_001C0708(int *self)
         func_001D12C0(self, 1);
         func_001D12A8(self, 0x16);
         if (inner->f_140 != 0) {
-            func_001BC9C0(self);
+            wallHitSE(self);
             inner->f_140 = 0;
         }
     }

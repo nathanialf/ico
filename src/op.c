@@ -12,7 +12,7 @@ typedef struct GObj__p4 {
 
 extern void func_00122C48(int val);
 extern void actConte14_7();
-extern void UpdateStormPackage(int x);
+extern void SetStaticBlur(int x);
 extern void actEndDemo01();
 extern void actCreateSubThread();
 extern void func_0017B288(int bit_idx);
@@ -52,11 +52,11 @@ void actOpDemo01(volatile int a0) {
 }
 
 extern int D_00633904;
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void actCreateSubThread(void *fn, int a1);
 extern void actE3GateJimaku();
 extern void func_0017B258(int a0);
-extern void func_0017C9B0(int a0);
+extern void preload(int a0);
 extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
 
 void actTitleShortCut(volatile int a0) {
@@ -64,8 +64,8 @@ void actTitleShortCut(volatile int a0) {
     while (D_00633904 == 0) {
         _ACTWait(1);
     }
-    func_0017C9B0(2);
-    actConte11Jimaku(6.0f);
+    preload(2);
+    scpFadeIn(6.0f);
     func_0017B258(2);
     func_0017B258(3);
     func_0017B258(4);
@@ -74,11 +74,11 @@ void actTitleShortCut(volatile int a0) {
 }
 
 extern int D_00633908;
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void actCreateSubThread(void *fn, int a1);
 extern void actE3Warning();
 extern void func_0017B258(int a0);
-extern void func_0017C9B0(int a0);
+extern void preload(int a0);
 extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
 
 void actTitleReadTimeDemo0(volatile int a0) {
@@ -86,8 +86,8 @@ void actTitleReadTimeDemo0(volatile int a0) {
     while (D_00633908 == 0) {
         _ACTWait(1);
     }
-    func_0017C9B0(3);
-    actConte11Jimaku(6.0f);
+    preload(3);
+    scpFadeIn(6.0f);
     func_0017B258(0x135);
     actCreateSubThread(actE3Warning, 0x15);
 }
@@ -99,14 +99,14 @@ void actOpDemo01_2(volatile int a0) {
     while (D_0063390C == 0) {
         _ACTWait(1);
     }
-    func_0017C9B0(2);
-    actConte11Jimaku(6.0f);
+    preload(2);
+    scpFadeIn(6.0f);
     func_0017B258(0x136);
     actCreateSubThread(actOpDemo01_2Chk, 0x15);
 }
 
 extern int D_00631AE4;
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern void RequestStageChange(int a0, int a1, int a2, float f12, float f13);
 extern int func_0012AA80(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
@@ -114,7 +114,7 @@ void actOpDemo01_2Chk(volatile int a0) {
     stage_KillPlayBgAnimation(0x2F7, 1, 0);
     while (func_0012AA80(0x2F7) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    actSt25aQueenDead(2, D_00631AE4, 0, 1.0f, 8.0f);
+    RequestStageChange(2, D_00631AE4, 0, 1.0f, 8.0f);
 }
 
 extern int D_00633910;
@@ -124,8 +124,8 @@ void actOpDemo02(volatile int a0) {
     while (D_00633910 == 0) {
         _ACTWait(1);
     }
-    func_0017C9B0(5);
-    actConte11Jimaku(6.0f);
+    preload(5);
+    scpFadeIn(6.0f);
     func_0017B258(0x137);
     actCreateSubThread(actSt24aConte01_2, 0x15);
 }
@@ -136,7 +136,7 @@ void actSt24aConte01_2(volatile int a0) {
     stage_KillPlayBgAnimation(0x2F8, 1, 0);
     while (func_0012AA80(0x2F8) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    actSt25aQueenDead(5, D_00631AE4, D_00631AE8, 1.0f, 8.0f);
+    RequestStageChange(5, D_00631AE4, D_00631AE8, 1.0f, 8.0f);
 }
 
 extern void actCreateSubThread(void *fn, int a1);
@@ -148,12 +148,12 @@ void actOpDemo03Chk(volatile int a0) {
     actCreateSubThread(actSt13aConte01_3, 0x15);
 }
 
-extern void func_0017C9B0(int a0);
+extern void preload(int a0);
 
 void actSt13aConte01_3(volatile int a0){
- func_0017C9B0(6); stage_KillPlayBgAnimation(0x2F9,1,0);
+ preload(6); stage_KillPlayBgAnimation(0x2F9,1,0);
  while(func_0012AA80(0x2F9)==0) _ACTWait(1); _ACTWait(1);
- actSt25aQueenDead(6, D_00631AE4, D_00631AE8, 1.0f, 8.0f); }
+ RequestStageChange(6, D_00631AE4, D_00631AE8, 1.0f, 8.0f); }
 
 void actOpDemo03(int a0)
 {
@@ -164,7 +164,7 @@ void actOpDemo03(int a0)
 }
 
 extern int D_00633914;
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void actEndDemo02();
 extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
 
@@ -173,27 +173,27 @@ void actSubMpegReturnPreload(volatile int a0) {
     while (D_00633914 == 0) {
         _ACTWait(1);
     }
-    actConte11Jimaku(6.0f);
+    scpFadeIn(6.0f);
     func_0017B258(0x13A);
     actCreateSubThread(actEndDemo02, 0x15);
 }
 
 extern int D_00633918;
 extern void actEndDemo06();
-extern void actOpDemo02Chk();
+extern void actConte14_10_Jimaku();
 
 void actSt26aConte01_1_newgame(volatile int a0) {
     scpPlayStart(0x2F, (int)&D_00633918, 0, 1, 1);
     while (D_00633918 == 0) {
         _ACTWait(1);
     }
-    actConte11Jimaku(6.0f);
+    scpFadeIn(6.0f);
     func_0017B258(0x13D);
     actCreateSubThread(actEndDemo06, 0x15);
-    actCreateSubThread(actOpDemo02Chk, 0x15);
+    actCreateSubThread(actConte14_10_Jimaku, 0x15);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo02Chk);
+INCLUDE_ASM("asm/nonmatchings/src/op", actConte14_10_Jimaku);
 
 extern void func_0020D5D8(volatile int a0);
 
@@ -228,11 +228,11 @@ void func_0020D748(volatile int a0)
     actCreateSubThread(actEndDemo07, 0x15);
 }
 
-void func_0020D770(int a0)
+void actStaff2Chk(int a0)
 {
     volatile int local = a0;
     func_00122C48(1);
-    UpdateStormPackage(0);
+    SetStaticBlur(0);
     actCreateSubThread((void *)actConte14_7, 0x15);
 }
 

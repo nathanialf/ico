@@ -36,60 +36,60 @@ typedef struct SqEntry {
 
 
 extern int D_00632218;
-extern void AdpcmStop();
+extern void adpcmTickProc2();
 extern char D_006A95B0[];
 extern int D_0063223C;
 extern long long D_00633CD8;
 extern char D_006A98B0[];
-extern void func_0025DA68();
-extern void func_0024A1E0();
+extern void SgSetSePitchDirect();
+extern void sceSifFreeIopHeap();
 extern int D_00632240;
-extern void func_0025CCE0(int a0, int a1, int a2);
-extern void func_0025CE78(int a0, int a1, int a2);
+extern void SgSetReverbDepth(int a0, int a1, int a2);
+extern void SgSetMasterVol(int a0, int a1, int a2);
 extern int D_00632208;
-extern void func_0025CD28();
+extern void SgSetOutputMode();
 extern int  D_00632214;
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundReverbDepthSet);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundInit);
 
-void soundAllocIopHeap(int a0)
+void soundOutputModeSet(int a0)
 {
     D_00632214 = a0;
-    func_0025CD28(a0);
+    SgSetOutputMode(a0);
 }
 
-void soundAllocIopFree(int a0)
+void soundReverbDepthSet(int a0)
 {
     int val;
     D_00632208 = a0;
     val = (a0 * 32767) / 100;
-    func_0025CCE0(0, val, val);
-    func_0025CCE0(1, val, val);
-    func_0025CE78(0, 0x3FFF, 0x3FFF);
-    func_0025CE78(1, 0x3FFF, 0x3FFF);
+    SgSetReverbDepth(0, val, val);
+    SgSetReverbDepth(1, val, val);
+    SgSetMasterVol(0, 0x3FFF, 0x3FFF);
+    SgSetMasterVol(1, 0x3FFF, 0x3FFF);
 }
 
 extern char D_00557CC8[];
 extern char D_00557CD8[];
 extern char D_00557CF0[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int new_mblock_node(int a, void *b, int c);
 
-void soundDataOpenChk(void) {
+void soundAllocIopHeap(void) {
     int r = new_mblock_node(0x78000, D_00557CC8, 0xFE);
     D_00632240 = r;
     if (r < 0) {
-        debug_assertMessage(D_00557CD8);
+        debug_StdPrintfDummy(D_00557CD8);
     } else {
-        debug_assertMessage(D_00557CF0, r, 0x78000);
+        debug_StdPrintfDummy(D_00557CF0, r, 0x78000);
     }
 }
 
 void soundBufAlloc(void)
 {
-    func_0024A1E0(D_00632240);
+    sceSifFreeIopHeap(D_00632240);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBufSegFree);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenChk);
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBDDataSet);
 
@@ -99,7 +99,7 @@ extern char D_00632220[];
 extern int D_00633CD0;
 extern int D_00633CD4;
 extern void func_001AD768(char *file, int line);
-extern void func_00263FF0(char *file, int line, char *msg);
+extern void __assert(char *file, int line, char *msg);
 
 void soundDataOpen(int a0, int a1) {
     switch (a0) {
@@ -115,7 +115,7 @@ void soundDataOpen(int a0, int a1) {
                     return;
             }
             func_001AD768(D_00557CC8, 0x1D8);
-            func_00263FF0(D_00557CC8, 0x1D8, D_00632220);
+            __assert(D_00557CC8, 0x1D8, D_00632220);
             return;
         case 2:
             if (a1 == 0) {
@@ -123,11 +123,11 @@ void soundDataOpen(int a0, int a1) {
                 return;
             }
             func_001AD768(D_00557CC8, 0x1E2);
-            func_00263FF0(D_00557CC8, 0x1E2, D_00632220);
+            __assert(D_00557CC8, 0x1E2, D_00632220);
             return;
     }
     func_001AD768(D_00557CC8, 0x1E7);
-    func_00263FF0(D_00557CC8, 0x1E7, D_00632220);
+    __assert(D_00557CC8, 0x1E7, D_00632220);
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenSync);
@@ -135,25 +135,25 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenSync);
 extern void AdpcmInterLeaveVolumeSet(int *a0, int a1, int a2, int a3);
 extern char D_00632220[];
 extern void func_001AD768(char *file, int line);
-extern void func_00263FF0(char *file, int line, char *msg);
+extern void __assert(char *file, int line, char *msg);
 
 void soundDataClose(int *a0, int a1, int a2, int a3, int a4) {
     *a0 = a1;
     switch (a1) {
     case 0:
         func_001AD768(D_00557CC8, 0x261);
-        func_00263FF0(D_00557CC8, 0x261, D_00632220);
+        __assert(D_00557CC8, 0x261, D_00632220);
         return;
     case 1:
         func_001AD768(D_00557CC8, 0x264);
-        func_00263FF0(D_00557CC8, 0x264, D_00632220);
+        __assert(D_00557CC8, 0x264, D_00632220);
         return;
     case 2:
         AdpcmInterLeaveVolumeSet(a0, a2, a3, a4);
         return;
     default:
         func_001AD768(D_00557CC8, 0x26A);
-        func_00263FF0(D_00557CC8, 0x26A, D_00632220);
+        __assert(D_00557CC8, 0x26A, D_00632220);
         return;
     }
 }
@@ -212,7 +212,7 @@ void soundSeEnvPlay(int a0)
     if (id < 0) return;
     a0 = a0 >> 8;
     if (a0 != *(unsigned short *)entry) return;
-    func_0025DA68(id);
+    SgSetSePitchDirect(id);
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeEnvNotUseClose);
@@ -224,26 +224,26 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", Ee2Iop);
 extern char D_00557C50[];
 extern char D_00557C68[];
 extern char D_00557C80[];
-extern extern void debug_assertMessage();
-extern void func_001007A0(int a);
-extern int func_001008C0(int h);
-extern int func_001008E0(int p, int a);
+extern extern void debug_StdPrintfDummy();
+extern void FlushCache(int a);
+extern int sceSifDmaStat(int h);
+extern int sceSifSetDma(int p, int a);
 
 int soundOutputModeGet(int a0, int a1, int a2)
 {
     int buf[4];
     int x;
-    debug_assertMessage(D_00557C50);
-    debug_assertMessage(D_00557C68, a0, a1, a2);
+    debug_StdPrintfDummy(D_00557C50);
+    debug_StdPrintfDummy(D_00557C68, a0, a1, a2);
     buf[0] = a0;
     buf[1] = a1;
     buf[2] = a2;
     buf[3] = 0;
-    func_001007A0(0);
-    x = func_001008E0((int)buf, 1);
-    while (func_001008C0(x) >= 0) ;
-    debug_assertMessage(D_00557C80);
-    func_001007A0(0);
+    FlushCache(0);
+    x = sceSifSetDma((int)buf, 1);
+    while (sceSifDmaStat(x) >= 0) ;
+    debug_StdPrintfDummy(D_00557C80);
+    FlushCache(0);
     return (x >= 0) ? 0 : -1;
 }
 
@@ -288,8 +288,8 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundHDDataSet);
  * each call materialises its own lui/addiu pair, as the ROM does.  Folding
  * them into one declaration costs 21 diffs in soundSQDataSet alone. */
 extern char D_006A95B0_2[] __asm__("D_006A95B0");
-extern int func_002641D8(void *dst, int val, int size);
-extern void soundBufSegFree(char *e);
+extern int memset(void *dst, int val, int size);
+extern void soundDataOpenChk(char *e);
 
 char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4) {
     int hi = a2 << 0x10;
@@ -300,9 +300,9 @@ char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4) {
         e = (SqEntry *)hd_search(D_006A95B0_2, &key);
         if (e == 0) {
             func_001AD768(D_00557CC8, 0x14E);
-            func_00263FF0(D_00557CC8, 0x14E, D_00632220);
+            __assert(D_00557CC8, 0x14E, D_00632220);
         }
-        func_002641D8(e, 0, 0x30);
+        memset(e, 0, 0x30);
         e->num = a1;
         e->bank = a2;
         e->unk6 = a4;
@@ -310,7 +310,7 @@ char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4) {
         e->unk28 = -1;
     }
     e->unkC = a0;
-    soundBufSegFree((char *)e);
+    soundDataOpenChk((char *)e);
     return (char *)e;
 }
 
@@ -323,9 +323,9 @@ char *soundSeDefPlay(int a0, int a1, int a2, int a3, int a4) {
         e = (SqEntry *)hd_search(D_006A95B0_2, &key);
         if (e == 0) {
             func_001AD768(D_00557CC8, 0x14E);
-            func_00263FF0(D_00557CC8, 0x14E, D_00632220);
+            __assert(D_00557CC8, 0x14E, D_00632220);
         }
-        func_002641D8(e, 0, 0x30);
+        memset(e, 0, 0x30);
         e->num = a1;
         e->bank = a2;
         e->unk6 = a4;
@@ -333,7 +333,7 @@ char *soundSeDefPlay(int a0, int a1, int a2, int a3, int a4) {
         e->unk28 = -1;
     }
     e->unk10[0] = a0;
-    soundBufSegFree((char *)e);
+    soundDataOpenChk((char *)e);
     return (char *)e;
 }
 
@@ -439,7 +439,7 @@ void soundVBlank(int arg)
 
 extern int D_00274EC0[];
 extern int D_00632CCC;
-extern int func_0025CD78(int a0, int a1);
+extern int SgGetSlotStatus(int a0, int a1);
 
 void soundSeKindBuild(void)
 {
@@ -447,7 +447,7 @@ void soundSeKindBuild(void)
     int i = 0;
     do {
         if (*(int *)(p + 0x30) != 0) {
-            int r = func_0025CD78(1, *(short *)(p + 0x10));
+            int r = SgGetSlotStatus(1, *(short *)(p + 0x10));
             if (r == 0) {
                 soundSeDefPitchSet(((int)*(unsigned short *)p << 8) | i);
             } else if (r & 2) {
@@ -474,7 +474,7 @@ void soundSeSemiCommonLoadChk(void)
     for (i = 0; i < 0x300; i += 0x30) {
         char *p = D_006A95B0 + i;
         if (*(unsigned short *)(p + 2) == 0x11) {
-            AdpcmStop(p);
+            adpcmTickProc2(p);
         }
     }
 }

@@ -7,7 +7,7 @@ extern int actInitialize(int a0);
 extern void *D_00631AE8;
 extern int func_0017B230(int a0);
 extern void func_0017B258(int bit_idx);
-extern void backStageProcessMain(void);
+extern void CheckPoint(void);
 extern void _ACTWait();
 
 typedef struct KSub {
@@ -20,7 +20,7 @@ struct SndBuf { long long a, b; };
 extern int scpKillSpiderGroup(int a0, int a1);
 extern void actCreateSubThread(void *fn, int a1);
 extern void func_00235818(volatile int a0);
-extern void func_0017E870(float a, float b, float c, float d);
+extern void scpWakeupItemWithBoundary(float a, float b, float c, float d);
 extern void func_0012ABE0(int a0, int a1);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern struct SndBuf D_0061C220;
@@ -40,16 +40,16 @@ extern void *D_00631AEC;
 extern int *D_00631AE4;
 extern int scpSleepSpiderGroupOne(void *a0, int a1);
 extern void iosPadDevRead(void *a0, int a1);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern int actSt25aQueenDeadChk(int a0);
 extern void func_0018CED0(void);
-extern void actSt24aSaku(volatile int a0);
+extern void actSt17aHasiEffect(volatile int a0);
 extern int ACTEnvGetTest(void);
 extern long long D_0061C260[];
 extern void gflagOff(void *a0, int a1);
 extern long long D_0061C270[];
 extern void *ContinueCorrectPosition(void *a0);
-extern void func_00243AE8(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern void gflagChk(void *a0, void *a1);
 extern void func_0017B4E0(void *a0, int a1);
 extern long long D_0061C280[];
@@ -62,16 +62,16 @@ ASM_LIT4_SLOT(D_006316C8, -1095.0f);
 ASM_LIT4_SLOT(D_006316CC, -3713.0f);
 ASM_LIT4_SLOT(D_006316D0, -4713.0f);
 
-INCLUDE_ASM("asm/nonmatchings/src/st24a", actSt24aSaku);
+INCLUDE_ASM("asm/nonmatchings/src/st24a", actSt17aHasiEffect);
 
 extern int D_004D3710[];
-extern void func_002356D0(volatile int a0);
+extern void actLinkTestChk(volatile int a0);
 
 void func_002354B0(volatile int a0) {
     int x = a0;
     KSub *s = (KSub *)actInitialize(a0);
     _ACTWait(1);
-    D_004D3710[1] = (int)func_002356D0;
+    D_004D3710[1] = (int)actLinkTestChk;
     s->unkC4 = D_004D3710;
     BoxBarSoundOn(a0, 0x18D);
     _ACTWait(0);
@@ -96,7 +96,7 @@ void func_00235580(volatile int a0) {
     if (func_0017B230(0x1F) == 0) {
         *(int *)(actSt25aQueenDeadChk(0xDD) + 0x16C) = 0;
         stage_KillPlayBgAnimation(0x70, 0, 0);
-        AddWayPointTop(3, 1);
+        SetWayGroupActive(3, 1);
         D_004D37D0[1] = (int)actSt24aSword;
         s->unkC4 = D_004D37D0;
         BoxBarSoundOn(a0, 0x18D);
@@ -126,13 +126,13 @@ void func_002356C0(int x) {
     volatile int local = x;
 }
 
-extern void scpPlayMotDirSmz(float a0, float a1, float a2, float a3, float a4, float a5);
+extern void scpGetWallCollision(float a0, float a1, float a2, float a3, float a4, float a5);
 
-void func_002356D0(volatile int a0)
+void actLinkTestChk(volatile int a0)
 {
     *(int *)(D_00631AE4[0x57] + 0x4E8) = 1;
     *(int *)(D_00631AE4[0x57] + 0x4E8) = 0;
-    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(0x3C);
 }
 
@@ -142,13 +142,13 @@ void func_00235728(int x) {
 
 extern long long D_0061C230[];
 extern long long D_0061C240[];
-extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void scpEffectStart(int *buf, int a1);
 
 void func_00235738(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_0061C230[0]; long long v0b=D_0061C240[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_0061C230[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_0061C240[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_0061C230[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061C240[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
 extern long long D_0061C250[];
@@ -156,8 +156,8 @@ extern long long D_0061C250[];
 void func_00235818(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_0061C240[0]; long long v0b=D_0061C250[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_0061C240[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_0061C250[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_0061C240[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061C250[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
 void func_002358F8(int x) {
@@ -166,10 +166,10 @@ void func_002358F8(int x) {
 
 extern void lt_fade_status(int a0);
 extern int D_006325B4;
-extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern void iosOmSendMail(void *a0, int a1, void *a2);
 extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
 extern int D_00633AE8;
-extern void func_002359C8(volatile int a0);
+extern void actSt17aGirlWay(volatile int a0);
 
 void func_00235908(volatile int a0)
 {
@@ -177,8 +177,8 @@ void func_00235908(volatile int a0)
     D_006325B4 = 1;
     func_0017B258(0x20);
     if (D_00631AE8 != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3B, D_00631AE4);
-        actCreateSubThread(func_002359C8, 0x15);
+        iosOmSendMail(D_00631AE8, 0x3B, D_00631AE4);
+        actCreateSubThread(actSt17aGirlWay, 0x15);
     }
     scpPlayStart(0x33, &D_00633AE8, 1, 1, 1);
     _ACTWait(1);
@@ -194,7 +194,7 @@ void func_00235908(volatile int a0)
 
 extern long long D_0061C300[];
 
-void func_002359C8(volatile int a0)
+void actSt17aGirlWay(volatile int a0)
 {
     long long buf[2];
     buf[0] = D_0061C300[0];
@@ -247,7 +247,7 @@ void func_00235B68(int a0)
 {
     volatile int local = a0;
     _ACTWait(1);
-    backStageProcessMain();
+    CheckPoint();
     func_0017B258(0x20);
 }
 

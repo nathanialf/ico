@@ -43,12 +43,12 @@ extern int *D_00631AE4;
 extern int *ContinueCorrectPosition(int *a0);
 extern int D_00274EC0[];
 extern float D_002924D8[];
-extern void GetRootMatrixByDObj(char *a0, char *a1);
-extern float HandyCamera_TargetMoveType(int *a0, int a1);
+extern void GetRootPosition(char *a0, char *a1);
+extern float _DistSqGV(int *a0, int a1);
 extern float before_DrawLine(void *a0, void *a1);
 extern void func_0018CD00(float *a0, float *a1, int a2);
 extern void *func_0018CEC0(void);
-extern void func_00243B18(void *a0, void *a1, float a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
 void ACTGameView_Loop(void)
 {
@@ -61,13 +61,13 @@ void ACTGameView_Loop(void)
     float e;
 
     if (D_00631AE4 != 0 && D_00631AE8 != 0) {
-        GetRootMatrixByDObj((char *)buf0, (char *)D_00631AE4);
-        GetRootMatrixByDObj((char *)buf1, (char *)D_00631AE8);
-        if (!(HandyCamera_TargetMoveType((int *)buf0, (int)buf1) < 22500.0f)) {
+        GetRootPosition((char *)buf0, (char *)D_00631AE4);
+        GetRootPosition((char *)buf1, (char *)D_00631AE8);
+        if (!(_DistSqGV((int *)buf0, (int)buf1) < 22500.0f)) {
             if (!(0.0f < before_DrawLine(buf2, ContinueCorrectPosition((int *)D_00631AE8)))) {
                 neg1 = -1.0f;
-                func_00243B18(buf0, func_0018CEC0(), neg1);
-                func_00243B18(buf1, ContinueCorrectPosition((int *)D_00631AE8), neg1);
+                sceVu0ScaleVector(buf0, func_0018CEC0(), neg1);
+                sceVu0ScaleVector(buf1, ContinueCorrectPosition((int *)D_00631AE8), neg1);
                 e = D_002924D8[0];
                 q = (0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1];
                 func_0018CD00(buf0, buf1,
@@ -106,7 +106,7 @@ void ACTParaStatus_Clear(volatile int *self)
     ((int *)self[0x57])[0x1F] = 1;
 }
 
-void ACTParaStatus_Exec(volatile int *self)
+void ACTGameCollisionOff(volatile int *self)
 {
     ((int *)self[0x57])[0x151] = 0;
     ((int *)self[0x57])[0x153] = 0;
@@ -134,26 +134,26 @@ int GetSkeltonOrient(void *a0, void *a1) {
 }
 
 extern int D_00561928[][10];
-extern void disp_memory_partition_bar(char *self, char *other, int v, char *tmp_a, char *tmp_b);
-extern void func_00144938(int idx, char *tmp_a, char *tmp_b);
+extern void gamesysObjInfoPosNewStageSet(char *self, char *other, int v, char *tmp_a, char *tmp_b);
+extern void EXITDATA_GetNextPosition(int idx, char *tmp_a, char *tmp_b);
 
-void ACTGame_InnerVelocityUpdate(char *self, char *other, int idx)
+void ACTGame_StageChangeGObjID(char *self, char *other, int idx)
 {
     char tmp_a[0x10];
     char tmp_b[0x10];
-    func_00144938(idx, tmp_a, tmp_b);
-    disp_memory_partition_bar(self, other, D_00561928[idx][9], tmp_a, tmp_b);
+    EXITDATA_GetNextPosition(idx, tmp_a, tmp_b);
+    gamesysObjInfoPosNewStageSet(self, other, D_00561928[idx][9], tmp_a, tmp_b);
 }
 
-extern void func_002641D8(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 
-void ACTGame_BeforeFunc(int *a0, int a1, void *a2, int a3) {
+void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3) {
     char buf0[0x10];
     char buf1[0x10];
-    func_002641D8(buf1, 0, 0x10);
+    memset(buf1, 0, 0x10);
     *(float *)(buf1 + 4) = (float)a3 * 3.1415927f / 180.0f;
-    func_00243B18(buf0, a2, -1.0f);
-    disp_memory_partition_bar((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
+    sceVu0ScaleVector(buf0, a2, -1.0f);
+    gamesysObjInfoPosNewStageSet((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
 }
 
 int FunctionAboutClingedStatus(char *self)
@@ -187,11 +187,11 @@ void ActOrientTest(float *dst, char *obj, void *a2)
     ((IntFloat *)dst)[2].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
 }
 
-extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+extern float FSqrt(float a0);
 extern void SetRootMatrixWithTransOffsetByDObj(void *a0, void *a1, void *a2, float a3);
-extern void func_00243978(void *a0, void *a1);
-extern void func_00243AD0(void *a0, void *a1, void *a2);
-extern void func_00243AE8(void *a0, void *a1, void *a2);
+extern void sceVu0Normalize(void *a0, void *a1);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 
 void GetGirlHandlinkClInfo(void *a0, void *a1, void *a2, float farg0, float farg1) {
     float buf0[4];
@@ -199,11 +199,11 @@ void GetGirlHandlinkClInfo(void *a0, void *a1, void *a2, float farg0, float farg
     float buf16[4];
 
     ActOrientTest(buf0, a0, a1);
-    func_00243AE8(buf16, a2, buf0);
-    if (farg1 < MatrixDrive_GetTurnYAngleXZ(buf16[0] * buf16[0] + buf16[1] * buf16[1] + buf16[2] * buf16[2])) {
-        func_00243978(buf16, buf16);
-        func_00243B18(buf16, buf16, farg1);
-        func_00243AD0(buf18, buf0, buf16);
+    sceVu0SubVector(buf16, a2, buf0);
+    if (farg1 < FSqrt(buf16[0] * buf16[0] + buf16[1] * buf16[1] + buf16[2] * buf16[2])) {
+        sceVu0Normalize(buf16, buf16);
+        sceVu0ScaleVector(buf16, buf16, farg1);
+        sceVu0AddVector(buf18, buf0, buf16);
         if (0.0f < buf18[1] - *(float *) ((char *) a2 + 4)) {
             buf18[1] = *(float *) ((char *) a2 + 4);
         }
@@ -213,7 +213,7 @@ void GetGirlHandlinkClInfo(void *a0, void *a1, void *a2, float farg0, float farg
     SetRootMatrixWithTransOffsetByDObj(a0, a1, a2, farg0);
 }
 
-void hand_able_connect(void) {
+void ACTGameView_Init(void) {
     int *p = D_006AA4B0;
     *(int *)((char *)p + 0x4B0) = 0;
     *(int *)((char *)p + 0x4B4) = 0;
@@ -393,14 +393,14 @@ int ACTGameCollisionOn(void *a0)
     return 0;
 }
 
-extern int ACTGame_DisconnectHand(void);
+extern int ACTGame_isWeaponCombustible(void);
 extern int dispInsectNet(int *self);
 
-int ACTGameCollisionOff(int *self)
+int ACTGame_isWeaponEnableCatchfire(int *self)
 {
     unsigned long new_var;
     int ret = 0;
-    new_var = ACTGame_DisconnectHand();
+    new_var = ACTGame_isWeaponCombustible();
     if (new_var != 0)
     {
         ret = dispInsectNet(self);
@@ -408,28 +408,28 @@ int ACTGameCollisionOff(int *self)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CheckItemMotion);
+INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WF);
 
-extern void ClipWallBoxStop(void *);
-extern void func_00243B60(void *buf, int x);
+extern void ClipWall(void *);
+extern void sceVu0CopyVector(void *buf, int x);
 extern void fzMagnitudefv(void *out, int n, void *vec);
 
-int ACTGame_CheckHandMotion(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget, int *flagout) {
+int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget, int *flagout) {
     HandWork work;
     int flag;
     int rv;
     int cnt;
 
-    func_002641D8(&work, 0, 0xC0);
+    memset(&work, 0, 0xC0);
     rv = 1;
     flag = actor ? *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) : 0;
     work._70 = f;
-    func_00243B60(&work, (int) hand0);
-    func_00243B60((char *) &work + 0x10, (int) hand1);
+    sceVu0CopyVector(&work, (int) hand0);
+    sceVu0CopyVector((char *) &work + 0x10, (int) hand1);
     if (flag != 0) {
         *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 0;
     }
-    ClipWallBoxStop(&work);
+    ClipWall(&work);
     if (flagout != 0) {
         *flagout = work._98;
     }
@@ -451,14 +451,14 @@ int ACTGame_CheckHandMotion(float f, void *hand0, void *hand1, void *actor, void
     return rv & 0xFF;
 }
 
-int ACTGame_StageChangeGObjID(int a0, int a1, int *a2, char *a3)
+int ACTCheckCollis_CI(int a0, int a1, int *a2, char *a3)
 {
     char buf[0xC0];
-    func_002641D8(buf, 0, 0xC0);
+    memset(buf, 0, 0xC0);
     *(int *)(buf + 0x70) = 0;
-    func_00243B60(buf, a0);
-    func_00243B60(buf + 0x10, a1);
-    ClipWallBoxStop(buf);
+    sceVu0CopyVector(buf, a0);
+    sceVu0CopyVector(buf + 0x10, a1);
+    ClipWall(buf);
     if (a2 != 0) {
         *a2 = *(int *)(buf + 0x98);
     }
@@ -469,18 +469,18 @@ int ACTGame_StageChangeGObjID(int a0, int a1, int *a2, char *a3)
     return *(int *)(buf + 0x88) != 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObjDirect);
+INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WELL);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_LIFEPINCH);
+INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WAY);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_TETSUNAGI);
+INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewCl);
 ASM_LIT4_SLOT(D_00630AF4, 25000000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", GetSkeltonPosition);
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", SetDirectRootPositionWithNodePointLimit);
 
-int ACTGameView_Init(int a0, int a1)
+int ACTGameView_Check(int a0, int a1)
 {
     int i;
     for (i = 0; i < D_006AA4B0[0x4B0 / 4]; i++) {
@@ -491,7 +491,7 @@ int ACTGameView_Init(int a0, int a1)
     return 0;
 }
 
-int ACTCharctrl_Lock(int a0, int a1) {
+int ACTGameViewSimple_Check(int a0, int a1) {
     int i;
     for (i = 0; i < D_006AA4B0[0x12C]; i++) {
         if (D_006AA4B0[i] == a1) {
@@ -501,7 +501,7 @@ int ACTCharctrl_Lock(int a0, int a1) {
     return 0;
 }
 
-int ACTCharctrl_Unlock(int a0)
+int ACTGame_GetMotOrientFromWeapon(int a0)
 {
     int rv;
     if (a0 != 0) {
@@ -524,15 +524,15 @@ int ACTGame_ConnectHand(int *a0)
 }
 
 
-int ACTGame_DisconnectHand(void) {
+int ACTGame_isWeaponCombustible(void) {
     return checkHit() == 1;
 }
 
 extern const float D_0063226C[];
-extern int *isysGObjSearchFromObjKindID_begin(int *);
+extern int *isysGObjSearchFromObjKindID_next(int *);
 extern int *isysGObjSearchFromObjLayoutID(int);
 
-int *PAIR_GetPosition_BOY(int a0, int a1) {
+int *ACTGame_GetNearestGObj(int a0, int a1) {
     float best_val = D_0063226C[0];
     int *best = 0;
     int *node;
@@ -540,12 +540,12 @@ int *PAIR_GetPosition_BOY(int a0, int a1) {
     node = isysGObjSearchFromObjLayoutID(a1);
     if (node != 0) {
         do {
-            float val = HandyCamera_TargetMoveType(ContinueCorrectPosition(node), a0);
+            float val = _DistSqGV(ContinueCorrectPosition(node), a0);
             if (val < best_val) {
                 best_val = val;
                 best = node;
             }
-            node = isysGObjSearchFromObjKindID_begin(node);
+            node = isysGObjSearchFromObjKindID_next(node);
         } while (node != 0);
     }
     return best;

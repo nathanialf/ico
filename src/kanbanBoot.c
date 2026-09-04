@@ -1,7 +1,7 @@
 #include "common.h"
 
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 /* kanbanBoot .rodata run 0x616CE0..0x617170 (byte-verified; stubs emit the rest) */
 const char D_00616CE0[0x10] = "sync end\n";
 extern void soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, int a2, int a3);
@@ -16,7 +16,7 @@ void kanbanBootMain(void) {
 
 void kanbanBootInit(void)
 {
-    debug_assertMessage(D_00616CE0);
+    debug_StdPrintfDummy(D_00616CE0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootStart);

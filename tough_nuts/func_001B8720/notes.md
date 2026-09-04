@@ -13,7 +13,7 @@ levers — the canonical permuter target. Blocks 0/1 (prologue) and block 2
    use. Forces `lui $sN,%hi` cached in a callee reg + `addiu ,%lo` per use.
    FN8550 supplied $s6, A33210 supplied the 9th callee reg → **frame -224
    matches** (was -208). This collapsed the original 299→293 frame cascade.
-2. **func_00264D60 returns int** (NOT void). `this[0x270] = func_00264D60() & 0x1F`
+2. **rand returns int** (NOT void). `this[0x270] = rand() & 0x1F`
    — the masked value is the CALL'S RETURN ($2 after jal), not a reloaded
    self[0x15C]. The old seed's `self[0x15C] & 0x1F` forced a spurious reload
    (extra insn → branch-offset cascade). 293→256-ish across several.
@@ -118,7 +118,7 @@ glabel func_001B8720
     /* B8798 001B8798 C00140AE */  sw         $0, 0x1C0($18)
     /* B879C 001B879C 000852AC */  sw         $18, 0x800($2)
     /* B87A0 001B87A0 000043AE */  sw         $3, 0x0($18)
-    /* B87A4 001B87A4 5893090C */  jal        func_00264D60
+    /* B87A4 001B87A4 5893090C */  jal        rand
     /* B87A8 001B87A8 080044AE */   sw        $4, 0x8($18)
     /* B87AC 001B87AC 0000448E */  lw         $4, 0x0($18)
     /* B87B0 001B87B0 6200033C */  lui        $3, %hi(D_00623468)
@@ -136,9 +136,9 @@ glabel func_001B8720
     /* B87E0 001B87E0 700242AE */  sw         $2, 0x270($18)
     /* B87E4 001B87E4 C017040C */  jal        func_00105F00
     /* B87E8 001B87E8 0800C0E4 */   swc1      $f0, 0x8($6)
-    /* B87EC 001B87EC 9E61040C */  jal        func_00118678
+    /* B87EC 001B87EC 9E61040C */  jal        _UnitMatrix
     /* B87F0 001B87F0 F0014426 */   addiu     $4, $18, 0x1F0
-    /* B87F4 001B87F4 9E61040C */  jal        func_00118678
+    /* B87F4 001B87F4 9E61040C */  jal        _UnitMatrix
     /* B87F8 001B87F8 30024426 */   addiu     $4, $18, 0x230
     /* B87FC 001B87FC D0014426 */  addiu      $4, $18, 0x1D0
     /* B8800 001B8800 140A040C */  jal        func_00102850
@@ -214,12 +214,12 @@ glabel func_001B8720
     /* B88F8 001B88F8 2D200002 */  daddu      $4, $16, $0
     /* B88FC 001B88FC 2D302002 */  daddu      $6, $17, $0
     /* B8900 001B8900 2D28A003 */  daddu      $5, $29, $0
-    /* B8904 001B8904 9261040C */  jal        func_00118648
+    /* B8904 001B8904 9261040C */  jal        _ApplyMatrix
     /* B8908 001B8908 FFFF7326 */   addiu     $19, $19, -0x1
     /* B890C 001B890C 10000426 */  addiu      $4, $16, 0x10
     /* B8910 001B8910 2D302002 */  daddu      $6, $17, $0
     /* B8914 001B8914 2D28A003 */  daddu      $5, $29, $0
-    /* B8918 001B8918 9261040C */  jal        func_00118648
+    /* B8918 001B8918 9261040C */  jal        _ApplyMatrix
     /* B891C 001B891C 10003126 */   addiu     $17, $17, 0x10
     /* B8920 001B8920 F5FF6106 */  bgez       $19, .L001B88F8
     /* B8924 001B8924 50001026 */   addiu     $16, $16, 0x50
@@ -454,7 +454,7 @@ glabel func_001B8720
     /* B8C68 001B8C68 6085E626 */   addiu     $6, $23, %lo(D_00618560)
     /* B8C6C 001B8C6C 2D208002 */  daddu      $4, $20, $0
     /* B8C70 001B8C70 0D010524 */  addiu      $5, $0, 0x10D
-    /* B8C74 001B8C74 FC8F090C */  jal        func_00263FF0
+    /* B8C74 001B8C74 FC8F090C */  jal        __assert
     /* B8C78 001B8C78 1032C626 */   addiu     $6, $22, %lo(D_00633210)
 .align 2
   .L001B8C7C:

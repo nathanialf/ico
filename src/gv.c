@@ -8,16 +8,16 @@ typedef struct { char _0[0x42]; short f42; unsigned short f44; unsigned int f48;
 
 extern char D_002E4D64[];
 extern GVGeo2 D_002A4C48[];
-extern void debug_assertMessage(char *fmt, ...);
+extern void debug_StdPrintfDummy(char *fmt, ...);
 extern char D_0055AEE8[];
-int _InterGV(float *dst, float *src) {
+int RestoreGeneratorGeo(float *dst, float *src) {
     dst[0] = src[4];
     dst[1] = src[5];
     dst[2] = src[6];
     return 1;
 }
 
-extern int iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern int iosOmSendMail(void *a0, int a1, void *a2);
 
 int GetMatrixDirectionToZ(void *a0, void *a1) {
     void *p = *(void **)((char *)a0 + 0x15C);
@@ -27,7 +27,7 @@ int GetMatrixDirectionToZ(void *a0, void *a1) {
     *(int *)((char *)q + 0x8) = *(short *)((char *)a1 + 0x32);
     if (h == 1) {
         *(int *)((char *)q + 0x54) = 2;
-        iosOmBeforeFuncStandard(a0, 1, a0);
+        iosOmSendMail(a0, 1, a0);
     }
     return 1;
 }
@@ -42,29 +42,29 @@ int _InterRotGV(void *a0, void *a1) {
 
 INCLUDE_ASM("asm/nonmatchings/src/gv", _DistxzSqGV);
 
-INCLUDE_ASM("asm/nonmatchings/src/gv", _DistSqGV);
+INCLUDE_ASM("asm/nonmatchings/src/gv", DirectCallEnemy);
 
-void _DistGV(int *self)
+void LockEnemyGenerate(int *self)
 {
     int *p;
     p = (int *)self[0x164 / 4];
-    debug_assertMessage(D_0055AEE8, self[0x8 / 4]);
+    debug_StdPrintfDummy(D_0055AEE8, self[0x8 / 4]);
     *(long long *)((char *)p + 0x18) = *(long long *)((char *)p + 0x18) | 0x400000000LL;
 }
 
 extern char D_0055AEF8[];
 
-void _DistxzGV(void *a0) {
+void UnlockEnemyGenerate(void *a0) {
     void *p = *(void **)((char *)a0 + 0x164);
     GVGeo2 *g = &D_002A4C48[*(int *)((char *)a0 + 0x8)];
-    debug_assertMessage(D_0055AEF8, *(int *)((char *)a0 + 0x8));
+    debug_StdPrintfDummy(D_0055AEF8, *(int *)((char *)a0 + 0x8));
     ((GVBits *)((char *)p + 0x18))->ll &= ~((unsigned long)0x8000 << 19);
     g->f48 = (g->f48 | 0x200000) & 0xFFFBFFFF;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/gv", _MoveGV);
 
-void _RotyGV(int a0) {
+void ReturnEnemyToGenerator(int a0) {
     GVGeo2 *g = &D_002A4C48[a0];
     unsigned int x = g->f48 & 0xFFDFFFFF;
     unsigned int y = x & 0xFFFBFFFF;
@@ -89,7 +89,7 @@ int _AbsRotyGV(void *a0) {
 }
 
 extern void *isysGObjSearchFromObjLayoutID(int x);
-extern void *isysGObjSearchFromObjKindID_begin(void *p);
+extern void *isysGObjSearchFromObjKindID_next(void *p);
 
 int _ApplyRyGV(void) {
     void *g = isysGObjSearchFromObjLayoutID(0x21);
@@ -101,24 +101,24 @@ int _ApplyRyGV(void) {
                 return 1;
             }
         }
-        g = isysGObjSearchFromObjKindID_begin(g);
+        g = isysGObjSearchFromObjKindID_next(g);
     }
     return 0;
 }
 
-void func_00193F48(int a0)
+void ResetReviveCountEnemy(int a0)
 {
     int idx = *(int *)(a0 + 0x8);
     char *base = (char *)D_002A4C48 + idx * 0x4C;
     *(short *)(base + 0x42) = 0;
 }
 
-void _GetDirection(short *a0) {
+void SetInfoSpKidnapGenerator(short *a0) {
     a0[0] = 1;
     a0[1] = 1;
 }
 
-void _RotGV(void)
+void SetInfoSpKidnapEnemy(void)
 {
   int new_var;
   new_var = 0x42;
@@ -126,7 +126,7 @@ void _RotGV(void)
   *((int *) (D_002E4D64 + 0x48)) = ((*((int *) (D_002E4D64 + 0x48))) | 0x200000) & (~0x40000);
 }
 
-int _RotGVF(void *a0) {
+int IsEnableCallEnemyByTargetGObj(void *a0) {
     GVGeo2 *g = &D_002A4C48[*(int *)((char *)a0 + 0x8)];
     void *p = *(void **)((char *)a0 + 0x164);
     if (g->f44 != 0) {
@@ -142,13 +142,13 @@ int _RotGVF(void *a0) {
 }
 
 extern char D_006327A8[];
-extern void func_00243AA8(void *a0, void *a1, void *a2, float a3);
+extern void sceVu0InterVector(void *a0, void *a1, void *a2, float a3);
 
-void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4) {
+void _InterGV(void *a0, void *a1, void *a2, float a3, float a4) {
     if (a0 == 0 || a1 == 0 || a2 == 0) {
-        debug_assertMessage(D_006327A8);
+        debug_StdPrintfDummy(D_006327A8);
     }
-    func_00243AA8(a0, a1, a2, a4 / (a3 + a4));
+    sceVu0InterVector(a0, a1, a2, a4 / (a3 + a4));
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/gv", _OrientGV);

@@ -36,7 +36,7 @@ int AllocPObj(int idx)
 
 extern int D_00633B98;
 
-int InitPObj(int a0) {
+int GetGObjId(int a0) {
     int i;
     for (i = 0; i < D_00633B98; i++) {
         if (a0 == D_00712CC0[i]) {
@@ -47,13 +47,13 @@ int InitPObj(int a0) {
 }
 
 extern char D_00633BA0[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
-void FreePObj(int a0) {
+void PrintGObjID(int a0) {
     int i;
     for (i = 0; i < D_00633B98; i++) {
         if (a0 == D_00712CC0[i]) {
-            debug_assertMessage(D_00633BA0, i);
+            debug_StdPrintfDummy(D_00633BA0, i);
         }
     }
 }

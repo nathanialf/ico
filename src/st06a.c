@@ -19,7 +19,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -49,7 +49,7 @@ void actSt06aInit(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -68,7 +68,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -98,7 +98,7 @@ void actSt06aSuimon(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -117,7 +117,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -147,7 +147,7 @@ void actSt06aSuimonChk(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -166,7 +166,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -196,7 +196,7 @@ void actSt06aDoor(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -215,7 +215,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -245,7 +245,7 @@ void actSt06aDoorUpChk(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -261,7 +261,7 @@ extern int func_0012AB50(int a0, int a1, int a2);
 extern int func_0017B230(int a0);
 extern void func_0017B258(int a0);
 extern void func_0017B288(int a0);
-extern void func_0017E870(float a0, float a1, float a2, float a3);
+extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern void lt_fade_status(int a0);
 extern void scpActivateAllWithKind(void);
 extern void scpDispOnAllWithKind(void);
@@ -283,7 +283,7 @@ void actSt06aDoorDownChk(int a0) {
     _ACTWait(0xF);
     if (func_0017B230(0x101) != 0) {
         stage_KillPlayBgAnimation(0xC9, 1, 0xC8);
-        func_0017E870(-675.0f, -150.0f, -1600.0f, 200.0f);
+        scpWakeupItemWithBoundary(-675.0f, -150.0f, -1600.0f, 200.0f);
         while (func_0012AB50(0xC9, 0xDC, 0) == 0) { _ACTWait(1); }
         _ACTWait(1);
         soundSeDefPlayWithVolumeRate(0x511, 0, 0, 1);
@@ -302,7 +302,7 @@ void actSt06aDoorDownChk(int a0) {
         D_006325B4 = 0;
     } else {
         stage_KillPlayBgAnimation(0xC9, 1, 0);
-        func_0017E870(-675.0f, -1200.0f, -1600.0f, 200.0f);
+        scpWakeupItemWithBoundary(-675.0f, -1200.0f, -1600.0f, 200.0f);
         soundSeDefPlayWithVolumeRate(0x50F, 0, 0, 1);
         while (func_0012AB50(0xC9, 0x91, 0) == 0) { _ACTWait(1); }
         _ACTWait(1);

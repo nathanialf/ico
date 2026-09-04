@@ -43,24 +43,24 @@ extern int D_006325B4;
 extern int D_006339CC;
 extern int D_006339F0;
 extern unsigned char D_006339F4;
-extern int Shock_Request(int a0, int a1);
+extern int iosPadActVolumeSet(int a0, int a1);
 extern void Vibration_ShotDecode(int a0);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern void RequestStageChange(int a0, int a1, int a2, float f0, float f1);
 extern int fightSoundClose(void);
 extern int func_0012AA80(int a0);
 extern int func_0012AB50(int a0, int a1, int a2);
 extern void func_0017B258(int a0);
-extern void func_0017C9B0(int a0);
+extern void preload(int a0);
 extern void func_00192040(void);
 extern int iosPadDevRead(int a0, int a1);
 extern void lt_fade_status(int a0);
 extern void scpActivateAllWithKind(void);
 extern void scpDispOnAllWithKind(void);
-extern int scpDoorTypeUpUp(int a0);
+extern int scpIsTorchLightOn(int a0);
 extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
 
 void actSt04dInit(volatile int a0) {
-    while (scpDoorTypeUpUp(0x402) == 0 || scpDoorTypeUpUp(0x403) == 0 ||
+    while (scpIsTorchLightOn(0x402) == 0 || scpIsTorchLightOn(0x403) == 0 ||
            func_0017B230(0x9E) == 0) {
         _ACTWait(1);
     }
@@ -75,7 +75,7 @@ void actSt04dInit(volatile int a0) {
     while (D_006339CC == 0) {
         _ACTWait(1);
     }
-    func_0017C9B0(3);
+    preload(3);
     func_0017B258(0x9B);
     func_0017B258(0xCC);
     stage_KillPlayBgAnimation(0xE0, 1, 0);
@@ -88,7 +88,7 @@ void actSt04dInit(volatile int a0) {
         int pad = iosPadDevRead(D_00631AEC, 0xA);
         D_006339F4 = 0x80;
         D_006339F0 = pad;
-        Shock_Request(pad, 0x80);
+        iosPadActVolumeSet(pad, 0x80);
     }
     while (func_0012AB50(0xB1, 0xBE, 0) == 0) {
         _ACTWait(1);
@@ -100,7 +100,7 @@ void actSt04dInit(volatile int a0) {
     }
     _ACTWait(1);
     scpActivateAllWithKind();
-    actSt25aQueenDead(3, D_00631AE4, 0, 2.0f, 8.0f);
+    RequestStageChange(3, D_00631AE4, 0, 2.0f, 8.0f);
 }
 
 extern int D_00631AEC;
@@ -108,7 +108,7 @@ extern int D_006325B4;
 extern int D_006339D0;
 extern int D_006339F0;
 extern unsigned char D_006339F4;
-extern int Shock_Request(int a0, int a1);
+extern int iosPadActVolumeSet(int a0, int a1);
 extern void Vibration_ShotDecode(int a0);
 extern int actSt25aQueenDeadChk(int a0);
 extern int func_0012AA80(int a0);
@@ -118,18 +118,18 @@ extern int iosPadDevRead(int a0, int a1);
 extern void lt_fade_status(int a0);
 extern void scpActivateAllWithKind(void);
 extern void scpDispOnAllWithKind(void);
-extern int scpDoorTypeUpUp(int a0);
+extern int scpIsTorchLightOn(int a0);
 extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
 
 void actSt04eInit(volatile int a0) {
     if (D_00631B14 == 0x13) {
-        while (scpDoorTypeUpUp(0x406) == 0 || scpDoorTypeUpUp(0x407) == 0 ||
+        while (scpIsTorchLightOn(0x406) == 0 || scpIsTorchLightOn(0x407) == 0 ||
                func_0017B230(0x9F) == 0) {
             _ACTWait(1);
         }
     }
     if (D_00631B14 == 0x14) {
-        while (scpDoorTypeUpUp(0x454) == 0 || scpDoorTypeUpUp(0x455) == 0 ||
+        while (scpIsTorchLightOn(0x454) == 0 || scpIsTorchLightOn(0x455) == 0 ||
                func_0017B230(0x9F) == 0) {
             _ACTWait(1);
         }
@@ -152,7 +152,7 @@ void actSt04eInit(volatile int a0) {
             int pad = iosPadDevRead(D_00631AEC, 0xA);
             D_006339F4 = 0x80;
             D_006339F0 = pad;
-            Shock_Request(pad, 0x80);
+            iosPadActVolumeSet(pad, 0x80);
         }
         while (func_0012AB50(0xB3, 0xBE, 0) == 0) {
             _ACTWait(1);
@@ -174,7 +174,7 @@ void actSt04eInit(volatile int a0) {
             int pad = iosPadDevRead(D_00631AEC, 0xA);
             D_006339F4 = 0x80;
             D_006339F0 = pad;
-            Shock_Request(pad, 0x80);
+            iosPadActVolumeSet(pad, 0x80);
         }
         while (func_0012AB50(0xB4, 0xBE, 0) == 0) {
             _ACTWait(1);
@@ -196,7 +196,7 @@ extern int D_006325B4;
 extern int D_006339D4;
 extern int D_006339F0;
 extern unsigned char D_006339F4;
-extern int Shock_Request(int a0, int a1);
+extern int iosPadActVolumeSet(int a0, int a1);
 extern void Vibration_ShotDecode(int a0);
 extern int func_0012AA80(int a0);
 extern int func_0012AB50(int a0, int a1, int a2);
@@ -205,12 +205,12 @@ extern int iosPadDevRead(int a0, int a1);
 extern void lt_fade_status(int a0);
 extern void scpActivateAllWithKind(void);
 extern void scpDispOnAllWithKind(void);
-extern int scpDoorTypeUpUp(int a0);
+extern int scpIsTorchLightOn(int a0);
 extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
 
 void actSt04lC1BallTurn(volatile int a0) {
     int pad;
-    while (scpDoorTypeUpUp(0x456) == 0 || scpDoorTypeUpUp(0x457) == 0 ||
+    while (scpIsTorchLightOn(0x456) == 0 || scpIsTorchLightOn(0x457) == 0 ||
            func_0017B230(0xA0) == 0) {
         _ACTWait(1);
     }
@@ -230,7 +230,7 @@ void actSt04lC1BallTurn(volatile int a0) {
     pad = iosPadDevRead(D_00631AEC, 0xA);
     D_006339F4 = 0x80;
     D_006339F0 = pad;
-    Shock_Request(pad, 0x80);
+    iosPadActVolumeSet(pad, 0x80);
     while (func_0012AB50(0xB5, 0xBE, 0) == 0) {
         _ACTWait(1);
     }
@@ -436,7 +436,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -466,7 +466,7 @@ void actSt04lBrg1Chk(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -479,7 +479,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -509,7 +509,7 @@ void actSt04lRope3Chk(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -522,7 +522,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -552,7 +552,7 @@ void actSt04lRope4Chk(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -565,7 +565,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -595,7 +595,7 @@ void actSt04lBrg2Chk(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -608,7 +608,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -638,7 +638,7 @@ void actSt04lSekizoChk(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -651,7 +651,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -681,7 +681,7 @@ void actSt04lGondolaChk(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -694,7 +694,7 @@ extern void BoySekikaTexScroll(int a0, int a1);
 extern void GetTarget(void);
 extern void func_0017B528(int a0);
 extern void func_0017B568(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -724,7 +724,7 @@ void actSt04lMonyou01Chk(volatile int a0) {
     func_0017B568(D_00631AE8);
     _ACTWait(1);
     if (ACTEnvGetTest() != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3C, D_00631AE4);
     }
     D_006325B4 = 0;
 }
@@ -734,11 +734,11 @@ extern int D_00631AE8;
 extern int D_006339E8;
 extern int actItouQueenAttackChk(void);
 extern void gflagOff(int a0, int a1);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void iosOmSendMail(int a0, int a1, int a2);
+extern int scpTriggerBall(int a0, int a1, float f);
 
 void actSt04lMonyou02Chk(volatile int a0) {
-    while (func_0017B230(0x9C) == 0 || actItouQueenAttackChk() != 4 || scpSleepEnemyOne(a0, D_00631AE4, 1000.0f) == 0) {
+    while (func_0017B230(0x9C) == 0 || actItouQueenAttackChk() != 4 || scpTriggerBall(a0, D_00631AE4, 1000.0f) == 0) {
         _ACTWait(1);
     }
     scpDispOnAllWithKind();
@@ -746,7 +746,7 @@ void actSt04lMonyou02Chk(volatile int a0) {
     D_006325B4 = 1;
     gflagOff(D_00631AE4, 0);
     if (D_00631AE8 != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8, 0x3B, D_00631AE4);
+        iosOmSendMail(D_00631AE8, 0x3B, D_00631AE4);
     }
     func_0017B258(0xB4);
     _ACTWait(0x3C);

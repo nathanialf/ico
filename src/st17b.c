@@ -1,7 +1,7 @@
 #include "common.h"
 
 
-extern void backStageProcessMain(void);
+extern void CheckPoint(void);
 extern void _ACTWait();
 extern void func_0017B258(int bit_idx);
 extern long long D_0061C0B0[];
@@ -133,7 +133,7 @@ void func_0022F850(int a0)
 {
     volatile int local = a0;
     _ACTWait(1);
-    backStageProcessMain();
+    CheckPoint();
     func_0017B258(0x12A);
 }
 

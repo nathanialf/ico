@@ -8,7 +8,7 @@ typedef struct { char p[0x34]; void *f34; void *f38; char p2[4]; unsigned char f
 extern int *D_006321D4;
 extern AdpT *D_006321D8;
 extern char D_0061AC80[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001FBFC8();
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", cut_gobj_camera_dl_link);
 
@@ -25,7 +25,7 @@ void isysGObjMoveCameraDL(int *self, int a1, int a2, int a3, int *t0)
     register int *t1 = self;
     int v34, v44;
     if (t0 == 0) {
-        debug_assertMessage(D_0061AC80);
+        debug_StdPrintfDummy(D_0061AC80);
         return;
     }
 
@@ -49,7 +49,7 @@ void isysGObjLinkCameraDL(int *self, int a1, int a2, int a3, int *t0)
     register int *t1 = self;
     int v34, v44;
     if (t0 == 0) {
-        debug_assertMessage(D_0061AC80);
+        debug_StdPrintfDummy(D_0061AC80);
         return;
     }
 
@@ -74,7 +74,7 @@ void isysGObjLinkCameraDLAfterGObj(void) {
 }
 
 
-void isysGObjLinkCameraDLBeforeGObj(int a0, int a1)
+void isysGObjMoveCameraDLHead(int a0, int a1)
 {
     int *self = (int *)a0;
     int key = a1;
@@ -120,11 +120,11 @@ void isysGObjLinkCameraDLBeforeGObj(int a0, int a1)
     ((int *)self[0xD])[0xE] = (int)self;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", AdpcmStreamInit);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", isysGObjLinkCameraDLHead);
 
 extern void func_001FBFC8(void *a0);
 
-void adpcmTickProc2(AdpT *a0, AdpT *a1) {
+void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1) {
     func_001FBFC8(a0);
     a0->f40 = a1->f40;
     a0->f38 = a1;
@@ -136,7 +136,7 @@ void adpcmTickProc2(AdpT *a0, AdpT *a1) {
     }
 }
 
-void adpcmDataSet(char *a0, char *a1) {
+void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1) {
     int next;
     func_001FBFC8(a0);
     *(unsigned char *)(a0 + 0x40) = *(unsigned char *)(a1 + 0x40);

@@ -175,7 +175,7 @@ glabel func_0012C3D0
     /* 2C5D8 0012C5D8 6300063C */  lui        $6, %hi(D_00631DD8)
     /* 2C5DC 0012C5DC 2D200002 */  daddu      $4, $16, $0
     /* 2C5E0 0012C5E0 D81DC624 */  addiu      $6, $6, %lo(D_00631DD8)
-    /* 2C5E4 0012C5E4 FC8F090C */  jal        func_00263FF0
+    /* 2C5E4 0012C5E4 FC8F090C */  jal        __assert
     /* 2C5E8 0012C5E8 43040524 */   addiu     $5, $0, 0x443
 .align 2
   .L0012C5EC:
@@ -367,7 +367,7 @@ glabel func_0012C3D0
     /* 2C5D8 0012C5D8 6300063C */  lui        $6, %hi(D_00631DD8)
     /* 2C5DC 0012C5DC 2D200002 */  daddu      $4, $16, $0
     /* 2C5E0 0012C5E0 D81DC624 */  addiu      $6, $6, %lo(D_00631DD8)
-    /* 2C5E4 0012C5E4 FC8F090C */  jal        func_00263FF0
+    /* 2C5E4 0012C5E4 FC8F090C */  jal        __assert
     /* 2C5E8 0012C5E8 43040524 */   addiu     $5, $0, 0x443
 .align 2
   .L0012C5EC:

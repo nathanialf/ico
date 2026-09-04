@@ -32,7 +32,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/mcard", func_00137E48);
 
 void iosMcManager(void) {}
 
-int iosMcMgrSync(unsigned long *a0)
+int iosMcSync(unsigned long *a0)
 {
     unsigned long x = *a0;
     char y = x;
@@ -44,21 +44,21 @@ int iosMcMgrSync(unsigned long *a0)
 extern char D_00280F88[];
 extern int iosMsgSend(void *a0, void *a1, int a2);
 
-int iosMcTest(void *a0) {
+int iosMcGetInfo(void *a0) {
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 0;
     v->ll = v->ll & -2;
     return iosMsgSend(D_00280F88, a0, 0);
 }
 
-int iosMcSync(void *a0) {
+int iosMcFormat(void *a0) {
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 3;
     v->ll = v->ll & -2;
     return iosMsgSend(D_00280F88, a0, 0);
 }
 
-int iosMcGetInfo(void *a0) {
+int iosMcUnformat(void *a0) {
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 4;
     v->ll = v->ll & -2;

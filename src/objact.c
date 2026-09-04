@@ -60,14 +60,14 @@ void func_0023B5C8(volatile int a0) {
 
 extern void _ACTWait(int a0);
 
-extern void func_0017E660(int a0, float a1, float a2, float a3, float a4);
+extern void scpBornSpider(int a0, float a1, float a2, float a3, float a4);
 
 void func_0023B650(volatile int a0) {
     for (;;) {
         while ((((int *)D_00631AE4[0x164 / 4])[0x2D4 / 4] & 0x400) == 0) {
             _ACTWait(1);
         }
-        func_0017E660(2, 0.0f, -500.0f, 0.0f, 500.0f);
+        scpBornSpider(2, 0.0f, -500.0f, 0.0f, 500.0f);
         _ACTWait(1);
     }
 }
@@ -104,11 +104,11 @@ ASM_LIT4_SLOT(D_006317AC, -757.0f);
 ASM_LIT4_SLOT(D_006317B0, 759.0f);
 ASM_LIT4_SLOT(D_006317B4, 0.7f);
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023BC08);
+INCLUDE_ASM("asm/nonmatchings/src/objact", stageSE10lstrong2);
 ASM_LIT4_SLOT(D_006317B8, 773.0f);
 ASM_LIT4_SLOT(D_006317BC, 0.2f);
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023BD50);
+INCLUDE_ASM("asm/nonmatchings/src/objact", stageSE19ataki);
 ASM_LIT4_SLOT(D_006317C0, -1526.0f);
 ASM_LIT4_SLOT(D_006317C4, -1227.0f);
 ASM_LIT4_SLOT(D_006317C8, 759.0f);
@@ -118,7 +118,7 @@ ASM_LIT4_SLOT(D_006317D4, -987.0f);
 ASM_LIT4_SLOT(D_006317D8, -2788.0f);
 ASM_LIT4_SLOT(D_006317DC, 0.8f);
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023BF70);
+INCLUDE_ASM("asm/nonmatchings/src/objact", stageSE02astrong);
 
 int func_0023C090(int *self)
 {
@@ -163,7 +163,7 @@ int func_0023C0E8(int *self)
 
 extern int func_0018B0A0(void);
 
-int func_0023C148(void) {
+int stageSE03tsuiro(void) {
     int r = func_0018B0A0();
     if (r == 3 || r == 9) {
         return -1;
@@ -171,7 +171,7 @@ int func_0023C148(void) {
     return 0;
 }
 
-int func_0023C180(void) {
+int stageSE03tnotSuiro(void) {
     int r = func_0018B0A0();
     int busy = (r == 3 || r == 9) ? -1 : 0;
     if (busy != 0) {
@@ -204,7 +204,7 @@ int func_0023C290(void *a0) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023C2F0);
+INCLUDE_ASM("asm/nonmatchings/src/objact", stageSE04ewind);
 ASM_LIT4_SLOT(D_006317F8, -5770.0f);
 ASM_LIT4_SLOT(D_006317FC, -4900.0f);
 ASM_LIT4_SLOT(D_00631800, 870.0f);

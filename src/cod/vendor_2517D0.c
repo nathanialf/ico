@@ -7,9 +7,9 @@
 #include "math_private.h"
 #include "math_private.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_002517D0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", sceMpegInit);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00251870);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", sceMpegCreate);
 
 int func_00251AB0(void) {
     return 1;
@@ -17,18 +17,18 @@ int func_00251AB0(void) {
 
 extern int D_005524A8[];
 extern int D_005525C0[];
-extern void func_002525E8(int a0, int a1);
+extern void _sendDataToIPU(int a0, int a1);
 
-void func_00251AB8(int a0, int a1, int a2) {
+void sceMpegAddBs(int a0, int a1, int a2) {
     int rounded = (a2 + 0x13) / 16 * 16;
     D_005524A8[0] = a1;
     D_005525C0[0] = rounded;
-    func_002525E8(a1, rounded);
+    _sendDataToIPU(a1, rounded);
 }
 
-extern int func_00251ED0(int self);
+extern int _getpic(int self);
 
-int func_00251AF0(int *a0, unsigned int a1, int a2) {
+int sceMpegGetPicture(int *a0, unsigned int a1, int a2) {
     int *p = (int *)a0[0x40/4];
     a1 = (a1 & 0x0FFFFFFF) | 0x20000000;
     p[0xB0/4] = 1;
@@ -36,10 +36,10 @@ int func_00251AF0(int *a0, unsigned int a1, int a2) {
     p[0xE4/4] = a2;
     p[0xE0/4] = 0;
     p[0xDC/4] = 0;
-    return func_00251ED0((int)a0);
+    return _getpic((int)a0);
 }
 
-int func_00251B38(int *self, unsigned int a1, int a2, int a3)
+int sceMpegGetPictureRAW8(int *self, unsigned int a1, int a2, int a3)
 {
   int *p = (int *) self[0x40 / 4];
   p[0xE4 / 4] = a2;
@@ -47,10 +47,10 @@ int func_00251B38(int *self, unsigned int a1, int a2, int a3)
   p[0xB0 / 4] = 0;
   p[0xE0 / 4] = 0;
   p[0xDC / 4] = 0;
-  return func_00251ED0((int) self);
+  return _getpic((int) self);
 }
 
-int func_00251B80(int *self, unsigned int a1, int a2, int a3)
+int sceMpegGetPictureRAW8xy(int *self, unsigned int a1, int a2, int a3)
 {
   int *p = (int *) self[0x40 / 4];
   int prod;
@@ -60,37 +60,37 @@ int func_00251B80(int *self, unsigned int a1, int a2, int a3)
   p[0xE4 / 4] = prod;
   p[0xDC / 4] = a2 << 4;
   p[0xB0 / 4] = 0;
-  return func_00251ED0((int) self);
+  return _getpic((int) self);
 }
 
-void func_00251BD0(void *a0, int a1, int a2, int a3) {
+void sceMpegSetDecodeMode(void *a0, int a1, int a2, int a3) {
     int *p = *(int **)((char *)a0 + 0x40);
     p[0x25] = a1;
     p[0x26] = a2;
     p[0x27] = a3;
 }
 
-void func_00251BE8(void *a0, int *a1, int *a2, int *a3) {
+void sceMpegGetDecodeMode(void *a0, int *a1, int *a2, int *a3) {
     int *p = *(int **)((char *)a0 + 0x40);
     *a1 = *(int *)((char *)p + 0x94);
     *a2 = *(int *)((char *)p + 0x98);
     *a3 = *(int *)((char *)p + 0x9C);
 }
 
-int func_00251C08(int **a0) {
+int sceMpegIsEnd(int **a0) {
     return a0[0x10][0];
 }
 
-int func_00251C18(void *a0) {
+int sceMpegIsRefBuffEmpty(void *a0) {
     void *p = *(void **)((char *)a0 + 0x40);
     return *(int *)((char *)p + 0x4) == 0;
 }
 
 extern int D_005525C4[];
-extern void func_002523A0(void);
-extern void func_00252488(void);
+extern void _initSeqAgain(void);
+extern void _clearEach(void);
 
-void func_00251C28(int *a0) {
+void sceMpegReset(int *a0) {
     int *p = (int *)a0[0x10];
     p[0] = 0;
     p[1] = 0;
@@ -98,9 +98,9 @@ void func_00251C28(int *a0) {
     a0[2] = 0;
     p[0x20] = -1;
     p[0x2B] = 0;
-    func_00252488();
+    _clearEach();
     D_005525C4[0] = 0;
-    func_002523A0();
+    _initSeqAgain();
 }
 
 extern int D_005524C0[];
@@ -110,7 +110,7 @@ extern int D_005524D0[];
 extern int D_005524D8[];
 extern int D_005524DC[];
 
-int func_00251C68(void) {
+int sceMpegClearRefBuff(void) {
     if (D_005524C0[0] != 0) *(int *)(D_005524C0[0] + 0x28) = 0;
     if (D_005524CC[0] != 0) *(int *)(D_005524CC[0] + 0x28) = 0;
     if (D_005524D8[0] != 0) *(int *)(D_005524D8[0] + 0x28) = 0;
@@ -120,7 +120,7 @@ int func_00251C68(void) {
     return 1;
 }
 
-int func_00251CD0(void *a0, int a1, int a2, int a3) {
+int sceMpegAddCallback(void *a0, int a1, int a2, int a3) {
     char *p = *(char **)((char *)a0 + 0x40);
     char *q0 = p + 0xC;
     int *q = (int *)(q0 + a1 * 8);
@@ -132,7 +132,7 @@ int func_00251CD0(void *a0, int a1, int a2, int a3) {
     return old;
 }
 
-void *func_00251CF8(void *a0, void *a1) {
+void *_dispatchMpegCallback(void *a0, void *a1) {
     void *rv = 0;
     if (a0 != 0) {
         char *p = *(char **)((char *)a0 + 0x40);
@@ -149,19 +149,19 @@ void *func_00251CF8(void *a0, void *a1) {
     return rv;
 }
 
-void func_00251D48(void *a0) {
+void _dispatchMpegCbNodata(void *a0) {
     int buf[8];
     buf[0] = 1;
-    func_00251CF8(a0, buf);
+    _dispatchMpegCallback(a0, buf);
 }
 
-void func_00251D70(void *a0, long long a1) {
+void sceMpegSetDefaultPtsGap(void *a0, long long a1) {
     int *p = *(int **)((char *)a0 + 0x40);
     p[0x1C] = 1;
     *(long long *)((char *)p + 0x78) = a1;
 }
 
-void func_00251D88(void *a0) {
+void sceMpegResetDefaultPtsGap(void *a0) {
     void *p = *(void **)((char *)a0 + 0x40);
     *(int *)((char *)p + 0x70) = 0;
     *(long long *)((char *)p + 0x78) = 0;
@@ -169,16 +169,16 @@ void func_00251D88(void *a0) {
 
 extern void *D_005524A4[];
 
-void func_00251D98(int a0) {
+void sceMpegSetImageBuff(int a0) {
     int *q = *(int **)((char *)D_005524A4[0] + 0x40);
     q[0x36] = a0;
 }
 
-int func_00251DB0(int **a0) {
+int sceMpegDispWidth(int **a0) {
     return a0[0x10][0x33];
 }
 
-int func_00251DC0(int **a0) {
+int sceMpegDispHeight(int **a0) {
     return a0[0x10][0x34];
 }
 
@@ -190,38 +190,38 @@ void *func_00251DE0(int **a0) {
     return (char *)a0[0x10] + 0xB4;
 }
 
-int func_00251DF0(void *a0, int a1) {
+int sceSetBrokenLink(void *a0, int a1) {
     void *p = *(void **)((char *)a0 + 0x40);
     int old = *(int *)((char *)p + 0xE8);
     *(int *)((char *)p + 0xE8) = a1;
     return old;
 }
 
-void func_00251E00(void *a0, long long a1) {
+void sceSetPtm(void *a0, long long a1) {
     int *p = *(int **)((char *)a0 + 0x40);
     *(long long *)((char *)p + 0xF0) = a1;
     p[0x3E] = 1;
 }
 
-void func_00251E18(int *a0, int a1, int a2) {
+void _alalcInit(int *a0, int a1, int a2) {
     a0[0] = a1;
     a0[1] = a2;
     a0[2] = a1;
     a0[3] = a1;
 }
 
-void func_00251E30(int *a0) {
+void _alalcSetDynamic(int *a0) {
     a0[3] = a0[2];
 }
 
-void func_00251E40(int *a0) {
+void _alalcFree(int *a0) {
     a0[2] = a0[3];
 }
 
 extern int D_0062EC68[];
-extern void func_00252590(void *a0);
+extern void _Error(void *a0);
 
-int func_00251E50(unsigned int *a0, int a1, unsigned int a2) {
+int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2) {
     unsigned int rounded;
     unsigned int total;
     rounded = ((a0[2] + a2 - 1) / a2) * a2;
@@ -230,39 +230,39 @@ int func_00251E50(unsigned int *a0, int a1, unsigned int a2) {
         a0[2] = total;
         return rounded;
     }
-    func_00252590(D_0062EC68);
+    _Error(D_0062EC68);
     return 0;
 }
 
-int func_00251EB8(int *a0) {
+int _alalcRest(int *a0) {
     return a0[0] + a0[1] - a0[2];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00251ED0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _getpic);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00252058);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _decodeOrSkipFrame);
 
 extern int D_0055266C[];
-extern int func_00252058(int a0, int a1, int a2);
-extern int func_002521C0(int a0, int a1, int a2);
+extern int _decodeOrSkipFrame(int a0, int a1, int a2);
+extern int _decodeOrSkipField(int a0, int a1, int a2);
 
-int func_00252180(int a0, int a1, int a2) {
+int _decodeOrSkip(int a0, int a1, int a2) {
     if (D_0055266C[0] != 3) {
-        return func_002521C0(a0, a1, a2);
+        return _decodeOrSkipField(a0, a1, a2);
     }
-    return func_00252058(a0, a1, a2);
+    return _decodeOrSkipFrame(a0, a1, a2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_002521C0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _decodeOrSkipField);
 
-extern void func_002523B0(int a0);
+extern void _lastFrame(int a0);
 extern int D_005525C4[];
 
-int func_00252330(int *self) {
+int _sceMpegFlush(int *self) {
     int *p = (int *)self[0x40 / 4];
     int ret = 0;
     if (p[1] != 0 && p[2] != 0) {
-        func_002523B0(D_005525C4[0]);
+        _lastFrame(D_005525C4[0]);
         self[2] = D_005525C4[0] - p[0xAC / 4];
         p[1] = 0;
         ret = 1;
@@ -271,32 +271,32 @@ int func_00252330(int *self) {
 }
 
 extern int D_00552D70[];
-extern void func_00254CF8(int a0);
+extern void _ipuSetMPEG1(int a0);
 
-void func_002523A0(void) {
+void _initSeqAgain(void) {
     D_00552D70[0] = 0;
-    func_00254CF8(1);
+    _ipuSetMPEG1(1);
 }
 
 extern int D_005525DC[];
 extern char D_0062ECE8[];
-extern void func_00257A20();
-extern void func_00257B38();
+extern void _dispRefImage();
+extern void _dispRefImageField();
 
-void func_002523B0(int a0) {
+void _lastFrame(int a0) {
     int t;
     int d;
     int c;
     if (D_005525DC[0]) {
-        func_00252590(D_0062ECE8);
+        _Error(D_0062ECE8);
         D_005525DC[0] = 0;
         return;
     }
     t = D_0055266C[0];
     if (t == 3) {
-        func_00257A20(D_005524C4[0], a0 - 1);
+        _dispRefImage(D_005524C4[0], a0 - 1);
     } else {
-        func_00257B38(D_005524D0[0], D_005524DC[0], a0 - 1);
+        _dispRefImageField(D_005524D0[0], D_005524DC[0], a0 - 1);
     }
     D_005525DC[0] = 0;
 }
@@ -304,9 +304,9 @@ void func_002523B0(int a0) {
 extern int D_00552498[];
 extern int D_00552AB8[];
 
-void func_00252438(void) {
+void _clearOnce(void) {
     int v;
-    func_00254CF8(1);
+    _ipuSetMPEG1(1);
     v = D_00552498[0];
     D_00552AB8[0] = v;
     D_00552AB8[1] = v + 0x1800;
@@ -315,24 +315,24 @@ void func_00252438(void) {
     *(float *)((char *)D_00552AB8 + 0x280) = 0.0f;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00252488);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _clearEach);
 
 extern int D_0062ED08[];
-extern void func_002642D8(void *a0, ...);
+extern void printf(void *a0, ...);
 
 void func_00252550(int a0) {
-    func_002642D8(D_0062ED08, a0);
+    printf(D_0062ED08, a0);
 }
 
-extern void func_00264DF8(void *a0, int a1, ...);
+extern void sprintf(void *a0, int a1, ...);
 
-void func_00252560(int a0, int a1) {
+void _Error1(int a0, int a1) {
     char buf[0x100];
-    func_00264DF8(buf, a0, a1);
-    func_00252590(buf);
+    sprintf(buf, a0, a1);
+    _Error(buf);
 }
 
-void func_00252590(void *a0)
+void _Error(void *a0)
 {
     char *p = D_005524A4[0];
     if (p != 0) {
@@ -343,7 +343,7 @@ void func_00252590(void *a0)
                 int local[2];
                 local[0] = 0;
                 local[1] = (int)a0;
-                func_00251CF8((int)p, local);
+                _dispatchMpegCallback((int)p, local);
                 return;
             }
         }
@@ -351,9 +351,9 @@ void func_00252590(void *a0)
     func_00252550(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_002525E8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _sendDataToIPU);
 
-int func_002526C0(int *a0, int a1, int a2) {
+int _RefImageInit(int *a0, int a1, int a2) {
     a0[0x4 / 4] = a1;
     a0[0x8 / 4] = a2;
     a0[0xC / 4] = a1 >> 4;
@@ -361,72 +361,72 @@ int func_002526C0(int *a0, int a1, int a2) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_002526E0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _sequenceHeader);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00252838);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00252B80);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _initRefImages);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00252C68);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _setDefaultQM);
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00252D28);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _sequenceExtension);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00252E90);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _sequenceDisplayExtension);
 
 extern int D_0062ED78[];
-extern void func_00252590(void *a0);
+extern void _Error(void *a0);
 
 void func_00252F30(void) {
-    func_00252590(D_0062ED78);
+    _Error(D_0062ED78);
 }
 
 extern int D_0062EDA8[];
 
 void func_00252F40(void) {
-    func_00252590(D_0062EDA8);
+    _Error(D_0062EDA8);
 }
 
 extern int D_0062EDC0[];
 
 void func_00252F50(void) {
-    func_00252590(D_0062EDC0);
+    _Error(D_0062EDC0);
 }
 
 extern int D_0062EDF8[];
 
 void func_00252F60(void) {
-    func_00252590(D_0062EDF8);
+    _Error(D_0062EDF8);
 }
 
-extern void func_002586F8(void *a0);
+extern void sceIpuStopDMA(void *a0);
 
 void func_00252F70(int **a0) {
-    func_002586F8((char *)a0[0x10] + 0x4C);
+    sceIpuStopDMA((char *)a0[0x10] + 0x4C);
 }
 
-extern void func_002587E0(void *a0);
+extern void sceIpuRestartDMA(void *a0);
 
 void func_00252F80(int **a0) {
-    func_002587E0((char *)a0[0x10] + 0x4C);
+    sceIpuRestartDMA((char *)a0[0x10] + 0x4C);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00252F90);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_002532C8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00253978);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _getRef0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00253D98);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _doMC);
 
 __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    "    .global func_00253F28\n"
-    "    .type func_00253F28, @function\n"
+    "    .global _rix_000\n"
+    "    .type _rix_000, @function\n"
     "    .align 3\n"
-    "func_00253F28:\n"
+    "_rix_000:\n"
     "    lw    $5, 0x14($4)\n"
     "    lw    $6, 0x18($4)\n"
     "    lw    $7, 0x8($4)\n"
@@ -457,7 +457,7 @@ __asm__(
     "    daddu $15, $0, $0\n"
     "    jr    $31\n"
     "    nop\n"
-    "    .size func_00253F28, . - func_00253F28\n"
+    "    .size _rix_000, . - _rix_000\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -467,10 +467,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00253FA0\n"
-    ".type func_00253FA0, @function\n"
+    ".global _ri0_000\n"
+    ".type _ri0_000, @function\n"
     "    .align 3\n"
-    "func_00253FA0:\n"
+    "_ri0_000:\n"
     "    lw $5, 0x14($4)\n"
     "    lw $6, 0x18($4)\n"
     "    lw $14, 0x0($4)\n"
@@ -510,7 +510,7 @@ __asm__(
     "    daddu $24, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00253FA0, . - func_00253FA0\n"
+    ".size _ri0_000, . - _ri0_000\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -520,10 +520,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00254038\n"
-    ".type func_00254038, @function\n"
+    ".global _rix_001\n"
+    ".type _rix_001, @function\n"
     "    .align 3\n"
-    "func_00254038:\n"
+    "_rix_001:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    lw $5, 0x14($4)\n"
@@ -571,7 +571,7 @@ __asm__(
     "    daddu $11, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00254038, . - func_00254038\n"
+    ".size _rix_001, . - _rix_001\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -581,10 +581,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_002540F0\n"
-    ".type func_002540F0, @function\n"
+    ".global _ri0_001\n"
+    ".type _ri0_001, @function\n"
     "    .align 3\n"
-    "func_002540F0:\n"
+    "_ri0_001:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    lw $5, 0x14($4)\n"
@@ -639,7 +639,7 @@ __asm__(
     "    andi $11, $11, 0xFFFE\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_002540F0, . - func_002540F0\n"
+    ".size _ri0_001, . - _ri0_001\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -649,10 +649,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_002541C0\n"
-    ".type func_002541C0, @function\n"
+    ".global _rix_010\n"
+    ".type _rix_010, @function\n"
     "    .align 3\n"
-    "func_002541C0:\n"
+    "_rix_010:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    lw $5, 0x14($4)\n"
@@ -697,7 +697,7 @@ __asm__(
     "    daddu $11, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_002541C0, . - func_002541C0\n"
+    ".size _rix_010, . - _rix_010\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -707,10 +707,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00254270\n"
-    ".type func_00254270, @function\n"
+    ".global _ri0_010\n"
+    ".type _ri0_010, @function\n"
     "    .align 3\n"
-    "func_00254270:\n"
+    "_ri0_010:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    lw $5, 0x14($4)\n"
@@ -759,7 +759,7 @@ __asm__(
     "    daddu $12, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00254270, . - func_00254270\n"
+    ".size _ri0_010, . - _ri0_010\n"
     "    .set reorder\n"
     "    .set at\n"
 );
@@ -768,10 +768,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00254328\n"
-    ".type func_00254328, @function\n"
+    ".global _rix_011\n"
+    ".type _rix_011, @function\n"
     "    .align 3\n"
-    "func_00254328:\n"
+    "_rix_011:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    psllh $25, $25, 1\n"
@@ -853,7 +853,7 @@ __asm__(
     "    daddu $11, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00254328, . - func_00254328\n"
+    ".size _rix_011, . - _rix_011\n"
     "    .set reorder\n"
     "    .set at\n"
 );
@@ -862,10 +862,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00254420\n"
-    ".type func_00254420, @function\n"
+    ".global _ri0_011\n"
+    ".type _ri0_011, @function\n"
     "    .align 3\n"
-    "func_00254420:\n"
+    "_ri0_011:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    psllh $25, $25, 1\n"
@@ -932,7 +932,7 @@ __asm__(
     "    andi $11, $11, 0xFFFE\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00254420, . - func_00254420\n"
+    ".size _ri0_011, . - _ri0_011\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -942,10 +942,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    "    .global func_00254520\n"
-    "    .type func_00254520, @function\n"
+    "    .global _rix_100\n"
+    "    .type _rix_100, @function\n"
     "    .align 3\n"
-    "func_00254520:\n"
+    "_rix_100:\n"
     "    lw    $5, 0x14($4)\n"
     "    lw    $6, 0x18($4)\n"
     "    lw    $7, 0x8($4)\n"
@@ -988,7 +988,7 @@ __asm__(
     "    daddu $11, $0, $0\n"
     "    jr    $31\n"
     "    nop\n"
-    "    .size func_00254520, . - func_00254520\n"
+    "    .size _rix_100, . - _rix_100\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -998,10 +998,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_002545C8\n"
-    ".type func_002545C8, @function\n"
+    ".global _ri0_100\n"
+    ".type _ri0_100, @function\n"
     "    .align 3\n"
-    "func_002545C8:\n"
+    "_ri0_100:\n"
     "    lw $5, 0x14($4)\n"
     "    lw $6, 0x18($4)\n"
     "    lw $14, 0x0($4)\n"
@@ -1047,7 +1047,7 @@ __asm__(
     "    daddu $12, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_002545C8, . - func_002545C8\n"
+    ".size _ri0_100, . - _ri0_100\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -1057,10 +1057,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00254678\n"
-    ".type func_00254678, @function\n"
+    ".global _rix_101\n"
+    ".type _rix_101, @function\n"
     "    .align 3\n"
-    "func_00254678:\n"
+    "_rix_101:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    lw $5, 0x14($4)\n"
@@ -1120,7 +1120,7 @@ __asm__(
     "    daddu $11, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00254678, . - func_00254678\n"
+    ".size _rix_101, . - _rix_101\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -1130,10 +1130,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00254760\n"
-    ".type func_00254760, @function\n"
+    ".global _ri0_101\n"
+    ".type _ri0_101, @function\n"
     "    .align 3\n"
-    "func_00254760:\n"
+    "_ri0_101:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    lw $5, 0x14($4)\n"
@@ -1194,7 +1194,7 @@ __asm__(
     "    andi $11, $11, 0xFFFE\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00254760, . - func_00254760\n"
+    ".size _ri0_101, . - _ri0_101\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -1204,10 +1204,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00254848\n"
-    ".type func_00254848, @function\n"
+    ".global _rix_110\n"
+    ".type _rix_110, @function\n"
     "    .align 3\n"
-    "func_00254848:\n"
+    "_rix_110:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    lw $5, 0x14($4)\n"
@@ -1264,7 +1264,7 @@ __asm__(
     "    daddu $11, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00254848, . - func_00254848\n"
+    ".size _rix_110, . - _rix_110\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -1274,10 +1274,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00254928\n"
-    ".type func_00254928, @function\n"
+    ".global _ri0_110\n"
+    ".type _ri0_110, @function\n"
     "    .align 3\n"
-    "func_00254928:\n"
+    "_ri0_110:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    lw $5, 0x14($4)\n"
@@ -1332,7 +1332,7 @@ __asm__(
     "    daddu $12, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00254928, . - func_00254928\n"
+    ".size _ri0_110, . - _ri0_110\n"
     "    .set reorder\n"
     "    .set at\n"
 );
@@ -1341,10 +1341,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_002549F8\n"
-    ".type func_002549F8, @function\n"
+    ".global _rix_111\n"
+    ".type _rix_111, @function\n"
     "    .align 3\n"
-    "func_002549F8:\n"
+    "_rix_111:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    psllh $25, $25, 1\n"
@@ -1421,7 +1421,7 @@ __asm__(
     "    daddu $11, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_002549F8, . - func_002549F8\n"
+    ".size _rix_111, . - _rix_111\n"
     "    .set reorder\n"
     "    .set at\n"
 );
@@ -1430,10 +1430,10 @@ __asm__(
     ".section .text\n"
     "    .set noat\n"
     "    .set noreorder\n"
-    ".global func_00254B20\n"
-    ".type func_00254B20, @function\n"
+    ".global _ri0_111\n"
+    ".type _ri0_111, @function\n"
     "    .align 3\n"
-    "func_00254B20:\n"
+    "_ri0_111:\n"
     "    pnor $25, $0, $0\n"
     "    psrlh $25, $25, 15\n"
     "    psllh $25, $25, 1\n"
@@ -1506,7 +1506,7 @@ __asm__(
     "    andi $11, $11, 0xFFFE\n"
     "    jr $31\n"
     "    nop\n"
-    ".size func_00254B20, . - func_00254B20\n"
+    ".size _ri0_111, . - _ri0_111\n"
     "    nop\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -1514,7 +1514,7 @@ __asm__(
 
 extern int D_00254CE0;
 
-void func_00254C38(void *a0, void *a1, void *a2) {
+void _copyAddRefImage(void *a0, void *a1, void *a2) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "addiu $12, $0, 0x18\n"
@@ -1549,36 +1549,36 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00254C98);
  * fills a delay slot with a NON-volatile memref (with volatile it emits a bare
  * reorder-mode `j $31`, and the period assembler ee-as 2.9-991111 never fills
  * delay slots — the old "match" relied on modern gas doing the fill). */
-void func_00254CF8(int a0) {
+void _ipuSetMPEG1(int a0) {
     int *reg = (int *)0x10002010;
     *reg = (*reg & 0xFF7FFFFF) | (a0 << 23);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00254D20);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _waitBdecOut);
 
-extern int func_002560D8(int a0);
+extern int _ipuVdec(int a0);
 
-int func_00254F08(void) {
-    return func_002560D8(3);
+int _dmVector(void) {
+    return _ipuVdec(3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00254F28);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _dualPrimeVector);
 
 extern int D_005525C8[];
 extern int D_00552D70[];
 extern int D_0062EEF0[];
-extern void func_00252560(int a0, int a1);
-extern int func_00256290(int a0);
-extern void func_002563C8(int a0);
+extern void _Error1(int a0, int a1);
+extern int _peepBit(int a0);
+extern void _flushBuf(int a0);
 
-int func_002550B0(void) {
+int _mbAddressIncrement(void) {
     int cont;
     int sum;
     unsigned int v;
 
     sum = 0;
     do {
-        v = func_002560D8(0);
+        v = _ipuVdec(0);
         switch (v) {
         case 0x22:
             cont = 1;
@@ -1589,12 +1589,12 @@ int func_002550B0(void) {
             break;
         case 0:
             {
-                int r = func_00256290(0xB);
+                int r = _peepBit(0xB);
                 if ((D_00552D70[0] != 0) && (r == 0xF)) {
-                    func_002563C8(0xB);
+                    _flushBuf(0xB);
                     cont = 1;
                 } else {
-                    func_00252560((int) D_0062EEF0, v);
+                    _Error1((int) D_0062EEF0, v);
                     D_005525C8[0] = 1;
                     return 1;
                 }
@@ -1609,33 +1609,33 @@ int func_002550B0(void) {
     return sum;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_002551C0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _pictureData0);
 
 extern int D_005525E8[];
 extern int D_005526FC[];
 extern int D_0062EF48[];
 extern int D_0062EF70[];
-extern void func_00256648(void);
-extern int func_002566B0(void);
+extern void _nextStartCode(void);
+extern int _sliceB(void);
 
-int func_002552E8(int a0, int *a1, int *a2, int *a3) {
+int _sliceA0(int a0, int *a1, int *a2, int *a3) {
     int id;
     int m;
     int n;
 
     D_005525C8[0] = 0;
-    func_00256648();
-    id = func_00256290(0x20);
+    _nextStartCode();
+    id = _peepBit(0x20);
     if ((unsigned int) (id - 0x101) >= 0xAF) {
-        func_00252560((int) D_0062EF48, id);
+        _Error1((int) D_0062EF48, id);
         return 2;
     }
-    func_002563C8(0x20);
-    m = func_002566B0();
-    n = func_002550B0();
+    _flushBuf(0x20);
+    m = _sliceB();
+    n = _mbAddressIncrement();
     *a2 = n;
     if (D_005525C8[0] != 0) {
-        func_00252590(D_0062EF70);
+        _Error(D_0062EF70);
         return 1;
     }
     *a1 = ((((m << 7) + (id & 0xFF)) - 1) * D_005525E8[0] + n) - 1;
@@ -1654,37 +1654,37 @@ int func_002552E8(int a0, int *a1, int *a2, int *a3) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00255410);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00255610);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _skipMB0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_002556E0);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _decMB0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00255C08);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _decode_motion_vector);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00255C90);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _motionVectors);
 
-extern void func_00255C08();
-extern int func_002564E0(int a0);
+extern void _decode_motion_vector();
+extern int _nextBit(int a0);
 
-void func_00255E10(char *a0, char *a1, void *a2, void *a3, int a4, int a5, int a6) {
+void _motionVector(char *a0, char *a1, void *a2, void *a3, int a4, int a5, int a6) {
     void *r;
     int r2;
 
-    r = (void *)func_002560D8(2);
+    r = (void *)_ipuVdec(2);
     if (a2 == 0) goto c1z;
     if (r == 0) { r2 = 0; goto c1c; }
-    r2 = func_002564E0(a2);
+    r2 = _nextBit(a2);
     goto c1c;
 c1z:
     r2 = 0;
 c1c:
-    func_00255C08(a0, a2, r, r2, a6);
+    _decode_motion_vector(a0, a2, r, r2, a6);
     if (a4 != 0) {
-        *(int *)a1 = func_00254F08();
+        *(int *)a1 = _dmVector();
     }
-    r = (void *)func_002560D8(2);
+    r = (void *)_ipuVdec(2);
     if (a3 == 0) goto c2z;
     if (r == 0) { r2 = 0; goto c2c; }
-    r2 = func_002564E0(a3);
+    r2 = _nextBit(a3);
     goto c2c;
 c2z:
     r2 = 0;
@@ -1692,30 +1692,30 @@ c2c:
     if (a5 != 0) {
         *(int *)(a0 + 4) = *(int *)(a0 + 4) >> 1;
     }
-    func_00255C08(a0 + 4, a3, r, r2, a6);
+    _decode_motion_vector(a0 + 4, a3, r, r2, a6);
     if (a5 != 0) {
         *(int *)(a0 + 4) = *(int *)(a0 + 4) * 2;
     }
     if (a4 != 0) {
-        *(int *)(a1 + 4) = func_00254F08();
+        *(int *)(a1 + 4) = _dmVector();
     }
 }
 
 extern int D_005524E4[];
 extern int D_00552DC8[];
 
-void func_00255F50(unsigned int a0) {
+void _sendIpuCommand(unsigned int a0) {
     *(volatile unsigned int *)0x10002000 = a0;
     D_005524E4[0] = D_00552DC8[a0 >> 28];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00255F80);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _waitIpuIdle);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00256028);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _waitIpuIdle64);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_002560D8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _ipuVdec);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_00256290);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _peepBit);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", func_002563C8);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2517D0", _flushBuf);
 

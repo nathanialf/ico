@@ -3,7 +3,7 @@
  * `make setup`; entries here persist across that step.
  */
 
-/* func_00260CA8 references 0x71EB68 via lui+lw with offset -0x1498 of
+/* __main references 0x71EB68 via lui+lw with offset -0x1498 of
  * 0x720000.  Splat names the nearby symbol `D_71EB70` (without leading
  * zero) and does not register a separate symbol for the byte before it.
  */

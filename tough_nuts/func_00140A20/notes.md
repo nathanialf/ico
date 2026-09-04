@@ -57,14 +57,14 @@ glabel func_00140A20
     /* 40A9C 00140A9C 0000448C */  lw         $4, 0x0($2)
     /* 40AA0 00140AA0 2D284002 */  daddu      $5, $18, $0
     /* 40AA4 00140AA4 2D300000 */  daddu      $6, $0, $0
-    /* 40AA8 00140AA8 7C77090C */  jal        func_0025DDF0
+    /* 40AA8 00140AA8 7C77090C */  jal        SgStAdpcmChannelVolume
     /* 40AAC 00140AAC 14209100 */   dsllv     $4, $17, $4
     /* 40AB0 00140AB0 80181400 */  sll        $3, $20, 2
     /* 40AB4 00140AB4 2D306002 */  daddu      $6, $19, $0
     /* 40AB8 00140AB8 21800302 */  addu       $16, $16, $3
     /* 40ABC 00140ABC 2D280000 */  daddu      $5, $0, $0
     /* 40AC0 00140AC0 0000048E */  lw         $4, 0x0($16)
-    /* 40AC4 00140AC4 7C77090C */  jal        func_0025DDF0
+    /* 40AC4 00140AC4 7C77090C */  jal        SgStAdpcmChannelVolume
     /* 40AC8 00140AC8 14209100 */   dsllv     $4, $17, $4
     /* 40ACC 00140ACC 11000010 */  b          .L00140B14
     /* 40AD0 00140AD0 5000BFDF */   ld        $31, 0x50($29)
@@ -76,14 +76,14 @@ glabel func_00140A20
     /* 40AE0 00140AE0 0000448C */  lw         $4, 0x0($2)
     /* 40AE4 00140AE4 2D284002 */  daddu      $5, $18, $0
     /* 40AE8 00140AE8 2D306002 */  daddu      $6, $19, $0
-    /* 40AEC 00140AEC 7C77090C */  jal        func_0025DDF0
+    /* 40AEC 00140AEC 7C77090C */  jal        SgStAdpcmChannelVolume
     /* 40AF0 00140AF0 14209100 */   dsllv     $4, $17, $4
     /* 40AF4 00140AF4 80181400 */  sll        $3, $20, 2
     /* 40AF8 00140AF8 2D284002 */  daddu      $5, $18, $0
     /* 40AFC 00140AFC 21800302 */  addu       $16, $16, $3
     /* 40B00 00140B00 2D306002 */  daddu      $6, $19, $0
     /* 40B04 00140B04 0000048E */  lw         $4, 0x0($16)
-    /* 40B08 00140B08 7C77090C */  jal        func_0025DDF0
+    /* 40B08 00140B08 7C77090C */  jal        SgStAdpcmChannelVolume
     /* 40B0C 00140B0C 14209100 */   dsllv     $4, $17, $4
     /* 40B10 00140B10 5000BFDF */  ld         $31, 0x50($29)
 .align 2

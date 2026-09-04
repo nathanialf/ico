@@ -7,10 +7,10 @@ extern int D_00633B88;
 #include "r5900.h"
 extern char D_0028CA30[];
 extern int  D_00633B8C;
-extern void allocObjectData(int *p);
+extern void voBufDecCount(int *p);
 void func_0023EFB0(void) {}
 
-void viBufCreate(int a0) {
+void loadImage(int a0) {
     *(volatile unsigned int *)0x1000A030 = a0 & 0x0FFFFFFF;
     *(volatile unsigned int *)0x1000A020 = 0;
     *(volatile unsigned int *)0x1000A000 = 0x105;
@@ -19,7 +19,7 @@ void viBufCreate(int a0) {
 int viBufReset(void)
 {
     if (D_00633B8C != 0) {
-        allocObjectData(D_0028CA30);
+        voBufDecCount(D_0028CA30);
         D_00633B8C = 0;
     }
     SYNC();
@@ -28,10 +28,10 @@ int viBufReset(void)
 }
 
 extern int D_00633B84;
-extern int func_002425A8(int a0);
+extern int sceGsSyncV(int a0);
 
-void viBufBeginPut(int a0) {
-    while (func_002425A8(0) == a0);
+void startDisplay(int a0) {
+    while (sceGsSyncV(0) == a0);
     *(volatile int *)&D_00633B88 = 1;
     D_00633FDC = 0;
     *(volatile int *)&D_00633B84 = 0;
@@ -42,7 +42,7 @@ void viBufEndPut(void) {
     D_00633FDC = 0;
 }
 
-void *viBufAddDMA(void *a0, int a1, unsigned int a2, int a3, int p4, int p5, int p6) {
+void *setDMAscTag(void *a0, int a1, unsigned int a2, int a3, int p4, int p5, int p6) {
     unsigned long long g1 = ((unsigned long long)a1 << 63) | (unsigned int)p6;
     unsigned long long g2 = ((unsigned long long)(unsigned int)p4 << 28)
         | ((unsigned long long)(unsigned int)a3 << 31);
@@ -114,7 +114,7 @@ void *viBufGetTs(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7
     return (char *)a0 + 0x10;
 }
 
-void *viBufDelete(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8, unsigned int p9) {
+void *setPRIM(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8, unsigned int p9) {
     long long t = (unsigned int)a1
         | ((unsigned long long)(unsigned int)a2 << 3)
         | ((unsigned long long)(unsigned int)a3 << 4)
@@ -140,7 +140,7 @@ void *viBufCount(int *a0, int a1, int a2) {
     return (char *)a0 + 0x10;
 }
 
-void *viBufPutTs(int *a0, int a1, int a2, int a3, int p4, int p5) {
+void *setRGBAQ(int *a0, int a1, int a2, int a3, int p4, int p5) {
     long long t = (unsigned int)a1
         | ((unsigned long long)(unsigned int)a2 << 8)
         | ((unsigned long long)(unsigned int)a3 << 16)
@@ -153,17 +153,17 @@ void *viBufPutTs(int *a0, int a1, int a2, int a3, int p4, int p5) {
     return (char *)a0 + 0x10;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F400);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", setXYZ2);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F450);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", setFRAME_1);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F4B0);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", setTEST_1);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F540);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", setSCISSOR_1);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F598);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", setXYOFFSET_1);
 
-void *func_0023F5D0(int *a0, int a1) {
+void *setPRMODECONT(int *a0, int a1) {
     long long t = (unsigned int)a1;
     a0[0] = (int)(t & 0xFFFFFFFFLL);
     a0[1] = (int)(t >> 32);
@@ -172,5 +172,5 @@ void *func_0023F5D0(int *a0, int a1) {
     return (char *)a0 + 0x10;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F600);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", setPRMODE);
 

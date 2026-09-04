@@ -16,39 +16,39 @@ extern int checkHit(char *self);
 extern float D_0063379C;
 extern int D_006337A0;
 extern int D_00633798;
-extern void ACTGame_BeforeFunc();
+extern void ACTGame_StageChangeGObjDirect();
 extern void ACTGame_CommonLoop(char *a0);
 extern long long D_0055A1B0[];
-extern void GetCylinderCollisionWithExceptOwnCollision();
+extern void SetDirectRootPosition();
 extern void stgmgrForceSwitch();
 extern int D_00631AF0;
 extern int D_00633D40;
 extern void _ACTWait();
 extern int ExecMotionOrient();
-extern int iosOmBeforeFuncStandard(char *self_arg, int val5, int val6);
+extern int iosOmSendMail(char *self_arg, int val5, int val6);
 extern char D_002A4C48[];
 extern int isysGObjAddHead();
-extern int isysGObjSearchFromObjKindID_begin();
+extern int isysGObjSearchFromObjKindID_next();
 extern int isysGObjSearchFromObjLayoutID();
 extern void Generator_Mask(char *self);
 INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aQueenAppear);
 
-void actSt25aQueenAppearChk(void)
+void scpMaskGeneratorAll(void)
 {
     int *p = isysGObjSearchFromObjLayoutID(0x21);
     while (p != 0) {
         Generator_Mask(p);
-        p = isysGObjSearchFromObjKindID_begin(p);
+        p = isysGObjSearchFromObjKindID_next(p);
     }
 }
 
-void actConte11(void)
+void scpKillEnemyOne(void)
 {
   char *new_var;
   int *p = isysGObjAddHead();
   if (p != 0)
   {
-    iosOmBeforeFuncStandard((int) p, 0x26, (int) p);
+    iosOmSendMail((int) p, 0x26, (int) p);
     new_var = (char *) D_002A4C48;
     *((unsigned short *) ((new_var + (p[0x8 / 4] * 0x4C)) + 0x42)) = 0;
   }
@@ -75,12 +75,12 @@ int actSt25aQueenDeadChk(void) {
 }
 
 extern void GetHeightOfFieldPlaneDifference(void *a0, void *a1, int a2, int a3, void *a4, float f12, float f13, float f14, float f15);
-extern void func_002641D8(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 extern void gflagOff(void *a0, int a1);
 
-void actConte13Jimaku(void *a0, int a1, void *a2, int a3) {
+void scpPlayMotNode(void *a0, int a1, void *a2, int a3) {
     float buf[4];
-    func_002641D8(buf, 0, 0x10);
+    memset(buf, 0, 0x10);
     buf[3] = 1.0f;
     GetHeightOfFieldPlaneDifference(a0, a2, 0, a3, buf, 0.0f, 0.0f, 0.0f, 1.0f);
     gflagOff(a0, a1);
@@ -94,13 +94,13 @@ void BoySekikaTexScroll(int a0, int a1)
 
 extern void InitMotionRotElem(void *a0);
 
-void actSt25aGenerator(void *a0, float f12, float f13, float f14) {
+void scpPlayPosSet(void *a0, float f12, float f13, float f14) {
     float buf[4];
-    func_002641D8(buf, 0, 0x10);
+    memset(buf, 0, 0x10);
     buf[0] = f12;
     buf[1] = f13;
     buf[2] = f14;
-    GetCylinderCollisionWithExceptOwnCollision(a0, buf);
+    SetDirectRootPosition(a0, buf);
     InitMotionRotElem(a0);
 }
 
@@ -117,13 +117,13 @@ void actSt25aQueenTalk(void) {
 
 extern int actItouQueenAttack(int a0, int a1, int a2, int a3, int a4, int a5);
 
-int actSt25aQueenDead(int a0, int a1, int a2) {
+int RequestStageChange(int a0, int a1, int a2) {
     return actItouQueenAttack(a0, a1, a2, 0, 0, 0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st25a", actItouQueenAttack);
 
-int actSwordEff(int a0, int a1, int a2, int a3)
+int RequestStageChangeSimple(int a0, int a1, int a2, int a3)
 {
     int ret = 0;
     a1 = a1 & 0xFF;
@@ -139,22 +139,22 @@ int actSwordEff(int a0, int a1, int a2, int a3)
     return ret;
 }
 
-void actSwordEffXL(int *self)
+void RequestStageChangeDirect(int *self)
 {
     long long buf[2];
-    ACTGame_BeforeFunc((int)self);
+    ACTGame_StageChangeGObjDirect((int)self);
     ACTGame_CommonLoop((int)self);
     buf[0] = D_0055A1B0[0];
     buf[1] = D_0055A1B0[1];
-    GetCylinderCollisionWithExceptOwnCollision(self, (int *)buf);
-    iosOmBeforeFuncStandard((int)self, 0x27, (int)self);
+    SetDirectRootPosition(self, (int *)buf);
+    iosOmSendMail((int)self, 0x27, (int)self);
 }
 
 extern unsigned char D_006337A8;
 extern unsigned char D_006337A9;
 extern unsigned char D_006337AA;
 
-void actSt25aQueenBeforeChk(float a0, int a1, int a2, int a3) {
+void scpFadeOut(float a0, int a1, int a2, int a3) {
     D_00633798 = 1;
     D_0063379C = a0;
     D_006337A0 = 1;
@@ -163,13 +163,13 @@ void actSt25aQueenBeforeChk(float a0, int a1, int a2, int a3) {
     D_006337AA = a3;
 }
 
-void actConte11Jimaku(float f) {
+void scpFadeIn(float f) {
     D_00633798 = 1;
     D_006337A0 = 0;
     D_0063379C = -f;
 }
 
-int actSt25aQueenDeadEvent(void)
+int scpFadeChk(void)
 {
   int v = D_00633798;
   if (v == 0)
@@ -206,7 +206,7 @@ int func_0017E600(void) {
     return ACTGameCollisionOn() != 0;
 }
 
-int func_0017E620(int a0, int b)
+int scpIsHangChainOptional(int a0, int b)
 {
     register int *p;  /* v1 */
     register int b_save;  /* s0 */
@@ -220,7 +220,7 @@ out:
     return (int)v;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", func_0017E660);
+INCLUDE_ASM("asm/nonmatchings/src/st25a", scpBornSpider);
 
 INCLUDE_ASM("asm/nonmatchings/src/st25a", func_0017E780);
 
@@ -228,7 +228,7 @@ extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
 
 typedef union { float f[4]; int i[4]; } Vec4u;
 
-void func_0017E838(int a0, float x, float y, float z)
+void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
 {
     Vec4u v;
     v.f[0] = x;
@@ -239,5 +239,5 @@ void func_0017E838(int a0, float x, float y, float z)
 }
 
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", func_0017E870);
+INCLUDE_ASM("asm/nonmatchings/src/st25a", scpWakeupItemWithBoundary);
 

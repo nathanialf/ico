@@ -2,7 +2,7 @@
 
 extern const char D_00558E10[], D_00558E20[];
 extern void func_001AD768(void *a0, int a1);
-extern void func_00263FF0(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 static inline int subEnemyBrain_ToBoy_chk(void *a0) {
     char *p = *(char **)((char *)a0 + 0x164);
     if (*(int *)(*(char **)(p + 0x670) + 0x1FC) != 5) {
@@ -10,7 +10,7 @@ static inline int subEnemyBrain_ToBoy_chk(void *a0) {
     }
     if (*(int *)(*(char **)(p + 0x678) + 0x420) == 0) {
         func_001AD768(D_00558E10, 0x2FA);
-        func_00263FF0(D_00558E10, 0x2FA, D_00558E20);
+        __assert(D_00558E10, 0x2FA, D_00558E20);
     }
     return 1;
 }
@@ -27,7 +27,7 @@ extern int D_00632390;
 extern char D_00632398[];
 extern void func_001919A0();
 extern void ACTParaStatus_Clear(volatile int *self);
-extern int iosOmBeforeFuncStandard();
+extern int iosOmSendMail();
 extern void func_0017B288(int bit_idx);
 extern int D_00631AE8;
 extern char D_002A4C48[];
@@ -49,7 +49,7 @@ void _DoAwaitGirl(volatile unsigned int a0)
 
 extern const char D_00558E10[];
 extern void func_001AD768(void *a0, int a1);
-extern void func_00263FF0(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 
 void _MustChase(int a0) {
     char *g = *(char **)(*(int *)(a0 + 0x164) + 0x670);
@@ -72,7 +72,7 @@ void _MustChase(int a0) {
         break;
     default:
         func_001AD768(D_00558E10, 0x324);
-        func_00263FF0(D_00558E10, 0x324, D_00632398);
+        __assert(D_00558E10, 0x324, D_00632398);
         break;
     }
 }
@@ -227,13 +227,13 @@ ASM_LIT4_SLOT(D_00630D1C, 3.14159274f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyPickupBegin);
 
 extern void dispPlane(void *a0, float *a1);
-extern void func_001947D0(float *a0, int a1, int a2);
+extern void _OrientXZGV(float *a0, int a1, int a2);
 extern void *subCommonIdle(int a0);
 extern void BoxBarSoundOn(void *a0, int a1);
 extern unsigned int _ACTWait(int a0);
 extern void func_001919A0(void *a0, int a1);
 extern int func_00145328(void *a0, int a1, int a2, void *a3, float f12, float f13);
-extern int HandCameraCorrect(float *a0, float *a1);
+extern int _RotyGV(float *a0, float *a1);
 extern void ACTGameView_Loop(void);
 extern int MoveChestForCatchBoy(void *a0);
 
@@ -241,7 +241,7 @@ static __inline__ int func_001619A8_probe(void *self) {
     char buf[0x20];
     int mode;
     if (func_00145328(self, D_00631AE8, 0x2D, buf + 0x10, 170.0f, 100.0f) != 0) {
-        int d = HandCameraCorrect((float *)(buf + 0x10), subCommonIdle(D_00631AE8));
+        int d = _RotyGV((float *)(buf + 0x10), subCommonIdle(D_00631AE8));
         d = (d < 0) ? -d : d;
         mode = (d <= 0x59) ? 1 : 2;
     } else {
@@ -254,7 +254,7 @@ void func_001619A8(volatile unsigned int a0) {
     char *m = (char *)(*(int *)(a0 + 0x164)) + 0x110;
     int r0 = ContinueCorrectPosition(D_00631AE8);
     int r1 = ContinueCorrectPosition(a0);
-    func_001947D0((float *)m, r0, r1);
+    _OrientXZGV((float *)m, r0, r1);
     dispPlane((void *)a0, (float *)m);
     for (;;) {
         int mode = func_001619A8_probe((void *)a0);
@@ -339,7 +339,7 @@ int subEnemyBrain_ToBoy(void *a0) {
 
     if (a0 == 0 || *(int *)((char *)a0 + 0xC) != 4) {
         func_001AD768(D_00558E10, 0x7D2);
-        func_00263FF0(D_00558E10, 0x7D2, D_00558FB0);
+        __assert(D_00558E10, 0x7D2, D_00558FB0);
     }
 
     if (funcEnemyCarryFail((int *)a0) == 0) {
@@ -392,14 +392,14 @@ void func_00164E90(void *a0) {
 }
 
 extern unsigned int _ACTWait(int a0);
-extern extern void debug_assertMessage();
+extern extern void debug_StdPrintfDummy();
 
 void _ApproachTarget_Way(volatile unsigned int a0)
 {
     int *new_var;
     int *s0;
     new_var = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_00558ED8);
+    debug_StdPrintfDummy((char *)D_00558ED8);
     s0 = new_var;
     s0[0x30 / 4] = 0x1;
     _ACTWait(0);
@@ -407,28 +407,28 @@ void _ApproachTarget_Way(volatile unsigned int a0)
 
 void func_00164EF8(volatile unsigned int a0) {
     int *s0 = *((int **)(a0 + 0x164));
-    debug_assertMessage((char *)D_00558F08);
+    debug_StdPrintfDummy((char *)D_00558F08);
     s0[0x30 / 4] = 2;
     _ACTWait(0);
 }
 
 void func_00164F40(volatile unsigned int a0) {
     int *s0 = *((int **)(a0 + 0x164));
-    debug_assertMessage((char *)D_00558F38);
+    debug_StdPrintfDummy((char *)D_00558F38);
     s0[0x30 / 4] = 3;
     _ACTWait(0);
 }
 
 void func_00164F88(volatile unsigned int a0) {
     int *s0 = *((int **)(a0 + 0x164));
-    debug_assertMessage((char *)D_00558F80);
+    debug_StdPrintfDummy((char *)D_00558F80);
     s0[0x30 / 4] = 28;
     _ACTWait(0);
 }
 
 void func_00164FD0(volatile int a0) {
     func_001AD768(D_00558E10, 0xAF3);
-    func_00263FF0(D_00558E10, 0xAF3, D_00632398);
+    __assert(D_00558E10, 0xAF3, D_00632398);
 }
 
 extern int D_00631AE4;
@@ -437,7 +437,7 @@ extern void BoxBarSoundOn(void *a0, int a1);
 void funcEnemyAiGetGirl(volatile int a0) {
     int p = *(int *)(a0 + 0x164);
     int g = *(int *)(p + 0x670);
-    iosOmBeforeFuncStandard((void *)D_00631AE4, *(int *)(g + 0x1F8), (void *)a0, g);
+    iosOmSendMail((void *)D_00631AE4, *(int *)(g + 0x1F8), (void *)a0, g);
     for (;;) {
         BoxBarSoundOn((void *)a0, 0xB7);
         _ACTWait(1);
@@ -446,7 +446,7 @@ void funcEnemyAiGetGirl(volatile int a0) {
 
 
 void func_00165060(volatile int a0) {
-    iosOmBeforeFuncStandard((void *)D_00631AE4, 0xD2, (void *)a0);
+    iosOmSendMail((void *)D_00631AE4, 0xD2, (void *)a0);
     for (;;) {
         BoxBarSoundOn((void *)a0, 0xB7);
         _ACTWait(1);
@@ -456,10 +456,10 @@ void func_00165060(volatile int a0) {
 extern void actChangeActBrain(void *a0, void *a1, void *a2);
 extern int actEnemy_isLargeEnemy();
 extern int D_006321DC;
-extern void CylinderCollision(int *self, char *spill);
+extern void SetDirectRootPositionNoFitting(int *self, char *spill);
 extern void ResetEnemyEye(int *self);
 extern void actEnemyRun(int *self);
-extern void func_001AE420(int *self, int a1, int a2, int a3);
+extern void gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 extern int D_00631990;
 
 void func_001650A0(void *a0) {
@@ -472,13 +472,13 @@ void func_001650A0(void *a0) {
     s = (int *)self;
     *(long long *)(spill + 0) = *(long long *)((char *)D_00558FA0 + 0);
     *(long long *)(spill + 8) = *(long long *)((char *)D_00558FA0 + 8);
-    CylinderCollision(s, spill);
+    SetDirectRootPositionNoFitting(s, spill);
     ResetEnemyEye(s);
     actEnemyRun(s);
     func_001919A0((void *)self, 0xA);
     p[0x430 / 4] = 0;
     p[0x434 / 4] = 7;
-    func_001AE420((int *)self, 7, 0, D_00631990);
+    gamesysObjInfoPosSetStage((int *)self, 7, 0, D_00631990);
     _ACTWait(0);
 }
 
@@ -491,7 +491,7 @@ void func_00165178(int *a0) {
     char spill[16];
     *(long long *)(spill + 0) = *(long long *)((char *)D_00558FA0 + 0);
     *(long long *)(spill + 8) = *(long long *)((char *)D_00558FA0 + 8);
-    CylinderCollision(a0, spill);
+    SetDirectRootPositionNoFitting(a0, spill);
     ResetEnemyEye(a0);
     actEnemyRun(a0);
 }
@@ -507,7 +507,7 @@ void actEnemyHang(volatile int self_arg)
     int *sub = (int *) ((int *) self_arg)[0x59];
     int *tgt;
     sub[0x4E] = D_00631AE8;
-    iosOmBeforeFuncStandard((int *)D_00631AE8, 0x30, self_arg);
+    iosOmSendMail((int *)D_00631AE8, 0x30, self_arg);
     tgt = (int *) sub[0x4E];
     ((int *) tgt[0x57])[0x1D] = 1;
     ACTParaStatus_Clear(tgt);
@@ -605,7 +605,7 @@ int func_00165418(void *a0, int *out) {
     *out = v;
     if (v == 0) {
         func_001AD768(D_00558E10, 0x2FA);
-        func_00263FF0(D_00558E10, 0x2FA, D_00558E20);
+        __assert(D_00558E10, 0x2FA, D_00558E20);
     }
     return 1;
 }
@@ -653,12 +653,12 @@ one:
 }
 
 extern void func_001AD768(void *a0, int a1);
-extern void func_00263FF0(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 
 int actEnemy_isNormalEnemy(void *a0) {
     if (a0 == 0 || *(int *)((char *)a0 + 0xC) != 4) {
         func_001AD768(D_00558E10, 0x7D2);
-        func_00263FF0(D_00558E10, 0x7D2, D_00558FB0);
+        __assert(D_00558E10, 0x7D2, D_00558FB0);
     }
     return funcEnemyCarryFail((int *)a0);
 }
@@ -677,7 +677,7 @@ int actEnemy_isLargeEnemy(volatile int a0) {
     }
 }
 
-extern float pac_DispQW(void);
+extern float _GetRandom(void);
 extern int DispCollisionPC(void *a0, int a1, int a2, int a3, unsigned char a4, float a5);
 
 void func_00165610(volatile unsigned int a0)
@@ -689,7 +689,7 @@ void func_00165610(volatile unsigned int a0)
     p[0x118 / 4] = 0;
     if (D_00631AE4 != 0) {
         DispCollisionPC((void *)a0, D_00631AE4, (int)((char *)p + 0x110), 0, 0,
-                        (float)((int)(pac_DispQW() * 10.0f) % 200 + 300));
+                        (float)((int)(_GetRandom() * 10.0f) % 200 + 300));
     }
     p[0x33C / 4] = 0;
     p[0x110 / 4] = 0;
@@ -711,7 +711,7 @@ void func_001656C8(volatile unsigned int a0)
     if ((unsigned char)DispCollisionPC((void *)a0, t,
                                        (int)((char *)p + 0x110), 0,
                                        *(unsigned char *)(g + 0x21C), 50.0f) == 0) {
-        debug_assertMessage(D_00559030);
+        debug_StdPrintfDummy(D_00559030);
         p[0x33C / 4] = 0;
         p[0x110 / 4] = 0;
         p[0x114 / 4] = 0;
@@ -755,7 +755,7 @@ void func_00165780(volatile unsigned int a0)
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isSmallEnemy);
 
 extern void dispPlane(void *a0, float *a1);
-extern void func_001947D0(float *a0, int a1, int a2);
+extern void _OrientXZGV(float *a0, int a1, int a2);
 
 void func_001659F8(volatile unsigned int a0)
 {
@@ -764,7 +764,7 @@ void func_001659F8(volatile unsigned int a0)
     m = (char *)(*(int *)(a0 + 0x164)) + 0x110;
     r0 = ContinueCorrectPosition(D_00631AE8);
     r1 = ContinueCorrectPosition(a0);
-    func_001947D0((float *)m, r0, r1);
+    _OrientXZGV((float *)m, r0, r1);
     dispPlane((void *)a0, (float *)m);
     BoxBarSoundOn((void *)a0, 0x146);
     for (;;) {
@@ -818,8 +818,8 @@ void func_00165B50(char *self, int a1, int *a2)
 
 extern void actCommonStoneDead(void *a0, float *a1, float a2);
 extern void dispPlane(void *a0, float *a1);
-extern void func_00104748(float *a0, void *a1);
-extern void func_001947D0(float *a0, int a1, int a2);
+extern void GetRootMotionOrient(float *a0, void *a1);
+extern void _OrientXZGV(float *a0, int a1, int a2);
 
 int IsEnemyBrainToGenerator(void *a0, int a1, int a2) {
     float posA[4];
@@ -838,7 +838,7 @@ int IsEnemyBrainToGenerator(void *a0, int a1, int a2) {
     p = *(char **)((char *)a0 + 0x164);
     r0 = ContinueCorrectPosition(a1);
     r1 = ContinueCorrectPosition(a0);
-    func_001947D0(posA, r0, r1);
+    _OrientXZGV(posA, r0, r1);
     q = *(char **)((char *)a0 + 0x164);
     *(float *)(p + 0x110) = posA[0];
     *(float *)(p + 0x114) = posA[1];
@@ -849,9 +849,9 @@ int IsEnemyBrainToGenerator(void *a0, int a1, int a2) {
     posB[1] = *(float *)(q + 0x114);
     posB[2] = *(float *)(q + 0x118);
     m = mtx;
-    func_00104748(m, a0);
+    GetRootMotionOrient(m, a0);
     m = posB;
-    angle = HandCameraCorrect(mtx, m);
+    angle = _RotyGV(mtx, m);
     absA = (angle >= 0) ? angle : -angle;
     if (mode < absA) {
         *(float *)(q + 0x5B0) = posB[0];
@@ -874,7 +874,7 @@ int IsEnemyBrainToGenerator(void *a0, int a1, int a2) {
 
 extern int subEnemyBrain_ToBoy(void *a0);
 
-int IsEnemyBrainToBoy(void *a0) {
+int FlyMail(void *a0) {
     int x = *(int *)(*(char **)((char *)a0 + 0x164) + 0x10);
     if (x < 0xC) {
         return -1;
@@ -882,7 +882,7 @@ int IsEnemyBrainToBoy(void *a0) {
     return subEnemyBrain_ToBoy(a0);
 }
 
-extern void *isysGObjSearchFromObjKindID_begin(void *a0);
+extern void *isysGObjSearchFromObjKindID_next(void *a0);
 extern void *isysGObjSearchFromObjLayoutID(int a0);
 
 void GetEnemyTypeFromGObj(int a0) {
@@ -901,7 +901,7 @@ void GetEnemyTypeFromGObj(int a0) {
                     }
                 }
             }
-            o = isysGObjSearchFromObjKindID_begin(o);
+            o = isysGObjSearchFromObjKindID_next(o);
         } while (o != 0);
     }
 }
@@ -910,7 +910,7 @@ extern int *ExecMotionOrient(unsigned int a0, int a1, void *a2);
 
 void func_00165DC0(volatile unsigned int a0) {
     int *s0 = *((int **)(a0 + 0x164));
-    debug_assertMessage((char *)D_00558EF0);
+    debug_StdPrintfDummy((char *)D_00558EF0);
     s0[0x120 / 4] = (int)ExecMotionOrient(a0, 1, (char *)s0 + 0x610);
     for (;;) {
         _ACTWait(1);
@@ -920,7 +920,7 @@ void func_00165DC0(volatile unsigned int a0) {
 void func_00165E08(volatile unsigned int a0) {
     int *s0 = *((int **)(a0 + 0x164));
     int *r;
-    debug_assertMessage((char *)D_00558F20);
+    debug_StdPrintfDummy((char *)D_00558F20);
     r = ExecMotionOrient(a0, 7, (char *)s0 + 0x610);
     s0[0x120 / 4] = (int)r;
     r[0x114 / 4] = 0;

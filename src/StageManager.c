@@ -15,12 +15,12 @@ extern void sndManager(int *a, int *b);
 extern void AttackCheckHit();
 extern int D_00631990;
 extern int _transRingBuf();
-extern void ExitIcoMisc(int idx);
+extern void gamesysStageExitTimeSet(int idx);
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stop_free_resources);
 
 void stage_initialize(int *self)
 {
-    ExitIcoMisc(D_00631990);
+    gamesysStageExitTimeSet(D_00631990);
     func_00180BC0(D_00631990, 0);
     AttackCheckHit(self);
     backStageProcessInStage();
@@ -44,7 +44,7 @@ extern int D_00632868;
 extern int D_0063286C;
 extern int D_00632870;
 extern int D_00632884;
-extern int func_00168C88();
+extern int PositionOfExit();
 extern int iosCdvdBackGroundMgrSeek();
 extern int iosCdvdChgFileName();
 extern void routeSetPos(void);
@@ -61,7 +61,7 @@ void stgmgrNextStagePreLoad(int stage) {
         if (s != 0) {
             int count = D_00632884;
             D_004B2DF0[count].f0 = D_0056194C[s].f0;
-            if (func_00168C88(&D_004B2DF0[count].f10, i + 1) == 0) {
+            if (PositionOfExit(&D_004B2DF0[count].f10, i + 1) == 0) {
                 D_00632884 = D_00632884 + 1;
             }
         }
@@ -104,13 +104,13 @@ void func_0019FF68(int a0) {
 
 extern void stgmgrForceSwitch(int a0, int a1, int a2, int a3);
 
-void StageManager(int a0) {
+void stgmgrForceSwitchWithFade(int a0) {
     stgmgrForceSwitch(a0, 0, 0, 0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stgmgrForceSwitch);
 
-void stgmgrForceSwitchWithFade(int val) {
+void stgmgrNextStagePreLoadForceStageSet(int val) {
     D_00633E20 = val;
     D_00632860 = 1;
     D_00632864 = 0;

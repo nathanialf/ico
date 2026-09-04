@@ -100,8 +100,8 @@ const double D_0055A5B0[2] = { 1.9, 0.0 };
 extern void func_00180F40(int *buf, int self, int arg);
 extern void func_001A6E28(const char *msg, ...);
 extern void func_001AD768(const char *file, int line);
-extern void func_00263FF0(const char *file, int line, const char *expr);
-extern void func_00243AE8(float *dst, float *src, void *cb);
+extern void __assert(const char *file, int line, const char *expr);
+extern void sceVu0SubVector(float *dst, float *src, void *cb);
 
 /* Intra-TU forward decls (defined via INCLUDE_ASM or below) */
 int func_00181960(int *buf);
@@ -113,7 +113,7 @@ extern int D_00631AE4;
 extern int D_00631AE8;
 extern int D_00632DBC;
 extern int func_0013ECA8(void);
-extern int func_0013ECF8(int e);
+extern int isysGObjGetExist_next(int e);
 extern int func_001811D0(int a, int b);
 extern int func_0014B800(int a);
 extern int func_0014B840(int a);
@@ -177,7 +177,7 @@ int func_00181960(int *buf)
             func_00194808(*(int *)(e164 + 0x670) + 0xE0, a0 + 0x10, a0 + 0x20);
         }
     next:
-        entity = func_0013ECF8(entity);
+        entity = isysGObjGetExist_next(entity);
       } while (entity != 0);
     }
     return result;
@@ -209,7 +209,7 @@ void func_00181BF8(void *self, int p1, float *vec, void *cb, float scale)
     float *vp = vec;
     if (self == 0) {
         func_001AD768(D_0055A518, 0x2ED);
-        func_00263FF0(D_0055A518, 0x2ED, D_0055A528);
+        __assert(D_0055A518, 0x2ED, D_0055A528);
     }
     buf_base = (char *)(&buf);
     vx = vp[0];
@@ -225,7 +225,7 @@ void func_00181BF8(void *self, int p1, float *vec, void *cb, float scale)
     *((float *)(buf_base + 0x14)) = vy;
     *((float *)(buf_base + 0x18)) = vz;
     if (cb != 0) {
-        func_00243AE8((float *)(buf_base + 0x20), (float *)(buf_base + 0x10), cb);
+        sceVu0SubVector((float *)(buf_base + 0x20), (float *)(buf_base + 0x10), cb);
         vx = vp[0];
         vy = vp[1];
         vz = vp[2];
@@ -258,7 +258,7 @@ void func_00181D88(void *self, int p1, float *vec, void *cb, float scale)
     float *vp = vec;
     if (self == 0) {
         func_001AD768(D_0055A518, 0x300);
-        func_00263FF0(D_0055A518, 0x300, D_0055A528);
+        __assert(D_0055A518, 0x300, D_0055A528);
     }
     buf_base = (char *)(&buf);
     vx = vp[0];
@@ -274,7 +274,7 @@ void func_00181D88(void *self, int p1, float *vec, void *cb, float scale)
     *((float *)(buf_base + 0x14)) = vy;
     *((float *)(buf_base + 0x18)) = vz;
     if (cb != 0) {
-        func_00243AE8((float *)(buf_base + 0x20), (float *)(buf_base + 0x10), cb);
+        sceVu0SubVector((float *)(buf_base + 0x20), (float *)(buf_base + 0x10), cb);
         vx = vp[0];
         vy = vp[1];
         vz = vp[2];

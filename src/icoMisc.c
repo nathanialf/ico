@@ -7,17 +7,17 @@
 
 extern void func_0010ECB8();
 extern void func_00102858();
-extern void func_00264128();
+extern void memcpy();
 extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
 extern int          D_00275860[4];
 extern unsigned short D_004B3D50[];
-INCLUDE_ASM("asm/nonmatchings/src/icoMisc", disp_memory_partition_bar);
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", gamesysObjInfoPosNewStageSet);
 
-INCLUDE_ASM("asm/nonmatchings/src/icoMisc", disp_memory_partition);
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", gamesysObjInfoGet);
 
-INCLUDE_ASM("asm/nonmatchings/src/icoMisc", ExecIcoMisc);
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", gamesysObjInfoCls);
 
-int InitIcoMisc(void)
+int gamesysGirlStageGet(void)
 {
     if (D_004B3D50[1]) return D_004B3D50[2];
     return 4;
@@ -36,19 +36,19 @@ int DispIcoMisc(int a0)
 extern int D_004B3B68[];
 extern int D_00632F74;
 
-void ExitIcoMisc(int a0) {
+void gamesysStageExitTimeSet(int a0) {
     D_004B3B68[a0] = D_00632F74;
 }
 
-void func_001AE8A0(int *self, int a1, int a2)
+void gamesysMemoryHandlerRead(int *self, int a1, int a2)
 {
     if (a1 != 0) {
-        func_00264128(a1, self[0] + self[0x4 / 4]);
+        memcpy(a1, self[0] + self[0x4 / 4]);
     }
     self[0x4 / 4] = self[0x4 / 4] + a2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AE8F0);
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", gamesysMemorySave);
 
 INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AE948);
 
@@ -73,7 +73,7 @@ int func_001AEA60(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AEA68);
 
-INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AF050);
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", disp_memory_partition);
 
 INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AF190);
 

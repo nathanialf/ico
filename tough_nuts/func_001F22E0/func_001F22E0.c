@@ -36,7 +36,7 @@ unsigned int D_00632024 = 0x00000000;
 #include "regpin.h"
 
 extern void func_00104508(int *buf, int *p);
-extern void func_00243AE8(int *p, int *buf, int *q);
+extern void sceVu0SubVector(int *p, int *buf, int *q);
 extern void func_00105F00(int *dst, int *src);
 extern int func_00240EA0(int a, int b, int c, int d, int e, int f, int g);
 extern void func_001F2370(void);
@@ -82,7 +82,7 @@ void func_001F2250(int *self)
     Sub15C *p;
     func_00104508(buf, self);
     p = ((GObj *)self)->p_15C;
-    func_00243AE8((int *)((char *)p + 0x130), buf, (int *)((char *)p + 0x1F0));
+    sceVu0SubVector((int *)((char *)p + 0x130), buf, (int *)((char *)p + 0x1F0));
     p = ((GObj *)self)->p_15C;
     func_00105F00((int *)((char *)p + 0x1F0), buf);
 }

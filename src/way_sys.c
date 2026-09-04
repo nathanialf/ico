@@ -24,7 +24,7 @@ extern int D_00632518;
 extern BoxBridgeEntry D_006ABE40[];
 extern int D_006CEFF8[];
 extern int D_006CF030[];
-extern int func_0013DB60(void *a0);
+extern int iosSemaSignal(void *a0);
 extern int func_0013DBB0(void *a0);
 extern void func_00176200(void *a0);
 
@@ -41,13 +41,13 @@ void create_box_bridge(int *a0) {
         if ((unsigned int) (v + 5) < D_00631A00) {
             func_0013DBB0(D_006CEFF8);
             if (D_006CEFF8[0x24 / 4] > 0) {
-                func_0013DB60(D_006CEFF8);
+                iosSemaSignal(D_006CEFF8);
             }
         }
         if (D_00274EC0[0x28 / 4] != 0) {
             func_0013DBB0(D_006CF030);
             if (D_006CF030[0x24 / 4] > 0) {
-                func_0013DB60(D_006CF030);
+                iosSemaSignal(D_006CF030);
             }
         }
         if (D_00632514 != 0) {

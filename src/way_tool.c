@@ -56,11 +56,11 @@ extern int D_00632590;
 extern char D_006338A0[];
 extern char D_006338A8[];
 extern unsigned char D_007125F0[];
-extern void debug_assertMessage();
-extern int func_001AA4F0(void *a0, int a1);
-extern int func_001AA550(int a0);
-extern void func_00247C30(int a0, void *a1, int a2);
-extern void func_00264DF8(void *a0, char *a1);
+extern void debug_StdPrintfDummy();
+extern int debugSceOpen(void *a0, int a1);
+extern int debugSceClose(int a0);
+extern void sceWrite(int a0, void *a1, int a2);
+extern void sprintf(void *a0, char *a1);
 
 int way_toolDL(void) {
     char buf[0x70];
@@ -68,10 +68,10 @@ int way_toolDL(void) {
     int i;
     unsigned char *p;
     D_00632590 = 1;
-    func_00264DF8(buf, D_006338A0);
-    s0 = func_001AA4F0(buf, 0x202);
+    sprintf(buf, D_006338A0);
+    s0 = debugSceOpen(buf, 0x202);
     if (s0 < 0) {
-        debug_assertMessage((int)D_0061B678);
+        debug_StdPrintfDummy((int)D_0061B678);
         D_00632590 = 0;
         return 0;
     }
@@ -82,9 +82,9 @@ int way_toolDL(void) {
         p--;
         i--;
     } while (i >= 0);
-    func_00247C30(s0, D_007125F0, 0x10);
-    func_001AA550(s0);
-    debug_assertMessage((int)D_006338A8);
+    sceWrite(s0, D_007125F0, 0x10);
+    debugSceClose(s0);
+    debug_StdPrintfDummy((int)D_006338A8);
     D_00632590 = 0;
     return 1;
 }
@@ -112,10 +112,10 @@ extern int D_00275250[];
 extern int D_006338E8;
 extern int D_00633F8C;
 extern int D_00631AE4;
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void actCreateSubThread(void *f, int a1);
 extern int actSt25aQueenDeadChk(int a0);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern void RequestStageChange(int a0, int a1, int a2, float f12, float f13);
 extern int fightSoundClose(void);
 extern void func_0017B258(int a0);
 extern void func_00192040(void);
@@ -133,7 +133,7 @@ void func_002071E8(volatile int a0) {
     actCreateSubThread(func_00207A88, 0x15);
     scpPlayStart(0xC, &D_006338E8, 0, 1, 1);
     { int v = D_006338E8; while (v == 0) { _ACTWait(1); v = D_006338E8; } }
-    actConte11Jimaku(6.0f);
+    scpFadeIn(6.0f);
     actCreateSubThread(play_way, 0x15);
     func_00192040();
     while (fightSoundClose() != 0) { _ACTWait(1); }
@@ -151,7 +151,7 @@ void func_002071E8(volatile int a0) {
     scpTrans(D_006338E8, 0x80);
     D_006338E8 = 0;
 done:
-    actSt25aQueenDead(1, D_00631AE4, 0, 0.025f, 1.0f);
+    RequestStageChange(1, D_00631AE4, 0, 0.025f, 1.0f);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", play_way);

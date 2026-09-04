@@ -16,7 +16,7 @@ order, only register NAMES rotated). Cracked by TWO pins:
     (29->17). Pinning the final `entry`/`parent` pointer does NOT work.
 
 Structure also correct: error path out-of-line, beql/bne dispatch, the
-`j func_00263FF0` tail-call (void fn, last stmt is the call), the
+`j __assert` tail-call (void fn, last stmt is the call), the
 double-deref store `*(int*)(*(int*)(ra0+0x15C))`. D_00633190 declared
 `extern const char []` (incomplete) to keep %hi/%lo not gp_rel.
 

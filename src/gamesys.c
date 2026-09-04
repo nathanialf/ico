@@ -10,16 +10,16 @@
 
 extern void gsb_antiAlias();
 extern int D_00274EF0[];
-extern void func_00244598();
-extern int func_00244630(unsigned a0);
-extern void func_00244980();
-extern void func_00242640();
-extern void func_00245228();
-extern void func_002450C8();
-extern void func_00245270();
+extern void sceVpu0Reset();
+extern int sceDmaGetChan(unsigned a0);
+extern void sceDmaSend();
+extern void sceGsSyncPath();
+extern void sceVif1PkCloseDirectCode();
+extern void sceVif1PkTerminate();
+extern void sceVif1PkCloseGifTag();
 extern void func_00245178();
 extern int D_00275254[];
-extern void func_0018CC00(int x);
+extern void CameraSetMode(int x);
 extern void InitCharFileManager(void);
 extern void init_debug_menu(void);
 extern unsigned short D_002E7710[];
@@ -44,12 +44,12 @@ int gamesysObjInfoSave(void) {
 
 extern void staffRollMain(int a0, float a1);
 
-int gamesysObjInfoLoad(void) {
+int debug_STAFFROLLTest(void) {
     staffRollMain(0x80, 1.0f);
     return 1;
 }
 
-int gamesysObjInfoEmptyAreaSearch(int idx)
+int debug_SETest_color(int idx)
 {
   int new_var;
   int v3 = D_005D49E0[idx].f_20;
@@ -63,7 +63,7 @@ int gamesysObjInfoEmptyAreaSearch(int idx)
   return v0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoBaseSet);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", debug_reverbTest);
 
 extern char D_0055F468[];
 extern char D_00615770[];
@@ -89,10 +89,10 @@ extern char D_006157A8[];
 extern int D_00632BF8;
 extern int D_00632BFC;
 extern char D_006F8EE0[];
-extern int func_001A76B8(void *a0, int a1, int a2, int a3, int a4, void *a5, void *a6, int a7);
+extern int debug_SelectCsvWindowVal(void *a0, int a1, int a2, int a3, int a4, void *a5, void *a6, int a7);
 extern void func_001A8D40();
 
-int gamesysGeneratorInfoLoad(void) {
+int debugCdvdLoadInfoSegDisp(void) {
     long buf[3];
     int r;
     __builtin_memcpy((char *)buf, D_00615790, 0x14);
@@ -102,7 +102,7 @@ int gamesysGeneratorInfoLoad(void) {
         *(short *)((char *)buf + 0x10) = *(short *)(D_006157A8 + 0x10);
         *(char *)((char *)buf + 0x12) = *(char *)(D_006157A8 + 0x12);
     }
-    r = func_001A76B8(buf, 0x50, 0x46, 0xA, 0x1A, &D_00632BFC, (void *)func_001A8D40, D_00632BF8);
+    r = debug_SelectCsvWindowVal(buf, 0x50, 0x46, 0xA, 0x1A, &D_00632BFC, (void *)func_001A8D40, D_00632BF8);
     if (D_00275254[0] & 0x10) {
         int *row = (int *)(D_006F8EE0 + D_00632BF8 * 0xD0);
         int i;
@@ -126,7 +126,7 @@ int gamesysNObjInfoInit(void) {
 
 extern void backStageProcessInit(float a0);
 
-int gamesysObjInfoStageInitFlagCls(void) {
+int debug_BackStageTest(void) {
     backStageProcessInit(10000000.0f);
     return 1;
 }
@@ -136,85 +136,85 @@ int gamesysObjInfoStageInitPosSaveUnlock(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoPosSetStage);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", debug_SelectPad2ControlGobj);
 
-int gamesysObjInfoUniqDataSet(int a0)
+int debug_FreeCamera(int a0)
 {
     if (a0 != 0) {
-        func_0018CC00(1);
+        CameraSetMode(1);
     }
-    func_0018CC00(1);
+    CameraSetMode(1);
     return (D_00275254[0] & 0x100) ? -1 : 0;
 }
 
-void gamesysObjInfoPosNewStageSet(int a0)
+void CloseVif1DirectPacket(int a0)
 {
-    func_00245270(a0);
-    func_00245228(a0);
+    sceVif1PkCloseGifTag(a0);
+    sceVif1PkCloseDirectCode(a0);
     func_00245178(a0, 0);
-    func_002450C8(a0);
+    sceVif1PkTerminate(a0);
 }
 
-void gamesysObjInfoGet(int *self)
+void SendVif1DirectPacket(int *self)
 {
     int *p;
-    func_00242640(0, 0);
-    p = func_00244630(1);
+    sceGsSyncPath(0, 0);
+    p = sceDmaGetChan(1);
     *p |= 0x40;
-    func_00244980(p, (self[0x4/4] & 0x3FF0) | 0x80000000);
+    sceDmaSend(p, (self[0x4/4] & 0x3FF0) | 0x80000000);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoCls);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", RestoreNormalDrawEnvironment);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysGirlStageGet);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", SetTextureWithFrameBuffer);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysGetGirlStageIDAndPosition);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", SetTexDrawEnvironment);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysStageExitTimeSet);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", SetDrawnTextureEnvironment);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysMemoryHandlerWrite);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", SetDrawEnvironment);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysMemoryHandlerRead);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", drawSprite);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysMemorySave);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", PutFont);
 
-extern void func_00241C48(void);
-extern void func_00244658(int a0);
-extern void func_00244ED0(int *a0, int a1, int a2);
+extern void sceGsResetPath(void);
+extern void sceDmaReset(int a0);
+extern void sceDmaSync(int *a0, int a1, int a2);
 
-void gamesysMemoryLoad(void) {
-    func_00244658(1);
-    func_00244ED0((int *)func_00244630(0), 0, 0x64);
-    func_00244ED0((int *)func_00244630(1), 0, 0x64);
-    func_00244ED0((int *)func_00244630(2), 0, 0x64);
-    *(int *)func_00244630(0) |= 0x40;
-    *(int *)func_00244630(1) |= 0x40;
-    *(int *)func_00244630(2) |= 0x40;
-    func_00241C48();
+void resetPath(void) {
+    sceDmaReset(1);
+    sceDmaSync((int *)sceDmaGetChan(0), 0, 0x64);
+    sceDmaSync((int *)sceDmaGetChan(1), 0, 0x64);
+    sceDmaSync((int *)sceDmaGetChan(2), 0, 0x64);
+    *(int *)sceDmaGetChan(0) |= 0x40;
+    *(int *)sceDmaGetChan(1) |= 0x40;
+    *(int *)sceDmaGetChan(2) |= 0x40;
+    sceGsResetPath();
 }
 
 void gamesysVersionLoad(int a0)
 {
-    func_00244598(a0);
+    sceVpu0Reset(a0);
     gsb_antiAlias(D_00274EF0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysVersionSave);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysCharacterInfoSave);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", drawWin);
 ASM_LIT4_SLOT(D_006310F8, 0.8f);
 
-extern void gamesysMemoryHandlerRead(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
-extern void gamesysMemoryHandlerWrite(int a0);
+extern void drawSprite(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
+extern void SetDrawEnvironment(int a0);
 
-void gamesysGeneratorInfoSave(void)
+void saveBack(void)
 {
-    gamesysMemoryHandlerWrite(1);
-    gamesysMemoryHandlerRead(0x10, 0x20, 0x30, 0x40, -0x136, -0x6B, 0x136, 0x6B, 0);
-    gamesysMemoryHandlerWrite(1);
+    SetDrawEnvironment(1);
+    drawSprite(0x10, 0x20, 0x30, 0x40, -0x136, -0x6B, 0x136, 0x6B, 0);
+    SetDrawEnvironment(1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001AC348);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", baseFunc);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001AC438);
+INCLUDE_ASM("asm/nonmatchings/src/gamesys", syncGS);
 

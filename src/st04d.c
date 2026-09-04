@@ -63,12 +63,12 @@ extern int D_00631AE4;
 extern void actCreateSubThread(void *fn, int a1);
 extern int func_0012AA80(int a0);
 extern void func_002194D8(void);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
 
 void actSt04dDoor2DownChk(volatile int a0) {
     struct Q buf;
-    while (scpSleepEnemyOne(a0, D_00631AE4, 200.0f) == 0) {
+    while (scpTriggerBall(a0, D_00631AE4, 200.0f) == 0) {
         _ACTWait(1);
     }
     _ACTWait(0x1E);

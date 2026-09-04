@@ -6,21 +6,21 @@ typedef struct ActB4Obj { char pad[0xC4]; int *unkC4; } ActB4Obj;
 extern long long D_0061BE50[];
 extern long long D_0061BE60[];
 extern void _ACTWait(int a0);
-extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void scpEffectStart(int *buf, int a1);
 
 void actSt10lInit(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_0061BE50[0]; long long v0b=D_0061BE60[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_0061BE50[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_0061BE60[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_0061BE50[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061BE60[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
 
 void actSt10lFloorLeft(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_0061BE60[0]; long long v0b=D_0061BE50[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_0061BE60[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_0061BE50[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_0061BE60[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061BE50[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
 extern int D_00631AE8;
@@ -106,7 +106,7 @@ void func_00225DD0(volatile int a0) {
     _ACTWait(0);
 }
 
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern int actCreateSubThread(void *fn, int a1);
 extern void actSt10lFloor();
 
@@ -124,32 +124,32 @@ void actSt10lChain(volatile int a0) {
     D_006325B4 = 0;
     lt_fade_status(0x32);
     scpActivateAllWithKind();
-    AddWayPointTop(5, 1);
+    SetWayGroupActive(5, 1);
 }
 
 extern int D_00274EC0[];
-extern int func_00262BE8(int a0, long a1);
-extern int func_00263160(int a0);
-extern int func_00263218(int a0);
+extern int dpmul(int a0, long a1);
+extern int litodp(int a0);
+extern int dptoli(int a0);
 
 void actSt10lFloor(volatile int a0) {
-    _ACTWait(func_00263218(func_00262BE8(func_00263160((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]), (long)0x804C << 47)));
+    _ACTWait(dptoli(dpmul(litodp((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]), (long)0x804C << 47)));
     func_0017B258(0xCE);
 }
 
 
 void actSt10lGondola(void) {
     if (func_0017B230(0x5F) == 0) {
-        AddWayPointTop(0x9, 0);
-        AddWayPointTop(0xA, 0);
+        SetWayGroupActive(0x9, 0);
+        SetWayGroupActive(0xA, 0);
     } else {
-        AddWayPointTop(0x9, 1);
-        AddWayPointTop(0xA, 1);
+        SetWayGroupActive(0x9, 1);
+        SetWayGroupActive(0xA, 1);
     }
     if (func_0017B230(0x60) == 0) {
-        AddWayPointTop(0xC, 0);
+        SetWayGroupActive(0xC, 0);
     } else {
-        AddWayPointTop(0xC, 1);
+        SetWayGroupActive(0xC, 1);
     }
 }
 
@@ -179,8 +179,8 @@ void func_002260A8(volatile int a0) {
     lt_fade_status(0x32);
     *(int *)(actSt25aQueenDeadChk(0x65D) + 0x16C) = 1;
     *(int *)(actSt25aQueenDeadChk(0x65E) + 0x16C) = 0;
-    AddWayPointTop(0x9, 1);
-    AddWayPointTop(0xA, 1);
+    SetWayGroupActive(0x9, 1);
+    SetWayGroupActive(0xA, 1);
 }
 
 extern void BoxBarSoundOn(int a0, int a1);
@@ -190,14 +190,14 @@ extern int D_00631AE4;
 extern int actInitialize(int a0);
 extern void func_00226300(volatile int a0);
 extern void func_00226478(volatile int a0);
-extern int scpSleepEnemyOne(int a0, float a1, int a2);
+extern int scpTriggerBall(int a0, float a1, int a2);
 
 void func_002261F8(volatile int a0) {
     int x = a0;
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
-    if (scpSleepEnemyOne((int)a0, 200.0f, D_00631AE4) != 0 ||
-        (D_00631AE8 != 0 && scpSleepEnemyOne((int)a0, 400.0f, D_00631AE8) != 0)) {
+    if (scpTriggerBall((int)a0, 200.0f, D_00631AE4) != 0 ||
+        (D_00631AE8 != 0 && scpTriggerBall((int)a0, 400.0f, D_00631AE8) != 0)) {
         stage_KillPlayBgAnimation(0x5F, 0, 0);
         _ACTWait(0x3C);
         D_004D25B0[1] = (int)func_00226478;
@@ -216,7 +216,7 @@ void func_002261F8(volatile int a0) {
 extern int D_004D25F0[];
 extern long long D_0061BEA0[];
 extern void actSt10rChain();
-extern void func_0017E870(float a0, float a1, float a2, float a3);
+extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern int scpKillSpiderGroup(int a0, int a1);
 extern int soundSeDefPlayWithVolumeRate(int a0, int a1, long long *a2, int a3);
 
@@ -226,7 +226,7 @@ void func_00226300(volatile int a0) {
     while (scpKillSpiderGroup((int)a0, 0x1000000) == 0) { _ACTWait(1); }
     _ACTWait(0xF);
     actCreateSubThread(actSt10rChain, 0x15);
-    func_0017E870(-1879.0f, -1047.0f, -620.0f, 100.0f);
+    scpWakeupItemWithBoundary(-1879.0f, -1047.0f, -620.0f, 100.0f);
     stage_KillPlayBgAnimation(0x5E, 1, 0);
     buf[0] = D_0061BEA0[0];
     buf[1] = D_0061BEA0[1];
@@ -264,12 +264,12 @@ void func_002265F0(volatile int a0) {
     scpActivateAllWithKind();
     D_006325B4 = 0;
     lt_fade_status(0x32);
-    AddWayPointTop(0xC, 1);
+    SetWayGroupActive(0xC, 1);
 }
 
 
 void func_002266D0(volatile int a0) {
-    while (scpSleepEnemyOne((int)a0, 300.0f, actSt25aQueenDeadChk(0x66B)) == 0 ||
+    while (scpTriggerBall((int)a0, 300.0f, actSt25aQueenDeadChk(0x66B)) == 0 ||
            func_0017B230(0x5F) != 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     func_0017B258(0x62);
@@ -304,7 +304,7 @@ void func_002267E8(volatile int a0) {
     h = soundSeDefPlayWithVolumeRate(0x532, 0, 0, 1);
     while (func_0012AB50(0x62, 0x46, 0) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    func_0017E870(-3855.0f, -470.0f, 1392.0f, 200.0f);
+    scpWakeupItemWithBoundary(-3855.0f, -470.0f, 1392.0f, 200.0f);
     while (func_0012AA80(0x62) == 0) { _ACTWait(1); }
     _ACTWait(1);
     soundSeDefPitchSet(h);
@@ -320,7 +320,7 @@ extern int D_00633A50;
 void func_00226958(volatile int a0) {
     int q;
     int t;
-    while (scpSleepEnemyOne((int)a0, 70.0f, actSt25aQueenDeadChk(0x667)) == 0 ||
+    while (scpTriggerBall((int)a0, 70.0f, actSt25aQueenDeadChk(0x667)) == 0 ||
            func_0017B230(0x66) == 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     D_006325B4 = 1;
@@ -471,8 +471,8 @@ void func_00226F28(volatile int a0) {
         BoxBarSoundOn((int)a0, 0x18D);
         _ACTWait(0);
     } else {
-        AddWayPointTop(0x19, 1);
-        AddWayPointTop(0x1A, 1);
+        SetWayGroupActive(0x19, 1);
+        SetWayGroupActive(0x1A, 1);
         D_004D2850[1] = (int)func_00227D18;
         gobj->unkC4 = D_004D2850;
         BoxBarSoundOn((int)a0, 0x18D);
@@ -495,8 +495,8 @@ void func_00226FE8(volatile int a0) {
         BoxBarSoundOn((int)a0, 0x18D);
         _ACTWait(0);
     } else {
-        AddWayPointTop(0x19, 1);
-        AddWayPointTop(0x1A, 1);
+        SetWayGroupActive(0x19, 1);
+        SetWayGroupActive(0x1A, 1);
         D_004D28D0[1] = (int)func_00227E68;
         gobj->unkC4 = D_004D28D0;
         BoxBarSoundOn((int)a0, 0x18D);

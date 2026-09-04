@@ -4,13 +4,13 @@
 
 
 
-extern int func_00241F20();
-extern int func_0025E198(unsigned int a0, unsigned int a1);
-extern int func_0025E118(unsigned long long a0);
-extern int func_0025E158(unsigned long long a0);
-extern void func_0025E1E8(unsigned long long a0, unsigned int a1, int a2);
+extern int sceGsPutDispEnv();
+extern int SgStPcmLseek(unsigned int a0, unsigned int a1);
+extern int SgStPcmPlay(unsigned long long a0);
+extern int SgStPcmStop(unsigned long long a0);
+extern void SgStPcmVolume(unsigned long long a0, unsigned int a1, int a2);
 extern void iosMallocCheckLeak2();
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", ErrMessage);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", ObjAction_Init);
 
 extern void func_0023E170__p4(void *a0) __asm__("func_0023E170");
 
@@ -20,13 +20,13 @@ void copy2area(int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023D8A8);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023DA60);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", audioDecEndPut);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023DB80);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", sendToIOP2area);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023DEB0);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", audioDecSendToIOP);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E088);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", pcmCallback);
 
 void func_0023E170(int a0)
 {
@@ -35,10 +35,10 @@ void func_0023E170(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E180);
 
-void func_0023E228(int *self)
+void audioDecReset(int *self)
 {
-    func_0025E1E8(3, 0, 0);
-    func_0025E158(3);
+    SgStPcmVolume(3, 0, 0);
+    SgStPcmStop(3);
     *(volatile int *)((char *)self + 0x50) = 0;
     *(volatile int *)((char *)self + 0) = 0;
     *(volatile int *)((char *)self + 0x2C) = 0;
@@ -49,45 +49,45 @@ void func_0023E228(int *self)
     *(volatile int *)((char *)self + 0x4C) = 0;
 }
 
-int func_0023E280(int *self) {
+int audioDecIsPreset(int *self) {
     return *(int *)((char *)self + 0x54) >= *(int *)((char *)self + 0x48);
 }
 
 void func_0023E298(int *self)
 {
-    func_0025E198(0, 0);
-    func_0025E198(1, 0);
+    SgStPcmLseek(0, 0);
+    SgStPcmLseek(1, 0);
     if (*(signed char *)((char *)self + 0x58)) {
         int half = self[0x5C / 4] / 2;
-        func_0025E1E8(3, half, half);
+        SgStPcmVolume(3, half, half);
     } else {
-        func_0025E1E8(1, 0, self[0x5C / 4]);
-        func_0025E1E8(2, self[0x5C / 4], 0);
+        SgStPcmVolume(1, 0, self[0x5C / 4]);
+        SgStPcmVolume(2, self[0x5C / 4], 0);
     }
-    func_0025E118(3);
+    SgStPcmPlay(3);
     self[0] = 2;
 }
 
-int func_0023E330(int a0)
+int audioDecPause(int a0)
 {
     *(int *)a0 = 3;
-    func_0025E1E8(3, 0, 0);
-    func_0025E158(3);
+    SgStPcmVolume(3, 0, 0);
+    SgStPcmStop(3);
     return 0;
 }
 
 void func_0023E368(int *self)
 {
-    func_0025E198(0, 0);
-    func_0025E198(1, 0);
+    SgStPcmLseek(0, 0);
+    SgStPcmLseek(1, 0);
     if (*(signed char *)((char *)self + 0x58)) {
         int half = self[0x5C / 4] / 2;
-        func_0025E1E8(3, half, half);
+        SgStPcmVolume(3, half, half);
     } else {
-        func_0025E1E8(1, 0, self[0x5C / 4]);
-        func_0025E1E8(2, self[0x5C / 4], 0);
+        SgStPcmVolume(1, 0, self[0x5C / 4]);
+        SgStPcmVolume(2, self[0x5C / 4], 0);
     }
-    func_0025E118(3);
+    SgStPcmPlay(3);
     self[0] = 2;
 }
 
@@ -97,7 +97,7 @@ INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E578);
 
 extern void func_0023E578(int *self, int a1, int a2);
 
-void func_0023E770(int *self, int a1, int a2)
+void setImageSize(int *self, int a1, int a2)
 {
     int lim = self[0x3C / 4];
     if (a2 <= lim) {
@@ -106,13 +106,13 @@ void func_0023E770(int *self, int a1, int a2)
     func_0023E578(self, a1, a2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E780);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", sendDispEnv);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E7E8);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E890);
 
-void func_0023EDF0(int *a0, int flag)
+void dispSwitch(int *a0, int flag)
 {
   int src;
   int new_var;
@@ -131,8 +131,8 @@ void func_0023EDF0(int *a0, int flag)
     cur = cur | (src & 0x1FF);
     a0[0x10 / 4] = cur;
   }
-  return func_00241F20(a0);
+  return sceGsPutDispEnv(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023EE28);
+INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", vblankHandler);
 

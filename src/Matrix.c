@@ -2,12 +2,12 @@
 
 
 #include "vu0.h"
-extern float func_0010E9A0(short a0);
+extern float GetTableCos(short a0);
 extern float p2o_SetDefaultEnviroment(int x);
 
-void _RemakeNormal(short a0)
+void _RotCurrentMatrixY(short a0)
 {
-    float c = func_0010E9A0(a0);
+    float c = GetTableCos(a0);
     float s = p2o_SetDefaultEnviroment(a0);
     __asm__ __volatile__("mfc1 $8, %0" : : "f"(c) : "$8");
     __asm__ __volatile__("mfc1 $9, %0" : : "f"(s) : "$9");
@@ -43,9 +43,9 @@ void _RemakeNormal(short a0)
     VU0_V2OP(vmove.xyzw, 7, 17);
 }
 
-void _Sqrt(short a0)
+void _RotCurrentMatrixZ(short a0)
 {
-    float c = func_0010E9A0(a0);
+    float c = GetTableCos(a0);
     float s = p2o_SetDefaultEnviroment(a0);
     __asm__ __volatile__("mfc1 $8, %0" : : "f"(c) : "$8");
     __asm__ __volatile__("mfc1 $9, %0" : : "f"(s) : "$9");
@@ -81,7 +81,7 @@ void _Sqrt(short a0)
     VU0_V2OP(vmove.xyzw, 7, 17);
 }
 
-void _InitCurrentMatrix(float a0, float a1, float a2)
+void _ScaleCurrentMatrix(float a0, float a1, float a2)
 {
     VU0_MFC1(6, 12);
     VU0_MFC1(7, 13);
@@ -134,7 +134,7 @@ void _PushCurrentMatrix(void *p0)
     VU0_NOP();
 }
 
-void _PopCurrentMatrix(void *p0)
+void _SetCurrentMatrix(void *p0)
 {
     VU0_LSV(lqc2, 4, 0x0, a0);
     VU0_LSV(lqc2, 5, 0x10, a0);
@@ -143,7 +143,7 @@ void _PopCurrentMatrix(void *p0)
     VU0_NOP();
 }
 
-void _TransCurrentMatrix(void *a0)
+void _MulCurrentMatrixR(void *a0)
 {
     VU0_LSV(lqc2, 14, 0x0, 4);
     VU0_LSV(lqc2, 15, 0x10, 4);
@@ -172,7 +172,7 @@ void _TransCurrentMatrix(void *a0)
     VU0_NOP();
 }
 
-void _SetTransCurrentMatrix(void *m)
+void _MulCurrentMatrixL(void *m)
 {
     VU0_LSV(lqc2, 14, 0x0, a0);
     VU0_LSV(lqc2, 15, 0x10, a0);
@@ -197,7 +197,7 @@ void _SetTransCurrentMatrix(void *m)
     VU0_NOP();
 }
 
-void _ClearTransCurrentMatrix(void *p0, void *p1, void *p2)
+void _ApplyCurrentMatrix(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 8, 0x0, a1);
     VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
@@ -208,7 +208,7 @@ void _ClearTransCurrentMatrix(void *p0, void *p1, void *p2)
     VU0_NOP();
 }
 
-void _RotCurrentMatrixX(void *p0, void *p1, void *p2)
+void _RotTransPersCurrentMatrix(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 8, 0x0, a1);
     VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
@@ -222,7 +222,7 @@ void _RotCurrentMatrixX(void *p0, void *p1, void *p2)
     VU0_NOP();
 }
 
-void _RotCurrentMatrixY(void)
+void _TransposeCurrentMatrix(void)
 {
     VU0_V3OP(vsub.xyzw, 1, 0, 0);
     VU0_V3OP_BC(vaddx.y, 14, 1, 5, x);
@@ -244,7 +244,7 @@ void _RotCurrentMatrixY(void)
     VU0_NOP();
 }
 
-void _RotCurrentMatrixZ(void)
+void _TransposeRotationCurrentMatrix(void)
 {
     VU0_V3OP(vsub.xyzw, 1, 0, 0);
     VU0_V3OP_BC(vaddx.y, 14, 1, 5, x);
@@ -259,7 +259,7 @@ void _RotCurrentMatrixZ(void)
     VU0_NOP();
 }
 
-void _ScaleCurrentMatrix(void)
+void _InverseCurrentMatrix(void)
 {
     VU0_V3OP(vsub.xyzw, 1, 0, 0);
     VU0_V3OP_BC(vsubw.x, 2, 0, 0, w);
@@ -353,7 +353,7 @@ void _GetCurrentMatrixTrans(void)
     VU0_NOP();
 }
 
-void _SetCurrentMatrix(void *p0, void *p1, void *p2)
+void _NormalizeVector(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_V3OP(vmul.xyz, 3, 1, 1);
@@ -367,7 +367,7 @@ void _SetCurrentMatrix(void *p0, void *p1, void *p2)
     VU0_NOP();
 }
 
-void _MulCurrentMatrixR(void *p0, void *p1, void *p2)
+void _InnerProduct(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a0);
     VU0_LSV(lqc2, 2, 0x0, a1);
@@ -381,7 +381,7 @@ void _MulCurrentMatrixR(void *p0, void *p1, void *p2)
     VU0_NOP();
 }
 
-void _MulCurrentMatrixL(void *p0, void *p1, void *p2, void *p3)
+void _OuterProduct(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -392,7 +392,7 @@ void _MulCurrentMatrixL(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-void _ApplyCurrentMatrix(void *p0, void *p1, void *p2, void *p3)
+void _AddVector(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -401,7 +401,7 @@ void _ApplyCurrentMatrix(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-void _RotTransPersCurrentMatrix(void *p0, void *p1, void *p2, void *p3)
+void _AddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -410,7 +410,7 @@ void _RotTransPersCurrentMatrix(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-void _TransposeCurrentMatrix(void *p0, void *p1, void *p2, void *p3)
+void _SubVector(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -419,7 +419,7 @@ void _TransposeCurrentMatrix(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-void _TransposeRotationCurrentMatrix(void *p0, void *p1, void *p2, void *p3)
+void _SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -428,7 +428,7 @@ void _TransposeRotationCurrentMatrix(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-void _InverseCurrentMatrix(void *p0, void *p1, void *p2)
+void _ScaleVector(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_NOREORDER_BEGIN();
@@ -440,7 +440,7 @@ void _InverseCurrentMatrix(void *p0, void *p1, void *p2)
     VU0_NOP();
 }
 
-void _PushVu0Registers(void *p0, void *p1, void *p2)
+void _ScaleVectorXYZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_NOREORDER_BEGIN();
@@ -452,7 +452,7 @@ void _PushVu0Registers(void *p0, void *p1, void *p2)
     VU0_NOP();
 }
 
-void _PopVu0Registers(void *p0, void *p1, void *p2, void *p3)
+void _ScaleVector2XYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);

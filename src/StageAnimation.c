@@ -10,8 +10,8 @@ extern const char D_00555BF8[];
 extern void func_001AD768();
 extern int bga_SetCamFrame();
 extern const char D_00631D88[];
-extern void func_00263FF0(char *file, int line, char *msg);
-extern void debug_assertMessage();
+extern void __assert(char *file, int line, char *msg);
+extern void debug_StdPrintfDummy();
 extern const char D_00555D78[];
 extern int font_CheckAlign();
 extern char D_00674058[];
@@ -20,29 +20,29 @@ extern void font_GetWidth();
 extern int *D_00633C58;
 extern int resetmallocseki(void *a0);
 extern void func_00117768(void);
-extern void func_001FAA58();
+extern void bga_ResetAnimation();
 extern int D_00274ED4[];
 extern int D_00631D54;
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakeGObj);
 
 extern char *D_00631970;
-extern void _ClearTransCurrentMatrix(void *a0, void *a1);
-extern void _InverseCurrentMatrix(void *a0, void *a1, float a2);
-extern void _PopCurrentMatrix(void *a0);
-extern void _RotCurrentMatrixY(void);
+extern void _ApplyCurrentMatrix(void *a0, void *a1);
+extern void _ScaleVector(void *a0, void *a1, float a2);
+extern void _SetCurrentMatrix(void *a0);
+extern void _TransposeCurrentMatrix(void);
 extern void func_00117C80(void *a0);
-extern void func_00117C98(void);
-extern void func_00117CE0(void);
+extern void _PopCurrentMatrix(void);
+extern void _ClearTransCurrentMatrix(void);
 
 void stage_ApplyData(void *a0) {
     func_00117C80(a0);
-    _PopCurrentMatrix(D_00631970 + 0x80);
-    func_00117CE0();
-    _RotCurrentMatrixY();
-    _ClearTransCurrentMatrix(a0, D_00631970 + 0xB0);
-    _InverseCurrentMatrix(a0, a0, -1.0f);
+    _SetCurrentMatrix(D_00631970 + 0x80);
+    _ClearTransCurrentMatrix();
+    _TransposeCurrentMatrix();
+    _ApplyCurrentMatrix(a0, D_00631970 + 0xB0);
+    _ScaleVector(a0, a0, -1.0f);
     *(float *)((char *)a0 + 0xC) = 1.0f;
-    func_00117C98();
+    _PopCurrentMatrix();
 }
 
 /* StageAnimation .rodata run 0x555938..0x555E70 -- byte-verified against
@@ -52,7 +52,7 @@ const unsigned int D_00555938[0x16] = { 0x00000000, 0x00000001, 0x00000003, 0x00
 
 /* ---------------------------------------------------------------- */
 /* stage_Init -- build the projected drop-shadow silhouette geometry   */
-/* for one stage object and append it to the current display packet.  */
+/* for one stage object and append it to the current debug_PrintFontWindow packet.  */
 
 #include "vu0.h"
 
@@ -106,14 +106,14 @@ extern int D_00631C60;
 extern char D_00276230[];
 extern float D_00674030[];
 
-extern void mc_Init(void *m);
-extern void _RotTransPersCurrentMatrix(void *d, void *s, void *v);
-extern void _PushVu0Registers(void *d, void *s, float f);
-extern void _TransposeCurrentMatrix(void *d, void *s, void *m);
-extern void _ApplyCurrentMatrix(void *d, void *s, void *m);
+extern void _UnitVector(void *m);
+extern void _AddVectorXYZ(void *d, void *s, void *v);
+extern void _ScaleVectorXYZ(void *d, void *s, float f);
+extern void _SubVector(void *d, void *s, void *m);
+extern void _AddVector(void *d, void *s, void *m);
 extern int light_killLinkAmbient(void *v);
-extern void GetCylinderCollision(void *v, void *self);
-extern void func_00118510(void *a, void *b);
+extern void GetRootPositionByDObj(void *v, void *self);
+extern void _GetLength(void *a, void *b);
 extern void func_00123C20(void *a, void *self);
 extern void func_00123C70(void *self, float f);
 extern void stage_MakeGObj(void *self, int mode, float f);
@@ -259,22 +259,22 @@ static inline int stage_SetupLightPlanes(SVec *m0, SVec *m1, SVec *dst,
     SVec *d;
     int k;
 
-    mc_Init(m0);
+    _UnitVector(m0);
     for (k = 7, p = planes; k >= 0; k--) {
-        _RotTransPersCurrentMatrix(m0, m0, p);
+        _AddVectorXYZ(m0, m0, p);
         p++;
     }
-    _PushVu0Registers(m0, m0, 0.125f);
+    _ScaleVectorXYZ(m0, m0, 0.125f);
     p = planes;
     d = dst;
     for (k = 7; k >= 0; k--) {
-        _TransposeCurrentMatrix(m1, p, m0);
-        _InverseCurrentMatrix(m1, m1, scale);
-        _ApplyCurrentMatrix(d, p, m1);
+        _SubVector(m1, p, m0);
+        _ScaleVector(m1, m1, scale);
+        _AddVector(d, p, m1);
         d++;
         p++;
     }
-    _PopCurrentMatrix(D_00631970 + 0x300);
+    _SetCurrentMatrix(D_00631970 + 0x300);
     return light_killLinkAmbient(dst);
 }
 
@@ -527,8 +527,8 @@ void stage_Init(void *self)
         return;
 
     stage_ApplyData(&mtx);
-    GetCylinderCollision(&cyl, self);
-    func_00118510(&cyl, &mtx);
+    GetRootPositionByDObj(&cyl, self);
+    _GetLength(&cyl, &mtx);
 
     if (*(unsigned short *)((char *)self + 0x818) == 1) {
         func_00123C70(self, alpha);
@@ -802,9 +802,9 @@ const char D_00555AF8[0x18] = " Shadow Color R    ";
 const char D_00555B10[0x18] = " Shadow Depth      ";
 INCLUDE_RODATA("asm/nonmatchings/src/StageAnimation", D_00555B28);
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ContinueAnimation);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", shadow_MakeObjectData);
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ResetAnimation);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", shadow_Tool);
 
 const unsigned int D_00555B70[0x10] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
 
@@ -812,12 +812,12 @@ void stage_CalcAnimationNoParent(int val) {
     D_00631D54 = val;
 }
 
-extern void *func_0013ECF8(void *obj);
-extern void *isysGObjRemoveObjDL(int a0);
+extern void *isysGObjGetExist_next(void *obj);
+extern void *isysGObjGetExist_begin(int a0);
 
 void stage_CalcAnimationParent(int a0, int a1) {
     void *obj;
-    for (obj = isysGObjRemoveObjDL(a0); obj != 0; obj = func_0013ECF8(obj)) {
+    for (obj = isysGObjGetExist_begin(a0); obj != 0; obj = isysGObjGetExist_next(obj)) {
         void *node = *(void **)((char *)obj + 0x15C);
         if (node != 0) {
             void *dl = *(void **)((char *)node + 0x820);
@@ -853,7 +853,7 @@ void stage_SetScale(int a0) {
     void *obj;
     D_00631D50 = 0;
     D_00631D54 = 0;
-    for (obj = isysGObjRemoveObjDL(a0); obj != 0; obj = func_0013ECF8(obj)) {
+    for (obj = isysGObjGetExist_begin(a0); obj != 0; obj = isysGObjGetExist_next(obj)) {
         void *node = *(void **)((char *)obj + 0x15C);
         if (node != 0) {
             void *dl = *(void **)((char *)node + 0x820);
@@ -918,15 +918,15 @@ int stage_DispBgAnimation(int a0, int a1) {
             }
         }
     }
-    debug_assertMessage(D_00555DB0);
+    debug_StdPrintfDummy(D_00555DB0);
     func_001AD768(D_00555BF8, 0x38D);
-    func_00263FF0(D_00555BF8, 0x38D, D_00631D88);
+    __assert(D_00555BF8, 0x38D, D_00631D88);
     return 0;
 }
 
-void stage_SetCameraForceOff(void)
+void stage_ResetAnimation(void)
 {
-    func_001FAA58();
+    bga_ResetAnimation();
     if (D_00274ED4[0] != 0) return;
     func_00117768();
 }
@@ -994,9 +994,9 @@ int func_0012AA80(int key)
             e += 0x290;
         } while (i < count);
     }
-    debug_assertMessage(D_00555D78);
+    debug_StdPrintfDummy(D_00555D78);
     func_001AD768(D_00555BF8, 0x360);
-    func_00263FF0(D_00555BF8, 0x360, D_00631D88);
+    __assert(D_00555BF8, 0x360, D_00631D88);
     return 0;
 }
 

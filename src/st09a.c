@@ -18,13 +18,13 @@ extern void actSt09aBrgSwitch(volatile int a0);
 extern int func_0012AA80(int a0);
 extern void func_0017B258(int a0);
 extern void func_0017B288(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern int soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt09aElvDown(volatile int a0) {
     struct Q buf;
-    while (scpSleepEnemyOne(a0, D_00631AE4, 200.0f) == 0) {
+    while (scpTriggerBall(a0, D_00631AE4, 200.0f) == 0) {
         _ACTWait(1);
     }
     D_006325B4 = 1;

@@ -57,10 +57,10 @@ extern int D_00274EC0[];
 extern char D_00612A70[];
 extern char D_00612E18[];
 extern char D_006328A8[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int freeseki(char *q);
 extern void func_001AD768(char *a0, int a1);
-extern void func_00263FF0(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern void iosCdvdLoad(int *self, int p, char *q);
 extern void malloc_GetPartition(int a0);
 extern void stage_PlayBgAnimationDissolve(int a1, int p);
@@ -75,13 +75,13 @@ void ReadParticleEffectFile(int *self, int a1, char *q, int a3, int a4, int a5, 
     if (flag == 0) {
         malloc_GetPartition(0);
         func_001AD768(D_00612A70, 0x1DA);
-        func_00263FF0(D_00612A70, 0x1DA, D_006328A8);
+        __assert(D_00612A70, 0x1DA, D_006328A8);
     } else {
         malloc_GetPartition(1);
     }
     p = freeseki(q);
     iosCdvdLoad(self, p, q);
-    debug_assertMessage(D_00612E18, a3, a1, q);
+    debug_StdPrintfDummy(D_00612E18, a3, a1, q);
     stage_PlayBgAnimationDissolve(a1, p);
 }
 
@@ -113,9 +113,9 @@ extern void func_0018B248(void *a0, int a1);
 void ReadStageSettingFile(int *a0, int a1, char *a2, void *a3) {
     int p = func_0013A0F8(D_00632028, a2, D_00612A70, 0x327);
     if (p == 0) {
-        debug_assertMessage(D_00613020);
+        debug_StdPrintfDummy(D_00613020);
         func_001AD768(D_00612A70, 0x32C);
-        func_00263FF0(D_00612A70, 0x32C, D_006328A8);
+        __assert(D_00612A70, 0x32C, D_006328A8);
     }
     D_00274EC0[8]++;
     iosCdvdLoad(a0, p, a2);

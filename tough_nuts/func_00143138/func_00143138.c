@@ -1,7 +1,7 @@
 extern char D_006A98B0[];
 extern long long D_00633CE0;
 extern char D_005F2F00[];
-extern void func_0025D7F0(int x);
+extern void SgSeStop(int x);
 extern void func_0013B8F0(void);
 void func_00143138(int a0, int a1)
 {
@@ -28,7 +28,7 @@ void func_00143138(int a0, int a1)
             }
         }
     }
-    if (a1 != 0) { func_0025D7F0(h | 0x8000); } else { func_0025D7F0(h); }
+    if (a1 != 0) { SgSeStop(h | 0x8000); } else { SgSeStop(h); }
     x = *(int **)(e + 0x38);
     if ((((unsigned int)x[0xE] >> 6) & 1) != 1) {
         short *q = (short *)((char *)D_005F2F00 + *(unsigned short *)((char *)x + 0x36) * 8);

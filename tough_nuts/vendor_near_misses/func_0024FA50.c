@@ -68,11 +68,11 @@ int func_0024FA50(int a0, char *addr, int len) {
     int base;
     int head;
     int r;
-    if (func_00100570(D_005523D4[0]) < 0) {
+    if (PollSema(D_005523D4[0]) < 0) {
         return -0xC8;
     }
     if (D_00717FC0_w[9] == 0) {
-        func_00100540(D_005523D4[0]);
+        SignalSema(D_005523D4[0]);
         return -0x64;
     }
     D_00718040_s.f0 = a0;
@@ -94,15 +94,15 @@ int func_0024FA50(int a0, char *addr, int len) {
             i++;
         } while (i < (unsigned int)D_00718040_s.f14);
     }
-    func_001007A0(0);
-    r = func_00246458(D_00717FC0_w, 6, 1, &D_00718040_s, 0x30, D_00719580, 4, 0, 0);
+    FlushCache(0);
+    r = sceSifCallRpc(D_00717FC0_w, 6, 1, &D_00718040_s, 0x30, D_00719580, 4, 0, 0);
     if (r != 0) {
         goto unlock;
     }
     *(int *)D_005523D0 = 6;
     goto done;
 unlock:
-    func_00100540(D_005523D4[0]);
+    SignalSema(D_005523D4[0]);
 done:
     return r;
 }

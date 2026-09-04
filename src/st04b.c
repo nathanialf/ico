@@ -6,18 +6,18 @@ extern int D_006325B4;
 extern void _ACTWait(int a0);
 extern int func_0012AA80(int a0);
 extern void func_0017B258(int a0);
-extern void func_0017C8C0(int a0);
-extern void func_0017C8F8(int a0);
+extern void scpWakeupEnemyOne(int a0);
+extern void scpSleepEnemyOne(int a0);
 extern void lt_fade_status(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt04bEnd(volatile int a0) {
     if (D_00631AE8 == 0) { _ACTWait(0); }
-    while (scpSleepEnemyOne(a0, D_00631AE4, 100.0f) == 0) { _ACTWait(1); }
+    while (scpTriggerBall(a0, D_00631AE4, 100.0f) == 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     D_006325B4 = 1;
-    func_0017C8F8(0xD7D);
+    scpSleepEnemyOne(0xD7D);
     func_0017B258(0x5D);
     func_0017B258(0x5E);
     stage_KillPlayBgAnimation(0x44, 1, 0);
@@ -25,7 +25,7 @@ void actSt04bEnd(volatile int a0) {
     _ACTWait(1);
     lt_fade_status(0x32);
     D_006325B4 = 0;
-    func_0017C8C0(0xD7D);
+    scpWakeupEnemyOne(0xD7D);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st04b", actSt04bSekizoChk);

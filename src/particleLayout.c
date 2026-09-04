@@ -43,19 +43,19 @@ int ParticleLayoutGeo(int idx)
 }
 
 extern PLDLEntry D_006223D8[];
-extern int func_00265024(void *p, void *buf);
+extern int strcmp(void *p, void *buf);
 
 int ParticleLayoutDL(void *a0) {
     int i;
     for (i = 0; i < 0x35; i++) {
-        if (func_00265024(&D_006223D8[i], a0) == 0) {
+        if (strcmp(&D_006223D8[i], a0) == 0) {
             return i;
         }
     }
     return -1;
 }
 
-int func_001E8DE0(int a0)
+int GetParticleLoopFlag(int a0)
 {
     int *p;
     if (a0 < 0) {

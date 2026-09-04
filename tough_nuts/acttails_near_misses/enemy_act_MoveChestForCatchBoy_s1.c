@@ -14,11 +14,11 @@
 extern void *D_00631AE8__mccb __asm__("D_00631AE8");
 extern int ACTReserveTarget(void *a0, void *a1, int a2);
 extern void actEnemyKidnapBegin(void *a0, float f12);
-extern void func_002641D8(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 extern void func_0010E158(void *self, short y);
 extern void GetHeightOfFieldPlaneDifference(void *a0, void *a1, int a2, int a3, void *a4,
                                             float f12, float f13, float f14, float f15);
-extern void ACTParaStatus_Exec(void *a0);
+extern void ACTGameCollisionOff(void *a0);
 extern void func_001919A0__mccb(void *a0, int a1) __asm__("func_001919A0");
 
 int MoveChestForCatchBoy(void *a0) {
@@ -35,7 +35,7 @@ int MoveChestForCatchBoy(void *a0) {
         return 0;
     }
     actEnemyKidnapBegin(a0, 50.0f);
-    func_002641D8(buf, 0, 0x10);
+    memset(buf, 0, 0x10);
     buf[3] = 1.0f;
     func_0010E158(buf, -0x8000);
     GetHeightOfFieldPlaneDifference(D_00631AE8__mccb, a0, 2,
@@ -43,7 +43,7 @@ int MoveChestForCatchBoy(void *a0) {
         buf, 18.0f, 0.0f, 0.0f, 1.0f);
     s17[0x138 / 4] = (int)D_00631AE8__mccb;
     *(int *)((char *)*(void **)((char *)D_00631AE8__mccb + 0x164) + 0x134) = (int)a0;
-    ACTParaStatus_Exec(D_00631AE8__mccb);
+    ACTGameCollisionOff(D_00631AE8__mccb);
     func_001919A0__mccb(a0, 9);
     func_001919A0__mccb(a0, 7);
     return 1;

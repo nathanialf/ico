@@ -69,8 +69,8 @@ const float D_00553C90[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
 #include "vu0.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00102E08);
-extern void func_002438B8(int *self, int v, char *p);
-extern void func_00243978(int *out, int *src);
+extern void sceVu0ApplyMatrix(int *self, int v, char *p);
+extern void sceVu0Normalize(int *out, int *src);
 
 void func_00102FA0(int *self, int *other, char *p)
 {
@@ -82,11 +82,11 @@ void func_00102FA0(int *self, int *other, char *p)
             char *inner_struct = ((GObj *)(a))->p_15C;
             int inner_field = *(int *)(inner_struct + 0xC);
             int idx = *(int *)(sub + 0x4);
-            func_002438B8(self, inner_field + (idx << 6), p);
+            sceVu0ApplyMatrix(self, inner_field + (idx << 6), p);
         }
     }
     *(int *)((char *)self + 0x4) = 0;
-    func_00243978(self, self);
+    sceVu0Normalize(self, self);
 }
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103018);
 
@@ -112,9 +112,9 @@ void func_00103AD0(int *self, int *a1)
     char *ctx = ((GObj *)(obj))->p_15C;
     func_00105F20(buf, (void *)(*(int *)(ctx + 0xC) + (a1[1] << 6)));
     func_00105E70((char *)buf, (char *)buf);
-    func_002438B8((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520), (int)buf,
+    sceVu0ApplyMatrix((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520), (int)buf,
                   (char *)((GObj *)((char *)self))->p_15C + 0x520);
-    func_00243978((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520),
+    sceVu0Normalize((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520),
                   (int *)((char *)((GObj *)((char *)self))->p_15C + 0x520));
     ((GObj *)((char *)self))->p_15C->f_52C = 0;
 }
@@ -122,12 +122,12 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103B48);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103C48);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103D50);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103F00);
-extern void func_0010DEC0(void *a, void *b, void *c);
+extern void GetMatrixFromQuaternionPos(void *a, void *b, void *c);
 
 void func_001040C0(void *a0, char *src)
 {
     float *p = (float *)(src + 0xA0);
-    func_0010DEC0(a0, src + 0xD0, p);
+    GetMatrixFromQuaternionPos(a0, src + 0xD0, p);
     {
         int *g = *(int **)src;
         if (g) {
@@ -143,7 +143,7 @@ void func_00104140(void *a0, char *outer)
 {
     char *src = ((GObj *)(outer))->p_15C;
     float *p = (float *)(src + 0xA0);
-    func_0010DEC0(a0, src + 0xD0, p);
+    GetMatrixFromQuaternionPos(a0, src + 0xD0, p);
     {
         int *g = *(int **)src;
         if (g) {
@@ -160,7 +160,7 @@ void func_001041C0(void *a0, char *src)
     float f0;
     int *g = *(int **)src;
     if (g) {
-        func_002438B8((int *)a0,
+        sceVu0ApplyMatrix((int *)a0,
                       *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
                       (char *)p);
     } else {
@@ -187,7 +187,7 @@ void func_00104478(void *a0, int a1)
         if (g) {
             func_00105E70((char *)buf,
                           (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src2 + 4) << 6)));
-            func_002438B8((int *)p, (int)buf, (char *)p);
+            sceVu0ApplyMatrix((int *)p, (int)buf, (char *)p);
         }
     }
 }
@@ -198,7 +198,7 @@ void func_00104508(void *a0, char *outer)
     float f0;
     int *g = *(int **)src;
     if (g) {
-        func_002438B8((int *)a0,
+        sceVu0ApplyMatrix((int *)a0,
                       *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
                       (char *)p);
     } else {
@@ -240,7 +240,7 @@ int func_00104638(float *vals, int *flags)
 extern void func_00105E70(char *dst, char *src);
 extern void func_002438E8(char *dst, char *src, int m);
 
-void func_00104698(char *dst, char *src)
+void GetRootMatrixTransOffsetByDObj(char *dst, char *src)
 {
     char tmp[0x40];
     func_00105E70(tmp, src + 0x20);
@@ -248,7 +248,7 @@ void func_00104698(char *dst, char *src)
     func_00105F00((int)dst, (int)(tmp + 0x30));
 }
 
-void func_001046F0(char *dst, char *outer)
+void GetRootMatrixTransOffset(char *dst, char *outer)
 {
     char *src = ((GObj *)(outer))->p_15C;
     char tmp[0x40];
@@ -256,11 +256,11 @@ void func_001046F0(char *dst, char *outer)
     func_002438E8(tmp, tmp, *(int *)(src + 0xC));
     func_00105F00((int)dst, (int)(tmp + 0x30));
 }
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104748);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104818);
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootMotionOrient);
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootMotionMatrix);
 extern void func_001183F0(void *buf, void *p1, float f);
 extern void func_00105F78(void *a, void *b, void *c);
-void func_001048C8(void *a0, void *a1, void *a2)
+void GetProjectionPosOfPlane(void *a0, void *a1, void *a2)
 {
     int buf[4];
     register float dot __asm__("$f12");
@@ -276,7 +276,7 @@ void func_001048C8(void *a0, void *a1, void *a2)
     func_00105F78(a0, a2, buf);
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
-float func_00104940(void *a0, void *a1, void *a2)
+float GetProjectionOfPlane(void *a0, void *a1, void *a2)
 {
     int buf[4];
     float z = 0.0f;
@@ -297,7 +297,7 @@ float func_00104940(void *a0, void *a1, void *a2)
     return dot;
 }
 extern void func_00118388(void *a, void *b, void *c);
-float func_001049C0(void *a0, void *a1, void *a2, float t)
+float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float t)
 {
     int buf[4];
     register float dot __asm__("$f20");

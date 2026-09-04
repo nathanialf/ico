@@ -38,22 +38,22 @@ extern void *ContinueCorrectPosition(int a0);
 extern WpData16 D_0061C100;
 extern void *D_00631AE8;
 extern void func_0017B528(void *a0);
-extern void func_00243AE8(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern void gflagChk(int a0, void *a1);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 
 void actSt22aIntroSub(volatile int a0) {
     WpData16 local10, local20;
     if (D_00631AE8 == 0) {
         _ACTWait(0);
     }
-    while (scpSleepEnemyOne(a0, (int)D_00631AE8, 200.0f) == 0) {
+    while (scpTriggerBall(a0, (int)D_00631AE8, 200.0f) == 0) {
         _ACTWait(1);
     }
     func_0017B528(D_00631AE8);
     _ACTWait(1);
     local10 = D_0061C100;
-    func_00243AE8(&local20, &local10, ContinueCorrectPosition((int)D_00631AE8));
+    sceVu0SubVector(&local20, &local10, ContinueCorrectPosition((int)D_00631AE8));
     gflagChk((int)D_00631AE8, &local20);
     BoySekikaTexScroll((int)D_00631AE8, 0xFD);
 }
@@ -105,7 +105,7 @@ void func_00234448(int x) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234458);
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002344C8);
+INCLUDE_ASM("asm/nonmatchings/src/st22a", actSt13cSekizoJimakuEff);
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234658);
 
@@ -119,9 +119,9 @@ INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002347D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234830);
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234910);
+INCLUDE_ASM("asm/nonmatchings/src/st22a", actSt13dExitR);
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002349E0);
+INCLUDE_ASM("asm/nonmatchings/src/st22a", actSt13dExitL);
 
 void func_00234AB0(void) {}
 

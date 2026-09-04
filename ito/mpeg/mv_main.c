@@ -34,7 +34,7 @@ int movie_init(int *a0, int *a1)
     return diff;
 }
 
-void movie_end(int *a0, int a1)
+void readBufEndPut(int *a0, int a1)
 {
   int size;
   int pos;

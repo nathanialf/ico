@@ -41,7 +41,7 @@ int func_0012FD50(void *a0)
     return tex_textureAnimation(a0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FD70);
+INCLUDE_ASM("asm/nonmatchings/src/ZFog", tex_GetTextureNo);
 
 int *func_0012FE08(int idx)
 {
@@ -53,7 +53,7 @@ int *func_0012FE20(int idx)
     return (int *)((char *)D_006812D0 + idx * 0x2E8);
 }
 
-void func_0012FE38(int *a0, int a1, int a2)
+void tex_SetSamplingType(int *a0, int a1, int a2)
 {
     long long *slot = (long long *)((char *)a0 + 0x78);
     *slot = (*slot & ~(long long)0xE0) | (a1 << 5) | (a2 << 6);
@@ -64,7 +64,7 @@ int *func_0012FE60(int idx)
     return (int *)((char *)D_00681538 + idx * 0x2E8);
 }
 
-short func_0012FE78(int a0)
+short tex_GetVramFreeAddress(int a0)
 {
     return *(short *)((char *)D_00681278 + a0 * 6);
 }
@@ -77,7 +77,7 @@ int func_0012FFE8(void) {
     return D_00633C60;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FFF0);
+INCLUDE_ASM("asm/nonmatchings/src/ZFog", tex_SetUVScroll);
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_00130128);
+INCLUDE_ASM("asm/nonmatchings/src/ZFog", tex_Init);
 

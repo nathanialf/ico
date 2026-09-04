@@ -16,7 +16,7 @@ int warpGirlOutStage(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", warpGirlInStage);
 
-void warpGirlInit(float *dst)
+void ScpCallCameraGetTarget(float *dst)
 {
     dst[0] = D_006CF940[0];
     dst[1] = D_006CF940[1];
@@ -47,11 +47,11 @@ void func_0017EA28(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EA50);
+INCLUDE_ASM("asm/nonmatchings/src/warpGirl", scpTransGObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EAD0);
+INCLUDE_ASM("asm/nonmatchings/src/warpGirl", scpExplodeSecretItem);
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EB50);
+INCLUDE_ASM("asm/nonmatchings/src/warpGirl", scpCheckExistAliveEnemy);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EBD0);
 
@@ -113,15 +113,15 @@ ASM_LIT4_SLOT(D_00630EA4, 4200.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017FF40);
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_001803A8);
+INCLUDE_ASM("asm/nonmatchings/src/warpGirl", actConte13Jimaku);
 ASM_LIT4_SLOT(D_00630EA8, 3100.0f);
 
 extern char D_0055A380[];
-extern void func_0012FFF0(void *a0, float f12, float f13, float f14, float f15,
+extern void tex_SetUVScroll(void *a0, float f12, float f13, float f14, float f15,
                           float f16, float f17, int a1);
 
 void func_00180550(void) {
-    func_0012FFF0(D_0055A380, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
+    tex_SetUVScroll(D_0055A380, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
 }
 
 void func_00180580(volatile unsigned int a0)
@@ -213,13 +213,13 @@ void func_00180788(volatile int a0) {
 }
 
 extern int actInitialize(int a0);
-extern void scpTorchLightOn(int a0, int a1);
+extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 
 void func_001807F0(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
-    scpTorchLightOn(0x786, 0x1A7);
+    scpLinkBGAtoLayoutedTarget(0x786, 0x1A7);
 }
 
 extern int actItouQueenAttackChk(void);
@@ -230,7 +230,7 @@ void func_00180830(volatile int a0) {
     actInitialize(a0);
     _ACTWait(1);
     if (actItouQueenAttackChk() == 5) {
-        scpTorchLightOn(0x786, 0x1A7);
+        scpLinkBGAtoLayoutedTarget(0x786, 0x1A7);
     } else {
         stage_KillPlayBgAnimation(0x1A7, -1, -2);
     }

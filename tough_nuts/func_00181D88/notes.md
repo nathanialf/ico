@@ -40,7 +40,7 @@ glabel func_00181D88
     /* 81DD4 00181DD4 5600063C */  lui        $6, %hi(D_0055A528)
     /* 81DD8 00181DD8 2D200002 */  daddu      $4, $16, $0
     /* 81DDC 00181DDC 28A5C624 */  addiu      $6, $6, %lo(D_0055A528)
-    /* 81DE0 00181DE0 FC8F090C */  jal        func_00263FF0
+    /* 81DE0 00181DE0 FC8F090C */  jal        __assert
     /* 81DE4 00181DE4 00030524 */   addiu     $5, $0, 0x300
 .align 2
   .L00181DE8:
@@ -82,7 +82,7 @@ glabel func_00181D88
     /* 81E6C 00181E6C 180001E6 */   swc1      $f1, 0x18($16)
     /* 81E70 00181E70 20000426 */  addiu      $4, $16, 0x20
     /* 81E74 00181E74 10000526 */  addiu      $5, $16, 0x10
-    /* 81E78 00181E78 BA0E090C */  jal        func_00243AE8
+    /* 81E78 00181E78 BA0E090C */  jal        sceVu0SubVector
     /* 81E7C 00181E7C 2D304002 */   daddu     $6, $18, $0
     /* 81E80 00181E80 080021C6 */  lwc1       $f1, 0x8($17)
     /* 81E84 00181E84 000022C6 */  lwc1       $f2, 0x0($17)

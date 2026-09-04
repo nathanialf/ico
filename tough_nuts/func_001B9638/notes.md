@@ -141,12 +141,12 @@ glabel func_001B9638
     /* B97F0 001B97F0 2D202002 */  daddu      $4, $17, $0
     /* B97F4 001B97F4 2D300002 */  daddu      $6, $16, $0
     /* B97F8 001B97F8 1000A527 */  addiu      $5, $29, 0x10
-    /* B97FC 001B97FC 9261040C */  jal        func_00118648
+    /* B97FC 001B97FC 9261040C */  jal        _ApplyMatrix
     /* B9800 001B9800 FFFF7326 */   addiu     $19, $19, -0x1
     /* B9804 001B9804 10002426 */  addiu      $4, $17, 0x10
     /* B9808 001B9808 2D300002 */  daddu      $6, $16, $0
     /* B980C 001B980C 1000A527 */  addiu      $5, $29, 0x10
-    /* B9810 001B9810 9261040C */  jal        func_00118648
+    /* B9810 001B9810 9261040C */  jal        _ApplyMatrix
     /* B9814 001B9814 10001026 */   addiu     $16, $16, 0x10
     /* B9818 001B9818 F5FF6106 */  bgez       $19, .L001B97F0
     /* B981C 001B981C 50003126 */   addiu     $17, $17, 0x50
@@ -273,7 +273,7 @@ endlabel func_001B9638
 
 The 5-min permuter shot on the 108 seed found the m10 lever (score 5410):
 **reuse the $2-pinned `sel` variable to hold `(int)m10`** —
-`sel = (int)m10; func_00104140(sel,self); ... func_00118648(.., sel, ..)`.
+`sel = (int)m10; func_00104140(sel,self); ... _ApplyMatrix(.., sel, ..)`.
 Because $2 is caller-saved, the calls clobber it, so gcc rematerializes
 `&m10` instead of parking it in a callee-saved -> frame -192 -> -176, the
 whole s4/s5 d-base renumber cascade gone. Re-applied cleanly by hand (the

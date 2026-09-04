@@ -3,12 +3,12 @@
 
 
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00672FD0[];
 extern int D_00672F90[];
 extern int D_00633C3C;
 #include "vu0.h"
-float pac_DispQW(void) {
+float _GetRandom(void) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -21,7 +21,7 @@ float pac_DispQW(void) {
     return ret;
 }
 
-void pac_DumpPac(void *p0)
+void _GetRandomVector(void *p0)
 {
     VU0_REG("vrnext.x $vf1, R");
     VU0_REG("vrnext.y $vf1, R");
@@ -31,7 +31,7 @@ void pac_DumpPac(void *p0)
     VU0_NOP();
 }
 
-void pac_makeBoundingBox(void *p0)
+void _GetRandomVector0(void *p0)
 {
     VU0_REG("vrnext.xyz $vf1, R");
     VU0_V3OP_BC(vsubw.xyz, 1, 1, 0, w);
@@ -39,7 +39,7 @@ void pac_makeBoundingBox(void *p0)
     VU0_NOP();
 }
 
-void pac_error(void *p0, void *p1)
+void _RotTransCurrentMatrix(void *p0, void *p1)
 {
     VU0_LSV(lqc2, 8, 0x0, a1);
     VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
@@ -66,15 +66,15 @@ void pac_error(void *p0, void *p1)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeNormalStrip);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", mc_setBaseOffset);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_getWeight);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", mc_SetMicroCode);
 
 extern int D_00276210[];
 extern int dl_GetPri(void);
 extern void dpk_Init(int a0, int a1, int a2);
 extern int dpk_SwapBuffer(int a0);
-extern void pac_makeNormalStrip(int a0, int a1);
+extern void mc_setBaseOffset(int a0, int a1);
 
 void pac_makeClusterStrip(int a0, int a1) {
     int *q = &D_00276210[a0];
@@ -83,7 +83,7 @@ void pac_makeClusterStrip(int a0, int a1) {
         if ((a1 >> i) & 1) {
             if (a0 != D_00672F90[i]) {
                 D_00633C3C++;
-                pac_makeNormalStrip(a0, i);
+                mc_setBaseOffset(a0, i);
                 dpk_SwapBuffer(i);
                 dpk_Init(5, *q, 0);
                 dl_GetPri();
@@ -128,7 +128,7 @@ extern const char D_00631CD8[];
 extern const char D_00631CE0[];
 extern const char D_00631CE8[];
 extern const char D_00631CF0[];
-extern int func_00263FB0(float);
+extern int fptodp(float);
 
 void pac_setVifEndCode(unsigned char *arg, int slot_size) {
     int is_float = 0;
@@ -138,14 +138,14 @@ void pac_setVifEndCode(unsigned char *arg, int slot_size) {
     case 0:
         is_float = 1;
         slot_size = 4;
-        debug_assertMessage(D_00554DD0, arg);
+        debug_StdPrintfDummy(D_00554DD0, arg);
         break;
     case 1:
     case 2:
     case 4:
     case 8:
     case 16:
-        debug_assertMessage(D_00554DE8, arg, slot_size);
+        debug_StdPrintfDummy(D_00554DE8, arg, slot_size);
         break;
     default:
         return;
@@ -155,30 +155,30 @@ void pac_setVifEndCode(unsigned char *arg, int slot_size) {
         if (!is_float) {
             int col;
             for (col = 0x10 / (0x10 / slot_size) - 1; col >= 0; col--) {
-                debug_assertMessage(D_00631CD8, arg[row * slot_size + col]);
+                debug_StdPrintfDummy(D_00631CD8, arg[row * slot_size + col]);
             }
-            debug_assertMessage(D_00631CE0);
+            debug_StdPrintfDummy(D_00631CE0);
         } else {
-            debug_assertMessage(D_00631CE8, func_00263FB0(((float *)arg)[row]));
+            debug_StdPrintfDummy(D_00631CE8, fptodp(((float *)arg)[row]));
         }
     }
-    debug_assertMessage(D_00631CF0);
+    debug_StdPrintfDummy(D_00631CF0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_setGifTag);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_DumpPac);
 
 const unsigned int D_00554ED0[0x4] = { 0x43960000, 0x43960000, 0x43960000, 0x00000000 };
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_closeTag);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeBoundingBox);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_continueTag);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_error);
 
 const char D_00554FD0[0x10] = "src/Packet.c";
 INCLUDE_RODATA("asm/nonmatchings/src/Packet", jtbl_00554FE0);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_checkDivide);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeNormalStrip);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_countOneVertexPacketSize);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_getWeight);
 ASM_LIT4_SLOT(D_00630A3C, 0.99f);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeStrip);
@@ -203,7 +203,7 @@ void pac_setMaterialPacket(int a0)
     *(float *)(ctx + 0x58) = f1;
     *(float *)(ctx + 0x54) = f1;
     *(float *)(ctx + 0x50) = f1;
-    debug_assertMessage(D_00555190, a0 & mask);
+    debug_StdPrintfDummy(D_00555190, a0 & mask);
 }
 
 void pac_makeMaterialTable(int a0)
@@ -211,7 +211,7 @@ void pac_makeMaterialTable(int a0)
     char *ctx = D_00672FD0;
     *(int *)(*(int *)(ctx + 0x24)) = 0;
     *(int *)(*(int *)(ctx + 0x24) + 4) = (a0 << 16) | 0x6C008000;
-    debug_assertMessage(D_005551A0, *(int *)(*(int *)(ctx + 0x24)),
+    debug_StdPrintfDummy(D_005551A0, *(int *)(*(int *)(ctx + 0x24)),
                         *(int *)(*(int *)(ctx + 0x24) + 4),
                         *(int *)(ctx + 0x24), a0);
 }
@@ -228,23 +228,23 @@ void pac_makeMaterialTableLine(void)
     *(int *)(ctx + 0x2C) = (int)(p + 2);
     p[2] = 0;
     *(int *)(ctx + 0x2C) = (int)(p + 3);
-    debug_assertMessage(p + 3);
+    debug_StdPrintfDummy(p + 3);
 }
 
 const unsigned int D_005551C0[0x8] = { 0x00008000, 0x20004000, 0x00000051, 0x00000000, 0x00008000, 0x30004000, 0x00000512, 0x00000000 };
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_getTextureInfo);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_setGifTag);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeShapeTable);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_closeTag);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makePacket);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_continueTag);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_MakePacket);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_checkDivide);
 
 const char D_005552B8[0x30] = "pac_copyStrip:No Enough Memory for Packet.\n";
 const char D_005552E8[0x20] = "ALL:src:%p => dst:%p (size:%x)\n";
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_Dump);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_countOneVertexPacketSize);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_Init);
 
@@ -256,21 +256,21 @@ ASM_LIT4_SLOT(D_00630A48, 0.50196081f);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B040);
 ASM_LIT4_SLOT(D_00630A4C, 0.50196081f);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B1F0);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_getTextureInfo);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B360);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeShapeTable);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B6D8);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makePacket);
 ASM_LIT4_SLOT(D_00630A50, 0.50196081f);
 
 void func_0011BF40(int a0)
 {
     int v = *(int *)(a0 + 0x820);
     int p = *(int *)(a0 + 0x844);
-    func_0011B6D8(v, *(int *)(p + 0xF0), *(signed char *)(v + 0x2F) > 0);
+    pac_makePacket(v, *(int *)(p + 0xF0), *(signed char *)(v + 0x2F) > 0);
 }
 
-void func_0011BF60(int *a0, int size)
+void pac_Dump(int *a0, int size)
 {
     int *p = a0;
     int count;

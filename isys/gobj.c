@@ -36,7 +36,7 @@ extern char D_006321C8[];
 extern void *D_006A93D0[];
 extern void func_0013DD88(void);
 extern void func_001AD768(char *a0, int a1);
-extern void func_00263FF0(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern void isysGObjInit(int a0);
 extern void isysGObjProcAddS(int a0);
 
@@ -69,7 +69,7 @@ void cut_gobj_link(void) {
                             do {
                                 if (p == 0) {
                                     func_001AD768(file, 0x92);
-                                    func_00263FF0(file, 0x92, D_006321C8);
+                                    __assert(file, 0x92, D_006321C8);
                                 }
                                 p = *(char **)(p + 0x3C);
                             } while (*(char **)(p + 0x3C) != gobj);
@@ -139,7 +139,7 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGetNbAllocedGObjs);
 extern char D_006321C8[];
 extern void *D_006A93D0[];
 extern void func_001AD768(char *a0, int a1);
-extern void func_00263FF0(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern void isysGObjProcAddS(int a0);
 
 void isysGObjAlloc(char *a0) {
@@ -157,7 +157,7 @@ void isysGObjAlloc(char *a0) {
         do {
             if (p == 0) {
                 func_001AD768(D_00557A10, 0x92);
-                func_00263FF0(D_00557A10, 0x92, D_006321C8);
+                __assert(D_00557A10, 0x92, D_006321C8);
             }
             p = *(char **)(p + 0x3C);
         } while (*(char **)(p + 0x3C) != a0);
@@ -175,7 +175,7 @@ init:
 extern int D_006321C0;
 extern void *D_006A93D0[];
 extern void isysGObjKindTableAdd(char *a0);
-extern void *isysGObjSearchFromObjKindID_begin(struct GObj *g);
+extern void *isysGObjSearchFromObjKindID_next(struct GObj *g);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 
 void isysGObjRemove(char *a0, int a1)
@@ -196,7 +196,7 @@ void isysGObjRemove(char *a0, int a1)
             isysGObjKindTableAdd(a0);
             break;
         }
-        isysGObjSearchFromObjKindID_begin((struct GObj *)p);
+        isysGObjSearchFromObjKindID_next((struct GObj *)p);
     }
     *(int *)(a0 + 0xC) = a1;
     if (in_range) {
@@ -217,7 +217,7 @@ extern char D_00557A10[];
 extern char D_006321C8[];
 extern void *D_006A93D0[];
 extern void func_001AD768(char *a0, int a1);
-extern void func_00263FF0(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 
 void isysGObjKindTableAdd(char *a0) {
     int kind = *(int *)(a0 + 0xC);
@@ -233,7 +233,7 @@ void isysGObjKindTableAdd(char *a0) {
         do {
             if (p == 0) {
                 func_001AD768(D_00557A10, 0x92);
-                func_00263FF0(D_00557A10, 0x92, D_006321C8);
+                __assert(D_00557A10, 0x92, D_006321C8);
             }
             p = *(char **)(p + 0x3C);
         } while (*(char **)(p + 0x3C) != a0);
@@ -307,7 +307,7 @@ table:
 
 extern int D_006321C0;
 
-void *isysGObjSearchFromObjKindID_begin(struct GObj *g)
+void *isysGObjSearchFromObjKindID_next(struct GObj *g)
 {
     struct GObj *p;
     struct GObj *end;

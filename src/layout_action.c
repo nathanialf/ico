@@ -27,7 +27,7 @@ extern void func_001B1B90();
 extern int D_00633048;
 extern void iosPadDisable(void);
 extern void func_0017B288(int bit_idx);
-extern void stgmgrForceSwitchWithFade(int val);
+extern void stgmgrNextStagePreLoadForceStageSet(int val);
 extern int D_0063305C;
 extern int D_00633E9C;
 extern void func_0013ED40(int bit, int set);
@@ -37,7 +37,7 @@ extern int D_00275254[];
 extern int lt_set_fade_mode();
 extern int D_00616EE8[];
 extern int D_00616ED8[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", POSITIVE_SE);
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", NEGATIVE_SE);
@@ -109,17 +109,17 @@ int _la_set_current_port_2(void)
 
 int _la_set_current_port_lock_2(int a0, int a1)
 {
-    debug_assertMessage(D_00616ED8);
+    debug_StdPrintfDummy(D_00616ED8);
     return a1;
 }
 
 int _la_set_current_port_new(int a0, int a1)
 {
-    debug_assertMessage(D_00616EE8);
+    debug_StdPrintfDummy(D_00616EE8);
     return a1;
 }
 
-int la_vibe_select(void)
+int la_boot_confirm_memory_card(void)
 {
     if (D_00275254[0] & 0x40) {
         return lt_set_fade_mode(0);
@@ -131,7 +131,7 @@ int la_title_continue_or_new(int a0)
 {
     if (a0 != 0) {
         int v;
-        stgmgrForceSwitchWithFade(0);
+        stgmgrNextStagePreLoadForceStageSet(0);
         v = D_00631A00;
         D_00274ED4[0] = 1;
         D_00633E9C = v;
@@ -182,7 +182,7 @@ int _la_set_preview_info(void) {
     return ret;
 }
 
-int la_load_game_memory_card_check(void) {
+int la_mc_preview_info(void) {
     if (D_00633048 == 0) {
         if ((1 >> D_0063303C) & 1) {
             return -1;
@@ -201,7 +201,7 @@ int la_mc_load_current_slot_select(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_mc_load_file_select);
 
-int la_load_confirm_no_memory_card(void)
+int la_general_mc_confirm(void)
 {
     if (D_00275254[0] & 0x40) {
         return lt_set_item_select_func();
@@ -227,10 +227,10 @@ int la_mc_confirm_save_file(int a0, int a1) {
         __builtin_memcpy(D_00706F10, (char *)D_00280F78, 0x10);
         D_00633048 = 0x3FF;
         func_001B1B90();
-        debug_assertMessage(D_00617170, D_00633048, D_0063303C);
+        debug_StdPrintfDummy(D_00617170, D_00633048, D_0063303C);
     }
     if (a1 != -1) {
-        debug_assertMessage(D_00617188, 0xE9, 0xEA, a1);
+        debug_StdPrintfDummy(D_00617188, 0xE9, 0xEA, a1);
     }
     switch (a1) {
     case 0xE9:
@@ -296,7 +296,7 @@ int la_format_confirm(void)
     return -1;
 }
 
-int la_system_save_processing(int a0) {
+int la_game_loading(int a0) {
     if (a0 != 0) {
         D_00274ED8[0] = 1;
     }

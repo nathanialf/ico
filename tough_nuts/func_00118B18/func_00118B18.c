@@ -113,7 +113,7 @@ void func_00118F58(void);
 void func_00118F98(void);
 extern void func_001A2D78(const char *fmt, char *arg, char *ctx);
 extern void func_001AD768(const char *str, int len);
-extern void func_00263FF0(const char *str, int len, char *ctx);
+extern void __assert(const char *str, int len, char *ctx);
 extern char D_00672FD0[];
 extern char D_00631CF8[];
 void func_00119470(char *self, int idx);

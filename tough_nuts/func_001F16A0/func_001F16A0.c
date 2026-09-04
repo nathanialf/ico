@@ -38,14 +38,14 @@ extern void   func_001F08D8(void);
 extern void   func_001D12D8(int a0);
 extern void   func_001D12A8(int a0, int a1);
 extern short *func_0013A0F8(int handle, int size, char *file, int line);
-extern int    func_00264D60(void);
+extern int    rand(void);
 extern int    func_00105278(void);
 extern int    func_00105F20(int a0, int *a1);
 extern float  func_0010E950(int x);
-extern void   func_00104FC0(int x);
-extern void   func_00104F48(int x);
+extern void   MatrixDrive_RotMatrixY(int x);
+extern void   MatrixDrive_RotMatrixX(int x);
 
-void func_001F1168(void)
+void FreeStreamMotionBuffer(void)
 {
     if (D_00633720 != 0) {
         func_00139598(D_00633720);
@@ -77,7 +77,7 @@ short *func_001F16A0(void)
 {
     int  local_pad[4];
     short *buf = func_0013A0F8(D_00632010, 2, (char *)D_0061A6D8, 0xC);
-    int v = func_00264D60();
+    int v = rand();
     *buf = (short)v;
     if (v < 0)
         local_pad[0] = v + 0xFFFF;
@@ -102,12 +102,12 @@ void func_001F16F8(int *self)
 
     s_val = (int)(short)s0[0];
     a1 = func_0010E950(s_val);
-    func_00104FC0((int)(short)(int)(a1 * scale));
+    MatrixDrive_RotMatrixY((int)(short)(int)(a1 * scale));
 
     s_val = ((int)(short)s0[0]) << 1;
     s_val = (s_val << 16) >> 16;
     a2 = func_0010E950(s_val);
-    func_00104F48((int)(short)(int)(a2 * scale));
+    MatrixDrive_RotMatrixX((int)(short)(int)(a2 * scale));
 
     v0_b = func_00105278();
     func_00105F20(s1[0xC / 4], (int *)v0_b);
@@ -131,7 +131,7 @@ short *func_001F17B0(int *self)
         short *b = buf;
         int i = count;
         do {
-            *b = (short)func_00264D60();
+            *b = (short)rand();
             i--;
             b++;
         } while (i != 0);

@@ -8,12 +8,12 @@ typedef struct { float m[4]; } Vec4;
 
 extern int SetAP1DeadStatus(int *self, int a1);
 extern int D_004BEFA8[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern GObj *D_00631AE4;
-extern void GetRootMatrixByDObj(void *out, GObj *g);
+extern void GetRootPosition(void *out, GObj *g);
 extern void MatrixDrive_TransMatrix(void *out, void *src);
 extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
-extern void func_00118648(void *out, void *m, void *v);
+extern void _ApplyMatrix(void *out, void *m, void *v);
 
 void SetActressLight(GObj *a0) {
     Vec4 r;
@@ -22,9 +22,9 @@ void SetActressLight(GObj *a0) {
     char *o = (char *)GOBJ_SUB(a0)->p_800;
     int *p10 = (int *)(o + 0x10);
     int *p60 = (int *)(o + 0x60);
-    GetRootMatrixByDObj(&r, D_00631AE4);
+    GetRootPosition(&r, D_00631AE4);
     MatrixDrive_TransMatrix(&m, o + 0x230);
-    func_00118648(&v, &m, &r);
+    _ApplyMatrix(&v, &m, &r);
     MatrixDrive_TurnObjectMatrix(o + 0x30, &v);
     p10[1] = 0;
     *(int *)(o + 0x10) = 0;
@@ -42,7 +42,7 @@ INCLUDE_ASM("asm/nonmatchings/src/actressLight", func_001BAB68);
 void func_001BAEE0(int a0)
 {
     int idx = *(int *)(*(int *)(a0 + 0x164) + 0x30);
-    debug_assertMessage(D_004BEFA8[idx]);
+    debug_StdPrintfDummy(D_004BEFA8[idx]);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/actressLight", func_001BAF00);

@@ -2,19 +2,19 @@
 
 
 
-extern void CylinderCollision();
-extern void ClipWallBoxStop(int arg);
-extern void GetRootMatrixByDObj(void *a0, char *outer);
+extern void SetDirectRootPositionNoFitting();
+extern void ClipWall(int arg);
+extern void GetRootPosition(void *a0, char *outer);
 extern float D_004C4760[48];
-extern void playSEConditionID(int a0, int a1);
+extern void ExecuteSEPackage(int a0, int a1);
 void bombSparkStartSE(int a0)
 {
-    playSEConditionID(a0, 0x31);
+    ExecuteSEPackage(a0, 0x31);
 }
 
 void bombSparkSE(int a0)
 {
-    playSEConditionID(a0, 0x32);
+    ExecuteSEPackage(a0, 0x32);
 }
 
 extern char D_00276140[];
@@ -23,12 +23,12 @@ extern char D_00618F68[];
 extern char D_00633420[];
 extern void GetMatrixFromQuaternion(int a0);
 extern void RegularizeQuaternion(void *a0, void *a1);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_00102850(void *a0, int a1);
 extern void func_00102870(int a0, int a1);
-extern void func_0010DDB8(int a0, void *a1, void *a2);
+extern void MultiQuaternion(int a0, void *a1, void *a2);
 extern void func_001AD768(void *a0, int a1);
-extern void func_00263FF0(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 
 void bombExplodeSE(int a0, int a1) {
     char buf0[0x10];
@@ -36,9 +36,9 @@ void bombExplodeSE(int a0, int a1) {
     char *sub;
 
     if (a0 == 0) {
-        debug_assertMessage(D_00618F40);
+        debug_StdPrintfDummy(D_00618F40);
         func_001AD768(D_00618F68, 0x158);
-        func_00263FF0(D_00618F68, 0x158, D_00633420);
+        __assert(D_00618F68, 0x158, D_00633420);
     }
     sub = *(char **)(*(int *)(a0 + 0x15C) + 0x800);
     *(int *)(sub + 0xC) = 1;
@@ -52,7 +52,7 @@ void bombExplodeSE(int a0, int a1) {
     func_00102850(buf0, a0);
     func_00102850(buf1, a1);
     RegularizeQuaternion(buf1, buf1);
-    func_0010DDB8((int)(sub + 0x20), buf1, buf0);
+    MultiQuaternion((int)(sub + 0x20), buf1, buf0);
 }
 
 void HoldItem(void *self, int arg)
@@ -61,12 +61,12 @@ void HoldItem(void *self, int arg)
     if (arg == 0)
         return;
     p = (char *)D_004C4760;
-    GetRootMatrixByDObj(p, arg);
-    GetRootMatrixByDObj(p + 0x10, (int)self);
-    ClipWallBoxStop((int)p);
+    GetRootPosition(p, arg);
+    GetRootPosition(p + 0x10, (int)self);
+    ClipWall((int)p);
     if (*(int *)(p + 0x88) == 0)
         return;
-    CylinderCollision(self, p + 0x20);
+    SetDirectRootPositionNoFitting(self, p + 0x20);
 }
 
 extern char D_004C4740[];

@@ -4,15 +4,15 @@
 
 
 
-extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
+extern void CopyMatrix(void *dst, void *src);
 extern int D_0028B100[];
 extern void func_0010F630();
-extern void gsb_SetFrame();
+extern void gif_SetAlpha();
 extern void gif_SpriteOffset();
 extern float D_006D35C0[];
 extern int D_00274EC0[];
 extern float D_00633DC0;
-int InitMailAdditionalData(int a0)
+int AlignDegGV(int a0)
 {
     if (a0 < -135) a0 = 180;
     else if (a0 < -45) a0 = -90;
@@ -27,9 +27,9 @@ int InitMailAdditionalData(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", ActSendMail_WithAdditionalData);
 
-INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", GetMailAdditionalData);
+INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", HandyCamera_TargetMoveType);
 
-void ClearMailAdditionalData(void)
+void ClearHandCameraCorrect(void)
 {
     int a = D_00274EC0[0];
     int b = D_00274EC0[1];
@@ -42,7 +42,7 @@ void ClearMailAdditionalData(void)
     D_00633DC0 = 60.0f / (float)q;
 }
 
-void func_00194E28(void)
+void InitHandCameraCorrect(void)
 {
     int a = D_00274EC0[0];
     int b = D_00274EC0[1];
@@ -82,7 +82,7 @@ INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_001951A0);
 void func_00195208(void)
 {
     gif_SpriteOffset(0xB);
-    gsb_SetFrame(1, 2, 0x40);
+    gif_SetAlpha(1, 2, 0x40);
 }
 
 void func_00195230(int a0, int a1, int a2, int a3)
@@ -90,11 +90,11 @@ void func_00195230(int a0, int a1, int a2, int a3)
     func_0010F630(a0, a1, a2, a3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00195238);
+INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", _IsInScreen2);
 
 void func_00195350(int a0)
 {
-    MatrixDrive_TurnXObjectMatrixYZ(D_0028B100, a0);
+    CopyMatrix(D_0028B100, a0);
     gif_SpriteOffset(0xB);
 }
 

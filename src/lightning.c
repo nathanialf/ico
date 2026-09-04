@@ -11,7 +11,7 @@ typedef union {
     unsigned int c[4];
     unsigned long long w[2];
 } StructB;
-void set_vertex(void *p0, void *p1, void *p2, void *p3)
+void apply_m34(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 8, 0x0, a2);
     VU0_LSV(lqc2, 4, 0x0, a1);
@@ -24,32 +24,32 @@ void set_vertex(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-extern void func_00198B70(int n, void *a, void *b, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, int c);
-extern void func_00243B60(void *a0, void *a1);
+extern void DrawLightning2(int n, void *a, void *b, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, int c);
+extern void sceVu0CopyVector(void *a0, void *a1);
 
-void DrawLightning2(void *p0, void *p1, void *a2, float f0, float f1, float f2,
+void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2,
                     float f3, float f4, float f5, float f6, float f7, float f8,
                     float f9, int a3) {
     StructB buf[2];
-    func_00243B60(&buf[0], p0);
-    func_00243B60(&buf[1], p1);
-    func_00198B70(2, &buf[0], a2, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, a3);
+    sceVu0CopyVector(&buf[0], p0);
+    sceVu0CopyVector(&buf[1], p1);
+    DrawLightning2(2, &buf[0], a2, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, a3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/lightning", DrawLightningN);
+INCLUDE_ASM("asm/nonmatchings/src/lightning", lightning_test);
 
-int apply_m34(int *self, int *other) {
+int cmpr(int *self, int *other) {
     return *(int *)((char *)self + 0x10) - *(int *)((char *)other + 0x10);
 }
 
-extern void func_00243B18(void *a0, void *a1, float a2);
-extern void func_00243B70(void *a0, void *a1);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern void sceVu0CopyMatrix(void *a0, void *a1);
 
-void DrawLightning(LVec *a0, void *a1, float f) {
-    func_00243B70(a0, a1);
-    func_00243B18(a0, a0, f);
-    func_00243B18(a0 + 1, a0 + 1, f);
-    return func_00243B18(a0 + 2, a0 + 2, f);
+void scale_m34(LVec *a0, void *a1, float f) {
+    sceVu0CopyMatrix(a0, a1);
+    sceVu0ScaleVector(a0, a0, f);
+    sceVu0ScaleVector(a0 + 1, a0 + 1, f);
+    return sceVu0ScaleVector(a0 + 2, a0 + 2, f);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/lightning", func_00199A08);

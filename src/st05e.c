@@ -2,7 +2,7 @@
 
 typedef struct GObjB4 { char pad[0xC4]; int *unkC4; } GObjB4;
 
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern int actSt25aQueenDeadChk(int a0);
 extern int func_0017B230(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
@@ -10,17 +10,17 @@ extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 void actSt05eSolarChk(void) {
     if (func_0017B230(0xEA) == 0) {
         stage_KillPlayBgAnimation(0x127, 0, 0);
-        AddWayPointTop(3, 0);
+        SetWayGroupActive(3, 0);
     } else {
         stage_KillPlayBgAnimation(0x127, 0, -1);
-        AddWayPointTop(3, 1);
+        SetWayGroupActive(3, 1);
     }
     if (func_0017B230(0xEB) == 0) {
         stage_KillPlayBgAnimation(0x128, 0, 0);
-        AddWayPointTop(4, 0);
+        SetWayGroupActive(4, 0);
     } else {
         stage_KillPlayBgAnimation(0x128, 0, -1);
-        AddWayPointTop(4, 1);
+        SetWayGroupActive(4, 1);
     }
     if (func_0017B230(0xE4) == 0) {
         stage_KillPlayBgAnimation(0x129, 0, 0);
@@ -82,15 +82,15 @@ void actSt05eSolarChk(void) {
     }
 }
 
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern int func_0017B230(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt05eWater(void) {
     if (func_0017B230(0xCE) == 0) {
-        AddWayPointTop(5, 0);
+        SetWayGroupActive(5, 0);
     } else {
-        AddWayPointTop(5, 1);
+        SetWayGroupActive(5, 1);
     }
     if (func_0017B230(0xEA) == 0) {
         stage_KillPlayBgAnimation(0x127, 0, 0);
@@ -216,15 +216,15 @@ extern int D_00631AEC;
 extern int D_00633A10;
 extern int D_00633A28;
 extern unsigned char D_00633A2C;
-extern void Shock_Request(int a0, int a1);
+extern void iosPadActVolumeSet(int a0, int a1);
 extern void Vibration_ShotDecode(int a0);
 extern int func_0012AB50(int a0, int a1, int a2);
 extern void func_0017B288(int a0);
 extern int iosPadDevRead(int a0, int a1);
-extern int scpDoorTypeUpUp(int a0);
+extern int scpIsTorchLightOn(int a0);
 
 void actSt05eWaterFlagOn(volatile int a0) {
-    while (scpDoorTypeUpUp(0x518) == 0 || scpDoorTypeUpUp(0x519) == 0 ||
+    while (scpIsTorchLightOn(0x518) == 0 || scpIsTorchLightOn(0x519) == 0 ||
            func_0017B230(0xE1) == 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     D_006325B4 = 1;
@@ -236,7 +236,7 @@ void actSt05eWaterFlagOn(volatile int a0) {
     _ACTWait(1);
     D_00633A28 = iosPadDevRead(D_00631AEC, 0xA);
     D_00633A2C = 0x80;
-    Shock_Request(D_00633A28, 0x80);
+    iosPadActVolumeSet(D_00633A28, 0x80);
     while (func_0012AB50(0x114, 0xBE, 0) == 0) { _ACTWait(1); }
     _ACTWait(1);
     Vibration_ShotDecode(D_00633A28);

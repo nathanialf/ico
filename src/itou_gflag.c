@@ -1,7 +1,7 @@
 #include "common.h"
 
 
-extern void effect_end_func();
+extern void itou_boss_gflag_init();
 extern void *InitParticleLayoutGeo(void);
 
 void itouGFlagInit(void) {
@@ -11,15 +11,15 @@ void itouGFlagInit(void) {
 
 void itouGflagLoad(int a0, int a1, int a2, int a3)
 {
-    effect_end_func(a0, a1, a2, a3);
+    itou_boss_gflag_init(a0, a1, a2, a3);
 }
 
 void itouGflagSave(int a0, int a1, int a2, int a3)
 {
-    effect_end_func(a0, a1, a2, a3);
+    itou_boss_gflag_init(a0, a1, a2, a3);
 }
 
 void func_00198430(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_gflag", func_00198438);
+INCLUDE_ASM("asm/nonmatchings/src/itou_gflag", m33_to_quat);
 

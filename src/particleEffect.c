@@ -11,7 +11,7 @@ extern void MatrixDrive_TurnObjectMatrix();
 extern void GetInverseQuaternion();
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffectGeometry);
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffect);
+INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DispMultiBgaManagerWithKind);
 
 void execParticleEffect(int a0, int a1, int a2)
 {
@@ -29,12 +29,12 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectUpperLimit);
 
 extern char D_00619E40[];
 extern struct PE_elem D_007097F0[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
 void ExecParticleEffects(int a0, int a1, int a2) {
     if (a0 >= 0) {
         if (D_007097F0[a0].f0 == 0) {
-            debug_assertMessage(D_00619E40);
+            debug_StdPrintfDummy(D_00619E40);
         } else {
             execParticleEffect(D_007097F0[a0].f14, a1, a2);
         }
@@ -62,14 +62,14 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DispParticleEffects);
 
 extern PE160 D_004C5F40;
 extern char D_00619E80[];
-extern void func_00264128(void *dst, int *a1, int a2);
+extern void memcpy(void *dst, int *a1, int a2);
 
 void InitParticleEffects(int a0, int *a1, int a2) {
     *(PE160 *)((unsigned char *)D_0070A3F0 + a0 * 0xA0) = D_004C5F40;
     if (*(int *)&D_004C5F40 != *a1) {
-        debug_assertMessage(D_00619E80, *a1);
+        debug_StdPrintfDummy(D_00619E80, *a1);
     }
-    func_00264128(((unsigned char *)D_0070A3F0 + a0 * 0xA0), a1, a2);
+    memcpy(((unsigned char *)D_0070A3F0 + a0 * 0xA0), a1, a2);
 }
 
 typedef struct { char c[0x18]; } Blob24;

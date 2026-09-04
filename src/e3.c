@@ -79,7 +79,7 @@ void actE3CapsuleDemoCancel(volatile int a0){ int x=a0;
 extern int D_004D0B70[];
 extern int D_00631AE4;
 extern int D_006325B4;
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f0);
+extern void scpFadeOut(int a0, int a1, int a2, float f0);
 extern int actSt25aQueenDeadChk(int a0);
 extern void func_0017B528(int a0);
 extern void func_00209440();
@@ -96,7 +96,7 @@ void actE3CapsuleDemo(volatile int a0){
     D_006325B4 = 1;
     func_0017B528(D_00631AE4);
     gflagOff(D_00631AE4, 0);
-    actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+    scpFadeOut(0, 0, 0, 255.0f);
     stage_KillPlayBgAnimation(0xEE, 0, 0);
     stage_KillPlayBgAnimation(0xF1, 0, 0);
     D_004D0B70[1] = (int)func_00209440;
@@ -107,7 +107,7 @@ void actE3CapsuleDemo(volatile int a0){
 
 extern int D_006338F0;
 extern int D_00633F90;
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern int actCreateSubThread(void *fn, int a1);
 extern void actEnemySleep();
 extern void func_0017B258(int a0);
@@ -121,7 +121,7 @@ void actE3St13cInit(volatile int a0) {
     while (D_006338F0 == 0) {
         _ACTWait(1);
     }
-    actConte11Jimaku(6.0f);
+    scpFadeIn(6.0f);
     D_00633F90 = actCreateSubThread(actEnemySleep, 0x15);
 }
 
@@ -132,7 +132,7 @@ extern int D_006325B4;
 extern int D_00633060;
 extern int func_0012AA80(int a0);
 extern void func_0017B568(int a0);
-extern void func_00243AE8(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern void gflagChk(int a0, void *a1);
 extern void gflagOff(int a0, int a1);
 extern void lt_fade_status(int a0);
@@ -144,7 +144,7 @@ void actE3CageFall(volatile int a0){
     _ACTWait(1);
     gflagOff(D_00631AE4, 0);
     local10 = D_0061B810;
-    func_00243AE8(&local20, &local10, ContinueCorrectPosition(D_00631AE4));
+    sceVu0SubVector(&local20, &local10, ContinueCorrectPosition(D_00631AE4));
     gflagChk(D_00631AE4, &local20);
     func_0017B568(D_00631AE4);
     D_006325B4 = 0;
@@ -213,7 +213,7 @@ extern int D_006338F4;
 extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 
-void actE3St09aSekizo(volatile int a0) {
+void actE3CageFallReadyChk(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     D_006338F4 = 0;
@@ -245,7 +245,7 @@ void actE3St09aSekizoChk(volatile int a0) {
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3GateChk);
 
 extern int D_004D0B90[];
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f0);
+extern void scpFadeOut(int a0, int a1, int a2, float f0);
 extern void actTitleShortCut();
 
 void actE3GateDemo(volatile int a0){
@@ -256,7 +256,7 @@ void actE3GateDemo(volatile int a0){
         if (func_0017B230(0x138) == 0) {
             lt_fade_status(0x33);
             D_006325B4 = 1;
-            actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+            scpFadeOut(0, 0, 0, 255.0f);
             stage_KillPlayBgAnimation(0x2FE, 0, 0);
             stage_KillPlayBgAnimation(0x1F, 0, -1);
             stage_KillPlayBgAnimation(0x19, 0, 0);
@@ -271,7 +271,7 @@ void actE3GateDemo(volatile int a0){
     }
 }
 
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern void RequestStageChange(int a0, int a1, int a2, float f12, float f13);
 extern int actSt25aQueenDeadChk(int a0);
 extern void func_0012ABE0(int a0, int a1);
 extern void func_0017B528(int a0);
@@ -305,7 +305,7 @@ void actE3GateJimaku(volatile int a0){
     gflagOff(actSt25aQueenDeadChk(0x904), 0x301);
     while (func_0012AA80(0x2ED) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    actSt25aQueenDead(2, D_00631AE4, 0, 1.0f, 8.0f);
+    RequestStageChange(2, D_00631AE4, 0, 1.0f, 8.0f);
 }
 
 extern int D_004D0BB0[];
@@ -321,7 +321,7 @@ void actE3St01bInit(volatile int a0){
     if (D_00631AE4 != 0) gflagOff(D_00631AE4, 0);
     lt_fade_status(0x33);
     D_006325B4 = 1;
-    actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+    scpFadeOut(0, 0, 0, 255.0f);
     scpPlayMotDir(3, 0, 0x1E3, 0);
     func_0012ABE0(0x1E3, 1);
     stage_KillPlayBgAnimation(0x1E3, 1, 0);
@@ -338,7 +338,7 @@ void actE3St01bInit(volatile int a0){
     _ACTWait(0);
 }
 
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern void RequestStageChange(int a0, int a1, int a2, float f12, float f13);
 extern int actSt25aQueenDeadChk(int a0);
 extern void func_0017B528(int a0);
 extern int stage_DispBgAnimation(int a0, int a1);
@@ -371,7 +371,7 @@ void actE3Warning(volatile int a0){
     _ACTWait(1);
     func_0017B568(D_00631AE4);
     lt_fade_status(0x32);
-    actSt25aQueenDead(3, D_00631AE4, 0, 1.0f, 8.0f);
+    RequestStageChange(3, D_00631AE4, 0, 1.0f, 8.0f);
 }
 
 extern int D_004D0C30[];

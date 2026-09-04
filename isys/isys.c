@@ -35,7 +35,7 @@ void func_0013F888(void *a0)
     }
 }
 
-void func_0013F8C0(void *a0)
+void isysGObjProcRemoveAll(void *a0)
 {
     void *p = *(void **)((char *)a0 + 0x2C);
     while (p != 0) {
@@ -44,7 +44,7 @@ void func_0013F8C0(void *a0)
     }
 }
 
-void func_0013F8F8(int a0)
+void isysGObjProcThreadSleep(int a0)
 {
     while (a0 != 0) {
         iosThreadCancelWakeup(0);
@@ -52,12 +52,12 @@ void func_0013F8F8(int a0)
     }
 }
 
-int func_0013F930(int a, int b, int c, int d, int e)
+int isysGObjProcAddSGOppArg(int a, int b, int c, int d, int e)
 {
     return isysGObjProcessAlloc(a, 0, b, c & 0xFF, d, e);
 }
 
-void func_0013F960(void *a0, int a1)
+void isysGObjProcActivePtr(void *a0, int a1)
 {
     int *p = *(int **)((char *)a0 + 0x2C);
     while (p != 0) {

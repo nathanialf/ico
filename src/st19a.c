@@ -13,9 +13,9 @@ typedef struct ActB4Obj {
 
 
 extern int D_0061C0D0[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_0017B258(int bit_idx);
-extern void AddWayPointTop();
+extern void SetWayGroupActive();
 extern int func_0017B230(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
 extern void _ACTWait(int a0);
@@ -189,7 +189,7 @@ void actSt19aChainSwitch(volatile int a0) {
 void actSt19bIntroChk(void)
 {
     if (func_0017B230(0x14) != 0) {
-        AddWayPointTop(9, 0);
+        SetWayGroupActive(9, 0);
     }
 }
 
@@ -198,7 +198,7 @@ void func_00231AF8(void)
     if (func_0017B230(0x1D) != 0) {
         return;
     }
-    debug_assertMessage(D_0061C0D0);
+    debug_StdPrintfDummy(D_0061C0D0);
     func_0017B258(0x165);
 }
 

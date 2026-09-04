@@ -1,4 +1,4 @@
-extern void func_001A9EE8(void);
+extern void debug_ClearFontWindow(void);
 extern void func_001A3C38(int a0);
 extern int D_00632C90;
 extern int D_00632C94;
@@ -10,7 +10,7 @@ extern int D_00632D44;
 
 void func_001A3340(void)
 {
-    func_001A9EE8();
+    debug_ClearFontWindow();
     D_00632C90 = 0;
     D_00632C94 = 0;
     D_00632C98 = 0;

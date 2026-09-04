@@ -6,14 +6,14 @@ extern void new_segment(int *self);
 extern int D_00633C7C;
 extern char D_006A5C80[];
 extern char D_00556AE8[];
-extern void debug_assertMessage();
-extern int func_0024DAB8(int a0, int a1, int a2, void *a3);
+extern void debug_StdPrintfDummy();
+extern int sceCdStRead(int a0, int a1, int a2, void *a3);
 
-int inflate_start(int a0, int a1, int a2, int *a3) {
+int iosCdvdDirectStRead(int a0, int a1, int a2, int *a3) {
     int local, result;
     *a3 = 0;
-    result = func_0024DAB8(a2 >> 11, a1, 1, &local) << 11;
-    if (local != 0) { debug_assertMessage(D_00556AE8, local); *a3 = 1; }
+    result = sceCdStRead(a2 >> 11, a1, 1, &local) << 11;
+    if (local != 0) { debug_StdPrintfDummy(D_00556AE8, local); *a3 = 1; }
     return result;
 }
 
@@ -28,7 +28,7 @@ long long close_inflate_handler(void *a0, int a1, int *a2, int a3) {
     return n;
 }
 
-void inflate(void)
+void iosCdvdBackGroundMgrInit(void)
 {
     char *p = D_006A5C80;
     int i;
@@ -42,17 +42,17 @@ void inflate(void)
 
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00133608);
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", open_inflate_handler);
+INCLUDE_ASM("asm/nonmatchings/ios/inflate", huft_build);
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", fill_inbuf);
+INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_codes);
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", huft_free);
+INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_stored);
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_001348F0);
+INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_fixed);
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00134B50);
+INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_dynamic);
 
-void func_00135468(void *a0)
+void inflate_start(void *a0)
 {
     int *w = (int *)((char *) a0 + 0x18000);
     w[0x78 / 4] = -1;
@@ -72,9 +72,9 @@ void func_00135468(void *a0)
 
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_001354B8);
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00135580);
+INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate);
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00135A48);
+INCLUDE_ASM("asm/nonmatchings/ios/inflate", open_inflate_handler);
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00135AD8);
+INCLUDE_ASM("asm/nonmatchings/ios/inflate", fill_inbuf);
 

@@ -11,32 +11,32 @@ extern void func_00132DC0();
 extern int  D_00633CB8[2];
 extern int  D_006A94E0[];
 extern int  D_00633CC0;
-extern int func_0025DF50(unsigned long long a0);
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmStop);
+extern int SgStAdpcmStop(unsigned long long a0);
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", adpcmTickProc2);
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmOpen);
 
 extern char D_00557BF8[];
-extern extern void debug_assertMessage();
-extern void func_0025DEF0(long long a0);
+extern extern void debug_StdPrintfDummy();
+extern void SgStAdpcmPlay(long long a0);
 
-void AdpcmClose(void *a0) {
-    debug_assertMessage(D_00557BF8);
-    func_0025DEF0(*(long long *)((char *)a0 + 0x30));
+void AdpcmPlay(void *a0) {
+    debug_StdPrintfDummy(D_00557BF8);
+    SgStAdpcmPlay(*(long long *)((char *)a0 + 0x30));
 }
 
-void AdpcmInterStereoVolumeSet(int a0)
+void AdpcmStop(int a0)
 {
-    func_0025DF50(*(long long *)(a0 + 0x30));
+    SgStAdpcmStop(*(long long *)(a0 + 0x30));
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmInterLeaveVolumeSet);
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmVolumeSet);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", adpcmPauseRequest);
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmInterStereoVolumeSet);
 
-extern void adpcmPauseRequest(void *a0, int a1, int a2);
+extern void AdpcmInterStereoVolumeSet(void *a0, int a1, int a2);
 
 void AdpcmIopBuffAlloc(int a0, int a1, int a2) {
     char *b = *(char **)(a0 + 0x2C);
@@ -44,7 +44,7 @@ void AdpcmIopBuffAlloc(int a0, int a1, int a2) {
     short *r = (short *)(b + a1 * 4);
     q[0x20] = a2;
     r[0x1E] = a2;
-    adpcmPauseRequest(b, a1 * 2, a2);
+    AdpcmInterStereoVolumeSet(b, a1 * 2, a2);
 }
 
 void AdpcmOpenSync(int a0, int a1) {
@@ -55,9 +55,9 @@ void AdpcmFadeCloseAll(int val) {
     D_00633CC0 = val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140B78);
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmStreamHeap);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140BE0);
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmStreamInit);
 
 extern char D_00557B90[];
 extern int D_00633CB0;
@@ -69,33 +69,33 @@ int AdpcmUseAreaGet(void) {
             goto found;
         }
     }
-    debug_assertMessage(D_00557B90);
+    debug_StdPrintfDummy(D_00557B90);
     return 0;
 found:
     D_00633CB8[i] = 1;
     return D_00633CB0 + i * 0x5C000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140D58);
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmNotUseIopAreaFree);
 
 extern int *AdpcmOpen(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
 extern char D_00557C20[];
 extern char D_00557C30[];
 extern void func_00133500(int a, int b);
-extern void iosCdvdBackGroundMgrEntryNum(int x);
+extern void iosCdvdBackGroundMgrDelete(int x);
 
 int *AdpcmFreeAreaGet(int *self)
 {
     int *r;
-    debug_assertMessage((int *)D_00557C20);
+    debug_StdPrintfDummy((int *)D_00557C20);
     if (self[5] != 0) goto body;
     return 0;
 body:
     if (((int *)self[5])[0x40] != 0) {
         return (int *)-1;
     }
-    debug_assertMessage((int *)D_00557C30);
-    iosCdvdBackGroundMgrEntryNum(self[5]);
+    debug_StdPrintfDummy((int *)D_00557C30);
+    iosCdvdBackGroundMgrDelete(self[5]);
     r = AdpcmOpen(0, self[1], 0x11, self[2], 0, self[3], self[4]);
     func_00133500(((int *)r[11])[10], 0x5C000);
     return r;
@@ -143,12 +143,12 @@ int AdpcmVolumeGet(void)
     return count;
 }
 
-/* A 2-parameter declaration of adpcmPauseRequest.  The ROM proves the two
+/* A 2-parameter declaration of AdpcmInterStereoVolumeSet.  The ROM proves the two
  * declarations really coexisted: AdpcmIopBuffAlloc above sets $4/$5/$6 at its
  * call, while both calls below set only $4/$5.  sound/adpcm_init is a splat
  * blob spanning more than one original file, so both have to live here and
  * the alias is the only way to spell the second one. */
-extern void adpcmPauseRequest__p4(short *p, int doubled_idx) __asm__("adpcmPauseRequest");
+extern void adpcmPauseRequest__p4(short *p, int doubled_idx) __asm__("AdpcmInterStereoVolumeSet");
 
 void GetDitchPosition(void)
 {
@@ -177,13 +177,13 @@ short ACTGetEnvironment(char *self) {
     return *(short *)(*(char **)(self + 0x2C) + 0x3C);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", ACTSetEnvAllmighty);
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", adpcmTickProc);
 
 void GetSofaPosition(void) {}
 
 void GetCollisCenterPositionSimple(void) {}
 
-int CheckWallAttributeEdegWall(int a0, int a1)
+int adpcmOpenProc(int a0, int a1)
 {
     func_00132DC0(a0, *(int *)(a1 + 0xC), 0x5C000);
     return 1;

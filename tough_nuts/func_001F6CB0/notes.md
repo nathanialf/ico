@@ -45,7 +45,7 @@ glabel func_001F6CB0
     /* F6CF8 001F6CF8 6300063C */  lui        $6, %hi(D_00633788)
     /* F6CFC 001F6CFC 2D200002 */  daddu      $4, $16, $0
     /* F6D00 001F6D00 8837C624 */  addiu      $6, $6, %lo(D_00633788)
-    /* F6D04 001F6D04 FC8F090C */  jal        func_00263FF0
+    /* F6D04 001F6D04 FC8F090C */  jal        __assert
     /* F6D08 001F6D08 74010524 */   addiu     $5, $0, 0x174
     /* F6D0C 001F6D0C 90AE838F */  lw         $3, %gp_rel(D_00633780)($gp) /* gp_rel: (D_00633780) */
 .align 2

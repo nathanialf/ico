@@ -22,9 +22,9 @@ void ACTGetWish_FromPad(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/act-wish", func_0014B5B8);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-wish", func_0014B660);
+INCLUDE_ASM("asm/nonmatchings/src/act-wish", ActGame_GetOrientQ);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-wish", func_0014B708);
+INCLUDE_ASM("asm/nonmatchings/src/act-wish", _GetRootObjectOrient);
 
 void func_0014B768(int a0)
 {
@@ -63,9 +63,9 @@ int func_0014B858(char *self) {
     return *(int *)(sub + 0x30) == 0x64;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-wish", func_0014B870);
+INCLUDE_ASM("asm/nonmatchings/src/act-wish", ACTCheckCollis_VIEW);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-wish", func_0014B970);
+INCLUDE_ASM("asm/nonmatchings/src/act-wish", ACTCheckViewClDetail);
 
 void func_0014BB00(int a0)
 {
@@ -76,7 +76,7 @@ void func_0014BB00(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/act-wish", func_0014BB20);
 
-void func_0014BBF0(int a0)
+void GetGirlPositionAtThisStage(int a0)
 {
     int buf[4];
     int v0 = DispIcoMisc(buf);

@@ -6,13 +6,13 @@ typedef struct { int x, y, w, h; } FR;
 
 
 extern int func_001AA688();
-extern void func_00100250();
+extern void RemoveDmacHandler();
 extern int func_00100230();
 extern void func_00100B40();
 extern unsigned int D_00632A0C;
-extern void func_00268DA0();
-extern int func_0026527C();
-extern void func_00247C30();
+extern void vsprintf();
+extern int strlen();
+extern void sceWrite();
 extern int D_00632A04;
 typedef struct { int f_0; char _4[0x14]; } DbgSlot;
 extern DbgSlot D_006E4890[];
@@ -26,16 +26,16 @@ extern char D_006329F8[];
 extern char D_00632A00[];
 extern void func_001AD748(char *a0, int a1, char *a2);
 extern void func_001AD768(char *a0, int a1);
-extern void func_00263FF0(char *a0, int a1, char *a2);
-extern void func_00268DA0(char *buf, const char *fmt, void *va);
+extern void __assert(char *a0, int a1, char *a2);
+extern void vsprintf(char *buf, const char *fmt, void *va);
 
 void debug_openLog(const char *fmt, ...) {
     char buf[0x100];
-    func_00268DA0(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
+    vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
     func_001AD748(D_006149A8, 0x503, buf);
-    func_00263FF0(D_006149A8, 0x503, D_006329F8);
+    __assert(D_006149A8, 0x503, D_006329F8);
     func_001AD768(D_006149A8, 0x504);
-    func_00263FF0(D_006149A8, 0x504, D_00632A00);
+    __assert(D_006149A8, 0x504, D_00632A00);
 }
 
 void debug_LogPrintf(void) {
@@ -47,19 +47,19 @@ void debug_LogPrintf(void) {
 void func_001A2E28(const char *fmt, ...) {
     char buf[0x100];
     void *info;
-    func_00268DA0(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
-    info = func_0026527C(buf);
-    func_00247C30(D_00632A04, buf, info);
+    vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
+    info = strlen(buf);
+    sceWrite(D_00632A04, buf, info);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2E80);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2FA0);
 
-void debug_VariableInit(void)
+void debug_SetDmaCallback(void)
 {
     if ((int)D_00632A0C != -1) {
-        func_00100250(1, D_00632A0C);
+        RemoveDmacHandler(1, D_00632A0C);
     }
     D_00632A0C = func_00100230(1, (int)func_001AA688, -1);
     func_00100B40(1);
@@ -81,12 +81,12 @@ extern int D_00632A30;
 extern int D_00632CBC;
 extern void debug_PrintFont(char *str, int x, int y, int r, int g, int b, int sz);
 extern void func_0010F630(void);
-extern void func_001101E0(void *a0, unsigned int a1, int a2, void *a3, int a4);
+extern void gif_Sprite(void *a0, unsigned int a1, int a2, void *a3, int a4);
 extern void gif_SpriteOffset(int a0);
 extern int gif_SpriteSensitiveOrg(void);
 extern void gsb_KeepFrameBuffer(int a0);
-extern void gsb_Reduction(int a0);
-extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void gif_SetZTest(int a0);
+extern void gif_SetAlpha(int a0, int a1, int a2);
 
 void debug_FlushFontWindow(int a0, int a1, int a2, char *a3) {
     FR buf[2];
@@ -94,7 +94,7 @@ void debug_FlushFontWindow(int a0, int a1, int a2, char *a3) {
 
     buf[1].x = a0 - 0x142;
     buf[1].y = a1 - 0x71;
-    r = func_0026527C(a3);
+    r = strlen(a3);
     buf[1].h = 9;
     buf[1].w = r * 0xC + 4;
     buf[0] = buf[1];
@@ -104,15 +104,15 @@ void debug_FlushFontWindow(int a0, int a1, int a2, char *a3) {
     }
     if (D_00632CBC & 2) {
         gif_SpriteOffset(0xB);
-        gsb_Reduction(0);
+        gif_SetZTest(0);
         gsb_KeepFrameBuffer(0);
-        gsb_SetFrame(1, 2, 0x80);
-        func_001101E0(&buf[0], 0xFFFFFFFDU, 0, &D_00632A30, 1);
+        gif_SetAlpha(1, 2, 0x80);
+        gif_Sprite(&buf[0], 0xFFFFFFFDU, 0, &D_00632A30, 1);
         func_0010F630();
     } else {
         gif_SpriteOffset(0xB);
-        gsb_Reduction(0);
-        gsb_SetFrame(1, 2, 0x80);
+        gif_SetZTest(0);
+        gif_SetAlpha(1, 2, 0x80);
         func_0010F630();
     }
     debug_PrintFont(a3, a0, a1, (unsigned) a2 >> 24, ((unsigned) a2 >> 16) & 0xFF, ((unsigned) a2 >> 8) & 0xFF, 0x70);

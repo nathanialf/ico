@@ -28,7 +28,7 @@ int display_texture_fade_cancel_chk(int a0) {
     return 0x33;
 }
 
-extern void Vibration_WaveDecode(void);
+extern void iosPadActStopAll(void);
 extern int InitStageLight(void);
 extern int lt_set_item_select_func(void);
 extern void kanbanBootMcCheck(int a0);
@@ -38,7 +38,7 @@ int lt_analog2Pad(int a0) {
     int v;
     if (a0 != 0) {
         D_00274ED4[0] = 1;
-        Vibration_WaveDecode();
+        iosPadActStopAll();
     }
     if (InitStageLight() != 2) {
         return -1;
@@ -64,19 +64,19 @@ int lt_analog2Pad(int a0) {
 }
 
 extern int D_00633044;
-extern void StageManager(float a0, float a1, int a2);
+extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
 extern int fightSoundClose(void);
 
-int default_item_select(void) {
+int la_switching_stage(void) {
     if (fightSoundClose() == 0) {
-        StageManager(0.4f, 4.0f, D_00633044);
+        stgmgrForceSwitchWithFade(0.4f, 4.0f, D_00633044);
     }
     return -1;
 }
 
 extern int lt_set_item_select_func(void);
 
-int texture_fading(void)
+int la_save_confirm_yesno(void)
 {
     if (D_00275254[0] & 0x10) {
         return lt_set_item_select_func();
@@ -84,7 +84,7 @@ int texture_fading(void)
     return -1;
 }
 
-int func_001B59D0(int idx)
+int PSH_POSITIVE_OR_NEGATIVE(int idx)
 {
     int v = D_00275250[idx].flags;
     if ((v & 0x40) != 0) goto one;
@@ -98,7 +98,7 @@ zero:
 extern struct S40 D_00281180;
 extern struct S40 D_00616EF8;
 
-void display_primary_texture_layout(void) {
+void keyconfig_reset(void) {
     struct S40 tmp;
     tmp = D_00616EF8;
     D_00281180 = tmp;

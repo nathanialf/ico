@@ -7,8 +7,8 @@
 
 
 extern void func_0010F630();
-extern void gsb_SetFrame();
-extern void gif_Line();
+extern void gif_SetAlpha();
+extern void gif_Draw2DStripG();
 extern void gif_SpriteOffset();
 extern void file_Init();
 typedef struct { int _0, _4; float f8; int _c, _10; } EyeParam;
@@ -91,14 +91,14 @@ float DispEnemyEye(void *a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", ResetEnemyEye);
 
-extern void GetRootMatrixByDObj(void *dst, int *src);
+extern void GetRootPosition(void *dst, int *src);
 extern void func_00102850(void *dst, int *src);
 extern int func_001E8B48(int a, void *b, void *c);
 
-void moveDataElements(int *self)
+void SetEnemyStonizedVisual(int *self)
 {
     int local[8];
-    GetRootMatrixByDObj(local, self);
+    GetRootPosition(local, self);
     func_00102850(&local[4], self);
     func_001E8B48(0x31, local, &local[4]);
     ((GObj *)self)->f_16C = 0;
@@ -125,8 +125,8 @@ INCLUDE_ASM("asm/nonmatchings/src/enemyParts", func_001CF790);
 int func_001CF8D0(int *self)
 {
     gif_SpriteOffset(self[0]);
-    gsb_SetFrame(1, self[0xD], 0x80);
-    gif_Line(self[3], self[4], self[1] * 2, 1);
+    gif_SetAlpha(1, self[0xD], 0x80);
+    gif_Draw2DStripG(self[3], self[4], self[1] * 2, 1);
     func_0010F630();
     return 1;
 }

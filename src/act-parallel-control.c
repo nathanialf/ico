@@ -57,7 +57,7 @@ int ActPara_StatusToFlag(char *self, int bit) {
     return (*(int *)(sub + 0x90) >> bit) & 1;
 }
 
-void ActPara_DebugOut(int **a0) {
+void _ACTCharStatus_Init(int **a0) {
     long long *p = (long long *)a0[0x59];
     p[0xB] = 0;
     p[0xC] = 0;
@@ -96,7 +96,7 @@ void func_0014B330(char *self, unsigned int a1, float v)
     *(unsigned int *)(p + 0x54) = a1;
 }
 
-float func_0014B358(int idx)
+float _ACTGame_GetParamF(int idx)
 {
     return D_002924B0[idx];
 }

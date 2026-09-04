@@ -63,8 +63,8 @@ void WeaponCurPos(int *self, int *other, int a2)
     ((int *)other[0x15C / 4])[0x630 / 4] = (int)self;
 }
 
-extern void GetRootMatrixByDObj(void *buf, void *obj);
-extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void GetRootPosition(void *buf, void *obj);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 
 void *WeaponHitEffect(void *a0, float radius) {
@@ -74,7 +74,7 @@ void *WeaponHitEffect(void *a0, float radius) {
     char *obj;
 
     obj = (char *)isysGObjSearchFromObjLayoutID(0xE);
-    GetRootMatrixByDObj(buf, a0);
+    GetRootPosition(buf, a0);
     while (obj != 0) {
         if (obj != (char *)a0) {
             char *sub = *(char **)(obj + 0x15C);
@@ -100,7 +100,7 @@ void *WeaponHitEffect(void *a0, float radius) {
                 }
             }
         }
-        obj = (char *)isysGObjSearchFromObjKindID_begin(obj);
+        obj = (char *)isysGObjSearchFromObjKindID_next(obj);
     }
     return best;
 }
@@ -187,7 +187,7 @@ float CheckSwapableWeapon(void *a0) {
 }
 
 extern void IsTorchLightOn(int a0, void *a1);
-extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 
 void ReleaseWeapon(void *a0) {
@@ -202,7 +202,7 @@ void ReleaseWeapon(void *a0) {
                     IsTorchLightOn(base[i], a0);
                 }
             }
-            g = isysGObjSearchFromObjKindID_begin(g);
+            g = isysGObjSearchFromObjKindID_next(g);
         } while (g != 0);
     }
 }

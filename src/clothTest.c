@@ -2,7 +2,7 @@
 
 
 #include "vu0.h"
-void InitClothTestGeo(void *p0)
+void getXZLengthSquare(void *p0)
 {
     VU0_LSV(lqc2, 4, 0x0, a0);
     VU0_V3OP(vmul.xz, 4, 4, 4);
@@ -12,7 +12,7 @@ void InitClothTestGeo(void *p0)
     VU0_NOP();
 }
 
-void ClothTestGeo(void *p0, void *p1, void *p2, void *p3)
+void subAndGetInvLength(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -29,7 +29,7 @@ void ClothTestGeo(void *p0, void *p1, void *p2, void *p3)
     VU0_NOREORDER_END();
 }
 
-void ClothTestDL(void *p0, void *p1, void *p2, void *p3)
+void scaleAndAddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 4, 0x0, a1);
     VU0_LSV(lqc2, 5, 0x0, a2);
@@ -43,7 +43,7 @@ void ClothTestDL(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-void func_001C8ED8(void *p0, void *p1, void *p2)
+void scaleVectorXZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 4, 0x0, a1);
     VU0_NOREORDER_BEGIN();
@@ -55,7 +55,7 @@ void func_001C8ED8(void *p0, void *p1, void *p2)
     VU0_NOP();
 }
 
-void func_001C8EF8(void *a0, void *a1, void *a2, float f12)
+void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
 {
     int sp_buf[4];
     register float q __asm__("$f0");
@@ -86,11 +86,11 @@ void func_001C8EF8(void *a0, void *a1, void *a2, float f12)
     VU0_LSV(sqc2, 4, 0x0, a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/clothTest", func_001C8F50);
+INCLUDE_ASM("asm/nonmatchings/src/clothTest", tensionMove);
 
-INCLUDE_ASM("asm/nonmatchings/src/clothTest", func_001C8FB8);
+INCLUDE_ASM("asm/nonmatchings/src/clothTest", getCrossPoint);
 
-int func_001C9078(void *a0, void *a1)
+int checkOverThePlane(void *a0, void *a1)
 {
     int bits;
     int v0 = 0;
@@ -112,13 +112,13 @@ int func_001C9078(void *a0, void *a1)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/clothTest", func_001C90B8);
+INCLUDE_ASM("asm/nonmatchings/src/clothTest", checkFrontAcross);
 
-INCLUDE_ASM("asm/nonmatchings/src/clothTest", func_001C9128);
+INCLUDE_ASM("asm/nonmatchings/src/clothTest", LockZAnimation);
 
-INCLUDE_ASM("asm/nonmatchings/src/clothTest", func_001C91B0);
+INCLUDE_ASM("asm/nonmatchings/src/clothTest", getCloth4D_planeClip);
 
-INCLUDE_ASM("asm/nonmatchings/src/clothTest", func_001C92D8);
+INCLUDE_ASM("asm/nonmatchings/src/clothTest", InitClothTestGeo);
 
 void func_001C9328(void) {}
 

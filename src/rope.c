@@ -20,12 +20,12 @@ INCLUDE_ASM("asm/nonmatchings/src/rope", ropeGeo);
 extern int func_00105278(void);
 extern void func_001C42F0(int a0, int a1, int a2);
 extern void func_002438E8(int a0, int a1, int a2);
-extern void func_00243BD8(int a0);
+extern void sceVu0UnitMatrix(int a0);
 
 void RopeDL(char *a0)
 {
     char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x800);
-    func_00243BD8(func_00105278());
+    sceVu0UnitMatrix(func_00105278());
     {
         char *p = *(char **)(a0 + 0x15C);
         if (*(int *)p != 0) {

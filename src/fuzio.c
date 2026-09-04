@@ -7,8 +7,8 @@
 typedef int (*FcFunc)(void *a0, int a1);
 extern FcFunc D_006323F0;
 extern FcFunc D_006323F4;
-extern void func_00243B60(void *dst, void *src);
-extern void ClipWallBoxStop();
+extern void sceVu0CopyVector(void *dst, void *src);
+extern void ClipWall();
 extern int D_006323BC;
 extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
 extern int D_006AB100[];
@@ -39,7 +39,7 @@ int fzShowV(int a0)
 
 extern int func_0010F5B8(int a0, int a1, int a2);
 
-void fzShowM(int *self, int a1)
+void LoadCollision(int *self, int a1)
 {
     int new_var;
     int *p;
@@ -52,19 +52,19 @@ void fzShowM(int *self, int a1)
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitude2f);
 
-extern float func_00243950(int a0, int a1);
+extern float sceVu0InnerProduct(int a0, int a1);
 
 int fzMagnitude3f(int a0) {
     float *p = (float *)a0;
     char *q = (char *)(a0 + 0xA0);
     float t0, t1, d;
 
-    func_00243B60((int *)(a0 + 0x20), (int *)(a0 + 0x10));
-    t0 = func_00243950((int)q, a0 + 0x10) + *(float *)(q + 0xC);
+    sceVu0CopyVector((int *)(a0 + 0x20), (int *)(a0 + 0x10));
+    t0 = sceVu0InnerProduct((int)q, a0 + 0x10) + *(float *)(q + 0xC);
     if (t0 >= 0.0f) {
         return 0;
     }
-    t1 = func_00243950((int)q, a0) + *(float *)(q + 0xC);
+    t1 = sceVu0InnerProduct((int)q, a0) + *(float *)(q + 0xC);
     if (t1 < 0.0f) {
         if (t0 < 0.0f) {
             return 0;
@@ -79,9 +79,9 @@ int fzMagnitude3f(int a0) {
 
 extern char D_00559368[];
 extern char D_00559398[];
-extern void debug_assertMessage();
-extern float func_0010E9A0(short a0);
-extern void func_002438B8(void *a0, void *a1, void *buf);
+extern void debug_StdPrintfDummy();
+extern float GetTableCos(short a0);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *buf);
 extern float p2o_SetDefaultEnviroment(short a0);
 
 void fzMagnitudefv(void *a0, void *a1, int *a2)
@@ -95,12 +95,12 @@ void fzMagnitudefv(void *a0, void *a1, int *a2)
         buf[2] = 1.0f;
         var_19 = 0;
         buf[0] = 0.0f;
-        debug_assertMessage(D_00559368);
+        debug_StdPrintfDummy(D_00559368);
     } else {
         var_19 = (int *)1;
         buf[0] = -p2o_SetDefaultEnviroment((short)-*(unsigned short *)((char *)a1 + 0x44));
         buf[1] = 0.0f;
-        buf[2] = func_0010E9A0((short)-*(unsigned short *)((char *)a1 + 0x44));
+        buf[2] = GetTableCos((short)-*(unsigned short *)((char *)a1 + 0x44));
         buf[3] = 1.0f;
     }
     if (var_19 == 0) {
@@ -116,31 +116,31 @@ void fzMagnitudefv(void *a0, void *a1, int *a2)
                 int *p5 = (int *)a2[0];
                 int idx = a2[1];
                 int *o3 = (int *)*(int *)((char *)p5 + 0x15C);
-                func_002438B8(a0, (void *)(*(int *)((char *)o3 + 0xC) + (idx << 6)), buf);
+                sceVu0ApplyMatrix(a0, (void *)(*(int *)((char *)o3 + 0xC) + (idx << 6)), buf);
                 return;
             }
             MatrixDrive_TurnObjectMatrix((void *)a0, (void *)buf);
             return;
         }
-        debug_assertMessage(D_00559398);
+        debug_StdPrintfDummy(D_00559398);
     }
 }
 
-void fzMagnitude2fv(float *self, float a, float b, float c, float d) {
+void SetSimplePlane(float *self, float a, float b, float c, float d) {
     self[0] = a; self[1] = b; self[2] = c; self[3] = d;
 }
 
-int fzMagnitudeByLine(int a0) {
+int GetWallAttribute(int a0) {
     if (*(int *)(a0 + 0x88) == 0) return 0;
     return *(int *)(a0 + 0x98);
 }
 
-int fzMagnitudeByLineSeg(int a0) {
+int GetFloorAttribute(int a0) {
     if (*(int *)(a0 + 0x94) == 0) return 0;
     return *(int *)(a0 + 0x98);
 }
 
-int func_00168A80(unsigned int a, unsigned int b)
+int CompareAttribute(unsigned int a, unsigned int b)
 {
     int i;
     if ((a & b) == 0) return 0;
@@ -152,22 +152,22 @@ int func_00168A80(unsigned int a, unsigned int b)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168AE0);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", GetWallGlobalInfo);
 
-float func_00168BA0(int a0, int a1)
+float GetDistanceFromPlane(int a0, int a1)
 {
-    return func_00243950(a0, a1) + *(float *)(a0 + 0xC);
+    return sceVu0InnerProduct(a0, a1) + *(float *)(a0 + 0xC);
 }
 
-float func_00168BD0(float *a0, float *a1) {
+float GetYDistanceFromPlane(float *a0, float *a1) {
     return a1[1] - (-(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1]);
 }
 
-float func_00168C18(float *a0, float *a1) {
+float GetYProjectionOfPlane(float *a0, float *a1) {
     return -(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1];
 }
 
-void func_00168C58(void) {
+void ResetCollisionPC(void) {
     int tmp;
     D_00633D08 = 0;
     tmp = *(volatile int *)0x10000000;
@@ -182,66 +182,66 @@ void func_00168C58(void) {
     D_00633D28 = 0;
 }
 
-int func_00168C88(int a0, int a1) {
+int PositionOfExit(int a0, int a1) {
     int v = D_006AB100[a1 & 0xF];
     if (v != 0) { MatrixDrive_TurnObjectMatrix(a0, v); return 0; }
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168CC8);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", GetGlobalWallPlane);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168DA8);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipWDebug);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168ED0);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipW);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169020);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipWE);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169190);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipWEField);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_001692F0);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipWR);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169440);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipWField);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169580);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipWDitchHangWalkStop);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_001696C0);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipWWaveForce);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169800);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipWBoxStop);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169968);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipWAdjustPos);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169AA8);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipF);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169BD0);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipFE);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169D18);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipFIH);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169E58);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", _clipFR);
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169F80);
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A058);
 
-void func_0016A130(void) {
+void ClipWallRD(void) {
     D_006323BC = 1;
     /* Cast away the (int) prototype so gcc doesn't emit `daddu $a0,$0,$0`
      * to set up an arg the original call didn't pass. The implementation
      * happens to read $a0 but the original cross-TU caller didn't bother
      * to clear it. */
-    ((void (*)(void))ClipWallBoxStop)();
+    ((void (*)(void))ClipWall)();
     D_006323BC = 0;
 }
 
-int func_0016A158(int *a0, int *a1) {
+int ClipWallVector(int *a0, int *a1) {
     int buf[48];
     *(float *)&buf[28] = 50.0f;
-    func_00243B60(buf, a0);
-    func_00243B60(buf + 4, a1);
+    sceVu0CopyVector(buf, a0);
+    sceVu0CopyVector(buf + 4, a1);
     D_006323F0(buf, 1);
     return buf[34];
 }
 
-void func_0016A1B8(int *self) {
+void MapCollisionData(int *self) {
     int v0 = self[4];
     int v1 = self[5];
     self[4] = (int)((char *)self + v0);
@@ -250,26 +250,26 @@ void func_0016A1B8(int *self) {
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A1D8);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A240);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzShowM);
 
-extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+extern float FSqrt(float a0);
 
 float func_0016A2A0(float x, float z)
 {
-    return MatrixDrive_GetTurnYAngleXZ(x * x + z * z);
+    return FSqrt(x * x + z * z);
 }
 
 float func_0016A2C8(float x, float y, float z)
 {
-    return MatrixDrive_GetTurnYAngleXZ(x * x + y * y + z * z);
+    return FSqrt(x * x + y * y + z * z);
 }
 
 float func_0016A2F8(int v)
 {
-    return MatrixDrive_GetTurnYAngleXZ(func_00243950(v, v));
+    return FSqrt(sceVu0InnerProduct(v, v));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A320);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitude2fv);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A3B0);
+INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitudeByLine);
 

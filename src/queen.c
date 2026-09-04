@@ -3,7 +3,7 @@
 
 extern int D_0055C720[];
 extern int D_00633DE0;
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A7E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A8F0);
@@ -30,7 +30,7 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B660);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B7F8);
 
 extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void *isysGObjSearchFromObjKindID_begin(void *g);
+extern void *isysGObjSearchFromObjKindID_next(void *g);
 
 void func_0019B888(void)
 {
@@ -42,7 +42,7 @@ void func_0019B888(void)
     g = isysGObjSearchFromObjLayoutID(0x35);
     while (g != 0) {
         *(char *)(*(char **)(*(char **)((char *)g + 0x15C) + 0x800) + 0x12) = 1;
-        g = isysGObjSearchFromObjKindID_begin(g);
+        g = isysGObjSearchFromObjKindID_next(g);
     }
 }
 
@@ -129,7 +129,7 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BD30);
 void queenBallBeforeFunc(void)
 {
     D_00633DE0 = 0x3C;
-    debug_assertMessage(D_0055C720);
+    debug_StdPrintfDummy(D_0055C720);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenBallGeo);

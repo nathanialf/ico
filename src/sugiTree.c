@@ -4,7 +4,7 @@
 
 
 extern void ExecFrameDependSequence(int a0);
-extern void playSEConditionID(int a0, int a1);
+extern void ExecuteSEPackage(int a0, int a1);
 extern void func_001F08D8();
 extern int D_00633720;
 extern int D_00633724;
@@ -17,7 +17,7 @@ void SugiLeafGeo2(int i, int v) {
     D_0070D4D8[i].f_14 = v;
 }
 
-void func_001F1168(void)
+void FreeStreamMotionBuffer(void)
 {
     if (D_00633720 != 0) {
         iosMallocCheckLeak2(D_00633720);
@@ -35,7 +35,7 @@ int InitSugiLeafGeo(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/sugiTree", SugiLeafGeo);
+INCLUDE_ASM("asm/nonmatchings/src/sugiTree", _handler);
 
 INCLUDE_ASM("asm/nonmatchings/src/sugiTree", InitSugiLeafGeo2);
 
@@ -50,7 +50,7 @@ INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F17B0);
 void func_001F1838(int a0)
 {
     ExecFrameDependSequence(a0);
-    playSEConditionID(a0, 0x41);
+    ExecuteSEPackage(a0, 0x41);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F1868);

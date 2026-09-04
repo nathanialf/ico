@@ -179,7 +179,7 @@ extern int D_004D11D0[];
 extern int D_004D11F0[];
 extern void actSt03tWayOffChk(volatile int a0);
 extern void actSt04aGate(void);
-extern int func_0017EB50(void);
+extern int scpCheckExistAliveEnemy(void);
 
 void actSt03tGirlCam(volatile int a0) {
     int x = a0;
@@ -235,7 +235,7 @@ void actSt03tEne(int x) {
 
 extern long long D_0061BA20[];
 extern long long D_0061BA30[];
-extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void scpEffectStart(int *buf, int a1);
 
 void actSt03tGene(volatile int a0){
  long long b1[2]; long long b2[2];
@@ -243,8 +243,8 @@ void actSt03tGene(volatile int a0){
  int i;
  for(i=0;i<0x32;i++){
   switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_0061BA20[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_0061BA30[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_0061BA20[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061BA30[1]; scpEffectStart((int*)b2,0); break;
   }
   _ACTWait(1);
  } }
@@ -252,8 +252,8 @@ void actSt03tGene(volatile int a0){
 void actSt03tGirlCamEvent(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_0061BA30[0]; long long v0b=D_0061BA20[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_0061BA30[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_0061BA20[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_0061BA30[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061BA20[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
 extern int D_004D1070[];
@@ -284,7 +284,7 @@ void func_00212AF8(volatile int a0) {
     _ACTWait(0);
 }
 
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern int D_006325B4;
 extern int D_00633970;
 extern int func_0012AA80(int a0);
@@ -303,7 +303,7 @@ void actSt03tGirlCamEndChk(volatile int a0) {
     stage_KillPlayBgAnimation(0x56, 1, 0);
     while (func_0012AA80(0x56) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    AddWayPointTop(0x1A, 1);
+    SetWayGroupActive(0x1A, 1);
     D_006325B4 = 0;
     lt_fade_status(0x32);
     scpActivateAllWithKind();
@@ -364,13 +364,13 @@ void actSt03tWayOffChk(volatile int a0) {
     if (D_00631AE8 == 0) {
         _ACTWait(0);
     }
-    while (func_0017EB50() != 0 || scpSleepSpiderGroupOne(D_00631AE8, 0x4000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpSleepSpiderGroupOne(D_00631AE8, 0x4000000) == 0) {
         _ACTWait(1);
     }
-    AddWayPointTop(0x35, 1);
-    AddWayPointTop(0x37, 1);
-    AddWayPointTop(0x38, 1);
-    AddWayPointTop(0x39, 1);
+    SetWayGroupActive(0x35, 1);
+    SetWayGroupActive(0x37, 1);
+    SetWayGroupActive(0x38, 1);
+    SetWayGroupActive(0x39, 1);
     func_0017B288(0x6F);
     {
         int *p = D_004D11B0 + 24;

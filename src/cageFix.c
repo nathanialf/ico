@@ -5,9 +5,9 @@
 
 
 extern int *func_00105278(void);
-extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
+extern void CopyMatrix(void *dst, void *src);
 extern void HotInitCageGeo(int *self, int a1, int a2);
-extern int isysGObjSearchFromObjKindID_begin();
+extern int isysGObjSearchFromObjKindID_next();
 extern void CageDL();
 extern int isysGObjSearchFromObjLayoutID();
 extern void file_LoadCDFile(void *a0);
@@ -41,7 +41,7 @@ void func_001C2EC8(void)
     if (p != 0) {
         do {
             CageDL(p);
-            p = isysGObjSearchFromObjKindID_begin(p);
+            p = isysGObjSearchFromObjKindID_next(p);
         } while (p != 0);
     }
 }
@@ -58,7 +58,7 @@ void func_001C2F20(int *self)
         int v;
         v = func_00105278();
         p = (int *)self[0x57];
-        MatrixDrive_TurnXObjectMatrixYZ(v, p[3]);
+        CopyMatrix(v, p[3]);
         v = func_00105278();
         p = (int *)self[0x57];
         HotInitCageGeo(s0, v + 0x30, p[4]);

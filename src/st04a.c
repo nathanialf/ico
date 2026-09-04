@@ -13,14 +13,14 @@ INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aConte06);
 
 extern void _ACTWait(int a0);
 extern int actSt25aQueenDeadChk(int a0);
-extern void func_0017EAD0(void);
+extern void scpExplodeSecretItem(void);
 
 void actSt04aConte06Jimaku(volatile int a0) {
     while (actSt25aQueenDeadChk(0x667) == 0) {
         _ACTWait(1);
     }
     _ACTWait(0x3C);
-    func_0017EAD0();
+    scpExplodeSecretItem();
 }
 
 extern void BoxBarSoundOn(int a0, int a1);
@@ -89,7 +89,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st04a", actConte09_2);
 
 extern int actInitialize(int a0);
 extern int func_0017B230(int a0);
-extern void func_0017EA50(void *a0, float f12, float f13, float f14);
+extern void scpTransGObj(void *a0, float f12, float f13, float f14);
 extern void func_001BFFE8(int a0);
 
 void actSt04aGateOpen3Chk(volatile int a0) {
@@ -102,7 +102,7 @@ void actSt04aGateOpen3Chk(volatile int a0) {
         *(int *)(actSt25aQueenDeadChk(0x319) + 0x16C) = 0;
         *(int *)(actSt25aQueenDeadChk(0x324) + 0x16C) = 0;
         *(int *)(actSt25aQueenDeadChk(0x326) + 0x16C) = 1;
-        func_0017EA50((void *)actSt25aQueenDeadChk(0x326), 0.0f, -200.0f, 0.0f);
+        scpTransGObj((void *)actSt25aQueenDeadChk(0x326), 0.0f, -200.0f, 0.0f);
         _ACTWait(1);
         func_001BFFE8(actSt25aQueenDeadChk(0x326));
     }
@@ -121,24 +121,24 @@ void actConte09_3(volatile int a0) {
         *(int *)(actSt25aQueenDeadChk(0x325) + 0x16C) = 0;
         *(int *)(actSt25aQueenDeadChk(0x327) + 0x16C) = 1;
         func_0017B258(0x59);
-        func_0017EA50((void *)actSt25aQueenDeadChk(0x327), 0.0f, -400.0f, 0.0f);
+        scpTransGObj((void *)actSt25aQueenDeadChk(0x327), 0.0f, -400.0f, 0.0f);
         _ACTWait(1);
         func_001BFFE8(actSt25aQueenDeadChk(0x327));
     }
 }
 
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void actSt04aGateLChk(void) {
     if (func_0017B230(0x52)) {
-        AddWayPointTop(7, 1);
+        SetWayGroupActive(7, 1);
     } else {
-        AddWayPointTop(7, 0);
+        SetWayGroupActive(7, 0);
     }
     if (func_0017B230(0x53)) {
-        AddWayPointTop(5, 1);
+        SetWayGroupActive(5, 1);
     } else {
-        AddWayPointTop(5, 0);
+        SetWayGroupActive(5, 0);
     }
 }
 
@@ -217,19 +217,19 @@ extern int D_00631AE4;
 extern int D_00631AE8;
 extern void GetCameraDefaultTargetGObj(void);
 extern int GetSkeltonFocusNode(int a0);
-extern void InitCamera(int a0, int a1, int a2);
+extern void Camctrl_SetTarget(int a0, int a1, int a2);
 extern void actSt04aGateOpen2(volatile int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 
 void actSt04aTorchXL(volatile int a0) {
     int x = a0;
     GObj__p4 *g = *(GObj__p4 **)(x + 0x164);
-    while (scpSleepEnemyOne(a0, D_00631AE4, 100.0f) == 0 ||
+    while (scpTriggerBall(a0, D_00631AE4, 100.0f) == 0 ||
            GetSkeltonFocusNode(D_00631AE4) != 0xC6) {
         _ACTWait(1);
     }
     GetCameraDefaultTargetGObj();
-    InitCamera(D_00631AE8, 0, 3);
+    Camctrl_SetTarget(D_00631AE8, 0, 3);
     _ACTWait(0xF);
     AddPluralCameraSet(0x30);
     D_004D13F0[1] = (int)actSt04aGateOpen2;

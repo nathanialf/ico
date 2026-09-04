@@ -4,12 +4,12 @@
 
 
 
-extern void func_0023FCB8();
+extern void viBufBeginPut();
 extern void func_0019E150(int a0);
 extern void func_001331D8();
 extern void func_00132FF0();
-extern void func_00265168();
-extern int inflate_start();
+extern void strcpy();
+extern int iosCdvdDirectStRead();
 int free_buffer(int a0, int a1)
 {
     int rest = *(int *)(a0 + 0xC);
@@ -22,7 +22,7 @@ int free_buffer(int a0, int a1)
 
 int readBufDelete(int a0)
 {
-    func_00265168(a0 + 0x34);
+    strcpy(a0 + 0x34);
     func_00132FF0(a0);
     return 1;
 }
@@ -34,10 +34,10 @@ int readBufCreate(void) {
 
 int readBufBeginPut(void)
 {
-    return inflate_start();
+    return iosCdvdDirectStRead();
 }
 
-void readBufEndPut(int a0)
+void free_buf(int a0)
 {
     func_0019E150(*(int *)(a0 + 0x48));
 }
@@ -46,6 +46,6 @@ INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_readbuf", readBufBeginGet);
 
 void readBufEndGet(int a0)
 {
-    func_0023FCB8(a0 + 0x50);
+    viBufBeginPut(a0 + 0x50);
 }
 

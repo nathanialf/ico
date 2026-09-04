@@ -32,14 +32,14 @@ const char D_00557AC0[16] = "GObjLinkDL out\n";
 extern int D_006A93D0[];
 extern int D_006321CC;
 
-extern void func_002641D8(int *a0, int a1, int a2);
+extern void memset(int *a0, int a1, int a2);
 extern void func_0013DDF8(int a0);
 extern int  func_0013DFF0(int a0, int a1, int a2);
 extern int  func_0013E0C0(int a0, int a1, int a2);
 
 void func_0013DD88(void)
 {
-    func_002641D8(D_006A93D0, 0, 0x110);
+    memset(D_006A93D0, 0, 0x110);
 }
 
 INCLUDE_ASM_NOP_PAD(func_0013DD9C);
@@ -320,7 +320,7 @@ loop:
 ret0:
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013ECF8);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjGetExist_next);
 
 void func_0013ED40(int bit, int set)
 {

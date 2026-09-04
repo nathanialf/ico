@@ -13,11 +13,11 @@ extern int D_006329E8;
 extern void gsb_antiAlias();
 extern int D_00274EF0[];
 extern int D_006F8EE0[];
-extern void func_00264DF8();
+extern void sprintf();
 extern int D_00632C88[];
 extern int D_00632C80;
 extern char D_006EE030[];
-extern int func_00247380();
+extern int sceOpen();
 extern void initLineTraceTable();
 extern int D_00632C90;
 extern int D_00632CA0;
@@ -68,16 +68,16 @@ void init_debug_menu(void) {
     D_00632C74 = 0;
 }
 
-void debug_TargetGObj_Func(int a0) {
+void debug_BeginTimer(int a0) {
     *(volatile int *)0x10000800 = 0;
     *(volatile int *)0x10000810 = a0 | 0x80;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001A9DB8);
+INCLUDE_ASM("asm/nonmatchings/src/debug_menu", debug_GetTimerSec);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001A9E88);
+INCLUDE_ASM("asm/nonmatchings/src/debug_menu", debug_GetTimerCount);
 
-void func_001A9EE8(void)
+void debug_ClearFontWindow(void)
 {
     char *p = D_006F1930;
     int i;
@@ -93,11 +93,11 @@ void func_001A9F20(int val) {
     D_00632A34 = val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001A9F28);
+INCLUDE_ASM("asm/nonmatchings/src/debug_menu", debug_SetBar);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001A9FE0);
+INCLUDE_ASM("asm/nonmatchings/src/debug_menu", debug_SetBar2);
 
-void func_001AA098(void)
+void debug_ResetBar(void)
 {
     D_00632CA0 = 0;
     *(volatile int *)0x10000000 = 0;
@@ -113,7 +113,7 @@ INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA0C0);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA168);
 
-void func_001AA210(int *a0)
+void debug_DispMatrix(int *a0)
 {
     int *p = a0;
     int i;
@@ -131,34 +131,34 @@ int func_001AA4E8(void) {
     return -1;
 }
 
-int func_001AA4F0(int *self, int *other)
+int debugSceOpen(int *self, int *other)
 {
     int r;
-    func_00264DF8(D_006EE030, D_00632C88, D_00615B48, self);
-    r = func_00247380(D_006EE030, other);
+    sprintf(D_006EE030, D_00632C88, D_00615B48, self);
+    r = sceOpen(D_006EE030, other);
     D_00632C80 = r;
     return r;
 }
 
-extern int func_00247608();
+extern int sceClose();
 
-int func_001AA550(int a0) {
+int debugSceClose(int a0) {
     if (a0 == D_00632C80) {
         D_00632C80 = -1;
     }
-    return func_00247608();
+    return sceClose();
 }
 
 /* The sibling above calls this kernel entry with no argument; here it takes
  * the old handle -- one unprototyped declaration covers both arities. */
 
-int func_001AA580(void)
+int debugSceCloseFdNew(void)
 {
     int r = 0;
     int h = D_00632C80;
     if (h != -1) {
         D_00632C80 = -1;
-        r = func_00247608(h);
+        r = sceClose(h);
         D_00632C80 = -1;
     }
     return r;
@@ -166,7 +166,7 @@ int func_001AA580(void)
 
 void func_001AA5B8(void) {}
 
-void func_001AA5C0(int idx)
+void debugCdvdLoadInfoSegInit(int idx)
 {
   int *p;
   char *new_var2;
@@ -185,17 +185,17 @@ void func_001AA5C0(int idx)
   }
 }
 
-void func_001AA608(int page, int idx, int delta)
+void debugCdvdLoadInfoSegAdd(int page, int idx, int delta)
 {
     *(int *)((char *)D_006F8EE0 + (page * 0xD0 + idx * 8)) += delta;
 }
 
-void func_001AA638(int page, int idx)
+void debugCdvdLoadInfoSegCls(int page, int idx)
 {
     *(int *)((char *)D_006F8EE0 + (page * 0xD0 + idx * 8)) = 0;
 }
 
-int func_001AA660(void)
+int gsResetFunc(void)
 {
     gsb_antiAlias(D_00274EF0);
     return 1;
@@ -207,11 +207,11 @@ int func_001AA688(void)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA6A0);
+INCLUDE_ASM("asm/nonmatchings/src/debug_menu", debug_SaveStartStageFile);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA750);
+INCLUDE_ASM("asm/nonmatchings/src/debug_menu", _debug_SelectCsvWindow);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA9F8);
+INCLUDE_ASM("asm/nonmatchings/src/debug_menu", debug_SelectCsvWindowWithLineColor);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AACA0);
 

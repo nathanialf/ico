@@ -16,7 +16,7 @@ typedef struct WayGroup {
 
 
 extern WayRec D_004CAEC0[];
-extern void debug_assertMessage(char *fmt, ...);
+extern void debug_StdPrintfDummy(char *fmt, ...);
 extern char D_0061B1B0[];
 extern WayRec D_004CAE8C[];
 
@@ -51,7 +51,7 @@ WayGroup *CreateWayGroup(WayGroup *a0) {
 typedef struct { int w[16]; } WayGroup_CT;
 extern WayGroup_CT D_004CC1A0[];
 
-void *CreateTempWayGroup(void) {
+void *WayPoint_begin(void) {
     WayGroup_CT *p = D_004CC1A0;
     WayGroup_CT *end = D_004CC1A0 + 275;
     if (p == 0) goto ret0;
@@ -66,7 +66,7 @@ ret0:
 
 extern WayGroup_DW D_004D0660;
 
-void *DeleteWayGroup(WayGroup_DW *a0) {
+void *WayPoint_next(WayGroup_DW *a0) {
     WayGroup_DW *end = &D_004D0660;
     if (a0 == 0) goto ret0;
     if (a0 == end) goto ret0;
@@ -79,11 +79,11 @@ ret0:
 }
 
 
-int CloseWayGroup(int a0) {
+int WayPointList_begin(int a0) {
     return D_004CAEC0[a0].w[2];
 }
 
-int CreateWayPoint(int *a0) {
+int WayPointList_next(int *a0) {
     register int v __asm__("$4") = (int)a0;
     __asm__ (
         ".set noreorder\n\t"
@@ -106,22 +106,22 @@ int CreateWayPoint(int *a0) {
     return v;
 }
 
-int AddWayPoint(int *self, int which) {
+int waypoint_bidirectional_list(int *self, int which) {
     if (self == 0) {
         return 0;
     }
-    debug_assertMessage(D_0061B1B0, self);
+    debug_StdPrintfDummy(D_0061B1B0, self);
     if (which == 0) {
         return self[0x8 / 4];
     }
     return self[0xC / 4];
 }
 
-void AddWayPointTop(int a0, int a1) {
+void SetWayGroupActive(int a0, int a1) {
     D_004CAEC0[a0].w[10] = a1;
 }
 
-int InsertWayPointAfter(int idx)
+int CheckWayGroupActive(int idx)
 {
     return D_004CAEC0[idx].w[10] != 0;
 }
@@ -140,8 +140,8 @@ extern int D_00633874;
 extern char D_00633880[];
 extern int D_00633890;
 extern int D_0071257C[];
-extern int WayPointWithRangeFromPos2(int a0, int a1, int a2);
-extern int add_wp_pos(void *a0);
+extern int InsertWayPointAfter(int a0, int a1, int a2);
+extern int CreateWayPoint(void *a0);
 extern void *nearest_waypoint_of_all_except_group(void *a0);
 extern void traceLine();
 
@@ -170,10 +170,10 @@ int WayBridge_begin(void) {
             return 0;
         }
         {
-            int n = add_wp_pos(D_004D06A0);
-            WayPointWithRangeFromPos2(D_00633874, *(int *) ((char *) res + 4), n);
+            int n = CreateWayPoint(D_004D06A0);
+            InsertWayPointAfter(D_00633874, *(int *) ((char *) res + 4), n);
             entry->w[4] = entry->w[4] + 1;
-            debug_assertMessage(D_0061B650, n);
+            debug_StdPrintfDummy(D_0061B650, n);
         }
     }
     return 0;

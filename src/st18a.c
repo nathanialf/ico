@@ -111,8 +111,8 @@ void actSt19aPipeXL(volatile int a0) {
     scpPlayStart(0x24, &D_00633AB4, 1, 0, 0);
 }
 
-extern void AdpcmClose(int a0);
-extern void BossCtrlGeo(void);
+extern void AdpcmPlay(int a0);
+extern void CapsuleGhostBossStart(void);
 extern int D_00274EC0[];
 extern int D_00631AE4;
 extern int D_006325B4;
@@ -127,12 +127,12 @@ void actSt18aEne2(volatile int a0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    BossCtrlGeo();
+    CapsuleGhostBossStart();
     _ACTWait(((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) * 2);
     while (D_00633AB4 == 0) {
         _ACTWait(1);
     }
-    AdpcmClose(*(int *)(D_00633AB4 + 0x2C));
+    AdpcmPlay(*(int *)(D_00633AB4 + 0x2C));
     gflagOff(D_00631AE4, 0);
     func_0017B568(D_00631AE4);
     D_006325B4 = 0;
@@ -143,14 +143,14 @@ extern int D_00631AEC;
 extern int D_00633AC4;
 extern int D_00633AD0;
 extern unsigned char D_00633AD4;
-extern void Shock_Request(int a0, int a1);
+extern void iosPadActVolumeSet(int a0, int a1);
 extern void Vibration_ShotDecode(int a0);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern void RequestStageChange(int a0, int a1, int a2, float f0, float f1);
 extern int func_0012AB50(int a0, int a1, int a2);
 extern void func_0017B258(int a0);
 extern int iosPadDevRead(int a0, int a1);
 
-extern void func_0017C9B0(int a0);
+extern void preload(int a0);
 
 void actSt18aEnemy2_2(volatile int a0) {
     lt_fade_status(0x33);
@@ -159,7 +159,7 @@ void actSt18aEnemy2_2(volatile int a0) {
     while (D_00633AC4 == 0) {
         _ACTWait(1);
     }
-    func_0017C9B0(3);
+    preload(3);
     stage_KillPlayBgAnimation(0x27, 1, 0xEB);
     while (func_0012AB50(0x27, 0x141, 0) == 0) {
         _ACTWait(1);
@@ -174,21 +174,21 @@ void actSt18aEnemy2_2(volatile int a0) {
         int r = iosPadDevRead(D_00631AEC, 0x9);
         D_00633AD4 = 0x80;
         D_00633AD0 = r;
-        Shock_Request(r, 0x80);
+        iosPadActVolumeSet(r, 0x80);
     }
     while (func_0012AB50(0x27, 0x1C2, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Vibration_ShotDecode(D_00633AD0);
-    actSt25aQueenDead(0x3, D_00631AE4, 0, 2.0f, 4.0f);
+    RequestStageChange(0x3, D_00631AE4, 0, 2.0f, 4.0f);
     D_006325B4 = 0;
     lt_fade_status(0x32);
 }
 
 extern int D_004D34A0[];
 extern void actSt18aIntroChk();
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f0);
+extern void scpFadeOut(int a0, int a1, int a2, float f0);
 
 void actSt18aCamera(volatile int a0) {
     int x = a0;
@@ -197,7 +197,7 @@ void actSt18aCamera(volatile int a0) {
     if (func_0017B230(0x128) != 0) {
         lt_fade_status(0x33);
         D_006325B4 = 1;
-        actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+        scpFadeOut(0, 0, 0, 255.0f);
         stage_KillPlayBgAnimation(0x27, 0, 0xEB);
         _ACTWait(0xA);
         D_006325B4 = 1;
@@ -215,9 +215,9 @@ extern int D_00631AEC;
 extern int D_00633AC0;
 extern int D_00633AD0;
 extern unsigned char D_00633AD4;
-extern void Shock_Request(int a0, int a1);
+extern void iosPadActVolumeSet(int a0, int a1);
 extern void Vibration_ShotDecode(int a0);
-extern void actConte11Jimaku(float f0);
+extern void scpFadeIn(float f0);
 extern int func_0012AB50(int a0, int a1, int a2);
 extern void func_0017B288(int a0);
 extern int iosPadDevRead(int a0, int a1);
@@ -227,13 +227,13 @@ void actSt18aIntroChk(volatile int a0) {
     while (D_00633AC0 == 0) {
         _ACTWait(1);
     }
-    actConte11Jimaku(6.0f);
+    scpFadeIn(6.0f);
     stage_KillPlayBgAnimation(0x27, 1, 0);
     {
         int r = iosPadDevRead(D_00631AEC, 0x9);
         D_00633AD4 = 0x80;
         D_00633AD0 = r;
-        Shock_Request(r, 0x80);
+        iosPadActVolumeSet(r, 0x80);
     }
     while (func_0012AB50(0x27, 0xC8, 0) == 0) {
         _ACTWait(1);

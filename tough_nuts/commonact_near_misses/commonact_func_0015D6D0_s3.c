@@ -1,7 +1,7 @@
 void func_0015D6D0(volatile int a0) {
     char *s164 = *(char **)(a0 + 0x164);
     int b1, b2, b3;
-    CylinderCollision((void *)a0, s164 + 0x5A0);
+    SetDirectRootPositionNoFitting((void *)a0, s164 + 0x5A0);
     b1 = a0;
     b2 = a0;
     b3 = a0;

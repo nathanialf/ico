@@ -2,8 +2,8 @@
 
 
 
-extern void LocalizeDirectionOrient();
-extern void func_002438B8();
+extern void GetRootMatrix();
+extern void sceVu0ApplyMatrix();
 #include "ico/types.h"
 
 typedef struct { int f_0; char _4[0x1C]; int f_20; char _pad24[0x34]; int f_58; char _pad5C[0xB4]; int f_110; int f_114; char _pad118[0x20]; int f_138; char _pad13C[0x4]; int f_140; } BoxGeo2;
@@ -11,7 +11,7 @@ INCLUDE_ASM("asm/nonmatchings/src/box", func_001BD408);
 
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BD668);
 
-INCLUDE_ASM("asm/nonmatchings/src/box", onPath);
+INCLUDE_ASM("asm/nonmatchings/src/box", getNearestPosition);
 
 /* box .rodata run 0x6186A0..0x618808 -- byte-verified against baseelf;
  * defs interleave with INCLUDE_ASM stubs so .o section order == VMA order.
@@ -35,11 +35,11 @@ extern int D_00275850[];
 extern int D_00276140[];
 extern int D_004BF7C0[];
 extern void GetInverseQuaternion(void *a0, void *a1);
-extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void GetRootPosition(void *a0, void *a1);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 extern void _checkItemBreak(void *a0);
 extern void func_00102870(void *self, void *src);
-extern int func_00264D60(void);
+extern int rand(void);
 
 void initLanding(void *self) {
     char *d = (char *)*(int *)((char *)self + 0x15C);
@@ -51,20 +51,20 @@ void initLanding(void *self) {
     MatrixDrive_TurnObjectMatrix(box + 0xE0, D_00275850);
     MatrixDrive_TurnObjectMatrix(box + 0xC0, D_00275850);
     MatrixDrive_TurnObjectMatrix(box + 0xD0, D_00275850);
-    GetRootMatrixByDObj(box + 0x100, self);
+    GetRootPosition(box + 0x100, self);
     MatrixDrive_TurnObjectMatrix((char *)*(int *)((char *)self + 0x15C) + 0x520, D_004BF7C0);
-    *(short *)(box + 0x118) = (short)func_00264D60();
+    *(short *)(box + 0x118) = (short)rand();
     _checkItemBreak(self);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/box", execFallDown);
 
 extern void GetPureVerticalPlaneOfCurrentPosition(int a0, void *a1, int a2, void *a3, int a4);
-extern void MatrixDrive_TurnZObjectMatrixXY(void *a0, void *a1, void *a2);
+extern void AddVectorXYZ(void *a0, void *a1, void *a2);
 extern void execFallDown(void *a0);
-extern void func_0010DEC0(void *a0, void *a1, void *a2);
-extern float func_00168BA0(void *a0, void *a1);
-extern void func_00244448(void *a0, void *a1, float a2);
+extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
+extern float GetDistanceFromPlane(void *a0, void *a1);
+extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
 
 struct vec4_iner { float x, y, z, w; } __attribute__((aligned(8)));
 
@@ -74,7 +74,7 @@ void inertiaMove(void *self) {
     struct vec4_iner v2;
     char *box = (char *)*(int *)((char *)*(int *)((char *)self + 0x15C) + 0x800);
     int cond;
-    GetRootMatrixByDObj(&m, self);
+    GetRootPosition(&m, self);
     MatrixDrive_TurnObjectMatrix((char *)*(int *)((char *)self + 0x15C) + 0x130, D_00275850);
     cond = *(int *)(box + 0x68);
     *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x4AC) = 0;
@@ -82,13 +82,13 @@ void inertiaMove(void *self) {
     if (cond != 0) {
         float t;
         GetPureVerticalPlaneOfCurrentPosition(0, &v1, 0, box + 0x60, 1);
-        t = func_00168BA0(&v1, &m);
+        t = GetDistanceFromPlane(&v1, &m);
         *(int *)((char *)&v1 + 0xC) = 0;
-        func_00244448(&v2, &v1, -(t - 50.0f));
-        MatrixDrive_TurnZObjectMatrixXY(&m, &m, &v2);
+        sceVu0ScaleVectorXYZ(&v2, &v1, -(t - 50.0f));
+        AddVectorXYZ(&m, &m, &v2);
     }
     execFallDown(&m);
-    func_0010DEC0(box + 0x70, (char *)*(int *)((char *)self + 0x15C) + 0xC0, &m);
+    GetMatrixFromQuaternionPos(box + 0x70, (char *)*(int *)((char *)self + 0x15C) + 0xC0, &m);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/box", action);
@@ -129,11 +129,11 @@ int func_001C05B8(char *self) {
 
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001C05D0);
 
-void ExecBoxMoveStartReaction(int a0, int a1, int a2)
+void GetBoxGlobalHoldPoint(int a0, int a1, int a2)
 {
     int buf[16];
-    LocalizeDirectionOrient(buf);
-    func_002438B8(a0, buf, a2);
+    GetRootMatrix(buf);
+    sceVu0ApplyMatrix(a0, buf, a2);
 }
 
 int ExecBoxMoveEndReaction(void *a0) {
@@ -142,8 +142,8 @@ int ExecBoxMoveEndReaction(void *a0) {
     return q->f_58;
 }
 
-extern void func_001BC9B0(int a0);
-extern void func_001BC9B8(int a0);
+extern void pushStartSE(int a0);
+extern void pullStartSE(int a0);
 
 void BoxGeoRestore(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
@@ -154,10 +154,10 @@ void BoxGeoRestore(void *a0, int a1) {
         }
     }
     if (a1 >= 0) {
-        func_001BC9B0(a0);
+        pushStartSE(a0);
         q->f_114 = 0;
     } else {
-        func_001BC9B8(a0);
+        pullStartSE(a0);
         q->f_114 = 0;
     }
 end:
@@ -165,19 +165,19 @@ end:
 }
 
 extern void ExecFrameDependSequence(void *a0);
-extern void execEff(void *a0, int a1);
-extern void func_001BC9C0(int a0);
-extern void playSEConditionID(int a0, int a1);
+extern void StopSEPackageWithGroupVariation(void *a0, int a1);
+extern void wallHitSE(int a0);
+extern void ExecuteSEPackage(int a0, int a1);
 
 void BoxExtGeoRestore(void *self) {
     int *p = *(int **)((char *)self + 0x15C);
     BoxGeo2 *q = *(BoxGeo2 **)((char *)p + 0x800);
     if (q->f_58 == 0 || q->f_110 != 0) {
         ExecFrameDependSequence(self);
-        execEff(self, 1);
-        playSEConditionID(self, 0x16);
+        StopSEPackageWithGroupVariation(self, 1);
+        ExecuteSEPackage(self, 0x16);
         if (q->f_140 != 0) {
-            func_001BC9C0(self);
+            wallHitSE(self);
             q->f_140 = 0;
         }
     }

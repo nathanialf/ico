@@ -33,14 +33,14 @@ extern float D_006326E0;
 extern char D_006D04B4[];
 extern void chain_simulate_term_simple();
 extern void actBoySupportBGBegin();
-extern void GetRootMatrixByDObj(void *a0, char *outer);
+extern void GetRootPosition(void *a0, char *outer);
 extern int *D_00631AE4;
 extern int D_006326D0;
 extern int D_00632CBC;
 extern unsigned char D_006326D8;
 extern void _CameraEdit_del_box(void);
 extern void func_00186978(void);
-extern void func_0018CC00(int a0);
+extern void CameraSetMode(int a0);
 extern void CameraEdit_Save(void);
 
 int CameraSetCameraSet(void) {
@@ -49,7 +49,7 @@ int CameraSetCameraSet(void) {
         _CameraEdit_del_box();
     }
     func_00186978();
-    func_0018CC00(1);
+    CameraSetMode(1);
     if (D_006326D8 == 0) {
         return 0;
     }
@@ -58,12 +58,12 @@ int CameraSetCameraSet(void) {
     return -1;
 }
 
-extern int CameraMove(int a0);
+extern int CameraEdit_BOX(int a0);
 extern int *D_00632610;
 extern int *D_00632614;
 extern void GetRootPositionForCamera(int a0, int a1);
 
-void CameraSetCameraSet_Default(int a0) {
+void CameraEdit_reset_box(int a0) {
     struct S4Cx { int w[19]; } *src;
     struct S4Cx *dst;
     void *saved;
@@ -74,7 +74,7 @@ void CameraSetCameraSet_Default(int a0) {
     *dst = *src;
     *(void **)((char *)dst + 0x48) = saved;
     i = 0;
-    while (i < *(int *)(CameraMove(a0) + 0x3C) - *(int *)(CameraMove(a0) + 0x38)) {
+    while (i < *(int *)(CameraEdit_BOX(a0) + 0x3C) - *(int *)(CameraEdit_BOX(a0) + 0x38)) {
         GetRootPositionForCamera(a0, i);
         i++;
     }
@@ -88,7 +88,7 @@ void GetRootPositionForCamera(int a0, int a1) {
 
 /* 0x4C, 4-byte aligned */ extern void ico2camera_GetGroupNearest(int a0, int a1);
 
-void ico2camera_GetTargetPos(int a0) {
+void CameraEdit_reflect_box(int a0) {
     S4C *dst = (S4C *)(D_00632610[1] + a0 * 0x4C);
     S4C *src = (S4C *)(D_00632614[1] + a0 * 0x4C);
     void *saved = *(void **)((char *)dst + 0x48);
@@ -96,7 +96,7 @@ void ico2camera_GetTargetPos(int a0) {
     *dst = *src;
     *(void **)((char *)dst + 0x48) = saved;
     i = 0;
-    while (i < *(int *)(CameraMove(a0) + 0x3C) - *(int *)(CameraMove(a0) + 0x38)) {
+    while (i < *(int *)(CameraEdit_BOX(a0) + 0x3C) - *(int *)(CameraEdit_BOX(a0) + 0x38)) {
         ico2camera_GetGroupNearest(a0, i);
         i++;
     }
@@ -108,17 +108,17 @@ void ico2camera_GetGroupNearest(int a0, int a1) {
     *dst = *src;
 }
 
-int initMonitorCamera(void) {
+int CameraEdit_BOX_NUMBER(void) {
     return *D_00632614;
 }
 
-int monitorMonitorCamera(int a0) {
-    int r1 = CameraMove(a0);
-    int r2 = CameraMove(a0);
+int CameraEdit_PIN_NUMBER(int a0) {
+    int r1 = CameraEdit_BOX(a0);
+    int r2 = CameraEdit_BOX(a0);
     return *(int *)(r1 + 0x3C) - *(int *)(r2 + 0x38);
 }
 
-int ChaseCamera(int *a0, int a1) {
+int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1) {
     int sum = 0;
     int i;
     for (i = 0; i < a1; i++) {
@@ -127,21 +127,21 @@ int ChaseCamera(int *a0, int a1) {
     return sum;
 }
 
-int CameraMove(int a0) {
+int CameraEdit_BOX(int a0) {
     return D_00632614[1] + a0 * 0x4C;
 }
 
-int ReflectCameraSetBinary(int a0, int a1) {
+int CameraEdit_PIN(int a0, int a1) {
     return *(int *)(D_00632614[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
 }
 
 extern void func_00104F20(void);
-extern void func_00104FC0(int a0);
-extern void func_00105268(void);
+extern void MatrixDrive_RotMatrixY(int a0);
+extern void MatrixDrive_PopMatrix(void);
 extern void *func_00105278(void);
-extern void func_002438B8(void *a0, void *a1, void *a2);
-extern void func_00243978(void *a0, void *a1);
-extern void func_00243BD8(void *a0);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
+extern void sceVu0Normalize(void *a0, void *a1);
+extern void sceVu0UnitMatrix(void *a0);
 
 typedef struct Vec3 { float x, y, z; } Vec3;
 typedef union Mat4 { float f[4]; long long q[2]; } Mat4;
@@ -151,7 +151,7 @@ extern void gif_SpriteOffset(int a0);
 extern void func_001D49C0(Vec3 *a, Vec3 *b, Mat4 *c, int d);
 extern void func_0010F630(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", InitIco2Camera);
+INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", CameraEdit_DispPin);
 
 extern int D_00631990;
 typedef struct StageParam {
@@ -167,7 +167,7 @@ extern float D_0028AE48[];
 extern void CameraEdit_add_pin(S4C *a0);
 extern int CameraEdit_del_box(int a0, char *a1);
 
-void GetTargetOffset(int n, S4C *item, char *groups) {
+void ConvertCameraSetBuffer(int n, S4C *item, char *groups) {
     CamMgr *m1;
     CamMgr *m2;
     int i;
@@ -201,7 +201,7 @@ void GetTargetOffset(int n, S4C *item, char *groups) {
     }
 }
 
-void SetCameraMatrix_Ico2(int a0, int a1, int a2, int a3, float *out, int a5) {
+void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5) {
     float zero = 0.0f;
     int absA0 = a0 < 0 ? -a0 : a0;
     out[2] = zero;
@@ -223,18 +223,18 @@ void SetCameraMatrix_Ico2(int a0, int a1, int a2, int a3, float *out, int a5) {
     } else {
         float vec[4];
         void *p;
-        func_00243BD8(func_00105278());
+        sceVu0UnitMatrix(func_00105278());
         func_00104F20();
         vec[0] = (float)a1;
         vec[1] = zero;
         vec[2] = (float)a0;
         vec[3] = zero;
-        func_00243BD8(func_00105278());
-        func_00104FC0((short)a3);
+        sceVu0UnitMatrix(func_00105278());
+        MatrixDrive_RotMatrixY((short)a3);
         p = func_00105278();
-        func_002438B8(vec, p, vec);
-        func_00243978(out, vec);
-        func_00105268();
+        sceVu0ApplyMatrix(vec, p, vec);
+        sceVu0Normalize(out, vec);
+        MatrixDrive_PopMatrix();
         out[0] = out[0] * (float)(-a5);
         out[2] = out[2] * (float)a5;
     }
@@ -242,7 +242,7 @@ void SetCameraMatrix_Ico2(int a0, int a1, int a2, int a3, float *out, int a5) {
 
 extern char D_0055A8E0[];
 extern char D_00275250[];
-extern void debug_assertMessage(char *a0, ...);
+extern void debug_StdPrintfDummy(char *a0, ...);
 extern void iosSemaCreate(void *a0);
 extern void iosSemaDelete(void *a0);
 
@@ -251,7 +251,7 @@ void ReadCameraSet(void *obj) {
     iosSemaCreate(obj);
     base = D_00275250;
     for (;;) {
-        debug_assertMessage(D_0055A8E0, *(void **)((char *)obj + 0x74));
+        debug_StdPrintfDummy(D_0055A8E0, *(void **)((char *)obj + 0x74));
         if (*(int *)(base + 0x5C) & 0x20) {
             D_006326D0 = *(int *)((char *)obj + 0x70);
             iosSemaDelete(obj);
@@ -268,7 +268,7 @@ void func_00187EA0(void *obj) {
     iosSemaCreate(obj);
     base = D_00275250;
     for (;;) {
-        debug_assertMessage(D_0055A8F0, *(void **)((char *)obj + 0x74));
+        debug_StdPrintfDummy(D_0055A8F0, *(void **)((char *)obj + 0x74));
         if (*(int *)(base + 0x5C) & 0x20) {
             DispCameraGroup(ReadCameraSet, 3, obj);
         }
@@ -280,7 +280,7 @@ int func_00187F10(void *a0, int a1) {
     return *(int *)((char *)a0 + 4) + a1 * 0x4C;
 }
 
-int SetCameraZoomOffsetRatio(int *a0, int a1, int a2)
+int _CameraEdit_PIN(int *a0, int a1, int a2)
 {
   int *p;
   return ((int *) (a0[1] + (a1 * 0x4C)))[0x48 / 4] + (a2 * 0x5C);
@@ -288,7 +288,7 @@ int SetCameraZoomOffsetRatio(int *a0, int a1, int a2)
 
 extern char D_0055A900[];
 
-int GetCameraGroupCurrent(CamMgr *mgr, S4C *src) {
+int _CameraEdit_add_box(CamMgr *mgr, S4C *src) {
     int result = -1;
     int i;
     char *p;
@@ -314,11 +314,11 @@ int GetCameraGroupCurrent(CamMgr *mgr, S4C *src) {
         }
         return result;
     }
-    debug_assertMessage(D_0055A900);
+    debug_StdPrintfDummy(D_0055A900);
     return -1;
 }
 
-int GetCameraGroupFromGObj(void *a0, int a1, S5C *src) {
+int _CameraEdit_add_pin(void *a0, int a1, S5C *src) {
     int base = a1 * 0x4C + *(int *)((char *)a0 + 4);
     int n = *(int *)(base + 0x3C);
     int result = -1;
@@ -329,7 +329,7 @@ int GetCameraGroupFromGObj(void *a0, int a1, S5C *src) {
         result = *(int *)(base2 + 0x3C);
         *(int *)(base2 + 0x3C) = result + 1;
     } else {
-        debug_assertMessage(D_0055A900, (void *)a1);
+        debug_StdPrintfDummy(D_0055A900, (void *)a1);
     }
     return result;
 }
@@ -361,7 +361,7 @@ void AddPluralCameraSet(int a0) {
 }
 
 
-void InitPluralCameraSet(void) {
+void CameraSetCameraSet_Default(void) {
     AddPluralCameraSet(D_005F2FB8[D_00631990].camSetId);
 }
 
@@ -370,12 +370,12 @@ void GetPluralCameraSet(int a0, int a1)
     if (a1 == D_00631AE4) {
         actBoySupportBGBegin(a0, a1);
     } else {
-        GetRootMatrixByDObj(a0, a1);
+        GetRootPosition(a0, a1);
     }
 }
 
-extern void InitCameraSetManager(int *a0, int *a1);
-extern void func_00243B18(void *a, void *b, float s);
+extern void CameraGetTargets(int *a0, int *a1);
+extern void sceVu0ScaleVector(void *a, void *b, float s);
 extern float D_006D0520[3];
 extern float D_006D0530[3];
 extern float D_006D0540[3];
@@ -383,7 +383,7 @@ extern float D_006D0550[3];
 extern float D_006D05E0[3];
 extern float D_006D05F0[3];
 
-void MakeCameraSetBinary(int a0) {
+void ico2camera_GetTargetPos(int a0) {
     unsigned char flag = a0;
     int p1;
     int p2;
@@ -395,15 +395,15 @@ void MakeCameraSetBinary(int a0) {
     float C[4];
     int i;
 
-    InitCameraSetManager(&p1, &p2);
+    CameraGetTargets(&p1, &p2);
     if (p1 == 0) {
         return;
     }
     if (p2 != 0) {
         GetPluralCameraSet(A, p1);
         GetPluralCameraSet(B, p2);
-        func_00243B18(A, A, -1.0f);
-        func_00243B18(B, B, -1.0f);
+        sceVu0ScaleVector(A, A, -1.0f);
+        sceVu0ScaleVector(B, B, -1.0f);
         v1[0] = A[0];
         v1[1] = A[1];
         v1[2] = A[2];
@@ -415,7 +415,7 @@ void MakeCameraSetBinary(int a0) {
         v2[2] = A[2];
     } else {
         GetPluralCameraSet(C, p1);
-        func_00243B18(C, C, -1.0f);
+        sceVu0ScaleVector(C, C, -1.0f);
         v0[0] = C[0];
         v0[1] = C[1];
         v0[2] = C[2];
@@ -460,7 +460,7 @@ void MakeCameraSetBinary(int a0) {
 extern char *D_00633D58;
 extern float D_006326E4[];
 extern int D_00633D60;
-extern void func_002641D8(float *a0, int a1, int a2);
+extern void memset(float *a0, int a1, int a2);
 
 int GetSizeOfCameraSetBinary(float *query) {
     int result = -1;
@@ -472,7 +472,7 @@ int GetSizeOfCameraSetBinary(float *query) {
             float *center = (float *)(entry + 0x20);
             float *range = (float *)(entry + 0x2C);
             int k;
-            func_002641D8(buf, 0, 0x10);
+            memset(buf, 0, 0x10);
             for (k = 0; k < 3; k++) {
                 float d = query[k] - center[k];
                 float r;
@@ -496,7 +496,7 @@ int GetSizeOfCameraSetBinary(float *query) {
     return result;
 }
 
-void SetCameraTargetPosition(int a0)
+void initMonitorCamera(int a0)
 {
     /* The two block-local quantities here are the %hi address of D_006D04B4 and
      * the constant 1.  local-alloc orders them by QTY_CMP_PRI =
@@ -519,35 +519,35 @@ void SetCameraTargetPosition(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_001886F8);
 
-extern void func_00243AE8(void *dst, void *a, void *b);
-extern float MatrixDrive_GetTurnYAngleXZ(float v);
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern float FSqrt(float v);
 extern Mat4 D_0055A930;
 extern int D_00632734;
 extern float D_00630ECC;
 extern void *subCommonIdle(int a0);
-extern float func_00194630(void *a0);
+extern float _GetDirection(void *a0);
 extern void func_001945B8(void *a0, float v);
-extern void func_00243AD0(void *dst, void *a, void *b);
-extern void _OrientXZGV(void *a0, void *a1, void *a2, float f12, float f13);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void _InterGV(void *a0, void *a1, void *a2, float f12, float f13);
 
-void func_00188C98(float *a0, float *a1) {
+void ChaseCamera(float *a0, float *a1) {
     Mat4 v0;
     Mat4 v1;
     Mat4 mat;
     Mat4 v3;
     float t;
     mat = D_0055A930;
-    t = func_00194630(subCommonIdle(D_00632734));
+    t = _GetDirection(subCommonIdle(D_00632734));
     func_001945B8(&mat, (float)(int)(t / D_00630ECC * 180.0f) * D_00630ECC / 180.0f);
-    func_00243AD0(&v0, a0, &mat);
-    func_00243AE8(&v3, a1, a0);
+    sceVu0AddVector(&v0, a0, &mat);
+    sceVu0SubVector(&v3, a1, a0);
     v3.f[1] = 0.0f;
-    MatrixDrive_GetTurnYAngleXZ(v3.f[0] * v3.f[0] + v3.f[1] + v3.f[2] * v3.f[2]);
-    func_00243978(&v3, &v3);
-    func_00243B18(&v3, &v3, -500.0f);
-    func_00243AD0(&v1, &v3, a0);
+    FSqrt(v3.f[0] * v3.f[0] + v3.f[1] + v3.f[2] * v3.f[2]);
+    sceVu0Normalize(&v3, &v3);
+    sceVu0ScaleVector(&v3, &v3, -500.0f);
+    sceVu0AddVector(&v1, &v3, a0);
     v1.f[1] = a0[1] + 200.0f;
-    _OrientXZGV(a1, &v0, &v1, 4.0f, 5.0f);
+    _InterGV(a1, &v0, &v1, 4.0f, 5.0f);
     a1[0] = v0.f[0];
     a1[1] = v0.f[1];
     a1[2] = v0.f[2];
@@ -557,14 +557,14 @@ void func_00188C98(float *a0, float *a1) {
     a1[8] = 50.0f;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_00188E30);
+INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", CameraMove);
 
 extern int D_00633D54;
 extern unsigned char D_00633D70;
 extern float D_00633D68;
 extern float D_00633D6C;
 extern int D_00274EC0[];
-extern void func_00194E28(void);
+extern void InitHandCameraCorrect(void);
 
 extern char D_0055A940[];
 extern int D_00633D5C;
@@ -576,7 +576,7 @@ INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_001897A8);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_00189AC8);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_00189B88);
+INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", GetTargetOffset);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_00189D68);
 
@@ -590,13 +590,13 @@ int func_0018B0A0(void) {
     return D_00633D64;
 }
 
-int func_0018B0A8(void *obj) {
+int GetCameraGroupFromGObj(void *obj) {
     float buf[4];
     float *bp;
     int result;
     int i;
-    GetRootMatrixByDObj(buf, obj);
-    func_00243B18(buf, buf, -1.0f);
+    GetRootPosition(buf, obj);
+    sceVu0ScaleVector(buf, buf, -1.0f);
     bp = buf;
     result = -1;
     for (i = 0; i < D_00633D60; i++) {
@@ -629,7 +629,7 @@ int func_0018B180(float *pos) {
     float *bp;
     int result;
     int i;
-    func_00243B18(buf, pos, -1.0f);
+    sceVu0ScaleVector(buf, pos, -1.0f);
     bp = buf;
     result = -1;
     for (i = 0; i < D_00633D60; i++) {
@@ -666,15 +666,15 @@ extern CamSetEnt D_006D0600[];
 extern char D_0055A970[];
 extern char D_006326F0[];
 extern void func_001AD768(char *a0, int a1);
-extern void func_00263FF0(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern int func_0018A400(int a0, int a1);
 
 void func_0018B248(int key, int a1) {
     CamSetEnt *e;
     if (D_00633D74 >= 0xA) {
-        debug_assertMessage(D_0055A970, (void *)0xA);
+        debug_StdPrintfDummy(D_0055A970, (void *)0xA);
         func_001AD768(D_0055A940, 0x7C0);
-        func_00263FF0(D_0055A940, 0x7C0, D_006326F0);
+        __assert(D_0055A940, 0x7C0, D_006326F0);
     }
     e = &D_006D0600[D_00633D74];
     e->key = key;
@@ -696,13 +696,13 @@ int func_0018B300(int key) {
             return D_006D0600[i].val;
         }
     }
-    debug_assertMessage(D_0055A958, D_002919D0 + key * 0x20);
+    debug_StdPrintfDummy(D_0055A958, D_002919D0 + key * 0x20);
     func_001AD768(D_0055A940, 0x7B7);
-    func_00263FF0(D_0055A940, 0x7B7, D_006326F0);
+    __assert(D_0055A940, 0x7B7, D_006326F0);
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_0018B3A8);
+INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", MakeCameraSetBinary);
 
 int func_0018B620(S4C *p, int n) {
     int size = n * 0x4C;
@@ -716,11 +716,11 @@ int func_0018B620(S4C *p, int n) {
 
 extern float D_006D04C0[];
 
-void func_0018B668(float *a0, float *a1, float v) {
-    func_00243B18(D_006D04C0, a1, -1.0f);
-    func_00243B18(&D_006D04C0[4], a0, -1.0f);
-    func_00243B18(D_006D05E0, a0, -1.0f);
-    func_00243B18(D_006D05F0, a0, -1.0f);
+void SetCameraTargetPosition(float *a0, float *a1, float v) {
+    sceVu0ScaleVector(D_006D04C0, a1, -1.0f);
+    sceVu0ScaleVector(&D_006D04C0[4], a0, -1.0f);
+    sceVu0ScaleVector(D_006D05E0, a0, -1.0f);
+    sceVu0ScaleVector(D_006D05F0, a0, -1.0f);
     D_006D04C0[8] = v;
 }
 
@@ -747,7 +747,7 @@ void func_0018B700(void *a0)
 }
 
 extern float D_00630EF0;
-extern float func_0025E5D8(float y, float x);
+extern float atan2f(float y, float x);
 
 void func_0018B738(Ico2Cam *cam, Mtx3 *src) {
     Mtx3 m;
@@ -757,27 +757,27 @@ void func_0018B738(Ico2Cam *cam, Mtx3 *src) {
     cam->pos[0] = m.f[0];
     cam->pos[1] = m.f[1];
     cam->pos[2] = m.f[2];
-    func_002641D8(v, 0, 0x10);
+    memset(v, 0, 0x10);
     v[3] = 1.0f;
-    func_00243AE8(v, &m.f[4], &m.f[0]);
-    MatrixDrive_GetTurnYAngleXZ(v[0] * v[0] + v[2] * v[2]);
-    cam->angY = func_0025E5D8(v[0], v[2]) * 32768.0f / rad;
-    cam->angX = func_0025E5D8(v[1], MatrixDrive_GetTurnYAngleXZ(v[0] * v[0] + v[2] * v[2])) * -32768.0f / rad;
+    sceVu0SubVector(v, &m.f[4], &m.f[0]);
+    FSqrt(v[0] * v[0] + v[2] * v[2]);
+    cam->angY = atan2f(v[0], v[2]) * 32768.0f / rad;
+    cam->angX = atan2f(v[1], FSqrt(v[0] * v[0] + v[2] * v[2])) * -32768.0f / rad;
     cam->fov = m.f[8];
 }
 
-extern void func_00104F48(int a0);
-extern void func_00105038(int a0);
-extern void func_002439B0(void *a0, void *a1);
+extern void MatrixDrive_RotMatrixX(int a0);
+extern void MatrixDrive_RotMatrixZ(int a0);
+extern void sceVu0TransposeMatrix(void *a0, void *a1);
 extern void func_00105308(float x, float y, float z);
-extern float func_0010E9A0(int a0);
+extern float GetTableCos(int a0);
 extern float p2o_SetDefaultEnviroment(int a0);
 extern int D_00631C5C;
 extern int D_00631C60;
 extern void light_killLinkLight(int a0, int a1, float v);
 extern char *D_00631970;
-extern void func_00243B70(void *a0, void *a1);
-extern void gsb_SetVSMatrixSub(void);
+extern void sceVu0CopyMatrix(void *a0, void *a1);
+extern void gsb_MakeCommonMatrix(void);
 
 void func_0018B880(Ico2Cam *cam) {
     void *m0;
@@ -785,19 +785,19 @@ void func_0018B880(Ico2Cam *cam) {
     float scale;
     float aspect;
     func_00104F20();
-    func_00243BD8(func_00105278());
-    func_00104FC0(cam->angY);
-    func_00104F48(cam->angX);
-    func_00105038(cam->roll);
+    sceVu0UnitMatrix(func_00105278());
+    MatrixDrive_RotMatrixY(cam->angY);
+    MatrixDrive_RotMatrixX(cam->angX);
+    MatrixDrive_RotMatrixZ(cam->roll);
     m0 = func_00105278();
     m1 = func_00105278();
-    func_002439B0(m0, m1);
+    sceVu0TransposeMatrix(m0, m1);
     func_00105308(-cam->pos[0], -cam->pos[1], -cam->pos[2]);
-    scale = func_0010E9A0((short)(cam->fov * 32768.0f / 180.0f));
+    scale = GetTableCos((short)(cam->fov * 32768.0f / 180.0f));
     aspect = p2o_SetDefaultEnviroment((short)(cam->fov * 32768.0f / 180.0f));
     light_killLinkLight(D_00631C5C, D_00631C60, scale * 1024.0f / aspect);
-    func_00243B70(D_00631970 + 0x80, func_00105278());
-    func_00105268();
-    gsb_SetVSMatrixSub();
+    sceVu0CopyMatrix(D_00631970 + 0x80, func_00105278());
+    MatrixDrive_PopMatrix();
+    gsb_MakeCommonMatrix();
 }
 

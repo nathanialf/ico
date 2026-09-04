@@ -5,13 +5,13 @@
 
 
 extern char D_0055A568[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001918A8(void);
 extern int D_0028A890[];
-extern void saveEditedData();
+extern void brainAddLevel();
 extern int D_0028A894[];
 extern int D_00632600;
-INCLUDE_ASM("asm/nonmatchings/src/attackhit", MakeAttackPack_Actor);
+INCLUDE_ASM("asm/nonmatchings/src/attackhit", actConte11Jimaku);
 
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", func_00180A78);
 
@@ -59,7 +59,7 @@ INCLUDE_ASM("asm/nonmatchings/src/attackhit", func_00181D88);
 void func_00181F38(void)
 {
     if (D_0028A894[0] != 0) {
-        saveEditedData(D_0028A894[0]);
+        brainAddLevel(D_0028A894[0]);
     }
 }
 
@@ -103,7 +103,7 @@ void func_00181FB0(char *self, int key, float f12, float f13, float f14)
         i++;
         p = (int *)((char *)p + 0x1C);
     } while (i < 0x14);
-    return debug_assertMessage(D_0055A568);
+    return debug_StdPrintfDummy(D_0055A568);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", func_00182000);

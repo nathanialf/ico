@@ -10,7 +10,7 @@ typedef struct ActB4Obj {
 extern int D_00631AE8;
 extern void func_0017B258(int bit_idx);
 extern int func_0017B230(int a0);
-extern void AddWayPointTop();
+extern void SetWayGroupActive();
 extern void stage_KillPlayBgAnimation();
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_00274EC0[];
@@ -74,7 +74,7 @@ extern void _ACTWait(int a0);
 extern void actSt47aInit(volatile int a0);
 extern int func_0012AB50(int a0, int a1, int a2);
 extern void func_0017B288(int a0);
-extern void func_0017E870(float a0, float a1, float a2, float a3);
+extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern int scpKillSpiderGroup(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
@@ -91,7 +91,7 @@ void actSt47aEnd(volatile int a0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    func_0017E870(D_006316EC, D_006316F0, D_006316F4, 100.0f);
+    scpWakeupItemWithBoundary(D_006316EC, D_006316F0, D_006316F4, 100.0f);
     while (func_0012AB50(0x65, 0x5A, 1) == 0) {
         _ACTWait(1);
     }
@@ -515,10 +515,10 @@ void func_00237B78(void)
 {
     if (func_0017B230(0x120) == 0) {
         stage_KillPlayBgAnimation(0x80, 0, 0);
-        AddWayPointTop(4, 0);
+        SetWayGroupActive(4, 0);
     } else {
         stage_KillPlayBgAnimation(0x80, 0, -1);
-        AddWayPointTop(4, 1);
+        SetWayGroupActive(4, 1);
     }
 }
 
@@ -820,17 +820,17 @@ void func_00239750(void)
 {
     if (func_0017B230(0x2C) != 0) {
         stage_KillPlayBgAnimation(0x91, 0, 0);
-        AddWayPointTop(0x21, 1);
+        SetWayGroupActive(0x21, 1);
     } else {
         stage_KillPlayBgAnimation(0x90, 0, 0);
-        AddWayPointTop(0x21, 0);
+        SetWayGroupActive(0x21, 0);
     }
     if (func_0017B230(0x2D) != 0) {
         stage_KillPlayBgAnimation(0x93, 0, 0);
-        AddWayPointTop(0x22, 1);
+        SetWayGroupActive(0x22, 1);
     } else {
         stage_KillPlayBgAnimation(0x92, 0, 0);
-        AddWayPointTop(0x22, 0);
+        SetWayGroupActive(0x22, 0);
     }
 }
 

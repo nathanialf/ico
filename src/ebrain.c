@@ -61,9 +61,9 @@ unsigned char func_001906A8(void *a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001906B8);
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001907E0);
+INCLUDE_ASM("asm/nonmatchings/src/ebrain", chain_sub_simulate);
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001909B8);
+INCLUDE_ASM("asm/nonmatchings/src/ebrain", chain_sub_pendulum);
 
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00190A48);
 

@@ -1,4 +1,4 @@
-/* func_00244958 — CRUTCH-FREE frontier, round 4 (2026-08-16).
+/* sceDmaPutStallAddr — CRUTCH-FREE frontier, round 4 (2026-08-16).
  * ORACLE (match_diff vs real TU splice): real_count 3 / diff_sites 3,
  * and the built stream is a PURE PERMUTATION of ROM's 10 instructions
  * (scheduling.moved: lw v0,0(v0) + the slot nop; hint: moved@dbr).
@@ -15,7 +15,7 @@
  * crutched (zero-code dead store) and lives at
  * tough_nuts/delayslot_unfilled/vendor_2418A0_func_00244958_frontier_rc2_CRUTCHED.c
  */
-unsigned int func_00244958(unsigned int a0) {
+unsigned int sceDmaPutStallAddr(unsigned int a0) {
     volatile unsigned int *p = (volatile unsigned int *)0x1000E060;
     unsigned int old = *p;
     if (a0 != 0xFFFFFFFFu) {

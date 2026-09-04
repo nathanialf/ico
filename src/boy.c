@@ -2,9 +2,9 @@
 
 #include "ico/types.h"
 
-extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void GetRootPosition(void *a0, void *a1);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
-extern void func_00243AD0(void *a0, void *a1, void *a2);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 
 int dispClothes(int *a0, char *a1) {
     char *obj = (char *)*a0;
@@ -15,10 +15,10 @@ int dispClothes(int *a0, char *a1) {
         return 0;
     }
     *(float *)(p15c + 0x134) += 0.5f;
-    GetRootMatrixByDObj(buf + 0x10, obj);
+    GetRootPosition(buf + 0x10, obj);
     MatrixDrive_TurnObjectMatrix(buf, *(char **)(a1 + 0x15C) + 0xA0);
     *(int *)(buf + 4) = 0;
-    func_00243AD0(s0 + 0xD0, s0 + 0xD0, buf);
+    sceVu0AddVector(s0 + 0xD0, s0 + 0xD0, buf);
     return 1;
 }
 

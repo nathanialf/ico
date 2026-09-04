@@ -13,9 +13,9 @@ typedef struct NdW {
     int f20; char _24[0x4];
     int f28; char _2C[0x14];
 } NdW;
-extern void func_00243B60(int *, int);
+extern void sceVu0CopyVector(int *, int);
 
-int add_wp_pos(int a0)
+int CreateWayPoint(int a0)
 {
     NdW *node = (NdW *)D_004CC1E0;
     int i;
@@ -26,7 +26,7 @@ int add_wp_pos(int a0)
             node->f8 = 0;
             node->fC = 0;
             node->f28 = 0;
-            func_00243B60(&node->f10, a0);
+            sceVu0CopyVector(&node->f10, a0);
             return i;
         }
         node++;
@@ -34,9 +34,9 @@ int add_wp_pos(int a0)
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayLengthOfPos_Pos);
+INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", AddWayPoint);
 
-int WayPointWithRangeFromPos(int a0, int a1)
+int AddWayPointTop(int a0, int a1)
 {
     int *ch = (int *)&D_004CAEC0[a0 * 0x34];
     Nd *node = &D_004CC1E0[a1];
@@ -49,7 +49,7 @@ int WayPointWithRangeFromPos(int a0, int a1)
     return 0;
 }
 
-int WayPointWithRangeFromPos2(int dummy, int idx1, int idx2)
+int InsertWayPointAfter(int dummy, int idx1, int idx2)
 {
     int *node_a = (int *)((char *)D_004CC1E0 + idx1 * 0x40);
     int *node_b = (int *)((char *)D_004CC1E0 + idx2 * 0x40);
@@ -119,7 +119,7 @@ WpNode *WayLengthOfGObj_GObj(WpNode *p)
     return 0;
 }
 
-WpNode *WayPointWithRangeFromGObj(void)
+WpNode *WayBridgeAll_begin(void)
 {
     WpNode *p = &D_004CAE8C;
     WpNode *end = p + 94;
@@ -132,5 +132,5 @@ WpNode *WayPointWithRangeFromGObj(void)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", func_00205900);
+INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayBridgeAll_next);
 

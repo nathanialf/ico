@@ -4,7 +4,7 @@
 
 extern void func_001BF2C8(int *self);
 extern void func_00102858(int *self);
-extern void func_001AE460(int *self);
+extern void gamesysObjInfoUniqDataSet(int *self);
 
 void func_001C0538(int *self)
 {
@@ -23,5 +23,5 @@ void func_001C0538(int *self)
     p[0] = next;
     if (v_copy < 0x1F) return;
     p[0] = 0;
-    func_001AE460(self);
+    gamesysObjInfoUniqDataSet(self);
 }

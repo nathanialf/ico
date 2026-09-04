@@ -7,7 +7,7 @@ int func_00141048(int *a0, int *a1)
     int *p = (int *)a1[0xB];
     int cur, delta, v2;
     register int v3 REG("$3");
-    cur = func_0025DFB0(p[2]);
+    cur = SgStAdpcmIopReadAddr(p[2]);
     if (cur == p[4]) { goto end; }
     delta = cur - p[4];
     if (p[4] >= cur) { delta = p[7] - p[4]; }

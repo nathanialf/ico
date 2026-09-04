@@ -1,7 +1,7 @@
 extern int DebugDisp1CollisionWithColor(void *a0, int code);
-extern void func_002438B8(void *a0, void *a1, void *a2);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 
-void funcGirlHandDisconnect(float *out, char *obj) {
+void GetEyeDirection(float *out, char *obj) {
     int c = DebugDisp1CollisionWithColor(obj, 0x23);
     int k = *(int *)(obj + 0xC);
     *(int *)&out[0] = 0;
@@ -12,6 +12,6 @@ void funcGirlHandDisconnect(float *out, char *obj) {
     }
     *(int *)&out[2] = 0;
     *(int *)&out[3] = 0;
-    func_002438B8(out, (void *)(*(int *)(*(int *)(obj + 0x15C) + 0xC) + (c << 6)), out);
+    sceVu0ApplyMatrix(out, (void *)(*(int *)(*(int *)(obj + 0x15C) + 0xC) + (c << 6)), out);
 }
 

@@ -46,7 +46,7 @@ glabel func_00104478
     /* 44DC 001044DC 21286500 */   addu      $5, $3, $5
     /* 44E0 001044E0 2D202002 */  daddu      $4, $17, $0
     /* 44E4 001044E4 2D28A003 */  daddu      $5, $29, $0
-    /* 44E8 001044E8 2E0E090C */  jal        func_002438B8
+    /* 44E8 001044E8 2E0E090C */  jal        sceVu0ApplyMatrix
     /* 44EC 001044EC 2D308000 */   daddu     $6, $4, $0
 .align 2
   .L001044F0:

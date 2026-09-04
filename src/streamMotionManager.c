@@ -12,7 +12,7 @@ extern int D_00633728;
 extern int D_00633724;
 extern int D_00633720;
 extern char D_0061A598[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 struct Slot {
     int unk0, unk4, f_8, f_C;
     int self_ptr;
@@ -21,7 +21,7 @@ struct Slot {
 extern int D_00633708;
 extern struct Slot D_0070D4D8[];
 extern int D_0063370C;
-extern void func_00264128();
+extern void memcpy();
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", _infoUpdate);
 
 void PlayStreamMotion(int *idx_p, char *dst, int size, char *src, int amt)
@@ -33,11 +33,11 @@ void PlayStreamMotion(int *idx_p, char *dst, int size, char *src, int amt)
         int overflow = new_idx - size;
         int first_chunk = amt - overflow;
         *idx_p = overflow;
-        func_00264128(dst + old_idx, src, first_chunk);
-        func_00264128(dst, src + first_chunk, *idx_p);
+        memcpy(dst + old_idx, src, first_chunk);
+        memcpy(dst, src + first_chunk, *idx_p);
         return;
     }
-    func_00264128(dst + old_idx, src, amt);
+    memcpy(dst + old_idx, src, amt);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0BC8);
@@ -68,7 +68,7 @@ int StandbyStreamMotion(int idx)
 {
   if (D_0070D4D8[idx].f_C < 0)
   {
-    debug_assertMessage(D_0061A598);
+    debug_StdPrintfDummy(D_0061A598);
     return 4;
   }
   return D_0070D4D8[idx].f_8;
@@ -80,7 +80,7 @@ void StopStreamMotion(void) {
     D_00633724 = 0;
 }
 
-int DeleteStreamMotionManager(void)
+int CheckReadyStreamMotion(void)
 {
     unsigned int p = D_00633718;
     unsigned int q = D_0063371C;

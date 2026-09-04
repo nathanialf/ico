@@ -8,7 +8,7 @@
 
 extern unsigned int D_0063373C;
 extern int D_0061A578[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int D_00633714;
 extern int D_0063370C;
 extern char D_0061A500[];
@@ -31,11 +31,11 @@ void ClipStormByCamera(int val) {
     D_006336AC = val;
 }
 
-void UpdateStormPackage(int x) {
+void SetStaticBlur(int x) {
     D_00275208[0] = x;
 }
 
-void DispStormPackage(float f12, float f13, int a0)
+void SetDepthFadeParam(float f12, float f13, int a0)
 {
     D_00275120.field_EC = (int)f12;
     D_00275120.field_F0 = (int)f13;
@@ -57,7 +57,7 @@ extern int D_00633634;
 extern int D_00633638;
 extern int prim_DispFan2D(int a, float e, int *b, unsigned int c, int d);
 
-void InitStormTestGeo(void)
+void _initStaticBlur(void)
 {
     D_00633634 = prim_DispFan2D(0x10, 80.0f, D_00275860, 0xFFFFFF80u, 0);
     D_00633638 = prim_DispFan2D(0x10, 80.0f, D_00275860, 0xFFFFFF80u, 0);
@@ -71,44 +71,44 @@ INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001EFD18);
 
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001EFEE0);
 
-INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0098);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", UpdateStormPackage);
 
-INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0260);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", DispStormPackage);
 
-extern void func_001F0098(int a0);
+extern void UpdateStormPackage(int a0);
 
 void func_001F0540(void *a0) {
     char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
-    func_001F0098(*(int *)(p + 0x20));
+    UpdateStormPackage(*(int *)(p + 0x20));
 }
 
-extern void func_001F0260(int a0, void *a1);
+extern void DispStormPackage(int a0, void *a1);
 
 void func_001F0550(void *a0) {
     char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
-    func_001F0260(*(int *)(p + 0x20), p + 0x10);
+    DispStormPackage(*(int *)(p + 0x20), p + 0x10);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0568);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", InitStormTestGeo);
 
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0608);
 
 void func_001F0858(void)
 {
     if (D_00633714 == 0) {
-        return debug_assertMessage(D_0061A500);
+        return debug_StdPrintfDummy(D_0061A500);
     }
     D_0063370C = 1;
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0878);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", ClearStreamMotionEntry);
 
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F08D8);
 
 void func_001F0A28(void)
 {
     D_0063373C = 0;
-    debug_assertMessage(D_0061A578);
+    debug_StdPrintfDummy(D_0061A578);
 }
 

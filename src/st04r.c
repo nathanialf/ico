@@ -13,7 +13,7 @@ extern int actItouQueenAttackChk(void);
 extern int func_0012AA80(int a0);
 extern int func_0012AB50(int a0, int a1, int a2);
 extern void func_0017B258(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int scpTriggerBall(int a0, int a1, float a2);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
@@ -23,7 +23,7 @@ void actSt05eEnd(volatile int a0) {
     _ACTWait(1);
     while (1) {
         if (actItouQueenAttackChk() == 4 &&
-            scpSleepEnemyOne(a0, D_00631AE4, 100.0f) != 0 &&
+            scpTriggerBall(a0, D_00631AE4, 100.0f) != 0 &&
             (GetSkeltonFocusNode(D_00631AE4) == 0x25 ||
              GetSkeltonFocusNode(D_00631AE4) == 0x2A ||
              GetSkeltonFocusNode(D_00631AE4) == 0x2C ||

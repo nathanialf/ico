@@ -4,13 +4,13 @@
 extern int D_00633C90;
 extern int D_00631950;
 extern int *D_00632108;
-extern void func_00100F18(int);
+extern void iWakeupThread(int);
 
-int controler_stable_check(int a0) {
+int signal_handler(int a0) {
     if (a0 == 2) {
         volatile unsigned long long *reg = (volatile unsigned long long *)0x12001000;
         D_00631950 = (int)(((*reg >> 13) & 1) ^ 1);
-        func_00100F18(D_00632108[12]);
+        iWakeupThread(D_00632108[12]);
     }
     return 0;
 }
@@ -88,26 +88,26 @@ int iosPadActInit(void) {
 
 extern int D_00632194;
 extern unsigned char D_006A6DB0[];
-extern void func_002641D8(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 extern void iosThreadDestroy();
-extern void iosThreadMessage(void *a0);
+extern void Init_Player(void *a0);
 extern void iosThreadName(void *a0);
-extern int iosThreadSetPri(int a0, int a1);
+extern int Shock_SetShockVoiceSet(int a0, int a1);
 
 void iosPadActStop(void) {
     unsigned char *base;
     unsigned char *p;
     int i;
-    func_002641D8(D_006A6DB0, 0, 0x180);
+    memset(D_006A6DB0, 0, 0x180);
     iosThreadDestroy();
-    iosThreadSetPri(0, D_00632194);
+    Shock_SetShockVoiceSet(0, D_00632194);
     base = D_002811C0;
     p = base + 0x1B8;
     i = 1;
     do {
         iosThreadName(p);
         i--;
-        iosThreadMessage(p - 0x14);
+        Init_Player(p - 0x14);
         p += 0x200;
     } while (i >= 0);
 }

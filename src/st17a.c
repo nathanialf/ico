@@ -62,11 +62,11 @@ void actSt17aSekizo(int x) {
     volatile int local = x;
 }
 
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
 void func_0022D6C0(volatile int a0) {
-    while (scpSleepEnemyOne(a0, (int)actSt25aQueenDeadChk(0x37B), 100.0f) == 0) {
+    while (scpTriggerBall(a0, (int)actSt25aQueenDeadChk(0x37B), 100.0f) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0x110);
@@ -76,7 +76,7 @@ void func_0022D6C0(volatile int a0) {
 }
 
 void func_0022D740(volatile int a0) {
-    while (scpSleepEnemyOne(a0, (int)actSt25aQueenDeadChk(0x37C), 100.0f) == 0) {
+    while (scpTriggerBall(a0, (int)actSt25aQueenDeadChk(0x37C), 100.0f) == 0) {
         _ACTWait(1);
     }
     func_0017B258(0x111);
@@ -113,12 +113,12 @@ void func_0022D7F0(volatile int a0) {
 
 extern int D_00632110;
 extern int D_00633060;
-extern void actConte11(int a0);
+extern void scpKillEnemyOne(int a0);
 extern void func_0017C990(int a0);
 
 void func_0022D848(volatile int a0) {
     int save;
-    while (scpSleepEnemyOne(a0, D_00631AE4, 500.0f) == 0) {
+    while (scpTriggerBall(a0, D_00631AE4, 500.0f) == 0) {
         _ACTWait(1);
     }
     D_00633060 = 0;
@@ -127,9 +127,9 @@ void func_0022D848(volatile int a0) {
     D_00632110 = 0;
     _ACTWait(0x1E);
     func_0017B258(0x10F);
-    actConte11(0x388);
-    actConte11(0x391);
-    actConte11(0x392);
+    scpKillEnemyOne(0x388);
+    scpKillEnemyOne(0x391);
+    scpKillEnemyOne(0x392);
     func_0017C990(0x393);
     _ACTWait(0x1E);
     D_00632110 = save;
@@ -137,20 +137,20 @@ void func_0022D848(volatile int a0) {
     D_00633060 = 1;
 }
 
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void func_0022D8F8(void) {
     if (func_0017B230(0x112) != 0) {
         stage_KillPlayBgAnimation(0x15E, 0, -1);
-        AddWayPointTop(0xF, 1);
+        SetWayGroupActive(0xF, 1);
     } else {
         stage_KillPlayBgAnimation(0x15E, 0, 0);
     }
     if (func_0017B230(0x114) == 0) {
-        AddWayPointTop(0x17, 0);
+        SetWayGroupActive(0x17, 0);
         stage_KillPlayBgAnimation(0x161, 0, 0);
     } else {
-        AddWayPointTop(0x17, 1);
+        SetWayGroupActive(0x17, 1);
         stage_KillPlayBgAnimation(0x161, 0, -1);
     }
     if (func_0017B230(0x113) == 0) {
@@ -163,7 +163,7 @@ void func_0022D8F8(void) {
 extern int D_00633A78;
 
 void func_0022D9C0(volatile int a0) {
-    while (scpSleepEnemyOne(a0, D_00631AE4, 50.0f) == 0) {
+    while (scpTriggerBall(a0, D_00631AE4, 50.0f) == 0) {
         _ACTWait(1);
     }
     iosPadDevRead(D_00631AEC, 0x10);
@@ -181,7 +181,7 @@ void func_0022D9C0(volatile int a0) {
     }
     _ACTWait(1);
     iosPadDevRead(D_00631AEC, 0x10);
-    AddWayPointTop(0xF, 1);
+    SetWayGroupActive(0xF, 1);
     scpActivateAllWithKind();
     D_006325B4 = 0;
     lt_fade_status(0x32);
@@ -214,17 +214,17 @@ void func_0022DAC8(volatile int a0) {
     lt_fade_status(0x32);
 }
 
-extern int scpSubAdpcmPlay(int a0);
+extern int scpIsBombExplode(int a0);
 extern int actCreateSubThread(void *fn, int a1);
 extern int scpPlayEnd(void);
 extern void scpTrans(int a0, int a1);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
-extern int actSt25aQueenDeadEvent(void);
-extern void Vibration_WaveDecode(void);
-extern void iosSemaWait(int a0, int a1);
+extern void scpFadeOut(int a0, int a1, int a2, float f);
+extern int scpFadeChk(void);
+extern void iosPadActStopAll(void);
+extern void iosThreadSetPri(int a0, int a1);
 extern void func_0018CEE0(void);
 extern void gflagOff(int a0, int a1);
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void func_00122C48(int a0);
 extern void func_0022ED40(volatile unsigned int a0);
 extern void func_0022DDD8(volatile int a0);
@@ -235,7 +235,7 @@ void func_0022DBC8(volatile int a0) {
     int sub;
     int st;
 
-    while ((v0 = scpSubAdpcmPlay(0x13)) == 0 || scpSleepEnemyOne(a0, v0, 350.0f) == 0) {
+    while ((v0 = scpIsBombExplode(0x13)) == 0 || scpTriggerBall(a0, v0, 350.0f) == 0) {
         _ACTWait(1);
     }
     if (D_00631AE8 != 0 && scpSleepSpiderGroupOne(D_00631AE8, 0x4000000) != 0) {
@@ -259,18 +259,18 @@ void func_0022DBC8(volatile int a0) {
     st = D_00633FB4 ^ 1;
     if (st != 0) {
         scpTrans((int)D_00633A80, 0xC0);
-        actSt25aQueenBeforeChk(0, 0, 0, 16.0f);
-        while (actSt25aQueenDeadEvent() != 0) {
+        scpFadeOut(0, 0, 0, 16.0f);
+        while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
     }
-    Vibration_WaveDecode();
-    iosSemaWait(sub + 0x24, 0x22);
+    iosPadActStopAll();
+    iosThreadSetPri(sub + 0x24, 0x22);
     if (st) {
         stage_KillPlayBgAnimation(0x161, 1, -1);
         func_0018CEE0();
         gflagOff(D_00631AE4, 0);
-        actConte11Jimaku(3.0f);
+        scpFadeIn(3.0f);
     }
     ((int *)actSt25aQueenDeadChk(0x5D1))[0x16C / 4] = 1;
     ((int *)actSt25aQueenDeadChk(0x5D2))[0x16C / 4] = 1;
@@ -278,14 +278,14 @@ void func_0022DBC8(volatile int a0) {
     D_006325B4 = 0;
     lt_fade_status(0x32);
     func_00122C48(0);
-    AddWayPointTop(0x17, 1);
+    SetWayGroupActive(0x17, 1);
 }
 
-extern void AdpcmClose(int a0);
+extern void AdpcmPlay(int a0);
 
 void func_0022DDD8(volatile int a0) {
     stage_KillPlayBgAnimation(0x161, 1, 0);
-    AdpcmClose(D_00633A80[0x2C / 4]);
+    AdpcmPlay(D_00633A80[0x2C / 4]);
     ((int *)actSt25aQueenDeadChk(0x5D1))[0x16C / 4] = 0;
     ((int *)actSt25aQueenDeadChk(0x5D2))[0x16C / 4] = 0;
     while (func_0012AB50(0x161, 0xD7, 0) == 0) {
@@ -345,7 +345,7 @@ typedef struct KSub_e058 {
 
 extern int D_004D3180[];
 extern int D_004D31A0[];
-extern void scpTorchLightOn(int a0, int a1);
+extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 
 void func_0022E058(volatile int a0) {
     int x = a0;
@@ -362,10 +362,10 @@ void func_0022E058(volatile int a0) {
         ((int *)actSt25aQueenDeadChk(0x5FE))[0x16C / 4] = 0;
         ((int *)actSt25aQueenDeadChk(0x5FF))[0x16C / 4] = 0;
         ((int *)actSt25aQueenDeadChk(0x600))[0x16C / 4] = 0;
-        scpTorchLightOn(0x5F7, 0x81);
+        scpLinkBGAtoLayoutedTarget(0x5F7, 0x81);
         stage_KillPlayBgAnimation(0x81, 0, 0x1E);
-        AddWayPointTop(0x25, 1);
-        AddWayPointTop(0x26, 1);
+        SetWayGroupActive(0x25, 1);
+        SetWayGroupActive(0x26, 1);
         D_004D3180[1] = (int)func_0022E398;
         s->unkC4 = D_004D3180;
         BoxBarSoundOn(a0, 0x18D);
@@ -378,7 +378,7 @@ void func_0022E058(volatile int a0) {
         ((int *)actSt25aQueenDeadChk(0x5FF))[0x16C / 4] = 0;
         ((int *)actSt25aQueenDeadChk(0x600))[0x16C / 4] = 0;
         func_0017B288(0x122);
-        scpTorchLightOn(0x5F5, 0x81);
+        scpLinkBGAtoLayoutedTarget(0x5F5, 0x81);
         stage_KillPlayBgAnimation(0x81, 0, 0);
         D_004D31A0[1] = (int)func_0022E508;
         s->unkC4 = D_004D31A0;
@@ -396,7 +396,7 @@ extern int D_004D31C0[];
 
 void func_0022E220(volatile int a0) {
     KSub_e220 *s = *(KSub_e220 **)(a0 + 0x164);
-    while (scpSleepEnemyOne(a0, (int)actSt25aQueenDeadChk(0x5F7), 5.0f) == 0) {
+    while (scpTriggerBall(a0, (int)actSt25aQueenDeadChk(0x5F7), 5.0f) == 0) {
         _ACTWait(1);
     }
     ((int *)actSt25aQueenDeadChk(0x5FD))[0x16C / 4] = 0;
@@ -413,8 +413,8 @@ void func_0022E220(volatile int a0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    AddWayPointTop(0x25, 1);
-    AddWayPointTop(0x26, 1);
+    SetWayGroupActive(0x25, 1);
+    SetWayGroupActive(0x26, 1);
     func_0017B288(0x119);
     D_004D31C0[1] = (int)func_0022E398;
     s->unkC4 = D_004D31C0;
@@ -432,7 +432,7 @@ extern int func_0012AB50(int a0, int a1, int a2);
 
 void func_0022E398(volatile int a0) {
     KSub_e398 *s = *(KSub_e398 **)(a0 + 0x164);
-    while (scpSleepEnemyOne(a0, (int)actSt25aQueenDeadChk(0x5F7), 5.0f) != 0) {
+    while (scpTriggerBall(a0, (int)actSt25aQueenDeadChk(0x5F7), 5.0f) != 0) {
         _ACTWait(1);
     }
     ((int *)actSt25aQueenDeadChk(0x5FD))[0x16C / 4] = 1;
@@ -449,8 +449,8 @@ void func_0022E398(volatile int a0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    AddWayPointTop(0x25, 0);
-    AddWayPointTop(0x26, 0);
+    SetWayGroupActive(0x25, 0);
+    SetWayGroupActive(0x26, 0);
     func_0017B258(0x119);
     D_004D31E0[1] = (int)func_0022E220;
     s->unkC4 = D_004D31E0;
@@ -468,7 +468,7 @@ extern int D_004D3200[];
 void func_0022E508(volatile int a0) {
     int *tbl;
     KSub_e508 *s = *(KSub_e508 **)(a0 + 0x164);
-    while (scpSleepEnemyOne(a0, (int)actSt25aQueenDeadChk(0x5F5), 5.0f) == 0) {
+    while (scpTriggerBall(a0, (int)actSt25aQueenDeadChk(0x5F5), 5.0f) == 0) {
         _ACTWait(1);
     }
     ((int *)actSt25aQueenDeadChk(0x5F9))[0x16C / 4] = 0;
@@ -485,8 +485,8 @@ void func_0022E508(volatile int a0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    AddWayPointTop(0x25, 1);
-    AddWayPointTop(0x26, 1);
+    SetWayGroupActive(0x25, 1);
+    SetWayGroupActive(0x26, 1);
     func_0017B288(0x119);
     /* D_004D31E0 + 0x20 == D_004D3200: same contiguous table run */
     tbl = &D_004D31E0[8];
@@ -504,7 +504,7 @@ typedef struct KSub_e680 {
 void func_0022E680(volatile int a0) {
     int *tbl;
     KSub_e680 *s = *(KSub_e680 **)(a0 + 0x164);
-    while (scpSleepEnemyOne(a0, (int)actSt25aQueenDeadChk(0x5F5), 5.0f) != 0) {
+    while (scpTriggerBall(a0, (int)actSt25aQueenDeadChk(0x5F5), 5.0f) != 0) {
         _ACTWait(1);
     }
     ((int *)actSt25aQueenDeadChk(0x5F9))[0x16C / 4] = 1;
@@ -521,8 +521,8 @@ void func_0022E680(volatile int a0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    AddWayPointTop(0x25, 0);
-    AddWayPointTop(0x26, 0);
+    SetWayGroupActive(0x25, 0);
+    SetWayGroupActive(0x26, 0);
     func_0017B258(0x119);
     /* D_004D31E0 + 0x40 == D_004D3220: same contiguous table run */
     tbl = &D_004D31E0[16];

@@ -2,7 +2,7 @@
 
 
 extern void iosMallocCheckLeak2();
-int ios_init_plus(char *p)
+int huft_free(char *p)
 {
     char *next;
     if (p == (char *)0) goto end;
@@ -18,7 +18,7 @@ end:
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/ios", iosInitialize);
+INCLUDE_ASM("asm/nonmatchings/ios/ios", ios_init_plus);
 
 INCLUDE_ASM("asm/nonmatchings/ios/ios", iosSifAllocIopHeapDebug);
 

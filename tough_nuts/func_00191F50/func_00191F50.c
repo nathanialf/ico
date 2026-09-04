@@ -18,7 +18,7 @@ extern void func_00141E00(int a0);
 extern int func_00141D18(int *p);
 extern void func_00140710(int a0);
 extern void func_001AD768(const char *file);
-extern void func_00263FF0(const char *file, int line, const char *fmt);
+extern void __assert(const char *file, int line, const char *fmt);
 extern void func_00191D70(void);
 
 extern int D_00631AE4;
@@ -131,7 +131,7 @@ case_2:
     return;
 default_case:
     func_001AD768(D_0055AE88);
-    func_00263FF0(D_0055AE88, 0xFF, D_00632790);
+    __assert(D_0055AE88, 0xFF, D_00632790);
 }
 
 int func_00192040(void)

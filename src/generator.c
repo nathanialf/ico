@@ -25,15 +25,15 @@ INCLUDE_ASM("asm/nonmatchings/src/generator", IsNeedGenerator);
 
 INCLUDE_ASM("asm/nonmatchings/src/generator", CallEnemy);
 
-extern void func_001AE460(void *a0);
-extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern void gamesysObjInfoUniqDataSet(void *a0);
+extern void iosOmSendMail(void *a0, int a1, void *a2);
 
 void Generator_QuickCall(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
     GenGeo *q = *(GenGeo **)((char *)p + 0x800);
     *(int *)((char *)q + 0x50) = 1;
-    func_001AE460(a0);
-    iosOmBeforeFuncStandard(a0, 1, a0);
+    gamesysObjInfoUniqDataSet(a0);
+    iosOmSendMail(a0, 1, a0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/generator", GetMotherGenerator);

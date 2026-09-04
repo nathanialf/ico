@@ -1,0 +1,977 @@
+[1/331] CC build/src/delayFreeManager.o
+src/delayFreeManager.c: In function `func_00102850':
+src/delayFreeManager.c:93: warning: passing arg 2 of `func_00102790' makes pointer from integer without a cast
+[2/331] CC build/src/geometryManager.o
+src/geometryManager.c: In function `UpdateRootMatrixByDObj':
+src/geometryManager.c:43: warning: passing arg 1 of `GetRootQuaternionByDObj' makes pointer from integer without a cast
+src/geometryManager.c: In function `UpdateRootMatrix':
+src/geometryManager.c:53: warning: passing arg 1 of `GetRootQuaternion' makes integer from pointer without a cast
+src/geometryManager.c:53: warning: passing arg 2 of `GetRootQuaternion' makes integer from pointer without a cast
+src/geometryManager.c: In function `GetRootMatrixRotOffset':
+src/geometryManager.c:89: warning: initialization from incompatible pointer type
+src/geometryManager.c:92: warning: initialization from incompatible pointer type
+src/geometryManager.c: In function `GetRootVelocity':
+src/geometryManager.c:123: warning: initialization from incompatible pointer type
+src/geometryManager.c: In function `LocalizeDirectionOrient':
+src/geometryManager.c:158: warning: initialization from incompatible pointer type
+src/geometryManager.c: In function `GetRootMatrixByDObj':
+src/geometryManager.c:197: warning: initialization from incompatible pointer type
+[3/331] CC build/src/cod/vendor_100C90.o
+[4/331] CC build/src/keyInput.o
+src/keyInput.c: In function `func_00104698':
+src/keyInput.c:42: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/keyInput.c:42: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/keyInput.c: In function `func_001046F0':
+src/keyInput.c:51: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/keyInput.c:51: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+[5/331] CC build/src/matrixDrive.o
+[6/331] CC build/src/cod/vendor_100110.o
+[7/331] CC build/src/motionManager2.o
+src/motionManager2.c: In function `SetMotionDirection':
+src/motionManager2.c:91: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionManager2.c: In function `SetMotionDirectionWithLimit':
+src/motionManager2.c:107: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionManager2.c:108: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionManager2.c: In function `GetRootPosOfNextFrame':
+src/motionManager2.c:115: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionManager2.c:116: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionManager2.c: In function `DebugDisp1CollisionWithColor':
+src/motionManager2.c:248: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `ForMotionViewer_GetCurrentAnimationFrame':
+src/motionManager2.c:276: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `ForMotionViewer_GetCurrentMotion':
+src/motionManager2.c:281: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `EnableMotionOrientUpdate':
+src/motionManager2.c:286: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `DisableMotionOrientUpdate':
+src/motionManager2.c:291: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `GetDifferenceFromLastField':
+src/motionManager2.c:352: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `GetDifferenceFromLowerField':
+src/motionManager2.c:357: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `GetDifferenceFromWallLowerPlane':
+src/motionManager2.c:362: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `GetDifferenceFromWallUpperPlane':
+src/motionManager2.c:367: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `DisableChangeRootUpdateMode':
+src/motionManager2.c:372: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `GetRopeHangablePos':
+src/motionManager2.c:390: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `GetMotionFrameFlag1':
+src/motionManager2.c:395: warning: initialization from incompatible pointer type
+src/motionManager2.c: In function `InitMotionRotElem':
+src/motionManager2.c:435: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes integer from pointer without a cast
+src/motionManager2.c:439: warning: `return' with a value, in function returning void
+[8/331] CC build/src/quaternion.o
+src/quaternion.c:83: warning: type mismatch with previous implicit declaration
+src/quaternion.c:79: warning: previous implicit declaration of `GetMatrixFromQuaternion'
+src/quaternion.c:83: warning: `GetMatrixFromQuaternion' was previously implicitly declared to return `int'
+src/quaternion.c:143: warning: type mismatch with previous implicit declaration
+src/quaternion.c:84: warning: previous implicit declaration of `GetInverseQuaternion'
+src/quaternion.c:143: warning: `GetInverseQuaternion' was previously implicitly declared to return `int'
+src/quaternion.c:151: warning: type mismatch with previous implicit declaration
+src/quaternion.c:28: warning: previous implicit declaration of `RegularizeQuaternion'
+src/quaternion.c:151: warning: `RegularizeQuaternion' was previously implicitly declared to return `int'
+src/quaternion.c: In function `GetCurrentQuaternion':
+src/quaternion.c:181: warning: passing arg 1 of `GetSlerpQuaternionNoRegularize' makes pointer from integer without a cast
+[9/331] CC build/src/pool.o
+src/pool.c: In function `func_0010D078':
+src/pool.c:191: warning: initialization from incompatible pointer type
+src/pool.c: In function `func_0010D180':
+src/pool.c:199: warning: initialization from incompatible pointer type
+src/pool.c: In function `func_0010D338':
+src/pool.c:208: warning: initialization from incompatible pointer type
+[10/331] CC build/src/DisplayP2O.o
+[11/331] CC build/src/FileManager.o
+[12/331] CC build/src/tableSin.o
+src/tableSin.c: In function `func_0010DDF8':
+src/tableSin.c:134: warning: passing arg 1 of `func_0010DDB8' makes pointer from integer without a cast
+src/tableSin.c:134: warning: passing arg 3 of `func_0010DDB8' makes pointer from integer without a cast
+[13/331] CC build/src/GifPacket.o
+[14/331] CC build/src/Matrix.o
+[15/331] CC build/src/GsBase.o
+[16/331] CC build/src/Light.o
+[17/331] CC build/src/MicroCode.o
+[18/331] CC build/src/Packet.o
+src/Packet.c: In function `func_0011BF60':
+src/Packet.c:284: warning: passing arg 1 of `pac_setVifEndCode' from incompatible pointer type
+[19/331] CC build/src/Primitive.o
+[20/331] CC build/src/Shadow.o
+src/Shadow.c: In function `func_00123C20':
+src/Shadow.c:82: warning: passing arg 2 of `mc_TransMicroCode' makes pointer from integer without a cast
+src/Shadow.c:83: warning: passing arg 1 of `_PopCurrentMatrix' makes pointer from integer without a cast
+[21/331] CC build/src/RegistPacket.o
+src/RegistPacket.c: In function `reg_dispCObj':
+src/RegistPacket.c:104: warning: passing arg 2 of `dpk_Init' makes pointer from integer without a cast
+[22/331] CC build/src/ZFog.o
+[23/331] CC build/src/Texture.o
+src/Texture.c: In function `tex_AllocVramAuto':
+src/Texture.c:31: warning: passing arg 2 of `mc_TransMicroCode' makes pointer from integer without a cast
+[24/331] CC build/ios/inflate.o
+ios/inflate.c: In function `func_00135468':
+ios/inflate.c:70: warning: passing arg 1 of `new_segment' from incompatible pointer type
+[25/331] CC build/ios/ios.o
+[26/331] CC build/src/StageAnimation.o
+src/StageAnimation.c: In function `stage_DispBgAnimation':
+src/StageAnimation.c:922: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/StageAnimation.c:923: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/StageAnimation.c:923: warning: passing arg 3 of `func_00263FF0' discards qualifiers from pointer target type
+src/StageAnimation.c: In function `func_0012AA80':
+src/StageAnimation.c:998: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/StageAnimation.c:999: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/StageAnimation.c:999: warning: passing arg 3 of `func_00263FF0' discards qualifiers from pointer target type
+src/StageAnimation.c: In function `func_0012ABE0':
+src/StageAnimation.c:1014: warning: assignment discards qualifiers from pointer target type
+[27/331] CC build/ios/mblock.o
+[28/331] CC build/ios/cdvd.o
+ios/cdvd.c:121: warning: duplicate `extern'
+ios/cdvd.c:214: warning: duplicate `extern'
+[29/331] CC build/ios/mcard.o
+[30/331] CC build/ios/mcdata.o
+[31/331] CC build/ios/message.o
+ios/message.c: In function `iosMsgQueueDestroyAll':
+ios/message.c:64: warning: passing arg 1 of `send_signal_message' makes integer from pointer without a cast
+[32/331] CC build/ios/pad.o
+ios/pad.c: In function `iosPadConnect':
+ios/pad.c:53: warning: initialization from incompatible pointer type
+[33/331] CC build/ios/memory.o
+[34/331] CC build/ios/shockdriver.o
+ios/shockdriver.c: In function `Shock_SetMotor':
+ios/shockdriver.c:113: warning: passing arg 1 of `iosMsgQueueDestroy' from incompatible pointer type
+ios/shockdriver.c:115: warning: passing arg 1 of `iosMsgRecv' from incompatible pointer type
+[35/331] CC build/ios/thread.o
+ios/thread.c: In function `iosSemaDelete':
+ios/thread.c:169: warning: passing arg 1 of `iosMsgSend' from incompatible pointer type
+ios/thread.c: At top level:
+ios/thread.c:191: warning: duplicate `extern'
+ios/thread.c: In function `iosSemaSignal':
+ios/thread.c:205: warning: passing arg 1 of `iosMsgSend' from incompatible pointer type
+ios/thread.c: In function `func_0013D8A0':
+ios/thread.c:233: warning: assignment from incompatible pointer type
+[36/331] CC build/isys/gobj.o
+isys/gobj.c: In function `isysGObjMove':
+isys/gobj.c:118: warning: passing arg 1 of `add_gobj_to_tail' makes pointer from integer without a cast
+[37/331] CC build/isys/gobj_dl.o
+isys/gobj_dl.c: In function `isysGObjLinkObjDLBeforeGObj':
+isys/gobj_dl.c:122: warning: passing arg 1 of `isysGObjMoveObjDLHead' makes pointer from integer without a cast
+isys/gobj_dl.c: In function `isysGObjDlInit':
+isys/gobj_dl.c:131: warning: passing arg 1 of `isysGObjMoveObjDLHead' makes pointer from integer without a cast
+isys/gobj_dl.c: In function `isysGObjMoveObjDLBeforeGObj':
+isys/gobj_dl.c:141: warning: passing arg 1 of `isysGObjLinkObjDLAfterGObj' makes integer from pointer without a cast
+isys/gobj_dl.c:141: warning: passing arg 3 of `isysGObjLinkObjDLAfterGObj' makes integer from pointer without a cast
+[38/331] CC build/isys/isys.o
+[39/331] CC build/isys/gobj_process.o
+isys/gobj_process.c: In function `isysGObjProcAddS':
+isys/gobj_process.c:66: warning: `return' with a value, in function returning void
+[40/331] CC build/isys/obj_manager.o
+[41/331] CC build/sound/adpcm_init.o
+sound/adpcm_init.c:20: warning: duplicate `extern'
+[42/331] CC build/sound/soundManager.o
+sound/soundManager.c: In function `func_00145300':
+sound/soundManager.c:119: warning: `return' with a value, in function returning void
+sound/soundManager.c: In function `func_00145638':
+sound/soundManager.c:129: warning: passing arg 1 of `ActPara_GetDefTbl' makes pointer from integer without a cast
+[43/331] CC build/src/act-parallel-control.o
+src/act-parallel-control.c: In function `ActPara_InitSystem':
+src/act-parallel-control.c:44: warning: passing arg 1 of `func_00145638' makes integer from pointer without a cast
+[44/331] CC build/sound/s_init.o
+sound/s_init.c:227: warning: duplicate `extern'
+[45/331] CC build/src/act-game.o
+[46/331] CC build/src/act-wish.o
+src/act-wish.c: In function `func_0014B768':
+src/act-wish.c:34: warning: passing arg 1 of `avoidInsideOfWall' makes pointer from integer without a cast
+src/act-wish.c: In function `func_0014BBF0':
+src/act-wish.c:82: warning: passing arg 1 of `DispIcoMisc' makes integer from pointer without a cast
+[47/331] CC build/src/fieldCollision.o
+src/fieldCollision.c: In function `SetSimplePlane':
+src/fieldCollision.c:290: warning: passing arg 1 makes pointer from integer without a cast
+src/fieldCollision.c:292: warning: passing arg 1 makes pointer from integer without a cast
+[48/331] CC build/src/fuzio.o
+src/fuzio.c: In function `func_00168C88':
+src/fuzio.c:187: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/fuzio.c:187: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+[49/331] CC build/src/boyact.o
+src/boyact.c: In function `UpdateGeo':
+src/boyact.c:200: warning: initialization makes pointer from integer without a cast
+src/boyact.c:201: warning: passing arg 2 of `func_001947D0' makes pointer from integer without a cast
+src/boyact.c:201: warning: passing arg 3 of `func_001947D0' makes pointer from integer without a cast
+src/boyact.c:205: warning: passing arg 2 of `func_00243B18' makes pointer from integer without a cast
+src/boyact.c:206: warning: passing arg 2 of `func_00243AD0' makes pointer from integer without a cast
+src/boyact.c:207: warning: passing arg 2 of `func_00243B18' makes pointer from integer without a cast
+src/boyact.c: In function `E3_StageStartBoy':
+src/boyact.c:263: warning: passing arg 2 of `func_00243B18' makes pointer from integer without a cast
+src/boyact.c:264: warning: passing arg 3 of `func_00243AD0' makes pointer from integer without a cast
+src/boyact.c: In function `InitSwapWeapon':
+src/boyact.c:352: warning: assignment from incompatible pointer type
+src/boyact.c: In function `func_00151D78':
+src/boyact.c:473: warning: passing arg 1 of `func_00194590' makes pointer from integer without a cast
+src/boyact.c: At top level:
+src/boyact.c:582: warning: type mismatch with previous implicit declaration
+src/boyact.c:473: warning: previous implicit declaration of `subCommonIdle'
+src/boyact.c:582: warning: `subCommonIdle' was previously implicitly declared to return `int'
+src/boyact.c:583: warning: type mismatch with previous implicit declaration
+src/boyact.c:462: warning: previous implicit declaration of `ContinueCorrectPosition'
+src/boyact.c:583: warning: `ContinueCorrectPosition' was previously implicitly declared to return `int'
+src/boyact.c:875: warning: type mismatch with previous implicit declaration
+src/boyact.c:200: warning: previous implicit declaration of `isysGObjSearchFromObjLayoutID'
+src/boyact.c:875: warning: `isysGObjSearchFromObjLayoutID' was previously implicitly declared to return `int'
+[50/331] CC build/src/enemy_act.o
+src/enemy_act.c: In function `subEnemyBrain_ToBoy_chk':
+src/enemy_act.c:12: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/enemy_act.c:13: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c:13: warning: passing arg 3 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c: In function `_DoAwaitGirl':
+src/enemy_act.c:47: warning: passing arg 1 of `CanWallLeverPull' makes pointer from integer without a cast
+src/enemy_act.c: In function `_MustChase':
+src/enemy_act.c:74: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/enemy_act.c:75: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c: In function `subEnemyBrain_ToBoy':
+src/enemy_act.c:341: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/enemy_act.c:342: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c:342: warning: passing arg 3 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c: At top level:
+src/enemy_act.c:395: warning: duplicate `extern'
+src/enemy_act.c: In function `func_00164FD0':
+src/enemy_act.c:430: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/enemy_act.c:431: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c: In function `func_00165418':
+src/enemy_act.c:607: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/enemy_act.c:608: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c:608: warning: passing arg 3 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c: In function `actEnemy_isNormalEnemy':
+src/enemy_act.c:660: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/enemy_act.c:661: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c:661: warning: passing arg 3 of `func_00263FF0' discards qualifiers from pointer target type
+src/enemy_act.c: In function `IsEnemyBrainToGenerator':
+src/enemy_act.c:840: warning: passing arg 1 of `ContinueCorrectPosition' makes integer from pointer without a cast
+[51/331] CC build/src/girl_act.o
+src/girl_act.c: In function `subGirlBrainMain':
+src/girl_act.c:115: warning: passing arg 1 of `func_0014B330' from incompatible pointer type
+src/girl_act.c: In function `actGirlDitch3mReady':
+src/girl_act.c:197: warning: passing arg 1 of `debug_assertMessage' discards qualifiers from pointer target type
+src/girl_act.c:204: warning: passing arg 1 of `debug_assertMessage' discards qualifiers from pointer target type
+src/girl_act.c: In function `func_001754F8':
+src/girl_act.c:585: warning: passing arg 1 of `debug_assertMessage' discards qualifiers from pointer target type
+[52/331] CC build/src/commonact.o
+src/commonact.c: In function `func_00157DA0':
+src/commonact.c:180: warning: `return' with a value, in function returning void
+src/commonact.c: In function `motCommonRopeTurnL':
+src/commonact.c:307: warning: passing arg 4 of `traceLine' discards qualifiers from pointer target type
+src/commonact.c:310: warning: passing arg 4 of `traceLine' discards qualifiers from pointer target type
+src/commonact.c: In function `actCommonRopeClimbEnd1':
+src/commonact.c:361: warning: passing arg 1 of `BoxExtGeoRestore' makes pointer from integer without a cast
+src/commonact.c: In function `func_0015B620':
+src/commonact.c:466: warning: initialization discards qualifiers from pointer target type
+src/commonact.c: In function `func_0015DA20':
+src/commonact.c:795: warning: passing arg 1 of `subCommonIdle' makes pointer from integer without a cast
+src/commonact.c: In function `func_0015F358':
+src/commonact.c:1530: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/commonact.c:1531: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/commonact.c:1531: warning: passing arg 3 of `func_00263FF0' discards qualifiers from pointer target type
+src/commonact.c: In function `func_0015F3C0':
+src/commonact.c:1539: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/commonact.c:1540: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/commonact.c:1540: warning: passing arg 3 of `func_00263FF0' discards qualifiers from pointer target type
+src/commonact.c: In function `actCommonRevive':
+src/commonact.c:1558: warning: passing arg 1 of `ACTParaStatus_Clear' makes pointer from integer without a cast
+src/commonact.c: In function `actCommonPlay':
+src/commonact.c:1567: warning: passing arg 1 of `ACTParaStatus_Clear' makes pointer from integer without a cast
+[53/331] CC build/src/way_sys.o
+[54/331] CC build/src/jimaku.o
+src/jimaku.c: In function `jimakuManager':
+src/jimaku.c:194: warning: passing arg 1 of `ACTWay_SetBeginPositionIllegal' makes pointer from integer without a cast
+src/jimaku.c: In function `func_001761B8':
+src/jimaku.c:223: warning: initialization makes integer from pointer without a cast
+src/jimaku.c: In function `func_00176398':
+src/jimaku.c:242: warning: passing arg 1 of `func_00133500' makes pointer from integer without a cast
+src/jimaku.c: In function `func_00176AA0':
+src/jimaku.c:257: warning: passing arg 1 of `iosCdvdBackGroundMgrEntryNum' makes pointer from integer without a cast
+src/jimaku.c:259: warning: passing arg 1 of `func_0013DA88' from incompatible pointer type
+src/jimaku.c:260: warning: passing arg 1 of `func_0013DA88' from incompatible pointer type
+src/jimaku.c:261: warning: passing arg 1 of `func_0013DA88' from incompatible pointer type
+src/jimaku.c: In function `func_00176B08':
+src/jimaku.c:273: warning: passing arg 2 of `iosMsgSend' makes integer from pointer without a cast
+[55/331] CC build/src/gflag.o
+src/gflag.c: In function `gflagInit':
+src/gflag.c:42: warning: initialization makes pointer from integer without a cast
+src/gflag.c: In function `gflagLoad':
+src/gflag.c:57: warning: initialization makes pointer from integer without a cast
+src/gflag.c:59: warning: passing arg 1 of `InitCageFixGeo' from incompatible pointer type
+src/gflag.c: In function `gflagChk':
+src/gflag.c:71: warning: `return' with a value, in function returning void
+src/gflag.c: In function `gflagOff':
+src/gflag.c:89: warning: comparison between pointer and integer
+src/gflag.c: In function `func_0017B4E0':
+src/gflag.c:108: warning: passing arg 1 of `iosOmBeforeFuncStandard' makes pointer from integer without a cast
+src/gflag.c: In function `func_0017B528':
+src/gflag.c:115: warning: passing arg 1 of `iosOmBeforeFuncStandard' makes pointer from integer without a cast
+src/gflag.c:117: warning: `return' with a value, in function returning void
+src/gflag.c: In function `func_0017B568':
+src/gflag.c:122: warning: passing arg 1 of `iosOmBeforeFuncStandard' makes pointer from integer without a cast
+src/gflag.c: In function `func_0017C8C0':
+src/gflag.c:182: warning: passing arg 1 of `iosOmBeforeFuncStandard' makes pointer from integer without a cast
+src/gflag.c: In function `func_0017C8F8':
+src/gflag.c:190: warning: passing arg 1 of `iosOmBeforeFuncStandard' makes pointer from integer without a cast
+src/gflag.c: In function `func_0017CA58':
+src/gflag.c:250: warning: initialization makes pointer from integer without a cast
+src/gflag.c:255: warning: assignment makes pointer from integer without a cast
+src/gflag.c: In function `func_0017CAA0':
+src/gflag.c:262: warning: initialization makes pointer from integer without a cast
+src/gflag.c:265: warning: assignment makes pointer from integer without a cast
+[56/331] CC build/src/script.o
+src/script.c: In function `scpPlayMotDir':
+src/script.c:56: warning: initialization makes pointer from integer without a cast
+src/script.c: In function `scpSubAdpcmPlay':
+src/script.c:168: warning: initialization makes pointer from integer without a cast
+src/script.c:171: warning: passing arg 1 of `Draw2DLineG' from incompatible pointer type
+src/script.c:174: warning: assignment makes pointer from integer without a cast
+src/script.c: In function `scpSekizou':
+src/script.c:186: warning: passing arg 1 of `debug_assertMessage' from incompatible pointer type
+src/script.c: In function `scpDispOffAllWithKind':
+src/script.c:226: warning: passing arg 1 of `GetMatrixFromQuaternion' makes integer from pointer without a cast
+src/script.c:227: warning: passing arg 3 of `func_001E8B48' makes integer from pointer without a cast
+src/script.c: In function `scpDispOnAllWithKind':
+src/script.c:233: warning: initialization makes pointer from integer without a cast
+src/script.c:237: warning: assignment makes pointer from integer without a cast
+src/script.c:240: warning: assignment makes pointer from integer without a cast
+src/script.c:244: warning: assignment makes pointer from integer without a cast
+src/script.c: In function `scpActivateAllWithKind':
+src/script.c:250: warning: initialization makes pointer from integer without a cast
+src/script.c:254: warning: assignment makes pointer from integer without a cast
+src/script.c:257: warning: assignment makes pointer from integer without a cast
+src/script.c:261: warning: assignment makes pointer from integer without a cast
+[57/331] CC build/src/st25a.o
+src/st25a.c: In function `actSt25aQueenAppearChk':
+src/st25a.c:38: warning: initialization makes pointer from integer without a cast
+src/st25a.c:40: warning: passing arg 1 of `Generator_Mask' from incompatible pointer type
+src/st25a.c:41: warning: assignment makes pointer from integer without a cast
+src/st25a.c: In function `actConte11':
+src/st25a.c:48: warning: initialization makes pointer from integer without a cast
+src/st25a.c:51: warning: passing arg 1 of `iosOmBeforeFuncStandard' makes pointer from integer without a cast
+src/st25a.c: In function `actSwordEffXL':
+src/st25a.c:146: warning: passing arg 1 of `ACTGame_CommonLoop' makes pointer from integer without a cast
+src/st25a.c:150: warning: passing arg 1 of `iosOmBeforeFuncStandard' makes pointer from integer without a cast
+src/st25a.c: In function `actItouQueenAttackChk':
+src/st25a.c:195: warning: passing arg 1 of `checkHit' makes pointer from integer without a cast
+src/st25a.c: In function `func_0017E620':
+src/st25a.c:215: warning: assignment makes pointer from integer without a cast
+[58/331] CC build/src/way_util.o
+src/way_util.c:48: warning: duplicate `extern'
+src/way_util.c: In function `nearest_waypoint_by_lineseg':
+src/way_util.c:237: warning: initialization makes pointer from integer without a cast
+src/way_util.c:251: warning: assignment makes pointer from integer without a cast
+src/way_util.c: In function `nearest_waypoint_by_lineseg_of_group_from_gobj':
+src/way_util.c:259: warning: initialization makes pointer from integer without a cast
+src/way_util.c:273: warning: assignment makes pointer from integer without a cast
+src/way_util.c: In function `nearest_waypoint_by_lineseg_from_gobj':
+src/way_util.c:287: warning: initialization makes pointer from integer without a cast
+src/way_util.c:299: warning: assignment makes pointer from integer without a cast
+src/way_util.c: In function `visible_waypoint_of_all':
+src/way_util.c:424: warning: initialization makes pointer from integer without a cast
+src/way_util.c:431: warning: assignment makes pointer from integer without a cast
+src/way_util.c: In function `get_wp_nearest_bridge_side_me':
+src/way_util.c:512: warning: return makes integer from pointer without a cast
+src/way_util.c: At top level:
+src/way_util.c:515: warning: type mismatch with previous implicit declaration
+src/way_util.c:394: warning: previous implicit declaration of `GetRootMatrixByDObj'
+src/way_util.c:515: warning: `GetRootMatrixByDObj' was previously implicitly declared to return `int'
+src/way_util.c: In function `func_0017AA08':
+src/way_util.c:531: warning: assignment makes pointer from integer without a cast
+src/way_util.c:549: warning: assignment makes pointer from integer without a cast
+src/way_util.c: In function `waybridge_between_group':
+src/way_util.c:568: warning: assignment makes pointer from integer without a cast
+src/way_util.c:578: warning: assignment makes pointer from integer without a cast
+src/way_util.c: In function `wpsort_compfnc':
+src/way_util.c:695: warning: initialization from incompatible pointer type
+src/way_util.c:697: warning: assignment from incompatible pointer type
+src/way_util.c: In function `func_0017B038':
+src/way_util.c:719: warning: initialization from incompatible pointer type
+src/way_util.c:721: warning: assignment from incompatible pointer type
+src/way_util.c: In function `func_0017B1A8':
+src/way_util.c:782: warning: passing arg 1 of `func_001AE1B8' makes pointer from integer without a cast
+src/way_util.c:782: warning: passing arg 2 of `func_001AE1B8' makes integer from pointer without a cast
+src/way_util.c:783: warning: passing arg 1 of `func_001AE1B8' makes pointer from integer without a cast
+src/way_util.c:783: warning: passing arg 2 of `func_001AE1B8' makes integer from pointer without a cast
+src/way_util.c: In function `func_0017B1F0':
+src/way_util.c:787: warning: passing arg 1 of `func_001AE8A0' makes pointer from integer without a cast
+src/way_util.c:787: warning: passing arg 2 of `func_001AE8A0' makes integer from pointer without a cast
+src/way_util.c:788: warning: passing arg 1 of `func_001AE8A0' makes pointer from integer without a cast
+src/way_util.c:788: warning: passing arg 2 of `func_001AE8A0' makes integer from pointer without a cast
+[59/331] CC build/src/warpGirl.o
+src/warpGirl.c: In function `func_0017E9D8':
+src/warpGirl.c:27: warning: initialization from incompatible pointer type
+src/warpGirl.c: In function `func_0017EA00':
+src/warpGirl.c:35: warning: initialization from incompatible pointer type
+src/warpGirl.c: In function `func_0017EA28':
+src/warpGirl.c:43: warning: initialization from incompatible pointer type
+src/warpGirl.c: In function `func_00180580':
+src/warpGirl.c:129: warning: passing arg 1 of `Generator_Mask' makes pointer from integer without a cast
+[60/331] CC build/src/attackhit.o
+src/attackhit.c: In function `func_00181F58':
+src/attackhit.c:69: warning: initialization from incompatible pointer type
+[61/331] CC build/src/brain.o
+[62/331] CC build/src/camera-editor.o
+src/camera-editor.c: In function `CameraEdit_DispBox':
+src/camera-editor.c:161: warning: passing arg 1 of `CameraEdit_add_box' makes integer from pointer without a cast
+src/camera-editor.c:162: warning: passing arg 1 of `CameraEdit_add_box' makes integer from pointer without a cast
+[63/331] CC build/src/camera-root.o
+src/camera-root.c: In function `SetCameraMatrix':
+src/camera-root.c:115: warning: return makes integer from pointer without a cast
+src/camera-root.c:121: warning: return makes integer from pointer without a cast
+[64/331] CC build/src/camera-set-manager.o
+[65/331] CC build/src/chain.o
+[66/331] CC build/src/ebrain.o
+[67/331] CC build/src/camera-ico2.o
+src/camera-ico2.c: In function `GetPluralCameraSet':
+src/camera-ico2.c:370: warning: comparison between pointer and integer
+src/camera-ico2.c:373: warning: passing arg 1 of `GetRootMatrixByDObj' makes pointer from integer without a cast
+src/camera-ico2.c:373: warning: passing arg 2 of `GetRootMatrixByDObj' makes pointer from integer without a cast
+src/camera-ico2.c: In function `MakeCameraSetBinary':
+src/camera-ico2.c:403: warning: passing arg 1 of `GetPluralCameraSet' makes integer from pointer without a cast
+src/camera-ico2.c:404: warning: passing arg 1 of `GetPluralCameraSet' makes integer from pointer without a cast
+src/camera-ico2.c:417: warning: passing arg 1 of `GetPluralCameraSet' makes integer from pointer without a cast
+[68/331] CC build/src/enemy-control.o
+[69/331] CC build/src/generator.o
+[70/331] CC build/src/fightSound.o
+[71/331] CC build/src/gv.o
+[72/331] CC build/src/mail-add-data.o
+src/mail-add-data.c: In function `func_00195350':
+src/mail-add-data.c:97: warning: passing arg 2 of `MatrixDrive_TurnXObjectMatrixYZ' makes pointer from integer without a cast
+[73/331] CC build/src/hand-camera.o
+[74/331] CC build/src/poly-flat.o
+[75/331] CC build/src/act_bird.o
+src/act_bird.c: In function `BirdDL':
+src/act_bird.c:126: warning: passing arg 1 of `func_00243B60' makes pointer from integer without a cast
+src/act_bird.c:126: warning: passing arg 2 of `func_00243B60' makes pointer from integer without a cast
+[76/331] CC build/src/gather_effect.o
+[77/331] CC build/src/itou_gflag.o
+[78/331] CC build/src/itou_sub.o
+src/itou_sub.c: In function `ico_m33_to_quat':
+src/itou_sub.c:42: warning: passing arg 1 of `stage_KillPlayBgAnimationIfOverMaxCount' from incompatible pointer type
+[79/331] CC build/src/itou_boss.o
+[80/331] CC build/src/lightning.o
+[81/331] CC build/src/queen_barrier_disp.o
+[82/331] CC build/src/queen.o
+[83/331] CC build/src/stage_orient.o
+[84/331] CC build/ito/mpeg/mv_readbuf.o
+[85/331] CC build/ito/mpeg/mv_main.o
+[86/331] CC build/ito/mpeg/mv_strfile.o
+[87/331] CC build/ito/mpeg/mv_videodec.o
+ito/mpeg/mv_videodec.c: In function `videoDecCreate':
+ito/mpeg/mv_videodec.c:25: warning: passing arg 1 of `func_00240A20' makes pointer from integer without a cast
+ito/mpeg/mv_videodec.c:26: warning: passing arg 1 of `func_00251C18' from incompatible pointer type
+[88/331] CC build/ito/mpeg/mv_vobuf.o
+[89/331] CC build/src/StageManager.o
+src/StageManager.c: In function `stage_initialize':
+src/StageManager.c:27: warning: passing arg 2 of `sndManager' makes pointer from integer without a cast
+src/StageManager.c:28: warning: `return' with a value, in function returning void
+[90/331] CC build/src/DObj.o
+[91/331] CC build/src/backStage.o
+src/backStage.c: In function `backStageProcessMain':
+src/backStage.c:26: warning: passing arg 2 of `func_001AE8F0' makes integer from pointer without a cast
+[92/331] CC build/src/charFileManager.o
+[93/331] CC build/src/debug.o
+src/debug.c: In function `func_001A2E28':
+src/debug.c:51: warning: assignment makes pointer from integer without a cast
+[94/331] CC build/src/gamesys.o
+src/gamesys.c: In function `gamesysObjInfoGet':
+src/gamesys.c:162: warning: assignment makes pointer from integer without a cast
+[95/331] CC build/src/debug_exception.o
+src/debug_exception.c: In function `initLineTraceTable':
+src/debug_exception.c:30: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
+src/debug_exception.c:37: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
+src/debug_exception.c:47: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
+src/debug_exception.c:49: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
+src/debug_exception.c:51: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
+src/debug_exception.c:54: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
+src/debug_exception.c: In function `debug_SetExceptionMessage':
+src/debug_exception.c:99: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
+src/debug_exception.c:102: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
+[96/331] CC build/src/debug_menu.o
+[97/331] CC build/src/haveParentSimpleObj.o
+src/haveParentSimpleObj.c: In function `func_001ADCB0':
+src/haveParentSimpleObj.c:120: warning: passing arg 1 of `func_001AE8A0' makes pointer from integer without a cast
+src/haveParentSimpleObj.c:120: warning: passing arg 2 of `func_001AE8A0' makes integer from pointer without a cast
+src/haveParentSimpleObj.c:121: warning: passing arg 1 of `func_001AE8A0' makes pointer from integer without a cast
+src/haveParentSimpleObj.c:121: warning: passing arg 2 of `func_001AE8A0' makes integer from pointer without a cast
+src/haveParentSimpleObj.c:122: warning: passing arg 1 of `func_001AE8A0' makes pointer from integer without a cast
+src/haveParentSimpleObj.c:122: warning: passing arg 2 of `func_001AE8A0' makes integer from pointer without a cast
+src/haveParentSimpleObj.c: In function `func_001AE258':
+src/haveParentSimpleObj.c:155: warning: initialization makes integer from pointer without a cast
+src/haveParentSimpleObj.c:161: warning: `return' with a value, in function returning void
+src/haveParentSimpleObj.c: In function `func_001AE308':
+src/haveParentSimpleObj.c:168: warning: initialization makes integer from pointer without a cast
+src/haveParentSimpleObj.c:174: warning: `return' with a value, in function returning void
+[98/331] CC build/src/icoMisc.o
+src/icoMisc.c: In function `DispIcoMisc':
+src/icoMisc.c:29: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/icoMisc.c:32: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+[99/331] CC build/src/kanban.o
+[100/331] CC build/src/kanbanBoot.o
+[101/331] CC build/src/sceneManager.o
+[102/331] CC build/src/layout_texture.o
+[103/331] CC build/src/layout_action.o
+[104/331] CC build/src/staffroll.o
+[105/331] CC build/src/a_p_1.o
+[106/331] CC build/src/act_a_p_1.o
+src/act_a_p_1.c: In function `hitProc':
+src/act_a_p_1.c:75: warning: passing arg 1 of `func_0010E158' from incompatible pointer type
+src/act_a_p_1.c:77: warning: passing arg 1 of `func_00102870' makes integer from pointer without a cast
+src/act_a_p_1.c:77: warning: passing arg 2 of `func_00102870' makes integer from pointer without a cast
+src/act_a_p_1.c: In function `actAP1Start':
+src/act_a_p_1.c:130: warning: passing arg 1 of `func_00118648' makes integer from pointer without a cast
+src/act_a_p_1.c:130: warning: passing arg 2 of `func_00118648' makes integer from pointer without a cast
+src/act_a_p_1.c:130: warning: passing arg 3 of `func_00118648' makes integer from pointer without a cast
+[107/331] CC build/src/actressLight.o
+src/actressLight.c: In function `func_001BB390':
+src/actressLight.c:56: warning: passing arg 1 of `SetAP1DeadStatus' makes pointer from integer without a cast
+[108/331] CC build/src/attackCheckBoundary.o
+src/attackCheckBoundary.c: In function `switchReleaseSE':
+src/attackCheckBoundary.c:149: warning: initialization makes pointer from integer without a cast
+[109/331] CC build/src/switch.o
+[110/331] CC build/src/box.o
+src/box.c: In function `func_001C05A8':
+src/box.c:119: warning: initialization from incompatible pointer type
+src/box.c: In function `func_001C05B8':
+src/box.c:125: warning: initialization from incompatible pointer type
+src/box.c: In function `BoxGeoRestore':
+src/box.c:157: warning: passing arg 1 of `func_001BC9B0' makes integer from pointer without a cast
+src/box.c:160: warning: passing arg 1 of `func_001BC9B8' makes integer from pointer without a cast
+src/box.c: In function `BoxExtGeoRestore':
+src/box.c:178: warning: passing arg 1 of `playSEConditionID' makes integer from pointer without a cast
+src/box.c:180: warning: passing arg 1 of `func_001BC9C0' makes integer from pointer without a cast
+[111/331] CC build/src/boy.o
+[112/331] CC build/src/cage.o
+[113/331] CC build/src/cageFix.o
+src/cageFix.c: In function `func_001C2EC8':
+src/cageFix.c:40: warning: initialization makes pointer from integer without a cast
+src/cageFix.c:44: warning: assignment makes pointer from integer without a cast
+src/cageFix.c: In function `func_001C2F20':
+src/cageFix.c:55: warning: initialization makes pointer from integer without a cast
+src/cageFix.c:59: warning: assignment makes integer from pointer without a cast
+src/cageFix.c:61: warning: passing arg 1 of `MatrixDrive_TurnXObjectMatrixYZ' makes pointer from integer without a cast
+src/cageFix.c:61: warning: passing arg 2 of `MatrixDrive_TurnXObjectMatrixYZ' makes pointer from integer without a cast
+src/cageFix.c:62: warning: assignment makes integer from pointer without a cast
+[114/331] CC build/src/chandelier.o
+src/chandelier.c: In function `InitChandelierGeo':
+src/chandelier.c:31: warning: initialization from incompatible pointer type
+src/chandelier.c:34: warning: `return' with a value, in function returning void
+[115/331] CC build/src/candle.o
+src/candle.c: In function `InitCandleGeo':
+src/candle.c:15: warning: initialization from incompatible pointer type
+src/candle.c:18: warning: `return' with a value, in function returning void
+src/candle.c: In function `DeleteLayoutedCandleParticleEffect':
+src/candle.c:66: warning: initialization from incompatible pointer type
+src/candle.c:69: warning: `return' with a value, in function returning void
+[116/331] CC build/src/clipCollisionManager.o
+src/clipCollisionManager.c: In function `CreateClipCollisionManagerGObj':
+src/clipCollisionManager.c:17: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/clipCollisionManager.c:17: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+[117/331] CC build/src/clothAnimation.o
+[118/331] CC build/src/clothTest.o
+[119/331] CC build/src/darkVolume.o
+src/darkVolume.c: In function `darkVolume':
+src/darkVolume.c:22: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+[120/331] CC build/src/effectTool.o
+src/effectTool.c: In function `_dispParam':
+src/effectTool.c:18: warning: passing arg 1 of `playSEConditionID' makes integer from pointer without a cast
+src/effectTool.c:19: warning: passing arg 1 of `playSEConditionID' makes integer from pointer without a cast
+src/effectTool.c:20: warning: passing arg 1 of `playSEConditionID' makes integer from pointer without a cast
+src/effectTool.c:21: warning: passing arg 1 of `playSEConditionID' makes integer from pointer without a cast
+src/effectTool.c:22: warning: passing arg 1 of `playSEConditionID' makes integer from pointer without a cast
+src/effectTool.c:27: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/effectTool.c:27: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/effectTool.c: In function `editParam':
+src/effectTool.c:37: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/effectTool.c:37: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+[121/331] CC build/src/enemy.o
+[122/331] CC build/src/enemyParts.o
+src/enemyParts.c: In function `ExecEnemyFootPrints':
+src/enemyParts.c:39: warning: passing arg 1 of `func_001E4798' makes pointer from integer without a cast
+[123/331] CC build/src/flag.o
+src/flag.c: In function `func_001D03A0':
+src/flag.c:51: warning: `return' with a value, in function returning void
+src/flag.c: In function `func_001D03C8':
+src/flag.c:57: warning: assignment makes integer from pointer without a cast
+[124/331] CC build/src/flyManager.o
+[125/331] CC build/src/frameDependSequence.o
+[126/331] CC build/src/girl.o
+src/girl.c: In function `func_001D1468':
+src/girl.c:23: warning: passing arg 1 of `checkHit' from incompatible pointer type
+src/girl.c: In function `SetGirlClothDispSwitch':
+src/girl.c:74: warning: `return' with a value, in function returning void
+[127/331] CC build/src/handManager.o
+[128/331] CC build/src/girlForceField.o
+[129/331] CC build/src/item.o
+src/item.c: In function `HoldItem':
+src/item.c:64: warning: passing arg 2 of `GetRootMatrixByDObj' makes pointer from integer without a cast
+src/item.c:65: warning: passing arg 2 of `GetRootMatrixByDObj' makes pointer from integer without a cast
+[130/331] CC build/src/lineManager.o
+[131/331] CC build/src/motionFileManager.o
+[132/331] CC build/src/lodManager.o
+[133/331] CC build/src/motionOrientManager.o
+src/motionOrientManager.c: In function `UpdateFrameCounter':
+src/motionOrientManager.c:71: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionOrientManager.c:71: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionOrientManager.c: In function `ForTest_ForceShiftMotion':
+src/motionOrientManager.c:143: warning: passing arg 1 of `func_001AD748' discards qualifiers from pointer target type
+src/motionOrientManager.c:144: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+[134/331] CC build/src/motionManager.o
+src/motionManager.c: In function `SkelTestGeo':
+src/motionManager.c:227: warning: passing arg 1 of `iosOmBeforeFuncStandard' makes pointer from integer without a cast
+src/motionManager.c:228: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionManager.c:228: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionManager.c: In function `SetHitCollisionDisplay':
+src/motionManager.c:233: warning: passing arg 1 of `iosOmBeforeFuncStandard' makes pointer from integer without a cast
+src/motionManager.c:234: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+src/motionManager.c:234: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+[135/331] CC build/src/motionViewer.o
+src/motionViewer.c: In function `dispProgressBar':
+src/motionViewer.c:45: warning: passing arg 1 of `ClearMotionBlendlessNode' makes pointer from integer without a cast
+[136/331] CC build/src/moveColTest.o
+[137/331] CC build/src/particleEffect.o
+[138/331] CC build/src/multiBgaManager.o
+src/multiBgaManager.c: In function `EntryMultiBgaManagerSensitive':
+src/multiBgaManager.c:34: warning: passing arg 2 of `MatrixDrive_TurnObjectMatrix' makes pointer from integer without a cast
+[139/331] CC build/src/rope.o
+[140/331] CC build/src/rotObject.o
+[141/331] CC build/src/ropeFix.o
+src/ropeFix.c: In function `InitRopeFixGeo':
+src/ropeFix.c:40: warning: passing arg 1 of `UnLockChainGeo' makes pointer from integer without a cast
+[142/331] CC build/src/particleLayout.o
+[143/331] CC build/src/spiderGroupManager.o
+src/spiderGroupManager.c: In function `func_001EBB10':
+src/spiderGroupManager.c:93: warning: initialization makes pointer from integer without a cast
+src/spiderGroupManager.c:102: warning: assignment makes pointer from integer without a cast
+[144/331] CC build/src/spider.o
+[145/331] CC build/src/stageMultiBgaManager.o
+[146/331] CC build/src/stormTest.o
+src/stormTest.c: In function `func_001F0858':
+src/stormTest.c:102: warning: `return' with a value, in function returning void
+[147/331] CC build/src/staticBlur.o
+[148/331] CC build/src/streamMotionManager.o
+[149/331] CC build/src/sugiTree.o
+[150/331] CC build/src/torch.o
+[151/331] CC build/src/waySystemManager.o
+[152/331] CC build/src/windManager.o
+[153/331] CC build/src/windField.o
+src/windField.c: In function `ExecWindField':
+src/windField.c:18: warning: return from incompatible pointer type
+[154/331] CC build/src/weapon.o
+src/weapon.c: In function `WeaponCurPos':
+src/weapon.c:61: warning: passing arg 1 of `DebugDisp1CollisionWithColor' makes pointer from integer without a cast
+src/weapon.c: In function `WeaponDL':
+src/weapon.c:170: warning: passing arg 1 of `MatrixDrive_TurnObjectMatrix' makes integer from pointer without a cast
+[155/331] CC build/src/wireLetter.o
+[156/331] CC build/src/worm.o
+[157/331] CC build/src/Basic.o
+src/Basic.c: In function `malloc_MemCpy':
+src/Basic.c:71: warning: passing arg 1 of `func_00118678' makes pointer from integer without a cast
+[158/331] CC build/src/DisplayFont.o
+[159/331] CC build/src/DisplayList.o
+[160/331] CC build/src/DmaPacket.o
+[161/331] CC build/src/BgAnimation.o
+src/BgAnimation.c: In function `bga_CalcSdfCamera':
+src/BgAnimation.c:175: warning: passing arg 1 of `debug_assertMessage' discards qualifiers from pointer target type
+src/BgAnimation.c:176: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/BgAnimation.c:177: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/BgAnimation.c:184: warning: passing arg 3 of `func_0013A0F8' discards qualifiers from pointer target type
+src/BgAnimation.c:207: warning: passing arg 1 of `debug_assertMessage' discards qualifiers from pointer target type
+src/BgAnimation.c:208: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/BgAnimation.c:209: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+src/BgAnimation.c: In function `bga_GetCameraMatrix':
+src/BgAnimation.c:241: warning: passing arg 1 of `debug_assertMessage' discards qualifiers from pointer target type
+src/BgAnimation.c:242: warning: passing arg 1 of `func_001AD768' discards qualifiers from pointer target type
+src/BgAnimation.c:243: warning: passing arg 1 of `func_00263FF0' discards qualifiers from pointer target type
+[162/331] CC build/src/EnemyInit.o
+[163/331] CC build/isys/gobj_cam_dl.o
+isys/gobj_cam_dl.c: In function `isysGObjRemoveCameraDL':
+isys/gobj_cam_dl.c:18: warning: `return' with a value, in function returning void
+[164/331] CC build/src/act-way.o
+[165/331] CC build/src/act2.o
+[166/331] CC build/src/seMail.o
+[167/331] CC build/src/act.o
+src/act.c: In function `ACTReserveTarget':
+src/act.c:172: warning: passing arg 1 of `iosOmBeforeFuncStandard' from incompatible pointer type
+[168/331] CC build/src/way_kidnap.o
+[169/331] CC build/src/way_llf.o
+[170/331] CC build/src/way_tool.o
+src/way_tool.c: In function `debug_WayTool':
+src/way_tool.c:101: warning: passing arg 4 of `iosPadStickCameraCoord' makes integer from pointer without a cast
+src/way_tool.c: At top level:
+src/way_tool.c:166: warning: type mismatch with previous implicit declaration
+src/way_tool.c:146: warning: previous implicit declaration of `_ACTWait'
+src/way_tool.c:166: warning: `_ACTWait' was previously implicitly declared to return `int'
+[171/331] CC build/src/deja.o
+[172/331] CC build/src/e3.o
+[173/331] CC build/src/op.o
+[174/331] CC build/src/end.o
+[175/331] CC build/src/st00a.o
+src/st00a.c: In function `actSt00aDoor1DownEffect':
+src/st00a.c:215: warning: passing arg 2 of `scpSleepEnemyOne' makes integer from pointer without a cast
+[176/331] CC build/src/st01b.o
+[177/331] CC build/src/act-env.o
+src/act-env.c: In function `func_001FCA20':
+src/act-env.c:619: warning: passing arg 2 of `func_00243B18' from incompatible pointer type
+src/act-env.c:805: warning: passing arg 1 of `func_00243B18' from incompatible pointer type
+src/act-env.c:807: warning: passing arg 1 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:807: warning: passing arg 3 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:809: warning: passing arg 1 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1341: warning: passing arg 1 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1341: warning: passing arg 2 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1346: warning: passing arg 1 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1346: warning: passing arg 2 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1346: warning: passing arg 3 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1356: warning: passing arg 1 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1360: warning: passing arg 2 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1360: warning: passing arg 3 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1411: warning: passing arg 1 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1411: warning: passing arg 2 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1416: warning: passing arg 1 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1416: warning: passing arg 2 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1416: warning: passing arg 3 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1426: warning: passing arg 1 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1430: warning: passing arg 2 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1430: warning: passing arg 3 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1571: warning: passing arg 1 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1573: warning: passing arg 3 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1631: warning: passing arg 1 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1632: warning: passing arg 1 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1632: warning: passing arg 2 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1632: warning: passing arg 3 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1644: warning: passing arg 1 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1646: warning: passing arg 1 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1706: warning: passing arg 1 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1788: warning: passing arg 2 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1821: warning: passing arg 2 of `func_00243B18' from incompatible pointer type
+src/act-env.c:1823: warning: passing arg 1 of `func_00243AD0' from incompatible pointer type
+src/act-env.c:1936: warning: passing arg 1 of `func_00243AD0' from incompatible pointer type
+[178/331] CC build/src/st02a.o
+[179/331] CC build/src/st03t.o
+[180/331] CC build/src/st04a.o
+[181/331] CC build/src/st04b.o
+[182/331] CC build/src/st04d.o
+[183/331] CC build/src/st04c.o
+[184/331] CC build/src/st04e.o
+[185/331] CC build/src/st04l.o
+[186/331] CC build/src/st04r.o
+[187/331] CC build/src/st05b.o
+[188/331] CC build/src/st05c.o
+[189/331] CC build/src/st05d.o
+src/st05d.c: In function `func_0021F588':
+src/st05d.c:91: warning: initialization makes pointer from integer without a cast
+src/st05d.c: In function `func_0021F7F0':
+src/st05d.c:161: warning: `return' with a value, in function returning void
+src/st05d.c: In function `func_0021F828':
+src/st05d.c:219: warning: initialization makes pointer from integer without a cast
+[190/331] CC build/src/st05e.o
+[191/331] CC build/src/st07a.o
+[192/331] CC build/src/st06a.o
+[193/331] CC build/src/st08b.o
+[194/331] CC build/src/st08a.o
+[195/331] CC build/src/st09a.o
+[196/331] CC build/src/st10l.o
+src/st10l.c:186: warning: type mismatch with previous implicit declaration
+src/st10l.c:105: warning: previous implicit declaration of `BoxBarSoundOn'
+src/st10l.c:186: warning: `BoxBarSoundOn' was previously implicitly declared to return `int'
+[197/331] CC build/src/st13a.o
+[198/331] CC build/src/st13b.o
+src/st13b.c: In function `actSt13bMeetAgainChk':
+src/st13b.c:230: warning: passing arg 1 of `scpSleepSpiderGroupOne' makes integer from pointer without a cast
+[199/331] CC build/src/st10r.o
+[200/331] CC build/src/st13b2.o
+[201/331] CC build/src/st13c.o
+[202/331] CC build/src/st13d.o
+[203/331] CC build/src/st17b.o
+[204/331] CC build/src/st19a.o
+[205/331] CC build/src/st18a.o
+[206/331] CC build/src/st17a.o
+[207/331] CC build/src/st20a.o
+[208/331] CC build/src/st22a.o
+[209/331] CC build/src/st24a.o
+[210/331] CC build/src/objact.o
+src/objact.c:61: warning: type mismatch with previous implicit declaration
+src/objact.c:51: warning: previous implicit declaration of `_ACTWait'
+src/objact.c:61: warning: `_ACTWait' was previously implicitly declared to return `int'
+[211/331] CC build/src/access.o
+[212/331] CC build/ito/mpeg/mv_audiodec.o
+[213/331] CC build/ito/mpeg/mv_disp.o
+[214/331] CC build/src/st47a.o
+[215/331] CC build/ito/mpeg/mv_sub.o
+ito/mpeg/mv_sub.c: In function `func_0023EDF0':
+ito/mpeg/mv_sub.c:134: warning: `return' with a value, in function returning void
+[216/331] CC build/src/GobjProc.o
+src/GobjProc.c: In function `InitCameraGObjs':
+src/GobjProc.c:54: warning: passing arg 1 of `debug_assertMessage' from incompatible pointer type
+[217/331] CC build/ito/mpeg/mv_vibuf.o
+ito/mpeg/mv_vibuf.c: In function `viBufReset':
+ito/mpeg/mv_vibuf.c:22: warning: passing arg 1 of `allocObjectData' from incompatible pointer type
+[218/331] CC build/src/PObj.o
+[219/331] CC build/src/cod/vendor_2418A0.o
+src/cod/vendor_2418A0.c: In function `func_00245120':
+src/cod/vendor_2418A0.c:1163: warning: passing arg 1 of `func_002450C8' from incompatible pointer type
+src/cod/vendor_2418A0.c:1163: warning: assignment makes integer from pointer without a cast
+src/cod/vendor_2418A0.c: In function `func_00245178':
+src/cod/vendor_2418A0.c:1178: warning: passing arg 1 of `func_002450C8' from incompatible pointer type
+src/cod/vendor_2418A0.c:1178: warning: assignment makes integer from pointer without a cast
+[220/331] CC build/src/cod/vendor_2564E0.o
+[221/331] CC build/src/cod/vendor_2453C0.o
+[222/331] CC build/src/cod/vendor_24AAC8.o
+src/cod/vendor_24AAC8.c: In function `func_0024E578':
+src/cod/vendor_24AAC8.c:1304: warning: passing arg 1 of `func_00264128' makes pointer from integer without a cast
+src/cod/vendor_24AAC8.c:1304: warning: passing arg 2 of `func_00264128' makes pointer from integer without a cast
+[223/331] CC build/src/cod/vendor_24E9D8.o
+src/cod/vendor_24E9D8.c:530: warning: type mismatch with previous implicit declaration
+src/cod/vendor_24E9D8.c:451: warning: previous implicit declaration of `func_0024BEF8'
+src/cod/vendor_24E9D8.c:530: warning: `func_0024BEF8' was previously implicitly declared to return `int'
+[224/331] CC build/src/cod/vendor_2517D0.o
+src/cod/vendor_2517D0.c: In function `func_00252590':
+src/cod/vendor_2517D0.c:346: warning: passing arg 1 of `func_00251CF8' makes pointer from integer without a cast
+src/cod/vendor_2517D0.c:351: warning: passing arg 1 of `func_00252550' makes integer from pointer without a cast
+src/cod/vendor_2517D0.c: In function `func_00255E10':
+src/cod/vendor_2517D0.c:1675: warning: passing arg 1 of `func_002564E0' makes integer from pointer without a cast
+src/cod/vendor_2517D0.c:1687: warning: passing arg 1 of `func_002564E0' makes integer from pointer without a cast
+[225/331] CC build/src/cod/vendor_256BF8.o
+[226/331] CC build/src/cod/vendor_257128.o
+[227/331] AS build/asm/src/cod/16F578.o
+[228/331] AS build/src/cluster.o
+[229/331] CC build/src/cod/vendor_256DF8.o
+[230/331] AS build/src/mesh.o
+[231/331] AS build/src/normal_c.o
+[232/331] AS build/src/normal_l.o
+[233/331] AS build/src/particle.o
+[234/331] AS build/asm/data/src/cod/1746C0.o
+[235/331] AS build/asm/data/src/cod/182400.data.o
+[236/331] AS build/asm/data/src/cod/174700.data.o
+[237/331] AS build/asm/data/src/cod/3B2FE8.data.o
+[238/331] AS build/asm/data/src/cod/3B3108.data.o
+[239/331] CC build/src/cod/vendor_2575C0.o
+src/cod/vendor_2575C0.c: In function `func_00258508':
+src/cod/vendor_2575C0.c:137: warning: passing arg 1 of `func_00258450' from incompatible pointer type
+src/cod/vendor_2575C0.c: In function `func_00258558':
+src/cod/vendor_2575C0.c:144: warning: passing arg 1 of `func_00258450' from incompatible pointer type
+[240/331] AS build/asm/data/src/cod/3BCEB0.data.o
+[241/331] AS build/asm/data/src/cod/3BCED8.data.o
+[242/331] AS build/asm/data/src/cod/3C5AE0.data.o
+[243/331] AS build/asm/data/src/cod/3BF7C0.data.o
+[244/331] AS build/asm/data/src/cod/3D1510.data.o
+[245/331] AS build/asm/data/src/cod/3C61F0.data.o
+[246/331] AS build/asm/data/src/cod/3D3E50.data.o
+[247/331] AS build/asm/data/src/cod/453888.rodata.o
+[248/331] AS build/asm/data/src/cod/453DC8.rodata.o
+[249/331] AS build/asm/data/src/cod/453E8C.rodata.o
+[250/331] AS build/asm/data/src/cod/454430.rodata.o
+[251/331] AS build/asm/data/src/cod/454790.rodata.o
+[252/331] AS build/asm/data/src/cod/455490.rodata.o
+[253/331] CC build/src/cod/vendor_2668B8.o
+src/cod/vendor_2668B8.c: In function `func_0026B0B0':
+src/cod/vendor_2668B8.c:258: warning: passing arg 1 of `func_00265024' makes pointer from integer without a cast
+src/cod/vendor_2668B8.c:258: warning: passing arg 2 of `func_00265024' discards qualifiers from pointer target type
+src/cod/vendor_2668B8.c:259: warning: passing arg 1 of `func_00265024' makes pointer from integer without a cast
+src/cod/vendor_2668B8.c: In function `func_0026B138':
+src/cod/vendor_2668B8.c:270: warning: return discards qualifiers from pointer target type
+src/cod/vendor_2668B8.c: In function `func_0026B148':
+src/cod/vendor_2668B8.c:275: warning: passing arg 1 of `func_0026B0B0' makes pointer from integer without a cast
+src/cod/vendor_2668B8.c: In function `func_0026D458':
+src/cod/vendor_2668B8.c:555: warning: passing arg 1 of `func_0026D1F8' makes pointer from integer without a cast
+src/cod/vendor_2668B8.c: In function `func_0026D488':
+src/cod/vendor_2668B8.c:559: warning: return makes pointer from integer without a cast
+src/cod/vendor_2668B8.c: In function `func_0026D4D8':
+src/cod/vendor_2668B8.c:574: warning: passing arg 2 of `func_00245680' makes pointer from integer without a cast
+src/cod/vendor_2668B8.c: In function `func_0026E5C8':
+src/cod/vendor_2668B8.c:679: warning: passing arg 1 of `func_0026D6C8' makes pointer from integer without a cast
+src/cod/vendor_2668B8.c: In function `func_0026EC68':
+src/cod/vendor_2668B8.c:739: warning: passing arg 1 of `func_00245660' makes pointer from integer without a cast
+src/cod/vendor_2668B8.c:739: warning: passing arg 2 of `func_00245660' makes pointer from integer without a cast
+[254/331] AS build/asm/data/src/cod/4565E0.rodata.o
+[255/331] AS build/asm/data/src/cod/456F4C.rodata.o
+[256/331] CC build/src/cod/vendor_258CC0.o
+[257/331] AS build/asm/data/src/cod/457804.rodata.o
+[258/331] AS build/asm/data/src/cod/457B74.rodata.o
+[259/331] AS build/asm/data/src/cod/45818C.rodata.o
+[260/331] AS build/asm/data/src/cod/458640.rodata.o
+[261/331] AS build/asm/data/src/cod/458DC0.rodata.o
+[262/331] CC build/src/cod/vendor_25E1E8.o
+src/cod/vendor_25E1E8.c: In function `func_0025E238':
+src/cod/vendor_25E1E8.c:86: warning: initialization makes pointer from integer without a cast
+src/cod/vendor_25E1E8.c: In function `func_00263110':
+src/cod/vendor_25E1E8.c:566: warning: passing arg 1 of `func_00262FF8' from incompatible pointer type
+src/cod/vendor_25E1E8.c:566: warning: passing arg 2 of `func_00262FF8' from incompatible pointer type
+src/cod/vendor_25E1E8.c: In function `func_002637E8':
+src/cod/vendor_25E1E8.c:623: warning: passing arg 1 of `func_00263410' makes pointer from integer without a cast
+src/cod/vendor_25E1E8.c: In function `func_00263840':
+src/cod/vendor_25E1E8.c:635: warning: passing arg 1 of `func_00263410' makes pointer from integer without a cast
+src/cod/vendor_25E1E8.c: In function `func_00263D18':
+src/cod/vendor_25E1E8.c:723: warning: passing arg 1 of `func_00263C00' from incompatible pointer type
+src/cod/vendor_25E1E8.c:723: warning: passing arg 2 of `func_00263C00' from incompatible pointer type
+[263/331] AS build/asm/data/src/cod/4591F0.rodata.o
+[264/331] AS build/asm/data/src/cod/3D42B0.data.o
+[265/331] AS build/asm/data/src/cod/45A1B0.rodata.o
+[266/331] AS build/asm/data/src/cod/459B50.rodata.o
+[267/331] AS build/asm/data/src/cod/45AE84.rodata.o
+[268/331] AS build/asm/data/src/cod/45ADE0.rodata.o
+[269/331] AS build/asm/data/src/cod/45AA84.rodata.o
+[270/331] AS build/asm/data/src/cod/45AFD4.rodata.o
+[271/331] AS build/asm/data/src/cod/514F3C.rodata.o
+[272/331] AS build/asm/data/src/cod/45C158.rodata.o
+[273/331] AS build/asm/data/src/cod/5171C4.rodata.o
+[274/331] AS build/asm/data/src/cod/515B60.rodata.o
+[275/331] AS build/asm/data/src/cod/5164E4.rodata.o
+[276/331] AS build/asm/data/src/cod/5171FC.rodata.o
+[277/331] AS build/asm/data/src/cod/5173AC.rodata.o
+[278/331] AS build/asm/data/src/cod/518808.rodata.o
+[279/331] AS build/asm/data/src/cod/518F38.rodata.o
+[280/331] AS build/asm/data/src/cod/518FC4.rodata.o
+[281/331] AS build/asm/data/src/cod/5190F8.rodata.o
+[282/331] AS build/asm/data/src/cod/5191D0.rodata.o
+[283/331] AS build/asm/data/src/cod/519D94.rodata.o
+[284/331] AS build/asm/data/src/cod/51A184.rodata.o
+[285/331] AS build/asm/data/src/cod/519BB0.rodata.o
+[286/331] AS build/asm/data/src/cod/51AC60.rodata.o
+[287/331] AS build/asm/data/src/cod/51AB50.rodata.o
+[288/331] AS build/asm/data/src/cod/52E654.rodata.o
+[289/331] AS build/asm/data/src/cod/52E578.rodata.o
+[290/331] AS build/asm/data/src/cod/52ECE4.rodata.o
+[291/331] AS build/asm/data/src/cod/52FF74.rodata.o
+[292/331] AS build/asm/data/src/cod/530900.lit4.o
+[293/331] AS build/asm/data/src/cod/52F2C0.rodata.o
+[294/331] AS build/asm/data/src/cod/530984.lit4.o
+[295/331] AS build/asm/data/src/cod/51BD00.rodata.o
+[296/331] AS build/asm/data/src/cod/530A54.lit4.o
+[297/331] AS build/asm/data/src/cod/530A78.lit4.o
+[298/331] AS build/asm/data/src/cod/530AF8.lit4.o
+[299/331] AS build/asm/data/src/cod/530D4C.lit4.o
+[300/331] AS build/asm/data/src/cod/530EB0.lit4.o
+[301/331] AS build/asm/data/src/cod/530E6C.lit4.o
+[302/331] AS build/asm/data/src/cod/530F90.lit4.o
+[303/331] AS build/asm/data/src/cod/5311F4.lit4.o
+[304/331] AS build/asm/data/src/cod/5310FC.lit4.o
+[305/331] AS build/asm/data/src/cod/531110.lit4.o
+[306/331] AS build/asm/data/src/cod/53103C.lit4.o
+[307/331] AS build/asm/data/src/cod/5313E0.lit4.o
+[308/331] AS build/asm/data/src/cod/531284.lit4.o
+[309/331] AS build/asm/data/src/cod/531418.lit4.o
+[310/331] AS build/asm/data/src/cod/531478.lit4.o
+[311/331] AS build/asm/data/src/cod/531430.lit4.o
+[312/331] AS build/asm/data/src/cod/5314A8.lit4.o
+[313/331] AS build/asm/data/src/cod/531504.lit4.o
+[314/331] AS build/asm/data/src/cod/5315EC.lit4.o
+[315/331] AS build/asm/data/src/cod/531650.lit4.o
+[316/331] AS build/asm/data/src/cod/5316EC.lit4.o
+[317/331] AS build/asm/data/src/cod/531618.lit4.o
+[318/331] AS build/asm/data/src/cod/5318C0.lit4.o
+[319/331] AS build/asm/data/src/cod/53169C.lit4.o
+[320/331] AS build/asm/data/src/cod/532310.sdata.o
+[321/331] AS build/asm/data/src/cod/531900.sdata.o
+[322/331] AS build/asm/data/src/cod/00633C00.sbss.o
+[323/331] AS build/asm/data/src/cod/532770.sdata.o
+[324/331] AS build/asm/data/src/cod/00634000.bss.o
+[325/331] AS build/asm/data/src/cod/533478.sdata.o
+[326/331] AS build/asm/data/src/cod/532A30.sdata.o
+[327/331] AS build/asm/data/src/cod/45C690.rodata.o
+[328/331] AS build/asm/data/src/cod/18B100.data.o
+[329/331] LD build/ico.elf
+mips-linux-gnu-ld: warning: build/ico.elf has a LOAD segment with RWX permissions
+[330/331] OBJCOPY build/ico.rom
+[331/331] VERIFY build/ico.rom
+verify_elf: OK (build/ico.rom sha1=fbf50c75cd5911273511c4f9af90503ff8423582)

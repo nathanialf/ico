@@ -23,7 +23,7 @@ typedef struct bgaObj {
 
 
 extern int D_006337B8;
-extern void func_001185A8(void *dst, void *src);
+extern void _CopyMatrix(void *dst, void *src);
 extern int D_00710BE0[];
 extern int D_006337B0;
 extern int D_00633F64;
@@ -142,11 +142,11 @@ INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_CalcAnimation);
 extern int D_00632024;
 extern void *D_006337BC;
 extern char D_006337D8[];
-extern void debug_assertMessage(char *msg);
+extern void debug_StdPrintfDummy(char *msg);
 extern void *func_0013A0F8(int heap, int size, char *file, int line);
 extern void func_001AD768(char *file, int line);
-extern void func_00263FF0(char *file, int line, void *expr);
-extern void mc_Init(void *a0);
+extern void __assert(char *file, int line, void *expr);
+extern void _UnitVector(void *a0);
 extern void mc_TransMicroCode(void *a0, void *a1);
 
 void bga_CalcSdfCamera(int type, short *p, void *mcArg, int key, float f, int a5) {
@@ -172,9 +172,9 @@ void bga_CalcSdfCamera(int type, short *p, void *mcArg, int key, float f, int a5
                 SDF_ID(node)++;
                 return;
             default:
-                debug_assertMessage(D_0061AAF0);
+                debug_StdPrintfDummy(D_0061AAF0);
                 func_001AD768(D_0061A8D8, 0x9D5);
-                func_00263FF0(D_0061A8D8, 0x9D5, D_006337D8);
+                __assert(D_0061A8D8, 0x9D5, D_006337D8);
                 return;
             }
         }
@@ -200,13 +200,13 @@ void bga_CalcSdfCamera(int type, short *p, void *mcArg, int key, float f, int a5
         SDF_UNK30(node) = p[1];
         mc_TransMicroCode((char *)node + (*(volatile int *)((char *)node + 0x140) << 5), mcArg);
         SDF_UNK150(node) = 0;
-        mc_Init(node);
+        _UnitVector(node);
         SDF_ID(node)++;
         break;
     default:
-        debug_assertMessage(D_0061AAF0);
+        debug_StdPrintfDummy(D_0061AAF0);
         func_001AD768(D_0061A8D8, 0x9F7);
-        func_00263FF0(D_0061A8D8, 0x9F7, D_006337D8);
+        __assert(D_0061A8D8, 0x9F7, D_006337D8);
         break;
     }
 }
@@ -221,7 +221,7 @@ int bga_ResetCamera(void *p)
 {
     int v = D_00633F64;
     if (v != 0) {
-        func_001185A8(p, D_00710BE0);
+        _CopyMatrix(p, D_00710BE0);
         v = D_00633F64;
     } else {
         D_006337B0 = 0;
@@ -231,16 +231,16 @@ int bga_ResetCamera(void *p)
 
 extern char D_006337C8[];
 extern char D_006337D0[];
-extern void debug_assertMessage(char *msg);
+extern void debug_StdPrintfDummy(char *msg);
 extern void func_001AD768(char *file, int line);
-extern void func_00263FF0(char *file, int line, void *expr);
-extern int func_002653B8(void *a0, void *a1, int a2);
+extern void __assert(char *file, int line, void *expr);
+extern int strncmp(void *a0, void *a1, int a2);
 
 void *bga_GetCameraMatrix(void *a0) {
-    if (func_002653B8(a0, D_006337D0, 3) != 0) {
-        debug_assertMessage(D_0061A918);
+    if (strncmp(a0, D_006337D0, 3) != 0) {
+        debug_StdPrintfDummy(D_0061A918);
         func_001AD768(D_0061A8D8, 0x3E4);
-        func_00263FF0(D_0061A8D8, 0x3E4, D_006337C8);
+        __assert(D_0061A8D8, 0x3E4, D_006337C8);
     }
     return a0;
 }

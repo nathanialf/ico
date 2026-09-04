@@ -69,7 +69,7 @@ glabel func_001BF2C8
 .align 2
   .L001BF374:
     /* BF374 001BF374 2D280000 */  daddu      $5, $0, $0
-    /* BF378 001BF378 7690090C */  jal        func_002641D8
+    /* BF378 001BF378 7690090C */  jal        memset
     /* BF37C 001BF37C 10000624 */   addiu     $6, $0, 0x10
     /* BF380 001BF380 803F013C */  lui        $1, (0x3F800000 >> 16)
     /* BF384 001BF384 00008144 */  mtc1       $1, $f0
@@ -77,7 +77,7 @@ glabel func_001BF2C8
     /* BF38C 001BF38C 5C01028E */  lw         $2, 0x15C($16)
     /* BF390 001BF390 0800A0E7 */  swc1       $f0, 0x8($29)
     /* BF394 001BF394 20054424 */  addiu      $4, $2, 0x520
-    /* BF398 001BF398 9261040C */  jal        func_00118648
+    /* BF398 001BF398 9261040C */  jal        _ApplyMatrix
     /* BF39C 001BF39C 0C00458C */   lw        $5, 0xC($2)
     /* BF3A0 001BF3A0 23000010 */  b          .L001BF430
     /* BF3A4 001BF3A4 2000258E */   lw        $5, 0x20($17)

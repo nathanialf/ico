@@ -38,13 +38,13 @@ void CanWallLeverPull(char *self, int a1)
 }
 
 extern int DebugDisp1CollisionWithColor(void *a0, int a1);
-extern void GetRootMatrixByDObj(float *dst, void *a0);
-extern void func_00243AE8(float *dst, void *src, float *mat);
+extern void GetRootPosition(float *dst, void *a0);
+extern void sceVu0SubVector(float *dst, void *src, float *mat);
 extern void *func_00105278(void);
-extern void LocalizeDirectionOrient(void *a0, void *a1);
+extern void GetRootMatrix(void *a0, void *a1);
 extern void MatrixDrive_TransMatrix(void *a0, void *a1);
-extern void func_002438B8(float *a0, void *a1, float *a2);
-extern void MatrixDrive_PushMatrixWithNoCopy(void *a0, void *a1, float x, float y, float z);
+extern void sceVu0ApplyMatrix(float *a0, void *a1, float *a2);
+extern void MatrixDrive_GetTurnYAngleXZ(void *a0, void *a1, float x, float y, float z);
 
 void IsWallLeverStatus(void *a0, void *a1, int a2) {
     float buf[4];
@@ -55,14 +55,14 @@ void IsWallLeverStatus(void *a0, void *a1, int a2) {
 
     q = *(WLGeo **)(*(char **)((char *)a0 + 0x15C) + 0x800);
     idx = DebugDisp1CollisionWithColor(a1, a2);
-    GetRootMatrixByDObj(mat, a0);
-    func_00243AE8(buf, (char *)*(int *)(*(int *)((char *)a1 + 0x15C) + 0xC) + (idx << 6) + 0x30, mat);
+    GetRootPosition(mat, a0);
+    sceVu0SubVector(buf, (char *)*(int *)(*(int *)((char *)a1 + 0x15C) + 0xC) + (idx << 6) + 0x30, mat);
     *(int *)&buf[3] = 0;
-    LocalizeDirectionOrient(func_00105278(), a0);
+    GetRootMatrix(func_00105278(), a0);
     t = func_00105278();
     MatrixDrive_TransMatrix(t, func_00105278());
-    func_002438B8(buf, func_00105278(), buf);
-    MatrixDrive_PushMatrixWithNoCopy(q, &q->f_2, buf[0], -buf[1], buf[2] * 0.0f);
+    sceVu0ApplyMatrix(buf, func_00105278(), buf);
+    MatrixDrive_GetTurnYAngleXZ(q, &q->f_2, buf[0], -buf[1], buf[2] * 0.0f);
 }
 
 int InitWallLeverGeo(void *a0) {
@@ -137,10 +137,6 @@ short func_001C0D50(void *a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0D60);
 
-INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0DE0);
-
-INCLUDE_ASM("asm/nonmatchings/src/switch", BoxMemoryFunc);
-
 INCLUDE_ASM("asm/nonmatchings/src/switch", getAlign);
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", GetDistanceOfGObj);
@@ -148,4 +144,8 @@ INCLUDE_ASM("asm/nonmatchings/src/switch", GetDistanceOfGObj);
 INCLUDE_ASM("asm/nonmatchings/src/switch", moveXPlus);
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", moveXMinus);
+
+INCLUDE_ASM("asm/nonmatchings/src/switch", moveZPlus);
+
+INCLUDE_ASM("asm/nonmatchings/src/switch", moveZMinus);
 

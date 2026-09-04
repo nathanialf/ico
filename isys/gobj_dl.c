@@ -17,15 +17,15 @@ struct GObj__p4 { int unk0; int unk4; int unk8; char pad[0x168]; };
 
 extern int D_00281AD0[];
 extern char D_00557A58[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int D_006321D0;
 extern int D_006321CC;
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", cut_gobj_dl_link);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjSearchFromLabelTypeID);
 
 extern struct GObj__p4 *D_00633CA0;
 extern unsigned int D_00633CA4;
 
-struct GObj__p4 *isysGObjRemoveObjDL(void)
+struct GObj__p4 *isysGObjGetExist_begin(void)
 {
     struct GObj__p4 *start = D_00633CA0 - 1;
     struct GObj__p4 *end = (struct GObj__p4 *)((char *)D_00633CA0 + (D_00633CA4 * 0x174 - 0x174));
@@ -38,7 +38,7 @@ struct GObj__p4 *isysGObjRemoveObjDL(void)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", func_0013ECF8);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjGetExist_next);
 
 void func_0013ED40(int bit, int set)
 {
@@ -58,12 +58,12 @@ set_path:
     D_006321D0 |= (1 << bit);
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjMoveObjDLHead);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", cut_gobj_dl_link);
 
-extern void isysGObjMoveObjDLHead(int *self);
+extern void cut_gobj_dl_link(int *self);
 
 void isysGObjLinkObjDL(int *self) {
-    isysGObjMoveObjDLHead(self);
+    cut_gobj_dl_link(self);
 }
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDLHead);
@@ -119,7 +119,7 @@ void isysGObjLinkObjDLBeforeGObj(int a0, int a1, int a2)
     int s1 = a1 & 0xFF;
     int new_var;
     new_var = a2;
-    isysGObjMoveObjDLHead(a0);
+    cut_gobj_dl_link(a0);
     return isysGObjLinkObjDLHead(a0, s1, new_var);
 }
 
@@ -128,7 +128,7 @@ void isysGObjDlInit(int a0, int a1, int a2)
     int s1 = a1 & 0xFF;
     int new_var;
     new_var = a2;
-    isysGObjMoveObjDLHead(a0);
+    cut_gobj_dl_link(a0);
     return isysGObjLinkObjDLAfterGObj(a0, s1, new_var);
 }
 
@@ -149,7 +149,7 @@ void func_0013F1F8(int *self, int *a1, int a2, int *a3)
     if (a1 == 0) return;
     t0 = self;
     if (a3 == 0) {
-        debug_assertMessage(D_00557A58);
+        debug_StdPrintfDummy(D_00557A58);
         return;
     }
     t0[0x14] = a2;
@@ -173,7 +173,7 @@ void func_0013F260(int *self, int *a1, int a2, int *a3)
     if (a1 == 0) return;
     t0 = self;
     if (a3 == 0) {
-        debug_assertMessage(D_00557A58);
+        debug_StdPrintfDummy(D_00557A58);
         return;
     }
     t0[0x14] = a2;

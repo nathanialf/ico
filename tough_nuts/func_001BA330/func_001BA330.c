@@ -11,11 +11,11 @@ extern void func_001BA2E0(int *self);
 extern void func_001BA090(int *self);
 extern void func_001B99B0(int *self);
 extern int func_00105278(void);
-extern void func_001185D0(int a, int b, int c);
+extern void _MulMatrix(int a, int b, int c);
 extern void func_001CF930(int a, int b, float f);
 extern void func_00105F20(int a, int b);
-extern void func_00105038(int a);
-extern void func_00104F48(int a);
+extern void MatrixDrive_RotMatrixZ(int a);
+extern void MatrixDrive_RotMatrixX(int a);
 extern void func_001A6E28(int a);
 void func_001BA330(int *self)
 {
@@ -56,7 +56,7 @@ void func_001BA330(int *self)
     func_001B99B0(self);
     {
         int r = func_00105278();
-        func_001185D0(r, ((int *)self[0x15C / 4])[0xC / 4], (int)D_004BEEA0);
+        _MulMatrix(r, ((int *)self[0x15C / 4])[0xC / 4], (int)D_004BEEA0);
     }
     {
         int r = func_00105278();
@@ -65,12 +65,12 @@ void func_001BA330(int *self)
     if (p[0x4 / 4] != 0) {
         int r3 = func_00105278();
         func_00105F20(r3, ((int *)self[0x15C / 4])[0xC / 4]);
-        func_00105038(0x4000);
-        func_00104F48(0x4000);
+        MatrixDrive_RotMatrixZ(0x4000);
+        MatrixDrive_RotMatrixX(0x4000);
         {
             int *sub = (int *)self[0x15C / 4];
             int r4 = func_00105278();
-            func_001185D0(sub[0xC / 4], r4, (int)D_004BEF20);
+            _MulMatrix(sub[0xC / 4], r4, (int)D_004BEF20);
         }
     }
     {

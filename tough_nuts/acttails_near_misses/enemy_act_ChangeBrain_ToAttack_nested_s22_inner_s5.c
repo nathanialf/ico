@@ -17,7 +17,7 @@
  * Paste in place of BOTH INCLUDE_ASM lines (func_00163890 first, then
  * ChangeBrain_ToAttack).  All the __asm__-aliased externs are needed because
  * this sits at ~line 264, before enemy_act.c's own declarations of
- * DispCollisionPC (672), D_00274EC0 (722), BoxBarSoundOn, debug_assertMessage
+ * DispCollisionPC (672), D_00274EC0 (722), BoxBarSoundOn, debug_StdPrintfDummy
  * and _ACTWait.
  */
 
@@ -26,12 +26,12 @@ extern int D_00633D00[];
 extern int D_00274EC0[];
 extern int DispCollisionPC(void *a0, int a1, int a2, int a3, unsigned char a4, float a5);
 extern void BoxBarSoundOn__cbta(void *a0, int a1) __asm__("BoxBarSoundOn");
-extern void debug_assertMessage__cbta(char *m) __asm__("debug_assertMessage");
+extern void debug_assertMessage__cbta(char *m) __asm__("debug_StdPrintfDummy");
 extern unsigned int _ACTWait__cbta(int a0) __asm__("_ACTWait");
 extern int D_00631AE8__cbta __asm__("D_00631AE8");
 extern int D_00632390__cbta __asm__("D_00632390");
 extern void func_001624D8(volatile int a0);
-extern void GetHeightOfWallFromGObj(void *out, void *obj);
+extern void GetRootProjectionPosOfGObj(void *out, void *obj);
 extern void PairSetGeometry__cbta(void *a0) __asm__("PairSetGeometry");
 extern void func_001919A0__cbta(void *a0, int a1) __asm__("func_001919A0");
 
@@ -76,8 +76,8 @@ void ChangeBrain_ToAttack(volatile int a0) {
     ok = (unsigned char)DispCollisionPC((void *)a0, (int)de8,
                                         (int)((char *)p + 0x110),
                                         (int)func_001624D8, 0, 130.0f);
-    GetHeightOfWallFromGObj(buf10, de8);
-    GetHeightOfWallFromGObj(buf20, (void *)a0);
+    GetRootProjectionPosOfGObj(buf10, de8);
+    GetRootProjectionPosOfGObj(buf20, (void *)a0);
     {
         float d = buf10[1] - buf20[1];
         if (d < 0.0f) {

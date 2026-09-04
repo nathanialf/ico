@@ -4,7 +4,7 @@
 
 #include "r5900.h"
 #include "vu0.h"
-void mc_setBaseOffset(void *p0, void *p1, void *p2)
+void _FTOI4Vector(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_V2OP(vftoi4.xyzw, 2, 1);
@@ -12,7 +12,7 @@ void mc_setBaseOffset(void *p0, void *p1, void *p2)
     VU0_NOP();
 }
 
-void mc_SetMicroCode(void *p0, void *p1, void *p2)
+void _FTOI0Vector(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_V2OP(vftoi0.xyzw, 2, 1);
@@ -30,13 +30,13 @@ void mc_Reset(void *dst, void *src)
     QCOPY16("$t0");
 }
 
-void mc_Init(void *p0)
+void _UnitVector(void *p0)
 {
     VU0_LSV(sqc2, 0, 0x0, a0);
     VU0_NOP();
 }
 
-void func_00118490(void *p0, void *p1, void *p2, void *p3)
+void _InterVector(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(t0, 12);
@@ -51,7 +51,7 @@ void func_00118490(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-void func_001184B8(void *p0, void *p1, void *p2, void *p3)
+void _InterVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(t0, 12);
@@ -66,7 +66,7 @@ void func_001184B8(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-void func_001184E0(void *p0)
+void _GetNorm(void *p0)
 {
     VU0_LSV(lqc2, 3, 0x0, a0);
     VU0_V3OP(vmul.xyz, 3, 3, 3);
@@ -81,7 +81,7 @@ void func_001184E0(void *p0)
     VU0_NOREORDER_END();
 }
 
-void func_00118510(void *p0, void *p1, void *p2)
+void _GetLength(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a0);
     VU0_LSV(lqc2, 2, 0x0, a1);
@@ -98,7 +98,7 @@ void func_00118510(void *p0, void *p1, void *p2)
     VU0_NOREORDER_END();
 }
 
-void func_00118548(void *p0, void *p1, void *p2)
+void _GetLengthXY(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a0);
     VU0_LSV(lqc2, 2, 0x0, a1);
@@ -113,7 +113,7 @@ void func_00118548(void *p0, void *p1, void *p2)
     VU0_NOREORDER_END();
 }
 
-void func_00118578(void *p0, void *p1, void *p2)
+void _GetLengthXZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a0);
     VU0_LSV(lqc2, 2, 0x0, a1);
@@ -128,12 +128,12 @@ void func_00118578(void *p0, void *p1, void *p2)
     VU0_NOREORDER_END();
 }
 
-void func_001185A8(void *dst, void *src)
+void _CopyMatrix(void *dst, void *src)
 {
     QCOPY64_PARALLEL("$a2", "$a3", "$t0", "$t1");
 }
 
-void func_001185D0(void *p0, void *p1, void *p2)
+void _MulMatrix(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 14, 0x0, a1);
     VU0_LSV(lqc2, 15, 0x10, a1);
@@ -166,7 +166,7 @@ void func_001185D0(void *p0, void *p1, void *p2)
     VU0_NOP();
 }
 
-void func_00118648(void *p0, void *p1, void *p2, void *p3)
+void _ApplyMatrix(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 8, 0x0, a2);
     VU0_LSV(lqc2, 14, 0x0, a1);
@@ -181,7 +181,7 @@ void func_00118648(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-void func_00118678(void *p0)
+void _UnitMatrix(void *p0)
 {
     VU0_V2OP(vmove.xyzw, 17, 0);
     VU0_V2OP(vmr32.xyzw, 16, 17);
@@ -194,7 +194,7 @@ void func_00118678(void *p0)
     VU0_NOP();
 }
 
-void func_001186A0(void *p0)
+void _UnitRotation(void *p0)
 {
     VU0_V2OP(vmove.xyzw, 17, 0);
     VU0_V2OP(vmr32.xyzw, 16, 17);
@@ -212,7 +212,7 @@ void func_001186A0(void *p0)
  * recombine the doubleword halves into the transposed rows. The word
  * interleave is MMI-class with no C spelling, so the body is inline asm;
  * dst/src stay in $a0/$a1 straight from the calling convention. */
-void func_001186C8(void *dst, void *src)
+void _TransposeMatrix(void *dst, void *src)
 {
     __asm__ __volatile__("lq $t0, 0x0($a1)"  : : : "memory");
     __asm__ __volatile__("lq $t1, 0x10($a1)" : : : "memory");
@@ -233,11 +233,11 @@ void func_001186C8(void *dst, void *src)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_00118710);
+INCLUDE_ASM("asm/nonmatchings/src/MicroCode", _InversMatrix);
 
-INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_00118780);
+INCLUDE_ASM("asm/nonmatchings/src/MicroCode", _ScaleMatrixV);
 
-INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_00118818);
+INCLUDE_ASM("asm/nonmatchings/src/MicroCode", _SetCameraMatrix);
 
 INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_00118940);
 
@@ -245,7 +245,7 @@ INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_00118940);
  * lq/sq are MMI-class, so the body is inline asm; the four source pointers
  * are bound with "r" constraints and $6-$9 are clobbered, which is what
  * forces the three argument moves out of a2/a3/t0 before the loads. */
-void func_00118A10(void *dst, void *s0, void *s1, void *s2, void *s3)
+void _MakeLightColorMatrix(void *dst, void *s0, void *s1, void *s2, void *s3)
 {
     __asm__ __volatile__(
         "lq $6, 0(%1)\n\t"
@@ -262,7 +262,7 @@ void func_00118A10(void *dst, void *s0, void *s1, void *s2, void *s3)
         : "$6", "$7", "$8", "$9", "memory");
 }
 
-void func_00118A48(void *p0, void *p1, void *p2, void *p3)
+void _InitRandom(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(a2, 12);

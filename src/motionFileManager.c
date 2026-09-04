@@ -17,7 +17,7 @@ void pursueNodeList(int a0) {
     }
 }
 
-int InitMotionFile(unsigned int *self)
+int CheckMotionIncludeFacialData(unsigned int *self)
 {
     int r;
     unsigned int p = (unsigned int)self + 0x10;
@@ -39,21 +39,21 @@ void InitMotionMemorySize(void) {
     func_001D4A58(D_004C5B20, D_004C5AE0, D_004C5AF0, D_004C5AE0, -1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", AddMotionMemorySize);
+INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", limitHPAngleAndSetB);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", GetMotionMemorySize);
+INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", avoidReverseInterpOnCurrentMatrix);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", ResetDynamicMotionManager);
+INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", avoidReverseInterpOnCurrentMatrixWithLimit);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", ResetStatic2MotionManager);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", CheckMotionIncludeFacialData);
+INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", EditRotEmphasys);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", func_001D8590);
+INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", getFinalMatrix);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", func_001D8758);
+INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", getFinalMatrixWithNaturalGeometry);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", func_001D88B8);
+INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", _calcNaturalGeometry);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", func_001D8968);
 

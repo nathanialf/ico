@@ -10,12 +10,12 @@ extern int D_00633D90;
 extern int D_00633D84;
 extern int D_00633D88;
 
-void InitCameraSetManager(int *a0, int *a1) {
+void CameraGetTargets(int *a0, int *a1) {
     *a0 = D_00633D84;
     *a1 = D_00633D88;
 }
 
-void func_0018CC00(int x) {
+void CameraSetMode(int x) {
     D_00633D90 = x;
     D_006D06B8[0] = 0;
 }
@@ -24,7 +24,7 @@ int func_0018CC10(void) {
     return D_00633D90;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CC18);
+INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", CameraGetOtherObjOffset);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CD00);
 
@@ -47,11 +47,11 @@ void func_0018CEE0(void) {
     D_00633D8C = 1;
 }
 
-int func_0018CEF0(void) {
+int InsertCamera_isEnable(void) {
     return D_006D06C8[0] < 2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CF00);
+INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", CameraSetCameraPosition);
 
 void func_0018CF58(void) {}
 

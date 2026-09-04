@@ -21,7 +21,7 @@ struct PadNode {
 };
 extern int iosThreadInit();
 extern int D_006A6DB0[];
-extern int ShockDriver_GetShockVoiceMax(int a0, int a1);
+extern int ShockRequestBox_RequestCancel(int a0, int a1);
 
 void Vibration_ShotDecode(int key)
 {
@@ -57,26 +57,26 @@ void Vibration_ShotDecode(int key)
         {
             break;
         }
-        ShockDriver_GetShockVoiceMax(entry[0x4 / 4], key);
+        ShockRequestBox_RequestCancel(entry[0x4 / 4], key);
         entry[0] = 0;
     }
 }
 
-void Vibration_WaveDecode(void)
+void iosPadActStopAll(void)
 {
     int *p = D_006A6DB0;
     int i;
     for (i = 0xF; i != -1; i--) {
         int x = p[0];
         if (x != 0) {
-            ShockDriver_GetShockVoiceMax(p[1], x);
+            ShockRequestBox_RequestCancel(p[1], x);
             p[0] = 0;
         }
         p = (int *)((char *)p + 0x18);
     }
 }
 
-int *Shock_Request(int key, unsigned int val)
+int *iosPadActVolumeSet(int key, unsigned int val)
 {
     int *p = D_006A6DB0;
     int *rv;
@@ -103,14 +103,14 @@ end:
 
 extern char D_00281630[];
 extern int D_006A6D90[];
-extern void iosMsgQueueDestroy(int *a, int *b, int c);
+extern void iosMsgQueueCreate(int *a, int *b, int c);
 extern void iosMsgRecv(int *a, void *b, int c);
 extern void iosPadRead(void);
 
 void Shock_SetMotor(void)
 {
     int local_buf;
-    iosMsgQueueDestroy(D_00281630, D_006A6D90, 8);
+    iosMsgQueueCreate(D_00281630, D_006A6D90, 8);
     while (1) {
         iosMsgRecv(D_00281630, &local_buf, 1);
         iosPadRead();
@@ -125,11 +125,11 @@ void Vibration_SetDecodeData(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Init_ShockRequestBox);
 
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockRequestBox_Clear);
+INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Vibration_WaveDecode);
 
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockRequestBox_Regst);
+INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Shock_Request);
 
-extern void func_0024EBC8(int a0, int a1, void *box);
+extern void scePadSetActDirect(int a0, int a1, void *box);
 
 void ShockRequestBox_Request(int a0, int a1, ShockReq *box, int a3, int a4)
 {
@@ -183,7 +183,7 @@ Ltail:
     box->val = n;
     box->out = outv;
     if (a3 >= 0) {
-        func_0024EBC8(a3, a4, &box->type);
+        scePadSetActDirect(a3, a4, &box->type);
     }
 }
 
@@ -259,7 +259,7 @@ end:
     self[0] = 0;
 }
 
-void ShockRequestBox_RequestCancel(struct PadNode **head, struct PadNode *new_node) {
+void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node) {
     struct PadNode *old = *head;
     new_node->prev = (struct PadNode *)0;
     new_node->next = old;
@@ -273,7 +273,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockRequestBox_RequestDirectCan
 
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Init_ShockDriver);
 
-extern int iosThreadGetPri(void *a0, int *p);
+extern int requestFree(void *a0, int *p);
 
 int *ShockDriver_VoiceSet_NumberRegist(int **a0) {
     int *p; unsigned char b;
@@ -282,7 +282,7 @@ int *ShockDriver_VoiceSet_NumberRegist(int **a0) {
         if (p != 0) {
             do {
                 b = *(unsigned char *)p;
-                if (b == 0) p = (int *)iosThreadGetPri(a0, p);
+                if (b == 0) p = (int *)requestFree(a0, p);
                 else        p = (int *)p[0x34 / 4];
             } while (p != 0);
         }
@@ -308,7 +308,7 @@ fail:
     return 0;
 }
 
-int ShockDriver_GetShockVoiceMax(int a0_, int a1) {
+int ShockRequestBox_RequestCancel(int a0_, int a1) {
     int *a0 = (int *)a0_;
     int *node;
     int *next;
@@ -404,7 +404,7 @@ int ShockEmulator_EmulationWave(unsigned int idx)
 }
 
 
-int Init_ShockRequestAlloc(int a0) {
+int ShockDriver_GetShockVoiceMax(int a0) {
     int p;
     if ((unsigned int)a0 < (unsigned int)D_00632190->count) {
         goto body;

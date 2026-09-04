@@ -11,13 +11,13 @@ extern void dpk_SwapBuffer(int a0);
 extern char D_00555830[];
 extern void dl_GetPri();
 extern void dpk_Init();
-extern void pac_getWeight();
+extern void mc_SetMicroCode();
 extern void pac_makeClusterStrip();
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setShape);
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispBoxLine);
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_clipPacketBoundingBox);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", prim_DispWireBox);
 
 int func_0011E708(int a0, int a1, int a2, int a3)
 {
@@ -49,17 +49,17 @@ void func_0011EE30(char *self, int b, int c)
 {
     long long v_ll = *(long long *)(self + 0x60);
     int v_int = *(int *)(self + 0x60);
-    pac_getWeight(v_int & 1, ((int)(v_ll >> 5)) & 3, 0, b, c);
+    mc_SetMicroCode(v_int & 1, ((int)(v_ll >> 5)) & 3, 0, b, c);
 }
 
 void func_0011EE58(int a0, int a1, int a2)
 {
-    pac_getWeight(a0, 1, 1, a1, a2);
+    mc_SetMicroCode(a0, 1, 1, a1, a2);
 }
 
 void reg_setNMatrixPacket(int a0, int a1, int a2)
 {
-    pac_getWeight(a0, 1, 2, a1, a2);
+    mc_SetMicroCode(a0, 1, 2, a1, a2);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setMMatrixPacket);

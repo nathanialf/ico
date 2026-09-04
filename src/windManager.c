@@ -35,12 +35,12 @@ extern float D_0063376C;
 extern float D_00633770;
 extern int D_00633774;
 extern void drawSenpuukiHaneUnit(float a0);
-extern float pac_DispQW(void);
+extern float _GetRandom(void);
 
 void InitWindManager(void) {
     float v;
     if (++D_00633774 >= 0x33) {
-        D_0063376C = D_0063375C * ((pac_DispQW() * 2.0f - 1.0f) * D_00633764 + 1.0f);
+        D_0063376C = D_0063375C * ((_GetRandom() * 2.0f - 1.0f) * D_00633764 + 1.0f);
         D_00633774 = 0;
     }
     v = D_00633770 + (D_0063376C - D_00633770) * 0.1f;

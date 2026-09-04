@@ -22,7 +22,7 @@ extern int   D_00633788[];
 extern void  func_00139598(void *p);
 extern void  func_001A6E28(char *p);
 extern void  func_001AD768(char *buf, int sz);
-extern void  func_00263FF0(char *buf, int sz, int *list);
+extern void  __assert(char *buf, int sz, int *list);
 extern int   func_0013A0F8(int a0, int a1, char *file, int line);
 extern void  func_00139D78(int a0, int a1, char *a2, int a3);
 
@@ -38,7 +38,7 @@ int func_001F6CB0(int size)
             register char *buf REG("$4") = D_0061A8A8;
             register int *list = D_00633788;
 
-            func_00263FF0(buf, 0x174, list);
+            __assert(buf, 0x174, list);
         }
 
     }

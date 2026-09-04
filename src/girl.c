@@ -13,7 +13,7 @@ int func_001D1440(int a0)
     return 1;
 }
 
-int func_001D1468(void)
+int execWeaponLightOff(void)
 {
     int *p;
     int *q;

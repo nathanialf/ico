@@ -6,7 +6,7 @@
 
 extern void iosMallocCheckLeak2();
 extern void func_002407C0();
-int func_0019E310(int a0_unused, int *a1, char *a2) {
+int mpegTS(int a0_unused, int *a1, char *a2) {
     long long buf[4];
     func_002407C0((int *)(a2 + 0x50), (int *)buf);
     *(long long *)((char *)a1 + 0x8) = buf[0];
@@ -46,11 +46,11 @@ int voBufGetData(int *self) {
     return self[3] == self[4];
 }
 
-extern void func_00101A40(volatile int *a0);
+extern void DIntr(volatile int *a0);
 
 void voBufGetTag(volatile int *a0) {
     int w, n;
-    func_00101A40(a0);
+    DIntr(a0);
     *(int *)(a0[1] + a0[2] * 0xA0A40) = 2;
     w = a0[3];
     n = a0[4];

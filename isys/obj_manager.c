@@ -3,7 +3,7 @@
 
 
 
-extern void func_0024A1E0();
+extern void sceSifFreeIopHeap();
 extern int  D_00633CC4;
 extern int isysGObjAddBeforeGObj();
 extern int *D_00281A70[];
@@ -99,7 +99,7 @@ int *iosOmSearchGObjId(int a0) {
 
 void iosOmSearchGObjIdAll(void) {}
 
-int iosOmBeforeFuncStandard(char *self_arg, int val5, int val6)
+int iosOmSendMail(char *self_arg, int val5, int val6)
 {
     register char *self = self_arg;
     int *p = (int *)(self + 0x54);
@@ -122,7 +122,7 @@ int iosOmBeforeFuncStandard(char *self_arg, int val5, int val6)
     return 0;
 }
 
-int soundInit(int a0, int val5, int val6)
+int iosOmSendMailLink(int a0, int val5, int val6)
 {
     int *node = D_00281A70[a0];
     int ret = 0;
@@ -158,10 +158,10 @@ int soundInit(int a0, int val5, int val6)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", soundOutputModeSet);
+INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", iosOmExeMail);
 
 void func_00140130(void)
 {
-    func_0024A1E0(D_00633CC4);
+    sceSifFreeIopHeap(D_00633CC4);
 }
 

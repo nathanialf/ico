@@ -14,10 +14,10 @@ struct DmaArec {
 
 extern int iosMallocCheckLeak2();
 extern unsigned int D_00633780;
-extern void func_00264128();
-extern void func_00118678(void *p0);
+extern void memcpy();
+extern void _UnitMatrix(void *p0);
 extern int  D_00631970;
-extern void func_00244418(void *a0, void *a1, void *a2, float a3);
+extern void sceVu0InterVectorXYZ(void *a0, void *a1, void *a2, float a3);
 
 void dma_init(void *gobj, float t) {
     Obj7F0 *o7 = *(Obj7F0 **)((char *)GOBJ_SUB(gobj) + 0x800);
@@ -36,7 +36,7 @@ void dma_init(void *gobj, float t) {
             frac = fj - (float)k;
             cp = (char *)((void **)o7->f_4)[i];
             node = *(char **)((char *)A->p8 + i * 0x1A0) + j * 16;
-            func_00244418(node, cp + (k * 16 + 0x10), cp + k * 16, frac);
+            sceVu0InterVectorXYZ(node, cp + (k * 16 + 0x10), cp + k * 16, frac);
             node = *(char **)((char *)A->p8 + i * 0x1A0);
             *(float *)(node + j * 16 + 0xC) = 1.0f;
         }
@@ -46,34 +46,34 @@ void dma_init(void *gobj, float t) {
 extern int *D_0063378C;
 extern int *D_00633790;
 extern int *D_00633794;
-extern void debug_VariableInit(void);
-extern int *func_00244630(int a0);
-extern void func_00244658(int a0);
+extern void debug_SetDmaCallback(void);
+extern int *sceDmaGetChan(int a0);
+extern void sceDmaReset(int a0);
 
 void matrix_init(void) {
     union U { int i; } *p;
-    func_00244658(1);
-    D_0063378C = func_00244630(1);
+    sceDmaReset(1);
+    D_0063378C = sceDmaGetChan(1);
     p = (union U *)D_0063378C;
     p->i |= 0x40;
-    D_00633790 = func_00244630(2);
+    D_00633790 = sceDmaGetChan(2);
     p = (union U *)D_00633790;
     p->i |= 0x40;
-    D_00633794 = func_00244630(8);
+    D_00633794 = sceDmaGetChan(8);
     p = (union U *)D_00633794;
     p->i |= 0x40;
-    debug_VariableInit();
+    debug_SetDmaCallback();
 }
 
 void malloc_MemCpy(void)
 {
     D_00631970 = 0x70000000;
-    func_00118678(0x70000000);
+    _UnitMatrix(0x70000000);
 }
 
 void malloc_SetPartition(int a0, int a1, int a2, int a3)
 {
-    func_00264128(a0, a1, a2, a3);
+    memcpy(a0, a1, a2, a3);
 }
 
 void malloc_GetPartition(int val) {

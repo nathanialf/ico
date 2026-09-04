@@ -369,7 +369,7 @@ void func_0014B330(char *self, unsigned int x, float f) {
     }
 }
 
-float func_0014B358(int idx)
+float _ACTGame_GetParamF(int idx)
 {
     return D_002924B0[idx];
 }
@@ -410,8 +410,8 @@ void func_0014B580(int a0)
 
 /* func_0014B5B4 is a 4-byte nop pad absorbed into func_0014B5B8's .s. */
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B5B8);
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B660);
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B708);
+INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", ActGame_GetOrientQ);
+INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", _GetRootObjectOrient);
 
 void func_0014B768(int a0)
 {
@@ -453,9 +453,9 @@ int func_0014B858(char *self) {
     return *(int *)(sub + 0x30) == 0x64;
 }
 
-/* func_0014B86C is a 4-byte nop pad absorbed into func_0014B870's .s. */
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B870);
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B970);
+/* func_0014B86C is a 4-byte nop pad absorbed into ACTCheckCollis_VIEW's .s. */
+INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", ACTCheckCollis_VIEW);
+INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", ACTCheckViewClDetail);
 
 void func_0014BB00(int a0)
 {
@@ -467,7 +467,7 @@ void func_0014BB00(int a0)
 /* func_0014BB1C is a 4-byte nop pad absorbed into func_0014BB20's .s. */
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014BB20);
 
-void func_0014BBF0(int a0)
+void GetGirlPositionAtThisStage(int a0)
 {
     int buf[4];
     int v0 = func_001AE830(buf);

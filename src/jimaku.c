@@ -18,7 +18,7 @@ extern int iosMsgSend(int *self, int a1, int a2);
 extern char D_006CF030[];
 extern char D_006CEFC0[];
 extern int func_0013DA88(int *self);
-extern void iosCdvdBackGroundMgrEntryNum(char *self);
+extern void iosCdvdBackGroundMgrDelete(char *self);
 extern char D_006CEFF8[];
 extern void func_00132B90();
 extern void func_00133500(char *self, int val);
@@ -26,7 +26,7 @@ extern int D_00631AE4;
 extern char D_00559AE8[];
 extern char D_005598F0[];
 extern void ACTWay_SetBeginPositionIllegal(char *self);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void Vibration_ShotDecode(int key);
 extern void ACTLookTargetSystem_Exec(void);
 extern void _ACTWait();
@@ -37,8 +37,8 @@ INCLUDE_ASM("asm/nonmatchings/src/jimaku", iosCdvdBackGroundReadJimaku);
 
 extern void BoxBarSoundOn(int a0, int a1);
 extern void _ACTWait(int a0);
-extern void debug_assertMessage(void *a0);
-extern void func_00243B18(float *a0, float *a1, float f12);
+extern void debug_StdPrintfDummy(void *a0);
+extern void sceVu0ScaleVector(float *a0, float *a1, float f12);
 
 void func_00175980(volatile int a0) {
     for (;;) {
@@ -49,23 +49,23 @@ void func_00175980(volatile int a0) {
 
 extern char D_00559458[], D_00559470[];
 extern void BoxBarSoundOn(int a0, int a1);
-extern void CylinderCollision(void *a0, void *a1);
+extern void SetDirectRootPositionNoFitting(void *a0, void *a1);
 extern int dispPlane(void *a0, void *a1);
 extern void func_00175A58(volatile int a0);
 
 void func_001759B0(volatile int a0) {
     float buf[4];
     int *gobj = *(int **)(a0 + 0x164);
-    debug_assertMessage(D_00559458);
-    func_00243B18(buf, (float *)&gobj[0x4A0 / 4], -1.0f);
+    debug_StdPrintfDummy(D_00559458);
+    sceVu0ScaleVector(buf, (float *)&gobj[0x4A0 / 4], -1.0f);
     dispPlane((void *)a0, buf);
-    CylinderCollision((void *)a0, &gobj[0x580 / 4]);
+    SetDirectRootPositionNoFitting((void *)a0, &gobj[0x580 / 4]);
     gobj[0xD0 / 4] = 0;
     gobj[0x14 / 4] = (int)func_00175A58;
     while ((gobj[0xD0 / 4] & 0x10) == 0) {
         _ACTWait(1);
     }
-    debug_assertMessage(D_00559470);
+    debug_StdPrintfDummy(D_00559470);
     for (;;) {
         BoxBarSoundOn(a0, 0x59);
         _ACTWait(1);
@@ -74,11 +74,11 @@ void func_001759B0(volatile int a0) {
 
 extern char D_00559440[];
 extern int D_006321DC;
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 
 void func_00175A58(volatile int a0) {
-    debug_assertMessage(D_00559440);
-    iosOmBeforeFuncStandard(D_00631AE4, 0x59, D_006321DC);
+    debug_StdPrintfDummy(D_00559440);
+    iosOmSendMail(D_00631AE4, 0x59, D_006321DC);
     ACTLookTargetSystem_Exec();
 }
 
@@ -89,14 +89,14 @@ extern void func_00175B18(volatile int a0);
 
 void jimakuHandler(volatile int a0) {
     int *gobj = *(int **)(a0 + 0x164);
-    debug_assertMessage(D_005594A0);
+    debug_StdPrintfDummy(D_005594A0);
     gobj[0x30 / 4] = 0x50;
     gobj[0x14 / 4] = (int)func_00175B18;
     gobj[0xD0 / 4] = 0;
     while ((gobj[0xD0 / 4] & 0x10) == 0) {
         _ACTWait(1);
     }
-    debug_assertMessage(D_00559470);
+    debug_StdPrintfDummy(D_00559470);
     for (;;) {
         BoxBarSoundOn(a0, 0x5E);
         _ACTWait(1);
@@ -105,19 +105,19 @@ void jimakuHandler(volatile int a0) {
 
 extern char D_00559440[];
 extern int D_006321DC;
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 
 void func_00175B18(volatile int a0) {
-    debug_assertMessage(D_00559440);
-    iosOmBeforeFuncStandard(D_00631AE4, 0x5E, D_006321DC);
+    debug_StdPrintfDummy(D_00559440);
+    iosOmSendMail(D_00631AE4, 0x5E, D_006321DC);
     ACTLookTargetSystem_Exec();
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrBegin);
 
 void func_00175BD8(volatile int a0) {
-    debug_assertMessage(D_00559440);
-    iosOmBeforeFuncStandard(D_00631AE4, 0x63, D_006321DC);
+    debug_StdPrintfDummy(D_00559440);
+    iosOmSendMail(D_00631AE4, 0x63, D_006321DC);
     ACTLookTargetSystem_Exec();
 }
 
@@ -180,18 +180,18 @@ void func_00175EC8(volatile int a0) {
     _ACTWait(0);
 }
 
-int jimakuEnd(int a0, int a1)
+int enemy_list_compare(int a0, int a1)
 {
     float diff = *(float *)(a0 + 0x20) - *(float *)(a1 + 0x20);
     return (int)diff;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuDisp);
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", ACTCheckCollis_SAFE);
 
 void jimakuManager(unsigned int a0)
 {
   volatile unsigned int local = a0;
- do { ACTLookTargetSystem_Exec(); debug_assertMessage(D_005598F0); Vibration_ShotDecode(7); ACTWay_SetBeginPositionIllegal(local); } while (0);
+ do { ACTLookTargetSystem_Exec(); debug_StdPrintfDummy(D_005598F0); Vibration_ShotDecode(7); ACTWay_SetBeginPositionIllegal(local); } while (0);
 }
 
 void jimakuUndisp(void *a0) {
@@ -205,7 +205,7 @@ void func_00176150(volatile unsigned int a0)
   int *new_var;
   int *s0;
   new_var = *((int **) (a0 + 0x164));
-  debug_assertMessage(D_00559AE8);
+  debug_StdPrintfDummy(D_00559AE8);
   s0 = new_var;
   s0[0x30 / 4] = 0x4;
   _ACTWait(0);
@@ -254,7 +254,7 @@ void func_00176AA0(int *p)
 {
     int val = p[0x4C / 4];
     if (val != 0) {
-        iosCdvdBackGroundMgrEntryNum(val);
+        iosCdvdBackGroundMgrDelete(val);
     }
     func_0013DA88(D_006CF030);
     func_0013DA88(D_006CEFF8);

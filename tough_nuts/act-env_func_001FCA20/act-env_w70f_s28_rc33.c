@@ -34,7 +34,7 @@ INCLUDE_ASM("asm/nonmatchings/src/act-env", func_001FC780);
 
 extern int ACTEnvGetTest(void);
 extern int InitPendulum(void *a0);
-extern void *ACTGameCollisionOff(void *a0);
+extern void *ACTGame_isWeaponEnableCatchfire(void *a0);
 extern int ACTGame_ConnectHand(void *a0);
 extern void ActOrientTest(void *a0, void *a1, int a2);
 extern int CageFixDL(void *a0, void *a1, void *a2);
@@ -81,50 +81,50 @@ extern int EnableMotionOrientUpdate__p4(int a0, int a1) __asm__("EnableMotionOri
 extern int ExecBoxMoveEndReaction(void *a0);
 extern int ForMotionViewer_GetCurrentAnimationFrame(int a0, int a1);
 extern int ForMotionViewer_GetCurrentMotion__p4(int a0, int a1) __asm__("ForMotionViewer_GetCurrentMotion");
-extern int GetDifferenceFromWallUpperPlane(void *a0);
-extern void GetHeightOfWallFromGObj(void *a0, void *a1);
-extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern int GetMotionFrameFlag1(void *a0);
+extern void GetRootProjectionPosOfGObj(void *a0, void *a1);
+extern void GetRootPosition(void *a0, void *a1);
 extern void GetRootPositionHandExtra(void *a0, void *a1);
-extern float HandyCamera_TargetMoveType(void *a0, void *a1);
+extern float _DistSqGV(void *a0, void *a1);
 extern void *InitTorchGeo(void *a0, float radius);
 extern int InitWallLeverGeo(void *a0);
 extern void *LightTorchOn(void *a0, float radius);
-extern int *PAIR_GetPosition_BOY(int a0, int a1);
+extern int *ACTGame_GetNearestGObj(int a0, int a1);
 extern float RotateAccordingToStick_PatternThree(int a0, void *a1);
 extern int TorchGeo(void *a0);
 extern void *WeaponHitEffect(void *a0, void *a1, float radius);
 extern void _OrientGV(void *a0, void *a1);
 extern void * _getLine();
 extern void debug_Marker(void *a0, int a1, int a2, int a3, float a4);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void dispPlane(void *a0, void *a1);
 extern void eBrainProcess(void *a0, void *a1);
 extern int func_00145328(void *a0, void *a1, int a2, void *a3, float f12, float f13);
 extern void func_00145900(void *a0, void *a1, int a2);
 extern int func_0014B2F0(void *a0, int a1);
-extern float func_0014B358(int a0);
+extern float _ACTGame_GetParamF(int a0);
 extern int func_00194590(void *a0, void *a1);
 extern void func_001945B8(void *a0, float f12);
-extern void func_001947D0();
+extern void _OrientXZGV();
 extern int func_00194840(void *a0, void *a1, void *a2, int a3);
-extern float func_001948F0(int a0, float a1);
+extern float GetCorrectDistance(int a0, float a1);
 extern int func_0019B948(void);
 extern void func_001AD768(void *a0, int a1);
 extern int func_001C05B8(void *a0);
 extern void func_001FC520(void *a0, void *a1, void *a2, void *a3, void *a4);
 extern int func_001C0BE0(void *a0);
 extern int func_001FC6C8(void *a0, void *a1, void *a2, float f12, float f13);
-extern void func_002438B8(void *a0, void *a1, void *a2);
-extern float func_00243950(void *a0, void *a1);
-extern void func_00243978(void *a0, void *a1);
-extern void func_00243AD0(float *a0, float *a1, float *a2);
-extern void func_00243AE8(void *a0, void *a1, void *a2);
-extern void func_00243B18(float *a0, float *a1, float a2);
-extern void func_00263FF0(void *a0, int a1, void *a2);
-extern void func_002641D8(void *a0, int a1, int a2);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
+extern float sceVu0InnerProduct(void *a0, void *a1);
+extern void sceVu0Normalize(void *a0, void *a1);
+extern void sceVu0AddVector(float *a0, float *a1, float *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
+extern void sceVu0ScaleVector(float *a0, float *a1, float a2);
+extern void __assert(void *a0, int a1, void *a2);
+extern void memset(void *a0, int a1, int a2);
 extern void fzMagnitudefv(void *a0, int a1, void *a2);
 extern void isStopChain(void *a0, void *a1, void *a2, void *a3);
-extern void *isysGObjSearchFromObjKindID_begin(void *a0);
+extern void *isysGObjSearchFromObjKindID_next(void *a0);
 extern void * isysGObjSearchFromObjLayoutID();
 extern int moveBoxAutoMatic(void *a0, void *a1, void *a2);
 extern void *subCommonIdle(void *a0);
@@ -135,10 +135,10 @@ static inline int EnvPushPlane(float *tA, float *tB, void *Sv, char *env, void *
 {
     float *dst = (float *)(env + 0x580);
     float k;
-    GetRootMatrixByDObj(tA, Sv);
+    GetRootPosition(tA, Sv);
     k = dist - kf;
-    func_00243B18(tB, (float *)a4v, -k);
-    func_00243AD0(dst, tA, tB);
+    sceVu0ScaleVector(tB, (float *)a4v, -k);
+    sceVu0AddVector(dst, tA, tB);
     return 0;
 }
 static inline int EnvPushAvg(float *acc, void *Sv, char *dstc, int woff)
@@ -154,11 +154,11 @@ static inline int EnvPushAvg(float *acc, void *Sv, char *dstc, int woff)
     i = 3;
     w = head;
     do {
-        func_00243AD0(acc, acc, (float *)w);
+        sceVu0AddVector(acc, acc, (float *)w);
         w += 0x10;
         i--;
     } while (i >= 0);
-    func_00243B18((float *)dstc, acc, 0.25f);
+    sceVu0ScaleVector((float *)dstc, acc, 0.25f);
     return 0;
 }
 
@@ -167,13 +167,13 @@ static inline int EnvPushAvg(float *acc, void *Sv, char *dstc, int woff)
 
 
 #define EnvCamAngle(tgt, refsrc, buf, k) ({ \
-    func_00243B18((buf), (refsrc), (k)); \
-    HandCameraCorrect((tgt), (buf)); \
+    sceVu0ScaleVector((buf), (refsrc), (k)); \
+    _RotyGV((tgt), (buf)); \
 })
 
 #define EnvCamAngleP(tgt, refsrc, buf, k) ({ \
-    func_00243B18((buf), (refsrc), (k)); \
-    HandCameraCorrect((void *)(tgt), (buf)); \
+    sceVu0ScaleVector((buf), (refsrc), (k)); \
+    _RotyGV((void *)(tgt), (buf)); \
 })
 
 #define EnvAssistLoop(acc_, S_, dst_) { \
@@ -187,16 +187,16 @@ static inline int EnvPushAvg(float *acc, void *Sv, char *dstc, int woff)
     i = 3; \
     w = head; \
     do { \
-        func_00243AD0((acc_), (acc_), (float *)w); \
+        sceVu0AddVector((acc_), (acc_), (float *)w); \
         w += 0x10; \
         i--; \
     } while (i >= 0); \
-    func_00243B18((float *)(dst_), (acc_), 0.25f); \
+    sceVu0ScaleVector((float *)(dst_), (acc_), 0.25f); \
 }
 
 #define EnvAssistTail(tmp_, anch_, dst_, ascale_) { \
-    func_00243B18((tmp_), (float *)(anch_), (ascale_)); \
-    func_00243AD0((float *)(dst_), (float *)(dst_), (float *)(tmp_)); \
+    sceVu0ScaleVector((tmp_), (float *)(anch_), (ascale_)); \
+    sceVu0AddVector((float *)(dst_), (float *)(dst_), (float *)(tmp_)); \
 }
 
 #define EnvWallAssistVec(acc_, tmp_, Sv_, dst_, ascale_) { \
@@ -206,7 +206,7 @@ static inline int EnvPushAvg(float *acc, void *Sv, char *dstc, int woff)
     EnvAssistLoop((acc_), S, dst2) \
     if (box != 0) { \
         ((union IFAlias *)(dst2 + 0xC))->f = 1.0f; \
-        func_002438B8(dst2, (void *)*(int *)(*(char **)(box + 0x15C) + 0xC), dst2); \
+        sceVu0ApplyMatrix(dst2, (void *)*(int *)(*(char **)(box + 0x15C) + 0xC), dst2); \
     } \
     EnvAssistTail((tmp_), anch, dst2, (ascale_)) \
 }
@@ -405,7 +405,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
     f22 = ((struct SFld *)(S + 0x138))->v;
     s6 = *(int *)(v1 + 0x564);
     s7 = *(int *)(v1 + 0x574);
-    func_002641D8(FP(0), za, 0x10);
+    memset(FP(0), za, 0x10);
     }
 
     {
@@ -428,16 +428,16 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
             }
             FI(0x1B4) = a1v;
         }
-        if (func_0014B358(2) < *(float *)(sub + 0x560)) {
+        if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x560)) {
             FI(0x1B4) = 0;
             FI(0x1B8) = 0;
         }
     }
-    GetHeightOfWallFromGObj(FP(0), (void *)FI(0x30));
+    GetRootProjectionPosOfGObj(FP(0), (void *)FI(0x30));
     {
         char *p10 = (char *)FP(0x10);
         FI(0x1C4) = (int)p10;
-        GetRootMatrixByDObj(p10, (void *)FI(0x30));
+        GetRootPosition(p10, (void *)FI(0x30));
     }
     w20 = (char *)v02;
     wPtr20 = (int)w20;
@@ -485,7 +485,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
     f20 = D_0063144C;
     {
         found = isysGObjSearchFromObjLayoutID(0x2B);
-        for (;; found = isysGObjSearchFromObjKindID_begin(found)) {
+        for (;; found = isysGObjSearchFromObjKindID_next(found)) {
             if (found == 0) goto L6B4;
             if (*(int *)((char *)found + 0x16C) == 0) continue;
             cagem = (char *)&f54 - 20;
@@ -576,8 +576,8 @@ L6B4:
                 {
                     char *wb = (char *)&f6C - 12;
                     func_00145900(wb, (void *)FI(0x30), 0x2C);
-                    func_00243B18(FP(0x70), arg4, -1.0f);
-                    ret = HandCameraCorrect(wb, (float *)&f70);
+                    sceVu0ScaleVector(FP(0x70), arg4, -1.0f);
+                    ret = _RotyGV(wb, (float *)&f70);
                 }
                 if (f18 != 0 && ret >= 0x1F) {
                     *(int *)arg3 |= 0x10;
@@ -588,8 +588,8 @@ L6B4:
             }
             if (s7 != 0 && f22 < f25) {
                 int a;
-                func_00243B18(FP(0x70), arg4, -1.0f);
-                a = __builtin_abs(HandCameraCorrect(boy, (float *)&f70));
+                sceVu0ScaleVector(FP(0x70), arg4, -1.0f);
+                a = __builtin_abs(_RotyGV(boy, (float *)&f70));
                 *(long long *)(env + 0x18) |= 0x0008000000000000LL;
                 if (f22 < 60.0f) {
                     if (a < 0x1E) {
@@ -733,7 +733,7 @@ L6B4:
                     char *p2 = (char *)ContinueCorrectPosition((void *)D_00631AE4);
                     if (*(float *)(p2 + 4) + 50.0f < *(float *)(p1 + 4)) {
                         t80v = (char *)&f64 - 4;
-                        func_00243B18((float *)t80v, arg4, -1.0f);
+                        sceVu0ScaleVector((float *)t80v, arg4, -1.0f);
                         g90 = (char *)(int)*(long long *)&f90;
                         g90 = (char *)(int)*(long long *)&f94;
                         g90 = (char *)(int)*(long long *)&f98;
@@ -747,10 +747,10 @@ L6B4:
                                 char *r2;
                                 r1 = (char *)ContinueCorrectPosition((void *)D_00631AE4);
                                 r2 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
-                                func_00243AE8(w70, r1, r2);
+                                sceVu0SubVector(w70, r1, r2);
                             }
                             FI(0x7C) = 0;
-                            func_002438B8(FP(0x80), m90a, w70);
+                            sceVu0ApplyMatrix(FP(0x80), m90a, w70);
                         }
                         if (f22 < FF(0x88)) {
                             ((union LLAlias *)(env + 0x20))->ll |= 0x100;
@@ -790,10 +790,10 @@ L6B4:
         if (f22 < 120.0f && b6 != 0) {
             char *q;
             w60b = (char *)&f68 - 8;
-            func_00243B18(w60b, arg4, f22);
-            func_00243AD0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x770,
+            sceVu0ScaleVector(w60b, arg4, f22);
+            sceVu0AddVector(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x770,
                           (void *)FI(0x1C4), w60b);
-            func_00243B18(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x780,
+            sceVu0ScaleVector(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x780,
                           arg4, -1.0f);
             q = (char *)*(int *)((char *)*(int *)((char *)FI(0x30) + 0x164) + 0x678);
             *(int *)(q + 0x794) = 0x14;
@@ -808,9 +808,9 @@ L6B4:
                 g90 = (char *)FP(0x60);
                 p1 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
                 p2 = (char *)ContinueCorrectPosition((void *)D_00631AE4);
-                func_00243AE8(g90, p1, p2);
+                sceVu0SubVector(g90, p1, p2);
                 FI(0x64) = 0;
-                if (func_00243950(g90, subCommonIdle((void *)D_00631AE4)) < 100.0f) {
+                if (sceVu0InnerProduct(g90, subCommonIdle((void *)D_00631AE4)) < 100.0f) {
                     int v5 = 0;
                     if (*(int *)(boxp + 0xC) == 0x11) {
                         int q2 = *(int *)(*(char **)((char *)D_00631AE4 + 0x15C) + 0x0);
@@ -893,7 +893,7 @@ L6B4:
                 *(float *)(m6 + 0x558) = *(float *)(m6 + 0x4A8);
                 if ((char *)FI(0x30) == (char *)D_00631AE4) FF(0x70) = -FF(0x70);
                 ((union IFAlias *)(w70 + 0xC))->f = 1.0f;
-                func_002438B8(m6 + 0x5A0,
+                sceVu0ApplyMatrix(m6 + 0x5A0,
                               (void *)*(int *)(*(char **)(box + 0x15C) + 0xC),
                               w70);
                 debug_Marker(env + 0x5A0, 0, 0xFF, 0, 100.0f);
@@ -959,9 +959,9 @@ L6B4:
                 w70 = (char *)&f74 - 4;
                 *(int *)((char *)arg4 + 0x14C) = (int)box;
                 EnvWallAssistVec(FV(0x80), FV(0x70), (void *)FI(0x30), (char *)arg4 + 0xF0, 45.0f);
-                func_00243B18((float *)w70, (float *)arg4, -10.0f);
+                sceVu0ScaleVector((float *)w70, (float *)arg4, -10.0f);
                 func_001945B8((float *)w70, D_00631450);
-                func_00243AD0((float *)((char *)arg4 + 0xF0), (float *)((char *)arg4 + 0xF0), (float *)w70);
+                sceVu0AddVector((float *)((char *)arg4 + 0xF0), (float *)((char *)arg4 + 0xF0), (float *)w70);
                 stt = *(int *)(box + 0xC);
                 goto L16d;
             L16e:
@@ -1023,14 +1023,14 @@ L6B4:
                     i = 3;
                     w = head;
                     do {
-                        func_00243AD0((float *)w70, (float *)w70, (float *)w);
+                        sceVu0AddVector((float *)w70, (float *)w70, (float *)w);
                         w += 0x10;
                         i--;
                     } while (i >= 0);
-                    func_00243B18((float *)dstc, (float *)w70, 0.25f);
+                    sceVu0ScaleVector((float *)dstc, (float *)w70, 0.25f);
                 }
-                func_00243B18((float *)w70, (float *)arg4, 30.0f);
-                func_00243AD0((float *)dstc, (float *)dstc, (float *)w70);
+                sceVu0ScaleVector((float *)w70, (float *)arg4, 30.0f);
+                sceVu0AddVector((float *)dstc, (float *)dstc, (float *)w70);
                 *(float *)((char *)arg4 + 0xCC) = 1.0f;
             }
         Lp1end:
@@ -1056,7 +1056,7 @@ L6B4:
                     {
                         char *mp = (char *)D_00565060;
                         mp -= -(*(int *)(*(char **)((char *)FI(0x30) + 0x15C) + 0x4A0) * 0x190);
-                        thr = func_001948F0(wAang, ((MotionEntry *)mp)->f17C + 2.0f);
+                        thr = GetCorrectDistance(wAang, ((MotionEntry *)mp)->f17C + 2.0f);
                     }
                 }
                 thr = (thr < 0.0f) ? 0.0f : ((30.0f < thr) ? 30.0f : thr);
@@ -1128,7 +1128,7 @@ L6B4:
                                 (unsigned int)(*(int *)(env2 + 0x30) - 4) < 2) {
                                 {
                                     int r;
-                                    { char *pd = (char *)&fD0; func_002641D8(pd, 0, 0xC0); pd = 0; }
+                                    { char *pd = (char *)&fD0; memset(pd, 0, 0xC0); pd = 0; }
                                     { char *pd = (char *)&fD0; ActOrientTest(pd, S16, 0x2C); pd = 0; }
                                     FF(0xE0) = FF(0xD0);
                                     FF(0xE8) = FF(0xD8);
@@ -1165,8 +1165,8 @@ L6B4:
         }
         if (f22 < 50.0f) {
             int a;
-            func_00243B18(FP(0x70), arg4, -1.0f);
-            a = __builtin_abs(HandCameraCorrect((void *)FI(0x1A8), (float *)&f70));
+            sceVu0ScaleVector(FP(0x70), arg4, -1.0f);
+            a = __builtin_abs(_RotyGV((void *)FI(0x1A8), (float *)&f70));
             if (a < 0x28) {
                 if ((char *)FI(0x30) == (char *)D_00631AE4 ||
                     (FF(0x34) > 130.0f && *(int *)(box + 0xC) != 0x10)) {
@@ -1256,14 +1256,14 @@ L6B4:
             pp2 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
             FF(0x68) = *(float *)(pp2 + 8);
             w60c = (char *)&f6C - 12;
-            d2 = HandyCamera_TargetMoveType((void *)FI(0x1C4), w60c);
+            d2 = _DistSqGV((void *)FI(0x1C4), w60c);
             rowf = ((CamEntry *)((char *)D_005F2FB8 + D_00631990 * 0x194))->f180;
             if (d2 < rowf * rowf) {
-                func_00243AE8(FP(0xB0), w60c, (char *)&f50 - 0x40);
+                sceVu0SubVector(FP(0xB0), w60c, (char *)&f50 - 0x40);
                 w70f = (char *)&f74 - 4;
                 _OrientGV(w70f, (void *)FI(0x1C8));
                 ((union IFAlias *)&fBC)->i = 0;
-                func_002438B8(FP(0xC0), w70f, FP(0xB0));
+                sceVu0ApplyMatrix(FP(0xC0), w70f, FP(0xB0));
                 if (0.0f < FF(0xC8)) {
                     wFlag = 1;
                 }
@@ -1319,12 +1319,12 @@ L6B4:
                     }
                     }
                 }
-                func_00243B18(g90, g90, f21);
+                sceVu0ScaleVector(g90, g90, f21);
                 f20 = 5.0f;
                 {
                 char *rmv = (char *)&f74 - 4;
-                GetRootMatrixByDObj(rmv, (void *)FI(0x30));
-                func_00243AD0((char *)arg4 + 0x40, rmv, g90);
+                GetRootPosition(rmv, (void *)FI(0x30));
+                sceVu0AddVector((char *)arg4 + 0x40, rmv, g90);
                 }
                 if (f21 > f20) {
                     if (ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0xF000)) {
@@ -1334,11 +1334,11 @@ L6B4:
                             char *p;
                             v2 = (v2 < 0.0f) ? 0.0f : ((v2 > f20) ? f20 : v2);
                             g90 = (char *)FP(0x90);
-                            func_00243B18(g90, (void *)FI(0x1C8), -v2);
+                            sceVu0ScaleVector(g90, (void *)FI(0x1C8), -v2);
                             {
                                 pv = (char *)&f84 - 4;
                                 p = (char *)ContinueCorrectPosition((void *)FI(0x30));
-                                func_00243AD0((float *)pv, p, g90);
+                                sceVu0AddVector((float *)pv, p, g90);
                             }
                             {
                                 int vv;
@@ -1389,12 +1389,12 @@ L6B4:
                     FF(0x68) = cz;
                     }
                 }
-                func_00243B18(g90, g90, f21 + 10.0f);
+                sceVu0ScaleVector(g90, g90, f21 + 10.0f);
                 f20 = 5.0f;
                 {
                 char *rmv = (char *)&f74 - 4;
-                GetRootMatrixByDObj(rmv, (void *)FI(0x30));
-                func_00243AD0((char *)arg4 + 0x40, rmv, g90);
+                GetRootPosition(rmv, (void *)FI(0x30));
+                sceVu0AddVector((char *)arg4 + 0x40, rmv, g90);
                 }
                 if (f21 > f20) {
                     if (ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0xF000)) {
@@ -1404,11 +1404,11 @@ L6B4:
                             char *p;
                             v2 = (v2 < 0.0f) ? 0.0f : ((v2 > f20) ? f20 : v2);
                             g90 = (char *)FP(0x90);
-                            func_00243B18(g90, (void *)FI(0x1C8), -v2);
+                            sceVu0ScaleVector(g90, (void *)FI(0x1C8), -v2);
                             {
                                 pv = (char *)&f84 - 4;
                                 p = (char *)ContinueCorrectPosition((void *)FI(0x30));
-                                func_00243AD0((float *)pv, p, g90);
+                                sceVu0AddVector((float *)pv, p, g90);
                             }
                             {
                                 int vv;
@@ -1503,8 +1503,8 @@ L6B4:
                 FI(0x1D0) = 1;
                 ccat = 0;
                 f22 = D_00633850_[0];
-                GetRootMatrixByDObj(m, (void *)D_00631AE4);
-                GetRootMatrixByDObj((float *)&f70, (void *)D_00631AE8);
+                GetRootPosition(m, (void *)D_00631AE4);
+                GetRootPosition((float *)&f70, (void *)D_00631AE8);
                 if (!(f24 < 55.0f)) {
                     if (f24 < 155.0f) {
                         f22 = 80.0f;
@@ -1525,7 +1525,7 @@ L6B4:
                     }
                 }
                 if (D_00631990 == 7) {
-                    GetHeightOfWallFromGObj(FP(0x80), (void *)D_00631AE8);
+                    GetRootProjectionPosOfGObj(FP(0x80), (void *)D_00631AE8);
                     if (ccat == 0xC8) {
                         if (!(f84 - FF(0x4) > 180.0f)) {
                             FI(0x1D0) = 0;
@@ -1549,9 +1549,9 @@ L6B4:
                     FF(0xA4) = FF(0x4);
                     FF(0xA8) = FF(0x8);
                     g90 = (char *)FP(0x90);
-                    func_00243B18(g90, (void *)FI(0x1C8), f21 + 50.0f);
+                    sceVu0ScaleVector(g90, (void *)FI(0x1C8), f21 + 50.0f);
                     pb = (char *)&fB0;
-                    func_00243AD0((float *)pb, FP(0xA0), g90);
+                    sceVu0AddVector((float *)pb, FP(0xA0), g90);
                     *(float *)((char *)FP(0x80) + 0x34) = *(float *)((char *)FP(0x80) + 0x34) + f24;
                     _OrientGV(FP(0xC0), (void *)FI(0x1C8));
                     fnd = (char *)(int)*(long long *)&fE0;
@@ -1583,9 +1583,9 @@ L6B4:
                             if (RotateAccordingToStick_PatternThree((int)pb, FP(0x100)) < D_00631458) {
                                 d = FF(0xB4) - FF(0x104);
                                 if (!(d < 0.0f ? -d > 100.0f : d > 100.0f)) {
-                                    func_00243AE8(FP(0x110), (void *)FI(0x1C4), FP(0x100));
+                                    sceVu0SubVector(FP(0x110), (void *)FI(0x1C4), FP(0x100));
                                     ((union IFAlias *)&FI(0x11C))->i = 0;
-                                    func_002438B8(FP(0x120), FP(0xC0), FP(0x110));
+                                    sceVu0ApplyMatrix(FP(0x120), FP(0xC0), FP(0x110));
                                     if (FF(0x120) < -30.0f || FF(0x120) > 40.0f) {
                                         FI(0x1D0) = 0;
                                         break;
@@ -1593,7 +1593,7 @@ L6B4:
                                 }
                             }
                         }
-                        fnd = (char *)isysGObjSearchFromObjKindID_begin(fnd);
+                        fnd = (char *)isysGObjSearchFromObjKindID_next(fnd);
                     }
                 }
                 if (wFlag == 0) FI(0x1D0) = 0;
@@ -1607,10 +1607,10 @@ L6B4:
                         g90 = (char *)(int)*(long long *)&w148;
                         g90 = (char *)(int)*(long long *)&w14C;
                         g90 = (char *)FP(0x140);
-                        GetRootMatrixByDObj(g90, (void *)FI(0x30));
+                        GetRootPosition(g90, (void *)FI(0x30));
                         pv = (char *)FP(0x130);
-                        func_00243B18(pv, (void *)FI(0x1C8), f21);
-                        func_00243AD0((char *)arg4 + 0x50, g90, pv);
+                        sceVu0ScaleVector(pv, (void *)FI(0x1C8), f21);
+                        sceVu0AddVector((char *)arg4 + 0x50, g90, pv);
                         q = (char *)&w150;
                         q = (char *)*(int *)(q + 4);
                         q = (char *)(int)*(long long *)&w154;
@@ -1620,10 +1620,10 @@ L6B4:
                         q = (char *)(int)*(long long *)&w164;
                         q = (char *)(int)*(long long *)&w168;
                         q = (char *)(int)*(long long *)&w16C;
-                        GetRootMatrixByDObj(g90, (void *)FI(0x30));
+                        GetRootPosition(g90, (void *)FI(0x30));
                         pv = (char *)FP(0x150);
-                        func_00243B18(pv, (void *)FI(0x1C8), f21 - 30.0f);
-                        func_00243AD0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x740,
+                        sceVu0ScaleVector(pv, (void *)FI(0x1C8), f21 - 30.0f);
+                        sceVu0AddVector(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x740,
                                       FP(0x160), FP(0x150));
                         {
                             char *gq = (char *)FI(0x30);
@@ -1669,7 +1669,7 @@ L6B4:
                                                 }
                                             }
                                         Lcfix:
-                                            func_00243B18(FP(0x170), (void *)FI(0x1C8), -50.0f);
+                                            sceVu0ScaleVector(FP(0x170), (void *)FI(0x1C8), -50.0f);
                                             ccat = (int)*(long long *)&w174;
                                             ccat = (int)*(long long *)&w178;
                                             ccat = (int)*(long long *)&w17C;
@@ -1683,7 +1683,7 @@ L6B4:
                                             ccat = (int)*(long long *)&y1A8;
                                             ccat = (int)*(long long *)&y1AC;
                                             ccat = 0xC8;
-                                            func_00243AD0((char *)arg4 + 0x50,
+                                            sceVu0AddVector((char *)arg4 + 0x50,
                                                           (void *)ContinueCorrectPosition(fnd2), FP(0x170));
                                         Lnofix:;
                                         }
@@ -1710,7 +1710,7 @@ L6B4:
                                 goto Lor478;
                             default:
                                 func_001AD768(D_0061AE10, 0x978);
-                                func_00263FF0(D_0061AE10, 0x978, D_00633840);
+                                __assert(D_0061AE10, 0x978, D_00633840);
                                 break;
                             }
                             }
@@ -1722,7 +1722,7 @@ L6B4:
                 f21 < 200.0f && f24 > 350.0f && wFlag != 0 && ACTEnvGetTest() == 0) {
                 char *p1 = (char *)ContinueCorrectPosition((void *)D_00631AE4);
                 char *p2 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
-                if (!(HandyCamera_TargetMoveType(p1, p2) < D_00631460)) {
+                if (!(_DistSqGV(p1, p2) < D_00631460)) {
                     if ((char *)D_00631AE8 != 0 && (char *)D_00631AE4 != 0) {
                         char *p1 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
                         char *p2 = (char *)ContinueCorrectPosition((void *)D_00631AE4);
@@ -1753,7 +1753,7 @@ L6B4:
                         p80 = (char *)&dv13;
                         p1 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
                         p2 = (char *)ContinueCorrectPosition((void *)D_00631AE4);
-                        func_001947D0(p80, p1, p2);
+                        _OrientXZGV(p80, p1, p2);
                     if (func_00194590(p80, (void *)FI(0x1C8)) < 0x50) {
                         FI(0x194) = 0;
                         FI(0x198) = 0;
@@ -1766,7 +1766,7 @@ L6B4:
                             for (idx = 0; 0.0f <= ((float *)FI(0x190))[idx]; idx++) {
                                 if (func_001FC6C8((char *)FP(0x140), FP(0x10), (void *)FI(0x1C8),
                                                   f21, ((float *)FI(0x190))[idx])) {
-                                    func_00243B18(FP(0x150), ca, -1.0f);
+                                    sceVu0ScaleVector(FP(0x150), ca, -1.0f);
                                     if (FI(0x194) != 0) {
                                         float t0 = ((union IFAlias *)&w160)->f;
                                         float t1 = ((union IFAlias *)&w164)->f;
@@ -1799,8 +1799,8 @@ L6B4:
                                         ((union LLAlias *)(env + 0x478))->ll |= 0x20;
                                     } else {
                                         char *q;
-                                        func_00243B18(FP(0x180), ca, f21 - 30.0f);
-                                        func_00243AD0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x7A0,
+                                        sceVu0ScaleVector(FP(0x180), ca, f21 - 30.0f);
+                                        sceVu0AddVector(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x7A0,
                                                       FP(0x10), FP(0x180));
                                         {
                                             char *gq2 = (char *)FI(0x30);
@@ -1867,9 +1867,9 @@ L6B4:
                         GetRootPositionHandExtra(rt, fnd3);
                         if (!(func_00194590(rt, (void *)FI(0x1C8)) < 0x2E)) goto Lnext3;
                     }
-                    GetRootMatrixByDObj(g90, fnd3);
-                    func_00243AE8(w70, g90, FP(0));
-                    d20 = func_00243950(w70, FP(0x140));
+                    GetRootPosition(g90, fnd3);
+                    sceVu0SubVector(w70, g90, FP(0));
+                    d20 = sceVu0InnerProduct(w70, FP(0x140));
                     if (RotateAccordingToStick_PatternThree((int)FP(0), g90) < fth) {
                         d = FF(0x4) - ((union IFAlias *)&w164)->f;
                         if (d < zero) {
@@ -1886,7 +1886,7 @@ L6B4:
                     }
                 }
             Lnext3:
-                fnd3 = (char *)isysGObjSearchFromObjKindID_begin(fnd3);
+                fnd3 = (char *)isysGObjSearchFromObjKindID_next(fnd3);
                 } while (fnd3 != 0);
             Lgot3:;
             }
@@ -1896,9 +1896,9 @@ L6B4:
                 if (cg != 0) {
                 t80v = (char *)FP(0x180);
                 pp = (char *)ContinueCorrectPosition(cg);
-                func_00243AE8(t80v, pp, (void *)FI(0x1C4));
+                sceVu0SubVector(t80v, pp, (void *)FI(0x1C4));
                 w184 = 0;
-                if (0.0f < func_00243950(t80v, (void *)FI(0x1C8))) {
+                if (0.0f < sceVu0InnerProduct(t80v, (void *)FI(0x1C8))) {
                     hit = (char *)FI(0x1C0);
                 }
                 }
@@ -1912,8 +1912,8 @@ L6B4:
             y1A4 = *(float *)(pp + 4);
             pp = (char *)ContinueCorrectPosition(hit);
             y1A8 = *(float *)(pp + 8);
-            func_00243B18((void *)&dv19, (void *)FI(0x1C8), -20.0f);
-            func_00243AD0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x670) + 0x1C0,
+            sceVu0ScaleVector((void *)&dv19, (void *)FI(0x1C8), -20.0f);
+            sceVu0AddVector(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x670) + 0x1C0,
                           (void *)&y1A0, (void *)&dv19);
             *(float *)(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x670) + 0x1C4) = FF(0x14);
         }
@@ -1988,7 +1988,7 @@ L6B4:
             }
             g90 = (char *)&f74 - 4;
             w70 = (char *)&f64 - 4;
-            func_001947D0(g90, w70, FP(0x10));
+            _OrientXZGV(g90, w70, FP(0x10));
             if ((func_00194590(g90, (void *)FI(0x1A8)) < 0x2D &&
                  RotateAccordingToStick_PatternThree((int)w70, FP(0x10)) < 6400.0f) ||
                 (func_00194590(g90, (void *)FI(0x1A8)) >= 0x2D &&
@@ -2021,12 +2021,12 @@ L6B4:
         if (*(int *)(h + 0x30) == 0x6B) {
             char *g = *(char **)((char *)FI(0x30) + 0x134);
             if (*(int *)(*(char **)(g + 0x164) + 0x30) == 0x64) {
-                if (GetDifferenceFromWallUpperPlane(g)) {
+                if (GetMotionFrameFlag1(g)) {
                     if (func_00145328((void *)FI(0x30), (void *)D_00631AE8, 0x78, FP(0x60),
                                       200.0f, 400.0f)) {
                         char *b;
                         char *pp;
-                        b = (char *)PAIR_GetPosition_BOY((int)(char *)ContinueCorrectPosition(g), 0x21);
+                        b = (char *)ACTGame_GetNearestGObj((int)(char *)ContinueCorrectPosition(g), 0x21);
                         pp = (char *)ContinueCorrectPosition(b);
                         if (RotateAccordingToStick_PatternThree((int)FP(0x10), pp) < D_00631470) {
                             char *cc = (char *)FI(0x30);
@@ -2046,12 +2046,12 @@ L6B4:
     if (ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0x800000)) {
         char *q2;
         pv = (char *)&f64 - 4;
-        func_00243978(pv, *(char **)((char *)FI(0x30) + 0x15C) + 0x1D0);
+        sceVu0Normalize(pv, *(char **)((char *)FI(0x30) + 0x15C) + 0x1D0);
         q2 = *(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x670);
         *(float *)(q2 + 0x270) = *(float *)w60v;
         *(float *)(q2 + 0x274) = FF(0x64);
         *(float *)(q2 + 0x278) = FF(0x68);
-        if (0.0f < func_00243950(subCommonIdle((void *)FI(0x30)), pv)) {
+        if (0.0f < sceVu0InnerProduct(subCommonIdle((void *)FI(0x30)), pv)) {
             char *mc;
             mc = (char *)FI(0x30); ((union LLAlias *)(env + 0x470))->ll |= 0x200;
             *(char *)(*(char **)(*(char **)(mc + 0x164) + 0x670) + 0x280) = 0;
@@ -2064,7 +2064,7 @@ L6B4:
     }
     if (ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0x40)) {
         ((union LLAlias *)(env + 0x470))->ll |= 0x10;
-        debug_assertMessage(D_00633848);
+        debug_StdPrintfDummy(D_00633848);
     }
     if (ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0x50)) {
         *(long long *)(env + 0x470) |= 0x20;
@@ -2073,14 +2073,14 @@ L6B4:
             float wv = *wp;
             if ((char *)FI(0x30) == (char *)D_00631AE4 ? (wv > 110.0f) : (wv > 135.0f)) {
                 ((union LLAlias *)(env + 0x470))->ll |= 0x40;
-                debug_assertMessage(D_0061AE20);
+                debug_StdPrintfDummy(D_0061AE20);
             }
         }
         {
             float *wp = (float *)(*(char **)((char *)FI(0x30) + 0x15C) + 0x644);
             if ((char *)FI(0x30) == (char *)D_00631AE4 ? (*wp < 105.0f) : (*wp < 130.0f)) {
                 ((union LLAlias *)(env + 0x470))->ll |= 0x80;
-                debug_assertMessage(D_0061AE30);
+                debug_StdPrintfDummy(D_0061AE30);
             }
         }
     }
@@ -2099,7 +2099,7 @@ L6B4:
         t16 = (char *)InitTorchGeo((void *)FI(0x30), 200.0f);
         if (t16 != 0) {
             w70 = (char *)&f74 - 4;
-            GetRootMatrixByDObj(w70, t16);
+            GetRootPosition(w70, t16);
             g90 = w70;
             if (RotateAccordingToStick_PatternThree((int)FP(0), w70) < rad * rad &&
                 FF(0x74) < FF(0x4)) {
@@ -2115,7 +2115,7 @@ L6B4:
                 Lct1:
                     if (FF(0x74) < FF(0x4)) {
                         t23v = t16;
-                        func_001947D0((char *)arg4 + 0x20, g90, FP(0));
+                        _OrientXZGV((char *)arg4 + 0x20, g90, FP(0));
                         t30v = t23v;
                     }
                 Lskip_t1:;
@@ -2133,7 +2133,7 @@ L6B4:
                 lit = ((unsigned int)k1 < 1);
             }
             wt = (char *)&f70;
-            GetRootMatrixByDObj(wt, t16);
+            GetRootPosition(wt, t16);
             if (lit == 0 &&
                 RotateAccordingToStick_PatternThree((int)FP(0), wt) < D_00631474 &&
                 FF(0x74) < FF(0x4)) {
@@ -2148,7 +2148,7 @@ L6B4:
                 Lct2:
                     if (FF(0x74) < FF(0x4)) {
                         t22v = t16;
-                        func_001947D0((char *)arg4 + 0x30, wt, FP(0));
+                        _OrientXZGV((char *)arg4 + 0x30, wt, FP(0));
                         *(int *)((char *)arg4 + 0x168) = (int)t22v;
                     }
                 Lskip_t2:;
@@ -2156,7 +2156,7 @@ L6B4:
             }
         }
         if (ACTGame_ConnectHand((void *)FI(0x30)) == 0) {
-            char *r2 = (char *)ACTGameCollisionOff((void *)*(int *)(env + 0x140));
+            char *r2 = (char *)ACTGame_isWeaponEnableCatchfire((void *)*(int *)(env + 0x140));
             if (r2 != 0) {
                 if (TorchGeo(r2) == 0) {
                     if (t30v != 0) {
@@ -2220,7 +2220,7 @@ INCLUDE_ASM("asm/nonmatchings/src/act-env", func_00200970);
 
 INCLUDE_ASM("asm/nonmatchings/src/act-env", func_002009F0);
 
-int func_00200A98(int a0)
+int CheckWallAttributeEdegWall(int a0)
 {
     unsigned char v0;
     if (D_00631990 == 4) {

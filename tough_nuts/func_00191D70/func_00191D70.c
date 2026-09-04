@@ -18,7 +18,7 @@ extern void func_00141E00(int a0);
 extern int func_00141D18(int *p);
 extern void func_00140710(int a0);
 extern void func_001AD768(const char *file);
-extern void func_00263FF0(const char *file, int line, const char *fmt);
+extern void __assert(const char *file, int line, const char *fmt);
 extern void func_00191D70(void);
 
 extern int D_00631AE4;

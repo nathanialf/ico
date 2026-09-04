@@ -66,7 +66,7 @@ unsigned char D_00631F50[4] = { 0 };
 unsigned int  D_00631F54    = 0x00000000;
 
 extern void func_00136280(int a0, int a1, int a2);
-extern void func_00138E30(void);
+extern void _iosMallocDebug(void);
 
 int func_001383D8(int a0, int a1)
 {
@@ -216,8 +216,8 @@ int func_00138720(int a0, int *a1)
 }
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001387F0);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138A10);
-extern int func_00265024(int *a0, const char *a1);
-extern void func_00265168(unsigned char *ptr, int value);
+extern int strcmp(int *a0, const char *a1);
+extern void strcpy(unsigned char *ptr, int value);
 extern void func_001A6E28(const char *fmt, ...);
 
 int func_00138BF0(int *a0, int a1)
@@ -227,22 +227,22 @@ int func_00138BF0(int *a0, int a1)
         func_001A6E28(D_00556FB8);
         return 0;
     }
-    if (func_00265024(a0, D_00556F70) != 0)
+    if (strcmp(a0, D_00556F70) != 0)
     {
         func_001A6E28(D_00556FD8);
         return 0;
     }
-    func_00265168((unsigned char *)((char *) a0 + 0x10), a1);
+    strcpy((unsigned char *)((char *) a0 + 0x10), a1);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138C78);
-INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138E30);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", _iosMallocDebug);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001392A8);
-extern int func_001007A0(int a0);
+extern int FlushCache(int a0);
 
 void func_001394F0(int *a0, int a1, int a2)
 {
     int *end = *(int **)((char *) a0 - 0x1C);
-    func_001007A0(0);
+    FlushCache(0);
     func_00139598(a0);
     func_001A6E28(D_005572B8, a1, a2, a0, end);
     {
@@ -256,7 +256,7 @@ void func_001394F0(int *a0, int a1, int a2)
             } while ((unsigned int) a0 < (unsigned int) end);
         }
     }
-    func_001007A0(0);
+    FlushCache(0);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139598);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139A50);
@@ -266,6 +266,6 @@ INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139FE8);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A0F8);
 
 void func_0013A200(void) {
-    func_00138E30();
+    _iosMallocDebug();
     DEFEAT_TCO();
 }

@@ -50,15 +50,15 @@ extern int D_00631AE8;
 extern int actInitialize(int a0);
 extern void actSt04eWaterFlagOn(int a0);
 extern void actSt04eWaterStop(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 
 void actSt04eWaterSwitch(volatile int a0) {
     int x = a0;
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
-    if (scpSleepEnemyOne(a0, D_00631AE4, 400.0f) != 0) goto flagon;
+    if (scpTriggerBall(a0, D_00631AE4, 400.0f) != 0) goto flagon;
     if (D_00631AE8 == 0) goto stop;
-    if (scpSleepEnemyOne(a0, D_00631AE8, 400.0f) == 0) goto stop;
+    if (scpTriggerBall(a0, D_00631AE8, 400.0f) == 0) goto stop;
 flagon:
     stage_KillPlayBgAnimation(0xE5, 0, 0);
     _ACTWait(0x3C);

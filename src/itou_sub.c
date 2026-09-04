@@ -6,16 +6,16 @@
 
 extern void stage_KillPlayBgAnimationIfOverMaxCount(int **self);
 extern int stage_SetLocalizeGeometry();
-extern void func_002439B0();
-extern int func_00198438();
-void m33_to_quat(float *dst, float *src) {
+extern void sceVu0TransposeMatrix();
+extern int m33_to_quat();
+void lw_pos_to_ico_pos(float *dst, float *src) {
     dst[0] = -src[0];
     dst[1] = -src[1];
     dst[2] = -src[2];
     dst[3] = src[3];
 }
 
-void lw_pos_to_ico_pos(void *a0, void *a1, void *a2) {
+void apply_matrix_w1(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x10, 5);
     VU0_LSV(lqc2, 6, 0x20, 5);
@@ -29,14 +29,14 @@ void lw_pos_to_ico_pos(void *a0, void *a1, void *a2) {
     VU0_NOP();
 }
 
-int apply_matrix_w1(int a0)
+int ico_m33_to_quat(int a0)
 {
     int buf[16];
-    func_002439B0(buf);
-    return func_00198438(a0, buf);
+    sceVu0TransposeMatrix(buf);
+    return m33_to_quat(a0, buf);
 }
 
-void ico_m33_to_quat(int *self, int *q)
+void pbga_start(int *self, int *q)
 {
     if (*self != 0) {
         stage_KillPlayBgAnimationIfOverMaxCount(self);
@@ -44,9 +44,9 @@ void ico_m33_to_quat(int *self, int *q)
     *self = stage_SetLocalizeGeometry(q);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_sub", pbga_start);
+INCLUDE_ASM("asm/nonmatchings/src/itou_sub", set_vertex);
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_sub", func_00198B70);
+INCLUDE_ASM("asm/nonmatchings/src/itou_sub", DrawLightning2);
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_sub", func_00199620);
+INCLUDE_ASM("asm/nonmatchings/src/itou_sub", DrawLightningN);
 

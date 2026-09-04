@@ -74,17 +74,17 @@ extern int D_00631950;
 extern int D_00632108;
 extern int D_00633C90;
 
-extern void func_00100F18(int x, int *p);
+extern void iWakeupThread(int x, int *p);
 extern void func_0013A250(int *a, int *b, int c);
 extern void func_0013A5B8(int *a0, int a1, int a2);
 extern void func_0013A6C0(int *a, void *b, int c);
 extern void func_0013AF88(void);
 extern int  func_0013D098(int a0);
 extern void func_0013C958(int a0, int a1);
-extern void func_002439B0(void *dst, void *src);
-extern void func_002438B8(int *p17, void *mat, void *vec);
+extern void sceVu0TransposeMatrix(void *dst, void *src);
+extern void sceVu0ApplyMatrix(int *p17, void *mat, void *vec);
 extern int  D_00631970;
-extern void func_002641D8(void *dst, int val, int n);
+extern void memset(void *dst, int val, int n);
 extern void func_0013CE48(void);
 extern void func_0013CF08(int a, int b);
 extern void func_0013CF38(int *p);
@@ -96,7 +96,7 @@ int func_0013A820(int a0)
         register unsigned long long v REG("$3") = *(volatile unsigned long long *)0x12001000;
         register int *p REG("$5") = (int *)D_00632108;
         D_00631950 = ((v >> 13) & 1) ^ 1;
-        func_00100F18(p[0xC], p);
+        iWakeupThread(p[0xC], p);
     }
     return 0;
 }
@@ -279,8 +279,8 @@ void func_0013B7E0(int *a0, float *a1)
     t.z1 = 0;
     MEM_BARRIER();
     v = t;
-    func_002439B0(a0arg, (unsigned char *) D_00631970 + 0x80);
-    func_002438B8(a0, buf, &v);
+    sceVu0TransposeMatrix(a0arg, (unsigned char *) D_00631970 + 0x80);
+    sceVu0ApplyMatrix(a0, buf, &v);
 }
 
 int func_0013B858(void)
@@ -304,7 +304,7 @@ void func_0013B878(void)
 {
     int i = 1;
     int *p;
-    func_002641D8(D_006A6DB0, 0, 0x180);
+    memset(D_006A6DB0, 0, 0x180);
     func_0013CE48();
     func_0013CF08(0, D_00632194);
     {
