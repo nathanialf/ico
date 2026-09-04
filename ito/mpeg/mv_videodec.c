@@ -6,7 +6,10 @@
 
 extern void Free(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", free_buf);
+void free_buf(int a0)
+{
+    Free(*(int *)(a0 + 0x48));
+}
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", videoDecCreate);
 extern void viBufBeginPut();
 

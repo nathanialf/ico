@@ -23,8 +23,14 @@ int IsActCharDead(int *a0)
     long x = *(unsigned int *)((char *)v1 + 0x1C);
     return (((int)x) & 1) ^ 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", SetAP1HostGObj);
-INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", SetAP1PriorLevel);
+void SetAP1HostGObj(char *self, int val)
+{
+    *(int *)(*(char **)(self + 0x164) + 0xA8) = val;
+}
+void SetAP1PriorLevel(char *self, int val)
+{
+    *(int *)(*(char **)(self + 0x164) + 0xAC) = val;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", GetAP1AIMode);
 extern int AP1MotReq();
 

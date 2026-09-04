@@ -22,7 +22,12 @@ typedef struct {
 
 typedef union { int i; float f; } IntFloat;
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_DeleteActorInformation);
+extern void gamesysObjInfoCls(int a0, int a1);
+
+void ACTGame_DeleteActorInformation(int *a0)
+{
+    gamesysObjInfoCls(a0[3], a0[2]);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", EXITDATA_GetNextPosition);
 ASM_LIT4_SLOT(D_00638CC8, 0.017453292f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObj);

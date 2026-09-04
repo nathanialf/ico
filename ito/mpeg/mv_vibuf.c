@@ -2,7 +2,6 @@
 
 #include "mv_defs.h"
 
-extern void func_0025A4A8(int a0);
 
 void func_00259480(int *a0) {
     func_0025A4A8(a0[0]);

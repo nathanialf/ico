@@ -113,7 +113,13 @@ void ConvertStickToAbsCoord(void *a0, float *a1) {
     sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
     sceVu0ApplyMatrix(a0, m, &v);
 }
-INCLUDE_ASM("asm/nonmatchings/src/act", ActSetStartBrainStatus);
+void ActSetStartBrainStatus(char *self, int status)
+{
+    char *brain = *(char **)(self + 0x164);
+    if (brain != 0) {
+        *(int *)(brain + 0x448) = status;
+    }
+}
 void actWaitCondition(int a0, int a1) {
     int t = a0 & a1;
     if (t == 0) {
