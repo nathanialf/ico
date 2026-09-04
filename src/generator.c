@@ -38,7 +38,17 @@ int RestoreGeneratorGeo(float *dst, float *src) {
     dst[2] = src[6];
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/generator", RestoreGeneratorExtGeo);
+extern void iosOmSendMail(void *a0, int a1, void *a2);
+int RestoreGeneratorExtGeo(char *a0, short *a1) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    *(int *)(p + 0x50) = a1[0x18];
+    *(int *)(p + 8) = a1[0x19];
+    if (a1[0x18] == 1) {
+        *(int *)(p + 0x54) = 2;
+        iosOmSendMail(a0, 1, a0);
+    }
+    return 1;
+}
 int MemoryGenerator(short *a0, char *a1) {
     char *p = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
     a0[0] = *(unsigned short *)(p + 0x50);

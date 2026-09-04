@@ -38,7 +38,12 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", GetPositionOnTheChain);
 INCLUDE_ASM("asm/nonmatchings/src/chain", PlumbPointUpdateChain);
 INCLUDE_ASM("asm/nonmatchings/src/chain", TestChainUpDown);
 INCLUDE_ASM("asm/nonmatchings/src/chain", SetChainRootUpdateMode);
-INCLUDE_ASM("asm/nonmatchings/src/chain", HoldChain);
+extern void StartPendulum(void *a0);
+void HoldChain(char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    StartPendulum(a0);
+    *(char *)(p + 0x60) = 1;
+}
 void ReleaseChain(char *a0) {
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x60) = 0;
 }
@@ -51,8 +56,15 @@ void GetChainPendulum(char *a0, float *a, float *b, float *c) {
     }
     *c = *(float *)(p + 0x40);
 }
-INCLUDE_ASM("asm/nonmatchings/src/chain", IncreasePdlChain);
-INCLUDE_ASM("asm/nonmatchings/src/chain", DecreasePdlChain);
+extern float D_006391C0;
+void IncreasePdlChain(char *a0) {
+    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x44) = D_006391C0;
+}
+extern int D_0063B218;
+extern float D_006391C4;
+void DecreasePdlChain(char *a0) {
+    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x44) = (float)D_0063B218 * 0.5f * D_006391C4;
+}
 void PlumbOrientUpdateChain(char *a0, float *src) {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     *(float *)(p + 0x20) = src[0];
@@ -80,7 +92,12 @@ void GetChainClimbCollision(ClimbCol *dst, char *a0) {
 void SetChainParentGObj(char *a0, void *a1) {
     *(void **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) = a1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainDirCorrectVal);
+extern float D_006391C8;
+int GetChainDirCorrectVal(char *a0, int *a1) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    *a1 = (int)(*(float *)(p + 0x70) * 180.0f / D_006391C8);
+    return *(unsigned char *)(p + 0x6C);
+}
 extern float *test_CURRENTROOT(void *a0);
 
 void GetRootPositionHandExtra(void *a0, float *a1) {

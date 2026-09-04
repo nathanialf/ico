@@ -11,7 +11,12 @@ void itou_boss_gflag_init(void) {
     memset(D_006E9A30, 0, 0xD50);
 }
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlDL);
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", InqCapsuleGhostBossStage);
+extern int stage_no;
+int InqCapsuleGhostBossStage(void) {
+    int r = 0;
+    if (stage_no == 0x56 || stage_no == 3 || stage_no == 0x2E) r = 1;
+    return r;
+}
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", actBossCtrlStart);
 extern char D_005557E0[];
 extern char D_005564F0[];
@@ -67,4 +72,7 @@ void CapsuleGhostBossStart(void) {
     D_006E9A30[0] = 1;
 }
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", InqCapsuleGhostBossEnd);
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", gene_eff_end_func);
+extern char *GetParticleEffectData(void);
+void gene_eff_end_func(void) {
+    **(int **)(GetParticleEffectData() + 0x70) = 1;
+}

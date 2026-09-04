@@ -79,7 +79,11 @@ int CheckReadyStreamMotion(void)
         r = 0;
     return r;
 }
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", SetStreamMotionFinishCallBackFunc);
+typedef struct { int w[7]; } SMotion;
+extern SMotion D_00724AA8[];
+void SetStreamMotionFinishCallBackFunc(int a0, int a1) {
+    D_00724AA8[a0].w[6] = a1;
+}
 extern int D_0063BC08;
 extern int D_0063BC0C;
 extern int D_0063BC10;

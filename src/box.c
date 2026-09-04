@@ -2,8 +2,12 @@
 
 #include "ico/types.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/box", switchOnSE);
-INCLUDE_ASM("asm/nonmatchings/src/box", switchReleaseSE);
+void switchOnSE(int a0) {
+    ExecuteSEPackage(a0, 0x3F);
+}
+void switchReleaseSE(int a0) {
+    ExecuteSEPackage(a0, 0x40);
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", GetFloorLeverGlobalHoldPoint);
 INCLUDE_ASM("asm/nonmatchings/src/box", FloorLeverTriStateGeo);
 INCLUDE_ASM("asm/nonmatchings/src/box", FloorLeverGeo);

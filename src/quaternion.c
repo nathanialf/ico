@@ -4,7 +4,12 @@
 
 #include "ico/types.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/quaternion", MultiCurrentQuaternion);
+extern int D_00639F3C;
+extern int D_00669640[];
+void MultiCurrentQuaternion(void *a0) {
+    int *q = &D_00669640[D_00639F3C * 4];
+    MultiQuaternion(q, q, a0);
+}
 extern int D_00639F3C;
 extern int D_00669640[];
 extern void GetInverseQuaternion();

@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cInit);
+void actSt13cInit(void) {
+    if (gflagChk(0x15)) {
+        SetWayGroupActive(9, 0);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cEnd);
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cBmg1);
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cBmg1Chk);

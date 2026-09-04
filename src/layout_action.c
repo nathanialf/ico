@@ -8,9 +8,15 @@ typedef struct {
     char _8[0x50];
 } R58;
 
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", POSITIVE_SE);
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", NEGATIVE_SE);
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", CUR_SE);
+void POSITIVE_SE(void) {
+    soundSeDefPlay(0x19C, 0xFFFFFFFE, 0, 0);
+}
+void NEGATIVE_SE(void) {
+    soundSeDefPlay(0x19D, 0xFFFFFFFE, 0, 0);
+}
+void CUR_SE(void) {
+    soundSeDefPlay(0x19B, 0xFFFFFFFE, 0, 0);
+}
 extern int D_0061D750[];
 extern void debug_StdPrintfDummy();
 

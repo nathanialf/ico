@@ -156,13 +156,28 @@ one:
     return 1;
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ACTEnemyForceSwitchToCarry);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_GetClingTarget);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isNormalEnemy);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isLargeEnemy);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isSmallEnemy);
+int actEnemy_GetClingTarget(char *a0) {
+    char *b = *(char **)(a0 + 0x164);
+    char *e = *(char **)(b + 0x680);
+    if (*(int *)(e + 0x1E8) == 0 && *(int *)(b + 0x34) == 0x10) {
+        return *(int *)(e + 0x220);
+    }
+    return 0;
+}
+int actEnemy_isNormalEnemy(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 1;
+}
+int actEnemy_isLargeEnemy(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 2;
+}
+int actEnemy_isSmallEnemy(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", IsEnemyBrainToGenerator);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", IsEnemyBrainToBoy);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", GetEnemyTypeFromGObj);
+int GetEnemyTypeFromGObj(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E4);
+}
 int GetEnemyType(void) {
     return 1;
 }

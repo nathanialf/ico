@@ -80,10 +80,21 @@ void SetAP1VisualState(char *a0, int a1) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1Turn);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1MotReqForce);
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1MotReq);
+extern void AP1MotReqForce(void *a0);
+int AP1MotReq(char *a0) {
+    int s = *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8);
+    if (s < 6) {
+        if (s >= 2) return 0;
+    }
+    AP1MotReqForce(a0);
+    return 1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1JumpReq);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", MakeAP1GObj);
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", GetAP1Mode);
+extern int D_004E5520[];
+int GetAP1Mode(char *a0) {
+    return D_004E5520[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)];
+}
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", standMot);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", rollingMot);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", attackMotInit);

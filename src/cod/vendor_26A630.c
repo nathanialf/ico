@@ -1588,7 +1588,11 @@ c2c:
 extern int _isTop32dirty[];
 extern int D_0054CA08[];
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sendIpuCommand);
+extern int D_0054CA08[];
+void _sendIpuCommand(unsigned int a0) {
+    *(volatile unsigned int *)0x10002000 = a0;
+    _isTop32dirty[0] = D_0054CA08[a0 >> 28];
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _waitIpuIdle);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _waitIpuIdle64);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _ipuVdec);
@@ -1614,7 +1618,11 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _nextHeader);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _pictureHeader);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _extensionAndUserData);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _pictureCodingExtension);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _extrainfo);
+void _extrainfo(void) {
+    while (_nextBit(1) != 0) {
+        _flushBuf(8);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _updateTempTackData);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _groupOfPicturesHeader);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _quantMatrixExtension);

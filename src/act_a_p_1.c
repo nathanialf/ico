@@ -4,7 +4,11 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", standAI);
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", walkAI);
-INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", hehehe);
+extern char *D_004E5A78[];
+extern void debug_StdPrintfDummy(char *a0);
+void hehehe(char *a0) {
+    debug_StdPrintfDummy(D_004E5A78[*(int *)(*(char **)(a0 + 0x164) + 0x34)]);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", SleepAP1);
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", WakeUpAP1);
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", func_001C4DC0);

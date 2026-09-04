@@ -358,7 +358,10 @@ void scpPlayMotNode(void *a0, int a1, void *a2, int a3) {
     SetMotionNodeFixModeParameter(a0, a2, 0, a3, buf, 0.0f, 0.0f, 0.0f, 1.0f);
     scpPlayMot(a0, a1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayMotReq);
+void scpPlayMotReq(char *a0, int a1) {
+    char *p = *(char **)(a0 + 0x164);
+    *(int *)(p + 0x130) = SetMotionRequest(a0, a1, p + 0x620);
+}
 extern void ClearMotionGeometryInfo(void *a0);
 extern void SetDirectRootPosition();
 
@@ -371,7 +374,12 @@ void scpPlayPosSet(void *a0, float f12, float f13, float f14) {
     SetDirectRootPosition(a0, buf);
     ClearMotionGeometryInfo(a0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayWaitMotEnd);
+void scpPlayWaitMotEnd(char *a0) {
+    char *p = *(char **)(a0 + 0x164);
+    while ((*(int *)(*(char **)(p + 0x130) + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+}
 extern int D_0063C24C;
 
 void InitStageChange(void) {
@@ -450,7 +458,12 @@ int scpFadeChk(void)
   }
   return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpGameStat_BoyWeaponkind);
+extern char *D_00639EA4;
+int scpGameStat_BoyWeaponkind(void) {
+    char *w = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
+    if (w == 0) return 0;
+    return CheckWeaponKind(w);
+}
 extern int IsWallLeverStatus(void);
 
 int scpIsWallLever2On(void)
@@ -531,7 +544,13 @@ void ScpCallCameraGetTarget(float *dst)
     dst[2] = D_006E5980[2];
 }
 INCLUDE_ASM("asm/nonmatchings/src/script", ScpCallCameraOff);
-INCLUDE_ASM("asm/nonmatchings/src/script", ScpCallCameraOn);
+extern char *D_00639EA4;
+void ScpCallCameraOn(void) {
+    char *g = D_00639EA4;
+    if (g != 0) {
+        *(long long *)(*(char **)(g + 0x164) + 0x20) |= 0x800000;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", ScpCallCameraTargetOff);
 extern void GetRootPosition(void *a0, void *a1);
 extern void SetDirectRootPosition__pn(void *a0, void *a1) __asm__("SetDirectRootPosition");

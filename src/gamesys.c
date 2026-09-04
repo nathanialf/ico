@@ -175,7 +175,17 @@ void gamesysMemorySave(int *self, int a1, int a2)
     while (new_var2);
   }
 }
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysMemoryLoad);
+extern void gflagOn(int a0);
+void gamesysMemoryLoad(void **tbl, int a1, void *a2) {
+    int buf[2];
+    buf[0] = a1;
+    buf[1] = 0;
+    while (tbl[0] != 0) {
+        ((void (*)(void *, void *))tbl[0])(buf, a2);
+        tbl += 2;
+    }
+    gflagOn(0x18A);
+}
 extern int D_004DA770[];
 extern int gamesysVersionDiff;
 extern int gamesysMemoryHandlerRead__pn(void *, void *, int) __asm__("gamesysMemoryHandlerRead");

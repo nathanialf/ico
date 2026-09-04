@@ -55,8 +55,14 @@ int *GetParticleEffectPackage(int idx)
 }
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DeleteParticleEffectsByPackage);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DeleteParticleEffectsByID);
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", GetParticleEffectData);
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DisableParticleEffectGeometryControl);
+typedef struct { int w[7]; } PEffect;
+extern PEffect D_00720220[];
+int GetParticleEffectData(int a0) {
+    return D_00720220[a0].w[6];
+}
+void DisableParticleEffectGeometryControl(int a0) {
+    D_00720220[a0].w[2] = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", GetParticleIDWithName);
 int GetParticleLoopFlag(int a0)
 {

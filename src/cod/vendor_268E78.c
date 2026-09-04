@@ -183,7 +183,13 @@ void mcHearAlarm(int a0, int a1, int a2) {
     SYNC();
     EI();
 }
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", mcDelayThread);
+extern int GetThreadId(void);
+extern void SetAlarm(int a0, void *a1, int a2);
+extern void SleepThread(void);
+void mcDelayThread(int a0) {
+    SetAlarm((unsigned short)a0, mcHearAlarm, GetThreadId());
+    SleepThread();
+}
 extern void SignalSema(int sema);
 extern void mcDelayThread(int a0);
 extern int sceSifCheckStatRpc(char *a0);

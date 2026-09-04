@@ -2,7 +2,14 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", moveStartSE);
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", moveEndSE);
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", RotObjectGeo);
+extern void gamesysObjInfoUniqDataSet(void *a0);
+void RotObjectGeo(char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    if ((*(int *)(p + 0x30))++ >= 0x1F) {
+        *(int *)(p + 0x30) = 0;
+        gamesysObjInfoUniqDataSet(a0);
+    }
+}
 extern void AdjustVerticalSidePlaneOfWall(void *a0, void *a1, void *a2, float a3);
 extern void GetGlobalWallPlane(void *a0, void *a1);
 extern void GetProjectionPosOfPlane(void *a0, void *a1, void *a2);

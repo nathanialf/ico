@@ -63,7 +63,11 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTableLine);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_getTextureInfo);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeShapeTable);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makePacket);
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_MakePacket);
+extern void pac_makePacket(void *a0, int a1, int a2);
+void pac_MakePacket(char *a0) {
+    char *p = *(char **)(a0 + 0x854);
+    pac_makePacket(p, *(int *)(*(char **)(a0 + 0x874) + 0xF0), *(signed char *)(p + 0x2F) > 0);
+}
 extern void pac_DispQW(void *p, void *a2);
 
 void pac_Dump(int *a0, int size)

@@ -14,10 +14,14 @@ INCLUDE_ASM("asm/nonmatchings/src/torch", procChainReaction);
 INCLUDE_ASM("asm/nonmatchings/src/torch", TorchGeo);
 INCLUDE_ASM("asm/nonmatchings/src/torch", InitTorchGeo);
 void TorchDL(void) {}
-INCLUDE_ASM("asm/nonmatchings/src/torch", IsTorchLightOn);
+int IsTorchLightOn(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20);
+}
 INCLUDE_ASM("asm/nonmatchings/src/torch", CheckTorchChainReaction);
 INCLUDE_ASM("asm/nonmatchings/src/torch", SetTorchLife);
-INCLUDE_ASM("asm/nonmatchings/src/torch", SetTorchChainReactionFlag);
+void SetTorchChainReactionFlag(char *a0, int a1) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x30) = a1;
+}
 extern void CopyVector(void *a0, void *a1);
 extern void GetRootPosition(void *a0, void *a1);
 extern void sceVu0SubVector(void *a0, void *a1, void *a2);

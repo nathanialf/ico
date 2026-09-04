@@ -32,8 +32,16 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", EXITDATA_GetNextPosition);
 ASM_LIT4_SLOT(D_00638CC8, 0.017453292f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObj);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetActors_Debug);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_TryConnectHand);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_TryDisconnectHand);
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+void ACTGame_TryConnectHand(void) {
+    RequestChangeHandMode(D_00639EA4, 1, 5, 5, (int)D_00639EA8, 0, 0);
+}
+extern char *D_00639EA4;
+extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, int a4, int a5, int a6);
+void ACTGame_TryDisconnectHand(void) {
+    RequestChangeHandMode(D_00639EA4, 1, 5, 0, 0, 0, 0);
+}
 extern void ACTGame_DisconnectHand(void);
 extern const char D_005523F0[];
 extern void debug_StdPrintfDummy();
@@ -48,10 +56,20 @@ ASM_LIT4_SLOT(D_00638CCC, 0.8f);
 ASM_LIT4_SLOT(D_00638CD0, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_Loop);
 ASM_LIT4_SLOT(D_00638CD4, 5000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_LwsEffectProcess);
+extern void DispMultiBgaManagerWithKind(int a0, int a1, int a2);
+void ACTGame_LwsEffectProcess(char *a0) {
+    int m = *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1B8);
+    if (m != 0) {
+        DispMultiBgaManagerWithKind(0x1F8, m, 1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTGame_SearchGObj);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTarget_Exec);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTParaStatus_Clear);
+extern void _ACTParaStatus_Set(char *a0, int a1);
+void ACTParaStatus_Clear(char *a0) {
+    *(long long *)(*(char **)(a0 + 0x164) + 0x90) = 0;
+    _ACTParaStatus_Set(a0, 0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTParaStatus_Exec);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTCharStatus_Clear);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", GetSkeltonOrient);
@@ -94,7 +112,11 @@ void ACTGameCollisionOff(volatile int *self)
     ((int *)self[0x57])[0x152] = 0;
     ((int *)self[0x57])[0x1F] = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CheckItemMotion);
+extern char D_0055FE58[];
+int ACTGame_CheckItemMotion(char *a0) {
+    char *rec = D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194;
+    return (*(unsigned int *)(rec + 0x188) >> 19) & 7;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CheckHandMotion);
 extern int D_0055C518[][10];
 extern void EXITDATA_GetNextPosition(int idx, char *tmp_a, char *tmp_b);
@@ -165,7 +187,11 @@ void ACTGameView_Init(void) {
     *(int *)((char *)p + 0x4B4) = 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCharctrl_Lock);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCharctrl_Unlock);
+void ACTCharctrl_Unlock(char *a0) {
+    char *p = *(char **)(a0 + 0x164);
+    *(unsigned long long *)(p + 0x18) |= (1ULL << 48);
+    *(unsigned long long *)(p + 0x18) |= (1ULL << 49);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_ConnectHand);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_DisconnectHand);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_GetPosition_BOY);
@@ -286,7 +312,12 @@ int ACTGame_GetMotOrientFromWeapon(int a0)
     }
     return rv;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_NoWeapon);
+int ACTGame_NoWeapon(char *a0) {
+    char *w = *(char **)(*(char **)(a0 + 0x164) + 0x150);
+    int r = 0;
+    if (w == 0 || CheckWeaponKind(w) == 0) r = 1;
+    return r;
+}
 int ACTGame_isWeaponCombustible(void) {
     return CheckWeaponKind() == 1;
 }
@@ -346,7 +377,10 @@ float _ACTGame_GetParamF(int idx)
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_GetCurrentCallStatus);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CheckPriInputFrame);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SendSoundMail);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_LwsEffectInit);
+extern int InitMultiBgaManager(int a0);
+void ACTGame_LwsEffectInit(char *a0) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1B8) = InitMultiBgaManager(1);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_LwsEffect_Guard);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ActGame_GetOrientQ);
 ASM_LIT4_SLOT(D_00638D04, 3.1415927f);

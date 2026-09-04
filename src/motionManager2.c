@@ -250,8 +250,17 @@ int GetStreamShapeMotion(float *dst, FloorAttr *a1) {
     }
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromWallUpperField);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromLastField);
+int GetDifferenceFromWallUpperField(char *a0, int a1) {
+    char *e = *(char **)(a0 + 0x15C);
+    int idx = (*(char **)(e + 0x840))[a1];
+    return GetYDistanceFromPlane(e + 0x3F0, *(char **)(e + 0xC) + idx * 0x40 + 0x30);
+}
+extern int GetYDistanceFromPlane(void *a0, void *a1);
+int GetDifferenceFromLastField(char *a0, int a1) {
+    char *e = *(char **)(a0 + 0x15C);
+    int idx = (*(char **)(e + 0x840))[a1];
+    return GetYDistanceFromPlane(e + 0x1D0, *(char **)(e + 0xC) + idx * 0x40 + 0x30);
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromLowerField);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromWallLowerPlane);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromWallUpperPlane);

@@ -51,7 +51,9 @@ int *dummyGetWindVector(int *a0)
 }
 INCLUDE_ASM("asm/nonmatchings/src/windField", getParallelWindVector);
 INCLUDE_ASM("asm/nonmatchings/src/windField", getRadiateWindVector);
-INCLUDE_ASM("asm/nonmatchings/src/windField", StopWindField);
+void StopWindField(void) {
+    D_0063BC58 = (int (*)(void))dummyGetWindVector;
+}
 extern char D_004ED380[];
 extern void DrawLineG();
 

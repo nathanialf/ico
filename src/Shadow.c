@@ -44,5 +44,11 @@ void shadow_KillShadow(int val) {
     D_0063A17C = val;
 }
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_DispCancel);
-INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_SetLength);
+void shadow_SetLength(char *a0, float f) {
+    if (0.0f < f) {
+        *(float *)(*(char **)(a0 + 0x858) + 0x3C) = f;
+    } else {
+        *(float *)(*(char **)(a0 + 0x858) + 0x3C) = *(float *)(*(char **)(a0 + 0x854) + 0x3C);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Init);

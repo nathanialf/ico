@@ -5,7 +5,10 @@
 typedef struct { char c[16]; } Blob16;
 typedef struct { char c[4]; } Blob4;
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", falldownSE);
+extern void ExecuteSEPackage(int a0, int a1);
+void falldownSE(int a0) {
+    ExecuteSEPackage(a0, 0x56);
+}
 INCLUDE_ASM("asm/nonmatchings/src/pool", copyToWork);
 extern char D_0054DA50[];
 extern int D_00639F28;
@@ -49,7 +52,10 @@ void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetFallDownSplash);
-INCLUDE_ASM("asm/nonmatchings/src/pool", GetPoolGlobalDrainVector);
+extern void CopyVector(void *a0, void *a1);
+void GetPoolGlobalDrainVector(void *dst, char *a0) {
+    CopyVector(dst, *(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10);
+}
 INCLUDE_ASM("asm/nonmatchings/src/pool", InitPoolGeo);
 INCLUDE_ASM("asm/nonmatchings/src/pool", updatePoolGeo);
 INCLUDE_ASM("asm/nonmatchings/src/pool", dispPool);

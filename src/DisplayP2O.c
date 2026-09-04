@@ -3,7 +3,11 @@
 #include "vu0.h"
 #include "ico/types.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/DisplayP2O", p2o_MakePacket);
+extern void pac_MakePacket(void *a0);
+void p2o_MakePacket(char *a0) {
+    *(char **)(*(char **)(a0 + 0x854) + 0x28) = a0;
+    pac_MakePacket(a0);
+}
 extern void shadow_Render();
 
 void p2o_DispShadowVolume(int a0)

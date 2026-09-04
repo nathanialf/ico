@@ -34,7 +34,12 @@ void func_0016FC20(void)
 {
     brainClsTargetLevel(D_002A5580);
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", SetTurnSpeedInEscape);
+extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, int a1, float f);
+void SetTurnSpeedInEscape(char *a0) {
+    if (*(int *)(*(char **)(a0 + 0x164) + 0x34) == 10) {
+        ACTGame_SetMotionPlaySpeedRatio_Reserve(a0, 5, 1.5f);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", sort_list);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_MakeOthersList);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainHideCheckIntercept);
