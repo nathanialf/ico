@@ -92,7 +92,8 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDie);
 ASM_LIT4_SLOT(D_00638E5C, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", Cling);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonCling);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C768);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonSlip);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStoneDead);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStone);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonSofa);
 void BoxBarSoundOn(char *a0) {
@@ -201,7 +202,8 @@ int E3_LeverCheck(char *a0) {
                ? -_RotyGV(test_CURRENTORIENT(a0), buf) < 0x2D
                : _RotyGV(test_CURRENTORIENT(a0), buf) < 0x2D;
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00160B28);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBecarry);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", subCommonIdle);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ContinueCorrectPosition);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00161510);
 ASM_LIT4_SLOT(D_00638ED4, 0.2f);

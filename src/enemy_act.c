@@ -98,12 +98,14 @@ ASM_LIT4_SLOT(D_00638F54, 369.0f);
 ASM_LIT4_SLOT(D_00638F58, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Attack);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Cling);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169E58);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169EA0);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169EE8);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169F30);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyStand);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyWalk);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyRun);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyHang);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyCarry);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169FC0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyBodyslam);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyBodyslamFail);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyNest);
 void funcEnemyCarryFail(char *a0) {
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) |= (1ULL << 34);
 }
@@ -226,7 +228,11 @@ int GetMotherGeneratorGObjAskEnemy(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x468);
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016A568);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016A818);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_BodyGuard);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Shoulder);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Pickup);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Bodyslam);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Irregular);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _BrainMode_SetDirect);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", EnemyUtil_TurnToBoy);
 extern int flyMailCore(void *a0);

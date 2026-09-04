@@ -272,7 +272,8 @@ void afterBoySwim(volatile int a0) {
     *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = InitialColInfo;
     debug_StdPrintfDummy(D_0063A700);
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00158978);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyJump);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", afterBoyTakeWeapon);
 void afterBoyHangG3M(int x) {
     volatile int local = x;
 }

@@ -44,7 +44,7 @@ extern long long D_006230C0[];
 extern int D_00639EA8;
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 
-void func_00254948(volatile int a0)
+void actSt47aHane1_1Girl(volatile int a0)
 {
     long long buf[2];
     buf[0] = D_006230C0[0];
@@ -53,7 +53,7 @@ void func_00254948(volatile int a0)
 }
 extern long long D_006230D0[];
 
-void func_00254998(volatile int a0)
+void actSt47aHane1_2Girl(volatile int a0)
 {
     long long buf[2];
     buf[0] = D_006230D0[0];
