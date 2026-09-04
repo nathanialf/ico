@@ -414,21 +414,36 @@ int *ACTGame_GetNearestGObj(int a0, int a1) {
     }
     return best;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTarget_Init);
+void ACTLookTarget_Init(char *a0) {
+    char *s = *(char **)(a0 + 0x164);
+    *(int *)(s + 0xA8) = 0;
+    *(int *)(s + 0xB0) = 0;
+    *(int *)(s + 0xAC) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTLookTarget_Set);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTParaStatus_Init);
 void _ACTParaStatus_Set(char *a0, int bit) {
     char *s = *(char **)(a0 + 0x164);
     *(unsigned long long *)(s + 0x90) |= (1ULL << bit) & ~*(unsigned long long *)(s + 0xA0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTParaStatus_Check);
+unsigned long long _ACTParaStatus_Check(char *a0, int bit) {
+    char *s = *(char **)(a0 + 0x164);
+    return (*(unsigned long long *)(s + 0x90) >> bit) & 1;
+}
 void _ACTCharStatus_Init(int **a0) {
     long long *p = (long long *)a0[0x59];
     p[0xB] = 0;
     p[0xC] = 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTCharStatus_Set);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTCharStatus_Check);
+unsigned long long _ACTCharStatus_Check(char *a0, int bit) {
+    char *s = *(char **)(a0 + 0x164);
+    unsigned long long r = 0;
+    if (s != 0) {
+        r = (*(unsigned long long *)(s + 0x58) >> bit) & 1;
+    }
+    return r;
+}
 void _ACTCharStatus_Exec(void) {}
 void _ACTSetEnemyDisappearSpeed(char *a0, float f) {
     *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x334) = f;
