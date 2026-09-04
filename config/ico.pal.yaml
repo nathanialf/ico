@@ -381,7 +381,19 @@ segments:
       - [0x18E700, hasm, src/particle]       # ParticleMicroProgram
       - [0x18ECB0, textbin, src/cod/18ECB0]  # .reginfo + pad (all zeros in rom)
       - [0x18ED00, data, src/cod/18ED00]     # .data blob (to be carved per TU)
+      # --- per-TU .data carves (PAL phase 2; see decomp/carve_ledger.md).
+      - [0x3E5A90, .data, src/attackCheckBoundary]  # carved D_004E5A90 (VMA 0x4E5A90..0x4E5AA0, 16 B, 1 sym), referenced only by still-asm AttackCheckBoundaryDL via %hi/%lo
+      - [0x3E5AA0, data, src/cod/3E5AA0]     # .data blob resume
+      - [0x3EE5B0, .data, src/BgAnimation]  # carved D_004EE5B0 + D_004EE5E0 (VMA 0x4EE5B0..0x4EE5F0, 64 B, 2 syms), both referenced only by still-asm bga_InitData / bga_ApplyDObject via %hi/%lo.  This spends the TU's one .data slot; its other .data run (D_002C2DF4, 285488 B) is blocked anyway (VMA not 8-aligned).
+      - [0x3EE5F0, data, src/cod/3EE5F0]     # .data blob resume
+      - [0x3F1D60, .data, src/act-env]  # carved D_004F1D60..D_004F1E00 (VMA 0x4F1D60..0x4F1E10, 176 B, 11 float[4] tables), all referenced only by still-asm getDitchDistTbl via %hi/%lo
+      - [0x3F1E10, data, src/cod/3F1E10]     # .data blob resume
       - [0x44D380, rodata, src/cod/44D380]   # .rodata blob
+      # --- per-TU .rodata carves (PAL phase 2; see decomp/carve_ledger.md).
+      - [0x44DB10, .rodata, src/DisplayP2O]  # carved D_0054DB10 (VMA 0x54DB10..0x54DB30, 32 B, 1 sym): "display object = %d" + ROM zero pad; TU fully matched, no asm stub to duplicate the dlabel
+      - [0x44DB30, rodata, src/cod/44DB30]   # .rodata blob resume
+      - [0x44E0B0, .rodata, src/GifPacket]  # carved D_0054E0B0 (VMA 0x54E0B0..0x54E170, 192 B, 1 sym): the 12 GS ALPHA blend quadruples gif_SetAlpha indexes; referenced only from matched C, so no stub emits it and the carve must define it
+      - [0x44E170, rodata, src/cod/44E170]   # .rodata blob resume
       - [0x538B00, lit4, src/cod/538B00]     # .lit4
       # --- per-TU .lit4 constant-pool carves (see decomp/NOTES.md ".lit4 pools",
       # decomp/carve_ledger.md "PAL phase 1").  A TU that writes its float

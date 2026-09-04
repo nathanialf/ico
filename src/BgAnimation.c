@@ -1,5 +1,17 @@
 #include "common.h"
 
+/* .data — carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
+   baserom/pal/baseelf.rom.  D_004EE5B0 is the 0x30-byte default record
+   bga_InitData block-copies into its mallocseki() allocation (two
+   (0,0,0,1.0f) vectors then four words); D_004EE5E0 is the (0,0,0,1.0f)
+   position vector bga_ApplyDObject hands to
+   SetParticleEffectActiveSensing. */
+unsigned int D_004EE5B0[12] = {
+    0x00000000, 0x00000000, 0x00000000, 0x3F800000,
+    0x00000000, 0x00000000, 0x00000000, 0x3F800000,
+    0x00000000, 0xFFFFFFFF, 0x00000001, 0x00000000,
+};
+float D_004EE5E0[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_InitData);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_initLightEnvelope);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_ApplyDObject);

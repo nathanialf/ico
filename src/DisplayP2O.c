@@ -14,7 +14,9 @@ void p2o_DispShadowVolume(int a0)
 {
     shadow_Render((int)((GObj *)(a0))->p_15C);
 }
-extern char D_0054DB10[];
+/* .rodata — carved VMA 0x54DB10..0x54DB30; string + ROM zero pad,
+   bytes verified against baserom/pal/baseelf.rom */
+const char D_0054DB10[32] = "display object = %d";
 extern int D_00639F44;
 extern int D_0063B160;
 extern void debug_PrintFontWindow();

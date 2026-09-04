@@ -67,7 +67,14 @@ INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakeSpriteNoTextureOffset);
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_Point);
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_LineOffset);
 extern GsBaseRed D_004EE6F0__pn __asm__("D_004EE6F0");
-extern GsAlphaEnt D_0054E0B0[];
+/* .rodata — carved VMA 0x54E0B0..0x54E170; the 12 ALPHA_1/2 blend-parameter
+   quadruples gif_SetAlpha packs into the GS ALPHA register, bytes verified
+   against baserom/pal/baseelf.rom */
+const GsAlphaEnt D_0054E0B0[12] = {
+    { 0, 2, 2, 1 }, { 2, 0, 2, 1 }, { 0, 1, 2, 1 }, { 1, 2, 2, 0 },
+    { 0, 1, 0, 1 }, { 0, 2, 0, 1 }, { 2, 0, 0, 1 }, { 0, 1, 0, 1 },
+    { 0, 2, 1, 1 }, { 2, 0, 1, 1 }, { 0, 1, 1, 1 }, { 1, 2, 0, 1 },
+};
 
 void gif_SetAlpha(long long a0, long long a1, long long a2) {
     unsigned long long *p, *q;

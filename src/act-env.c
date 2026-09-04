@@ -3,6 +3,22 @@
 #include "ico/types.h"
 union ENVIF { int i; float f; };
 
+/* .data — carved VMA 0x4F1D60..0x4F1E10: the per-stage ditch-distance
+   tables getDitchDistTbl selects between (the first six are ranges
+   terminated by -1.0f, the rest position/orientation vectors).  Values are
+   the shortest decimals that round-trip through binary32; every byte
+   verified against baserom/pal/baseelf.rom. */
+float D_004F1D60[4] = { 150.0f, 215.0f, 315.0f, -1.0f };
+float D_004F1D70[4] = { 150.0f, 235.0f, 315.0f, -1.0f };
+float D_004F1D80[4] = { 315.0f, 330.0f, 350.0f, -1.0f };
+float D_004F1D90[4] = { 150.0f, 215.0f, 315.0f, -1.0f };
+float D_004F1DA0[4] = { 150.0f, 215.0f, 315.0f, -1.0f };
+float D_004F1DB0[4] = { -1.0f, 0.0f, 0.0f, 0.0f };
+float D_004F1DC0[4] = { 226.0f, -2328.0f, 343.0f, 1.0f };
+float D_004F1DD0[4] = { 0.642799f, 0.0f, -0.765893f, 0.0f };
+float D_004F1DE0[4] = { 602.0f, -3775.0f, 2480.0f, 1.0f };
+float D_004F1DF0[4] = { 749.0f, -3775.0f, 2650.0f, 1.0f };
+float D_004F1E00[4] = { 559.0f, -3775.0f, 2503.0f, 1.0f };
 INCLUDE_ASM("asm/nonmatchings/src/act-env", getDitchDistTbl);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", GetDitchPosition);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", DebugActOrientFlag);

@@ -33,6 +33,10 @@ void AttackCheckBoundaryGeo(void *a0) {
         *(int *)((char *)a0 + 0x16C) = 0;
     }
 }
+/* .data — carved VMA 0x4E5A90..0x4E5AA0; bytes verified against baserom/pal/baseelf.rom */
+unsigned int D_004E5A90[4] = {
+    0x00000000, 0x00000080, 0x000000FF, 0x00000080,
+};
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryDL);
 extern void _ACTWait();
 extern int actInitialize();
