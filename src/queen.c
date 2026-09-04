@@ -51,3 +51,4 @@ float GetQueenBallThickness(void) {
 INCLUDE_ASM("asm/nonmatchings/src/queen", queenBallBeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenBallGeo);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A4B18);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A4B68);

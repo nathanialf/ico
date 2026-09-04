@@ -125,4 +125,5 @@ void jimakuEnd(void)
 }
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuDisp);
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_0017D4D8);
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_0017D5C0);
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_0017D5D0);

@@ -49,6 +49,7 @@ end:
     return rv;
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164600);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165068);
 ASM_LIT4_SLOT(D_00638EF8, 0.001f);
 ASM_LIT4_SLOT(D_00638EFC, 0.1f);
 ASM_LIT4_SLOT(D_00638F00, 0.99f);

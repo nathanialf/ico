@@ -101,6 +101,7 @@ void scpGirlHintVoicePlay(void) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceTickProc);
 INCLUDE_ASM("asm/nonmatchings/src/script", func_00182810);
+INCLUDE_ASM("asm/nonmatchings/src/script", func_00182C58);
 INCLUDE_ASM("asm/nonmatchings/src/script", _SCPBoySupportGirl);
 void _SCPMoveCharactorByWay_Cancel(char *a0) {
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 47);

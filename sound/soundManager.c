@@ -29,3 +29,4 @@ void sndInit(int idx)
     soundReverbDepthSet(*((unsigned short *) ((((char *) D_005F5D50) + (idx * 0x194)) + new_var)));
 }
 INCLUDE_ASM("asm/nonmatchings/sound/soundManager", sndManager);
+INCLUDE_ASM("asm/nonmatchings/sound/soundManager", func_00146CC0);

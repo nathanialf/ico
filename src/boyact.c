@@ -9,6 +9,7 @@ typedef struct { char pad[4]; float f4; } CCPResult;
 INCLUDE_ASM("asm/nonmatchings/src/boyact", findChainInJump);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", CorrectOrient_RopeCliff);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001506E8);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150D98);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", CheckCollisionAttr);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", UpdateGeo);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", BoyBgaManager);
@@ -25,6 +26,7 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00155770);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", pullup_check_heroin_position);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", ditch_check_heroin_position);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00155BA8);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157228);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157388);
 extern void ConvertStickToAbsCoord();
 extern void _RotyGV();
@@ -52,6 +54,7 @@ void func_001578C8(volatile int a0) {
     _ACTWait(0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157900);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157CB8);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157CC0);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157D78);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157E30);

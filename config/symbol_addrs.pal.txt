@@ -211,6 +211,7 @@ kCopy = 0x00100C48; // type:func  // src/cod/vendor_100110  // (vendor) libkernl
 GetEntryAddress = 0x00100C80; // type:func  // src/cod/vendor_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 InitAlarm = 0x00100C90; // type:func  // src/cod/vendor_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 func_00100D68 = 0x00100D68; // type:func  // src/cod/vendor_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
+func_00100E40 = 0x00100E40; // type:func  // src/cod/vendor_100110
 iWakeupThread = 0x00100F18; // type:func  // src/cod/vendor_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 iRotateThreadReadyQueue = 0x00100FB0; // type:func  // src/cod/vendor_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 iSuspendThread = 0x00101030; // type:func  // src/cod/vendor_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
@@ -235,6 +236,7 @@ sceDeci2ExLock = 0x00101C08; // type:func  // src/cod/vendor_100110  // (vendor)
 sceDeci2ExUnLock = 0x00101C30; // type:func  // src/cod/vendor_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 kputs = 0x00101C58; // type:func  // src/cod/vendor_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 func_00101C80 = 0x00101C80; // type:func  // src/cod/vendor_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
+func_00102388 = 0x00102388; // type:func  // src/cod/vendor_100110
 
 // ---- src/main
 Emergency_DestroyAllThread = 0x00102460; // type:func  // src/main
@@ -1266,6 +1268,7 @@ debug_req = 0x00146AD0; // type:func  // sound/s_init
 sndBgmReadyNextStage = 0x00146B68; // type:func  // sound/soundManager
 sndInit = 0x00146BC8; // type:func  // sound/soundManager
 sndManager = 0x00146C10; // type:func  // sound/soundManager
+func_00146CC0 = 0x00146CC0; // type:func  // sound/soundManager
 
 // ---- src/act-game
 ACTGame_DeleteActorInformation = 0x00146D10; // type:func  // src/act-game
@@ -1382,6 +1385,7 @@ ACTGetWish_FromPad = 0x0014EA68; // type:func  // src/act-wish  // provisional-o
 findChainInJump = 0x0014FD50; // type:func  // src/boyact
 CorrectOrient_RopeCliff = 0x00150530; // type:func  // src/boyact
 func_001506E8 = 0x001506E8; // type:func  // src/boyact
+func_00150D98 = 0x00150D98; // type:func  // src/boyact
 CheckCollisionAttr = 0x00151178; // type:func  // src/boyact  // provisional-ordinal
 UpdateGeo = 0x00151318; // type:func  // src/boyact
 BoyBgaManager = 0x00151478; // type:func  // src/boyact
@@ -1396,12 +1400,14 @@ func_001537B0 = 0x001537B0; // type:func  // src/boyact
 pullup_check_heroin_position = 0x00155900; // type:func  // src/boyact
 ditch_check_heroin_position = 0x00155AB8; // type:func  // src/boyact
 func_00155BA8 = 0x00155BA8; // type:func  // src/boyact
+func_00157228 = 0x00157228; // type:func  // src/boyact
 func_00157388 = 0x00157388; // type:func  // src/boyact
 CorrectStickInfo = 0x001577D0; // type:func  // src/boyact
 GetBoyWeaponGObj = 0x00157808; // type:func  // src/boyact
 func_00157828 = 0x00157828; // type:func  // src/boyact
 func_001578C8 = 0x001578C8; // type:func  // src/boyact
 func_00157900 = 0x00157900; // type:func  // src/boyact
+func_00157CB8 = 0x00157CB8; // type:func  // src/boyact
 func_00157CC0 = 0x00157CC0; // type:func  // src/boyact
 func_00157D78 = 0x00157D78; // type:func  // src/boyact
 func_00157E30 = 0x00157E30; // type:func  // src/boyact
@@ -1545,6 +1551,7 @@ _DoAwait = 0x00164408; // type:func  // src/enemy_act  // provisional-ordinal
 _DoAwaitGirl = 0x00164480; // type:func  // src/enemy_act  // provisional-ordinal
 _MustChase = 0x001644F8; // type:func  // src/enemy_act
 func_00164600 = 0x00164600; // type:func  // src/enemy_act
+func_00165068 = 0x00165068; // type:func  // src/enemy_act
 PairSetGeometry = 0x00165338; // type:func  // src/enemy_act
 actEnemyForceSwitchToCarry = 0x00165490; // type:func  // src/enemy_act
 func_00165670 = 0x00165670; // type:func  // src/enemy_act
@@ -1763,6 +1770,7 @@ jimakuJump = 0x0017D328; // type:func  // src/jimaku
 jimakuEnd = 0x0017D3A8; // type:func  // src/jimaku
 jimakuDisp = 0x0017D3B8; // type:func  // src/jimaku
 func_0017D4D8 = 0x0017D4D8; // type:func  // src/jimaku
+func_0017D5C0 = 0x0017D5C0; // type:func  // src/jimaku
 func_0017D5D0 = 0x0017D5D0; // type:func  // src/jimaku
 
 // ---- src/way_sys
@@ -1843,6 +1851,7 @@ scpGirlHintVoiceReady = 0x00182478; // type:func  // src/script
 scpGirlHintVoicePlay = 0x001825F8; // type:func  // src/script  // provisional-ordinal
 scpGirlHintVoiceTickProc = 0x00182618; // type:func  // src/script
 func_00182810 = 0x00182810; // type:func  // src/script
+func_00182C58 = 0x00182C58; // type:func  // src/script
 _SCPBoySupportGirl = 0x00183298; // type:func  // src/script
 _SCPMoveCharactorByWay_Cancel = 0x001834F8; // type:func  // src/script
 scpSekizouCheckPoint = 0x00183528; // type:func  // src/script
@@ -2384,6 +2393,7 @@ GetQueenBallThickness = 0x001A4988; // type:func  // src/queen
 queenBallBeforeFunc = 0x001A4998; // type:func  // src/queen
 InitQueenBallGeo = 0x001A4A90; // type:func  // src/queen
 func_001A4B18 = 0x001A4B18; // type:func  // src/queen
+func_001A4B68 = 0x001A4B68; // type:func  // src/queen
 
 // ---- src/queen_barrier_disp
 queen_barrier_set_damage = 0x001A4E48; // type:func  // src/queen_barrier_disp
@@ -2474,6 +2484,7 @@ start_stage_Load_thread = 0x001A85E0; // type:func  // src/StageManager
 stgmgrNextStagePreLoad = 0x001A8728; // type:func  // src/StageManager
 stgmgrNextStagePreLoadEntry = 0x001A8960; // type:func  // src/StageManager
 func_001A8AA8 = 0x001A8AA8; // type:func  // src/StageManager
+func_001A8D98 = 0x001A8D98; // type:func  // src/StageManager
 stgmgrForceSwitchWithFade = 0x001A8DC8; // type:func  // src/StageManager
 stgmgrForceSwitchWithFadeColor = 0x001A8DD8; // type:func  // src/StageManager
 stgmgrNextStagePreLoadForceStageSet = 0x001A8E40; // type:func  // src/StageManager
@@ -3015,6 +3026,7 @@ actClipCollisionCore = 0x001CDA90; // type:func  // src/clipCollisionManager  //
 CreateClipCollisionManagerGObj = 0x001CDCB0; // type:func  // src/clipCollisionManager
 RequestClipCollision = 0x001CDCF0; // type:func  // src/clipCollisionManager
 func_001CDD30 = 0x001CDD30; // type:func  // src/clipCollisionManager
+func_001CDD48 = 0x001CDD48; // type:func  // src/clipCollisionManager
 
 // ---- src/clothAnimation
 GetChainExWeightGlobalPos = 0x001CDF40; // type:func  // src/clothAnimation
@@ -5271,8 +5283,11 @@ sceVu0ITOF0Vector = 0x0025D720; // type:func  // src/cod/vendor_25D410  // (vend
 sceVu0UnitMatrix = 0x0025D730; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
 func_0025D758 = 0x0025D758; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
 func_0025D7D0 = 0x0025D7D0; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
+func_0025D800 = 0x0025D800; // type:func  // src/cod/vendor_25D410
 func_0025D878 = 0x0025D878; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
+func_0025D8A8 = 0x0025D8A8; // type:func  // src/cod/vendor_25D410
 func_0025D920 = 0x0025D920; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
+func_0025D950 = 0x0025D950; // type:func  // src/cod/vendor_25D410
 sceVu0RotMatrix = 0x0025D9C8; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
 sceVu0ClampVector = 0x0025DA18; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
 sceVu0CameraMatrix = 0x0025DA40; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)

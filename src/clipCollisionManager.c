@@ -20,3 +20,4 @@ void *RequestClipCollision(int *a0) {
     return t;
 }
 INCLUDE_ASM("asm/nonmatchings/src/clipCollisionManager", func_001CDD30);
+INCLUDE_ASM("asm/nonmatchings/src/clipCollisionManager", func_001CDD48);

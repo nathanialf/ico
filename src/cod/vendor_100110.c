@@ -287,6 +287,7 @@ int kCopy(int *dst, int *src, unsigned int n) {
 SYSCALL_WRAPPER(GetEntryAddress, 91)
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", InitAlarm);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100D68);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100E40);
 extern int D_0028F4B0[];
 extern int D_0063CB50[];
 extern KernEventRing D_0063CB58;
@@ -451,3 +452,4 @@ void kputs(int a0) {
     Deci2Call(0x10, args);
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00101C80);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00102388);
