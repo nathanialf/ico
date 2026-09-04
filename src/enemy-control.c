@@ -1,6 +1,19 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy-control", EnemyCtrlBeforeFunc);
+extern int D_0063C2D4;
+extern int D_0063C2D8;
+extern int D_0063C2DC;
+extern int D_006E6BD0[];
+extern float _GetRandom(void);
+void EnemyCtrlBeforeFunc(void) {
+    if (D_0063C2D4 > 0) {
+        D_0063C2D8 = D_006E6BD0[(int)(_GetRandom() * 10.0f) % D_0063C2D4];
+    } else {
+        D_0063C2D8 = -1;
+    }
+    D_0063C2DC++;
+    D_0063C2D4 = 0;
+}
 extern int D_0063C2D4;
 extern int D_0063C2D8;
 extern int D_0063C2DC;

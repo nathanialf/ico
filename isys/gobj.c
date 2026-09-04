@@ -127,9 +127,59 @@ int isysGetNbAllocedGObjs(void)
     return result;
 }
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjAlloc);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjRemove);
+extern char *D_006BF380[];
+extern char D_00551F30[];
+extern char D_0063A608[];
+void isysGObjRemove(char *g) {
+    int kind = *(int *)(g + 0xC);
+    char *proc = *(char **)(g + 0x2C);
+    char *p;
+    if ((unsigned int)(kind - 1) < 0x45) {
+        p = D_006BF380[kind];
+        if (p == g) {
+            D_006BF380[kind] = *(char **)(g + 0x3C);
+        } else if (p != 0) {
+            while (*(char **)(p + 0x3C) != g) {
+                if (p == 0) {
+                    func_001B6250(D_00551F30, 0x92);
+                    __assert(D_00551F30, 0x92, D_0063A608);
+                }
+                p = *(char **)(p + 0x3C);
+            }
+            *(char **)(p + 0x10) = *(char **)(g + 0x3C);
+        }
+    }
+    cut_gobj_link((int)g);
+    *(int *)g = 0;
+    while (proc != 0) {
+        isysGObjProcRemove(proc);
+        proc = *(char **)(g + 0x2C);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableAdd);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableRemove);
+extern char *D_006BF380[];
+extern char D_00551F30[];
+extern char D_0063A608[];
+void isysGObjKindTableRemove(char *g) {
+    int kind = *(int *)(g + 0xC);
+    char *p;
+    if ((unsigned int)(kind - 1) < 0x45) {
+        p = D_006BF380[kind];
+        if (p == g) {
+            D_006BF380[kind] = *(char **)(g + 0x3C);
+            return;
+        }
+        if (p == 0) return;
+        while (*(char **)(p + 0x3C) != g) {
+            if (p == 0) {
+                func_001B6250(D_00551F30, 0x92);
+                __assert(D_00551F30, 0x92, D_0063A608);
+            }
+            p = *(char **)(p + 0x3C);
+        }
+        *(char **)(p + 0x10) = *(char **)(g + 0x3C);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjMoveAfterGObj);
 extern char D_0029C4F0[];
 extern void cut_gobj_link(int a0);

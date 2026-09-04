@@ -21,7 +21,19 @@ INCLUDE_ASM("asm/nonmatchings/src/box", FloorLeverGeo);
 INCLUDE_ASM("asm/nonmatchings/src/box", FloorLeverDL);
 INCLUDE_ASM("asm/nonmatchings/src/box", GetWallLeverGlobalHoldPoint);
 INCLUDE_ASM("asm/nonmatchings/src/box", WallLeverGeo);
-INCLUDE_ASM("asm/nonmatchings/src/box", WallLeverDL);
+void WallLeverDL(char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *d;
+    p2o_DispVU1(a0);
+    MatrixDrive_PushMatrix();
+    GetRootMatrix(MatrixDrive_GetMatrix(), a0);
+    MatrixDrive_RotMatrixZ(*(short *)(p + 2));
+    MatrixDrive_RotMatrixX(*(short *)(p + 0));
+    d = *(char **)(p + 0x10);
+    CopyMatrix(*(char **)(d + 0xC), MatrixDrive_GetMatrix());
+    p2o_DispVU1DObj(*(int *)(p + 0x10));
+    MatrixDrive_PopMatrix();
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", CheckReadyAllSwitches);
 extern void ExecuteSEPackage(int a0, int a1);
 

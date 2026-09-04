@@ -183,7 +183,18 @@ int actEnemy_isLargeEnemy(char *a0) {
 int actEnemy_isSmallEnemy(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", IsEnemyBrainToGenerator);
+extern char D_00553370[];
+extern char D_00553380[];
+int IsEnemyBrainToGenerator(char *a0, int *out) {
+    char *b = *(char **)(a0 + 0x164);
+    if (*(int *)(*(char **)(b + 0x680) + 0x204) != 5) return 0;
+    *out = *(int *)(*(char **)(b + 0x688) + 0x460);
+    if (*out == 0) {
+        func_001B6250(D_00553370, 0x341);
+        __assert(D_00553370, 0x341, D_00553380);
+    }
+    return 1;
+}
 extern char *D_00639EA8;
 int IsEnemyBrainToBoy(char *self) {
     char *sub;

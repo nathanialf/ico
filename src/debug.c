@@ -439,7 +439,23 @@ int debug_SETest_color(int idx)
   return v0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_reverbTest);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_AdpcmTest);
+extern int D_0063B060;
+extern int D_0063B05C;
+extern char D_0061C1C0[];
+extern char D_00559D50[];
+int debug_AdpcmTest(int a0) {
+    int r;
+    if (a0 != 0) {
+        D_0063B060 = -1;
+    }
+    r = debug_SelectCsvWindow(D_0061C1C0, 10, 0x3C, 10, D_00559D50, 0x40, 0, 0, 0x69, &D_0063B05C);
+    if (r > 0) {
+        if (D_0063B05C != 0) {
+            scpAdpcmPlayRequestFunc(D_0063B05C, 0, 1, 1, 1);
+        }
+    }
+    return r;
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", debugCdvdLoadInfoSegDisp);
 int debug_GameOver(void) {
     debug_Menu_off();

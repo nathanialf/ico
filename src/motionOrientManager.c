@@ -44,7 +44,25 @@ void SetParallelMotionTableWithNoRequest(void *self, int a1, int a2)
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", SetParallelMotionTable);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", InitMotionOrient);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", GetCurrentMotionDirectionAdjustFlag);
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", ExecuteSlipProc);
+int ExecuteSlipProc(char *a0) {
+    char *e = *(char **)(a0 + 0x15C);
+    if (*(int *)(e + 0x628) != *(int *)(e + 0x624)) {
+        StopSEPackageWithGroupVariation(a0, 1);
+        if (*(int *)(*(char **)(a0 + 0x15C) + 0x624) & 0x100000) {
+            ExecuteSEPackageWithGroupVariation(a0, 0x72, 1);
+        }
+        if (*(int *)(*(char **)(a0 + 0x15C) + 0x624) & 0x200000) {
+            ExecuteSEPackageWithGroupVariation(a0, 0x74, 1);
+        }
+        if (*(int *)(*(char **)(a0 + 0x15C) + 0x624) & 0x400000) {
+            ExecuteSEPackageWithGroupVariation(a0, 0x76, 1);
+        }
+        if (*(int *)(*(char **)(a0 + 0x15C) + 0x624) & 0x800000) {
+            ExecuteSEPackageWithGroupVariation(a0, 0x78, 1);
+        }
+    }
+    return 1;
+}
 extern int D_0028F4D4[];
 extern void StopSEPackageWithGroupVariation(void *a0, int a1);
 

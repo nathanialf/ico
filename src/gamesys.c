@@ -4,7 +4,14 @@ typedef void (*func_001AE8F0_FnPtr)(int *buf, int a2);
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoInit);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoSave);
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoLoad);
+extern char D_004DA980[];
+extern int D_004DA7D0[];
+extern int gamesysTimeCount;
+void gamesysObjInfoLoad(void *h) {
+    gamesysMemoryHandlerRead(h, &gamesysTimeCount, 4);
+    gamesysMemoryHandlerRead(h, D_004DA980, 0x2D80);
+    gamesysMemoryHandlerRead(h, D_004DA7D0, 0x1A8);
+}
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoEmptyAreaSearch);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoBaseSet);
 extern char D_004DA980[];

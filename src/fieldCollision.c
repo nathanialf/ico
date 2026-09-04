@@ -196,7 +196,17 @@ void ClipCollision(int *self)
     D_0063A844((int)self, 0xC);
     sceVu0CopyVector(p10, buf);
 }
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ChangeFieldCollisionDebugMode);
+extern void __ClipWallWithDrawRay();
+extern void __ClipFloorWithDrawRay();
+int ChangeFieldCollisionDebugMode(int a0) {
+    D_0063A840 = (int (*)(void *, int))__ClipWall;
+    D_0063A844 = (int (*)(void *, int))__ClipFloor;
+    if (a0 != 0) {
+        D_0063A840 = (int (*)(void *, int))__ClipWallWithDrawRay;
+        D_0063A844 = (int (*)(void *, int))__ClipFloorWithDrawRay;
+    }
+    return 0;
+}
 extern int file_LoadFile(int a0, int a1, int a2);
 
 void LoadCollision(int *self, int a1)

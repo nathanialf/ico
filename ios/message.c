@@ -40,7 +40,32 @@ void iosMsgInit(void)
         p--;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgSend);
+extern char D_00551A80[];
+extern char D_00551A60[];
+extern char D_0063A510[];
+extern char D_00551A98[];
+int iosMsgSend(char *q, int val, int mode) {
+    int st[8];
+    if (q == 0) {
+        debug_StdPrintfDummy(D_00551A80);
+        func_001B6250(D_00551A60, 0x125);
+        __assert(D_00551A60, 0x125, D_0063A510);
+    }
+    ReferSemaStatus(*(int *)(q + 0x2C), st);
+    if (*(int *)(q + 8) == st[1]) {
+        if (mode != 1) {
+            debug_StdPrintfDummy(D_00551A98);
+            return -1;
+        }
+        WaitSema(*(int *)(q + 0x2C));
+    }
+    (*(int **)q)[(*(int *)(q + 4) + *(int *)(q + 8)) % st[1]] = val;
+    *(int *)(q + 8) += 1;
+    if (st[3] > 0) {
+        SignalSema(*(int *)(q + 0x2C));
+    }
+    return 0;
+}
 extern char D_00551A80[];
 extern char D_00551A60[];
 extern char D_0063A510[];

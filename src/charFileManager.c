@@ -14,12 +14,29 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSkeltonFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadCollisionFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadStageAnimationFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadMotionFile);
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadParticleEffectFile);
+extern int D_0063A438;
+extern char D_006193B0[];
+extern int D_0028F4C0[];
+void ReadParticleEffectFile(void *h, int a1, int size, int a3) {
+    char *buf = iosMallocDebug(D_0063A438, size, D_006193B0, 0x228);
+    D_0028F4C0[8]++;
+    iosCdvdHandlerRead(h, buf, size);
+    SetParticleEffectPackage(a3, buf, size);
+    iosFree(buf);
+}
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundBdFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundHdFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadShockFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadCamerasetFile);
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadEndCheckFile);
+extern char D_006193B0[];
+extern int D_0063A450;
+extern int D_0028F4C0[];
+void ReadEndCheckFile(void *h, int a1, int size) {
+    char *buf = iosMallocDebug(D_0063A450, size, D_006193B0, 0x356);
+    D_0028F4C0[8]++;
+    iosCdvdHandlerRead(h, buf, size);
+    iosFree(buf);
+}
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadStageSettingFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", CSVSYSTEM_ReadCharFiles);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundSqFile);
