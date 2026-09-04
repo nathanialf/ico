@@ -84,19 +84,6 @@ apply_sed_scoped() {
         sed -i -E "/\.ent[[:space:]]+${f}\$/,/\.end[[:space:]]+${f}\$/ ${prog}" "${S}"
     done
 }
-# run_pp_scoped <config.txt> <tool.py> [tool-args...] — run a python postprocess
-# on the whole .s, or (if the TU line names @funcs) on just those funcs' blocks
-# via tools/scope_pp.py.
-run_pp_scoped() {
-    local txt="$1" tool="$2"; shift 2
-    local fns; fns="$(funcs_for "$txt" | paste -sd, -)"
-    if [ -z "$fns" ]; then
-        "${PYTHON}" "${ROOT}/tools/${tool}" "$@" "${S}"
-    else
-        "${PYTHON}" "${ROOT}/tools/scope_pp.py" "${S}" "${fns}" -- \
-            "${PYTHON}" "${ROOT}/tools/${tool}" "$@"
-    fi
-}
 
 # Replicates Makefile:162 ALIGN_FOR in pure shell — picks the largest
 # power-of-two ≤ 8 dividing the hex offset encoded in the .o basename.
@@ -141,7 +128,7 @@ fi
 "${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}"
 
 # Each runs whole-TU unless its config line carries `@func_<hex>` tokens, in
-# which case run_pp_scoped limits it to those funcs' .ent/.end blocks — so a
+# (the per-function scoped variant was retired with the allowlists) — so a
 # postprocess added for one func in a coalesced TU can't rewrite its siblings.
 # Promote gcc's `#nop` hazard-hint comment after an FCC compare to a real `nop`
 # when the following branch sits in a `.set noreorder` block — ee-as 2.96 ignores

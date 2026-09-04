@@ -95,7 +95,10 @@ _SYM_RE = re.compile(
 )
 # `.c` for decompiled TUs, `.S` for hand-written assembly TUs. Anything
 # else leaves the symbol unassigned.
-_TU_NOTE_RE = re.compile(r"//\s*([\w./-]+)\.([cS])\b")
+# `// src/keyInput.c` (ntsc/aug6 form), `// src/keyInput` (pal form, bare TU
+# stem) or `// src/cluster.s (VU1 microprogram)`; a missing extension means a
+# C TU, and either case of `.s` means a hand-assembled `.S` TU.
+_TU_NOTE_RE = re.compile(r"//\s*((?:[\w-]+/)+[\w-]+)(?:\.(c|S|s))?(?=[\s,;)]|$)")
 # `// (vendor)` — a library-archive member, not an ICO TU.
 _VENDOR_NOTE_RE = re.compile(r"//\s*\(vendor\)")
 _INCLUDE_ASM_RE = re.compile(
@@ -146,7 +149,8 @@ def _parse_symbols() -> list[dict]:
             "name": name,
             "addr": int(addr_hex, 16),
             "tu": tu_m.group(1) if tu_m else None,
-            "ext": tu_m.group(2) if tu_m else None,
+            "ext": (("S" if tu_m.group(2) in ("S", "s") else "c")
+                    if tu_m else None),
             "vendor": tu_m is None and bool(_VENDOR_NOTE_RE.search(rest)),
         })
     out.sort(key=lambda s: s["addr"])

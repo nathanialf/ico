@@ -1040,6 +1040,13 @@ HEADER = """
 
 
 def emit_syms(m: Model) -> tuple[int, int, int]:
+    span_of = {}
+    for s_, e_, sname, _n, stag in yaml_spans(m):
+        if not sname.startswith("src/cod/vendor_"):
+            continue
+        for i_, f_ in enumerate(m.rfuncs):
+            if s_ <= f_[0] < e_:
+                span_of[i_] = (sname, stag)
     head, seed_vmas, seed_names = read_seed()
     lines = [head, "", BANNER, HEADER, ""]
     used = set(seed_names)
@@ -1070,7 +1077,15 @@ def emit_syms(m: Model) -> tuple[int, int, int]:
             lines.append(f"// ---- {cur_tu or VENDOR}")
         if start in seed_vmas:
             continue                             # hand-written seed wins
-        tu = m.tu[i] or VENDOR
+        # Vendor functions name their owning `src/cod/vendor_<VMA>` yaml span
+        # so tools/progress_tree.py can attribute them to a TU file (and count a
+        # port into that span), then the archive MAIN.MAP assigns the span to.
+        if m.tu[i] in (None, VENDOR):
+            sp = span_of.get(i)
+            tu = (f"{sp[0]}  // {VENDOR} {sp[1].removeprefix('vendor ')}"
+                  if sp else VENDOR)
+        else:
+            tu = m.tu[i]
         tag = "  // provisional-ordinal" if m.name_src[i] == "ordinal" else ""
         lines.append(f"{name} = 0x{start:08X}; // type:func  // {tu}{tag}")
     PAL_SYMS.write_text("\n".join(lines).rstrip("\n") + "\n")
