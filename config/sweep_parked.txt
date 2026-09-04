@@ -1,2 +1,122 @@
 # sweep_parked: functions excluded from sweep target lists (one name per line).
 # PAL target: empty at the 2026-09-04 retarget; ntsc's list lives on the ntsc branch.
+_sysbitNext         # rc2 dsra32 not in jr delay slot (int and long-long-local shapes both rc2)
+sceDmaPutStallAddr  # rc3 volatile read rc3 (lw not in beq delay slot); non-volatile folds addr to lui/lw rc7
+VSync               # rc2 final macro sw not filled into jr delay slot
+CheckChainClimbablePos# rc8 bnel vs beq+daddu-in-slot; r=0-then-assign shape rc8
+EnemyGetNSafeParts  # rc15 movz count loop rc15
+EnemySetfDisappearAll# rc19 store loop re-reading 0x15C each iter rc19
+IsWallLeverStatus   # rc4 after one refinement
+actSt04lSwordChk    # rc0 SPILL class: matches only with volatile param (not shipped, crutch ruling pending)
+actSt17bTest        # rc9 SPILL class (a0 home reloads)
+afterCommonStone    # rc11 SPILL class (two a0 reloads)
+voBufGetData        # rc15 mult/addu order
+EnemySetfAppearAll  # rc22 store loop re-reading 0x15C
+_ACTParaStatus_Check# rc2 andi/sign-extend order after DI shift, after refinement
+_ACTCharStatus_Check# rc3 same DI-shift sign-extend class, after refinement
+func_0026E8D8       # rc99 handwritten .word blob with embedded data
+voBufIncCount       # rc99 handwritten (sync/ei) asm function
+standMot            # rc10 fitToCol result/-1 compare shape
+voBufGetTag         # rc32 modulo with break-7 div guard
+ACTLookTarget_Init  # rc3 jr delay-slot store fill, after refinement
+SearchActiveGenerator# rc12 bnel search loop
+AttackCheckBoundaryManagerGeo# rc10 8-byte entry loop
+fzMagnitude2fv      # rc21 after refinement
+inflate_cd_read_func# rc11 after refinement
+ExecBoxMoveStartReaction# rc6 after refinement
+isysGObjMoveAfterGObj# rc1 after refinement
+CameraSetCameraSet  # rc99 TU prototypes GetPluralCameraSet(int); ROM calls it with no arg
+isysGObjAlloc       # rc2 global store vs beqz delay slot, after refinement
+actSt04rTorch3_2XL  # rc10 SPILL class
+ACTGame_CheckHandMotion# rc14 two-table bit test
+PAIR_IsStatus_BOY_PULL# rc28 range/bit test CFG
+actSt02aBoxEvent2   # rc8 SPILL class
+_SCPCharacterStop   # rc4 last store not in jr delay slot, after refinement
+AP1Turn             # rc3 range test CFG, after refinement
+actSt13cBukiChk     # rc14 SPILL class
+CreateAttackCheckBoundary# rc44 0x40 struct copy via 8 ld/sd + float overrides
+AP1DL               # rc2 v0/v1 pick for the 0x4 load before bnel
+PAIR_IsStatus_BOY_WAIT# rc34 mode/table-bit
+actSt04rCrest02XL   # rc14 SPILL
+actSt04rCrest03XL   # rc14 SPILL
+actSt02aSekizo      # rc37 SPILL+11-arg-call
+debugExceptionInit  # rc18 loop-with-fnptr-const
+attackMotInit       # rc15 matrix-temp-frame
+isysGObjKindTableAdd# rc47 search+append loop shape
+actSt10lBoxChk      # rc9 SPILL class
+func_0019FE38       # rc4 v0/v1 + branch-likely polarity after refinement
+cut_gobj_link       # rc38 unlink-with-table
+cut_gobj_dl_link    # rc38 unlink-with-table
+_sliceB             # rc19 global-store/jal
+actSt00aDoor1DownEffect# rc45 SPILL+switch-loop
+InqCapsuleGhostBossEnd# rc10 movz
+Draw2DLine          # rc3 v0/v1 pick in the a3 path, after refinement
+gamesysObjInfoInit  # rc2 li 0xB5 placement vs ori 0xFFFF, after refinement
+GetBoyRootPositionForCamera# rc21 dist-compare
+GetStageFromLabel   # rc21 table-range
+_ACTLookTarget_Set  # rc8 return-var
+actSt04rC3BallXL    # rc17 SPILL class
+soundSeKindBuild    # rc28 two-table
+actSt07aTsuroConte  # rc13 SPILL+wait
+la_scei_logo        # rc6 v0/v1
+iosMsgQueueCreate   # rc11 store-order/assert
+_setDefaultQM       # rc27 mmio
+cut_gobj_camera_dl_link# rc10 gp-global
+InitPObj            # rc22 nested
+GetSofaPosition     # rc15 vec copy via ld/sd + neg
+isysGObjAddAfterGObj# rc31 alloc scan + link shape
+isysGObjAddBeforeGObj# rc18 first attempt
+ACTGame_CheckPriInputFrame# rc25 float/short
+ACTGame_SendSoundMail# rc10 mail+bitfield
+actSt26aConte01_1_newgame# rc18 SPILL
+actSt02aEnemy1      # rc17 SPILL
+ACTGame_SetMotionPlaySpeedRatio_Exec# rc24 flag/table
+actSt07aChanMot     # rc2 v0/v1
+dl_PopPriority      # rc5 count
+dl_PushPriority     # rc10 assert-tail
+actSt02aTakiWay     # rc8 actor callback-table family: fn store not in jal delay slot (3 shapes tried on actSt02aEne)
+actSt02aEne         # rc8 actor callback-table family: fn store not in jal delay slot (3 shapes tried on actSt02aEne)
+actSt02aFence       # rc8 actor callback-table family: fn store not in jal delay slot (3 shapes tried on actSt02aEne)
+actSt02aSecretItem  # rc8 actor callback-table family: fn store not in jal delay slot (3 shapes tried on actSt02aEne)
+actSt04rBrg1Way     # rc8 actor callback-table family: fn store not in jal delay slot (3 shapes tried on actSt02aEne)
+actSt04rBrg2        # rc8 actor callback-table family: fn store not in jal delay slot (3 shapes tried on actSt02aEne)
+actSt04rBrg2Way     # rc8 actor callback-table family: fn store not in jal delay slot (3 shapes tried on actSt02aEne)
+actSt04rTorch3_2    # rc8 actor callback-table family: fn store not in jal delay slot (3 shapes tried on actSt02aEne)
+OpenVif1DirectPacket# rc99 target .s uses a PC-relative b to a function; quick_diff cannot assemble it
+SetupDarkVolume     # rc12 float arg shuffle before tail call
+SetKidnapInfo       # rc4 second store not in jr delay slot
+GetCloth4D          # rc6 float const args + tail call
+afterCommonRopeCliff# rc3 SPILL variant
+GetCurrentMotionDirectionAdjustFlag# rc4 table
+sceScfSetT10kConfig # rc2 far-global
+GetBombTorchGObj    # rc7 xori
+GetBoyWeaponGObj    # rc6 null-check + deref shape
+isLiftBoyEnable     # rc8 unsigned range test
+scpLockMaxRotate    # rc13 bit-set then float store, two 0x164 loads
+GetTorchGObjOfWeapon# rc6 branch-likely
+gsb_SetMotionBlur   # rc3 index-1
+RandomizeEnemy      # rc9 non-sibcall
+ReleaseWeapon       # rc2 store
+func_0016AB60       # rc10 0x164 reload per branch
+Init_Player         # rc17 extern fn address null-test
+CanThisEnemyFly     # rc1 0x18 displacement folded into the table address (struct-field, cast and index forms tried)
+GetEnemyBattleType  # rc1 0x18 displacement folded into the table address (struct-field, cast and index forms tried)
+GetEnemyDefParaIndex# rc1 0x18 displacement folded into the table address (struct-field, cast and index forms tried)
+fiprintf            # rc11 varargs home layout (va_alist and next_arg forms)
+actSt13cHandSub     # rc2 v0/v1 for the gp store before _ACTWait
+scpAdpcmPlayRequestNum# rc7 after refinement
+rollingMot          # rc10 rolling
+_ApproachTarget     # rc14 5-arg
+sceSifRemoveRpcQueue# rc11 list
+sceVif1PkCnt        # rc6 after refinement
+sceVif1PkEnd        # rc6 after refinement
+RequestGetWayBegin  # rc2 after refinement
+ACTMotDirToWall     # rc99 TU declares sceVu0ScaleVector with 2 params; ROM passes 3
+isysGObjInit        # rc3 loop
+InitCharFileManager # rc16 ldl/ldr
+ResetCharFileManager# rc21 ldl/ldr
+cdvd_exit           # rc19 semaphore
+AttackCheckBoundaryDL# rc8 final call sibcalled; ROM joins epilogue
+GetChainNearestNodePosition# rc1 after refinement
+actE3St13cIntroChk  # rc2 v0/v1 for the gp store before _ACTWait
+debug_Assert        # rc1 first attempt
