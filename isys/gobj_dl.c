@@ -16,6 +16,10 @@ extern void func_00141248(int a0, int a1, int a2);
 extern char D_00551F78[];
 extern void debug_StdPrintfDummy();
 /* prototypes: their order is the inline tail's emission order */
+/* prototypes: their order is the inline tail's emission order */
+void isysGObjDlInit(void);
+void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
+void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
 void isysGObjDlInit(void);
 void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
 void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);

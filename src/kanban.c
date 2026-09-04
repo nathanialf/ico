@@ -23,8 +23,12 @@ extern void gif_SetZWrite(int a0);
 extern void gif_SpriteSensitive(void *a0, unsigned int a1, int a2, void *a3, int a4);
 extern void gif_StartPacketPri(int a0);
 /* prototypes: their order is the inline tail's emission order */
+/* prototypes: their order is the inline tail's emission order */
 void kanbanReqDel(int *self);
 void kanbanReqDelFade(int a0);
+void kanbanReqAllDel(void);
+void kanbanReqAllDelFade(void);
+void kanbanExec(void);
 void kanbanReqAllDel(void);
 void kanbanReqAllDelFade(void);
 void kanbanExec(void);
