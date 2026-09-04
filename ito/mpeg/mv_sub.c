@@ -1,15 +1,11 @@
 #include "common.h"
 
+/* header prototypes (order fixes the inline tail) */
+int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
 extern int D_00623418[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
-
-void ErrMessage(int a0)
-{
-    debug_StdPrintfDummy(D_00623418, a0);
-}
 extern void memcpy(void *dst, void *src, int count);
-
-int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7) {
+inline int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7) {
     int b = a5 + a7;
     if (a1 + a3 < b) {
         return 0;
@@ -27,4 +23,8 @@ int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, in
         memcpy(a0 + a5, a6, a7);
     }
     return b;
+}
+void ErrMessage(int a0)
+{
+    debug_StdPrintfDummy(D_00623418, a0);
 }

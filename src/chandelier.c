@@ -2,12 +2,19 @@
 
 #include "ico/types.h"
 
+/* header prototypes (order fixes the inline tail) */
+int InitChandelierGeo(void);
 extern void CopyMatrix();
 extern int MatrixDrive_GetMatrix();
 extern void MatrixDrive_TransMatrix(float, float, float);
 extern void SetRopeFixPoint();
 extern int isysGObjSearchFromObjKindID_begin();
-
+extern int p2o_DispVU1DObjMulti(int a0);
+extern int p2o_SetDefaultEnviroment(int a0);
+inline int InitChandelierGeo(void)
+{
+    return 0;
+}
 void ChandelierGeo(char *a0) {
     int obj = isysGObjSearchFromObjKindID_begin(0x14);
     if (obj != 0) {
@@ -16,9 +23,6 @@ void ChandelierGeo(char *a0) {
         SetRopeFixPoint(obj, MatrixDrive_GetMatrix() + 0x30, 0);
     }
 }
-extern int p2o_DispVU1DObjMulti(int a0);
-extern int p2o_SetDefaultEnviroment(int a0);
-
 void ChandelierDL(int a0)
 {
     int *s0 = ((GObj *)((char *)a0))->p_15C;
@@ -26,8 +30,4 @@ void ChandelierDL(int a0)
         p2o_SetDefaultEnviroment(a0);
         return p2o_DispVU1DObjMulti((int)s0);
     }
-}
-int InitChandelierGeo(void)
-{
-    return 0;
 }
