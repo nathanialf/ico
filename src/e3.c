@@ -38,8 +38,40 @@ void actE3Floor(volatile int a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St01bEne);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St01bGene1);
-INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St01bGene2);
-INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St01bGene3);
+void actE3St01bGene2(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    Generator_Mask(a0);
+    while (gflagChk(0x16A) == 0) {
+        _ACTWait(1);
+    }
+    Generator_Call(a0);
+    _ACTWait(0x3C);
+    Generator_Call(a0);
+    _ACTWait(0x3C);
+    Generator_Call(a0);
+    _ACTWait(0x3C);
+    Generator_Call(a0);
+    Generator_MaskOff(a0);
+}
+void actE3St01bGene3(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    Generator_Mask(a0);
+    while (gflagChk(0x16A) == 0) {
+        _ACTWait(1);
+    }
+    Generator_Call(a0);
+    _ACTWait(0x3C);
+    Generator_Call(a0);
+    _ACTWait(0x3C);
+    Generator_Call(a0);
+    _ACTWait(0x3C);
+    Generator_Call(a0);
+    Generator_MaskOff(a0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St09aBrg);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3Gate);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3CapsuleChk);

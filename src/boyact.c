@@ -112,7 +112,25 @@ extern unsigned char D_0063C1F4;
 unsigned char IsGirlEscortedInCurrentStage(void) {
     return D_0063C1F4;
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", GetSaveSofaLayoutID);
+extern void *D_00639EA4;
+extern void *D_00639EA8;
+int GetSaveSofaLayoutID(void) {
+    int *a = (int *)D_00639EA4;
+    int *b = (int *)D_00639EA8;
+    int *pa, *pb, *r;
+    int v;
+    if (a == 0) goto err;
+    if (b == 0) goto err;
+    pa = (int *)a[0x164/4];
+    v = pa[0x34/4];
+    if (v != 0x2D) goto err;
+    pb = (int *)b[0x164/4];
+    if (pb[0x34/4] != v) goto err;
+    r = (int *)pa[0x160/4];
+    return r[2];
+err:
+    return -1;
+}
 extern long long D_006C0AD0[];
 
 void OnGirlEscortFlag(void) {

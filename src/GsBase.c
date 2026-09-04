@@ -100,7 +100,26 @@ void gsb_SetZoom(float a, float b) {
     D_00639F90 = b;
 }
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_SyncGSSystem);
-INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_LoadStageSettings);
+extern int stage_no;
+extern char D_005F5D90[];
+extern char D_0054E488[];
+extern char D_0054E4A8[];
+extern char D_0054E4D8[];
+extern char D_0028F720[];
+int gsb_LoadStageSettings(void) {
+    char buf[0x100];
+    int fd;
+    sprintf(buf, D_0054E488, D_005F5D90 + stage_no * 0x194);
+    fd = debugSceOpen(buf, 1);
+    if (fd < 0) {
+        debug_StdPrintfDummy(D_0054E4A8);
+    } else {
+        debug_StdPrintfDummy(D_0054E4D8, buf);
+        sceRead(fd, D_0028F720, 0x1D0);
+        debugSceClose(fd);
+    }
+    return -1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_SaveStageSettings);
 void gsb_ClearFrameBuffer(void) {
     volatile int local[96];

@@ -55,7 +55,27 @@ extern int D_0063A17C;
 void shadow_KillShadow(int val) {
     D_0063A17C = val;
 }
-INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_DispCancel);
+void shadow_DispCancel(int a0, int a1) {
+    char *obj = isysGObjGetExist_begin(a0);
+    if (obj != 0) {
+        long long bit = (long long)(a1 & 1) << 26;
+        do {
+            char *node = *(char **)(obj + 0x15C);
+            if (node != 0) {
+                char *dl = *(char **)(node + 0x854);
+                if (dl != 0) {
+                    char *x = *(char **)(node + 0x858);
+                    if (x != 0) {
+                        if (*(short *)(dl + 0x30) == a0) {
+                            *(long long *)(x + 0x30) = (*(long long *)(x + 0x30) & ~0x04000000) | bit;
+                        }
+                    }
+                }
+            }
+            obj = isysGObjGetExist_next(obj);
+        } while (obj != 0);
+    }
+}
 void shadow_SetLength(char *a0, float f) {
     if (0.0f < f) {
         *(float *)(*(char **)(a0 + 0x858) + 0x3C) = f;
