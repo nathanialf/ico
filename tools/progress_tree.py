@@ -49,7 +49,6 @@ JSON stays in lockstep with the README badges and PROGRESS.md table.
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -72,12 +71,12 @@ except BaseException:
     # actually engaged, it just killed this script.
     _progress = None
 
-VERSION = os.environ.get("VERSION")
-if not VERSION:
-    if (REPO_ROOT / "config" / "ico.aug6.yaml").exists():
-        VERSION = "aug6"
-    else:
-        VERSION = "us"
+# `main` = PAL retail (pal), `ntsc` = USA retail (us), `aug6` = the prototype.
+# Explicit VERSION env wins; else detected from which config/ico.<ver>.yaml
+# this tree carries. (Imported after progress.py above so both agree.)
+from ico_version import detect_version  # noqa: E402
+
+VERSION = detect_version(REPO_ROOT)
 
 SYMBOLS = REPO_ROOT / "config" / f"symbol_addrs.{VERSION}.txt"
 OUT_JSON = REPO_ROOT / "docs" / "progress.json"
@@ -96,7 +95,10 @@ _SYM_RE = re.compile(
 )
 # `.c` for decompiled TUs, `.S` for hand-written assembly TUs. Anything
 # else leaves the symbol unassigned.
-_TU_NOTE_RE = re.compile(r"//\s*([\w./-]+)\.([cS])\b")
+# `// src/keyInput.c` (ntsc/aug6 form), `// src/keyInput` (pal form, bare TU
+# stem) or `// src/cluster.s (VU1 microprogram)`; a missing extension means a
+# C TU, and either case of `.s` means a hand-assembled `.S` TU.
+_TU_NOTE_RE = re.compile(r"//\s*((?:[\w-]+/)+[\w-]+)(?:\.(c|S|s))?(?=[\s,;)]|$)")
 # `// (vendor)` — a library-archive member, not an ICO TU.
 _VENDOR_NOTE_RE = re.compile(r"//\s*\(vendor\)")
 _INCLUDE_ASM_RE = re.compile(
@@ -147,7 +149,8 @@ def _parse_symbols() -> list[dict]:
             "name": name,
             "addr": int(addr_hex, 16),
             "tu": tu_m.group(1) if tu_m else None,
-            "ext": tu_m.group(2) if tu_m else None,
+            "ext": (("S" if tu_m.group(2) in ("S", "s") else "c")
+                    if tu_m else None),
             "vendor": tu_m is None and bool(_VENDOR_NOTE_RE.search(rest)),
         })
     out.sort(key=lambda s: s["addr"])
@@ -227,14 +230,62 @@ def _unmatched_funcs_for_tu(tu: str, ext: str) -> set[str] | None:
     return set(_INCLUDE_ASM_RE.findall(text))
 
 
+_GLOBAL: dict | None = None
+# `type name(args) {` / `type name(args)\n{` / K&R `name(a, b)\nint a;\n{`
+# (K&R declaration lines may end in `;` but never contain parentheses).
+_DEF_RE = re.compile(r"^[A-Za-z_][\w \t\*]*\b([A-Za-z_]\w*)[ \t]*\([^;{}]*\)(?:[^{};()]*;)*\s*\{", re.M)
+# whole-function asm blocks: `"name:\n"` or `"glabel name\n"` literals.
+_ASM_LABEL_RE = re.compile(r'"\s*(?:glabel\s+)?([A-Za-z_]\w*)\s*:?\s*(?:\\n)?"')
+
+
+def _global_index() -> dict:
+    """{'stubs': names with an INCLUDE_ASM anywhere, 'defined': names some
+    source file defines}. Computed once over every source root.
+
+    Trailer-independent on purpose: after the PAL-derived renames the TU
+    trailers name the PAL attribution while the yaml spans (and so the
+    files) kept the older partition, so "is it stubbed / defined in the
+    trailer's file" is the wrong question on ntsc / aug6. A function is
+    matched when a source file defines it and none stubs it."""
+    global _GLOBAL
+    if _GLOBAL is not None:
+        return _GLOBAL
+    stubs: set[str] = set()
+    defined: set[str] = set()
+    roots = []
+    try:
+        from ico_version import source_roots
+        roots = list(source_roots(VERSION))
+    except Exception:
+        roots = ["src", "ios", "isys", "sound", "ito"]
+    files = []
+    for r in roots:
+        files += list((REPO_ROOT / r).rglob("*.c")) + list((REPO_ROOT / r).rglob("*.c.inc"))
+    for f in files:
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        stubs.update(_INCLUDE_ASM_RE.findall(text))
+        for m in _DEF_RE.finditer(text):
+            defined.add(m.group(1))
+        for m in _ASM_LABEL_RE.finditer(text):
+            defined.add(m.group(1))
+        # macro-defined leaves (include/syscall.h SYSCALL_WRAPPER(name, n))
+        for m in re.finditer(r"^\s*SYSCALL_WRAPPER\s*\(\s*([A-Za-z_]\w*)", text, re.M):
+            defined.add(m.group(1))
+    _GLOBAL = {"stubs": stubs, "defined": defined}
+    return _GLOBAL
+
+
 def _programmer_of(tu: str | None) -> str:
     if not tu:
         return UNASSIGNED_GROUP
     head = tu.split("/", 1)[0]
     # src/cod/* is crt0 + vendored libkernl, not a game dir. On the retail
-    # (us) tree the game TUs themselves live under a flat src/ (the release
-    # build collapsed the per-programmer dirs), so plain src/<tu> groups as
-    # "src"; only the src/cod/ blob remains vendor.
+    # trees (us, pal) the game TUs themselves live under a flat src/ (the
+    # release build collapsed the per-programmer dirs), so plain src/<tu>
+    # groups as "src"; only the src/cod/ blob remains vendor.
     if head == "src":
         return VENDOR_GROUP if tu.startswith("src/cod/") else "src"
     return head
@@ -307,7 +358,9 @@ def build_tree() -> dict:
             # decompiled" even though the ELF already reproduces them.
             matched = False
         else:
-            matched = sym["name"] not in unmatched
+            g = _global_index()
+            matched = (sym["ext"] == "S"
+                       or (sym["name"] not in g["stubs"] and sym["name"] in g["defined"]))
 
         p = programmers.setdefault(prog, {"name": prog, "tus": {}})
         t = p["tus"].setdefault(
