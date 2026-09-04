@@ -57,7 +57,12 @@ void SetParticleEffectPackage(int a0, int *a1, int a2) {
     memcpy(((unsigned char *)D_00721020 + a0 * 0xA0), a1, a2);
 }
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", InitParticleEffects);
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001F52D8);
+void func_001F52D8(void) {
+    int i;
+    for (i = 0; i < 0x80; i++) {
+        ExecParticleEffect(i);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001F5310);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DeleteParticleEffect);
 void SetParticleEffectPauseFlag(int a0, int a1) {

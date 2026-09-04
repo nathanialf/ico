@@ -1,6 +1,13 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aEnd);
+extern char *D_00639EA8;
+void actSt18aEnd(void) {
+    if (D_00639EA8 != 0) {
+        if (gflagChk(0x3D) == 0) {
+            gflagOn(0x187);
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aIntroChk);
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aSwitchLChk);
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aSwitchLUpChk);

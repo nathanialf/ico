@@ -71,7 +71,13 @@ INCLUDE_ASM("asm/nonmatchings/src/item", GetBombTorchGObj);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveAllCarryableItems);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveCarryableItemsWithBoundary);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveAllCarryableItemsWithRandomVelocity);
-INCLUDE_ASM("asm/nonmatchings/src/item", CheckItemDead);
+int CheckItemDead(char *a0) {
+    int r = 0;
+    if (*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) == 1 || *(int *)(a0 + 0x16C) == 0) {
+        r = 1;
+    }
+    return r;
+}
 INCLUDE_ASM("asm/nonmatchings/src/item", StopItemExplodeAnimationAll);
 INCLUDE_ASM("asm/nonmatchings/src/item", BreakItemWithAttackHit);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveAllCarryableItemsWithNonSleepFrame);

@@ -67,6 +67,9 @@ void actSt47aBarricadeEvent(int x) {
     volatile int local = x;
 }
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aExitChk);
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aExit2Chk);
+void actSt47aExit2Chk(volatile int a0) {
+    *(int *)(scpSearchGobj(0x1E0) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(0x1E1) + 0x16C) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aEneChk);
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHint2OnChk);

@@ -1,6 +1,13 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cEnd);
+extern char *D_00639EA8;
+void actSt04cEnd(void) {
+    if (D_00639EA8 != 0) {
+        if (gflagChk(0xA3) == 0) {
+            gflagOn(0x187);
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cDoorDownChk);
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cIntroChk);
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04lDoorChk);

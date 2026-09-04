@@ -101,7 +101,12 @@ int la_mc_preview_info(void) {
     _la_set_preview_info();
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_mc_current_slot);
+extern int D_0063B4E0;
+int la_mc_current_slot(void) {
+    lt_mask_property(0xB0, D_0063B4E0);
+    lt_mask_property(0xB1, D_0063B4E0 ^ 1);
+    return -1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_mc_load_current_slot_select);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_mc_save_current_slot_select);
 extern int lt_current_property_item(void);

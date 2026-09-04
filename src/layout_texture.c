@@ -23,7 +23,10 @@ void lt_mask_property(int idx, int flag) {
     int *p = (int *)(D_0030CFF8 + idx * 0x70);
     p[0x1B] = (p[0x1B] & ~0x10) | ((flag & 1) << 4);
 }
-INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_default_mask_property);
+void lt_default_mask_property(int idx, int flag) {
+    int *p = (int *)(D_0030CFF8 + idx * 0x70);
+    p[0x1B] = (p[0x1B] & ~0x20) | ((flag & 1) << 5);
+}
 extern int D_0063B618;
 
 int lt_fade_status(void) {

@@ -1,6 +1,13 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt05eEnd);
+extern int solar4r;
+void actSt05eEnd(void) {
+    if (solar4r != 0) {
+        if (gflagChk(0xEA) == 0) {
+            func_001823F0(&solar4r);
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt05cInit);
 INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt05dInit);
 INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt05eInit);

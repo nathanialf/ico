@@ -1,7 +1,14 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aInit);
-INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aEnd);
+extern char *D_00639EA8;
+void actSt00aEnd(void) {
+    if (D_00639EA8 != 0) {
+        if (gflagChk(0x2A) == 0) {
+            gflagOn(0x187);
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aEneChk);
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aStairChk);
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor2);

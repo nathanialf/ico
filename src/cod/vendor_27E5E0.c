@@ -879,7 +879,12 @@ int __sclose(void *a0) {
     return _close_r((int *)*(int *)((char *)a0 + 0x54), *(short *)((char *)a0 + 0xE));
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _strtod_r);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", strtod);
+int strtod(s, end)
+char *s;
+char **end;
+{
+    return _strtod_r(D_0054CEAC[0], s, end);
+}
 extern int dptofp(long a0);
 extern int strtod();
 
