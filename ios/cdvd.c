@@ -7,7 +7,7 @@ union U001325D8
 };
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdStManager);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00133540);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrSearchFile);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrStStart);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrStStop);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrLoad);

@@ -49,7 +49,7 @@ ASM_LIT4_SLOT(D_00638E54, 3.1415927f);
 extern void SetFloorLeverWithNodePoint(void *a0, void *a1, int a2);
 extern void SetWallLeverWithNodePoint(void *a0, void *a1, int a2);
 
-void func_0015BD00(void *a0, void *a1) {
+void lever_nego1(void *a0, void *a1) {
     int m = *(int *)((char *)a1 + 0xC);
     if (m < 0x16) {
         return;
@@ -89,7 +89,7 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", Cling);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonCling);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C768);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C968);
-void func_0015CC28(char *a0) {
+void BoxBarSoundOn(char *a0) {
     char *s = *(char **)(a0 + 0x164);
     switch (*(int *)(s + 0x34)) {
     case 0x31:
@@ -145,7 +145,7 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", completeEmergency);
 ASM_LIT4_SLOT(D_00638E6C, 7000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", emergencyCheck);
 ASM_LIT4_SLOT(D_00638E70, 10000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015E928);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonFly);
 ASM_LIT4_SLOT(D_00638E74, 0.005f);
 ASM_LIT4_SLOT(D_00638E78, 10000.0f);
 ASM_LIT4_SLOT(D_00638E7C, 0.005f);
@@ -201,7 +201,7 @@ ASM_LIT4_SLOT(D_00638ED8, 0.2f);
 ASM_LIT4_SLOT(D_00638EDC, 0.1f);
 ASM_LIT4_SLOT(D_00638EE0, 0.2f);
 extern int D_00639EB8;
-void func_00161AC0(void) {
+void ACT_LAYOUT_GAMEOVER(void) {
     if (D_00639EB8 == 0) {
         D_00639EB8 = 1;
         lt_switch_layout(0x3E);

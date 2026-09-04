@@ -62,7 +62,7 @@ void CameraEdit_DispBoxType2(int a0, int a1) {
     dispCameraGroupType2(a0, a1 & 0xFF);
 }
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018CDC0);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018E0D0);
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", wakeup_cameraedit);
 extern void EnterMenu(void *a0, int a1, void *a2);
 extern void func_0018CDC0(void);
 
@@ -126,7 +126,7 @@ void InitCameraEditor(void) {
 extern void CameraSetMode(int a0);
 extern unsigned char D_0063AB40__pn __asm__("exit_f");
 extern int D_0063B13C;
-extern void func_0018E0D0(void);
+extern void wakeup_cameraedit(void);
 extern void test_camedit(void);
 
 int debug_CameraEditor(void) {
@@ -134,7 +134,7 @@ int debug_CameraEditor(void) {
     if (curmenu == 0) {
         test_camedit();
     }
-    func_0018E0D0();
+    wakeup_cameraedit();
     CameraSetMode(1);
     if (D_0063AB40__pn == 0) {
         return 0;

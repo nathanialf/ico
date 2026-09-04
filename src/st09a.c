@@ -15,7 +15,7 @@ void actSt09aSekizoEvent(int x) {
     volatile int local = x;
 }
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aIntroChk);
-INCLUDE_ASM("asm/nonmatchings/src/st09a", func_00242920);
+INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aBrgMain);
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aBrgDownSub);
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aHint1Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aHint2Chk);

@@ -36,5 +36,5 @@ void actSt10lSekizoEvent(int x) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lBoxAChk);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lBoxBChk);
-INCLUDE_ASM("asm/nonmatchings/src/st10l", func_002444F0);
+INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lChainMain);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lEneKillChk);

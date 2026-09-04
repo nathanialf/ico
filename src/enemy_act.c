@@ -83,7 +83,7 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", NakaBoss);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToAttack);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001680B8);
 ASM_LIT4_SLOT(D_00638F40, 22500.0f);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001687C8);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToKidnap);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToGirl);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _ApproachTarget_Boss);
 ASM_LIT4_SLOT(D_00638F44, 160000.0f);
@@ -159,12 +159,12 @@ one:
     return 1;
 }
 extern int actEnemyForceSwitchToCarry(void *a0);
-extern void func_0016AB60(void *a0, int a1, int a2);
+extern void _BrainMode_SetDirect(void *a0, int a1, int a2);
 extern void ACTSendMailCorrect(void *a0, int a1);
 int ACTEnemyForceSwitchToCarry(char *a0) {
     int r = actEnemyForceSwitchToCarry(a0);
     if (r != 0) {
-        func_0016AB60(a0, 0, 0);
+        _BrainMode_SetDirect(a0, 0, 0);
     }
     ACTSendMailCorrect(a0, 0x104);
     return r;
@@ -226,7 +226,7 @@ int GetMotherGeneratorGObjAskEnemy(char *a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016A568);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016A818);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016AB60);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _BrainMode_SetDirect);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", EnemyUtil_TurnToBoy);
 extern int flyMailCore(void *a0);
 

@@ -58,7 +58,7 @@ void actSt06aDoorDownEffect(volatile int a0){ long long b1[2]; long long b2[2];
   case 0: b1[0]=v0a; b1[1]=D_00622BB0[1]; scpEffectStart((int*)b1,0); break;
   case 0x1E: b2[0]=v0b; b2[1]=D_00622BA0[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
-INCLUDE_ASM("asm/nonmatchings/src/st06a", func_0023CD10);
+INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aShutterMain);
 INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aShutterOpenSub);
 INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aExitChk);
 INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aExitGirlChk);
@@ -77,7 +77,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aWallWay2OffChk);
 INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aTreeChk);
 INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aKyomiOnChk);
 INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aKyomiOffChk);
-INCLUDE_ASM("asm/nonmatchings/src/st06a", func_0023D960);
+INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aJumpMain);
 INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aJumpSub);
 INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aPistonRideOnChk);
 INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aPistonRideOffChk);

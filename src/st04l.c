@@ -84,11 +84,11 @@ INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04dEnemy1);
 INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04dEnemy2);
 INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04dEnemy3);
 INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04eSolarBeam);
-INCLUDE_ASM("asm/nonmatchings/src/st04l", func_00232EC0);
+INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lC1BallMain);
 INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lC1BallTurn);
-INCLUDE_ASM("asm/nonmatchings/src/st04l", func_00232FD0);
+INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lC2BallMain);
 INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lC2BallTurn);
-INCLUDE_ASM("asm/nonmatchings/src/st04l", func_002330E0);
+INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lC3BallMain);
 INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lC3BallTurn);
 INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04eSolarBeamChkSub);
 void actSt04lRope1Event(int x) {

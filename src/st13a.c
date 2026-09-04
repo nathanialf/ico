@@ -10,7 +10,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aElev);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aSekizo);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aCheck);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aChain);
-INCLUDE_ASM("asm/nonmatchings/src/st13a", func_002471C0);
+INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aElevMain);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aCheckChk);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aChainOK);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aChainNG);
