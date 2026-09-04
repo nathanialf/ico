@@ -1,5 +1,7 @@
 #include "common.h"
 
+struct DQW { float f0, f4, f8, fc, f10, f14; char _18[0x18]; int f30; };
+
 struct SPMD { int a; int b; };
 
 struct SVF { int a; int b; };
@@ -189,7 +191,16 @@ void scpDisActivateAllWithKind(void)
         v0 = isysGObjSearchFromObjKindID_next(v0);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpLinkBGAtoLayoutedTarget);
+extern int scpSearchGobj__pn(int a0) __asm__("scpSearchGobj");
+extern void stage_SetParentOfGObj(int a0, int *a1);
+
+void scpLinkBGAtoLayoutedTarget(int a0, int a1) {
+    int ret = scpSearchGobj__pn(a0);
+    if (ret != 0) {
+        int msg[2] = { ret, 0 };
+        stage_SetParentOfGObj(a1, msg);
+    }
+}
 extern char D_00554498[];
 extern int GetSkeltonFocusNode(int a0, int a1);
 extern void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
@@ -458,7 +469,32 @@ int scpIsHangChainOptional(int a0, int b)
 out:
     return (int)v;
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpBornSpider);
+extern struct DQW D_002A5400;
+extern float D_006390C0;
+extern int MakeAP1GObj(void *p);
+extern void WakeUpAP1(int a0);
+extern void _ACTWait(int a0);
+extern float _GetRandom(void);
+extern int rand(void);
+
+void scpBornSpider(int n, float a, float b, float c, float d) {
+    int i;
+    float t1, t2;
+    int r, dead;
+    for (i = 0; i < n; i++) {
+        t1 = _GetRandom();
+        D_002A5400.f4 = b;
+        D_002A5400.f0 = a + d * (t1 + t1 - 1.0f);
+        t2 = _GetRandom();
+        D_002A5400.f8 = c + d * (t2 + t2 - 1.0f);
+        r = rand();
+        D_002A5400.f30 = 1;
+        D_002A5400.f14 = (float)((r >> 4) & 0xFFFF) * D_006390C0 * 3.0517578125e-05f;
+        dead = MakeAP1GObj(&D_002A5400);
+        _ACTWait(1);
+        WakeUpAP1(dead);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpActStatusDeathFall);
 extern void CopyVector(int a0, void *a1);
 
@@ -489,8 +525,33 @@ void ScpCallCameraGetTarget(float *dst)
 INCLUDE_ASM("asm/nonmatchings/src/script", ScpCallCameraOff);
 INCLUDE_ASM("asm/nonmatchings/src/script", ScpCallCameraOn);
 INCLUDE_ASM("asm/nonmatchings/src/script", ScpCallCameraTargetOff);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTransGObj);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpExplodeSecretItem);
+extern void GetRootPosition(void *a0, void *a1);
+extern void SetDirectRootPosition__pn(void *a0, void *a1) __asm__("SetDirectRootPosition");
+
+void scpTransGObj(void *a0, float f12, float f13, float f14) {
+    float buf[4];
+    GetRootPosition(buf, a0);
+    buf[0] = buf[0] + f12;
+    buf[1] = buf[1] + f13;
+    buf[2] = buf[2] + f14;
+    SetDirectRootPosition__pn(a0, buf);
+}
+extern void BreakItemFromOutside(void *o);
+extern int CheckItemDead(void *o);
+extern int GetItemKind(void *o);
+extern void *isysGObjSearchFromObjKindID_begin__pn(int id) __asm__("isysGObjSearchFromObjKindID_begin");
+extern void *isysGObjSearchFromObjKindID_next__pn(void *o) __asm__("isysGObjSearchFromObjKindID_next");
+
+void scpExplodeSecretItem(void) {
+    void *o = isysGObjSearchFromObjKindID_begin__pn(0x13);
+    while (o) {
+        if (GetItemKind(o) == 6 && CheckItemDead(o) == 0) {
+            BreakItemFromOutside(o);
+            return;
+        }
+        o = isysGObjSearchFromObjKindID_next__pn(o);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckExistAliveEnemy);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckExistAliveSpider);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpLockMaxRotate);

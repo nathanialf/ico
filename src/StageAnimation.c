@@ -2,6 +2,10 @@
 
 #include "vu0.h"
 
+typedef struct { char _b[8]; } Blob8;
+
+struct B8 { char _b[8]; };
+
 typedef struct AnimNode {
     long field0;            /* 0x00 */
     char _pad[0x14 - 0x8];
@@ -64,7 +68,28 @@ void stage_SetCameraForceOff(int a0, int a1, int a2, int a3)
     bga_SetCameraForceOff(a0, a1, a2, a3);
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_CheckAnimationFinish);
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_CheckAnimationFrame);
+extern int D_0063C158;
+extern char D_0067D098[];
+extern int bga_CheckAnimationFrame(int a0, int a1, int a2);
+extern int bga_CheckSdfCameraFrame(int a0, int a1, int a2);
+
+int stage_CheckAnimationFrame(int a0, int a1, int a2) {
+    int i;
+    char *e = (char *)D_0067D098;
+    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+        if (a0 == entry1[0x58 / 4]) {
+            int mode = *(int *)(e + 0x28C) >> 30;
+            switch (mode) {
+                case 0:
+                    return bga_CheckAnimationFrame(*(int *)(e + 0x284), a1, a2);
+                case 1:
+                    return bga_CheckSdfCameraFrame(*(int *)(e + 0x288), a1, a2);
+            }
+        }
+    }
+    return -1;
+}
 extern int D_0063C158;
 extern char D_0067D098[];
 
@@ -98,8 +123,29 @@ void stage_SetFrameStep(int target, int val)
         p += 0x290;
     } while (--i);
 }
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetParentOfGObj);
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetParentOfGObjWithLocalRotationFlag);
+void stage_SetParentOfGObj(int a0, void *a1) {
+    int i;
+    int one = 1;
+    char *e = D_0067D098;
+    for (i = 0; i < D_0063C158; i++) {
+        if (a0 == *(int *)(*(char **)(e + 0x280) + 0x58)) {
+            *(struct B8 *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x20) = *(struct B8 *)a1;
+            *(int *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x28) = one;
+        }
+        e += 0x290;
+    }
+}
+void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2) {
+    int i;
+    char *e = D_0067D098;
+    for (i = 0; i < D_0063C158; i++) {
+        if (a0 == *(int *)(*(char **)(e + 0x280) + 0x58)) {
+            *(Blob8 *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x20) = *(Blob8 *)a1;
+            *(int *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x28) = a2;
+        }
+        e += 0x290;
+    }
+}
 extern void CopyQuaternion();
 extern void _CopyVector(void *dst, void *src);
 
@@ -148,4 +194,20 @@ void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1)
 extern int bga_CheckAnimationFrameIn(int a0, int a1, int a2);
 extern int bga_CheckSdfCameraFrameIn(int a0, int a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_CheckAnimationFrameIn);
+int stage_CheckAnimationFrameIn(int a0, int a1, int a2) {
+    int i;
+    char *e = (char *)D_0067D098;
+    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+        if (a0 == entry1[0x58 / 4]) {
+            int mode = *(int *)(e + 0x28C) >> 30;
+            switch (mode) {
+                case 0:
+                    return bga_CheckAnimationFrameIn(*(int *)(e + 0x284), a1, a2);
+                case 1:
+                    return bga_CheckSdfCameraFrameIn(*(int *)(e + 0x288), a1, a2);
+            }
+        }
+    }
+    return -1;
+}

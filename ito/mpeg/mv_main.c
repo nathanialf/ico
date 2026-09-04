@@ -3,6 +3,9 @@
 extern int D_0063C320;
 extern void RotateThreadReadyQueue();
 
+extern void *D_0063C320__pn __asm__("D_0063C320");
+extern void RotateThreadReadyQueue__pn(void *a0) __asm__("RotateThreadReadyQueue");
+
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", switchThread);
 extern int D_006F2B98[];
 extern void audioDecSendToIOP();

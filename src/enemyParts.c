@@ -28,7 +28,19 @@ int DispPointBlur(int *self)
     gif_EndPacket();
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", UpdateEnemyEye);
+extern char D_004E79A0[];
+extern char D_004E79E0[];
+extern void UpdatePointBlur(int a0, void *a1, void *a2, float a3);
+extern void _MulMatrix(void *a0, int a1, void *a2);
+
+int UpdateEnemyEye(char *a0, int a1, float f)
+{
+    _MulMatrix(a0 + 0x10, a1, D_004E79A0);
+    if (*(int *)a0 != 0) {
+        UpdatePointBlur(*(int *)(a0 + 0x4), a0 + 0x40, D_004E79E0, f * 3.0f);
+    }
+    return 1;
+}
 extern void _CopyMatrix();
 extern void reg_DispMultiPri();
 

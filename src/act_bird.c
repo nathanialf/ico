@@ -39,7 +39,11 @@ void func_0019FE30(int a0, int a1, int a2, int a3)
     ExecMotionOrient(a0, a1, a2, a3);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_0019FE38);
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", _ACTSendMailToBird);
+extern void iosOmSendMail(void *a0);
+
+void _ACTSendMailToBird(void *a0, void *a1, void *a2) {
+    iosOmSendMail(a0);
+}
 extern float acosf(float a0);
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern void sceVu0Normalize(void *dst, void *src);

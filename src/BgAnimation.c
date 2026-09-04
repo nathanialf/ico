@@ -62,7 +62,26 @@ extern int D_0063BCC4;
 void bga_SetUniqAnimationFlag(int val) {
     D_0063BCC4 = val;
 }
-INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_ResetAnimation);
+extern int D_0028F4D4[];
+extern void freeseki(void *p);
+
+void bga_ResetAnimation(void) {
+    void *p;
+    D_0063C4B4 = 0;
+    if (D_0028F4D4[0] != 0) {
+        return;
+    }
+    p = (void *)D_0063BCCC;
+    D_0063BCCC = 0;
+    if (p == 0) {
+        return;
+    }
+    do {
+        void *next = *(void **)((char *)p + 0x154);
+        freeseki(p);
+        p = next;
+    } while (p != 0);
+}
 extern float D_0063BCC0__pn __asm__("D_0063BCC0");
 
 float bga_GetZoom(void)

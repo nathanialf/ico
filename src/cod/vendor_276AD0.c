@@ -487,4 +487,12 @@ int SgStPcmIopReadAddr(unsigned int a0)
     }
     return ret;
 }
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgStPcmBufMode);
+int SgStPcmBufMode(int a0, long a1, int a2) {
+    int ret;
+    ret = -1;
+    if ((unsigned int)a0 < 2 && (unsigned int)a2 <= 0x1FFFFF && (a1 & 0xFF000000) == 0) {
+        _SgSetPkAdd(0x4F, a1, a2, a0);
+        ret = 0;
+    }
+    return ret;
+}

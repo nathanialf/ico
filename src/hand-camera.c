@@ -34,4 +34,7 @@ void InitHandCameraCorrect(void)
     D_006E9990[6] = 80.0f;
     D_0063C2E0 = 60.0f / (float)q;
 }
-INCLUDE_ASM("asm/nonmatchings/src/hand-camera", SetLimitHandCameraCorrect);
+void SetLimitHandCameraCorrect(float a0, float a1) {
+    D_006E9990[5] = a0;
+    D_006E9990[6] = a1;
+}

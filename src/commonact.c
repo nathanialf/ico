@@ -8,6 +8,8 @@ typedef struct { int w[6]; } SlowrunRec;
 
 extern void SetDirectRootPosition();
 
+extern void SetDirectRootPosition__pn(void *a0, void *a1) __asm__("SetDirectRootPosition");
+
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTSetPositionWithFitting);
 extern void SetDirectRootPositionNoFitting__pn() __asm__("SetDirectRootPositionNoFitting");
 
@@ -69,7 +71,12 @@ void SetDirectRootPositionXZ(void *a0, void *a1) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015BD88);
 ASM_LIT4_SLOT(D_00638E58, 0.2f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015BF40);
+extern void eBrainSendMes(void *a0);
+
+void func_0015BF40(void *a0, int a1) {
+    if (a0 && *(int *)((char *)a0 + 0xC) == 4)
+        eBrainSendMes(a0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", DamageFunc);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", DownFunc);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C050);
@@ -185,8 +192,20 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00162D50);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00162DE8);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonBarPull);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00162F98);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001631F0);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00163220);
+extern char D_00553188[];
+extern void _ACTWait(int a0);
+extern void debug_StdPrintfDummy();
+
+void func_001631F0(volatile int a0) {
+    debug_StdPrintfDummy(D_00553188);
+    _ACTWait(0);
+}
+extern char D_005531A8[];
+
+void func_00163220(volatile int a0) {
+    debug_StdPrintfDummy(D_005531A8);
+    _ACTWait(0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00163250);
 ASM_LIT4_SLOT(D_00638EE4, 0.1f);
 ASM_LIT4_SLOT(D_00638EE8, 3.1415927f);

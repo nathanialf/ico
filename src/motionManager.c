@@ -19,7 +19,31 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", _getFinalMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", EditRotEmphasys);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", getFinalMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", getFinalMatrixWithNaturalGeometry);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", _calcNaturalGeometry);
+extern float D_0063B900;
+extern char *D_0063B938;
+extern char *D_0063C4A4;
+extern char D_007201A0[];
+extern char D_007201E0[];
+extern void GetMatrixFromQuaternion(void *a0, void *a1);
+extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
+extern void *MatrixDrive_GetLastMatrix(void);
+extern void *MatrixDrive_GetMatrix__pn(void) __asm__("MatrixDrive_GetMatrix");
+extern void _MulMatrix(void *a0, void *a1, void *a2);
+extern void _ScaleVectorXYZ(void *buf, void *p1, float f);
+
+void _calcNaturalGeometry(int a0) {
+    char *elemA = D_0063B938 + a0 * 0x40;
+    char *elemB = D_0063C4A4 + a0 * 0x20;
+    void *x;
+    if (*(int *)(elemA + 0x38) != -1) {
+        _ScaleVectorXYZ(D_007201E0, elemA + 0x10, D_0063B900);
+        GetMatrixFromQuaternionPos(D_007201A0, elemB + 0x10, D_007201E0);
+    } else {
+        GetMatrixFromQuaternion(D_007201A0, elemB + 0x10);
+    }
+    x = MatrixDrive_GetMatrix__pn();
+    _MulMatrix(x, MatrixDrive_GetLastMatrix(), D_007201A0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", findActPoint);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkActPointWithHeight);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", clearCollisionStatus);
@@ -216,9 +240,68 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", GetGeometryOfMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", GetMatrixOfMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001ECE40);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001ED110);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispSkelton);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", SkelTest);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", SkelTestGeo);
+extern void func_001ECE40();
+extern void gif_EndPacket();
+extern void gif_SetAlpha();
+extern void gif_StartPacketPri();
+extern int sceVu0UnitMatrix__pn(int) __asm__("sceVu0UnitMatrix");
+
+void dispSkelton(void) {
+    int v;
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0x80);
+    MatrixDrive_PushMatrix();
+    v = MatrixDrive_GetMatrix();
+    sceVu0UnitMatrix__pn(v);
+    func_001ECE40(0);
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+}
+extern int D_0063B148;
+extern int D_0063B938__pn __asm__("D_0063B938");
+extern void func_001DDAB8_a(char *) __asm__("dispSkelton");
+extern void p2o_DispVU1();
+
+void SkelTest(char *a0) {
+    int sub = *(int *)(a0 + 0x15C);
+    int v;
+    D_0063B93C = (int)a0;
+    v = *(int *)(sub + 0x8C);
+    D_0063B938__pn = v;
+    if (v != 0) {
+        p2o_DispVU1();
+        if (D_0063B148 != 0) {
+            func_001DDAB8_a(a0);
+        }
+    }
+}
+extern void MatrixDrive_RotMatrixX(int a0);
+extern void func_001ED110(int a0, int a1);
+extern void func_0025D440(int a0, int a1, int a2);
+
+void SkelTestGeo(char *a0) {
+    int sub = *(int *)(a0 + 0x15C);
+    int v;
+    int i;
+    D_0063B93C = (int)a0;
+    v = *(int *)(sub + 0x8C);
+    D_0063B938__pn = v;
+    if (v != 0) {
+        int s2;
+        sceVu0UnitMatrix__pn(MatrixDrive_GetMatrix());
+        MatrixDrive_RotMatrixX(-0x8000);
+        func_001ED110(*(int *)(a0 + 0x15C), 0);
+        s2 = *(int *)(a0 + 0x15C);
+        for (i = 0; i < *(int *)(s2 + 0x88); i++) {
+            int e = *(int *)(s2 + 0xC) + i * 0x40;
+            func_0025D440(e, s2 + 0x20, e);
+            s2 = *(int *)(a0 + 0x15C);
+        }
+        if (D_0063B148 != 0) {
+            func_001DDAB8_a(a0);
+        }
+    }
+}
 extern int D_0063B8F8;
 extern int D_0063B8FC;
 

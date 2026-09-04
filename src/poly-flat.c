@@ -3,6 +3,9 @@
 extern void gif_SetAlpha();
 extern void gif_StartPacketPri();
 
+extern void gif_SetAlpha__pn(int a0, int a1, int a2) __asm__("gif_SetAlpha");
+extern void gif_StartPacketPri__pn(int a0) __asm__("gif_StartPacketPri");
+
 INCLUDE_ASM("asm/nonmatchings/src/poly-flat", before_DrawPolygon);
 extern void gif_EndPacket();
 

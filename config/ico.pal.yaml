@@ -194,7 +194,7 @@ segments:
       - [0x8F980, c, src/camera-ico2]  # 25 funcs, census
       - [0x931C8, c, src/camera-root]  # 42 funcs, listing
       - [0x94F68, c, src/camera-set-manager]  # 1 funcs, listing
-      - [0x94F70, asm, src/chain]  # 52 funcs, census
+      - [0x94F70, c, src/chain]  # 52 funcs, census
       - [0x98F70, c, src/ebrain]  # 8 funcs, census
       - [0x9A0C0, c, src/enemy-control]  # 3 funcs, listing
       - [0x9A1B0, c, src/fightSound]  # 7 funcs, listing
@@ -244,7 +244,7 @@ segments:
       - [0xCD4A8, c, src/cageFix]  # 3 funcs, listing
       - [0xCD578, c, src/candle]  # 5 funcs, census
       - [0xCD9A8, c, src/chandelier]  # 3 funcs, listing
-      - [0xCDA90, asm, src/clipCollisionManager]  # 4 funcs, listing
+      - [0xCDA90, c, src/clipCollisionManager]  # 4 funcs, listing
       - [0xCDF40, c, src/clothAnimation]  # 49 funcs, census
       - [0xD4458, c, src/clothTest]  # 3 funcs, census
       - [0xD44B8, c, src/darkVolume]  # 17 funcs, listing
@@ -276,15 +276,15 @@ segments:
       - [0xF8CA8, c, src/spiderGroupManager]  # 8 funcs, census
       - [0xF9390, asm, src/stageMultiBgaManager]  # 6 funcs, listing
       - [0xF9890, c, src/staticBlur]  # 43 funcs, listing
-      - [0xFD5F8, asm, src/stormTest]  # 8 funcs, census
+      - [0xFD5F8, c, src/stormTest]  # 8 funcs, census
       - [0xFE1A0, c, src/streamMotionManager]  # 24 funcs, census
-      - [0xFF2B8, asm, src/sugiTree]  # 5 funcs, census
+      - [0xFF2B8, c, src/sugiTree]  # 5 funcs, census
       - [0xFF7C0, c, src/torch]  # 16 funcs, census
       - [0x1003A8, asm, src/waterDot]  # 6 funcs, census
       - [0x100AD0, c, src/waySystemManager]  # 4 funcs, listing
       - [0x100BC0, c, src/weapon]  # 36 funcs, census
       - [0x1034F0, c, src/windField]  # 13 funcs, listing
-      - [0x103FF8, asm, src/windManager]  # 5 funcs, listing
+      - [0x103FF8, c, src/windManager]  # 5 funcs, listing
       - [0x104388, asm, src/windmill]  # 3 funcs, listing
       - [0x104500, c, src/wireLetter]  # 5 funcs, listing
       - [0x104888, c, src/worm]  # 12 funcs, census

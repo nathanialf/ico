@@ -11,7 +11,12 @@ typedef struct {
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", POSITIVE_SE);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", NEGATIVE_SE);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", CUR_SE);
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_TESTFUNCTION);
+extern int D_0061D750[];
+extern void debug_StdPrintfDummy();
+
+void la_TESTFUNCTION(void) {
+    debug_StdPrintfDummy(D_0061D750);
+}
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_mcard_error_check);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_memory_card_check);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_set_current_port_2);

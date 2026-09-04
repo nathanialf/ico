@@ -2,7 +2,40 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/windField", InitWindField);
 INCLUDE_ASM("asm/nonmatchings/src/windField", drawSenpuukiHaneUnit);
-INCLUDE_ASM("asm/nonmatchings/src/windField", drawSenpuuki);
+extern char D_004ED380[];
+extern char D_004ED4F0__pn[] __asm__("D_004ED4F0");
+extern char D_004ED690__pn[] __asm__("D_004ED690");
+extern void DrawLineG();
+extern void MatrixDrive_TransMatrix(float f12, float f13, float f14);
+extern void drawSenpuukiHaneUnit(float f12);
+extern void gif_EndPacket(void);
+extern void gif_SetAlpha(int a0, int a1, int a2);
+extern void gif_StartPacketPri(int a0);
+
+void drawSenpuuki(float scale) {
+    char *cur;
+
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0);
+    cur = D_004ED690__pn;
+    if (-1000.0f < *(float *)cur) {
+        do {
+            DrawLineG(cur, D_004ED380, cur + 0x10, D_004ED380, -1);
+            cur += 0x20;
+        } while (-1000.0f < *(float *)cur);
+    }
+    MatrixDrive_TransMatrix(0.0f, -100.0f, 0.0f);
+    cur = D_004ED4F0__pn;
+    if (-1000.0f < *(float *)cur) {
+        do {
+            DrawLineG(cur, D_004ED380, cur + 0x10, D_004ED380, -1);
+            cur += 0x20;
+        } while (-1000.0f < *(float *)cur);
+    }
+    MatrixDrive_TransMatrix(0.0f, -10.0f, 20.0f);
+    drawSenpuukiHaneUnit(scale);
+    gif_EndPacket();
+}
 INCLUDE_ASM("asm/nonmatchings/src/windField", ExecWindField);
 extern int (*D_0063BC58)(void);
 

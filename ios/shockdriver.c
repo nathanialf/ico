@@ -317,7 +317,19 @@ int ShockEmulator_EmulationShot(int a0, int a1)
 {
     return a1;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockEmulator_EmulationWave);
+unsigned short ShockEmulator_EmulationWave(short *a0, int a1) {
+    int sum = (unsigned short)a0[1] + a1;
+    unsigned int q;
+    short w;
+    a0[1] = sum;
+    if ((short)sum >= 0x40B) a0[1] = 0x40A;
+    else if ((short)sum < 0) a0[1] = 0;
+    w = a0[1];
+    q = ((unsigned int)(w << 8)) / 0x40B;
+    a0[0] = q;
+    a0[1] = ((unsigned int)(w * 3)) >> 2;
+    return (unsigned short)a0[0];
+}
 void Init_ShockRequestAlloc(int *a0, char *a1, int a2) {
     if (a0 != 0 && a1 != 0) {
         a0[0] = a2;

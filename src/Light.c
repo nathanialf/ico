@@ -1,6 +1,8 @@
 #include "common.h"
 
 #include "vu0.h"
+
+typedef struct Light { char _pad0[0x44]; short f_44; char _pad46[2]; struct Light *next; struct Light *prev; } Light;
 typedef struct AmbientVolume {
     char _pad0[0x90];
     int f_90;                   /* 0x90 */
@@ -28,7 +30,26 @@ void light_InitLight(void) {
     *(int *)D_0063A088 = 0;
 }
 void light_ResetLight(void) {}
-INCLUDE_ASM("asm/nonmatchings/src/Light", light_KillAllFixLight);
+extern int D_0063C13C;
+extern void light_killLinkLight(char *node);
+
+void light_KillAllFixLight(void)
+{
+    Light *p = (Light *)D_0063C134;
+    while (p != 0) {
+        short v = p->f_44;
+        if (v < 4) {
+            if (v >= 2) {
+                Light *node = p;
+                p = p->prev;
+                light_killLinkLight((char *)node);
+                continue;
+            }
+        }
+        p = p->prev;
+    }
+    D_0063C13C = 0;
+}
 extern int D_0063C138;
 extern void light_killLinkAmbient();
 

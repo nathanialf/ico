@@ -54,7 +54,24 @@ void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0)
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", CreateLayoutedGObj);
-INCLUDE_ASM("asm/nonmatchings/src/sceneManager", MoveNextStage_Set);
+extern char D_0063B640;
+extern int D_0063B644;
+extern float D_0071D960[];
+extern float D_0071D970[];
+
+void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5) {
+    D_0071D960[0] = a0[0];
+    D_0071D960[1] = a0[1];
+    D_0071D960[2] = a0[2];
+    D_0063C414 = a2;
+    D_0063C418 = a3;
+    D_0063C41C = a4;
+    D_0063B644 = a5;
+    D_0071D970[0] = a1[0];
+    D_0071D970[1] = a1[1];
+    D_0071D970[2] = a1[2];
+    D_0063B640 = 1;
+}
 void test_nextstage_firstwalk_set(int unused, int a, int b, int c) {
     D_0063C414 = a;
     D_0063C418 = b;

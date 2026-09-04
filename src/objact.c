@@ -19,4 +19,12 @@ void ObjAction_Mail(void *a0, int a1) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/objact", ObjAction_MailCenter);
-INCLUDE_ASM("asm/nonmatchings/src/objact", ObjAction_Init);
+extern void ObjAction_CorrectGeo(int a0, int a1);
+
+void ObjAction_Init(void) {
+    int *p = (int *)isysGObjGetExist_begin();
+    while (p != 0) {
+        ObjAction_CorrectGeo(p[2], 0);
+        p = (int *)isysGObjGetExist_next(p);
+    }
+}

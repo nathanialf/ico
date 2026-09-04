@@ -16,4 +16,6 @@ void kanbanBootInit(void)
     fadeStatus = 0;
     D_0063B4C4 = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootStart);
+void kanbanBootStart(void) {
+    D_0063B4C4 = 1;
+}

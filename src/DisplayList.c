@@ -88,7 +88,19 @@ void dl_Debug(void)
     return debug_StdPrintfDummy(D_006218E0, count - 1);
 }
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_CloseDma);
-INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_Out);
+extern void iosFree(int a0);
+
+void dl_Out(void) {
+    int i;
+    for (i = 0; i < 2; i++) {
+        int *p = (int *)((char *)D_00728518 + i * 0x34);
+        int j;
+        for (j = 0xC; j >= 0; j--) {
+            iosFree(*p);
+            p++;
+        }
+    }
+}
 void dl_SetDLPriority(int a0)
 {
     if (a0 < 0) {

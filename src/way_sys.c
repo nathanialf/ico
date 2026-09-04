@@ -19,4 +19,15 @@ extern char D_00554220[];
 extern int DeleteWayGroup(int a0);
 extern extern void debug_StdPrintfDummy();
 
-INCLUDE_ASM("asm/nonmatchings/src/way_sys", DeleteGuideWay);
+extern WVTElem D_004C7CF0_ve[] __asm__("D_004F31E0");
+
+void DeleteGuideWay(WVTObj *o) {
+    if (o->w64 >= 0) {
+        debug_StdPrintfDummy(D_00554220, o->w64);
+        {
+            WVTElem *e = &D_004C7CF0_ve[o->w64];
+            DeleteWayGroup(e->f20);
+        }
+        o->w64 = -1;
+    }
+}

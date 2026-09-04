@@ -11,9 +11,29 @@ int NumOfWpPos(void) {
     return D_0063BD60;
 }
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", CopyWpPos);
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayLengthOfGObj_Pos);
+extern void GetRootPosition(int *buf, int x);
+extern float WayLengthOfPos_Pos(int *mtx, int a1);
+
+float WayLengthOfGObj_Pos(int a0, int a1) {
+    int buf[4];
+    if (a0 == 0) {
+        return -1.0f;
+    }
+    GetRootPosition(buf, a0);
+    return WayLengthOfPos_Pos(buf, a1);
+}
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayLengthOfGObj_GObj);
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayPointWithRangeFromGObj);
+extern int WayPointWithRangeFromPos(int *buf, int zero, float f);
+
+int WayPointWithRangeFromGObj(int a0, float f)
+{
+    int buf[4];
+    if (a0 == 0) {
+        return -1;
+    }
+    GetRootPosition(buf, a0);
+    return WayPointWithRangeFromPos(buf, 0, f);
+}
 int func_00215C68(float *a, float *b)
 {
     if (a[1] < b[1]) return -1;

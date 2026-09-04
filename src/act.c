@@ -114,4 +114,27 @@ void ConvertStickToAbsCoord(void *a0, float *a1) {
     sceVu0ApplyMatrix(a0, m, &v);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act", ActSetStartBrainStatus);
-INCLUDE_ASM("asm/nonmatchings/src/act", actWaitCondition);
+void actWaitCondition(int a0, int a1) {
+    int t = a0 & a1;
+    if (t == 0) {
+        do {
+            int count = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 0x3C;
+            int n = 1;
+            if (count != 0) {
+                n = count;
+            }
+            if (n == 0) {
+                for (;;) {
+                    iosThreadSleep();
+                }
+            }
+            if (n > 0) {
+                int i = n;
+                do {
+                    iosThreadSleep();
+                    i--;
+                } while (i != 0);
+            }
+        } while (t == 0);
+    }
+}

@@ -18,7 +18,14 @@ typedef struct {
 } GirlStand;
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetEyeDirection);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", funcGirlHandDisconnect);
+extern void ACTGame_DisconnectHand(void);
+extern char D_00553990[];
+extern void debug_StdPrintfDummy__pn(void *a0) __asm__("debug_StdPrintfDummy");
+
+void funcGirlHandDisconnect(void) {
+    ACTGame_DisconnectHand();
+    debug_StdPrintfDummy__pn(D_00553990);
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016F6B0);
 extern int D_002A5580[];
 extern void brainClsTargetLevel();
@@ -68,7 +75,51 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176C28);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177098);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177340);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001776D8);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", isEnterHideadv);
+extern float D_00638FEC;
+extern float D_00638FF0;
+extern int D_00639EA4__pn __asm__("D_00639EA4");
+extern void *D_00629DE4, *D_00639EA8__pn __asm__("D_00639EA8");
+extern float _DistxzSqGV(void *, void *);
+extern int func_001776D8(void *, void *);
+
+int isEnterHideadv(void) {
+    char buf[0x20];
+    int rv = 0;
+    float diff;
+    if (D_00639EA4__pn == 0) {
+        goto ret0;
+    }
+    if (D_00639EA8__pn == 0) {
+        return 0;
+    }
+    GetRootProjectionPosOfGObj(buf, D_00639EA4__pn);
+    GetRootProjectionPosOfGObj(buf + 0x10, D_00639EA8__pn);
+    diff = *(float *)(buf + 0x4) - *(float *)(buf + 0x14);
+    if (diff < 0.0f) {
+        if (-diff > 200.0f) {
+            goto set;
+        }
+        goto test;
+    }
+    if (diff > 200.0f) {
+    set:
+        rv = 1;
+    }
+test:
+    if (rv == 0) {
+        goto ret0;
+    }
+    if (_DistxzSqGV(buf, buf + 0x10) < D_00638FEC) {
+        return 1;
+    }
+    if (_DistxzSqGV(buf, buf + 0x10) < D_00638FF0) {
+        if (func_001776D8(buf, buf + 0x10) != 0) {
+            return 1;
+        }
+    }
+ret0:
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", WayTest);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177BB8);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001790F8);

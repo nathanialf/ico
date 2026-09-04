@@ -64,7 +64,7 @@ Waves (same definitions as the aug6 driver)
 
 Usage
 -----
-  tools/port_from_ntsc.py scan [--force]
+  tools/port_from_ntsc.py [--source ntsc|aug6] scan [--force]
   tools/port_from_ntsc.py status [--waves N,...]
   tools/port_from_ntsc.py tus [--waves N,...]
   tools/port_from_ntsc.py plan <pal_tu>
@@ -73,7 +73,17 @@ Usage
   tools/port_from_ntsc.py ledger
   tools/port_from_ntsc.py revert-func <pal_tu> <func>
 
-Environment: PORT_NTSC_ROOT, PORT_DEBUG_DUMP, PORT_LENIENT, OBJDUMP.
+`--source aug6` swaps the SOURCE side to the Aug-6-2001 prototype checkout
+(`PORT_AUG6_ROOT`, default /primary/dev/ico-aug6): per-programmer
+`<prog>/src/<tu>.c` layout, `asm/aug6/matchings`, `symbol_addrs.aug6.txt`,
+`ico.aug6.ld` _gp, cache under `.port_cache/aug6/`, ledger
+`decomp/port_ledger_pal_aug6.md`.  Everything else — correlation, waves,
+gates, splice, reconcile — is byte-for-byte the same code path.  Bodies
+carrying a banned zero-code codegen pin (empty `__asm__`, REG/ANCHOR/
+MEM_BARRIER/KEEP_LIVE/MATERIALIZE) are REVERTED with reason `crutch`.
+
+Environment: PORT_NTSC_ROOT, PORT_AUG6_ROOT, PORT_DEBUG_DUMP, PORT_LENIENT,
+OBJDUMP.
 """
 import argparse
 import difflib
@@ -91,25 +101,29 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import transplant_retail as T  # noqa: E402  (shared splice/extern/verify plumbing)
 
-NTSC_ROOT = Path(os.environ.get("PORT_NTSC_ROOT", "/primary/dev/ico-ntsc"))
+# --- source side (rebound by configure_source(); see `--source`) ---------
+SOURCE = "ntsc"
+SRC_LABEL = "ntsc"
+SRC_ASM_DIR = "asm"            # subdir of SRC_ROOT holding matchings/
+SRC_ROOT = Path(os.environ.get("PORT_NTSC_ROOT", "/primary/dev/ico-ntsc"))
 CACHE = ROOT / ".port_cache"
 CACHE.mkdir(parents=True, exist_ok=True)
 
 TEXT_VMA = 0x100000
 TEXT_SZ = 0x189BC4                      # PAL .text
-NTSC_TEXT_SZ = 0x16F5D4                 # USA .text
+SRC_TEXT_SZ = 0x16F5D4                 # USA .text
 ROM = ROOT / "baserom" / "pal" / "baseelf.rom"
-NTSC_ROM = NTSC_ROOT / "baserom" / "baseelf.rom"
+SRC_ROM = SRC_ROOT / "baserom" / "baseelf.rom"
 
 TARGET_YAML = ROOT / "config" / "ico.pal.yaml"
-NTSC_YAML = NTSC_ROOT / "config" / "ico.us.yaml"
+SRC_YAML = SRC_ROOT / "config" / "ico.us.yaml"
 TARGET_SYMS = ROOT / "config" / "symbol_addrs.pal.txt"
-NTSC_SYMS = NTSC_ROOT / "config" / "symbol_addrs.us.txt"
+SRC_SYMS = SRC_ROOT / "config" / "symbol_addrs.us.txt"
 
 LEDGER_PATH = ROOT / "decomp" / "port_ledger_pal.md"
 
 # ntsc source roots (flat retail layout)
-NTSC_PROGS = ("src", "ios", "isys", "sound", "ito")
+SRC_PROGS = ("src", "ios", "isys", "sound", "ito")
 
 
 def read_latin1(p):
@@ -128,7 +142,39 @@ def gp_of(ld_path):
 
 
 TARGET_GP = gp_of(ROOT / "config" / "ico.pal.ld")
-NTSC_GP = gp_of(NTSC_ROOT / "config" / "ico.us.ld")
+SRC_GP = gp_of(SRC_ROOT / "config" / "ico.us.ld")
+
+
+AUG6_PROGS = ("common", "omori", "seki", "sugipon", "ito", "fumi", "script")
+AUG6_TEXT_SZ = 0x16B964                 # aug6 prototype .text (readelf -S)
+
+
+def configure_source(kind):
+    """Rebind every SOURCE-side global.  The TARGET side (PAL) never moves.
+
+    `ntsc` = USA retail SCUS-971.13 (flat `src/ ios/ isys/ sound/ ito/`
+    layout, asm/matchings).  `aug6` = the Aug-6-2001 prototype (per-programmer
+    `<prog>/src/<tu>.c` layout, asm/aug6/matchings, its own symbol_addrs /
+    ld / yaml).  Caches and the ledger are kept separate so the two passes
+    never read each other's correlation."""
+    global SOURCE, SRC_LABEL, SRC_ROOT, SRC_ROM, SRC_YAML, SRC_SYMS, SRC_GP
+    global SRC_TEXT_SZ, SRC_PROGS, SRC_ASM_DIR, CACHE, LEDGER_PATH
+    if kind == "ntsc":
+        return
+    if kind != "aug6":
+        raise SystemExit(f"unknown --source {kind}")
+    SOURCE = SRC_LABEL = "aug6"
+    SRC_ROOT = Path(os.environ.get("PORT_AUG6_ROOT", "/primary/dev/ico-aug6"))
+    SRC_ROM = SRC_ROOT / "baserom" / "aug6" / "baseelf.rom"
+    SRC_YAML = SRC_ROOT / "config" / "ico.aug6.yaml"
+    SRC_SYMS = SRC_ROOT / "config" / "symbol_addrs.aug6.txt"
+    SRC_GP = gp_of(SRC_ROOT / "config" / "ico.aug6.ld")
+    SRC_TEXT_SZ = AUG6_TEXT_SZ
+    SRC_PROGS = AUG6_PROGS
+    SRC_ASM_DIR = "asm/aug6"
+    CACHE = ROOT / ".port_cache" / "aug6"
+    CACHE.mkdir(parents=True, exist_ok=True)
+    LEDGER_PATH = ROOT / "decomp" / "port_ledger_pal_aug6.md"
 
 
 # ==========================================================================
@@ -423,12 +469,12 @@ def glabels_of(path):
     return out
 
 
-def inventory(root, yaml_path, text_sz):
+def inventory(root, yaml_path, text_sz, asm_dir="asm"):
     """[{vma, end, name, tu}] for every function in .text, VMA-ordered."""
     funcs = []
     for _off, typ, name, _ln in yaml_text_subsegs(yaml_path):
         if typ == "asm":
-            p = root / "asm" / (name + ".s")
+            p = root / asm_dir / (name + ".s")
             if not p.exists():
                 raise SystemExit(f"inventory: missing {p} — run tools/build.sh setup")
             for vma, n in glabels_of(p):
@@ -436,7 +482,7 @@ def inventory(root, yaml_path, text_sz):
         else:
             got = []
             for sub in ("matchings", "nonmatchings"):
-                d = root / "asm" / sub / name
+                d = root / asm_dir / sub / name
                 if d.is_dir():
                     for f in sorted(d.glob("*.s")):
                         g = glabels_of(f)
@@ -528,10 +574,42 @@ def correlate(pal_funcs, us_funcs, pal_blob, us_blob):
     ui = {}
     for i, f in enumerate(us_funcs):
         ui.setdefault(f["_h"], i)
-    cand = [(i, ui[f["_h"]]) for i, f in enumerate(pal_funcs)
-            if pc[f["_h"]] == 1 and uc.get(f["_h"]) == 1]
+    cmap = {i: ui[f["_h"]] for i, f in enumerate(pal_funcs)
+            if pc[f["_h"]] == 1 and uc.get(f["_h"]) == 1}
+
+    # NAME as a TIE-BREAK ONLY.  A name never anchors on its own (the ntsc
+    # measurement in this docstring), but a pair that agrees on BOTH a
+    # globally-unique name and the normalized stream is unambiguous even when
+    # that stream is shared by a whole family of accessor wrappers -- which is
+    # exactly the case the hash-uniqueness test throws away.  It matters for
+    # the aug6 source, whose names come from the same MAIN.MAP as PAL's.
+    pn, un = defaultdict(int), defaultdict(int)
+    for f in pal_funcs:
+        pn[f["name"]] += 1
+    uni = {}
+    for j, f in enumerate(us_funcs):
+        un[f["name"]] += 1
+        uni.setdefault(f["name"], j)
+    used_j = set(cmap.values())
+    n_name = 0
+    for i, f in enumerate(pal_funcs):
+        if i in cmap or PLACEHOLDER_RE.match(f["name"]):
+            continue
+        nm = f["name"]
+        if pn[nm] != 1 or un.get(nm) != 1:
+            continue
+        j = uni[nm]
+        if j in used_j or us_funcs[j]["_h"] != f["_h"]:
+            continue
+        cmap[i] = j
+        used_j.add(j)
+        n_name += 1
+
+    cand = sorted(cmap.items())
     keep = _lis([j for _i, j in cand])
     anchors = [cand[k] for k in keep]
+    print(f"  anchors: {len(anchors)} kept of {len(cand)} "
+          f"({n_name} added by the name tie-break)", file=sys.stderr)
 
     pairs = [(pal_funcs[i], us_funcs[j], "anchor") for i, j in anchors]
     bounds = [(-1, -1)] + anchors + [(len(pal_funcs), len(us_funcs))]
@@ -562,11 +640,11 @@ def correlate(pal_funcs, us_funcs, pal_blob, us_blob):
     return pairs
 
 
-def ntsc_matchings_index():
+def src_matchings_index():
     """func -> {vma, file, stem} for every ntsc per-function matched baseline.
     `stem` is the flat repo path of the source TU (`src/pool`, `ios/cdvd`)."""
     idx = {}
-    root = NTSC_ROOT / "asm" / "matchings"
+    root = SRC_ROOT / SRC_ASM_DIR / "matchings"
     for p in root.rglob("*.s"):
         stem = str(p.relative_to(root)).rsplit("/", 1)[0]
         for name, rec in parse_splat_s(p).items():
@@ -574,7 +652,7 @@ def ntsc_matchings_index():
                 continue
             idx[name] = {
                 "vma": rec["vma"],
-                "file": str(p.relative_to(NTSC_ROOT)),
+                "file": str(p.relative_to(SRC_ROOT)),
                 "stem": stem,
             }
     return idx
@@ -730,14 +808,14 @@ def cmd_scan(args):
         return json.loads(out_f.read_text())
 
     pal_blob = ROM.read_bytes()
-    us_blob = NTSC_ROM.read_bytes()
+    us_blob = SRC_ROM.read_bytes()
     pal_funcs = inventory(ROOT, TARGET_YAML, TEXT_SZ)
-    us_funcs = inventory(NTSC_ROOT, NTSC_YAML, NTSC_TEXT_SZ)
+    us_funcs = inventory(SRC_ROOT, SRC_YAML, SRC_TEXT_SZ, SRC_ASM_DIR)
     print(f"pal .text functions: {len(pal_funcs)}", file=sys.stderr)
-    print(f"us  .text functions: {len(us_funcs)}", file=sys.stderr)
+    print(f"{SRC_LABEL:4s} .text functions: {len(us_funcs)}", file=sys.stderr)
 
-    ntsc = ntsc_matchings_index()
-    src = NtscSource()
+    ntsc = src_matchings_index()
+    src = SourceTree()
     stale = []
     for n, a in ntsc.items():
         atu = src.tu(a["stem"])
@@ -745,7 +823,7 @@ def cmd_scan(args):
             stale.append(n)
     for n in stale:
         del ntsc[n]
-    print(f"ntsc matched bodies: {len(ntsc)} "
+    print(f"{SRC_LABEL} matched bodies: {len(ntsc)} "
           f"({len(stale)} stale matchings/*.s dropped)", file=sys.stderr)
 
     # --- twin correlation -------------------------------------------------
@@ -758,7 +836,7 @@ def cmd_scan(args):
     via = defaultdict(int)
     for t in twins:
         via[t["via"]] += 1
-    (CACHE / "ntsc_pal_twins.json").write_text(json.dumps(
+    (CACHE / f"{SRC_LABEL}_pal_twins.json").write_text(json.dumps(
         {"pal_functions": len(pal_funcs), "us_functions": len(us_funcs),
          "pairs": len(twins), "via": dict(via),
          "name_agreement": sum(1 for t in twins
@@ -811,7 +889,7 @@ def cmd_scan(args):
         a = ntsc.get(uname)
         if a is None:
             continue
-        srec = parse_splat_s(NTSC_ROOT / a["file"])[uname]
+        srec = parse_splat_s(SRC_ROOT / a["file"])[uname]
         a_words = trim([w for w, _, _ in srec["insns"]])
         r_words = f["_w"]
         if not a_words or not r_words:
@@ -839,6 +917,10 @@ def cmd_scan(args):
         else:
             wave = 0
 
+        rec_extra = {}
+        if SOURCE != "ntsc":
+            rec_extra = {f"{SRC_LABEL}_name": uname, f"{SRC_LABEL}_vma": a["vma"],
+                         f"{SRC_LABEL}_file": a["file"], f"{SRC_LABEL}_stem": a["stem"]}
         records.append({
             "name": name, "us_name": uname, "via": via_kind,
             "pal_vma": f["vma"], "pal_end": f["end"], "pal_tu": f["tu"],
@@ -846,6 +928,7 @@ def cmd_scan(args):
             "us_vma": a["vma"], "us_file": a["file"], "us_stem": a["stem"],
             "norm_equal": norm_eq, "verdict": verdict, "wave": wave,
             "jtbl": jtbl,
+            **rec_extra,
             **res,
         })
 
@@ -853,11 +936,12 @@ def cmd_scan(args):
     for r in records:
         hist[r["wave"]] += 1
     out = {
-        "ntsc_root": str(NTSC_ROOT),
-        "ntsc_head": subprocess.run(
-            ["git", "-C", str(NTSC_ROOT), "rev-parse", "HEAD"],
+        "source": SOURCE,
+        "source_root": str(SRC_ROOT),
+        "source_head": subprocess.run(
+            ["git", "-C", str(SRC_ROOT), "rev-parse", "HEAD"],
             capture_output=True, text=True).stdout.strip(),
-        "ntsc_matched_bodies": len(ntsc),
+        "source_matched_bodies": len(ntsc),
         "pal_functions": len(pal_funcs),
         "twin_pairs": len(twins),
         "joined": len(records),
@@ -916,7 +1000,7 @@ def target_const_syms():
 
 def build_symbol_map(rec, pal_a2n, pal_func_vmas, defined, local_defs=()):
     """ntsc symbol name -> PAL symbol name, derived slot-by-slot."""
-    srec = parse_splat_s(NTSC_ROOT / rec["us_file"])[rec["us_name"]]
+    srec = parse_splat_s(SRC_ROOT / rec["us_file"])[rec["us_name"]]
     insns = srec["insns"]
     a_words = trim([w for w, _, _ in insns])
     blob = ROM.read_bytes()
@@ -1020,7 +1104,7 @@ KEYWORDS = {
 }
 
 
-class NtscSource:
+class SourceTree:
     """Lazily-parsed view of the ntsc tree (bodies, decls, typedefs)."""
 
     def __init__(self):
@@ -1031,7 +1115,7 @@ class NtscSource:
 
     def tu(self, stem):
         if stem not in self._tus:
-            path = NTSC_ROOT / (stem + ".c")
+            path = SRC_ROOT / (stem + ".c")
             raw = read_latin1(path) if path.exists() else ""
             funcs, incasm = T.extract_functions_from_file(stem + ".c", raw)
             self._tus[stem] = {
@@ -1047,17 +1131,17 @@ class NtscSource:
         return self._tus[stem]
 
     def _all_texts(self):
-        for prog in NTSC_PROGS:
-            d = NTSC_ROOT / prog
+        for prog in SRC_PROGS:
+            d = SRC_ROOT / prog
             if not d.is_dir():
                 continue
             for p in sorted(d.rglob("*.c")):
-                yield str(p.relative_to(NTSC_ROOT)), read_latin1(p)
+                yield str(p.relative_to(SRC_ROOT)), read_latin1(p)
 
     @property
     def global_decls(self):
         if self._global_decls is None:
-            f = CACHE / "ntsc_decls.json"
+            f = CACHE / f"{SRC_LABEL}_decls.json"
             if f.exists():
                 self._global_decls = json.loads(f.read_text())
             else:
@@ -1073,7 +1157,7 @@ class NtscSource:
     @property
     def global_sigs(self):
         if self._global_sigs is None:
-            f = CACHE / "ntsc_sigs.json"
+            f = CACHE / f"{SRC_LABEL}_sigs.json"
             if f.exists():
                 self._global_sigs = json.loads(f.read_text())
             else:
@@ -1093,12 +1177,55 @@ class NtscSource:
         """Names the ntsc link resolves as real (addressable) symbols."""
         if self._syms is None:
             names = set()
-            for ln in read_latin1(NTSC_SYMS).splitlines():
+            for ln in read_latin1(SRC_SYMS).splitlines():
                 m = SYM_LINE_RE.match(ln.strip())
                 if m:
                     names.add(m.group(1))
             self._syms = names
         return self._syms
+
+
+# CLAUDE.md bans zero-code codegen steering.  The aug6 tree predates parts of
+# that ban and still carries empty-`__asm__` barriers (11 sites, 8 files as of
+# 2026-09-04) and, historically, REG/ANCHOR/MEM_BARRIER/KEEP_LIVE/MATERIALIZE
+# pin macros.  A ported body that carries one is a REVERT with reason
+# `crutch`, never a keep: the pin is what would be doing the matching, so the
+# resulting C would not be the shape the PAL ROM proves.
+CRUTCH_RES = [
+    ("empty inline-asm barrier",
+     re.compile(r'(?:__asm__|\basm)\s*(?:__volatile__|volatile)?\s*\(\s*""')),
+    ("register-pin macro",
+     re.compile(r"\b(?:REG|ANCHOR|MEM_BARRIER|KEEP_LIVE|MATERIALIZE)\s*\(")),
+    ("bare register-variable pin",
+     re.compile(r"\bregister\b[^;\n]*__asm__\s*\(\s*\"\$")),
+]
+
+
+# The PAL/retail tree assembles every C TU with the PERIOD assembler (ee-as
+# 2.9-991111); tools/quick_diff.sh re-assembles with ee-as 2.10, so a VU0
+# macro-mode body whose dialect only 2.10 accepts passes the per-function gate
+# and then breaks the real link.  The known instance is the `$ACC` / `$Q`
+# register spelling: the period assembler wants them BARE (`ACC`, `Q`), which
+# is what include/vu0.h's VU0_* macros emit and what every PAL body already
+# uses -- e.g. HEAD's src/Matrix.c writes VU0_V3OP_ACC_BC(vmulax.xyzw, ...)
+# where the aug6 source writes "vmulax.xyzw $ACC, $vf4, $vf14x".  Measured on
+# chunk 1: three ported bodies in src/Matrix, `illegal operands `vmulax''.
+PERIOD_AS_RE = re.compile(r'"[^"\n]*\$(?:ACC|Q)\b')
+
+
+def period_as_hits(text):
+    m = PERIOD_AS_RE.search(text)
+    return m.group(0).strip() if m else None
+
+
+def crutch_hits(text):
+    """[(label, matched text)] for every banned zero-code construct."""
+    out = []
+    for label, rx in CRUTCH_RES:
+        m = rx.search(text)
+        if m:
+            out.append((label, m.group(0).strip()))
+    return out
 
 
 def rebind_text(text, mapping):
@@ -1394,12 +1521,12 @@ CARVE_RE = re.compile(
 _CARVES = None
 
 
-def ntsc_carves():
+def src_carves():
     """pal/us TU stem -> [carve yaml line text] from ntsc's ico.us.yaml."""
     global _CARVES
     if _CARVES is None:
         d = defaultdict(list)
-        for ln in read_latin1(NTSC_YAML).splitlines():
+        for ln in read_latin1(SRC_YAML).splitlines():
             m = CARVE_RE.match(ln)
             if m:
                 d[m.group(3).strip()].append(ln.strip())
@@ -1418,31 +1545,50 @@ def top_insertion_point(text, before):
     return at
 
 
-PHASE_HEADER = """
-# ntsc -> PAL body port (`tools/port_from_ntsc.py`)
+PHASE_TITLE = {
+    "ntsc": "# ntsc -> PAL body port (`tools/port_from_ntsc.py`)",
+    "aug6": "# aug6 -> PAL body port (`tools/port_from_ntsc.py --source aug6`)",
+}
 
+PHASE_BLURB = {
+    "ntsc": """
 Bodies below were carried over from the `ntsc` (USA retail SCUS-971.13)
 checkout's matched clean-room C with every US symbol rebound to its PAL
-counterpart by the lockstep reloc-slot walk.  Nothing here was hand-tuned:
+counterpart by the lockstep reloc-slot walk.""",
+    "aug6": """
+Bodies below were carried over from the `aug6` (Aug-6-2001 prototype)
+checkout's matched clean-room C with every aug6 symbol rebound to its PAL
+counterpart by the lockstep reloc-slot walk.  This pass runs AFTER the ntsc
+pass and only ever attempts functions the ntsc pass left as
+`INCLUDE_ASM`.""",
+}
+
+PHASE_TAIL = """  Nothing here was hand-tuned:
 each function either reproduced the PAL instruction stream as-is (`PORTED`)
 or went straight back to `INCLUDE_ASM` (`REVERTED`, with the first
 divergence or compiler diagnostic recorded).  `SKIPPED` = deferred to the
 jump-table queue.
 
 Revert-reason classes: `unresolved-symbol` (a reloc slot the walk could not
-bind) · `emits-data` (needs a data carve; the TU's US carve entries are
-listed under `CARVES`) · `callee-sig-conflict` / `arity` · `undeclared` /
-`parse` · `missing-body` · `codegen` (compiles, wrong bytes — a genuine
-PAL-vs-USA source difference) · `jtbl`.
+bind) · `emits-data` (needs a data carve; the source TU's carve entries
+are listed under `CARVES`) · `crutch` (the source body carries a banned
+zero-code codegen pin — see CLAUDE.md; never kept) ·
+`callee-sig-conflict` / `arity` · `undeclared` / `parse` ·
+`missing-body` · `codegen` (compiles, wrong bytes — a genuine
+source-vs-PAL source difference) · `jtbl`.
 """
+
+
+def phase_header():
+    return "\n" + PHASE_TITLE[SOURCE] + "\n" + PHASE_BLURB[SOURCE] + PHASE_TAIL
 
 
 def ledger_append(lines):
     txt = LEDGER_PATH.read_text(encoding="utf-8") if LEDGER_PATH.exists() else ""
     LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(LEDGER_PATH, "a", encoding="utf-8") as f:
-        if "# ntsc -> PAL body port" not in txt:
-            f.write(PHASE_HEADER)
+        if PHASE_TITLE[SOURCE].split(" (")[0] not in txt:
+            f.write(phase_header())
         for ln in lines:
             f.write(ln + "\n")
 
@@ -1528,7 +1674,8 @@ def cmd_port(args, shared=None):
         fn = atu["funcs"].get(aname)
         ablk = None if fn is not None else atu["asm_funcs"].get(aname)
         if fn is None and ablk is None:
-            reverted.append((rec, f"ntsc body not found in {rec['us_stem']}.c"))
+            reverted.append((rec, f"{SRC_LABEL} body not found in "
+                                  f"{rec['us_stem']}.c"))
             continue
 
         local_defs = ()
@@ -1565,6 +1712,15 @@ def cmd_port(args, shared=None):
                 reverted.append((rec, "asm-block defines "
                                       f"{ablk['names']} — not a 1:1 body"))
                 continue
+            hits = crutch_hits(ablk["asm"])
+            if hits:
+                reverted.append((rec, "crutch: %s" % "; ".join(
+                    f"{lbl} `{txt}`" for lbl, txt in hits)))
+                continue
+            pa = period_as_hits(ablk["asm"])
+            if pa:
+                reverted.append((rec, f"period-as-dialect: {pa}"))
+                continue
             atext = rebind_text(ablk["asm"], mapping)
             local_labels = set(re.findall(r"^\s*(\.L\w+)\s*:", atext, re.M))
             if local_labels:
@@ -1587,7 +1743,7 @@ def cmd_port(args, shared=None):
                 del ab[-2]
                 n_insn -= 1
             if n_insn != n_body:
-                reverted.append((rec, f"asm-block: ntsc body is {n_insn} insns, "
+                reverted.append((rec, f"asm-block: {SRC_LABEL} body is {n_insn} insns, "
                                       f"pal baseline is {n_body}"))
                 continue
             body = render_asm_block(pro, ab, epi, pad, rec["pal_vma"])
@@ -1625,6 +1781,19 @@ def cmd_port(args, shared=None):
         helpers = [rebind_text(h, mapping)
                    for h in collect_helpers(src, rec["us_stem"], fn["text"],
                                             mapping, helper_seen)]
+
+        hits = crutch_hits("\n".join([body] + helpers))
+        if hits:
+            reverted.append((rec, "crutch: %s" % "; ".join(
+                f"{lbl} `{txt}`" for lbl, txt in hits)))
+            continue
+        pa = period_as_hits("\n".join([body] + helpers))
+        if pa:
+            reverted.append((rec, f"period-as-dialect: inline asm spells a VU0 "
+                                  f"register the period assembler rejects "
+                                  f"({pa}); vu0.h's bare form is what this tree "
+                                  f"builds with"))
+            continue
 
         above = re.sub(r"INCLUDE_ASM[^\n]*\n", "", cur_text[:span[0]])
         above = STR_LITERAL_RE.sub('""', above)
@@ -1779,7 +1948,11 @@ def cmd_port(args, shared=None):
         # size, and quick_diff never sees that.
         by_name = {r["name"]: r for r in cand["records"]}
         undone = []
-        reconcile_tu(stem, spliced_bodies(stem, by_name), undone)
+        allb = spliced_bodies(stem, by_name)
+        this_run = {r["name"] for r, _m in kept}
+        reconcile_tu(stem, allb, undone,
+                     protect={r["name"] for r, _m in allb
+                              if r["name"] not in this_run})
         names = {r["name"] for r, _ in undone}
         kept[:] = [(r, m) for r, m in kept if r["name"] not in names]
         reverted += undone
@@ -1789,7 +1962,7 @@ def cmd_port(args, shared=None):
         lines = [f"\n### {args.tu}"]
         for rec, mapping in kept:
             lines.append(f"- PORTED `{rec['name']}` w{rec['wave']} @ "
-                         f"0x{rec['pal_vma']:08X} <- ntsc {rec['us_stem']}"
+                         f"0x{rec['pal_vma']:08X} <- {SRC_LABEL} {rec['us_stem']}"
                          f":{rec['us_name']} ({len(mapping)} syms rebound)")
         for rec, reason in reverted:
             lines.append(f"- REVERTED `{rec['name']}` w{rec['wave']} @ "
@@ -1810,10 +1983,10 @@ def carve_note(stem, reverted):
     the carve pass can pick them up without re-deriving them."""
     if not any(classify_reason(r) == "emits-data" for _rec, r in reverted):
         return None
-    entries = ntsc_carves().get(stem, [])
+    entries = src_carves().get(stem, [])
     if not entries:
-        return f"- CARVES `{stem}` — none in ntsc's ico.us.yaml"
-    return ("- CARVES `%s` — %d US carve entr%s to translate:\n%s"
+        return f"- CARVES `{stem}` — none in {SRC_LABEL}'s {SRC_YAML.name}"
+    return ("- CARVES `%s` — %d source carve entr%s to translate:\n%s"
             % (stem, len(entries), "y" if len(entries) == 1 else "ies",
                "\n".join("    - %s" % e for e in entries)))
 
@@ -1823,7 +1996,7 @@ class PortContext:
     build, and rebuilding per TU dominates the runtime)."""
 
     def __init__(self):
-        self.src = NtscSource()
+        self.src = SourceTree()
         syms = load_symbols(TARGET_SYMS)
         self.pal_a2n = {}
         for e in syms:
@@ -2024,7 +2197,7 @@ def spliced_bodies(stem, by_name):
             for f in funcs if f["name"] not in inc]
 
 
-def reconcile_tu(stem, kept, reverted):
+def reconcile_tu(stem, kept, reverted, protect=()):
     """Make the TU object's .text EXACTLY the size of its PAL span.
 
     quick_diff compares ONE function's instruction stream and is blind to
@@ -2050,9 +2223,12 @@ def reconcile_tu(stem, kept, reverted):
         T.run_quick_diff(stem, kept[-1][0]["name"] if kept else "")
         return text_bytes(stem), object_func_sizes(stem)
 
+    protect = set(protect)
     got, sizes = measure()
     # 1. per-function size disagreement
     for rec, _m in list(kept):
+        if rec["name"] in protect:
+            continue
         sh = target_asm_shape(stem, rec["name"])
         want = sh[0] * 4 if sh else None
         have = sizes.get(rec["name"])
@@ -2067,20 +2243,29 @@ def reconcile_tu(stem, kept, reverted):
         return
     got, sizes = measure()
     # 2. residual: the span's trailing pad word, dropped with the last body
-    stuck = 0
-    while kept and got != exp and not span_tail_is_zero_pad(stem, got, exp):
-        rec, _m = kept.pop()
-        if not revert_one(path, rec["name"]):
-            # a handwritten-asm body: not a C definition, so there is nothing
-            # for extract_functions_from_file to replace. Leave it in place.
-            stuck += 1
-            if stuck > 8:
+    # Step 2 pops from the TAIL, so it must never take a body this run did
+    # not splice: a TU that already carries ntsc-ported bodies is size-correct
+    # before this run, so the residual belongs to one of THIS run's bodies.
+    # Reverting an already-verified sibling would be a regression, not a fix.
+    stuck = []
+    while got != exp and not span_tail_is_zero_pad(stem, got, exp):
+        idx = next((i for i in range(len(kept) - 1, -1, -1)
+                    if kept[i][0]["name"] not in protect
+                    and kept[i][0]["name"] not in stuck), None)
+        if idx is None:
+            if stuck:
+                rec = kept[-1][0]
                 reverted.append((rec, f"tu-size: TU .text 0x{got:X} != PAL "
                                       f"span 0x{exp:X}, and the residual is "
                                       f"not in a revertible C body"))
-                return
+            return
+        rec, _m = kept.pop(idx)
+        if not revert_one(path, rec["name"]):
+            # a handwritten-asm body: not a C definition, so there is nothing
+            # for extract_functions_from_file to replace. Leave it in place.
+            kept.insert(idx, (rec, _m))
+            stuck.append(rec["name"])
             continue
-        stuck = 0
         reverted.append((rec, f"tu-size: TU .text 0x{got:X} != PAL span "
                               f"0x{exp:X} (trailing pad word / extra code)"))
         if not kept:
@@ -2105,7 +2290,9 @@ REASON_CLASSES = [
     ("arity", r"too (?:few|many) arguments"),
     ("parse", r"parse error|syntax error|expected .*before"),
     ("redefinition", r"redefinition"),
-    ("missing-body", r"ntsc body not found"),
+    ("crutch", r"^crutch:"),
+    ("period-as-dialect", r"^period-as-dialect:"),
+    ("missing-body", r"(?:ntsc|aug6) body not found"),
     ("emits-data", r"^emits-data:"),
 ]
 
@@ -2448,7 +2635,12 @@ def cmd_revert_func(args):
         sys.exit(1)
     reason = args.reason or ("post-hoc: passed quick_diff but broke the "
                              "batch-level ninja SHA-1 gate")
-    ledger_append([f"- REVERTED `{args.func}` — {reason} (post-hoc, bisected)"])
+    # File it under the TU heading, or cmd_ledger attributes it to whatever
+    # section happened to be last and the stale PORTED line survives the
+    # compaction (measured: the four chunk-1 period-as reverts landed under
+    # isys/gobj_process and isys/gobj_dl).
+    ledger_append([f"\n### {tu_stem(args.tu)}",
+                   f"- REVERTED `{args.func}` — {reason} (post-hoc, bisected)"])
     print(f"revert-func: reverted {args.func} in {args.tu}.c")
 
 
@@ -2486,6 +2678,11 @@ def cmd_status(args):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
+    ap.add_argument("--source", default="ntsc", choices=("ntsc", "aug6"),
+                    help="which matched tree supplies the bodies "
+                         "(default ntsc = USA retail; aug6 = the Aug-6-2001 "
+                         "prototype checkout).  Selects the source root, asm "
+                         "root, symbol table, _gp, cache dir and ledger.")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("scan")
@@ -2533,6 +2730,7 @@ if __name__ == "__main__":
     p.add_argument("--reason", default=None)
 
     args = ap.parse_args()
+    configure_source(args.source)
     {"scan": cmd_scan, "status": cmd_status, "tus": cmd_tus, "plan": cmd_plan,
      "port": cmd_port, "port-all": cmd_port_all, "ledger": cmd_ledger,
      "fixup": cmd_fixup, "revert-func": cmd_revert_func}[args.cmd](args)

@@ -2,6 +2,14 @@
 
 #include "ico/types.h"
 
+typedef struct {
+    char _0[0x10];
+    int unk10;
+    int unk14;
+    short **unk18;
+    short **unk1C;
+} FuzioCtx;
+
 typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } FcBlk8;
 
 typedef int (*FcFunc)(void *a0, int a1);
@@ -337,14 +345,95 @@ int PositionOfExit(int a0, int a1) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", GetGlobalWallPlane);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipWDebug);
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipW);
+extern int D_0063C234;
+extern FuzioCtx *D_0063C238;
+extern short D_006C10C0[];
+extern int clip_wall_1(void *a0, int a1, int a2, int a3);
+
+int _clipW(void *arg0, int arg1, int arg2) {
+    int ret = 0;
+    int i;
+
+    for (i = 0; i < D_0063C234; i++) {
+        short *p = D_0063C238->unk18[D_006C10C0[i]];
+        if (p != 0) {
+            while (*p >= 0) {
+                int e = D_0063C238->unk10 + (int) *p * 0x50;
+                int val = *(int *)(e + 0x48);
+                if ((val & 0xF0000000) == 0) {
+                    if ((val & 0xF0000) != 0x10000) {
+                        if (clip_wall_1(arg0, e, 0, 1) != 0) {
+                            *(int *)((char *)arg0 + 0x88) = e;
+                            ret = 1;
+                            *(int *)((char *)arg0 + 0x80) = arg1;
+                            *(int *)((char *)arg0 + 0x84) = arg2;
+                        }
+                    }
+                }
+                p++;
+            }
+        }
+    }
+    return ret;
+}
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipWE);
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipWEField);
+int _clipWEField(void *arg0, int arg1, int arg2) {
+    int found = 0;
+    int i;
+
+    for (i = 0; i < D_0063C234; i++) {
+        short *p = D_0063C238->unk18[D_006C10C0[i]];
+        if (p != 0) {
+            while (*p >= 0) {
+                int e = D_0063C238->unk10 + (int) *p * 0x50;
+                if ((*(int *)(e + 0x48) & 0xF0000000) == 0) {
+                    if (arg1 != *(int *)((char *)arg0 + 0x74) ||
+                        arg2 != *(int *)((char *)arg0 + 0x78) ||
+                        e != *(int *)((char *)arg0 + 0x7C)) {
+                        if (clip_wall_1(arg0, e, 0, 0) != 0) {
+                            *(int *)((char *)arg0 + 0x88) = e;
+                            found = 1;
+                            *(int *)((char *)arg0 + 0x80) = arg1;
+                            *(int *)((char *)arg0 + 0x84) = arg2;
+                        }
+                    }
+                }
+                p++;
+            }
+        }
+    }
+    return found;
+}
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipWR);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipWField);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipWDitchHangWalkStop);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipWWaveForce);
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipWBoxStop);
+int _clipWBoxStop(void *arg0, int arg1, int arg2) {
+    int ret = 0;
+    int i;
+
+    for (i = 0; i < D_0063C234; i++) {
+        short *p = D_0063C238->unk18[D_006C10C0[i]];
+        if (p != 0) {
+            while (*p >= 0) {
+                int e = D_0063C238->unk10 + (int) *p * 0x50;
+                int val = *(int *)(e + 0x48);
+                if ((val & 0x70000000) == 0) {
+                    if ((val & 0xF0000) != 0x10000 || (val & 0xC0000000) == 0x80000000) {
+                        if (clip_wall_1(arg0, e, 0, 1) != 0) {
+                            *(int *)((char *)arg0 + 0x88) = e;
+                            ret = 1;
+                            *(int *)((char *)arg0 + 0x80) = arg1;
+                            *(int *)((char *)arg0 + 0x84) = arg2;
+                        }
+                    }
+                }
+                p++;
+            }
+        }
+    }
+    return ret;
+}
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipWAdjustPos);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipF);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipFE);
@@ -374,4 +463,8 @@ int ClipWallVector(int *a0, int *a1) {
     D_0063A840__pn(buf, 1);
     return buf[34];
 }
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", MapCollisionData);
+void MapCollisionData(void *a0) {
+    int *p = (int *)a0;
+    p[4] = (int)a0 + p[4];
+    p[5] = (int)a0 + p[5];
+}

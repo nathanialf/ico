@@ -353,4 +353,12 @@ extern int stage_no;
 extern void OtherStagePositionGet();
 extern int gamesysGetGirlStageIDAndPosition(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", GetGirlPositionAtThisStage);
+extern void OtherStagePositionGet__pn(int a0, int a1, int a2, int *buf) __asm__("OtherStagePositionGet");
+extern int gamesysGetGirlStageIDAndPosition__pn(int *buf) __asm__("gamesysGetGirlStageIDAndPosition");
+
+void GetGirlPositionAtThisStage(int a0)
+{
+    int buf[4];
+    int v0 = gamesysGetGirlStageIDAndPosition__pn(buf);
+    OtherStagePositionGet__pn(a0, stage_no, v0, buf);
+}

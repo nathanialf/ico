@@ -38,4 +38,12 @@ extern int CheckPureWallAttribute();
 extern int CheckWallAttribute();
 extern int stage_no;
 
-INCLUDE_ASM("asm/nonmatchings/src/act-env", CheckWallAttributeEdegWall);
+extern int CheckPureWallAttribute__pn(int a0, int a1) __asm__("CheckPureWallAttribute");
+extern int CheckWallAttribute__pn(int a0, int a1) __asm__("CheckWallAttribute");
+
+int CheckWallAttributeEdegWall(int a0) {
+    if (stage_no == 4) {
+        return (unsigned char)CheckPureWallAttribute__pn(a0, 0x1000);
+    }
+    return (unsigned char)CheckWallAttribute__pn(a0, 0x1000);
+}

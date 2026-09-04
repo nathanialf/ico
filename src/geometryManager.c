@@ -26,7 +26,19 @@ void SetRootBaseQuaternion(int a0)
 {
     CopyQuaternion((int)((GObj *)(a0))->p_15C + 0xC0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootQuaternion);
+extern void CopyQuaternion__pn(void *a0, void *a1) __asm__("CopyQuaternion");
+extern void DivQuaternion(void *a0, void *a1, int a2);
+
+void SetRootQuaternion(char *a0, void *a1) {
+    char *q = *(char **)(a0 + 0x15C) + 0xD0;
+    char *p;
+    CopyQuaternion__pn(q, a1);
+    p = *(char **)(a0 + 0x15C);
+    if (*(int *)p != 0) {
+        char *m = *(char **)(*(int *)p + 0x15C);
+        DivQuaternion(q, a1, *(int *)(m + 0x10) + (*(int *)(p + 4) << 4));
+    }
+}
 extern void CopyMatrix();
 extern int * MatrixDrive_GetMatrix();
 extern void MatrixDrive_PopMatrix();

@@ -190,7 +190,19 @@ extern int D_006E6708[];
 int InsertCamera_isEnable(void) {
     return D_006E6708[0] < 2;
 }
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", CameraSetCameraPosition);
+extern float D_006C9F60_f[] __asm__("D_006E66C0");
+extern float D_006C9F80_f[] __asm__("D_006E66E0");
+
+void CameraSetCameraPosition(float *src) {
+    if (D_0063C2A0 != 3) {
+        D_006C9F60_f[0] = src[0];
+        D_006C9F60_f[1] = src[1];
+        D_006C9F60_f[2] = src[2];
+        D_006C9F80_f[0] = src[0];
+        D_006C9F80_f[1] = src[1];
+        D_006C9F80_f[2] = src[2];
+    }
+}
 void CameraSetTargetPos(void) {}
 extern int D_0063AB98;
 
@@ -216,4 +228,6 @@ void testcamerazoom(void) {
 }
 extern int D_0063AB6C;
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", SetMonitorCameraInitializeFlag);
+void SetMonitorCameraInitializeFlag(void) {
+    D_0063AB6C = 1;
+}

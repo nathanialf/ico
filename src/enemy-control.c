@@ -12,4 +12,18 @@ int InitEnemyCtrlGeo(void)
     D_0063C2DC = 0;
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy-control", IsSelectID_EnemyCtrl);
+extern int D_006E6BD0[];
+
+int IsSelectID_EnemyCtrl(int a0)
+{
+    if (D_0063C2D8 < 0) goto init;
+    if (a0 != D_0063C2D8) goto append;
+    return 1;
+init:
+    D_0063C2D8 = a0;
+    return 1;
+append:
+    D_006E6BD0[D_0063C2D4] = a0;
+    D_0063C2D4++;
+    return 0;
+}

@@ -199,7 +199,19 @@ INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE10lstrong);
 ASM_LIT4_SLOT(D_00639BCC, 773.0f);
 INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE10rstrong);
 ASM_LIT4_SLOT(D_00639BD0, 0.3f);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE10rstrong2);
+int stageSE10rstrong2(int self) {
+    float f;
+    if (D_0063C07C == frame_count) {
+        f = D_0063C078;
+    } else {
+        D_0063C07C = frame_count;
+        f = GetRegularizedWindSpeed((void *)GetCameraPos__pn());
+        f = f * 0.5f + 0.5f;
+        D_0063C078 = f;
+    }
+    *(float *)(self + 0x18) = f;
+    return -1;
+}
 int stageSE13arain(char *a0)
 {
     float *v1 = *(float **)(a0 + 0x34);

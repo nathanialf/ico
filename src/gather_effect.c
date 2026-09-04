@@ -9,4 +9,20 @@ INCLUDE_ASM("asm/nonmatchings/src/gather_effect", GatherEffect_Proc);
 INCLUDE_ASM("asm/nonmatchings/src/gather_effect", GatherEffect_Set);
 extern void *GetParticleEffectData(void *a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/gather_effect", GatherEffect_InqEnd);
+int GatherEffect_InqEnd(int a0) {
+    int acc = 0;
+    if (a0 >= 0) {
+        struct GGeo *geo = (struct GGeo *)GetParticleEffectData((void *)a0);
+        if (geo == 0) {
+            return 1;
+        }
+        {
+            int n = geo->f30;
+            int i;
+            for (i = 0; i < n; i++) {
+                acc |= geo->f24[i].f0;
+            }
+        }
+    }
+    return acc == 0;
+}

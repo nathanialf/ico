@@ -1,5 +1,35 @@
 #include "common.h"
 
+struct jSub {       /* sub-object at offset 0xC of the argument */
+    char  _0[0x2C];
+    int   field2C;
+    int   n;
+    int   field34;
+    char  _38[4];
+    void *field3C;
+    void *field40;
+};
+struct jArg {
+    char  _0[0xC];
+    struct jSub sub;
+};
+struct jNode {
+    char  _0[4];
+    int   status;
+    int   field8;
+    int   fieldC;
+    char  _10[4];
+    int   field14;
+};
+struct jWayGroup {  /* D_006C1E80 element, stride 0x18 */
+    int   f0;
+    int   f4;
+    int   f8;
+    char  _c[4];
+    struct jNode *node;
+    char  _14[4];
+};
+
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", display_texture);
 extern void iosCdvdBackGroundMgrSeek(char *self, int val);
 extern void iosCdvdBackGroundRead();
@@ -17,7 +47,25 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuHandler);
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrBegin);
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrNext);
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrJump);
+extern struct jWayGroup D_006C1E80[];
+extern void iosCdvdBackGroundMgrSeek__pn(void *a0, int a1) __asm__("iosCdvdBackGroundMgrSeek");
+extern void jimakuMgrNext(struct jArg *p);
+
+void jimakuMgrJump(struct jArg *p)
+{
+    struct jSub *q = &p->sub;
+    int m;
+
+    iosCdvdBackGroundMgrSeek__pn(q->field40, q->field2C * 0x8800);
+    m = (q->field34 = (q->n + 1) % 4);
+    while (m != q->n) {
+        D_006C1E80[m].f0 = -1;
+        D_006C1E80[m].f4 = 3;
+        D_006C1E80[m].f8 = -1;
+        m = (m + 1) % 4;
+    }
+    jimakuMgrNext(p);
+}
 extern char D_006E5000[];
 extern char D_006E5038[];
 extern char D_006E5070[];
@@ -50,7 +98,24 @@ void jimakuNext(int *p) {
         iosMsgSend(jimakuMsgQ, p, 0);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuJump);
+extern int D_0028F4C0[];
+extern int D_0063A960;
+extern void iosMsgSend__pn(void *a0, void *a1, int a2) __asm__("iosMsgSend");
+
+void jimakuJump(int a0) {
+    int *w = (int *)(a0 + 0xC);
+    if (D_0028F4C0[10] == 0) return;
+    {
+        int v = w[14];
+        if (v == -1) {
+            D_0063A960 = ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) << 2;
+        } else {
+            D_0063A960 = v;
+        }
+    }
+    *(int *)a0 = 2;
+    iosMsgSend__pn(jimakuMsgQ, (void *)a0, 0);
+}
 extern void jimakuMgrEnd__pn() __asm__("jimakuMgrEnd");
 
 void jimakuEnd(void)

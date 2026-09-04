@@ -54,7 +54,14 @@ int iosMcUnformat(void *a0) {
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8, a0, 0);
 }
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcGetDir);
+extern int D_0029B9E8__pn[] __asm__("D_0029B9E8");
+
+int iosMcGetDir(void *a0) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 6;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0029B9E8__pn, a0, 0);
+}
 extern int D_0029B9E8__pn[] __asm__("D_0029B9E8");
 
 int iosMcDelete(void *a0) {
@@ -69,12 +76,44 @@ int iosMcSaveIconBlock(void *a0) {
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcSaveProductBlock);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcLoadProductBlock);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcSaveGameBlock);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcLoadGameBlock);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcChdirProduct);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcGetBlockSaveInfo);
+int iosMcSaveProductBlock(void *a0) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 8;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0029B9E8__pn, a0, 0);
+}
+int iosMcLoadProductBlock(void *a0) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 9;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0029B9E8__pn, a0, 0);
+}
+int iosMcSaveGameBlock(void *a0, int a1) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 0xA;
+    *(int *)((char *)a0 + 0x48) = a1;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0029B9E8__pn, a0, 0);
+}
+int iosMcLoadGameBlock(void *a0, int a1) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 0xB;
+    *(int *)((char *)a0 + 0x48) = a1;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0029B9E8__pn, a0, 0);
+}
+int iosMcChdirProduct(void *a0) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 0xC;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0029B9E8__pn, a0, 0);
+}
+int iosMcGetBlockSaveInfo(void *a0) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 0xD;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0029B9E8__pn, a0, 0);
+}
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", product_write);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", product_read);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", gameblock_write);

@@ -37,4 +37,8 @@ int sceDmaPause(void *a0) {
     *(int *)a0 = v & ~0x100;
     return ((unsigned int)v >> 8) & 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaRestart);
+int sceDmaRestart(void *a0) {
+    int v = *(int *)a0;
+    *(int *)a0 = v & ~0x100;
+    return ((unsigned int)v >> 8) & 1;
+}
