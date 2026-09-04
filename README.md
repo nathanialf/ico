@@ -127,13 +127,13 @@ Pattern catalogs and quirk references:
 
 ## Layout
 
-Decompiled C is organized into the **retail build's own source tree** — the
+Decompiled C is organized into the **retail build's own source tree**: the
 release build collapsed the prototype's per-programmer directories into a
-flat layout, which the retail ELF's `__FILE__` strings preserve. The aug6
-per-programmer attribution survives as metadata (symbol-table trailers and
-the progress site's grouping). See `main`'s
-[`decomp/PROGRAMMERS.md`](decomp/PROGRAMMERS.md) for the author→subsystem
-mapping.
+flat layout, which the PAL disc's `SRCFILE.TXT` listing spells out file by
+file (`decomp/pal_source_tree.md`, local-only). The prototype's
+per-programmer attribution survives as metadata (the progress site's
+grouping); see [`decomp/PROGRAMMERS.md`](decomp/PROGRAMMERS.md) for the
+author→subsystem mapping.
 
 ```
 config/         splat yaml + linker scripts (ico.pal.{yaml,ld,d},
@@ -154,9 +154,10 @@ tools/          build orchestration + matching aids (compile_c.sh,
                 quick_diff.sh, match_diff.py, find_carves.py,
                 gen_pal_symbol_addrs.py, gen_pal_data_symbols.py,
                 gen_pal_source_tree.py, easy_pickups.py …)
-decomp/         ledgers (port_ledger_pal*, carve_ledger, HEADERS.md,
-                easy_pickups.md) + shared pattern catalogs (NOTES.md,
-                COOKBOOK.md — gitignored, branch-shared)
+decomp/         README.md indexes every doc here and in docs/; ledgers
+                (port_ledger_pal*, carve_ledger, HEADERS.md, easy_pickups.md)
+                + shared pattern catalogs (NOTES.md, COOKBOOK.md, MATCH_VU.md
+                — gitignored, branch-shared)
 docs/           contributor docs (PROGRESS, dashboard index.html + progress.json)
 tough_nuts/     parked near-misses (INDEX.md maps dir → current symbol)
 ```
@@ -167,51 +168,53 @@ tough_nuts/     parked near-misses (INDEX.md maps dir → current symbol)
   clean-room C for one translation unit. Typed data defs live alongside the
   functions that reference them.
 - **Typed data** — placed by **per-TU yaml carving** (dot-form `.rodata`/
-  `.data`/`.sdata` subsegments in `config/ico.us.yaml`), not a generated
-  sidecar. Carved constants are written into the owning `<TU>.c` so gcc's
-  emission replaces the asm-side blob. (The old `_data.c` sidecar +
-  `migrate_data_per_tu.py` flow of the old retail branch is retired; see
-  `decomp/carve_ledger.md` for the carve rules and known blockers.)
-- **`tough_nuts/<func>/`** — parked near-misses with notes; `INDEX.md` maps
-  each dir to its current symbol name.
+  `.data`/`.sdata` subsegments in `config/ico.pal.yaml`), not a generated
+  sidecar and never a `section` attribute in the source. Carved constants are
+  written into the owning `<TU>.c` so gcc's emission replaces the asm-side
+  blob. See `decomp/carve_ledger.md` for the carve rules and known blockers.
+- **`tough_nuts/<func>/`** — parked near-misses with notes, created on demand
+  by `tools/park_tu.py` / `tools/match_drive.py`. `config/sweep_parked.txt`
+  is the sweep-side exclusion list (empty on PAL at the retarget).
 
 ## Build pipeline
 
 ```
-disc image (.bin/.cue)
+disc image (Ico_PAL.iso on main; .bin/.cue on ntsc)
    │
    │  tools/extract_elf.sh
    ▼
-baserom/baseelf.{elf,rom}  ←──────── SHA-1 oracle for every build
+baserom/pal/baseelf.{elf,rom}  ←──── SHA-1 oracle for every build
    │
    │  tools/build.sh setup    (raw round-trip: NO ld/asm postprocess,
    │    patch_splat.py            NO data→typed-C migration)
-   │    assemble_vu0.py → hand-written VU0 .S → .s
-   │    splat → asm/, config/ico.us.ld
+   │    assemble_vu0.py → hand-typed VU1 .S → .s
+   │    splat → asm/, config/ico.pal.ld
    │    tools/gen_ninja.py → build.ninja
    ▼
 ninja
    │
    │  ee-gcc 2.9 (src/*.c) + period ee-as 2.9-991111 (asm/*.s),
    │    both via tools/compile_c.sh
-   │  + always-on asm/ROM-encoding fixups in preprocess_old_as.py /
-   │    compile_c.sh (move→daddu, break 0,N, fcc-nop, jr-FP nop,
-   │    .lit4 placement; config/*.txt allowlists)
-   │  link via config/ico.us.ld
+   │  + always-on asm/ROM-encoding parity in preprocess_old_as.py /
+   │    compile_c.sh (move→daddu, break 0,N, FCC + COP1-move hazard nops,
+   │    FP-store-before-jr, unaligned-store-before-tail-j, .lit4 placement)
+   │  link via config/ico.pal.ld
    ▼
 build/ico.elf → objcopy → build/ico.rom
                               │
                               ▼
-                          SHA-1 check vs baserom/baseelf.rom
+                    SHA-1 check vs baserom/pal/baseelf.rom
 ```
 
 ## Toolchain
 
 - **Compiler** — ee-gcc 2.9-991111-01, fetched from `decompme/compilers`
   into `tools/cc/ee-gcc2.9-991111/`.
-- **Assembler** — the period ee-as 2.9-991111 (ee-gcc 2.9's own `as`) is
-  the default; its delay-slot reorder matches the ROM. The newer 2.96 `as`
-  is kept only as a fallback.
+- **Assembler** — the period ee-as 2.9-991111 (ee-gcc 2.9's own `as`) is the
+  only assembler for a C TU; its delay-slot reorder matches the ROM. There is
+  no modern-gas fallback (removed 2026-08-05) and the newer 2.96 `as` is not
+  reachable from the build — a parse failure is a hard error to fix in the
+  source. splat's own `.s` and the final link use `mips-linux-gnu-as/ld/objcopy`.
 - **Linker** — GNU ld via `mips64r5900el-ps2-elf-ld`.
 - **Analysis** — Ghidra under `tools/ghidra/`; `m2c` (`lib/m2c/`) for
   asm → C scaffolding; `splat` (`lib/splat/`) for ELF splitting;
@@ -231,8 +234,8 @@ technique, never copy code from):
 - [`parappadev/parappa2`](https://github.com/parappadev/parappa2) — Sony
   Japan Studio, PS2 2001, **same `ee-gcc 2.9-991111-01` toolchain as
   ICO**. Useful for compiler idioms and header / macro patterns. (Its
-  per-TU `slinky` section-linking approach was used on ICO's retired
-  `retail` branch only; both live branches are raw splat round-trips.)
+  per-TU `slinky` section-linking approach was tried on an ICO branch that
+  no longer exists; all three live branches are raw splat round-trips.)
   See `decomp/NOTES.md`
   for specific cross-references.
 - [`zeldaret/oot`](https://github.com/zeldaret/oot) — Ocarina of Time,

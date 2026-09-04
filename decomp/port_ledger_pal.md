@@ -1,5 +1,8 @@
 
-# ntsc -> PAL body port (`tools/port_from_ntsc.py`)
+# ntsc -> PAL body port
+
+*(Produced by the ntsc→pal port driver, retired once the pass completed. This
+file is the accounting that outlived it.)*
 
 Bodies below were carried over from the `ntsc` (USA retail SCUS-971.13)
 checkout's matched clean-room C with every US symbol rebound to its PAL
@@ -2614,7 +2617,7 @@ contains a float constant (or, once, a `<=8`-byte string constant), and
 ee-as interns it into the TU object's own anonymous `.lit4` (`.sdata` for the
 string).  With no carve, those bytes are appended to a section the PAL yaml
 still owns as one whole-section blob, so the layout shifts and the SHA-1 gate
-fails — which is exactly what `port_from_ntsc.py`'s growth check caught.
+fails — which is exactly what the port driver's growth check caught.
 
 Fix: 12 `.lit4` carves + 1 `.sdata` carve in `config/ico.pal.yaml`, plus
 `ASM_LIT4_SLOT()` lines for every pool word whose owner is still

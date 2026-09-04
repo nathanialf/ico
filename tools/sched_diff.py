@@ -10,8 +10,8 @@ the final instruction order across four RTL passes, each with its own lever:
     sched2  (-dR)  second scheduler, POST register-alloc -> -fno-schedule-insns2
     dbr     (-dd)  delayed-branch reorg, fills delay slots -> readiness at the branch
 
-This tool compiles the function with the EXACT quick_diff CFLAGS (+ any
-per-file extra_cflags) plus the dump flags, slices the function out of each
+This tool compiles the function with the EXACT quick_diff CFLAGS plus the
+dump flags, slices the function out of each
 dump, and shows:
 
   * the final (dbr) instruction stream as readable pseudo-ops, with each
@@ -82,25 +82,12 @@ def resolve_src(tu: str) -> Path:
              f"{', '.join(r for r in SRC_ROOTS if r)})")
 
 
-def extra_cflags(src: Path) -> list[str]:
-    lookup = ROOT / "tools" / "extra_cflags.sh"
-    if not lookup.exists():
-        return []
-    try:
-        out = subprocess.run([str(lookup), str(src)], capture_output=True,
-                             text=True, cwd=str(ROOT)).stdout.strip()
-    except OSError:
-        return []
-    return out.split() if out else []
-
-
 def compile_dumps(src: Path, outdir: Path) -> Path:
     """Compile src into outdir with all three pass dumps; return dump base."""
     cc = EEGCC if EEGCC.exists() else Path("mips64r5900el-ps2-elf-gcc")
     cflags = list(BASE_CFLAGS)
     if EEGCC.exists():
         cflags = ["-B", str(EEGCC_LIB) + "/"] + cflags
-    cflags += extra_cflags(src)
     # gcc 2.9 writes pass dumps to the CWD, named <input_basename>.<pass>.
     # Copy the source into outdir and compile with cwd=outdir so the dumps
     # land there (and not in the repo root).

@@ -1,10 +1,16 @@
 # Vendor code policy — what it is, how it is accounted, what may be used to match it
 
-*Written 2026-07-28 on `retail-v2`. Before this file there was no written
-vendor policy anywhere in either tree — only a stale YAML comment
-(`config/ico.aug6.yaml:99`) and two fdlibm-specific asides
-(`decomp/NOTES.md:390,403`, `decomp/COOKBOOK.md:855`). Treat this file as
-the canonical statement.*
+*Written 2026-07-28. Treat the POLICY here (§0, §2, §3, §4, §6) as canonical
+and target-neutral — it binds on every branch.*
+
+*The NUMBERS and representation in §1, §5 and §7 were measured on the USA
+retail tree (now the `ntsc` branch) and its aug6 port. On `main` (PAL retail)
+vendor is represented natively: `config/ico.pal.yaml` carries **18
+`src/cod/vendor_<VMA>` spans**, each one an archive member run named from the
+PAL disc's own `MAIN.MAP` (e.g. `vendor_2788D8` = libm.a 21/21,
+`vendor_27E5E0` = libc.a 116/118), and `config/symbol_addrs.pal.txt` carries
+967 `// (vendor)` notes. Re-measure before quoting any figure below on this
+branch.*
 
 ---
 
@@ -93,35 +99,35 @@ denominator caveat at the top of §7.)
 
 ### How the two runs are represented
 
-- `config/ico.us.yaml:105` — `[0x000000, asm, src/cod/000000]`, the head blob.
-- `config/ico.us.yaml:322` — `[0x1418A0, asm, src/cod/1418A0]`, the tail blob.
-  (yaml offsets are ROM offsets = VMA − 0x100000.)
-- `config/symbol_addrs.us.txt` — every vendor function carries a
-  `// (vendor)` note, emitted under `// ---- (vendor)` section headers at
-  lines 245 and 5268 by `tools/gen_us_symbol_addrs.py`
-  (`VENDOR = "(vendor)"`, and the cut logic in `cut_vendor_tail()`).
+On the USA tree the two runs were one `asm` blob each in `config/ico.us.yaml`
+(yaml offsets are ROM offsets = VMA − 0x100000), with `// (vendor)` notes
+emitted into `config/symbol_addrs.us.txt` by that branch's
+`gen_us_symbol_addrs.py`.
+
+On `main` the same two runs are 18 per-archive-member spans in
+`config/ico.pal.yaml` (`src/cod/vendor_<VMA>`), and the `// (vendor)` notes in
+`config/symbol_addrs.pal.txt` are emitted by `tools/gen_pal_symbol_addrs.py`
+from the disc's `MAIN.MAP` member list — so PAL knows which archive each
+function came from, which the USA cut could only infer by hashing.
 
 ---
 
 ## 2. The de-facto policy: vendor code **is** matched, clean-room
 
-`config/ico.aug6.yaml:99` still says *"crt0 + libkernl (vendor, not
-matched)"*. **That comment is stale.** The `main` (aug6 prototype) branch
-has already landed **478 vendor functions / 46,808 bytes**, spanning every
-archive in the table above.
+A stale YAML comment on the `aug6` branch still says *"crt0 + libkernl
+(vendor, not matched)"*. It is wrong: the `aug6` branch had already landed
+**478 vendor functions / 46,808 bytes**, spanning every archive in the table
+above.
 
 Those matches live inside `common/src/PObj.c`, because aug6's final `.text`
 subsegment is an uncarved `common/src/PObj` blob that swallows the whole
-vendor tail (`config/ico.aug6.yaml:317`). Measured on the aug6 tree, that
-blob is 484/775 functions and 47,400/190,692 bytes matched; subtract the
-handful of genuine `PObj.o` functions at its head and the vendor share is
-the 478 / 46,808 above.
+vendor tail. That representation **attributes ~46 KB of SDK and libc code to a
+game TU**, which is dishonest accounting.
 
-So aug6's representation **attributes ~46 KB of SDK and libc code to a game
-TU**. Retail's two `src/cod/*` blobs keep vendor separate from every game
-TU. **Retail's representation is the more honest one** and should be
-preserved: when aug6's vendor matches are ported over here, they belong in
-vendor-named TUs carved out of `src/cod/*`, not folded into `src/PObj.c`.
+The rule that came out of it and still binds: **vendor code lives in
+vendor-named TUs, never folded into a game TU.** `main` satisfies it by
+construction — the 18 `src/cod/vendor_<VMA>` spans are named per archive
+member.
 
 ---
 
@@ -208,13 +214,14 @@ reference implementation, which is the slowest kind of matching there is.
 **`_start` (`0x00100008`).** The real ELF entry point (confirmed via
 `readelf -h`). It sits *inside* the crt0 head run, 8 bytes past
 `func_00100000`. As of 2026-07-28 it carries a `// (vendor)` note in
-`config/symbol_addrs.us.txt:2` so the dashboard stops counting it as a
+`config/symbol_addrs.<ver>.txt` so the dashboard stops counting it as a
 note-less symbol. It is crt0, i.e. §3b proprietary — not game code, and not
 something to match casually.
 
 **`ico2000.a(vobj.o)` — ~400 B of real game code on the vendor side.** The
-symbol generator's own docstring admits this
-(`tools/gen_us_symbol_addrs.py`, `cut_vendor_tail()`): the vendor cut is
+USA symbol generator's own docstring admitted this (that script lived on the
+`ntsc` branch; PAL takes the member boundaries from `MAIN.MAP` instead): the
+vendor cut was
 placed at the last retail function with positive game-code evidence (its own
 `__FILE__` anchor, or a twin carrying a TRFILE-derived name), and `vobj.o` is
 the one `ico2000.a` member with neither. So it falls on the vendor side.
@@ -240,164 +247,65 @@ Related accounting rules the same script now enforces:
   symbol without a `// <path>.c` note fell through to `vendor` and was
   displayed as `(unassigned)` — a label that appears nowhere in the repo's
   data. 78 symbols were landing there, of which 72 were game code with a
-  merely-missing note (now resolved from the `c` subsegment spans in
-  `config/ico.us.yaml`), 5 were the VU1 microprograms, and 1 was `_start`.
+  merely-missing note (resolved from the `c` subsegment spans in
+  `config/ico.<ver>.yaml`), 5 were the VU1 microprograms, and 1 was `_start`.
   A symbol with neither a TU note nor a `(vendor)` note now lands in an
   explicit `(unassigned)` group that should always be empty.
 - **`.vutext` is counted separately from `.text`.** The five VU1
-  microprograms are `hasm` subsegments in a different ELF section
-  (`config/ico.us.yaml:325-329`); `tools/progress.py` has always reported
+  microprograms are `hasm` subsegments in a different ELF section of
+  `config/ico.<ver>.yaml`; `tools/progress.py` has always reported
   `.vutext` 100 % matched. They now get their own `.vutext` group so their
   20,704 bytes cannot inflate a `.text` roll-up. `totals.sections` reports
   both sections; `totals.matched_bytes` / `total_bytes` remain `.text` only.
 
 ---
 
-## 7. Status — the aug6 vendor port (landed 2026-07-28)
+## 7. Status
 
-**▶ The 427 unmatched vendor functions are enumerated and queued in
-`decomp/convpass_ledger_3.md`, section "Vendor queue — the 427 unmatched
-vendor functions" (groups V0–V6), and are ranked against the game-code
-targets in that file's "Recommended order for a conv-10". That is the
-standing queue; this section is the status summary that feeds it.**
+Vendor accounting is per-branch; there is no cross-branch vendor total.
 
-`521 / 945` vendor functions and `34,144 / 194,996` bytes (17.51 %) are
-decompiled. `.text` overall moved `14.49 % -> 16.81 %` (217,992 -> 252,996 B).
+- **`main` (PAL).** The two runs are carved into 18 `src/cod/vendor_<VMA>`
+  spans in `config/ico.pal.yaml`, one per archive member, each comment
+  carrying the member name and how many of its functions `MAIN.MAP` accounts
+  for (e.g. `vendor_25E188` = libdma.a 16/16, `vendor_272338` = libipu.a
+  4/70). Live matched counts: the dashboard linked from `README.md`; what was
+  ported in and what was reverted: `decomp/port_ledger_pal.md` and
+  `decomp/port_ledger_pal_aug6.md`.
+- **`ntsc` / `aug6`.** Their vendor status, the aug6→retail vendor port and
+  its V0–V6 queue are history now; the write-up is in
+  `decomp/ARCHIVE_retired_notes.md` (it depended on `convpass_ledger_3.md`,
+  `port_ledger.md` and `port_from_aug6.py`, none of which exist any more).
 
-**Caveat on the denominator (found 2026-07-29).** `945` is what
-`tools/progress_tree.py` counts, and it is 3 low. `func_00246B78`,
-`func_002658B8` and `func_00268F28` are real functions — splat emits a `.s`
-for each and the carved TUs `INCLUDE_ASM` them — but they are **missing from
-`config/symbol_addrs.us.txt`**, so the dashboard never sees them. The honest
-figures are **948 functions / 195,684 B, 521 matched, 427 unmatched /
-161,540 B**. Fixing the symbol table is a queue item (see the ledger's
-"Reconciliation" heading), deliberately not done in the docs-only pass that
-found it.
+The durable results of that port, restated because they are still true:
 
-### Representation
-
-Both blobs are carved (`config/ico.us.yaml`), 14 `c` TUs under `src/cod/`.
-(2026-08-01: the old `vendor_252D28` 96-func chunk merged parts of six
-archive members and its start fell mid-`mpc.o`; it was re-carved into six
-TUs at the true member boundaries — aug6-twin instruction-hash attribution
-— and `vendor_24E9D8` now ends at the `mpc.o` start. That re-carve is what
-let the `func_00254328` short-loop-erratum label-alias workaround retire;
-see the HISTORY comment at that function in `vendor_2517D0.c`. Matched
-counts below are INCLUDE_ASM-derived from the tree on 2026-08-01; the
-per-TU history above this table predates the re-carve.)
-
-| TU | funcs | bytes |
-|---|---|---|
-| `vendor_100110` (head, syscall leaves) | 140/151 | 2,240/2,944 |
-| `vendor_2418A0` | 60/96 | 3,696/15,136 |
-| `vendor_2453C0` | 46/96 | 3,688/22,280 |
-| `vendor_24AAC8` | 37/96 | 2,824/16,144 |
-| `vendor_24E9D8` (ends at mpc.o) | 37/48 | 6,976/11,768 |
-| `vendor_2517D0` = libmpeg.a(mpc.o) | 66/97 | 6,192/19,728 |
-| `vendor_2564E0` = libmpeg.a(csc.o) | 3/7 | 512/1,816 |
-| `vendor_256BF8` = libmpeg.a(bit.o) | 1/3 | 56/512 |
-| `vendor_256DF8` = libipu.a(libipu.o) | 0/4 | 0/816 |
-| `vendor_257128` = libipu.a(ipuinit.o) | 0/2 | 0/1,176 |
-| `vendor_2575C0` = libsndn2.a(sound.o) head | 20/31 | 1,792/5,888 |
-| `vendor_258CC0` | 61/96 | 6,048/21,800 |
-| `vendor_25E1E8` | 39/96 | 3,796/34,512 |
-| `vendor_2668B8` | 42/92 | 3,756/36,032 |
-
-Boundaries are 8-byte-aligned function starts — every `.text` object in this
-link has alignment 8, so an unaligned split inserts pad and breaks the SHA-1.
-Three spans stay `asm` on purpose: `0x00100000-0x00100110` (crt0 / `_start`),
-`0x00100C90-0x00101C80` (the rest of libkernl), and `0x0026F578-0x0026F5E0`
-(the last vendor function *plus* the 12 bytes of inter-section `.text` pad —
-splat puts the pad inside that object and no C TU can emit it, so matching
-that one 104-byte function would cost the pad).
-
-### Correspondence — there is no single aug6->retail delta
-
-(A "+0x16C8 constant delta" was in circulation when this port started. It is
-wrong; it is not written anywhere in this file, and it should not be.)
-
-Order-preserving alignment of reloc-normalized instruction streams (aug6's
-own splat `.s` for `common/src/PObj` against the retail words lifted from
-`baseelf.rom`) pairs **716 of 765** tail functions across **three** deltas:
-`+0x3C70` (474), `+0x3AE0` (208), `+0x3B00` (34). 49 have no twin at all.
-The pairing is handed to `tools/port_from_aug6.py` via its existing
-`.port_cache/name_alias.json` hook, so vendor bodies get the same lockstep
-reloc-slot rebinding and per-function gate as every other Phase-4 port.
-
-Of the 455 pairs whose aug6 twin carried a matched baseline `.s`, the port's
-`scan` kept **403** and dropped 52. So the portable population was 403, and
-371 + 10 hand-recovered = 381 landed; one more (`func_0026F578`) is portable
-but blocked by the pad above.
-
-**Correction (2026-07-29): the 52 dropped pairs are not stale.** This section
-originally said they were "stale `matchings/*.s` for functions aug6 has since
-reverted to `INCLUDE_ASM`". Re-checked at the pinned aug6 commit
-`3a5ab90e34bb41993cd70087d46366db870571bd`, that is false: all 716 aliased
-pairs split cleanly into 455 (matched `.s` present *and* a body in
-`common/src/PObj.c`) and 261 (`INCLUDE_ASM` *and* no `.s`) — zero stale.
-The 52 are functions aug6 **matched as bare `__asm__` blocks** (VU0
-macro-mode, MMI, privileged COP0/TLB/cache, EE syscall stubs), and
-`tools/port_from_aug6.py:410-419` only indexes *C* definitions, so it did not
-see them and labelled the drop "stale". They are the most tractable group in
-the whole vendor queue (group **V2**, 52 funcs / 7,324 B, twelve of them 4
-insns) — a finished byte-matching body already exists upstream for every one.
-
-### What is left, and why
-
-Counts below are the reconciled ones (427 total, from the 948-function
-denominator). Each group is enumerated **by name, with sizes** in the
-`decomp/convpass_ledger_3.md` vendor queue; the group tags are that queue's.
-
-- **V1 — 21 genuine reverts** (2,984 B; `decomp/port_ledger.md` has each one,
-  with the first divergent instruction). 7 `unresolved-symbol` — the reloc
-  walk cannot bind an aug6 slot to a retail symbol (`D_FFFFF`, `D_00247C40`,
-  `D_7181F0`, ...), usually because the aug6 side spelled an absolute address
-  as a symbol. 14 `codegen` — the retail source genuinely differs from the
-  prototype's (`§regalloc-swap`, a `jr ra` where the built object stores,
-  `addiu s0,s0,0` vs a real displacement). These need normal matching work,
-  not porting. Most tractable class after V2, because a near-miss baseline
-  exists.
-- **V2 — 52 handwritten-asm twins already solved on aug6** (7,324 B). See the
-  correction above. Start here.
-- **V5 — 261 tail functions whose aug6 twin was never matched upstream**
-  (118,972 B). Nothing to port. Mostly §3b proprietary SCE SDK, i.e.
-  clean-room-from-disassembly only. (The figure "~310" that stood here
-  conflated this group with V2; the two are 261 + 52 = 313.)
-- **V4 — 52 tail functions with no aug6 twin** (27,112 B; 49 by the alias map
-  plus the 3 symbol-table orphans) and **V3 — the 40 head functions**
-  (5,056 B: 11 non-stub libkernl functions inside the carved head TU, plus 29
-  in the two still-`asm` head spans). Original work on both counts.
-- **V6 — `func_0026F578`**: portable but structurally blocked by the 12 B of
-  inter-section `.text` pad splat places inside that object. Flagged as
-  blocked, **not** queued as workable.
-- **V0 — identify the upstream libgcc / newlib / fdlibm release** (§8). Not a
-  match, but it is the prerequisite that unblocks ~61 KB of §3a work, and it
-  is the highest-leverage item in the queue.
-
-### Clean-room note for the head
-
-The 140 head leaves were matched from the ROM's own four instructions via
-`include/syscall.h`'s `SYSCALL_WRAPPER`, restored from this repo's history
-(`398ac05e`). ps2sdk's `SYSCALL_SPECIAL` is credited as a *structural* model
-only, per §3b. No SDK source was consulted, and none is needed: the body is
-`addiu $3,$0,N / syscall 0 / jr $31 / nop` with nothing else in it. Nothing in
-§3a (libgcc / libm / libc upstream fetching) was attempted — this pass ported
-aug6's existing clean-room work only.
+- **Head leaves are clean-room from the ROM.** The 140 EE-syscall head leaves
+  were matched from the ROM's own four instructions via `include/syscall.h`'s
+  `SYSCALL_WRAPPER`. ps2sdk's `SYSCALL_SPECIAL` is credited as a *structural*
+  model only, per §3b; no SDK source was consulted and none is needed — the
+  body is `addiu $3,$0,N / syscall 0 / jr $31 / nop`.
+- **Handwritten-asm vendor leaves are the most tractable class** (VU0
+  macro-mode, MMI, privileged COP0/TLB/cache, syscall stubs): they are
+  byte-exact by construction from the ROM's own instructions.
+- **§3b (proprietary SCE SDK) bodies are clean-room-from-disassembly only.**
+  That is most of what remains unmatched on the vendor side, on every branch.
 
 ## 8. Open questions
 
-- **Which exact newlib / GCC release did SCE ship?** Not answerable from the
-  binary: `decomp/NOTES.md` §"Build-environment fingerprint" records that no
-  `.comment`, `.note`, `.mdebug`, `.pdr` or `.gptab.*` section survives in
-  `baseelf.elf`. Any answer has to come from codegen fingerprinting against
-  candidate newlib/libgcc releases compiled with `ee-gcc 2.9-991111-01`.
-  This is the first concrete task for anyone starting §3a — queued as **V0**,
-  with the 13 fdlibm-window functions (**V5a**) named as the scoring corpus.
-- **The 52 tail functions with no aug6 twin** (§7's V4; 49 by the alias map
-  plus the 3 symbol-table orphans — the "~46" that stood here was wrong on
-  both counts). Either the retail link pulled a different library revision
-  than the Aug-6-2001 prototype did, or they are retail-side inlining
-  artifacts. Unresolved.
+- **Which exact newlib / GCC release did SCE ship? — ANSWERED 2026-09-04 by
+  the PAL disc listing.** libgcc / libc / libm come from
+  `gcc-lib/ee/2.9-ee-991111-01`, i.e. the same compiler the build already
+  uses, and the newlib snapshot is **1.8.2**: the listing's line citations
+  place `vfprintf.c` at 918 lines (> 1.8.1's 917) and `dtoa.c` at 854 (>
+  1.9.0's 853). That was the prerequisite for any §3a work — the upstream
+  sources are now identifiable and legitimately obtainable. (It was *not*
+  answerable from the binary alone: no `.comment`, `.note`, `.mdebug`, `.pdr`
+  or `.gptab.*` section survives — see `decomp/NOTES.md` "Build-environment
+  fingerprint".)
+- **Tail functions with no prototype twin.** On the USA tree 52 of them had
+  no aug6 counterpart. Either the retail link pulled a different library
+  revision than the Aug-6-2001 prototype did, or they are retail-side inlining
+  artifacts. Unresolved, and worth re-asking on PAL now that `MAIN.MAP` names
+  each member.
 - **Does the head run contain anything but crt0 + libkernl?** The 180-function
   head has not been attributed member-by-member with the same rigour as the
   tail.

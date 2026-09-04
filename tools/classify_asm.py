@@ -463,7 +463,7 @@ RULES: list[Rule] = [
       lambda s: s.a0_arg_spill,
       lambda s: not s.has_a0_reload,
       weight=0.9,
-      note="No known C recipe — park via tools/park.sh"),
+      note="No known C recipe — park via tools/park_tu.py"),
 
     R("1.4", "2-jal callee-save reused across calls", "14",
       lambda s: s.jal_count == 2,

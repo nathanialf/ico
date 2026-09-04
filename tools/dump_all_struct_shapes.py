@@ -8,10 +8,11 @@ attributes each load/store to the data symbol (or argument pointer) it
 targets — recovering, for every struct, the (offset, width, signedness,
 indexing stride) tuples that define its field layout.
 
-It is the corpus-wide successor to `dump_struct_accesses.py` (which was
-single-symbol and scanned a now-stale `asm/cod/<vma>.s` path). No types are
-INFERRED beyond width/sign from the load mnemonic — the developer reads the
-catalog and writes the C struct.
+It is the corpus-wide successor to the single-symbol `dump_struct_accesses.py`
+(deleted 2026-09-04: it scanned an `asm/cod/<vma>.s` path that no target has any
+more, off two JSON maps whose generators are gone). No types are INFERRED beyond
+width/sign from the load mnemonic — the developer reads the catalog and writes
+the C struct.
 
 Outputs:
   decomp/struct_shapes.json  — machine-readable: per global symbol + per
