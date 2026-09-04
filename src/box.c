@@ -8,7 +8,14 @@ void switchOnSE(int a0) {
 void switchReleaseSE(int a0) {
     ExecuteSEPackage(a0, 0x40);
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", GetFloorLeverGlobalHoldPoint);
+extern void MatrixDrive_TransMatrix(float x, float y, float z);
+void GetFloorLeverGlobalHoldPoint(void *dst, char *a1) {
+    char *p = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
+    GetRootMatrix(MatrixDrive_GetMatrix(), a1);
+    MatrixDrive_RotMatrixZ(*(short *)(p + 2));
+    MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
+    CopyVector(dst, MatrixDrive_GetMatrix() + 0x30);
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", FloorLeverTriStateGeo);
 INCLUDE_ASM("asm/nonmatchings/src/box", FloorLeverGeo);
 INCLUDE_ASM("asm/nonmatchings/src/box", FloorLeverDL);

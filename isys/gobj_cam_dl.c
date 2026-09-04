@@ -25,7 +25,16 @@ void isysGObjMoveCameraDL(int a0, int a1)
     cut_gobj_camera_dl_link(a0);
     return func_0020BFD8(a0, a1);
 }
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", isysGObjLinkCameraDL);
+extern char D_006219D0[];
+extern char D_006219E8[];
+void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4) {
+    debug_StdPrintfDummy(D_006219D0);
+    *(int *)(a0 + 0x48) = a1;
+    *(int *)(a0 + 0x4C) = a3;
+    *(int *)(a0 + 0x50) = a4;
+    func_0020BFD8(a0, a2);
+    debug_StdPrintfDummy(D_006219E8);
+}
 extern char D_00621970[];
 extern AdpT *D_0063A618;
 extern void debug_StdPrintfDummy();

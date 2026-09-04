@@ -125,7 +125,20 @@ int la_format_confirm_fail(void)
     return -1;
 }
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_delete_start_check);
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_delete_confirm);
+extern int D_0063B4F4;
+int la_delete_confirm(int a0, int a1) {
+    switch (a1) {
+    case 0xD6:
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 0x32;
+    case 0xD7:
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 0x1E;
+    }
+    return -1;
+}
 extern int D_0063B4F4;
 extern void lt_set_item_select_func(int a0);
 int la_delete_confirm_complete(void) {

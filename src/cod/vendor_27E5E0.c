@@ -398,7 +398,25 @@ int func_00283518(int a0) {
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", quorem);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _dtoa_r);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", fflush);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", std);
+extern int __sread(void *a0, int a1, int a2);
+extern long __swrite(void *a0, int a1, int a2);
+extern long __sseek(void *a0, int a1, int a2);
+extern int __sclose(void *a0);
+void std(char *fp, int flags, int file, void *data) {
+    *(int *)(fp + 0x0) = 0;
+    *(int *)(fp + 0x4) = 0;
+    *(int *)(fp + 0x8) = 0;
+    *(short *)(fp + 0xC) = flags;
+    *(short *)(fp + 0xE) = file;
+    *(int *)(fp + 0x10) = 0;
+    *(int *)(fp + 0x18) = 0;
+    *(char **)(fp + 0x1C) = fp;
+    *(void **)(fp + 0x20) = (void *)__sread;
+    *(void **)(fp + 0x24) = (void *)__swrite;
+    *(void **)(fp + 0x28) = (void *)__sseek;
+    *(void **)(fp + 0x2C) = (void *)__sclose;
+    *(void **)(fp + 0x54) = data;
+}
 extern void *_malloc_r(void *a0, int a1);
 extern void memset(void *a0, int a1, int a2);
 

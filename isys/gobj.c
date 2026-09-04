@@ -49,7 +49,46 @@ void add_gobj_to_tail(int a0, int a1, int a2) {
     *(char **)(p + 0x10) = g;
     *(char **)(*(char **)(g + 0x10) + 0x14) = g;
 }
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", add_gobj_to_head);
+void add_gobj_to_head(char *g, int a1, int a2) {
+    unsigned char kind = a1;
+    unsigned int val = a2;
+    char *head;
+    char *tail;
+    char *p;
+    g[0x18] = kind;
+    *(unsigned int *)(g + 0x1C) = val;
+    head = *(char **)(D_0029C4F0 + kind * 4);
+    if (head == 0) {
+        *(char **)(D_0029C4F0 + kind * 4) = g;
+        *(char **)(g + 0x14) = 0;
+        *(char **)(g + 0x10) = 0;
+        D_0029C510[kind] = g;
+        return;
+    }
+    if (!(*(unsigned int *)(head + 0x1C) < val)) {
+        *(char **)(g + 0x14) = 0;
+        *(char **)(g + 0x10) = head;
+        *(char **)(D_0029C4F0 + kind * 4) = g;
+        *(char **)(head + 0x14) = g;
+        return;
+    }
+    tail = D_0029C510[kind];
+    if (*(unsigned int *)(tail + 0x1C) < val) {
+        *(char **)(g + 0x14) = tail;
+        *(char **)(g + 0x10) = 0;
+        D_0029C510[kind] = g;
+        *(char **)(tail + 0x10) = g;
+        return;
+    }
+    p = head;
+    while (*(unsigned int *)(*(char **)(p + 0x10) + 0x1C) < val) {
+        p = *(char **)(p + 0x10);
+    }
+    *(char **)(g + 0x14) = p;
+    *(char **)(g + 0x10) = *(char **)(p + 0x10);
+    *(char **)(p + 0x10) = g;
+    *(char **)(*(char **)(g + 0x10) + 0x14) = g;
+}
 extern void add_gobj_to_tail(int a0, int a1, int a2);
 extern void cut_gobj_link(int a0);
 

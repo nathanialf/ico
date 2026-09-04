@@ -193,7 +193,14 @@ void ACTCharctrl_Unlock(char *a0) {
     *(unsigned long long *)(p + 0x18) |= (1ULL << 49);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_ConnectHand);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_DisconnectHand);
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+void ACTGame_DisconnectHand(void) {
+    char *s = *(char **)(D_00639EA8 + 0x164);
+    RequestChangeHandMode(D_00639EA8, 0, 5, 0, 0, 0, 0);
+    RequestChangeHandMode(D_00639EA4, 1, 5, 0, 0, 0, 0);
+    *(unsigned long long *)(s + 0x18) &= ~(1ULL << 40);
+}
 extern char *D_00639EA4;
 void PAIR_GetPosition_BOY(float *a0, float *a1) {
     float *q = (float *)*(char **)(D_00639EA4 + 0x164);

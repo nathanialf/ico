@@ -2,7 +2,19 @@
 
 typedef union { float f[4]; long long ll[2]; } Vec4;
 
-INCLUDE_ASM("asm/nonmatchings/src/act", actChangeActBrain);
+extern char D_00621BB0[];
+extern char D_00621BD0[];
+void actChangeActBrain(int a0, int a1, int *a2) {
+    int old = *a2;
+    int n = actCreateSubThread(a1, 0x14);
+    *a2 = n;
+    if (old != 0) {
+        debug_StdPrintfDummy(D_00621BB0, a0, n);
+        isysGObjProcRemove(old);
+    } else {
+        debug_StdPrintfDummy(D_00621BD0, a0, n);
+    }
+}
 extern char D_002C2DC8[];
 extern char D_00621BF0[];
 extern char D_00621C10[];

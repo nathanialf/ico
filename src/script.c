@@ -315,8 +315,24 @@ void scpEffectStart(int a0, int a1)
     SetIdentityQuaternion(buf);
     SetParticleEffect(a1, a0, buf);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpSleepEnemyAll);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpWakeupEnemyAll);
+void scpSleepEnemyAll(void) {
+    char *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 0x20, g);
+    }
+    for (g = isysGObjSearchFromObjKindID_begin(0x3E); g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 0x20, g);
+    }
+}
+void scpWakeupEnemyAll(void) {
+    char *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 0x1F, g);
+    }
+    for (g = isysGObjSearchFromObjKindID_begin(0x3E); g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 0x1F, g);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpKillEnemyAll);
 extern void Generator_Mask(char *self);
 

@@ -7,7 +7,17 @@ INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoSave);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoLoad);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoEmptyAreaSearch);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoBaseSet);
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysBackStageProcess);
+extern char D_004DA980[];
+extern short D_0063B418;
+extern int gamesysTimeCount;
+void gamesysBackStageProcess(void) {
+    unsigned short *h = (unsigned short *)D_004DA980;
+    if (h[0x21] == 0x94) {
+        D_0063B418 = h[0x22];
+    }
+    gamesysTimeCount++;
+    backStageProcessMain();
+}
 extern char D_0061D328[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void memcpy();
