@@ -74,22 +74,23 @@
   /* Sits beside the title when there is room, drops to its own row and fills
      the column when there isn't — but never stretches past a comfortable
      control width. */
-  .verpick { display:flex; flex-direction:column; gap:6px; flex:1 1 260px; max-width:344px; }
+  .verpick { display:flex; flex-direction:column; gap:6px; flex:1 1 260px; max-width:420px; }
   .verpick-lbl {
     color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.06em;
   }
   .seg { display:flex; }
   .seg-btn {
     flex:1 1 auto; position:relative; display:inline-flex; align-items:center;
-    justify-content:center; gap:8px; min-height:40px; padding:0 14px;
+    justify-content:center; gap:6px; min-height:40px; padding:0 10px;
+    text-align:center;
     font:inherit; font-size:14px; font-weight:500; line-height:1; letter-spacing:.01em;
     background:transparent; color:var(--fg);
     border:1px solid var(--ctl); cursor:pointer;
     transition:background-color 150ms var(--ease);
   }
   .seg-btn + .seg-btn { margin-left:-1px; }            /* collapse shared edge */
-  .seg-btn:first-child { border-radius:20px 0 0 20px; padding-left:16px; }
-  .seg-btn:last-child  { border-radius:0 20px 20px 0; padding-right:16px; }
+  .seg-btn:first-child { border-radius:20px 0 0 20px; padding-left:14px; }
+  .seg-btn:last-child  { border-radius:0 20px 20px 0; padding-right:14px; }
   /* M3 asks for a 48dp target on a 40dp container: grow the hit area without
      growing the pill. Offsets are 5px, not 4px, because an absolutely
      positioned child is laid out against the padding box — the 1px outline
@@ -250,19 +251,26 @@
     <div>
       <h1>ICO decompilation progress</h1>
       <p class="sub">Clean-room PS2 EE-side decomp, grouped by
-        <span id="grouplbl">programmer</span> &rarr; translation unit &rarr; function.
-        <a id="repolink" href="https://github.com/nathanialf/ico/tree/aug6">repo</a></p>
+        <span id="grouplbl">directory</span> &rarr; translation unit &rarr; function.
+        <a id="repolink" href="https://github.com/nathanialf/ico/tree/main">repo</a></p>
     </div>
     <div class="verpick">
       <span class="verpick-lbl" id="vlbl">Target build</span>
       <div class="seg" id="vtabs" role="radiogroup" aria-labelledby="vlbl">
-        <button type="button" class="seg-btn" role="radio" data-v="aug6" aria-checked="true" tabindex="0">
+        <button type="button" class="seg-btn" role="radio" data-v="pal" aria-checked="true" tabindex="0"
+                aria-label="PAL retail (SCES-50760)" title="PAL retail (SCES-50760)">
           <svg class="seg-ic" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M7.1 13.4 3 9.3l1.4-1.4 2.7 2.7 6.5-6.5L15 5.5z"/></svg>
-          <span>Aug-6-2001 proto</span>
+          <span>PAL retail</span>
         </button>
-        <button type="button" class="seg-btn" role="radio" data-v="us" aria-checked="false" tabindex="-1">
+        <button type="button" class="seg-btn" role="radio" data-v="us" aria-checked="false" tabindex="-1"
+                aria-label="USA retail (SLUS-20218)" title="USA retail (SLUS-20218)">
           <svg class="seg-ic" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M7.1 13.4 3 9.3l1.4-1.4 2.7 2.7 6.5-6.5L15 5.5z"/></svg>
           <span>USA retail</span>
+        </button>
+        <button type="button" class="seg-btn" role="radio" data-v="aug6" aria-checked="false" tabindex="-1"
+                aria-label="Aug-6-2001 prototype" title="Aug-6-2001 prototype">
+          <svg class="seg-ic" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M7.1 13.4 3 9.3l1.4-1.4 2.7 2.7 6.5-6.5L15 5.5z"/></svg>
+          <span>Aug-6 proto</span>
         </button>
       </div>
     </div>
@@ -385,15 +393,26 @@ document.getElementById("expand").addEventListener("change", e=>{
     .forEach(n=> setOpen(n, e.target.checked));
 });
 
-const VLABEL = { aug6: "Aug-6-2001 prototype (aug6 branch)", us: "USA retail (main branch)" };
+const VLABEL = {
+  pal:  "PAL retail (SCES-50760, main branch)",
+  us:   "USA retail (SLUS-20218, ntsc branch)",
+  aug6: "Aug-6-2001 prototype (aug6 branch)",
+};
 
 // Each target is developed on its own branch, so the "repo" link follows the
 // selected view rather than always landing on the default branch.
-const VBRANCH = { aug6: "aug6", us: "main" };
+const VBRANCH = { pal: "main", us: "ntsc", aug6: "aug6" };
+
+// Function grouping differs by source layout: the retail targets ship a flat
+// repo-root src/ tree, the prototype the dev's per-programmer module dirs.
+const VGROUP = { pal: "directory", us: "directory", aug6: "programmer" };
+
+// Default view = the default branch's target.
+const VDEFAULT = "pal";
 
 function pickVersion(){
   const h = location.hash.replace("#","");
-  return (h in VLABEL) ? h : "aug6";
+  return (h in VLABEL) ? h : VDEFAULT;
 }
 
 /* --- segmented button: radiogroup keyboard + selection ------------------ */
@@ -408,7 +427,7 @@ function syncSeg(v){
   // Single point where "the view is now v" is known — keep the repo link on
   // the branch that actually develops this target.
   const rl = document.getElementById("repolink");
-  if(rl) rl.href = `https://github.com/nathanialf/ico/tree/${VBRANCH[v] || "main"}`;
+  if(rl) rl.href = `https://github.com/nathanialf/ico/tree/${VBRANCH[v] || VBRANCH[VDEFAULT]}`;
 }
 
 // The hash is the single source of truth, so pointer, keyboard and deep-link
@@ -438,11 +457,11 @@ document.getElementById("vtabs").addEventListener("keydown", e=>{
 function loadVersion(v){
   syncSeg(v);
   // Per-version JSON lives at <v>/progress.json on the deployed site. The
-  // deploy publishes both versions, so a miss here means either a local
+  // deploy publishes every version, so a miss here means either a local
   // preview (bare docs/ has no version dirs) or a deploy whose other-branch
   // ref was unreadable. Either way fall back to the root compat copy and SAY
   // SO in the footer — a silent fallback would show one version's numbers
-  // under the other version's tab.
+  // under another version's tab.
   let fellBack = false;
   fetch(`${v}/progress.json`)
     .catch(()=>null)
@@ -450,7 +469,7 @@ function loadVersion(v){
     .then(r=>r.json())
     .then(d=>{
       document.getElementById("grouplbl").textContent =
-        d.version==="us" ? "directory" : "programmer";
+        VGROUP[d.version] || "programmer";
       render(d); applyFilter();
       const warn = (fellBack && d.version !== v)
         ? `<p class="warn">⚠ No <code>${v}/progress.json</code> was published by the `
@@ -461,7 +480,7 @@ function loadVersion(v){
         + `<p>${VLABEL[d.version] || d.version} &middot; generated by <code>tools/progress_tree.py</code> from `
         + `<code>config/symbol_addrs.${d.version}.txt</code> + per-TU `
         + `<code>INCLUDE_ASM</code> directives. Function sizes are next-symbol deltas. `
-        + `Updates on every push to either branch.</p>`
+        + `Updates on every push to any of the three branches.</p>`
         + `<p>The headline byte figure is the ELF <code>.text</code> section only. `
         + `The <code>.vutext</code> group (VU1 microprograms) is a different section `
         + `and is counted apart from it, so the group rows sum to more than the headline `

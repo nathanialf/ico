@@ -1,18 +1,21 @@
 name: Deploy progress dashboard
 
-# Publish the TWO-VERSION static progress dashboard to GitHub Pages.
+# Publish the THREE-VERSION static progress dashboard to GitHub Pages.
+#
+# One branch per target: main -> pal (PAL retail, SCES-50760), ntsc -> us (USA
+# retail, SLUS-20218), aug6 -> aug6 (Aug-6-2001 prototype).
 #
 # This workflow, .github/scripts/build_pages_site.sh and docs/index.html are
-# byte-identical on `main` and `aug6` — deliberately, with no per-branch
-# conditionals. A Pages deploy replaces the ENTIRE site, so both branches must
-# assemble the same complete site (aug6 + us) or whichever branch deployed last
-# would 404 the other version's data. Fix these files on one branch and copy
-# them verbatim to the other; the assemble script warns if they drift.
+# byte-identical on all three branches — deliberately, with no per-branch
+# conditionals. A Pages deploy replaces the ENTIRE site, so every branch must
+# assemble the same complete site (pal + us + aug6) or whichever branch deployed
+# last would 404 the other versions' data. Fix these files on one branch and copy
+# them verbatim to the others; the assemble script warns if they drift.
 #
 # See .github/scripts/build_pages_site.sh for the layout it produces.
 on:
   push:
-    branches: [main, aug6]
+    branches: [main, ntsc, aug6]
     paths:
       - docs/**
       - .github/workflows/pages.yml
@@ -25,8 +28,8 @@ permissions:
   pages: write
   id-token: write
 
-# Shared across BOTH branches: one in-flight deploy at a time; don't cancel a
-# running one.
+# Shared across ALL publishing branches: one in-flight deploy at a time; don't
+# cancel a running one.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -47,7 +50,7 @@ jobs:
       - name: Checkout (this branch)
         uses: actions/checkout@v5
 
-      - name: Assemble two-version site
+      - name: Assemble three-version site
         run: .github/scripts/build_pages_site.sh "${{ github.ref_name }}"
 
       - name: Configure Pages
