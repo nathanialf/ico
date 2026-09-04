@@ -9,6 +9,8 @@ canonical instruction streams, and emits machine-readable JSON:
     { "status": "match" | "diffs" | "compile-fail",
       "real_count": <int>,        # RELOC-NORMALIZED root-diff count (progress metric)
       "raw_count":  <int>,        # before normalization (cascade-inflated)
+      "real_count_pinned": <int>, # same metric under call-site-pinned alignment
+      "alignment_pins": <int>,    #   (informational; --pinned makes it real_count)
       "tags":  [ {"id","name","hint","section"} , ... ],
       "lines": [ {"expected","built"} , ... ] }     # the differing (normalized) pairs
 
@@ -237,6 +239,90 @@ def _refined_count(a: list[str], b: list[str], opcodes) -> int:
     return refined
 
 
+# --- pinned-sequence alignment --------------------------------------------
+# Adapted from the LEGO Island decomp toolchain (isledecomp/reccmp,
+# reccmp/compare/pinned_sequences.py `SequenceMatcherWithPins`): instead of one
+# SequenceMatcher over the whole instruction stream, split BOTH streams at
+# known correspondence points ("pins"), diff each segment independently, and
+# re-offset the opcodes. One inserted instruction can then only cascade the
+# alignment WITHIN its own segment, never across a pin — the same pathology
+# _refined_count patches after the fact, prevented structurally instead.
+# (reccmp weights a ratio by segment length; we are count-based, so the
+# per-hunk max metric is applied to the recombined opcodes unchanged.)
+#
+# Pin source: call sites. ee-gcc never reorders calls across each other, so
+# when both streams contain the SAME NUMBER of call instructions the k-th call
+# on each side is the same source-level call — a correspondence reccmp (x86,
+# symbol-addressed) gets from its database and we get for free from the
+# stream. If the call counts differ (an inserted/removed call — a structural
+# diff), no pins are emitted and the result is identical to the unpinned pass.
+# Jump-table arm boundaries would be a second pin source, but the canonical
+# stream carries no labels — arm starts live in the .o jtbl section contents
+# (o32 REL: read contents + relocs of build/quick_diff/<TU>{,.target}.o),
+# which is plumbing this pass does not have; the provider list below is where
+# such a source would plug in.
+CALL_MNEMONICS = {"jal", "jalr", "bal"}
+
+
+def call_site_pins(a: list[str], b: list[str]) -> list[tuple[int, int]]:
+    """Pin the k-th call instruction of `a` to the k-th call of `b`.
+    Returns [] when the call counts differ (no reliable correspondence)."""
+    ia = [i for i, l in enumerate(a) if _mnem(l) in CALL_MNEMONICS]
+    ib = [j for j, l in enumerate(b) if _mnem(l) in CALL_MNEMONICS]
+    if not ia or len(ia) != len(ib):
+        return []
+    return list(zip(ia, ib))
+
+
+def _merge_opcode_regions(ops):
+    """Recombine per-segment opcodes: fold consecutive equal-tagged opcodes
+    together, and coalesce ADJACENT non-equal opcodes (possible only at segment
+    boundaries — a single SequenceMatcher always separates them with an equal
+    run) into one region, so the per-hunk `max(a_len, b_len)` charge is the
+    same a single matcher would have produced for that region."""
+    merged = []
+    for op, i1, i2, j1, j2 in ops:
+        if i1 == i2 and j1 == j2:
+            continue                      # empty opcode from an empty segment
+        if merged:
+            pop, pi1, pi2, pj1, pj2 = merged[-1]
+            both_equal = pop == "equal" and op == "equal"
+            both_diff = pop != "equal" and op != "equal"
+            if both_equal or both_diff:
+                tag = "equal" if both_equal else "replace"
+                merged[-1] = (tag, pi1, i2, pj1, j2)
+                continue
+        merged.append((op, i1, i2, j1, j2))
+    return merged
+
+
+def pinned_opcodes(a: list[str], b: list[str], pins: list[tuple[int, int]]):
+    """SequenceMatcher opcodes for `a` vs `b`, computed independently per
+    pin-delimited segment and re-offset to whole-stream indices. `pins` must be
+    monotonic valid indices (call_site_pins guarantees this); a non-monotonic
+    pin list falls back to the unpinned single-segment diff."""
+    bounds = [(0, 0)] + list(pins) + [(len(a), len(b))]
+    for (a0, b0), (a1, b1) in zip(bounds, bounds[1:]):
+        if a1 < a0 or b1 < b0:
+            bounds = [(0, 0), (len(a), len(b))]     # failsafe: unpinned
+            break
+    ops = []
+    for (a0, b0), (a1, b1) in zip(bounds, bounds[1:]):
+        sm = difflib.SequenceMatcher(None, a[a0:a1], b[b0:b1], autojunk=False)
+        for op, i1, i2, j1, j2 in sm.get_opcodes():
+            ops.append((op, i1 + a0, i2 + a0, j1 + b0, j2 + b0))
+    return _merge_opcode_regions(ops)
+
+
+def count_pinned(a: list[str], b: list[str]):
+    """(pinned real_count, number of pins used). With zero pins this equals the
+    unpinned metric by construction (single segment, same matcher, same
+    refinement)."""
+    pins = call_site_pins(a, b)
+    opcodes = pinned_opcodes(a, b, pins)
+    return _refined_count(a, b, opcodes), len(pins)
+
+
 def count_and_pairs(a: list[str], b: list[str]):
     """Diff two instruction streams; return (count, differing_pairs).
 
@@ -325,6 +411,151 @@ def detect_scheduling(nexp: list[str], nblt: list[str]):
     }
 
 
+# --- register-bijection detector ------------------------------------------
+# Adapted from the LEGO Island decomp toolchain (isledecomp/reccmp,
+# reccmp/compare/asm/swap.py `can_resolve_register_differences`), which tests
+# whether a whole mismatching block can be made identical by consistently
+# renaming registers. reccmp uses it to FORGIVE such a diff (their target is an
+# accuracy %, not bytes); we are byte-exact, so we use the same test INVERTED —
+# as a routing signal. A residual that is one consistent renaming across the
+# entire function is a coloring/allocation convergence (decomp-convergence, the
+# whole-function levers in COOKBOOK §13), not a local source-shape tie; a
+# residual that is NOT a renaming is structural and belongs in the normal
+# per-tag lever loop. tag_diff's `regalloc-swap` rule only sees a LOCAL recurring
+# single-register swap; this is the global bijection test.
+_REG_TOK  = re.compile(r"^\$?((?:zero|at|v[01]|a[0-3]|t[0-9]|s[0-8]|k[01]|gp|sp|fp|ra|f[0-9]+))$")
+_MEM_OPND = re.compile(r"^(-?(?:0x)?[0-9a-fA-F]+)\((\$?\w+)\)$")
+
+# Registers the allocator can never RENAME a value into/out of: hardwired zero,
+# the assembler temp, kernel regs, and the ABI-fixed frame/link registers. A
+# residual "renaming" that maps one of these to an allocatable register is not
+# a coloring outcome — e.g. `daddu a0,s1,zero` vs `daddu a0,s1,v0` is gcc
+# REUSING a register that happens to hold 0 (the remat-0 / const-temp class, a
+# source-shape lever), not a register-allocation convergence. (s8/$30 is NOT
+# here: when not used as a frame pointer it is an ordinary callee-saved reg,
+# and objdump spells it `s8` in the canonical stream.)
+_UNRENAMEABLE = {"zero", "at", "k0", "k1", "gp", "sp", "ra"}
+
+
+def _reg_class(reg: str) -> str:
+    return "fpr" if reg.lstrip("$").startswith("f") and reg.lstrip("$") != "fp" else "gpr"
+
+
+def _operand_reg_pair(oe: str, ob: str):
+    """If operands `oe`/`ob` differ ONLY in a register token, return that
+    (expected_reg, built_reg) pair; else None. Handles a bare register and the
+    `off(base)` memory form (offsets must be identical)."""
+    me, mb = _REG_TOK.match(oe), _REG_TOK.match(ob)
+    if me and mb:
+        return (me.group(1), mb.group(1))
+    me, mb = _MEM_OPND.match(oe), _MEM_OPND.match(ob)
+    if me and mb and me.group(1) == mb.group(1):
+        re_, rb_ = _REG_TOK.match(me.group(2)), _REG_TOK.match(mb.group(2))
+        if re_ and rb_:
+            return (re_.group(1), rb_.group(1))
+    return None
+
+
+def _operand_self_reg(op: str):
+    """The register token an operand carries (bare register, or the base of an
+    `off(base)` memory operand), or None for immediates/targets. Used to bind
+    IDENTITY constraints for registers that appear UNCHANGED inside differing
+    lines — without this, `addu v0,v1,a0` vs `addu v1,v1,a0` would be reported
+    as the renaming v0->v1 even though v1 also stays v1 in the same line,
+    which is not an injective map (renaming built's v1 back to v0 would break
+    operand 2)."""
+    m = _REG_TOK.match(op)
+    if m:
+        return m.group(1)
+    m = _MEM_OPND.match(op)
+    if m:
+        r = _REG_TOK.match(m.group(2))
+        if r:
+            return r.group(1)
+    return None
+
+
+def _cycles(mapping: dict) -> list[list[str]]:
+    """Cycle decomposition of the (partial, injective) renaming."""
+    seen, out = set(), []
+    for start in sorted(mapping):
+        if start in seen:
+            continue
+        cyc, cur = [], start
+        while cur in mapping and cur not in seen:
+            seen.add(cur); cyc.append(cur); cur = mapping[cur]
+        if len(cyc) > 1 or (cyc and mapping.get(cyc[0]) == cyc[0]):
+            out.append(cyc)
+        elif cyc:
+            out.append([cyc[0], mapping[cyc[0]]])   # open chain (reg leaves the set)
+    return out
+
+
+def detect_register_bijection(nexp: list[str], nblt: list[str]):
+    """Flag a PURE REGISTER-RENAMING diff: every differing instruction has the
+    same mnemonic and operand shape on both sides, and all operand differences
+    are explained by ONE consistent, injective register map. Returns None unless
+    that holds for the WHOLE residual."""
+    sm = difflib.SequenceMatcher(None, nexp, nblt, autojunk=False)
+    fwd: dict[str, str] = {}
+    rev: dict[str, str] = {}
+    pairs_checked = 0
+    for op, i1, i2, j1, j2 in sm.get_opcodes():
+        if op == "equal":
+            continue
+        if op != "replace" or (i2 - i1) != (j2 - j1):
+            return None                      # insn added/removed -> not a renaming
+        for le, lb in zip(nexp[i1:i2], nblt[j1:j2]):
+            me, _, oe = le.partition("\t")
+            mb, _, ob = lb.partition("\t")
+            if me.strip() != mb.strip():
+                return None                  # different opcode -> structural
+            toks_e = [t.strip() for t in oe.split(",")]
+            toks_b = [t.strip() for t in ob.split(",")]
+            if len(toks_e) != len(toks_b):
+                return None
+            for oe_, ob_ in zip(toks_e, toks_b):
+                if oe_ == ob_:
+                    # An UNCHANGED register inside a differing line pins that
+                    # register to itself: record the identity so a renaming
+                    # elsewhere in the residual cannot also target it (see
+                    # _operand_self_reg — injectivity would be broken).
+                    r = _operand_self_reg(oe_)
+                    if r is not None:
+                        if fwd.setdefault(r, r) != r or rev.setdefault(r, r) != r:
+                            return None      # identity conflicts with a rename
+                    continue
+                rp = _operand_reg_pair(oe_, ob_)
+                if rp is None:
+                    return None              # immediate/shape diff -> structural
+                a, b = rp
+                if _reg_class(a) != _reg_class(b):
+                    return None
+                if a in _UNRENAMEABLE or b in _UNRENAMEABLE:
+                    return None              # zero/sp/... can't be renamed -> structural
+                if fwd.setdefault(a, b) != b or rev.setdefault(b, a) != a:
+                    return None              # inconsistent / non-injective
+            pairs_checked += 1
+    # Identity entries (r -> r, recorded only to enforce injectivity) are not
+    # part of the interesting renaming; report just the real renames.
+    renames = {k: v for k, v in fwd.items() if k != v}
+    if not renames:
+        return None
+    return {
+        "bijection": True,
+        "map": {k: renames[k] for k in sorted(renames)},
+        "cycles": _cycles(renames),
+        "insns_affected": pairs_checked,
+        "hint": "the ENTIRE residual is one consistent register renaming "
+                "(expected -> built). This is a whole-function coloring/reload "
+                "convergence, not a local source-shape tie: use the "
+                "`decomp-convergence` skill and COOKBOOK §13 levers "
+                "(param memory-residency, alias-regime pairs, census group-snap). "
+                "Do NOT chase it with per-line levers, and never with a pin "
+                "(banned). Test adapted from isledecomp/reccmp swap.py.",
+    }
+
+
 def run_tag_diff(exp: list[str], blt: list[str]):
     """Call tools/tag_diff.py on the two streams; parse `[§N.M] name` output
     into structured tags."""
@@ -355,7 +586,7 @@ def run_tag_diff(exp: list[str], blt: list[str]):
     return tags
 
 
-def analyze(tu: str, func: str | None) -> dict:
+def analyze(tu: str, func: str | None, pinned: bool = False) -> dict:
     out = run_quick_diff(tu, func)
     if "COMPILE-FAIL" in out or "compile" in out.lower() and "error" in out.lower() and "===" not in out:
         return {"status": "compile-fail", "real_count": -1, "raw_count": -1,
@@ -365,16 +596,25 @@ def analyze(tu: str, func: str | None) -> dict:
         return {"status": "compile-fail", "real_count": -1, "raw_count": -1,
                 "tags": [], "lines": [], "detail": out.strip().splitlines()[-5:]}
     if "MATCH (canonical instruction stream identical)" in out:
-        return {"status": "match", "real_count": 0, "raw_count": 0, "tags": [], "lines": []}
+        return {"status": "match", "real_count": 0, "raw_count": 0,
+                "real_count_pinned": 0, "tags": [], "lines": []}
 
     exp, blt = strip_trailing_align_nops(exp, blt)
     raw_count, _ = count_and_pairs(exp, blt)
     nexp = normalize_lui_addiu([normalize(l) for l in exp])
     nblt = normalize_lui_addiu([normalize(l) for l in blt])
     real_count, pairs = count_and_pairs(nexp, nblt)
+    # Pinned-alignment count (reccmp SequenceMatcherWithPins port; see
+    # count_pinned). ADDITIVE: real_count stays the gated progress metric the
+    # stall machinery consumes; the pinned value only replaces it under the
+    # opt-in --pinned flag (measured deltas first — never flip silently).
+    real_count_pinned, n_pins = count_pinned(nexp, nblt)
+    if pinned:
+        real_count = real_count_pinned
     sites = divergence_sites(nexp, nblt)
     tags = run_tag_diff(exp, blt)
     sched = detect_scheduling(nexp, nblt)
+    regmap = detect_register_bijection(nexp, nblt)
     status = "match" if real_count == 0 else "diffs"
     # codegen_sig: a stable hash of the NORMALIZED built instruction stream.
     # Two edits that compile to the same instructions (cosmetic no-ops, or
@@ -384,6 +624,8 @@ def analyze(tu: str, func: str | None) -> dict:
     # real_count metric, NOT raw object bytes.
     codegen_sig = hashlib.sha1("\n".join(nblt).encode("utf-8", "replace")).hexdigest()[:16]
     result = {"status": status, "real_count": real_count, "raw_count": raw_count,
+              "real_count_pinned": real_count_pinned,
+              "alignment_pins": n_pins,
               "diff_sites": len(sites),
               "first_divergence": sites[0] if sites else None,
               "divergence_map": sites,
@@ -391,6 +633,8 @@ def analyze(tu: str, func: str | None) -> dict:
               "tags": tags, "lines": pairs}
     if sched:
         result["scheduling"] = sched
+    if regmap:
+        result["register_map"] = regmap
     return result
 
 
@@ -402,8 +646,13 @@ def main() -> int:
                     help="print only the real_count integer")
     ap.add_argument("--full", action="store_true",
                     help="emit ALL differing lines (default: a compact sample, to save tokens)")
+    ap.add_argument("--pinned", action="store_true",
+                    help="OFF BY DEFAULT: make real_count the pinned-alignment "
+                         "count (call-site pins; reccmp SequenceMatcherWithPins "
+                         "port). The unpinned metric stays the gated default; "
+                         "real_count_pinned is always reported either way.")
     args = ap.parse_args()
-    result = analyze(args.tu, args.func)
+    result = analyze(args.tu, args.func, pinned=args.pinned)
     if args.count:
         print(result["real_count"])
         return 0 if result["status"] in ("match", "diffs") else 2

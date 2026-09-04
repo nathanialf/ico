@@ -478,7 +478,7 @@ RULES: list[Rule] = [
       lambda s: not s.has_sibcall,
       lambda s: s.insn_count <= 12,
       weight=0.7,
-      note="Add DEFEAT_TCO() after the call"),
+      note="shape the RETURN so the call result is genuinely live: `int r = f(x); return r;` (int-return emits jal+frame+jr ra; only a VOID tail call becomes `j`) — §1.5/§1.8; DEFEAT_TCO barriers are banned"),
 
     R("1.6", "Force-void-return TCO", "16",
       lambda s: s.has_sibcall,
@@ -497,14 +497,14 @@ RULES: list[Rule] = [
     R("2.1", "Force daddu $v1, $v0, $0 after jal", "21",
       lambda s: s.post_jal_v1_daddu,
       weight=1.0,
-      note="REG(\"$3\") + KEEP_LIVE(q)"),
+      note="route the call result through a second genuinely-read local (dev value-reuse shape) or post-call `(x ^ y) == 0` — REG()/KEEP_LIVE are banned"),
 
     R("2.4", "Force alias $a1 = $a0 at function entry", "24",
       lambda s: any(m in {"daddu", "move"} and re.match(r"\$5,\s*\$4", o)
                     for m, o, d in s.insns[:8]),
       lambda s: s.has_sibcall,
       weight=0.8,
-      note="register int *alias REG(\"$5\") = self; MATERIALIZE(alias)"),
+      note="declare a genuine second local from the param that the code really uses (`T *b = self;` — the actor-entry decl shape); REG()/MATERIALIZE are banned"),
 
     # --- §3 Branch shape ---
     R("3.3", "beql/bnel-only diff — park", "33",
@@ -565,7 +565,7 @@ RULES: list[Rule] = [
       lambda s: any(m == "lw" and re.match(r"\$4,", o)
                     for m, o, d in s.insns if d),
       weight=0.7,
-      note="KEEP_LIVE_FP / KEEP_LIVE_FP2 between float setup and call"),
+      note="order the float setup vs the int-arg load in SOURCE so the call-arg setup stays live to the jal (store/decl order cascades the schedule) — KEEP_LIVE_FP is banned"),
 
     R("7.3", "fabsf/isnanf/copysignf bit-twiddle", "73",
       lambda s: "mfc1" in s.fp_ops,
@@ -577,19 +577,19 @@ RULES: list[Rule] = [
     R("8.2", "early-exit `ld $31` folded into branch delay → unfold_ra_delay", "82",
       lambda s: s.early_exit_ld_ra_in_delay,
       weight=0.9,
-      note="Add TU basename to config/unfold_ra_delay.txt"),
+      note="reshape guards so the work is the fall-through, or funnel the returns through one label (§8.3 C fix) — the unfold_ra_delay allowlist is retired"),
 
     R("8.5", "blez/bgez/bltz/bgtz/branch-likely with intended delay fill", "85",
       lambda s: bool(s.branch_likely
                      or any(m in {"blez", "bgez", "bltz", "bgtz"}
                             for m, _, _ in s.insns)),
       weight=0.4,
-      note="If gas inserts nop where gcc-emit had a fill, try fill_blez_delay.txt"),
+      note="delay-slot occupancy is SOURCE SHAPE (§3.6 placement / §8.28 shared label / §8.32 volatile only with data-model support) — the fill_*_delay allowlists are retired"),
 
     R("8.15", "FCC compares present — may need fcc_nop", "815",
       lambda s: s.fcc_compares >= 1,
       weight=0.4,
-      note="If missing FCC hazard nop after c.lt.s, add to config/fcc_nop.txt"),
+      note="FCC hazard-nop promotion is always-on assembler parity now (quick_diff/compile_c); a residual around a c.lt.s is source shape"),
 
     # --- §4 Conditional / arithmetic idioms ---
     R("4.3", "__builtin_abs (bltzl + negu)", "43",
@@ -602,18 +602,18 @@ RULES: list[Rule] = [
       lambda s: s.has_addu_sp_in_j31_delay,
       lambda s: s.has_jr_ra or s.final_j_31,
       weight=0.6,
-      note="If next func is a 4-byte `addiu sp,+N` stub, add to config/shared_sp_restore.txt"),
+      note="fall-through into a shared epilogue stub (§8.13) — the shared_sp_restore allowlist is retired; treat as source/link shape"),
 
     R("8.17", "sw pair around j $31 (sw_pair)", "817",
       lambda s: s.has_sw_pair_around_j31,
       weight=0.7,
-      note="If diff is just two sw stores swapped around the jr, mark both stores with *(volatile T *)& casts"),
+      note="if the diff is just two sw stores swapped around the jr, swap the SOURCE store order (§8.25; store order cascades regalloc) — volatile casts without data-model support are banned"),
 
     R("8.19", "coalesce_v1_v0 candidate (`move $2,$3` near end)", "819",
       lambda s: s.has_v0_eq_v1_late,
       lambda s: s.insn_count <= 24,
       weight=0.7,
-      note="If $v1 is unused elsewhere, add to config/coalesce_v1_v0.txt"),
+      note="if $v1 is unused elsewhere, use the value-reuse / post-call `(x ^ y) == 0` shape that coalesces ret into v0 (§8.19) — the coalesce_v1_v0 sed allowlist is retired"),
 
     R("8.7", "dual lui — possible §8.7 lui_const_swap or §13 reorder", "87",
       lambda s: s.has_dual_lui_back_to_back,
@@ -762,20 +762,36 @@ def parse_cookbook(path: Path = COOKBOOK_PATH) -> dict[str, Recipe]:
     return out
 
 
+# Constructs from the DELETED include/matching.h and include/regpin.h. Every one
+# was a zero-code crutch (see CLAUDE.md); the headers no longer exist, so a
+# template naming any of them would scaffold C that cannot compile. The cookbook
+# was cleaned of them, so this should never fire — it is a tripwire against a
+# stale or reintroduced template, not a header mapping.
+_DEAD_MACROS = re.compile(
+    r"\b(DEFEAT_TCO|KEEP_LIVE(_MEM|_FP2?)?|MATERIALIZE|ANCHOR|MEM_BARRIER|"
+    r"NOREORDER_BARRIER|TRAILING_PAD_NOP|VOLATILE_RELOAD_CALL|"
+    r"DEAD_DADDU_V0_SP|FABSF_BIT_TWIDDLE|COPYSIGNF_BIT_TWIDDLE|"
+    r"ISNANF_BIT_TWIDDLE)\b|\bREG\s*\(")
+
+
 def _detect_headers(template: str) -> list[str]:
-    """Infer which include/*.h files the template needs."""
+    """Infer which include/*.h files the template needs.
+
+    Only headers that still exist are emitted. matching.h / regpin.h are gone:
+    a template still naming their macros is a bug in the cookbook, and is
+    reported loudly rather than turned into a broken #include."""
+    m = _DEAD_MACROS.search(template)
+    if m:
+        print(f"classify_asm: WARNING — cookbook template names the deleted "
+              f"crutch macro {m.group(0)!r} (matching.h/regpin.h are removed "
+              f"and the construct is banned; see CLAUDE.md). Fix the recipe.",
+              file=sys.stderr)
     needed = []
-    if re.search(r"\b(DEFEAT_TCO|KEEP_LIVE(_MEM|_FP2?)?|MATERIALIZE|"
-                 r"NOREORDER_BARRIER|NOP|TRAILING_PAD_NOP|"
-                 r"VOLATILE_RELOAD_CALL|DEAD_DADDU_V0_SP|"
-                 r"FABSF_BIT_TWIDDLE|COPYSIGNF_BIT_TWIDDLE|"
-                 r"ISNANF_BIT_TWIDDLE)\b", template):
-        needed.append("matching.h")
-    if re.search(r"\bREG\(", template):
-        needed.append("regpin.h")
-    if re.search(r"\b(SYNC|EI|QCOPY\w+|LQ16_FROM|SQ16_TO|MAP_A0_TO_SPR)\b",
-                 template):
+    if re.search(r"\b(SYNC|SYNC_P|EI|DI|QCOPY\w+|LQ16_FROM|SQ16_TO|"
+                 r"MAP_A0_TO_SPR|MFC0_STATUS)\b", template):
         needed.append("r5900.h")
+    if re.search(r"\b(GET_FLOAT_WORD|SET_FLOAT_WORD)\b", template):
+        needed.append("math_private.h")
     return needed
 
 

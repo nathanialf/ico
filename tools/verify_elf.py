@@ -81,7 +81,11 @@ def main(argv: list[str] | None = None) -> int:
         f"verify_elf: MISMATCH\n"
         f"  target:   {target}\n"
         f"  expected: {recorded}\n"
-        f"  actual:   {actual}",
+        f"  actual:   {actual}\n"
+        f"  localize: tools/data_diff.py names the diverging DATA symbol(s) "
+        f"(and --vtables checks the function-pointer tables); a .text "
+        f"divergence is the per-function asm diff's domain (quick_diff / "
+        f"match_diff).",
         file=sys.stderr,
     )
     return 1

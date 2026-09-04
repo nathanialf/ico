@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """tools/lever.py — deterministic, quick_diff-scored SOURCE transforms.
 
-The matching PLAYBOOK names several MECHANICAL levers — reorder a run of init
-stores; pin a value to a specific register. Applying them by hand is slow, and
-the store-order brute force (feedback_brute_force_store_order_plus_anchor) was
-literally done by hand across N! orderings. quick_diff is ~100 ms, so this is
-automatable AND far more targeted than the random permuter: every variant is
-the developer's own C with ONE source-level change, scored by the same
-reloc-normalized real_count (tools/match_diff.py) the loop already trusts.
+The matching PLAYBOOK names MECHANICAL source-shape levers — reorder a run of
+init stores, for one. Applying them by hand is slow, and the store-order brute
+force (feedback_brute_force_store_order_plus_anchor) was literally done by hand
+across N! orderings. quick_diff is ~100 ms, so this is automatable AND far more
+targeted than the random permuter: every variant is the developer's own C with
+ONE source-level change, scored by the same reloc-normalized real_count
+(tools/match_diff.py) the loop already trusts.
 
 Modes
   reorder <TU> <func> --lines A:B   Permute lines A..B (1-based, inclusive),
@@ -15,12 +15,17 @@ Modes
                                     rank by real_count. Use on a contiguous run
                                     of independent field stores / inits (the
                                     classic "init-store order" wall).
-  pin     <TU> <func> --line N      Sweep a REG("$rN") pin on the decl at line
-                                    N across candidate registers (default
-                                    $2..$8) plus the un-pinned baseline.
 
-Both modes RESTORE the file when done; pass --apply to leave the
-lowest-scoring variant in place (ties keep the earliest / un-pinned form).
+(The old `pin` mode swept REG("$rN") register pins. REG() and every other
+zero-code register pin are BANNED crutches (see CLAUDE.md) and include/regpin.h
+is deleted, so the mode is retired: for a regalloc-swap residual use the
+SOURCE-SHAPE levers instead — dead-arg-reg reassignment, early const temp,
+store order, dual-root address derivation (COOKBOOK §2.3/§5.8), or, if the swap
+recurs whole-function, match_diff's `register_map` bijection signal →
+decomp-convergence.)
+
+reorder RESTORES the file when done; pass --apply to leave the
+lowest-scoring variant in place (ties keep the earliest form).
 The func arg is the func_XXX name; the TU is the quick_diff <NAME> (e.g.
 `gobj`, `Light`). Always confirm the winner with `ninja` before committing.
 """
@@ -28,7 +33,6 @@ from __future__ import annotations
 import argparse
 import itertools
 import math
-import re
 import subprocess
 import sys
 from pathlib import Path
@@ -41,7 +45,6 @@ ROOT = Path(__file__).resolve().parent.parent
 # same full stem.
 _SRC_PATTERNS = ("{tu}.c", "src/{tu}.c", "tough_nuts/{tu}/{tu}.c",
                  "sound/{tu}.c", "ios/{tu}.c", "isys/{tu}.c")
-DEFAULT_REGS = ["$2", "$3", "$4", "$5", "$6", "$7", "$8"]
 FAIL = 10 ** 9   # sort key for compile-fail / error variants
 
 
@@ -146,70 +149,25 @@ def cmd_reorder(args) -> int:
     return _report_and_maybe_apply(path, results, args.apply, baseline)
 
 
-_DECL_RE = re.compile(r"^(\s*)(.*?)\s*=\s*(.*;)\s*$")
-_REG_RE = re.compile(r'REG\("\$\w+"\)')
+_PIN_RETIRED_MSG = """\
+lever.py pin: RETIRED. REG("$rN") register pins are banned crutches (see
+CLAUDE.md — zero-code codegen steering) and include/regpin.h is deleted, so a
+pin sweep can only produce compile-fails or committable ban violations.
 
-
-def _pin_line(src: str, reg: str | None) -> str | None:
-    """Rewrite a `<type> <name> = <rhs>;` decl to pin <name> to `reg`
-    (or strip the pin if reg is None). Returns None if the line isn't a
-    simple decl-with-initializer."""
-    if _REG_RE.search(src):
-        if reg is None:
-            # strip "register " + REG(...) back to a plain decl
-            s = _REG_RE.sub("", src)
-            s = re.sub(r"\bregister\s+", "", s, count=1)
-            return re.sub(r"\s{2,}", " ", s)
-        return _REG_RE.sub(f'REG("{reg}")', src)
-    m = _DECL_RE.match(src)
-    if not m:
-        return None
-    indent, lhs, rhs = m.groups()
-    lhs = re.sub(r"\bregister\s+", "", lhs).strip()
-    if reg is None:
-        return f"{indent}{lhs} = {rhs}"
-    return f'{indent}register {lhs} REG("{reg}") = {rhs}'
+For a regalloc-swap residual use the SOURCE-SHAPE levers instead:
+  * reassign the dead arg register the original reuses (`a0 = D[0];`)
+  * route the second constant / intermediate through an early temp
+  * swap the source store order (store order cascades regalloc)
+  * derive each address from a DIFFERENT root (defeats gcse CSE) — COOKBOOK
+    \u00a72.3 / \u00a75.8
+  * whole-function recurring swap: check match_diff's `register_map`
+    (bijection) signal \u2192 the decomp-convergence skill (COOKBOOK \u00a713)
+"""
 
 
 def cmd_pin(args) -> int:
-    path = resolve_tu_path(args.tu)
-    if path is None:
-        print(f"cannot resolve TU source for {args.tu!r}", file=sys.stderr); return 2
-    lines = path.read_text().split("\n")
-    n = args.line
-    if not (1 <= n <= len(lines)):
-        print(f"--line {n} out of range (file has {len(lines)} lines)",
-              file=sys.stderr); return 2
-    target = lines[n - 1]
-    regs = args.regs.split(",") if args.regs else DEFAULT_REGS
-    # baseline (un-pinned) first, then each candidate register.
-    candidates: list[str | None] = [None] + regs
-    print(f"pin-sweep at {path.relative_to(ROOT)}:{n}", file=sys.stderr)
-    print(f"    | {target.strip()}", file=sys.stderr)
-
-    rewrites = []
-    for reg in candidates:
-        rw = _pin_line(target, reg)
-        if rw is None:
-            print(f"line {n} is not a simple `<decl> = <init>;` — cannot pin",
-                  file=sys.stderr)
-            return 2
-        rewrites.append((reg, rw))
-
-    def make(i):
-        out = lines[:]
-        out[n - 1] = rewrites[i][1]
-        return out
-
-    def label_of(i, _lines):
-        reg = rewrites[i][0]
-        return "unpinned" if reg is None else f'REG("{reg}")'
-
-    variants = [make(i) for i in range(len(rewrites))]
-    results = _evaluate(path, args.tu, args.func, variants, label_of)
-    baseline = next((s for s, l, _ in results if l == "unpinned"), None)
-    baseline = None if baseline is not None and baseline >= FAIL else baseline
-    return _report_and_maybe_apply(path, results, args.apply, baseline)
+    print(_PIN_RETIRED_MSG, file=sys.stderr)
+    return 2
 
 
 def main(argv: list[str]) -> int:
@@ -224,10 +182,11 @@ def main(argv: list[str]) -> int:
     r.add_argument("--apply", action="store_true")
     r.set_defaults(fn=cmd_reorder)
 
-    p = sub.add_parser("pin", help="sweep a REG() pin on a decl across registers")
-    p.add_argument("tu"); p.add_argument("func")
-    p.add_argument("--line", type=int, required=True, help="1-based line of the decl")
-    p.add_argument("--regs", default="", help="comma list, e.g. $2,$3,$5 (default $2..$8)")
+    p = sub.add_parser("pin", help="RETIRED (REG() pins are banned crutches; "
+                                   "prints the source-shape levers to use instead)")
+    p.add_argument("tu", nargs="?"); p.add_argument("func", nargs="?")
+    p.add_argument("--line", type=int, default=0)
+    p.add_argument("--regs", default="")
     p.add_argument("--apply", action="store_true")
     p.set_defaults(fn=cmd_pin)
 

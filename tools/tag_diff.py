@@ -24,7 +24,9 @@ Rules are catalogued at module level in RULES. Each rule has:
   - name         — short description ("beq + nop where original fills")
   - match(diff)  — predicate taking a list of (expected, built) line
                    pairs and returning True if the pattern fires
-  - hint         — one-line fix suggestion (e.g. "add to config/X.txt")
+  - hint         — one-line fix suggestion (a SOURCE-SHAPE lever; crutch
+                    pins/barriers and per-file postprocess allowlists are
+                    retired and banned — see CLAUDE.md)
 
 To add a rule: append an entry to RULES. Also add the matching
 `**Diff fingerprint:**` line to the cookbook recipe (mirror discipline
@@ -166,7 +168,8 @@ def _rule_swap_addu_to_rt(pairs: list[DiffPair]) -> bool:
 
 def _rule_v1_daddu_after_jal(pairs: list[DiffPair]) -> bool:
     """Expected has `daddu $v1,$v0,$0` (or `move $v1,$v0`) after a jal,
-    built lacks the dead copy → §2.1 KEEP_LIVE_V1."""
+    built lacks the dead copy → recover the dev's value-reuse shape (route
+    the call result through a second genuinely-read local); pins are banned."""
     for i in range(len(pairs)):
         e, _ = pairs[i]
         if e and re.search(r"(daddu\s+\$3,\$2,\$0|move\s+\$3,\$2)\b", e):
@@ -243,7 +246,8 @@ def _rule_fcc_compare_missing_nop(pairs: list[DiffPair]) -> bool:
 def _rule_fpr_letter_swap(pairs: list[DiffPair]) -> bool:
     """`lwc1 $fA,OFF(...)` (expected) vs `lwc1 $fB,OFF(...)` (built) — same
     mnemonic and offsets, only the FP register letter differs. Same pattern
-    on the very next swc1/use. Suggests `REG("$fA")` pin on the source."""
+    on the very next swc1/use. A source-shape FP regalloc tie — reorder the
+    float decls/uses or free the original register; REG() pins are banned."""
     fp_op = re.compile(r"^(lwc1|swc1|mov\.s|mfc1|mtc1)\s+\$f(\d+)\b")
     saw = False
     for e, b in pairs:
@@ -438,10 +442,10 @@ def _rule_far_global_gp_rel(pairs: list[DiffPair]) -> bool:
 RULES: list[Rule] = [
     Rule("8.21", "beq/bne delay slot has nop where original packs a sw",
          _rule_beq_nop_fill,
-         "add basename to config/fill_beq_delay.txt"),
+         "delay-slot occupancy is SOURCE SHAPE (the fill_*_delay.txt allowlists are retired): place the body so the ROM's occupant is the fall-through (§3.6), funnel same-const returns through one label (§8.28), or a `volatile *` param the data model supports (§8.32)"),
     Rule("8.5", "blez/bgez/bltz/bgtz/branch-likely delay slot has nop",
          _rule_blez_nop_fill,
-         "add basename to config/fill_blez_delay.txt"),
+         "same as §8.4: source shape, not an allowlist (retired) — §3.6 placement / §8.28 shared label / §8.32 volatile the data model supports"),
     Rule("3.3 / 8.6", "branch-likely mnemonic mismatch (beq↔beql / bne↔bnel)",
          _rule_branch_likely_mnemonic,
          "park (§3.3) — ee-gcc 2.9 now usually picks bnel naturally for known-safe annul shapes; if not, see §8.6"),
@@ -450,10 +454,10 @@ RULES: list[Rule] = [
          "commit — the bytes match the original ELF"),
     Rule("2.1", "missing `daddu $v1,$v0,$0` after jal",
          _rule_v1_daddu_after_jal,
-         "REG(\"$3\") + KEEP_LIVE(q) per §2.1"),
+         "route the call result through a second genuinely-read local (the dev's value-reuse shape), or the post-call `(x ^ y) == 0` compare that coalesces ret→v0 — REG()/KEEP_LIVE are banned crutches"),
     Rule("8.11", "addu operand order swap",
          _rule_swap_addu_to_rt,
-         "for rd==rs/rt swap, use inline asm: __asm__(\"addu %0, %1, %2\" : \"+r\"(dst) : \"r\"(base)) — see COOKBOOK §8.11"),
+         "keep the base register as the addu DESTINATION in C: compound update `base += idx*stride` (§2.3) or the `base = base - (-(prod))` spelling — the inline-asm addu spelling is retired (all 7 sites)"),
     Rule("5.2", "single addiu vs lui+ori for a 32-bit mask",
          _rule_unsigned_mask,
          "write the mask as an unsigned 32-bit literal (e.g. 0xFFFFFFC0u)"),
@@ -468,39 +472,42 @@ RULES: list[Rule] = [
          "convert multiple `return 0;` paths to single `goto end; ... end: return 0;`"),
     Rule("8.12", "trailing nop after `j $31`",
          _rule_trailing_nop,
-         "add basename to config/no_trailing_nop.txt"),
+         "trailing-nop handling is always-on assembler parity now (quick_diff/compile_c strip + match_diff strip_trailing_align_nops); a residual here is a REAL size/padding diff — verify with ninja"),
     Rule("8.15", "FCC compare without trailing nop",
          _rule_fcc_compare_missing_nop,
-         "add basename to config/fcc_nop.txt"),
+         "the FCC-compare nop promotion is always-on assembler parity now (quick_diff/compile_c); a residual here is source shape around the compare — see §8.15"),
     Rule("2.7", "FP register letter swap ($fA ↔ $fB, otherwise identical)",
          _rule_fpr_letter_swap,
-         "REG(\"$fA\") pin on the source local — gcc picked the wrong "
-         "free FP reg; force the original choice via a register-pinned "
-         "float local."),
+         "gcc picked a different free FP reg — a source-shape regalloc tie: "
+         "reorder the float decl/store order (store order cascades regalloc), "
+         "or free/occupy the original register via genuine value reuse. "
+         "Register pins are banned."),
     Rule("8.22", "swc1 in jal delay slot where expected has addiu/lw",
          _rule_swc1_in_jal_delay,
-         "add `__asm__ volatile(\"\" ::: \"memory\")` between the trailing "
-         "store and the call, OR mark the store as volatile, so gcc fills "
-         "the delay with the call-arg setup instead of the unrelated store."),
+         "make gcc fill the delay with the call-arg setup by SOURCE shape: move "
+         "the unrelated store earlier / bind it to its dependent expression, "
+         "or a `volatile` object the data model independently supports "
+         "(§8.32). Empty-asm barriers are banned crutches."),
     Rule("5.9", "rodata lui+addiu materialized late next to jal",
          _rule_lui_addiu_late,
-         "capture the global address into a local: "
-         "`T *p = D_X; KEEP_LIVE(p);` so gcc emits the lui+addiu "
-         "earlier instead of clustering them against the jal."),
+         "capture the global address into a local the code genuinely reads "
+         "later (`T *p = D_X;` with real uses through p), or index the "
+         "global DIRECTLY so %hi hoists early (§5.8/§5.10) — KEEP_LIVE "
+         "is a banned crutch."),
     Rule("2.8", "alternating $v0/$v1 reload pattern vs single-reg built",
          _rule_alternating_reload_regs,
-         "DUAL register pin: declare two aliases for the same logical "
-         "pointer (`register T *p_v0 REG(\"$2\")`, "
-         "`register T *p_v1 REG(\"$3\")`), then alternate which alias each "
-         "volatile re-deref assigns to. Single-reg pins won't work — gcc "
-         "puts every load in one reg; you need two pins that take turns."),
+         "derive TWO pointer locals from DIFFERENT roots (dual-root address "
+         "derivation defeats the gcse CSE that funnels every reload into one "
+         "reg — §5.8), and alternate which local each access goes through. "
+         "Register pins are banned crutches."),
     # --- taxonomy expansion (codegen-shape tags) ---------------------------
     Rule("regalloc-swap", "register-allocation swap (same op, one reg differs, recurring)",
          _rule_regalloc_swap,
-         "REG() pin the swapped value — pin the multiply/offset INTERMEDIATE "
-         "or reuse the dead arg reg the original reuses (§2.x / "
-         "pin_computed_var_to_dead_arg_reg). If a couple pins stall, this is "
-         "permuter territory."),
+         "a source-shape regalloc tie — REASSIGN the dead arg register the "
+         "original reuses (`a0 = D[0];` param reuse), route the second "
+         "constant/intermediate through an early temp, or swap store order "
+         "(§2.3/§5.8). If it recurs across the whole function, check "
+         "match_diff's `register_map` → decomp-convergence. Pins are banned."),
     Rule("fp-licm", "loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)",
          _rule_fp_licm,
          "gcc's FP loop-invariant hoist picked a different value to keep "
@@ -511,7 +518,8 @@ RULES: list[Rule] = [
          _rule_delay_slot_occupant,
          "gcc folded the epilogue `ld ra` into the early-exit branch delay where "
          "the original fills it with fall-through work. Reshape the guards "
-         "(nested-if so the loop/work is the fall-through), or §8.2 unfold_ra_delay. "
+         "(nested-if so the loop/work is the fall-through), or funnel the returns "
+         "through one label (§8.3 C fix — the unfold_ra_delay allowlist is retired). "
          "Often permuter territory after a couple structure tries."),
     Rule("branch-direction", "opposite branch sense — body inline vs out-of-line",
          _rule_branch_direction,
