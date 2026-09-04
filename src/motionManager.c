@@ -337,7 +337,31 @@ int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f) {
     CopyQuaternion(e + 0x30, D_002907E0);
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", getFinalMatrixCore);
+extern char *D_0063C480;
+extern int MatrixDrive_GetMatrix(void);
+extern void CopyMatrix(void *dst, void *src);
+extern void *GetCurrentQuaternion(void);
+extern void MatrixDrive_PushMatrixWithNoCopy(void);
+extern void PushQuaternionWithNoCopy(void);
+extern void _getFinalMatrix(int id);
+
+void getFinalMatrixCore(int id) {
+    char *e = D_0063B938 + id * 0x40;
+    MatrixDrive_PushMatrixWithNoCopy();
+    PushQuaternionWithNoCopy();
+    _getFinalMatrix(id);
+    CopyMatrix(*(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + id * 0x40,
+               (void *)MatrixDrive_GetMatrix());
+    CopyQuaternion(D_0063C480 + id * 0x10, GetCurrentQuaternion());
+    if (*(int *)(e + 0x30) != -1) {
+        getFinalMatrixCore(*(int *)(e + 0x30));
+    }
+    MatrixDrive_PopMatrix();
+    PopQuaternion();
+    if (*(int *)(e + 0x34) != -1) {
+        getFinalMatrixCore(*(int *)(e + 0x34));
+    }
+}
 extern char *D_0063B938;
 extern char *D_0063C4A0;
 extern void *MatrixDrive_GetMatrix__pn(void) __asm__("MatrixDrive_GetMatrix");
