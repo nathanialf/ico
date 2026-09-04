@@ -596,13 +596,14 @@ static inline void SetPrimColor(int prim, int r, int g, int b, int a) {
 
 static inline void SetPrimColorTex(int prim, int r, int g, int b, int a, int fst) {
     Vif1Packet packet;
+    unsigned long long data;
     OpenVif1DirectPacket(&packet);
     sceVif1PkOpenGifTag(&packet, D_0061CF30[0]);
-    prim |= 0x10;
+    data = prim | 0x10;
     if (fst != 0) {
-        prim |= 0x100;
+        data |= 0x100;
     }
-    sceVif1PkAddGsData(&packet, prim);
+    sceVif1PkAddGsData(&packet, data);
     sceVif1PkAddGsData(&packet,
                        (unsigned long long)r | ((unsigned long long)g << 8) |
                            ((unsigned long long)b << 16) | ((unsigned long long)a << 24) |
