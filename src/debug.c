@@ -719,7 +719,55 @@ void resetGS(int a0)
     sceVpu0Reset(a0);
     gsb_Init(D_0028F4F0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", putString);
+typedef struct {
+    int col;
+    char ch;
+} DbgChar;
+
+extern DbgChar D_0070FA90[26][256];
+extern DbgChar D_0063B388;
+extern int D_0063B394;
+extern int D_0063B398;
+
+static inline void scrollDbgScreen(void) {
+    int i, j;
+
+    for (i = 1; i < 26; i++) {
+        for (j = 0; j < 256; j++) {
+            D_0070FA90[i - 1][j] = D_0070FA90[i][j];
+        }
+    }
+    for (j = 0; j < 256; j++) {
+        D_0070FA90[25][j] = D_0063B388;
+    }
+}
+
+void putString(int color, char *fmt, ...) {
+    char buf[256];
+    char *str = buf;
+    unsigned int i;
+
+    vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x30);
+    for (i = 0; i < strlen(str); i++) {
+        if (str[i] == '\t') {
+            D_0063B394 += 2;
+        } else if (str[i] == '\n') {
+            D_0063B398++;
+            D_0063B394 = 0;
+        } else {
+            D_0070FA90[D_0063B398][D_0063B394].col = color;
+            D_0070FA90[D_0063B398][D_0063B394].ch = str[i];
+            D_0063B394++;
+        }
+        if (D_0063B394 >= 256) {
+            D_0063B394 = 255;
+        }
+        if (D_0063B398 >= 26) {
+            scrollDbgScreen();
+            D_0063B398 = 25;
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", drawWin);
 ASM_LIT4_SLOT(D_00639354, 0.8f);
 extern void SetDrawEnvironment(int a0);
