@@ -20,5 +20,6 @@ int movie_abort_check(void)
   }
   return ret;
 }
-INCLUDE_ASM("asm/nonmatchings/src/main", demoEnd);
+void demoEnd(void) {
+}
 INCLUDE_ASM("asm/nonmatchings/src/main", main);

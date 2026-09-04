@@ -29,7 +29,9 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", ChangeMailInLadder);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTCorrectMsg);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTGetOrientFromIntrK);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTRunIntrCorrect);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_WayBeginPosError);
+void WithMailFunc_WayBeginPosError(void *a0) {
+    ACTWay_SetBeginPositionIllegal(a0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_AttackFail);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_AttackRejectInQueen);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", GetCorrectOrientOfChain);

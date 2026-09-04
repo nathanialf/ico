@@ -1,7 +1,8 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_readbuf", readBufCreate);
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_readbuf", readBufDelete);
+void readBufDelete(void) {
+}
 int readBufBeginPut(int *a0, int *a1)
 {
     int new_var;

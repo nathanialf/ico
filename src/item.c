@@ -6,8 +6,12 @@ void bombSparkStartSE(int a0)
 {
     ExecuteSEPackage(a0, 0x32);
 }
-INCLUDE_ASM("asm/nonmatchings/src/item", bombSparkSE);
-INCLUDE_ASM("asm/nonmatchings/src/item", bombExplodeSE);
+void bombSparkSE(int a0) {
+    ExecuteSEPackage(a0, 0x33);
+}
+void bombExplodeSE(int a0) {
+    ExecuteSEPackage(a0, 0x34);
+}
 INCLUDE_ASM("asm/nonmatchings/src/item", HoldItem);
 extern void ClipWall(int arg);
 extern float D_004EB500[48];

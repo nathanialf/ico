@@ -5,7 +5,10 @@ void torchOffOfWeaponSE(int a0) {
     StopSEPackage(a0);
     ExecuteSEPackage(a0, 0x43);
 }
-INCLUDE_ASM("asm/nonmatchings/src/weapon", weaponHitReactionSE);
+extern void ExecuteSEPackage(int a0, int a1);
+void weaponHitReactionSE(int a0, int a1, int a2, int a3) {
+    ExecuteSEPackage(a0, 0x44);
+}
 extern void ExecuteSEPackage(int a0, int a1);
 void weaponFumbleSE(int a0) {
     ExecuteSEPackage(a0, 0x5C);

@@ -69,7 +69,9 @@ INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", getCloth4D_postProcess);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", _getCloth4D);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetCloth4D);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetCloth4DWithDetail);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetCloth4DWithTight);
+void GetCloth4DWithTight(void *a0, void *a1, void *a2) {
+    _getCloth4D(a0, 1, a1, a2);
+}
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitCloth4D);
 extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y, float z);
 extern void RotQuaternionX(void *a0, int a1);

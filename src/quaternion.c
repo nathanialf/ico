@@ -129,7 +129,9 @@ void GetQuaternionFromMatrix(void *a0, void *a1) {
     _TransposeMatrix(local, a1);
     getQuaternionFromMatrix(a0, local);
 }
-INCLUDE_ASM("asm/nonmatchings/src/quaternion", CopyQuaternion);
+void CopyQuaternion(void *a0, void *a1) {
+    CopyVector(a0, a1);
+}
 extern void _ScaleVectorXYZ(int a0, int a1, float f);
 
 void GetInverseQuaternion(int a0, int a1)

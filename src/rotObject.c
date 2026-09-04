@@ -1,6 +1,9 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", moveStartSE);
+extern void ExecuteSEPackage(int a0, int a1);
+void moveStartSE(int a0, int a1, int a2, int a3) {
+    ExecuteSEPackage(a0, 0x35);
+}
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", moveEndSE);
 extern void gamesysObjInfoUniqDataSet(void *a0);
 void RotObjectGeo(char *a0) {

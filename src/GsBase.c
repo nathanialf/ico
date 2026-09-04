@@ -105,7 +105,9 @@ INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_SaveStageSettings);
 void gsb_ClearFrameBuffer(void) {
     volatile int local[96];
 }
-INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_ResetSnap);
-INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_TakeSnap);
+void gsb_ResetSnap(void) {
+}
+void gsb_TakeSnap(void) {
+}
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", lockOtherEditing);
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", unlockOtherEditing);

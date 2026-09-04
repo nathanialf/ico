@@ -10,7 +10,9 @@ INCLUDE_ASM("asm/nonmatchings/src/generator", endfunc_BGA);
 INCLUDE_ASM("asm/nonmatchings/src/generator", IsNeedGeneratorHard);
 INCLUDE_ASM("asm/nonmatchings/src/generator", CallEnemy);
 INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_QuickCall);
-INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_Delete);
+void Generator_Delete(void *a0) {
+    switch_MainStatus(a0, 0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/generator", GetMotherGenerator);
 INCLUDE_ASM("asm/nonmatchings/src/generator", ReadGeneratorPacket);
 INCLUDE_ASM("asm/nonmatchings/src/generator", MakeGeneratorPacket);

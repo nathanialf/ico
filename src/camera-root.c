@@ -178,10 +178,22 @@ extern char D_0063C298;
 void SetCameraFlag_GamecamCutBack(void) {
     D_0063C298 = 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", SetHandCameraLimitInDemo);
+extern int D_0063C2B0;
+extern int D_0063C2B4;
+void SetHandCameraLimitInDemo(int a0, int a1) {
+    D_0063C2B0 = a0;
+    D_0063C2B4 = a1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/camera-root", ResetHandCameraLimitInDemo);
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", SetZoomMaxValInDemo);
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", ResetZoomMaxValInDemo);
+extern int D_0063C2B8;
+void SetZoomMaxValInDemo(int a0) {
+    D_0063C2B8 = a0;
+}
+extern int D_0063C2B8;
+extern int D_0028F8B0[];
+void ResetZoomMaxValInDemo(void) {
+    D_0063C2B8 = D_0028F8B0[0];
+}
 INCLUDE_ASM("asm/nonmatchings/src/camera-root", UpdateHandCameraLimitP);
 INCLUDE_ASM("asm/nonmatchings/src/camera-root", UpdateHandCameraLimitV);
 INCLUDE_ASM("asm/nonmatchings/src/camera-root", UpdateZoomMaxVallInDemo);

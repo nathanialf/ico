@@ -142,8 +142,13 @@ int GetEfStageCameraTargetID(void)
     }
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", IsBackFromEfStage);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", PrivInsCamChk);
+int IsBackFromEfStage(void) {
+    return D_006C0B20[0];
+}
+extern int D_006C0B8C[];
+int PrivInsCamChk(void) {
+    return D_006C0B8C[0] != 0;
+}
 extern unsigned char D_006C0B84[];
 
 unsigned char PrivInsCamChk_Control(void) {

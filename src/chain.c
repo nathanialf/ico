@@ -108,12 +108,20 @@ void GetRootPositionHandExtra(void *a0, float *a1) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/chain", InitPendulum);
 INCLUDE_ASM("asm/nonmatchings/src/chain", LockChainGeo);
-INCLUDE_ASM("asm/nonmatchings/src/chain", UnLockChainGeo);
-INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainHangRange);
+void UnLockChainGeo(char *a0) {
+    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCC) = 0;
+}
+float GetChainHangRange(char *a0) {
+    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC8);
+}
 INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainLength);
 INCLUDE_ASM("asm/nonmatchings/src/chain", EnableChainHang);
-INCLUDE_ASM("asm/nonmatchings/src/chain", UnableChainHang);
-INCLUDE_ASM("asm/nonmatchings/src/chain", IsAbleChainHang);
+void UnableChainHang(char *a0) {
+    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD) = 0;
+}
+int IsAbleChainHang(char *a0) {
+    return *(unsigned char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD);
+}
 INCLUDE_ASM("asm/nonmatchings/src/chain", ChainPositionReset);
 INCLUDE_ASM("asm/nonmatchings/src/chain", _GetCorrectOrientOfChain);
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_sub_simulate);
