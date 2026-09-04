@@ -70,11 +70,17 @@ INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt04rMonyou06);
 INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt04rMonyou07);
 INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt05cDoorInit);
 INCLUDE_ASM("asm/nonmatchings/src/st04r", func_00237D08);
-INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt04rC1BallTurn);
+void actSt04rC1BallTurn(volatile int a0) {
+    turnBall(a0, 0xFA, 0x13D, 0x57C, 0x57D);
+}
 INCLUDE_ASM("asm/nonmatchings/src/st04r", func_00237DC0);
-INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt04rC2BallTurn);
+void actSt04rC2BallTurn(volatile int a0) {
+    turnBall(a0, 0xFB, 0x13E, 0x5CF, 0x5D0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/st04r", func_00237E78);
-INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt04rC3BallTurn);
+void actSt04rC3BallTurn(volatile int a0) {
+    turnBall(a0, 0xFC, 0x13F, 0x5D1, 0x5D2);
+}
 INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt04rCrestMain);
 INCLUDE_ASM("asm/nonmatchings/src/st04r", actSt04rSolarStageChangeChk);
 void actSt04rStairEvent(int x) {

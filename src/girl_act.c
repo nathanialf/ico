@@ -190,7 +190,11 @@ void SetGirlDangerGObj(int a0) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ClearGirlDangerGObj);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Idle);
+void subGirlBrain_Idle(volatile int a0) {
+    char *g = (char *)a0;
+    *(int *)(*(char **)(g + 0x164) + 0x34C) = 0;
+    _ACTWait(0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C418);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C4F8);
 int enemy_list_compare(int a0, int a1)
@@ -222,4 +226,6 @@ void afterGirlSupportBGBegin(unsigned int a0)
     ACTGame_DisconnectHand();
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", isMustCheckCylinder);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", afterGirlHintPoint);
+void afterGirlHintPoint(volatile int a0) {
+    RequestChangeHandMode((void *)a0, 1, 4, 0, 0, 0, 0);
+}

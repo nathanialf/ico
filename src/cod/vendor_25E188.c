@@ -22,7 +22,12 @@ int sceDmaDebug(int a0) {
     return old;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaPutEnv);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaGetEnv);
+typedef struct { int w[5]; } DmaEnv;
+extern DmaEnv D_0054A3B8;
+DmaEnv *sceDmaGetEnv(DmaEnv *a0) {
+    *a0 = D_0054A3B8;
+    return a0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaPutStallAddr);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaSend);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaSendN);

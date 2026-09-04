@@ -7,4 +7,8 @@ extern void _ACTWait__pn(int a0) __asm__("_ACTWait");
 
 INCLUDE_ASM("asm/nonmatchings/src/st17b", actSt17bTest);
 INCLUDE_ASM("asm/nonmatchings/src/st17b", actSt17bCheck);
-INCLUDE_ASM("asm/nonmatchings/src/st17b", actSt17bCheckChk);
+void actSt17bCheckChk(volatile int a0) {
+    _ACTWait(1);
+    CheckPoint();
+    gflagOn(0x22);
+}

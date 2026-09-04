@@ -7,7 +7,11 @@ union PendCopy {
 
 typedef struct { unsigned long _0, _8, _10, _18; } CamTgt;
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", SetWSMatrix);
+extern int D_006E66C0[];
+void SetWSMatrix(void *a0) {
+    ConvertCameraSet(D_006E66C0, a0);
+    MakeCameraMatrix(D_006E66C0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/camera-root", ConvertCameraSet);
 INCLUDE_ASM("asm/nonmatchings/src/camera-root", MakeMatrixFromCameraSet2);
 INCLUDE_ASM("asm/nonmatchings/src/camera-root", MakeCameraMatrix);

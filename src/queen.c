@@ -27,8 +27,14 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallGeo);
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallDL);
 INCLUDE_ASM("asm/nonmatchings/src/queen", actQueenStart);
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenStartAttack);
-INCLUDE_ASM("asm/nonmatchings/src/queen", QueenInqDead);
-INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBoysWeaponPower);
+int QueenInqDead(void) {
+    char *g = isysGObjSearchFromObjKindID_begin(0x2F);
+    return *(signed char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 3);
+}
+int QueenBoysWeaponPower(void) {
+    char *g = isysGObjSearchFromObjKindID_begin(0x2F);
+    return *(int *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 4);
+}
 float QueenBarrierRadius(char *a0) {
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14);
 }

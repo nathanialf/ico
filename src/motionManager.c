@@ -207,7 +207,10 @@ void forceFallDown(void)
     iosOmSendMail(D_0063B93C, 0x18, D_0063B93C);
     CopyVector(D_0063C490 + 0x150, D_0063C490);
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", forceReset);
+void forceReset(void) {
+    iosOmSendMail(D_0063B93C, 0x103, D_0063B93C);
+    CopyVector((char *)D_0063C490 + 0x150, (char *)D_0063C490);
+}
 extern float D_007201F4[];
 extern void sceVu0UnitMatrix(int);
 

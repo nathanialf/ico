@@ -3,7 +3,12 @@
 #include "ico/types.h"
 #include "vu0.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/torch", torchOffSE);
+extern void StopSEPackage(int a0);
+extern void ExecuteSEPackage(int a0, int a1);
+void torchOffSE(int a0) {
+    StopSEPackage(a0);
+    ExecuteSEPackage(a0, 0x43);
+}
 INCLUDE_ASM("asm/nonmatchings/src/torch", LightTorchOn);
 INCLUDE_ASM("asm/nonmatchings/src/torch", LightTorchOff);
 INCLUDE_ASM("asm/nonmatchings/src/torch", torchDrainControl);

@@ -38,7 +38,11 @@ void CorrectStickInfo(int a0)
 }
 INCLUDE_ASM("asm/nonmatchings/src/boyact", GetBoyWeaponGObj);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157828);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001578C8);
+void func_001578C8(volatile int a0) {
+    char *g = (char *)a0;
+    ACTAdjustPlane(a0, *(char **)(*(char **)(g + 0x164) + 0x688) + 0x8B0);
+    _ACTWait(0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157900);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157CC0);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157D78);

@@ -4,7 +4,12 @@ extern void ExecuteSEPackage(int a0, int a1);
 void moveStartSE(int a0, int a1, int a2, int a3) {
     ExecuteSEPackage(a0, 0x35);
 }
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", moveEndSE);
+extern void StopSEPackage(int a0);
+extern void ExecuteSEPackage(int a0, int a1);
+void moveEndSE(int a0, int a1, int a2, int a3) {
+    StopSEPackage(a0);
+    ExecuteSEPackage(a0, 0x3A);
+}
 extern void gamesysObjInfoUniqDataSet(void *a0);
 void RotObjectGeo(char *a0) {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -51,7 +56,9 @@ void ExecRotObjectMoveEndReaction(int a0, int a1, int a2, int a3)
 {
     moveEndSE(a0, a1, a2, a3);
 }
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", SetRotObjectArmRadius);
+void SetRotObjectArmRadius(char *a0, float f) {
+    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x3C) = 100.0f / f;
+}
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", GetRotObjectGlobalHoldGeometry);
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", InitRotObjectGeo);
 void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2) {

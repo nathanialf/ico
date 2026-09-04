@@ -98,7 +98,10 @@ void scpGirlHintVoicePlay(void) {
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceTickProc);
 INCLUDE_ASM("asm/nonmatchings/src/script", func_00182810);
 INCLUDE_ASM("asm/nonmatchings/src/script", _SCPBoySupportGirl);
-INCLUDE_ASM("asm/nonmatchings/src/script", _SCPMoveCharactorByWay_Cancel);
+void _SCPMoveCharactorByWay_Cancel(char *a0) {
+    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 47);
+    ACTCharctrl_Unlock(a0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpSekizouCheckPoint);
 extern int isysGObjSearchFromObjLayoutID();
 
@@ -568,7 +571,12 @@ void ScpCallCameraGetTarget(float *dst)
     dst[1] = D_006E5980[1];
     dst[2] = D_006E5980[2];
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", ScpCallCameraOff);
+void ScpCallCameraOff(void) {
+    char *g = D_00639EA4;
+    if (g != 0) {
+        *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) &= ~(1ULL << 23);
+    }
+}
 extern char *D_00639EA4;
 void ScpCallCameraOn(void) {
     char *g = D_00639EA4;
@@ -576,7 +584,12 @@ void ScpCallCameraOn(void) {
         *(long long *)(*(char **)(g + 0x164) + 0x20) |= 0x800000;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", ScpCallCameraTargetOff);
+void ScpCallCameraTargetOff(void) {
+    char *g = D_00639EA4;
+    if (g != 0) {
+        *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) &= ~(3ULL << 24);
+    }
+}
 extern void GetRootPosition(void *a0, void *a1);
 extern void SetDirectRootPosition__pn(void *a0, void *a1) __asm__("SetDirectRootPosition");
 
@@ -607,11 +620,15 @@ void scpExplodeSecretItem(void) {
 INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckExistAliveEnemy);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckExistAliveSpider);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpLockMaxRotate);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpUnLockMaxRotate);
+void scpUnLockMaxRotate(char *a0) {
+    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) &= ~(1ULL << 33);
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGetRotObjectCurrentRot);
 void scpCheckDisconnectWallStart(char *a0) {
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) |= (1ULL << 58);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckDisconnectWallEnd);
+void scpCheckDisconnectWallEnd(char *a0) {
+    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 58);
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerIgnore);
 INCLUDE_ASM("asm/nonmatchings/src/script", func_00185CA0);

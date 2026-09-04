@@ -4,7 +4,13 @@
 
 #include "r5900.h"
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", func_001A7180);
+void func_001A7180(a0, a1)
+int *a0;
+int a1;
+{
+    func_001A7318(a0[0]);
+    func_001A7318(a0[1]);
+}
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", voBufCreate);
 extern void func_001A7180();
 

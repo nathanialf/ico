@@ -97,7 +97,17 @@ ASM_LIT4_SLOT(D_00638CF4, 22500.0f);
 ASM_LIT4_SLOT(D_00638CF8, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", updateHMC);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", RequestChangeHandMode);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTNotNeedCameraOffset);
+extern char *D_00639EA4;
+int ACTNotNeedCameraOffset(char *a0) {
+    char *s;
+    if (a0 != 0 && a0 == D_00639EA4) {
+        s = *(char **)(a0 + 0x164);
+        if (s != 0) {
+            return (int)(*(unsigned long long *)(s + 0x20) >> 41) & 1;
+        }
+    }
+    return 0;
+}
 void ACTGameCollisionOn(volatile int *self)
 {
     ((int *)self[0x57])[0x151] = 1;
@@ -140,7 +150,10 @@ void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3) {
     sceVu0ScaleVector(buf0, a2, -1.0f);
     gamesysObjInfoPosNewStageSet((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_LIFEPINCH);
+int ACTGame_FLAG_LIFEPINCH(char *a0) {
+    if (*(float *)(*(char **)(a0 + 0x164) + 0x1E0) <= 20.0f) return 1;
+    return 0;
+}
 extern char *D_00639EA8;
 int ACTGame_FLAG_TETSUNAGI(void) {
     char *g = D_00639EA8;

@@ -62,7 +62,11 @@ int InitWeaponFumbleSequence(char *a0) {
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xA0) = 0;
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/weapon", GetWeaponWeight);
+typedef struct { int w[9]; } WeaponDef;
+extern WeaponDef D_00318EB8[];
+float GetWeaponWeight(char *a0) {
+    return (float)D_00318EB8[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830))].w[3];
+}
 INCLUDE_ASM("asm/nonmatchings/src/weapon", SetWeaponTorchChainReactionFlagAll);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", InitDemoQueensSword);
 void ExecDemoQueensSword(char *a0) {

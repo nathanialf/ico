@@ -315,7 +315,9 @@ int CompareAttribute(unsigned int a, unsigned int b)
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", GetWallGlobalInfo);
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", GetDistanceFromPlane);
+float GetDistanceFromPlane(void *a0, void *a1) {
+    return sceVu0InnerProduct((int)a0, (int)a1) + ((float *)a0)[3];
+}
 float GetYDistanceFromPlane(float *a0, float *a1) {
     return a1[1] - (-(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1]);
 }

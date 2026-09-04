@@ -276,7 +276,14 @@ void iDisableDmac(void) {
 }
 SYSCALL_WRAPPER(func_00100C28, 116)
 SYSCALL_WRAPPER(Copy, 90)
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", kCopy);
+int kCopy(int *dst, int *src, unsigned int n) {
+    unsigned int i;
+    n >>= 2;
+    for (i = 0; i < n; i++) {
+        *dst++ = *src++;
+    }
+    return 0;
+}
 SYSCALL_WRAPPER(GetEntryAddress, 91)
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", InitAlarm);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100D68);

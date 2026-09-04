@@ -108,4 +108,8 @@ void SetParticleEffectClipEnableFlag(int a0, int a1) {
         *(int *)((char *)D_00720220[a0].w[6] + 0x34) = a1;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectDrainLevel);
+void SetParticleEffectDrainLevel(int a0, float f) {
+    if (a0 >= 0) {
+        *(float *)((char *)D_00720220[a0].w[6] + 0x40) = f;
+    }
+}

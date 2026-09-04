@@ -71,7 +71,15 @@ int scePadGetState(int a0, int a1) {
     if (p[0x71] == 2) return 5;
     return p[0x70];
 }
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadStateIntToStr);
+extern char *D_0054BFD0[];
+extern char D_00636C58[];
+void scePadStateIntToStr(unsigned int a0, char *a1) {
+    if (a0 < 8) {
+        strcpy(a1, D_0054BFD0[a0]);
+    } else {
+        *a1 = D_00636C58[0];
+    }
+}
 int scePadSetReqState(int a0, int a1, int a2) {
     if (D_0072F250[a0][a1].f10 == 0) {
         return 0;
@@ -85,7 +93,15 @@ int scePadGetReqState(int a0, int a1) {
     }
     return ((unsigned char *)scePadGetDmaStr(a0, a1))[0x71];
 }
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadReqIntToStr);
+extern char *D_0054BFF0[];
+extern char D_00636C58[];
+void scePadReqIntToStr(unsigned int a0, char *a1) {
+    if (a0 < 4) {
+        strcpy(a1, D_0054BFF0[a0]);
+    } else {
+        *a1 = D_00636C58[0];
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadInfoAct);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadInfoComb);
 int scePadInfoMode(int a0, int a1, int a2, int a3) {

@@ -89,8 +89,28 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C520);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonCling);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C768);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C968);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015CC28);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", BoxBarSoundOff);
+void func_0015CC28(char *a0) {
+    char *s = *(char **)(a0 + 0x164);
+    switch (*(int *)(s + 0x34)) {
+    case 0x31:
+        ExecBoxMoveStartReaction(*(int *)(s + 0x158), *(int *)(s + 0x38));
+        break;
+    case 0x33:
+        ExecRotObjectMoveStartReaction(*(int *)(s + 0x5F8));
+        break;
+    }
+}
+void BoxBarSoundOff(char *a0) {
+    char *s = *(char **)(a0 + 0x164);
+    switch (*(int *)(s + 0x34)) {
+    case 0x31:
+        ExecBoxMoveEndReaction(*(int *)(s + 0x158));
+        break;
+    case 0x33:
+        ExecRotObjectMoveEndReaction(*(int *)(s + 0x5F8));
+        break;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _boxbar_set_sound);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015CD88);
 ASM_LIT4_SLOT(D_00638E60, 0.3f);
@@ -205,7 +225,11 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00161EF8);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001626A0);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00162D50);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00162DE8);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonBarPull);
+void motCommonBarPull(volatile int a0) {
+    char *g = (char *)a0;
+    *(unsigned int *)(*(char **)(g + 0x164) + 0x38) = 0xFFFFFFFFu;
+    _ACTWait(0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00162F98);
 extern char D_00553188[];
 extern void _ACTWait(int a0);
@@ -236,7 +260,12 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00163670);
 void funcCommonSofaWakeup(char *a0) {
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x250) = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTMotReqResult);
+int _ACTMotReqResult(char *a0, int a1) {
+    char *s = *(char **)(a0 + 0x164);
+    char *r = SetMotionRequest(a0, a1, s + 0x620);
+    *(char **)(s + 0x130) = r;
+    return *(int *)(r + 0xC) != 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", test_CURRENTORIENT);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", test_CURRENTROOT);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", StartCorrectPosition);
@@ -280,7 +309,10 @@ void SetCorrectOrientOfChain(void *a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterForceRope);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterForceRopeSwing);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterRopeJump);
+void actAfterRopeJump(volatile int a0) {
+    char *g = (char *)a0;
+    *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) |= (1ULL << 31);
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonRopeCliff);
 void afterCommonRopeTurnSpecial(volatile int a0) {
     char *g = (char *)a0;
@@ -315,7 +347,10 @@ void afterCommonBar(volatile int a0) {
     *(Blob12 *)(*(char **)(a0 + 0x15C) + 0x1C0) = InitialColInfo;
     _boxbar_set_sound(a0, 0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterJump);
+void actAfterJump(volatile int a0) {
+    char *g = (char *)a0;
+    *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) |= (1ULL << 31);
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterFall);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterFly);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ClipCollisionWithField);
@@ -326,4 +361,7 @@ int ACTCheckFlagAttack(char *a0) {
     return *(int *)(*(char **)(a0 + 0x164) + 0x34) == 0xF;
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonBecarry);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonTruckLever);
+void afterCommonTruckLever(volatile int a0) {
+    char *g = (char *)a0;
+    SetSwitchState(*(int *)(*(char **)(g + 0x164) + 0x5FC), 0);
+}
