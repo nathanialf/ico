@@ -348,7 +348,7 @@ extern int D_0028F4C0[];
 extern int D_0063B14C;
 extern int SgGetSlotStatus(int a0, int a1);
 
-void func_00146778(void)
+void soundReqTickProc(void)
 {
     char *p = D_006BF870;
     int i = 0;

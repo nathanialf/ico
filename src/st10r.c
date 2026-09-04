@@ -3,7 +3,7 @@
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rInit);
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rEnd);
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rFloorChk);
-INCLUDE_ASM("asm/nonmatchings/src/st10r", func_00244908);
+INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rCageMain);
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rTowerChk);
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rTowerConte);
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rChainMove);

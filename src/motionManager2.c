@@ -397,7 +397,7 @@ void GetMotionRootPos(float *dst, void *a1, int idx)
     dst[0] = t0;
     dst[1] = t1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", func_0010A5D8);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetBlendedMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetFloatingMotionRootPos);
 void GetShapeMotion(float *dst, char *a1, int idx, int count)

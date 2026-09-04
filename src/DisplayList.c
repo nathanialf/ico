@@ -16,7 +16,7 @@ extern int D_0063C4BC;
 extern int D_0063C4C0;
 extern DlEntry D_00728310[];
 extern int D_00728518[];
-extern void func_0020BB70(void);
+extern void dpk_SwapBuffer(void);
 extern void gif_Init(void);
 extern void mc_Reset(void);
 
@@ -36,7 +36,7 @@ void dl_Clear(void)
         *(int *)(dst + 0x20) = v;
         dst += 0x28;
     }
-    func_0020BB70();
+    dpk_SwapBuffer();
     gif_Init();
     mc_Reset();
 }

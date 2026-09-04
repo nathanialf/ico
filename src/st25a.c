@@ -43,7 +43,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aQueenDeadReadyChk);
 void actSt25aQueenDeadEvent(int x) {
     volatile int local = x;
 }
-INCLUDE_ASM("asm/nonmatchings/src/st25a", func_00187DF0);
+INCLUDE_ASM("asm/nonmatchings/src/st25a", actItouQueenAttackChk);
 ASM_LIT4_SLOT(D_006390FC, 0.99f);
 ASM_LIT4_SLOT(D_00639100, 0.001f);
 ASM_LIT4_SLOT(D_00639104, 0.01f);

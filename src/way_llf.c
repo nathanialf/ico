@@ -27,8 +27,8 @@ typedef struct NdW {
 typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
 
 INCLUDE_ASM("asm/nonmatchings/src/way_llf", InitWayPointSystem);
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", func_00215FA8);
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", func_00216020);
+INCLUDE_ASM("asm/nonmatchings/src/way_llf", CreateWayGroup);
+INCLUDE_ASM("asm/nonmatchings/src/way_llf", CreateTempWayGroup);
 INCLUDE_ASM("asm/nonmatchings/src/way_llf", DeleteWayGroup);
 extern unsigned char D_004F1EC0[];
 

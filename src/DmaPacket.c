@@ -21,7 +21,7 @@ void dpk_Init(void) {
 }
 extern DpkCtl D_004EE6F0;
 
-void func_0020BB70(void)
+void dpk_SwapBuffer(void)
 {
     int i = D_004EE6F0.cur ^ 1;
     D_004EE6F0.cur = i;

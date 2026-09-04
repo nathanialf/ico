@@ -411,7 +411,7 @@ ClearMotionGeometryInfo = 0x0010A4E8; // type:func  // src/motionManager2
 SetSkeltonDispSwitch = 0x0010A548; // type:func  // src/motionManager2  // provisional-ordinal
 CopyMotion = 0x0010A550; // type:func  // src/motionManager2
 GetMotionRootPos = 0x0010A590; // type:func  // src/motionManager2
-func_0010A5D8 = 0x0010A5D8; // type:func  // src/motionManager2
+GetMotion = 0x0010A5D8; // type:func  // src/motionManager2
 GetBlendedMotion = 0x0010A790; // type:func  // src/motionManager2
 GetFloatingMotionRootPos = 0x0010A978; // type:func  // src/motionManager2
 GetShapeMotion = 0x0010AA98; // type:func  // src/motionManager2
@@ -1100,7 +1100,7 @@ iosSemaDelete = 0x0013FE70; // type:func  // ios/thread
 iosSemaWait = 0x0013FEE8; // type:func  // ios/thread
 iosSemaSignal = 0x0013FF48; // type:func  // ios/thread
 iosSemaReferStatus = 0x0013FF98; // type:func  // ios/thread
-func_00140018 = 0x00140018; // type:func  // ios/thread
+iosThreadAllQuit = 0x00140018; // type:func  // ios/thread
 
 // ---- isys/gobj
 isysGObjKindTableInit = 0x00140170; // type:func  // isys/gobj
@@ -1255,7 +1255,7 @@ soundSeDefVolumeRateSet = 0x001465F0; // type:func  // sound/s_init
 soundSeGroupStop = 0x00146628; // type:func  // sound/s_init
 soundSeGroupGet = 0x001466C8; // type:func  // sound/s_init
 soundSePlayModeStop = 0x001466F0; // type:func  // sound/s_init
-func_00146778 = 0x00146778; // type:func  // sound/s_init
+soundReqTickProc = 0x00146778; // type:func  // sound/s_init
 soundVBlank = 0x00146888; // type:func  // sound/s_init
 soundSeKindBuild = 0x001468E8; // type:func  // sound/s_init
 soundSeSemiCommonLoadChk = 0x001469A8; // type:func  // sound/s_init  // provisional-ordinal
@@ -1265,7 +1265,7 @@ debug_req = 0x00146AD0; // type:func  // sound/s_init
 // ---- sound/soundManager
 sndBgmReadyNextStage = 0x00146B68; // type:func  // sound/soundManager
 sndInit = 0x00146BC8; // type:func  // sound/soundManager
-func_00146C10 = 0x00146C10; // type:func  // sound/soundManager
+sndManager = 0x00146C10; // type:func  // sound/soundManager
 
 // ---- src/act-game
 ACTGame_DeleteActorInformation = 0x00146D10; // type:func  // src/act-game
@@ -1954,7 +1954,7 @@ actSt25aQueenBeforeChk = 0x00187B50; // type:func  // src/st25a
 actConte11Jimaku = 0x00187BC8; // type:func  // src/st25a
 actSt25aQueenDeadReadyChk = 0x00187D30; // type:func  // src/st25a
 actSt25aQueenDeadEvent = 0x00187DE0; // type:func  // src/st25a
-func_00187DF0 = 0x00187DF0; // type:func  // src/st25a
+actItouQueenAttackChk = 0x00187DF0; // type:func  // src/st25a
 
 // ---- src/warpGirl
 warpGirlOutStage = 0x00187F00; // type:func  // src/warpGirl
@@ -2327,7 +2327,7 @@ GatherEffect_InqEnd = 0x001A0560; // type:func  // src/gather_effect
 effect_end_func = 0x001A05D0; // type:func  // src/itou_boss
 bossCtrlBeforeFunc = 0x001A0668; // type:func  // src/itou_boss
 BossEnemyFunc = 0x001A07F0; // type:func  // src/itou_boss
-func_001A08F8 = 0x001A08F8; // type:func  // src/itou_boss
+BossCtrlGeo = 0x001A08F8; // type:func  // src/itou_boss
 itou_boss_gflag_init = 0x001A0DB0; // type:func  // src/itou_boss
 BossCtrlDL = 0x001A0DC8; // type:func  // src/itou_boss
 InqCapsuleGhostBossStage = 0x001A0ED8; // type:func  // src/itou_boss
@@ -3796,7 +3796,7 @@ dl_GetPri = 0x0020BAD0; // type:func  // src/DisplayList  // provisional-ordinal
 
 // ---- src/DmaPacket
 dpk_Init = 0x0020BAD8; // type:func  // src/DmaPacket
-func_0020BB70 = 0x0020BB70; // type:func  // src/DmaPacket
+dpk_SwapBuffer = 0x0020BB70; // type:func  // src/DmaPacket
 dpk_CheckBufferSize = 0x0020BBA8; // type:func  // src/DmaPacket
 
 // ---- src/EnemyInit
@@ -3885,8 +3885,8 @@ func_00215CA0 = 0x00215CA0; // type:func  // src/way_kidnap
 
 // ---- src/way_llf
 InitWayPointSystem = 0x00215F18; // type:func  // src/way_llf
-func_00215FA8 = 0x00215FA8; // type:func  // src/way_llf
-func_00216020 = 0x00216020; // type:func  // src/way_llf
+CreateWayGroup = 0x00215FA8; // type:func  // src/way_llf
+CreateTempWayGroup = 0x00216020; // type:func  // src/way_llf
 DeleteWayGroup = 0x002160B8; // type:func  // src/way_llf
 CloseWayGroup = 0x00216138; // type:func  // src/way_llf
 CreateWayPoint = 0x00216168; // type:func  // src/way_llf  // provisional-ordinal
@@ -4764,7 +4764,7 @@ actSt10lEneKillChk = 0x00244578; // type:func  // src/st10l
 actSt10rInit = 0x00244620; // type:func  // src/st10r
 actSt10rEnd = 0x002446F8; // type:func  // src/st10r
 actSt10rFloorChk = 0x00244750; // type:func  // src/st10r
-func_00244908 = 0x00244908; // type:func  // src/st10r
+actSt10rCageMain = 0x00244908; // type:func  // src/st10r
 actSt10rTowerChk = 0x00244C20; // type:func  // src/st10r
 actSt10rTowerConte = 0x00244E80; // type:func  // src/st10r
 actSt10rChainMove = 0x00245048; // type:func  // src/st10r

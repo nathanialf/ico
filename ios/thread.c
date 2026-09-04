@@ -250,4 +250,4 @@ int iosSemaReferStatus(int *self)
     }
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_00140018);
+INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadAllQuit);
