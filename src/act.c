@@ -103,14 +103,14 @@ void actCreateSubThreadGOppArg(int a0, int a1)
 void actSetInterrupt(char *self, int val) {
     *(int *)(self + 0x0) = val;
 }
-extern int D_00639CF0;
+extern int matrixptr;
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 extern void sceVu0TransposeMatrix(void *a0, void *a1);
 
 void ConvertStickToAbsCoord(void *a0, float *a1) {
     Vec4 v = {{ a1[3], 0.0f, -a1[4], 0.0f }};
     float m[16];
-    sceVu0TransposeMatrix(m, (void *)(D_00639CF0 + 0x80));
+    sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
     sceVu0ApplyMatrix(a0, m, &v);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act", ActSetStartBrainStatus);

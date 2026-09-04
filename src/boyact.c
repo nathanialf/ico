@@ -173,14 +173,14 @@ void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float 
         } while (node != 0);
     }
 }
-extern S12 D_0029D1D0;
+extern S12 InitialColInfo;
 extern char D_0063A700[];
 extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, void *a4, int a5, int a6);
 extern void debug_StdPrintfDummy(void *msg);
 
 void afterBoySwim(volatile int a0) {
     RequestChangeHandMode((void *)a0, 0, 3, 0, 0, 0, 0);
-    *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = D_0029D1D0;
+    *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = InitialColInfo;
     debug_StdPrintfDummy(D_0063A700);
 }
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00158978);

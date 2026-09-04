@@ -120,10 +120,10 @@ int gamesysGetGirlStageIDAndPosition(int a0)
     return 4;
 }
 extern int D_004DA7D0[];
-extern int D_0063B414;
+extern int gamesysTimeCount;
 
 void gamesysStageExitTimeSet(int a0) {
-    D_004DA7D0[a0] = D_0063B414;
+    D_004DA7D0[a0] = gamesysTimeCount;
 }
 void gamesysMemoryHandlerRead(int *self, int a1, int a2)
 {

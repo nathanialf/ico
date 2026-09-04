@@ -71,7 +71,7 @@ INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", GetEdgeOfFloor);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", DrawCollisionRay);
 extern char D_00553960[];
 extern char D_00553980[];
-extern int D_00639CE0;
+extern int frame_count;
 extern int D_0063A818;
 extern int D_0063C20C;
 extern int D_0063C240;
@@ -87,7 +87,7 @@ void MakeExitAttributeIndex(void) {
     void *obj;
     int slot;
 
-    debug_StdPrintfDummy(D_00553960, D_00639CE0);
+    debug_StdPrintfDummy(D_00553960, frame_count);
     D_0063C240 = 0;
     i = 0xF;
     do {
@@ -353,16 +353,16 @@ INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _clipFR);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", __ClipWallWithDrawRay);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", __ClipFloorWithDrawRay);
 extern void ClipWall__pn() __asm__("ClipWall");
-extern int D_0063A80C;
+extern int collision_pick;
 
 void ClipWallRD(void) {
-    D_0063A80C = 1;
+    collision_pick = 1;
     /* Cast away the (int) prototype so gcc doesn't emit `daddu $a0,$0,$0`
      * to set up an arg the original call didn't pass. The implementation
      * happens to read $a0 but the original cross-TU caller didn't bother
      * to clear it. */
     ((void (*)(void))ClipWall__pn)();
-    D_0063A80C = 0;
+    collision_pick = 0;
 }
 extern FcFunc D_0063A840__pn __asm__("D_0063A840");
 

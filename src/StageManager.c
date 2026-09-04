@@ -2,7 +2,7 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stop_free_resources);
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stage_initialize);
-extern int D_00639D10;
+extern int stage_no;
 extern int DeleteStreamMotionManager();
 extern void backStageProcessOutStage();
 extern void gamesysStageExitTimeSet(int idx);
@@ -12,11 +12,11 @@ extern void warpGirlOutStage();
 
 void exit_stage(int *self)
 {
-    gamesysStageExitTimeSet(D_00639D10);
-    warpGirlOutStage(D_00639D10, 0);
+    gamesysStageExitTimeSet(stage_no);
+    warpGirlOutStage(stage_no, 0);
     warpGirlInStage(self);
     backStageProcessOutStage();
-    sndBgmReadyNextStage(self, D_00639D10);
+    sndBgmReadyNextStage(self, stage_no);
     return DeleteStreamMotionManager();
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", start_stage_Load_thread);
@@ -57,12 +57,12 @@ void CheckPoint(void)
         D_0028F4C0[3] = 1;
     }
 }
-extern int D_0063ACB8;
+extern int stagePreLoadStageNo;
 extern int D_0063ACC4;
-extern int D_0063ACD4;
+extern int stagePreLoadLsn;
 
 void stgmgrNextStagePreLoadDiskNotReady(void) {
-    D_0063ACB8 = 0;
+    stagePreLoadStageNo = 0;
     D_0063ACC4 = 0;
-    D_0063ACD4 = 0;
+    stagePreLoadLsn = 0;
 }

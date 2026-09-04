@@ -227,7 +227,7 @@ int ShockRequestBox_RequestDirectCancel(int *a0, int *a1) {
     }
     return 1;
 }
-extern ShockMgr *D_0063A5D0;
+extern ShockMgr *System_shock_driver;
 
 void Init_ShockDriver(int *a0, int a1, int a2)
 {
@@ -238,43 +238,43 @@ void Init_ShockDriver(int *a0, int a1, int a2)
     b = a0;
     a0 = 0;
     b[1] = a1;
-    D_0063A5D0 = (ShockMgr *)b;
+    System_shock_driver = (ShockMgr *)b;
     b[0] = a2;
     for (i = 0; i < a2; i++) *(int *)(b[1] + i*4) = 0;
     b[2] = 0;
 }
 int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, int val)
 {
-    int *base = (int *)D_0063A5D0;
+    int *base = (int *)System_shock_driver;
     if (idx >= (unsigned int)base[0]) return -1;
     ((int *)base[1])[idx] = val;
     return idx;
 }
 int ShockDriver_VoiceSet_Regist(int value) {
     int i;
-    for (i = 0; i < D_0063A5D0->count; i++) {
-        if (D_0063A5D0->arr[i] == 0) break;
+    for (i = 0; i < System_shock_driver->count; i++) {
+        if (System_shock_driver->arr[i] == 0) break;
     }
-    if (i == D_0063A5D0->count) return -1;
-    D_0063A5D0->arr[i] = value;
+    if (i == System_shock_driver->count) return -1;
+    System_shock_driver->arr[i] = value;
     return i;
 }
 int ShockDriver_VoiceSet_Remove(unsigned int idx)
 {
-    int *base = (int *)D_0063A5D0;
+    int *base = (int *)System_shock_driver;
     if (idx >= (unsigned int)base[0]) return -1;
     ((int *)base[1])[idx] = 0;
     return idx;
 }
 int ShockDriver_GetShockVoiceMax(int a0) {
     int p;
-    if ((unsigned int)a0 < (unsigned int)D_0063A5D0->count) {
+    if ((unsigned int)a0 < (unsigned int)System_shock_driver->count) {
         goto body;
     }
     p = 0;
     goto check;
 body:
-    p = D_0063A5D0->arr[a0];
+    p = System_shock_driver->arr[a0];
 check:
     if (p != 0) {
         p = *(int *)p;
@@ -283,19 +283,19 @@ check:
     return 0;
 }
 int ShockDriver_GetShockVoiceSet(unsigned idx) {
-    int *base = (int *)D_0063A5D0;
+    int *base = (int *)System_shock_driver;
     if (idx >= (unsigned)base[0]) return 0;
     return ((int *)base[1])[idx];
 }
 int ShockDriver_GetShockVoice(int a0, int a1) {
     int p;
-    if ((unsigned int)a0 < (unsigned int)D_0063A5D0->count) {
+    if ((unsigned int)a0 < (unsigned int)System_shock_driver->count) {
         goto body;
     }
     p = 0;
     goto check;
 body:
-    p = D_0063A5D0->arr[a0];
+    p = System_shock_driver->arr[a0];
 check:
     if (p == 0) {
         goto ret_a;
@@ -348,7 +348,7 @@ void Reset_ShockRequestStruct(char *p) {
 }
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockRevice_Wave);
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Init_Shock);
-extern int *D_0063A5D0__pn __asm__("D_0063A5D0");
+extern int *D_0063A5D0__pn __asm__("System_shock_driver");
 
 int Shock_SetShockVoiceSet(int idx, int val)
 {

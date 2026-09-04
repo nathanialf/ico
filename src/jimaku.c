@@ -34,20 +34,20 @@ void jimakuMgrEnd(int *p)
     iosSemaDelete(D_006E5038);
     iosSemaDelete(D_006E5000);
 }
-extern int D_002A5040[];
+extern int jimakuMsgQ[];
 extern int iosMsgSend(int *self, int a1, int a2);
 
 void jimakuBegin(int a0)
 {
     *(int *)a0 = 0;
-    iosMsgSend(D_002A5040, a0, 1);
+    iosMsgSend(jimakuMsgQ, a0, 1);
 }
 extern int D_0028F4E8[];
 
 void jimakuNext(int *p) {
     if (D_0028F4E8[0] != 0) {
         *p = 1;
-        iosMsgSend(D_002A5040, p, 0);
+        iosMsgSend(jimakuMsgQ, p, 0);
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuJump);

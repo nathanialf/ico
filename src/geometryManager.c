@@ -4,6 +4,8 @@
 
 #include "vu0.h"
 
+#include "sugiCommon.h"
+
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootQuaternionByDObj);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", UpdateRootMatrixByDObj);
 extern void GetRootQuaternionByDObj(int a0, int *a1);
@@ -285,15 +287,7 @@ void GetProjectionPosOfPlane(void *a0, void *a1, void *a2)
 {
     float buf[4];
     float dot;
-    int v0;
-    VU0_LSV_R(lqc2, 1, 0x0, a2);
-    VU0_LSV_R(lqc2, 2, 0x0, a1);
-    VU0_V3OP(vmul.xyz, 3, 1, 2);
-    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
-    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
-    __asm__ __volatile__("qmfc2.ni %0, $vf3" : "=r"(v0));
-    __asm__ __volatile__("mtc1 %1, %0" : "=f"(dot) : "r"(v0));
+    dot = plane_distance(a2, a1);
     _ScaleVectorXYZ(buf, a1, -dot);
     AddVectorXYZ(a0, a2, buf);
     *(float *)((char *)a0 + 0xC) = 1.0f;
@@ -305,15 +299,7 @@ float GetProjectionOfPlane(void *a0, void *a1, void *a2)
     float buf[4];
     float f = 0.0f;
     float dot;
-    int v0;
-    VU0_LSV_R(lqc2, 1, 0x0, a2);
-    VU0_LSV_R(lqc2, 2, 0x0, a1);
-    VU0_V3OP(vmul.xyz, 3, 1, 2);
-    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
-    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
-    __asm__ __volatile__("qmfc2.ni %0, $vf3" : "=r"(v0));
-    __asm__ __volatile__("mtc1 %1, %0" : "=f"(dot) : "r"(v0));
+    dot = plane_distance(a2, a1);
     _ScaleVectorXYZ(buf, a1, -dot + f);
     _AddVectorXYZ(a0, a2, buf);
     return dot;
@@ -322,15 +308,7 @@ float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f)
 {
     float buf[4];
     float dot;
-    int v0;
-    VU0_LSV_R(lqc2, 1, 0x0, a2);
-    VU0_LSV_R(lqc2, 2, 0x0, a1);
-    VU0_V3OP(vmul.xyz, 3, 1, 2);
-    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
-    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
-    __asm__ __volatile__("qmfc2.ni %0, $vf3" : "=r"(v0));
-    __asm__ __volatile__("mtc1 %1, %0" : "=f"(dot) : "r"(v0));
+    dot = plane_distance(a2, a1);
     _ScaleVectorXYZ(buf, a1, -dot + f);
     _AddVectorXYZ(a0, a2, buf);
     return dot;

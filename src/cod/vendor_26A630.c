@@ -68,13 +68,13 @@ int sceMpegDelete(void) {
     return 1;
 }
 extern int D_0054C0E8[];
-extern int D_0054C200[];
+extern int _bsDataSize[];
 extern void _sendDataToIPU(int a0, int a1);
 
 void sceMpegAddBs(int a0, int a1, int a2) {
     int rounded = (a2 + 0x13) / 16 * 16;
     D_0054C0E8[0] = a1;
-    D_0054C200[0] = rounded;
+    _bsDataSize[0] = rounded;
     _sendDataToIPU(a1, rounded);
 }
 extern int _getpic(int self);
@@ -130,7 +130,7 @@ int sceMpegIsRefBuffEmpty(void *a0) {
     void *p = *(void **)((char *)a0 + 0x40);
     return *(int *)((char *)p + 0x4) == 0;
 }
-extern int D_0054C204[];
+extern int _totalFrames[];
 extern void _clearEach(void);
 extern void _initSeqAgain(void);
 
@@ -143,23 +143,23 @@ void sceMpegReset(int *a0) {
     p[0x20] = -1;
     p[0x2B] = 0;
     _clearEach();
-    D_0054C204[0] = 0;
+    _totalFrames[0] = 0;
     _initSeqAgain();
 }
-extern int D_0054C100[];
-extern int D_0054C104[];
-extern int D_0054C10C[];
-extern int D_0054C110[];
-extern int D_0054C118[];
-extern int D_0054C11C[];
+extern int _forwFrame[];
+extern int _backFrame[];
+extern int _forwTop[];
+extern int _backTop[];
+extern int _forwBot[];
+extern int _backBot[];
 
 int sceMpegClearRefBuff(void) {
-    if (D_0054C100[0] != 0) *(int *)(D_0054C100[0] + 0x28) = 0;
-    if (D_0054C10C[0] != 0) *(int *)(D_0054C10C[0] + 0x28) = 0;
-    if (D_0054C118[0] != 0) *(int *)(D_0054C118[0] + 0x28) = 0;
-    if (D_0054C104[0] != 0) *(int *)(D_0054C104[0] + 0x28) = 0;
-    if (D_0054C110[0] != 0) *(int *)(D_0054C110[0] + 0x28) = 0;
-    if (D_0054C11C[0] != 0) *(int *)(D_0054C11C[0] + 0x28) = 0;
+    if (_forwFrame[0] != 0) *(int *)(_forwFrame[0] + 0x28) = 0;
+    if (_forwTop[0] != 0) *(int *)(_forwTop[0] + 0x28) = 0;
+    if (_forwBot[0] != 0) *(int *)(_forwBot[0] + 0x28) = 0;
+    if (_backFrame[0] != 0) *(int *)(_backFrame[0] + 0x28) = 0;
+    if (_backTop[0] != 0) *(int *)(_backTop[0] + 0x28) = 0;
+    if (_backBot[0] != 0) *(int *)(_backBot[0] + 0x28) = 0;
     return 1;
 }
 int sceMpegAddCallback(void *a0, int a1, int a2, int a3) {
@@ -265,12 +265,12 @@ int _alalcRest(int *a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _getpic);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decodeOrSkipFrame);
-extern int D_0054C2AC[];
+extern int _picture_structure[];
 extern int _decodeOrSkipField(int a0, int a1, int a2);
 extern int _decodeOrSkipFrame(int a0, int a1, int a2);
 
 int _decodeOrSkip(int a0, int a1, int a2) {
-    if (D_0054C2AC[0] != 3) {
+    if (_picture_structure[0] != 3) {
         return _decodeOrSkipField(a0, a1, a2);
     }
     return _decodeOrSkipFrame(a0, a1, a2);
@@ -282,21 +282,21 @@ int _sceMpegFlush(int *self) {
     int *p = (int *)self[0x40 / 4];
     int ret = 0;
     if (p[1] != 0 && p[2] != 0) {
-        _lastFrame(D_0054C204[0]);
-        self[2] = D_0054C204[0] - p[0xAC / 4];
+        _lastFrame(_totalFrames[0]);
+        self[2] = _totalFrames[0] - p[0xAC / 4];
         p[1] = 0;
         ret = 1;
     }
     return ret;
 }
-extern int D_0054C9B0[];
+extern int _isMpeg2[];
 extern void _ipuSetMPEG1(int a0);
 
 void _initSeqAgain(void) {
-    D_0054C9B0[0] = 0;
+    _isMpeg2[0] = 0;
     _ipuSetMPEG1(1);
 }
-extern int D_0054C21C[];
+extern int _isSecondField[];
 extern char D_00636DD8[];
 extern void _dispRefImage();
 extern void _dispRefImageField();
@@ -305,31 +305,31 @@ void _lastFrame(int a0) {
     int t;
     int d;
     int c;
-    if (D_0054C21C[0]) {
+    if (_isSecondField[0]) {
         _Error(D_00636DD8);
-        D_0054C21C[0] = 0;
+        _isSecondField[0] = 0;
         return;
     }
-    t = D_0054C2AC[0];
+    t = _picture_structure[0];
     if (t == 3) {
-        _dispRefImage(D_0054C104[0], a0 - 1);
+        _dispRefImage(_backFrame[0], a0 - 1);
     } else {
-        _dispRefImageField(D_0054C110[0], D_0054C11C[0], a0 - 1);
+        _dispRefImageField(_backTop[0], _backBot[0], a0 - 1);
     }
-    D_0054C21C[0] = 0;
+    _isSecondField[0] = 0;
 }
 extern int D_0054C0D8[];
-extern int D_0054C6F8[];
+extern int _mbcont[];
 
 void _clearOnce(void) {
     int v;
     _ipuSetMPEG1(1);
     v = D_0054C0D8[0];
-    D_0054C6F8[0] = v;
-    D_0054C6F8[1] = v + 0x1800;
-    *(void **)&D_0054C6F8[0x50] = (void *)(v + 0x1B00);
-    *(void **)&D_0054C6F8[0x51] = (void *)(v + 0x3300);
-    *(float *)((char *)D_0054C6F8 + 0x280) = 0.0f;
+    _mbcont[0] = v;
+    _mbcont[1] = v + 0x1800;
+    *(void **)&_mbcont[0x50] = (void *)(v + 0x1B00);
+    *(void **)&_mbcont[0x51] = (void *)(v + 0x3300);
+    *(float *)((char *)_mbcont + 0x280) = 0.0f;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _clearEach);
 extern int D_00636DF8[];
@@ -1425,15 +1425,15 @@ extern int _ipuVdec(int a0);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dmVector);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dualPrimeVector);
-extern int D_0054C208[];
+extern int _isError[];
 extern int D_00636FE0[];
 extern void _flushBuf(int a0);
 extern int _peepBit(int a0);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _mbAddressIncrement);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _pictureData0);
-extern int D_0054C228[];
-extern int D_0054C33C[];
+extern int _widthMB[];
+extern int _sp_dcr[];
 extern int D_00637038[];
 extern int D_00637060[];
 extern void _nextStartCode(void);
@@ -1449,7 +1449,7 @@ extern void _decode_motion_vector();
 extern int _nextBit(int a0);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _motionVector);
-extern int D_0054C124[];
+extern int _isTop32dirty[];
 extern int D_0054CA08[];
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sendIpuCommand);
@@ -1462,14 +1462,14 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _nextBit);
 extern void _waitIpuIdle(void);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _nextStartCode);
-extern int D_0054C340[];
-extern int D_0054C9C0[];
+extern int _qscqsc[];
+extern int _intra_slice[];
 extern void _extrainfo(void);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sliceB);
-extern int D_0054C27C[];
-extern long long D_0054C988[];
-extern long long D_0054C990[];
+extern int _picture_coding_type[];
+extern long long _headerPts[];
+extern long long _headerDts[];
 extern void _groupOfPicturesHeader(void);
 extern void _pictureHeader(void);
 extern void _sequenceHeader(void);
@@ -1492,7 +1492,7 @@ extern void sprintf__pn() __asm__("sprintf");
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _isOutSizeOK);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _cpr8);
-extern int D_0054C980[];
+extern int _isOutputPicture[];
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _markOutput);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _getPtsDtsFlags);

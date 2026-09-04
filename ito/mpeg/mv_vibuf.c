@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "mv_defs.h"
+
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_00259480);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufCreate);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufReset);
@@ -15,7 +17,7 @@ extern void iosFree();
 
 void func_0025A4A8(int a0)
 {
-    iosFree(a0 & 0x0FFFFFFF);
+    iosFree(phys_addr(a0));
 }
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufDelete);
 extern void SignalSema();

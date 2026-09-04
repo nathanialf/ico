@@ -41,7 +41,7 @@ void dl_Clear(void)
     mc_Reset();
 }
 extern int D_0063A054;
-extern int D_0063BC94;
+extern int dmaVif;
 extern void FlushCache(int a0);
 extern void dl_CloseDma();
 extern void dl_OpenDma(int a0, int a1, int a2);
@@ -68,9 +68,9 @@ void dl_Swap(void)
     } while (j < 0xC);
     FlushCache(0);
     if (D_0063A054) {
-        sceDmaSend(D_0063BC94, D_00728310[11].pad_20 & 0xFFFFFFF);
+        sceDmaSend(dmaVif, D_00728310[11].pad_20 & 0xFFFFFFF);
     } else {
-        sceDmaSend(D_0063BC94, D_00728310[0].pad_20 & 0xFFFFFFF);
+        sceDmaSend(dmaVif, D_00728310[0].pad_20 & 0xFFFFFFF);
     }
     dl_Clear();
 }

@@ -349,7 +349,7 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewClDetail);
 ASM_LIT4_SLOT(D_00638D0C, 25000000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Clear);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Exec);
-extern int D_00639D10;
+extern int stage_no;
 extern void OtherStagePositionGet();
 extern int gamesysGetGirlStageIDAndPosition(int a0);
 

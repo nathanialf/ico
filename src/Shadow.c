@@ -15,7 +15,7 @@ void shadow_Render(void)
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_getShadowVectorAverage);
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_EntryClusterShadow);
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_EntryNormalShadow);
-extern char *D_00639CF0;
+extern char *matrixptr;
 extern void _ApplyCurrentMatrix(void *a0, void *a1);
 extern void _ClearTransCurrentMatrix(void);
 extern void _PopCurrentMatrix(void);
@@ -26,10 +26,10 @@ extern void _TransposeCurrentMatrix(void);
 
 void __GetCameraPos(void *a0) {
     _PushCurrentMatrix(a0);
-    _SetCurrentMatrix(D_00639CF0 + 0x80);
+    _SetCurrentMatrix(matrixptr + 0x80);
     _ClearTransCurrentMatrix();
     _TransposeCurrentMatrix();
-    _ApplyCurrentMatrix(a0, D_00639CF0 + 0xB0);
+    _ApplyCurrentMatrix(a0, matrixptr + 0xB0);
     _ScaleVector(a0, a0, -1.0f);
     *(float *)((char *)a0 + 0xC) = 1.0f;
     _PopCurrentMatrix();

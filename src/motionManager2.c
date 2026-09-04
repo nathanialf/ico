@@ -4,6 +4,8 @@
 
 #include "vu0.h"
 
+#include "sugiCommon.h"
+
 struct Pack32 { long long a, b, c, d; };
 
 typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
@@ -387,21 +389,29 @@ extern void SetDirectRootPosition(void *a0, void *a1);
 void GetOutOutsideOfWall(void *obj, float threshold) {
     int buf0[4];
     int buf1[4];
-    register float thr __asm__("$f20") = threshold;
     if (*(int *)(*(char **)((char *)obj + 0x15C) + 0x188) != 0) {
-        register float dot __asm__("$f0");
+        float dot;
         GetRootPosition__pn(buf0, obj);
         GetGlobalWallPlane(buf1, *(char **)((char *)obj + 0x15C) + 0x180);
-        VU0_LSV_R(lqc2, 1, 0x0, buf0);
-        VU0_LSV_R(lqc2, 2, 0x0, buf1);
-        VU0_V3OP(vmul.xyz, 3, 1, 2);
-        VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
-        VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-        VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
-        VU0_QMFC2_NI(v0, 3);
-        VU0_MTC1(v0, 0);
-        if (dot < thr) {
-            GetProjectionOfPlaneWithKeepAway(buf0, buf1, buf0, thr);
+        /* The sugiCommon.h line-69 helper, hand-expanded: calling
+         * plane_distance(buf0, buf1) costs one extra `daddu v0,s0,zero`
+         * because ee-gcc's inliner copies the frame-address actual `&buf1`
+         * into a fresh parameter pseudo that copy-prop then fails to
+         * coalesce with the s0 the preceding call already put it in.
+         * See decomp/HEADERS.md. */
+        {
+            int t;
+            VU0_LSV_R(lqc2, 1, 0x0, buf0);
+            VU0_LSV_R(lqc2, 2, 0x0, buf1);
+            VU0_V3OP(vmul.xyz, 3, 1, 2);
+            VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+            VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+            VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+            __asm__ __volatile__("qmfc2.ni %0, $vf3" : "=r"(t));
+            __asm__ __volatile__("mtc1 %1, %0" : "=f"(dot) : "r"(t));
+        }
+        if (dot < threshold) {
+            GetProjectionOfPlaneWithKeepAway(buf0, buf1, buf0, threshold);
         }
         SetDirectRootPosition(obj, buf0);
     }

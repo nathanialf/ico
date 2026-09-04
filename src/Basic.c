@@ -3,12 +3,12 @@
 #include "ico/types.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/Basic", dma_init);
-extern int D_00639CF0;
+extern int matrixptr;
 extern void _UnitMatrix(void *p0);
 
 void matrix_init(void)
 {
-    D_00639CF0 = 0x70000000;
+    matrixptr = 0x70000000;
     _UnitMatrix(0x70000000);
 }
 extern void memcpy();

@@ -36,6 +36,6 @@ void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
 }
 extern int CheckPureWallAttribute();
 extern int CheckWallAttribute();
-extern int D_00639D10;
+extern int stage_no;
 
 INCLUDE_ASM("asm/nonmatchings/src/act-env", CheckWallAttributeEdegWall);

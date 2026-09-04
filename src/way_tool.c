@@ -92,7 +92,7 @@ extern char D_004F76A0[];
     return 0;
 }
 extern char D_00622378[];
-extern int D_0063A9E0;
+extern int load_save_flag;
 extern char D_0063BDA8[];
 extern char D_0063BDB0[];
 extern unsigned char D_00729BF0[];
@@ -107,12 +107,12 @@ int quick_save_wpfile(void) {
     int s0;
     int i;
     unsigned char *p;
-    D_0063A9E0 = 1;
+    load_save_flag = 1;
     sprintf(buf, D_0063BDA8);
     s0 = debugSceOpen(buf, 0x202);
     if (s0 < 0) {
         debug_StdPrintfDummy__pn((int)D_00622378);
-        D_0063A9E0 = 0;
+        load_save_flag = 0;
         return 0;
     }
     i = 0xF;
@@ -125,7 +125,7 @@ int quick_save_wpfile(void) {
     sceWrite(s0, D_00729BF0, 0x10);
     debugSceClose(s0);
     debug_StdPrintfDummy__pn((int)D_0063BDB0);
-    D_0063A9E0 = 0;
+    load_save_flag = 0;
     return 1;
 }
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00217D88);

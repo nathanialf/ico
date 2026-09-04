@@ -98,22 +98,22 @@ void debug_NMarker(int *self, int a1, int a2, int a3, float t)
 }
 void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13) {}
 void debug_Arrow(void) {}
-extern int D_0063AB38;
-extern char D_0063AB40;
+extern int curmenu;
+extern char exit_f;
 
 void InitCameraEditor(void) {
-    D_0063AB38 = 0;
-    D_0063AB40 = 0;
+    curmenu = 0;
+    exit_f = 0;
 }
 extern void CameraSetMode(int a0);
-extern unsigned char D_0063AB40__pn __asm__("D_0063AB40");
+extern unsigned char D_0063AB40__pn __asm__("exit_f");
 extern int D_0063B13C;
 extern void func_0018E0D0(void);
 extern void test_camedit(void);
 
 int debug_CameraEditor(void) {
     D_0063B13C = 1;
-    if (D_0063AB38 == 0) {
+    if (curmenu == 0) {
         test_camedit();
     }
     func_0018E0D0();
@@ -196,7 +196,7 @@ extern void CameraEdit_add_box(S4C *a0);
 extern int CameraEdit_add_pin(int a0, char *a1);
 extern float D_002A5D68[];
 extern StageParam D_005F5D50[];
-extern int D_00639D10;
+extern int stage_no;
 
 void ConvertCameraSetBuffer(int n, S4C *item, char *groups) {
     CamMgr *m1;
@@ -206,7 +206,7 @@ void ConvertCameraSetBuffer(int n, S4C *item, char *groups) {
     int a;
     int b;
     char *f;
-    D_002A5D68[0] = D_005F5D50[D_00639D10].rate;
+    D_002A5D68[0] = D_005F5D50[stage_no].rate;
     m1 = (CamMgr *)D_0063AA78;
     m1->items = (char *)m1 + 0x70;
     m1->pool = (char *)m1 + 0x1E20;

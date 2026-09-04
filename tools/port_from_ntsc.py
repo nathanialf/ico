@@ -1948,10 +1948,35 @@ def tu_span_size(tu):
                 rows.append((int(m.group(2), 16), m.group(6).strip()))
         rows.sort()
         _SPANS = {}
+        _SPAN_OFF.clear()
         for i, (off, name) in enumerate(rows):
             end = rows[i + 1][0] if i + 1 < len(rows) else TEXT_SZ
             _SPANS[name] = end - off
+            _SPAN_OFF[name] = off
     return _SPANS.get(tu)
+
+
+_SPAN_OFF: dict = {}
+
+
+def span_tail_is_zero_pad(tu, got, exp):
+    """True when an object that is `got` bytes long still lays out the
+    `exp`-byte span exactly: the shortfall is under one 8-byte alignment
+    unit, the next input section's 8-byte alignment therefore places it at
+    the span end, and the ROM bytes in that tail are zero — i.e. the
+    trailing `nop` pad that ld's zero fill reproduces.  Measured on
+    MapCollisionData / src/fieldCollision (0x41AC vs 0x41B0): the full SHA
+    gate is byte-identical.  Only that case is a false negative of the
+    size check; a shortfall of >= 8, a surplus, or non-zero ROM tail bytes
+    still mean the object really differs."""
+    tu_span_size(tu)
+    off = _SPAN_OFF.get(tu)
+    if off is None or got >= exp or exp - got >= 8:
+        return False
+    if (got + 7) // 8 * 8 != exp and exp % 8 == 0:
+        return False
+    tail = ROM.read_bytes()[off + got: off + exp]
+    return bool(tail) and not any(tail)
 
 
 def revert_one(path, func):
@@ -2043,7 +2068,7 @@ def reconcile_tu(stem, kept, reverted):
     got, sizes = measure()
     # 2. residual: the span's trailing pad word, dropped with the last body
     stuck = 0
-    while kept and got != exp:
+    while kept and got != exp and not span_tail_is_zero_pad(stem, got, exp):
         rec, _m = kept.pop()
         if not revert_one(path, rec["name"]):
             # a handwritten-asm body: not a C definition, so there is nothing

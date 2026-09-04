@@ -2,6 +2,8 @@
 
 #include "vu0.h"
 
+#include "sugiCommon.h"
+
 typedef struct {
     float v[4];
     unsigned short a;
@@ -22,8 +24,8 @@ INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", clipCylinderCollision);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitChains);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitClothes);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitClothesNoShade);
-extern int D_00639CC0;
-extern int D_00639CF0;
+extern int buffer_ID;
+extern int matrixptr;
 extern void _SetCurrentMatrix(int a0);
 extern void dl_SetDLPriority(int a0);
 extern void gif_EndPacket(void);
@@ -39,12 +41,12 @@ void DispClothMesh(int *a0, void *a1, void *a2) {
     int t;
     dl_SetDLPriority(2);
     p2o_SetDefaultEnviroment();
-    prim_UpdateMesh3D(a0[0], 5, D_00639CC0);
+    prim_UpdateMesh3D(a0[0], 5, buffer_ID);
     gif_StartPacketPri(2);
     gif_SetAlpha(1, 7, 0x80);
     gif_SetGsReg(8, 0);
     gif_EndPacket();
-    _SetCurrentMatrix(D_00639CF0 + 0x100);
+    _SetCurrentMatrix(matrixptr + 0x100);
     if (a0[4] != 0) {
         t = tex_GetTextureNo((char *)a0 + 0x18);
     } else {
@@ -239,23 +241,7 @@ INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", tensionMove);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", getCrossPoint);
 int checkOverThePlane(void *a0, void *a1)
 {
-    int bits;
-    int v0 = 0;
-    VU0_LSV(lqc2, 1, 0x0, a0);
-    VU0_LSV(lqc2, 2, 0x0, a1);
-    VU0_V3OP(vmul.xyz, 3, 1, 2);
-    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
-    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
-    VU0_QMFC2_NI(v0, 3);
-    bits = v0;
-    {
-        register float f1 __asm__("$f1");
-        register float f0 __asm__("$f0");
-        VU0_MTC1(v0, 1);
-        VU0_REG("mtc1 $0, $f0");
-        if (f0 < f1) return 1;
-    }
+    if (0.0f < plane_distance(a0, a1)) return 1;
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", checkFrontAcross);

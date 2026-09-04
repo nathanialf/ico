@@ -60,11 +60,11 @@ void test_nextstage_firstwalk_set(int unused, int a, int b, int c) {
     D_0063C418 = b;
     D_0063C41C = c;
 }
-extern int D_00639D30;
+extern int exit_no;
 
 int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r) {
     int ret = 1;
-    if (D_00639D30 == 0) {
+    if (exit_no == 0) {
         *r = 1;
         *q = 1;
         *p = 1;

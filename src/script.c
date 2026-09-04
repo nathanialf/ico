@@ -123,7 +123,7 @@ void scpKillSpiderGroup(void)
 }
 extern char D_0055C518[];
 extern unsigned char D_005F5D50[];
-extern int D_00639D10;
+extern int stage_no;
 extern void stgmgrNextStagePreLoadForceNoCancel(int val);
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
 
@@ -136,7 +136,7 @@ void preload(int idx)
   short s;
   new_var = 0xA0;
   p = &D_005F5D50[new_var];
-  new_var = ((idx - 1) * 2) + (D_00639D10 * 0x194);
+  new_var = ((idx - 1) * 2) + (stage_no * 0x194);
   s = *((short *) (p + new_var));
   new_var2 = 0x28;
   ;
@@ -397,29 +397,29 @@ void RequestStageChangeDirect(int *self)
     SetDirectRootPosition(self, (int *)buf);
     iosOmSendMail((int)self, 0x27, (int)self);
 }
-extern int D_0063BCA0;
-extern float D_0063BCA4;
-extern int D_0063BCA8;
-extern unsigned char D_0063BCB0;
+extern int fadeStatus;
+extern float fadeSpeed;
+extern int fadeContinue;
+extern unsigned char fadeColor;
 extern unsigned char D_0063BCB1;
 extern unsigned char D_0063BCB2;
 
 void scpFadeOut(float a0, int a1, int a2, int a3) {
-    D_0063BCA0 = 1;
-    D_0063BCA4 = a0;
-    D_0063BCA8 = 1;
-    D_0063BCB0 = a1;
+    fadeStatus = 1;
+    fadeSpeed = a0;
+    fadeContinue = 1;
+    fadeColor = a1;
     D_0063BCB1 = a2;
     D_0063BCB2 = a3;
 }
 void scpFadeIn(float f) {
-    D_0063BCA0 = 1;
-    D_0063BCA8 = 0;
-    D_0063BCA4 = -f;
+    fadeStatus = 1;
+    fadeContinue = 0;
+    fadeSpeed = -f;
 }
 int scpFadeChk(void)
 {
-  int v = D_0063BCA0;
+  int v = fadeStatus;
   if (v == 0)
   {
     return 0;

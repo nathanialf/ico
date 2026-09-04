@@ -29,10 +29,10 @@ extern void ReflectCameraSetBinary(S4C *src, int count);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", CameraSetCameraSet);
 extern StageParam D_005F5D50[];
-extern int D_00639D10;
+extern int stage_no;
 
 void CameraSetCameraSet_Default(void) {
-    CameraSetCameraSet(D_005F5D50[D_00639D10].camSetId);
+    CameraSetCameraSet(D_005F5D50[stage_no].camSetId);
 }
 extern int *D_00639EA4;
 extern void GetBoyRootPositionForCamera();

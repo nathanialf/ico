@@ -73,9 +73,9 @@ void _sceCd_Poff_Intr(void) {
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", PowerOffCB);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdSearchFile);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", _sceCd_ncmd_prechk);
-extern int D_0054A568[];
-extern int D_0054A5C0[];
-extern int D_0054B710[];
+extern int _sceCd_ncmd_semid[];
+extern int _sceCd_ncmdrdata[];
+extern int _sceCd_cd_ncmd[];
 extern void SignalSema(int sema);
 extern int _sceCd_ncmd_prechk(int a0);
 extern int sceSifCallRpc();
@@ -86,31 +86,31 @@ int sceCdNcmdDiskReady(void) {
     if (_sceCd_ncmd_prechk(2) == 0) {
         return 0;
     }
-    p = D_0054A5C0;
-    if (sceSifCallRpc(D_0054B710, 0xE, 0, 0, 0, p, 4, 0, 0) < 0) {
-        SignalSema(D_0054A568[0]);
+    p = _sceCd_ncmdrdata;
+    if (sceSifCallRpc(_sceCd_cd_ncmd, 0xE, 0, 0, 0, p, 4, 0, 0) < 0) {
+        SignalSema(_sceCd_ncmd_semid[0]);
         return 0;
     }
     v = *(int *)((int)p | 0x20000000);
-    SignalSema(D_0054A568[0]);
+    SignalSema(_sceCd_ncmd_semid[0]);
     return v;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdSync);
-extern int D_0054A550[];
-extern char D_0054BF88[];
+extern int SCE_CD_debug[];
+extern char _sceCd_cd_scmd[];
 extern char D_006368C8[];
 extern void scePrintf();
 extern int sceSifCheckStatRpc(char *a0);
 
 int sceCdSyncS(int a0) {
     if (!a0) {
-        if (D_0054A550[0] > 0) scePrintf(D_006368C8);
-        while (sceSifCheckStatRpc(D_0054BF88)) {
+        if (SCE_CD_debug[0] > 0) scePrintf(D_006368C8);
+        while (sceSifCheckStatRpc(_sceCd_cd_scmd)) {
             sceCdDelayThread(0x3C);
         }
         return 0;
     }
-    return sceSifCheckStatRpc(D_0054BF88);
+    return sceSifCheckStatRpc(_sceCd_cd_scmd);
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", _sceCd_scmd_prechk);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdInit);
@@ -150,7 +150,7 @@ extern char D_00636AB0[];
 
 int sceCdStPause(void) {
     D_0054BFB0[0] = 0;
-    if (D_0054A550[0] > 0) {
+    if (SCE_CD_debug[0] > 0) {
         scePrintf(D_00636AB0);
     }
     return sceCdStream(0, 0, 0, 7, D_0072F1D8);
@@ -159,7 +159,7 @@ extern char D_00636AC8[];
 
 int sceCdStResume(void) {
     D_0054BFB0[0] = 1;
-    if (D_0054A550[0] > 0) {
+    if (SCE_CD_debug[0] > 0) {
         scePrintf(D_00636AC8);
     }
     return sceCdStream(0, 0, 0, 8, D_0072F1D8);
@@ -167,7 +167,7 @@ int sceCdStResume(void) {
 extern int D_00636AE0[];
 
 int sceCdStStat(void) {
-    if (D_0054A550[0] > 0) {
+    if (SCE_CD_debug[0] > 0) {
         scePrintf(D_00636AE0);
     }
     return sceCdStream(0, 0, 0, 6, D_0072F1D8);

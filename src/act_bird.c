@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "itou_common.h"
+
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", interp_vector_sa);
 ASM_LIT4_SLOT(D_00639230, 10430.378f);
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", birdBeforeFunc);
@@ -47,7 +49,7 @@ float vector_angle_degree(void *a0, void *a1) {
     float v1[4];
     sceVu0Normalize(v0, a0);
     sceVu0Normalize(v1, a1);
-    return acosf(sceVu0InnerProduct(v0, v1)) * 360.0f / 6.2831855f;
+    return radians_to_degrees(acosf(sceVu0InnerProduct(v0, v1)));
 }
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_0019FF18);
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", InitBirdGeo);

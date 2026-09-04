@@ -45,7 +45,7 @@ void DebugCameraSemiAuto(void) {
     MakeCameraMatrix(D_006E66C0);
 }
 extern void CopyVector(void *, void *);
-extern char *D_00639CF0;
+extern char *matrixptr;
 extern int D_0063AB9C;
 extern float D_0063C2A8;
 extern void SetCameraTargetPosition(void *, void *, float);
@@ -61,8 +61,8 @@ void BackToGameCamera(void) {
     float f20v;
     memset(buf, 0, 0x10);
     *(float *)(buf + 8) = 1.0f;
-    sceVu0TransposeMatrix(buf + 0x20, D_00639CF0 + 0x80);
-    CopyVector(buf + 0x70, D_00639CF0 + 0xB0);
+    sceVu0TransposeMatrix(buf + 0x20, matrixptr + 0x80);
+    CopyVector(buf + 0x70, matrixptr + 0xB0);
     *(int *)(buf + 0x7C) = 0;
     sceVu0ApplyMatrix(buf + 0x10, buf + 0x20, buf + 0x70);
     sceVu0ScaleVector(buf + 0x10, buf + 0x10, -1.0f);

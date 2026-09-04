@@ -262,13 +262,13 @@ extern void _boxbar_set_sound(int a0, int a1);
 void afterCommonBox(volatile int a0) {
     _boxbar_set_sound(a0, 0);
 }
-extern Blob12 D_0029D1D0;
+extern Blob12 InitialColInfo;
 
 extern void debug_StdPrintfDummy();
 
 void afterCommonBar(volatile int a0) {
     debug_StdPrintfDummy("reset\n");
-    *(Blob12 *)(*(char **)(a0 + 0x15C) + 0x1C0) = D_0029D1D0;
+    *(Blob12 *)(*(char **)(a0 + 0x15C) + 0x1C0) = InitialColInfo;
     _boxbar_set_sound(a0, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterJump);

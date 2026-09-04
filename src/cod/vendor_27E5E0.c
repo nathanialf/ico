@@ -730,17 +730,17 @@ int isnan(long long x)
     hx = 0x7ff00000 - hx;
     do { return ((unsigned int)hx) >> 31; } while (0);
 }
-extern int D_0063C5D8[];
+extern int errno[];
 extern unsigned int sbrk(int a0);
 
 int _sbrk_r(int *self, int a1)
 {
     unsigned int ret;
-    D_0063C5D8[0] = 0;
+    errno[0] = 0;
     ret = sbrk(a1);
     if (ret == 0xFFFFFFFF) {
-        if (D_0063C5D8[0] != 0) {
-            self[0] = D_0063C5D8[0];
+        if (errno[0] != 0) {
+            self[0] = errno[0];
         }
     }
     return ret;
@@ -788,11 +788,11 @@ extern int kill(int a0, void *a1);
 int _kill_r(int *self, int a1, int a2)
 {
     int ret;
-    D_0063C5D8[0] = 0;
+    errno[0] = 0;
     ret = kill(a1, a2);
     if (ret == -1) {
-        if (D_0063C5D8[0] != 0) {
-            self[0] = D_0063C5D8[0];
+        if (errno[0] != 0) {
+            self[0] = errno[0];
         }
     }
     return ret;
@@ -864,11 +864,11 @@ extern int write(int a1, int a2, int a3);
 int _write_r(int *self, int a1, int a2, int a3)
 {
     int ret;
-    D_0063C5D8[0] = 0;
+    errno[0] = 0;
     ret = write(a1, a2, a3);
     if (ret == -1) {
-        if (D_0063C5D8[0] != 0) {
-            self[0] = D_0063C5D8[0];
+        if (errno[0] != 0) {
+            self[0] = errno[0];
         }
     }
     return ret;
@@ -879,11 +879,11 @@ extern int close(int a1);
 int _close_r(int *self, int a1)
 {
     int ret;
-    D_0063C5D8[0] = 0;
+    errno[0] = 0;
     ret = close(a1);
     if (ret == -1) {
-        if (D_0063C5D8[0] != 0) {
-            self[0] = D_0063C5D8[0];
+        if (errno[0] != 0) {
+            self[0] = errno[0];
         }
     }
     return ret;
@@ -893,11 +893,11 @@ extern int fstat(void *a0, void *a1);
 int _fstat_r(int *self, int a1, int a2)
 {
     int ret;
-    D_0063C5D8[0] = 0;
+    errno[0] = 0;
     ret = fstat(a1, a2);
     if (ret == -1) {
-        if (D_0063C5D8[0] != 0) {
-            self[0] = D_0063C5D8[0];
+        if (errno[0] != 0) {
+            self[0] = errno[0];
         }
     }
     return ret;
@@ -907,11 +907,11 @@ extern int lseek(int a1, int a2, int a3);
 int _lseek_r(int *self, int a1, int a2, int a3)
 {
     int ret;
-    D_0063C5D8[0] = 0;
+    errno[0] = 0;
     ret = lseek(a1, a2, a3);
     if (ret == -1) {
-        if (D_0063C5D8[0] != 0) {
-            self[0] = D_0063C5D8[0];
+        if (errno[0] != 0) {
+            self[0] = errno[0];
         }
     }
     return ret;
@@ -921,11 +921,11 @@ extern int read(int a1, int a2, int a3);
 int _read_r(int *self, int a1, int a2, int a3)
 {
     int ret;
-    D_0063C5D8[0] = 0;
+    errno[0] = 0;
     ret = read(a1, a2, a3);
     if (ret == -1) {
-        if (D_0063C5D8[0] != 0) {
-            self[0] = D_0063C5D8[0];
+        if (errno[0] != 0) {
+            self[0] = errno[0];
         }
     }
     return ret;

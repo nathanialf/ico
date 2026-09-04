@@ -60,6 +60,9 @@ options:
 
   symbol_addrs_path:
     - config/symbol_addrs.pal.txt
+    # DATA symbol names, recovered from MAIN.MAP by tools/gen_pal_data_symbols.py.
+    # Kept in its own file so the two generators never rewrite each other's block.
+    - config/symbol_addrs.pal.data.txt
   reloc_addrs_path:
     - config/reloc_addrs.pal.txt
 

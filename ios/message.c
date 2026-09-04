@@ -34,14 +34,14 @@ void iosMsgQueueDestroyAll(void) {
         i--;
     } while (i >= 0);
 }
-extern int D_00639CD0;
+extern int odd_even;
 extern int *D_0063A530;
 extern void iWakeupThread(int);
 
 int signal_handler(int a0) {
     if (a0 == 2) {
         volatile unsigned long long *reg = (volatile unsigned long long *)0x12001000;
-        D_00639CD0 = (int)(((*reg >> 13) & 1) ^ 1);
+        odd_even = (int)(((*reg >> 13) & 1) ^ 1);
         iWakeupThread(D_0063A530[12]);
     }
     return 0;

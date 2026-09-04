@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "mv_defs.h"
+
 #include "r5900.h"
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispClear);
@@ -43,18 +45,18 @@ void dispSwitch(int *a0, int flag)
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
 void dispDelete(void) {}
 void loadImage(int a0) {
-    *(volatile unsigned int *)0x1000A030 = a0 & 0x0FFFFFFF;
+    *(volatile unsigned int *)0x1000A030 = phys_addr(a0);
     *(volatile unsigned int *)0x1000A020 = 0;
     *(volatile unsigned int *)0x1000A000 = 0x105;
 }
-extern char D_002A7960[];
+extern char voBuf[];
 extern int D_0063C0BC;
 extern void voBufDecCount(int *p);
 
 int handler_endimage(void)
 {
     if (D_0063C0BC != 0) {
-        voBufDecCount(D_002A7960);
+        voBufDecCount(voBuf);
         D_0063C0BC = 0;
     }
     SYNC();
