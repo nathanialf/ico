@@ -36,12 +36,12 @@ static __inline__ int uncached_accel_addr(int p)
 { return (p & 0x0FFFFFFF) | 0x20000000; }
 extern int D_0063A468;   /* movie heap handle; gp-relative in the ROM */
 extern int iosMallocAlignDebug(int heap, int size, int align, const char *file, int line);
-extern void func_001B6250(const char *file, int line);   /* assert reporter */
+extern void debug_assert(const char *file, int line);   /* assert reporter */
 extern void __assert(const char *file, int line, const char *expr);  extern void *memset(void *p, int c, int n);
 #ifdef MV_DEFS_WANT_ALLOC   /* opt-in: see the note below line 46 */
 static __inline__ int alloc_zeroed(int size)  /* RECONSTRUCTION; 5 census hosts */
 { int p = iosMallocAlignDebug(D_0063A468, size, 0x40, __FILE__, __LINE__);
-  if (p == 0) { func_001B6250(__FILE__, __LINE__); __assert(__FILE__, __LINE__, "p != NULL"); }
+  if (p == 0) { debug_assert(__FILE__, __LINE__); __assert(__FILE__, __LINE__, "p != NULL"); }
   memset((void *)p, 0, size); return p; }
 #endif
 /* The line-42 helper is behind MV_DEFS_WANT_ALLOC because ee-gcc 2.9 emits

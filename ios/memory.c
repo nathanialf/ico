@@ -92,7 +92,7 @@ extern char D_0063A4E0[];
 extern char D_0063A4F0[];
 extern void __assert(char *file, int line, char *expr);
 extern int atoi(void *a0);
-extern void func_001B6230(char *file, int line, char *msg);
+extern void debug_assertMessage(char *file, int line, char *msg);
 extern void sprintf();
 extern int strncmp(void *a0, void *a1, int a2);
 
@@ -109,7 +109,7 @@ void *iosFree(void *ptr)
     if (ptr == 0) {
         debug_StdPrintfDummy(D_00551808);
         __asm__ __volatile__("break");
-        func_001B6230(D_00551600, 0x334, D_00551820);
+        debug_assertMessage(D_00551600, 0x334, D_00551820);
         __assert(D_00551600, 0x334, D_0063A4E0);
         return 0;
     }
@@ -123,7 +123,7 @@ void *iosFree(void *ptr)
     node = (IosMemNode *)((char *)next - 0x40);
     if (strcmp((int *)node, D_00551740) != 0) {
         sprintf(buf, D_00551840, node->prev, node, node->next);
-        func_001B6230(D_00551600, 0x344, buf);
+        debug_assertMessage(D_00551600, 0x344, buf);
         __assert(D_00551600, 0x344, D_0063A4E0);
         return 0;
     }
@@ -172,7 +172,7 @@ void *iosFree(void *ptr)
                     prev->next = next;
                     next->prev = prev;
                 } else {
-                    func_001B6230(D_00551600, 0x389, D_00551890);
+                    debug_assertMessage(D_00551600, 0x389, D_00551890);
                     __assert(D_00551600, 0x389, D_0063A4E0);
                     return 0;
                 }
@@ -237,18 +237,18 @@ tail_node:
         ((IosMemNode *)node->part)->head = node;
         node->free_next->free_prev = node;
     }
-    func_001B6230(D_00551600, 0x3C2, D_005518D0);
+    debug_assertMessage(D_00551600, 0x3C2, D_005518D0);
     __assert(D_00551600, 0x3C2, D_0063A4E0);
     goto tag_free;
 err_3b5:
-    func_001B6230(D_00551600, 0x3C5, D_00551890);
+    debug_assertMessage(D_00551600, 0x3C5, D_00551890);
     __assert(D_00551600, 0x3C5, D_0063A4E0);
     return 0;
 tag_free:
     *(IosMemTag *)node = *(IosMemTag *)D_005514A0;
     goto ret_ptr;
 err_3bf:
-    func_001B6230(D_00551600, 0x3CF, D_005518E8);
+    debug_assertMessage(D_00551600, 0x3CF, D_005518E8);
     __assert(D_00551600, 0x3CF, D_0063A4E0);
 ret_ptr:
     return ptr;

@@ -144,7 +144,7 @@ void isysGObjRemove(char *g) {
         } else if (p != 0) {
             while (*(char **)(p + 0x3C) != g) {
                 if (p == 0) {
-                    func_001B6250(D_00551F30, 0x92);
+                    debug_assert(D_00551F30, 0x92);
                     __assert(D_00551F30, 0x92, D_0063A608);
                 }
                 p = *(char **)(p + 0x3C);
@@ -175,7 +175,7 @@ void isysGObjKindTableRemove(char *g) {
         if (p == 0) return;
         while (*(char **)(p + 0x3C) != g) {
             if (p == 0) {
-                func_001B6250(D_00551F30, 0x92);
+                debug_assert(D_00551F30, 0x92);
                 __assert(D_00551F30, 0x92, D_0063A608);
             }
             p = *(char **)(p + 0x3C);

@@ -79,7 +79,7 @@ extern char D_0063A660[];
 extern int D_0063C1D8;
 extern int D_0063C1DC;
 extern void __assert(char *file, int line, char *msg);
-extern void func_001B6250(char *file, int line);
+extern void debug_assert(char *file, int line);
 
 void soundBufSegFree(int a0, int a1) {
     switch (a0) {
@@ -94,7 +94,7 @@ void soundBufSegFree(int a0, int a1) {
                 case 2:
                     return;
             }
-            func_001B6250(D_005521E8, 0x1D8);
+            debug_assert(D_005521E8, 0x1D8);
             __assert(D_005521E8, 0x1D8, D_0063A660);
             return;
         case 2:
@@ -102,11 +102,11 @@ void soundBufSegFree(int a0, int a1) {
                 D_0063C1DC = D_0063A640;
                 return;
             }
-            func_001B6250(D_005521E8, 0x1E2);
+            debug_assert(D_005521E8, 0x1E2);
             __assert(D_005521E8, 0x1E2, D_0063A660);
             return;
     }
-    func_001B6250(D_005521E8, 0x1E7);
+    debug_assert(D_005521E8, 0x1E7);
     __assert(D_005521E8, 0x1E7, D_0063A660);
 }
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBDDataSet);
@@ -222,7 +222,7 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataAreaGet);
 extern char D_0063A660[];
 extern char D_006A95B0_2[] __asm__("D_006BF570");
 extern void __assert(char *file, int line, char *msg);
-extern void func_001B6250(char *file, int line);
+extern void debug_assert(char *file, int line);
 extern int memset(void *dst, int val, int size);
 extern void soundDataOpenChk(char *e);
 
@@ -234,7 +234,7 @@ char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4) {
         key = 0;
         e = (SqEntry *)hd_search(D_006A95B0_2, &key);
         if (e == 0) {
-            func_001B6250(D_005521E8, 0x14E);
+            debug_assert(D_005521E8, 0x14E);
             __assert(D_005521E8, 0x14E, D_0063A660);
         }
         memset(e, 0, 0x30);

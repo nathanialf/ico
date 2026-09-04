@@ -48,7 +48,7 @@ int iosMsgSend(char *q, int val, int mode) {
     int st[8];
     if (q == 0) {
         debug_StdPrintfDummy(D_00551A80);
-        func_001B6250(D_00551A60, 0x125);
+        debug_assert(D_00551A60, 0x125);
         __assert(D_00551A60, 0x125, D_0063A510);
     }
     ReferSemaStatus(*(int *)(q + 0x2C), st);
@@ -73,7 +73,7 @@ int iosMsgRecv(char *q, int *out, int mode) {
     int st[8];
     if (q == 0) {
         debug_StdPrintfDummy(D_00551A80);
-        func_001B6250(D_00551A60, 0x149);
+        debug_assert(D_00551A60, 0x149);
         __assert(D_00551A60, 0x149, D_0063A510);
     }
     ReferSemaStatus(*(int *)(q + 0x2C), st);

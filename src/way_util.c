@@ -445,7 +445,7 @@ extern char D_00554378[];
 extern char D_0063A9E8[];
 extern void __assert(void *a0, int a1, void *a2);
 extern extern void debug_StdPrintfDummy();
-extern void func_001B6250(void *a0, int a1);
+extern void debug_assert(void *a0, int a1);
 
 int direction_across_bridge(void *a0, int a1) {
     char *e1 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x20) * 0x40;
@@ -456,7 +456,7 @@ int direction_across_bridge(void *a0, int a1) {
     e2 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x24) * 0x40;
     if (*(int *)(e2 + 0x20) != a1) {
         debug_StdPrintfDummy(D_00554378);
-        func_001B6250(D_00554300, 0x2C2);
+        debug_assert(D_00554300, 0x2C2);
         __assert(D_00554300, 0x2C2, D_0063A9E8);
     }
     return 0;

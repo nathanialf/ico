@@ -175,7 +175,7 @@ extern int CreateSema(int *self);
 extern char D_00551EB8[];
 extern char D_0063A5F8[];
 extern void __assert(const char *file, int line, const char *expr);
-extern void func_001B6250(const char *file, int line);
+extern void debug_assert(const char *file, int line);
 
 int iosSemaCreate(int *self, int a1, int a2, int a3)
 {
@@ -187,7 +187,7 @@ int iosSemaCreate(int *self, int a1, int a2, int a3)
     self[0x30 / 4] = rv;
     if (rv < 0) {
         debug_StdPrintfDummy(D_00551EB8, rv);
-        func_001B6250(D_00551DF0, 0x25C);
+        debug_assert(D_00551DF0, 0x25C);
         __assert(D_00551DF0, 0x25C, D_0063A5F8);
         return self[0x30 / 4];
     }
@@ -201,7 +201,7 @@ int iosSemaDelete(int *self)
     int rv = DeleteSema(self[0x30 / 4]);
     if (rv < 0) {
         debug_StdPrintfDummy(D_00551ED0, self[0x30 / 4]);
-        func_001B6250(D_00551DF0, 0x270);
+        debug_assert(D_00551DF0, 0x270);
         __assert(D_00551DF0, 0x270, D_0063A5F8);
         return rv;
     }
@@ -244,7 +244,7 @@ int iosSemaReferStatus(int *self)
     int rv = ReferSemaStatus(self[0x30 / 4], self + 0x18 / 4);
     if (rv < 0) {
         debug_StdPrintfDummy(D_00551F18, self[0x30 / 4]);
-        func_001B6250(D_00551DF0, 0x2B0);
+        debug_assert(D_00551DF0, 0x2B0);
         __assert(D_00551DF0, 0x2B0, D_0063A5F8);
         return rv;
     }

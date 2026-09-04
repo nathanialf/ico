@@ -46,7 +46,7 @@ extern char D_0063BCD8[];
 char *bga_InitSdfCamera(char *a0) {
     if (strncmp(a0, D_0063BCE0, 3) != 0) {
         debug_StdPrintfDummy(D_006215D8);
-        func_001B6250(D_00621598, 0x415);
+        debug_assert(D_00621598, 0x415);
         __assert(D_00621598, 0x415, D_0063BCD8);
     }
     return a0;

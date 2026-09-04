@@ -192,7 +192,7 @@ int IsEnemyBrainToGenerator(char *a0, int *out) {
     if (*(int *)(*(char **)(b + 0x680) + 0x204) != 5) return 0;
     *out = *(int *)(*(char **)(b + 0x688) + 0x460);
     if (*out == 0) {
-        func_001B6250(D_00553370, 0x341);
+        debug_assert(D_00553370, 0x341);
         __assert(D_00553370, 0x341, D_00553380);
     }
     return 1;

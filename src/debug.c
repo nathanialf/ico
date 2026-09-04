@@ -12,9 +12,9 @@ extern char D_0063AE80[];
 void debug_Assert(char *fmt, ...) {
     char buf[0x100];
     vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
-    func_001B6230(D_0061B440, 0x570, buf);
+    debug_assertMessage(D_0061B440, 0x570, buf);
     __assert(D_0061B440, 0x570, D_0063AE78);
-    func_001B6250(D_0061B440, 0x571);
+    debug_assert(D_0061B440, 0x571);
     __assert(D_0061B440, 0x571, D_0063AE80);
 }
 extern int D_0063AE84;
