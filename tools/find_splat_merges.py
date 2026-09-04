@@ -41,6 +41,13 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import detect_version, asm_root  # noqa: E402
+
+# This tree's own splat asm root (yaml `asm_path`).
+ASM_ROOT = ROOT / asm_root(ROOT, detect_version(ROOT))
+# The aug6 checkout consulted for its MAIN.MAP-derived splits — a deliberate
+# cross-checkout reference, not this target's tree.
 AUG6_ROOT = Path(os.environ.get("PORT_AUG6_ROOT", "/primary/dev/ico"))
 
 INSN_RE = re.compile(
@@ -223,7 +230,7 @@ def main():
     splits = aug6_splits()
 
     rows = []
-    base = ROOT / "asm" / "nonmatchings"
+    base = ASM_ROOT / "nonmatchings"
     for p in sorted(base.rglob("*.s")):
         stem = str(p.parent.relative_to(base))
         if args.tu and stem != args.tu:

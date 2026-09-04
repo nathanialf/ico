@@ -115,25 +115,32 @@ RUNS_DIR="${PERMUTER_DIR}/runs"
 VENV="${VENV:-${PROJECT_ROOT}/.venv}"
 PYTHON="${PYTHON:-${VENV}/bin/python}"
 
+# shellcheck source=tools/ico_version.sh
+. "${PROJECT_ROOT}/tools/ico_version.sh"
+ico_version_init "${PROJECT_ROOT}"
+
 # --- aug6 vs retail layout detection ---------------------------------------
-# Retail: func_XXXXXXXX names, asm/matchings/cod/<file_off>/, VRAM from name.
-# aug6:   NAMED functions (voBufIncCount, setGIFtag, ...) OR func_XXXXXXXX,
-#         asm/aug6/{matchings,nonmatchings}/<module>/<TU>/<name>.s, coalesced
-#         TUs, configs keyed on TU basename. Detected by locating the per-
-#         function .s under asm/aug6/. When found, AUG6_MODE=1 and the build
-#         is delegated to tools/compile_c.sh (byte-identical to the real build).
+# Retail (us, pal — asm_path: asm): func_XXXXXXXX names,
+#         asm/matchings/cod/<file_off>/, VRAM from the name.
+# aug6 (asm_path: asm/aug6): NAMED functions (voBufIncCount, setGIFtag, ...) OR
+#         func_XXXXXXXX, <asm_root>/{matchings,nonmatchings}/<module>/<TU>/<name>.s,
+#         coalesced TUs, configs keyed on TU basename. Selected when the target's
+#         yaml gives it its OWN asm tree (asm_path != asm) and the per-function .s
+#         is there. When found, AUG6_MODE=1 and the build is delegated to
+#         tools/compile_c.sh (byte-identical to the real build).
 AUG6_MODE=0
 AUG6_S=""
-if [ -d "${PROJECT_ROOT}/asm/aug6" ]; then
-    AUG6_S="$(find "${PROJECT_ROOT}/asm/aug6/matchings" "${PROJECT_ROOT}/asm/aug6/nonmatchings" \
+if [ "${ICO_ASM_ROOT}" != "asm" ] && [ -d "${PROJECT_ROOT}/${ICO_ASM_ROOT}" ]; then
+    AUG6_S="$(find "${PROJECT_ROOT}/${ICO_ASM_ROOT}/matchings" "${PROJECT_ROOT}/${ICO_ASM_ROOT}/nonmatchings" \
                    -maxdepth 6 -name "${FUNC_NAME}.s" 2>/dev/null | head -1)"
     [ -n "${AUG6_S}" ] && AUG6_MODE=1
 fi
 
-# Validate function name shape (retail only — aug6 allows named functions).
+# Validate function name shape (flat-retail layouts only — the nested per-function
+# tree allows named functions).
 if [ "${AUG6_MODE}" = "0" ] && ! [[ "${FUNC_NAME}" =~ ^func_([0-9A-Fa-f]{8})$ ]]; then
-    echo "ERROR: ${FUNC_NAME} not found under asm/aug6/ and is not func_XXXXXXXX." >&2
-    echo "       (aug6 named funcs need a per-function .s under asm/aug6/{matchings,nonmatchings}/.)" >&2
+    echo "ERROR: ${FUNC_NAME} not found under ${ICO_ASM_ROOT}/ and is not func_XXXXXXXX." >&2
+    echo "       (named funcs need a per-function .s under <asm_root>/{matchings,nonmatchings}/.)" >&2
     exit 2
 fi
 # --- Stall gate -------------------------------------------------------------
@@ -179,9 +186,9 @@ if [ "${AUG6_MODE}" = "1" ]; then
         echo "ERROR: could not parse VRAM from ${AUG6_S#${PROJECT_ROOT}/}" >&2
         exit 1
     fi
-    # TU path/basename from the .s location: asm/aug6/<kind>/<TU...>/<name>.s
-    AUG6_TU_PATH="${AUG6_S#${PROJECT_ROOT}/asm/aug6/matchings/}"
-    AUG6_TU_PATH="${AUG6_TU_PATH#${PROJECT_ROOT}/asm/aug6/nonmatchings/}"
+    # TU path/basename from the .s location: <asm_root>/<kind>/<TU...>/<name>.s
+    AUG6_TU_PATH="${AUG6_S#${PROJECT_ROOT}/${ICO_ASM_ROOT}/matchings/}"
+    AUG6_TU_PATH="${AUG6_TU_PATH#${PROJECT_ROOT}/${ICO_ASM_ROOT}/nonmatchings/}"
     AUG6_TU_PATH="${AUG6_TU_PATH%/${FUNC_NAME}.s}"     # e.g. ito/mpeg/mv_vobuf
     AUG6_TU_BASE="$(basename "${AUG6_TU_PATH}")"        # e.g. mv_vobuf
 else
@@ -446,7 +453,7 @@ SRC_TU_DIR="\${OUTPUT%.o}.srcdir"
 mkdir -p "\${SRC_TU_DIR}"
 SRC_TU="\${SRC_TU_DIR}/${AUG6_TU_BASE}.c"
 cp "\${INPUT}" "\${SRC_TU}"
-VERSION=aug6 "${PROJECT_ROOT}/tools/compile_c.sh" "\${SRC_TU}" "\${OUTPUT}"
+VERSION=${ICO_VERSION} "${PROJECT_ROOT}/tools/compile_c.sh" "\${SRC_TU}" "\${OUTPUT}"
 EOF
     chmod +x "${COMPILE_SH}"
 else

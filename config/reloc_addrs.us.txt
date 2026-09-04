@@ -1,2 +1,0 @@
-// reloc_addrs for the retail (us) target — empty by design; add entries only
-// when a proven mismatch requires one (mirrors aug6 discipline).

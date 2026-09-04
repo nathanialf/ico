@@ -49,7 +49,6 @@ JSON stays in lockstep with the README badges and PROGRESS.md table.
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -72,12 +71,12 @@ except BaseException:
     # actually engaged, it just killed this script.
     _progress = None
 
-VERSION = os.environ.get("VERSION")
-if not VERSION:
-    if (REPO_ROOT / "config" / "ico.aug6.yaml").exists():
-        VERSION = "aug6"
-    else:
-        VERSION = "us"
+# `main` = PAL retail (pal), `ntsc` = USA retail (us), `aug6` = the prototype.
+# Explicit VERSION env wins; else detected from which config/ico.<ver>.yaml
+# this tree carries. (Imported after progress.py above so both agree.)
+from ico_version import detect_version  # noqa: E402
+
+VERSION = detect_version(REPO_ROOT)
 
 SYMBOLS = REPO_ROOT / "config" / f"symbol_addrs.{VERSION}.txt"
 OUT_JSON = REPO_ROOT / "docs" / "progress.json"
@@ -232,9 +231,9 @@ def _programmer_of(tu: str | None) -> str:
         return UNASSIGNED_GROUP
     head = tu.split("/", 1)[0]
     # src/cod/* is crt0 + vendored libkernl, not a game dir. On the retail
-    # (us) tree the game TUs themselves live under a flat src/ (the release
-    # build collapsed the per-programmer dirs), so plain src/<tu> groups as
-    # "src"; only the src/cod/ blob remains vendor.
+    # trees (us, pal) the game TUs themselves live under a flat src/ (the
+    # release build collapsed the per-programmer dirs), so plain src/<tu>
+    # groups as "src"; only the src/cod/ blob remains vendor.
     if head == "src":
         return VENDOR_GROUP if tu.startswith("src/cod/") else "src"
     return head

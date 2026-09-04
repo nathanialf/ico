@@ -34,15 +34,15 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# Version-aware asm layout: the aug6 prototype branch splits under
-# asm/aug6/{matchings,nonmatchings}; the retail branch uses asm/{...}.
-# Pick whichever exists so this runs unmodified on either target.
-_VERSION = os.environ.get("VERSION", "aug6")
-_AUG6_DIRS = [ROOT / "asm" / _VERSION / "matchings", ROOT / "asm" / _VERSION / "nonmatchings"]
-if all(d.exists() for d in _AUG6_DIRS):
-    ASM_DIRS = _AUG6_DIRS
-else:
-    ASM_DIRS = [ROOT / "asm" / "matchings", ROOT / "asm" / "nonmatchings"]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import detect_version, asm_root  # noqa: E402
+
+# Version-aware asm layout, from the target yaml's own `asm_path`: the aug6
+# prototype splits under asm/aug6/{matchings,nonmatchings}; the retail targets
+# (us, pal) use asm/{...}. Runs unmodified on any target.
+_VERSION = detect_version(ROOT)
+_ASM = ROOT / asm_root(ROOT, _VERSION)
+ASM_DIRS = [_ASM / "matchings", _ASM / "nonmatchings"]
 # NOTE: decomp/tu_map.json on aug6 is the STALE retail map (generic func_XXXX
 # names, no MAIN.MAP symbols) — do NOT use it. The aug6 .s files already encode
 # their owning TU in the path (asm/<ver>/nonmatchings/<tu>/<func>.s), so TU

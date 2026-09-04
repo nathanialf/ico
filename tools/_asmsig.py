@@ -9,7 +9,7 @@ NOT a CLI of its own. Imported by:
 It centralises three things those tools would otherwise each reinvent:
 
   1. RELOC-NORMALISED FUNCTION SIGNATURES, read straight from the per-function
-     splat `.s` (`asm/aug6/{matchings,nonmatchings}/<tu>/<func>.s`). Every line
+     splat `.s` (`<asm_root>/{matchings,nonmatchings}/<tu>/<func>.s`). Every line
      carries the raw word AND the resolved operand, so we normalise away exactly
      the fields the linker fixes up — `%hi(S)`/`%lo(S)`/`%gp_rel(S)` symbols,
      `.L` branch labels (PC-relative; identical bytes, different absolute name),
@@ -24,7 +24,7 @@ It centralises three things those tools would otherwise each reinvent:
      is the rename map that turns A's matched C into B's candidate.
 
   3. VMA / NAME / TU / STRUCT RESOLUTION over the existing data files
-     (config/symbol_addrs.aug6.txt, decomp/{tu_map,callgraph,struct_shapes}.json)
+     (config/symbol_addrs.<ver>.txt, decomp/{tu_map,callgraph,struct_shapes}.json)
      plus a best-effort callee C-signature, for the context bundle.
 
 The oracle (tools/sweep_try.sh) is always the final authority — signatures and
@@ -39,7 +39,16 @@ from functools import lru_cache
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ASM = ROOT / "asm" / "aug6"
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import detect_version, asm_root  # noqa: E402
+
+# This target's splat asm tree + symbol file (yaml `asm_path` / slug): asm/ +
+# symbol_addrs.pal.txt on `main`, asm/ + .us on `ntsc`, asm/aug6/ + .aug6 on
+# the prototype.
+VERSION = detect_version(ROOT)
+ASM = ROOT / asm_root(ROOT, VERSION)
+SYMBOL_ADDRS = ROOT / "config" / f"symbol_addrs.{VERSION}.txt"
 
 # ---------------------------------------------------------------------------
 # .s parsing
@@ -198,7 +207,7 @@ def _symbol_addrs() -> dict:
     """name -> {vma, type, tu};  also reverse vma -> name."""
     by_name: dict[str, dict] = {}
     by_vma: dict[int, str] = {}
-    f = ROOT / "config" / "symbol_addrs.aug6.txt"
+    f = SYMBOL_ADDRS
     pat = re.compile(
         r"^(\w+)\s*=\s*0x([0-9A-Fa-f]+);\s*//\s*type:(\w+)(?:\s*//\s*(.*))?")
     for line in f.read_text().splitlines():

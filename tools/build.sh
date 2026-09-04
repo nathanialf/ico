@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # tools/build.sh — top-level orchestration for the ICO decomp.
 #
+# Version-generic: the target slug and every per-version path (splat yaml,
+# base ROM, linker script, asm root) come from tools/ico_version.sh —
+# `main` = PAL retail (pal), `ntsc` = USA retail (us), `aug6` = the
+# Aug-6-2001 prototype (aug6). Override with VERSION=<slug> for ad-hoc runs.
+#
 # Inner-loop build is `ninja` (or `.venv/bin/ninja` if not on PATH).
 # This script only handles one-shots that don't belong in the build
 # graph: baserom verification, splat, progress regeneration.
@@ -20,17 +25,21 @@ cd "${ROOT}"
 VENV_PY="${ROOT}/.venv/bin/python"
 SPLAT="${ROOT}/.venv/bin/splat"
 
-# `main` is us-only; the aug6 prototype pipeline lives on the `aug6` branch.
-# (This branch is the former `retail-v2`, renamed to `main` on 2026-07-29;
-# the old `retail` and `retail-v2` branches are gone.) VERSION stays
-# overridable via env for ad-hoc targets. Exported so child tools
-# (gen_ninja.py) see it.
-VERSION="${VERSION:-us}"
+# One branch per target: `main` = PAL retail (pal), `ntsc` = USA retail (us),
+# `aug6` = the Aug-6-2001 prototype (aug6). The slug and every per-version path
+# come from tools/ico_version.sh, which detects them from which
+# config/ico.<ver>.yaml this working tree carries. VERSION stays overridable via
+# env for ad-hoc targets; exported so child tools (gen_ninja.py, splat's own
+# callees) see the same slug.
+# shellcheck source=tools/ico_version.sh
+. "${ROOT}/tools/ico_version.sh"
+ico_version_init "${ROOT}"
+VERSION="${ICO_VERSION}"
 export VERSION
-# The retail baseelf lives at baserom/baseelf.rom; the aug6 prototype's lives
-# under baserom/aug6/ in the same (gitignored, branch-shared) working tree.
-# Overridable via env for ad-hoc targets.
-BASEROM="${BASEROM:-baserom/baseelf.rom}"
+# The base ROM (objcopy -O binary view) lives beside the base ELF: baserom/ for
+# us, baserom/<ver>/ for pal and aug6 — same gitignored, branch-shared working
+# tree. Overridable via env for ad-hoc targets.
+BASEROM="${BASEROM:-${ICO_ROM}}"
 SPLAT_YAML="config/ico.${VERSION}.yaml"
 LDSCRIPT="config/ico.${VERSION}.ld"
 DEPS_FILE="config/ico.${VERSION}.d"
@@ -91,8 +100,13 @@ do_clean() {
 
 do_distclean() {
     do_clean
-    find asm -type f -name '*.s' ! -path 'asm/nonmatchings/*' -delete
-    find asm -type d -empty ! -path asm ! -path 'asm/nonmatchings*' -delete 2>/dev/null || true
+    # Purge splat's emitted asm but keep the TRACKED per-function baselines
+    # under <asm_root>/nonmatchings/ (asm/ for us and pal, asm/aug6/ for the
+    # prototype — the yaml's own asm_path, via tools/ico_version.sh).
+    find "${ICO_ASM_ROOT}" -type f -name '*.s' \
+         ! -path "${ICO_ASM_ROOT}/nonmatchings/*" -delete
+    find "${ICO_ASM_ROOT}" -type d -empty ! -path "${ICO_ASM_ROOT}" \
+         ! -path "${ICO_ASM_ROOT}/nonmatchings*" -delete 2>/dev/null || true
     rm -f "${LDSCRIPT}" "${AUTO_FUNCS}" "${AUTO_SYMS}" "${DEPS_FILE}"
     rm -f build.ninja .ninja_log .ninja_deps
 }

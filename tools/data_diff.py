@@ -32,8 +32,8 @@ Usage:
     tools/data_diff.py --section .rodata   # one section only
     tools/data_diff.py --vtables           # vtable oracle (decomp/vtables.json)
     tools/data_diff.py --json ...          # machine-readable
-Options --built/--base override the ELF paths (defaults: build/ico.elf,
-baserom/baseelf.elf).
+Options --built/--base override the ELF paths (defaults: build/ico.elf and
+this target's baseelf.elf).
 Exit: 0 = everything compared matches, 1 = diffs found, 2 = missing inputs.
 """
 from __future__ import annotations
@@ -44,8 +44,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import detect_version, baseelf_path  # noqa: E402
+
 BUILT_ELF = ROOT / "build" / "ico.elf"
-BASE_ELF = ROOT / "baserom" / "baseelf.elf"
+# This target's base ELF: baserom/baseelf.elf (us) or baserom/<ver>/baseelf.elf.
+BASE_ELF = baseelf_path(ROOT, detect_version(ROOT))
 VTABLES_JSON = ROOT / "decomp" / "vtables.json"
 
 # Target data sections that carry bytes (PROGBITS). NOBITS (.bss/.sbss) has

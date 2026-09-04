@@ -41,19 +41,19 @@ import sys
 VRAM_BASE = 0x100000
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
-from ico_version import detect_version  # noqa: E402
+from ico_version import detect_version, asm_root  # noqa: E402
 
 
 def asm_roots(version: str) -> list[pathlib.Path]:
     """Per-version asm trees to search, nonmatchings first."""
-    base = ROOT / ("asm" if version == "us" else f"asm/{version}")
+    base = ROOT / asm_root(ROOT, version)
     return [base / "nonmatchings", base / "matchings"]
 
 
 def find_asm(func_name: str, version: str) -> tuple[str, str, str | None]:
     """Locate <func>.s. Returns (rel_path, excerpt, include_asm_dir) where
     include_asm_dir is the directory argument an INCLUDE_ASM() uses (e.g.
-    'asm/aug6/nonmatchings/fumi/src/boyact'), or None if not found."""
+    '<asm_root>/nonmatchings/<tu stem>'), or None if not found."""
     for base in asm_roots(version):
         if not base.exists():
             continue
@@ -61,8 +61,9 @@ def find_asm(func_name: str, version: str) -> tuple[str, str, str | None]:
             return (str(p.relative_to(ROOT)),
                     p.read_text(errors="replace"),
                     str(p.parent.relative_to(ROOT)))
-    # Retail fallback: scan asm/cod/*.s for glabel func_X … endlabel func_X.
-    asm_cod = ROOT / "asm" / "cod"
+    # Flat-retail fallback: scan <asm_root>/cod/*.s for
+    # glabel func_X … endlabel func_X (a whole-segment .s, not yet per-func).
+    asm_cod = ROOT / asm_root(ROOT, version) / "cod"
     if asm_cod.exists():
         glabel = re.compile(rf"^glabel\s+{re.escape(func_name)}\b")
         endlabel = re.compile(rf"^endlabel\s+{re.escape(func_name)}\b")
@@ -196,7 +197,7 @@ def main() -> int:
     asm_rel, asm_text, include_dir = find_asm(func_name, version)
     # Fallback include dir from the TU path (subseg name == repo-rel TU stem).
     if include_dir is None:
-        base = "asm" if version == "us" else f"asm/{version}"
+        base = asm_root(ROOT, version)
         stem = tu_path.relative_to(ROOT).with_suffix("").as_posix()
         include_dir = f"{base}/nonmatchings/{stem}"
 

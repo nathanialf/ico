@@ -26,10 +26,16 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import detect_version, asm_root  # noqa: E402
+
+# Splat's asm tree root for this target (yaml `asm_path`): asm/ on the retail
+# branches (pal, us), asm/aug6/ on the prototype.
+ASM_ROOT = asm_root(ROOT, detect_version(ROOT))
 
 
 def stub_line(tu_stem, func):
-    return f'INCLUDE_ASM("asm/aug6/nonmatchings/{tu_stem}", {func});'
+    return f'INCLUDE_ASM("{ASM_ROOT}/nonmatchings/{tu_stem}", {func});'
 
 
 def cfile(tu_stem):

@@ -1,0 +1,4 @@
+/* Hand-curated symbol overrides used by the linker (PAL target).
+ * Splat-generated `undefined_syms_auto.pal.txt` is regenerated on every
+ * `tools/build.sh setup`; entries here persist across that step.
+ */

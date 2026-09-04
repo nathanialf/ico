@@ -2,6 +2,10 @@
 # =============================================================================
 # tools/quick_diff.sh <func_name>
 #
+# Version-generic: the target slug and the splat asm root come from
+# tools/ico_version.sh — `main` = PAL retail (pal), `ntsc` = USA retail (us),
+# `aug6` = the Aug-6-2001 prototype. Override with VERSION=<slug>.
+#
 # Fast inner-loop diff: compile a single src/<name>.c (or
 # tough_nuts/<name>/<name>.c), disassemble the result, and side-by-side it
 # against asm/nonmatchings/<name>/<func>.s.
@@ -24,18 +28,20 @@ NAME="$1"
 shift || true
 FUNC="${1:-}"   # target func (coalesced TU); used for @func postprocess scoping
 
-# Version-aware asm root. Retail (us) emits baselines to asm/; the aug6
-# prototype branch sets asm_path: asm/aug6 (config/ico.aug6.yaml). Explicit
-# VERSION env wins; else auto-detect from which config exists.
-if [[ -z "${VERSION:-}" ]]; then
-    if [[ -f config/ico.us.yaml ]]; then VERSION=us
-    elif [[ -f config/ico.aug6.yaml ]]; then VERSION=aug6
-    else VERSION=us; fi
-fi
-if [[ "$VERSION" == "us" ]]; then ASM_ROOT="asm"; else ASM_ROOT="asm/${VERSION}"; fi
+# Version-aware asm root, straight from the target yaml's `asm_path` option:
+# the retail targets (us, pal) emit baselines to asm/, the aug6 prototype to
+# asm/aug6/. Explicit VERSION env wins; else detected from which
+# config/ico.<ver>.yaml this tree carries. See tools/ico_version.sh.
+# shellcheck source=tools/ico_version.sh
+. "$ROOT/tools/ico_version.sh"
+ico_version_init "$ROOT"
+VERSION="$ICO_VERSION"
+ASM_ROOT="$ICO_ASM_ROOT"
 
 # Resolve C source. Accept a full path/TU stem (e.g. sugipon/src/pool) directly,
-# or a bare basename searched across the retail + aug6 dev-tree roots.
+# or a bare basename searched across the union of every target's source roots
+# (retail us/pal: src ios sound isys; aug6: the per-programmer dev tree). The
+# union is searched on every version — a bare name resolves to whatever exists.
 CSRC=""
 if [[ -f "$NAME.c" ]]; then
     CSRC="$NAME.c"                       # full dev-tree path: sugipon/src/pool
@@ -463,9 +469,10 @@ canon_func() {
         canon "$obj"
     fi
 }
-# Isolate the requested function in the (coalesced) built .o. Retail matched
-# funcs are named func_<hex>; the aug6 prototype tree uses the dev's REAL
-# symbol names, so gating isolation on `func_*` would dump the whole TU object
+# Isolate the requested function in the (coalesced) built .o. Retail (us, pal)
+# funcs not yet named carry splat's func_<hex>; the aug6 prototype tree uses the
+# dev's REAL symbol names (from MAIN.MAP), and named retail funcs exist too, so
+# gating isolation on `func_*` would dump the whole TU object
 # against a single-func expected .s (thousands of phantom diffs). Whenever a
 # specific func is requested (match_diff/match_loop always pass it, and so does
 # the agent for coalesced TUs), isolate to THAT symbol regardless of its name.

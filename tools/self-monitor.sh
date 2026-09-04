@@ -116,21 +116,20 @@ if [[ "$1" == "--once" ]]; then
     # INCLUDE_ASM stub — exists ONLY under nonmatchings). Without this the
     # smallest orphan (e.g. a 2-insn tail-call) sorts to the top and gets
     # handed out as a "match target" that is already done.
-    # Version-aware lowest-10. Retail (us) emits to asm/; the aug6 prototype
-    # branch to asm/aug6/ and its TUs live in the dev-developer tree. Now that
-    # aug6's whole .text is carved per-function, the per-function nonmatchings
-    # exist, so the same smallest-unmatched logic applies (named INCLUDE_ASMs,
-    # not just func_).
-    _sm_version="${VERSION:-}"
-    if [[ -z "$_sm_version" ]]; then
-        if [[ -f config/ico.us.yaml ]]; then _sm_version=us
-        elif [[ -f config/ico.aug6.yaml ]]; then _sm_version=aug6; fi
-    fi
-    if [[ "$_sm_version" == "us" ]]; then
-        _NM="asm/nonmatchings"; _MA="asm/matchings"; _ROOTS="src"
-    else
-        _NM="asm/${_sm_version}/nonmatchings"; _MA="asm/${_sm_version}/matchings"
+    # Version-aware lowest-10. The asm root comes from the target yaml's own
+    # `asm_path` (retail us/pal: asm/; aug6: asm/aug6/), and the source roots
+    # from the target's layout — flat (retail) vs the aug6 per-programmer dev
+    # tree. Now that aug6's whole .text is carved per-function, the
+    # per-function nonmatchings exist, so the same smallest-unmatched logic
+    # applies on every target (named INCLUDE_ASMs, not just func_).
+    # shellcheck source=tools/ico_version.sh
+    . "$(dirname "${BASH_SOURCE[0]}")/ico_version.sh"
+    ico_version_init "$(pwd)"
+    _NM="$ICO_ASM_ROOT/nonmatchings"; _MA="$ICO_ASM_ROOT/matchings"
+    if [[ "$ICO_LAYOUT" == "devtree" ]]; then
         _ROOTS="common fumi sugipon seki omori script ito src ios sound isys"
+    else
+        _ROOTS="src"
     fi
     # Insn-count shortlists (smallest unmatched funcs / least-remaining TUs).
     if [[ -d "$_NM" ]]; then
@@ -147,7 +146,7 @@ if [[ "$1" == "--once" ]]; then
         # TUs with the least total remaining work. Each row is
         # tab-separated `<paddedsize>\t<fn>\t<tu>\t<N insn>`.
         _sm_rows=$(grep -rH '^nonmatching ' "$_NM" 2>/dev/null \
-            | awk -v matched="$matched" -v included="$included" -v nm="$_NM" -v ver="$_sm_version" '
+            | awk -v matched="$matched" -v included="$included" -v nm="$_NM" -v layout="$ICO_LAYOUT" '
                 function hex2dec(s,   i,c,v,r) {
                     sub(/^0[xX]/, "", s); r=0
                     for (i=1;i<=length(s);i++) {
@@ -204,10 +203,11 @@ if [[ "$1" == "--once" ]]; then
                     close(path)
                     if (!real && crossb) next
                     # The matching tools (match_diff/quick_diff) resolve a TU by
-                    # its full subseg path on aug6 (e.g. fumi/src/boyact), so emit
-                    # the path between the nonmatchings root and the <func>.s, not
-                    # just the basename. Retail (us) keeps the proven basename.
-                    if (ver != "us") {
+                    # its full subseg path in the aug6 dev tree (e.g.
+                    # fumi/src/boyact), so emit the path between the nonmatchings
+                    # root and the <func>.s, not just the basename. The flat
+                    # retail layouts (us, pal) keep the proven basename.
+                    if (layout != "flat") {
                         rel=path; sub("^"nm"/","",rel)
                         nr=split(rel,rp,"/"); tu=""
                         for (k=1;k<nr;k++) tu=(tu==""?rp[k]:tu"/"rp[k])

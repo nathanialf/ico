@@ -17,7 +17,7 @@ Outputs one line per VMA:
 
 Sources consulted (in order):
     decomp/data_tu_map.json    -- migrated data symbols + their TUs
-    config/symbol_addrs.us.txt -- explicit symbol overrides
+    config/symbol_addrs.<ver>.txt -- explicit symbol overrides
     asm/**/<func>.s            -- splat-emitted glabels
 """
 from __future__ import annotations

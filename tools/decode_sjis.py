@@ -5,7 +5,7 @@ emit a `JTEXT("\\xNN...")` C literal for hand-promotion.
 Usage: tools/decode_sjis.py D_<VMA> [D_<VMA> ...]
 
 For each requested symbol, this tool:
-  1. Reads the bytes from baserom/baseelf.elf at the symbol's VMA.
+  1. Reads the bytes from this target's baseelf.elf at the symbol's VMA.
   2. Attempts to decode them as Shift-JIS (the codepage Japanese
      PS2 titles use).
   3. Prints the decoded Unicode (for the developer to read in context),
@@ -19,7 +19,7 @@ bytes the migrator would emit as `unsigned char[]`, just typed as
 `const char[]` so it counts as a clean-room reconstruction
 (the developer has decoded and confirmed the meaning).
 
-Examples (run after a full build so symbol_addrs.us.txt is complete):
+Examples (run after a full build so symbol_addrs.<ver>.txt is complete):
 
     $ tools/decode_sjis.py D_00554C90
     D_00554C90 (24 bytes @ 0x00554C90)

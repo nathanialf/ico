@@ -6,12 +6,17 @@ the value recorded in config/sha1sums.txt.
 Used by the Makefile as a build-time oracle. Exits 0 on match, non-zero on
 mismatch or missing target.
 
+config/sha1sums.txt is keyed by BASENAME (baseelf.elf / baseelf.rom) on every
+branch — each branch records only its own target's hashes — so the same
+lookup works whether the file lives at baserom/ (us) or baserom/<ver>/
+(pal, aug6).
+
 The recorded-name lookup defaults to the basename of --target, but can be
 overridden with --name (useful when verifying build/ico.rom against the
 'baseelf.rom' entry).
 
-    verify_elf.py --target baserom/baseelf.elf
-    verify_elf.py --target baserom/baseelf.rom
+    verify_elf.py --target baserom/pal/baseelf.elf
+    verify_elf.py --target baserom/pal/baseelf.rom
     verify_elf.py --target build/ico.rom --name baseelf.rom
 """
 

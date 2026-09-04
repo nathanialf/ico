@@ -24,8 +24,14 @@
 #   --counts          one-line breakdown: total / SPILL / PARKED / fresh
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"
+# Version-generic asm root + default scope (yaml `asm_path` / target layout):
+# asm/ + src on the retail trees (pal, us), asm/aug6/ + fumi on the prototype.
+# shellcheck source=tools/ico_version.sh
+. "$ROOT/tools/ico_version.sh"
+ico_version_init "$ROOT"
+if [ "$ICO_LAYOUT" = "devtree" ]; then DEFAULT_SCOPE="fumi"; else DEFAULT_SCOPE="src"; fi
 
-SCOPE="fumi"; MODE=""; INCLUDE_PARKED=0
+SCOPE="$DEFAULT_SCOPE"; MODE=""; INCLUDE_PARKED=0
 for a in "$@"; do
     case "$a" in
         --all)            MODE="all" ;;
@@ -58,9 +64,9 @@ fi
 emit() {
     find "$SCOPE" -name '*.c' -print | while read -r f; do
         tu="${f%.c}"
-        grep -oP 'INCLUDE_ASM\("asm/aug6/nonmatchings/\K[^"]+", \K[A-Za-z0-9_]+' "$f" 2>/dev/null | \
+        grep -oP "INCLUDE_ASM\(\"${ICO_ASM_ROOT}/nonmatchings/\K[^\"]+\", \K[A-Za-z0-9_]+" "$f" 2>/dev/null | \
         while read -r fn; do
-            s="asm/aug6/nonmatchings/$tu/$fn.s"
+            s="$ICO_ASM_ROOT/nonmatchings/$tu/$fn.s"
             [ -f "$s" ] || continue
             # Parked funcs (deep-pass owned) live under tough_nuts/<func>/ — drop.
             [ -d "tough_nuts/$fn" ] && continue

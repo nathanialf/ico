@@ -1,1 +1,0 @@
-int f(unsigned long long*p,int n){long long v;if(n>0){v=(long long)(*p>>(64-n))<<32;}else{v=(long long)(*p>>(64-n))<<32;}return (int)(v>>32);} /* 7 mnemonics but tail is the len-2 truncate-shift pattern -> jr slot NOT filled */

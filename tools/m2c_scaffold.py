@@ -18,7 +18,7 @@ match. This is a SCAFFOLD, not a match: it will not be byte-correct.
 
 Usage:
     tools/m2c_scaffold.py <func_X>                 # resolve the .s by name
-    tools/m2c_scaffold.py asm/.../func_X.s         # explicit .s path
+    tools/m2c_scaffold.py <asm_root>/.../func_X.s  # explicit .s path
     tools/m2c_scaffold.py <func_X> -o src/<TU>.scaffold.c
 """
 from __future__ import annotations
@@ -30,6 +30,12 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import detect_version, asm_root  # noqa: E402
+
+# splat's asm tree for this target (yaml `asm_path`): asm/ on the retail
+# branches (pal, us), asm/aug6/ on the prototype.
+ASM_ROOT = asm_root(ROOT, detect_version(ROOT))
 M2C = ROOT / "lib" / "m2c" / "m2c.py"
 
 _PREFIX = re.compile(r"/\*.*?\*/")           # /* fileoff vram hex */ (and any /* */)
@@ -43,7 +49,7 @@ def resolve_asm(arg: str) -> Path | None:
         return p.resolve()
     # search the splat asm trees for func_X.s
     name = arg if arg.endswith(".s") else f"{arg}.s"
-    for base in ("asm/nonmatchings", "asm/matchings"):
+    for base in (f"{ASM_ROOT}/nonmatchings", f"{ASM_ROOT}/matchings"):
         hits = list((ROOT / base).rglob(name))
         if hits:
             return hits[0].resolve()

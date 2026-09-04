@@ -45,10 +45,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import match_loop as ML  # reuse ROOT, STATE_DIR, resolve_tu_path, load_state
 
+from ico_version import detect_version, asm_root, source_roots  # noqa: E402
+
 ROOT = ML.ROOT
 STATE_DIR = ML.STATE_DIR
 QUEUE = STATE_DIR / "_drive_queue.json"
-VERSION = os.environ.get("VERSION", "aug6")
+# `main` = PAL retail (pal), `ntsc` = USA retail (us), `aug6` = the prototype.
+# Explicit VERSION env wins (and is passed down to every child tool via _env).
+VERSION = detect_version(ROOT)
+ASM_ROOT = asm_root(ROOT, VERSION)
 PERMUTE_TIMEOUT = int(os.environ.get("PERMUTE_TIMEOUT", "600"))
 # A stall=30 park now fires its permuter and BLOCKS to completion, harvesting it
 # in-line so the step returns the real outcome (matched / exhausted) — see
@@ -60,7 +65,9 @@ MAX_CONCURRENT_PERMUTES = int(os.environ.get("MAX_PERMUTES", "2"))
 # not free; a long run can leave hundreds of output-*/ dirs).
 HARVEST_TOPN = int(os.environ.get("HARVEST_TOPN", "12"))
 NONNOVEL_LOUD = 3            # streak at which re-demand escalates to "reconsider"
-SCOPES = ["fumi", "script", "common", "sugipon", "seki", "omori", "ito"]
+# Author/subsystem scopes the sweep walks: the aug6 per-programmer dev tree,
+# or src/ios/sound/isys on the flat retail trees (us, pal).
+SCOPES = list(source_roots(VERSION))
 PY = sys.executable
 
 
@@ -202,7 +209,7 @@ def revert_tu(cpath):
 def gen_scaffold(func, tu):
     """Best-effort C scaffold (may compile-fail → handed back as an iterate). A
     bare stub still locks the model to the location."""
-    spath = ROOT / "asm" / VERSION / "nonmatchings" / tu / (func + ".s")
+    spath = ROOT / ASM_ROOT / "nonmatchings" / tu / (func + ".s")
     if spath.exists():
         p = run([PY, ROOT / "tools" / "classify_asm.py", "--scaffold", rel(spath)])
         out = p.stdout or ""

@@ -1,0 +1,2 @@
+// reloc_addrs for the PAL target — empty by design; add entries only
+// when a proven mismatch requires one (mirrors the aug6/ntsc discipline).

@@ -3,7 +3,7 @@
 
 After a full-run rodata carve, `build.sh setup` leaves two emitter classes:
 function stubs with migrated rodata (INCLUDE_ASM emits those bytes), and
-standalone asm/nonmatchings/<tu>/D_*.s files splat could not attach to a
+standalone <asm_root>/nonmatchings/<tu>/D_*.s files splat could not attach to a
 function.  The standalone ones are NOT wired into the build; each needs a C
 definition in the TU source, inserted so source order equals VMA order.
 
@@ -14,7 +14,7 @@ This tool prints, for every standalone D_*.s of a TU:
     string, else as unsigned int words
   * the anchor emitter (stub / matched func) it must precede in the file
 
-Bytes come from baserom/baseelf.elf (authoritative), not the .s comments.
+Bytes come from this target's baseelf.elf (authoritative), not the .s comments.
 """
 import glob
 import os
@@ -24,11 +24,12 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-from ico_version import detect_version, baseelf_path  # noqa: E402
+from ico_version import detect_version, baseelf_path, asm_root  # noqa: E402
 import pathlib  # noqa: E402
 
 VERSION = detect_version(pathlib.Path(ROOT))
 ELF = str(baseelf_path(pathlib.Path(ROOT), VERSION))
+ASM_ROOT = asm_root(pathlib.Path(ROOT), VERSION)
 
 
 def elf_sections():
@@ -232,7 +233,7 @@ def main():
         size = nxt - vma
         b = raw(data, secs, vma, size)
         if size <= 8:
-            print(f'INCLUDE_RODATA("asm/nonmatchings/{tu}", {sym});'
+            print(f'INCLUDE_RODATA("{ASM_ROOT}/nonmatchings/{tu}", {sym});'
                   f"  /* {size}B — a C def would land in .sdata under -G8; "
                   f"0x{vma:08X}..0x{nxt:08X} */")
         elif as_string_bytes(b):

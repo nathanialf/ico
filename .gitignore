@@ -232,3 +232,8 @@ _site/
 # supervisor round-by-round ledger (kept outside the repo)
 decomp/convergence_chain_ledger.md
 scratchpad/
+
+# PAL listing-derived source-structure census (decomp/pal_source_tree.*): local-only,
+# regenerated from baserom/pal/ by tools/gen_pal_source_tree.py; bulk metadata stays out of git.
+decomp/pal_source_tree.md
+decomp/pal_source_tree.json

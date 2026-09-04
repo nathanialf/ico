@@ -2,8 +2,10 @@
 """tools/gen_ninja.py — emit build.ninja from the splat-generated manifest.
 
 Replaces the Makefile's `$(shell find ...)` discovery and per-recipe
-shell-outs. Reads `config/ico.us.d` (the authoritative .o list in link
-order) and writes a `build.ninja` covering:
+shell-outs. Reads `config/ico.<ver>.d` (the authoritative .o list in link
+order; <ver> is the branch's target slug — `main`=pal, `ntsc`=us,
+`aug6`=aug6, resolved by tools/ico_version.py) and writes a `build.ninja`
+covering:
 
     asm/%.s          → build/asm/%.o     via mips-as + objcopy
     src/%.s          → build/src/%.o     via mips-as + objcopy
@@ -13,7 +15,7 @@ order) and writes a `build.ninja` covering:
                        build/ico.rom     verified against config/sha1sums.txt
 
 The generator emits one `build build.ninja: gen_ninja ...` edge so Ninja
-auto-regenerates the manifest when `config/ico.us.d` (or any of the
+auto-regenerates the manifest when `config/ico.<ver>.d` (or any of the
 postprocess lookup TXTs) changes — the moment someone flips an asm
 subsegment to c and re-runs `tools/build.sh setup`, the next `ninja`
 picks up the new graph without manual intervention.
@@ -26,19 +28,22 @@ optimization deferred to a follow-up.
 
 from __future__ import annotations
 
-import os
 import re
 import shutil
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# Version slug selects the target's config namespace. `main` (USA retail)
-# defaults to 'us'; the `aug6` prototype branch sets VERSION=aug6.
-VERSION = os.environ.get("VERSION", "us")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import detect_version, source_roots  # noqa: E402
+
+# Version slug selects the target's config namespace: `main` = PAL retail
+# (pal), `ntsc` = USA retail (us), `aug6` = the prototype. Explicit VERSION env
+# wins; else detected from which config/ico.<ver>.yaml the tree carries.
+VERSION = detect_version(ROOT)
 DEPS_FILE = ROOT / "config" / f"ico.{VERSION}.d"
-# Both live branches are raw round-trips: link directly against splat's
-# one-pass linker script.
+# Every target is a raw round-trip: link directly against splat's one-pass
+# linker script.
 # Noncontiguous data blocks are placed by the carved subsegments splat emits
 # (no postprocess pass). A hand-written `linker_script_extra.ld` may add
 # per-symbol selectors for #include-coalesced TUs. The old slinky.ld
@@ -65,11 +70,15 @@ OUTPUT = ROOT / "build.ninja"
 
 ASM_RE = re.compile(r"^build/asm/(.+)\.o$")
 # Source roots that map to repo-root subdirs (matches splat's src_path: .).
-# retail (us): src/ + ios/ sound/ isys/. The aug6 prototype branch mirrors the
-# dev's per-developer module tree (TRFILE: common/ fumi/ sugipon/ seki/ omori/
-# script/ ito/, each with src/ and subsystem subdirs).
-_SRC_ROOTS = "src|ios|sound|isys|common|fumi|sugipon|seki|omori|script|ito"
-SRC_RE = re.compile(rf"^build/((?:{_SRC_ROOTS})/.+)\.o$")
+# The retail targets (us, pal) use src/ + ios/ sound/ isys/; the aug6 prototype
+# mirrors the dev's per-developer module tree (TRFILE: common/ fumi/ sugipon/
+# seki/ omori/ script/ ito/, each with src/ and subsystem subdirs). The union is
+# taken on purpose: a stray TU under another target's root still has to build.
+# Fixed union order (flat roots first), NOT per-version: discover_sidecar_objs
+# appends in this order and sidecar objects go on the link line in the order
+# they are appended, so reordering it would reorder the link.
+SOURCE_ROOTS = tuple(dict.fromkeys(source_roots("us") + source_roots("aug6")))
+SRC_RE = re.compile(rf"^build/((?:{'|'.join(SOURCE_ROOTS)})/.+)\.o$")
 
 
 def mips_prefix() -> str:
@@ -106,11 +115,10 @@ def discover_sidecar_objs(splat_objs: set[str]) -> list[str]:
     discovery for everything outside the splat manifest.
     """
     extras: list[str] = []
-    # Walk every source root the project lays out at repo top-level.
-    # `src/` plus the original ICO sibling subsystems `ios/`, `sound/`,
-    # `isys/` (relocated out of `src/` to mirror the original tree).
-    for root_name in ("src", "ios", "sound", "isys", "common", "fumi",
-                       "sugipon", "seki", "omori", "script", "ito"):
+    # Walk every source root the project lays out at repo top-level (SOURCE_ROOTS:
+    # `src/` plus the original ICO sibling subsystems `ios/`, `sound/`, `isys/`
+    # for the retail targets, plus the aug6 per-developer module dirs).
+    for root_name in SOURCE_ROOTS:
         root_dir = ROOT / root_name
         if not root_dir.is_dir():
             continue
@@ -248,10 +256,10 @@ def emit_header(out, prefix: str) -> None:
 
 def emit_rules(out) -> None:
     out.write("rule gen_ninja\n")
-    # Pin the active VERSION into the self-regen command. Without this the
-    # ninja-triggered regen runs gen_ninja.py with no env and falls back to
-    # VERSION=us (line 38), rebuilding the manifest for retail and breaking the
-    # aug6 build (references asm/src/cod/*.s that don't exist on this branch).
+    # Pin the active VERSION into the self-regen command. Detection alone would
+    # be enough in a normal tree, but an explicit VERSION= override on the
+    # generating run must survive into the ninja-triggered regen — otherwise the
+    # manifest silently flips back to the tree's detected target mid-build.
     out.write(f"  command = VERSION={VERSION} .venv/bin/python tools/gen_ninja.py\n")
     out.write("  description = GEN build.ninja\n")
     out.write("  generator = 1\n\n")
@@ -283,6 +291,9 @@ def emit_rules(out) -> None:
     out.write("  description = OBJCOPY $out\n\n")
 
     out.write("rule verify_rom\n")
+    # config/sha1sums.txt is keyed by BASENAME on every branch (baseelf.elf /
+    # baseelf.rom), so the built rom is checked against this target's recorded
+    # rom hash without the version appearing in the lookup name.
     out.write(
         "  command = .venv/bin/python tools/verify_elf.py "
         "--target $in --name baseelf.rom && touch $out\n"

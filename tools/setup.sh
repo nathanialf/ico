@@ -189,6 +189,16 @@ fi
 
 echo
 echo "Setup complete. Next steps:"
-echo "  1. Place your disc image at baserom/Ico_USA.bin (+ .cue)"
-echo "  2. Run 'tools/extract_elf.sh' to extract baseelf.elf and record SHA-1"
+# The disc image the extractor wants depends on this branch's target: PAL retail
+# (main) reads a plain ISO, USA retail (ntsc) a .bin/.cue pair. Ask
+# tools/ico_version.sh which target this working tree carries.
+# shellcheck source=tools/ico_version.sh
+. "$(dirname "$0")/ico_version.sh"
+ico_version_init "$(cd "$(dirname "$0")/.." && pwd)"
+case "$ICO_VERSION" in
+    pal)  echo "  1. Place your disc image at baserom/Ico_PAL.iso" ;;
+    us)   echo "  1. Place your disc image at baserom/Ico_USA.bin (+ .cue)" ;;
+    *)    echo "  1. Place your $ICO_VERSION disc image under baserom/" ;;
+esac
+echo "  2. Run 'tools/extract_elf.sh' to extract $ICO_BASEELF and record SHA-1"
 echo "  3. Run 'tools/build.sh setup && ninja' to verify and build"

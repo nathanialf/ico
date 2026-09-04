@@ -1,6 +1,7 @@
 # Format: <SHA-1>  <filename>
-# RETAIL-V2 BRANCH (us). ICO USA retail disc; boot ELF SCUS_971.13.
-# baseelf.elf — EE boot ELF extracted from the retail disc.
+# MAIN BRANCH (pal). ICO PAL retail disc SCES-50760; boot ELF SCES_507.60.
+# Files live under baserom/pal/ (gitignored); the names below are basenames.
+# baseelf.elf — EE boot ELF extracted from the retail PAL disc.
 # baseelf.rom — objcopy -O binary --gap-fill=0x00 view; splat input + build oracle.
-a4d8fc1948fb2da2395f3863a94a3b93de55de14  baseelf.elf
-fbf50c75cd5911273511c4f9af90503ff8423582  baseelf.rom
+da3644c54c26fe760f3b6a591a5fc2eab396ed2b  baseelf.elf
+a401d1e5a20b1659189a8b1026a8eb35811dc9ca  baseelf.rom

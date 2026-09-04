@@ -1,11 +1,27 @@
 #!/usr/bin/env python3
 """
-extract_elf.py — pull the EE-side boot ELF (SLUS_202.18) out of the user's
-ICO disc image (.bin/.cue), record its SHA-1, and dump a hint about the
-compiler fingerprint.
+extract_elf.py — pull the EE-side boot ELF out of the user's ICO disc image,
+record its SHA-1, and dump a hint about the compiler fingerprint.
 
-Handles MODE1/2352 and MODE2/2352 raw .bin sectors by extracting the 2048-
-byte user data and feeding the resulting ISO9660 image to pycdlib.
+Version-aware (tools/ico_version.py picks the branch's target):
+
+    slug  disc image the user supplies   outputs
+    ----  ----------------------------   -----------------------------------
+    pal   baserom/Ico_PAL.iso            baserom/pal/baseelf.{elf,rom}
+          (plain 2048-byte-sector ISO)   + MAIN.MAP SRCFILE.TXT TRFILE.TXT
+                                           SYSTEM.CNF (disc reference files)
+    us    baserom/Ico_USA.bin + .cue     baserom/baseelf.{elf,rom}
+          (raw MODE1/2352 or MODE2/2352)
+
+The boot ELF's name is never hard-coded: it comes from the disc's SYSTEM.CNF
+`BOOT2` line (SCES_507.60 on PAL, SCUS_971.13 on the USA disc).
+
+Raw .bin sectors are cooked by extracting the 2048-byte user data of each
+sector and feeding the resulting ISO9660 image to pycdlib; an image that is
+already 2048-byte-sector ISO9660 is read directly.
+
+Nothing copyrighted enters the repository — everything written lands under
+baserom/, which is gitignored wholesale.
 
 Idempotent — re-runs are cheap once baseelf.elf exists.
 """
@@ -20,14 +36,47 @@ from pathlib import Path
 
 import pycdlib
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import (  # noqa: E402
+    detect_version, baserom_dir, baseelf_path, rom_path,
+)
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BASEROM_DIR = REPO_ROOT / "baserom"
-BIN = BASEROM_DIR / "Ico_USA.bin"
-CUE = BASEROM_DIR / "Ico_USA.cue"
-ELF = BASEROM_DIR / "baseelf.elf"
-ROM = BASEROM_DIR / "baseelf.rom"      # objcopy -O binary view, splat's input
-ISO = BASEROM_DIR / "Ico_USA.iso"  # cached cooked ISO (gitignored)
+VERSION = detect_version(REPO_ROOT)
+
+# Where the user drops their own disc images (all gitignored).
+DISC_DIR = REPO_ROOT / "baserom"
+# Where THIS target's extracted files land: baserom/ for us, baserom/<ver>/
+# otherwise — see tools/ico_version.py.
+OUT_DIR = baserom_dir(REPO_ROOT, VERSION)
+ELF = baseelf_path(REPO_ROOT, VERSION)
+ROM = rom_path(REPO_ROOT, VERSION)     # objcopy -O binary view, splat's input
 SHA1SUMS = REPO_ROOT / "config" / "sha1sums.txt"
+
+# Per-target disc recipe.
+#   image  : the ISO9660 image pycdlib reads. For a raw .bin/.cue pair this is
+#            the cooked cache this script writes; for an already-cooked disc
+#            image it IS the user's file.
+#   raw_bin/raw_cue : the raw pair to cook from, or None when `image` is
+#            supplied directly by the user.
+#   extras : disc files copied into OUT_DIR alongside the ELF as untracked
+#            reference material (linker map, source listings, SYSTEM.CNF).
+DISCS = {
+    "pal": {
+        "image": DISC_DIR / "Ico_PAL.iso",
+        "raw_bin": None,
+        "raw_cue": None,
+        # The PAL disc ships the 2002-01-16 EU master's linker map and source
+        # listings. Reference only, and gitignored with the rest of baserom/.
+        "extras": ("MAIN.MAP", "SRCFILE.TXT", "TRFILE.TXT", "SYSTEM.CNF"),
+    },
+    "us": {
+        "image": DISC_DIR / "Ico_USA.iso",     # cooked cache (gitignored)
+        "raw_bin": DISC_DIR / "Ico_USA.bin",
+        "raw_cue": DISC_DIR / "Ico_USA.cue",
+        "extras": (),
+    },
+}
 
 OBJCOPY_CANDIDATES = (
     "mips64r5900el-ps2-elf-objcopy",
@@ -113,9 +162,9 @@ def boot_path_from_system_cnf(iso_path: Path) -> str:
     """Read SYSTEM.CNF and return the boot ELF filename it points at.
 
     SYSTEM.CNF format:
-        BOOT2 = cdrom0:\\SCUS_971.13;1
+        BOOT2 = cdrom0:\\SCES_507.60;1
         VER = 1.00
-        VMODE = NTSC
+        VMODE = PAL
     """
     iso = pycdlib.PyCdlib()
     iso.open(str(iso_path))
@@ -194,29 +243,92 @@ def dump_comment_section(elf_path: Path) -> None:
         print(f"extract_elf: .comment dump failed ({exc})", file=sys.stderr)
 
 
+def copy_reference_files(iso_path: Path, names: tuple[str, ...]) -> None:
+    """Pull the disc's reference files (linker map, listings, SYSTEM.CNF).
+
+    Best-effort per file: a disc that doesn't carry one is not an error (the
+    build never reads these — they're provenance/reference material for
+    symbol recovery, and live under the gitignored baserom/).
+    """
+    for name in names:
+        dst = OUT_DIR / name
+        if dst.exists() and dst.stat().st_size > 0:
+            continue
+        try:
+            extract_iso_file(iso_path, name, dst)
+        except SystemExit as exc:
+            print(f"extract_elf: note — no {name} on this disc ({exc})",
+                  file=sys.stderr)
+            continue
+        print(f"==> {name} -> {dst.relative_to(REPO_ROOT)} "
+              f"({dst.stat().st_size} bytes)")
+
+
+def resolve_iso(disc: dict) -> Path:
+    """Return a 2048-byte-sector ISO9660 image, cooking the raw .bin if needed."""
+    image: Path = disc["image"]
+    raw_bin: Path | None = disc["raw_bin"]
+
+    if raw_bin is None:
+        # The user's image is already cooked (one 2048-byte sector per logical
+        # sector) — read it in place, never rewrite it.
+        if not image.exists():
+            raise SystemExit(
+                f"extract_elf: missing {image}\n"
+                f"  Copy your {VERSION.upper()} disc image:\n"
+                f"    cp '/path/to/Ico ({VERSION.upper()}).iso'  {image}"
+            )
+        size = image.stat().st_size
+        if size % LOGICAL_SECTOR_SIZE != 0:
+            print(f"extract_elf: warning — {image.name} size {size} is not a "
+                  f"multiple of {LOGICAL_SECTOR_SIZE}; is it a raw .bin?",
+                  file=sys.stderr)
+        return image
+
+    cue: Path = disc["raw_cue"]
+    if not raw_bin.exists():
+        raise SystemExit(
+            f"extract_elf: missing {raw_bin}\n"
+            f"  Copy your disc image:\n"
+            f"    cp '/path/to/Ico (USA).bin'  {raw_bin}\n"
+            f"    cp '/path/to/Ico (USA).cue'  {cue}"
+        )
+    if not cue.exists():
+        raise SystemExit(f"extract_elf: missing {cue}")
+    if not image.exists():
+        cook_iso(raw_bin, parse_cue_mode(cue), image)
+        print(f"==> wrote {image}")
+    return image
+
+
 def main() -> int:
-    if not BIN.exists():
-        print(f"extract_elf: missing {BIN}", file=sys.stderr)
-        print(f"  Copy your disc image:", file=sys.stderr)
-        print(f"    cp '/path/to/Ico (USA).bin'  {BIN}", file=sys.stderr)
-        print(f"    cp '/path/to/Ico (USA).cue'  {CUE}", file=sys.stderr)
-        return 1
-    if not CUE.exists():
-        print(f"extract_elf: missing {CUE}", file=sys.stderr)
+    disc = DISCS.get(VERSION)
+    if disc is None:
+        print(f"extract_elf: no disc recipe for target '{VERSION}' "
+              f"(have: {', '.join(sorted(DISCS))}).", file=sys.stderr)
+        print(f"  Place the extracted files under "
+              f"{OUT_DIR.relative_to(REPO_ROOT)}/ by hand, or add a DISCS "
+              f"entry for this target.", file=sys.stderr)
         return 1
 
-    # 1. cook .bin → .iso (idempotent)
-    if not ISO.exists():
-        mode = parse_cue_mode(CUE)
-        cook_iso(BIN, mode, ISO)
-        print(f"==> wrote {ISO}")
+    print(f"==> target: {VERSION} "
+          f"(-> {OUT_DIR.relative_to(REPO_ROOT)}/baseelf.elf)")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # 1. resolve a cooked ISO9660 image (cooking a raw .bin/.cue if that's
+    #    what the user supplied; idempotent either way)
+    try:
+        iso = resolve_iso(disc)
+    except SystemExit as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
 
     # 2. pull the boot ELF (name comes from SYSTEM.CNF — varies by region/title)
     if not ELF.exists():
-        boot_name = boot_path_from_system_cnf(ISO)
+        boot_name = boot_path_from_system_cnf(iso)
         print(f"==> SYSTEM.CNF BOOT2: {boot_name}")
-        print(f"==> extracting {boot_name} → {ELF}")
-        extract_iso_file(ISO, boot_name, ELF)
+        print(f"==> extracting {boot_name} -> {ELF}")
+        extract_iso_file(iso, boot_name, ELF)
     else:
         print(f"==> {ELF} already present")
 
@@ -224,7 +336,8 @@ def main() -> int:
         print("extract_elf: extraction produced empty ELF", file=sys.stderr)
         return 2
 
-    # 3. SHA-1 record / verify
+    # 3. SHA-1 record / verify. sha1sums.txt is keyed by BASENAME on every
+    #    branch (each branch records only its own target's hashes).
     sha1 = sha1_of(ELF)
     print(f"==> {ELF.name} SHA-1: {sha1}")
     mismatch = update_sha1sums("baseelf.elf", sha1)
@@ -264,7 +377,11 @@ def main() -> int:
               file=sys.stderr)
         return 6
 
-    # 5. compiler fingerprint hint
+    # 5. disc reference files (linker map / source listings / SYSTEM.CNF)
+    if disc["extras"]:
+        copy_reference_files(iso, disc["extras"])
+
+    # 6. compiler fingerprint hint
     dump_comment_section(ELF)
 
     print()

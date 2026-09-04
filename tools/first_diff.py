@@ -10,9 +10,9 @@ that function, and a side-by-side disassembly of the differing
 instructions.
 
 Defaults:
-    --base   baserom/baseelf.elf
+    --base   <this target's baseelf.elf>
     --built  build/baseelf.elf
-    --map    build/ico.us.map
+    --map    build/ico.<ver>.map
 """
 
 from __future__ import annotations

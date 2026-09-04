@@ -19,7 +19,7 @@ TU sources
 * `decomp/tu_map.json` / `decomp/tu_map.md` — function-to-TU mapping
   (only ~15% of functions are tagged at the moment).
 * `decomp/data_tu_map.json` — data-symbol-to-TU mapping (every D_/jtbl_).
-* `config/ico.us.yaml` — which subsegments are claimed (`c`) vs `asm`.
+* `config/ico.<ver>.yaml` — which subsegments are claimed (`c`) vs `asm`.
 * `src/<TU>.c` / `src/<TU>_data.c` — tracked typed defs vs auto sidecar.
 
 Usage:
