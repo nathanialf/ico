@@ -1,0 +1,181 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/ios/pad", controler_stable_check);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadDevInit);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadDevReadFunc);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadRead);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadNormalizeStick);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadGetStick_func);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadActRequest);
+extern unsigned char D_0029C0B0[];
+extern int iosMsgSend(void *a0, int a1, int a2);
+
+int iosPadDevRead(void) {
+    iosMsgSend(D_0029C0B0, 0, 0);
+    return 0;
+}
+extern unsigned char D_0029BC40[];
+
+int iosPadGetPort(int a0, int a1) {
+    return *(int *)&D_0029BC40[a1 * 0x200];
+}
+int iosPadGetSlot(int a0, int a1) {
+    int *base = (int *)&D_0029BC40[a1 * 0x200];
+    return base[1];
+}
+int iosPadGetDevice(int a, int b)
+{
+    int *p = D_0029BC40;
+    int count = 0;
+    do {
+        count++;
+        if (p[0] == a) {
+            if (p[1] == b) {
+                return p[2];
+            }
+        }
+        p = (int *)((char *)p + 0x200);
+    } while (count < 2);
+    return -1;
+}
+int iosPadConnect(void *a0, int a1, int a2, int a3) {
+    int *p = (int *)a0;
+    p[1] = a3;
+    p[0] = (int)&D_0029BC40[a2 * 0x200];
+    return 0;
+}
+INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadGetStick);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadStickCameraCoord);
+extern int D_0063C19C;
+
+void iosPadEnable(void)
+{
+    D_0063C19C = 1;
+}
+void iosPadDisable(void) {
+    D_0063C19C = 0;
+}
+int iosPadEnableGet(void) {
+    return D_0063C19C;
+}
+extern int D_0063A5D4;
+extern unsigned char D_006BCD58[];
+extern void Init_Controler(void *a0);
+extern void Init_Player(void *a0);
+extern void Init_Shock();
+extern int Shock_SetShockVoiceSet(int a0, int a1);
+extern void memset(void *a0, int a1, int a2);
+
+void iosPadActInit(void) {
+    unsigned char *base;
+    unsigned char *p;
+    int i;
+    memset(D_006BCD58, 0, 0x180);
+    Init_Shock();
+    Shock_SetShockVoiceSet(0, D_0063A5D4);
+    base = D_0029BC40;
+    p = base + 0x1B8;
+    i = 1;
+    do {
+        Init_Controler(p);
+        i--;
+        Init_Player(p - 0x14);
+        p += 0x200;
+    } while (i >= 0);
+}
+extern int D_006BCD58__pn[] __asm__("D_006BCD58");
+extern int ShockRequestBox_RequestCancel(int a0, int a1);
+
+void iosPadActStop(int key)
+{
+    if (key == 0)
+    {
+        return;
+    }
+    for (;;)
+    {
+        int *p = D_006BCD58__pn;
+        int *entry;
+        int i = 0xF;
+        while (1)
+        {
+            if (*p == key)
+            {
+                goto found;
+            }
+            i--;
+            if (i == -1)
+            {
+                goto notfound;
+            }
+            p = (int *)((char *) p + 0x18);
+        }
+    notfound:
+        entry = 0;
+        goto check;
+    found:
+        entry = p;
+    check:
+        if (entry == 0)
+        {
+            break;
+        }
+        ShockRequestBox_RequestCancel(entry[0x4 / 4], key);
+        entry[0] = 0;
+    }
+}
+void iosPadActStopAll(void)
+{
+    int *p = D_006BCD58__pn;
+    int i;
+    for (i = 0xF; i != -1; i--) {
+        int x = p[0];
+        if (x != 0) {
+            ShockRequestBox_RequestCancel(p[1], x);
+            p[0] = 0;
+        }
+        p = (int *)((char *)p + 0x18);
+    }
+}
+int *iosPadActVolumeSet(int key, unsigned int val)
+{
+    int *p = D_006BCD58__pn;
+    int *rv;
+    int i;
+    val = val & 0xFF;
+    i = 0xF;
+    while (1) {
+        if (*p == key) goto found;
+        i--;
+        if (i == -1) goto notfound;
+        p = (int *)((char *)p + 0x18);
+    }
+notfound:
+    rv = 0;
+    goto end;
+found:
+    rv = p;
+end:
+    if (rv != 0) {
+        *(unsigned char *)((char *)rv + 0x14) = val;
+    }
+    return rv;
+}
+extern char D_0029C0B0__pn[] __asm__("D_0029C0B0");
+extern int D_006BCD38[];
+extern void iosMsgQueueCreate(int *a, int *b, int c);
+extern void iosMsgRecv(int *a, void *b, int c);
+extern void iosPadDevReadFunc(void);
+
+void func_0013DE08(void)
+{
+    int local_buf;
+    iosMsgQueueCreate(D_0029C0B0__pn, D_006BCD38, 8);
+    while (1) {
+        iosMsgRecv(D_0029C0B0__pn, &local_buf, 1);
+        iosPadDevReadFunc();
+    }
+}
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013DE50);
+void iosPadDisconWait(void) {}
+void iosPadErrorWait(void) {}

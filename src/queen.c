@@ -1,0 +1,36 @@
+#include "common.h"
+
+#include "vu0.h"
+typedef struct {
+    float v[4];
+} LVec;
+
+extern void sceVu0CopyMatrix(void *a0, void *a1);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", scale_m34);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A27D0);
+INCLUDE_ASM("asm/nonmatchings/src/queen", queenBeforeFunc);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A2A10);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A34D8);
+INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenGeo);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenGeo);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenDL);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBarrierGeo);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBarrierDL);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallGeo);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallDL);
+INCLUDE_ASM("asm/nonmatchings/src/queen", actQueenStart);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenStartAttack);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenInqDead);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBoysWeaponPower);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBarrierRadius);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBarrierInqBreakable);
+INCLUDE_ASM("asm/nonmatchings/src/queen", queenBarrierBeforeFunc);
+INCLUDE_ASM("asm/nonmatchings/src/queen", InqQueenBarrierExist);
+INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenBarrierGeo);
+INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallRadius);
+INCLUDE_ASM("asm/nonmatchings/src/queen", GetQueenBallThickness);
+INCLUDE_ASM("asm/nonmatchings/src/queen", queenBallBeforeFunc);
+INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenBallGeo);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A4B18);

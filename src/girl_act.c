@@ -1,0 +1,161 @@
+#include "common.h"
+
+typedef struct {
+    char _0[0x20];
+    float f_20;        /* 0x20 */
+    char _24[0x0C];
+    float sub30[4];    /* 0x30 */
+    float sub40[4];    /* 0x40 */
+    float f_50;        /* 0x50 */
+    float f_54;        /* 0x54 */
+    signed char f_58;  /* 0x58 */
+    signed char f_59;
+    signed char f_5A;
+    signed char f_5B;
+    signed char f_5C;
+    signed char f_5D;
+    signed char f_5E;
+} GirlStand;
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetEyeDirection);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", funcGirlHandDisconnect);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016F6B0);
+extern int D_002A5580[];
+extern void brainClsTargetLevel();
+
+void func_0016FC20(void)
+{
+    brainClsTargetLevel(D_002A5580);
+}
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", SetTurnSpeedInEscape);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", sort_list);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_MakeOthersList);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainHideCheckIntercept);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_CheckWarningMode);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_DecideMode);
+extern char D_002A2E70[];
+extern int *D_00639EA4;
+extern void *D_00639EA8;
+extern void GetRootPosition(void *out, void *obj);
+extern void GetRootProjectionPosOfGObj(void *out, void *obj);
+
+void girlBrainMain_PositionUpdate(void) {
+    GetRootPosition(D_002A2E70 + 0x00, D_00639EA8);
+    GetRootPosition(D_002A2E70 + 0x20, D_00639EA4);
+    GetRootProjectionPosOfGObj(D_002A2E70 + 0x10, D_00639EA8);
+    GetRootProjectionPosOfGObj(D_002A2E70 + 0x30, D_00639EA4);
+}
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_Init);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", ChangeRunMode);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00171188);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00172920);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", checkWaterfallResult);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00172D00);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001744A0);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainHide_GoalTurn);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", isHideRecheck);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174998);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174CE8);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainRunawaySearchPoint);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainRunawayMoveByWay);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00175688);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetSafePosition);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176028);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001762A0);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176570);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176838);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176C28);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177098);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177340);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001776D8);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", isEnterHideadv);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", WayTest);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177BB8);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001790F8);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Update);
+extern GirlStand D_002A2F70;
+extern int _RotyGV(void *buf, void *vec);
+
+void HandMgr_Judge(void) {
+    volatile int home;
+    int uninit;
+    float one = 1.0f;
+    home = uninit;
+    if (D_002A2F70.f_20 < 2.0f) {
+        D_002A2F70.f_58 = 1;
+    }
+    if ((_RotyGV(D_002A2F70.sub40, D_002A2F70.sub30) < 0
+            ? -_RotyGV(D_002A2F70.sub40, D_002A2F70.sub30)
+            : _RotyGV(D_002A2F70.sub40, D_002A2F70.sub30)) >= 0x3D) {
+        D_002A2F70.f_59 = 1;
+    }
+    if (D_002A2F70.f_54 > 15.0f) {
+        D_002A2F70.f_5E = 1;
+    }
+    if (one * 100.0f < D_002A2F70.f_50) {
+        D_002A2F70.f_5A = 1;
+    }
+    if (one * 125.0f < D_002A2F70.f_50) {
+        D_002A2F70.f_5B = 1;
+    }
+    if (one * 135.0f < D_002A2F70.f_50) {
+        D_002A2F70.f_5C = 1;
+    }
+    if (D_002A2F70.f_50 < 90.0f) {
+        D_002A2F70.f_5D = 1;
+    }
+}
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Print);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Speed);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetBoyMode);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00179940);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", GirlAct_BoyAndMeCollisionMail);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", IsGirlStatusEscortEnable);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", DebugDispAutoEscort);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017B530);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017B760);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", FindGirlPullupFloorBoxGObj);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017B8A0);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BB90);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BBD8);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BC20);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BE70);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BF68);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C1D0);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C290);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", NotNeedBackHand);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", SetGirlDangerGObj);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", ClearGirlDangerGObj);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Idle);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C418);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C4F8);
+int enemy_list_compare(int a0, int a1)
+{
+    float diff = *(float *)(a0 + 0x20) - *(float *)(a1 + 0x20);
+    return (int)diff;
+}
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", ACTCheckCollis_SAFE);
+extern void ACTGame_DisconnectHand(void);
+extern void ACTWay_SetBeginPositionIllegal(char *self);
+extern char D_00553E50[];
+extern void debug_StdPrintfDummy();
+extern void iosPadActStop(int key);
+
+void afterGirlHand(unsigned int a0)
+{
+  volatile unsigned int local = a0;
+ do { ACTGame_DisconnectHand(); debug_StdPrintfDummy(D_00553E50); iosPadActStop(7); ACTWay_SetBeginPositionIllegal(local); } while (0);
+}
+void afterGirlPulledGo(void *a0) {
+    void *volatile q = a0;
+    int *p = *(int **)((char *)q + 0x15C);
+    *(int *)((char *)p + 0x634) = 0;
+}
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlJump);
+void afterGirlSupportBGBegin(unsigned int a0)
+{
+    volatile unsigned int local = a0;
+    ACTGame_DisconnectHand();
+}
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", isMustCheckCylinder);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", afterGirlHintPoint);

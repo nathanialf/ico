@@ -145,7 +145,16 @@ redistributable:
   "clean-room from the PUBLIC-DOMAIN fdlibm reference (freely published;
   treat like a public paper — NOT the proprietary PS2 SDK or any leaked
   source)". `decomp/NOTES.md:403` records the same.
-- **libc** — newlib, BSD-style licence.
+- **libc** — newlib, BSD-style licence. **Snapshot pinned 2026-09-04 to
+  newlib 1.8.2** (released 2000-01) from the PAL disc's own listing
+  (`baserom/pal/SRCFILE.TXT`, per-instruction `file:line` rows under
+  `/usr/local/sce/ee/gcc/build/ee/newlib/`): the highest cited line in
+  `vfprintf.c` is 918, which exceeds 1.8.1's 917-line file; the highest cited
+  line in `dtoa.c` is 854, which exceeds 1.9.0's 853-line file; both fit
+  1.8.2 (939 / 854 lines), as do `vfscanf.c` (905 cited, 905 in 1.8.2) and
+  `mallocr.c` (`_malloc_r`'s first instruction cites line 2311; `mALLOc` is
+  defined at 2296 in 1.8.2 vs 2265 in 1.8.1). Start public-source matching
+  from the 1.8.2 tarball (sourceware.org/pub/newlib/newlib-1.8.2.tar.gz).
 
 **Method for this half:** obtain the upstream source, compile it with the
 identified compiler and flags, diff against the ROM asm, and adjust. This is

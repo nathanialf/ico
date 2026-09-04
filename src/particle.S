@@ -7,9 +7,23 @@
 ;
 ; Clean-room: bytes re-derived from published VU0/VU1 documentation
 ; (EE User's Manual, PCSX2 microVU GPL-3.0 opcode dispatch, ps2sdk) via
-; tools/assemble_vu0.py — never from extracted disc data.  Byte-identical
-; to aug6 .vutext 0x2704A0..0x270A50 (1456 bytes); labels are
-; program-relative (VU micromem is loaded at 0).
+; tools/assemble_vu0.py — never from extracted disc data.  The whole
+; 0x50E0-byte .vutext section is byte-identical across all three known
+; builds — the Aug-6-2001 prototype, USA retail (SCUS-971.13) and PAL
+; retail (SCES-507.60) — so this one source serves every branch.  In the
+; PAL ELF this program lives at 0x0028E700 (1456 bytes); labels below
+; are program-relative (VU micromem is loaded at 0).
+;
+; LABELS.  The uppercase names are the DVP assembler's own labels,
+; recovered from the PAL disc's `SRCFILE.TXT` link listing, which carries
+; the .vutext symbol table with the microprogram's local labels spelled
+; `_$NAME`.  `_$` is the assembler's local-label decoration, so the source
+; spelling here drops it (`_$SET_GSREGISTER` -> `SET_GSREGISTER`); the
+; full old->new table is in decomp/MATCH_VU.md.  Labels with no listing
+; counterpart keep their synthetic hand-typing names (offsets given
+; because some of those numeric suffixes are legacy section-relative
+; addresses):
+; none
 ; -----------------------------------------------------------------------
 .vu0
 .org 0x0000
@@ -17,27 +31,27 @@ nop ; .word 0x60000059                  ; 0x4B30 — FCSET imm24=0x59
 .word 0x4AB20000 ; nop                  ; 0x4B38 — upper FMAC-family (`add.yw vf00, vf00, vf18`+flags)
 
 ; Program-5 entry dispatch.
-pad ; b L_0110                          ; 0x4B40
+pad ; b SET_GSREGISTER                  ; 0x4B40
 pad ; nop_swap
-pad ; b L_0198                          ; 0x4B50
+pad ; b SET_UVOFFSET                    ; 0x4B50
 pad ; nop_swap
 pad ; nop_swap                          ; 0x4B60 — reserved
 pad ; nop_swap                          ; 0x4B68 — reserved
 pad ; nop_swap                          ; 0x4B70 — reserved
 pad ; nop_swap                          ; 0x4B78 — reserved
-pad ; b L_01D0                          ; 0x4B80
+pad ; b SET_FONT_OFFSET                 ; 0x4B80
 pad ; nop_swap
-pad ; b L_0240                          ; 0x4B90
+pad ; b START_DEBUG_FONT                ; 0x4B90
 pad ; nop_swap
-pad ; b L_0318                          ; 0x4BA0
+pad ; b SPACE_DEBUG_FONT                ; 0x4BA0
 pad ; nop_swap
 pad ; nop_swap                          ; 0x4BB0 — reserved
 pad ; nop_swap                          ; 0x4BB8 — reserved
-pad ; b L_0330                          ; 0x4BC0
+pad ; b SET_PARTICLE_MATRIX             ; 0x4BC0
 pad ; nop_swap
-pad ; b L_0378                          ; 0x4BD0
+pad ; b BEGIN_PARTICLE                  ; 0x4BD0
 pad ; nop_swap
-pad ; b L_0390                          ; 0x4BE0
+pad ; b START_PARTICLE                  ; 0x4BE0
 pad ; nop_swap
 pad ; nop_swap                          ; 0x4BF0 — reserved
 pad ; nop_swap                          ; 0x4BF8 — reserved
@@ -53,9 +67,9 @@ pad ; nop_swap                          ; 0x4C30 — reserved
 pad ; nop_swap                          ; 0x4C38 — reserved
 
 ; -----------------------------------------------------------------------
-; sub_4C40 — copy-with-count + xgkick + END (program-5 clone of sub_0EA0).
+; SET_GSREGISTER — copy-with-count + xgkick + END (program-5 clone of SET_GSREGISTER (mesh)).
 ; -----------------------------------------------------------------------
-sub_4C40:
+SET_GSREGISTER:
 pad ; xtop vi12
 pad ; ilwr.x vi10, vi12
 pad ; iaddiu vi07, vi12, 191
@@ -64,33 +78,33 @@ pad ; lqi.xyzw vf29, vi12
 pad ; iaddiu vi13, vi00, 32767
 pad ; iand vi10, vi13, vi10
 pad ; sqi.xyzw vf29, vi09
-sub_4C40_loop:
+SET_GSREGISTER_LOOP:
 pad ; lqi.xyzw vf28, vi12
 pad ; iaddi vi10, vi10, -1
 pad ; nop_swap
-pad ; ibne vi10, vi00, sub_4C40_loop
-pad ; sqi.xyzw vf28, vi09                ; (delay slot)
+pad ; ibne vi10, vi00, SET_GSREGISTER_LOOP
+pad ; sqi.xyzw vf28, vi09               ; (delay slot)
 pad ; nop_swap
 pad ; xgkick vi07
-epad ; nop_swap                          ; END
+epad ; nop_swap                         ; END
 pad ; nop_swap
 
 ; -----------------------------------------------------------------------
-; sub_4CC8 — mem[2].xy patch (program-5 clone of sub_0F28).
+; SET_UVOFFSET — mem[2].xy patch (program-5 clone of SET_UVOFFSET (mesh)).
 ; -----------------------------------------------------------------------
-sub_4CC8:
+SET_UVOFFSET:
 pad ; xtop vi01
 pad ; lq.xyzw vf30, 2(vi00)
 pad ; lqi.xyzw vf31, vi01
 pad ; move.xy vf30, vf31
 pad ; sq.xyzw vf30, 2(vi00)
-epad ; nop_swap                          ; END
+epad ; nop_swap                         ; END
 pad ; nop_swap
 
 ; -----------------------------------------------------------------------
-; sub_4D00 — 4-quad matrix upload to mem[256] (program-5 clone of sub_0F60).
+; SET_FONT_OFFSET — 4-quad matrix upload to mem[256] (program-5 clone of SET_FONT_OFFSET (mesh)).
 ; -----------------------------------------------------------------------
-sub_4D00:
+SET_FONT_OFFSET:
 pad ; xtop vi12
 pad ; iaddiu vi13, vi00, 256
 pad ; lqi.xyzw vf18, vi12
@@ -101,21 +115,21 @@ pad ; sqi.xyzw vf18, vi13
 pad ; sqi.xyzw vf19, vi13
 pad ; sqi.xyzw vf16, vi13
 pad ; sqi.xyzw vf17, vi13
-epad ; nop_swap                          ; END
+epad ; nop_swap                         ; END
 pad ; nop_swap
 
 ; -----------------------------------------------------------------------
-; exit_4D60 — shared E-bit stub (program-5 clone of exit_0FC0).
+; BEGIN_DEBUG_FONT — shared E-bit stub (program-5 clone of BEGIN_DEBUG_FONT (mesh)).
 ; -----------------------------------------------------------------------
-exit_4D60:
-epad ; nop_swap                          ; END
+BEGIN_DEBUG_FONT:
+epad ; nop_swap                         ; END
 pad ; nop_swap
 
 ; -----------------------------------------------------------------------
-; sub_4D70 — palette-indexed vertex transform (clone of sub_0FD0);
-; falls through into sub_4E48 for terminator.
+; START_DEBUG_FONT — palette-indexed vertex transform (clone of START_DEBUG_FONT (mesh));
+; falls through into SPACE_DEBUG_FONT for terminator.
 ; -----------------------------------------------------------------------
-sub_4D70:
+START_DEBUG_FONT:
 pad ; xtop vi12
 pad ; iaddiu vi11, vi12, 1
 pad ; ilwr.x vi10, vi12
@@ -131,7 +145,7 @@ pad ; ilwr.w vi14, vi11
 pad ; nop_swap
 pad ; iand vi15, vi13, vi14
 
-sub_4D70_loop:
+LOOP_DEBUG_FONT:
 add.xy vf09, vf09, vf16 ; lq.xyzw vf20, 256(vi15)
 pad ; move.w vf09, vf00
 pad ; iaddiu vi11, vi11, 1
@@ -140,25 +154,25 @@ pad ; iaddi vi10, vi10, -1
 ftoi4.xyzw vf10, vf09 ; sqi.xyzw vf20, vi09
 pad ; lq.xyzw vf09, 0(vi11)
 pad ; iand vi15, vi13, vi14
-pad ; ibne vi10, vi00, sub_4D70_loop
-pad ; sqi.xyzw vf10, vi09                ; (delay slot)
+pad ; ibne vi10, vi00, LOOP_DEBUG_FONT
+pad ; sqi.xyzw vf10, vi09               ; (delay slot)
 
 pad ; nop_swap
 pad ; xgkick vi07
-pad ; nop_swap                           ; falls through into sub_4E48
+pad ; nop_swap                          ; falls through into SPACE_DEBUG_FONT
 
 ; -----------------------------------------------------------------------
-; sub_4E48 — final palette-step + `b exit_4D60` (clone of sub_10A8).
+; SPACE_DEBUG_FONT — final palette-step + `b BEGIN_DEBUG_FONT` (clone of SPACE_DEBUG_FONT (mesh)).
 ; -----------------------------------------------------------------------
-sub_4E48:
+SPACE_DEBUG_FONT:
 add.xy vf16, vf16, vf17 ; nop_swap
-pad ; b exit_4D60
-pad ; nop_swap                           ; (delay slot)
+pad ; b BEGIN_DEBUG_FONT
+pad ; nop_swap                          ; (delay slot)
 
 ; -----------------------------------------------------------------------
-; sub_4E60 — 8-quad load into vf01..vf08 (variant of sub_03B8).
+; SET_PARTICLE_MATRIX — 8-quad load into vf01..vf08 (variant of SET_CLUSTER_LIGHT (cluster)).
 ; -----------------------------------------------------------------------
-sub_4E60:
+SET_PARTICLE_MATRIX:
 pad ; xtop vi10
 pad ; lqi.xyzw vf01, vi10
 pad ; lqi.xyzw vf02, vi10
@@ -170,16 +184,16 @@ pad ; lqi.xyzw vf07, vi10
 pad ; lqi.xyzw vf08, vi10
 
 ; -----------------------------------------------------------------------
-; sub_4EA8 — 3-bundle shared terminator.  Also reachable from
-; sub_4EC0's loop tail via `ibeq vi05, vi00, L_0378` or `b L_0378`.
+; BEGIN_PARTICLE — 3-bundle shared terminator.  Also reachable from
+; START_PARTICLE's loop tail via `ibeq vi05, vi00, BEGIN_PARTICLE` or `b BEGIN_PARTICLE`.
 ; -----------------------------------------------------------------------
-sub_4EA8:
-pad ; nop_swap                           ; entry / delay slot of sub_4E60's lqi chain
-epad ; nop_swap                          ; END
-pad ; nop_swap                           ; E-bit delay slot
+BEGIN_PARTICLE:
+pad ; nop_swap                          ; entry / delay slot of SET_PARTICLE_MATRIX's lqi chain
+epad ; nop_swap                         ; END
+pad ; nop_swap                          ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
-; sub_4EC0 — particle / clip-test routine.  Loads input quads
+; START_PARTICLE — particle / clip-test routine.  Loads input quads
 ; vf23/vf24/vf26/vf27/vf29, sets up output cursors vi02 = vi11,
 ; vi01 = mem[544], vi03 = vi01, vi05 = 0.  Per-particle loop:
 ;   - Load vf30/vf31 (position + direction).
@@ -192,9 +206,9 @@ pad ; nop_swap                           ; E-bit delay slot
 ;   - addz/addx into vf20 for sprite axis.
 ;   - Two clip tests (sub.xyw + fmand chain) against vf26/vf27/vf10/vf11.
 ;   - On clip-pass: store vf09/vf12 to (vi03+3)/(vi03+5); advance.
-;   - Loop count via vi07, then post-process and `b L_0378`.
+;   - Loop count via vi07, then post-process and `b BEGIN_PARTICLE`.
 ; -----------------------------------------------------------------------
-sub_4EC0:
+START_PARTICLE:
 pad ; xtop vi10
 pad ; ilwr.x vi07, vi10
 pad ; iaddiu vi11, vi10, 1
@@ -208,7 +222,7 @@ pad ; iaddiu vi01, vi00, 544
 pad ; iaddiu vi03, vi01, 0
 pad ; iaddiu vi05, vi00, 0
 
-L_03F0:
+LOOP_PARTICLE:
 pad ; lqi.xyzw vf30, vi02
 pad ; lqi.xyzw vf31, vi02
 pad ; iaddi vi07, vi07, -1
@@ -220,7 +234,7 @@ mulax.xyzw vf01, vf10 ; sq.xyzw vf23, 0(vi03)
 madday.xyzw vf02, vf10 ; nop_swap
 maddaz.xyzw vf03, vf10 ; nop_swap
 maddw.xyzw vf09, vf04, vf00 ; fmand vi11, vi10
-mulx.xy vf28, vf28, vf29 ; ibeq vi11, vi10, L_0560
+mulx.xy vf28, vf28, vf29 ; ibeq vi11, vi10, CLIP_PARTICLE
 add.xy vf13, vf00, vf31 ; nop_swap
 addw.z vf13, vf00, vf00 ; nop_swap
 sub.w vf13, vf00, vf00 ; div Q, vf00.w, vf09.w
@@ -248,23 +262,23 @@ ftoi4.xyz vf09, vf10 ; fmand vi11, vi10
 ftoi4.xyz vf12, vf11 ; fmand vi11, vi11
 pad ; fmand vi11, vi11
 pad ; fmand vi11, vi11
-pad ; ibne vi11, vi10, L_0560
-pad ; nop_swap                           ; (delay slot)
+pad ; ibne vi11, vi10, CLIP_PARTICLE
+pad ; nop_swap                          ; (delay slot)
 pad ; sq.xyzw vf09, 3(vi03)
 pad ; sq.xyzw vf12, 5(vi03)
 pad ; iaddiu vi05, vi05, 1
 pad ; iaddiu vi04, vi03, 0
 pad ; iaddiu vi03, vi03, 6
 
-L_0560:
-pad ; ibne vi07, vi00, L_03F0
-pad ; nop_swap                           ; (delay slot)
-pad ; ibeq vi05, vi00, L_0378
-pad ; sq.xyzw vf24, 0(vi04)              ; (delay slot)
+CLIP_PARTICLE:
+pad ; ibne vi07, vi00, LOOP_PARTICLE
+pad ; nop_swap                          ; (delay slot)
+pad ; ibeq vi05, vi00, BEGIN_PARTICLE
+pad ; sq.xyzw vf24, 0(vi04)             ; (delay slot)
 pad ; xgkick vi01
 pad ; nop_swap
-pad ; b L_0378                           ; → END
-pad ; nop_swap                           ; (delay slot)
+pad ; b BEGIN_PARTICLE                  ; → END
+pad ; nop_swap                          ; (delay slot)
 
 ; =======================================================================
 ; SIXTH VU0 PROGRAM begins here (truncated — only the first 2 bundles

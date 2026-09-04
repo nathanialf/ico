@@ -12,6 +12,7 @@ _start = 0x00100008; // type:func  // (vendor)
 ClusterMicroProgram = 0x00289BD0; // type:func  // src/cluster.s (VU1 microprogram)
 MeshMicroProgram = 0x0028A990; // type:func  // src/mesh.s (VU1 microprogram)
 NormalCMicroProgram = 0x0028B380; // type:func  // src/normal_c.s (VU1 microprogram)
+NormalLMicroProgram = 0x0028CA60; // type:func  // src/normal_l.s (VU1 microprogram)
 ParticleMicroProgram = 0x0028E700; // type:func  // src/particle.s (VU1 microprogram)
 
 // ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — do not hand-edit below this line ====
