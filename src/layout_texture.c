@@ -18,7 +18,11 @@ int lt_current_property_item(void) {
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_link_layout);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_prev_layout);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_next_layout);
-INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_mask_property);
+extern char D_0030CFF8[];
+void lt_mask_property(int idx, int flag) {
+    int *p = (int *)(D_0030CFF8 + idx * 0x70);
+    p[0x1B] = (p[0x1B] & ~0x10) | ((flag & 1) << 4);
+}
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_default_mask_property);
 extern int D_0063B618;
 

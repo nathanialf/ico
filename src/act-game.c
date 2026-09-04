@@ -194,11 +194,29 @@ void ACTCharctrl_Unlock(char *a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_ConnectHand);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_DisconnectHand);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_GetPosition_BOY);
+extern char *D_00639EA4;
+void PAIR_GetPosition_BOY(float *a0, float *a1) {
+    float *q = (float *)*(char **)(D_00639EA4 + 0x164);
+    a0[0] = q[0x500/4];
+    a0[1] = q[0x504/4];
+    a0[2] = q[0x508/4];
+    a1[0] = q[0x4C0/4];
+    a1[1] = q[0x4C4/4];
+    a1[2] = q[0x4C8/4];
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_BOY_PULL);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_GIRL_PULL);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_BOY_WAIT);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_GetPosition_BOY_DITCH);
+extern char *D_00639EA4;
+void PAIR_GetPosition_BOY_DITCH(float *a0, float *a1) {
+    float *q = (float *)*(char **)(D_00639EA4 + 0x164);
+    a0[0] = q[0x510/4];
+    a0[1] = q[0x514/4];
+    a0[2] = q[0x518/4];
+    a1[0] = q[0x520/4];
+    a1[1] = q[0x524/4];
+    a1[2] = q[0x528/4];
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_BOY_DITCH);
 extern char *D_00639EA4;
 extern char D_005577D0[];

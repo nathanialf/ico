@@ -10,7 +10,18 @@ typedef struct {
     char  pad44[0xC];  /* 0x44 */
 } BgaDisp;
 
-INCLUDE_ASM("asm/nonmatchings/src/multiBgaManager", InitMultiBgaManager);
+typedef struct { long long w[10]; } MultiBga;
+extern MultiBga D_004ECCA0;
+extern char D_006208C8[];
+extern int D_0063A438;
+void *InitMultiBgaManager(int n) {
+    MultiBga *base = (MultiBga *)iosMallocDebug(D_0063A438, n * 0x50, D_006208C8, 0xB);
+    int i;
+    for (i = 0; i < n; i++) {
+        base[i] = D_004ECCA0;
+    }
+    return base;
+}
 INCLUDE_ASM("asm/nonmatchings/src/multiBgaManager", EntryMultiBgaManager);
 INCLUDE_ASM("asm/nonmatchings/src/multiBgaManager", EntryMultiBgaManagerSensitive);
 extern int D_0028F4C0[];

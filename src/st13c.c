@@ -5,7 +5,13 @@ void actSt13cInit(void) {
         SetWayGroupActive(9, 0);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cEnd);
+extern char D_00622E10[];
+void actSt13cEnd(void) {
+    if (gflagChk(0x1F) == 0) {
+        debug_StdPrintfDummy(D_00622E10);
+        gflagOn(0x186);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cBmg1);
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cBmg1Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cConte04);

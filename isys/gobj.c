@@ -6,7 +6,49 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableInit);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjInit);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", cut_gobj_link);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjRemoveAll);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", add_gobj_to_tail);
+extern char D_0029C4F0[];
+extern char *D_0029C510[];
+void add_gobj_to_tail(int a0, int a1, int a2) {
+    char *g = (char *)a0;
+    unsigned char kind = a1;
+    unsigned int val = a2;
+    char *head;
+    char *tail;
+    char *p;
+    g[0x18] = kind;
+    *(unsigned int *)(g + 0x1C) = val;
+    head = *(char **)(D_0029C4F0 + kind * 4);
+    if (head == 0) {
+        *(char **)(D_0029C4F0 + kind * 4) = g;
+        *(char **)(g + 0x14) = 0;
+        *(char **)(g + 0x10) = 0;
+        D_0029C510[kind] = g;
+        return;
+    }
+    if (val < *(unsigned int *)(head + 0x1C)) {
+        *(char **)(g + 0x14) = 0;
+        *(char **)(g + 0x10) = head;
+        *(char **)(D_0029C4F0 + kind * 4) = g;
+        *(char **)(head + 0x14) = g;
+        return;
+    }
+    tail = D_0029C510[kind];
+    if (!(val < *(unsigned int *)(tail + 0x1C))) {
+        *(char **)(g + 0x14) = tail;
+        *(char **)(g + 0x10) = 0;
+        D_0029C510[kind] = g;
+        *(char **)(tail + 0x10) = g;
+        return;
+    }
+    p = head;
+    while (!(val < *(unsigned int *)(*(char **)(p + 0x10) + 0x1C))) {
+        p = *(char **)(p + 0x10);
+    }
+    *(char **)(g + 0x14) = p;
+    *(char **)(g + 0x10) = *(char **)(p + 0x10);
+    *(char **)(p + 0x10) = g;
+    *(char **)(*(char **)(g + 0x10) + 0x14) = g;
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", add_gobj_to_head);
 extern void add_gobj_to_tail(int a0, int a1, int a2);
 extern void cut_gobj_link(int a0);

@@ -19,9 +19,18 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", execParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", dispParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectByPartition);
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectGeometry);
 typedef struct { int w[7]; } PEffect;
 extern PEffect D_00720220[];
+extern char D_00620940[];
+void SetParticleEffectGeometry(int a0, int a1, int a2) {
+    if (a0 >= 0) {
+        if (D_00720220[a0].w[0] == 0) {
+            debug_StdPrintfDummy(D_00620940);
+        } else {
+            setParticleEffectGeometry(D_00720220[a0].w[6], a1, a2);
+        }
+    }
+}
 extern void execParticleEffect(void *a0);
 void SetParticleEffectUpperLimit(int no, float f) {
     char *o;

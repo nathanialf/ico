@@ -7,7 +7,13 @@ typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } DObjBl
 INCLUDE_ASM("asm/nonmatchings/src/DObj", initGeometryState);
 INCLUDE_ASM("asm/nonmatchings/src/DObj", initMatrixDObj);
 INCLUDE_ASM("asm/nonmatchings/src/DObj", allocObjectData);
-INCLUDE_ASM("asm/nonmatchings/src/DObj", initInitialInverseMatrix);
+extern char D_00618F30[];
+extern int D_0063A438;
+void initInitialInverseMatrix(char *a0) {
+    char *m = iosMallocDebug(D_0063A438, *(int *)(a0 + 0x88) << 6, D_00618F30, 0x14D);
+    *(char **)(a0 + 0x90) = m;
+    GetInitialInverseMatrixByDObj(m, a0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/DObj", initPolygonState);
 INCLUDE_ASM("asm/nonmatchings/src/DObj", CSVSYSTEM_InitDObj);
 void FreeDObj(void) {}

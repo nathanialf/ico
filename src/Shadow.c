@@ -12,7 +12,19 @@ void shadow_Render(void)
     float buf[4];
     debug_StdPrintfDummy(D_0054FD50);
 }
-INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_getShadowVectorAverage);
+extern char *matrixptr;
+extern void _CopyVector(void *a0, void *a1);
+extern void _SetCurrentMatrix(void *a0);
+extern void _ClearTransCurrentMatrix(void);
+extern void _ApplyCurrentMatrix(void *a0, void *a1);
+extern void _NormalizeVector(void *a0, void *a1);
+void shadow_getShadowVectorAverage(void *a0, char *a1) {
+    _CopyVector(a0, a1 + 0x860);
+    _SetCurrentMatrix(matrixptr + 0x80);
+    _ClearTransCurrentMatrix();
+    _ApplyCurrentMatrix(a0, a0);
+    _NormalizeVector(a0, a0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_EntryClusterShadow);
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_EntryNormalShadow);
 extern char *matrixptr;
@@ -51,4 +63,22 @@ void shadow_SetLength(char *a0, float f) {
         *(float *)(*(char **)(a0 + 0x858) + 0x3C) = *(float *)(*(char **)(a0 + 0x854) + 0x3C);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Init);
+extern int D_0063A178;
+extern int D_0063A17C;
+void shadow_Init(void) {
+    char *obj;
+    D_0063A178 = 0;
+    D_0063A17C = 0;
+    for (obj = isysGObjGetExist_begin(); obj != 0; obj = isysGObjGetExist_next(obj)) {
+        char *node = *(char **)(obj + 0x15C);
+        if (node != 0) {
+            char *dl = *(char **)(node + 0x854);
+            if (dl != 0) {
+                char *x = *(char **)(node + 0x858);
+                if (x != 0) {
+                    *(long long *)(x + 0x30) &= ~0x04000000;
+                }
+            }
+        }
+    }
+}

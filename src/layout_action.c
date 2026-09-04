@@ -152,9 +152,27 @@ int la_game_loading(int a0) {
     }
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_playtime_count);
+extern int D_0028F4D4[];
+extern int D_0029B9D0[];
+void la_playtime_count(void) {
+    if (D_0028F4D4[0] == 0) {
+        D_0029B9D0[2]++;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_demo);
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_demo_pause);
+extern int D_0028F4D4[];
+extern int D_0063B4F4;
+int la_game_demo_pause(int a0) {
+    if (a0) {
+        D_0028F4D4[0] = 1;
+    }
+    if ((D_0028F8F4[0] & 0x800) == 0) {
+        return -1;
+    }
+    lt_set_item_select_func(0);
+    D_0063B4F4 = 0;
+    return 0x37;
+}
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_pause);
 extern int D_0063B4EC;
 extern int fightSoundPlayChk(void);

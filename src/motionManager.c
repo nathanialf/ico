@@ -314,8 +314,26 @@ void SetHitCollisionDisplay(int a, int b) {
     D_0063B8F8 = a;
     D_0063B8FC = b;
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", ResetMotionProgramInterpInfo);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", SetDirectMotionProgramInterpInfo);
+extern char D_002907E0[];
+int ResetMotionProgramInterpInfo(char *a0, int a1) {
+    int n = GetSkeltonFocusNode(a0, a1);
+    char *e = *(char **)(*(char **)(a0 + 0x15C) + 0x80C) + (n << 6);
+    if (n < 0) return 0;
+    *(int *)e = 0;
+    CopyQuaternion(e + 0x20, D_002907E0);
+    CopyQuaternion(e + 0x30, D_002907E0);
+    return 1;
+}
+extern char D_002907E0[];
+int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f) {
+    int n = GetSkeltonFocusNode(a0, a1);
+    char *e = *(char **)(*(char **)(a0 + 0x15C) + 0x80C) + (n << 6);
+    if (n < 0) return 0;
+    *(float *)e = f;
+    CopyQuaternion(e + 0x20, D_002907E0);
+    CopyQuaternion(e + 0x30, D_002907E0);
+    return 1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", getFinalMatrixCore);
 extern char *D_0063B938;
 extern char *D_0063C4A0;
