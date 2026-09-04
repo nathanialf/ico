@@ -129,7 +129,18 @@ int iosCdvdSync(int a0)
     iosMsgRecv(CdvdMsgQ_LoadEnd, &local, 1);
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdLoadPackFile);
+extern char iosCdvd[];
+void iosCdvdLoadPackFile(int a0, char *name, int a2) {
+    int buf[4];
+    *(long long *)iosCdvd = (*(long long *)iosCdvd & ~1LL) | (a0 & 1);
+    strcpy(iosCdvd + 0x38, name);
+    *(int *)(iosCdvd + 0x24) = a2;
+    *(int *)(iosCdvd + 0x1C) = 0;
+    *(int *)(iosCdvd + 0x20) = 0;
+    iosCdvdPackLoad(iosCdvd);
+    buf[0] = (int)iosCdvd;
+    iosMsgRecv(CdvdMsgQ_LoadEnd, buf, 1);
+}
 extern int D_0063A384;
 
 int iosCdvdDiskStatusGet(void) {

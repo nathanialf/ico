@@ -1,6 +1,23 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/windManager", ExecWindManager);
+extern int D_0063BC7C;
+extern float D_0063BC74;
+extern float D_0063BC78;
+extern float D_0063BC64;
+extern float D_0063BC6C;
+extern float D_00639708;
+extern float _GetRandom(void);
+extern void ExecWindField(float f);
+void ExecWindManager(void) {
+    D_0063BC7C++;
+    if (D_0063BC7C >= 0x33) {
+        float r = _GetRandom();
+        D_0063BC7C = 0;
+        D_0063BC74 = D_0063BC64 * ((r + r - 1.0f) * D_0063BC6C + 1.0f);
+    }
+    D_0063BC78 = D_0063BC78 + (D_0063BC74 - D_0063BC78) * D_00639708;
+    ExecWindField(D_0063BC78);
+}
 INCLUDE_ASM("asm/nonmatchings/src/windManager", ReinitWindManager);
 extern float D_0063BC64;
 extern float D_0063BC68;

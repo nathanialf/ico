@@ -131,7 +131,23 @@ INCLUDE_ASM("asm/nonmatchings/src/box", SetFloorLeverWithNodePoint);
 int CanFloorLeverPull(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", InitFloorLeverGeo);
+typedef struct { int w[8]; } FloorLeverGeo;
+extern FloorLeverGeo D_004E5AA0;
+extern char D_0061EF10[];
+extern int D_0063A438;
+extern char D_002A79B8[];
+FloorLeverGeo *InitFloorLeverGeo(char *a0, char *a1) {
+    FloorLeverGeo *g = (FloorLeverGeo *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x8D);
+    *g = D_004E5AA0;
+    if (*(int *)(a1 + 0x30) != 0) {
+        g->w[5] = 1;
+    } else {
+        g->w[5] = 0;
+    }
+    g->w[3] = CSVSYSTEM_InitDObj(*(int *)(D_002A79B8 + *(int *)(*(char **)(a0 + 0x15C) + 0x844) * 0x28), a1);
+    g->w[4] = CSVSYSTEM_InitDObj(*(int *)(D_002A79B8 + *(int *)(*(char **)(a0 + 0x15C) + 0x844) * 0x28 + 4), a1);
+    return g;
+}
 int GetFloorLeverAngle(char *a0) {
     return *(short *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 2);
 }

@@ -16,7 +16,19 @@ void actSt04cDoorDownEvent(int x) {
     volatile int local = x;
 }
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cDoorDownEffect);
-INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cEneChk);
+extern char *D_00639EA8;
+void actSt04cEneChk(volatile int a0) {
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerFloorAttr(D_00639EA8, 0xB000000) == 0) {
+        _ACTWait(1);
+    }
+    gflagOff(0x187);
+    _ACTWait(1);
+    gflagOn(0xA3);
+    gflagOn(0xA4);
+}
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cIntroChkSub);
 void actSt04lDoorEvent(int x) {
     volatile int local = x;

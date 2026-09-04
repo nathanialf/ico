@@ -1681,7 +1681,27 @@ extern int D_007315DC[];
 extern int D_007315E0[];
 extern int D_007315E4[];
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _ch4dma);
+extern int D_007315DC[];
+extern int D_007315E0[];
+extern int D_007315E4[];
+int _ch4dma(void) {
+    *(volatile unsigned int *)0x1000E010 = 0x10;
+    D_007315DC[0]++;
+    if (D_007315E0[0] == 0) return 1;
+    if ((unsigned int)D_007315E0[0] > 0xFFFF) {
+        *(volatile unsigned int *)0x1000B410 = D_007315E4[0];
+        *(volatile unsigned int *)0x1000B420 = 0xFFFF;
+        *(volatile unsigned int *)0x1000B400 = 0x101;
+        D_007315E4[0] = (D_007315E4[0] + 0xFFFF0) & 0xFFFFFFF;
+        D_007315E0[0] -= 0xFFFF;
+    } else {
+        *(volatile unsigned int *)0x1000B410 = D_007315E4[0];
+        *(volatile unsigned int *)0x1000B420 = D_007315E0[0];
+        *(volatile unsigned int *)0x1000B400 = 0x101;
+        D_007315E0[0] = 0;
+    }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _csc_storeRefImage);
 extern void _sysbitFlush(int *a0, int a1);
 

@@ -18,7 +18,20 @@ typedef struct StageParam {
 
 typedef struct { int w[19]; } S4C;
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", EnterMenu);
+extern char D_00554CE0[];
+extern int D_0063A450;
+extern int curmenu;
+void EnterMenu(void *a0, int a1, void *a2) {
+    char *m = iosMallocDebug(D_0063A450, 0x78, D_00554CE0, 0xD9);
+    iosThreadCreateS(m, 1, a0, m, D_0063A450, 0x1000, 0x17);
+    *(int *)(m + 0x74) = a1;
+    *(void **)(m + 0x70) = a2;
+    iosThreadStart(m);
+    curmenu = (int)m;
+    if (a2 != 0) {
+        iosThreadSleep(a2);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedDataBinary);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedData);
 extern void gif_SetGsReg(int code, long data);
