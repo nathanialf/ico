@@ -41,7 +41,7 @@ void dl_Clear(void)
     mc_Reset();
 }
 extern int D_0063A054;
-extern int D_0063BC94;
+extern int dmaVif;
 extern void FlushCache(int a0);
 extern void dl_CloseDma();
 extern void dl_OpenDma(int a0, int a1, int a2);
@@ -68,9 +68,9 @@ void dl_Swap(void)
     } while (j < 0xC);
     FlushCache(0);
     if (D_0063A054) {
-        sceDmaSend(D_0063BC94, D_00728310[11].pad_20 & 0xFFFFFFF);
+        sceDmaSend(dmaVif, D_00728310[11].pad_20 & 0xFFFFFFF);
     } else {
-        sceDmaSend(D_0063BC94, D_00728310[0].pad_20 & 0xFFFFFFF);
+        sceDmaSend(dmaVif, D_00728310[0].pad_20 & 0xFFFFFFF);
     }
     dl_Clear();
 }
@@ -88,7 +88,19 @@ void dl_Debug(void)
     return debug_StdPrintfDummy(D_006218E0, count - 1);
 }
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_CloseDma);
-INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_Out);
+extern void iosFree(int a0);
+
+void dl_Out(void) {
+    int i;
+    for (i = 0; i < 2; i++) {
+        int *p = (int *)((char *)D_00728518 + i * 0x34);
+        int j;
+        for (j = 0xC; j >= 0; j--) {
+            iosFree(*p);
+            p++;
+        }
+    }
+}
 void dl_SetDLPriority(int a0)
 {
     if (a0 < 0) {

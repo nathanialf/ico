@@ -57,7 +57,7 @@ INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE04agate);
 ASM_LIT4_SLOT(D_00639B74, -1300.0f);
 ASM_LIT4_SLOT(D_00639B78, 750.0f);
 ASM_LIT4_SLOT(D_00639B7C, 2050.0f);
-extern int D_00639CE0;
+extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
 extern void *GetCameraPos__pn(void) __asm__("GetCameraPos");
@@ -65,10 +65,10 @@ extern float GetRegularizedWindSpeed(void *a0);
 
 int stageSE04bstrong(void *a0) {
     float v;
-    if (D_0063C07C == D_00639CE0) {
+    if (D_0063C07C == frame_count) {
         v = D_0063C078;
     } else {
-        D_0063C07C = D_00639CE0;
+        D_0063C07C = frame_count;
         v = GetRegularizedWindSpeed(GetCameraPos__pn()) * 0.5f + 0.5f;
         D_0063C078 = v;
     }
@@ -173,10 +173,10 @@ int stageSE08bcrane(void *a0) {
     p->f0 = 1148.0f;
     p->f4 = -4521.0f;
     p->f8 = 1514.0f;
-    if (D_0063C07C == D_00639CE0) {
+    if (D_0063C07C == frame_count) {
         f = D_0063C078;
     } else {
-        D_0063C07C = D_00639CE0;
+        D_0063C07C = frame_count;
         f = GetRegularizedWindSpeed((void *)UpdateRootPosition__p4());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
@@ -199,7 +199,19 @@ INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE10lstrong);
 ASM_LIT4_SLOT(D_00639BCC, 773.0f);
 INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE10rstrong);
 ASM_LIT4_SLOT(D_00639BD0, 0.3f);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE10rstrong2);
+int stageSE10rstrong2(int self) {
+    float f;
+    if (D_0063C07C == frame_count) {
+        f = D_0063C078;
+    } else {
+        D_0063C07C = frame_count;
+        f = GetRegularizedWindSpeed((void *)GetCameraPos__pn());
+        f = f * 0.5f + 0.5f;
+        D_0063C078 = f;
+    }
+    *(float *)(self + 0x18) = f;
+    return -1;
+}
 int stageSE13arain(char *a0)
 {
     float *v1 = *(float **)(a0 + 0x34);
@@ -251,10 +263,10 @@ int stageSE19astrong(void *a0) {
     float f;
     p[0] = 1548.0f;
     p[2] = -3296.0f;
-    if (D_0063C07C == D_00639CE0) {
+    if (D_0063C07C == frame_count) {
         f = D_0063C078;
     } else {
-        D_0063C07C = D_00639CE0;
+        D_0063C07C = frame_count;
         f = GetRegularizedWindSpeed(GetCameraPos__pn());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
@@ -280,10 +292,10 @@ int stageSE20astrong(void *a0) {
     p[0] = a;
     p[1] = b;
     p[2] = -398.0f;
-    if (D_0063C07C == D_00639CE0) {
+    if (D_0063C07C == frame_count) {
         f = D_0063C078;
     } else {
-        D_0063C07C = D_00639CE0;
+        D_0063C07C = frame_count;
         f = GetRegularizedWindSpeed(GetCameraPos__pn());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
@@ -293,10 +305,10 @@ int stageSE20astrong(void *a0) {
 }
 int stageSE20astrong2(void *a0) {
     float f;
-    if (D_0063C07C == D_00639CE0) {
+    if (D_0063C07C == frame_count) {
         f = D_0063C078;
     } else {
-        D_0063C07C = D_00639CE0;
+        D_0063C07C = frame_count;
         f = GetRegularizedWindSpeed(GetCameraPos__pn());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
@@ -304,7 +316,7 @@ int stageSE20astrong2(void *a0) {
     *(float *)((char *)a0 + 0x18) = f;
     return -1;
 }
-extern int D_00639CE0;
+extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
 extern void *GetCameraPos__pn(void) __asm__("GetCameraPos");
@@ -312,11 +324,11 @@ extern float GetRegularizedWindSpeed(void *a0);
 
 int stageSE22astrong(void *a0) {
     float f;
-    if (D_0063C07C == D_00639CE0) {
+    if (D_0063C07C == frame_count) {
         f = D_0063C078;
     } else {
         float e;
-        D_0063C07C = D_00639CE0;
+        D_0063C07C = frame_count;
         e = GetRegularizedWindSpeed(GetCameraPos__pn());
         e = e * 0.5f + 0.5f;
         D_0063C078 = e;
@@ -331,10 +343,10 @@ ASM_LIT4_SLOT(D_00639C24, 6645.0f);
 ASM_LIT4_SLOT(D_00639C28, 0.3f);
 int stageSE24astrong(void *a0) {
     float f;
-    if (D_0063C07C == D_00639CE0) {
+    if (D_0063C07C == frame_count) {
         f = D_0063C078;
     } else {
-        D_0063C07C = D_00639CE0;
+        D_0063C07C = frame_count;
         f = GetRegularizedWindSpeed(GetCameraPos__pn());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;

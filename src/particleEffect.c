@@ -7,6 +7,8 @@ typedef struct { long long q[20]; } PE160;
 extern void CopyQuaternion();
 extern void CopyVector();
 
+extern int CopyQuaternion__pn(int a0, int a1) __asm__("CopyQuaternion");
+extern void CopyVector__pn(int a0) __asm__("CopyVector");
 void setParticleEffectGeometry(int a0, int a1, int a2)
 {
     CopyVector(a0);

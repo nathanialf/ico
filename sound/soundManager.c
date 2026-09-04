@@ -5,6 +5,8 @@ extern void soundDataSegNextStageNotUseClose();
 extern void soundSeEnvNotUseClose();
 extern void soundSePlayModeStop(int arg);
 
+extern void soundDataSegNextStageNotUseClose__pn(int x, int *p) __asm__("soundDataSegNextStageNotUseClose");
+extern void soundSeEnvNotUseClose__pn(int *a, int *b) __asm__("soundSeEnvNotUseClose");
 void sndBgmReadyNextStage(int *a, int *b)
 {
     soundDataSegNextStageNotUseClose(1, a);

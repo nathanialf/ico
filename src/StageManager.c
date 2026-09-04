@@ -6,7 +6,7 @@ typedef struct { int f0; unsigned char _4[0xC]; int f10; unsigned char _14[0xC];
 
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stop_free_resources);
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stage_initialize);
-extern int D_00639D10;
+extern int stage_no;
 extern int DeleteStreamMotionManager();
 extern void backStageProcessOutStage();
 extern void gamesysStageExitTimeSet(int idx);
@@ -16,28 +16,28 @@ extern void warpGirlOutStage();
 
 void exit_stage(int *self)
 {
-    gamesysStageExitTimeSet(D_00639D10);
-    warpGirlOutStage(D_00639D10, 0);
+    gamesysStageExitTimeSet(stage_no);
+    warpGirlOutStage(stage_no, 0);
     warpGirlInStage(self);
     backStageProcessOutStage();
-    sndBgmReadyNextStage(self, D_00639D10);
+    sndBgmReadyNextStage(self, stage_no);
     return DeleteStreamMotionManager();
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", start_stage_Load_thread);
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stgmgrNextStagePreLoad);
-extern StgSlot D_004D9A30[];
+extern StgSlot stageExitData[];
 extern StgFile D_0055C53C[];
 extern StgPre D_005F5D50[];
 extern char D_00619128[];
-extern int D_0063ACB8;
-extern int D_0063ACBC;
-extern int D_0063ACC0;
+extern int stagePreLoadStageNo;
+extern int stagePreLoadReadOffset;
+extern int stagePreLoad2ndReadOffset;
 extern int D_0063ACC4;
 extern int D_0063ACC8;
 extern int D_0063ACD0;
-extern int D_0063ACD4;
-extern int D_0063ACD8;
-extern int D_0063ACEC;
+extern int stagePreLoadLsn;
+extern int stagePreLoadSectorCnt;
+extern int stageExitDataCnt;
 extern int PositionOfExit();
 extern int iosCdvdBackGroundMgrAdd();
 extern int iosCdvdBackGroundMgrNotDiskReadyPauseSet();
@@ -49,25 +49,25 @@ void stgmgrNextStagePreLoadEntry(int stage) {
     int i;
     int ret;
 
-    D_0063ACEC = 0;
+    stageExitDataCnt = 0;
     for (i = 0; i < 15; i++) {
         short s = pre->ent[i];
         if (s != 0) {
-            int count = D_0063ACEC;
-            D_004D9A30[count].f0 = D_0055C53C[s].f0;
-            if (PositionOfExit(&D_004D9A30[count].f10, i + 1) == 0) {
-                D_0063ACEC = D_0063ACEC + 1;
+            int count = stageExitDataCnt;
+            stageExitData[count].f0 = D_0055C53C[s].f0;
+            if (PositionOfExit(&stageExitData[count].f10, i + 1) == 0) {
+                stageExitDataCnt = stageExitDataCnt + 1;
             }
         }
     }
     ret = iosCdvdBackGroundMgrAdd(D_00619128, stgmgrNextStagePreLoad, 0, stgmgrNextStagePreLoadDiskNotReady, 0, 0, 0, 0);
     D_0063ACD0 = ret;
     iosCdvdBackGroundMgrNotDiskReadyPauseSet(ret, 1);
-    D_0063ACB8 = 0;
-    D_0063ACD8 = 0;
-    D_0063ACD4 = 0;
-    D_0063ACBC = 0;
-    D_0063ACC0 = 0;
+    stagePreLoadStageNo = 0;
+    stagePreLoadSectorCnt = 0;
+    stagePreLoadLsn = 0;
+    stagePreLoadReadOffset = 0;
+    stagePreLoad2ndReadOffset = 0;
     D_0063ACC4 = 0;
     D_0063ACC8 = 0;
 }
@@ -106,12 +106,12 @@ void CheckPoint(void)
         D_0028F4C0[3] = 1;
     }
 }
-extern int D_0063ACB8;
+extern int stagePreLoadStageNo;
 extern int D_0063ACC4;
-extern int D_0063ACD4;
+extern int stagePreLoadLsn;
 
 void stgmgrNextStagePreLoadDiskNotReady(void) {
-    D_0063ACB8 = 0;
+    stagePreLoadStageNo = 0;
     D_0063ACC4 = 0;
-    D_0063ACD4 = 0;
+    stagePreLoadLsn = 0;
 }

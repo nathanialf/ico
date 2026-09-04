@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "mv_defs.h"
+
 #include "r5900.h"
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispClear);
@@ -14,7 +16,18 @@ void setImageSize(int *self, int a1, int a2)
     }
     setDispEnv(self, a1, a2);
 }
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", sendDispEnv);
+extern int D_0072A040[];
+extern void sceGsPutDispEnv__pn(void *a0) __asm__("sceGsPutDispEnv");
+extern void sceGsSyncPath(int a0, int a1);
+
+void sendDispEnv(void *a0) {
+    sceGsPutDispEnv__pn(a0);
+    a0 = (void *)((unsigned int)D_0072A040 & 0x0FFFFFFF);
+    *(volatile unsigned int *)0x1000A010 = (unsigned int)a0;
+    *(volatile unsigned int *)0x1000A020 = 7;
+    *(volatile unsigned int *)0x1000A000 = 0x101;
+    sceGsSyncPath(0, 0);
+}
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispCreate);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispSetTags);
 extern int sceGsPutDispEnv();
@@ -43,18 +56,18 @@ void dispSwitch(int *a0, int flag)
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
 void dispDelete(void) {}
 void loadImage(int a0) {
-    *(volatile unsigned int *)0x1000A030 = a0 & 0x0FFFFFFF;
+    *(volatile unsigned int *)0x1000A030 = phys_addr(a0);
     *(volatile unsigned int *)0x1000A020 = 0;
     *(volatile unsigned int *)0x1000A000 = 0x105;
 }
-extern char D_002A7960[];
+extern char voBuf[];
 extern int D_0063C0BC;
 extern void voBufDecCount(int *p);
 
 int handler_endimage(void)
 {
     if (D_0063C0BC != 0) {
-        voBufDecCount(D_002A7960);
+        voBufDecCount(voBuf);
         D_0063C0BC = 0;
     }
     SYNC();
@@ -178,11 +191,61 @@ void *setRGBAQ(int *a0, int a1, int a2, int a3, int p4, int p5) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setXYZ2);
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setFRAME_1);
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setTEST_1);
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setSCISSOR_1);
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setXYOFFSET_1);
+void *setXYZ2(int *a0, int a1, int a2, int a3) {
+    long long t = (unsigned int)a1 | ((unsigned long long)(unsigned int)a2 << 16) | ((long long)a3 << 32);
+    a0[0] = (int)(t & 0xFFFFFFFFLL);
+    a0[1] = (int)(t >> 32);
+    a0[2] = 5;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
+void *setFRAME_1(int *a0, int a1, int a2, int a3, int p4) {
+    long long t = (unsigned int)a1
+        | ((unsigned long long)(unsigned int)a2 << 16)
+        | ((unsigned long long)(unsigned int)a3 << 24)
+        | ((long long)p4 << 32);
+    a0[0] = (int)(t & 0xFFFFFFFFLL);
+    a0[1] = (int)(t >> 32);
+    a0[2] = 0x4C;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
+void *setTEST_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8) {
+    long long t = (unsigned int)a1
+        | ((unsigned long long)(unsigned int)a2 << 1)
+        | ((unsigned long long)(unsigned int)a3 << 4)
+        | ((unsigned long long)(unsigned int)p4 << 12)
+        | ((unsigned long long)(unsigned int)p5 << 14)
+        | ((unsigned long long)(unsigned int)p6 << 15)
+        | ((unsigned long long)(unsigned int)p7 << 16)
+        | ((unsigned long long)p8 << 17);
+    a0[0] = (int)(t & 0xFFFFFFFFLL);
+    a0[1] = (int)(t >> 32);
+    a0[2] = 0x47;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
+void *setSCISSOR_1(int *a0, int a1, int a2, int a3, int p4) {
+    long long t = (unsigned int)a1
+        | ((unsigned long long)(unsigned int)a2 << 16)
+        | ((long long)a3 << 32)
+        | ((long long)p4 << 48);
+    a0[0] = (int)(t & 0xFFFFFFFFLL);
+    a0[1] = (int)(t >> 32);
+    a0[2] = 0x40;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
+void *setXYOFFSET_1(int *a0, unsigned int a1, unsigned int a2) {
+    unsigned long long v = (unsigned int)a1 | ((unsigned long long)a2 << 32);
+    int new_var;
+    a0[0] = (int)(v << 32 >> 32);
+    new_var = (int)(v >> 32);
+    a0[1] = new_var;
+    a0[2] = 0x18;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
 void *setPRMODECONT(int *a0, int a1) {
     long long t = (unsigned int)a1;
     a0[0] = (int)(t & 0xFFFFFFFFLL);
@@ -191,8 +254,31 @@ void *setPRMODECONT(int *a0, int a1) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setPRMODE);
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setCLAMP_1);
+void *setPRMODE(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8) {
+    long long t = ((unsigned long long)(unsigned int)a1 << 3)
+        | ((unsigned long long)(unsigned int)a2 << 4)
+        | ((unsigned long long)(unsigned int)a3 << 5)
+        | ((unsigned long long)(unsigned int)p4 << 6)
+        | ((unsigned long long)(unsigned int)p5 << 7)
+        | ((unsigned long long)(unsigned int)p6 << 8)
+        | ((unsigned long long)(unsigned int)p7 << 9)
+        | ((unsigned long long)p8 << 10);
+    a0[0] = (int)(t & 0xFFFFFFFFLL);
+    a0[1] = (int)(t >> 32);
+    a0[2] = 0x1B;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
+void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3,
+                    unsigned int a4, unsigned int a5, unsigned int a6) {
+    long long v = a1 | ((long long)a2 << 2) | ((long long)a3 << 4) | ((long long)a4 << 14)
+                | ((long long)a5 << 24) | ((long long)a6 << 34);
+    a0[0] = v & 0xffffffff;
+    a0[2] = 8;
+    a0[1] = (int)(v >> 32);
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
 int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3)
 {
     long long t = (a3 << 56) | (a2 << 48) | (a1 << 32);

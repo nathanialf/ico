@@ -7,25 +7,25 @@ INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadRead);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadNormalizeStick);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadGetStick_func);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadActRequest);
-extern unsigned char D_0029C0B0[];
+extern unsigned char padDevMgrMsgQ[];
 extern int iosMsgSend(void *a0, int a1, int a2);
 
 int iosPadDevRead(void) {
-    iosMsgSend(D_0029C0B0, 0, 0);
+    iosMsgSend(padDevMgrMsgQ, 0, 0);
     return 0;
 }
-extern unsigned char D_0029BC40[];
+extern unsigned char iosPadDev[];
 
 int iosPadGetPort(int a0, int a1) {
-    return *(int *)&D_0029BC40[a1 * 0x200];
+    return *(int *)&iosPadDev[a1 * 0x200];
 }
 int iosPadGetSlot(int a0, int a1) {
-    int *base = (int *)&D_0029BC40[a1 * 0x200];
+    int *base = (int *)&iosPadDev[a1 * 0x200];
     return base[1];
 }
 int iosPadGetDevice(int a, int b)
 {
-    int *p = D_0029BC40;
+    int *p = iosPadDev;
     int count = 0;
     do {
         count++;
@@ -41,7 +41,7 @@ int iosPadGetDevice(int a, int b)
 int iosPadConnect(void *a0, int a1, int a2, int a3) {
     int *p = (int *)a0;
     p[1] = a3;
-    p[0] = (int)&D_0029BC40[a2 * 0x200];
+    p[0] = (int)&iosPadDev[a2 * 0x200];
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadGetStick);
@@ -58,7 +58,7 @@ void iosPadDisable(void) {
 int iosPadEnableGet(void) {
     return D_0063C19C;
 }
-extern int D_0063A5D4;
+extern int ShockVoiceSetCommon;
 extern unsigned char D_006BCD58[];
 extern void Init_Controler(void *a0);
 extern void Init_Player(void *a0);
@@ -72,8 +72,8 @@ void iosPadActInit(void) {
     int i;
     memset(D_006BCD58, 0, 0x180);
     Init_Shock();
-    Shock_SetShockVoiceSet(0, D_0063A5D4);
-    base = D_0029BC40;
+    Shock_SetShockVoiceSet(0, ShockVoiceSetCommon);
+    base = iosPadDev;
     p = base + 0x1B8;
     i = 1;
     do {
@@ -161,7 +161,7 @@ end:
     }
     return rv;
 }
-extern char D_0029C0B0__pn[] __asm__("D_0029C0B0");
+extern char D_0029C0B0__pn[] __asm__("padDevMgrMsgQ");
 extern int D_006BCD38[];
 extern void iosMsgQueueCreate(int *a, int *b, int c);
 extern void iosMsgRecv(int *a, void *b, int c);

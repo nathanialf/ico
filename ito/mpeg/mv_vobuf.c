@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "mv_defs.h"
+
 #include "r5900.h"
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", func_001A7180);
@@ -13,7 +15,7 @@ extern void iosFree();
 
 void func_001A7318(int a0)
 {
-    iosFree(a0 & 0x0FFFFFFF);
+    iosFree(phys_addr(a0));
 }
 void voBufReset(volatile int *self)
 {

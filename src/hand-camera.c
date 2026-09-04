@@ -34,8 +34,7 @@ void InitHandCameraCorrect(void)
     D_006E9990[6] = 80.0f;
     D_0063C2E0 = 60.0f / (float)q;
 }
-void SetLimitHandCameraCorrect(float a, float b)
-{
-    D_006E9990[5] = a;
-    D_006E9990[6] = b;
+void SetLimitHandCameraCorrect(float a0, float a1) {
+    D_006E9990[5] = a0;
+    D_006E9990[6] = a1;
 }

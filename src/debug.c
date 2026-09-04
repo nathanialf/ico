@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { float f[4]; } __attribute__((packed)) Blk16;
+
 typedef struct { int x, y, w, h; } FR;
 
 typedef struct { char _0[0x20]; int f_20; char _24[0x18]; } GsysObjInfo;
@@ -40,7 +42,29 @@ void debug_SetDmaCallback(void)
     EnableDmac(1);
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_VariableInit);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Init);
+extern int D_0063B110;
+extern int D_0063B114;
+extern int D_0063B118;
+extern int D_0063B11C;
+extern int D_0063B120;
+extern int D_0063B124;
+extern int D_0063B1C4;
+extern void debug_ClearFontWindow(void);
+extern void debug_makeBackImage(void);
+
+void debug_Init(void) {
+    debug_ClearFontWindow();
+    D_0063B110 = 0;
+    D_0063B114 = 0;
+    D_0063B118 = 0;
+    D_0063B11C = 0;
+    D_0063B120 = 0;
+    D_0063B124 = 0;
+    D_0063B1C4 = 0;
+    *(volatile int *)0x10000010 = 0x82;
+    *(volatile int *)0x10000810 = 0x82;
+    debug_makeBackImage();
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Load);
 ASM_LIT4_SLOT(D_00639338, 10059776.0f);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_MakeFont);
@@ -131,10 +155,51 @@ void debug_StdPrintfDummy(char *fmt, ...)
     (void)fmt;
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_PrintFontf);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_PrintMatrix);
+extern const char D_0060DAF0_a[] __asm__("D_0061BB40");
+extern const char D_00631CF0_a[] __asm__("D_0063AF50");
+extern void debug_StdPrintfDummy__pn() __asm__("debug_StdPrintfDummy");
+extern int fptodp(float);
+
+void debug_PrintMatrix(float *arg) {
+    int i;
+    for (i = 3; i >= 0; i--) {
+        int v0 = fptodp(arg[0]);
+        int v1 = fptodp(arg[1]);
+        int v2 = fptodp(arg[2]);
+        int v3 = fptodp(arg[3]);
+        debug_StdPrintfDummy__pn((int)D_0060DAF0_a, v0, v1, v2, v3);
+        arg += 4;
+    }
+    debug_StdPrintfDummy__pn((int)D_00631CF0_a);
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispVu1FReg);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Mode);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectCsvWindowVal);
+extern char D_0061BC38[];
+extern char D_0063AF70[];
+extern char D_0063AF78[];
+extern int debug_SelectCsvWindow(char *a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7, int a8, int *a9);
+extern void sprintf();
+extern unsigned int strlen__pn(char *buf) __asm__("strlen");
+
+void debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
+                   int (*fn)(int, int), int a7) {
+    char buf[count][0x25];
+    int i;
+
+    for (i = 0; i < count; i++) {
+        if (fn != 0) {
+            int r = fn(i, a7);
+            sprintf(buf[i], D_0063AF70, i, r);
+        } else {
+            sprintf(buf[i], D_0063AF78, i);
+        }
+        if (strlen__pn(buf[i]) >= 0x26) {
+            buf[i][0x24] = 0;
+            debug_StdPrintfDummy__pn((int)D_0061BC38);
+        }
+    }
+    debug_SelectCsvWindow(a0, a1, a2, a3, (char *)buf, 0x25, 0, 0, count, a5);
+}
 extern int D_0063AF90[];
 extern void sprintf();
 
@@ -176,8 +241,27 @@ void debug_BeginTimer(int a0) {
     *(volatile int *)0x10000800 = 0;
     *(volatile int *)0x10000810 = a0 | 0x80;
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_GetTimerSec);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_GetTimerCount);
+extern Blk16 D_0061B7C8;
+
+float debug_GetTimerSec(void) {
+    Blk16 buf;
+    int v;
+    float f2;
+
+    buf = D_0061B7C8;
+    if (*(volatile unsigned int *)0x10000810 & 0x800) {
+        return -1.0f;
+    }
+    v = *(volatile int *)0x10000800;
+    f2 = (float)(unsigned int)v;
+    return f2 / buf.f[*(volatile unsigned int *)0x10000810 & 3] / 60.0f;
+}
+float debug_GetTimerCount(void) {
+    if ((*(volatile int *)0x10000810) & 0x800) {
+        return -1.0f;
+    }
+    return (float)(*(volatile unsigned int *)0x10000800);
+}
 extern int D_0063AE64;
 extern char D_007082D0[];
 
@@ -236,7 +320,17 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectCsvWindowWithLine);
 int debug_TryToGetStartStage(void) {
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", debugSceOpen);
+extern int D_0061C580[];
+extern int D_0063B100;
+extern int D_0063B108[];
+extern int D_007049D0[];
+extern int sceOpen(void *a0, int a1);
+extern void sprintf__pn(void *a0, void *a1, void *a2, int a3) __asm__("sprintf");
+
+int debugSceOpen(int a0, int a1) {
+    sprintf__pn(D_007049D0, D_0063B108, D_0061C580, a0);
+    return D_0063B100 = sceOpen(D_007049D0, a1);
+}
 extern int D_0063B100;
 extern int sceClose();
 
@@ -445,4 +539,24 @@ void saveBack(void)
     SetDrawEnvironment(1);
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", baseFunc);
-INCLUDE_ASM("asm/nonmatchings/src/debug", syncGS);
+extern int buffer_ID;
+extern int odd_even;
+extern int frame_count;
+extern void FlushCache(int a0);
+extern void RestoreNormalDrawEnvironment(void *a0, int a1, int a2);
+extern void gsb_Reduction(void);
+extern void sceGsSwapDBuff(void *a0, int a1);
+extern void sceGsSyncPath__pn(int a0, int a1) __asm__("sceGsSyncPath");
+extern int sceGsSyncV(int a0);
+
+void syncGS(void) {
+    FlushCache(0);
+    sceGsSyncPath__pn(1, 0);
+    odd_even = sceGsSyncV(0);
+    frame_count++;
+    buffer_ID = frame_count & 1;
+    gsb_Reduction();
+    sceGsSwapDBuff(D_0028F4F0, buffer_ID);
+    RestoreNormalDrawEnvironment(D_0028F4F0, buffer_ID, odd_even);
+    SetDrawEnvironment(1);
+}

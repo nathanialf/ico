@@ -112,7 +112,27 @@ void OnGirlEscortFlag(void) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/boyact", SetBoyWeaponGObj);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", IsBoyStatus_NotDanger);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", RequestStageChangeKidnapEnd);
+extern void ACTGame_StageChangeGObjDirect(void *a0, void *a1, void *a2, int a3);
+extern char D_00552C10[];
+extern void *D_00639EA4;
+extern unsigned char D_006C0B20[];
+extern int RequestStageChangeSimple(void *a0, int a1, int a2, int a3, float a4, float a5);
+
+int RequestStageChangeKidnapEnd(void *a0, int a1) {
+    char buf[0x10];
+    int rv = 0;
+    if (D_00639EA4 != 0) {
+        rv = RequestStageChangeSimple(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
+        if (rv != 0) {
+            D_006C0B20[0] = 1;
+            *(int *)(D_006C0B20 + 4) = a1;
+            *(long *)buf = *(long *)D_00552C10;
+            *(long *)(buf + 8) = *(long *)(D_00552C10 + 8);
+            ACTGame_StageChangeGObjDirect(D_00639EA4, a0, buf, 0);
+        }
+    }
+    return rv;
+}
 extern unsigned char D_006C0B20[];
 
 int GetEfStageCameraTargetID(void)
@@ -173,14 +193,14 @@ void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float 
         } while (node != 0);
     }
 }
-extern S12 D_0029D1D0;
+extern S12 InitialColInfo;
 extern char D_0063A700[];
 extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, void *a4, int a5, int a6);
 extern void debug_StdPrintfDummy(void *msg);
 
 void afterBoySwim(volatile int a0) {
     RequestChangeHandMode((void *)a0, 0, 3, 0, 0, 0, 0);
-    *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = D_0029D1D0;
+    *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = InitialColInfo;
     debug_StdPrintfDummy(D_0063A700);
 }
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00158978);
@@ -197,6 +217,21 @@ void func_00158AE0(int a0)
         _ACTWait(1);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00158B00);
+void func_00158B00(int *a0, int *a1) {
+    int n;
+    int i;
+    if (a0 != 0) {
+        ((int *)D_006C0AD0)[0] = a0[2];
+    } else {
+        ((int *)D_006C0AD0)[0] = 0;
+    }
+    i = 0;
+    n = 1;
+    if (a1 != i) {
+        ((int *)D_006C0AD0)[n] = a1[2];
+    } else {
+        ((int *)D_006C0AD0)[n] = i;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/boyact", GetBoyRootPositionForCamera);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", Boy_Init);

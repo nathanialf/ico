@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "mv_defs.h"
+
 #include "r5900.h"
 
 extern void Free(int a0);
@@ -25,7 +27,7 @@ extern void iosFree();
 
 void Free(int a0)
 {
-    iosFree(a0 & 0x0FFFFFFF);
+    iosFree(phys_addr(a0));
 }
 extern int sceMpegDelete();
 extern void viBufDelete();

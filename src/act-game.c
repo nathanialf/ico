@@ -22,12 +22,7 @@ typedef struct {
 
 typedef union { int i; float f; } IntFloat;
 
-extern void gamesysObjInfoCls();
-
-void ACTGame_DeleteActorInformation(int a0)
-{
-    gamesysObjInfoCls(*(int *)(a0 + 0xC), *(int *)(a0 + 0x8));
-}
+INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_DeleteActorInformation);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", EXITDATA_GetNextPosition);
 ASM_LIT4_SLOT(D_00638CC8, 0.017453292f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObj);
@@ -354,13 +349,16 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewClDetail);
 ASM_LIT4_SLOT(D_00638D0C, 25000000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Clear);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Exec);
-extern int D_00639D10;
+extern int stage_no;
 extern void OtherStagePositionGet();
 extern int gamesysGetGirlStageIDAndPosition(int a0);
+
+extern void OtherStagePositionGet__pn(int a0, int a1, int a2, int *buf) __asm__("OtherStagePositionGet");
+extern int gamesysGetGirlStageIDAndPosition__pn(int *buf) __asm__("gamesysGetGirlStageIDAndPosition");
 
 void GetGirlPositionAtThisStage(int a0)
 {
     int buf[4];
-    int v0 = gamesysGetGirlStageIDAndPosition(buf);
-    OtherStagePositionGet(a0, D_00639D10, v0, buf);
+    int v0 = gamesysGetGirlStageIDAndPosition__pn(buf);
+    OtherStagePositionGet__pn(a0, stage_no, v0, buf);
 }

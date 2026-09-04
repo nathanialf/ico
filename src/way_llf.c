@@ -151,7 +151,18 @@ WpNode *WayBridgeAll_begin(void)
     }
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", WayBridgeAll_next);
+WpNode *WayBridgeAll_next(WpNode *p)
+{
+    WpNode *end = &D_004F31A4;
+    if (p != 0 && p != end) {
+        WpNode *q = p;
+        do {
+            q++;
+            if (q->f0 != 0 && q->f18 != 0) return q;
+        } while (q != end);
+    }
+    return 0;
+}
 extern WayRec D_004F1E8C__pn[] __asm__("D_004F1E8C");
 
 void *WayBridgeVar_begin(void) {

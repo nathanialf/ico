@@ -32,9 +32,8 @@
 #                           is frozen for cache compatibility and deliberately
 #                           did NOT follow the aug6/main branch rename, nor the
 #                           2026-09-04 retarget of `main` to PAL.
-#   _site/PROGRESS.md, dup_funcs.md, tu_candidates.md, tu_coalesce.md
-#                           the aug6 copies too, so the URLs the old
-#                           `path: docs` upload already serves keep working.
+#   _site/PROGRESS.md        the aug6 copy too, so the URLs the old
+#   (+ any other docs/*.md)   `path: docs` upload already serves keep working.
 #
 # Usage: build_pages_site.sh [branch]   (defaults to the current branch)
 # =============================================================================

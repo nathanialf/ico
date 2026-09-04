@@ -45,7 +45,7 @@ INCLUDE_ASM("asm/nonmatchings/src/staticBlur", MotionBlur);
 extern int D_004ED030[];
 extern int D_004ED040[];
 extern int D_004ED060[];
-extern int D_00639CF0;
+extern int matrixptr;
 extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
 extern void _ApplyMatrix(void *a0, int a1, void *a2);
 extern void _FTOI0Vector(void *a0, void *a1);
@@ -57,11 +57,11 @@ void calcSun(void) {
     _NormalizeVector((int)buf, D_004ED050);
     _ScaleVector(buf, buf, 1000000.0f);
     buf[3] = 1.0f;
-    _ApplyMatrix(buf, D_00639CF0 + 0x100, buf);
+    _ApplyMatrix(buf, matrixptr + 0x100, buf);
     _ScaleVectorXYZ(buf, buf, 1.0f / buf[3]);
     _AddVectorXYZ(buf, buf, D_004ED060);
     _FTOI0Vector(D_004ED030, buf);
-    _ApplyMatrix(D_004ED040, D_00639CF0 + 0x80, D_004ED050);
+    _ApplyMatrix(D_004ED040, matrixptr + 0x80, D_004ED050);
 }
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", colorSetting);
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", dispPostInfo);

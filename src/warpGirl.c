@@ -2,8 +2,8 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", warpGirlOutStage);
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", warpGirlInStage);
-extern int D_0063AA68;
+extern int warpGirlId;
 
 void warpGirlInit(void) {
-    D_0063AA68 = 0;
+    warpGirlId = 0;
 }

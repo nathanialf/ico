@@ -136,7 +136,13 @@ void isysGObjLinkObjDLBeforeGObj(int *self, int *a1, int a2, int *a3)
         D_0029C550[*((unsigned char *)t0 + 0x40)] = (int)t0;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjDlInit);
+void isysGObjDlInit(void) {
+    int i;
+    for (i = 0; i < 8; i++) {
+        D_0029C530[i] = 0;
+        D_0029C550[i] = 0;
+    }
+}
 extern void cut_gobj_dl_link(int *self);
 
 void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj) {

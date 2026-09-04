@@ -51,11 +51,11 @@ void p2o_DispVU1Default(GObj *self) {
     p2o_DispVU1__pn(self);
 }
 extern int D_00290B24[];
-extern int D_0063BC94;
+extern int dmaVif;
 extern void sceDmaSend();
 
 void p2o_TransMicroProgram(void)
 {
-    sceDmaSend(D_0063BC94, D_00290B24[0]);
+    sceDmaSend(dmaVif, D_00290B24[0]);
 }
 void p2o_SetDefaultEnviroment(void) {}

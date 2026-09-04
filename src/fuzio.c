@@ -1,7 +1,32 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzShowV);
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzShowM);
+extern char D_0063A868[];
+extern char D_0063A870[];
+extern void debug_StdPrintfDummy(void *msg, ...);
+extern int fptodp(float f);
+
+void fzShowV(float *p)
+{
+    int i = 3;
+    do {
+        int s = fptodp(*p);
+        debug_StdPrintfDummy(D_0063A868, s);
+        p++;
+        i--;
+    } while (i >= 0);
+    debug_StdPrintfDummy(D_0063A870);
+}
+extern char D_0063A878[];
+
+void fzShowM(int *p) {
+    int i = 0;
+    do {
+        debug_StdPrintfDummy(D_0063A878, i);
+        i++;
+        fzShowV(p);
+        p = (int *)((char *)p + 0x10);
+    } while (i < 4);
+}
 extern float FSqrt(float a0);
 
 float fzMagnitude2f(float x, float z)

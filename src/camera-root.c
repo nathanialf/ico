@@ -45,7 +45,7 @@ void DebugCameraSemiAuto(void) {
     MakeCameraMatrix(D_006E66C0);
 }
 extern void CopyVector(void *, void *);
-extern char *D_00639CF0;
+extern char *matrixptr;
 extern int D_0063AB9C;
 extern float D_0063C2A8;
 extern void SetCameraTargetPosition(void *, void *, float);
@@ -61,8 +61,8 @@ void BackToGameCamera(void) {
     float f20v;
     memset(buf, 0, 0x10);
     *(float *)(buf + 8) = 1.0f;
-    sceVu0TransposeMatrix(buf + 0x20, D_00639CF0 + 0x80);
-    CopyVector(buf + 0x70, D_00639CF0 + 0xB0);
+    sceVu0TransposeMatrix(buf + 0x20, matrixptr + 0x80);
+    CopyVector(buf + 0x70, matrixptr + 0xB0);
     *(int *)(buf + 0x7C) = 0;
     sceVu0ApplyMatrix(buf + 0x10, buf + 0x20, buf + 0x70);
     sceVu0ScaleVector(buf + 0x10, buf + 0x10, -1.0f);
@@ -190,7 +190,19 @@ extern int D_006E6708[];
 int InsertCamera_isEnable(void) {
     return D_006E6708[0] < 2;
 }
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", CameraSetCameraPosition);
+extern float D_006C9F60_f[] __asm__("D_006E66C0");
+extern float D_006C9F80_f[] __asm__("D_006E66E0");
+
+void CameraSetCameraPosition(float *src) {
+    if (D_0063C2A0 != 3) {
+        D_006C9F60_f[0] = src[0];
+        D_006C9F60_f[1] = src[1];
+        D_006C9F60_f[2] = src[2];
+        D_006C9F80_f[0] = src[0];
+        D_006C9F80_f[1] = src[1];
+        D_006C9F80_f[2] = src[2];
+    }
+}
 void CameraSetTargetPos(void) {}
 extern int D_0063AB98;
 

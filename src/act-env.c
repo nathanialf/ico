@@ -36,15 +36,14 @@ void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
 }
 extern int CheckPureWallAttribute();
 extern int CheckWallAttribute();
-extern int D_00639D10;
+extern int stage_no;
 
-int CheckWallAttributeEdegWall(int a0)
-{
-    unsigned char v0;
-    if (D_00639D10 == 4) {
-        v0 = CheckPureWallAttribute(a0, 0x1000);
-    } else {
-        v0 = CheckWallAttribute(a0, 0x1000);
+extern int CheckPureWallAttribute__pn(int a0, int a1) __asm__("CheckPureWallAttribute");
+extern int CheckWallAttribute__pn(int a0, int a1) __asm__("CheckWallAttribute");
+
+int CheckWallAttributeEdegWall(int a0) {
+    if (stage_no == 4) {
+        return (unsigned char)CheckPureWallAttribute__pn(a0, 0x1000);
     }
-    return v0 & 0xFF;
+    return (unsigned char)CheckWallAttribute__pn(a0, 0x1000);
 }

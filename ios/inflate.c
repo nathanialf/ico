@@ -24,9 +24,71 @@ void inflate_start(void *a0)
     w[0x88 / 4] = 0;
     init_mblock((char *) a0 + 0x18098);
 }
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", close_inflate_handler);
+extern int D_0063A464;
+extern void iosFree__pn(void *p) __asm__("iosFree");
+extern void iosMallocResetPartition(int a0);
+extern void reuse_mblock(void *p);
+
+void close_inflate_handler(void *a0)
+{
+    char *p;
+    if (*(int *)((char *)a0 + 0x18054) != 0) {
+        p = *(char **)((char *)a0 + 0x18058);
+        if (p != 0) {
+            p -= 8;
+            for (;;) {
+                char *node = p;
+                p = *(char **)(p + 4);
+                iosFree__pn(node);
+                if (p == 0) break;
+                p -= 8;
+            }
+        }
+        p = *(char **)((char *)a0 + 0x18054);
+        if (p != 0) {
+            p -= 8;
+            for (;;) {
+                char *node = p;
+                p = *(char **)(p + 4);
+                iosFree__pn(node);
+                if (p == 0) break;
+                p -= 8;
+            }
+        }
+        *(int *)((char *)a0 + 0x18054) = 0;
+        *(int *)((char *)a0 + 0x18058) = 0;
+    }
+    reuse_mblock((char *)a0 + 0x18098);
+    iosFree__pn(a0);
+    iosMallocResetPartition(D_0063A464);
+}
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate);
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", open_inflate_handler);
+extern char D_00550FF0[];
+extern char D_00551040[];
+extern int D_0063A450;
+extern int D_0063A470;
+extern void debug_StdPrintfDummy();
+extern int iosMallocDebug(int a0, int a1, const char *fmt, int line);
+
+int open_inflate_handler(int a0, int a1)
+{
+    int g = D_0063A450;
+    int *s1;
+    D_0063A464 = g;
+    D_0063A470 = 0;
+    s1 = (int *) iosMallocDebug(g, 0x180A8, D_00550FF0, 0x2E3);
+    inflate_start(s1);
+    s1[0] = a1;
+    if (a0 == 0)
+    {
+        debug_StdPrintfDummy(D_00551040);
+    }
+    else
+    {
+        s1[0x4 / 4] = a0;
+    }
+    return (int) s1;
+}
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", fill_inbuf);
 extern void iosFree();
 

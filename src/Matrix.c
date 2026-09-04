@@ -74,6 +74,9 @@ void _ClearTransCurrentMatrix(void)
     VU0_V2OP(vmove.xyzw, 7, 0);
     VU0_NOP();
 }
+extern float GetTableCos(short a0);
+extern float GetTableSin__pn(short a0) __asm__("GetTableSin");
+
 INCLUDE_ASM("asm/nonmatchings/src/Matrix", _RotCurrentMatrixX);
 extern float GetTableCos(short a0);
 extern float GetTableSin(int x);

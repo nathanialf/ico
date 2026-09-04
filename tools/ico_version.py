@@ -30,7 +30,7 @@ VERSIONS = ("pal", "us", "aug6")
 # Source-tree shape. The retail targets (us, pal) use a flat repo-root layout
 # (src/ ios/ sound/ isys/); the aug6 prototype mirrors the dev's per-programmer
 # module tree recovered from TRFILE.TXT.
-FLAT_SOURCE_ROOTS = ("src", "ios", "sound", "isys")
+FLAT_SOURCE_ROOTS = ("src", "ios", "sound", "isys", "ito")
 DEVTREE_SOURCE_ROOTS = ("common", "fumi", "sugipon", "seki", "omori",
                         "script", "ito")
 LAYOUTS = {"pal": "flat", "us": "flat", "aug6": "devtree"}

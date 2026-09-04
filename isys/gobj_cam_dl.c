@@ -1,6 +1,13 @@
 #include "common.h"
 
+typedef struct EnNode { char pad[0x34]; struct EnNode *prev; struct EnNode *next; } EnNode;
+
 typedef struct { char p[0x34]; void *f34; void *f38; char p2[4]; unsigned char f40; char p3[3]; int f44; } AdpT;
+
+extern char D_00621970[];
+extern EnNode *D_0063A614__pn __asm__("D_0063A614");
+extern EnNode *D_0063A618__pn __asm__("D_0063A618");
+extern void debug_StdPrintfDummy();
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", cut_gobj_camera_dl_link);
 extern void cut_gobj_camera_dl_link__pn(void *a0) __asm__("cut_gobj_camera_dl_link");
@@ -137,7 +144,7 @@ void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1) {
 }
 void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1) {
     int next;
-    cut_gobj_camera_dl_link(a0);
+    cut_gobj_camera_dl_link__pn(a0);
     *(unsigned char *)(a0 + 0x40) = *(unsigned char *)(a1 + 0x40);
     next = *(int *)(a1 + 0x38);
     *(int *)(a0 + 0x34) = (int)a1;
@@ -145,6 +152,6 @@ void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1) {
     *(int *)(a1 + 0x38) = (int)a0;
     *(int *)(a0 + 0x44) = *(int *)(a1 + 0x44);
     if (*(int *)(a0 + 0x38) == 0) {
-        D_0063A614 = (int *)a0;
+        D_0063A614__pn = (int)a0;
     }
 }

@@ -3,6 +3,8 @@
 extern int D_0063C320;
 extern void RotateThreadReadyQueue();
 
+extern void *D_0063C320__pn __asm__("D_0063C320");
+extern void RotateThreadReadyQueue__pn(void *a0) __asm__("RotateThreadReadyQueue");
 void switchThread(void)
 {
     RotateThreadReadyQueue(D_0063C320);

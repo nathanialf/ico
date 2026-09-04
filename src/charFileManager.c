@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { int w[6]; } AssertRec;
+
 typedef struct { int f_0; char _4[0x14]; } DbgSlot;
 
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", InitCharFileManager);
@@ -24,6 +26,8 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundSqFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundAdpcmFile);
 extern DbgSlot D_006FAD00[];
 
-int GetPObjAddress(int i) {
-    return D_006FAD00[i].f_0;
+extern AssertRec D_006FAD00__pn[] __asm__("D_006FAD00");
+
+int GetPObjAddress(int a0) {
+    return D_006FAD00__pn[a0].w[0];
 }

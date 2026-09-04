@@ -52,7 +52,7 @@ void iosCdvdHandlerRead(int *a0, void *a1, int a2)
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", unifile_read_func);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdUnifileInfoGet);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001345C8);
-extern unsigned char D_00298E00[];
+extern unsigned char CdvdMsgQ[];
 extern void iosMsgSend(void *a0, void *a1, int a2);
 
 void iosCdvdLoad(int a0, int a1)
@@ -60,11 +60,11 @@ void iosCdvdLoad(int a0, int a1)
     union U001325D8 *p = (union U001325D8 *) a0;
     p->i[1] = 1;
     p->ll = (p->ll & ~1LL) | (a1 & 1);
-    iosMsgSend(D_00298E00, (void *) a0, 0);
+    iosMsgSend(CdvdMsgQ, (void *) a0, 0);
 }
 void iosCdvdPackLoad(void *a0) {
     *(int *)((char *)a0 + 4) = 2;
-    iosMsgSend(D_00298E00, a0, 0);
+    iosMsgSend(CdvdMsgQ, a0, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgrAdd);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", cdWait);
@@ -112,13 +112,13 @@ int iosCdvdChgFileName(int a0)
     return strcpy(a0, buf);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdGetFileLsn);
-extern int D_00298E30[];
+extern int CdvdMsgQ_LoadEnd[];
 extern void iosMsgRecv();
 
 int iosCdvdSync(int a0)
 {
     int local = a0;
-    iosMsgRecv(D_00298E30, &local, 1);
+    iosMsgRecv(CdvdMsgQ_LoadEnd, &local, 1);
     return 1;
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdLoadPackFile);

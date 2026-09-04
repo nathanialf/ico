@@ -13,4 +13,10 @@ void init_debug_menu(void) {
 extern int D_002C1270[];
 extern int GetGObjP();
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", debug_TargetGObj_Func);
+extern char D_002C1270__pn[] __asm__("D_002C1270");
+extern void *GetGObjP__pn(void) __asm__("GetGObjP");
+
+char *debug_TargetGObj_Func(void) {
+    int idx = *(int *)((char *)GetGObjP__pn() + 0xC);
+    return D_002C1270__pn + idx * 0x64;
+}

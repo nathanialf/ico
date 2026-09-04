@@ -69,7 +69,12 @@ void InitQuaternionDrive(void)
     D_00639F3C = 0;
     SetIdentityQuaternion(D_00669640);
 }
-INCLUDE_ASM("asm/nonmatchings/src/quaternion", SetIdentityQuaternion);
+extern void CopyQuaternion__pn(void *a0, void *a1) __asm__("CopyQuaternion");
+extern int D_002907E0[];
+
+void SetIdentityQuaternion(void *a0) {
+    CopyQuaternion__pn(a0, D_002907E0);
+}
 extern void CopyVector();
 extern char D_0028FF00[];
 extern char D_002907F0[];

@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { int w[23]; } S5C;
+
 typedef union Mat4 { float f[4]; long long q[2]; } Mat4;
 
 typedef struct StageParam {
@@ -27,29 +29,12 @@ extern int D_0063ABB4;
 extern int GetPluralCameraSet(int key);
 extern void ReflectCameraSetBinary(S4C *src, int count);
 
-void CameraSetCameraSet(int a0) {
-    CamSetHdr *p = (CamSetHdr *)GetPluralCameraSet(a0);
-    CamSetItem *items = p->items;
-    int n = p->count;
-    CamSetItem *end = &items[n];
-    int i;
-    D_0063ABB0 = p;
-    D_0063ABB4 = n;
-    if (n > 0) {
-        void **fp = &items[0].end;
-        i = n;
-        do {
-            *fp = end;
-            fp = (void **)((char *)fp + sizeof(CamSetItem));
-        } while (--i);
-    }
-    ReflectCameraSetBinary((S4C *)items, n);
-}
+INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", CameraSetCameraSet);
 extern StageParam D_005F5D50[];
-extern int D_00639D10;
+extern int stage_no;
 
 void CameraSetCameraSet_Default(void) {
-    CameraSetCameraSet(D_005F5D50[D_00639D10].camSetId);
+    CameraSetCameraSet(D_005F5D50[stage_no].camSetId);
 }
 extern int *D_00639EA4;
 extern void GetBoyRootPositionForCamera();
@@ -334,7 +319,39 @@ void InitPluralCameraSet(void) {
     D_0063C284 = 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", GetPluralCameraSet);
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", MakeCameraSetBinary);
+void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
+{
+  S4C **new_var;
+  int total = 0;
+  S4C *sEnd = src + count;
+  S5C *out = (S5C *) (dst + count);
+  int outBase = (int) out;
+  new_var = &sEnd;
+  if (src == (*new_var))
+  {
+    return;
+  }
+  do
+  {
+    S5C *is;
+    *dst = *src;
+    dst->w[14] = total;
+    dst->w[18] = outBase;
+    is = ((S5C *) src->w[18]) + src->w[14];
+    while (is != (((S5C *) src->w[18]) + src->w[15]))
+    {
+      *out = *is;
+      out++;
+      total++;
+      is++;
+    }
+
+    dst->w[15] = total;
+    dst++;
+    src++;
+  }
+  while (src != sEnd);
+}
 int GetSizeOfCameraSetBinary(S4C *p, int n) {
     int size = n * 0x4C;
     int i;
@@ -346,10 +363,16 @@ int GetSizeOfCameraSetBinary(S4C *p, int n) {
 }
 extern float D_006E6500[];
 
-void SetCameraTargetPosition(float *a0, float *a1, float v) {
-    sceVu0ScaleVector(D_006E6500, a1, -1.0f);
-    sceVu0ScaleVector(&D_006E6500[4], a0, -1.0f);
-    sceVu0ScaleVector(D_006E6620, a0, -1.0f);
-    sceVu0ScaleVector(D_006E6630, a0, -1.0f);
-    D_006E6500[8] = v;
+extern char D_006E6500__pn[] __asm__("D_006E6500");
+extern char D_006E6620__pn[] __asm__("D_006E6620");
+extern char D_006E6630__pn[] __asm__("D_006E6630");
+extern void func_00240038_p(void *a0, void *a1, float f) __asm__("sceVu0ScaleVector");
+extern void sceVu0ScaleVector__pn(void *a0, float f) __asm__("sceVu0ScaleVector");
+
+void SetCameraTargetPosition(void *a0, float a1) {
+    sceVu0ScaleVector__pn(D_006E6500__pn, -1.0f);
+    func_00240038_p(D_006E6500__pn + 0x10, a0, -1.0f);
+    func_00240038_p(D_006E6620__pn, a0, -1.0f);
+    func_00240038_p(D_006E6630__pn, a0, -1.0f);
+    *(float *)(D_006E6500__pn + 0x20) = a1;
 }

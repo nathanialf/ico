@@ -1,5 +1,16 @@
 #include "common.h"
 
+extern char D_0028F8F0[];
+extern int D_00639EA4;
+extern void GetRootPosition(void *a0, int a1);
+extern int GetSkeltonFocusNode(int a0, int a1);
+extern void GetWormCaptureVector__pn(void *a0, int a1, int a2, float f12) __asm__("GetWormCaptureVector");
+extern void GetWormRoute(int a0, int a1);
+extern void SetDirectRootPosition(int a0, void *a1);
+extern void SetDirectWormTargetPos(int a0, int a1);
+extern void SetWormReduceRatio(int a0, float f12);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+
 INCLUDE_ASM("asm/nonmatchings/src/worm", outerProcess);
 INCLUDE_ASM("asm/nonmatchings/src/worm", simulate);
 INCLUDE_ASM("asm/nonmatchings/src/worm", getAnimation);

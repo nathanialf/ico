@@ -49,17 +49,21 @@ int audioDecPause(int a0)
     SgStPcmStop(3);
     return 0;
 }
+extern int SgStPcmLseek__pn(int a, int b) __asm__("SgStPcmLseek");
+extern int SgStPcmPlay__pn(int a) __asm__("SgStPcmPlay");
+extern void SgStPcmVolume__pn(int a, int b, int c) __asm__("SgStPcmVolume");
+
 void audioDecResume(int *self)
 {
-    SgStPcmLseek(0, 0);
-    SgStPcmLseek(1, 0);
+    SgStPcmLseek__pn(0, 0);
+    SgStPcmLseek__pn(1, 0);
     if (*(signed char *)((char *)self + 0x58)) {
         int half = self[0x5C / 4] / 2;
-        SgStPcmVolume(3, half, half);
+        SgStPcmVolume__pn(3, half, half);
     } else {
-        SgStPcmVolume(1, 0, self[0x5C / 4]);
-        SgStPcmVolume(2, self[0x5C / 4], 0);
+        SgStPcmVolume__pn(1, 0, self[0x5C / 4]);
+        SgStPcmVolume__pn(2, self[0x5C / 4], 0);
     }
-    SgStPcmPlay(3);
+    SgStPcmPlay__pn(3);
     self[0] = 2;
 }

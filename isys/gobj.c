@@ -110,11 +110,12 @@ set_path:
 }
 extern int D_0063A610;
 
-void isysGObjActiveDlLink(int bit, int set)
-{
-    if (set != 0) goto set_path;
-    D_0063A610 &= ~(1 << bit);
-    return;
-set_path:
-    D_0063A610 |= (1 << bit);
+extern unsigned int D_0063A610__pn __asm__("D_0063A610");
+
+void isysGObjActiveDlLink(int a0, int a1) {
+    if (a1 == 0) {
+        D_0063A610__pn &= ~(1 << a0);
+    } else {
+        D_0063A610__pn |= (1 << a0);
+    }
 }

@@ -2,9 +2,9 @@
 
 #include "ico/types.h"
 
-extern int *D_0063BC94;
-extern int *D_0063BC98;
-extern int *D_0063BC9C;
+extern int *dmaVif;
+extern int *dmaGif;
+extern int *dmaFSp;
 extern void debug_SetDmaCallback(void);
 extern int *sceDmaGetChan(int a0);
 extern void sceDmaReset(int a0);
@@ -12,23 +12,23 @@ extern void sceDmaReset(int a0);
 void dma_init(void) {
     union U { int i; } *p;
     sceDmaReset(1);
-    D_0063BC94 = sceDmaGetChan(1);
-    p = (union U *)D_0063BC94;
+    dmaVif = sceDmaGetChan(1);
+    p = (union U *)dmaVif;
     p->i |= 0x40;
-    D_0063BC98 = sceDmaGetChan(2);
-    p = (union U *)D_0063BC98;
+    dmaGif = sceDmaGetChan(2);
+    p = (union U *)dmaGif;
     p->i |= 0x40;
-    D_0063BC9C = sceDmaGetChan(8);
-    p = (union U *)D_0063BC9C;
+    dmaFSp = sceDmaGetChan(8);
+    p = (union U *)dmaFSp;
     p->i |= 0x40;
     debug_SetDmaCallback();
 }
-extern int D_00639CF0;
+extern int matrixptr;
 extern void _UnitMatrix(void *p0);
 
 void matrix_init(void)
 {
-    D_00639CF0 = 0x70000000;
+    matrixptr = 0x70000000;
     _UnitMatrix(0x70000000);
 }
 extern void memcpy();
