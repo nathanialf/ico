@@ -124,7 +124,7 @@ void func_00149CD8(void *a0, unsigned int a1, float f) {
 
 extern float D_0028E5F0[];
 
-float func_00149D00(int a0) {
+float _ACTGame_GetParamF(int a0) {
     return D_0028E5F0[a0];
 }
 
@@ -165,7 +165,7 @@ int func_00149DD8(void *a0) {
     return 0;
 }
 
-extern int iosOmBeforeFuncStandard(void *, int);
+extern int iosOmSendMail(void *, int);
 
 void func_00149E70(void *a0, int a1, int a2, int a3, int a4) {
     switch (a1) {
@@ -174,7 +174,7 @@ void func_00149E70(void *a0, int a1, int a2, int a3, int a4) {
             APCState *p = *(APCState **)((char *)a0 + 0x164);
             if (*(short *)((char *)p + 0x11A) > 0) return;
         }
-        iosOmBeforeFuncStandard(a0, 0x17E);
+        iosOmSendMail(a0, 0x17E);
         if (a3 != 0) {
             APCState *p = *(APCState **)((char *)a0 + 0x164);
             long long d = *(long long *)((char *)p + 0x118);
@@ -183,7 +183,7 @@ void func_00149E70(void *a0, int a1, int a2, int a3, int a4) {
         }
         break;
     case 0x17F:
-        iosOmBeforeFuncStandard(a0, 0x17F);
+        iosOmSendMail(a0, 0x17F);
         {
             APCState *p = *(APCState **)((char *)a0 + 0x164);
             *(int *)((char *)p + 0x114) = a3;

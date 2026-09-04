@@ -1,7 +1,7 @@
-# func_00261200 — parked
+# sscanf — parked
 
 VRAM: 0x00261200 (file_off 0x161200)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00261200.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sscanf.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00261200.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00261200/func_00261200.c`
+**Seed:** `tough_nuts/sscanf/sscanf.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00261200, 0x88
+nonmatching sscanf, 0x88
 
-glabel func_00261200
+glabel sscanf
     /* 161200 00261200 10FFBD27 */  addiu      $29, $29, -0xF0
     /* 161204 00261204 2D108000 */  daddu      $2, $4, $0
     /* 161208 00261208 6000B0FF */  sd         $16, 0x60($29)
@@ -32,7 +32,7 @@ glabel func_00261200
     /* 16122C 0026122C E800ABFF */  sd         $11, 0xE8($29)
     /* 161230 00261230 0C00A3A7 */  sh         $3, 0xC($29)
     /* 161234 00261234 0000A2AF */  sw         $2, 0x0($29)
-    /* 161238 00261238 8385090C */  jal        func_0026160C
+    /* 161238 00261238 8385090C */  jal        strlen
     /* 16123C 0026123C 1000A2AF */   sw        $2, 0x10($29)
     /* 161240 00261240 5500043C */  lui        $4, %hi(D_0054D504)
     /* 161244 00261244 2600033C */  lui        $3, %hi(func_002611F8)
@@ -46,11 +46,11 @@ glabel func_00261200
     /* 161264 00261264 C000A627 */  addiu      $6, $29, 0xC0
     /* 161268 00261268 0400A2AF */  sw         $2, 0x4($29)
     /* 16126C 0026126C 3000A0AF */  sw         $0, 0x30($29)
-    /* 161270 00261270 4891090C */  jal        func_00264520
+    /* 161270 00261270 4891090C */  jal        __svfscanf
     /* 161274 00261274 4400A0AF */   sw        $0, 0x44($29)
     /* 161278 00261278 7000BFDF */  ld         $31, 0x70($29)
     /* 16127C 0026127C 6000B0DF */  ld         $16, 0x60($29)
     /* 161280 00261280 0800E003 */  jr         $31
     /* 161284 00261284 F000BD27 */   addiu     $29, $29, 0xF0
-endlabel func_00261200
+endlabel sscanf
 ```

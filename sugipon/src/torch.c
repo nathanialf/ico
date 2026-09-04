@@ -40,7 +40,7 @@ int TorchGeo(void *a0) {
 
 extern void GetRootMatrixByDObj(void *a0, void *a1);
 extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
 
 void *InitTorchGeo(void *a0, float radius) {
     int buf0[4];
@@ -68,7 +68,7 @@ void *InitTorchGeo(void *a0, float radius) {
                         return g;
                     }
                 }
-                g = isysGObjSearchFromObjKindID_begin(g);
+                g = isysGObjSearchFromObjKindID_next(g);
             } while (g != 0);
         }
     }

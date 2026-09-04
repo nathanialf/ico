@@ -2,7 +2,7 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", _infoUpdate);
 
-extern void func_002604B8(char *dst, char *src, int n);
+extern void memcpy(char *dst, char *src, int n);
 
 void PlayStreamMotion(int *idx_p, char *dst, int size, char *src, int amt)
 {
@@ -13,11 +13,11 @@ void PlayStreamMotion(int *idx_p, char *dst, int size, char *src, int amt)
         int overflow = new_idx - size;
         int first_chunk = amt - overflow;
         *idx_p = overflow;
-        func_002604B8(dst + old_idx, src, first_chunk);
-        func_002604B8(dst, src + first_chunk, *idx_p);
+        memcpy(dst + old_idx, src, first_chunk);
+        memcpy(dst, src + first_chunk, *idx_p);
         return;
     }
-    func_002604B8(dst + old_idx, src, amt);
+    memcpy(dst + old_idx, src, amt);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", ClearStreamMotionEntry);
@@ -60,7 +60,7 @@ int ExecStreamMotionManager(void *a0)
 
 extern unsigned char D_00706DA8[];
 extern char D_00612F68[];
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 
 int StandbyStreamMotion(int idx)
 {
@@ -68,7 +68,7 @@ int StandbyStreamMotion(int idx)
   entry = ((char *) D_00706DA8) - (-(idx * 0x18));
   if (((int *) entry)[0xC / 4] < 0)
   {
-    debug_assertMessage(D_00612F68);
+    debug_StdPrintfDummy(D_00612F68);
     return 4;
   }
   return ((int *) (((char *) D_00706DA8) + (idx * 0x18)))[0x8 / 4];
@@ -80,7 +80,7 @@ void StopStreamMotion(void) {
 extern unsigned int D_0062B9F8;
 extern unsigned int D_0062B9FC;
 
-int DeleteStreamMotionManager(void) {
+int CheckReadyStreamMotion(void) {
     unsigned int a = D_0062B9F8;
     unsigned int b = D_0062B9FC;
     int lim = a + 0x1000;

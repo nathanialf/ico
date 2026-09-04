@@ -14,9 +14,9 @@ void ACTGetWish_FromPad(WishA *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_00149F60);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A008);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", ActGame_GetOrientQ);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A0B0);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", _GetRootObjectOrient);
 
 extern void avoidInsideOfWall(void *p);
 
@@ -30,9 +30,9 @@ void func_0014A110(int *a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A150);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", ACTCheckCollis_VIEW);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A250);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", ACTCheckViewClDetail);
 
 void func_0014A3E0(void *a0) {
     int *p = *(int **)((char *)a0 + 0x164);
@@ -77,7 +77,7 @@ extern int DispIcoMisc(int *buf);
 extern void queen_barrier_anim(int a0, int a1, int a2, int *buf);
 extern int D_00629C90;
 
-void func_0014A4D0(int a0)
+void GetGirlPositionAtThisStage(int a0)
 {
     int buf[4];
     int v0 = DispIcoMisc(buf);

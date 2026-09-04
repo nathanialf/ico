@@ -38,7 +38,7 @@ glabel GetFlyPosition
     /* 60F2C 00160F2C F491828F */  lw         $2, %gp_rel(D_00629DE4)($28)
     /* 60F30 00160F30 00B49227 */  addiu      $18, $28, %gp_rel(D_0062BFF0)
     /* 60F34 00160F34 809A918F */  lw         $17, %gp_rel(D_0062A670)($28)
-    /* 60F38 00160F38 A463040C */  jal        pac_DispQW
+    /* 60F38 00160F38 A463040C */  jal        _GetRandom
     /* 60F3C 00160F3C 00B482AF */   sw        $2, %gp_rel(D_0062BFF0)($28)
     /* 60F40 00160F40 2041013C */  lui        $1, (0x41200000 >> 16)
     /* 60F44 00160F44 00088144 */  mtc1       $1, $f1

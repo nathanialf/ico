@@ -14,13 +14,13 @@ void actSt00aInit(volatile int a0) {
  *       func_0017A0F8(1);
  *       while (D_0062B458 != 0) _ACTWait(1);    // reloads D_0062BC20 into $4 in each branch delay
  *       if (D_0062BC20 != 0) scpTrans(D_0062BC20, 0x50);
- *       actSt25aQueenDead(1, D_00629DE4, 0, 16.0f, D_006297D0);
+ *       RequestStageChange(1, D_00629DE4, 0, 16.0f, D_006297D0);
  *   }
  * Matched byte-exact: volatile spill, func_0017A0F8(1), the while-loop (beqz/bnez on
  * D_0062B458 with the D_0062BC20 reload in each delay), the if(D_0062BC20)scpTrans,
  * and the 5-arg tail-ish call (a0=1, a1=D_00629DE4, a2=0, f12=16.0f, f13=D_006297D0).
  * RESIDUAL (rc6): the SAME delay-slot scheduling class as actSt04aTorch1 -- ROM
- * defers the CHEAP arg2 (`daddu $6,$0,$0`, a2=0) into the actSt25aQueenDead delay
+ * defers the CHEAP arg2 (`daddu $6,$0,$0`, a2=0) into the RequestStageChange delay
  * and emits `lwc1 f13,D_006297D0` (arg4) BEFORE the jal; ee-gcc schedules a2=0
  * before the jal and fills the delay with the f13 LOAD. sched2 ready-tie: arg2 has
  * a lower INSN_LUID than arg4 so gcc issues it first; ROM issues the higher-latency
@@ -46,21 +46,21 @@ extern int D_0062B320;
 extern void func_0017A0F8(int a0);
 extern int D_00271240[];
 extern void _ACTWait(int a0);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f0);
-extern int actSt25aQueenDeadEvent(void);
+extern void scpFadeOut(int a0, int a1, int a2, float f0);
+extern int scpFadeChk(void);
 extern int D_00629DE4;
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern void RequestStageChange(int a0, int a1, int a2, float f0, float f1);
 
 void actSt00aStairChk(volatile int a0) {
     D_0062A894 = 1;
     D_0062B320 = 0;
     func_0017A0F8(1);
     _ACTWait((0x3C - D_00271240[0] * 0xA) / D_00271240[1] * 0x1E);
-    actSt25aQueenBeforeChk(0, 0, 0, 6.0f);
-    while (actSt25aQueenDeadEvent() != 0) {
+    scpFadeOut(0, 0, 0, 6.0f);
+    while (scpFadeChk() != 0) {
         _ACTWait(1);
     }
-    actSt25aQueenDead(1, D_00629DE4, 0, 255.0f, 8.0f);
+    RequestStageChange(1, D_00629DE4, 0, 255.0f, 8.0f);
 }
 
 
@@ -75,7 +75,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor2UpChk);
 extern void *actInitialize(int a0);
 extern void lt_fade_status(int a0);
 extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
-extern void actConte11Jimaku(float f0);
+extern void scpFadeIn(float f0);
 extern void actSt00aDoor1();
 extern int D_0062BC54;
 extern int D_0062BC50;
@@ -90,7 +90,7 @@ void actSt00aDoor2DownChk(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
-    actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+    scpFadeOut(0, 0, 0, 255.0f);
     D_0062BC54 = 0;
     D_0062BC50 = 0;
     lt_fade_status(0x33);
@@ -99,7 +99,7 @@ void actSt00aDoor2DownChk(volatile int a0) {
     while (D_0062BC54 != 0) {
         _ACTWait(1);
     }
-    actConte11Jimaku(2.0f);
+    scpFadeIn(2.0f);
     actCreateSubThreadI2(actSt00aDoor1, 0x15);
     D_0062C2A0 = 0;
     while (D_0062C2A0 == 0 &&
@@ -157,8 +157,8 @@ void actSt00aDoor1UpChk(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor1DownChk);
 
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f0);
-extern void actConte11Jimaku(float f0);
+extern void scpFadeOut(int a0, int a1, int a2, float f0);
+extern void scpFadeIn(float f0);
 extern void actSt00aEnemy1();
 extern int D_0062C2A0;
 extern int D_002715D0[];
@@ -169,12 +169,12 @@ extern int actCreateSubThreadIE(void *entry, int a1) __asm__("actCreateSubThread
 void actSt00aEne(volatile int a0) {
     float vol = 4.0f;
     func_00178DD8(4);
-    actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+    scpFadeOut(0, 0, 0, 255.0f);
     scpPlayStart(9, &D_0062BC50, 0, 1, 1);
     while (D_0062BC50 == 0) {
         _ACTWait(1);
     }
-    actConte11Jimaku(3.0f);
+    scpFadeIn(3.0f);
     actCreateSubThreadIE(actSt00aEnemy1, 0x15);
     D_0062C2A0 = 0;
     while (D_0062C2A0 == 0 &&
@@ -187,11 +187,11 @@ void actSt00aEne(volatile int a0) {
             scpTrans(D_0062BC50, 0x80);
         }
     }
-    actSt25aQueenBeforeChk(0, 0, 0, vol);
-    while (actSt25aQueenDeadEvent() != 0) {
+    scpFadeOut(0, 0, 0, vol);
+    while (scpFadeChk() != 0) {
         _ACTWait(1);
     }
-    actSt25aQueenDead(4, D_00629DE4, 0, 255.0f, 2.0f);
+    RequestStageChange(4, D_00629DE4, 0, 255.0f, 2.0f);
 }
 
 
@@ -222,23 +222,23 @@ void actSt00aEnemy2(volatile int a0) {
 
 extern int D_00271240[];
 extern void _ACTWait(int a0);
-extern void stgmgrForceSwitchWithFade(int a0);
+extern void stgmgrNextStagePreLoadForceStageSet(int a0);
 extern void backStageProcessOutStage(int a0);
 
 void actSt00aStair(int a0) {
     volatile int x;
     x = a0;
     _ACTWait((int)((float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1]) * 5.0f));
-    stgmgrForceSwitchWithFade(1);
+    stgmgrNextStagePreLoadForceStageSet(1);
     backStageProcessOutStage(1);
 }
 
 #include "common.h"
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_00178DD8(int a0);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern void RequestStageChange(int a0, int a1, int a2, float f0, float f1);
 extern char D_00614510[];
 extern char D_00614520[];
 extern int D_00629DE4;
@@ -247,10 +247,10 @@ void actSt00aAtr2(volatile int a0) {
     while (func_00178DB0(0x15C) == 0) {
         _ACTWait(1);
     }
-    debug_assertMessage(D_00614510);
-    debug_assertMessage(D_00614520);
+    debug_StdPrintfDummy(D_00614510);
+    debug_StdPrintfDummy(D_00614520);
     func_00178DD8(2);
-    actSt25aQueenDead(1, D_00629DE4, 0, 0.25f, 2.0f);
+    RequestStageChange(1, D_00629DE4, 0, 0.25f, 2.0f);
 }
 
 extern void actSt00aDoor1DownChk(void);
@@ -280,7 +280,7 @@ void actSt00aAtr2Chk(volatile int a0) {
             scpTrans(D_0062BC50, 0x40);
         }
     }
-    actSt25aQueenDead(2, D_00629DE4, 0, 0.5f, 4.0f);
+    RequestStageChange(2, D_00629DE4, 0, 0.5f, 4.0f);
 }
 
 
@@ -314,11 +314,11 @@ extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
 extern void lt_fade_status(int a0);
 extern void func_00178DD8(int a0);
-extern void func_0017A040(int a0);
+extern void scpSleepEnemyOne(int a0);
 extern void func_00178E08(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int func_0012A958(int a0);
-extern void func_0017A008(int a0);
+extern void scpWakeupEnemyOne(int a0);
 extern int D_00629DE8;
 extern int D_0062A894;
 void actSt00aDoor1Event(volatile int a0) {
@@ -327,7 +327,7 @@ void actSt00aDoor1Event(volatile int a0) {
     lt_fade_status(0x33);
     D_0062A894 = 1;
     func_00178DD8(0x24);
-    func_0017A040(0xD57);
+    scpSleepEnemyOne(0xD57);
     func_00178E08(0x165);
     _ACTWait(0x3C);
     func_00178DD8(0x25);
@@ -339,12 +339,12 @@ void actSt00aDoor1Event(volatile int a0) {
     _ACTWait(0x78);
     D_0062A894 = 0;
     func_00178E08(0x24);
-    func_0017A008(0xD57);
+    scpWakeupEnemyOne(0xD57);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor1UpEffect);
 
-extern int scpSleepEnemyOne(int a0, int a1, float f0);
+extern int scpTriggerBall(int a0, int a1, float f0);
 extern int D_004CBA60[];
 extern int D_004CBA80[];
 extern void actSt01bEneChk(void);
@@ -354,8 +354,8 @@ void actSt00aDoor1DownEffect(volatile int a0) {
     int x = a0;
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
-    if (scpSleepEnemyOne(a0, D_00629DE4, 200.0f) != 0 ||
-        (D_00629DE8 != 0 && scpSleepEnemyOne(a0, D_00629DE8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, D_00629DE4, 200.0f) != 0 ||
+        (D_00629DE8 != 0 && scpTriggerBall(a0, D_00629DE8, 400.0f) != 0)) {
         stage_KillPlayBgAnimation(0x50, 0, 0);
         _ACTWait(0x3C);
         D_004CBA60[1] = (int)actSt01bEneChk;

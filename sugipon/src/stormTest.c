@@ -14,13 +14,13 @@ void ClipStormByCamera(int a0) {
 
 extern int D_00271588[];
 
-void UpdateStormPackage(int a0) {
+void SetStaticBlur(int a0) {
     D_00271588[0] = a0;
 }
 
 extern int D_002714A0[];
 
-void DispStormPackage(int a0, float a1, float a2) {
+void SetDepthFadeParam(int a0, float a1, float a2) {
     D_002714A0[0x3B] = (int)a1;
     D_002714A0[0x3C] = (int)a2;
     D_002714A0[0x3E] = a0;
@@ -43,7 +43,7 @@ extern int D_0062B914;
 extern int D_0062B918;
 extern int prim_DispFan2D(int a, float e, int *b, unsigned int c, int d);
 
-void InitStormTestGeo(void)
+void _initStaticBlur(void)
 {
     D_0062B914 = prim_DispFan2D(0x10, 80.0f, D_00271BE0, 0xFFFFFF80u, 0);
     D_0062B918 = prim_DispFan2D(0x10, 80.0f, D_00271BE0, 0xFFFFFF80u, 0);
@@ -84,7 +84,7 @@ extern int D_0062A310;
 
 extern char D_00612E60[];
 
-int *func_001ED718(int a0, int *a1)
+int *InitStormTestGeo(int a0, int *a1)
 {
     int *obj = (int *)iosFree(D_0062A310, 0x30, D_00612E60, 0x11B);
     register int v = *(int *)((char *)a1 + 0x30);
@@ -104,13 +104,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", func_001ED7B8);
 extern int D_0062B9F4;
 extern int D_0062B9EC;
 extern void *D_00612EF0[];
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 void func_001ED9E8(void) {
     if (D_0062B9F4 != 0) {
         D_0062B9EC = 1;
         return;
     }
-    debug_assertMessage(D_00612EF0);
+    debug_StdPrintfDummy(D_00612EF0);
 }
 
 extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);

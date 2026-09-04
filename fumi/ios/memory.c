@@ -9,9 +9,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/memory", iosMallocSetPartitionName);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/memory", iosMallocClearPartition);
 
-extern int func_002613B4(int *a0, const char *a1);
-extern void func_002614F8(unsigned char *ptr, int value);
-extern void debug_assertMessage(const char *fmt, ...);
+extern int strcmp(int *a0, const char *a1);
+extern void strcpy(unsigned char *ptr, int value);
+extern void debug_StdPrintfDummy(const char *fmt, ...);
 
 extern char D_00551340[];
 
@@ -23,15 +23,15 @@ int iosMallocDebug(int *a0, int a1)
 {
     if (a0 == 0)
     {
-        debug_assertMessage(D_00551388);
+        debug_StdPrintfDummy(D_00551388);
         return 0;
     }
-    if (func_002613B4(a0, D_00551340) != 0)
+    if (strcmp(a0, D_00551340) != 0)
     {
-        debug_assertMessage(D_005513A8);
+        debug_StdPrintfDummy(D_005513A8);
         return 0;
     }
-    func_002614F8((unsigned char *)((char *) a0 + 0x10), a1);
+    strcpy((unsigned char *)((char *) a0 + 0x10), a1);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/memory", _iosFreeWithFill);
@@ -64,11 +64,11 @@ typedef struct IosMemPart {
 
 extern void func_001AACE0(char *file, int line, char *msg);
 extern void func_001AAD00(char *file, int line);
-extern void func_00260380(char *file, int line, char *expr);
-extern void func_00261188(char *buf, const char *fmt, ...);
-extern unsigned int func_0026160C(char *s);
-extern int func_00260340(float val);
-extern int func_00261900(char *dst, int src, int n);
+extern void __assert(char *file, int line, char *expr);
+extern void sprintf(char *buf, const char *fmt, ...);
+extern unsigned int strlen(char *s);
+extern int fptodp(float val);
+extern int strncpy(char *dst, int src, int n);
 
 extern int D_0062A3B0;
 extern char *D_0062BF8C;
@@ -115,7 +115,7 @@ void *iosFree(IosMemPart *part, int size, char *file, int line)
     char *dst;
 
     if (D_0062A3B0 != 0) {
-        func_00261188(buf, D_00551468, part->name, size, D_0062BF8C, D_0062BF90);
+        sprintf(buf, D_00551468, part->name, size, D_0062BF8C, D_0062BF90);
         func_001AACE0(file, line, buf);
     }
     D_0062BF8C = file;
@@ -124,13 +124,13 @@ void *iosFree(IosMemPart *part, int size, char *file, int line)
 
     if (part == 0) {
         func_001AACE0(D_005514B0, 0x228, D_005514C0);
-        func_00260380(D_005514B0, 0x228, D_0062C238);
+        __assert(D_005514B0, 0x228, D_0062C238);
         D_0062A3B0 = 0;
         return 0;
     }
-    if (func_002613B4((int *)part, D_00551340) != 0) {
+    if (strcmp((int *)part, D_00551340) != 0) {
         func_001AACE0(D_005514B0, 0x22F, D_005514C0);
-        func_00260380(D_005514B0, 0x22F, D_0062C238);
+        __assert(D_005514B0, 0x22F, D_0062C238);
         D_0062A3B0 = 0;
         return 0;
     }
@@ -140,22 +140,22 @@ void *iosFree(IosMemPart *part, int size, char *file, int line)
     p = part->free_list;
     if (p != 0) {
         do {
-            if (func_002613B4((int *)p, D_00551350) != 0) {
-                debug_assertMessage(D_005514F0);
+            if (strcmp((int *)p, D_00551350) != 0) {
+                debug_StdPrintfDummy(D_005514F0);
                 if (p->prev != 0) {
-                    debug_assertMessage(D_00551510, p->prev, p->prev->name);
-                    debug_assertMessage(D_00551538, p->prev);
+                    debug_StdPrintfDummy(D_00551510, p->prev, p->prev->name);
+                    debug_StdPrintfDummy(D_00551538, p->prev);
                 }
-                debug_assertMessage(D_00551550, p, p->name);
-                debug_assertMessage(D_00551578, p);
+                debug_StdPrintfDummy(D_00551550, p, p->name);
+                debug_StdPrintfDummy(D_00551578, p);
                 if (p->next != 0) {
-                    debug_assertMessage(D_00551590, p->next, p->next->name);
-                    debug_assertMessage(D_005515B8, p->next);
+                    debug_StdPrintfDummy(D_00551590, p->next, p->next->name);
+                    debug_StdPrintfDummy(D_005515B8, p->next);
                 }
-                debug_assertMessage(D_005515D0, file, line);
+                debug_StdPrintfDummy(D_005515D0, file, line);
                 D_0062A3B0 = 0;
                 func_001AAD00(D_005514B0, 0x253);
-                func_00260380(D_005514B0, 0x253, D_0062C240);
+                __assert(D_005514B0, 0x253, D_0062C240);
                 return 0;
             }
             if (p->size >= want) {
@@ -199,11 +199,11 @@ void *iosFree(IosMemPart *part, int size, char *file, int line)
                 }
                 name = best->name;
                 *(IosMemTag *)p = *(IosMemTag *)D_005515F0;
-                func_00261900(name, (int)file, 0xF);
-                if (func_0026160C(file) < 0x10) {
-                    func_0026160C(file);
+                strncpy(name, (int)file, 0xF);
+                if (strlen(file) < 0x10) {
+                    strlen(file);
                 }
-                len = func_0026160C(name);
+                len = strlen(name);
                 while (len < 0xF) {
                     name[len] = ' ';
                     len++;
@@ -224,8 +224,8 @@ void *iosFree(IosMemPart *part, int size, char *file, int line)
                 best->next = newnode;
                 best->size = want - 4;
                 best->name[0xF] = 0;
-                debug_assertMessage(D_00551600, best, best);
-                debug_assertMessage(D_00551610, best->next, best->next);
+                debug_StdPrintfDummy(D_00551600, best, best);
+                debug_StdPrintfDummy(D_00551610, best->next, best->next);
                 D_0062A3B0 = 0;
                 return ret;
             }
@@ -233,20 +233,20 @@ void *iosFree(IosMemPart *part, int size, char *file, int line)
         } while (p != 0);
     }
 
-    debug_assertMessage(D_00551620, size);
-    debug_assertMessage(D_005515D0, file, line);
-    func_00261188(buf2, D_00551638, part->name, size,
-                  func_00260340((float)size * 0.0009765625f * 0.0009765625f));
+    debug_StdPrintfDummy(D_00551620, size);
+    debug_StdPrintfDummy(D_005515D0, file, line);
+    sprintf(buf2, D_00551638, part->name, size,
+                  fptodp((float)size * 0.0009765625f * 0.0009765625f));
     func_001AACE0(file, line, buf2);
     __asm__ __volatile__("break");
     func_001AAD00(D_005514B0, 0x2C0);
-    func_00260380(D_005514B0, 0x2C0, D_0062C240);
+    __assert(D_005514B0, 0x2C0, D_0062C240);
     D_0062A3B0 = 0;
     return 0;
 }
 
 
-extern int func_001007A0(int a0);
+extern int FlushCache(int a0);
 void *iosMallocCheckLeak2(void *ptr);
 
 extern char D_00551688[];
@@ -254,9 +254,9 @@ extern char D_00551688[];
 void iosMallocCheckLeak(int *a0, int a1, int a2)
 {
     int *end = *(int **)((char *) a0 - 0x1C);
-    func_001007A0(0);
+    FlushCache(0);
     iosMallocCheckLeak2(a0);
-    debug_assertMessage(D_00551688, a1, a2, a0, end);
+    debug_StdPrintfDummy(D_00551688, a1, a2, a0, end);
     {
         register int g = (unsigned int) a0 < (unsigned int) end;
         if (g)
@@ -268,11 +268,11 @@ void iosMallocCheckLeak(int *a0, int a1, int a2)
             } while ((unsigned int) a0 < (unsigned int) end);
         }
     }
-    func_001007A0(0);
+    FlushCache(0);
 }
 
-extern int func_00261748(void *a0, void *a1, int a2);
-extern int func_002603B8(void *a0);
+extern int strncmp(void *a0, void *a1, int a2);
+extern int atoi(void *a0);
 
 extern char D_005516A8[];
 extern char D_005516B8[];
@@ -295,34 +295,34 @@ void *iosMallocCheckLeak2(void *ptr)
     IosMemNode *fn;
     int n;
 
-    debug_assertMessage(D_005516A8);
+    debug_StdPrintfDummy(D_005516A8);
     if (ptr == 0) {
-        debug_assertMessage(D_005516B8);
+        debug_StdPrintfDummy(D_005516B8);
         __asm__ __volatile__("break");
         func_001AACE0(D_005514B0, 0x324, D_005516D0);
-        func_00260380(D_005514B0, 0x324, D_0062C238);
+        __assert(D_005514B0, 0x324, D_0062C238);
         return 0;
     }
     prev = (IosMemNode *)((char *)ptr - 0x10);
     next = ptr;
-    if (func_00261748(prev, D_0062C248, 5) == 0) {
-        n = func_002603B8((char *)ptr - 0xB);
+    if (strncmp(prev, D_0062C248, 5) == 0) {
+        n = atoi((char *)ptr - 0xB);
         *((char *)ptr - 0x10) = 0;
         next = (IosMemNode *)((char *)prev - (n - 0x10));
     }
     node = (IosMemNode *)((char *)next - 0x40);
-    if (func_002613B4((int *)node, D_005515F0) != 0) {
-        func_00261188(buf, D_005516F0, node->prev, node, node->next);
+    if (strcmp((int *)node, D_005515F0) != 0) {
+        sprintf(buf, D_005516F0, node->prev, node, node->next);
         func_001AACE0(D_005514B0, 0x334, buf);
-        func_00260380(D_005514B0, 0x334, D_0062C238);
+        __assert(D_005514B0, 0x334, D_0062C238);
         return 0;
     }
     next = node->next;
     prev = node->prev;
     if (prev != 0) {
-        if (func_002613B4((int *)prev, D_00551350) == 0) {
+        if (strcmp((int *)prev, D_00551350) == 0) {
             if (next != 0) {
-                if (func_002613B4((int *)next, D_00551350) == 0) {
+                if (strcmp((int *)next, D_00551350) == 0) {
                     if (prev->free_next == next) {
                         fn = next->free_next;
                         prev->free_next = fn;
@@ -358,12 +358,12 @@ void *iosMallocCheckLeak2(void *ptr)
                     if (next->next != 0) {
                         next->next->prev = prev;
                     }
-                } else if (func_002613B4((int *)next, D_005515F0) == 0) {
+                } else if (strcmp((int *)next, D_005515F0) == 0) {
                     prev->next = next;
                     next->prev = prev;
                 } else {
                     func_001AACE0(D_005514B0, 0x379, D_00551740);
-                    func_00260380(D_005514B0, 0x379, D_0062C238);
+                    __assert(D_005514B0, 0x379, D_0062C238);
                     return 0;
                 }
             } else {
@@ -378,14 +378,14 @@ void *iosMallocCheckLeak2(void *ptr)
             *(IosMemTag *)node = *(IosMemTag *)D_00551760;
             goto ret_ptr;
         }
-        if (func_002613B4((int *)prev, D_005515F0) != 0) {
+        if (strcmp((int *)prev, D_005515F0) != 0) {
             goto err_3bf;
         }
     }
     if (next == 0) {
         goto tail_node;
     }
-    if (func_002613B4((int *)next, D_005515F0) == 0) {
+    if (strcmp((int *)next, D_005515F0) == 0) {
         node->free_prev = 0;
         node->free_next = ((IosMemNode *)node->part)->head;
         ((IosMemNode *)node->part)->head = node;
@@ -394,7 +394,7 @@ void *iosMallocCheckLeak2(void *ptr)
         }
         goto tag_free;
     }
-    if (func_002613B4((int *)next, D_00551350) != 0) {
+    if (strcmp((int *)next, D_00551350) != 0) {
         goto err_3b5;
     }
     fn = next->free_prev;
@@ -428,18 +428,18 @@ tail_node:
         node->free_next->free_prev = node;
     }
     func_001AACE0(D_005514B0, 0x3B2, D_00551780);
-    func_00260380(D_005514B0, 0x3B2, D_0062C238);
+    __assert(D_005514B0, 0x3B2, D_0062C238);
     goto tag_free;
 err_3b5:
     func_001AACE0(D_005514B0, 0x3B5, D_00551740);
-    func_00260380(D_005514B0, 0x3B5, D_0062C238);
+    __assert(D_005514B0, 0x3B5, D_0062C238);
     return 0;
 tag_free:
     *(IosMemTag *)node = *(IosMemTag *)D_00551350;
     goto ret_ptr;
 err_3bf:
     func_001AACE0(D_005514B0, 0x3BF, D_00551798);
-    func_00260380(D_005514B0, 0x3BF, D_0062C238);
+    __assert(D_005514B0, 0x3BF, D_0062C238);
 ret_ptr:
     return ptr;
 }
@@ -447,7 +447,7 @@ ret_ptr:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/memory", iosReallocDebug);
 
-extern int func_00261900(char *dst, int src, int n);
+extern int strncpy(char *dst, int src, int n);
 extern char D_00551350[];
 extern char D_00551430[];
 extern char D_005515F0[];
@@ -462,32 +462,32 @@ void iosMallocInitPartition(int a0, int a1) {
     int node = *(int *)(a0 + a1 + 0x38);
     int r;
 
-    debug_assertMessage(D_00551828, a0);
+    debug_StdPrintfDummy(D_00551828, a0);
     if (node == 0) {
         return;
     }
     do {
             node += a1;
-            func_00261900(D_006A04F0, node + 0x10, 0xF);
+            strncpy(D_006A04F0, node + 0x10, 0xF);
             D_006A04F0[0xF] = 0;
-            r = func_002613B4((int *)node, D_005515F0);
+            r = strcmp((int *)node, D_005515F0);
             if (r == 0) {
-                debug_assertMessage(D_00551840, node - a1, D_006A04F0);
+                debug_StdPrintfDummy(D_00551840, node - a1, D_006A04F0);
                 r = 0xB;
                 goto delay;
             }
-            r = func_002613B4((int *)node, D_00551350);
+            r = strcmp((int *)node, D_00551350);
             if (r == 0) {
-                debug_assertMessage(D_00551850, node - a1);
+                debug_StdPrintfDummy(D_00551850, node - a1);
                 r = 0xB;
                 goto delay;
             }
-            r = func_002613B4((int *)node, D_00551430);
+            r = strcmp((int *)node, D_00551430);
             if (r != 0) {
-                debug_assertMessage(D_00551878, node - a1, node);
+                debug_StdPrintfDummy(D_00551878, node - a1, node);
                 return;
             }
-            debug_assertMessage(D_00551860);
+            debug_StdPrintfDummy(D_00551860);
             r = 0xB;
         delay:
             do {

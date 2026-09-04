@@ -21,7 +21,7 @@ void InitStageMultiBgaManager(void *a0, void *a1, void *a2, void *a3) {
 
 extern char D_007063C0[];
 extern int stage_CheckAnimationFrameIn(void *a0);
-extern void _ApplyCurrentMatrix(void *a0, void *a1, void *a2);
+extern void _AddVector(void *a0, void *a1, void *a2);
 
 void EntryStageMultiBgaManager(void) {
     int i;
@@ -31,7 +31,7 @@ void EntryStageMultiBgaManager(void) {
                 D_00706D00[i] = 0;
             } else {
                 char *x = D_00706D00[i] + 0x20;
-                _ApplyCurrentMatrix(x, x, &D_007063C0[i * 0x50]);
+                _AddVector(x, x, &D_007063C0[i * 0x50]);
             }
         }
     }
@@ -39,11 +39,11 @@ void EntryStageMultiBgaManager(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", EntryStageMultiBgaManagerSensitive);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", DispStageMultiBgaManager);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", auraInspireBefore);
 
-extern void gif_SpriteOrg(int a0, long long a1);
+extern void gif_SetGsReg(int a0, long long a1);
 extern void gif_MakeSprite(int a0, int a1, int a2, int a3, int a4, int a5);
-extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void gif_SetAlpha(int a0, int a1, int a2);
 extern void gif_MakeLine2DOffset(void *a0, int a1, void *a2, void *a3, int a4);
 extern int D_00271240[];
 extern int D_004C2220[];
@@ -70,11 +70,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E9
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E9618);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E9750);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", blendWork0ToWork1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E9888);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", parallelAddFeedBackAreaToWork0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E9B38);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", blurBlendFeedBackAreaToWork1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E9BD0);
 
@@ -82,11 +82,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E9
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E9E30);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001EA3C8);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", cleanUpFB);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001EA488);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001EA558);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", dispSun);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001EA658);
 

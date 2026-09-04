@@ -13,7 +13,7 @@ typedef struct GObj {
 } GObj;
 
 extern int actItouQueenAttackChk(void);
-extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int scpTriggerBall(int a0, int a1, float a2);
 extern int GetSkeltonFocusNode(int a0);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 extern void func_00178DD8(int a0);
@@ -27,7 +27,7 @@ void actSt05eEnd(volatile int a0) {
     _ACTWait(1);
     while (1) {
         if (actItouQueenAttackChk() == 4 &&
-            scpSleepEnemyOne(a0, D_00629DE4, 100.0f) != 0 &&
+            scpTriggerBall(a0, D_00629DE4, 100.0f) != 0 &&
             (GetSkeltonFocusNode(D_00629DE4) == 0x25 ||
              GetSkeltonFocusNode(D_00629DE4) == 0x2A ||
              GetSkeltonFocusNode(D_00629DE4) == 0x2C ||

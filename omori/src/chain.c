@@ -26,7 +26,7 @@ void *UpdateRootPosition(void) {
 extern int D_0062AFF8;
 typedef struct { long q[4]; } StartPendulumBlk;
 
-void StartPendulum(void *a0, float *a1) {
+void GetCameraInfo_tmp(void *a0, float *a1) {
     *(StartPendulumBlk *)a0 = *(StartPendulumBlk *)D_006C9F60;
     *a1 = (float)D_0062AFF8 / 100.0f;
 }

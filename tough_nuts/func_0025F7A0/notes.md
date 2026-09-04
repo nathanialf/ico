@@ -1,7 +1,7 @@
-# func_0025F7A0 — parked
+# __pack_f — parked
 
 VRAM: 0x0025F7A0 (file_off 0x15F7A0)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0025F7A0.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/__pack_f.s
 
 ## Attempt at 2026-06-20
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0025F7A0.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0025F7A0/func_0025F7A0.c`
+**Seed:** `tough_nuts/__pack_f/__pack_f.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0025F7A0, 0x10C
+nonmatching __pack_f, 0x10C
 
-glabel func_0025F7A0
+glabel __pack_f
     /* 15F7A0 0025F7A0 0000838C */  lw         $3, 0x0($4)
     /* 15F7A4 0025F7A4 2D380000 */  daddu      $7, $0, $0
     /* 15F7A8 0025F7A8 0400888C */  lw         $8, 0x4($4)
@@ -103,6 +103,6 @@ glabel func_0025F7A0
     /* 15F8A0 0025F8A0 00008644 */  mtc1       $6, $f0
     /* 15F8A4 0025F8A4 0800E003 */  jr         $31
     /* 15F8A8 0025F8A8 00000000 */   nop
-endlabel func_0025F7A0
+endlabel __pack_f
     /* 15F8AC 0025F8AC 00000000 */  nop
 ```

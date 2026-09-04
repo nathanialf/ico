@@ -10,7 +10,7 @@ extern int func_00178DB0(int a0);
 
 extern void _ACTWait(int a0);
 extern int actSt25aQueenDeadChk(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void lt_fade_status(int a0);
 extern void func_00178DD8(int a0);
 extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
@@ -25,7 +25,7 @@ extern struct Q D_00614E30;
 
 void actExplode(volatile int a0) {
     struct Q buf;
-    while (scpSleepEnemyOne(a0, actSt25aQueenDeadChk(0x6F2), 220.0f) == 0) {
+    while (scpTriggerBall(a0, actSt25aQueenDeadChk(0x6F2), 220.0f) == 0) {
         _ACTWait(1);
     }
     lt_fade_status(0x33);
@@ -277,15 +277,15 @@ void actSt27aWaveChk(volatile int a0) {
 
 extern int func_00178DB0(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void actSt27aWave1(void) {
     if (func_00178DB0(0x11F) == 0) {
         stage_KillPlayBgAnimation(0x7F, 0, 0);
-        AddWayPointTop(4, 0);
+        SetWayGroupActive(4, 0);
     } else {
         stage_KillPlayBgAnimation(0x7F, 0, -1);
-        AddWayPointTop(4, 1);
+        SetWayGroupActive(4, 1);
     }
 }
 
@@ -306,9 +306,9 @@ void actSpiderChk(void) {
 extern void scpDispOnAllWithKind(void);
 extern void func_00178E08(int a0);
 extern int iosPadDevRead(int a0, int a1);
-extern void Shock_Request(int a0, int a1);
+extern void iosPadActVolumeSet(int a0, int a1);
 extern void Vibration_ShotDecode(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void scpActivateAllWithKind(void);
 extern int D_0062BE0C;
 extern int D_00629DEC;
@@ -329,13 +329,13 @@ void func_002343C0(volatile int a0) {
     pad = iosPadDevRead(D_00629DEC, 9);
     D_0062BE1C = 0x80;
     D_0062BE18 = pad;
-    Shock_Request(pad, 0x80);
+    iosPadActVolumeSet(pad, 0x80);
     while (func_0012A958(0x7F) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Vibration_ShotDecode(D_0062BE18);
-    AddWayPointTop(4, 1);
+    SetWayGroupActive(4, 1);
     scpActivateAllWithKind();
     D_0062A894 = 0;
     lt_fade_status(0x32);
@@ -426,8 +426,8 @@ void func_00234640(volatile int a0) {
 }
 
 
-extern void AddWayPointTop(int a0, int a1);
-extern void scpTorchLightOn(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
+extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 extern void func_00178E08(int a0);
 extern int D_004CE8E0[];
 extern int D_004CE900[];
@@ -438,21 +438,21 @@ void func_002347A8(volatile int a0) {
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_00178DB0(0x119) == 0) {
-        AddWayPointTop(0x13, 1);
+        SetWayGroupActive(0x13, 1);
         *(int *)(actSt25aQueenDeadChk(0x730) + 0x16C) = 0;
         *(int *)(actSt25aQueenDeadChk(0x731) + 0x16C) = 0;
-        scpTorchLightOn(0x72E, 0x80);
+        scpLinkBGAtoLayoutedTarget(0x72E, 0x80);
         stage_KillPlayBgAnimation(0x80, 0, 0x1E);
         D_004CE8E0[1] = (int)stageSEtaimatsu;
         gobj->unkB4 = D_004CE8E0;
         BoxBarSoundOn((int)a0, 0x189);
         _ACTWait(0);
     } else {
-        AddWayPointTop(0x13, 0);
+        SetWayGroupActive(0x13, 0);
         *(int *)(actSt25aQueenDeadChk(0x72E) + 0x16C) = 0;
         *(int *)(actSt25aQueenDeadChk(0x72F) + 0x16C) = 0;
         func_00178E08(0x119);
-        scpTorchLightOn(0x730, 0x80);
+        scpLinkBGAtoLayoutedTarget(0x730, 0x80);
         stage_KillPlayBgAnimation(0x80, 0, 0);
         D_004CE900[1] = (int)stageSE04eriver;
         gobj->unkB4 = D_004CE900;

@@ -174,7 +174,7 @@ void actSt06aDoorUpChk(volatile int a0) {
 }
 
 extern void lt_fade_status(int a0);
-extern void func_0017BF50(float a0, float a1, float a2, float a3);
+extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern int func_0012A958(int a0);
 extern void func_00178E08(int a0);
 extern volatile float D_006298D0;
@@ -196,7 +196,7 @@ void actSt06aDoorDownChk(int a0) {
     _ACTWait(0xF);
     if (func_00178DB0(0x101) != 0) {
         stage_KillPlayBgAnimation(0xC8, 1, 0xC8);
-        func_0017BF50(D_006298D0, -150.0f, -1600.0f, 200.0f);
+        scpWakeupItemWithBoundary(D_006298D0, -150.0f, -1600.0f, 200.0f);
         while (func_0012AA28(0xC8, 0xDC, 0) == 0) { _ACTWait(1); }
         _ACTWait(1);
         soundSeDefPlayWithVolumeRate(0x511, 0, 0, 1);
@@ -215,7 +215,7 @@ void actSt06aDoorDownChk(int a0) {
         D_0062A894 = 0;
     } else {
         stage_KillPlayBgAnimation(0xC8, 1, 0);
-        func_0017BF50(D_006298D4, -1200.0f, -1600.0f, 200.0f);
+        scpWakeupItemWithBoundary(D_006298D4, -1200.0f, -1600.0f, 200.0f);
         soundSeDefPlayWithVolumeRate(0x50F, 0, 0, 1);
         while (func_0012AA28(0xC8, 0x91, 0) == 0) { _ACTWait(1); }
         _ACTWait(1);

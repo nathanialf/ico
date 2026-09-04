@@ -32,9 +32,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", InitSceneObjects);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", HotInitSceneObjects);
 
-extern void debug_assertMessage(char *a0, void *a1);
+extern void debug_StdPrintfDummy(char *a0, void *a1);
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern void *isysGObjAddHead(int a0);
 extern char D_0060FC98[];
 extern char D_0060FCE0[];
@@ -71,17 +71,17 @@ void ChangeStageStartInfo(int a0) {
         g2 = isysGObjAddHead(f44);
         if (g2 != 0) {
             if (g2 == g1) {
-                debug_assertMessage(D_0060FC98, m);
+                debug_StdPrintfDummy(D_0060FC98, m);
                 func_001AAD00(D_0060FCE0, 0x1E7);
-                func_00260380(D_0060FCE0, 0x1E7, D_0062D2D0);
+                __assert(D_0060FCE0, 0x1E7, D_0062D2D0);
             }
-            debug_assertMessage(D_0060FCF8, m);
+            debug_StdPrintfDummy(D_0060FCF8, m);
             *(int *)(*(int *)((char *)g1 + 0x15C)) = (int)g2;
             *(int *)(*(int *)((char *)g1 + 0x15C) + 4) = 0;
         } else {
-            debug_assertMessage(D_0060FD08, m);
+            debug_StdPrintfDummy(D_0060FD08, m);
             func_001AAD00(D_0060FCE0, 0x1F0);
-            func_00260380(D_0060FCE0, 0x1F0, D_0062D2D0);
+            __assert(D_0060FCE0, 0x1F0, D_0062D2D0);
         }
     }
 }
@@ -96,13 +96,13 @@ void CreateLayoutedGObj(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", MoveNextStage_Set);
 
-extern int *isysGObjRemoveObjDL(int a0);
-extern int *func_0013E7E0(int *a0);
-extern void iosOmBeforeFuncStandard(int *a0, int a1, int *a2);
+extern int *isysGObjGetExist_begin(int a0);
+extern int *isysGObjGetExist_next(int *a0);
+extern void iosOmSendMail(int *a0, int a1, int *a2);
 extern char D_0029F060[];
 
 int test_nextstage_firstwalk_set(int a0) {
-    int *node = isysGObjRemoveObjDL(a0);
+    int *node = isysGObjGetExist_begin(a0);
     if (node != 0) {
         do {
             int idx = node[3];
@@ -110,14 +110,14 @@ int test_nextstage_firstwalk_set(int a0) {
                 char *e = D_0029F060 + idx * 0x64;
                 void (*fn)(int *);
                 if (*(int *)(e + 0x60) != 0) {
-                    iosOmBeforeFuncStandard(node, 0x2E, node);
+                    iosOmSendMail(node, 0x2E, node);
                 }
                 fn = *(void (**)(int *))(e + 0x54);
                 if (fn != 0) {
                     fn(node);
                 }
             }
-            node = func_0013E7E0(node);
+            node = isysGObjGetExist_next(node);
         } while (node != 0);
     }
     return 1;

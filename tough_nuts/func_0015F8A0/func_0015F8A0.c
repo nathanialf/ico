@@ -1,7 +1,7 @@
-extern void func_00191FD0(float *a0, int a1, int a2);
+extern void _OrientXZGV(float *a0, int a1, int a2);
 extern void dispPlane(void *a0, float *a1);
 extern int func_00143DE0(void *a0, int a1, int a2, float *a3, float a4, float a5);
-extern int HandCameraCorrect(float *a0, float *a1);
+extern int _RotyGV(float *a0, float *a1);
 extern int MoveChestForCatchBoy(void *a0);
 extern void ACTGameView_Loop(void);
 extern void BoxBarSoundOn(void *a0, int a1);
@@ -14,7 +14,7 @@ void func_0015F8A0(int *volatile self) {
     p = *(int *)((char *)self + 0x164) + 0x100;
     r0 = ContinueCorrectPosition(D_00629DE8);
     r1 = ContinueCorrectPosition((int)self);
-    func_00191FD0((float *)p, r0, r1);
+    _OrientXZGV((float *)p, r0, r1);
     dispPlane((void *)self, (float *)p);
 
     while (1) {
@@ -22,7 +22,7 @@ void func_0015F8A0(int *volatile self) {
         if (r == 0) {
             mode = 0;
         } else {
-            ang = HandCameraCorrect(&buf[4], subCommonIdle((void *)D_00629DE8));
+            ang = _RotyGV(&buf[4], subCommonIdle((void *)D_00629DE8));
             ang = __builtin_abs(ang);
             mode = 2;
             if (ang <= 89) {
@@ -42,7 +42,7 @@ void func_0015F8A0(int *volatile self) {
         _ACTWait(1);
     }
 }
-extern void func_00191FD0(float *a0, int a1, int a2);
+extern void _OrientXZGV(float *a0, int a1, int a2);
 extern void dispPlane(void *a0, float *a1);
 
 void func_00163830(volatile unsigned int a0)
@@ -53,7 +53,7 @@ void func_00163830(volatile unsigned int a0)
     m = (char *)(*(int *)(a0 + 0x164)) + 0x100;
     r0 = ContinueCorrectPosition(D_00629DE8);
     r1 = ContinueCorrectPosition(a0);
-    func_00191FD0((float *)m, r0, r1);
+    _OrientXZGV((float *)m, r0, r1);
     dispPlane((void *)a0, (float *)m);
     BoxBarSoundOn((void *)a0, 0x142);
     for (;;) {

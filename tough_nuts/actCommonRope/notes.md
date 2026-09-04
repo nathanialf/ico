@@ -5,7 +5,7 @@ Asm source: asm/aug6/nonmatchings/fumi/src/commonact/actCommonRope.s
 
 ## Attempt at 2026-07-07
 
-**Reason parked:** rc3; STRUCTURE 100% CORRECT (pac_DispQW()*10.0f cvt, n%15 early r-temp cracked rc37->3, volatile a0 double-deref 0x164->0x670 read 0x214/write 0x218, ACTParaStatus_Exec(a0), func_00156750(r,val,&a0) 3-arg reuses a0-home as buf, _ACTWait(0)). Residual=2 diffs: (1) ROM fills ACTParaStatus_Exec jal DELAY with the 0x218 store; built schedules store early+nop-in-delay (sched2 store-vs-mfhi priority tie); (2) buf &a0/sp -> v0 (ROM) vs a2 (built) regalloc coloring. 5 distinct attempts (3-arg rc3, 2-arg rc5, store-after rc19, self-snapshot rc10, inline-mod rc37). permuter-class dbr/regalloc.
+**Reason parked:** rc3; STRUCTURE 100% CORRECT (_GetRandom()*10.0f cvt, n%15 early r-temp cracked rc37->3, volatile a0 double-deref 0x164->0x670 read 0x214/write 0x218, ACTParaStatus_Exec(a0), func_00156750(r,val,&a0) 3-arg reuses a0-home as buf, _ACTWait(0)). Residual=2 diffs: (1) ROM fills ACTParaStatus_Exec jal DELAY with the 0x218 store; built schedules store early+nop-in-delay (sched2 store-vs-mfhi priority tie); (2) buf &a0/sp -> v0 (ROM) vs a2 (built) regalloc coloring. 5 distinct attempts (3-arg rc3, 2-arg rc5, store-after rc19, self-snapshot rc10, inline-mod rc37). permuter-class dbr/regalloc.
 
 **TU:** `fumi/src/commonact.c`
 
@@ -23,7 +23,7 @@ glabel actCommonRope
     /* 56908 00156908 1000B0FF */  sd         $16, 0x10($29)
     /* 5690C 0015690C 0000A4AF */  sw         $4, 0x0($29)
     /* 56910 00156910 3000BFFF */  sd         $31, 0x30($29)
-    /* 56914 00156914 A463040C */  jal        pac_DispQW
+    /* 56914 00156914 A463040C */  jal        _GetRandom
     /* 56918 00156918 00000000 */   nop
     /* 5691C 0015691C 2041013C */  lui        $1, (0x41200000 >> 16)
     /* 56920 00156920 00088144 */  mtc1       $1, $f1

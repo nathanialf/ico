@@ -66,7 +66,7 @@ glabel actEnemyAttack
     /* 5DAA4 0015DAA4 0C00658C */  lw         $5, 0xC($3)
     /* 5DAA8 0015DAA8 80110200 */  sll        $2, $2, 6
     /* 5DAAC 0015DAAC 2128A200 */  addu       $5, $5, $2
-    /* 5DAB0 0015DAB0 2000090C */  jal        func_00240080
+    /* 5DAB0 0015DAB0 2000090C */  jal        sceVu0CopyVector
     /* 5DAB4 0015DAB4 3000A524 */   addiu     $5, $5, 0x30
     /* 5DAB8 0015DAB8 6401038E */  lw         $3, 0x164($16)
     /* 5DABC 0015DABC 2D28A003 */  daddu      $5, $29, $0

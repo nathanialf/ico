@@ -5,7 +5,7 @@ typedef struct { float f0; float f4; float f8; } AudFrame;
 typedef struct { long long a; long long b; } Blk16;
 extern Blk16 D_00614EC0;
 extern Blk16 D_00614ED0;
-extern int preload(int a, Blk16 *b, Blk16 *c);
+extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002388F0);
 
@@ -63,7 +63,7 @@ int audioDecReset(int self)
     int ret = UpdateRootPosition(self);
     b1 = D_00614EC0;
     b2 = D_00614ED0;
-    if (preload(ret, &b1, &b2) == 0) {
+    if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
         *(float *)(self + 0x18) = 1.0f;
     } else {
         *(float *)(self + 0x18) = *(volatile float *)&D_00629B0C;
@@ -78,7 +78,7 @@ int audioDecIsPreset(int a0)
     int ret = UpdateRootPosition(a0);
     b1 = D_00614EC0;
     b2 = D_00614ED0;
-    if (preload(ret, &b1, &b2) == 0) {
+    if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
         return 0;
     }
     return func_00237C98(a0);
@@ -90,7 +90,7 @@ extern float DispWireLetter(void *a0);
 extern float D_0062BE50;
 extern int D_0062BE54, D_00629C60;
 
-int audioDecStart(void *a0) {
+int stageSE08bcrane(void *a0) {
     AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);
     float f;
     p->f0 = D_00629B10;
@@ -108,11 +108,11 @@ int audioDecStart(void *a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecPause);
+INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", stageSE08brail);
 
 extern const float D_00629B24, D_00629B28;
 
-int audioDecResume(char *a0) {
+int stageSE09asea(char *a0) {
     AudFrame *p = *(AudFrame **)(a0 + 0x34);
     p->f0 = 1800.0f;
     p->f4 = D_00629B24;
@@ -121,11 +121,11 @@ int audioDecResume(char *a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00238FB0);
+INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", stageSE10lstrong);
 
 extern float D_00629B30;
 
-int func_002390F0(int self) {
+int stageSE10rstrong(int self) {
     float *p = (float *)UpdateRootPosition(self);
     float x = p[2];
     float r;
@@ -159,7 +159,7 @@ int func_00239188(int self) {
     return -1;
 }
 
-int func_002391E8(int *a0) {
+int stageSE13arain(int *a0) {
     float *p = (float *)a0[0xD];
     p[0] = 118.0f;
     p[1] = -192.0f;
@@ -171,7 +171,7 @@ int func_002391E8(int *a0) {
 extern const float D_00629B34, D_00629B38;
 
 
-int func_00239228(void *a0) {
+int stageSE13cNoise(void *a0) {
     AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);
     p->f0 = -133.0f;
     p->f4 = D_00629B34;
@@ -179,7 +179,7 @@ int func_00239228(void *a0) {
     return 1;
 }
 
-int func_00239250(int *self) {
+int stageSE13dterrace(int *self) {
     float *p = (float *)UpdateRootPosition((int)self);
     int v0 = -1;
     if (-1000.0f < p[1]) {
@@ -188,14 +188,14 @@ int func_00239250(int *self) {
     return v0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239290);
+INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", stageSE13dstrong);
 
 extern float DispWireLetter(void *a0);
 extern float D_0062BE50;
 extern int D_0062BE54;
 extern int D_00629C60;
 
-int func_00239348(int self) {
+int stageSE17astrong(int self) {
     float f;
     UpdateRootPosition(self);
     f = D_0062BE50;
@@ -209,6 +209,6 @@ int func_00239348(int self) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002393A8);
+INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", stageSE18awind);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239438);
+INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", stageSE17brain);

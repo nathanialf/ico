@@ -1,12 +1,12 @@
 #include "common.h"
 
 extern void func_0013F480(void);
-extern void debug_assertMessage(char *a0, ...);
-extern void func_0010ED88(void);
+extern void debug_StdPrintfDummy(char *a0, ...);
+extern void InitTableSin(void);
 extern void func_00104CF0(void);
 extern void SetDarkVolumeEffect(void);
 extern void gsb_StageSettingTool(void);
-extern void func_0010F058(void);
+extern void p2o_TransMicroProgram(void);
 extern void debug_Load(void);
 extern void func_001AB108(void);
 extern void func_00100A70(int a0);
@@ -16,25 +16,25 @@ extern char D_0060B1C8[], D_0060B1D8[], D_0060B1F0[];
 void stop_free_resources(void)
 {
     func_0013F480();
-    debug_assertMessage(D_0060B178);
-    func_0010ED88();
-    debug_assertMessage(D_0060B188);
+    debug_StdPrintfDummy(D_0060B178);
+    InitTableSin();
+    debug_StdPrintfDummy(D_0060B188);
     func_00104CF0();
     SetDarkVolumeEffect();
-    debug_assertMessage(D_0060B1A0);
+    debug_StdPrintfDummy(D_0060B1A0);
     gsb_StageSettingTool();
-    debug_assertMessage(D_0060B1B0);
-    func_0010F058();
-    debug_assertMessage(D_0060B1C8);
+    debug_StdPrintfDummy(D_0060B1B0);
+    p2o_TransMicroProgram();
+    debug_StdPrintfDummy(D_0060B1C8);
     debug_Load();
-    debug_assertMessage(D_0060B1D8);
+    debug_StdPrintfDummy(D_0060B1D8);
     func_001AB108();
-    debug_assertMessage(D_0060B1F0);
+    debug_StdPrintfDummy(D_0060B1F0);
     return func_00100A70(2);
 }
 
 extern int D_00629C90;
-extern void ExitIcoMisc(int a0);
+extern void gamesysStageExitTimeSet(int a0);
 extern void func_0017E160(int a0, int a1);
 extern void AttackCheckHit(int a0);
 extern void backStageProcessInStage(void);
@@ -42,7 +42,7 @@ extern void sndManager(int a0, int a1);
 extern void _transRingBuf(void);
 
 void stage_initialize(int a0) {
-    ExitIcoMisc(D_00629C90);
+    gamesysStageExitTimeSet(D_00629C90);
     func_0017E160(D_00629C90, 0);
     AttackCheckHit(a0);
     backStageProcessInStage();
@@ -51,15 +51,15 @@ void stage_initialize(int a0) {
 }
 
 extern void light_getAmbientLight(void *a0, int a1, int a2, int a3);
-extern void func_0023EB60(int a0, int a1);
+extern void sceGsSyncPath(int a0, int a1);
 extern void func_0019CB28(void);
 extern int func_0013D4B0(int a0);
 extern void ClipStormByCamera(int a0);
 extern void iosThreadWakeup(void *a0, int a1, void *a2, void *a3, int a4, long long a5, int a6);
 extern void iosThreadJoin(void *a0);
-extern void func_0023E168(void);
-extern void func_00240AB8(void);
-extern int func_00240B78(int a0);
+extern void sceGsResetPath(void);
+extern void sceVpu0Reset(void);
+extern int sceDmaReset(int a0);
 extern void func_001ACA38(void);
 
 extern char D_0060B200[], D_0060B210[];
@@ -80,14 +80,14 @@ void exit_stage(int a0) {
     D_00629CA0 = D_00629C90;
     D_00629C90 = a0;
     light_getAmbientLight(D_00271270, 1, 1, 1);
-    func_0023EB60(0, 0);
+    sceGsSyncPath(0, 0);
     D_0062AB08 = 1;
     func_0019CB28();
     if (D_0062AAF8 != 0) {
         func_0013F480();
-        func_0023E168();
-        func_00240AB8();
-        func_00240B78(1);
+        sceGsResetPath();
+        sceVpu0Reset();
+        sceDmaReset(1);
         D_0062AAFC = 1;
         D_00271240.f_14 = 0;
         D_00271240.f_18 = 0;
@@ -104,9 +104,9 @@ void exit_stage(int a0) {
     iosThreadWakeup(&D_006DE080, 1, func_001ACA38, &D_00629C90, D_0062A300, 0x18000, 0x1B);
     iosThreadJoin(&D_006DE080);
     flag = D_006DE080.f_3c;
-    debug_assertMessage(D_0060B200, (long long)(int)flag & 1);
+    debug_StdPrintfDummy(D_0060B200, (long long)(int)flag & 1);
     D_00629D20 = 1;
-    debug_assertMessage(D_0060B210);
+    debug_StdPrintfDummy(D_0060B210);
 }
 
 
@@ -120,7 +120,7 @@ extern StgPre D_005EBC48[];
 extern StgFile D_0055A2FC[];
 extern StgSlot D_004AE0F0[];
 extern char D_0060B258[];
-extern int func_00166AB8();
+extern int PositionOfExit();
 extern void start_stage_Load_thread(void);
 extern void routeSetPos(void);
 extern int iosCdvdChgFileName();
@@ -139,7 +139,7 @@ void stgmgrNextStagePreLoad(int stage) {
         if (s != 0) {
             int count = D_0062AB4C;
             D_004AE0F0[count].f0 = D_0055A2FC[s].f0;
-            if (func_00166AB8(&D_004AE0F0[count].f10, i + 1) == 0) {
+            if (PositionOfExit(&D_004AE0F0[count].f10, i + 1) == 0) {
                 D_0062AB4C = D_0062AB4C + 1;
             }
         }
@@ -159,7 +159,7 @@ void stgmgrNextStagePreLoad(int stage) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrNextStagePreLoadEntry);
 
-void StageManager(int a0) {
+void stgmgrForceSwitchWithFade(int a0) {
     stgmgrForceSwitch(a0, 0, 0, 0);
 }
 
@@ -221,7 +221,7 @@ extern int D_0062C110;
 extern int D_0062AB28;
 extern int D_0062AB2C;
 
-void stgmgrForceSwitchWithFade(int a0) {
+void stgmgrNextStagePreLoadForceStageSet(int a0) {
     D_0062C110 = a0;
     D_0062AB28 = 1;
     D_0062AB2C = 0;

@@ -1,4 +1,4 @@
-# func_0025DF38 — PARKED near-miss rc15 (not permuter-run)
+# __muldi3 — PARKED near-miss rc15 (not permuter-run)
 
 VRAM 0x0025DF38. Computes low 64 bits of (long long)a0 * (long long)a1, i.e.
 the body of __muldi3, INLINED with EE's two multiply pipes:

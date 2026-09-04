@@ -1,7 +1,7 @@
-# GetCameraGroupCurrent — parked
+# _CameraEdit_add_box — parked
 
 VRAM: 0x00185468 (file_off 0x085468)
-Asm source: asm/aug6/nonmatchings/omori/src/camera-ico2/GetCameraGroupCurrent.s
+Asm source: asm/aug6/nonmatchings/omori/src/camera-ico2/_CameraEdit_add_box.s
 
 ## Attempt at 2026-07-07
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/omori/src/camera-ico2/GetCameraGroupCurrent.s
 
 **TU:** `omori/src/camera-ico2.c`
 
-**Seed:** `tough_nuts/GetCameraGroupCurrent/GetCameraGroupCurrent.c`
+**Seed:** `tough_nuts/_CameraEdit_add_box/_CameraEdit_add_box.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching GetCameraGroupCurrent, 0x178
+nonmatching _CameraEdit_add_box, 0x178
 
-glabel GetCameraGroupCurrent
+glabel _CameraEdit_add_box
     /* 85468 00185468 F0FFBD27 */  addiu      $29, $29, -0x10
     /* 8546C 0018546C 2D388000 */  daddu      $7, $4, $0
     /* 85470 00185470 0000BFFF */  sd         $31, 0x0($29)
@@ -124,7 +124,7 @@ glabel GetCameraGroupCurrent
 .align 2
   .L001855C4:
     /* 855C4 001855C4 5500043C */  lui        $4, %hi(D_00554AC0)
-    /* 855C8 001855C8 F290060C */  jal        debug_assertMessage
+    /* 855C8 001855C8 F290060C */  jal        debug_StdPrintfDummy
     /* 855CC 001855CC C04A8424 */   addiu     $4, $4, %lo(D_00554AC0)
     /* 855D0 001855D0 FFFF0224 */  addiu      $2, $0, -0x1
 .align 2
@@ -132,5 +132,5 @@ glabel GetCameraGroupCurrent
     /* 855D4 001855D4 0000BFDF */  ld         $31, 0x0($29)
     /* 855D8 001855D8 0800E003 */  jr         $31
     /* 855DC 001855DC 1000BD27 */   addiu     $29, $29, 0x10
-endlabel GetCameraGroupCurrent
+endlabel _CameraEdit_add_box
 ```

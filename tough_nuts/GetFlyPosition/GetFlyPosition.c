@@ -139,7 +139,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", enemy_dodge);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", Battle_isCurrentStatus);
 
 extern int actBoyDitch3mReady(void);
-extern float pac_DispQW(void);
+extern float _GetRandom(void);
 extern int D_00629DE4;
 extern int D_0062A670;
 extern int D_0062BFF0[1];
@@ -167,7 +167,7 @@ void GetFlyPosition(GFP_Self *self) {
     if (self->f0->f164->f670->f1E0 == 2) {
         int a670 = D_0062A670;
         D_0062BFF0[0] = D_00629DE4;
-        if ((int)(pac_DispQW() * 10.0f) % 100 < self->f0->f164->f670->f1F4) {
+        if ((int)(_GetRandom() * 10.0f) % 100 < self->f0->f164->f670->f1F4) {
             self->f0->f164->f670->f200 = 0xC;
             if (D_0062BFF0) {
                 self->f0->f164->f670->f20C = D_0062BFF0[0];
@@ -210,7 +210,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _ApproachTarget_Boss);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", flyMailCore);
 
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 extern unsigned int _ACTWait(int a0);
 
 extern char D_005531D8[];
@@ -221,13 +221,13 @@ void _ApproachTarget_Way(volatile unsigned int a0)
     int *new_var;
     int *s0;
     new_var = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_005531D8);
+    debug_StdPrintfDummy((char *)D_005531D8);
     s0 = new_var;
     s0[0x30 / 4] = 0x1;
     _ACTWait(0);
 }
 
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 extern unsigned int _ACTWait(int a0);
 
 extern char D_00553208[];
@@ -237,12 +237,12 @@ void actEnemyStart(volatile unsigned int a0)
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_00553208);
+    debug_StdPrintfDummy((char *)D_00553208);
     s0[0x30 / 4] = 0x2;
     _ACTWait(0);
 }
 
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 extern unsigned int _ACTWait(int a0);
 
 extern char D_00553238[];
@@ -252,7 +252,7 @@ void subEnemyBrain_Irregular(volatile unsigned int a0)
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_00553238);
+    debug_StdPrintfDummy((char *)D_00553238);
     s0[0x30 / 4] = 0x3;
     _ACTWait(0);
 }
@@ -265,20 +265,20 @@ void subEnemyBrain_Attack(volatile unsigned int a0)
     volatile int local;
     int *s0;
     new_var = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_00553280);
+    debug_StdPrintfDummy((char *)D_00553280);
     s0 = new_var;
     s0[0x30 / 4] = 0x1C;
     _ACTWait(0);
 }
 
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern char D_00553110[];
 extern char D_0062C4F8[];
 void subEnemyBrain_Cling(int a0) {
     volatile int local;
     local = a0;
     func_001AAD00(D_00553110, 0xACB);
-    func_00260380(D_00553110, 0xACB, D_0062C4F8);
+    __assert(D_00553110, 0xACB, D_0062C4F8);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyAiGetGirl);
@@ -391,7 +391,7 @@ int EnemyBrainStatus_Boy(void *a0) {
 }
 
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern char D_00553110[];
 extern char D_00553120[];
 int EnemyBrainStatus_Girl(void *a0, int *a1) {
@@ -403,7 +403,7 @@ int EnemyBrainStatus_Girl(void *a0, int *a1) {
     *a1 = w;
     if (w == 0) {
         func_001AAD00(D_00553110, 0x2E8);
-        func_00260380(D_00553110, 0x2E8, D_00553120);
+        __assert(D_00553110, 0x2E8, D_00553120);
     }
     return 1;
 }
@@ -453,12 +453,12 @@ one:
 }
 
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern char D_005532B0[];
 int actEnemy_isNormalEnemy(void *a0) {
     if (a0 == 0 || *(int *)((char *)a0 + 0xC) != 4) {
         func_001AAD00(D_00553110, 0x7C0);
-        func_00260380(D_00553110, 0x7C0, D_005532B0);
+        __assert(D_00553110, 0x7C0, D_005532B0);
     }
     return funcEnemyCarryFail((int *)a0);
 }
@@ -482,7 +482,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", IsEnemyBrainToGenerator)
 
 extern int subEnemyBrain_ToBoy(void *a0);
 
-int IsEnemyBrainToBoy(void *a0) {
+int FlyMail(void *a0) {
     int x = *(int *)(*(char **)((char *)a0 + 0x164) + 0x10);
     if (x < 0xC) {
         return -1;

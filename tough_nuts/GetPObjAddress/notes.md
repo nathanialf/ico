@@ -65,7 +65,7 @@ glabel GetPObjAddress
     /* A00F0 001A00F0 6300063C */  lui        $6, %hi(D_0062C9F0)
     /* A00F4 001A00F4 2D200002 */  daddu      $4, $16, $0
     /* A00F8 001A00F8 F0C9C624 */  addiu      $6, $6, %lo(D_0062C9F0)
-    /* A00FC 001A00FC E080090C */  jal        func_00260380
+    /* A00FC 001A00FC E080090C */  jal        __assert
     /* A0100 001A0100 B8020524 */   addiu     $5, $0, 0x2B8
 .align 2
   .L001A0104:
@@ -110,7 +110,7 @@ glabel GetPObjAddress
     /* A017C 001A017C 2D288002 */  daddu      $5, $20, $0
     /* A0180 001A0180 00BA8424 */  addiu      $4, $4, %lo(D_0060BA00)
     /* A0184 001A0184 2D30C002 */  daddu      $6, $22, $0
-    /* A0188 001A0188 F290060C */  jal        debug_assertMessage
+    /* A0188 001A0188 F290060C */  jal        debug_StdPrintfDummy
     /* A018C 001A018C 2D382002 */   daddu     $7, $17, $0
 .align 2
   .L001A0190:

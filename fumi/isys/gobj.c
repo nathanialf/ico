@@ -26,12 +26,12 @@ void isysGObjKindTableInit(unsigned int n)
 }
 
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
 void isysGObjInit(int a0)
 {
     if (a0 == 0) {
-        debug_assertMessage(D_00551DF0);
+        debug_StdPrintfDummy(D_00551DF0);
         return;
     }
     if (*(int *)(a0 + 0x14) == 0) {
@@ -57,7 +57,7 @@ extern char D_0062C348[];
 extern struct GObj *D_0062BFA8;
 extern unsigned int D_0062BFAC;
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern void isysGObjInit(int a0);
 extern void isysGObjProcAddS(int a0);
 extern void func_0013D870(void);
@@ -91,7 +91,7 @@ void cut_gobj_link(void) {
                             do {
                                 if (p == 0) {
                                     func_001AAD00(file, 0x92);
-                                    func_00260380(file, 0x92, D_0062C348);
+                                    __assert(file, 0x92, D_0062C348);
                                 }
                                 p = *(char **)(p + 0x3C);
                             } while (*(char **)(p + 0x3C) != gobj);
@@ -253,7 +253,7 @@ struct GObj {
 
 extern struct GObj *D_0062BFA8;
 extern unsigned int D_0062BFAC;
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
 void *isysGObjMoveHead(int a0, struct GObj *o)
 {
@@ -269,7 +269,7 @@ void *isysGObjMoveHead(int a0, struct GObj *o)
         }
     }
     if (i == D_0062BFAC) {
-        debug_assertMessage(D_00551E00);
+        debug_StdPrintfDummy(D_00551E00);
         e = 0;
     } else {
         struct GObj *p = (struct GObj *)(i * 0x174 + (int)D_0062BFA8);
@@ -278,11 +278,11 @@ void *isysGObjMoveHead(int a0, struct GObj *o)
         e = p;
     }
     if (e == 0) {
-        debug_assertMessage(D_00551E00);
+        debug_StdPrintfDummy(D_00551E00);
         return 0;
     }
     if (o == 0) {
-        debug_assertMessage(D_00551DF0);
+        debug_StdPrintfDummy(D_00551DF0);
         return 0;
     }
     e->f_0 = e;
@@ -326,7 +326,7 @@ void *isysGObjAddAfterGObj(int a0, struct GObj *o)
         }
     }
     if (i == D_0062BFAC) {
-        debug_assertMessage(D_00551E00);
+        debug_StdPrintfDummy(D_00551E00);
         e = 0;
     } else {
         struct GObj *p = (struct GObj *)(i * 0x174 + (int)D_0062BFA8);
@@ -335,11 +335,11 @@ void *isysGObjAddAfterGObj(int a0, struct GObj *o)
         e = p;
     }
     if (e == 0) {
-        debug_assertMessage(D_00551E00);
+        debug_StdPrintfDummy(D_00551E00);
         return 0;
     }
     if (o == 0) {
-        debug_assertMessage(D_00551DF0);
+        debug_StdPrintfDummy(D_00551DF0);
         return 0;
     }
     e->f_0 = e;
@@ -409,7 +409,7 @@ void isysGetNbAllocedGObjs(unsigned int n) {
 
 extern void *D_006A2F50[];
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern char D_0062C348[];
 extern void isysGObjInit(int a0);
 extern void isysGObjProcAddS(int a0);
@@ -429,7 +429,7 @@ void isysGObjAlloc(char *a0) {
         do {
             if (p == 0) {
                 func_001AAD00(D_00551DE0, 0x92);
-                func_00260380(D_00551DE0, 0x92, D_0062C348);
+                __assert(D_00551DE0, 0x92, D_0062C348);
             }
             p = *(char **)(p + 0x3C);
         } while (*(char **)(p + 0x3C) != a0);
@@ -446,7 +446,7 @@ init:
 
 extern int D_0062A4C0;
 extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void *isysGObjSearchFromObjKindID_begin(struct GObj *g);
+extern void *isysGObjSearchFromObjKindID_next(struct GObj *g);
 extern void isysGObjKindTableAdd(char *a0);
 
 void isysGObjRemove(char *a0, int a1)
@@ -467,7 +467,7 @@ void isysGObjRemove(char *a0, int a1)
             isysGObjKindTableAdd(a0);
             break;
         }
-        isysGObjSearchFromObjKindID_begin((struct GObj *)p);
+        isysGObjSearchFromObjKindID_next((struct GObj *)p);
     }
     *(int *)(a0 + 0xC) = a1;
     if (in_range) {
@@ -487,7 +487,7 @@ void isysGObjRemove(char *a0, int a1)
 
 extern void *D_006A2F50[];
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern char D_0062C348[];
 
 void isysGObjKindTableAdd(char *a0) {
@@ -504,7 +504,7 @@ void isysGObjKindTableAdd(char *a0) {
         do {
             if (p == 0) {
                 func_001AAD00(D_00551DE0, 0x92);
-                func_00260380(D_00551DE0, 0x92, D_0062C348);
+                __assert(D_00551DE0, 0x92, D_0062C348);
             }
             p = *(char **)(p + 0x3C);
         } while (*(char **)(p + 0x3C) != a0);
@@ -566,7 +566,7 @@ void *isysGObjMoveBeforeGObj(int a0, int a1, int a2)
         }
     }
     if (i == D_0062BFAC) {
-        debug_assertMessage(D_00551E00);
+        debug_StdPrintfDummy(D_00551E00);
         e = 0;
     } else {
         struct GObj *p = (struct GObj *)(i * 0x174 + (int)D_0062BFA8);
@@ -575,7 +575,7 @@ void *isysGObjMoveBeforeGObj(int a0, int a1, int a2)
         e = p;
     }
     if (e == 0) {
-        debug_assertMessage(D_00551E00);
+        debug_StdPrintfDummy(D_00551E00);
         return 0;
     }
     e->f_28 = a0;
@@ -606,7 +606,7 @@ void *isysGObjAdd(int a0, int a1, int a2)
         }
     }
     if (i == D_0062BFAC) {
-        debug_assertMessage(D_00551E00);
+        debug_StdPrintfDummy(D_00551E00);
         e = 0;
     } else {
         struct GObj *p = (struct GObj *)(i * 0x174 + (int)D_0062BFA8);
@@ -615,7 +615,7 @@ void *isysGObjAdd(int a0, int a1, int a2)
         e = p;
     }
     if (e == 0) {
-        debug_assertMessage(D_00551E00);
+        debug_StdPrintfDummy(D_00551E00);
         return 0;
     }
     e->f_28 = a0;
@@ -669,7 +669,7 @@ table:
 }
 
 
-void *isysGObjSearchFromObjKindID_begin(struct GObj *g)
+void *isysGObjSearchFromObjKindID_next(struct GObj *g)
 {
     struct GObj *p;
     struct GObj *end;

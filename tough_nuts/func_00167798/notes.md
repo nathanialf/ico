@@ -1,7 +1,7 @@
-# func_00167798 — parked
+# _clipWAdjustPos — parked
 
 VRAM: 0x00167798 (file_off 0x067798)
-Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00167798.s
+Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/_clipWAdjustPos.s
 
 ## Attempt at 2026-06-23
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00167798.s
 
 **TU:** `fumi/src/fuzio.c`
 
-**Seed:** `tough_nuts/func_00167798/func_00167798.c`
+**Seed:** `tough_nuts/_clipWAdjustPos/_clipWAdjustPos.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00167798, 0x13C
+nonmatching _clipWAdjustPos, 0x13C
 
-glabel func_00167798
+glabel _clipWAdjustPos
     /* 67798 00167798 70FFBD27 */  addiu      $29, $29, -0x90
     /* 6779C 0016779C 2CB4878F */  lw         $7, %gp_rel(D_0062C01C)($28)
     /* 677A0 001677A0 5000B5FF */  sd         $21, 0x50($29)
@@ -109,6 +109,6 @@ glabel func_00167798
     /* 678C8 001678C8 0000B0DF */  ld         $16, 0x0($29)
     /* 678CC 001678CC 0800E003 */  jr         $31
     /* 678D0 001678D0 9000BD27 */   addiu     $29, $29, 0x90
-endlabel func_00167798
+endlabel _clipWAdjustPos
     /* 678D4 001678D4 00000000 */  nop
 ```

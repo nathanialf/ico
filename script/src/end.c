@@ -13,7 +13,7 @@ extern int actSt25aQueenDeadChk(int a0);
 extern int stage_DispBgAnimation(int a0, int a1);
 extern void _ACTWait(int a0);
 extern int func_0012A958(int a0);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern void RequestStageChange(int a0, int a1, int a2, float f12, float f13);
 extern int D_00629DE4;
 extern int D_00629DE8;
 void actEndDemo01(volatile int a0) {
@@ -30,7 +30,7 @@ void actEndDemo01(volatile int a0) {
     gflagOff(actSt25aQueenDeadChk(0x8E7), 0x30A);
     while (func_0012A958(0x2FC) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    actSt25aQueenDead(3, D_00629DE4, D_00629DE8, 1.0f, 8.0f);
+    RequestStageChange(3, D_00629DE4, D_00629DE8, 1.0f, 8.0f);
 }
 
 
@@ -38,7 +38,7 @@ extern int actInitialize(int a0);
 extern void lt_fade_status(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
 extern void LightLineGeo(int a0, int a1);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f12);
+extern void scpFadeOut(int a0, int a1, int a2, float f12);
 extern void scpPlayMotDir(int a0, int a1, int a2, int a3);
 extern void func_0012AAB8(int a0, int a1);
 extern int func_00178DB0(int a0);
@@ -51,7 +51,7 @@ void actConte14_1(volatile int a0) {
     _ACTWait(1);
     lt_fade_status(0x33);
     D_0062A894 = 1;
-    actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+    scpFadeOut(0, 0, 0, 255.0f);
     scpPlayMotDir(3, 0, 0x1E2, 0);
     stage_KillPlayBgAnimation(0x97, 0, 0);
     func_0012AAB8(0x1E2, 1);
@@ -72,7 +72,7 @@ extern int actInitialize(int a0);
 extern void lt_fade_status(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
 extern void LightLineGeo(int a0, int a1);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f12);
+extern void scpFadeOut(int a0, int a1, int a2, float f12);
 extern void scpPlayMotDir(int a0, int a1, int a2, int a3);
 extern void func_0012AAB8(int a0, int a1);
 extern int D_0062A894;
@@ -84,7 +84,7 @@ void actConte14_2(volatile int a0) {
     _ACTWait(1);
     lt_fade_status(0x33);
     D_0062A894 = 1;
-    actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+    scpFadeOut(0, 0, 0, 255.0f);
     scpPlayMotDir(3, 0, 0x1E2, 0);
     func_0012AAB8(0x1E2, 1);
     stage_KillPlayBgAnimation(0x1E2, 1, 0);
@@ -141,13 +141,13 @@ void actEndDemo06(volatile int a0) {
     stage_KillPlayBgAnimation(0x36, 1, 0);
     while (func_0012A958(0x308) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    actSt25aQueenDead(3, D_00629DE4, D_00629DE8, 1.0f, 8.0f);
+    RequestStageChange(3, D_00629DE4, D_00629DE8, 1.0f, 8.0f);
 }
 
 
 #include "common.h"
 extern void func_001790A8(int a0);
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void func_0017A0F8(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern void gflagOff(int a0, int a1);
@@ -155,12 +155,12 @@ extern int stage_DispBgAnimation(int a0, int a1);
 extern void _ACTWait(int a0);
 extern int func_0012A958(int a0);
 extern void func_001790E8(int a0);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern void RequestStageChange(int a0, int a1, int a2, float f0, float f1);
 extern int D_00629DE4;
 extern int D_00629DE8;
 void actConte14_6(volatile int a0) {
     func_001790A8(D_00629DE4);
-    actConte11Jimaku(3.0f);
+    scpFadeIn(3.0f);
     func_0017A0F8(6);
     stage_KillPlayBgAnimation(0x30B, 1, 0);
     gflagOff(D_00629DE4, 0x1C2);
@@ -171,13 +171,13 @@ void actConte14_6(volatile int a0) {
     while (func_0012A958(0x30C) == 0) { _ACTWait(1); }
     _ACTWait(1);
     func_001790E8(D_00629DE4);
-    actSt25aQueenDead(6, D_00629DE4, D_00629DE8, 1.0f, 8.0f);
+    RequestStageChange(6, D_00629DE4, D_00629DE8, 1.0f, 8.0f);
 }
 
 extern void staffRollMain(int a0, float a1);
 extern int func_0012AA28(int a0, int a1, int a2);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f12);
-extern int actSt25aQueenDeadEvent(void);
+extern void scpFadeOut(int a0, int a1, int a2, float f12);
+extern int scpFadeChk(void);
 void actEndDemo07(volatile int a0) {
     func_0017A0F8(1);
     staffRollMain(0xFF, 1.0f);
@@ -208,17 +208,17 @@ void actEndDemo07(volatile int a0) {
     gflagOff(D_00629DE4, 0x123);
     while (func_0012AA28(0x217, 0x64, 0) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    actSt25aQueenBeforeChk(0, 0, 0, 8.0f);
-    while (actSt25aQueenDeadEvent() != 0) { _ACTWait(1); }
-    actSt25aQueenDead(1, D_00629DE4, D_00629DE8, 0.0f, 8.0f);
+    scpFadeOut(0, 0, 0, 8.0f);
+    while (scpFadeChk() != 0) { _ACTWait(1); }
+    RequestStageChange(1, D_00629DE4, D_00629DE8, 0.0f, 8.0f);
 }
 
 
 extern int func_0012AA28(int a0, int a1, int a2);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f12);
-extern int actSt25aQueenDeadEvent(void);
+extern void scpFadeOut(int a0, int a1, int a2, float f12);
+extern int scpFadeChk(void);
 extern void shadow_Tool(int a0);
-extern void UpdateStormPackage(int a0);
+extern void SetStaticBlur(int a0);
 void actConte14_7(volatile int a0) {
     func_0017A0F8(1);
     stage_KillPlayBgAnimation(0x240, 1, 0);
@@ -259,10 +259,10 @@ void actConte14_7(volatile int a0) {
     while (func_0012AA28(0x259, 0xC8, 0) == 0) { _ACTWait(1); }
     _ACTWait(1);
     shadow_Tool(0);
-    UpdateStormPackage(1);
-    actSt25aQueenBeforeChk(0, 0, 0, 8.0f);
-    while (actSt25aQueenDeadEvent() != 0) { _ACTWait(1); }
-    actSt25aQueenDead(1, D_00629DE4, D_00629DE8, 0.0f, 8.0f);
+    SetStaticBlur(1);
+    scpFadeOut(0, 0, 0, 8.0f);
+    while (scpFadeChk() != 0) { _ACTWait(1); }
+    RequestStageChange(1, D_00629DE4, D_00629DE8, 0.0f, 8.0f);
 }
 
 
@@ -271,12 +271,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/end", actEndDemo10);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/end", actConte14_10);
 
 
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void lt_fade_status(int a0);
 extern void func_001790E8(int a0);
 extern void func_00178E08(int a0);
 extern void *ContinueCorrectPosition(int a0);
-extern void func_00240008(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern void gflagChk(int a0, void *a1);
 extern int D_0062A894;
 typedef struct { long long _0; long long _8; } WpData16;
@@ -284,7 +284,7 @@ extern WpData16 D_006144B0;
 void actConte14_13(volatile int a0) {
     WpData16 local10, local20;
     func_001790A8(D_00629DE4);
-    actConte11Jimaku(6.0f);
+    scpFadeIn(6.0f);
     stage_KillPlayBgAnimation(0x311, 1, 0);
     gflagOff(D_00629DE4, 0x1C7);
     while (stage_DispBgAnimation(0x311, 0x312) == 0) { _ACTWait(1); }
@@ -306,7 +306,7 @@ void actConte14_13(volatile int a0) {
     _ACTWait(0xB4);
     gflagOff(D_00629DE4, 0);
     local10 = D_006144B0;
-    func_00240008(&local20, &local10, ContinueCorrectPosition(D_00629DE4));
+    sceVu0SubVector(&local20, &local10, ContinueCorrectPosition(D_00629DE4));
     gflagChk(D_00629DE4, &local20);
     func_001790E8(D_00629DE4);
     D_0062A894 = 0;
@@ -324,7 +324,7 @@ extern int actSt25aQueenDeadChk(int a0);
 extern int stage_DispBgAnimation(int a0, int a1);
 extern void _ACTWait(int a0);
 extern int func_0012A958(int a0);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern void RequestStageChange(int a0, int a1, int a2, float f12, float f13);
 extern int D_00629DE4;
 extern int D_00629DE8;
 void actStaff2Demo(volatile int a0) {
@@ -340,14 +340,14 @@ void actStaff2Demo(volatile int a0) {
     gflagOff(actSt25aQueenDeadChk(0x7FA), 0x315);
     while (func_0012A958(0x319) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    actSt25aQueenDead(1, D_00629DE4, D_00629DE8, 1.0f, 8.0f);
+    RequestStageChange(1, D_00629DE4, D_00629DE8, 1.0f, 8.0f);
 }
 
 
 extern int actInitialize(int a0);
 extern void lt_fade_status(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f12);
+extern void scpFadeOut(int a0, int a1, int a2, float f12);
 extern int D_0062A894;
 extern int D_004CB7E0[];
 extern void actOpDemo01_2(volatile int a0);
@@ -358,7 +358,7 @@ void actStaff3Demo(volatile int a0) {
     if (D_00629DE4 != 0) { gflagOff(D_00629DE4, 0); }
     lt_fade_status(0x33);
     D_0062A894 = 1;
-    actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+    scpFadeOut(0, 0, 0, 255.0f);
     D_004CB7E0[1] = (int)actOpDemo01_2;
     gobj->unkB4 = D_004CB7E0;
     BoxBarSoundOn(a0, 0x189);
@@ -369,7 +369,7 @@ void actStaff3Demo(volatile int a0) {
 extern int actInitialize(int a0);
 extern void lt_fade_status(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f12);
+extern void scpFadeOut(int a0, int a1, int a2, float f12);
 extern int D_0062A894;
 extern int D_004CB800[];
 extern void actOpDemo02(volatile int a0);
@@ -380,7 +380,7 @@ void actEndDemo14(volatile int a0) {
     if (D_00629DE4 != 0) { gflagOff(D_00629DE4, 0); }
     lt_fade_status(0x33);
     D_0062A894 = 1;
-    actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+    scpFadeOut(0, 0, 0, 255.0f);
     D_004CB800[1] = (int)actOpDemo02;
     gobj->unkB4 = D_004CB800;
     BoxBarSoundOn(a0, 0x189);
@@ -452,7 +452,7 @@ void actSt27aEndDemo(volatile int a0) {
 }
 
 
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f12);
+extern void scpFadeOut(int a0, int a1, int a2, float f12);
 extern int D_004CB8E0[];
 extern void func_0020AB40(volatile int a0);
 void actEndDemo03(volatile int a0) {
@@ -461,7 +461,7 @@ void actEndDemo03(volatile int a0) {
     _ACTWait(1);
     lt_fade_status(0x33);
     D_0062A894 = 1;
-    actSt25aQueenBeforeChk(0xFF, 0xFF, 0xFF, 255.0f);
+    scpFadeOut(0xFF, 0xFF, 0xFF, 255.0f);
     LightLineGeo(D_00629DE4, 2);
     D_004CB8E0[1] = (int)func_0020AB40;
     gobj->unkB4 = D_004CB8E0;
@@ -496,7 +496,7 @@ void actEndDemo04(volatile int a0) {
 
 
 extern int D_004CB920[];
-extern void func_0020AB98(volatile int a0);
+extern void actStaff2Chk(volatile int a0);
 void actEndDemo05(volatile int a0) {
     int x = a0;
     GObj *gobj = (GObj *)actInitialize(a0);
@@ -505,7 +505,7 @@ void actEndDemo05(volatile int a0) {
     D_0062A894 = 1;
     stage_KillPlayBgAnimation(0xED, 0, 0);
     stage_KillPlayBgAnimation(0x101, 0, 0);
-    D_004CB920[1] = (int)func_0020AB98;
+    D_004CB920[1] = (int)actStaff2Chk;
     gobj->unkB4 = D_004CB920;
     BoxBarSoundOn(a0, 0x189);
     _ACTWait(0);

@@ -1,7 +1,7 @@
-# func_00265130 — parked
+# vsprintf — parked
 
 VRAM: 0x00265130 (file_off 0x165130)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00265130.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/vsprintf.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00265130.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00265130/func_00265130.c`
+**Seed:** `tough_nuts/vsprintf/vsprintf.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00265130, 0x54
+nonmatching vsprintf, 0x54
 
-glabel func_00265130
+glabel vsprintf
     /* 165130 00265130 5500023C */  lui        $2, %hi(D_0054D504)
     /* 165134 00265134 FF7F033C */  lui        $3, (0x7FFFFFFF >> 16)
     /* 165138 00265138 04D5488C */  lw         $8, %lo(D_0054D504)($2)
@@ -39,6 +39,6 @@ glabel func_00265130
     /* 165178 00265178 000060A0 */  sb         $0, 0x0($3)
     /* 16517C 0026517C 0800E003 */  jr         $31
     /* 165180 00265180 7000BD27 */   addiu     $29, $29, 0x70
-endlabel func_00265130
+endlabel vsprintf
     /* 165184 00265184 00000000 */  nop
 ```

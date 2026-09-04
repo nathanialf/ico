@@ -1,7 +1,7 @@
-# saveEditedData — parked
+# brainAddLevel — parked
 
 VRAM: 0x00180130 (file_off 0x080130)
-Asm source: asm/aug6/nonmatchings/omori/src/camera-editor/saveEditedData.s
+Asm source: asm/aug6/nonmatchings/omori/src/camera-editor/brainAddLevel.s
 
 ## Attempt at 2026-06-20
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/omori/src/camera-editor/saveEditedData.s
 
 **TU:** `omori/src/camera-editor.c`
 
-**Seed:** `tough_nuts/saveEditedData/saveEditedData.c`
+**Seed:** `tough_nuts/brainAddLevel/brainAddLevel.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching saveEditedData, 0x4C
+nonmatching brainAddLevel, 0x4C
 
-glabel saveEditedData
+glabel brainAddLevel
     /* 80130 00180130 100080C4 */  lwc1       $f0, 0x10($4)
     /* 80134 00180134 040081C4 */  lwc1       $f1, 0x4($4)
     /* 80138 00180138 02000C46 */  mul.s      $f0, $f0, $f12
@@ -41,6 +41,6 @@ glabel saveEditedData
   .L00180174:
     /* 80174 00180174 0800E003 */  jr         $31
     /* 80178 00180178 040080E4 */   swc1      $f0, 0x4($4)
-endlabel saveEditedData
+endlabel brainAddLevel
     /* 8017C 0018017C 00000000 */  nop
 ```

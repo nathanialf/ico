@@ -1,6 +1,6 @@
 #include "common.h"
 
-extern int func_00261188(void *buf, const char *fmt, int n);
+extern int sprintf(void *buf, const char *fmt, int n);
 extern void traceLine(int a0, int a1, unsigned int a2, void *a3);
 extern int D_00271634[];
 extern const char D_00612D40[];
@@ -11,7 +11,7 @@ extern int D_0062AF84;
 extern unsigned char D_0062B958[4];
 extern int D_0062B994;
 
-void fillWork2(void) {
+void colorSetting(void) {
     char buf[256];
     int x;
     int v4 = D_00271634[0];
@@ -67,7 +67,7 @@ after4:
         goto c3;
     }
 c0:
-    func_00261188(buf, D_00612D40, D_0062B958[0]);
+    sprintf(buf, D_00612D40, D_0062B958[0]);
     hi = 0xFF;
     x = D_0062B958[0] + delta;
     x = (-1 < x) ? x : 0;
@@ -75,7 +75,7 @@ c0:
     D_0062B958[0] = x;
     goto tail;
 c1:
-    func_00261188(buf, D_00612D50, D_0062B958[1]);
+    sprintf(buf, D_00612D50, D_0062B958[1]);
     hi = 0xFF;
     x = D_0062B958[1] + delta;
     x = (-1 < x) ? x : 0;
@@ -83,7 +83,7 @@ c1:
     D_0062B958[1] = x;
     goto tail;
 c2:
-    func_00261188(buf, D_00612D60, D_0062B958[2]);
+    sprintf(buf, D_00612D60, D_0062B958[2]);
     hi = 0xFF;
     x = D_0062B958[2] + delta;
     x = (-1 < x) ? x : 0;
@@ -91,7 +91,7 @@ c2:
     D_0062B958[2] = x;
     goto tail;
 c3:
-    func_00261188(buf, D_00612D70, D_0062B958[3]);
+    sprintf(buf, D_00612D70, D_0062B958[3]);
     hi = 0xFF;
     x = D_0062B958[3] + delta;
     x = (-1 < x) ? x : 0;

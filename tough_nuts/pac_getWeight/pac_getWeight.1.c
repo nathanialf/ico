@@ -1,7 +1,7 @@
 #include "common.h"
 #include "vu0.h"
 
-float pac_DispQW(void) {
+float _GetRandom(void) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -14,7 +14,7 @@ float pac_DispQW(void) {
     return ret;
 }
 
-void pac_DumpPac(void *a0) {
+void _GetRandomVector(void *a0) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "vrnext.x $vf1, $R\n"
@@ -25,14 +25,14 @@ void pac_DumpPac(void *a0) {
         ".set reorder\n" : : : "memory");
 }
 
-void pac_makeBoundingBox(void *a0) {
+void _GetRandomVector0(void *a0) {
     VU0_REG("vrnext.xyz $vf1, $R");
     VU0_V3OP_BC(vsubw.xyz, 1, 1, 0, w);
     VU0_LSV(sqc2, 1, 0x0, 4);
     VU0_NOP();
 }
 
-void pac_error(void *p0, void *p1)
+void _RotTransCurrentMatrix(void *p0, void *p1)
 {
     VU0_LSV(lqc2, 8, 0x0, a1);
     VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
@@ -59,7 +59,7 @@ void pac_error(void *p0, void *p1)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeNormalStrip);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", mc_setBaseOffset);
 
 extern int D_0062AFF4;
 extern int dpk_SwapBuffer(int a0);
@@ -76,7 +76,7 @@ typedef struct {
 } PakBuf;
 extern PakBuf D_004C3850;
 
-void pac_getWeight(int a0, int a1, int a2, int a3, int a4) {
+void mc_SetMicroCode(int a0, int a1, int a2, int a3, int a4) {
     int w = 0xFFFF;
 
     switch (a0) {
@@ -170,7 +170,7 @@ Lret:
 extern int D_00272580[];
 extern int D_0066CB10[];
 extern int D_0062BF3C;
-extern void pac_makeNormalStrip(int a0, int a1);
+extern void mc_setBaseOffset(int a0, int a1);
 extern int dpk_SwapBuffer(int a0);
 extern void dpk_Init(int a0, int a1, int a2);
 extern int dl_GetPri(void);
@@ -182,7 +182,7 @@ void pac_makeClusterStrip(int a0, int a1) {
         if ((a1 >> i) & 1) {
             if (a0 != D_0066CB10[i]) {
                 D_0062BF3C++;
-                pac_makeNormalStrip(a0, i);
+                mc_setBaseOffset(a0, i);
                 dpk_SwapBuffer(i);
                 dpk_Init(5, *q, 0);
                 dl_GetPri();
@@ -221,8 +221,8 @@ void pac_setVifCode(void)
     } while (i >= 0);
 }
 
-extern void debug_assertMessage(const char *fmt, ...);
-extern int func_00260340(float);
+extern void debug_StdPrintfDummy(const char *fmt, ...);
+extern int fptodp(float);
 extern const char D_0054F180[];
 extern const char D_0054F198[];
 extern const char D_00631CD8_a[] __asm__("D_0062BE58");
@@ -241,14 +241,14 @@ void pac_setVifEndCode(unsigned char *arg, int slot_size) {
     case 0:
         is_float = 1;
         slot_size = 4;
-        debug_assertMessage(D_0054F180, arg);
+        debug_StdPrintfDummy(D_0054F180, arg);
         break;
     case 1:
     case 2:
     case 4:
     case 8:
     case 16:
-        debug_assertMessage(D_0054F198, arg, slot_size);
+        debug_StdPrintfDummy(D_0054F198, arg, slot_size);
         break;
     default:
         return;
@@ -258,25 +258,25 @@ void pac_setVifEndCode(unsigned char *arg, int slot_size) {
         if (!is_float) {
             int col;
             for (col = 0x10 / (0x10 / slot_size) - 1; col >= 0; col--) {
-                debug_assertMessage(D_00631CD8_a, arg[row * slot_size + col]);
+                debug_StdPrintfDummy(D_00631CD8_a, arg[row * slot_size + col]);
             }
-            debug_assertMessage(D_00631CE0_a);
+            debug_StdPrintfDummy(D_00631CE0_a);
         } else {
-            debug_assertMessage(D_00631CE8_a, func_00260340(((float *)arg)[row]));
+            debug_StdPrintfDummy(D_00631CE8_a, fptodp(((float *)arg)[row]));
         }
     }
-    debug_assertMessage(D_00631CF0_a);
+    debug_StdPrintfDummy(D_00631CF0_a);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_setGifTag);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_DumpPac);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_closeTag);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeBoundingBox);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_continueTag);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_checkDivide);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeNormalStrip);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_countOneVertexPacketSize);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_getWeight);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeStrip);
 
@@ -302,7 +302,7 @@ void pac_setMaterialPacket(int a0)
     *(float *)(ctx + 0x58) = f1;
     *(float *)(ctx + 0x54) = f1;
     *(float *)(ctx + 0x50) = f1;
-    debug_assertMessage(D_0054F540, a0 & mask);
+    debug_StdPrintfDummy(D_0054F540, a0 & mask);
 }
 
 extern char D_0054F550[];
@@ -314,7 +314,7 @@ void pac_makeMaterialTable(int a0)
     (*(volatile int * volatile *)(base + 0x24))[1] = (a0 << 16) | 0x6C008000;
     {
         volatile int *p = *(volatile int * volatile *)(base + 0x24);
-        debug_assertMessage(D_0054F550, p[0], p[1], (int *)p, a0);
+        debug_StdPrintfDummy(D_0054F550, p[0], p[1], (int *)p, a0);
     }
 }
 
@@ -331,18 +331,18 @@ void pac_makeMaterialTableLine(void)
     *curp = p + 2;
     p[2] = 0;
     *curp = p + 3;
-    debug_assertMessage((const char *)(p + 3));
+    debug_StdPrintfDummy((const char *)(p + 3));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_getTextureInfo);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_setGifTag);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeShapeTable);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_closeTag);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makePacket);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_MakePacket);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_Dump);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_countOneVertexPacketSize);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_Init);
 
@@ -352,9 +352,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011B2A0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011B468);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011B618);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_getTextureInfo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011B788);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeShapeTable);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011BB00);
 
@@ -366,7 +366,7 @@ void func_0011C308(void *a0) {
     func_0011BB00(p, *(int *)((char *)q + 0xF0), *(signed char *)((char *)p + 0x2F) > 0);
 }
 
-void func_0011C328(int *a0, int size)
+void pac_Dump(int *a0, int size)
 {
     int *p = a0;
     int count;

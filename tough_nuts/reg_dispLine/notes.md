@@ -5,7 +5,7 @@ Asm source: asm/aug6/nonmatchings/seki/src/RegistPacket/reg_dispLine.s
 
 ## Attempt at 2026-06-08
 
-**Reason parked:** best=rc4 (void-return, TCO j dl_GetPri correct). Residual: dpk_Init(2,D,4) delay-slot tie — ROM defers a0=2 to the jal delay (a1hi,a2,a1lo,[a0]); ee-gcc emits args L-to-R so a1lo (pointer %lo, last-ready via RAW chain) always fills the delay (a1hi,a0,a2,[a1lo]). 30+ distinct forms (return type void/int/long/void*, proto void*/int*/char/short/array/const/register, global ref D/&D[0]/D+1/scalar&/struct, enum/unsigned/comma/bare-call/two-stmt) + flag sweep (O1/O2/no-sched1/no-sched2) ALL rc4. a0=2 is a pure no-WAR constant (func_002590A0 defers const only via $4 WAR from an incoming arg; reg_dispLine is void(void)) so it can never schedule last by source. Permuter-class scheduler tie.
+**Reason parked:** best=rc4 (void-return, TCO j dl_GetPri correct). Residual: dpk_Init(2,D,4) delay-slot tie — ROM defers a0=2 to the jal delay (a1hi,a2,a1lo,[a0]); ee-gcc emits args L-to-R so a1lo (pointer %lo, last-ready via RAW chain) always fills the delay (a1hi,a0,a2,[a1lo]). 30+ distinct forms (return type void/int/long/void*, proto void*/int*/char/short/array/const/register, global ref D/&D[0]/D+1/scalar&/struct, enum/unsigned/comma/bare-call/two-stmt) + flag sweep (O1/O2/no-sched1/no-sched2) ALL rc4. a0=2 is a pure no-WAR constant (SgSetReverbFeedback defers const only via $4 WAR from an incoming arg; reg_dispLine is void(void)) so it can never schedule last by source. Permuter-class scheduler tie.
 
 **TU:** `seki/src/RegistPacket.c`
 
@@ -43,7 +43,7 @@ transposition: ROM emits `a2=4` into the a1 hi/lo gap and defers `a0=2` to the
 delay; ee-gcc 2.9 emits call args LEFT-TO-RIGHT so `a0` (arg0) fills the gap and
 `a2` (arg2) is deferred. No clean source reorders two plain immediates across a
 fixed-position call. arg0-const-in-delay needs a WAR hazard on $4 (cf.
-func_002590A0 `f(0x18,a0,a1,0)` where an incoming param copied to a1 forces the
+SgSetReverbFeedback `f(0x18,a0,a1,0)` where an incoming param copied to a1 forces the
 const write last) — reg_dispLine is `void(void)`, no incoming arg, so no WAR.
 The `if(D){}` is a permuter artifact, NOT clean dev C, and still only rc2.
 Permuter found NO rc0 (no output-0-*). RESUME idea: find the dev construct that
@@ -73,7 +73,7 @@ gap-filler swap floor holds; no clean $4-WAR exists for void(void). (b).
 Root-caused the residual: ROM emits call args [consts a1..an fwd][computed][a0-const LAST];
 our 2.9-991111-01 emits [a0-const FIRST][consts fwd][computed last]. Swept the whole ROM:
 121 sites share (const-a0 + >=1 computed arg → a0 in jal delay); **0 of 121 are matched**.
-371 FWD sites (all-const, e.g. gsb_SetFrame(1,n,0x80), or WAR like tex_setRegisters) match fine.
+371 FWD sites (all-const, e.g. gif_SetAlpha(1,n,0x80), or WAR like tex_setRegisters) match fine.
 Probes: proto/varargs/K&R, a0/a2 param types (char..long long), ptrdiff late-fold, mask+trunc
 combine games, do-while(0)/while(1)/for loop contexts (preserve_subexpressions_p), static
 inline wrappers (incl. REVERSED param order), comma-call-in-arg0, shared-local derived consts
@@ -94,7 +94,7 @@ class as fire-2's score-15). No output-0. Nothing beats rc2. (b) re-confirmed.
 Value-tracked whole-ROM scan (final a0=const + final arg-reg=%lo ptr):
 21 sites have %lo in the jal delay (OUR compiler's style) vs 9 with
 const-a0 in the delay (this site + PObj trio 248BB8/248EB8/2491D0 →
-func_002490C0(1,&D_00710F98) + MakeBarString/fog_DrawFog/CandleGeo/
+sceCdSync(1,&D_00710F98) + MakeBarString/fog_DrawFog/CandleGeo/
 lookAtTest/func_001CC518). Same binary, both orders → context-controlled,
 not a sub-build. decompme ee-gcc2.9-991111 (pre-01) and 991111a probe
 identically to ours; 2.96 = third order. Old "121-site cluster" was a

@@ -25,10 +25,10 @@ typedef struct EnNode { char pad[0x34]; struct EnNode *prev; struct EnNode *next
 extern EnNode *D_0062A4D4;
 extern EnNode *D_0062A4D8;
 extern char D_00613790[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
 void func_001F8C30(EnNode *node) {
-    if (node == 0) { debug_assertMessage(D_00613790); return; }
+    if (node == 0) { debug_StdPrintfDummy(D_00613790); return; }
     if (node->next) goto L60;
     if (node->prev == 0) goto L7C;
     goto L68;

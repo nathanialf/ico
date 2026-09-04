@@ -1,7 +1,7 @@
-# func_00247200 — parked
+# sceSifResetIop — parked
 
 VRAM: 0x00247200 (file_off 0x147200)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00247200.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sceSifResetIop.s
 
 ## Attempt at 2026-06-22
 
@@ -9,24 +9,24 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00247200.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00247200/func_00247200.c`
+**Seed:** `tough_nuts/sceSifResetIop/sceSifResetIop.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00247200, 0x130
+nonmatching sceSifResetIop, 0x130
 
-glabel func_00247200
+glabel sceSifResetIop
     /* 147200 00247200 C0FFBD27 */  addiu      $29, $29, -0x40
     /* 147204 00247204 2000B1FF */  sd         $17, 0x20($29)
     /* 147208 00247208 1000B0FF */  sd         $16, 0x10($29)
     /* 14720C 0024720C 2D888000 */  daddu      $17, $4, $0
     /* 147210 00247210 3000BFFF */  sd         $31, 0x30($29)
-    /* 147214 00247214 FC01040C */  jal        func_001007F0
+    /* 147214 00247214 FC01040C */  jal        sceSifStopDma
     /* 147218 00247218 2D80A000 */   daddu     $16, $5, $0
     /* 14721C 0024721C 0080043C */  lui        $4, (0x80000000 >> 16)
-    /* 147220 00247220 4C02040C */  jal        func_00100930
+    /* 147220 00247220 4C02040C */  jal        sceSifGetReg
     /* 147224 00247224 00000000 */   nop
     /* 147228 00247228 71000A3C */  lui        $10, %hi(D_0070FA40)
     /* 14722C 0024722C 2D584000 */  daddu      $11, $2, $0
@@ -74,21 +74,21 @@ glabel func_00247200
     /* 1472C4 002472C4 FE20090C */  jal        func_002483F8
     /* 1472C8 002472C8 0000A6AF */   sw        $6, 0x0($29)
     /* 1472CC 002472CC 2D20A003 */  daddu      $4, $29, $0
-    /* 1472D0 002472D0 3802040C */  jal        func_001008E0
+    /* 1472D0 002472D0 3802040C */  jal        sceSifSetDma
     /* 1472D4 002472D4 01000524 */   addiu     $5, $0, 0x1
     /* 1472D8 002472D8 0F004010 */  beqz       $2, .L00247318
     /* 1472DC 002472DC 04000424 */   addiu     $4, $0, 0x4
-    /* 1472E0 002472E0 4802040C */  jal        func_00100920
+    /* 1472E0 002472E0 4802040C */  jal        sceSifSetReg
     /* 1472E4 002472E4 0100053C */   lui       $5, (0x10000 >> 16)
     /* 1472E8 002472E8 04000424 */  addiu      $4, $0, 0x4
-    /* 1472EC 002472EC 4802040C */  jal        func_00100920
+    /* 1472EC 002472EC 4802040C */  jal        sceSifSetReg
     /* 1472F0 002472F0 0200053C */   lui       $5, (0x20000 >> 16)
     /* 1472F4 002472F4 0080043C */  lui        $4, (0x80000002 >> 16)
     /* 1472F8 002472F8 2D280000 */  daddu      $5, $0, $0
-    /* 1472FC 002472FC 4802040C */  jal        func_00100920
+    /* 1472FC 002472FC 4802040C */  jal        sceSifSetReg
     /* 147300 00247300 02008434 */   ori       $4, $4, (0x80000002 & 0xFFFF)
     /* 147304 00247304 0080043C */  lui        $4, (0x80000000 >> 16)
-    /* 147308 00247308 4802040C */  jal        func_00100920
+    /* 147308 00247308 4802040C */  jal        sceSifSetReg
     /* 14730C 0024730C 2D280000 */   daddu     $5, $0, $0
     /* 147310 00247310 02000010 */  b          .L0024731C
     /* 147314 00247314 01000224 */   addiu     $2, $0, 0x1
@@ -102,5 +102,5 @@ glabel func_00247200
     /* 147324 00247324 1000B0DF */  ld         $16, 0x10($29)
     /* 147328 00247328 0800E003 */  jr         $31
     /* 14732C 0024732C 4000BD27 */   addiu     $29, $29, 0x40
-endlabel func_00247200
+endlabel sceSifResetIop
 ```

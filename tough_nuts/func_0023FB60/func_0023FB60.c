@@ -1,10 +1,10 @@
-/* func_0023FB60 — improved seed, rc2 (was rc12 in old bulk-campaign seed).
+/* sceGsSetHalfOffset — improved seed, rc2 (was rc12 in old bulk-campaign seed).
  * Apply into common/src/PObj.c replacing the INCLUDE_ASM line.
  * Residual rc2: a single scheduler micro-tie — gcc schedules the branch
  * condition `sll a3,a3,0x10` ONE slot early (before `dsll v0,a2,4` = hi=da2<<4);
  * ROM defers the branch-condition `sll` to be adjacent to `beqz` (hi computed
  * first). Everything else is byte-identical. */
-void func_0023FB60(void *a0, short a1, short a2, short a3) {
+void sceGsSetHalfOffset(void *a0, short a1, short a2, short a3) {
     unsigned long long v = *(unsigned long long *)((char *)a0 + 0x30);
     int h = (v >> 48) & 0x7FF;
     int w = (v >> 16) & 0x7FF;

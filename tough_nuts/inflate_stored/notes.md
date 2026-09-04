@@ -1,13 +1,13 @@
 # inflate_stored — parked
 
 VRAM: 0x001330D0 (file_off 0x0330D0)
-Asm source: asm/aug6/nonmatchings/fumi/ios/inflate/inflate_stored.s
+Asm source: asm/aug6/nonmatchings/fumi/ios/iosCdvdBackGroundMgrInit/inflate_stored.s
 
 ## Attempt at 2026-06-20
 
 **Reason parked:** plateau: 30 distinct hand hypotheses, no real_count progress (best=40). PARK the seed, then fire ONE bounded permuter shot on it (REFERENCE Step 4); harvest by true real_count and adopt any improvement (resolution b only if nothing beats best).
 
-**TU:** `fumi/ios/inflate.c`
+**TU:** `fumi/ios/iosCdvdBackGroundMgrInit.c`
 
 **Seed:** `tough_nuts/inflate_stored/inflate_stored.c`
 
@@ -59,7 +59,7 @@ glabel inflate_stored
     /* 33158 00133158 689680AF */  sw         $0, %gp_rel(D_0062A258)($28)
 .align 2
   .L0013315C:
-    /* 3315C 0013315C 3024090C */  jal        func_002490C0
+    /* 3315C 0013315C 3024090C */  jal        sceCdSync
     /* 33160 00133160 01000424 */   addiu     $4, $0, 0x1
     /* 33164 00133164 FAFF4014 */  bnez       $2, .L00133150
     /* 33168 00133168 00000000 */   nop
@@ -73,7 +73,7 @@ glabel inflate_stored
     /* 33188 00133188 01004230 */  andi       $2, $2, 0x1
     /* 3318C 0013318C 05004054 */  bnel       $2, $0, .L001331A4
     /* 33190 00133190 1001038E */   lw        $3, 0x110($16)
-    /* 33194 00133194 F290060C */  jal        debug_assertMessage
+    /* 33194 00133194 F290060C */  jal        debug_StdPrintfDummy
     /* 33198 00133198 680EC426 */   addiu     $4, $22, %lo(D_00550E68)
     /* 3319C 0013319C E0FF0010 */  b          .L00133120
     /* 331A0 001331A0 1001038E */   lw        $3, 0x110($16)

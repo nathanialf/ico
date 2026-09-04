@@ -59,7 +59,7 @@ void shadow_Tool(int a0) {
 extern int tex_SetClutAnimation(int a0);
 extern int D_0062AF6C;
 
-void shadow_KillShadow(int a0) {
+void reg_TransTexturePacket(int a0) {
     if (a0 >= 0) {
         D_0062AF6C += tex_SetClutAnimation(a0);
     }
@@ -69,7 +69,7 @@ void shadow_DispCancel(void) {
     D_0062A040 = 0;
 }
 
-int shadow_SetLength(int a0) {
+int reg_GetShinePri(int a0) {
     switch (a0) {
     case 1: return 7;
     case 2: return 8;
@@ -82,27 +82,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_Init);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", func_00122FE8);
 
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 extern unsigned char D_0054FCD0[];
 
 void func_00123AA8(void) {
     volatile int frame_pad[2];  /* reserves the o32 arg-save area the ROM keeps */
-    debug_assertMessage(D_0054FCD0);
+    debug_StdPrintfDummy(D_0054FCD0);
 }
 
 extern void mc_TransMicroCode(int a0, int a1);
-extern void _PopCurrentMatrix(void *a0);
+extern void _SetCurrentMatrix(void *a0);
 extern void func_00118108(void);
-extern void _ClearTransCurrentMatrix(void *a0, void *a1);
-extern void _SetCurrentMatrix(int a0, int a1);
+extern void _ApplyCurrentMatrix(void *a0, void *a1);
+extern void _NormalizeVector(int a0, int a1);
 extern char *D_00629C70;
 
 void func_00123AC8(int a0, int a1) {
     mc_TransMicroCode(a0, a1 + 0x820);
-    _PopCurrentMatrix(D_00629C70 + 0x80);
+    _SetCurrentMatrix(D_00629C70 + 0x80);
     func_00118108();
-    _ClearTransCurrentMatrix((void *)a0, (void *)a0);
-    _SetCurrentMatrix(a0, a0);
+    _ApplyCurrentMatrix((void *)a0, (void *)a0);
+    _NormalizeVector(a0, a0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", func_00123B18);

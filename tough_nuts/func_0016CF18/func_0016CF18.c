@@ -1,4 +1,4 @@
-extern float HandyCamera_TargetMoveType(void *a0, void *a1);
+extern float _DistSqGV(void *a0, void *a1);
 extern float D_006A5560[];
 extern const float D_00629094;
 
@@ -20,7 +20,7 @@ int func_0016CF18(float *a0, float *a1, int n) {
         float d = a1[1] - cur[1];
         int skip;
         if (d < 0.0f ? -d < 100.0f : d < 100.0f) {
-            skip = HandyCamera_TargetMoveType(a1, cur) < D_00629094;
+            skip = _DistSqGV(a1, cur) < D_00629094;
         } else {
             skip = 0;
         }

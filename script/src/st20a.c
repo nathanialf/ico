@@ -229,16 +229,16 @@ extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void func_00179710(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
 extern int func_00178DB0(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 void actSt20aEnemy3(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
     func_00179710(a0, 0x1D, 0x40, 0, 0x11, -300.0f, -100.0f, 100.0f, -300.0f, -100.0f, 0.0f);
     if (func_00178DB0(0x1D) == 0) {
-        AddWayPointTop(2, 0);
+        SetWayGroupActive(2, 0);
     } else {
-        AddWayPointTop(2, 1);
+        SetWayGroupActive(2, 1);
     }
 }
 

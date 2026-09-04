@@ -33,60 +33,60 @@ int GetNbMotionFrames(void *a0, float f12) {
     return 1;
 }
 
-extern void func_00105058(void);
-extern void GetTableCos(void);
+extern void MatrixDrive_PushMatrixWithNoCopy(void);
+extern void PushQuaternionWithNoCopy(void);
 extern void ResetStatic2MotionManager(int id);
 extern void *func_00105078(void);
-extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, void *a1);
+extern void CopyMatrix(int a0, void *a1);
 extern void *GetLastQuaternion(void);
-extern void func_00105068(void);
-extern void InitTableSin(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void PopQuaternion(void);
 extern char *D_0062B758;
 extern char *D_0062B75C;
 extern char *D_0062C220;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", GetMotionPlaySpeedRatio);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getFinalMatrixCore);
 
 
 extern char *D_0062B758;
 extern char *D_0062C240;
-extern void func_00105058(void);
-extern void func_001D5C50(int id);
+extern void MatrixDrive_PushMatrixWithNoCopy(void);
+extern void _calcNaturalGeometry(int id);
 extern void *func_00105078(void);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
 
-void execFrameTrigger(int id) {
+void pursueNaturalGeometry(int id) {
     char *e = D_0062B758 + id * 0x40;
     int child = *(int *)(e + 0x30);
     int next = *(int *)(e + 0x34);
     char *o;
     void *m;
-    func_00105058();
-    func_001D5C50(id);
+    MatrixDrive_PushMatrixWithNoCopy();
+    _calcNaturalGeometry(id);
     o = D_0062C240 + id * 0x10;
     m = func_00105078();
     MatrixDrive_TurnObjectMatrix((int)o, (char *)m + 0x30);
     if (child != -1) {
-        execFrameTrigger(child);
+        pursueNaturalGeometry(child);
     }
-    func_00105068();
+    MatrixDrive_PopMatrix();
     if (next != -1) {
-        execFrameTrigger(next);
+        pursueNaturalGeometry(next);
     }
 }
 
 
 extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
 
-void UpdateFrameCounter(int a0, char *a1) {
+void GetWallVector(int a0, char *a1) {
     MatrixDrive_TurnObjectMatrix(a0, a1 + 0xA0);
     *(int *)(a0 + 0xC) = 0;
 }
 
 extern void ChangeFieldCollisionDebugMode();
 
-int sendStateMail(char *a0, float f) {
+int upperFieldCheck(char *a0, float f) {
     char buf[0xC0] __attribute__((aligned(16)));
     MatrixDrive_TurnObjectMatrix((int)buf, a0);
     MatrixDrive_TurnObjectMatrix((int)(buf + 0x10), a0);
@@ -113,8 +113,8 @@ void shiftMotionData(void) {
 }
 
 
-extern void func_00261188(char *buf, const char *fmt, ...);
-extern void display(void *a0, const char *a1, void *a2, void *a3, void *a4);
+extern void sprintf(char *buf, const char *fmt, ...);
+extern void debug_PrintFontWindow(void *a0, const char *a1, void *a2, void *a3, void *a4);
 extern char D_0055DA10[];
 extern char D_0055DAD8[];
 extern char D_005C8010[];
@@ -128,10 +128,10 @@ extern char D_00611FF8[];
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", shiftMotionOrientEndFunc);
 
 
-extern void debug_assertMessage();
-extern void func_00261188(char *buf, const char *fmt, ...);
+extern void debug_StdPrintfDummy();
+extern void sprintf(char *buf, const char *fmt, ...);
 extern void func_001AACE0(char *a0, int a1, char *a2);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern char D_0055DA10[];
 extern char D_006169D8[];
 extern char D_004C0A98[];
@@ -152,10 +152,10 @@ int shiftMotionOrientBeginFunc(int a0) {
         if (*(int *)(f148 + nidx * 0x190) != 0xE4) {
             char *dc8 = D + 0xC8;
             char *p = dc8 + off;
-            debug_assertMessage(D_00612068, p);
-            func_00261188(buf, D_006120C0, p);
+            debug_StdPrintfDummy(D_00612068, p);
+            sprintf(buf, D_006120C0, p);
             func_001AACE0(D_00612100, 0x98, buf);
-            func_00260380(D_00612100, 0x98, D_0062D620);
+            __assert(D_00612100, 0x98, D_0062D620);
         }
         if (r17 != -1) {
             return r17;
@@ -165,10 +165,10 @@ int shiftMotionOrientBeginFunc(int a0) {
 }
 
 
-extern void debug_assertMessage();
-extern void func_00261188(char *buf, const char *fmt, ...);
+extern void debug_StdPrintfDummy();
+extern void sprintf(char *buf, const char *fmt, ...);
 extern void func_001AACE0(char *a0, int a1, char *a2);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern char D_0055DA10[];
 extern char D_006169D8[];
 extern char D_00612068[], D_006120C0[], D_00612100[], D_0062D620[];
@@ -186,10 +186,10 @@ float ForTest_ForceShiftMotion(int a0) {
         if (*(int *)(f148 + nidx * 0x190) != 0xE4) {
             char *dc8 = D + 0xC8;
             char *p = dc8 + off;
-            debug_assertMessage(D_00612068, p);
-            func_00261188(buf, D_006120C0, p);
+            debug_StdPrintfDummy(D_00612068, p);
+            sprintf(buf, D_006120C0, p);
             func_001AACE0(D_00612100, 0x98, buf);
-            func_00260380(D_00612100, 0x98, D_0062D620);
+            __assert(D_00612100, 0x98, D_0062D620);
         }
         r = D - (-(nidx * 0x190));
     }
@@ -231,10 +231,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", GetMotionOr
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getMotionOrient);
 
 extern int GetPureVerticalPlane(void *a0, void *a1, void *a2, int a3);
-extern void _PushVu0Registers(void *a0, void *a1, float a2);
+extern void _ScaleVectorXYZ(void *a0, void *a1, float a2);
 extern void func_001DCE78(void *a0, void *a1, void *a2, void *a3, void *a4, int n, float f);
 extern char D_00271BD0[];
-extern void GetRootProjectionPosOfGObj(void *dst, void *src, int n);
+extern void CopyMotion(void *dst, void *src, int n);
 extern void calcFootIK(void *a0, void *a1);
 
 void CopyBlendMotionDataSource(void *a0, void *a1) {
@@ -247,7 +247,7 @@ void CopyBlendMotionDataSource(void *a0, void *a1) {
     if (GetPureVerticalPlane(buf, local, a1, *(int *)(p + 0x8C))) {
         char *q = *(char **)((char *)a0 + 0x15C);
         if (*(int *)(q + 0x650)) {
-            _PushVu0Registers(local, local, f20);
+            _ScaleVectorXYZ(local, local, f20);
             q = *(char **)((char *)a0 + 0x15C);
         }
         local[0] = local[0] - *(float *)(q + 0x660);
@@ -256,7 +256,7 @@ void CopyBlendMotionDataSource(void *a0, void *a1) {
         func_001DCE78(a0, buf, buf, local, D_00271BD0, -1, 1.0f);
         {
             char *r = *(char **)((char *)a0 + 0x15C);
-            GetRootProjectionPosOfGObj(*(void **)(r + 0x77C), buf, *(int *)(r + 0x88));
+            CopyMotion(*(void **)(r + 0x77C), buf, *(int *)(r + 0x88));
         }
         {
             char *s = *(char **)((char *)a0 + 0x15C);
@@ -342,9 +342,9 @@ done:
 }
 
 
-extern void GetRootProjectionPosOfGObj(void *dst, void *src, int n);
-extern void GetTableArcSin(void *a0, int a1, float f0, float f1, float f2);
-extern void func_0010E148(void *a0, void *a1, void *a2);
+extern void CopyMotion(void *dst, void *src, int n);
+extern void SetQuaternionByAxisRotate(void *a0, int a1, float f0, float f1, float f2);
+extern void MultiQuaternion(void *a0, void *a1, void *a2);
 
 typedef struct { char b[8]; } Blk8;
 
@@ -356,7 +356,7 @@ void func_001E1860(void *a0, int a1) {
     {
         char *g = *(char **)((char *)a0 + 0x15C);
         s3 = *(char **)(g + 0x790);
-        GetRootProjectionPosOfGObj(s3, *(void **)(g + 0x77C), *(int *)(g + 0x88));
+        CopyMotion(s3, *(void **)(g + 0x77C), *(int *)(g + 0x88));
     }
     {
         char *g = *(char **)((char *)a0 + 0x15C);
@@ -378,8 +378,8 @@ void func_001E1860(void *a0, int a1) {
         char *base;
         int off = 0;
         do {
-            GetTableArcSin(buf, s4, 0.0f, 1.0f, 0.0f);
-            func_0010E148(s3 + idx * 0x20 + 0x10, buf, s3 + idx * 0x20 + 0x10);
+            SetQuaternionByAxisRotate(buf, s4, 0.0f, 1.0f, 0.0f);
+            MultiQuaternion(s3 + idx * 0x20 + 0x10, buf, s3 + idx * 0x20 + 0x10);
             base = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x8C);
             idx = *(int *)(off + base + 0x34);
             off = idx * 0x40;

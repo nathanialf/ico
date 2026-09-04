@@ -1,7 +1,7 @@
 #include "common.h"
 
-extern void debug_assertMessage(int a0, ...);
-extern int func_00260340(float);
+extern void debug_StdPrintfDummy(int a0, ...);
+extern int fptodp(float);
 extern char D_0060DA60[];
 extern char D_0060DA78[];
 extern const char D_00631CD8_a[] __asm__("D_0062CC00");
@@ -19,14 +19,14 @@ void initLineTraceTable(unsigned char *arg, int slot_size) {
     case 0:
         is_float = 1;
         slot_size = 4;
-        debug_assertMessage((int)D_0060DA60, arg);
+        debug_StdPrintfDummy((int)D_0060DA60, arg);
         break;
     case 1:
     case 2:
     case 4:
     case 8:
     case 16:
-        debug_assertMessage((int)D_0060DA78, arg, slot_size);
+        debug_StdPrintfDummy((int)D_0060DA78, arg, slot_size);
         break;
     default:
         return;
@@ -36,24 +36,24 @@ void initLineTraceTable(unsigned char *arg, int slot_size) {
         if (!is_float) {
             int col;
             for (col = 0x10 / (0x10 / slot_size) - 1; col >= 0; col--) {
-                debug_assertMessage((int)D_00631CD8_a, arg[row * slot_size + col]);
+                debug_StdPrintfDummy((int)D_00631CD8_a, arg[row * slot_size + col]);
             }
-            debug_assertMessage((int)D_00631CE0_a);
+            debug_StdPrintfDummy((int)D_00631CE0_a);
         } else {
-            debug_assertMessage((int)D_00631CE8_a, func_00260340(((float *)arg)[row]));
+            debug_StdPrintfDummy((int)D_00631CE8_a, fptodp(((float *)arg)[row]));
         }
     }
-    debug_assertMessage((int)D_00631CF0_a);
+    debug_StdPrintfDummy((int)D_00631CF0_a);
 }
 
-extern int func_00265130(void *out, int x, void *args);
+extern int vsprintf(void *out, int x, void *args);
 extern void debug_FlushFontWindow(int *a, int *b, int *c, void *p);
 
 void traceLine(int *a, int *b, int *c, int x, ...)
 {
     char buf[0x100];
     void *args = (char *)__builtin_next_arg(x) - 0x20;
-    func_00265130(buf, x, args);
+    vsprintf(buf, x, args);
     debug_FlushFontWindow(a, b, c, buf);
 }
 
@@ -61,18 +61,18 @@ void dispSource(int *a, int *b, int *c, int x, ...)
 {
     char buf[0x100];
     void *args = (char *)__builtin_next_arg(x) - 0x20;
-    func_00265130(buf, x, args);
+    vsprintf(buf, x, args);
     debug_FlushFontWindow(a, b, c, buf);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", display);
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_PrintFontWindow);
 
-/* debugEEExceptionMain — hand-asm register-capture stub: snapshots the
+/* debug_PrintfDummy — hand-asm register-capture stub: snapshots the
  * caller's $t0-$t3 to a scratch frame (no C expression names $t0-$t3). */
 __asm__(
     ".section .text\n"
     "    .set noreorder\n"
-    "glabel debugEEExceptionMain\n"
+    "glabel debug_PrintfDummy\n"
     "    addiu $29, $29, -0x60\n"
     "    sd $8, 0x40($29)\n"
     "    sd $9, 0x48($29)\n"
@@ -80,51 +80,51 @@ __asm__(
     "    sd $11, 0x58($29)\n"
     "    jr $31\n"
     "    addiu $29, $29, 0x60\n"
-    "endlabel debugEEExceptionMain\n"
+    "endlabel debug_PrintfDummy\n"
     "    nop\n"
     "    .set reorder\n"
 );
 
-void debugIOPExceptionMain(int a0, int a1, ...) {
+void debug_PrintFontWindowDummy(int a0, int a1, ...) {
 }
 
-void debug_assertMessage(int a0, ...) {
+void debug_StdPrintfDummy(int a0, ...) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_assert);
 
 extern const char D_0060DAF0_a[] __asm__("D_0060DAF0");
 
-void debug_SetExceptionMessage(float *arg) {
+void debug_PrintMatrix(float *arg) {
     int i;
     for (i = 3; i >= 0; i--) {
-        int v0 = func_00260340(arg[0]);
-        int v1 = func_00260340(arg[1]);
-        int v2 = func_00260340(arg[2]);
-        int v3 = func_00260340(arg[3]);
-        debug_assertMessage((int)D_0060DAF0_a, v0, v1, v2, v3);
+        int v0 = fptodp(arg[0]);
+        int v1 = fptodp(arg[1]);
+        int v2 = fptodp(arg[2]);
+        int v3 = fptodp(arg[3]);
+        debug_StdPrintfDummy((int)D_0060DAF0_a, v0, v1, v2, v3);
         arg += 4;
     }
-    debug_assertMessage((int)D_00631CF0_a);
+    debug_StdPrintfDummy((int)D_00631CF0_a);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debugExceptionInit);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debugIOPExceptionInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A4C58);
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_SelectCsvWindowVal);
 
-extern void func_00261188(int a0, void *a1, ...);
+extern void sprintf(int a0, void *a1, ...);
 extern int D_0062CC58[];
 
-void func_001A4DC0(int a0, int a1, int a2) {
-    func_00261188(a0, D_0062CC58, a1, a2);
+void getLineBuffer(int a0, int a1, int a2) {
+    sprintf(a0, D_0062CC58, a1, a2);
 }
 
 extern int D_0062CC48[];
 
 void func_001A4DD8(int a0) {
-    func_00261188(a0, D_0062CC48);
+    sprintf(a0, D_0062CC48);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A4DE8);
@@ -136,9 +136,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A5150);
 extern char D_0060DC90[], D_0060DCC0[], D_0060DCD8[], D_0060DCF0[];
 extern char D_0060DD20[], D_0060DD40[], D_0060DD50[];
 extern int D_002715D4[];
-extern void debugEEExceptionMain(int a0, int a1, unsigned int a2, void *a3, void *a4);
+extern void debug_PrintfDummy(int a0, int a1, unsigned int a2, void *a3, void *a4);
 
-int func_001A5390(char *a0) {
+int debug_mcRetErrCheck(char *a0) {
     char buf[0x40];
     int t, r;
     int code = *(int *)(a0 + 0x10);
@@ -151,28 +151,28 @@ int func_001A5390(char *a0) {
         goto ret;
     case -9:
     case -2:
-        func_00261188((int)buf, D_0060DC90, *(int *)(a0 + 0x10));
+        sprintf((int)buf, D_0060DC90, *(int *)(a0 + 0x10));
         break;
     case -4:
-        func_00261188((int)buf, D_0060DCC0, a0 + 0x47C);
+        sprintf((int)buf, D_0060DCC0, a0 + 0x47C);
         break;
     case -0xE:
-        func_00261188((int)buf, D_0060DCD8, a0 + 0x454);
+        sprintf((int)buf, D_0060DCD8, a0 + 0x454);
         break;
     case -0x10:
-        func_00261188((int)buf, D_0060DCF0, *(int *)(a0 + 0x24), *(int *)(a0 + 0x50), *(int *)(a0 + 0x4C));
+        sprintf((int)buf, D_0060DCF0, *(int *)(a0 + 0x24), *(int *)(a0 + 0x50), *(int *)(a0 + 0x4C));
         break;
     case -0xF:
-        func_00261188((int)buf, D_0060DD20, a0 + 0x47C);
+        sprintf((int)buf, D_0060DD20, a0 + 0x47C);
         break;
     case -0xA:
-        func_00261188((int)buf, D_0060DD40);
+        sprintf((int)buf, D_0060DD40);
         break;
     default:
-        func_00261188((int)buf, D_0060DD50, *(int *)(a0 + 0x10));
+        sprintf((int)buf, D_0060DD50, *(int *)(a0 + 0x10));
         break;
     }
-    debugEEExceptionMain(0x50, 0x46, 0xFFFFFF00, D_0062CC48, buf);
+    debug_PrintfDummy(0x50, 0x46, 0xFFFFFF00, D_0062CC48, buf);
     t = D_002715D4[0];
     r = (t & 0x20) != 0;
     if (t & 0x40) {
@@ -186,22 +186,22 @@ ret:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A54C0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A5670);
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_mcSaveMainBlock);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A5850);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A5A90);
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_mcDeleteFile);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A5C08);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A5E88);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A6128);
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_SESlotDisp);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A62D8);
 
-extern void *isysGObjRemoveObjDL(void);
-extern void *func_0013E7E0(void *a0);
+extern void *isysGObjGetExist_begin(void);
+extern void *isysGObjGetExist_next(void *a0);
 extern int func_001A4DE8(char *a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7, int a8, int *a9);
 extern void actCommonStone(int a0);
 extern char D_0029F060[];
@@ -213,9 +213,9 @@ typedef struct { int f0; int f4; } DbgEnt;
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A63C8);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A6508);
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_DispBox);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A6908);
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_DispBall);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A6C68);
 

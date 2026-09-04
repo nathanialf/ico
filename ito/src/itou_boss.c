@@ -275,10 +275,10 @@ const float D_00555F00[212] = {
 
 
 extern unsigned char D_006CCE50[];
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 
 void effect_end_func(void) {
-    func_00260568(D_006CCE50, 0, 0xD50);
+    memset(D_006CCE50, 0, 0xD50);
 }
 
 extern int D_00629C90;
@@ -293,11 +293,11 @@ int bossCtrlBeforeFunc(void) {
 }
 
 extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
 extern void actInitialize();
 extern void _ACTWait(int a0);
 extern void CylinderCollisionWithControlDynamics(void *o, void *param);
-extern void debug_assertMessage(char *msg, int n);
+extern void debug_StdPrintfDummy(char *msg, int n);
 extern void actCreateSubThread(void *entry, int a1);
 extern void func_001952A0(void);
 extern int D_0062C0B8;
@@ -330,10 +330,10 @@ void BossEnemyFunc(void) {
             cyl.d = 0;
             count++;
             CylinderCollisionWithControlDynamics(o, &cyl);
-            o = isysGObjSearchFromObjKindID_begin(o);
+            o = isysGObjSearchFromObjKindID_next(o);
         } while (o != 0);
     }
-    debug_assertMessage(D_00556338, count);
+    debug_StdPrintfDummy(D_00556338, count);
     for (i = 0; i < count; i++) {
         actCreateSubThread(func_001952A0, 0x15);
     }
@@ -341,8 +341,8 @@ void BossEnemyFunc(void) {
 
 extern void actInitialize_ext_charcter(void *a0);
 extern int iosFree(void *ptr, int a1, char *file, int line);
-extern void func_00240080(void *a0, void *a1);
-extern void apply_matrix_w1(void *a0, void *a1);
+extern void sceVu0CopyVector(void *a0, void *a1);
+extern void ico_m33_to_quat(void *a0, void *a1);
 extern void *D_0062A310;
 extern char D_00556348[];
 extern char D_00556358[];
@@ -361,7 +361,7 @@ int gene_enemy(void *a0) {
     ret = iosFree(D_0062A310, 0, D_00556348, 0x16F);
     actInitialize(a0);
     actInitialize_ext_charcter(a0);
-    debug_assertMessage(D_00556358, 0x35);
+    debug_StdPrintfDummy(D_00556358, 0x35);
 
     base = D_006CCE60;
     m = base + 0x20;
@@ -375,8 +375,8 @@ int gene_enemy(void *a0) {
         if (e[4] == 1) {
             e[4] = 2;
         }
-        func_00240080(m, q);
-        apply_matrix_w1(m - 0x10, q - 0x30);
+        sceVu0CopyVector(m, q);
+        ico_m33_to_quat(m - 0x10, q - 0x30);
         *(char **)(e + 0x30) = r;
         q += 0x40;
         m += 0x40;
@@ -388,13 +388,13 @@ int gene_enemy(void *a0) {
 
 extern unsigned char D_006CCE50[];
 
-void BossCtrlGeo(void) {
+void CapsuleGhostBossStart(void) {
     D_006CCE50[0] = 1;
 }
 
 extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void *isysGObjSearchFromObjKindID_begin(void *o);
-extern int clip_floor_1(void *o);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
+extern int isEnemyHyde(void *o);
 extern signed char D_006CCE60[];
 
 int itou_boss_gflag_init(void) {
@@ -415,10 +415,10 @@ int itou_boss_gflag_init(void) {
     o = isysGObjSearchFromObjLayoutID(4);
     if (o != 0) {
         do {
-            if (clip_floor_1(o) == 0) {
+            if (isEnemyHyde(o) == 0) {
                 s2++;
             }
-            o = isysGObjSearchFromObjKindID_begin(o);
+            o = isysGObjSearchFromObjKindID_next(o);
         } while (o != 0);
     }
     return s1 >= 0x35 && s2 == 0;

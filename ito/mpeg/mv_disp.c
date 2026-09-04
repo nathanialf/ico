@@ -1,6 +1,6 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispClear);
+INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", stageSE17bstrong);
 
 extern float D_00629B60, D_00629B64;
 
@@ -19,7 +19,7 @@ extern int D_00629C60;
 extern float D_0062BE50;
 extern float DispWireLetter(void *a0);
 
-int setImageSize(void *a0) {
+int stageSE19astrong(void *a0) {
     float *p = *(float **)((char *)a0 + 0x34);
     float f;
     p[0] = D_00629B68;
@@ -38,7 +38,7 @@ int setImageSize(void *a0) {
 
 extern float D_00629B6C, D_00629B70, D_00629B74;
 
-int sendDispEnv(void *a0) {
+int stageSE19arain(void *a0) {
     float *p = *(float **)((char *)a0 + 0x34);
     float a = D_00629B6C;
     float b = D_00629B70;
@@ -51,7 +51,7 @@ int sendDispEnv(void *a0) {
 
 extern float D_00629B78, D_00629B7C;
 
-int dispCreate(void *a0) {
+int stageSE20astrong(void *a0) {
     float *p = *(float **)((char *)a0 + 0x34);
     float f;
     float a = D_00629B78, b = D_00629B7C;
@@ -89,7 +89,7 @@ int dispSetTags(void *a0) {
     return -1;
 }
 
-int dispSwitch(void *a0) {
+int stageSE22astrong(void *a0) {
     float f;
     if (D_0062BE54 == D_00629C60) {
         f = D_0062BE50;
@@ -105,7 +105,7 @@ int dispSwitch(void *a0) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
+INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", stageSE22arain);
 
 int dispDelete(void *a0) {
     float f;
@@ -125,7 +125,7 @@ extern const float D_00629B8C, D_00629B90;
 
 typedef struct { float f0; float f4; float f8; } LoadImg;
 
-unsigned int loadImage(char *a0) {
+unsigned int stageSE24arain(char *a0) {
     LoadImg *p = *(LoadImg **)(a0 + 0x34);
     p->f0 = D_00629B8C;
     p->f8 = D_00629B90;
@@ -147,7 +147,7 @@ int handler_endimage(void *a0) {
 extern float D_00629B9C;
 extern float D_00629BA0;
 
-int startDisplay(int self) {
+int stageSE47anoise(int self) {
     float *p = (float *)UpdateRootPosition(self);
     float x = p[1];
     float r;
@@ -187,7 +187,7 @@ void setGIFtag(void) {
     brainStatusDel(*(volatile float *)&D_00629BA4);
 }
 
-extern int func_00260568(void *a0, int a1, int a2);
+extern int memset(void *a0, int a1, int a2);
 extern int MoveNextStage_Clear(int a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
 extern char D_00286A90[];
 extern int func_0017F518(void *a0, int a1, int a2);
@@ -195,7 +195,7 @@ extern int func_0017F518(void *a0, int a1, int a2);
 int setGIFad(void) {
     char buf[0x40];
     int r;
-    func_00260568(buf, 0, 0x40);
+    memset(buf, 0, 0x40);
     *(float *)(buf + 0x20) = 1.0f;
     *(float *)(buf + 0x24) = 1.0f;
     *(float *)(buf + 0x28) = 1.0f;
@@ -265,15 +265,15 @@ void setTEX0_1(int a0) {
     }
 }
 
-extern void *isysGObjRemoveObjDL(void);
-extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
-extern void *func_0013E7E0(void *a0);
+extern void *isysGObjGetExist_begin(void);
+extern void iosOmSendMail(void *a0, int a1, void *a2);
+extern void *isysGObjGetExist_next(void *a0);
 
 void setPRIM(void *a0, int a1) {
-    void *p = isysGObjRemoveObjDL();
+    void *p = isysGObjGetExist_begin();
     while (p != 0) {
-        iosOmBeforeFuncStandard(p, a1, a0);
-        p = func_0013E7E0(p);
+        iosOmSendMail(p, a1, a0);
+        p = isysGObjGetExist_next(p);
     }
 }
 
@@ -295,11 +295,11 @@ void setUV(void *a0, int a1)
             }
             {
                 int v18 = D_0061C240[idx];
-                void *o = isysGObjRemoveObjDL();
+                void *o = isysGObjGetExist_begin();
                 if (o != 0) {
                     do {
-                        iosOmBeforeFuncStandard(o, v18, a0);
-                        o = func_0013E7E0(o);
+                        iosOmSendMail(o, v18, a0);
+                        o = isysGObjGetExist_next(o);
                     } while (o != 0);
                 }
             }

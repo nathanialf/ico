@@ -8,19 +8,19 @@ typedef struct GObj {
 extern void _ACTWait(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
 extern int actSt25aQueenDeadChk(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int scpTriggerBall(int a0, int a1, float a2);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int func_0012AA28(int a0, int a1, int a2);
 extern int func_0012A958(int a0);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void func_00178DD8(int a0);
 extern int D_004CE940[];
 extern void func_002348D8(volatile int a0);
 void stageSEtaimatsu(volatile int a0) {
     GObj *obj = *(GObj **)(a0 + 0x164);
-    while (scpSleepEnemyOne(a0, actSt25aQueenDeadChk(0x72E), 5.0f) != 0) { _ACTWait(1); }
-    AddWayPointTop(0x13, 0);
+    while (scpTriggerBall(a0, actSt25aQueenDeadChk(0x72E), 5.0f) != 0) { _ACTWait(1); }
+    SetWayGroupActive(0x13, 0);
     stage_KillPlayBgAnimation(0x80, 1, 0x1F);
     while (func_0012AA28(0x80, 0x28, 0) == 0) { _ACTWait(1); }
     _ACTWait(1);
@@ -38,24 +38,24 @@ void stageSEtaimatsu(volatile int a0) {
 extern void _ACTWait(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
 extern int actSt25aQueenDeadChk(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int scpTriggerBall(int a0, int a1, float a2);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int func_0012AA28(int a0, int a1, int a2);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void func_00178E08(int a0);
 extern int D_004CE960[];
 extern void stageSE06ariver(volatile int a0);
 void stageSE04eriver(volatile int a0) {
     GObj *obj = *(GObj **)(a0 + 0x164);
-    while (scpSleepEnemyOne(a0, actSt25aQueenDeadChk(0x730), 5.0f) == 0) { _ACTWait(1); }
+    while (scpTriggerBall(a0, actSt25aQueenDeadChk(0x730), 5.0f) == 0) { _ACTWait(1); }
     stage_KillPlayBgAnimation(0x80, 1, 0);
     while (func_0012AA28(0x80, 0xA, 0) == 0) { _ACTWait(1); }
     _ACTWait(1);
     soundSeDefPlayWithVolumeRate(0x522, 0, 0, 1);
     while (func_0012AA28(0x80, 0x1E, 1) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    AddWayPointTop(0x13, 1);
+    SetWayGroupActive(0x13, 1);
     func_00178E08(0x124);
     D_004CE960[1] = (int)stageSE06ariver;
     obj->unkB4 = D_004CE960;
@@ -67,19 +67,19 @@ void stageSE04eriver(volatile int a0) {
 extern void _ACTWait(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
 extern int actSt25aQueenDeadChk(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int scpTriggerBall(int a0, int a1, float a2);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int func_0012AA28(int a0, int a1, int a2);
 extern int func_0012A958(int a0);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void func_00178DD8(int a0);
 extern int D_004CE980[];
 extern void stageSE04eriver(volatile int a0);
 void stageSE06ariver(volatile int a0) {
     GObj *obj = *(GObj **)(a0 + 0x164);
-    while (scpSleepEnemyOne(a0, actSt25aQueenDeadChk(0x730), 5.0f) != 0) { _ACTWait(1); }
-    AddWayPointTop(0x13, 0);
+    while (scpTriggerBall(a0, actSt25aQueenDeadChk(0x730), 5.0f) != 0) { _ACTWait(1); }
+    SetWayGroupActive(0x13, 0);
     stage_KillPlayBgAnimation(0x80, 1, 0x1F);
     while (func_0012AA28(0x80, 0x28, 0) == 0) { _ACTWait(1); }
     _ACTWait(1);
@@ -240,17 +240,17 @@ void stageSE04ewind(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", func_002352B8);
 
-extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int scpTriggerBall(int a0, int a1, float a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
-extern void actBoyBHang(void);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float a3, float a4);
+extern void OnGirlEscortFlag(void);
+extern void RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern void func_00178DD8(int a0);
 extern void _ACTWait(int a0);
 extern int D_00629DE4;
 extern int D_00629DE8;
 
 void stageSE04eriverDown(volatile int a0) {
-    while (scpSleepEnemyOne(a0, D_00629DE4, 400.0f) == 0 ||
+    while (scpTriggerBall(a0, D_00629DE4, 400.0f) == 0 ||
            scpSleepSpiderGroupOne(D_00629DE4, 0x2000000) == 0) {
         _ACTWait(1);
     }
@@ -258,11 +258,11 @@ void stageSE04eriverDown(volatile int a0) {
     func_00178E08(0x119);
     if (D_00629DE8 != 0) {
         if (scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) != 0) {
-            actBoyBHang();
-            actSt25aQueenDead(4, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
+            OnGirlEscortFlag();
+            RequestStageChange(4, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
         }
     }
-    actSt25aQueenDead(4, D_00629DE4, 0, 2.0f, 8.0f);
+    RequestStageChange(4, D_00629DE4, 0, 2.0f, 8.0f);
 }
 
 extern int D_00629DE8;
@@ -291,10 +291,10 @@ extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern void gflagOff(int a0, int a1);
 extern void gflagChk(int a0, void *a1);
 extern int stage_DispBgAnimation(int a0, int a1);
-extern void actSt25aGenerator(void *a0, float f0, float f1, float f2);
+extern void scpPlayPosSet(void *a0, float f0, float f1, float f2);
 extern int func_0012A958(int a0);
 extern void *ContinueCorrectPosition(int a0);
-extern void func_00240008(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern float D_00629A18;
 extern int D_0062C2CC;
 typedef struct { long long _0; long long _8; } WpData16;
@@ -306,10 +306,10 @@ void stageSE06ataimatsu(volatile int a0) {
     while (stage_DispBgAnimation(0x2AB, 0x2AC) == 0) { _ACTWait(1); }
     {
         float t12 = *(volatile float *)&D_00629A18;
-        actSt25aGenerator((void *)D_00629DE4, t12, 148.0f, -1112.0f);
+        scpPlayPosSet((void *)D_00629DE4, t12, 148.0f, -1112.0f);
     }
     local10 = D_00614E40;
-    func_00240008(&local20, &local10, ContinueCorrectPosition(D_00629DE4));
+    sceVu0SubVector(&local20, &local10, ContinueCorrectPosition(D_00629DE4));
     gflagChk(D_00629DE4, &local20);
     gflagOff(D_00629DE4, 0x188);
     while (func_0012A958(0x2AC) == 0) { _ACTWait(1); }
@@ -356,21 +356,21 @@ void stageSE08anoise3(volatile int a0) {
 }
 
 extern int func_00178DB0(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void stageSE08ataimatsu(void) {
     if (func_00178DB0(0x2C) != 0) {
         stage_KillPlayBgAnimation(0x90, 0, 0);
-        AddWayPointTop(0x21, 1);
+        SetWayGroupActive(0x21, 1);
     } else {
         stage_KillPlayBgAnimation(0x8F, 0, 0);
-        AddWayPointTop(0x21, 0);
+        SetWayGroupActive(0x21, 0);
     }
     if (func_00178DB0(0x2D) != 0) {
         stage_KillPlayBgAnimation(0x92, 0, 0);
-        AddWayPointTop(0x22, 1);
+        SetWayGroupActive(0x22, 1);
     } else {
         stage_KillPlayBgAnimation(0x91, 0, 0);
-        AddWayPointTop(0x22, 0);
+        SetWayGroupActive(0x22, 0);
     }
 }

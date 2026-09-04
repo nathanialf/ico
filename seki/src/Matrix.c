@@ -1,12 +1,12 @@
 #include "common.h"
 #include "vu0.h"
 
-extern float func_0010ED30(int x);
+extern float GetTableCos(int x);
 extern float p2o_SetDefaultEnviroment(int x);
 
-void _RemakeNormal(short a0)
+void _RotCurrentMatrixY(short a0)
 {
-    float c = func_0010ED30(a0);
+    float c = GetTableCos(a0);
     float s = p2o_SetDefaultEnviroment(a0);
     __asm__ __volatile__("mfc1 $8, %0" : : "f"(c) : "$8");
     __asm__ __volatile__("mfc1 $9, %0" : : "f"(s) : "$9");
@@ -42,9 +42,9 @@ void _RemakeNormal(short a0)
     VU0_V2OP(vmove.xyzw, 7, 17);
 }
 
-void _Sqrt(short a0)
+void _RotCurrentMatrixZ(short a0)
 {
-    float c = func_0010ED30(a0);
+    float c = GetTableCos(a0);
     float s = p2o_SetDefaultEnviroment(a0);
     __asm__ __volatile__("mfc1 $8, %0" : : "f"(c) : "$8");
     __asm__ __volatile__("mfc1 $9, %0" : : "f"(s) : "$9");
@@ -80,7 +80,7 @@ void _Sqrt(short a0)
     VU0_V2OP(vmove.xyzw, 7, 17);
 }
 
-void _InitCurrentMatrix(float a0, float a1, float a2)
+void _ScaleCurrentMatrix(float a0, float a1, float a2)
 {
     VU0_MFC1(6, 12);
     VU0_MFC1(7, 13);
@@ -131,7 +131,7 @@ void _PushCurrentMatrix(void *a0) {
     VU0_NOP();
 }
 
-void _PopCurrentMatrix(void *a0) {
+void _SetCurrentMatrix(void *a0) {
     VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_LSV(lqc2, 5, 0x10, 4);
     VU0_LSV(lqc2, 6, 0x20, 4);
@@ -139,7 +139,7 @@ void _PopCurrentMatrix(void *a0) {
     VU0_NOP();
 }
 
-void _TransCurrentMatrix(void *a0)
+void _MulCurrentMatrixR(void *a0)
 {
     VU0_LSV(lqc2, 14, 0x0, 4);
     VU0_LSV(lqc2, 15, 0x10, 4);
@@ -168,7 +168,7 @@ void _TransCurrentMatrix(void *a0)
     VU0_NOP();
 }
 
-void _SetTransCurrentMatrix(void *m)
+void _MulCurrentMatrixL(void *m)
 {
     VU0_LSV(lqc2, 14, 0x0, a0);
     VU0_LSV(lqc2, 15, 0x10, a0);
@@ -193,7 +193,7 @@ void _SetTransCurrentMatrix(void *m)
     VU0_NOP();
 }
 
-void _ClearTransCurrentMatrix(void *a0, void *a1) {
+void _ApplyCurrentMatrix(void *a0, void *a1) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf8, 0x0($5)\n"
@@ -205,7 +205,7 @@ void _ClearTransCurrentMatrix(void *a0, void *a1) {
         ".set reorder\n" : : : "memory");
 }
 
-void _RotCurrentMatrixX(void *a0, void *a1) {
+void _RotTransPersCurrentMatrix(void *a0, void *a1) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf8, 0x0($5)\n"
@@ -220,7 +220,7 @@ void _RotCurrentMatrixX(void *a0, void *a1) {
         ".set reorder\n" : : : "memory");
 }
 
-void _RotCurrentMatrixY(void)
+void _TransposeCurrentMatrix(void)
 {
     VU0_V3OP(vsub.xyzw, 1, 0, 0);
     VU0_V3OP_BC(vaddx.y, 14, 1, 5, x);
@@ -242,7 +242,7 @@ void _RotCurrentMatrixY(void)
     VU0_NOP();
 }
 
-void _RotCurrentMatrixZ(void) {
+void _TransposeRotationCurrentMatrix(void) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "vsub.xyzw $vf1, $vf0, $vf0\n"
@@ -258,7 +258,7 @@ void _RotCurrentMatrixZ(void) {
         ".set reorder\n" : : : "memory");
 }
 
-void _ScaleCurrentMatrix(void)
+void _InverseCurrentMatrix(void)
 {
     VU0_V3OP(vsub.xyzw, 1, 0, 0);
     VU0_V3OP_BC(vsubw.x, 2, 0, 0, w);
@@ -352,7 +352,7 @@ void _GetCurrentMatrixTrans(void)
     VU0_NOP();
 }
 
-void _SetCurrentMatrix(void *a0, void *a1) {
+void _NormalizeVector(void *a0, void *a1) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf1, 0x0($5)\n"
@@ -367,7 +367,7 @@ void _SetCurrentMatrix(void *a0, void *a1) {
         ".set reorder\n" : : : "memory");
 }
 
-float _MulCurrentMatrixR(void *a0, void *a1) {
+float _InnerProduct(void *a0, void *a1) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -385,7 +385,7 @@ float _MulCurrentMatrixR(void *a0, void *a1) {
     return ret;
 }
 
-void _MulCurrentMatrixL(void *a0, void *a1, void *a2) {
+void _OuterProduct(void *a0, void *a1, void *a2) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf1, 0x0($5)\n"
@@ -397,7 +397,7 @@ void _MulCurrentMatrixL(void *a0, void *a1, void *a2) {
         ".set reorder\n" : : : "memory");
 }
 
-void _ApplyCurrentMatrix(void *a0, void *a1, void *a2) {
+void _AddVector(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 1, 0x0, 5);
     VU0_LSV(lqc2, 2, 0x0, 6);
     VU0_V3OP(vadd.xyzw, 3, 1, 2);
@@ -405,7 +405,7 @@ void _ApplyCurrentMatrix(void *a0, void *a1, void *a2) {
     VU0_NOP();
 }
 
-void _RotTransPersCurrentMatrix(void *a0, void *a1, void *a2) {
+void _AddVectorXYZ(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 1, 0x0, 5);
     VU0_LSV(lqc2, 2, 0x0, 6);
     VU0_V3OP(vadd.xyz, 1, 1, 2);
@@ -413,7 +413,7 @@ void _RotTransPersCurrentMatrix(void *a0, void *a1, void *a2) {
     VU0_NOP();
 }
 
-void _TransposeCurrentMatrix(void *a0, void *a1, void *a2) {
+void _SubVector(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 1, 0x0, 5);
     VU0_LSV(lqc2, 2, 0x0, 6);
     VU0_V3OP(vsub.xyzw, 3, 1, 2);
@@ -421,7 +421,7 @@ void _TransposeCurrentMatrix(void *a0, void *a1, void *a2) {
     VU0_NOP();
 }
 
-void _TransposeRotationCurrentMatrix(void *a0, void *a1, void *a2) {
+void _SubVectorXYZ(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 1, 0x0, 5);
     VU0_LSV(lqc2, 2, 0x0, 6);
     VU0_V3OP(vsub.xyz, 1, 1, 2);
@@ -429,7 +429,7 @@ void _TransposeRotationCurrentMatrix(void *a0, void *a1, void *a2) {
     VU0_NOP();
 }
 
-void _InverseCurrentMatrix(void *a0, void *a1, float a2) {
+void _ScaleVector(void *a0, void *a1, float a2) {
     VU0_LSV(lqc2, 1, 0x0, 5);
     __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf2\n .set reorder" ::: "memory");
     VU0_V3OP_BC(vmulx.xyzw, 3, 1, 2, x);
@@ -437,7 +437,7 @@ void _InverseCurrentMatrix(void *a0, void *a1, float a2) {
     VU0_NOP();
 }
 
-void _PushVu0Registers(void *a0, void *a1, float a2) {
+void _ScaleVectorXYZ(void *a0, void *a1, float a2) {
     VU0_LSV(lqc2, 1, 0x0, 5);
     __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf2\n .set reorder" ::: "memory");
     VU0_V3OP_BC(vmulx.xyz, 1, 1, 2, x);
@@ -445,7 +445,7 @@ void _PushVu0Registers(void *a0, void *a1, float a2) {
     VU0_NOP();
 }
 
-void _PopVu0Registers(void *a0, void *a1, void *a2) {
+void _ScaleVector2XYZ(void *a0, void *a1, void *a2) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf1, 0x0($5)\n"

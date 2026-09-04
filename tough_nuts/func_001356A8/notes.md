@@ -1,11 +1,11 @@
-# func_001356A8 (fumi/ios/inflate) — parked
+# func_001356A8 (fumi/ios/iosCdvdBackGroundMgrInit) — parked
 
-Asm source: asm/aug6/nonmatchings/fumi/ios/inflate/func_001356A8.s
-TU: fumi/ios/inflate.c
+Asm source: asm/aug6/nonmatchings/fumi/ios/iosCdvdBackGroundMgrInit/func_001356A8.s
+TU: fumi/ios/iosCdvdBackGroundMgrInit.c
 
 ## Parked 2026-06-08 (deferred from retail-port; NOT a 30-stall floor)
 
-Retail-port candidate that did not match by direct port. real odiff diff vs retail body (inflate huffman); needs matching.
+Retail-port candidate that did not match by direct port. real odiff diff vs retail body (iosCdvdBackGroundMgrInit huffman); needs matching.
 
 ## Seed
 

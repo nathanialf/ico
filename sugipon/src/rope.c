@@ -53,14 +53,14 @@ extern int D_0062A324;
 
 extern void *iosFree(int a0, int a1, char *a2, int a3);
 extern void iosMallocCheckLeak2(int a0);
-extern void debug_assertMessage(char *a0, ...);
+extern void debug_StdPrintfDummy(char *a0, ...);
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern int func_00105078(void);
-extern void func_002400F8(int a0);
+extern void sceVu0UnitMatrix(int a0);
 extern void func_00105108(float a0, float a1, float a2);
-extern void func_00104DC0(int a0);
-extern void func_0023FDD8(void *a0, void *a1, void *a2);
+extern void MatrixDrive_RotMatrixY(int a0);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 extern void ClipWallBoxStop(void *a0);
 extern int bind2(void *a0);
 
@@ -79,14 +79,14 @@ void HoldRope(void *a0, void *a1) {
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rope", ropeGeo);
 
 extern int func_00105078(void);
-extern void func_002400F8(int a0);
+extern void sceVu0UnitMatrix(int a0);
 extern void func_0023FE08(int a0, int a1, int a2);
 extern void func_001C1560(int a0, int a1, int a2);
 
 void RopeDL(char *a0)
 {
     char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
-    func_002400F8(func_00105078());
+    sceVu0UnitMatrix(func_00105078());
     {
         char *p = *(char **)(a0 + 0x15C);
         if (*(int *)p != 0) {

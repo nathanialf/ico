@@ -51,7 +51,7 @@ extern int D_0062C1DC;
 extern int D_0062C1CC;
 extern int D_0062C1D8;
 extern unsigned char D_00700770[];
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 
 void staffRollMain(int a0, float arg) {
     int z = 0;
@@ -66,15 +66,15 @@ void staffRollMain(int a0, float arg) {
     D_0062C1D8 = z;
     D_0062B460 = D_0062C1C4;
     D_0062B45C = D_0062C1C4;
-    func_00260568(D_00700770, z, 0x12C0);
+    memset(D_00700770, z, 0x12C0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", staffRollWide);
 
 extern int dl_Swap(void);
-extern void debug_assertMessage(char *a0);
+extern void debug_StdPrintfDummy(char *a0);
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern int func_001F7718(char *a0, int a1);
 extern int D_004B8C90[];
 extern char D_0060FD60[];
@@ -112,10 +112,10 @@ int func_001B58B0(void) {
             off += 0x10;
             p += 0x10;
         }
-        debug_assertMessage(D_0060FD60);
+        debug_StdPrintfDummy(D_0060FD60);
     found:
         func_001AAD00(D_0060FD78, 0xBD);
-        func_00260380(D_0060FD78, 0xBD, D_0062D2E8);
+        __assert(D_0060FD78, 0xBD, D_0062D2E8);
         counter = D_0062C1C8;
         ptr = &D_004B8C90[counter];
         slot = (char *)&D_00700770[i * 0x10];

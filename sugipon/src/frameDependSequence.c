@@ -1,17 +1,17 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", playSE);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", executeSEPackageWithNoGObj);
 
 extern float D_0062B6B4;
 extern void func_001CE340(int a0, int a1, int a2);
-extern void playSE(int a0);
+extern void executeSEPackageWithNoGObj(int a0);
 
 void playSERandomID(int a0, int a1, int a2) {
     D_0062B6B4 = 1.0f;
     if (a0) {
         func_001CE340(a0, a1, a2);
     } else {
-        playSE(a1);
+        executeSEPackageWithNoGObj(a1);
     }
 }
 
@@ -24,7 +24,7 @@ void playSEConditionID(int a0, int a1) {
 extern float D_0062B6B4;
 extern void func_001CE340(int a0, int a1, int a2);
 
-void playEff(int a0, int a1, float f) {
+void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f) {
     D_0062B6B4 = f;
     func_001CE340(a0, a1, 0);
 }
@@ -57,7 +57,7 @@ extern int GetFlyLimitHeight(void);
 extern int GetFlyLimitClearance(int a0);
 extern int func_001CDBB0(int a0);
 
-int executeSEPackageWithNoGObj(int a0) {
+int execSE(int a0) {
     if (a0 <= 0xFFFF) {
         return GetFlyLimitHeight();
     } else if (a0 <= 0x1FFFF) {
@@ -72,7 +72,7 @@ int ExecuteSEPackageWithGroupVariation(void *a0, int a1) {
     return (int)(*(float *)((char *)p + 0x634)) < a1;
 }
 
-int ExecuteSEPackage(void *a0, int a1) {
+int checkModelDataID(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
     return p[0x21] == a1;
 }

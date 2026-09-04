@@ -1,4 +1,4 @@
-int func_00166D00(void *arg0, int arg1, int arg2) {
+int _clipW(void *arg0, int arg1, int arg2) {
     int ret = 0;
     int i;
 

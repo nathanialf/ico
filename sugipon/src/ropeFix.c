@@ -10,7 +10,7 @@ struct vec4_rope { float x, y, z, w; } __attribute__((aligned(8)));
 
 extern void RopeDL(GObj *o);
 extern void GetRootMatrixByDObj(void *dst, void *src);
-extern float MoveChainExtendedWeight(void *a0, void *a1, float w);
+extern float GetChainCollision(void *a0, void *a1, float w);
 extern GObj *D_00629DE4;
 
 void RopeFixDL(GObj *a0) {
@@ -22,7 +22,7 @@ void RopeFixDL(GObj *a0) {
     g = D_00629DE4;
     obj = GOBJ_SUB(a0)->p_7F0;
     GetRootMatrixByDObj(&m, g);
-    w = MoveChainExtendedWeight(obj->p_0, &m, 200.0f);
+    w = GetChainCollision(obj->p_0, &m, 200.0f);
     do {
         if (0.0f < w) {
             GOBJ_SUB(g)->f_608 = w;
@@ -71,26 +71,26 @@ void func_001E6B80(int a0) {
 typedef struct { char _0[0x30]; int f30; } RopeC;
 typedef struct { char _0[0x7F0]; RopeC *f7F0; } RopeB;
 typedef struct { char _0[0x15C]; RopeB *f15C; } RopeA;
-extern void func_001AB9F8(RopeA *a0);
+extern void gamesysObjInfoUniqDataSet(RopeA *a0);
 
 void func_001E6BB0(RopeA *a0) {
     RopeC *q = a0->f15C->f7F0;
     if (q->f30++ >= 0x1F) {
         q->f30 = 0;
-        func_001AB9F8(a0);
+        gamesysObjInfoUniqDataSet(a0);
     }
 }
 
 extern int func_00105078(void);
 extern void LocalizeDirectionOrient(int a0, void *a1);
-extern void func_00104DC0(int a0);
-extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, int a1);
+extern void MatrixDrive_RotMatrixY(int a0);
+extern void CopyMatrix(int a0, int a1);
 
 void func_001E6BE0(int a0, void *a1) {
     Obj7F0 *obj = GOBJ_SUB(a1)->p_7F0;
     LocalizeDirectionOrient(func_00105078(), a1);
-    func_00104DC0(*(short *)((char *)obj + 0x20));
-    MatrixDrive_TurnXObjectMatrixYZ(a0, func_00105078());
+    MatrixDrive_RotMatrixY(*(short *)((char *)obj + 0x20));
+    CopyMatrix(a0, func_00105078());
 }
 
 extern void func_0010F048(void *a0);

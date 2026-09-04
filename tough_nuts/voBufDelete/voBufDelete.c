@@ -4,8 +4,8 @@ extern char D_00557158[];
 extern char D_00557178[];
 extern int deq_mes_th(int a0, int a1, int a2, void *a3, int a4);
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
-extern void func_00260568(int a0, int a1, int a2);
+extern void __assert(void *a0, int a1, void *a2);
+extern void memset(int a0, int a1, int a2);
 int voBufDelete(volatile int *a0)
 {
   char *fp = D_00557158;
@@ -17,9 +17,9 @@ int voBufDelete(volatile int *a0)
   if (p == 0)
   {
     func_001AAD00(fp, 0x2B);
-    func_00260380(fp, 0x2B, D_00557178);
+    __assert(fp, 0x2B, D_00557178);
   }
-  func_00260568(p, 0, 0x697800);
+  memset(p, 0, 0x697800);
   if (p == 0)
   {
     return -1;
@@ -29,9 +29,9 @@ int voBufDelete(volatile int *a0)
   if (q == 0)
   {
     func_001AAD00(fp, 0x2B);
-    func_00260380(fp, 0x2B, D_00557178);
+    __assert(fp, 0x2B, D_00557178);
   }
-  func_00260568(q, 0, 0x323340);
+  memset(q, 0, 0x323340);
   a0[1] = q;
   if (q == 0)
   {

@@ -1,4 +1,4 @@
-# func_00166D00 (fumi/src/fuzio)
+# _clipW (fumi/src/fuzio)
 
 best real_count = 4, stall 8/30 at park-to-resume (iter 140 in match_loop state).
 

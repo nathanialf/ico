@@ -1,4 +1,4 @@
-void func_00251F98(int *a0, int a1, int a2, int a3, int a4)
+void _decode_motion_vector(int *a0, int a1, int a2, int a3, int a4)
 {
   int limit;
   int base;

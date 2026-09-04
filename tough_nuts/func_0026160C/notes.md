@@ -1,7 +1,7 @@
-# func_0026160C — parked
+# strlen — parked
 
 VRAM: 0x0026160C (file_off 0x16160C)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0026160C.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/strlen.s
 
 ## Attempt at 2026-06-12
 
@@ -9,14 +9,14 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0026160C.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0026160C/func_0026160C.c`
+**Seed:** `tough_nuts/strlen/strlen.c`
 
 Disassembly:
 
 ```
-nonmatching func_0026160C, 0x138
+nonmatching strlen, 0x138
 
-glabel func_0026160C
+glabel strlen
     /* 16160C 0026160C 07008230 */  andi       $2, $4, 0x7
     /* 161610 00261610 43004014 */  bnez       $2, .L00261720
     /* 161614 00261614 2D388000 */   daddu     $7, $4, $0
@@ -103,6 +103,6 @@ glabel func_0026160C
     /* 161738 00261738 01008424 */   addiu     $4, $4, 0x1
     /* 16173C 0026173C 0800E003 */  jr         $31
     /* 161740 00261740 23108700 */   subu      $2, $4, $7
-endlabel func_0026160C
+endlabel strlen
     /* 161744 00261744 00000000 */  nop
 ```

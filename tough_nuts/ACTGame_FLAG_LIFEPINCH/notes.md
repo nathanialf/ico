@@ -1,7 +1,7 @@
-# ACTGame_FLAG_LIFEPINCH — parked
+# ACTCheckCollis_WAY — parked
 
 VRAM: 0x001494E0 (file_off 0x0494E0)
-Asm source: asm/aug6/nonmatchings/fumi/src/act-game/ACTGame_FLAG_LIFEPINCH.s
+Asm source: asm/aug6/nonmatchings/fumi/src/act-game/ACTCheckCollis_WAY.s
 
 ## Attempt at 2026-06-26
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/act-game/ACTGame_FLAG_LIFEPINCH.s
 
 **TU:** `fumi/src/act-game.c`
 
-**Seed:** `tough_nuts/ACTGame_FLAG_LIFEPINCH/ACTGame_FLAG_LIFEPINCH.c`
+**Seed:** `tough_nuts/ACTCheckCollis_WAY/ACTCheckCollis_WAY.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching ACTGame_FLAG_LIFEPINCH, 0x144
+nonmatching ACTCheckCollis_WAY, 0x144
 
-glabel ACTGame_FLAG_LIFEPINCH
+glabel ACTCheckCollis_WAY
     /* 494E0 001494E0 D0FEBD27 */  addiu      $29, $29, -0x130
     /* 494E4 001494E4 0001B4FF */  sd         $20, 0x100($29)
     /* 494E8 001494E8 F000B3FF */  sd         $19, 0xF0($29)
@@ -33,7 +33,7 @@ glabel ACTGame_FLAG_LIFEPINCH
     /* 49510 00149510 C000B0FF */  sd         $16, 0xC0($29)
     /* 49514 00149514 2D20A003 */  daddu      $4, $29, $0
     /* 49518 00149518 2D280000 */  daddu      $5, $0, $0
-    /* 4951C 0014951C 5A81090C */  jal        func_00260568
+    /* 4951C 0014951C 5A81090C */  jal        memset
     /* 49520 00149520 C0000624 */   addiu     $6, $0, 0xC0
     /* 49524 00149524 03002012 */  beqz       $17, .L00149534
     /* 49528 00149528 2D800000 */   daddu     $16, $0, $0
@@ -44,10 +44,10 @@ glabel ACTGame_FLAG_LIFEPINCH
     /* 49534 00149534 7000B4E7 */  swc1       $f20, 0x70($29)
     /* 49538 00149538 2D286002 */  daddu      $5, $19, $0
     /* 4953C 0014953C 6C9980AF */  sw         $0, %gp_rel(D_0062A55C)($28)
-    /* 49540 00149540 2000090C */  jal        func_00240080
+    /* 49540 00149540 2000090C */  jal        sceVu0CopyVector
     /* 49544 00149544 2D20A003 */   daddu     $4, $29, $0
     /* 49548 00149548 2D288002 */  daddu      $5, $20, $0
-    /* 4954C 0014954C 2000090C */  jal        func_00240080
+    /* 4954C 0014954C 2000090C */  jal        sceVu0CopyVector
     /* 49550 00149550 1000A427 */   addiu     $4, $29, 0x10
     /* 49554 00149554 03000012 */  beqz       $16, .L00149564
     /* 49558 00149558 00000000 */   nop
@@ -73,7 +73,7 @@ glabel ACTGame_FLAG_LIFEPINCH
     /* 49598 00149598 740040AC */  sw         $0, 0x74($2)
 .align 2
   .L0014959C:
-    /* 4959C 0014959C 9E98050C */  jal        ClipWallFieldCheckCB
+    /* 4959C 0014959C 9E98050C */  jal        ClipWallField
     /* 495A0 001495A0 2D20A003 */   daddu     $4, $29, $0
     /* 495A4 001495A4 03000012 */  beqz       $16, .L001495B4
     /* 495A8 001495A8 01000224 */   addiu     $2, $0, 0x1
@@ -88,7 +88,7 @@ glabel ACTGame_FLAG_LIFEPINCH
   .L001495C0:
     /* 495C0 001495C0 6C9982AF */  sw         $2, %gp_rel(D_0062A55C)($28)
     /* 495C4 001495C4 2D206002 */  daddu      $4, $19, $0
-    /* 495C8 001495C8 2C9A050C */  jal        func_001668B0
+    /* 495C8 001495C8 2C9A050C */  jal        CompareAttribute
     /* 495CC 001495CC 0300053C */   lui       $5, (0x30000 >> 16)
     /* 495D0 001495D0 03004010 */  beqz       $2, .L001495E0
     /* 495D4 001495D4 00000000 */   nop
@@ -119,6 +119,6 @@ glabel ACTGame_FLAG_LIFEPINCH
     /* 49618 00149618 2001B4C7 */  lwc1       $f20, 0x120($29)
     /* 4961C 0014961C 0800E003 */  jr         $31
     /* 49620 00149620 3001BD27 */   addiu     $29, $29, 0x130
-endlabel ACTGame_FLAG_LIFEPINCH
+endlabel ACTCheckCollis_WAY
     /* 49624 00149624 00000000 */  nop
 ```

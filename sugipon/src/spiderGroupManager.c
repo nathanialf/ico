@@ -4,7 +4,7 @@ int EntrySpiderGroupManager(void) {
     return 1;
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00612B98[];
 extern char D_00612BA8[];
 extern char D_00612BB8[];
@@ -21,10 +21,10 @@ int tryToRevive(void *a0, char *a1) {
     if (*(int *)(s1 + 0x8) != 0) {
         *(int *)((char *)q + 0x3C) = 1;
     }
-    debug_assertMessage(D_00612B98, a0);
-    debug_assertMessage(D_00612BA8, (*(int *)(a1 + 0x30) != 0) ? D_0062D748 : D_0062D750);
-    debug_assertMessage(D_00612BB8, *(int *)(s1 + 0x4));
-    debug_assertMessage(D_00612BC8, *(int *)(s1 + 0x8));
+    debug_StdPrintfDummy(D_00612B98, a0);
+    debug_StdPrintfDummy(D_00612BA8, (*(int *)(a1 + 0x30) != 0) ? D_0062D748 : D_0062D750);
+    debug_StdPrintfDummy(D_00612BB8, *(int *)(s1 + 0x4));
+    debug_StdPrintfDummy(D_00612BC8, *(int *)(s1 + 0x8));
     return 1;
 }
 
@@ -34,7 +34,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", InitSpiderGr
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", EntryRevivedSpiderGroupManager);
 
-extern void iosOmBeforeFuncStandard();
+extern void iosOmSendMail();
 
 void DispAllSpiderGroups(char *a0) {
     char *sub = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
@@ -44,7 +44,7 @@ void DispAllSpiderGroups(char *a0) {
         do {
             int elem = *(int *)(*(int *)(sub + 0x24) + i * 4);
             if (elem != 0) {
-                iosOmBeforeFuncStandard(elem, 0x20, elem);
+                iosOmSendMail(elem, 0x20, elem);
                 n = *(int *)(sub + 0x20);
             }
             i++;
@@ -52,7 +52,7 @@ void DispAllSpiderGroups(char *a0) {
     }
 }
 
-extern void iosOmBeforeFuncStandard();
+extern void iosOmSendMail();
 
 void EntryToSpiderGroupManagerForReviveMaster(char *a0) {
     char *sub = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
@@ -62,7 +62,7 @@ void EntryToSpiderGroupManagerForReviveMaster(char *a0) {
         do {
             int elem = *(int *)(*(int *)(sub + 0x24) + i * 4);
             if (elem != 0) {
-                iosOmBeforeFuncStandard(elem, 0x1F, elem);
+                iosOmSendMail(elem, 0x1F, elem);
                 n = *(int *)(sub + 0x20);
             }
             i++;
@@ -72,7 +72,7 @@ void EntryToSpiderGroupManagerForReviveMaster(char *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", getReviveEnemyGObj);
 
-extern void iosOmBeforeFuncStandard();
+extern void iosOmSendMail();
 
 int func_001E8638(char *a0) {
     char *sub = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
@@ -82,7 +82,7 @@ int func_001E8638(char *a0) {
         do {
             int elem = *(int *)(*(int *)(sub + 0x24) + i * 4);
             if (elem != 0) {
-                iosOmBeforeFuncStandard(elem, 0x26, elem);
+                iosOmSendMail(elem, 0x26, elem);
                 n = *(int *)(sub + 0x20);
             }
             i++;
@@ -155,7 +155,7 @@ void func_001E8D10(int a0, int a1) {
 }
 
 extern int isysGObjSearchFromObjLayoutID();
-extern int isysGObjSearchFromObjKindID_begin();
+extern int isysGObjSearchFromObjKindID_next();
 
 int func_001E8D38(int arg) {
     register int n __asm__("$17");
@@ -167,7 +167,7 @@ int func_001E8D38(int arg) {
     if (n > 0) {
         do {
             if (obj == 0) return 0;
-            obj = isysGObjSearchFromObjKindID_begin(obj);
+            obj = isysGObjSearchFromObjKindID_next(obj);
             i++;
         } while (i < n);
     }

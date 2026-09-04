@@ -15,26 +15,26 @@ extern void func_0010F068(void);
 extern void setLight(int a0, int a1, int a2);
 extern int D_00629C40;
 extern void gif_SpriteOffset(int a0);
-extern void gsb_SetFrame(int a0, int a1, int a2);
-extern void gif_SpriteOrg(int a0, int a1);
+extern void gif_SetAlpha(int a0, int a1, int a2);
+extern void gif_SetGsReg(int a0, int a1);
 extern void func_0010F9D0(void);
-extern void _PopCurrentMatrix(int a0);
+extern void _SetCurrentMatrix(int a0);
 extern int D_00629C70;
-extern int func_0012FC48(void *a0);
+extern int tex_GetTextureNo(void *a0);
 extern void prim_DispParticle(int a0, void *a1, void *a2, int a3);
 
-void GetChainAnimation(int *a0, void *a1, void *a2) {
+void DispClothMesh(int *a0, void *a1, void *a2) {
     int t;
     dpk_SwapBuffer(2);
     func_0010F068();
     setLight(a0[0], 5, D_00629C40);
     gif_SpriteOffset(2);
-    gsb_SetFrame(1, 7, 0x80);
-    gif_SpriteOrg(8, 0);
+    gif_SetAlpha(1, 7, 0x80);
+    gif_SetGsReg(8, 0);
     func_0010F9D0();
-    _PopCurrentMatrix(D_00629C70 + 0x100);
+    _SetCurrentMatrix(D_00629C70 + 0x100);
     if (a0[4] != 0) {
-        t = func_0012FC48((char *)a0 + 0x18);
+        t = tex_GetTextureNo((char *)a0 + 0x18);
     } else {
         t = -1;
     }
@@ -47,19 +47,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", GetClothAnimatio
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", clipCylinderCollision);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", InitChains);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", proc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", InitClothes);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", DispClothMesh);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", getCloth4D_postProcess);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", DispMeshWire);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", DispCloth4D);
 
 extern void GetMatrixFromQuaternion(void *a0);
-extern void MatrixDrive_GetTurnXAngleZY(void *a0, void *a1, void *a2);
-extern void MatrixDrive_PushMatrixWithNoCopy(unsigned short *o1, unsigned short *o2, float x, float y, float z);
+extern void SubVectorXYZ(void *a0, void *a1, void *a2);
+extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y, float z);
 extern void func_0010E448(void *a0, int a1);
 extern void func_0010E588(void *a0, int a1);
 
@@ -69,38 +69,38 @@ typedef struct {
     unsigned short b;
 } ClothBuf;
 
-void getCloth4D_preProcess(void *a0, int *a1, int count) {
+void GetChainNodeGlobalQuaternion(void *a0, int *a1, int count) {
     ClothBuf buf;
     GetMatrixFromQuaternion(a0);
     if (count > 0) {
         char *base = *(char **)a1;
         int off = count * 16;
-        MatrixDrive_GetTurnXAngleZY(&buf, base + off, base + (off - 16));
-        MatrixDrive_PushMatrixWithNoCopy(&buf.a, &buf.b, buf.v[0], buf.v[1], buf.v[2]);
+        SubVectorXYZ(&buf, base + off, base + (off - 16));
+        MatrixDrive_GetTurnYAngleXZ(&buf.a, &buf.b, buf.v[0], buf.v[1], buf.v[2]);
         func_0010E448(a0, (short)-buf.a);
         func_0010E588(a0, (short)-buf.b);
     }
 }
 
-void proc(void *a0, int a1, float a2) {
+void MoveChainExtendedWeight(void *a0, int a1, float a2) {
     *(float *)((char *)a0 + a1 * 0x50 + 0x10) = a2;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", getCloth4D);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", InitChainVelocity);
 
-void getCloth4D_postProcess(char *a0, int a1) {
+void DeleteChainExtendedWeight(char *a0, int a1) {
     *(float *)(a0 + a1 * 0x50 + 0x10) = -1.0f;
     *(int *)(a0 + 0xC) -= 1;
 }
 
-float GetCloth4D(void *a0, float a1) {
+float GetChainNodeID(void *a0, float a1) {
     return a1 / *(float *)((char *)a0 + 0x14);
 }
 
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 extern char D_00271BD0[];
 
-void InitCloth4D(int *a0, int *a1, int *a2) {
+void ResetClothAnimation(int *a0, int *a1, int *a2) {
     int outer = a2[0];
     int inner = a2[2];
     int i = 0;
@@ -118,11 +118,11 @@ void InitCloth4D(int *a0, int *a1, int *a2) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", GetChainNodeGlobalQuaternion);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", GetChainExWeightGlobalQuaternion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", MoveChainExtendedWeight);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", GetChainCollision);
 
-float InitChainVelocity(float a0) {
+float FSqrtInv(float a0) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -137,7 +137,7 @@ float InitChainVelocity(float a0) {
     return ret;
 }
 
-float DeleteChainExtendedWeight(void *a0) {
+float getXZLength(void *a0) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -153,7 +153,7 @@ float DeleteChainExtendedWeight(void *a0) {
     return ret;
 }
 
-float GetChainNodeID(void *a0) {
+float getXZInvLength(void *a0) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"

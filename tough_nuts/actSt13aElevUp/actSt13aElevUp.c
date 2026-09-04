@@ -45,7 +45,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aExit);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aCheck);
 
 extern void _ACTWait(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern int GetSkeltonFocusNode(int a0);
 extern int actSt25aQueenDeadChk(int a0);
 extern void DrawLine(void);
@@ -53,7 +53,7 @@ extern int D_00629DE4;
 
 void actSt13aChain(volatile int a0) {
     while (1) {
-        if (scpSleepEnemyOne(a0, D_00629DE4, 150.0f) != 0) {
+        if (scpTriggerBall(a0, D_00629DE4, 150.0f) != 0) {
             if (GetSkeltonFocusNode(D_00629DE4) == 0x2E) break;
             if (GetSkeltonFocusNode(D_00629DE4) == 0x2F) break;
             if (GetSkeltonFocusNode(D_00629DE4) == 0x30) break;
@@ -66,25 +66,25 @@ void actSt13aChain(volatile int a0) {
 }
 
 extern int func_00178DB0(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt13aElevMain(void) {
     if (func_00178DB0(0x71) != 0) {
         if (func_00178DB0(0x72) != 0) {
-            AddWayPointTop(0xB, 0);
-            AddWayPointTop(0xC, 0);
+            SetWayGroupActive(0xB, 0);
+            SetWayGroupActive(0xC, 0);
             stage_KillPlayBgAnimation(0x142, 0, -1);
         } else {
-            AddWayPointTop(0xD, 0);
-            AddWayPointTop(0xE, 0);
-            AddWayPointTop(0xF, 0);
+            SetWayGroupActive(0xD, 0);
+            SetWayGroupActive(0xE, 0);
+            SetWayGroupActive(0xF, 0);
             stage_KillPlayBgAnimation(0x141, 0, -1);
         }
     } else {
-        AddWayPointTop(0xD, 0);
-        AddWayPointTop(0xE, 0);
-        AddWayPointTop(0xF, 0);
+        SetWayGroupActive(0xD, 0);
+        SetWayGroupActive(0xE, 0);
+        SetWayGroupActive(0xF, 0);
         stage_KillPlayBgAnimation(0x141, 0, 0);
     }
 }

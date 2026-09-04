@@ -53,14 +53,14 @@ extern int D_0062A324;
 
 extern void *iosFree(int a0, int a1, char *a2, int a3);
 extern void iosMallocCheckLeak2(int a0);
-extern void debug_assertMessage(char *a0, ...);
+extern void debug_StdPrintfDummy(char *a0, ...);
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern int func_00105078(void);
-extern void func_002400F8(int a0);
+extern void sceVu0UnitMatrix(int a0);
 extern void func_00105108(float a0, float a1, float a2);
-extern void func_00104DC0(int a0);
-extern void func_0023FDD8(void *a0, void *a1, void *a2);
+extern void MatrixDrive_RotMatrixY(int a0);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 extern int ClipWallBoxStop(void *a0);
 extern int bind2(void *a0);
 
@@ -93,25 +93,25 @@ void *SetRopeFixPoint(void *a0, void *a1) {
     }
     *(int *)(b + 0x00) = n;
     if (n == 0) {
-        debug_assertMessage(D_006128E0);
+        debug_StdPrintfDummy(D_006128E0);
         func_001AAD00(D_006128D0, 0x33);
-        func_00260380(D_006128D0, 0x33, D_0062D720);
+        __assert(D_006128D0, 0x33, D_0062D720);
     }
 
     if (*(float *)(p + 0x10) != 0.0f) {
         *(Blk10 *)(m0 + 0x00) = *(Blk10 *)(D_00612920);
         *(Blk10 *)(m0 + 0x10) = *(Blk10 *)(D_00612930);
-        func_002400F8(func_00105078());
+        sceVu0UnitMatrix(func_00105078());
         func_00105108(*(float *)(p + 0x00), *(float *)(p + 0x04) + 10.0f,
                       *(float *)(p + 0x08));
-        func_00104DC0((short)(int)(*(float *)(p + 0x14) * D_006296A0));
-        func_0023FDD8(res + 0x00, func_00105078(), m0 + 0x00);
-        func_0023FDD8(res + 0x10, func_00105078(), m0 + 0x10);
+        MatrixDrive_RotMatrixY((short)(int)(*(float *)(p + 0x14) * D_006296A0));
+        sceVu0ApplyMatrix(res + 0x00, func_00105078(), m0 + 0x00);
+        sceVu0ApplyMatrix(res + 0x10, func_00105078(), m0 + 0x10);
         ClipWallBoxStop(res + 0x00);
         if (*(int *)(res + 0x88) == 0) {
-            debug_assertMessage(D_00612940);
+            debug_StdPrintfDummy(D_00612940);
             func_001AAD00(D_006128D0, 0x45);
-            func_00260380(D_006128D0, 0x45, D_0062D720);
+            __assert(D_006128D0, 0x45, D_0062D720);
         }
         *(Blk8 *)&s->f8 = *(Blk8 *)(res + 0x80);
         s->f4 = 1;
@@ -184,14 +184,14 @@ void HoldRope(void *a0, void *a1) {
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rope", ropeGeo);
 
 extern int func_00105078(void);
-extern void func_002400F8(int a0);
+extern void sceVu0UnitMatrix(int a0);
 extern void func_0023FE08(int a0, int a1, int a2);
 extern void func_001C1560(int a0, int a1, int a2);
 
 void RopeDL(char *a0)
 {
     char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
-    func_002400F8(func_00105078());
+    sceVu0UnitMatrix(func_00105078());
     {
         char *p = *(char **)(a0 + 0x15C);
         if (*(int *)p != 0) {

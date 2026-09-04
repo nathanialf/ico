@@ -4,8 +4,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", setMailTarget);
 
 extern void GetRootMatrixByDObj(int *buf, int x);
 extern int actEnemy_GetClingTarget(int *a0);
-extern float func_002018E0(int *mtx, int a1);
-extern int isysGObjSearchFromObjKindID_begin(int obj);
+extern float WayLengthOfPos_Pos(int *mtx, int a1);
+extern int isysGObjSearchFromObjKindID_next(int obj);
 extern int isysGObjSearchFromObjLayoutID(int id);
 extern float D_00629784;
 extern int D_00629DE8;
@@ -16,7 +16,7 @@ static inline float seMail_dh(int a0, int *mb) {
         return -1.0f;
     }
     GetRootMatrixByDObj(ma, a0);
-    return func_002018E0(ma, (int) mb);
+    return WayLengthOfPos_Pos(ma, (int) mb);
 }
 
 static inline float seMail_obj(int obj, int target) {
@@ -38,7 +38,7 @@ int seMail(float *a0) {
     obj = isysGObjSearchFromObjLayoutID(4);
     thresh = *(volatile float *)&D_00629784;
     while (obj != 0 && actEnemy_GetClingTarget((int *)obj) == 0) {
-        obj = isysGObjSearchFromObjKindID_begin(obj);
+        obj = isysGObjSearchFromObjKindID_next(obj);
     }
     if (obj == 0) {
         goto end;
@@ -53,7 +53,7 @@ int seMail(float *a0) {
             best = obj;
         }
         do {
-            obj = isysGObjSearchFromObjKindID_begin(obj);
+            obj = isysGObjSearchFromObjKindID_next(obj);
             if (obj == 0) {
                 goto end;
             }
@@ -73,14 +73,14 @@ int seMailTargetDistCheck(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202578);
 
-extern float func_002018E0(int *mtx, int a1);
+extern float WayLengthOfPos_Pos(int *mtx, int a1);
 float func_00202638(int a0, int a1) {
     int buf[4];
     if (a0 == 0) {
         return -1.0f;
     }
     GetRootMatrixByDObj(buf, a0);
-    return func_002018E0(buf, a1);
+    return WayLengthOfPos_Pos(buf, a1);
 }
 
 float func_00202688(int a0, int a1) {
@@ -94,7 +94,7 @@ float func_00202688(int a0, int a1) {
 
 
 extern void GetRootMatrixByDObj(int *buf, int x);
-extern int func_00201AF0(int *buf, int zero, float f);
+extern int WayPointWithRangeFromPos(int *buf, int zero, float f);
 
 int func_002026E0(int a0, float f)
 {
@@ -103,7 +103,7 @@ int func_002026E0(int a0, float f)
         return -1;
     }
     GetRootMatrixByDObj(buf, a0);
-    return func_00201AF0(buf, 0, f);
+    return WayPointWithRangeFromPos(buf, 0, f);
 }
 
 int func_00202728(int a0, int a1) {
@@ -149,7 +149,7 @@ extern char D_004C6FF0[];
 extern int D_0062BB78;
 extern void NearestEnemyFromGirl(int a0);
 
-int func_00202900(int a0) {
+int DeleteWayGroup(int a0) {
     char *e = &D_004C6FF0[a0 * 0x34];
     char *head;
     if (*(int *)e != 1) {
@@ -170,7 +170,7 @@ int func_00202900(int a0) {
 
 extern char D_004C6FF0[];
 
-void func_00202980(int a0) {
+void CloseWayGroup(int a0) {
     int *elem = (int *)(D_004C6FF0 + a0 * 0x34);
     int *next = (int *)elem[2];
     int *prev = (int *)elem[3];

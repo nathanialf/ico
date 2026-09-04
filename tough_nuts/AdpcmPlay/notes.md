@@ -29,7 +29,7 @@ glabel AdpcmPlay
 .align 2
   .L001F91A8:
     /* F91A8 001F91A8 01000424 */  addiu      $4, $0, 0x1
-    /* F91AC 001F91AC 9A67090C */  jal        func_00259E68
+    /* F91AC 001F91AC 9A67090C */  jal        SgGetSpuSlotMalloc
     /* F91B0 001F91B0 FFFF1026 */   addiu     $16, $16, -0x1
     /* F91B4 001F91B4 000022AE */  sw         $2, 0x0($17)
     /* F91B8 001F91B8 FBFF0106 */  bgez       $16, .L001F91A8
@@ -62,9 +62,9 @@ glabel AdpcmPlay
     /* F9214 001F9214 6100043C */  lui        $4, %hi(D_00613838)
     /* F9218 001F9218 0080C634 */  ori        $6, $6, (0xB8000 & 0xFFFF)
     /* F921C 001F921C 38388424 */  addiu      $4, $4, %lo(D_00613838)
-    /* F9220 001F9220 F290060C */  jal        debug_assertMessage
+    /* F9220 001F9220 F290060C */  jal        debug_StdPrintfDummy
     /* F9224 001F9224 01001024 */   addiu     $16, $0, 0x1
-    /* F9228 001F9228 2068090C */  jal        func_0025A080
+    /* F9228 001F9228 2068090C */  jal        SgStAdpcmInit
     /* F922C 001F922C 00000000 */   nop
     /* F9230 001F9230 7100023C */  lui        $2, %hi(D_0070A8C0)
     /* F9234 001F9234 C0A84224 */  addiu      $2, $2, %lo(D_0070A8C0)

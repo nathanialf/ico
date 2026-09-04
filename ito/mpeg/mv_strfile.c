@@ -6,7 +6,7 @@ void strFileOpen(void *a0) {
     func_0023C2C0((char *)a0 + 0x50);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", strFileClose);
+INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", videoDecFlush);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", strFileRead);
 
@@ -22,7 +22,7 @@ extern void func_0023CE80(int a0);
 extern void func_0024DE40(int a0);
 extern void readBufEndPut(int a0);
 
-int func_0019B730(int a0)
+int videoDecDelete(int a0)
 {
     func_0023CE80(a0 + 0x50);
     func_0024DE40(a0);
@@ -30,12 +30,12 @@ int func_0019B730(int a0)
     return 1;
 }
 
-extern void func_0024D320(void);
+extern void sceMpegAddStrCallback(void);
 int func_0019B770(void) {
-    func_0024D320();
+    sceMpegAddStrCallback();
     return 1;
 }
 
-void func_0019B790(int *a0) {
+void videoDecAbort(int *a0) {
     a0[0x2E] = 1;
 }

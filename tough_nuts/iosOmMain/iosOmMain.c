@@ -104,7 +104,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmSearchGObjId);
 void iosOmSearchGObjIdAll(void) {
 }
 
-int iosOmBeforeFuncStandard(char *self_arg, int val5, int val6)
+int iosOmSendMail(char *self_arg, int val5, int val6)
 {
     register char *self = self_arg;
     int *p = (int *)(self + 0x54);

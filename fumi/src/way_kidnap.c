@@ -11,7 +11,7 @@ typedef struct Head { char _0[8]; Nd *f8; Nd *fC; int f10; int f14; char _18[0x1
 
 extern char D_004C6FF0[];
 extern Nd D_004C7CF0[];
-extern void func_00240080(int *, int);
+extern void sceVu0CopyVector(int *, int);
 
 int add_wp_pos(int a0)
 {
@@ -24,7 +24,7 @@ int add_wp_pos(int a0)
             node->f8 = 0;
             node->fC = 0;
             node->f28 = 0;
-            func_00240080(&node->f10, a0);
+            sceVu0CopyVector(&node->f10, a0);
             return i;
         }
         node++;
@@ -32,7 +32,7 @@ int add_wp_pos(int a0)
     return -1;
 }
 
-int WayLengthOfPos_Pos(int a0, int a1)
+int AddWayPoint(int a0, int a1)
 {
     Head *ch = (Head *)&D_004C6FF0[a0 * 0x34];
     Nd *node = &D_004C7CF0[a1];
@@ -51,7 +51,7 @@ int WayLengthOfPos_Pos(int a0, int a1)
     return 0;
 }
 
-int WayPointWithRangeFromPos(int a0, int a1)
+int AddWayPointTop(int a0, int a1)
 {
     int *ch = (int *)&D_004C6FF0[a0 * 0x34];
     Nd *node = &D_004C7CF0[a1];
@@ -66,7 +66,7 @@ int WayPointWithRangeFromPos(int a0, int a1)
 
 typedef struct WayNode { char _0[8]; struct WayNode *prev; struct WayNode *next; char _10[0x30]; } WayNode;
 
-int WayPointWithRangeFromPos2(int a0, int a1, int a2) {
+int InsertWayPointAfter(int a0, int a1, int a2) {
     WayNode *A = &D_004C7CF0[a1];
     WayNode *B = &D_004C7CF0[a2];
     WayNode *old = A->next;
@@ -189,7 +189,7 @@ WpNode *WayPointWithRangeFromGObj(void)
     return 0;
 }
 
-WpNode *func_00202D68(WpNode *p)
+WpNode *WayBridgeAll_next(WpNode *p)
 {
     WpNode *end = &D_004C7CBC;
     if (p != 0 && p != end) {

@@ -1,7 +1,7 @@
-# func_00248118 — parked
+# _sceSifSendCmd — parked
 
 VRAM: 0x00248118 (file_off 0x148118)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00248118.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_sceSifSendCmd.s
 
 ## Attempt at 2026-06-22
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00248118.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00248118/func_00248118.c`
+**Seed:** `tough_nuts/_sceSifSendCmd/_sceSifSendCmd.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00248118, 0x134
+nonmatching _sceSifSendCmd, 0x134
 
-glabel func_00248118
+glabel _sceSifSendCmd
     /* 148118 00248118 80FFBD27 */  addiu      $29, $29, -0x80
     /* 14811C 0024811C 3000B1FF */  sd         $17, 0x30($29)
     /* 148120 00248120 6000B4FF */  sd         $20, 0x60($29)
@@ -89,13 +89,13 @@ glabel func_00248118
     /* 148208 00248208 01006232 */  andi       $2, $19, 0x1
     /* 14820C 0024820C 05004010 */  beqz       $2, .L00248224
     /* 148210 00248210 2D284002 */   daddu     $5, $18, $0
-    /* 148214 00248214 3C02040C */  jal        func_001008F0
+    /* 148214 00248214 3C02040C */  jal        isceSifSetDma
     /* 148218 00248218 2D20A003 */   daddu     $4, $29, $0
     /* 14821C 0024821C 04000010 */  b          .L00248230
     /* 148220 00248220 7000BFDF */   ld        $31, 0x70($29)
 .align 2
   .L00248224:
-    /* 148224 00248224 3802040C */  jal        func_001008E0
+    /* 148224 00248224 3802040C */  jal        sceSifSetDma
     /* 148228 00248228 2D20A003 */   daddu     $4, $29, $0
 .align 2
   .L0024822C:
@@ -109,6 +109,6 @@ glabel func_00248118
     /* 148240 00248240 2000B0DF */  ld         $16, 0x20($29)
     /* 148244 00248244 0800E003 */  jr         $31
     /* 148248 00248248 8000BD27 */   addiu     $29, $29, 0x80
-endlabel func_00248118
+endlabel _sceSifSendCmd
     /* 14824C 0024824C 00000000 */  nop
 ```

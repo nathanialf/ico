@@ -14,9 +14,15 @@
 A clean-room decompilation of the PlayStation 2 game **ICO** (2001, Sony
 Computer Entertainment / Team Ico).
 
-This targets the **Aug-6-2001 US Preview prototype** (boot ELF
-`SCUS_971.13`), not the shipped retail build (`SLUS-20218`). The retail
-pipeline lived on the retired `retail` branch (deleted 2026-07-29).
+This branch (`aug6`) targets the **Aug-6-2001 US Preview prototype** (boot
+ELF `SCUS_971.13`). The repository's primary target is the **PAL retail
+build** on `main` (SCES-50760, since 2026-09-04); the USA retail build is on
+`ntsc`. The PAL disc ships a linker map and an `objdump` listing of the game;
+this branch's function names were re-derived from that listing by
+instruction-stream correlation (`decomp/rename_ledger_aug6.md`) — the earlier
+ordinal-correlated names were shifted within TUs. Every matched body here
+that survives in PAL has been ported to `main` (`decomp/port_ledger_pal_aug6.md`
+there).
 
 **Prototype differences:** The Cutting Room Floor documents how this preview
 differs from retail at

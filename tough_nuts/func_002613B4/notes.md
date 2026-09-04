@@ -1,7 +1,7 @@
-# func_002613B4 — parked
+# strcmp — parked
 
 VRAM: 0x002613B4 (file_off 0x1613B4)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_002613B4.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/strcmp.s
 
 ## Attempt at 2026-06-12
 
@@ -9,14 +9,14 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_002613B4.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_002613B4/func_002613B4.c`
+**Seed:** `tough_nuts/strcmp/strcmp.c`
 
 Disassembly:
 
 ```
-nonmatching func_002613B4, 0x144
+nonmatching strcmp, 0x144
 
-glabel func_002613B4
+glabel strcmp
     /* 1613B4 002613B4 25408500 */  or         $8, $4, $5
     /* 1613B8 002613B8 07000231 */  andi       $2, $8, 0x7
     /* 1613BC 002613BC 49004054 */  bnel       $2, $0, .L002614E4
@@ -114,5 +114,5 @@ glabel func_002613B4
     /* 1614EC 002614EC 0000A290 */  lbu        $2, 0x0($5)
     /* 1614F0 002614F0 0800E003 */  jr         $31
     /* 1614F4 002614F4 23106200 */   subu      $2, $3, $2
-endlabel func_002613B4
+endlabel strcmp
 ```

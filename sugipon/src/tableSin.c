@@ -10,21 +10,21 @@ void *GetTableSin(void) {
 
 extern char D_0054E1B0[];
 extern char D_0054E1D8[];
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 extern void SetIdentityQuaternion(void);
 
-void GetTableCos(void)
+void PushQuaternionWithNoCopy(void)
 {
     int v = D_00629E7C;
     if (v < 0) {
-        debug_assertMessage(D_0054E1B0);
+        debug_StdPrintfDummy(D_0054E1B0);
         SetIdentityQuaternion();
         v = D_00629E7C;
     }
     v++;
     D_00629E7C = v;
     if (v >= 0x40) {
-        debug_assertMessage(D_0054E1D8);
+        debug_StdPrintfDummy(D_0054E1D8);
         v = 0x3F;
         D_00629E7C = v;
     }
@@ -32,22 +32,22 @@ void GetTableCos(void)
 
 extern unsigned char D_0054E1F8[];
 
-void InitTableSin(void) {
+void PopQuaternion(void) {
     if (--D_00629E7C < 0) {
-        debug_assertMessage(D_0054E1F8);
+        debug_StdPrintfDummy(D_0054E1F8);
         D_00629E7C = 0;
     }
 }
 
-/* NEAR-MISS (rc17, ~6 real). STRUCTURE RECOVERED (sibling of func_0010E088 +
- * GetTableArcCos): build input vector v[4]={x,y,z,0} @sp+0, matrix m[0x10] @sp+0x10:
- *   void GetTableArcSin(int *self, int a1, float x, float y, float z) {
+/* NEAR-MISS (rc17, ~6 real). STRUCTURE RECOVERED (sibling of SetQuaternionByAxisRotateV +
+ * SetQuaternionByAxisRotateWithNoRegularize): build input vector v[4]={x,y,z,0} @sp+0, matrix m[0x10] @sp+0x10:
+ *   void SetQuaternionByAxisRotate(int *self, int a1, float x, float y, float z) {
  *       float v[4]; char m[0x10]; int half = (a1<<16)>>17; float f;
  *       v[0]=x; v[1]=y; v[2]=z; v[3]=0;
- *       _SetCurrentMatrix(m, (int*)v);       // v@sp+0, m@sp+0x10 -- LAYOUT MATCHES
+ *       _NormalizeVector(m, (int*)v);       // v@sp+0, m@sp+0x10 -- LAYOUT MATCHES
  *       f = p2o_SetDefaultEnviroment(half);
- *       _InverseCurrentMatrix(self, m, f);
- *       *(float*)((char*)self+0xC) = func_0010ED30(half);
+ *       _ScaleVector(self, m, f);
+ *       *(float*)((char*)self+0xC) = GetTableCos(half);
  *   }
  * The vector/matrix stack layout, the swc1 stores, v[3]=0 in the Set delay, half in
  * s0, all MATCH. Sole residual: ROM keeps `self` in s1 and RECOMPUTES `addiu ,sp,0x10`
@@ -58,18 +58,18 @@ void InitTableSin(void) {
  * single char[0x20] buf, dual-root `(char*)v+0x10` vs `m` (gcc CSEs both to sp+0x10).
  * To LAND: bias self above &m in allocno_compare (shorten self's live range / cut a
  * &m ref so it remats). NOT a floor. */
-extern void _SetCurrentMatrix(void *out, int *p);
+extern void _NormalizeVector(void *out, int *p);
 extern float p2o_SetDefaultEnviroment(int x);
-extern float _InverseCurrentMatrix(int *self, void *p, float arg);
-extern float func_0010ED30(int x);
+extern float _ScaleVector(int *self, void *p, float arg);
+extern float GetTableCos(int x);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableArcSin);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", SetQuaternionByAxisRotate);
 
 extern float p2o_SetDefaultEnviroment(int x);
-extern float _InverseCurrentMatrix(int *self, void *p, float arg);
-extern float func_0010ED30(int x);
+extern float _ScaleVector(int *self, void *p, float arg);
+extern float GetTableCos(int x);
 
-void GetTableArcCos(int *self, int a1, float x, float y, float z) {
+void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x, float y, float z) {
     char buf[0x10];
     int half = (a1 << 16) >> 17;
     float f;
@@ -78,14 +78,14 @@ void GetTableArcCos(int *self, int a1, float x, float y, float z) {
     *(float *)(buf + 8) = z;
     *(int *)(buf + 0xC) = 0;
     f = p2o_SetDefaultEnviroment(half);
-    _InverseCurrentMatrix(self, buf, f);
-    *(float *)((char *)self + 0xC) = func_0010ED30(half);
+    _ScaleVector(self, buf, f);
+    *(float *)((char *)self + 0xC) = GetTableCos(half);
 }
 
-extern float func_00118048(float t);
-extern void _SetCurrentMatrix(void *out, int *p);
+extern float _Sqrt(float t);
+extern void _NormalizeVector(void *out, int *p);
 
-void GetTableArcTan2(float *out, float *in, float x, float y, float z) {
+void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, float y, float z) {
     float v[4];
     float r[4];
     float s1, s2;
@@ -93,43 +93,43 @@ void GetTableArcTan2(float *out, float *in, float x, float y, float z) {
     v[1] = y;
     v[2] = z;
     v[3] = 0.0f;
-    s1 = func_00118048((in[0] + 1.0f) * 0.5f);
-    s2 = func_00118048((1.0f - in[0]) * 0.5f);
-    _SetCurrentMatrix(r, (int *)v);
+    s1 = _Sqrt((in[0] + 1.0f) * 0.5f);
+    s2 = _Sqrt((1.0f - in[0]) * 0.5f);
+    _NormalizeVector(r, (int *)v);
     out[0] = r[0] * s2;
     out[1] = r[1] * s2;
     out[2] = r[2] * s2;
     out[3] = s1;
 }
 
-extern void _SetCurrentMatrix(void *out, int *p);
+extern void _NormalizeVector(void *out, int *p);
 extern float p2o_SetDefaultEnviroment(int x);
-extern float _InverseCurrentMatrix(int *self, void *p, float arg);
-extern float func_0010ED30(int x);
+extern float _ScaleVector(int *self, void *p, float arg);
+extern float GetTableCos(int x);
 
-void func_0010E088(int *self, int a1, int *p)
+void SetQuaternionByAxisRotateV(int *self, int a1, int *p)
 {
     char buf[0x10];
     int half_pre = a1 << 16;
     int half;
     float f;
-    _SetCurrentMatrix(buf, p);
+    _NormalizeVector(buf, p);
     half = half_pre >> 17;
     f = p2o_SetDefaultEnviroment(half);
-    _InverseCurrentMatrix(self, buf, f);
-    *(float *)((char *)self + 0xC) = func_0010ED30(half);
+    _ScaleVector(self, buf, f);
+    *(float *)((char *)self + 0xC) = GetTableCos(half);
 }
 
 
-void func_0010E0E8(int *self, int a1, int *param)
+void SetQuaternionByAxisRotateVWithNoRegularize(int *self, int a1, int *param)
 {
     int half = ((int)(short)a1) >> 1;
     float f = p2o_SetDefaultEnviroment(half);
-    _InverseCurrentMatrix(self, param, f);
-    *(float *)((char *)self + 0xC) = func_0010ED30(half);
+    _ScaleVector(self, param, f);
+    *(float *)((char *)self + 0xC) = GetTableCos(half);
 }
 
-void func_0010E148(void *p0, void *p1, void *p2, void *p3)
+void MultiQuaternion(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 11, 0x0, a1);
     VU0_LSV(lqc2, 12, 0x0, a2);
@@ -149,16 +149,16 @@ void func_0010E148(void *p0, void *p1, void *p2, void *p3)
 
 extern void RegularizeQuaternion(void *a0, void *a1);
 
-void func_0010E188(void *a0, void *a1, void *a2)
+void DivQuaternion(void *a0, void *a1, void *a2)
 {
     char buf[0x10];
     RegularizeQuaternion(buf, a2);
-    ((void (*)(void *, void *, void *))func_0010E148)(a0, buf, a1);
+    ((void (*)(void *, void *, void *))MultiQuaternion)(a0, buf, a1);
 }
 
 extern char D_002724C0[];
 
-void func_0010E1D0(void *a0, void *a1)
+void GetMatrixFromQuaternionRotElem(void *a0, void *a1)
 {
     __asm__ __volatile__(
         "lqc2 $vf11, 0x0($5)\n"
@@ -195,7 +195,7 @@ void func_0010E1D0(void *a0, void *a1)
 
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 
-void func_0010E250(void *a0, void *a1, void *a2)
+void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2)
 {
     __asm__ __volatile__(
         "lqc2 $vf11, 0x0(%2)\n"
@@ -233,21 +233,21 @@ void func_0010E250(void *a0, void *a1, void *a2)
 
 extern void getQuaternionFromMatrix(void *dst, void *src);
 extern void *func_00105078(void);
-extern void func_001189F8(void *a0, void *a1, void *a2);
+extern void _MulMatrix(void *a0, void *a1, void *a2);
 
-void func_0010E300(void *a0)
+void MultiMatrixByQuaternion(void *a0)
 {
     char buf[0x40];
     void *r1, *r2;
     getQuaternionFromMatrix(buf, a0);
     r1 = func_00105078();
     r2 = func_00105078();
-    func_001189F8(r1, r2, buf);
+    _MulMatrix(r1, r2, buf);
 }
 
 extern void GetInverseQuaternion(void *a0, void *a1);
 
-void func_0010E348(float *a0, void *a1, unsigned int a2) {
+void GetMirrorQuaternion(float *a0, void *a1, unsigned int a2) {
     GetInverseQuaternion(a0, a1);
     switch (a2) {
     case 0:
@@ -286,7 +286,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E4E8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E588);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E628);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", RotQuaternionEAX);
 
 
 /* recovered struct shapes */

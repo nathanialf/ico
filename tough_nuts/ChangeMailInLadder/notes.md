@@ -34,7 +34,7 @@ glabel ChangeMailInLadder
     /* 549D4 001549D4 2D20A003 */   daddu     $4, $29, $0
     /* 549D8 001549D8 2D280000 */  daddu      $5, $0, $0
     /* 549DC 001549DC 348395C7 */  lwc1       $f21, %gp_rel(D_00628F24)($28)
-    /* 549E0 001549E0 5A81090C */  jal        func_00260568
+    /* 549E0 001549E0 5A81090C */  jal        memset
     /* 549E4 001549E4 10000624 */   addiu     $6, $0, 0x10
     /* 549E8 001549E8 3443013C */  lui        $1, (0x43340000 >> 16)
     /* 549EC 001549EC 00A08144 */  mtc1       $1, $f20
@@ -43,7 +43,7 @@ glabel ChangeMailInLadder
     /* 549F8 001549F8 2D200002 */  daddu      $4, $16, $0
     /* 549FC 001549FC 2274050C */  jal        subCommonIdle
     /* 54A00 00154A00 0800A0E7 */   swc1      $f0, 0x8($29)
-    /* 54A04 00154A04 8C47060C */  jal        func_00191E30
+    /* 54A04 00154A04 8C47060C */  jal        _GetDirection
     /* 54A08 00154A08 2D204000 */   daddu     $4, $2, $0
     /* 54A0C 00154A0C 00000000 */  nop
     /* 54A10 00154A10 00000000 */  nop
@@ -52,12 +52,12 @@ glabel ChangeMailInLadder
     /* 54A1C 00154A1C 02001446 */  mul.s      $f0, $f0, $f20
     /* 54A20 00154A20 64000046 */  .word      0x46000064                    # cvt.w.s    $f1, $f0 # 00000000 <InstrIdType: CPU_COP1_FPUS>
     /* 54A24 00154A24 00080444 */  mfc1       $4, $f1
-    /* 54A28 00154A28 5848060C */  jal        func_00192160
+    /* 54A28 00154A28 5848060C */  jal        RoundDegGV
     /* 54A2C 00154A2C 23208200 */   subu      $4, $4, $2
-    /* 54A30 00154A30 6E48060C */  jal        InitMailAdditionalData
+    /* 54A30 00154A30 6E48060C */  jal        AlignDegGV
     /* 54A34 00154A34 2D204000 */   daddu     $4, $2, $0
     /* 54A38 00154A38 1000A48F */  lw         $4, 0x10($29)
-    /* 54A3C 00154A3C 5848060C */  jal        func_00192160
+    /* 54A3C 00154A3C 5848060C */  jal        RoundDegGV
     /* 54A40 00154A40 21208200 */   addu      $4, $4, $2
     /* 54A44 00154A44 00608244 */  mtc1       $2, $f12
     /* 54A48 00154A48 20638046 */  cvt.s.w    $f12, $f12

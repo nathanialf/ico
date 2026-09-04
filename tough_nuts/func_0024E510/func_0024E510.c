@@ -1,10 +1,10 @@
 extern int D_0054C92C[];
-extern int func_0024E3E8(void);
-extern int func_0024E550(void);
+extern int _decodeOrSkipFrame(void);
+extern int _decodeOrSkipField(void);
 
-int func_0024E510(void) {
+int _decodeOrSkip(void) {
     if (D_0054C92C[0] == 3) {
-        return func_0024E3E8();
+        return _decodeOrSkipFrame();
     }
-    return func_0024E550();
+    return _decodeOrSkipField();
 }

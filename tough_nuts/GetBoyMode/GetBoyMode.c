@@ -11,7 +11,7 @@
  * out-of-line); reorder f0(off+0) before f4(off+4) to stop +4 symbol fold;
  * ternary clamp fixed div-const cascade. Path: 59->34->25->24->16->14->12->6. */
 extern unsigned char D_0027EE30[];
-extern int func_002610F0(void);
+extern int rand(void);
 extern float D_00286AA4[] __asm__("D_00286AA4");
 extern int D_0027EC78[];
 extern int D_005CA7B0[];
@@ -24,7 +24,7 @@ void GetBoyMode(int arg) {
     home = uninit;
     D_boyg[0x58E8 / 4] = arg;
     D_boyg[0x58F0 / 4] = 0;
-    r0 = func_002610F0();
+    r0 = rand();
     D_boyg[0x58EC / 4] = r0 % 3;
     mode = (int)D_00286AA4[0] / 3;
     idx = 3;
@@ -40,6 +40,6 @@ have_idx:
     off = arg * 8 + k * 16;
     f0 = *(int *)((char *)D_005CA7B0 + off);
     f4 = *(int *)((char *)D_005CA7B0 + off + 4);
-    r1 = func_002610F0();
+    r1 = rand();
     D_boyg[0x58F4 / 4] = f0 + r1 % (f4 - f0);
 }

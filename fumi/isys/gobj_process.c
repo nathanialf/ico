@@ -21,10 +21,10 @@ typedef struct DLN {
     int key;
 } DLN;
 
-extern void isysGObjMoveObjDLHead(int *self);
+extern void cut_gobj_dl_link(int *self);
 
 void isysGObjProcAdd_(DLN *self, DLN *obj) {
-    isysGObjMoveObjDLHead((int *)self);
+    cut_gobj_dl_link((int *)self);
     self->id = obj->id;
     self->prev = obj;
     self->next = obj->next;
@@ -36,7 +36,7 @@ void isysGObjProcAdd_(DLN *self, DLN *obj) {
 }
 
 void cut_gobj_process_link(DLN *self, DLN *obj) {
-    isysGObjMoveObjDLHead((int *)self);
+    cut_gobj_dl_link((int *)self);
     self->id = obj->id;
     self->prev = obj->prev;
     self->next = obj;

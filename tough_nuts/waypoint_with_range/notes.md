@@ -41,7 +41,7 @@ glabel waypoint_with_range
 .align 2
   .L00177FE0:
     /* 77FE0 00177FE0 10000426 */  addiu      $4, $16, 0x10
-    /* 77FE4 00177FE4 A4A0050C */  jal        GetEyeDirection
+    /* 77FE4 00177FE4 A4A0050C */  jal        fzMagnitudeByLineSeg
     /* 77FE8 00177FE8 2D304002 */   daddu     $6, $18, $0
     /* 77FEC 00177FEC 34001446 */  c.lt.s     $f0, $f20
     /* 77FF0 00177FF0 00000000 */  nop

@@ -65,7 +65,7 @@ glabel func_001A01B8
     /* A0268 001A0268 2D380002 */  daddu      $7, $16, $0
     /* A026C 001A026C 2D308002 */  daddu      $6, $20, $0
     /* A0270 001A0270 30BA8424 */  addiu      $4, $4, %lo(D_0060BA30)
-    /* A0274 001A0274 F290060C */  jal        debug_assertMessage
+    /* A0274 001A0274 F290060C */  jal        debug_StdPrintfDummy
     /* A0278 001A0278 2D284002 */   daddu     $5, $18, $0
     /* A027C 001A027C 38E7070C */  jal        AdpcmUseAreaGet
     /* A0280 001A0280 00000000 */   nop

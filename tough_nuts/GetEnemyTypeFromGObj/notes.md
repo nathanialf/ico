@@ -60,7 +60,7 @@ glabel GetEnemyTypeFromGObj
     /* 63BCC 00163BCC 7006C28C */   lw        $2, 0x670($6)
 .align 2
   .L00163BD0:
-    /* 63BD0 00163BD0 B2F9040C */  jal        isysGObjSearchFromObjKindID_begin
+    /* 63BD0 00163BD0 B2F9040C */  jal        isysGObjSearchFromObjKindID_next
     /* 63BD4 00163BD4 00000000 */   nop
     /* 63BD8 00163BD8 2D204000 */  daddu      $4, $2, $0
     /* 63BDC 00163BDC E8FF8054 */  bnel       $4, $0, .L00163B80

@@ -3,23 +3,23 @@
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_MakeGObj);
 
 extern void func_001180A8(void *a0);
-extern void _PopCurrentMatrix(void *a0);
+extern void _SetCurrentMatrix(void *a0);
 extern void func_00118108(void);
-extern void _RotCurrentMatrixY(void);
-extern void _ClearTransCurrentMatrix(void *a0, void *a1);
-extern void _InverseCurrentMatrix(void *a0, void *a1, float a2);
-extern void func_001180C0(void);
+extern void _TransposeCurrentMatrix(void);
+extern void _ApplyCurrentMatrix(void *a0, void *a1);
+extern void _ScaleVector(void *a0, void *a1, float a2);
+extern void _PopCurrentMatrix(void);
 extern char *D_00629C70;
 
 void stage_ApplyData(void *a0) {
     func_001180A8(a0);
-    _PopCurrentMatrix(D_00629C70 + 0x80);
+    _SetCurrentMatrix(D_00629C70 + 0x80);
     func_00118108();
-    _RotCurrentMatrixY();
-    _ClearTransCurrentMatrix(a0, D_00629C70 + 0xB0);
-    _InverseCurrentMatrix(a0, a0, -1.0f);
+    _TransposeCurrentMatrix();
+    _ApplyCurrentMatrix(a0, D_00629C70 + 0xB0);
+    _ScaleVector(a0, a0, -1.0f);
     *(float *)((char *)a0 + 0xC) = 1.0f;
-    func_001180C0();
+    _PopCurrentMatrix();
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_Init);
@@ -36,12 +36,12 @@ void stage_CalcAnimationNoParent(int a0) {
     D_0062A054 = a0;
 }
 
-extern void *isysGObjRemoveObjDL(int a0);
-extern void *func_0013E7E0(void *obj);
+extern void *isysGObjGetExist_begin(int a0);
+extern void *isysGObjGetExist_next(void *obj);
 
 void stage_CalcAnimationParent(int a0, int a1) {
     void *obj;
-    for (obj = isysGObjRemoveObjDL(a0); obj != 0; obj = func_0013E7E0(obj)) {
+    for (obj = isysGObjGetExist_begin(a0); obj != 0; obj = isysGObjGetExist_next(obj)) {
         void *node = *(void **)((char *)obj + 0x15C);
         if (node != 0) {
             void *dl = *(void **)((char *)node + 0x810);
@@ -100,9 +100,9 @@ extern char D_0062BF08[];
 extern char D_00550160[];
 extern int bga_SetCamFrame(int a0);
 extern int font_CheckAlign(int a0);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 int stage_DispBgAnimation(int a0, int a1) {
@@ -130,17 +130,17 @@ int stage_DispBgAnimation(int a0, int a1) {
             }
         }
     }
-    debug_assertMessage(D_00550160);
+    debug_StdPrintfDummy(D_00550160);
     func_001AAD00(D_0054FFA8, 0x372);
-    func_00260380(D_0054FFA8, 0x372, D_0062BF08);
+    __assert(D_0054FFA8, 0x372, D_0062BF08);
     return 0;
 }
 
 
-extern void func_001F76C0(void);
+extern void bga_ResetAnimation(void);
 
 void stage_SetCameraForceOff(void) {
-    func_001F76C0();
+    bga_ResetAnimation();
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CheckAnimationFinish);
@@ -202,11 +202,11 @@ extern char D_0066DBD8[];
 extern char D_00550128[];
 extern char D_0054FFA8[];
 extern char D_0062BF08[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int bga_SetCamFrame(int a0);
 extern int font_CheckAlign(int a0);
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 
 int func_0012A958(int a0) {
     int count = D_0062BF54;
@@ -228,9 +228,9 @@ int func_0012A958(int a0) {
             e += 0x290;
         } while (i < count);
     }
-    debug_assertMessage(D_00550128);
+    debug_StdPrintfDummy(D_00550128);
     func_001AAD00(D_0054FFA8, 0x345);
-    func_00260380(D_0054FFA8, 0x345, D_0062BF08);
+    __assert(D_0054FFA8, 0x345, D_0062BF08);
     return 0;
 }
 

@@ -2,12 +2,12 @@
 
 extern int D_0062BB80;
 
-extern void func_00261188(void *a0, char *a1);
-extern int func_001A7A88(void *a0, int a1);
-extern void debug_assertMessage(int a0, ...);
-extern void func_001007A0(int a0);
-extern void func_00243EE0(int a0, void *a1, int a2);
-extern int func_001A7AE8(int a0);
+extern void sprintf(void *a0, char *a1);
+extern int debugSceOpen(void *a0, int a1);
+extern void debug_StdPrintfDummy(int a0, ...);
+extern void FlushCache(int a0);
+extern void sceRead(int a0, void *a1, int a2);
+extern int debugSceClose(int a0);
 extern int D_0062A870;
 extern char D_00614220[], D_0062DA28[], D_0062DA38[], D_0062DA40[], D_0062DA48[];
 extern unsigned char D_0070BC70[];
@@ -22,14 +22,14 @@ int group_create(void) {
     signed char *iq;
     signed char (*ep)[];
     D_0062A870 = 1;
-    func_00261188(buf, D_0062DA28);
-    r = func_001A7A88(buf, 1);
+    sprintf(buf, D_0062DA28);
+    r = debugSceOpen(buf, 1);
     if (r < 0) {
-        debug_assertMessage((int) D_00614220);
+        debug_StdPrintfDummy((int) D_00614220);
         D_0062A870 = 0;
         return 0;
     }
-    func_001007A0(0);
+    FlushCache(0);
     i = 0x1F;
     iq = (signed char *) D_0070BC70 + i;
     do {
@@ -39,15 +39,15 @@ int group_create(void) {
     } while (i >= 0);
     ep = &D_0070BC7F;
     end = *ep + 0x11;
-    func_00243EE0(r, D_0070BC7F, 0x10);
-    func_001A7AE8(r);
+    sceRead(r, D_0070BC7F, 0x10);
+    debugSceClose(r);
     p = D_0070BC7F - 0xF;
     do {
-        debug_assertMessage((int) D_0062DA38, *p);
+        debug_StdPrintfDummy((int) D_0062DA38, *p);
         p++;
     } while ((int) p < (int) end);
-    debug_assertMessage((int) D_0062DA40);
-    debug_assertMessage((int) D_0062DA48);
+    debug_StdPrintfDummy((int) D_0062DA40);
+    debug_StdPrintfDummy((int) D_0062DA48);
     D_0062A870 = 0;
     return 1;
 }
@@ -101,11 +101,11 @@ extern char D_004CB2B0[];
 
 /* m2c scaffold from asm/aug6/nonmatchings/fumi/src/way_tool/way_toolDL.s (target mipsel-gcc-c, context-free).
  * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
-extern void debug_assertMessage(int a0, ...);
-extern void func_00261188(void *a0, char *a1);
-extern int func_001A7A88(void *a0, int a1);
-extern void func_00244150(int a0, void *a1, int a2);
-extern int func_001A7AE8(int a0);
+extern void debug_StdPrintfDummy(int a0, ...);
+extern void sprintf(void *a0, char *a1);
+extern int debugSceOpen(void *a0, int a1);
+extern void sceWrite(int a0, void *a1, int a2);
+extern int debugSceClose(int a0);
 extern char D_00614208[];
 extern int D_0062A870;
 extern char D_0062DA28[];
@@ -118,10 +118,10 @@ int way_toolDL(void) {
     int i;
     unsigned char *p;
     D_0062A870 = 1;
-    func_00261188(buf, D_0062DA28);
-    s0 = func_001A7A88(buf, 0x202);
+    sprintf(buf, D_0062DA28);
+    s0 = debugSceOpen(buf, 0x202);
     if (s0 < 0) {
-        debug_assertMessage((int)D_00614208);
+        debug_StdPrintfDummy((int)D_00614208);
         D_0062A870 = 0;
         return 0;
     }
@@ -132,9 +132,9 @@ int way_toolDL(void) {
         p--;
         i--;
     } while (i >= 0);
-    func_00244150(s0, D_0070BC70, 0x10);
-    func_001A7AE8(s0);
-    debug_assertMessage((int)D_0062DA30);
+    sceWrite(s0, D_0070BC70, 0x10);
+    debugSceClose(s0);
+    debug_StdPrintfDummy((int)D_0062DA30);
     D_0062A870 = 0;
     return 1;
 }
@@ -165,7 +165,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", play_way);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", point_nige);
 
-extern void backStageProcessMain(void);
+extern void CheckPoint(void);
 extern void func_00178DD8(int a0);
 extern void lt_fade_status(int a0);
 extern void func_001790A8(void *a0);
@@ -174,7 +174,7 @@ extern void gflagOff(void *a0, int a1);
 extern void _ACTWait(int a0);
 extern int func_0012A958(int a0);
 extern void *ContinueCorrectPosition(void *a0);
-extern void func_00240008(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern void gflagChk(void *a0, void *a1);
 extern void func_001790E8(void *a0);
 extern void scpTrans(void *a0, short a1);

@@ -42,19 +42,19 @@ void ParticleLayoutGeo(int a0) {
 
 typedef struct { char _0[0x50]; } PLDLEntry;
 extern PLDLEntry D_0061C6A0[];
-extern int func_002613B4(void *p, void *buf);
+extern int strcmp(void *p, void *buf);
 
 int ParticleLayoutDL(void *a0) {
     int i;
     for (i = 0; i < 0x35; i++) {
-        if (func_002613B4(&D_0061C6A0[i], a0) == 0) {
+        if (strcmp(&D_0061C6A0[i], a0) == 0) {
             return i;
         }
     }
     return -1;
 }
 
-int func_001E6040(int a0) {
+int GetParticleLoopFlag(int a0) {
     ParticleLayout *p;
     if (a0 < 0) {
         return -1;
@@ -63,7 +63,7 @@ int func_001E6040(int a0) {
     return p->f_4 == 1;
 }
 
-extern void func_00240080(int x, int a0);
+extern void sceVu0CopyVector(int x, int a0);
 
 void func_001E6070(int a0) {
     int i;
@@ -71,7 +71,7 @@ void func_001E6070(int a0) {
         ParticleRec *p = &D_007030C0[i];
         if (p->w[0] != 0) {
             if (p->w[5] != 0) {
-                func_00240080(p->w[5] + 0x40, a0);
+                sceVu0CopyVector(p->w[5] + 0x40, a0);
             }
         }
     }

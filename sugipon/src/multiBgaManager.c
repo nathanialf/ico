@@ -60,7 +60,7 @@ void EntryMultiBgaManagerSensitive(char *base, int idx, int v6, char *a7, char *
 
 extern int D_00271240[];
 extern float stage_SetParentOfGObj(int obj, void *a1, void *a2, float f);
-extern void _ApplyCurrentMatrix(void *a0, void *a1, void *a2);
+extern void _AddVector(void *a0, void *a1, void *a2);
 
 typedef struct {
     float f0;          /* 0x00 */
@@ -88,6 +88,6 @@ void DispMultiBgaManager(BgaDisp *base, int n)
             continue;
         }
         e->f0 = (float)ri;
-        _ApplyCurrentMatrix(e->m10, e->m10, e->m20);
+        _AddVector(e->m10, e->m10, e->m20);
     }
 }

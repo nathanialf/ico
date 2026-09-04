@@ -10,14 +10,14 @@ void bombSparkSE(int a0) {
     playSEConditionID(a0, 0x32);
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern void GetMatrixFromQuaternion(int a0);
 extern void func_00102840(int a0, int a1);
 extern void func_00102820(void *a0, int a1);
 extern void RegularizeQuaternion(void *a0, void *a1);
-extern void func_0010E148(int a0, void *a1, void *a2);
+extern void MultiQuaternion(int a0, void *a1, void *a2);
 extern char D_00611870[];
 extern char D_00611898[];
 extern char D_0062D580[];
@@ -29,9 +29,9 @@ void bombExplodeSE(int a0, int a1) {
     char *sub;
 
     if (a0 == 0) {
-        debug_assertMessage(D_00611870);
+        debug_StdPrintfDummy(D_00611870);
         func_001AAD00(D_00611898, 0x158);
-        func_00260380(D_00611898, 0x158, D_0062D580);
+        __assert(D_00611898, 0x158, D_0062D580);
     }
     sub = *(char **)(*(int *)(a0 + 0x15C) + 0x7F0);
     *(int *)(sub + 0xC) = 1;
@@ -45,7 +45,7 @@ void bombExplodeSE(int a0, int a1) {
     func_00102820(buf0, a0);
     func_00102820(buf1, a1);
     RegularizeQuaternion(buf1, buf1);
-    func_0010E148((int)(sub + 0x20), buf1, buf0);
+    MultiQuaternion((int)(sub + 0x20), buf1, buf0);
 }
 
 extern float D_004C0850[48];

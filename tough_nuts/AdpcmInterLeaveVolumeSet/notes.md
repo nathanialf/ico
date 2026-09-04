@@ -29,7 +29,7 @@ glabel AdpcmInterLeaveVolumeSet
     /* F98D0 001F98D0 5000BFFF */  sd         $31, 0x50($29)
     /* F98D4 001F98D4 2D90C000 */  daddu      $18, $6, $0
     /* F98D8 001F98D8 2D98E000 */  daddu      $19, $7, $0
-    /* F98DC 001F98DC F290060C */  jal        debug_assertMessage
+    /* F98DC 001F98DC F290060C */  jal        debug_StdPrintfDummy
     /* F98E0 001F98E0 88388424 */   addiu     $4, $4, %lo(D_00613888)
     /* F98E4 001F98E4 FFFF0232 */  andi       $2, $16, 0xFFFF
     /* F98E8 001F98E8 1100033C */  lui        $3, (0x110000 >> 16)
@@ -61,7 +61,7 @@ glabel AdpcmInterLeaveVolumeSet
     /* F9940 001F9940 F9FF4014 */  bnez       $2, .L001F9928
     /* F9944 001F9944 04008424 */   addiu     $4, $4, 0x4
     /* F9948 001F9948 6100043C */  lui        $4, %hi(D_00613858)
-    /* F994C 001F994C F290060C */  jal        debug_assertMessage
+    /* F994C 001F994C F290060C */  jal        debug_StdPrintfDummy
     /* F9950 001F9950 58388424 */   addiu     $4, $4, %lo(D_00613858)
     /* F9954 001F9954 08000010 */  b          .L001F9978
     /* F9958 001F9958 2D100000 */   daddu     $2, $0, $0
@@ -98,7 +98,7 @@ glabel AdpcmInterLeaveVolumeSet
     /* F99BC 001F99BC 6300043C */  lui        $4, %hi(D_0062D9B0)
     /* F99C0 001F99C0 140020AE */  sw         $0, 0x14($17)
     /* F99C4 001F99C4 21280502 */  addu       $5, $16, $5
-    /* F99C8 001F99C8 F290060C */  jal        debug_assertMessage
+    /* F99C8 001F99C8 F290060C */  jal        debug_StdPrintfDummy
     /* F99CC 001F99CC B0D98424 */   addiu     $4, $4, %lo(D_0062D9B0)
 .align 2
   .L001F99D0:

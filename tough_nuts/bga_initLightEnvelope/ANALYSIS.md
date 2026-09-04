@@ -31,9 +31,9 @@ obj->unk24 = (int)particle;
 // field @ +0x20 is u64. Set bits [31:17] = s19 & 0x7FFF:
 //   mask = 0xFFFF0001_0000FFFF ; field = (field & mask) | ((u64)(s19&0x7FFF) << 17)
 { u64 f = P(particle); f = (f & 0xFFFF00010000FFFFULL) | ((u64)(s19 & 0x7FFF) << 17); P(particle)=f; }
-// extract signed [31:17], call func_001E6040, store low2 = ret&3:
+// extract signed [31:17], call GetParticleLoopFlag, store low2 = ret&3:
 int e = (int)((s32)(P(particle)) >> 17);   // dsll32/dsra32 (sign-ext low32) then sra 17
-int r = func_001E6040(e);
+int r = GetParticleLoopFlag(e);
 P(particle) = (P(particle) & ~3ULL) | (r & 3);
 // branch on low2:
 f = P(particle);
@@ -59,13 +59,13 @@ if (count > 0) {
     void *e = list[i];
     void *p = e->unk15C;                   // +0x15C
     if (*(int*)((char*)p + 0x810) == 0) {  // assert branch (bnel skips when !=0)
-        func_00261188(&buf /*$sp*/, D_00613488, &obj->unk4);   // buf = 1KB stack
-        debug_assertMessage(D_006134A8);
+        sprintf(&buf /*$sp*/, D_00613488, &obj->unk4);   // buf = 1KB stack
+        debug_StdPrintfDummy(D_006134A8);
         func_001AACE0(D_006133E0, 0x41F, &buf);
-        func_00260380(D_006133E0, 0x41F, D_0062D948);
+        __assert(D_006133E0, 0x41F, D_0062D948);
         e = list[i]; p = e->unk15C;        // reload after assert
     }
-    int r = func_002613B4(*(int*)((char*)p + 0x810));
+    int r = strcmp(*(int*)((char*)p + 0x810));
     i++;
     if (r == 0) {                          // bnez skips
         obj->unk24 = list[i-1]->unk15C;    // uses s17 (pre-incr ptr): lw $2,0($17)
@@ -78,7 +78,7 @@ if (count > 0) {
 // goto tail
 ```
 Stack buffer: frame 0x480, buffer at sp+0 (~0x400 bytes) passed to
-func_00261188 ($4=$sp) and func_001AACE0 ($6=$sp). Declare e.g.
+sprintf ($4=$sp) and func_001AACE0 ($6=$sp). Declare e.g.
 `int buf[N] __attribute__((aligned(16)))` sized to land saved-regs at 0x400.
 
 ## Recursive tail (.L4778/.L477C/.L478C) — like bga_CalcObject

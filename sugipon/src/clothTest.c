@@ -1,7 +1,7 @@
 #include "common.h"
 #include "vu0.h"
 
-float InitClothTestGeo(void *a0) {
+float getXZLengthSquare(void *a0) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -15,7 +15,7 @@ float InitClothTestGeo(void *a0) {
     return ret;
 }
 
-float ClothTestGeo(void *a0, void *a1, void *a2) {
+float subAndGetInvLength(void *a0, void *a1, void *a2) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -35,7 +35,7 @@ float ClothTestGeo(void *a0, void *a1, void *a2) {
     return ret;
 }
 
-void ClothTestDL(void *a0, void *a1, void *a2, float a3) {
+void scaleAndAddVectorXYZ(void *a0, void *a1, void *a2, float a3) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf4, 0x0($5)\n"
@@ -48,7 +48,7 @@ void ClothTestDL(void *a0, void *a1, void *a2, float a3) {
         ".set reorder\n" : : : "memory");
 }
 
-void func_001C6148(void *a0, void *a1, float a2) {
+void scaleVectorXZ(void *a0, void *a1, float a2) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf4, 0x0($5)\n"
@@ -59,7 +59,7 @@ void func_001C6148(void *a0, void *a1, float a2) {
         ".set reorder\n" : : : "memory");
 }
 
-void func_001C6168(void *a0, void *a1, void *a2, float a3) {
+void tensionMoveNoReduce(void *a0, void *a1, void *a2, float a3) {
     int buf[4] __attribute__((aligned(16)));
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -86,7 +86,7 @@ void func_001C6168(void *a0, void *a1, void *a2, float a3) {
         : "=m"(buf) : : "$2", "memory");
 }
 
-void func_001C61C0(void *a0, void *a1, void *a2, float a3, float a4) {
+void tensionMove(void *a0, void *a1, void *a2, float a3, float a4) {
     int buf[4] __attribute__((aligned(16)));
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -117,15 +117,15 @@ void func_001C61C0(void *a0, void *a1, void *a2, float a3, float a4) {
         : "=m"(buf) : : "$2", "memory");
 }
 
-extern void func_00240008(void *a0, void *a1, void *a2);
-extern void func_00240968(void *a0, void *a1, float a2);
-extern void MatrixDrive_TurnZObjectMatrixXY(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
+extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
+extern void AddVectorXYZ(void *a0, void *a1, void *a2);
 
-extern void func_00240008(void *a0, void *a1, void *a2);
-extern void func_00240968(void *a0, void *a1, float a2);
-extern void MatrixDrive_TurnZObjectMatrixXY(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
+extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
+extern void AddVectorXYZ(void *a0, void *a1, void *a2);
 
-void func_001C6228(int a0, int a1, int a2) {
+void getCrossPoint(int a0, int a1, int a2) {
     int buf[4] __attribute__((aligned(16)));
     register float d1 __asm__("$f21");
     register float d2 __asm__("$f20");
@@ -153,15 +153,15 @@ void func_001C6228(int a0, int a1, int a2) {
         "neg.s $f20, $f20\n"
         ".set reorder\n"
         : "=f"(d1), "=f"(d2), "=r"(a1b) : "r"(a1), "r"(a2) : "$2", "memory");
-    func_00240008(*bp, (void *)a1b, (void *)a1);
+    sceVu0SubVector(*bp, (void *)a1b, (void *)a1);
     do {
         d2 = d1 + d2;
     } while (0);
-    func_00240968(*bp, buf, d1 / d2);
-    MatrixDrive_TurnZObjectMatrixXY((void *)a0, (void *)a1, buf);
+    sceVu0ScaleVectorXYZ(*bp, buf, d1 / d2);
+    AddVectorXYZ((void *)a0, (void *)a1, buf);
 }
 
-int func_001C62E8(void *a0, void *a1) {
+int checkOverThePlane(void *a0, void *a1) {
     register int result __asm__("$2");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -185,7 +185,7 @@ int func_001C62E8(void *a0, void *a1) {
     return result;
 }
 
-int func_001C6328(void *a0, void *a1) {
+int checkFrontAcross(void *a0, void *a1) {
     register int result __asm__("$2");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -222,9 +222,9 @@ int func_001C6328(void *a0, void *a1) {
     return result;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6398);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", LockZAnimation);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6420);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", getCloth4D_planeClip);
 
 extern int   D_0062A310;
 extern char  D_004BBC40[];
@@ -233,7 +233,7 @@ extern int   calc2(char *p);
 
 extern char D_00611260[];
 
-int *func_001C6548(void)
+int *InitClothTestGeo(void)
 {
     int *p = iosFree(D_0062A310, 0x290, (char *)D_00611260, 0x41);
     *p = calc2(D_004BBC40);

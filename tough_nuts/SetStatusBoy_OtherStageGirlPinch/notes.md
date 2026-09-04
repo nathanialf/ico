@@ -37,7 +37,7 @@ glabel SetStatusBoy_OtherStageGirlPinch
     /* 529A0 001529A0 3001848C */  lw         $4, 0x130($4)
     /* 529A4 001529A4 0F008010 */  beqz       $4, .L001529E4
     /* 529A8 001529A8 00000000 */   nop
-    /* 529AC 001529AC 2C24050C */  jal        ACTGameCollisionOff
+    /* 529AC 001529AC 2C24050C */  jal        ACTGame_isWeaponEnableCatchfire
     /* 529B0 001529B0 00000000 */   nop
     /* 529B4 001529B4 0B004010 */  beqz       $2, .L001529E4
     /* 529B8 001529B8 00000000 */   nop

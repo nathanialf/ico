@@ -215,15 +215,15 @@ void actSt19bIntro(volatile int a0) {
 
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern int D_00629DE4;
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern void RequestStageChange(int a0, int a1, int a2, float f12, float f13);
 void actSt19aOriMain(volatile int a0) {
-    while (scpSleepEnemyOne(a0, D_00629DE4, 400.0f) == 0 ||
+    while (scpTriggerBall(a0, D_00629DE4, 400.0f) == 0 ||
            func_00178DB0(0x127) != 0) {
         _ACTWait(1);
     }
-    actSt25aQueenDead(3, D_00629DE4, 0, 2.0f, 4.0f);
+    RequestStageChange(3, D_00629DE4, 0, 2.0f, 4.0f);
 }
 
 typedef struct { char pad[0xB0]; int *unkB0; } ActB0Obj;
@@ -305,11 +305,11 @@ void actSt19aChainSwitch(volatile int a0) {
 }
 
 extern int func_00178DB0(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void actSt19bIntroChk(void) {
     if (func_00178DB0(0x14)) {
-        AddWayPointTop(9, 0);
+        SetWayGroupActive(9, 0);
     }
 }
 

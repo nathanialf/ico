@@ -5,7 +5,7 @@ extern int D_0062AF84;
 extern unsigned char D_0062A9B8;
 extern void _CameraEdit_del_box(void);
 extern void func_00183E90(void);
-extern void func_0018A0D8(int a0);
+extern void CameraSetMode(int a0);
 extern void CameraEdit_Save(void);
 
 int CameraSetCameraSet(void) {
@@ -14,7 +14,7 @@ int CameraSetCameraSet(void) {
         _CameraEdit_del_box();
     }
     func_00183E90();
-    func_0018A0D8(1);
+    CameraSetMode(1);
     if (D_0062A9B8 == 0) {
         return 0;
     }
@@ -23,27 +23,27 @@ int CameraSetCameraSet(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraSetCameraSet_Default);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraEdit_reset_box);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetRootPositionForCamera);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ico2camera_GetTargetPos);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraEdit_reflect_box);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ico2camera_GetGroupNearest);
 
 extern int *D_0062A8F4;
 
-int initMonitorCamera(void) {
+int CameraEdit_BOX_NUMBER(void) {
     return *D_0062A8F4;
 }
 
-int monitorMonitorCamera(int a0) {
-    int r1 = CameraMove(a0);
-    int r2 = CameraMove(a0);
+int CameraEdit_PIN_NUMBER(int a0) {
+    int r1 = CameraEdit_BOX(a0);
+    int r2 = CameraEdit_BOX(a0);
     return *(int *)(r1 + 0x3C) - *(int *)(r2 + 0x38);
 }
 
-int ChaseCamera(int *a0, int a1) {
+int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1) {
     int sum = 0;
     int i;
     for (i = 0; i < a1; i++) {
@@ -52,30 +52,30 @@ int ChaseCamera(int *a0, int a1) {
     return sum;
 }
 
-int CameraMove(int a0) {
+int CameraEdit_BOX(int a0) {
     return D_0062A8F4[1] + a0 * 0x4C;
 }
 
-int ReflectCameraSetBinary(int a0, int a1) {
+int CameraEdit_PIN(int a0, int a1) {
     return *(int *)(D_0062A8F4[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", InitIco2Camera);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraEdit_DispPin);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetTargetOffset);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", SetCameraMatrix_Ico2);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", StickToTrans);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ReadCameraSet);
 
-int SetCameraZoomOffsetRatio(void *a0, int a1, int a2) {
+int _CameraEdit_PIN(void *a0, int a1, int a2) {
     int base = *(int *)((char *)a0 + 0x4);
     return *(int *)(base + a1 * 0x4C + 0x48) + a2 * 0x5C;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetCameraGroupCurrent);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", _CameraEdit_add_box);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetCameraGroupFromGObj);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", _CameraEdit_add_pin);
 
 void GetCameraGroupFromPosition(void) {
 }
@@ -138,7 +138,7 @@ void GetPluralCameraSet(void *a0, int a1) {
     GetRootMatrixByDObj(a0, a1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", MakeCameraSetBinary);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ico2camera_GetTargetPos);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetSizeOfCameraSetBinary);
 
@@ -152,9 +152,9 @@ void SetCameraTargetPosition(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00185BF8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00186198);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ChaseCamera);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00186330);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraMove);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00186CA8);
 
@@ -165,7 +165,7 @@ extern unsigned char D_0062C060;
 extern float D_0062C058;
 extern float D_0062C05C;
 extern float D_005EBC48_farr[][0x64] __asm__("D_005EBC48");
-extern void func_00192628(void);
+extern void InitHandCameraCorrect(void);
 
 void func_00186FC8(void) {
     int idx;
@@ -183,7 +183,7 @@ void func_00186FC8(void) {
     D_0062C05C = 600.0f / (float)q;
     D_0062C058 = f / (float)q;
     __asm__ __volatile__("");
-    func_00192628();
+    InitHandCameraCorrect();
 }
 
 
@@ -205,7 +205,7 @@ int func_00188580(void) {
     return D_0062C054;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188588);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetCameraGroupFromGObj);
 
 typedef struct Box {
     char pad0[0x20];
@@ -216,7 +216,7 @@ typedef struct Box {
 
 extern Box *D_0062C048;
 extern int D_0062C050;
-extern void func_00188660_xform(void *a0, void *a1, float f) __asm__("func_00240038");
+extern void func_00188660_xform(void *a0, void *a1, float f) __asm__("sceVu0ScaleVector");
 
 int func_00188660(void *a0) {
     float pt[4];
@@ -255,9 +255,9 @@ extern int D_00629C90;
 extern char D_0062C850[];
 extern char D_00554B00[];
 extern char D_00554B30[];
-extern void debug_assertMessage(char *a0, void *a1);
+extern void debug_StdPrintfDummy(char *a0, void *a1);
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, void *a2);
+extern void __assert(char *a0, int a1, void *a2);
 extern int func_001878E0(void *a0, int a1);
 typedef struct { void *key; int f_4; } RegEntry;
 extern RegEntry D_006C9EE0_arr[] __asm__("D_006C9EE0");
@@ -265,9 +265,9 @@ extern RegEntry D_006C9EE0_arr[] __asm__("D_006C9EE0");
 void func_00188728(void *a0, void *a1) {
     RegEntry *slot;
     if (D_0062C064 >= 10) {
-        debug_assertMessage(D_00554B30, (void *)10);
+        debug_StdPrintfDummy(D_00554B30, (void *)10);
         func_001AAD00(D_00554B00, 0x7BE);
-        func_00260380(D_00554B00, 0x7BE, D_0062C850);
+        __assert(D_00554B00, 0x7BE, D_0062C850);
     }
     slot = &D_006C9EE0_arr[D_0062C064];
     slot->key = a0;
@@ -281,9 +281,9 @@ void func_001887D8(void) {
     D_0062C064 = 0;
 }
 
-extern void debug_assertMessage(char *a0, void *a1);
+extern void debug_StdPrintfDummy(char *a0, void *a1);
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, void *a2);
+extern void __assert(char *a0, int a1, void *a2);
 typedef struct { int key; int f_4; } Lookup;
 extern Lookup D_006C9EE0[];
 extern char D_0028DB10[];
@@ -299,13 +299,13 @@ int func_001887E0(int key) {
             return D_006C9EE0[i].f_4;
         }
     }
-    debug_assertMessage(D_00554B18, D_0028DB10 + key * 0x20);
+    debug_StdPrintfDummy(D_00554B18, D_0028DB10 + key * 0x20);
     func_001AAD00(D_00554B00, 0x7B5);
-    func_00260380(D_00554B00, 0x7B5, D_0062C850);
+    __assert(D_00554B00, 0x7B5, D_0062C850);
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188888);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", MakeCameraSetBinary);
 
 int func_00188B00(char *p, int n)
 {
@@ -321,14 +321,14 @@ int func_00188B00(char *p, int n)
     return acc;
 }
 
-extern void func_00240038(void *a0, float f);
-extern void func_00240038_p(void *a0, void *a1, float f) __asm__("func_00240038");
+extern void sceVu0ScaleVector(void *a0, float f);
+extern void func_00240038_p(void *a0, void *a1, float f) __asm__("sceVu0ScaleVector");
 extern char D_006C9DA0[];
 extern char D_006C9EC0[];
 extern char D_006C9ED0[];
 
 void func_00188B48(void *a0, float a1) {
-    func_00240038(D_006C9DA0, -1.0f);
+    sceVu0ScaleVector(D_006C9DA0, -1.0f);
     func_00240038_p(D_006C9DA0 + 0x10, a0, -1.0f);
     func_00240038_p(D_006C9EC0, a0, -1.0f);
     func_00240038_p(D_006C9ED0, a0, -1.0f);

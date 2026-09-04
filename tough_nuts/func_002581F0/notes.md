@@ -1,7 +1,7 @@
-# func_002581F0 — parked
+# _SgContLoop — parked
 
 VRAM: 0x002581F0 (file_off 0x1581F0)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_002581F0.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_SgContLoop.s
 
 ## Attempt at 2026-06-23
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_002581F0.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_002581F0/func_002581F0.c`
+**Seed:** `tough_nuts/_SgContLoop/_SgContLoop.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_002581F0, 0x134
+nonmatching _SgContLoop, 0x134
 
-glabel func_002581F0
+glabel _SgContLoop
     /* 1581F0 002581F0 E0FFBD27 */  addiu      $29, $29, -0x20
     /* 1581F4 002581F4 0000B0FF */  sd         $16, 0x0($29)
     /* 1581F8 002581F8 1000BFFF */  sd         $31, 0x10($29)
@@ -117,6 +117,6 @@ glabel func_002581F0
     /* 158318 00258318 0000B0DF */  ld         $16, 0x0($29)
     /* 15831C 0025831C 0800E003 */  jr         $31
     /* 158320 00258320 2000BD27 */   addiu     $29, $29, 0x20
-endlabel func_002581F0
+endlabel _SgContLoop
     /* 158324 00258324 00000000 */  nop
 ```

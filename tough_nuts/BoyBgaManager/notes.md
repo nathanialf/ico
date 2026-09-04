@@ -55,7 +55,7 @@ glabel BoyBgaManager
     /* 4CD78 0014CD78 6300063C */  lui        $6, %hi(D_0062C3F8)
     /* 4CD7C 0014CD7C 2D200002 */  daddu      $4, $16, $0
     /* 4CD80 0014CD80 F8C3C624 */  addiu      $6, $6, %lo(D_0062C3F8)
-    /* 4CD84 0014CD84 E080090C */  jal        func_00260380
+    /* 4CD84 0014CD84 E080090C */  jal        __assert
     /* 4CD88 0014CD88 D5050524 */   addiu     $5, $0, 0x5D5
 .align 2
   .L0014CD8C:

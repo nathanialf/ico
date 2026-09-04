@@ -28,7 +28,7 @@ void avoid_obstacle2(int a0) {
     func_00174650(a0);
 }
 
-extern int func_0013D648(void *a0);
+extern int iosSemaSignal(void *a0);
 extern int func_0013D698(void *a0);
 extern void func_00173DB0(void *a0);
 extern int D_00271240[];
@@ -58,13 +58,13 @@ void create_box_bridge(int *a0) {
         if ((unsigned int) (v + 5) < D_00629D00) {
             func_0013D698(D_006C8AB8);
             if (D_006C8AB8[0x24 / 4] > 0) {
-                func_0013D648(D_006C8AB8);
+                iosSemaSignal(D_006C8AB8);
             }
         }
         if (D_00271240[0x28 / 4] != 0) {
             func_0013D698(D_006C8AF0);
             if (D_006C8AF0[0x24 / 4] > 0) {
-                func_0013D648(D_006C8AF0);
+                iosSemaSignal(D_006C8AF0);
             }
         }
         if (D_0062A7F4 != 0) {

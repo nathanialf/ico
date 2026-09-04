@@ -12,7 +12,7 @@ const char D_00551E70[0x10] = "add to tail %p\n";
 const char D_00551E80[0x10] = "GObjLinkDL in\n";
 const char D_00551E90[0x10] = "GObjLinkDL out\n";
 
-struct GObj *cut_gobj_dl_link(int a0)
+struct GObj *isysGObjSearchFromLabelTypeID(int a0)
 {
     unsigned int count = D_0062BFAC;
     unsigned int i = 0;
@@ -28,7 +28,7 @@ struct GObj *cut_gobj_dl_link(int a0)
     return 0;
 }
 
-struct GObj *isysGObjRemoveObjDL(void)
+struct GObj *isysGObjGetExist_begin(void)
 {
     struct GObj *start = D_0062BFA8 - 1;
     struct GObj *end = (struct GObj *)((char *)D_0062BFA8 + (D_0062BFAC * 0x174 - 0x174));
@@ -41,7 +41,7 @@ struct GObj *isysGObjRemoveObjDL(void)
     return 0;
 }
 
-struct GObj *func_0013E7E0(struct GObj *start)
+struct GObj *isysGObjGetExist_next(struct GObj *start)
 {
     struct GObj *end = (struct GObj *)((char *)D_0062BFA8 + (D_0062BFAC * 0x174 - 0x174));
     while (start != end) {
@@ -73,14 +73,14 @@ void isysGObjMoveObjDL(int a0, int a1) {
     }
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int D_0027DE30[];
 extern int D_0027DE50[];
 
-void isysGObjMoveObjDLHead(int *self)
+void cut_gobj_dl_link(int *self)
 {
     if (self == 0) {
-        debug_assertMessage(D_00551E28);
+        debug_StdPrintfDummy(D_00551E28);
         return;
     }
     if (self[0xE] != 0) goto do_prev;
@@ -102,7 +102,7 @@ head:
 }
 
 void isysGObjLinkObjDL(int *self) {
-    isysGObjMoveObjDLHead(self);
+    cut_gobj_dl_link(self);
 }
 
 typedef struct DLN {
@@ -122,7 +122,7 @@ void isysGObjLinkObjDLHead(int a0, int a1, int a2)
     DLN *head;
     DLN *tail;
     DLN *cur;
-    debug_assertMessage(D_00551E38);
+    debug_StdPrintfDummy(D_00551E38);
     self->id = idx;
     self->key = a2;
     head = ((DLN **)D_0027DE30)[idx];
@@ -131,7 +131,7 @@ void isysGObjLinkObjDLHead(int a0, int a1, int a2)
         self->next = 0;
         ((DLN **)D_0027DE30)[idx] = self;
         ((DLN **)D_0027DE50)[idx] = self;
-        debug_assertMessage(D_00551E50, 0);
+        debug_StdPrintfDummy(D_00551E50, 0);
         return;
     }
     if ((unsigned int)a2 < (unsigned int)head->key) {
@@ -139,7 +139,7 @@ void isysGObjLinkObjDLHead(int a0, int a1, int a2)
         self->prev = 0;
         head->prev = self;
         ((DLN **)D_0027DE30)[idx] = self;
-        debug_assertMessage(D_00551E60, (int)self->next);
+        debug_StdPrintfDummy(D_00551E60, (int)self->next);
         return;
     }
     tail = ((DLN **)D_0027DE50)[idx];
@@ -148,7 +148,7 @@ void isysGObjLinkObjDLHead(int a0, int a1, int a2)
         self->prev = tail;
         tail->next = self;
         ((DLN **)D_0027DE50)[idx] = self;
-        debug_assertMessage(D_00551E70, (int)self->next);
+        debug_StdPrintfDummy(D_00551E70, (int)self->next);
         return;
     }
     cur = head;
@@ -210,7 +210,7 @@ void isysGObjLinkObjDLBeforeGObj(int a0, int a1, int a2)
     int s1 = a1 & 0xFF;
     int new_var;
     new_var = a2;
-    isysGObjMoveObjDLHead(a0);
+    cut_gobj_dl_link(a0);
     return isysGObjLinkObjDLHead(a0, s1, new_var);
 }
 
@@ -221,11 +221,11 @@ void isysGObjDlInit(int a0, int a1, int a2)
     int s1 = a1 & 0xFF;
     int new_var;
     new_var = a2;
-    isysGObjMoveObjDLHead(a0);
+    cut_gobj_dl_link(a0);
     return isysGObjLinkObjDLAfterGObj(a0, s1, new_var);
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
 void isysGObjMoveObjDLAfterGObj(int *self, int *p, unsigned char q, int r, int t0)
 {
@@ -233,7 +233,7 @@ void isysGObjMoveObjDLAfterGObj(int *self, int *p, unsigned char q, int r, int t
   int new_var;
   int *new_var3;
   new_var = q & 0xFF;
-  debug_assertMessage(D_00551E80);
+  debug_StdPrintfDummy(D_00551E80);
   new_var3 = p;
   if (new_var3 != 0)
   {
@@ -241,7 +241,7 @@ void isysGObjMoveObjDLAfterGObj(int *self, int *p, unsigned char q, int r, int t
     new_var2 = 0x50;
     self[new_var2 / 4] = t0;
     isysGObjLinkObjDLHead(self, new_var, r);
-    debug_assertMessage(D_00551E90);
+    debug_StdPrintfDummy(D_00551E90);
   }
 }
 
@@ -263,7 +263,7 @@ void func_0013ECE0(int *self, int *a1, int a2, int *a3)
     if (a1 == 0) return;
     t0 = self;
     if (a3 == 0) {
-        debug_assertMessage(D_00551E28);
+        debug_StdPrintfDummy(D_00551E28);
         return;
     }
     t0[0x14] = a2;
@@ -288,7 +288,7 @@ void func_0013ED48(int *self, int *a1, int a2, int *a3)
     if (a1 == 0) return;
     t0 = self;
     if (a3 == 0) {
-        debug_assertMessage(D_00551E28);
+        debug_StdPrintfDummy(D_00551E28);
         return;
     }
     t0[0x14] = a2;

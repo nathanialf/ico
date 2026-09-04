@@ -116,7 +116,7 @@ check:
     if (flag != 0) {
         int *pp = *(int **)((char *)a0 + 0x15C);
         AP1Geo *qq = *(AP1Geo **)((char *)pp + 0x7F0);
-        func_00118A70((char *)pp + 0x120, (char *)qq + 0x230, a2);
+        _ApplyMatrix((char *)pp + 0x120, (char *)qq + 0x230, a2);
         return 1;
     }
     return 0;

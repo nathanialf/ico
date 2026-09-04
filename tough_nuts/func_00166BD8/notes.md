@@ -1,7 +1,7 @@
-# func_00166BD8 — parked
+# _clipWDebug — parked
 
 VRAM: 0x00166BD8 (file_off 0x066BD8)
-Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00166BD8.s
+Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/_clipWDebug.s
 
 ## Attempt at 2026-06-21
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00166BD8.s
 
 **TU:** `fumi/src/fuzio.c`
 
-**Seed:** `tough_nuts/func_00166BD8/func_00166BD8.c`
+**Seed:** `tough_nuts/_clipWDebug/_clipWDebug.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00166BD8, 0x128
+nonmatching _clipWDebug, 0x128
 
-glabel func_00166BD8
+glabel _clipWDebug
     /* 66BD8 00166BD8 70FFBD27 */  addiu      $29, $29, -0x90
     /* 66BDC 00166BDC 2CB4878F */  lw         $7, %gp_rel(D_0062C01C)($28)
     /* 66BE0 00166BE0 5000B5FF */  sd         $21, 0x50($29)
@@ -104,5 +104,5 @@ glabel func_00166BD8
     /* 66CF4 00166CF4 0000B0DF */  ld         $16, 0x0($29)
     /* 66CF8 00166CF8 0800E003 */  jr         $31
     /* 66CFC 00166CFC 9000BD27 */   addiu     $29, $29, 0x90
-endlabel func_00166BD8
+endlabel _clipWDebug
 ```

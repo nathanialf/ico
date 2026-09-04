@@ -26,7 +26,7 @@
   .L001FC868:
     /* FC868 001FC868 2D300002 */  daddu      $6, $16, $0
     /* FC86C 001FC86C 2D288000 */  daddu      $5, $4, $0
-    /* FC870 001FC870 FCFF080C */  jal        func_0023FFF0
+    /* FC870 001FC870 FCFF080C */  jal        sceVu0AddVector
     /* FC874 001FC874 10001026 */   addiu     $16, $16, 0x10
     /* FC878 001FC878 FFFF3126 */  addiu      $17, $17, -0x1
     /* FC87C 001FC87C FAFF2106 */  bgez       $17, .L001FC868
@@ -34,7 +34,7 @@
     /* FC884 001FC884 803E013C */  lui        $1, (0x3E800000 >> 16)
     /* FC888 001FC888 00608144 */  mtc1       $1, $f12
     /* FC88C 001FC88C 2D204002 */  daddu      $4, $18, $0
-    /* FC890 001FC890 0E00090C */  jal        func_00240038
+    /* FC890 001FC890 0E00090C */  jal        sceVu0ScaleVector
     /* FC894 001FC894 6000A527 */   addiu     $5, $29, 0x60
     /* FC898 001FC898 803F013C */  lui        $1, (0x3F800000 >> 16)
     /* FC89C 001FC89C 00008144 */  mtc1       $1, $f0
@@ -278,12 +278,12 @@
     /* FCBC4 001FCBC4 C801A58F */  lw         $5, 0x1C8($29)
     /* FCBC8 001FCBC8 A000A2E7 */  swc1       $f2, 0xA0($29)
     /* FCBCC 001FCBCC A400A0E7 */  swc1       $f0, 0xA4($29)
-    /* FCBD0 001FCBD0 0E00090C */  jal        func_00240038
+    /* FCBD0 001FCBD0 0E00090C */  jal        sceVu0ScaleVector
     /* FCBD4 001FCBD4 A800A1E7 */   swc1      $f1, 0xA8($29)
     /* FCBD8 001FCBD8 B000BE27 */  addiu      $30, $29, 0xB0
     /* FCBDC 001FCBDC 2D302002 */  daddu      $6, $17, $0
     /* FCBE0 001FCBE0 2D20C003 */  daddu      $4, $30, $0
-    /* FCBE4 001FCBE4 FCFF080C */  jal        func_0023FFF0
+    /* FCBE4 001FCBE4 FCFF080C */  jal        sceVu0AddVector
     /* FCBE8 001FCBE8 A000A527 */   addiu     $5, $29, 0xA0
     /* FCBEC 001FCBEC B400A0C7 */  lwc1       $f0, 0xB4($29)
     /* FCBF0 001FCBF0 C000B627 */  addiu      $22, $29, 0xC0
@@ -346,12 +346,12 @@
     /* FCCC4 001FCCC4 17000145 */  bc1t       .L001FCD24
     /* FCCC8 001FCCC8 C401A58F */   lw        $5, 0x1C4($29)
     /* FCCCC 001FCCCC 2D302002 */  daddu      $6, $17, $0
-    /* FCCD0 001FCCD0 0200090C */  jal        func_00240008
+    /* FCCD0 001FCCD0 0200090C */  jal        sceVu0SubVector
     /* FCCD4 001FCCD4 2D204002 */   daddu     $4, $18, $0
     /* FCCD8 001FCCD8 1C01A0AF */  sw         $0, 0x11C($29)
     /* FCCDC 001FCCDC 2001A427 */  addiu      $4, $29, 0x120
     /* FCCE0 001FCCE0 2D28C002 */  daddu      $5, $22, $0
-    /* FCCE4 001FCCE4 76FF080C */  jal        func_0023FDD8
+    /* FCCE4 001FCCE4 76FF080C */  jal        sceVu0ApplyMatrix
     /* FCCE8 001FCCE8 2D304002 */   daddu     $6, $18, $0
     /* FCCEC 001FCCEC 2001A1C7 */  lwc1       $f1, 0x120($29)
     /* FCCF0 001FCCF0 F0C1013C */  lui        $1, (0xC1F00000 >> 16)
@@ -369,7 +369,7 @@
     /* FCD20 001FCD20 D001A0AF */   sw        $0, 0x1D0($29)
 .align 2
   .L001FCD24:
-    /* FCD24 001FCD24 B2F9040C */  jal        isysGObjSearchFromObjKindID_begin
+    /* FCD24 001FCD24 B2F9040C */  jal        isysGObjSearchFromObjKindID_next
     /* FCD28 001FCD28 2D200002 */   daddu     $4, $16, $0
     /* FCD2C 001FCD2C 2D804000 */  daddu      $16, $2, $0
     /* FCD30 001FCD30 BFFF0056 */  bnel       $16, $0, .L001FCC30
@@ -400,11 +400,11 @@
     /* FCD8C 001FCD8C 3001B027 */  addiu      $16, $29, 0x130
     /* FCD90 001FCD90 C801A58F */  lw         $5, 0x1C8($29)
     /* FCD94 001FCD94 2D200002 */  daddu      $4, $16, $0
-    /* FCD98 001FCD98 0E00090C */  jal        func_00240038
+    /* FCD98 001FCD98 0E00090C */  jal        sceVu0ScaleVector
     /* FCD9C 001FCD9C 06AB0046 */   mov.s     $f12, $f21
     /* FCDA0 001FCDA0 2D282002 */  daddu      $5, $17, $0
     /* FCDA4 001FCDA4 2D300002 */  daddu      $6, $16, $0
-    /* FCDA8 001FCDA8 FCFF080C */  jal        func_0023FFF0
+    /* FCDA8 001FCDA8 FCFF080C */  jal        sceVu0AddVector
     /* FCDAC 001FCDAC 2D204002 */   daddu     $4, $18, $0
     /* FCDB0 001FCDB0 6001B127 */  addiu      $17, $29, 0x160
     /* FCDB4 001FCDB4 3000A58F */  lw         $5, 0x30($29)
@@ -413,14 +413,14 @@
     /* FCDC0 001FCDC0 01AB1446 */  sub.s      $f12, $f21, $f20
     /* FCDC4 001FCDC4 5001B027 */  addiu      $16, $29, 0x150
     /* FCDC8 001FCDC8 C801A58F */  lw         $5, 0x1C8($29)
-    /* FCDCC 001FCDCC 0E00090C */  jal        func_00240038
+    /* FCDCC 001FCDCC 0E00090C */  jal        sceVu0ScaleVector
     /* FCDD0 001FCDD0 2D200002 */   daddu     $4, $16, $0
     /* FCDD4 001FCDD4 3000A38F */  lw         $3, 0x30($29)
     /* FCDD8 001FCDD8 2D282002 */  daddu      $5, $17, $0
     /* FCDDC 001FCDDC 2D300002 */  daddu      $6, $16, $0
     /* FCDE0 001FCDE0 6401628C */  lw         $2, 0x164($3)
     /* FCDE4 001FCDE4 7806448C */  lw         $4, 0x678($2)
-    /* FCDE8 001FCDE8 FCFF080C */  jal        func_0023FFF0
+    /* FCDE8 001FCDE8 FCFF080C */  jal        sceVu0AddVector
     /* FCDEC 001FCDEC 20078424 */   addiu     $4, $4, 0x720
     /* FCDF0 001FCDF0 3000A48F */  lw         $4, 0x30($29)
     /* FCDF4 001FCDF4 14000524 */  addiu      $5, $0, 0x14
@@ -534,13 +534,13 @@
     /* FCF94 001FCF94 00608144 */  mtc1       $1, $f12
     /* FCF98 001FCF98 C801A58F */  lw         $5, 0x1C8($29)
     /* FCF9C 001FCF9C 2D200002 */  daddu      $4, $16, $0
-    /* FCFA0 001FCFA0 0E00090C */  jal        func_00240038
+    /* FCFA0 001FCFA0 0E00090C */  jal        sceVu0ScaleVector
     /* FCFA4 001FCFA4 C8001724 */   addiu     $23, $0, 0xC8
     /* FCFA8 001FCFA8 3E74050C */  jal        ContinueCorrectPosition
     /* FCFAC 001FCFAC 2D202002 */   daddu     $4, $17, $0
     /* FCFB0 001FCFB0 2D204002 */  daddu      $4, $18, $0
     /* FCFB4 001FCFB4 2D284000 */  daddu      $5, $2, $0
-    /* FCFB8 001FCFB8 FCFF080C */  jal        func_0023FFF0
+    /* FCFB8 001FCFB8 FCFF080C */  jal        sceVu0AddVector
     /* FCFBC 001FCFBC 2D300002 */   daddu     $6, $16, $0
 .align 2
   .L001FCFC0:
@@ -594,7 +594,7 @@
     /* FD044 001FD044 6300063C */  lui        $6, %hi(D_0062D9C8)
     /* FD048 001FD048 2D200002 */  daddu      $4, $16, $0
     /* FD04C 001FD04C C8D9C624 */  addiu      $6, $6, %lo(D_0062D9C8)
-    /* FD050 001FD050 E080090C */  jal        func_00260380
+    /* FD050 001FD050 E080090C */  jal        __assert
     /* FD054 001FD054 17090524 */   addiu     $5, $0, 0x917
 .align 2
   .L001FD058:
@@ -628,7 +628,7 @@
     /* FD0BC 001FD0BC 3E74050C */  jal        ContinueCorrectPosition
     /* FD0C0 001FD0C0 2D804000 */   daddu     $16, $2, $0
     /* FD0C4 001FD0C4 2D200002 */  daddu      $4, $16, $0
-    /* FD0C8 001FD0C8 E646060C */  jal        HandyCamera_TargetMoveType
+    /* FD0C8 001FD0C8 E646060C */  jal        _DistSqGV
     /* FD0CC 001FD0CC 2D284000 */   daddu     $5, $2, $0
     /* FD0D0 001FD0D0 548B81C7 */  lwc1       $f1, %gp_rel(D_00629744)($28)
     /* FD0D4 001FD0D4 34000146 */  c.lt.s     $f0, $f1
@@ -713,7 +713,7 @@
     /* FD1F0 001FD1F0 2D804000 */   daddu     $16, $2, $0
     /* FD1F4 001FD1F4 2D280002 */  daddu      $5, $16, $0
     /* FD1F8 001FD1F8 2D304000 */  daddu      $6, $2, $0
-    /* FD1FC 001FD1FC F447060C */  jal        func_00191FD0
+    /* FD1FC 001FD1FC F447060C */  jal        _OrientXZGV
     /* FD200 001FD200 2D202002 */   daddu     $4, $17, $0
     /* FD204 001FD204 C801A58F */  lw         $5, 0x1C8($29)
     /* FD208 001FD208 6447060C */  jal        func_00191D90
@@ -788,7 +788,7 @@
     /* FD2FC 001FD2FC B000A0E7 */  swc1       $f0, 0xB0($29)
     /* FD300 001FD300 C000A427 */  addiu      $4, $29, 0xC0
     /* FD304 001FD304 B400A1E7 */  swc1       $f1, 0xB4($29)
-    /* FD308 001FD308 F447060C */  jal        func_00191FD0
+    /* FD308 001FD308 F447060C */  jal        _OrientXZGV
     /* FD30C 001FD30C B800A2E7 */   swc1      $f2, 0xB8($29)
     /* FD310 001FD310 22000010 */  b          .L001FD39C
     /* FD314 001FD314 000050AE */   sw        $16, 0x0($18)
@@ -827,7 +827,7 @@
     /* FD388 001FD388 B000A0E7 */  swc1       $f0, 0xB0($29)
     /* FD38C 001FD38C C000A427 */  addiu      $4, $29, 0xC0
     /* FD390 001FD390 B400A1E7 */  swc1       $f1, 0xB4($29)
-    /* FD394 001FD394 F447060C */  jal        func_00191FD0
+    /* FD394 001FD394 F447060C */  jal        _OrientXZGV
     /* FD398 001FD398 B800A2E7 */   swc1      $f2, 0xB8($29)
 .align 2
   .L001FD39C:
@@ -859,7 +859,7 @@
     /* FD3E8 001FD3E8 A000A427 */   addiu     $4, $29, 0xA0
     /* FD3EC 001FD3EC 80BF013C */  lui        $1, (0xBF800000 >> 16)
     /* FD3F0 001FD3F0 00608144 */  mtc1       $1, $f12
-    /* FD3F4 001FD3F4 0E00090C */  jal        func_00240038
+    /* FD3F4 001FD3F4 0E00090C */  jal        sceVu0ScaleVector
     /* FD3F8 001FD3F8 DC01A58F */   lw        $5, 0x1DC($29)
     /* FD3FC 001FD3FC 9401A28F */  lw         $2, 0x194($29)
     /* FD400 001FD400 0C004010 */  beqz       $2, .L001FD434
@@ -887,14 +887,14 @@
     /* FD450 001FD450 00A08144 */  mtc1       $1, $f20
     /* FD454 001FD454 DC01A58F */  lw         $5, 0x1DC($29)
     /* FD458 001FD458 2D200002 */  daddu      $4, $16, $0
-    /* FD45C 001FD45C 0E00090C */  jal        func_00240038
+    /* FD45C 001FD45C 0E00090C */  jal        sceVu0ScaleVector
     /* FD460 001FD460 01AB1446 */   sub.s     $f12, $f21, $f20
     /* FD464 001FD464 3000A38F */  lw         $3, 0x30($29)
     /* FD468 001FD468 2D300002 */  daddu      $6, $16, $0
     /* FD46C 001FD46C 1000A527 */  addiu      $5, $29, 0x10
     /* FD470 001FD470 6401628C */  lw         $2, 0x164($3)
     /* FD474 001FD474 7806448C */  lw         $4, 0x678($2)
-    /* FD478 001FD478 FCFF080C */  jal        func_0023FFF0
+    /* FD478 001FD478 FCFF080C */  jal        sceVu0AddVector
     /* FD47C 001FD47C 80078424 */   addiu     $4, $4, 0x780
     /* FD480 001FD480 3000A48F */  lw         $4, 0x30($29)
     /* FD484 001FD484 14000524 */  addiu      $5, $0, 0x14
@@ -990,10 +990,10 @@
     /* FD5BC 001FD5BC 2D280002 */   daddu     $5, $16, $0
     /* FD5C0 001FD5C0 2D204002 */  daddu      $4, $18, $0
     /* FD5C4 001FD5C4 2D282002 */  daddu      $5, $17, $0
-    /* FD5C8 001FD5C8 0200090C */  jal        func_00240008
+    /* FD5C8 001FD5C8 0200090C */  jal        sceVu0SubVector
     /* FD5CC 001FD5CC 2D30A003 */   daddu     $6, $29, $0
     /* FD5D0 001FD5D0 2D204002 */  daddu      $4, $18, $0
-    /* FD5D4 001FD5D4 9CFF080C */  jal        func_0023FE70
+    /* FD5D4 001FD5D4 9CFF080C */  jal        sceVu0InnerProduct
     /* FD5D8 001FD5D8 2D28E002 */   daddu     $5, $23, $0
     /* FD5DC 001FD5DC 06050046 */  mov.s      $f20, $f0
     /* FD5E0 001FD5E0 2D20A003 */  daddu      $4, $29, $0
@@ -1040,7 +1040,7 @@
     /* FD66C 001FD66C 2DB00002 */   daddu     $22, $16, $0
 .align 2
   .L001FD670:
-    /* FD670 001FD670 B2F9040C */  jal        isysGObjSearchFromObjKindID_begin
+    /* FD670 001FD670 B2F9040C */  jal        isysGObjSearchFromObjKindID_next
     /* FD674 001FD674 2D200002 */   daddu     $4, $16, $0
     /* FD678 001FD678 2D804000 */  daddu      $16, $2, $0
     /* FD67C 001FD67C CCFF0056 */  bnel       $16, $0, .L001FD5B0
@@ -1056,11 +1056,11 @@
     /* FD694 001FD694 2D20A000 */   daddu     $4, $5, $0
     /* FD698 001FD698 C401A68F */  lw         $6, 0x1C4($29)
     /* FD69C 001FD69C 2D284000 */  daddu      $5, $2, $0
-    /* FD6A0 001FD6A0 0200090C */  jal        func_00240008
+    /* FD6A0 001FD6A0 0200090C */  jal        sceVu0SubVector
     /* FD6A4 001FD6A4 2D200002 */   daddu     $4, $16, $0
     /* FD6A8 001FD6A8 C801A58F */  lw         $5, 0x1C8($29)
     /* FD6AC 001FD6AC 2D200002 */  daddu      $4, $16, $0
-    /* FD6B0 001FD6B0 9CFF080C */  jal        func_0023FE70
+    /* FD6B0 001FD6B0 9CFF080C */  jal        sceVu0InnerProduct
     /* FD6B4 001FD6B4 C400A0AF */   sw        $0, 0xC4($29)
     /* FD6B8 001FD6B8 00088044 */  mtc1       $0, $f1
     /* FD6BC 001FD6BC 34080046 */  c.lt.s     $f1, $f0
@@ -1092,14 +1092,14 @@
     /* FD71C 001FD71C 00608144 */  mtc1       $1, $f12
     /* FD720 001FD720 2D200002 */  daddu      $4, $16, $0
     /* FD724 001FD724 C801A58F */  lw         $5, 0x1C8($29)
-    /* FD728 001FD728 0E00090C */  jal        func_00240038
+    /* FD728 001FD728 0E00090C */  jal        sceVu0ScaleVector
     /* FD72C 001FD72C E800A0E7 */   swc1      $f0, 0xE8($29)
     /* FD730 001FD730 3000A38F */  lw         $3, 0x30($29)
     /* FD734 001FD734 2D300002 */  daddu      $6, $16, $0
     /* FD738 001FD738 E000A527 */  addiu      $5, $29, 0xE0
     /* FD73C 001FD73C 6401628C */  lw         $2, 0x164($3)
     /* FD740 001FD740 7006448C */  lw         $4, 0x670($2)
-    /* FD744 001FD744 FCFF080C */  jal        func_0023FFF0
+    /* FD744 001FD744 FCFF080C */  jal        sceVu0AddVector
     /* FD748 001FD748 C0018424 */   addiu     $4, $4, 0x1C0
     /* FD74C 001FD74C 3000A48F */  lw         $4, 0x30($29)
     /* FD750 001FD750 1400A0C7 */  lwc1       $f0, 0x14($29)
@@ -1245,7 +1245,7 @@
     /* FD930 001FD930 C401A68F */  lw         $6, 0x1C4($29)
     /* FD934 001FD934 2D202002 */  daddu      $4, $17, $0
     /* FD938 001FD938 2D284002 */  daddu      $5, $18, $0
-    /* FD93C 001FD93C F447060C */  jal        func_00191FD0
+    /* FD93C 001FD93C F447060C */  jal        _OrientXZGV
     /* FD940 001FD940 6800A0E7 */   swc1      $f0, 0x68($29)
     /* FD944 001FD944 A801A58F */  lw         $5, 0x1A8($29)
     /* FD948 001FD948 6447060C */  jal        func_00191D90
@@ -1358,7 +1358,7 @@
     /* FDAAC 001FDAAC 6000A727 */   addiu     $7, $29, 0x60
     /* FDAB0 001FDAB0 16004010 */  beqz       $2, .L001FDB0C
     /* FDAB4 001FDAB4 C401A48F */   lw        $4, 0x1C4($29)
-    /* FDAB8 001FDAB8 9A26050C */  jal        PAIR_GetPosition_BOY
+    /* FDAB8 001FDAB8 9A26050C */  jal        ACTGame_GetNearestGObj
     /* FDABC 001FDABC 21000524 */   addiu     $5, $0, 0x21
     /* FDAC0 001FDAC0 2D804000 */  daddu      $16, $2, $0
     /* FDAC4 001FDAC4 3E74050C */  jal        ContinueCorrectPosition
@@ -1409,7 +1409,7 @@
     /* FDB58 001FDB58 6000B027 */  addiu      $16, $29, 0x60
     /* FDB5C 001FDB5C 2D200002 */  daddu      $4, $16, $0
     /* FDB60 001FDB60 5C01458C */  lw         $5, 0x15C($2)
-    /* FDB64 001FDB64 A6FF080C */  jal        func_0023FE98
+    /* FDB64 001FDB64 A6FF080C */  jal        sceVu0Normalize
     /* FDB68 001FDB68 C001A524 */   addiu     $5, $5, 0x1C0
     /* FDB6C 001FDB6C 3000A48F */  lw         $4, 0x30($29)
     /* FDB70 001FDB70 6000A1C7 */  lwc1       $f1, 0x60($29)
@@ -1422,7 +1422,7 @@
     /* FDB8C 001FDB8C 2274050C */  jal        subCommonIdle
     /* FDB90 001FDB90 780241E4 */   swc1      $f1, 0x278($2)
     /* FDB94 001FDB94 2D204000 */  daddu      $4, $2, $0
-    /* FDB98 001FDB98 9CFF080C */  jal        func_0023FE70
+    /* FDB98 001FDB98 9CFF080C */  jal        sceVu0InnerProduct
     /* FDB9C 001FDB9C 2D280002 */   daddu     $5, $16, $0
     /* FDBA0 001FDBA0 00088044 */  mtc1       $0, $f1
     /* FDBA4 001FDBA4 34080046 */  c.lt.s     $f1, $f0
@@ -1459,7 +1459,7 @@
     /* FDC10 001FDC10 6300043C */  lui        $4, %hi(D_0062D9D0)
     /* FDC14 001FDC14 25104300 */  or         $2, $2, $3
     /* FDC18 001FDC18 D0D98424 */  addiu      $4, $4, %lo(D_0062D9D0)
-    /* FDC1C 001FDC1C F290060C */  jal        debug_assertMessage
+    /* FDC1C 001FDC1C F290060C */  jal        debug_StdPrintfDummy
     /* FDC20 001FDC20 700462FE */   sd        $2, 0x470($19)
 .align 2
   .L001FDC24:
@@ -1499,7 +1499,7 @@
     /* FDC98 001FDC98 6100043C */  lui        $4, %hi(D_006139E0)
     /* FDC9C 001FDC9C 25104300 */  or         $2, $2, $3
     /* FDCA0 001FDCA0 E0398424 */  addiu      $4, $4, %lo(D_006139E0)
-    /* FDCA4 001FDCA4 F290060C */  jal        debug_assertMessage
+    /* FDCA4 001FDCA4 F290060C */  jal        debug_StdPrintfDummy
     /* FDCA8 001FDCA8 700462FE */   sd        $2, 0x470($19)
     /* FDCAC 001FDCAC 3000A78F */  lw         $7, 0x30($29)
     /* FDCB0 001FDCB0 F491848F */  lw         $4, %gp_rel(D_00629DE4)($28)
@@ -1530,7 +1530,7 @@
     /* FDCFC 001FDCFC 6100043C */  lui        $4, %hi(D_006139F0)
     /* FDD00 001FDD00 25104300 */  or         $2, $2, $3
     /* FDD04 001FDD04 F0398424 */  addiu      $4, $4, %lo(D_006139F0)
-    /* FDD08 001FDD08 F290060C */  jal        debug_assertMessage
+    /* FDD08 001FDD08 F290060C */  jal        debug_StdPrintfDummy
     /* FDD0C 001FDD0C 700462FE */   sd        $2, 0x470($19)
 .align 2
   .L001FDD10:
@@ -1617,7 +1617,7 @@
     /* FDE30 001FDE30 2D282002 */   daddu     $5, $17, $0
     /* FDE34 001FDE34 2DB80002 */  daddu      $23, $16, $0
     /* FDE38 001FDE38 2000A426 */  addiu      $4, $21, 0x20
-    /* FDE3C 001FDE3C F447060C */  jal        func_00191FD0
+    /* FDE3C 001FDE3C F447060C */  jal        _OrientXZGV
     /* FDE40 001FDE40 2D30A003 */   daddu     $6, $29, $0
     /* FDE44 001FDE44 2DF0E002 */  daddu      $30, $23, $0
 .align 2
@@ -1690,7 +1690,7 @@
     /* FDF34 001FDF34 2D282002 */   daddu     $5, $17, $0
     /* FDF38 001FDF38 3000A426 */  addiu      $4, $21, 0x30
     /* FDF3C 001FDF3C 2D30A003 */  daddu      $6, $29, $0
-    /* FDF40 001FDF40 F447060C */  jal        func_00191FD0
+    /* FDF40 001FDF40 F447060C */  jal        _OrientXZGV
     /* FDF44 001FDF44 2DB00002 */   daddu     $22, $16, $0
     /* FDF48 001FDF48 6801B6AE */  sw         $22, 0x168($21)
 .align 2
@@ -1699,7 +1699,7 @@
     /* FDF50 001FDF50 3000A48F */   lw        $4, 0x30($29)
     /* FDF54 001FDF54 13004054 */  bnel       $2, $0, .L001FDFA4
     /* FDF58 001FDF58 6001648E */   lw        $4, 0x160($19)
-    /* FDF5C 001FDF5C 2C24050C */  jal        ACTGameCollisionOff
+    /* FDF5C 001FDF5C 2C24050C */  jal        ACTGame_isWeaponEnableCatchfire
     /* FDF60 001FDF60 3001648E */   lw        $4, 0x130($19)
     /* FDF64 001FDF64 0F004050 */  beql       $2, $0, .L001FDFA4
     /* FDF68 001FDF68 6001648E */   lw        $4, 0x160($19)

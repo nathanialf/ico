@@ -28,7 +28,7 @@ void InitCageFixGeo(GObj *a0, float a1) {
 
 extern int *isysGObjSearchFromObjLayoutID(int x);
 extern void CageDL(int *p);
-extern int *isysGObjSearchFromObjKindID_begin(int *p);
+extern int *isysGObjSearchFromObjKindID_next(int *p);
 
 void func_001C0138(void)
 {
@@ -36,7 +36,7 @@ void func_001C0138(void)
     if (p != 0) {
         do {
             CageDL(p);
-            p = isysGObjSearchFromObjKindID_begin(p);
+            p = isysGObjSearchFromObjKindID_next(p);
         } while (p != 0);
     }
 }
@@ -46,7 +46,7 @@ void func_001C0180(GObj *a0, int a1) {
 }
 
 extern int func_00105078(void);
-extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, int a1);
+extern void CopyMatrix(int a0, int a1);
 extern void HotInitCageGeo(void *a0, int a1, int a2);
 
 void func_001C0190(int *self)
@@ -57,7 +57,7 @@ void func_001C0190(int *self)
         int v;
         v = func_00105078();
         p = (int *)self[0x57];
-        MatrixDrive_TurnXObjectMatrixYZ(v, p[3]);
+        CopyMatrix(v, p[3]);
         v = func_00105078();
         p = (int *)self[0x57];
         HotInitCageGeo(s0, v + 0x30, p[4]);

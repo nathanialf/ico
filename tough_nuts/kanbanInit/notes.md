@@ -37,7 +37,7 @@ glabel kanbanInit
     /* AD160 001AD160 FBFF4014 */  bnez       $2, .L001AD150
     /* AD164 001AD164 2000C624 */   addiu     $6, $6, 0x20
     /* AD168 001AD168 6100043C */  lui        $4, %hi(D_0060F658)
-    /* AD16C 001AD16C F290060C */  jal        debug_assertMessage
+    /* AD16C 001AD16C F290060C */  jal        debug_StdPrintfDummy
     /* AD170 001AD170 58F68424 */   addiu     $4, $4, %lo(D_0060F658)
     /* AD174 001AD174 34000010 */  b          .L001AD248
     /* AD178 001AD178 2D100000 */   daddu     $2, $0, $0

@@ -36,7 +36,7 @@ glabel MatrixDrive_TransMatrix
     /* 5CAC 00105CAC 1000A2DF */  ld         $2, 0x10($29)
     /* 5CB0 00105CB0 1800A3DF */  ld         $3, 0x18($29)
     /* 5CB4 00105CB4 0000A2FF */  sd         $2, 0x0($29)
-    /* 5CB8 00105CB8 B4FF080C */  jal        func_0023FED0
+    /* 5CB8 00105CB8 B4FF080C */  jal        sceVu0TransposeMatrix
     /* 5CBC 00105CBC 0800A3FF */   sd        $3, 0x8($29)
     /* 5CC0 00105CC0 00008044 */  mtc1       $0, $f0
     /* 5CC4 00105CC4 30000426 */  addiu      $4, $16, 0x30
@@ -44,7 +44,7 @@ glabel MatrixDrive_TransMatrix
     /* 5CCC 00105CCC 2D30A003 */  daddu      $6, $29, $0
     /* 5CD0 00105CD0 0C0000E6 */  swc1       $f0, 0xC($16)
     /* 5CD4 00105CD4 2C0000E6 */  swc1       $f0, 0x2C($16)
-    /* 5CD8 00105CD8 76FF080C */  jal        func_0023FDD8
+    /* 5CD8 00105CD8 76FF080C */  jal        sceVu0ApplyMatrix
     /* 5CDC 00105CDC 1C0000E6 */   swc1      $f0, 0x1C($16)
     /* 5CE0 00105CE0 803F013C */  lui        $1, (0x3F800000 >> 16)
     /* 5CE4 00105CE4 00008144 */  mtc1       $1, $f0

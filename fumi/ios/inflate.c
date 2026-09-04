@@ -12,10 +12,10 @@ typedef struct {
     int f114;
 } InfCodes;
 
-extern void func_002498E0(int, int, int, void *);
-extern int func_002490C0(int);
+extern void sceCdRead(int, int, int, void *);
+extern int sceCdSync(int);
 extern int func_00249CB0(void);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int D_0062A258;
 extern int D_0062A268;
 extern char D_00550E48[];
@@ -35,23 +35,23 @@ int inflate_fixed(void) {
     return D_0062BF84;
 }
 
-extern int func_00249E10(void);
+extern int sceCdStStop(void);
 extern int func_00249CB0(void);
 
 void inflate_dynamic(void *a0) {
     int *p = (int *)a0;
     p[3] = 0;
-    if (func_00249E10() == 0) {
+    if (sceCdStStop() == 0) {
         p[3] = func_00249CB0();
     }
 }
 
-extern int func_00249E48(int a0, int a1, int a2, void *a3);
+extern int sceCdStRead(int a0, int a1, int a2, void *a3);
 extern char D_00550E88[];
 
 /* MATCHED. The stale-comment "rc5 scheduling/coloring floor" was solved by
  * recovering the real dev idiom: the assert PRINTS the error value, i.e.
- * `debug_assertMessage(D_00550E88, local)` passes `local` as arg1. That single
+ * `debug_StdPrintfDummy(D_00550E88, local)` passes `local` as arg1. That single
  * change resolves BOTH residuals at once:
  *  - COLORING: `local` is an outgoing arg1, so gcc colors the reload into $5 (a1)
  *    via the arg-reg copy-preference -- and since it is already in $5 the assert
@@ -60,12 +60,12 @@ extern char D_00550E88[];
  *    above the result-stash sll so the load emits first; the un-issued sll then
  *    sinks into the beq delay slot (ROM's `sll s0,v0,11`), leaving `daddu v0,s0`
  *    (move $2,$16) as the BB2 return. Verified byte-identical (real_count 0).
- * a0 is unused; local@sp+0 is func_00249E48's out-param; *a3 is the 0/1 status. */
+ * a0 is unused; local@sp+0 is sceCdStRead's out-param; *a3 is the 0/1 status. */
 int inflate_start(int a0, int a1, int a2, int *a3) {
     int local, result;
     *a3 = 0;
-    result = func_00249E48(a2 >> 11, a1, 1, &local) << 11;
-    if (local != 0) { debug_assertMessage(D_00550E88, local); *a3 = 1; }
+    result = sceCdStRead(a2 >> 11, a1, 1, &local) << 11;
+    if (local != 0) { debug_StdPrintfDummy(D_00550E88, local); *a3 = 1; }
     return result;
 }
 
@@ -103,7 +103,7 @@ long long close_inflate_handler(void *a0, int a1, int *a2, int a3) {
 typedef struct { char f0; char pad[0x12B]; } InfEntry;
 extern InfEntry D_0069F800[];
 
-void inflate(void) {
+void iosCdvdBackGroundMgrInit(void) {
     int i;
     for (i = 6; i >= 0; i--) {
         D_0069F800[i].f0 = 0;
@@ -189,11 +189,11 @@ void func_00135118(void *a0)
     iosMallocClearPartition(D_0062A33C);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", func_001351E0);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate);
 
 extern int iosFree(int a0, int a1, const char *fmt, int line);
 extern void func_001350C8(void *p);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int D_0062A33C;
 extern int D_0062A348;
 
@@ -214,7 +214,7 @@ int func_001356A8(int a0, int a1)
     s1[0] = a1;
     if (a0 == 0)
     {
-        debug_assertMessage(D_00550EF0);
+        debug_StdPrintfDummy(D_00550EF0);
     }
     else
     {

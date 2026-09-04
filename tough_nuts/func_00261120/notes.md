@@ -1,7 +1,7 @@
-# func_00261120 — parked
+# _sprintf_r — parked
 
 VRAM: 0x00261120 (file_off 0x161120)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00261120.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_sprintf_r.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00261120.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00261120/func_00261120.c`
+**Seed:** `tough_nuts/_sprintf_r/_sprintf_r.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00261120, 0x68
+nonmatching _sprintf_r, 0x68
 
-glabel func_00261120
+glabel _sprintf_r
     /* 161120 00261120 20FFBD27 */  addiu      $29, $29, -0xE0
     /* 161124 00261124 2D60A000 */  daddu      $12, $5, $0
     /* 161128 00261128 FF7F023C */  lui        $2, (0x7FFFFFFF >> 16)
@@ -44,5 +44,5 @@ glabel func_00261120
     /* 16117C 0026117C 000060A0 */  sb         $0, 0x0($3)
     /* 161180 00261180 0800E003 */  jr         $31
     /* 161184 00261184 E000BD27 */   addiu     $29, $29, 0xE0
-endlabel func_00261120
+endlabel _sprintf_r
 ```

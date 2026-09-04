@@ -1,7 +1,7 @@
-# func_001673B0 — parked
+# _clipWDitchHangWalkStop — parked
 
 VRAM: 0x001673B0 (file_off 0x0673B0)
-Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_001673B0.s
+Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/_clipWDitchHangWalkStop.s
 
 ## Attempt at 2026-06-23
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_001673B0.s
 
 **TU:** `fumi/src/fuzio.c`
 
-**Seed:** `tough_nuts/func_001673B0/func_001673B0.c`
+**Seed:** `tough_nuts/_clipWDitchHangWalkStop/_clipWDitchHangWalkStop.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_001673B0, 0x13C
+nonmatching _clipWDitchHangWalkStop, 0x13C
 
-glabel func_001673B0
+glabel _clipWDitchHangWalkStop
     /* 673B0 001673B0 70FFBD27 */  addiu      $29, $29, -0x90
     /* 673B4 001673B4 2CB4878F */  lw         $7, %gp_rel(D_0062C01C)($28)
     /* 673B8 001673B8 5000B5FF */  sd         $21, 0x50($29)
@@ -111,6 +111,6 @@ glabel func_001673B0
     /* 674E0 001674E0 0000B0DF */  ld         $16, 0x0($29)
     /* 674E4 001674E4 0800E003 */  jr         $31
     /* 674E8 001674E8 9000BD27 */   addiu     $29, $29, 0x90
-endlabel func_001673B0
+endlabel _clipWDitchHangWalkStop
     /* 674EC 001674EC 00000000 */  nop
 ```

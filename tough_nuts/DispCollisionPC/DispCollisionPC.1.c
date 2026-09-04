@@ -7,7 +7,7 @@ extern int D_0062C024;
 extern int (*D_0062A6D4)(void *a0, int a1);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", MakeCollisionDependGObjList);
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void _ACTWait(int a0);
 extern char D_00553268[];
 
@@ -17,14 +17,14 @@ void GetReflectionElement(volatile unsigned int a0)
   int *new_var;
   int *s0;
   new_var = *((int **) (a0 + 0x164));
-  debug_assertMessage(D_00553268);
+  debug_StdPrintfDummy(D_00553268);
   s0 = new_var;
   s0[0x30 / 4] = 0x4;
   _ACTWait(0);
 }
 
 extern void *isysGObjSearchFromObjLayoutID(int a0);
-extern void *isysGObjSearchFromObjKindID_begin(void *a0);
+extern void *isysGObjSearchFromObjKindID_next(void *a0);
 void *clip_wall_1(void *a0) {
     void *obj = isysGObjSearchFromObjLayoutID(4);
     while (obj != 0) {
@@ -33,7 +33,7 @@ void *clip_wall_1(void *a0) {
             if (*(int *)(p + 0x30) == 0xF) return obj;
             if (*(int *)(p + 0x20) & 1) return obj;
         }
-        obj = isysGObjSearchFromObjKindID_begin(obj);
+        obj = isysGObjSearchFromObjKindID_next(obj);
     }
     return 0;
 }
@@ -41,7 +41,7 @@ void *clip_wall_1(void *a0) {
 typedef struct { char _[0x48]; unsigned int f48; } NestEntry;
 extern NestEntry D_002A0A90[];
 
-int clip_floor_1(int *a0) {
+int isEnemyHyde(int *a0) {
     NestEntry *t = D_002A0A90;
     int idx = a0[2];
     return ((t[idx].f48 >> 21) & 1) ^ 1;
@@ -74,7 +74,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", __ClipWall);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", __ClipFloor);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DrawGObjWallCollision);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", clip_floor_1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DrawGObjFloorCollision);
 
@@ -100,18 +100,18 @@ void MakeExitAttributeIndex(void *a0) {
     GetEdgeOfFloor(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorByGObj);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DrawGObjWallCollision);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallDebug);
 
-extern int func_00260340(float f);
+extern int fptodp(float f);
 
 extern char D_005535C0[];
 
 void ClipWall(float *vec)
 {
-    return debug_assertMessage(D_005535C0, func_00260340(vec[0]),
-                         func_00260340(vec[1]), func_00260340(vec[2]));
+    return debug_StdPrintfDummy(D_005535C0, fptodp(vec[0]),
+                         fptodp(vec[1]), fptodp(vec[2]));
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallR);
@@ -120,7 +120,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallWaveForce);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallFuchiHangWalkStop);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallField);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorByGObj);
 
 int ClipWallEField(void *a0) {
     return jtbl_0062A6D0(a0, 0);
@@ -142,7 +142,7 @@ int ClipWallCheckCB(void *a0) {
     return jtbl_0062A6D0(a0, 0x7);
 }
 
-int ClipWallFieldCheckCB(void *a0) {
+int ClipWallField(void *a0) {
     return jtbl_0062A6D0(a0, 0x3);
 }
 
@@ -167,7 +167,7 @@ void ClipFloorCheckCB(void *a0, int a1) {
     jtbl_0062A6D0(a0, 8);
 }
 
-void ClipCollision(void *a0, int a1) {
+void ClipWallFieldCheckCB(void *a0, int a1) {
     D_0062C024 = a1;
     jtbl_0062A6D0(a0, 9);
 }
@@ -193,17 +193,17 @@ void GetOrientOfWall(void *a0, int a1) {
     D_0062A6D4(a0, 0x10);
 }
 
-extern void func_00240080(int *dst, int *src);
+extern void sceVu0CopyVector(int *dst, int *src);
 
-void SetSimplePlane(int *self)
+void ClipCollision(int *self)
 {
     int buf[4];
     int *p10 = self + 4;
-    func_00240080(buf, p10);
+    sceVu0CopyVector(buf, p10);
     jtbl_0062A6D0((int)self, 1);
-    func_00240080(p10, self + 8);
+    sceVu0CopyVector(p10, self + 8);
     D_0062A6D4((int)self, 0xC);
-    func_00240080(p10, buf);
+    sceVu0CopyVector(p10, buf);
 }
 
 

@@ -6,11 +6,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00101F50)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102138);
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_0010F070(void);
 extern void iosSifAllocIopHeapDebug();
 extern void func_00178C90(void);
-extern void backStageProcessMain(void);
+extern void CheckPoint(void);
 extern void func_0013D1E8(void *a0, int a1, void *a2, int a3, void *a4, int a5, int a6);
 extern void iosThreadJoin(void *a0);
 extern void iosSemaCreate();
@@ -27,15 +27,15 @@ extern char D_0062EC00[];
 extern char D_00636CE0[];
 
 void func_00102310(void) {
-    debug_assertMessage(D_0062BAA8);
-    debug_assertMessage(D_0054DCD8);
+    debug_StdPrintfDummy(D_0062BAA8);
+    debug_StdPrintfDummy(D_0054DCD8);
     func_0010F070();
-    debug_assertMessage(D_0054DCE8);
+    debug_StdPrintfDummy(D_0054DCE8);
     iosSifAllocIopHeapDebug();
     func_00178C90();
     D_271248[0] = 1;
     D_00629C90 = 1;
-    backStageProcessMain();
+    CheckPoint();
     func_0013D1E8(D_0062EB90, 1, func_00101F50, 0, D_0062EC00, 0x2000, 0x1B);
     iosThreadJoin(D_0062EB90);
     func_0013D1E8(D_00636C70, 1, func_00102138, 0, D_00636CE0, 0x1000, 0xF);
@@ -43,39 +43,39 @@ void func_00102310(void) {
     iosSemaCreate();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_001023E8);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", Emergency_DestroyAllThread);
 
 extern int D_00629C14;
 extern int D_00629C00;
 extern int D_002715D4[];
-extern void func_00104A80(void);
+extern void ExecKeyInput(void);
 
-int func_00102488(void) {
+int movie_abort_check(void) {
     int ret = 0;
     if (D_00629C14 != D_00629C00) {
         unsigned int x;
         D_00629C14 = D_00629C00;
-        func_00104A80();
+        ExecKeyInput();
         x = D_002715D4[0] & 0x800;
         ret = x != 0;
     }
     return ret;
 }
 
-extern void func_0025D038();
-extern void debug_assertMessage();
-extern int func_00100410();
-extern int func_001003B0();
+extern void __main();
+extern void debug_StdPrintfDummy();
+extern int GetThreadId();
+extern int ChangeThreadPriority();
 extern void func_00102310();
 extern char D_0062BAB0[];
 extern int D_0062BF08;
 
 int func_001024C8(void) {
-    func_0025D038();
-    debug_assertMessage(D_0062BAB0);
-    debug_assertMessage(D_0062BAB0);
-    func_001003B0(func_00100410(), 0xE);
-    D_0062BF08 = func_00100410();
+    __main();
+    debug_StdPrintfDummy(D_0062BAB0);
+    debug_StdPrintfDummy(D_0062BAB0);
+    ChangeThreadPriority(GetThreadId(), 0xE);
+    D_0062BF08 = GetThreadId();
     func_00102310();
     return 0;
 }
@@ -97,7 +97,7 @@ void func_001025B8(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102650);
 
-extern void func_0010E148(void *a0, void *a1, void *a2);
+extern void MultiQuaternion(void *a0, void *a1, void *a2);
 extern void GetInverseQuaternion(void *a0, void *a1);
 
 void func_00102760(void *a0, void *a1) {
@@ -106,19 +106,19 @@ void func_00102760(void *a0, void *a1) {
         char *q = *(char **)(p + 0x15C);
         int idx = *(int *)((char *)a1 + 0x4);
         char *base = *(char **)(q + 0x10);
-        func_0010E148(a0, base + idx * 16, (char *)a1 + 0xD0);
+        MultiQuaternion(a0, base + idx * 16, (char *)a1 + 0xD0);
     } else {
         GetInverseQuaternion(a0, (char *)a1 + 0xD0);
     }
 }
 
-extern void func_0010E250();
+extern void GetMatrixFromQuaternionPos();
 extern void func_0023FE08();
 
 void func_00102798(void *a0) {
     char *p = (char *)a0 + 0xA0;
     char *fobj = *(char **)((char *)a0 + 0xC);
-    func_0010E250(fobj, (char *)a0 + 0xD0, p);
+    GetMatrixFromQuaternionPos(fobj, (char *)a0 + 0xD0, p);
     {
         char *q = *(char **)a0;
         if (q != 0) {
@@ -146,7 +146,7 @@ void func_00102830(int **a0, void *a1) {
     GetInverseQuaternion((char *)a0[0x57] + 0xC0, a1);
 }
 
-extern void func_0010E188(void *a0, void *a1, int a2);
+extern void DivQuaternion(void *a0, void *a1, int a2);
 
 void func_00102840(char *a0, void *a1) {
     char *q = *(char **)(a0 + 0x15C) + 0xD0;
@@ -155,6 +155,6 @@ void func_00102840(char *a0, void *a1) {
     p = *(char **)(a0 + 0x15C);
     if (*(int *)p != 0) {
         char *m = *(char **)(*(int *)p + 0x15C);
-        func_0010E188(q, a1, *(int *)(m + 0x10) + (*(int *)(p + 4) << 4));
+        DivQuaternion(q, a1, *(int *)(m + 0x10) + (*(int *)(p + 4) << 4));
     }
 }

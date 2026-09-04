@@ -1,7 +1,7 @@
-# func_00167120 — parked
+# _clipWR — parked
 
 VRAM: 0x00167120 (file_off 0x067120)
-Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00167120.s
+Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/_clipWR.s
 
 ## Attempt at 2026-06-29
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00167120.s
 
 **TU:** `fumi/src/fuzio.c`
 
-**Seed:** `tough_nuts/func_00167120/func_00167120.c`
+**Seed:** `tough_nuts/_clipWR/_clipWR.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00167120, 0x150
+nonmatching _clipWR, 0x150
 
-glabel func_00167120
+glabel _clipWR
     /* 67120 00167120 70FFBD27 */  addiu      $29, $29, -0x90
     /* 67124 00167124 2CB4878F */  lw         $7, %gp_rel(D_0062C01C)($28)
     /* 67128 00167128 5000B5FF */  sd         $21, 0x50($29)
@@ -116,5 +116,5 @@ glabel func_00167120
     /* 67264 00167264 0000B0DF */  ld         $16, 0x0($29)
     /* 67268 00167268 0800E003 */  jr         $31
     /* 6726C 0016726C 9000BD27 */   addiu     $29, $29, 0x90
-endlabel func_00167120
+endlabel _clipWR
 ```

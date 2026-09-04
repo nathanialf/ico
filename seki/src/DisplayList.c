@@ -70,8 +70,8 @@ extern DlEntry D_0070A5C0e[] __asm__("D_0070A5C0");
 extern void dpk_SwapBuffer(int a0);
 extern void dpk_Init(int a0, int a1, int a2);
 extern void dl_GetPri();
-extern void func_001007A0(int a0);
-extern void func_00240EA0(int a0, int a1);
+extern void FlushCache(int a0);
+extern void sceDmaSend(int a0, int a1);
 
 void dl_CloseDma(void)
 {
@@ -91,11 +91,11 @@ void dl_CloseDma(void)
         dl_GetPri();
         i = j;
     } while (j < 0xC);
-    func_001007A0(0);
+    FlushCache(0);
     if (D_00629F4C) {
-        func_00240EA0(D_0062BA6C, D_0070A5C0e[11].pad_20 & 0xFFFFFFF);
+        sceDmaSend(D_0062BA6C, D_0070A5C0e[11].pad_20 & 0xFFFFFFF);
     } else {
-        func_00240EA0(D_0062BA6C, D_0070A5C0e[0].pad_20 & 0xFFFFFFF);
+        sceDmaSend(D_0062BA6C, D_0070A5C0e[0].pad_20 & 0xFFFFFFF);
     }
     dl_Debug();
 }
@@ -103,9 +103,9 @@ void dl_CloseDma(void)
 
 extern int D_0062BB00;
 extern int D_0070A830[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001AAD00(char *file, int line);
-extern void func_00260380(char *file, int line, void *expr);
+extern void __assert(char *file, int line, void *expr);
 extern char D_006136B0[];
 extern char D_00613698[];
 extern char D_0062D988[];
@@ -116,17 +116,17 @@ void dl_Out(void) {
         D_0070A830[i] = D_0062C260;
         D_0062BB00 = i + 1;
     } else {
-        debug_assertMessage(D_006136B0);
+        debug_StdPrintfDummy(D_006136B0);
         func_001AAD00(D_00613698, 0x20E);
-        func_00260380(D_00613698, 0x20E, D_0062D988);
+        __assert(D_00613698, 0x20E, D_0062D988);
     }
 }
 
 extern int D_0062BB00;
 extern int D_0070A830[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001AAD00(char *file, int line);
-extern void func_00260380(char *file, int line, void *expr);
+extern void __assert(char *file, int line, void *expr);
 extern char D_006136D8[];
 extern char D_00613698[];
 extern char D_0062D988[];
@@ -137,14 +137,14 @@ void dl_SetDLPriority(void) {
         D_0062BB00 = i;
         D_0062C260 = D_0070A830[i];
     } else {
-        debug_assertMessage(D_006136D8);
+        debug_StdPrintfDummy(D_006136D8);
         func_001AAD00(D_00613698, 0x220);
-        func_00260380(D_00613698, 0x220, D_0062D988);
+        __assert(D_00613698, 0x220, D_0062D988);
     }
 }
 
 extern int D_00613700[];
-extern void debug_assertMessage(int *a0, int a1);
+extern void debug_StdPrintfDummy(int *a0, int a1);
 
 void dl_OpenDma(void)
 {
@@ -152,7 +152,7 @@ void dl_OpenDma(void)
     unsigned int end = entry[9];
     unsigned int start = entry[1];
     unsigned int count = (end - start) >> 4;
-    return debug_assertMessage(D_00613700, count - 1);
+    return debug_StdPrintfDummy(D_00613700, count - 1);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_GetPri);

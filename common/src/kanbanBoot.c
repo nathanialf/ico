@@ -11,10 +11,10 @@ void kanbanBootMain(void) {
 }
 
 extern int D_0060F6E0[];
-extern void debug_assertMessage(void *a0, ...);
+extern void debug_StdPrintfDummy(void *a0, ...);
 
 void kanbanBootInit(void) {
-    debug_assertMessage(D_0060F6E0);
+    debug_StdPrintfDummy(D_0060F6E0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", kanbanBootStart);
@@ -150,7 +150,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001B1230);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001B14B8);
 
 extern int InitStageLight(void);
-extern void StageManager(int a0, float a1, float a2);
+extern void stgmgrForceSwitchWithFade(int a0, float a1, float a2);
 extern void func_00178C90(void);
 extern void func_001ADFF8(void);
 extern void kanbanBootMcCheck(void);
@@ -191,7 +191,7 @@ andi40:
     if ((D_002715D0[1] & 0x40) == 0) {
         goto ret_neg1;
     }
-    debug_assertMessage(D_0062D258, lt_set_item_select_func());
+    debug_StdPrintfDummy(D_0062D258, lt_set_item_select_func());
     v2 = lt_set_item_select_func();
     if (v2 == 0xF0) {
         goto ret25_mccheck;
@@ -215,7 +215,7 @@ stagemgr:
     func_001ADFF8();
     func_00178C90();
     D_0062B304 = 1;
-    StageManager(1, D_00629400, 4.0f);
+    stgmgrForceSwitchWithFade(1, D_00629400, 4.0f);
 ret25_mccheck:
     kanbanBootMcCheck();
 ret25_body:

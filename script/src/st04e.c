@@ -41,7 +41,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", actSt04eWaterMain);
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern void BoxBarSoundOn(int a0, int a1);
 extern void actSt04eWaterFlagOn(int a0);
@@ -52,9 +52,9 @@ void actSt04eWaterSwitch(volatile int a0) {
     int x = a0;
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
-    if (scpSleepEnemyOne(a0, D_00629DE4, 400.0f) != 0) goto flagon;
+    if (scpTriggerBall(a0, D_00629DE4, 400.0f) != 0) goto flagon;
     if (D_00629DE8 == 0) goto stop;
-    if (scpSleepEnemyOne(a0, D_00629DE8, 400.0f) == 0) goto stop;
+    if (scpTriggerBall(a0, D_00629DE8, 400.0f) == 0) goto stop;
 flagon:
     stage_KillPlayBgAnimation(0xE4, 0, 0);
     _ACTWait(0x3C);
@@ -119,24 +119,24 @@ void func_00217368(int a0) {
     buf[0] = a0;
 }
 
-extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void scpEffectStart(int *buf, int a1);
 extern void _ACTWait(int a0);
 extern long long D_006148D0[]; extern long long D_006148E0[];
 void func_00217378(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_006148D0[0]; long long v0b=D_006148E0[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_006148D0[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_006148E0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_006148D0[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_006148E0[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
-extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void scpEffectStart(int *buf, int a1);
 extern void _ACTWait(int a0);
 extern long long D_006148E0[]; extern long long D_006148D0[];
 void func_00217458(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_006148E0[0]; long long v0b=D_006148D0[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_006148E0[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_006148D0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_006148E0[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_006148D0[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217538);
@@ -176,7 +176,7 @@ extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int func_0012A958(int a0);
 extern int actSt25aQueenDeadChk(int a0);
 extern void scpActivateAllWithKind(void);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern int D_0062A894;
 void func_00217668(volatile int a0) {
     lt_fade_status(0x33);
@@ -192,19 +192,19 @@ void func_00217668(volatile int a0) {
     D_0062A894 = 0;
     lt_fade_status(0x32);
     scpActivateAllWithKind();
-    AddWayPointTop(5, 1);
+    SetWayGroupActive(5, 1);
 }
 
 extern int D_00271240[];
-extern int func_0025F4F0(int a0);
-extern int func_0025EF78(int a0, long long a1);
-extern int func_0025F5A8(int a0);
+extern int litodp(int a0);
+extern int dpmul(int a0, long long a1);
+extern int dptoli(int a0);
 extern void func_00178DD8(int a0);
 void func_00217730(volatile int a0) {
     int q = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
-    int v = func_0025F4F0(q);
-    v = func_0025EF78(v, 0x4026000000000000LL);
-    v = func_0025F5A8(v);
+    int v = litodp(q);
+    v = dpmul(v, 0x4026000000000000LL);
+    v = dptoli(v);
     _ACTWait(v);
     func_00178DD8(0xCD);
 }
@@ -212,7 +212,7 @@ void func_00217730(volatile int a0) {
 
 extern int func_00178DB0(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void func_002177A8(void) {
     if (func_00178DB0(0xC0) == 0) stage_KillPlayBgAnimation(0xCD, 0, 0); else stage_KillPlayBgAnimation(0xCD, 0, -1);
@@ -222,14 +222,14 @@ void func_002177A8(void) {
     if (func_00178DB0(0xC4) == 0) stage_KillPlayBgAnimation(0xD1, 0, 0); else stage_KillPlayBgAnimation(0xD1, 0, -1);
     if (func_00178DB0(0xC5) == 0) stage_KillPlayBgAnimation(0xD2, 0, 0); else stage_KillPlayBgAnimation(0xD2, 0, -1);
     if (func_00178DB0(0xC6) == 0) stage_KillPlayBgAnimation(0xD3, 0, 0); else stage_KillPlayBgAnimation(0xD3, 0, -1);
-    if (func_00178DB0(0xA9) == 0) AddWayPointTop(1, 0); else AddWayPointTop(1, 1);
+    if (func_00178DB0(0xA9) == 0) SetWayGroupActive(1, 0); else SetWayGroupActive(1, 1);
     if (func_00178DB0(0xA3) == 0) stage_KillPlayBgAnimation(0xC3, 0, 0); else stage_KillPlayBgAnimation(0xC3, 0, -1);
     if (func_00178DB0(0xA4) == 0) stage_KillPlayBgAnimation(0xC4, 0, 0); else stage_KillPlayBgAnimation(0xC4, 0, -1);
 }
 
 extern int func_00178DB0(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void func_00217990(void) {
     if (func_00178DB0(0xA1) == 0) {
@@ -241,17 +241,17 @@ void func_00217990(void) {
     }
     if (func_00178DB0(0xA3) == 0) {
         stage_KillPlayBgAnimation(0xC3, 0, 0);
-        AddWayPointTop(3, 0);
+        SetWayGroupActive(3, 0);
     } else {
         stage_KillPlayBgAnimation(0xC3, 0, -1);
-        AddWayPointTop(3, 1);
+        SetWayGroupActive(3, 1);
     }
     if (func_00178DB0(0xA4) == 0) {
         stage_KillPlayBgAnimation(0xC4, 0, 0);
-        AddWayPointTop(4, 0);
+        SetWayGroupActive(4, 0);
     } else {
         stage_KillPlayBgAnimation(0xC4, 0, -1);
-        AddWayPointTop(4, 1);
+        SetWayGroupActive(4, 1);
     }
     if (func_00178DB0(0xC0) == 0) stage_KillPlayBgAnimation(0xCD, 0, 0); else stage_KillPlayBgAnimation(0xCD, 0, -1);
     if (func_00178DB0(0xC1) == 0) stage_KillPlayBgAnimation(0xCE, 0, 0); else stage_KillPlayBgAnimation(0xCE, 0, -1);
@@ -274,14 +274,14 @@ void func_00217990(void) {
 }
 
 extern int func_00178DB0(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void func_00217C58(void) {
     if (func_00178DB0(0xCD) == 0) {
-        AddWayPointTop(5, 0);
+        SetWayGroupActive(5, 0);
     } else {
-        AddWayPointTop(5, 1);
+        SetWayGroupActive(5, 1);
     }
     if (func_00178DB0(0xA3) == 0) {
         stage_KillPlayBgAnimation(0xC3, 0, 0);

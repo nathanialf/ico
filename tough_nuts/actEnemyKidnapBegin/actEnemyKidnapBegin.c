@@ -109,9 +109,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyForceSwitchToCar
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyKidnapEnd);
 
 extern void *ContinueCorrectPosition(void *a0);
-extern void func_00191FD0(void *a0, void *a1, void *a2);
-extern void func_00240038(void *a0, void *a1, float a2);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void _OrientXZGV(void *a0, void *a1, void *a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void dispPlane(void *a0, float *a1);
 
 typedef struct { char _pad[0x164]; char *unk164; } KActor;
@@ -134,9 +134,9 @@ void actEnemyKidnapBegin(void *a0v, void *a1v, float f) {
     v0 = (char *) ContinueCorrectPosition(a1);
     *(float *)(buf + 0x28) = *(float *)(v0 + 0x8);
 
-    func_00191FD0(buf + 0x30, buf + 0x20, buf + 0x10);
-    func_00240038(buf + 0x40, buf + 0x30, f);
-    func_0023FFF0(buf + 0x20, buf + 0x10, buf + 0x40);
+    _OrientXZGV(buf + 0x30, buf + 0x20, buf + 0x10);
+    sceVu0ScaleVector(buf + 0x40, buf + 0x30, f);
+    sceVu0AddVector(buf + 0x20, buf + 0x10, buf + 0x40);
     CylinderCollision((int *)a1, buf + 0x20);
 
     {
@@ -145,7 +145,7 @@ void actEnemyKidnapBegin(void *a0v, void *a1v, float f) {
         aplane[1] = *(float *)(buf + 0x34);
         aplane[2] = *(float *)(buf + 0x38);
     }
-    func_00240038(a1->unk164 + 0x100, buf + 0x30, -1.0f);
+    sceVu0ScaleVector(a1->unk164 + 0x100, buf + 0x30, -1.0f);
 
     dispPlane(a0, (float *)(a0->unk164 + 0x100));
     dispPlane(a1, (float *)(a1->unk164 + 0x100));
@@ -198,7 +198,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _ApproachTarget_Boss);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", flyMailCore);
 
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 extern unsigned int _ACTWait(int a0);
 
 extern char D_005531D8[];
@@ -209,13 +209,13 @@ void _ApproachTarget_Way(volatile unsigned int a0)
     int *new_var;
     int *s0;
     new_var = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_005531D8);
+    debug_StdPrintfDummy((char *)D_005531D8);
     s0 = new_var;
     s0[0x30 / 4] = 0x1;
     _ACTWait(0);
 }
 
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 extern unsigned int _ACTWait(int a0);
 
 extern char D_00553208[];
@@ -225,12 +225,12 @@ void actEnemyStart(volatile unsigned int a0)
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_00553208);
+    debug_StdPrintfDummy((char *)D_00553208);
     s0[0x30 / 4] = 0x2;
     _ACTWait(0);
 }
 
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 extern unsigned int _ACTWait(int a0);
 
 extern char D_00553238[];
@@ -240,7 +240,7 @@ void subEnemyBrain_Irregular(volatile unsigned int a0)
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_00553238);
+    debug_StdPrintfDummy((char *)D_00553238);
     s0[0x30 / 4] = 0x3;
     _ACTWait(0);
 }
@@ -253,20 +253,20 @@ void subEnemyBrain_Attack(volatile unsigned int a0)
     volatile int local;
     int *s0;
     new_var = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_00553280);
+    debug_StdPrintfDummy((char *)D_00553280);
     s0 = new_var;
     s0[0x30 / 4] = 0x1C;
     _ACTWait(0);
 }
 
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern char D_00553110[];
 extern char D_0062C4F8[];
 void subEnemyBrain_Cling(int a0) {
     volatile int local;
     local = a0;
     func_001AAD00(D_00553110, 0xACB);
-    func_00260380(D_00553110, 0xACB, D_0062C4F8);
+    __assert(D_00553110, 0xACB, D_0062C4F8);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyAiGetGirl);
@@ -379,7 +379,7 @@ int EnemyBrainStatus_Boy(void *a0) {
 }
 
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern char D_00553110[];
 extern char D_00553120[];
 int EnemyBrainStatus_Girl(void *a0, int *a1) {
@@ -391,7 +391,7 @@ int EnemyBrainStatus_Girl(void *a0, int *a1) {
     *a1 = w;
     if (w == 0) {
         func_001AAD00(D_00553110, 0x2E8);
-        func_00260380(D_00553110, 0x2E8, D_00553120);
+        __assert(D_00553110, 0x2E8, D_00553120);
     }
     return 1;
 }
@@ -441,12 +441,12 @@ one:
 }
 
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern char D_005532B0[];
 int actEnemy_isNormalEnemy(void *a0) {
     if (a0 == 0 || *(int *)((char *)a0 + 0xC) != 4) {
         func_001AAD00(D_00553110, 0x7C0);
-        func_00260380(D_00553110, 0x7C0, D_005532B0);
+        __assert(D_00553110, 0x7C0, D_005532B0);
     }
     return funcEnemyCarryFail((int *)a0);
 }
@@ -470,7 +470,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", IsEnemyBrainToGenerator)
 
 extern int subEnemyBrain_ToBoy(void *a0);
 
-int IsEnemyBrainToBoy(void *a0) {
+int FlyMail(void *a0) {
     int x = *(int *)(*(char **)((char *)a0 + 0x164) + 0x10);
     if (x < 0xC) {
         return -1;

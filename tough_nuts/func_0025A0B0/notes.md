@@ -1,7 +1,7 @@
-# func_0025A0B0 — parked
+# SgStAdpcmOpen — parked
 
 VRAM: 0x0025A0B0 (file_off 0x15A0B0)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0025A0B0.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/SgStAdpcmOpen.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0025A0B0.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0025A0B0/func_0025A0B0.c`
+**Seed:** `tough_nuts/SgStAdpcmOpen/SgStAdpcmOpen.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0025A0B0, 0x90
+nonmatching SgStAdpcmOpen, 0x90
 
-glabel func_0025A0B0
+glabel SgStAdpcmOpen
     /* 15A0B0 0025A0B0 E0FFBD27 */  addiu      $29, $29, -0x20
     /* 15A0B4 0025A0B4 0000B0FF */  sd         $16, 0x0($29)
     /* 15A0B8 0025A0B8 1000BFFF */  sd         $31, 0x10($29)
@@ -47,12 +47,12 @@ glabel func_0025A0B0
     /* 15A118 0025A118 2528A400 */  or         $5, $5, $4
     /* 15A11C 0025A11C 2530C900 */  or         $6, $6, $9
     /* 15A120 0025A120 25384701 */  or         $7, $10, $7
-    /* 15A124 0025A124 6055090C */  jal        func_00255580
+    /* 15A124 0025A124 6055090C */  jal        _SgSetPkAdd
     /* 15A128 0025A128 3E000424 */   addiu     $4, $0, 0x3E
     /* 15A12C 0025A12C 1000BFDF */  ld         $31, 0x10($29)
     /* 15A130 0025A130 2D100000 */  daddu      $2, $0, $0
     /* 15A134 0025A134 0000B0DF */  ld         $16, 0x0($29)
     /* 15A138 0025A138 0800E003 */  jr         $31
     /* 15A13C 0025A13C 2000BD27 */   addiu     $29, $29, 0x20
-endlabel func_0025A0B0
+endlabel SgStAdpcmOpen
 ```

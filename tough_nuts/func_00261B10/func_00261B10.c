@@ -1,4 +1,4 @@
-char *func_00261B10(char *a0, char *a1)
+char *strstr(char *a0, char *a1)
 {
   int new_var2;
   char c = a0[0];

@@ -243,7 +243,7 @@ void actSt03tEne(int a0) {
     buf[0] = a0;
 }
 
-extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void scpEffectStart(int *buf, int a1);
 extern void _ACTWait(int a0);
 extern long long D_006145B0[]; extern long long D_006145C0[];
 void actSt03tGene(volatile int a0){
@@ -252,20 +252,20 @@ void actSt03tGene(volatile int a0){
  int i;
  for(i=0;i<0x32;i++){
   switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_006145B0[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_006145C0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_006145B0[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_006145C0[1]; scpEffectStart((int*)b2,0); break;
   }
   _ACTWait(1);
  } }
 
-extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void scpEffectStart(int *buf, int a1);
 extern void _ACTWait(int a0);
 extern long long D_006145C0[]; extern long long D_006145B0[];
 void actSt03tGirlCamEvent(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_006145C0[0]; long long v0b=D_006145B0[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_006145C0[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_006145B0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_006145C0[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_006145B0[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
 extern int D_0062A894;
@@ -315,7 +315,7 @@ extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
 extern void _ACTWait(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int func_0012A958(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void lt_fade_status(int a0);
 extern void scpActivateAllWithKind(void);
 extern int D_0062BC78;
@@ -329,7 +329,7 @@ void actSt03tGirlCamEndChk(volatile int a0) {
     stage_KillPlayBgAnimation(0x55, 1, 0);
     while (func_0012A958(0x55) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    AddWayPointTop(0x1A, 1);
+    SetWayGroupActive(0x1A, 1);
     D_0062A894 = 0;
     lt_fade_status(0x32);
     scpActivateAllWithKind();
@@ -371,7 +371,7 @@ void actSt03tWayOnChk(int a0) {
 
 extern int D_00629DE8;
 extern int scpSleepSpiderGroupOne(int a0, int a1);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void func_00178E08(int a0);
 extern void actSt04aGate(void);
 extern int D_004CBE20[];
@@ -384,10 +384,10 @@ void actSt03tWayOffChk(volatile int a0) {
     while (scpSleepSpiderGroupOne(D_00629DE8, 0x4000000) == 0) {
         _ACTWait(1);
     }
-    AddWayPointTop(0x35, 1);
-    AddWayPointTop(0x37, 1);
-    AddWayPointTop(0x38, 1);
-    AddWayPointTop(0x39, 1);
+    SetWayGroupActive(0x35, 1);
+    SetWayGroupActive(0x37, 1);
+    SetWayGroupActive(0x38, 1);
+    SetWayGroupActive(0x39, 1);
     func_00178E08(0x6F);
     D_004CBE20[1] = (int)actSt04aGate;
     gobj->unkB4 = D_004CBE20;

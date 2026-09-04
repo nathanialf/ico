@@ -1,7 +1,7 @@
-# func_001674F0 — parked
+# _clipWWaveForce — parked
 
 VRAM: 0x001674F0 (file_off 0x0674F0)
-Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_001674F0.s
+Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/_clipWWaveForce.s
 
 ## Attempt at 2026-06-23
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_001674F0.s
 
 **TU:** `fumi/src/fuzio.c`
 
-**Seed:** `tough_nuts/func_001674F0/func_001674F0.c`
+**Seed:** `tough_nuts/_clipWWaveForce/_clipWWaveForce.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_001674F0, 0x140
+nonmatching _clipWWaveForce, 0x140
 
-glabel func_001674F0
+glabel _clipWWaveForce
     /* 674F0 001674F0 70FFBD27 */  addiu      $29, $29, -0x90
     /* 674F4 001674F4 2CB4878F */  lw         $7, %gp_rel(D_0062C01C)($28)
     /* 674F8 001674F8 5000B5FF */  sd         $21, 0x50($29)
@@ -110,5 +110,5 @@ glabel func_001674F0
     /* 67624 00167624 0000B0DF */  ld         $16, 0x0($29)
     /* 67628 00167628 0800E003 */  jr         $31
     /* 6762C 0016762C 9000BD27 */   addiu     $29, $29, 0x90
-endlabel func_001674F0
+endlabel _clipWWaveForce
 ```

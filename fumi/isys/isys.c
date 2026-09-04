@@ -24,7 +24,7 @@ void func_0013F370(int a0) {
 
 extern void isysGObjProcAddS(void *a0);
 
-void func_0013F3A8(void *a0)
+void isysGObjProcRemoveAll(void *a0)
 {
     void *p = *(void **)((char *)a0 + 0x2C);
     while (p != 0) {
@@ -35,7 +35,7 @@ void func_0013F3A8(void *a0)
 
 extern void iosThreadCancelWakeup(int a0);
 
-void func_0013F3E0(int a0)
+void isysGObjProcThreadSleep(int a0)
 {
     while (a0 != 0) {
         iosThreadCancelWakeup(0);
@@ -45,11 +45,11 @@ void func_0013F3E0(int a0)
 
 extern int isysGObjProcessAlloc(int a0, int a1, int a2, int a3, int a4, int a5);
 
-int func_0013F418(int a0, int a1, int a2, int a3, int a4) {
+int isysGObjProcAddSGOppArg(int a0, int a1, int a2, int a3, int a4) {
     return isysGObjProcessAlloc(a0, 0, a1, a2 & 0xFF, a3, a4);
 }
 
-void func_0013F448(int *a0, int a1) {
+void isysGObjProcActivePtr(int *a0, int a1) {
     int *node = (int *)a0[0xB];
     while (node) {
         if (node[7] == a1) {

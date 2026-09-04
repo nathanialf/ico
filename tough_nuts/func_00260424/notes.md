@@ -1,7 +1,7 @@
-# func_00260424 — parked
+# memcmp — parked
 
 VRAM: 0x00260424 (file_off 0x160424)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00260424.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/memcmp.s
 
 ## Attempt at 2026-06-12
 
@@ -9,14 +9,14 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00260424.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00260424/func_00260424.c`
+**Seed:** `tough_nuts/memcmp/memcmp.c`
 
 Disassembly:
 
 ```
-nonmatching func_00260424, 0x94
+nonmatching memcmp, 0x94
 
-glabel func_00260424
+glabel memcmp
     /* 160424 00260424 1000C22C */  sltiu      $2, $6, 0x10
     /* 160428 00260428 11004014 */  bnez       $2, .L00260470
     /* 16042C 0026042C 25108500 */   or        $2, $4, $5
@@ -64,5 +64,5 @@ glabel func_00260424
   .L002604B0:
     /* 1604B0 002604B0 0800E003 */  jr         $31
     /* 1604B4 002604B4 2D100000 */   daddu     $2, $0, $0
-endlabel func_00260424
+endlabel memcmp
 ```

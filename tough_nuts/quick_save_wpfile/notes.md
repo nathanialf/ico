@@ -24,7 +24,7 @@ glabel quick_save_wpfile
     /* 104D2C 00204D2C 3000B0FF */  sd         $16, 0x30($29)
     /* 104D30 00204D30 6000BFFF */  sd         $31, 0x60($29)
     /* 104D34 00204D34 0000A4AF */  sw         $4, 0x0($29)
-    /* 104D38 00204D38 7E75060C */  jal        backStageProcessMain
+    /* 104D38 00204D38 7E75060C */  jal        CheckPoint
     /* 104D3C 00204D3C 6100113C */   lui       $17, %hi(D_00614370)
     /* 104D40 00204D40 76E3050C */  jal        func_00178DD8
     /* 104D44 00204D44 07000424 */   addiu     $4, $0, 0x7
@@ -68,7 +68,7 @@ glabel quick_save_wpfile
     /* 104DCC 00204DCC 1800A5FF */   sd        $5, 0x18($29)
     /* 104DD0 00204DD0 2D284002 */  daddu      $5, $18, $0
     /* 104DD4 00204DD4 2D304000 */  daddu      $6, $2, $0
-    /* 104DD8 00204DD8 0200090C */  jal        func_00240008
+    /* 104DD8 00204DD8 0200090C */  jal        sceVu0SubVector
     /* 104DDC 00204DDC 2D200002 */   daddu     $4, $16, $0
     /* 104DE0 00204DE0 F491848F */  lw         $4, %gp_rel(D_00629DE4)($28)
     /* 104DE4 00204DE4 B6E3050C */  jal        gflagChk

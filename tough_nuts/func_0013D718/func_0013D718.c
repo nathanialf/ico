@@ -1,13 +1,13 @@
 #include "common.h"
 
-extern void func_00100440(void);
-extern void func_00100490(void *a0);
-extern void func_001004B0(void *a0);
-extern void func_002614F8(void *a0);
+extern void SleepThread(void);
+extern void SuspendThread(void *a0);
+extern void ResumeThread(void *a0);
+extern void strcpy(void *a0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadMain);
 
-void iosThreadCreateS(int *a0, char *a1, int a2) {
+void Init_ShockRequestAlloc(int *a0, char *a1, int a2) {
     if (a0 != 0 && a1 != 0) {
         a0[0] = a2;
         a0[1] = (int)a1;
@@ -44,7 +44,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadDestroy);
 
 extern int *D_0062A490;
 
-int iosThreadSetPri(int a0, int a1) {
+int Shock_SetShockVoiceSet(int a0, int a1) {
     int *p = D_0062A490;
     if ((unsigned int)a0 < (unsigned int)p[0]) goto store;
     a0 = -1;
@@ -58,7 +58,7 @@ end:
 extern int iosThreadInit(void);
 extern int D_0062A4A8;
 
-void iosThreadMessage(int *a0)
+void Init_Player(int *a0)
 {
     void (*fn1)(void) = (void (*)(void))iosThreadStart;
     void (*fn2)(void) = (void (*)(void)) iosThreadStop;
@@ -98,13 +98,13 @@ end:
     self[0] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadResume);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", Shock_Decode);
 
 int iosThreadInit(void) {
     return 0;
 }
 
-void iosThreadCreate(unsigned char *a0, int a1, int a2) {
+void Vibration_SetDecodeEnd(unsigned char *a0, int a1, int a2) {
     if (a1) {
         a0[0] &= 0xFE;
     }
@@ -113,47 +113,47 @@ void iosThreadCreate(unsigned char *a0, int a1, int a2) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadGetPri);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", requestFree);
 
 extern int D_006A0AB0[];
-extern int func_00100410(void);
+extern int GetThreadId(void);
 
 void iosGetIOSThreadFromId(int a0)
 {
-    int idx = func_00100410();
+    int idx = GetThreadId();
     int *obj = (int *) D_006A0AB0[idx];
     (*(void (**)(int))((char *) obj + 0x38))(a0);
     if (*(int *)((char *) obj + 0x40) == 0)
     {
-        iosSemaWait(obj, 0x21);
+        iosThreadSetPri(obj, 0x21);
     }
     else
     {
-        iosSemaWait(obj, 0x22);
+        iosThreadSetPri(obj, 0x22);
     }
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadWakeup);
 
-extern void func_00100340(void *a0, int a1);
+extern void StartThread(void *a0, int a1);
 
 void iosThreadJoin(int *a0) {
-    func_00100340((void *)a0[0xC], a0[0xD]);
+    StartThread((void *)a0[0xC], a0[0xD]);
 }
 
-extern void func_00100350(void);
-extern void func_00100370(void *a0);
+extern void ExitThread(void);
+extern void TerminateThread(void *a0);
 
 void iosThreadCancelWakeup(void *a0) {
     if (a0 == 0) {
-        func_00100350();
+        ExitThread();
         return;
     }
-    func_00100370(*(void **)((char *)a0 + 0x30));
+    TerminateThread(*(void **)((char *)a0 + 0x30));
 }
 
 void iosSemaCreate(void) {
-    func_00100440();
+    SleepThread();
 }
 
 extern char D_006A0EB0[];
@@ -163,38 +163,38 @@ void iosSemaDelete(int a0)
 {
     int a1 = a0;
     if (a0 == 0) {
-        a1 = D_006A0AB0[func_00100410()];
+        a1 = D_006A0AB0[GetThreadId()];
     }
     iosMsgSend(D_006A0EB0, a1, 0);
 }
 
-extern void func_001003B0(int a, int b);
+extern void ChangeThreadPriority(int a, int b);
 
-void iosSemaWait(int *a0, int a1)
+void iosThreadSetPri(int *a0, int a1)
 {
   int *v;
   v = a0;
   if (v == 0)
   {
-    v = (int *) D_006A0AB0[func_00100410()];
+    v = (int *) D_006A0AB0[GetThreadId()];
   }
   else
   {
     v = a0;
   }
   v[0x18 / 4] = a1;
-  func_001003B0(v[0x30 / 4], a1);
+  ChangeThreadPriority(v[0x30 / 4], a1);
 }
 
-extern int func_00100410(void);
+extern int GetThreadId(void);
 extern void *iosFree(void *a, int n, void *c, int d);
 extern void iosMsgQueueDestroy(void *a, void *b, int c);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void *D_0062A300;
 extern const char D_00551CA0[];
 extern char D_00551D40[];
-void iosSemaSignal(int a0) {
-    void *obj = (void *)D_006A0AB0[func_00100410()];
+void iosThreadMessage(int a0) {
+    void *obj = (void *)D_006A0AB0[GetThreadId()];
     int q;
     if (*(int *)((char *)obj + 0x48) == 0) {
         void *r;
@@ -204,38 +204,38 @@ void iosSemaSignal(int a0) {
         iosMsgQueueDestroy(r, (char *)r + 0x30, 8);
     }
     q = iosMsgSend((char *)*(void **)((char *)obj + 0x4C), a0, 0);
-    debug_assertMessage(D_00551D40, q);
+    debug_StdPrintfDummy(D_00551D40, q);
 }
 
 void iosSemaReferStatus(void *a0) {
-    func_002614F8((char *)a0 + 0x50);
+    strcpy((char *)a0 + 0x50);
 }
 
 void iosThreadDestroyMgr(void *a0) {
-    func_00100490(*(void **)((char *)a0 + 0x30));
+    SuspendThread(*(void **)((char *)a0 + 0x30));
 }
 
 void iosThreadAllQuit(void *a0) {
-    func_001004B0(*(void **)((char *)a0 + 0x30));
+    ResumeThread(*(void **)((char *)a0 + 0x30));
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D038);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D1E8);
 
-int func_0013D388(int *a0)
+int iosThreadGetPri(int *a0)
 {
     register int **base;  /* s0 */
     if (a0 == 0) {
         int idx;
         base = D_006A0AB0;
-        idx = func_00100410();
+        idx = GetThreadId();
         a0 = base[idx];
     }
     return a0[0x18 / 4];
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
 extern char D_00551D28[];
 
@@ -243,7 +243,7 @@ int func_0013D3C8(unsigned int a0)
 {
     int ret;
     if (a0 < 0x101) goto valid;
-    debug_assertMessage(D_00551D28);
+    debug_StdPrintfDummy(D_00551D28);
     ret = 0;
     goto out;
 valid:
@@ -252,16 +252,16 @@ out:
     return ret;
 }
 
-extern int func_00100450(void *a0);
+extern int WakeupThread(void *a0);
 
 int func_0013D410(void *a0) {
-    return func_00100450(*(void **)((char *)a0 + 0x30));
+    return WakeupThread(*(void **)((char *)a0 + 0x30));
 }
 
 extern void *iosFree(void *a, int n, void *c, int d);
 extern void iosMsgQueueDestroy(void *a, void *b, int c);
 extern void iosMsgRecv(void *a, void *b, int c);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void *D_0062A300;
 extern const char D_00551CA0[];
 extern char D_00551D50[];
@@ -275,28 +275,28 @@ int func_0013D430(void *a0) {
         iosMsgQueueDestroy(r, (char *)r + 0x30, 8);
     }
     iosMsgRecv(*(void **)((char *)a0 + 0x4C), buf, 1);
-    debug_assertMessage(D_00551D50);
+    debug_StdPrintfDummy(D_00551D50);
     return buf[0];
 }
 
-extern int func_00100410(void);
-extern int func_00100470(int a0);
+extern int GetThreadId(void);
+extern int CancelWakeupThread(int a0);
 
 int func_0013D4B0(void *a0) {
     int id;
     if (a0 == 0) {
-        id = func_00100410();
+        id = GetThreadId();
     } else {
         id = *(int *)((char *)a0 + 0x30);
     }
-    return func_00100470(id);
+    return CancelWakeupThread(id);
 }
 
 extern const char D_00551CA0[];
-extern int func_00100520(int *self);
+extern int CreateSema(int *self);
 extern char D_0062C338[];
 extern void func_001AAD00(const char *file, int line);
-extern void func_00260380(const char *file, int line, const char *expr);
+extern void __assert(const char *file, int line, const char *expr);
 
 extern char D_00551D68[];
 
@@ -306,62 +306,62 @@ int func_0013D4E8(int *self, int a1, int a2, int a3)
     self[0x8 / 4] = a1;
     self[0x4 / 4] = a2;
     self[0x14 / 4] = a3;
-    rv = func_00100520(self);
+    rv = CreateSema(self);
     self[0x30 / 4] = rv;
     if (rv < 0) {
-        debug_assertMessage(D_00551D68, rv);
+        debug_StdPrintfDummy(D_00551D68, rv);
         func_001AAD00(D_00551CA0, 0x25C);
-        func_00260380(D_00551CA0, 0x25C, D_0062C338);
+        __assert(D_00551CA0, 0x25C, D_0062C338);
         return self[0x30 / 4];
     }
     return 0;
 }
 
-extern int func_00100530(int sem);
+extern int DeleteSema(int sem);
 
 extern char D_00551D80[];
 
 int func_0013D570(int *self)
 {
-    int rv = func_00100530(self[0x30 / 4]);
+    int rv = DeleteSema(self[0x30 / 4]);
     if (rv < 0) {
-        debug_assertMessage(D_00551D80, self[0x30 / 4]);
+        debug_StdPrintfDummy(D_00551D80, self[0x30 / 4]);
         func_001AAD00(D_00551CA0, 0x270);
-        func_00260380(D_00551CA0, 0x270, D_0062C338);
+        __assert(D_00551CA0, 0x270, D_0062C338);
         return rv;
     }
     return 0;
 }
 
-extern int func_00100590(int sem, int *self);
-extern int func_00100560(int sem);
+extern int ReferSemaStatus(int sem, int *self);
+extern int WaitSema(int sem);
 
 extern char D_00551D98[];
 
-int func_0013D5E8(int *self)
+int iosSemaWait(int *self)
 {
-    int rv = func_00100590(self[0x30 / 4], self);
+    int rv = ReferSemaStatus(self[0x30 / 4], self);
     if (rv < 0) {
-        debug_assertMessage(D_00551D98, self[0x30 / 4]);
+        debug_StdPrintfDummy(D_00551D98, self[0x30 / 4]);
         return rv;
     }
-    func_00100560(self[0x30 / 4]);
+    WaitSema(self[0x30 / 4]);
     return 0;
 }
 
-extern int func_00100540(int x);
+extern int SignalSema(int x);
 
 extern char D_00551DB0[];
 
-int func_0013D648(int *self)
+int iosSemaSignal(int *self)
 {
     int v;
     int rv;
-    v = func_00100540(self[0x30 / 4]);
+    v = SignalSema(self[0x30 / 4]);
     rv = 0;
     if (v < 0)
     {
-        debug_assertMessage(D_00551DB0, self[0x30 / 4]);
+        debug_StdPrintfDummy(D_00551DB0, self[0x30 / 4]);
         rv = v;
     }
     return rv;
@@ -371,11 +371,11 @@ extern char D_00551DC8[];
 
 int func_0013D698(int *self)
 {
-    int rv = func_00100590(self[0x30 / 4], self + 0x18 / 4);
+    int rv = ReferSemaStatus(self[0x30 / 4], self + 0x18 / 4);
     if (rv < 0) {
-        debug_assertMessage(D_00551DC8, self[0x30 / 4]);
+        debug_StdPrintfDummy(D_00551DC8, self[0x30 / 4]);
         func_001AAD00(D_00551CA0, 0x2B0);
-        func_00260380(D_00551CA0, 0x2B0, D_0062C338);
+        __assert(D_00551CA0, 0x2B0, D_0062C338);
         return rv;
     }
     return 0;
@@ -389,7 +389,7 @@ extern int D_0062A4B0;
 extern int D_0062BFA0;
 extern char D_006A0EB0[];
 extern int D_006A0AB0[];
-extern void func_00100330(int a0);
+extern void DeleteThread(int a0);
 
 typedef struct ThreadMsg {
     int pad0[12];
@@ -406,7 +406,7 @@ void func_0013D718(void) {
     ThreadMsg *msg;
     int id;
 
-    debug_assertMessage(D_00551CF8);
+    debug_StdPrintfDummy(D_00551CF8);
     iosMsgQueueDestroy(D_006A0EB0, &D_0062BFA0, 2);
     for (;;) {
         iosMsgRecv(D_006A0EB0, &msg, 1);
@@ -414,9 +414,9 @@ void func_0013D718(void) {
             id = msg->f30;
         } while (0);
         D_0062A4B0 -= 1;
-        debug_assertMessage(D_00551D18, D_0062A4B0);
-        func_00100370((void *)id);
-        func_00100330(id);
+        debug_StdPrintfDummy(D_00551D18, D_0062A4B0);
+        TerminateThread((void *)id);
+        DeleteThread(id);
         if ((msg->f3C & 1) == one) {
             iosMallocCheckLeak2(((int *)D_006A0AB0[id])[0x8 / 4]);
         }
@@ -441,10 +441,10 @@ void func_0013D808(int a0) {
 
 
 extern unsigned char D_006A2F50[];
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 
 void func_0013D870(void) {
-    func_00260568(D_006A2F50, 0, 0x10C);
+    memset(D_006A2F50, 0, 0x10C);
 }
 
 

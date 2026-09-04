@@ -80,7 +80,7 @@ glabel CallSpidersToReviveEnemy
     /* E73D4 001E73D4 C08A94C7 */  lwc1       $f20, %gp_rel(D_006296B0)($28)
 .align 2
   .L001E73D8:
-    /* E73D8 001E73D8 A463040C */  jal        pac_DispQW
+    /* E73D8 001E73D8 A463040C */  jal        _GetRandom
     /* E73DC 001E73DC 00000000 */   nop
     /* E73E0 001E73E0 00000046 */  add.s      $f0, $f0, $f0
     /* E73E4 001E73E4 2D20A003 */  daddu      $4, $29, $0

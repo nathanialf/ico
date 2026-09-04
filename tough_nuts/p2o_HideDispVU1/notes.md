@@ -1,7 +1,7 @@
-# p2o_HideDispVU1 — parked
+# GetYUnitVectorOfQuaternion — parked
 
 VRAM: 0x0010E8B8 (file_off 0x00E8B8)
-Asm source: asm/aug6/nonmatchings/seki/src/DisplayP2O/p2o_HideDispVU1.s
+Asm source: asm/aug6/nonmatchings/seki/src/DisplayP2O/GetYUnitVectorOfQuaternion.s
 
 ## Attempt at 2026-07-05
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/seki/src/DisplayP2O/p2o_HideDispVU1.s
 
 **TU:** `seki/src/DisplayP2O.c`
 
-**Seed:** `tough_nuts/p2o_HideDispVU1/p2o_HideDispVU1.c`
+**Seed:** `tough_nuts/GetYUnitVectorOfQuaternion/GetYUnitVectorOfQuaternion.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching p2o_HideDispVU1, 0x8C
+nonmatching GetYUnitVectorOfQuaternion, 0x8C
 
-glabel p2o_HideDispVU1
+glabel GetYUnitVectorOfQuaternion
     /* E8B8 0010E8B8 D0FFBD27 */  addiu      $29, $29, -0x30
     /* E8BC 0010E8BC 0040013C */  lui        $1, (0x40000000 >> 16)
     /* E8C0 0010E8C0 00608144 */  mtc1       $1, $f12
@@ -42,7 +42,7 @@ glabel p2o_HideDispVU1
     /* E90C 0010E90C 00000346 */  add.s      $f0, $f0, $f3
     /* E910 0010E910 0800A1E7 */  swc1       $f1, 0x8($29)
     /* E914 0010E914 0400A2E7 */  swc1       $f2, 0x4($29)
-    /* E918 0010E918 0662040C */  jal        _PushVu0Registers
+    /* E918 0010E918 0662040C */  jal        _ScaleVectorXYZ
     /* E91C 0010E91C 0000A0E7 */   swc1      $f0, 0x0($29)
     /* E920 0010E920 040000C6 */  lwc1       $f0, 0x4($16)
     /* E924 0010E924 803F013C */  lui        $1, (0x3F800000 >> 16)
@@ -53,6 +53,6 @@ glabel p2o_HideDispVU1
     /* E938 0010E938 1000B0DF */  ld         $16, 0x10($29)
     /* E93C 0010E93C 0800E003 */  jr         $31
     /* E940 0010E940 3000BD27 */   addiu     $29, $29, 0x30
-endlabel p2o_HideDispVU1
+endlabel GetYUnitVectorOfQuaternion
     /* E944 0010E944 00000000 */  nop
 ```

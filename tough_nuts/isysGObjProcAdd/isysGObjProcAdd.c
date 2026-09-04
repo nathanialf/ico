@@ -1,10 +1,10 @@
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00551F18[];
 
 void isysGObjProcAdd(int *self) {
     int *owner;
     if (self == 0) {
-        debug_assertMessage(D_00551F18);
+        debug_StdPrintfDummy(D_00551F18);
         return;
     }
     if (self[3] != 0) goto do_prev;

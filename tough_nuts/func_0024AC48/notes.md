@@ -1,7 +1,7 @@
-# func_0024AC48 — parked
+# scePadInfoComb — parked
 
 VRAM: 0x0024AC48 (file_off 0x14AC48)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0024AC48.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/scePadInfoComb.s
 
 ## Attempt at 2026-06-21
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0024AC48.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024AC48/func_0024AC48.c`
+**Seed:** `tough_nuts/scePadInfoComb/scePadInfoComb.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024AC48, 0x11C
+nonmatching scePadInfoComb, 0x11C
 
-glabel func_0024AC48
+glabel scePadInfoComb
     /* 14AC48 0024AC48 2D408000 */  daddu      $8, $4, $0
     /* 14AC4C 0024AC4C 70000324 */  addiu      $3, $0, 0x70
     /* 14AC50 0024AC50 1C000424 */  addiu      $4, $0, 0x1C
@@ -35,7 +35,7 @@ glabel func_0024AC48
     /* 14AC80 0024AC80 1000438C */  lw         $3, 0x10($2)
     /* 14AC84 0024AC84 31006010 */  beqz       $3, .L0024AD4C
     /* 14AC88 0024AC88 2D80E000 */   daddu     $16, $7, $0
-    /* 14AC8C 0024AC8C 162A090C */  jal        func_0024A858
+    /* 14AC8C 0024AC8C 162A090C */  jal        scePadGetDmaStr
     /* 14AC90 0024AC90 2D200001 */   daddu     $4, $8, $0
     /* 14AC94 0024AC94 2D204000 */  daddu      $4, $2, $0
     /* 14AC98 0024AC98 72008390 */  lbu        $3, 0x72($4)
@@ -107,6 +107,6 @@ glabel func_0024AC48
     /* 14AD58 0024AD58 0000B0DF */  ld         $16, 0x0($29)
     /* 14AD5C 0024AD5C 0800E003 */  jr         $31
     /* 14AD60 0024AD60 3000BD27 */   addiu     $29, $29, 0x30
-endlabel func_0024AC48
+endlabel scePadInfoComb
     /* 14AD64 0024AD64 00000000 */  nop
 ```

@@ -27,15 +27,15 @@ void InitAP1(void)
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/a_p_1", yAxisRotFitting);
 
 extern void getQuaternionFromMatrix(int dst, int src);
-extern float _MulCurrentMatrixR(int dst, int v);
-extern int *func_0010EEF0(float f);
-extern void _MulCurrentMatrixL(int dst, int v, int src);
-extern void _SetCurrentMatrix(int dst, int src);
-extern void func_0010E088(int dst, int p, int src);
-extern void func_0010E148(int dst, int a, int b);
+extern float _InnerProduct(int dst, int v);
+extern int *GetTableArcCos(float f);
+extern void _OuterProduct(int dst, int v, int src);
+extern void _NormalizeVector(int dst, int src);
+extern void SetQuaternionByAxisRotateV(int dst, int p, int src);
+extern void MultiQuaternion(int dst, int a, int b);
 extern char D_004B9E00[];
 extern void func_00102820(int p, int *self);
-extern void func_00118A70(int a, int b, int c);
+extern void _ApplyMatrix(int a, int b, int c);
 extern void func_00102840(int self, int src);
 
 void zAxisRotFitting(int *self, int arg2)
@@ -50,14 +50,14 @@ void zAxisRotFitting(int *self, int arg2)
 
     func_00102820((int)&l70, self);
     getQuaternionFromMatrix((int)&m20, (int)&l70);
-    func_00118A70((int)&l0, (int)&m20, (int)D_004B9E00);
-    f = _MulCurrentMatrixR((int)&l0, arg2);
-    r = func_0010EEF0(f);
+    _ApplyMatrix((int)&l0, (int)&m20, (int)D_004B9E00);
+    f = _InnerProduct((int)&l0, arg2);
+    r = GetTableArcCos(f);
     if (r != 0) {
-        _MulCurrentMatrixL((int)&l10, arg2, (int)&l0);
-        _SetCurrentMatrix((int)&l10, (int)&l10);
-        func_0010E088((int)&l60, (int)r, (int)&l10);
-        func_0010E148((int)&l70, (int)&l60, (int)&l70);
+        _OuterProduct((int)&l10, arg2, (int)&l0);
+        _NormalizeVector((int)&l10, (int)&l10);
+        SetQuaternionByAxisRotateV((int)&l60, (int)r, (int)&l10);
+        MultiQuaternion((int)&l70, (int)&l60, (int)&l70);
         func_00102840((int)self, (int)&l70);
     }
 }
@@ -76,14 +76,14 @@ void fitToCol(int *self, int arg2)
 
     func_00102820((int)&l70, self);
     getQuaternionFromMatrix((int)&m20, (int)&l70);
-    func_00118A70((int)&l0, (int)&m20, (int)D_00271C10);
-    f = _MulCurrentMatrixR((int)&l0, arg2);
-    r = func_0010EEF0(f);
+    _ApplyMatrix((int)&l0, (int)&m20, (int)D_00271C10);
+    f = _InnerProduct((int)&l0, arg2);
+    r = GetTableArcCos(f);
     if (r != 0) {
-        _MulCurrentMatrixL((int)&l10, arg2, (int)&l0);
-        _SetCurrentMatrix((int)&l10, (int)&l10);
-        func_0010E088((int)&l60, (int)r, (int)&l10);
-        func_0010E148((int)&l70, (int)&l60, (int)&l70);
+        _OuterProduct((int)&l10, arg2, (int)&l0);
+        _NormalizeVector((int)&l10, (int)&l10);
+        SetQuaternionByAxisRotateV((int)&l60, (int)r, (int)&l10);
+        MultiQuaternion((int)&l70, (int)&l60, (int)&l70);
         func_00102840((int)self, (int)&l70);
     }
 }

@@ -51,7 +51,7 @@ extern void WormDL(int a0, float f12);
 extern void WormGeo(int a0, int a1);
 extern void GetWormRoute(void *a0, int a1, int a2, float f12);
 extern void GetRootMatrixByDObj(void *a0, int a1);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void GetCylinderCollisionWithExceptOwnCollision(int a0, void *a1);
 
 void func_001F26F0(int a0) {
@@ -69,7 +69,7 @@ void func_001F26F0(int a0) {
         WormGeo(a0, *(int *)(*(char **)((char *)D_00629DE4 + 0x15C) + 0xC) + idx * 0x40 + 0x30);
         GetWormRoute(buf, a0, *(int *)(*(char **)((char *)D_00629DE4 + 0x15C) + 0xC) + idx * 0x40 + 0x30, 5.0f);
         GetRootMatrixByDObj(buf + 0x10, D_00629DE4);
-        func_0023FFF0(buf + 0x10, buf + 0x10, buf);
+        sceVu0AddVector(buf + 0x10, buf + 0x10, buf);
         GetCylinderCollisionWithExceptOwnCollision(D_00629DE4, buf + 0x10);
         WormDL(a0, 0.0f);
     } else {

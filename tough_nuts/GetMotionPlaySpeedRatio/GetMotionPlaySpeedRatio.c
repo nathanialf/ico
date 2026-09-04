@@ -33,19 +33,19 @@ int GetNbMotionFrames(void *a0, float f12) {
     return 1;
 }
 
-extern void func_00105058(void);
-extern void GetTableCos(void);
+extern void MatrixDrive_PushMatrixWithNoCopy(void);
+extern void PushQuaternionWithNoCopy(void);
 extern void ResetStatic2MotionManager(int id);
 extern void *func_00105078(void);
-extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, void *a1);
+extern void CopyMatrix(int a0, void *a1);
 extern void *GetLastQuaternion(void);
-extern void func_00105068(void);
-extern void InitTableSin(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void PopQuaternion(void);
 extern char *D_0062B758;
 extern char *D_0062B75C;
 extern char *D_0062C220;
 
-void GetMotionPlaySpeedRatio(int id) {
+void getFinalMatrixCore(int id) {
     char *e;
     char *o1;
     char *o2;
@@ -55,20 +55,20 @@ void GetMotionPlaySpeedRatio(int id) {
     do {
         off = id * 0x40;
         e = D_0062B758 + off;
-        func_00105058();
-        GetTableCos();
+        MatrixDrive_PushMatrixWithNoCopy();
+        PushQuaternionWithNoCopy();
         ResetStatic2MotionManager(id);
         o1 = *(char **)(*(char **)(D_0062B75C + 0x15C) + 0xC) + off;
         r = func_00105078();
-        MatrixDrive_TurnXObjectMatrixYZ((int)o1, r);
+        CopyMatrix((int)o1, r);
         o2 = D_0062C220 + id * 0x10;
         r = GetLastQuaternion();
         GetInverseQuaternion(o2, r);
         if (*(int *)(e + 0x30) != -1) {
-            GetMotionPlaySpeedRatio(*(int *)(e + 0x30));
+            getFinalMatrixCore(*(int *)(e + 0x30));
         }
-        func_00105068();
-        InitTableSin();
+        MatrixDrive_PopMatrix();
+        PopQuaternion();
         id = t = *(int *)(e + 0x34);
     } while (t != -1);
 }
@@ -76,43 +76,43 @@ void GetMotionPlaySpeedRatio(int id) {
 
 extern char *D_0062B758;
 extern char *D_0062C240;
-extern void func_00105058(void);
-extern void func_001D5C50(int id);
+extern void MatrixDrive_PushMatrixWithNoCopy(void);
+extern void _calcNaturalGeometry(int id);
 extern void *func_00105078(void);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
 
-void execFrameTrigger(int id) {
+void pursueNaturalGeometry(int id) {
     char *e = D_0062B758 + id * 0x40;
     int child = *(int *)(e + 0x30);
     int next = *(int *)(e + 0x34);
     char *o;
     void *m;
-    func_00105058();
-    func_001D5C50(id);
+    MatrixDrive_PushMatrixWithNoCopy();
+    _calcNaturalGeometry(id);
     o = D_0062C240 + id * 0x10;
     m = func_00105078();
     MatrixDrive_TurnObjectMatrix((int)o, (char *)m + 0x30);
     if (child != -1) {
-        execFrameTrigger(child);
+        pursueNaturalGeometry(child);
     }
-    func_00105068();
+    MatrixDrive_PopMatrix();
     if (next != -1) {
-        execFrameTrigger(next);
+        pursueNaturalGeometry(next);
     }
 }
 
 
 extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
 
-void UpdateFrameCounter(int a0, char *a1) {
+void GetWallVector(int a0, char *a1) {
     MatrixDrive_TurnObjectMatrix(a0, a1 + 0xA0);
     *(int *)(a0 + 0xC) = 0;
 }
 
 extern void ChangeFieldCollisionDebugMode();
 
-int sendStateMail(char *a0, float f) {
+int upperFieldCheck(char *a0, float f) {
     char buf[0xC0] __attribute__((aligned(16)));
     MatrixDrive_TurnObjectMatrix((int)buf, a0);
     MatrixDrive_TurnObjectMatrix((int)(buf + 0x10), a0);

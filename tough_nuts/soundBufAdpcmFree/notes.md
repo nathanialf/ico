@@ -47,7 +47,7 @@ glabel soundBufAdpcmFree
     /* 426B8 001426B8 6300063C */  lui        $6, %hi(D_0062C388)
     /* 426BC 001426BC 2D200002 */  daddu      $4, $16, $0
     /* 426C0 001426C0 88C3C624 */  addiu      $6, $6, %lo(D_0062C388)
-    /* 426C4 001426C4 E080090C */  jal        func_00260380
+    /* 426C4 001426C4 E080090C */  jal        __assert
     /* 426C8 001426C8 E7010524 */   addiu     $5, $0, 0x1E7
     /* 426CC 001426CC 01000224 */  addiu      $2, $0, 0x1
 .align 2
@@ -62,7 +62,7 @@ glabel soundBufAdpcmFree
     /* 426EC 001426EC 0E00A014 */  bnez       $5, .L00142728
     /* 426F0 001426F0 D8B383FF */   sd        $3, %gp_rel(D_0062BFC8)($28)
     /* 426F4 001426F4 5500043C */  lui        $4, %hi(D_00552060)
-    /* 426F8 001426F8 F290060C */  jal        debug_assertMessage
+    /* 426F8 001426F8 F290060C */  jal        debug_StdPrintfDummy
     /* 426FC 001426FC 60208424 */   addiu     $4, $4, %lo(D_00552060)
     /* 42700 00142700 5500103C */  lui        $16, %hi(D_00551FC8)
     /* 42704 00142704 EB010524 */  addiu      $5, $0, 0x1EB
@@ -72,7 +72,7 @@ glabel soundBufAdpcmFree
     /* 42714 00142714 6300063C */  lui        $6, %hi(D_0062C388)
     /* 42718 00142718 2D200002 */  daddu      $4, $16, $0
     /* 4271C 0014271C 88C3C624 */  addiu      $6, $6, %lo(D_0062C388)
-    /* 42720 00142720 E080090C */  jal        func_00260380
+    /* 42720 00142720 E080090C */  jal        __assert
     /* 42724 00142724 EB010524 */   addiu     $5, $0, 0x1EB
 .align 2
   .L00142728:

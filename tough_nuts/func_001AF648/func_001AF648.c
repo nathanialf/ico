@@ -11,10 +11,10 @@ void kanbanBootMain(void) {
 }
 
 extern int D_0060F6E0[];
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 
 void kanbanBootInit(void) {
-    debug_assertMessage(D_0060F6E0);
+    debug_StdPrintfDummy(D_0060F6E0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", kanbanBootStart);

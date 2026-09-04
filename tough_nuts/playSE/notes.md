@@ -1,7 +1,7 @@
-# playSE — parked
+# executeSEPackageWithNoGObj — parked
 
 VRAM: 0x001CE4F0 (file_off 0x0CE4F0)
-Asm source: asm/aug6/nonmatchings/sugipon/src/frameDependSequence/playSE.s
+Asm source: asm/aug6/nonmatchings/sugipon/src/frameDependSequence/executeSEPackageWithNoGObj.s
 
 ## Attempt at 2026-06-09
 
@@ -12,10 +12,10 @@ SEED (rc3 best):
 int stride = 12, end = -1, i = a0, flag = D_0062AF94; int *p, n;
 while (((SeReq*)((char*)D_00535F68 + (stride = i*(stride=12))))->term != -1 &&
        ((SeReq*)((char*)D_00535F68 + stride))->term != end) { i++; }
-if (flag) debug_assertMessage(D_006117C8, flag);
+if (flag) debug_StdPrintfDummy(D_006117C8, flag);
 p = (int*)&D_00535F68[i];
 for (n=1; n>=0; n--) { if(*p){ soundSeDefPlayWithVolumeRate(*p,0xFFFFFFFF,0,1);
-    if(D_0062AF94) debug_assertMessage(D_00611700, D_005CD670[*p], 0xFFFFFFFF);} p++; }
+    if(D_0062AF94) debug_StdPrintfDummy(D_00611700, D_005CD670[*p], 0xFFFFFFFF);} p++; }
 ```
 
 RESIDUAL (rc3, all PURE SCHEDULING TIES, confirmed robust across ~10 hand forms):
@@ -30,7 +30,7 @@ the permuter's `stride=i*(stride=12)` fixed v0/v1 → rc9; the hand compound
 `term!=-1 && term!=end` gave the loop1 double-test → rc3; the permuter's
 `base-(-product)` negate-subtract fixed the guard `addu` order → **rc2**).
 
-The seed (`playSE.c`) is the rc2 form. THREE permuter shots (~50k iterations
+The seed (`executeSEPackageWithNoGObj.c`) is the rc2 form. THREE permuter shots (~50k iterations
 total, incl. one at the stall-30 gate) found **nothing below rc2** — the lone
 residual is B6: loop2's two independent preheader consts `addiu 1` (counter) and
 `addiu 60` (D_005CD670 name stride) emit in swapped order vs ROM. It's a pure
@@ -42,15 +42,15 @@ makes the 60 RTL-early or the counter RTL-late.
 
 **TU:** `sugipon/src/frameDependSequence.c`
 
-**Seed:** `tough_nuts/playSE/playSE.c`
+**Seed:** `tough_nuts/executeSEPackageWithNoGObj/executeSEPackageWithNoGObj.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching playSE, 0x12C
+nonmatching executeSEPackageWithNoGObj, 0x12C
 
-glabel playSE
+glabel executeSEPackageWithNoGObj
     /* CE4F0 001CE4F0 A0FFBD27 */  addiu      $29, $29, -0x60
     /* CE4F4 001CE4F4 0C000224 */  addiu      $2, $0, 0xC
     /* CE4F8 001CE4F8 0000B0FF */  sd         $16, 0x0($29)
@@ -92,7 +92,7 @@ glabel playSE
   .L001CE574:
     /* CE574 001CE574 0400A010 */  beqz       $5, .L001CE588
     /* CE578 001CE578 0C000324 */   addiu     $3, $0, 0xC
-    /* CE57C 001CE57C F290060C */  jal        debug_assertMessage
+    /* CE57C 001CE57C F290060C */  jal        debug_StdPrintfDummy
     /* CE580 001CE580 C8178424 */   addiu     $4, $4, %lo(D_006117C8)
     /* CE584 001CE584 0C000324 */  addiu      $3, $0, 0xC
 .align 2
@@ -124,7 +124,7 @@ glabel playSE
     /* CE5E0 001CE5E0 FFFFC634 */   ori       $6, $6, (0xFFFFFFFF & 0xFFFF)
     /* CE5E4 001CE5E4 0000058E */  lw         $5, 0x0($16)
     /* CE5E8 001CE5E8 1810B200 */  mult       $2, $5, $18
-    /* CE5EC 001CE5EC F290060C */  jal        debug_assertMessage
+    /* CE5EC 001CE5EC F290060C */  jal        debug_StdPrintfDummy
     /* CE5F0 001CE5F0 21285300 */   addu      $5, $2, $19
 .align 2
   .L001CE5F4:
@@ -138,6 +138,6 @@ glabel playSE
     /* CE610 001CE610 0000B0DF */  ld         $16, 0x0($29)
     /* CE614 001CE614 0800E003 */  jr         $31
     /* CE618 001CE618 6000BD27 */   addiu     $29, $29, 0x60
-endlabel playSE
+endlabel executeSEPackageWithNoGObj
     /* CE61C 001CE61C 00000000 */  nop
 ```

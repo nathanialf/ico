@@ -3,8 +3,8 @@
 /* act2 0x164 actor-state view (local) */
 typedef struct { char _0[0x438]; int f_438; } Act2State;
 
-extern void func_0023FED0(void *a0, void *a1);
-extern void func_0023FDD8(void *a0, void *a1, void *a2);
+extern void sceVu0TransposeMatrix(void *a0, void *a1);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 extern int D_00629C70;
 
 typedef union { float f[4]; long long ll[2]; } Vec4;
@@ -12,8 +12,8 @@ typedef union { float f[4]; long long ll[2]; } Vec4;
 void BeforeFunc2(void *a0, float *a1) {
     Vec4 v = {{ a1[3], 0.0f, -a1[4], 0.0f }};
     float m[16];
-    func_0023FED0(m, (void *)(D_00629C70 + 0x80));
-    func_0023FDD8(a0, m, &v);
+    sceVu0TransposeMatrix(m, (void *)(D_00629C70 + 0x80));
+    sceVu0ApplyMatrix(a0, m, &v);
 }
 
 void actDummy(void *a0, int a1) {
@@ -26,7 +26,7 @@ void actDummy(void *a0, int a1) {
 extern int D_00271240[];
 extern void iosSemaCreate(void);
 
-void func_002013B0(int a0, int a1) {
+void actWaitCondition(int a0, int a1) {
     int t = a0 & a1;
     if (t == 0) {
         do {
@@ -81,7 +81,7 @@ void func_002015C8(volatile int a0) {
     _ACTWait(1);
 }
 
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 extern char D_00613C00[];
 
 void func_002015F8(int a0, int *a1, int *a2) {
@@ -91,14 +91,14 @@ void func_002015F8(int a0, int *a1, int *a2) {
         a1[idx] = a0;
         return;
     }
-    debug_assertMessage(D_00613C00);
+    debug_StdPrintfDummy(D_00613C00);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201628);
 
 extern void GetRootMatrixByDObj(void *out, void *obj);
-extern void func_00240008(void *out, void *a, void *b);
-extern float func_0023FE70(void *a, void *b);
+extern void sceVu0SubVector(void *out, void *a, void *b);
+extern float sceVu0InnerProduct(void *a, void *b);
 
 int func_002017A0(void *a0, void *a1, void *a2) {
     float buf0[4];
@@ -111,8 +111,8 @@ int func_002017A0(void *a0, void *a1, void *a2) {
     }
     GetRootMatrixByDObj(buf0, a0);
     GetRootMatrixByDObj(buf1, a1);
-    func_00240008(buf2, buf0, buf1);
-    if (func_0023FE70(buf2, buf2) < threshold) {
+    sceVu0SubVector(buf2, buf0, buf1);
+    if (sceVu0InnerProduct(buf2, buf2) < threshold) {
         return 1;
     }
     return 0;
@@ -120,9 +120,9 @@ int func_002017A0(void *a0, void *a1, void *a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201840);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_002018E0);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", WayLengthOfPos_Pos);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201AF0);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", WayPointWithRangeFromPos);
 
 
 /* recovered struct shapes */

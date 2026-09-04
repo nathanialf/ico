@@ -1,7 +1,7 @@
-# func_00167270 — parked
+# _clipWField — parked
 
 VRAM: 0x00167270 (file_off 0x067270)
-Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00167270.s
+Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/_clipWField.s
 
 ## Attempt at 2026-06-23
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00167270.s
 
 **TU:** `fumi/src/fuzio.c`
 
-**Seed:** `tough_nuts/func_00167270/func_00167270.c`
+**Seed:** `tough_nuts/_clipWField/_clipWField.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00167270, 0x13C
+nonmatching _clipWField, 0x13C
 
-glabel func_00167270
+glabel _clipWField
     /* 67270 00167270 70FFBD27 */  addiu      $29, $29, -0x90
     /* 67274 00167274 2CB4878F */  lw         $7, %gp_rel(D_0062C01C)($28)
     /* 67278 00167278 5000B5FF */  sd         $21, 0x50($29)
@@ -109,6 +109,6 @@ glabel func_00167270
     /* 673A0 001673A0 0000B0DF */  ld         $16, 0x0($29)
     /* 673A4 001673A4 0800E003 */  jr         $31
     /* 673A8 001673A8 9000BD27 */   addiu     $29, $29, 0x90
-endlabel func_00167270
+endlabel _clipWField
     /* 673AC 001673AC 00000000 */  nop
 ```

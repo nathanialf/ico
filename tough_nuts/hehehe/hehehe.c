@@ -7,12 +7,12 @@
 extern void standAI(char *a0);
 extern void updateMatrix(char *a0);
 extern void *func_00105078(void);
-extern void func_001189F8(void *a0, void *a1, void *a2);
+extern void _MulMatrix(void *a0, void *a1, void *a2);
 extern void func_001CCBC0(void *a0, void *a1, float a2);
-extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
-extern void func_00104E38(int a0);
-extern void func_00104D48(int a0);
-extern void debug_assertMessage(char *msg);
+extern void CopyMatrix(void *dst, void *src);
+extern void MatrixDrive_RotMatrixZ(int a0);
+extern void MatrixDrive_RotMatrixX(int a0);
+extern void debug_StdPrintfDummy(char *msg);
 extern char D_004BA1A0[];
 extern char D_004BA220[];
 extern char D_00610EA0[];
@@ -61,13 +61,13 @@ void hehehe(char *self)
 
     standAI(self);
     updateMatrix(self);
-    func_001189F8(func_00105078(), *(char **)(*(char **)(self + 0x15C) + 0xC), D_004BA1A0);
+    _MulMatrix(func_00105078(), *(char **)(*(char **)(self + 0x15C) + 0xC), D_004BA1A0);
     func_001CCBC0(*(char **)(geo + 0x19C), func_00105078(), 1.0f);
     if (*(int *)(geo + 0x4) != 0) {
-        MatrixDrive_TurnXObjectMatrixYZ(func_00105078(), *(char **)(*(char **)(self + 0x15C) + 0xC));
-        func_00104E38(0x4000);
-        func_00104D48(0x4000);
-        func_001189F8(*(char **)(*(char **)(self + 0x15C) + 0xC), func_00105078(), D_004BA220);
+        CopyMatrix(func_00105078(), *(char **)(*(char **)(self + 0x15C) + 0xC));
+        MatrixDrive_RotMatrixZ(0x4000);
+        MatrixDrive_RotMatrixX(0x4000);
+        _MulMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC), func_00105078(), D_004BA220);
     }
     p = *(char **)(self + 0x15C);
     diff = *(float *)(p + 0x54) - *(float *)(*(char **)(p + 0xC) + 0x34);
@@ -83,5 +83,5 @@ void hehehe(char *self)
     return;
 bad:
     *(int *)(p + 0x5E8) = 0x800;
-    debug_assertMessage(D_00610EA0);
+    debug_StdPrintfDummy(D_00610EA0);
 }

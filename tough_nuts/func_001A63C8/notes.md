@@ -27,7 +27,7 @@ glabel func_001A63C8
     /* A63E0 001A63E0 B000BFFF */  sd         $31, 0xB0($29)
     /* A63E4 001A63E4 2D800000 */  daddu      $16, $0, $0
     /* A63E8 001A63E8 9000B3FF */  sd         $19, 0x90($29)
-    /* A63EC 001A63EC E4F9040C */  jal        isysGObjRemoveObjDL
+    /* A63EC 001A63EC E4F9040C */  jal        isysGObjGetExist_begin
     /* A63F0 001A63F0 8000B2FF */   sd        $18, 0x80($29)
     /* A63F4 001A63F4 2D304000 */  daddu      $6, $2, $0
     /* A63F8 001A63F8 2200C010 */  beqz       $6, .L001A6484
@@ -68,7 +68,7 @@ glabel func_001A63C8
     /* A6464 001A6464 000043AC */  sw         $3, 0x0($2)
 .align 2
   .L001A6468:
-    /* A6468 001A6468 F8F9040C */  jal        func_0013E7E0
+    /* A6468 001A6468 F8F9040C */  jal        isysGObjGetExist_next
     /* A646C 001A646C 2D20C000 */   daddu     $4, $6, $0
     /* A6470 001A6470 2D304000 */  daddu      $6, $2, $0
     /* A6474 001A6474 E4FFC054 */  bnel       $6, $0, .L001A6408

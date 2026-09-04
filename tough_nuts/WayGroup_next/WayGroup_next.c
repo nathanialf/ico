@@ -36,7 +36,7 @@ ret0:
 typedef struct { int w[16]; } WayGroup_DW;
 extern WayGroup_DW D_004CB270;
 
-void *DeleteWayGroup(WayGroup_DW *a0) {
+void *WayPoint_next(WayGroup_DW *a0) {
     WayGroup_DW *end = &D_004CB270;
     if (a0 == 0) goto ret0;
     if (a0 == end) goto ret0;
@@ -51,7 +51,7 @@ ret0:
 typedef struct { int w[13]; } WayRec;
 extern WayRec D_004C6FF0[];
 
-int CloseWayGroup(int a0) {
+int WayPointList_begin(int a0) {
     return D_004C6FF0[a0].w[2];
 }
 
@@ -64,7 +64,7 @@ int CloseWayGroup(int a0) {
  * via a do{}while(0) BB-split, which drags in LOOP_ALIGN (.p2align 3) and a
  * pad nop before the shared-return label (cannot be demoted without cflags).
  * The loop-free body below keeps gcc's natural (unpadded) epilogue. */
-int CreateWayPoint(int *a0) {
+int WayPointList_next(int *a0) {
     register int v __asm__("$4") = (int)a0;
     __asm__ (
         ".set noreorder\n\t"
@@ -88,24 +88,24 @@ int CreateWayPoint(int *a0) {
 }
 
 extern char D_00613D40[];
-extern void debug_assertMessage(char *p, int *self);
+extern void debug_StdPrintfDummy(char *p, int *self);
 
-int AddWayPoint(int *self, int which) {
+int waypoint_bidirectional_list(int *self, int which) {
     if (self == 0) {
         return 0;
     }
-    debug_assertMessage(D_00613D40, self);
+    debug_StdPrintfDummy(D_00613D40, self);
     if (which == 0) {
         return self[0x8 / 4];
     }
     return self[0xC / 4];
 }
 
-void AddWayPointTop(int a0, int a1) {
+void SetWayGroupActive(int a0, int a1) {
     D_004C6FF0[a0].w[10] = a1;
 }
 
-int InsertWayPointAfter(int a0) {
+int CheckWayGroupActive(int a0) {
     return D_004C6FF0[a0].w[10] != 0;
 }
 
@@ -114,8 +114,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", DeleteWayPoint);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", WayGroup_begin);
 
 extern void NearestEnemyFromGirl(void);
-extern void debug_assertMessage();
-extern void func_00202900(int);
+extern void debug_StdPrintfDummy();
+extern void DeleteWayGroup(int);
 extern void traceLine();
 extern void *visible_waypoint_of_all(void *, float);
 extern char D_004CB2B0[];
@@ -151,9 +151,9 @@ int WayGroup_next(void) {
         }
         NearestEnemyFromGirl();
         if (s16->w[4] == 0) {
-            func_00202900(D_0062BB7C);
+            DeleteWayGroup(D_0062BB7C);
         }
-        debug_assertMessage(D_006141B8, D_0062BB80);
+        debug_StdPrintfDummy(D_006141B8, D_0062BB80);
         goto ret0;
     }
     if (flags & 0x40) {

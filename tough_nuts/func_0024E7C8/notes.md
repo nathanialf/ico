@@ -1,26 +1,26 @@
-# func_0024E7C8 — parked
+# _clearOnce — parked
 
 VRAM: 0x0024E7C8 (file_off 0x14E7C8)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0024E7C8.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_clearOnce.s
 
 ## Attempt at 2026-06-13
 
-**Reason parked:** rc5 stall=30/30. PURE sched2 tie: all regs correct, only ld-ra hoisted into lw-v0 load-delay (ROM) vs gcc filling slot with sw-zero. Exhausted: store-order sweep(120, floor5), temps+order(720, floor7), do-while placements, ptr-deref C758/CD78, scalar/struct/char*/volatile/union, inline-helper. Data model: D_0054CD78=array-of-struct stride0x140; [0].f0=base,[0].f4=base+0x1800,[1].f0=base+0x1B00,[1].f4=base+0x3300,[2].f0=0; base=D_0054C758[0]; calls func_00251088(1) first. Permuter-class (func_001FB768 precedent).
+**Reason parked:** rc5 stall=30/30. PURE sched2 tie: all regs correct, only ld-ra hoisted into lw-v0 load-delay (ROM) vs gcc filling slot with sw-zero. Exhausted: store-order sweep(120, floor5), temps+order(720, floor7), do-while placements, ptr-deref C758/CD78, scalar/struct/char*/volatile/union, inline-helper. Data model: D_0054CD78=array-of-struct stride0x140; [0].f0=base,[0].f4=base+0x1800,[1].f0=base+0x1B00,[1].f4=base+0x3300,[2].f0=0; base=D_0054C758[0]; calls _ipuSetMPEG1(1) first. Permuter-class (func_001FB768 precedent).
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024E7C8/func_0024E7C8.c`
+**Seed:** `tough_nuts/_clearOnce/_clearOnce.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024E7C8, 0x4C
+nonmatching _clearOnce, 0x4C
 
-glabel func_0024E7C8
+glabel _clearOnce
     /* 14E7C8 0024E7C8 F0FFBD27 */  addiu      $29, $29, -0x10
     /* 14E7CC 0024E7CC 0000BFFF */  sd         $31, 0x0($29)
-    /* 14E7D0 0024E7D0 2244090C */  jal        func_00251088
+    /* 14E7D0 0024E7D0 2244090C */  jal        _ipuSetMPEG1
     /* 14E7D4 0024E7D4 01000424 */   addiu     $4, $0, 0x1
     /* 14E7D8 0024E7D8 5500043C */  lui        $4, %hi(D_0054C758)
     /* 14E7DC 0024E7DC 5500063C */  lui        $6, %hi(D_0054CD78)
@@ -37,7 +37,7 @@ glabel func_0024E7C8
     /* 14E808 0024E808 440167AC */  sw         $7, 0x144($3)
     /* 14E80C 0024E80C 0800E003 */  jr         $31
     /* 14E810 0024E810 1000BD27 */   addiu     $29, $29, 0x10
-endlabel func_0024E7C8
+endlabel _clearOnce
     /* 14E814 0024E814 00000000 */  nop
 ```
 
@@ -66,18 +66,18 @@ endlabel func_0024E7C8
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024E7C8/func_0024E7C8.1.c`
+**Seed:** `tough_nuts/_clearOnce/_clearOnce.1.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024E7C8, 0x4C
+nonmatching _clearOnce, 0x4C
 
-glabel func_0024E7C8
+glabel _clearOnce
     /* 14E7C8 0024E7C8 F0FFBD27 */  addiu      $29, $29, -0x10
     /* 14E7CC 0024E7CC 0000BFFF */  sd         $31, 0x0($29)
-    /* 14E7D0 0024E7D0 2244090C */  jal        func_00251088
+    /* 14E7D0 0024E7D0 2244090C */  jal        _ipuSetMPEG1
     /* 14E7D4 0024E7D4 01000424 */   addiu     $4, $0, 0x1
     /* 14E7D8 0024E7D8 5500043C */  lui        $4, %hi(D_0054C758)
     /* 14E7DC 0024E7DC 5500063C */  lui        $6, %hi(D_0054CD78)
@@ -94,7 +94,7 @@ glabel func_0024E7C8
     /* 14E808 0024E808 440167AC */  sw         $7, 0x144($3)
     /* 14E80C 0024E80C 0800E003 */  jr         $31
     /* 14E810 0024E810 1000BD27 */   addiu     $29, $29, 0x10
-endlabel func_0024E7C8
+endlabel _clearOnce
     /* 14E814 0024E814 00000000 */  nop
 ```
 
@@ -106,18 +106,18 @@ endlabel func_0024E7C8
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024E7C8/func_0024E7C8.2.c`
+**Seed:** `tough_nuts/_clearOnce/_clearOnce.2.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024E7C8, 0x4C
+nonmatching _clearOnce, 0x4C
 
-glabel func_0024E7C8
+glabel _clearOnce
     /* 14E7C8 0024E7C8 F0FFBD27 */  addiu      $29, $29, -0x10
     /* 14E7CC 0024E7CC 0000BFFF */  sd         $31, 0x0($29)
-    /* 14E7D0 0024E7D0 2244090C */  jal        func_00251088
+    /* 14E7D0 0024E7D0 2244090C */  jal        _ipuSetMPEG1
     /* 14E7D4 0024E7D4 01000424 */   addiu     $4, $0, 0x1
     /* 14E7D8 0024E7D8 5500043C */  lui        $4, %hi(D_0054C758)
     /* 14E7DC 0024E7DC 5500063C */  lui        $6, %hi(D_0054CD78)
@@ -134,6 +134,6 @@ glabel func_0024E7C8
     /* 14E808 0024E808 440167AC */  sw         $7, 0x144($3)
     /* 14E80C 0024E80C 0800E003 */  jr         $31
     /* 14E810 0024E810 1000BD27 */   addiu     $29, $29, 0x10
-endlabel func_0024E7C8
+endlabel _clearOnce
     /* 14E814 0024E814 00000000 */  nop
 ```

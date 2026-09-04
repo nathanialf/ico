@@ -3,9 +3,9 @@ extern int D_0062BF40;
 extern int D_0062BF48;
 extern void pac_makeMaterialTable(int a0);
 extern void pac_makeMaterialTableLine(void);
-extern int pac_getTextureInfo(int a0, int a1, unsigned long long a2);
+extern int pac_setGifTag(int a0, int a1, unsigned long long a2);
 
-int pac_makeShapeTable(int a0, int a1) {
+int pac_closeTag(int a0, int a1) {
     register int mask = 0x0FFFFFFF;
     char *base = D_0066CB50;
     int c;
@@ -24,7 +24,7 @@ int pac_makeShapeTable(int a0, int a1) {
         volatile int * volatile *pp = (volatile int * volatile *)(base + 0x20);
         volatile int *head;
         int r;
-        pac_getTextureInfo(a0, a1, q);
+        pac_setGifTag(a0, a1, q);
         pac_makeMaterialTableLine();
         head = *pp;
         c = *(int *)(base + 0x2C);

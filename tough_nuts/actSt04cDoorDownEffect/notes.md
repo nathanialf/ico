@@ -75,7 +75,7 @@ glabel actSt04cDoorDownEffect
     /* 1157E8 002157E8 2A105000 */  slt        $2, $2, $16
     /* 1157EC 002157EC 03004010 */  beqz       $2, .L002157FC
     /* 1157F0 002157F0 2D308000 */   daddu     $6, $4, $0
-    /* 1157F4 002157F4 9CFE040C */  jal        iosOmBeforeFuncStandard
+    /* 1157F4 002157F4 9CFE040C */  jal        iosOmSendMail
     /* 1157F8 002157F8 2D800000 */   daddu     $16, $0, $0
 .align 2
   .L002157FC:

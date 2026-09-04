@@ -12,11 +12,11 @@ int free_buffer(void *a0, int a1) {
     return n;
 }
 
-extern void func_002614F8(void *a0);
+extern void strcpy(void *a0);
 extern void iosCdvdSync(void *a0);
 
 int readBufDelete(char *a0) {
-    func_002614F8(a0 + 0x34);
+    strcpy(a0 + 0x34);
     iosCdvdSync(a0);
     return 1;
 }
@@ -41,14 +41,14 @@ void readBufEndPut(void *a0) {
     func_0019B720(*(void **)((char *)a0 + 0x48));
 }
 
-extern void func_0024DC00(void *a0, int a1, int a2);
-extern void func_0024E060(void *a0, int a1, void *a2, void *a3);
+extern void sceMpegCreate(void *a0, int a1, int a2);
+extern void sceMpegAddCallback(void *a0, int a1, void *a2, void *a3);
 extern int func_0023BE80(void *a0);
-extern int videoDecEndPut();
-extern int videoDecFlush();
+extern int mpegError();
+extern int mpegNodata();
 extern int videoCallback();
 extern int decBitStrm0();
-extern int func_0019B8E0();
+extern int mpegTS();
 
 int readBufBeginGet(void *a0) {
     int mes = deq_movie_mes(0x17C300);
@@ -56,18 +56,18 @@ int readBufBeginGet(void *a0) {
     if (mes == 0) {
         return -1;
     }
-    func_0024DC00(a0, mes, 0x17C300);
-    func_0024E060(a0, 0, videoDecEndPut, 0);
-    func_0024E060(a0, 1, videoDecFlush, a0);
-    func_0024E060(a0, 2, videoCallback, a0);
-    func_0024E060(a0, 3, decBitStrm0, a0);
-    func_0024E060(a0, 5, func_0019B8E0, a0);
+    sceMpegCreate(a0, mes, 0x17C300);
+    sceMpegAddCallback(a0, 0, mpegError, 0);
+    sceMpegAddCallback(a0, 1, mpegNodata, a0);
+    sceMpegAddCallback(a0, 2, videoCallback, a0);
+    sceMpegAddCallback(a0, 3, decBitStrm0, a0);
+    sceMpegAddCallback(a0, 5, mpegTS, a0);
     *(int *)((char *)a0 + 0xB8) = 0;
     return func_0023BE80((char *)a0 + 0x50) == 0 ? 0 : -1;
 }
 
-extern void func_0023C1D8(void *a0);
+extern void viBufBeginPut(void *a0);
 
 void readBufEndGet(void *a0) {
-    func_0023C1D8((char *)a0 + 0x50);
+    viBufBeginPut((char *)a0 + 0x50);
 }

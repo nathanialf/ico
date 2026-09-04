@@ -52,7 +52,7 @@ glabel subEnemyControl
     /* 5D88C 0015D88C 01008424 */   addiu     $4, $4, 0x1
     /* 5D890 0015D890 2D20A003 */  daddu      $4, $29, $0
     /* 5D894 0015D894 2D280000 */  daddu      $5, $0, $0
-    /* 5D898 0015D898 5A81090C */  jal        func_00260568
+    /* 5D898 0015D898 5A81090C */  jal        memset
     /* 5D89C 0015D89C 10000624 */   addiu     $6, $0, 0x10
     /* 5D8A0 0015D8A0 0C00B4E7 */  swc1       $f20, 0xC($29)
     /* 5D8A4 0015D8A4 6401428E */  lw         $2, 0x164($18)
@@ -63,7 +63,7 @@ glabel subEnemyControl
     /* 5D8B8 0015D8B8 2128B500 */  addu       $5, $5, $21
     /* 5D8BC 0015D8BC 60031026 */  addiu      $16, $16, 0x360
     /* 5D8C0 0015D8C0 3000A524 */  addiu      $5, $5, 0x30
-    /* 5D8C4 0015D8C4 2000090C */  jal        func_00240080
+    /* 5D8C4 0015D8C4 2000090C */  jal        sceVu0CopyVector
     /* 5D8C8 0015D8C8 2D200002 */   daddu     $4, $16, $0
     /* 5D8CC 0015D8CC 6401428E */  lw         $2, 0x164($18)
     /* 5D8D0 0015D8D0 06A30046 */  mov.s      $f12, $f20

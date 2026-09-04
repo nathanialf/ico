@@ -55,7 +55,7 @@ glabel ChangeStageStartInfo
     /* B5138 001B5138 6100043C */   lui       $4, %hi(D_0060FCF8)
     /* B513C 001B513C 6100043C */  lui        $4, %hi(D_0060FC98)
     /* B5140 001B5140 2D284002 */  daddu      $5, $18, $0
-    /* B5144 001B5144 F290060C */  jal        debug_assertMessage
+    /* B5144 001B5144 F290060C */  jal        debug_StdPrintfDummy
     /* B5148 001B5148 98FC8424 */   addiu     $4, $4, %lo(D_0060FC98)
     /* B514C 001B514C 6100103C */  lui        $16, %hi(D_0060FCE0)
     /* B5150 001B5150 E7010524 */  addiu      $5, $0, 0x1E7
@@ -65,13 +65,13 @@ glabel ChangeStageStartInfo
     /* B5160 001B5160 6300063C */  lui        $6, %hi(D_0062D2D0)
     /* B5164 001B5164 2D200002 */  daddu      $4, $16, $0
     /* B5168 001B5168 D0D2C624 */  addiu      $6, $6, %lo(D_0062D2D0)
-    /* B516C 001B516C E080090C */  jal        func_00260380
+    /* B516C 001B516C E080090C */  jal        __assert
     /* B5170 001B5170 E7010524 */   addiu     $5, $0, 0x1E7
     /* B5174 001B5174 6100043C */  lui        $4, %hi(D_0060FCF8)
 .align 2
   .L001B5178:
     /* B5178 001B5178 2D284002 */  daddu      $5, $18, $0
-    /* B517C 001B517C F290060C */  jal        debug_assertMessage
+    /* B517C 001B517C F290060C */  jal        debug_StdPrintfDummy
     /* B5180 001B5180 F8FC8424 */   addiu     $4, $4, %lo(D_0060FCF8)
     /* B5184 001B5184 5C01628E */  lw         $2, 0x15C($19)
     /* B5188 001B5188 000051AC */  sw         $17, 0x0($2)
@@ -81,7 +81,7 @@ glabel ChangeStageStartInfo
 .align 2
   .L001B5198:
     /* B5198 001B5198 2D284002 */  daddu      $5, $18, $0
-    /* B519C 001B519C F290060C */  jal        debug_assertMessage
+    /* B519C 001B519C F290060C */  jal        debug_StdPrintfDummy
     /* B51A0 001B51A0 08FD8424 */   addiu     $4, $4, %lo(D_0060FD08)
     /* B51A4 001B51A4 6100103C */  lui        $16, %hi(D_0060FCE0)
     /* B51A8 001B51A8 F0010524 */  addiu      $5, $0, 0x1F0
@@ -97,7 +97,7 @@ glabel ChangeStageStartInfo
     /* B51D0 001B51D0 2000B2DF */  ld         $18, 0x20($29)
     /* B51D4 001B51D4 1000B1DF */  ld         $17, 0x10($29)
     /* B51D8 001B51D8 0000B0DF */  ld         $16, 0x0($29)
-    /* B51DC 001B51DC E0800908 */  j          func_00260380
+    /* B51DC 001B51DC E0800908 */  j          __assert
     /* B51E0 001B51E0 5000BD27 */   addiu     $29, $29, 0x50
 .align 2
   .L001B51E4:

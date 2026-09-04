@@ -5,7 +5,7 @@ typedef struct { char _0[0x80]; int f_80; } SndState;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", sndBgmReadyNextStage);
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_006A3370[];
 
 extern char D_00552178[];
@@ -19,7 +19,7 @@ int sndInit(void)
     int i = 0x2F;
     do {
         if (*(int *)(e + 0x30) != 0) {
-            debug_assertMessage((int)D_00552178, *(short *)(e + 0x10),
+            debug_StdPrintfDummy((int)D_00552178, *(short *)(e + 0x10),
                           (unsigned int)(*(int *)(e + 0x38) - (int)D_005CD670) / sz);
         }
         e += 0x40;
@@ -44,7 +44,7 @@ void sndManager(int *a, int *b)
 
 extern void soundSeEnvDefaultSet(int id);
 extern void AdpcmFadeCloseAll(int x);
-extern void soundAllocIopFree(int x);
+extern void soundReverbDepthSet(int x);
 
 typedef struct {
     char           _pad[0x188];
@@ -60,15 +60,15 @@ void func_00143298(int id)
     AdpcmFadeCloseAll(0);
     p = id * 0x190;
     p += (unsigned int)D_005EBC48;
-    soundAllocIopFree(*(unsigned short *)(p + 0x188));
+    soundReverbDepthSet(*(unsigned short *)(p + 0x188));
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001432E0);
 
-extern void ExecIcoMisc(int a0, int a1);
+extern void gamesysObjInfoCls(int a0, int a1);
 
 void func_001433E0(int *a0) {
-    ExecIcoMisc(a0[3], a0[2]);
+    gamesysObjInfoCls(a0[3], a0[2]);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001433F0);
@@ -85,9 +85,9 @@ typedef struct {
 typedef struct { char pad24[0x24]; int unk24; } St55;
 typedef struct { long long a, b; } V16;
 extern void func_001433F0(int a0, void *a1, void *a2);
-extern int func_00260568(void *dst, int val, int size);
+extern int memset(void *dst, int val, int size);
 extern void func_00191DB8(void *a0, float f);
-extern void func_0023FFF0(void *dst, void *a, void *b);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern int disp_memory_partition_bar(int a0, int a1, int a2, void *a3, void *a4);
 extern St55 D_0055A2D8[];
 extern void *D_00629DE8;
@@ -113,19 +113,19 @@ extern char D_005521D0[];
 
 void func_001438E8(void) {
     ACTLookTargetSystem_Exec();
-    debug_assertMessage(D_005521D0);
+    debug_StdPrintfDummy(D_005521D0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143910);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143B00);
 
-extern void setParticleEffect(int a0, int a1, int a2);
+extern void DispMultiBgaManagerWithKind(int a0, int a1, int a2);
 
 void func_00143DB8(void *a0) {
     int x = *(int *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x670) + 0x1B8);
     if (x) {
-        setParticleEffect(0x1B0, x, 1);
+        DispMultiBgaManagerWithKind(0x1B0, x, 1);
     }
 }
 
@@ -147,7 +147,7 @@ void func_001440F0(void *a0) {
     ActPara_GetDefTbl(a0, 0);
 }
 
-extern float pac_DispQW(void);
+extern float _GetRandom(void);
 extern void func_0014A510(void *a0, int a1, int a2);
 extern void *func_0014A6A8(void);
 extern void func_001E19A8(void *a0, void *a1, void *a2, int a3, int a4);
@@ -209,7 +209,7 @@ void func_00144100(void *self) {
             D_0055DA10[d->f_490].f_15C == 1) {
             ((SndActView *)*(int *)((char *)self + 0x164))->p_670->f_5C = 0;
             ((SndActView *)*(int *)((char *)self + 0x164))->p_670->f_60 =
-                (int)(pac_DispQW() * 10.0f);
+                (int)(_GetRandom() * 10.0f);
             var_6 = 1;
         }
     }
@@ -228,7 +228,7 @@ void func_00144100(void *self) {
 extern float ClearHandCameraCorrect(void *a0, void *a1);
 extern void *ContinueCorrectPosition(void *a0);
 extern int funcEnemyCarryFail(void *a0);
-extern void *isysGObjSearchFromObjKindID_begin(void *obj);
+extern void *isysGObjSearchFromObjKindID_next(void *obj);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 extern int D_00271240[];
 extern float D_0062C3C4_a[] __asm__("D_0062C3C4");
@@ -245,7 +245,7 @@ void func_00144260(void *a0) {
     SndCorr *snd = *(SndCorr **)((char *)a0 + 0x164);
     int n70 = snd->f_70;
 
-    func_00260568((char *)snd + 0x54, 0, 0x2C);
+    memset((char *)snd + 0x54, 0, 0x2C);
     if (a0 == D_00629DE4 || a0 == D_00629DE8) {
         float best_d = D_0062C3C4_a[0];
         void *best = 0;
@@ -259,7 +259,7 @@ void func_00144260(void *a0) {
                     best_d = d;
                     best = o;
                 }
-                o = isysGObjSearchFromObjKindID_begin(o);
+                o = isysGObjSearchFromObjKindID_next(o);
             } while (o != 0);
         }
         snd->f_70 = (int)best;

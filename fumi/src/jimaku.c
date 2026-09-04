@@ -20,32 +20,32 @@ void func_00173538(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173568);
 
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 extern char D_00553730[];
 extern int D_00629DE4;
 extern int D_0062A4DC;
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern void ACTLookTargetSystem_Exec(void);
 
 void func_00173610(volatile int a0) {
-    debug_assertMessage(D_00553730);
-    iosOmBeforeFuncStandard(D_00629DE4, 0x58, D_0062A4DC);
+    debug_StdPrintfDummy(D_00553730);
+    iosOmSendMail(D_00629DE4, 0x58, D_0062A4DC);
     ACTLookTargetSystem_Exec();
 }
 
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 extern char D_00553790[], D_00553760[];
 extern void func_001736D0(volatile int a0);
 void jimakuHandler(volatile int a0) {
     int *gobj = *(int **)(a0 + 0x164);
-    debug_assertMessage(D_00553790);
+    debug_StdPrintfDummy(D_00553790);
     gobj[0x30 / 4] = 0x50;
     gobj[0x14 / 4] = (int)func_001736D0;
     gobj[0xC0 / 4] = 0;
     while ((gobj[0xC0 / 4] & 0x10) == 0) {
         _ACTWait(1);
     }
-    debug_assertMessage(D_00553760);
+    debug_StdPrintfDummy(D_00553760);
     for (;;) {
         BoxBarSoundOn(a0, 0x5D);
         _ACTWait(1);
@@ -53,16 +53,16 @@ void jimakuHandler(volatile int a0) {
 }
 
 void func_001736D0(volatile int a0) {
-    debug_assertMessage(D_00553730);
-    iosOmBeforeFuncStandard(D_00629DE4, 0x5D, D_0062A4DC);
+    debug_StdPrintfDummy(D_00553730);
+    iosOmSendMail(D_00629DE4, 0x5D, D_0062A4DC);
     ACTLookTargetSystem_Exec();
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrBegin);
 
 void func_00173790(volatile int a0) {
-    debug_assertMessage(D_00553730);
-    iosOmBeforeFuncStandard(D_00629DE4, 0x62, D_0062A4DC);
+    debug_StdPrintfDummy(D_00553730);
+    iosOmSendMail(D_00629DE4, 0x62, D_0062A4DC);
     ACTLookTargetSystem_Exec();
 }
 
@@ -159,21 +159,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuJump);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173A84);
 
-int jimakuEnd(void *a0, void *a1) {
+int enemy_list_compare(void *a0, void *a1) {
     return (int)(*(float *)((char *)a0 + 0x20) - *(float *)((char *)a1 + 0x20));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuDisp);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", ACTCheckCollis_SAFE);
 
 extern void ACTLookTargetSystem_Exec(void);
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 extern void Vibration_ShotDecode(int a0);
 extern char D_00553BE0[];
 
 void jimakuManager(int a0) {
     volatile int home = a0;
     ACTLookTargetSystem_Exec();
-    debug_assertMessage(D_00553BE0);
+    debug_StdPrintfDummy(D_00553BE0);
     Vibration_ShotDecode(7);
 }
 
@@ -191,7 +191,7 @@ void func_00173D00(volatile unsigned int a0)
     int *new_var;
     int *s0;
     new_var = *((int **) (a0 + 0x164));
-    debug_assertMessage(D_00553DD8);
+    debug_StdPrintfDummy(D_00553DD8);
     s0 = new_var;
     s0[0x30 / 4] = 0x4;
     _ACTWait(0);
@@ -283,13 +283,13 @@ extern char D_00553E78[];
 extern int D_00629D00;
 extern int D_0062A7F4;
 extern unsigned int D_0062C688[];
-extern int  func_0013D5E8(void *);
-extern int  func_00261188(void *buf, const char *fmt, int n);
+extern int  iosSemaWait(void *);
+extern int  sprintf(void *buf, const char *fmt, int n);
 extern int  func_0012FC08(void *buf, int x);
 extern int  func_0012FCE0(int);
-extern void func_0012FD10(int, int, int);
+extern void tex_SetSamplingType(int, int, int);
 extern int  func_001AAD00(const char *, int);
-extern int  func_00260380(const char *, int, void *);
+extern int  __assert(const char *, int, void *);
 extern void tex_printTexture(int);
 
 void func_001743B8(struct jArg *p)
@@ -300,24 +300,24 @@ void func_001743B8(struct jArg *p)
     int ww;
 
     while (wg->node->status != 4) {
-        if (func_0013D5E8(D_006C8A80) < 0) return;
+        if (iosSemaWait(D_006C8A80) < 0) return;
     }
-    if (func_0013D5E8(D_006C8A80) < 0) return;
+    if (iosSemaWait(D_006C8A80) < 0) return;
 
     wg->node->status = 1;
-    func_00261188(buf, D_00553E58, (q->n + 1) % 4);
+    sprintf(buf, D_00553E58, (q->n + 1) % 4);
     ww = func_0012FC08(buf, wg->node->field14);
     wg->node->field8 = ww;
-    func_0012FD10(func_0012FCE0(ww), 1, 1);
+    tex_SetSamplingType(func_0012FCE0(ww), 1, 1);
     wg->node->fieldC = D_00629D00;
     if (wg->node->field8 == -1) {
-        debug_assertMessage(D_00553E68);
+        debug_StdPrintfDummy(D_00553E68);
         func_001AAD00(D_00553E78, 0x272);
-        func_00260380(D_00553E78, 0x272, D_0062C688);
+        __assert(D_00553E78, 0x272, D_0062C688);
     }
 
     q->n = (q->n + 1) % 4;
-    if (func_0013D5E8(D_006C8AB8) < 0) return;
+    if (iosSemaWait(D_006C8AB8) < 0) return;
 
     wg->f4 = 2;
     if (wg->f8 >= 0) {

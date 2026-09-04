@@ -1,4 +1,4 @@
-# pac_getWeight (seki/src/Packet, func_00119090, 0x21C) — near-miss notes
+# mc_SetMicroCode (seki/src/Packet, func_00119090, 0x21C) — near-miss notes
 
 ## State: rc17 (void) / rc14 (int) ; structure CORRECT. Residual = coupled gcc artifact.
 
@@ -52,15 +52,15 @@ gcc lever that keeps 0xffff live in a reg across the tree (threading) -> would u
 
 **TU:** `seki/src/Packet.c`
 
-**Seed:** `tough_nuts/pac_getWeight/pac_getWeight.c`
+**Seed:** `tough_nuts/mc_SetMicroCode/mc_SetMicroCode.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching pac_getWeight, 0x21C
+nonmatching mc_SetMicroCode, 0x21C
 
-glabel pac_getWeight
+glabel mc_SetMicroCode
     /* 19090 00119090 D0FFBD27 */  addiu      $29, $29, -0x30
     /* 19094 00119094 2D580001 */  daddu      $11, $8, $0
     /* 19098 00119098 2000BFFF */  sd         $31, 0x20($29)
@@ -234,7 +234,7 @@ glabel pac_getWeight
     /* 192A0 001192A0 1000B0DF */  ld         $16, 0x10($29)
     /* 192A4 001192A4 0800E003 */  jr         $31
     /* 192A8 001192A8 3000BD27 */   addiu     $29, $29, 0x30
-endlabel pac_getWeight
+endlabel mc_SetMicroCode
     /* 192AC 001192AC 00000000 */  nop
 ```
 
@@ -246,15 +246,15 @@ endlabel pac_getWeight
 
 **TU:** `seki/src/Packet.c`
 
-**Seed:** `tough_nuts/pac_getWeight/pac_getWeight.1.c`
+**Seed:** `tough_nuts/mc_SetMicroCode/mc_SetMicroCode.1.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching pac_getWeight, 0x21C
+nonmatching mc_SetMicroCode, 0x21C
 
-glabel pac_getWeight
+glabel mc_SetMicroCode
     /* 19090 00119090 D0FFBD27 */  addiu      $29, $29, -0x30
     /* 19094 00119094 2D580001 */  daddu      $11, $8, $0
     /* 19098 00119098 2000BFFF */  sd         $31, 0x20($29)
@@ -428,6 +428,6 @@ glabel pac_getWeight
     /* 192A0 001192A0 1000B0DF */  ld         $16, 0x10($29)
     /* 192A4 001192A4 0800E003 */  jr         $31
     /* 192A8 001192A8 3000BD27 */   addiu     $29, $29, 0x30
-endlabel pac_getWeight
+endlabel mc_SetMicroCode
     /* 192AC 001192AC 00000000 */  nop
 ```

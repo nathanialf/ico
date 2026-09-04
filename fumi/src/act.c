@@ -1,6 +1,6 @@
 #include "common.h"
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void isysGObjProcAddS();
 extern int actCreateSubThread(void *a0, int a1);
 extern char D_00613A70[];
@@ -11,10 +11,10 @@ void actChangeActBrain(void *a0, void *a1, void **a2) {
     int ret = actCreateSubThread(a1, 0x14);
     *a2 = (void *)ret;
     if (old != 0) {
-        debug_assertMessage(D_00613A70, a0, ret);
+        debug_StdPrintfDummy(D_00613A70, a0, ret);
         isysGObjProcAddS(old);
     } else {
-        debug_assertMessage(D_00613A90, a0, ret);
+        debug_StdPrintfDummy(D_00613A90, a0, ret);
     }
 }
 
@@ -36,15 +36,15 @@ void actChangeActMain(void *a0, void *a1, void **a2) {
     }
     *a2 = (void *)ret;
     if (old != 0) {
-        debug_assertMessage(D_00613AB0, a0, ret);
+        debug_StdPrintfDummy(D_00613AB0, a0, ret);
         isysGObjProcAddS(old);
     } else {
-        debug_assertMessage(D_00613AD0, a0, ret);
+        debug_StdPrintfDummy(D_00613AD0, a0, ret);
     }
 }
 
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void isysGObjProcAddS();
 extern int isysGObjProcPause(void *a0, void *a1, int a2, void *a3);
 extern void *D_0062A4DC;
@@ -56,10 +56,10 @@ void actCreateMotionThread(void *a0, void *a1, void **a2) {
     int ret = isysGObjProcPause(D_0062A4DC, a0, 0, a1);
     *a2 = (void *)ret;
     if (old != 0) {
-        debug_assertMessage(D_00613AF0, *(int *)((char *)old + 4), ret);
+        debug_StdPrintfDummy(D_00613AF0, *(int *)((char *)old + 4), ret);
         isysGObjProcAddS(old);
     } else {
-        debug_assertMessage(D_00613B10, ret, ret);
+        debug_StdPrintfDummy(D_00613B10, ret, ret);
     }
 }
 
@@ -68,7 +68,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", after_func_exec);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actInitialize_ext_charcter);
 
 extern int iosFree(int, int, const char *, int);
-extern void func_00260568(void *, int, int);
+extern void memset(void *, int, int);
 extern int D_0062A324;
 extern int D_0062A4E0;
 extern char D_00613B60[];
@@ -87,7 +87,7 @@ char *actInitialize(char *obj)
 
     s = (char *)iosFree(D_0062A324, 0x840, D_00613B60, 0x37C);
     *(char **)(obj + 0x164) = s;
-    func_00260568(s, 0, 0x840);
+    memset(s, 0, 0x840);
 
     ((CondU *)(s + 0x18))->w.lo = 0;
     ((CondU *)(s + 0x20))->w.hi = 0;
@@ -152,15 +152,15 @@ char *actInitialize(char *obj)
 
     __builtin_memcpy(s + 0x1D8, D_0027D340, 0xF0);
 
-    func_00260568(s + 0x150, 0, 0x20);
-    func_00260568(s + 0x114, 0, 8);
-    func_00260568(s + 0x180, 0, 0x20);
-    func_00260568(s + 0x46C, 0, 0x10);
-    func_00260568(s + 0x47C, 0, 0x10);
-    func_00260568(s + 0x48C, 0, 0x10);
-    func_00260568(s + 0x4A0, 0, 0x1D0);
-    func_00260568(s + 0x2C8, 0, 0x60);
-    func_00260568(s + 0x328, 0, 0x18);
+    memset(s + 0x150, 0, 0x20);
+    memset(s + 0x114, 0, 8);
+    memset(s + 0x180, 0, 0x20);
+    memset(s + 0x46C, 0, 0x10);
+    memset(s + 0x47C, 0, 0x10);
+    memset(s + 0x48C, 0, 0x10);
+    memset(s + 0x4A0, 0, 0x1D0);
+    memset(s + 0x2C8, 0, 0x60);
+    memset(s + 0x328, 0, 0x18);
     return s;
 }
 
@@ -178,7 +178,7 @@ void actInitialize_geo(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actInitialize_only_charcter);
 
-extern int iosOmBeforeFuncStandard(void *self, int val5, int val6);
+extern int iosOmSendMail(void *self, int val5, int val6);
 
 int ACTReserveTarget(void *a0, int a1, int a2)
 {
@@ -186,7 +186,7 @@ int ACTReserveTarget(void *a0, int a1, int a2)
     if (*(int *)(s + 0x11C) == 0) {
         *(void **)(s + 0x11C) = a0;
         *(int *)(s + 0x120) = a2;
-        iosOmBeforeFuncStandard(a0, a2, a1);
+        iosOmSendMail(a0, a2, a1);
         return 1;
     }
     return 0;
@@ -252,12 +252,12 @@ int actCreateSubThread(void *a0, int a1) {
     int r;
     if (D_0062B050 != 0) {
         char *sub = *(char **)((char *)D_0062A4DC + 0x164);
-        debug_assertMessage(D_00613B30, D_0062A4DC);
-        debug_assertMessage(D_00613B40, *(int *)((char *)D_0062A4DC + 8));
-        debug_assertMessage(D_00613B40, *(int *)((char *)D_0062A4DC + 0xC));
+        debug_StdPrintfDummy(D_00613B30, D_0062A4DC);
+        debug_StdPrintfDummy(D_00613B40, *(int *)((char *)D_0062A4DC + 8));
+        debug_StdPrintfDummy(D_00613B40, *(int *)((char *)D_0062A4DC + 0xC));
         if (sub != 0) {
-            debug_assertMessage(D_00613B50, sub);
-            debug_assertMessage(D_00613B40, *(int *)(sub + 0x30));
+            debug_StdPrintfDummy(D_00613B50, sub);
+            debug_StdPrintfDummy(D_00613B40, *(int *)(sub + 0x30));
         }
     }
     r = isysGObjProcPause(D_0062A4DC, a0, 0, (void *)a1);

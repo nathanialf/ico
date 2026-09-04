@@ -56,7 +56,7 @@ void actSt04dDoor2UpChk(void) {
 }
 
 extern void _ACTWait(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void actCreateSubThread(void *fn, int a1);
 extern void func_002167C8(void);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
@@ -69,7 +69,7 @@ extern struct Q D_00614850;
 
 void actSt04dDoor2DownChk(volatile int a0) {
     struct Q buf;
-    while (scpSleepEnemyOne(a0, D_00629DE4, 200.0f) == 0) {
+    while (scpTriggerBall(a0, D_00629DE4, 200.0f) == 0) {
         _ACTWait(1);
     }
     _ACTWait(0x1E);
@@ -230,7 +230,7 @@ void func_002168E0(volatile int a0) {
     func_00178DD8(0x93);
 }
 
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void lt_fade_status(int a0);
 extern void func_00178E08(int a0);
 extern int func_0012A958(int a0);
@@ -240,7 +240,7 @@ extern int D_0062A894;
 extern int D_0062BCC4;
 
 void func_00216950(volatile int a0) {
-    while (scpSleepEnemyOne(a0, D_00629DE4, 1000.0f) == 0) {
+    while (scpTriggerBall(a0, D_00629DE4, 1000.0f) == 0) {
         _ACTWait(1);
     }
     lt_fade_status(0x33);
@@ -274,8 +274,8 @@ void func_00216A28(volatile int a0) {
     int x = a0;
     GObj *gobj = (GObj *)actInitialize(a0);
     _ACTWait(1);
-    if (scpSleepEnemyOne(a0, D_00629DE4, 400.0f) != 0 ||
-        (D_00629DE8 != 0 && scpSleepEnemyOne(a0, D_00629DE8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, D_00629DE4, 400.0f) != 0 ||
+        (D_00629DE8 != 0 && scpTriggerBall(a0, D_00629DE8, 400.0f) != 0)) {
         stage_KillPlayBgAnimation(0xE2, 0, 0);
         _ACTWait(0x3C);
         D_004CC300[1] = (int)actSt04eWaterMain;

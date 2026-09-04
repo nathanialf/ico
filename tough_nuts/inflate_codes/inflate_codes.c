@@ -12,10 +12,10 @@ typedef struct {
     int f114;
 } InfCodes;
 
-extern void func_002498E0(int, int, int, void *);
-extern int func_002490C0(int);
+extern void sceCdRead(int, int, int, void *);
+extern int sceCdSync(int);
 extern int func_00249CB0(void);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int D_0062A258;
 extern int D_0062A268;
 extern char D_00550E48[];
@@ -24,8 +24,8 @@ int inflate_codes(InfCodes *a0, int a1, int a2) {
     int q = a2 / 2048;
     int new110;
     do {
-        func_002498E0(a0->f114 + a0->f110 / 2048, q, a1, &D_0062A268);
-        while (func_002490C0(1) != 0) {
+        sceCdRead(a0->f114 + a0->f110 / 2048, q, a1, &D_0062A268);
+        while (sceCdSync(1) != 0) {
             D_0062A258 = 1;
             iosSemaCreate();
             D_0062A258 = 0;
@@ -36,7 +36,7 @@ int inflate_codes(InfCodes *a0, int a1, int a2) {
         if (((a0->f108 >> 4) & 1) != 0) {
             break;
         }
-        debug_assertMessage(&D_00550E48);
+        debug_StdPrintfDummy(&D_00550E48);
     } while (1);
     new110 = a0->f110 + a2;
     a0->f110 = new110;
@@ -52,13 +52,13 @@ int inflate_fixed(void) {
     return D_0062BF84;
 }
 
-extern int func_00249E10(void);
+extern int sceCdStStop(void);
 extern int func_00249CB0(void);
 
 void inflate_dynamic(void *a0) {
     int *p = (int *)a0;
     p[3] = 0;
-    if (func_00249E10() == 0) {
+    if (sceCdStStop() == 0) {
         p[3] = func_00249CB0();
     }
 }
@@ -70,7 +70,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", close_inflate_handler);
 typedef struct { char f0; char pad[0x12B]; } InfEntry;
 extern InfEntry D_0069F800[];
 
-void inflate(void) {
+void iosCdvdBackGroundMgrInit(void) {
     int i;
     for (i = 6; i >= 0; i--) {
         D_0069F800[i].f0 = 0;
@@ -110,11 +110,11 @@ void func_001350C8(void *a0)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", func_00135118);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", func_001351E0);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate);
 
 extern int iosFree(int a0, int a1, const char *fmt, int line);
 extern void func_001350C8(void *p);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int D_0062A33C;
 extern int D_0062A348;
 

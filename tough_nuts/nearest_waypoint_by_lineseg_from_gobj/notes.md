@@ -29,7 +29,7 @@ glabel nearest_waypoint_by_lineseg_from_gobj
     /* 77F08 00177F08 2D20A003 */   daddu     $4, $29, $0
     /* 77F0C 00177F0C 408594C7 */  lwc1       $f20, %gp_rel(D_00629130)($28)
     /* 77F10 00177F10 8CAF848F */  lw         $4, %gp_rel(D_0062BB7C)($28)
-    /* 77F14 00177F14 B80B080C */  jal        CloseWayGroup
+    /* 77F14 00177F14 B80B080C */  jal        WayPointList_begin
     /* 77F18 00177F18 2D90A003 */   daddu     $18, $29, $0
     /* 77F1C 00177F1C 2D884000 */  daddu      $17, $2, $0
     /* 77F20 00177F20 12002012 */  beqz       $17, .L00177F6C
@@ -39,7 +39,7 @@ glabel nearest_waypoint_by_lineseg_from_gobj
 .align 2
   .L00177F30:
     /* 77F30 00177F30 10000526 */  addiu      $5, $16, 0x10
-    /* 77F34 00177F34 0200090C */  jal        func_00240008
+    /* 77F34 00177F34 0200090C */  jal        sceVu0SubVector
     /* 77F38 00177F38 2D304002 */   daddu     $6, $18, $0
     /* 77F3C 00177F3C 4AA0050C */  jal        func_00168128
     /* 77F40 00177F40 1000A427 */   addiu     $4, $29, 0x10
@@ -50,7 +50,7 @@ glabel nearest_waypoint_by_lineseg_from_gobj
     /* 77F54 00177F54 2D880002 */  daddu      $17, $16, $0
 .align 2
   .L00177F58:
-    /* 77F58 00177F58 C00B080C */  jal        CreateWayPoint
+    /* 77F58 00177F58 C00B080C */  jal        WayPointList_next
     /* 77F5C 00177F5C 2D200002 */   daddu     $4, $16, $0
     /* 77F60 00177F60 2D804000 */  daddu      $16, $2, $0
     /* 77F64 00177F64 F2FF0056 */  bnel       $16, $0, .L00177F30

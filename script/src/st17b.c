@@ -155,15 +155,15 @@ void func_0022B3B0(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int scpTriggerBall(int a0, int a1, float a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
-extern void actBoyBHang(void);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float a3, float a4);
+extern void OnGirlEscortFlag(void);
+extern void RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern void func_00178DD8(int a0);
 extern int D_00629DE4;
 
 void func_0022B408(volatile int a0) {
-    while (scpSleepEnemyOne(a0, D_00629DE4, 400.0f) == 0 ||
+    while (scpTriggerBall(a0, D_00629DE4, 400.0f) == 0 ||
            scpSleepSpiderGroupOne(D_00629DE4, 0x2000000) == 0) {
         _ACTWait(1);
     }
@@ -171,11 +171,11 @@ void func_0022B408(volatile int a0) {
     func_00178E08(0x121);
     if (D_00629DE8 != 0) {
         if (scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) != 0) {
-            actBoyBHang();
-            actSt25aQueenDead(1, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
+            OnGirlEscortFlag();
+            RequestStageChange(1, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
         }
     }
-    actSt25aQueenDead(1, D_00629DE4, 0, 2.0f, 8.0f);
+    RequestStageChange(1, D_00629DE4, 0, 2.0f, 8.0f);
 }
 
 extern int D_0062A894;
@@ -218,11 +218,11 @@ void func_0022B578(volatile int a0){
 
 extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
 extern int iosPadDevRead(int a0, int a1);
-extern void Shock_Request(int a0, int a1);
+extern void iosPadActVolumeSet(int a0, int a1);
 extern int func_0012AA28(int a0, int a1, int a2);
 extern void Vibration_ShotDecode(int a0);
 extern void func_00178DD8(int a0);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float a3, float a4);
+extern void RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int D_0062BD90;
 extern int D_0062BD9C;
@@ -251,7 +251,7 @@ void func_0022B5F0(volatile int a0) {
         int r = iosPadDevRead(D_00629DEC, 0x9);
         D_0062BDA0 = 0x80;
         D_0062BD9C = r;
-        Shock_Request(r, 0x80);
+        iosPadActVolumeSet(r, 0x80);
     }
     while (func_0012AA28(0x97, 0xC8, 0) == 0) {
         _ACTWait(1);
@@ -264,26 +264,26 @@ void func_0022B5F0(volatile int a0) {
     _ACTWait(1);
     Vibration_ShotDecode(D_0062BD9C);
     func_00178DD8(0x127);
-    actSt25aQueenDead(0xF, D_00629DE4, 0, 16.0f, 16.0f);
+    RequestStageChange(0xF, D_00629DE4, 0, 16.0f, 16.0f);
 }
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B790);
 
 
-extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int scpTriggerBall(int a0, int a1, float a2);
 extern int actItouQueenAttackChk(void);
 extern int func_0017BE60(int a0);
 extern void lt_fade_status(int a0);
 extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int iosPadDevRead(int a0, int a1);
-extern void Shock_Request(int a0, int a1);
+extern void iosPadActVolumeSet(int a0, int a1);
 extern void func_001790A8(int a0);
-extern void actSt25aGenerator(void *a0, float f12, float f13, float f14);
+extern void scpPlayPosSet(void *a0, float f12, float f13, float f14);
 extern void gflagOff(void *a0, int a1);
 extern void *ContinueCorrectPosition(void *a0);
-extern void func_00240008(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern void gflagChk(int a0, void *a1);
 extern void func_00179F88(void);
 extern void actSt25aQueenBefore(void *a0);
@@ -303,7 +303,7 @@ extern float D_00629950, D_00629954, D_00629958;
 void func_0022B8E8(volatile int a0) {
     float buf[4];
     void *r16;
-    while (scpSleepEnemyOne(a0, D_00629DE4, 200.0f) == 0 ||
+    while (scpTriggerBall(a0, D_00629DE4, 200.0f) == 0 ||
            actItouQueenAttackChk() != 5 ||
            func_0017BE60(D_00629DE4) != 0) {
         _ACTWait(1);
@@ -319,19 +319,19 @@ void func_0022B8E8(volatile int a0) {
         int r = iosPadDevRead(D_00629DEC, 0x9);
         D_0062BDA8 = 0x80;
         D_0062BDA4 = r;
-        Shock_Request(r, 0x80);
+        iosPadActVolumeSet(r, 0x80);
     }
     func_001790A8(D_00629DE4);
     {
         float t13 = *(volatile float *)&D_00629950;
         float t14 = *(volatile float *)&D_00629954;
         float t12 = *(volatile float *)&D_00629958;
-        actSt25aGenerator((void *)D_00629DE4, t12, t13, t14);
+        scpPlayPosSet((void *)D_00629DE4, t12, t13, t14);
     }
     gflagOff((void *)D_00629DE4, 0);
     _ACTWait(1);
     r16 = ContinueCorrectPosition((void *)a0);
-    func_00240008(buf, r16, ContinueCorrectPosition((void *)D_00629DE4));
+    sceVu0SubVector(buf, r16, ContinueCorrectPosition((void *)D_00629DE4));
     gflagChk(D_00629DE4, buf);
     func_00179F88();
     gflagOff((void *)D_00629DE4, 0xF6);
@@ -374,7 +374,7 @@ void func_0022BAE8(volatile int a0) {
 }
 
 
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f0);
+extern void scpFadeOut(int a0, int a1, int a2, float f0);
 extern void lt_fade_status(int a0);
 extern void func_001790A8(int a0);
 extern int D_0062A894;
@@ -387,7 +387,7 @@ void func_0022BB88(volatile int a0) {
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_00178DB0(0xF) != 0) {
-        actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+        scpFadeOut(0, 0, 0, 255.0f);
         stage_KillPlayBgAnimation(0x97, 0, 0);
         lt_fade_status(0x33);
         D_0062A894 = 1;

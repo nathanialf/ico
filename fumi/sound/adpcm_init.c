@@ -1,11 +1,11 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmStreamInit);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", isysGObjLinkCameraDLHead);
 
 typedef struct { char p[0x34]; void *f34; void *f38; char p2[4]; unsigned char f40; char p3[3]; int f44; } AdpT;
 extern void func_001F8C30(void *a0);
 extern AdpT *D_0062A4D8;
-void adpcmTickProc2(AdpT *a0, AdpT *a1) {
+void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1) {
     func_001F8C30(a0);
     a0->f40 = a1->f40;
     a0->f38 = a1;
@@ -19,7 +19,7 @@ void adpcmTickProc2(AdpT *a0, AdpT *a1) {
 
 extern int D_0062A4D4;
 
-void adpcmDataSet(char *a0, char *a1) {
+void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1) {
     int next;
     func_001F8C30(a0);
     *(unsigned char *)(a0 + 0x40) = *(unsigned char *)(a1 + 0x40);
@@ -33,10 +33,10 @@ void adpcmDataSet(char *a0, char *a1) {
     }
 }
 
-extern int func_00259E68(int);
-extern void func_0025A080(void);
+extern int SgGetSpuSlotMalloc(int);
+extern void SgStAdpcmInit(void);
 extern int new_mblock_node(int, void *, int);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int D_0070A970[];
 extern char D_00613820[];
 extern char D_00613838[];
@@ -52,17 +52,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmStop);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmOpen);
 
 extern char D_00613878[];
-extern void func_0025A280(long long a0);
+extern void SgStAdpcmPlay(long long a0);
 
 void AdpcmClose(void *a0) {
-    debug_assertMessage(D_00613878);
-    func_0025A280(*(long long *)((char *)a0 + 0x30));
+    debug_StdPrintfDummy(D_00613878);
+    SgStAdpcmPlay(*(long long *)((char *)a0 + 0x30));
 }
 
-extern void func_0025A2E0(long long a0);
+extern void SgStAdpcmStop(long long a0);
 
 void AdpcmInterStereoVolumeSet(int a0) {
-    func_0025A2E0(*(long long *)(a0 + 0x30));
+    SgStAdpcmStop(*(long long *)(a0 + 0x30));
 }
 
 extern int D_0062C270[2];
@@ -116,7 +116,7 @@ int AdpcmUseAreaGet(void) {
             goto found;
         }
     }
-    debug_assertMessage(D_00613858);
+    debug_StdPrintfDummy(D_00613858);
     return 0;
 found:
     D_0062C270[i] = 1;
@@ -134,14 +134,14 @@ extern char D_006138B0[];
 int *AdpcmFreeAreaGet(int *self)
 {
     int *r;
-    debug_assertMessage((int *)D_006138A0);
+    debug_StdPrintfDummy((int *)D_006138A0);
     if (self[5] != 0) goto body;
     return 0;
 body:
     if (((int *)self[5])[0x40] != 0) {
         return (int *)-1;
     }
-    debug_assertMessage((int *)D_006138B0);
+    debug_StdPrintfDummy((int *)D_006138B0);
     iosCdvdBackGroundMgrEntryNum(self[5]);
     r = AdpcmOpen(0, self[1], 0x11, self[2], 0, self[3], self[4]);
     huft_build(((int *)r[11])[10], 0x5C000);

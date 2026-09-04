@@ -1,10 +1,10 @@
 #include "common.h"
 
 extern void *D_0062C0E8;
-extern void func_001003D0(void *a0);
+extern void RotateThreadReadyQueue(void *a0);
 
 void GetStageDifferenceMatrix(void) {
-    func_001003D0(D_0062C0E8);
+    RotateThreadReadyQueue(D_0062C0E8);
 }
 
 extern void func_0023A410(void *a0);

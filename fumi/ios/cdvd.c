@@ -14,7 +14,7 @@ extern int D_0062BF68;
 extern CdvdRec D_0067AE50[];
 extern int D_002714A0[];
 
-int iosCdvdMgrSearchFile(void) {
+int tex_RemakeRegistersSampleMin(void) {
     int count = D_0062BF68;
     int i;
     for (i = 0; i < count; i++) {
@@ -65,11 +65,11 @@ typedef struct
 } CdvdReq;
 
 extern int D_0062A25C;
-extern void debug_assertMessage();
-extern int func_0026160C(int *name);
-extern int func_002613B4(int *name, const char *entry);
-extern int func_00248BB8(int *dst, int *name);
-extern int func_00261900(void *dst, int *src, int n);
+extern void debug_StdPrintfDummy();
+extern int strlen(int *name);
+extern int strcmp(int *name, const char *entry);
+extern int sceCdSearchFile(int *dst, int *name);
+extern int strncpy(void *dst, int *src, int n);
 
 void iosCdvdMgrPackLoad(int *self)
 {
@@ -77,11 +77,11 @@ void iosCdvdMgrPackLoad(int *self)
     int found = 1;
     volatile int i; /* the loop index lives on the stack (reloaded each pass) */
 
-    if ((unsigned int) func_0026160C((int *) req->name) < 0x28)
+    if ((unsigned int) strlen((int *) req->name) < 0x28)
     {
         for (i = 0; i < D_0062A25C; i++)
         {
-            found = func_002613B4((int *) req->name, (const char *) &D_0027A8A8[i * 0x30]);
+            found = strcmp((int *) req->name, (const char *) &D_0027A8A8[i * 0x30]);
             if (found == 0)
             {
                 break;
@@ -90,7 +90,7 @@ void iosCdvdMgrPackLoad(int *self)
     }
     else
     {
-        debug_assertMessage(D_00550BD8);
+        debug_StdPrintfDummy(D_00550BD8);
     }
 
     if (found == 0)
@@ -101,7 +101,7 @@ void iosCdvdMgrPackLoad(int *self)
     else
     {
         req->unk_C = 0;
-        if (func_00248BB8(&req->fileId, (int *) req->name) == 0)
+        if (sceCdSearchFile(&req->fileId, (int *) req->name) == 0)
         {
             req->unk_C = 0x64;
         }
@@ -110,23 +110,23 @@ void iosCdvdMgrPackLoad(int *self)
             int n = D_0062A25C;
             D_tbl_0027E520[n].f0 = req->fileId;
             D_tbl_0027E520[n].f1 = req->fileSize;
-            func_00261900(D_tbl_0027E520[n].pad, (int *) req->name, 0x28);
+            strncpy(D_tbl_0027E520[n].pad, (int *) req->name, 0x28);
             D_0062A25C = D_0062A25C + 1;
         }
         else
         {
-            debug_assertMessage(D_00550C10);
+            debug_StdPrintfDummy(D_00550C10);
         }
     }
 }
 
-extern int func_00249E10(void);
+extern int sceCdStStop(void);
 extern int func_00249CB0(void);
 extern void func_00135118(int a0);
 
 void iosCdvdHandlerReadNoInflate(int *a0) {
     a0[3] = 0;
-    if (func_00249E10() == 0) {
+    if (sceCdStStop() == 0) {
         a0[3] = func_00249CB0();
     }
     func_00135118(a0[0x57]);
@@ -136,7 +136,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdHandlerReadInflate);
 
 extern void *iosFree(void *a, int n, void *c, int d);
 extern void iosCdvdLoad(int *a0, void *a1, int a2);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void iosMallocCheckLeak2(void *a0);
 extern void *D_0062A324;
 extern char D_00550BC8[];
@@ -144,7 +144,7 @@ extern char D_00550C70[];
 void iosCdvdHandlerRead(void *a0, void *a1, int a2, int a3, int a4, int a5, int a6) {
     void *r = iosFree(D_0062A324, a2, D_00550BC8, 0x322);
     iosCdvdLoad((int *)a0, r, a2);
-    debug_assertMessage(D_00550C70, a1, a2, a6);
+    debug_StdPrintfDummy(D_00550C70, a1, a2, a6);
     iosMallocCheckLeak2(r);
 }
 
@@ -152,7 +152,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", unifile_read_func);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdManager);
 
-extern int func_001351E0(int a0, void *buf, int n);
+extern int inflate(int a0, void *buf, int n);
 extern char D_00550D58[];
 extern char D_00550D80[];
 
@@ -162,7 +162,7 @@ void iosCdvdDiskReady(int *a0, void *buf, int n)
     long long ret;
     for (;;)
     {
-        ret = func_001351E0(a0[0x15C / 4], p, n);
+        ret = inflate(a0[0x15C / 4], p, n);
         if (ret <= 0)
         {
             break;
@@ -170,10 +170,10 @@ void iosCdvdDiskReady(int *a0, void *buf, int n)
         p += ret;
         n -= ret;
     }
-    debug_assertMessage(D_00550D58, a0[0x24 / 4]);
+    debug_StdPrintfDummy(D_00550D58, a0[0x24 / 4]);
     if (ret < 0)
     {
-        debug_assertMessage(D_00550D80);
+        debug_StdPrintfDummy(D_00550D80);
     }
 }
 
@@ -210,8 +210,8 @@ void iosCdvdLoad(int *a0, void *a1, int a2)
     }
 }
 
-extern void func_00261188(unsigned char *buf, const char *fmt, int a0);
-extern int func_002614F8(int a0, unsigned char *buf);
+extern void sprintf(unsigned char *buf, const char *fmt, int a0);
+extern int strcpy(int a0, unsigned char *buf);
 extern char D_00550D98[];
 
 /* parked: needs real matching (retail twin is a silent regression).
@@ -257,7 +257,7 @@ int iosCdvdLoadPackFile(int a0)
     unsigned char *p = buf;
     unsigned char c;
     unsigned char nc;
-    func_00261188(buf, D_0062C0F8, a0);
+    sprintf(buf, D_0062C0F8, a0);
     c = buf[0];
     do
     {
@@ -283,7 +283,7 @@ int iosCdvdLoadPackFile(int a0)
         nc = *p;
         c = nc;
     } while (nc != 0);
-    return func_002614F8(a0, buf);
+    return strcpy(a0, buf);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdDiskStatusGet);
@@ -303,7 +303,7 @@ extern char D_00272680[];
 void iosCdvdBackGroundMgrNotDiskReadyPauseSet(int a0, unsigned char *a1, int a2) {
     int buf[4];
     *(unsigned long *)D_00272680 = (*(unsigned long *)D_00272680 & ~1UL) | (a0 & 1);
-    func_002614F8((int)(D_00272680 + 0x34), a1);
+    strcpy((int)(D_00272680 + 0x34), a1);
     *(int *)(D_00272680 + 0x20) = a2;
     *(int *)(D_00272680 + 0x18) = 0;
     *(int *)(D_00272680 + 0x1C) = 0;

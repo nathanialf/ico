@@ -14,10 +14,10 @@ switch(st): 5->set geo->8=4; 4->set geo->8=6; 6->self->0x16C=0; 7->nop;
 default(0-3,>=8)-> if(geo->0x274<10){geo->0x274++; walkAI(self); st=reload}
                    geo->8 = D_004BA160[st]._4(self);  // fnptr at offset 4, not .fp(0)
                    wrap-counter: c=g2->0x270+1; g2->0x270=c; if(c>=0x21) g2->0x270=0;
-Common tail: standAI, updateMatrix, func_00105078, func_001189F8(r,sub->0xC,&D_004BA1A0),
-func_001CCBC0(geo->0x19C, r2, 1.0f), if(geo->0x4){ matrix drives + 2nd func_001189F8 },
+Common tail: standAI, updateMatrix, func_00105078, _MulMatrix(r,sub->0xC,&D_004BA1A0),
+func_001CCBC0(geo->0x19C, r2, 1.0f), if(geo->0x4){ matrix drives + 2nd _MulMatrix },
 then assert: diff = sub->0x54 - (sub->0xC)->0x34; range-check vs D_00629424(neg)/
-D_00629428(pos); out of range -> sub->0x5E8=0x800; tail-call debug_assertMessage(&D_00610EA0).
+D_00629428(pos); out of range -> sub->0x5E8=0x800; tail-call debug_StdPrintfDummy(&D_00610EA0).
 hehehe is VOID (the assert is a `j` sibling-tail-call).
 
 ## Levers that cracked 34->2 (all in the seed)

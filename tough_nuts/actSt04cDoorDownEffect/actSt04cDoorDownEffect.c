@@ -21,22 +21,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04lDoor);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cIntro);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cDoorDown);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04aEnvSe);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEne);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04aEnvSeWakare1);
 
 typedef struct { long long q[8]; } Mtx64;
 extern Mtx64 D_004CC120;
 extern int D_00271C00[];
-extern void func_00118A70(int *a0, int a1, void *a2);
-extern void _SetCurrentMatrix(void *a0, int *a1);
+extern void _ApplyMatrix(int *a0, int a1, void *a2);
+extern void _NormalizeVector(void *a0, int *a1);
 
 void actSt04cEnemy1(void *a0) {
     int m[4];
     int i;
-    func_00118A70(m, *(int *)((char *)*(void **)((char *)a0 + 0x15C) + 0xC), D_00271C00);
+    _ApplyMatrix(m, *(int *)((char *)*(void **)((char *)a0 + 0x15C) + 0xC), D_00271C00);
     m[1] = 0;
-    _SetCurrentMatrix((char *)*(void **)((char *)a0 + 0x15C) + 0x510, m);
+    _NormalizeVector((char *)*(void **)((char *)a0 + 0x15C) + 0x510, m);
     for (i = 0; i < *(int *)((char *)*(void **)((char *)a0 + 0x15C) + 0x88); i++) {
         ((Mtx64 *)*(void **)((char *)*(void **)((char *)a0 + 0x15C) + 0x7CC))[i] = D_004CC120;
     }
@@ -47,8 +47,8 @@ extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void _deleteStreamMotionManager(int *a0);
-extern void debug_assertMessage();
-extern int DeleteStreamMotionManager(void);
+extern void debug_StdPrintfDummy();
+extern int CheckReadyStreamMotion(void);
 extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
 extern int D_00629DE8;
 extern int D_0060AE20[];
@@ -62,21 +62,21 @@ void actSt04cEnemy2(volatile int a0) {
     while (D_00629DE8 == 0 || scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) == 0) { _ACTWait(1); }
     _deleteStreamMotionManager(D_0060AE20);
     i = 0;
-    while (DeleteStreamMotionManager() == 0) {
+    while (CheckReadyStreamMotion() == 0) {
         i++;
-        debug_assertMessage(D_00614650, i);
+        debug_StdPrintfDummy(D_00614650, i);
         _ACTWait(1);
     }
     scpPlayStart(0x1F, (int)&D_0062BC8C, 1, 0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cWaterXL);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04aEnvSeWakare2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cDoorDownEvent);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actConte09_3Jimaku);
 
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern int D_00271240[];
 extern int D_00629DE8;
 
@@ -99,7 +99,7 @@ void actSt04cDoorDownEffect(int arg0) {
             n = 0;
         }
         if (((0x3C - D_00271240[0]) / D_00271240[1]) * 3 < n) {
-            iosOmBeforeFuncStandard(D_00629DE8, 0x65, D_00629DE8);
+            iosOmSendMail(D_00629DE8, 0x65, D_00629DE8);
             n = 0;
         }
         _ACTWait(1);
@@ -114,13 +114,13 @@ extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void lt_fade_status(int a0);
-extern void func_0017A040(int a0);
+extern void scpSleepEnemyOne(int a0);
 extern void func_00178E08(int a0);
 extern void func_00178DD8(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern void func_0018A380(void);
 extern int func_0012A958(int a0);
-extern void func_0017A008(int a0);
+extern void scpWakeupEnemyOne(int a0);
 extern int D_00629DE8;
 extern int D_0062A894;
 void actSt04cIntroChk(volatile int a0) {
@@ -128,7 +128,7 @@ void actSt04cIntroChk(volatile int a0) {
     while (func_00178DB0(0x7C) == 0 || scpSleepSpiderGroupOne(D_00629DE8, 0x1000000) == 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     D_0062A894 = 1;
-    func_0017A040(0xD57);
+    scpSleepEnemyOne(0xD57);
     func_00178E08(0x165);
     _ACTWait(0x3C);
     func_00178DD8(0x8C);
@@ -139,7 +139,7 @@ void actSt04cIntroChk(volatile int a0) {
     _ACTWait(1);
     lt_fade_status(0x32);
     D_0062A894 = 0;
-    func_0017A008(0xD57);
+    scpWakeupEnemyOne(0xD57);
 }
 
 extern void gflagInit(int a0);

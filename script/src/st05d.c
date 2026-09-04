@@ -2,7 +2,7 @@
 
 #include "common.h"
 extern void _ACTWait(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void lt_fade_status(int a0);
 extern void func_00178DD8(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
@@ -10,7 +10,7 @@ extern int func_0012A958(int a0);
 extern int D_00629DE8;
 void actSt05dDoor2(volatile int a0) {
     if (D_00629DE8 == 0) { _ACTWait(0); }
-    while (scpSleepEnemyOne(a0, D_00629DE8, 200.0f) == 0) { _ACTWait(1); }
+    while (scpTriggerBall(a0, D_00629DE8, 200.0f) == 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     func_00178DD8(0xAA);
     _ACTWait(0xA);
@@ -99,13 +99,13 @@ void func_0021C580(volatile int a0) {
 }
 
 extern void _ACTWait(int a0);
-extern int scpDoorTypeUpUp(int a0);
+extern int scpIsTorchLightOn(int a0);
 extern void func_00178DD8(int a0);
 
 void func_0021C5A8(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x3FF) == 0) {
+    while (scpIsTorchLightOn(0x3FF) == 0) {
         _ACTWait(1);
     }
     func_00178DD8(0xB8);
@@ -114,7 +114,7 @@ void func_0021C5A8(int a0) {
 void func_0021C5F0(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x400) == 0) {
+    while (scpIsTorchLightOn(0x400) == 0) {
         _ACTWait(1);
     }
     func_00178DD8(0xB9);
@@ -123,7 +123,7 @@ void func_0021C5F0(int a0) {
 void func_0021C638(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x451) == 0) {
+    while (scpIsTorchLightOn(0x451) == 0) {
         _ACTWait(1);
     }
     func_00178DD8(0xBA);
@@ -132,7 +132,7 @@ void func_0021C638(int a0) {
 void func_0021C680(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x452) == 0) {
+    while (scpIsTorchLightOn(0x452) == 0) {
         _ACTWait(1);
     }
     func_00178DD8(0xBB);
@@ -141,7 +141,7 @@ void func_0021C680(int a0) {
 void func_0021C6C8(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x453) == 0) {
+    while (scpIsTorchLightOn(0x453) == 0) {
         _ACTWait(1);
     }
     func_00178DD8(0xBE);
@@ -150,7 +150,7 @@ void func_0021C6C8(int a0) {
 void func_0021C710(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x454) == 0) {
+    while (scpIsTorchLightOn(0x454) == 0) {
         _ACTWait(1);
     }
     func_00178DD8(0xBF);
@@ -159,7 +159,7 @@ void func_0021C710(int a0) {
 void func_0021C758(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x403) == 0) {
+    while (scpIsTorchLightOn(0x403) == 0) {
         _ACTWait(1);
     }
     func_00178DD8(0xBC);
@@ -168,7 +168,7 @@ void func_0021C758(int a0) {
 void func_0021C7A0(int a0) {
     volatile int buf[4];
     buf[0] = a0;
-    while (scpDoorTypeUpUp(0x404) == 0) {
+    while (scpIsTorchLightOn(0x404) == 0) {
         _ACTWait(1);
     }
     func_00178DD8(0xBD);
@@ -187,7 +187,7 @@ void func_0021C7E8(void) {
 }
 
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void func_0021C820(void) {
     if (func_00178DB0(0xF9) == 0) stage_KillPlayBgAnimation(0x12F, 0, 0); else stage_KillPlayBgAnimation(0x12F, 0, -1);
@@ -197,7 +197,7 @@ void func_0021C820(void) {
     if (func_00178DB0(0xFD) == 0) stage_KillPlayBgAnimation(0x133, 0, 0); else stage_KillPlayBgAnimation(0x133, 0, -1);
     if (func_00178DB0(0xFE) == 0) stage_KillPlayBgAnimation(0x134, 0, 0); else stage_KillPlayBgAnimation(0x134, 0, -1);
     if (func_00178DB0(0xFF) == 0) stage_KillPlayBgAnimation(0x135, 0, 0); else stage_KillPlayBgAnimation(0x135, 0, -1);
-    if (func_00178DB0(0xE5) == 0) AddWayPointTop(1, 0); else AddWayPointTop(1, 1);
+    if (func_00178DB0(0xE5) == 0) SetWayGroupActive(1, 0); else SetWayGroupActive(1, 1);
     if (func_00178DB0(0xEA) == 0) stage_KillPlayBgAnimation(0x126, 0, 0); else stage_KillPlayBgAnimation(0x126, 0, -1);
     if (func_00178DB0(0xEB) == 0) stage_KillPlayBgAnimation(0x127, 0, 0); else stage_KillPlayBgAnimation(0x127, 0, -1);
     if (func_00178DB0(0xE4) == 0) {

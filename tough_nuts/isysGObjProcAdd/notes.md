@@ -2,7 +2,7 @@
 
 Linked-list UNLINK (next@0x8=self[2], prev@0xC=self[3], owner@0x4=self[1],
 owner head@0x2C=owner[0xB], tail@0x30=owner[0xC]). Guard self==0 → tail-call
-debug_assertMessage(D_00551F18). Unlink via the gobj_dl goto idiom (matches
+debug_StdPrintfDummy(D_00551F18). Unlink via the gobj_dl goto idiom (matches
 the first 0x4C bytes exactly). Then head/tail update on the per-owner list.
 
 ## Residual (rc3, +0xB seed)

@@ -1,7 +1,7 @@
-# func_0024AA38 — parked
+# scePadSetReqState — parked
 
 VRAM: 0x0024AA38 (file_off 0x14AA38)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0024AA38.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/scePadSetReqState.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0024AA38.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024AA38/func_0024AA38.c`
+**Seed:** `tough_nuts/scePadSetReqState/scePadSetReqState.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024AA38, 0x64
+nonmatching scePadSetReqState, 0x64
 
-glabel func_0024AA38
+glabel scePadSetReqState
     /* 14AA38 0024AA38 2D388000 */  daddu      $7, $4, $0
     /* 14AA3C 0024AA3C 70000324 */  addiu      $3, $0, 0x70
     /* 14AA40 0024AA40 1C000424 */  addiu      $4, $0, 0x1C
@@ -37,7 +37,7 @@ glabel func_0024AA38
     /* 14AA78 0024AA78 2D100000 */   daddu     $2, $0, $0
 .align 2
   .L0024AA7C:
-    /* 14AA7C 0024AA7C 162A090C */  jal        func_0024A858
+    /* 14AA7C 0024AA7C 162A090C */  jal        scePadGetDmaStr
     /* 14AA80 0024AA80 2D20E000 */   daddu     $4, $7, $0
     /* 14AA84 0024AA84 710050A0 */  sb         $16, 0x71($2)
     /* 14AA88 0024AA88 01000224 */  addiu      $2, $0, 0x1
@@ -47,6 +47,6 @@ glabel func_0024AA38
     /* 14AA90 0024AA90 0000B0DF */  ld         $16, 0x0($29)
     /* 14AA94 0024AA94 0800E003 */  jr         $31
     /* 14AA98 0024AA98 2000BD27 */   addiu     $29, $29, 0x20
-endlabel func_0024AA38
+endlabel scePadSetReqState
     /* 14AA9C 0024AA9C 00000000 */  nop
 ```

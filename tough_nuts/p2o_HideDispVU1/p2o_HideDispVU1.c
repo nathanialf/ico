@@ -1,30 +1,30 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_MakePacket);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", RotQuaternionEAZ);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispShadowVolume);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", GetXUnitVectorOfQuaternion);
 
-extern void _PushVu0Registers(void *a0, void *a1, float a2);
+extern void _ScaleVectorXYZ(void *a0, void *a1, float a2);
 
-void p2o_HideDispVU1(void *a0, float *a1) {
+void GetYUnitVectorOfQuaternion(void *a0, float *a1) {
     float buf[4];
     float x = a1[0], y = a1[1], z = a1[2], w = a1[3];
     buf[0] = x * y + w * z;
     buf[2] = y * z - w * x;
     buf[1] = 0.0f - (x * x + z * z);
     *(int *)&buf[3] = 0;
-    _PushVu0Registers(a0, buf, 2.0f);
+    _ScaleVectorXYZ(a0, buf, 2.0f);
     *((float *)a0 + 1) += 1.0f;
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispVU1DObj);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", GetZUnitVectorOfQuaternion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispVU1DObjMulti);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", GetDifferencialQuaternionWithNoRegularize);
 
-extern int func_00118048(float arg);
+extern int _Sqrt(float arg);
 
-int p2o_DispVU1Multi(void *a0) {
+int GetQuaternionMagnitude(void *a0) {
     register float arg __asm__("$f12");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -38,47 +38,47 @@ int p2o_DispVU1Multi(void *a0) {
         "mtc1 $2, $f12\n"
         ".set reorder\n"
         : "=f"(arg) :: "$2");
-    return func_00118048(arg);
+    return _Sqrt(arg);
 }
 
-extern void _InverseCurrentMatrix(void *a0, void *a1, float a2);
+extern void _ScaleVector(void *a0, void *a1, float a2);
 
-void p2o_DispVU1MultiDefault(void *a0, void *a1, float angle) {
+void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *a0, void *a1, float angle) {
     float first, second;
-    first = ((float (*)(float))func_00118048)((angle + 1.0f) * 0.5f);
-    second = ((float (*)(float))func_00118048)((1.0f - angle) * 0.5f);
-    _InverseCurrentMatrix(a0, a1, second);
+    first = ((float (*)(float))_Sqrt)((angle + 1.0f) * 0.5f);
+    second = ((float (*)(float))_Sqrt)((1.0f - angle) * 0.5f);
+    _ScaleVector(a0, a1, second);
     *(float *)((char *)a0 + 0xC) = first;
 }
 
-extern void _SetCurrentMatrix(void *buf);
-extern void _InverseCurrentMatrix(void *a0, void *buf, float a2);
+extern void _NormalizeVector(void *buf);
+extern void _ScaleVector(void *a0, void *buf, float a2);
 
-void p2o_DispVU1(void *a0, float angle) {
+void SetQuaternionByCosineAxisRotateV(void *a0, float angle) {
     float buf[4];
     float first, second;
-    _SetCurrentMatrix(buf);
-    first = ((float (*)(float))func_00118048)((angle + 1.0f) * 0.5f);
-    second = ((float (*)(float))func_00118048)((1.0f - angle) * 0.5f);
-    _InverseCurrentMatrix(a0, buf, second);
+    _NormalizeVector(buf);
+    first = ((float (*)(float))_Sqrt)((angle + 1.0f) * 0.5f);
+    second = ((float (*)(float))_Sqrt)((1.0f - angle) * 0.5f);
+    _ScaleVector(a0, buf, second);
     *(float *)((char *)a0 + 0xC) = first;
 }
 
-extern void _SetCurrentMatrix(void *buf);
+extern void _NormalizeVector(void *buf);
 
-void p2o_DispVU1Default(void *a0, float *a1, void *a2) {
+void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2) {
     float buf[4];
     float first, second;
-    first = ((float (*)(float))func_00118048)((a1[0] + 1.0f) * 0.5f);
-    second = ((float (*)(float))func_00118048)((1.0f - a1[0]) * 0.5f);
-    ((void (*)(void *, void *))_SetCurrentMatrix)(buf, a2);
+    first = ((float (*)(float))_Sqrt)((a1[0] + 1.0f) * 0.5f);
+    second = ((float (*)(float))_Sqrt)((1.0f - a1[0]) * 0.5f);
+    ((void (*)(void *, void *))_NormalizeVector)(buf, a2);
     *(float *)((char *)a0 + 0xC) = first;
     *(float *)((char *)a0 + 0x0) = buf[0] * second;
     *(float *)((char *)a0 + 0x4) = buf[1] * second;
     *(float *)((char *)a0 + 0x8) = buf[2] * second;
 }
 
-float p2o_TransMicroProgram(void *a0, void *a1) {
+float GetQuaternionCosRadian(void *a0, void *a1) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -115,7 +115,7 @@ done:
 }
 
 
-float func_0010ED30(short a0) {
+float GetTableCos(short a0) {
     int t = (short)(a0 + 0x4000);
     int idx = __builtin_abs(t);
     int s;
@@ -137,10 +137,10 @@ extern float D_00628CBC;
 extern float D_00628CC0;
 extern float D_00628CC4;
 extern unsigned short D_0066A9D0[];
-extern float func_0025A678(float);
+extern float sinf(float);
 extern float func_0025A868(float);
 
-void func_0010ED88(void) {
+void InitTableSin(void) {
     int i;
     float m, d, s, k;
     if (D_00629E80 != 0) {
@@ -149,7 +149,7 @@ void func_0010ED88(void) {
     m = D_00628CBC;
     d = D_00628CC0;
     for (i = 0; i < 0x4001; i++) {
-        D_0065A9C0[i] = func_0025A678((float)i * m / d);
+        D_0065A9C0[i] = sinf((float)i * m / d);
     }
     k = 0.000244140625f;
     s = D_00628CC4;
@@ -162,7 +162,7 @@ void func_0010ED88(void) {
 
 extern unsigned short D_0066A9D0[];
 
-int func_0010EE60(float x) {
+int GetTableArcSin(float x) {
     int neg;
     int hi;
 
@@ -182,7 +182,7 @@ int func_0010EE60(float x) {
     return (short)(neg ? -hi : hi);
 }
 
-int func_0010EEF0(float x) {
+int GetTableArcCos(float x) {
     int neg;
     int h;
     if (1.0f < x) {
@@ -204,15 +204,15 @@ int func_0010EEF0(float x) {
     return h;
 }
 
-extern int func_0010EEF0(float x);
+extern int GetTableArcCos(float x);
 
-int func_0010EF98(float f12, float f13)
+int GetTableArcTan2(float f12, float f13)
 {
     if (f12 < 0.0f) {
-        int r = func_0010EEF0(f13);
+        int r = GetTableArcCos(f13);
         return (short)(-r);
     }
-    return func_0010EEF0(f13);
+    return GetTableArcCos(f13);
 }
 
 extern void func_0011C308(void *a0);
@@ -232,12 +232,12 @@ void func_0010EFF0(int a0) {
 extern int D_0062AFA8;
 extern int D_00629E84;
 extern char D_0054E240[];
-extern void display(int a0, void *a1, int a2);
+extern void debug_PrintFontWindow(int a0, void *a1, int a2);
 
-void func_0010EFF8(int a0) {
+void p2o_HideDispVU1(int a0) {
     D_00629E84 = a0;
     if (D_0062AFA8) {
-        display(0xCCCCCC00, D_0054E240, a0);
+        debug_PrintFontWindow(0xCCCCCC00, D_0054E240, a0);
     }
 }
 

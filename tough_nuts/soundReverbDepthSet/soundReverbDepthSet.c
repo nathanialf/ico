@@ -2,7 +2,7 @@
 
 extern int *D_0027DDF0[];
 
-int soundInit(int a0, int val5, int val6)
+int iosOmSendMailLink(int a0, int val5, int val6)
 {
     int *node = D_0027DDF0[a0];
     int ret = 0;
@@ -36,14 +36,14 @@ int soundInit(int a0, int val5, int val6)
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundOutputModeSet);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", iosOmExeMail);
 
 extern int AdpcmPlay();
 extern void func_00258948(void);
-extern void func_002589F8(int a0);
-extern void func_00259040(int a0, int a1);
-extern void func_00259058(int a0, int a1);
-extern void func_002590E0(int a0);
+extern void SgSetDigitalOutputMode(int a0);
+extern void SgSetReverbEndAddr(int a0, int a1);
+extern void SgSetReverbType(int a0, int a1);
+extern void SgSetTickMode(int a0);
 extern char D_00551FA0[];
 extern char D_00551FB0[];
 extern int D_0062A260;
@@ -53,28 +53,28 @@ extern unsigned long long D_0062BFD0;
 extern char D_006A3070[];
 extern char D_006A3370[];
 
-int soundReverbDepthSet(void)
+int soundInit(void)
 {
     int i;
     int *p;
 
-    debug_assertMessage(D_00551FA0);
+    debug_StdPrintfDummy(D_00551FA0);
     func_00258948();
     if (D_0062A260 == 1) {
-        func_002589F8(0x80);
+        SgSetDigitalOutputMode(0x80);
     } else {
-        func_002589F8(0x880);
+        SgSetDigitalOutputMode(0x880);
     }
-    debug_assertMessage(D_00551FB0);
-    func_002590E0(0x3C);
-    func_00259040(0, 0x1FFFFF);
-    func_00259040(1, 0x1DFFFF);
-    func_00259058(0, 4);
-    func_00259070(0, 0xCCC, 0xCCC);
-    func_00259058(1, 4);
-    func_00259070(0, 0xCCC, 0xCCC);
-    func_00259208(0, 0, 0);
-    func_00259208(1, 0, 0);
+    debug_StdPrintfDummy(D_00551FB0);
+    SgSetTickMode(0x3C);
+    SgSetReverbEndAddr(0, 0x1FFFFF);
+    SgSetReverbEndAddr(1, 0x1DFFFF);
+    SgSetReverbType(0, 4);
+    SgSetReverbDepth(0, 0xCCC, 0xCCC);
+    SgSetReverbType(1, 4);
+    SgSetReverbDepth(0, 0xCCC, 0xCCC);
+    SgSetMasterVol(0, 0, 0);
+    SgSetMasterVol(1, 0, 0);
     p = (int *)D_006A3070;
     p = (int *)((char *)p + 0x2D0);
     i = 15;
@@ -100,30 +100,30 @@ int soundReverbDepthSet(void)
 
 
 extern int D_0062A4FC;
-extern void func_002590B8(int a0);
+extern void SgSetOutputMode(int a0);
 
-void soundAllocIopHeap(int a0) {
+void soundOutputModeSet(int a0) {
     D_0062A4FC = a0;
-    func_002590B8(a0);
+    SgSetOutputMode(a0);
 }
 
 extern int D_0062A4F0;
-extern int func_00259070(int a, int b, int c);
-extern int func_00259208(int a, int b, int c);
+extern int SgSetReverbDepth(int a, int b, int c);
+extern int SgSetMasterVol(int a, int b, int c);
 
-void soundAllocIopFree(int a0)
+void soundReverbDepthSet(int a0)
 {
     int val;
     D_0062A4F0 = a0;
     val = (a0 * 32767) / 100;
-    func_00259070(0, val, val);
-    func_00259070(1, val, val);
-    func_00259208(0, 0x3FFF, 0x3FFF);
-    func_00259208(1, 0x3FFF, 0x3FFF);
+    SgSetReverbDepth(0, val, val);
+    SgSetReverbDepth(1, val, val);
+    SgSetMasterVol(0, 0x3FFF, 0x3FFF);
+    SgSetMasterVol(1, 0x3FFF, 0x3FFF);
 }
 
 extern int new_mblock_node(int a, void *b, int c);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern int D_0062A528;
 extern char D_00551FC8[];
 extern char D_00551FD8[];
@@ -132,17 +132,17 @@ void soundDataOpenChk(void) {
     int r = new_mblock_node(0x78000, D_00551FC8, 0xE6);
     D_0062A528 = r;
     if (r < 0) {
-        debug_assertMessage(D_00551FD8);
+        debug_StdPrintfDummy(D_00551FD8);
     } else {
-        debug_assertMessage(D_00551FF0, r, 0x78000);
+        debug_StdPrintfDummy(D_00551FF0, r, 0x78000);
     }
 }
 
-extern void func_00246700(int a0);
+extern void sceSifFreeIopHeap(int a0);
 extern int D_0062A528;
 
 void soundBufAlloc(void) {
-    func_00246700(D_0062A528);
+    sceSifFreeIopHeap(D_0062A528);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundBufSegFree);
@@ -157,7 +157,7 @@ extern int D_0062A4EC;
 extern int D_0062BFC0;
 extern int D_0062BFC4;
 extern void func_001AAD00(char *file, int line);
-extern void func_00260380(char *file, int line, char *msg);
+extern void __assert(char *file, int line, char *msg);
 
 void soundDataOpen(int a0, int a1) {
     switch (a0) {
@@ -173,7 +173,7 @@ void soundDataOpen(int a0, int a1) {
                     return;
             }
             func_001AAD00(D_00551FC8, 0x1CC);
-            func_00260380(D_00551FC8, 0x1CC, D_0062C388);
+            __assert(D_00551FC8, 0x1CC, D_0062C388);
             return;
         case 2:
             if (a1 == 0) {
@@ -181,18 +181,18 @@ void soundDataOpen(int a0, int a1) {
                 return;
             }
             func_001AAD00(D_00551FC8, 0x1D6);
-            func_00260380(D_00551FC8, 0x1D6, D_0062C388);
+            __assert(D_00551FC8, 0x1D6, D_0062C388);
             return;
     }
     func_001AAD00(D_00551FC8, 0x1DB);
-    func_00260380(D_00551FC8, 0x1DB, D_0062C388);
+    __assert(D_00551FC8, 0x1DB, D_0062C388);
 }
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataOpenSync);
 
 extern void func_001AAD00(char *a0, int a1);
-extern void func_00260380(char *a0, int a1, char *a2);
+extern void __assert(char *a0, int a1, char *a2);
 extern void AdpcmInterLeaveVolumeSet(int *a0, int a1, int a2, int a3);
 extern char D_00551FC8[];
 extern char D_0062C388[];
@@ -202,18 +202,18 @@ void soundDataClose(int *a0, int a1, int a2, int a3, int a4) {
     switch (a1) {
     case 0:
         func_001AAD00(D_00551FC8, 0x254);
-        func_00260380(D_00551FC8, 0x254, D_0062C388);
+        __assert(D_00551FC8, 0x254, D_0062C388);
         return;
     case 1:
         func_001AAD00(D_00551FC8, 0x257);
-        func_00260380(D_00551FC8, 0x257, D_0062C388);
+        __assert(D_00551FC8, 0x257, D_0062C388);
         return;
     case 2:
         AdpcmInterLeaveVolumeSet(a0, a2, a3, a4);
         return;
     default:
         func_001AAD00(D_00551FC8, 0x25D);
-        func_00260380(D_00551FC8, 0x25D, D_0062C388);
+        __assert(D_00551FC8, 0x25D, D_0062C388);
         return;
     }
 }
@@ -265,7 +265,7 @@ void soundReqTickProc(int a0) {
 }
 
 extern char D_006A3370[];
-extern int func_00259DF8(int a0);
+extern int SgSetSePitchDirect(int a0);
 
 void soundSeEnvPlay(int a0)
 {
@@ -276,7 +276,7 @@ void soundSeEnvPlay(int a0)
     if (id < 0) return;
     a0 = a0 >> 8;
     if (a0 != *(unsigned short *)entry) return;
-    func_00259DF8(id);
+    SgSetSePitchDirect(id);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeEnvNotUseClose);
@@ -285,10 +285,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataSegNextStageNotU
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", Ee2Iop);
 
-extern void debug_assertMessage();
-extern void func_001007A0(int a);
-extern int func_001008E0(int p, int a);
-extern int func_001008C0(int h);
+extern void debug_StdPrintfDummy();
+extern void FlushCache(int a);
+extern int sceSifSetDma(int p, int a);
+extern int sceSifDmaStat(int h);
 
 extern char D_00551F50[];
 extern char D_00551F68[];
@@ -298,17 +298,17 @@ int soundOutputModeGet(int a0, int a1, int a2)
 {
     int buf[4];
     int x;
-    debug_assertMessage(D_00551F50);
-    debug_assertMessage(D_00551F68, a0, a1, a2);
+    debug_StdPrintfDummy(D_00551F50);
+    debug_StdPrintfDummy(D_00551F68, a0, a1, a2);
     buf[0] = a0;
     buf[1] = a1;
     buf[2] = a2;
     buf[3] = 0;
-    func_001007A0(0);
-    x = func_001008E0((int)buf, 1);
-    while (func_001008C0(x) >= 0) ;
-    debug_assertMessage(D_00551F80);
-    func_001007A0(0);
+    FlushCache(0);
+    x = sceSifSetDma((int)buf, 1);
+    while (sceSifDmaStat(x) >= 0) ;
+    debug_StdPrintfDummy(D_00551F80);
+    FlushCache(0);
     return (x >= 0) ? 0 : -1;
 }
 
@@ -455,7 +455,7 @@ void soundVBlank(int arg)
     } while (i < 0x30);
 }
 
-extern int func_00259108(int a0, int a1);
+extern int SgGetSlotStatus(int a0, int a1);
 extern int D_0062AF94;
 extern int D_00271240[];
 
@@ -465,7 +465,7 @@ void soundSeKindBuild(void)
     int i = 0;
     do {
         if (*(int *)(p + 0x30) != 0) {
-            int r = func_00259108(1, *(short *)(p + 0x10));
+            int r = SgGetSlotStatus(1, *(short *)(p + 0x10));
             if (r == 0) {
                 soundSeDefPitchSet(((int)*(unsigned short *)p << 8) | i);
             } else if (r & 2) {

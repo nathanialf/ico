@@ -5,7 +5,7 @@ typedef struct { char _0[0x80]; int f_80; } SndState;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", sndBgmReadyNextStage);
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_006A3370[];
 
 extern char D_00552178[];
@@ -19,7 +19,7 @@ int sndInit(void)
     int i = 0x2F;
     do {
         if (*(int *)(e + 0x30) != 0) {
-            debug_assertMessage((int)D_00552178, *(short *)(e + 0x10),
+            debug_StdPrintfDummy((int)D_00552178, *(short *)(e + 0x10),
                           (unsigned int)(*(int *)(e + 0x38) - (int)D_005CD670) / sz);
         }
         e += 0x40;
@@ -44,7 +44,7 @@ void sndManager(int *a, int *b)
 
 extern void soundSeEnvDefaultSet(int id);
 extern void AdpcmFadeCloseAll(int x);
-extern void soundAllocIopFree(int x);
+extern void soundReverbDepthSet(int x);
 
 typedef struct {
     char           _pad[0x188];
@@ -60,15 +60,15 @@ void func_00143298(int id)
     AdpcmFadeCloseAll(0);
     p = id * 0x190;
     p += (unsigned int)D_005EBC48;
-    soundAllocIopFree(*(unsigned short *)(p + 0x188));
+    soundReverbDepthSet(*(unsigned short *)(p + 0x188));
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001432E0);
 
-extern void ExecIcoMisc(int a0, int a1);
+extern void gamesysObjInfoCls(int a0, int a1);
 
 void func_001433E0(int *a0) {
-    ExecIcoMisc(a0[3], a0[2]);
+    gamesysObjInfoCls(a0[3], a0[2]);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001433F0);
@@ -85,9 +85,9 @@ typedef struct {
 typedef struct { char pad24[0x24]; int unk24; } St55;
 typedef struct { long long a, b; } V16;
 extern void func_001433F0(int a0, void *a1, void *a2);
-extern void func_00260568(void *dst, int val, int size);
+extern void memset(void *dst, int val, int size);
 extern void func_00191DB8(void *a0, float f);
-extern void func_0023FFF0(void *dst, void *a, void *b);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern int disp_memory_partition_bar(int a0, int a1, int a2, void *a3, void *a4);
 extern St55 D_0055A2D8[];
 extern void *D_00629DE8;
@@ -101,18 +101,18 @@ void func_001434C0(St1434 *arg0, int arg1) {
 
     func_001433F0(arg1, buf0, buf10);
     if (arg0->unkC == 0x11) {
-        func_00260568(t1, 0, 0x10);
+        memset(t1, 0, 0x10);
         t1[2] = 250.0f;
         func_00191DB8(t1, -buf10[1]);
-        func_0023FFF0(buf0, buf0, t1);
+        sceVu0AddVector(buf0, buf0, t1);
     }
     if (arg0 == (St1434 *) D_00629DE8) {
         if (0.0f <= arg0->unk164->unk678->unk330) {
-            func_00260568(e, 0, 0x10);
+            memset(e, 0, 0x10);
             *(float *) ((char *) e + 8) = -((St1434 *) D_00629DE8)->unk164->unk678->unk330;
             *(V16 *) t2 = *(V16 *) e;
             func_00191DB8(t2, -buf10[1]);
-            func_0023FFF0(buf0, buf0, t2);
+            sceVu0AddVector(buf0, buf0, t2);
         }
     }
     disp_memory_partition_bar(arg0->unk8, arg0->unkC,
@@ -139,19 +139,19 @@ extern char D_005521D0[];
 
 void func_001438E8(void) {
     ACTLookTargetSystem_Exec();
-    debug_assertMessage(D_005521D0);
+    debug_StdPrintfDummy(D_005521D0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143910);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143B00);
 
-extern void setParticleEffect(int a0, int a1, int a2);
+extern void DispMultiBgaManagerWithKind(int a0, int a1, int a2);
 
 void func_00143DB8(void *a0) {
     int x = *(int *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x670) + 0x1B8);
     if (x) {
-        setParticleEffect(0x1B0, x, 1);
+        DispMultiBgaManagerWithKind(0x1B0, x, 1);
     }
 }
 

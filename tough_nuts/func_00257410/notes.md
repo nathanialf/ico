@@ -1,7 +1,7 @@
-# func_00257410 — parked
+# _SgContMod — parked
 
 VRAM: 0x00257410 (file_off 0x157410)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00257410.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_SgContMod.s
 
 ## Attempt at 2026-07-01
 
@@ -9,21 +9,21 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00257410.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00257410/func_00257410.c`
+**Seed:** `tough_nuts/_SgContMod/_SgContMod.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00257410, 0x160
+nonmatching _SgContMod, 0x160
 
-glabel func_00257410
+glabel _SgContMod
     /* 157410 00257410 D0FFBD27 */  addiu      $29, $29, -0x30
     /* 157414 00257414 1000B1FF */  sd         $17, 0x10($29)
     /* 157418 00257418 2D888000 */  daddu      $17, $4, $0
     /* 15741C 0025741C 0000B0FF */  sd         $16, 0x0($29)
     /* 157420 00257420 2000BFFF */  sd         $31, 0x20($29)
-    /* 157424 00257424 F253090C */  jal        func_00254FC8
+    /* 157424 00257424 F253090C */  jal        _SgGetSlotContext
     /* 157428 00257428 2D200000 */   daddu     $4, $0, $0
     /* 15742C 0025742C 1854090C */  jal        func_00255060
     /* 157430 00257430 2D804000 */   daddu     $16, $2, $0
@@ -118,5 +118,5 @@ glabel func_00257410
     /* 157564 00257564 0000B0DF */  ld         $16, 0x0($29)
     /* 157568 00257568 0800E003 */  jr         $31
     /* 15756C 0025756C 3000BD27 */   addiu     $29, $29, 0x30
-endlabel func_00257410
+endlabel _SgContMod
 ```

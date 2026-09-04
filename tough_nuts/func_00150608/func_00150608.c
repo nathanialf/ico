@@ -59,9 +59,9 @@ typedef struct { char pad[4]; float f4; } CCPResult;
 extern void *D_00629DE4;
 extern void *D_00629DE8;
 extern CCPResult *ContinueCorrectPosition(void *);
-extern void func_00240008(void *, CCPResult *, CCPResult *);
-extern float func_0023FE70(void *, void *);
-extern float InitHandCameraCorrect(void *, CCPResult *);
+extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
+extern float sceVu0InnerProduct(void *, void *);
+extern float _DistxzGV(void *, CCPResult *);
 
 int func_00150608(void) {
     char *s1 = *(char **)((char *)D_00629DE4 + 0x164);
@@ -69,10 +69,10 @@ int func_00150608(void) {
     CCPResult *r1, *r2, *r3, *r4, *r5;
     r1 = ContinueCorrectPosition(D_00629DE8);
     r2 = ContinueCorrectPosition(D_00629DE4);
-    func_00240008(buf, r1, r2);
-    if (0.0f < func_0023FE70(buf, s1 + 0x4B0)) {
+    sceVu0SubVector(buf, r1, r2);
+    if (0.0f < sceVu0InnerProduct(buf, s1 + 0x4B0)) {
         r3 = ContinueCorrectPosition(D_00629DE8);
-        if (InitHandCameraCorrect(s1 + 0x4F0, r3) < 100.0f) {
+        if (_DistxzGV(s1 + 0x4F0, r3) < 100.0f) {
             if ((*(unsigned short *)(*(char **)((char *)D_00629DE8 + 0x164) + 0x1E) & 1) != 0) {
                 if (D_00629DE8 == 0) {
                     return 1;
@@ -100,12 +100,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyWalk);
 
 extern void BeforeFunc2(void *a0);
-extern void HandCameraCorrect(void *a0, void *a1);
+extern void _RotyGV(void *a0, void *a1);
 
 void actBoyRun(void *a0) {
     char buf[0x10];
     BeforeFunc2(buf);
-    HandCameraCorrect(buf, a0);
+    _RotyGV(buf, a0);
 }
 
 extern void *D_00629DE4;
@@ -173,7 +173,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CorrectStickInfo);
 
 extern unsigned long long D_006A45A8[];
 
-int GetBoyWeaponGObj(void) {
+int IsGirlEscortedInNextStage(void) {
     return (unsigned char)(D_006A45A8[0] >> 35) & 1;
 }
 
@@ -201,26 +201,26 @@ int actBoyHang(void) {
 
 
 extern long long D_006A45A0_ll[] __asm__("D_006A45A0");
-void actBoyBHang(void) {
+void OnGirlEscortFlag(void) {
     D_006A45A0_ll[1] |= 0x800000000LL;
 }
 
 extern char D_005529E0[];
 extern unsigned char D_006A45F0[];
-extern int actSwordEff(void *a0, int a1, int a2, int a3, float a4, float a5);
-extern void ACTGame_BeforeFunc(void *a0, void *a1, void *a2, int a3);
+extern int RequestStageChangeSimple(void *a0, int a1, int a2, int a3, float a4, float a5);
+extern void ACTGame_StageChangeGObjDirect(void *a0, void *a1, void *a2, int a3);
 
-int actBoyFall(void *a0, int a1) {
+int RequestStageChangeKidnapEnd(void *a0, int a1) {
     char buf[0x10];
     int rv = 0;
     if (D_00629DE4 != 0) {
-        rv = actSwordEff(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
+        rv = RequestStageChangeSimple(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
         if (rv != 0) {
             D_006A45F0[0] = 1;
             *(int *)(D_006A45F0 + 4) = a1;
             *(long *)buf = *(long *)D_005529E0;
             *(long *)(buf + 8) = *(long *)(D_005529E0 + 8);
-            ACTGame_BeforeFunc(D_00629DE4, a0, buf, 0);
+            ACTGame_StageChangeGObjDirect(D_00629DE4, a0, buf, 0);
         }
     }
     return rv;
@@ -228,7 +228,7 @@ int actBoyFall(void *a0, int a1) {
 
 extern unsigned char D_006A45F0[];
 
-int actBoyCall(void) {
+int GetEfStageCameraTargetID(void) {
     if (D_006A45F0[0] == 0) goto ret0;
     return *(int *)(D_006A45F0 + 4);
 ret0:
@@ -253,7 +253,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyHangBefore);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyReadyMove);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyBeslam);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", ACTSearchGObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueSrc);
 

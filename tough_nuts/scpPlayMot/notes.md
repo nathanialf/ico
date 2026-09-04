@@ -41,7 +41,7 @@ glabel scpPlayMot
     /* 7A610 0017A610 07AD0046 */  neg.s      $f20, $f21
     /* 7A614 0017A614 2800143C */  lui        $20, %hi(D_00286910)
     /* 7A618 0017A618 00B08044 */  mtc1       $0, $f22
-    /* 7A61C 0017A61C 3C11040C */  jal        func_001044F0
+    /* 7A61C 0017A61C 3C11040C */  jal        GetRootMatrixTransOffset
     /* 7A620 0017A620 2D282002 */   daddu     $5, $17, $0
     /* 7A624 0017A624 1800133C */  lui        $19, %hi(func_0017C308)
 .align 2

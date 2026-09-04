@@ -59,7 +59,7 @@ extern void func_00178E08(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 extern int func_0012AA28(int a0, int a1, int a2);
-extern void func_0017BF50(float a0, float a1, float a2, float a3);
+extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern volatile float D_006299D4;
 extern volatile float D_006299D8;
 extern volatile float D_006299DC;
@@ -78,7 +78,7 @@ void actSt47aEnd(volatile int a0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    func_0017BF50(D_006299D4, D_006299D8, D_006299DC, 100.0f);
+    scpWakeupItemWithBoundary(D_006299D4, D_006299D8, D_006299DC, 100.0f);
     while (func_0012AA28(0x64, 0x5A, 1) == 0) {
         _ACTWait(1);
     }
@@ -319,7 +319,7 @@ void actSt47aExit(int a0) {
 
 #include "common.h"
 extern void _ACTWait(int a0);
-extern int scpSleepEnemyOne(int a0, int *a1, float f);
+extern int scpTriggerBall(int a0, int *a1, float f);
 extern void lt_fade_status(int a0);
 extern void func_00178DD8(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
@@ -327,7 +327,7 @@ extern int func_0012A958(int a0);
 extern int *D_00629DE4;
 extern int D_0062A894;
 void actSt47aExit2(volatile int a0) {
-    while (scpSleepEnemyOne(a0, D_00629DE4, 1000.0f) == 0) { _ACTWait(1); }
+    while (scpTriggerBall(a0, D_00629DE4, 1000.0f) == 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     func_00178DD8(0x33);
     D_0062A894 = 1;

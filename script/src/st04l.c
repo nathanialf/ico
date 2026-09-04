@@ -37,7 +37,7 @@ void actSt04cInit(volatile int a0) {
 }
 
 
-extern int scpDoorTypeUpUp(int a0);
+extern int scpIsTorchLightOn(int a0);
 extern void lt_fade_status(int a0);
 extern void scpDispOnAllWithKind(void);
 extern void func_0018F940(void);
@@ -47,11 +47,11 @@ extern void func_0017A0F8(int a0);
 extern void func_00178DD8(int a0);
 extern int func_0012AA28(int a0, int a1, int a2);
 extern int iosPadDevRead(int a0, int a1);
-extern int Shock_Request(int a0, int a1);
+extern int iosPadActVolumeSet(int a0, int a1);
 extern void Vibration_ShotDecode(int a0);
 extern int func_0012A958(int a0);
 extern void scpActivateAllWithKind(void);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern void RequestStageChange(int a0, int a1, int a2, float f0, float f1);
 extern int D_0062A894;
 extern int D_0062BCD4;
 extern unsigned char D_0062BCFC;
@@ -60,7 +60,7 @@ extern int D_00629DEC;
 extern int D_00629DE4;
 extern int D_00629DE8;
 void actSt04dInit(volatile int a0) {
-    while (scpDoorTypeUpUp(0x3FF) == 0 || scpDoorTypeUpUp(0x400) == 0 ||
+    while (scpIsTorchLightOn(0x3FF) == 0 || scpIsTorchLightOn(0x400) == 0 ||
            func_00178DB0(0x9E) == 0) {
         _ACTWait(1);
     }
@@ -88,7 +88,7 @@ void actSt04dInit(volatile int a0) {
         int pad = iosPadDevRead(D_00629DEC, 0xA);
         D_0062BCFC = 0x80;
         D_0062BCF8 = pad;
-        Shock_Request(pad, 0x80);
+        iosPadActVolumeSet(pad, 0x80);
     }
     while (func_0012AA28(0xB0, 0xBE, 0) == 0) {
         _ACTWait(1);
@@ -100,7 +100,7 @@ void actSt04dInit(volatile int a0) {
     }
     _ACTWait(1);
     scpActivateAllWithKind();
-    actSt25aQueenDead(3, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
+    RequestStageChange(3, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
 }
 
 
@@ -108,13 +108,13 @@ extern int actSt25aQueenDeadChk(int a0);
 extern int D_0062BCD8;
 void actSt04eInit(volatile int a0) {
     if (D_00629E14 == 0x13) {
-        while (scpDoorTypeUpUp(0x403) == 0 || scpDoorTypeUpUp(0x404) == 0 ||
+        while (scpIsTorchLightOn(0x403) == 0 || scpIsTorchLightOn(0x404) == 0 ||
                func_00178DB0(0x9F) == 0) {
             _ACTWait(1);
         }
     }
     if (D_00629E14 == 0x14) {
-        while (scpDoorTypeUpUp(0x451) == 0 || scpDoorTypeUpUp(0x452) == 0 ||
+        while (scpIsTorchLightOn(0x451) == 0 || scpIsTorchLightOn(0x452) == 0 ||
                func_00178DB0(0x9F) == 0) {
             _ACTWait(1);
         }
@@ -137,7 +137,7 @@ void actSt04eInit(volatile int a0) {
             int pad = iosPadDevRead(D_00629DEC, 0xA);
             D_0062BCFC = 0x80;
             D_0062BCF8 = pad;
-            Shock_Request(pad, 0x80);
+            iosPadActVolumeSet(pad, 0x80);
         }
         while (func_0012AA28(0xB2, 0xBE, 0) == 0) {
             _ACTWait(1);
@@ -159,7 +159,7 @@ void actSt04eInit(volatile int a0) {
             int pad = iosPadDevRead(D_00629DEC, 0xA);
             D_0062BCFC = 0x80;
             D_0062BCF8 = pad;
-            Shock_Request(pad, 0x80);
+            iosPadActVolumeSet(pad, 0x80);
         }
         while (func_0012AA28(0xB3, 0xBE, 0) == 0) {
             _ACTWait(1);
@@ -177,14 +177,14 @@ void actSt04eInit(volatile int a0) {
 }
 
 
-extern int scpDoorTypeUpUp(int a0);
+extern int scpIsTorchLightOn(int a0);
 extern void lt_fade_status(int a0);
 extern void scpDispOnAllWithKind(void);
 extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
 extern void func_00178DD8(int a0);
 extern int func_0012AA28(int a0, int a1, int a2);
 extern int iosPadDevRead(int a0, int a1);
-extern int Shock_Request(int a0, int a1);
+extern int iosPadActVolumeSet(int a0, int a1);
 extern void Vibration_ShotDecode(int a0);
 extern int func_0012A958(int a0);
 extern void scpActivateAllWithKind(void);
@@ -195,7 +195,7 @@ extern int D_0062BCF8;
 extern int D_00629DEC;
 void actSt04lC1BallTurn(volatile int a0) {
     int pad;
-    while (scpDoorTypeUpUp(0x453) == 0 || scpDoorTypeUpUp(0x454) == 0 ||
+    while (scpIsTorchLightOn(0x453) == 0 || scpIsTorchLightOn(0x454) == 0 ||
            func_00178DB0(0xA0) == 0) {
         _ACTWait(1);
     }
@@ -215,7 +215,7 @@ void actSt04lC1BallTurn(volatile int a0) {
     pad = iosPadDevRead(D_00629DEC, 0xA);
     D_0062BCFC = 0x80;
     D_0062BCF8 = pad;
-    Shock_Request(pad, 0x80);
+    iosPadActVolumeSet(pad, 0x80);
     while (func_0012AA28(0xB4, 0xBE, 0) == 0) {
         _ACTWait(1);
     }
@@ -668,11 +668,11 @@ void actSt04lMonyou01Chk(volatile int a0) {
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
 extern int actItouQueenAttackChk(void);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void scpDispOnAllWithKind(void);
 extern void lt_fade_status(int a0);
 extern void gflagOff(int a0, int a1);
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern void func_00178DD8(int a0);
 extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
@@ -687,7 +687,7 @@ extern int D_0062A894;
 extern int D_0062BCF0;
 
 void actSt04lMonyou02Chk(volatile int a0) {
-    while (func_00178DB0(0x9C) == 0 || actItouQueenAttackChk() != 4 || scpSleepEnemyOne(a0, D_00629DE4, 1000.0f) == 0) {
+    while (func_00178DB0(0x9C) == 0 || actItouQueenAttackChk() != 4 || scpTriggerBall(a0, D_00629DE4, 1000.0f) == 0) {
         _ACTWait(1);
     }
     scpDispOnAllWithKind();
@@ -695,7 +695,7 @@ void actSt04lMonyou02Chk(volatile int a0) {
     D_0062A894 = 1;
     gflagOff(D_00629DE4, 0);
     if (D_00629DE8 != 0) {
-        iosOmBeforeFuncStandard(D_00629DE8, 0x3A, D_00629DE4);
+        iosOmSendMail(D_00629DE8, 0x3A, D_00629DE4);
     }
     func_00178DD8(0xB4);
     _ACTWait(0x3C);

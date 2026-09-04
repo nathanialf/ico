@@ -28,7 +28,7 @@ void _dispParam(int a0, float t)
   D_0062B5DC = t;
 }
 
-void editParam(int a0, float t)
+void StartQueenAttackEffect(int a0, float t)
 {
     D_0062B5CC = 1;
     D_0062B5D4 = 1;
@@ -48,7 +48,7 @@ void dispXZYZCircle(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/effectTool", dispCircle2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/effectTool", setQ);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/effectTool", editParam);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/effectTool", dispEffectToolField);
 
@@ -60,7 +60,7 @@ extern void GetMatrixFromQuaternion(int *self);
 extern void func_0010E4E8(int *self, short y);
 extern void func_0010E448(int *self, short y);
 
-void saveEffectData(int *self)
+void setQ(int *self)
 {
     GetMatrixFromQuaternion(self);
     func_0010E4E8(self, -D_0062B658);

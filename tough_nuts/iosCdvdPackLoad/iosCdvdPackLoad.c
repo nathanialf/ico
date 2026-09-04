@@ -17,9 +17,9 @@ loop:
     {
         iosCdvdLoad(self, entry, 0x20);
         new_var = D_00550D98;
-        func_00261188((unsigned char *) name, new_var, (int) entry);
+        sprintf((unsigned char *) name, new_var, (int) entry);
         cdvd_normpath((int) name);
-        func_002614F8((int) &D_0027A8A8[D_0062A25C * 0x30], (unsigned char *) name);
+        strcpy((int) &D_0027A8A8[D_0062A25C * 0x30], (unsigned char *) name);
 
         iosCdvdLoad(self, &size, 4);
         n = D_0062A25C;

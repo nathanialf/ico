@@ -3,7 +3,7 @@
 extern int D_0062C074;
 extern int D_0062C078;
 
-void InitCameraSetManager(int *a0, int *a1) {
+void CameraGetTargets(int *a0, int *a1) {
     *a0 = D_0062C074;
     *a1 = D_0062C078;
 }
@@ -11,7 +11,7 @@ void InitCameraSetManager(int *a0, int *a1) {
 extern int D_0062C080;
 extern int D_006C9F98[];
 
-void func_0018A0D8(int a0) {
+void CameraSetMode(int a0) {
     D_0062C080 = a0;
     D_006C9F98[0] = 0;
 }
@@ -25,18 +25,18 @@ int func_0018A0E8(void) {
 extern int D_006C9F60[];
 extern float D_006291E8;
 extern float ClearHandCameraCorrect(void *a0, int a1);
-extern void func_00240008();
-extern void func_0023FE98(void *dst, void *src);
-extern float func_00191E30(void *a0);
+extern void sceVu0SubVector();
+extern void sceVu0Normalize(void *dst, void *src);
+extern float _GetDirection(void *a0);
 
-void func_0018A0F0(int a0, float *a1, int *a2) {
+void CameraGetOtherObjOffset(int a0, float *a1, int *a2) {
     int *base = D_006C9F60;
     float buf[4];
     int deg;
     *a1 = ClearHandCameraCorrect(base, a0);
-    func_00240008(buf, a0, base);
-    func_0023FE98(buf, buf);
-    deg = (int)(func_00191E30(buf) / D_006291E8 * 180.0f) -
+    sceVu0SubVector(buf, a0, base);
+    sceVu0Normalize(buf, buf);
+    deg = (int)(_GetDirection(buf) / D_006291E8 * 180.0f) -
           *(short *)((char *)base + 0x12) * 180 / 32768;
     if (deg >= 181)
         deg -= 360;
@@ -63,10 +63,10 @@ typedef struct {
 } S_006C9FB0;
 
 extern S_006C9FB0 D_006C9FB0;
-extern int func_0018A3A0(void);
+extern int InsertCamera_isEnable(void);
 
 void func_0018A1D8(float *a0, float *a1, int a2) {
-    if (func_0018A3A0()) {
+    if (InsertCamera_isEnable()) {
         D_006C9FB0.f_00 = a2;
         D_006C9FB0.f_04 = 0;
         D_006C9FB0.f_10 = a0[0];
@@ -81,14 +81,14 @@ void func_0018A1D8(float *a0, float *a1, int a2) {
     }
 }
 
-extern void func_00240038(void *a0, void *a1, float a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
 void func_0018A268(float *a0, float *a1, int a2) {
-    if (func_0018A3A0()) {
+    if (InsertCamera_isEnable()) {
         D_006C9FB0.f_00 = a2;
         D_006C9FB0.f_04 = 0;
-        func_00240038(&D_006C9FB0.f_10, a0, -1.0f);
-        func_00240038(&D_006C9FB0.f_20, a1, -1.0f);
+        sceVu0ScaleVector(&D_006C9FB0.f_10, a0, -1.0f);
+        sceVu0ScaleVector(&D_006C9FB0.f_20, a1, -1.0f);
         D_006C9FB0.f_30 = 1;
         D_006C9FB0.f_31 = 1;
         D_006C9FB0.f_32 = 1;
@@ -131,14 +131,14 @@ void func_0018A390(void) {
 
 extern int D_006C9FA8[];
 
-int func_0018A3A0(void) {
+int InsertCamera_isEnable(void) {
     return D_006C9FA8[0] < 2;
 }
 
 extern float D_006C9F60_f[] __asm__("D_006C9F60");
 extern float D_006C9F80_f[] __asm__("D_006C9F80");
 
-void func_0018A3B0(float *src) {
+void CameraSetCameraPosition(float *src) {
     if (D_0062C080 != 3) {
         D_006C9F60_f[0] = src[0];
         D_006C9F60_f[1] = src[1];

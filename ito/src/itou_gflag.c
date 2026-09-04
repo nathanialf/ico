@@ -20,14 +20,14 @@ void itouGflagSave(void) {
 void func_00195B80(void) {
 }
 
-extern float func_00118048(float a0);
+extern float _Sqrt(float a0);
 
-void func_00195B88(float *quat, float m[4][4]) {
+void m33_to_quat(float *quat, float m[4][4]) {
     float tr, s, t;
 
     tr = m[0][0] + m[1][1] + m[2][2];
     if (tr > 0.0f) {
-        s = func_00118048(tr + 1.0f);
+        s = _Sqrt(tr + 1.0f);
         quat[3] = s * 0.5f;
         t = 0.5f / s;
         quat[0] = (m[1][2] - m[2][1]) * t;
@@ -41,7 +41,7 @@ void func_00195B88(float *quat, float m[4][4]) {
         if (m[2][2] > m[i][i]) i = 2;
         j = nxt[i];
         k = nxt[j];
-        s = func_00118048((m[i][i] - (m[j][j] + m[k][k])) + 1.0f);
+        s = _Sqrt((m[i][i] - (m[j][j] + m[k][k])) + 1.0f);
         quat[i] = s * 0.5f;
         if (s != 0.0f) {
             t = 0.5f / s;

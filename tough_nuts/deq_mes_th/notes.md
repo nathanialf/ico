@@ -61,7 +61,7 @@ glabel deq_mes_th
 .align 2
   .L00139CE0:
     /* 39CE0 00139CE0 7816A524 */  addiu      $5, $5, %lo(D_00551678)
-    /* 39CE4 00139CE4 6284090C */  jal        func_00261188
+    /* 39CE4 00139CE4 6284090C */  jal        sprintf
     /* 39CE8 00139CE8 F0FF2426 */   addiu     $4, $17, -0x10
 .align 2
   .L00139CEC:

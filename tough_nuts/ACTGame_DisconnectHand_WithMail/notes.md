@@ -56,7 +56,7 @@ glabel ACTGame_DisconnectHand_WithMail
     /* 4819C 0014819C 00000000 */  nop
     /* 481A0 001481A0 00000000 */  nop
     /* 481A4 001481A4 03030C46 */  div.s      $f12, $f0, $f12
-    /* 481A8 001481A8 0E00090C */  jal        func_00240038
+    /* 481A8 001481A8 0E00090C */  jal        sceVu0ScaleVector
     /* 481AC 001481AC 2D202002 */   daddu     $4, $17, $0
     /* 481B0 001481B0 0000028E */  lw         $2, 0x0($16)
     /* 481B4 001481B4 4244070C */  jal        Draw2DLineSeg_Start
@@ -70,7 +70,7 @@ glabel ACTGame_DisconnectHand_WithMail
 .align 2
   .L001481D4:
     /* 481D4 001481D4 6300043C */  lui        $4, %hi(D_0062C3C8)
-    /* 481D8 001481D8 F290060C */  jal        debug_assertMessage
+    /* 481D8 001481D8 F290060C */  jal        debug_StdPrintfDummy
     /* 481DC 001481DC C8C38424 */   addiu     $4, $4, %lo(D_0062C3C8)
     /* 481E0 001481E0 1000A1C7 */  lwc1       $f1, 0x10($29)
     /* 481E4 001481E4 003F013C */  lui        $1, (0x3F000000 >> 16)

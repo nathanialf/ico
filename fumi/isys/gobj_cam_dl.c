@@ -1,6 +1,6 @@
 #include "common.h"
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
 const char D_00613790[0x10] = "isys:null GObj\n";
 const char D_006137A0[0x10] = "camera gop:%x\n";
@@ -21,7 +21,7 @@ void cut_gobj_camera_dl_link(int a0, int a1)
     int *tail;
     int *cur;
 
-    debug_assertMessage(D_006137A0, self);
+    debug_StdPrintfDummy(D_006137A0, self);
     self[0x11] = key;
     head = D_0062A4D4;
     if (head == 0) {
@@ -29,7 +29,7 @@ void cut_gobj_camera_dl_link(int a0, int a1)
         self[0xD] = 0;
         D_0062A4D4 = self;
         D_0062A4D8 = self;
-        debug_assertMessage(D_006137B0);
+        debug_StdPrintfDummy(D_006137B0);
         return;
     }
     if ((unsigned int)key < (unsigned int)head[0x11]) {
@@ -37,7 +37,7 @@ void cut_gobj_camera_dl_link(int a0, int a1)
         self[0xD] = (int)head;
         head[0xE] = (int)self;
         D_0062A4D4 = self;
-        debug_assertMessage(D_006137C0);
+        debug_StdPrintfDummy(D_006137C0);
         return;
     }
     tail = D_0062A4D8;
@@ -46,7 +46,7 @@ void cut_gobj_camera_dl_link(int a0, int a1)
         self[0xD] = 0;
         tail[0xD] = (int)self;
         D_0062A4D8 = self;
-        debug_assertMessage(D_006137D8);
+        debug_StdPrintfDummy(D_006137D8);
         return;
     }
     cur = head;
@@ -70,12 +70,12 @@ void isysGObjRemoveCameraDL(int a0, int a1)
 
 void func_001F8E08(char *self, int a1, int a2, int a3, int a4)
 {
-    debug_assertMessage(D_006137F0);
+    debug_StdPrintfDummy(D_006137F0);
     *(int *)(self + 0x48) = a1;
     *(int *)(self + 0x4C) = a3;
     *(int *)(self + 0x50) = a4;
     cut_gobj_camera_dl_link((int)self, a2);
-    debug_assertMessage(D_00613808);
+    debug_StdPrintfDummy(D_00613808);
 }
 
 extern int *D_0062A4D8;
@@ -85,7 +85,7 @@ void isysGObjMoveCameraDL(int *self, int a1, int a2, int a3, int *t0)
     register int *t1 = self;
     int v34, v44;
     if (t0 == 0) {
-        debug_assertMessage(D_00613790);
+        debug_StdPrintfDummy(D_00613790);
         return;
     }
 
@@ -109,7 +109,7 @@ void isysGObjLinkCameraDL(int *self, int a1, int a2, int a3, int *t0)
     register int *t1 = self;
     int v34, v44;
     if (t0 == 0) {
-        debug_assertMessage(D_00613790);
+        debug_StdPrintfDummy(D_00613790);
         return;
     }
 
@@ -135,7 +135,7 @@ void isysGObjLinkCameraDLAfterGObj(void) {
     D_0062A4D8 = 0;
 }
 
-void isysGObjLinkCameraDLBeforeGObj(int a0, int a1)
+void isysGObjMoveCameraDLHead(int a0, int a1)
 {
     int *self = (int *)a0;
     int key = a1;

@@ -1,6 +1,6 @@
 #include "common.h"
 
-void *ResetGObjProc(int *a0, unsigned int a1, unsigned int a2, unsigned int a3,
+void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3,
                     unsigned int a4, unsigned int a5, unsigned int a6) {
     long long v = a1 | ((long long)a2 << 2) | ((long long)a3 << 4) | ((long long)a4 << 14)
                 | ((long long)a5 << 24) | ((long long)a6 << 34);
@@ -11,7 +11,7 @@ void *ResetGObjProc(int *a0, unsigned int a1, unsigned int a2, unsigned int a3,
     return (char *)a0 + 0x10;
 }
 
-void *GetMaxGObj(int *a0, int a1, int a2, int a3) {
+void *setBITBLTBUF(int *a0, int a1, int a2, int a3) {
     long long v = ((long long)a3 << 56) | ((long long)a2 << 48) | ((long long)a1 << 32);
     a0[1] = v >> 32;
     a0[2] = 0x50;
@@ -20,7 +20,7 @@ void *GetMaxGObj(int *a0, int a1, int a2, int a3) {
     return (char *)a0 + 0x10;
 }
 
-void *GetGObjP(int *a0, int a1, int a2, int a3) {
+void *setTRXPOS(int *a0, int a1, int a2, int a3) {
     long long v = ((long long)a1 << 59) | ((long long)a3 << 48) | ((long long)a2 << 32);
     a0[1] = v >> 32;
     a0[2] = 0x51;
@@ -29,7 +29,7 @@ void *GetGObjP(int *a0, int a1, int a2, int a3) {
     return (char *)a0 + 0x10;
 }
 
-void *GetGObjId(int *a0, int a1, int a2) {
+void *setTRXREG(int *a0, int a1, int a2) {
     unsigned long long v = (unsigned int)a1;
     unsigned long long packed = ((unsigned long long)a2 << 32) | v;
     a0[0] = (int)v;
@@ -38,7 +38,7 @@ void *GetGObjId(int *a0, int a1, int a2) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *PrintGObjID(char *a0, unsigned int a1) {
+void *setTRXDIR(char *a0, unsigned int a1) {
     unsigned long long v = (unsigned int)a1;
     *(int *)(a0 + 8) = 0x53;
     *(int *)(a0 + 0) = (int)v;
@@ -48,13 +48,13 @@ void *PrintGObjID(char *a0, unsigned int a1) {
 }
 
 extern int D_00615180[];
-extern void debug_assertMessage(void *a0, int a1);
+extern void debug_StdPrintfDummy(void *a0, int a1);
 
 void InitCameraGObjs(int a0) {
-    debug_assertMessage(D_00615180, a0);
+    debug_StdPrintfDummy(D_00615180, a0);
 }
 
-extern void func_002604B8(void *dst, void *src, int count);
+extern void memcpy(void *dst, void *src, int count);
 
 int CreateGObj(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7) {
     int b = a5 + a7;
@@ -62,16 +62,16 @@ int CreateGObj(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, i
         return 0;
     }
     if (a5 >= a1) {
-        func_002604B8(a0, a4, a1);
-        func_002604B8(a2, a4 + a1, a5 - a1);
-        func_002604B8(a2 + a5 - a1, a6, a7);
+        memcpy(a0, a4, a1);
+        memcpy(a2, a4 + a1, a5 - a1);
+        memcpy(a2 + a5 - a1, a6, a7);
     } else if (a7 >= a1 - a5) {
-        func_002604B8(a0, a4, a5);
-        func_002604B8(a0 + a5, a6, a1 - a5);
-        func_002604B8(a2, a6 + a1 - a5, a7 - (a1 - a5));
+        memcpy(a0, a4, a5);
+        memcpy(a0 + a5, a6, a1 - a5);
+        memcpy(a2, a6 + a1 - a5, a7 - (a1 - a5));
     } else {
-        func_002604B8(a0, a4, a5);
-        func_002604B8(a0 + a5, a6, a7);
+        memcpy(a0, a4, a5);
+        memcpy(a0 + a5, a6, a7);
     }
     return b;
 }
@@ -177,7 +177,7 @@ __asm__(
     "    sw $2, 0x0($5)\n"
     "    and $3, $3, $6\n"
     "    sw $3, 0x0($4)\n"
-    "    jal func_00101A40\n"
+    "    jal DIntr\n"
     "    nop\n"
     "    lui $6, (0x1000F520 >> 16)\n"
     "    lui $7, (0x10000 >> 16)\n"
@@ -208,17 +208,17 @@ __asm__(
     "    .set at\n"
 );
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023C1D8);
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", viBufBeginPut);
 
-extern unsigned char func_00100560(int x);
-extern void func_00100540(int x);
+extern unsigned char WaitSema(int x);
+extern void SignalSema(int x);
 
 void func_0023C2C0(int *self, int a1)
 {
-  func_00100560(self[0x40 / 4]);
+  WaitSema(self[0x40 / 4]);
   self[0x14 / 4] = self[0x14 / 4] + a1;
   *((long long *) (((char *) self) + 0x48)) = ((long long) a1) + (*((long long *) (((char *) self) + 0x48)));
-  func_00100540(self[0x40 / 4]);
+  SignalSema(self[0x40 / 4]);
 }
 
 /* func_0023C310: handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten
@@ -237,7 +237,7 @@ __asm__(
     "    sd $31, 0x30($29)\n"
     "    daddu $17, $4, $0\n"
     "    sd $16, 0x0($29)\n"
-    "    jal func_00100560\n"
+    "    jal WaitSema\n"
     "    lw $4, 0x40($17)\n"
     "    lw $3, 0x44($17)\n"
     "    bnez $3, .L0023C350\n"
@@ -247,7 +247,7 @@ __asm__(
     "    b .L0023C598\n"
     "    daddu $2, $0, $0\n"
     ".L0023C350:\n"
-    "    jal func_00101A40\n"
+    "    jal DIntr\n"
     "    nop\n"
     "    lui $5, (0x1000F520 >> 16)\n"
     "    lui $7, (0x10000 >> 16)\n"
@@ -379,7 +379,7 @@ __asm__(
     "    and $2, $16, $2\n"
     "    or $16, $2, $3\n"
     ".L0023C53C:\n"
-    "    jal func_00101A40\n"
+    "    jal DIntr\n"
     "    ori $16, $16, (0x30000100 & 0xFFFF)\n"
     "    lui $6, (0x1000F520 >> 16)\n"
     "    lui $7, (0x10000 >> 16)\n"
@@ -400,7 +400,7 @@ __asm__(
     "    sync\n"
     "    ei\n"
     ".L0023C58C:\n"
-    "    jal func_00100540\n"
+    "    jal SignalSema\n"
     "    lw $4, 0x40($17)\n"
     "    addiu $2, $0, 0x1\n"
     ".L0023C598:\n"
@@ -430,9 +430,9 @@ __asm__(
     "    daddu $17, $4, $0\n"
     "    sd $31, 0x20($29)\n"
     "    addiu $16, $0, 0x5\n"
-    "    jal func_00100560\n"
+    "    jal WaitSema\n"
     "    lw $4, 0x40($17)\n"
-    "    jal func_00101A40\n"
+    "    jal DIntr\n"
     "    sw $0, 0x44($17)\n"
     "    lui $5, (0x1000F520 >> 16)\n"
     "    lui $7, (0x10000 >> 16)\n"
@@ -476,7 +476,7 @@ __asm__(
     "    nop\n"
     "    bnez $2, .L0023C660\n"
     "    nop\n"
-    "    jal func_00101A40\n"
+    "    jal DIntr\n"
     "    nop\n"
     "    lui $5, (0x1000F520 >> 16)\n"
     "    lui $6, (0x10000 >> 16)\n"
@@ -514,7 +514,7 @@ __asm__(
     "    lw $2, 0x0($5)\n"
     "    sw $2, 0x38($17)\n"
     "    lw $3, 0x0($6)\n"
-    "    jal func_00100540\n"
+    "    jal SignalSema\n"
     "    sw $3, 0x3C($17)\n"
     "    ld $31, 0x20($29)\n"
     "    addiu $2, $0, 0x1\n"
@@ -562,7 +562,7 @@ __asm__(
     "    subu $18, $7, $3\n"
     "    addu $21, $6, $2\n"
     "    ori $19, $5, 0x100\n"
-    "    jal func_00100560\n"
+    "    jal WaitSema\n"
     "    lw $20, 0x20($17)\n"
     "    lw $11, 0x0($17)\n"
     "    sltu $2, $18, $11\n"
@@ -708,7 +708,7 @@ __asm__(
     "    lw $3, 0x30($17)\n"
     "    sw $3, 0x0($4)\n"
     "    lw $16, 0x34($17)\n"
-    "    jal func_00101A40\n"
+    "    jal DIntr\n"
     "    ori $16, $16, 0x100\n"
     "    lui $6, (0x1000F520 >> 16)\n"
     "    lui $7, (0x10000 >> 16)\n"
@@ -768,7 +768,7 @@ __asm__(
     "    lw $3, 0x10($17)\n"
     "    beql $3, $0, .L0023CAD8\n"
     "    lw $2, 0x3C($17)\n"
-    "    jal func_00101A40\n"
+    "    jal DIntr\n"
     "    nop\n"
     "    lui $6, (0x1000F520 >> 16)\n"
     "    lui $7, (0x10000 >> 16)\n"
@@ -795,7 +795,7 @@ __asm__(
     "    addiu $4, $0, 0x1\n"
     "    sw $2, 0x0($3)\n"
     "    sw $4, 0x44($17)\n"
-    "    jal func_00100540\n"
+    "    jal SignalSema\n"
     "    lw $4, 0x40($17)\n"
     "    ld $31, 0x70($29)\n"
     "    addiu $2, $0, 0x1\n"
@@ -815,9 +815,9 @@ __asm__(
 
 void func_0023CB20(int *self)
 {
-  func_00100560(self[0x40 / 4]);
+  WaitSema(self[0x40 / 4]);
   self[0x14 / 4] = (self[0x14 / 4] + 0x7FF) / 0x800 * 0x800;
-  func_00100540(self[0x40 / 4]);
+  SignalSema(self[0x40 / 4]);
 }
 
 typedef struct {
@@ -852,7 +852,7 @@ __asm__(
     "    daddu $17, $4, $0\n"
     "    sd $16, 0x0($29)\n"
     "    sd $31, 0x20($29)\n"
-    "    jal func_00101A40\n"
+    "    jal DIntr\n"
     "    addiu $16, $0, 0x5\n"
     "    lui $6, (0x1000F520 >> 16)\n"
     "    lui $7, (0x10000 >> 16)\n"
@@ -884,7 +884,7 @@ __asm__(
     "    lb $3, 0x60($17)\n"
     "    beql $3, $0, .L0023CF20\n"
     "    sb $0, 0x60($17)\n"
-    "    jal func_00100530\n"
+    "    jal DeleteSema\n"
     "    lw $4, 0x40($17)\n"
     "    sb $0, 0x60($17)\n"
     ".L0023CF20:\n"
@@ -904,10 +904,10 @@ __asm__(
 int func_0023CF40(int *self)
 {
   int r;
-  func_00100560(self[0x40 / 4]);
+  WaitSema(self[0x40 / 4]);
   r = (self[0x10 / 4] << 11) + self[0x14 / 4];
-  func_00100540(self[0x40 / 4]);
+  SignalSema(self[0x40 / 4]);
   return r;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CF90);
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", viBufPutTs);

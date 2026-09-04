@@ -3,14 +3,14 @@
 /* girl_act 0x164 actor-state view (local) */
 typedef struct { char _0[0x30]; int f_30; } GirlState;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GetEyeDirection);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", fzMagnitudeByLineSeg);
 
 typedef struct { int f_0; float f_4; int f_8; int f_C; } GirlHandDisc;
 
 extern int DebugDisp1CollisionWithColor(void *a0, int a1);
-extern void func_0023FDD8(void *a0, int a1, void *a2);
+extern void sceVu0ApplyMatrix(void *a0, int a1, void *a2);
 
-void funcGirlHandDisconnect(GirlHandDisc *a0, char *a1) {
+void GetEyeDirection(GirlHandDisc *a0, char *a1) {
     int rv = DebugDisp1CollisionWithColor(a1, 0x23);
     if (*(int *)(a1 + 0xC) == 4) {
         a0->f_0 = 0;
@@ -21,16 +21,16 @@ void funcGirlHandDisconnect(GirlHandDisc *a0, char *a1) {
     }
     a0->f_8 = 0;
     a0->f_C = 0;
-    func_0023FDD8(a0, (rv << 6) + *(int *)(*(char **)(a1 + 0x15C) + 0xC), a0);
+    sceVu0ApplyMatrix(a0, (rv << 6) + *(int *)(*(char **)(a1 + 0x15C) + 0xC), a0);
 }
 
 
 extern void ACTLookTargetSystem_Exec(void);
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 extern char D_00553720[];
 void GirlBrainClearTarget(void) {
     ACTLookTargetSystem_Exec();
-    debug_assertMessage(D_00553720);
+    debug_StdPrintfDummy(D_00553720);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", girlBrainMain_DecideMode);
@@ -51,7 +51,7 @@ void subGirlBrainMain(void *a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", subGirlBrain_Pulledup);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", sort_list);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", ATGoalTurnMail);
 
@@ -63,7 +63,7 @@ extern char D_00284640[];
 extern void *D_00629DE4, *D_00629DE8;
 extern void GetRootMatrixByDObj(void *out, void *obj);
 extern void GetHeightOfWallFromGObj(void *out, void *obj);
-void subGirlControl(void) {
+void girlBrainMain_PositionUpdate(void) {
     GetRootMatrixByDObj(D_00284640 + 0x00, D_00629DE8);
     GetRootMatrixByDObj(D_00284640 + 0x20, D_00629DE4);
     GetHeightOfWallFromGObj(D_00284640 + 0x10, D_00629DE8);
@@ -71,10 +71,10 @@ void subGirlControl(void) {
 }
 
 extern unsigned char D_0027EE30[];
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 
 void subGirlCollision(void) {
-    func_00260568(D_0027EE30, 0, 0x5910);
+    memset(D_0027EE30, 0, 0x5910);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GetBoyMode);
@@ -93,19 +93,19 @@ typedef struct {
 typedef struct { float x, y, z; } Vec3;
 extern int D_006A58A0[];
 extern int func_001443B8(void *buf, void *a1, int id);
-extern int HandCameraCorrect(void *buf, void *vec);
+extern int _RotyGV(void *buf, void *vec);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016B028);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlPulledReady);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", checkWaterfallResult);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlPulledGo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016C580);
 
 extern void func_00104548(void *, void *);
-extern int HandCameraCorrect(void *, void *);
+extern int _RotyGV(void *, void *);
 extern void BoxBarSoundOn(void *, int);
 extern char D_00553960[];
 extern char D_00553970[];
@@ -118,7 +118,7 @@ void actGirlDitch3mReady(void *a0, int a1) {
     void *v1;
     void *dst;
     func_00104548(buf, de8);
-    r = HandCameraCorrect(buf, a0);
+    r = _RotyGV(buf, a0);
     r = (r < 0) ? -r : r;
     if (r < 0x2E) {
         return;
@@ -128,17 +128,17 @@ void actGirlDitch3mReady(void *a0, int a1) {
     *(float *)((char *)dst + 0x3B0) = *(float *)((char *)a0 + 0x0);
     *(float *)((char *)dst + 0x3B4) = *(float *)((char *)a0 + 0x4);
     *(float *)((char *)dst + 0x3B8) = *(float *)((char *)a0 + 0x8);
-    funcGirlHandDisconnect(buf + 0x10, de8);
-    r = HandCameraCorrect(buf + 0x10, a0);
+    GetEyeDirection(buf + 0x10, de8);
+    r = _RotyGV(buf + 0x10, a0);
     if (r > 0) {
-        debug_assertMessage(D_00553960);
+        debug_StdPrintfDummy(D_00553960);
         if (s3 != 0) {
             BoxBarSoundOn(de8, 0xD9);
         } else {
             BoxBarSoundOn(de8, 0xDB);
         }
     } else {
-        debug_assertMessage(D_00553970);
+        debug_StdPrintfDummy(D_00553970);
         if (s3 != 0) {
             BoxBarSoundOn(de8, 0xD8);
         } else {
@@ -148,7 +148,7 @@ void actGirlDitch3mReady(void *a0, int a1) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlReadyMove);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", isHideRecheck);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlRescueDst);
 
@@ -160,7 +160,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlStart);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GirlAct_BoyAndMeCollisionMail);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", IsGirlStatusEscortEnable);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GetSafePosition);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", DebugDispAutoEscort);
 
@@ -179,7 +179,7 @@ extern int func_0016F560(void *, void *);
 extern float D_006290C4;
 extern float D_006290C8;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBLoop);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", isEnterHideadv);
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBEnd);
@@ -188,7 +188,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlHangG3M);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00170CB8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlDitch3mExec);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", HandMgr_Update);
 
 typedef struct {
     char _0[0x20];
@@ -208,7 +208,7 @@ typedef struct {
 } GirlStand;
 extern GirlStand D_gStand __asm__("D_00284740");
 
-void actGirlStand(void) {
+void HandMgr_Judge(void) {
     volatile int home;
     int uninit;
     float one = 1.0f;
@@ -216,9 +216,9 @@ void actGirlStand(void) {
     if (D_gStand.f_20 < 2.0f) {
         D_gStand.f_58 = 1;
     }
-    if ((HandCameraCorrect(D_gStand.sub40, D_gStand.sub30) < 0
-            ? -HandCameraCorrect(D_gStand.sub40, D_gStand.sub30)
-            : HandCameraCorrect(D_gStand.sub40, D_gStand.sub30)) >= 0x3D) {
+    if ((_RotyGV(D_gStand.sub40, D_gStand.sub30) < 0
+            ? -_RotyGV(D_gStand.sub40, D_gStand.sub30)
+            : _RotyGV(D_gStand.sub40, D_gStand.sub30)) >= 0x3D) {
         D_gStand.f_59 = 1;
     }
     if (D_gStand.f_54 > 15.0f) {
@@ -247,7 +247,7 @@ extern char D_00553C00[];
 extern char D_00553C20[];
 extern int D_0062AF84;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlWalk);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", HandMgr_Print);
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlRun);
@@ -366,7 +366,7 @@ void afterGirlHand(volatile unsigned int a0)
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_00553DA8);
+    debug_StdPrintfDummy((char *)D_00553DA8);
     s0[0x30 / 4] = 0x2;
     _ACTWait(0);
 }
@@ -379,7 +379,7 @@ void afterGirlPulledGo(volatile unsigned int a0)
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage((char *)D_00553DC0);
+    debug_StdPrintfDummy((char *)D_00553DC0);
     s0[0x30 / 4] = 0x3;
     _ACTWait(0);
 }

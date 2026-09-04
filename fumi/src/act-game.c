@@ -5,27 +5,27 @@
 typedef struct { char _0[0x30]; int f_30; char _pad34[0x54]; int f_88, f_8C, f_90; char _pad94[0xEC]; int f_180; } AGState;
 
 extern void BoxBarSoundOn(void *, int);
-extern int func_002610F0(void);
+extern int rand(void);
 extern int checkHit();
 extern void func_001927F8(void *, int, void *, void *);
-extern void debug_assertMessage(void *msg, ...);
-extern float func_0023FE70(void *, void *);
-extern void func_00240038(void *a0, void *a1, float a2);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void debug_StdPrintfDummy(void *msg, ...);
+extern float sceVu0InnerProduct(void *, void *);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void CylinderCollisionWithControlDynamics(void *, void *);
 extern int GetDifferenceFromWallUpperPlane(void *);
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 extern int DebugDisp1CollisionWithColor(void *a0, void *a1);
 extern void *subCommonIdle(void *a0);
 extern void ClipWallBoxStop(void *);
-extern int func_001668B0(int, int);
+extern int CompareAttribute(int, int);
 extern void fzMagnitudefv(void *out, int n, void *vec);
 extern void dispPlane(void *, void *);
 extern int *ContinueCorrectPosition(int *a0);
 extern void func_001FE250(void *, int, int);
 extern float RotateAccordingToStick_PatternThree(void *a0, void *a1);
 extern void func_00191DB8(void *a0, float a1);
-extern void func_001920A8(void *, void *);
+extern void SwapGV(void *, void *);
 extern void *D_00629DE4;
 extern void *D_00629DE8;
 extern float D_00628DD4;
@@ -73,7 +73,7 @@ void ACTGame_SaveActorInformation(void *gobj) {
     if ((int)(AGQ(0x468) >> 42) & 1) {
         if ((int)(AGQ(0x478) >> 42) & 1) {
             if (*(int *)((char *)gobj + 0xC) == 4) {
-                if (func_002610F0() & 1) {
+                if (rand() & 1) {
                     BoxBarSoundOn(gobj, 0xBA);
                 } else {
                     BoxBarSoundOn(gobj, 0xBC);
@@ -161,7 +161,7 @@ void ACTGame_SaveActorInformation(void *gobj) {
 
     if (((int)(AGQ(0x470) >> 4) & 1) && ((int)(AGQ(0x480) >> 4) & 1)) {
         BoxBarSoundOn(gobj, 0xC5);
-        debug_assertMessage(D_005523C0);
+        debug_StdPrintfDummy(D_005523C0);
     } else if (*(int *)(p + 0x30) == 0x2B) {
         BoxBarSoundOn(gobj, 0xC6);
     }
@@ -356,10 +356,10 @@ snd113:
             char *q = p + 0x4B0;
             char *d;
             float f;
-            f = func_0023FE70(*(char **)((char *)gobj + 0x15C) + 0x120, q);
-            func_00240038(v0, q, -f);
+            f = sceVu0InnerProduct(*(char **)((char *)gobj + 0x15C) + 0x120, q);
+            sceVu0ScaleVector(v0, q, -f);
             d = *(char **)((char *)gobj + 0x15C) + 0x120;
-            func_0023FFF0(d, d, v0);
+            sceVu0AddVector(d, d, v0);
             CylinderCollisionWithControlDynamics(gobj, p + 0x530);
         }
     }
@@ -373,7 +373,7 @@ snd113:
                 char *c;
                 int idx;
                 void *w;
-                func_00260568(box1, 0, 0xC0);
+                memset(box1, 0, 0xC0);
                 idx = DebugDisp1CollisionWithColor(gobj, (void *)0x33);
                 c = (char *)((idx << 6) + *(int *)(*(char **)((char *)gobj + 0x15C) + 0xC));
                 vE0[0] = *(float *)(c + 0x30);
@@ -384,19 +384,19 @@ snd113:
                 vF0[0] = *(float *)(c + 0x30);
                 vF0[1] = *(float *)(c + 0x34);
                 vF0[2] = *(float *)(c + 0x38);
-                func_0023FFF0(vD0, vE0, vF0);
-                func_00240038(vD0, vD0, 0.5f);
+                sceVu0AddVector(vD0, vE0, vF0);
+                sceVu0ScaleVector(vD0, vD0, 0.5f);
                 vD0[1] += 50.0f;
-                func_00240038(v100, subCommonIdle(gobj), 50.0f);
-                func_0023FFF0(box1, vD0, v100);
-                func_00240038(v100, subCommonIdle(gobj), -50.0f);
-                func_0023FFF0((char *)box1 + 0x10, vD0, v100);
+                sceVu0ScaleVector(v100, subCommonIdle(gobj), 50.0f);
+                sceVu0AddVector(box1, vD0, v100);
+                sceVu0ScaleVector(v100, subCommonIdle(gobj), -50.0f);
+                sceVu0AddVector((char *)box1 + 0x10, vD0, v100);
                 *(int *)((char *)box1 + 0x70) = 0;
                 ClipWallBoxStop(box1);
-                if (func_001668B0(*(int *)((char *)box1 + 0x98), 0x2000)) {
+                if (CompareAttribute(*(int *)((char *)box1 + 0x98), 0x2000)) {
                     BoxBarSoundOn(gobj, 0x12F);
                 }
-                if (func_001668B0(*(int *)((char *)box1 + 0x98), 0x20000)) {
+                if (CompareAttribute(*(int *)((char *)box1 + 0x98), 0x20000)) {
                     if (*(int *)(p + 0x67C)) {
                         if (GetDifferenceFromWallUpperPlane(gobj)) {
                             *(AGUq *)(*(char **)(p + 0x67C)) = *(AGUq *)((char *)box1 + 0x80);
@@ -414,7 +414,7 @@ snd113:
             int flag1, flag2, hit;
             float *r;
             void *w;
-            func_00260568(box2, 0, 0xC0);
+            memset(box2, 0, 0xC0);
             hit = 0;
             r = (float *)ContinueCorrectPosition(gobj);
             v1D0[0] = r[0];
@@ -422,16 +422,16 @@ snd113:
             v1D0[1] = r[1];
             r = (float *)ContinueCorrectPosition(gobj);
             v1D0[2] = r[2];
-            func_00240038(v1E0, subCommonIdle(gobj), -50.0f);
-            func_0023FFF0(box2, v1D0, v1E0);
-            func_00240038(v1E0, subCommonIdle(gobj), 50.0f);
-            func_0023FFF0((char *)box2 + 0x10, v1D0, v1E0);
+            sceVu0ScaleVector(v1E0, subCommonIdle(gobj), -50.0f);
+            sceVu0AddVector(box2, v1D0, v1E0);
+            sceVu0ScaleVector(v1E0, subCommonIdle(gobj), 50.0f);
+            sceVu0AddVector((char *)box2 + 0x10, v1D0, v1E0);
             flag1 = 0;
             flag2 = 0;
             *(int *)((char *)box2 + 0x70) = 0;
             ClipWallBoxStop(box2);
-            if (func_001668B0(*(int *)((char *)box2 + 0x98), 0x400)) flag1 = 1;
-            if (func_001668B0(*(int *)((char *)box2 + 0x98), 0xC000)) flag2 = 1;
+            if (CompareAttribute(*(int *)((char *)box2 + 0x98), 0x400)) flag1 = 1;
+            if (CompareAttribute(*(int *)((char *)box2 + 0x98), 0xC000)) flag2 = 1;
             if (flag1 || flag2) {
                 func_001FE250(v1F0, *(int *)((char *)box2 + 0x80), *(int *)((char *)box2 + 0x88));
                 w = ContinueCorrectPosition(gobj);
@@ -451,7 +451,7 @@ snd113:
             int idx;
             void *w;
             int n;
-            func_00260568(box3, 0, 0xC0);
+            memset(box3, 0, 0xC0);
             idx = DebugDisp1CollisionWithColor(gobj, (void *)0x33);
             c = (char *)((idx << 6) + *(int *)(*(char **)((char *)gobj + 0x15C) + 0xC));
             v2C0[0] = *(float *)(c + 0x30);
@@ -462,17 +462,17 @@ snd113:
             v2D0[0] = *(float *)(c + 0x30);
             v2D0[1] = *(float *)(c + 0x34);
             v2D0[2] = *(float *)(c + 0x38);
-            func_0023FFF0(v1F0, v2C0, v2D0);
-            func_00240038(v1F0, v1F0, 0.5f);
+            sceVu0AddVector(v1F0, v2C0, v2D0);
+            sceVu0ScaleVector(v1F0, v1F0, 0.5f);
             v1F0[1] += 50.0f;
-            func_00240038(v2E0, subCommonIdle(gobj), 50.0f);
+            sceVu0ScaleVector(v2E0, subCommonIdle(gobj), 50.0f);
             func_00191DB8(v2E0, D_00628DD4);
-            func_0023FFF0(box3, v1F0, v2E0);
-            func_00240038(v2E0, subCommonIdle(gobj), 50.0f);
+            sceVu0AddVector(box3, v1F0, v2E0);
+            sceVu0ScaleVector(v2E0, subCommonIdle(gobj), 50.0f);
             func_00191DB8(v2E0, D_00628DD8);
-            func_0023FFF0((char *)box3 + 0x10, v1F0, v2E0);
+            sceVu0AddVector((char *)box3 + 0x10, v1F0, v2E0);
             if (i == 1) {
-                func_001920A8(box3, (char *)box3 + 0x10);
+                SwapGV(box3, (char *)box3 + 0x10);
             }
             *(int *)((char *)box3 + 0x70) = 0;
             ClipWallBoxStop(box3);
@@ -494,12 +494,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", EXITDATA_GetNextPosition)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_StageChangeGObj);
 
-extern int InitIcoMisc(void *a0);
+extern int gamesysGirlStageGet(void *a0);
 extern int D_00629C90;
 extern void func_0019A4B8(void *a0, int a1, int a2);
 
 void ACTGame_SetActors_Debug(void *a0) {
-    int r = InitIcoMisc(a0);
+    int r = gamesysGirlStageGet(a0);
     func_0019A4B8(a0, D_00629C90, r);
 }
 
@@ -510,7 +510,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_TryDisconnectHand
 extern void *subCommonIdle(void *a0);
 extern int Draw2DLineSeg_Start(int a0);
 extern void ReleaseItem(int a0, void *a1);
-extern void func_00240038(void *a0, void *a1, float a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern int D_00271240[];
 extern float D_0028E614;
 extern char D_0062C3C8[];
@@ -522,7 +522,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTCheckView);
 
 extern int *ContinueCorrectPosition(int *a0);
 extern void GetRootMatrixByDObj(char *a0, char *a1);
-extern float HandyCamera_TargetMoveType(int *a0, int a1);
+extern float _DistSqGV(int *a0, int a1);
 extern float before_DrawLine(void *a0, void *a1);
 extern void func_0018A1D8(float *a0, float *a1, int a2);
 extern void *func_0018A370(void);
@@ -544,11 +544,11 @@ void ACTGameView_Loop(void)
     if (D_00629DE4 != 0 && D_00629DE8 != 0) {
         GetRootMatrixByDObj((char *)buf0, (char *)D_00629DE4);
         GetRootMatrixByDObj((char *)buf1, (char *)D_00629DE8);
-        if (!(HandyCamera_TargetMoveType((int *)buf0, (int)buf1) < D_00628DEC)) {
+        if (!(_DistSqGV((int *)buf0, (int)buf1) < D_00628DEC)) {
             if (!(0.0f < before_DrawLine(buf2, ContinueCorrectPosition((int *)D_00629DE8)))) {
                 neg1 = -1.0f;
-                func_00240038(buf0, func_0018A370(), neg1);
-                func_00240038(buf1, ContinueCorrectPosition((int *)D_00629DE8), neg1);
+                sceVu0ScaleVector(buf0, func_0018A370(), neg1);
+                sceVu0ScaleVector(buf1, ContinueCorrectPosition((int *)D_00629DE8), neg1);
                 e = D_0028E618[0];
                 q = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
                 func_0018A1D8(buf0, buf1,
@@ -563,7 +563,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_LwsEffectProcess)
 
 extern void ACTGame_LwsEffectProcess(void *ctx);
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern char D_00552200[];
 extern char D_0062C3C0[];
 
@@ -628,7 +628,7 @@ extern int D_0055A2D8[][10];
 extern void func_001433F0(int idx, char *tmp_a, char *tmp_b);
 extern void disp_memory_partition_bar(char *self, char *other, int v, char *tmp_a, char *tmp_b);
 
-void ACTGame_InnerVelocityUpdate(char *self, char *other, int idx)
+void ACTGame_StageChangeGObjID(char *self, char *other, int idx)
 {
     char tmp_a[0x10];
     char tmp_b[0x10];
@@ -636,16 +636,16 @@ void ACTGame_InnerVelocityUpdate(char *self, char *other, int idx)
     disp_memory_partition_bar(self, other, D_0055A2D8[idx][9], tmp_a, tmp_b);
 }
 
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 extern float D_00628DF0;
-extern void func_00240038(void *a0, void *a1, float a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
-void ACTGame_BeforeFunc(int *a0, int a1, void *a2, int a3) {
+void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3) {
     char buf0[0x10];
     char buf1[0x10];
-    func_00260568(buf1, 0, 0x10);
+    memset(buf1, 0, 0x10);
     *(float *)(buf1 + 4) = (float)a3 * D_00628DF0 / 180.0f;
-    func_00240038(buf0, a2, -1.0f);
+    sceVu0ScaleVector(buf0, a2, -1.0f);
     disp_memory_partition_bar((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
 }
 
@@ -680,10 +680,10 @@ void ActOrientTest(float *dst, char *obj, void *a2)
     ((IntFloat *)dst)[2].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
 }
 
-extern float MatrixDrive_GetTurnYAngleXZ(float a0);
-extern void func_00240008(void *a0, void *a1, void *a2);
-extern void func_0023FE98(void *a0, void *a1);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern float FSqrt(float a0);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
+extern void sceVu0Normalize(void *a0, void *a1);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void SetRootMatrixWithTransOffsetByDObj(void *a0, void *a1, void *a2, float a3);
 
 void GetGirlHandlinkClInfo(void *a0, void *a1, void *a2, float farg0, float farg1) {
@@ -692,11 +692,11 @@ void GetGirlHandlinkClInfo(void *a0, void *a1, void *a2, float farg0, float farg
     float buf16[4];
 
     ActOrientTest(buf0, a0, a1);
-    func_00240008(buf16, a2, buf0);
-    if (farg1 < MatrixDrive_GetTurnYAngleXZ(buf16[0] * buf16[0] + buf16[1] * buf16[1] + buf16[2] * buf16[2])) {
-        func_0023FE98(buf16, buf16);
-        func_00240038(buf16, buf16, farg1);
-        func_0023FFF0(buf18, buf0, buf16);
+    sceVu0SubVector(buf16, a2, buf0);
+    if (farg1 < FSqrt(buf16[0] * buf16[0] + buf16[1] * buf16[1] + buf16[2] * buf16[2])) {
+        sceVu0Normalize(buf16, buf16);
+        sceVu0ScaleVector(buf16, buf16, farg1);
+        sceVu0AddVector(buf18, buf0, buf16);
         if (0.0f < buf18[1] - *(float *) ((char *) a2 + 4)) {
             buf18[1] = *(float *) ((char *) a2 + 4);
         }
@@ -709,7 +709,7 @@ void GetGirlHandlinkClInfo(void *a0, void *a1, void *a2, float farg0, float farg
 
 extern int D_006A3F70[];
 
-void hand_able_connect(void) {
+void ACTGameView_Init(void) {
     D_006A3F70[0x12C] = 0;
     D_006A3F70[0x12D] = 0;
 }
@@ -894,14 +894,14 @@ int ACTGameCollisionOn(void *a0)
     return 0;
 }
 
-extern int ACTGame_DisconnectHand(void);
+extern int ACTGame_isWeaponCombustible(void);
 extern int dispInsectNet(int *self);
 
-int ACTGameCollisionOff(int *self)
+int ACTGame_isWeaponEnableCatchfire(int *self)
 {
     unsigned long new_var;
     int ret = 0;
-    new_var = ACTGame_DisconnectHand();
+    new_var = ACTGame_isWeaponCombustible();
     if (new_var != 0)
     {
         ret = dispInsectNet(self);
@@ -909,10 +909,10 @@ int ACTGameCollisionOff(int *self)
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_CheckItemMotion);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTCheckCollis_WF);
 
-extern void func_00260568(void *dst, int val, int len);
-extern void func_00240080(void *buf, int x);
+extern void memset(void *dst, int val, int len);
+extern void sceVu0CopyVector(void *buf, int x);
 extern void ClipWallBoxStop(void *buf);
 extern void fzMagnitudefv(void *out, int n, void *vec);
 
@@ -930,18 +930,18 @@ typedef struct {
     char _9c[0x24];
 } HandWork;
 
-int ACTGame_CheckHandMotion(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget, int *flagout) {
+int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget, int *flagout) {
     HandWork work;
     int flag;
     int rv;
     int cnt;
 
-    func_00260568(&work, 0, 0xC0);
+    memset(&work, 0, 0xC0);
     rv = 1;
     flag = actor ? *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) : 0;
     work._70 = f;
-    func_00240080(&work, (int) hand0);
-    func_00240080((char *) &work + 0x10, (int) hand1);
+    sceVu0CopyVector(&work, (int) hand0);
+    sceVu0CopyVector((char *) &work + 0x10, (int) hand1);
     if (flag != 0) {
         *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 0;
     }
@@ -968,20 +968,20 @@ int ACTGame_CheckHandMotion(float f, void *hand0, void *hand1, void *actor, void
 }
 
 
-extern void func_00260568(void *dst, int val, int n);
-extern void func_00240080(void *buf, int x);
+extern void memset(void *dst, int val, int n);
+extern void sceVu0CopyVector(void *buf, int x);
 extern void ClipWallBoxStop(void *buf);
 
 /* unaligned 64-bit copy via packed struct (ldl/ldr + sdl/sdr) */
 typedef struct { long long w; } __attribute__((packed)) U64ag;
 
-int ACTGame_StageChangeGObjID(int a0, int a1, int *a2, char *a3)
+int ACTCheckCollis_CI(int a0, int a1, int *a2, char *a3)
 {
     char buf[0xC0];
-    func_00260568(buf, 0, 0xC0);
+    memset(buf, 0, 0xC0);
     *(int *)(buf + 0x70) = 0;
-    func_00240080(buf, a0);
-    func_00240080(buf + 0x10, a1);
+    sceVu0CopyVector(buf, a0);
+    sceVu0CopyVector(buf + 0x10, a1);
     ClipWallBoxStop(buf);
     if (a2 != 0) {
         *a2 = *(int *)(buf + 0x98);
@@ -996,25 +996,25 @@ int ACTGame_StageChangeGObjID(int a0, int a1, int *a2, char *a3)
 extern void ChangeFieldCollisionDebugMode(void *buf);
 extern int D_0062A558;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_StageChangeGObjDirect);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTCheckCollis_WELL);
 
 
-extern int ClipWallFieldCheckCB(void *buf);
-extern int func_001668B0(int a0, int a1);
+extern int ClipWallField(void *buf);
+extern int CompareAttribute(int a0, int a1);
 extern int D_0062A55C;
 
 typedef struct { char _pad[0x15C]; char *unk15C; } FlagObj;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_FLAG_LIFEPINCH);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTCheckCollis_WAY);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_FLAG_TETSUNAGI);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTCheckViewCl);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", GetSkeltonPosition);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", SetDirectRootPositionWithNodePointLimit);
 
-int ACTGameView_Init(int a0, int a1)
+int ACTGameView_Check(int a0, int a1)
 {
     int i;
     for (i = 0; i < D_006A3F70[0x4B0 / 4]; i++) {
@@ -1025,7 +1025,7 @@ int ACTGameView_Init(int a0, int a1)
     return 0;
 }
 
-int ACTCharctrl_Lock(int a0, int a1) {
+int ACTGameViewSimple_Check(int a0, int a1) {
     int i;
     for (i = 0; i < D_006A3F70[0x12C]; i++) {
         if (D_006A3F70[i] == a1) {
@@ -1037,7 +1037,7 @@ int ACTCharctrl_Lock(int a0, int a1) {
 
 extern char D_0060AF70[];
 
-int ACTCharctrl_Unlock(int a0)
+int ACTGame_GetMotOrientFromWeapon(int a0)
 {
     char *base;
     int rv;
@@ -1061,17 +1061,17 @@ int ACTGame_ConnectHand(char *a0) {
 }
 
 extern int checkHit(void);
-int ACTGame_DisconnectHand(void) {
+int ACTGame_isWeaponCombustible(void) {
     return checkHit() == 1;
 }
 
 extern const float D_0063226C_flt[] __asm__("D_0062C3D4");
 extern int *isysGObjSearchFromObjLayoutID(int);
 extern int *ContinueCorrectPosition(int *);
-extern float HandyCamera_TargetMoveType(int *, int);
-extern int *isysGObjSearchFromObjKindID_begin(int *);
+extern float _DistSqGV(int *, int);
+extern int *isysGObjSearchFromObjKindID_next(int *);
 
-int *PAIR_GetPosition_BOY(int a0, int a1) {
+int *ACTGame_GetNearestGObj(int a0, int a1) {
     float best_val = D_0063226C_flt[0];
     int *best = 0;
     int *node;
@@ -1079,12 +1079,12 @@ int *PAIR_GetPosition_BOY(int a0, int a1) {
     node = isysGObjSearchFromObjLayoutID(a1);
     if (node != 0) {
         do {
-            float val = HandyCamera_TargetMoveType(ContinueCorrectPosition(node), a0);
+            float val = _DistSqGV(ContinueCorrectPosition(node), a0);
             if (val < best_val) {
                 best_val = val;
                 best = node;
             }
-            node = isysGObjSearchFromObjKindID_begin(node);
+            node = isysGObjSearchFromObjKindID_next(node);
         } while (node != 0);
     }
     return best;

@@ -1,23 +1,23 @@
-# func_002416F0 — parked
+# sceVif1PkOpenDirectCode — parked
 
 VRAM: 0x002416F0 (file_off 0x1416F0)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_002416F0.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sceVif1PkOpenDirectCode.s
 
 ## Attempt at 2026-06-13
 
-**Reason parked:** rc8 stall=30/30. Pure regalloc tie: ROM uses dead arg regs (ptr=$5/a1, ternary result=$4/a0, alt=$2/v0, base=$4); gcc uses v0/v1/a1 (consistent v0<->a0,v1<->a1 relabel in tail). func_00241838(a0,2,3) modifies a0[0]; ptr=a0[0]; a0[0]=ptr+1; a0[3]=ptr; *ptr=a1?0xD0000000:0x50000000 (movn). Exhausted ~30 shapes: store-order(6), ptr/ptr+4 reg via param-reuse(a0/a1), ptr-to-array deref, struct-typed, void-callee, char*, int**, named-temp, explicit-if, assign-in-expr. Sibling func_00241640 matched trivially (diff callee func_002415E8). Permuter-class.
+**Reason parked:** rc8 stall=30/30. Pure regalloc tie: ROM uses dead arg regs (ptr=$5/a1, ternary result=$4/a0, alt=$2/v0, base=$4); gcc uses v0/v1/a1 (consistent v0<->a0,v1<->a1 relabel in tail). sceVif1PkAlign(a0,2,3) modifies a0[0]; ptr=a0[0]; a0[0]=ptr+1; a0[3]=ptr; *ptr=a1?0xD0000000:0x50000000 (movn). Exhausted ~30 shapes: store-order(6), ptr/ptr+4 reg via param-reuse(a0/a1), ptr-to-array deref, struct-typed, void-callee, char*, int**, named-temp, explicit-if, assign-in-expr. Sibling func_00241640 matched trivially (diff callee sceVif1PkTerminate). Permuter-class.
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_002416F0/func_002416F0.c`
+**Seed:** `tough_nuts/sceVif1PkOpenDirectCode/sceVif1PkOpenDirectCode.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_002416F0, 0x58
+nonmatching sceVif1PkOpenDirectCode, 0x58
 
-glabel func_002416F0
+glabel sceVif1PkOpenDirectCode
     /* 1416F0 002416F0 D0FFBD27 */  addiu      $29, $29, -0x30
     /* 1416F4 002416F4 03000624 */  addiu      $6, $0, 0x3
     /* 1416F8 002416F8 1000B1FF */  sd         $17, 0x10($29)
@@ -25,7 +25,7 @@ glabel func_002416F0
     /* 141700 00241700 2D88A000 */  daddu      $17, $5, $0
     /* 141704 00241704 2D808000 */  daddu      $16, $4, $0
     /* 141708 00241708 2000BFFF */  sd         $31, 0x20($29)
-    /* 14170C 0024170C 0E06090C */  jal        func_00241838
+    /* 14170C 0024170C 0E06090C */  jal        sceVif1PkAlign
     /* 141710 00241710 02000524 */   addiu     $5, $0, 0x2
     /* 141714 00241714 0000058E */  lw         $5, 0x0($16)
     /* 141718 00241718 00D0023C */  lui        $2, (0xD0000000 >> 16)
@@ -40,7 +40,7 @@ glabel func_002416F0
     /* 14173C 0024173C 0000A4AC */  sw         $4, 0x0($5)
     /* 141740 00241740 0800E003 */  jr         $31
     /* 141744 00241744 3000BD27 */   addiu     $29, $29, 0x30
-endlabel func_002416F0
+endlabel sceVif1PkOpenDirectCode
 ```
 
 ## Permuter run (2026-06-13) — resolution (b) permuter-exhausted

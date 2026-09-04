@@ -1,7 +1,7 @@
-# func_0024E088 — PARKED near-miss rc9 (not permuter-run)
+# _dispatchMpegCallback — PARKED near-miss rc9 (not permuter-run)
 
 VRAM 0x0024E088, common/src/PObj.c. vtable dispatch with fn-ptr call.
-Caller-side decl is `void func_0024E088(void*,void*)` but it RETURNS the fn's
+Caller-side decl is `void _dispatchMpegCallback(void*,void*)` but it RETURNS the fn's
 return value (callers ignore it) — I changed the in-TU extern to `void*`.
 
 ## Shape (rc9 seed)
@@ -34,15 +34,15 @@ feedback_dual_root_addr_ptr_defeats_gcse) so gcse doesn't merge e.
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024E088/func_0024E088.1.c`
+**Seed:** `tough_nuts/_dispatchMpegCallback/_dispatchMpegCallback.1.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024E088, 0x50
+nonmatching _dispatchMpegCallback, 0x50
 
-glabel func_0024E088
+glabel _dispatchMpegCallback
     /* 14E088 0024E088 F0FFBD27 */  addiu      $29, $29, -0x10
     /* 14E08C 0024E08C 2D380000 */  daddu      $7, $0, $0
     /* 14E090 0024E090 0D008010 */  beqz       $4, .L0024E0C8
@@ -67,7 +67,7 @@ glabel func_0024E088
     /* 14E0CC 0024E0CC 2D10E000 */  daddu      $2, $7, $0
     /* 14E0D0 0024E0D0 0800E003 */  jr         $31
     /* 14E0D4 0024E0D4 1000BD27 */   addiu     $29, $29, 0x10
-endlabel func_0024E088
+endlabel _dispatchMpegCallback
 ```
 
 ---
@@ -78,15 +78,15 @@ endlabel func_0024E088
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024E088/func_0024E088.2.c`
+**Seed:** `tough_nuts/_dispatchMpegCallback/_dispatchMpegCallback.2.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024E088, 0x50
+nonmatching _dispatchMpegCallback, 0x50
 
-glabel func_0024E088
+glabel _dispatchMpegCallback
     /* 14E088 0024E088 F0FFBD27 */  addiu      $29, $29, -0x10
     /* 14E08C 0024E08C 2D380000 */  daddu      $7, $0, $0
     /* 14E090 0024E090 0D008010 */  beqz       $4, .L0024E0C8
@@ -111,7 +111,7 @@ glabel func_0024E088
     /* 14E0CC 0024E0CC 2D10E000 */  daddu      $2, $7, $0
     /* 14E0D0 0024E0D0 0800E003 */  jr         $31
     /* 14E0D4 0024E0D4 1000BD27 */   addiu     $29, $29, 0x10
-endlabel func_0024E088
+endlabel _dispatchMpegCallback
 ```
 
 ---
@@ -122,15 +122,15 @@ endlabel func_0024E088
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024E088/func_0024E088.3.c`
+**Seed:** `tough_nuts/_dispatchMpegCallback/_dispatchMpegCallback.3.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024E088, 0x50
+nonmatching _dispatchMpegCallback, 0x50
 
-glabel func_0024E088
+glabel _dispatchMpegCallback
     /* 14E088 0024E088 F0FFBD27 */  addiu      $29, $29, -0x10
     /* 14E08C 0024E08C 2D380000 */  daddu      $7, $0, $0
     /* 14E090 0024E090 0D008010 */  beqz       $4, .L0024E0C8
@@ -155,7 +155,7 @@ glabel func_0024E088
     /* 14E0CC 0024E0CC 2D10E000 */  daddu      $2, $7, $0
     /* 14E0D0 0024E0D0 0800E003 */  jr         $31
     /* 14E0D4 0024E0D4 1000BD27 */   addiu     $29, $29, 0x10
-endlabel func_0024E088
+endlabel _dispatchMpegCallback
 ```
 
 ---
@@ -166,15 +166,15 @@ endlabel func_0024E088
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024E088/func_0024E088.4.c`
+**Seed:** `tough_nuts/_dispatchMpegCallback/_dispatchMpegCallback.4.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024E088, 0x50
+nonmatching _dispatchMpegCallback, 0x50
 
-glabel func_0024E088
+glabel _dispatchMpegCallback
     /* 14E088 0024E088 F0FFBD27 */  addiu      $29, $29, -0x10
     /* 14E08C 0024E08C 2D380000 */  daddu      $7, $0, $0
     /* 14E090 0024E090 0D008010 */  beqz       $4, .L0024E0C8
@@ -199,7 +199,7 @@ glabel func_0024E088
     /* 14E0CC 0024E0CC 2D10E000 */  daddu      $2, $7, $0
     /* 14E0D0 0024E0D0 0800E003 */  jr         $31
     /* 14E0D4 0024E0D4 1000BD27 */   addiu     $29, $29, 0x10
-endlabel func_0024E088
+endlabel _dispatchMpegCallback
 ```
 
 ---
@@ -210,15 +210,15 @@ endlabel func_0024E088
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024E088/func_0024E088.5.c`
+**Seed:** `tough_nuts/_dispatchMpegCallback/_dispatchMpegCallback.5.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024E088, 0x50
+nonmatching _dispatchMpegCallback, 0x50
 
-glabel func_0024E088
+glabel _dispatchMpegCallback
     /* 14E088 0024E088 F0FFBD27 */  addiu      $29, $29, -0x10
     /* 14E08C 0024E08C 2D380000 */  daddu      $7, $0, $0
     /* 14E090 0024E090 0D008010 */  beqz       $4, .L0024E0C8
@@ -243,5 +243,5 @@ glabel func_0024E088
     /* 14E0CC 0024E0CC 2D10E000 */  daddu      $2, $7, $0
     /* 14E0D0 0024E0D0 0800E003 */  jr         $31
     /* 14E0D4 0024E0D4 1000BD27 */   addiu     $29, $29, 0x10
-endlabel func_0024E088
+endlabel _dispatchMpegCallback
 ```

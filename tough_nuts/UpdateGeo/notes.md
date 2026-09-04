@@ -56,44 +56,44 @@ glabel UpdateGeo
     /* 4CC24 0014CC24 2D804000 */   daddu     $16, $2, $0
     /* 4CC28 0014CC28 2D280002 */  daddu      $5, $16, $0
     /* 4CC2C 0014CC2C 2D304000 */  daddu      $6, $2, $0
-    /* 4CC30 0014CC30 F447060C */  jal        func_00191FD0
+    /* 4CC30 0014CC30 F447060C */  jal        _OrientXZGV
     /* 4CC34 0014CC34 2D204002 */   daddu     $4, $18, $0
 .align 2
   .L0014CC38:
     /* 4CC38 0014CC38 10008CC6 */  lwc1       $f12, 0x10($20)
     /* 4CC3C 0014CC3C 2D204002 */  daddu      $4, $18, $0
     /* 4CC40 0014CC40 2D284002 */  daddu      $5, $18, $0
-    /* 4CC44 0014CC44 0E00090C */  jal        func_00240038
+    /* 4CC44 0014CC44 0E00090C */  jal        sceVu0ScaleVector
     /* 4CC48 0014CC48 20009126 */   addiu     $17, $20, 0x20
     /* 4CC4C 0014CC4C 2D284002 */  daddu      $5, $18, $0
     /* 4CC50 0014CC50 30008426 */  addiu      $4, $20, 0x30
-    /* 4CC54 0014CC54 0228050C */  jal        func_0014A008
+    /* 4CC54 0014CC54 0228050C */  jal        ActGame_GetOrientQ
     /* 4CC58 0014CC58 2D300000 */   daddu     $6, $0, $0
     /* 4CC5C 0014CC5C 0000648E */  lw         $4, 0x0($19)
     /* 4CC60 0014CC60 2274050C */  jal        subCommonIdle
     /* 4CC64 0014CC64 2000B027 */   addiu     $16, $29, 0x20
     /* 4CC68 0014CC68 08008CC6 */  lwc1       $f12, 0x8($20)
     /* 4CC6C 0014CC6C 2D200002 */  daddu      $4, $16, $0
-    /* 4CC70 0014CC70 0E00090C */  jal        func_00240038
+    /* 4CC70 0014CC70 0E00090C */  jal        sceVu0ScaleVector
     /* 4CC74 0014CC74 2D284000 */   daddu     $5, $2, $0
     /* 4CC78 0014CC78 3E74050C */  jal        ContinueCorrectPosition
     /* 4CC7C 0014CC7C 0000648E */   lw        $4, 0x0($19)
     /* 4CC80 0014CC80 2D202002 */  daddu      $4, $17, $0
     /* 4CC84 0014CC84 2D300002 */  daddu      $6, $16, $0
-    /* 4CC88 0014CC88 FCFF080C */  jal        func_0023FFF0
+    /* 4CC88 0014CC88 FCFF080C */  jal        sceVu0AddVector
     /* 4CC8C 0014CC8C 2D284000 */   daddu     $5, $2, $0
     /* 4CC90 0014CC90 2274050C */  jal        subCommonIdle
     /* 4CC94 0014CC94 0000648E */   lw        $4, 0x0($19)
     /* 4CC98 0014CC98 04008CC6 */  lwc1       $f12, 0x4($20)
     /* 4CC9C 0014CC9C 2D200002 */  daddu      $4, $16, $0
-    /* 4CCA0 0014CCA0 0E00090C */  jal        func_00240038
+    /* 4CCA0 0014CCA0 0E00090C */  jal        sceVu0ScaleVector
     /* 4CCA4 0014CCA4 2D284000 */   daddu     $5, $2, $0
     /* 4CCA8 0014CCA8 34828CC7 */  lwc1       $f12, %gp_rel(D_00628E24)($28)
     /* 4CCAC 0014CCAC 6E47060C */  jal        func_00191DB8
     /* 4CCB0 0014CCB0 2D200002 */   daddu     $4, $16, $0
     /* 4CCB4 0014CCB4 2D202002 */  daddu      $4, $17, $0
     /* 4CCB8 0014CCB8 2D300002 */  daddu      $6, $16, $0
-    /* 4CCBC 0014CCBC FCFF080C */  jal        func_0023FFF0
+    /* 4CCBC 0014CCBC FCFF080C */  jal        sceVu0AddVector
     /* 4CCC0 0014CCC0 2D288000 */   daddu     $5, $4, $0
     /* 4CCC4 0014CCC4 0D008292 */  lbu        $2, 0xD($20)
     /* 4CCC8 0014CCC8 240080C6 */  lwc1       $f0, 0x24($20)

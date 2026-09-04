@@ -1,7 +1,7 @@
-# func_0024E3E8 — parked
+# _decodeOrSkipFrame — parked
 
 VRAM: 0x0024E3E8 (file_off 0x14E3E8)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0024E3E8.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_decodeOrSkipFrame.s
 
 ## Attempt at 2026-06-22
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0024E3E8.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0024E3E8/func_0024E3E8.c`
+**Seed:** `tough_nuts/_decodeOrSkipFrame/_decodeOrSkipFrame.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0024E3E8, 0x124
+nonmatching _decodeOrSkipFrame, 0x124
 
-glabel func_0024E3E8
+glabel _decodeOrSkipFrame
     /* 14E3E8 0024E3E8 A0FFBD27 */  addiu      $29, $29, -0x60
     /* 14E3EC 0024E3EC FFFF0224 */  addiu      $2, $0, -0x1
     /* 14E3F0 0024E3F0 4000B4FF */  sd         $20, 0x40($29)
@@ -42,13 +42,13 @@ glabel func_0024E3E8
     /* 14E434 0024E434 080002AE */  sw         $2, 0x8($16)
 .align 2
   .L0024E438:
-    /* 14E438 0024E438 5C4D090C */  jal        func_00253570
+    /* 14E438 0024E438 5C4D090C */  jal        _updateRefImage
     /* 14E43C 0024E43C 2D200000 */   daddu     $4, $0, $0
     /* 14E440 0024E440 07004010 */  beqz       $2, .L0024E460
     /* 14E444 0024E444 2D180000 */   daddu     $3, $0, $0
     /* 14E448 0024E448 5500133C */  lui        $19, %hi(D_0054C884)
     /* 14E44C 0024E44C 0400058E */  lw         $5, 0x4($16)
-    /* 14E450 0024E450 F64C090C */  jal        func_002533D8
+    /* 14E450 0024E450 F64C090C */  jal        _decPicture
     /* 14E454 0024E454 84C8648E */   lw        $4, %lo(D_0054C884)($19)
     /* 14E458 0024E458 02000010 */  b          .L0024E464
     /* 14E45C 0024E45C 2B180200 */   sltu      $3, $0, $2
@@ -61,16 +61,16 @@ glabel func_0024E3E8
     /* 14E468 0024E468 2D906000 */   daddu     $18, $3, $0
 .align 2
   .L0024E46C:
-    /* 14E46C 0024E46C 5C4D090C */  jal        func_00253570
+    /* 14E46C 0024E46C 5C4D090C */  jal        _updateRefImage
     /* 14E470 0024E470 01001424 */   addiu     $20, $0, 0x1
     /* 14E474 0024E474 5500133C */  lui        $19, %hi(D_0054C884)
     /* 14E478 0024E478 2D904000 */  daddu      $18, $2, $0
-    /* 14E47C 0024E47C 3638090C */  jal        func_0024E0D8
+    /* 14E47C 0024E47C 3638090C */  jal        _dispatchMpegCbNodata
     /* 14E480 0024E480 2D202002 */   daddu     $4, $17, $0
 .align 2
   .L0024E484:
     /* 14E484 0024E484 84C8648E */  lw         $4, %lo(D_0054C884)($19)
-    /* 14E488 0024E488 2E4D090C */  jal        func_002534B8
+    /* 14E488 0024E488 2E4D090C */  jal        _outputFrame
     /* 14E48C 0024E48C 0400058E */   lw        $5, 0x4($16)
     /* 14E490 0024E490 5500023C */  lui        $2, %hi(D_0054C92C)
     /* 14E494 0024E494 03000424 */  addiu      $4, $0, 0x3
@@ -109,6 +109,6 @@ glabel func_0024E3E8
     /* 14E500 0024E500 0000B0DF */  ld         $16, 0x0($29)
     /* 14E504 0024E504 0800E003 */  jr         $31
     /* 14E508 0024E508 6000BD27 */   addiu     $29, $29, 0x60
-endlabel func_0024E3E8
+endlabel _decodeOrSkipFrame
     /* 14E50C 0024E50C 00000000 */  nop
 ```

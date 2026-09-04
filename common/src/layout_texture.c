@@ -53,13 +53,13 @@ int lt_analog2Pad(int a0) {
 }
 
 extern int fightSoundClose(void);
-extern void StageManager(float a0, float a1, int a2);
+extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
 extern float D_00629404;
 extern int D_0062B304;
 
-int default_item_select(void) {
+int la_switching_stage(void) {
     if (fightSoundClose() == 0) {
-        StageManager(D_00629404, 4.0f, D_0062B304);
+        stgmgrForceSwitchWithFade(D_00629404, 4.0f, D_0062B304);
     }
     return -1;
 }
@@ -67,7 +67,7 @@ int default_item_select(void) {
 extern int D_002715D4[];
 extern int lt_set_item_select_func(void);
 
-int texture_fading(void)
+int la_save_confirm_yesno(void)
 {
     if (D_002715D4[0] & 0x10) {
         return lt_set_item_select_func();
@@ -78,13 +78,13 @@ int texture_fading(void)
 typedef struct { int _0; int f4; char pad[0x50]; } LTItem_B2EF8;
 extern LTItem_B2EF8 D_002715D0[];
 
-int func_001B2EF8(int a0){int v=D_002715D0[a0].f4;if(v&0x40)goto ret1;if(v&0x10)goto ret1;goto ret0;ret1:return 1;ret0:return 0;}
+int PSH_POSITIVE_OR_NEGATIVE(int a0){int v=D_002715D0[a0].f4;if(v&0x40)goto ret1;if(v&0x10)goto ret1;goto ret0;ret1:return 1;ret0:return 0;}
 
 struct S40 { char b[0x40]; };
 extern struct S40 D_0060F8F8;
 extern struct S40 D_0027D500;
 
-void display_primary_texture_layout(void) {
+void keyconfig_reset(void) {
     struct S40 tmp;
     tmp = D_0060F8F8;
     D_0027D500 = tmp;

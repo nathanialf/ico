@@ -62,7 +62,7 @@ glabel func_0015AF10
     /* 5AFA4 0015AFA4 23104300 */  subu       $2, $2, $3
     /* 5AFA8 0015AFA8 00688244 */  mtc1       $2, $f13
     /* 5AFAC 0015AFAC 606B8046 */  cvt.s.w    $f13, $f13
-    /* 5AFB0 0015AFB0 0846060C */  jal        _OrientXZGV
+    /* 5AFB0 0015AFB0 0846060C */  jal        _InterGV
     /* 5AFB4 0015AFB4 7000A524 */   addiu     $5, $5, 0x70
     /* 5AFB8 0015AFB8 2D200002 */  daddu      $4, $16, $0
     /* 5AFBC 0015AFBC 5810040C */  jal        CylinderCollision
@@ -82,10 +82,10 @@ glabel func_0015AF10
     /* 5AFF4 0015AFF4 23104300 */  subu       $2, $2, $3
     /* 5AFF8 0015AFF8 00688244 */  mtc1       $2, $f13
     /* 5AFFC 0015AFFC 606B8046 */  cvt.s.w    $f13, $f13
-    /* 5B000 0015B000 0846060C */  jal        _OrientXZGV
+    /* 5B000 0015B000 0846060C */  jal        _InterGV
     /* 5B004 0015B004 8000A524 */   addiu     $5, $5, 0x80
     /* 5B008 0015B008 2D20A003 */  daddu      $4, $29, $0
-    /* 5B00C 0015B00C A6FF080C */  jal        func_0023FE98
+    /* 5B00C 0015B00C A6FF080C */  jal        sceVu0Normalize
     /* 5B010 0015B010 2D28A003 */   daddu     $5, $29, $0
     /* 5B014 0015B014 2D200002 */  daddu      $4, $16, $0
     /* 5B018 0015B018 2E1A040C */  jal        dispPlane
@@ -172,7 +172,7 @@ glabel func_0015AF10
     /* 5AFA4 0015AFA4 23104300 */  subu       $2, $2, $3
     /* 5AFA8 0015AFA8 00688244 */  mtc1       $2, $f13
     /* 5AFAC 0015AFAC 606B8046 */  cvt.s.w    $f13, $f13
-    /* 5AFB0 0015AFB0 0846060C */  jal        _OrientXZGV
+    /* 5AFB0 0015AFB0 0846060C */  jal        _InterGV
     /* 5AFB4 0015AFB4 7000A524 */   addiu     $5, $5, 0x70
     /* 5AFB8 0015AFB8 2D200002 */  daddu      $4, $16, $0
     /* 5AFBC 0015AFBC 5810040C */  jal        CylinderCollision
@@ -192,10 +192,10 @@ glabel func_0015AF10
     /* 5AFF4 0015AFF4 23104300 */  subu       $2, $2, $3
     /* 5AFF8 0015AFF8 00688244 */  mtc1       $2, $f13
     /* 5AFFC 0015AFFC 606B8046 */  cvt.s.w    $f13, $f13
-    /* 5B000 0015B000 0846060C */  jal        _OrientXZGV
+    /* 5B000 0015B000 0846060C */  jal        _InterGV
     /* 5B004 0015B004 8000A524 */   addiu     $5, $5, 0x80
     /* 5B008 0015B008 2D20A003 */  daddu      $4, $29, $0
-    /* 5B00C 0015B00C A6FF080C */  jal        func_0023FE98
+    /* 5B00C 0015B00C A6FF080C */  jal        sceVu0Normalize
     /* 5B010 0015B010 2D28A003 */   daddu     $5, $29, $0
     /* 5B014 0015B014 2D200002 */  daddu      $4, $16, $0
     /* 5B018 0015B018 2E1A040C */  jal        dispPlane

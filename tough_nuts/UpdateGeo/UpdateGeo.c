@@ -39,10 +39,10 @@ typedef struct {
 extern void *subCommonIdle(void *a0);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 extern CCPResult *ContinueCorrectPosition(void *a0);
-extern void func_00191FD0(void *a0, void *a1, void *a2);
-extern void func_00240038(void *a0, void *a1, float a2);
-extern void func_0014A008(void *a0, void *a1, int a2);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void _OrientXZGV(void *a0, void *a1, void *a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern void ActGame_GetOrientQ(void *a0, void *a1, int a2);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void func_00191DB8(void *a0, float a1);
 
 static void UpdateGeo(Geo *e, void **pp) {
@@ -54,15 +54,15 @@ static void UpdateGeo(Geo *e, void **pp) {
         buf_a[1] = ((float *) subCommonIdle(*pp))[1];
         buf_a[2] = ((float *) subCommonIdle(*pp))[2];
     } else {
-        func_00191FD0(buf_a, ContinueCorrectPosition(isysGObjSearchFromObjLayoutID(0x2E)), ContinueCorrectPosition(*pp));
+        _OrientXZGV(buf_a, ContinueCorrectPosition(isysGObjSearchFromObjLayoutID(0x2E)), ContinueCorrectPosition(*pp));
     }
-    func_00240038(buf_a, buf_a, e->f10);
-    func_0014A008(e->f30, buf_a, 0);
-    func_00240038(buf_b, subCommonIdle(*pp), e->f8);
-    func_0023FFF0(e->f20, ContinueCorrectPosition(*pp), buf_b);
-    func_00240038(buf_b, subCommonIdle(*pp), e->f4);
+    sceVu0ScaleVector(buf_a, buf_a, e->f10);
+    ActGame_GetOrientQ(e->f30, buf_a, 0);
+    sceVu0ScaleVector(buf_b, subCommonIdle(*pp), e->f8);
+    sceVu0AddVector(e->f20, ContinueCorrectPosition(*pp), buf_b);
+    sceVu0ScaleVector(buf_b, subCommonIdle(*pp), e->f4);
     func_00191DB8(buf_b, D_00628E24);
-    func_0023FFF0(e->f20, e->f20, buf_b);
+    sceVu0AddVector(e->f20, e->f20, buf_b);
     e->f24 = e->f24 + (float) e->fD;
 }
 
@@ -83,7 +83,7 @@ extern BgaEntry D_0027DF90[];
 extern char D_005525C8[];
 extern char D_0062C3F8[];
 extern void func_001AAD00(char *file, int line);
-extern void func_00260380(char *file, int line, char *msg, int v);
+extern void __assert(char *file, int line, char *msg, int v);
 static void UpdateGeo();
 extern float stage_SetParentOfGObj(int a0, void *a1, void *a2, float a3);
 
@@ -94,9 +94,9 @@ extern unsigned char D_0062BFDE;
 extern unsigned char D_0062BFDF;
 extern unsigned char D_0062BFE0;
 extern void *subCommonIdle(void *a0);
-extern void func_00240038(void *a0, void *a1, float a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern CCPResult *ContinueCorrectPosition(void *a0);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void CylinderCollision(void *a0, void *a1);
 extern int func_00178DB0(int a0);
 extern void func_00178E08(int a0);
@@ -111,8 +111,8 @@ void E3_StageStartBoy(void *a0) {
     int w10, w14, w18;
 
     if (D_0062BFDE) {
-        func_00240038(buf, subCommonIdle(a0), 100.0f);
-        func_0023FFF0(buf, buf, ContinueCorrectPosition(a0));
+        sceVu0ScaleVector(buf, subCommonIdle(a0), 100.0f);
+        sceVu0AddVector(buf, buf, ContinueCorrectPosition(a0));
         CylinderCollision(a0, buf);
     }
     if (func_00178DB0(0x15B)) {
@@ -173,9 +173,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", OtherStageGirlPinchCamera_A
 extern void *D_00629DE4;
 extern void *D_00629DE8;
 extern CCPResult *ContinueCorrectPosition(void *);
-extern void func_00240008(void *, CCPResult *, CCPResult *);
-extern float func_0023FE70(void *, void *);
-extern float InitHandCameraCorrect(void *, CCPResult *);
+extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
+extern float sceVu0InnerProduct(void *, void *);
+extern float _DistxzGV(void *, CCPResult *);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150608);
 
@@ -187,12 +187,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyWalk);
 
 extern void BeforeFunc2(void *a0);
-extern void HandCameraCorrect(void *a0, void *a1);
+extern void _RotyGV(void *a0, void *a1);
 
 void actBoyRun(void *a0) {
     char buf[0x10];
     BeforeFunc2(buf);
-    HandCameraCorrect(buf, a0);
+    _RotyGV(buf, a0);
 }
 
 extern void *D_00629DE4;
@@ -260,7 +260,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CorrectStickInfo);
 
 extern unsigned long long D_006A45A8[];
 
-int GetBoyWeaponGObj(void) {
+int IsGirlEscortedInNextStage(void) {
     return (unsigned char)(D_006A45A8[0] >> 35) & 1;
 }
 
@@ -288,26 +288,26 @@ int actBoyHang(void) {
 
 
 extern long long D_006A45A0_ll[] __asm__("D_006A45A0");
-void actBoyBHang(void) {
+void OnGirlEscortFlag(void) {
     D_006A45A0_ll[1] |= 0x800000000LL;
 }
 
 extern char D_005529E0[];
 extern unsigned char D_006A45F0[];
-extern int actSwordEff(void *a0, int a1, int a2, int a3, float a4, float a5);
-extern void ACTGame_BeforeFunc(void *a0, void *a1, void *a2, int a3);
+extern int RequestStageChangeSimple(void *a0, int a1, int a2, int a3, float a4, float a5);
+extern void ACTGame_StageChangeGObjDirect(void *a0, void *a1, void *a2, int a3);
 
-int actBoyFall(void *a0, int a1) {
+int RequestStageChangeKidnapEnd(void *a0, int a1) {
     char buf[0x10];
     int rv = 0;
     if (D_00629DE4 != 0) {
-        rv = actSwordEff(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
+        rv = RequestStageChangeSimple(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
         if (rv != 0) {
             D_006A45F0[0] = 1;
             *(int *)(D_006A45F0 + 4) = a1;
             *(long *)buf = *(long *)D_005529E0;
             *(long *)(buf + 8) = *(long *)(D_005529E0 + 8);
-            ACTGame_BeforeFunc(D_00629DE4, a0, buf, 0);
+            ACTGame_StageChangeGObjDirect(D_00629DE4, a0, buf, 0);
         }
     }
     return rv;
@@ -315,7 +315,7 @@ int actBoyFall(void *a0, int a1) {
 
 extern unsigned char D_006A45F0[];
 
-int actBoyCall(void) {
+int GetEfStageCameraTargetID(void) {
     if (D_006A45F0[0] == 0) goto ret0;
     return *(int *)(D_006A45F0 + 4);
 ret0:
@@ -383,7 +383,7 @@ void actBoyHangBefore(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyReadyMove);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyBeslam);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", ACTSearchGObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueSrc);
 

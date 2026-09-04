@@ -154,7 +154,7 @@ void actSt13bElev(int a0) {
 
 #include "common.h"
 extern void _ACTWait(int a0);
-extern int scpSleepEnemyOne(int a0, int *a1, float f);
+extern int scpTriggerBall(int a0, int *a1, float f);
 extern void lt_fade_status(int a0);
 extern void func_00178DD8(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
@@ -162,7 +162,7 @@ extern int func_0012A958(int a0);
 extern int *D_00629DE4;
 extern int D_0062A894;
 void actSt13bDoor(volatile int a0) {
-    while (scpSleepEnemyOne(a0, D_00629DE4, 100.0f) == 0) {
+    while (scpTriggerBall(a0, D_00629DE4, 100.0f) == 0) {
         _ACTWait(1);
     }
     lt_fade_status(0x33);
@@ -211,8 +211,8 @@ void actSt13bSekizo2Event(void) {
 
 extern int actSt25aQueenDeadChk(int a0);
 extern void lt_fade_status(int a0);
-extern void func_0017A040(int a0);
-extern void func_0017A008(int a0);
+extern void scpSleepEnemyOne(int a0);
+extern void scpWakeupEnemyOne(int a0);
 extern int D_0062A894;
 void actSt13bMeetAgainChk(volatile int a0){ int a; int b;
  if(D_00629DE8==0) _ACTWait(0);
@@ -223,8 +223,8 @@ void actSt13bMeetAgainChk(volatile int a0){ int a; int b;
   if((a & b) != 0) break;
   _ACTWait(1);
  }
- lt_fade_status(0x33); D_0062A894 = 1; func_0017A040(0xD57);
+ lt_fade_status(0x33); D_0062A894 = 1; scpSleepEnemyOne(0xD57);
  func_00178DD8(0x44); func_00178DD8(0x46);
  stage_KillPlayBgAnimation(0x58,1,0);
  while(func_0012A958(0x58)==0) _ACTWait(1); _ACTWait(1);
- D_0062A894 = 0; lt_fade_status(0x32); func_0017A008(0xD57); }
+ D_0062A894 = 0; lt_fade_status(0x32); scpWakeupEnemyOne(0xD57); }

@@ -1,7 +1,7 @@
-# func_00244F40 — parked
+# sceAddDrv — parked
 
 VRAM: 0x00244F40 (file_off 0x144F40)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00244F40.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sceAddDrv.s
 
 ## Attempt at 2026-06-21
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00244F40.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00244F40/func_00244F40.c`
+**Seed:** `tough_nuts/sceAddDrv/sceAddDrv.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00244F40, 0x120
+nonmatching sceAddDrv, 0x120
 
-glabel func_00244F40
+glabel sceAddDrv
     /* 144F40 00244F40 70FFBD27 */  addiu      $29, $29, -0x90
     /* 144F44 00244F44 5000B1FF */  sd         $17, 0x50($29)
     /* 144F48 00244F48 2D888000 */  daddu      $17, $4, $0
@@ -27,13 +27,13 @@ glabel func_00244F40
     /* 144F58 00244F58 8000BFFF */  sd         $31, 0x80($29)
     /* 144F5C 00244F5C 7100133C */  lui        $19, %hi(D_0070E2C0)
     /* 144F60 00244F60 6000B2FF */  sd         $18, 0x60($29)
-    /* 144F64 00244F64 7E0D090C */  jal        func_002435F8
+    /* 144F64 00244F64 7E0D090C */  jal        _sceFsWaitS
     /* 144F68 00244F68 C0E27026 */   addiu     $16, $19, %lo(D_0070E2C0)
     /* 144F6C 00244F6C 5500033C */  lui        $3, %hi(D_0054AB20)
     /* 144F70 00244F70 20AB628C */  lw         $2, %lo(D_0054AB20)($3)
     /* 144F74 00244F74 04004054 */  bnel       $2, $0, .L00244F88
     /* 144F78 00244F78 0C0011AE */   sw        $17, 0xC($16)
-    /* 144F7C 00244F7C 8E0D090C */  jal        func_00243638
+    /* 144F7C 00244F7C 8E0D090C */  jal        sceFsInit
     /* 144F80 00244F80 00000000 */   nop
     /* 144F84 00244F84 0C0011AE */  sw         $17, 0xC($16)
 .align 2
@@ -42,7 +42,7 @@ glabel func_00244F40
     /* 144F8C 00244F8C 1400A2AF */  sw         $2, 0x14($29)
     /* 144F90 00244F90 1000A427 */  addiu      $4, $29, 0x10
     /* 144F94 00244F94 1800A0AF */  sw         $0, 0x18($29)
-    /* 144F98 00244F98 4801040C */  jal        func_00100520
+    /* 144F98 00244F98 4801040C */  jal        CreateSema
     /* 144F9C 00244F9C 2400A0AF */   sw        $0, 0x24($29)
     /* 144FA0 00244FA0 2D884000 */  daddu      $17, $2, $0
     /* 144FA4 00244FA4 3000A327 */  addiu      $3, $29, 0x30
@@ -61,11 +61,11 @@ glabel func_00244F40
     /* 144FD8 00244FD8 10000824 */  addiu      $8, $0, 0x10
     /* 144FDC 00244FDC 2D484002 */  daddu      $9, $18, $0
     /* 144FE0 00244FE0 04000A24 */  addiu      $10, $0, 0x4
-    /* 144FE4 00244FE4 5E0A090C */  jal        func_00242978
+    /* 144FE4 00244FE4 5E0A090C */  jal        sceSifCallRpc
     /* 144FE8 00244FE8 2D580000 */   daddu     $11, $0, $0
     /* 144FEC 00244FEC 07004104 */  bgez       $2, .L0024500C
     /* 144FF0 00244FF0 0020023C */   lui       $2, (0x20000000 >> 16)
-    /* 144FF4 00244FF4 4C01040C */  jal        func_00100530
+    /* 144FF4 00244FF4 4C01040C */  jal        DeleteSema
     /* 144FF8 00244FF8 2D202002 */   daddu     $4, $17, $0
     /* 144FFC 00244FFC 8A0D090C */  jal        func_00243628
     /* 145000 00245000 00000000 */   nop
@@ -78,15 +78,15 @@ glabel func_00244F40
     /* 145014 00245014 0000508C */   lw        $16, (0x20000000 & 0xFFFF)($2)
     /* 145018 00245018 05000016 */  bnez       $16, .L00245030
     /* 14501C 0024501C 00000000 */   nop
-    /* 145020 00245020 4C01040C */  jal        func_00100530
+    /* 145020 00245020 4C01040C */  jal        DeleteSema
     /* 145024 00245024 2D202002 */   daddu     $4, $17, $0
     /* 145028 00245028 06000010 */  b          .L00245044
     /* 14502C 0024502C FFFF0224 */   addiu     $2, $0, -0x1
 .align 2
   .L00245030:
-    /* 145030 00245030 5801040C */  jal        func_00100560
+    /* 145030 00245030 5801040C */  jal        WaitSema
     /* 145034 00245034 2D202002 */   daddu     $4, $17, $0
-    /* 145038 00245038 4C01040C */  jal        func_00100530
+    /* 145038 00245038 4C01040C */  jal        DeleteSema
     /* 14503C 0024503C 2D202002 */   daddu     $4, $17, $0
     /* 145040 00245040 3000A28F */  lw         $2, 0x30($29)
 .align 2
@@ -98,5 +98,5 @@ glabel func_00244F40
     /* 145054 00245054 4000B0DF */  ld         $16, 0x40($29)
     /* 145058 00245058 0800E003 */  jr         $31
     /* 14505C 0024505C 9000BD27 */   addiu     $29, $29, 0x90
-endlabel func_00244F40
+endlabel sceAddDrv
 ```

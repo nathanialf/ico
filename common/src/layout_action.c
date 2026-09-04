@@ -78,24 +78,24 @@ int _la_set_current_port_2(void)
   return 0x33;
 }
 
-extern void debug_assertMessage(void *a0, ...);
+extern void debug_StdPrintfDummy(void *a0, ...);
 extern char D_0060F8D8[];
 extern char D_0060F8E8[];
 
 int _la_set_current_port_lock_2(void *a0, int a1) {
-    debug_assertMessage(D_0060F8D8);
+    debug_StdPrintfDummy(D_0060F8D8);
     return a1;
 }
 
 int _la_set_current_port_new(void *a0, int a1) {
-    debug_assertMessage(D_0060F8E8);
+    debug_StdPrintfDummy(D_0060F8E8);
     return a1;
 }
 
 extern int D_002715D4[];
 extern int lt_set_fade_mode(int a0);
 
-int la_vibe_select(void)
+int la_boot_confirm_memory_card(void)
 {
     if (D_002715D4[0] & 0x40) {
         return lt_set_fade_mode(0);
@@ -103,7 +103,7 @@ int la_vibe_select(void)
     return -1;
 }
 
-extern void stgmgrForceSwitchWithFade(int a0);
+extern void stgmgrNextStagePreLoadForceStageSet(int a0);
 extern void iosPadDisable(void);
 extern void func_0013E828(int a0, int a1);
 extern void func_00178E08(int a0);
@@ -113,7 +113,7 @@ extern int D_00271254[];
 
 int la_title_continue_or_new(int a0) {
     if (a0 != 0) {
-        stgmgrForceSwitchWithFade(0);
+        stgmgrNextStagePreLoadForceStageSet(0);
         D_0062C18C = D_00629D00;
         D_00271254[0] = 1;
         iosPadDisable();
@@ -174,7 +174,7 @@ extern int D_0062B308;
 extern int D_0062B2FC;
 extern void func_001AF120(void);
 
-int la_load_game_memory_card_check(void) {
+int la_mc_preview_info(void) {
     if (D_0062B308 == 0) {
         if ((1 >> D_0062B2FC) & 1) {
             return -1;
@@ -197,7 +197,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_mc_load_file_se
 
 extern int lt_set_item_select_func(void);
 
-int la_load_confirm_no_memory_card(void) {
+int la_general_mc_confirm(void) {
     if (D_002715D4[0] & 0x40) {
         return lt_set_item_select_func();
     }
@@ -210,7 +210,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_load_start_chec
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_load_processing);
 
-extern void debug_assertMessage(void *a0, ...);
+extern void debug_StdPrintfDummy(void *a0, ...);
 extern void func_001AF120(void);
 extern int initSceneGObj(int a0);
 extern char D_00700710[];
@@ -228,10 +228,10 @@ int la_mc_confirm_save_file(int a0, int a1) {
         __builtin_memcpy(D_00700710, D_0027D2F8, 0x10);
         D_0062B308 = 0x3FF;
         func_001AF120();
-        debug_assertMessage(D_0060FB70, D_0062B308, D_0062B2FC);
+        debug_StdPrintfDummy(D_0060FB70, D_0062B308, D_0062B2FC);
     }
     if (a1 != -1) {
-        debug_assertMessage(D_0060FB88, 0xE9, 0xEA, a1);
+        debug_StdPrintfDummy(D_0060FB88, 0xE9, 0xEA, a1);
     }
     switch (a1) {
     case 0xE9:
@@ -301,7 +301,7 @@ int la_format_confirm(void) {
 
 extern int D_00271258[];
 
-int la_system_save_processing(int a0) {
+int la_game_loading(int a0) {
     if (a0) {
         D_00271258[0] = 1;
     }
@@ -318,8 +318,8 @@ extern char D_0060FB98[];
 extern int iosPadEnableGet(void);
 extern int func_00178DB0(int a0);
 extern void func_00178E08(int a0);
-extern void debug_assertMessage(void *a0, ...);
-extern void StageManager(int a0, float a1, float a2);
+extern void debug_StdPrintfDummy(void *a0, ...);
+extern void stgmgrForceSwitchWithFade(int a0, float a1, float a2);
 extern int initSceneGObj(int a0);
 
 int la_save_processing(int a0) {
@@ -332,11 +332,11 @@ int la_save_processing(int a0) {
         return -1;
     }
     if (func_00178DB0(0x162) != 0) {
-        debug_assertMessage(D_0060FB98);
+        debug_StdPrintfDummy(D_0060FB98);
         func_00178E08(0x162);
         D_0062B35C ^= 1;
         D_0062B304 = D_0062B3F0;
-        StageManager(D_0062B3F0, 8.0f, 4.0f);
+        stgmgrForceSwitchWithFade(D_0062B3F0, 8.0f, 4.0f);
         if (D_0062B3F0 == 0xFFFFFFFF) {
             D_0062B3F0 = 1;
         }

@@ -1,7 +1,7 @@
-# func_0023FB60 — parked
+# sceGsSetHalfOffset — parked
 
 VRAM: 0x0023FB60 (file_off 0x13FB60)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0023FB60.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sceGsSetHalfOffset.s
 
 ## Attempt at 2026-06-12
 
@@ -38,15 +38,15 @@ the permuter would surface (permuter not run per user direction).
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0023FB60/func_0023FB60.c`
+**Seed:** `tough_nuts/sceGsSetHalfOffset/sceGsSetHalfOffset.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0023FB60, 0x88
+nonmatching sceGsSetHalfOffset, 0x88
 
-glabel func_0023FB60
+glabel sceGsSetHalfOffset
     /* 13FB60 0023FB60 300082DC */  ld         $2, 0x30($4)
     /* 13FB64 0023FB64 002C0500 */  sll        $5, $5, 16
     /* 13FB68 0023FB68 00340600 */  sll        $6, $6, 16
@@ -85,5 +85,5 @@ glabel func_0023FB60
     /* 13FBDC 0023FBDC 2510A200 */  or         $2, $5, $2
     /* 13FBE0 0023FBE0 0800E003 */  jr         $31
     /* 13FBE4 0023FBE4 200082FC */   sd        $2, 0x20($4)
-endlabel func_0023FB60
+endlabel sceGsSetHalfOffset
 ```

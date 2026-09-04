@@ -51,7 +51,7 @@ extern int D_00271254[];
 extern int D_0062C254;
 extern void resetmallocseki(void *p);
 
-void func_001F76C0(void) {
+void bga_ResetAnimation(void) {
     void *p;
     D_0062C254 = 0;
     if (D_00271254[0] != 0) {

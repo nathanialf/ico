@@ -9,7 +9,7 @@ int func_001356A8(int a0, int a1)
     s1[0] = a1;
     if (a0 == 0)
     {
-        debug_assertMessage(D_00550EF0);
+        debug_StdPrintfDummy(D_00550EF0);
     }
     else
     {

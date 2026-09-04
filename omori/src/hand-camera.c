@@ -1,64 +1,64 @@
 #include "common.h"
 
-extern void func_00240008();
-extern float func_0023FE70(void *a0, void *a1);
+extern void sceVu0SubVector();
+extern float sceVu0InnerProduct(void *a0, void *a1);
 
 void RotateAccordingToStick_PatternThree(void *a0, void *a1) {
     char buf[0x10];
-    func_00240008(buf, a0, a1);
+    sceVu0SubVector(buf, a0, a1);
     *(int *)(buf + 4) = 0;
-    func_0023FE70(buf, buf);
+    sceVu0InnerProduct(buf, buf);
 }
 
 
-void HandyCamera_TargetMoveType(void *a0, void *a1) {
+void _DistSqGV(void *a0, void *a1) {
     char buf[0x10];
-    func_00240008(buf, a0, a1);
-    func_0023FE70(buf, buf);
+    sceVu0SubVector(buf, a0, a1);
+    sceVu0InnerProduct(buf, buf);
 }
 
-extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+extern float FSqrt(float a0);
 
 void ClearHandCameraCorrect(void *a0, void *a1) {
     char buf[0x10];
-    func_00240008(buf, a0, a1);
-    MatrixDrive_GetTurnYAngleXZ(func_0023FE70(buf, buf));
+    sceVu0SubVector(buf, a0, a1);
+    FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
-void InitHandCameraCorrect(void *a0, void *a1) {
+void _DistxzGV(void *a0, void *a1) {
     char buf[0x10];
-    func_00240008(buf, a0, a1);
+    sceVu0SubVector(buf, a0, a1);
     *(int *)(buf + 4) = 0;
-    MatrixDrive_GetTurnYAngleXZ(func_0023FE70(buf, buf));
+    FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
-extern void _OrientXZGV(float *a0, float *a1, float *a2, float a3, float a4);
+extern void _InterGV(float *a0, float *a1, float *a2, float a3, float a4);
 
 float SetLimitHandCameraCorrect(float *a0, float *a1, float *a2, float a3)
 {
     float buf[4];
     float ang;
-    func_00240008(buf, a2, a1);
-    ang = MatrixDrive_GetTurnYAngleXZ(buf[0] * buf[0] + buf[1] * buf[1] + buf[2] * buf[2]);
+    sceVu0SubVector(buf, a2, a1);
+    ang = FSqrt(buf[0] * buf[0] + buf[1] * buf[1] + buf[2] * buf[2]);
     if (ang < a3) {
         a0[0] = a2[0];
         a0[1] = a2[1];
         a0[2] = a2[2];
     } else {
-        _OrientXZGV(a0, a1, a2, a3, ang - a3);
+        _InterGV(a0, a1, a2, a3, ang - a3);
     }
     return ang;
 }
 
-extern float func_0025A968(float a0, float a1);
+extern float atan2f(float a0, float a1);
 extern float D_006292B4;
 
-int HandCameraCorrect(a0, a1)
+int _RotyGV(a0, a1)
 float *a0;
 float *a1;
 {
-    float r1 = func_0025A968(a0[0], a0[2]);
-    float r2 = func_0025A968(a1[0], a1[2]);
+    float r1 = atan2f(a0[0], a0[2]);
+    float r2 = atan2f(a1[0], a1[2]);
     int v = (int)((r1 - r2) * 180.0f / D_006292B4);
     if (v >= 181)
         v -= 360;
@@ -67,44 +67,44 @@ float *a1;
     return v;
 }
 
-extern int HandCameraCorrect();
+extern int _RotyGV();
 
 int func_00191D90(void) {
-    int r = HandCameraCorrect();
+    int r = _RotyGV();
     return r < 0 ? -r : r;
 }
 
-extern void func_002400F8(float *m);
+extern void sceVu0UnitMatrix(float *m);
 extern void func_002402E8(float *dst, float *src, float a);
-extern void func_0023FDD8(float *dst, float *m, float *v);
+extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
 
 void func_00191DB8(float *a0, float a1)
 {
     float m0[16];
     float m1[16];
     float v[4];
-    func_002400F8(m0);
+    sceVu0UnitMatrix(m0);
     func_002402E8(m1, m0, a1);
-    func_0023FDD8(v, m1, a0);
+    sceVu0ApplyMatrix(v, m1, a0);
     a0[0] = v[0];
     a0[1] = v[1];
     a0[2] = v[2];
 }
 
-extern float func_0025A968(float a0, float a1);
-extern void func_0023FE98(void *dst, void *src);
+extern float atan2f(float a0, float a1);
+extern void sceVu0Normalize(void *dst, void *src);
 
-float func_00191E30(float *a0)
+float _GetDirection(float *a0)
 {
     float buf[4];
     buf[1] = 0;
     buf[0] = a0[0];
     buf[2] = a0[2];
-    func_0023FE98(buf, buf);
-    return func_0025A968(buf[0], buf[2]);
+    sceVu0Normalize(buf, buf);
+    return atan2f(buf[0], buf[2]);
 }
 
-extern int func_0010EEF0(float a0);
+extern int GetTableArcCos(float a0);
 
 static inline int GetAngleBetweenVectorsXYZ(float *a0, float *a1)
 {
@@ -116,9 +116,9 @@ static inline int GetAngleBetweenVectorsXYZ(float *a0, float *a1)
     v1[0] = a1[0];
     v1[1] = a1[1];
     v1[2] = a1[2];
-    func_0023FE98(v0, v0);
-    func_0023FE98(v1, v1);
-    return func_0010EEF0(func_0023FE70(v0, v1)) * 180 / 32768;
+    sceVu0Normalize(v0, v0);
+    sceVu0Normalize(v1, v1);
+    return GetTableArcCos(sceVu0InnerProduct(v0, v1)) * 180 / 32768;
 }
 
 int func_00191E78(float *a0, float *a1)
@@ -131,31 +131,31 @@ int func_00191E78(float *a0, float *a1)
     buf2[0] = a1[0];
     buf2[1] = a1[1];
     buf2[2] = a1[2];
-    func_0023FE98(buf, buf);
-    func_0023FE98(buf2, buf2);
-    return func_0010EEF0(func_0023FE70(buf, buf2)) * 180 / 32768;
+    sceVu0Normalize(buf, buf);
+    sceVu0Normalize(buf2, buf2);
+    return GetTableArcCos(sceVu0InnerProduct(buf, buf2)) * 180 / 32768;
 }
 
 extern float D_006292B8;
 
-float func_00191F18(float *a0, float *a1)
+float _RotGVF(float *a0, float *a1)
 {
     return (float)GetAngleBetweenVectorsXYZ(a0, a1) * D_006292B8 / 180.0f;
 }
 
-void func_00191FD0(int a0)
+void _OrientXZGV(int a0)
 {
     int buf[4];
-    func_00240008(buf);
+    sceVu0SubVector(buf);
     buf[1] = 0;
-    func_0023FE98(a0, buf);
+    sceVu0Normalize(a0, buf);
 }
 
 
 void func_00192008(void *a0, void *a1, void *a2) {
     char buf[0x10];
-    func_00240008(buf, a1, a2);
-    func_0023FE98(a0, buf);
+    sceVu0SubVector(buf, a1, a2);
+    sceVu0Normalize(a0, buf);
 }
 
 int func_00192040(int a0, int a1, int a2, int a3)
@@ -166,15 +166,15 @@ int func_00192040(int a0, int a1, int a2, int a3)
     register int sa3 = a3;
     int r;
     p = &buf[4];
-    func_00240008(p, a0, a1);
+    sceVu0SubVector(p, a0, a1);
     p = &buf[0];
     buf[5] = 0;
-    func_0023FE98(p, &buf[4]);
-    r = HandCameraCorrect(p, sa2);
+    sceVu0Normalize(p, &buf[4]);
+    r = _RotyGV(p, sa2);
     return __builtin_abs(r) < sa3;
 }
 
-void func_001920A8(float *a, float *b)
+void SwapGV(float *a, float *b)
 {
     float tmp[3];
     tmp[0] = a[0];
@@ -189,18 +189,18 @@ void func_001920A8(float *a, float *b)
     __asm__ __volatile__("" : : "r"(tmp) : "memory");
 }
 
-extern float func_0010ED30(int x);
+extern float GetTableCos(int x);
 extern unsigned int D_006327B0_far[] __asm__("D_0062C908");
 
-float func_001920F0(int a0, float a1)
+float GetCorrectDistance(int a0, float a1)
 {
-    float r = func_0010ED30((short)((a0 << 15) / 0xB4));
+    float r = GetTableCos((short)((a0 << 15) / 0xB4));
     if (r == 0.0f)
         return *(float *)D_006327B0_far;
     return a1 / r;
 }
 
-int func_00192160(int a0)
+int RoundDegGV(int a0)
 {
     if (a0 > 0) {
         a0 = a0 % 360;

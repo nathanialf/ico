@@ -3,7 +3,7 @@
 extern int actSt25aQueenDeadChk(int a0);
 extern void func_0012AB48(int a0, int *a1);
 
-void scpTorchLightOn(int a0, int a1) {
+void scpLinkBGAtoLayoutedTarget(int a0, int a1) {
     int ret = actSt25aQueenDeadChk(a0);
     if (ret != 0) {
         int msg[2] = { ret, 0 };
@@ -14,22 +14,22 @@ void scpTorchLightOn(int a0, int a1) {
 extern int actSt25aQueenDeadChk(int a0);
 extern int DebugDisp1CollisionWithColor(int a0, int a1);
 extern void func_0012ABB0(int a0, void *a1, int a2);
-extern void debug_assertMessage(char *fmt);
+extern void debug_StdPrintfDummy(char *fmt);
 extern char D_00554218[];
 struct S { int a; int b; };
-void scpTorchLightOff(int a0, int a1, int a2){
+void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2){
  int ret = actSt25aQueenDeadChk(a0);
  if(ret != 0){ struct S copy; struct S pair;
   pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
   copy=pair;
-  if(copy.b==-1) debug_assertMessage(D_00554218);
+  if(copy.b==-1) debug_StdPrintfDummy(D_00554218);
   else func_0012ABB0(a2,&copy,1);
  } }
 
 extern int actSt25aQueenDeadChk(int a0);
 extern int DebugDisp1CollisionWithColor(int a0, int a1);
 extern void func_0012ABB0(int a0, void *a1, int a2);
-extern void debug_assertMessage(char *fmt);
+extern void debug_StdPrintfDummy(char *fmt);
 extern char D_00554218[];
 struct SVF { int a; int b; };
 void scpSetCageVelocityFriction(int a0, int a1, int a2, int a3){
@@ -37,13 +37,13 @@ void scpSetCageVelocityFriction(int a0, int a1, int a2, int a3){
   if(ret != 0){ struct SVF copy; struct SVF pair;
    pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
    copy=pair;
-   if(copy.b==-1) debug_assertMessage(D_00554218);
+   if(copy.b==-1) debug_StdPrintfDummy(D_00554218);
    else func_0012ABB0(a2,&copy,a3);
   } }
 
 extern int DebugDisp1CollisionWithColor(int a0, int a1);
 extern void func_0012ABB0(int a0, void *a1, int a2);
-extern void debug_assertMessage(char *fmt);
+extern void debug_StdPrintfDummy(char *fmt);
 extern char D_00554218[];
 struct SPMD { int a; int b; };
 void scpPlayMotDir(int a0, int a1, int a2, int a3){
@@ -51,11 +51,11 @@ void scpPlayMotDir(int a0, int a1, int a2, int a3){
   if(ret != 0){ struct SPMD copy; struct SPMD pair;
    pair.a=(int)ret; pair.b=DebugDisp1CollisionWithColor((int)ret,a1);
    copy=pair;
-   if(copy.b==-1) debug_assertMessage(D_00554218);
+   if(copy.b==-1) debug_StdPrintfDummy(D_00554218);
    else func_0012ABB0(a2,&copy,a3);
   } }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayMotDirSmz);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpGetWallCollision);
 
 typedef struct {
     char _0[0xB4]; void *f_B4;
@@ -64,7 +64,7 @@ typedef struct {
 typedef struct { int f0; void *f4; int f8; int fC; } PlayMotMail;
 extern PlayMotMail D_00286910[];
 extern int func_00178DB0(int a0);
-extern void func_001044F0(float *dst, int outer);
+extern void GetRootMatrixTransOffset(float *dst, int outer);
 extern void func_00179120(int a0, float *a1);
 extern void _ACTWait(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
@@ -78,7 +78,7 @@ void scpPlayMot(volatile int a0) {
         int self = a0;
         float lim;
         int done;
-        func_001044F0(buf, self);
+        GetRootMatrixTransOffset(buf, self);
         lim = -spd;
         do {
             done = 0;
@@ -174,7 +174,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpDoorTypeUpDown);
 
 extern int TorchGeo(int a0);
 
-int scpDoorTypeUpUp(int a0) {
+int scpIsTorchLightOn(int a0) {
     int ret1 = actSt25aQueenDeadChk(a0);
     int *ret2 = (int *)actSt25aQueenDeadChk(0);
     ret2[0x16C / 4] = 1;
@@ -183,9 +183,9 @@ int scpDoorTypeUpUp(int a0) {
 
 extern int *isysGObjSearchFromObjLayoutID(int x);
 extern int Draw2DLineG(int *p);
-extern int *isysGObjSearchFromObjKindID_begin(int *p);
+extern int *isysGObjSearchFromObjKindID_next(int *p);
 
-int *scpSubAdpcmPlay(int x)
+int *scpIsBombExplode(int x)
 {
     int *p = isysGObjSearchFromObjLayoutID(x);
     if (p != 0) {
@@ -193,14 +193,14 @@ int *scpSubAdpcmPlay(int x)
             if (Draw2DLineG(p) != 0) {
                 return p;
             }
-            p = isysGObjSearchFromObjKindID_begin(p);
+            p = isysGObjSearchFromObjKindID_next(p);
         } while (p != 0);
     }
     return 0;
 }
 
 extern float MoveRotObjectWithHoldPoint(int a0);
-extern void debug_assertMessage(char *fmt);
+extern void debug_StdPrintfDummy(char *fmt);
 extern char D_00554188[];
 
 float scpSekizou(int a0) {
@@ -208,13 +208,13 @@ float scpSekizou(int a0) {
     if (ret != 0) {
         return MoveRotObjectWithHoldPoint(ret);
     }
-    debug_assertMessage(D_00554188);
+    debug_StdPrintfDummy(D_00554188);
     return 0.0f;
 }
 
 extern int actSt25aQueenDeadChk(int a0);
 extern int ExecRotObjectMoveStartReaction(int a0);
-extern void debug_assertMessage(char *fmt);
+extern void debug_StdPrintfDummy(char *fmt);
 extern char D_005541D0[];
 int _SCPBoySupportGirl(int a0, int a1, int a2){
  int q = actSt25aQueenDeadChk(a0);
@@ -226,17 +226,17 @@ int _SCPBoySupportGirl(int a0, int a1, int a2){
   if(A1 < e && e < A2) return 1;
   return 0;
  }
- debug_assertMessage(D_005541D0);
+ debug_StdPrintfDummy(D_005541D0);
  return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", _SCPMoveCharactorByWay_Cancel);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTransLinear);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpSekizouCheckPoint);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpRotateLinear);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpWakeupEnemyOne);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTriggerPosBall);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpSleepEnemyOne);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTriggerBall);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpSleepSpiderGroupOne);
 
@@ -244,48 +244,48 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpWakeupSpiderGroupOne);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpKillSpiderGroup);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", preload);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTriggerPosBox);
 
-void scpDispOffAllWithKind(int a0, int a1) {
+void scpEffectStart(int a0, int a1) {
     int buf[4];
     GetMatrixFromQuaternion(buf);
     SetParticleEffectUpperLimit(a1, a0, buf);
 }
 
-extern void iosOmBeforeFuncStandard(int *a0, int a1, int *a2);
+extern void iosOmSendMail(int *a0, int a1, int *a2);
 
 void scpDispOnAllWithKind(void) {
     int *o = isysGObjSearchFromObjLayoutID(4);
     if (o != 0) {
         do {
-            iosOmBeforeFuncStandard(o, 0x20, o);
-            o = isysGObjSearchFromObjKindID_begin(o);
+            iosOmSendMail(o, 0x20, o);
+            o = isysGObjSearchFromObjKindID_next(o);
         } while (o != 0);
     }
     o = isysGObjSearchFromObjLayoutID(0x3C);
     if (o != 0) {
         do {
-            iosOmBeforeFuncStandard(o, 0x20, o);
-            o = isysGObjSearchFromObjKindID_begin(o);
+            iosOmSendMail(o, 0x20, o);
+            o = isysGObjSearchFromObjKindID_next(o);
         } while (o != 0);
     }
 }
 
-extern void iosOmBeforeFuncStandard(int *a0, int a1, int *a2);
+extern void iosOmSendMail(int *a0, int a1, int *a2);
 
 void scpActivateAllWithKind(void) {
     int *o = isysGObjSearchFromObjLayoutID(4);
     if (o != 0) {
         do {
-            iosOmBeforeFuncStandard(o, 0x1F, o);
-            o = isysGObjSearchFromObjKindID_begin(o);
+            iosOmSendMail(o, 0x1F, o);
+            o = isysGObjSearchFromObjKindID_next(o);
         } while (o != 0);
     }
     o = isysGObjSearchFromObjLayoutID(0x3C);
     if (o != 0) {
         do {
-            iosOmBeforeFuncStandard(o, 0x1F, o);
-            o = isysGObjSearchFromObjKindID_begin(o);
+            iosOmSendMail(o, 0x1F, o);
+            o = isysGObjSearchFromObjKindID_next(o);
         } while (o != 0);
     }
 }

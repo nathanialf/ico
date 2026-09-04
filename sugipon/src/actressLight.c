@@ -18,7 +18,7 @@ extern int SetAP1DeadStatus(int a0, int a1);
 extern GObj *D_00629DE4;
 extern void GetRootMatrixByDObj(void *out, GObj *g);
 extern void MatrixDrive_TransMatrix(void *out, void *src);
-extern void func_00118A70(void *out, void *m, void *v);
+extern void _ApplyMatrix(void *out, void *m, void *v);
 extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
 
 void SetActressLight(GObj *a0) {
@@ -30,7 +30,7 @@ void SetActressLight(GObj *a0) {
     int *p60 = (int *)(o + 0x60);
     GetRootMatrixByDObj(&r, D_00629DE4);
     MatrixDrive_TransMatrix(&m, o + 0x230);
-    func_00118A70(&v, &m, &r);
+    _ApplyMatrix(&v, &m, &r);
     MatrixDrive_TurnObjectMatrix(o + 0x30, &v);
     p10[1] = 0;
     *(int *)(o + 0x10) = 0;
@@ -123,10 +123,10 @@ L8060:
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8090);
 
 extern void *D_004BA2B8[];
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 void func_001B8408(void *a0) {
     ALState *p = *(ALState **)((char *)a0 + 0x164);
-    debug_assertMessage(D_004BA2B8[p->f_30]);
+    debug_StdPrintfDummy(D_004BA2B8[p->f_30]);
 }
 
 void func_001B8428(int *a0)
@@ -146,7 +146,7 @@ void func_001B8470(int *a0)
     typedef union { int i; long long ll; } U;
     int s = ((U *)((char *)a0 + 0x164))->i;
     if (*(int *)(s + 0x30) == 4) {
-        debug_assertMessage(D_00610EC8);
+        debug_StdPrintfDummy(D_00610EC8);
         return;
     }
     *(int *)(s + 0x30) = 2;

@@ -1,4 +1,4 @@
-# _iosMcIconWriteIconsys (fumi/ios/mcdata) — parked rc3 (stall=30 + permuter)
+# iosMcSaveIconBlock (fumi/ios/mcdata) — parked rc3 (stall=30 + permuter)
 
 h->w[1]=7; *(ll*)a0 &= -2; return iosMsgSend(D_0027D308, a0, 0, -2).
 - Union member typing (long long ll; int w[2]) keeps the int store before the
@@ -8,6 +8,6 @@ h->w[1]=7; *(ll*)a0 &= -2; return iosMsgSend(D_0027D308, a0, 0, -2).
   (int/long/uint/~1/0xFF.. /register/two-temp/volatile/do-while) all rc3.
 - Permuter (base 110): best output-10-1 = rc2 but UB (passes an UNINITIALIZED var
   as the 4th arg, relying on the leftover -2 reg); still has the t0/a3 diff. Broken
-  mutation, rejected (cf func_0024E510 swapped-logic). Nothing clean below rc3.
+  mutation, rejected (cf _decodeOrSkip swapped-logic). Nothing clean below rc3.
 - RESUME: the -2 coalescing is the const-reg-reuse tiebreak class; needs a clean
   form that makes gcc keep -2 in a3 across the AND. Seed = the union rc3 form.

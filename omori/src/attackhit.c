@@ -3,7 +3,7 @@
 /* attackhit 0x164 actor-state view (local) */
 typedef struct { char _0[0x130]; int f_130; } AtkState;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", MakeAttackPack_Actor);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", actConte11Jimaku);
 
 void AttackCheckSameGroup(int a0) {
     int buf[4];
@@ -53,10 +53,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F110);
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F2A0);
 
 extern void *D_00286A94[];
-extern void saveEditedData(void *a0);
+extern void brainAddLevel(void *a0);
 void func_0017F450(void) {
     if (D_00286A94[0]) {
-        saveEditedData(D_00286A94[0]);
+        brainAddLevel(D_00286A94[0]);
     }
 }
 
@@ -89,7 +89,7 @@ void func_0017F470(void)
 }
 
 extern char D_00554728[];
-extern void debug_assertMessage(char *a0);
+extern void debug_StdPrintfDummy(char *a0);
 
 typedef struct {
     int key;
@@ -115,7 +115,7 @@ void func_0017F4C8(AtkCont *a0, int a1, float b, float c, float d) {
             return;
         }
     }
-    debug_assertMessage(D_00554728);
+    debug_StdPrintfDummy(D_00554728);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F518);

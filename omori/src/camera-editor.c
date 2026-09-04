@@ -7,13 +7,13 @@ void EnterMenu(void) {
 }
 
 
-void saveEditedDataBinary(void) {
+void brainUnlockGirl(void) {
     D_00286A98[0] = 0;
 }
 
 typedef struct { char _0[4]; float f4; char _8[8]; float f10; } EdS;
 
-float saveEditedData(EdS *a0, float arg) {
+float brainAddLevel(EdS *a0, float arg) {
     float r;
     a0->f4 += a0->f10 * arg;
     if (a0->f4 < 0.0f) {
@@ -28,14 +28,14 @@ float saveEditedData(EdS *a0, float arg) {
 }
 
 
-extern int ACTGameView_Init(int a0, int a1);
+extern int ACTGameView_Check(int a0, int a1);
 
-void gif_test(int *a0, EdS *a1, float f12) {
+void brainSetLevel(int *a0, EdS *a1, float f12) {
     int cond;
     if (*(unsigned char *)((char *)a1 + 0x19) != 0) {
         cond = 1;
     } else {
-        cond = ACTGameView_Init(*a0, *(int *)a1) != 0;
+        cond = ACTGameView_Check(*a0, *(int *)a1) != 0;
     }
     if (cond) {
         float r;
@@ -52,13 +52,13 @@ void gif_test(int *a0, EdS *a1, float f12) {
 }
 
 
-extern int ACTGameView_Init(int a0, int a1);
+extern int ACTGameView_Check(int a0, int a1);
 
-int DebugDispBox(void *a0, char *a1) {
+int brainCheckView(void *a0, char *a1) {
     if (*(unsigned char *)(a1 + 0x19) != 0) {
         return 1;
     }
-    return ACTGameView_Init(*(int *)a0, *(int *)a1) != 0;
+    return ACTGameView_Check(*(int *)a0, *(int *)a1) != 0;
 }
 
 extern void *iosFree(int heap, int size, const char *file, int line);
@@ -81,39 +81,39 @@ void DispCameraGroup(void *a0, int a1, int a2) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", drawXZArrow);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", saveEditedDataBinary);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", DispAxisArrow);
 
-extern void gif_SpriteOrg(int code, long data);
+extern void gif_SetGsReg(int code, long data);
 
-void dispCameraPinType2(int *a0, int *a1, int *a2, unsigned char *a3) {
-    gif_SpriteOrg(0, 3);
-    gif_SpriteOrg(1, (long)a3[0] | ((long)a3[1] << 8) | ((long)a3[2] << 16) | ((long)a3[3] << 24));
-    gif_SpriteOrg(4, (long)a0[0] | ((long)a0[1] << 16) | ((long)a0[2] << 32));
-    gif_SpriteOrg(4, (long)a1[0] | ((long)a1[1] << 16) | ((long)a1[2] << 32));
-    gif_SpriteOrg(4, (long)a2[0] | ((long)a2[1] << 16) | ((long)a2[2] << 32));
+void gif_test(int *a0, int *a1, int *a2, unsigned char *a3) {
+    gif_SetGsReg(0, 3);
+    gif_SetGsReg(1, (long)a3[0] | ((long)a3[1] << 8) | ((long)a3[2] << 16) | ((long)a3[3] << 24));
+    gif_SetGsReg(4, (long)a0[0] | ((long)a0[1] << 16) | ((long)a0[2] << 32));
+    gif_SetGsReg(4, (long)a1[0] | ((long)a1[1] << 16) | ((long)a1[2] << 32));
+    gif_SetGsReg(4, (long)a2[0] | ((long)a2[1] << 16) | ((long)a2[2] << 32));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_DispPinType2);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", DebugDispBox);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", dispCameraGroupType2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", dispBox);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", drawXZArrow);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_DispBoxType2_Plane);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_DispBoxType2);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", dispCameraPinType2);
 
-extern void CameraEdit_DispBoxType2(int a0, int a1, int a2, int a3);
+extern void dispCameraPinType2(int a0, int a1, int a2, int a3);
 
-void menuGroupSelect(int a0, int a1, int a2) {
-    CameraEdit_DispBoxType2(a0, a1, a1 + 1, a2);
+void CameraEdit_DispPinType2(int a0, int a1, int a2) {
+    dispCameraPinType2(a0, a1, a1 + 1, a2);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", menuGroupEdit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", menuPinSelect);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", dispBox);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", menuPinEdit);
 
@@ -178,21 +178,21 @@ void CameraEdit_Save(void) {
     func_00186CA8(p[1], p[0]);
 }
 
-extern void drawXZArrow(int a0, int a1, int a2);
+extern void saveEditedDataBinary(int a0, int a1, int a2);
 
 void debug_NMarker(int a0) {
     int *p = D_0062A8F0;
-    drawXZArrow(a0, p[1], p[0]);
+    saveEditedDataBinary(a0, p[1], p[0]);
 }
 
-extern void func_00240038(int *buf, int *p, float t);
+extern void sceVu0ScaleVector(int *buf, int *p, float t);
 extern void debug_Arrow();
 extern void debug_ArrowM(int *buf, int a1, int a2, int a3, float f12, float f13) __asm__("debug_Arrow");
 
 void debug_Marker(int *self, int a1, int a2, int a3, float t)
 {
     int buf[4];
-    func_00240038(buf, self, -1.0f);
+    sceVu0ScaleVector(buf, self, -1.0f);
     debug_ArrowM(buf, a1, a2, a3, t, 0.0f);
 }
 

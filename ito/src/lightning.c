@@ -1,6 +1,6 @@
 #include "common.h"
 
-void set_vertex(void *a0, void *a1, void *a2) {
+void apply_m34(void *a0, void *a1, void *a2) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf8, 0x0($6)\n"
@@ -34,40 +34,40 @@ const StructA D_005563A0 = {{
 extern void func_001962C0(int n, void *a, void *b, float f0, float f1,
                           float f2, float f3, float f4, float f5, float f6,
                           float f7, float f8, float f9, int c);
-extern void func_00240080(void *a0, void *a1);
+extern void sceVu0CopyVector(void *a0, void *a1);
 
 void DrawLightning2(void *p0, void *p1, void *a2, float f0, float f1, float f2,
                     float f3, float f4, float f5, float f6, float f7, float f8,
                     float f9, int a3) {
     StructB buf[2];
-    func_00240080(&buf[0], p0);
-    func_00240080(&buf[1], p1);
+    sceVu0CopyVector(&buf[0], p0);
+    sceVu0CopyVector(&buf[1], p1);
     func_001962C0(2, &buf[0], a2, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, a3);
 }
 
-void DrawLightningN(void) {
+void lightning_test(void) {
     StructB b = D_00556390;
     StructA a = D_005563A0;
     func_001962C0(4, &a, &b, 5.0f, 25.0f, 5.0f, 25.0f, 5.0f, 10.0f, 70.0f, 8.0f,
                   20.0f, 0.0f, 0);
 }
 
-int apply_m34(int *a0, int *a1) {
+int cmpr(int *a0, int *a1) {
     return a0[4] - a1[4];
 }
 
-extern void func_00240090(void *a0, void *a1);
-extern void func_00240038(void *a0, void *a1, float a2);
+extern void sceVu0CopyMatrix(void *a0, void *a1);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
 typedef struct {
     float v[4];
 } LVec;
 
 void DrawLightning(LVec *a0, void *a1, float f) {
-    func_00240090(a0, a1);
-    func_00240038(a0, a0, f);
-    func_00240038(a0 + 1, a0 + 1, f);
-    return func_00240038(a0 + 2, a0 + 2, f);
+    sceVu0CopyMatrix(a0, a1);
+    sceVu0ScaleVector(a0, a0, f);
+    sceVu0ScaleVector(a0 + 1, a0 + 1, f);
+    return sceVu0ScaleVector(a0 + 2, a0 + 2, f);
 }
 
 

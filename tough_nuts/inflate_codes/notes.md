@@ -1,13 +1,13 @@
 # inflate_codes — parked
 
 VRAM: 0x00132FC0 (file_off 0x032FC0)
-Asm source: asm/aug6/nonmatchings/fumi/ios/inflate/inflate_codes.s
+Asm source: asm/aug6/nonmatchings/fumi/ios/iosCdvdBackGroundMgrInit/inflate_codes.s
 
 ## Attempt at 2026-06-20
 
 **Reason parked:** plateau: 30 distinct hand hypotheses, no real_count progress (best=40). PARK the seed, then fire ONE bounded permuter shot on it (REFERENCE Step 4); harvest by true real_count and adopt any improvement (resolution b only if nothing beats best).
 
-**TU:** `fumi/ios/inflate.c`
+**TU:** `fumi/ios/iosCdvdBackGroundMgrInit.c`
 
 **Seed:** `tough_nuts/inflate_codes/inflate_codes.c`
 
@@ -48,7 +48,7 @@ glabel inflate_codes
     /* 33024 00133024 0B206200 */  movn       $4, $3, $2
     /* 33028 00133028 78968727 */  addiu      $7, $28, %gp_rel(D_0062A268)
     /* 3302C 0013302C C3220400 */  sra        $4, $4, 11
-    /* 33030 00133030 3826090C */  jal        func_002498E0
+    /* 33030 00133030 3826090C */  jal        sceCdRead
     /* 33034 00133034 21200401 */   addu      $4, $8, $4
     /* 33038 00133038 04000010 */  b          .L0013304C
     /* 3303C 0013303C 00000000 */   nop
@@ -59,7 +59,7 @@ glabel inflate_codes
     /* 33048 00133048 689680AF */  sw         $0, %gp_rel(D_0062A258)($28)
 .align 2
   .L0013304C:
-    /* 3304C 0013304C 3024090C */  jal        func_002490C0
+    /* 3304C 0013304C 3024090C */  jal        sceCdSync
     /* 33050 00133050 01000424 */   addiu     $4, $0, 0x1
     /* 33054 00133054 FAFF4014 */  bnez       $2, .L00133040
     /* 33058 00133058 00000000 */   nop
@@ -73,7 +73,7 @@ glabel inflate_codes
     /* 33078 00133078 01004230 */  andi       $2, $2, 0x1
     /* 3307C 0013307C 05004054 */  bnel       $2, $0, .L00133094
     /* 33080 00133080 1001038E */   lw        $3, 0x110($16)
-    /* 33084 00133084 F290060C */  jal        debug_assertMessage
+    /* 33084 00133084 F290060C */  jal        debug_StdPrintfDummy
     /* 33088 00133088 480EC426 */   addiu     $4, $22, %lo(D_00550E48)
     /* 3308C 0013308C E0FF0010 */  b          .L00133010
     /* 33090 00133090 1001038E */   lw        $3, 0x110($16)

@@ -1,7 +1,7 @@
-# func_002699D0 — parked
+# __sseek — parked
 
 VRAM: 0x002699D0 (file_off 0x1699D0)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_002699D0.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/__sseek.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_002699D0.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_002699D0/func_002699D0.c`
+**Seed:** `tough_nuts/__sseek/__sseek.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_002699D0, 0x68
+nonmatching __sseek, 0x68
 
-glabel func_002699D0
+glabel __sseek
     /* 1699D0 002699D0 E0FFBD27 */  addiu      $29, $29, -0x20
     /* 1699D4 002699D4 2D10A000 */  daddu      $2, $5, $0
     /* 1699D8 002699D8 0000B0FF */  sd         $16, 0x0($29)
@@ -48,5 +48,5 @@ glabel func_002699D0
     /* 169A2C 00269A2C 0000B0DF */  ld         $16, 0x0($29)
     /* 169A30 00269A30 0800E003 */  jr         $31
     /* 169A34 00269A34 2000BD27 */   addiu     $29, $29, 0x20
-endlabel func_002699D0
+endlabel __sseek
 ```

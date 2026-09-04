@@ -59,7 +59,7 @@ extern void func_00102828(void *a0);
 
 extern void *func_00105078(void);
 extern void LocalizeDirectionOrient();
-extern void func_00104E38(int a0);
+extern void MatrixDrive_RotMatrixZ(int a0);
 extern void func_00105108(float a0, float a1, float a2);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 
@@ -67,7 +67,7 @@ void pushStartSE(void *a0, void *a1) {
     void *box = *(void **)((char *)(*(void **)((char *)a1 + 0x15C)) + 0x7F0);
     void *m = func_00105078();
     LocalizeDirectionOrient(m, a1);
-    func_00104E38(*(short *)((char *)box + 0x2));
+    MatrixDrive_RotMatrixZ(*(short *)((char *)box + 0x2));
     func_00105108(0.0f, -50.0f, 0.0f);
     MatrixDrive_TurnObjectMatrix(a0, (char *)func_00105078() + 0x30);
 }
@@ -103,11 +103,11 @@ extern void func_0010F048(void *a0);
 extern void func_00104D20(void);
 extern void *func_00105078(void);
 extern void LocalizeDirectionOrient();
-extern void func_00104E38(int a0);
-extern void func_00104D48(int a0);
-extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
+extern void MatrixDrive_RotMatrixZ(int a0);
+extern void MatrixDrive_RotMatrixX(int a0);
+extern void CopyMatrix(void *dst, void *src);
 extern void file_Init(void *a0);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 
 void checkFieldContact(void *a0) {
     BoxC1B9A58 *box = *(BoxC1B9A58 **)((char *)(*(int **)((char *)a0 + 0x15C)) + 0x7F0);
@@ -117,13 +117,13 @@ void checkFieldContact(void *a0) {
     func_00104D20();
     m = func_00105078();
     LocalizeDirectionOrient(m, a0);
-    func_00104E38(box->f_2);
-    func_00104D48(box->f_0);
+    MatrixDrive_RotMatrixZ(box->f_2);
+    MatrixDrive_RotMatrixX(box->f_0);
     p10 = box->f_10;
     m = func_00105078();
-    MatrixDrive_TurnXObjectMatrixYZ(*(void **)((char *)p10 + 0xC), m);
+    CopyMatrix(*(void **)((char *)p10 + 0xC), m);
     file_Init(box->f_10);
-    func_00105068();
+    MatrixDrive_PopMatrix();
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", execNormalMove);
@@ -167,16 +167,16 @@ void onPathInitialize(void *a0) {
     if (*(int *)(sub + 0x11C) == 0) {
         return;
     }
-    MatrixDrive_TurnXObjectMatrixYZ(func_00105078(), *(void **)(*(char **)((char *)a0 + 0x15C) + 0xC));
+    CopyMatrix(func_00105078(), *(void **)(*(char **)((char *)a0 + 0x15C) + 0xC));
     func_00105108(0.0f, *(float *)(sub + 0x128), 0.0f);
     func_00104D20();
     func_00105108(0.0f, 0.0f, *(float *)(sub + 0x12C));
-    func_00104D48(*(short *)(sub + 0x120));
-    MatrixDrive_TurnXObjectMatrixYZ(*(void **)(*(char **)(sub + 0x11C) + 0xC), func_00105078());
-    func_00105068();
+    MatrixDrive_RotMatrixX(*(short *)(sub + 0x120));
+    CopyMatrix(*(void **)(*(char **)(sub + 0x11C) + 0xC), func_00105078());
+    MatrixDrive_PopMatrix();
     func_00105108(0.0f, 0.0f, *(float *)(sub + 0x130));
-    func_00104D48((short)(*(unsigned short *)(sub + 0x120) + 0x4000));
-    MatrixDrive_TurnXObjectMatrixYZ((char *)*(void **)(*(char **)(sub + 0x11C) + 0xC) + 0x40, func_00105078());
+    MatrixDrive_RotMatrixX((short)(*(unsigned short *)(sub + 0x120) + 0x4000));
+    CopyMatrix((char *)*(void **)(*(char **)(sub + 0x11C) + 0xC) + 0x40, func_00105078());
     file_LoadCDFile(*(void **)(sub + 0x11C));
 }
 
@@ -196,7 +196,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", _checkItemBreak);
 
 extern void GetInverseQuaternion(void *a0, void *a1);
 extern void func_00102840(void *self, void *src);
-extern int func_002610F0(void);
+extern int rand(void);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 extern void GetRootMatrixByDObj(void *a0, void *a1);
 extern void _checkItemBreak(void *a0);
@@ -216,17 +216,17 @@ void initLanding(void *self) {
     MatrixDrive_TurnObjectMatrix(box + 0xD0, D_00271BD0);
     GetRootMatrixByDObj(box + 0x100, self);
     MatrixDrive_TurnObjectMatrix((char *)*(int *)((char *)self + 0x15C) + 0x510, D_004BAAC0);
-    *(short *)(box + 0x118) = (short)func_002610F0();
+    *(short *)(box + 0x118) = (short)rand();
     _checkItemBreak(self);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", execFallDown);
 
 extern void GetPureVerticalPlaneOfCurrentPosition(int a0, void *a1, int a2, void *a3, int a4);
-extern float func_001669D0(void *a0, void *a1);
-extern void func_00240968(void *a0, void *a1, float a2);
-extern void MatrixDrive_TurnZObjectMatrixXY(void *a0, void *a1, void *a2);
-extern void func_0010E250(void *a0, void *a1, void *a2);
+extern float GetDistanceFromPlane(void *a0, void *a1);
+extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
+extern void AddVectorXYZ(void *a0, void *a1, void *a2);
+extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
 extern void execFallDown(void *a0);
 
 struct vec4_iner { float x, y, z, w; } __attribute__((aligned(8)));
@@ -245,13 +245,13 @@ void inertiaMove(void *self) {
     if (cond != 0) {
         float t;
         GetPureVerticalPlaneOfCurrentPosition(0, &v1, 0, box + 0x60, 1);
-        t = func_001669D0(&v1, &m);
+        t = GetDistanceFromPlane(&v1, &m);
         *(int *)((char *)&v1 + 0xC) = 0;
-        func_00240968(&v2, &v1, -(t - 50.0f));
-        MatrixDrive_TurnZObjectMatrixXY(&m, &m, &v2);
+        sceVu0ScaleVectorXYZ(&v2, &v1, -(t - 50.0f));
+        AddVectorXYZ(&m, &m, &v2);
     }
     execFallDown(&m);
-    func_0010E250(box + 0x70, (char *)*(int *)((char *)self + 0x15C) + 0xC0, &m);
+    GetMatrixFromQuaternionPos(box + 0x70, (char *)*(int *)((char *)self + 0x15C) + 0xC0, &m);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", action);
@@ -274,7 +274,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", GetBoxMode);
 
 extern void _checkItemCollision(void *a0);
 extern void func_00102828(void *a0);
-extern void func_001AB9F8(void *a0);
+extern void gamesysObjInfoUniqDataSet(void *a0);
 
 void AlignBox(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
@@ -283,7 +283,7 @@ void AlignBox(void *a0) {
     func_00102828(a0);
     if (q->f_0++ >= 0x1F) {
         q->f_0 = 0;
-        func_001AB9F8(a0);
+        gamesysObjInfoUniqDataSet(a0);
     }
 }
 
@@ -296,7 +296,7 @@ int CanHoldBox(void *a0) {
 extern void RegularizeQuaternion(void *a0, void *a1);
 extern void GetRootMatrixByDObj(void *dst, void *src);
 extern void GetCylinderCollisionWithExceptOwnCollision(void *self, void *pos);
-extern float func_001BE168(float v, float grid);
+extern float getAlign(float v, float grid);
 
 int BoxDL(void *self, float grid) {
     float pos[4];
@@ -320,14 +320,14 @@ int BoxDL(void *self, float grid) {
     if (0.0f <= dx) {
         sx = (float)(int)((dx + grid * 0.5f) / grid) * grid;
     } else {
-        sx = -func_001BE168(-dx, grid);
+        sx = -getAlign(-dx, grid);
     }
     pos[0] = sx + cx;
     dz = pos[2] - cz;
     if (0.0f <= dz) {
         sz = (float)(int)((dz + grid * 0.5f) / grid) * grid;
     } else {
-        sz = -func_001BE168(-dz, grid);
+        sz = -getAlign(-dz, grid);
     }
     pos[2] = sz + cz;
     GetCylinderCollisionWithExceptOwnCollision(self, pos);
@@ -364,13 +364,13 @@ void IsThisBoxTruck(void *a0) {
 }
 
 extern void LocalizeDirectionOrient();
-extern void func_0023FDD8(int a, int *buf, int c);
+extern void sceVu0ApplyMatrix(int a, int *buf, int c);
 
 void ExecBoxMoveStartReaction(int a0, int a1, int a2)
 {
     int buf[16];
     LocalizeDirectionOrient(buf);
-    func_0023FDD8(a0, buf, a2);
+    sceVu0ApplyMatrix(a0, buf, a2);
 }
 
 int ExecBoxMoveEndReaction(void *a0) {
@@ -446,22 +446,22 @@ typedef struct {
 /* end struct shapes */
 
 extern void GetRootMatrixByDObj(void *dst, void *src);
-extern void func_00240008(void *a0, void *a1, void *a2);
-extern float func_0023FE70(void *a0, void *a1);
-extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
+extern float sceVu0InnerProduct(void *a0, void *a1);
+extern float FSqrt(float a0);
 
 struct vec4_BE1D0 { float x, y, z, w; } __attribute__((aligned(8)));
 
-float BoxMemoryFunc(void *a0, void *a1) {
+float GetDistanceOfGObj(void *a0, void *a1) {
     struct vec4_BE1D0 buf1;
     struct vec4_BE1D0 buf2;
     GetRootMatrixByDObj(&buf1, a1);
     GetRootMatrixByDObj(&buf2, a0);
-    func_00240008(&buf1, &buf1, &buf2);
-    return MatrixDrive_GetTurnYAngleXZ(func_0023FE70(&buf1, &buf1));
+    sceVu0SubVector(&buf1, &buf1, &buf2);
+    return FSqrt(sceVu0InnerProduct(&buf1, &buf1));
 }
 
-int getAlign(float *a0, float f12, float f13, float f14) {
+int moveXPlus(float *a0, float f12, float f13, float f14) {
     float w;
     float f0;
     int rv;
@@ -490,7 +490,7 @@ end:
     return rv;
 }
 
-int GetDistanceOfGObj(float *a0, float f12, float f13, float f14) {
+int moveXMinus(float *a0, float f12, float f13, float f14) {
     float w;
     float f0;
     int rv;
@@ -519,7 +519,7 @@ end:
     return rv;
 }
 
-int moveXPlus(float *a0, float f12, float f13, float f14) {
+int moveZPlus(float *a0, float f12, float f13, float f14) {
     float w;
     float f0;
     int rv;
@@ -548,7 +548,7 @@ end:
     return rv;
 }
 
-int moveXMinus(float *a0, float f12, float f13, float f14) {
+int moveZMinus(float *a0, float f12, float f13, float f14) {
     float w;
     float f0;
     int rv;

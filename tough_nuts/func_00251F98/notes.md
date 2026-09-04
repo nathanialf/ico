@@ -1,7 +1,7 @@
-# func_00251F98 — parked
+# _decode_motion_vector — parked
 
 VRAM: 0x00251F98 (file_off 0x151F98)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00251F98.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_decode_motion_vector.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00251F98.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00251F98/func_00251F98.c`
+**Seed:** `tough_nuts/_decode_motion_vector/_decode_motion_vector.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00251F98, 0x88
+nonmatching _decode_motion_vector, 0x88
 
-glabel func_00251F98
+glabel _decode_motion_vector
     /* 151F98 00251F98 2D508000 */  daddu      $10, $4, $0
     /* 151F9C 00251F9C 10000224 */  addiu      $2, $0, 0x10
     /* 151FA0 00251FA0 0000448D */  lw         $4, 0x0($10)
@@ -58,5 +58,5 @@ glabel func_00251F98
     /* 152014 00252014 0A108800 */  movz       $2, $4, $8
     /* 152018 00252018 0800E003 */  jr         $31
     /* 15201C 0025201C 000042AD */   sw        $2, 0x0($10)
-endlabel func_00251F98
+endlabel _decode_motion_vector
 ```

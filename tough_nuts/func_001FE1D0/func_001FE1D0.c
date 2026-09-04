@@ -19,6 +19,6 @@ void func_001FE1D0(void *a0, void *a1)
     {
         int arg1 = ((GObj *)a1)->p_15C->f_C;
         buf.f[3] = 1.0f;
-        func_0023FDD8((char *)sub + 0x5A0, arg1, buf.f);
+        sceVu0ApplyMatrix((char *)sub + 0x5A0, arg1, buf.f);
     }
 }

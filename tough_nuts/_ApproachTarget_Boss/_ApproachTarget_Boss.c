@@ -23,7 +23,7 @@ static inline unsigned char _ApproachTargetReady_Boss(int self)
 void _ApproachTarget_Boss(volatile int a0)
 {
     void _ACTWait(int a0);
-    void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+    void iosOmSendMail(void *a0, int a1, void *a2);
     void ACTParaStatus_Clear(void *a0);
     void func_00178E08(int a0);
 
@@ -35,7 +35,7 @@ void _ApproachTarget_Boss(volatile int a0)
         int p = *(int *)((char *)self2 + 0x164);
         void *q;
         *(void **)(p + 0x128) = (void *)D_00629DE8;
-        iosOmBeforeFuncStandard((void *)D_00629DE8, 0x2F, self2);
+        iosOmSendMail((void *)D_00629DE8, 0x2F, self2);
         q = *(void **)(p + 0x128);
         *(int *)(*(int *)((char *)q + 0x15C) + 0x74) = 1;
         ACTParaStatus_Clear(q);

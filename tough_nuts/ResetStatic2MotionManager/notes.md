@@ -53,7 +53,7 @@ glabel ResetStatic2MotionManager
     /* D2DE0 001D2DE0 A001A3AF */   sw        $3, 0x1A0($29)
     /* D2DE4 001D2DE4 30AB8CC7 */  lwc1       $f12, %gp_rel(D_0062B720)($28)
     /* D2DE8 001D2DE8 1000A427 */  addiu      $4, $29, 0x10
-    /* D2DEC 001D2DEC 5A02090C */  jal        func_00240968
+    /* D2DEC 001D2DEC 5A02090C */  jal        sceVu0ScaleVectorXYZ
     /* D2DF0 001D2DF0 1000C527 */   addiu     $5, $30, 0x10
     /* D2DF4 001D2DF4 1E14040C */  jal        func_00105078
     /* D2DF8 001D2DF8 00000000 */   nop
@@ -61,7 +61,7 @@ glabel ResetStatic2MotionManager
     /* D2E00 001D2E00 30005024 */   addiu     $16, $2, 0x30
     /* D2E04 001D2E04 2D200002 */  daddu      $4, $16, $0
     /* D2E08 001D2E08 2D284000 */  daddu      $5, $2, $0
-    /* D2E0C 001D2E0C 76FF080C */  jal        func_0023FDD8
+    /* D2E0C 001D2E0C 76FF080C */  jal        sceVu0ApplyMatrix
     /* D2E10 001D2E10 1000A627 */   addiu     $6, $29, 0x10
     /* D2E14 001D2E14 06000010 */  b          .L001D2E30
     /* D2E18 001D2E18 0400C38F */   lw        $3, 0x4($30)
@@ -91,7 +91,7 @@ glabel ResetStatic2MotionManager
     /* D2E60 001D2E60 2D804000 */   daddu     $16, $2, $0
     /* D2E64 001D2E64 2D200002 */  daddu      $4, $16, $0
     /* D2E68 001D2E68 2D284000 */  daddu      $5, $2, $0
-    /* D2E6C 001D2E6C 5238040C */  jal        func_0010E148
+    /* D2E6C 001D2E6C 5238040C */  jal        MultiQuaternion
     /* D2E70 001D2E70 1000C626 */   addiu     $6, $22, 0x10
     /* D2E74 001D2E74 8C37040C */  jal        GetLastQuaternion
     /* D2E78 001D2E78 4C00103C */   lui       $16, %hi(D_004C1C40)
@@ -110,7 +110,7 @@ glabel ResetStatic2MotionManager
     /* D2EA4 001D2EA4 2D804000 */   daddu     $16, $2, $0
     /* D2EA8 001D2EA8 2D200002 */  daddu      $4, $16, $0
     /* D2EAC 001D2EAC 2D284000 */  daddu      $5, $2, $0
-    /* D2EB0 001D2EB0 5238040C */  jal        func_0010E148
+    /* D2EB0 001D2EB0 5238040C */  jal        MultiQuaternion
     /* D2EB4 001D2EB4 1000C626 */   addiu     $6, $22, 0x10
     /* D2EB8 001D2EB8 8C37040C */  jal        GetLastQuaternion
     /* D2EBC 001D2EBC 00000000 */   nop
@@ -119,7 +119,7 @@ glabel ResetStatic2MotionManager
     /* D2EC8 001D2EC8 4C00063C */  lui        $6, %hi(D_004C1C30)
     /* D2ECC 001D2ECC 2D200002 */  daddu      $4, $16, $0
     /* D2ED0 001D2ED0 2D284000 */  daddu      $5, $2, $0
-    /* D2ED4 001D2ED4 6238040C */  jal        func_0010E188
+    /* D2ED4 001D2ED4 6238040C */  jal        DivQuaternion
     /* D2ED8 001D2ED8 301CC624 */   addiu     $6, $6, %lo(D_004C1C30)
     /* D2EDC 001D2EDC FD090010 */  b          .L001D56D4
     /* D2EE0 001D2EE0 00000000 */   nop
@@ -131,14 +131,14 @@ glabel ResetStatic2MotionManager
     /* D2EF0 001D2EF0 2D804000 */   daddu     $16, $2, $0
     /* D2EF4 001D2EF4 2D200002 */  daddu      $4, $16, $0
     /* D2EF8 001D2EF8 2D284000 */  daddu      $5, $2, $0
-    /* D2EFC 001D2EFC 5238040C */  jal        func_0010E148
+    /* D2EFC 001D2EFC 5238040C */  jal        MultiQuaternion
     /* D2F00 001D2F00 2D302002 */   daddu     $6, $17, $0
     /* D2F04 001D2F04 1E14040C */  jal        func_00105078
     /* D2F08 001D2F08 00000000 */   nop
     /* D2F0C 001D2F0C 8C37040C */  jal        GetLastQuaternion
     /* D2F10 001D2F10 2D804000 */   daddu     $16, $2, $0
     /* D2F14 001D2F14 2D200002 */  daddu      $4, $16, $0
-    /* D2F18 001D2F18 7438040C */  jal        func_0010E1D0
+    /* D2F18 001D2F18 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D2F1C 001D2F1C 2D284000 */   daddu     $5, $2, $0
     /* D2F20 001D2F20 3000B227 */  addiu      $18, $29, 0x30
     /* D2F24 001D2F24 2700053C */  lui        $5, %hi(D_002724B0)
@@ -148,7 +148,7 @@ glabel ResetStatic2MotionManager
     /* D2F34 001D2F34 2000B327 */  addiu      $19, $29, 0x20
     /* D2F38 001D2F38 1000C526 */  addiu      $5, $22, 0x10
     /* D2F3C 001D2F3C 2D302002 */  daddu      $6, $17, $0
-    /* D2F40 001D2F40 6238040C */  jal        func_0010E188
+    /* D2F40 001D2F40 6238040C */  jal        DivQuaternion
     /* D2F44 001D2F44 2D206002 */   daddu     $4, $19, $0
     /* D2F48 001D2F48 40B6898F */  lw         $9, %gp_rel(D_0062C230)($28)
     /* D2F4C 001D2F4C 0803228D */  lw         $2, 0x308($9)
@@ -254,7 +254,7 @@ glabel ResetStatic2MotionManager
     /* D309C 001D309C 5000B027 */  addiu      $16, $29, 0x50
     /* D30A0 001D30A0 2D280000 */  daddu      $5, $0, $0
     /* D30A4 001D30A4 2D200002 */  daddu      $4, $16, $0
-    /* D30A8 001D30A8 5A81090C */  jal        func_00260568
+    /* D30A8 001D30A8 5A81090C */  jal        memset
     /* D30AC 001D30AC 10000624 */   addiu     $6, $0, 0x10
     /* D30B0 001D30B0 803F013C */  lui        $1, (0x3F800000 >> 16)
     /* D30B4 001D30B4 00008144 */  mtc1       $1, $f0
@@ -275,7 +275,7 @@ glabel ResetStatic2MotionManager
     /* D30E8 001D30E8 2D202002 */   daddu     $4, $17, $0
     /* D30EC 001D30EC 2D204002 */  daddu      $4, $18, $0
     /* D30F0 001D30F0 2D284002 */  daddu      $5, $18, $0
-    /* D30F4 001D30F4 5238040C */  jal        func_0010E148
+    /* D30F4 001D30F4 5238040C */  jal        MultiQuaternion
     /* D30F8 001D30F8 2D302002 */   daddu     $6, $17, $0
     /* D30FC 001D30FC DC35040C */  jal        InvertCurrentQuaternion
     /* D3100 001D3100 2D204002 */   daddu     $4, $18, $0
@@ -284,7 +284,7 @@ glabel ResetStatic2MotionManager
     /* D310C 001D310C 8C37040C */  jal        GetLastQuaternion
     /* D3110 001D3110 2D804000 */   daddu     $16, $2, $0
     /* D3114 001D3114 2D200002 */  daddu      $4, $16, $0
-    /* D3118 001D3118 7438040C */  jal        func_0010E1D0
+    /* D3118 001D3118 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D311C 001D311C 2D284000 */   daddu     $5, $2, $0
     /* D3120 001D3120 40B6858F */  lw         $5, %gp_rel(D_0062C230)($28)
     /* D3124 001D3124 2D202002 */  daddu      $4, $17, $0
@@ -307,14 +307,14 @@ glabel ResetStatic2MotionManager
     /* D3160 001D3160 2700173C */   lui       $23, %hi(D_002724B0)
     /* D3164 001D3164 2D200002 */  daddu      $4, $16, $0
     /* D3168 001D3168 2D284000 */  daddu      $5, $2, $0
-    /* D316C 001D316C 5238040C */  jal        func_0010E148
+    /* D316C 001D316C 5238040C */  jal        MultiQuaternion
     /* D3170 001D3170 2D302002 */   daddu     $6, $17, $0
     /* D3174 001D3174 1E14040C */  jal        func_00105078
     /* D3178 001D3178 00000000 */   nop
     /* D317C 001D317C 8C37040C */  jal        GetLastQuaternion
     /* D3180 001D3180 2D804000 */   daddu     $16, $2, $0
     /* D3184 001D3184 2D200002 */  daddu      $4, $16, $0
-    /* D3188 001D3188 7438040C */  jal        func_0010E1D0
+    /* D3188 001D3188 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D318C 001D318C 2D284000 */   daddu     $5, $2, $0
     /* D3190 001D3190 3000A427 */  addiu      $4, $29, 0x30
     /* D3194 001D3194 F036040C */  jal        GetInverseQuaternion
@@ -322,7 +322,7 @@ glabel ResetStatic2MotionManager
     /* D319C 001D319C 2000B427 */  addiu      $20, $29, 0x20
     /* D31A0 001D31A0 1000C526 */  addiu      $5, $22, 0x10
     /* D31A4 001D31A4 2D302002 */  daddu      $6, $17, $0
-    /* D31A8 001D31A8 6238040C */  jal        func_0010E188
+    /* D31A8 001D31A8 6238040C */  jal        DivQuaternion
     /* D31AC 001D31AC 2D208002 */   daddu     $4, $20, $0
     /* D31B0 001D31B0 8C37040C */  jal        GetLastQuaternion
     /* D31B4 001D31B4 00000000 */   nop
@@ -335,7 +335,7 @@ glabel ResetStatic2MotionManager
     /* D31D0 001D31D0 8C37040C */  jal        GetLastQuaternion
     /* D31D4 001D31D4 2D804000 */   daddu     $16, $2, $0
     /* D31D8 001D31D8 2D200002 */  daddu      $4, $16, $0
-    /* D31DC 001D31DC 7438040C */  jal        func_0010E1D0
+    /* D31DC 001D31DC 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D31E0 001D31E0 2D284000 */   daddu     $5, $2, $0
     /* D31E4 001D31E4 40B6898F */  lw         $9, %gp_rel(D_0062C230)($28)
     /* D31E8 001D31E8 0803228D */  lw         $2, 0x308($9)
@@ -431,7 +431,7 @@ glabel ResetStatic2MotionManager
     /* D3328 001D3328 04001124 */  addiu      $17, $0, 0x4
     /* D332C 001D332C 04005114 */  bne        $2, $17, .L001D3340
     /* D3330 001D3330 00000000 */   nop
-    /* D3334 001D3334 5213040C */  jal        func_00104D48
+    /* D3334 001D3334 5213040C */  jal        MatrixDrive_RotMatrixX
     /* D3338 001D3338 00800424 */   addiu     $4, $0, -0x8000
     /* D333C 001D333C 40B6898F */  lw         $9, %gp_rel(D_0062C230)($28)
 .align 2
@@ -440,13 +440,13 @@ glabel ResetStatic2MotionManager
     /* D3344 001D3344 E0023025 */   addiu     $16, $9, 0x2E0
     /* D3348 001D3348 40B6868F */  lw         $6, %gp_rel(D_0062C230)($28)
     /* D334C 001D334C 30004524 */  addiu      $5, $2, 0x30
-    /* D3350 001D3350 5E17040C */  jal        MatrixDrive_TurnZObjectMatrixXY
+    /* D3350 001D3350 5E17040C */  jal        AddVectorXYZ
     /* D3354 001D3354 7000A427 */   addiu     $4, $29, 0x70
     /* D3358 001D3358 2D280002 */  daddu      $5, $16, $0
     /* D335C 001D335C 6000A427 */  addiu      $4, $29, 0x60
-    /* D3360 001D3360 6417040C */  jal        MatrixDrive_GetTurnXAngleZY
+    /* D3360 001D3360 6417040C */  jal        SubVectorXYZ
     /* D3364 001D3364 7000A627 */   addiu     $6, $29, 0x70
-    /* D3368 001D3368 1614040C */  jal        func_00105058
+    /* D3368 001D3368 1614040C */  jal        MatrixDrive_PushMatrixWithNoCopy
     /* D336C 001D336C 6C00A0AF */   sw        $0, 0x6C($29)
     /* D3370 001D3370 1E14040C */  jal        func_00105078
     /* D3374 001D3374 00000000 */   nop
@@ -459,15 +459,15 @@ glabel ResetStatic2MotionManager
     /* D3390 001D3390 00000000 */   nop
     /* D3394 001D3394 2D284000 */  daddu      $5, $2, $0
     /* D3398 001D3398 5000A427 */  addiu      $4, $29, 0x50
-    /* D339C 001D339C 76FF080C */  jal        func_0023FDD8
+    /* D339C 001D339C 76FF080C */  jal        sceVu0ApplyMatrix
     /* D33A0 001D33A0 6000A627 */   addiu     $6, $29, 0x60
-    /* D33A4 001D33A4 1A14040C */  jal        func_00105068
+    /* D33A4 001D33A4 1A14040C */  jal        MatrixDrive_PopMatrix
     /* D33A8 001D33A8 00000000 */   nop
     /* D33AC 001D33AC 5000ACC7 */  lwc1       $f12, 0x50($29)
     /* D33B0 001D33B0 8000A427 */  addiu      $4, $29, 0x80
     /* D33B4 001D33B4 5400ADC7 */  lwc1       $f13, 0x54($29)
     /* D33B8 001D33B8 8200A527 */  addiu      $5, $29, 0x82
-    /* D33BC 001D33BC FA15040C */  jal        MatrixDrive_PushMatrixWithNoCopy
+    /* D33BC 001D33BC FA15040C */  jal        MatrixDrive_GetTurnYAngleXZ
     /* D33C0 001D33C0 5800AEC7 */   lwc1      $f14, 0x58($29)
     /* D33C4 001D33C4 8200AA97 */  lhu        $10, 0x82($29)
     /* D33C8 001D33C8 01000224 */  addiu      $2, $0, 0x1
@@ -484,7 +484,7 @@ glabel ResetStatic2MotionManager
     /* D33F4 001D33F4 8600A527 */  addiu      $5, $29, 0x86
     /* D33F8 001D33F8 8800A627 */  addiu      $6, $29, 0x88
     /* D33FC 001D33FC 2D480000 */  daddu      $9, $0, $0
-    /* D3400 001D3400 B648070C */  jal        AddMotionMemorySize
+    /* D3400 001D3400 B648070C */  jal        limitHPAngleAndSetB
     /* D3404 001D3404 2D580000 */   daddu     $11, $0, $0
     /* D3408 001D3408 8600A287 */  lh         $2, 0x86($29)
     /* D340C 001D340C 48B6838F */  lw         $3, %gp_rel(D_0062C238)($28)
@@ -534,18 +534,18 @@ glabel ResetStatic2MotionManager
     /* D34B4 001D34B4 2D382002 */  daddu      $7, $17, $0
     /* D34B8 001D34B8 A001A58F */  lw         $5, 0x1A0($29)
     /* D34BC 001D34BC 2D20C002 */  daddu      $4, $22, $0
-    /* D34C0 001D34C0 EC4A070C */  jal        ResetDynamicMotionManager
+    /* D34C0 001D34C0 EC4A070C */  jal        avoidReverseInterpOnCurrentMatrixWithLimit
     /* D34C4 001D34C4 2D306002 */   daddu     $6, $19, $0
     /* D34C8 001D34C8 8C37040C */  jal        GetLastQuaternion
     /* D34CC 001D34CC 7000B027 */   addiu     $16, $29, 0x70
     /* D34D0 001D34D0 2D302002 */  daddu      $6, $17, $0
     /* D34D4 001D34D4 2D200002 */  daddu      $4, $16, $0
-    /* D34D8 001D34D8 5238040C */  jal        func_0010E148
+    /* D34D8 001D34D8 5238040C */  jal        MultiQuaternion
     /* D34DC 001D34DC 2D284000 */   daddu     $5, $2, $0
     /* D34E0 001D34E0 9000B127 */  addiu      $17, $29, 0x90
     /* D34E4 001D34E4 2D280002 */  daddu      $5, $16, $0
     /* D34E8 001D34E8 2D202002 */  daddu      $4, $17, $0
-    /* D34EC 001D34EC 6238040C */  jal        func_0010E188
+    /* D34EC 001D34EC 6238040C */  jal        DivQuaternion
     /* D34F0 001D34F0 2D30C002 */   daddu     $6, $22, $0
     /* D34F4 001D34F4 40B6828F */  lw         $2, %gp_rel(D_0062C230)($28)
     /* D34F8 001D34F8 A000B027 */  addiu      $16, $29, 0xA0
@@ -562,7 +562,7 @@ glabel ResetStatic2MotionManager
     /* D3524 001D3524 B8034CC4 */   lwc1      $f12, 0x3B8($2)
     /* D3528 001D3528 2D304002 */  daddu      $6, $18, $0
     /* D352C 001D352C 2D20C002 */  daddu      $4, $22, $0
-    /* D3530 001D3530 5238040C */  jal        func_0010E148
+    /* D3530 001D3530 5238040C */  jal        MultiQuaternion
     /* D3534 001D3534 2D28C002 */   daddu     $5, $22, $0
     /* D3538 001D3538 0237040C */  jal        GetSlerpQuaternionNoRegularize
     /* D353C 001D353C 2D20C002 */   daddu     $4, $22, $0
@@ -570,7 +570,7 @@ glabel ResetStatic2MotionManager
     /* D3544 001D3544 00000000 */   nop
     /* D3548 001D3548 2D206002 */  daddu      $4, $19, $0
     /* D354C 001D354C 2D304000 */  daddu      $6, $2, $0
-    /* D3550 001D3550 6238040C */  jal        func_0010E188
+    /* D3550 001D3550 6238040C */  jal        DivQuaternion
     /* D3554 001D3554 2D28C002 */   daddu     $5, $22, $0
 .align 2
   .L001D3558:
@@ -594,7 +594,7 @@ glabel ResetStatic2MotionManager
     /* D359C 001D359C 501C1026 */   addiu     $16, $16, %lo(D_004C1C50)
     /* D35A0 001D35A0 2D202002 */  daddu      $4, $17, $0
     /* D35A4 001D35A4 2D284000 */  daddu      $5, $2, $0
-    /* D35A8 001D35A8 5238040C */  jal        func_0010E148
+    /* D35A8 001D35A8 5238040C */  jal        MultiQuaternion
     /* D35AC 001D35AC 2D308002 */   daddu     $6, $20, $0
     /* D35B0 001D35B0 8C37040C */  jal        GetLastQuaternion
     /* D35B4 001D35B4 00000000 */   nop
@@ -619,14 +619,14 @@ glabel ResetStatic2MotionManager
     /* D35F8 001D35F8 2D804000 */   daddu     $16, $2, $0
     /* D35FC 001D35FC 2D200002 */  daddu      $4, $16, $0
     /* D3600 001D3600 2D284000 */  daddu      $5, $2, $0
-    /* D3604 001D3604 5238040C */  jal        func_0010E148
+    /* D3604 001D3604 5238040C */  jal        MultiQuaternion
     /* D3608 001D3608 2D304002 */   daddu     $6, $18, $0
     /* D360C 001D360C 1E14040C */  jal        func_00105078
     /* D3610 001D3610 00000000 */   nop
     /* D3614 001D3614 8C37040C */  jal        GetLastQuaternion
     /* D3618 001D3618 2D804000 */   daddu     $16, $2, $0
     /* D361C 001D361C 2D200002 */  daddu      $4, $16, $0
-    /* D3620 001D3620 7438040C */  jal        func_0010E1D0
+    /* D3620 001D3620 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D3624 001D3624 2D284000 */   daddu     $5, $2, $0
     /* D3628 001D3628 2700023C */  lui        $2, %hi(D_002724B0)
     /* D362C 001D362C 3000A427 */  addiu      $4, $29, 0x30
@@ -635,7 +635,7 @@ glabel ResetStatic2MotionManager
     /* D3638 001D3638 2000B127 */  addiu      $17, $29, 0x20
     /* D363C 001D363C 1000C526 */  addiu      $5, $22, 0x10
     /* D3640 001D3640 2D304002 */  daddu      $6, $18, $0
-    /* D3644 001D3644 6238040C */  jal        func_0010E188
+    /* D3644 001D3644 6238040C */  jal        DivQuaternion
     /* D3648 001D3648 2D202002 */   daddu     $4, $17, $0
     /* D364C 001D364C 8C37040C */  jal        GetLastQuaternion
     /* D3650 001D3650 00000000 */   nop
@@ -643,14 +643,14 @@ glabel ResetStatic2MotionManager
     /* D3658 001D3658 2D804000 */   daddu     $16, $2, $0
     /* D365C 001D365C 2D200002 */  daddu      $4, $16, $0
     /* D3660 001D3660 2D284000 */  daddu      $5, $2, $0
-    /* D3664 001D3664 5238040C */  jal        func_0010E148
+    /* D3664 001D3664 5238040C */  jal        MultiQuaternion
     /* D3668 001D3668 2D302002 */   daddu     $6, $17, $0
     /* D366C 001D366C 1E14040C */  jal        func_00105078
     /* D3670 001D3670 00000000 */   nop
     /* D3674 001D3674 8C37040C */  jal        GetLastQuaternion
     /* D3678 001D3678 2D804000 */   daddu     $16, $2, $0
     /* D367C 001D367C 2D200002 */  daddu      $4, $16, $0
-    /* D3680 001D3680 7438040C */  jal        func_0010E1D0
+    /* D3680 001D3680 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D3684 001D3684 2D284000 */   daddu     $5, $2, $0
     /* D3688 001D3688 40B6898F */  lw         $9, %gp_rel(D_0062C230)($28)
     /* D368C 001D368C 0C03228D */  lw         $2, 0x30C($9)
@@ -790,7 +790,7 @@ glabel ResetStatic2MotionManager
     /* D384C 001D384C A001A58F */  lw         $5, 0x1A0($29)
     /* D3850 001D3850 2D20C002 */  daddu      $4, $22, $0
     /* D3854 001D3854 2D30C003 */  daddu      $6, $30, $0
-    /* D3858 001D3858 984A070C */  jal        GetMotionMemorySize
+    /* D3858 001D3858 984A070C */  jal        avoidReverseInterpOnCurrentMatrix
     /* D385C 001D385C 2DA0C002 */   daddu     $20, $22, $0
     /* D3860 001D3860 2D900000 */  daddu      $18, $0, $0
     /* D3864 001D3864 40B6898F */  lw         $9, %gp_rel(D_0062C230)($28)
@@ -806,13 +806,13 @@ glabel ResetStatic2MotionManager
     /* D388C 001D388C 01001324 */   addiu     $19, $0, 0x1
     /* D3890 001D3890 40B6868F */  lw         $6, %gp_rel(D_0062C230)($28)
     /* D3894 001D3894 30004524 */  addiu      $5, $2, 0x30
-    /* D3898 001D3898 5E17040C */  jal        MatrixDrive_TurnZObjectMatrixXY
+    /* D3898 001D3898 5E17040C */  jal        AddVectorXYZ
     /* D389C 001D389C 6000A427 */   addiu     $4, $29, 0x60
     /* D38A0 001D38A0 2D280002 */  daddu      $5, $16, $0
     /* D38A4 001D38A4 5000A427 */  addiu      $4, $29, 0x50
-    /* D38A8 001D38A8 6417040C */  jal        MatrixDrive_GetTurnXAngleZY
+    /* D38A8 001D38A8 6417040C */  jal        SubVectorXYZ
     /* D38AC 001D38AC 6000A627 */   addiu     $6, $29, 0x60
-    /* D38B0 001D38B0 1614040C */  jal        func_00105058
+    /* D38B0 001D38B0 1614040C */  jal        MatrixDrive_PushMatrixWithNoCopy
     /* D38B4 001D38B4 5C00A0AF */   sw        $0, 0x5C($29)
     /* D38B8 001D38B8 1E14040C */  jal        func_00105078
     /* D38BC 001D38BC 00000000 */   nop
@@ -825,9 +825,9 @@ glabel ResetStatic2MotionManager
     /* D38D8 001D38D8 00000000 */   nop
     /* D38DC 001D38DC 2D284000 */  daddu      $5, $2, $0
     /* D38E0 001D38E0 A000A427 */  addiu      $4, $29, 0xA0
-    /* D38E4 001D38E4 76FF080C */  jal        func_0023FDD8
+    /* D38E4 001D38E4 76FF080C */  jal        sceVu0ApplyMatrix
     /* D38E8 001D38E8 5000A627 */   addiu     $6, $29, 0x50
-    /* D38EC 001D38EC 1A14040C */  jal        func_00105068
+    /* D38EC 001D38EC 1A14040C */  jal        MatrixDrive_PopMatrix
     /* D38F0 001D38F0 00000000 */   nop
     /* D38F4 001D38F4 A000ACC7 */  lwc1       $f12, 0xA0($29)
     /* D38F8 001D38F8 B000A427 */  addiu      $4, $29, 0xB0
@@ -849,13 +849,13 @@ glabel ResetStatic2MotionManager
     /* D3930 001D3930 01007326 */   addiu     $19, $19, 0x1
     /* D3934 001D3934 40B6868F */  lw         $6, %gp_rel(D_0062C230)($28)
     /* D3938 001D3938 30004524 */  addiu      $5, $2, 0x30
-    /* D393C 001D393C 5E17040C */  jal        MatrixDrive_TurnZObjectMatrixXY
+    /* D393C 001D393C 5E17040C */  jal        AddVectorXYZ
     /* D3940 001D3940 7000A427 */   addiu     $4, $29, 0x70
     /* D3944 001D3944 2D280002 */  daddu      $5, $16, $0
     /* D3948 001D3948 6000A427 */  addiu      $4, $29, 0x60
-    /* D394C 001D394C 6417040C */  jal        MatrixDrive_GetTurnXAngleZY
+    /* D394C 001D394C 6417040C */  jal        SubVectorXYZ
     /* D3950 001D3950 7000A627 */   addiu     $6, $29, 0x70
-    /* D3954 001D3954 1614040C */  jal        func_00105058
+    /* D3954 001D3954 1614040C */  jal        MatrixDrive_PushMatrixWithNoCopy
     /* D3958 001D3958 6C00A0AF */   sw        $0, 0x6C($29)
     /* D395C 001D395C 1E14040C */  jal        func_00105078
     /* D3960 001D3960 00000000 */   nop
@@ -868,15 +868,15 @@ glabel ResetStatic2MotionManager
     /* D397C 001D397C 00000000 */   nop
     /* D3980 001D3980 2D284000 */  daddu      $5, $2, $0
     /* D3984 001D3984 5000A427 */  addiu      $4, $29, 0x50
-    /* D3988 001D3988 76FF080C */  jal        func_0023FDD8
+    /* D3988 001D3988 76FF080C */  jal        sceVu0ApplyMatrix
     /* D398C 001D398C 6000A627 */   addiu     $6, $29, 0x60
-    /* D3990 001D3990 1A14040C */  jal        func_00105068
+    /* D3990 001D3990 1A14040C */  jal        MatrixDrive_PopMatrix
     /* D3994 001D3994 00000000 */   nop
     /* D3998 001D3998 5000ACC7 */  lwc1       $f12, 0x50($29)
     /* D399C 001D399C B400A427 */  addiu      $4, $29, 0xB4
     /* D39A0 001D39A0 5400ADC7 */  lwc1       $f13, 0x54($29)
     /* D39A4 001D39A4 B600A527 */  addiu      $5, $29, 0xB6
-    /* D39A8 001D39A8 6E16040C */  jal        MatrixDrive_GetMatrix
+    /* D39A8 001D39A8 6E16040C */  jal        MatrixDrive_GetTurnZAngleXY
     /* D39AC 001D39AC 5800AEC7 */   lwc1      $f14, 0x58($29)
     /* D39B0 001D39B0 B400A287 */  lh         $2, 0xB4($29)
     /* D39B4 001D39B4 40B6898F */  lw         $9, %gp_rel(D_0062C230)($28)
@@ -895,13 +895,13 @@ glabel ResetStatic2MotionManager
     /* D39D8 001D39D8 E0023025 */   addiu     $16, $9, 0x2E0
     /* D39DC 001D39DC 40B6868F */  lw         $6, %gp_rel(D_0062C230)($28)
     /* D39E0 001D39E0 30004524 */  addiu      $5, $2, 0x30
-    /* D39E4 001D39E4 5E17040C */  jal        MatrixDrive_TurnZObjectMatrixXY
+    /* D39E4 001D39E4 5E17040C */  jal        AddVectorXYZ
     /* D39E8 001D39E8 D000A427 */   addiu     $4, $29, 0xD0
     /* D39EC 001D39EC 2D280002 */  daddu      $5, $16, $0
     /* D39F0 001D39F0 C000A427 */  addiu      $4, $29, 0xC0
-    /* D39F4 001D39F4 6417040C */  jal        MatrixDrive_GetTurnXAngleZY
+    /* D39F4 001D39F4 6417040C */  jal        SubVectorXYZ
     /* D39F8 001D39F8 D000A627 */   addiu     $6, $29, 0xD0
-    /* D39FC 001D39FC 1614040C */  jal        func_00105058
+    /* D39FC 001D39FC 1614040C */  jal        MatrixDrive_PushMatrixWithNoCopy
     /* D3A00 001D3A00 CC00A0AF */   sw        $0, 0xCC($29)
     /* D3A04 001D3A04 1E14040C */  jal        func_00105078
     /* D3A08 001D3A08 00000000 */   nop
@@ -914,15 +914,15 @@ glabel ResetStatic2MotionManager
     /* D3A24 001D3A24 00000000 */   nop
     /* D3A28 001D3A28 2D284000 */  daddu      $5, $2, $0
     /* D3A2C 001D3A2C 6000A427 */  addiu      $4, $29, 0x60
-    /* D3A30 001D3A30 76FF080C */  jal        func_0023FDD8
+    /* D3A30 001D3A30 76FF080C */  jal        sceVu0ApplyMatrix
     /* D3A34 001D3A34 C000A627 */   addiu     $6, $29, 0xC0
-    /* D3A38 001D3A38 1A14040C */  jal        func_00105068
+    /* D3A38 001D3A38 1A14040C */  jal        MatrixDrive_PopMatrix
     /* D3A3C 001D3A3C 00000000 */   nop
     /* D3A40 001D3A40 6000ACC7 */  lwc1       $f12, 0x60($29)
     /* D3A44 001D3A44 E000A427 */  addiu      $4, $29, 0xE0
     /* D3A48 001D3A48 6400ADC7 */  lwc1       $f13, 0x64($29)
     /* D3A4C 001D3A4C E200A527 */  addiu      $5, $29, 0xE2
-    /* D3A50 001D3A50 FA15040C */  jal        MatrixDrive_PushMatrixWithNoCopy
+    /* D3A50 001D3A50 FA15040C */  jal        MatrixDrive_GetTurnYAngleXZ
     /* D3A54 001D3A54 6800AEC7 */   lwc1      $f14, 0x68($29)
     /* D3A58 001D3A58 40B6908F */  lw         $16, %gp_rel(D_0062C230)($28)
     /* D3A5C 001D3A5C 02000324 */  addiu      $3, $0, 0x2
@@ -982,7 +982,7 @@ glabel ResetStatic2MotionManager
     /* D3B0C 001D3B0C E400A427 */  addiu      $4, $29, 0xE4
     /* D3B10 001D3B10 0800A0AF */  sw         $0, 0x8($29)
     /* D3B14 001D3B14 E600A527 */  addiu      $5, $29, 0xE6
-    /* D3B18 001D3B18 B648070C */  jal        AddMotionMemorySize
+    /* D3B18 001D3B18 B648070C */  jal        limitHPAngleAndSetB
     /* D3B1C 001D3B1C E800A627 */   addiu     $6, $29, 0xE8
     /* D3B20 001D3B20 2000B226 */  addiu      $18, $21, 0x20
     /* D3B24 001D3B24 0800AB96 */  lhu        $11, 0x8($21)
@@ -1000,7 +1000,7 @@ glabel ResetStatic2MotionManager
     /* D3B54 001D3B54 EA00A427 */  addiu      $4, $29, 0xEA
     /* D3B58 001D3B58 0800A0AF */  sw         $0, 0x8($29)
     /* D3B5C 001D3B5C EC00A527 */  addiu      $5, $29, 0xEC
-    /* D3B60 001D3B60 B648070C */  jal        AddMotionMemorySize
+    /* D3B60 001D3B60 B648070C */  jal        limitHPAngleAndSetB
     /* D3B64 001D3B64 EE00A627 */   addiu     $6, $29, 0xEE
     /* D3B68 001D3B68 EC00A287 */  lh         $2, 0xEC($29)
     /* D3B6C 001D3B6C 7000B027 */  addiu      $16, $29, 0x70
@@ -1030,12 +1030,12 @@ glabel ResetStatic2MotionManager
     /* D3BCC 001D3BCC C000B127 */   addiu     $17, $29, 0xC0
     /* D3BD0 001D3BD0 2D300002 */  daddu      $6, $16, $0
     /* D3BD4 001D3BD4 2D202002 */  daddu      $4, $17, $0
-    /* D3BD8 001D3BD8 5238040C */  jal        func_0010E148
+    /* D3BD8 001D3BD8 5238040C */  jal        MultiQuaternion
     /* D3BDC 001D3BDC 2D284000 */   daddu     $5, $2, $0
     /* D3BE0 001D3BE0 D000B027 */  addiu      $16, $29, 0xD0
     /* D3BE4 001D3BE4 2D282002 */  daddu      $5, $17, $0
     /* D3BE8 001D3BE8 2D200002 */  daddu      $4, $16, $0
-    /* D3BEC 001D3BEC 6238040C */  jal        func_0010E188
+    /* D3BEC 001D3BEC 6238040C */  jal        DivQuaternion
     /* D3BF0 001D3BF0 2D308002 */   daddu     $6, $20, $0
     /* D3BF4 001D3BF4 40B6828F */  lw         $2, %gp_rel(D_0062C230)($28)
     /* D3BF8 001D3BF8 F000B127 */  addiu      $17, $29, 0xF0
@@ -1053,7 +1053,7 @@ glabel ResetStatic2MotionManager
     /* D3C28 001D3C28 B8034CC4 */   lwc1      $f12, 0x3B8($2)
     /* D3C2C 001D3C2C 2D304002 */  daddu      $6, $18, $0
     /* D3C30 001D3C30 2D208002 */  daddu      $4, $20, $0
-    /* D3C34 001D3C34 5238040C */  jal        func_0010E148
+    /* D3C34 001D3C34 5238040C */  jal        MultiQuaternion
     /* D3C38 001D3C38 2D288002 */   daddu     $5, $20, $0
     /* D3C3C 001D3C3C 0237040C */  jal        GetSlerpQuaternionNoRegularize
     /* D3C40 001D3C40 2D208002 */   daddu     $4, $20, $0
@@ -1061,7 +1061,7 @@ glabel ResetStatic2MotionManager
     /* D3C48 001D3C48 00000000 */   nop
     /* D3C4C 001D3C4C 2D20C003 */  daddu      $4, $30, $0
     /* D3C50 001D3C50 2D288002 */  daddu      $5, $20, $0
-    /* D3C54 001D3C54 6238040C */  jal        func_0010E188
+    /* D3C54 001D3C54 6238040C */  jal        DivQuaternion
     /* D3C58 001D3C58 2D304000 */   daddu     $6, $2, $0
     /* D3C5C 001D3C5C EC00A287 */  lh         $2, 0xEC($29)
     /* D3C60 001D3C60 0800A386 */  lh         $3, 0x8($21)
@@ -1127,14 +1127,14 @@ glabel ResetStatic2MotionManager
     /* D3D48 001D3D48 C0021026 */   addiu     $16, $16, 0x2C0
     /* D3D4C 001D3D4C 2D280002 */  daddu      $5, $16, $0
     /* D3D50 001D3D50 2D202002 */  daddu      $4, $17, $0
-    /* D3D54 001D3D54 5238040C */  jal        func_0010E148
+    /* D3D54 001D3D54 5238040C */  jal        MultiQuaternion
     /* D3D58 001D3D58 2D304000 */   daddu     $6, $2, $0
     /* D3D5C 001D3D5C 1E14040C */  jal        func_00105078
     /* D3D60 001D3D60 00000000 */   nop
     /* D3D64 001D3D64 8C37040C */  jal        GetLastQuaternion
     /* D3D68 001D3D68 2D804000 */   daddu     $16, $2, $0
     /* D3D6C 001D3D6C 2D200002 */  daddu      $4, $16, $0
-    /* D3D70 001D3D70 7438040C */  jal        func_0010E1D0
+    /* D3D70 001D3D70 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D3D74 001D3D74 2D284000 */   daddu     $5, $2, $0
     /* D3D78 001D3D78 7000103C */  lui        $16, %hi(D_00703020)
     /* D3D7C 001D3D7C 1E14040C */  jal        func_00105078
@@ -1142,7 +1142,7 @@ glabel ResetStatic2MotionManager
     /* D3D84 001D3D84 2700063C */  lui        $6, %hi(D_00271BF0)
     /* D3D88 001D3D88 2D200002 */  daddu      $4, $16, $0
     /* D3D8C 001D3D8C 2D284000 */  daddu      $5, $2, $0
-    /* D3D90 001D3D90 9C62040C */  jal        func_00118A70
+    /* D3D90 001D3D90 9C62040C */  jal        _ApplyMatrix
     /* D3D94 001D3D94 F01BC624 */   addiu     $6, $6, %lo(D_00271BF0)
     /* D3D98 001D3D98 67060010 */  b          .L001D5738
     /* D3D9C 001D3D9C 6002BFDF */   ld        $31, 0x260($29)
@@ -1154,14 +1154,14 @@ glabel ResetStatic2MotionManager
     /* D3DAC 001D3DAC 2D804000 */   daddu     $16, $2, $0
     /* D3DB0 001D3DB0 2D200002 */  daddu      $4, $16, $0
     /* D3DB4 001D3DB4 2D284000 */  daddu      $5, $2, $0
-    /* D3DB8 001D3DB8 5238040C */  jal        func_0010E148
+    /* D3DB8 001D3DB8 5238040C */  jal        MultiQuaternion
     /* D3DBC 001D3DBC 2D304002 */   daddu     $6, $18, $0
     /* D3DC0 001D3DC0 1E14040C */  jal        func_00105078
     /* D3DC4 001D3DC4 00000000 */   nop
     /* D3DC8 001D3DC8 8C37040C */  jal        GetLastQuaternion
     /* D3DCC 001D3DCC 2D804000 */   daddu     $16, $2, $0
     /* D3DD0 001D3DD0 2D200002 */  daddu      $4, $16, $0
-    /* D3DD4 001D3DD4 7438040C */  jal        func_0010E1D0
+    /* D3DD4 001D3DD4 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D3DD8 001D3DD8 2D284000 */   daddu     $5, $2, $0
     /* D3DDC 001D3DDC 3000B027 */  addiu      $16, $29, 0x30
     /* D3DE0 001D3DE0 2700053C */  lui        $5, %hi(D_002724B0)
@@ -1171,11 +1171,11 @@ glabel ResetStatic2MotionManager
     /* D3DF0 001D3DF0 2000B127 */  addiu      $17, $29, 0x20
     /* D3DF4 001D3DF4 1000C526 */  addiu      $5, $22, 0x10
     /* D3DF8 001D3DF8 2D304002 */  daddu      $6, $18, $0
-    /* D3DFC 001D3DFC 6238040C */  jal        func_0010E188
+    /* D3DFC 001D3DFC 6238040C */  jal        DivQuaternion
     /* D3E00 001D3E00 2D202002 */   daddu     $4, $17, $0
     /* D3E04 001D3E04 2D200002 */  daddu      $4, $16, $0
     /* D3E08 001D3E08 2D280002 */  daddu      $5, $16, $0
-    /* D3E0C 001D3E0C 5238040C */  jal        func_0010E148
+    /* D3E0C 001D3E0C 5238040C */  jal        MultiQuaternion
     /* D3E10 001D3E10 2D302002 */   daddu     $6, $17, $0
     /* D3E14 001D3E14 DC35040C */  jal        InvertCurrentQuaternion
     /* D3E18 001D3E18 2D200002 */   daddu     $4, $16, $0
@@ -1191,14 +1191,14 @@ glabel ResetStatic2MotionManager
     /* D3E38 001D3E38 2D804000 */   daddu     $16, $2, $0
     /* D3E3C 001D3E3C 2D200002 */  daddu      $4, $16, $0
     /* D3E40 001D3E40 2D284000 */  daddu      $5, $2, $0
-    /* D3E44 001D3E44 5238040C */  jal        func_0010E148
+    /* D3E44 001D3E44 5238040C */  jal        MultiQuaternion
     /* D3E48 001D3E48 2D302002 */   daddu     $6, $17, $0
     /* D3E4C 001D3E4C 1E14040C */  jal        func_00105078
     /* D3E50 001D3E50 00000000 */   nop
     /* D3E54 001D3E54 8C37040C */  jal        GetLastQuaternion
     /* D3E58 001D3E58 2D804000 */   daddu     $16, $2, $0
     /* D3E5C 001D3E5C 2D200002 */  daddu      $4, $16, $0
-    /* D3E60 001D3E60 7438040C */  jal        func_0010E1D0
+    /* D3E60 001D3E60 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D3E64 001D3E64 2D284000 */   daddu     $5, $2, $0
     /* D3E68 001D3E68 3000A227 */  addiu      $2, $29, 0x30
     /* D3E6C 001D3E6C 2700033C */  lui        $3, %hi(D_002724B0)
@@ -1210,12 +1210,12 @@ glabel ResetStatic2MotionManager
     /* D3E84 001D3E84 1000C526 */  addiu      $5, $22, 0x10
     /* D3E88 001D3E88 A801A2AF */  sw         $2, 0x1A8($29)
     /* D3E8C 001D3E8C 2D302002 */  daddu      $6, $17, $0
-    /* D3E90 001D3E90 6238040C */  jal        func_0010E188
+    /* D3E90 001D3E90 6238040C */  jal        DivQuaternion
     /* D3E94 001D3E94 2D204000 */   daddu     $4, $2, $0
     /* D3E98 001D3E98 A000B227 */  addiu      $18, $29, 0xA0
     /* D3E9C 001D3E9C 2D280000 */  daddu      $5, $0, $0
     /* D3EA0 001D3EA0 2D204002 */  daddu      $4, $18, $0
-    /* D3EA4 001D3EA4 5A81090C */  jal        func_00260568
+    /* D3EA4 001D3EA4 5A81090C */  jal        memset
     /* D3EA8 001D3EA8 10000624 */   addiu     $6, $0, 0x10
     /* D3EAC 001D3EAC 40B6908F */  lw         $16, %gp_rel(D_0062C230)($28)
     /* D3EB0 001D3EB0 AC00B4E7 */  swc1       $f20, 0xAC($29)
@@ -1223,13 +1223,13 @@ glabel ResetStatic2MotionManager
     /* D3EB8 001D3EB8 90021026 */   addiu     $16, $16, 0x290
     /* D3EBC 001D3EBC 40B6868F */  lw         $6, %gp_rel(D_0062C230)($28)
     /* D3EC0 001D3EC0 30004524 */  addiu      $5, $2, 0x30
-    /* D3EC4 001D3EC4 5E17040C */  jal        MatrixDrive_TurnZObjectMatrixXY
+    /* D3EC4 001D3EC4 5E17040C */  jal        AddVectorXYZ
     /* D3EC8 001D3EC8 7000A427 */   addiu     $4, $29, 0x70
     /* D3ECC 001D3ECC 2D280002 */  daddu      $5, $16, $0
     /* D3ED0 001D3ED0 6000A427 */  addiu      $4, $29, 0x60
-    /* D3ED4 001D3ED4 6417040C */  jal        MatrixDrive_GetTurnXAngleZY
+    /* D3ED4 001D3ED4 6417040C */  jal        SubVectorXYZ
     /* D3ED8 001D3ED8 7000A627 */   addiu     $6, $29, 0x70
-    /* D3EDC 001D3EDC 1614040C */  jal        func_00105058
+    /* D3EDC 001D3EDC 1614040C */  jal        MatrixDrive_PushMatrixWithNoCopy
     /* D3EE0 001D3EE0 6C00A0AF */   sw        $0, 0x6C($29)
     /* D3EE4 001D3EE4 1E14040C */  jal        func_00105078
     /* D3EE8 001D3EE8 00000000 */   nop
@@ -1242,15 +1242,15 @@ glabel ResetStatic2MotionManager
     /* D3F04 001D3F04 00000000 */   nop
     /* D3F08 001D3F08 2D284000 */  daddu      $5, $2, $0
     /* D3F0C 001D3F0C C000A427 */  addiu      $4, $29, 0xC0
-    /* D3F10 001D3F10 76FF080C */  jal        func_0023FDD8
+    /* D3F10 001D3F10 76FF080C */  jal        sceVu0ApplyMatrix
     /* D3F14 001D3F14 6000A627 */   addiu     $6, $29, 0x60
-    /* D3F18 001D3F18 1A14040C */  jal        func_00105068
+    /* D3F18 001D3F18 1A14040C */  jal        MatrixDrive_PopMatrix
     /* D3F1C 001D3F1C 00000000 */   nop
     /* D3F20 001D3F20 C000ACC7 */  lwc1       $f12, 0xC0($29)
     /* D3F24 001D3F24 0401A427 */  addiu      $4, $29, 0x104
     /* D3F28 001D3F28 C400ADC7 */  lwc1       $f13, 0xC4($29)
     /* D3F2C 001D3F2C 0601A527 */  addiu      $5, $29, 0x106
-    /* D3F30 001D3F30 8A15040C */  jal        MatrixDrive_ScaleMatrix
+    /* D3F30 001D3F30 8A15040C */  jal        MatrixDrive_GetTurnXAngleZY
     /* D3F34 001D3F34 C800AEC7 */   lwc1      $f14, 0xC8($29)
     /* D3F38 001D3F38 01000224 */  addiu      $2, $0, 0x1
     /* D3F3C 001D3F3C 0401A887 */  lh         $8, 0x104($29)
@@ -1263,13 +1263,13 @@ glabel ResetStatic2MotionManager
     /* D3F58 001D3F58 0800A0AF */  sw         $0, 0x8($29)
     /* D3F5C 001D3F5C 0C01A627 */  addiu      $6, $29, 0x10C
     /* D3F60 001D3F60 2D480000 */  daddu      $9, $0, $0
-    /* D3F64 001D3F64 B648070C */  jal        AddMotionMemorySize
+    /* D3F64 001D3F64 B648070C */  jal        limitHPAngleAndSetB
     /* D3F68 001D3F68 2D580000 */   daddu     $11, $0, $0
     /* D3F6C 001D3F6C 40B6828F */  lw         $2, %gp_rel(D_0062C230)($28)
     /* D3F70 001D3F70 8402438C */  lw         $3, 0x284($2)
     /* D3F74 001D3F74 05006010 */  beqz       $3, .L001D3F8C
     /* D3F78 001D3F78 5000A427 */   addiu     $4, $29, 0x50
-    /* D3F7C 001D3F7C C661040C */  jal        _SetCurrentMatrix
+    /* D3F7C 001D3F7C C661040C */  jal        _NormalizeVector
     /* D3F80 001D3F80 C000A527 */   addiu     $5, $29, 0xC0
     /* D3F84 001D3F84 14000010 */  b          .L001D3FD8
     /* D3F88 001D3F88 2700033C */   lui       $3, %hi(D_00271BF0)
@@ -1277,10 +1277,10 @@ glabel ResetStatic2MotionManager
   .L001D3F8C:
     /* D3F8C 001D3F8C 0A01B187 */  lh         $17, 0x10A($29)
     /* D3F90 001D3F90 0801B087 */  lh         $16, 0x108($29)
-    /* D3F94 001D3F94 4C3B040C */  jal        func_0010ED30
+    /* D3F94 001D3F94 4C3B040C */  jal        GetTableCos
     /* D3F98 001D3F98 2D202002 */   daddu     $4, $17, $0
     /* D3F9C 001D3F9C 06050046 */  mov.s      $f20, $f0
-    /* D3FA0 001D3FA0 4C3B040C */  jal        func_0010ED30
+    /* D3FA0 001D3FA0 4C3B040C */  jal        GetTableCos
     /* D3FA4 001D3FA4 2D200002 */   daddu     $4, $16, $0
     /* D3FA8 001D3FA8 02001446 */  mul.s      $f0, $f0, $f20
     /* D3FAC 001D3FAC 2D200002 */  daddu      $4, $16, $0
@@ -1298,22 +1298,22 @@ glabel ResetStatic2MotionManager
   .L001D3FD8:
     /* D3FD8 001D3FD8 5000A427 */  addiu      $4, $29, 0x50
     /* D3FDC 001D3FDC F01B7024 */  addiu      $16, $3, %lo(D_00271BF0)
-    /* D3FE0 001D3FE0 D261040C */  jal        _MulCurrentMatrixR
+    /* D3FE0 001D3FE0 D261040C */  jal        _InnerProduct
     /* D3FE4 001D3FE4 2D280002 */   daddu     $5, $16, $0
-    /* D3FE8 001D3FE8 BC3B040C */  jal        func_0010EEF0
+    /* D3FE8 001D3FE8 BC3B040C */  jal        GetTableArcCos
     /* D3FEC 001D3FEC 06030046 */   mov.s     $f12, $f0
     /* D3FF0 001D3FF0 2D884000 */  daddu      $17, $2, $0
     /* D3FF4 001D3FF4 2D300002 */  daddu      $6, $16, $0
     /* D3FF8 001D3FF8 6000A427 */  addiu      $4, $29, 0x60
-    /* D3FFC 001D3FFC DE61040C */  jal        _MulCurrentMatrixL
+    /* D3FFC 001D3FFC DE61040C */  jal        _OuterProduct
     /* D4000 001D4000 5000A527 */   addiu     $5, $29, 0x50
     /* D4004 001D4004 2D282002 */  daddu      $5, $17, $0
     /* D4008 001D4008 D000A427 */  addiu      $4, $29, 0xD0
-    /* D400C 001D400C 2238040C */  jal        func_0010E088
+    /* D400C 001D400C 2238040C */  jal        SetQuaternionByAxisRotateV
     /* D4010 001D4010 6000A627 */   addiu     $6, $29, 0x60
     /* D4014 001D4014 A000A427 */  addiu      $4, $29, 0xA0
     /* D4018 001D4018 D000A627 */  addiu      $6, $29, 0xD0
-    /* D401C 001D401C 5238040C */  jal        func_0010E148
+    /* D401C 001D401C 5238040C */  jal        MultiQuaternion
     /* D4020 001D4020 2D288000 */   daddu     $5, $4, $0
     /* D4024 001D4024 40B6868F */  lw         $6, %gp_rel(D_0062C230)($28)
     /* D4028 001D4028 01000224 */  addiu      $2, $0, 0x1
@@ -1339,7 +1339,7 @@ glabel ResetStatic2MotionManager
 .align 2
   .L001D4078:
     /* D4078 001D4078 C000A427 */  addiu      $4, $29, 0xC0
-    /* D407C 001D407C 8017040C */  jal        MatrixDrive_GetTurnYEAngleXZ
+    /* D407C 001D407C 8017040C */  jal        VectorLength
     /* D4080 001D4080 2D880000 */   daddu     $17, $0, $0
     /* D4084 001D4084 3000C48F */  lw         $4, 0x30($30)
     /* D4088 001D4088 FFFF0224 */  addiu      $2, $0, -0x1
@@ -1360,7 +1360,7 @@ glabel ResetStatic2MotionManager
   .L001D40C0:
     /* D40C0 001D40C0 80110400 */  sll        $2, $4, 6
     /* D40C4 001D40C4 21806200 */  addu       $16, $3, $2
-    /* D40C8 001D40C8 8017040C */  jal        MatrixDrive_GetTurnYEAngleXZ
+    /* D40C8 001D40C8 8017040C */  jal        VectorLength
     /* D40CC 001D40CC 10000426 */   addiu     $4, $16, 0x10
     /* D40D0 001D40D0 30AB81C7 */  lwc1       $f1, %gp_rel(D_0062B720)($28)
     /* D40D4 001D40D4 80101100 */  sll        $2, $17, 2
@@ -1401,13 +1401,13 @@ glabel ResetStatic2MotionManager
     /* D4148 001D4148 68AB848F */  lw         $4, %gp_rel(D_0062B758)($28)
     /* D414C 001D414C 80110200 */  sll        $2, $2, 6
     /* D4150 001D4150 21208200 */  addu       $4, $4, $2
-    /* D4154 001D4154 8017040C */  jal        MatrixDrive_GetTurnYEAngleXZ
+    /* D4154 001D4154 8017040C */  jal        VectorLength
     /* D4158 001D4158 10008424 */   addiu     $4, $4, 0x10
     /* D415C 001D415C 30AB81C7 */  lwc1       $f1, %gp_rel(D_0062B720)($28)
     /* D4160 001D4160 6400A2C7 */  lwc1       $f2, 0x64($29)
     /* D4164 001D4164 42080046 */  mul.s      $f1, $f1, $f0
     /* D4168 001D4168 80100146 */  add.s      $f2, $f2, $f1
-    /* D416C 001D416C 1614040C */  jal        func_00105058
+    /* D416C 001D416C 1614040C */  jal        MatrixDrive_PushMatrixWithNoCopy
     /* D4170 001D4170 6400A2E7 */   swc1      $f2, 0x64($29)
     /* D4174 001D4174 6CAB848F */  lw         $4, %gp_rel(D_0062B75C)($28)
     /* D4178 001D4178 9627040C */  jal        DebugDisp1CollisionWithColor
@@ -1437,9 +1437,9 @@ glabel ResetStatic2MotionManager
     /* D41D8 001D41D8 2D30E002 */  daddu      $6, $23, $0
     /* D41DC 001D41DC 80110200 */  sll        $2, $2, 6
     /* D41E0 001D41E0 2128A200 */  addu       $5, $5, $2
-    /* D41E4 001D41E4 E661040C */  jal        _ApplyCurrentMatrix
+    /* D41E4 001D41E4 E661040C */  jal        _AddVector
     /* D41E8 001D41E8 1000A524 */   addiu     $5, $5, 0x10
-    /* D41EC 001D41EC 8017040C */  jal        MatrixDrive_GetTurnYEAngleXZ
+    /* D41EC 001D41EC 8017040C */  jal        VectorLength
     /* D41F0 001D41F0 2D206002 */   daddu     $4, $19, $0
     /* D41F4 001D41F4 30AB94C7 */  lwc1       $f20, %gp_rel(D_0062B720)($28)
     /* D41F8 001D41F8 2D204002 */  daddu      $4, $18, $0
@@ -1451,26 +1451,26 @@ glabel ResetStatic2MotionManager
     /* D4210 001D4210 3C01A1E7 */  swc1       $f1, 0x13C($29)
     /* D4214 001D4214 2D30E002 */  daddu      $6, $23, $0
     /* D4218 001D4218 3401B5E7 */  swc1       $f21, 0x134($29)
-    /* D421C 001D421C F861040C */  jal        _TransposeRotationCurrentMatrix
+    /* D421C 001D421C F861040C */  jal        _SubVectorXYZ
     /* D4220 001D4220 3001B4E7 */   swc1      $f20, 0x130($29)
     /* D4224 001D4224 2D204002 */  daddu      $4, $18, $0
-    /* D4228 001D4228 C661040C */  jal        _SetCurrentMatrix
+    /* D4228 001D4228 C661040C */  jal        _NormalizeVector
     /* D422C 001D422C 2D284002 */   daddu     $5, $18, $0
     /* D4230 001D4230 BC01A48F */  lw         $4, 0x1BC($29)
     /* D4234 001D4234 2D284002 */  daddu      $5, $18, $0
-    /* D4238 001D4238 DE61040C */  jal        _MulCurrentMatrixL
+    /* D4238 001D4238 DE61040C */  jal        _OuterProduct
     /* D423C 001D423C 2D302002 */   daddu     $6, $17, $0
     /* D4240 001D4240 2D202002 */  daddu      $4, $17, $0
-    /* D4244 001D4244 D261040C */  jal        _MulCurrentMatrixR
+    /* D4244 001D4244 D261040C */  jal        _InnerProduct
     /* D4248 001D4248 2D284002 */   daddu     $5, $18, $0
-    /* D424C 001D424C BC3B040C */  jal        func_0010EEF0
+    /* D424C 001D424C BC3B040C */  jal        GetTableArcCos
     /* D4250 001D4250 06030046 */   mov.s     $f12, $f0
     /* D4254 001D4254 7000033C */  lui        $3, %hi(D_00703030)
     /* D4258 001D4258 BC01A68F */  lw         $6, 0x1BC($29)
     /* D425C 001D425C 30306424 */  addiu      $4, $3, %lo(D_00703030)
-    /* D4260 001D4260 2238040C */  jal        func_0010E088
+    /* D4260 001D4260 2238040C */  jal        SetQuaternionByAxisRotateV
     /* D4264 001D4264 2D284000 */   daddu     $5, $2, $0
-    /* D4268 001D4268 1A14040C */  jal        func_00105068
+    /* D4268 001D4268 1A14040C */  jal        MatrixDrive_PopMatrix
     /* D426C 001D426C 6400B4E7 */   swc1      $f20, 0x64($29)
     /* D4270 001D4270 40B6828F */  lw         $2, %gp_rel(D_0062C230)($28)
     /* D4274 001D4274 B402438C */  lw         $3, 0x2B4($2)
@@ -1501,7 +1501,7 @@ glabel ResetStatic2MotionManager
     /* D42C0 001D42C0 00000000 */  nop
     /* D42C4 001D42C4 00000000 */  nop
     /* D42C8 001D42C8 03630046 */  div.s      $f12, $f12, $f0
-    /* D42CC 001D42CC BC3B040C */  jal        func_0010EEF0
+    /* D42CC 001D42CC BC3B040C */  jal        GetTableArcCos
     /* D42D0 001D42D0 00000000 */   nop
     /* D42D4 001D42D4 6400ACC7 */  lwc1       $f12, 0x64($29)
     /* D42D8 001D42D8 6000A0C7 */  lwc1       $f0, 0x60($29)
@@ -1514,7 +1514,7 @@ glabel ResetStatic2MotionManager
     /* D42F4 001D42F4 00000000 */  nop
     /* D42F8 001D42F8 00000000 */  nop
     /* D42FC 001D42FC 03A30C46 */  div.s      $f12, $f20, $f12
-    /* D4300 001D4300 BC3B040C */  jal        func_0010EEF0
+    /* D4300 001D4300 BC3B040C */  jal        GetTableArcCos
     /* D4304 001D4304 38AB82A7 */   sh        $2, %gp_rel(D_0062B728)($28)
     /* D4308 001D4308 0C01A587 */  lh         $5, 0x10C($29)
     /* D430C 001D430C A000A427 */  addiu      $4, $29, 0xA0
@@ -1532,20 +1532,20 @@ glabel ResetStatic2MotionManager
     /* D433C 001D433C 30004524 */  addiu      $5, $2, 0x30
     /* D4340 001D4340 2001A427 */  addiu      $4, $29, 0x120
     /* D4344 001D4344 2D300002 */  daddu      $6, $16, $0
-    /* D4348 001D4348 5E17040C */  jal        MatrixDrive_TurnZObjectMatrixXY
+    /* D4348 001D4348 5E17040C */  jal        AddVectorXYZ
     /* D434C 001D434C 90021026 */   addiu     $16, $16, 0x290
     /* D4350 001D4350 2D280002 */  daddu      $5, $16, $0
     /* D4354 001D4354 7000A427 */  addiu      $4, $29, 0x70
-    /* D4358 001D4358 6417040C */  jal        MatrixDrive_GetTurnXAngleZY
+    /* D4358 001D4358 6417040C */  jal        SubVectorXYZ
     /* D435C 001D435C 2001A627 */   addiu     $6, $29, 0x120
     /* D4360 001D4360 7C00A0AF */  sw         $0, 0x7C($29)
     /* D4364 001D4364 2D206002 */  daddu      $4, $19, $0
-    /* D4368 001D4368 C661040C */  jal        _SetCurrentMatrix
+    /* D4368 001D4368 C661040C */  jal        _NormalizeVector
     /* D436C 001D436C 2D286002 */   daddu     $5, $19, $0
     /* D4370 001D4370 7000023C */  lui        $2, %hi(D_00703020)
     /* D4374 001D4374 2D286002 */  daddu      $5, $19, $0
     /* D4378 001D4378 20304624 */  addiu      $6, $2, %lo(D_00703020)
-    /* D437C 001D437C DE61040C */  jal        _MulCurrentMatrixL
+    /* D437C 001D437C DE61040C */  jal        _OuterProduct
     /* D4380 001D4380 2D20E002 */   daddu     $4, $23, $0
     /* D4384 001D4384 40B6898F */  lw         $9, %gp_rel(D_0062C230)($28)
     /* D4388 001D4388 02000324 */  addiu      $3, $0, 0x2
@@ -1569,7 +1569,7 @@ glabel ResetStatic2MotionManager
     /* D43D0 001D43D0 64000046 */  .word      0x46000064                    # cvt.w.s    $f1, $f0 # 00000000 <InstrIdType: CPU_COP1_FPUS>
     /* D43D4 001D43D4 00080544 */  mfc1       $5, $f1
     /* D43D8 001D43D8 002C0500 */  sll        $5, $5, 16
-    /* D43DC 001D43DC 2238040C */  jal        func_0010E088
+    /* D43DC 001D43DC 2238040C */  jal        SetQuaternionByAxisRotateV
     /* D43E0 001D43E0 032C0500 */   sra       $5, $5, 16
     /* D43E4 001D43E4 40B6848F */  lw         $4, %gp_rel(D_0062C230)($28)
     /* D43E8 001D43E8 BC01A68F */  lw         $6, 0x1BC($29)
@@ -1594,12 +1594,12 @@ glabel ResetStatic2MotionManager
   .L001D4418:
     /* D4418 001D4418 2D284002 */  daddu      $5, $18, $0
     /* D441C 001D441C A002C624 */  addiu      $6, $6, 0x2A0
-    /* D4420 001D4420 5238040C */  jal        func_0010E148
+    /* D4420 001D4420 5238040C */  jal        MultiQuaternion
     /* D4424 001D4424 2D208002 */   daddu     $4, $20, $0
     /* D4428 001D4428 1000B626 */  addiu      $22, $21, 0x10
     /* D442C 001D442C A801A68F */  lw         $6, 0x1A8($29)
     /* D4430 001D4430 2D208002 */  daddu      $4, $20, $0
-    /* D4434 001D4434 5238040C */  jal        func_0010E148
+    /* D4434 001D4434 5238040C */  jal        MultiQuaternion
     /* D4438 001D4438 2D288002 */   daddu     $5, $20, $0
     /* D443C 001D443C 40B6848F */  lw         $4, %gp_rel(D_0062C230)($28)
     /* D4440 001D4440 2700033C */  lui        $3, %hi(D_002724B0)
@@ -1705,7 +1705,7 @@ glabel ResetStatic2MotionManager
     /* D4598 001D4598 B801A48F */   lw        $4, 0x1B8($29)
     /* D459C 001D459C A401A48F */  lw         $4, 0x1A4($29)
     /* D45A0 001D45A0 B801A68F */  lw         $6, 0x1B8($29)
-    /* D45A4 001D45A4 5238040C */  jal        func_0010E148
+    /* D45A4 001D45A4 5238040C */  jal        MultiQuaternion
     /* D45A8 001D45A8 2D288000 */   daddu     $5, $4, $0
     /* D45AC 001D45AC DC35040C */  jal        InvertCurrentQuaternion
     /* D45B0 001D45B0 A401A48F */   lw        $4, 0x1A4($29)
@@ -1714,7 +1714,7 @@ glabel ResetStatic2MotionManager
     /* D45BC 001D45BC 8C37040C */  jal        GetLastQuaternion
     /* D45C0 001D45C0 2D804000 */   daddu     $16, $2, $0
     /* D45C4 001D45C4 2D200002 */  daddu      $4, $16, $0
-    /* D45C8 001D45C8 7438040C */  jal        func_0010E1D0
+    /* D45C8 001D45C8 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D45CC 001D45CC 2D284000 */   daddu     $5, $2, $0
     /* D45D0 001D45D0 0000A1C6 */  lwc1       $f1, 0x0($21)
     /* D45D4 001D45D4 01000324 */  addiu      $3, $0, 0x1
@@ -1749,14 +1749,14 @@ glabel ResetStatic2MotionManager
     /* D4628 001D4628 2D804000 */   daddu     $16, $2, $0
     /* D462C 001D462C 2D200002 */  daddu      $4, $16, $0
     /* D4630 001D4630 2D302002 */  daddu      $6, $17, $0
-    /* D4634 001D4634 5238040C */  jal        func_0010E148
+    /* D4634 001D4634 5238040C */  jal        MultiQuaternion
     /* D4638 001D4638 2D284000 */   daddu     $5, $2, $0
     /* D463C 001D463C 1E14040C */  jal        func_00105078
     /* D4640 001D4640 00000000 */   nop
     /* D4644 001D4644 8C37040C */  jal        GetLastQuaternion
     /* D4648 001D4648 2D804000 */   daddu     $16, $2, $0
     /* D464C 001D464C 2D200002 */  daddu      $4, $16, $0
-    /* D4650 001D4650 7438040C */  jal        func_0010E1D0
+    /* D4650 001D4650 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D4654 001D4654 2D284000 */   daddu     $5, $2, $0
     /* D4658 001D4658 3000B327 */  addiu      $19, $29, 0x30
     /* D465C 001D465C 2700053C */  lui        $5, %hi(D_002724B0)
@@ -1766,7 +1766,7 @@ glabel ResetStatic2MotionManager
     /* D466C 001D466C 2000B227 */  addiu      $18, $29, 0x20
     /* D4670 001D4670 2D302002 */  daddu      $6, $17, $0
     /* D4674 001D4674 1000C526 */  addiu      $5, $22, 0x10
-    /* D4678 001D4678 6238040C */  jal        func_0010E188
+    /* D4678 001D4678 6238040C */  jal        DivQuaternion
     /* D467C 001D467C 2D204002 */   daddu     $4, $18, $0
     /* D4680 001D4680 6000B127 */  addiu      $17, $29, 0x60
     /* D4684 001D4684 2D284002 */  daddu      $5, $18, $0
@@ -1787,12 +1787,12 @@ glabel ResetStatic2MotionManager
     /* D46C0 001D46C0 23280500 */  negu       $5, $5
     /* D46C4 001D46C4 46630046 */  mov.s      $f13, $f12
     /* D46C8 001D46C8 002C0500 */  sll        $5, $5, 16
-    /* D46CC 001D46CC D837040C */  jal        GetTableArcCos
+    /* D46CC 001D46CC D837040C */  jal        SetQuaternionByAxisRotateWithNoRegularize
     /* D46D0 001D46D0 032C0500 */   sra       $5, $5, 16
     /* D46D4 001D46D4 7000063C */  lui        $6, %hi(D_00703030)
     /* D46D8 001D46D8 2D202002 */  daddu      $4, $17, $0
     /* D46DC 001D46DC 3030C624 */  addiu      $6, $6, %lo(D_00703030)
-    /* D46E0 001D46E0 5238040C */  jal        func_0010E148
+    /* D46E0 001D46E0 5238040C */  jal        MultiQuaternion
     /* D46E4 001D46E4 2D282002 */   daddu     $5, $17, $0
     /* D46E8 001D46E8 40B6898F */  lw         $9, %gp_rel(D_0062C230)($28)
     /* D46EC 001D46EC 2700023C */  lui        $2, %hi(D_00271240)
@@ -1833,7 +1833,7 @@ glabel ResetStatic2MotionManager
     /* D4768 001D4768 2D202002 */   daddu     $4, $17, $0
     /* D476C 001D476C 2D302002 */  daddu      $6, $17, $0
     /* D4770 001D4770 2D206002 */  daddu      $4, $19, $0
-    /* D4774 001D4774 5238040C */  jal        func_0010E148
+    /* D4774 001D4774 5238040C */  jal        MultiQuaternion
     /* D4778 001D4778 2D286002 */   daddu     $5, $19, $0
     /* D477C 001D477C DC35040C */  jal        InvertCurrentQuaternion
     /* D4780 001D4780 2D206002 */   daddu     $4, $19, $0
@@ -1847,14 +1847,14 @@ glabel ResetStatic2MotionManager
     /* D4798 001D4798 2D804000 */   daddu     $16, $2, $0
     /* D479C 001D479C 2D200002 */  daddu      $4, $16, $0
     /* D47A0 001D47A0 2D284000 */  daddu      $5, $2, $0
-    /* D47A4 001D47A4 5238040C */  jal        func_0010E148
+    /* D47A4 001D47A4 5238040C */  jal        MultiQuaternion
     /* D47A8 001D47A8 2D302002 */   daddu     $6, $17, $0
     /* D47AC 001D47AC 1E14040C */  jal        func_00105078
     /* D47B0 001D47B0 00000000 */   nop
     /* D47B4 001D47B4 8C37040C */  jal        GetLastQuaternion
     /* D47B8 001D47B8 2D804000 */   daddu     $16, $2, $0
     /* D47BC 001D47BC 2D200002 */  daddu      $4, $16, $0
-    /* D47C0 001D47C0 7438040C */  jal        func_0010E1D0
+    /* D47C0 001D47C0 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D47C4 001D47C4 2D284000 */   daddu     $5, $2, $0
     /* D47C8 001D47C8 2700023C */  lui        $2, %hi(D_002724B0)
     /* D47CC 001D47CC 3000B427 */  addiu      $20, $29, 0x30
@@ -1865,7 +1865,7 @@ glabel ResetStatic2MotionManager
     /* D47E0 001D47E0 2000B327 */  addiu      $19, $29, 0x20
     /* D47E4 001D47E4 1000C526 */  addiu      $5, $22, 0x10
     /* D47E8 001D47E8 2D302002 */  daddu      $6, $17, $0
-    /* D47EC 001D47EC 6238040C */  jal        func_0010E188
+    /* D47EC 001D47EC 6238040C */  jal        DivQuaternion
     /* D47F0 001D47F0 2D206002 */   daddu     $4, $19, $0
     /* D47F4 001D47F4 40B6828F */  lw         $2, %gp_rel(D_0062C230)($28)
     /* D47F8 001D47F8 2003438C */  lw         $3, 0x320($2)
@@ -1894,7 +1894,7 @@ glabel ResetStatic2MotionManager
     /* D4844 001D4844 2D306002 */   daddu     $6, $19, $0
     /* D4848 001D4848 2D300002 */  daddu      $6, $16, $0
     /* D484C 001D484C 2D208002 */  daddu      $4, $20, $0
-    /* D4850 001D4850 5238040C */  jal        func_0010E148
+    /* D4850 001D4850 5238040C */  jal        MultiQuaternion
     /* D4854 001D4854 2D288002 */   daddu     $5, $20, $0
     /* D4858 001D4858 DC35040C */  jal        InvertCurrentQuaternion
     /* D485C 001D485C 2D208002 */   daddu     $4, $20, $0
@@ -1903,7 +1903,7 @@ glabel ResetStatic2MotionManager
     /* D4868 001D4868 8C37040C */  jal        GetLastQuaternion
     /* D486C 001D486C 2D804000 */   daddu     $16, $2, $0
     /* D4870 001D4870 2D200002 */  daddu      $4, $16, $0
-    /* D4874 001D4874 7438040C */  jal        func_0010E1D0
+    /* D4874 001D4874 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D4878 001D4878 2D284000 */   daddu     $5, $2, $0
     /* D487C 001D487C 44B6858F */  lw         $5, %gp_rel(D_0062C234)($28)
     /* D4880 001D4880 C001A28C */  lw         $2, 0x1C0($5)
@@ -1995,14 +1995,14 @@ glabel ResetStatic2MotionManager
     /* D49A8 001D49A8 2D804000 */   daddu     $16, $2, $0
     /* D49AC 001D49AC 2D200002 */  daddu      $4, $16, $0
     /* D49B0 001D49B0 2D284000 */  daddu      $5, $2, $0
-    /* D49B4 001D49B4 5238040C */  jal        func_0010E148
+    /* D49B4 001D49B4 5238040C */  jal        MultiQuaternion
     /* D49B8 001D49B8 2D304002 */   daddu     $6, $18, $0
     /* D49BC 001D49BC 1E14040C */  jal        func_00105078
     /* D49C0 001D49C0 00000000 */   nop
     /* D49C4 001D49C4 8C37040C */  jal        GetLastQuaternion
     /* D49C8 001D49C8 2D804000 */   daddu     $16, $2, $0
     /* D49CC 001D49CC 2D200002 */  daddu      $4, $16, $0
-    /* D49D0 001D49D0 7438040C */  jal        func_0010E1D0
+    /* D49D0 001D49D0 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D49D4 001D49D4 2D284000 */   daddu     $5, $2, $0
     /* D49D8 001D49D8 3000B027 */  addiu      $16, $29, 0x30
     /* D49DC 001D49DC 2700053C */  lui        $5, %hi(D_002724B0)
@@ -2012,11 +2012,11 @@ glabel ResetStatic2MotionManager
     /* D49EC 001D49EC 2000B127 */  addiu      $17, $29, 0x20
     /* D49F0 001D49F0 1000C526 */  addiu      $5, $22, 0x10
     /* D49F4 001D49F4 2D304002 */  daddu      $6, $18, $0
-    /* D49F8 001D49F8 6238040C */  jal        func_0010E188
+    /* D49F8 001D49F8 6238040C */  jal        DivQuaternion
     /* D49FC 001D49FC 2D202002 */   daddu     $4, $17, $0
     /* D4A00 001D4A00 2D200002 */  daddu      $4, $16, $0
     /* D4A04 001D4A04 2D280002 */  daddu      $5, $16, $0
-    /* D4A08 001D4A08 5238040C */  jal        func_0010E148
+    /* D4A08 001D4A08 5238040C */  jal        MultiQuaternion
     /* D4A0C 001D4A0C 2D302002 */   daddu     $6, $17, $0
     /* D4A10 001D4A10 DC35040C */  jal        InvertCurrentQuaternion
     /* D4A14 001D4A14 2D200002 */   daddu     $4, $16, $0
@@ -2032,14 +2032,14 @@ glabel ResetStatic2MotionManager
     /* D4A34 001D4A34 2D804000 */   daddu     $16, $2, $0
     /* D4A38 001D4A38 2D200002 */  daddu      $4, $16, $0
     /* D4A3C 001D4A3C 2D284000 */  daddu      $5, $2, $0
-    /* D4A40 001D4A40 5238040C */  jal        func_0010E148
+    /* D4A40 001D4A40 5238040C */  jal        MultiQuaternion
     /* D4A44 001D4A44 2D302002 */   daddu     $6, $17, $0
     /* D4A48 001D4A48 1E14040C */  jal        func_00105078
     /* D4A4C 001D4A4C 00000000 */   nop
     /* D4A50 001D4A50 8C37040C */  jal        GetLastQuaternion
     /* D4A54 001D4A54 2D804000 */   daddu     $16, $2, $0
     /* D4A58 001D4A58 2D200002 */  daddu      $4, $16, $0
-    /* D4A5C 001D4A5C 7438040C */  jal        func_0010E1D0
+    /* D4A5C 001D4A5C 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D4A60 001D4A60 2D284000 */   daddu     $5, $2, $0
     /* D4A64 001D4A64 3000A227 */  addiu      $2, $29, 0x30
     /* D4A68 001D4A68 2700053C */  lui        $5, %hi(D_002724B0)
@@ -2050,12 +2050,12 @@ glabel ResetStatic2MotionManager
     /* D4A7C 001D4A7C 2000B427 */  addiu      $20, $29, 0x20
     /* D4A80 001D4A80 1000C526 */  addiu      $5, $22, 0x10
     /* D4A84 001D4A84 2D302002 */  daddu      $6, $17, $0
-    /* D4A88 001D4A88 6238040C */  jal        func_0010E188
+    /* D4A88 001D4A88 6238040C */  jal        DivQuaternion
     /* D4A8C 001D4A8C 2D208002 */   daddu     $4, $20, $0
     /* D4A90 001D4A90 1001B727 */  addiu      $23, $29, 0x110
     /* D4A94 001D4A94 2D280000 */  daddu      $5, $0, $0
     /* D4A98 001D4A98 2D20E002 */  daddu      $4, $23, $0
-    /* D4A9C 001D4A9C 5A81090C */  jal        func_00260568
+    /* D4A9C 001D4A9C 5A81090C */  jal        memset
     /* D4AA0 001D4AA0 10000624 */   addiu     $6, $0, 0x10
     /* D4AA4 001D4AA4 2D90E002 */  daddu      $18, $23, $0
     /* D4AA8 001D4AA8 40B6908F */  lw         $16, %gp_rel(D_0062C230)($28)
@@ -2064,13 +2064,13 @@ glabel ResetStatic2MotionManager
     /* D4AB4 001D4AB4 30021026 */   addiu     $16, $16, 0x230
     /* D4AB8 001D4AB8 40B6868F */  lw         $6, %gp_rel(D_0062C230)($28)
     /* D4ABC 001D4ABC 30004524 */  addiu      $5, $2, 0x30
-    /* D4AC0 001D4AC0 5E17040C */  jal        MatrixDrive_TurnZObjectMatrixXY
+    /* D4AC0 001D4AC0 5E17040C */  jal        AddVectorXYZ
     /* D4AC4 001D4AC4 7001A427 */   addiu     $4, $29, 0x170
     /* D4AC8 001D4AC8 2D280002 */  daddu      $5, $16, $0
     /* D4ACC 001D4ACC 6001A427 */  addiu      $4, $29, 0x160
-    /* D4AD0 001D4AD0 6417040C */  jal        MatrixDrive_GetTurnXAngleZY
+    /* D4AD0 001D4AD0 6417040C */  jal        SubVectorXYZ
     /* D4AD4 001D4AD4 7001A627 */   addiu     $6, $29, 0x170
-    /* D4AD8 001D4AD8 1614040C */  jal        func_00105058
+    /* D4AD8 001D4AD8 1614040C */  jal        MatrixDrive_PushMatrixWithNoCopy
     /* D4ADC 001D4ADC 6C01A0AF */   sw        $0, 0x16C($29)
     /* D4AE0 001D4AE0 1E14040C */  jal        func_00105078
     /* D4AE4 001D4AE4 00000000 */   nop
@@ -2083,15 +2083,15 @@ glabel ResetStatic2MotionManager
     /* D4B00 001D4B00 00000000 */   nop
     /* D4B04 001D4B04 2D284000 */  daddu      $5, $2, $0
     /* D4B08 001D4B08 2001A427 */  addiu      $4, $29, 0x120
-    /* D4B0C 001D4B0C 76FF080C */  jal        func_0023FDD8
+    /* D4B0C 001D4B0C 76FF080C */  jal        sceVu0ApplyMatrix
     /* D4B10 001D4B10 6001A627 */   addiu     $6, $29, 0x160
-    /* D4B14 001D4B14 1A14040C */  jal        func_00105068
+    /* D4B14 001D4B14 1A14040C */  jal        MatrixDrive_PopMatrix
     /* D4B18 001D4B18 00000000 */   nop
     /* D4B1C 001D4B1C 2001ACC7 */  lwc1       $f12, 0x120($29)
     /* D4B20 001D4B20 8001A427 */  addiu      $4, $29, 0x180
     /* D4B24 001D4B24 2401ADC7 */  lwc1       $f13, 0x124($29)
     /* D4B28 001D4B28 8201A527 */  addiu      $5, $29, 0x182
-    /* D4B2C 001D4B2C 8A15040C */  jal        MatrixDrive_ScaleMatrix
+    /* D4B2C 001D4B2C 8A15040C */  jal        MatrixDrive_GetTurnXAngleZY
     /* D4B30 001D4B30 2801AEC7 */   lwc1      $f14, 0x128($29)
     /* D4B34 001D4B34 01000224 */  addiu      $2, $0, 0x1
     /* D4B38 001D4B38 8001A887 */  lh         $8, 0x180($29)
@@ -2104,13 +2104,13 @@ glabel ResetStatic2MotionManager
     /* D4B54 001D4B54 0800A0AF */  sw         $0, 0x8($29)
     /* D4B58 001D4B58 8801A627 */  addiu      $6, $29, 0x188
     /* D4B5C 001D4B5C 2D480000 */  daddu      $9, $0, $0
-    /* D4B60 001D4B60 B648070C */  jal        AddMotionMemorySize
+    /* D4B60 001D4B60 B648070C */  jal        limitHPAngleAndSetB
     /* D4B64 001D4B64 2D580000 */   daddu     $11, $0, $0
     /* D4B68 001D4B68 40B6828F */  lw         $2, %gp_rel(D_0062C230)($28)
     /* D4B6C 001D4B6C 2402438C */  lw         $3, 0x224($2)
     /* D4B70 001D4B70 05006010 */  beqz       $3, .L001D4B88
     /* D4B74 001D4B74 5001A427 */   addiu     $4, $29, 0x150
-    /* D4B78 001D4B78 C661040C */  jal        _SetCurrentMatrix
+    /* D4B78 001D4B78 C661040C */  jal        _NormalizeVector
     /* D4B7C 001D4B7C 2001A527 */   addiu     $5, $29, 0x120
     /* D4B80 001D4B80 14000010 */  b          .L001D4BD4
     /* D4B84 001D4B84 2700103C */   lui       $16, %hi(D_00271BF0)
@@ -2118,10 +2118,10 @@ glabel ResetStatic2MotionManager
   .L001D4B88:
     /* D4B88 001D4B88 8601B187 */  lh         $17, 0x186($29)
     /* D4B8C 001D4B8C 8401B087 */  lh         $16, 0x184($29)
-    /* D4B90 001D4B90 4C3B040C */  jal        func_0010ED30
+    /* D4B90 001D4B90 4C3B040C */  jal        GetTableCos
     /* D4B94 001D4B94 2D202002 */   daddu     $4, $17, $0
     /* D4B98 001D4B98 06050046 */  mov.s      $f20, $f0
-    /* D4B9C 001D4B9C 4C3B040C */  jal        func_0010ED30
+    /* D4B9C 001D4B9C 4C3B040C */  jal        GetTableCos
     /* D4BA0 001D4BA0 2D200002 */   daddu     $4, $16, $0
     /* D4BA4 001D4BA4 02001446 */  mul.s      $f0, $f0, $f20
     /* D4BA8 001D4BA8 2D200002 */  daddu      $4, $16, $0
@@ -2139,22 +2139,22 @@ glabel ResetStatic2MotionManager
   .L001D4BD4:
     /* D4BD4 001D4BD4 5001A427 */  addiu      $4, $29, 0x150
     /* D4BD8 001D4BD8 F01B1026 */  addiu      $16, $16, %lo(D_00271BF0)
-    /* D4BDC 001D4BDC D261040C */  jal        _MulCurrentMatrixR
+    /* D4BDC 001D4BDC D261040C */  jal        _InnerProduct
     /* D4BE0 001D4BE0 2D280002 */   daddu     $5, $16, $0
-    /* D4BE4 001D4BE4 BC3B040C */  jal        func_0010EEF0
+    /* D4BE4 001D4BE4 BC3B040C */  jal        GetTableArcCos
     /* D4BE8 001D4BE8 06030046 */   mov.s     $f12, $f0
     /* D4BEC 001D4BEC 2D884000 */  daddu      $17, $2, $0
     /* D4BF0 001D4BF0 2D300002 */  daddu      $6, $16, $0
     /* D4BF4 001D4BF4 6001A427 */  addiu      $4, $29, 0x160
-    /* D4BF8 001D4BF8 DE61040C */  jal        _MulCurrentMatrixL
+    /* D4BF8 001D4BF8 DE61040C */  jal        _OuterProduct
     /* D4BFC 001D4BFC 5001A527 */   addiu     $5, $29, 0x150
     /* D4C00 001D4C00 2D282002 */  daddu      $5, $17, $0
     /* D4C04 001D4C04 3001A427 */  addiu      $4, $29, 0x130
-    /* D4C08 001D4C08 2238040C */  jal        func_0010E088
+    /* D4C08 001D4C08 2238040C */  jal        SetQuaternionByAxisRotateV
     /* D4C0C 001D4C0C 6001A627 */   addiu     $6, $29, 0x160
     /* D4C10 001D4C10 2D204002 */  daddu      $4, $18, $0
     /* D4C14 001D4C14 2D284002 */  daddu      $5, $18, $0
-    /* D4C18 001D4C18 5238040C */  jal        func_0010E148
+    /* D4C18 001D4C18 5238040C */  jal        MultiQuaternion
     /* D4C1C 001D4C1C 3001A627 */   addiu     $6, $29, 0x130
     /* D4C20 001D4C20 40B6868F */  lw         $6, %gp_rel(D_0062C230)($28)
     /* D4C24 001D4C24 01000224 */  addiu      $2, $0, 0x1
@@ -2171,7 +2171,7 @@ glabel ResetStatic2MotionManager
 .align 2
   .L001D4C50:
     /* D4C50 001D4C50 2001A427 */  addiu      $4, $29, 0x120
-    /* D4C54 001D4C54 8017040C */  jal        MatrixDrive_GetTurnYEAngleXZ
+    /* D4C54 001D4C54 8017040C */  jal        VectorLength
     /* D4C58 001D4C58 2D800000 */   daddu     $16, $0, $0
     /* D4C5C 001D4C5C 3000C48F */  lw         $4, 0x30($30)
     /* D4C60 001D4C60 FFFF0224 */  addiu      $2, $0, -0x1
@@ -2188,7 +2188,7 @@ glabel ResetStatic2MotionManager
   .L001D4C88:
     /* D4C88 001D4C88 80110400 */  sll        $2, $4, 6
     /* D4C8C 001D4C8C 21886200 */  addu       $17, $3, $2
-    /* D4C90 001D4C90 8017040C */  jal        MatrixDrive_GetTurnYEAngleXZ
+    /* D4C90 001D4C90 8017040C */  jal        VectorLength
     /* D4C94 001D4C94 10002426 */   addiu     $4, $17, 0x10
     /* D4C98 001D4C98 30AB81C7 */  lwc1       $f1, %gp_rel(D_0062B720)($28)
     /* D4C9C 001D4C9C 80101000 */  sll        $2, $16, 2
@@ -2222,7 +2222,7 @@ glabel ResetStatic2MotionManager
     /* D4CF4 001D4CF4 68AB848F */  lw         $4, %gp_rel(D_0062B758)($28)
     /* D4CF8 001D4CF8 80110200 */  sll        $2, $2, 6
     /* D4CFC 001D4CFC 21208200 */  addu       $4, $4, $2
-    /* D4D00 001D4D00 8017040C */  jal        MatrixDrive_GetTurnYEAngleXZ
+    /* D4D00 001D4D00 8017040C */  jal        VectorLength
     /* D4D04 001D4D04 10008424 */   addiu     $4, $4, 0x10
     /* D4D08 001D4D08 30AB81C7 */  lwc1       $f1, %gp_rel(D_0062B720)($28)
     /* D4D0C 001D4D0C 6401A2C7 */  lwc1       $f2, 0x164($29)
@@ -2238,7 +2238,7 @@ glabel ResetStatic2MotionManager
     /* D4D34 001D4D34 00000000 */  nop
     /* D4D38 001D4D38 00000000 */  nop
     /* D4D3C 001D4D3C 03030C46 */  div.s      $f12, $f0, $f12
-    /* D4D40 001D4D40 BC3B040C */  jal        func_0010EEF0
+    /* D4D40 001D4D40 BC3B040C */  jal        GetTableArcCos
     /* D4D44 001D4D44 6401A2E7 */   swc1      $f2, 0x164($29)
     /* D4D48 001D4D48 6401ACC7 */  lwc1       $f12, 0x164($29)
     /* D4D4C 001D4D4C 6001A1C7 */  lwc1       $f1, 0x160($29)
@@ -2251,7 +2251,7 @@ glabel ResetStatic2MotionManager
     /* D4D68 001D4D68 00000000 */  nop
     /* D4D6C 001D4D6C 00000000 */  nop
     /* D4D70 001D4D70 03030C46 */  div.s      $f12, $f0, $f12
-    /* D4D74 001D4D74 BC3B040C */  jal        func_0010EEF0
+    /* D4D74 001D4D74 BC3B040C */  jal        GetTableArcCos
     /* D4D78 001D4D78 38AB82A7 */   sh        $2, %gp_rel(D_0062B728)($28)
     /* D4D7C 001D4D7C 8801A587 */  lh         $5, 0x188($29)
     /* D4D80 001D4D80 2D204002 */  daddu      $4, $18, $0
@@ -2269,12 +2269,12 @@ glabel ResetStatic2MotionManager
   .L001D4DAC:
     /* D4DAC 001D4DAC 2D28E002 */  daddu      $5, $23, $0
     /* D4DB0 001D4DB0 4002C624 */  addiu      $6, $6, 0x240
-    /* D4DB4 001D4DB4 5238040C */  jal        func_0010E148
+    /* D4DB4 001D4DB4 5238040C */  jal        MultiQuaternion
     /* D4DB8 001D4DB8 2D206002 */   daddu     $4, $19, $0
     /* D4DBC 001D4DBC 1000B626 */  addiu      $22, $21, 0x10
     /* D4DC0 001D4DC0 2D206002 */  daddu      $4, $19, $0
     /* D4DC4 001D4DC4 2D286002 */  daddu      $5, $19, $0
-    /* D4DC8 001D4DC8 5238040C */  jal        func_0010E148
+    /* D4DC8 001D4DC8 5238040C */  jal        MultiQuaternion
     /* D4DCC 001D4DCC 2D308002 */   daddu     $6, $20, $0
 .align 2
   .L001D4DD0:
@@ -2373,7 +2373,7 @@ glabel ResetStatic2MotionManager
     /* D4F10 001D4F10 2D308002 */   daddu     $6, $20, $0
     /* D4F14 001D4F14 AC01A48F */  lw         $4, 0x1AC($29)
     /* D4F18 001D4F18 C001A68F */  lw         $6, 0x1C0($29)
-    /* D4F1C 001D4F1C 5238040C */  jal        func_0010E148
+    /* D4F1C 001D4F1C 5238040C */  jal        MultiQuaternion
     /* D4F20 001D4F20 2D288000 */   daddu     $5, $4, $0
     /* D4F24 001D4F24 DC35040C */  jal        InvertCurrentQuaternion
     /* D4F28 001D4F28 AC01A48F */   lw        $4, 0x1AC($29)
@@ -2382,7 +2382,7 @@ glabel ResetStatic2MotionManager
     /* D4F34 001D4F34 8C37040C */  jal        GetLastQuaternion
     /* D4F38 001D4F38 2D804000 */   daddu     $16, $2, $0
     /* D4F3C 001D4F3C 2D200002 */  daddu      $4, $16, $0
-    /* D4F40 001D4F40 7438040C */  jal        func_0010E1D0
+    /* D4F40 001D4F40 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D4F44 001D4F44 2D284000 */   daddu     $5, $2, $0
     /* D4F48 001D4F48 0000A0C6 */  lwc1       $f0, 0x0($21)
     /* D4F4C 001D4F4C F9010010 */  b          .L001D5734
@@ -2395,14 +2395,14 @@ glabel ResetStatic2MotionManager
     /* D4F60 001D4F60 2D804000 */   daddu     $16, $2, $0
     /* D4F64 001D4F64 2D200002 */  daddu      $4, $16, $0
     /* D4F68 001D4F68 2D302002 */  daddu      $6, $17, $0
-    /* D4F6C 001D4F6C 5238040C */  jal        func_0010E148
+    /* D4F6C 001D4F6C 5238040C */  jal        MultiQuaternion
     /* D4F70 001D4F70 2D284000 */   daddu     $5, $2, $0
     /* D4F74 001D4F74 1E14040C */  jal        func_00105078
     /* D4F78 001D4F78 00000000 */   nop
     /* D4F7C 001D4F7C 8C37040C */  jal        GetLastQuaternion
     /* D4F80 001D4F80 2D804000 */   daddu     $16, $2, $0
     /* D4F84 001D4F84 2D200002 */  daddu      $4, $16, $0
-    /* D4F88 001D4F88 7438040C */  jal        func_0010E1D0
+    /* D4F88 001D4F88 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D4F8C 001D4F8C 2D284000 */   daddu     $5, $2, $0
     /* D4F90 001D4F90 3000B327 */  addiu      $19, $29, 0x30
     /* D4F94 001D4F94 2700053C */  lui        $5, %hi(D_002724B0)
@@ -2412,7 +2412,7 @@ glabel ResetStatic2MotionManager
     /* D4FA4 001D4FA4 2000B427 */  addiu      $20, $29, 0x20
     /* D4FA8 001D4FA8 2D302002 */  daddu      $6, $17, $0
     /* D4FAC 001D4FAC 1000C526 */  addiu      $5, $22, 0x10
-    /* D4FB0 001D4FB0 6238040C */  jal        func_0010E188
+    /* D4FB0 001D4FB0 6238040C */  jal        DivQuaternion
     /* D4FB4 001D4FB4 2D208002 */   daddu     $4, $20, $0
     /* D4FB8 001D4FB8 6001B127 */  addiu      $17, $29, 0x160
     /* D4FBC 001D4FBC 2D288002 */  daddu      $5, $20, $0
@@ -2433,7 +2433,7 @@ glabel ResetStatic2MotionManager
     /* D4FF8 001D4FF8 23280500 */  negu       $5, $5
     /* D4FFC 001D4FFC 46630046 */  mov.s      $f13, $f12
     /* D5000 001D5000 002C0500 */  sll        $5, $5, 16
-    /* D5004 001D5004 D837040C */  jal        GetTableArcCos
+    /* D5004 001D5004 D837040C */  jal        SetQuaternionByAxisRotateWithNoRegularize
     /* D5008 001D5008 032C0500 */   sra       $5, $5, 16
     /* D500C 001D500C 40B6898F */  lw         $9, %gp_rel(D_0062C230)($28)
     /* D5010 001D5010 2700023C */  lui        $2, %hi(D_00271240)
@@ -2474,7 +2474,7 @@ glabel ResetStatic2MotionManager
     /* D508C 001D508C 2D202002 */   daddu     $4, $17, $0
     /* D5090 001D5090 2D302002 */  daddu      $6, $17, $0
     /* D5094 001D5094 2D206002 */  daddu      $4, $19, $0
-    /* D5098 001D5098 5238040C */  jal        func_0010E148
+    /* D5098 001D5098 5238040C */  jal        MultiQuaternion
     /* D509C 001D509C 2D286002 */   daddu     $5, $19, $0
     /* D50A0 001D50A0 DC35040C */  jal        InvertCurrentQuaternion
     /* D50A4 001D50A4 2D206002 */   daddu     $4, $19, $0
@@ -2488,14 +2488,14 @@ glabel ResetStatic2MotionManager
     /* D50BC 001D50BC 2D804000 */   daddu     $16, $2, $0
     /* D50C0 001D50C0 2D200002 */  daddu      $4, $16, $0
     /* D50C4 001D50C4 2D284000 */  daddu      $5, $2, $0
-    /* D50C8 001D50C8 5238040C */  jal        func_0010E148
+    /* D50C8 001D50C8 5238040C */  jal        MultiQuaternion
     /* D50CC 001D50CC 2D302002 */   daddu     $6, $17, $0
     /* D50D0 001D50D0 1E14040C */  jal        func_00105078
     /* D50D4 001D50D4 00000000 */   nop
     /* D50D8 001D50D8 8C37040C */  jal        GetLastQuaternion
     /* D50DC 001D50DC 2D804000 */   daddu     $16, $2, $0
     /* D50E0 001D50E0 2D200002 */  daddu      $4, $16, $0
-    /* D50E4 001D50E4 7438040C */  jal        func_0010E1D0
+    /* D50E4 001D50E4 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D50E8 001D50E8 2D284000 */   daddu     $5, $2, $0
     /* D50EC 001D50EC 2700023C */  lui        $2, %hi(D_002724B0)
     /* D50F0 001D50F0 3000B427 */  addiu      $20, $29, 0x30
@@ -2506,7 +2506,7 @@ glabel ResetStatic2MotionManager
     /* D5104 001D5104 2000B327 */  addiu      $19, $29, 0x20
     /* D5108 001D5108 1000C526 */  addiu      $5, $22, 0x10
     /* D510C 001D510C 2D302002 */  daddu      $6, $17, $0
-    /* D5110 001D5110 6238040C */  jal        func_0010E188
+    /* D5110 001D5110 6238040C */  jal        DivQuaternion
     /* D5114 001D5114 2D206002 */   daddu     $4, $19, $0
     /* D5118 001D5118 40B6828F */  lw         $2, %gp_rel(D_0062C230)($28)
     /* D511C 001D511C 2403438C */  lw         $3, 0x324($2)
@@ -2532,7 +2532,7 @@ glabel ResetStatic2MotionManager
     /* D515C 001D515C 2D306002 */   daddu     $6, $19, $0
     /* D5160 001D5160 2D300002 */  daddu      $6, $16, $0
     /* D5164 001D5164 2D208002 */  daddu      $4, $20, $0
-    /* D5168 001D5168 5238040C */  jal        func_0010E148
+    /* D5168 001D5168 5238040C */  jal        MultiQuaternion
     /* D516C 001D516C 2D288002 */   daddu     $5, $20, $0
     /* D5170 001D5170 DC35040C */  jal        InvertCurrentQuaternion
     /* D5174 001D5174 2D208002 */   daddu     $4, $20, $0
@@ -2546,14 +2546,14 @@ glabel ResetStatic2MotionManager
     /* D518C 001D518C 2D804000 */   daddu     $16, $2, $0
     /* D5190 001D5190 2D200002 */  daddu      $4, $16, $0
     /* D5194 001D5194 2D284000 */  daddu      $5, $2, $0
-    /* D5198 001D5198 5238040C */  jal        func_0010E148
+    /* D5198 001D5198 5238040C */  jal        MultiQuaternion
     /* D519C 001D519C 2D302002 */   daddu     $6, $17, $0
     /* D51A0 001D51A0 1E14040C */  jal        func_00105078
     /* D51A4 001D51A4 00000000 */   nop
     /* D51A8 001D51A8 8C37040C */  jal        GetLastQuaternion
     /* D51AC 001D51AC 2D804000 */   daddu     $16, $2, $0
     /* D51B0 001D51B0 2D200002 */  daddu      $4, $16, $0
-    /* D51B4 001D51B4 7438040C */  jal        func_0010E1D0
+    /* D51B4 001D51B4 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D51B8 001D51B8 2D284000 */   daddu     $5, $2, $0
     /* D51BC 001D51BC 3000B327 */  addiu      $19, $29, 0x30
     /* D51C0 001D51C0 2700053C */  lui        $5, %hi(D_002724B0)
@@ -2563,7 +2563,7 @@ glabel ResetStatic2MotionManager
     /* D51D0 001D51D0 2000B027 */  addiu      $16, $29, 0x20
     /* D51D4 001D51D4 1000C526 */  addiu      $5, $22, 0x10
     /* D51D8 001D51D8 2D302002 */  daddu      $6, $17, $0
-    /* D51DC 001D51DC 6238040C */  jal        func_0010E188
+    /* D51DC 001D51DC 6238040C */  jal        DivQuaternion
     /* D51E0 001D51E0 2D200002 */   daddu     $4, $16, $0
     /* D51E4 001D51E4 40B6828F */  lw         $2, %gp_rel(D_0062C230)($28)
     /* D51E8 001D51E8 2002438C */  lw         $3, 0x220($2)
@@ -2572,7 +2572,7 @@ glabel ResetStatic2MotionManager
     /* D51F4 001D51F4 0A006210 */  beq        $3, $2, .L001D5220
     /* D51F8 001D51F8 2D300002 */   daddu     $6, $16, $0
     /* D51FC 001D51FC 2D206002 */  daddu      $4, $19, $0
-    /* D5200 001D5200 5238040C */  jal        func_0010E148
+    /* D5200 001D5200 5238040C */  jal        MultiQuaternion
     /* D5204 001D5204 2D286002 */   daddu     $5, $19, $0
     /* D5208 001D5208 05000010 */  b          .L001D5220
     /* D520C 001D520C 00000000 */   nop
@@ -2580,7 +2580,7 @@ glabel ResetStatic2MotionManager
   .L001D5210:
     /* D5210 001D5210 2D300002 */  daddu      $6, $16, $0
     /* D5214 001D5214 2D206002 */  daddu      $4, $19, $0
-    /* D5218 001D5218 5238040C */  jal        func_0010E148
+    /* D5218 001D5218 5238040C */  jal        MultiQuaternion
     /* D521C 001D521C 2D286002 */   daddu     $5, $19, $0
 .align 2
   .L001D5220:
@@ -2602,14 +2602,14 @@ glabel ResetStatic2MotionManager
     /* D5254 001D5254 2DA80000 */  daddu      $21, $0, $0
     /* D5258 001D5258 2D200002 */  daddu      $4, $16, $0
     /* D525C 001D525C 2D302002 */  daddu      $6, $17, $0
-    /* D5260 001D5260 5238040C */  jal        func_0010E148
+    /* D5260 001D5260 5238040C */  jal        MultiQuaternion
     /* D5264 001D5264 2D284000 */   daddu     $5, $2, $0
     /* D5268 001D5268 1E14040C */  jal        func_00105078
     /* D526C 001D526C 00000000 */   nop
     /* D5270 001D5270 8C37040C */  jal        GetLastQuaternion
     /* D5274 001D5274 2D804000 */   daddu     $16, $2, $0
     /* D5278 001D5278 2D200002 */  daddu      $4, $16, $0
-    /* D527C 001D527C 7438040C */  jal        func_0010E1D0
+    /* D527C 001D527C 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D5280 001D5280 2D284000 */   daddu     $5, $2, $0
     /* D5284 001D5284 3000B727 */  addiu      $23, $29, 0x30
     /* D5288 001D5288 2700053C */  lui        $5, %hi(D_002724B0)
@@ -2620,7 +2620,7 @@ glabel ResetStatic2MotionManager
     /* D529C 001D529C 2D302002 */  daddu      $6, $17, $0
     /* D52A0 001D52A0 B001A2AF */  sw         $2, 0x1B0($29)
     /* D52A4 001D52A4 1000C526 */  addiu      $5, $22, 0x10
-    /* D52A8 001D52A8 6238040C */  jal        func_0010E188
+    /* D52A8 001D52A8 6238040C */  jal        DivQuaternion
     /* D52AC 001D52AC 2D204000 */   daddu     $4, $2, $0
     /* D52B0 001D52B0 4813040C */  jal        func_00104D20
     /* D52B4 001D52B4 00000000 */   nop
@@ -2630,7 +2630,7 @@ glabel ResetStatic2MotionManager
     /* D52C4 001D52C4 30004424 */  addiu      $4, $2, 0x30
     /* D52C8 001D52C8 4017040C */  jal        MatrixDrive_TurnObjectMatrix
     /* D52CC 001D52CC E01BA524 */   addiu     $5, $5, %lo(D_00271BE0)
-    /* D52D0 001D52D0 C038040C */  jal        func_0010E300
+    /* D52D0 001D52D0 C038040C */  jal        MultiMatrixByQuaternion
     /* D52D4 001D52D4 B001A48F */   lw        $4, 0x1B0($29)
     /* D52D8 001D52D8 4813040C */  jal        func_00104D20
     /* D52DC 001D52DC 00000000 */   nop
@@ -2655,16 +2655,16 @@ glabel ResetStatic2MotionManager
     /* D5318 001D5318 2D206002 */  daddu      $4, $19, $0
     /* D531C 001D531C 21906200 */  addu       $18, $3, $2
     /* D5320 001D5320 10005026 */  addiu      $16, $18, 0x10
-    /* D5324 001D5324 5A02090C */  jal        func_00240968
+    /* D5324 001D5324 5A02090C */  jal        sceVu0ScaleVectorXYZ
     /* D5328 001D5328 2D280002 */   daddu     $5, $16, $0
     /* D532C 001D532C 2A14040C */  jal        func_001050A8
     /* D5330 001D5330 2D206002 */   daddu     $4, $19, $0
     /* D5334 001D5334 28B6848F */  lw         $4, %gp_rel(D_0062C218)($28)
     /* D5338 001D5338 40111100 */  sll        $2, $17, 5
     /* D533C 001D533C 21208200 */  addu       $4, $4, $2
-    /* D5340 001D5340 C038040C */  jal        func_0010E300
+    /* D5340 001D5340 C038040C */  jal        MultiMatrixByQuaternion
     /* D5344 001D5344 10008424 */   addiu     $4, $4, 0x10
-    /* D5348 001D5348 8017040C */  jal        MatrixDrive_GetTurnYEAngleXZ
+    /* D5348 001D5348 8017040C */  jal        VectorLength
     /* D534C 001D534C 2D200002 */   daddu     $4, $16, $0
     /* D5350 001D5350 30AB81C7 */  lwc1       $f1, %gp_rel(D_0062B720)($28)
     /* D5354 001D5354 80101500 */  sll        $2, $21, 2
@@ -2712,27 +2712,27 @@ glabel ResetStatic2MotionManager
     /* D53DC 001D53DC 7401A0E7 */  swc1       $f0, 0x174($29)
 .align 2
   .L001D53E0:
-    /* D53E0 001D53E0 8017040C */  jal        MatrixDrive_GetTurnYEAngleXZ
+    /* D53E0 001D53E0 8017040C */  jal        VectorLength
     /* D53E4 001D53E4 2D208002 */   daddu     $4, $20, $0
-    /* D53E8 001D53E8 1A14040C */  jal        func_00105068
+    /* D53E8 001D53E8 1A14040C */  jal        MatrixDrive_PopMatrix
     /* D53EC 001D53EC 46050046 */   mov.s     $f21, $f0
     /* D53F0 001D53F0 1E14040C */  jal        func_00105078
     /* D53F4 001D53F4 02AD1546 */   mul.s     $f20, $f21, $f21
     /* D53F8 001D53F8 2D804000 */  daddu      $16, $2, $0
     /* D53FC 001D53FC 2D200002 */  daddu      $4, $16, $0
-    /* D5400 001D5400 B4FF080C */  jal        func_0023FED0
+    /* D5400 001D5400 B4FF080C */  jal        sceVu0TransposeMatrix
     /* D5404 001D5404 2D280002 */   daddu     $5, $16, $0
     /* D5408 001D5408 2D280002 */  daddu      $5, $16, $0
     /* D540C 001D540C 2D208002 */  daddu      $4, $20, $0
-    /* D5410 001D5410 76FF080C */  jal        func_0023FDD8
+    /* D5410 001D5410 76FF080C */  jal        sceVu0ApplyMatrix
     /* D5414 001D5414 2D308002 */   daddu     $6, $20, $0
     /* D5418 001D5418 2D208002 */  daddu      $4, $20, $0
-    /* D541C 001D541C A6FF080C */  jal        func_0023FE98
+    /* D541C 001D541C A6FF080C */  jal        sceVu0Normalize
     /* D5420 001D5420 2D288000 */   daddu     $5, $4, $0
-    /* D5424 001D5424 983B040C */  jal        func_0010EE60
+    /* D5424 001D5424 983B040C */  jal        GetTableArcSin
     /* D5428 001D5428 7401ACC7 */   lwc1      $f12, 0x174($29)
     /* D542C 001D542C 7801ACC7 */  lwc1       $f12, 0x178($29)
-    /* D5430 001D5430 983B040C */  jal        func_0010EE60
+    /* D5430 001D5430 983B040C */  jal        GetTableArcSin
     /* D5434 001D5434 34AB82A7 */   sh        $2, %gp_rel(D_0062B724)($28)
     /* D5438 001D5438 6001ACC7 */  lwc1       $f12, 0x160($29)
     /* D543C 001D543C 23100200 */  negu       $2, $2
@@ -2746,7 +2746,7 @@ glabel ResetStatic2MotionManager
     /* D545C 001D545C 00000000 */  nop
     /* D5460 001D5460 00000000 */  nop
     /* D5464 001D5464 03030C46 */  div.s      $f12, $f0, $f12
-    /* D5468 001D5468 BC3B040C */  jal        func_0010EEF0
+    /* D5468 001D5468 BC3B040C */  jal        GetTableArcCos
     /* D546C 001D546C 36AB82A7 */   sh        $2, %gp_rel(D_0062B726)($28)
     /* D5470 001D5470 6401ACC7 */  lwc1       $f12, 0x164($29)
     /* D5474 001D5474 6001A0C7 */  lwc1       $f0, 0x160($29)
@@ -2759,15 +2759,15 @@ glabel ResetStatic2MotionManager
     /* D5490 001D5490 00000000 */  nop
     /* D5494 001D5494 00000000 */  nop
     /* D5498 001D5498 03A30C46 */  div.s      $f12, $f20, $f12
-    /* D549C 001D549C BC3B040C */  jal        func_0010EEF0
+    /* D549C 001D549C BC3B040C */  jal        GetTableArcCos
     /* D54A0 001D54A0 38AB82A7 */   sh        $2, %gp_rel(D_0062B728)($28)
-    /* D54A4 001D54A4 1A14040C */  jal        func_00105068
+    /* D54A4 001D54A4 1A14040C */  jal        MatrixDrive_PopMatrix
     /* D54A8 001D54A8 3AAB82A7 */   sh        $2, %gp_rel(D_0062B72A)($28)
     /* D54AC 001D54AC B401A38F */  lw         $3, 0x1B4($29)
     /* D54B0 001D54B0 12006014 */  bnez       $3, .L001D54FC
     /* D54B4 001D54B4 B001A68F */   lw        $6, 0x1B0($29)
     /* D54B8 001D54B8 2D20E002 */  daddu      $4, $23, $0
-    /* D54BC 001D54BC 5238040C */  jal        func_0010E148
+    /* D54BC 001D54BC 5238040C */  jal        MultiQuaternion
     /* D54C0 001D54C0 2D28E002 */   daddu     $5, $23, $0
     /* D54C4 001D54C4 34AB8587 */  lh         $5, %gp_rel(D_0062B724)($28)
     /* D54C8 001D54C8 6239040C */  jal        func_0010E588
@@ -2786,7 +2786,7 @@ glabel ResetStatic2MotionManager
 .align 2
   .L001D54FC:
     /* D54FC 001D54FC 2D20E002 */  daddu      $4, $23, $0
-    /* D5500 001D5500 5238040C */  jal        func_0010E148
+    /* D5500 001D5500 5238040C */  jal        MultiQuaternion
     /* D5504 001D5504 2D28E002 */   daddu     $5, $23, $0
 .align 2
   .L001D5508:
@@ -2806,14 +2806,14 @@ glabel ResetStatic2MotionManager
     /* D5534 001D5534 2D804000 */   daddu     $16, $2, $0
     /* D5538 001D5538 2D200002 */  daddu      $4, $16, $0
     /* D553C 001D553C 2D284000 */  daddu      $5, $2, $0
-    /* D5540 001D5540 5238040C */  jal        func_0010E148
+    /* D5540 001D5540 5238040C */  jal        MultiQuaternion
     /* D5544 001D5544 2D302002 */   daddu     $6, $17, $0
     /* D5548 001D5548 1E14040C */  jal        func_00105078
     /* D554C 001D554C 00000000 */   nop
     /* D5550 001D5550 8C37040C */  jal        GetLastQuaternion
     /* D5554 001D5554 2D804000 */   daddu     $16, $2, $0
     /* D5558 001D5558 2D200002 */  daddu      $4, $16, $0
-    /* D555C 001D555C 7438040C */  jal        func_0010E1D0
+    /* D555C 001D555C 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D5560 001D5560 2D284000 */   daddu     $5, $2, $0
     /* D5564 001D5564 3000B027 */  addiu      $16, $29, 0x30
     /* D5568 001D5568 2700053C */  lui        $5, %hi(D_002724B0)
@@ -2822,7 +2822,7 @@ glabel ResetStatic2MotionManager
     /* D5574 001D5574 B024A524 */   addiu     $5, $5, %lo(D_002724B0)
     /* D5578 001D5578 1000C526 */  addiu      $5, $22, 0x10
     /* D557C 001D557C 2D302002 */  daddu      $6, $17, $0
-    /* D5580 001D5580 6238040C */  jal        func_0010E188
+    /* D5580 001D5580 6238040C */  jal        DivQuaternion
     /* D5584 001D5584 2000A427 */   addiu     $4, $29, 0x20
     /* D5588 001D5588 38AB8597 */  lhu        $5, %gp_rel(D_0062B728)($28)
     /* D558C 001D558C 2D200002 */  daddu      $4, $16, $0
@@ -2847,14 +2847,14 @@ glabel ResetStatic2MotionManager
     /* D55D0 001D55D0 2D804000 */   daddu     $16, $2, $0
     /* D55D4 001D55D4 2D200002 */  daddu      $4, $16, $0
     /* D55D8 001D55D8 2D284000 */  daddu      $5, $2, $0
-    /* D55DC 001D55DC 5238040C */  jal        func_0010E148
+    /* D55DC 001D55DC 5238040C */  jal        MultiQuaternion
     /* D55E0 001D55E0 2D302002 */   daddu     $6, $17, $0
     /* D55E4 001D55E4 1E14040C */  jal        func_00105078
     /* D55E8 001D55E8 00000000 */   nop
     /* D55EC 001D55EC 8C37040C */  jal        GetLastQuaternion
     /* D55F0 001D55F0 2D804000 */   daddu     $16, $2, $0
     /* D55F4 001D55F4 2D200002 */  daddu      $4, $16, $0
-    /* D55F8 001D55F8 7438040C */  jal        func_0010E1D0
+    /* D55F8 001D55F8 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D55FC 001D55FC 2D284000 */   daddu     $5, $2, $0
     /* D5600 001D5600 3000B027 */  addiu      $16, $29, 0x30
     /* D5604 001D5604 2700053C */  lui        $5, %hi(D_002724B0)
@@ -2864,7 +2864,7 @@ glabel ResetStatic2MotionManager
     /* D5614 001D5614 2000B227 */  addiu      $18, $29, 0x20
     /* D5618 001D5618 1000C526 */  addiu      $5, $22, 0x10
     /* D561C 001D561C 2D302002 */  daddu      $6, $17, $0
-    /* D5620 001D5620 6238040C */  jal        func_0010E188
+    /* D5620 001D5620 6238040C */  jal        DivQuaternion
     /* D5624 001D5624 2D204002 */   daddu     $4, $18, $0
     /* D5628 001D5628 3AAB8597 */  lhu        $5, %gp_rel(D_0062B72A)($28)
     /* D562C 001D562C 2D200002 */  daddu      $4, $16, $0
@@ -2890,11 +2890,11 @@ glabel ResetStatic2MotionManager
     /* D567C 001D567C 2D280002 */  daddu      $5, $16, $0
     /* D5680 001D5680 40110200 */  sll        $2, $2, 5
     /* D5684 001D5684 2130C200 */  addu       $6, $6, $2
-    /* D5688 001D5688 5238040C */  jal        func_0010E148
+    /* D5688 001D5688 5238040C */  jal        MultiQuaternion
     /* D568C 001D568C 1000C624 */   addiu     $6, $6, 0x10
     /* D5690 001D5690 2D200002 */  daddu      $4, $16, $0
     /* D5694 001D5694 2D280002 */  daddu      $5, $16, $0
-    /* D5698 001D5698 5238040C */  jal        func_0010E148
+    /* D5698 001D5698 5238040C */  jal        MultiQuaternion
     /* D569C 001D569C 2D304002 */   daddu     $6, $18, $0
     /* D56A0 001D56A0 DC35040C */  jal        InvertCurrentQuaternion
     /* D56A4 001D56A4 2D200002 */   daddu     $4, $16, $0
@@ -2913,7 +2913,7 @@ glabel ResetStatic2MotionManager
     /* D56C8 001D56C8 1000C626 */  addiu      $6, $22, 0x10
 .align 2
   .L001D56CC:
-    /* D56CC 001D56CC 5238040C */  jal        func_0010E148
+    /* D56CC 001D56CC 5238040C */  jal        MultiQuaternion
     /* D56D0 001D56D0 00000000 */   nop
 .align 2
   .L001D56D4:
@@ -2922,7 +2922,7 @@ glabel ResetStatic2MotionManager
     /* D56DC 001D56DC 8C37040C */  jal        GetLastQuaternion
     /* D56E0 001D56E0 2D804000 */   daddu     $16, $2, $0
     /* D56E4 001D56E4 2D200002 */  daddu      $4, $16, $0
-    /* D56E8 001D56E8 7438040C */  jal        func_0010E1D0
+    /* D56E8 001D56E8 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D56EC 001D56EC 2D284000 */   daddu     $5, $2, $0
     /* D56F0 001D56F0 11000010 */  b          .L001D5738
     /* D56F4 001D56F4 6002BFDF */   ld        $31, 0x260($29)
@@ -2934,14 +2934,14 @@ glabel ResetStatic2MotionManager
     /* D5704 001D5704 2D804000 */   daddu     $16, $2, $0
     /* D5708 001D5708 2D200002 */  daddu      $4, $16, $0
     /* D570C 001D570C 2D284000 */  daddu      $5, $2, $0
-    /* D5710 001D5710 5238040C */  jal        func_0010E148
+    /* D5710 001D5710 5238040C */  jal        MultiQuaternion
     /* D5714 001D5714 1000C626 */   addiu     $6, $22, 0x10
     /* D5718 001D5718 1E14040C */  jal        func_00105078
     /* D571C 001D571C 00000000 */   nop
     /* D5720 001D5720 8C37040C */  jal        GetLastQuaternion
     /* D5724 001D5724 2D804000 */   daddu     $16, $2, $0
     /* D5728 001D5728 2D200002 */  daddu      $4, $16, $0
-    /* D572C 001D572C 7438040C */  jal        func_0010E1D0
+    /* D572C 001D572C 7438040C */  jal        GetMatrixFromQuaternionRotElem
     /* D5730 001D5730 2D284000 */   daddu     $5, $2, $0
 .align 2
   .L001D5734:
@@ -2970,7 +2970,7 @@ endlabel ResetStatic2MotionManager
 Result: best unchanged at rc606 (driver stall 7/30, verdict iterate at session end).
 Two rc-neutral but ROM-shape-correct edits are now installed in the TU (kept):
 - cases 0x13/0x3: `t = 1.0f;` routed through the reused float temp (ROM keeps
-  1.0 in $f22..$f20 from case head: `qA0[3]=t` / `v110[3]=t` + AddMotionMemorySize
+  1.0 in $f22..$f20 from case head: `qA0[3]=t` / `v110[3]=t` + limitHPAngleAndSetB
   w-arg = t). Verified: built now emits `swc1 $f20,172(sp)` exactly like ROM.
 - cases 0x13/0x3 tails: `t = 60.0f;` hoisted before the f_280/f_220 branch;
   the three rate exprs use `(t / (float)((0x3C - D_00271240[0]*0xA)/D_00271240[1]))`.
@@ -3049,9 +3049,9 @@ The MINIMAL costume that locks b->s5 AND nd->s6 (oracle-verified twice):
   seed + T1 (default: goto sin_tail) + ONE FUNCTION-SCOPE `float *eqp;`
   with every case head rewritten as:
       eqp = e->quat;
-      func_0010E148(GetLastQuaternion(), GetTableSin(), eqp);
+      MultiQuaternion(GetLastQuaternion(), GetTableSin(), eqp);
       ...
-      func_0010E188(qb, nd->quat, eqp);
+      DivQuaternion(qb, nd->quat, eqp);
   (rc669 = T1's +62 tax +1; the tax only pays off once e->s8 lands.)
   - eqp is ROM-CONFIRMED: `addiu $17, $30, 0x20` in the GetLastQuaternion
     delay slot of EVERY e->quat case head (0x22 0x23 0x13 2D 2F...), always
@@ -3095,7 +3095,7 @@ s8, e needs eX holders (or hard smears) on BOTH s4 and s7 before pos ~729:
   pv=v60 spilled 0x1B8 (sw in arm, e.g. D4074).
 - 0x13 loop arm: i=s1 (PER-CASE i! int-fold is WRONG), qn(v130)=s2,
   v70p=s3, v110p=s7 set TWICE (D40B0/D4128, the n!=-1 / n==-1 sub-arms),
-  used at TurnObjectMatrix/_ApplyCurrentMatrix/Transpose/MulL/E088;
+  used at TurnObjectMatrix/_AddVector/Transpose/MulL/E088;
   tbl0(D_00271BF0)=s1-region, fzero=0.0f in $f21 (passed as
   func_00105108(5.0f,-3.0f,fzero)); v60[1] accessed DIRECT at 0x64(sp)
   (do NOT rewrite v60 accesses through pv).
@@ -3183,7 +3183,7 @@ need an e-conflicting allocno on s4 (then s7) before e's pos.
 ### DO-NOT-RETRY (exact keystrokes; classes stay open):
 - qF0p/v110p set at case-0x13 HEAD (line ~686) + replace all uses → long range,
   low priority, no cascade (e stayed s4).
-- ref-bump qa/qb/w170 in case 2D via dummy func_0010E300 calls → no cascade.
+- ref-bump qa/qb/w170 in case 2D via dummy MultiMatrixByQuaternion calls → no cascade.
 - per-case `ndq=nd->quat` pointer → lands low, no e-block.
 - e-liveness extend via spurious `D_0062C214=(float)e->state` → right reg wrong
   mechanism (rc631/639, artificial insns). Use ONLY as reachability diagnostic.
@@ -3401,7 +3401,7 @@ whole coloring.  Landed so far:
   * `t`/`rot` into the four rate-update arms                  612 -> 589 (363 -> 353)
   * `float t` local to the `f_2B4` min-block AND to the       589 -> 583 (353 -> 351)
     `f_284` else-block in the big 0x1 case (2 sets -> 2x1)
-  * `n` split into `nq` (the `func_0010EEF0(_MulCurrentMatrixR(...))`  583 -> 564 (351 -> 346)
+  * `n` split into `nq` (the `GetTableArcCos(_InnerProduct(...))`  583 -> 564 (351 -> 346)
     result, 2 sites) vs `n` the `e->next` list cursor
 
   NEUTRAL (identical sig): splitting `s0` (445/447 and 529/634), per-case `pv`,
@@ -3768,7 +3768,7 @@ MECHANISM, NAILED WITH THE STAGED SOURCE + `-dg/-dl/-dG/-dc` DUMPS
 --------------------------------------------------------------------------------
  A. The addiu/daddu class in case 0x23 is ONE COALESCED QUANTITY.  Dump proof:
       (insn 1502) (set (reg 408) (plus at 96))  + REG_EQUIV (plus at 96)
-      (insn 1508) (set (reg a2) (reg 408))            <- the func_0023FDD8 arg
+      (insn 1508) (set (reg a2) (reg 408))            <- the sceVu0ApplyMatrix arg
       (insn 1735) (set (reg/v 287) (reg 408))         <- `w = v60` at src L413
     reg 408 is the gcse-PRE reaching_reg for `(plus sp 96)`; insn 1735 is PRE's
     replacement of `w = v60` by a COPY from it; local-alloc then coalesces
@@ -3867,7 +3867,7 @@ ROUND 10 ADDENDUM — the `w`-allocno unification probe (SAVE, worth resuming).
  * New tool scratchpad/r10_letters.py — counts pure s-REGISTER-LETTER diff sites
    (same opcode, same operands modulo s-regs).  Use it alongside r9_m.py: it is
    a cleaner read on "how many groups are still mis-lettered" than dreg.
- * Stash rsm_conv_wq90tail_rc457_s281.c = the 85-base plus `func_0010E148(w,
+ * Stash rsm_conv_wq90tail_rc457_s281.c = the 85-base plus `MultiQuaternion(w,
    s0, qb)` / `GetCurrentQuaternion(GetLastQuaternion(), b->q1, w, b->rate)` at
    case 0x23 lines 434/435 (i.e. `w` carries the q90 value OUT of the else-arm
    into the join block, which is what ROM's s1 does: ROM's s1=sp+0x90 has uses
@@ -3950,13 +3950,13 @@ A local pointer holding `(plus at K)` is fully const-propagated and its
 assignment insn is DELETED; only an assignment that must survive as a real
 register copy creates a pseudo-dest gcse table entry.  Verified this round:
  * case 0x23 GetMatrixFromQuaternion block, replacing `w` by `v60` at the
-   func_0010E148 use (V1), at ResetDynamicMotionManager+func_0010E148 (V2), and
+   MultiQuaternion use (V1), at avoidReverseInterpOnCurrentMatrixWithLimit+MultiQuaternion (V2), and
    at ALL SIX uses i.e. deleting the carrier entirely (V3):
    V1/V2 byte-identical to base (rc453 s283 dop42 dreg43 n2696);
    V3 rc455 with IDENTICAL census.
- * case 0x1 `float *q1 = b->q1; GetMotionMemorySize(q1, mem, q3);` (Q1) and the
+ * case 0x1 `float *q1 = b->q1; avoidReverseInterpOnCurrentMatrix(q1, mem, q3);` (Q1) and the
    half-way form (Q2): both byte-identical to base.
-The RTL proves it: the source `w = v70; MatrixDrive_TurnZObjectMatrixXY(w,...)`
+The RTL proves it: the source `w = v70; AddVectorXYZ(w,...)`
 produces NO `(set (reg/v W) (plus at 112))` insn at all - just
 `(insn 1397 (set (reg:SI 4 a0) (plus:SI (reg:SI 1 at) (const_int 112))))`.
 What DOES matter is how many pseudo-dest occurrences of the EXPRESSION exist
@@ -4082,7 +4082,7 @@ NEXT LEVER FOR ROUND 12 (reasoned)
    which is a luid count: it grows when MORE insns are scheduled between their
    first and last reference.  Both ranges lie in case 0x23 asm ~380-490.  So
    the edits to try are ones that ADD work inside that window or move work
-   into it - e.g. the statement order of the `g80[]`/AddMotionMemorySize block
+   into it - e.g. the statement order of the `g80[]`/limitHPAngleAndSetB block
    (asm 403-434) which sits between reg408's two references, and the
    `D_0062C238 == 4` negation diamond.  reg401 needs only +8% ll, reg408 +17%.
 3. Independently: Finding 4 is ~34 diff insns and is a pure two-qty tie with a
@@ -4149,7 +4149,7 @@ block stays separate because its tail is
 Sets at ROM 1322 (default arm), 1334 (turn arm), 1368, 1596 (mul arm), 1859, 1868 —
 every one literally `addiu $r,$29,0x60`. Loads at 1351, 1689, 1691, 1875.
 `.L001D4460` IS `L13done`, and it loads 0x1B8 as `$4` of
-`GetCurrentQuaternion(w, b->q1, qb, b->rate)` and `$6` of `func_0010E148(q30,q30,w)`.
+`GetCurrentQuaternion(w, b->q1, qb, b->rate)` and `$6` of `MultiQuaternion(q30,q30,w)`.
 => the dev sets `w = v60` in ALL THREE dispatch arms and the join consumes `w`.
 
 ### ★ Mechanism: REG_EQUAL note vs invariant SET_SRC
@@ -4366,7 +4366,7 @@ is 1 per region. **Gate frame-address work on this ledger, not on `dop`.**
    every aligned `l*/s*` pair whose base register differs now returns exactly ONE site
    (`lw v0,396(a0)` vs `lw v0,396(v1)`).
 2. **Turn-arm head ADJACENCY: `w = v60; qF0p = qF0;` must be adjacent and both before the
-   `ang = MatrixDrive_GetTurnYEAngleXZ(vC0)` call** (398 -> 395). Swept all 5 statements of
+   `ang = VectorLength(vC0)` call** (398 -> 395). Swept all 5 statements of
    the L13turn head: every ordering with `w`/`qF0p` adjacent-and-first scores 395; every
    ordering that separates them scores 398. Same family as round 13's recipe (b).
 3. **`void *m = (char *)&D_0062C218[Debug...] + 0x10;` -> `int k = Debug...;` + the address
@@ -4462,7 +4462,7 @@ holding it in s4 -> arm0's tail has no `sw &v60` -> arm0 cross-jumps its
   sub-classes: (a) `&qD0` (pseudo 2754, 3 sets, pri 617 -> s2) and `&vC0` (2753, pri 535 -> s8)
   win registers where ROM remats — and carrier deletion is proven NOT to be the lever
   (above), so this needs pressure on s2/s8, not respelling; (b) the two
-  `AddMotionMemorySize(..., 1.0f, ...)` calls at C 581/583: ROM materialises
+  `limitHPAngleAndSetB(..., 1.0f, ...)` calls at C 581/583: ROM materialises
   `lui at,0x3f80; mtc1 at,$f12` **inline before each call** (a HARD-reg set, which
   `cse.c:invalidate_for_call` kills across the intervening call), we CSE them into one
   pseudo that gets `$f20` + two `mov.s $f12,$f20`. Net insn count is equal, so this is a
@@ -4486,11 +4486,11 @@ matching ROM's disposition exactly:
 
 The recipe is THREE things together (any two of them give the round-15 inversions):
 1. `float *w2;` + `w2 = v120;` at the L13turn arm head, `w2` at the 4 pointer uses
-   (`_MulCurrentMatrixL`, `func_0010E088` x2, `GetCurrentQuaternion`), `v120` by NAME at
-   `MatrixDrive_TurnZObjectMatrixXY`/`GetTurnXAngleZY`.
+   (`_OuterProduct`, `SetQuaternionByAxisRotateV` x2, `GetCurrentQuaternion`), `v120` by NAME at
+   `AddVectorXYZ`/`GetTurnXAngleZY`.
 2. `float *p110;` + `p110 = v110;` at the same head, `p110` at all 5 v110 uses in the arm.
 3. **★ THE NEW INGREDIENT — a SECOND `w2 = v120;` placed immediately before
-   `nq = func_0010EEF0(_MulCurrentMatrixR(v50, D_00271BF0));`** (i.e. in case 0x13's common
+   `nq = GetTableArcCos(_InnerProduct(v50, D_00271BF0));`** (i.e. in case 0x13's common
    prologue, before the `f_280` goto dispatch). This is round 14's ll-extension lever:
    assigning on the path that skips the turn arm raises `&v120`'s ll 195 -> 220, dropping
    pri 717 -> 636, which is below `p110`'s 648 — so v120 loses and p110 takes s7.
@@ -4500,18 +4500,18 @@ The recipe is THREE things together (any two of them give the round-15 inversion
 |---|---|---|---|---|---|
 | (none, = W1)                        | 195 | 717 | s7    | LOST | 393 |
 | `if (f_280 == 1) goto L13turn;`     | 199 | 703 | s7    | LOST | 397 |
-| `func_0010E148(qA0, qA0, qD0);`     | 204 | 686 | s7    | LOST | 397 |
-| `func_0010E088(qD0, nq, v60);`      | 209 | 669 | s7    | LOST | 397 |
-| `_MulCurrentMatrixL(v60, v50, ...)` | 214 | 654 | s7    | LOST | 397 |
-| **`nq = func_0010EEF0(...)`**       | **220** | **636** | **LOST** | **s7** | **393** |
-| `MatrixDrive_ScaleMatrix(...)`      | 349 | 945 | s7    | LOST | 394 |
-| `AddMotionMemorySize(...)`          | 336 | 982 | s7    | LOST | 392 |
+| `MultiQuaternion(qA0, qA0, qD0);`     | 204 | 686 | s7    | LOST | 397 |
+| `SetQuaternionByAxisRotateV(qD0, nq, v60);`      | 209 | 669 | s7    | LOST | 397 |
+| `_OuterProduct(v60, v50, ...)` | 214 | 654 | s7    | LOST | 397 |
+| **`nq = GetTableArcCos(...)`**       | **220** | **636** | **LOST** | **s7** | **393** |
+| `MatrixDrive_GetTurnXAngleZY(...)`      | 349 | 945 | s7    | LOST | 394 |
+| `limitHPAngleAndSetB(...)`          | 336 | 982 | s7    | LOST | 392 |
 | `pb = D_0062C230->q_290;`           | 376 | 877 | LOST  | s7   | 392 |
-| `func_00260568(qA0, 0, 0x10);`      | 386 | 854 | LOST  | s7   | 392 |
+| `memset(qA0, 0, 0x10);`      | 386 | 854 | LOST  | s7   | 392 |
 | case-0x13 top (after the decls)     | 412 | 800 | LOST  | s7   | 398 |
-Note the non-monotonicity: past `MatrixDrive_ScaleMatrix` the local pseudo MERGES with the
+Note the non-monotonicity: past `MatrixDrive_GetTurnXAngleZY` the local pseudo MERGES with the
 function-wide `&v120` web (refs 7 -> 11), which raises both refs and ll. The clean window is
-the `nq = func_0010EEF0(...)` placement, where the pseudo stays LOCAL (refs 7).
+the `nq = GetTableArcCos(...)` placement, where the pseudo stays LOCAL (refs 7).
 
 ### ★ WHY IT WAS NOT KEPT — the cost is a DIAGNOSED, one-step-away side effect in case 0x3
 Region profile (200-wide ROM buckets), base vs the variant:
@@ -4527,7 +4527,7 @@ the base. ROM puts **`qb` = `&q20` (reg 2415, refs 5 ll 123 pri 813) in s4 there
 **GATE: case-0x3 `&v110` must fall below pri 813, i.e. ll > 295 (from 183), or `&q20` must
 rise above 1311 (refs 5 -> 8 at ll 123).** Hoisting `qc = v110;` to the top of case 0x3
 moves ll 183 -> 208 (pri 1153, hunks 391 — stashed as `rsm_conv_r16_w2P1_qchoist_rc391_s247.c`);
-after `qa = q30;` gives ll 192 (395); passing `qc` to `func_00260568` gives ll 183 (393).
+after `qa = q30;` gives ll 192 (395); passing `qc` to `memset` gives ll 183 (393).
 **The lever direction is proven; the remaining margin is ~90 luids.**
 
 ### ★★ REFUTED — round 15's `jal -1` causal chain
@@ -4538,7 +4538,7 @@ The chain is broken at the first link — do not plan the `jal -1` around the s4
 
 ### ★ REFUTED — two of round 15's three "computed flips"
 - **"Give `w2` one fewer ref (7 -> 6)" is NOT source-reachable.** Reverting one `w2` use to
-  `v120` by name (tried at the `_MulCurrentMatrixL` dst and at the `func_0010E088` arg) is
+  `v120` by name (tried at the `_OuterProduct` dst and at the `SetQuaternionByAxisRotateV` arg) is
   **exactly codegen-identical**: pseudo 1055's refs stay 7. The `(plus at 288)` pseudo is the
   arg-precompute/PRE web, not the `w2` variable; the variable only decides whether the web is
   created at all. (`p110`'s refs DO track its uses — 1 set + 5 uses = 6 — so this is per-array,
@@ -4612,7 +4612,7 @@ priority-order first-free among non-conflicting registers.** Do not re-brief the
 
 ### ★★ NEW GENERAL RULE (measured at THREE new sites this round) — for a FRAME address the C pointer variable is INVISIBLE.
 `w2 = vC0;` hoisted to each of three points earlier in case 0x1's else-arm (before the first
-`AddMotionMemorySize`, before `if (cnt != 0)`, and the two-pointer ROM tail model itself) is **exactly
+`limitHPAngleAndSetB`, before `if (cnt != 0)`, and the two-pointer ROM tail model itself) is **exactly
 codegen-identical to the base** (rc387/s247/dop54/dreg45/n2690 every time). const-prop rewrites the USES to
 the canonical `(plus at K)`, so neither the assignment point nor an extra earlier assignment can move a
 frame web's live range. **⇒ round 16's ll-extension lever does NOT generalise** — it moved `&v120` only
@@ -4697,7 +4697,7 @@ the tail occurrence stops being partially redundant. That is the one live thread
 
 TU left at `39e5fbddb0ffab768a3676bcf4fc7d89`, 1249 lines == `.claude/.decomp_stash/rsm_conv_r15_idxtemp_rc387_s247.c`.
 `rc387 s247 dop54 dreg45 SCORE99 n2690`, hunks 387, remat ledger |Δ| 22 (v60 −10, v120 −4, vC0 −2, v50/qF0/v130/v150/v160 −1, v70 +1).
-All 4 siblings rc0 (`match_diff --count` = 0 for InitMotionFile / InitMotionMemorySize / func_001D5C50 / pursueNodeList). Crutch-free. No commits. No new stash (nothing beat base).
+All 4 siblings rc0 (`match_diff --count` = 0 for CheckMotionIncludeFacialData / InitMotionMemorySize / _calcNaturalGeometry / pursueNodeList). Crutch-free. No commits. No new stash (nothing beat base).
 
 ### ★★ NEW TOOL — `r19_pre.py` (0.25 s/probe): read gcse-PRE's decisions DIRECTLY.
 ee-gcc accepts **`-dG`**, which writes `<tu>.gcse` containing `dump_flow_info` (every basic block with
@@ -4865,7 +4865,7 @@ without the note.**
 dominating carriers at the arm head (or an equivalent occurrence structure). Constraints proven:
 single-set; must dominate blocks+tail; note requires a preceding same-path same-K occurrence whose
 holder dies without accreting the uses. Candidates untested on the TU: (a) exact s7 shape exploiting
-the existing `GetMotionMemorySize` call by routing one of ITS args... (no array args — likely dead);
+the existing `avoidReverseInterpOnCurrentMatrix` call by routing one of ITS args... (no array args — likely dead);
 (b) first-holder consumed by an EXISTING call between the case head and the arm (`q30`/`q20` region
 has calls but wrong arrays); (c) plain single carriers relying on the TU's richer cse-path state
 (E1 measured noteless — dead); (d) map the adjacency rule properly in eegcc cse.c (the s7-vs-s20
@@ -4930,9 +4930,9 @@ note→remat physics is real; only its spelling matrix was wrong.
 ### ★ THE IN-TU "NATURAL EXEMPLAR" IS A SECOND, DIFFERENT ROUTE (dumped, not inferred)
 
 `reg 400` / insn 1420 is **not** a scratch-copy carrier. It is `precompute_register_parameters`'
-pseudo for the **third argument** of `MatrixDrive_GetTurnXAngleZY(w, pb, v70)` at source line 386,
+pseudo for the **third argument** of `SubVectorXYZ(w, pb, v70)` at source line 386,
 seeded by insn 1396 `(set (reg a0) (plus at 112))` from the preceding
-`MatrixDrive_TurnZObjectMatrixXY(w=v70, …)` at line 384. Its src is KEPT as `(plus at 112)` and
+`AddVectorXYZ(w=v70, …)` at line 384. Its src is KEPT as `(plus at 112)` and
 `REG_EQUAL` is attached directly (the `cse.c:7169` path). **No scratch variable is involved.**
 NB the `.lreg` dump is post-combine, so a *direct* `(set a0 (plus at K))` there does NOT prove gcse
 saw no pseudo — that inference cost round 21 two probes (D1, I1/I2).
@@ -4963,7 +4963,7 @@ ROM does **NOT** have "one dominating single-set carrier per array spanning bloc
 
 From the `-dG` flow dump:
 
-    bb47 GetMotionMemorySize   succ[48 (fallthru) 53 (crit)]
+    bb47 avoidReverseInterpOnCurrentMatrix   succ[48 (fallthru) 53 (crit)]
     bb50                       succ[51 (fallthru) 53 (crit)]
     bb51                       succ[52 (fallthru) 53 (crit)]
     bb52 = the f_220 block     succ[53 (fallthru)]

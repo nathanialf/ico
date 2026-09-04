@@ -1,7 +1,7 @@
-# func_00253DB0 — parked
+# _dispRefImage — parked
 
 VRAM: 0x00253DB0 (file_off 0x153DB0)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00253DB0.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_dispRefImage.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00253DB0.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00253DB0/func_00253DB0.c`
+**Seed:** `tough_nuts/_dispRefImage/_dispRefImage.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00253DB0, 0x118
+nonmatching _dispRefImage, 0x118
 
-glabel func_00253DB0
+glabel _dispRefImage
     /* 153DB0 00253DB0 C0FFBD27 */  addiu      $29, $29, -0x40
     /* 153DB4 00253DB4 0000B0FF */  sd         $16, 0x0($29)
     /* 153DB8 00253DB8 5500103C */  lui        $16, %hi(D_0054C764)
@@ -29,7 +29,7 @@ glabel func_00253DB0
     /* 153DD0 00253DD0 2000C724 */  addiu      $7, $6, 0x20
     /* 153DD4 00253DD4 4000D18C */  lw         $17, 0x40($6)
     /* 153DD8 00253DD8 1000C524 */  addiu      $5, $6, 0x10
-    /* 153DDC 00253DDC 064F090C */  jal        func_00253C18
+    /* 153DDC 00253DDC 064F090C */  jal        _getPtsDtsFlags
     /* 153DE0 00253DE0 1800C624 */   addiu     $6, $6, 0x18
     /* 153DE4 00253DE4 64C7068E */  lw         $6, %lo(D_0054C764)($16)
     /* 153DE8 00253DE8 5500053C */  lui        $5, %hi(D_0054D0F8)
@@ -60,7 +60,7 @@ glabel func_00253DB0
     /* 153E4C 00253E4C 5400438E */  lw         $3, 0x54($18)
     /* 153E50 00253E50 C40023AE */  sw         $3, 0xC4($17)
     /* 153E54 00253E54 5800428E */  lw         $2, 0x58($18)
-    /* 153E58 00253E58 544E090C */  jal        func_00253950
+    /* 153E58 00253E58 544E090C */  jal        _isOutSizeOK
     /* 153E5C 00253E5C C80022AE */   sw        $2, 0xC8($17)
     /* 153E60 00253E60 13004010 */  beqz       $2, .L00253EB0
     /* 153E64 00253E64 01000224 */   addiu     $2, $0, 0x1
@@ -70,13 +70,13 @@ glabel func_00253DB0
     /* 153E74 00253E74 B000228E */  lw         $2, 0xB0($17)
     /* 153E78 00253E78 05004010 */  beqz       $2, .L00253E90
     /* 153E7C 00253E7C 00000000 */   nop
-    /* 153E80 00253E80 5451090C */  jal        func_00254550
+    /* 153E80 00253E80 5451090C */  jal        _csc_storeRefImage
     /* 153E84 00253E84 2D204002 */   daddu     $4, $18, $0
     /* 153E88 00253E88 04000010 */  b          .L00253E9C
     /* 153E8C 00253E8C 3000BFDF */   ld        $31, 0x30($29)
 .align 2
   .L00253E90:
-    /* 153E90 00253E90 7C4E090C */  jal        func_002539F0
+    /* 153E90 00253E90 7C4E090C */  jal        _cpr8
     /* 153E94 00253E94 2D204002 */   daddu     $4, $18, $0
     /* 153E98 00253E98 3000BFDF */  ld         $31, 0x30($29)
 .align 2
@@ -84,7 +84,7 @@ glabel func_00253DB0
     /* 153E9C 00253E9C 2000B2DF */  ld         $18, 0x20($29)
     /* 153EA0 00253EA0 1000B1DF */  ld         $17, 0x10($29)
     /* 153EA4 00253EA4 0000B0DF */  ld         $16, 0x0($29)
-    /* 153EA8 00253EA8 F84E0908 */  j          func_00253BE0
+    /* 153EA8 00253EA8 F84E0908 */  j          _markOutput
     /* 153EAC 00253EAC 4000BD27 */   addiu     $29, $29, 0x40
 .align 2
   .L00253EB0:
@@ -96,5 +96,5 @@ glabel func_00253DB0
     /* 153EBC 00253EBC 0000B0DF */  ld         $16, 0x0($29)
     /* 153EC0 00253EC0 0800E003 */  jr         $31
     /* 153EC4 00253EC4 4000BD27 */   addiu     $29, $29, 0x40
-endlabel func_00253DB0
+endlabel _dispRefImage
 ```

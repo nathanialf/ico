@@ -3,7 +3,7 @@
 extern void playSEConditionID(int a0, int a1);
 
 extern void GetRootMatrixByDObj();
-extern void func_00240008();
+extern void sceVu0SubVector();
 extern void MatrixDrive_TurnObjectMatrix();
 
 void CreateWaySystemManagerGObj(char *a0) {
@@ -11,7 +11,7 @@ void CreateWaySystemManagerGObj(char *a0) {
     char *sub;
     GetRootMatrixByDObj(buf, a0);
     sub = *(char **)(a0 + 0x15C);
-    func_00240008(sub + 0x120, buf, sub + 0x1E0);
+    sceVu0SubVector(sub + 0x120, buf, sub + 0x1E0);
     sub = *(char **)(a0 + 0x15C);
     MatrixDrive_TurnObjectMatrix(sub + 0x1E0, buf);
 }

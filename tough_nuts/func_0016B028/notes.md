@@ -40,7 +40,7 @@ glabel func_0016B028
     /* 6B074 0016B074 1800A2E7 */   swc1      $f2, 0x18($29)
     /* 6B078 0016B078 1000B327 */  addiu      $19, $29, 0x10
     /* 6B07C 0016B07C 2D20A003 */  daddu      $4, $29, $0
-    /* 6B080 0016B080 4247060C */  jal        HandCameraCorrect
+    /* 6B080 0016B080 4247060C */  jal        _RotyGV
     /* 6B084 0016B084 2D286002 */   daddu     $5, $19, $0
     /* 6B088 0016B088 2D884000 */  daddu      $17, $2, $0
     /* 6B08C 0016B08C 02002106 */  bgez       $17, .L0016B098
@@ -57,7 +57,7 @@ glabel func_0016B028
     /* 6B0B0 0016B0B0 EE10050C */  jal        func_001443B8
     /* 6B0B4 0016B0B4 23000624 */   addiu     $6, $0, 0x23
     /* 6B0B8 0016B0B8 2D200002 */  daddu      $4, $16, $0
-    /* 6B0BC 0016B0BC 4247060C */  jal        HandCameraCorrect
+    /* 6B0BC 0016B0BC 4247060C */  jal        _RotyGV
     /* 6B0C0 0016B0C0 2D286002 */   daddu     $5, $19, $0
     /* 6B0C4 0016B0C4 2D184000 */  daddu      $3, $2, $0
     /* 6B0C8 0016B0C8 5A00422A */  slti       $2, $18, 0x5A
@@ -160,7 +160,7 @@ glabel func_0016B028
     /* 6B074 0016B074 1800A2E7 */   swc1      $f2, 0x18($29)
     /* 6B078 0016B078 1000B327 */  addiu      $19, $29, 0x10
     /* 6B07C 0016B07C 2D20A003 */  daddu      $4, $29, $0
-    /* 6B080 0016B080 4247060C */  jal        HandCameraCorrect
+    /* 6B080 0016B080 4247060C */  jal        _RotyGV
     /* 6B084 0016B084 2D286002 */   daddu     $5, $19, $0
     /* 6B088 0016B088 2D884000 */  daddu      $17, $2, $0
     /* 6B08C 0016B08C 02002106 */  bgez       $17, .L0016B098
@@ -177,7 +177,7 @@ glabel func_0016B028
     /* 6B0B0 0016B0B0 EE10050C */  jal        func_001443B8
     /* 6B0B4 0016B0B4 23000624 */   addiu     $6, $0, 0x23
     /* 6B0B8 0016B0B8 2D200002 */  daddu      $4, $16, $0
-    /* 6B0BC 0016B0BC 4247060C */  jal        HandCameraCorrect
+    /* 6B0BC 0016B0BC 4247060C */  jal        _RotyGV
     /* 6B0C0 0016B0C0 2D286002 */   daddu     $5, $19, $0
     /* 6B0C4 0016B0C4 2D184000 */  daddu      $3, $2, $0
     /* 6B0C8 0016B0C8 5A00422A */  slti       $2, $18, 0x5A

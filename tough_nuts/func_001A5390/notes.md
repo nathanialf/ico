@@ -1,7 +1,7 @@
-# func_001A5390 — parked
+# debug_mcRetErrCheck — parked
 
 VRAM: 0x001A5390 (file_off 0x0A5390)
-Asm source: asm/aug6/nonmatchings/common/src/debug_exception/func_001A5390.s
+Asm source: asm/aug6/nonmatchings/common/src/debug_exception/debug_mcRetErrCheck.s
 
 ## Attempt at 2026-06-24
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/debug_exception/func_001A5390.s
 
 **TU:** `common/src/debug_exception.c`
 
-**Seed:** `tough_nuts/func_001A5390/func_001A5390.c`
+**Seed:** `tough_nuts/debug_mcRetErrCheck/debug_mcRetErrCheck.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_001A5390, 0x130
+nonmatching debug_mcRetErrCheck, 0x130
 
-glabel func_001A5390
+glabel debug_mcRetErrCheck
     /* A5390 001A5390 B0FFBD27 */  addiu      $29, $29, -0x50
     /* A5394 001A5394 2D388000 */  daddu      $7, $4, $0
     /* A5398 001A5398 4000BFFF */  sd         $31, 0x40($29)
@@ -66,7 +66,7 @@ glabel func_001A5390
     /* A5414 001A5414 2400E68C */  lw         $6, 0x24($7)
     /* A5418 001A5418 F0DCA524 */  addiu      $5, $5, %lo(D_0060DCF0)
     /* A541C 001A541C 5000E78C */  lw         $7, 0x50($7)
-    /* A5420 001A5420 6284090C */  jal        func_00261188
+    /* A5420 001A5420 6284090C */  jal        sprintf
     /* A5424 001A5424 2D20A003 */   daddu     $4, $29, $0
     /* A5428 001A5428 11000010 */  b          .L001A5470
     /* A542C 001A542C 6300073C */   lui       $7, %hi(D_0062CC48)
@@ -80,7 +80,7 @@ glabel func_001A5390
   jlabel .L001A5440
     /* A5440 001A5440 6100053C */  lui        $5, %hi(D_0060DD40)
     /* A5444 001A5444 2D20A003 */  daddu      $4, $29, $0
-    /* A5448 001A5448 6284090C */  jal        func_00261188
+    /* A5448 001A5448 6284090C */  jal        sprintf
     /* A544C 001A544C 40DDA524 */   addiu     $5, $5, %lo(D_0060DD40)
     /* A5450 001A5450 07000010 */  b          .L001A5470
     /* A5454 001A5454 6300073C */   lui       $7, %hi(D_0062CC48)
@@ -91,7 +91,7 @@ glabel func_001A5390
     /* A5460 001A5460 50DDA524 */  addiu      $5, $5, %lo(D_0060DD50)
 .align 2
   .L001A5464:
-    /* A5464 001A5464 6284090C */  jal        func_00261188
+    /* A5464 001A5464 6284090C */  jal        sprintf
     /* A5468 001A5468 2D20A003 */   daddu     $4, $29, $0
     /* A546C 001A546C 6300073C */  lui        $7, %hi(D_0062CC48)
 .align 2
@@ -101,7 +101,7 @@ glabel func_001A5390
     /* A5478 001A5478 50000424 */  addiu      $4, $0, 0x50
     /* A547C 001A547C 46000524 */  addiu      $5, $0, 0x46
     /* A5480 001A5480 00FFC634 */  ori        $6, $6, (0xFFFFFF00 & 0xFFFF)
-    /* A5484 001A5484 E090060C */  jal        debugEEExceptionMain
+    /* A5484 001A5484 E090060C */  jal        debug_PrintfDummy
     /* A5488 001A5488 2D40A003 */   daddu     $8, $29, $0
     /* A548C 001A548C 2700023C */  lui        $2, %hi(D_002715D4)
     /* A5490 001A5490 FFFF0424 */  addiu      $4, $0, -0x1
@@ -120,5 +120,5 @@ glabel func_001A5390
     /* A54B4 001A54B4 4000BFDF */  ld         $31, 0x40($29)
     /* A54B8 001A54B8 0800E003 */  jr         $31
     /* A54BC 001A54BC 5000BD27 */   addiu     $29, $29, 0x50
-endlabel func_001A5390
+endlabel debug_mcRetErrCheck
 ```

@@ -59,16 +59,16 @@ glabel actEnemyKidnapBegin
     /* 5EA08 0015EA08 2D206002 */  daddu      $4, $19, $0
     /* 5EA0C 0015EA0C 2D280002 */  daddu      $5, $16, $0
     /* 5EA10 0015EA10 2D308002 */  daddu      $6, $20, $0
-    /* 5EA14 0015EA14 F447060C */  jal        func_00191FD0
+    /* 5EA14 0015EA14 F447060C */  jal        _OrientXZGV
     /* 5EA18 0015EA18 2800A0E7 */   swc1      $f0, 0x28($29)
     /* 5EA1C 0015EA1C 4000B127 */  addiu      $17, $29, 0x40
     /* 5EA20 0015EA20 06A30046 */  mov.s      $f12, $f20
     /* 5EA24 0015EA24 2D202002 */  daddu      $4, $17, $0
-    /* 5EA28 0015EA28 0E00090C */  jal        func_00240038
+    /* 5EA28 0015EA28 0E00090C */  jal        sceVu0ScaleVector
     /* 5EA2C 0015EA2C 2D286002 */   daddu     $5, $19, $0
     /* 5EA30 0015EA30 2D288002 */  daddu      $5, $20, $0
     /* 5EA34 0015EA34 2D302002 */  daddu      $6, $17, $0
-    /* 5EA38 0015EA38 FCFF080C */  jal        func_0023FFF0
+    /* 5EA38 0015EA38 FCFF080C */  jal        sceVu0AddVector
     /* 5EA3C 0015EA3C 2D200002 */   daddu     $4, $16, $0
     /* 5EA40 0015EA40 2D280002 */  daddu      $5, $16, $0
     /* 5EA44 0015EA44 5810040C */  jal        CylinderCollision
@@ -84,7 +84,7 @@ glabel actEnemyKidnapBegin
     /* 5EA6C 0015EA6C 3400A0C7 */  lwc1       $f0, 0x34($29)
     /* 5EA70 0015EA70 040140E4 */  swc1       $f0, 0x104($2)
     /* 5EA74 0015EA74 3800A1C7 */  lwc1       $f1, 0x38($29)
-    /* 5EA78 0015EA78 0E00090C */  jal        func_00240038
+    /* 5EA78 0015EA78 0E00090C */  jal        sceVu0ScaleVector
     /* 5EA7C 0015EA7C 080141E4 */   swc1      $f1, 0x108($2)
     /* 5EA80 0015EA80 6401A58E */  lw         $5, 0x164($21)
     /* 5EA84 0015EA84 2D20A002 */  daddu      $4, $21, $0

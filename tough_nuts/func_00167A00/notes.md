@@ -1,7 +1,7 @@
-# func_00167A00 — parked
+# _clipFE — parked
 
 VRAM: 0x00167A00 (file_off 0x067A00)
-Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00167A00.s
+Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/_clipFE.s
 
 ## Attempt at 2026-06-26
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/fuzio/func_00167A00.s
 
 **TU:** `fumi/src/fuzio.c`
 
-**Seed:** `tough_nuts/func_00167A00/func_00167A00.c`
+**Seed:** `tough_nuts/_clipFE/_clipFE.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00167A00, 0x148
+nonmatching _clipFE, 0x148
 
-glabel func_00167A00
+glabel _clipFE
     /* 67A00 00167A00 70FFBD27 */  addiu      $29, $29, -0x90
     /* 67A04 00167A04 2CB4878F */  lw         $7, %gp_rel(D_0062C01C)($28)
     /* 67A08 00167A08 4000B4FF */  sd         $20, 0x40($29)
@@ -81,7 +81,7 @@ glabel func_00167A00
 .align 2
   .L00167AD0:
     /* 67AD0 00167AD0 2D280002 */  daddu      $5, $16, $0
-    /* 67AD4 00167AD4 8491050C */  jal        DrawGObjWallCollision
+    /* 67AD4 00167AD4 8491050C */  jal        clip_floor_1
     /* 67AD8 00167AD8 2D300000 */   daddu     $6, $0, $0
     /* 67ADC 00167ADC 06004010 */  beqz       $2, .L00167AF8
     /* 67AE0 00167AE0 02003126 */   addiu     $17, $17, 0x2
@@ -116,5 +116,5 @@ glabel func_00167A00
     /* 67B3C 00167B3C 0000B0DF */  ld         $16, 0x0($29)
     /* 67B40 00167B40 0800E003 */  jr         $31
     /* 67B44 00167B44 9000BD27 */   addiu     $29, $29, 0x90
-endlabel func_00167A00
+endlabel _clipFE
 ```

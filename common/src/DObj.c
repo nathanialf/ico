@@ -13,7 +13,7 @@ int initMatrixDObj(volatile int *self) {
     return 0;
 }
 
-void allocObjectData(void *a0) {
+void voBufDecCount(void *a0) {
     if (*(volatile int *)((char *)a0 + 0xC) > 0) {
         *(volatile int *)((char *)a0 + 0xC) = *(volatile int *)((char *)a0 + 0xC) - 1;
     }
@@ -63,11 +63,11 @@ void func_0019CAF0(void *a0) {
     *p = D_0062A6A0;
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_0013E828(int a0, int a1);
 extern int func_0013D4B0(int a0);
 extern void cut_gobj_link(void);
-extern void func_0023EB60(int a0, int a1);
+extern void sceGsSyncPath(int a0, int a1);
 extern void func_001025B8(void);
 extern void avoid_obstacle2(void *a0);
 extern void iosMallocClearPartition(int a0);
@@ -84,7 +84,7 @@ void func_0019CB28(void) {
     int i;
     char *base;
     void (*fp)(void);
-    debug_assertMessage(D_0060B128);
+    debug_StdPrintfDummy(D_0060B128);
     D_00629D20 = 0;
     for (i = 0; i < 8; i++) {
         func_0013E828(i, 0);
@@ -95,7 +95,7 @@ void func_0019CB28(void) {
     }
     func_0013D4B0(0);
     cut_gobj_link();
-    func_0023EB60(0, 0);
+    sceGsSyncPath(0, 0);
     func_001025B8();
     base = D_00271240;
     if (*(int *)(base + 0x28) != 0) {
@@ -103,17 +103,17 @@ void func_0019CB28(void) {
         *(int *)(base + 0x28) = 0;
     }
     if (D_0062A52C == 0) {
-        debug_assertMessage(D_0060B140);
+        debug_StdPrintfDummy(D_0060B140);
         iosMallocClearPartition(D_0062A330);
     } else {
-        debug_assertMessage(D_0060B158);
+        debug_StdPrintfDummy(D_0060B158);
     }
     iosMallocClearPartition(D_0062A324);
     iosMallocClearPartition(D_0062A310);
     iosMallocClearPartition(D_0062A318);
     iosMallocClearPartition(D_0062A308);
     func_001D2180();
-    debug_assertMessage(D_0062C990);
+    debug_StdPrintfDummy(D_0062C990);
     func_001025B8();
     D_00629DE8 = 0;
     D_00629DE4 = 0;

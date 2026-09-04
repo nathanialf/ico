@@ -14,12 +14,12 @@ void SetCageFixGeometry(void *a0)
 }
 
 extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
-extern float MatrixDrive_GetTurnYAngleXZ(float f12);
-extern float MatrixDrive_GetTurnYEAngleXZ(void *a0);
-extern void func_0023FE98(void *a0, void *a1);
-extern void func_00240038(void *a0, void *a1, float f12);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
-extern void func_00240008(void *a0, void *a1, void *a2);
+extern float FSqrt(float f12);
+extern float VectorLength(void *a0);
+extern void sceVu0Normalize(void *a0, void *a1);
+extern void sceVu0ScaleVector(void *a0, void *a1, float f12);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern float D_006294D4;
 
 int InitCageGeo(int a0, int a1) {
@@ -31,18 +31,18 @@ int InitCageGeo(int a0, int a1) {
 
     MatrixDrive_TurnObjectMatrix((int)buf, (int)(sub5 + 0xA0));
     *(float *)(buf + 0x4) = *(float *)(buf + 0x4) - 250.0f;
-    func_0023FE98(buf + 0x10, buf);
+    sceVu0Normalize(buf + 0x10, buf);
     x = *(float *)(buf + 0x10);
     z = *(float *)(buf + 0x18);
-    ang = MatrixDrive_GetTurnYAngleXZ(x * x + z * z);
+    ang = FSqrt(x * x + z * z);
     f20 = ang * 50.0f;
-    f1 = MatrixDrive_GetTurnYEAngleXZ(buf) * f20 / 250.0f;
+    f1 = VectorLength(buf) * f20 / 250.0f;
     if (f1 < 0.0f) f1 = -f1;
     *(float *)(buf + 0x4) = 0.0f;
-    func_00240038(buf, buf, f1 * D_006294D4 / *(float *)(sub + 0x38));
-    func_0023FFF0((void *)(*(int *)(sub + 0x24) * 0x50 + *(int *)(*(char **)(sub + 0x20) + 8) + 0x40),
+    sceVu0ScaleVector(buf, buf, f1 * D_006294D4 / *(float *)(sub + 0x38));
+    sceVu0AddVector((void *)(*(int *)(sub + 0x24) * 0x50 + *(int *)(*(char **)(sub + 0x20) + 8) + 0x40),
                   (void *)(*(int *)(sub + 0x24) * 0x50 + *(int *)(*(char **)(sub + 0x20) + 8) + 0x40), buf);
-    func_00240008((void *)(*(int *)(sub + 0x28) * 0x50 + *(int *)(*(char **)(sub + 0x20) + 8) + 0x40),
+    sceVu0SubVector((void *)(*(int *)(sub + 0x28) * 0x50 + *(int *)(*(char **)(sub + 0x20) + 8) + 0x40),
                   (void *)(*(int *)(sub + 0x28) * 0x50 + *(int *)(*(char **)(sub + 0x20) + 8) + 0x40), buf);
     return 1;
 }

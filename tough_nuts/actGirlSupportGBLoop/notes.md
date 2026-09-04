@@ -1,7 +1,7 @@
-# actGirlSupportGBLoop — parked
+# isEnterHideadv — parked
 
 VRAM: 0x0016F720 (file_off 0x06F720)
-Asm source: asm/aug6/nonmatchings/fumi/src/girl_act/actGirlSupportGBLoop.s
+Asm source: asm/aug6/nonmatchings/fumi/src/girl_act/isEnterHideadv.s
 
 ## Attempt at 2026-06-20
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/girl_act/actGirlSupportGBLoop.s
 
 **TU:** `fumi/src/girl_act.c`
 
-**Seed:** `tough_nuts/actGirlSupportGBLoop/actGirlSupportGBLoop.c`
+**Seed:** `tough_nuts/isEnterHideadv/isEnterHideadv.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching actGirlSupportGBLoop, 0x114
+nonmatching isEnterHideadv, 0x114
 
-glabel actGirlSupportGBLoop
+glabel isEnterHideadv
     /* 6F720 0016F720 A0FFBD27 */  addiu      $29, $29, -0x60
     /* 6F724 0016F724 F491858F */  lw         $5, %gp_rel(D_00629DE4)($28)
     /* 6F728 0016F728 3000B1FF */  sd         $17, 0x30($29)
@@ -95,6 +95,6 @@ glabel actGirlSupportGBLoop
     /* 6F828 0016F828 2000B0DF */  ld         $16, 0x20($29)
     /* 6F82C 0016F82C 0800E003 */  jr         $31
     /* 6F830 0016F830 6000BD27 */   addiu     $29, $29, 0x60
-endlabel actGirlSupportGBLoop
+endlabel isEnterHideadv
     /* 6F834 0016F834 00000000 */  nop
 ```

@@ -169,7 +169,7 @@ int func_001BE0D8(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", func_001BE0E8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", func_001BE168);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", getAlign);
 
 #endif
 

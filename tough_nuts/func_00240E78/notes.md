@@ -1,7 +1,7 @@
-# func_00240E78 — parked
+# sceDmaPutStallAddr — parked
 
 VRAM: 0x00240E78 (file_off 0x140E78)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00240E78.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sceDmaPutStallAddr.s
 
 ## Attempt at 2026-06-04
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00240E78.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00240E78/func_00240E78.c`
+**Seed:** `tough_nuts/sceDmaPutStallAddr/sceDmaPutStallAddr.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00240E78, 0x28
+nonmatching sceDmaPutStallAddr, 0x28
 
-glabel func_00240E78
+glabel sceDmaPutStallAddr
     /* 140E78 00240E78 0010023C */  lui        $2, (0x1000E060 >> 16)
     /* 140E7C 00240E7C FFFF033C */  lui        $3, (0xFFFFFFFF >> 16)
     /* 140E80 00240E80 60E04234 */  ori        $2, $2, (0x1000E060 & 0xFFFF)
@@ -30,5 +30,5 @@ glabel func_00240E78
   .L00240E98:
     /* 140E98 00240E98 0800E003 */  jr         $31
     /* 140E9C 00240E9C 00000000 */   nop
-endlabel func_00240E78
+endlabel sceDmaPutStallAddr
 ```

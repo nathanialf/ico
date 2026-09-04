@@ -110,7 +110,7 @@ glabel SetRopeFixPoint
     /* E62EC 001E62EC 000042AE */   sw        $2, 0x0($18)
     /* E62F0 001E62F0 6100043C */  lui        $4, %hi(D_006128E0)
     /* E62F4 001E62F4 D028B026 */  addiu      $16, $21, %lo(D_006128D0)
-    /* E62F8 001E62F8 F290060C */  jal        debug_assertMessage
+    /* E62F8 001E62F8 F290060C */  jal        debug_StdPrintfDummy
     /* E62FC 001E62FC E0288424 */   addiu     $4, $4, %lo(D_006128E0)
     /* E6300 001E6300 2D200002 */  daddu      $4, $16, $0
     /* E6304 001E6304 40AB060C */  jal        func_001AAD00
@@ -118,7 +118,7 @@ glabel SetRopeFixPoint
     /* E630C 001E630C 6300063C */  lui        $6, %hi(D_0062D720)
     /* E6310 001E6310 2D200002 */  daddu      $4, $16, $0
     /* E6314 001E6314 20D7C624 */  addiu      $6, $6, %lo(D_0062D720)
-    /* E6318 001E6318 E080090C */  jal        func_00260380
+    /* E6318 001E6318 E080090C */  jal        __assert
     /* E631C 001E631C 33000524 */   addiu     $5, $0, 0x33
 .align 2
   .L001E6320:
@@ -141,7 +141,7 @@ glabel SetRopeFixPoint
     /* E6360 001E6360 1000A2FF */  sd         $2, 0x10($29)
     /* E6364 001E6364 1E14040C */  jal        func_00105078
     /* E6368 001E6368 1800A3FF */   sd        $3, 0x18($29)
-    /* E636C 001E636C 3E00090C */  jal        func_002400F8
+    /* E636C 001E636C 3E00090C */  jal        sceVu0UnitMatrix
     /* E6370 001E6370 2D204000 */   daddu     $4, $2, $0
     /* E6374 001E6374 040020C6 */  lwc1       $f0, 0x4($17)
     /* E6378 001E6378 2041013C */  lui        $1, (0x41200000 >> 16)
@@ -156,19 +156,19 @@ glabel SetRopeFixPoint
     /* E639C 001E639C 64000046 */  .word      0x46000064                    # cvt.w.s    $f1, $f0 # 00000000 <InstrIdType: CPU_COP1_FPUS>
     /* E63A0 001E63A0 00080444 */  mfc1       $4, $f1
     /* E63A4 001E63A4 00240400 */  sll        $4, $4, 16
-    /* E63A8 001E63A8 7013040C */  jal        func_00104DC0
+    /* E63A8 001E63A8 7013040C */  jal        MatrixDrive_RotMatrixY
     /* E63AC 001E63AC 03240400 */   sra       $4, $4, 16
     /* E63B0 001E63B0 1E14040C */  jal        func_00105078
     /* E63B4 001E63B4 2000B127 */   addiu     $17, $29, 0x20
     /* E63B8 001E63B8 2D284000 */  daddu      $5, $2, $0
     /* E63BC 001E63BC 2D202002 */  daddu      $4, $17, $0
-    /* E63C0 001E63C0 76FF080C */  jal        func_0023FDD8
+    /* E63C0 001E63C0 76FF080C */  jal        sceVu0ApplyMatrix
     /* E63C4 001E63C4 2D30A003 */   daddu     $6, $29, $0
     /* E63C8 001E63C8 1E14040C */  jal        func_00105078
     /* E63CC 001E63CC 3000B027 */   addiu     $16, $29, 0x30
     /* E63D0 001E63D0 2D200002 */  daddu      $4, $16, $0
     /* E63D4 001E63D4 2D284000 */  daddu      $5, $2, $0
-    /* E63D8 001E63D8 76FF080C */  jal        func_0023FDD8
+    /* E63D8 001E63D8 76FF080C */  jal        sceVu0ApplyMatrix
     /* E63DC 001E63DC 1000A627 */   addiu     $6, $29, 0x10
     /* E63E0 001E63E0 7E98050C */  jal        ClipWallBoxStop
     /* E63E4 001E63E4 2D202002 */   daddu     $4, $17, $0
@@ -176,7 +176,7 @@ glabel SetRopeFixPoint
     /* E63EC 001E63EC 0C004014 */  bnez       $2, .L001E6420
     /* E63F0 001E63F0 6100043C */   lui       $4, %hi(D_00612940)
     /* E63F4 001E63F4 D028B026 */  addiu      $16, $21, %lo(D_006128D0)
-    /* E63F8 001E63F8 F290060C */  jal        debug_assertMessage
+    /* E63F8 001E63F8 F290060C */  jal        debug_StdPrintfDummy
     /* E63FC 001E63FC 40298424 */   addiu     $4, $4, %lo(D_00612940)
     /* E6400 001E6400 2D200002 */  daddu      $4, $16, $0
     /* E6404 001E6404 40AB060C */  jal        func_001AAD00
@@ -184,7 +184,7 @@ glabel SetRopeFixPoint
     /* E640C 001E640C 6300063C */  lui        $6, %hi(D_0062D720)
     /* E6410 001E6410 2D200002 */  daddu      $4, $16, $0
     /* E6414 001E6414 20D7C624 */  addiu      $6, $6, %lo(D_0062D720)
-    /* E6418 001E6418 E080090C */  jal        func_00260380
+    /* E6418 001E6418 E080090C */  jal        __assert
     /* E641C 001E641C 45000524 */   addiu     $5, $0, 0x45
 .align 2
   .L001E6420:
@@ -446,7 +446,7 @@ glabel SetRopeFixPoint
     /* E62EC 001E62EC 000042AE */   sw        $2, 0x0($18)
     /* E62F0 001E62F0 6100043C */  lui        $4, %hi(D_006128E0)
     /* E62F4 001E62F4 D028B026 */  addiu      $16, $21, %lo(D_006128D0)
-    /* E62F8 001E62F8 F290060C */  jal        debug_assertMessage
+    /* E62F8 001E62F8 F290060C */  jal        debug_StdPrintfDummy
     /* E62FC 001E62FC E0288424 */   addiu     $4, $4, %lo(D_006128E0)
     /* E6300 001E6300 2D200002 */  daddu      $4, $16, $0
     /* E6304 001E6304 40AB060C */  jal        func_001AAD00
@@ -454,7 +454,7 @@ glabel SetRopeFixPoint
     /* E630C 001E630C 6300063C */  lui        $6, %hi(D_0062D720)
     /* E6310 001E6310 2D200002 */  daddu      $4, $16, $0
     /* E6314 001E6314 20D7C624 */  addiu      $6, $6, %lo(D_0062D720)
-    /* E6318 001E6318 E080090C */  jal        func_00260380
+    /* E6318 001E6318 E080090C */  jal        __assert
     /* E631C 001E631C 33000524 */   addiu     $5, $0, 0x33
 .align 2
   .L001E6320:
@@ -477,7 +477,7 @@ glabel SetRopeFixPoint
     /* E6360 001E6360 1000A2FF */  sd         $2, 0x10($29)
     /* E6364 001E6364 1E14040C */  jal        func_00105078
     /* E6368 001E6368 1800A3FF */   sd        $3, 0x18($29)
-    /* E636C 001E636C 3E00090C */  jal        func_002400F8
+    /* E636C 001E636C 3E00090C */  jal        sceVu0UnitMatrix
     /* E6370 001E6370 2D204000 */   daddu     $4, $2, $0
     /* E6374 001E6374 040020C6 */  lwc1       $f0, 0x4($17)
     /* E6378 001E6378 2041013C */  lui        $1, (0x41200000 >> 16)
@@ -492,19 +492,19 @@ glabel SetRopeFixPoint
     /* E639C 001E639C 64000046 */  .word      0x46000064                    # cvt.w.s    $f1, $f0 # 00000000 <InstrIdType: CPU_COP1_FPUS>
     /* E63A0 001E63A0 00080444 */  mfc1       $4, $f1
     /* E63A4 001E63A4 00240400 */  sll        $4, $4, 16
-    /* E63A8 001E63A8 7013040C */  jal        func_00104DC0
+    /* E63A8 001E63A8 7013040C */  jal        MatrixDrive_RotMatrixY
     /* E63AC 001E63AC 03240400 */   sra       $4, $4, 16
     /* E63B0 001E63B0 1E14040C */  jal        func_00105078
     /* E63B4 001E63B4 2000B127 */   addiu     $17, $29, 0x20
     /* E63B8 001E63B8 2D284000 */  daddu      $5, $2, $0
     /* E63BC 001E63BC 2D202002 */  daddu      $4, $17, $0
-    /* E63C0 001E63C0 76FF080C */  jal        func_0023FDD8
+    /* E63C0 001E63C0 76FF080C */  jal        sceVu0ApplyMatrix
     /* E63C4 001E63C4 2D30A003 */   daddu     $6, $29, $0
     /* E63C8 001E63C8 1E14040C */  jal        func_00105078
     /* E63CC 001E63CC 3000B027 */   addiu     $16, $29, 0x30
     /* E63D0 001E63D0 2D200002 */  daddu      $4, $16, $0
     /* E63D4 001E63D4 2D284000 */  daddu      $5, $2, $0
-    /* E63D8 001E63D8 76FF080C */  jal        func_0023FDD8
+    /* E63D8 001E63D8 76FF080C */  jal        sceVu0ApplyMatrix
     /* E63DC 001E63DC 1000A627 */   addiu     $6, $29, 0x10
     /* E63E0 001E63E0 7E98050C */  jal        ClipWallBoxStop
     /* E63E4 001E63E4 2D202002 */   daddu     $4, $17, $0
@@ -512,7 +512,7 @@ glabel SetRopeFixPoint
     /* E63EC 001E63EC 0C004014 */  bnez       $2, .L001E6420
     /* E63F0 001E63F0 6100043C */   lui       $4, %hi(D_00612940)
     /* E63F4 001E63F4 D028B026 */  addiu      $16, $21, %lo(D_006128D0)
-    /* E63F8 001E63F8 F290060C */  jal        debug_assertMessage
+    /* E63F8 001E63F8 F290060C */  jal        debug_StdPrintfDummy
     /* E63FC 001E63FC 40298424 */   addiu     $4, $4, %lo(D_00612940)
     /* E6400 001E6400 2D200002 */  daddu      $4, $16, $0
     /* E6404 001E6404 40AB060C */  jal        func_001AAD00
@@ -520,7 +520,7 @@ glabel SetRopeFixPoint
     /* E640C 001E640C 6300063C */  lui        $6, %hi(D_0062D720)
     /* E6410 001E6410 2D200002 */  daddu      $4, $16, $0
     /* E6414 001E6414 20D7C624 */  addiu      $6, $6, %lo(D_0062D720)
-    /* E6418 001E6418 E080090C */  jal        func_00260380
+    /* E6418 001E6418 E080090C */  jal        __assert
     /* E641C 001E641C 45000524 */   addiu     $5, $0, 0x45
 .align 2
   .L001E6420:

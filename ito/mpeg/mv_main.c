@@ -1,7 +1,7 @@
 #include "common.h"
 #include "mv_defs.h"
 
-extern void debug_assertMessage(char *fmt, int n);
+extern void debug_StdPrintfDummy(char *fmt, int n);
 extern int OtherStagePositionGet(void *a, void *b, void *c, void *d);
 extern int func_0019AE20(void);
 extern int D_0062AADC;
@@ -11,7 +11,7 @@ extern char D_006CDD00[];
 
 int switchThread(void *a0) {
     int rv;
-    debug_assertMessage("= %d =\n", D_0062AADC++);
+    debug_StdPrintfDummy("= %d =\n", D_0062AADC++);
     rv = OtherStagePositionGet(D_006D5ED0, D_006D5EC0, D_006CDD00, a0);
     func_0019AE20();
     return rv;

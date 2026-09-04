@@ -30,7 +30,7 @@ int GatherEffect_Set(int a0) {
 extern void *isysGObjSearchFromObjLayoutID(int id);
 extern void *InitParticleLayoutGeo(void *a0);
 extern char D_006CCE60[];
-extern void ico_m33_to_quat(int *a0, int a1);
+extern void pbga_start(int *a0, int a1);
 extern void mc_TransMicroCode(int a0, int a1);
 extern void GetInverseQuaternion(int a0, int a1);
 extern void playSEConditionID(int a0, int a1);
@@ -41,7 +41,7 @@ void GatherEffect_InqEnd(void *self) {
         void *g = InitParticleLayoutGeo(self);
         int index = *(int *)((char *)g + 0x60);
         char *entry = D_006CCE60 + index * 0x40;
-        ico_m33_to_quat((int *)entry, 0x1E0);
+        pbga_start((int *)entry, 0x1E0);
         mc_TransMicroCode(*(int *)entry + 0x20, (int)(entry + 0x20));
         GetInverseQuaternion(*(int *)entry + 0x30, (int)(entry + 0x10));
         entry[4] = 2;

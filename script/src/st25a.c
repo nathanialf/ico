@@ -7,19 +7,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenAppear);
 
 extern int *isysGObjSearchFromObjLayoutID(int x);
 extern void Generator_Mask(int *p);
-extern int *isysGObjSearchFromObjKindID_begin(int *p);
+extern int *isysGObjSearchFromObjKindID_next(int *p);
 
-void actSt25aQueenAppearChk(void)
+void scpMaskGeneratorAll(void)
 {
     int *p = isysGObjSearchFromObjLayoutID(0x21);
     while (p != 0) {
         Generator_Mask(p);
-        p = isysGObjSearchFromObjKindID_begin(p);
+        p = isysGObjSearchFromObjKindID_next(p);
     }
 }
 
 extern int *isysGObjAddHead(void);
-extern void iosOmBeforeFuncStandard(int a, int b, int c);
+extern void iosOmSendMail(int a, int b, int c);
 extern unsigned char D_002A0A90[];
 
 void actConte11(void)
@@ -28,7 +28,7 @@ void actConte11(void)
   int *p = isysGObjAddHead();
   if (p != 0)
   {
-    iosOmBeforeFuncStandard((int) p, 0x26, (int) p);
+    iosOmSendMail((int) p, 0x26, (int) p);
     new_var = (char *) D_002A0A90;
     *((unsigned short *) ((new_var + (p[0x8 / 4] * 0x4C)) + 0x42)) = 0;
   }
@@ -53,13 +53,13 @@ int actSt25aQueenDeadChk(void) {
     return isysGObjAddHead();
 }
 
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 extern void GetHeightOfFieldPlaneDifference(void *a0, void *a1, int a2, int a3, void *a4, float f12, float f13, float f14, float f15);
 extern void gflagOff(void *a0, int a1);
 
-void actConte13Jimaku(void *a0, int a1, void *a2, int a3) {
+void scpPlayMotNode(void *a0, int a1, void *a2, int a3) {
     float buf[4];
-    func_00260568(buf, 0, 0x10);
+    memset(buf, 0, 0x10);
     buf[3] = 1.0f;
     GetHeightOfFieldPlaneDifference(a0, a2, 0, a3, buf, 0.0f, 0.0f, 0.0f, 1.0f);
     gflagOff(a0, a1);
@@ -72,13 +72,13 @@ void BoySekikaTexScroll(void *a0, int a1) {
     *(int *)(p + 0x110) = ExecMotionOrient(a0, a1, p + 0x610);
 }
 
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
 extern void InitMotionRotElem(void *a0);
 
-void actSt25aGenerator(void *a0, float f12, float f13, float f14) {
+void scpPlayPosSet(void *a0, float f12, float f13, float f14) {
     float buf[4];
-    func_00260568(buf, 0, 0x10);
+    memset(buf, 0, 0x10);
     buf[0] = f12;
     buf[1] = f13;
     buf[2] = f14;
@@ -102,7 +102,7 @@ void actSt25aQueenTalk(void) {
 }
 
 extern int actItouQueenAttack(int a0, int a1, int a2, int a3, int a4, int a5);
-int actSt25aQueenDead(int a0, int a1, int a2) {
+int RequestStageChange(int a0, int a1, int a2) {
     return actItouQueenAttack(a0, a1, a2, 0, 0, 0);
 }
 
@@ -111,7 +111,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actItouQueenAttack);
 extern int D_00629DF0;
 extern void stgmgrForceSwitch(int a0, int a1, int a2, int a3);
 
-int actSwordEff(int a0, int a1, int a2, int a3)
+int RequestStageChangeSimple(int a0, int a1, int a2, int a3)
 {
     int ret = 0;
     a1 = a1 & 0xFF;
@@ -127,27 +127,27 @@ int actSwordEff(int a0, int a1, int a2, int a3)
     return ret;
 }
 
-extern void ACTGame_BeforeFunc(void *a0);
+extern void ACTGame_StageChangeGObjDirect(void *a0);
 extern void ACTGame_CommonLoop(void *a0);
 extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
 
 typedef struct { long long _0; long long _8; } SwordEffParam;
 extern SwordEffParam D_00554440;
 
-void actSwordEffXL(void *a0) {
+void RequestStageChangeDirect(void *a0) {
     SwordEffParam tmp;
-    ACTGame_BeforeFunc(a0);
+    ACTGame_StageChangeGObjDirect(a0);
     ACTGame_CommonLoop(a0);
     tmp = D_00554440;
     GetCylinderCollisionWithExceptOwnCollision(a0, &tmp);
-    iosOmBeforeFuncStandard((int)a0, 0x27, (int)a0);
+    iosOmSendMail((int)a0, 0x27, (int)a0);
 }
 
 extern float D_0062BA7C;
 extern int D_0062BA80, D_0062BA78;
 extern unsigned char D_0062BA88, D_0062BA89, D_0062BA8A;
 
-void actSt25aQueenBeforeChk(float a0, int a1, int a2, int a3) {
+void scpFadeOut(float a0, int a1, int a2, int a3) {
     D_0062BA78 = 1;
     D_0062BA7C = a0;
     D_0062BA80 = 1;
@@ -159,13 +159,13 @@ void actSt25aQueenBeforeChk(float a0, int a1, int a2, int a3) {
 extern int D_0062BA78;
 extern int D_0062BA80;
 
-void actConte11Jimaku(float a0) {
+void scpFadeIn(float a0) {
     D_0062BA78 = 1;
     D_0062BA7C = -a0;
     D_0062BA80 = 0;
 }
 
-int actSt25aQueenDeadEvent(void) {
+int scpFadeChk(void) {
     int g = D_0062BA78;
     if (g == 0) {
         goto ret0;
@@ -203,15 +203,15 @@ int func_0017BCE0(void) {
     return ACTGameCollisionOn() != 0;
 }
 
-int func_0017BD00(int a0, int a1) {
+int scpIsHangChainOptional(int a0, int a1) {
     int p = ACTGameCollisionOn();
     int ret = 0;
     if (p) ret = (*(int *)(p + 8) ^ a1) == 0;
     return ret;
 }
 
-extern float pac_DispQW(void);
-extern int func_002610F0(void);
+extern float _GetRandom(void);
+extern int rand(void);
 extern int IsActCharDead(void *p);
 extern void func_001B8470(int a0);
 extern void _ACTWait(int a0);
@@ -219,17 +219,17 @@ extern float D_00629164;
 struct DQW { float f0, f4, f8, fc, f10, f14; char _18[0x18]; int f30; };
 extern struct DQW D_002869B0;
 
-void func_0017BD40(int n, float a, float b, float c, float d) {
+void scpBornSpider(int n, float a, float b, float c, float d) {
     int i;
     float t1, t2;
     int r, dead;
     for (i = 0; i < n; i++) {
-        t1 = pac_DispQW();
+        t1 = _GetRandom();
         D_002869B0.f4 = b;
         D_002869B0.f0 = a + d * (t1 + t1 - 1.0f);
-        t2 = pac_DispQW();
+        t2 = _GetRandom();
         D_002869B0.f8 = c + d * (t2 + t2 - 1.0f);
-        r = func_002610F0();
+        r = rand();
         D_002869B0.f30 = 1;
         D_002869B0.f14 = (float)((r >> 4) & 0xFFFF) * D_00629164 * 3.0517578125e-05f;
         dead = IsActCharDead(&D_002869B0);
@@ -248,4 +248,4 @@ void func_0017BF18(char *a0, float x, float y, float z) {
     MatrixDrive_TurnObjectMatrix((void *)(p + 0x660), v);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BF50);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", scpWakeupItemWithBoundary);

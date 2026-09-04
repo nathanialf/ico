@@ -1,7 +1,7 @@
 extern int D_0062A308;
 extern char *D_0062BFB0;
 extern int D_0062BFB4;
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00551EB8[];
 extern char D_00551EE0[];
 extern char D_00551EF0[];
@@ -37,13 +37,13 @@ int isysGObjProcessAlloc(int a0, int a1, int a2, int a3, int a4, int a5) {
 
     if (i == count) {
         unsigned int j;
-        debug_assertMessage(D_00551EB8);
-        debug_assertMessage(D_00551EB8);
+        debug_StdPrintfDummy(D_00551EB8);
+        debug_StdPrintfDummy(D_00551EB8);
         j = 0;
         if (D_0062BFB4 != 0) {
             do {
                 int *e = (int *)(j * 0x94 + (int)D_0062BFB0);
-                debug_assertMessage(D_00551EE0, e[0], e[7], e[0x17]);
+                debug_StdPrintfDummy(D_00551EE0, e[0], e[7], e[0x17]);
                 j++;
             } while (j < D_0062BFB4);
         }
@@ -53,7 +53,7 @@ int isysGObjProcessAlloc(int a0, int a1, int a2, int a3, int a4, int a5) {
     }
 
     if (slot == 0) {
-        debug_assertMessage(D_00551EF0);
+        debug_StdPrintfDummy(D_00551EF0);
         return 0;
     }
 

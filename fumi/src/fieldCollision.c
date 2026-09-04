@@ -5,7 +5,7 @@ extern int (*jtbl_0062A6D0)(void *a0, int a1);
 extern int D_0062C024;
 
 extern int (*D_0062A6D4)(void *a0, int a1);
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00553250[];
 extern int ExecMotionOrient(int a0, int a1, int a2);
 extern void _ACTWait(int a0);
@@ -13,14 +13,14 @@ extern void _ACTWait(int a0);
 void MakeCollisionDependGObjList(volatile int a0) {
     int gobj = *(int *)(a0 + 0x164);
     int r;
-    debug_assertMessage(D_00553250);
+    debug_StdPrintfDummy(D_00553250);
     r = ExecMotionOrient(a0, 0xC, gobj + 0x610);
     *(int *)(gobj + 0x110) = r;
     *(int *)(r + 0x114) = 0;
     _ACTWait(0);
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void _ACTWait(int a0);
 extern char D_00553268[];
 
@@ -30,14 +30,14 @@ void GetReflectionElement(volatile unsigned int a0)
   int *new_var;
   int *s0;
   new_var = *((int **) (a0 + 0x164));
-  debug_assertMessage(D_00553268);
+  debug_StdPrintfDummy(D_00553268);
   s0 = new_var;
   s0[0x30 / 4] = 0x4;
   _ACTWait(0);
 }
 
 extern void *isysGObjSearchFromObjLayoutID(int a0);
-extern void *isysGObjSearchFromObjKindID_begin(void *a0);
+extern void *isysGObjSearchFromObjKindID_next(void *a0);
 void *clip_wall_1(void *a0) {
     void *obj = isysGObjSearchFromObjLayoutID(4);
     while (obj != 0) {
@@ -46,7 +46,7 @@ void *clip_wall_1(void *a0) {
             if (*(int *)(p + 0x30) == 0xF) return obj;
             if (*(int *)(p + 0x20) & 1) return obj;
         }
-        obj = isysGObjSearchFromObjKindID_begin(obj);
+        obj = isysGObjSearchFromObjKindID_next(obj);
     }
     return 0;
 }
@@ -54,7 +54,7 @@ void *clip_wall_1(void *a0) {
 typedef struct { char _[0x48]; unsigned int f48; } NestEntry;
 extern NestEntry D_002A0A90[];
 
-int clip_floor_1(int *a0) {
+int isEnemyHyde(int *a0) {
     NestEntry *t = D_002A0A90;
     int idx = a0[2];
     return ((t[idx].f48 >> 21) & 1) ^ 1;
@@ -82,12 +82,12 @@ void makeCollisionBlockTable(int a0) {
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", _Clip);
 
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
-extern float MatrixDrive_GetTurnZAngleYX(void *a0, void *a1);
-extern float func_001669D0(void *a0, void *a1);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
-extern void func_00240008(void *a0, void *a1, void *a2);
-extern void func_00240038(void *a0, void *a1, float a2);
-extern void func_00240968(void *a0, void *a1, float a2);
+extern float GetPointDistance(void *a0, void *a1);
+extern float GetDistanceFromPlane(void *a0, void *a1);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
 
 void __ClipWall(char *a0, float arg0, float arg1) {
     float buf0[4];
@@ -97,24 +97,24 @@ void __ClipWall(char *a0, float arg0, float arg1) {
 
     MatrixDrive_TurnObjectMatrix(L10, a0 + 0xA0);
     *(int *) &L10[3] = 0;
-    func_00240008(buf0, a0 + 0x10, a0);
-    func_00240038(a0 + 0x30, L10, -func_001669D0(L10, buf0));
-    func_0023FFF0(a0 + 0x40, buf0, a0 + 0x30);
-    func_00240968(a0 + 0x30, a0 + 0x30, arg1);
-    func_00240968(a0 + 0x40, a0 + 0x40, arg0);
-    func_0023FFF0(a0 + 0x60, a0 + 0x40, a0 + 0x30);
+    sceVu0SubVector(buf0, a0 + 0x10, a0);
+    sceVu0ScaleVector(a0 + 0x30, L10, -GetDistanceFromPlane(L10, buf0));
+    sceVu0AddVector(a0 + 0x40, buf0, a0 + 0x30);
+    sceVu0ScaleVectorXYZ(a0 + 0x30, a0 + 0x30, arg1);
+    sceVu0ScaleVectorXYZ(a0 + 0x40, a0 + 0x40, arg0);
+    sceVu0AddVector(a0 + 0x60, a0 + 0x40, a0 + 0x30);
     {
         float *p20 = L20;
-        z = MatrixDrive_GetTurnZAngleYX(a0 + 0x20, a0 + 0x10);
-        func_00240038(p20, a0 + 0x60, z / MatrixDrive_GetTurnZAngleYX(a0, a0 + 0x10));
-        func_0023FFF0(a0 + 0x50, a0 + 0x20, p20);
+        z = GetPointDistance(a0 + 0x20, a0 + 0x10);
+        sceVu0ScaleVector(p20, a0 + 0x60, z / GetPointDistance(a0, a0 + 0x10));
+        sceVu0AddVector(a0 + 0x50, a0 + 0x20, p20);
     }
 }
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", __ClipFloor);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DrawGObjWallCollision);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", clip_floor_1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DrawGObjFloorCollision);
 
@@ -140,18 +140,18 @@ void MakeExitAttributeIndex(void *a0) {
     GetEdgeOfFloor(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorByGObj);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DrawGObjWallCollision);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallDebug);
 
-extern int func_00260340(float f);
+extern int fptodp(float f);
 
 extern char D_005535C0[];
 
 void ClipWall(float *vec)
 {
-    return debug_assertMessage(D_005535C0, func_00260340(vec[0]),
-                         func_00260340(vec[1]), func_00260340(vec[2]));
+    return debug_StdPrintfDummy(D_005535C0, fptodp(vec[0]),
+                         fptodp(vec[1]), fptodp(vec[2]));
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallR);
@@ -176,7 +176,7 @@ void ClipWallFuchiHangWalkStop(void) {
     void *obj;
     int slot;
 
-    debug_assertMessage(D_005536F0, D_00629C60);
+    debug_StdPrintfDummy(D_005536F0, D_00629C60);
     D_0062C028 = 0;
     i = 0xF;
     do {
@@ -193,7 +193,7 @@ void ClipWallFuchiHangWalkStop(void) {
                 slot = *(int *)(entry + 0x60) & 0xF;
                 if (slot != 0) {
                     if (D_006A4BC0[slot] == 0) {
-                        debug_assertMessage(D_00553710, slot);
+                        debug_StdPrintfDummy(D_00553710, slot);
                         D_0062C028 = D_0062C028 + 1;
                         D_006A4BC0[slot] = entry;
                     }
@@ -206,7 +206,7 @@ void ClipWallFuchiHangWalkStop(void) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallField);
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorByGObj);
 
 int ClipWallEField(void *a0) {
     return jtbl_0062A6D0(a0, 0);
@@ -228,7 +228,7 @@ int ClipWallCheckCB(void *a0) {
     return jtbl_0062A6D0(a0, 0x7);
 }
 
-int ClipWallFieldCheckCB(void *a0) {
+int ClipWallField(void *a0) {
     return jtbl_0062A6D0(a0, 0x3);
 }
 
@@ -253,7 +253,7 @@ void ClipFloorCheckCB(void *a0, int a1) {
     jtbl_0062A6D0(a0, 8);
 }
 
-void ClipCollision(void *a0, int a1) {
+void ClipWallFieldCheckCB(void *a0, int a1) {
     D_0062C024 = a1;
     jtbl_0062A6D0(a0, 9);
 }
@@ -279,17 +279,17 @@ void GetOrientOfWall(void *a0, int a1) {
     D_0062A6D4(a0, 0x10);
 }
 
-extern void func_00240080(int *dst, int *src);
+extern void sceVu0CopyVector(int *dst, int *src);
 
-void SetSimplePlane(int *self)
+void ClipCollision(int *self)
 {
     int buf[4];
     int *p10 = self + 4;
-    func_00240080(buf, p10);
+    sceVu0CopyVector(buf, p10);
     jtbl_0062A6D0((int)self, 1);
-    func_00240080(p10, self + 8);
+    sceVu0CopyVector(p10, self + 8);
     D_0062A6D4((int)self, 0xC);
-    func_00240080(p10, buf);
+    sceVu0CopyVector(p10, buf);
 }
 
 

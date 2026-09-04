@@ -1,7 +1,7 @@
-# actGirlWalk — parked
+# HandMgr_Print — parked
 
 VRAM: 0x00171028 (file_off 0x071028)
-Asm source: asm/aug6/nonmatchings/fumi/src/girl_act/actGirlWalk.s
+Asm source: asm/aug6/nonmatchings/fumi/src/girl_act/HandMgr_Print.s
 
 ## Attempt at 2026-06-21
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/girl_act/actGirlWalk.s
 
 **TU:** `fumi/src/girl_act.c`
 
-**Seed:** `tough_nuts/actGirlWalk/actGirlWalk.c`
+**Seed:** `tough_nuts/HandMgr_Print/HandMgr_Print.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching actGirlWalk, 0x108
+nonmatching HandMgr_Print, 0x108
 
-glabel actGirlWalk
+glabel HandMgr_Print
     /* 71028 00171028 94A3838F */  lw         $3, %gp_rel(D_0062AF84)($28)
     /* 7102C 0017102C B0FFBD27 */  addiu      $29, $29, -0x50
     /* 71030 00171030 4000BFFF */  sd         $31, 0x40($29)
@@ -65,7 +65,7 @@ glabel actGirlWalk
     /* 710D8 001710D8 40004426 */  addiu      $4, $18, 0x40
     /* 710DC 001710DC 64000046 */  .word      0x46000064                    # cvt.w.s    $f1, $f0 # 00000000 <InstrIdType: CPU_COP1_FPUS>
     /* 710E0 001710E0 00081144 */  mfc1       $17, $f1
-    /* 710E4 001710E4 4247060C */  jal        HandCameraCorrect
+    /* 710E4 001710E4 4247060C */  jal        _RotyGV
     /* 710E8 001710E8 30004526 */   addiu     $5, $18, 0x30
     /* 710EC 001710EC 500040C6 */  lwc1       $f0, 0x50($18)
     /* 710F0 001710F0 FF0F063C */  lui        $6, (0xFFFFFFF >> 16)
@@ -86,7 +86,7 @@ glabel actGirlWalk
     /* 71124 00171124 1000B0DF */  ld         $16, 0x10($29)
     /* 71128 00171128 0800E003 */  jr         $31
     /* 7112C 0017112C 5000BD27 */   addiu     $29, $29, 0x50
-endlabel actGirlWalk
+endlabel HandMgr_Print
 ```
 
 ---
@@ -97,15 +97,15 @@ endlabel actGirlWalk
 
 **TU:** `fumi/src/girl_act.c`
 
-**Seed:** `tough_nuts/actGirlWalk/actGirlWalk.1.c`
+**Seed:** `tough_nuts/HandMgr_Print/HandMgr_Print.1.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching actGirlWalk, 0x108
+nonmatching HandMgr_Print, 0x108
 
-glabel actGirlWalk
+glabel HandMgr_Print
     /* 71028 00171028 94A3838F */  lw         $3, %gp_rel(D_0062AF84)($28)
     /* 7102C 0017102C B0FFBD27 */  addiu      $29, $29, -0x50
     /* 71030 00171030 4000BFFF */  sd         $31, 0x40($29)
@@ -153,7 +153,7 @@ glabel actGirlWalk
     /* 710D8 001710D8 40004426 */  addiu      $4, $18, 0x40
     /* 710DC 001710DC 64000046 */  .word      0x46000064                    # cvt.w.s    $f1, $f0 # 00000000 <InstrIdType: CPU_COP1_FPUS>
     /* 710E0 001710E0 00081144 */  mfc1       $17, $f1
-    /* 710E4 001710E4 4247060C */  jal        HandCameraCorrect
+    /* 710E4 001710E4 4247060C */  jal        _RotyGV
     /* 710E8 001710E8 30004526 */   addiu     $5, $18, 0x30
     /* 710EC 001710EC 500040C6 */  lwc1       $f0, 0x50($18)
     /* 710F0 001710F0 FF0F063C */  lui        $6, (0xFFFFFFF >> 16)
@@ -174,5 +174,5 @@ glabel actGirlWalk
     /* 71124 00171124 1000B0DF */  ld         $16, 0x10($29)
     /* 71128 00171128 0800E003 */  jr         $31
     /* 7112C 0017112C 5000BD27 */   addiu     $29, $29, 0x50
-endlabel actGirlWalk
+endlabel HandMgr_Print
 ```

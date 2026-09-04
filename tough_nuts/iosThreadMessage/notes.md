@@ -1,4 +1,4 @@
-# iosThreadMessage — parked (rc2, fumi/ios/thread)
+# Init_Player — parked (rc2, fumi/ios/thread)
 Struct-of-fnptr filler. rc12->9->8->5 (hand) -> rc2 (permuter: f0 store after if/else).
 Residual rc2 = same-TU %hi sharing: gcc emits ONE %hi base + addiu +offset for
 iosThreadStart/Stop/Init (all in thread.c) while ROM uses per-symbol %hi/%lo relocs.

@@ -1,3 +1,3 @@
-/* func_00260424 — NO recovered match. Still INCLUDE_ASM in common/src/PObj.c.
+/* memcmp — NO recovered match. Still INCLUDE_ASM in common/src/PObj.c.
  * The cancelled bulk-campaign snapshot captured only callers/context, not a
  * decompiled body. See notes.md for the disassembly. */

@@ -68,24 +68,24 @@ void actSt13cBmg1Chk(int a0) {
     buf[0] = a0;
 }
 
-extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void scpEffectStart(int *buf, int a1);
 extern void _ACTWait(int a0);
 extern long long D_00614B90[]; extern long long D_00614BA0[];
 void actSt13cConte04(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_00614B90[0]; long long v0b=D_00614BA0[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00614B90[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00614BA0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_00614B90[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_00614BA0[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
-extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void scpEffectStart(int *buf, int a1);
 extern void _ACTWait(int a0);
 extern long long D_00614BA0[]; extern long long D_00614B90[];
 void actSt13cConte04Jimaku(volatile int a0){ long long b1[2]; long long b2[2];
  long long v0a=D_00614BA0[0]; long long v0b=D_00614B90[0]; int i;
  for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00614BA0[1]; scpDispOffAllWithKind((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00614B90[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  case 0: b1[0]=v0a; b1[1]=D_00614BA0[1]; scpEffectStart((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_00614B90[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
 
 extern int D_00629DE8;
@@ -266,16 +266,16 @@ void func_00228950(volatile int a0) {
     _ACTWait(0);
 }
 
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void actSt13cEnemy(void) {
     if (func_00178DB0(0x107) != 0) {
-        AddWayPointTop(0x16, 1);
-        AddWayPointTop(0x17, 1);
+        SetWayGroupActive(0x16, 1);
+        SetWayGroupActive(0x17, 1);
         stage_KillPlayBgAnimation(0x157, 0, 0x59);
     } else {
-        AddWayPointTop(0x14, 1);
-        AddWayPointTop(0x15, 1);
+        SetWayGroupActive(0x14, 1);
+        SetWayGroupActive(0x15, 1);
         stage_KillPlayBgAnimation(0x157, 0, 0);
     }
 }
@@ -286,7 +286,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cEnemyNull);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void func_001790A8(int a0);
 extern void gflagOff(int a0, int a1);
-extern void actSt25aGenerator(int a0, float f0, float f1, float f2);
+extern void scpPlayPosSet(int a0, float f0, float f1, float f2);
 extern void func_00178E08(int a0);
 extern int D_0062BD70;
 extern int D_00271240[];
@@ -297,17 +297,17 @@ void actSt13cSekizo(volatile int a0){
     if (func_00178DB0(0x108) == 0) goto B00;
     if (D_00629DE8 == 0) goto B00;
     if (scpSleepSpiderGroupOne(D_00629DE8, 0x3000000) == 0) goto B00;
-    actSt25aGenerator(D_00629DE8, -196.0f, -72.0f, 62.0f);
+    scpPlayPosSet(D_00629DE8, -196.0f, -72.0f, 62.0f);
     func_001790A8(D_00629DE8);
     gflagOff(D_00629DE8, 0x202);
 B00:
     scpPlayStart(0x59, &D_0062BD70, 1, 1, 1);
     while (D_0062BD70 == 0) { _ACTWait(1); }
     stage_KillPlayBgAnimation(0x157, 1, 0x5A);
-    AddWayPointTop(0x14, 1);
-    AddWayPointTop(0x15, 1);
-    AddWayPointTop(0x16, 0);
-    AddWayPointTop(0x17, 0);
+    SetWayGroupActive(0x14, 1);
+    SetWayGroupActive(0x15, 1);
+    SetWayGroupActive(0x16, 0);
+    SetWayGroupActive(0x17, 0);
     func_00178E08(0x107);
     while (func_0012AA28(0x157, 0xB4, 1) == 0) { _ACTWait(1); }
     _ACTWait(1);

@@ -1,7 +1,7 @@
-# func_00253EC8 — parked
+# _dispRefImageField — parked
 
 VRAM: 0x00253EC8 (file_off 0x153EC8)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00253EC8.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_dispRefImageField.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00253EC8.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00253EC8/func_00253EC8.c`
+**Seed:** `tough_nuts/_dispRefImageField/_dispRefImageField.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00253EC8, 0x1C0
+nonmatching _dispRefImageField, 0x1C0
 
-glabel func_00253EC8
+glabel _dispRefImageField
     /* 153EC8 00253EC8 70FFBD27 */  addiu      $29, $29, -0x90
     /* 153ECC 00253ECC 5500023C */  lui        $2, %hi(D_0054C92C)
     /* 153ED0 00253ED0 5000B5FF */  sd         $21, 0x50($29)
@@ -53,7 +53,7 @@ glabel func_00253EC8
     /* 153F38 00253F38 01001024 */  addiu      $16, $0, 0x1
     /* 153F3C 00253F3C 2000C724 */  addiu      $7, $6, 0x20
     /* 153F40 00253F40 1000C524 */  addiu      $5, $6, 0x10
-    /* 153F44 00253F44 064F090C */  jal        func_00253C18
+    /* 153F44 00253F44 064F090C */  jal        _getPtsDtsFlags
     /* 153F48 00253F48 1800C624 */   addiu     $6, $6, 0x18
     /* 153F4C 00253F4C 64C7A68E */  lw         $6, %lo(D_0054C764)($21)
     /* 153F50 00253F50 2D208002 */  daddu      $4, $20, $0
@@ -62,7 +62,7 @@ glabel func_00253EC8
     /* 153F5C 00253F5C 2800C524 */  addiu      $5, $6, 0x28
     /* 153F60 00253F60 880030FE */  sd         $16, 0x88($17)
     /* 153F64 00253F64 800022AE */  sw         $2, 0x80($17)
-    /* 153F68 00253F68 064F090C */  jal        func_00253C18
+    /* 153F68 00253F68 064F090C */  jal        _getPtsDtsFlags
     /* 153F6C 00253F6C 3000C624 */   addiu     $6, $6, 0x30
     /* 153F70 00253F70 64C7A68E */  lw         $6, %lo(D_0054C764)($21)
     /* 153F74 00253F74 2D38E002 */  daddu      $7, $23, $0
@@ -87,7 +87,7 @@ glabel func_00253EC8
     /* 153FC0 00253FC0 5000628E */  lw         $2, 0x50($19)
     /* 153FC4 00253FC4 C00022AE */  sw         $2, 0xC0($17)
     /* 153FC8 00253FC8 5400838E */  lw         $3, 0x54($20)
-    /* 153FCC 00253FCC 544E090C */  jal        func_00253950
+    /* 153FCC 00253FCC 544E090C */  jal        _isOutSizeOK
     /* 153FD0 00253FD0 C40023AE */   sw        $3, 0xC4($17)
     /* 153FD4 00253FD4 21004010 */  beqz       $2, .L0025405C
     /* 153FD8 00253FD8 01000224 */   addiu     $2, $0, 0x1
@@ -103,13 +103,13 @@ glabel func_00253EC8
     /* 154000 00254000 B000238E */  lw         $3, 0xB0($17)
     /* 154004 00254004 05006010 */  beqz       $3, .L0025401C
     /* 154008 00254008 00000000 */   nop
-    /* 15400C 0025400C 5451090C */  jal        func_00254550
+    /* 15400C 0025400C 5451090C */  jal        _csc_storeRefImage
     /* 154010 00254010 2D204002 */   daddu     $4, $18, $0
     /* 154014 00254014 04000010 */  b          .L00254028
     /* 154018 00254018 1000428E */   lw        $2, 0x10($18)
 .align 2
   .L0025401C:
-    /* 15401C 0025401C 7C4E090C */  jal        func_002539F0
+    /* 15401C 0025401C 7C4E090C */  jal        _cpr8
     /* 154020 00254020 2D204002 */   daddu     $4, $18, $0
     /* 154024 00254024 1000428E */  lw         $2, 0x10($18)
 .align 2
@@ -125,7 +125,7 @@ glabel func_00253EC8
     /* 154048 00254048 2000B2DF */  ld         $18, 0x20($29)
     /* 15404C 0025404C 1000B1DF */  ld         $17, 0x10($29)
     /* 154050 00254050 0000B0DF */  ld         $16, 0x0($29)
-    /* 154054 00254054 F84E0908 */  j          func_00253BE0
+    /* 154054 00254054 F84E0908 */  j          _markOutput
     /* 154058 00254058 9000BD27 */   addiu     $29, $29, 0x90
 .align 2
   .L0025405C:
@@ -144,5 +144,5 @@ glabel func_00253EC8
     /* 15407C 0025407C 0000B0DF */  ld         $16, 0x0($29)
     /* 154080 00254080 0800E003 */  jr         $31
     /* 154084 00254084 9000BD27 */   addiu     $29, $29, 0x90
-endlabel func_00253EC8
+endlabel _dispRefImageField
 ```

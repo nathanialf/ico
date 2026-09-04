@@ -27,7 +27,7 @@ void getCallPoint(void *a0, int a1) {
 
 extern int IsActCharDead(void *);
 extern void *iosFree(int, int, void *, int);
-extern float pac_DispQW(void);
+extern float _GetRandom(void);
 extern void subAP1BrainMain(int, int);
 extern char D_00612A30[];
 extern float D_006296B0;
@@ -90,16 +90,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", DeleteSpiderFromLayoutGr
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", GetNearestOfLayoutSpiders);
 
-extern void func_001AB9F8(void *a0);
-extern void debug_assertMessage(char *fmt, int val);
+extern void gamesysObjInfoUniqDataSet(void *a0);
+extern void debug_StdPrintfDummy(char *fmt, int val);
 extern char D_0062D740[];
 
 void CheckSpidersInsideOfReviveRange(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
     SpiderGeo *q = *(SpiderGeo **)((char *)p + 0x7F0);
     *(int *)((char *)q + 0x3C) = 1;
-    func_001AB9F8(a0);
-    debug_assertMessage(D_0062D740, *(int *)((char *)a0 + 0x8));
+    gamesysObjInfoUniqDataSet(a0);
+    debug_StdPrintfDummy(D_0062D740, *(int *)((char *)a0 + 0x8));
 }
 
 int RestoreSpiderLayoutGeo(void *a0, int a1) {

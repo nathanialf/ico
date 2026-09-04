@@ -15,12 +15,12 @@ void actEnemyPickupBegin(volatile unsigned int a0)
 
     *(long long *)(*(char **)(*(char **)(a0 + 0x164) + 0x670) + 0x208) &= ~4LL;
     r0 = (void *)ContinueCorrectPosition((int)a0);
-    func_00191FD0(b10, (int)&D_0027E900, (int)r0);
+    _OrientXZGV(b10, (int)&D_0027E900, (int)r0);
     *(char **)(p + 0x14) = makeCollisionBlockTable;
     if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x670) + 0x1DC) != 3) {
         r0 = (void *)ContinueCorrectPosition(D_00629DE4);
         r1 = (void *)ContinueCorrectPosition((int)a0);
-        func_00191FD0((float *)(p + 0x100), (int)r0, (int)r1);
+        _OrientXZGV((float *)(p + 0x100), (int)r0, (int)r1);
         dispPlane((void *)a0, (float *)(p + 0x100));
     }
     for (;;) {
@@ -39,11 +39,11 @@ void actEnemyPickupBegin(volatile unsigned int a0)
         vec[2] = ((float *)ContinueCorrectPosition(D_00629DE4))[2];
         if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x670) + 0x1DC) == 3) {
             r0 = (void *)ContinueCorrectPosition(D_00629DE4);
-            func_00240008(buf80, r0, buf20);
+            sceVu0SubVector(buf80, r0, buf20);
             r0 = (void *)subCommonIdle((void *)a0);
             _OrientGV(buf40, r0);
             buf80[3] = 0.0f;
-            func_0023FDD8(buf80, buf40, buf80);
+            sceVu0ApplyMatrix(buf80, buf40, buf80);
             if (buf80[0] < 0.0f) {
                 if (!(-buf80[0] < 100.0f)) {
                     goto after;
@@ -69,7 +69,7 @@ void actEnemyPickupBegin(volatile unsigned int a0)
                 flag = 1;
             }
         } else {
-            HandyCamera_TargetMoveType((void *)a0, vec);
+            _DistSqGV((void *)a0, vec);
             m = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x670) + 0x1D8) * 45.0f;
             m *= *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x670) + 0x1D8) * 45.0f;
             if (vec[2] < m) {
@@ -78,12 +78,12 @@ void actEnemyPickupBegin(volatile unsigned int a0)
         }
     after:
         if (GetDifferenceFromWallUpperPlane((void *)a0) && flag) {
-            iosOmBeforeFuncStandard(D_00629DE4, 0x150, (void *)a0);
+            iosOmSendMail(D_00629DE4, 0x150, (void *)a0);
         }
         if (DisableChangeRootUpdateMode((void *)a0)) {
             r0 = (void *)ContinueCorrectPosition(D_00629DE4);
             r1 = (void *)ContinueCorrectPosition((int)a0);
-            func_00191FD0(vec, (int)r0, (int)r1);
+            _OrientXZGV(vec, (int)r0, (int)r1);
             funcCommonFallDircorrect((void *)a0, vec);
         }
         g = *(char **)(D_00629DE4 + 0x164);

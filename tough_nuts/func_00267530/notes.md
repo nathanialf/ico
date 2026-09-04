@@ -1,7 +1,7 @@
-# func_00267530 — parked
+# __smakebuf — parked
 
 VRAM: 0x00267530 (file_off 0x167530)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00267530.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/__smakebuf.s
 
 ## Attempt at 2026-06-30
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00267530.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00267530/func_00267530.c`
+**Seed:** `tough_nuts/__smakebuf/__smakebuf.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00267530, 0x150
+nonmatching __smakebuf, 0x150
 
-glabel func_00267530
+glabel __smakebuf
     /* 167530 00267530 50FFBD27 */  addiu      $29, $29, -0xB0
     /* 167534 00267534 7000B0FF */  sd         $16, 0x70($29)
     /* 167538 00267538 A000BFFF */  sd         $31, 0xA0($29)
@@ -60,9 +60,9 @@ glabel func_00267530
     /* 1675B4 002675B4 0020233A */  xori       $3, $17, 0x2000
     /* 1675B8 002675B8 09004414 */  bne        $2, $4, .L002675E0
     /* 1675BC 002675BC 0100712C */   sltiu     $17, $3, 0x1
-    /* 1675C0 002675C0 2700023C */  lui        $2, %hi(func_002699D0)
+    /* 1675C0 002675C0 2700023C */  lui        $2, %hi(__sseek)
     /* 1675C4 002675C4 2800038E */  lw         $3, 0x28($16)
-    /* 1675C8 002675C8 D0994224 */  addiu      $2, $2, %lo(func_002699D0)
+    /* 1675C8 002675C8 D0994224 */  addiu      $2, $2, %lo(__sseek)
     /* 1675CC 002675CC 05006214 */  bne        $3, $2, .L002675E4
     /* 1675D0 002675D0 0C000296 */   lhu       $2, 0xC($16)
     /* 1675D4 002675D4 4C0012AE */  sw         $18, 0x4C($16)
@@ -80,7 +80,7 @@ glabel func_00267530
 .align 2
   .L002675EC:
     /* 1675EC 002675EC 5400048E */  lw         $4, 0x54($16)
-    /* 1675F0 002675F0 369E090C */  jal        func_002678D8
+    /* 1675F0 002675F0 369E090C */  jal        _malloc_r
     /* 1675F4 002675F4 00040524 */   addiu     $5, $0, 0x400
     /* 1675F8 002675F8 2D284000 */  daddu      $5, $2, $0
     /* 1675FC 002675FC 0900A014 */  bnez       $5, .L00267624
@@ -122,5 +122,5 @@ glabel func_00267530
     /* 167674 00267674 7000B0DF */  ld         $16, 0x70($29)
     /* 167678 00267678 0800E003 */  jr         $31
     /* 16767C 0026767C B000BD27 */   addiu     $29, $29, 0xB0
-endlabel func_00267530
+endlabel __smakebuf
 ```

@@ -1,4 +1,4 @@
-/* fumi/ios/thread.c — iosThreadMessage parked seed (rc2, permuter-improved from rc5).
+/* fumi/ios/thread.c — Init_Player parked seed (rc2, permuter-improved from rc5).
    f0 store after the if/else (permuter-found). Residual rc2: gcc shares one %hi base
    for the same-TU symbols iosThreadStart/Stop/Init (addiu +offset) vs ROM's per-symbol
    %hi/%lo relocs — genuinely different bytes (ninja fails). Re-attack: force per-symbol
@@ -8,7 +8,7 @@ extern void iosThreadStop(unsigned char *a0);
 extern int iosThreadInit(void);
 extern int D_0062A4A8;
 
-void iosThreadMessage(void **a0) {
+void Init_Player(void **a0) {
     void *s = (void *)iosThreadStop;
     a0[2] = s;
     if (iosThreadStart) {

@@ -33,10 +33,10 @@ void actSt22aIntroChk(int a0) {
 }
 
 extern void *D_00629DE8;
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern void func_001790A8(void *a0);
 extern void *ContinueCorrectPosition(int a0);
-extern void func_00240008(void *a0, void *a1, void *a2);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern void gflagChk(int a0, void *a1);
 extern void BoySekikaTexScroll(int a0, int a1);
 typedef struct { long long _0; long long _8; } WpData16;
@@ -47,13 +47,13 @@ void actSt22aIntroSub(volatile int a0) {
     if (D_00629DE8 == 0) {
         _ACTWait(0);
     }
-    while (scpSleepEnemyOne(a0, (int)D_00629DE8, 200.0f) == 0) {
+    while (scpTriggerBall(a0, (int)D_00629DE8, 200.0f) == 0) {
         _ACTWait(1);
     }
     func_001790A8(D_00629DE8);
     _ACTWait(1);
     local10 = D_00614C10;
-    func_00240008(&local20, &local10, ContinueCorrectPosition((int)D_00629DE8));
+    sceVu0SubVector(&local20, &local10, ContinueCorrectPosition((int)D_00629DE8));
     gflagChk((int)D_00629DE8, &local20);
     BoySekikaTexScroll((int)D_00629DE8, 0xFB);
 }
@@ -143,7 +143,7 @@ void func_00230C00(int a0) {
 extern int actInitialize(int a0);
 extern int func_00178DB0(int a0);
 extern void actCreateSubThread(void *entry, int a1);
-extern void func_00230C70(int a0);
+extern void actSt13cSekizoJimakuEff(int a0);
 
 void func_00230C10(volatile int a0) {
     int x = a0;
@@ -152,10 +152,10 @@ void func_00230C10(volatile int a0) {
     while (func_00178DB0(0x1D) == 0) {
         _ACTWait(1);
     }
-    actCreateSubThread(func_00230C70, 0x15);
+    actCreateSubThread(actSt13cSekizoJimakuEff, 0x15);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230C70);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", actSt13cSekizoJimakuEff);
 
 extern int D_004CE240[];
 extern void actSt20aFenceUpChk2(int a0);
@@ -235,7 +235,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00231260);
 
 
 extern int scpKillSpiderGroup(int a0, int a1);
-extern void func_0017BF50(float a0, float a1, float a2, float a3);
+extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 extern void soundSeDefPitchSet(int a0);
 extern int func_0012A958(int a0);
@@ -255,7 +255,7 @@ void func_002313B0(volatile int a0) {
     }
     _ACTWait(0xF);
     actCreateSubThread(func_00231EE0, 0x15);
-    func_0017BF50(D_00629994, D_00629998, D_0062999C, 100.0f);
+    scpWakeupItemWithBoundary(D_00629994, D_00629998, D_0062999C, 100.0f);
     stage_KillPlayBgAnimation(0x6C, 1, 0);
     buf = D_00614D30;
     soundSeDefPlayWithVolumeRate(0x4AC, 0, (int)&buf, 1);

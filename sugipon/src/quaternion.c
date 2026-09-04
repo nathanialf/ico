@@ -9,11 +9,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", MultiCurrentQuaterni
 
 extern int D_00629E7C;
 extern int D_0065A5C0[];
-extern void func_0010E148(void *a0, void *a1, void *a2);
+extern void MultiQuaternion(void *a0, void *a1, void *a2);
 
 void InvertCurrentQuaternion(void *a0) {
     void *p = &D_0065A5C0[D_00629E7C * 4];
-    func_0010E148(p, p, a0);
+    MultiQuaternion(p, p, a0);
 }
 
 extern void RegularizeQuaternion(int a0, int a1);
@@ -47,7 +47,7 @@ void PushQuaternion(int a0) {
     func_0010E588(&D_0065A5C0[D_00629E7C * 4], (short)a0);
 }
 
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 extern void SetIdentityQuaternion(void);
 extern char D_0054E1B0[];
 extern char D_0054E1D8[];
@@ -55,14 +55,14 @@ extern char D_0054E1D8[];
 void InitQuaternionDrive(void) {
     int v = D_00629E7C;
     if (v < 0) {
-        debug_assertMessage(D_0054E1B0);
+        debug_StdPrintfDummy(D_0054E1B0);
         SetIdentityQuaternion();
         v = D_00629E7C;
     }
     v++;
     D_00629E7C = v;
     if (v >= 0x40) {
-        debug_assertMessage(D_0054E1D8);
+        debug_StdPrintfDummy(D_0054E1D8);
         v = 0x3F;
         D_00629E7C = v;
     }
@@ -127,12 +127,12 @@ void getQuaternionFromMatrix(char *a0, char *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetQuaternionFromMatrix);
 
-extern void func_00118AF0(void *a0, void *a1);
+extern void _TransposeMatrix(void *a0, void *a1);
 extern void GetQuaternionFromMatrix(void *a0, void *a1);
 void CopyQuaternion(void *a0, void *a1) {
     char local[0x40];
     register void *aa __asm__("$4");
-    func_00118AF0(local, a1);
+    _TransposeMatrix(local, a1);
     aa = a0;
     __asm__ volatile ("daddu $2,$sp,$0" :: "r"(aa));
     GetQuaternionFromMatrix(aa, local);
@@ -144,16 +144,16 @@ void GetInverseQuaternion(void *a0, void *a1) {
     MatrixDrive_TurnObjectMatrix(a0, a1);
 }
 
-extern void _PushVu0Registers(int a0, int a1, float f);
+extern void _ScaleVectorXYZ(int a0, int a1, float f);
 
 void RegularizeQuaternion(int a0, int a1)
 {
     GetInverseQuaternion(a0, a1);
-    _PushVu0Registers(a0, a1, -1.0f);
+    _ScaleVectorXYZ(a0, a1, -1.0f);
 }
 
-extern float func_00118048(float);
-extern void _InverseCurrentMatrix(void *a, void *b, float c);
+extern float _Sqrt(float);
+extern void _ScaleVector(void *a, void *b, float c);
 
 void GetSlerpQuaternionNoRegularize(void *a0) {
     register float d __asm__("$f12");
@@ -169,7 +169,7 @@ void GetSlerpQuaternionNoRegularize(void *a0) {
         "mtc1 $2, $f12\n"
         ".set reorder\n"
         : "=f"(d) : "r"(a0) : "$2");
-    _InverseCurrentMatrix(a0, a0, 1.0f / func_00118048(d));
+    _ScaleVector(a0, a0, 1.0f / _Sqrt(d));
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetSlerpQuaternion);

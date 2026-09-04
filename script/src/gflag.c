@@ -24,17 +24,17 @@ void gflagSave(void) {
 
 extern void InitCageFixGeo(int *p, float f12);
 extern int D_00554140[];
-extern void debug_assertMessage(int *a0);
+extern void debug_StdPrintfDummy(int *a0);
 
 void gflagLoad(float f12) {
     int *v = actSt25aQueenDeadChk();
     if (v) {
         InitCageFixGeo(v, f12);
     }
-    debug_assertMessage(D_00554140);
+    debug_StdPrintfDummy(D_00554140);
 }
 
-extern void func_0023FE98(int a0);
+extern void sceVu0Normalize(int a0);
 extern int dispPlane(int a0, int a1);
 
 void gflagChk(int a0, int a1)
@@ -42,7 +42,7 @@ void gflagChk(int a0, int a1)
     int new_var;
     new_var = 1;
     if (new_var) {
-        func_0023FE98(a1);
+        sceVu0Normalize(a1);
     }
     return dispPlane(a0, (0, a1));
 }
@@ -52,26 +52,26 @@ typedef struct { char _0[0x138]; int f_138; char _13C[0x54]; } MotionOrientRec; 
 extern MotionOrientRec D_0055DA10[];
 
 /* NEAR-MISS (rc6, W3 convergence). LOGIC + STRUCTURE fully recovered; residual is
- * the callee-saved s0/s1 register-swap tie (same class as func_0014A0B0). Dev shape:
+ * the callee-saved s0/s1 register-swap tie (same class as _GetRootObjectOrient). Dev shape:
  *   void gflagOn(void *a0, int a1) {
- *       func_0023FE98(a1);
+ *       sceVu0Normalize(a1);
  *       actCommonStoneDead(a0, a1,
  *           (float)D_0055DA10[*(int*)(*(int*)((char*)a0+0x15C)+0x490)].f_138);
  *   }
- * Matched: frame+s0/s1/ra saves, func_0023FE98(a1) with a1 in the jal delay,
+ * Matched: frame+s0/s1/ra saves, sceVu0Normalize(a1) with a1 in the jal delay,
  * a0->f_15C->f_490 index * 0x190 (mult), &D_0055DA10 + idx, lwc1 f_138 + cvt.s.w
  * (int->float), tail `j actCommonStoneDead(a0,a1,f)`. VALUES all correct. The ONLY
  * 6 diffs are the s0/s1 assignment: ROM saves a0->s1, a1->s0 (`daddu s1,a0` first);
  * gcc saves a1->s1, a0->s0 (`daddu s1,a1` first) because a1 is FIRST-used (the
- * func_0023FE98(a1) call). Computing the idx BEFORE the call flips the alloc to
+ * sceVu0Normalize(a1) call). Computing the idx BEFORE the call flips the alloc to
  * ROM's but reorders the deref ahead of the jal (rc24 - wrong structure). The tie
  * is symmetric and gcc breaks it opposite to ROM (identical residual to
- * func_0014A0B0). NEXT LEVER: make gcc save a0 (param 0) to s1 first while keeping
+ * _GetRootObjectOrient). NEXT LEVER: make gcc save a0 (param 0) to s1 first while keeping
  * a1's use as the first call and the deref after it. NOT a floor. */
 /* MECHANISM (W3 fan-3, -dg greg dump): rc6 s0/s1 swap is an allocno_compare
  * live_length tie. Dev shape (byte-identical schedule to ROM, only s0<->s1):
  *   void gflagOn(void *a0, int a1) {
- *       func_0023FE98(a1);
+ *       sceVu0Normalize(a1);
  *       actCommonStoneDead(a0, a1,
  *           (float)D_0055DA10[*(int*)(*(int*)((char*)a0+0x15C)+0x490)].f_138);
  *   }
@@ -83,7 +83,7 @@ extern MotionOrientRec D_0055DA10[];
  * structural; a0's =8 (deref-mid + tail). Adding a0/a1 copies (void*p=a0,
  * int b=a1, hoisted deref ptr) all COALESCE away -> live stays 8/10. Swapping
  * the param decl flips the disposition but mirror-swaps the semantics (WRONG).
- * This is the two_allocno_tie class (== func_0014A0B0): needs the ee-gcc2.9
+ * This is the two_allocno_tie class (== _GetRootObjectOrient): needs the ee-gcc2.9
  * rank_for_schedule/sched1 source to find the ordering lever that makes a0
  * live_length exceed a1 at global-alloc time (final schedule is identical, so
  * sched2 equalizes; the split lives in sched1). NOT a floor. */
@@ -92,7 +92,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagOn);
 
 
 extern void *isysGObjAddHead();
-extern void actCommonSlowrun(int a0, int a1);
+extern void ControlMotionOrient(int a0, int a1);
 extern int ExecMotionOrient(void *a0, int a1, int a2);
 extern void func_001E1A18(void *a0, int a1, int a2, int a3, int a4, int a5);
 extern void *D_00629DE4;
@@ -114,35 +114,35 @@ void gflagOff(void *a0, int a1) {
         func_001E1A18(a0, 0x705, 0x820, -1, -1, a1);
         return;
     }
-    actCommonSlowrun(state, a1);
+    ControlMotionOrient(state, a1);
     *(int *)(s3 + 0x110) = ExecMotionOrient(a0, 0xEA, s3 + 0x610);
 }
 
 
 extern void func_0014A110(void *a0);
-extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern void iosOmSendMail(void *a0, int a1, void *a2);
 
 void func_00179060(void *a0, int a1) {
     func_0014A110(a0);
     *(int *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x670) + 0xC0) = a1;
-    iosOmBeforeFuncStandard(a0, 0x2C, a0);
+    iosOmSendMail(a0, 0x2C, a0);
 }
 
 extern void func_0014A110(void *a0);
-extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern void iosOmSendMail(void *a0, int a1, void *a2);
 extern void func_001D1ED8(void *a0, int a1);
 
 void func_001790A8(void *a0) {
     func_0014A110(a0);
-    iosOmBeforeFuncStandard(a0, 0x2D, a0);
+    iosOmSendMail(a0, 0x2D, a0);
     func_001D1ED8(a0, 0);
 }
 
-extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern void iosOmSendMail(void *a0, int a1, void *a2);
 extern void func_001D1ED8(void *a0, int a1);
 
 void func_001790E8(void *a0) {
-    iosOmBeforeFuncStandard(a0, 0x2E, a0);
+    iosOmSendMail(a0, 0x2E, a0);
     func_001D1ED8(a0, 2);
 }
 
@@ -175,21 +175,21 @@ void func_00179F60(void *a0) {
 extern void *D_00629DE8;
 extern void *D_00629DE4;
 extern int D_00629C90;
-extern void func_001AB9B8(void *a0, int a1, int a2, int a3);
+extern void gamesysObjInfoPosSetStage(void *a0, int a1, int a2, int a3);
 extern int func_00178DB0(int a0);
 extern void func_00178DD8(int a0);
 extern void func_00178E08(int a0);
-extern void backStageProcessMain(void);
+extern void CheckPoint(void);
 
 void func_00179F88(void) {
     int s0;
     if (D_00629DE8) {
-        func_001AB9B8(D_00629DE8, *(int *)((char *)*(void **)((char *)D_00629DE8 + 0x164) + 0x434), 0, D_00629C90);
+        gamesysObjInfoPosSetStage(D_00629DE8, *(int *)((char *)*(void **)((char *)D_00629DE8 + 0x164) + 0x434), 0, D_00629C90);
     }
-    func_001AB9B8(D_00629DE4, *(int *)((char *)*(void **)((char *)D_00629DE4 + 0x164) + 0x434), 0, D_00629C90);
+    gamesysObjInfoPosSetStage(D_00629DE4, *(int *)((char *)*(void **)((char *)D_00629DE4 + 0x164) + 0x434), 0, D_00629C90);
     s0 = func_00178DB0(0x15B);
     func_00178DD8(0x15B);
-    backStageProcessMain();
+    CheckPoint();
     if (s0 == 0) {
         func_00178E08(0x15B);
     }
@@ -197,17 +197,17 @@ void func_00179F88(void) {
 
 extern void *isysGObjAddHead();
 
-void func_0017A008(void) {
+void scpWakeupEnemyOne(void) {
     void *p = isysGObjAddHead();
     if (p != 0) {
-        iosOmBeforeFuncStandard(p, 0x1F, p);
+        iosOmSendMail(p, 0x1F, p);
     }
 }
 
-void func_0017A040(void) {
+void scpSleepEnemyOne(void) {
     void *p = isysGObjAddHead();
     if (p != 0) {
-        iosOmBeforeFuncStandard(p, 0x20, p);
+        iosOmSendMail(p, 0x20, p);
     }
 }
 
@@ -240,24 +240,24 @@ typedef struct { char _0[0x24]; int f24; } Rec28_0F8;
 extern int D_00629C90;
 extern OuterRec0F8 D_005EBC48[];
 extern Rec28_0F8 D_0055A2D8[];
-extern void stgmgrForceSwitchWithFade(int a0);
+extern void stgmgrNextStagePreLoadForceStageSet(int a0);
 extern void backStageProcessOutStage(int a0);
 
 void func_0017A0F8(int a0) {
     short v = D_005EBC48[D_00629C90].arr[a0 - 1];
-    stgmgrForceSwitchWithFade(D_0055A2D8[v].f24);
+    stgmgrNextStagePreLoadForceStageSet(D_0055A2D8[v].f24);
     backStageProcessOutStage(1);
 }
 
 extern int isysGObjSearchFromObjLayoutID();
-extern int isysGObjSearchFromObjKindID_begin(int a0);
+extern int isysGObjSearchFromObjKindID_next(int a0);
 
-void func_0017A158(void)
+void scpDispOffAllWithKind(void)
 {
     int v0 = isysGObjSearchFromObjLayoutID();
     while (v0 != 0) {
         *(int *)(v0 + 0x50) = 0;
-        v0 = isysGObjSearchFromObjKindID_begin(v0);
+        v0 = isysGObjSearchFromObjKindID_next(v0);
     }
 }
 
@@ -270,7 +270,7 @@ void func_0017A198(int x)
   {
     new_var = (int) 0xFFFFFFFFU;
     p[0x50 / 4] = new_var;
-    p = isysGObjSearchFromObjKindID_begin(p);
+    p = isysGObjSearchFromObjKindID_next(p);
   }
 
 }
@@ -280,15 +280,15 @@ void func_0017A1E0(void)
     int *p = isysGObjSearchFromObjLayoutID();
     while (p != 0) {
         p[0x16C / 4] = 1;
-        p = isysGObjSearchFromObjKindID_begin(p);
+        p = isysGObjSearchFromObjKindID_next(p);
     }
 }
 
-void func_0017A220(void)
+void scpDisActivateAllWithKind(void)
 {
     int v0 = isysGObjSearchFromObjLayoutID();
     while (v0 != 0) {
         *(int *)(v0 + 0x16C) = 0;
-        v0 = isysGObjSearchFromObjKindID_begin(v0);
+        v0 = isysGObjSearchFromObjKindID_next(v0);
     }
 }

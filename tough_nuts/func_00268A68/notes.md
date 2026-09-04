@@ -1,7 +1,7 @@
-# func_00268A68 — parked
+# _lshift — parked
 
 VRAM: 0x00268A68 (file_off 0x168A68)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00268A68.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_lshift.s
 
 ## Attempt at 2026-07-04
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00268A68.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00268A68/func_00268A68.c`
+**Seed:** `tough_nuts/_lshift/_lshift.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00268A68, 0x178
+nonmatching _lshift, 0x178
 
-glabel func_00268A68
+glabel _lshift
     /* 168A68 00268A68 80FFBD27 */  addiu      $29, $29, -0x80
     /* 168A6C 00268A6C 6000B6FF */  sd         $22, 0x60($29)
     /* 168A70 00268A70 4000B4FF */  sd         $20, 0x40($29)
@@ -57,7 +57,7 @@ glabel func_00268A68
     /* 168AE8 00268AE8 14003226 */  addiu      $18, $17, 0x14
 .align 2
   .L00268AEC:
-    /* 168AEC 00268AEC A0A0090C */  jal        func_00268280
+    /* 168AEC 00268AEC A0A0090C */  jal        _Balloc
     /* 168AF0 00268AF0 2D20C002 */   daddu     $4, $22, $0
     /* 168AF4 00268AF4 2DA84000 */  daddu      $21, $2, $0
     /* 168AF8 00268AF8 0A00801A */  blez       $20, .L00268B24
@@ -117,7 +117,7 @@ glabel func_00268A68
   .L00268BA4:
     /* 168BA4 00268BA4 1000A5AE */  sw         $5, 0x10($21)
     /* 168BA8 00268BA8 2D20C002 */  daddu      $4, $22, $0
-    /* 168BAC 00268BAC CAA0090C */  jal        func_00268328
+    /* 168BAC 00268BAC CAA0090C */  jal        _Bfree
     /* 168BB0 00268BB0 2D282002 */   daddu     $5, $17, $0
     /* 168BB4 00268BB4 2D10A002 */  daddu      $2, $21, $0
     /* 168BB8 00268BB8 7000BFDF */  ld         $31, 0x70($29)
@@ -130,5 +130,5 @@ glabel func_00268A68
     /* 168BD4 00268BD4 0000B0DF */  ld         $16, 0x0($29)
     /* 168BD8 00268BD8 0800E003 */  jr         $31
     /* 168BDC 00268BDC 8000BD27 */   addiu     $29, $29, 0x80
-endlabel func_00268A68
+endlabel _lshift
 ```

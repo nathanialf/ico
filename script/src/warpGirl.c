@@ -39,7 +39,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", warpGirlInStage);
 extern void *D_00629DE4;
 extern float D_006C9220[];
 
-void warpGirlInit(float *a0) {
+void ScpCallCameraGetTarget(float *a0) {
     a0[0] = D_006C9220[0];
     a0[1] = D_006C9220[1];
     a0[2] = D_006C9220[2];
@@ -74,7 +74,7 @@ void func_0017C108(void) {
 extern void GetRootMatrixByDObj(void *a0, void *a1);
 extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
 
-void func_0017C130(void *a0, float f12, float f13, float f14) {
+void scpTransGObj(void *a0, float f12, float f13, float f14) {
     float buf[4];
     GetRootMatrixByDObj(buf, a0);
     buf[0] = buf[0] + f12;
@@ -84,23 +84,23 @@ void func_0017C130(void *a0, float f12, float f13, float f14) {
 }
 
 extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
 extern int Draw2DLineSeg_Start(void *o);
 extern int func_001D1438(void *o);
 extern void ItemDL(void *o);
 
-void func_0017C1B0(void) {
+void scpExplodeSecretItem(void) {
     void *o = isysGObjSearchFromObjLayoutID(0x13);
     while (o) {
         if (Draw2DLineSeg_Start(o) == 6 && func_001D1438(o) == 0) {
             ItemDL(o);
             return;
         }
-        o = isysGObjSearchFromObjKindID_begin(o);
+        o = isysGObjSearchFromObjKindID_next(o);
     }
 }
 
-extern float func_00149D00(int a0);
+extern float _ACTGame_GetParamF(int a0);
 extern int D_005542F0[];
 
 int func_0017C230(int self) {
@@ -108,7 +108,7 @@ int func_0017C230(int self) {
     for (i = 0; D_005542F0[i] != -1; i++) {
         if (*(int *)(self + 0xC) == D_005542F0[i]) {
             int sub = *(int *)(self + 0x15C);
-            if (func_00149D00(2) < *(float *)(sub + 0x550)) {
+            if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x550)) {
                 return 1;
             }
             if (*(int *)(*(int *)(self + 0x164) + 0x30) == 0x16) {
@@ -139,7 +139,7 @@ extern int scpSleepSpiderGroupOne(void *a0, int a1);
 extern int func_00178DB0(int a0);
 extern void func_00178DD8(int a0);
 extern void actCreateSubThread(void *fn, int a1);
-extern void MakeAttackPack_Actor(volatile int a0);
+extern void actConte11Jimaku(volatile int a0);
 extern void func_0017C658(volatile int a0);
 extern void AdpcmClose(int a0);
 extern void *D_00629DE4;
@@ -152,7 +152,7 @@ void func_0017C560(volatile int a0) {
         _ACTWait(1);
     }
     func_00178DD8(0x12D);
-    actCreateSubThread(MakeAttackPack_Actor, 0x15);
+    actCreateSubThread(actConte11Jimaku, 0x15);
     while (D_0062A8B0 == 0) {
         _ACTWait(1);
     }
@@ -172,14 +172,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017D318);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017D560);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DA68);
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", actConte13Jimaku);
 
-extern void func_0012FEC8(void *a0, float a1, float a2, float a3, float a4, float a5, float a6, int a7);
+extern void tex_SetUVScroll(void *a0, float a1, float a2, float a3, float a4, float a5, float a6, int a7);
 extern char D_00554540[];
 extern float D_00629198;
 
 void func_0017DC10(void) {
-    func_0012FEC8(D_00554540, 0.0f, 0.0f, 0.0f, D_00629198, 0.0f, 0.5f, 1);
+    tex_SetUVScroll(D_00554540, 0.0f, 0.0f, 0.0f, D_00629198, 0.0f, 0.5f, 1);
 }
 
 extern void Generator_Mask(int a0);
@@ -242,19 +242,19 @@ void func_0017DDD8(volatile int a0) {
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
-extern void scpTorchLightOn(int a0, int a1);
+extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 
 void func_0017DE40(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
-    scpTorchLightOn(0x76E, 0x1A6);
+    scpLinkBGAtoLayoutedTarget(0x76E, 0x1A6);
 }
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern int actItouQueenAttackChk(void);
-extern void scpTorchLightOn(int a0, int a1);
+extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void func_0017DE80(volatile int a0) {
@@ -262,7 +262,7 @@ void func_0017DE80(volatile int a0) {
     actInitialize(a0);
     _ACTWait(1);
     if (actItouQueenAttackChk() == 5) {
-        scpTorchLightOn(0x76E, 0x1A6);
+        scpLinkBGAtoLayoutedTarget(0x76E, 0x1A6);
     } else {
         stage_KillPlayBgAnimation(0x1A6, -1, -2);
     }

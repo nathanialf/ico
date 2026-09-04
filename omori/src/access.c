@@ -27,7 +27,7 @@ extern int scpSleepSpiderGroupOne(void *a0, int a1);
 extern void actCreateSubThread(void *fn, int a1);
 extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void func_00178E08(int a0);
 extern int func_0012A958(int a0);
 extern void func_002370D8(void);
@@ -53,7 +53,7 @@ void func_002361C0(volatile int a0) {
         }
     }
     stage_KillPlayBgAnimation(0x90, 1, 0);
-    AddWayPointTop(0x21, 0);
+    SetWayGroupActive(0x21, 0);
     func_00178E08(0x2C);
     while (func_0012A958(0x90) == 0) {
         _ACTWait(1);
@@ -73,7 +73,7 @@ extern int scpSleepSpiderGroupOne(void *a0, int a1);
 extern void actCreateSubThread(void *fn, int a1);
 extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void func_00178E08(int a0);
 extern int func_0012A958(int a0);
 extern void func_00237360(void);
@@ -95,7 +95,7 @@ void func_00236300(volatile int a0) {
         }
     }
     stage_KillPlayBgAnimation(0x92, 1, 0);
-    AddWayPointTop(0x22, 0);
+    SetWayGroupActive(0x22, 0);
     func_00178E08(0x2D);
     while (func_0012A958(0x92) == 0) {
         _ACTWait(1);

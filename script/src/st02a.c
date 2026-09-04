@@ -124,7 +124,7 @@ void actSt02aWaterFall(int a0) {
 }
 
 extern int scpSleepSpiderGroupOne(int a0, int a1);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern int D_00629DE8;
 extern int D_004CBBC0[];
 extern void actSt02aEne(volatile int a0);
@@ -138,7 +138,7 @@ void actSt02aBoxEvent2(volatile int a0) {
         if (scpSleepSpiderGroupOne(D_00629DE8, 0x1000000) != 0 && func_00178DB0(0x42) != 0) break;
         _ACTWait(1);
     }
-    AddWayPointTop(4, 1);
+    SetWayGroupActive(4, 1);
     D_004CBBC0[1] = (int)actSt02aEne;
     obj->unkB4 = D_004CBBC0;
     BoxBarSoundOn(a0, 0x189);
@@ -157,7 +157,7 @@ void actSt02aEne(volatile int a0) {
         if (scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) != 0 && func_00178DB0(0x42) != 0) break;
         _ACTWait(1);
     }
-    AddWayPointTop(4, 0);
+    SetWayGroupActive(4, 0);
     D_004CBBE0[1] = (int)actSt02aBoxEvent2;
     obj->unkB4 = D_004CBBE0;
     BoxBarSoundOn(a0, 0x189);
@@ -165,19 +165,19 @@ void actSt02aEne(volatile int a0) {
 }
 
 
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt02aEnemy1(void) {
     if (func_00178DB0(0x69) == 0) {
-        AddWayPointTop(0x1A, 0);
+        SetWayGroupActive(0x1A, 0);
         stage_KillPlayBgAnimation(0x54, 0, 0);
     } else {
         stage_KillPlayBgAnimation(0x54, 0, -1);
     }
 }
 
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern char *D_00629DE4;
 extern int D_004CBC00[];
 extern int D_004CBC20[];
@@ -188,9 +188,9 @@ void actSt02aEnemy2(volatile int a0) {
     int x = a0;
     GObj *gobj = (GObj *)actInitialize(a0);
     _ACTWait(1);
-    if (scpSleepEnemyOne(a0, (int)D_00629DE4, 200.0f) != 0) goto way;
+    if (scpTriggerBall(a0, (int)D_00629DE4, 200.0f) != 0) goto way;
     if (D_00629DE8 == 0) goto sekizo;
-    if (scpSleepEnemyOne(a0, (int)D_00629DE8, 400.0f) == 0) goto sekizo;
+    if (scpTriggerBall(a0, (int)D_00629DE8, 400.0f) == 0) goto sekizo;
 way:
     stage_KillPlayBgAnimation(0x53, 0, 0);
     _ACTWait(0x3C);
@@ -213,7 +213,7 @@ extern WpData16 D_006145A0;
 extern void actSt03tGene(void);
 extern int scpKillSpiderGroup(int a0, int a1);
 extern void actCreateSubThread(void *fn, int a1);
-extern void func_0017BF50(float a, float b, float c, float d);
+extern void scpWakeupItemWithBoundary(float a, float b, float c, float d);
 extern int soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
 extern void soundSeDefPitchSet(int a0);
 extern int func_0012A958(int a0);
@@ -228,7 +228,7 @@ void actSt02aSekizo(volatile int a0) {
     while (scpKillSpiderGroup(a0, 0x1000000) == 0) { _ACTWait(1); }
     _ACTWait(0xF);
     actCreateSubThread((void *)actSt03tGene, 0x15);
-    func_0017BF50(D_006297D8, -1072.0f, D_006297DC, 100.0f);
+    scpWakeupItemWithBoundary(D_006297D8, -1072.0f, D_006297DC, 100.0f);
     stage_KillPlayBgAnimation(0x52, 1, 0);
     buf = D_006145A0;
     soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);
@@ -250,9 +250,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aWay);
 
 
 extern int DebugDisp1CollisionWithColor(void *obj, int kind);
-extern int scpWakeupEnemyOne(void *a, void *b, float f);
+extern int scpTriggerPosBall(void *a, void *b, float f);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, float *a1);
-extern void scpDispOffAllWithKind(void *buf, int kind);
+extern void scpEffectStart(void *buf, int kind);
 extern void _ACTWait(int n);
 extern char *D_00629DE4;
 extern long long D_006145D0[];
@@ -263,17 +263,17 @@ void actSt02aTakiWay(volatile int a0){
  for(;;){
   idx=DebugDisp1CollisionWithColor(D_00629DE4,0x23);
   MatrixDrive_TurnObjectMatrix(buf2,(float*)(*(int*)(*(char**)(D_00629DE4+0x15C)+0xC)+(idx<<6)+0x30));
-  if(scpWakeupEnemyOne(&buf[0],buf2,100.0f)) scpDispOffAllWithKind(buf2,0x2F);
+  if(scpTriggerPosBall(&buf[0],buf2,100.0f)) scpEffectStart(buf2,0x2F);
   _ACTWait(0xA);
   idx=DebugDisp1CollisionWithColor(D_00629DE4,0x23);
   MatrixDrive_TurnObjectMatrix(buf2,(float*)(*(int*)(*(char**)(D_00629DE4+0x15C)+0xC)+(idx<<6)+0x30));
-  if(scpWakeupEnemyOne(&buf[2],buf2,100.0f)) scpDispOffAllWithKind(buf2,0x2F);
+  if(scpTriggerPosBall(&buf[2],buf2,100.0f)) scpEffectStart(buf2,0x2F);
   _ACTWait(0xA);
  } }
 
 extern int actSt25aQueenDeadChk(int a0);
 extern void func_001E6108(int a0);
-extern void func_0017C130(int a0, float b, float c, float d);
+extern void scpTransGObj(int a0, float b, float c, float d);
 extern void BoxGeo(int a0);
 
 void actSt02aSecretItem(volatile int a0) {
@@ -289,8 +289,8 @@ void actSt02aSecretItem(volatile int a0) {
     func_001E6108(actSt25aQueenDeadChk(0x638));
     func_001E6108(actSt25aQueenDeadChk(0x639));
     stage_KillPlayBgAnimation(0x162, -1, -2);
-    func_0017C130(actSt25aQueenDeadChk(0x626), 0.0f, -200.0f, 0.0f);
-    func_0017C130(actSt25aQueenDeadChk(0x628), 0.0f, -200.0f, 0.0f);
+    scpTransGObj(actSt25aQueenDeadChk(0x626), 0.0f, -200.0f, 0.0f);
+    scpTransGObj(actSt25aQueenDeadChk(0x628), 0.0f, -200.0f, 0.0f);
     _ACTWait(5);
     BoxGeo(actSt25aQueenDeadChk(0x626));
     BoxGeo(actSt25aQueenDeadChk(0x628));

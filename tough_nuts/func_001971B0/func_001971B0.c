@@ -23,7 +23,7 @@ void scale_m34(void) {
 
 extern void GatherEffect_Proc(int a0, void *a1, void *a2, void *a3, void *a4, float a5);
 extern void GetRootMatrixByDObj(void *a0, void *a1);
-extern void debug_assertMessage(char *a0, ...);
+extern void debug_StdPrintfDummy(char *a0, ...);
 extern char D_002724B0[];
 extern char D_00556780[];
 extern char D_00556790[];
@@ -51,14 +51,14 @@ void func_001971B0(char *self) {
                 flags[0] = 0;
                 break;
             case 0xD:
-                debug_assertMessage(D_00556780);
+                debug_StdPrintfDummy(D_00556780);
                 flags[2] = 1;
                 break;
             case 0x12:
                 {
                     int *r = *(int **)(D_00629DE4 + 0x164);
                     void *m = *(void **)((char *)r + 0x130);
-                    debug_assertMessage(D_00556790, m);
+                    debug_StdPrintfDummy(D_00556790, m);
                     if (entries[i].arg != 0 && m != 0) {
                         GetRootMatrixByDObj(buf, entries[i].arg);
                         GetRootMatrixByDObj(buf + 4, m);
@@ -84,7 +84,7 @@ extern char D_00556850[];
 extern char D_006CDC10[];
 extern char D_00287380[], D_00288A10[], D_00287E80[];
 extern void *iosFree(void *a0, int a1, char *a2, int a3);
-extern int func_00260568(void *a0, int a1, int a2);
+extern int memset(void *a0, int a1, int a2);
 extern int DispCloth4D(void *a0, void *a1, void *a2);
 extern void func_001E1A18(void *a0, int a1, int a2, int a3, int a4, int a5);
 extern void func_001D1ED8(void *a0, int a1);
@@ -96,7 +96,7 @@ void *func_00197EE0(void *self) {
     void *r = iosFree(D_0062A310, 0x18, D_00556850, 0x2C5);
     int i;
     int t;
-    func_00260568(r, 0, 0x18);
+    memset(r, 0, 0x18);
     for (i = 3; i >= 0; i--) {
         ((int *)D_006CDC10)[i] = 0;
     }
@@ -170,7 +170,7 @@ void QueenBarrierDL(void *self)
 }
 
 extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void *isysGObjSearchFromObjKindID_begin(void *a0);
+extern void *isysGObjSearchFromObjKindID_next(void *a0);
 
 void QueenBallGeo(void) {
     void *o1 = isysGObjSearchFromObjLayoutID(0x2E);
@@ -183,7 +183,7 @@ void QueenBallGeo(void) {
         int *p = *(int **)((char *)o + 0x15C);
         char *q = *(char **)((char *)p + 0x7F0);
         q[0x12] = 1;
-        o = isysGObjSearchFromObjKindID_begin(o);
+        o = isysGObjSearchFromObjKindID_next(o);
     }
 }
 
@@ -224,7 +224,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBoysWeaponPower);
 extern void *D_0062A310;
 extern char D_00556850[];
 extern void *iosFree(void *a0, int a1, char *a2, int a3);
-extern int func_00260568(void *a0, int a1, int a2);
+extern int memset(void *a0, int a1, int a2);
 extern void GetRootMatrixByDObj(void *a0, void *a1);
 extern void actInitialize(void *a0);
 extern void actInitialize_ext_charcter(void *a0);
@@ -233,7 +233,7 @@ extern void queen_barrier_set_damage(void);
 void *QueenBarrierRadius(void *self) {
     int *p = *(int **)((char *)self + 0x15C);
     void *r = iosFree(D_0062A310, 0x30, D_00556850, 0x3B5);
-    func_00260568(r, 0, 0x30);
+    memset(r, 0, 0x30);
     *(void **)((char *)p + 0x7F0) = r;
     *(float *)((char *)r + 0x14) = 300.0f;
     GetRootMatrixByDObj(r, self);
@@ -254,7 +254,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", queenBarrierBeforeFunc);
 extern void *D_0062A310;
 extern char D_00556850[];
 extern void *iosFree(void *a0, int a1, char *a2, int a3);
-extern int func_00260568(void *a0, int a1, int a2);
+extern int memset(void *a0, int a1, int a2);
 extern void GetRootMatrixByDObj(void *a0, void *a1);
 extern void actInitialize(void *a0);
 extern void actInitialize_ext_charcter(void *a0);
@@ -263,7 +263,7 @@ void *InitQueenBarrierGeo(void *self) {
     int *p = *(int **)((char *)self + 0x15C);
     void *r = iosFree(D_0062A310, 0x20, D_00556850, 0x4CE);
     *(void **)((char *)p + 0x7F0) = r;
-    func_00260568(r, 0, 0x20);
+    memset(r, 0, 0x20);
     *(int *)((char *)r + 0x14) = 0;
     GetRootMatrixByDObj(r, self);
     actInitialize(self);
@@ -275,11 +275,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBallRadius);
 
 extern int D_0062C0CC;
 extern char D_005568E0[];
-extern void debug_assertMessage(char *a0, ...);
+extern void debug_StdPrintfDummy(char *a0, ...);
 
 void queenBallBeforeFunc(void) {
     D_0062C0CC = 0x3C;
-    debug_assertMessage(D_005568E0);
+    debug_StdPrintfDummy(D_005568E0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", InitQueenBallGeo);

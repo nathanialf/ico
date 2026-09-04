@@ -2,28 +2,28 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", blur);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", auraInspireBefore);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", reduceWork2ToWork0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", reduceCopyAlphaChannelOfWork1ToWork0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", copyAlphaChannelOfWork0ToFeedBackArea);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", copyCurrentFBToFeedBackArea);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", pasteFullScreenFlare);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", blendWork0ToWork1);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", copyToWork_233);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", parallelAddFeedBackAreaToWork0);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", copyToWork2);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", blurBlendFeedBackAreaToWork1);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", pasteToFB);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", testAA);
 
-extern void _SetCurrentMatrix(int a0, void *a1);
+extern void _NormalizeVector(int a0, void *a1);
 extern int D_004C2250[];
 
 void subWork1ToCurrentFB(int a0) {
-    _SetCurrentMatrix(a0, D_004C2250);
+    _NormalizeVector(a0, D_004C2250);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", auraInspireAfter);
@@ -34,29 +34,29 @@ extern int D_004C2230[];
 extern int D_004C2240[];
 extern int D_004C2250[];
 extern int D_004C2260[];
-extern void _SetCurrentMatrix(int a0, void *a1);
-extern void _InverseCurrentMatrix(void *a0, void *a1, float f);
-extern void func_00118A70(void *a0, int a1, void *a2);
-extern void _PushVu0Registers(void *a0, void *a1, float f);
-extern void _RotTransPersCurrentMatrix(void *a0, void *a1, void *a2);
-extern void mc_SetMicroCode(void *a0, void *a1);
+extern void _NormalizeVector(int a0, void *a1);
+extern void _ScaleVector(void *a0, void *a1, float f);
+extern void _ApplyMatrix(void *a0, int a1, void *a2);
+extern void _ScaleVectorXYZ(void *a0, void *a1, float f);
+extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
+extern void _FTOI0Vector(void *a0, void *a1);
 
-void cleanUpFB(void) {
+void calcSun(void) {
     float buf[4];
-    _SetCurrentMatrix((int)buf, D_004C2250);
-    _InverseCurrentMatrix(buf, buf, D_006296BC);
+    _NormalizeVector((int)buf, D_004C2250);
+    _ScaleVector(buf, buf, D_006296BC);
     buf[3] = 1.0f;
-    func_00118A70(buf, D_00629C70 + 0x100, buf);
-    _PushVu0Registers(buf, buf, 1.0f / buf[3]);
-    _RotTransPersCurrentMatrix(buf, buf, D_004C2260);
-    mc_SetMicroCode(D_004C2230, buf);
-    func_00118A70(D_004C2240, D_00629C70 + 0x80, D_004C2250);
+    _ApplyMatrix(buf, D_00629C70 + 0x100, buf);
+    _ScaleVectorXYZ(buf, buf, 1.0f / buf[3]);
+    _AddVectorXYZ(buf, buf, D_004C2260);
+    _FTOI0Vector(D_004C2230, buf);
+    _ApplyMatrix(D_004C2240, D_00629C70 + 0x80, D_004C2250);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", fillWork2);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", colorSetting);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", dispSun);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", dispPostInfo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", pasteBackLightShadowToFB);
 
@@ -64,7 +64,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", makeMaskPatternToWor
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", makeFullScreenFlareBefore);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", reduceWork2ToWork0);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", InitStaticBlur);
 
 
 /* recovered struct shapes */

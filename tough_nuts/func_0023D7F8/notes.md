@@ -90,7 +90,7 @@ glabel func_0023D7F8
     /* 13D8FC 0023D8FC E0808424 */  addiu      $4, $4, %lo(D_006280E0)
     /* 13D900 0023D900 1000B1DF */  ld         $17, 0x10($29)
     /* 13D904 0023D904 0000B0DF */  ld         $16, 0x0($29)
-    /* 13D908 0023D908 F2900608 */  j          debug_assertMessage
+    /* 13D908 0023D908 F2900608 */  j          debug_StdPrintfDummy
     /* 13D90C 0023D90C 4000BD27 */   addiu     $29, $29, 0x40
 endlabel func_0023D7F8
 ```

@@ -1,7 +1,7 @@
-# func_00257C10 — parked
+# _SgContDump — parked
 
 VRAM: 0x00257C10 (file_off 0x157C10)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00257C10.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_SgContDump.s
 
 ## Attempt at 2026-06-20
 
@@ -9,22 +9,22 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00257C10.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00257C10/func_00257C10.c`
+**Seed:** `tough_nuts/_SgContDump/_SgContDump.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00257C10, 0x118
+nonmatching _SgContDump, 0x118
 
-glabel func_00257C10
+glabel _SgContDump
     /* 157C10 00257C10 C0FFBD27 */  addiu      $29, $29, -0x40
     /* 157C14 00257C14 1000B1FF */  sd         $17, 0x10($29)
     /* 157C18 00257C18 2D888000 */  daddu      $17, $4, $0
     /* 157C1C 00257C1C 2000B2FF */  sd         $18, 0x20($29)
     /* 157C20 00257C20 0000B0FF */  sd         $16, 0x0($29)
     /* 157C24 00257C24 3000BFFF */  sd         $31, 0x30($29)
-    /* 157C28 00257C28 F253090C */  jal        func_00254FC8
+    /* 157C28 00257C28 F253090C */  jal        _SgGetSlotContext
     /* 157C2C 00257C2C 2D200000 */   daddu     $4, $0, $0
     /* 157C30 00257C30 FE53090C */  jal        func_00254FF8
     /* 157C34 00257C34 2D804000 */   daddu     $16, $2, $0
@@ -98,5 +98,5 @@ glabel func_00257C10
     /* 157D1C 00257D1C 0000B0DF */  ld         $16, 0x0($29)
     /* 157D20 00257D20 0800E003 */  jr         $31
     /* 157D24 00257D24 4000BD27 */   addiu     $29, $29, 0x40
-endlabel func_00257C10
+endlabel _SgContDump
 ```

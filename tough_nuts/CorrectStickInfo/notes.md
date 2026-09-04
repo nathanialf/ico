@@ -31,7 +31,7 @@ glabel CorrectStickInfo
     /* 52AA0 00152AA0 6300063C */  lui        $6, %hi(D_0062C3F8)
     /* 52AA4 00152AA4 2D200002 */  daddu      $4, $16, $0
     /* 52AA8 00152AA8 F8C3C624 */  addiu      $6, $6, %lo(D_0062C3F8)
-    /* 52AAC 00152AAC E080090C */  jal        func_00260380
+    /* 52AAC 00152AAC E080090C */  jal        __assert
     /* 52AB0 00152AB0 03140524 */   addiu     $5, $0, 0x1403
     /* 52AB4 00152AB4 19000010 */  b          .L00152B1C
     /* 52AB8 00152AB8 2D100000 */   daddu     $2, $0, $0

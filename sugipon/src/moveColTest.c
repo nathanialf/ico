@@ -12,7 +12,7 @@ void InitMoveColTestGeo(void *a0) {
 
 extern int D_0062A310;
 extern short *iosFree(int handle, int size, char *file, int line);
-extern int func_002610F0(void);
+extern int rand(void);
 
 extern char D_006126C8[];
 
@@ -20,9 +20,9 @@ short *func_001E3BE8(int a0, int *self)
 {
     short *r = iosFree(D_0062A310, 12, (char *)D_006126C8, 0x1C);
     *(int *)r = self[0x30 / 4];
-    r[2] = (short)func_002610F0();
-    r[3] = (short)func_002610F0();
-    r[4] = (short)func_002610F0();
+    r[2] = (short)rand();
+    r[3] = (short)rand();
+    r[4] = (short)rand();
     r[5] = 0;
     return r;
 }

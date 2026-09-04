@@ -1,4 +1,4 @@
-int func_0025A0B0(unsigned char *a0)
+int SgStAdpcmOpen(unsigned char *a0)
 {
   unsigned char *s0 = a0;
   unsigned char *new_var;
@@ -38,6 +38,6 @@ int func_0025A0B0(unsigned char *a0)
   a1 |= a0m;
   a2 |= t1;
   ;
-  func_00255580(0x3E, a1, a2, t2 | a3);
+  _SgSetPkAdd(0x3E, a1, a2, t2 | a3);
   return 0;
 }

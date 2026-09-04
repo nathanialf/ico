@@ -1,15 +1,15 @@
-# pac_makeShapeTable — near-miss rc15 (structure 100% correct)
+# pac_closeTag — near-miss rc15 (structure 100% correct)
 
 Returns int. count = ((*(0x2C)&0x0FFFFFFF) - *(0x28)) >> 4. if count==1: zero
 fields 0x20/0x24/0x28 (ascending source order), return 0. Else:
 pac_makeMaterialTable(count); recompute n; q = (n-1)/div (div=*(0x30));
-pac_getTextureInfo(a0,a1,q); pac_makeMaterialTableLine(); head=*(0x20);
+pac_setGifTag(a0,a1,q); pac_makeMaterialTableLine(); head=*(0x20);
 *head=0; r=((c&mask)-(int)head)>>4<<4; head[1]=0 (RELOAD); D_0062BF40+=r;
 D_0062BF48+=1; return r.
 
 ## SOLVED levers
 - q zext (dsll32/dsrl32): `unsigned long long q = (n-1)/div` — 32-bit divu
-  result widened to 64-bit zero-extends. pac_getTextureInfo 3rd arg = `unsigned
+  result widened to 64-bit zero-extends. pac_setGifTag 3rd arg = `unsigned
   long long`. (gcc folds the zext unless q is widened to a 64-bit dest.)
 - tail reload of *(0x20) for head[1]=0: `volatile int * volatile *pp` forces the
   reload (matches EXP a2). base+0x20 is a DMA list pointer (cf. pac_makeMaterial*).

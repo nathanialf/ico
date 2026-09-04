@@ -87,7 +87,7 @@ glabel func_001E9370
     /* E9478 001E9478 2000A2B7 */  sdr        $2, 0x20($29)
     /* E947C 001E947C 2F00A3B3 */  sdl        $3, 0x2F($29)
     /* E9480 001E9480 2800A3B7 */  sdr        $3, 0x28($29)
-    /* E9484 001E9484 2E47040C */  jal        gif_SpriteOrg
+    /* E9484 001E9484 2E47040C */  jal        gif_SetGsReg
     /* E9488 001E9488 06000424 */   addiu     $4, $0, 0x6
     /* E948C 001E948C 2022448E */  lw         $4, %lo(D_004C2220)($18)
     /* E9490 001E9490 2D480000 */  daddu      $9, $0, $0
@@ -98,7 +98,7 @@ glabel func_001E9370
     /* E94A4 001E94A4 2D400000 */   daddu     $8, $0, $0
     /* E94A8 001E94A8 01000424 */  addiu      $4, $0, 0x1
     /* E94AC 001E94AC 05000524 */  addiu      $5, $0, 0x5
-    /* E94B0 001E94B0 D248040C */  jal        gsb_SetFrame
+    /* E94B0 001E94B0 D248040C */  jal        gif_SetAlpha
     /* E94B4 001E94B4 2D300000 */   daddu     $6, $0, $0
     /* E94B8 001E94B8 2D200002 */  daddu      $4, $16, $0
     /* E94BC 001E94BC 2D302002 */  daddu      $6, $17, $0

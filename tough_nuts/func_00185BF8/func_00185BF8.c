@@ -16,12 +16,12 @@ extern CamG D_006C9D50;
 extern int D_0062AA1C;
 extern char D_006C9DA0[]; /* saved block alias */
 extern float ClearHandCameraCorrect(float *a, float *b);
-extern void func_0023FFF0(void *dst, void *a, void *b);
-extern void func_00240008(float *a0, float *a1, float *a2);
-extern float MatrixDrive_GetTurnYAngleXZ(float a0);
-extern void func_0023FE98(void *a, void *b);
-extern void func_00240038_v(void *a, void *b, float s) __asm__("func_00240038");
-extern void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void sceVu0SubVector(float *a0, float *a1, float *a2);
+extern float FSqrt(float a0);
+extern void sceVu0Normalize(void *a, void *b);
+extern void func_00240038_v(void *a, void *b, float s) __asm__("sceVu0ScaleVector");
+extern void _InterGV(void *a0, void *a1, void *a2, float a3, float a4);
 extern float D_0062C058;
 extern float D_0062C05C;
 
@@ -55,8 +55,8 @@ void func_00185BF8(M48 *src, M48 *dst) {
     }
     *dst = *src;
 
-    func_00240008(b20, fs, D_006C9D50.saved.f);
-    ang = MatrixDrive_GetTurnYAngleXZ(b20[0] * b20[0] + b20[1] * b20[1] + b20[2] * b20[2]);
+    sceVu0SubVector(b20, fs, D_006C9D50.saved.f);
+    ang = FSqrt(b20[0] * b20[0] + b20[1] * b20[1] + b20[2] * b20[2]);
 
     if (D_0062C058 * 11.0f < ang) {
         float lim;
@@ -66,51 +66,51 @@ void func_00185BF8(M48 *src, M48 *dst) {
         lim = D_006C9D50.fA0;
         if (lim < ang) {
             ang = lim + D_0062C058 / 30.0f;
-            func_0023FE98(b20, b20);
+            sceVu0Normalize(b20, b20);
         } else {
             ang = D_0062C058;
-            func_0023FE98(b20, b20);
+            sceVu0Normalize(b20, b20);
         }
         func_00240038_v(b20, b20, ang);
-        func_0023FFF0(fd, D_006C9D50.saved.f, b20);
+        sceVu0AddVector(fd, D_006C9D50.saved.f, b20);
     } else {
         int n;
-        _OrientXZGV(fd, fs, D_006C9D50.saved.f, 10.0f, 1.0f);
+        _InterGV(fd, fs, D_006C9D50.saved.f, 10.0f, 1.0f);
         for (n = 2; n >= 0; n--) {
             __asm__ __volatile__("");
         }
     }
 
-    func_00240008(b30, fd, (float *)D_006C9DA0);
-    ang = MatrixDrive_GetTurnYAngleXZ(b30[0] * b30[0] + b30[1] * b30[1] + b30[2] * b30[2]);
+    sceVu0SubVector(b30, fd, (float *)D_006C9DA0);
+    ang = FSqrt(b30[0] * b30[0] + b30[1] * b30[1] + b30[2] * b30[2]);
     D_006C9D50.fA0 = ang;
     s = D_0062C05C;
     if (s < 0.0f) {
         s = -s;
     }
 
-    func_00240008(b40, fs + 4, (float *)(D_006C9DA0 + 0x10));
-    ang = MatrixDrive_GetTurnYAngleXZ(b40[0] * b40[0] + b40[1] * b40[1] + b40[2] * b40[2]);
-    func_0023FE98(b40, b40);
+    sceVu0SubVector(b40, fs + 4, (float *)(D_006C9DA0 + 0x10));
+    ang = FSqrt(b40[0] * b40[0] + b40[1] * b40[1] + b40[2] * b40[2]);
+    sceVu0Normalize(b40, b40);
     if (s * 9.0f < ang) {
         D_006C9D50.fA4 = D_006C9D50.fA4 + 0.5f;
         if (s < D_006C9D50.fA4) {
             D_006C9D50.fA4 = s;
         }
         func_00240038_v(b40, b40, D_006C9D50.fA4);
-        func_0023FFF0(fd + 4, (float *)(D_006C9DA0 + 0x10), b40);
+        sceVu0AddVector(fd + 4, (float *)(D_006C9DA0 + 0x10), b40);
     } else {
-        _OrientXZGV(fd + 4, fs + 4, (float *)(D_006C9DA0 + 0x10), 8.0f, 1.0f);
-        func_00240008(b40, fd + 4, (float *)(D_006C9DA0 + 0x10));
-        ang = MatrixDrive_GetTurnYAngleXZ(b40[0] * b40[0] + b40[1] * b40[1] + b40[2] * b40[2]);
+        _InterGV(fd + 4, fs + 4, (float *)(D_006C9DA0 + 0x10), 8.0f, 1.0f);
+        sceVu0SubVector(b40, fd + 4, (float *)(D_006C9DA0 + 0x10));
+        ang = FSqrt(b40[0] * b40[0] + b40[1] * b40[1] + b40[2] * b40[2]);
         if (s < ang) {
             ang = s;
         }
-        func_0023FE98(b40, b40);
+        sceVu0Normalize(b40, b40);
         func_00240038_v(b40, b40, ang);
-        func_0023FFF0(fd + 4, (float *)(D_006C9DA0 + 0x10), b40);
-        func_00240008(b50, fd + 4, (float *)(D_006C9DA0 + 0x10));
-        ang = MatrixDrive_GetTurnYAngleXZ(b50[0] * b50[0] + b50[1] * b50[1] + b50[2] * b50[2]);
+        sceVu0AddVector(fd + 4, (float *)(D_006C9DA0 + 0x10), b40);
+        sceVu0SubVector(b50, fd + 4, (float *)(D_006C9DA0 + 0x10));
+        ang = FSqrt(b50[0] * b50[0] + b50[1] * b50[1] + b50[2] * b50[2]);
         t = ang;
         if (s < ang) {
             t = s;

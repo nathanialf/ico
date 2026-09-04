@@ -12,9 +12,9 @@ extern char D_006117C8[];
 extern char D_00611700[];
 extern char D_005CD670[][0x3C];
 extern void soundSeDefPlayWithVolumeRate(int se, unsigned int a1, int a2, int a3);
-extern void debug_assertMessage(char *fmt, ...);
+extern void debug_StdPrintfDummy(char *fmt, ...);
 
-void playSE(int a0) {
+void executeSEPackageWithNoGObj(int a0) {
     int *p;
     int n;
     int stride = 12;
@@ -27,14 +27,14 @@ void playSE(int a0) {
         i++;
     }
     if (flag) {
-        debug_assertMessage(D_006117C8, flag);
+        debug_StdPrintfDummy(D_006117C8, flag);
     }
     p = (int *)&D_00535F68[i];
     for (n = 1; n >= 0; n--) {
         if (*p != 0) {
             soundSeDefPlayWithVolumeRate(*p, 0xFFFFFFFF, 0, 1);
             if (D_0062AF94) {
-                debug_assertMessage(D_00611700, D_005CD670[*p], 0xFFFFFFFF);
+                debug_StdPrintfDummy(D_00611700, D_005CD670[*p], 0xFFFFFFFF);
             }
         }
         p++;
@@ -43,14 +43,14 @@ void playSE(int a0) {
 
 extern float D_0062B6B4;
 extern void func_001CE340(int a0, int a1, int a2);
-extern void playSE(int a0);
+extern void executeSEPackageWithNoGObj(int a0);
 
 void playSERandomID(int a0, int a1, int a2) {
     D_0062B6B4 = 1.0f;
     if (a0) {
         func_001CE340(a0, a1, a2);
     } else {
-        playSE(a1);
+        executeSEPackageWithNoGObj(a1);
     }
 }
 
@@ -63,7 +63,7 @@ void playSEConditionID(int a0, int a1) {
 extern float D_0062B6B4;
 extern void func_001CE340(int a0, int a1, int a2);
 
-void playEff(int a0, int a1, float f) {
+void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f) {
     D_0062B6B4 = f;
     func_001CE340(a0, a1, 0);
 }
@@ -96,7 +96,7 @@ extern int GetFlyLimitHeight(void);
 extern int GetFlyLimitClearance(int a0);
 extern int func_001CDBB0(int a0);
 
-int executeSEPackageWithNoGObj(int a0) {
+int execSE(int a0) {
     if (a0 <= 0xFFFF) {
         return GetFlyLimitHeight();
     } else if (a0 <= 0x1FFFF) {
@@ -111,7 +111,7 @@ int ExecuteSEPackageWithGroupVariation(void *a0, int a1) {
     return (int)(*(float *)((char *)p + 0x634)) < a1;
 }
 
-int ExecuteSEPackage(void *a0, int a1) {
+int checkModelDataID(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
     return p[0x21] == a1;
 }

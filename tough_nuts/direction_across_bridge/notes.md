@@ -33,7 +33,7 @@ glabel direction_across_bridge
     /* 785B8 001785B8 E000B1FF */  sd         $17, 0xE0($29)
     /* 785BC 001785BC 3801B5E7 */  swc1       $f21, 0x138($29)
     /* 785C0 001785C0 3001B4E7 */  swc1       $f20, 0x130($29)
-    /* 785C4 001785C4 B80B080C */  jal        CloseWayGroup
+    /* 785C4 001785C4 B80B080C */  jal        WayPointList_begin
     /* 785C8 001785C8 8000A0E7 */   swc1      $f0, 0x80($29)
     /* 785CC 001785CC 608596C7 */  lwc1       $f22, %gp_rel(D_00629150)($28)
     /* 785D0 001785D0 2D804000 */  daddu      $16, $2, $0
@@ -46,7 +46,7 @@ glabel direction_across_bridge
   .L001785E8:
     /* 785E8 001785E8 2D20A003 */  daddu      $4, $29, $0
     /* 785EC 001785EC 2D282002 */  daddu      $5, $17, $0
-    /* 785F0 001785F0 0200090C */  jal        func_00240008
+    /* 785F0 001785F0 0200090C */  jal        sceVu0SubVector
     /* 785F4 001785F4 2D306002 */   daddu     $6, $19, $0
     /* 785F8 001785F8 4AA0050C */  jal        func_00168128
     /* 785FC 001785FC 2D20A003 */   daddu     $4, $29, $0
@@ -55,10 +55,10 @@ glabel direction_across_bridge
     /* 78608 00178608 00000000 */  nop
     /* 7860C 0017860C 13000045 */  bc1f       .L0017865C
     /* 78610 00178610 2D204002 */   daddu     $4, $18, $0
-    /* 78614 00178614 2000090C */  jal        func_00240080
+    /* 78614 00178614 2000090C */  jal        sceVu0CopyVector
     /* 78618 00178618 2D286002 */   daddu     $5, $19, $0
     /* 7861C 0017861C 2D282002 */  daddu      $5, $17, $0
-    /* 78620 00178620 2000090C */  jal        func_00240080
+    /* 78620 00178620 2000090C */  jal        sceVu0CopyVector
     /* 78624 00178624 2000A427 */   addiu     $4, $29, 0x20
     /* 78628 00178628 1400A1C7 */  lwc1       $f1, 0x14($29)
     /* 7862C 0017862C 2D204002 */  daddu      $4, $18, $0
@@ -75,7 +75,7 @@ glabel direction_across_bridge
     /* 78658 00178658 2DA00002 */  daddu      $20, $16, $0
 .align 2
   .L0017865C:
-    /* 7865C 0017865C C00B080C */  jal        CreateWayPoint
+    /* 7865C 0017865C C00B080C */  jal        WayPointList_next
     /* 78660 00178660 2D200002 */   daddu     $4, $16, $0
     /* 78664 00178664 2D804000 */  daddu      $16, $2, $0
     /* 78668 00178668 DFFF0016 */  bnez       $16, .L001785E8

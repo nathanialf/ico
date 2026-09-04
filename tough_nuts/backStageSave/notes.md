@@ -11,7 +11,7 @@ mid-grind; NOT a floor — clearly progressing (rc165→162) with known next lev
 - **disp_memory_partition_bar (0x1ABA60, icoMisc) convention:** reads exactly 5
   register args `(int line, int flags, int val, void *p1, void *p2)` — verified it
   reads only $4-$8, no $9-$11, no incoming stack. Call1 passes an extra 6th 16-byte
-  by-value struct (zeroed via func_00260568, 3 floats from `D_002A0A90+0x3862C`
+  by-value struct (zeroed via memset, 3 floats from `D_002A0A90+0x3862C`
   set, 4th=pad) that disp IGNORES. Call2 passes `p1=&vec`, `p2=sp+0x10`. So disp is
   effectively K&R/unprototyped (call1=6 args, call2=5).
 

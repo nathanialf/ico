@@ -30,7 +30,7 @@ glabel func_0013D718
     /* 3D73C 0013D73C 7000BFFF */  sd         $31, 0x70($29)
     /* 3D740 0013D740 01001424 */  addiu      $20, $0, 0x1
     /* 3D744 0013D744 2000B1FF */  sd         $17, 0x20($29)
-    /* 3D748 0013D748 F290060C */  jal        debug_assertMessage
+    /* 3D748 0013D748 F290060C */  jal        debug_StdPrintfDummy
     /* 3D74C 0013D74C 1000B0FF */   sd        $16, 0x10($29)
     /* 3D750 0013D750 B00E6426 */  addiu      $4, $19, %lo(D_006A0EB0)
     /* 3D754 0013D754 B0B38527 */  addiu      $5, $28, %gp_rel(D_0062BFA0)
@@ -50,12 +50,12 @@ glabel func_0013D718
     /* 3D784 0013D784 FFFF6324 */  addiu      $3, $3, -0x1
     /* 3D788 0013D788 3000508C */  lw         $16, 0x30($2)
     /* 3D78C 0013D78C 2D286000 */  daddu      $5, $3, $0
-    /* 3D790 0013D790 F290060C */  jal        debug_assertMessage
+    /* 3D790 0013D790 F290060C */  jal        debug_StdPrintfDummy
     /* 3D794 0013D794 C09883AF */   sw        $3, %gp_rel(D_0062A4B0)($28)
     /* 3D798 0013D798 80881000 */  sll        $17, $16, 2
-    /* 3D79C 0013D79C DC00040C */  jal        func_00100370
+    /* 3D79C 0013D79C DC00040C */  jal        TerminateThread
     /* 3D7A0 0013D7A0 2D200002 */   daddu     $4, $16, $0
-    /* 3D7A4 0013D7A4 CC00040C */  jal        func_00100330
+    /* 3D7A4 0013D7A4 CC00040C */  jal        DeleteThread
     /* 3D7A8 0013D7A8 2D200002 */   daddu     $4, $16, $0
     /* 3D7AC 0013D7AC 0000A38F */  lw         $3, 0x0($29)
     /* 3D7B0 0013D7B0 3C00628C */  lw         $2, 0x3C($3)
@@ -118,7 +118,7 @@ glabel func_0013D718
     /* 3D73C 0013D73C 7000BFFF */  sd         $31, 0x70($29)
     /* 3D740 0013D740 01001424 */  addiu      $20, $0, 0x1
     /* 3D744 0013D744 2000B1FF */  sd         $17, 0x20($29)
-    /* 3D748 0013D748 F290060C */  jal        debug_assertMessage
+    /* 3D748 0013D748 F290060C */  jal        debug_StdPrintfDummy
     /* 3D74C 0013D74C 1000B0FF */   sd        $16, 0x10($29)
     /* 3D750 0013D750 B00E6426 */  addiu      $4, $19, %lo(D_006A0EB0)
     /* 3D754 0013D754 B0B38527 */  addiu      $5, $28, %gp_rel(D_0062BFA0)
@@ -138,12 +138,12 @@ glabel func_0013D718
     /* 3D784 0013D784 FFFF6324 */  addiu      $3, $3, -0x1
     /* 3D788 0013D788 3000508C */  lw         $16, 0x30($2)
     /* 3D78C 0013D78C 2D286000 */  daddu      $5, $3, $0
-    /* 3D790 0013D790 F290060C */  jal        debug_assertMessage
+    /* 3D790 0013D790 F290060C */  jal        debug_StdPrintfDummy
     /* 3D794 0013D794 C09883AF */   sw        $3, %gp_rel(D_0062A4B0)($28)
     /* 3D798 0013D798 80881000 */  sll        $17, $16, 2
-    /* 3D79C 0013D79C DC00040C */  jal        func_00100370
+    /* 3D79C 0013D79C DC00040C */  jal        TerminateThread
     /* 3D7A0 0013D7A0 2D200002 */   daddu     $4, $16, $0
-    /* 3D7A4 0013D7A4 CC00040C */  jal        func_00100330
+    /* 3D7A4 0013D7A4 CC00040C */  jal        DeleteThread
     /* 3D7A8 0013D7A8 2D200002 */   daddu     $4, $16, $0
     /* 3D7AC 0013D7AC 0000A38F */  lw         $3, 0x0($29)
     /* 3D7B0 0013D7B0 3C00628C */  lw         $2, 0x3C($3)

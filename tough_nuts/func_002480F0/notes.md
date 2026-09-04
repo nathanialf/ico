@@ -1,7 +1,7 @@
-# func_002480F0 — parked
+# sceSifRemoveCmdHandler — parked
 
 VRAM: 0x002480F0 (file_off 0x1480F0)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_002480F0.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sceSifRemoveCmdHandler.s
 
 ## Attempt at 2026-06-04
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_002480F0.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_002480F0/func_002480F0.c`
+**Seed:** `tough_nuts/sceSifRemoveCmdHandler/sceSifRemoveCmdHandler.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_002480F0, 0x28
+nonmatching sceSifRemoveCmdHandler, 0x28
 
-glabel func_002480F0
+glabel sceSifRemoveCmdHandler
     /* 1480F0 002480F0 04008104 */  bgez       $4, .L00248104
     /* 1480F4 002480F4 C0180400 */   sll       $3, $4, 3
     /* 1480F8 002480F8 7100023C */  lui        $2, %hi(D_00710DE4)
@@ -32,5 +32,5 @@ glabel func_002480F0
     /* 14810C 0024810C 21186400 */  addu       $3, $3, $4
     /* 148110 00248110 0800E003 */  jr         $31
     /* 148114 00248114 000060AC */   sw        $0, 0x0($3)
-endlabel func_002480F0
+endlabel sceSifRemoveCmdHandler
 ```

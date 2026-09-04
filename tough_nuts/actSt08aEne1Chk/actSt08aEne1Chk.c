@@ -71,7 +71,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne2);
 
 extern int D_00629DE4;
 extern int D_00629DE8;
-extern void actSt25aQueenDead(int a0, int a1, int a2, float a3, float a4);
+extern void RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 
 void actSt08aEnemy1(int a0) {
     volatile int buf[4];
@@ -80,7 +80,7 @@ void actSt08aEnemy1(int a0) {
            func_00178DB0(0xDC) == 0 || func_00178DB0(0xCF) == 0) {
         _ACTWait(1);
     }
-    actSt25aQueenDead(8, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
+    RequestStageChange(8, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
 }
 
 void actSt08aEnemy2(int a0) {
@@ -124,7 +124,7 @@ void actSt08aIntroChk(int a0) {
     while (func_00178DB0(0xEA) == 0) {
         _ACTWait(1);
     }
-    AddWayPointTop(3, 1);
+    SetWayGroupActive(3, 1);
 }
 
 void func_00220BD0(int a0) {
@@ -133,7 +133,7 @@ void func_00220BD0(int a0) {
     while (func_00178DB0(0xEA) == 0 || func_00178DB0(0xEB) == 0) {
         _ACTWait(1);
     }
-    AddWayPointTop(4, 1);
+    SetWayGroupActive(4, 1);
 }
 
 void func_00220C28(int a0) {

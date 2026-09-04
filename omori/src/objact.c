@@ -41,9 +41,9 @@ void ObjAction_Mail(volatile int a0) {
 
 
 extern char *actSt25aQueenDeadChk(int);
-extern void scpPlayMotDirSmz(float, float, float, float, float, float);
+extern void scpGetWallCollision(float, float, float, float, float, float);
 extern void stage_KillPlayBgAnimation(int, int, int);
-extern void scpTorchLightOn(int, int);
+extern void scpLinkBGAtoLayoutedTarget(int, int);
 extern int func_0012A958(int);
 
 void ObjAction_MailCenter(int a0) {
@@ -57,10 +57,10 @@ void ObjAction_MailCenter(int a0) {
     p = actSt25aQueenDeadChk(0xAC9);
     t = *(int *)(p + 0x15C);
     *(int *)(t + 0x4D8) = 0;
-    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(0x3C);
     stage_KillPlayBgAnimation(0x1B7, 1, 0);
-    scpTorchLightOn(0xAC9, 0x1B7);
+    scpLinkBGAtoLayoutedTarget(0xAC9, 0x1B7);
     while (func_0012A958(0x1B7) == 0) {
         _ACTWait(1);
     }
@@ -68,9 +68,9 @@ void ObjAction_MailCenter(int a0) {
 }
 
 extern char *actSt25aQueenDeadChk(int);
-extern void scpPlayMotDirSmz(float, float, float, float, float, float);
+extern void scpGetWallCollision(float, float, float, float, float, float);
 extern void stage_KillPlayBgAnimation(int, int, int);
-extern void scpTorchLightOn(int, int);
+extern void scpLinkBGAtoLayoutedTarget(int, int);
 extern int func_0012A958(int);
 
 void ObjAction_Init(int a0) {
@@ -84,10 +84,10 @@ void ObjAction_Init(int a0) {
     p = actSt25aQueenDeadChk(0xACA);
     t = *(int *)(p + 0x15C);
     *(int *)(t + 0x4D8) = 0;
-    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(0x3C);
     stage_KillPlayBgAnimation(0x1AB, 1, 0);
-    scpTorchLightOn(0xACA, 0x1AB);
+    scpLinkBGAtoLayoutedTarget(0xACA, 0x1AB);
     while (func_0012A958(0x1AB) == 0) {
         _ACTWait(1);
     }
@@ -95,9 +95,9 @@ void ObjAction_Init(int a0) {
 }
 
 extern char *actSt25aQueenDeadChk(int);
-extern void scpPlayMotDirSmz(float, float, float, float, float, float);
+extern void scpGetWallCollision(float, float, float, float, float, float);
 extern void stage_KillPlayBgAnimation(int, int, int);
-extern void scpTorchLightOn(int, int);
+extern void scpLinkBGAtoLayoutedTarget(int, int);
 extern int func_0012A958(int);
 
 void func_00237A20(int a0) {
@@ -111,10 +111,10 @@ void func_00237A20(int a0) {
     p = actSt25aQueenDeadChk(0xACB);
     t = *(int *)(p + 0x15C);
     *(int *)(t + 0x4D8) = 0;
-    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(0x3C);
     stage_KillPlayBgAnimation(0x1AC, 1, 0);
-    scpTorchLightOn(0xACB, 0x1AC);
+    scpLinkBGAtoLayoutedTarget(0xACB, 0x1AC);
     while (func_0012A958(0x1AC) == 0) {
         _ACTWait(1);
     }
@@ -152,13 +152,13 @@ void func_00237B80(volatile int a0) {
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237BA8);
 
 extern void *D_00629DE4;
-extern void func_0017BD40(int n, float a, float b, float c, float d);
+extern void scpBornSpider(int n, float a, float b, float c, float d);
 
 void func_00237C30(volatile int a0) {
     for (;;) {
         while ((*(int *)(*(int *)((char *)D_00629DE4 + 0x164) + 0x2D4) & 0x400) == 0)
             _ACTWait(1);
-        func_0017BD40(2, 0.0f, -500.0f, 0.0f, 500.0f);
+        scpBornSpider(2, 0.0f, -500.0f, 0.0f, 500.0f);
         _ACTWait(1);
     }
 }

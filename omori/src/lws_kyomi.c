@@ -11,19 +11,19 @@ void CreateKyomiGObj(volatile unsigned int x) {
     extern int D_00629DE8;
     extern int D_0062A894;
     extern void actSt25aQueenTalkChk(int, int, V16k *, int, float);
-    extern void func_00260568(void *, int, int);
-    extern void actSwordEffXL(int, int, void *, int);
+    extern void memset(void *, int, int);
+    extern void RequestStageChangeDirect(int, int, void *, int);
     extern void lt_fade_status(int);
-    extern void saveEditedDataBinary(void);
+    extern void brainUnlockGirl(void);
     V16k buf;
     char buf2[16];
     buf = D_00614E60;
     actSt25aQueenTalkChk(D_00629DE8, 0, &buf, 0, 100.0f);
-    func_00260568(buf2, 0, 0x10);
-    actSwordEffXL(D_00629DE8, 0xB, buf2, 0xB4);
+    memset(buf2, 0, 0x10);
+    RequestStageChangeDirect(D_00629DE8, 0xB, buf2, 0xB4);
     lt_fade_status(0x32);
     D_0062A894 = 0;
-    saveEditedDataBinary();
+    brainUnlockGirl();
 }
 
 void SetParamKyomiGObj(int a0) {
@@ -153,8 +153,8 @@ void func_002373B0(int a0) {
     buf[0] = a0;
 }
 
-extern int scpSubAdpcmPlay(int);
-extern int scpSleepEnemyOne(int, int, float);
+extern int scpIsBombExplode(int);
+extern int scpTriggerBall(int, int, float);
 extern void lt_fade_status(int);
 extern void scpDispOnAllWithKind(void);
 extern void stage_KillPlayBgAnimation(int, int, int);
@@ -169,8 +169,8 @@ void func_002373C0(int a0) {
     int r;
     buf[0] = a0;
     for (;;) {
-        r = scpSubAdpcmPlay(0x13);
-        if (r != 0 && scpSleepEnemyOne(buf[0], r, 350.0f) != 0) {
+        r = scpIsBombExplode(0x13);
+        if (r != 0 && scpTriggerBall(buf[0], r, 350.0f) != 0) {
             break;
         }
         _ACTWait(1);

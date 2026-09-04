@@ -1,7 +1,7 @@
-# ACTGame_StageChangeGObjDirect — parked
+# ACTCheckCollis_WELL — parked
 
 VRAM: 0x001493D8 (file_off 0x0493D8)
-Asm source: asm/aug6/nonmatchings/fumi/src/act-game/ACTGame_StageChangeGObjDirect.s
+Asm source: asm/aug6/nonmatchings/fumi/src/act-game/ACTCheckCollis_WELL.s
 
 ## Attempt at 2026-06-20
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/act-game/ACTGame_StageChangeGObjDirec
 
 **TU:** `fumi/src/act-game.c`
 
-**Seed:** `tough_nuts/ACTGame_StageChangeGObjDirect/ACTGame_StageChangeGObjDirect.c`
+**Seed:** `tough_nuts/ACTCheckCollis_WELL/ACTCheckCollis_WELL.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching ACTGame_StageChangeGObjDirect, 0x104
+nonmatching ACTCheckCollis_WELL, 0x104
 
-glabel ACTGame_StageChangeGObjDirect
+glabel ACTCheckCollis_WELL
     /* 493D8 001493D8 C0FEBD27 */  addiu      $29, $29, -0x140
     /* 493DC 001493DC 0001B4FF */  sd         $20, 0x100($29)
     /* 493E0 001493E0 F000B3FF */  sd         $19, 0xF0($29)
@@ -35,7 +35,7 @@ glabel ACTGame_StageChangeGObjDirect
     /* 49410 00149410 C000B0FF */  sd         $16, 0xC0($29)
     /* 49414 00149414 2D280000 */  daddu      $5, $0, $0
     /* 49418 00149418 C0000624 */  addiu      $6, $0, 0xC0
-    /* 4941C 0014941C 5A81090C */  jal        func_00260568
+    /* 4941C 0014941C 5A81090C */  jal        memset
     /* 49420 00149420 01001524 */   addiu     $21, $0, 0x1
     /* 49424 00149424 03002012 */  beqz       $17, .L00149434
     /* 49428 00149428 2D800000 */   daddu     $16, $0, $0
@@ -46,10 +46,10 @@ glabel ACTGame_StageChangeGObjDirect
     /* 49434 00149434 7000B4E7 */  swc1       $f20, 0x70($29)
     /* 49438 00149438 2D286002 */  daddu      $5, $19, $0
     /* 4943C 0014943C 689980AF */  sw         $0, %gp_rel(D_0062A558)($28)
-    /* 49440 00149440 2000090C */  jal        func_00240080
+    /* 49440 00149440 2000090C */  jal        sceVu0CopyVector
     /* 49444 00149444 2D20A003 */   daddu     $4, $29, $0
     /* 49448 00149448 2D288002 */  daddu      $5, $20, $0
-    /* 4944C 0014944C 2000090C */  jal        func_00240080
+    /* 4944C 0014944C 2000090C */  jal        sceVu0CopyVector
     /* 49450 00149450 1000A427 */   addiu     $4, $29, 0x10
     /* 49454 00149454 03000012 */  beqz       $16, .L00149464
     /* 49458 00149458 00000000 */   nop
@@ -95,6 +95,6 @@ glabel ACTGame_StageChangeGObjDirect
     /* 494D0 001494D0 3001B4C7 */  lwc1       $f20, 0x130($29)
     /* 494D4 001494D4 0800E003 */  jr         $31
     /* 494D8 001494D8 4001BD27 */   addiu     $29, $29, 0x140
-endlabel ACTGame_StageChangeGObjDirect
+endlabel ACTCheckCollis_WELL
     /* 494DC 001494DC 00000000 */  nop
 ```

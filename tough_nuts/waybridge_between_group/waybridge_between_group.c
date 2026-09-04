@@ -64,24 +64,24 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_from_gob
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg_of_group);
 
-extern char *CloseWayGroup(int handle);
-extern char *CreateWayPoint(char *node);
-extern void func_00240008(int *buf, int *p, int *q);
+extern char *WayPointList_begin(int handle);
+extern char *WayPointList_next(char *node);
+extern void sceVu0SubVector(int *buf, int *p, int *q);
 extern float func_00168128(int a0);
 
 /* parked: needs real matching. See tough_nuts/nearest_waypoint_by_lineseg/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg);
 
-extern char *CloseWayGroup(int handle);
-extern char *CreateWayPoint(char *node);
-extern void func_00240008(int *buf, int *p, int *q);
+extern char *WayPointList_begin(int handle);
+extern char *WayPointList_next(char *node);
+extern void sceVu0SubVector(int *buf, int *p, int *q);
 extern float func_00168128(int a0);
 extern float D_0062912C;
 extern int D_0062BB7C;
 
 char *nearest_waypoint_by_lineseg_of_group_from_gobj(int *a0) {
     int buf[4];
-    char *t = CloseWayGroup(D_0062BB7C);
+    char *t = WayPointList_begin(D_0062BB7C);
     float bestDist = D_0062912C;
     char *best, *cur;
     __asm__ __volatile__("" ::: "memory");
@@ -90,13 +90,13 @@ char *nearest_waypoint_by_lineseg_of_group_from_gobj(int *a0) {
     if (best != 0) {
         do {
             float d;
-            func_00240008(buf, (int *)(cur + 0x10), a0);
+            sceVu0SubVector(buf, (int *)(cur + 0x10), a0);
             d = func_00168128((int)buf);
             if (d < bestDist) {
                 bestDist = d;
                 best = cur;
             }
-            cur = CreateWayPoint(cur);
+            cur = WayPointList_next(cur);
         } while (cur != 0);
     }
     return best;
@@ -118,17 +118,17 @@ extern int D_0062BB7C;
 char *visible_waypoint_of_all(int *arg0, float thresh)
 {
     int buf[4];
-    char *node = CloseWayGroup(D_0062BB7C);
+    char *node = WayPointList_begin(D_0062BB7C);
     if (node == 0) {
         return 0;
     }
     __asm__ __volatile__("" ::: "memory");
     do {
-        func_00240008(buf, (int *)(node + 0x10), arg0);
+        sceVu0SubVector(buf, (int *)(node + 0x10), arg0);
         if (func_00168128((int)buf) < thresh) {
             return node;
         }
-        node = CreateWayPoint(node);
+        node = WayPointList_next(node);
     } while (node != 0);
     return 0;
 }
@@ -140,7 +140,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint);
 /* m2c scaffold from asm/aug6/nonmatchings/fumi/src/way_util/visible_waypoint_from_gobj.s (target mipsel-gcc-c, context-free).
  * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
 extern char *CreateTempWayGroup(void);
-extern char *DeleteWayGroup(char *a0);
+extern char *WayPoint_next(char *a0);
 extern float D_0062914C;
 
 char *visible_waypoint_from_gobj(int *a0) {
@@ -156,14 +156,14 @@ char *visible_waypoint_from_gobj(int *a0) {
         do {
             float d;
             if (*(int *)(cur + 0x20) != neg1) {
-                func_00240008(buf, (int *)(cur + 0x10), a0);
+                sceVu0SubVector(buf, (int *)(cur + 0x10), a0);
                 d = func_00168128((int)buf);
                 if (d < bestDist) {
                     bestDist = d;
                     best = cur;
                 }
             }
-            cur = DeleteWayGroup(cur);
+            cur = WayPoint_next(cur);
         } while (cur != 0);
     }
     return best;
@@ -185,7 +185,7 @@ int get_wp_nearest_bridge_side_bridge(void *a0) {
 }
 
 extern int ClipWallBoxStop(int *buf);
-extern void func_00240080(int *out, int *in);
+extern void sceVu0CopyVector(int *out, int *in);
 extern float D_00629150;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", direction_across_bridge);
@@ -217,18 +217,18 @@ char *waybridge_between_group(void *a0, int a1) {
     GetRootMatrixByDObj(mtx, a0);
     thresh = D_00629154;
     box.radius = 50.0f;
-    cur = CloseWayGroup(a1);
+    cur = WayPointList_begin(a1);
     __asm__ __volatile__("" ::: "memory");
     if (cur == 0) {
         return best;
     }
     do {
         float dist;
-        func_00240008(*bp, (int *)(cur + 0x10), mtx);
+        sceVu0SubVector(*bp, (int *)(cur + 0x10), mtx);
         dist = func_00168128((int)*bp);
         if (dist < thresh) {
-            func_00240080((int *)box.p0, mtx);
-            func_00240080((int *)box.p1, (int *)(cur + 0x10));
+            sceVu0CopyVector((int *)box.p0, mtx);
+            sceVu0CopyVector((int *)box.p1, (int *)(cur + 0x10));
             box.p0[1] -= 75.0f;
             box.p1[1] -= 75.0f;
             ClipWallBoxStop((int *)box.p0);
@@ -237,7 +237,7 @@ char *waybridge_between_group(void *a0, int a1) {
                 best = cur;
             }
         }
-        cur = CreateWayPoint(cur);
+        cur = WayPointList_next(cur);
     } while (cur != 0);
     return best;
 }
@@ -251,9 +251,9 @@ extern char wcf_c[] __asm__("D_004C7CF0");
 extern char D_005540F8[];
 extern char D_00554080[];
 extern char D_0062C6F8[];
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 
 int bridge_waypoint_side_bridge(void *a0, int a1) {
     char *e1 = wcf_c + *(int *)((char *)a0 + 0x20) * 0x40;
@@ -263,9 +263,9 @@ int bridge_waypoint_side_bridge(void *a0, int a1) {
     }
     e2 = wcf_c + *(int *)((char *)a0 + 0x24) * 0x40;
     if (*(int *)(e2 + 0x20) != a1) {
-        debug_assertMessage(D_005540F8);
+        debug_StdPrintfDummy(D_005540F8);
         func_001AAD00(D_00554080, 0x2C2);
-        func_00260380(D_00554080, 0x2C2, D_0062C6F8);
+        __assert(D_00554080, 0x2C2, D_0062C6F8);
     }
     return 0;
 }
@@ -350,7 +350,7 @@ int func_00178C58(int a0, int a1) {
 
 extern int func_00178DB0(int a0);
 extern void func_00178DD8(int a0);
-extern void func_00260568(void *a, int b, int c);
+extern void memset(void *a, int b, int c);
 extern void actBoyDitch3mExec(void);
 extern void func_0019A3C8(void);
 extern void func_001AB158(void);
@@ -363,7 +363,7 @@ extern char D_00286890[];
 extern char D_0027D2F8[];
 void func_00178C90(void) {
     int r = func_00178DB0(0x159);
-    func_00260568(D_00286890, 0, 0x2E);
+    memset(D_00286890, 0, 0x2E);
     D_00629CA0 = 0;
     if (r != 0) {
         func_00178DD8(0x159);
@@ -374,7 +374,7 @@ void func_00178C90(void) {
     Generator_Init();
     AttackGenerate();
     D_0027124C[0] = 0;
-    func_00260568(D_0027D2F8, 0, 0x10);
+    memset(D_0027D2F8, 0, 0x10);
     D_0062B240 = 0;
     itouGflagLoad();
 }
@@ -391,11 +391,11 @@ void func_00178D28(int a0)
     return func_001AB750(a0, (int *)D_00286890, 0x2E);
 }
 
-extern void func_001ABE38(int a0, int *a1, int a2);
+extern void gamesysMemoryHandlerRead(int a0, int *a1, int a2);
 
 void func_00178D70(int a0) {
-    func_001ABE38(a0, &D_0062A890, 4);
-    func_001ABE38(a0, (int *)D_00286890, 0x2E);
+    gamesysMemoryHandlerRead(a0, &D_0062A890, 4);
+    gamesysMemoryHandlerRead(a0, (int *)D_00286890, 0x2E);
 }
 
 

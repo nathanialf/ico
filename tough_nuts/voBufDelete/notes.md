@@ -76,14 +76,14 @@ glabel voBufDelete
     /* 9B9A4 0019B9A4 5500063C */  lui        $6, %hi(D_00557178)
     /* 9B9A8 0019B9A8 2D204002 */  daddu      $4, $18, $0
     /* 9B9AC 0019B9AC 7871C624 */  addiu      $6, $6, %lo(D_00557178)
-    /* 9B9B0 0019B9B0 E080090C */  jal        func_00260380
+    /* 9B9B0 0019B9B0 E080090C */  jal        __assert
     /* 9B9B4 0019B9B4 2B000524 */   addiu     $5, $0, 0x2B
     /* 9B9B8 0019B9B8 6900063C */  lui        $6, (0x697800 >> 16)
 .align 2
   .L0019B9BC:
     /* 9B9BC 0019B9BC 2D200002 */  daddu      $4, $16, $0
     /* 9B9C0 0019B9C0 2D280000 */  daddu      $5, $0, $0
-    /* 9B9C4 0019B9C4 5A81090C */  jal        func_00260568
+    /* 9B9C4 0019B9C4 5A81090C */  jal        memset
     /* 9B9C8 0019B9C8 0078C634 */   ori       $6, $6, (0x697800 & 0xFFFF)
     /* 9B9CC 0019B9CC 32000012 */  beqz       $16, .L0019BA98
     /* 9B9D0 0019B9D0 FFFF0224 */   addiu     $2, $0, -0x1
@@ -109,14 +109,14 @@ glabel voBufDelete
     /* 9BA20 0019BA20 5500063C */  lui        $6, %hi(D_00557178)
     /* 9BA24 0019BA24 2D204002 */  daddu      $4, $18, $0
     /* 9BA28 0019BA28 7871C624 */  addiu      $6, $6, %lo(D_00557178)
-    /* 9BA2C 0019BA2C E080090C */  jal        func_00260380
+    /* 9BA2C 0019BA2C E080090C */  jal        __assert
     /* 9BA30 0019BA30 2B000524 */   addiu     $5, $0, 0x2B
     /* 9BA34 0019BA34 3200063C */  lui        $6, (0x323340 >> 16)
 .align 2
   .L0019BA38:
     /* 9BA38 0019BA38 2D200002 */  daddu      $4, $16, $0
     /* 9BA3C 0019BA3C 2D280000 */  daddu      $5, $0, $0
-    /* 9BA40 0019BA40 5A81090C */  jal        func_00260568
+    /* 9BA40 0019BA40 5A81090C */  jal        memset
     /* 9BA44 0019BA44 4033C634 */   ori       $6, $6, (0x323340 & 0xFFFF)
     /* 9BA48 0019BA48 040030AE */  sw         $16, 0x4($17)
     /* 9BA4C 0019BA4C 12000012 */  beqz       $16, .L0019BA98

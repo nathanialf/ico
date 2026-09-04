@@ -9,8 +9,8 @@ void copyToWork(void) {
 #include "vu0.h"
 
 extern void GetRootMatrixByDObj(void *a0, void *a1);
-extern void func_00166AF8(void *a0, void *a1);
-extern float func_001047C0(void *a0, void *a1, void *a2, float t);
+extern void GetGlobalWallPlane(void *a0, void *a1);
+extern float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float t);
 extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
 
 void flushWork(void *obj, float threshold) {
@@ -20,7 +20,7 @@ void flushWork(void *obj, float threshold) {
     if (*(int *)(*(char **)((char *)obj + 0x15C) + 0x178) != 0) {
         register float dot __asm__("$f0");
         GetRootMatrixByDObj(buf0, obj);
-        func_00166AF8(buf1, *(char **)((char *)obj + 0x15C) + 0x170);
+        GetGlobalWallPlane(buf1, *(char **)((char *)obj + 0x15C) + 0x170);
         VU0_LSV_R(lqc2, 1, 0x0, buf0);
         VU0_LSV_R(lqc2, 2, 0x0, buf1);
         VU0_V3OP(vmul.xyz, 3, 1, 2);
@@ -30,51 +30,51 @@ void flushWork(void *obj, float threshold) {
         VU0_QMFC2_NI(v0, 3);
         VU0_MTC1(v0, 0);
         if (dot < thr) {
-            func_001047C0(buf0, buf1, buf0, thr);
+            GetProjectionOfPlaneWithKeepAway(buf0, buf1, buf0, thr);
         }
         GetCylinderCollisionWithExceptOwnCollision(obj, buf0);
     }
 }
 
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 extern void GetRootMatrixByDObj(void *a0, void *a1);
 extern void SlopeIKControl(void *a0, void *a1, void *a2, float f);
 extern void ClipWallBoxStop(void *a0);
 extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
-extern void debug_assertMessage(void *msg);
+extern void debug_StdPrintfDummy(void *msg);
 extern char D_0054DFF0[];
 
-void setNodePursueParticleEffectWithUpperLimit(void *a0, void *a1, float f) {
+void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f) {
     char buf[0xC0];
-    func_00260568(buf, 0, 0xC0);
+    memset(buf, 0, 0xC0);
     GetRootMatrixByDObj(buf, a0);
     SlopeIKControl(buf + 0x10, a1, buf, f);
     ClipWallBoxStop(buf);
     if (*(int *)(buf + 0x88) != 0) {
         GetCylinderCollisionWithExceptOwnCollision(a0, buf + 0x20);
-        debug_assertMessage(D_0054DFF0);
+        debug_StdPrintfDummy(D_0054DFF0);
     } else {
         GetCylinderCollisionWithExceptOwnCollision(a0, buf + 0x10);
     }
 }
 
-extern float func_00166A48(int *buf, int *dest);
+extern float GetYProjectionOfPlane(int *buf, int *dest);
 
-void SetFallDownSplash(long long *src, int *dest) {
+void fitYToPlane(long long *src, int *dest) {
     long long buf[2];
     buf[0] = src[0];
     buf[1] = src[1];
-    *(float *)((char *)dest + 4) = func_00166A48((int *)buf, dest);
+    *(float *)((char *)dest + 4) = GetYProjectionOfPlane((int *)buf, dest);
 }
 
-void GetPoolGlobalDrainVector(float *a0, float *a1, float *a2, float t) {
+void GetBlendedMotionRootPos(float *a0, float *a1, float *a2, float t) {
     float s = 1.0f - t;
     a0[0] = a1[0] * t + a2[0] * s;
     a0[1] = a1[1] * t + a2[1] * s;
     a0[2] = a1[2] * t + a2[2] * s;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", InitPoolGeo);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", _getMotRotElem);
 
 extern void playSEConditionID(int a0, int a1);
 
@@ -84,11 +84,11 @@ void updatePoolGeo(int a0) {
 
 extern void func_0012FE30(void);
 extern int tex_transVramClutTex(int a0, int a1);
-extern void gif_SpriteOrg(int a0, long long a1);
+extern void gif_SetGsReg(int a0, long long a1);
 extern void gif_MakeSprite(int a0, int a1, int a2, int a3, int a4, int a5);
-extern void gsb_Reduction(int a0);
+extern void gif_SetZTest(int a0);
 extern void gsb_KeepFrameBuffer(int a0);
-extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void gif_SetAlpha(int a0, int a1, int a2);
 extern void gif_MakeLine2DOffset(void *a0, int a1, int a2, void *a3, int a4);
 extern int D_00629E60;
 extern int D_00629F5C;
@@ -103,13 +103,13 @@ void dispPool(int arg0) {
 
     func_0012FE30();
     D_00629E60 = tex_transVramClutTex(0, 0x400);
-    gif_SpriteOrg(6, ((long long)(D_00629F5C / 64) << 14) | 0x664000800LL);
+    gif_SetGsReg(6, ((long long)(D_00629F5C / 64) << 14) | 0x664000800LL);
     gif_MakeSprite(D_00629E60, 0, 0x100, 0x100, 0, 0);
-    gsb_Reduction(0);
+    gif_SetZTest(0);
     gsb_KeepFrameBuffer(0);
-    gsb_SetFrame(0, 4, 0);
-    gif_SpriteOrg(0x47, 0x30000);
-    gif_SpriteOrg(0x14, 0x60);
+    gif_SetAlpha(0, 4, 0);
+    gif_SetGsReg(0x47, 0x30000);
+    gif_SetGsReg(0x14, 0x60);
     *(Cpy16 *)buf = *(Cpy16 *)D_0054E100;
     *(int *)(buf + 0x24) = 8;
     *(int *)(buf + 0x20) = 8;
@@ -119,17 +119,17 @@ void dispPool(int arg0) {
     *(Cpy4 *)(buf + 0x20) = *(Cpy4 *)D_0062BCE8;
     gif_MakeLine2DOffset(buf, 0, (int)(buf + 0x10), buf + 0x20, 0);
     gsb_KeepFrameBuffer(1);
-    gsb_Reduction(1);
-    gif_SpriteOrg(0x47, 0x5000D);
+    gif_SetZTest(1);
+    gif_SetGsReg(0x47, 0x5000D);
 }
 
 
 extern void func_0012FE30(void);
 extern int tex_transVramClutTex(int a0, int a1);
 extern void gif_MakeSprite(int a0, int a1, int a2, int a3, int a4, int a5);
-extern void gsb_Reduction(int a0);
-extern void gif_SpriteOrg(int a0, long long a1);
-extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void gif_SetZTest(int a0);
+extern void gif_SetGsReg(int a0, long long a1);
+extern void gif_SetAlpha(int a0, int a1, int a2);
 extern void gif_MakeLine2DOffset(void *a0, int a1, int a2, void *a3, int a4);
 extern int D_00629E60;
 extern int D_00629E64;
@@ -146,13 +146,13 @@ void PoolDL(void) {
     D_00629E60 = tex_transVramClutTex(0, 0x400);
     D_00629E64 = tex_transVramClutTex(0, 0x400);
     gif_MakeSprite(D_00629E60, 0, 0x100, 0x100, 0, 0);
-    gsb_Reduction(0);
-    gif_SpriteOrg(0x4E, 0x30000000 | (D_00629E64 / 32));
-    gsb_SetFrame(0, 4, 0);
+    gif_SetZTest(0);
+    gif_SetGsReg(0x4E, 0x30000000 | (D_00629E64 / 32));
+    gif_SetAlpha(0, 4, 0);
     *(Blob16 *)buf = *(Blob16 *)D_0054E100;
     *(Blob4 *)(buf + 0x10) = *(Blob4 *)D_0062BCF0;
     gif_MakeLine2DOffset(buf, 0, 0, buf + 0x10, 0);
-    gsb_Reduction(1);
+    gif_SetZTest(1);
 }
 
 extern int DebugDisp1CollisionWithColor(char *a0, int a1);
@@ -160,7 +160,7 @@ extern int DeleteParticleEffectsByPackage(int a0, int a1, int a2);
 extern void ResetParticleEffectPackages(int a0, float f);
 extern char D_002724B0[];
 
-void InitLimitedPoolReflactionMesh(char *a0, char *a1, int a2, float f)
+void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float f)
 {
     int ret = DebugDisp1CollisionWithColor(a1, a2);
     if (ret != -1) {
@@ -194,13 +194,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", poolRideFunc);
 
 extern void gif_SpriteOffset(int a0);
 extern void dispPool(int a0);
-extern void gif_SpriteOrg(int a0, long long a1);
+extern void gif_SetGsReg(int a0, long long a1);
 extern void gif_MakeSprite(int a0, int a1, int a2, int a3, int a4, int a5);
 extern void gsb_KeepFrameBuffer(int a0);
-extern void gsb_Reduction(int a0);
-extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void gif_SetZTest(int a0);
+extern void gif_SetAlpha(int a0, int a1, int a2);
 extern void func_0010F9D0(void);
-extern void _PopCurrentMatrix(int a0);
+extern void _SetCurrentMatrix(int a0);
 extern void prim_DispParticle(int a0, void *a1, void *a2, int a3);
 extern void SetChainExtendedWeight(int a0, int a1, int a2);
 extern int D_00629E60;
@@ -214,14 +214,14 @@ extern char D_002723F0[];
 void getWave(int *a0) {
     gif_SpriteOffset(4);
     dispPool(4);
-    gif_SpriteOrg(6, D_00629E60 | 0x20010000 | (0xC000LL << 19));
+    gif_SetGsReg(6, D_00629E60 | 0x20010000 | (0xC000LL << 19));
     gif_MakeSprite(0x800, 0, D_00629F5C, D_00629F60, 0, 0);
-    gif_SpriteOrg(0x14, 0x60);
+    gif_SetGsReg(0x14, 0x60);
     gsb_KeepFrameBuffer(0);
-    gsb_Reduction(1);
-    gsb_SetFrame(0, 4, 0x80);
+    gif_SetZTest(1);
+    gif_SetAlpha(0, 4, 0x80);
     func_0010F9D0();
-    _PopCurrentMatrix(D_00629C70 + 0x100);
+    _SetCurrentMatrix(D_00629C70 + 0x100);
     prim_DispParticle(a0[4], D_002723B0, D_002723F0, -1);
     if (D_0062AF90 != 0) {
         SetChainExtendedWeight(a0[6], a0[0], a0[1]);
@@ -231,13 +231,13 @@ void getWave(int *a0) {
 void func_0010D3B0(void) {
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_0054E110[];
 
 float func_0010D3B8(char *a0) {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
     if (p == 0) {
-        debug_assertMessage(D_0054E110);
+        debug_StdPrintfDummy(D_0054E110);
         return 0.0f;
     }
     return *(float *)(p + 0x4);

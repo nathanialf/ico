@@ -28,7 +28,7 @@ void ACTSetPositionWithFitting(char *self) {
 
 extern void func_001EF4F0(int a0);
 extern int isysGObjSearchFromObjLayoutID(int a0);
-extern int iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern int iosOmSendMail(void *a0, int a1, void *a2);
 extern int D_00629C90, D_0062B058;
 void ACTSetPositionNodeWithFitting(void *a0) {
     char *p = *(char **)((char *)a0 + 0x164);
@@ -41,17 +41,17 @@ void ACTSetPositionNodeWithFitting(void *a0) {
     if (D_00629C90 == 0x53 || D_0062B058 != 0) {
         obj = (void *)isysGObjSearchFromObjLayoutID(0x35);
         if (obj != 0) {
-            iosOmBeforeFuncStandard(obj, 0xD, a0);
+            iosOmSendMail(obj, 0xD, a0);
         }
     }
 }
 
 extern int GetChainHangRange(void *a0, int *a1);
-extern int InitMailAdditionalData(int a0);
+extern int AlignDegGV(int a0);
 extern void func_00191DB8(void *a0, float a1);
-extern float func_00191E30(void *a0);
-extern int func_00192160(int a0);
-extern void func_00260568(void *a0, int a1, int a2);
+extern float _GetDirection(void *a0);
+extern int RoundDegGV(int a0);
+extern void memset(void *a0, int a1, int a2);
 extern float D_00628F24;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ChangeMailInLadder);
@@ -101,14 +101,14 @@ void func_001561E8(void *a0, int a1) {
 }
 
 extern char *D_00629DE8;
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001561E8(void *a0, int a1);
 extern void UpdatePointBlur(void *a0, void *a1, void *a2);
 extern char D_0062C450[];
 void WithMailFunc_AttackRejectInQueen(void *a0) {
     char *p = *(char **)((char *)a0 + 0x164);
     int v;
-    debug_assertMessage(D_0062C450);
+    debug_StdPrintfDummy(D_0062C450);
     if (a0 != (void *)D_00629DE8) {
         char *q = *(char **)((char *)a0 + 0x164);
         *(float *)(p + 0x1D0) -= (float)*(int *)(q + 0x1C0);
@@ -193,11 +193,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", lever_nego1);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", SetDirectRootPositionXZ);
 
 extern void func_00104D20(void);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 extern int func_00105078(void);
 extern void func_001050A8(void *a0);
 extern void func_0010F9D0(void);
-extern void func_00118AA0(int a0);
+extern void _UnitMatrix(int a0);
 extern void func_001D1DF0(int *a0, int *a1, int *a2, int *a3, int a4);
 extern void gif_SpriteOffset(int a0);
 extern void reg_dispBoxLine(void *a0, int a1, int a2, float a3);
@@ -211,40 +211,40 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00157E70);
 
 extern void func_00104D20(void);
 extern int func_00105078(void);
-extern void func_00118AA0(int a0);
+extern void _UnitMatrix(int a0);
 extern void gif_SpriteOffset(int a0);
 extern void func_001050A8(void *a0);
 extern void reg_dispBoxLine(void *a0, int a1, int a2, float f);
 extern void func_0010F9D0(void);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 
 void actCommonLever(void *a0, void *a1, float f) {
     func_00104D20();
-    func_00118AA0(func_00105078());
+    _UnitMatrix(func_00105078());
     gif_SpriteOffset(0xB);
     func_001050A8(a0);
     reg_dispBoxLine(a1, 4, 4, f);
     func_0010F9D0();
-    func_00105068();
+    MatrixDrive_PopMatrix();
 }
 
-extern void func_00104DC0(int a0);
+extern void MatrixDrive_RotMatrixY(int a0);
 extern void func_00105108(float a, float b, float c);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 extern int ClipWallBoxStop(void *a0);
 extern int ChangeFieldCollisionDebugMode(void *a0);
-extern void _TransposeRotationCurrentMatrix(void *a0, void *a1, void *a2);
+extern void _SubVectorXYZ(void *a0, void *a1, void *a2);
 
 int EBRAIN_SEND_MES(void *a0, void *a1, short a2, float a3) {
     char buf[0xC0];
     char *buf2 = buf + 0x10;
     int p;
     int rv = 0;
-    func_00260568(buf, 0, 0xC0);
+    memset(buf, 0, 0xC0);
     p = func_00105078();
-    func_00118AA0(p);
+    _UnitMatrix(p);
     func_001050A8(a1);
-    func_00104DC0(a2);
+    MatrixDrive_RotMatrixY(a2);
     func_00105108(0.0f, 0.0f, a3);
     p = func_00105078();
     MatrixDrive_TurnObjectMatrix(buf2, (char *)p + 0x30);
@@ -259,7 +259,7 @@ int EBRAIN_SEND_MES(void *a0, void *a1, short a2, float a3) {
         *(float *)(buf + 0x14) = *(float *)(buf + 0x14) + 100.0f;
         ChangeFieldCollisionDebugMode(buf);
         if (*(int *)(buf + 0x94) != 0) {
-            _TransposeRotationCurrentMatrix(a0, buf + 0x20, a1);
+            _SubVectorXYZ(a0, buf + 0x20, a1);
             rv = 1;
         }
     }
@@ -275,7 +275,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDown);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDie);
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00552F88[];
 extern char D_0062C478[];
 extern char D_0062C480[];
@@ -287,10 +287,10 @@ void Cling(char *a0, void *a1, char *a2) {
     *(int *)((char *)p + 0xC0) |= 2;
     arg5 = (a2 == D_00629DE4) ? D_0062C478 : D_0062C480;
     arg6 = (a0 == D_00629DE4) ? D_0062C478 : D_0062C480;
-    debug_assertMessage(str, arg5, arg6);
+    debug_StdPrintfDummy(str, arg5, arg6);
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00552FA0[];
 extern char D_0062C478[];
 extern char D_0062C480[];
@@ -302,10 +302,10 @@ void actCommonCling(char *a0, void *a1, char *a2) {
     *(int *)((char *)p + 0xC0) |= 8;
     arg5 = (a2 == D_00629DE4) ? D_0062C478 : D_0062C480;
     arg6 = (a0 == D_00629DE4) ? D_0062C478 : D_0062C480;
-    debug_assertMessage(str, arg5, arg6);
+    debug_StdPrintfDummy(str, arg5, arg6);
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00552FB8[];
 extern char D_0062C478[];
 extern char D_0062C480[];
@@ -317,7 +317,7 @@ void actCommonSlip(char *a0, void *a1, char *a2) {
     *(int *)((char *)p + 0xC0) |= 0x10;
     arg5 = (a2 == D_00629DE4) ? D_0062C478 : D_0062C480;
     arg6 = (a0 == D_00629DE4) ? D_0062C478 : D_0062C480;
-    debug_assertMessage(str, arg5, arg6);
+    debug_StdPrintfDummy(str, arg5, arg6);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonStoneDead);
@@ -329,7 +329,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", BoxBarSoundOn);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", BoxBarSoundOff);
 
 void *subCommonIdle(char *a0);
-extern int HandCameraCorrect(void *a0, void *a1);
+extern int _RotyGV(void *a0, void *a1);
 extern void func_00191DB8(void *a0, float a1);
 extern float D_00628FB4;
 
@@ -340,16 +340,16 @@ int _boxbar_set_sound(char *a0) {
     buf[1] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x170)) + 0x4);
     buf[2] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x170)) + 0x8);
     func_00191DB8(buf, D_00628FB4);
-    return HandCameraCorrect(subCommonIdle(a0), buf) < 0
-               ? -HandCameraCorrect(subCommonIdle(a0), buf) < 0x2D
-               : HandCameraCorrect(subCommonIdle(a0), buf) < 0x2D;
+    return _RotyGV(subCommonIdle(a0), buf) < 0
+               ? -_RotyGV(subCommonIdle(a0), buf) < 0x2D
+               : _RotyGV(subCommonIdle(a0), buf) < 0x2D;
 }
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBox);
 
 extern void traceLine(int a0, int a1, int a2, void *a3);
-extern void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4);
+extern void _InterGV(void *a0, void *a1, void *a2, float a3, float a4);
 extern char D_005530A8[];
 extern int D_0062AF84;
 
@@ -368,10 +368,10 @@ void func_0015B4C8(void) {
     }
 }
 
-extern void setNodePursueParticleEffectWithUpperLimit(int a0, int a1, float a2);
+extern void AdjustRootPositionToVerticalSidePlaneOfWall(int a0, int a1, float a2);
 
 void funcCommonJumpDircorrect(int a0, int a1) {
-    setNodePursueParticleEffectWithUpperLimit(a0, a1, 30.0f);
+    AdjustRootPositionToVerticalSidePlaneOfWall(a0, a1, 30.0f);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonFallDircorrect);
@@ -384,10 +384,10 @@ void actCommonJump(void *a0) {
     q->f_204--;
 }
 
-extern void func_0023FE98(void *a0, void *a1);
-extern float MatrixDrive_GetTurnYAngleXZ(float a0);
-extern int func_00260340(float a0);
-extern int func_0025F4A0(int a0, double a1);
+extern void sceVu0Normalize(void *a0, void *a1);
+extern float FSqrt(float a0);
+extern int fptodp(float a0);
+extern int dpcmp(int a0, double a1);
 
 void actCommonFall(int self) {
     float buf[3];
@@ -397,11 +397,11 @@ void actCommonFall(int self) {
     buf[0] = *(float *)(sub + 0x1C0);
     buf[1] = *(float *)(sub + 0x1C4);
     buf[2] = *(float *)(sub + 0x1C8);
-    func_0023FE98(buf, buf);
-    r = func_00260340(MatrixDrive_GetTurnYAngleXZ(buf[0] * buf[0] + buf[2] * buf[2]));
-    if (func_0025F4A0(r, 0.3) > 0) {
+    sceVu0Normalize(buf, buf);
+    r = fptodp(FSqrt(buf[0] * buf[0] + buf[2] * buf[2]));
+    if (dpcmp(r, 0.3) > 0) {
         buf[1] = 0.0f;
-        func_0023FE98(buf, buf);
+        sceVu0Normalize(buf, buf);
         dispPlane((void *)self, buf);
     }
 }
@@ -432,18 +432,18 @@ void actCommonDodge(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonEdgeHang);
 
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 extern void _ACTWait(int a0);
 extern char D_00552F18[];
 extern char D_00552F38[];
 
 void funcCommonBeginReady(volatile int a0) {
-    debug_assertMessage(D_00552F18);
+    debug_StdPrintfDummy(D_00552F18);
     _ACTWait(0);
 }
 
 void funcCommonEndReady(volatile int a0) {
-    debug_assertMessage(D_00552F38);
+    debug_StdPrintfDummy(D_00552F38);
     _ACTWait(0);
 }
 
@@ -506,19 +506,19 @@ int actCommonBackhand(void *a0) {
 typedef struct { int w[6]; } SlowrunRec;
 extern SlowrunRec D_0028E680[];
 
-void actCommonSlowrun(int a0, int a1) {
+void ControlMotionOrient(int a0, int a1) {
     D_0028E680[a0].w[2] = a1;
 }
 
-extern void func_00240038(void *a0, float f);
+extern void sceVu0ScaleVector(void *a0, float f);
 
-void ACT_LAYOUT_GAMEOVER(void *a0) {
+void _ACTMotDir_V(void *a0) {
     int local[4];
-    func_00240038(local, -1.0f);
+    sceVu0ScaleVector(local, -1.0f);
     dispPlane(a0, local);
 }
 
-extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00240038");
+extern void func_00240038_p(void *a0, int a1, float f) __asm__("sceVu0ScaleVector");
 
 void ACTAdjustPlane(int *self)
 {
@@ -529,7 +529,7 @@ void ACTAdjustPlane(int *self)
 
 extern void ChangeMailInLadder(void *buf, void *obj);
 
-void _ACTMotDirSmzDirect(void *a0) {
+void SetCorrectOrientOfChain(void *a0) {
     int local[4];
     ChangeMailInLadder(local, a0);
     dispPlane(a0, local);
@@ -563,7 +563,7 @@ void actCommonOne(volatile int a0) {
 
 extern void actCommonRopeCliff(int a0, int a1);
 
-void actCommonDelete(volatile int a0) {
+void afterCommonBox(volatile int a0) {
     actCommonRopeCliff(a0, 0);
 }
 

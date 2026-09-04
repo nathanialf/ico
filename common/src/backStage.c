@@ -9,11 +9,11 @@ void backStageProcessOutStage(int a0) {
 extern int D_00271240[];
 extern int D_004AEE28[];
 extern int D_004B1D90[];
-extern void func_001ABE88(int *, int *, int);
+extern void gamesysMemorySave(int *, int *, int);
 
-void backStageProcessMain(void) {
+void CheckPoint(void) {
     if (D_00271240[2] != 0) {
-        func_001ABE88(D_004AEE28, D_004B1D90, 0);
+        gamesysMemorySave(D_004AEE28, D_004B1D90, 0);
         D_00271240[3] = 1;
     }
 }
@@ -37,7 +37,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageLoad);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageProcessInit);
 
 extern int func_001AB750(void *, void *, int);
-extern int func_001ABE38(void *, void *, int);
+extern int gamesysMemoryHandlerRead(void *, void *, int);
 extern int D_0062AB50;
 extern int D_0062C114;
 extern int D_0062C118;
@@ -61,15 +61,15 @@ void backStageDebugTimeZero(void *a0) {
 }
 
 void backStageTsuresariReturn(void *a0) {
-    func_001ABE38(a0, &D_0062AB50, 4);
-    func_001ABE38(a0, &D_0062C114, 4);
-    func_001ABE38(a0, &D_0062C118, 4);
-    func_001ABE38(a0, &D_0062C11C, 4);
-    func_001ABE38(a0, &D_0062C120, 4);
-    func_001ABE38(a0, &D_0062C124, 4);
-    func_001ABE38(a0, &D_0062C128, 4);
-    func_001ABE38(a0, &D_0062C12C, 4);
-    func_001ABE38(a0, &D_0062C130, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062AB50, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C114, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C118, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C11C, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C120, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C124, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C128, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C12C, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C130, 4);
 }
 
 extern int D_0062AB50;

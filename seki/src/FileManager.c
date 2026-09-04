@@ -28,53 +28,53 @@ void func_0010F050(int a0) {
 
 extern int D_0062BA6C;
 extern int D_00272584[];
-extern void func_00240EA0(int a0, int a1);
+extern void sceDmaSend(int a0, int a1);
 
-void func_0010F058(void) {
-    func_00240EA0(D_0062BA6C, D_00272584[0]);
+void p2o_TransMicroProgram(void) {
+    sceDmaSend(D_0062BA6C, D_00272584[0]);
 }
 
 void func_0010F068(void) {
 }
 
-extern void debug_assertMessage(const char *fmt, ...);
+extern void debug_StdPrintfDummy(const char *fmt, ...);
 extern char D_0054E260[], D_0054E290[], D_0054E2A8[], D_0054E2C0[], D_0054E2D8[];
 extern char D_0054E2F0[], D_0054E308[], D_0054E320[], D_0054E338[], D_0054E350[], D_0054E368[];
 extern char D_0062BD08[];
 extern int D_0062A260;
-extern int func_002473A0(void *a0);
-extern int func_00247358(void);
-extern int func_00246EA0(void *a0, int a1, int a2);
-extern void func_00242138(int a0);
-extern void func_00249340(int a0);
-extern void func_00249818(int a0);
-extern void func_002469F8(void);
-extern void func_00243868(void);
+extern int sceSifRebootIop(void *a0);
+extern int sceSifSyncIop(void);
+extern int sceSifLoadModule(void *a0, int a1, int a2);
+extern void sceSifInitRpc(int a0);
+extern void sceCdInit(int a0);
+extern void sceCdMmode(int a0);
+extern void sceSifLoadFileReset(void);
+extern void sceFsReset(void);
 
 void func_0010F070(void) {
-    debug_assertMessage(D_0054E260);
-    debug_assertMessage(D_0054E290);
-    func_00242138(0);
-    func_00249340(0);
-    func_00249818(D_0062A260);
-    debug_assertMessage(D_0062BD08);
-    debug_assertMessage(D_0054E2A8);
-    do { } while (func_002473A0(D_0054E2C0) == 0);
-    do { } while (func_00247358() == 0);
-    func_00242138(0);
-    func_002469F8();
-    func_00243868();
-    func_00249340(0);
-    func_00249818(D_0062A260);
-    debug_assertMessage(D_0062BD08);
-    debug_assertMessage(D_0054E2D8);
-    do { } while (func_00246EA0(D_0054E2F0, 0, 0) < 0);
-    do { } while (func_00246EA0(D_0054E308, 0, 0) < 0);
-    do { } while (func_00246EA0(D_0054E320, 0, 0) < 0);
-    do { } while (func_00246EA0(D_0054E338, 0, 0) < 0);
-    do { } while (func_00246EA0(D_0054E350, 0, 0) < 0);
-    do { } while (func_00246EA0(D_0054E368, 0, 0) < 0);
-    debug_assertMessage(D_0062BD08);
+    debug_StdPrintfDummy(D_0054E260);
+    debug_StdPrintfDummy(D_0054E290);
+    sceSifInitRpc(0);
+    sceCdInit(0);
+    sceCdMmode(D_0062A260);
+    debug_StdPrintfDummy(D_0062BD08);
+    debug_StdPrintfDummy(D_0054E2A8);
+    do { } while (sceSifRebootIop(D_0054E2C0) == 0);
+    do { } while (sceSifSyncIop() == 0);
+    sceSifInitRpc(0);
+    sceSifLoadFileReset();
+    sceFsReset();
+    sceCdInit(0);
+    sceCdMmode(D_0062A260);
+    debug_StdPrintfDummy(D_0062BD08);
+    debug_StdPrintfDummy(D_0054E2D8);
+    do { } while (sceSifLoadModule(D_0054E2F0, 0, 0) < 0);
+    do { } while (sceSifLoadModule(D_0054E308, 0, 0) < 0);
+    do { } while (sceSifLoadModule(D_0054E320, 0, 0) < 0);
+    do { } while (sceSifLoadModule(D_0054E338, 0, 0) < 0);
+    do { } while (sceSifLoadModule(D_0054E350, 0, 0) < 0);
+    do { } while (sceSifLoadModule(D_0054E368, 0, 0) < 0);
+    debug_StdPrintfDummy(D_0062BD08);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F220);
@@ -159,21 +159,21 @@ void func_0010FAB0(void) {
     D_004C3850.cur = p + 0x20;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010FB08);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", gif_EndPacketPath1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010FC20);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010FD48);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010FEC8);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", gif_MakeSpriteOffset);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_00110060);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", gif_MakeSpriteWithStrip);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_001102C8);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", gif_PointOffset);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_001103F0);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", gif_Line);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_00110580);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", gif_Sprite);
 
 
 /* recovered struct shapes */

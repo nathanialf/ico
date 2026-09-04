@@ -1,8 +1,8 @@
-/* func_00261120 — parked near-miss (INCOMPLETE). Varargs command builder.
+/* _sprintf_r — parked near-miss (INCOMPLETE). Varargs command builder.
  * The `Rect261120` struct is NOT yet reconstructed — recover its field offsets
  * from the asm (r.idx@0, r.type@?, r.val, r.max/max2 = 0x7FFFFFFF, r.p) before
  * this will compile. func_00262D00 is a still-INCLUDE_ASM sibling. */
-void func_00261120(int a0, int a1, int a2, int a3,
+void _sprintf_r(int a0, int a1, int a2, int a3,
                    int a4, int a5, int a6, int a7) {
     Rect261120 r;
     long long sargs[5] __attribute__((aligned(8)));

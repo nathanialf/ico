@@ -76,7 +76,7 @@ glabel nearest_waypoint_from_gobj
     /* 77A4C 00177A4C 0400458D */  lw         $5, 0x4($10)
     /* 77A50 00177A50 28418424 */  addiu      $4, $4, %lo(D_00554128)
     /* 77A54 00177A54 2D30E000 */  daddu      $6, $7, $0
-    /* 77A58 00177A58 F2900608 */  j          debug_assertMessage
+    /* 77A58 00177A58 F2900608 */  j          debug_StdPrintfDummy
     /* 77A5C 00177A5C 080047AD */   sw        $7, 0x8($10)
 .align 2
   .L00177A60:

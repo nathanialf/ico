@@ -9,11 +9,11 @@ void backStageProcessOutStage(int a0) {
 extern int D_00271240[];
 extern int D_004AEE28[];
 extern int D_004B1D90[];
-extern void func_001ABE88(int *, int *, int);
+extern void gamesysMemorySave(int *, int *, int);
 
-void backStageProcessMain(void) {
+void CheckPoint(void) {
     if (D_00271240[2] != 0) {
-        func_001ABE88(D_004AEE28, D_004B1D90, 0);
+        gamesysMemorySave(D_004AEE28, D_004B1D90, 0);
         D_00271240[3] = 1;
     }
 }
@@ -31,16 +31,16 @@ void routeSetPos(void) {
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageProcessInStage);
 
 extern int func_00178DB0(int);
-extern void func_00240080(void *, void *);
-extern void func_00260568(void *, int, int);
+extern void sceVu0CopyVector(void *, void *);
+extern void memset(void *, int, int);
 extern int disp_memory_partition_bar();
-extern void _GetDirection(void *);
+extern void SetInfoSpKidnapGenerator(void *);
 extern void _RotGV(void *);
-extern void debug_assertMessage(char *);
+extern void debug_StdPrintfDummy(char *);
 extern int func_0018A0E8(void);
 extern void func_00151840(void);
 extern void func_0018E670(int);
-extern void actBoyFall(int, int);
+extern void RequestStageChangeKidnapEnd(int, int);
 extern int D_0062B23C;
 extern int D_0062B40C;
 extern int D_00629C90;
@@ -78,7 +78,7 @@ void backStageSave(void) {
                 w[0] = D_006DE100[0];
                 w[1] = D_006DE100[1] - 10.0f;
                 w[2] = D_006DE100[2];
-                func_00260568(&q, 0, 0x10);
+                memset(&q, 0, 0x10);
                 q.a = tbl[0];
                 q.b = tbl[1];
                 q.c = tbl[2];
@@ -87,17 +87,17 @@ void backStageSave(void) {
                 e = (unsigned char *)disp_memory_partition_bar(
                     0xD58, 0x21, *(unsigned short *)(obj + 0x44), w, &w[4]);
                 D_0062C120 = (e - obj) >> 6;
-                _GetDirection(obj + 0x30);
+                SetInfoSpKidnapGenerator(obj + 0x30);
                 _RotGV(e + 0x30);
                 if (e == 0 || obj == 0) {
-                    debug_assertMessage(D_0060B368);
+                    debug_StdPrintfDummy(D_0060B368);
                     D_0062C114 = 1;
                 } else {
                     *(int *)(e + 0x30) = 4;
                 }
             } else {
                 unsigned char *cap = obj + (D_0062C120 << 6);
-                func_00240080(cap + 0x10, obj + 0x50);
+                sceVu0CopyVector(cap + 0x10, obj + 0x50);
                 *(int *)(cap + 0x30) = 4;
                 D_0062C114 = 2;
             }
@@ -113,7 +113,7 @@ void backStageSave(void) {
                 unsigned char *cap = obj + (D_0062C120 << 6);
                 int hp = *(unsigned short *)(obj + 0x44);
                 func_0018E670(*(unsigned short *)(cap + 0x2));
-                actBoyFall(hp, (int)cap);
+                RequestStageChangeKidnapEnd(hp, (int)cap);
             }
         }
     }
@@ -124,7 +124,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageLoad);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageProcessInit);
 
 extern int func_001AB750(void *, void *, int);
-extern int func_001ABE38(void *, void *, int);
+extern int gamesysMemoryHandlerRead(void *, void *, int);
 extern int D_0062AB50;
 extern int D_0062C114;
 extern int D_0062C118;
@@ -148,15 +148,15 @@ void backStageDebugTimeZero(void *a0) {
 }
 
 void backStageTsuresariReturn(void *a0) {
-    func_001ABE38(a0, &D_0062AB50, 4);
-    func_001ABE38(a0, &D_0062C114, 4);
-    func_001ABE38(a0, &D_0062C118, 4);
-    func_001ABE38(a0, &D_0062C11C, 4);
-    func_001ABE38(a0, &D_0062C120, 4);
-    func_001ABE38(a0, &D_0062C124, 4);
-    func_001ABE38(a0, &D_0062C128, 4);
-    func_001ABE38(a0, &D_0062C12C, 4);
-    func_001ABE38(a0, &D_0062C130, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062AB50, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C114, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C118, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C11C, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C120, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C124, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C128, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C12C, 4);
+    gamesysMemoryHandlerRead(a0, &D_0062C130, 4);
 }
 
 extern int D_0062AB50;

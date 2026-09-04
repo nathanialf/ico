@@ -5,7 +5,7 @@ const char D_00613260[0x18] = "set partition first!\n";
 const char D_00613278[0x18] = "src/Basic.c";
 
 extern float D_0062970C;
-extern void func_00240938(void *a0, void *a1, void *a2, float a3);
+extern void sceVu0InterVectorXYZ(void *a0, void *a1, void *a2, float a3);
 
 struct DmaArec {
     void *p0;   /* 0x0 */
@@ -30,15 +30,15 @@ void dma_init(void *gobj, float t) {
             frac = fj - (float)k;
             cp = (char *)((void **)o7->f_4)[i];
             node = *(char **)((char *)A->p8 + i * 0x1A0) + j * 16;
-            func_00240938(node, cp + (k * 16 + 0x10), cp + k * 16, frac);
+            sceVu0InterVectorXYZ(node, cp + (k * 16 + 0x10), cp + k * 16, frac);
             node = *(char **)((char *)A->p8 + i * 0x1A0);
             *(float *)(node + j * 16 + 0xC) = 1.0f;
         }
     }
 }
 
-extern void func_00240B78(int a0);
-extern int *func_00240B50(int a0);
+extern void sceDmaReset(int a0);
+extern int *sceDmaGetChan(int a0);
 extern void debug_VariableInit(void);
 extern int *D_0062BA6C;
 extern int *D_0062BA70;
@@ -46,31 +46,31 @@ extern int *D_0062BA74;
 
 void matrix_init(void) {
     union U { int i; } *p;
-    func_00240B78(1);
-    D_0062BA6C = func_00240B50(1);
+    sceDmaReset(1);
+    D_0062BA6C = sceDmaGetChan(1);
     p = (union U *)D_0062BA6C;
     p->i |= 0x40;
-    D_0062BA70 = func_00240B50(2);
+    D_0062BA70 = sceDmaGetChan(2);
     p = (union U *)D_0062BA70;
     p->i |= 0x40;
-    D_0062BA74 = func_00240B50(8);
+    D_0062BA74 = sceDmaGetChan(8);
     p = (union U *)D_0062BA74;
     p->i |= 0x40;
     debug_VariableInit();
 }
 
 extern void *D_00629C70;
-extern void func_00118AA0(void *a0);
+extern void _UnitMatrix(void *a0);
 
 void malloc_MemCpy(void) {
     D_00629C70 = (void *)0x70000000;
-    func_00118AA0((void *)0x70000000);
+    _UnitMatrix((void *)0x70000000);
 }
 
-extern void func_002604B8(void);
+extern void memcpy(void);
 
 void malloc_SetPartition(void) {
-    func_002604B8();
+    memcpy();
 }
 
 extern int D_0062BA60;
@@ -87,17 +87,17 @@ extern int D_0062BA64;
 extern int D_0062A314;
 extern int D_0062A324;
 extern unsigned int D_0062D8E8[];
-extern void debug_assertMessage(char *p);
+extern void debug_StdPrintfDummy(char *p);
 extern int func_001AAD00(const char *, int);
-extern int func_00260380(const char *, int, void *);
+extern int __assert(const char *, int, void *);
 extern int iosFree(int a0, int a1, char *file, int line);
 
 int freeseki(int a0) {
     int rv = 0;
     if (D_0062BA60 == -1) {
-        debug_assertMessage(D_00613260);
+        debug_StdPrintfDummy(D_00613260);
         func_001AAD00(D_00613278, 0x174);
-        func_00260380(D_00613278, 0x174, D_0062D8E8);
+        __assert(D_00613278, 0x174, D_0062D8E8);
     }
     switch (D_0062BA60) {
     case 0:
@@ -145,12 +145,12 @@ void *func_001F3DF0(int a0, int a1) {
 
 extern int D_0062C254;
 extern int D_0070A4B0[];
-extern void _ScaleCurrentMatrix(void);
+extern void _InverseCurrentMatrix(void);
 extern void _UnitCurrentMatrix(void *a0);
 
 void func_001F3E18(void) {
     if (D_0062C254 != 0) {
-        _ScaleCurrentMatrix();
+        _InverseCurrentMatrix();
         _UnitCurrentMatrix(D_0070A4B0);
     }
 }

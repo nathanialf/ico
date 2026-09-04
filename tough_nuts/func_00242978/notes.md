@@ -1,7 +1,7 @@
-# func_00242978 — parked
+# sceSifCallRpc — parked
 
 VRAM: 0x00242978 (file_off 0x142978)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00242978.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sceSifCallRpc.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00242978.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00242978/func_00242978.c`
+**Seed:** `tough_nuts/sceSifCallRpc/sceSifCallRpc.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00242978, 0x1EC
+nonmatching sceSifCallRpc, 0x1EC
 
-glabel func_00242978
+glabel sceSifCallRpc
     /* 142978 00242978 40FFBD27 */  addiu      $29, $29, -0xC0
     /* 14297C 0024297C 3000B1FF */  sd         $17, 0x30($29)
     /* 142980 00242980 2D888000 */  daddu      $17, $4, $0
@@ -38,7 +38,7 @@ glabel func_00242978
     /* 1429BC 002429BC 2D900001 */  daddu      $18, $8, $0
     /* 1429C0 002429C0 B000BFFF */  sd         $31, 0xB0($29)
     /* 1429C4 002429C4 2DB86001 */  daddu      $23, $11, $0
-    /* 1429C8 002429C8 C008090C */  jal        func_00242300
+    /* 1429C8 002429C8 C008090C */  jal        _sceRpcGetPacket
     /* 1429CC 002429CC 40E28424 */   addiu     $4, $4, %lo(D_0070E240)
     /* 1429D0 002429D0 2D804000 */  daddu      $16, $2, $0
     /* 1429D4 002429D4 57000012 */  beqz       $16, .L00242B34
@@ -103,7 +103,7 @@ glabel func_00242978
     /* 142A90 00242A90 2D484002 */  daddu      $9, $18, $0
     /* 142A94 00242A94 0A008434 */  ori        $4, $4, (0x8000000A & 0xFFFF)
     /* 142A98 00242A98 2D280002 */  daddu      $5, $16, $0
-    /* 142A9C 00242A9C 9420090C */  jal        func_00248250
+    /* 142A9C 00242A9C 9420090C */  jal        sceSifSendCmd
     /* 142AA0 00242AA0 40000624 */   addiu     $6, $0, 0x40
     /* 142AA4 00242AA4 23004014 */  bnez       $2, .L00242B34
     /* 142AA8 00242AA8 2D100000 */   daddu     $2, $0, $0
@@ -113,11 +113,11 @@ glabel func_00242978
   .L00242AB4:
     /* 142AB4 00242AB4 0800A0AF */  sw         $0, 0x8($29)
     /* 142AB8 00242AB8 0400B3AF */  sw         $19, 0x4($29)
-    /* 142ABC 00242ABC 4801040C */  jal        func_00100520
+    /* 142ABC 00242ABC 4801040C */  jal        CreateSema
     /* 142AC0 00242AC0 2D20A003 */   daddu     $4, $29, $0
     /* 142AC4 00242AC4 05004104 */  bgez       $2, .L00242ADC
     /* 142AC8 00242AC8 080022AE */   sw        $2, 0x8($17)
-    /* 142ACC 00242ACC EA08090C */  jal        func_002423A8
+    /* 142ACC 00242ACC EA08090C */  jal        _sceRpcFreePacket
     /* 142AD0 00242AD0 2D200002 */   daddu     $4, $16, $0
     /* 142AD4 00242AD4 17000010 */  b          .L00242B34
     /* 142AD8 00242AD8 FDFF0224 */   addiu     $2, $0, -0x3
@@ -130,23 +130,23 @@ glabel func_00242978
     /* 142AEC 00242AEC 1400288E */  lw         $8, 0x14($17)
     /* 142AF0 00242AF0 0A008434 */  ori        $4, $4, (0x8000000A & 0xFFFF)
     /* 142AF4 00242AF4 2D280002 */  daddu      $5, $16, $0
-    /* 142AF8 00242AF8 9420090C */  jal        func_00248250
+    /* 142AF8 00242AF8 9420090C */  jal        sceSifSendCmd
     /* 142AFC 00242AFC 40000624 */   addiu     $6, $0, 0x40
     /* 142B00 00242B00 07004014 */  bnez       $2, .L00242B20
     /* 142B04 00242B04 00000000 */   nop
-    /* 142B08 00242B08 4C01040C */  jal        func_00100530
+    /* 142B08 00242B08 4C01040C */  jal        DeleteSema
     /* 142B0C 00242B0C 0800248E */   lw        $4, 0x8($17)
 .align 2
   .L00242B10:
-    /* 142B10 00242B10 EA08090C */  jal        func_002423A8
+    /* 142B10 00242B10 EA08090C */  jal        _sceRpcFreePacket
     /* 142B14 00242B14 2D200002 */   daddu     $4, $16, $0
     /* 142B18 00242B18 06000010 */  b          .L00242B34
     /* 142B1C 00242B1C FEFF0224 */   addiu     $2, $0, -0x2
 .align 2
   .L00242B20:
-    /* 142B20 00242B20 5801040C */  jal        func_00100560
+    /* 142B20 00242B20 5801040C */  jal        WaitSema
     /* 142B24 00242B24 0800248E */   lw        $4, 0x8($17)
-    /* 142B28 00242B28 4C01040C */  jal        func_00100530
+    /* 142B28 00242B28 4C01040C */  jal        DeleteSema
     /* 142B2C 00242B2C 0800248E */   lw        $4, 0x8($17)
     /* 142B30 00242B30 2D100000 */  daddu      $2, $0, $0
 .align 2
@@ -163,6 +163,6 @@ glabel func_00242978
     /* 142B58 00242B58 2000B0DF */  ld         $16, 0x20($29)
     /* 142B5C 00242B5C 0800E003 */  jr         $31
     /* 142B60 00242B60 C000BD27 */   addiu     $29, $29, 0xC0
-endlabel func_00242978
+endlabel sceSifCallRpc
     /* 142B64 00242B64 00000000 */  nop
 ```

@@ -37,21 +37,21 @@ void light_MakeLightMatrix(unsigned char *a0) {
 extern float D_00629EC0;
 extern float D_00629EC8;
 
-void light_DispVolume(float a0, float a1) {
+void gsb_SetZoom(float a0, float a1) {
     D_00629EC0 = a0;
     D_00629EC8 = a1;
 }
 
-extern int func_0023EB60(int a0, int a1);
-extern void debug_assertMessage();
+extern int sceGsSyncPath(int a0, int a1);
+extern void debug_StdPrintfDummy();
 extern void gsb_SetBGColor(void);
 extern int D_00629F18;
 extern char D_0054EB30[];
 
 int light_GetColorAnalog(void) {
-    if (func_0023EB60(1, 0)) {
+    if (sceGsSyncPath(1, 0)) {
         if (++D_00629F18 >= 0xB) {
-            debug_assertMessage(D_0054EB30);
+            debug_StdPrintfDummy(D_0054EB30);
             gsb_SetBGColor();
             D_00629F18 = 0;
         }
@@ -67,22 +67,22 @@ extern char D_0054EB50[];
 extern char D_0054EB70[];
 extern char D_0054EBA0[];
 extern char D_002714A0[];
-extern void func_00261188(void *a0, void *a1, void *a2);
-extern int func_001A7A88(void *a0, int a1);
-extern void func_00243EE0(int a0, void *a1, int a2);
-extern void func_001A7AE8(int a0);
+extern void sprintf(void *a0, void *a1, void *a2);
+extern int debugSceOpen(void *a0, int a1);
+extern void sceRead(int a0, void *a1, int a2);
+extern void debugSceClose(int a0);
 
 int light_DrawCursor(void) {
     char buf[0x100];
     int s0;
-    func_00261188(buf, D_0054EB50, &D_005EBC88[D_00629C90 * 0x190]);
-    s0 = func_001A7A88(buf, 1);
+    sprintf(buf, D_0054EB50, &D_005EBC88[D_00629C90 * 0x190]);
+    s0 = debugSceOpen(buf, 1);
     if (s0 < 0) {
-        debug_assertMessage(D_0054EB70);
+        debug_StdPrintfDummy(D_0054EB70);
     } else {
-        debug_assertMessage(D_0054EBA0, buf);
-        func_00243EE0(s0, D_002714A0, 0x130);
-        func_001A7AE8(s0);
+        debug_StdPrintfDummy(D_0054EBA0, buf);
+        sceRead(s0, D_002714A0, 0x130);
+        debugSceClose(s0);
     }
     return -1;
 }
@@ -93,22 +93,22 @@ extern char D_0054EB50[];
 extern char D_0054EBC0[];
 extern char D_0054EBF0[];
 extern char D_002714A0[];
-extern void func_00261188(void *a0, void *a1, void *a2);
-extern int func_001A7A88(void *a0, int a1);
-extern void func_00244150(int a0, void *a1, int a2);
-extern void func_001A7AE8(int a0);
+extern void sprintf(void *a0, void *a1, void *a2);
+extern int debugSceOpen(void *a0, int a1);
+extern void sceWrite(int a0, void *a1, int a2);
+extern void debugSceClose(int a0);
 
 int light_Tool(void) {
     char buf[0x100];
     int s0;
-    func_00261188(buf, D_0054EB50, &D_005EBC88[D_00629C90 * 0x190]);
-    s0 = func_001A7A88(buf, 0x602);
+    sprintf(buf, D_0054EB50, &D_005EBC88[D_00629C90 * 0x190]);
+    s0 = debugSceOpen(buf, 0x602);
     if (s0 < 0) {
-        debug_assertMessage(D_0054EBC0);
+        debug_StdPrintfDummy(D_0054EBC0);
     } else {
-        func_00244150(s0, D_002714A0, 0x130);
-        debug_assertMessage(D_0054EBF0, buf);
-        func_001A7AE8(s0);
+        sceWrite(s0, D_002714A0, 0x130);
+        debug_StdPrintfDummy(D_0054EBF0, buf);
+        debugSceClose(s0);
     }
     return -1;
 }
@@ -252,7 +252,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117CB8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117D78);
 
-float func_00118048(float a0) {
+float _Sqrt(float a0) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -297,7 +297,7 @@ void func_001180A8(void) {
     VU0_NOP();
 }
 
-void func_001180C0(void) {
+void _PopCurrentMatrix(void) {
     VU0_MEM("vlqd.xyzw $vf7, (--$vi15)");
     VU0_MEM("vlqd.xyzw $vf6, (--$vi15)");
     VU0_MEM("vlqd.xyzw $vf5, (--$vi15)");
@@ -305,7 +305,7 @@ void func_001180C0(void) {
     VU0_NOP();
 }
 
-void func_001180D8(void *a0) {
+void _TransCurrentMatrix(void *a0) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf8, 0x0($4)\n"
@@ -316,7 +316,7 @@ void func_001180D8(void *a0) {
         ".set reorder\n" : : : "memory");
 }
 
-void func_001180F8(void *a0) {
+void _SetTransCurrentMatrix(void *a0) {
     VU0_LSV_R(lqc2, 8, 0x0, a0);
     VU0_V2OP(vmove.xyzw, 7, 8);
     VU0_NOP();
@@ -327,12 +327,12 @@ void func_00118108(void) {
     VU0_NOP();
 }
 
-extern float func_0010ED30(short a0);
+extern float GetTableCos(short a0);
 extern float p2o_SetDefaultEnviroment(short a0);
 
-void func_00118118(short a0) {
+void _RotCurrentMatrixX(short a0) {
     float c, s;
-    c = func_0010ED30(a0);
+    c = GetTableCos(a0);
     s = p2o_SetDefaultEnviroment(a0);
     __asm__ __volatile__(
         ".set noreorder\n"

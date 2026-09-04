@@ -1,7 +1,7 @@
-# func_00118E38 — parked
+# _MakeLightColorMatrix — parked
 
 VRAM: 0x00118E38 (file_off 0x018E38)
-Asm source: asm/aug6/nonmatchings/seki/src/MicroCode/func_00118E38.s
+Asm source: asm/aug6/nonmatchings/seki/src/MicroCode/_MakeLightColorMatrix.s
 
 ## Attempt at 2026-06-05
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/seki/src/MicroCode/func_00118E38.s
 
 **TU:** `seki/src/MicroCode.c`
 
-**Seed:** `tough_nuts/func_00118E38/func_00118E38.c`
+**Seed:** `tough_nuts/_MakeLightColorMatrix/_MakeLightColorMatrix.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00118E38, 0x34
+nonmatching _MakeLightColorMatrix, 0x34
 
-glabel func_00118E38
+glabel _MakeLightColorMatrix
     /* 18E38 00118E38 2D50C000 */  daddu      $10, $6, $0
     /* 18E3C 00118E3C 2D18E000 */  daddu      $3, $7, $0
     /* 18E40 00118E40 2D100001 */  daddu      $2, $8, $0
@@ -31,7 +31,7 @@ glabel func_00118E38
     /* 18E60 00118E60 3000897C */  sq         $9, 0x30($4)
     /* 18E64 00118E64 0800E003 */  jr         $31
     /* 18E68 00118E68 00000000 */   nop
-endlabel func_00118E38
+endlabel _MakeLightColorMatrix
     /* 18E6C 00118E6C 00000000 */  nop
 ```
 
@@ -63,15 +63,15 @@ the permuter import to preserve mode(TI), then re-firing.
 
 **TU:** `seki/src/MicroCode.c`
 
-**Seed:** `tough_nuts/func_00118E38/func_00118E38.1.c`
+**Seed:** `tough_nuts/_MakeLightColorMatrix/_MakeLightColorMatrix.1.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00118E38, 0x34
+nonmatching _MakeLightColorMatrix, 0x34
 
-glabel func_00118E38
+glabel _MakeLightColorMatrix
     /* 18E38 00118E38 2D50C000 */  daddu      $10, $6, $0
     /* 18E3C 00118E3C 2D18E000 */  daddu      $3, $7, $0
     /* 18E40 00118E40 2D100001 */  daddu      $2, $8, $0
@@ -85,7 +85,7 @@ glabel func_00118E38
     /* 18E60 00118E60 3000897C */  sq         $9, 0x30($4)
     /* 18E64 00118E64 0800E003 */  jr         $31
     /* 18E68 00118E68 00000000 */   nop
-endlabel func_00118E38
+endlabel _MakeLightColorMatrix
     /* 18E6C 00118E6C 00000000 */  nop
 ```
 ## Fire 6: re-attack rc12->rc9 (reverse decl+swap store best); ~35 fresh decl/store perms all rc9-12; stall=30 permute; mode-TI strips permuter, valid run no rc0. (b)
@@ -131,15 +131,15 @@ ABI murky; (b) fix decomp-permuter import to preserve mode(TI) (pycparser limita
 
 **TU:** `seki/src/MicroCode.c`
 
-**Seed:** `tough_nuts/func_00118E38/func_00118E38.1.c`
+**Seed:** `tough_nuts/_MakeLightColorMatrix/_MakeLightColorMatrix.1.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00118E38, 0x34
+nonmatching _MakeLightColorMatrix, 0x34
 
-glabel func_00118E38
+glabel _MakeLightColorMatrix
     /* 18E38 00118E38 2D50C000 */  daddu      $10, $6, $0
     /* 18E3C 00118E3C 2D18E000 */  daddu      $3, $7, $0
     /* 18E40 00118E40 2D100001 */  daddu      $2, $8, $0
@@ -153,7 +153,7 @@ glabel func_00118E38
     /* 18E60 00118E60 3000897C */  sq         $9, 0x30($4)
     /* 18E64 00118E64 0800E003 */  jr         $31
     /* 18E68 00118E68 00000000 */   nop
-endlabel func_00118E38
+endlabel _MakeLightColorMatrix
     /* 18E6C 00118E6C 00000000 */  nop
 ```
 

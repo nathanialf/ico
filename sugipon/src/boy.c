@@ -3,7 +3,7 @@
 
 extern void GetRootMatrixByDObj(void *a0, void *a1);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 
 int dispClothes(int *a0, char *a1) {
     char *obj = (char *)*a0;
@@ -17,7 +17,7 @@ int dispClothes(int *a0, char *a1) {
     GetRootMatrixByDObj(buf + 0x10, obj);
     MatrixDrive_TurnObjectMatrix(buf, *(char **)(a1 + 0x15C) + 0xA0);
     *(int *)(buf + 4) = 0;
-    func_0023FFF0(s0 + 0xD0, s0 + 0xD0, buf);
+    sceVu0AddVector(s0 + 0xD0, s0 + 0xD0, buf);
     return 1;
 }
 
@@ -50,8 +50,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", dispCrown);
 
 extern int DebugDisp1CollisionWithColor(void *a0, int code);
 extern int func_00105078(void);
-extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, int a1);
-extern void func_00104D48(int a0);
+extern void CopyMatrix(int a0, int a1);
+extern void MatrixDrive_RotMatrixX(int a0);
 extern void shadow_EntryClusterShadow(void *a0, void *a1);
 
 void BoyDL(void *a0) {
@@ -68,9 +68,9 @@ void BoyDL(void *a0) {
         s0 = *(char **)(s0 + 0x4);
         break;
     }
-    MatrixDrive_TurnXObjectMatrixYZ(func_00105078(), *(int *)(*(char **)((char *)a0 + 0x15C) + 0xC) + s2 * 0x40);
-    func_00104D48(-0x8000);
-    MatrixDrive_TurnXObjectMatrixYZ(*(int *)(s0 + 0xC), func_00105078());
+    CopyMatrix(func_00105078(), *(int *)(*(char **)((char *)a0 + 0x15C) + 0xC) + s2 * 0x40);
+    MatrixDrive_RotMatrixX(-0x8000);
+    CopyMatrix(*(int *)(s0 + 0xC), func_00105078());
     shadow_EntryClusterShadow(s0, *(char **)((char *)a0 + 0x15C));
 }
 

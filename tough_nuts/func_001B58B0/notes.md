@@ -53,7 +53,7 @@ glabel func_001B58B0
     /* B5928 001B5928 F9FF4014 */  bnez       $2, .L001B5910
     /* B592C 001B592C 10008424 */   addiu     $4, $4, 0x10
     /* B5930 001B5930 6100043C */  lui        $4, %hi(D_0060FD60)
-    /* B5934 001B5934 F290060C */  jal        debug_assertMessage
+    /* B5934 001B5934 F290060C */  jal        debug_StdPrintfDummy
     /* B5938 001B5938 60FD8424 */   addiu     $4, $4, %lo(D_0060FD60)
     /* B593C 001B593C 6100103C */  lui        $16, %hi(D_0060FD78)
     /* B5940 001B5940 BD000524 */  addiu      $5, $0, 0xBD
@@ -63,7 +63,7 @@ glabel func_001B58B0
     /* B5950 001B5950 6300063C */  lui        $6, %hi(D_0062D2E8)
     /* B5954 001B5954 2D200002 */  daddu      $4, $16, $0
     /* B5958 001B5958 E8D2C624 */  addiu      $6, $6, %lo(D_0062D2E8)
-    /* B595C 001B595C E080090C */  jal        func_00260380
+    /* B595C 001B595C E080090C */  jal        __assert
     /* B5960 001B5960 BD000524 */   addiu     $5, $0, 0xBD
     /* B5964 001B5964 D8B5868F */  lw         $6, %gp_rel(D_0062C1C8)($28)
     /* B5968 001B5968 00291100 */  sll        $5, $17, 4

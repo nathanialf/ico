@@ -54,30 +54,30 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", findActPoint);
 
 extern int func_00105078(void);
 extern int func_00104D20(void);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
 extern int D_0062C234;
-extern void func_00260568(void *a0, int a1, int a2);
+extern void memset(void *a0, int a1, int a2);
 extern void func_001050A8(void *a0);
-extern void func_0023FDD8(int *a0, int a1, char *a2);
+extern void sceVu0ApplyMatrix(int *a0, int a1, char *a2);
 extern void ClipWallBoxStop(void *a0);
-extern float MatrixDrive_GetTurnZAngleYX(void *a0, void *a1);
+extern float GetPointDistance(void *a0, void *a1);
 extern char D_004C1C60[];
 extern char D_004C1C70[];
 
 void checkActPointWithHeight(void) {
     char buf[0xC0];
-    func_00260568(buf, 0, 0xC0);
+    memset(buf, 0, 0xC0);
     func_00104D20();
     func_001050A8(D_004C1C60);
     MatrixDrive_TurnObjectMatrix((int)buf, func_00105078() + 0x30);
-    func_0023FDD8((int *)(buf + 0x10), func_00105078(), D_004C1C70);
-    func_00105068();
+    sceVu0ApplyMatrix((int *)(buf + 0x10), func_00105078(), D_004C1C70);
+    MatrixDrive_PopMatrix();
     ClipWallBoxStop(buf);
     if (*(int *)(buf + 0x88) != 0) {
         float a;
         int *D;
-        a = MatrixDrive_GetTurnZAngleYX(buf + 0x20, buf);
+        a = GetPointDistance(buf + 0x20, buf);
         D = (int *)D_0062C234;
         *(float *)((char *)D + 0x170) = a;
         *(int *)((char *)D + 0x108) = 1;
@@ -93,66 +93,66 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", checkWallSideStat
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", checkWallState);
 
-extern void func_00118AA0(int a0);
+extern void _UnitMatrix(int a0);
 extern int func_00105078(void);
-extern float func_00166A48(int a0, int a1);
+extern float GetYProjectionOfPlane(int a0, int a1);
 extern void func_00105108(float, float, float);
-extern void func_0010E300(char *p);
+extern void MultiMatrixByQuaternion(char *p);
 extern int func_00104D20(void);
 extern void checkWallState(void);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 extern void clearCollisionStatus(void);
 extern int D_0062C230;
 extern int D_0062C234;
 
 void checkCliffState(void)
 {
-    func_00118AA0(func_00105078());
+    _UnitMatrix(func_00105078());
     {
         register float *p = (float *)D_0062C230;
-        float r = func_00166A48(D_0062C230 + 0x120, D_0062C230);
+        float r = GetYProjectionOfPlane(D_0062C230 + 0x120, D_0062C230);
         func_00105108(p[0], r, *(float *)(D_0062C230 + 8));
     }
-    func_0010E300((char *)D_0062C230 + 0x30);
+    MultiMatrixByQuaternion((char *)D_0062C230 + 0x30);
     func_00104D20();
     checkWallState();
-    func_00105068();
+    MatrixDrive_PopMatrix();
     if (*(int *)(D_0062C234 + 0xE4) != 0) {
         func_00104D20();
         clearCollisionStatus();
-        func_00105068();
+        MatrixDrive_PopMatrix();
     }
 }
 
 extern int D_0062C230;
 extern int func_00105078(void);
 extern void func_00105108(float, float, float);
-extern void func_0010E300(char *p);
-extern void func_00118AA0(int a0);
+extern void MultiMatrixByQuaternion(char *p);
+extern void _UnitMatrix(int a0);
 extern void checkWallState(void);
 
 void _checkCliffAndWall(void)
 {
-    func_00118AA0(func_00105078());
+    _UnitMatrix(func_00105078());
     {
         register float *p = (float *)D_0062C230;
         func_00105108(p[0], p[1] + p[112] + 10.0f, p[2]);
     }
-    func_0010E300((char *)D_0062C230 + 0x30);
+    MultiMatrixByQuaternion((char *)D_0062C230 + 0x30);
     checkWallState();
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", checkCliffAndWallStateOfLastPlane);
 
 extern void gif_SpriteOffset();
-extern void gsb_SetFrame();
+extern void gif_SetAlpha();
 extern int func_00104D20(void);
 extern int func_00105078(void);
-extern void f2400F8(int) __asm__("func_002400F8");
+extern void f2400F8(int) __asm__("sceVu0UnitMatrix");
 extern void func_00105108(float, float, float);
-extern void func_00104EB0(float, float, float);
+extern void MatrixDrive_ScaleMatrix(float, float, float);
 extern void InitMotionMemorySize(int);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 extern void func_0010F9D0();
 extern int D_0062C230;
 
@@ -161,15 +161,15 @@ void checkCliffAndWallStateAtJump(void)
     register float *p;
     int v;
     gif_SpriteOffset(0xB);
-    gsb_SetFrame(1, 5, 0x80);
+    gif_SetAlpha(1, 5, 0x80);
     func_00104D20();
     v = func_00105078();
     f2400F8(v);
     p = (float *)D_0062C230;
     func_00105108(p[104], p[105], p[106]);
-    func_00104EB0(8.0f, 8.0f, 8.0f);
+    MatrixDrive_ScaleMatrix(8.0f, 8.0f, 8.0f);
     InitMotionMemorySize(0xFF);
-    func_00105068();
+    MatrixDrive_PopMatrix();
     func_0010F9D0();
 }
 
@@ -189,12 +189,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001D8398);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", getInitialMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", dispSkelton);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", adjustSideWall);
 
 extern int D_0062C230;
 extern void ClipWallCheckCB(void *a0);
-extern int fzMagnitudeByLine(void *a0);
-extern int dispSkelton(int a0, int a1, int a2);
+extern int GetWallAttribute(void *a0);
+extern int adjustSideWall(int a0, int a1, int a2);
 
 int SkelTest(int a0, int a1, int p, int a3, int a4) {
     int flag;
@@ -203,7 +203,7 @@ int SkelTest(int a0, int a1, int p, int a3, int a4) {
 
     *(int *)(p + 0x70) = 0;
     MatrixDrive_TurnObjectMatrix(p, a3);
-    func_0023FDD8((int *)(p + 0x10), a1, (char *)a0);
+    sceVu0ApplyMatrix((int *)(p + 0x10), a1, (char *)a0);
     ClipWallBoxStop((void *)p);
 
     if (*(int *)(p + 0x88) != 0) {
@@ -213,7 +213,7 @@ int SkelTest(int a0, int a1, int p, int a3, int a4) {
         ClipWallCheckCB((void *)p);
         if (*(int *)(p + 0x88) != 0) {
             flag = 0;
-            mag = fzMagnitudeByLine((void *)p);
+            mag = GetWallAttribute((void *)p);
             switch (*(int *)(D_0062C230 + 0x314)) {
             default:
             case 1:
@@ -230,7 +230,7 @@ int SkelTest(int a0, int a1, int p, int a3, int a4) {
                 }
             }
             if (flag != 0) {
-                return dispSkelton(p, 0, a4);
+                return adjustSideWall(p, 0, a4);
             }
             goto block12;
         }
@@ -241,7 +241,7 @@ block12:
     ClipWallBoxStop((void *)p);
     if (*(int *)(p + 0x88) != 0) {
 disp_one:
-        return dispSkelton(p, 1, a4);
+        return adjustSideWall(p, 1, a4);
     }
     return 0;
 }
@@ -249,41 +249,41 @@ disp_one:
 
 extern int D_0062B75C;
 extern int D_0062C230;
-extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void iosOmSendMail(int a0, int a1, int a2);
 extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
 
 void SkelTestGeo(void) {
-    iosOmBeforeFuncStandard(D_0062B75C, 0x18, D_0062B75C);
+    iosOmSendMail(D_0062B75C, 0x18, D_0062B75C);
     MatrixDrive_TurnObjectMatrix(D_0062C230 + 0x140, D_0062C230);
 }
 
 void SetHitCollisionDisplay(void) {
-    iosOmBeforeFuncStandard(D_0062B75C, 0xF0, D_0062B75C);
+    iosOmSendMail(D_0062B75C, 0xF0, D_0062B75C);
     MatrixDrive_TurnObjectMatrix(D_0062C230 + 0x140, D_0062C230);
 }
 
 extern void func_00105108(float, float, float);
 extern int func_00105078(void);
-extern void func_0010E300(char *p);
+extern void MultiMatrixByQuaternion(char *p);
 extern float D_00703094[];
 extern int func_00104D20(void);
-extern int func_002400F8(int);
+extern int sceVu0UnitMatrix(int);
 extern void checkActPointWithHeight(void);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 
-void GetWallVector(void)
+void checkWallUpperWall(void)
 {
     int v;
     func_00104D20();
     v = func_00105078();
-    func_002400F8(v);
+    sceVu0UnitMatrix(v);
     {
         register float *p = (float *)D_0062C230;
         func_00105108(p[0], p[1] - D_00703094[0], p[2]);
     }
-    func_0010E300((char *)D_0062C230 + 0x30);
+    MultiMatrixByQuaternion((char *)D_0062C230 + 0x30);
     checkActPointWithHeight();
-    func_00105068();
+    MatrixDrive_PopMatrix();
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", getGeometryOfMotion);
@@ -292,7 +292,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001D9E10);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DA508);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DA980);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", avoidSideAdjustWall);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DAAC0);
 
@@ -380,26 +380,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DD6E8);
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DD9B8);
 
 extern void gif_SpriteOffset();
-extern void gsb_SetFrame();
+extern void gif_SetAlpha();
 extern void func_001DD6E8();
 extern void func_0010F9D0();
 
-void func_001DDAB8(void) {
+void dispSkelton(void) {
     int v;
     gif_SpriteOffset(0xB);
-    gsb_SetFrame(1, 5, 0x80);
+    gif_SetAlpha(1, 5, 0x80);
     func_00104D20();
     v = func_00105078();
-    func_002400F8(v);
+    sceVu0UnitMatrix(v);
     func_001DD6E8(0);
-    func_00105068();
+    MatrixDrive_PopMatrix();
     func_0010F9D0();
 }
 
 extern int D_0062B758;
 extern int D_0062AF90;
 extern void func_0010F048();
-extern void func_001DDAB8_a(char *) __asm__("func_001DDAB8");
+extern void func_001DDAB8_a(char *) __asm__("dispSkelton");
 
 void func_001DDB10(char *a0) {
     int sub = *(int *)(a0 + 0x15C);
@@ -415,7 +415,7 @@ void func_001DDB10(char *a0) {
     }
 }
 
-extern void func_00104D48(int a0);
+extern void MatrixDrive_RotMatrixX(int a0);
 extern void func_001DD9B8(int a0, int a1);
 extern void func_0023FE08(int a0, int a1, int a2);
 
@@ -428,8 +428,8 @@ void func_001DDB68(char *a0) {
     D_0062B758 = v;
     if (v != 0) {
         int s2;
-        func_002400F8(func_00105078());
-        func_00104D48(-0x8000);
+        sceVu0UnitMatrix(func_00105078());
+        MatrixDrive_RotMatrixX(-0x8000);
         func_001DD9B8(*(int *)(a0 + 0x15C), 0);
         s2 = *(int *)(a0 + 0x15C);
         for (i = 0; i < *(int *)(s2 + 0x88); i++) {

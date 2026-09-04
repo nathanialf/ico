@@ -58,11 +58,11 @@ int func_0018DFA8(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018DFB8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018E0E0);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", chain_sub_simulate);
 
-extern void _OrientXZGV(char *elem, char *base, int a2, float a, float b);
+extern void _InterGV(char *elem, char *base, int a2, float a, float b);
 
-void func_0018E2B8(char *base, int n, int a2)
+void chain_sub_pendulum(char *base, int n, int a2)
 {
     char *p;
     int i = 0;
@@ -71,13 +71,13 @@ void func_0018E2B8(char *base, int n, int a2)
     }
     p = base;
     do {
-        _OrientXZGV(p, base, a2, (float)i, (float)(n - i));
+        _InterGV(p, base, a2, (float)i, (float)(n - i));
         i++;
         p += 0x20;
     } while (i <= n);
 }
 
-extern float HandyCamera_TargetMoveType(void *a0, void *a1);
+extern float _DistSqGV(void *a0, void *a1);
 extern float D_0062C8C8_a[] __asm__("D_0062C8C8");
 
 int func_0018E348(float *out, int a1, void *a2) {
@@ -88,7 +88,7 @@ int func_0018E348(float *out, int a1, void *a2) {
 
     for (i = 2; i <= *(int *)(geo + 0x74) - 1; i++) {
         int off = i << 5;
-        float v = HandyCamera_TargetMoveType(a2, (void *)(*(int *)(geo + 0xD0) + off));
+        float v = _DistSqGV(a2, (void *)(*(int *)(geo + 0xD0) + off));
         if (v < best) {
             float *elem = (float *)(off + *(int *)(geo + 0xD0));
             best = v;
@@ -131,7 +131,7 @@ void func_0018F1A8(void)
 }
 
 typedef struct { short f0; char pad2[0xE]; int f10; int f14; int f18; } EBSlot;
-extern void debug_assertMessage(const char *);
+extern void debug_StdPrintfDummy(const char *);
 extern char D_00554FA0[];
 
 int func_0018F1F0(int a0, int a1) {
@@ -144,7 +144,7 @@ int func_0018F1F0(int a0, int a1) {
     if (i < 0x20) slot = &((EBSlot *)D_006C9FF0)[i];
     else slot = 0;
     if (slot == 0) {
-        debug_assertMessage(D_00554FA0);
+        debug_StdPrintfDummy(D_00554FA0);
         return 0;
     }
     slot->f18 = a0;
@@ -158,7 +158,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F2A0);
 typedef struct { char _0[0x128]; int f128; int f12C; char _130[0x60]; } GenRange;
 extern GenRange D_005EBC48[];
 extern void func_001AAD00(const char *s, int line);
-extern void func_00260380(const char *s, int line, const char *s2);
+extern void __assert(const char *s, int line, const char *s2);
 extern char D_00554FC8[], D_00554FD8[];
 
 int func_0018F3A0(int a0) {
@@ -172,14 +172,14 @@ int func_0018F3A0(int a0) {
     }
     if (result <= 0) {
         func_001AAD00(D_00554FC8, 0x1D8);
-        func_00260380(D_00554FC8, 0x1D8, D_00554FD8);
+        __assert(D_00554FC8, 0x1D8, D_00554FD8);
     }
     return result;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F470);
 
-extern float pac_DispQW(void);
+extern float _GetRandom(void);
 extern int D_0062C0A4;
 extern int D_0062C0A8;
 extern int D_0062C0AC;
@@ -187,7 +187,7 @@ extern int D_006CA470[];
 
 void func_0018F580(void) {
     if (D_0062C0A4 > 0) {
-        D_0062C0A8 = D_006CA470[(int)(pac_DispQW() * 10.0f) % D_0062C0A4];
+        D_0062C0A8 = D_006CA470[(int)(_GetRandom() * 10.0f) % D_0062C0A4];
     } else {
         D_0062C0A8 = -1;
     }

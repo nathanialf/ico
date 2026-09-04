@@ -94,7 +94,7 @@ glabel ReadEndCheckFile
     /* 9FB9C 0019FB9C 2000B2DF */  ld         $18, 0x20($29)
     /* 9FBA0 0019FBA0 1000B1DF */  ld         $17, 0x10($29)
     /* 9FBA4 0019FBA4 0000B0DF */  ld         $16, 0x0($29)
-    /* 9FBA8 0019FBA8 F2900608 */  j          debug_assertMessage
+    /* 9FBA8 0019FBA8 F2900608 */  j          debug_StdPrintfDummy
     /* 9FBAC 0019FBAC 6000BD27 */   addiu     $29, $29, 0x60
 endlabel ReadEndCheckFile
 ```

@@ -39,7 +39,7 @@ glabel dispPool
     /* B108 0010B108 83290500 */  sra        $5, $5, 6
     /* B10C 0010B10C 06000424 */  addiu      $4, $0, 0x6
     /* B110 0010B110 B82B0500 */  dsll       $5, $5, 14
-    /* B114 0010B114 2E47040C */  jal        gif_SpriteOrg
+    /* B114 0010B114 2E47040C */  jal        gif_SetGsReg
     /* B118 0010B118 2528A600 */   or        $5, $5, $6
     /* B11C 0010B11C 7092848F */  lw         $4, %gp_rel(D_00629E60)($28)
     /* B120 0010B120 2D480000 */  daddu      $9, $0, $0
@@ -48,19 +48,19 @@ glabel dispPool
     /* B12C 0010B12C 00010724 */  addiu      $7, $0, 0x100
     /* B130 0010B130 F643040C */  jal        gif_MakeSprite
     /* B134 0010B134 2D400000 */   daddu     $8, $0, $0
-    /* B138 0010B138 3A49040C */  jal        gsb_Reduction
+    /* B138 0010B138 3A49040C */  jal        gif_SetZTest
     /* B13C 0010B13C 2D200000 */   daddu     $4, $0, $0
     /* B140 0010B140 4A49040C */  jal        gsb_KeepFrameBuffer
     /* B144 0010B144 2D200000 */   daddu     $4, $0, $0
     /* B148 0010B148 2D200000 */  daddu      $4, $0, $0
     /* B14C 0010B14C 04000524 */  addiu      $5, $0, 0x4
-    /* B150 0010B150 D248040C */  jal        gsb_SetFrame
+    /* B150 0010B150 D248040C */  jal        gif_SetAlpha
     /* B154 0010B154 2D300000 */   daddu     $6, $0, $0
     /* B158 0010B158 47000424 */  addiu      $4, $0, 0x47
-    /* B15C 0010B15C 2E47040C */  jal        gif_SpriteOrg
+    /* B15C 0010B15C 2E47040C */  jal        gif_SetGsReg
     /* B160 0010B160 0300053C */   lui       $5, (0x30000 >> 16)
     /* B164 0010B164 14000424 */  addiu      $4, $0, 0x14
-    /* B168 0010B168 2E47040C */  jal        gif_SpriteOrg
+    /* B168 0010B168 2E47040C */  jal        gif_SetGsReg
     /* B16C 0010B16C 60000524 */   addiu     $5, $0, 0x60
     /* B170 0010B170 6C93828F */  lw         $2, %gp_rel(D_00629F5C)($28)
     /* B174 0010B174 5500043C */  lui        $4, %hi(D_0054E100)
@@ -103,11 +103,11 @@ glabel dispPool
     /* B208 0010B208 2D400000 */   daddu     $8, $0, $0
     /* B20C 0010B20C 4A49040C */  jal        gsb_KeepFrameBuffer
     /* B210 0010B210 01000424 */   addiu     $4, $0, 0x1
-    /* B214 0010B214 3A49040C */  jal        gsb_Reduction
+    /* B214 0010B214 3A49040C */  jal        gif_SetZTest
     /* B218 0010B218 01000424 */   addiu     $4, $0, 0x1
     /* B21C 0010B21C 0500053C */  lui        $5, (0x5000D >> 16)
     /* B220 0010B220 0D00A534 */  ori        $5, $5, (0x5000D & 0xFFFF)
-    /* B224 0010B224 2E47040C */  jal        gif_SpriteOrg
+    /* B224 0010B224 2E47040C */  jal        gif_SetGsReg
     /* B228 0010B228 47000424 */   addiu     $4, $0, 0x47
     /* B22C 0010B22C 3000BFDF */  ld         $31, 0x30($29)
     /* B230 0010B230 0800E003 */  jr         $31

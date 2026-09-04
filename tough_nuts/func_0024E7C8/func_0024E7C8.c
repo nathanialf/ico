@@ -1,10 +1,10 @@
-extern void func_00251088(int a0);
+extern void _ipuSetMPEG1(int a0);
 extern int D_0054C758[];
 extern int D_0054CD78[];
 
-void func_0024E7C8(void) {
+void _clearOnce(void) {
     int base;
-    func_00251088(1);
+    _ipuSetMPEG1(1);
     base = D_0054C758[0];
     D_0054CD78[1] = base + 0x1800;
     D_0054CD78[0] = base;

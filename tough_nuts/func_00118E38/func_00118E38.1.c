@@ -2,14 +2,14 @@
 #include "vu0.h"
 #include "r5900.h"
 
-void mc_setBaseOffset(void *a0, void *a1) {
+void _FTOI4Vector(void *a0, void *a1) {
     VU0_LSV(lqc2, 1, 0x0, 5);
     VU0_V2OP(vftoi4.xyzw, 2, 1);
     VU0_LSV(sqc2, 2, 0x0, 4);
     VU0_NOP();
 }
 
-void mc_SetMicroCode(void *a0, void *a1) {
+void _FTOI0Vector(void *a0, void *a1) {
     VU0_LSV(lqc2, 1, 0x0, 5);
     VU0_V2OP(vftoi0.xyzw, 2, 1);
     VU0_LSV(sqc2, 2, 0x0, 4);
@@ -29,7 +29,7 @@ void mc_Init(void *a0) {
     VU0_NOP();
 }
 
-void func_001188B8(void *a0, void *a1, void *a2, float t) {
+void _InterVector(void *a0, void *a1, void *a2, float t) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "mfc1 $8, $f12\n"
@@ -43,7 +43,7 @@ void func_001188B8(void *a0, void *a1, void *a2, float t) {
         ".set reorder\n" : : : "$8", "memory");
 }
 
-void func_001188E0(void *a0, void *a1, void *a2, float t) {
+void _InterVectorXYZ(void *a0, void *a1, void *a2, float t) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "mfc1 $8, $f12\n"
@@ -57,7 +57,7 @@ void func_001188E0(void *a0, void *a1, void *a2, float t) {
         ".set reorder\n" : : : "$8", "memory");
 }
 
-float func_00118908(void *a0) {
+float _GetNorm(void *a0) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -75,7 +75,7 @@ float func_00118908(void *a0) {
     return ret;
 }
 
-float func_00118938(void *a0, void *a1) {
+float _GetLength(void *a0, void *a1) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -95,7 +95,7 @@ float func_00118938(void *a0, void *a1) {
     return ret;
 }
 
-float func_00118970(void *a0, void *a1) {
+float _GetLengthXY(void *a0, void *a1) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -113,7 +113,7 @@ float func_00118970(void *a0, void *a1) {
     return ret;
 }
 
-float func_001189A0(void *a0, void *a1) {
+float _GetLengthXZ(void *a0, void *a1) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -131,11 +131,11 @@ float func_001189A0(void *a0, void *a1) {
     return ret;
 }
 
-void func_001189D0(void *dst, void *src) {
+void _CopyMatrix(void *dst, void *src) {
     QCOPY64_PARALLEL("$6", "$7", "$8", "$9");
 }
 
-void func_001189F8(void *a0, void *a1, void *a2) {
+void _MulMatrix(void *a0, void *a1, void *a2) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf14, 0x0($5)\n"
@@ -169,7 +169,7 @@ void func_001189F8(void *a0, void *a1, void *a2) {
         ".set reorder\n" : : : "memory");
 }
 
-void func_00118A70(void *a0, void *a1, void *a2) {
+void _ApplyMatrix(void *a0, void *a1, void *a2) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf8, 0x0($6)\n"
@@ -185,7 +185,7 @@ void func_00118A70(void *a0, void *a1, void *a2) {
         ".set reorder\n" : : : "memory");
 }
 
-void func_00118AA0(void *a0) {
+void _UnitMatrix(void *a0) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "vmove.xyzw $vf17, $vf0\n"
@@ -199,7 +199,7 @@ void func_00118AA0(void *a0) {
         ".set reorder\n" : : : "memory");
 }
 
-void func_00118AC8(void *a0) {
+void _UnitRotation(void *a0) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "vmove.xyzw $vf17, $vf0\n"
@@ -212,7 +212,7 @@ void func_00118AC8(void *a0) {
         ".set reorder\n" : : : "memory");
 }
 
-void func_00118AF0(void *a0, void *a1) {
+void _TransposeMatrix(void *a0, void *a1) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lq $8, 0x0($5)\n"
@@ -234,7 +234,7 @@ void func_00118AF0(void *a0, void *a1) {
         ".set reorder\n" : : : "$8","$9","$10","$11","$12","$13","$14","$15","memory");
 }
 
-void func_00118B38(void *a0, void *a1) {
+void _InversMatrix(void *a0, void *a1) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lq $8, 0x0($5)\n"
@@ -266,15 +266,15 @@ void func_00118B38(void *a0, void *a1) {
         ".set reorder\n" : : : "$8","$9","$10","$11","$12","$13","$14","$15","memory");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118BA8);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", _ScaleMatrixV);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118C40);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", _SetCameraMatrix);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118D68);
 
 typedef unsigned int Qw128 __attribute__((mode(TI)));
 
-void func_00118E38(Qw128 *a0, Qw128 *a1, Qw128 *a2, Qw128 *a3, Qw128 *a4) {
+void _MakeLightColorMatrix(Qw128 *a0, Qw128 *a1, Qw128 *a2, Qw128 *a3, Qw128 *a4) {
     Qw128 b3 = *a4, b2 = *a3, b1 = *a2, b0 = *a1;
     a0[1] = b1;
     a0[0] = b0;
@@ -282,7 +282,7 @@ void func_00118E38(Qw128 *a0, Qw128 *a1, Qw128 *a2, Qw128 *a3, Qw128 *a4) {
     a0[2] = b2;
 }
 
-void func_00118E70(float a0) {
+void _InitRandom(float a0) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "mfc1 $6, $f12\n"

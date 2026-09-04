@@ -1,7 +1,7 @@
-# func_00247120 — parked
+# sceSifSetIopAddr — parked
 
 VRAM: 0x00247120 (file_off 0x147120)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00247120.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sceSifSetIopAddr.s
 
 ## Attempt at 2026-06-19
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00247120.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00247120/func_00247120.c`
+**Seed:** `tough_nuts/sceSifSetIopAddr/sceSifSetIopAddr.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00247120, 0xDC
+nonmatching sceSifSetIopAddr, 0xDC
 
-glabel func_00247120
+glabel sceSifSetIopAddr
     /* 147120 00247120 B0FFBD27 */  addiu      $29, $29, -0x50
     /* 147124 00247124 3000B2FF */  sd         $18, 0x30($29)
     /* 147128 00247128 2000B1FF */  sd         $17, 0x20($29)
@@ -25,7 +25,7 @@ glabel func_00247120
     /* 147130 00247130 1000B0FF */  sd         $16, 0x10($29)
     /* 147134 00247134 2D88A000 */  daddu      $17, $5, $0
     /* 147138 00247138 4000BFFF */  sd         $31, 0x40($29)
-    /* 14713C 0024713C 1A1A090C */  jal        func_00246868
+    /* 14713C 0024713C 1A1A090C */  jal        _lf_bind
     /* 147140 00247140 2D80C000 */   daddu     $16, $6, $0
     /* 147144 00247144 03004104 */  bgez       $2, .L00247154
     /* 147148 00247148 7100073C */   lui       $7, %hi(D_0070F800)
@@ -69,7 +69,7 @@ glabel func_00247120
     /* 1471B8 002471B8 20000824 */  addiu      $8, $0, 0x20
     /* 1471BC 002471BC 2D48E000 */  daddu      $9, $7, $0
     /* 1471C0 002471C0 10000A24 */  addiu      $10, $0, 0x10
-    /* 1471C4 002471C4 5E0A090C */  jal        func_00242978
+    /* 1471C4 002471C4 5E0A090C */  jal        sceSifCallRpc
     /* 1471C8 002471C8 2D580000 */   daddu     $11, $0, $0
     /* 1471CC 002471CC FEFF043C */  lui        $4, (0xFFFEFFFF >> 16)
     /* 1471D0 002471D0 FFFF0324 */  addiu      $3, $0, -0x1
@@ -85,6 +85,6 @@ glabel func_00247120
     /* 1471F0 002471F0 1000B0DF */  ld         $16, 0x10($29)
     /* 1471F4 002471F4 0800E003 */  jr         $31
     /* 1471F8 002471F8 5000BD27 */   addiu     $29, $29, 0x50
-endlabel func_00247120
+endlabel sceSifSetIopAddr
     /* 1471FC 002471FC 00000000 */  nop
 ```

@@ -34,7 +34,7 @@ int InitSugiLeafGeo(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", SugiLeafGeo);
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", _handler);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", InitSugiLeafGeo2);
 
@@ -46,20 +46,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE648);
 extern short *iosFree(int handle, int size, void *file, int line);
 extern int D_0062A310;
 extern const char D_006130A8[];
-extern int func_002610F0(void);
+extern int rand(void);
 
 short *func_001EE7E0(void) {
     short *h = iosFree(D_0062A310, 2, (void *)D_006130A8, 0xC);
-    int r = func_002610F0();
+    int r = rand();
     *h = r % 0x10000;
     return h;
 }
 
 extern void *func_00105078(void);
-extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
+extern void CopyMatrix(void *dst, void *src);
 extern float p2o_SetDefaultEnviroment(int a0);
-extern void func_00104DC0(int a0);
-extern void func_00104D48(int a0);
+extern void MatrixDrive_RotMatrixY(int a0);
+extern void MatrixDrive_RotMatrixX(int a0);
 
 void func_001EE838(int a0) {
     int sub = *(int *)(a0 + 0x15C);
@@ -67,11 +67,11 @@ void func_001EE838(int a0) {
     void *r;
 
     r = func_00105078();
-    MatrixDrive_TurnXObjectMatrixYZ(r, (void *)(sub + 0x20));
-    func_00104DC0((short)(p2o_SetDefaultEnviroment(geo[0]) * 256.0f));
-    func_00104D48((short)(p2o_SetDefaultEnviroment((short)(geo[0] * 2)) * 256.0f));
+    CopyMatrix(r, (void *)(sub + 0x20));
+    MatrixDrive_RotMatrixY((short)(p2o_SetDefaultEnviroment(geo[0]) * 256.0f));
+    MatrixDrive_RotMatrixX((short)(p2o_SetDefaultEnviroment((short)(geo[0] * 2)) * 256.0f));
     r = func_00105078();
-    MatrixDrive_TurnXObjectMatrixYZ(*(void **)(sub + 0xC), r);
+    CopyMatrix(*(void **)(sub + 0xC), r);
     geo[0] = (unsigned short)geo[0] + 0x80;
 }
 

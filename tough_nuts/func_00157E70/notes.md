@@ -52,7 +52,7 @@ glabel func_00157E70
     /* 57EEC 00157EEC 1000A2FF */  sd         $2, 0x10($29)
     /* 57EF0 00157EF0 1E14040C */  jal        func_00105078
     /* 57EF4 00157EF4 1800A3FF */   sd        $3, 0x18($29)
-    /* 57EF8 00157EF8 A862040C */  jal        func_00118AA0
+    /* 57EF8 00157EF8 A862040C */  jal        _UnitMatrix
     /* 57EFC 00157EFC 2D204000 */   daddu     $4, $2, $0
     /* 57F00 00157F00 1647040C */  jal        gif_SpriteOffset
     /* 57F04 00157F04 0B000424 */   addiu     $4, $0, 0xB
@@ -74,7 +74,7 @@ glabel func_00157E70
     /* 57F44 00157F44 04000524 */  addiu      $5, $0, 0x4
     /* 57F48 00157F48 7679040C */  jal        reg_dispBoxLine
     /* 57F4C 00157F4C 04000624 */   addiu     $6, $0, 0x4
-    /* 57F50 00157F50 1A14040C */  jal        func_00105068
+    /* 57F50 00157F50 1A14040C */  jal        MatrixDrive_PopMatrix
     /* 57F54 00157F54 00000000 */   nop
     /* 57F58 00157F58 4813040C */  jal        func_00104D20
     /* 57F5C 00157F5C 00000000 */   nop
@@ -85,11 +85,11 @@ glabel func_00157E70
     /* 57F70 00157F70 04000524 */  addiu      $5, $0, 0x4
     /* 57F74 00157F74 7679040C */  jal        reg_dispBoxLine
     /* 57F78 00157F78 04000624 */   addiu     $6, $0, 0x4
-    /* 57F7C 00157F7C 1A14040C */  jal        func_00105068
+    /* 57F7C 00157F7C 1A14040C */  jal        MatrixDrive_PopMatrix
     /* 57F80 00157F80 00000000 */   nop
     /* 57F84 00157F84 743E040C */  jal        func_0010F9D0
     /* 57F88 00157F88 00000000 */   nop
-    /* 57F8C 00157F8C 1A14040C */  jal        func_00105068
+    /* 57F8C 00157F8C 1A14040C */  jal        MatrixDrive_PopMatrix
     /* 57F90 00157F90 00000000 */   nop
     /* 57F94 00157F94 5000BFDF */  ld         $31, 0x50($29)
     /* 57F98 00157F98 4000B1DF */  ld         $17, 0x40($29)

@@ -1,7 +1,7 @@
-# func_00251550 — parked
+# _pictureData0 — parked
 
 VRAM: 0x00251550 (file_off 0x151550)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00251550.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/_pictureData0.s
 
 ## Attempt at 2026-06-21
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00251550.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00251550/func_00251550.c`
+**Seed:** `tough_nuts/_pictureData0/_pictureData0.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00251550, 0x124
+nonmatching _pictureData0, 0x124
 
-glabel func_00251550
+glabel _pictureData0
     /* 151550 00251550 5500023C */  lui        $2, %hi(D_0054C8A8)
     /* 151554 00251554 5500033C */  lui        $3, %hi(D_0054C8AC)
     /* 151558 00251558 90FFBD27 */  addiu      $29, $29, -0x70
@@ -56,9 +56,9 @@ glabel func_00251550
     /* 1515CC 002515CC 2D204002 */   daddu     $4, $18, $0
     /* 1515D0 002515D0 F9FF1312 */  beq        $16, $19, .L002515B8
     /* 1515D4 002515D4 00000000 */   nop
-    /* 1515D8 002515D8 C448090C */  jal        func_00252310
+    /* 1515D8 002515D8 C448090C */  jal        _waitIpuIdle
     /* 1515DC 002515DC 00000000 */   nop
-    /* 1515E0 002515E0 2C44090C */  jal        func_002510B0
+    /* 1515E0 002515E0 2C44090C */  jal        _waitBdecOut
     /* 1515E4 002515E4 00000000 */   nop
     /* 1515E8 002515E8 02000324 */  addiu      $3, $0, 0x2
     /* 1515EC 002515EC 0010043C */  lui        $4, (0x1000D400 >> 16)
@@ -79,7 +79,7 @@ glabel func_00251550
     /* 151620 00251620 0200222E */   sltiu     $2, $17, 0x2
     /* 151624 00251624 78CDA226 */  addiu      $2, $21, %lo(D_0054CD78)
     /* 151628 00251628 8002448C */  lw         $4, 0x280($2)
-    /* 15162C 0025162C 4A40090C */  jal        func_00250128
+    /* 15162C 0025162C 4A40090C */  jal        _doMC
     /* 151630 00251630 0100842C */   sltiu     $4, $4, 0x1
     /* 151634 00251634 0200222E */  sltiu      $2, $17, 0x2
 .align 2
@@ -87,7 +87,7 @@ glabel func_00251550
     /* 151638 00251638 05004010 */  beqz       $2, .L00251650
     /* 15163C 0025163C 2D104002 */   daddu     $2, $18, $0
     /* 151640 00251640 6300043C */  lui        $4, %hi(D_006290E8)
-    /* 151644 00251644 483A090C */  jal        func_0024E920
+    /* 151644 00251644 483A090C */  jal        _Error
     /* 151648 00251648 E8908424 */   addiu     $4, $4, %lo(D_006290E8)
     /* 15164C 0025164C 2D104002 */  daddu      $2, $18, $0
 .align 2
@@ -101,6 +101,6 @@ glabel func_00251550
     /* 151668 00251668 0000B0DF */  ld         $16, 0x0($29)
     /* 15166C 0025166C 0800E003 */  jr         $31
     /* 151670 00251670 7000BD27 */   addiu     $29, $29, 0x70
-endlabel func_00251550
+endlabel _pictureData0
     /* 151674 00251674 00000000 */  nop
 ```

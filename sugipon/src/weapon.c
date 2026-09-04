@@ -57,7 +57,7 @@ void WeaponCurPos(void *a0, char *a1, int a2)
 }
 
 extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
 extern void GetRootMatrixByDObj(void *buf, void *obj);
 
 void *WeaponHitEffect(void *a0, float radius) {
@@ -93,7 +93,7 @@ void *WeaponHitEffect(void *a0, float radius) {
                 }
             }
         }
-        obj = (char *)isysGObjSearchFromObjKindID_begin(obj);
+        obj = (char *)isysGObjSearchFromObjKindID_next(obj);
     }
     return best;
 }
@@ -211,7 +211,7 @@ float CheckSwapableWeapon(void *a0) {
 }
 
 extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
 extern void IsTorchLightOn(int a0, void *a1);
 
 void ReleaseWeapon(void *a0) {
@@ -226,7 +226,7 @@ void ReleaseWeapon(void *a0) {
                     IsTorchLightOn(base[i], a0);
                 }
             }
-            g = isysGObjSearchFromObjKindID_begin(g);
+            g = isysGObjSearchFromObjKindID_next(g);
         } while (g != 0);
     }
 }

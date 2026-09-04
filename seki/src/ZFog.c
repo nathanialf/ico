@@ -31,7 +31,7 @@ int func_0012FC28(void *a0) {
     return tex_textureAnimation(a0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FC48);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", tex_GetTextureNo);
 
 extern unsigned char D_0067AE50[];
 
@@ -43,7 +43,7 @@ void *func_0012FCF8(int a0) {
     return &D_0067AE50[a0 * 0x2E8];
 }
 
-void func_0012FD10(void *a0, int a1, int a2) {
+void tex_SetSamplingType(void *a0, int a1, int a2) {
     long v = *(long *)((char *)a0 + 0x78);
     *(long *)((char *)a0 + 0x78) = (a2 << 6) | ((a1 << 5) | (v & -0xE1));
 }
@@ -56,7 +56,7 @@ void *func_0012FD38(int a0) {
 
 extern unsigned char D_0067ADF8[];
 
-short func_0012FD50(int a0) {
+short tex_GetVramFreeAddress(int a0) {
     return *(short *)(D_0067ADF8 + a0 * 6);
 }
 
@@ -70,9 +70,9 @@ int func_0012FEC0(void) {
     return D_0062BF68;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FEC8);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", tex_SetUVScroll);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_00130000);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", tex_Init);
 
 
 /* recovered struct shapes */

@@ -1,13 +1,13 @@
-# func_00254930 — PARKED near-miss rc8 (not permuter-run)
+# _sysbitJump — PARKED near-miss rc8 (not permuter-run)
 
 VRAM 0x00254930, common/src/PObj.c. Struct update + clamp + tail-call.
-Struct (int* a0, cf. sibling func_002547A8): a0[0](ll)=0, a0[2]=base, a0[3]=cur,
+Struct (int* a0, cf. sibling _sysbitInit): a0[0](ll)=0, a0[2]=base, a0[3]=cur,
 a0[4]=0, a0[6](ll)=accumulator, a0[9]=limit, a0[0xA]=wrap.
 
-## Shape (rc8 seed) — see func_00254930.c
+## Shape (rc8 seed) — see _sysbitJump.c
 v=(long long)(a1<<3)+a0[6]; sum=a0[2]+(int)((v<<29)>>32); a0[0]=0; a0[4]=0;
 a0[6]=v; a0[3]=sum; if((unsigned)sum>=(unsigned)a0[9]) a0[3]=sum-a0[0xA];
-tail-call func_00254800(a0,0) (void → sibcall j).
+tail-call _sysbitFlush(a0,0) (void → sibcall j).
 KEY FIXES already in: `(long long)(a1<<3)` not `(long long)a1<<3` → **sll** not
 dsll (rc18→rc8); a0 stays in $7 across to the tail call.
 

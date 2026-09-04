@@ -3,7 +3,7 @@
 
 extern int func_0023CCE0(int *a, int *b);
 
-int func_0019B8E0(int a0_unused, int *a1, char *a2) {
+int mpegTS(int a0_unused, int *a1, char *a2) {
     long long buf[4];
     func_0023CCE0((int *)(a2 + 0x50), (int *)buf);
     *(long long *)((char *)a1 + 0x8) = buf[0];
@@ -25,8 +25,8 @@ extern char D_00557158[];
 extern char D_00557178[];
 extern int deq_mes_th(int a0, int a1, int a2, void *a3, int a4);
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
-extern void func_00260568(int a0, int a1, int a2);
+extern void __assert(void *a0, int a1, void *a2);
+extern void memset(int a0, int a1, int a2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufDelete);
 
@@ -60,7 +60,7 @@ int voBufGetData(int *a0) {
     return a0[3] == a0[4];
 }
 
-extern void func_00101A40(volatile int *a0);
+extern void DIntr(volatile int *a0);
 
 /* voBufGetTag — critical-section update of the shared (volatile) movie output
  * ring: tags the current frame, bumps writeIdx, advances readIdx mod numFrames,
@@ -68,7 +68,7 @@ extern void func_00101A40(volatile int *a0);
  * Ito's hand-scheduled IPU code. */
 void voBufGetTag(volatile int *a0) {
     int w, n;
-    func_00101A40(a0);
+    DIntr(a0);
     *(int *)(a0[1] + a0[2] * 0xA0A40) = 2;
     w = a0[3];
     n = a0[4];

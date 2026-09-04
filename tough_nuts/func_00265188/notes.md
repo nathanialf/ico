@@ -1,7 +1,7 @@
-# func_00265188 — parked
+# __swsetup — parked
 
 VRAM: 0x00265188 (file_off 0x165188)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00265188.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/__swsetup.s
 
 ## Attempt at 2026-06-21
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00265188.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00265188/func_00265188.c`
+**Seed:** `tough_nuts/__swsetup/__swsetup.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00265188, 0x10C
+nonmatching __swsetup, 0x10C
 
-glabel func_00265188
+glabel __swsetup
     /* 165188 00265188 E0FFBD27 */  addiu      $29, $29, -0x20
     /* 16518C 0026518C 0000B0FF */  sd         $16, 0x0($29)
     /* 165190 00265190 1000BFFF */  sd         $31, 0x10($29)
@@ -34,7 +34,7 @@ glabel func_00265188
   .L002651B8:
     /* 1651B8 002651B8 04004054 */  bnel       $2, $0, .L002651CC
     /* 1651BC 002651BC 0C000396 */   lhu       $3, 0xC($16)
-    /* 1651C0 002651C0 649A090C */  jal        func_00266990
+    /* 1651C0 002651C0 649A090C */  jal        __sinit
     /* 1651C4 002651C4 2D206000 */   daddu     $4, $3, $0
     /* 1651C8 002651C8 0C000396 */  lhu        $3, 0xC($16)
 .align 2
@@ -56,7 +56,7 @@ glabel func_00265188
     /* 1651FC 002651FC 40000226 */   addiu     $2, $16, 0x40
     /* 165200 00265200 0500A250 */  beql       $5, $2, .L00265218
     /* 165204 00265204 300000AE */   sw        $0, 0x30($16)
-    /* 165208 00265208 D09A090C */  jal        func_00266B40
+    /* 165208 00265208 D09A090C */  jal        _free_r
     /* 16520C 0026520C 5400048E */   lw        $4, 0x54($16)
     /* 165210 00265210 0C000396 */  lhu        $3, 0xC($16)
     /* 165214 00265214 300000AE */  sw         $0, 0x30($16)
@@ -77,7 +77,7 @@ glabel func_00265188
   .L0026523C:
     /* 16523C 0026523C 04008054 */  bnel       $4, $0, .L00265250
     /* 165240 00265240 0C000396 */   lhu       $3, 0xC($16)
-    /* 165244 00265244 4C9D090C */  jal        func_00267530
+    /* 165244 00265244 4C9D090C */  jal        __smakebuf
     /* 165248 00265248 2D200002 */   daddu     $4, $16, $0
     /* 16524C 0026524C 0C000396 */  lhu        $3, 0xC($16)
 .align 2
@@ -107,6 +107,6 @@ glabel func_00265188
     /* 165288 00265288 0000B0DF */  ld         $16, 0x0($29)
     /* 16528C 0026528C 0800E003 */  jr         $31
     /* 165290 00265290 2000BD27 */   addiu     $29, $29, 0x20
-endlabel func_00265188
+endlabel __swsetup
     /* 165294 00265294 00000000 */  nop
 ```

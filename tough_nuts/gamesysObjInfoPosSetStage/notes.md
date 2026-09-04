@@ -1,7 +1,7 @@
-# gamesysObjInfoPosSetStage — parked
+# debug_SelectPad2ControlGobj — parked
 
 VRAM: 0x001A8770 (file_off 0x0A8770)
-Asm source: asm/aug6/nonmatchings/common/src/gamesys/gamesysObjInfoPosSetStage.s
+Asm source: asm/aug6/nonmatchings/common/src/gamesys/debug_SelectPad2ControlGobj.s
 
 ## Attempt at 2026-06-21
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/gamesys/gamesysObjInfoPosSetStage.s
 
 **TU:** `common/src/gamesys.c`
 
-**Seed:** `tough_nuts/gamesysObjInfoPosSetStage/gamesysObjInfoPosSetStage.c`
+**Seed:** `tough_nuts/debug_SelectPad2ControlGobj/debug_SelectPad2ControlGobj.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching gamesysObjInfoPosSetStage, 0x11C
+nonmatching debug_SelectPad2ControlGobj, 0x11C
 
-glabel gamesysObjInfoPosSetStage
+glabel debug_SelectPad2ControlGobj
     /* A8770 001A8770 40FFBD27 */  addiu      $29, $29, -0xC0
     /* A8774 001A8774 A000B4FF */  sd         $20, 0xA0($29)
     /* A8778 001A8778 7000B1FF */  sd         $17, 0x70($29)
@@ -27,7 +27,7 @@ glabel gamesysObjInfoPosSetStage
     /* A8788 001A8788 B000BFFF */  sd         $31, 0xB0($29)
     /* A878C 001A878C 2D800000 */  daddu      $16, $0, $0
     /* A8790 001A8790 9000B3FF */  sd         $19, 0x90($29)
-    /* A8794 001A8794 E4F9040C */  jal        isysGObjRemoveObjDL
+    /* A8794 001A8794 E4F9040C */  jal        isysGObjGetExist_begin
     /* A8798 001A8798 8000B2FF */   sd        $18, 0x80($29)
     /* A879C 001A879C 2D304000 */  daddu      $6, $2, $0
     /* A87A0 001A87A0 1900C010 */  beqz       $6, .L001A8808
@@ -55,7 +55,7 @@ glabel gamesysObjInfoPosSetStage
     /* A87E8 001A87E8 000043AC */  sw         $3, 0x0($2)
 .align 2
   .L001A87EC:
-    /* A87EC 001A87EC F8F9040C */  jal        func_0013E7E0
+    /* A87EC 001A87EC F8F9040C */  jal        isysGObjGetExist_next
     /* A87F0 001A87F0 2D20C000 */   daddu     $4, $6, $0
     /* A87F4 001A87F4 2D304000 */  daddu      $6, $2, $0
     /* A87F8 001A87F8 EDFFC054 */  bnel       $6, $0, .L001A87B0
@@ -105,6 +105,6 @@ glabel gamesysObjInfoPosSetStage
     /* A8880 001A8880 6000B0DF */  ld         $16, 0x60($29)
     /* A8884 001A8884 0800E003 */  jr         $31
     /* A8888 001A8888 C000BD27 */   addiu     $29, $29, 0xC0
-endlabel gamesysObjInfoPosSetStage
+endlabel debug_SelectPad2ControlGobj
     /* A888C 001A888C 00000000 */  nop
 ```

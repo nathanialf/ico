@@ -28,7 +28,7 @@ void ACTSetPositionWithFitting(char *self) {
 
 extern void func_001EF4F0(int a0);
 extern int isysGObjSearchFromObjLayoutID(int a0);
-extern int iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern int iosOmSendMail(void *a0, int a1, void *a2);
 extern int D_00629C90, D_0062B058;
 void ACTSetPositionNodeWithFitting(void *a0) {
     char *p = *(char **)((char *)a0 + 0x164);
@@ -41,17 +41,17 @@ void ACTSetPositionNodeWithFitting(void *a0) {
     if (D_00629C90 == 0x53 || D_0062B058 != 0) {
         obj = (void *)isysGObjSearchFromObjLayoutID(0x35);
         if (obj != 0) {
-            iosOmBeforeFuncStandard(obj, 0xD, a0);
+            iosOmSendMail(obj, 0xD, a0);
         }
     }
 }
 
 extern int GetChainHangRange(void *a0, int *a1);
-extern int InitMailAdditionalData(int a0);
+extern int AlignDegGV(int a0);
 extern void func_00191DB8(void *a0, float a1);
-extern float func_00191E30(void *a0);
-extern int func_00192160(int a0);
-extern void func_00260568(void *a0, int a1, int a2);
+extern float _GetDirection(void *a0);
+extern int RoundDegGV(int a0);
+extern void memset(void *a0, int a1, int a2);
 extern float D_00628F24;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ChangeMailInLadder);
@@ -104,7 +104,7 @@ extern void WallLeverGeo(void *a0, void *a1);
 extern void _ACTWait(int a0);
 extern void pushStartSE(void *a0, void *a1);
 extern void dispPlane(void *a0, void *a1);
-extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00240038");
+extern void func_00240038_p(void *a0, int a1, float f) __asm__("sceVu0ScaleVector");
 extern int D_00271240[];
 extern float D_00628F40;
 
@@ -119,14 +119,14 @@ void func_001561E8(void *a0, int a1) {
 }
 
 extern char *D_00629DE8;
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001561E8(void *a0, int a1);
 extern void UpdatePointBlur(void *a0, void *a1, void *a2);
 extern char D_0062C450[];
 void WithMailFunc_AttackRejectInQueen(void *a0) {
     char *p = *(char **)((char *)a0 + 0x164);
     int v;
-    debug_assertMessage(D_0062C450);
+    debug_StdPrintfDummy(D_0062C450);
     if (a0 != (void *)D_00629DE8) {
         char *q = *(char **)((char *)a0 + 0x164);
         *(float *)(p + 0x1D0) -= (float)*(int *)(q + 0x1C0);
@@ -159,7 +159,7 @@ void GetCorrectOrientOfChain(void *a0)
  *   void CollisCheckInRope(volatile int a0) {
  *       char buf[0x10];
  *       void *s16 = *(void **)(a0 + 0x164);       // held across assert
- *       debug_assertMessage(D_00552BF0);
+ *       debug_StdPrintfDummy(D_00552BF0);
  *       *(void **)((char *)s16 + 0x18) = (void *)WithMailFunc_FallDead;  // bne delay
  *       if ((char *)a0 == D_00629DE4) func_0017F450(1000.0f);
  *       if ((char *)a0 == D_00629DE8) {
@@ -204,9 +204,9 @@ extern void func_0010E4E8(void *a0, int a1);
 extern void func_0010E588(void *a0, int a1);
 extern void GetHeightOfFieldPlaneDifference(void *, int, int, int, void *, float, float, float, float);
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 
-extern float pac_DispQW(void);
+extern float _GetRandom(void);
 extern void ACTParaStatus_Exec(void *a0);
 
 void actCommonRope(int self) {
@@ -215,11 +215,11 @@ void actCommonRope(int self) {
         float buf[4];
         int i;
         RopeEntry *e = &D_0029AF08[idx];
-        func_00260568(buf, 0, 0x10);
+        memset(buf, 0, 0x10);
         buf[3] = 1.0f;
         if ((unsigned int)idx >= 15) {
             func_001AAD00(D_00552B60, 0x9BE);
-            func_00260380(D_00552B60, 0x9BE, D_00552C20);
+            __assert(D_00552B60, 0x9BE, D_00552C20);
         }
         for (i = 0; i < 3; i++) {
             int q = (e->f[i] << 15) / 180;
@@ -239,7 +239,7 @@ void actCommonRope(int self) {
     int val;
     int rem;
     void *sa;
-    f = pac_DispQW();
+    f = _GetRandom();
     rem = (int)(f * 10.0f) % 15;
     sa = (void *)self;
     val = *(int *)(*(int *)(*(int *)(*ps + 0x164) + 0x670) + 0x214);
@@ -255,7 +255,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnR);
 extern void SetCageFixGeometry(void *a0);
 extern void darkVolume(void *a0);
 extern void actBoyHangG3M(void *a0, void *a1);
-extern void func_00191FD0(void *a0, void *a1, void *a2);
+extern void _OrientXZGV(void *a0, void *a1, void *a2);
 extern int D_0062B320;
 extern int D_0062A894;
 
@@ -265,7 +265,7 @@ void func_00156AB8(volatile int a0) {
     if (*(int *)(*(int *)(a0 + 0x164) + 0xB8) == 0x22) {
         SetCageFixGeometry((void *)a0);
         darkVolume(buf10);
-        func_00191FD0(buf20, buf10, ContinueCorrectPosition((void *)a0));
+        _OrientXZGV(buf20, buf10, ContinueCorrectPosition((void *)a0));
         dispPlane((void *)a0, buf20);
     } else {
         actBoyHangG3M((void *)a0, ContinueCorrectPosition((void *)a0));
@@ -381,11 +381,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", SetDirectRootPositionXZ)
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_001579EC);
 
 extern void func_00104D20(void);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 extern int func_00105078(void);
 extern void func_001050A8(void *a0);
 extern void func_0010F9D0(void);
-extern void func_00118AA0(int a0);
+extern void _UnitMatrix(int a0);
 extern void func_001D1DF0(int *a0, int *a1, int *a2, int *a3, int a4);
 extern void gif_SpriteOffset(int a0);
 extern void reg_dispBoxLine(void *a0, int a1, int a2, float a3);
@@ -399,29 +399,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00157E70);
 
 extern void func_00104D20(void);
 extern int func_00105078(void);
-extern void func_00118AA0(int a0);
+extern void _UnitMatrix(int a0);
 extern void gif_SpriteOffset(int a0);
 extern void func_001050A8(void *a0);
 extern void reg_dispBoxLine(void *a0, int a1, int a2, float f);
 extern void func_0010F9D0(void);
-extern void func_00105068(void);
+extern void MatrixDrive_PopMatrix(void);
 
 void actCommonLever(void *a0, void *a1, float f) {
     func_00104D20();
-    func_00118AA0(func_00105078());
+    _UnitMatrix(func_00105078());
     gif_SpriteOffset(0xB);
     func_001050A8(a0);
     reg_dispBoxLine(a1, 4, 4, f);
     func_0010F9D0();
-    func_00105068();
+    MatrixDrive_PopMatrix();
 }
 
-extern void func_00104DC0(int a0);
+extern void MatrixDrive_RotMatrixY(int a0);
 extern void func_00105108(float a, float b, float c);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 extern int ClipWallBoxStop(void *a0);
 extern void ChangeFieldCollisionDebugMode(void *a0);
-extern void _TransposeRotationCurrentMatrix(void *a0, void *a1, void *a2);
+extern void _SubVectorXYZ(void *a0, void *a1, void *a2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", EBRAIN_SEND_MES);
 
@@ -488,7 +488,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDie);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_001597E8);
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00552F88[];
 extern char D_0062C478[];
 extern char D_0062C480[];
@@ -500,10 +500,10 @@ void Cling(char *a0, void *a1, char *a2) {
     *(int *)((char *)p + 0xC0) |= 2;
     arg5 = (a2 == D_00629DE4) ? D_0062C478 : D_0062C480;
     arg6 = (a0 == D_00629DE4) ? D_0062C478 : D_0062C480;
-    debug_assertMessage(str, arg5, arg6);
+    debug_StdPrintfDummy(str, arg5, arg6);
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00552FA0[];
 extern char D_0062C478[];
 extern char D_0062C480[];
@@ -515,10 +515,10 @@ void actCommonCling(char *a0, void *a1, char *a2) {
     *(int *)((char *)p + 0xC0) |= 8;
     arg5 = (a2 == D_00629DE4) ? D_0062C478 : D_0062C480;
     arg6 = (a0 == D_00629DE4) ? D_0062C478 : D_0062C480;
-    debug_assertMessage(str, arg5, arg6);
+    debug_StdPrintfDummy(str, arg5, arg6);
 }
 
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern char D_00552FB8[];
 extern char D_0062C478[];
 extern char D_0062C480[];
@@ -530,7 +530,7 @@ void actCommonSlip(char *a0, void *a1, char *a2) {
     *(int *)((char *)p + 0xC0) |= 0x10;
     arg5 = (a2 == D_00629DE4) ? D_0062C478 : D_0062C480;
     arg6 = (a0 == D_00629DE4) ? D_0062C478 : D_0062C480;
-    debug_assertMessage(str, arg5, arg6);
+    debug_StdPrintfDummy(str, arg5, arg6);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonStoneDead);
@@ -553,13 +553,13 @@ void BoxBarSoundOn(void *a0, int a1) {
         }
     }
 done:
-    iosOmBeforeFuncStandard(a0, a1, a0);
+    iosOmSendMail(a0, a1, a0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", BoxBarSoundOff);
 
 void *subCommonIdle(char *a0);
-extern int HandCameraCorrect(void *a0, void *a1);
+extern int _RotyGV(void *a0, void *a1);
 extern void func_00191DB8(void *a0, float a1);
 extern float D_00628FB4;
 
@@ -570,9 +570,9 @@ int _boxbar_set_sound(char *a0) {
     buf[1] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x170)) + 0x4);
     buf[2] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x170)) + 0x8);
     func_00191DB8(buf, D_00628FB4);
-    return HandCameraCorrect(subCommonIdle(a0), buf) < 0
-               ? -HandCameraCorrect(subCommonIdle(a0), buf) < 0x2D
-               : HandCameraCorrect(subCommonIdle(a0), buf) < 0x2D;
+    return _RotyGV(subCommonIdle(a0), buf) < 0
+               ? -_RotyGV(subCommonIdle(a0), buf) < 0x2D
+               : _RotyGV(subCommonIdle(a0), buf) < 0x2D;
 }
 
 
@@ -581,11 +581,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBox);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015A990);
 
 extern void traceLine(int a0, int a1, int a2, void *a3, int a4);
-extern void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4);
+extern void _InterGV(void *a0, void *a1, void *a2, float a3, float a4);
 extern char D_005530A8[];
 extern int D_0062AF84;
 
-extern void func_0023FE98(void *a0, void *a1);
+extern void sceVu0Normalize(void *a0, void *a1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015AF10);
 
@@ -606,10 +606,10 @@ void func_0015B4C8(void) {
     }
 }
 
-extern void setNodePursueParticleEffectWithUpperLimit(int a0, int a1, float a2);
+extern void AdjustRootPositionToVerticalSidePlaneOfWall(int a0, int a1, float a2);
 
 void funcCommonJumpDircorrect(int a0, int a1) {
-    setNodePursueParticleEffectWithUpperLimit(a0, a1, 30.0f);
+    AdjustRootPositionToVerticalSidePlaneOfWall(a0, a1, 30.0f);
 }
 
 extern char D_0055DA10_a[] __asm__("D_0055DA10");
@@ -670,10 +670,10 @@ void actCommonJump(void *a0) {
     q->f_204--;
 }
 
-extern void func_0023FE98(void *a0, void *a1);
-extern float MatrixDrive_GetTurnYAngleXZ(float a0);
-extern int func_00260340(float a0);
-extern int func_0025F4A0(int a0, double a1);
+extern void sceVu0Normalize(void *a0, void *a1);
+extern float FSqrt(float a0);
+extern int fptodp(float a0);
+extern int dpcmp(int a0, double a1);
 
 void actCommonFall(int self) {
     float buf[3];
@@ -683,11 +683,11 @@ void actCommonFall(int self) {
     buf[0] = *(float *)(sub + 0x1C0);
     buf[1] = *(float *)(sub + 0x1C4);
     buf[2] = *(float *)(sub + 0x1C8);
-    func_0023FE98(buf, buf);
-    r = func_00260340(MatrixDrive_GetTurnYAngleXZ(buf[0] * buf[0] + buf[2] * buf[2]));
-    if (func_0025F4A0(r, 0.3) > 0) {
+    sceVu0Normalize(buf, buf);
+    r = fptodp(FSqrt(buf[0] * buf[0] + buf[2] * buf[2]));
+    if (dpcmp(r, 0.3) > 0) {
         buf[1] = 0.0f;
-        func_0023FE98(buf, buf);
+        sceVu0Normalize(buf, buf);
         dispPlane((void *)self, buf);
     }
 }
@@ -700,7 +700,7 @@ extern void actCommonPlay();
 
 void debugDispFlyLimit(volatile int a0) {
     char *s0 = *(char **)(a0 + 0x164);
-    debug_assertMessage(D_00552C60);
+    debug_StdPrintfDummy(D_00552C60);
     ACTParaStatus_Exec((void *)a0);
     {
         void *self = (void *)a0;
@@ -728,7 +728,7 @@ void func_0015B740(volatile int a0) {
 extern char D_00552BC0[];
 
 void func_0015B790(volatile int a0) {
-    debug_assertMessage(D_00552BC0);
+    debug_StdPrintfDummy(D_00552BC0);
     _ACTWait(0);
 }
 
@@ -842,7 +842,7 @@ extern char D_00552E80[];
 
 void func_0015BB20(volatile int a0) {
     char *s = *(char **)(a0 + 0x164);
-    debug_assertMessage(D_00552E80);
+    debug_StdPrintfDummy(D_00552E80);
     dispPlane((void *)a0, s + 0x4B0);
     for (;;) {
         BoxBarSoundOn((void *)a0, 0xB4);
@@ -878,20 +878,20 @@ void func_0015BD00(volatile int a0) {
 
 extern char D_00552EC8[];
 extern void actBoyBelift(void *a0, void *a1, void *a2);
-extern void func_00191FD0(void *a0, void *a1, void *a2);
+extern void _OrientXZGV(void *a0, void *a1, void *a2);
 extern void GetOrientOfCliffOfGObj(void *a0, void *a1, float f0, float f1);
 
 void func_0015BD60(volatile int a0) {
     int local20 = 0;
     char buf[0x10];
     void *s17 = *(void **)(a0 + 0x164);
-    debug_assertMessage(D_00552EC8);
+    debug_StdPrintfDummy(D_00552EC8);
     if (*(int *)(a0 + 0xC) == 1) {
         actBoyBelift((void *)a0, &local20, buf);
     } else {
         void *r1 = ContinueCorrectPosition(D_00629DE4);
         void *r2v = ContinueCorrectPosition((void *)a0);
-        func_00191FD0((char *)s17 + 0x100, r1, r2v);
+        _OrientXZGV((char *)s17 + 0x100, r1, r2v);
         dispPlane((void *)a0, (char *)s17 + 0x100);
     }
     for (;;) {
@@ -904,7 +904,7 @@ void func_0015BD60(volatile int a0) {
 }
 
 extern void actBoyBelift(void *a0, void *a1, void *a2);
-extern void func_00191FD0(void *a0, void *a1, void *a2);
+extern void _OrientXZGV(void *a0, void *a1, void *a2);
 
 void func_0015BE38(volatile int a0) {
     int local20 = 0;
@@ -917,7 +917,7 @@ void func_0015BE38(volatile int a0) {
         s1 += 0x100;
         r1 = ContinueCorrectPosition(D_00629DE4);
         r2 = ContinueCorrectPosition((void *)a0);
-        func_00191FD0(s1, r1, r2);
+        _OrientXZGV(s1, r1, r2);
         dispPlane((void *)a0, s1);
     }
     for (;;) {
@@ -931,13 +931,13 @@ extern void actBoyHangG3M(void *a0, void *a1);
 
 void func_0015BEC8(volatile int a0) {
     char *base = *(char **)(a0 + 0x164);
-    debug_assertMessage(D_00552EE0);
+    debug_StdPrintfDummy(D_00552EE0);
     dispPlane((void *)a0, *(char **)(a0 + 0x164) + 0x1B0);
     if (*(int *)(a0 + 0xC) == 4) {
         func_001561E8((void *)a0, 6);
         func_00149F60((void *)a0);
     }
-    iosOmBeforeFuncStandard(D_00629DE4, 0x109, (void *)a0);
+    iosOmSendMail(D_00629DE4, 0x109, (void *)a0);
     if (*(int *)(base + 0xB8) == 0x107) {
         actBoyHangG3M((void *)a0, ContinueCorrectPosition((void *)a0));
     }
@@ -956,7 +956,7 @@ void func_0015BF88(volatile int a0) {
     for (;;) {
         if ((char *)a0 == D_00629DE4 && D_00629DE8 != 0) {
             brainInitGirlSet();
-            iosOmBeforeFuncStandard(D_00629DE8, 0x39, (void *)a0);
+            iosOmSendMail(D_00629DE8, 0x39, (void *)a0);
         }
         BoxBarSoundOn((void *)a0, 0xB4);
         _ACTWait(1);
@@ -965,7 +965,7 @@ void func_0015BF88(volatile int a0) {
 
 extern char D_00552BD8[];
 void func_0015C000(volatile int a0) {
-    debug_assertMessage(D_00552BD8);
+    debug_StdPrintfDummy(D_00552BD8);
     dispPlane((void *)a0, *(char **)(a0 + 0x164) + 0x1B0);
     WithMailFunc_AttackRejectInQueen((void *)a0);
     if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x670) + 0x1DC) == 3) {
@@ -980,14 +980,14 @@ void func_0015C000(volatile int a0) {
 extern char D_00552EA0[];
 
 void func_0015C080(volatile int a0) {
-    debug_assertMessage(D_00552EA0);
+    debug_StdPrintfDummy(D_00552EA0);
     _ACTWait(0);
 }
 
 extern char D_00552EB0[];
 
 void getAvoidCollisionFlyLevel(volatile int a0) {
-    debug_assertMessage(D_00552EB0);
+    debug_StdPrintfDummy(D_00552EB0);
     for (;;) {
         _ACTWait(1);
     }
@@ -1133,7 +1133,7 @@ void func_0015C650(volatile int a0) {
         }
         func_00104548(buf, (void *)a0);
         o = *(char **)(a0 + 0x164);
-        r = HandCameraCorrect(*(char **)(o + 0x678) + 0x3B0, buf);
+        r = _RotyGV(*(char **)(o + 0x678) + 0x3B0, buf);
         ar = (r < 0) ? -r : r;
         if (ar < 0xF) {
             BoxBarSoundOn((void *)a0, 0xE2);
@@ -1150,7 +1150,7 @@ void func_0015C708(volatile int a0) {
     for (;;) {
         int r, ar;
         func_00104548(buf, (void *)a0);
-        r = HandCameraCorrect(p, buf);
+        r = _RotyGV(p, buf);
         ar = (r < 0) ? -r : r;
         if (ar < 0xF) {
             BoxBarSoundOn((void *)a0, 0xE1);
@@ -1181,7 +1181,7 @@ void func_0015C7B8(volatile int a0) {
 extern char D_00552F58[];
 
 void actCommonLadder(volatile int a0) {
-    debug_assertMessage(D_00552F58);
+    debug_StdPrintfDummy(D_00552F58);
     for (;;) {
         _ACTWait(1);
     }
@@ -1278,22 +1278,22 @@ void func_0015CAE0(volatile int a0) {
 extern char D_00552EF8[];
 
 void func_0015CB20(volatile int a0) {
-    debug_assertMessage(D_00552EF8);
+    debug_StdPrintfDummy(D_00552EF8);
     _ACTWait(0);
 }
 
-extern void debug_assertMessage(void *a0);
+extern void debug_StdPrintfDummy(void *a0);
 extern void _ACTWait(int a0);
 extern char D_00552F18[];
 extern char D_00552F38[];
 
 void funcCommonBeginReady(volatile int a0) {
-    debug_assertMessage(D_00552F18);
+    debug_StdPrintfDummy(D_00552F18);
     _ACTWait(0);
 }
 
 void funcCommonEndReady(volatile int a0) {
-    debug_assertMessage(D_00552F38);
+    debug_StdPrintfDummy(D_00552F38);
     _ACTWait(0);
 }
 
@@ -1308,7 +1308,7 @@ void func_0015CE60(volatile int a0) {
     int v = *(int *)(state + 0x5EC);
     _ACTWait(6);
     CanWallLeverPull(v, 0);
-    debug_assertMessage(D_0062C490);
+    debug_StdPrintfDummy(D_0062C490);
     _ACTWait(0);
 }
 
@@ -1321,7 +1321,7 @@ void funcCommonError(volatile int a0) {
     int v = *(int *)(state + 0x5EC);
     _ACTWait(0x1E);
     CanWallLeverPull(v, -1);
-    debug_assertMessage(D_0062C498);
+    debug_StdPrintfDummy(D_0062C498);
     _ACTWait(0);
 }
 
@@ -1330,7 +1330,7 @@ void SetMotionDirectionSmooze(volatile int a0) {
     int v = *(int *)(state + 0x5EC);
     _ACTWait(0x1E);
     CanWallLeverPull(v, 1);
-    debug_assertMessage(D_0062C4A0);
+    debug_StdPrintfDummy(D_0062C4A0);
     _ACTWait(0);
 }
 
@@ -1344,7 +1344,7 @@ extern char D_00552B48[];
 void ACTSendMailCorrect(volatile int a0) {
     char *s = *(char **)(a0 + 0x164);
     int self;
-    debug_assertMessage(D_00552B48);
+    debug_StdPrintfDummy(D_00552B48);
     isBottomOfChain(*(int *)(s + 0x180), a0);
     self = a0;
     *(int *)(s + 0x184) = *(int *)(s + 0x180);
@@ -1363,7 +1363,7 @@ extern void *D_0062A4DC;
 
 void func_0015CFF0(volatile int a0) {
     if (D_00629DE8 != 0) {
-        iosOmBeforeFuncStandard((void *)D_00629DE8, 0x3F, D_0062A4DC);
+        iosOmSendMail((void *)D_00629DE8, 0x3F, D_0062A4DC);
     }
     for (;;) {
         _ACTWait(1);
@@ -1451,19 +1451,19 @@ int actCommonBackhand(void *a0) {
     return (int)v & 1;
 }
 
-void actCommonSlowrun(int a0, int a1) {
+void ControlMotionOrient(int a0, int a1) {
     D_0028E680[a0].w[2] = a1;
 }
 
-extern void func_00240038(void *a0, float f);
+extern void sceVu0ScaleVector(void *a0, float f);
 
-void ACT_LAYOUT_GAMEOVER(void *a0) {
+void _ACTMotDir_V(void *a0) {
     int local[4];
-    func_00240038(local, -1.0f);
+    sceVu0ScaleVector(local, -1.0f);
     dispPlane(a0, local);
 }
 
-extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00240038");
+extern void func_00240038_p(void *a0, int a1, float f) __asm__("sceVu0ScaleVector");
 
 void ACTAdjustPlane(int *self)
 {
@@ -1474,14 +1474,14 @@ void ACTAdjustPlane(int *self)
 
 extern void ChangeMailInLadder(void *buf, void *obj);
 
-void _ACTMotDirSmzDirect(void *a0) {
+void SetCorrectOrientOfChain(void *a0) {
     int local[4];
     ChangeMailInLadder(local, a0);
     dispPlane(a0, local);
 }
 
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern void eBrainInit(int a0);
 extern char D_00552B60[];
 extern char D_00552B70[];
@@ -1490,14 +1490,14 @@ void WithMailFunc_Idling(volatile int a0) {
     char *s = *(char **)(a0 + 0x164);
     if (*(int *)(s + 0x180) == 0) {
         func_001AAD00(D_00552B60, 0x593);
-        func_00260380(D_00552B60, 0x593, D_00552B70);
+        __assert(D_00552B60, 0x593, D_00552B70);
     }
     eBrainInit(*(int *)(s + 0x180));
 }
 
 
 extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
+extern void __assert(void *a0, int a1, void *a2);
 extern void eBrainInit(int a0);
 extern char D_00552B60[];
 extern char D_00552B70[];
@@ -1506,7 +1506,7 @@ void WithMailFunc_BossDamaged(volatile int a0) {
     char *s = *(char **)(a0 + 0x164);
     if (*(int *)(s + 0x180) == 0) {
         func_001AAD00(D_00552B60, 0x60D);
-        func_00260380(D_00552B60, 0x60D, D_00552B70);
+        __assert(D_00552B60, 0x60D, D_00552B70);
     }
     eBrainInit(*(int *)(s + 0x180));
 }
@@ -1541,7 +1541,7 @@ void actCommonOne(volatile int a0) {
 
 extern void actCommonRopeCliff(int a0, int a1);
 
-void actCommonDelete(volatile int a0) {
+void afterCommonBox(volatile int a0) {
     actCommonRopeCliff(a0, 0);
 }
 

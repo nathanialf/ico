@@ -35,14 +35,14 @@ void MakeCameraMatrix(void) {
     func_00188D60(D_006C9F60);
 }
 
-extern void func_00260568(void *, int, int);
-extern void func_0023FED0(void *, void *);
+extern void memset(void *, int, int);
+extern void sceVu0TransposeMatrix(void *, void *);
 extern void MatrixDrive_TurnObjectMatrix(void *, void *);
-extern void func_0023FDD8(void *, void *, void *);
-extern void func_00240038(void *, void *, float);
+extern void sceVu0ApplyMatrix(void *, void *, void *);
+extern void sceVu0ScaleVector(void *, void *, float);
 extern void GetRootMatrixByDObj(void *, int);
 extern float ClearHandCameraCorrect(void *, void *);
-extern void func_0023FFF0(void *, void *, void *);
+extern void sceVu0AddVector(void *, void *, void *);
 extern void func_00188B48(void *, void *, float);
 extern char *D_00629C70;
 extern int D_0062AA14;
@@ -51,30 +51,30 @@ extern float D_0062C088;
 void CameraEditManual(void) {
     char buf[0x80];
     float f20v;
-    func_00260568(buf, 0, 0x10);
+    memset(buf, 0, 0x10);
     *(float *)(buf + 8) = 1.0f;
-    func_0023FED0(buf + 0x20, D_00629C70 + 0x80);
+    sceVu0TransposeMatrix(buf + 0x20, D_00629C70 + 0x80);
     MatrixDrive_TurnObjectMatrix(buf + 0x70, D_00629C70 + 0xB0);
     *(int *)(buf + 0x7C) = 0;
-    func_0023FDD8(buf + 0x10, buf + 0x20, buf + 0x70);
-    func_00240038(buf + 0x10, buf + 0x10, -1.0f);
+    sceVu0ApplyMatrix(buf + 0x10, buf + 0x20, buf + 0x70);
+    sceVu0ScaleVector(buf + 0x10, buf + 0x10, -1.0f);
     GetRootMatrixByDObj(buf + 0x60, D_0062AA14);
     f20v = ClearHandCameraCorrect(buf + 0x10, buf + 0x60);
     *(int *)(buf + 0xC) = 0;
-    func_0023FDD8(buf, buf + 0x20, buf);
-    func_00240038(buf, buf, f20v);
-    func_0023FFF0(buf, buf, buf + 0x10);
+    sceVu0ApplyMatrix(buf, buf + 0x20, buf);
+    sceVu0ScaleVector(buf, buf, f20v);
+    sceVu0AddVector(buf, buf, buf + 0x10);
     func_00188B48(buf, buf + 0x10, D_0062C088);
 }
 
 extern int D_0062AFF8;
 extern float D_006C9F74[];
-extern void func_0018A0F0(int a0, int a1, int a2);
+extern void CameraGetOtherObjOffset(int a0, int a1, int a2);
 
 void DebugCameraManual(int a0, int a1, int a2, int a3, int a4) {
     *(float *)a3 = D_006C9F74[0];
     *(float *)a4 = (float)D_0062AFF8 / 100.0f;
-    func_0018A0F0(a0, a1, a2);
+    CameraGetOtherObjOffset(a0, a1, a2);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", DebugCameraSemiAuto);
@@ -92,7 +92,7 @@ void GetCameraInfomationFromGlobalPosition(void) {
     }
 }
 
-void InitCamera(int a0, int a1, int a2) {
+void Camctrl_SetTarget(int a0, int a1, int a2) {
     if (a2 >= D_006C9FA0[2]) {
         D_006C9FA0[0] = a0;
         D_006C9FA0[1] = a1;
@@ -100,12 +100,12 @@ void InitCamera(int a0, int a1, int a2) {
     }
 }
 
-extern int actBoyCall(void);
+extern int GetEfStageCameraTargetID(void);
 extern int isysGObjAddHead(int a0);
 extern int D_00629DE4;
 
 int SetCameraMatrix(void) {
-    int v = actBoyCall();
+    int v = GetEfStageCameraTargetID();
     if (v == 0) {
         return D_00629DE4;
     }
@@ -125,9 +125,9 @@ void Camctrl_ExitEveRock(int a0, int a1) {
 }
 
 typedef struct { unsigned long _0, _8, _10, _18; } CamTgt;
-extern void func_00240008(void *, void *, void *);
+extern void sceVu0SubVector(void *, void *, void *);
 
-void Camctrl_SetTarget(int a0, int a1) {
+void CameraChangeTargetParallel(int a0, int a1) {
     char buf[0x30];
     if (a0 == 0) {
         *(int *)(buf + 0) = 0;
@@ -136,10 +136,10 @@ void Camctrl_SetTarget(int a0, int a1) {
     } else {
         GetRootMatrixByDObj(buf + 0x10, a0);
         GetRootMatrixByDObj(buf + 0x20, a1);
-        func_00240008(buf, buf + 0x20, buf + 0x10);
+        sceVu0SubVector(buf, buf + 0x20, buf + 0x10);
     }
     *(CamTgt *)D_006C9F80 = *(CamTgt *)D_006C9F60;
-    func_0023FFF0(D_006C9F80, D_006C9F80, buf);
+    sceVu0AddVector(D_006C9F80, D_006C9F80, buf);
     D_006C9F80[6] = 1;
 }
 

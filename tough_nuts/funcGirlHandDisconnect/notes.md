@@ -1,7 +1,7 @@
-# funcGirlHandDisconnect — parked
+# GetEyeDirection — parked
 
 VRAM: 0x00168420 (file_off 0x068420)
-Asm source: asm/aug6/nonmatchings/fumi/src/girl_act/funcGirlHandDisconnect.s
+Asm source: asm/aug6/nonmatchings/fumi/src/girl_act/GetEyeDirection.s
 
 ## Attempt at 2026-07-07
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/fumi/src/girl_act/funcGirlHandDisconnect.s
 
 **TU:** `fumi/src/girl_act.c`
 
-**Seed:** `tough_nuts/funcGirlHandDisconnect/funcGirlHandDisconnect.c`
+**Seed:** `tough_nuts/GetEyeDirection/GetEyeDirection.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching funcGirlHandDisconnect, 0x88
+nonmatching GetEyeDirection, 0x88
 
-glabel funcGirlHandDisconnect
+glabel GetEyeDirection
     /* 68420 00168420 D0FFBD27 */  addiu      $29, $29, -0x30
     /* 68424 00168424 1000B1FF */  sd         $17, 0x10($29)
     /* 68428 00168428 0000B0FF */  sd         $16, 0x0($29)
@@ -54,7 +54,7 @@ glabel funcGirlHandDisconnect
     /* 68494 00168494 0C00628C */  lw         $2, 0xC($3)
     /* 68498 00168498 0000B0DF */  ld         $16, 0x0($29)
     /* 6849C 0016849C 21284500 */  addu       $5, $2, $5
-    /* 684A0 001684A0 76FF0808 */  j          func_0023FDD8
+    /* 684A0 001684A0 76FF0808 */  j          sceVu0ApplyMatrix
     /* 684A4 001684A4 3000BD27 */   addiu     $29, $29, 0x30
-endlabel funcGirlHandDisconnect
+endlabel GetEyeDirection
 ```

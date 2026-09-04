@@ -25,8 +25,8 @@ pins (BANNED here).
 - itou_boss.c:674 `D_006CCE60[i*0x40+4]` keeps the mult — but that base is a
   GLOBAL (constant addr, cookbook clean direct-index). GatherEffect's base is a
   RUNTIME ptr (p->0x24), so the clean global-index trick does NOT apply.
-- 7+ funcs parked for this same root (func_001C6398, correctJumpOrientByChain,
-  scpPlayStart, GatherEffect_Proc, tex_makeTexturePacket, FlagDL). Repo-wide
+- 7+ funcs parked for this same root (LockZAnimation, correctJumpOrientByChain,
+  scpPlayStart, GatherEffect_Proc, tex_makeTexturePacket, moveDataElements). Repo-wide
   unsolved "gcc strength-reduces vs ROM keeps per-iter mult, NON-GLOBAL base".
 
 ## Tried (all fold to strength-reduced or stride-reassign-a3)

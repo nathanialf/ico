@@ -1,4 +1,4 @@
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 extern void func_001AAD00(char *a0, int a1);
 extern void execEff(void *a0, int a1);
 extern void CopyMotionWithNodeHrc(void *a0);
@@ -8,9 +8,9 @@ void getMotionGeometry(void *a0) {
     char *s = *(char **)((char *)a0 + 0x15C) + 0x460;
     int m;
     if (*(int *)(s + 0x1AC) == -1) {
-        debug_assertMessage(D_00612130);
+        debug_StdPrintfDummy(D_00612130);
         func_001AAD00(D_00612100, 0x2E3);
-        func_00260380(D_00612100, 0x2E3, D_0062D650);
+        __assert(D_00612100, 0x2E3, D_0062D650);
     }
     execEff(a0, 0);
     execEff(a0, 1);

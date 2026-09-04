@@ -51,7 +51,7 @@ glabel MoveChestForCatchBoy
     /* 5EB30 0015EB30 2D200002 */   daddu     $4, $16, $0
     /* 5EB34 0015EB34 2D20A003 */  daddu      $4, $29, $0
     /* 5EB38 0015EB38 2D280000 */  daddu      $5, $0, $0
-    /* 5EB3C 0015EB3C 5A81090C */  jal        func_00260568
+    /* 5EB3C 0015EB3C 5A81090C */  jal        memset
     /* 5EB40 0015EB40 10000624 */   addiu     $6, $0, 0x10
     /* 5EB44 0015EB44 0C00B4E7 */  swc1       $f20, 0xC($29)
     /* 5EB48 0015EB48 2D20A003 */  daddu      $4, $29, $0
@@ -145,7 +145,7 @@ glabel MoveChestForCatchBoy
     /* 5EB30 0015EB30 2D200002 */   daddu     $4, $16, $0
     /* 5EB34 0015EB34 2D20A003 */  daddu      $4, $29, $0
     /* 5EB38 0015EB38 2D280000 */  daddu      $5, $0, $0
-    /* 5EB3C 0015EB3C 5A81090C */  jal        func_00260568
+    /* 5EB3C 0015EB3C 5A81090C */  jal        memset
     /* 5EB40 0015EB40 10000624 */   addiu     $6, $0, 0x10
     /* 5EB44 0015EB44 0C00B4E7 */  swc1       $f20, 0xC($29)
     /* 5EB48 0015EB48 2D20A003 */  daddu      $4, $29, $0
@@ -239,7 +239,7 @@ glabel MoveChestForCatchBoy
     /* 5EB30 0015EB30 2D200002 */   daddu     $4, $16, $0
     /* 5EB34 0015EB34 2D20A003 */  daddu      $4, $29, $0
     /* 5EB38 0015EB38 2D280000 */  daddu      $5, $0, $0
-    /* 5EB3C 0015EB3C 5A81090C */  jal        func_00260568
+    /* 5EB3C 0015EB3C 5A81090C */  jal        memset
     /* 5EB40 0015EB40 10000624 */   addiu     $6, $0, 0x10
     /* 5EB44 0015EB44 0C00B4E7 */  swc1       $f20, 0xC($29)
     /* 5EB48 0015EB48 2D20A003 */  daddu      $4, $29, $0

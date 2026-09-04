@@ -4,7 +4,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_setShape);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispBoxLine);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_clipPacketBoundingBox);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", prim_DispWireBox);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_transMicroCode);
 
@@ -28,17 +28,17 @@ void reg_chooseReflectionMicroCode(char *a0) {
 
 void func_0011F1C8(void *a0, int a1, int a2) {
     long long v = *(long long *)((char *)a0 + 0x60);
-    pac_getWeight(*(int *)((char *)a0 + 0x60) & 1, (int)(v >> 5) & 3, 0, a1, a2);
+    mc_SetMicroCode(*(int *)((char *)a0 + 0x60) & 1, (int)(v >> 5) & 3, 0, a1, a2);
 }
 
-extern void pac_getWeight(int a0, int a1, int a2, int a3, int a4);
+extern void mc_SetMicroCode(int a0, int a1, int a2, int a3, int a4);
 
 void func_0011F1F0(int a0, int a1, int a2) {
-    pac_getWeight(a0, 1, 1, a1, a2);
+    mc_SetMicroCode(a0, 1, 1, a1, a2);
 }
 
 void reg_setNMatrixPacket(int a0, int a1, int a2) {
-    pac_getWeight(a0, 1, 2, a1, a2);
+    mc_SetMicroCode(a0, 1, 2, a1, a2);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_setMMatrixPacket);

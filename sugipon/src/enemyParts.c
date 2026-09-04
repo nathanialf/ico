@@ -83,7 +83,7 @@ extern void GetRootMatrixByDObj(void *dst, int *src);
 extern void func_00102820(void *dst, int *src);
 extern int SetParticleEffectUpperLimit(int a, void *b, void *c);
 
-void moveDataElements(int *self)
+void SetEnemyStonizedVisual(int *self)
 {
     int local[8];
     GetRootMatrixByDObj(local, self);
@@ -98,9 +98,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CC220);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CC518);
 
-extern int func_002610F0(void);
-extern void func_0010E0E8(int *self, int a1, int *param);
-extern void func_0010E250(void *a0, void *a1, void *a2);
+extern int rand(void);
+extern void SetQuaternionByAxisRotateVWithNoRegularize(int *self, int a1, int *param);
+extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
 extern int D_00271C00[];
 extern const float D_0062953C;
 
@@ -136,8 +136,8 @@ int func_001CC7D8(void *a0) {
                 *(float *)(cur + 4) = *(float *)(cur + 4) * D_0062953C;
                 e->f28 = e->f20;
                 e->f24 = e->f20;
-                func_0010E0E8(local, (short)func_002610F0(), D_00271C00);
-                func_0010E250(*(char **)(*(char **)((char *)a0 + 4) + 0xC) + i * 0x40,
+                SetQuaternionByAxisRotateVWithNoRegularize(local, (short)rand(), D_00271C00);
+                GetMatrixFromQuaternionPos(*(char **)(*(char **)((char *)a0 + 4) + 0xC) + i * 0x40,
                               local, w);
                 cnt = *(int *)(w - 0x10) + 1;
                 *(int *)(w - 0x10) = cnt;
@@ -189,27 +189,27 @@ void *func_001CCA20(int a0, int a1, char *a2, int a3) {
 }
 
 extern void gif_SpriteOffset(int x);
-extern void gsb_SetFrame(int x, int y, int z);
-extern void gif_Line(int a, int b, int c, int d);
+extern void gif_SetAlpha(int x, int y, int z);
+extern void gif_Draw2DStripG(int a, int b, int c, int d);
 extern void func_0010F9D0(void);
 
 int func_001CCB60(int *self)
 {
     gif_SpriteOffset(self[0]);
-    gsb_SetFrame(1, self[0xD], 0x80);
-    gif_Line(self[3], self[4], self[1] * 2, 1);
+    gif_SetAlpha(1, self[0xD], 0x80);
+    gif_Draw2DStripG(self[3], self[4], self[1] * 2, 1);
     func_0010F9D0();
     return 1;
 }
 
-extern void func_001189F8(void *a0, int a1, void *a2);
+extern void _MulMatrix(void *a0, int a1, void *a2);
 extern void func_001CC020(int a0, void *a1, void *a2, float a3);
 extern char D_004BC180[];
 extern char D_004BC1C0[];
 
 int func_001CCBC0(char *a0, int a1, float f)
 {
-    func_001189F8(a0 + 0x10, a1, D_004BC180);
+    _MulMatrix(a0 + 0x10, a1, D_004BC180);
     if (*(int *)a0 != 0) {
         func_001CC020(*(int *)(a0 + 0x4), a0 + 0x40, D_004BC1C0, f * 3.0f);
     }

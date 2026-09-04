@@ -33,7 +33,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aExit);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aCheck);
 
 extern void _ACTWait(int a0);
-extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int scpTriggerBall(int a0, int a1, float f);
 extern int GetSkeltonFocusNode(int a0);
 extern int actSt25aQueenDeadChk(int a0);
 extern void DrawLine(void);
@@ -41,7 +41,7 @@ extern int D_00629DE4;
 
 void actSt13aChain(volatile int a0) {
     while (1) {
-        if (scpSleepEnemyOne(a0, D_00629DE4, 150.0f) != 0) {
+        if (scpTriggerBall(a0, D_00629DE4, 150.0f) != 0) {
             if (GetSkeltonFocusNode(D_00629DE4) == 0x2E) break;
             if (GetSkeltonFocusNode(D_00629DE4) == 0x2F) break;
             if (GetSkeltonFocusNode(D_00629DE4) == 0x30) break;
@@ -54,25 +54,25 @@ void actSt13aChain(volatile int a0) {
 }
 
 extern int func_00178DB0(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt13aElevMain(void) {
     if (func_00178DB0(0x71) != 0) {
         if (func_00178DB0(0x72) != 0) {
-            AddWayPointTop(0xB, 0);
-            AddWayPointTop(0xC, 0);
+            SetWayGroupActive(0xB, 0);
+            SetWayGroupActive(0xC, 0);
             stage_KillPlayBgAnimation(0x142, 0, -1);
         } else {
-            AddWayPointTop(0xD, 0);
-            AddWayPointTop(0xE, 0);
-            AddWayPointTop(0xF, 0);
+            SetWayGroupActive(0xD, 0);
+            SetWayGroupActive(0xE, 0);
+            SetWayGroupActive(0xF, 0);
             stage_KillPlayBgAnimation(0x141, 0, -1);
         }
     } else {
-        AddWayPointTop(0xD, 0);
-        AddWayPointTop(0xE, 0);
-        AddWayPointTop(0xF, 0);
+        SetWayGroupActive(0xD, 0);
+        SetWayGroupActive(0xE, 0);
+        SetWayGroupActive(0xF, 0);
         stage_KillPlayBgAnimation(0x141, 0, 0);
     }
 }
@@ -105,14 +105,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", func_00225D30);
 
 extern int D_0062A894;
 extern void lt_fade_status(int a0);
-extern void func_0017A040(int a0);
+extern void scpSleepEnemyOne(int a0);
 extern void func_0017A078(int a0);
-extern void func_0017A008(int a0);
+extern void scpWakeupEnemyOne(int a0);
 extern void func_0017A0A8(int a0);
 extern void func_00178E08(int a0);
 extern void func_0018A380(void);
 extern void shadow_Tool(int a0);
-extern void UpdateStormPackage(int a0);
+extern void SetStaticBlur(int a0);
 extern int func_0012A958(int a0);
 
 void func_00225E00(volatile int a0) {
@@ -120,34 +120,34 @@ void func_00225E00(volatile int a0) {
         _ACTWait(0);
     }
     while (func_00178DB0(0x77) == 0 ||
-           scpSleepEnemyOne(a0, D_00629DE8, 400.0f) == 0) {
+           scpTriggerBall(a0, D_00629DE8, 400.0f) == 0) {
         _ACTWait(1);
     }
     *(int *)(actSt25aQueenDeadChk(0x168) + 0x16C) = 1;
     lt_fade_status(0x33);
     D_0062A894 = 1;
-    func_0017A040(0xD57);
+    scpSleepEnemyOne(0xD57);
     func_00178E08(0x165);
     func_00178DD8(0x75);
     func_00178DD8(0x76);
     stage_KillPlayBgAnimation(0x144, 1, 0);
     func_0018A380();
     shadow_Tool(1);
-    UpdateStormPackage(0);
-    func_0017A040(0x16B);
+    SetStaticBlur(0);
+    scpSleepEnemyOne(0x16B);
     func_0017A078(0x170);
     while (func_0012A958(0x144) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     shadow_Tool(0);
-    UpdateStormPackage(1);
+    SetStaticBlur(1);
     lt_fade_status(0x32);
     D_0062A894 = 0;
     *(int *)(actSt25aQueenDeadChk(0x168) + 0x16C) = 0;
     _ACTWait(0x1E);
-    func_0017A008(0xD57);
-    func_0017A008(0x16B);
+    scpWakeupEnemyOne(0xD57);
+    scpWakeupEnemyOne(0x16B);
     func_0017A0A8(0x170);
 }
 

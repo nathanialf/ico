@@ -34,14 +34,14 @@ extern int D_0062A340;
 extern int deq_mes_th(int queue, int size, int flags, const char *file, int line);
 /* Assert primitives + message-bind helper (all in common/src/PObj.c). */
 extern void func_001AAD00(const char *file, int line);
-extern void func_00260380(const char *file, int line, const char *expr);
-extern void func_00260568(int handle, int a1, int size);
+extern void __assert(const char *file, int line, const char *expr);
+extern void memset(int handle, int a1, int size);
 static __inline int deq_movie_mes(int size)
 {
     int p; const char *fp = __FILE__;
     p = deq_mes_th(D_0062A340, size, 0x40, fp, __LINE__);
-    if (p == NULL) { func_001AAD00(fp, __LINE__); func_00260380(fp, __LINE__, "p != NULL"); }
-    func_00260568(p, 0, size);
+    if (p == NULL) { func_001AAD00(fp, __LINE__); __assert(fp, __LINE__, "p != NULL"); }
+    memset(p, 0, size);
     return p;
 }
 #endif /* MV_DEFS_H */

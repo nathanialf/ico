@@ -1,7 +1,7 @@
-# func_00261B10 — parked
+# strstr — parked
 
 VRAM: 0x00261B10 (file_off 0x161B10)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00261B10.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/strstr.s
 
 ## Attempt at 2026-06-12
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_00261B10.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_00261B10/func_00261B10.c`
+**Seed:** `tough_nuts/strstr/strstr.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_00261B10, 0x6C
+nonmatching strstr, 0x6C
 
-glabel func_00261B10
+glabel strstr
     /* 161B10 00261B10 00008280 */  lb         $2, 0x0($4)
     /* 161B14 00261B14 06004014 */  bnez       $2, .L00261B30
     /* 161B18 00261B18 0000A380 */   lb        $3, 0x0($5)
@@ -53,6 +53,6 @@ glabel func_00261B10
     /* 161B70 00261B70 0000A380 */   lb        $3, 0x0($5)
     /* 161B74 00261B74 0800E003 */  jr         $31
     /* 161B78 00261B78 2D100000 */   daddu     $2, $0, $0
-endlabel func_00261B10
+endlabel strstr
     /* 161B7C 00261B7C 00000000 */  nop
 ```

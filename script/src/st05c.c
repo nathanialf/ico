@@ -90,7 +90,7 @@ void actSt04rDoor2(volatile int a0) {
 
 extern void func_00178DD8(int a0);
 extern void gflagOff(int a0, int a1);
-extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
+extern void scpFadeOut(int a0, int a1, int a2, float f);
 extern int D_004CC5E0[];
 extern int D_00629DE4;
 extern int D_0062A898;
@@ -106,7 +106,7 @@ void actSt05cDoorDown(volatile int a0) {
         }
         func_00178DD8(0x163);
         D_0062A898 = 0;
-        actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+        scpFadeOut(0, 0, 0, 255.0f);
         D_004CC5E0[1] = (int)actSt05cDoorDownEvent;
         gobj->unkB4 = D_004CC5E0;
         BoxBarSoundOn(a0, 0x189);
@@ -192,10 +192,10 @@ extern void lt_fade_status(int a0);
 extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
 extern void _ACTWait(int a0);
 extern void func_0017A0F8(int a0);
-extern void actConte11Jimaku(float f);
+extern void scpFadeIn(float f);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int func_0012A958(int a0);
-extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern void RequestStageChange(int a0, int a1, int a2, float f0, float f1);
 extern int D_0062BCE0;
 extern int D_00629DE4;
 extern int D_00629DE8;
@@ -207,11 +207,11 @@ void actSt05cDoorDownEvent(volatile int a0) {
     scpPlayStart(0x1B, (int)&D_0062BCE0, 0, 1, 1);
     while (D_0062BCE0 == 0) { _ACTWait(1); }
     func_0017A0F8(7);
-    actConte11Jimaku(6.0f);
+    scpFadeIn(6.0f);
     stage_KillPlayBgAnimation(0x102, 1, 0);
     while (func_0012A958(0x102) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    actSt25aQueenDead(7, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
+    RequestStageChange(7, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
 }
 
 void actSt05cDoorDownEffect(int a0) {
@@ -246,7 +246,7 @@ void func_0021C2F0(int a0) {
 
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void func_0021C300(int a0) {
     volatile int buf[4];
@@ -254,18 +254,18 @@ void func_0021C300(int a0) {
     while (func_00178DB0(0xA3) == 0) {
         _ACTWait(1);
     }
-    AddWayPointTop(3, 1);
+    SetWayGroupActive(3, 1);
 }
 
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
-extern void AddWayPointTop(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
 
 void func_0021C348(volatile int a0) {
     while (func_00178DB0(0xA3) == 0 || func_00178DB0(0xA4) == 0) {
         _ACTWait(1);
     }
-    AddWayPointTop(4, 1);
+    SetWayGroupActive(4, 1);
 }
 
 void func_0021C3A0(int a0) {

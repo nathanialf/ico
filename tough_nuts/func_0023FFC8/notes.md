@@ -1,7 +1,7 @@
-# func_0023FFC8 — parked
+# sceVu0InterVector — parked
 
 VRAM: 0x0023FFC8 (file_off 0x13FFC8)
-Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0023FFC8.s
+Asm source: asm/aug6/nonmatchings/common/src/PObj/sceVu0InterVector.s
 
 ## Attempt at 2026-06-04
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/common/src/PObj/func_0023FFC8.s
 
 **TU:** `common/src/PObj.c`
 
-**Seed:** `tough_nuts/func_0023FFC8/func_0023FFC8.c`
+**Seed:** `tough_nuts/sceVu0InterVector/sceVu0InterVector.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching func_0023FFC8, 0x28
+nonmatching sceVu0InterVector, 0x28
 
-glabel func_0023FFC8
+glabel sceVu0InterVector
     /* 13FFC8 0023FFC8 0000A4D8 */  lqc2       $vf4, 0x0($5)
     /* 13FFCC 0023FFCC 0000C5D8 */  lqc2       $vf5, 0x0($6)
     /* 13FFD0 0023FFD0 00600844 */  mfc1       $8, $f12
@@ -28,5 +28,5 @@ glabel func_0023FFC8
     /* 13FFE4 0023FFE4 482AE84B */  vmaddx.xyzw $vf9, $vf5, $vf8x
     /* 13FFE8 0023FFE8 0800E003 */  jr         $31
     /* 13FFEC 0023FFEC 000089F8 */   sqc2      $vf9, 0x0($4)
-endlabel func_0023FFC8
+endlabel sceVu0InterVector
 ```

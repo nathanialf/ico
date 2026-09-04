@@ -9,7 +9,7 @@ extern GsAlphaEnt D_0054E7E0[];
 typedef union { unsigned long long *ptr; unsigned long long ull; } GsCurU;
 typedef union { unsigned long long ul; unsigned long long *ptr; } GsQW;
 
-void gsb_SetFrame(long long a0, long long a1, long long a2) {
+void gif_SetAlpha(long long a0, long long a1, long long a2) {
     unsigned long long *p, *q;
     unsigned long long v;
     int idx;
@@ -34,9 +34,9 @@ void gsb_SetFrame(long long a0, long long a1, long long a2) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_Init);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gif_MoveImage);
 
-void gsb_Reduction(int a0) {
+void gif_SetZTest(int a0) {
     int new_var;
     unsigned long long *p, *q;
     if (a0) {
@@ -95,7 +95,7 @@ void gsb_fade(int a0, int a1) {
 }
 
 
-int gsb_scissorOnDemo(volatile int *a0) {
+int _IsInScreen(volatile int *a0) {
     if (a0[2] < 0) return 0;
     if (a0[2] > 0x0FFFFFF0) return 0;
     if (a0[0] < 0) return 0;
@@ -106,7 +106,7 @@ int gsb_scissorOnDemo(volatile int *a0) {
 
 extern void func_0023E1D0(void *a0, int a1, int a2, int a3, int a4, int a5);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_controlBrightness);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_SetFrame);
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_antiAlias);
@@ -119,70 +119,70 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_setSpecularReg);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_setParticleReg);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_MakeCommonMatrix);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_controlBrightness);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_SetGsDefault);
 
 extern int dpk_CheckBufferSize(void);
 extern void gif_SpriteSensitiveOffset(int a0);
-extern void gif_SpriteOrg(int a0, long long a1);
-extern void func_0010FB08(void);
+extern void gif_SetGsReg(int a0, long long a1);
+extern void gif_EndPacketPath1(void);
 
 void gsb_PostEffect(void) {
     dpk_SwapBuffer();
     gif_SpriteSensitiveOffset(dpk_CheckBufferSize());
-    gif_SpriteOrg(0x47, 0x50000);
-    gif_SpriteOrg(0x4E, 0x300000C0);
-    gif_SpriteOrg(0x4A, 0);
-    gif_SpriteOrg(0x3B, 0x8000000080LL);
-    func_0010FB08();
+    gif_SetGsReg(0x47, 0x50000);
+    gif_SetGsReg(0x4E, 0x300000C0);
+    gif_SetGsReg(0x4A, 0);
+    gif_SetGsReg(0x3B, 0x8000000080LL);
+    gif_EndPacketPath1();
 }
 
 void gsb_InitGSSystem(void) {
     dpk_SwapBuffer();
     gif_SpriteSensitiveOffset(dpk_CheckBufferSize());
-    gif_SpriteOrg(0x47, 0x5140D);
-    gif_SpriteOrg(0x4E, 0x300000C0);
-    gif_SpriteOrg(0x4A, 0);
-    gif_SpriteOrg(0x3B, 0x810000807FLL);
-    func_0010FB08();
+    gif_SetGsReg(0x47, 0x5140D);
+    gif_SetGsReg(0x4E, 0x300000C0);
+    gif_SetGsReg(0x4A, 0);
+    gif_SetGsReg(0x3B, 0x810000807FLL);
+    gif_EndPacketPath1();
 }
 
 void gsb_UpdateGSSystem(void) {
     dpk_SwapBuffer();
     gif_SpriteSensitiveOffset(dpk_CheckBufferSize());
-    gif_SpriteOrg(0x47, 0x5C000);
-    gif_SpriteOrg(0x4E, 0x1300000C0LL);
-    gif_SpriteOrg(0x4A, 0);
-    gif_SpriteOrg(0x3B, 0x8000000080LL);
-    func_0010FB08();
+    gif_SetGsReg(0x47, 0x5C000);
+    gif_SetGsReg(0x4E, 0x1300000C0LL);
+    gif_SetGsReg(0x4A, 0);
+    gif_SetGsReg(0x3B, 0x8000000080LL);
+    gif_EndPacketPath1();
 }
 
 void gsb_ResetGSSystem(void) {
     dpk_SwapBuffer();
     gif_SpriteSensitiveOffset(dpk_CheckBufferSize());
-    gif_SpriteOrg(0x47, 0x50000);
-    gif_SpriteOrg(0x4E, 0x1300000C0LL);
-    gif_SpriteOrg(0x4A, 0);
-    gif_SpriteOrg(0x3B, 0x8000000080LL);
-    func_0010FB08();
+    gif_SetGsReg(0x47, 0x50000);
+    gif_SetGsReg(0x4E, 0x1300000C0LL);
+    gif_SetGsReg(0x4A, 0);
+    gif_SetGsReg(0x3B, 0x8000000080LL);
+    gif_EndPacketPath1();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_SetVSMatrixSub);
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_MakeCommonMatrix);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_SetVSMatrix);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_ClipBox);
 
-extern void debug_assertMessage(const char *fmt, ...);
+extern void debug_StdPrintfDummy(const char *fmt, ...);
 extern int D_00629F14, D_00629D60, D_00629D50, D_00629EBC;
 extern char D_0054EAF0[], D_0054EB00[], D_0054EB10[], D_0054EB20[], D_00271270[];
-extern void func_0023E168(void);
-extern void func_00240AB8(void);
+extern void sceGsResetPath(void);
+extern void sceVpu0Reset(void);
 extern void matrix_init(void);
 extern void malloc_MemCpy(void);
-extern void func_00130000(void);
-extern void func_0023EAC8(int a0);
+extern void tex_Init(void);
+extern void sceGsSyncV(int a0);
 extern void gsb_antiAlias(void *a0);
 extern void dl_PopPriority(void);
 extern void mallocsekistage(void);
@@ -193,25 +193,25 @@ void gsb_StageSettingTool(void) {
     D_00629D60 = 0;
     D_00629D50 = 0;
     if (D_00629F14 != 0) {
-        func_0023E168();
-        func_00240AB8();
-        debug_assertMessage(D_0054EAF0);
+        sceGsResetPath();
+        sceVpu0Reset();
+        debug_StdPrintfDummy(D_0054EAF0);
         matrix_init();
-        debug_assertMessage(D_0054EB00);
+        debug_StdPrintfDummy(D_0054EB00);
         malloc_MemCpy();
-        debug_assertMessage(D_0054EB10);
-        func_00130000();
-        debug_assertMessage(D_0054EB20);
-        func_0023EAC8(0);
+        debug_StdPrintfDummy(D_0054EB10);
+        tex_Init();
+        debug_StdPrintfDummy(D_0054EB20);
+        sceGsSyncV(0);
         gsb_antiAlias(D_00271270);
-        func_0023EAC8(0);
+        sceGsSyncV(0);
         dl_PopPriority();
         D_00629F14 = 0;
     } else {
-        debug_assertMessage(D_0054EAF0);
+        debug_StdPrintfDummy(D_0054EAF0);
         matrix_init();
-        debug_assertMessage(D_0054EB10);
-        func_00130000();
+        debug_StdPrintfDummy(D_0054EB10);
+        tex_Init();
     }
     mallocsekistage();
     prim_InitFan2D();

@@ -23,7 +23,7 @@ typedef struct Node {
 } Node;
 extern struct U4 D_0062B2C0;
 extern Node kanban_reqs[] __asm__("D_006FF910");
-extern void debug_assertMessage();
+extern void debug_StdPrintfDummy();
 
 void *kanbanInit(int a0, int a1) {
     Node *p, *q;
@@ -41,7 +41,7 @@ void *kanbanInit(int a0, int a1) {
         }
         node++;
     } while (++i < 0x1E);
-    debug_assertMessage(D_0060F658);
+    debug_StdPrintfDummy(D_0060F658);
     return 0;
 found:
     node->f8 = 0;

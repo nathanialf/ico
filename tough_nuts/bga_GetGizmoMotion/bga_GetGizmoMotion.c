@@ -50,16 +50,16 @@ void bga_GetGizmoMotion(void *obj, int a1, float c, float d, int a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_setCounter);
 
-extern void func_001180D8(void *a0);
-extern void _RemakeNormal(int a0);
-extern void func_00118118(int a0);
-extern int _Sqrt(int a0);
+extern void _TransCurrentMatrix(void *a0);
+extern void _RotCurrentMatrixY(int a0);
+extern void _RotCurrentMatrixX(int a0);
+extern int _RotCurrentMatrixZ(int a0);
 
 void bga_calcEnvelope(void *a0, short *a1) {
-    func_001180D8(a0);
-    _RemakeNormal(a1[2]);
-    func_00118118(a1[0]);
-    _Sqrt(a1[4]);
+    _TransCurrentMatrix(a0);
+    _RotCurrentMatrixY(a1[2]);
+    _RotCurrentMatrixX(a1[0]);
+    _RotCurrentMatrixZ(a1[4]);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", _RotTransCurrentMatrixYXZ);
@@ -151,9 +151,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_SetFrame);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CalcAnimation);
 
-extern void debug_assertMessage(char *msg);
+extern void debug_StdPrintfDummy(char *msg);
 extern void func_001AAD00(char *file, int line);
-extern void func_00260380(char *file, int line, void *expr);
+extern void __assert(char *file, int line, void *expr);
 extern void *iosFree(int heap, int size, char *file, int line);
 extern void mc_Init(void *a0);
 extern void mc_TransMicroCode(void *a0, void *a1);
@@ -195,9 +195,9 @@ void bga_CalcSdfCamera(int type, short *p, void *mcArg, int key, float f, int a5
                 SDF_ID(node)++;
                 return;
             default:
-                debug_assertMessage(D_00613600);
+                debug_StdPrintfDummy(D_00613600);
                 func_001AAD00(D_006133E0, 0x8D2);
-                func_00260380(D_006133E0, 0x8D2, D_0062D940);
+                __assert(D_006133E0, 0x8D2, D_0062D940);
                 return;
             }
         }
@@ -227,9 +227,9 @@ void bga_CalcSdfCamera(int type, short *p, void *mcArg, int key, float f, int a5
         SDF_ID(node)++;
         break;
     default:
-        debug_assertMessage(D_00613600);
+        debug_StdPrintfDummy(D_00613600);
         func_001AAD00(D_006133E0, 0x8F3);
-        func_00260380(D_006133E0, 0x8F3, D_0062D940);
+        __assert(D_006133E0, 0x8F3, D_0062D940);
         break;
     }
 }
@@ -246,13 +246,13 @@ void bga_DispLightning(void) {
 extern int D_0062BA98;
 extern int D_0062BAA0;
 extern int D_0070A4B0[];
-extern void func_001189D0(void *dst, void *src);
+extern void _CopyMatrix(void *dst, void *src);
 
 int bga_ResetCamera(void *p)
 {
     int v = D_0062C254;
     if (v != 0) {
-        func_001189D0(p, D_0070A4B0);
+        _CopyMatrix(p, D_0070A4B0);
         v = D_0062C254;
     } else {
         D_0062BA98 = 0;
@@ -260,20 +260,20 @@ int bga_ResetCamera(void *p)
     return v != 0 && D_0062BAA0 == 0;
 }
 
-extern int func_00261748(void *a0, void *a1, int a2);
-extern void debug_assertMessage();
+extern int strncmp(void *a0, void *a1, int a2);
+extern void debug_StdPrintfDummy();
 extern void func_001AAD00(char *file, int line);
-extern void func_00260380(char *file, int line, void *expr);
+extern void __assert(char *file, int line, void *expr);
 extern char D_0062D938[];
 extern char D_0062D930[];
 extern char D_006133E0[];
 extern char D_00613428[];
 
 void *bga_GetCameraMatrix(void *a0) {
-    if (func_00261748(a0, D_0062D938, 3) != 0) {
-        debug_assertMessage(D_00613428);
+    if (strncmp(a0, D_0062D938, 3) != 0) {
+        debug_StdPrintfDummy(D_00613428);
         func_001AAD00(D_006133E0, 0x383);
-        func_00260380(D_006133E0, 0x383, D_0062D930);
+        __assert(D_006133E0, 0x383, D_0062D930);
     }
     return a0;
 }

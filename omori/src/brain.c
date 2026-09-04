@@ -68,7 +68,7 @@ void brainGetTarget(void *a0, int a1) {
     } while (t != 0);
 }
 
-extern float saveEditedData(void *a0, float f);
+extern float brainAddLevel(void *a0, float f);
 
 void brainStatusSet(int a0, float f12) {
     int *base = D_00286A90;
@@ -76,7 +76,7 @@ void brainStatusSet(int a0, float f12) {
     for (i = 0; i <= 0x13; i++) {
         int *p = (int *)((char *)base + 0x28 + i * 0x1C);
         if (*p == a0) {
-            saveEditedData(p, f12);
+            brainAddLevel(p, f12);
         }
     }
 }
@@ -84,7 +84,7 @@ void brainStatusSet(int a0, float f12) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainStatusDel);
 
-extern int gif_test(int *a0, void *a1, float f12);
+extern int brainSetLevel(int *a0, void *a1, float f12);
 
 void brainGetLevel(int a0, int a1, int a2, float f12) {
     int *base = D_00286A90;
@@ -94,7 +94,7 @@ void brainGetLevel(int a0, int a1, int a2, float f12) {
         if (*(int *)p == a0) {
             p[0x18] = (char)a1;
             p[0x19] = (char)a2;
-            gif_test(base, p, f12);
+            brainSetLevel(base, p, f12);
         }
     }
 }

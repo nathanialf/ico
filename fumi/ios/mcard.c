@@ -31,7 +31,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", func_00137B50);
 void iosMcManager(void) {
 }
 
-int iosMcMgrSync(void *a0) {
+int iosMcSync(void *a0) {
     unsigned long long x = *(unsigned long long *)a0;
     return -((unsigned char)x & 1);
 }
@@ -41,21 +41,21 @@ extern char D_0027D308[];
 
 typedef union { long long ll; struct { int lo, hi; } w; } McTestVal;
 
-int iosMcTest(void *a0) {
+int iosMcGetInfo(void *a0) {
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 0;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0027D308, a0, 0);
 }
 
-int iosMcSync(void *a0) {
+int iosMcFormat(void *a0) {
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 3;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0027D308, a0, 0);
 }
 
-int iosMcGetInfo(void *a0) {
+int iosMcUnformat(void *a0) {
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 4;
     v->ll = v->ll & -2;

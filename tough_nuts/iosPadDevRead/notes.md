@@ -72,7 +72,7 @@ glabel iosPadDevRead
     /* 3B1AC 0013B1AC 9C98878F */  lw         $7, %gp_rel(D_0062A48C)($28)
     /* 3B1B0 0013B1B0 0F00068A */  lwl        $6, 0xF($16)
     /* 3B1B4 0013B1B4 0C00069A */  lwr        $6, 0xC($16)
-    /* 3B1B8 0013B1B8 FEEE040C */  jal        ShockRequestBox_Regst
+    /* 3B1B8 0013B1B8 FEEE040C */  jal        Shock_Request
     /* 3B1BC 0013B1BC 2430C300 */   and       $6, $6, $3
     /* 3B1C0 0013B1C0 03004014 */  bnez       $2, .L0013B1D0
     /* 3B1C4 0013B1C4 9C98828F */   lw        $2, %gp_rel(D_0062A48C)($28)

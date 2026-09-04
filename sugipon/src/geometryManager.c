@@ -3,9 +3,9 @@
 
 extern int func_00104D20(void);
 extern int *func_00105078(void);
-extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
+extern void CopyMatrix(void *dst, void *src);
 extern void func_00105108(float a, float b, float c);
-extern int *func_00105068(void);
+extern int *MatrixDrive_PopMatrix(void);
 
 void GetRootQuaternionByDObj(void *a0)
 {
@@ -16,10 +16,10 @@ void GetRootQuaternionByDObj(void *a0)
     float b = rf13;
     float c = rf14;
     func_00104D20();
-    MatrixDrive_TurnXObjectMatrixYZ(func_00105078(), (void *)((char *)a0 + 0x20));
+    CopyMatrix(func_00105078(), (void *)((char *)a0 + 0x20));
     func_00105108(a, b, c);
-    MatrixDrive_TurnXObjectMatrixYZ((void *)*(int *)((char *)a0 + 0xC), func_00105078());
-    func_00105068();
+    CopyMatrix((void *)*(int *)((char *)a0 + 0xC), func_00105078());
+    MatrixDrive_PopMatrix();
 }
 
 extern void GetRootQuaternionByDObj(void *a0);
@@ -29,12 +29,12 @@ void UpdateRootMatrixByDObj(int a0) {
 }
 
 extern void RegularizeQuaternion(int a0, int a1);
-extern void func_0010E148(int a0, int a1, int a2);
+extern void MultiQuaternion(int a0, int a1, int a2);
 
 void GetRootQuaternion(int a0, int a1)
 {
     RegularizeQuaternion(a0, a1 + 0x60);
-    func_0010E148(a0, a0, *(int *)(a1 + 0x10));
+    MultiQuaternion(a0, a0, *(int *)(a1 + 0x10));
 }
 
 
@@ -44,19 +44,19 @@ void UpdateRootMatrix(void *a0, int a1) {
 
 extern int func_00104D20(void);
 extern int *func_00105078(void);
-extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
-extern void func_0010E300(void *p);
-extern int *func_00105068(void);
+extern void CopyMatrix(void *dst, void *src);
+extern void MultiMatrixByQuaternion(void *p);
+extern int *MatrixDrive_PopMatrix(void);
 
-extern void func_0010E148(int a0, int a1, int a2);
+extern void MultiQuaternion(int a0, int a1, int a2);
 
 void SetRootBaseQuaternion(void *a0, void *a1) {
     func_00104D20();
-    MatrixDrive_TurnXObjectMatrixYZ(func_00105078(), (void *)((char *)a0 + 0x20));
-    func_0010E300(a1);
-    MatrixDrive_TurnXObjectMatrixYZ((void *)*(int *)((char *)a0 + 0xC), func_00105078());
-    func_00105068();
-    func_0010E148(*(int *)((char *)a0 + 0x10), (int)((char *)a0 + 0x60), (int)a1);
+    CopyMatrix(func_00105078(), (void *)((char *)a0 + 0x20));
+    MultiMatrixByQuaternion(a1);
+    CopyMatrix((void *)*(int *)((char *)a0 + 0xC), func_00105078());
+    MatrixDrive_PopMatrix();
+    MultiQuaternion(*(int *)((char *)a0 + 0x10), (int)((char *)a0 + 0x60), (int)a1);
 }
 
 
@@ -76,8 +76,8 @@ void SetRootMatrixWithTransOffset(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetRootMatrixRotOffsetByDObj);
 
-extern void func_0023FDD8(int *self, int v, char *p);
-extern void func_0023FE98(int *out, int *src);
+extern void sceVu0ApplyMatrix(int *self, int v, char *p);
+extern void sceVu0Normalize(int *out, int *src);
 extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
 
 void GetRootMatrixRotOffset(int *self, int *other, char *p)
@@ -90,11 +90,11 @@ void GetRootMatrixRotOffset(int *self, int *other, char *p)
             char *inner_struct = ((GObj *)(a))->p_15C;
             int inner_field = *(int *)(inner_struct + 0xC);
             int idx = *(int *)(sub + 0x4);
-            func_0023FDD8(self, inner_field + (idx << 6), p);
+            sceVu0ApplyMatrix(self, inner_field + (idx << 6), p);
         }
     }
     *(int *)((char *)self + 0x4) = 0;
-    func_0023FE98(self, self);
+    sceVu0Normalize(self, self);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetRootMatrixRotOffsetByDObj);
@@ -119,10 +119,10 @@ extern void MatrixDrive_TransMatrix(void *out, void *src);
 void GetRootVelocity(char *a0, int *a1) {
     char buf[0x40];
     char *m = *(char **)(a1[0] + 0x15C);
-    MatrixDrive_TurnXObjectMatrixYZ(buf, (void *)(*(int *)(m + 0xC) + a1[1] * 0x40));
+    CopyMatrix(buf, (void *)(*(int *)(m + 0xC) + a1[1] * 0x40));
     MatrixDrive_TransMatrix(buf, buf);
-    func_0023FDD8((int *)(*(char **)(a0 + 0x15C) + 0x510), (int)buf, (char *)(*(char **)(a0 + 0x15C) + 0x510));
-    func_0023FE98((int *)(*(char **)(a0 + 0x15C) + 0x510), (int *)(*(char **)(a0 + 0x15C) + 0x510));
+    sceVu0ApplyMatrix((int *)(*(char **)(a0 + 0x15C) + 0x510), (int)buf, (char *)(*(char **)(a0 + 0x15C) + 0x510));
+    sceVu0Normalize((int *)(*(char **)(a0 + 0x15C) + 0x510), (int *)(*(char **)(a0 + 0x15C) + 0x510));
     *(int *)(*(char **)(a0 + 0x15C) + 0x51C) = 0;
 }
 
@@ -137,7 +137,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", MakeCharGObjLis
 void cylinderCollisionCheck(char *a0, char *a1) {
     char *sub = a1;
     char *p = sub + 0xA0;
-    func_0010E250(a0, sub + 0xD0, p);
+    GetMatrixFromQuaternionPos(a0, sub + 0xD0, p);
     {
         char *q = *(char **)sub;
         if (q != 0) {
@@ -147,13 +147,13 @@ void cylinderCollisionCheck(char *a0, char *a1) {
     *(float *)(a0 + 0x34) = *(float *)(a0 + 0x34) + *(float *)(p + 0xB0);
 }
 
-extern void func_0010E250();
+extern void GetMatrixFromQuaternionPos();
 extern void func_0023FE08();
 
 void LocalizeDirectionOrient(char *a0, char *a1) {
     char *sub = *(char **)(a1 + 0x15C);
     char *p = sub + 0xA0;
-    func_0010E250(a0, sub + 0xD0, p);
+    GetMatrixFromQuaternionPos(a0, sub + 0xD0, p);
     {
         char *q = *(char **)sub;
         if (q != 0) {
@@ -171,7 +171,7 @@ void GetCylinderCollision(char *a0, char *a1) {
         char *inner_struct = *(char **)(a + 0x15C);
         int inner_field = *(int *)(inner_struct + 0xC);
         int idx = *(int *)(sub + 0x4);
-        func_0023FDD8((int *)a0, inner_field + (idx << 6), p);
+        sceVu0ApplyMatrix((int *)a0, inner_field + (idx << 6), p);
     } else {
         MatrixDrive_TurnObjectMatrix((int)a0, (int)p);
     }
@@ -196,7 +196,7 @@ void GetRootMatrixByDObj(char *a0, char *a1) {
         char *inner_struct = *(char **)(a + 0x15C);
         int inner_field = *(int *)(inner_struct + 0xC);
         int idx = *(int *)(sub + 0x4);
-        func_0023FDD8((int *)a0, inner_field + (idx << 6), p);
+        sceVu0ApplyMatrix((int *)a0, inner_field + (idx << 6), p);
     } else {
         MatrixDrive_TurnObjectMatrix((int)a0, (int)p);
     }

@@ -5,7 +5,7 @@ Asm source: asm/aug6/nonmatchings/sugipon/src/motionOrientManager/func_001E1860.
 
 ## Attempt at 2026-07-07
 
-**Reason parked:** rc45 STRUCTURE CORRECT (linked-list walk: GetRootProjectionPosOfGObj + 2x MatrixDrive + float copy 0x150->0x7C8 + Blk8 unaligned copy + do-while node walk idx/off via geom->0x8C nodes). Residual is PERMUTER-CLASS per tools/tag_diff.py fp-licm: gcc hoists the 0.0f GetTableArcSin arg into callee-saved f20 (ROM re-materializes mtc1 in-loop) -> frame 0x90 vs 0x70 + s5 vs callee-saved renumber (a0:s0 vs s1, off:s0). 5 distinct shapes (var-reduction, scope, decl-order, buf-type) all fold to same f20-hoist sig. Seed for permuter.
+**Reason parked:** rc45 STRUCTURE CORRECT (linked-list walk: CopyMotion + 2x MatrixDrive + float copy 0x150->0x7C8 + Blk8 unaligned copy + do-while node walk idx/off via geom->0x8C nodes). Residual is PERMUTER-CLASS per tools/tag_diff.py fp-licm: gcc hoists the 0.0f SetQuaternionByAxisRotate arg into callee-saved f20 (ROM re-materializes mtc1 in-loop) -> frame 0x90 vs 0x70 + s5 vs callee-saved renumber (a0:s0 vs s1, off:s0). 5 distinct shapes (var-reduction, scope, decl-order, buf-type) all fold to same f20-hoist sig. Seed for permuter.
 
 **TU:** `sugipon/src/motionOrientManager.c`
 
@@ -33,7 +33,7 @@ glabel func_001E1860
     /* E1890 001E1890 9007538C */  lw         $19, 0x790($2)
     /* E1894 001E1894 8800468C */  lw         $6, 0x88($2)
     /* E1898 001E1898 7C07458C */  lw         $5, 0x77C($2)
-    /* E189C 001E189C 122A040C */  jal        GetRootProjectionPosOfGObj
+    /* E189C 001E189C 122A040C */  jal        CopyMotion
     /* E18A0 001E18A0 2D206002 */   daddu     $4, $19, $0
     /* E18A4 001E18A4 5C01248E */  lw         $4, 0x15C($17)
     /* E18A8 001E18A8 80078524 */  addiu      $5, $4, 0x780
@@ -65,13 +65,13 @@ glabel func_001E1860
     /* E1908 001E1908 803F013C */  lui        $1, (0x3F800000 >> 16)
     /* E190C 001E190C 00688144 */  mtc1       $1, $f13
     /* E1910 001E1910 2D288002 */  daddu      $5, $20, $0
-    /* E1914 001E1914 BC37040C */  jal        GetTableArcSin
+    /* E1914 001E1914 BC37040C */  jal        SetQuaternionByAxisRotate
     /* E1918 001E1918 86630046 */   mov.s     $f14, $f12
     /* E191C 001E191C 40211200 */  sll        $4, $18, 5
     /* E1920 001E1920 2D28A003 */  daddu      $5, $29, $0
     /* E1924 001E1924 21206402 */  addu       $4, $19, $4
     /* E1928 001E1928 10008424 */  addiu      $4, $4, 0x10
-    /* E192C 001E192C 5238040C */  jal        func_0010E148
+    /* E192C 001E192C 5238040C */  jal        MultiQuaternion
     /* E1930 001E1930 2D308000 */   daddu     $6, $4, $0
     /* E1934 001E1934 5C01238E */  lw         $3, 0x15C($17)
     /* E1938 001E1938 FFFF0524 */  addiu      $5, $0, -0x1

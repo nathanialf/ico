@@ -1,7 +1,7 @@
-# gsb_controlBrightness — parked
+# gsb_SetFrame — parked
 
 VRAM: 0x00112668 (file_off 0x012668)
-Asm source: asm/aug6/nonmatchings/seki/src/GsBase/gsb_controlBrightness.s
+Asm source: asm/aug6/nonmatchings/seki/src/GsBase/gsb_SetFrame.s
 
 ## Attempt at 2026-07-05
 
@@ -9,15 +9,15 @@ Asm source: asm/aug6/nonmatchings/seki/src/GsBase/gsb_controlBrightness.s
 
 **TU:** `seki/src/GsBase.c`
 
-**Seed:** `tough_nuts/gsb_controlBrightness/gsb_controlBrightness.c`
+**Seed:** `tough_nuts/gsb_SetFrame/gsb_SetFrame.c`
 
 Disassembly:
 
 ```
 .align 3
-nonmatching gsb_controlBrightness, 0xF4
+nonmatching gsb_SetFrame, 0xF4
 
-glabel gsb_controlBrightness
+glabel gsb_SetFrame
     /* 12668 00112668 C0FFBD27 */  addiu      $29, $29, -0x40
     /* 1266C 0011266C 2D188000 */  daddu      $3, $4, $0
     /* 12670 00112670 2000B2FF */  sd         $18, 0x20($29)
@@ -79,6 +79,6 @@ glabel gsb_controlBrightness
     /* 12750 00112750 2D480000 */  daddu      $9, $0, $0
     /* 12754 00112754 74F80808 */  j          func_0023E1D0
     /* 12758 00112758 4000BD27 */   addiu     $29, $29, 0x40
-endlabel gsb_controlBrightness
+endlabel gsb_SetFrame
     /* 1275C 0011275C 00000000 */  nop
 ```
