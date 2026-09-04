@@ -9,16 +9,22 @@
 ![.sdata progress](https://img.shields.io/badge/sdata-1.20%20%25-orange.svg)
 <!-- progress:end -->
 
-**[Live progress dashboard](https://nathanialf.github.io/ico/#us)** — per-directory / per-TU / per-function decomp status for this branch's target (USA retail, SLUS-20218), updated on every push. The dashboard also carries the Aug-6-2001 prototype target; switch with the picker at the top.
+**[Live progress dashboard](https://nathanialf.github.io/ico/#us)** — per-directory / per-TU / per-function decomp status for this branch's target (USA retail, SLUS-20218), updated on every push. The dashboard carries all three targets (PAL retail on `main`, this USA retail branch, the Aug-6-2001 prototype on `aug6`); switch with the picker at the top.
 
 A clean-room decompilation of the PlayStation 2 game **ICO** (2001, Sony
 Computer Entertainment / Team Ico).
 
-This branch targets the **shipped USA retail build** (disc SLUS-20218
-metadata; the actual boot ELF is `SCUS_971.13`). The Aug-6-2001 US Preview
-prototype target lives on `main` — retail shares its toolchain, conventions,
-and most recovered source, and newly matched `main` functions flow here via
-`tools/port_from_aug6.py` (see [`decomp/PORTING.md`](decomp/PORTING.md)).
+This branch (`ntsc`) targets the **shipped USA retail build** (disc
+SLUS-20218 metadata; the actual boot ELF is `SCUS_971.13`). Since 2026-09-04
+the repository's primary target is the **PAL retail build** on `main`
+(SCES-50760), whose disc ships a linker map and an `objdump` listing; this
+branch's function names were re-derived from that listing by instruction-stream
+correlation (`decomp/rename_ledger_us.md`). The Aug-6-2001 US Preview
+prototype lives on `aug6`. All three share the toolchain and conventions, and
+every matched body here that survives in PAL has been ported to `main`
+(`decomp/port_ledger_pal.md` there). `tools/port_from_aug6.py` and
+[`decomp/PORTING.md`](decomp/PORTING.md) remain on this branch for the
+aug6 → USA direction.
 
 The goal is to produce original source code that, compiled with the original
 build chain (ee-gcc 2.9-991111-01 + its period ee-as 2.9-991111), reproduces a byte-for-byte
