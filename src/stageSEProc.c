@@ -33,9 +33,17 @@ ASM_LIT4_SLOT(D_00639B64, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE02astrong);
 INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE02ataki);
 ASM_LIT4_SLOT(D_00639B68, 785.0f);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE02atakib);
-ASM_LIT4_SLOT(D_00639B6C, 785.0f);
-ASM_LIT4_SLOT(D_00639B70, 1786.0f);
+int stageSE02atakib(char *self) {
+    float *p = *(float **)(self + 0x34);
+    p[0] = 785.0f;
+    p[1] = 1786.0f;
+    p[2] = 482.0f;
+    *(float *)(self + 0x1C) = 0.5f;
+    if (gflagChk(0x6A)) {
+        *(int *)(self + 0x18) = 0;
+    }
+    return 1;
+}
 extern int GetCameraGroupCurrent(void);
 
 int stageSE03tsuiro(void) {
@@ -75,10 +83,19 @@ int stageSE04bstrong(void *a0) {
     *(float *)((char *)a0 + 0x18) = v;
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE04ewind);
-ASM_LIT4_SLOT(D_00639B80, -5770.0f);
-ASM_LIT4_SLOT(D_00639B84, -4900.0f);
-ASM_LIT4_SLOT(D_00639B88, 870.0f);
+int stageSE04ewind(char *a0) {
+    float x = ((float *)GetCameraPos__pn())[2];
+    float f;
+    if (x < -5770.0f) {
+        f = 0.0f;
+    } else if (x > -4900.0f) {
+        f = 1.0f;
+    } else {
+        f = (x - -5770.0f) / 870.0f;
+    }
+    *(float *)(a0 + 0x18) = 1.0f - f;
+    return -1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE04eriverDown);
 ASM_LIT4_SLOT(D_00639B8C, -5770.0f);
 ASM_LIT4_SLOT(D_00639B90, 2090.0f);

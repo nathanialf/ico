@@ -71,7 +71,15 @@ INCLUDE_ASM("asm/nonmatchings/ios/cdvd", cdWait);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundRead);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundReadIOPm);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdDirectStOpen);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdDirectStClose);
+void iosCdvdDirectStClose(int *self) {
+    int err;
+    self[0xC / 4] = 0;
+    err = sceCdStStop();
+    if (err == 0) {
+        self[0xC / 4] = sceCdGetError();
+    }
+    sceSifFreeIopHeap(self[0x164 / 4]);
+}
 extern char D_00637E69[];
 extern char D_0063A3A0[];
 extern void sprintf();

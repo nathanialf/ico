@@ -20,7 +20,21 @@ void GetRootQuaternionByDObj(int a0, int *a1)
 null_path:
     CopyQuaternion(a0, (int)a1 + 0xD0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", UpdateRootMatrixByDObj);
+extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
+extern void func_0025D440(void *a0, void *a1, void *a2);
+void UpdateRootMatrixByDObj(char *a0) {
+    char *p = a0 + 0xA0;
+    char *fobj = *(char **)(a0 + 0xC);
+    GetMatrixFromQuaternionPos(fobj, a0 + 0xD0, p);
+    {
+        char *q = *(char **)a0;
+        if (q != 0) {
+            func_0025D440(fobj, *(char **)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(a0 + 0x4) << 6), fobj);
+        }
+    }
+    *(float *)(fobj + 0x34) = *(float *)(fobj + 0x34) + *(float *)(p + 0xC0);
+    GetRootQuaternionByDObj(*(void **)(a0 + 0x10), a0);
+}
 extern void GetRootQuaternionByDObj(int a0, int *a1);
 
 void GetRootQuaternion(int a0, int a1)

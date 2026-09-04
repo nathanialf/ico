@@ -20,7 +20,18 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", execParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", dispParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectByPartition);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectGeometry);
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectUpperLimit);
+typedef struct { int w[7]; } PEffect;
+extern PEffect D_00720220[];
+extern void execParticleEffect(void *a0);
+void SetParticleEffectUpperLimit(int no, float f) {
+    char *o;
+    if (no >= 0) {
+        o = (char *)D_00720220[no].w[6];
+        *(int *)(o + 0x38) = 1;
+        *(float *)(o + 0x3C) = f;
+        execParticleEffect(o);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", ExecParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", ResetParticleEffectPackages);
 extern PE160 D_004ECDF0;
@@ -55,15 +66,22 @@ int *GetParticleEffectPackage(int idx)
 }
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DeleteParticleEffectsByPackage);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DeleteParticleEffectsByID);
-typedef struct { int w[7]; } PEffect;
-extern PEffect D_00720220[];
 int GetParticleEffectData(int a0) {
     return D_00720220[a0].w[6];
 }
 void DisableParticleEffectGeometryControl(int a0) {
     D_00720220[a0].w[2] = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", GetParticleIDWithName);
+extern char D_0062A278[];
+int GetParticleIDWithName(char *name) {
+    int i;
+    for (i = 0; i < 0x3D; i++) {
+        if (strcmp(D_0062A278 + i * 0x50, name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 int GetParticleLoopFlag(int a0)
 {
     int *p;

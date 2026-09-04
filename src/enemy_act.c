@@ -155,7 +155,17 @@ zero:
 one:
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ACTEnemyForceSwitchToCarry);
+extern int actEnemyForceSwitchToCarry(void *a0);
+extern void func_0016AB60(void *a0, int a1, int a2);
+extern void ACTSendMailCorrect(void *a0, int a1);
+int ACTEnemyForceSwitchToCarry(char *a0) {
+    int r = actEnemyForceSwitchToCarry(a0);
+    if (r != 0) {
+        func_0016AB60(a0, 0, 0);
+    }
+    ACTSendMailCorrect(a0, 0x104);
+    return r;
+}
 int actEnemy_GetClingTarget(char *a0) {
     char *b = *(char **)(a0 + 0x164);
     char *e = *(char **)(b + 0x680);
@@ -174,7 +184,18 @@ int actEnemy_isSmallEnemy(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", IsEnemyBrainToGenerator);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", IsEnemyBrainToBoy);
+extern char *D_00639EA8;
+int IsEnemyBrainToBoy(char *self) {
+    char *sub;
+    char *sub2;
+    if (D_00639EA8 != 0) {
+        char *sub_d = *(char **)(D_00639EA8 + 0x164);
+        if (*(int *)(sub_d + 0x34) != 0x6F) return 0;
+    }
+    sub = *(char **)(self + 0x164);
+    sub2 = *(char **)(sub + 0x680);
+    return *(int *)(sub2 + 0x204) == 3;
+}
 int GetEnemyTypeFromGObj(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E4);
 }

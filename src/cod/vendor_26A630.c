@@ -1601,7 +1601,15 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _flushBuf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _nextBit);
 extern void _waitIpuIdle(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _nextStartCode);
+void _nextStartCode(void) {
+    int v;
+    _waitIpuIdle();
+    v = (-(*(volatile int *)0x10002020 & 7)) & 7;
+    if (v) _flushBuf(v);
+    while (_peepBit(0x18) != 1) {
+        _flushBuf(8);
+    }
+}
 extern int _qscqsc[];
 extern int _intra_slice[];
 extern void _extrainfo(void);

@@ -18,7 +18,12 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", ReleaseWeaponWithFumbleSequential);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", calcDynamicPathGeometry);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", calcDynamicGeometry);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", getGeometry);
-INCLUDE_ASM("asm/nonmatchings/src/weapon", WeaponCurPos);
+void WeaponCurPos(char *a0, void *a1, void *a2, void *a3) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    CopyVector(a1, p + 0x20);
+    CopyVector(a2, p + 0x30);
+    CopyVector(a3, p + 0x40);
+}
 extern void CheckEnemyHit(void *a0, void *a1, void *a2, void *a3);
 void WeaponHitEffect(char *a0, void *a1) {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);

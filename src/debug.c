@@ -498,7 +498,16 @@ void SendVif1DirectPacket(int *self)
     *p |= 0x40;
     sceDmaSend(p, (self[0x4/4] & 0x3FF0) | 0x80000000);
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", RestoreNormalDrawEnvironment);
+void RestoreNormalDrawEnvironment(void *a0, int a1, int a2) {
+    unsigned int base = (unsigned int)a0 | 0x20000000;
+    if (a1 != 0) {
+        sceGsSetHalfOffset((void *)(base + 0x150), 0x800, 0x800, (short)a2);
+        sceGsPutDrawEnv((void *)(base + 0x140));
+    } else {
+        sceGsSetHalfOffset((void *)(base + 0x60), 0x800, 0x800, (short)a2);
+        sceGsPutDrawEnv((void *)(base + 0x50));
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", SetTextureWithFrameBuffer);
 INCLUDE_ASM("asm/nonmatchings/src/debug", SetTexDrawEnvironment);
 INCLUDE_ASM("asm/nonmatchings/src/debug", SetDrawnTextureEnvironment);

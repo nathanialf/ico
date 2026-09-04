@@ -85,7 +85,19 @@ int IsThisBoxTruck(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x58);
 }
 INCLUDE_ASM("asm/nonmatchings/src/box", ExecBoxMoveStartReaction);
-INCLUDE_ASM("asm/nonmatchings/src/box", ExecBoxMoveEndReaction);
+void ExecBoxMoveEndReaction(char *a0) {
+    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    if (*(int *)(q + 0x58) == 0 || *(int *)(q + 0x110) != 0) {
+        StopSEPackage((int)a0);
+        StopSEPackageWithGroupVariation((int)a0, 1);
+        ExecuteSEPackage((int)a0, 0x16);
+        if (*(int *)(q + 0x140) != 0) {
+            wallHitSE((int)a0);
+            *(int *)(q + 0x140) = 0;
+        }
+    }
+    *(int *)(q + 0x110) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", BoxGeoRestore);
 int BoxExtGeoRestore(void) { return 1; }
 int BoxMemoryFunc(void) { return 1; }
@@ -115,9 +127,32 @@ int GetWallLeverAngle(char *a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/box", initParentize);
 INCLUDE_ASM("asm/nonmatchings/src/box", getAlign);
-INCLUDE_ASM("asm/nonmatchings/src/box", GetDistanceOfGObj);
+extern float sceVu0InnerProduct(void *a0, void *a1);
+extern float FSqrt(float f);
+float GetDistanceOfGObj(void *a0, void *a1) {
+    char v[0x10];
+    char w[0x10];
+    GetRootPosition(v, a1);
+    GetRootPosition(w, a0);
+    sceVu0SubVector(v, v, w);
+    return FSqrt(sceVu0InnerProduct(v, v));
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", moveXPlus);
 INCLUDE_ASM("asm/nonmatchings/src/box", moveXMinus);
 INCLUDE_ASM("asm/nonmatchings/src/box", moveZPlus);
 INCLUDE_ASM("asm/nonmatchings/src/box", moveZMinus);
-INCLUDE_ASM("asm/nonmatchings/src/box", BoxRideFunc);
+int BoxRideFunc(int *a0, char *a1) {
+    char *obj = (char *)*a0;
+    char *p15c = *(char **)(obj + 0x15C);
+    char *s0 = *(char **)(p15c + 0x830);
+    char buf[0x20];
+    if (*(int *)(s0 + 0x20) != 5) {
+        return 0;
+    }
+    *(float *)(p15c + 0x134) += 0.5f;
+    GetRootPosition(buf + 0x10, obj);
+    CopyVector(buf, *(char **)(a1 + 0x15C) + 0xA0);
+    *(int *)(buf + 4) = 0;
+    sceVu0AddVector(s0 + 0xD0, s0 + 0xD0, buf);
+    return 1;
+}

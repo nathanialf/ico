@@ -89,7 +89,27 @@ int AP1MotReq(char *a0) {
     AP1MotReqForce(a0);
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1JumpReq);
+int AP1JumpReq(char *a0, int a1, void *a2) {
+    int flag;
+    char *p = *(char **)(a0 + 0x15C);
+    char *q = *(char **)(p + 0x830);
+    if (*(int *)(q + 8) < 6) {
+        if (*(int *)(q + 8) >= 2) {
+            flag = 0;
+            goto check;
+        }
+    }
+    AP1MotReqForce(a0);
+    flag = 1;
+check:
+    if (flag != 0) {
+        char *pp = *(char **)(a0 + 0x15C);
+        char *qq = *(char **)(pp + 0x830);
+        _ApplyMatrix((int)(pp + 0x130), (int)(qq + 0x230), (int)a2);
+        return 1;
+    }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", MakeAP1GObj);
 extern int D_004E5520[];
 int GetAP1Mode(char *a0) {

@@ -29,7 +29,17 @@ int GetMotionMemorySize(int a0)
     return a0 ? D_0063C470 : D_0063C46C;
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", ResetDynamicMotionManager);
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", ResetStatic2MotionManager);
+typedef struct { char pad[0x134]; int node_id; char pad2[0x194 - 0x138]; } MotFileRec;
+extern MotFileRec D_0055FE58[];
+extern int D_004EB758[];
+void ResetStatic2MotionManager(int a0) {
+    int i;
+    for (i = 0; i <= 0x47A; i++) {
+        if (D_0055FE58[i].node_id == a0) {
+            D_004EB758[i] = 0;
+        }
+    }
+}
 int CheckMotionIncludeFacialData(unsigned int *self)
 {
     int r;

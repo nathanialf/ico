@@ -261,7 +261,19 @@ int GetDifferenceFromLastField(char *a0, int a1) {
     int idx = (*(char **)(e + 0x840))[a1];
     return GetYDistanceFromPlane(e + 0x1D0, *(char **)(e + 0xC) + idx * 0x40 + 0x30);
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromLowerField);
+extern float D_00639F20[];
+float GetDifferenceFromLowerField(char *a0, int a1) {
+    char buf[0xC0];
+    char *ctrl;
+    int idx;
+    ctrl = *(char **)(a0 + 0x15C);
+    idx = (*(signed char **)(ctrl + 0x840))[a1];
+    GetLowerPlaneCollision((int)buf, *(int *)(ctrl + 0xC) + (idx << 6) + 0x30);
+    if (*(int *)(buf + 0x94) == 0) {
+        return D_00639F20[0];
+    }
+    return *(float *)(buf + 0x24) - *(float *)(buf + 0x4);
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromWallLowerPlane);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromWallUpperPlane);
 void DisableChangeRootUpdateMode(char *self) {

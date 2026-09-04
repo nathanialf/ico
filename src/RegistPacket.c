@@ -3,7 +3,18 @@
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setShape);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispBoxLine);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_clipPacketBoundingBox);
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_transMicroCode);
+extern void mc_TransMicroCode(int a0);
+void reg_transMicroCode(char *a0) {
+    if (*(signed char *)(*(char **)(a0 + 0x854) + 0x2F) != 0) {
+        mc_TransMicroCode(3);
+        return;
+    }
+    if (*(int *)(*(char **)(a0 + 0x874) + 0xF0) == 0) {
+        mc_TransMicroCode(1);
+        return;
+    }
+    mc_TransMicroCode(2);
+}
 extern void mc_SetMicroCode();
 
 void reg_chooseMicroCode(char *self, int b, int c)

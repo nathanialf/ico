@@ -5,7 +5,13 @@ INCLUDE_ASM("asm/nonmatchings/src/spider", WakeUpLayoutedSpiders);
 INCLUDE_ASM("asm/nonmatchings/src/spider", CallSpidersToReviveEnemy);
 INCLUDE_ASM("asm/nonmatchings/src/spider", SpiderLayoutGeo);
 INCLUDE_ASM("asm/nonmatchings/src/spider", DispAllMemberOfSpider);
-INCLUDE_ASM("asm/nonmatchings/src/spider", SetSpiderGroupReviveStatus);
+extern char D_0063BAC8[];
+void SetSpiderGroupReviveStatus(char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    *(int *)(p + 0x3C) = 1;
+    gamesysObjInfoUniqDataSet(a0);
+    debug_StdPrintfDummy(D_0063BAC8, *(int *)(a0 + 8));
+}
 INCLUDE_ASM("asm/nonmatchings/src/spider", DeadAllSpiders);
 INCLUDE_ASM("asm/nonmatchings/src/spider", GetAliveSpiders);
 int DeleteSpiderFromLayoutGroup(char *a0, int a1) {

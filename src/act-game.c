@@ -200,7 +200,18 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_GIRL_PULL);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_BOY_WAIT);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_GetPosition_BOY_DITCH);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_BOY_DITCH);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_isHangChain);
+extern char *D_00639EA4;
+extern char D_005577D0[];
+int ACTGame_isHangChain(char *a0) {
+    char *s = *(char **)(a0 + 0x164);
+    if (a0 == D_00639EA4) {
+        char *attr = D_005577D0 + *(int *)(s + 0x34) * 0x50;
+        if ((*(unsigned int *)(attr + 0x4C) >> 2) & 1) {
+            return *(int *)(s + 0x190);
+        }
+    }
+    return 0;
+}
 extern int ACTGame_isWeaponCombustible(void);
 extern int GetTorchGObjOfWeapon(int *self);
 

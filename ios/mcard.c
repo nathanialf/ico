@@ -115,6 +115,11 @@ int iosMcGetBlockSaveInfo(void *a0) {
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", product_write);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", product_read);
+extern char D_0029B5F0[];
+int product_read(int *self) {
+    int idx = self[0x8 / 4];
+    iosMcHandlerRead((int)self, (int)(D_0029B5F0 + idx * 0x1F0), 0x1F0);
+    return self[0x10 / 4];
+}
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", gameblock_write);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", gameblock_read);
