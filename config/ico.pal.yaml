@@ -385,7 +385,8 @@ segments:
       - [0x3E5A90, .data, src/attackCheckBoundary]  # carved D_004E5A90 (VMA 0x4E5A90..0x4E5AA0, 16 B, 1 sym), referenced only by still-asm AttackCheckBoundaryDL via %hi/%lo
       - [0x3E5AA0, data, src/cod/3E5AA0]     # .data blob resume
       - [0x3EE5B0, .data, src/BgAnimation]  # carved D_004EE5B0 + D_004EE5E0 (VMA 0x4EE5B0..0x4EE5F0, 64 B, 2 syms), both referenced only by still-asm bga_InitData / bga_ApplyDObject via %hi/%lo.  This spends the TU's one .data slot; its other .data run (D_002C2DF4, 285488 B) is blocked anyway (VMA not 8-aligned).
-      - [0x3EE5F0, data, src/cod/3EE5F0]     # .data blob resume
+      - [0x3EE5F0, .data, src/DisplayFont]  # carved D_004EE5F0 (VMA 0x4EE5F0..0x4EE6F0, 256 B, 1 sym): font kerning table, referenced only by still-asm font_Print via %hi/%lo
+      - [0x3EE6F0, data, src/cod/3EE6F0]     # .data blob resume
       - [0x3F1D60, .data, src/act-env]  # carved D_004F1D60..D_004F1E00 (VMA 0x4F1D60..0x4F1E10, 176 B, 11 float[4] tables), all referenced only by still-asm getDitchDistTbl via %hi/%lo
       - [0x3F1E10, data, src/cod/3F1E10]     # .data blob resume
       - [0x44D380, rodata, src/cod/44D380]   # .rodata blob
