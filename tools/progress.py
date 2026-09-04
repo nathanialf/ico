@@ -10,15 +10,15 @@ A subsegment counted as "matched" iff:
   - its yaml entry has type `c` (claimed for matching), and
   - the corresponding src/<name>.c file actually exists.
 
-Sizes are pulled from baserom/baseelf.elf section headers so the
-ratios stay accurate even if subsegment boundaries shift.
+Sizes are pulled from this target's baseelf.elf section headers (baserom/
+for us, baserom/<ver>/ for pal and aug6) so the ratios stay accurate even if
+subsegment boundaries shift.
 
 Output format: two-decimal-place percentages (e.g. `0.42 %`).
 """
 
 from __future__ import annotations
 
-import os
 import re
 import sys
 from pathlib import Path
@@ -36,28 +36,26 @@ except ImportError:
              "`.venv/bin/pip install -r tools/requirements.txt`.")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-# Version-aware: retail main has config/ico.us.yaml + baserom/baseelf.elf; the
-# aug6 prototype branch has config/ico.aug6.yaml + baserom/aug6/baseelf.elf.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import (  # noqa: E402
+    detect_version, yaml_path, baseelf_path, source_roots,
+)
+
+# Version-aware: `main` = PAL retail (config/ico.pal.yaml +
+# baserom/pal/baseelf.elf), `ntsc` = USA retail, `aug6` = the prototype.
 # Explicit VERSION env wins; else auto-detect from which config exists.
-VERSION = os.environ.get("VERSION")
-if not VERSION:
-    if (REPO_ROOT / "config" / "ico.aug6.yaml").exists():
-        VERSION = "aug6"
-    elif (REPO_ROOT / "config" / "ico.us.yaml").exists():
-        VERSION = "us"
-    else:
-        VERSION = "us"
-YAML = REPO_ROOT / "config" / f"ico.{VERSION}.yaml"
-BASEELF = REPO_ROOT / "baserom" / ("baseelf.elf" if VERSION == "us" else f"{VERSION}/baseelf.elf")
+VERSION = detect_version(REPO_ROOT)
+YAML = yaml_path(REPO_ROOT, VERSION)
+BASEELF = baseelf_path(REPO_ROOT, VERSION)
 README = REPO_ROOT / "README.md"
 PROGRESS_DOC = REPO_ROOT / "docs" / "PROGRESS.md"
 
-# Source roots that contribute to the "matched" tally. Phase 1
-# flattened ios/, sound/, isys/ out of src/ to repo-root siblings;
-# their compiled .o files live at build/<root>/ alongside build/src/.
-SOURCE_ROOTS = ("src", "ios", "sound", "isys",
-                # aug6 prototype branch: the dev's per-developer module tree.
-                "common", "fumi", "sugipon", "seki", "omori", "script", "ito")
+# Source roots that contribute to the "matched" tally. The retail targets
+# (us, pal) flattened ios/, sound/, isys/ out of src/ to repo-root siblings;
+# their compiled .o files live at build/<root>/ alongside build/src/. The aug6
+# prototype adds the dev's per-developer module tree. The union is walked on
+# every target — a root that doesn't exist contributes nothing.
+SOURCE_ROOTS = tuple(dict.fromkeys(source_roots("us") + source_roots("aug6")))
 BUILD_OBJ_DIRS = tuple(REPO_ROOT / "build" / r for r in SOURCE_ROOTS)
 
 # Yaml subsegment types that correspond to each ELF section. Splat lumps
@@ -159,7 +157,7 @@ def _include_asm_bytes(name: str) -> int:
     if not csrc.exists():
         return 0
     try:
-        text = csrc.read_text()
+        text = csrc.read_text(encoding="utf-8", errors="replace")
     except Exception:
         return 0
     total = 0
