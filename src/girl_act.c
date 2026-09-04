@@ -189,7 +189,12 @@ void SetGirlDangerGObj(int a0) {
         *(int *)(*(char **)(*(char **)(g + 0x164) + 0x688) + 0x3E4) = a0;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", ClearGirlDangerGObj);
+void ClearGirlDangerGObj(void) {
+    char *g = (char *)D_00639EA8;
+    if (g != 0) {
+        *(int *)(*(char **)(*(char **)(g + 0x164) + 0x688) + 0x3E4) = 0;
+    }
+}
 void subGirlBrain_Idle(volatile int a0) {
     char *g = (char *)a0;
     *(int *)(*(char **)(g + 0x164) + 0x34C) = 0;

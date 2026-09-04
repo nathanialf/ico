@@ -1,7 +1,14 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aInit);
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aEnd);
+extern int D_00639EA8;
+void actSt47aEnd(void) {
+    if (D_00639EA8 != 0) {
+        if (gflagChk(0x34) == 0) {
+            gflagOn(0x187);
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aSekizo1Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane1Down);
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane1Up);
