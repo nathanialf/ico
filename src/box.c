@@ -90,7 +90,23 @@ int GetBoxMode(char *a0) {
 int CanHoldBox(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20) == 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", BoxDL);
+extern int p2o_SetDefaultEnviroment(int a0);
+extern void p2o_DispVU1(void *a0);
+extern void StopSEPackageWithGroupVariation(int a0, int a1);
+extern void dispWheels(char *a0);
+extern int D_0028F4D4[];
+void BoxDL(char *a0) {
+    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    p2o_SetDefaultEnviroment((int)a0);
+    p2o_DispVU1(a0);
+    if (*(int *)(q + 0x58) != 0) {
+        dispWheels(a0);
+    }
+    if (D_0028F4D4[0] != 0) {
+        StopSEPackageWithGroupVariation((int)a0, 1);
+        *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x138) = 0;
+    }
+}
 extern void GetRootMatrix();
 extern void sceVu0ApplyMatrix();
 
@@ -103,7 +119,23 @@ void GetBoxGlobalHoldPoint(int a0, int a1, int a2)
 int IsThisBoxTruck(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x58);
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", ExecBoxMoveStartReaction);
+void ExecBoxMoveStartReaction(char *a0, int a1) {
+    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    if (*(int *)(q + 0x58) != 0) {
+        if (*(int *)(q + 0x110) != 0) {
+            goto end;
+        }
+    }
+    if (a1 >= 0) {
+        pushStartSE((int)a0);
+        *(int *)(q + 0x114) = 0;
+    } else {
+        pullStartSE((int)a0);
+        *(int *)(q + 0x114) = 0;
+    }
+end:
+    *(int *)(q + 0x110) = 1;
+}
 void ExecBoxMoveEndReaction(char *a0) {
     char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if (*(int *)(q + 0x58) == 0 || *(int *)(q + 0x110) != 0) {
@@ -117,7 +149,18 @@ void ExecBoxMoveEndReaction(char *a0) {
     }
     *(int *)(q + 0x110) = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", BoxGeoRestore);
+extern char D_0061F148[];
+extern void debug_StdPrintfDummy(char *fmt, ...);
+int BoxGeoRestore(float *a0, float *a1) {
+    a0[0] = a1[4];
+    a0[1] = a1[5];
+    a0[2] = a1[6];
+    a0[4] = a1[8];
+    a0[5] = a1[9];
+    a0[6] = a1[10];
+    debug_StdPrintfDummy(D_0061F148, a0[8], a0[9], a0[10]);
+    return 1;
+}
 int BoxExtGeoRestore(void) { return 1; }
 int BoxMemoryFunc(void) { return 1; }
 int InitSwitchGeo(void) { return 0; }
@@ -137,7 +180,26 @@ void SetSwitchState(char *a0, int a1) {
         *(int *)(p + 4) = a1;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", SetFloorLeverWithNodePoint);
+extern int GetSkeltonFocusNode(char *a0, int a1);
+extern void GetRootPosition(void *dst, void *obj);
+extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
+extern void MatrixDrive_GetTurnYAngleXZ(void *a0, void *a1, float x, float y, float z);
+extern void MatrixDrive_GetTurnXAngleYZ(void *a0, void *a1, float x, float y, float z);
+void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2) {
+    float buf[4];
+    float pos[4];
+    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    int idx = GetSkeltonFocusNode(a1, a2);
+    void *m;
+    GetRootPosition(pos, a0);
+    sceVu0SubVector(buf, *(char **)(*(char **)(a1 + 0x15C) + 0xC) + (idx << 6) + 0x30, pos);
+    *(int *)&buf[3] = 0;
+    GetRootMatrix(MatrixDrive_GetMatrix(), a0);
+    m = MatrixDrive_GetMatrix();
+    MatrixDrive_SetTransposeMatrix(m, MatrixDrive_GetMatrix());
+    sceVu0ApplyMatrix(buf, MatrixDrive_GetMatrix(), buf);
+    MatrixDrive_GetTurnYAngleXZ(q, q + 2, buf[0], -buf[1], buf[2] * 0.0f);
+}
 int CanFloorLeverPull(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
 }
@@ -161,17 +223,71 @@ FloorLeverGeo *InitFloorLeverGeo(char *a0, char *a1) {
 int GetFloorLeverAngle(char *a0) {
     return *(short *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 2);
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", SetWallLeverWithNodePoint);
+void SetWallLeverWithNodePoint(char *a0, char *a1, int a2) {
+    float buf[4];
+    float pos[4];
+    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    int idx = GetSkeltonFocusNode(a1, a2);
+    void *m;
+    GetRootPosition(pos, a0);
+    sceVu0SubVector(buf, *(char **)(*(char **)(a1 + 0x15C) + 0xC) + (idx << 6) + 0x30, pos);
+    *(int *)&buf[3] = 0;
+    GetRootMatrix(MatrixDrive_GetMatrix(), a0);
+    m = MatrixDrive_GetMatrix();
+    MatrixDrive_SetTransposeMatrix(m, MatrixDrive_GetMatrix());
+    sceVu0ApplyMatrix(buf, MatrixDrive_GetMatrix(), buf);
+    MatrixDrive_GetTurnXAngleYZ(q, q + 2, buf[0], buf[1], buf[2] * 0.0f);
+    *(int *)(q + 8) = 0;
+}
 int CanWallLeverPull(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", IsWallLeverStatus);
-INCLUDE_ASM("asm/nonmatchings/src/box", InitWallLeverGeo);
+int IsWallLeverStatus(char *a0) {
+    short *p = (short *)*(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    int ret = 0;
+    if (__builtin_abs(p[1]) < 0xBB9) {
+        if (__builtin_abs(p[0]) < 0xBB9) {
+            goto end;
+        }
+    }
+    ret = 1;
+end:
+    return ret;
+}
+FloorLeverGeo *InitWallLeverGeo(char *a0, char *a1) {
+    FloorLeverGeo *g = (FloorLeverGeo *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x12C);
+    *g = D_004E5AA0;
+    if (*(int *)(a1 + 0x30) != 0) {
+        g->w[5] = 1;
+    } else {
+        g->w[5] = 0;
+    }
+    g->w[3] = CSVSYSTEM_InitDObj(*(int *)(D_002A79B8 + *(int *)(*(char **)(a0 + 0x15C) + 0x844) * 0x28), a1);
+    g->w[4] = CSVSYSTEM_InitDObj(*(int *)(D_002A79B8 + *(int *)(*(char **)(a0 + 0x15C) + 0x844) * 0x28 + 4), a1);
+    return g;
+}
 int GetWallLeverAngle(char *a0) {
     return *(short *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 2);
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", initParentize);
-INCLUDE_ASM("asm/nonmatchings/src/box", getAlign);
+extern void ClipFloor(void *a0);
+extern void LinkParentOfDObj(void *a0, void *a1);
+void initParentize(char *a0) {
+    char buf[0xC0] __attribute__((aligned(16)));
+    GetRootPosition(buf, a0);
+    CopyVector(buf + 0x10, buf);
+    *(float *)(buf + 4) -= 10.0f;
+    *(float *)(buf + 0x14) += 200.0f;
+    ClipFloor(buf);
+    if (*(int *)(buf + 0x94) != 0) {
+        LinkParentOfDObj(a0, buf + 0x8C);
+    }
+}
+static float getAlign(float v, float g) {
+    if (0.0f <= v) {
+        return (float)(int)((v + g * 0.5f) / g) * g;
+    }
+    return -getAlign(-v, g);
+}
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern float FSqrt(float f);
 float GetDistanceOfGObj(void *a0, void *a1) {
