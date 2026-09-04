@@ -208,7 +208,11 @@ void ACTGameView_Init(void) {
     *(int *)((char *)p + 0x4B0) = 0;
     *(int *)((char *)p + 0x4B4) = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCharctrl_Lock);
+void ACTCharctrl_Lock(char *a0) {
+    char *s = *(char **)(a0 + 0x164);
+    *(unsigned long long *)(s + 0x18) &= ~(1ULL << 48);
+    *(unsigned long long *)(s + 0x18) &= ~(1ULL << 49);
+}
 void ACTCharctrl_Unlock(char *a0) {
     char *p = *(char **)(a0 + 0x164);
     *(unsigned long long *)(p + 0x18) |= (1ULL << 48);
@@ -453,7 +457,15 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_LwsEffect_Guard);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ActGame_GetOrientQ);
 ASM_LIT4_SLOT(D_00638D04, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _GetRootObjectOrient);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemForceDrop);
+void ACTItemForceDrop(char *a0) {
+    char *s = *(char **)(a0 + 0x164);
+    int item = *(int *)(s + 0x180);
+    if (item != 0) {
+        ReleaseItem(item);
+        *(int *)(s + 0x180) = 0;
+        *(int *)(s + 0x184) = 0;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", GetOtherStageGirlOrient);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTChkAttackIgnore_BOY);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTChkAttackIgnore_GIRL);

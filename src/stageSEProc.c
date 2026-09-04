@@ -31,8 +31,16 @@ ASM_LIT4_SLOT(D_00639B5C, -987.0f);
 ASM_LIT4_SLOT(D_00639B60, -2788.0f);
 ASM_LIT4_SLOT(D_00639B64, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE02astrong);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE02ataki);
-ASM_LIT4_SLOT(D_00639B68, 785.0f);
+int stageSE02ataki(char *self) {
+    float *p = *(float **)(self + 0x34);
+    p[0] = 785.0f;
+    p[2] = 482.0f;
+    *(float *)(self + 0x1C) = 0.5f;
+    if (gflagChk(0x6A)) {
+        *(int *)(self + 0x18) = 0;
+    }
+    return 1;
+}
 int stageSE02atakib(char *self) {
     float *p = *(float **)(self + 0x34);
     p[0] = 785.0f;

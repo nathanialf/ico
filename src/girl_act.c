@@ -224,7 +224,14 @@ void afterGirlPulledGo(void *a0) {
     int *p = *(int **)((char *)q + 0x15C);
     *(int *)((char *)p + 0x634) = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlJump);
+extern char D_00554048[];
+void actGirlJump(volatile int a0) {
+    char *g = (char *)a0;
+    char *s = *(char **)(g + 0x164);
+    debug_StdPrintfDummy(D_00554048);
+    *(int *)(s + 0x34) = 4;
+    _ACTWait(0);
+}
 void afterGirlSupportBGBegin(unsigned int a0)
 {
     volatile unsigned int local = a0;

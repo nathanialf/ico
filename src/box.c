@@ -126,7 +126,17 @@ void SwitchDL(void) {}
 void SetSwitchTriggerFunc(char *a0, void *a1) {
     *(void **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x1C) = a1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", SetSwitchState);
+void SetSwitchState(char *a0, int a1) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    int cur = *(int *)(p + 4);
+    unsigned char ne = cur != a1;
+    if (ne) {
+        switchOnSE((int)a0);
+        *(int *)(p + 4) = a1;
+    } else {
+        *(int *)(p + 4) = a1;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", SetFloorLeverWithNodePoint);
 int CanFloorLeverPull(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
@@ -172,10 +182,118 @@ float GetDistanceOfGObj(void *a0, void *a1) {
     sceVu0SubVector(v, v, w);
     return FSqrt(sceVu0InnerProduct(v, v));
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", moveXPlus);
-INCLUDE_ASM("asm/nonmatchings/src/box", moveXMinus);
-INCLUDE_ASM("asm/nonmatchings/src/box", moveZPlus);
-INCLUDE_ASM("asm/nonmatchings/src/box", moveZMinus);
+int moveXPlus(float *a0, float f12, float f13, float f14) {
+    float w;
+    float f0;
+    int rv;
+    f13 = f13 + f14;
+    w = a0[2];
+    if (w < 0.0f) {
+        if (-w < f13) goto p4;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < f13)) goto end;
+p4:
+    w = a0[1];
+    if (w < 0.0f) {
+        if (-w < f13) goto rng;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < f13)) goto end;
+rng:
+    f0 = f12 - f13;
+    if (!(f0 + f14 < a0[0])) { rv = 0; goto end; }
+    if (a0[0] < f12 + f13) return 1;
+    rv = 0;
+end:
+    return rv;
+}
+int moveXMinus(float *a0, float f12, float f13, float f14) {
+    float w;
+    float f0;
+    int rv;
+    f13 = f13 + f14;
+    w = a0[2];
+    if (w < 0.0f) {
+        if (-w < f13) goto p4;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < f13)) goto end;
+p4:
+    w = a0[1];
+    if (w < 0.0f) {
+        if (-w < f13) goto rng;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < f13)) goto end;
+rng:
+    f0 = f12 - f13;
+    if (!(f0 + f14 < -a0[0])) { rv = 0; goto end; }
+    if (-a0[0] < f12 + f13) return 1;
+    rv = 0;
+end:
+    return rv;
+}
+int moveZPlus(float *a0, float f12, float f13, float f14) {
+    float w;
+    float f0;
+    int rv;
+    f13 = f13 + f14;
+    w = a0[0];
+    if (w < 0.0f) {
+        if (-w < f13) goto p4;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < f13)) goto end;
+p4:
+    w = a0[1];
+    if (w < 0.0f) {
+        if (-w < f13) goto rng;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < f13)) goto end;
+rng:
+    f0 = f12 - f13;
+    if (!(f0 + f14 < a0[2])) { rv = 0; goto end; }
+    if (a0[2] < f12 + f13) return 1;
+    rv = 0;
+end:
+    return rv;
+}
+int moveZMinus(float *a0, float f12, float f13, float f14) {
+    float w;
+    float f0;
+    int rv;
+    f13 = f13 + f14;
+    w = a0[0];
+    if (w < 0.0f) {
+        if (-w < f13) goto p4;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < f13)) goto end;
+p4:
+    w = a0[1];
+    if (w < 0.0f) {
+        if (-w < f13) goto rng;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < f13)) goto end;
+rng:
+    f0 = f12 - f13;
+    if (!(f0 + f14 < -a0[2])) { rv = 0; goto end; }
+    if (-a0[2] < f12 + f13) return 1;
+    rv = 0;
+end:
+    return rv;
+}
 int BoxRideFunc(int *a0, char *a1) {
     char *obj = (char *)*a0;
     char *p15c = *(char **)(obj + 0x15C);

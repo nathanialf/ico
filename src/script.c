@@ -55,7 +55,11 @@ void scpPlayMotDir(int a0, int a1)
 }
 INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayMotDirSmz);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayMot);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayJump);
+void scpPlayJump(char *a0, int a1) {
+    ACTItemForceDrop(a0);
+    *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xC0) = a1;
+    iosOmSendMail(a0, 0x2D, a0);
+}
 extern void ACTItemForceDrop(int a0);
 extern int SetLodLevel();
 extern int iosOmSendMail(char *self_arg, int val5, int val6);

@@ -3,7 +3,13 @@
 #include "ico/types.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/clipCollisionManager", actClipCollisionCore);
-INCLUDE_ASM("asm/nonmatchings/src/clipCollisionManager", CreateClipCollisionManagerGObj);
+extern int D_0063B754;
+extern void func_001CDD30();
+int CreateClipCollisionManagerGObj(void) {
+    int v = CreateGObjByFuncSet(0, 0, 0, 0, func_001CDD30, 0, 0);
+    D_0063B754 = v;
+    return v;
+}
 extern void actClipCollisionCore(volatile unsigned int self);
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
 

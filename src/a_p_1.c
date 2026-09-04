@@ -69,7 +69,12 @@ INCLUDE_ASM("asm/nonmatchings/src/a_p_1", walkMot);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", rolling);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", calcSubMission);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", updateMatrix);
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", resetPositionInfo);
+void resetPositionInfo(char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    GetRootPosition(p + 0x1E0, a0);
+    GetRootQuaternion(p + 0x1D0, a0);
+    ResetEnemyEye(*(int *)(p + 0x19C));
+}
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1Geo);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1DL);
 int GetAP1SpecType(char *a0) {

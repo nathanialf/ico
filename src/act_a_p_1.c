@@ -18,7 +18,14 @@ void func_001C5250(int a0)
 {
     AP1MotReqForce(a0, 5);
 }
-INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", SetAP1DeadStatus);
+void SetAP1DeadStatus(int *a0) {
+    typedef union { int i; long long ll; } U;
+    int s = ((U *)((char *)a0 + 0x164))->i;
+    *(int *)(s + 0x34) = 4;
+    ((U *)(s + 0x18))->ll &= ~(1LL << 32);
+    *(char *)(((U *)((char *)a0 + 0x164))->i + 0x1DA) = 1;
+    AP1MotReqForce((int)a0, 5);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", AP1BeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", actAP1Start);
 int IsActCharDead(int *a0)

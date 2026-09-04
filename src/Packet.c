@@ -33,7 +33,14 @@ void pac_openDmaTag(int a0)
     *(float *)(ctx + 0x50) = f1;
     debug_StdPrintfDummy__pn(D_0054F5C0, a0 & mask);
 }
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_setVifCode);
+extern char D_0067C010[];
+extern char D_0054F5D0[];
+void pac_setVifCode(int a0) {
+    char *ctx = D_0067C010;
+    *(int *)(*(int *)(ctx + 0x24)) = 0;
+    *(int *)(*(int *)(ctx + 0x24) + 4) = (a0 << 16) | 0x6C008000;
+    debug_StdPrintfDummy(D_0054F5D0, *(int *)(*(int *)(ctx + 0x24)), *(int *)(*(int *)(ctx + 0x24) + 4), *(int *)(ctx + 0x24), a0);
+}
 extern char D_0067C010[];
 extern void debug_StdPrintfDummy();
 

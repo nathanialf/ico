@@ -4,7 +4,12 @@
 struct GEl { int f0; char _4[0x6C]; };
 struct GGeo { char _0[0x24]; struct GEl *f24; char _28[8]; int f30; };
 
-INCLUDE_ASM("asm/nonmatchings/src/gather_effect", GatherEffect_SetGoal);
+void GatherEffect_SetGoal(int a0, void *a1) {
+    if (a0 >= 0) {
+        char *v = (char *)GetParticleEffectData(a0);
+        sceVu0CopyVector(v + 0x50, a1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/gather_effect", GatherEffect_Proc);
 INCLUDE_ASM("asm/nonmatchings/src/gather_effect", GatherEffect_Set);
 extern void *GetParticleEffectData(void *a0);

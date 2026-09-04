@@ -173,7 +173,13 @@ int MakeMirrorMotion(StreamElem *a, StreamNode *b) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetFloatingShapeMotion);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", FeedbackWallWorkInfoToBrainSystem);
+typedef struct { int a; int b; int c; } WallWork;
+void FeedbackWallWorkInfoToBrainSystem(char *a0) {
+    char *p = *(char **)(a0 + 0x15C);
+    char *d = *(char **)(a0 + 0x164);
+    *(WallWork *)(p + 0x180) = *(WallWork *)(p + 0x1A0);
+    *(WallWork *)(d + 0x620) = *(WallWork *)(p + 0x1A0);
+}
 void *GetMotionPointer(char *self) {
     return (char *)((GObj *)(self))->p_15C + 0x680;
 }
