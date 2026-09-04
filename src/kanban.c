@@ -11,16 +11,34 @@ typedef struct Node {
     struct Node *f1C;
 } Node;
 typedef struct { char b[16]; } Pkt16;
-
-INCLUDE_ASM("asm/nonmatchings/src/kanban", kanbanReqAdd);
-INCLUDE_ASM("asm/nonmatchings/src/kanban", init_textures_of_specified_property);
-INCLUDE_ASM("asm/nonmatchings/src/kanban", kanbanInit);
-INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B8B10);
-INCLUDE_ASM("asm/nonmatchings/src/kanban", fade_exec);
-INCLUDE_ASM("asm/nonmatchings/src/kanban", display_layout);
 extern int *D_0063C398;
-
-void kanbanReqDel(int *self)
+extern int D_0063C39C;
+extern int D_0071CB10[];
+extern Pkt16 D_0061D698;
+extern void display_layout(Node *a0);
+extern void gif_EndPacket(void);
+extern void gif_SetAlpha(int a0, int a1, int a2);
+extern void gif_SetZTest(int a0);
+extern void gif_SetZWrite(int a0);
+extern void gif_SpriteSensitive(void *a0, unsigned int a1, int a2, void *a3, int a4);
+extern void gif_StartPacketPri(int a0);
+/* prototypes: their order is the inline tail's emission order */
+void kanbanReqDel(int *self);
+void kanbanReqDelFade(int a0);
+void kanbanReqAllDel(void);
+void kanbanReqAllDelFade(void);
+void kanbanExec(void);
+inline void kanbanReqAllDel(void)
+{
+    int i;
+    for (i = 0x1D; i >= 0; i--) {
+        D_0071CB10[i * 8] = 0;
+    }
+    D_0063C398 = 0;
+    D_0063C39C = 0;
+}
+INCLUDE_ASM("asm/nonmatchings/src/kanban", kanbanReqAdd);
+inline void kanbanReqDel(int *self)
 {
     int *next = (int *)self[0x1C / 4];
     int *prev = (int *)self[0x18 / 4];
@@ -37,9 +55,7 @@ void kanbanReqDel(int *self)
     }
     self[0] = 0;
 }
-extern int D_0063C39C;
-
-void kanbanReqDelFade(int a0)
+inline void kanbanReqDelFade(int a0)
 {
     int v1 = D_0063C39C;
     *(int *)(a0 + 0xC) |= 1;
@@ -47,18 +63,7 @@ void kanbanReqDelFade(int a0)
         D_0063C39C = 0;
     }
 }
-extern int D_0071CB10[];
-
-void kanbanReqAllDel(void)
-{
-    int i;
-    for (i = 0x1D; i >= 0; i--) {
-        D_0071CB10[i * 8] = 0;
-    }
-    D_0063C398 = 0;
-    D_0063C39C = 0;
-}
-void kanbanReqAllDelFade(void)
+inline void kanbanReqAllDelFade(void)
 {
     int *p = D_0071CB10;
     int i = 0x1D;
@@ -70,16 +75,12 @@ void kanbanReqAllDelFade(void)
         p += 8;
     } while (i >= 0);
 }
-extern Pkt16 D_0061D698;
-extern void display_layout(Node *a0);
-extern void gif_EndPacket(void);
-extern void gif_SetAlpha(int a0, int a1, int a2);
-extern void gif_SetZTest(int a0);
-extern void gif_SetZWrite(int a0);
-extern void gif_SpriteSensitive(void *a0, unsigned int a1, int a2, void *a3, int a4);
-extern void gif_StartPacketPri(int a0);
-
-void kanbanExec(void) {
+INCLUDE_ASM("asm/nonmatchings/src/kanban", init_textures_of_specified_property);
+INCLUDE_ASM("asm/nonmatchings/src/kanban", kanbanInit);
+INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B8B10);
+INCLUDE_ASM("asm/nonmatchings/src/kanban", fade_exec);
+INCLUDE_ASM("asm/nonmatchings/src/kanban", display_layout);
+inline void kanbanExec(void) {
     Node *k;
     unsigned char col[4];
     Pkt16 pkt;

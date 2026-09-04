@@ -9,17 +9,28 @@ typedef struct DLN {
     char _p2[0x3];
     int key;
 } DLN;
-
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", cut_gobj_dl_link);
 extern void cut_gobj_dl_link(int *self);
-
+extern int D_0029C530[];
+extern int D_0029C550[];
+extern void func_00141248(int a0, int a1, int a2);
+extern char D_00551F78[];
+extern void debug_StdPrintfDummy();
+/* prototypes: their order is the inline tail's emission order */
+void isysGObjDlInit(void);
+void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
+void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
+inline void isysGObjDlInit(void) {
+    int i;
+    for (i = 0; i < 8; i++) {
+        D_0029C530[i] = 0;
+        D_0029C550[i] = 0;
+    }
+}
+INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", cut_gobj_dl_link);
 void isysGObjRemoveObjDL(int *self) {
     cut_gobj_dl_link(self);
 }
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", func_00141248);
-extern int D_0029C530[];
-extern int D_0029C550[];
-
 void func_001413B8(int a0, int a1, int a2)
 {
     DLN *self = (DLN *)a0;
@@ -61,8 +72,6 @@ void func_001413B8(int a0, int a1, int a2)
     cur->next = self;
     self->next->prev = self;
 }
-extern void func_00141248(int a0, int a1, int a2);
-
 void isysGObjMoveObjDL(int a0, int a1, int a2)
 {
     int s1 = a1 & 0xFF;
@@ -79,6 +88,28 @@ void isysGObjMoveObjDLHead(int a0, int a1, int a2)
     cut_gobj_dl_link(a0);
     return func_001413B8(a0, s1, new_var);
 }
+inline void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj) {
+    cut_gobj_dl_link((int *)self);
+    self->id = obj->id;
+    self->prev = obj;
+    self->next = obj->next;
+    obj->next = self;
+    self->key = obj->key;
+    if (self->next == 0) {
+        ((DLN **)D_0029C550)[self->id] = self;
+    }
+}
+inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj) {
+    cut_gobj_dl_link((int *)self);
+    self->id = obj->id;
+    self->prev = obj->prev;
+    self->next = obj;
+    obj->prev = self;
+    self->key = obj->key;
+    if (self->prev == 0) {
+        ((DLN **)D_0029C530)[self->id] = self;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDL);
 void isysGObjLinkObjDLHead(void *a0, void *a1, unsigned char a2, void *a3, void *a4) {
     if (a1 != 0) {
@@ -87,9 +118,6 @@ void isysGObjLinkObjDLHead(void *a0, void *a1, unsigned char a2, void *a3, void 
         func_001413B8(a0, a2, a3);
     }
 }
-extern char D_00551F78[];
-extern void debug_StdPrintfDummy();
-
 void isysGObjLinkObjDLAfterGObj(int *self, int *a1, int a2, int *a3)
 {
     int *t0;
@@ -134,36 +162,5 @@ void isysGObjLinkObjDLBeforeGObj(int *self, int *a1, int a2, int *a3)
     t0[0x11] = v44;
     if (t0[0xD] == 0) {
         D_0029C550[*((unsigned char *)t0 + 0x40)] = (int)t0;
-    }
-}
-void isysGObjDlInit(void) {
-    int i;
-    for (i = 0; i < 8; i++) {
-        D_0029C530[i] = 0;
-        D_0029C550[i] = 0;
-    }
-}
-extern void cut_gobj_dl_link(int *self);
-
-void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj) {
-    cut_gobj_dl_link((int *)self);
-    self->id = obj->id;
-    self->prev = obj;
-    self->next = obj->next;
-    obj->next = self;
-    self->key = obj->key;
-    if (self->next == 0) {
-        ((DLN **)D_0029C550)[self->id] = self;
-    }
-}
-void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj) {
-    cut_gobj_dl_link((int *)self);
-    self->id = obj->id;
-    self->prev = obj->prev;
-    self->next = obj;
-    obj->prev = self;
-    self->key = obj->key;
-    if (self->prev == 0) {
-        ((DLN **)D_0029C530)[self->id] = self;
     }
 }
