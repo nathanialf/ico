@@ -131,9 +131,9 @@ segments:
       - [0x0, c, src/cod/vendor_100000]  # 3 funcs, vendor unattributed
       - [0x110, c, src/cod/vendor_100110]  # 177 funcs, vendor libkernl.a (164/177 MAIN.MAP)
       - [0x2460, c, src/main]  # 4 funcs, listing
-      - [0x25A8, asm, src/delayFreeManager]  # 3 funcs, census
+      - [0x25A8, c, src/delayFreeManager]  # 3 funcs, census
       - [0x27D8, c, src/geometryManager]  # 48 funcs, census
-      - [0x4BE0, asm, src/keyInput]  # 2 funcs, listing
+      - [0x4BE0, c, src/keyInput]  # 2 funcs, listing
       - [0x4F38, c, src/matrixDrive]  # 37 funcs, listing
       - [0x60D8, c, src/motionManager2]  # 81 funcs, census
       - [0xADC0, c, src/pool]  # 21 funcs, census
@@ -152,13 +152,13 @@ segments:
       - [0x244D8, c, src/Shadow]  # 15 funcs, listing
       - [0x29F50, c, src/StageAnimation]  # 26 funcs, census
       - [0x2C8F0, c, src/Texture]  # 44 funcs, census
-      - [0x320F0, asm, src/ZFog]  # 3 funcs, listing
+      - [0x320F0, c, src/ZFog]  # 3 funcs, listing
       - [0x33250, c, ios/cdvd]  # 37 funcs, census
       - [0x358B0, c, ios/inflate]  # 11 funcs, census
-      - [0x37DE8, asm, ios/ios]  # 3 funcs, listing
+      - [0x37DE8, c, ios/ios]  # 3 funcs, listing
       - [0x38158, c, ios/mblock]  # 6 funcs, census
       - [0x38478, c, ios/mcard]  # 28 funcs, listing
-      - [0x3A778, asm, ios/mcdata]  # 3 funcs, listing
+      - [0x3A778, c, ios/mcdata]  # 3 funcs, listing
       - [0x3AA78, c, ios/memory]  # 14 funcs, census
       - [0x3C4A8, c, ios/message]  # 9 funcs, census
       - [0x3CAF0, c, ios/pad]  # 24 funcs, census
@@ -174,7 +174,7 @@ segments:
       - [0x46B68, c, sound/soundManager]  # 3 funcs, listing
       - [0x46D10, c, src/act-game]  # 99 funcs, census
       - [0x4E8A0, c, src/act-parallel-control]  # 5 funcs, listing
-      - [0x4EA68, asm, src/act-wish]  # 1 funcs, listing
+      - [0x4EA68, c, src/act-wish]  # 1 funcs, listing
       - [0x4FD50, c, src/boyact]  # 57 funcs, census
       - [0x58C88, c, src/commonact]  # 97 funcs, census
       - [0x63F98, c, src/enemy_act]  # 66 funcs, census
@@ -212,7 +212,7 @@ segments:
       - [0xA1520, c, src/lightning]  # 7 funcs, listing
       - [0xA2770, c, src/queen]  # 25 funcs, census
       - [0xA4E48, c, src/queen_barrier_disp]  # 5 funcs, listing
-      - [0xA5618, asm, src/stage_orient]  # 5 funcs, listing
+      - [0xA5618, c, src/stage_orient]  # 5 funcs, listing
       - [0xA5DB8, c, ito/mpeg/mv_main]  # 8 funcs, listing
       - [0xA6810, c, ito/mpeg/mv_readbuf]  # 6 funcs, listing
       - [0xA69A0, c, ito/mpeg/mv_strfile]  # 3 funcs, listing
@@ -251,15 +251,15 @@ segments:
       - [0xD7088, c, src/effectTool]  # 12 funcs, listing
       - [0xD87C0, c, src/enemy]  # 37 funcs, census
       - [0xDA0A8, c, src/enemyParts]  # 12 funcs, census
-      - [0xDAE80, asm, src/flag]  # 4 funcs, census
+      - [0xDAE80, c, src/flag]  # 4 funcs, census
       - [0xDBBE0, c, src/flyManager]  # 5 funcs, listing
       - [0xDBDE8, c, src/frameDependSequence]  # 24 funcs, listing
       - [0xDD128, c, src/girl]  # 11 funcs, census
       - [0xDDD50, c, src/girlForceField]  # 3 funcs, census
-      - [0xDDF20, asm, src/handManager]  # 4 funcs, listing
+      - [0xDDF20, c, src/handManager]  # 4 funcs, listing
       - [0xDE7E8, c, src/item]  # 28 funcs, census
       - [0xE0840, c, src/lineManager]  # 7 funcs, listing
-      - [0xE1158, asm, src/lodManager]  # 1 funcs, census
+      - [0xE1158, c, src/lodManager]  # 1 funcs, census
       - [0xE1218, c, src/motionFileManager]  # 8 funcs, listing
       - [0xE14D0, c, src/motionManager]  # 65 funcs, census
       - [0xED758, c, src/motionOrientManager]  # 32 funcs, census
@@ -268,19 +268,19 @@ segments:
       - [0xF38B8, c, src/multiBgaManager]  # 6 funcs, census
       - [0xF3C48, c, src/particleEffect]  # 28 funcs, census
       - [0xF57A0, c, src/particleLayout]  # 4 funcs, census
-      - [0xF58A0, asm, src/puddle]  # 12 funcs, census
+      - [0xF58A0, c, src/puddle]  # 12 funcs, census
       - [0xF66E8, c, src/rope]  # 8 funcs, census
       - [0xF7038, c, src/ropeFix]  # 3 funcs, listing
       - [0xF70C8, c, src/rotObject]  # 18 funcs, census
       - [0xF7A98, c, src/spider]  # 18 funcs, census
       - [0xF8CA8, c, src/spiderGroupManager]  # 8 funcs, census
-      - [0xF9390, asm, src/stageMultiBgaManager]  # 6 funcs, listing
+      - [0xF9390, c, src/stageMultiBgaManager]  # 6 funcs, listing
       - [0xF9890, c, src/staticBlur]  # 43 funcs, listing
       - [0xFD5F8, c, src/stormTest]  # 8 funcs, census
       - [0xFE1A0, c, src/streamMotionManager]  # 24 funcs, census
       - [0xFF2B8, c, src/sugiTree]  # 5 funcs, census
       - [0xFF7C0, c, src/torch]  # 16 funcs, census
-      - [0x1003A8, asm, src/waterDot]  # 6 funcs, census
+      - [0x1003A8, c, src/waterDot]  # 6 funcs, census
       - [0x100AD0, c, src/waySystemManager]  # 4 funcs, listing
       - [0x100BB8, c, src/weapon]  # 37 funcs, census
       - [0x1034F0, c, src/windField]  # 13 funcs, listing
@@ -303,33 +303,33 @@ segments:
       - [0x114D80, c, src/way_kidnap]  # 12 funcs, listing
       - [0x115F18, c, src/way_llf]  # 25 funcs, listing
       - [0x116790, c, src/way_tool]  # 14 funcs, census
-      - [0x117F68, asm, src/deja]  # 5 funcs, listing
+      - [0x117F68, c, src/deja]  # 5 funcs, listing
       - [0x118870, c, src/e3]  # 42 funcs, listing
-      - [0x11B8A0, asm, src/end]  # 54 funcs, listing
+      - [0x11B8A0, c, src/end]  # 54 funcs, listing
       - [0x11F860, c, src/op]  # 12 funcs, listing
       - [0x121238, c, src/st00a]  # 23 funcs, listing
       - [0x122710, c, src/st01b]  # 19 funcs, listing
       - [0x123318, c, src/st02a]  # 34 funcs, listing
       - [0x124EA8, c, src/st03t]  # 28 funcs, listing
-      - [0x1263D8, asm, src/st04a]  # 38 funcs, listing
+      - [0x1263D8, c, src/st04a]  # 38 funcs, listing
       - [0x12B088, c, src/st04b]  # 14 funcs, listing
       - [0x12BA00, c, src/st04c]  # 17 funcs, listing
       - [0x12C4A8, c, src/st04d]  # 12 funcs, listing
-      - [0x12CFB8, asm, src/st04e]  # 16 funcs, listing
+      - [0x12CFB8, c, src/st04e]  # 16 funcs, listing
       - [0x12DB38, c, src/st04l]  # 122 funcs, listing
       - [0x1339B8, c, src/st04r]  # 106 funcs, listing
       - [0x138740, c, src/st05b]  # 9 funcs, listing
       - [0x138E60, c, src/st05c]  # 18 funcs, listing
       - [0x139B30, c, src/st05d]  # 12 funcs, listing
-      - [0x13A480, asm, src/st05e]  # 7 funcs, listing
+      - [0x13A480, c, src/st05e]  # 7 funcs, listing
       - [0x13AB10, c, src/st06a]  # 65 funcs, listing
       - [0x13DDD0, c, src/st07a]  # 36 funcs, listing
-      - [0x13FE40, asm, src/st08a]  # 27 funcs, listing
+      - [0x13FE40, c, src/st08a]  # 27 funcs, listing
       - [0x141220, c, src/st08b]  # 15 funcs, listing
       - [0x1420D8, c, src/st09a]  # 17 funcs, listing
       - [0x142B58, c, src/st10l]  # 36 funcs, listing
       - [0x144620, c, src/st10r]  # 37 funcs, listing
-      - [0x146718, asm, src/st13a]  # 14 funcs, listing
+      - [0x146718, c, src/st13a]  # 14 funcs, listing
       - [0x1473E8, c, src/st13b]  # 33 funcs, listing
       - [0x149F88, c, src/st13b2]  # 1 funcs, listing
       - [0x149FB8, c, src/st13c]  # 44 funcs, listing
@@ -337,12 +337,12 @@ segments:
       - [0x14D658, c, src/st17a]  # 22 funcs, listing
       - [0x14E928, c, src/st17b]  # 3 funcs, listing
       - [0x14EA30, c, src/st18a]  # 22 funcs, listing
-      - [0x14FE38, asm, src/st19a]  # 14 funcs, listing
-      - [0x150D80, asm, src/st20a]  # 28 funcs, listing
-      - [0x152700, asm, src/st22a]  # 2 funcs, listing
-      - [0x152AC0, asm, src/st24a]  # 6 funcs, listing
+      - [0x14FE38, c, src/st19a]  # 14 funcs, listing
+      - [0x150D80, c, src/st20a]  # 28 funcs, listing
+      - [0x152700, c, src/st22a]  # 2 funcs, listing
+      - [0x152AC0, c, src/st24a]  # 6 funcs, listing
       - [0x153090, c, src/st47a]  # 38 funcs, listing
-      - [0x154D40, asm, src/st99a]  # 15 funcs, listing
+      - [0x154D40, c, src/st99a]  # 15 funcs, listing
       - [0x1556B0, c, src/stageSEProc]  # 46 funcs, listing
       - [0x157218, c, src/access]  # 2 funcs, listing
       - [0x157310, c, src/objact]  # 5 funcs, listing
@@ -368,7 +368,7 @@ segments:
       - [0x17B190, c, src/cod/vendor_27B190]  # 40 funcs, vendor libgcc.a (38/40 MAIN.MAP)
       - [0x17E5E0, c, src/cod/vendor_27E5E0]  # 118 funcs, vendor libc.a (116/118 MAIN.MAP)
       - [0x1898E8, c, src/cod/vendor_2898E8]  # 6 funcs, vendor libkernl.a (6/6 MAIN.MAP)
-      - [0x189B68, asm, src/cod/vendor_289B68]  # 1 funcs, vendor libgcc.a (1/1 MAIN.MAP)
+      - [0x189B68, c, src/cod/vendor_289B68]  # 1 funcs, vendor libgcc.a (1/1 MAIN.MAP)
       # .vutext — 5 VU1 microprograms, hand-typed src/*.S (assembled by
       # tools/assemble_vu0.py). The whole 0x50E0-byte section is byte-identical
       # across aug6, ntsc (USA retail) and pal, normal_l included (measured
