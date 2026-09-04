@@ -128,7 +128,7 @@ segments:
       # [OFF, asm, NAME] -> [OFF, c, NAME] as that happens.  Regenerating
       # preserves the type and name of any subsegment whose start offset
       # survives, so a flipped TU is not clobbered.
-      - [0x0, asm, src/cod/vendor_100000]  # 3 funcs, vendor unattributed
+      - [0x0, c, src/cod/vendor_100000]  # 3 funcs, vendor unattributed
       - [0x110, c, src/cod/vendor_100110]  # 177 funcs, vendor libkernl.a (164/177 MAIN.MAP)
       - [0x2460, c, src/main]  # 4 funcs, listing
       - [0x25A8, asm, src/delayFreeManager]  # 3 funcs, census
@@ -201,8 +201,8 @@ segments:
       - [0x9A4E8, c, src/generator]  # 39 funcs, census
       - [0x9C560, c, src/gv]  # 21 funcs, listing
       - [0x9CF48, c, src/hand-camera]  # 7 funcs, listing
-      - [0x9D628, asm, src/lws_kyomi]  # 13 funcs, census
-      - [0x9DDA0, asm, src/mail-add-data]  # 4 funcs, census
+      - [0x9D628, c, src/lws_kyomi]  # 13 funcs, census
+      - [0x9DDA0, c, src/mail-add-data]  # 4 funcs, census
       - [0x9DFC0, c, src/poly-flat]  # 8 funcs, listing
       - [0x9E340, c, src/act_bird]  # 13 funcs, census
       - [0xA0160, c, src/gather_effect]  # 4 funcs, listing
@@ -239,8 +239,8 @@ segments:
       - [0xC5780, c, src/actressLight]  # 1 funcs, listing
       - [0xC5848, c, src/attackCheckBoundary]  # 12 funcs, census
       - [0xC5F58, c, src/box]  # 74 funcs, census
-      - [0xCB2E0, asm, src/boy]  # 14 funcs, census
-      - [0xCC740, asm, src/cage]  # 10 funcs, census
+      - [0xCB2E0, c, src/boy]  # 14 funcs, census
+      - [0xCC740, c, src/cage]  # 10 funcs, census
       - [0xCD4A8, c, src/cageFix]  # 3 funcs, listing
       - [0xCD578, c, src/candle]  # 5 funcs, census
       - [0xCD9A8, c, src/chandelier]  # 3 funcs, listing
@@ -285,7 +285,7 @@ segments:
       - [0x100BC0, c, src/weapon]  # 36 funcs, census
       - [0x1034F0, c, src/windField]  # 13 funcs, listing
       - [0x103FF8, c, src/windManager]  # 5 funcs, listing
-      - [0x104388, asm, src/windmill]  # 3 funcs, listing
+      - [0x104388, c, src/windmill]  # 3 funcs, listing
       - [0x104500, c, src/wireLetter]  # 5 funcs, listing
       - [0x104888, c, src/worm]  # 12 funcs, census
       - [0x105DA8, c, src/Basic]  # 10 funcs, census
@@ -296,7 +296,7 @@ segments:
       - [0x10BBD8, c, src/EnemyInit]  # 2 funcs, census
       - [0x10BF58, c, isys/gobj_cam_dl]  # 12 funcs, listing
       - [0x10C4B0, c, src/act-env]  # 8 funcs, census
-      - [0x111428, asm, src/act-way]  # 8 funcs, listing
+      - [0x111428, c, src/act-way]  # 8 funcs, listing
       - [0x1129A8, c, src/act]  # 21 funcs, census
       - [0x1149B0, c, src/act2]  # 2 funcs, listing
       - [0x114B38, c, src/seMail]  # 3 funcs, listing
