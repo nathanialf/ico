@@ -19,10 +19,17 @@ PAL-vs-USA source difference) · `jtbl`.
 
 | wave | candidates | ported | reverted | skipped | pre-matched | unattempted |
 |---|---|---|---|---|---|---|
-| 1 | 1294 | 1146 | 148 | 0 | 0 | 0 |
-| 2 | 518 | 472 | 44 | 2 | 0 | 0 |
+| 1 | 1294 | 1174 | 120 | 0 | 0 | 0 |
+| 2 | 518 | 476 | 40 | 2 | 0 | 0 |
 | 3 | 306 | 26 | 280 | 0 | 0 | 0 |
-| **all** | 2118 | 1644 | 472 | 2 | 0 | 0 |
+| **all** | 2118 | 1676 | 440 | 2 | 0 | 0 |
+
+Data-carve phase 1 (2026-09-04) re-attempted the 32 `emits-data` reverts
+behind the PAL data carves recorded in `decomp/carve_ledger.md` §"PAL phase
+1": all 32 landed, so the running totals are **1676 ported / 440 reverted**
+(wave 1 1174/120, wave 2 476/40, wave 3 26/280).  The per-function lines in
+the sections below are updated in place; see the phase-1 section at the end
+of this file for the mechanism.
 
 ### ios/cdvd
 - REVERTED `inflate_cd_read_func` w3 @ 0x001356C8 — [codegen] insn 3: expected `lw	v0,316(a2)` built `lw	v0,312(a2)`
@@ -638,7 +645,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - REVERTED `ACTGame_NoWeapon` w3 @ 0x0014DBD8 — [codegen] insn 4: expected `lw	a0,336(v0)` built `lw	a0,320(v0)`
 - REVERTED `ACTGame_SetMotionPlaySpeedRatio_Clear` w3 @ 0x0014E770 — [codegen] insn 3: expected `lw	v1,1664(v0)` built `lw	v1,1648(v0)`
 - REVERTED `ACTGame_SetMotionPlaySpeedRatio_Reserve` w3 @ 0x0014DEC0 — [codegen] insn 1: expected `lw	v1,1664(v1)` built `lw	v1,1648(v1)`
-- REVERTED `ACTGame_StageChangeGObjDirect` w1 @ 0x0014CB48 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `ACTGame_StageChangeGObjDirect` w1 @ 0x0014CB48 <- ntsc src/act-game:ACTGame_BeforeFunc (5 syms rebound) — unblocked by the PAL phase-1 `lit4 src/act-game` carve
 - PORTED `ACTGame_StageChangeGObjID` w1 @ 0x0014CAC8 <- ntsc src/act-game:ACTGame_InnerVelocityUpdate (4 syms rebound)
 - REVERTED `ACTGame_TryConnectHand` w3 @ 0x001471D8 — [codegen] insn 3: expected `addiu	a2,zero,5` built `addiu	a2,zero,4`
 - REVERTED `ACTGame_TryDisconnectHand` w3 @ 0x001471F8 — [codegen] insn 2: expected `addiu	a2,zero,5` built `addiu	a2,zero,4`
@@ -689,7 +696,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - PORTED `_ACTSendMailToBirdAll` w1 @ 0x001A00F0 <- ntsc src/act_bird:BirdGeo (4 syms rebound)
 - PORTED `func_0019FE30` w2 @ 0x0019FE30 <- ntsc src/poly-flat:func_00197078 (2 syms rebound)
 - REVERTED `func_0019FE38` w3 @ 0x0019FE38 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-- REVERTED `vector_angle_degree` w1 @ 0x0019FEA0 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `vector_angle_degree` w1 @ 0x0019FEA0 <- ntsc src/act_bird:trans_bird (5 syms rebound) — unblocked by the PAL phase-1 `lit4 src/act_bird` carve
 - CARVES `src/act_bird` — 1 US carve entry to translate:
     - - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
 
@@ -1463,13 +1470,13 @@ PAL-vs-USA source difference) · `jtbl`.
 - PORTED `ACTSetPositionNodeWithFitting` w2 @ 0x00158C98 <- ntsc src/boyact:ACTChkAttackIgnore_BOY (2 syms rebound)
 - REVERTED `ACTSetPositionWithFitting` w2 @ 0x00158C88 — [codegen] tu-size: body is 0x0 bytes, ROM function is 0x8 (out-of-line helper or extra code)
 - PORTED `ControlMotionOrient` w1 @ 0x001639C8 <- ntsc src/commonact:actCommonSlowrun (2 syms rebound)
-- REVERTED `E3_LeverCheck` w1 @ 0x00160A68 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `E3_LeverCheck` w1 @ 0x00160A68 <- ntsc src/commonact:_boxbar_set_sound (5 syms rebound) — unblocked by the PAL phase-1 `lit4 src/commonact` carve
 - PORTED `FloorIsTruck` w1 @ 0x001639E8 <- ntsc src/commonact:func_0015F248 (2 syms rebound)
 - PORTED `SetCorrectOrientOfChain` w1 @ 0x00163AC0 <- ntsc src/commonact:_ACTMotDirSmzDirect (3 syms rebound)
 - PORTED `SetDirectRootPositionXZ` w1 @ 0x0015BD48 <- ntsc src/commonact:WithMailFunc_WayBeginPosError (3 syms rebound)
 - PORTED `_ACTMotDir_V` w1 @ 0x00163A38 <- ntsc src/commonact:ACT_LAYOUT_GAMEOVER (3 syms rebound)
 - PORTED `actAfterSlip` w2 @ 0x00163CC8 <- ntsc src/commonact:actCommonReviveAir (1 syms rebound)
-- REVERTED `afterCommonBar` w1 @ 0x00163D60 — [emits-data] emits-data: +7 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `afterCommonBar` w1 @ 0x00163D60 <- ntsc src/commonact:func_0015F578 (5 syms rebound) — unblocked by the PAL phase-1 `sdata src/commonact` carve
 - PORTED `afterCommonBox` w1 @ 0x00163D38 <- ntsc src/commonact:actCommonDelete (2 syms rebound)
 - PORTED `afterCommonCling` w2 @ 0x00163CA0 <- ntsc src/commonact:actCommonRevive (2 syms rebound)
 - PORTED `afterCommonOneWall` w2 @ 0x00163EF8 <- ntsc src/enemy_act:boss_effect_process (1 syms rebound)
@@ -1505,7 +1512,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - REVERTED `debugSceOpen` w1 @ 0x001B2F60 — [codegen] insn 3: expected `lui	a2,0x0` built `sd	s0,0(sp)`
 - REVERTED `debug_AdpcmTest` w3 @ 0x001B3A50 — [codegen] insn 6: expected `addiu	v0,zero,105` built `addiu	v0,zero,96`
 - REVERTED `debug_Assert` w3 @ 0x001ABC40 — [codegen] insn 15: expected `addiu	a1,zero,1392` built `addiu	a1,zero,1283`
-- REVERTED `debug_BackStageTest` w1 @ 0x001B3C18 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `debug_BackStageTest` w1 @ 0x001B3C18 <- ntsc src/gamesys:gamesysObjInfoStageInitFlagCls (3 syms rebound) — unblocked by the PAL phase-1 `lit4 src/debug` carve
 - PORTED `debug_BeginTimer` w1 @ 0x001B2800 <- ntsc src/debug_menu:debug_TargetGObj_Func (1 syms rebound)
 - PORTED `debug_CallbackGsFinish` w2 @ 0x001B3110 <- ntsc src/debug_menu:func_001AA688 (2 syms rebound)
 - PORTED `debug_ClearFontWindow` w1 @ 0x001B2958 <- ntsc src/debug_menu:func_001A9EE8 (3 syms rebound)
@@ -1612,7 +1619,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - REVERTED `IsEnemyBrainToBoy` w3 @ 0x0016A420 — [codegen] insn 4: expected `addiu	a0,zero,111` built `addiu	a0,zero,107`
 - REVERTED `IsEnemyBrainToGenerator` w3 @ 0x0016A3B0 — [codegen] insn 5: expected `lw	v1,1664(a2)` built `lw	v1,1648(a2)`
 - REVERTED `_ApproachTarget` w3 @ 0x0016AFC8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-- REVERTED `_MustChase` w1 @ 0x001644F8 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `_MustChase` w1 @ 0x001644F8 <- ntsc src/enemy_act:actEnemyForceSwitchToCarry (5 syms rebound) — unblocked by the PAL phase-1 `lit4 src/enemy_act` carve
 - PORTED `actEnemyFlagCheckActive` w1 @ 0x0016A290 <- ntsc src/enemy_act:funcEnemyCarryFail (2 syms rebound)
 - PORTED `actEnemyFlagCheckDead` w1 @ 0x0016A268 <- ntsc src/enemy_act:func_001652D0 (2 syms rebound)
 - PORTED `actEnemyFlagOnDead` w1 @ 0x0016A208 <- ntsc src/enemy_act:actEnemyCarry (2 syms rebound)
@@ -1875,7 +1882,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - PORTED `la_save_confirm_fail` w2 @ 0x001BE870 <- ntsc src/layout_action:la_save_game_memory_card_check (1 syms rebound)
 - PORTED `la_save_confirm_yesno` w1 @ 0x001BEC08 <- ntsc src/layout_texture:texture_fading (3 syms rebound)
 - REVERTED `la_scei_logo` w3 @ 0x001BE270 — [codegen] insn 16: expected `addiu	a0,zero,386` built `addiu	a0,zero,353`
-- REVERTED `la_switching_stage` w1 @ 0x001BEBC8 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `la_switching_stage` w1 @ 0x001BEBC8 <- ntsc src/layout_texture:default_item_select (5 syms rebound) — unblocked by the PAL phase-1 `lit4 src/layout_action` carve
 - PORTED `la_title_demo` w2 @ 0x001BE2D8 <- ntsc src/layout_action:la_title_new_game_only (1 syms rebound)
 - CARVES `src/layout_action` — 1 US carve entry to translate:
     - - [0x517170, .rodata, src/layout_action]  # full layout_action .rodata run (D_00617170..D_00617198 + gcc-emitted jtbl_006171B0, la_load_processing switch, 5 entries 0x14), VMA 0x617170..0x6171C4
@@ -1910,7 +1917,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - REVERTED `InitMatrixDrive` w1 @ 0x00104F38 — [codegen] insn 11: expected `<end>` built `sll	zero,zero,0x0`
 - PORTED `MatrixDrive_GetLastMatrix` w2 @ 0x001052D8 <- ntsc src/keyInput:func_00105290 (3 syms rebound)
 - PORTED `MatrixDrive_GetMatrix` w2 @ 0x001052C0 <- ntsc src/keyInput:func_00105278 (3 syms rebound)
-- REVERTED `MatrixDrive_GetTurnYEAngleXZ` w1 @ 0x00105B10 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `MatrixDrive_GetTurnYEAngleXZ` w1 @ 0x00105B10 <- ntsc src/matrixDrive:MatrixDrive_PopMatrix (4 syms rebound) — unblocked by the PAL phase-1 `lit4 src/matrixDrive` carve
 - PORTED `MatrixDrive_PopMatrix` w1 @ 0x001052B0 <- ntsc src/keyInput:func_00105268 (2 syms rebound)
 - PORTED `MatrixDrive_PushMatrix` w1 @ 0x00104F68 <- ntsc src/keyInput:func_00104F20 (4 syms rebound)
 - PORTED `MatrixDrive_PushMatrixWithNoCopy` w1 @ 0x001052A0 <- ntsc src/keyInput:func_00105258 (2 syms rebound)
@@ -1978,7 +1985,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - PORTED `GetHeightOfCliffFromGObj` w1 @ 0x0010A388 <- ntsc src/motionManager2:GetMotionFrameFlag1 (1 syms rebound)
 - PORTED `GetHeightOfFieldPlaneDifference` w1 @ 0x0010A328 <- ntsc src/motionManager2:EnableChangeRootUpdateMode (2 syms rebound)
 - PORTED `GetHeightOfWallFromGObj` w1 @ 0x0010A378 <- ntsc src/motionManager2:GetRopeHangablePos (1 syms rebound)
-- REVERTED `GetLowerPlaneCollision` w2 @ 0x00106BE8 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `GetLowerPlaneCollision` w2 @ 0x00106BE8 <- ntsc src/motionManager2:SetMotionDirectionWithLimit (4 syms rebound) — unblocked by the PAL phase-1 `lit4 src/motionManager2` carve
 - PORTED `GetMotionFrameFlag1` w1 @ 0x0010A308 <- ntsc src/motionManager2:GetDifferenceFromWallUpperPlane (1 syms rebound)
 - PORTED `GetMotionFrameFlag2` w1 @ 0x0010A318 <- ntsc src/motionManager2:DisableChangeRootUpdateMode (1 syms rebound)
 - PORTED `GetMotionPointer` w1 @ 0x001099D8 <- ntsc src/motionManager2:GetFloatingMotion (1 syms rebound)
@@ -2003,7 +2010,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - PORTED `UnlockForceGroundParent` w2 @ 0x0010AB18 <- ntsc src/pool:copyToWork (1 syms rebound)
 - PORTED `_GetMotionDirection` w1 @ 0x001069B0 <- ntsc src/motionManager2:GetOrientOfWallOfGObj (2 syms rebound)
 - PORTED `fitYToPlane` w1 @ 0x0010AC80 <- ntsc src/pool:SetFallDownSplash (2 syms rebound)
-- REVERTED `getLowerPlaneCollisionE` w2 @ 0x00106C30 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `getLowerPlaneCollisionE` w2 @ 0x00106C30 <- ntsc src/motionManager2:GetRootPosOfNextFrame (4 syms rebound) — unblocked by the PAL phase-1 `lit4 src/motionManager2` carve
 - PORTED `getVerticalElementOfWallNormal` w1 @ 0x00107C18 <- ntsc src/motionManager2:DispSkelton (3 syms rebound)
 - CARVES `src/motionManager2` — 2 US carve entries to translate:
     - - [0x453DB0, .rodata, src/motionManager2]  # gcc-emitted jtbl_00553DB0 (AdjustVerticalSidePlaneOfWall switch, 6 entries 0x18), VMA 0x553DB0..0x553DC8
@@ -2395,7 +2402,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - PORTED `actSt18aCamera` w2 @ 0x0024FC70 <- ntsc src/st47a:actSt47aExit (1 syms rebound)
 
 ### src/st25a
-- REVERTED `BoySekikaTexScroll` w1 @ 0x001874A0 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `BoySekikaTexScroll` w1 @ 0x001874A0 <- ntsc src/warpGirl:func_00180550 (4 syms rebound) — unblocked by the PAL phase-1 `lit4 src/st25a` carve
 - PORTED `actSt25aGenerator` w2 @ 0x00187770 <- ntsc src/warpGirl:func_00180580 (2 syms rebound)
 - PORTED `actSt25aQueenDeadEvent` w2 @ 0x00187DE0 <- ntsc src/attackhit:AttackCheckSameGroup (1 syms rebound)
 - CARVES `src/st25a` — none in ntsc's ico.us.yaml
@@ -2435,21 +2442,21 @@ PAL-vs-USA source difference) · `jtbl`.
 - PORTED `stageSE06abirdIn` w1 @ 0x00256338 <- ntsc ito/mpeg/mv_audiodec:audioDecEndPut (2 syms rebound)
 - PORTED `stageSE06abirdOut` w1 @ 0x00256390 <- ntsc ito/mpeg/mv_audiodec:sendToIOP2area (2 syms rebound)
 - PORTED `stageSE06ataimatsu` w1 @ 0x002563E8 <- ntsc ito/mpeg/mv_audiodec:audioDecSendToIOP (3 syms rebound)
-- REVERTED `stageSE08anoise3` w1 @ 0x00256600 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `stageSE08anoise3` w1 @ 0x00256600 <- ntsc ito/mpeg/mv_audiodec:audioDecReset (6 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
 - PORTED `stageSE08ataimatsu` w1 @ 0x00256688 <- ntsc ito/mpeg/mv_audiodec:audioDecIsPreset (6 syms rebound)
-- REVERTED `stageSE08bcrane` w1 @ 0x00256700 — [emits-data] emits-data: +12 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `stageSE09asea` w1 @ 0x00256800 — [emits-data] emits-data: +8 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `stageSE08bcrane` w1 @ 0x00256700 <- ntsc ito/mpeg/mv_audiodec:audioDecStart (9 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
+- PORTED `stageSE09asea` w1 @ 0x00256800 <- ntsc ito/mpeg/mv_audiodec:audioDecResume (3 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
 - PORTED `stageSE13arain` w1 @ 0x00256A70 <- ntsc ito/mpeg/mv_audiodec:func_0023CC78 (1 syms rebound)
-- REVERTED `stageSE13cNoise` w1 @ 0x00256AB0 — [emits-data] emits-data: +8 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `stageSE13cNoise` w1 @ 0x00256AB0 <- ntsc ito/mpeg/mv_audiodec:func_0023CCB8 (3 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
 - PORTED `stageSE13dterrace` w1 @ 0x00256AD8 <- ntsc ito/mpeg/mv_audiodec:func_0023CCE0 (2 syms rebound)
-- REVERTED `stageSE17btaki` w2 @ 0x00256E28 — [emits-data] emits-data: +8 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `stageSE19arain` w1 @ 0x00256EC0 — [emits-data] emits-data: +12 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `stageSE19astrong` w1 @ 0x00256E48 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `stageSE20astrong` w1 @ 0x00256EE8 — [emits-data] emits-data: +8 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `stageSE17btaki` w2 @ 0x00256E28 <- ntsc ito/mpeg/mv_disp:setDispEnv (3 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
+- PORTED `stageSE19arain` w1 @ 0x00256EC0 <- ntsc ito/mpeg/mv_disp:sendDispEnv (4 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
+- PORTED `stageSE19astrong` w1 @ 0x00256E48 <- ntsc ito/mpeg/mv_disp:setImageSize (7 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
+- PORTED `stageSE20astrong` w1 @ 0x00256EE8 <- ntsc ito/mpeg/mv_disp:dispCreate (8 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
 - PORTED `stageSE20astrong2` w2 @ 0x00256F68 <- ntsc ito/mpeg/mv_disp:dispSetTags (6 syms rebound)
 - PORTED `stageSE22astrong` w1 @ 0x00256FC8 <- ntsc ito/mpeg/mv_disp:dispSwitch (6 syms rebound)
-- REVERTED `stageSE24arain` w1 @ 0x00257140 — [emits-data] emits-data: +8 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `stageSE24ariver` w2 @ 0x00257168 — [emits-data] emits-data: +8 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `stageSE24arain` w1 @ 0x00257140 <- ntsc ito/mpeg/mv_disp:loadImage (3 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
+- PORTED `stageSE24ariver` w2 @ 0x00257168 <- ntsc ito/mpeg/mv_disp:handler_endimage (3 syms rebound) — unblocked by the PAL phase-1 `lit4 src/stageSEProc` carve
 - PORTED `stageSE24astrong` w2 @ 0x002570E0 <- ntsc ito/mpeg/mv_disp:dispDelete (6 syms rebound)
 - CARVES `src/stageSEProc` — none in ntsc's ico.us.yaml
 
@@ -2464,7 +2471,7 @@ PAL-vs-USA source difference) · `jtbl`.
 - PORTED `StaticBlur` w2 @ 0x001FD518 <- ntsc src/stormTest:InitStormPackage (1 syms rebound)
 - PORTED `StaticBlurDL` w2 @ 0x001FD520 <- ntsc src/stormTest:ClipStormByVolume (1 syms rebound)
 - PORTED `_initStaticBlur` w1 @ 0x001FD578 <- ntsc src/stormTest:InitStormTestGeo (5 syms rebound)
-- REVERTED `calcSun` w1 @ 0x001FCC60 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `calcSun` w1 @ 0x001FCC60 <- ntsc src/staticBlur:cleanUpFB (13 syms rebound) — unblocked by the PAL phase-1 `lit4 src/staticBlur` carve
 - CARVES `src/staticBlur` — 2 US carve entries to translate:
     - - [0x3C61A0, .data, src/staticBlur]  # carved D_004C61A0..D_004C61E0 (VMA 0x4C61A0..0x4C61F0, 80 bytes, 5 syms)
     - - [0x5313D8, .lit4, src/staticBlur]    # carved D_006313D8/13DC (0.9f, 1000000f), VMA 0x6313D8..0x6313E0
@@ -2550,17 +2557,17 @@ PAL-vs-USA source difference) · `jtbl`.
 - PORTED `ez_line` w2 @ 0x0017F830 <- ntsc src/way_util:WayUtilWorkAlloc (1 syms rebound)
 - PORTED `get_wp_nearest_bridge_side_bridge` w1 @ 0x001814C8 <- ntsc src/way_util:waypoint_connect_group_side_me (3 syms rebound)
 - PORTED `get_wp_nearest_bridge_side_me` w1 @ 0x00181438 <- ntsc src/way_util:bridge_waypoint_side_me (3 syms rebound)
-- REVERTED `nearest_waypoint` w1 @ 0x00180AB8 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `nearest_waypoint_by_lineseg` w1 @ 0x00180CB0 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `nearest_waypoint_by_lineseg_from_gobj` w1 @ 0x00180E28 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `nearest_waypoint_by_lineseg_of_group` w1 @ 0x00180C00 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `nearest_waypoint_by_lineseg_of_group_from_gobj` w1 @ 0x00180D68 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `nearest_waypoint` w1 @ 0x00180AB8 <- ntsc src/way_util:nearest_waypoint_by_lineseg_of_group_from_gobj (7 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
+- PORTED `nearest_waypoint_by_lineseg` w1 @ 0x00180CB0 <- ntsc src/way_util:nearest_waypoint_of_all_except_group (5 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
+- PORTED `nearest_waypoint_by_lineseg_from_gobj` w1 @ 0x00180E28 <- ntsc src/way_util:nearest_waypoint_of_all (6 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
+- PORTED `nearest_waypoint_by_lineseg_of_group` w1 @ 0x00180C00 <- ntsc src/way_util:waypoint_with_range (4 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
+- PORTED `nearest_waypoint_by_lineseg_of_group_from_gobj` w1 @ 0x00180D68 <- ntsc src/way_util:nearest_waypoint_of_all_not_bridge_except_group (5 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
 - REVERTED `nearest_waypoint_from_gobj` w1 @ 0x00180B58 — [callee-sig-conflict] src/way_util.c:6: conflicting types for `fzMagnitudefv'
-- REVERTED `nearest_waypoint_of_all` w1 @ 0x00181100 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `nearest_waypoint_of_all_except_group` w1 @ 0x00180F78 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `nearest_waypoint_of_all_not_bridge_except_group` w1 @ 0x00181020 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `nearest_waypoint_of_group` w1 @ 0x00180A20 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
-- REVERTED `visible_waypoint` w1 @ 0x001811F8 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a data carve)
+- PORTED `nearest_waypoint_of_all` w1 @ 0x00181100 <- ntsc src/way_util:visible_waypoint_from_gobj (6 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
+- PORTED `nearest_waypoint_of_all_except_group` w1 @ 0x00180F78 <- ntsc src/way_util:visible_waypoint_of_all_from_gobj (6 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
+- PORTED `nearest_waypoint_of_all_not_bridge_except_group` w1 @ 0x00181020 <- ntsc src/way_util:visible_waypoint (7 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
+- PORTED `nearest_waypoint_of_group` w1 @ 0x00180A20 <- ntsc src/way_util:nearest_waypoint_by_lineseg (6 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
+- PORTED `visible_waypoint` w1 @ 0x001811F8 <- ntsc src/way_util:func_0017AA08 (8 syms rebound) — unblocked by the PAL phase-1 `lit4 src/way_util` carve
 - REVERTED `visible_waypoint_from_gobj` w1 @ 0x00181310 — [callee-sig-conflict] src/way_util.c:15: conflicting types for `fzMagnitudefv'
 - PORTED `visible_waypoint_of_all` w1 @ 0x001811A8 <- ntsc src/way_util:get_wp_nearest_bridge_side_me (2 syms rebound)
 - REVERTED `visible_waypoint_of_all_except_gid` w1 @ 0x0017F180 — [callee-sig-conflict] src/way_util.c:16: conflicting types for `fzMagnitudefv'
@@ -2599,3 +2606,40 @@ PAL-vs-USA source difference) · `jtbl`.
 - REVERTED `SetWormReduceRatio` w3 @ 0x00205C18 — [codegen] insn 1: expected `lw	v1,2096(v0)` built `lw	v1,2048(v0)`
 - REVERTED `TraceWormRoute` w3 @ 0x00205C28 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
 - PORTED `WormDL` w2 @ 0x00205B38 <- ntsc src/worm:GetWormCaptureVector (2 syms rebound)
+
+## Data-carve phase 1 — the 32 `emits-data` reverts (2026-09-04)
+
+Every `emits-data` revert in this ledger was one shape: the ported body
+contains a float constant (or, once, a `<=8`-byte string constant), and
+ee-as interns it into the TU object's own anonymous `.lit4` (`.sdata` for the
+string).  With no carve, those bytes are appended to a section the PAL yaml
+still owns as one whole-section blob, so the layout shifts and the SHA-1 gate
+fails — which is exactly what `port_from_ntsc.py`'s growth check caught.
+
+Fix: 12 `.lit4` carves + 1 `.sdata` carve in `config/ico.pal.yaml`, plus
+`ASM_LIT4_SLOT()` lines for every pool word whose owner is still
+`INCLUDE_ASM` (see `include/include_asm.h` and `tools/preprocess_old_as.py`).
+The carve makes the TU's object own its whole pool run; porting a body then
+swaps one `ASM_LIT4_SLOT` for the body's own literal, so the object's data
+size never changes and the growth check passes untouched.  Byte-level
+evidence, run boundaries and the MAIN.MAP cross-check are in
+`decomp/carve_ledger.md` §"PAL phase 1".
+
+Two driver notes worth keeping:
+
+- **The `ntsc` reference tree moved under the port cache.**  `.port_cache/`
+  was built at 03:34; a concurrent `rename ntsc from PAL` pass in
+  `/primary/dev/ico-ntsc` renamed C bodies and regenerated
+  `asm/matchings/**` at 04:54, after which the cached `us_name`s resolved to
+  nothing (`missing-body`, `map-error`).  Re-running the ports against a
+  read-only snapshot of `ntsc` **HEAD** (`PORT_NTSC_ROOT=<snapshot>`) fixed
+  every one of them.  Any future `port` run must pin `PORT_NTSC_ROOT` to a
+  stable ntsc revision rather than reading that worktree live.
+- **`quick_diff` cleared `E3_LeverCheck` while the ELF diverged.**  The
+  first attempt bound the body's second callee to PAL `HandCameraCorrect`
+  (0x19D4A8) where the ROM calls `_RotyGV` (0x19CA48): `ntsc` names that
+  function `HandCameraCorrect` in C but `_RotyGV` in its own splat baseline,
+  so the driver's lockstep slot walk produced an identity map and left the
+  body's call unbound.  Only `ninja`'s SHA-1 gate caught it (the per-function
+  differ shows in-TU relocs as unresolved, the known false negative).  Fixed
+  by making the ntsc baseline agree with the ntsc C before the walk.

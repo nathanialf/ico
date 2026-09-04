@@ -8,28 +8,92 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", boss_effect_check_parts);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", boss_effect_process);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _DoAwait);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _DoAwaitGirl);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _MustChase);
+extern int D_00639EA4;
+extern float _DistxzSqGV(float *a0, float *a1);
+extern int test_CURRENTROOT(int a0);
+
+int _MustChase(int a0) {
+    float v1[4];
+    float v2[4];
+    float angle;
+    float diff;
+    int rv;
+    if (D_00639EA4 == 0) {
+        goto zero;
+    }
+    v1[0] = ((float *)test_CURRENTROOT(D_00639EA4))[0];
+    v1[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+    v1[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+    v2[0] = ((float *)test_CURRENTROOT(a0))[0];
+    v2[1] = ((float *)test_CURRENTROOT(a0))[1];
+    v2[2] = ((float *)test_CURRENTROOT(a0))[2];
+    angle = _DistxzSqGV(v1, v2);
+    if (angle < 90000.0f) {
+        diff = v1[1] - v2[1];
+        if (diff < 0.0f) {
+            if (200.0f < -diff) {
+                return 1;
+            }
+            return 0;
+        }
+        rv = 0;
+        if (!(200.0f < diff)) {
+            return rv;
+        }
+    }
+    rv = 1;
+    goto end;
+zero:
+    rv = 0;
+end:
+    return rv;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164600);
+ASM_LIT4_SLOT(D_00638EF8, 0.001f);
+ASM_LIT4_SLOT(D_00638EFC, 0.1f);
+ASM_LIT4_SLOT(D_00638F00, 0.99f);
+ASM_LIT4_SLOT(D_00638F04, 0.1f);
+ASM_LIT4_SLOT(D_00638F08, 0.99f);
+ASM_LIT4_SLOT(D_00638F0C, 0.1f);
+ASM_LIT4_SLOT(D_00638F10, 0.99f);
+ASM_LIT4_SLOT(D_00638F14, 0.1f);
+ASM_LIT4_SLOT(D_00638F18, 0.1f);
+ASM_LIT4_SLOT(D_00638F1C, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", PairSetGeometry);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyForceSwitchToCarry);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165670);
+ASM_LIT4_SLOT(D_00638F20, 10000.0f);
+ASM_LIT4_SLOT(D_00638F24, 0.0001f);
+ASM_LIT4_SLOT(D_00638F28, 0.01f);
+ASM_LIT4_SLOT(D_00638F2C, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165FD0);
+ASM_LIT4_SLOT(D_00638F30, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001661B8);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001666E8);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", BrainMode_Requset);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00166B70);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", enemy_dodge_to_boy);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", Battle_isCurrentStatus);
+ASM_LIT4_SLOT(D_00638F34, 0.7f);
+ASM_LIT4_SLOT(D_00638F38, 0.7f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", GetFlyPosition);
+ASM_LIT4_SLOT(D_00638F3C, 160000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", NakaBoss);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToAttack);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001680B8);
+ASM_LIT4_SLOT(D_00638F40, 22500.0f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001687C8);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00168888);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00168A78);
+ASM_LIT4_SLOT(D_00638F44, 160000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", flyMailCore);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _ApproachTarget_Way);
+ASM_LIT4_SLOT(D_00638F48, 1440000.0f);
+ASM_LIT4_SLOT(D_00638F4C, 40000.0f);
+ASM_LIT4_SLOT(D_00638F50, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169498);
+ASM_LIT4_SLOT(D_00638F54, 369.0f);
+ASM_LIT4_SLOT(D_00638F58, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169978);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169CD8);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169E58);

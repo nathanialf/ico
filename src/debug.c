@@ -29,6 +29,7 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SetDmaCallback);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_VariableInit);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Init);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Load);
+ASM_LIT4_SLOT(D_00639338, 10059776.0f);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_MakeFont);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_makeBackImage);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_PrintCharacter);
@@ -83,7 +84,10 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", draw_shikaku);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_brainBar);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_MakeBarString);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DrawBar);
+ASM_LIT4_SLOT(D_0063933C, 270000.0f);
+ASM_LIT4_SLOT(D_00639340, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispBar);
+ASM_LIT4_SLOT(D_00639344, 270000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_ResizeSnapShot);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_WriteBMP);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SnapShot);
@@ -147,6 +151,8 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectActGobj);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispBox);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispBall);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_CollisionTest);
+ASM_LIT4_SLOT(D_00639348, 0.001f);
+ASM_LIT4_SLOT(D_0063934C, 0.001f);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Menu);
 extern int D_0063B0F4;
 
@@ -336,7 +342,12 @@ int debug_EndingDemo(void) {
     debug_Menu_off();
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_BackStageTest);
+extern void backStageProcessInStage(float a0);
+
+int debug_BackStageTest(void) {
+    backStageProcessInStage(10000000.0f);
+    return 1;
+}
 extern void backStageDebugTimeZero(void);
 
 int debug_tsuresariTimeZero(void) {
@@ -410,6 +421,7 @@ void resetGS(int a0)
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", putString);
 INCLUDE_ASM("asm/nonmatchings/src/debug", drawWin);
+ASM_LIT4_SLOT(D_00639354, 0.8f);
 extern void SetDrawEnvironment(int a0);
 extern void drawSprite(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
 

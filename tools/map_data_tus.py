@@ -29,7 +29,12 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-YAML = os.path.join(ROOT, "config", "ico.us.yaml")
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+import pathlib  # noqa: E402
+from ico_version import detect_version  # noqa: E402
+
+VERSION = detect_version(pathlib.Path(ROOT))
+YAML = os.path.join(ROOT, "config", f"ico.{VERSION}.yaml")
 
 DLABEL_RE = re.compile(r"^(?:dlabel|jlabel)\s+(\w+)")
 VMA_LINE_RE = re.compile(r"^\s*/\* ([0-9A-F]{6,8}) ([0-9A-F]{8}) ")

@@ -55,12 +55,13 @@ ELF = str(baseelf_path(pathlib.Path(ROOT), VERSION))
 # asm root: retail (`us`) keeps asm/ flat; aug6 (and any other named version)
 # nests under asm/<version>/ — same convention as tools/park_tu.py's
 # asm_roots() and tools/match_drive.py's VERSION-keyed path.
-ASM_ROOT = "asm" if VERSION == "us" else f"asm/{VERSION}"
+ASM_ROOT = "asm" if VERSION in ("us", "pal") else f"asm/{VERSION}"
 # TU source roots to scan for consumer .c files, per version. aug6's dev
 # tree is split by original programmer (omori/ito/sugipon/fumi/seki/common/
 # script); retail (`us`) is a flat src/ + ios/isys/ito/sound tree.
 SRC_ROOTS = {
     "us": ("ios", "isys", "ito", "sound", "src"),
+    "pal": ("ios", "isys", "ito", "sound", "src"),
     "aug6": ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"),
 }.get(VERSION, ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"))
 

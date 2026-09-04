@@ -986,3 +986,132 @@ link fails on an undefined `jtbl_*` — same rule Batch 4 stated, now
 observed from the failing side. Gate: full distclean + setup + ninja →
 `verify_elf: OK sha1=fbf50c75…`, zero assembler fallbacks,
 `use_modern_as.txt` still empty.
+
+## PAL phase 1 — `.lit4` constant-pool carves + one `.sdata` literal (2026-09-04)
+
+Target: `main` = PAL retail SCES-507.60.  Scope: the 32 bodies in 12 TUs that
+`tools/port_from_ntsc.py` reverted with reason `emits-data`
+(`decomp/port_ledger_pal.md`).  All 13 carves below landed together and the
+tree is SHA-green from a clean rebuild (`rm -rf build .ninja_log .ninja_deps`
++ `tools/build.sh setup` + `ninja` -> `verify_elf: OK
+(a401d1e5a20b1659189a8b1026a8eb35811dc9ca)`), `check_no_rom.sh` clean.
+All 32 bodies are ported.
+
+### Landed
+
+| TU | section | carve (ROM off) | VMA range | bytes | slots/syms | MAIN.MAP size |
+|---|---|---|---|---|---|---|
+| `src/matrixDrive` | `.lit4` | `[0x538B0C]` | 0x638B0C..0x638B3C | 48 | 12 (all 0.01f) | 0x30 — agrees |
+| `src/motionManager2` | `.lit4` | `[0x538B3C]` | 0x638B3C..0x638B84 | 72 | 18 | 0x48 — agrees |
+| `src/act-game` | `.lit4` | `[0x538CC8]` | 0x638CC8..0x638D10 | 72 | 18 | 0x40 — differs |
+| `src/commonact` | `.lit4` | `[0x538E3C]` | 0x638E3C..0x638EF4 | 184 | 46 | 0xb4 — differs |
+| `src/enemy_act` | `.lit4` | `[0x538EF4]` | 0x638EF4..0x638F5C | 104 | 26 | 0x68 — agrees |
+| `src/way_util` | `.lit4` | `[0x539060]` | 0x639060..0x639090 | 48 | 12 (all 100000f) | 0x30 — agrees |
+| `src/st25a` | `.lit4` | `[0x5390D4]` | 0x6390D4..0x639108 | 52 | 13 | 0x44 — differs |
+| `src/act_bird` | `.lit4` | `[0x539230]` | 0x639230..0x639294 | 100 | 25 | 0x64 — agrees |
+| `src/debug` | `.lit4` | `[0x539338]` | 0x639338..0x639358 | 32 | 8 | 0x18 — differs |
+| `src/layout_action` | `.lit4` | `[0x539360]` | 0x639360..0x63936C | 12 | 3 | 0x8 — differs |
+| `src/staticBlur` | `.lit4` | `[0x5396A8]` | 0x6396A8..0x6396B0 | 8 | 2 | 0x8 — agrees |
+| `src/stageSEProc` | `.lit4` | `[0x539B18]` | 0x639B18..0x639C44 | 300 | 75 | 0x138 — differs |
+| `src/commonact` | `.sdata` | `[0x53A738]` | 0x63A738..0x63A740 | 8 | 1 ("reset\n" + ROM pad byte) | 0x6d for the whole member — differs |
+
+Every carve line in `config/ico.pal.yaml` carries the USA counterpart verbatim
+(`USA: - [...]`) so the provenance travels, or says "no `.lit4` carve for this
+TU" where USA had none (`st25a`, `debug`, `layout_action`, `stageSEProc`).
+
+### How a `.lit4` carve is made to hold
+
+`.lit4` is built by the ASSEMBLER, not the compiler: ee-gcc emits `li.s
+$fN,<value>` for a float constant and ee-as interns each new literal into the
+object's anonymous `.lit4` **in the order it meets them in the `.s` stream**,
+with no de-duplication (`src/way_util` ships twelve identical `100000.0f`
+words, one per waypoint-search function).  A TU's pool is therefore ONE output
+section whose content is fixed by source order, and the carve is final only if
+EVERY word of the shipped run is produced by that TU's own object.  Words whose
+owner is still `INCLUDE_ASM` are supplied by `ASM_LIT4_SLOT(D_<VMA>, <value>)`
+(`include/include_asm.h`), which emits a `.lit4_slot` directive that
+`tools/preprocess_old_as.py` turns back into the sibling's original `li.s` —
+ee-as cannot assemble a *named* symbol defined in `.lit4` at all
+(`nopic_need_relax()` asserts on it).  Landing a body then deletes exactly one
+`ASM_LIT4_SLOT` and the body's own literal produces that word, so the object's
+data size is unchanged and `port_from_ntsc.py`'s "may add code, never data"
+gate passes.  `preprocess_old_as.py` errors on a stale slot and on a slot
+reached by a non-FP load, so the two halves can never drift apart silently.
+
+Values are spelled as the shortest decimal that round-trips through binary32
+(`0.01f`, `10430.378f`, `1.0000001e-06f`) — generated from
+`baserom/pal/baseelf.rom`, not copied from splat's `.float` rendering.
+
+### Evidence, and how the runs were cut
+
+`tools/map_data_tus.py --sect lit4 --runs` plus a per-word owner scan over
+`asm/{non,}matchings/**/*.s`: every `.lit4` word is loaded by exactly one
+function, so per-TU ownership is exact and the PAL `.lit4` stream is strictly
+link-ordered per TU (TU #0..#186 ascending, no interleaving).  Each of the 12
+runs was checked to be **exclusively** owned by its TU with no foreign or
+already-matched-C word inside it before the carve went in.  Two runs came out
+different from `map_data_tus.py`'s collapsed view, which folds unattributed
+neighbours into the preceding run: `src/act-game` really ends at 0x638D10
+(0x638D10..0x638D30 is `src/act-wish`), and `src/staticBlur` really ends at
+0x6396B0 (0x6396B0..0x6396C8 is `src/stormTest`).  The per-word owner scan is
+the authority; the `--runs` view is a first cut.
+
+**MAIN.MAP is a size cross-check, not an oracle — and it disagrees more often
+than it agrees here.**  `baserom/pal/MAIN.MAP`'s `.lit4` output section is
+0xfb0 bytes against the shipped ELF's 0x1154, i.e. it is a genuinely different
+(earlier) link, and only 6 of the 13 member sizes match the PAL ELF's own
+runs.  Where they disagree the reference stream wins; the disagreement is
+recorded in each yaml comment rather than reconciled.
+
+### New rule this batch established (write it down before the next carve)
+
+**A carve that contains an ANONYMOUS constant must START at that constant's own
+VMA.**  `-fdata-sections` gives a section only to a `VAR_DECL`; a string
+literal, an `li.d` double or an interned `.lit4` word has no `.<sec>.<sym>` of
+its own and lands in the object's plain `.sdata` / `.rodata` / `.lit4`, which
+gas allocates ahead of every named per-symbol section.  An `ld` single-glob
+`<tu>.o(.<sec>*)` pulls sections in `.o` encounter order, so the anonymous
+blob is placed at the run's START no matter where the literal sits in the C.
+This is the positive statement of the `src/boyact` `.lit8` blocker above, and
+it decided this batch's only `.sdata` carve: `afterCommonBar`'s `"reset\n"`
+is a `<=8`-byte string constant, which gcc routes to `.sdata`
+(`mips_select_section`) and never gp-addresses (the ROM reaches it with a
+`%hi/%lo` pair at 0x163D68/0x163D74).  `src/commonact`'s full `.sdata` run is
+0x63A710..0x63A7E0 (208 B, ~17 more such literals from still-`INCLUDE_ASM`
+siblings), and "reset\n" sits at 0x63A738 — six literals in.  Carving the
+full run would have put the object's single anonymous constant at 0x63A710.
+So the carve is the narrow 8 bytes at 0x63A738 exactly.
+
+**Structural debt this creates (one item):** by the one-contiguous-run-per-(TU,
+section) rule, `src/commonact` has now spent its `.sdata` slot on 8 of its 208
+bytes.  Widening it to the full run needs the other ~17 literals' owners in C
+first, in VMA order, and the widened carve must then start at 0x63A710 with
+the FIRST of those literals.  Nothing else in this batch is foreclosed:
+the 12 `.lit4` carves each cover their TU's complete pool run.
+
+### One crutch rode in with a ported body and was retired
+
+`src/way_util`'s ntsc bodies carried
+`extern void sceVu0SubVector__pn(void*,void*,void*) __asm__("sceVu0SubVector");`
+alongside the TU's existing K&R `extern void sceVu0SubVector();` — the
+`<name>__<suffix>` second-alias-for-an-already-declared-symbol form CLAUDE.md
+names as the gcse-bucket tell.  Deleted and every call routed through the
+plain declaration: `ninja` still `verify_elf: OK`, so the alias emitted no
+bytes and steered nothing that matters.  Nothing else in the 32 ported bodies
+trips the ban.
+
+### Tooling fixed on the way (both were `us`/`aug6`-only)
+
+- `tools/find_carves.py` — `ASM_ROOT` resolved to `asm/pal` (the yaml says
+  `asm`) and `SRC_ROOTS` fell through to the aug6 per-programmer tree, so it
+  scanned nothing on this branch.  `pal` now shares the flat retail roots.
+- `tools/map_data_tus.py` — hard-coded `config/ico.us.yaml`; now picks the
+  yaml from `tools/ico_version.detect_version()`.
+
+### Not attempted here
+
+The other data the 12 TUs own (`.data` / `.rodata` runs, and `.sdata` beyond
+the one literal) is untouched: none of the 32 reverted bodies needed it.  The
+Phase-6 full-run `.rodata` model has not been started on PAL at all — every
+`.rodata` byte is still in the `src/cod/44D380` blob.
+

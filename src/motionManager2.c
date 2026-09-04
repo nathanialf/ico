@@ -14,6 +14,7 @@ typedef struct { long long d[2]; float q[4]; } StreamElem;
 typedef struct { int idx; char pad[0x1C]; float q[4]; char pad2[0x10]; } StreamNode;
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetWaterReaction);
+ASM_LIT4_SLOT(D_00638B3C, 1.0000001e-06f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", dispPlane);
 extern void CopyVector();
 
@@ -54,6 +55,7 @@ void _GetMotionDirection(int a0, int a1)
     GetGlobalDirectionOrient(a0, a1, (int)((GObj *)(a1))->p_15C + 0x520);
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SetMotionDirectionWithLimit);
+ASM_LIT4_SLOT(D_00638B40, 10430.378f);
 extern void SubVectorXYZ();
 
 void GetRootPosOfNextFrame(int a0, int *a1)
@@ -74,14 +76,42 @@ void AdjustMotionHeightToField(int *a0) {
     *(float *)(sub + 0x1B4) = GetYProjectionOfPlane(o + 0x1D0, o + 0x250);
     debug_StdPrintfDummy(D_0054D860);
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetLowerPlaneCollision);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", getLowerPlaneCollisionE);
+extern void ClipFloor();
+
+void GetLowerPlaneCollision(int a0, int a1)
+{
+    CopyVector(a0, a1);
+    CopyVector(a0 + 0x10, a0);
+    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
+    ClipFloor(a0);
+}
+extern void ClipFloorE();
+
+void getLowerPlaneCollisionE(int a0, int a1)
+{
+    CopyVector(a0, a1);
+    CopyVector(a0 + 0x10, a0);
+    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
+    ClipFloorE(a0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", calcFootIK);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", InitMotionGeoInfo);
+ASM_LIT4_SLOT(D_00638B4C, 10430.378f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", dispSkeltonHierarchy);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", DispSkelton);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SlopeIKControl);
+ASM_LIT4_SLOT(D_00638B50, 0.2f);
+ASM_LIT4_SLOT(D_00638B54, 0.45f);
+ASM_LIT4_SLOT(D_00638B58, 1.1f);
+ASM_LIT4_SLOT(D_00638B5C, 0.3f);
+ASM_LIT4_SLOT(D_00638B60, 0.3f);
+ASM_LIT4_SLOT(D_00638B64, 0.2f);
+ASM_LIT4_SLOT(D_00638B68, 0.45f);
+ASM_LIT4_SLOT(D_00638B6C, 1.1f);
+ASM_LIT4_SLOT(D_00638B70, 0.3f);
+ASM_LIT4_SLOT(D_00638B74, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetPureVerticalPlaneOfCurrentPosition);
+ASM_LIT4_SLOT(D_00638B78, -0.1f);
 extern void GetWallGlobalInfo();
 extern void _NormalizeVector();
 
@@ -99,6 +129,7 @@ void getVerticalElementOfWallNormal(int *self, int *p, int *cfg)
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", AdjustVerticalSidePlaneOfWall);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetPureVerticalPlane);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _getS16MotRotElem);
+ASM_LIT4_SLOT(D_00638B7C, 0.001f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _getMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetStreamMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", copyMotionWithNodeHrc);
@@ -148,6 +179,7 @@ int GetCollisionOfLastActiveField(char *self) {
     return ((GObj *)(self))->p_15C->f_1E0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CheckFieldContact);
+ASM_LIT4_SLOT(D_00638B80, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", DebugDisp1Collision);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", DebugDisp1CollisionWithColor);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SetMotionBlendlessNode);

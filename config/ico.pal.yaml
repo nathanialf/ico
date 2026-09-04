@@ -380,7 +380,44 @@ segments:
       - [0x18ED00, data, src/cod/18ED00]     # .data blob (to be carved per TU)
       - [0x44D380, rodata, src/cod/44D380]   # .rodata blob
       - [0x538B00, lit4, src/cod/538B00]     # .lit4
+      # --- per-TU .lit4 constant-pool carves (see decomp/NOTES.md ".lit4 pools",
+      # decomp/carve_ledger.md "PAL phase 1").  A TU that writes its float
+      # constants as INLINE LITERALS makes ee-as intern them into that TU's own
+      # anonymous `.lit4`; a dot-form subsegment here anchors that pool at its
+      # shipped VMA.  The WHOLE carved run must be produced by the TU's object —
+      # slots whose owner is still INCLUDE_ASM are emitted by ASM_LIT4_SLOT().
+      - [0x538B0C, .lit4, src/matrixDrive]   # carved D_00638B0C..D_00638B38 (12 slots, all 0.01f, one per MatrixDrive_Turn*/GetTurn* fn), VMA 0x638B0C..0x638B3C, 48 B; MAIN.MAP matrixDrive.o .lit4 0x30 agrees.  USA: - [0x53090C, .lit4, src/matrixDrive]    # carved D_0063090C..D_00630940 (14 slots, MatrixDrive_PopMatrix + 13 asm), VMA 0x63090C..0x630944
+      - [0x538B3C, .lit4, src/motionManager2]# carved D_00638B3C..D_00638B80 (18 slots, GetWaterReaction..CheckFieldContact, 10 of them SlopeIKControl's), VMA 0x638B3C..0x638B84, 72 B; MAIN.MAP motionManager2.o .lit4 0x48 agrees.  USA: - [0x530944, .lit4, src/motionManager2]# carved D_00630944..D_00630980 (16 slots, SetMotionDirectionWithLimit + GetRootPosOfNextFrame + 14 asm), VMA 0x630944..0x630984
+      - [0x538B84, lit4, src/cod/538B84]     # .lit4 blob resume
+      - [0x538CC8, .lit4, src/act-game]  # carved D_00638CC8..D_00638D0C (18 slots, 15 fns EXITDATA_GetNextPosition..ACTCheckViewClDetail), VMA 0x638CC8..0x638D10, 72 B; MAIN.MAP act-game.o .lit4 is 0x40 (different link; PAL ELF is authoritative).  USA: - [0x530AEC, .lit4, src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
+      - [0x538D10, lit4, src/cod/538D10]     # .lit4 blob resume
+      - [0x538E3C, .lit4, src/commonact]  # carved D_00638E3C..D_00638EF0 (46 slots, 15 fns GetCorrectOrientOfChain..func_00163250; 13x 0.1f, 10x pi), VMA 0x638E3C..0x638EF4, 184 B; MAIN.MAP commonact.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).  USA: - [0x530C28, .lit4, src/commonact]     # carved D_00630C28..D_00630CDC (46 slots, _boxbar_set_sound + func_0015DF88 + 44 asm), VMA 0x630C28..0x630CE0
+      - [0x538EF4, .lit4, src/enemy_act]  # carved D_00638EF4..D_00638F58 (26 slots, 10 fns _MustChase..func_00169498), VMA 0x638EF4..0x638F5C, 104 B; MAIN.MAP enemy_act.o .lit4 0x68 agrees.  USA: - [0x530CE0, .lit4, src/enemy_act]     # carved D_00630CE0..D_00630D48 (27 slots, actEnemyForceSwitchToCarry + 26 asm), VMA 0x630CE0..0x630D4C
+      - [0x538F5C, lit4, src/cod/538F5C]     # .lit4 blob resume
+      - [0x539060, .lit4, src/way_util]  # carved D_00639060..D_0063908C (12 slots, all 100000.0f, one per waypoint-search fn nearest_waypoint_of_group..visible_waypoint_from_gobj), VMA 0x639060..0x639090, 48 B; MAIN.MAP way_util.o .lit4 0x30 agrees.  USA: - [0x530E3C, .lit4, src/way_util]    # carved D_00630E3C..D_00630E68 (12x 100000f, one per waypoint-search func), VMA 0x630E3C..0x630E6C
+      - [0x539090, lit4, src/cod/539090]     # .lit4 blob resume
+      - [0x5390D4, .lit4, src/st25a]  # carved D_006390D4..D_00639104 (13 slots, 7 fns actConte11..func_00187DF0), VMA 0x6390D4..0x639108, 52 B; MAIN.MAP st25a.o .lit4 is 0x44 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
+      - [0x539108, lit4, src/cod/539108]     # .lit4 blob resume
+      - [0x539230, .lit4, src/act_bird]  # carved D_00639230..D_00639290 (25 slots, 5 fns interp_vector_sa..vector_angle_degree; 8x 2*pi), VMA 0x639230..0x639294, 100 B; MAIN.MAP act_bird.o .lit4 0x64 agrees.  USA: - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
+      - [0x539294, lit4, src/cod/539294]     # .lit4 blob resume
+      - [0x539338, .lit4, src/debug]  # carved D_00639338..D_00639354 (8 slots, 6 fns debug_Load..drawWin), VMA 0x639338..0x639358, 32 B; MAIN.MAP debug.o .lit4 is 0x18 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
+      - [0x539358, lit4, src/cod/539358]     # .lit4 blob resume
+      - [0x539360, .lit4, src/layout_action]  # carved D_00639360..D_00639368 (3 slots, la_load_processing / la_get_next_stage_name / la_switching_stage), VMA 0x639360..0x63936C, 12 B; MAIN.MAP layout_action.o .lit4 is 0x8 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
+      - [0x53936C, lit4, src/cod/53936C]     # .lit4 blob resume
+      - [0x5396A8, .lit4, src/staticBlur]  # carved D_006396A8..D_006396AC (2 slots: 0.9f eyeBlur, 1000000.0f calcSun), VMA 0x6396A8..0x6396B0, 8 B; MAIN.MAP staticBlur.o .lit4 0x8 agrees.  USA: - [0x5313D8, .lit4, src/staticBlur]    # carved D_006313D8/13DC (0.9f, 1000000f), VMA 0x6313D8..0x6313E0
+      - [0x5396B0, lit4, src/cod/5396B0]     # .lit4 blob resume
+      - [0x539B18, .lit4, src/stageSEProc]  # carved D_00639B18..D_00639C40 (75 slots, 30 fns stageSE04eriver..stageSE47anoise), VMA 0x639B18..0x639C44, 300 B; MAIN.MAP stageSEProc.o .lit4 is 0x138 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
+      - [0x539C44, lit4, src/cod/539C44]     # .lit4 blob resume
       - [0x539C80, sdata, src/cod/539C80]    # .sdata
+      # --- per-TU .sdata carves ---
+      # gcc routes a <=8-byte string constant to .sdata (mips_select_section) and
+      # never gp-addresses it, so the ROM reaches it with a %hi/%lo pair.  The
+      # constant is ANONYMOUS (no VAR_DECL), so -fdata-sections gives it no
+      # .sdata.<sym> of its own: it lands in the object's plain .sdata, which the
+      # carve's (.sdata*) glob claims FIRST — hence the carve must start exactly at
+      # the literal's own VMA, and holds only literals the TU's C actually emits.
+      - [0x53A738, .sdata, src/commonact]     # carved D_0063A738 ("reset\n", afterCommonBar's string literal) + ROM's 1 pad byte, VMA 0x63A738..0x63A740, 8 B.  NARROW: commonact's full .sdata run is 0x63A710..0x63A7E0 (208 B, ~17 more <=8-byte string literals whose owners are still INCLUDE_ASM); the one-run-per-(TU,section) rule means widening it later needs those bodies in C first.  MAIN.MAP commonact.o .sdata is 0x6d (a different link; the PAL ELF's own run is 0xd0).  USA: - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes); D_006322F0 is func_0015F578's "reset\n" string literal, the other 4 are sidecar objects
+      - [0x53A740, sdata, src/cod/53A740]    # .sdata blob resume
       - { type: sbss, vram: 0x0063C100, name: src/cod/0063C100, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
       - { type: bss,  vram: 0x0063C600, name: src/cod/0063C600, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
   - [0x53C0F6]

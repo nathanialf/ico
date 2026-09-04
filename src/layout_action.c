@@ -29,6 +29,7 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_confirm_no_memory_card
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_confirm_no_data);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_start_check);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_processing);
+ASM_LIT4_SLOT(D_00639360, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_mc_confirm_save_file);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_save_game_memory_card_check);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", progressive_bar);
@@ -39,6 +40,7 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_format_confirm);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_system_save_processing);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_save_processing);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_end_confirm);
+ASM_LIT4_SLOT(D_00639364, 0.025f);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_delete_processing);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_loop);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_over_continue);
@@ -130,7 +132,16 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_playtime_count);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_demo);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_demo_pause);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_pause);
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_switching_stage);
+extern int D_0063B4EC;
+extern int fightSoundPlayChk(void);
+extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
+
+int la_switching_stage(void) {
+    if (fightSoundPlayChk() == 0) {
+        stgmgrForceSwitchWithFade(0.4f, 4.0f, D_0063B4EC);
+    }
+    return -1;
+}
 int la_save_confirm_yesno(void)
 {
     if (D_0028F8F4[0] & 0x10) {

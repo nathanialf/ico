@@ -1,5 +1,15 @@
 #include "common.h"
 
+typedef struct {
+    float a[4];
+    float b[4];
+    char pad0[0x70 - 0x20];
+    float f70;
+    char pad1[0x88 - 0x74];
+    int f88;
+    char pad2[0xC0 - 0x8C];
+} ClipBox;
+
 typedef struct { int pad[8]; int f20; int pad2[7]; } WPElem;
 typedef struct { int f0; int f4; int i8; int iC; int f10; int f14; int i18; int f1C; int i20; int i24; } WPNode;
 
@@ -63,13 +73,172 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path_ThreadVersion);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", GetWgAll);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", set_check_wp);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", set_bridge);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_group);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint);
+extern int WayPointList_begin();
+extern int WayPointList_next();
+extern float fzMagnitudefv(int a0);
+extern void sceVu0SubVector();
+
+char *nearest_waypoint_of_group(int *arg0, int handle)
+{
+    int buf[4];
+    char *t = WayPointList_begin(handle);
+    float bestDist = 100000.0f;
+    char *best, *cur;
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            sceVu0SubVector(buf, (int *)(cur + 0x10), arg0);
+            d = fzMagnitudefv((int)buf);
+            if (d < bestDist) {
+                bestDist = d;
+                best = cur;
+            }
+            cur = WayPointList_next(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
+extern int D_0063BD78;
+
+char *nearest_waypoint(int *a0) {
+    int buf[4];
+    char *t = WayPointList_begin(D_0063BD78);
+    float bestDist = 100000.0f;
+    char *best, *cur;
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            sceVu0SubVector(buf, (int *)(cur + 0x10), a0);
+            d = fzMagnitudefv((int)buf);
+            if (d < bestDist) {
+                bestDist = d;
+                best = cur;
+            }
+            cur = WayPointList_next(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_from_gobj);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_of_group);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_of_group_from_gobj);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_from_gobj);
+ASM_LIT4_SLOT(D_00639068, 100000.0f);
+extern WayGrp D_004F1EC0[];
+extern float fzMagnitudeByLineSeg(void *a0, void *a1, void *a2);
+
+char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid)
+{
+    WayGrp *g = &D_004F1EC0[gid];
+    char *cur = g->f8;
+    float bestDist = 100000.0f;
+    char *best = 0;
+    char *next, *n;
+    next = *(char **)(cur + 0xC);
+    if (next == 0) goto out;
+    if (next == cur) goto out;
+    do {
+        float d = fzMagnitudeByLineSeg(cur + 0x10, next + 0x10, arg0);
+        if (d < bestDist) {
+            bestDist = d;
+            best = cur;
+        }
+        cur = *(char **)(cur + 0xC);
+        n = *(char **)(cur + 0xC);
+        next = n;
+        if (n == 0) goto out;
+    } while (n != cur);
+out:
+    return best;
+}
+char *nearest_waypoint_by_lineseg(void *arg0)
+{
+    WayGrp *g = &D_004F1EC0[D_0063BD78];
+    char *cur = g->f8;
+    float bestDist = 100000.0f;
+    char *best = 0;
+    char *next, *n;
+    next = *(char **)(cur + 0xC);
+    if (next == 0) goto out;
+    if (next == cur) goto out;
+    do {
+        float d = fzMagnitudeByLineSeg(cur + 0x10, next + 0x10, arg0);
+        if (d < bestDist) {
+            bestDist = d;
+            best = cur;
+        }
+        cur = *(char **)(cur + 0xC);
+        n = *(char **)(cur + 0xC);
+        next = n;
+        if (n == 0) goto out;
+    } while (n != cur);
+out:
+    return best;
+}
+extern void GetRootPosition(void *a0, void *a1);
+
+char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid)
+{
+    int mtx[4];
+    int *pos;
+    GetRootPosition(mtx, dobj);
+    pos = mtx;
+    {
+        float bestDist = 100000.0f;
+        char *best = 0;
+        WayGrp *g = &D_004F1EC0[gid];
+        char *cur = g->f8;
+        char *next, *n;
+        next = *(char **)(cur + 0xC);
+        if (next == 0) goto out;
+        if (next == cur) goto out;
+        do {
+            float d = fzMagnitudeByLineSeg(cur + 0x10, next + 0x10, pos);
+            if (d < bestDist) {
+                bestDist = d;
+                best = cur;
+            }
+            cur = *(char **)(cur + 0xC);
+            n = *(char **)(cur + 0xC);
+            next = n;
+            if (n == 0) goto out;
+        } while (n != cur);
+out:
+        return best;
+    }
+}
+char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
+{
+    int mtx[4];
+    int gid = D_0063BD78;
+    int *pos;
+    GetRootPosition(mtx, dobj);
+    pos = mtx;
+    {
+        float bestDist = 100000.0f;
+        char *best = 0;
+        WayGrp *g = &D_004F1EC0[gid];
+        char *cur = g->f8;
+        char *next, *n;
+        next = *(char **)(cur + 0xC);
+        if (next == 0) goto out;
+        if (next == cur) goto out;
+        do {
+            float d = fzMagnitudeByLineSeg(cur + 0x10, next + 0x10, pos);
+            if (d < bestDist) {
+                bestDist = d;
+                best = cur;
+            }
+            cur = *(char **)(cur + 0xC);
+            n = *(char **)(cur + 0xC);
+            next = n;
+            if (n == 0) goto out;
+        } while (n != cur);
+out:
+        return best;
+    }
+}
 extern int D_0063BD78;
 extern int WayPointList_begin();
 extern int WayPointList_next();
@@ -91,9 +260,82 @@ char *waypoint_with_range(int *arg0, float thresh)
 ret0:
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_all_except_group);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_all_not_bridge_except_group);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_all);
+extern char *WayPoint_begin(void);
+extern int WayPoint_next(int a0);
+
+char *nearest_waypoint_of_all_except_group(int *arg0, int a1) {
+    int buf[4];
+    char *t = WayPoint_begin();
+    float bestDist = 100000.0f;
+    char *best, *cur;
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            if (*(int *)(cur + 0x20) != a1) {
+                sceVu0SubVector(buf, (int *)(cur + 0x10), arg0);
+                d = fzMagnitudefv((int)buf);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = WayPoint_next(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
+extern unsigned char D_004F1ED8[];
+
+char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid) {
+    int buf[4];
+    char *t = WayPoint_begin();
+    float bestDist = 100000.0f;
+    char *best, *cur;
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            int g = *(int *)(cur + 0x20);
+            if (g != gid && *(int *)(D_004F1ED8 + g * 0x34) != 1) {
+                float d;
+                sceVu0SubVector(buf, (int *)(cur + 0x10), arg0);
+                d = fzMagnitudefv((int)buf);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = WayPoint_next(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
+char *nearest_waypoint_of_all(int *a0) {
+    int buf[4];
+    int neg1 = -1;
+    char *t = WayPoint_begin();
+    float bestDist = 100000.0f;
+    char *best, *cur;
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            if (*(int *)(cur + 0x20) != neg1) {
+                sceVu0SubVector(buf, (int *)(cur + 0x10), a0);
+                d = fzMagnitudefv((int)buf);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = WayPoint_next(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
 extern char *visible_waypoint_of_all_except_gid(int *arg0, int gid);
 
 int visible_waypoint_of_all(void *a0) {
@@ -106,8 +348,42 @@ void visible_waypoint_of_all_from_gobj(void *a0) {
     GetRootPosition(buf, a0);
     visible_waypoint_of_all_except_gid(buf, -1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint);
+extern void ClipWall(void *);
+extern void sceVu0CopyVector(void *buf, int x);
+
+char *visible_waypoint(int *arg0, int handle)
+{
+    int buf[4];
+    ClipBox cb;
+    float bestDist;
+    char *best = 0;
+    char *cur;
+    cb.f70 = 50.0f;
+    cur = WayPointList_begin(handle);
+    bestDist = 100000.0f;
+    if (cur != 0) {
+        do {
+            float d;
+            sceVu0SubVector(buf, (int *)(cur + 0x10), arg0);
+            d = fzMagnitudefv((int)buf);
+            if (d < bestDist) {
+                sceVu0CopyVector(cb.a, arg0);
+                sceVu0CopyVector(cb.b, cur + 0x10);
+                cb.a[1] -= 75.0f;
+                cb.b[1] -= 75.0f;
+                ClipWall(&cb);
+                if (cb.f88 == 0) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = WayPointList_next(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_from_gobj);
+ASM_LIT4_SLOT(D_0063908C, 100000.0f);
 extern WayGrp D_004F1EC0[];
 extern Nd D_004F31E0[];
 

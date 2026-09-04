@@ -24,6 +24,7 @@ typedef union { int i; float f; } IntFloat;
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_DeleteActorInformation);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", EXITDATA_GetNextPosition);
+ASM_LIT4_SLOT(D_00638CC8, 0.017453292f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObj);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetActors_Debug);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_TryConnectHand);
@@ -38,7 +39,10 @@ void ACTGame_DisconnectHand_WithMail(void)
     debug_StdPrintfDummy(D_005523F0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckView);
+ASM_LIT4_SLOT(D_00638CCC, 0.8f);
+ASM_LIT4_SLOT(D_00638CD0, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_Loop);
+ASM_LIT4_SLOT(D_00638CD4, 5000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_LwsEffectProcess);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTGame_SearchGObj);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTarget_Exec);
@@ -51,14 +55,23 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_BeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", FunctionAboutClingedStatus);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTEnvGetTest);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ActOrientTest);
+ASM_LIT4_SLOT(D_00638CD8, -1.5707964f);
+ASM_LIT4_SLOT(D_00638CDC, 1.5707964f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", GetGirlHandlinkClInfo);
+ASM_LIT4_SLOT(D_00638CE0, 12100.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", hand_able_connect);
+ASM_LIT4_SLOT(D_00638CE4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CommonLoop);
+ASM_LIT4_SLOT(D_00638CE8, 160000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", GetTarget);
+ASM_LIT4_SLOT(D_00638CEC, 0.3f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTargetSystem_Exec);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemThrow);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemWatchMotion);
+ASM_LIT4_SLOT(D_00638CF0, 0.2f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_InsertCamera_GirlIsPinch);
+ASM_LIT4_SLOT(D_00638CF4, 22500.0f);
+ASM_LIT4_SLOT(D_00638CF8, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", updateHMC);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", RequestChangeHandMode);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTNotNeedCameraOffset);
@@ -89,7 +102,17 @@ void ACTGame_StageChangeGObjID(char *self, char *other, int idx)
     EXITDATA_GetNextPosition(idx, tmp_a, tmp_b);
     gamesysObjInfoPosNewStageSet(self, other, D_0055C518[idx][9], tmp_a, tmp_b);
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObjDirect);
+extern void memset(void *a0, int a1, int a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+
+void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3) {
+    char buf0[0x10];
+    char buf1[0x10];
+    memset(buf1, 0, 0x10);
+    *(float *)(buf1 + 4) = (float)a3 * 3.1415927f / 180.0f;
+    sceVu0ScaleVector(buf0, a2, -1.0f);
+    gamesysObjInfoPosNewStageSet((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_LIFEPINCH);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_TETSUNAGI);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_TETSUNAGI_VISUAL);
@@ -223,6 +246,7 @@ int ACTCheckCollis_CI(int a0, int a1, int *a2, char *a3)
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WELL);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WAY);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewCl);
+ASM_LIT4_SLOT(D_00638D00, 25000000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_FirstSet);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_Add);
 int ACTGameView_Check(int a0, int a1)
@@ -312,6 +336,7 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SendSoundMail);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_LwsEffectInit);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_LwsEffect_Guard);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ActGame_GetOrientQ);
+ASM_LIT4_SLOT(D_00638D04, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _GetRootObjectOrient);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemForceDrop);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", GetOtherStageGirlOrient);
@@ -319,7 +344,9 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTChkAttackIgnore_BOY);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTChkAttackIgnore_GIRL);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTChkAttackIgnore_ENEMY);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_VIEW);
+ASM_LIT4_SLOT(D_00638D08, 25000000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewClDetail);
+ASM_LIT4_SLOT(D_00638D0C, 25000000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Clear);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Exec);
 extern int D_00639D10;
