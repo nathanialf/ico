@@ -352,8 +352,8 @@ def emit_runs(tu, carves, elf, secs):
                                    f"port that function first")
                 if s == ".lit4":
                     bad.append(f"    {sym}: named .lit4 float compiles to .sdata "
-                               f"under -G8; needs the (single-entry-only) "
-                               f"config/lit4_pool_slots.txt rename")
+                               f"under -G8; a .lit4 pool slot cannot be carved "
+                               f"(the per-TU rename config was retired 2026-09-04)")
             print(f"\n-- run 0x{start:X}..0x{end:X} ({end - start} bytes, "
                   f"{len(run)} syms){'  [BLOCKED]' if bad else ''}")
             if bad:

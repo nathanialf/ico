@@ -39,24 +39,24 @@ Functional / shared dirs (not a single person): `common`, `script`, `sound`,
   (`sekizo` = stone statue, `sekika` = petrification), **not** the name. The clean
   source is the `{R}`-formatted credit block, not a substring count.
 
-## Retail vs prototype tree shape (work the prototype first)
+## Retail vs prototype tree shape
 
-The per-programmer layout above describes the **prototype** (the `aug6` tree,
-now `main`). The **retail** build (`retail` branch, SLUS-20218) does **not**
-preserve those directory boundaries: its source tree appears to be a
-**collapsed/flattened** version of the prototype — the per-programmer folders
-have been merged together, so the clean `seki`/`sugipon`/`omori`/`ito`/`fumi`
-split is no longer legible from the retail TU layout, and the TU↔function
-mapping there is correspondingly **murkier** (function boundaries and file
-ownership are harder to infer directly).
+The per-programmer layout above describes the **prototype** (the `aug6`
+branch). The two retail builds do **not** preserve those directory boundaries:
+their source tree is a collapsed/flattened version of the prototype, with the
+per-programmer folders merged, so the `seki`/`sugipon`/`omori`/`ito`/`fumi`
+split is not legible from the retail TU layout itself.
 
-Practical consequence for matching strategy: **match everything in the
-prototype first**, where the author dirs and TU boundaries are clear and the
-per-author idioms above are most useful. Once the prototype is fully matched,
-that recovered TU mapping and source-shape knowledge can be **back-ported** to
-retail — re-using the prototype's matched C as the starting point for the
-collapsed retail TUs rather than re-deriving boundaries blind. Don't burn effort
-reverse-engineering retail's TU split up front; let the prototype supply it.
+That no longer costs anything on `main`. The PAL disc ships its own build
+listing, so PAL's TU boundaries, file names and per-file function order are
+read directly from it (`tools/gen_pal_symbol_addrs.py`,
+`tools/gen_pal_source_tree.py` → local `decomp/pal_source_tree.md`) rather than
+inferred. Use the author map below for **idioms**, not for boundaries: the
+listing supplies the boundaries.
+
+The historical strategy note ("match the prototype first, back-port to
+retail") is spent — both port passes are complete (`decomp/port_ledger_pal.md`,
+`decomp/port_ledger_pal_aug6.md`) and the port drivers are retired.
 
 ## What this does and does NOT tell us about the build
 
@@ -66,10 +66,9 @@ reverse-engineering retail's TU split up front; let the prototype supply it.
   scheduling once a return-value `addu` interleaves — `-O2` is shape-sensitive,
   not "always ascending"). So the modules differ by **author/style, not compiler
   flags**.
-- The lone holdout, `voBufIncCount` (ito/mpeg/mv_vobuf), is reproduced as Ito's
-  **hand-written asm** (a trivial counter-reset with an unfilled `jr` delay — a
-  human-scheduling signature a -O2 compiler won't produce). See
-  `tough_nuts/voBufIncCount/notes.md`.
+- The lone holdout, `voBufIncCount` (`ito/mpeg/mv_vobuf`), is reproduced as
+  Ito's **hand-written asm** (a trivial counter-reset with an unfilled `jr`
+  delay — a human-scheduling signature a -O2 compiler won't produce).
 
 ## Practical use for matching
 

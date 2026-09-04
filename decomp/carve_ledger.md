@@ -1,82 +1,29 @@
-# Phase 5 — per-TU data carve ledger (retail-v2)
+# Per-TU data carve ledger
 
-Tracks noncontiguous-data carves landed under the aug6 carved-subsegment
-convention (`decomp/NOTES.md` §"Noncontiguous data"). One entry per TU:
-sections carved, symbol count, source of types, and any SHARED symbols
-left in the blob for a future pass. Kept small by design — this is an
-index, not a diff dump; `git log` has the byte-level detail per commit.
+The RULES for carving noncontiguous data (`decomp/NOTES.md` §"Noncontiguous
+data"), the blockers that produced them, and this branch's landed carves.
 
-Tooling: `tools/find_carves.py <tu>` (version-aware via `tools/ico_version.py`
-— auto-detects `us` vs `aug6`, same CARVE/SHARED/BLOCKED classification on
-both) is the source of truth for what's safe to carve. `--emit` groups the
-CARVE rows into CONTIGUOUS runs and prints, per run, the dot-form yaml pair
-(carve + blob resume) plus byte-verified C definitions — or marks the run
-`[BLOCKED]` with the mechanical reason it cannot be carved as-is (see
-"Root cause of Blocker 2").
+**Scope.** The rules are target-neutral. The landed inventory here is
+**PAL phase 1** at the bottom; everything before it is rule-bearing.
 
-## Batch 1 — jtbl queue (Phase 4 deferral, reason `jtbl`)
+**USA phases (history — the per-batch inventories live on `ntsc`).** Five
+batches ran on the USA retail target between 2026-07 and 2026-08: a jtbl
+queue, a `src/PObj` probe, a 6-TU batch, a 30-TU jtbl sweep, and a vendor
+member-boundary re-carve; then Phase 6 replaced the whole per-jtbl treadmill
+with full-run per-TU `.rodata` carves. Their TU-by-TU tables and successor
+queues are in `decomp/ARCHIVE_retired_notes.md`; what they taught is kept
+here in full — the gas `2**4` alignment floor, ONE carved run per
+(TU, section), the three source-spelling traps, the addressing-mode flip a
+carve can cause in an already-compiled sibling, the two mechanisms that decide
+what is carvable, region END vs splat's dlabel, and the full-run model.
+Carves are **never portable by address** between targets (PAL: .data −133 KB,
+.rodata +59 KB vs USA) — re-derive with `tools/find_carves.py`.
 
-Four TUs, one contiguous `.rodata` carve each, landed together with the
-`tools/port_from_aug6.py` body ports (`decomp/port_ledger.md` has the
-per-function port detail / hand-fixes). `tools/build.sh setup && ninja`
-green from a clean rebuild; `tools/check_no_rom.sh` clean.
-
-| TU | carve (ROM off, VMA range) | symbol(s) | body port |
-|---|---|---|---|
-| `src/Packet` | `[0x454E00, .rodata]`, VMA 0x554E00..0x554E44 | `jtbl_00554E00` (17 entries, 0x44) — `pac_setVifEndCode`'s switch | PORTED, clean rebind |
-| `src/debug_exception` | `[0x515090, .rodata]`, VMA 0x615090..0x6150D4 | `jtbl_00615090` (17 entries, 0x44) — `initLineTraceTable`'s switch | PORTED, clean rebind |
-| `src/girl_act` | `[0x459950, .rodata]`, VMA 0x559950..0x559A5C | `jtbl_00559950` (67 entries, 0x10C) — `actGirlHang`'s switch | PORTED, hand-fixed (see below) |
-| `src/motionOrientManager` | `[0x5196C8, .rodata]`, VMA 0x6196C8..0x619734 | `D_006196C8` (0x18, debug fmt string) + `jtbl_006196E0` (21 entries, 0x54) — `shiftMotionOrientEndFunc`'s switch | carve landed, function LEFT ASM (see below) |
-| `src/StageAnimation` | `[0x455990, .rodata]`, VMA 0x555990..0x5559B8 | `jtbl_00555990` (10 entries, 0x28) — `stage_Init`'s switch | carve landed 2026-07-31, function LEFT ASM |
-
-Every jtbl VMA/entry-count was hand-verified against `baserom/baseelf.rom`
-before landing: decoded every `.word` in the table, confirmed each target
-address lands inside the owning function's own `.text` range (rules out
-misattributing a neighboring function's data). `pac_makeNormalStrip`
-(`src/Packet`'s OTHER jtbl skip, `jtbl_00554DB0`) is intentionally NOT
-carved — it's `INCLUDE_ASM` on aug6 too (never matched upstream), so there
-is no reference body to port and no payoff yet from carving just its table.
-
-### `src/girl_act` / `actGirlHang` — hand-fix detail
-
-Reference: PROTOTYPE-VS-RETAIL struct-layout drift, not a rebind bug.
-`port_from_aug6.py`'s mechanical rebind isn't enough when the field being
-accessed literally moved between the aug6 build and retail. Four literal
-offsets changed (all re-derived from
-`asm/nonmatchings/src/girl_act/actGirlHang.s`, not guessed):
-`SUB(g)+0x134`->`+0x144`, `REF(g)+0x490`->`+0x4A0`, `SUB(g)+0x678` chain's
-inner `+0x3E8`->`+0x408` (both occurrences), and the case-36 comparison
-constant `0x54`->`0x55`. Also needed the aug6 body's function-local
-`#define SUB(g)`/`#define REF(g)` macro pair re-added by hand — the port
-splice doesn't carry sibling `#define`/`#undef` lines, so without them
-`SUB(g)`/`REF(g)` silently compiled as implicit undeclared-function calls
-(ee-gcc 2.9 K&R implicit int) instead of failing loudly.
-
-### `src/motionOrientManager` / `shiftMotionOrientEndFunc` — NOT ported, resume note
-
-The carve is landed (jtbl + its string neighbor own their bytes now,
-function stays `INCLUDE_ASM`). The body port does not close cleanly:
-
-- `REF(g)+0x490`->`+0x4A0`: same struct-offset drift as actGirlHang (same
-  field, same delta) — confirmed correct in isolation.
-- Remaining blocker is NOT a literal/offset issue: recompiling the
-  (offset-corrected) aug6 body cross-jump-merges several of the switch's
-  21 case bodies into a shared call trailer (gcc tail-merging structurally
-  identical `func_00264DF8(buf, D_X); break;` arms), while the retail ROM
-  keeps every case's `lui/daddu/jal/addiu` sequence fully inlined before
-  branching to the shared `display()` tail. This is a whole-function
-  codegen-shape difference, not a rebind/const-value fix — needs a proper
-  `decomp-match`/`decomp-convergence` pass on the switch's case-body
-  source shape (e.g. break the cross-jump candidacy per case), not another
-  mechanical port attempt.
-- `D_006196C8` (the format string immediately before the jtbl) needed a
-  REAL typed definition (`const char D_006196C8[0x18] = "%s \207 %s (%s)\n";`,
-  0x18 bytes = string + ROM's own null-pad to the jtbl's `.align 3`
-  boundary) even with the function left unported: the RAW ROM disassembly
-  itself carries a `%hi/%lo(D_006196C8)` reference (the still-asm function
-  loads the string's address for its `display()` call), and once the byte
-  range is carved out of the blob there is no other source for that symbol
-  to resolve against.
+Tooling: `tools/find_carves.py <tu>` (version-aware via `tools/ico_version.py`)
+is the source of truth for what's safe to carve. `--emit` groups the CARVE rows
+into CONTIGUOUS runs and prints, per run, the dot-form yaml pair (carve + blob
+resume) plus byte-verified C definitions — or marks the run `[BLOCKED]` with the
+mechanical reason it cannot be carved as-is (see "Root cause of Blocker 2").
 
 ## Root cause of Blocker 2 — FOUND AND FIXED (2026-07-28, branch `carve-fix`)
 
@@ -177,30 +124,6 @@ copy) and Blocker 3 (named `.lit4` float compiles to `.sdata`) are real and
 untouched. `find_carves.py --emit` now flags both up front instead of letting
 them surface as an assembly/link error.
 
-### Proof batch (this commit)
-
-Nine plain named-data dot-form carves, 6 TUs, 2 sections, landed together —
-`tools/build.sh setup` (clean `rm -rf build` rebuild) + `ninja` →
-`verify_elf: OK (fbf50c75…)`, `check_no_rom.sh` clean:
-
-| TU | section | VMA range | bytes | syms |
-|---|---|---|---|---|
-| `src/commonact` | `.data` | 0x282390..0x282400 | 112 | 5 |
-| `src/chain` | `.data` | 0x28AFB0..0x28B100 | 336 | 3 |
-| `src/debug` | `.data` | 0x4B30F8..0x4B3108 | 16 | 1 |
-| `src/box` | `.data` | 0x4BF460..0x4BF7C0 | 864 | 10 |
-| `src/staticBlur` | `.data` | 0x4C61A0..0x4C61F0 | 80 | 5 |
-| `src/st47a` | `.data` | 0x4D3A30..0x4D3E50 | 1056 | 33 |
-| `src/commonact` | `.sdata` | 0x6322F0..0x632310 | 32 | 5 |
-| `src/chain` | `.sdata` | 0x632758..0x632770 | 24 | 4 |
-| `src/debug` | `.sdata` | 0x632A18..0x632A30 | 24 | 4 |
-
-(Plus the pre-existing `src/PObj` `.data` carve and the four batch-1 jtbl
-`.rodata` carves: 14 carves coexisting.) Every run is symbols whose ONLY
-consumers are that TU's own still-asm functions, so no existing `extern`
-declaration or C body changed — the carves add data and nothing else. Every
-byte was generated directly from the target ELF by `find_carves.py`.
-
 ### What aug6/`main` should adopt
 
 aug6 uses the same `gen_ninja.py`/`compile_c.sh` (VERSION-keyed), so porting
@@ -211,12 +134,13 @@ same way.
 
 ## Tooling notes for future carves
 
-- `tools/port_from_aug6.py port <tu> --allow-jtbl <func> [--only <func>]`:
-  Phase-5 additions. `--allow-jtbl` lifts the ordinary jtbl-skip and the
-  "may add code, never data" growth-revert for named functions whose jtbl
-  carve is already in the yaml. `--only` restricts the port to named
-  function(s) — use it whenever a coalesced TU has OTHER candidates the
-  driver would otherwise re-attempt (already-decided REVERTED siblings);
+- **Port-driver interaction (the drivers are retired; the RULES they encoded
+  are not).** A port driver skipped any function whose jtbl was not already
+  carved in the yaml, and reverted any port that GREW the object's data ("may
+  add code, never data"). Both gates still describe reality: land the jtbl
+  carve BEFORE the body, and treat any data growth as a divergence rather than
+  an improvement. A coalesced TU also needs per-function scoping so a pass does
+  not re-attempt already-decided REVERTED siblings;
   without it, `port` iterates every wave-eligible candidate in the TU.
 - `build_symbol_map`'s aug6->retail rebind had a real gap for jtbl bases:
   it named the retail counterpart of a `%hi/%lo(jtbl_...)` reference
@@ -239,25 +163,10 @@ same way.
 - Splitting a carve's start point one boundary EARLIER (to absorb a small
   neighbor like a format string) is safe as long as the new region is
   still ONE contiguous run for that TU/section, and every byte in the
-  extended range is verified against `baserom/baseelf.rom` before landing
+  extended range is verified against `baserom/<ver>/baseelf.rom` before landing
   — the SHA gate cannot tell you if you've swept in a neighbor's data.
 
-## Batch 2 — `src/PObj` (VERY limited: 1 symbol) + a major tooling-bug finding
-
-Ranked the ~192 non-excluded, non-batch-1 TUs by `find_carves.py`'s CARVE
-count (script in this session's scratch; sort by `CARVE=N`). Top of the
-list: `src/commonact` (124), `src/st47a` (121), `src/debug` (93),
-`src/motionManager` (87), `src/Light` (81), `src/camera-editor` (80),
-`src/chain` (76), `src/enemy_act` (74), `src/st04b` (69), `src/kanbanBoot`
-(69), `src/charFileManager` (63), `src/PObj` (19, chosen first as the
-smallest/cleanest — `SHARED=0 BLOCKED=1`).
-
-**Only landed 1 symbol this batch**: `D_004D4230` (`.data`, 0x80 bytes,
-`src/PObj`). Everything else attempted — PObj's own remaining 18 CARVE
-symbols, plus a `src/charFileManager` pass — hit one of two blockers below
-and was reverted. This is a MUCH smaller yield than planned; the second
-blocker (multi-entry corruption) is a session-blocking discovery that
-needs a real fix before this phase can scale.
+## Carve blockers (rules — found on the USA batches, target-neutral)
 
 ### Blocker 1 — plain `.rodata` string carve collides with INCLUDE_ASM's local dlabel copy
 
@@ -325,106 +234,12 @@ rule: ONE contiguous carved run per (TU, section), now enforced by
 `.sdata` under this project's `-G8` flags, NOT `.lit4` (confirmed via link
 error `multiple definition` + `.sdata.D_006318C0` in `objdump -h` when
 tested without a yaml carve). The ORIGINAL binary's `.lit4` placement for
-a NAMED (not anonymous-literal-pool) float needs `compile_c.sh`'s
-`config/lit4_pool_slots.txt` rename mechanism, which is explicitly
-**single-entry-only** per the tool's own error message; PObj needs 4
-(`D_006318C0`/`C4`/`C8`/`CC`). Left uncarved, in the `src/cod` `.lit4`
-blob. A multi-entry `.lit4` splitter would need to be built first.
-
-### `src/charFileManager` cross-branch findings (informational, not landed)
-
-Cross-referencing `git show retail:<file>` by SYMBOL NAME (not just
-same-named `.c` file) is essential: `D_004D42B0`/`D_004D42E0` are defined
-in retail's `src/PObj.c`, not `charFileManager.c` — TU boundaries differ
-between the old `retail` branch and this `us` rebuild for this address
-range (same underlying PObj model-path table, split differently by each
-branch's own matching order). `find_carves.py`'s consumer scan is
-authoritative for THIS branch regardless of what retail did, so carving
-under charFileManager (this branch's actual sole referencer) would still
-be correct IF the multi-entry bug didn't block it. Also re-confirmed the
-"oversized CARVE symbol" trap from batch 1's `D_0062E010` case: retail
-types `D_004D42E0[95566]` (0x5D5D8 = 382264 bytes); `find_carves.py`
-guessed 423800 (0x67778) via its next-known-symbol heuristic overshoot.
-Byte-verified the FULL trimmed 382264-byte array against
-`baserom/baseelf.rom` (exact match) before deciding not to carve it (see
-Blocker 2). **Standing rule reinforced: always cross-check a CARVE
-symbol's size against retail before trusting `find_carves.py`'s own
-number — prefer the smaller, retail-verified one whenever they disagree.**
-
-## SHARED-symbol hotlist (seen so far, not carved — owner ambiguous)
-
-None yet logged from a genuine multi-TU CARVE-candidate sweep beyond what's
-in the two batches above.
-
-## Recommended next TUs (successor should start here)
-
-**Blocker 2 is fixed** — carve in batches. Workflow: `tools/find_carves.py
-<tu> --emit` now prints, per CONTIGUOUS run, the dot-form yaml pair (carve +
-blob resume) and byte-verified C definitions, and marks a run `[BLOCKED]`
-with the reason when it would trip any of the mechanical gates. Take the
-largest non-blocked run per (TU, section), paste the yaml in ascending ROM
-order, append the C to the TU, then `tools/build.sh setup && ninja`.
-
-Ranked list (CARVE count, this session's sweep, excludes batch-1/2 TUs and
-the worker exclusion list): `src/commonact` (124), `src/st47a` (121),
-`src/debug` (93), `src/motionManager` (87), `src/Light` (81),
-`src/camera-editor` (80), `src/chain` (76), `src/enemy_act` (74),
-`src/st04b` (69), `src/kanbanBoot` (69), `src/charFileManager` (63,
-partially explored above), `src/staticBlur` (58), `src/haveParentSimpleObj`
-(56), `ios/cdvd` (55), `sound/s_init` (52), `src/box` (52), `src/way_tool`
-(44), `src/icoMisc` (44). Once Blocker 2 is fixed, re-run
-`find_carves.py --emit` on each and apply the same retail-crossref +
-byte-verify workflow this batch used for `src/PObj`/`src/charFileManager`.
-
-## Batch 3 (carve-3, this session) — 6 TUs landed, 1 new blocker class found, no floors
-
-Scope: `commonact`/`enemy_act`/`girl_act`/`boyact`/`e3`/`way_tool` were
-EXCLUDED all session (conv-6 in-flight on those TUs per `git log conv-6
---oneline`: it touches exactly those six `.c` files). `src/act-env.c` and
-`src/motionOrientManager.c` were excluded per the standing worker split.
-Everything else ranked above was fair game.
-
-**Landed** (6 TUs, 7 symbol runs, `tools/build.sh setup` clean rebuild +
-`ninja` → `verify_elf: OK (…fbf50c75…)`, `check_no_rom.sh` clean):
-
-| TU | section | VMA range | bytes | syms |
-|---|---|---|---|---|
-| `src/motionManager` | `.data` | 0x4C5AA0..0x4C5AE0 | 64 | 4 |
-| `src/motionManager` | `.sdata` | 0x63345C..0x633478 | 28 | 5 |
-| `src/Light` | `.rodata` | 0x554780..0x554790 | 16 | 1 |
-| `src/charFileManager` | `.data` | 0x4B2FD0..0x4B2FE8 | 24 | 1 |
-| `src/icoMisc` | `.data` | 0x4BCE90..0x4BCEB0 | 32 | 2 |
-| `src/kanbanBoot` | `.data` | 0x4BCEC0..0x4BCED8 | 24 | 1 |
-| `src/st04b` | `.data` | 0x4D1490..0x4D1510 | 128 | 4 |
-
-**`src/charFileManager` — the 296-byte `find_carves.py` guess was wrong,
-confirmed by an EXISTING typed extern.** The TU already has
-`extern Blk24 D_004B2FD0;` (`Blk24` = `{ long long a,b,c; } __attribute__
-((packed))`, 24 bytes) used as a per-element reset template
-(`D_006E4890[j] = D_004B2FD0;`). `find_carves.py`'s next-symbol-address
-heuristic reported 296 bytes/1 sym (guessing the whole gap to `debug`'s
-carve belongs to this one name) — same class of overshoot as the
-`D_004D42E0` case in batch 2. Carved only the byte-verified 24 bytes
-(`Blk24 D_004B2FD0 = { 0, 0, 0x0000000100000000LL };`, values read
-straight from `baserom/baseelf.rom` offset `0x3B2FD0`); the remaining
-272 bytes (`0x4B2FE8..0x4B30F8`) stay unattributed in the blob. **Standing
-rule reinforced again: an existing typed `extern` in the TU is a stronger
-size oracle than `find_carves.py`'s heuristic — check for one before
-trusting the tool's byte count.**
-
-**`src/Light` — const-qualifier trap caught by the build, not by
-`find_carves.py`.** First attempt defined the `.rodata` string as
-`char D_00554780[16] = "reset gs\n";` (no `const`) — ee-gcc puts an
-*initialized, non-const* array in `.data`, not `.rodata`, confirmed via
-`ico.us.map` (`.data.D_00554780` instead of `.rodata.D_00554780`), which
-silently shifted `cod_DATA_START` by the object's own text-order position
-and produced a whole-link SHA mismatch (`+384` bytes, symptom identical
-to Blocker 2's original signature — same alignment-cascade mechanism,
-different trigger). Fix: `const char D_00554780[16] = "reset gs\n";`
-(and its extern declaration also needed `const` to avoid a `conflicting
-types` compile error). **This is the trap-table row "const → .rodata"
-read in the CORRECT direction: a `.rodata` carve of a byte array MUST be
-`const`, not just "don't const a `.data`/`.sdata` carve."**
+a NAMED (not anonymous-literal-pool) float needed a rename mechanism that was
+single-entry-only, while PObj needs 4 (`D_006318C0`/`C4`/`C8`/`CC`). Left
+uncarved, in the `src/cod` `.lit4` blob. **Superseded on PAL** — see
+"PAL phase 1 / How a `.lit4` carve is made to hold" below and the
+`ASM_LIT4_SLOT()` macro in `include/include_asm.h`, resolved by
+`tools/preprocess_old_as.py`; `config/lit4_pool_slots.txt` no longer exists.
 
 ### NEW blocker class found — carving a scalar/small-array symbol that a
 ### COMPILED (not just still-asm) sibling function already references by
@@ -504,16 +319,7 @@ with `find_carves.py --emit` after a `git pull` in case upstream state
 changed, and gate any new candidate run through the `.text`-equality
 check before landing.
 
-## Batch 4 — jtbl carve sweep (30 TUs, `.rodata`, all functions left ASM)
-
-Complete sweep of the 101 `jtbl_*` symbols. Every jtbl was mapped to its
-owner function (the `%hi(jtbl_…)` referencer), owner TU, and the rodata
-neighbourhood the TU exclusively owns; the ~49 jtbl-owning TUs were then
-classified (a) SAFE-FINAL / (b) NOT-FINAL against the one-contiguous-run
-per (TU, section) rule. 30 (a) TUs landed here, one at a time, each with
-`tools/build.sh setup` + `ninja` → `verify_elf: OK (fbf50c75…)`. Final
-`rm -rf build` clean rebuild green; `check_no_rom.sh` clean. **No `.c`
-file changed** — the carves are yaml-only.
+## What is carvable — the two mechanisms
 
 ### The two mechanisms that decide what is carvable today
 
@@ -545,7 +351,7 @@ file changed** — the carves are yaml-only.
 
 Splat's dlabel runs to the next label, so it absorbs gcc's `.align` pad
 belonging to the NEXT object. Each table's true entry count was derived
-from `baserom/baseelf.rom`: count the leading run of words that are
+from `baserom/<ver>/baseelf.rom`: count the leading run of words that are
 addresses inside the owner function's own `.text` range, stop at the first
 that is not. Every trailing word between the true end and splat's next
 label was verified to be `0x00000000` and is left in the blob. This makes
@@ -591,54 +397,6 @@ Two-jtbl regions (`src/FileManager`, `src/ebrain`, `src/cod/vendor_258CC0`)
 span the 4-byte `.align 3` pad between the tables; the pad is reproduced
 today by the stubs' own `.align 3` and, once the functions land, by gcc's
 section alignment. Same bytes either way — verified.
-
-### (b) NOT-FINAL — 19 TUs deliberately NOT carved
-
-**Already hold their one `.rodata` run; the remaining jtbls cannot get a
-second, disjoint region.** Widening the existing run would sweep in
-plain rodata that needs typed C definitions first.
-
-| TU | existing run | left out |
-|---|---|---|
-| `src/Packet` | jtbl_00554E00 | `jtbl_00554DB0`, `jtbl_00554FE0` — 14 TU-owned strings interleaved |
-| `src/StageAnimation` | jtbl_00555990 | `jtbl_005559C0` — collapses into one wider carve when stage_SetAnimation lands (known) |
-| `src/boyact` | .lit8 pool 0x558620 | 3 jtbls at 0x558300..0x558620 + 2 owned strings interleaved; 4 more `.lit8` outside |
-| `src/girl_act` | jtbl_00559950 | 7 jtbls at 0x559570..0x559888, 17 owned syms interleaved |
-| `src/debug_exception` | jtbl_00615090 | 6 jtbls, 37 owned strings interleaved |
-| `src/motionOrientManager` | D_006196C8 + jtbl_006196E0 | `jtbl_00619960` — 12 owned strings in between |
-
-**jtbls split by the TU's OWN non-jtbl rodata** — a single region covering
-them all would need C definitions for the interleaved data, so the correct
-carve depends on which functions land first: `src/Texture` (4 jtbls, 3
-owned word tables between), `sound/soundManager` (4, 3), `src/enemy_act`
-(4, 24 — mostly `.lit8`), `src/kanbanBoot` (6, 19), `src/box` (2, 1 string
-`D_00618708`), `src/motionManager` (2, 1 + 5 `.lit8` outside),
-`src/staticBlur` (3, 1 `D_0061A418`), `src/BgAnimation` (4, 8),
-`src/cod/vendor_2418A0` (2, 5), `src/cod/vendor_2668B8` (7, 15 + 4 `.lit8`
-outside).
-
-**jtbls contiguous, but the TU owns genuine `.lit8` doubles OUTSIDE the
-region** — gcc will emit those into the TU's `.rodata` the moment their
-functions land, so a jtbl-only carve is not final:
-`src/cod/vendor_100C90` (`D_00553748/50/58` = 0.1/0.1/1e6, immediately
-*before* its jtbl), `src/gflag` (`D_0055A198` = 916.0, `D_0055A1A0`,
-immediately *after* its jtbl), `src/chain` (5 doubles at
-0x55AB20..0x55AB88, far from the jtbls at 0x55AD50). All three become
-one-run carveable the day their double-using functions land in C —
-`vendor_100C90` and `gflag` only need the region extended by one
-neighbour, so they are the cheapest follow-ups.
-
-### Successor notes
-
-- The jtbl queue is now DONE for everything that is carveable without
-  touching C. The remaining 19 TUs all need at least one plain-rodata C
-  definition (string / const aggregate / `.lit8` double) before their
-  single run can cover their whole footprint. Do them the
-  `src/motionOrientManager` way: byte-verify the range against
-  `baserom/baseelf.rom`, add a real typed `const` definition, leave the
-  function `INCLUDE_ASM` if the body port does not close.
-- `rm .port_cache/retail_labels.json` before the next `port_from_aug6.py`
-  run — 30 new `dlabel`s just appeared.
 
 ## Phase 6 — FULL-RUN per-TU rodata carves (the durable model, 2026-07-31)
 
@@ -690,7 +448,12 @@ carved once. Everything needed already exists:
   a python rb/wb script — UTF-8 editors corrupt them; the SHA gate
   catches it as U+FFFD replacement bytes).
 
-Landed: `src/girl_act` [0x559430,0x559B50) (unblocks WayTest,
+Landed (USA target — the ADDRESSES below are USA VMAs and mean nothing on PAL;
+the parenthetical findings are the durable part, and three of them are
+mechanisms found nowhere else in this file: `emit_run_defs.py`'s
+matched-C-blind-spot, `dlabel`'s hard-coded `.align 3` landmine, and the
+declaration-order rule for `-fdata-sections` globals):
+`src/girl_act` [0x559430,0x559B50) (unblocks WayTest,
 actGirlHand, actGirlPulledGo, GirlAct_BoyAndMeCollisionMail,
 actGirlHangG3M), `src/commonact` [0x558848,0x558DC0), `src/enemy_act`
 [0x558E10,0x5591F0) (unblocks jtbl_00558E40/559000/559130/559150;
@@ -722,7 +485,7 @@ array) sits at exactly such a VMA, 4 bytes after the 4-byte
 D_005559F0 with zero gap in the real ROM. A plain `const unsigned int`
 def or `INCLUDE_RODATA` both silently ate a 4-byte `*fill*` there,
 growing the ELF by 128 bytes and shifting everything after it (caught
-by comparing `build/ico.rom` size against `baserom/baseelf.rom`, not
+by comparing `build/ico.rom` size against `baserom/<ver>/baseelf.rom`, not
 by the first byte diff — that showed up misleadingly early). Fixed by
 hand-assembling D_005559E8/F0/F4 as ONE contiguous raw `__asm__` block
 (bypassing `dlabel` entirely, own `.section .rodata.D_005559E8`
@@ -829,7 +592,7 @@ bytes in a TU source made splat's INCLUDE_ASM scan return an empty set,
 misclassifying every function of that TU into `asm/matchings/` on a
 truly clean re-split.
 
-## Blocked: `src/staticBlur` full-run carve reverted (2026-07-31)
+## Blocked: `src/staticBlur` full-run carve reverted (2026-07-31, USA target)
 
 Attempted run [0x61A2C0,0x61A470) (jtbl_0061A3F0/A430/A450, all
 embedded in-function so no standalone wiring needed). Landed defs and
@@ -867,7 +630,7 @@ layout, i.e. this address range still lives in the shared
 bug is fixed upstream, or a policy decision authorizes a tracked
 override for this one symbol.
 
-## Blocked: `src/boyact` full-run carve reverted (2026-07-31)
+## Blocked: `src/boyact` full-run carve reverted (2026-07-31, USA target)
 
 Attempted run [0x5581D8,0x558848) (jtbl_00558300/5584D0/558510). The
 narrow existing carve `[0x458620, .rodata, src/boyact]` (the .lit8 pool,
@@ -922,75 +685,10 @@ and `src/boyact.c` were reverted to the pre-attempt state (verified
 green). Do not retry the full-run carve without first re-matching
 func_00151868/func_001519D8 against the aliased-symbol form.
 
-## Batch 5 — vendor member-boundary re-carve of the 0x252D28 region (2026-08-01)
-
-**What changed.** The `[0x152D28, c, vendor_252D28]` 96-function chunk carve
-merged parts of SIX archive members, and its 0x252D28 start fell mid-member
-inside `libmpeg.a(mpc.o)`. Replaced with true member-boundary TUs; the
-`vendor_24E9D8` chunk now ends at the `mpc.o` start:
-
-| TU | member | VMA span |
-|---|---|---|
-| `vendor_2517D0` | `libmpeg.a(mpc.o)` | 0x2517D0..0x2564E0 |
-| `vendor_2564E0` | `libmpeg.a(csc.o)` | 0x2564E0..0x256BF8 |
-| `vendor_256BF8` | `libmpeg.a(bit.o)` | 0x256BF8..0x256DF8 |
-| `vendor_256DF8` | `libipu.a(libipu.o)` | 0x256DF8..0x257128 |
-| `vendor_257128` | `libipu.a(ipuinit.o)` | 0x257128..0x2575C0 |
-| `vendor_2575C0` | `libsndn2.a(sound.o)` head | 0x2575C0..0x258CC0 (member continues into `vendor_258CC0`) |
-
-**Boundary evidence.** Per-function aug6-twin mapping (`.port_cache/
-name_alias.json`, delta +0x3C70 throughout this region) binned against the
-aug6 MAIN.MAP member spans (`baserom/aug6/text_tu_boundaries.txt` on the
-aug6 worktree). Boundaries were then pinned to *retail function starts*
-(all 8-aligned), NOT projected addresses — retail member sizes drift from
-aug6 (e.g. aug6's projected csc.o start 0x256478 lands mid-way through
-retail `func_002563C8`; the retail boundary is the next function start,
-0x2564E0). Five retail-only functions with no aug6 twin (func_00252F90,
-func_002532C8, func_00255410, func_00256C30, func_00257DE0) all sit
-interior to member spans, so no boundary is ambiguous. The exact retail
-`mpc.o` start is bracketed to (0x251248+sizeof(func_00251248), 0x2517D0];
-0x2517D0 is the first function positively attributed to mpc.o (aug6 has
-~0xC0 of unattributed mpc.o head before its first twin), so the split sits
-there. `MAIN.MAP` addresses were never used to verify retail placement
-(different link).
-
-**Why (the assembler finding).** Under the period assembler the OLD merged
-stream made the R5900 short-loop-erratum pass insert 10 spurious nops into
-`func_00254328` (both backward branches padded 5 each), which a
-forward-defined label alias had to suppress (commit b5788929). Empirics
-recorded so far: the pass mis-measures the ~26-insn loop as 1 insn under
-the old carve's exact 8573-line stream; the block is clean standalone,
-clean behind >12KB of synthetic filler (plain insns, labelled backward
-branches, `%hi` reloc insns, `.align`+label units — none trigger), clean
-when almost ANY single preceding function is dropped from the real stream,
-and clean in the TRUE `mpc.o` TU even though that puts MORE content before
-the loop than the old carve did. I.e. the trigger is a whole-stream
-configuration artifact, not stream position; delta-minimisation could not
-reduce the triggering prefix below ~1450 real lines. With the re-carve the
-direct `.L0025071C` labels assemble byte-identical and the alias is
-retired. (This also explains the Batch-2 note on `func_00254C98`: the
-"rewriting two `.word`s inserts 10 nops 0x1600 earlier" effect was the
-same configuration sensitivity, and it is moot under the new carve.)
-
-**Mechanics of the split.** All 96+96 functions redistributed by contiguous
-line ranges; every moved *matched* C body was verified by compiling each new
-TU with the production CFLAGS and diffing per-function `.s` bodies
-(local-label-normalised) against the pre-split TUs — three extern decls had
-to move with the sound part (`D_005524A4`, `func_00251CF8`, and signatures
-for `func_00252590`/`func_00255F50`) to keep `func_00257CF8`'s $2/$3
-register tie: an implicitly-declared callee (assumed `int` return) flips
-it. The `jtbl_0062ECD0` `.rodata` carve moved with its owner function
-(`func_00251ED0`) to `vendor_2517D0`; splat only inlines a jtbl into the
-owner's `.s` when the jtbl subsegment names the owner's TU, otherwise the
-link fails on an undefined `jtbl_*` — same rule Batch 4 stated, now
-observed from the failing side. Gate: full distclean + setup + ninja →
-`verify_elf: OK sha1=fbf50c75…`, zero assembler fallbacks,
-`use_modern_as.txt` still empty.
-
 ## PAL phase 1 — `.lit4` constant-pool carves + one `.sdata` literal (2026-09-04)
 
 Target: `main` = PAL retail SCES-507.60.  Scope: the 32 bodies in 12 TUs that
-`tools/port_from_ntsc.py` reverted with reason `emits-data`
+the ntsc→pal port driver (retired) reverted with reason `emits-data`
 (`decomp/port_ledger_pal.md`).  All 13 carves below landed together and the
 tree is SHA-green from a clean rebuild (`rm -rf build .ninja_log .ninja_deps`
 + `tools/build.sh setup` + `ninja` -> `verify_elf: OK
@@ -1034,8 +732,8 @@ owner is still `INCLUDE_ASM` are supplied by `ASM_LIT4_SLOT(D_<VMA>, <value>)`
 ee-as cannot assemble a *named* symbol defined in `.lit4` at all
 (`nopic_need_relax()` asserts on it).  Landing a body then deletes exactly one
 `ASM_LIT4_SLOT` and the body's own literal produces that word, so the object's
-data size is unchanged and `port_from_ntsc.py`'s "may add code, never data"
-gate passes.  `preprocess_old_as.py` errors on a stale slot and on a slot
+data size is unchanged and the port driver's "may add code, never data" gate
+passes.  `preprocess_old_as.py` errors on a stale slot and on a slot
 reached by a non-FP load, so the two halves can never drift apart silently.
 
 Values are spelled as the shortest decimal that round-trips through binary32

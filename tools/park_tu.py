@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """tools/park_tu.py — park a function from a coalesced TU into tough_nuts/.
 
-The legacy tools/park.sh handles src/cod/<file_off>.c (one function per
-file, retail `main`). Coalesced TUs (many functions in one .c) need a
+The legacy tools/park.sh (deleted) handled src/cod/<file_off>.c, one function
+per file. Coalesced TUs (many functions in one .c) need a
 different flow: extract the seed without disturbing the rest of the TU.
 This is the parker the aug6 prototype branch uses — its whole dev tree is
 coalesced TUs (fumi/src/boyact.c, sugipon/src/pool.c, …) whose functions
@@ -245,7 +245,7 @@ def main() -> int:
     print(f"  2. git add tough_nuts/{func_name}/ {tu_path.relative_to(ROOT)}")
     print(f"     git commit -m 'Park {func_name} ({reason})'")
     print()
-    print("  Permuter (tools/auto_permute.sh / the Step-4 backgrounded shot)")
+    print("  Permuter (tools/permute_run.sh / the Step-4 backgrounded shot)")
     print("  picks up the seed; score-0 hits land in")
     print(f"  lib/decomp-permuter/runs/{func_name}/output-0-*/source.c.")
     return 0

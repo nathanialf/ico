@@ -1,5 +1,8 @@
 
-# aug6 -> PAL body port (`tools/port_from_ntsc.py --source aug6`)
+# aug6 -> PAL body port
+
+*(Produced by the same port driver run with `--source aug6`, retired once both
+passes completed. This file is the accounting that outlived it.)*
 
 Bodies below were carried over from the `aug6` (Aug-6-2001 prototype)
 checkout's matched clean-room C with every aug6 symbol rebound to its PAL

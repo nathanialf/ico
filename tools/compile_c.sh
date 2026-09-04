@@ -35,9 +35,8 @@ OBJCOPY="${MIPS_PREFIX}objcopy"
 # Period assembler whose delay-slot reorder is LESS aggressive than 2.96: it
 # does not hoist a preceding unaligned store (sdl/sdr/...) into a `j <func>`
 # tail-call delay slot, matching the original ICO toolchain (verified universal:
-# 0 of 783 ROM tail-calls carry an unaligned store in the delay). Selected
-# per-TU via config/use_old_as.txt for the rare TU that needs it; the gcc-emitted
-# .s is byte-for-byte the same input — only the assembler binary differs.
+# 0 of 783 ROM tail-calls carry an unaligned store in the delay). It is THE
+# assembler for every C TU — there is no per-TU selection and no fallback.
 EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
 
 INCLUDE_DIR="${ROOT}/include"
@@ -46,9 +45,6 @@ ASFLAGS="-EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -I${INCLUDE_DIR}"
 EE_ASFLAGS="-EL -mcpu=5900 -G 8"
 
 PYTHON="${ROOT}/.venv/bin/python"
-
-EXTRA_CFLAGS_LOOKUP="${ROOT}/tools/extra_cflags.sh"
-USE_OLD_AS_TXT="${ROOT}/config/use_old_as.txt"
 
 BASE="$(basename "${SRC}" .c)"
 # Relative TU path without the .c (e.g. fumi/src/jimaku), with any leading
@@ -63,26 +59,6 @@ listed() {
     local txt="$1"
     [ -r "$txt" ] || return 1
     grep -qE "^[[:space:]]*(${BASE}|${REL})([[:space:]]|\$|#)" "$txt"
-}
-
-# Func-range SCOPING for TU-global postprocesses. A coalesced TU holds many
-# funcs; a postprocess added for ONE of them must not rewrite its siblings
-# (the func_001E0D50-vs-func_001E44C0 swap_addu collision). Annotate the TU's
-# config line with `@func_<hex>` tokens to scope the postprocess to just those
-# functions' `.ent`/`.end` blocks; with no @func token it stays whole-file
-# (unchanged — e.g. single-func hex entries). See lint_postprocess_collisions.py.
-funcs_for() {
-    awk -v b="${BASE}" '$1==b{for(i=2;i<=NF;i++){if($i=="#")break;
-        if($i ~ /^@func_/){sub(/^@/,"",$i); print $i}}}' "$1"
-}
-# apply_sed_scoped <sed -E program> [func...] — whole-file if no funcs given.
-apply_sed_scoped() {
-    local prog="$1"; shift
-    if [ $# -eq 0 ]; then sed -i -E "$prog" "${S}"; return; fi
-    local f
-    for f in "$@"; do
-        sed -i -E "/\.ent[[:space:]]+${f}\$/,/\.end[[:space:]]+${f}\$/ ${prog}" "${S}"
-    done
 }
 
 # Replicates Makefile:162 ALIGN_FOR in pure shell — picks the largest
@@ -102,8 +78,6 @@ ALIGN="$(align_for "$(basename "${OUT%.o}")")"
 
 mkdir -p "$(dirname "${OUT}")"
 
-EXTRA="$("${EXTRA_CFLAGS_LOOKUP}" "${SRC}" 2>/dev/null || true)"
-
 # TUs that include a header under `ito/include/` (e.g. mv_defs.h) must be
 # compiled so the `__FILE__` literal resolves to "../ito/include/<h>" exactly
 # as the original build did: a *relative* `-I../ito/include` evaluated from a
@@ -116,10 +90,10 @@ if listed "${INCLUDE_ITO_TXT}"; then
     SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
     S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # shellcheck disable=SC2086
-    ( cd "${ROOT}/ito" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} ${EXTRA} -I../ito/include -o "${S_ABS}" "${SRC_ABS}" )
+    ( cd "${ROOT}/ito" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -I../ito/include -o "${S_ABS}" "${SRC_ABS}" )
 else
     # shellcheck disable=SC2086
-    "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} ${EXTRA} -o "${S}" "${SRC}"
+    "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -o "${S}" "${SRC}"
 fi
 
 # Split each gcc-emitted switch jtbl onto its own .rodata.0x<VMA>
@@ -224,7 +198,7 @@ awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
 # A `j <func>` TAIL CALL with a preceding unaligned store (sdl/sdr/swl/swr): ee-as
 # 2.96 and modern-as both hoist that store into the j delay slot, but the original
 # assembler left it nop (verified universal: 0 of 783 ROM tail-calls carry an
-# unaligned store in the delay — see use_old_as note above). Wrap the tail call in
+# unaligned store in the delay — see the assembler note above). Wrap the tail call in
 # .set noreorder + explicit nop so the store stays BEFORE the j and the delay is
 # nop — universally and per-FUNCTION (the `.set` pair is local), so it does NOT
 # require switching the whole TU to ee-as (which regresses modern-as-matched
@@ -295,11 +269,9 @@ sed -i -E \
     -e 's/\$fp\b/$30/g'   -e 's/\$ra\b/$31/g' \
     "${S}"
 
-# Per-TU assembler selection. Default ee-as is 2.96; a TU listed in
-# use_old_as.txt assembles with the less-aggressive 2.9-991111 instead (same
-# .s input, different reorder behavior — see EE_AS_OLD above). 2.9-991111 is the
-# ROM's contemporary assembler: it leaves a jal/jr delay as `nop` where 2.96 /
-# modern-as over-fill it with a preceding store. But it rejects splat's
+# Assembler. There is exactly ONE, for every C TU: the period ee-as 2.9-991111.
+# It is the ROM's contemporary assembler and leaves a jal/jr delay as `nop`
+# where 2.96 / modern-as over-fill it with a preceding store. It rejects splat's
 # `%gp_rel(SYM)($28)` spelling, so a MIXED TU (C + INCLUDE_ASM siblings) is first
 # flattened + gp_rel-translated by preprocess_old_as.py (byte-identical GPREL16).
 ASM_INPUT="${S}"
@@ -310,16 +282,13 @@ ASM_INPUT="${S}"
 # byte-identical under it (proven 2026-06-04 — a full rebuild kept sha1 2b4d7de4).
 # Do NOT reintroduce the 2.96/2.10 assembler as a default OR as a per-TU opt-in
 # (config/use_as296.txt, tried and reverted 2026-08-05): it was a stale mismatch that
-# forced per-func use_old_as.txt bandaids and faked phantom jr-delay fills.
-# use_old_as.txt is now REDUNDANT (its TUs already get the period assembler);
-# kept only for back-compat. There is NO modern-gas escape hatch: a TU that
-# "genuinely needs modern gas" is a TU whose .s needs fixing, or a match that is
-# really the assembler's delay-slot scheduling wearing a source's clothes. See
-# decomp/NOTES.md "Assembler" section.
+# forced per-func assembler bandaids and faked phantom jr-delay fills. The per-TU
+# opt-in config/use_old_as.txt was retired 2026-09-04 — it selected the assembler
+# that was already the default, so every entry was a no-op. There is NO modern-gas
+# escape hatch: a TU that "genuinely needs modern gas" is a TU whose .s needs
+# fixing, or a match that is really the assembler's delay-slot scheduling wearing
+# a source's clothes. See decomp/NOTES.md "Assembler" section.
 SELECTED_EE_AS="${EE_AS_OLD}"
-if listed "${USE_OLD_AS_TXT}"; then
-    SELECTED_EE_AS="${EE_AS_OLD}"
-fi
 # ONE ASSEMBLER, NO EXCEPTIONS. ee-as 2.9-991111 is the assembler BUNDLED WITH
 # the compiler this build uses (EEGCC_DIR above is ee-gcc 2.9-991111), and that
 # pairing is the whole argument for it. config/use_as296.txt — a per-TU opt-in to
@@ -331,7 +300,7 @@ fi
 # fill, that is a SOURCE-SHAPE problem to solve in C.
 # Flatten INCLUDE_ASM siblings + translate splat's gp_rel spellings to the bare
 # gp-addressable form the PERIOD assembler accepts, so the ROM's contemporary
-# assembler (ee-as 2.10, or 2.9-991111 for use_old_as) assembles mixed C+asm TUs
+# assembler (ee-as 2.9-991111) assembles mixed C+asm TUs
 # directly instead of silently falling back to modern gas (which mis-encodes
 # `la sdata` as daddiu where the ROM has addiu). See decomp/NOTES.md.
 # stderr is NOT swallowed: preprocess_old_as.py is silent on success, and its
@@ -388,36 +357,3 @@ fi
 "${OBJCOPY}" --set-section-alignment ".data=1" \
              --set-section-alignment ".bss=1" "${OUT}"
 
-# .lit4 pool placement: gas interns inline float literals into an anonymous
-# `.lit4` section (flags WAp — note the MIPS-GPREL `p` flag). The linker script
-# can only place a `.lit4` slot at its original VMA when the section name carries
-# the VMA (`.lit4.0xVMA`). Rename this TU's pool section per
-# config/lit4_pool_slots.txt so the constant lands at its real address.
-#
-# SINGLE-ENTRY ONLY: `objcopy --rename-section` renames the WHOLE `.lit4` to one
-# VMA, which is correct only when the compiler pooled exactly ONE constant for
-# this TU (4 bytes). A multi-entry pool needs per-word splitting that PRESERVES
-# the WAp/GPREL flag (which `--add-section` cannot set) — the ".lit4/.lit8
-# TU-pool migration" task. The guard below HARD-ERRORS on a multi-entry pool so
-# a second matched literal can never silently rename to one VMA and corrupt the
-# layout (the kind of mismatch ninja would catch only at the final SHA).
-LIT4_POOL_TXT="${ROOT}/config/lit4_pool_slots.txt"
-if [ -r "${LIT4_POOL_TXT}" ]; then
-    LIT4_VMA="$(awk -v b="${BASE}" '$1==b{print $2; exit}' "${LIT4_POOL_TXT}")"
-    if [ -n "${LIT4_VMA}" ]; then
-        # .lit4 size in bytes from objdump -h (field 3 is the hex size), 0 if absent.
-        LIT4_SZ_HEX="$("${MIPS_PREFIX}objdump" -h "${OUT}" 2>/dev/null \
-            | awk '$2==".lit4"{print $3; exit}')"
-        LIT4_SZ=$(( 16#${LIT4_SZ_HEX:-0} ))
-        if [ "${LIT4_SZ}" -eq 4 ]; then
-            "${OBJCOPY}" --rename-section ".lit4=.lit4.0x${LIT4_VMA}" "${OUT}"
-        elif [ "${LIT4_SZ}" -gt 4 ]; then
-            echo "compile_c.sh: ERROR — ${BASE} has a ${LIT4_SZ}-byte .lit4 pool" \
-                 "(>1 entry) but lit4_pool_slots.txt lists a single VMA. Multi-entry" \
-                 ".lit4 splitting is not yet implemented (see the .lit4/.lit8 TU-pool" \
-                 "migration task). Refusing to rename the whole pool to one VMA." >&2
-            exit 1
-        fi
-        # LIT4_SZ == 0: configured TU emitted no pool this build — nothing to rename.
-    fi
-fi

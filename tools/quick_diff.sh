@@ -163,16 +163,6 @@ fi
 # 2.9-era `as` chokes on modern flags — we re-assemble with ee-as 2.10.
 CFLAGS="${CFLAGS:--S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -Iinclude}"
 
-# Per-file overrides from config/extra_cflags.txt (same lookup as the
-# Makefile src/.o rule), so quick_diff stays in sync with the full build.
-EXTRA_CFLAGS_LOOKUP="$ROOT/tools/extra_cflags.sh"
-if [[ -x "$EXTRA_CFLAGS_LOOKUP" ]]; then
-    EXTRA_CFLAGS="$("$EXTRA_CFLAGS_LOOKUP" "$CSRC" 2>/dev/null || true)"
-    if [[ -n "$EXTRA_CFLAGS" ]]; then
-        CFLAGS="$CFLAGS $EXTRA_CFLAGS"
-    fi
-fi
-
 # ee-gcc looks for cc1 at the path it was built against (typically
 # ${PS2DEV}/ee/gcc-lib/...). Pass -B so it finds the bundled cc1 in our tree.
 if [[ "$CC" == *"ee-gcc2.9-991111"* ]]; then
@@ -327,20 +317,10 @@ PYEOF
 # ops it doesn't know).
 EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
 EE_ASFLAGS="-EL -mcpu=5900 -G 8 -I$ROOT/include"
-# Honor config/use_old_as.txt (same as compile_c.sh): the rare TU whose ROM
-# left a jr/j-delay nop that 2.96 over-fills is assembled with the less
-# aggressive 2.9-991111. Without this, quick_diff/match_diff would show a
-# PHANTOM delay-fill the real ninja build doesn't have. The canonical key is
-# the TU BASENAME (what compile_c.sh's `listed` matches), but a full-path entry
-# (`fumi/src/jimaku`) is accepted too — same dual-key rule as qd_listed above,
-# so a single config line agrees across quick_diff AND the ninja build.
-USE_OLD_AS_TXT="$ROOT/config/use_old_as.txt"
-OLD_AS_SELECTED=0
-if [[ -r "$USE_OLD_AS_TXT" ]] && \
-   awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b){f=1} END{exit !f}' "$USE_OLD_AS_TXT"; then
-    EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
-    OLD_AS_SELECTED=1
-fi
+# There is no per-TU assembler selection: EE_AS above IS the assembler for
+# every TU, exactly as compile_c.sh does it, so quick_diff and the ninja build
+# can never disagree on delay-slot filling. config/use_old_as.txt (a per-TU
+# opt-in to the assembler that was already the default) was retired 2026-09-04.
 # NO MODERN-GAS PATH. config/use_modern_as.txt and the silent failure fallback
 # were both retired 2026-08-05 (see compile_c.sh for the full rationale): modern
 # gas fills delay slots ee-as 2.9-991111 leaves bare, so anything reaching it can
@@ -381,8 +361,7 @@ assemble() {
     # so flatten+translate the .s first (byte-identical GPREL16) — UNCONDITIONALLY,
     # exactly as compile_c.sh does, so quick_diff and the ninja build agree.
     # Do NOT reinstate a bare-2.96 default path: that silently fell back to modern
-    # gas and faked phantom delay-fills the real build never had. (use_old_as.txt
-    # is now redundant — the period assembler IS the default.)
+    # gas and faked phantom delay-fills the real build never had.
     #
     # HARD-FAIL, never fall back. The old `2>/dev/null` + trailing modern-gas call
     # meant a period-assembler rejection (e.g. an untranslated $ACC/$Q/$R) silently

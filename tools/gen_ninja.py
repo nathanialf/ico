@@ -54,17 +54,14 @@ AUTO_FUNCS = ROOT / "config" / f"undefined_funcs_auto.{VERSION}.txt"
 AUTO_SYMS = ROOT / "config" / f"undefined_syms_auto.{VERSION}.txt"
 EXTRA_SYMS = ROOT / "config" / f"undefined_funcs_extra.{VERSION}.txt"
 
-POSTPROCESS_TXTS = [
-    "extra_cflags.txt",
-    # use_modern_as.txt retired 2026-08-05 — the file is gone and no tool reads
-    # it. Modern gas fills delay slots ee-as 2.9-991111 leaves bare, so any TU
-    # that reached it could read as MATCHED on the assembler's scheduling rather
-    # than on source shape (8 functions were falsely matched that way and had to
-    # be reverted). See compile_c.sh / decomp/NOTES.md "Assembler".
-    "use_old_as.txt",
-    # no_trailing_nop / shared_sp_restore / shared_jr_restore retired
-    # 2026-05-31 (funcs parked to asm).
-]
+# Per-function/per-TU compile allowlists are a RETIRED, banned matching lever
+# (CLAUDE.md "Crutches are BANNED"). extra_cflags.txt / use_old_as.txt /
+# lit4_pool_slots.txt were removed 2026-09-04 along with the code paths in
+# compile_c.sh + quick_diff.sh that read them; use_modern_as.txt went 2026-08-05
+# and no_trailing_nop / shared_sp_restore / shared_jr_restore 2026-05-31. The
+# list stays (empty) because the ninja rebuild dependency edges below are keyed
+# off it — a future always-on config would be added here, not a matching lever.
+POSTPROCESS_TXTS = []
 
 OUTPUT = ROOT / "build.ninja"
 
