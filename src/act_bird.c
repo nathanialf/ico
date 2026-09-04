@@ -55,7 +55,9 @@ float vector_angle_degree(void *a0, void *a1) {
     sceVu0Normalize(v1, a1);
     return radians_to_degrees(acosf(sceVu0InnerProduct(v0, v1)));
 }
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_0019FF18);
+INCLUDE_ASM("asm/nonmatchings/src/act_bird", subBirdControl);
+INCLUDE_ASM("asm/nonmatchings/src/act_bird", subBirdCollision);
+INCLUDE_ASM("asm/nonmatchings/src/act_bird", actBirdStart);
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", InitBirdGeo);
 void BirdAI(void) {}
 extern void _ACTSendMailToBird();

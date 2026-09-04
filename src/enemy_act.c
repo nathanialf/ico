@@ -227,7 +227,9 @@ int GetMotherGeneratorLabelAskEnemy(char *a0) {
 int GetMotherGeneratorGObjAskEnemy(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x468);
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016A568);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Idle);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Await);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_FindGirl);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_BodyGuard);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Shoulder);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Pickup);

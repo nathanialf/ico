@@ -127,7 +127,8 @@ void funcCommonFallDircorrect(char *a0) {
     SetMotionDirection(a0, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x360);
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", correctJumpOrientByChain);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D818);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonJump);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonFall);
 ASM_LIT4_SLOT(D_00638E68, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", debugDispFlyLimit);
 extern int MatrixDrive_GetMatrix(void);
