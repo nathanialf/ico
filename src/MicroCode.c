@@ -2,8 +2,10 @@
 
 #include "vu0.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/MicroCode", mc_setBaseOffset);
-INCLUDE_ASM("asm/nonmatchings/src/MicroCode", mc_SetMicroCode);
+/* prototypes: their order is the inline tail's emission order */
+void mc_TransMicroCode(int a0, int a1);
+void mc_Reset(void);
+void mc_Init(void);
 extern int D_00290B20[];
 extern int D_0063C140;
 extern int D_0067BFD0[];
@@ -11,8 +13,8 @@ extern int dl_CloseDma(void);
 extern void dl_OpenDma(int a0, int a1, int a2);
 extern int dl_SetDLPriority(int a0);
 extern void mc_setBaseOffset(int a0, int a1);
-
-void mc_TransMicroCode(int a0, int a1) {
+INCLUDE_ASM("asm/nonmatchings/src/MicroCode", mc_setBaseOffset);
+inline void mc_TransMicroCode(int a0, int a1) {
     int *q = &D_00290B20[a0];
     int i;
     for (i = 0; i < 0xD; i++) {
@@ -28,7 +30,8 @@ void mc_TransMicroCode(int a0, int a1) {
         }
     }
 }
-void mc_Reset(void)
+INCLUDE_ASM("asm/nonmatchings/src/MicroCode", mc_SetMicroCode);
+inline void mc_Init(void)
 {
     int *p = D_0067BFD0;
     int i = 0xC;
@@ -40,7 +43,7 @@ void mc_Reset(void)
         p--;
     } while (i >= 0);
 }
-void mc_Init(void)
+inline void mc_Reset(void)
 {
     int *p = D_0067BFD0;
     int i = 0xC;

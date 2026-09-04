@@ -1,6 +1,10 @@
 #include "common.h"
 
 /* .data — carved VMA 0x4EE5F0..0x4EE6F0 (1 symbols), bytes verified against the target ELF */
+/* prototypes: their order is the inline tail's emission order */
+int font_GetWidth(void);
+int font_GetHeight(void);
+void font_Init(void);
 unsigned int D_004EE5F0[64] = {
     0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -19,29 +23,25 @@ unsigned int D_004EE5F0[64] = {
     0x0E050E05, 0x0E060D06, 0x0E050D06, 0x11020E04,
     0x0E040F04, 0x0C060E05, 0x0D070B08, 0x10020F05,
 };
-
-
-INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_CheckAlign);
-INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_Print);
-int font_GetWidth(void)
-{
-    return 0x14;
-}
 extern int D_0063A064;
-
-int font_GetHeight(void) {
-    return (0x3200 / D_0063A064) / 2;
-}
 extern int D_0063BD00;
 extern int D_0063BD04;
 extern int D_0063BD08;
 extern int D_0063BD0C;
 extern int D_0063BD10;
-
-void font_Init(void) {
+inline int font_GetWidth(void)
+{
+    return 0x14;
+}
+inline int font_GetHeight(void) {
+    return (0x3200 / D_0063A064) / 2;
+}
+inline void font_Init(void) {
     D_0063BD00 = 0;
     D_0063BD10 = 0x80;
     D_0063BD0C = 0x80;
     D_0063BD08 = 0x80;
     D_0063BD04 = 0x80;
 }
+INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_CheckAlign);
+INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_Print);

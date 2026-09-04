@@ -1,16 +1,14 @@
 #include "common.h"
 
+extern int D_0063ABE8;
+extern int D_006E6D60[];
+extern void soundDataClose();
 INCLUDE_ASM("asm/nonmatchings/src/fightSound", fightSoundProcessMain);
 INCLUDE_ASM("asm/nonmatchings/src/fightSound", fightSoundProcess);
-extern int D_0063ABE8;
-
 void fightSoundProcessRequestPause(void)
 {
     D_0063ABE8 = 1;
 }
-extern int D_006E6D60[];
-extern void soundDataClose();
-
 void fightSoundClose(void)
 {
     if (D_006E6D60[0] != 0) {

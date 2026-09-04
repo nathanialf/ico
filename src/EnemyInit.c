@@ -1,9 +1,8 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", enemy_Initialize);
 extern char D_0063BD38[8];
 extern int D_007285A0[];
-
+INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", enemy_Initialize);
 int enemy_GetPositionTable(int idx, int sub_idx)
 {
     register int factor;

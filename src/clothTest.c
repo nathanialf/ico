@@ -7,7 +7,6 @@ extern char D_0061F2A0[];
 extern int D_0063A438;
 extern int InitClothes(char *p);
 extern int *iosMallocDebug(int handle, int size, char *file, int line);
-
 int *InitClothTestGeo(void)
 {
     int *p = iosMallocDebug(D_0063A438, 0x290, (char *)D_0061F2A0, 0x41);

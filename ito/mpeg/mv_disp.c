@@ -4,10 +4,54 @@
 
 #include "r5900.h"
 
+/* prototypes: their order is the inline tail's emission order */
+void dispDelete(void);
+void loadImage(int a0);
+int handler_endimage(void);
+void startDisplay(int a0);
+void endDisplay(void);
+void *setDMAscTag(void *a0, int a1, unsigned int a2, int a3, int p4, int p5, int p6);
+void *setGIFtag(int *a0, long long a1, int a2, int a3, int p4, int p5, int p6, int p7);
+void *setGIFad(int *a0, int a1, long long a2);
+char *setTEXFLUSH(char *p);
+void *setTEX1_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7);
+void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
+                 unsigned int p8, unsigned int p9, unsigned int p10, unsigned int p11, unsigned int p12);
+void *setPRIM(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8, unsigned int p9);
+void *setUV(int *a0, int a1, int a2);
+void *setRGBAQ(int *a0, int a1, int a2, int a3, int p4, int p5);
+void *setXYZ2(int *a0, int a1, int a2, int a3);
+void *setFRAME_1(int *a0, int a1, int a2, int a3, int p4);
+void *setTEST_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8);
+void *setSCISSOR_1(int *a0, int a1, int a2, int a3, int p4);
+void *setXYOFFSET_1(int *a0, unsigned int a1, unsigned int a2);
+void *setPRMODECONT(int *a0, int a1);
+void *setPRMODE(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8);
+void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3,
+                    unsigned int a4, unsigned int a5, unsigned int a6);
+int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3);
+int *setTRXPOS(int *a0, long long a1, long long a2, long long a3);
+void *setTRXREG(int *a0, int a1, int a2);
+void *setTRXDIR(char *a0, unsigned int a1);
+extern void setDispEnv(int *self, int a1, int a2);
+extern int D_0072A040[];
+extern void sceGsPutDispEnv__pn(void *a0) __asm__("sceGsPutDispEnv");
+extern void sceGsSyncPath(int a0, int a1);
+extern int sceGsPutDispEnv();
+extern char voBuf[];
+extern int D_0063C0BC;
+extern void voBufDecCount(int *p);
+extern int D_0063C0B4;
+extern int D_0063C0B8;
+extern int D_0063C5C4;
+extern int sceGsSyncV(int a0);
+inline void loadImage(int a0) {
+    *(volatile unsigned int *)0x1000A030 = phys_addr(a0);
+    *(volatile unsigned int *)0x1000A020 = 0;
+    *(volatile unsigned int *)0x1000A000 = 0x105;
+}
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispClear);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setDispEnv);
-extern void setDispEnv(int *self, int a1, int a2);
-
 void setImageSize(int *self, int a1, int a2)
 {
     int lim = self[0x3C / 4];
@@ -16,10 +60,6 @@ void setImageSize(int *self, int a1, int a2)
     }
     setDispEnv(self, a1, a2);
 }
-extern int D_0072A040[];
-extern void sceGsPutDispEnv__pn(void *a0) __asm__("sceGsPutDispEnv");
-extern void sceGsSyncPath(int a0, int a1);
-
 void sendDispEnv(void *a0) {
     sceGsPutDispEnv__pn(a0);
     a0 = (void *)((unsigned int)D_0072A040 & 0x0FFFFFFF);
@@ -29,9 +69,8 @@ void sendDispEnv(void *a0) {
     sceGsSyncPath(0, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispCreate);
+inline void dispDelete(void) {}
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispSetTags);
-extern int sceGsPutDispEnv();
-
 void dispSwitch(int *a0, int flag)
 {
   int src;
@@ -54,17 +93,7 @@ void dispSwitch(int *a0, int flag)
   return sceGsPutDispEnv(a0);
 }
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
-void dispDelete(void) {}
-void loadImage(int a0) {
-    *(volatile unsigned int *)0x1000A030 = phys_addr(a0);
-    *(volatile unsigned int *)0x1000A020 = 0;
-    *(volatile unsigned int *)0x1000A000 = 0x105;
-}
-extern char voBuf[];
-extern int D_0063C0BC;
-extern void voBufDecCount(int *p);
-
-int handler_endimage(void)
+inline int handler_endimage(void)
 {
     if (D_0063C0BC != 0) {
         voBufDecCount(voBuf);
@@ -74,22 +103,17 @@ int handler_endimage(void)
     EI();
     return 0;
 }
-extern int D_0063C0B4;
-extern int D_0063C0B8;
-extern int D_0063C5C4;
-extern int sceGsSyncV(int a0);
-
-void startDisplay(int a0) {
+inline void startDisplay(int a0) {
     while (sceGsSyncV(0) == a0);
     *(volatile int *)&D_0063C0B8 = 1;
     D_0063C5C4 = 0;
     *(volatile int *)&D_0063C0B4 = 0;
 }
-void endDisplay(void) {
+inline void endDisplay(void) {
     D_0063C0B8 = 0;
     D_0063C5C4 = 0;
 }
-void *setDMAscTag(void *a0, int a1, unsigned int a2, int a3, int p4, int p5, int p6) {
+inline void *setDMAscTag(void *a0, int a1, unsigned int a2, int a3, int p4, int p5, int p6) {
     unsigned long long g1 = ((unsigned long long)a1 << 63) | (unsigned int)p6;
     unsigned long long g2 = ((unsigned long long)(unsigned int)p4 << 28)
         | ((unsigned long long)(unsigned int)a3 << 31);
@@ -98,7 +122,7 @@ void *setDMAscTag(void *a0, int a1, unsigned int a2, int a3, int p4, int p5, int
     *(long long *)a0 = g1 | g2 | g3;
     return (char *)a0 + 0x10;
 }
-void *setGIFtag(int *a0, long long a1, int a2, int a3, int p4, int p5, int p6, int p7) {
+inline void *setGIFtag(int *a0, long long a1, int a2, int a3, int p4, int p5, int p6, int p7) {
     int hi = (p5 << 14) | (a2 << 28);
     int lo = (a3 << 26) | (p4 << 15);
     a0[0] = (p6 << 15) | p7;
@@ -107,21 +131,21 @@ void *setGIFtag(int *a0, long long a1, int a2, int a3, int p4, int p5, int p6, i
     a0[3] = (int)(a1 >> 32);
     return (char *)a0 + 0x10;
 }
-void *setGIFad(int *a0, int a1, long long a2) {
-    a0[0] = (int)(a2 & 0xFFFFFFFFLL);
-    a0[1] = (int)(a2 >> 32);
-    a0[2] = a1;
-    a0[3] = 0;
-    return (char *)a0 + 0x10;
-}
-char *setTEXFLUSH(char *p) {
+inline char *setTEXFLUSH(char *p) {
     *(int *)(p + 0) = 0;
     *(int *)(p + 8) = 0x3F;
     *(int *)(p + 4) = 0;
     *(int *)(p + 0xC) = 0;
     return p + 0x10;
 }
-void *setTEX1_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7) {
+inline void *setGIFad(int *a0, int a1, long long a2) {
+    a0[0] = (int)(a2 & 0xFFFFFFFFLL);
+    a0[1] = (int)(a2 >> 32);
+    a0[2] = a1;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
+inline void *setTEX1_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7) {
     long long t = (unsigned int)a1
         | ((unsigned long long)(unsigned int)a2 << 2)
         | ((unsigned long long)(unsigned int)a3 << 5)
@@ -135,7 +159,7 @@ void *setTEX1_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
+inline void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
                  unsigned int p8, unsigned int p9, unsigned int p10, unsigned int p11, unsigned int p12) {
     long long t = (unsigned int)a1
         | ((unsigned long long)(unsigned int)a2 << 14)
@@ -155,7 +179,7 @@ void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setPRIM(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8, unsigned int p9) {
+inline void *setPRIM(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8, unsigned int p9) {
     long long t = (unsigned int)a1
         | ((unsigned long long)(unsigned int)a2 << 3)
         | ((unsigned long long)(unsigned int)a3 << 4)
@@ -171,7 +195,7 @@ void *setPRIM(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, u
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setUV(int *a0, int a1, int a2) {
+inline void *setUV(int *a0, int a1, int a2) {
     long long t = (unsigned int)a1 | ((unsigned long long)(unsigned int)a2 << 16);
     a0[0] = (int)(t & 0xFFFFFFFFLL);
     a0[1] = (int)(t >> 32);
@@ -179,7 +203,7 @@ void *setUV(int *a0, int a1, int a2) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setRGBAQ(int *a0, int a1, int a2, int a3, int p4, int p5) {
+inline void *setRGBAQ(int *a0, int a1, int a2, int a3, int p4, int p5) {
     long long t = (unsigned int)a1
         | ((unsigned long long)(unsigned int)a2 << 8)
         | ((unsigned long long)(unsigned int)a3 << 16)
@@ -191,7 +215,7 @@ void *setRGBAQ(int *a0, int a1, int a2, int a3, int p4, int p5) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setXYZ2(int *a0, int a1, int a2, int a3) {
+inline void *setXYZ2(int *a0, int a1, int a2, int a3) {
     long long t = (unsigned int)a1 | ((unsigned long long)(unsigned int)a2 << 16) | ((long long)a3 << 32);
     a0[0] = (int)(t & 0xFFFFFFFFLL);
     a0[1] = (int)(t >> 32);
@@ -199,7 +223,7 @@ void *setXYZ2(int *a0, int a1, int a2, int a3) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setFRAME_1(int *a0, int a1, int a2, int a3, int p4) {
+inline void *setFRAME_1(int *a0, int a1, int a2, int a3, int p4) {
     long long t = (unsigned int)a1
         | ((unsigned long long)(unsigned int)a2 << 16)
         | ((unsigned long long)(unsigned int)a3 << 24)
@@ -210,7 +234,7 @@ void *setFRAME_1(int *a0, int a1, int a2, int a3, int p4) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setTEST_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8) {
+inline void *setTEST_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8) {
     long long t = (unsigned int)a1
         | ((unsigned long long)(unsigned int)a2 << 1)
         | ((unsigned long long)(unsigned int)a3 << 4)
@@ -225,7 +249,7 @@ void *setTEST_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setSCISSOR_1(int *a0, int a1, int a2, int a3, int p4) {
+inline void *setSCISSOR_1(int *a0, int a1, int a2, int a3, int p4) {
     long long t = (unsigned int)a1
         | ((unsigned long long)(unsigned int)a2 << 16)
         | ((long long)a3 << 32)
@@ -236,7 +260,7 @@ void *setSCISSOR_1(int *a0, int a1, int a2, int a3, int p4) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setXYOFFSET_1(int *a0, unsigned int a1, unsigned int a2) {
+inline void *setXYOFFSET_1(int *a0, unsigned int a1, unsigned int a2) {
     unsigned long long v = (unsigned int)a1 | ((unsigned long long)a2 << 32);
     int new_var;
     a0[0] = (int)(v << 32 >> 32);
@@ -246,7 +270,7 @@ void *setXYOFFSET_1(int *a0, unsigned int a1, unsigned int a2) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setPRMODECONT(int *a0, int a1) {
+inline void *setPRMODECONT(int *a0, int a1) {
     long long t = (unsigned int)a1;
     a0[0] = (int)(t & 0xFFFFFFFFLL);
     a0[1] = (int)(t >> 32);
@@ -254,7 +278,7 @@ void *setPRMODECONT(int *a0, int a1) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setPRMODE(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8) {
+inline void *setPRMODE(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8) {
     long long t = ((unsigned long long)(unsigned int)a1 << 3)
         | ((unsigned long long)(unsigned int)a2 << 4)
         | ((unsigned long long)(unsigned int)a3 << 5)
@@ -269,7 +293,7 @@ void *setPRMODE(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3,
+inline void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3,
                     unsigned int a4, unsigned int a5, unsigned int a6) {
     long long v = a1 | ((long long)a2 << 2) | ((long long)a3 << 4) | ((long long)a4 << 14)
                 | ((long long)a5 << 24) | ((long long)a6 << 34);
@@ -279,7 +303,7 @@ void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3,
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3)
+inline int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3)
 {
     long long t = (a3 << 56) | (a2 << 48) | (a1 << 32);
     a0[1] = (int)(t >> 32);
@@ -288,7 +312,7 @@ int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3)
     a0[3] = 0;
     return a0 + 4;
 }
-int *setTRXPOS(int *a0, long long a1, long long a2, long long a3)
+inline int *setTRXPOS(int *a0, long long a1, long long a2, long long a3)
 {
     long long t = (a1 << (27 + 32)) | (a3 << 48) | (a2 << 32);
     a0[1] = (int)(t >> 32);
@@ -297,7 +321,7 @@ int *setTRXPOS(int *a0, long long a1, long long a2, long long a3)
     a0[3] = 0;
     return a0 + 4;
 }
-void *setTRXREG(int *a0, int a1, int a2) {
+inline void *setTRXREG(int *a0, int a1, int a2) {
     unsigned long long v = (unsigned int)a1;
     unsigned long long packed = ((unsigned long long)a2 << 32) | v;
     a0[0] = (int)v;
@@ -306,7 +330,7 @@ void *setTRXREG(int *a0, int a1, int a2) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-void *setTRXDIR(char *a0, unsigned int a1) {
+inline void *setTRXDIR(char *a0, unsigned int a1) {
     unsigned long long v = (unsigned int)a1;
     *(int *)(a0 + 8) = 0x53;
     *(int *)(a0 + 0) = (int)v;

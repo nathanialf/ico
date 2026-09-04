@@ -1,15 +1,20 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLine);
 extern int D_0063B8E8;
 extern void gif_SetGsReg();
-
+extern void gif_SpriteOrg_ll(int a0, long long a1) __asm__("gif_SetGsReg");
+extern void Draw2DLine();
+extern void _FTOI4Vector();
+extern int _getLine();
+extern void Draw2DLineG(int *a0, int *a1, int *a2, int *a3, int a4);
+extern void _FTOI4Vector__pn(int *out, int *src) __asm__("_FTOI4Vector");
+extern void _InitCurrentMatrix();
+extern int _getLine__pn(int *t0, int *t1, int *p1, int *p2) __asm__("_getLine");
+INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLine);
 void Draw2DLineSeg_Start(void)
 {
     gif_SetGsReg(0, D_0063B8E8);
 }
-extern void gif_SpriteOrg_ll(int a0, long long a1) __asm__("gif_SetGsReg");
-
 void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2) {
     gif_SpriteOrg_ll(1, (long long)a2[0] | ((long long)a2[1] << 8) | ((long long)a2[2] << 16) | ((long long)a2[3] << 24));
     gif_SpriteOrg_ll(5, (long long)a0[0] | ((long long)a0[1] << 16) | ((long long)a0[2] << 32));
@@ -17,10 +22,6 @@ void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLineG);
 INCLUDE_ASM("asm/nonmatchings/src/lineManager", _getLine);
-extern void Draw2DLine();
-extern void _FTOI4Vector();
-extern int _getLine();
-
 void DrawLine(int *p1, int *p2, int a2, int a3)
 {
     int t0[4];
@@ -32,11 +33,6 @@ void DrawLine(int *p1, int *p2, int a2, int a3)
     _FTOI4Vector(t3, t1);
     Draw2DLine(t2, t3, a2, a3);
 }
-extern void Draw2DLineG(int *a0, int *a1, int *a2, int *a3, int a4);
-extern void _FTOI4Vector__pn(int *out, int *src) __asm__("_FTOI4Vector");
-extern void _InitCurrentMatrix();
-extern int _getLine__pn(int *t0, int *t1, int *p1, int *p2) __asm__("_getLine");
-
 void DrawLineG(int *a0, int *a1, int *a2, int *a3, int a4) {
     int t0[4];
     int t1[4];

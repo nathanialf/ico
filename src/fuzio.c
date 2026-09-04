@@ -4,7 +4,10 @@ extern char D_0063A868[];
 extern char D_0063A870[];
 extern void debug_StdPrintfDummy(void *msg, ...);
 extern int fptodp(float f);
-
+extern char D_0063A878[];
+extern float FSqrt(float a0);
+extern float sceVu0InnerProduct(int a0, int a1);
+extern float sceVu0InnerProduct__pn(void *a, void *b) __asm__("sceVu0InnerProduct");
 void fzShowV(float *p)
 {
     int i = 3;
@@ -16,8 +19,6 @@ void fzShowV(float *p)
     } while (i >= 0);
     debug_StdPrintfDummy(D_0063A870);
 }
-extern char D_0063A878[];
-
 void fzShowM(int *p) {
     int i = 0;
     do {
@@ -27,8 +28,6 @@ void fzShowM(int *p) {
         p = (int *)((char *)p + 0x10);
     } while (i < 4);
 }
-extern float FSqrt(float a0);
-
 float fzMagnitude2f(float x, float z)
 {
     return FSqrt(x * x + z * z);
@@ -37,16 +36,12 @@ float fzMagnitude3f(float x, float y, float z)
 {
     return FSqrt(x * x + y * y + z * z);
 }
-extern float sceVu0InnerProduct(int a0, int a1);
-
 float fzMagnitudefv(int v)
 {
     return FSqrt(sceVu0InnerProduct(v, v));
 }
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitude2fv);
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitudeByLine);
-extern float sceVu0InnerProduct__pn(void *a, void *b) __asm__("sceVu0InnerProduct");
-
 float fzMagnitudeByLineSeg(float *p0, float *p1, float *p2) {
     float d1[4];
     float d2[4];

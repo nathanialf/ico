@@ -1,16 +1,15 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollStart);
-INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollScroll);
-INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollNameOut);
-INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollMain);
 extern int D_004E4600[];
 extern int staffRollAlpha;
 extern int D_0063C42C;
 extern float D_0063C430;
 extern float D_0063C434;
 extern int D_0063C438;
-
+INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollStart);
+INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollScroll);
+INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollNameOut);
+INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollMain);
 void staffRollWide(void)
 {
     D_0063C438 = 1;

@@ -2,12 +2,11 @@
 
 #include "ico/types.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/main", Emergency_DestroyAllThread);
 extern int D_0028F8F4[];
 extern int D_00639C80;
 extern int D_00639C94;
 extern void ExecKeyInput();
-
+INCLUDE_ASM("asm/nonmatchings/src/main", Emergency_DestroyAllThread);
 int movie_abort_check(void)
 {
   int ret = 0;

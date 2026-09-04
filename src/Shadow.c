@@ -2,22 +2,32 @@
 
 #include "vu0.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Reset);
-INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Draw);
+/* prototypes: their order is the inline tail's emission order */
+void shadow_KillShadow(int val);
+void shadow_DispCancel(int a0, int a1);
+void shadow_SetLength(char *a0, float f);
+void shadow_Init(void);
 extern char D_0054FD50[];
 extern void debug_StdPrintfDummy();
-
-void shadow_Render(void)
-{
-    float buf[4];
-    debug_StdPrintfDummy(D_0054FD50);
-}
 extern char *matrixptr;
 extern void _CopyVector(void *a0, void *a1);
 extern void _SetCurrentMatrix(void *a0);
 extern void _ClearTransCurrentMatrix(void);
 extern void _ApplyCurrentMatrix(void *a0, void *a1);
 extern void _NormalizeVector(void *a0, void *a1);
+extern void _PopCurrentMatrix(void);
+extern void _PushCurrentMatrix(void *a0);
+extern void _ScaleVector(void *a0, void *a1, float a2);
+extern void _TransposeCurrentMatrix(void);
+extern int D_0063A17C;
+extern int D_0063A178;
+INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Reset);
+INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Draw);
+void shadow_Render(void)
+{
+    float buf[4];
+    debug_StdPrintfDummy(D_0054FD50);
+}
 void shadow_getShadowVectorAverage(void *a0, char *a1) {
     _CopyVector(a0, a1 + 0x860);
     _SetCurrentMatrix(matrixptr + 0x80);
@@ -27,15 +37,6 @@ void shadow_getShadowVectorAverage(void *a0, char *a1) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_EntryClusterShadow);
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_EntryNormalShadow);
-extern char *matrixptr;
-extern void _ApplyCurrentMatrix(void *a0, void *a1);
-extern void _ClearTransCurrentMatrix(void);
-extern void _PopCurrentMatrix(void);
-extern void _PushCurrentMatrix(void *a0);
-extern void _ScaleVector(void *a0, void *a1, float a2);
-extern void _SetCurrentMatrix(void *a0);
-extern void _TransposeCurrentMatrix(void);
-
 void __GetCameraPos(void *a0) {
     _PushCurrentMatrix(a0);
     _SetCurrentMatrix(matrixptr + 0x80);
@@ -49,13 +50,10 @@ void __GetCameraPos(void *a0) {
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_RenderVolume);
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_RenderVolumeMulti);
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_MakeObjectData);
-INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Tool);
-extern int D_0063A17C;
-
-void shadow_KillShadow(int val) {
+inline void shadow_KillShadow(int val) {
     D_0063A17C = val;
 }
-void shadow_DispCancel(int a0, int a1) {
+inline void shadow_DispCancel(int a0, int a1) {
     char *obj = isysGObjGetExist_begin(a0);
     if (obj != 0) {
         long long bit = (long long)(a1 & 1) << 26;
@@ -76,16 +74,14 @@ void shadow_DispCancel(int a0, int a1) {
         } while (obj != 0);
     }
 }
-void shadow_SetLength(char *a0, float f) {
+inline void shadow_SetLength(char *a0, float f) {
     if (0.0f < f) {
         *(float *)(*(char **)(a0 + 0x858) + 0x3C) = f;
     } else {
         *(float *)(*(char **)(a0 + 0x858) + 0x3C) = *(float *)(*(char **)(a0 + 0x854) + 0x3C);
     }
 }
-extern int D_0063A178;
-extern int D_0063A17C;
-void shadow_Init(void) {
+inline void shadow_Init(void) {
     char *obj;
     D_0063A178 = 0;
     D_0063A17C = 0;
@@ -102,3 +98,4 @@ void shadow_Init(void) {
         }
     }
 }
+INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Tool);
