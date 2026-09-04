@@ -120,3 +120,4 @@ AttackCheckBoundaryDL# rc8 final call sibcalled; ROM joins epilogue
 GetChainNearestNodePosition# rc1 after refinement
 actE3St13cIntroChk  # rc2 v0/v1 for the gp store before _ACTWait
 debug_Assert        # rc1 first attempt
+DeleteParticleEffectsByID# rc22 table scan with double free

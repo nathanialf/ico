@@ -6,7 +6,17 @@ typedef struct { int x, y, w, h; } FR;
 
 typedef struct { char _0[0x20]; int f_20; char _24[0x18]; } GsysObjInfo;
 
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Assert);
+extern char D_0061B440[];
+extern char D_0063AE78[];
+extern char D_0063AE80[];
+void debug_Assert(char *fmt, ...) {
+    char buf[0x100];
+    vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
+    func_001B6230(D_0061B440, 0x570, buf);
+    __assert(D_0061B440, 0x570, D_0063AE78);
+    func_001B6250(D_0061B440, 0x571);
+    __assert(D_0061B440, 0x571, D_0063AE80);
+}
 extern int D_0063AE84;
 
 void debug_openLog(void) {
