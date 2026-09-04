@@ -9,7 +9,7 @@ typedef struct { char pad[4]; float f4; } CCPResult;
 INCLUDE_ASM("asm/nonmatchings/src/boyact", findChainInJump);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", CorrectOrient_RopeCliff);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001506E8);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150D98);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", handoff_heroin);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", CheckCollisionAttr);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", UpdateGeo);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", BoyBgaManager);
@@ -22,12 +22,12 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", OtherStageGirlPinchCamera_After);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", ACTDispLwsBoyStonize_InQueenStage);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", PrivInsCamProcess);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001537B0);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00155770);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", ACTSendMail_PULLUP_GO);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", pullup_check_heroin_position);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", ditch_check_heroin_position);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00155BA8);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157228);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157388);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", SetStatusBoy_OtherStageGirlPinch);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyStart);
 extern void ConvertStickToAbsCoord();
 extern void _RotyGV();
 
@@ -275,14 +275,14 @@ void afterBoyRescueGirlBhang(volatile int a0) {
 }
 extern void _ACTWait();
 
-void func_00158AE0(int a0)
+void subBoyBrainMain(int a0)
 {
     volatile int local = a0;
     while (1) {
         _ACTWait(1);
     }
 }
-void func_00158B00(int *a0, int *a1) {
+void SetBoyInfo(int *a0, int *a1) {
     int n;
     int i;
     if (a0 != 0) {

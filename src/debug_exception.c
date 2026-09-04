@@ -5,7 +5,7 @@ INCLUDE_ASM("asm/nonmatchings/src/debug_exception", traceLine);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", dispSource);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", display);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugEEExceptionMain);
-INCLUDE_ASM("asm/nonmatchings/src/debug_exception", func_001B6020);
+INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugIOPExceptionMain);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugExceptionInit);
 void debugIOPExceptionInit(void) {}
 void debug_assertMessage(char *file, int line, char *mes) {

@@ -63,7 +63,7 @@ void girlBrainMain_Init(void) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ChangeRunMode);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00171188);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00172920);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", ATGoalTurnMail);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", checkWaterfallResult);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00172D00);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001744A0);
@@ -171,14 +171,14 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00179940);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GirlAct_BoyAndMeCollisionMail);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", IsGirlStatusEscortEnable);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", DebugDispAutoEscort);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017B530);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017B760);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHintPoint);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", ACTGame_GirlBeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", FindGirlPullupFloorBoxGObj);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017B8A0);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BB90);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BBD8);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BC20);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BE70);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlBecall);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BF68);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C1D0);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C290);

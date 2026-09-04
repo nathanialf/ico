@@ -29,8 +29,8 @@ ASM_LIT4_SLOT(D_0063927C, -1.3f);
 ASM_LIT4_SLOT(D_00639280, 0.6f);
 ASM_LIT4_SLOT(D_00639284, 0.14285715f);
 ASM_LIT4_SLOT(D_00639288, 0.2f);
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_0019FC30);
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_0019FD30);
+INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_WireString_Bird);
+INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_StickControl);
 ASM_LIT4_SLOT(D_0063928C, 0.001f);
 extern void ExecMotionOrient();
 

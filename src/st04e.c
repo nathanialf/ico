@@ -15,4 +15,4 @@ INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eHint1Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eFuchi1Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eFuchi2Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eFuchi3Chk);
-INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0022D9E0);
+INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eSeChk);

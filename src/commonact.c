@@ -42,8 +42,8 @@ ASM_LIT4_SLOT(D_00638E40, 3.1415927f);
 ASM_LIT4_SLOT(D_00638E44, 3.1415927f);
 ASM_LIT4_SLOT(D_00638E48, 3.1415927f);
 ASM_LIT4_SLOT(D_00638E4C, 3.1415927f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015B398);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015B8F8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", TestCageUpDown);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeSpecial);
 ASM_LIT4_SLOT(D_00638E50, 0.7853982f);
 ASM_LIT4_SLOT(D_00638E54, 3.1415927f);
 extern void SetFloorLeverWithNodePoint(void *a0, void *a1, int a2);
@@ -73,11 +73,11 @@ void SetDirectRootPositionXZ(void *a0, void *a1) {
     *(float *)((char *)a1 + 4) = *(float *)((char *)ret + 4);
     SetDirectRootPositionNoFitting(a0, a1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015BD88);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonLever);
 ASM_LIT4_SLOT(D_00638E58, 0.2f);
 extern void eBrainSendMes(void *a0);
 
-void func_0015BF40(void *a0, int a1) {
+void EBRAIN_SEND_MES(void *a0, int a1) {
     if (a0 && *(int *)((char *)a0 + 0xC) == 4)
         eBrainSendMes(a0);
 }
@@ -85,7 +85,7 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", DamageFunc);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", DownFunc);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C050);
 ASM_LIT4_SLOT(D_00638E5C, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C520);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", Cling);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonCling);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C768);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C968);
@@ -121,7 +121,7 @@ void funcCommonFallDircorrect(char *a0) {
 INCLUDE_ASM("asm/nonmatchings/src/commonact", correctJumpOrientByChain);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D818);
 ASM_LIT4_SLOT(D_00638E68, 0.1f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015E240);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", debugDispFlyLimit);
 extern int MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
 extern void MatrixDrive_PushMatrix(void);
@@ -194,7 +194,7 @@ int E3_LeverCheck(char *a0) {
                : _RotyGV(test_CURRENTORIENT(a0), buf) < 0x2D;
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00160B28);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001613C8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", ContinueCorrectPosition);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00161510);
 ASM_LIT4_SLOT(D_00638ED4, 0.2f);
 ASM_LIT4_SLOT(D_00638ED8, 0.2f);

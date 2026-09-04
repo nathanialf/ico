@@ -22,7 +22,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st20a", actSt20aHint1);
 INCLUDE_ASM("asm/nonmatchings/src/st20a", actSt20aGirlPos);
 INCLUDE_ASM("asm/nonmatchings/src/st20a", func_00251FB8);
 INCLUDE_ASM("asm/nonmatchings/src/st20a", actSt20aBridgeDownSub);
-INCLUDE_ASM("asm/nonmatchings/src/st20a", func_00252100);
+INCLUDE_ASM("asm/nonmatchings/src/st20a", actSt20aGondolaSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st20a", actSt20aExitChk);
 INCLUDE_ASM("asm/nonmatchings/src/st20a", actSt20aEneChk);
 INCLUDE_ASM("asm/nonmatchings/src/st20a", actSt20aGirlPosChk);

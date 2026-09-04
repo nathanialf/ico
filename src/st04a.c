@@ -34,7 +34,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st04a", finishCallBackFunc);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateOpen2ReadyChk);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aEnvSeWakare2);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actConte09_3Jimaku);
-INCLUDE_ASM("asm/nonmatchings/src/st04a", func_0022AD88);
+INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateLSub);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateRSub);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", func_0022AE78);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aModelOffChk);

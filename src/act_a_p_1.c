@@ -11,10 +11,10 @@ void hehehe(char *a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", SleepAP1);
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", WakeUpAP1);
-INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", func_001C4DC0);
+INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", subAP1BrainMain);
 extern int AP1MotReqForce(int *self, int a1);
 
-void func_001C5250(int a0)
+void hitProc(int a0)
 {
     AP1MotReqForce(a0, 5);
 }

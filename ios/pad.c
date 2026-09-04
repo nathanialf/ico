@@ -167,7 +167,7 @@ extern void iosMsgQueueCreate(int *a, int *b, int c);
 extern void iosMsgRecv(int *a, void *b, int c);
 extern void iosPadDevReadFunc(void);
 
-void func_0013DE08(void)
+void iosPadDevManager(void)
 {
     int local_buf;
     iosMsgQueueCreate(D_0029C0B0__pn, D_006BCD38, 8);
@@ -176,6 +176,6 @@ void func_0013DE08(void)
         iosPadDevReadFunc();
     }
 }
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013DE50);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadActTickProc);
 void iosPadDisconWait(void) {}
 void iosPadErrorWait(void) {}

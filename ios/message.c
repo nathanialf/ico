@@ -26,8 +26,8 @@ void deq_mes_th(IosMsgQueue *self)
 }
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueCreate);
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueDestroy);
-INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013C608);
-INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013C720);
+INCLUDE_ASM("asm/nonmatchings/ios/message", send_signal_message);
+INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgSetEvent);
 extern int D_006BC938[];
 
 void iosMsgInit(void)

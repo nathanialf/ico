@@ -86,8 +86,8 @@ void scpTrans(void *a0, float *rot)
 INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerBallTargetMan);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpDown);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpUp);
-INCLUDE_ASM("asm/nonmatchings/src/script", func_00182220);
-INCLUDE_ASM("asm/nonmatchings/src/script", func_001823F0);
+INCLUDE_ASM("asm/nonmatchings/src/script", scpSubAdpcmPlay);
+INCLUDE_ASM("asm/nonmatchings/src/script", scpAdpcmCloseFunc);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceReady);
 extern char *D_0063AA10;
 extern char D_00554750[];
@@ -101,7 +101,7 @@ void scpGirlHintVoicePlay(void) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceTickProc);
 INCLUDE_ASM("asm/nonmatchings/src/script", func_00182810);
-INCLUDE_ASM("asm/nonmatchings/src/script", func_00182C58);
+INCLUDE_ASM("asm/nonmatchings/src/script", scpSekizou);
 INCLUDE_ASM("asm/nonmatchings/src/script", _SCPBoySupportGirl);
 void _SCPMoveCharactorByWay_Cancel(char *a0) {
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 47);

@@ -71,8 +71,8 @@ void stgmgrNextStagePreLoadEntry(int stage) {
     D_0063ACC4 = 0;
     D_0063ACC8 = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/StageManager", func_001A8AA8);
-INCLUDE_ASM("asm/nonmatchings/src/StageManager", func_001A8D98);
+INCLUDE_ASM("asm/nonmatchings/src/StageManager", StageManager);
+INCLUDE_ASM("asm/nonmatchings/src/StageManager", stgmgrForceSwitch);
 extern void stgmgrForceSwitchWithFadeColor(int a0, int a1, int a2, int a3);
 
 void stgmgrForceSwitchWithFade(int a0) {

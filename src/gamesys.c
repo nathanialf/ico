@@ -42,7 +42,7 @@ extern int *GetbufpGeneratorPacket(void);
 extern int GetsizeGeneratorPacket(void);
 extern int ReadGeneratorPacket();
 
-void func_001B6D40(int *a0)
+void gamesysGeneratorInfoLoad(int *a0)
 {
     int s1 = GetbufpGeneratorPacket();
     int s2 = GetsizeGeneratorPacket();
@@ -57,7 +57,7 @@ extern int *GetBuffHintSaveInfo(void);
 extern int GetSizeHintSaveInfo(void);
 extern int ReadHintSaveInfo();
 
-void func_001B6DF0(int *a0)
+void gamesysHintInfoLoad(int *a0)
 {
     int s1 = GetBuffHintSaveInfo();
     int s2 = GetSizeHintSaveInfo();

@@ -68,7 +68,7 @@ void actSt02aDoorDownEffect(volatile int a0){ long long b1[2]; long long b2[2];
   } _ACTWait(1); } }
 INCLUDE_ASM("asm/nonmatchings/src/st02a", func_002248B0);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aFenceOpenSub);
-INCLUDE_ASM("asm/nonmatchings/src/st02a", func_002249D8);
+INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aEneChk);
 void actSt02aSekizoEvent(int x) {
     volatile int local = x;
