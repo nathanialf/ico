@@ -36,7 +36,15 @@ void CorrectStickInfo(int a0)
     _RotyGV(buf, a0);
 
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", GetBoyWeaponGObj);
+extern void *D_00639EA4;
+
+void *GetBoyWeaponGObj(void) {
+    char *g = (char *)D_00639EA4;
+    if (g != 0) {
+        return *(void **)(*(char **)(g + 0x164) + 0x150);
+    }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157828);
 void func_001578C8(volatile int a0) {
     char *g = (char *)a0;
@@ -92,9 +100,24 @@ void ACTSearchEnemy(void *a0, int *out_id, float *out_vec) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/boyact", DeleteBoyWeapon);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", isLiftBoyEnable);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", SetKidnapInfo);
+extern void *D_00639EA4;
+
+int isLiftBoyEnable(void) {
+    unsigned int st = *(unsigned int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34);
+    if (st >= 0x60) {
+        return 1;
+    }
+    if (st < 0x5E) {
+        return 1;
+    }
+    return 0;
+}
 extern int D_006C0B30[];
+
+void SetKidnapInfo(int a0, int a1) {
+    D_006C0B30[5] = a0;
+    D_006C0B30[6] = a1;
+}
 void GetKidnapInfo(int *a0, int *a1) {
     *a0 = D_006C0B30[5];
     *a1 = D_006C0B30[6];
