@@ -8,7 +8,12 @@ typedef struct {
 extern void sceVu0CopyMatrix(void *a0, void *a1);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", scale_m34);
+void scale_m34(LVec *a0, void *a1, float f) {
+    sceVu0CopyMatrix(a0, a1);
+    sceVu0ScaleVector(a0, a0, f);
+    sceVu0ScaleVector(a0 + 1, a0 + 1, f);
+    return sceVu0ScaleVector(a0 + 2, a0 + 2, f);
+}
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A27D0);
 INCLUDE_ASM("asm/nonmatchings/src/queen", queenBeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A2A10);

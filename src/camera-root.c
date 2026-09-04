@@ -216,4 +216,6 @@ void testcamerazoom(void) {
 }
 extern int D_0063AB6C;
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", SetMonitorCameraInitializeFlag);
+void SetMonitorCameraInitializeFlag(void) {
+    D_0063AB6C = 1;
+}

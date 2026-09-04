@@ -24,4 +24,6 @@ void fightSoundProcessRequestStart(void) {
 int fightSoundProcessRequestStatus(void) {
     return D_0063ABE8;
 }
-INCLUDE_ASM("asm/nonmatchings/src/fightSound", fightSoundPlayChk);
+int fightSoundPlayChk(void) {
+    return D_006E6D60[0];
+}

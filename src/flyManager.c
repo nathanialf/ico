@@ -1,6 +1,21 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/flyManager", DispFlyInfo);
+extern int D_0063B234;
+extern int D_0063B898;
+extern int DrawGObjFloorCollision();
+
+void DispFlyInfo(void)
+{
+    int v0 = D_0063B234;
+    int a0 = D_0063B898;
+    if (v0 == 0) {
+        return;
+    }
+    if (a0 == 0) {
+        return;
+    }
+    return DrawGObjFloorCollision(a0, 0);
+}
 extern int D_0063B898;
 
 int InitFlyInfo(int *self)

@@ -2,7 +2,10 @@
 
 extern void ExecuteSEPackage(int a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/item", bombSparkStartSE);
+void bombSparkStartSE(int a0)
+{
+    ExecuteSEPackage(a0, 0x32);
+}
 INCLUDE_ASM("asm/nonmatchings/src/item", bombSparkSE);
 INCLUDE_ASM("asm/nonmatchings/src/item", bombExplodeSE);
 INCLUDE_ASM("asm/nonmatchings/src/item", HoldItem);

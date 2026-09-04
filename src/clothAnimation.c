@@ -8,7 +8,12 @@ typedef struct {
     unsigned short b;
 } ClothBuf;
 
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetChainExWeightGlobalPos);
+extern void CopyVector(void *dst, void *src);
+
+void GetChainExWeightGlobalPos(int a0, int a1, int a2)
+{
+    CopyVector(a0, a1 + a2 * 0x50 + 0x30);
+}
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", bindExWeight);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", bind2);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", calc2);

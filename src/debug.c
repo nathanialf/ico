@@ -25,7 +25,20 @@ void debug_LogPrintf(const char *fmt, ...) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SaveDebugOptionFile);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_GetDebugOption);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SetDmaCallback);
+extern int AddDmacHandler();
+extern unsigned int D_0063AE8C;
+extern void EnableDmac();
+extern void RemoveDmacHandler();
+extern int debug_CallbackGsFinish();
+
+void debug_SetDmaCallback(void)
+{
+    if ((int)D_0063AE8C != -1) {
+        RemoveDmacHandler(1, D_0063AE8C);
+    }
+    D_0063AE8C = AddDmacHandler(1, (int)debug_CallbackGsFinish, -1);
+    EnableDmac(1);
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_VariableInit);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Init);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Load);

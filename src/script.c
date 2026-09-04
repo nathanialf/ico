@@ -8,7 +8,15 @@ typedef union { float f[4]; int i[4]; } Vec4u;
 
 struct S { int a; int b; };
 
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTorchLightOn);
+extern void LightTorchOn(void *a0);
+extern int scpSearchGobj();
+
+void scpTorchLightOn(void) {
+    void *r = scpSearchGobj();
+    if (r) {
+        LightTorchOn(r);
+    }
+}
 extern void LightTorchOff();
 extern int scpSearchGobj();
 

@@ -310,4 +310,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocInitPartition);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocDebug);
 extern int _iosMallocDebug(void);
 
-INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocDebugNoAssert);
+int iosMallocDebugNoAssert(void)
+{
+    return _iosMallocDebug();
+}

@@ -536,4 +536,9 @@ int NearestWgFromTarget(int cur, int end, WgAll *w) {
     }
     return cur;
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_util", wpsort_compfnc);
+int wpsort_compfnc(float *a, float *b)
+{
+    if (a[1] < b[1]) return -1;
+    if (b[1] < a[1]) return 1;
+    return 0;
+}

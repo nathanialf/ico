@@ -2,7 +2,9 @@
 
 extern void isysGObjProcessAlloc(unsigned int a0);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", isysGObjProcessInit);
+void isysGObjProcessInit(unsigned int a0) {
+    isysGObjProcessAlloc(a0);
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", isysGObjProcAdd_);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", cut_gobj_process_link);
 extern void cut_gobj_process_link(int a0);

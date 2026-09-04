@@ -374,4 +374,9 @@ int ClipWallVector(int *a0, int *a1) {
     D_0063A840__pn(buf, 1);
     return buf[34];
 }
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", MapCollisionData);
+void MapCollisionData(int *self) {
+    int v0 = self[4];
+    int v1 = self[5];
+    self[4] = (int)((char *)self + v0);
+    self[5] = (int)((char *)self + v1);
+}

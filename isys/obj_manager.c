@@ -1,6 +1,17 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", iosOmInit);
+extern void isysGObjCameraDlInit(void);
+extern void isysGObjDlInit();
+extern void isysGObjInit();
+extern void isysGObjProcessInit();
+
+void iosOmInit(void)
+{
+    isysGObjInit(0x140);
+    isysGObjProcessInit(0x500);
+    isysGObjDlInit();
+    return isysGObjCameraDlInit();
+}
 INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", _iosOmMain);
 extern void _iosOmMain();
 

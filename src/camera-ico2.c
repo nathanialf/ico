@@ -27,7 +27,24 @@ extern int D_0063ABB4;
 extern int GetPluralCameraSet(int key);
 extern void ReflectCameraSetBinary(S4C *src, int count);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", CameraSetCameraSet);
+void CameraSetCameraSet(int a0) {
+    CamSetHdr *p = (CamSetHdr *)GetPluralCameraSet(a0);
+    CamSetItem *items = p->items;
+    int n = p->count;
+    CamSetItem *end = &items[n];
+    int i;
+    D_0063ABB0 = p;
+    D_0063ABB4 = n;
+    if (n > 0) {
+        void **fp = &items[0].end;
+        i = n;
+        do {
+            *fp = end;
+            fp = (void **)((char *)fp + sizeof(CamSetItem));
+        } while (--i);
+    }
+    ReflectCameraSetBinary((S4C *)items, n);
+}
 extern StageParam D_005F5D50[];
 extern int D_00639D10;
 
@@ -329,4 +346,10 @@ int GetSizeOfCameraSetBinary(S4C *p, int n) {
 }
 extern float D_006E6500[];
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", SetCameraTargetPosition);
+void SetCameraTargetPosition(float *a0, float *a1, float v) {
+    sceVu0ScaleVector(D_006E6500, a1, -1.0f);
+    sceVu0ScaleVector(&D_006E6500[4], a0, -1.0f);
+    sceVu0ScaleVector(D_006E6620, a0, -1.0f);
+    sceVu0ScaleVector(D_006E6630, a0, -1.0f);
+    D_006E6500[8] = v;
+}

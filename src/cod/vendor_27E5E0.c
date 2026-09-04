@@ -419,13 +419,30 @@ void *__sfmoreglue(void *a0, int a1) {
     return p;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", __sfp);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _cleanup_r);
+extern void _fwalk(int a0, void *a1);
+extern int fflush(void);
+
+void _cleanup_r(int a0) {
+    _fwalk(a0, fflush);
+}
 extern void _cleanup_r(int a0);
 
 void _cleanup(void) {
     _cleanup_r(D_0054CEAC[0]);
 }
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", __sinit);
+extern void std();
+
+void __sinit(char *a0) {
+    char *p = a0 + 0x1E4;
+    *(void **)(a0 + 0x3C) = (void *)_cleanup_r;
+    *(int *)(a0 + 0x38) = 1;
+    std(p, 4, 0, (int)a0);
+    std(a0 + 0x23C, 9, 1, (int)a0);
+    std(a0 + 0x294, 0xA, 2, (int)a0);
+    *(char **)(a0 + 0x1E0) = p;
+    *(int *)(a0 + 0x1DC) = 3;
+    *(int *)(a0 + 0x1D8) = 0;
+}
 extern int __srefill(StreamBuf *s);
 extern int memcpy(char *a0, char *a1, int a2);
 

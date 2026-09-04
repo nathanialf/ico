@@ -3,7 +3,10 @@
 extern int D_0063C320;
 extern void RotateThreadReadyQueue();
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", switchThread);
+void switchThread(void)
+{
+    RotateThreadReadyQueue(D_0063C320);
+}
 extern int D_006F2B98[];
 extern void audioDecSendToIOP();
 

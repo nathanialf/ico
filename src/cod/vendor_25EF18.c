@@ -1036,8 +1036,37 @@ __asm__(
     "    .set reorder\n"
     "    .set at\n"
 );
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", SetTLBHandler);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", SetDebugHandler);
+extern int D_0054A490[];
+extern void SetVTLBRefillHandler();
+extern void func_00265040(void);
+
+void *SetTLBHandler(void *a0) {
+    D_0054A490[0] = (int)a0;
+    SetVTLBRefillHandler(1, func_00265040);
+    SetVTLBRefillHandler(2, func_00265040);
+    SetVTLBRefillHandler(3, func_00265040);
+    return a0;
+}
+extern char D_00265280[];
+extern int D_0054A498[];
+extern void SetVCommonHandler();
+
+int SetDebugHandler(int a0, int a1) {
+    int old;
+    int orig = a0;
+    unsigned int err = 0xFFFFFFFF;
+    if ((unsigned)(a0 - 1) >= 13) {
+        return (int)err;
+    }
+    old = D_0054A498[orig];
+    D_0054A498[orig] = a1;
+    if ((unsigned)(a0 - 1) < 3) {
+        SetVTLBRefillHandler(orig, (void *)D_00265280);
+    } else {
+        SetVCommonHandler(orig, (void *)D_00265280);
+    }
+    return old;
+}
 __asm__(
     ".section .text\n"
     "    .set at\n"

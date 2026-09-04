@@ -1417,20 +1417,90 @@ __asm__(
     "    .set reorder\n"
     "    .set at\n"
 );
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _copyAddRefImage);
+extern int D_0026E920;
+
+void _copyAddRefImage(void *a0, void *a1, void *a2) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "addiu $12, $0, 0x18\n"
+        "lui $10, %%hi(D_0026E920)\n"
+        "addiu $10, $10, %%lo(D_0026E920)\n"
+        "lq $11, 0x0($10)\n"
+        "1:\n"
+        "lq $8, 0x0($5)\n"
+        "addi $12, $12, -0x1\n"
+        "lq $13, 0x0($6)\n"
+        "addiu $4, $4, 0x10\n"
+        "lq $9, 0x10($5)\n"
+        "paddh $8, $8, $13\n"
+        "lq $2, 0x10($6)\n"
+        "pminh $8, $8, $11\n"
+        "paddh $9, $9, $2\n"
+        "pmaxh $8, $8, $0\n"
+        "pminh $9, $9, $11\n"
+        "addiu $5, $5, 0x20\n"
+        "pmaxh $9, $9, $0\n"
+        "addiu $6, $6, 0x20\n"
+        "ppacb $10, $9, $8\n"
+        "bnez $12, 1b\n"
+        "sq $10, -0x10($4)\n"
+        ".set reorder\n"
+        ::: "$2","$8","$9","$10","$11","$12","$13","memory");
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", func_0026E8D8);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _ipuSetMPEG1);
+void _ipuSetMPEG1(int a0) {
+    int *reg = (int *)0x10002010;
+    *reg = (*reg & 0xFF7FFFFF) | (a0 << 23);
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _waitBdecOut);
 extern int _ipuVdec(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dmVector);
+int _dmVector(void) {
+    return _ipuVdec(3);
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dualPrimeVector);
 extern int D_0054C208[];
 extern int D_00636FE0[];
 extern void _flushBuf(int a0);
 extern int _peepBit(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _mbAddressIncrement);
+int _mbAddressIncrement(void) {
+    int cont;
+    int sum;
+    unsigned int v;
+
+    sum = 0;
+    do {
+        v = _ipuVdec(0);
+        switch (v) {
+        case 0x22:
+            cont = 1;
+            break;
+        case 0x23:
+            cont = 1;
+            sum += 0x21;
+            break;
+        case 0:
+            {
+                int r = _peepBit(0xB);
+                if ((D_0054C9B0[0] != 0) && (r == 0xF)) {
+                    _flushBuf(0xB);
+                    cont = 1;
+                } else {
+                    _Error1((int) D_00636FE0, v);
+                    D_0054C208[0] = 1;
+                    return 1;
+                }
+            }
+            break;
+        default:
+            sum += v;
+            cont = 0;
+            break;
+        }
+    } while (cont);
+    return sum;
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _pictureData0);
 extern int D_0054C228[];
 extern int D_0054C33C[];
@@ -1439,7 +1509,39 @@ extern int D_00637060[];
 extern void _nextStartCode(void);
 extern int _sliceB(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sliceA0);
+int _sliceA0(int a0, int *a1, int *a2, int *a3) {
+    int id;
+    int m;
+    int n;
+
+    D_0054C208[0] = 0;
+    _nextStartCode();
+    id = _peepBit(0x20);
+    if ((unsigned int) (id - 0x101) >= 0xAF) {
+        _Error1((int) D_00637038, id);
+        return 2;
+    }
+    _flushBuf(0x20);
+    m = _sliceB();
+    n = _mbAddressIncrement();
+    *a2 = n;
+    if (D_0054C208[0] != 0) {
+        _Error(D_00637060);
+        return 1;
+    }
+    *a1 = ((((m << 7) + (id & 0xFF)) - 1) * D_0054C228[0] + n) - 1;
+    *a2 = 1;
+    D_0054C33C[0] = 1;
+    a3[5] = 0;
+    a3[4] = 0;
+    a3[1] = 0;
+    a3[0] = 0;
+    a3[7] = 0;
+    a3[6] = 0;
+    a3[3] = 0;
+    a3[2] = 0;
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _slice0);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _skipMB0);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decMB0);
@@ -1448,7 +1550,41 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _motionVectors);
 extern void _decode_motion_vector();
 extern int _nextBit(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _motionVector);
+void _motionVector(char *a0, char *a1, void *a2, void *a3, int a4, int a5, int a6) {
+    void *r;
+    int r2;
+
+    r = (void *)_ipuVdec(2);
+    if (a2 == 0) goto c1z;
+    if (r == 0) { r2 = 0; goto c1c; }
+    r2 = _nextBit(a2);
+    goto c1c;
+c1z:
+    r2 = 0;
+c1c:
+    _decode_motion_vector(a0, a2, r, r2, a6);
+    if (a4 != 0) {
+        *(int *)a1 = _dmVector();
+    }
+    r = (void *)_ipuVdec(2);
+    if (a3 == 0) goto c2z;
+    if (r == 0) { r2 = 0; goto c2c; }
+    r2 = _nextBit(a3);
+    goto c2c;
+c2z:
+    r2 = 0;
+c2c:
+    if (a5 != 0) {
+        *(int *)(a0 + 4) = *(int *)(a0 + 4) >> 1;
+    }
+    _decode_motion_vector(a0 + 4, a3, r, r2, a6);
+    if (a5 != 0) {
+        *(int *)(a0 + 4) = *(int *)(a0 + 4) * 2;
+    }
+    if (a4 != 0) {
+        *(int *)(a1 + 4) = _dmVector();
+    }
+}
 extern int D_0054C124[];
 extern int D_0054CA08[];
 
@@ -1490,11 +1626,35 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _updateRefImage);
 extern char D_00637188[];
 extern void sprintf__pn() __asm__("sprintf");
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _isOutSizeOK);
+int _isOutSizeOK(char *p) {
+    char *c = *(char **)((char *)D_0054C0E4[0] + 0x40);
+    int e0 = *(int *)(c + 0xE0);
+    int flag;
+    if (e0 != 0) {
+        flag = *(int *)(c + 0xDC) >= *(int *)(p + 0x4) && e0 >= *(int *)(p + 0x8);
+    } else {
+        flag = *(int *)(c + 0xE4) >= *(int *)(p + 0xC) * *(int *)(p + 0x10);
+    }
+    if (flag == 0) {
+        char buf[0x100];
+        sprintf__pn(buf, (int)D_00637188, *(int *)(p + 0x4), *(int *)(p + 0x8));
+        _Error(buf);
+    }
+    return flag;
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _cpr8);
 extern int D_0054C980[];
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _markOutput);
+int _markOutput(void) {
+    int *q = *(int **)((char *)D_0054C0E4[0] + 0x40);
+    if (q[2] != 2) {
+        int v = D_0054C204[0];
+        q[2] = 2;
+        q[0x2B] = v;
+    }
+    D_0054C980[0] = 1;
+    return 1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _getPtsDtsFlags);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dispRefImage);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dispRefImageField);
@@ -1509,17 +1669,67 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _ch4dma);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _csc_storeRefImage);
 extern void _sysbitFlush(int *a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitInit);
+void _sysbitInit(int *a0, int a1, int a2, int a3) {
+    a0[2] = a1;
+    a0[3] = a1;
+    *(long long *)a0 = 0;
+    a0[4] = 0;
+    *(long long *)(a0 + 6) = 0;
+    a0[8] = a2;
+    a0[9] = a2 + a3;
+    a0[0xA] = a3;
+    _sysbitFlush(a0, 0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitNext);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitFlush);
 extern int _sysbitNext__pn(unsigned long long *p, int n) __asm__("_sysbitNext");
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitGet);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitMarker);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitJump);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitPtr);
+int _sysbitGet(int *self, int a1)
+{
+    int ret = _sysbitNext__pn(self, a1);
+    _sysbitFlush(self, a1);
+    return ret;
+}
+int _sysbitMarker(int *self)
+{
+    int ret = _sysbitNext__pn(self, 1);
+    _sysbitFlush(self, 1);
+    return ret;
+}
+void _sysbitJump(int *a0, int a1) {
+    long long x = *(long long *)(a0 + 6) + (a1 << 3);
+    int v;
+    *(long long *)a0 = 0;
+    a0[4] = 0;
+    *(long long *)(a0 + 6) = x;
+    v = a0[2] + (int)(x >> 3);
+    a0[3] = v;
+    if ((unsigned int)v >= (unsigned int)a0[9]) {
+        a0[3] = v - a0[10];
+    }
+    _sysbitFlush(a0, 0);
+}
+int _sysbitPtr(int *a0, int a1) {
+    int v = a0[2] + (a1 >> 3);
+    if ((unsigned int)v >= (unsigned int)a0[9]) {
+        v -= a0[10];
+    }
+    return v;
+}
 extern void DIntr(int *self);
 extern void EIntr(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", setD3_CHCR);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", setD4_CHCR);
+void setD3_CHCR(int *a0) {
+    DIntr(a0);
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
+    *(volatile int *)0x1000B000 = (int)a0;
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    EIntr();
+}
+void setD4_CHCR(int *a0) {
+    DIntr(a0);
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
+    *(volatile int *)0x1000B400 = (int)a0;
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    EIntr();
+}

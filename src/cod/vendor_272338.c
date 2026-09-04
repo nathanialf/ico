@@ -371,4 +371,6 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgInit);
 extern char D_00736140[];
 extern int sceSifCallRpc();
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSndn2Remote);
+int _SgSndn2Remote(int a0, int a1, int a2, int a3, int a4, int a5) {
+    return sceSifCallRpc(D_00736140, a0, a1, a2, a4, a3, a5, 0, 0);
+}

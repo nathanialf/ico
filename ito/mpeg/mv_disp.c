@@ -220,4 +220,11 @@ void *setTRXREG(int *a0, int a1, int a2) {
     a0[3] = 0;
     return (char *)a0 + 0x10;
 }
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setTRXDIR);
+void *setTRXDIR(char *a0, unsigned int a1) {
+    unsigned long long v = (unsigned int)a1;
+    *(int *)(a0 + 8) = 0x53;
+    *(int *)(a0 + 0) = (int)v;
+    *(int *)(a0 + 4) = (int)(v >> 32);
+    *(int *)(a0 + 0xC) = 0;
+    return a0 + 0x10;
+}

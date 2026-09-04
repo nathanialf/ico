@@ -3,7 +3,11 @@
 extern void gif_SetAlpha();
 extern void gif_StartPacketPri();
 
-INCLUDE_ASM("asm/nonmatchings/src/poly-flat", before_DrawPolygon);
+void before_DrawPolygon(void)
+{
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 2, 0x40);
+}
 extern void gif_EndPacket();
 
 void after_DrawPolygon(int a0, int a1, int a2, int a3)

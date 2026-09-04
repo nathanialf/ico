@@ -2,7 +2,27 @@
 
 #include "ico/types.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/Basic", dma_init);
+extern int *D_0063BC94;
+extern int *D_0063BC98;
+extern int *D_0063BC9C;
+extern void debug_SetDmaCallback(void);
+extern int *sceDmaGetChan(int a0);
+extern void sceDmaReset(int a0);
+
+void dma_init(void) {
+    union U { int i; } *p;
+    sceDmaReset(1);
+    D_0063BC94 = sceDmaGetChan(1);
+    p = (union U *)D_0063BC94;
+    p->i |= 0x40;
+    D_0063BC98 = sceDmaGetChan(2);
+    p = (union U *)D_0063BC98;
+    p->i |= 0x40;
+    D_0063BC9C = sceDmaGetChan(8);
+    p = (union U *)D_0063BC9C;
+    p->i |= 0x40;
+    debug_SetDmaCallback();
+}
 extern int D_00639CF0;
 extern void _UnitMatrix(void *p0);
 
@@ -54,4 +74,7 @@ int mallocsekistage(int size)
 }
 extern int iosReallocDebug(int size, int align, const char *file, int line);
 
-INCLUDE_ASM("asm/nonmatchings/src/Basic", reallocseki);
+int reallocseki(int size, int align)
+{
+    return iosReallocDebug(size, align, D_00621568, 0x1A8);
+}

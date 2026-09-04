@@ -110,4 +110,11 @@ set_path:
 }
 extern int D_0063A610;
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjActiveDlLink);
+void isysGObjActiveDlLink(int bit, int set)
+{
+    if (set != 0) goto set_path;
+    D_0063A610 &= ~(1 << bit);
+    return;
+set_path:
+    D_0063A610 |= (1 << bit);
+}

@@ -24,4 +24,6 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundSqFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundAdpcmFile);
 extern DbgSlot D_006FAD00[];
 
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", GetPObjAddress);
+int GetPObjAddress(int i) {
+    return D_006FAD00[i].f_0;
+}

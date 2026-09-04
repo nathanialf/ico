@@ -112,7 +112,19 @@ void Vibration_SetDecodeData(void *a0, int a1, int a2, char a3, char a4) {
     p[0x27] = 0;
     p[0x24] = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Init_ShockRequestBox);
+extern int dumyAllocFunc();
+
+void Init_ShockRequestBox(int *a0, int a1, int a2, int a3)
+{
+    a0[0] = 0;
+    if (a1) {
+        a0[1] = a1;
+    } else {
+        a0[1] = (int)&dumyAllocFunc;
+    }
+    a0[2] = a2;
+    a0[3] = a3;
+}
 void ShockRequestBox_Clear(int *self)
 {
     int *node = (int *) self[0];

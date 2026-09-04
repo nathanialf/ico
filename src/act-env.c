@@ -38,4 +38,13 @@ extern int CheckPureWallAttribute();
 extern int CheckWallAttribute();
 extern int D_00639D10;
 
-INCLUDE_ASM("asm/nonmatchings/src/act-env", CheckWallAttributeEdegWall);
+int CheckWallAttributeEdegWall(int a0)
+{
+    unsigned char v0;
+    if (D_00639D10 == 4) {
+        v0 = CheckPureWallAttribute(a0, 0x1000);
+    } else {
+        v0 = CheckWallAttribute(a0, 0x1000);
+    }
+    return v0 & 0xFF;
+}

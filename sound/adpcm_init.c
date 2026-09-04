@@ -5,7 +5,10 @@
 extern int D_0063C1CC;
 extern void sceSifFreeIopHeap();
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmStreamFree);
+void AdpcmStreamFree(void)
+{
+    sceSifFreeIopHeap(D_0063C1CC);
+}
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", adpcmTickProc2);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", adpcmDataSet);
 extern char D_00552118[];

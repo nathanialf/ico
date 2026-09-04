@@ -218,4 +218,6 @@ __asm__(
 );
 extern void _sceIDC(int a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2898E8", iInvalidDCache);
+void iInvalidDCache(int a0, int a1) {
+    _sceIDC(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
+}

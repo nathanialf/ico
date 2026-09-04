@@ -5,7 +5,12 @@ typedef struct { char _0[4]; float f4; char _8[8]; float f10; } EdS;
 extern int D_002A5584[];
 extern void brainAddLevel();
 
-INCLUDE_ASM("asm/nonmatchings/src/brain", brainAddLevelGirl);
+void brainAddLevelGirl(void)
+{
+    if (D_002A5584[0] != 0) {
+        brainAddLevel(D_002A5584[0]);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainInit);
 INCLUDE_ASM("asm/nonmatchings/src/brain", OverrideBrainStatusByGObj);
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainStatusDefaultSet);

@@ -45,4 +45,7 @@ void StartQueenAttackEffect(int a0, float t)
     D_0063B7C8 = 1;
     D_0063B7C4 = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/darkVolume", ResetGameOverEffect);
+void ResetGameOverEffect(void) {
+    D_0063B7BC = 0;
+    D_0063B7C4 = 0;
+}

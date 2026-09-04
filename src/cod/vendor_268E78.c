@@ -142,7 +142,39 @@ done:
     return r;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", mceIntrReadFixAlign);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcRead);
+extern char D_0072FAC0[];
+extern void func_00265A38(void *addr, int len);
+extern int mceIntrReadFixAlign();
+
+int sceMcRead(int a0, void *buf, int len) {
+    char *dev;
+    int r;
+    if (PollSema(D_0054C014[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_0072F5C0;
+    if (*(int *)(dev + 0x24) == 0) {
+        SignalSema(D_0054C014[0]);
+        return -0x64;
+    }
+    *(int *)D_0072F640 = a0;
+    *(int *)(D_0072F640 + 0x1C) = (int)D_0072FAC0;
+    *(int *)(D_0072F640 + 0x18) = (int)buf;
+    *(int *)(D_0072F640 + 0xC) = len;
+    func_00265A38(buf, len);
+    func_00265A38(D_0072FAC0, 0xC0);
+    r = sceSifCallRpc(dev, 5, 1, D_0072F640, 0x30, D_00730B80, 4,
+                      mceIntrReadFixAlign, D_0072FAC0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_0054C010 = 5;
+    goto done;
+unlock:
+    SignalSema(D_0054C014[0]);
+done:
+    return r;
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcWrite);
 extern void iWakeupThread(int a0);
 

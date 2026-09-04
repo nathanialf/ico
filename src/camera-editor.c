@@ -50,7 +50,12 @@ void CameraEdit_DispBoxType2(int a0, int a1) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018CDC0);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018E0D0);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", test_camedit);
+extern void EnterMenu(void *a0, int a1, void *a2);
+extern void func_0018CDC0(void);
+
+void test_camedit(void) {
+    EnterMenu((void *)func_0018CDC0, 0, 0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", _CameraEdit_del_box);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", _CameraEdit_del_pin);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", CameraEdit_add_box);

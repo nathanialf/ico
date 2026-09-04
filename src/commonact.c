@@ -8,7 +8,10 @@ typedef struct { int w[6]; } SlowrunRec;
 
 extern void SetDirectRootPosition();
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTSetPositionWithFitting);
+void ACTSetPositionWithFitting(int a0, int a1, int a2, int a3)
+{
+    SetDirectRootPosition(a0, a1, a2, a3);
+}
 extern void SetDirectRootPositionNoFitting__pn() __asm__("SetDirectRootPositionNoFitting");
 
 void ACTSetPositionNoFitting(int a0, int a1, int a2, int a3)

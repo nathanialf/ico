@@ -4,7 +4,23 @@
 
 #include "vu0.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootQuaternionByDObj);
+extern void CopyQuaternion();
+extern void MultiQuaternion();
+
+void GetRootQuaternionByDObj(int a0, int *a1)
+{
+    int *p;
+    int *q;
+    int idx;
+    p = (int *)a1[0];
+    if (p == 0) goto null_path;
+    q = (int *)p[0x57];
+    idx = a1[1];
+    MultiQuaternion(a0, q[0x4] + (idx << 4), (int)a1 + 0xD0);
+    return;
+null_path:
+    CopyQuaternion(a0, (int)a1 + 0xD0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", UpdateRootMatrixByDObj);
 extern void GetRootQuaternionByDObj(int a0, int *a1);
 

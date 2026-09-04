@@ -5,7 +5,14 @@ extern void soundDataSegNextStageNotUseClose();
 extern void soundSeEnvNotUseClose();
 extern void soundSePlayModeStop(int arg);
 
-INCLUDE_ASM("asm/nonmatchings/sound/soundManager", sndBgmReadyNextStage);
+void sndBgmReadyNextStage(int *a, int *b)
+{
+    soundDataSegNextStageNotUseClose(1, a);
+    soundDataSegNextStageNotUseClose(2, a);
+    soundSePlayModeStop(1);
+    soundDataSegAllClose(1, 0);
+    soundSeEnvNotUseClose(a, b);
+}
 extern unsigned char D_005F5D50[];
 extern void adpcmPauseRequest(int val);
 extern void soundReverbDepthSet(int a0);

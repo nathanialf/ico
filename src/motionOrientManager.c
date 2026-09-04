@@ -48,4 +48,10 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", ExecuteSlipProc);
 extern int D_0028F4D4[];
 extern void StopSEPackageWithGroupVariation(void *a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", ExecutePauseSlipProc);
+int ExecutePauseSlipProc(char *a0) {
+    if (D_0028F4D4[0] != 0) {
+        *(int *)(*(char **)(a0 + 0x15C) + 0x628) = 0;
+        StopSEPackageWithGroupVariation(a0, 1);
+    }
+    return 1;
+}

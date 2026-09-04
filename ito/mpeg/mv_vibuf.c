@@ -1,6 +1,12 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_00259480);
+extern void func_0025A4A8(int a0);
+
+void func_00259480(int *a0) {
+    func_0025A4A8(a0[0]);
+    func_0025A4A8(a0[1]);
+    func_0025A4A8(a0[20]);
+}
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufCreate);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufReset);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufBeginPut);

@@ -22,7 +22,12 @@ typedef struct {
 
 typedef union { int i; float f; } IntFloat;
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_DeleteActorInformation);
+extern void gamesysObjInfoCls();
+
+void ACTGame_DeleteActorInformation(int a0)
+{
+    gamesysObjInfoCls(*(int *)(a0 + 0xC), *(int *)(a0 + 0x8));
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", EXITDATA_GetNextPosition);
 ASM_LIT4_SLOT(D_00638CC8, 0.017453292f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObj);
@@ -353,4 +358,9 @@ extern int D_00639D10;
 extern void OtherStagePositionGet();
 extern int gamesysGetGirlStageIDAndPosition(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", GetGirlPositionAtThisStage);
+void GetGirlPositionAtThisStage(int a0)
+{
+    int buf[4];
+    int v0 = gamesysGetGirlStageIDAndPosition(buf);
+    OtherStagePositionGet(a0, D_00639D10, v0, buf);
+}

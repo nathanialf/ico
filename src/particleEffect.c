@@ -7,7 +7,11 @@ typedef struct { long long q[20]; } PE160;
 extern void CopyQuaternion();
 extern void CopyVector();
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffectGeometry);
+void setParticleEffectGeometry(int a0, int a1, int a2)
+{
+    CopyVector(a0);
+    CopyQuaternion(a0 + 0x10, a2);
+}
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", _setParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", execParticleEffect);

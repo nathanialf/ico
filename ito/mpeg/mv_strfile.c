@@ -9,4 +9,7 @@ int strFileClose(void) {
 }
 extern int iosCdvdDirectStRead();
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_strfile", strFileRead);
+int strFileRead(void)
+{
+    return iosCdvdDirectStRead();
+}

@@ -11,7 +11,12 @@ extern char D_004EC9C0[];
 extern char D_004EC9D0[];
 extern void DrawLineG(void *a0, void *a1, void *a2, void *a3, int a4);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispSquare2);
+void dispSquare2(void) {
+    DrawLineG(D_004EC9A0, D_004EC990, D_004EC9C0, D_004EC990, -1);
+    DrawLineG(D_004EC9C0, D_004EC990, D_004EC9B0, D_004EC990, -1);
+    DrawLineG(D_004EC9B0, D_004EC990, D_004EC9D0, D_004EC990, -1);
+    DrawLineG(D_004EC9D0, D_004EC990, D_004EC9A0, D_004EC990, -1);
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", limitHPAngleAndSetB);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", avoidReverseInterpOnCurrentMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", avoidReverseInterpOnCurrentMatrixWithLimit);
@@ -272,4 +277,14 @@ int upperFieldCheck(char *a0, float f) {
 extern char *D_0063B93C__pn __asm__("D_0063B93C");
 extern void _getGeometryOfMotion(int a, int b);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", getGeometryOfMotion);
+void getGeometryOfMotion(void) {
+    ShiftBlk buf;
+    int x, y;
+    char *p;
+    buf = *(ShiftBlk *)(*(char **)(D_0063B93C__pn + 0x15C) + 0x180);
+    _getGeometryOfMotion(x, y);
+    p = *(char **)(D_0063B93C__pn + 0x15C);
+    if (*(int *)(p + 0x634) != 0) {
+        *(ShiftBlk *)(p + 0x180) = buf;
+    }
+}

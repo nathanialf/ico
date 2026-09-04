@@ -1,6 +1,23 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadMain);
+extern int D_006BCEE0[];
+extern int GetThreadId();
+extern void iosThreadSetPri(int *a0, int a1);
+
+void iosThreadMain(int a0)
+{
+    int idx = GetThreadId();
+    int *obj = (int *) D_006BCEE0[idx];
+    (*(void (**)(int))((char *) obj + 0x38))(a0);
+    if (*(int *)((char *) obj + 0x40) == 0)
+    {
+        iosThreadSetPri((int *)obj, 0x21);
+    }
+    else
+    {
+        iosThreadSetPri((int *)obj, 0x22);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadCreateS);
 extern void StartThread();
 

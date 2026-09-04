@@ -40,4 +40,12 @@ int readBufBeginGet(int *a0, int *out)
     }
     return a2;
 }
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_readbuf", readBufEndGet);
+int readBufEndGet(int a0, int a1)
+{
+    int rest = *(int *)(a0 + 0xC);
+    if (a1 < rest) {
+        rest = a1;
+    }
+    *(int *)(a0 + 0xC) -= rest;
+    return rest;
+}

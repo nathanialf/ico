@@ -40,4 +40,15 @@ void mc_Reset(void)
         p--;
     } while (i >= 0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/MicroCode", mc_Init);
+void mc_Init(void)
+{
+    int *p = D_0067BFD0;
+    int i = 0xC;
+    D_0063C140 = 0;
+    p += 0xC;
+    do {
+        *p = 0;
+        i--;
+        p--;
+    } while (i >= 0);
+}

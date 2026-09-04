@@ -1,6 +1,13 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/motionViewer", setRootUpdateMode);
+extern int D_0063BA08;
+extern int D_0063BA10;
+extern void SetRootUpdateMode(char *self, int val);
+
+void setRootUpdateMode(void)
+{
+    SetRootUpdateMode(D_0063BA08, D_0063BA10);
+}
 extern int D_0063BA08;
 extern void SetMotionPlaySpeedRatio();
 

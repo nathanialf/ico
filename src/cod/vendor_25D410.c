@@ -769,4 +769,9 @@ void sceVpu0Reset(void) {
         *fifo = pkt[1];
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25D410", memclr);
+void memclr(unsigned char *a0, int a1) {
+    int i;
+    for (i = a1 - 1; i != -1; i--) {
+        *a0++ = 0;
+    }
+}

@@ -8,7 +8,19 @@
 typedef int Qw128 __attribute__((mode(TI)));
 typedef struct { char pad[0x30]; Qw128 q; } MatDrive;
 
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", InitMatrixDrive);
+extern int D_00639F00;
+extern char D_00668640[];
+extern void InitQuaternionDrive(void);
+extern void InitTableSin(void);
+extern void sceVu0UnitMatrix(void *a0);
+
+void InitMatrixDrive(void)
+{
+    D_00639F00 = 0;
+    sceVu0UnitMatrix(D_00668640);
+    InitTableSin();
+    InitQuaternionDrive();
+}
 extern void CopyMatrix(void *dst, void *src);
 extern int D_00639F00;
 extern char D_00668640[];

@@ -7,7 +7,9 @@
 
 extern int D_0063C0C8;
 
-INCLUDE_ASM("asm/nonmatchings/src/GobjProc", ResetGObjProc);
+void ResetGObjProc(void) {
+    D_0063C0C8 = 0;
+}
 int GetMaxGObj(void) {
     return D_0063C0C8;
 }

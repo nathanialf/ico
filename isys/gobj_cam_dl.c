@@ -135,4 +135,16 @@ void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1) {
         D_0063A618 = a0;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", isysObjMoveCameraDLBeforeGObj);
+void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1) {
+    int next;
+    cut_gobj_camera_dl_link(a0);
+    *(unsigned char *)(a0 + 0x40) = *(unsigned char *)(a1 + 0x40);
+    next = *(int *)(a1 + 0x38);
+    *(int *)(a0 + 0x34) = (int)a1;
+    *(int *)(a0 + 0x38) = next;
+    *(int *)(a1 + 0x38) = (int)a0;
+    *(int *)(a0 + 0x44) = *(int *)(a1 + 0x44);
+    if (*(int *)(a0 + 0x38) == 0) {
+        D_0063A614 = (int *)a0;
+    }
+}
