@@ -179,7 +179,13 @@ ASM_LIT4_SLOT(D_00638ED4, 0.2f);
 ASM_LIT4_SLOT(D_00638ED8, 0.2f);
 ASM_LIT4_SLOT(D_00638EDC, 0.1f);
 ASM_LIT4_SLOT(D_00638EE0, 0.2f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00161AC0);
+extern int D_00639EB8;
+void func_00161AC0(void) {
+    if (D_00639EB8 == 0) {
+        D_00639EB8 = 1;
+        lt_switch_layout(0x3E);
+    }
+}
 extern void AdjustRootPositionToVerticalSidePlaneOfWall(int a0, int a1, float a2);
 
 void ACTAdjustPlane(int a0, int a1) {
@@ -234,7 +240,10 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTMotReqResult);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", test_CURRENTORIENT);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", test_CURRENTROOT);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", StartCorrectPosition);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", IsCorrectPosition);
+int IsCorrectPosition(char *a0) {
+    unsigned long long v = *(unsigned int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xBC);
+    return (int)v & 1;
+}
 extern SlowrunRec D_002ADD60[];
 
 void ControlMotionOrient(int a0, int a1) {
@@ -273,7 +282,10 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterForceRope);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterForceRopeSwing);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterRopeJump);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonRopeCliff);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonRopeTurnSpecial);
+void afterCommonRopeTurnSpecial(volatile int a0) {
+    char *g = (char *)a0;
+    *(int *)(*(char **)(g + 0x15C) + 0x420) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterDown);
 extern void ACTGameCollisionOn(volatile int *self);
 

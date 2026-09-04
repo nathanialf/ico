@@ -9,7 +9,16 @@ INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execVibCondition);
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecFrameDependSequence);
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", executeSEPackageByGObj);
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", executeSEPackageWithNoGObj);
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecuteSEPackageWithGroupVariation);
+extern float D_0063B8B0;
+extern void executeSEPackageWithNoGObj(int a0);
+void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2) {
+    D_0063B8B0 = 1.0f;
+    if (a0 != 0) {
+        executeSEPackageByGObj(a0, a1, a2);
+    } else {
+        executeSEPackageWithNoGObj(a1);
+    }
+}
 extern void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2);
 
 void ExecuteSEPackage(int a0, int a1) {

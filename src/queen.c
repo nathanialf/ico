@@ -36,7 +36,9 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBarrierInqBreakable);
 INCLUDE_ASM("asm/nonmatchings/src/queen", queenBarrierBeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/queen", InqQueenBarrierExist);
 INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenBarrierGeo);
-INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallRadius);
+float QueenBallRadius(char *a0) {
+    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14) * 100.0f;
+}
 float GetQueenBallThickness(void) {
     return 150.0f;
 }

@@ -54,16 +54,31 @@ void ExecRotObjectMoveEndReaction(int a0, int a1, int a2, int a3)
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", SetRotObjectArmRadius);
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", GetRotObjectGlobalHoldGeometry);
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", InitRotObjectGeo);
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", GetRotObjectGameSysObjInfoExtData);
+void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2) {
+    *a0 = *(unsigned short *)(a2 + 0x30);
+    *a1 = *(int *)(a2 + 0x34);
+}
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", RotObjectDL);
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", GetRotObjectRotCount);
+float GetRotObjectRotCount(char *a0) {
+    return (float)*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x24) * (1.0f / 65536.0f);
+}
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", GetRotObjectZPlusDirection);
 int RestoreRotObjectGeo(void)
 {
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", RestoreRotObjectExtGeo);
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", MemoryRotObject);
+int RestoreRotObjectExtGeo(char *a0, char *a1) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    *(short *)(p + 0x20) = *(unsigned short *)(a1 + 0x30);
+    *(int *)(p + 0x24) = *(int *)(a1 + 0x34);
+    return 1;
+}
+int MemoryRotObject(char *a0, char *a1) {
+    char *p = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
+    *(short *)a0 = *(unsigned short *)(p + 0x20);
+    *(int *)(a0 + 4) = *(int *)(p + 0x24);
+    return 1;
+}
 void SetRotObjectLockFlag(char *a0, int a1) {
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x34) = a1;
 }

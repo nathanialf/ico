@@ -159,7 +159,9 @@ SYSCALL_WRAPPER(isceSifSetDChain, -120)
 SYSCALL_WRAPPER(sceSifSetReg, 121)
 SYSCALL_WRAPPER(sceSifGetReg, 122)
 SYSCALL_WRAPPER(ExecOSD, 123)
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", Deci2Call);
+void Deci2Call(int req, void *args) {
+    __asm__ __volatile__("addiu $3, $zero, 124\n\tsyscall 0" : : : "$3", "memory");
+}
 SYSCALL_WRAPPER(PSMode, 125)
 SYSCALL_WRAPPER(MachineType, 126)
 SYSCALL_WRAPPER(GetMemorySize, 127)

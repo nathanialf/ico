@@ -26,7 +26,11 @@ void DisableStreamMotionManagerAutomaticDelete(void)
 }
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", getStreamMotionData);
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", getStreamMotionBlendData);
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", GetStreamMotionDataNext);
+typedef struct { int w[7]; } SMotion;
+extern SMotion D_00724AA8[];
+void GetStreamMotionDataNext(int a0, int a1) {
+    getStreamMotionData(a0, D_00724AA8[a1].w[4], a1);
+}
 extern void memcpy();
 
 void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
@@ -79,8 +83,6 @@ int CheckReadyStreamMotion(void)
         r = 0;
     return r;
 }
-typedef struct { int w[7]; } SMotion;
-extern SMotion D_00724AA8[];
 void SetStreamMotionFinishCallBackFunc(int a0, int a1) {
     D_00724AA8[a0].w[6] = a1;
 }

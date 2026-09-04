@@ -90,7 +90,11 @@ void ACTSearchEnemy(void *a0, int *out_id, float *out_vec) {
 INCLUDE_ASM("asm/nonmatchings/src/boyact", DeleteBoyWeapon);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", isLiftBoyEnable);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", SetKidnapInfo);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", GetKidnapInfo);
+extern int D_006C0B30[];
+void GetKidnapInfo(int *a0, int *a1) {
+    *a0 = D_006C0B30[5];
+    *a1 = D_006C0B30[6];
+}
 INCLUDE_ASM("asm/nonmatchings/src/boyact", PrivInsCamSet);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", BoyInfoUpdate_StageChange);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", IsBoyStatus_EnemyMustWait);
@@ -214,7 +218,9 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00158978);
 void afterBoyHangG3M(int x) {
     volatile int local = x;
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", afterBoyRescueGirlBhang);
+void afterBoyRescueGirlBhang(volatile int a0) {
+    ACTGame_DisconnectHand();
+}
 extern void _ACTWait();
 
 void func_00158AE0(int a0)

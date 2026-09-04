@@ -18,7 +18,11 @@ int IsTorchLightOn(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20);
 }
 INCLUDE_ASM("asm/nonmatchings/src/torch", CheckTorchChainReaction);
-INCLUDE_ASM("asm/nonmatchings/src/torch", SetTorchLife);
+void SetTorchLife(char *a0, int a1, int a2) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    *(int *)(p + 0x28) = a1;
+    *(int *)(p + 0x2C) = a1 - a2;
+}
 void SetTorchChainReactionFlag(char *a0, int a1) {
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x30) = a1;
 }

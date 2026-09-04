@@ -46,8 +46,12 @@ int GetItemKind(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4);
 }
 INCLUDE_ASM("asm/nonmatchings/src/item", GetCharHeldItem);
-INCLUDE_ASM("asm/nonmatchings/src/item", IsItemHoldable);
-INCLUDE_ASM("asm/nonmatchings/src/item", IsBombExplode);
+int IsItemHoldable(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) == 0;
+}
+int IsBombExplode(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x48) == 2;
+}
 INCLUDE_ASM("asm/nonmatchings/src/item", GetBombTorchGObj);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveAllCarryableItems);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveCarryableItemsWithBoundary);

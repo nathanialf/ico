@@ -116,7 +116,9 @@ void UnLockChainGeo(char *a0) {
 float GetChainHangRange(char *a0) {
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC8);
 }
-INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainLength);
+float GetChainLength(char *a0) {
+    return (float)(*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x74) - 1) * 50.0f;
+}
 void EnableChainHang(char *a0) {
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD) = 1;
 }

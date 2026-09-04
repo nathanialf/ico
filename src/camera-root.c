@@ -184,7 +184,13 @@ void SetHandCameraLimitInDemo(int a0, int a1) {
     D_0063C2B0 = a0;
     D_0063C2B4 = a1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", ResetHandCameraLimitInDemo);
+extern int D_0028F720[];
+extern int D_0063C2B0;
+extern int D_0063C2B4;
+void ResetHandCameraLimitInDemo(void) {
+    D_0063C2B0 = D_0028F720[0x180 / 4];
+    D_0063C2B4 = D_0028F720[0x184 / 4];
+}
 extern int D_0063C2B8;
 void SetZoomMaxValInDemo(int a0) {
     D_0063C2B8 = a0;

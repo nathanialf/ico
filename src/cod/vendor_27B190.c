@@ -12,7 +12,13 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __do_global_dtors);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __do_global_ctors);
 extern void __do_global_ctors();
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __main);
+extern int D_00736168[];
+void __main(void) {
+    if (D_00736168[0] == 0) {
+        D_00736168[0] = 1;
+        __do_global_ctors();
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __divdi3);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __fixunsdfdi);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __floatdidf);

@@ -84,8 +84,14 @@ void SetEnemyWingRatio(char *a0, float f) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy", CanThisEnemyFly);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyBattleType);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyDefLife);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyDefDodgeRange);
+typedef struct { int a; int b; float life; int c; int d; float dodge; int e; } EnemyDef;
+extern EnemyDef D_00624880[];
+float GetEnemyDefLife(char *a0) {
+    return D_00624880[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)].life;
+}
+float GetEnemyDefDodgeRange(char *a0) {
+    return D_00624880[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)].dodge;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyDefParaIndex);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", ResetEnemyPositionInfo);
 extern void GetRootPosition(void *dst, int *src);

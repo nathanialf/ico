@@ -57,7 +57,10 @@ void girlBrainMain_PositionUpdate(void) {
     GetRootProjectionPosOfGObj(D_002A2E70 + 0x10, D_00639EA8);
     GetRootProjectionPosOfGObj(D_002A2E70 + 0x30, D_00639EA4);
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_Init);
+extern char D_0029D650[];
+void girlBrainMain_Init(void) {
+    memset(D_0029D650, 0, 0x5920);
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ChangeRunMode);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00171188);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00172920);
@@ -180,7 +183,12 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BF68);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C1D0);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C290);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", NotNeedBackHand);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", SetGirlDangerGObj);
+void SetGirlDangerGObj(int a0) {
+    char *g = D_00639EA8;
+    if (g != 0) {
+        *(int *)(*(char **)(*(char **)(g + 0x164) + 0x688) + 0x3E4) = a0;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ClearGirlDangerGObj);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Idle);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C418);

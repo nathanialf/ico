@@ -60,7 +60,9 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", InitParticleEffects);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001F52D8);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001F5310);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DeleteParticleEffect);
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectPauseFlag);
+void SetParticleEffectPauseFlag(int a0, int a1) {
+    D_00720220[a0].w[1] = a1;
+}
 extern int D_0063A450;
 extern int SetParticleEffectByPartition(int a0, void *a1, int a2, int a3);
 
@@ -101,5 +103,9 @@ int GetParticleLoopFlag(int a0)
     return p[1] == 1;
 }
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", ParticleEffects_SetAllGoal);
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectClipEnableFlag);
+void SetParticleEffectClipEnableFlag(int a0, int a1) {
+    if (a0 >= 0) {
+        *(int *)((char *)D_00720220[a0].w[6] + 0x34) = a1;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectDrainLevel);

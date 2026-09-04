@@ -102,7 +102,9 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169EE8);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169F30);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyCarry);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00169FC0);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", funcEnemyCarryFail);
+void funcEnemyCarryFail(char *a0) {
+    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) |= (1ULL << 34);
+}
 extern char D_00553500[];
 extern void ResetEnemyPositionInfo(int *self);
 extern void SetDirectRootPositionNoFitting(int *self, char *spill);

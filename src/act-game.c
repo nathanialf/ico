@@ -141,8 +141,17 @@ void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3) {
     gamesysObjInfoPosNewStageSet((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_LIFEPINCH);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_TETSUNAGI);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_TETSUNAGI_VISUAL);
+extern char *D_00639EA8;
+int ACTGame_FLAG_TETSUNAGI(void) {
+    char *g = D_00639EA8;
+    if (g == 0) return 0;
+    return (int)(*(unsigned long long *)(*(char **)(g + 0x164) + 0x18) >> 40) & 1;
+}
+int ACTGame_FLAG_TETSUNAGI_VISUAL(void) {
+    char *g = D_00639EA8;
+    if (g == 0) return 0;
+    return (int)(*(unsigned long long *)(*(char **)(g + 0x164) + 0x18) >> 42) & 1;
+}
 extern int GetSkeltonFocusNode(void *a0, void *a1);
 
 void GetSkeltonPosition(float *dst, char *obj, void *a2)
@@ -391,7 +400,10 @@ int *ACTGame_GetNearestGObj(int a0, int a1) {
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTarget_Init);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTLookTarget_Set);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTParaStatus_Init);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTParaStatus_Set);
+void _ACTParaStatus_Set(char *a0, int bit) {
+    char *s = *(char **)(a0 + 0x164);
+    *(unsigned long long *)(s + 0x90) |= (1ULL << bit) & ~*(unsigned long long *)(s + 0xA0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTParaStatus_Check);
 void _ACTCharStatus_Init(int **a0) {
     long long *p = (long long *)a0[0x59];

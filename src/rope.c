@@ -3,7 +3,9 @@
 #include "ico/types.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/rope", InitRopeGeo);
-INCLUDE_ASM("asm/nonmatchings/src/rope", SetRopeFixPoint);
+void SetRopeFixPoint(char *a0, void *a1) {
+    CopyVector(**(char ***)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) + 0x20, a1);
+}
 INCLUDE_ASM("asm/nonmatchings/src/rope", HoldRope);
 INCLUDE_ASM("asm/nonmatchings/src/rope", ropeGeo);
 INCLUDE_ASM("asm/nonmatchings/src/rope", RopeDL);

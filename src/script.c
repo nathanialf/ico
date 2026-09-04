@@ -85,7 +85,16 @@ INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpUp);
 INCLUDE_ASM("asm/nonmatchings/src/script", func_00182220);
 INCLUDE_ASM("asm/nonmatchings/src/script", func_001823F0);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceReady);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoicePlay);
+extern char *D_0063AA10;
+extern char D_00554750[];
+void scpGirlHintVoicePlay(void) {
+    char *p = D_0063AA10;
+    if (p != 0) {
+        AdpcmPlay(*(int *)(p + 0x2C));
+    } else {
+        debug_StdPrintfDummy(D_00554750);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceTickProc);
 INCLUDE_ASM("asm/nonmatchings/src/script", func_00182810);
 INCLUDE_ASM("asm/nonmatchings/src/script", _SCPBoySupportGirl);
@@ -600,7 +609,9 @@ INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckExistAliveSpider);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpLockMaxRotate);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpUnLockMaxRotate);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGetRotObjectCurrentRot);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckDisconnectWallStart);
+void scpCheckDisconnectWallStart(char *a0) {
+    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) |= (1ULL << 58);
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckDisconnectWallEnd);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerIgnore);
 INCLUDE_ASM("asm/nonmatchings/src/script", func_00185CA0);
