@@ -54,7 +54,11 @@ void func_001578C8(volatile int a0) {
     _ACTWait(0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157900);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157CB8);
+extern unsigned char D_0063C1F5;
+
+unsigned char IsAbleBoyControl(void) {
+    return D_0063C1F5;
+}
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157CC0);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157D78);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00157E30);

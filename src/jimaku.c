@@ -124,6 +124,13 @@ void jimakuEnd(void)
     jimakuMgrEnd__pn();
 }
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuDisp);
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_0017D4D8);
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_0017D5C0);
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuManager);
+extern int D_0063A964;
+extern int jimakuOn;
+
+void jimakuUndisp(void)
+{
+    D_0063A964 = 0;
+    jimakuOn = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_0017D5D0);

@@ -1407,7 +1407,7 @@ GetBoyWeaponGObj = 0x00157808; // type:func  // src/boyact
 func_00157828 = 0x00157828; // type:func  // src/boyact
 func_001578C8 = 0x001578C8; // type:func  // src/boyact
 func_00157900 = 0x00157900; // type:func  // src/boyact
-func_00157CB8 = 0x00157CB8; // type:func  // src/boyact
+IsAbleBoyControl = 0x00157CB8; // type:func  // src/boyact
 func_00157CC0 = 0x00157CC0; // type:func  // src/boyact
 func_00157D78 = 0x00157D78; // type:func  // src/boyact
 func_00157E30 = 0x00157E30; // type:func  // src/boyact
@@ -1770,8 +1770,8 @@ jimakuNext = 0x0017D2F8; // type:func  // src/jimaku
 jimakuJump = 0x0017D328; // type:func  // src/jimaku
 jimakuEnd = 0x0017D3A8; // type:func  // src/jimaku
 jimakuDisp = 0x0017D3B8; // type:func  // src/jimaku
-func_0017D4D8 = 0x0017D4D8; // type:func  // src/jimaku
-func_0017D5C0 = 0x0017D5C0; // type:func  // src/jimaku
+jimakuManager = 0x0017D4D8; // type:func  // src/jimaku
+jimakuUndisp = 0x0017D5C0; // type:func  // src/jimaku
 func_0017D5D0 = 0x0017D5D0; // type:func  // src/jimaku
 
 // ---- src/way_sys

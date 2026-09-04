@@ -19,5 +19,12 @@ void *RequestClipCollision(int *a0) {
     a0[0] = 0;
     return t;
 }
-INCLUDE_ASM("asm/nonmatchings/src/clipCollisionManager", func_001CDD30);
+extern void _ACTWait(int a0);
+
+void func_001CDD30(void)
+{
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/clipCollisionManager", func_001CDD48);
