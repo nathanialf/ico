@@ -67,13 +67,17 @@ INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", proc);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", getCloth4D);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", getCloth4D_postProcess);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", _getCloth4D);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetCloth4D);
+extern void _getCloth4D(void *a0, float x, float y, float z, float w, int tight, void *a6, void *a7);
 extern char D_002907E0[];
-void GetCloth4DWithDetail(void *a0) {
-    _getCloth4D(a0, 0, D_002907E0, D_002907E0);
+
+void GetCloth4D(void *a0, float x, float y) {
+    _getCloth4D(a0, x, y, 1.0f, 1.0f, 0, D_002907E0, D_002907E0);
 }
-void GetCloth4DWithTight(void *a0, void *a1, void *a2) {
-    _getCloth4D(a0, 1, a1, a2);
+void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w) {
+    _getCloth4D(a0, x, y, z, w, 0, D_002907E0, D_002907E0);
+}
+void GetCloth4DWithTight(void *a0, void *a1, void *a2, float x, float y, float z, float w) {
+    _getCloth4D(a0, x, y, z, w, 1, a1, a2);
 }
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitCloth4D);
 extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y, float z);

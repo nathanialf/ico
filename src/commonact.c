@@ -194,6 +194,7 @@ int E3_LeverCheck(char *a0) {
                : _RotyGV(test_CURRENTORIENT(a0), buf) < 0x2D;
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00160B28);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001613C8);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00161510);
 ASM_LIT4_SLOT(D_00638ED4, 0.2f);
 ASM_LIT4_SLOT(D_00638ED8, 0.2f);
@@ -313,7 +314,13 @@ void actAfterRopeJump(volatile int a0) {
     char *g = (char *)a0;
     *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) |= (1ULL << 31);
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonRopeCliff);
+extern char *D_00639EA4;
+
+void afterCommonRopeCliff(char *a0) {
+    char *volatile local = a0;
+    char *g = *(char **)(D_00639EA4 + 0x15C);
+    *(int *)(g + 0x420) = 0;
+}
 void afterCommonRopeTurnSpecial(volatile int a0) {
     char *g = (char *)a0;
     *(int *)(*(char **)(g + 0x15C) + 0x420) = 0;

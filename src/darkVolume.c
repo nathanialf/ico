@@ -21,7 +21,12 @@ void GetGameOverEffectCenterPosition(int a0)
     CopyVector(a0, D_004E7460);
 }
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", InitGameOverEffect);
-INCLUDE_ASM("asm/nonmatchings/src/darkVolume", SetupDarkVolume);
+extern void darkVolume(void *a0, float a1, float a2, float a3);
+
+void SetupDarkVolume(void *a0, float a1, float a2)
+{
+    darkVolume(a0, a1, 1.0f, a2);
+}
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", DarkVolumeGeo);
 int InitDarkVolumeGeo(char *a0) {
     **(int **)(*(char **)(a0 + 0x15C) + 0xC) = 0;

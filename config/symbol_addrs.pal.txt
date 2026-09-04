@@ -1487,6 +1487,7 @@ ACTSendMailCorrect = 0x001605A0; // type:func  // src/commonact
 _ACTCommonMailTest = 0x00160630; // type:func  // src/commonact
 E3_LeverCheck = 0x00160A68; // type:func  // src/commonact
 func_00160B28 = 0x00160B28; // type:func  // src/commonact
+func_001613C8 = 0x001613C8; // type:func  // src/commonact
 func_00161510 = 0x00161510; // type:func  // src/commonact
 ACTAdjustPlane = 0x00161AE0; // type:func  // src/commonact
 ACTAcceptMail = 0x00161AF0; // type:func  // src/commonact
