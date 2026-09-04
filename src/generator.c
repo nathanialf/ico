@@ -20,10 +20,16 @@ INCLUDE_ASM("asm/nonmatchings/src/generator", generatorBeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/generator", GeneratorGeo);
 INCLUDE_ASM("asm/nonmatchings/src/generator", GeneratorDL);
 INCLUDE_ASM("asm/nonmatchings/src/generator", InitGeneratorGeo);
-INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_Call);
+void Generator_Call(char *a0) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) += 1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_ResetCount);
-INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_Mask);
-INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_MaskOff);
+void Generator_Mask(char *a0) {
+    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10) = 1;
+}
+void Generator_MaskOff(char *a0) {
+    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/generator", SetMotherGenerator);
 INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_Init);
 extern int D_006E6D80[];

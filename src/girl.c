@@ -20,5 +20,7 @@ void GirlDL(int a0)
     return debugWireStringGirl(a0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl", SetGirlClothDispSwitch);
-INCLUDE_ASM("asm/nonmatchings/src/girl", SetGirlHairDispSwitch);
+void SetGirlHairDispSwitch(char *a0, int a1) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x28) = a1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl", setGirlClothSetting);

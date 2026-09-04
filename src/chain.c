@@ -107,7 +107,9 @@ void GetRootPositionHandExtra(void *a0, float *a1) {
     a1[1] -= 50.0f;
 }
 INCLUDE_ASM("asm/nonmatchings/src/chain", InitPendulum);
-INCLUDE_ASM("asm/nonmatchings/src/chain", LockChainGeo);
+void LockChainGeo(char *a0) {
+    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCC) = 1;
+}
 void UnLockChainGeo(char *a0) {
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCC) = 0;
 }
@@ -115,7 +117,9 @@ float GetChainHangRange(char *a0) {
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC8);
 }
 INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainLength);
-INCLUDE_ASM("asm/nonmatchings/src/chain", EnableChainHang);
+void EnableChainHang(char *a0) {
+    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD) = 1;
+}
 void UnableChainHang(char *a0) {
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD) = 0;
 }

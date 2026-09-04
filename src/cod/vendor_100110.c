@@ -34,7 +34,9 @@ SYSCALL_WRAPPER(RemoveIntcHandler, 17)
 SYSCALL_WRAPPER(AddDmacHandler, 18)
 SYSCALL_WRAPPER(AddDmacHandler2, 18)
 SYSCALL_WRAPPER(RemoveDmacHandler, 19)
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", _EnableIntc);
+int _EnableIntc() {
+    __asm__ __volatile__("addiu $3, $zero, 20\n\tsyscall 0" : : : "$3", "memory");
+}
 int _DisableIntc(int a0) {
     __asm__ __volatile__("addiu $3, $zero, 21\n\tsyscall 0" : : : "$3", "memory");
 }
@@ -72,11 +74,15 @@ SYSCALL_WRAPPER(ReferThreadStatus, 48)
 SYSCALL_WRAPPER(iReferThreadStatus, -49)
 SYSCALL_WRAPPER(SleepThread, 50)
 SYSCALL_WRAPPER(WakeupThread, 51)
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", _iWakeupThread);
+int _iWakeupThread(void) {
+    __asm__ __volatile__("addiu $3, $zero, -52\n\tsyscall 0" : : : "$3", "memory");
+}
 SYSCALL_WRAPPER(CancelWakeupThread, 53)
 SYSCALL_WRAPPER(iCancelWakeupThread, -54)
 SYSCALL_WRAPPER(SuspendThread, 55)
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", _iSuspendThread);
+int _iSuspendThread(void) {
+    __asm__ __volatile__("addiu $3, $zero, -56\n\tsyscall 0" : : : "$3", "memory");
+}
 SYSCALL_WRAPPER(ResumeThread, 57)
 SYSCALL_WRAPPER(iResumeThread, -58)
 SYSCALL_WRAPPER(JoinThread, 59)
@@ -87,7 +93,9 @@ SYSCALL_WRAPPER(RFU063, 63)
 SYSCALL_WRAPPER(CreateSema, 64)
 SYSCALL_WRAPPER(DeleteSema, 65)
 SYSCALL_WRAPPER(SignalSema, 66)
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", iSignalSema);
+void iSignalSema(int handle) {
+    __asm__ __volatile__("addiu $3, $zero, -67\n\tsyscall 0" : : : "$3", "memory");
+}
 SYSCALL_WRAPPER(WaitSema, 68)
 SYSCALL_WRAPPER(PollSema, 69)
 SYSCALL_WRAPPER(iPollSema, -70)
@@ -155,7 +163,9 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", Deci2Call);
 SYSCALL_WRAPPER(PSMode, 125)
 SYSCALL_WRAPPER(MachineType, 126)
 SYSCALL_WRAPPER(GetMemorySize, 127)
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", setup);
+void setup(int a0, int a1) {
+    __asm__ __volatile__("addiu $3, $zero, 116\n\tsyscall 0" : : : "$3", "memory");
+}
 extern void setup();
 
 void InitSysCall(void) {

@@ -68,7 +68,10 @@ INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", getCloth4D);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", getCloth4D_postProcess);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", _getCloth4D);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetCloth4D);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetCloth4DWithDetail);
+extern char D_002907E0[];
+void GetCloth4DWithDetail(void *a0) {
+    _getCloth4D(a0, 0, D_002907E0, D_002907E0);
+}
 void GetCloth4DWithTight(void *a0, void *a1, void *a2) {
     _getCloth4D(a0, 1, a1, a2);
 }

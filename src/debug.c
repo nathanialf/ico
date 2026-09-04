@@ -388,7 +388,12 @@ int gsResetFunc(void)
     gsb_Init(D_0028F4F0);
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", ChangeGirlControlMode);
+extern int D_00639EA0;
+void ChangeGirlControlMode(int a0) {
+    if (a0 == 1) {
+        D_00639EA0 = a0;
+    }
+}
 extern int D_0063AE68;
 
 int debug_CallbackGsFinish(void)

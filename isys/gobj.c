@@ -2,7 +2,10 @@
 
 struct GObj__p4 { int unk0; int unk4; int unk8; char pad[0x168]; };
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableInit);
+extern char *D_006BF380[];
+void isysGObjKindTableInit(void) {
+    memset(D_006BF380, 0, 0x118);
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjInit);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", cut_gobj_link);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjRemoveAll);

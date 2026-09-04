@@ -17,7 +17,9 @@ INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St09aSekizoChk);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3GateChk);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3GateDemo);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3GateJimaku);
-INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St01bInit);
+void actE3St01bInit(void) {
+    stage_SetAnimation(0xB7, 0, -1);
+}
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St09aBrgDown);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3Warning);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3Inst1);

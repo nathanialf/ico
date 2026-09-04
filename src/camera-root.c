@@ -194,9 +194,22 @@ extern int D_0028F8B0[];
 void ResetZoomMaxValInDemo(void) {
     D_0063C2B8 = D_0028F8B0[0];
 }
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", UpdateHandCameraLimitP);
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", UpdateHandCameraLimitV);
-INCLUDE_ASM("asm/nonmatchings/src/camera-root", UpdateZoomMaxVallInDemo);
+extern int D_0028F8A0[];
+extern int D_0063C2B0;
+int UpdateHandCameraLimitP(void) {
+    D_0063C2B0 = D_0028F8A0[0];
+    return 0;
+}
+extern int D_0028F8A4[];
+extern int D_0063C2B4;
+int UpdateHandCameraLimitV(void) {
+    D_0063C2B4 = D_0028F8A4[0];
+    return 0;
+}
+int UpdateZoomMaxVallInDemo(void) {
+    D_0063C2B8 = D_0028F8B0[0];
+    return 0;
+}
 extern int D_006E6708[];
 
 int InsertCamera_isEnable(void) {

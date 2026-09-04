@@ -29,13 +29,17 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", actQueenStart);
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenStartAttack);
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenInqDead);
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBoysWeaponPower);
-INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBarrierRadius);
+float QueenBarrierRadius(char *a0) {
+    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14);
+}
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBarrierInqBreakable);
 INCLUDE_ASM("asm/nonmatchings/src/queen", queenBarrierBeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/queen", InqQueenBarrierExist);
 INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenBarrierGeo);
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallRadius);
-INCLUDE_ASM("asm/nonmatchings/src/queen", GetQueenBallThickness);
+float GetQueenBallThickness(void) {
+    return 150.0f;
+}
 INCLUDE_ASM("asm/nonmatchings/src/queen", queenBallBeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenBallGeo);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A4B18);

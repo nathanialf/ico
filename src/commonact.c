@@ -95,7 +95,9 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", _boxbar_set_sound);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015CD88);
 ASM_LIT4_SLOT(D_00638E60, 0.3f);
 ASM_LIT4_SLOT(D_00638E64, 0.3f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonFallDircorrect);
+void funcCommonFallDircorrect(char *a0) {
+    SetMotionDirection(a0, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x360);
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", correctJumpOrientByChain);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D818);
 ASM_LIT4_SLOT(D_00638E68, 0.1f);
@@ -186,7 +188,10 @@ void ACTAdjustPlane(int a0, int a1) {
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTAcceptMail);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTMotDirSmzDirect);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_Idling);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_BossDamaged);
+void WithMailFunc_BossDamaged(char *a0) {
+    char *m = *(char **)(*(char **)(a0 + 0x164) + 0x680);
+    *(int *)(m + 0x20C) -= 1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_FallDead);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00161D48);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00161E48);
@@ -217,10 +222,14 @@ ASM_LIT4_SLOT(D_00638EEC, 0.1f);
 ASM_LIT4_SLOT(D_00638EF0, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonTruckLeverPull);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonTruckLeverPush);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonRopeBefore);
+void funcCommonRopeBefore(char *a0, int a1, int a2) {
+    *(int *)(*(char **)(a0 + 0x164) + 0x190) = a2;
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonRope);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00163670);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonSofaWakeup);
+void funcCommonSofaWakeup(char *a0) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x250) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTMotReqResult);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", test_CURRENTORIENT);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", test_CURRENTROOT);
@@ -301,6 +310,8 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", ClipCollisionWithField);
 void afterCommonOneWall(int x) {
     volatile int local = x;
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTCheckFlagAttack);
+int ACTCheckFlagAttack(char *a0) {
+    return *(int *)(*(char **)(a0 + 0x164) + 0x34) == 0xF;
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonBecarry);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonTruckLever);

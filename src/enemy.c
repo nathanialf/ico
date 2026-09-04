@@ -34,9 +34,13 @@ void DemoMotionGeo(int *self)
     ExecMotionOrient(self);
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyDissolve);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyFlyXZAccel);
+void SetEnemyFlyXZAccel(char *a0, float f) {
+    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x50) = f;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyFlyXZAccelAll);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyFlyXZAccel);
+float GetEnemyFlyXZAccel(char *a0) {
+    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x50);
+}
 void EnemyAI(void) {}
 void SetEnemyFootPrintSwitch(char *a0, int a1) {
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x2C) = a1;
@@ -66,12 +70,18 @@ int isExistEnemyParticle(char *a0, int a1) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyGetNSafeParts);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyDeleteParticle);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyHitGeometryAction);
+void SetEnemyHitGeometryAction(char *a0, int a1) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x38) = a1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy", InitDemoMotionGeo);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", HotInitDemoMotionGeo);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyHitNodeFlag);
+int GetEnemyHitNodeFlag(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14);
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy", RandomizeEnemy);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyWingRatio);
+void SetEnemyWingRatio(char *a0, float f) {
+    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x44) = f;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy", CanThisEnemyFly);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyBattleType);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyDefLife);

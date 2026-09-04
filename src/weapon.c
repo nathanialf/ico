@@ -50,7 +50,9 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", WeaponDL);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", PickupWeapon);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", CheckSwapableWeapon);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", ReleaseWeapon);
-INCLUDE_ASM("asm/nonmatchings/src/weapon", CheckWeaponKind);
+int CheckWeaponKind(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830));
+}
 INCLUDE_ASM("asm/nonmatchings/src/weapon", LightTorchOnOfWeapon);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", LightTorchOnOfWeaponWithNoSE);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", LightTorchOffOfWeapon);
@@ -61,4 +63,6 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", GetWeaponWeight);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", SetWeaponTorchChainReactionFlagAll);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", InitDemoQueensSword);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", ExecDemoQueensSword);
-INCLUDE_ASM("asm/nonmatchings/src/weapon", SetWeaponOffsetMode);
+void SetWeaponOffsetMode(char *a0, int a1) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC0) = a1;
+}

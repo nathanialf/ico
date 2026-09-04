@@ -42,7 +42,9 @@ INCLUDE_ASM("asm/nonmatchings/src/item", ItemGeo);
 INCLUDE_ASM("asm/nonmatchings/src/item", ItemDL);
 INCLUDE_ASM("asm/nonmatchings/src/item", BreakItemFromOutside);
 INCLUDE_ASM("asm/nonmatchings/src/item", CheckCarryableItem);
-INCLUDE_ASM("asm/nonmatchings/src/item", GetItemKind);
+int GetItemKind(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4);
+}
 INCLUDE_ASM("asm/nonmatchings/src/item", GetCharHeldItem);
 INCLUDE_ASM("asm/nonmatchings/src/item", IsItemHoldable);
 INCLUDE_ASM("asm/nonmatchings/src/item", IsBombExplode);

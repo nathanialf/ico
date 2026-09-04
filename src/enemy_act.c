@@ -215,8 +215,12 @@ int GetEnemyType(void) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", isEnemyKidnapEnable);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", isEnemyActive);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", GetMotherGeneratorLabelAskEnemy);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", GetMotherGeneratorGObjAskEnemy);
+int GetMotherGeneratorLabelAskEnemy(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x464);
+}
+int GetMotherGeneratorGObjAskEnemy(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x468);
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016A568);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016A818);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016AB60);
