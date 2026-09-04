@@ -77,6 +77,7 @@ INCLUDE_ASM("asm/nonmatchings/src/e3", actE3Gate);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3CapsuleChk);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3CapsuleDemoEnd);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3DoorMain);
+INCLUDE_ASM("asm/nonmatchings/src/e3", actE3DoorSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3DoorUp);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St13cIntroChk);
 extern int D_00639EA4;
@@ -97,3 +98,4 @@ void actE3CageFallReadyChk(volatile int a0) {
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St01bEneChk);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St09aGirlWay);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St09aBrgMain);
+INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St09aBrgSwitch);

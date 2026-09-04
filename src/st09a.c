@@ -16,6 +16,7 @@ void actSt09aSekizoEvent(int x) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aIntroChk);
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aBrgMain);
+INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aBrgSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aBrgDownSub);
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aHint1Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aHint2Chk);

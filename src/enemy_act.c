@@ -238,7 +238,8 @@ int FlyMail(void *a0) {
     return flyMailCore(a0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", boss_effect_callback);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016ADD0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", motEnemyStand);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", motEnemyWalk);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016AE70);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016AEC8);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", EnemyUtil_isOtherStatus);

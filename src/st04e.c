@@ -9,6 +9,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eFuchi3);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eSe);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eWater);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eWaterMain);
+INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eWaterSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eWaterFlagOn);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eWaterStopSub);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eHint1Chk);

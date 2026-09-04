@@ -11,6 +11,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bEne);
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bEnemy1);
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bEnemy2);
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bKurenMain);
+INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08aGirlYoro);
 void actSt08bDoorEvent(int x) {
     volatile int local = x;
 }

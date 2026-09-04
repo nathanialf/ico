@@ -27,8 +27,10 @@ INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lEneKill);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lBoxA);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lBoxB);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lGateXL);
-INCLUDE_ASM("asm/nonmatchings/src/st10l", func_00244150);
-INCLUDE_ASM("asm/nonmatchings/src/st10l", func_00244228);
+INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lFloorMain);
+INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lFloorSwitch);
+INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lGondolaMain);
+INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lGondolaSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lEneCam1Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lBoxChk);
 void actSt10lSekizoEvent(int x) {
@@ -37,4 +39,5 @@ void actSt10lSekizoEvent(int x) {
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lBoxAChk);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lBoxBChk);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lChainMain);
+INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lChainSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st10l", actSt10lEneKillChk);

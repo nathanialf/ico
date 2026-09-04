@@ -28,6 +28,7 @@ void actSt02WaterFallBoySplashCheck(volatile int a0){
   _ACTWait(0xA);
  } }
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWaterFallReflactionEffect);
+INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWaterFallChk);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaUp);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaDown);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aBox);
@@ -67,6 +68,7 @@ void actSt02aDoorDownEffect(volatile int a0){ long long b1[2]; long long b2[2];
   case 0x1E: b2[0]=v0b; b2[1]=D_00622720[1]; scpEffectStart__pn((int*)b2,0); break;
   } _ACTWait(1); } }
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aFenceMain);
+INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aFenceSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aFenceOpenSub);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aEneChk);

@@ -83,12 +83,14 @@ void EBRAIN_SEND_MES(void *a0, int a1) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", DamageFunc);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", DownFunc);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C050);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDown);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDie);
 ASM_LIT4_SLOT(D_00638E5C, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", Cling);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonCling);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C768);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C968);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStone);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonSofa);
 void BoxBarSoundOn(char *a0) {
     char *s = *(char **)(a0 + 0x164);
     switch (*(int *)(s + 0x34)) {
@@ -112,7 +114,8 @@ void BoxBarSoundOff(char *a0) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _boxbar_set_sound);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015CD88);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBox);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBar);
 ASM_LIT4_SLOT(D_00638E60, 0.3f);
 ASM_LIT4_SLOT(D_00638E64, 0.3f);
 void funcCommonFallDircorrect(char *a0) {
@@ -145,6 +148,7 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", completeEmergency);
 ASM_LIT4_SLOT(D_00638E6C, 7000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", emergencyCheck);
 ASM_LIT4_SLOT(D_00638E70, 10000.0f);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", flyCoreLoop);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonFly);
 ASM_LIT4_SLOT(D_00638E74, 0.005f);
 ASM_LIT4_SLOT(D_00638E78, 10000.0f);
@@ -257,7 +261,9 @@ void funcCommonRopeBefore(char *a0, int a1, int a2) {
     *(int *)(*(char **)(a0 + 0x164) + 0x190) = a2;
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonRope);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00163670);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", extraCommonNull);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", extraCommonCall);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonWayOn);
 void funcCommonSofaWakeup(char *a0) {
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x250) = 0;
 }

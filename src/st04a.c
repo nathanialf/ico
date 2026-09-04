@@ -37,4 +37,5 @@ INCLUDE_ASM("asm/nonmatchings/src/st04a", actConte09_3Jimaku);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateLSub);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateRSub);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGirlSitChk);
+INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aModelOnChk);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aModelOffChk);

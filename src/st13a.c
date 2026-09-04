@@ -11,6 +11,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aSekizo);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aCheck);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aChain);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aElevMain);
+INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aElevSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aCheckChk);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aChainOK);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aChainNG);

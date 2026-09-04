@@ -47,6 +47,7 @@ void actSt13cSleepEvent(int x) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cSleepChk);
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageDownMain);
+INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageDownSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCage1stDownDemo);
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFallReadyChk);
 void actSt13cCageFallEvent(int x) {

@@ -31,7 +31,9 @@ void actSt13bSekizo2Event(int x) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actConte10c);
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bElevMain);
+INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bElevSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bElevUpSub);
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bDoorMain);
+INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bDoorSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bDoorUpSub);
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bElev2CharaChk);

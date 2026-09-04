@@ -38,7 +38,8 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aGirlWay);
 void actSt47aSekizo2Event(int x) {
     volatile int local = x;
 }
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00254870);
+INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane1Main);
+INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane1Switch);
 extern long long D_006230C0[];
 extern int D_00639EA8;
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
@@ -59,7 +60,8 @@ void func_00254998(volatile int a0)
     buf[1] = D_006230D0[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002549E8);
+INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane2Main);
+INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane2Switch);
 extern long long D_006230E0[];
 
 void actSt47aHane2Girl(volatile int a0)

@@ -43,6 +43,7 @@ void actSt10rGirlWay(volatile unsigned int a0)
 }
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rExitChk);
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rChainMain);
+INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rChainSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rChainMoveSub);
 void actSt10rSekizoEvent(int x) {
     volatile int local = x;
