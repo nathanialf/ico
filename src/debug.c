@@ -649,7 +649,55 @@ void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int 
         SendVif1DirectPacket((int *)&packet);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", PutFont);
+extern int D_0063B37C;
+extern int D_0063B380;
+extern int D_0063B384;
+extern const unsigned char D_0061C590[];
+extern u128_dbgscr D_004DA760[];
+
+void PutFont(int c, int x, int y) {
+    Vif1Packet packet;
+    int i, j;
+    int y2 = y + 2;
+
+    SetPrimColor(6, D_0063B37C >> 2, D_0063B380 >> 2, D_0063B384 >> 2, 0x40);
+    OpenVif1DirectPacket(&packet);
+    sceVif1PkOpenGifTag(&packet, D_004DA760[0]);
+    for (j = 0; j < 8; j++) {
+        int oy = j * 2 + 0x800;
+        for (i = 0; i < 8; i++) {
+            if ((D_0061C590[j + c * 8] >> i) & 1) {
+                sceVif1PkAddGsData(&packet,
+                                   (unsigned long long)((x + i - 2 + 0x800) << 4) |
+                                       ((unsigned long long)((y + oy - 1) << 4) << 16) |
+                                       0x0080000000000000ULL);
+                sceVif1PkAddGsData(&packet,
+                                   (unsigned long long)((x + i + 3 + 0x800) << 4) |
+                                       ((unsigned long long)((y2 + oy) << 4) << 16) |
+                                       0x0080000000000000ULL);
+            }
+        }
+    }
+    CloseVif1DirectPacket((int)&packet);
+    SendVif1DirectPacket((int *)&packet);
+
+    SetPrimColor(0, D_0063B37C, D_0063B380, D_0063B384, 0x80);
+    OpenVif1DirectPacket(&packet);
+    sceVif1PkOpenGifTag(&packet, D_004DA760[0]);
+    for (j = 0; j < 8; j++) {
+        int oy = j * 2 + 0x800;
+        for (i = 0; i < 8; i++) {
+            if ((D_0061C590[j + c * 8] >> i) & 1) {
+                sceVif1PkAddGsData(&packet,
+                                   (unsigned long long)((x + i + 0x800) << 4) |
+                                       ((unsigned long long)((y + oy) << 4) << 16) |
+                                       0x0080000000000000ULL);
+            }
+        }
+    }
+    CloseVif1DirectPacket((int)&packet);
+    SendVif1DirectPacket((int *)&packet);
+}
 extern void sceDmaReset(int a0);
 extern void sceDmaSync(int *a0, int a1, int a2);
 extern void sceGsResetPath(void);
