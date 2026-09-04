@@ -1718,17 +1718,16 @@ void _sysbitInit(int *a0, int a1, int a2, int a3) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitNext);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitFlush);
-extern int _sysbitNext__pn(unsigned long long *p, int n) __asm__("_sysbitNext");
 
 int _sysbitGet(int *self, int a1)
 {
-    int ret = _sysbitNext__pn(self, a1);
+    int ret = _sysbitNext(self, a1);
     _sysbitFlush(self, a1);
     return ret;
 }
 int _sysbitMarker(int *self)
 {
-    int ret = _sysbitNext__pn(self, 1);
+    int ret = _sysbitNext(self, 1);
     _sysbitFlush(self, 1);
     return ret;
 }
