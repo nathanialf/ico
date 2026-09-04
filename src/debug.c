@@ -768,8 +768,40 @@ void putString(int color, char *fmt, ...) {
         }
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", drawWin);
-ASM_LIT4_SLOT(D_00639354, 0.8f);
+extern int D_0063B390;
+
+void drawWin(void) {
+    int i, j, k;
+    int len = 50;
+    int st;
+
+    for (i = 0; i < 26; i++) {
+        for (j = 255; D_0070FA90[i][j].ch == ' ' && j >= 0; j--) {
+        }
+        j++;
+        if (len < j) len = j;
+
+        if (j < 50) {
+            st = 0;
+        } else if (j - D_0063B390 - 50 >= 0) {
+            st = D_0063B390;
+        } else {
+            st = j - 50;
+        }
+        for (k = 0; k < 50; k++) {
+            DbgChar *p = &D_0070FA90[i][st + k];
+            if (p->ch != ' ') {
+                D_0063B37C = ((p->col >> 24) & 0xFF) * 0.8f;
+                D_0063B380 = ((p->col >> 16) & 0xFF) * 0.8f;
+                D_0063B384 = ((p->col >> 8) & 0xFF) * 0.8f;
+                PutFont(p->ch, k * 10 - 250, (i - 13) * 16);
+            }
+        }
+    }
+    if (len - D_0063B390 - 50 < 0) {
+        D_0063B390 = len - 50;
+    }
+}
 extern void SetDrawEnvironment(int a0);
 extern void drawSprite(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
 
