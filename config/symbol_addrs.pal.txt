@@ -2642,7 +2642,7 @@ debugEEExceptionMain = 0x001B5BD0; // type:func  // src/debug_exception  // prov
 func_001B6020 = 0x001B6020; // type:func  // src/debug_exception
 debugExceptionInit = 0x001B61B0; // type:func  // src/debug_exception
 debugIOPExceptionInit = 0x001B6228; // type:func  // src/debug_exception  // provisional-ordinal
-OpenVif1DirectPacket = 0x001B6244; // type:func  // src/debug_exception  // provisional-ordinal
+OpenVif1DirectPacket = 0x001B6270; // type:func  // src/debug_exception
 SetPrimColor = 0x001B62D8; // type:func  // src/debug_exception
 SetPrimColorTex = 0x001B63D0; // type:func  // src/debug_exception
 

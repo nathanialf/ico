@@ -9,7 +9,7 @@ INCLUDE_ASM("asm/nonmatchings/src/debug_exception", func_001B6020);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugExceptionInit);
 void debugIOPExceptionInit(void) {}
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", func_001B6230);
-INCLUDE_ASM("asm/nonmatchings/src/debug_exception", OpenVif1DirectPacket);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", func_001B6250);
+INCLUDE_ASM("asm/nonmatchings/src/debug_exception", OpenVif1DirectPacket);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", SetPrimColor);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", SetPrimColorTex);
