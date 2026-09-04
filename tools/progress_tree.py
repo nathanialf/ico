@@ -230,6 +230,54 @@ def _unmatched_funcs_for_tu(tu: str, ext: str) -> set[str] | None:
     return set(_INCLUDE_ASM_RE.findall(text))
 
 
+_GLOBAL: dict | None = None
+# `type name(args) {` / `type name(args)\n{` / K&R `name(a, b)\nint a;\n{`
+# (K&R declaration lines may end in `;` but never contain parentheses).
+_DEF_RE = re.compile(r"^[A-Za-z_][\w \t\*]*\b([A-Za-z_]\w*)[ \t]*\([^;{}]*\)(?:[^{};()]*;)*\s*\{", re.M)
+# whole-function asm blocks: `"name:\n"` or `"glabel name\n"` literals.
+_ASM_LABEL_RE = re.compile(r'"\s*(?:glabel\s+)?([A-Za-z_]\w*)\s*:?\s*(?:\\n)?"')
+
+
+def _global_index() -> dict:
+    """{'stubs': names with an INCLUDE_ASM anywhere, 'defined': names some
+    source file defines}. Computed once over every source root.
+
+    Trailer-independent on purpose: after the PAL-derived renames the TU
+    trailers name the PAL attribution while the yaml spans (and so the
+    files) kept the older partition, so "is it stubbed / defined in the
+    trailer's file" is the wrong question on ntsc / aug6. A function is
+    matched when a source file defines it and none stubs it."""
+    global _GLOBAL
+    if _GLOBAL is not None:
+        return _GLOBAL
+    stubs: set[str] = set()
+    defined: set[str] = set()
+    roots = []
+    try:
+        from ico_version import source_roots
+        roots = list(source_roots(VERSION))
+    except Exception:
+        roots = ["src", "ios", "isys", "sound", "ito"]
+    files = []
+    for r in roots:
+        files += list((REPO_ROOT / r).rglob("*.c")) + list((REPO_ROOT / r).rglob("*.c.inc"))
+    for f in files:
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        stubs.update(_INCLUDE_ASM_RE.findall(text))
+        for m in _DEF_RE.finditer(text):
+            defined.add(m.group(1))
+        for m in _ASM_LABEL_RE.finditer(text):
+            defined.add(m.group(1))
+        # macro-defined leaves (include/syscall.h SYSCALL_WRAPPER(name, n))
+        for m in re.finditer(r"^\s*SYSCALL_WRAPPER\s*\(\s*([A-Za-z_]\w*)", text, re.M):
+            defined.add(m.group(1))
+    _GLOBAL = {"stubs": stubs, "defined": defined}
+    return _GLOBAL
+
+
 def _programmer_of(tu: str | None) -> str:
     if not tu:
         return UNASSIGNED_GROUP
@@ -310,7 +358,9 @@ def build_tree() -> dict:
             # decompiled" even though the ELF already reproduces them.
             matched = False
         else:
-            matched = sym["name"] not in unmatched
+            g = _global_index()
+            matched = (sym["ext"] == "S"
+                       or (sym["name"] not in g["stubs"] and sym["name"] in g["defined"]))
 
         p = programmers.setdefault(prog, {"name": prog, "tus": {}})
         t = p["tus"].setdefault(
