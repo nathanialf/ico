@@ -10,6 +10,11 @@ INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", SleepHint);
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", WakeupHint);
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", IsTopHint);
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", DebugHintStart);
-INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", GetSizeHintSaveInfo);
-INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", GetBuffHintSaveInfo);
+int GetSizeHintSaveInfo(void) {
+    return 0x78;
+}
+extern char D_006E99B0[];
+char *GetBuffHintSaveInfo(void) {
+    return D_006E99B0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", Hint_Init);

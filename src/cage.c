@@ -7,6 +7,10 @@ INCLUDE_ASM("asm/nonmatchings/src/cage", HotInitCageGeo);
 INCLUDE_ASM("asm/nonmatchings/src/cage", CageGeo);
 INCLUDE_ASM("asm/nonmatchings/src/cage", CageDL);
 INCLUDE_ASM("asm/nonmatchings/src/cage", GetCageChainPoint);
-INCLUDE_ASM("asm/nonmatchings/src/cage", SetCageVelocityFriction);
+void SetCageVelocityFriction(char *a0, float a1) {
+    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x3C) = a1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/cage", StabilizeAllLayoutedCage);
-INCLUDE_ASM("asm/nonmatchings/src/cage", SetCageChainHangableFlag);
+void SetCageChainHangableFlag(char *a0, int a1) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x40) = a1;
+}
