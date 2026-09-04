@@ -2,10 +2,10 @@
 
 extern int CreateGObjByFuncSet();
 extern int D_0063BC50;
-extern void func_00200BA0(void);
+extern void thStart(void);
 
 int CreateWaySystemManagerGObj(void) {
-    int v = CreateGObjByFuncSet(0, 0, 0, 0, (int)&func_00200BA0, 0, 0);
+    int v = CreateGObjByFuncSet(0, 0, 0, 0, (int)&thStart, 0, 0);
     D_0063BC50 = v;
     return v;
 }
@@ -21,4 +21,9 @@ void actWaySystemCore(volatile unsigned int self)
     s[0] = 1;
     s[0xB0 / 4] = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/waySystemManager", func_00200BA0);
+extern void _ACTWait(int a0);
+void thStart(void) {
+    for (;;) {
+        _ACTWait(1);
+    }
+}

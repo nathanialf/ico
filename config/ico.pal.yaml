@@ -282,7 +282,7 @@ segments:
       - [0xFF7C0, c, src/torch]  # 16 funcs, census
       - [0x1003A8, asm, src/waterDot]  # 6 funcs, census
       - [0x100AD0, c, src/waySystemManager]  # 4 funcs, listing
-      - [0x100BC0, c, src/weapon]  # 36 funcs, census
+      - [0x100BB8, c, src/weapon]  # 37 funcs, census
       - [0x1034F0, c, src/windField]  # 13 funcs, listing
       - [0x103FF8, c, src/windManager]  # 5 funcs, listing
       - [0x104388, c, src/windmill]  # 3 funcs, listing

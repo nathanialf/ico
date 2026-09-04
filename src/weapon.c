@@ -1,5 +1,9 @@
 #include "common.h"
 
+extern void ExecuteSEPackage(int a0, int a1);
+void torchOnOfWeaponSE(int a0) {
+    ExecuteSEPackage(a0, 0x42);
+}
 extern void StopSEPackage(int a0);
 void torchOffOfWeaponSE(int a0) {
     StopSEPackage(a0);

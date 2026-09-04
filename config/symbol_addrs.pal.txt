@@ -3640,9 +3640,10 @@ EntryWaterDot = 0x002009E0; // type:func  // src/waterDot
 CreateWaySystemManagerGObj = 0x00200AD0; // type:func  // src/waySystemManager
 RequestGetWayBegin = 0x00200B10; // type:func  // src/waySystemManager
 actWaySystemCore = 0x00200B50; // type:func  // src/waySystemManager
-func_00200BA0 = 0x00200BA0; // type:func  // src/waySystemManager
+thStart = 0x00200BA0; // type:func  // src/waySystemManager
 
 // ---- src/weapon
+torchOnOfWeaponSE = 0x00200BB8; // type:func  // src/weapon
 torchOffOfWeaponSE = 0x00200BC0; // type:func  // src/weapon
 weaponHitReactionSE = 0x00200BF0; // type:func  // src/weapon  // provisional-ordinal
 weaponFumbleSE = 0x00200BF8; // type:func  // src/weapon  // provisional-ordinal
