@@ -44,8 +44,30 @@ int iosPadConnect(void *a0, int a1, int a2, int a3) {
     p[0] = (int)&iosPadDev[a2 * 0x200];
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadGetStick);
-INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadStickCameraCoord);
+extern void _PushVu0Registers();
+extern void _PopVu0Registers();
+extern int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5);
+
+int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5)
+{
+    int rv;
+    _PushVu0Registers();
+    rv = iosPadGetStick_func(dev, out, mode, a3, a4, a5);
+    _PopVu0Registers();
+    return rv;
+}
+typedef union { float f[4]; long long ll[2]; } Vec4;
+extern int matrixptr;
+extern void sceVu0TransposeMatrix(void *a0, void *a1);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
+
+void iosPadStickCameraCoord(void *a0, float *a1)
+{
+    Vec4 v = {{ a1[3], 0.0f, -a1[4], 0.0f }};
+    float m[16];
+    sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
+    sceVu0ApplyMatrix(a0, m, &v);
+}
 extern int D_0063C19C;
 
 void iosPadEnable(void)
@@ -176,6 +198,63 @@ void iosPadDevManager(void)
         iosPadDevReadFunc();
     }
 }
-INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadActTickProc);
+typedef struct {
+    unsigned char mode;
+    unsigned char b1;
+    unsigned char volume;
+    unsigned char b3;
+} ShockPrm;
+
+typedef struct {
+    int key;            /* 0x00 */
+    int box;            /* 0x04 */
+    int player;         /* 0x08 */
+    ShockPrm prm;       /* 0x0C */
+    short life;         /* 0x10 */
+    short tick;         /* 0x12 */
+    unsigned char volume; /* 0x14 */
+    unsigned char pad[3];
+} PadAct;
+
+typedef struct ShockRequest {
+    ShockPrm prm;                   /* 0x00 */
+    unsigned char pad[0x38];
+    struct ShockRequest *org;       /* 0x3C */
+} ShockRequest;
+
+extern ShockRequest *ShockRequestBox_GetRequest(int box, int key);
+extern int Shock_Request(int box, int player, ShockPrm prm, int key, int a4);
+
+static inline void setRequestVolume(ShockRequest *req, unsigned int volume)
+{
+    unsigned int v;
+    v = volume * req->org->prm.volume / 255;
+    if (v > 255) {
+        v = 255;
+    }
+    req->prm.volume = v;
+}
+
+void iosPadActTickProc(void)
+{
+    PadAct *p = (PadAct *)D_006BCD58;
+    int i;
+    for (i = 0xF; i != -1; i--) {
+        if (p->key != 0) {
+            ShockRequest *req = ShockRequestBox_GetRequest(p->box, p->key);
+            if (req == 0) {
+                p->tick++;
+                if (p->life == 0 || p->tick < p->life) {
+                    Shock_Request(p->box, p->player, p->prm, p->key, 0);
+                } else {
+                    p->key = 0;
+                }
+            } else {
+                setRequestVolume(req, p->volume);
+            }
+        }
+        p++;
+    }
+}
 void iosPadDisconWait(void) {}
 void iosPadErrorWait(void) {}
