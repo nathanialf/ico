@@ -172,7 +172,7 @@ segments:
       - [0x42518, c, sound/adpcm_init]  # 27 funcs, census
       - [0x43550, c, sound/s_init]  # 46 funcs, census
       - [0x46B68, c, sound/soundManager]  # 3 funcs, listing
-      - [0x46D10, c, src/act-game]  # 99 funcs, census
+      - [0x46CC0, c, src/act-game]  # 100 funcs, census; starts with ACTGame_SaveActorInformation (act-game.c:950), the first parse-order member, which splat had left in soundManager's span
       - [0x4E8A0, c, src/act-parallel-control]  # 5 funcs, listing
       - [0x4EA68, c, src/act-wish]  # 1 funcs, listing
       - [0x4FD50, c, src/boyact]  # 57 funcs, census

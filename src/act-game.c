@@ -24,6 +24,7 @@ typedef union { int i; float f; } IntFloat;
 
 extern void gamesysObjInfoCls(int a0, int a1);
 
+INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SaveActorInformation);
 void ACTGame_DeleteActorInformation(int *a0)
 {
     gamesysObjInfoCls(a0[3], a0[2]);

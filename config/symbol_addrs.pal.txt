@@ -35,6 +35,7 @@ send_signal_message = 0x0013C608; // type:func  // ios/message
 iosMsgSetEvent = 0x0013C720; // type:func  // ios/message
 iosPadDevManager = 0x0013DE08; // type:func  // ios/pad
 iosPadActTickProc = 0x0013DE50; // type:func  // ios/pad
+ACTGame_SaveActorInformation = 0x00146CC0; // type:func  // src/act-game
 handoff_heroin = 0x00150D98; // type:func  // src/boyact
 ACTSendMail_PULLUP_GO = 0x00155770; // type:func  // src/boyact
 actBoyPullupReady = 0x00155BA8; // type:func  // src/boyact
@@ -1464,7 +1465,6 @@ debug_req = 0x00146AD0; // type:func  // sound/s_init
 sndBgmReadyNextStage = 0x00146B68; // type:func  // sound/soundManager
 sndInit = 0x00146BC8; // type:func  // sound/soundManager
 sndManager = 0x00146C10; // type:func  // sound/soundManager
-func_00146CC0 = 0x00146CC0; // type:func  // sound/soundManager
 
 // ---- src/act-game
 ACTGame_DeleteActorInformation = 0x00146D10; // type:func  // src/act-game
