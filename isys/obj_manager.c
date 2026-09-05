@@ -157,4 +157,45 @@ int iosOmSendMailLink(int a0, int val5, int val6)
     }
     return ret;
 }
-INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", iosOmExeMail);
+extern char *D_0063A61C;
+extern void isysGObjRemove(char *g);
+extern void isysGObjProcPauseAll(char *g);
+extern void isysGObjProcActiveAll(char *g);
+
+typedef struct {
+    int type;
+    int arg;
+} IosMail;
+
+typedef struct {
+    int unk0;
+    int num;
+    IosMail mail[32];
+} IosMailBox;
+
+int iosOmExeMail(void (*func)(IosMail))
+{
+    char *g = D_0063A61C;
+    IosMailBox *mb = (IosMailBox *)(g + 0x54);
+    int i;
+    for (i = 0; i < mb->num; i++) {
+        switch (mb->mail[i].type) {
+        case 0:
+            isysGObjRemove(g);
+            break;
+        case 1:
+            isysGObjProcPauseAll(g);
+            break;
+        case 2:
+            isysGObjProcActiveAll(g);
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        default:
+            func(mb->mail[i]);
+        }
+    }
+    return 0;
+}
