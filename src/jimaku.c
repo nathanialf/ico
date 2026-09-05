@@ -9,9 +9,11 @@ struct jSub {       /* sub-object at offset 0xC of the argument */
     void *field3C;
     void *field40;
 };
-struct jArg {
-    char  _0[0xC];
-    struct jSub sub;
+struct jArg {       /* the object queued on jimakuMsgQ */
+    int   cmd;        /* 0x0 command: 0 begin, 1 next, 2 jump, 3 end */
+    int   _4;
+    int   done;       /* 0x8 cleared while the manager services it, 1 when finished */
+    struct jSub sub;  /* 0xC */
 };
 struct jNode {
     char  _0[4];
@@ -124,7 +126,40 @@ void jimakuEnd(void)
     jimakuMgrEnd__pn();
 }
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuDisp);
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuManager);
+extern int jimakuMsgBuf[2];
+extern char D_005540F8[];
+extern void iosMsgQueueCreate(int *q, int *buf, int n);
+extern int iosMsgRecv(int *q, void *out, int mode);
+extern void jimakuMgrBegin(struct jArg *p);
+
+void jimakuManager(void)
+{
+    struct jArg *msg;
+
+    iosMsgQueueCreate(jimakuMsgQ, jimakuMsgBuf, 2);
+    while (1) {
+        iosMsgRecv(jimakuMsgQ, &msg, 1);
+        msg->done = 0;
+        switch (msg->cmd) {
+        case 0:
+            jimakuMgrBegin(msg);
+            break;
+        case 1:
+            jimakuMgrNext(msg);
+            break;
+        case 2:
+            jimakuMgrJump(msg);
+            break;
+        case 3:
+            jimakuMgrEnd((int *)msg);
+            break;
+        default:
+            debug_StdPrintfDummy(D_005540F8, msg->cmd);
+            break;
+        }
+        msg->done = 1;
+    }
+}
 extern int D_0063A964;
 extern int jimakuOn;
 
