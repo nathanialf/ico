@@ -89,7 +89,32 @@ int open_inflate_handler(int a0, int a1)
     }
     return (int) s1;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", fill_inbuf);
+/* The inflate handler block carries the gzip-style input buffer at +0x10008
+ * and the decoder state at +0x18000 (insize at +0x4C, inptr at +0x50); the
+ * read callback and the handle it is given live at +0x4 and +0x0.  The
+ * callback's 64-bit size/return are the ones inflate_cd_read_func uses.  */
+#define INFLATE_INBUF(p) ((unsigned char *)(p) + 0x10008)
+#define INFLATE_STATE(p) ((unsigned int *)((char *)(p) + 0x18000))
+
+typedef long long (*InflateReadFn)(void *buf, long long size, void *handle);
+
+static int fill_inbuf(void *a0)
+{
+    int len;
+
+    INFLATE_STATE(a0)[0x4C / 4] = 0;
+    do {
+        len = (*(InflateReadFn *)((char *)a0 + 4))(
+                  INFLATE_INBUF(a0) + INFLATE_STATE(a0)[0x4C / 4],
+                  0x8000 - INFLATE_STATE(a0)[0x4C / 4],
+                  *(void **)a0);
+        if (len == 0 || len == -1) break;
+        INFLATE_STATE(a0)[0x4C / 4] += len;
+    } while (INFLATE_STATE(a0)[0x4C / 4] < 0x8000);
+    if (INFLATE_STATE(a0)[0x4C / 4] == 0) return -1;
+    INFLATE_STATE(a0)[0x50 / 4] = 1;
+    return INFLATE_INBUF(a0)[0];
+}
 extern void iosFree();
 
 int huft_free(char *p)
