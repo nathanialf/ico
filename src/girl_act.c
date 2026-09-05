@@ -351,7 +351,15 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", DebugDispAutoEscort);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHintPoint);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ACTGame_GirlBeforeFunc);
 extern int D_002A2E2C[];
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", FindGirlPullupFloorBoxGObj);
+
+void *FindGirlPullupFloorBoxGObj(void) {
+    void *g = D_00639EA8;
+    if (D_002A2E2C[0] == 7 &&
+        *(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34) == 0x4E) {
+        return *(void **)(*(char **)(*(char **)((char *)g + 0x164) + 0x688) + 0x374);
+    }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017B8A0);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BB90);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BBD8);
