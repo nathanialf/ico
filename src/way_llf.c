@@ -26,11 +26,79 @@ typedef struct NdW {
 } NdW;
 typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
 
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", InitWayPointSystem);
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", CreateWayGroup);
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", CreateTempWayGroup);
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", DeleteWayGroup);
+typedef struct WayGrp {
+    int f0;
+    int _4;
+    NdW *f8;
+    NdW *fC;
+    int f10;
+    int f14;
+    int f18;
+    int f1C;
+    int f20;
+    int f24;
+    int _28;
+    int f2C;
+    int _30;
+} WayGrp;
+
 extern unsigned char D_004F1EC0[];
+extern int D_0063BD74;
+
+INCLUDE_ASM("asm/nonmatchings/src/way_llf", InitWayPointSystem);
+/* The listing attributes lines 98-121 to CreateWayGroup, CreateTempWayGroup and
+ * (in the Jan-2002 link only) CreateBridge, so CreateWayGroup is a public
+ * `inline` of the deferred tail; until the tail's remaining asm members are C
+ * it is emitted here as a plain function, which gives the same bytes at the
+ * object position ROM has.  Must index the table inside the loop (a pointer
+ * walk changes the giv). */
+int CreateWayGroup(void)
+{
+    int i;
+
+    for (i = 0; i < 94; i++) {
+        WayGrp *wg = &((WayGrp *)D_004F1EC0)[i];
+
+        if (wg->f0 == 0) {
+            wg->f0 = 1;
+            wg->f8 = 0;
+            wg->fC = 0;
+            wg->f10 = 0;
+            wg->f14 = 0;
+            wg->f18 = 0;
+            wg->f1C = 0;
+            wg->f20 = -1;
+            wg->f24 = -1;
+            wg->f2C = 0;
+            D_0063BD74++;
+            return i;
+        }
+    }
+    return -1;
+}
+INCLUDE_ASM("asm/nonmatchings/src/way_llf", CreateTempWayGroup);
+int DeleteWayPoint(int pno);
+
+int DeleteWayGroup(int gno)
+{
+    WayGrp *wg = (WayGrp *)&D_004F1EC0[gno * 0x34];
+
+    if (wg->f0 == 1) {
+        if (wg->f8 != 0) {
+            NdW *wp = wg->f8;
+
+            do {
+                DeleteWayPoint(wp->_4);
+                wp = wp->fC;
+            } while (wp != 0);
+        }
+
+        wg->f0 = 0;
+        D_0063BD74--;
+        return 0;
+    }
+    return 1;
+}
 
 void CloseWayGroup(int idx)
 {
@@ -62,7 +130,26 @@ int CreateWayPoint(int a0)
     }
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", AddWayPoint);
+int AddWayPoint(int gno, int pno)
+{
+    WayGrp *wg = (WayGrp *)&D_004F1EC0[gno * 0x34];
+    NdW *wp = (NdW *)&D_004F31E0[pno];
+
+    if (wg->f8 == 0) {
+        wg->f8 = wp;
+        wg->fC = wp;
+    } else {
+        wg->fC->fC = wp;
+        wp->f8 = wg->fC;
+        wp->fC = 0;
+
+        wg->fC = wp;
+    }
+
+    wp->f20 = gno;
+    wg->f10++;
+    return 0;
+}
 int AddWayPointTop(int a0, int a1)
 {
     int *ch = (int *)&D_004F1EC0[a0 * 0x34];
