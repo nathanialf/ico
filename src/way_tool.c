@@ -59,7 +59,41 @@ INCLUDE_ASM("asm/nonmatchings/src/way_tool", wp_print_out);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", draw_way_group);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", way_toolDL);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", debug_WayTool);
-INCLUDE_ASM("asm/nonmatchings/src/way_tool", play_way);
+extern char D_0063BDA0[];
+extern int D_0063BD9C;
+extern void *isysGObjSearchFromObjKindID_begin(int id);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
+
+int play_way(void) {
+    char *g;
+    int f;
+
+    if (D_0063B13C & 1) {
+        debug_Printf(0x12, 0x36, 0xFF000000, D_0063BDA0);
+    }
+    f = D_00729B7C[0];
+    if (f & 0x20) {
+        g = isysGObjSearchFromObjKindID_begin(2);
+        switch (D_0063BD9C) {
+        case 0:
+            while (g != 0) {
+                *(int *)(*(char **)(g + 0x164) + 0x350) = 1;
+                g = isysGObjSearchFromObjKindID_next(g);
+            }
+            break;
+        case 1:
+            while (g != 0) {
+                *(int *)(*(char **)(g + 0x164) + 0x350) = 0;
+                g = isysGObjSearchFromObjKindID_next(g);
+            }
+            break;
+        }
+        D_0063BD9C ^= 1;
+    } else if (f & 0x40) {
+        return -1;
+    }
+    return 0;
+}
 extern unsigned char D_00622368[];
 extern int D_0063BD80;
 extern void debug_Printf__pn(int, int, int, void *) __asm__("debug_Printf");
