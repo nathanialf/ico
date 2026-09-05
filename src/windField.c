@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sugiCommon.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/windField", InitWindField);
 INCLUDE_ASM("asm/nonmatchings/src/windField", drawSenpuukiHaneUnit);
@@ -49,7 +50,31 @@ int *dummyGetWindVector(int *a0)
     if (a0) *a0 = 0;
     return D_0028FEF0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/windField", getParallelWindVector);
+extern int D_0028F4C0[];
+extern float D_00639700;
+extern float D_004ED360[];
+extern float D_004ED370[];
+extern float D_00724BE0[];
+extern float D_00724BF0[];
+extern void sceVu0ScaleVector(void *dst, void *src, float k);
+
+float *getParallelWindVector(float *power, void *pos)
+{
+    float d;
+    float s;
+    int i;
+    int n;
+
+    d = plane_distance(pos, D_004ED370);
+    if (d < 0.0f) d = -d;
+
+    n = (int)(d * D_00639700 * ((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f));
+    i = n < 256 ? n : 255;
+    s = D_00724BF0[i] * (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
+    if (power) *power = s;
+    sceVu0ScaleVector(D_00724BE0, D_004ED360, s);
+    return D_00724BE0;
+}
 typedef struct {
     float v[4];
     float str;

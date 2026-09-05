@@ -97,15 +97,21 @@ static __inline__ float random_signed_b(void)
 static __inline__ float plane_distance(const void *pos, const void *plane)
 {
     float d;
-    int t;
-    VU0_LSV_R(lqc2, 1, 0x0, pos);
-    VU0_LSV_R(lqc2, 2, 0x0, plane);
-    VU0_V3OP(vmul.xyz, 3, 1, 2);
-    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
-    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
-    __asm__ __volatile__("qmfc2.ni %0, $vf3" : "=r"(t));
-    __asm__ __volatile__("mtc1 %1, %0" : "=f"(d) : "r"(t));
+    /* One asm block: the qmfc2 -> mtc1 hand-off is $v0 in all 28 listing
+     * expansions while the mtc1 destination varies over seven FP registers,
+     * so the GPR hop is hard-wired and only the float result is allocated.
+     * Split statements with a "=r" temp are byte-equivalent in hosts whose
+     * arguments are already in registers, but in getParallelWindVector the
+     * allocated temp shares $v0 with the plane address and costs 6 insns. */
+    __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
+                         "lqc2 $vf2, 0x0(%2)\n\t"
+                         "vmul.xyz $vf3, $vf1, $vf2\n\t"
+                         "vaddy.x $vf3, $vf3, $vf3y\n\t"
+                         "vaddz.x $vf3, $vf3, $vf3z\n\t"
+                         "vaddw.x $vf3, $vf3, $vf2w\n\t"
+                         "qmfc2.ni $2, $vf3\n\t"
+                         "mtc1 $2, %0"
+                         : "=f"(d) : "r"(pos), "r"(plane) : "$2");
     return d;
 }
 
