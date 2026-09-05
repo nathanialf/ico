@@ -162,4 +162,24 @@ int quick_save_wpfile(void) {
     load_save_flag = 0;
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_tool", cursor_control);
+extern char iosPadConfDefault[];
+extern int D_00639EC0;
+extern void ACTDebugMove(int a0, int a1);
+extern void _ACTWait(int a0);
+extern int iosPadConnect(void *a0, int a1, int a2, void *a3);
+extern void iosPadRead(void *a0);
+
+void cursor_control(volatile int a0) {
+    char *w = *(char **)(a0 + 0x164);
+
+    iosPadConnect(w + 0x2D8, 0, 0, iosPadConfDefault);
+
+    while (1) {
+        iosPadRead(w + 0x2D8);
+
+        if (a0 == D_00639EC0 && (*(int *)(w + 0x2E4) & 1)) {
+            ACTDebugMove(a0, 1);
+        }
+        _ACTWait(1);
+    }
+}
