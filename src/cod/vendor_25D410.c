@@ -569,7 +569,7 @@ void sceVu0LightColorMatrix(void *a0, void *a1, void *a2, void *a3, void *a4) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25D410", sceVu0ViewScreenMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25D410", sceVu0DropShadowMatrix);
-void func_0025DEB0(void *a0, void *a1, void *a2, int a3, int a4) {
+void sceVu0RotTransPersN(void *a0, void *a1, void *a2, int a3, int a4) {
     __asm__ __volatile__(
         ".set noreorder\n"
         "lqc2 $vf4, 0x0($5)\n"
@@ -597,7 +597,7 @@ void func_0025DEB0(void *a0, void *a1, void *a2, int a3, int a4) {
         ".set reorder\n"
         ::: "$7", "memory");
 }
-void func_0025DF08(void *a0, void *a1, void *a2, int a3) {
+void sceVu0RotTransPers(void *a0, void *a1, void *a2, int a3) {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x10, 5);
     VU0_LSV(lqc2, 6, 0x20, 5);

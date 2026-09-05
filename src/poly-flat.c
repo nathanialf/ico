@@ -11,7 +11,7 @@ extern void _InitCurrentMatrix(void);
 extern void _SetCurrentMatrix(void *a0);
 extern void gif_DrawPolyF4(void *a0, void *a1, void *a2, void *a3, int b0, int b1, int b2, int b3, int last);
 extern int _IsInScreen(int *p);
-extern void func_0025DF08(void *a0, void *a1, void *a2, int a3);
+extern void sceVu0RotTransPers(void *a0, void *a1, void *a2, int a3);
 extern void gif_MakeLine2D(int *v0, int *v1, int z0, int z1, unsigned char *col, int n);
 extern char *matrixptr;
 extern void _IsInScreen2(void *a0);
@@ -23,7 +23,7 @@ void do_DrawLine(void *p0, void *p1, int *c);
 void IsPointIsInScreen(void *a0, void *a1);
 static inline unsigned char DrawLineTrans(int *dst, void *src)
 {
-    func_0025DF08(dst, drawline_ws_matrix, src, 1);
+    sceVu0RotTransPers(dst, drawline_ws_matrix, src, 1);
     return _IsInScreen(dst);
 }
 static inline void DrawLineOffset(int *p)
@@ -51,7 +51,7 @@ inline void IsPointIsInScreen(void *a0, void *a1) {
     sceVu0UnitMatrix(buf);
     func_0025D440(buf, matrixptr + 0x80, buf);
     func_0025D440(buf, matrixptr + 0xC0, buf);
-    func_0025DF08(a0, buf, a1, 1);
+    sceVu0RotTransPers(a0, buf, a1, 1);
     _IsInScreen2(a0);
 }
 void before_DrawLine(int a0)

@@ -213,6 +213,8 @@ actSt47aHane1_1Girl = 0x00254948; // type:func  // src/st47a
 actSt47aHane1_2Girl = 0x00254998; // type:func  // src/st47a
 actSt47aHane2Main = 0x002549E8; // type:func  // src/st47a
 actSt47aHane2Switch = 0x00254A18; // type:func  // src/st47a
+sceVu0RotTransPersN = 0x0025DEB0; // type:func  // src/cod/vendor_25D410
+sceVu0RotTransPers = 0x0025DF08; // type:func  // src/cod/vendor_25D410
 
 // ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — do not hand-edit below this line ====
 // ---------------------------------------------------------------------------
@@ -5405,8 +5407,6 @@ sceVu0NormalLightMatrix = 0x0025DAF0; // type:func  // src/cod/vendor_25D410  //
 sceVu0LightColorMatrix = 0x0025DBB0; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
 sceVu0ViewScreenMatrix = 0x0025DC18; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
 sceVu0DropShadowMatrix = 0x0025DD20; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
-func_0025DEB0 = 0x0025DEB0; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
-func_0025DF08 = 0x0025DF08; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
 sceVu0CopyVectorXYZ = 0x0025DF50; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
 sceVu0InterVectorXYZ = 0x0025DF70; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
 sceVu0ScaleVectorXYZ = 0x0025DFA0; // type:func  // src/cod/vendor_25D410  // (vendor) libvu0.a (34/43 MAIN.MAP)
