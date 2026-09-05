@@ -110,7 +110,97 @@ void iosThreadResume(int a0)
 {
     ResumeThread(*(int *)(a0 + 0x30));
 }
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadInit);
+/* --- ios thread object (SCE ee_thread_t at offset 0 + ICO bookkeeping) --- */
+typedef struct IOSThread {
+    int status;                 /* 0x00 ee_thread_t.status              */
+    void (*entry)();            /* 0x04 ee_thread_t.func  == iosThreadMain */
+    void *stack;                /* 0x08 ee_thread_t.stack               */
+    int stackSize;              /* 0x0C ee_thread_t.stack_size          */
+    void *gpReg;                /* 0x10 ee_thread_t.gp_reg              */
+    int initPriority;           /* 0x14 ee_thread_t.initial_priority    */
+    int currentPriority;        /* 0x18 ee_thread_t.current_priority    */
+    int attr;                   /* 0x1C */
+    int option;                 /* 0x20 */
+    int reserved[3];            /* 0x24 */
+    int id;                     /* 0x30 kernel thread id                */
+    int arg;                    /* 0x34 argument handed to func         */
+    void (*func)();             /* 0x38 body run by iosThreadMain       */
+    int flags;                  /* 0x3C */
+    int sleeping;               /* 0x40 read by iosThreadMain           */
+    int pad44;                  /* 0x44 */
+    int hasQueue;               /* 0x48 */
+    void *queue;                /* 0x4C */
+    char name[16];              /* 0x50 */
+} IOSThread;
+
+/* 16-byte guard word stamped at both ends of a thread stack */
+typedef struct { char c[16]; } IosStackMark;
+
+extern IOSThread D_006BD310;    /* the main (boot) IOS thread */
+extern char D_006BD380[];       /* its 8 KB stack */
+extern int _gp;                 /* linker-defined global pointer */
+extern int D_0063A5F0;          /* number of live IOS threads */
+extern const char D_00551DB0[16];   /* "<THREAD_SP>...."  */
+extern const char D_00551DC0[16];   /* "<THREAD_SP_END>"  */
+extern char D_00551DD0[];
+extern char D_00551E00[];
+extern char D_00551E20[];
+extern void iosThreadDestroyMgr();
+extern int CreateThread(IOSThread *param);
+extern const char D_00551DF0[];
+extern char D_0063A5F8[];
+extern void debug_assert(const char *file, int line);
+extern void __assert(const char *file, int line, const char *expr);
+
+/* MAIN.MAP names iosThreadCreate as a global function and the listing puts
+ * its lines 119-155 inside iosThreadInit and iosThreadCreateS, so it is a
+ * public `inline` of the deferred tail.  Until every member of that tail is
+ * C (iosThreadDestroyMgr and iosThreadAllQuit are still asm) its out-of-line
+ * copy stays as the INCLUDE_ASM below and this definition is `static inline`
+ * so no second symbol is emitted; the storage class flips at layout time. */
+static inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg,
+                                   void *stack, long stackSize, int pri)
+{
+    th->entry = iosThreadMain;
+    th->func = func;
+
+    th->stack = stack;
+    *(IosStackMark *)stack = *(const IosStackMark *)D_00551DB0;
+    *(IosStackMark *)((char *)stack + stackSize - 16) = *(const IosStackMark *)D_00551DC0;
+
+    th->stackSize = stackSize - 16;
+    th->gpReg = &_gp;
+    th->initPriority = pri;
+    th->currentPriority = pri;
+    th->id = CreateThread(th);
+    th->sleeping = 0;
+
+    th->arg = arg;
+
+    if (th->id >= 0x100) {
+        debug_StdPrintfDummy(D_00551DD0);
+        debug_assert(D_00551DF0, 0x8D);
+        __assert(D_00551DF0, 0x8D, D_0063A5F8);
+    } else if (th->id <= 0) {
+        debug_StdPrintfDummy(D_00551E00);
+        debug_assert(D_00551DF0, 0x91);
+        __assert(D_00551DF0, 0x91, D_0063A5F8);
+    } else {
+        D_006BCEE0[th->id] = (int)th;
+    }
+
+    D_0063A5F0++;
+    debug_StdPrintfDummy(D_00551E20, D_0063A5F0);
+    th->flags &= ~1;
+
+    th->hasQueue = 0;
+}
+
+void iosThreadInit(void)
+{
+    iosThreadCreate(&D_006BD310, 0, iosThreadDestroyMgr, 0, D_006BD380, 0x2000, 13);
+    iosThreadStart((int)&D_006BD310);
+}
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadCreate);
 int iosThreadGetPri(int *a0)
 {
@@ -250,4 +340,5 @@ int iosSemaReferStatus(int *self)
     }
     return 0;
 }
+INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadDestroyMgr);
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadAllQuit);

@@ -35,6 +35,8 @@ send_signal_message = 0x0013C608; // type:func  // ios/message
 iosMsgSetEvent = 0x0013C720; // type:func  // ios/message
 iosPadDevManager = 0x0013DE08; // type:func  // ios/pad
 iosPadActTickProc = 0x0013DE50; // type:func  // ios/pad
+iosThreadDestroyMgr = 0x00140018; // type:func  // ios/thread
+iosThreadAllQuit = 0x00140108; // type:func  // ios/thread
 ACTGame_SaveActorInformation = 0x00146CC0; // type:func  // src/act-game
 handoff_heroin = 0x00150D98; // type:func  // src/boyact
 ACTSendMail_PULLUP_GO = 0x00155770; // type:func  // src/boyact
@@ -1312,7 +1314,6 @@ iosSemaDelete = 0x0013FE70; // type:func  // ios/thread
 iosSemaWait = 0x0013FEE8; // type:func  // ios/thread
 iosSemaSignal = 0x0013FF48; // type:func  // ios/thread
 iosSemaReferStatus = 0x0013FF98; // type:func  // ios/thread
-iosThreadAllQuit = 0x00140018; // type:func  // ios/thread
 
 // ---- isys/gobj
 isysGObjKindTableInit = 0x00140170; // type:func  // isys/gobj
