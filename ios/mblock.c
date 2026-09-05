@@ -20,6 +20,13 @@ void init_mblock(int *a0);
 void *new_segment(MBlock *mb, unsigned int len);
 void reuse_mblock(int *a0);
 char *strdup_mblock(MBlock *mb, const char *str);
+inline void init_mblock(int *a0) {
+    a0[0] = 0;
+    a0[1] = 0;
+}
+INCLUDE_ASM("asm/nonmatchings/ios/mblock", new_mblock_node);
+
+/* listing lines 55-66 */
 static inline int enough_space(MBlock *mb, unsigned int size)
 {
     MBlockNode *node = mb->head;
@@ -35,11 +42,6 @@ static inline int enough_space(MBlock *mb, unsigned int size)
 
     return end <= node->size;
 }
-inline void init_mblock(int *a0) {
-    a0[0] = 0;
-    a0[1] = 0;
-}
-INCLUDE_ASM("asm/nonmatchings/ios/mblock", new_mblock_node);
 inline void *new_segment(MBlock *mb, unsigned int len)
 {
     MBlockNode *node;
