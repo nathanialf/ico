@@ -42,8 +42,12 @@ void SetTurnSpeedInEscape(char *a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", sort_list);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_MakeOthersList);
+ASM_LIT4_SLOT(D_00638F64, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainHideCheckIntercept);
+ASM_LIT4_SLOT(D_00638F68, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_CheckWarningMode);
+ASM_LIT4_SLOT(D_00638F6C, 160000.0f);
+ASM_LIT4_SLOT(D_00638F70, 40000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_DecideMode);
 extern char D_002A2E70[];
 extern int *D_00639EA4;
@@ -62,29 +66,57 @@ void girlBrainMain_Init(void) {
     memset(D_0029D650, 0, 0x5920);
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ChangeRunMode);
+ASM_LIT4_SLOT(D_00638F74, 250000.0f);
+ASM_LIT4_SLOT(D_00638F78, 22500.0f);
+ASM_LIT4_SLOT(D_00638F7C, 160000.0f);
+ASM_LIT4_SLOT(D_00638F80, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00171188);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ATGoalTurnMail);
+ASM_LIT4_SLOT(D_00638F84, 2300.0f);
+ASM_LIT4_SLOT(D_00638F88, 850.0f);
+ASM_LIT4_SLOT(D_00638F8C, 2300.0f);
+ASM_LIT4_SLOT(D_00638F90, 850.0f);
+ASM_LIT4_SLOT(D_00638F94, 750.0f);
+ASM_LIT4_SLOT(D_00638F98, 650.0f);
+ASM_LIT4_SLOT(D_00638F9C, 950.0f);
+ASM_LIT4_SLOT(D_00638FA0, 1900.0f);
+ASM_LIT4_SLOT(D_00638FA4, 870.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", checkWaterfallResult);
+ASM_LIT4_SLOT(D_00638FA8, 90000.0f);
+ASM_LIT4_SLOT(D_00638FAC, 10000.0f);
+ASM_LIT4_SLOT(D_00638FB0, 40000.0f);
+ASM_LIT4_SLOT(D_00638FB4, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00172D00);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001744A0);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainHide_GoalTurn);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", isHideRecheck);
+ASM_LIT4_SLOT(D_00638FB8, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174998);
+ASM_LIT4_SLOT(D_00638FBC, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174CE8);
+ASM_LIT4_SLOT(D_00638FC0, 10000.0f);
+ASM_LIT4_SLOT(D_00638FC4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainRunawaySearchPoint);
+ASM_LIT4_SLOT(D_00638FC8, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainRunawayMoveByWay);
+ASM_LIT4_SLOT(D_00638FCC, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00175688);
+ASM_LIT4_SLOT(D_00638FD0, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetSafePosition);
+ASM_LIT4_SLOT(D_00638FD4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176028);
+ASM_LIT4_SLOT(D_00638FD8, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001762A0);
+ASM_LIT4_SLOT(D_00638FDC, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176570);
+ASM_LIT4_SLOT(D_00638FE0, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176838);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176C28);
+ASM_LIT4_SLOT(D_00638FE4, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177098);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177340);
+ASM_LIT4_SLOT(D_00638FE8, 1500.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001776D8);
-extern float D_00638FEC;
-extern float D_00638FF0;
 extern int D_00639EA4__pn __asm__("D_00639EA4");
 extern void *D_00629DE4, *D_00639EA8__pn __asm__("D_00639EA8");
 extern float _DistxzSqGV(void *, void *);
@@ -117,10 +149,10 @@ test:
     if (rv == 0) {
         goto ret0;
     }
-    if (_DistxzSqGV(buf, buf + 0x10) < D_00638FEC) {
+    if (_DistxzSqGV(buf, buf + 0x10) < 22500.0f) {
         return 1;
     }
-    if (_DistxzSqGV(buf, buf + 0x10) < D_00638FF0) {
+    if (_DistxzSqGV(buf, buf + 0x10) < 250000.0f) {
         if (func_001776D8(buf, buf + 0x10) != 0) {
             return 1;
         }
@@ -129,6 +161,23 @@ ret0:
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", WayTest);
+ASM_LIT4_SLOT(D_00638FF4, 0.001f);
+ASM_LIT4_SLOT(D_00638FF8, 0.1f);
+ASM_LIT4_SLOT(D_00638FFC, 0.1f);
+ASM_LIT4_SLOT(D_00639000, 0.99f);
+ASM_LIT4_SLOT(D_00639004, 0.1f);
+ASM_LIT4_SLOT(D_00639008, 0.99f);
+ASM_LIT4_SLOT(D_0063900C, 0.1f);
+ASM_LIT4_SLOT(D_00639010, 0.1f);
+ASM_LIT4_SLOT(D_00639014, 0.1f);
+ASM_LIT4_SLOT(D_00639018, 0.1f);
+ASM_LIT4_SLOT(D_0063901C, 0.1f);
+ASM_LIT4_SLOT(D_00639020, 0.1f);
+ASM_LIT4_SLOT(D_00639024, 0.1f);
+ASM_LIT4_SLOT(D_00639028, 0.1f);
+ASM_LIT4_SLOT(D_0063902C, 0.1f);
+ASM_LIT4_SLOT(D_00639030, 250000.0f);
+ASM_LIT4_SLOT(D_00639034, 0.3f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177BB8);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_GetDistHand);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Update);
@@ -165,6 +214,10 @@ void HandMgr_Judge(void) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Print);
+ASM_LIT4_SLOT(D_00639038, 0.9f);
+ASM_LIT4_SLOT(D_0063903C, 1.1f);
+ASM_LIT4_SLOT(D_00639040, 1.4f);
+ASM_LIT4_SLOT(D_00639044, 1.3f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Speed);
 extern char D_0055FE58[];
 
@@ -238,6 +291,11 @@ void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
         break;
     }
 }
+ASM_LIT4_SLOT(D_00639048, 0.1f);
+ASM_LIT4_SLOT(D_0063904C, -1.5707964f);
+ASM_LIT4_SLOT(D_00639050, 0.1f);
+ASM_LIT4_SLOT(D_00639054, 0.7f);
+ASM_LIT4_SLOT(D_00639058, 0.6f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHand);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlPulledReady);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlPulledGo);

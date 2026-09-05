@@ -5,7 +5,7 @@
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
 ![.data progress](https://img.shields.io/badge/data-0.02%20%25-orange.svg)
 ![.rodata progress](https://img.shields.io/badge/rodata-0.06%20%25-orange.svg)
-![.lit4 progress](https://img.shields.io/badge/lit4-30.03%20%25-yellow.svg)
+![.lit4 progress](https://img.shields.io/badge/lit4-35.62%20%25-yellow.svg)
 ![.sdata progress](https://img.shields.io/badge/sdata-0.07%20%25-orange.svg)
 <!-- progress:end -->
 
