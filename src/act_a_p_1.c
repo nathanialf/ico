@@ -42,7 +42,18 @@ void SetAP1PriorLevel(char *self, int val)
 {
     *(int *)(*(char **)(self + 0x164) + 0xAC) = val;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", GetAP1AIMode);
+extern char *D_004E5A30[];
+extern char D_0063B6F8[];
+
+char *GetAP1AIMode(char *self)
+{
+    char *p = *(char **)(self + 0x164);
+
+    if (p == 0 || *(unsigned int *)(p + 0x34) >= 6) {
+        return D_0063B6F8;
+    }
+    return D_004E5A30[*(int *)(p + 0x34)];
+}
 extern int AP1MotReq();
 
 int jumpAI(int a0)
