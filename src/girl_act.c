@@ -173,6 +173,7 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", IsGirlStatusEscortEnable);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", DebugDispAutoEscort);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHintPoint);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ACTGame_GirlBeforeFunc);
+extern int D_002A2E2C[];
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", FindGirlPullupFloorBoxGObj);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017B8A0);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BB90);
@@ -237,7 +238,14 @@ void afterGirlSupportBGBegin(unsigned int a0)
     volatile unsigned int local = a0;
     ACTGame_DisconnectHand();
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", isMustCheckCylinder);
+int isMustCheckCylinder(void *a, void *b) {
+    if ((a == (void *)D_00639EA4 && b == D_00639EA8) || (a == D_00639EA8 && b == (void *)D_00639EA4)) {
+        if (*(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x34) == 0x51) {
+            return 1;
+        }
+    }
+    return 0;
+}
 void afterGirlHintPoint(volatile int a0) {
     RequestChangeHandMode((void *)a0, 1, 4, 0, 0, 0, 0);
 }
