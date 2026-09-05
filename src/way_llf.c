@@ -42,22 +42,50 @@ typedef struct WayGrp {
     int _30;
 } WayGrp;
 
-extern unsigned char D_004F1EC0[];
+extern WayRec D_004F1EC0[];
 extern int D_0063BD74;
 
 INCLUDE_ASM("asm/nonmatchings/src/way_llf", InitWayPointSystem);
+
+/* gcc 2.9 emits a non-static `inline` function's out-of-line copy at the end of
+ * the object, in first-declaration order, so the whole TU is declared here in
+ * ROM order and every definition below is `inline`.  That reproduces the ROM's
+ * .text layout exactly (see the per-function VMAs in the PAL listing). */
+inline int CreateWayGroup(void);
+inline int CreateTempWayGroup(void);
+inline int DeleteWayGroup(int gno);
+inline void CloseWayGroup(int idx);
+inline int CreateWayPoint(int a0);
+inline int AddWayPoint(int gno, int pno);
+inline int AddWayPointTop(int a0, int a1);
+inline int InsertWayPointAfter(int dummy, int idx1, int idx2);
+inline int DeleteWayPoint(int pno);
+inline WpNode *WayGroup_begin(void);
+inline WpNode *WayGroup_next(WpNode *p);
+inline WpNode *WayBridge_begin(void);
+inline WpNode *WayBridge_next(WpNode *p);
+inline WpNode *WayBridgeAll_begin(void);
+inline WpNode *WayBridgeAll_next(WpNode *p);
+inline void *WayBridgeVar_begin(void);
+inline WayGroup *WayBridgeVar_next(WayGroup *a0);
+inline void *WayPoint_begin(void);
+inline void *WayPoint_next(WayGroup_DW *a0);
+inline int WayPointList_begin(int a0);
+inline int WayPointList_next(int *a0);
+inline int waypoint_bidirectional_list(int *self, int which);
+inline void SetWayGroupActive(int a0, int a1);
+inline int CheckWayGroupActive(int idx);
+
 /* The listing attributes lines 98-121 to CreateWayGroup, CreateTempWayGroup and
- * (in the Jan-2002 link only) CreateBridge, so CreateWayGroup is a public
- * `inline` of the deferred tail; until the tail's remaining asm members are C
- * it is emitted here as a plain function, which gives the same bytes at the
- * object position ROM has.  Must index the table inside the loop (a pointer
- * walk changes the giv). */
-int CreateWayGroup(void)
+ * (in the Jan-2002 link only) CreateBridge: this is the TU's shared group
+ * allocator, expanded into both callers.  Must index the table inside the loop
+ * (a pointer walk changes the giv). */
+inline int CreateWayGroup(void)
 {
     int i;
 
     for (i = 0; i < 94; i++) {
-        WayGrp *wg = &((WayGrp *)D_004F1EC0)[i];
+        WayGrp *wg = (WayGrp *)&D_004F1EC0[i];
 
         if (wg->f0 == 0) {
             wg->f0 = 1;
@@ -76,12 +104,18 @@ int CreateWayGroup(void)
     }
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", CreateTempWayGroup);
-int DeleteWayPoint(int pno);
-
-int DeleteWayGroup(int gno)
+inline int CreateTempWayGroup(void)
 {
-    WayGrp *wg = (WayGrp *)&D_004F1EC0[gno * 0x34];
+    int no = CreateWayGroup();
+
+    if (no != -1) {
+        D_004F1EC0[no].w[11] = 1;
+    }
+    return no;
+}
+inline int DeleteWayGroup(int gno)
+{
+    WayGrp *wg = (WayGrp *)&D_004F1EC0[gno];
 
     if (wg->f0 == 1) {
         if (wg->f8 != 0) {
@@ -100,7 +134,7 @@ int DeleteWayGroup(int gno)
     return 1;
 }
 
-void CloseWayGroup(int idx)
+inline void CloseWayGroup(int idx)
 {
     int *node = (int *)((char *)D_004F1EC0 + idx * 0x34);
     int v1 = node[8 / 4];
@@ -112,7 +146,7 @@ void CloseWayGroup(int idx)
 extern Nd D_004F31E0[];
 extern void sceVu0CopyVector(int *, int);
 
-int CreateWayPoint(int a0)
+inline int CreateWayPoint(int a0)
 {
     NdW *node = (NdW *)D_004F31E0;
     int i;
@@ -130,9 +164,9 @@ int CreateWayPoint(int a0)
     }
     return -1;
 }
-int AddWayPoint(int gno, int pno)
+inline int AddWayPoint(int gno, int pno)
 {
-    WayGrp *wg = (WayGrp *)&D_004F1EC0[gno * 0x34];
+    WayGrp *wg = (WayGrp *)&D_004F1EC0[gno];
     NdW *wp = (NdW *)&D_004F31E0[pno];
 
     if (wg->f8 == 0) {
@@ -150,9 +184,9 @@ int AddWayPoint(int gno, int pno)
     wg->f10++;
     return 0;
 }
-int AddWayPointTop(int a0, int a1)
+inline int AddWayPointTop(int a0, int a1)
 {
-    int *ch = (int *)&D_004F1EC0[a0 * 0x34];
+    int *ch = (int *)&D_004F1EC0[a0];
     Nd *node = &D_004F31E0[a1];
     Nd *old;
     node->f8 = 0;
@@ -162,7 +196,7 @@ int AddWayPointTop(int a0, int a1)
     old->f8 = node;
     return 0;
 }
-int InsertWayPointAfter(int dummy, int idx1, int idx2)
+inline int InsertWayPointAfter(int dummy, int idx1, int idx2)
 {
     int *node_a = (int *)((char *)D_004F31E0 + idx1 * 0x40);
     int *node_b = (int *)((char *)D_004F31E0 + idx2 * 0x40);
@@ -173,10 +207,55 @@ int InsertWayPointAfter(int dummy, int idx1, int idx2)
     old[2] = (int)node_b;
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", DeleteWayPoint);
+inline int DeleteWayPoint(int pno)
+{
+    NdW *wp = (NdW *)&D_004F31E0[pno];
+    NdW *prev = wp->f8;
+    NdW *next = wp->fC;
+    WayGrp *wg = (WayGrp *)&D_004F1EC0[wp->f20];
+
+    if (wg->f10 < 4) wg->f14 = 0;
+
+    if (wg->f14 != 0) {
+        if (wp == wg->f8) {
+            wg->f8 = next;
+
+            wg->f10--;
+            wp->f0 = 0;
+            return 0;
+        } else if (wp == wg->fC) {
+            wg->fC = prev;
+
+            wg->f10--;
+            wp->f0 = 0;
+            return 0;
+        }
+    }
+
+    if (prev != 0) {
+        prev->fC = next;
+    } else if (next != 0) {
+        wg->f8 = next;
+    }
+
+    if (next != 0) {
+        next->f8 = prev;
+    } else if (prev != 0) {
+        wg->fC = prev;
+    }
+
+    if (prev == 0 && next == 0) {
+        wg->f8 = 0;
+        wg->fC = 0;
+    }
+
+    wp->f0 = 0;
+    wg->f10--;
+    return 0;
+}
 extern WpNode D_004F1E8C;
 
-WpNode *WayGroup_begin(void)
+inline WpNode *WayGroup_begin(void)
 {
     WpNode *p = &D_004F1E8C;
     WpNode *end = p + 94;
@@ -190,7 +269,7 @@ WpNode *WayGroup_begin(void)
 }
 extern WpNode D_004F31A4;
 
-WpNode *WayGroup_next(WpNode *p)
+inline WpNode *WayGroup_next(WpNode *p)
 {
     WpNode *end = &D_004F31A4;
     if (p != 0 && p != end) {
@@ -202,7 +281,7 @@ WpNode *WayGroup_next(WpNode *p)
     }
     return 0;
 }
-WpNode *WayBridge_begin(void)
+inline WpNode *WayBridge_begin(void)
 {
     WpNode *p = &D_004F1E8C;
     WpNode *end = p + 94;
@@ -214,7 +293,7 @@ WpNode *WayBridge_begin(void)
     }
     return 0;
 }
-WpNode *WayBridge_next(WpNode *p)
+inline WpNode *WayBridge_next(WpNode *p)
 {
     WpNode *end = &D_004F31A4;
     if (p != 0 && p != end) {
@@ -226,7 +305,7 @@ WpNode *WayBridge_next(WpNode *p)
     }
     return 0;
 }
-WpNode *WayBridgeAll_begin(void)
+inline WpNode *WayBridgeAll_begin(void)
 {
     WpNode *p = &D_004F1E8C;
     WpNode *end = p + 94;
@@ -238,7 +317,7 @@ WpNode *WayBridgeAll_begin(void)
     }
     return 0;
 }
-WpNode *WayBridgeAll_next(WpNode *p)
+inline WpNode *WayBridgeAll_next(WpNode *p)
 {
     WpNode *end = &D_004F31A4;
     if (p != 0 && p != end) {
@@ -250,11 +329,10 @@ WpNode *WayBridgeAll_next(WpNode *p)
     }
     return 0;
 }
-extern WayRec D_004F1E8C__pn[] __asm__("D_004F1E8C");
 
-void *WayBridgeVar_begin(void) {
-    WayRec *p = D_004F1E8C__pn;
-    WayRec *end = D_004F1E8C__pn + 94;
+inline void *WayBridgeVar_begin(void) {
+    WayRec *p = (WayRec *)&D_004F1E8C;
+    WayRec *end = (WayRec *)&D_004F1E8C + 94;
     if (p == 0) goto ret0;
     if (p == end) goto ret0;
     for (p++; ; p++) {
@@ -264,10 +342,9 @@ void *WayBridgeVar_begin(void) {
 ret0:
     return 0;
 }
-extern WayGroup D_004F31A4__pn __asm__("D_004F31A4");
 
-WayGroup *WayBridgeVar_next(WayGroup *a0) {
-    WayGroup *p, *end = &D_004F31A4__pn;
+inline WayGroup *WayBridgeVar_next(WayGroup *a0) {
+    WayGroup *p, *end = (WayGroup *)&D_004F31A4;
     if (a0 != 0 && a0 != end) {
         for (p = a0 + 1; ; p++) {
             if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0)
@@ -280,7 +357,7 @@ WayGroup *WayBridgeVar_next(WayGroup *a0) {
 }
 extern WayGroup_CT D_004F31A0[];
 
-void *WayPoint_begin(void) {
+inline void *WayPoint_begin(void) {
     WayGroup_CT *p = D_004F31A0;
     WayGroup_CT *end = D_004F31A0 + 275;
     if (p == 0) goto ret0;
@@ -294,7 +371,7 @@ ret0:
 }
 extern WayGroup_DW D_004F7660;
 
-void *WayPoint_next(WayGroup_DW *a0) {
+inline void *WayPoint_next(WayGroup_DW *a0) {
     WayGroup_DW *end = &D_004F7660;
     if (a0 == 0) goto ret0;
     if (a0 == end) goto ret0;
@@ -305,12 +382,11 @@ void *WayPoint_next(WayGroup_DW *a0) {
 ret0:
     return 0;
 }
-extern WayRec D_004F1EC0__pn[] __asm__("D_004F1EC0");
 
-int WayPointList_begin(int a0) {
-    return D_004F1EC0__pn[a0].w[2];
+inline int WayPointList_begin(int a0) {
+    return D_004F1EC0[a0].w[2];
 }
-int WayPointList_next(int *a0) {
+inline int WayPointList_next(int *a0) {
     register int v __asm__("$4") = (int)a0;
     __asm__ (
         ".set noreorder\n\t"
@@ -335,7 +411,7 @@ int WayPointList_next(int *a0) {
 extern char D_00621EB0[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
-int waypoint_bidirectional_list(int *self, int which) {
+inline int waypoint_bidirectional_list(int *self, int which) {
     if (self == 0) {
         return 0;
     }
@@ -345,10 +421,10 @@ int waypoint_bidirectional_list(int *self, int which) {
     }
     return self[0xC / 4];
 }
-void SetWayGroupActive(int a0, int a1) {
-    D_004F1EC0__pn[a0].w[10] = a1;
+inline void SetWayGroupActive(int a0, int a1) {
+    D_004F1EC0[a0].w[10] = a1;
 }
-int CheckWayGroupActive(int idx)
+inline int CheckWayGroupActive(int idx)
 {
-    return D_004F1EC0__pn[idx].w[10] != 0;
+    return D_004F1EC0[idx].w[10] != 0;
 }
