@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sugiCommon.h"
 
 struct DQW { float f0, f4, f8, fc, f10, f14; char _18[0x18]; int f30; };
 
@@ -528,7 +529,6 @@ extern float D_006390C0;
 extern int MakeAP1GObj(void *p);
 extern void WakeUpAP1(int a0);
 extern void _ACTWait(int a0);
-extern float _GetRandom(void);
 extern int rand(void);
 
 void scpBornSpider(int n, float a, float b, float c, float d) {
@@ -536,10 +536,10 @@ void scpBornSpider(int n, float a, float b, float c, float d) {
     float t1, t2;
     int r, dead;
     for (i = 0; i < n; i++) {
-        t1 = _GetRandom();
+        t1 = random_unit();
         D_002A5400.f4 = b;
         D_002A5400.f0 = a + d * (t1 + t1 - 1.0f);
-        t2 = _GetRandom();
+        t2 = random_unit();
         D_002A5400.f8 = c + d * (t2 + t2 - 1.0f);
         r = rand();
         D_002A5400.f30 = 1;

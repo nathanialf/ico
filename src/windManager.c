@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sugiCommon.h"
 
 /* PAL listing (windManager.c): SetWindManager (line 21) and InitWindManager
  * (35) are inline and expand into ReinitWindManager, whose rows are exactly
@@ -26,7 +27,6 @@ extern float D_0063BC78;
 extern int D_0063BC7C;
 extern float D_00639708;
 extern int D_0028F4C0[];
-extern float _GetRandom(void);
 extern void InitWindField(int a0, float *a1, float *a2, float a3);
 extern void ExecWindField(float f);
 extern int GetWindVector(float *power, void *pos);
@@ -60,7 +60,7 @@ inline void InitWindManager(int no) {
 void ExecWindManager(void) {
     D_0063BC7C++;
     if (D_0063BC7C >= 0x33) {
-        float r = _GetRandom();
+        float r = random_unit();
         D_0063BC7C = 0;
         D_0063BC74 = D_0063BC64 * ((r + r - 1.0f) * D_0063BC6C + 1.0f);
     }

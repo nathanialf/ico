@@ -62,7 +62,7 @@ void setImageSize(int *self, int a1, int a2)
 }
 void sendDispEnv(void *a0) {
     sceGsPutDispEnv__pn(a0);
-    a0 = (void *)((unsigned int)D_0072A040 & 0x0FFFFFFF);
+    a0 = (void *)phys_addr((int)D_0072A040);
     *(volatile unsigned int *)0x1000A010 = (unsigned int)a0;
     *(volatile unsigned int *)0x1000A020 = 7;
     *(volatile unsigned int *)0x1000A000 = 0x101;

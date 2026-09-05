@@ -269,6 +269,26 @@ listing could not be gated against the ROM we build.  Each header records its
 functions' header line ranges and instruction counts so the matcher can pick
 them up once their retail counterparts are identified in `boyact`/`girl_act`.
 
+## Drift audit (2026-09-05)
+
+Matched hosts must CALL the header helper, not open-code its body: an
+open-coded body is the same defect as a TU laid out in the wrong order.
+Measured from the census against the tree: of the census hosts that are
+matched C, four open-coded a helper and were converted, each re-gated at 0
+and the whole ROM byte-identical: `ExecWindManager` (windManager),
+`scpBornSpider` (script) and `EnemyCtrlBeforeFunc` (enemy-control) now call
+`random_unit()`; `sendDispEnv` (mv_disp) calls `phys_addr()`.  Newly landed
+hosts call the helper from the start (`InitBirdGeo` in act_bird,
+`getParallelWindVector` in windField).
+
+`plane_distance` changed form in the same pass (commit 25683f1fd): it is one
+`asm volatile` block with the `qmfc2`/`mtc1` hop hard-wired to `$v0` and
+declared as a clobber, only the float result allocated.  The listing shows
+that hop as `$v0` in all 28 expansions while the `mtc1` destination varies
+over seven FP registers, so a gcc-allocated temp cannot be the developer's
+spelling; in `getParallelWindVector` the allocated temp shared `$v0` with the
+plane address and cost six instructions.  The four earlier hosts re-gate at 0.
+
 ## Inlining check
 
 Every helper written into these headers really is inlined by ee-gcc 2.9 with
