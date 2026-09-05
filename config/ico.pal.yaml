@@ -403,6 +403,8 @@ segments:
       - [0x456900, rodata, src/cod/456900]   # .rodata blob resume
       - [0x51CF00, .rodata, src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
       - [0x51CF14, rodata, src/cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
+      - [0x51FA00, .rodata, src/handManager]  # carved jtbl_0061FA00 (VMA 0x61FA00..0x61FA18, 24 B, 6 arms): _handManager's switch table, emitted by the compiled function; the two zero pad words after it are the blob's first words
+      - [0x51FA18, rodata, src/cod/51FA18]   # .rodata blob resume
       - [0x520030, .rodata, src/motionManager]  # carved jtbl_00620030 (VMA 0x620030..0x620088, 88 B, 22 arms): _getGeometryOfMotion's switch table, emitted by the compiled function once matched (splat migrate_rodata_to_functions); the blob keeps every other motionManager string
       - [0x520088, rodata, src/cod/520088]   # .rodata blob resume
       - [0x538B00, lit4, src/cod/538B00]     # .lit4

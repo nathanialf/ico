@@ -874,6 +874,11 @@ words become the blob's first words.
 - `[0x452080, .rodata, isys/obj_manager]` iosOmExeMail's 5-arm table (20 B),
   resume `0x452094` (2be4b2e36).
 
+- `[0x51FA00, .rodata, src/handManager]` _handManager's 6-arm table (24 B), resume
+  `0x51FA18`; the two zero pad words become the blob's first words. Note the
+  oracle cannot score a switch function whose ROM `.s` carries `jlabel`s
+  (objdump -d dumps the region as hex); verify by objdump -D word compare and ninja.
+
 ### `.rodata` — a TU's anonymous constant pool
 
 - `[0x4568B0, .rodata, src/lightning]` — lightning_test's colour quad and four
