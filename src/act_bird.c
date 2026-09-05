@@ -1,7 +1,49 @@
 #include "common.h"
 
 #include "itou_common.h"
+#include "sugiCommon.h"
 
+extern void ExecMotionOrient();
+extern void iosOmSendMail(void *a0);
+extern float acosf(float a0);
+extern float sceVu0InnerProduct(void *a0, void *a1);
+extern void sceVu0Normalize(void *dst, void *src);
+extern void _ACTWait(int a0);
+extern void Debug_StickControl(void *gobj);
+/* Actor sub-thread body: the actor scheduler resumes this frame after every
+   _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
+/* Actor sub-thread body: the actor scheduler resumes this frame after every
+   _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
+extern void *actInitialize(void *a0);
+extern void actCreateSubThread(void *entry, int prio);
+extern void func_0019E7F8();
+extern int SetMotionRequest(void *a0, int id, void *work);
+extern char D_00555788[];
+extern void *D_0063A438;
+extern char *iosMallocDebug(void *heap, int size, char *file, int line);
+extern void memset(void *dst, int c, int n);
+extern void CopyVector(void *dst, void *src);
+extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
+extern void SetLodLevel(void *o, int lod);
+typedef union { int i; float f; } IntFloat;
+extern void _ACTSendMailToBird();
+extern void *isysGObjSearchFromObjKindID_begin(int id);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
+/* prototypes: their order is the inline tail's emission order */
+float vector_angle_degree(void *a0, void *a1);
+void subBirdControl(void *volatile gobj);
+void subBirdCollision(void *volatile gobj);
+void actBirdStart(void *a0);
+char *InitBirdGeo(char *a0, void *a1);
+void BirdAI(void);
+void _ACTSendMailToBirdAll(void *a0, void *a1);
+inline float vector_angle_degree(void *a0, void *a1) {
+    float v0[4];
+    float v1[4];
+    sceVu0Normalize(v0, a0);
+    sceVu0Normalize(v1, a1);
+    return radians_to_degrees(acosf(sceVu0InnerProduct(v0, v1)));
+}
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", interp_vector_sa);
 ASM_LIT4_SLOT(D_00639230, 10430.378f);
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", birdBeforeFunc);
@@ -29,42 +71,64 @@ ASM_LIT4_SLOT(D_0063927C, -1.3f);
 ASM_LIT4_SLOT(D_00639280, 0.6f);
 ASM_LIT4_SLOT(D_00639284, 0.14285715f);
 ASM_LIT4_SLOT(D_00639288, 0.2f);
+inline void subBirdControl(void *volatile gobj)
+{
+    _ACTWait(1);
+    while (1) {
+        Debug_StickControl(gobj);
+        _ACTWait(1);
+    }
+}
+inline void subBirdCollision(void *volatile gobj)
+{
+    _ACTWait(1);
+    while (1) {
+        _ACTWait(1);
+    }
+}
+inline void actBirdStart(void *a0) {
+    char *w;
+
+    w = (char *)actInitialize(a0);
+    _ACTWait(1);
+    actCreateSubThread(func_0019E7F8, 0x14);
+    actCreateSubThread(subBirdControl, 0x15);
+    actCreateSubThread(subBirdCollision, 0x15);
+    *(int *)(w + 0x130) = SetMotionRequest(a0, 0x10E, w + 0x620);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_WireString_Bird);
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_StickControl);
 ASM_LIT4_SLOT(D_0063928C, 0.001f);
-extern void ExecMotionOrient();
-
 void func_0019FE30(int a0, int a1, int a2, int a3)
 {
     ExecMotionOrient(a0, a1, a2, a3);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_0019FE38);
-extern void iosOmSendMail(void *a0);
+inline char *InitBirdGeo(char *a0, void *a1) {
+    char *w;
 
+    w = iosMallocDebug(D_0063A438, 0x40, D_00555788, 978);
+    memset(w, 0, 0x40);
+    CopyVector(w, a1);
+    w[0x10] = 0;
+    InitMotionOrient(a0, 0x975, 0x9A3, -1, -1, 0x46E);
+
+    *(int *)(*(int *)(a0 + 0x15C) + 0x544) = 1;
+    *(int *)(*(int *)(a0 + 0x15C) + 0x54C) = 0;
+    *(int *)(*(int *)(a0 + 0x15C) + 0x548) = 1;
+    *(int *)(*(int *)(a0 + 0x15C) + 0x550) = 0;
+    ((IntFloat *)(*(int *)(a0 + 0x15C) + 0x4AC))->f = random_unit() * 100.0f;
+    ((IntFloat *)(*(int *)(a0 + 0x15C) + 0x4B0))->f =
+        ((IntFloat *)(*(int *)(a0 + 0x15C) + 0x4AC))->f;
+    *(int *)(*(int *)(a0 + 0x15C) + 0x4C4) = 0;
+    SetLodLevel(a0, 3);
+    return w;
+}
+inline void BirdAI(void) {}
 void _ACTSendMailToBird(void *a0, void *a1, void *a2) {
     iosOmSendMail(a0);
 }
-extern float acosf(float a0);
-extern float sceVu0InnerProduct(void *a0, void *a1);
-extern void sceVu0Normalize(void *dst, void *src);
-
-float vector_angle_degree(void *a0, void *a1) {
-    float v0[4];
-    float v1[4];
-    sceVu0Normalize(v0, a0);
-    sceVu0Normalize(v1, a1);
-    return radians_to_degrees(acosf(sceVu0InnerProduct(v0, v1)));
-}
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", subBirdControl);
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", subBirdCollision);
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", actBirdStart);
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", InitBirdGeo);
-void BirdAI(void) {}
-extern void _ACTSendMailToBird();
-extern void *isysGObjSearchFromObjKindID_begin(int id);
-extern void *isysGObjSearchFromObjKindID_next(void *o);
-
-void _ACTSendMailToBirdAll(void *a0, void *a1) {
+inline void _ACTSendMailToBirdAll(void *a0, void *a1) {
     void *obj = isysGObjSearchFromObjKindID_begin(0x20);
     while (obj != 0) {
         _ACTSendMailToBird(obj, a0, a1);
