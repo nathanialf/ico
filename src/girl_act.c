@@ -166,7 +166,78 @@ void HandMgr_Judge(void) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Print);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Speed);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetBoyMode);
+extern char D_0055FE58[];
+
+void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
+{
+    /* Static-chain home: GetBoyMode is a gcc nested function of
+       func_00179940 (caller sets $2 = its $sp before the jal), so the
+       prologue stores the incoming chain register into frame slot 0.
+       Same stand-in as the matched sibling HandMgr_Judge above; it is
+       replaced by a real nested definition once func_00179940 is C.  */
+    volatile int home;
+    int uninit;
+    char *rec;
+    home = uninit;
+    *mode = ((int *)D_00639EA4[0x59])[0xD];
+    *p1 = 0;
+    *p2 = 0;
+    *p3 = 0;
+    switch (*mode) {
+    case 14:
+        *mode = 1;
+        break;
+    case 15:
+        *mode = 1;
+        break;
+    case 8:
+        *mode = 1;
+        break;
+    case 2:
+    case 3:
+        if (((int *)D_00639EA4[0x59])[0x55] != 0) {
+            *mode = 2;
+        }
+        rec = D_0055FE58 + ((int *)D_00639EA4[0x57])[0x128] * 0x194;
+        switch ((*(unsigned int *)(rec + 0x188) >> 22) & 3) {
+        case 1:
+            *mode = 2;
+            break;
+        case 2:
+            *mode = 3;
+            break;
+        }
+        if (*mode == 3) {
+            unsigned long long f = *(unsigned long long *)((char *)((int *)D_00639EA4[0x59])[0x1A2] + 0x448);
+            if ((int)(f >> 33) & 1) {
+                *mode = 1;
+            } else if ((int)(f >> 32) & 1) {
+                *mode = 2;
+            }
+        }
+        if (*mode == 2) {
+            unsigned long long f = *(unsigned long long *)((char *)((int *)D_00639EA4[0x59])[0x1A2] + 0x448);
+            if ((int)(f >> 33) & 1) {
+                *mode = 1;
+            }
+        }
+        break;
+    case 36:
+        if (((int *)D_00639EA4[0x59])[0xF] == 0x5E) {
+            *p2 = 1;
+        } else {
+            *mode = 1;
+        }
+        break;
+    case 5:
+    case 13:
+    case 17:
+    case 18:
+    case 68:
+        *mode = 3;
+        break;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00179940);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GirlAct_BoyAndMeCollisionMail);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", IsGirlStatusEscortEnable);
