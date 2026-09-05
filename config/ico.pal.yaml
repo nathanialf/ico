@@ -399,6 +399,8 @@ segments:
       - [0x452094, rodata, src/cod/452094]   # .rodata blob resume (the zero pad word before the 8-aligned string at 0x552098 is the blob's first word: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x453EB0, .rodata, src/girl_act]  # carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
       - [0x453FBC, rodata, src/cod/453FBC]   # .rodata blob resume (the zero pad word before the .align 3 D_00553FC0 is the blob's first word)
+      - [0x4555E0, .rodata, src/ebrain]  # carved jtbl_005555E0 (7 arms, 0x1C) + jtbl_00555600 (9 arms, 0x24) at 16-byte alignment: eBrainGetTarget's two switch tables, emitted by the compiled function; VMA 0x5555E0..0x555624; the TU's strings before them stay in the blob
+      - [0x455624, rodata, src/cod/455624]   # .rodata blob resume (the zero pad word after the second table is the blob's first word)
       - [0x4568B0, .rodata, src/lightning]  # carved $LC0/$LC1 of lightning_test (VMA 0x5568B0..0x556900, 80 B): the colour quad and the four vertices, local brace initialisers in the source; the "lightning_test" string before them belongs to the still-asm DrawLightning2 and stays in the blob
       - [0x456900, rodata, src/cod/456900]   # .rodata blob resume
       - [0x4577A0, .rodata, ito/mpeg/mv_vobuf]  # carved D_005577A0 "../ito/include/mv_defs.h" + D_005577C0 "p != NULL" (mv_defs.h alloc_zeroed's __FILE__ and assert literals, 8-aligned), VMA 0x5577A0..0x5577D0, 48 B; the TU's own rodata run

@@ -918,6 +918,12 @@ words become the blob's first words.
   oracle cannot score a switch function whose ROM `.s` carries `jlabel`s
   (objdump -d dumps the region as hex); verify by objdump -D word compare and ninja.
 
+- `[0x4555E0, .rodata, src/ebrain]` eBrainGetTarget's two tables (7 and 9 arms) at
+  16-byte alignment, resume `0x455624`; the TU's four strings before them belong
+  to still-asm members and stay in the blob. A jump-table function cannot be
+  scored by the oracle (jlabels); strip the symbol table from copies of both
+  objects and compare the disassembled word streams.
+
 ### `.rodata` — a TU's anonymous constant pool
 
 - `[0x4568B0, .rodata, src/lightning]` — lightning_test's colour quad and four

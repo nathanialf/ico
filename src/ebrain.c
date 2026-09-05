@@ -162,7 +162,200 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
     return no;
 }
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainGetTargetGeneratorFromLabel);
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainGetTarget);
+extern void *D_00639EA4;
+extern void *D_00639EA8;
+extern int D_0063C2C4;
+extern int D_0063C2C8;
+extern EBSlot *D_006E6AD0[];
+extern EBSlot *D_006E6B50[];
+extern float D_006391D8;
+extern float D_006391DC;
+extern void GetRootPosition(void *out, void *gobj);
+extern int ACTCheckViewCl(void *gop, void *target, void *pos, int deg, float dist);
+extern void *memset(void *dst, int c, int n);
+extern int eBrainGetTargetGeneratorFromLabel(int label);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+
+static inline int eBrainCanSeeTarget(void *gop, void *target)
+{
+    float mypos[4];
+    float tpos[4];
+
+    if (target == 0)
+        return 0;
+    GetRootPosition(mypos, gop);
+    GetRootPosition(tpos, target);
+    return ACTCheckViewCl(gop, target, tpos, 180, 100.0f);
+}
+
+EBSlot *eBrainGetTarget(void *gop)
+{
+    EBSlot *p;
+    int changed;
+
+    p = eBrainGetPacket(gop);
+    if (p == 0)
+        return 0;
+
+    switch (p->f10) {
+    case 1:
+    case 5:
+        eBrainSetStatus(p, 1);
+        break;
+    case 2:
+        eBrainSetStatus(p, 2);
+        break;
+    case 3:
+        eBrainSetStatus(p, 5);
+        break;
+    case 4:
+        eBrainSetStatus(p, 0);
+        break;
+    case 6:
+        if (D_00639EA8 != 0) {
+            eBrainSetStatus(p, 3);
+        }
+        break;
+    case 7:
+        eBrainSetStatus(p, 4);
+        break;
+    }
+    p->f10 = 0;
+    if (D_0063C2D0 != 0 && p->f0 == 1) {
+        eBrainSetStatus(p, 8);
+    }
+
+    do {
+        changed = 0;
+        switch (p->f0) {
+        case 0:
+        {
+            int n;
+            int cnt;
+            int found;
+            int boyIdx;
+            int girlIdx;
+
+            found = 0;
+            cnt = 0;
+            for (n = 0; n < D_0063C2C4; n++) {
+                EBSlot *e = D_006E6AD0[n];
+                if (p == e) {
+                    found = 1;
+                    break;
+                }
+                if (e != 0) cnt++;
+            }
+            boyIdx = -1;
+            if (found && cnt + eBrainBoyChaseCount <= 31) boyIdx = n;
+            found = 0;
+            cnt = 0;
+            for (n = 0; n < D_0063C2C8; n++) {
+                EBSlot *e = D_006E6B50[n];
+                if (p == e) {
+                    found = 1;
+                    break;
+                }
+                if (e != 0) cnt++;
+            }
+            girlIdx = -1;
+            if (found && cnt + eBrainGirlChaseCount <= 31) girlIdx = n;
+
+            {
+                int order[3];
+                int i;
+
+                memset(order, 0, sizeof(order));
+                i = 0;
+                if (boyIdx >= 0) {
+                    if (girlIdx >= 0) {
+                        if (D_006E6AD0[boyIdx]->f08 < D_006E6B50[girlIdx]->f0C) {
+                            order[0] = 1;
+                            order[1] = 2;
+                        } else {
+                            order[0] = 2;
+                            order[1] = 1;
+                        }
+                    } else {
+                        order[0] = 1;
+                    }
+                } else if (girlIdx >= 0) {
+                    order[0] = 2;
+                }
+                for (; order[i] != 0; i++) {
+                    if (order[i] == 1) {
+                        if (eBrainCanSeeTarget(gop, D_00639EA4)) {
+                            eBrainSetStatus(p, 1);
+                            break;
+                        }
+                    } else {
+                        if (eBrainCanSeeTarget(gop, D_00639EA8)) {
+                            eBrainSetStatus(p, 2);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (p->f0 != 0) {
+                D_006E6AD0[boyIdx] = D_006E6B50[girlIdx] = 0;
+                changed = 1;
+            }
+            break;
+        }
+        case 1:
+            p->f04 = D_00639EA4;
+            if (p->f14 >= 181) {
+                if (p->f0C < p->f08 + D_006391D8) {
+                    if (eBrainCanSeeTarget(gop, D_00639EA8)) {
+                        eBrainSetStatus(p, 2);
+                        changed = 1;
+                    }
+                }
+            }
+            break;
+        case 2:
+            p->f04 = D_00639EA8;
+            break;
+        case 5:
+            p->f04 = D_00639EA8;
+            if (p->f08 < D_006391DC) {
+                if (eBrainCanSeeTarget(gop, D_00639EA4)) {
+                    eBrainSetStatus(p, 1);
+                    changed = 1;
+                }
+            }
+            if (D_0063C2CC == 0) {
+                eBrainSetStatus(p, 1);
+                changed = 1;
+            }
+            break;
+        case 4:
+            p->f04 = isysGObjSearchFromObjLayoutID(
+                eBrainGetTargetGeneratorFromLabel(*(int *)((char *)gop + 8)));
+            break;
+        case 6:
+            p->f04 = 0;
+            break;
+        case 3:
+            if (eBrainCanSeeTarget(gop, D_00639EA8)) {
+                eBrainSetStatus(p, 2);
+                changed = 1;
+            }
+            break;
+        case 8:
+            p->f04 = D_00639EA4;
+            if (D_0063C2D0 == 0) {
+                eBrainSetStatus(p, 0);
+            }
+            break;
+        }
+    } while (changed);
+
+    if (D_0063C2CC != 0 && D_0063C2CC != gop && p->f0 == 2) {
+        eBrainSetStatus(p, 5);
+    }
+    return p;
+}
 inline void eBrainSendMes(void *gop, int mes)
 {
     EBSlot *p = eBrainGetPacket(gop);
