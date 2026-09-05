@@ -7,7 +7,9 @@ typedef struct SqEntry {
     short unk6;     /* 0x6 */
     int unk8;       /* 0x8 */
     int unkC;       /* 0xC */
-    int unk10[6];   /* 0x10 */
+    int unk10[2];   /* 0x10 */
+    long long chMask; /* 0x18 */
+    int unk20[2];   /* 0x20 */
     int unk28;      /* 0x28 */
 } SqEntry;
 static inline char *hd_search(char *base, int *pk) {
@@ -135,8 +137,14 @@ void soundDataSegAllClose(int a0, int a1)
     soundBufSegFree(a0, a1);
 }
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeVolSet);
+ASM_LIT4_SLOT(D_00638CA0, 0.1f);
+ASM_LIT4_SLOT(D_00638CA4, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", debug_DispSEInfo);
+ASM_LIT4_SLOT(D_00638CA8, -0.0027777778f);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", sound3DParamSet);
+ASM_LIT4_SLOT(D_00638CAC, 3000.0f);
+ASM_LIT4_SLOT(D_00638CB0, 0.1f);
+ASM_LIT4_SLOT(D_00638CB4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", _soundSeDefPlay);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", _soundSeDefStop);
 extern void _soundSeDefStop(int a0, int a1);
@@ -161,6 +169,8 @@ void soundSeDefPitchSet(int a0)
     if (a0 != *(unsigned short *)entry) return;
     SgSetSePitchDirect(id);
 }
+ASM_LIT4_SLOT(D_00638CB8, 3000.0f);
+ASM_LIT4_SLOT(D_00638CBC, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeEnvPlay);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeEnvNotUseClose);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataSegNextStageNotUseClose);
@@ -194,7 +204,34 @@ int soundOutputModeGet(void) {
 int soundReverbDepthGet(void) {
     return D_0063A648;
 }
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBufAdpcmChAlloc);
+extern long long D_0063C1E0;
+extern char D_00552280[];
+
+int soundBufAdpcmChAlloc(SqEntry *self, int *chp)
+{
+    int ch;
+    long long bit = 1;
+
+    for (ch = 0; ch < 64U; ch++) {
+        if ((D_0063C1E0 & (bit << ch)) == 0) goto found;
+    }
+    debug_assert(D_005521E8, 500);
+    __assert(D_005521E8, 500, D_0063A660);
+found:
+    self->chMask |= bit << ch;
+    D_0063C1E0 |= bit << ch;
+    if (ch >= 5) {
+        debug_StdPrintfDummy(D_00552280);
+        debug_assert(D_005521E8, 504);
+        __assert(D_005521E8, 504, D_0063A660);
+    }
+    *chp = ch;
+    if (ch < 0) {
+        return (ch << 14) + 0x1D9020;
+    } else {
+        return (ch << 14) + 0x1E0000;
+    }
+}
 extern long long D_0063C1E0;
 
 void soundBufAdpcmFree(char *self) {
@@ -386,13 +423,112 @@ void soundVBlank(void)
         }
     }
 }
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeKindBuild);
+typedef struct SeKind {
+    short num;      /* 0x0 */
+    short unk2;     /* 0x2 */
+    short unk4;     /* 0x4 */
+    short idx;      /* 0x6 */
+} SeKind;
+
+extern unsigned short D_0030C4E0[];
+extern SeKind D_005EE488[];
+
+void soundSeKindBuild(void)
+{
+    int i;
+    int j;
+    unsigned short num;
+    char *e;
+
+    for (i = 1419; i >= 0; i--) {
+        D_0030C4E0[i] = 0;
+    }
+
+    for (i = 0; i < 16; i++) {
+        e = &D_006BF570[i * 0x30];
+        if (*(unsigned short *)(e + 2) == 11) {
+            num = *(unsigned short *)e;
+            for (j = 0; j < 3837; j++) {
+                SeKind *p = &D_005EE488[j];
+                if (p->num == num) {
+                    D_0030C4E0[p->idx] = j;
+                }
+            }
+        }
+    }
+}
 extern int D_0063A658;
 
 int soundSeSemiCommonLoadChk(void) {
     return D_0063A658;
 }
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeEnvDefaultSet);
+typedef struct SeEnvDef {
+    float unk0;              /* 0x00 */
+    float unk4;              /* 0x04 */
+    float volume;            /* 0x08 */
+    float unkC;              /* 0x0C */
+    float unk10;             /* 0x10 */
+    float unk14;             /* 0x14 */
+    unsigned int b0 : 1;     /* 0x18 bit 0 */
+    unsigned int b1 : 1;
+    unsigned int b2 : 1;
+    unsigned int b3 : 1;
+    unsigned int b4 : 28;
+} SeEnvDef;
+
+typedef struct SeSrc {
+    int unk0[9];             /* 0x00 */
+    float unk24;             /* 0x24 */
+} SeSrc;
+
+typedef struct SeSlot {
+    int unk0;                /* 0x00 */
+    unsigned int f0 : 26;    /* 0x04 bits 0..25 */
+    unsigned int f26 : 1;
+    unsigned int f27 : 1;
+    unsigned int f28 : 2;
+    unsigned int f30 : 1;
+    unsigned int f31 : 1;
+    int unk8[4];             /* 0x08 */
+    float unk18;             /* 0x18 */
+    float unk1C;             /* 0x1C */
+    float unk20;             /* 0x20 */
+    float unk24;             /* 0x24 */
+    float unk28;             /* 0x28 */
+    int unk2C[3];            /* 0x2C */
+    SeSrc *unk38;            /* 0x38 */
+    SeEnvDef *unk3C;         /* 0x3C */
+} SeSlot;
+
+void soundSeEnvDefaultSet(SeSlot *self)
+{
+    SeEnvDef *env = self->unk3C;
+
+    if (env->volume != 0.0f) {
+        self->unk18 = env->volume;
+    } else {
+        self->unk18 = self->unk38->unk24;
+    }
+    if (env->unkC != 0.0f) {
+        self->unk24 = env->unkC;
+    } else {
+        self->unk24 = 500.0f;
+    }
+    if (env->unk10 != 0.0f) {
+        self->unk20 = env->unk10;
+    } else {
+        self->unk20 = 1000.0f;
+    }
+    if (env->unk14 != 0.0f) {
+        self->unk28 = env->unk14;
+    } else {
+        self->unk28 = 3000.0f;
+    }
+    self->f30 = env->b3;
+    self->f26 = env->b1;
+    self->f27 = env->b2;
+    self->unk1C = 0.1f;
+}
 extern const char D_00552398[];
 extern char D_005D6DB0[];
 

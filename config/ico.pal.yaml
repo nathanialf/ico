@@ -422,6 +422,7 @@ segments:
       - [0x538BB8, lit4, src/cod/538BB8]     # .lit4 blob resume
       - [0x538BD8, .lit4, src/Light]  # carved D_00638BD8..D_00638C3C (26 slots, light_AddLight..light_resetFlatLight; the TU's whole pool, = MAIN.MAP Light.o .lit4 0x68), VMA 0x638BD8..0x638C40
       - [0x538C40, lit4, src/cod/538C40]     # .lit4 blob resume
+      - [0x538CA0, .lit4, sound/s_init]  # carved D_00638CA0..D_00638CC4 (10 slots, one per occurrence: debug_DispSEInfo x2, sound3DParamSet, _soundSeDefPlay x3, soundSeEnvPlay x2, soundSeEnvDefaultSet x2; the TU's whole pool, adjacent to act-game's), VMA 0x638CA0..0x638CC8
       - [0x538CC8, .lit4, src/act-game]  # carved D_00638CC8..D_00638D0C (18 slots, 15 fns EXITDATA_GetNextPosition..ACTCheckViewClDetail), VMA 0x638CC8..0x638D10, 72 B; MAIN.MAP act-game.o .lit4 is 0x40 (different link; PAL ELF is authoritative).  USA: - [0x530AEC, .lit4, src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
       - [0x538D10, lit4, src/cod/538D10]     # .lit4 blob resume
       - [0x538E3C, .lit4, src/commonact]  # carved D_00638E3C..D_00638EF0 (46 slots, 15 fns GetCorrectOrientOfChain..func_00163250; 13x 0.1f, 10x pi), VMA 0x638E3C..0x638EF4, 184 B; MAIN.MAP commonact.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).  USA: - [0x530C28, .lit4, src/commonact]     # carved D_00630C28..D_00630CDC (46 slots, _boxbar_set_sound + func_0015DF88 + 44 asm), VMA 0x630C28..0x630CE0
