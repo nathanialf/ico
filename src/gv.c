@@ -2,7 +2,30 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/gv", _InterGV);
 INCLUDE_ASM("asm/nonmatchings/src/gv", GetMatrixDirectionToZ);
-INCLUDE_ASM("asm/nonmatchings/src/gv", _InterRotGV);
+extern int _RotyGV(float *a0, float *a1);
+extern void _ApplyRyGV(float *a0, float a1);
+extern float D_006391F0;
+extern float D_006391F4;
+
+int _InterRotGV(float *dst, float *cur, float *tgt, int step)
+{
+    float buf[4];
+    int hit = 0;
+    int d = _RotyGV(tgt, cur);
+
+    if (__builtin_abs(d) < step) {
+        hit = 1;
+        buf[0] = cur[0]; buf[1] = cur[1]; buf[2] = cur[2];
+    } else if (d > 0) {
+        buf[0] = tgt[0]; buf[1] = tgt[1]; buf[2] = tgt[2];
+        _ApplyRyGV(buf, -step * D_006391F0 / 180.0f);
+    } else {
+        buf[0] = tgt[0]; buf[1] = tgt[1]; buf[2] = tgt[2];
+        _ApplyRyGV(buf, step * D_006391F4 / 180.0f);
+    }
+    dst[0] = buf[0]; dst[1] = buf[1]; dst[2] = buf[2];
+    return hit;
+}
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern void sceVu0SubVector();
 
@@ -47,9 +70,19 @@ float _MoveGV(float *a0, float *a1, float *a2, float a3)
     }
     return ang;
 }
-INCLUDE_ASM("asm/nonmatchings/src/gv", _RotyGV);
-extern int _RotyGV(void *a0, void *a1);
+extern float atan2f(float a0, float a1);
+extern float D_006391F8;
 
+int _RotyGV(float *a0, float *a1)
+{
+    float a = atan2f(a0[0], a0[2]);
+    float b = atan2f(a1[0], a1[2]);
+    int d = (int)((a - b) * 180.0f / D_006391F8);
+
+    if (d > 180) d -= 360;
+    if (d <= -180) d += 360;
+    return d;
+}
 int _AbsRotyGV(void *a0, void *a1)
 {
     int d = _RotyGV(a0, a1);
@@ -72,8 +105,7 @@ void _ApplyRyGV(float *a0, float a1)
     a0[1] = v[1];
     a0[2] = v[2];
 }
-extern float atan2f(float a0, float a1);
-extern void sceVu0Normalize__pn(void *dst, void *src) __asm__("sceVu0Normalize");
+extern void sceVu0Normalize(void *dst, void *src);
 
 float _GetDirection(float *a0)
 {
@@ -81,12 +113,12 @@ float _GetDirection(float *a0)
     buf[1] = 0;
     buf[0] = a0[0];
     buf[2] = a0[2];
-    sceVu0Normalize__pn(buf, buf);
+    sceVu0Normalize(buf, buf);
     return atan2f(buf[0], buf[2]);
 }
 extern int GetTableArcCos(float a0);
 
-int _RotGV(float *a0, float *a1)
+inline int _RotGV(float *a0, float *a1)
 {
     float buf[4];
     float buf2[4];
@@ -96,29 +128,32 @@ int _RotGV(float *a0, float *a1)
     buf2[0] = a1[0];
     buf2[1] = a1[1];
     buf2[2] = a1[2];
-    sceVu0Normalize__pn(buf, buf);
-    sceVu0Normalize__pn(buf2, buf2);
+    sceVu0Normalize(buf, buf);
+    sceVu0Normalize(buf2, buf2);
     return GetTableArcCos(sceVu0InnerProduct(buf, buf2)) * 180 / 32768;
 }
-INCLUDE_ASM("asm/nonmatchings/src/gv", _RotGVF);
-extern void sceVu0Normalize();
+extern float D_006391FC;
 
-void _OrientXZGV(int a0)
+inline float _RotGVF(float *a0, float *a1)
+{
+    return _RotGV(a0, a1) * D_006391FC / 180.0f;
+}
+
+inline void _OrientXZGV(int a0)
 {
     int buf[4];
     sceVu0SubVector(buf);
     buf[1] = 0;
-    sceVu0Normalize(a0, buf);
+    sceVu0Normalize((void *)a0, buf);
 }
-void _OrientGV(int a0)
+inline void _OrientGV(int a0)
 {
     int buf[4];
     sceVu0SubVector(buf);
-    sceVu0Normalize(a0, buf);
+    sceVu0Normalize((void *)a0, buf);
 }
-extern int _RotyGV__pn() __asm__("_RotyGV");
 
-int _FrontGV(int a0, int a1, int a2, int a3)
+inline int _FrontGV(int a0, int a1, int a2, int a3)
 {
     int *p;
     int buf[8];
@@ -129,11 +164,11 @@ int _FrontGV(int a0, int a1, int a2, int a3)
     sceVu0SubVector(p, a0, a1);
     p = &buf[0];
     buf[5] = 0;
-    sceVu0Normalize__pn(p, &buf[4]);
-    r = _RotyGV__pn(p, sa2);
+    sceVu0Normalize(p, &buf[4]);
+    r = _RotyGV((float *)p, (float *)sa2);
     return __builtin_abs(r) < sa3;
 }
-void SwapGV(float *a, float *b)
+inline void SwapGV(float *a, float *b)
 {
     float tmp[3];
     tmp[0] = a[0];
@@ -149,14 +184,14 @@ void SwapGV(float *a, float *b)
 extern unsigned int D_006327B0_far[] __asm__("D_0063AC18");
 extern float GetTableCos(int x);
 
-float GetCorrectDistance(int a0, float a1)
+inline float GetCorrectDistance(int a0, float a1)
 {
     float r = GetTableCos((short)((a0 << 15) / 0xB4));
     if (r == 0.0f)
         return *(float *)D_006327B0_far;
     return a1 / r;
 }
-int RoundDegGV(int a0)
+inline int RoundDegGV(int a0)
 {
     if (a0 > 0) {
         a0 = a0 % 360;
@@ -166,7 +201,7 @@ int RoundDegGV(int a0)
     }
     return (a0 < 181) ? a0 : a0 - 360;
 }
-int AlignDegGV(int a0)
+inline int AlignDegGV(int a0)
 {
     if (a0 < -135) a0 = 180;
     else if (a0 < -45) a0 = -90;
