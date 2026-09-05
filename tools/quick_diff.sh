@@ -271,13 +271,18 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
   if (ln[i] !~ /^[ \t]*(#|\.|$)/) seen=1;
   print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.mtc1cvt" && mv "$ASM_OUT.mtc1cvt" "$ASM_OUT"
 
-# ee-as 2.96 fills a jr/j $31 delay slot with a preceding FP store (s.s/swc1)
-# or FP convert (cvt.*), but the R5900 FP→return hazard means the original
+# ee-as 2.96 fills a jr/j $31 delay slot with a preceding FP store (s.s/swc1),
+# FP convert (cvt.*), or a quad/COP2 memory op (sq/sqc2/lqc2 — 0 of 48 such ROM
+# returns are filled; the last insn of an inline-asm block counts, past #NO_APP), but the R5900 FP→return hazard means the original
 # assembler left a nop there (verified universal: 0 ROM funcs have cvt in a jr
 # delay). Wrap such a return in .set noreorder + explicit nop. Universal
 # assembler-adaptation.
-awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
-  if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ln[i-1] ~ /^[ \t]*(s\.s|swc1|cvt\.[swd]\.[swd])[ \t]/) {
+# Compiled-code rule only: the SCE library objects under src/cod/vendor_* were not
+# produced by ee-gcc, and libvu0 (vendor_25D410) carries sqc2 IN its return slots
+# (26 sites); they keep the pre-2026-09-05 rule (FP store/convert on the literal previous line).
+case "${NAME}" in *vendor_*) JRPAD_WIDE=0 ;; *) JRPAD_WIDE=1 ;; esac
+awk -v wide="${JRPAD_WIDE}" '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
+  if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ((ln[i-1] ~ /^[ \t]*(s\.s|swc1|cvt\.[swd]\.[swd])[ \t]/) || (wide==1 && ((ln[i-1] ~ /^[ \t]*(sqc2|lqc2|sq)[ \t]/) || (ln[i-1] ~ /^[ \t]*#NO_APP/ && i>2 && ln[i-2] ~ /^[ \t]*(s\.s|swc1|sqc2|lqc2|sq|cvt\.[swd]\.[swd])[ \t]/))))) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
   } else print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.jrfp" && mv "$ASM_OUT.jrfp" "$ASM_OUT"
 
