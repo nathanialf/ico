@@ -274,7 +274,6 @@ void MultiQuaternion(void *p0, void *p1, void *p2)
     VU0_V3OP(vadd.xyz, 13, 14, 15);
     VU0_V3OP(vadd.xyz, 13, 13, 16);
     VU0_LSV(sqc2, 13, 0x0, a0);
-    VU0_NOP();
 }
 extern void MultiQuaternion__pn(int dst, int a, int b) __asm__("MultiQuaternion");
 
@@ -554,5 +553,4 @@ void GetQuaternionCosRadian(void *p0, void *p1, void *p2)
     VU0_V3OP_BC(vaddw.x, 15, 15, 15, w);
     VU0_QMFC2_NI(v0, 15);
     VU0_MTC1(v0, 0);
-    VU0_NOP();
 }

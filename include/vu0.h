@@ -113,8 +113,9 @@
 #define VU0_QMTC2_NI(gp, vf)                VU0_REG("qmtc2.ni $" #gp ", $vf" #vf)
 #define VU0_CFC2_NI(gp, vi)                 VU0_REG("cfc2.ni $" #gp ", $vi" #vi)
 
-/* Single nop (used as a delay-slot filler or scheduler barrier). */
-#define VU0_NOP()       __asm__ __volatile__("nop")
+/* VU0_NOP() (an explicit `nop` before a VU0 leaf's return) was retired 2026-09-05:
+   the return-slot nop after an inline-asm block is the assembler's, and
+   tools/compile_c.sh reproduces it (decomp/NOTES.md "Return-slot padding"). */
 
 /* Wait-for-Q-pipeline barrier (vwaitq).  No memory effect but
  * sequences subsequent VU0 ops with prior compute. */

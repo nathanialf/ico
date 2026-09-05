@@ -374,10 +374,6 @@ void iosMallocCheckLeak2(int a0, int a1) {
         delay:
             do {
                 r--;
-                VU0_NOP();
-                VU0_NOP();
-                VU0_NOP();
-                VU0_NOP();
             } while (r >= 0);
             node = *(volatile int *)(node + 0x24);
     } while (node != 0);

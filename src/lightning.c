@@ -34,7 +34,6 @@ inline void apply_m34(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
     VU0_V3OP_BC(vmaddz.xyzw, 12, 6, 8, z);
     VU0_LSV(sqc2, 12, 0x0, a0);
-    VU0_NOP();
 }
 extern void DrawLightning2(int n, void *a, void *b, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, int c);
 extern void sceVu0CopyVector(void *a0, void *a1);

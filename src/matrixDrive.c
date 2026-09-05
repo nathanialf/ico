@@ -198,7 +198,6 @@ void AddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_LSV(lqc2, 5, 0x0, a2);
     VU0_V3OP(vadd.xyz, 4, 4, 5);
     VU0_LSV(sqc2, 4, 0x0, a0);
-    VU0_NOP();
 }
 void SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
@@ -206,7 +205,6 @@ void SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_LSV(lqc2, 5, 0x0, a2);
     VU0_V3OP(vsub.xyz, 4, 4, 5);
     VU0_LSV(sqc2, 4, 0x0, a0);
-    VU0_NOP();
 }
 extern void sceVu0UnitMatrix(void *);
 
@@ -253,7 +251,6 @@ void VectorLengthSquare(void *p0)
     VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
     VU0_QMFC2_NI(v0, 3);
     VU0_MTC1(v0, 0);
-    VU0_NOP();
 }
 extern void sceVu0SubVector();
 

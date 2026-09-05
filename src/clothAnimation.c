@@ -180,7 +180,6 @@ void getXZLengthSquare(void *p0)
     VU0_V3OP_BC(vaddz.x, 4, 4, 4, z);
     VU0_QMFC2_NI(v0, 4);
     VU0_MTC1(v0, 0);
-    VU0_NOP();
 }
 void subAndGetInvLength(void *p0, void *p1, void *p2, void *p3)
 {
@@ -209,7 +208,6 @@ void scaleAndAddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP_BC(vmulx.xyz, 5, 5, 6, x);
     VU0_V3OP(vadd.xyz, 4, 4, 5);
     VU0_LSV(sqc2, 4, 0x0, a0);
-    VU0_NOP();
 }
 void scaleVectorXZ(void *p0, void *p1, void *p2)
 {
@@ -220,7 +218,6 @@ void scaleVectorXZ(void *p0, void *p1, void *p2)
     VU0_NOREORDER_END();
     VU0_V3OP_BC(vmulx.xz, 4, 4, 5, x);
     VU0_LSV(sqc2, 4, 0x0, a0);
-    VU0_NOP();
 }
 void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
 {

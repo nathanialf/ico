@@ -273,7 +273,9 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
 
 # ee-as 2.96 fills a jr/j $31 delay slot with a preceding FP store (s.s/swc1),
 # FP convert (cvt.*), or a quad/COP2 memory op (sq/sqc2/lqc2 — 0 of 48 such ROM
-# returns are filled; the last insn of an inline-asm block counts, past #NO_APP), but the R5900 FP→return hazard means the original
+# returns are filled), and any return that directly follows an inline-asm block
+# (past #NO_APP: 0 of 66 such ROM returns hold a COP2/quad op; the block's own
+# trailing nop, if any, already fills it), but the R5900 FP→return hazard means the original
 # assembler left a nop there (verified universal: 0 ROM funcs have cvt in a jr
 # delay). Wrap such a return in .set noreorder + explicit nop. Universal
 # assembler-adaptation.
@@ -282,7 +284,7 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
 # (26 sites); they keep the pre-2026-09-05 rule (FP store/convert on the literal previous line).
 case "${NAME}" in *vendor_*) JRPAD_WIDE=0 ;; *) JRPAD_WIDE=1 ;; esac
 awk -v wide="${JRPAD_WIDE}" '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
-  if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ((ln[i-1] ~ /^[ \t]*(s\.s|swc1|cvt\.[swd]\.[swd])[ \t]/) || (wide==1 && ((ln[i-1] ~ /^[ \t]*(sqc2|lqc2|sq)[ \t]/) || (ln[i-1] ~ /^[ \t]*#NO_APP/ && i>2 && ln[i-2] ~ /^[ \t]*(s\.s|swc1|sqc2|lqc2|sq|cvt\.[swd]\.[swd])[ \t]/))))) {
+  if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ((ln[i-1] ~ /^[ \t]*(s\.s|swc1|cvt\.[swd]\.[swd])[ \t]/) || (wide==1 && ((ln[i-1] ~ /^[ \t]*(sqc2|lqc2|sq)[ \t]/) || (ln[i-1] ~ /^[ \t]*#NO_APP/ && i>2 && ln[i-2] !~ /^[ \t]*nop[ \t]*$/))))) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
   } else print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.jrfp" && mv "$ASM_OUT.jrfp" "$ASM_OUT"
 
