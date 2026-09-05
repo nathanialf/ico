@@ -343,7 +343,7 @@ segments:
       - [0x152AC0, c, src/st24a]  # 6 funcs, listing
       - [0x153090, c, src/st47a]  # 38 funcs, listing
       - [0x154D40, c, src/st99a]  # 15 funcs, listing
-      - [0x1556B0, c, src/stageSEProc]  # 46 funcs, listing
+      - [0x155520, c, src/stageSEProc]  # 47 funcs, listing (boundary moved from 0x1556B0: stageSEtaimatsu at 0x255520 is stageSEProc.c:192, st99a ends at actSt17aTestChk)
       - [0x157218, c, src/access]  # 2 funcs, listing
       - [0x157310, c, src/objact]  # 5 funcs, listing
       - [0x157550, c, ito/mpeg/mv_audiodec]  # 11 funcs, listing

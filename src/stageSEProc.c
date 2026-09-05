@@ -6,6 +6,7 @@ typedef struct { float f0; float f4; float f8; } LoadImg;
 
 typedef struct { long long a; long long b; } Blk16;
 
+INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSEtaimatsu);
 INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE04eriver);
 ASM_LIT4_SLOT(D_00639B18, -5500.0f);
 ASM_LIT4_SLOT(D_00639B1C, 3500.0f);
@@ -143,13 +144,13 @@ int stageSE06abirdOut(int *self)
  do { return v0; } while (0);
 }
 extern int UpdateRootPosition__p4() __asm__("GetCameraPos");
-extern int func_00255520(int a0);
+extern int stageSEtaimatsu(int a0);
 
 int stageSE06ataimatsu(int *self) {
     float *p = (float *)UpdateRootPosition__p4((int)self);
     if (p[0] < 300.0f) {
         if (848.0f < p[2]) {
-            return func_00255520((int)self);
+            return stageSEtaimatsu((int)self);
         }
     }
     return 0;
@@ -190,7 +191,7 @@ int stageSE08ataimatsu(int a0)
     if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
         return 0;
     }
-    return func_00255520(a0);
+    return stageSEtaimatsu(a0);
 }
 int stageSE08bcrane(void *a0) {
     AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);

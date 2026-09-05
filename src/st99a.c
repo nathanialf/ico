@@ -80,11 +80,71 @@ void actSplash2Chk(volatile int a0)
     _ACTWait(1);
 }
 extern void actCreateSubThread(void *entry, int prio);
-extern void actWave1(void);
+extern void actWave1(int a0);
 
 void actWaveChk(volatile int a0) {
     actCreateSubThread(actWave1, 0x15);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actWave1);
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actSt27aWaveChk);
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actSt27aWave1);
+void actWave1(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    while (1) {
+        stage_SetAnimation(0x207, 1, 0);
+        _ACTWait(0xB3);
+        stage_SetAnimation(0x208, 1, 0);
+        _ACTWait(0xB3);
+        stage_SetAnimation(0x209, 1, 0);
+        _ACTWait(0xB3);
+        stage_SetAnimation(0x20A, 1, 0);
+        _ACTWait(0xB3);
+    }
+}
+extern void actSt27aWave1(int a0);
+
+void actSt27aWaveChk(volatile int a0) {
+    actCreateSubThread(actSt27aWave1, 0x15);
+}
+void actSt27aWave1(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    while (1) {
+        stage_SetAnimation(0xC2, 1, 0);
+        _ACTWait(0xC8);
+        stage_SetAnimation(0xC3, 1, 0);
+        _ACTWait(0xC8);
+        stage_SetAnimation(0xC4, 1, 0);
+        _ACTWait(0xC8);
+        stage_SetAnimation(0xC5, 1, 0);
+        _ACTWait(0xC8);
+    }
+}
+extern int D_00639EA4;
+extern void scpBornSpider(int n, float a, float b, float c, float d);
+
+void actSpiderChk(volatile int a0)
+{
+    while (1) {
+        while ((*(int *)(*(int *)(D_00639EA4 + 0x164) + 0x2E4) & 0x400) == 0) {
+            _ACTWait(1);
+        }
+        scpBornSpider(2, 0.0f, -500.0f, 0.0f, 500.0f);
+        _ACTWait(1);
+    }
+}
+typedef struct PadState {
+    int unk00;                  /* 0x00 */
+    int flags;                  /* 0x04 */
+    char unk08[0x50];           /* 0x08 */
+} PadState;
+extern PadState D_0028F8F0[];
+
+void actSt17aTestChk(volatile int a0)
+{
+    while (1) {
+        while ((D_0028F8F0[1].flags & 0x20) == 0) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(0x54, 1, 0);
+        _ACTWait(1);
+    }
+}
