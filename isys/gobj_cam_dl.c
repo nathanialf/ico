@@ -27,10 +27,10 @@ static inline void insert_camera_dl_by_key(int *self, int key)
     self[0x11] = key;
     head = D_0063A614;
     if (head == 0) {
+        *(int *)&D_0063A618 = (int)self;
         self[0xE] = 0;
         self[0xD] = 0;
-        D_0063A618 = (AdpT *)self;
-        D_0063A614 = self;
+        *(int *)&D_0063A614 = (int)self;
         return;
     }
     if ((unsigned int)head[0x11] >= (unsigned int)key) {
