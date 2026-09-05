@@ -892,6 +892,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   literals. An `extern float` read of a pool word is a small-data load that reorg
   can steal into a branch delay slot; the literal is not stealable, which is ROM.
 
+- `[0x539980, .lit4, src/st05b]` — the TU's whole pool, 5 words: three slots for the
+  still-asm actSt05bSekizoChk, then actSt05bSekizo's camera target as literals;
+  blob resumes at `0x539994` (st05e's word). Owners are mapped from `%gp_rel` in
+  the `.s` files, not from MAIN.MAP's size (0x18 there is the debug link's).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
