@@ -841,6 +841,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   pool owned entirely by newly-C functions is emitted by the object and would move the link without
   its carve (6109f6804).
 
+- `[0x539710, .lit4, src/worm]` — the TU's whole pool, five words: getAnimation 0.8f, disp 0.02f,
+  WormGeo 0.05f and 8.99999f, TraceWormRoute 8.99999f (the last duplicated because gcc's pool is per
+  function); slot lines beside the three still-asm owners, the literal in TraceWormRoute (00faca2dd).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
