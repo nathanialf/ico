@@ -119,7 +119,38 @@ int iosCdvdChgFileName(int a0)
     } while (nc != 0);
     return strcpy(a0, buf);
 }
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdGetFileLsn);
+/* iosCdvdSrhBuff is the directory cache: D_0063A36C records of 0x30 bytes,
+ * and D_00298E68 is iosCdvdSrhBuff[0].name (the ROM addresses the name column
+ * through its own symbol).  */
+typedef struct
+{
+    int lsn;
+    int size;
+    char name[0x28];
+} CdSrhEnt;
+extern CdSrhEnt iosCdvdSrhBuff[];
+extern char D_00298E68[];
+extern char D_00550C58[];
+extern char D_0063A398[];
+extern int D_0063A36C;
+extern int strcmp();
+extern void debug_assert();
+extern void __assert();
+
+int iosCdvdGetFileLsn(char *name, int *size)
+{
+    int i;
+
+    for (i = 0; i < D_0063A36C; i++)
+    {
+        if (strcmp(name, D_00298E68 + i * 0x30) == 0) goto found;
+    }
+    debug_assert(D_00550C58, 749);
+    __assert(D_00550C58, 749, D_0063A398);
+found:
+    *size = iosCdvdSrhBuff[i].size;
+    return iosCdvdSrhBuff[i].lsn;
+}
 extern int CdvdMsgQ_LoadEnd[];
 extern void iosMsgRecv();
 
@@ -202,7 +233,23 @@ int iosCdvdDirectStRead(int a0, int a1, int a2, int *a3) {
     if (local != 0) { debug_StdPrintfDummy(D_00550FD8, local); *a3 = 1; }
     return result;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", inflate_cd_read_func);
+/* The inflate handler's read callback (installed by iosCdvdMgrStStart): hand
+ * the decoder at most as many bytes as are still left in the streamed file --
+ * its total length at +0x13C minus the bytes already consumed at +0x28.  */
+long long inflate_cd_read_func(void *buf, long long size, int *self)
+{
+    long long rest;
+    long long len;
+
+    rest = (unsigned int) (self[0x13C / 4] - self[0x28 / 4]);
+
+    if (rest < size) len = rest; else len = size;
+
+    if (len != 0)
+        iosCdvdHandlerReadNoInflate(self, buf, len);
+
+    return len;
+}
 extern int D_0063C17C;
 
 void iosCdvdBackGroundMgrInit(void)
@@ -216,5 +263,66 @@ void iosCdvdBackGroundMgrInit(void)
     }
     D_0063C17C = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgr);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdDiskReadyBlock);
+typedef int (*BgFunc)(char *self, int arg);
+
+void iosCdvdBackGroundMgr(void)
+{
+    char *bg = D_006B7B80;
+    int i;
+    unsigned int flag;
+    BgFunc func;
+
+    for (i = 6; i >= 0; i--, bg += 0x12C)
+    {
+        if (*bg == 0 || ((flag = *(unsigned int *) (bg + 0x108)) & 1) != 0) continue;
+        D_0063C17C = (int) bg;
+        if (((flag >> 1) & 1) == 0)
+        {
+            if ((func = *(BgFunc *) (bg + 0x100)) != 0)
+            {
+                if (func(bg, *(int *) (bg + 0x104)) > 0)
+                    *(int *) (bg + 0x100) = 0;
+            }
+        }
+        else
+        {
+            if ((func = *(BgFunc *) (bg + 0x124)) != 0)
+                func(bg, *(int *) (bg + 0x128));
+            *bg = 0;
+        }
+        D_0063C17C = 0;
+    }
+}
+/* The record sceCdSearchFile fills in: it writes 0x24 bytes of it (lsn, size,
+ * the name column and the date), and the stack slot it is given is 0x30.  */
+typedef struct
+{
+    unsigned int lsn;
+    unsigned int size;
+    char name[16];
+    unsigned char date[8];
+    unsigned int reserved;
+} CdlFILE;
+extern char D_00550CC8[];
+extern char D_00550CD8[];
+extern int D_0063A374;
+extern int sceCdDiskReady(int mode);
+extern int sceCdGetDiskType(void);
+extern int sceCdSearchFile(CdlFILE *fp, const char *name);
+
+void iosCdvdDiskReadyBlock(void)
+{
+    if (sceCdDiskReady(1) != 2)
+    {
+        CdlFILE fp;
+        char file[32];
+        *(long long *) file = *(long long *) D_00550CC8;
+        *(int *) (file + 8) = *(int *) (D_00550CC8 + 8);
+        iosCdvdChgFileName((int) file);
+        debug_StdPrintfDummy(D_00550CD8, D_00550CC8, file);
+        do
+        {
+            sceCdDiskReady(0);
+        } while (sceCdGetDiskType() != D_0063A374 || sceCdSearchFile(&fp, file) == 0);
+    }
+}
