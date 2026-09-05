@@ -341,4 +341,16 @@ int iosSemaReferStatus(int *self)
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadDestroyMgr);
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadAllQuit);
+/* thread.c:723 — the last function of the TU.  Never called anywhere in the
+ * retail ELF; the PAL listing puts it last in the object's deferred-`inline`
+ * tail, and a plain definition in this file position emits the same bytes. */
+void iosThreadAllQuit(int self)
+{
+    int i;
+
+    for (i = 0; i < 0x100; i++) {
+        if (D_006BCEE0[i] != 0 && i != self) {
+            iosThreadDestroy(D_006BCEE0[i]);
+        }
+    }
+}
