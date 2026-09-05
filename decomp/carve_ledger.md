@@ -919,6 +919,11 @@ words become the blob's first words.
   in-TU `%lo` addends as diffs (false negative); verify by objcopy of the
   section against ROM bytes and by ninja.
 
+- `[0x4577A0, .rodata, ito/mpeg/mv_vobuf]` — the TU's own rodata run, 48 B: the two
+  literals mv_defs.h's `alloc_zeroed` bakes (`"../ito/include/mv_defs.h"` and
+  `"p != NULL"`, 8-aligned) once `MV_DEFS_WANT_ALLOC` is defined by the TU; the
+  object is 0x2A bytes and the blob resumes 8-aligned at `0x4577D0`.
+
 ### Deferred
 
 - Per-TU `__FILE__` strings for the `iosMalloc(size)` macro form
