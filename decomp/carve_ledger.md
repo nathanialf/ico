@@ -879,6 +879,13 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   `0x5398B4`. A `.lit4` read through an extern is an unchanging MEM that loop.c
   hoists last; the literal lands where ROM has it.
 
+- `[0x539724, .lit4, src/BgAnimation]` — the TU's whole pool, 49 words right after
+  worm's carve, 0x639724..0x6397E4 (MAIN.MAP's 0x20 is the debug link's; the
+  retail pool is the ELF's); 40 slot lines beside twelve still-asm owners
+  (bga_GetMotion..bga_DispLightning), nine words of the PAL frame scale
+  0.82812935f owned by the seven check functions and bga_SetCamFrame as
+  literals (ee-as allocates one word per li.s); blob resumes at `0x5397E8`.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
