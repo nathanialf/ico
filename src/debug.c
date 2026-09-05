@@ -811,7 +811,36 @@ void saveBack(void)
     drawSprite(0x10, 0x20, 0x30, 0x40, -0x136, -0x6B, 0x136, 0x6B, 0);
     SetDrawEnvironment(1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", baseFunc);
+typedef struct { int _0; int _4; int _8; int btn; } DbgPad;
+extern DbgPad D_0028F8F0[];
+extern int D_0063B39C;
+
+static inline void putBaseChar(int c) {
+    unsigned int col = 0xFFFFFF00;
+    D_0070FA90[D_0063B398][D_0063B394].col = col;
+    D_0070FA90[D_0063B398][D_0063B394].ch = c;
+}
+
+static inline void dispBase(void) {
+    int c;
+    switch (D_0063B39C) {
+    case 0:
+    default: c = '-'; break;
+    case 1: c = '/'; break;
+    case 2: c = '|'; break;
+    case 3: c = '\\'; break;
+    }
+    putBaseChar(c);
+    D_0063B39C = (D_0063B39C + 1) & 3;
+}
+
+void baseFunc(void) {
+    if (D_0028F8F0[0].btn & 0x8000) if (--D_0063B390 < 0) D_0063B390 = 0;
+    if (D_0028F8F0[0].btn & 0x2000) if (++D_0063B390 >= 50) D_0063B390 = 49;
+    SetDrawEnvironment(1);
+    dispBase();
+    drawWin();
+}
 extern int buffer_ID;
 extern int odd_even;
 extern int frame_count;
