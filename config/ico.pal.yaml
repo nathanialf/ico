@@ -434,7 +434,8 @@ segments:
       - [0x539360, .lit4, src/layout_action]  # carved D_00639360..D_00639368 (3 slots, la_load_processing / la_get_next_stage_name / la_switching_stage), VMA 0x639360..0x63936C, 12 B; MAIN.MAP layout_action.o .lit4 is 0x8 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
       - [0x53936C, lit4, src/cod/53936C]     # .lit4 blob resume
       - [0x5393A0, .lit4, src/box]  # carved D_006393A0..D_00639408 (27 slots, 13 fns FloorLeverGeo..InitBoxGeo, in source order with switch.c.inc first), VMA 0x6393A0..0x63940C, 108 B; MAIN.MAP box.o .lit4 0x6c agrees.
-      - [0x53940C, lit4, src/cod/53940C]     # .lit4 blob resume
+      - [0x53940C, .lit4, src/boy]  # carved D_0063940C..D_00639458 (20 slots, execClothes..LightLineGeo; the TU's whole pool, right after box's carve), VMA 0x63940C..0x63945C
+      - [0x53945C, lit4, src/cod/53945C]     # .lit4 blob resume
       - [0x5394D8, .lit4, src/flyManager]  # carved D_006394D8..D_006394DC (2 slots, both 100000.0f: GetFlyLimitHeight and GetFlyLimitClearance), VMA 0x6394D8..0x6394E0, 8 B; the TU's whole pool, emitted by the compiled functions
       - [0x5394E0, lit4, src/cod/5394E0]     # .lit4 blob resume
       - [0x539560, .lit4, src/motionManager]  # carved D_00639560..D_0063961C (48 slots, 18 fns _getFinalMatrix.._getGeometryOfMotion, in source order: getFinalMatrix.c.inc, motionManager.c, rootUpdate.c.inc), VMA 0x639560..0x639620, 192 B; MAIN.MAP motionManager.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).
