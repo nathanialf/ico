@@ -863,6 +863,12 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   four still-asm owners, getWave's three words as literals; blob resumes at
   `0x538BB8`. Not deduplicated (0.8f three times, 0.01f twice).
 
+- `[0x539AE8, .lit4, src/st24a]` — the TU's whole pool, 5 words (= MAIN.MAP st24a.o
+  `.lit4` 0x14): two slots for the still-asm actSt24aSwordChk, then actSt24aSword's
+  literal camera target 363/1307/-3297; blob resumes at `0x539AFC` (st47a's words).
+  A `.lit4` operand is a length-2 `movsf` alternative, so it can never fill a call's
+  delay slot; the nop after such a jal is the literal, not a volatile.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
