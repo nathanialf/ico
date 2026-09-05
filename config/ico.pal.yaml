@@ -303,8 +303,8 @@ segments:
       - [0x114D80, c, src/way_kidnap]  # 12 funcs, listing
       - [0x115F18, c, src/way_llf]  # 25 funcs, listing
       - [0x116790, c, src/way_tool]  # 14 funcs, census
-      - [0x117F68, c, src/deja]  # 5 funcs, listing
-      - [0x118870, c, src/e3]  # 42 funcs, listing
+      - [0x117E08, c, src/deja]  # 6 funcs, listing; starts with actDejaChk, which splat had glued onto way_tool's cursor_control
+      - [0x1186D8, c, src/e3]  # 43 funcs, listing; starts with actE3WarningChk (e3.c:488), its first parse-order member, which splat had glued onto deja's actEnemySleep
       - [0x11B8A0, c, src/end]  # 54 funcs, listing
       - [0x11F860, c, src/op]  # 12 funcs, listing
       - [0x121238, c, src/st00a]  # 23 funcs, listing

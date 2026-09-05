@@ -128,4 +128,4 @@ int quick_save_wpfile(void) {
     load_save_flag = 0;
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00217D88);
+INCLUDE_ASM("asm/nonmatchings/src/way_tool", cursor_control);

@@ -1,5 +1,6 @@
 #include "common.h"
 
+INCLUDE_ASM("asm/nonmatchings/src/e3", actE3WarningChk);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3Title);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3TitleChk);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3TitleFrameChk);

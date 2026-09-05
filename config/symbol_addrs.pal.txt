@@ -143,6 +143,10 @@ gamesysGeneratorInfoLoad = 0x001B6D40; // type:func  // src/gamesys
 gamesysHintInfoLoad = 0x001B6DF0; // type:func  // src/gamesys
 subAP1BrainMain = 0x001C4DC0; // type:func  // src/act_a_p_1
 hitProc = 0x001C5250; // type:func  // src/act_a_p_1
+cursor_control = 0x00217D88; // type:func  // src/way_tool
+actDejaChk = 0x00217E08; // type:func  // src/deja
+actEnemySleep = 0x002186B0; // type:func  // src/deja
+actE3WarningChk = 0x002186D8; // type:func  // src/e3
 actE3DoorMain = 0x0021B498; // type:func  // src/e3
 actE3DoorSwitch = 0x0021B4D0; // type:func  // src/e3
 actE3St09aBrgMain = 0x0021B818; // type:func  // src/e3
@@ -4088,14 +4092,12 @@ debug_WayTool = 0x00217938; // type:func  // src/way_tool
 play_way = 0x00217B58; // type:func  // src/way_tool
 point_nige = 0x00217C38; // type:func  // src/way_tool
 quick_save_wpfile = 0x00217CD0; // type:func  // src/way_tool
-func_00217D88 = 0x00217D88; // type:func  // src/way_tool
 
 // ---- src/deja
 actDejaDemo = 0x00217F68; // type:func  // src/deja
 actDejaAfter = 0x00218388; // type:func  // src/deja
 actDejaAfterChk = 0x002184D8; // type:func  // src/deja
 actDeja = 0x00218600; // type:func  // src/deja
-func_002186B0 = 0x002186B0; // type:func  // src/deja
 
 // ---- src/e3
 actE3Title = 0x00218870; // type:func  // src/e3
