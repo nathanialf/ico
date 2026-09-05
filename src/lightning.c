@@ -16,10 +16,15 @@ typedef struct {
     LightningVtx v[4];
 } StructC;
 
+/* prototypes: their order is the inline tail's emission order */
+void apply_m34(void *p0, void *p1, void *p2, void *p3);
+void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, int a3);
+void lightning_test(void);
+int cmpr(int *self, int *other);
 INCLUDE_ASM("asm/nonmatchings/src/lightning", set_vertex);
 INCLUDE_ASM("asm/nonmatchings/src/lightning", DrawLightning2);
 INCLUDE_ASM("asm/nonmatchings/src/lightning", DrawLightningN);
-void apply_m34(void *p0, void *p1, void *p2, void *p3)
+inline void apply_m34(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 8, 0x0, a2);
     VU0_LSV(lqc2, 4, 0x0, a1);
@@ -34,7 +39,10 @@ void apply_m34(void *p0, void *p1, void *p2, void *p3)
 extern void DrawLightning2(int n, void *a, void *b, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, int c);
 extern void sceVu0CopyVector(void *a0, void *a1);
 
-void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2,
+inline int cmpr(int *self, int *other) {
+    return *(int *)((char *)self + 0x10) - *(int *)((char *)other + 0x10);
+}
+inline void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2,
                     float f3, float f4, float f5, float f6, float f7, float f8,
                     float f9, int a3) {
     StructB buf[2];
@@ -42,7 +50,7 @@ void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2,
     sceVu0CopyVector(&buf[1], p1);
     DrawLightning2(2, &buf[0], a2, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, a3);
 }
-void lightning_test(void) {
+inline void lightning_test(void) {
     StructB col = { { 0x80, 0xFF, 0xFF, 0x80 } };
     StructC vtx = { {
         { { 0.0f, 750.0f,    0.0f, 1.0f } },
@@ -52,7 +60,4 @@ void lightning_test(void) {
     } };
     DrawLightning2(4, &vtx, &col, 5.0f, 25.0f, 5.0f, 25.0f, 5.0f, 10.0f, 70.0f,
                    8.0f, 20.0f, 0.0f, 0);
-}
-int cmpr(int *self, int *other) {
-    return *(int *)((char *)self + 0x10) - *(int *)((char *)other + 0x10);
 }

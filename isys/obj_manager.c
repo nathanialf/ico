@@ -4,7 +4,33 @@ extern void isysGObjCameraDlInit(void);
 extern void isysGObjDlInit();
 extern void isysGObjInit();
 extern void isysGObjProcessInit();
-
+extern void _iosOmMain();
+extern int *D_0029C4F0[];
+extern int isysGetNbAllocedGObjs();
+extern char *D_0063A61C;
+extern void isysGObjRemove(char *g);
+extern void isysGObjProcPauseAll(char *g);
+extern void isysGObjProcActiveAll(char *g);
+typedef struct {
+    int type;
+    int arg;
+} IosMail;
+typedef struct {
+    int unk0;
+    int num;
+    IosMail mail[32];
+} IosMailBox;
+/* prototypes: their order is the inline tail's emission order */
+void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg);
+void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg);
+int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int flag);
+void iosOmGetGObjStatus(int a0, int a1);
+int *iosOmSearchGObjId(int idx, int target);
+int *iosOmSearchGObjIdAll(int a0);
+void iosOmBeforeFuncStandard(void);
+int iosOmSendMail(char *self_arg, int val5, int val6);
+int iosOmSendMailLink(int a0, int val5, int val6);
+int iosOmExeMail(void (*func)(IosMail));
 void iosOmInit(void)
 {
     isysGObjInit(0x140);
@@ -12,17 +38,12 @@ void iosOmInit(void)
     isysGObjDlInit();
     return isysGObjCameraDlInit();
 }
-INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", _iosOmMain);
-extern void _iosOmMain();
-
-void iosOmMain(int a0, int a1, int a2, int a3)
+inline void iosOmGetGObjStatus(int a0, int a1)
 {
-    _iosOmMain(a0, a1, a2, a3);
+    *(int *)a0 = 0x140;
+    *(int *)a1 = isysGetNbAllocedGObjs(a0);
 }
-INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", iosOmCreateDL);
-extern int *D_0029C4F0[];
-
-void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg)
+inline void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg)
 {
     int *node = D_0029C4F0[idx];
     if (node != 0) {
@@ -32,7 +53,7 @@ void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg)
         } while (node != 0);
     }
 }
-void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg)
+inline void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg)
 {
     int i = 0;
     do {
@@ -46,7 +67,7 @@ void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg)
         i++;
     } while (i < 8);
 }
-int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int flag)
+inline int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int flag)
 {
     int *node = D_0029C4F0[a0];
     int ret = 0;
@@ -62,14 +83,7 @@ int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int flag)
     }
     return ret;
 }
-extern int isysGetNbAllocedGObjs();
-
-void iosOmGetGObjStatus(int a0, int a1)
-{
-    *(int *)a0 = 0x140;
-    *(int *)a1 = isysGetNbAllocedGObjs(a0);
-}
-int *iosOmSearchGObjId(int idx, int target)
+inline int *iosOmSearchGObjId(int idx, int target)
 {
     int *p = D_0029C4F0[idx];
     if (p != 0) {
@@ -82,7 +96,7 @@ int *iosOmSearchGObjId(int idx, int target)
     }
     return 0;
 }
-int *iosOmSearchGObjIdAll(int a0) {
+inline int *iosOmSearchGObjIdAll(int a0) {
     int i;
     for (i = 0; i < 8; i++) {
         int *p = D_0029C4F0[i];
@@ -99,8 +113,8 @@ int *iosOmSearchGObjIdAll(int a0) {
     }
     return 0;
 }
-void iosOmBeforeFuncStandard(void) {}
-int iosOmSendMail(char *self_arg, int val5, int val6)
+inline void iosOmBeforeFuncStandard(void) {}
+inline int iosOmSendMail(char *self_arg, int val5, int val6)
 {
     register char *self = self_arg;
     int *p = (int *)(self + 0x54);
@@ -122,7 +136,7 @@ int iosOmSendMail(char *self_arg, int val5, int val6)
     }
     return 0;
 }
-int iosOmSendMailLink(int a0, int val5, int val6)
+inline int iosOmSendMailLink(int a0, int val5, int val6)
 {
     int *node = D_0029C4F0[a0];
     int ret = 0;
@@ -157,23 +171,7 @@ int iosOmSendMailLink(int a0, int val5, int val6)
     }
     return ret;
 }
-extern char *D_0063A61C;
-extern void isysGObjRemove(char *g);
-extern void isysGObjProcPauseAll(char *g);
-extern void isysGObjProcActiveAll(char *g);
-
-typedef struct {
-    int type;
-    int arg;
-} IosMail;
-
-typedef struct {
-    int unk0;
-    int num;
-    IosMail mail[32];
-} IosMailBox;
-
-int iosOmExeMail(void (*func)(IosMail))
+inline int iosOmExeMail(void (*func)(IosMail))
 {
     char *g = D_0063A61C;
     IosMailBox *mb = (IosMailBox *)(g + 0x54);
@@ -199,3 +197,9 @@ int iosOmExeMail(void (*func)(IosMail))
     }
     return 0;
 }
+INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", _iosOmMain);
+void iosOmMain(int a0, int a1, int a2, int a3)
+{
+    _iosOmMain(a0, a1, a2, a3);
+}
+INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", iosOmCreateDL);
