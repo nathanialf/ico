@@ -836,6 +836,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   deduplicated (actGirlHand's pool holds 0.1f twice, func_00177BB8's holds it
   fourteen times).
 
+- `[0x5394D8, .lit4, src/flyManager]` — the TU's whole pool, two words of 100000.0f owned by
+  GetFlyLimitHeight and GetFlyLimitClearance; carved in the same commit that landed them in C, since a
+  pool owned entirely by newly-C functions is emitted by the object and would move the link without
+  its carve (6109f6804).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
