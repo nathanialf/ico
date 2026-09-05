@@ -874,6 +874,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   the static inline drive-matrix helper (gcc's pool is per function, so each inline
   site owns its own copy); blob resumes at `0x5396A0`.
 
+- `[0x5398B0, .lit4, src/op]` — one word (= MAIN.MAP op.o `.lit4` 0x4), the 2700.0f
+  loop bound of actSt24aConte01_2_Jimaku written as a literal; blob resumes at
+  `0x5398B4`. A `.lit4` read through an extern is an unchanging MEM that loop.c
+  hoists last; the literal lands where ROM has it.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
