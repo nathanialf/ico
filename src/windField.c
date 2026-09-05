@@ -50,7 +50,27 @@ int *dummyGetWindVector(int *a0)
     return D_0028FEF0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/windField", getParallelWindVector);
-INCLUDE_ASM("asm/nonmatchings/src/windField", getRadiateWindVector);
+typedef struct {
+    float v[4];
+    float str;
+    float pad[3];
+} WindCell;
+
+extern float D_00639704;
+extern WindCell D_00724FF0[20][20];
+
+WindCell *getRadiateWindVector(float *power, float *pos)
+{
+    int x;
+    int z;
+
+    z = (int)(pos[2] * D_00639704 + 10.0f);
+    x = (int)(pos[0] * D_00639704 + 10.0f);
+    z = z < 0 ? 0 : (z < 20 ? z : 19);
+    x = x < 0 ? 0 : (x < 20 ? x : 19);
+    if (power) *power = (D_00724FF0[0] + x + z * 20)->str;
+    return &D_00724FF0[z][x];
+}
 void StopWindField(void) {
     D_0063BC58 = (int (*)(void))dummyGetWindVector;
 }

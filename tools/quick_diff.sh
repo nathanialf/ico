@@ -305,8 +305,21 @@ def _repl(m):
     fd, fs = int(m.group(1)), int(m.group(2))
     return "\t.word 0x%08X" % (0x46000000 | (fs << 11) | (fd << 6) | 0x24)
 s2 = re.sub(r"\tcvt\.w\.s\s+\$f(\d+)\s*,\s*\$f(\d+)\b", _repl, s)
-if s2 != s:
-    open(p, "w").write(s2)
+# A `.word` makes gas flush pending hazards (mips_emit_delays): after an
+# `mfc1` in `.set reorder` it emits a real COP1-move hazard nop that neither
+# the period assembler nor the ROM has (R5900 interlock; the same fact the
+# m[ft]c1 wrapper above relies on). Wrap the mfc1 AND the `.word` together
+# in `.set noreorder` (the directive itself would flush if placed between
+# them). Byte no-op under the period assembler.
+lines = s2.split("\n"); out = []
+for ln in lines:
+    if ln.startswith("\t.word 0x46") and out and re.match(r"^\s*mfc1\s", out[-1]):
+        mv = out.pop()
+        out += ["\t.set noreorder", mv, ln, "\t.set reorder"]
+    else:
+        out.append(ln)
+if "\n".join(out) != s:
+    open(p, "w").write("\n".join(out))
 PYEOF
 
 # Stage 2: assemble. Prefer the project's ee-as 2.10 (matches the full
