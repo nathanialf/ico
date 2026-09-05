@@ -24,24 +24,27 @@ typedef struct PObjGObj {
     /*0x168*/ char pad168[0x4];
     /*0x16C*/ int f16C;
 } PObjGObj;
-
 extern int D_0063C0C8;
-
+extern int D_0072A2C0[];
+extern char D_0063C0D0[];
+extern void debug_StdPrintfDummy();
+extern PObjGObj *isysGObjAdd(int a0, int a1, int a2);
+extern void isysGObjKindTableAdd(void *a0, int a1);
+extern void isysGObjLinkObjDL(void *a0, int a1, int a2, int a3, unsigned int a4);
+extern int isysGObjProcAdd(void *a0, int a1, int a2, int a3);
+extern void isysGObjProcAddS(void *a0, int a1, int a2, int a3, int a4);
+/* prototypes: their order is the inline tail's emission order */
+PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
 void ResetGObjProc(void) {
     D_0063C0C8 = 0;
 }
 int GetMaxGObj(void) {
     return D_0063C0C8;
 }
-extern int D_0072A2C0[];
-
 int GetGObjP(int idx)
 {
     return D_0072A2C0[idx];
 }
-extern int D_0063C0C8;
-extern int D_0072A2C0[];
-
 int GetGObjId(int a0) {
     int i;
     for (i = 0; i < D_0063C0C8; i++) {
@@ -51,9 +54,6 @@ int GetGObjId(int a0) {
     }
     return -1;
 }
-extern char D_0063C0D0[];
-extern void debug_StdPrintfDummy();
-
 void PrintGObjID(int a0) {
     int i;
     for (i = 0; i < D_0063C0C8; i++) {
@@ -63,43 +63,34 @@ void PrintGObjID(int a0) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/GobjProc", InitCameraGObjs);
-extern PObjGObj *D_0070C340_p[] __asm__("D_0072A2C0");
-extern PObjGObj *isysGObjAdd(int a0, int a1, int a2);
-extern void isysGObjKindTableAdd(void *a0, int a1);
-extern void isysGObjLinkObjDL(void *a0, int a1, int a2, int a3, unsigned int a4);
-extern int isysGObjProcAdd(void *a0, int a1, int a2, int a3);
-extern void isysGObjProcAddS(void *a0, int a1, int a2, int a3, int a4);
+inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6) {
+    PObjGObj *g;
 
+    g = isysGObjAdd(a0, 0, 0);
+    g->f164 = 0;
+    g->f04 = 1;
+    g->f08 = -1;
+    g->f0C = -1;
+    g->f16C = 1;
+    ((PObjGObj **)D_0072A2C0)[D_0063C0C8++] = g;
+    isysGObjProcAdd(g, a1, 1, 0x16);
+    isysGObjProcAdd(g, a2, 1, 0x17);
+    isysGObjProcAdd(g, a3, 1, 0x18);
+    isysGObjLinkObjDL(g, a5, 0, a6, 0xFFFFFFFF);
+    if (a4 != 0) {
+        isysGObjProcAddS(g, a4, 0, 0x13, 0x1800);
+    }
+    return g;
+}
 PObjGObj *CreateGObj(PObjGObj *p, int a1, int a2, int a3, int a4) {
     PObjGObj *g;
-    int one;
     int r21 = 0;
-    int c5C, c50, c4C, c48;
 
     if (a4 != 0) {
         r21 = p->f40;
     }
-    c5C = p->f5C;
-    c50 = p->f50;
-    c4C = p->f4C;
-    c48 = p->f48;
-    g = isysGObjAdd(p->f60, 0, 0);
-    one = 1;
-    g->f164 = 0;
-    g->f04 = one;
-    g->f16C = one;
-    g->f08 = -1;
-    g->f0C = -1;
-    D_0070C340_p[D_0063C0C8++] = g;
-    isysGObjProcAdd(g, c5C, one, 0x16);
-    isysGObjProcAdd(g, c50, one, 0x17);
-    isysGObjProcAdd(g, c4C, one, 0x18);
-    isysGObjLinkObjDL(g, c48, 0, a3, 0xFFFFFFFF);
-    if (r21 != 0) {
-        isysGObjProcAddS(g, r21, 0, 0x13, 0x1800);
-    }
+    g = CreateGObjByFuncSet(p->f60, p->f5C, p->f50, p->f4C, r21, p->f48, a3);
     g->f08 = a2;
     isysGObjKindTableAdd(g, a1);
     return g;
 }
-INCLUDE_ASM("asm/nonmatchings/src/GobjProc", CreateGObjByFuncSet);
