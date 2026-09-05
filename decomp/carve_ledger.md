@@ -845,6 +845,19 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   WormGeo 0.05f and 8.99999f, TraceWormRoute 8.99999f (the last duplicated because gcc's pool is per
   function); slot lines beside the three still-asm owners, the literal in TraceWormRoute (00faca2dd).
 
+- `[0x53940C, .lit4, src/boy]` — the TU's whole pool, 20 words 0x63940C..0x639458,
+  execClothes..LightLineGeo, directly after box's carve; 18 slot lines beside the
+  still-asm owners, the two words of the newly-C SetBoyStonizedVisual family
+  written as literals; blob resumes at `0x53945C` (b07bed311). The owner scan
+  must be bounded to the pool's own VMA range: an unbounded `%gp_rel` grep also
+  matches sbss symbols (0x639EA8) and reports phantom owners.
+
+- `[0x538BD8, .lit4, src/Light]` — the TU's whole pool, 26 words 0x638BD8..0x638C3C
+  (= MAIN.MAP Light.o `.lit4` 0x68), light_AddLight..light_resetFlatLight; 25 slot
+  lines, light_resetFlatLight's word emitted by C; blob resumes at `0x538C40`
+  (69894af6f — its message says "lay the TU out", but verify_tu SKIPped: the
+  layout is still pending on the static tail members with asm-only referencers).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
