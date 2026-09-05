@@ -8,13 +8,13 @@ typedef struct {
     float sub40[4];    /* 0x40 */
     float f_50;        /* 0x50 */
     float f_54;        /* 0x54 */
-    signed char f_58;  /* 0x58 */
-    signed char f_59;
-    signed char f_5A;
-    signed char f_5B;
-    signed char f_5C;
-    signed char f_5D;
-    signed char f_5E;
+    unsigned char f_58;  /* 0x58 */
+    unsigned char f_59;
+    unsigned char f_5A;
+    unsigned char f_5B;
+    unsigned char f_5C;
+    unsigned char f_5D;
+    unsigned char f_5E;
 } GirlStand;
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetEyeDirection);
@@ -432,7 +432,18 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlBecall);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017BF68);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C1D0);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0017C290);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", NotNeedBackHand);
+int NotNeedBackHand(void) {
+    char *g = D_00639EA8;
+    char *w = *(char **)(g + 0x164);
+
+    if ((((int)(*(unsigned long long *)(w + 0x18) >> 40)) & 1) == 0) {
+        return 1;
+    }
+    if (*(int *)(w + 0x34) == 0x45 && D_002A2F70.f_5D != 0 && D_002A2F70.f_58 == 0) {
+        return 1;
+    }
+    return 0;
+}
 void SetGirlDangerGObj(int a0) {
     char *g = D_00639EA8;
     if (g != 0) {
