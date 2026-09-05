@@ -17,7 +17,7 @@ typedef struct {
 } __attribute__((aligned(16))) VECTOR;
 extern void sceVu0Normalize(VECTOR *out, VECTOR *in);
 extern void sceVu0UnitMatrix(float *m);
-extern void func_0025D920(float *m0, float *m1, float rot); /* sceVu0RotMatrixY */
+extern void sceVu0RotMatrixY(float *m0, float *m1, float rot); /* sceVu0RotMatrixY */
 extern void sceVu0InversMatrix(float *m0, float *m1);
 extern void sceVu0ApplyMatrix(VECTOR *out, float *m, VECTOR *in);
 /* prototypes: their order is the inline tail's emission order */
@@ -62,7 +62,7 @@ inline int StageOrientGet(VECTOR *ret, int stA, int stB)
         sceVu0Normalize(ret, &d);
 
         sceVu0UnitMatrix(m);
-        func_0025D920(m, m, pa->angle);
+        sceVu0RotMatrixY(m, m, pa->angle);
         sceVu0InversMatrix(m, m);
         sceVu0ApplyMatrix(ret, m, ret);
     }

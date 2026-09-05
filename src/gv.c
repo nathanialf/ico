@@ -56,7 +56,7 @@ int _AbsRotyGV(void *a0, void *a1)
 
     return (d < 0) ? -d : d;
 }
-extern void func_0025D920(float *dst, float *src, float a);
+extern void sceVu0RotMatrixY(float *dst, float *src, float a);
 extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
 extern void sceVu0UnitMatrix(float *m);
 
@@ -66,7 +66,7 @@ void _ApplyRyGV(float *a0, float a1)
     float m1[16];
     float v[4];
     sceVu0UnitMatrix(m0);
-    func_0025D920(m1, m0, a1);
+    sceVu0RotMatrixY(m1, m0, a1);
     sceVu0ApplyMatrix(v, m1, a0);
     a0[0] = v[0];
     a0[1] = v[1];
