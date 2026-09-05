@@ -24,7 +24,30 @@ void iosMcMgrLoadProductBlock(void *a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetBlockSaveInfo);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcManager);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrSync);
+extern int D_006BC8C0[];
+extern char D_0063A490[];
+extern int D_0063A47C;
+extern int D_0063A488;
+extern int CreateSema(int *param);
+extern int WaitSema(int sema);
+extern int DeleteSema(int sema);
+extern int sceMcSync(int mode, int *cmd, int *result);
+extern void debug_StdPrintfDummy(char *fmt, ...);
+
+void iosMcMgrSync(void *mp)
+{
+    D_006BC8C0[4] = 1;
+    D_006BC8C0[1] = 1;
+    D_006BC8C0[2] = 0;
+    D_0063A47C = CreateSema(D_006BC8C0);
+    debug_StdPrintfDummy(D_0063A490, D_0063A47C);
+    do {
+        WaitSema(D_0063A47C);
+        D_0063A488++;
+    } while (sceMcSync(1, (int *)((char *)mp + 0x30), (int *)((char *)mp + 0x10)) == 0);
+    DeleteSema(D_0063A47C);
+    D_0063A47C = -1;
+}
 void iosMcTest(void) {}
 int iosMcSync(unsigned long *a0)
 {
@@ -115,12 +138,67 @@ int iosMcGetBlockSaveInfo(void *a0) {
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", product_write);
-extern char D_0029B5F0[];
+typedef struct { char b[0x40]; } McBlk;
+
+typedef struct {
+    char unk0[0x190];
+    int soundMode;
+    int outputMode;
+    int unk198;
+    int gobj;
+    char blk[0x40];
+    char unk1E0[8];
+    int cameraMove;
+    int unk1EC;
+} McSaveRec;
+
+extern McSaveRec D_0029B5F0[];
+extern char D_0029BC00[];
+extern int D_0063A538;
+extern int CurrentTargetGObj;
+extern int D_0028F4C0[];
+extern int NonLinearCameraMove;
+extern int soundOutputModeGet(void);
+
+int product_write(int *self)
+{
+    (D_0029B5F0 + self[2])->soundMode = D_0028F4C0[11];
+    (D_0029B5F0 + self[2])->outputMode = soundOutputModeGet();
+    (D_0029B5F0 + self[2])->unk198 = D_0063A538;
+    (D_0029B5F0 + self[2])->gobj = CurrentTargetGObj;
+    (D_0029B5F0 + self[2])->cameraMove = NonLinearCameraMove;
+    (D_0029B5F0 + self[2])->unk1EC = D_0028F4C0[0];
+    *(McBlk *)(D_0029B5F0 + self[2])->blk = *(McBlk *)D_0029BC00;
+    iosMcHandlerWrite((int)self, (int)(D_0029B5F0 + self[2]), 0x1F0);
+    return 0;
+}
 int product_read(int *self) {
     int idx = self[0x8 / 4];
-    iosMcHandlerRead((int)self, (int)(D_0029B5F0 + idx * 0x1F0), 0x1F0);
+    iosMcHandlerRead((int)self, (int)&D_0029B5F0[idx], 0x1F0);
     return self[0x10 / 4];
 }
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", gameblock_write);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", gameblock_read);
+extern int CurrentTargetGObjSub;
+extern int D_00639EA0;
+
+int gameblock_write(int self, void *buf)
+{
+    iosMcHandlerWrite(self, buf, 0x63F4);
+    iosMcHandlerWrite(self, &CurrentTargetGObjSub, 4);
+    iosMcHandlerWrite(self, &D_00639EA0, 4);
+    return 0;
+}
+extern int D_0028F4EC[];
+extern void soundOutputModeSet(int mode);
+
+int gameblock_read(int *self, void *buf)
+{
+    iosMcHandlerRead((int)self, (int)buf, 0x63F4);
+    D_0028F4EC[0] = (D_0029B5F0 + self[2])->soundMode;
+    soundOutputModeSet((D_0029B5F0 + self[2])->outputMode);
+    D_0063A538 = (D_0029B5F0 + self[2])->unk198;
+    CurrentTargetGObj = (D_0029B5F0 + self[2])->gobj;
+    *(McBlk *)D_0029BC00 = *(McBlk *)(D_0029B5F0 + self[2])->blk;
+    iosMcHandlerRead((int)self, (int)&CurrentTargetGObjSub, 4);
+    iosMcHandlerRead((int)self, (int)&D_00639EA0, 4);
+    return self[4];
+}
