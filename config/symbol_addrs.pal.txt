@@ -36,7 +36,6 @@ iosMsgSetEvent = 0x0013C720; // type:func  // ios/message
 iosPadDevManager = 0x0013DE08; // type:func  // ios/pad
 iosPadActTickProc = 0x0013DE50; // type:func  // ios/pad
 iosThreadDestroyMgr = 0x00140018; // type:func  // ios/thread
-iosThreadAllQuit = 0x00140108; // type:func  // ios/thread
 ACTGame_SaveActorInformation = 0x00146CC0; // type:func  // src/act-game
 handoff_heroin = 0x00150D98; // type:func  // src/boyact
 ACTSendMail_PULLUP_GO = 0x00155770; // type:func  // src/boyact
@@ -222,6 +221,9 @@ actSt47aHane1_1Girl = 0x00254948; // type:func  // src/st47a
 actSt47aHane1_2Girl = 0x00254998; // type:func  // src/st47a
 actSt47aHane2Main = 0x002549E8; // type:func  // src/st47a
 actSt47aHane2Switch = 0x00254A18; // type:func  // src/st47a
+actWave1 = 0x00255310; // type:func  // src/st99a
+actSt27aWaveChk = 0x00255398; // type:func  // src/st99a
+actSt27aWave1 = 0x002553C0; // type:func  // src/st99a
 _sceVu0ecossin = 0x0025D758; // type:func  // src/cod/vendor_25D410
 sceVu0RotMatrixZ = 0x0025D7D0; // type:func  // src/cod/vendor_25D410
 _RotMatrixZ_02 = 0x0025D800; // type:func  // src/cod/vendor_25D410
@@ -1316,6 +1318,7 @@ iosSemaSignal = 0x0013FF48; // type:func  // ios/thread
 iosSemaReferStatus = 0x0013FF98; // type:func  // ios/thread
 
 // ---- isys/gobj
+iosThreadAllQuit = 0x00140108; // type:func  // ios/thread
 isysGObjKindTableInit = 0x00140170; // type:func  // isys/gobj
 isysGObjInit = 0x00140188; // type:func  // isys/gobj
 cut_gobj_link = 0x001401E0; // type:func  // isys/gobj
@@ -5205,8 +5208,6 @@ actExplodeChk = 0x002550D8; // type:func  // src/st99a
 actSplash1Chk = 0x00255188; // type:func  // src/st99a
 actSplash2Chk = 0x00255238; // type:func  // src/st99a
 actWaveChk = 0x002552E8; // type:func  // src/st99a  // provisional-ordinal
-func_00255310 = 0x00255310; // type:func  // src/st99a
-func_002553C0 = 0x002553C0; // type:func  // src/st99a
 
 // ---- src/stageSEProc
 stageSE04eriver = 0x002556B0; // type:func  // src/stageSEProc
