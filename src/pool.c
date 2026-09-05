@@ -56,27 +56,78 @@ extern void CopyVector(void *a0, void *a1);
 void GetPoolGlobalDrainVector(void *dst, char *a0) {
     CopyVector(dst, *(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10);
 }
+ASM_LIT4_SLOT(D_00638B84, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/pool", InitPoolGeo);
+ASM_LIT4_SLOT(D_00638B88, 0.0005f);
+ASM_LIT4_SLOT(D_00638B8C, 0.05f);
+ASM_LIT4_SLOT(D_00638B90, 0.8f);
+ASM_LIT4_SLOT(D_00638B94, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/pool", updatePoolGeo);
 INCLUDE_ASM("asm/nonmatchings/src/pool", dispPool);
 INCLUDE_ASM("asm/nonmatchings/src/pool", PoolDL);
 INCLUDE_ASM("asm/nonmatchings/src/pool", InitLimitedPoolReflactionMesh);
+ASM_LIT4_SLOT(D_00638B98, 0.1f);
+ASM_LIT4_SLOT(D_00638B9C, 0.8f);
+ASM_LIT4_SLOT(D_00638BA0, 1.15f);
+ASM_LIT4_SLOT(D_00638BA4, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetLayoutedPoolReflactionMesh);
+ASM_LIT4_SLOT(D_00638BA8, 0.3f);
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetLimitedPoolReflactionMesh);
 INCLUDE_ASM("asm/nonmatchings/src/pool", DispLimitedPoolReflactionMesh);
 void PoolGeo(void) {}
 float GetPoolGlobalHeight(char *a0) {
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4);
 }
-INCLUDE_ASM("asm/nonmatchings/src/pool", GetPoolGlobalHeightDetail);
+float GetPoolGlobalHeightDetail(char *a0, float *pos) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    float inv;
+    int ix;
+    int iz;
+
+    if (*(int *)(p + 0x30) != 0) {
+        inv = 1.0f / *(float *)(p + 0x3C);
+        ix = (int)((pos[0] - *(float *)(p + 0x0)) * inv + (float)(*(int *)(p + 0x34) >> 1));
+        iz = (int)((pos[2] - *(float *)(p + 0x8)) * inv + (float)(*(int *)(p + 0x38) >> 1));
+        ix = ix >= 0 ? (ix < *(int *)(p + 0x34) ? ix : *(int *)(p + 0x34) - 1) : 0;
+        iz = iz >= 0 ? (iz < *(int *)(p + 0x38) ? iz : *(int *)(p + 0x38) - 1) : 0;
+        return *(float *)(*(char **)(*(char **)(p + 0x4C) + ix * 4) + iz * 4) * 100.0f + *(float *)(p + 0x4);
+    }
+    return *(float *)(p + 0x4);
+}
 int CheckPoolHasGridMesh(char *a0) {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x30) != 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/pool", InitLayoutedPoolReflactionMesh);
+extern void InitLimitedPoolReflactionMesh(char *a0);
+extern void _InterVectorXYZ(void *p0, void *p1, void *p2, float t);
+
+void InitLayoutedPoolReflactionMesh(char *a0, char *a1) {
+    float v0[4];
+    float v1[4];
+    int i;
+    int j;
+
+    InitLimitedPoolReflactionMesh(a0);
+    for (i = 0; i < *(int *)(a0 + 0x0); i++) {
+        _InterVectorXYZ(v0, a1 + 0x0, a1 + 0x20, (float)i / (float)(*(int *)(a0 + 0x0) - 1));
+        _InterVectorXYZ(v1, a1 + 0x10, a1 + 0x30, (float)i / (float)(*(int *)(a0 + 0x0) - 1));
+        for (j = 0; j < *(int *)(a0 + 0x4); j++) {
+            _InterVectorXYZ(*(char **)(*(char **)(a0 + 0x10) + 0x6C) + (i * *(int *)(a0 + 0x4) + j) * 0x10, v0, v1, (float)j / (float)(*(int *)(a0 + 0x4) - 1));
+            *(float *)(*(char **)(*(char **)(a0 + 0x10) + 0x6C) + (i * *(int *)(a0 + 0x4) + j) * 0x10 + 0xC) = 1.0f;
+        }
+    }
+}
 int poolRideFunc(char **a0, char *a1) {
     char *e = *(char **)(a1 + 0x15C);
     char *p = *(char **)(*(char **)(a0[0] + 0x15C) + 0x830);
     *(float *)(e + 0x644) = *(float *)(e + 0xA4) - *(float *)(p + 4);
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/pool", getWave);
+
+float getWave(float t) {
+    t += 50.0f;
+    t -= (float)(int)(t * 0.005f) * 200.0f;
+    if (t < 100.0f) {
+        return t * 0.01f - 0.5f;
+    }
+    return -(t - 100.0f) * 0.01f + 0.5f;
+}

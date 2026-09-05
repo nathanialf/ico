@@ -858,6 +858,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   (69894af6f — its message says "lay the TU out", but verify_tu SKIPped: the
   layout is still pending on the static tail members with asm-only referencers).
 
+- `[0x538B84, .lit4, src/pool]` — the TU's whole pool, 13 words 0x638B84..0x638BB4
+  (= MAIN.MAP pool.o `.lit4` 0x34), InitPoolGeo..getWave; 10 slot lines beside the
+  four still-asm owners, getWave's three words as literals; blob resumes at
+  `0x538BB8`. Not deduplicated (0.8f three times, 0.01f twice).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
