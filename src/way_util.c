@@ -78,7 +78,7 @@ extern int WayPointList_next();
 extern float fzMagnitudefv(int a0);
 extern void sceVu0SubVector();
 
-char *nearest_waypoint_of_group(int *arg0, int handle)
+inline char *nearest_waypoint_of_group(int *arg0, int handle)
 {
     int buf[4];
     char *t = WayPointList_begin(handle);
@@ -102,33 +102,21 @@ char *nearest_waypoint_of_group(int *arg0, int handle)
 }
 extern int D_0063BD78;
 
-char *nearest_waypoint(int *a0) {
-    int buf[4];
-    char *t = WayPointList_begin(D_0063BD78);
-    float bestDist = 100000.0f;
-    char *best, *cur;
-    best = t;
-    cur = best;
-    if (best != 0) {
-        do {
-            float d;
-            sceVu0SubVector(buf, (int *)(cur + 0x10), a0);
-            d = fzMagnitudefv((int)buf);
-            if (d < bestDist) {
-                bestDist = d;
-                best = cur;
-            }
-            cur = WayPointList_next(cur);
-        } while (cur != 0);
-    }
-    return best;
+inline char *nearest_waypoint(int *a0) {
+    return nearest_waypoint_of_group(a0, D_0063BD78);
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_from_gobj);
-ASM_LIT4_SLOT(D_00639068, 100000.0f);
+extern void GetRootPosition(void *a0, void *a1);
+
+inline char *nearest_waypoint_from_gobj(void *dobj)
+{
+    int mtx[4];
+    GetRootPosition(mtx, dobj);
+    return nearest_waypoint_of_group(mtx, D_0063BD78);
+}
 extern WayGrp D_004F1EC0[];
 extern float fzMagnitudeByLineSeg(void *a0, void *a1, void *a2);
 
-char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid)
+inline char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid)
 {
     WayGrp *g = &D_004F1EC0[gid];
     char *cur = g->f8;
@@ -152,7 +140,7 @@ char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid)
 out:
     return best;
 }
-char *nearest_waypoint_by_lineseg(void *arg0)
+inline char *nearest_waypoint_by_lineseg(void *arg0)
 {
     WayGrp *g = &D_004F1EC0[D_0063BD78];
     char *cur = g->f8;
@@ -178,7 +166,7 @@ out:
 }
 extern void GetRootPosition(void *a0, void *a1);
 
-char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid)
+inline char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid)
 {
     int mtx[4];
     int *pos;
@@ -208,7 +196,7 @@ out:
         return best;
     }
 }
-char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
+inline char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
 {
     int mtx[4];
     int gid = D_0063BD78;
@@ -245,7 +233,7 @@ extern int WayPointList_next();
 extern float fzMagnitudefv(int a0);
 extern void sceVu0SubVector();
 
-char *waypoint_with_range(int *arg0, float thresh)
+inline char *waypoint_with_range(int *arg0, float thresh)
 {
     int buf[4];
     char *node = WayPointList_begin(D_0063BD78);
@@ -263,7 +251,7 @@ ret0:
 extern char *WayPoint_begin(void);
 extern int WayPoint_next(int a0);
 
-char *nearest_waypoint_of_all_except_group(int *arg0, int a1) {
+inline char *nearest_waypoint_of_all_except_group(int *arg0, int a1) {
     int buf[4];
     char *t = WayPoint_begin();
     float bestDist = 100000.0f;
@@ -288,7 +276,7 @@ char *nearest_waypoint_of_all_except_group(int *arg0, int a1) {
 }
 extern unsigned char D_004F1ED8[];
 
-char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid) {
+inline char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid) {
     int buf[4];
     char *t = WayPoint_begin();
     float bestDist = 100000.0f;
@@ -312,7 +300,7 @@ char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid) {
     }
     return best;
 }
-char *nearest_waypoint_of_all(int *a0) {
+inline char *nearest_waypoint_of_all(int *a0) {
     int buf[4];
     int neg1 = -1;
     char *t = WayPoint_begin();
@@ -338,12 +326,12 @@ char *nearest_waypoint_of_all(int *a0) {
 }
 extern char *visible_waypoint_of_all_except_gid(int *arg0, int gid);
 
-int visible_waypoint_of_all(void *a0) {
+inline int visible_waypoint_of_all(void *a0) {
     return visible_waypoint_of_all_except_gid(a0, -1);
 }
 extern void GetRootPosition(void *a0, void *a1);
 
-void visible_waypoint_of_all_from_gobj(void *a0) {
+inline void visible_waypoint_of_all_from_gobj(void *a0) {
     int buf[4];
     GetRootPosition(buf, a0);
     visible_waypoint_of_all_except_gid(buf, -1);
@@ -351,7 +339,7 @@ void visible_waypoint_of_all_from_gobj(void *a0) {
 extern void ClipWall(void *);
 extern void sceVu0CopyVector(void *buf, int x);
 
-char *visible_waypoint(int *arg0, int handle)
+inline char *visible_waypoint(int *arg0, int handle)
 {
     int buf[4];
     ClipBox cb;
@@ -382,12 +370,16 @@ char *visible_waypoint(int *arg0, int handle)
     }
     return best;
 }
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_from_gobj);
-ASM_LIT4_SLOT(D_0063908C, 100000.0f);
+inline char *visible_waypoint_from_gobj(void *dobj, int handle)
+{
+    int mtx[4];
+    GetRootPosition(mtx, dobj);
+    return visible_waypoint(mtx, handle);
+}
 extern WayGrp D_004F1EC0[];
 extern Nd D_004F31E0[];
 
-void *get_wp_nearest_bridge_side_me(int arg0, int arg1)
+inline void *get_wp_nearest_bridge_side_me(int arg0, int arg1)
 {
     unsigned char *base = (unsigned char *)D_004F1EC0;
     char *b = (char *)D_004F31E0;
@@ -414,7 +406,7 @@ void *get_wp_nearest_bridge_side_me(int arg0, int arg1)
     }
     return 0;
 }
-int get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
+inline int get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
 {
     unsigned char *base = (unsigned char *)D_004F1EC0;
     char *b = (char *)D_004F31E0;
@@ -447,7 +439,7 @@ extern void __assert(void *a0, int a1, void *a2);
 extern extern void debug_StdPrintfDummy();
 extern void debug_assert(void *a0, int a1);
 
-int direction_across_bridge(void *a0, int a1) {
+inline int direction_across_bridge(void *a0, int a1) {
     char *e1 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x20) * 0x40;
     char *e2;
     if (*(int *)(e1 + 0x20) == a1) {
@@ -464,7 +456,7 @@ int direction_across_bridge(void *a0, int a1) {
 extern WNODE *WayBridge_begin(void);
 extern WNODE *WayBridge_next(WNODE *);
 
-WNODE *waybridge_between_group(int a0, int a1) {
+inline WNODE *waybridge_between_group(int a0, int a1) {
     WNODE *p = WayBridge_begin();
     while (p != 0) {
         char *eA = (char *)D_004F31E0 + p->i20 * 0x40;
@@ -481,7 +473,7 @@ WNODE *waybridge_between_group(int a0, int a1) {
     }
     return 0;
 }
-char *bridge_waypoint_side_me(int me, int target) {
+inline char *bridge_waypoint_side_me(int me, int target) {
     WNODE *p = WayBridge_begin();
     while (p != 0) {
         char *eA = (char *)D_004F31E0 + p->i20 * 0x40;
@@ -493,13 +485,13 @@ char *bridge_waypoint_side_me(int me, int target) {
     }
     return 0;
 }
-WPElem *waypoint_connect_group_side_me(WPNode *a0, int a1) {
+inline WPElem *waypoint_connect_group_side_me(WPNode *a0, int a1) {
     WPElem *e = &D_004F31E0[a0->i20];
     if (e->f20 == a1) return e;
     e = &D_004F31E0[a0->i24];
     return e->f20 == a1 ? e : 0;
 }
-int bridge_waypoint_side_bridge(int a0, int a1) {
+inline int bridge_waypoint_side_bridge(int a0, int a1) {
     WPNode *p = (WPNode *)WayBridge_begin();
     while (p != 0) {
         char *eA = (char *)D_004F31E0 + p->i20 * 0x40;
@@ -515,7 +507,7 @@ int bridge_waypoint_side_bridge(int a0, int a1) {
     }
     return 0;
 }
-int waypoint_connect_group_side_bridge(WPNode *a0, int a1) {
+inline int waypoint_connect_group_side_bridge(WPNode *a0, int a1) {
     WPElem *e = &D_004F31E0[a0->i20];
     if (e->f20 == a1) return a0->i8;
     e = &D_004F31E0[a0->i24];
@@ -524,7 +516,7 @@ int waypoint_connect_group_side_bridge(WPNode *a0, int a1) {
 }
 extern unsigned char D_004F1ED8[];
 
-int NearestWgFromTarget(int cur, int end, WgAll *w) {
+inline int NearestWgFromTarget(int cur, int end, WgAll *w) {
     int *dist = (int *)w->f14;
     int *prev = (int *)w->f10;
     while (1) {
@@ -536,7 +528,7 @@ int NearestWgFromTarget(int cur, int end, WgAll *w) {
     }
     return cur;
 }
-int wpsort_compfnc(int a0, int a1) {
+inline int wpsort_compfnc(int a0, int a1) {
     float x = *(float *)(a0 + 4);
     float y = *(float *)(a1 + 4);
     if (x < y) {
