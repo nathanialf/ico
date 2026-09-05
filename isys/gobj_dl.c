@@ -1,5 +1,7 @@
 #include "common.h"
 
+static void add_gobj_to_head(int a0, int a1, int a2);
+
 typedef struct DLN {
     char _p0[0x34];
     struct DLN *next;
@@ -30,12 +32,39 @@ inline void isysGObjDlInit(void) {
         D_0029C550[i] = 0;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", cut_gobj_dl_link);
+void cut_gobj_dl_link(int *self)
+{
+    DLN *p = (DLN *)self;
+
+    if (p == 0) {
+        debug_StdPrintfDummy(D_00551F78);
+        return;
+    }
+
+    if (p->prev == 0 && p->next == 0) {
+        /* not linked into a list */
+    } else {
+        if (p->prev != 0) p->prev->next = p->next;
+
+        if (p->next != 0) {
+            p->next->prev = p->prev;
+        }
+    }
+
+    if (p == ((DLN **)D_0029C530)[p->id]) {
+        ((DLN **)D_0029C530)[p->id] = p->next;
+    }
+    if (p == ((DLN **)D_0029C550)[p->id]) {
+        ((DLN **)D_0029C550)[p->id] = p->prev;
+    }
+}
 void isysGObjRemoveObjDL(int *self) {
     cut_gobj_dl_link(self);
 }
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", func_00141248);
-void func_001413B8(int a0, int a1, int a2)
+/* the listing's add_gobj_to_head; every gobj list TU has its own static copy, so the
+   symbol-table name stays the placeholder (the other TU's copy owns the name) */
+static void add_gobj_to_head(int a0, int a1, int a2)
 {
     DLN *self = (DLN *)a0;
     unsigned char idx = a1 & 0xFF;
@@ -90,7 +119,7 @@ void isysGObjMoveObjDLHead(int a0, int a1, int a2)
     int new_var;
     new_var = a2;
     cut_gobj_dl_link(a0);
-    return func_001413B8(a0, s1, new_var);
+    return add_gobj_to_head(a0, s1, new_var);
 }
 inline void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj) {
     cut_gobj_dl_link((int *)self);
@@ -114,12 +143,22 @@ inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj) {
         ((DLN **)D_0029C530)[self->id] = self;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDL);
+extern char D_00551FD0[];
+extern char D_00551FE0[];
+void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4) {
+    debug_StdPrintfDummy(D_00551FD0);
+    if (a1 != 0) {
+        *(void **)((char *)a0 + 0x48) = a1;
+        *(void **)((char *)a0 + 0x50) = a4;
+        func_00141248(a0, a2, a3);
+        debug_StdPrintfDummy(D_00551FE0);
+    }
+}
 void isysGObjLinkObjDLHead(void *a0, void *a1, unsigned char a2, void *a3, void *a4) {
     if (a1 != 0) {
         *(void **)((char *)a0 + 0x48) = a1;
         *(void **)((char *)a0 + 0x50) = a4;
-        func_001413B8(a0, a2, a3);
+        add_gobj_to_head(a0, a2, a3);
     }
 }
 void isysGObjLinkObjDLAfterGObj(int *self, int *a1, int a2, int *a3)
