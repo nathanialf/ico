@@ -144,6 +144,7 @@ gamesysGeneratorInfoLoad = 0x001B6D40; // type:func  // src/gamesys
 gamesysHintInfoLoad = 0x001B6DF0; // type:func  // src/gamesys
 subAP1BrainMain = 0x001C4DC0; // type:func  // src/act_a_p_1
 hitProc = 0x001C5250; // type:func  // src/act_a_p_1
+TestDispChainAnimation = 0x001CDD48; // type:func  // src/clothAnimation
 cursor_control = 0x00217D88; // type:func  // src/way_tool
 actDejaChk = 0x00217E08; // type:func  // src/deja
 actEnemySleep = 0x002186B0; // type:func  // src/deja
@@ -3188,7 +3189,6 @@ actClipCollisionCore = 0x001CDA90; // type:func  // src/clipCollisionManager  //
 CreateClipCollisionManagerGObj = 0x001CDCB0; // type:func  // src/clipCollisionManager
 RequestClipCollision = 0x001CDCF0; // type:func  // src/clipCollisionManager
 func_001CDD30 = 0x001CDD30; // type:func  // src/clipCollisionManager
-func_001CDD48 = 0x001CDD48; // type:func  // src/clipCollisionManager
 
 // ---- src/clothAnimation
 GetChainExWeightGlobalPos = 0x001CDF40; // type:func  // src/clothAnimation

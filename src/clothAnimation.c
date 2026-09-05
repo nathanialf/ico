@@ -12,6 +12,7 @@ typedef struct {
 
 extern void CopyVector(void *dst, void *src);
 
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", TestDispChainAnimation);
 void GetChainExWeightGlobalPos(int a0, int a1, int a2)
 {
     CopyVector(a0, a1 + a2 * 0x50 + 0x30);

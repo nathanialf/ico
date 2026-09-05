@@ -245,7 +245,7 @@ segments:
       - [0xCD578, c, src/candle]  # 5 funcs, census
       - [0xCD9A8, c, src/chandelier]  # 3 funcs, listing
       - [0xCDA90, c, src/clipCollisionManager]  # 4 funcs, listing
-      - [0xCDF40, c, src/clothAnimation]  # 49 funcs, census
+      - [0xCDD48, c, src/clothAnimation]  # 50 funcs, census; starts with TestDispChainAnimation (clothAnimation.c:160), its first parse-order member, which splat had left in clipCollisionManager's span
       - [0xD4458, c, src/clothTest]  # 3 funcs, census
       - [0xD44B8, c, src/darkVolume]  # 17 funcs, listing
       - [0xD7088, c, src/effectTool]  # 12 funcs, listing
