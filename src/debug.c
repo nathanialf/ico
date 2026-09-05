@@ -1,11 +1,10 @@
 #include "common.h"
 
+/* debug_exception_screen.c.inc (compiled into debug_exception.o) */
+
 typedef struct { float f[4]; } __attribute__((packed)) Blk16;
-
 typedef struct { int x, y, w, h; } FR;
-
 typedef struct { char _0[0x20]; int f_20; char _24[0x18]; } GsysObjInfo;
-
 extern char D_0061B440[];
 extern char D_0063AE78[];
 extern char D_0063AE80[];
@@ -18,7 +17,6 @@ void debug_Assert(char *fmt, ...) {
     __assert(D_0061B440, 0x571, D_0063AE80);
 }
 extern int D_0063AE84;
-
 void debug_openLog(void) {
     volatile char buf[256];
     D_0063AE84 = -1;
@@ -27,7 +25,6 @@ void debug_openLog(void) {
 extern void sceWrite();
 extern int strlen();
 extern void vsprintf();
-
 void debug_LogPrintf(const char *fmt, ...) {
     char buf[0x100];
     void *info;
@@ -42,7 +39,6 @@ extern unsigned int D_0063AE8C;
 extern void EnableDmac();
 extern void RemoveDmacHandler();
 extern int debug_CallbackGsFinish();
-
 void debug_SetDmaCallback(void)
 {
     if ((int)D_0063AE8C != -1) {
@@ -61,7 +57,6 @@ extern int D_0063B124;
 extern int D_0063B1C4;
 extern void debug_ClearFontWindow(void);
 extern void debug_makeBackImage(void);
-
 void debug_Init(void) {
     debug_ClearFontWindow();
     D_0063B110 = 0;
@@ -90,7 +85,6 @@ extern void gif_SetZTest(int a0);
 extern void gif_SetZWrite(int a0);
 extern void gif_Sprite(void *a0, unsigned int a1, int a2, void *a3, int a4);
 extern void gif_StartPacketPri(int a0);
-
 void debug_PrintFont(int a0, int a1, int a2, char *a3) {
     FR buf[2];
     int r;
@@ -122,7 +116,6 @@ void debug_PrintFont(int a0, int a1, int a2, char *a3) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_FlushFontWindow);
 extern void debug_FlushFontWindow(void);
-
 void debug_FlushFont(void) {
     debug_FlushFontWindow();
 }
@@ -140,7 +133,6 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", debug_WriteBMP);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SnapShot);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispQW);
 extern void debug_PrintFont();
-
 void debug_Printf(int *a, int *b, int *c, int x, ...)
 {
     char buf[0x100];
@@ -169,7 +161,6 @@ extern const char D_0060DAF0_a[] __asm__("D_0061BB40");
 extern const char D_00631CF0_a[] __asm__("D_0063AF50");
 extern void debug_StdPrintfDummy__pn() __asm__("debug_StdPrintfDummy");
 extern int fptodp(float);
-
 void debug_PrintMatrix(float *arg) {
     int i;
     for (i = 3; i >= 0; i--) {
@@ -190,12 +181,10 @@ extern char D_0063AF78[];
 extern int debug_SelectCsvWindow(char *a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7, int a8, int *a9);
 extern void sprintf();
 extern unsigned int strlen__pn(char *buf) __asm__("strlen");
-
 void debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
                    int (*fn)(int, int), int a7) {
     char buf[count][0x25];
     int i;
-
     for (i = 0; i < count; i++) {
         if (fn != 0) {
             int r = fn(i, a7);
@@ -212,13 +201,11 @@ void debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
 }
 extern int D_0063AF90[];
 extern void sprintf();
-
 void getLineBuffer(int a0, int a1, int a2)
 {
     sprintf(a0, D_0063AF90, a1, a2);
 }
 extern int D_0063AF80[];
-
 void getBuffer(int a0)
 {
     sprintf(a0, D_0063AF80);
@@ -243,7 +230,6 @@ ASM_LIT4_SLOT(D_00639348, 0.001f);
 ASM_LIT4_SLOT(D_0063934C, 0.001f);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Menu);
 extern int D_0063B0F4;
-
 void debug_Menu_off(void) {
     D_0063B0F4 = 0;
 }
@@ -252,7 +238,6 @@ void debug_BeginTimer(int a0) {
     *(volatile int *)0x10000810 = a0 | 0x80;
 }
 extern Blk16 D_0061B7C8;
-
 float debug_GetTimerSec(void) {
     Blk16 buf;
     int v;
@@ -274,7 +259,6 @@ float debug_GetTimerCount(void) {
 }
 extern int D_0063AE64;
 extern char D_007082D0[];
-
 void debug_ClearFontWindow(void)
 {
     char *p = D_007082D0;
@@ -287,7 +271,6 @@ void debug_ClearFontWindow(void)
     D_0063AE64 = 0;
 }
 extern int D_0063AEB4;
-
 void debug_ResizeFontWindowHeight(int val) {
     D_0063AEB4 = val;
 }
@@ -300,7 +283,6 @@ extern int D_0063B11C;
 extern int D_0063B120;
 extern int D_0063B124;
 extern int D_0063C384;
-
 void debug_ResetBar(void)
 {
     D_0063B120 = 0;
@@ -315,7 +297,6 @@ void debug_ResetBar(void)
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispVu1IReg);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispVu1SReg);
 extern void debug_DispQW();
-
 void debug_DispMatrix(int *a0)
 {
     int *p = a0;
@@ -336,14 +317,12 @@ extern int D_0063B108[];
 extern int D_007049D0[];
 extern int sceOpen(void *a0, int a1);
 extern void sprintf__pn(void *a0, void *a1, void *a2, int a3) __asm__("sprintf");
-
 int debugSceOpen(int a0, int a1) {
     sprintf__pn(D_007049D0, D_0063B108, D_0061C580, a0);
     return D_0063B100 = sceOpen(D_007049D0, a1);
 }
 extern int D_0063B100;
 extern int sceClose();
-
 int debugSceClose(int a0) {
     if (a0 == D_0063B100) {
         D_0063B100 = -1;
@@ -363,7 +342,6 @@ int debugSceCloseFdNew(void)
 }
 void debug_closeLog(void) {}
 extern int D_0070F880[];
-
 void debugCdvdLoadInfoSegInit(int idx)
 {
   int *p;
@@ -392,7 +370,6 @@ void debugCdvdLoadInfoSegCls(int page, int idx)
 }
 extern int D_0028F4F0[];
 extern void gsb_Init();
-
 int gsResetFunc(void)
 {
     gsb_Init(D_0028F4F0);
@@ -405,7 +382,6 @@ void ChangeGirlControlMode(int a0) {
     }
 }
 extern int D_0063AE68;
-
 int debug_CallbackGsFinish(void)
 {
     D_0063AE68 = *(volatile int *)0x10000000;
@@ -418,7 +394,6 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", debug_mcFormat);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_mcUnformat);
 extern char D_0063AFC8[];
 extern char D_0063AFD0[];
-
 void *debug_saveNumFunc(int a0, void *a1) {
     if ((1 << a0) & *(long long *)((char *)a1 + 0x9C0)) {
         return D_0063AFC8;
@@ -426,20 +401,17 @@ void *debug_saveNumFunc(int a0, void *a1) {
     return D_0063AFD0;
 }
 extern void iosMcTest(void);
-
 int debug_mcTest(void) {
     iosMcTest();
     return 1;
 }
 extern void staffRollStart(int a0, float a1);
-
 int debug_STAFFROLLTest(void) {
     staffRollStart(0x80, 1.0f);
     return 1;
 }
 extern unsigned short D_0030C4E0[];
 extern GsysObjInfo D_005D6DB0[];
-
 int debug_SETest_color(int idx)
 {
   int new_var;
@@ -481,13 +453,11 @@ int debug_EndingDemo(void) {
     return -1;
 }
 extern void backStageProcessInStage(float a0);
-
 int debug_BackStageTest(void) {
     backStageProcessInStage(10000000.0f);
     return 1;
 }
 extern void backStageDebugTimeZero(void);
-
 int debug_tsuresariTimeZero(void) {
     backStageDebugTimeZero();
     return 1;
@@ -496,7 +466,6 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", debug_hintStart);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectPad2ControlGobj);
 extern void CameraSetMode(int x);
 extern int D_0028F8F4[];
-
 int debug_FreeCamera(int a0)
 {
     if (a0 != 0) {
@@ -504,361 +473,4 @@ int debug_FreeCamera(int a0)
     }
     CameraSetMode(1);
     return (D_0028F8F4[0] & 0x100) ? -1 : 0;
-}
-extern void sceVif1PkCloseDirectCode();
-extern void sceVif1PkCloseGifTag();
-extern void sceVif1PkEnd();
-extern void sceVif1PkTerminate();
-
-void CloseVif1DirectPacket(int a0)
-{
-    sceVif1PkCloseGifTag(a0);
-    sceVif1PkCloseDirectCode(a0);
-    sceVif1PkEnd(a0, 0);
-    sceVif1PkTerminate(a0);
-}
-extern int sceDmaGetChan(unsigned a0);
-extern void sceDmaSend();
-extern void sceGsSyncPath();
-
-void SendVif1DirectPacket(int *self)
-{
-    int *p;
-    sceGsSyncPath(0, 0);
-    p = sceDmaGetChan(1);
-    *p |= 0x40;
-    sceDmaSend(p, (self[0x4/4] & 0x3FF0) | 0x80000000);
-}
-void RestoreNormalDrawEnvironment(void *a0, int a1, int a2) {
-    unsigned int base = (unsigned int)a0 | 0x20000000;
-    if (a1 != 0) {
-        sceGsSetHalfOffset((void *)(base + 0x150), 0x800, 0x800, (short)a2);
-        sceGsPutDrawEnv((void *)(base + 0x140));
-    } else {
-        sceGsSetHalfOffset((void *)(base + 0x60), 0x800, 0x800, (short)a2);
-        sceGsPutDrawEnv((void *)(base + 0x50));
-    }
-}
-INCLUDE_ASM("asm/nonmatchings/src/debug", SetTextureWithFrameBuffer);
-INCLUDE_ASM("asm/nonmatchings/src/debug", SetTexDrawEnvironment);
-INCLUDE_ASM("asm/nonmatchings/src/debug", SetDrawnTextureEnvironment);
-INCLUDE_ASM("asm/nonmatchings/src/debug", SetDrawEnvironment);
-typedef unsigned int u128_dbgscr __attribute__((mode(TI)));
-/* sceVif1Packet: 0x20 bytes (two per drawSprite frame at sp+0x00 / sp+0x20).
- * Field offsets 0x00/0x04/0x0C/0x14 are the ones the libpkt bodies in
- * src/cod/vendor_25EC00.c touch; 0x08/0x10/0x18 are unused here. */
-typedef struct {
-    int *cur;
-    int *base;
-    int *f_8;
-    int *directTag;
-    int *f_10;
-    int *gifTag;
-    int f_18[2];
-} Vif1Packet;
-
-extern void sceVif1PkInit();
-extern void sceVif1PkReset();
-extern void sceVif1PkCnt();
-extern void sceVif1PkOpenDirectCode();
-extern void sceVif1PkOpenGifTag(void *packet, u128_dbgscr tag);
-extern void sceVif1PkAddGsData(void *packet, unsigned long long data);
-extern int D_0063B370;
-extern unsigned int D_0063B374;
-extern unsigned int D_0063B378;
-extern int D_0063A064;
-extern int D_0063A068;
-extern u128_dbgscr D_0061CF20[];
-extern u128_dbgscr D_0061CF30[];
-extern u128_dbgscr D_004DA740[];
-extern u128_dbgscr D_004DA750[];
-
-static inline void OpenVif1DirectPacket(void *packet) {
-    sceVif1PkInit(packet, (D_0063B370 << 13) | 0x70000000);
-    sceVif1PkReset(packet);
-    sceVif1PkCnt(packet, 0);
-    sceVif1PkOpenDirectCode(packet, 0);
-    D_0063B370 = (D_0063B370 + 1) & 1;
-}
-
-static inline void SetPrimColor(int prim, int r, int g, int b, int a) {
-    Vif1Packet packet;
-    OpenVif1DirectPacket(&packet);
-    sceVif1PkOpenGifTag(&packet, D_0061CF20[0]);
-    sceVif1PkAddGsData(&packet, prim | 0x40);
-    sceVif1PkAddGsData(&packet,
-                       (unsigned long long)r | ((unsigned long long)g << 8) |
-                           ((unsigned long long)b << 16) | ((unsigned long long)a << 24) |
-                           ((unsigned long long)D_0063B374 << 32));
-    CloseVif1DirectPacket((int)&packet);
-    SendVif1DirectPacket((int *)&packet);
-}
-
-static inline void SetPrimColorTex(int prim, int r, int g, int b, int a, int fst) {
-    Vif1Packet packet;
-    unsigned long long data;
-    OpenVif1DirectPacket(&packet);
-    sceVif1PkOpenGifTag(&packet, D_0061CF30[0]);
-    data = prim | 0x10;
-    if (fst != 0) {
-        data |= 0x100;
-    }
-    sceVif1PkAddGsData(&packet, data);
-    sceVif1PkAddGsData(&packet,
-                       (unsigned long long)r | ((unsigned long long)g << 8) |
-                           ((unsigned long long)b << 16) | ((unsigned long long)a << 24) |
-                           ((unsigned long long)D_0063B378 << 32));
-    CloseVif1DirectPacket((int)&packet);
-    SendVif1DirectPacket((int *)&packet);
-}
-
-void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int tex) {
-    Vif1Packet packet;
-
-    if (tex != 0) {
-        SetPrimColorTex(6, r, g, b, a, 1);
-        OpenVif1DirectPacket(&packet);
-        sceVif1PkOpenGifTag(&packet, D_004DA740[0]);
-        sceVif1PkAddGsData(&packet, 0);
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)((x0 + 0x800) << 4) |
-                               ((unsigned long long)((y0 + 0x800) << 4) << 16) |
-                               0x0080000000000000ULL);
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)(D_0063A064 << 4) |
-                               ((unsigned long long)(D_0063A068 << 4) << 16));
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)((x1 + 0x800) << 4) |
-                               ((unsigned long long)((y1 + 0x800) << 4) << 16) |
-                               0x0080000000000000ULL);
-        CloseVif1DirectPacket((int)&packet);
-        SendVif1DirectPacket((int *)&packet);
-    } else {
-        SetPrimColor(6, r, g, b, a);
-        OpenVif1DirectPacket(&packet);
-        sceVif1PkOpenGifTag(&packet, D_004DA750[0]);
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)((x0 + 0x800) << 4) |
-                               ((unsigned long long)((y0 + 0x800) << 4) << 16) |
-                               0x0080000000000000ULL);
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)((x1 + 0x800) << 4) |
-                               ((unsigned long long)((y1 + 0x800) << 4) << 16) |
-                               0x0080000000000000ULL);
-        CloseVif1DirectPacket((int)&packet);
-        SendVif1DirectPacket((int *)&packet);
-    }
-}
-extern int D_0063B37C;
-extern int D_0063B380;
-extern int D_0063B384;
-extern const unsigned char D_0061C590[];
-extern u128_dbgscr D_004DA760[];
-
-void PutFont(int c, int x, int y) {
-    Vif1Packet packet;
-    int i, j;
-    int y2 = y + 2;
-
-    SetPrimColor(6, D_0063B37C >> 2, D_0063B380 >> 2, D_0063B384 >> 2, 0x40);
-    OpenVif1DirectPacket(&packet);
-    sceVif1PkOpenGifTag(&packet, D_004DA760[0]);
-    for (j = 0; j < 8; j++) {
-        int oy = j * 2 + 0x800;
-        for (i = 0; i < 8; i++) {
-            if ((D_0061C590[j + c * 8] >> i) & 1) {
-                sceVif1PkAddGsData(&packet,
-                                   (unsigned long long)((x + i - 2 + 0x800) << 4) |
-                                       ((unsigned long long)((y + oy - 1) << 4) << 16) |
-                                       0x0080000000000000ULL);
-                sceVif1PkAddGsData(&packet,
-                                   (unsigned long long)((x + i + 3 + 0x800) << 4) |
-                                       ((unsigned long long)((y2 + oy) << 4) << 16) |
-                                       0x0080000000000000ULL);
-            }
-        }
-    }
-    CloseVif1DirectPacket((int)&packet);
-    SendVif1DirectPacket((int *)&packet);
-
-    SetPrimColor(0, D_0063B37C, D_0063B380, D_0063B384, 0x80);
-    OpenVif1DirectPacket(&packet);
-    sceVif1PkOpenGifTag(&packet, D_004DA760[0]);
-    for (j = 0; j < 8; j++) {
-        int oy = j * 2 + 0x800;
-        for (i = 0; i < 8; i++) {
-            if ((D_0061C590[j + c * 8] >> i) & 1) {
-                sceVif1PkAddGsData(&packet,
-                                   (unsigned long long)((x + i + 0x800) << 4) |
-                                       ((unsigned long long)((y + oy) << 4) << 16) |
-                                       0x0080000000000000ULL);
-            }
-        }
-    }
-    CloseVif1DirectPacket((int)&packet);
-    SendVif1DirectPacket((int *)&packet);
-}
-extern void sceDmaReset(int a0);
-extern void sceDmaSync(int *a0, int a1, int a2);
-extern void sceGsResetPath(void);
-
-void resetPath(void) {
-    sceDmaReset(1);
-    sceDmaSync((int *)sceDmaGetChan(0), 0, 0x64);
-    sceDmaSync((int *)sceDmaGetChan(1), 0, 0x64);
-    sceDmaSync((int *)sceDmaGetChan(2), 0, 0x64);
-    *(int *)sceDmaGetChan(0) |= 0x40;
-    *(int *)sceDmaGetChan(1) |= 0x40;
-    *(int *)sceDmaGetChan(2) |= 0x40;
-    sceGsResetPath();
-}
-extern void sceVpu0Reset();
-
-void resetGS(int a0)
-{
-    sceVpu0Reset(a0);
-    gsb_Init(D_0028F4F0);
-}
-typedef struct {
-    int col;
-    char ch;
-} DbgChar;
-
-extern DbgChar D_0070FA90[26][256];
-extern DbgChar D_0063B388;
-extern int D_0063B394;
-extern int D_0063B398;
-
-static inline void scrollDbgScreen(void) {
-    int i, j;
-
-    for (i = 1; i < 26; i++) {
-        for (j = 0; j < 256; j++) {
-            D_0070FA90[i - 1][j] = D_0070FA90[i][j];
-        }
-    }
-    for (j = 0; j < 256; j++) {
-        D_0070FA90[25][j] = D_0063B388;
-    }
-}
-
-void putString(int color, char *fmt, ...) {
-    char buf[256];
-    char *str = buf;
-    unsigned int i;
-
-    vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x30);
-    for (i = 0; i < strlen(str); i++) {
-        if (str[i] == '\t') {
-            D_0063B394 += 2;
-        } else if (str[i] == '\n') {
-            D_0063B398++;
-            D_0063B394 = 0;
-        } else {
-            D_0070FA90[D_0063B398][D_0063B394].col = color;
-            D_0070FA90[D_0063B398][D_0063B394].ch = str[i];
-            D_0063B394++;
-        }
-        if (D_0063B394 >= 256) {
-            D_0063B394 = 255;
-        }
-        if (D_0063B398 >= 26) {
-            scrollDbgScreen();
-            D_0063B398 = 25;
-        }
-    }
-}
-extern int D_0063B390;
-
-void drawWin(void) {
-    int i, j, k;
-    int len = 50;
-    int st;
-
-    for (i = 0; i < 26; i++) {
-        for (j = 255; D_0070FA90[i][j].ch == ' ' && j >= 0; j--) {
-        }
-        j++;
-        if (len < j) len = j;
-
-        if (j < 50) {
-            st = 0;
-        } else if (j - D_0063B390 - 50 >= 0) {
-            st = D_0063B390;
-        } else {
-            st = j - 50;
-        }
-        for (k = 0; k < 50; k++) {
-            DbgChar *p = &D_0070FA90[i][st + k];
-            if (p->ch != ' ') {
-                D_0063B37C = ((p->col >> 24) & 0xFF) * 0.8f;
-                D_0063B380 = ((p->col >> 16) & 0xFF) * 0.8f;
-                D_0063B384 = ((p->col >> 8) & 0xFF) * 0.8f;
-                PutFont(p->ch, k * 10 - 250, (i - 13) * 16);
-            }
-        }
-    }
-    if (len - D_0063B390 - 50 < 0) {
-        D_0063B390 = len - 50;
-    }
-}
-extern void SetDrawEnvironment(int a0);
-extern void drawSprite(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
-
-void saveBack(void)
-{
-    SetDrawEnvironment(1);
-    drawSprite(0x10, 0x20, 0x30, 0x40, -0x136, -0x6B, 0x136, 0x6B, 0);
-    SetDrawEnvironment(1);
-}
-typedef struct { int _0; int _4; int _8; int btn; } DbgPad;
-extern DbgPad D_0028F8F0[];
-extern int D_0063B39C;
-
-static inline void putBaseChar(int c) {
-    unsigned int col = 0xFFFFFF00;
-    D_0070FA90[D_0063B398][D_0063B394].col = col;
-    D_0070FA90[D_0063B398][D_0063B394].ch = c;
-}
-
-static inline void dispBase(void) {
-    int c;
-    switch (D_0063B39C) {
-    case 0:
-    default: c = '-'; break;
-    case 1: c = '/'; break;
-    case 2: c = '|'; break;
-    case 3: c = '\\'; break;
-    }
-    putBaseChar(c);
-    D_0063B39C = (D_0063B39C + 1) & 3;
-}
-
-void baseFunc(void) {
-    if (D_0028F8F0[0].btn & 0x8000) if (--D_0063B390 < 0) D_0063B390 = 0;
-    if (D_0028F8F0[0].btn & 0x2000) if (++D_0063B390 >= 50) D_0063B390 = 49;
-    SetDrawEnvironment(1);
-    dispBase();
-    drawWin();
-}
-extern int buffer_ID;
-extern int odd_even;
-extern int frame_count;
-extern void FlushCache(int a0);
-extern void RestoreNormalDrawEnvironment(void *a0, int a1, int a2);
-extern void gsb_Reduction(void);
-extern void sceGsSwapDBuff(void *a0, int a1);
-extern void sceGsSyncPath__pn(int a0, int a1) __asm__("sceGsSyncPath");
-extern int sceGsSyncV(int a0);
-
-void syncGS(void) {
-    FlushCache(0);
-    sceGsSyncPath__pn(1, 0);
-    odd_even = sceGsSyncV(0);
-    frame_count++;
-    buffer_ID = frame_count & 1;
-    gsb_Reduction();
-    sceGsSwapDBuff(D_0028F4F0, buffer_ID);
-    RestoreNormalDrawEnvironment(D_0028F4F0, buffer_ID, odd_even);
-    SetDrawEnvironment(1);
 }

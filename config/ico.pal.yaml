@@ -222,8 +222,8 @@ segments:
       - [0xA83A0, c, src/StageManager]  # 14 funcs, listing
       - [0xA8ED0, c, src/backStage]  # 9 funcs, listing
       - [0xA9E60, c, src/charFileManager]  # 21 funcs, census
-      - [0xABC40, c, src/debug]  # 115 funcs, census
-      - [0xB4FA0, c, src/debug_exception]  # 11 funcs, listing
+      - [0xABC40, c, src/debug]  # 99 funcs, census (the 16 screen functions belong to debug_exception.o)
+      - [0xB3E20, c, src/debug_exception]  # 27 funcs: debug_exception_screen.c.inc (16, compiled here per MAIN.MAP) + debug_exception.c (11)
       - [0xB64F0, c, src/debug_menu]  # 3 funcs, listing
       - [0xB66A8, c, src/gamesys]  # 29 funcs, listing
       - [0xB75E8, c, src/haveParentSimpleObj]  # 3 funcs, listing
@@ -395,6 +395,8 @@ segments:
       - [0x44DB30, rodata, src/cod/44DB30]   # .rodata blob resume
       - [0x44E0B0, .rodata, src/GifPacket]  # carved D_0054E0B0 (VMA 0x54E0B0..0x54E170, 192 B, 1 sym): the 12 GS ALPHA blend quadruples gif_SetAlpha indexes; referenced only from matched C, so no stub emits it and the carve must define it
       - [0x44E170, rodata, src/cod/44E170]   # .rodata blob resume
+      - [0x51CF00, .rodata, src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
+      - [0x51CF14, rodata, src/cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x520030, .rodata, src/motionManager]  # carved jtbl_00620030 (VMA 0x620030..0x620088, 88 B, 22 arms): _getGeometryOfMotion's switch table, emitted by the compiled function once matched (splat migrate_rodata_to_functions); the blob keeps every other motionManager string
       - [0x520088, rodata, src/cod/520088]   # .rodata blob resume
       - [0x538B00, lit4, src/cod/538B00]     # .lit4
@@ -418,7 +420,8 @@ segments:
       - [0x539108, lit4, src/cod/539108]     # .lit4 blob resume
       - [0x539230, .lit4, src/act_bird]  # carved D_00639230..D_00639290 (25 slots, 5 fns interp_vector_sa..vector_angle_degree; 8x 2*pi), VMA 0x639230..0x639294, 100 B; MAIN.MAP act_bird.o .lit4 0x64 agrees.  USA: - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
       - [0x539294, lit4, src/cod/539294]     # .lit4 blob resume
-      - [0x539338, .lit4, src/debug]  # carved D_00639338..D_00639354 (8 slots, 6 fns debug_Load..drawWin), VMA 0x639338..0x639358, 32 B; MAIN.MAP debug.o .lit4 is 0x18 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
+      - [0x539338, .lit4, src/debug]  # carved D_00639338..D_00639350 (7 slots, 5 fns debug_Load..debug_DrawBar), VMA 0x639338..0x639354, 28 B
+      - [0x539354, .lit4, src/debug_exception]  # carved D_00639354 (1 slot: drawWin's 0.8f, debug_exception_screen.c.inc), VMA 0x639354..0x639358, 4 B
       - [0x539358, lit4, src/cod/539358]     # .lit4 blob resume
       - [0x539360, .lit4, src/layout_action]  # carved D_00639360..D_00639368 (3 slots, la_load_processing / la_get_next_stage_name / la_switching_stage), VMA 0x639360..0x63936C, 12 B; MAIN.MAP layout_action.o .lit4 is 0x8 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
       - [0x53936C, lit4, src/cod/53936C]     # .lit4 blob resume
