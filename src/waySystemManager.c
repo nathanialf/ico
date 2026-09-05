@@ -3,7 +3,7 @@
 extern int CreateGObjByFuncSet();
 extern int D_0063BC50;
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
-extern int func_0017D5D0();
+extern int _FUNC_GetWay_begin();
 extern void _ACTWait(int a0);
 /* prototypes: their order is the inline tail's emission order */
 void *RequestGetWayBegin(int *a0);
@@ -13,7 +13,7 @@ static inline void actWaySystemCore(volatile unsigned int self)
 {
     int *s = (int *)((int *)self)[0x20 / 4];
     int v;
-    v = func_0017D5D0((int)((char *)s + 0x10), (int)((char *)s + 0x20), (int)((char *)s + 0xA0), 1);
+    v = _FUNC_GetWay_begin((int)((char *)s + 0x10), (int)((char *)s + 0x20), (int)((char *)s + 0xA0), 1);
     s[0x4 / 4] = v;
     s[0] = 1;
     s[0xB0 / 4] = 0;

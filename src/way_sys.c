@@ -3,7 +3,7 @@
 typedef struct { int pad[8]; int f20; int pad2[7]; } WVTElem;
 typedef struct { char pad[0x64]; int w64; } WVTObj;
 typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
-extern int func_0017D5D0(void *a0, int a1, int a2, int a3);
+extern int _FUNC_GetWay_begin(void *a0, int a1, int a2, int a3);
 extern Nd D_004F31E0[];
 extern char D_00554220[];
 extern int DeleteWayGroup(int a0);
@@ -13,8 +13,9 @@ extern WVTElem D_004C7CF0_ve[] __asm__("D_004F31E0");
 int GetWay_begin(void *a0, int a1, int a2);
 void BridgeBox(void);
 void DeleteGuideWay(WVTObj *o);
+INCLUDE_ASM("asm/nonmatchings/src/way_sys", _FUNC_GetWay_begin);
 inline int GetWay_begin(void *a0, int a1, int a2) {
-    return func_0017D5D0(a0, a1, a2, 0);
+    return _FUNC_GetWay_begin(a0, a1, a2, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/way_sys", avoid_obstacle2);
 INCLUDE_ASM("asm/nonmatchings/src/way_sys", create_box_bridge);

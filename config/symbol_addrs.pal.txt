@@ -127,6 +127,7 @@ actGirlStart = 0x0017ADE8; // type:func  // src/girl_act
 actGirlHintPoint = 0x0017B530; // type:func  // src/girl_act
 ACTGame_GirlBeforeFunc = 0x0017B760; // type:func  // src/girl_act
 actGirlBecall = 0x0017BE70; // type:func  // src/girl_act
+_FUNC_GetWay_begin = 0x0017D5D0; // type:func  // src/way_sys
 scpSubAdpcmPlay = 0x00182220; // type:func  // src/script
 scpAdpcmCloseFunc = 0x001823F0; // type:func  // src/script
 scpSekizou = 0x00182C58; // type:func  // src/script
@@ -1936,7 +1937,6 @@ jimakuEnd = 0x0017D3A8; // type:func  // src/jimaku
 jimakuDisp = 0x0017D3B8; // type:func  // src/jimaku
 jimakuManager = 0x0017D4D8; // type:func  // src/jimaku
 jimakuUndisp = 0x0017D5C0; // type:func  // src/jimaku
-func_0017D5D0 = 0x0017D5D0; // type:func  // src/jimaku
 
 // ---- src/way_sys
 avoid_obstacle2 = 0x0017DA50; // type:func  // src/way_sys

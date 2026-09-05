@@ -182,7 +182,7 @@ segments:
       - [0x6F1E8, c, src/fuzio]  # 8 funcs, listing
       - [0x6F600, c, src/girl_act]  # 62 funcs, listing
       - [0x7C988, c, src/jimaku]  # 14 funcs, census
-      - [0x7DA50, c, src/way_sys]  # 7 funcs, listing
+      - [0x7D5D0, c, src/way_sys]  # 8 funcs, listing; starts with _FUNC_GetWay_begin (way_sys.c:159), its first parse-order member, which splat had left in jimaku's span
       - [0x7F180, c, src/way_util]  # 40 funcs, census
       - [0x81900, c, src/gflag]  # 6 funcs, listing
       - [0x81AD0, c, src/script]  # 105 funcs, listing

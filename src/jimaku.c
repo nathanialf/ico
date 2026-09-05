@@ -31,11 +31,34 @@ struct jWayGroup {  /* D_006C1E80 element, stride 0x18 */
     struct jNode *node;
     char  _14[4];
 };
-
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", display_texture);
 extern void iosCdvdBackGroundMgrSeek(char *self, int val);
 extern void iosCdvdBackGroundRead();
-
+extern struct jWayGroup D_006C1E80[];
+extern void iosCdvdBackGroundMgrSeek__pn(void *a0, int a1) __asm__("iosCdvdBackGroundMgrSeek");
+extern void jimakuMgrNext(struct jArg *p);
+extern char D_006E5000[];
+extern char D_006E5038[];
+extern char D_006E5070[];
+extern void iosCdvdBackGroundMgrDelete(char *self);
+extern int iosSemaDelete(int *self);
+extern int jimakuMsgQ[];
+extern int iosMsgSend(int *self, int a1, int a2);
+extern int D_0028F4E8[];
+extern int D_0028F4C0[];
+extern int D_0063A960;
+extern void iosMsgSend__pn(void *a0, void *a1, int a2) __asm__("iosMsgSend");
+extern void jimakuMgrEnd__pn() __asm__("jimakuMgrEnd");
+extern int jimakuMsgBuf[2];
+extern char D_005540F8[];
+extern void iosMsgQueueCreate(int *q, int *buf, int n);
+extern int iosMsgRecv(int *q, void *out, int mode);
+extern void jimakuMgrBegin(struct jArg *p);
+extern int D_0063A964;
+extern int jimakuOn;
+/* prototypes: their order is the inline tail's emission order */
+void jimakuManager(void);
+void jimakuUndisp(void);
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", display_texture);
 void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
 {
     int large = size + 0x7FE;
@@ -49,10 +72,6 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuHandler);
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrBegin);
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrNext);
-extern struct jWayGroup D_006C1E80[];
-extern void iosCdvdBackGroundMgrSeek__pn(void *a0, int a1) __asm__("iosCdvdBackGroundMgrSeek");
-extern void jimakuMgrNext(struct jArg *p);
-
 void jimakuMgrJump(struct jArg *p)
 {
     struct jSub *q = &p->sub;
@@ -68,12 +87,6 @@ void jimakuMgrJump(struct jArg *p)
     }
     jimakuMgrNext(p);
 }
-extern char D_006E5000[];
-extern char D_006E5038[];
-extern char D_006E5070[];
-extern void iosCdvdBackGroundMgrDelete(char *self);
-extern int iosSemaDelete(int *self);
-
 void jimakuMgrEnd(int *p)
 {
     int val = p[0x4C / 4];
@@ -84,55 +97,7 @@ void jimakuMgrEnd(int *p)
     iosSemaDelete(D_006E5038);
     iosSemaDelete(D_006E5000);
 }
-extern int jimakuMsgQ[];
-extern int iosMsgSend(int *self, int a1, int a2);
-
-void jimakuBegin(int a0)
-{
-    *(int *)a0 = 0;
-    iosMsgSend(jimakuMsgQ, a0, 1);
-}
-extern int D_0028F4E8[];
-
-void jimakuNext(int *p) {
-    if (D_0028F4E8[0] != 0) {
-        *p = 1;
-        iosMsgSend(jimakuMsgQ, p, 0);
-    }
-}
-extern int D_0028F4C0[];
-extern int D_0063A960;
-extern void iosMsgSend__pn(void *a0, void *a1, int a2) __asm__("iosMsgSend");
-
-void jimakuJump(int a0) {
-    int *w = (int *)(a0 + 0xC);
-    if (D_0028F4C0[10] == 0) return;
-    {
-        int v = w[14];
-        if (v == -1) {
-            D_0063A960 = ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) << 2;
-        } else {
-            D_0063A960 = v;
-        }
-    }
-    *(int *)a0 = 2;
-    iosMsgSend__pn(jimakuMsgQ, (void *)a0, 0);
-}
-extern void jimakuMgrEnd__pn() __asm__("jimakuMgrEnd");
-
-void jimakuEnd(void)
-{
-    D_0028F4E8[0] = 0;
-    jimakuMgrEnd__pn();
-}
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuDisp);
-extern int jimakuMsgBuf[2];
-extern char D_005540F8[];
-extern void iosMsgQueueCreate(int *q, int *buf, int n);
-extern int iosMsgRecv(int *q, void *out, int mode);
-extern void jimakuMgrBegin(struct jArg *p);
-
-void jimakuManager(void)
+inline void jimakuManager(void)
 {
     struct jArg *msg;
 
@@ -160,12 +125,39 @@ void jimakuManager(void)
         msg->done = 1;
     }
 }
-extern int D_0063A964;
-extern int jimakuOn;
-
-void jimakuUndisp(void)
+void jimakuBegin(int a0)
+{
+    *(int *)a0 = 0;
+    iosMsgSend(jimakuMsgQ, a0, 1);
+}
+void jimakuNext(int *p) {
+    if (D_0028F4E8[0] != 0) {
+        *p = 1;
+        iosMsgSend(jimakuMsgQ, p, 0);
+    }
+}
+void jimakuJump(int a0) {
+    int *w = (int *)(a0 + 0xC);
+    if (D_0028F4C0[10] == 0) return;
+    {
+        int v = w[14];
+        if (v == -1) {
+            D_0063A960 = ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) << 2;
+        } else {
+            D_0063A960 = v;
+        }
+    }
+    *(int *)a0 = 2;
+    iosMsgSend__pn(jimakuMsgQ, (void *)a0, 0);
+}
+void jimakuEnd(void)
+{
+    D_0028F4E8[0] = 0;
+    jimakuMgrEnd__pn();
+}
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuDisp);
+inline void jimakuUndisp(void)
 {
     D_0063A964 = 0;
     jimakuOn = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_0017D5D0);
