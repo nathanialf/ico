@@ -239,8 +239,114 @@ void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00179940);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", GirlAct_BoyAndMeCollisionMail);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", IsGirlStatusEscortEnable);
+extern void ACTSendMailCorrect(void *a0, int mail);
+extern void *test_CURRENTORIENT(void *a0);
+extern void sceVu0SubVector(void *out, void *a, void *b);
+extern void sceVu0Normalize(void *out, void *in);
+
+void GirlAct_BoyAndMeCollisionMail(void *a0)
+{
+    float vec[4];
+    float boyPos[4];
+    float myPos[4];
+    float ang;
+
+    ACTSendMailCorrect(a0, 0x10D);
+
+    if (((int *)D_00639EA4[0x59])[0xD] == 1) {
+        return;
+    }
+    GetRootPosition(boyPos, D_00639EA4);
+    GetRootPosition(myPos, a0);
+
+    sceVu0SubVector(vec, boyPos, myPos);
+    sceVu0Normalize(vec, vec);
+
+    ang = _RotyGV(vec, test_CURRENTORIENT(a0));
+
+    if ((ang < 0.0f ? -ang : ang) < 45.0f) {
+        ACTSendMailCorrect(a0, 0x10E);
+        return;
+    } else if ((ang < 0.0f ? -ang : ang) > 135.0f) {
+        ACTSendMailCorrect(a0, 0x10F);
+        return;
+    } else if (ang > 45.0f) {
+        ACTSendMailCorrect(a0, 0x110);
+        return;
+    } else {
+        ACTSendMailCorrect(a0, 0x111);
+    }
+}
+extern char D_005577D0[];
+
+typedef struct {
+    float x;    /* 0x00 */
+    float y;    /* 0x04 */
+    float z;    /* 0x08 */
+    int f_0C;   /* 0x0C */
+    int f_10;   /* 0x10 */
+    float f_14; /* 0x14 */
+    float f_18; /* 0x18 */
+} EscortPoint;  /* 0x1C */
+
+extern EscortPoint D_0055BA60[98];
+extern void *test_CURRENTROOT(void *a0);
+extern float _DistGV(void *a, void *b);
+extern float _DistSqGV(void *a, void *b);
+extern float _ACTGame_GetParamF(int idx);
+
+static inline unsigned char isGirlEscortStatus(void)
+{
+    char *s = *(char **)((char *)D_00639EA8 + 0x164);
+    int mode = *(int *)(s + 0x34);
+    char *attr = D_005577D0 + mode * 0x50;
+    if (((*(unsigned int *)(attr + 0x4C) >> 13) & 1) && mode != 0x6F
+            && ((int)(*(unsigned long long *)(s + 0x20) >> 46) & 1)) {
+        return 1;
+    }
+    return 0;
+}
+
+static inline EscortPoint *searchEscortPoint(int a0, int a1)
+{
+    EscortPoint *p;
+    int i;
+    for (i = 0; i < 98; i++) {
+        p = &D_0055BA60[i];
+        if (p->f_0C == a0 && p->f_10 == a1) {
+            return p;
+        }
+    }
+    return 0;
+}
+
+int IsGirlStatusEscortEnable(int a0, int a1)
+{
+    float v[4];
+    EscortPoint *p;
+    float d;
+
+    if (D_00639EA4 != 0 && D_00639EA8 != 0
+            && isGirlEscortStatus()) {
+        p = searchEscortPoint(a0, a1);
+        if (p != 0) {
+            v[0] = -p->x;
+            v[1] = -p->y;
+            v[2] = -p->z;
+            d = _DistGV(v, test_CURRENTROOT(D_00639EA8));
+            if (d < p->f_14) {
+                *(float *)(*(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x688) + 0x330) = d * p->f_18;
+                return 1;
+            }
+        } else {
+            if (_DistSqGV(test_CURRENTROOT(D_00639EA4), test_CURRENTROOT(D_00639EA8))
+                    < _ACTGame_GetParamF(5) * _ACTGame_GetParamF(5)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", DebugDispAutoEscort);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHintPoint);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ACTGame_GirlBeforeFunc);
