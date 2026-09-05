@@ -1,7 +1,6 @@
 #include "common.h"
 
 static void add_gobj_to_head(int a0, int a1, int a2);
-
 typedef struct DLN {
     char _p0[0x34];
     struct DLN *next;
@@ -19,6 +18,14 @@ extern char D_00551F78[];
 extern void debug_StdPrintfDummy();
 /* prototypes: their order is the inline tail's emission order */
 /* prototypes: their order is the inline tail's emission order */
+/* the listing's add_gobj_to_head; every gobj list TU has its own static copy, so the
+   symbol-table name stays the placeholder (the other TU's copy owns the name) */
+extern char D_00551FD0[];
+extern char D_00551FE0[];
+/* prototypes: their order is the inline tail's emission order */
+void isysGObjDlInit(void);
+void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
+void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
 void isysGObjDlInit(void);
 void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
 void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
@@ -62,8 +69,6 @@ void isysGObjRemoveObjDL(int *self) {
     cut_gobj_dl_link(self);
 }
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", func_00141248);
-/* the listing's add_gobj_to_head; every gobj list TU has its own static copy, so the
-   symbol-table name stays the placeholder (the other TU's copy owns the name) */
 static void add_gobj_to_head(int a0, int a1, int a2)
 {
     DLN *self = (DLN *)a0;
@@ -143,8 +148,6 @@ inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj) {
         ((DLN **)D_0029C530)[self->id] = self;
     }
 }
-extern char D_00551FD0[];
-extern char D_00551FE0[];
 void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4) {
     debug_StdPrintfDummy(D_00551FD0);
     if (a1 != 0) {
