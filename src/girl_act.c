@@ -30,7 +30,7 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016F6B0);
 extern int D_002A5580[];
 extern void brainClsTargetLevel();
 
-void func_0016FC20(void)
+void GirlBrainClearTarget(void)
 {
     brainClsTargetLevel(D_002A5580);
 }

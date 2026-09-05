@@ -112,6 +112,7 @@ subEnemyBrain_Irregular = 0x0016AA50; // type:func  // src/enemy_act
 _BrainMode_SetDirect = 0x0016AB60; // type:func  // src/enemy_act
 motEnemyStand = 0x0016ADD0; // type:func  // src/enemy_act
 motEnemyWalk = 0x0016AE18; // type:func  // src/enemy_act
+GirlBrainClearTarget = 0x0016FC20; // type:func  // src/girl_act
 ATGoalTurnMail = 0x00172920; // type:func  // src/girl_act
 HandMgr_GetDistHand = 0x001790F8; // type:func  // src/girl_act
 actGirlHand = 0x00179940; // type:func  // src/girl_act
