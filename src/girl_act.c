@@ -130,7 +130,7 @@ ret0:
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", WayTest);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177BB8);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001790F8);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_GetDistHand);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Update);
 extern GirlStand D_002A2F70;
 extern int _RotyGV(void *buf, void *vec);
@@ -171,10 +171,10 @@ extern char D_0055FE58[];
 void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
 {
     /* Static-chain home: GetBoyMode is a gcc nested function of
-       func_00179940 (caller sets $2 = its $sp before the jal), so the
+       actGirlHand (caller sets $2 = its $sp before the jal), so the
        prologue stores the incoming chain register into frame slot 0.
        Same stand-in as the matched sibling HandMgr_Judge above; it is
-       replaced by a real nested definition once func_00179940 is C.  */
+       replaced by a real nested definition once actGirlHand is C.  */
     volatile int home;
     int uninit;
     char *rec;
@@ -238,7 +238,14 @@ void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
         break;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00179940);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHand);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlPulledReady);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlPulledGo);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlDitch3mReady);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlReadyMove);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlRescueDst);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlSupportBGBegin);
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlStart);
 extern void ACTSendMailCorrect(void *a0, int mail);
 extern void *test_CURRENTORIENT(void *a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
