@@ -347,7 +347,71 @@ int IsGirlStatusEscortEnable(int a0, int a1)
     }
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", DebugDispAutoEscort);
+typedef union { float f[4]; long long ll[2]; } Vec4;
+typedef union { int c[4]; long long ll[2]; } Col4;
+
+extern Vec4 D_005540A0;   /* { FLT_MAX, 0, 0, 1 } : "no girl" position */
+extern Col4 D_00554090;   /* { 0, 0x10, 0x20, 0x80 } : wire sphere colour */
+extern int D_0063B228;    /* debug display switch */
+extern int stage_no;
+
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_TransMatrixV(void *a0);
+extern void sceVu0UnitMatrix(void *a0);
+extern void gif_StartPacketPri(int a0);
+extern void gif_SetZTest(int a0);
+extern void gif_EndPacket(void);
+extern void prim_DispWireSphere(void *col, int a1, int a2, float r);
+
+static inline void dispEscortSphere(void *pos, float r, unsigned char in)
+{
+    Col4 col;
+
+    if (D_0063B228) {
+        MatrixDrive_PushMatrix();
+        col = D_00554090;
+        if (in) {
+            col.c[0] = 0xFF;
+        }
+        gif_StartPacketPri(0xB);
+        gif_SetZTest(1);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(pos);
+        prim_DispWireSphere(&col, 0x10, 8, r);
+        gif_EndPacket();
+        MatrixDrive_PopMatrix();
+    }
+}
+
+void DebugDispAutoEscort(void)
+{
+    Vec4 pos = D_005540A0;
+    Vec4 v;
+    EscortPoint *p;
+    int i;
+    int in;
+
+    if (D_0063B228 == 0) {
+        return;
+    }
+    if (D_00639EA8 != 0 && isGirlEscortStatus()) {
+        pos.f[0] = ((float *)test_CURRENTROOT(D_00639EA8))[0];
+        pos.f[1] = ((float *)test_CURRENTROOT(D_00639EA8))[1];
+        pos.f[2] = ((float *)test_CURRENTROOT(D_00639EA8))[2];
+    }
+    for (i = 1; i < 16; i++) {
+        p = searchEscortPoint(stage_no, i);
+        if (p != 0) {
+            v.f[0] = -p->x;
+            v.f[1] = -p->y;
+            v.f[2] = -p->z;
+            in = _DistSqGV(&v, &pos) < p->f_14 * p->f_14;
+            dispEscortSphere(&v, p->f_14, in);
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHintPoint);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", ACTGame_GirlBeforeFunc);
 extern int D_002A2E2C[];
