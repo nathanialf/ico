@@ -27,5 +27,25 @@ void actSt05dDoor2DownEffect(volatile int a0){ long long b1[2]; long long b2[2];
   case 0: b1[0]=v0a; b1[1]=D_00622B50[1]; scpEffectStart((int*)b1,0); break;
   case 0x1E: b2[0]=v0b; b2[1]=D_00622B40[1]; scpEffectStart((int*)b2,0); break;
   } _ACTWait(1); } }
-INCLUDE_ASM("asm/nonmatchings/src/st05d", actSt05dEneChk);
-INCLUDE_ASM("asm/nonmatchings/src/st05d", actSt05dCrestHintChk);
+extern char *D_00639EA8;
+
+void actSt05dEneChk(volatile int a0) {
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+    while (D_00639EA8 == 0 || gflagChk(0xAA) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    gflagOn(0xAB);
+    gflagOn(0xAC);
+}
+
+void actSt05dCrestHintChk(volatile int a0) {
+    while (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 || gflagChk(0xF5) == 0 ||
+           gflagChk(0xE8) != 0) {
+        _ACTWait(1);
+    }
+    gflagOn(0xAD);
+    WakeupHint(0x19);
+}
