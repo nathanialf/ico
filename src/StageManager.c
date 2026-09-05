@@ -1,10 +1,6 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
-void stgmgrNextStagePreLoadForceStageSet(int val);
-void stgmgrNextStagePreLoadDistBoyMode(void);
-void stgmgrNextStagePreLoadForceNoCancel(int val);
-void CheckPoint(void);
 typedef struct { unsigned char _0[0xA0]; short ent[0x18]; unsigned char _d0[0xC4]; } StgPre;
 typedef struct { int f0; unsigned char _4[0x24]; } StgFile;
 typedef struct { int f0; unsigned char _4[0xC]; int f10; unsigned char _14[0xC]; } StgSlot;
@@ -39,6 +35,12 @@ extern int D_0028F4C0[];
 extern int D_004DA788[];
 extern int D_004DD700[];
 extern void gamesysMemorySave(int *self, int a1, int a2);
+/* prototypes: their order is the inline tail's emission order */
+void stgmgrNextStagePreLoadForceStageSet(int val);
+void stgmgrNextStagePreLoadDistBoyMode(void);
+void stgmgrNextStagePreLoadForceNoCancel(int val);
+void CheckPoint(void);
+static void stgmgrNextStagePreLoadDiskNotReady(void);
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stop_free_resources);
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stage_initialize);
 void exit_stage(int *self)

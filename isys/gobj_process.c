@@ -1,6 +1,17 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
+extern void cut_gobj_process_link(int a0);
+extern int iosThreadDestroy(int a0);
+extern char D_00551FF0[];
+extern int D_0063A430;
+extern char *D_0063C1B0;
+extern int D_0063C1B4;
+extern int iosMallocDebug(int a0, int a1, const char *fmt, int line);
+extern int isysGObjProcAdd_(int a0, int a1, int a2, int a3, int a4, int a5);
+extern void iosThreadStop(int a0);
+extern int isysGObjProcAdd___pn() __asm__("isysGObjProcAdd_");
+/* prototypes: their order is the inline tail's emission order */
 void isysGObjProcessAlloc(unsigned int a0);
 int isysGObjProcAdd(int a0, int a1, int a2, int a3);
 int isysGObjProcAddS(int a0, int a1, int a2, int a3, int a4);
@@ -15,17 +26,6 @@ void isysGObjProcThreadSleep(int a0);
 int isysGObjProcAddSGOppArg(int a, int b, int c, int d, int e);
 void isysGObjProcActivePtr(void *a0, int a1);
 void free_gobj_process_resource(char *self);
-extern void isysGObjProcessAlloc(unsigned int a0);
-extern void cut_gobj_process_link(int a0);
-extern int iosThreadDestroy(int a0);
-extern char D_00551FF0[];
-extern int D_0063A430;
-extern char *D_0063C1B0;
-extern int D_0063C1B4;
-extern int iosMallocDebug(int a0, int a1, const char *fmt, int line);
-extern int isysGObjProcAdd_(int a0, int a1, int a2, int a3, int a4, int a5);
-extern void iosThreadStop(int a0);
-extern int isysGObjProcAdd___pn() __asm__("isysGObjProcAdd_");
 void isysGObjProcessInit(unsigned int a0) {
     isysGObjProcessAlloc(a0);
 }

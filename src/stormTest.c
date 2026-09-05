@@ -1,11 +1,12 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
-int *InitStormTestGeo(int a0, int *a1);
 extern void UpdateStormPackage(int a0);
 extern void DispStormPackage(int a0, void *a1);
 extern char D_00620FA0[];
 extern int D_0063A438;
+/* prototypes: their order is the inline tail's emission order */
+int *InitStormTestGeo(int a0, int *a1);
 extern int InitStormPackage(int a, int b, int c);
 extern int iosMallocDebug(int t, int sz, const char *file, int line);
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", InitStormPackage);

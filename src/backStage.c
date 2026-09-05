@@ -1,6 +1,10 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
+/* prototypes: their order is the inline tail's emission order */
+void backStageProcessInit(void);
+void backStageDebugTimeZero(void);
+void backStageTsuresariReturn(void);
 void backStageProcessInit(void);
 void backStageDebugTimeZero(void);
 void backStageTsuresariReturn(void);

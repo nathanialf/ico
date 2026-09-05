@@ -4,7 +4,6 @@
 #include "ico/types.h"
 
 /* header prototypes (order fixes the inline tail) */
-void p2o_SetDefaultEnviroment(void);
 extern void pac_MakePacket(void *a0);
 extern void shadow_Render();
 /* .rodata — carved VMA 0x54DB10..0x54DB30; string + ROM zero pad,
@@ -20,6 +19,8 @@ extern void p2o_DispVU1__pn() __asm__("p2o_DispVU1");
 extern int D_00290B24[];
 extern int dmaVif;
 extern void sceDmaSend();
+/* prototypes: their order is the inline tail's emission order */
+void p2o_SetDefaultEnviroment(void);
 void p2o_MakePacket(char *a0) {
     *(char **)(*(char **)(a0 + 0x854) + 0x28) = a0;
     pac_MakePacket(a0);

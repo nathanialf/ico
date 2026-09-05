@@ -3,6 +3,8 @@
 #include "ico/types.h"
 
 /* header prototypes (order fixes the inline tail) */
+/* prototypes: their order is the inline tail's emission order */
+int InitChandelierGeo(void);
 int InitChandelierGeo(void);
 extern void CopyMatrix();
 extern int MatrixDrive_GetMatrix();

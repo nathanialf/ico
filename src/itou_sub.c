@@ -3,6 +3,11 @@
 #include "vu0.h"
 
 /* header prototypes (order fixes the inline tail) */
+/* prototypes: their order is the inline tail's emission order */
+void lw_pos_to_ico_pos(float *dst, float *src);
+void apply_matrix_w1(void *a0, void *a1, void *a2);
+int ico_m33_to_quat(int a0);
+void pbga_start(int *self, int *q);
 void lw_pos_to_ico_pos(float *dst, float *src);
 void apply_matrix_w1(void *a0, void *a1, void *a2);
 int ico_m33_to_quat(int a0);

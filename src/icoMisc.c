@@ -1,6 +1,8 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
+/* prototypes: their order is the inline tail's emission order */
+void ExitIcoMisc(void);
 void ExitIcoMisc(void);
 extern char D_0061D3E0[];
 extern char D_0061D418[];

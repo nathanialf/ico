@@ -1,6 +1,8 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
+/* prototypes: their order is the inline tail's emission order */
+void warpGirlInit(void);
 void warpGirlInit(void);
 extern int warpGirlId;
 inline void warpGirlInit(void) {

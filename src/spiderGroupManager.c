@@ -1,6 +1,12 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
+/* prototypes: their order is the inline tail's emission order */
+void InitSpiderGroupManager(void);
+void EntryRevivedSpiderGroupManager(int a0);
+void DispAllSpiderGroups(void);
+void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1);
+int *getReviveEnemyGObj(int count);
 void InitSpiderGroupManager(void);
 void EntryRevivedSpiderGroupManager(int a0);
 void DispAllSpiderGroups(void);

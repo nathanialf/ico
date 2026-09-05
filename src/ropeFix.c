@@ -3,6 +3,8 @@
 #include "ico/types.h"
 
 /* header prototypes (order fixes the inline tail) */
+/* prototypes: their order is the inline tail's emission order */
+int InitRopeFixGeo(void);
 int InitRopeFixGeo(void);
 extern void SetChainParentGObj(char *self, int val);
 extern int isysGObjSearchFromObjKindID_begin();

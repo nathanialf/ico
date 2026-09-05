@@ -1,12 +1,13 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
-void queen_barrier_anim(void);
 extern int D_00556E10[];
 extern int D_0063C308;
 extern void debug_StdPrintfDummy();
 extern unsigned short D_0063AC64;
 extern int D_0063C30C;
+/* prototypes: their order is the inline tail's emission order */
+void queen_barrier_anim(void);
 void queen_barrier_set_damage(void)
 {
     D_0063C308 = 0x3C;

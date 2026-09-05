@@ -1,6 +1,8 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
+/* prototypes: their order is the inline tail's emission order */
+int InitParentSimpleObjGeo(void);
 int InitParentSimpleObjGeo(void);
 extern void UpdateRootMatrix();
 extern void p2o_DispVU1();

@@ -3,6 +3,8 @@
 #include "ico/types.h"
 
 /* header prototypes (order fixes the inline tail) */
+/* prototypes: their order is the inline tail's emission order */
+int InitCageFixGeo(void);
 int InitCageFixGeo(void);
 extern int p2o_DispVU1DObjMulti(int a0);
 extern int p2o_SetDefaultEnviroment(int a0);

@@ -3,9 +3,6 @@
 #include "vu0.h"
 
 /* header prototypes (order fixes the inline tail) */
-void pac_Dump(int *a0, int size);
-void pac_Init(void);
-void pac_DispVu1Memory(int idx, int n, void *a2);
 extern char D_0054F5C0[];
 extern float D_00638C44;
 extern float D_00638C48;
@@ -14,6 +11,10 @@ extern void debug_StdPrintfDummy__pn(const char *fmt, ...) __asm__("debug_StdPri
 extern char D_0054F5D0[];
 extern void debug_StdPrintfDummy();
 extern void pac_makePacket(void *a0, int a1, int a2);
+/* prototypes: their order is the inline tail's emission order */
+void pac_Dump(int *a0, int size);
+void pac_Init(void);
+void pac_DispVu1Memory(int idx, int n, void *a2);
 extern void pac_DispQW(void *p, void *a2);
 extern int D_0063C154;
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_DispQW);
