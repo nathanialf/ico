@@ -813,3 +813,62 @@ the one literal) is untouched: none of the 32 reverted bodies needed it.  The
 Phase-6 full-run `.rodata` model has not been started on PAL at all — every
 `.rodata` byte is still in the `src/cod/44D380` blob.
 
+
+## PAL phase 3 — carves made by the mapped-files campaign (2026-09-05)
+
+Each carve exists so a TU laid out in the listing's source order can emit its
+own pool words and tables; every row landed byte-identical under `ninja`.
+Rows are yaml offsets (ROM offset = VMA − 0x100000).
+
+### `.lit4` pools (dot-form subsegment + `ASM_LIT4_SLOT` beside still-asm owners)
+
+- `[0x5393A0, .lit4, src/box]` — 27 slots, box.c + switch.c.inc (87b221167).
+- `[0x539560, .lit4, src/motionManager]` — 48 slots, motionManager.c + the two
+  motMan_*.c.inc files; blob resumes at `0x539620` (fd64a0902).
+- `[0x539338, .lit4, src/debug]` (7 slots) + `[0x539354, .lit4, src/debug_exception]`
+  — the debug pool split where debug_exception_screen.c.inc's owners begin (d4c23a92a).
+- `[0x538F64, .lit4, src/girl_act]` — the TU's whole contiguous pool, 62 words
+  0x638F64..0x63905C, 22 owner functions incl. the nested HandMgr_Speed; blob
+  resumes at `0x53905C` for way_sys's single word before way_util's carve.
+  Owners mapped from `%gp_rel(D_0063xxxx)` in the `.s` files; 60 slot lines,
+  values spelled as the shortest decimal that round-trips (633a559f6).
+  Pool order is emission order then use order; identical constants are NOT
+  deduplicated (actGirlHand's pool holds 0.1f twice, func_00177BB8's holds it
+  fourteen times).
+
+### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
+
+The compiled table is often shorter than ROM's padded run (blob sections
+align at most to 8), so the resume row starts at the table end and the pad
+words become the blob's first words.
+
+- `[0x520030, .rodata, src/motionManager]` jtbl_00620030 (22 words), resume `0x520088`.
+- `[0x51CF00, .rodata, src/debug_exception]` SetDrawEnvironment's 5-arm table, resume `0x51CF14`.
+- `[0x453EB0, .rodata, src/girl_act]` GetBoyMode's 67-arm table, resume `0x453FBC`
+  (4a53c4203). At actGirlHand's landing this carve moves to start at `0x453E60`:
+  HandMgr_Print's three format strings, "dist error\n", the 1.4 double at +0x48,
+  the table at +0x50, the pad word, and the trailing string, object end 0x453FCC
+  (measured in the worktree; the 0x452094 blob shortens accordingly).
+- `[0x452080, .rodata, isys/obj_manager]` iosOmExeMail's 5-arm table (20 B),
+  resume `0x452094` (2be4b2e36).
+
+### `.rodata` — a TU's anonymous constant pool
+
+- `[0x4568B0, .rodata, src/lightning]` — lightning_test's colour quad and four
+  vertices (80 B), local brace initialisers in the source with 8-byte-aligned
+  union types so gcc copies them with ld/sd; the "lightning_test" string before
+  them belongs to the still-asm DrawLightning2 and stays in the blob; resume
+  `0x456900` (73da7aa8a). Rule: a constant with no MAIN.MAP symbol inside the
+  TU's own `.rodata` run, with code-free listing lines inside the function, is
+  the TU's pool — write the initialiser and carve. match_diff then reports the
+  in-TU `%lo` addends as diffs (false negative); verify by objcopy of the
+  section against ROM bytes and by ninja.
+
+### Deferred
+
+- Per-TU `__FILE__` strings for the `iosMalloc(size)` macro form
+  (`iosMallocDebug(heap, size, __FILE__, __LINE__)`): ROM's strings are exactly
+  our compile paths, but a TU's string can be carved only once every asm
+  referencer of it is C (girlForceField waits on GirlForceFieldDL).
+- girl_act's seven other jump tables (0x553AD0..0x553D30), interleaved with its
+  strings: a spanning carve once the owning functions are C.
