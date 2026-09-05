@@ -1,5 +1,12 @@
 #include "common.h"
 
+/* debug_exception.h prototypes: their order is the inline tail's emission order;
+   they precede the screen include so its three inline helpers follow them. */
+void debugExceptionInit(void *workBuf);
+void debugIOPExceptionInit(void);
+void debug_assertMessage(char *file, int line, char *mes);
+void debug_assert(char *file, int line);
+
 #include "debug_exception_screen.c.inc"
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", initLineTraceTable);
@@ -7,7 +14,6 @@ INCLUDE_ASM("asm/nonmatchings/src/debug_exception", traceLine);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", dispSource);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", display);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugEEExceptionMain);
-INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugIOPExceptionMain);
 /* The EE exceptions the debug monitor traps: {cause code, printable name}.
  * The table is this TU's own .data -- it heads the 0x800-byte debug_exception
  * .data run at 0x004D9F70 -- and stays an extern until that run is carved. */
@@ -25,7 +31,7 @@ extern void debugEEExceptionMain();
 extern int SetDebugHandler();
 extern void scePrintf();
 
-void debugExceptionInit(void *workBuf) {
+inline void debugExceptionInit(void *workBuf) {
     int i;
 
     D_0063B268 = workBuf;
@@ -34,12 +40,13 @@ void debugExceptionInit(void *workBuf) {
         SetDebugHandler(D_004D9F70[i].code, debugEEExceptionMain);
     }
 }
-void debugIOPExceptionInit(void) {}
-void debug_assertMessage(char *file, int line, char *mes) {
+INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugIOPExceptionMain);
+inline void debugIOPExceptionInit(void) {}
+inline void debug_assertMessage(char *file, int line, char *mes) {
     for (;;)
         ;
 }
-void debug_assert(char *file, int line) {
+inline void debug_assert(char *file, int line) {
     for (;;)
         ;
 }
