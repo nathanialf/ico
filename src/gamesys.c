@@ -134,9 +134,118 @@ int *gamesysObjInfoUniqDataSet(int a0) {
     }
     return p;
 }
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoPosNewStageSet);
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoGet);
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoCls);
+typedef struct {
+    int start;
+    int end;
+    int no;
+    int stage;
+} GamesysObjInfoReq;
+
+typedef struct {
+    short flag;
+    unsigned short no;
+    unsigned short stage;
+    short pad06;
+    int time;
+    int uniq;
+    float pos[3];
+    float pad1C;
+    float rot[3];
+    float pad2C;
+    int work[4];
+} GamesysObjInfo;
+
+typedef union {
+    long long flag;
+    GamesysObjInfo info;
+} GamesysObjInfoFlag;
+
+extern int stage_no;
+extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
+
+/* Two static helpers the listing inlines into the ObjInfo functions (lines
+ * 426-456 and 350-364); neither is emitted out of line, so neither has a
+ * MAIN.MAP name and both names here are ours. */
+static inline void gamesysObjInfoReqSet(GamesysObjInfoReq *req, int no, int kind)
+{
+    req->no = no;
+    req->stage = stage_no;
+    switch (kind) {
+    case 1:
+        req->end = 1;
+        req->start = 0;
+        break;
+    case 2:
+        req->end = 2;
+        req->start = 1;
+        break;
+    case 4:
+        req->start = 2;
+        req->end = 0x16;
+        break;
+    case 15:
+        req->start = 0x16;
+        req->end = 0x2A;
+        break;
+    default:
+        req->start = 0x2A;
+        req->end = 0xB6;
+        break;
+    }
+}
+
+GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float *pos, float *rot)
+{
+    GamesysObjInfoReq req;
+    GamesysObjInfo *p;
+
+    gamesysObjInfoReqSet(&req, no, kind);
+    p = gamesysObjInfoEmptyAreaSearch(&req);
+    if (p != 0) {
+        p->pos[0] = pos[0];
+        p->pos[1] = pos[1];
+        p->pos[2] = pos[2];
+        p->rot[0] = rot[0];
+        p->rot[1] = rot[1];
+        p->rot[2] = rot[2];
+        p->stage = stage;
+        ((GamesysObjInfoFlag *)p)->flag |= 2;
+    }
+    return p;
+}
+static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req, int no)
+{
+    int i;
+
+    for (i = req->start; i < req->end; i++) {
+        if (((GamesysObjInfo *)D_004DA980)[i].no == no) {
+            break;
+        }
+    }
+    if (i == req->end) {
+        return 0;
+    }
+    return &((GamesysObjInfo *)D_004DA980)[i];
+}
+
+GamesysObjInfo *gamesysObjInfoGet(int kind, int no)
+{
+    GamesysObjInfoReq req;
+
+    gamesysObjInfoReqSet(&req, no, kind);
+    return gamesysObjInfoSearch(&req, no);
+}
+void gamesysObjInfoCls(int kind, int no)
+{
+    GamesysObjInfoReq req;
+    GamesysObjInfo *p;
+
+    gamesysObjInfoReqSet(&req, no, kind);
+    p = gamesysObjInfoSearch(&req, no);
+    if (p != 0) {
+        p->no = 0;
+    }
+}
 extern unsigned short D_004DA9C0[];
 
 int gamesysGirlStageGet(void)
