@@ -23,7 +23,8 @@ void iosMcMgrLoadProductBlock(void *a0) {
     iosMcMgrLoadSeg(a0, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetBlockSaveInfo);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", func_001399A8);
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcManager);
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrSync);
 void iosMcTest(void) {}
 int iosMcSync(unsigned long *a0)
 {
