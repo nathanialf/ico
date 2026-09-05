@@ -279,7 +279,78 @@ int enemy_list_compare(int a0, int a1)
     float diff = *(float *)(a0 + 0x20) - *(float *)(a1 + 0x20);
     return (int)diff;
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", ACTCheckCollis_SAFE);
+typedef struct {
+    float a[4];        /* 0x00 start point   */
+    float b[4];        /* 0x10 end point     */
+    float pos[4];      /* 0x20 clipped point */
+    char  _30[0x40];
+    float f_70;        /* 0x70 radius/height */
+    char  _74[0x14];
+    int   f_88;        /* 0x88 wall hit      */
+    char  _8c[0x08];
+    int   f_94;        /* 0x94 floor hit     */
+    char  _98[0x28];
+} ClipWork;
+extern void ClipWall(void *);
+extern void ClipWallField(void *);
+extern void ClipFloor(void *);
+
+int ACTCheckCollis_SAFE(float height, float *p0, float *p1, void *actor, float *posout, int radius)
+{
+    ClipWork work;
+    float tmp[4];
+    int flag;
+    int rv;
+
+    rv = 1;
+    flag = actor ? *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) : 0;
+
+    work.f_70 = (float)radius;
+    work.a[0] = p0[0];
+    work.a[1] = p0[1];
+    work.a[2] = p0[2];
+    work.b[0] = p1[0];
+    work.b[2] = p1[2];
+    work.b[1] = p0[1];
+
+    tmp[0] = p1[0];
+    tmp[1] = p0[1];
+    tmp[2] = p1[2];
+
+    if (flag != 0) {
+        *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 0;
+    }
+    ClipWall(&work);
+    if (work.f_88 == 0) {
+        ClipWallField(&work);
+        if (work.f_88 == 0) goto no_wall;
+    }
+    tmp[0] = work.pos[0];
+    tmp[1] = work.pos[1];
+    tmp[2] = work.pos[2];
+no_wall:
+    work.a[0] = tmp[0];
+    work.a[1] = tmp[1];
+    work.a[2] = tmp[2];
+    work.b[0] = tmp[0];
+    work.b[2] = tmp[2];
+    work.b[1] = tmp[1] + height;
+    ClipFloor(&work);
+    if (work.f_94 == 0) {
+        rv = 0;
+    } else {
+        work.pos[1] -= 10.0f;
+    }
+    if (posout != 0) {
+        posout[0] = work.pos[0];
+        posout[1] = work.pos[1];
+        posout[2] = work.pos[2];
+    }
+    if (flag != 0) {
+        *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 1;
+    }
+    return rv;
+}
 extern void ACTGame_DisconnectHand(void);
 extern void ACTWay_SetBeginPositionIllegal(char *self);
 extern char D_00553E50[];
