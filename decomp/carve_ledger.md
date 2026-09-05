@@ -869,6 +869,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   A `.lit4` operand is a length-2 `movsf` alternative, so it can never fill a call's
   delay slot; the nop after such a jal is the literal, not a volatile.
 
+- `[0x539680, .lit4, src/rotObject]` — the TU's whole pool, 8 words: four for the
+  still-asm MoveRotObjectWithHoldPoint (slot lines), then one 10430.378f per host of
+  the static inline drive-matrix helper (gcc's pool is per function, so each inline
+  site owns its own copy); blob resumes at `0x5396A0`.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections

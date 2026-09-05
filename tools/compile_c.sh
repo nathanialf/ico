@@ -223,36 +223,12 @@ sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/d
 # `break a,b` from INCLUDE_ASM'd .s has a comma and is left untouched.)
 sed -i -E 's/\bbreak[[:space:]]+(0x[0-9a-fA-F]+|[0-9]+)[[:space:]]*$/break 0,\1/' "${S}"
 
-# COP1 cvt.w.s: gas's r5900 (mips3) port — the modern-as fallback used for TUs
-# whose INCLUDE_ASM siblings only modern gas can parse — REJECTS the cvt.w.s
-# mnemonic, although the EE FPU implements it and the ROM holds the raw COP1
-# encoding (splat emits it as `.word 0x46......` on the target side too).
-# Rewrite gcc's `cvt.w.s $fD,$fS` to the identical `.word` so either assembler
-# emits the exact bytes. Pure assembler parity; a no-op for any TU that never
-# emits cvt.w.s, and byte-identical where it does.
-"${PYTHON}" - "${S}" <<'PYEOF'
-import re, sys
-p = sys.argv[1]; s = open(p).read()
-def _repl(m):
-    fd, fs = int(m.group(1)), int(m.group(2))
-    return "\t.word 0x%08X" % (0x46000000 | (fs << 11) | (fd << 6) | 0x24)
-s2 = re.sub(r"\tcvt\.w\.s\s+\$f(\d+)\s*,\s*\$f(\d+)\b", _repl, s)
-# A `.word` makes gas flush pending hazards (mips_emit_delays): after an
-# `mfc1` in `.set reorder` it emits a real COP1-move hazard nop that neither
-# the period assembler nor the ROM has (R5900 interlock; the same fact the
-# m[ft]c1 wrapper above relies on). Wrap the mfc1 AND the `.word` together
-# in `.set noreorder` (the directive itself would flush if placed between
-# them). Byte no-op under the period assembler.
-lines = s2.split("\n"); out = []
-for ln in lines:
-    if ln.startswith("\t.word 0x46") and out and re.match(r"^\s*mfc1\s", out[-1]):
-        mv = out.pop()
-        out += ["\t.set noreorder", mv, ln, "\t.set reorder"]
-    else:
-        out.append(ln)
-if "\n".join(out) != s:
-    open(p, "w").write("\n".join(out))
-PYEOF
+# `cvt.w.s` is assembled by the period assembler itself: ee-as 2.9-991111 emits the
+# ROM's COP1 word (function 0x24, which modern objdump prints as trunc.w.s). The
+# former `.word` rewrite (a modern-gas parity shim, retired with that fallback)
+# made gas flush pending hazards at the data directive and emitted nops the ROM
+# does not have (after mfc1, and after a store two insns past a c.lt.s); dropped
+# 2026-09-05, whole ROM re-verified byte-identical.
 
 # NOTE: the r5900 special VU0 registers ACC / Q / R need no translation here.
 # Both sources now speak the period assembler's dialect natively: splat emits
