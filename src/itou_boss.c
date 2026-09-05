@@ -17,7 +17,56 @@ int InqCapsuleGhostBossStage(void) {
     if (stage_no == 0x56 || stage_no == 3 || stage_no == 0x2E) r = 1;
     return r;
 }
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", actBossCtrlStart);
+extern char D_00556850[];
+extern int D_0063C2EC;
+extern int D_0063C2F0;
+extern void actInitialize();
+extern void debug_StdPrintfDummy(char *msg, int n);
+extern void _ACTWait(int a0);
+extern void *isysGObjSearchFromObjKindID_begin(int id);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
+extern void SetRootPosition(void *a0, float *pos);
+extern void actCreateSubThread(void *entry, int prio);
+extern void BossCtrlGeo();
+
+/* listing lines 157-162: send an enemy off-world and clear its live flag
+   (also inlined into gene_enemy) */
+static inline void sendEnemyAway(char *o)
+{
+    float pos[4];
+    pos[2] = pos[1] = pos[0] = 4294967296.0f;
+    pos[3] = 0.0f;
+    SetRootPosition(o, pos);
+    *(int *)(*(char **)(o + 0x15C) + 0x74) = 0;
+}
+
+/* listing lines 327-333: the boss controller's actor start */
+static inline void bossCtrlInit(void *a0)
+{
+    actInitialize(a0);
+    _ACTWait(1);
+    D_0063C2F0 = 0;
+}
+
+void actBossCtrlStart(void *a0) {
+    int no;
+    char *o;
+    int i;
+
+    no = 0;
+    bossCtrlInit(a0);
+    D_0063C2EC = 0;
+    o = (char *)isysGObjSearchFromObjKindID_begin(0x21);
+    while (o != 0) {
+        sendEnemyAway(o);
+        no++;
+        o = (char *)isysGObjSearchFromObjKindID_next(o);
+    }
+    debug_StdPrintfDummy(D_00556850, no);
+    for (i = 0; i < no; i++) {
+        actCreateSubThread(BossCtrlGeo, 0x15);
+    }
+}
 extern char D_005557E0[];
 extern char D_005564F0[];
 extern char D_00556860[];
@@ -71,7 +120,32 @@ int InitBossCtrlGeo(void *a0) {
 void CapsuleGhostBossStart(void) {
     D_006E9A30[0] = 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", InqCapsuleGhostBossEnd);
+extern int isEnemyHyde(void *o);
+
+int InqCapsuleGhostBossEnd(void) {
+    int no = 0;
+    unsigned int cnt = 0;
+    void *o;
+
+    if (isysGObjSearchFromObjKindID_begin(0x41) != 0) {
+        signed char *base = D_006E9A40;
+        unsigned int i = 0;
+        do {
+            if (base[i * 0x40 + 4] >= 2) {
+                cnt++;
+            }
+            i++;
+        } while (i < 0x35);
+    }
+    o = isysGObjSearchFromObjKindID_begin(4);
+    while (o != 0) {
+        if (isEnemyHyde(o) == 0) {
+            no++;
+        }
+        o = isysGObjSearchFromObjKindID_next(o);
+    }
+    return cnt >= 0x35 && no == 0;
+}
 extern char *GetParticleEffectData(void);
 void gene_eff_end_func(void) {
     **(int **)(GetParticleEffectData() + 0x70) = 1;
