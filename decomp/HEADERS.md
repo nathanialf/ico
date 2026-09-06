@@ -196,7 +196,7 @@ out-of-line `Free` copies.  Four line ranges.
 | --- | --- | --- | --- |
 | 30-31 `phys_addr` | `p & 0x0FFFFFFF` | 4 matched + 7 census | **PROVEN** |
 | 35-36 `uncached_accel_addr` | `(p & 0x0FFFFFFF) \| 0x20000000` | 7 hosts | reconstruction |
-| 42-45 `alloc_zeroed` | alloc + assert + `memset` | 5 hosts | reconstruction (codegen-verified), `#ifdef`-guarded |
+| 42-45 `alloc_zeroed(size, align)` | alloc + assert + `memset` | 5 hosts (voBufCreate matched; viBufCreate's three sites pass 0x40, 0x40, 4) | reconstruction, `#ifdef`-guarded; alignment is a parameter since 2026-09-06 |
 | 82-84 `Free` | `iosFree(phys_addr(p))` | 3 out-of-line copies | **TODO** |
 
 `phys_addr` is factored into four matched hosts, each re-gated at 0:
