@@ -473,7 +473,8 @@ segments:
       - [0x53997C, .lit4, src/st05b]  # carved D_0063997C..D_00639990 (6 slots: actSt05bSekizoChk x4, actSt05bSekizo's camera target -10793/2122 as literals; the TU's whole pool — MAIN.MAP's 0x18 is the debug link's, 0x639994 is st05e's), VMA 0x63997C..0x639994
       - [0x539994, lit4, src/cod/539994]     # .lit4 blob resume (st05e's words)
       - [0x539A00, .lit4, src/st13a]  # carved D_00639A00..D_00639A2C (12 slots: actSt13aElevUp, ElevDownSub x2, ElevDownChk x3, SekizoChk x3 still asm; actSt13aElev's camera target 4729/2715/-2504 as literals; the TU's whole pool — MAIN.MAP's 0x20 is the debug link's), VMA 0x639A00..0x639A30
-      - [0x539A30, lit4, src/cod/539A30]     # .lit4 blob resume (st13b's words)
+      - [0x539A30, .lit4, src/st13b]  # carved D_00639A30..D_00639A50 (9 slots: FloorChk, SekizoChk x2, Sekizo2Chk x2, Boss x2, ElevUpChk still asm; actSt13bConte02Jimaku's 2500.0f as a literal; the TU's whole pool), VMA 0x639A30..0x639A54
+      - [0x539A54, lit4, src/cod/539A54]     # .lit4 blob resume (st13c's words)
       - [0x539A60, .lit4, src/st17a]  # carved D_00639A60..D_00639A80 (9 slots: actSt17aDoorUpChk x3 and DoorDownChk x3 still asm, actSt17aSekizo's 6450/-2100/1100 as literals; the TU's whole pool, bounded by st13c and st17b), VMA 0x639A60..0x639A84
       - [0x539A84, lit4, src/cod/539A84]     # .lit4 blob resume (st17b's words)
       - [0x539AA8, .lit4, src/st19a]  # carved D_00639AA8..D_00639AB4 (4 slots: actSt19aPipeChk's 3933 still asm, actSt19aOri's 4298/-2342/1331 as literals; the TU's whole pool, bounded by st18a's and st20a's words), VMA 0x639AA8..0x639AB8

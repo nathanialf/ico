@@ -928,6 +928,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   PipeChk before Ori, independently shows Ori in the deferred tail); bounded by
   st18a's and st20a's words (blob resumes at `0x539AB8`).
 
+- `[0x539A30, .lit4, src/st13b]` — the TU's whole pool, 9 words: eight slots beside
+  five still-asm owners, then actSt13bConte02Jimaku's frame bound as a literal;
+  the three words after it are st13c's (blob resumes at `0x539A54`).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
