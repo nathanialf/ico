@@ -939,6 +939,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
 - `[0x5399D4, .lit4, src/st09a]` — three words, actSt09aSekizo's target as literals
   (the TU's only pool owner); blob resumes at `0x5399E0`.
 
+- `[0x5398B4, .lit4, src/st02a]` — the TU's whole pool, 6 words between op's 2700
+  and st03t's -913: two slots each for the still-asm actSt02aDoorUpChk and
+  actSt02aDoorDownChk, then actSt02aSekizo's target as literals; blob resumes at
+  `0x5398CC`.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections

@@ -467,7 +467,8 @@ segments:
       - [0x539724, .lit4, src/BgAnimation]  # carved D_00639724..D_006397E4 (49 slots, bga_GetMotion..bga_CheckSdfCameraFrameIn; the TU's whole pool, right after worm's), VMA 0x639724..0x6397E8
       - [0x5397E8, lit4, src/cod/5397E8]     # .lit4 blob resume
       - [0x5398B0, .lit4, src/op]  # carved D_006398B0 (1 slot, 2700.0f in actSt24aConte01_2_Jimaku; = MAIN.MAP op.o .lit4 0x4), VMA 0x6398B0..0x6398B4
-      - [0x5398B4, lit4, src/cod/5398B4]     # .lit4 blob resume
+      - [0x5398B4, .lit4, src/st02a]  # carved D_006398B4..D_006398C8 (6 slots: actSt02aDoorUpChk x2, DoorDownChk x2 still asm; actSt02aSekizo's 1828/1150 as literals; the TU's whole pool, bounded by op's 2700 and st03t's -913), VMA 0x6398B4..0x6398CC
+      - [0x5398CC, lit4, src/cod/5398CC]     # .lit4 blob resume (st03t's words)
       - [0x539928, .lit4, src/st04b]  # carved D_00639928..D_0063993C (6 slots: actSt04bSekizoChk x4 still asm, actSt04bSekizo's 10793/2122 as literals; the TU's whole pool, bounded by st04a's and st04e's words), VMA 0x639928..0x639940
       - [0x539940, lit4, src/cod/539940]     # .lit4 blob resume
       - [0x53997C, .lit4, src/st05b]  # carved D_0063997C..D_00639990 (6 slots: actSt05bSekizoChk x4, actSt05bSekizo's camera target -10793/2122 as literals; the TU's whole pool — MAIN.MAP's 0x18 is the debug link's, 0x639994 is st05e's), VMA 0x63997C..0x639994
