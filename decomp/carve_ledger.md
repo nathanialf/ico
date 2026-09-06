@@ -948,6 +948,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   (the TU's only pool owner), between st02a's and st04a's words; blob resumes at
   `0x5398D8`.
 
+- `[0x5398D8, .lit4, src/st04a]` — the TU's whole pool, 20 words between st03t's and
+  st04b's carves: sixteen slots beside seven still-asm owners, then the four tail
+  members' fade rates (1/1800, 1/3800, 1/720) and Conte09_3Jimaku's bound as
+  literals; no blob remnant remains between st02a and st04b.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
