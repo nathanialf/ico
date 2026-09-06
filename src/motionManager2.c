@@ -96,6 +96,34 @@ void getLowerPlaneCollisionE(int a0, int a1)
     *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
     ClipFloorE(a0);
 }
+typedef struct { int a, b, c; } MotAttr12;
+extern void sceVu0CopyVector();
+extern void GetRootPosition();
+
+/* static inline in the ROM: inlined into AdjustMotionHeightToNearestField and
+ * InitMotionGeoInfo, no out-of-line copy, so the name is ours. */
+static inline int adjustMotionHeightToNearestField(char *o, float *pos)
+{
+    char buf[0xC0];
+    float p[4];
+    char *sub = o + 0xA0;
+
+    CopyVector((int)p, (int)pos);
+    p[1] = p[1] - 100.0f;
+    if (*(int *)(sub + 0x120) != 0) {
+        *(MotAttr12 *)(buf + 0x74) = *(MotAttr12 *)(o + 0x1C0);
+        getLowerPlaneCollisionE((int)buf, (int)p);
+    } else {
+        GetLowerPlaneCollision((int)buf, (int)p);
+    }
+    if (*(int *)(buf + 0x94) == 0) {
+        return 0;
+    }
+    CopyVector((int)(sub + 0x130), (int)(buf + 0xA0));
+    sceVu0CopyVector(sub + 0x1B0, buf + 0x20);
+    *(float *)(sub + 0x1BC) = 1.0f;
+    return 1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", calcFootIK);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", InitMotionGeoInfo);
 ASM_LIT4_SLOT(D_00638B4C, 10430.378f);
@@ -134,8 +162,33 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _getS16MotRotElem);
 ASM_LIT4_SLOT(D_00638B7C, 0.001f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _getMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetStreamMotion);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", copyMotionWithNodeHrc);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CopyMotionWithNodeHrc);
+/* copyMotionWithNodeHrc is a nested function inside CopyMotionWithNodeHrc: the
+ * parent passes it a static chain in $2 (STATIC_CHAIN_REGNUM) which the nested
+ * function spills to 0(sp) and uses to reach dst/src/flag/hrc. */
+void CopyMotionWithNodeHrc(struct Pack32 *dst, struct Pack32 *src, char *hrc, int node, int flag)
+{
+    inline void copyMotionWithNodeHrc(int n)
+    {
+        dst[n] = src[n];
+        if (flag == 0) {
+            *(int *)&dst[n] = 250;
+        }
+        if (*(int *)(hrc + n * 64 + 0x30) != -1) {
+            copyMotionWithNodeHrc(*(int *)(hrc + n * 64 + 0x30));
+        }
+        if (*(int *)(hrc + n * 64 + 0x34) != -1) {
+            copyMotionWithNodeHrc(*(int *)(hrc + n * 64 + 0x34));
+        }
+    }
+
+    dst[node] = src[node];
+    if (flag == 0) {
+        *(int *)&dst[node] = 250;
+    }
+    if (*(int *)(hrc + node * 64 + 0x30) != -1) {
+        copyMotionWithNodeHrc(*(int *)(hrc + node * 64 + 0x30));
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetFloatingMotion);
 extern void GetInverseQuaternion(float *dst, float *src);
 extern void GetMirrorQuaternion(float *a0, float *a1, unsigned int a2);
@@ -190,7 +243,33 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CheckFieldContact);
 ASM_LIT4_SLOT(D_00638B80, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", DebugDisp1Collision);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", DebugDisp1CollisionWithColor);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SetMotionBlendlessNode);
+/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
+   GetSkeltonFocusNode (line 534) into SetMotionBlendlessNode, so it is `inline`
+   in the dev's TU; while this tail still has asm members a deferred inline
+   would land at the object end instead of at its ROM slot (between
+   AdjustMotionHeightToNearestField's neighbours), so the public body stays a
+   plain definition there and every C caller the listing shows inlining it
+   (SetMotionBlendlessNode, the two GetDifferenceFromWall*Plane, the node fix
+   mode setter) calls this static stand-in.
+   Collapses to one `inline` definition at layout. */
+static inline int getSkeltonFocusNode(char *a0, int a1) {
+    return *(char *)(*(int *)(*(int *)(a0 + 0x15C) + 0x840) + a1);
+}
+extern void ClearMotionBlendlessNode(char *a0);
+void SetMotionBlendlessNode(char *self, int *node)
+{
+    char *blend;
+    int i;
+
+    blend = *(char **)(*(char **)(self + 0x15C) + 0x820);
+    ClearMotionBlendlessNode(self);
+    for (i = 0; node[i] != -1; i++) {
+        int idx = getSkeltonFocusNode(self, node[i]);
+        if (idx != -1) {
+            blend[idx] = 1;
+        }
+    }
+}
 void ClearMotionBlendlessNode(char *a0) {
     int i = 0;
     char *arr = *(char **)(*(char **)(a0 + 0x15C) + 0x820);
@@ -208,9 +287,16 @@ void InitMotionStateInfo(_0x1F0 *self) {
     *(int *)((char *)self + 0x1B0) = soundSeGroupGet();
 }
 int GetSkeltonFocusNode(char *a0, int a1) {
-    return *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x840) + a1);
+    return *(char *)(*(int *)(*(int *)(a0 + 0x15C) + 0x840) + a1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", AdjustMotionHeightToNearestField);
+int AdjustMotionHeightToNearestField(char *self)
+{
+    float pos[4];
+    char *o = *(char **)(self + 0x15C);
+
+    GetRootPosition(pos, self);
+    return adjustMotionHeightToNearestField(o, pos);
+}
 void SetRootUpdateMode(char *self, int val) {
     ((GObj *)(self))->p_15C->f_4D8 = val;
 }
@@ -256,12 +342,12 @@ int GetStreamShapeMotion(float *dst, FloorAttr *a1) {
     }
     return 0;
 }
+extern int GetYDistanceFromPlane(void *a0, void *a1);
 int GetDifferenceFromWallUpperField(char *a0, int a1) {
     char *e = *(char **)(a0 + 0x15C);
     int idx = (*(char **)(e + 0x840))[a1];
     return GetYDistanceFromPlane(e + 0x3F0, *(char **)(e + 0xC) + idx * 0x40 + 0x30);
 }
-extern int GetYDistanceFromPlane(void *a0, void *a1);
 int GetDifferenceFromLastField(char *a0, int a1) {
     char *e = *(char **)(a0 + 0x15C);
     int idx = (*(char **)(e + 0x840))[a1];
@@ -280,8 +366,28 @@ float GetDifferenceFromLowerField(char *a0, int a1) {
     }
     return *(float *)(buf + 0x24) - *(float *)(buf + 0x4);
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromWallLowerPlane);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetDifferenceFromWallUpperPlane);
+extern int GetPureVerticalPlane(void *pos, void *a1, void *pts, void *wall, int lower);
+
+int GetDifferenceFromWallLowerPlane(char *self, int node)
+{
+    float pos[4];
+    float pts[4][4];
+    int idx;
+
+    idx = getSkeltonFocusNode(self, node);
+    GetPureVerticalPlane(pos, 0, pts, *(char **)(self + 0x15C) + 0x180, 1);
+    return GetYDistanceFromPlane(pos, *(char **)(*(char **)(self + 0x15C) + 0xC) + idx * 0x40 + 0x30);
+}
+int GetDifferenceFromWallUpperPlane(char *self, int node)
+{
+    float pos[4];
+    float pts[4][4];
+    int idx;
+
+    idx = getSkeltonFocusNode(self, node);
+    GetPureVerticalPlane(pos, 0, pts, *(char **)(self + 0x15C) + 0x180, 0);
+    return GetYDistanceFromPlane(pos, *(char **)(*(char **)(self + 0x15C) + 0xC) + idx * 0x40 + 0x30);
+}
 void DisableChangeRootUpdateMode(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
     *(int *)(sub + 0x4D0) = 1;
@@ -341,7 +447,20 @@ loop:
     --i;
     if (i != 0) goto loop;
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SetMotionNodeFixModeParameter);
+extern void CopyQuaternion();
+
+void SetMotionNodeFixModeParameter(char *self, char *obj, float x, float y, float z,
+                                   int mode, int node, float w, void *quat)
+{
+    float vec[4] = { x, y, z, 1.0f };
+
+    *(int *)(*(int *)(self + 0x15C) + 0x424) = (int)obj;
+    *(int *)(*(int *)(self + 0x15C) + 0x428) = getSkeltonFocusNode(obj, node);
+    *(int *)(*(int *)(self + 0x15C) + 0x454) = mode;
+    CopyVector(*(int *)(self + 0x15C) + 0x440, vec);
+    CopyQuaternion(*(int *)(self + 0x15C) + 0x430, quat);
+    *(float *)(*(int *)(self + 0x15C) + 0x450) = w;
+}
 extern void GetRootPosition();
 
 void GetRootProjectionPosOfGObj(int a0, int a1)
@@ -382,7 +501,7 @@ void CopyMotion(struct Pack32 *dst, struct Pack32 *src, int n)
         dst++;
     } while (n != 0);
 }
-void GetMotionRootPos(float *dst, void *a1, int idx)
+void GetMotionRootPos(float *dst, void *a1, int idx) /* `inline` once GetFloatingMotionRootPos, which the listing shows inlining it, is C; plain until then (deferred inlines land at the object end) */
 {
     float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
     float t1, t0;
@@ -476,11 +595,29 @@ void fitYToPlane(long long *src, int *dest) {
     buf[1] = src[1];
     *(float *)((char *)dest + 4) = GetYProjectionOfPlane((int *)buf, dest);
 }
-void GetBlendedMotionRootPos(float *dst, float *a, float *b, float t)
+extern float FSqrt(float a0);
+
+void GetBlendedMotionRootPos(float *dst, float *a, float *b, float t) /* same note as GetMotionRootPos */
 {
     float u = 1.0f - t;
     dst[0] = a[0] * t + b[0] * u;
     dst[1] = a[1] * t + b[1] * u;
     dst[2] = a[2] * t + b[2] * u;
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _getMotRotElem);
+void _getMotRotElem(char *dst, char *src)
+{
+    float sum;
+
+    sum = *(float *)(src + 0x4) * *(float *)(src + 0x4)
+        + *(float *)(src + 0x8) * *(float *)(src + 0x8)
+        + *(float *)(src + 0xC) * *(float *)(src + 0xC);
+    sum = (sum > 1.0f) ? 1.0f : sum;
+    *(int *)dst = *(unsigned char *)src;
+    *(float *)(dst + 0x1C) = FSqrt(1.0f - sum);
+    *(float *)(dst + 0x10) = *(float *)(src + 0x4);
+    *(float *)(dst + 0x14) = *(float *)(src + 0x8);
+    *(float *)(dst + 0x18) = *(float *)(src + 0xC);
+    if (*(signed char *)(src + 1) < 0) {
+        *(float *)(dst + 0x1C) = -*(float *)(dst + 0x1C);
+    }
+}
