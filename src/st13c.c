@@ -1,5 +1,9 @@
 #include "common.h"
 
+typedef union ActStatus {
+    unsigned long long ll;
+    int i[2];
+} ActStatus;
 typedef struct ActMail {
     int mail;                   /* 0x00 */
     void (*func)(volatile int); /* 0x04 */
@@ -41,7 +45,7 @@ typedef struct MotObj {
 } MotObj;
 typedef struct Act {
     char unk00[0x20];           /* 0x00 */
-    long long flags20;          /* 0x20 */
+    ActStatus flags20;          /* 0x20 */
     char unk28[0xC];            /* 0x28 */
     int unk34;                  /* 0x34 */
     char unk38[0x68];           /* 0x38 */
@@ -367,7 +371,49 @@ void actSt13cConte04(volatile int a0)
     D_0063C590 = 1;
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cConte04Jimaku);
+void actSt13cConte04Jimaku(volatile int a0)
+{
+    float t;
+    float tn;
+    int n;
+
+    t = 0.0f;
+    do {
+        switch ((int)t) {
+        case 1:
+            jimakuBegin((int)&jimaku_msg);
+            break;
+        case 0x122:
+            jimaku_msg.sub.unk2C = 2;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuOn = 1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        case 0x320:
+            jimaku_msg.sub.unk2C = 4;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuOn = 1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        case 0x42E:
+            jimaku_msg.sub.unk2C = 5;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuOn = 1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        }
+
+        n = (int)t;
+        tn = t + (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
+        if (n != (int)tn) {
+            _ACTWait(1);
+            t = tn;
+        } else {
+            t = tn + 1.0f;
+        }
+    } while (t < 1400.0f);
+    _ACTWait(0);
+}
 void actSt13cCage1stDownDemoCancel(volatile int a0)
 {
     float ofs[4];
@@ -504,7 +550,170 @@ void actSt13cCageFall(volatile int a0)
         stage_SetAnimation(0x4B, 0, -1);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFallChk);
+
+void actSt13cCageFallChk(volatile int a0)
+{
+    AnimSet16 w;
+    int th1;
+    int th2;
+    int th3;
+    int cancel;
+    unsigned int i;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(a0, D_00639EA4, 160.0f) == 0 || gflagChk(0x14) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(0x17D);
+    CheckPoint();
+    gflagOff(0x17D);
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+
+    fightSoundProcessRequestPause();
+    while (fightSoundPlayChk() != 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(0x15);
+
+    while (D_0063C004 == 0) {
+        _ACTWait(1);
+    }
+
+    AdpcmPlay(((AdpcmSlot *)D_0063C004)->unk2C);
+
+    th1 = actCreateSubThread(actSt13cConte05, 0x15);
+    th2 = actCreateSubThread(actSt13cConte05Jimaku, 0x15);
+    th3 = actCreateSubThread(actSt13cCageFallEffect, 0x15);
+
+    SetWayGroupActive(9, 0);
+    _ACTWait(1);
+
+    stage_SetAnimation(0x4A, 1, 0);
+    stage_SetAnimation(0x4B, 1, 0);
+    stage_SetAnimation(0x4C, 1, 0);
+
+    D_0063C590 = 0;
+
+    while (D_0063C590 == 0 &&
+           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    cancel = D_0063C590 ^ 1;
+
+    if (cancel) {
+        scpAdpcmFadeCloseFunc(&D_0063C004, 0x100);
+
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+
+    iosThreadSetPri((int *)(th1 + 0x24), 0x22);
+    iosThreadSetPri((int *)(th2 + 0x24), 0x22);
+    iosThreadSetPri((int *)(th3 + 0x24), 0x22);
+
+    if (cancel) {
+        w = D_00622E50;
+        for (i = 0; i < 16; i++) {
+            stage_SetAnimation(w.anim[i], 1, -1);
+            _ACTWait(1);
+        }
+
+        jimakuUndisp((int)&jimaku_msg);
+
+        ((PObjGObj *)scpSearchGobj(0x80))->unk16C = 1;
+        ((PObjGObj *)scpSearchGobj(0x81))->unk16C = 1;
+        ((PObjGObj *)scpSearchGobj(0x82))->unk16C = 1;
+        ((PObjGObj *)scpSearchGobj(0x36))->unk16C = 1;
+
+        scpTorchLightOn(0x90);
+        ResetHandCameraLimitInDemo();
+        gflagOn(0x17);
+        _ACTWait(0xA);
+
+        Generator_QuickCall(D_0063C594);
+        Generator_MaskOff(D_0063C594);
+
+        if (isEnemyActive(scpSearchGobj(0x96)) == 0) {
+            memset(&w, 0, 0x10);
+            DirectCallEnemy(scpSearchGobj(0x96), D_0063C594, &w, &w, 0);
+            iosOmSendMail(scpSearchGobj(0x96), 0x102, scpSearchGobj(0x96));
+            _ACTWait(1);
+        }
+
+        scpPlayStart(D_00639EA4);
+        scpPlayStart(D_00639EA8);
+        scpPlayStart(scpSearchGobj(0x96));
+
+        fightSoundProcessRequestStart();
+
+        stage_SetAnimation(0x4A, 0, -1);
+        stage_SetAnimation(0x4B, 0, -1);
+        stage_SetAnimation(0x4C, 0, -1);
+        stage_SetAnimation(0x287, 1, 0);
+
+        scpPlayMot(scpSearchGobj(0x96), 0x3A9);
+        SetCameraFlag_LwsCutBack();
+        scpPlayEnd(scpSearchGobj(0x96));
+        scpWakeupEnemyAll();
+
+        _ACTWait(0xA);
+
+        scpPlayMot(D_00639EA4, 0x143);
+        stage_SetAnimation(0x286, 1, 0);
+        scpTorchLightOff(0x90);
+        scpFadeIn(3.0f);
+    } else {
+        Generator_MaskOff(D_0063C594);
+    }
+
+    scpPlayMot(D_00639EA8, 0x2E0);
+    scpPlayStart(scpSearchGobj(0x96));
+    scpPlayMot(scpSearchGobj(0x96), 0x3C8);
+
+    while (stage_ContinueAnimation(0x286, 0x287) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(D_00639EA4, 0x144);
+    scpPlayMot(scpSearchGobj(0x96), 0x3A9);
+
+    while (stage_CheckAnimationFinish(0x287) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMot(D_00639EA4, 0);
+    scpPlayEnd(scpSearchGobj(0x96));
+    scpWakeupEnemyAll();
+    ACTEnemyForceSwitchToCarry(scpSearchGobj(0x96));
+    scpTorchLightOff(0x90);
+
+    ((PObjGObj *)scpSearchGobj(0x90))->unk16C = 0;
+
+    scpPlayEnd(D_00639EA4);
+    scpPlayEnd(D_00639EA8);
+
+    ((Act *)((PObjGObj *)scpSearchGobj(0x96))->act)->flags20.ll |= 0x20000;
+
+    D_0063AA08 = 0;
+    lt_switch_layout(0x36);
+
+    _ACTWait(0x1E);
+    gflagOn(0x19);
+    SetWeaponTorchChainReactionFlagAll(0);
+
+    ((Act *)((PObjGObj *)D_00639EA4)->act)->flags &= ~0x100000;
+}
 void actSt13cConte05(volatile int a0)
 {
     lt_switch_layout(0x37);
@@ -652,7 +861,55 @@ void actSt13cConte05(volatile int a0)
     D_0063C590 = 1;
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cConte05Jimaku);
+void actSt13cConte05Jimaku(volatile int a0)
+{
+    float t;
+    float tn;
+    int n;
+
+    t = 0.0f;
+    do {
+        switch ((int)t) {
+        case 1:
+            jimakuBegin((int)&jimaku_msg);
+            break;
+        case 0x65E:
+            jimakuOn = 1;
+            jimaku_msg.sub.unk2C = 9;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        case 0x9BC:
+            jimaku_msg.sub.unk2C = 6;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuOn = 1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        case 0xAC8:
+            jimaku_msg.sub.unk2C = 7;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuOn = 1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        case 0xE80:
+            jimaku_msg.sub.unk2C = 8;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuOn = 1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        }
+
+        n = (int)t;
+        tn = t + (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
+        if (n != (int)tn) {
+            _ACTWait(1);
+            t = tn;
+        } else {
+            t = tn + 1.0f;
+        }
+    } while (t < 4000.0f);
+    _ACTWait(0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFallEffect);
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cSekizoChk);
 void actSt13cGirlCarryChk(volatile int a0)
@@ -721,7 +978,7 @@ void actSt13cHandChk(volatile int a0)
     D_0063AA08 = 1;
     scpSleepEnemyAll();
 
-    ((Act *)((PObjGObj *)scpSearchGobj(0x96))->act)->flags20 &= ~0x20000;
+    ((Act *)((PObjGObj *)scpSearchGobj(0x96))->act)->flags20.ll &= ~0x20000;
 
     fightSoundProcessRequestPause();
 
@@ -811,7 +1068,48 @@ void actSt13cHandChk(volatile int a0)
     fightSoundProcessRequestStart();
     gflagOn(0x1C);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cHandJimaku);
+void actSt13cHandJimaku(volatile int a0)
+{
+    float t;
+    float tn;
+    int n;
+
+    t = 0.0f;
+    do {
+        switch ((int)t) {
+        case 1:
+            jimakuBegin((int)&jimaku_msg);
+            break;
+        case 0x6E:
+            jimaku_msg.sub.unk2C = 0xB;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuOn = 1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        case 0x154:
+            jimaku_msg.sub.unk2C = 0xC;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuOn = 1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        case 0x244:
+            jimaku_msg.sub.unk2C = 0xD;
+            jimaku_msg.sub.unk38 = -1;
+            jimakuOn = 1;
+            jimakuJump((int)&jimaku_msg);
+            break;
+        }
+
+        n = (int)t;
+        tn = t + (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
+        if (n != (int)tn) {
+            _ACTWait(1);
+            t = tn;
+        } else {
+            t = tn + 1.0f;
+        }
+    } while (t < 800.0f);
+}
 void actSt13cSleep(volatile int a0)
 {
     int x = a0;
@@ -987,7 +1285,27 @@ void actSt13cBuki(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actE3St13cSekizo);
+extern void scpSekizou(int a0, int a1, int a2, int a3, int a4,
+                       float x1, float y1, float z1,
+                       float x2, float y2, float z2);
+
+void actE3St13cSekizo(volatile int a0)
+{
+    int x = a0;
+
+    actInitialize(a0);
+    _ACTWait(1);
+
+    scpSekizou(a0, 0x1F, 0x4D, 0, 0x11,
+               -300.0f, -100.0f, 100.0f,
+               -300.0f, -100.0f, 0.0f);
+
+    if (gflagChk(0x1F) == 0) {
+        SetWayGroupActive(2, 0);
+    } else {
+        SetWayGroupActive(2, 1);
+    }
+}
 void actSt13cBmg1Event(int x) {
     volatile int local = x;
 }
