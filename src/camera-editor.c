@@ -54,8 +54,124 @@ void CameraEdit_DispPinType2(int a0, int a1, int a2) {
     dispCameraPinType2(a0, a1, a1 + 1, a2);
 }
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", dispCameraGroupType2);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", dispBox);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", CameraEdit_DispBoxType2_Plane);
+/* dispBox is defined as a nested function inside
+ * CameraEdit_DispBoxType2_Plane below (the listing names it dispBox.152). */
+/* Box corner, a VU0 quadword: _InterGV / DrawPolygon / DrawLineG all take
+ * 16-byte aligned vectors. */
+typedef struct {
+    float x, y, z, w;
+} CamVtx __attribute__((aligned(16)));
+
+typedef struct {
+    char pad00[0x20];
+    float cx, cy, cz;   /* 0x20 */
+    float sx, sy, sz;   /* 0x2C */
+    char pad38[0x4C - 0x38];
+} CamBoxF;
+
+extern int *D_0063AA7C;
+extern char *matrixptr;
+extern int D_002A5C20[6][4];
+extern int D_002A5C80[12][2];
+extern unsigned int D_002A5CE0[4];
+extern unsigned int D_002A5CF0[4];
+extern unsigned char D_0063AAB8[4];
+extern unsigned char D_0063AAC0[4];
+extern unsigned char D_0063AAC8[4];
+extern unsigned char D_0063AAD0[4];
+extern void sceVu0UnitMatrix(void *m);
+extern void func_0025D440(void *dst, void *a, void *b);
+extern void before_DrawPolygon(void);
+extern void after_DrawPolygon(void);
+extern void gif_SetAlpha(int a, int b, int c);
+extern void gif_SetZWrite(int a);
+extern void gif_SetZTest(int a);
+extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
+extern void DrawPolygon(void *p0, void *p1, void *p2, void *p3, unsigned char *col, void *m);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
+extern void gif_StartPacketPri(int prio);
+extern void gif_EndPacket(void);
+extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
+
+void CameraEdit_DispBoxType2_Plane(int box, int sel) {
+    int n;
+    CamBoxF *b = (CamBoxF *)(D_0063AA7C[1] + box * 0x4C);
+    CamVtx v[8] = {
+        { b->cx - b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f },
+        { b->cx - b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f },
+        { b->cx + b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f },
+        { b->cx + b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f },
+        { b->cx - b->sx, b->cy + b->sy, b->cz - b->sz, 1.0f },
+        { b->cx - b->sx, b->cy + b->sy, b->cz + b->sz, 1.0f },
+        { b->cx + b->sx, b->cy + b->sy, b->cz - b->sz, 1.0f },
+        { b->cx + b->sx, b->cy + b->sy, b->cz + b->sz, 1.0f }
+    };
+    {
+        float m[4][4];
+        unsigned int *c0;
+        unsigned int *c1;
+        int i;
+
+        /* dispBox is a nested function in the ROM: the parent passes it a
+         * static chain in $2 (STATIC_CHAIN_REGNUM), which dispBox spills to
+         * 0(sp) and uses to reach the parent's v[], m[][], n and sel. */
+        void dispBox(unsigned char *ca, unsigned char *cb)
+        {
+            float e0[4], e1[4], e2[4], e3[4];
+            float g0[4], g1[4], g2[4], g3[4];
+            unsigned char *col;
+            int j;
+            int k;
+
+            for (n = 0; n < 6; n++) {
+                col = (n != sel) ? cb : ca;
+                for (j = 0; j < 3; j++) {
+                    _InterGV(e0, &v[D_002A5C20[n][0]], &v[D_002A5C20[n][1]], (float)j, (float)(3 - j));
+                    _InterGV(e1, &v[D_002A5C20[n][0]], &v[D_002A5C20[n][1]], (float)(j + 1), (float)(2 - j));
+                    _InterGV(e2, &v[D_002A5C20[n][2]], &v[D_002A5C20[n][3]], (float)j, (float)(3 - j));
+                    _InterGV(e3, &v[D_002A5C20[n][2]], &v[D_002A5C20[n][3]], (float)(j + 1), (float)(2 - j));
+                    for (k = 0; k < 3; k++) {
+                        _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
+                        _InterGV(g1, e0, e2, (float)(k + 1), (float)(2 - k));
+                        _InterGV(g2, e1, e3, (float)k, (float)(3 - k));
+                        _InterGV(g3, e1, e3, (float)(k + 1), (float)(2 - k));
+                        DrawPolygon(g0, g1, g2, g3, col, m);
+                    }
+                }
+            }
+        }
+
+        sceVu0UnitMatrix(m);
+        m[0][0] = m[1][1] = m[2][2] = -1.0f;
+        func_0025D440(m, matrixptr + 0x80, m);
+        func_0025D440(m, matrixptr + 0xC0, m);
+        before_DrawPolygon();
+        gif_SetAlpha(1, 5, 0);
+        gif_SetZWrite(0);
+        gif_SetZTest(1);
+        dispBox(D_0063AAB8, D_0063AAC8);
+        gif_SetZTest(0);
+        dispBox(D_0063AAC0, D_0063AAD0);
+        after_DrawPolygon();
+        c0 = D_002A5CE0;
+        c1 = D_002A5CF0;
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_ScaleMatrix(-1.0f, -1.0f, -1.0f);
+        gif_StartPacketPri(11);
+        gif_SetAlpha(1, 5, 0);
+        gif_SetZWrite(0);
+        gif_SetZTest(0);
+        for (i = 0; i < 12; i++) {
+            DrawLineG(&v[D_002A5C80[i][0]], c1, &v[D_002A5C80[i][1]], c1, 0);
+        }
+        gif_SetZTest(1);
+        for (i = 0; i < 12; i++) {
+            DrawLineG(&v[D_002A5C80[i][0]], c0, &v[D_002A5C80[i][1]], c0, 0);
+        }
+        gif_EndPacket();
+    }
+}
 extern void dispCameraGroupType2(int a0, int a1);
 
 void CameraEdit_DispBoxType2(int a0, int a1) {
