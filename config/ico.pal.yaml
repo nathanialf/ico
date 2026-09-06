@@ -391,6 +391,8 @@ segments:
       - [0x3F1E10, data, src/cod/3F1E10]     # .data blob resume
       - [0x44D380, rodata, src/cod/44D380]   # .rodata blob
       # --- per-TU .rodata carves (PAL phase 2; see decomp/carve_ledger.md).
+      - [0x44DAF0, .rodata, src/quaternion]  # carved jtbl_0054DAF0 (7 arms, 0x1C): GetMirrorQuaternion's switch table, emitted by the compiled function; VMA 0x54DAF0..0x54DB0C
+      - [0x44DB0C, rodata, src/cod/44DB0C]   # .rodata blob resume (the pad word before DisplayP2O's carve)
       - [0x44DB10, .rodata, src/DisplayP2O]  # carved D_0054DB10 (VMA 0x54DB10..0x54DB30, 32 B, 1 sym): "display object = %d" + ROM zero pad; TU fully matched, no asm stub to duplicate the dlabel
       - [0x44DB30, rodata, src/cod/44DB30]   # .rodata blob resume
       - [0x44E0B0, .rodata, src/GifPacket]  # carved D_0054E0B0 (VMA 0x54E0B0..0x54E170, 192 B, 1 sym): the 12 GS ALPHA blend quadruples gif_SetAlpha indexes; referenced only from matched C, so no stub emits it and the carve must define it

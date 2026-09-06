@@ -924,6 +924,9 @@ words become the blob's first words.
   scored by the oracle (jlabels); strip the symbol table from copies of both
   objects and compare the disassembled word streams.
 
+- `[0x44DAF0, .rodata, src/quaternion]` GetMirrorQuaternion's 7-arm table (0x1C),
+  resume `0x44DB0C` (one pad word before DisplayP2O's carve).
+
 ### `.rodata` — a TU's anonymous constant pool
 
 - `[0x4568B0, .rodata, src/lightning]` — lightning_test's colour quad and four
