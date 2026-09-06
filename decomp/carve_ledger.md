@@ -916,6 +916,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   still-asm actSt04bSekizoChk, then actSt04bSekizo's target as literals; bounded by
   st04a's and st04e's words (blob resumes at `0x539940`).
 
+- `[0x5396A0, .lit4, src/spider]` — two words between rotObject's and staticBlur's
+  carves: a slot for the still-asm InitSpiderLayoutGeo's pi, then
+  CheckSpidersInsideOfReviveRange's 10000.0f as a literal; no blob remnant remains.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
