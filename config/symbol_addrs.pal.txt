@@ -132,6 +132,7 @@ _FUNC_GetWay_begin = 0x0017D5D0; // type:func  // src/way_sys
 scpSubAdpcmPlay = 0x00182220; // type:func  // src/script
 scpAdpcmCloseFunc = 0x001823F0; // type:func  // src/script
 scpSekizou = 0x00182C58; // type:func  // src/script
+actSt25aElevCharaChk = 0x00187E78; // type:func  // src/st25a
 wakeup_cameraedit = 0x0018E0D0; // type:func  // src/camera-editor
 Debug_WireString_Bird = 0x0019FC30; // type:func  // src/act_bird
 Debug_StickControl = 0x0019FD30; // type:func  // src/act_bird
