@@ -923,6 +923,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
 - `[0x538B04, .lit4, src/geometryManager]` — two words, LimitExistGeometry's clamp
   limits as literals; the .lit4 blob's first word 0x638B00 stays vendor_100110's.
 
+- `[0x539AA8, .lit4, src/st19a]` — the TU's whole pool, 4 words: a slot for the
+  still-asm actSt19aPipeChk, then actSt19aOri's target as literals (the pool order,
+  PipeChk before Ori, independently shows Ori in the deferred tail); bounded by
+  st18a's and st20a's words (blob resumes at `0x539AB8`).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
