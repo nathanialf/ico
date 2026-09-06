@@ -932,6 +932,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   five still-asm owners, then actSt13bConte02Jimaku's frame bound as a literal;
   the three words after it are st13c's (blob resumes at `0x539A54`).
 
+- `[0x539AFC, .lit4, src/st47a]` — the TU's whole pool, 7 words between st24a's and
+  stageSEProc's carves: two slots for the still-asm actSt47aSekizo1Chk, then the
+  two Sekizo actors' targets as literals; no blob remnant remains here.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections

@@ -480,7 +480,7 @@ segments:
       - [0x539AA8, .lit4, src/st19a]  # carved D_00639AA8..D_00639AB4 (4 slots: actSt19aPipeChk's 3933 still asm, actSt19aOri's 4298/-2342/1331 as literals; the TU's whole pool, bounded by st18a's and st20a's words), VMA 0x639AA8..0x639AB8
       - [0x539AB8, lit4, src/cod/539AB8]     # .lit4 blob resume (st20a's words)
       - [0x539AE8, .lit4, src/st24a]  # carved D_00639AE8..D_00639AF8 (5 slots: actSt24aSwordChk x2, actSt24aSword's camera target 363/1307/-3297; = MAIN.MAP st24a.o .lit4 0x14), VMA 0x639AE8..0x639AFC
-      - [0x539AFC, lit4, src/cod/539AFC]     # .lit4 blob resume (st47a's words before stageSEProc's carve)
+      - [0x539AFC, .lit4, src/st47a]  # carved D_00639AFC..D_00639B14 (7 slots: actSt47aSekizo1Chk x2 still asm, then actSt47aSekizo1's and actSt47aSekizo2's targets as literals; the TU's whole pool, between st24a's and stageSEProc's carves), VMA 0x639AFC..0x639B18
       - [0x539B18, .lit4, src/stageSEProc]  # carved D_00639B18..D_00639C40 (75 slots, 30 fns stageSE04eriver..stageSE47anoise), VMA 0x639B18..0x639C44, 300 B; MAIN.MAP stageSEProc.o .lit4 is 0x138 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
       - [0x539C44, lit4, src/cod/539C44]     # .lit4 blob resume
       - [0x539C80, sdata, src/cod/539C80]    # .sdata
