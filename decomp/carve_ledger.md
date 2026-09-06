@@ -920,6 +920,9 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   carves: a slot for the still-asm InitSpiderLayoutGeo's pi, then
   CheckSpidersInsideOfReviveRange's 10000.0f as a literal; no blob remnant remains.
 
+- `[0x538B04, .lit4, src/geometryManager]` — two words, LimitExistGeometry's clamp
+  limits as literals; the .lit4 blob's first word 0x638B00 stays vendor_100110's.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
