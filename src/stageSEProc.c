@@ -31,7 +31,61 @@ ASM_LIT4_SLOT(D_00639B58, -1837.0f);
 ASM_LIT4_SLOT(D_00639B5C, -987.0f);
 ASM_LIT4_SLOT(D_00639B60, -2788.0f);
 ASM_LIT4_SLOT(D_00639B64, 0.8f);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE02astrong);
+typedef struct { Blk16 a; Blk16 b; } Blk32;
+
+extern int frame_count;
+extern float D_0063C078;
+extern int D_0063C07C;
+extern int * GetCameraPos();
+extern float GetRegularizedWindSpeed(void *a0);
+extern void sceVu0SubVector(void *a0, void *a1, void *a2);
+extern float sceVu0InnerProduct(void *a0, void *a1);
+extern void sceVu0CopyVector(void *a0, void *a1);
+extern Blk32 D_006230F0;
+extern float D_0063C08C[];
+
+static inline Blk16 *SENearestPoint(Blk16 *list, int n) {
+    Blk16 d;
+    Blk16 *best;
+    float bd;
+    void *campos;
+    int i;
+
+    best = 0;
+    bd = D_0063C08C[0];
+    campos = (void *)GetCameraPos();
+    for (i = n - 1; i != -1; i--) {
+        float t;
+        sceVu0SubVector(&d, campos, list);
+        t = sceVu0InnerProduct(&d, &d);
+        if (t < bd) {
+            best = list;
+            bd = t;
+        }
+        list++;
+    }
+    return best;
+}
+
+int stageSE02astrong(char *a0) {
+    Blk32 v;
+    float w;
+
+    v = D_006230F0;
+    sceVu0CopyVector(*(void **)(a0 + 0x34), SENearestPoint((Blk16 *)&v, 2));
+    if (D_0063C07C == frame_count) {
+        w = D_0063C078;
+    } else {
+        D_0063C07C = frame_count;
+        w = GetRegularizedWindSpeed((void *)GetCameraPos());
+        w = w * 0.5f + 0.5f;
+        D_0063C078 = w;
+    }
+    *(float *)(a0 + 0x18) = w;
+    return 1;
+}
+extern int gflagChk(int a0);
+
 int stageSE02ataki(char *self) {
     float *p = *(float **)(self + 0x34);
     p[0] = 785.0f;
@@ -70,10 +124,36 @@ int stageSE03tnotSuiro(void) {
     }
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE04agate);
-ASM_LIT4_SLOT(D_00639B74, -1300.0f);
-ASM_LIT4_SLOT(D_00639B78, 750.0f);
-ASM_LIT4_SLOT(D_00639B7C, 2050.0f);
+extern int frame_count;
+extern float D_0063C078;
+extern int D_0063C07C;
+extern int * GetCameraPos();
+extern float GetRegularizedWindSpeed(void *a0);
+
+int stageSE04agate(char *a0) {
+    float x = ((float *)GetCameraPos(a0))[2];
+    float ratio = 1.0f;
+    float w;
+    if (x < -1300.0f) {
+        return 0;
+    }
+    if (gflagChk(0x8C) == 0) {
+        return 0;
+    }
+    if (x < 750.0f) {
+        ratio = (x - -1300.0f) / 2050.0f;
+    }
+    if (D_0063C07C == frame_count) {
+        w = D_0063C078;
+    } else {
+        D_0063C07C = frame_count;
+        w = GetRegularizedWindSpeed((void *)GetCameraPos());
+        w = w * 0.5f + 0.5f;
+        D_0063C078 = w;
+    }
+    *(float *)(a0 + 0x18) = ratio * w;
+    return -1;
+}
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
@@ -105,14 +185,58 @@ int stageSE04ewind(char *a0) {
     *(float *)(a0 + 0x18) = 1.0f - f;
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE04eriverDown);
-ASM_LIT4_SLOT(D_00639B8C, -5770.0f);
-ASM_LIT4_SLOT(D_00639B90, 2090.0f);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE06astrong);
-ASM_LIT4_SLOT(D_00639B94, -1753.0f);
-ASM_LIT4_SLOT(D_00639B98, -1145.0f);
-ASM_LIT4_SLOT(D_00639B9C, 0.3f);
-ASM_LIT4_SLOT(D_00639BA0, 0.05f);
+extern int * GetCameraPos();
+extern int stage_no;
+
+int stageSE04eriverDown(char *a0) {
+    float x = ((float *)GetCameraPos(a0))[2];
+    float f;
+    if (stage_no == 0x15) {
+        if (gflagChk(0xE6)) {
+            return 0;
+        }
+    } else {
+        if (gflagChk(0xE7)) {
+            return 0;
+        }
+    }
+    if (x < -5770.0f) {
+        f = 0.0f;
+    } else if (-3680.0f < x) {
+        f = 1.0f;
+    } else {
+        f = (x - -5770.0f) / 2090.0f;
+    }
+    *(float *)(a0 + 0x18) = f;
+    return -1;
+}
+int stageSE06astrong(char *a0) {
+    float *p = (float *)GetCameraPos(a0);
+    float f;
+    float v;
+    if (p[0] < 300.0f && 848.0f < p[2]) {
+        if (p[0] < -1753.0f) {
+            f = 0.0f;
+        } else if (-1145.0f < p[0]) {
+            f = 1.0f;
+        } else {
+            f = (p[0] - -1753.0f) / 608.0f;
+        }
+        v = (1.0f - f) * 0.3f;
+        *(float *)(a0 + 0x18) = v;
+        if (v < 0.05f) {
+            *(float *)(a0 + 0x18) = 0.05f;
+        }
+        return -1;
+    } else {
+        float *q = *(float **)(a0 + 0x34);
+        *(float *)(a0 + 0x18) = 1.0f;
+        q[0] = -2400.0f;
+        q[1] = p[1];
+        q[2] = p[2];
+        return 1;
+    }
+}
 extern int * GetCameraPos();
 
 int stageSE06abirdIn(int *self)
@@ -155,10 +279,66 @@ int stageSE06ataimatsu(int *self) {
     }
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE08astrong);
-ASM_LIT4_SLOT(D_00639BA4, 0.05f);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE08astrong2);
-ASM_LIT4_SLOT(D_00639BA8, 0.05f);
+extern Blk16 D_00623110;
+extern Blk16 D_00623120;
+extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
+
+int stageSE08astrong(char *a0) {
+    Blk16 b1;
+    Blk16 b2;
+    float f;
+    int ret;
+    if (D_0063C07C == frame_count) {
+        f = D_0063C078;
+    } else {
+        float e;
+        D_0063C07C = frame_count;
+        e = GetRegularizedWindSpeed((void *)GetCameraPos());
+        e = e * 0.5f + 0.5f;
+        D_0063C078 = e;
+        f = e;
+    }
+    ret = (int)GetCameraPos();
+    b1 = D_00623110;
+    b2 = D_00623120;
+    if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
+        *(float *)(a0 + 0x18) = f;
+    } else {
+        *(float *)(a0 + 0x18) = f * 0.05f;
+    }
+    return -1;
+}
+extern Blk16 D_00623110;
+extern Blk16 D_00623120;
+extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
+
+int stageSE08astrong2(char *a0) {
+    Blk16 b1;
+    Blk16 b2;
+    float f;
+    float w;
+    int ret;
+    if (D_0063C07C == frame_count) {
+        w = D_0063C078;
+    } else {
+        float e;
+        D_0063C07C = frame_count;
+        e = GetRegularizedWindSpeed((void *)GetCameraPos());
+        e = e * 0.5f + 0.5f;
+        D_0063C078 = e;
+        w = e;
+    }
+    f = 1.0f - w;
+    ret = (int)GetCameraPos();
+    b1 = D_00623110;
+    b2 = D_00623120;
+    if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
+        *(float *)(a0 + 0x18) = f;
+    } else {
+        *(float *)(a0 + 0x18) = f * 0.05f;
+    }
+    return -1;
+}
 extern Blk16 D_00623110;
 extern Blk16 D_00623120;
 extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
@@ -210,9 +390,23 @@ int stageSE08bcrane(void *a0) {
     *(float *)((char *)a0 + 0x18) = f;
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE08brail);
-ASM_LIT4_SLOT(D_00639BBC, -3679.0f);
-ASM_LIT4_SLOT(D_00639BC0, 6186.0f);
+int stageSE08brail(void *a0) {
+    AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);
+    float f;
+    p->f0 = -114.0f;
+    p->f4 = -3679.0f;
+    p->f8 = 6186.0f;
+    if (D_0063C07C == frame_count) {
+        f = D_0063C078;
+    } else {
+        D_0063C07C = frame_count;
+        f = GetRegularizedWindSpeed((void *)GetCameraPos());
+        f = f * 0.5f + 0.5f;
+        D_0063C078 = f;
+    }
+    *(float *)((char *)a0 + 0x18) = f;
+    return 1;
+}
 int stageSE09asea(char *a0) {
     AudFrame *p = *(AudFrame **)(a0 + 0x34);
     p->f0 = 1800.0f;
@@ -221,10 +415,53 @@ int stageSE09asea(char *a0) {
     *(float *)(a0 + 0x18) = 1.0f;
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE10lstrong);
-ASM_LIT4_SLOT(D_00639BCC, 773.0f);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE10rstrong);
-ASM_LIT4_SLOT(D_00639BD0, 0.3f);
+extern Blk16 D_00623130;
+extern Blk16 D_00623140;
+
+int stageSE10lstrong(char *a0) {
+    Blk16 b1;
+    Blk16 b2;
+    float *p = (float *)GetCameraPos();
+    float f;
+    float w;
+    if (p[1] < 227.0f) {
+        f = 0.0f;
+    } else if (1000.0f < p[1]) {
+        f = 1.0f;
+    } else {
+        f = (p[1] - 227.0f) / 773.0f;
+    }
+    if (D_0063C07C == frame_count) {
+        w = D_0063C078;
+    } else {
+        float e;
+        D_0063C07C = frame_count;
+        e = GetRegularizedWindSpeed((void *)GetCameraPos());
+        e = e * 0.5f + 0.5f;
+        D_0063C078 = e;
+        w = e;
+    }
+    *(float *)(a0 + 0x18) = (1.0f - f) * w;
+    b1 = D_00623130;
+    b2 = D_00623140;
+    if (scpTriggerPosBox((int)p, &b1, &b2) != 0) {
+        *(float *)(a0 + 0x18) = *(float *)(a0 + 0x18) * 0.5f;
+    }
+    return -1;
+}
+int stageSE10rstrong(char *a0) {
+    float x = ((float *)GetCameraPos(a0))[2];
+    float f;
+    if (x < -300.0f) {
+        f = 0.0f;
+    } else if (400.0f < x) {
+        f = 1.0f;
+    } else {
+        f = (x - -300.0f) / 700.0f;
+    }
+    *(float *)(a0 + 0x18) = f * 0.3f;
+    return -1;
+}
 int stageSE10rstrong2(int self) {
     float f;
     if (D_0063C07C == frame_count) {
@@ -256,25 +493,108 @@ int stageSE13cNoise(int a0)
     v1[2] = -966.0f;
     return 1;
 }
+/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
+   stageSE13dterrace into stageSE13dstrong, so it is `inline` in the dev's TU;
+   while this tail still has asm members a deferred inline would land at the
+   object end instead of here, so the public body stays a plain definition at
+   its ROM position and stageSE13dstrong calls the static stand-in below.
+   Collapses to one `inline` definition at layout. */
 int stageSE13dterrace(void) {
     float *p = (float *)GetCameraPos();
     if (p[1] > -1000.0f) return 0;
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE13dstrong);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE17astrong);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE18awind);
-ASM_LIT4_SLOT(D_00639BDC, 1125.0f);
-ASM_LIT4_SLOT(D_00639BE0, 2125.0f);
-ASM_LIT4_SLOT(D_00639BE4, 0.7f);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE17brain);
-ASM_LIT4_SLOT(D_00639BE8, -5500.0f);
-ASM_LIT4_SLOT(D_00639BEC, -3800.0f);
-ASM_LIT4_SLOT(D_00639BF0, 1700.0f);
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE17bstrong);
-ASM_LIT4_SLOT(D_00639BF4, -5500.0f);
-ASM_LIT4_SLOT(D_00639BF8, -3800.0f);
-ASM_LIT4_SLOT(D_00639BFC, 1700.0f);
+static inline int stageSE13dterrace_(void) {
+    float *p = (float *)GetCameraPos();
+    if (p[1] > -1000.0f) return 0;
+    return -1;
+}
+extern void soundReverbDepthSet(int a0);
+
+int stageSE13dstrong(char *a0) {
+    int r = stageSE13dterrace_();
+    float f;
+    if (D_0063C07C == frame_count) {
+        f = D_0063C078;
+    } else {
+        float e;
+        D_0063C07C = frame_count;
+        e = GetRegularizedWindSpeed((void *)GetCameraPos());
+        e = e * 0.5f + 0.5f;
+        D_0063C078 = e;
+        f = e;
+    }
+    *(float *)(a0 + 0x18) = 1.0f - f * 0.5f;
+    if (r == -1) {
+        soundReverbDepthSet(20);
+    }
+    return r;
+}
+int stageSE17astrong(int self) {
+    float f;
+    GetCameraPos(self);
+    if (D_0063C07C == frame_count) {
+        f = D_0063C078;
+    } else {
+        D_0063C07C = frame_count;
+        f = GetRegularizedWindSpeed((void *)GetCameraPos());
+        f = f * 0.5f + 0.5f;
+        D_0063C078 = f;
+    }
+    *(float *)(self + 0x18) = f;
+    return -1;
+}
+int stageSE18awind(char *a0) {
+    float x = ((float *)GetCameraPos(a0))[0];
+    float f;
+    if (x < -1000.0f) {
+        f = 0.0f;
+    } else if (1125.0f < x) {
+        f = 1.0f;
+    } else {
+        f = (x - -1000.0f) / 2125.0f;
+    }
+    *(float *)(a0 + 0x18) = f * 0.7f;
+    return -1;
+}
+int stageSE17brain(char *a0) {
+    float x = ((float *)GetCameraPos(a0))[0];
+    float f;
+    if (x < -5500.0f) {
+        f = 0.0f;
+    } else if (-3800.0f < x) {
+        f = 1.0f;
+    } else {
+        f = (x - -5500.0f) / 1700.0f;
+    }
+    *(float *)(a0 + 0x18) = 1.0f - f;
+    return -1;
+}
+int stageSE17bstrong(char *a0) {
+    float x = ((float *)GetCameraPos(a0))[0];
+    float f;
+    float w;
+    if (x < -5500.0f) {
+        f = 0.0f;
+    } else if (-3800.0f < x) {
+        f = 1.0f;
+    } else {
+        f = (x - -5500.0f) / 1700.0f;
+    }
+    *(float *)(a0 + 0x18) = 1.0f - f;
+    if (D_0063C07C == frame_count) {
+        w = D_0063C078;
+    } else {
+        float e;
+        D_0063C07C = frame_count;
+        e = GetRegularizedWindSpeed((void *)GetCameraPos());
+        e = e * 0.5f + 0.5f;
+        D_0063C078 = e;
+        w = e;
+    }
+    *(float *)(a0 + 0x18) = *(float *)(a0 + 0x18) * w;
+    return -1;
+}
 int stageSE17btaki(char *self) {
     float a, b;
     float *p = *(float **)(self + 0x34);
@@ -363,10 +683,22 @@ int stageSE22astrong(void *a0) {
     *(float *)((char *)a0 + 0x18) = 1.0f - f * 0.5f;
     return -1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE22arain);
-ASM_LIT4_SLOT(D_00639C20, -1355.0f);
-ASM_LIT4_SLOT(D_00639C24, 6645.0f);
-ASM_LIT4_SLOT(D_00639C28, 0.3f);
+int stageSE22arain(char *a0) {
+    float x = ((float *)GetCameraPos(a0))[2];
+    float f;
+    if (x < -8000.0f) {
+        f = 0.0f;
+    } else if (-1355.0f < x) {
+        f = 1.0f;
+    } else {
+        f = (x - -8000.0f) / 6645.0f;
+    }
+    *(float *)(a0 + 0x18) = f;
+    if (f < 0.3f) {
+        *(float *)(a0 + 0x18) = 0.3f;
+    }
+    return -1;
+}
 int stageSE24astrong(void *a0) {
     float f;
     if (D_0063C07C == frame_count) {
@@ -396,6 +728,16 @@ int stageSE24ariver(char *self) {
     p[2] = b;
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/stageSEProc", stageSE47anoise);
-ASM_LIT4_SLOT(D_00639C3C, -3422.0f);
-ASM_LIT4_SLOT(D_00639C40, 3300.0f);
+int stageSE47anoise(char *a0) {
+    float x = ((float *)GetCameraPos(a0))[1];
+    float f;
+    if (x < -3422.0f) {
+        f = 0.0f;
+    } else if (-122.0f < x) {
+        f = 1.0f;
+    } else {
+        f = (x - -3422.0f) / 3300.0f;
+    }
+    *(float *)(a0 + 0x18) = 1.0f - f;
+    return -1;
+}
