@@ -959,6 +959,10 @@ words become the blob's first words.
   `"p != NULL"`, 8-aligned) once `MV_DEFS_WANT_ALLOC` is defined by the TU; the
   object is 0x2A bytes and the blob resumes 8-aligned at `0x4577D0`.
 
+- `[0x523428, .rodata, ito/mpeg/mv_vibuf]` — mirror of mv_vobuf's: the two literals the
+  header allocator bakes once `MV_DEFS_WANT_ALLOC` is defined, 48 B 8-aligned; blob
+  resumes at `0x523458` (viBufAddDMA's string).
+
 ### Deferred
 
 - Per-TU `__FILE__` strings for the `iosMalloc(size)` macro form

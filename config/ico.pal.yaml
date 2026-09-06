@@ -413,6 +413,8 @@ segments:
       - [0x51FA18, rodata, src/cod/51FA18]   # .rodata blob resume
       - [0x520030, .rodata, src/motionManager]  # carved jtbl_00620030 (VMA 0x620030..0x620088, 88 B, 22 arms): _getGeometryOfMotion's switch table, emitted by the compiled function once matched (splat migrate_rodata_to_functions); the blob keeps every other motionManager string
       - [0x520088, rodata, src/cod/520088]   # .rodata blob resume
+      - [0x523428, .rodata, ito/mpeg/mv_vibuf]  # carved D_00623428 "../ito/include/mv_defs.h" + D_00623448 "p != NULL" (mv_defs.h alloc_zeroed's literals, 8-aligned), VMA 0x623428..0x623458, 48 B; the TU's own rodata run, mirror of mv_vobuf's
+      - [0x523458, rodata, src/cod/523458]   # .rodata blob resume (viBufAddDMA's string)
       - [0x538B00, lit4, src/cod/538B00]     # .lit4
       # --- per-TU .lit4 constant-pool carves (see decomp/NOTES.md ".lit4 pools",
       # decomp/carve_ledger.md "PAL phase 1").  A TU that writes its float

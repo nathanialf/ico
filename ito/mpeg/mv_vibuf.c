@@ -1,3 +1,4 @@
+#define MV_DEFS_WANT_ALLOC
 #include "common.h"
 
 #include "mv_defs.h"
@@ -41,7 +42,59 @@ void func_00259480(int *a0) {
     func_0025A4A8(a0[1]);
     func_0025A4A8(a0[20]);
 }
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufCreate);
+extern int CreateSema(int *param);
+extern void viBufReset(ViBuf *self);
+
+int viBufCreate(ViBuf *self)
+{
+    int sem[8];
+    int data;
+    int tag;
+    int ts;
+    /* The ring geometry is held in locals: 256 sectors of 2048 bytes, and a
+       512-entry timestamp ring.  Keep them as locals - each is set here and
+       read exactly once at the bottom, so local-alloc's update_equiv_regs
+       moves the constant load down next to its store and all three share $v0
+       (writing the literals at the store sites instead costs 17 insns). */
+    int nSector = 0x100;
+    int tsMax = 0x200;
+
+    self->created = 0;
+
+    data = alloc_zeroed(0x80000, 0x40);
+    if (data == 0) {
+        return -1;
+    }
+    tag = alloc_zeroed(0x1010, 0x40);
+    if (tag == 0) {
+        return -1;
+    }
+    ts = alloc_zeroed(0x3000, 4);
+    if (ts == 0) {
+        return -1;
+    }
+
+    self->data = (char *)data;
+    self->dmaTag = (char *)uncached_accel_addr(tag);
+    self->nSector = nSector;
+    self->size = nSector << 11;
+
+    self->ts = (ViTs *)ts;
+    self->tsMax = tsMax;
+
+    sem[2] = 1;
+    sem[1] = 1;
+
+    self->sema = CreateSema(sem);
+
+    self->created = 1;
+
+    viBufReset(self);
+
+    self->total = 0;
+
+    return 0;
+}
 __asm__(
     ".section .text\n"
     "    .set noat\n"
