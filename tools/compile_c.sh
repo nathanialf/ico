@@ -146,7 +146,7 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
   # scheduled into the COP1-move hazard slot.
   if (ln[i] ~ /^[ \t]*m[ft]c1[ \t]/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
     j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
-    if (j<=NR && ln[j] !~ /^[ \t]*\./ && ln[j] !~ /:[ \t]*$/) {
+    if (j<=NR && ln[j] !~ /^[ \t]*\./ && ln[j] !~ /:[ \t]*$/ && ln[j] !~ /^[ \t]*[bj][a-z0-9]*[ \t]/) {
       print "\t.set noreorder"; print ln[i]; print ln[j]; print "\t.set reorder";
       nr=0; seen=0; i=j+1; continue } }
 

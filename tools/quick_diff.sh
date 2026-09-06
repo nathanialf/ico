@@ -227,7 +227,7 @@ awk '
 END { i=1; while (i<=NR) {
   if (ln[i] ~ /^[ \t]*mfc1[ \t]/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
     j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
-    if (j<=NR && ln[j] !~ /^[ \t]*\./ && ln[j] !~ /:[ \t]*$/) {
+    if (j<=NR && ln[j] !~ /^[ \t]*\./ && ln[j] !~ /:[ \t]*$/ && ln[j] !~ /^[ \t]*[bj][a-z0-9]*[ \t]/) {
       print "\t.set noreorder"; print ln[i]; print ln[j]; print "\t.set reorder";
       i=j+1; continue } }
   print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.mfc1nop" && mv "$ASM_OUT.mfc1nop" "$ASM_OUT"
