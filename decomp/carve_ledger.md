@@ -904,6 +904,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   gp-masked oracle but links to the wrong address. Resumes at `0x5391D8`
   (ebrain's two words, then gv's).
 
+- `[0x539A00, .lit4, src/st13a]` — the TU's whole pool, 12 words (MAIN.MAP's 0x20 is
+  the debug link's): nine slots beside four still-asm owners, then actSt13aElev's
+  camera target as literals; blob resumes at `0x539A30` (st13b's words).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
