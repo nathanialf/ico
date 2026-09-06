@@ -2,6 +2,39 @@
 
 #include "mv_defs.h"
 
+/* One entry of the timestamp ring: the PTS/DTS pair the demuxer read out of a
+   pack header, and the run of ring bytes it applies to. */
+typedef struct ViTs {
+    long long pts;   /* 0x00 -1 when the pack carried none */
+    long long dts;   /* 0x08 */
+    int pos;         /* 0x10 byte position in the data ring */
+    int len;         /* 0x14 bytes the pair covers, 0 when the slot is free */
+} ViTs;
+
+/* The video-input ring: a run of 2048-byte sectors that the CD DMA fills and
+   the MPEG demuxer drains.  Byte counts are (sector << 11) + a partial
+   offset into the sector the writer is part way through. */
+typedef struct ViBuf {
+    char *data;      /* 0x00 ring buffer, 2048 bytes per sector */
+    char *dmaTag;    /* 0x04 uncached-accel DMA tag list over the ring */
+    int nSector;     /* 0x08 ring size in sectors */
+    int rdSector;    /* 0x0C sector the reader is on */
+    int nReady;      /* 0x10 whole sectors written but not yet read */
+    int wOffset;     /* 0x14 bytes written into the sector after those */
+    int size;        /* 0x18 ring size in bytes (nSector << 11) */
+    int unk1C[7];    /* 0x1C */
+    int bitPos;      /* 0x38 IPU bit pointer at the head of the ring */
+    int unk3C;       /* 0x3C */
+    int sema;        /* 0x40 */
+    int running;     /* 0x44 the ring's DMA chain is armed */
+    long long total; /* 0x48 bytes handed to the ring since the last reset */
+    ViTs *ts;        /* 0x50 timestamp ring */
+    int tsMax;       /* 0x54 timestamp ring capacity */
+    int tsCount;     /* 0x58 timestamps live in it */
+    int tsWr;        /* 0x5C index the next timestamp goes to */
+    char created;    /* 0x60 */
+} ViBuf;
+
 
 void func_00259480(int *a0) {
     func_0025A4A8(a0[0]);
@@ -128,7 +161,44 @@ __asm__(
     "    .set reorder\n"
     "    .set at\n"
 );
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufBeginPut);
+
+extern int WaitSema();
+extern void SignalSema();
+
+/* Hand out the region the caller may write next, as up to two runs: the one
+   that ends at the top of the ring and, if it wraps, the one that starts at
+   the bottom.  Two sectors are held back so the writer never overruns the
+   reader. */
+void viBufBeginPut(ViBuf *self, void **addr1, int *size1, void **addr2, int *size2)
+{
+    int keep;
+    int pos;
+    int room;
+    int len;
+
+    WaitSema(self->sema);
+
+    keep = self->nReady + 2;
+    pos = (self->rdSector + self->nReady) << 11;
+    room = (self->nSector - keep) << 11;
+
+    pos = (pos + self->wOffset) % self->size;
+    len = room - self->wOffset;
+
+    if (self->size - pos >= len) {
+        *addr1 = self->data + pos;
+        *size1 = len;
+
+        *size2 = 0;
+        *addr2 = 0;
+    } else {
+        *addr1 = self->data + pos;
+        *size1 = self->size - pos;
+        *addr2 = self->data;
+        *size2 = len - (self->size - pos);
+    }
+    SignalSema(self->sema);
+}
 extern void SignalSema__pn(int x) __asm__("SignalSema");
 extern unsigned char WaitSema__pn(int x) __asm__("WaitSema");
 
@@ -731,8 +801,125 @@ void viBufFlush(int *self)
   self[0x14 / 4] = (self[0x14 / 4] + 0x7FF) / 0x800 * 0x800;
   SignalSema__pn(self[0x40 / 4]);
 }
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufModifyPts);
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufGetTs);
+/* Does the entry's byte position still lie inside the run of ts->len bytes
+   the reader just consumed at ts->pos, measured around a size-byte ring? */
+static __inline__ int tsRunCovers(int pos, ViTs *t, int size)
+{
+    return (pos + size - t->pos) % size < t->len;
+}
+
+/* Walk the live timestamps oldest first and charge the run described by `ts`
+   against them, retiring any entry the run swallows whole. */
+int viBufModifyPts(ViBuf *self, ViTs *ts)
+{
+    ViTs *e;
+    int idx;
+    int size;
+    int ok;
+    int n;
+    int m;
+
+    idx = (self->tsWr - self->tsCount + self->tsMax) % self->tsMax;
+    size = self->nSector << 11;
+    ok = 1;
+
+    if (self->tsCount > 0) {
+        for (;;) {
+            e = &self->ts[idx];
+
+            if (e->len == 0 || ts->len == 0) break;
+
+            if (tsRunCovers(e->pos, ts, size)) {
+                n = ts->pos + ts->len - e->pos;
+                n = e->len < n ? e->len : n;
+
+                e->pos = (e->pos + n) % size;
+                e->len -= n;
+
+                if (e->len == 0) {
+                    if (e->pts >= 0) {
+                        e->pts = -1;
+                        e->dts = -1;
+                        e->pos = 0;
+                        e->len = 0;
+                    }
+                    m = self->tsCount - 1;
+                    if (m < 0) m = 0;
+                    self->tsCount = m;
+                }
+            } else {
+                ok = 0;
+            }
+
+            idx = (idx + 1) % self->tsMax;
+            if (!ok) break;
+        }
+    }
+    return 0;
+}
+/* Hand back the PTS/DTS pair covering the byte the IPU is reading right now,
+   and retire it.  The read position is the DMA address the IPU_TO channel has
+   reached, less what is still sitting in the IPU's input FIFO. */
+int viBufGetTs(ViBuf *self, ViTs *out)
+{
+    unsigned int madr;
+    unsigned int bp;
+    int bitPos;
+    int fp;
+    int ifc;
+    int size;
+    unsigned int pos;
+    int n;
+    int i;
+    int j;
+    int wr;
+    int found;
+    int d;
+    ViTs *e;
+
+    madr = *(volatile unsigned int *)0x1000B410;
+    bp = *(volatile unsigned int *)0x10002020;
+    bitPos = self->bitPos & 0x7F;
+    fp = (bp >> 16) & 3;
+    ifc = (bp >> 8) & 0xF;
+    madr -= (fp + ifc) << 4;
+
+    size = self->nSector << 11;
+
+    found = 0;
+
+    WaitSema(self->sema);
+
+    out->pts = -1;
+    out->dts = -1;
+
+    pos = (madr + (bitPos >> 3) + size - (unsigned int)self->data) % size;
+
+    n = self->tsCount;
+    wr = self->tsWr;
+
+    for (i = 0; i < n && !found; i++) {
+
+        j = (wr - n + self->tsMax + i) % self->tsMax;
+
+        e = &self->ts[j];
+
+        if (tsRunCovers(pos, e, size)) {
+
+            out->pts = e->pts;
+            out->dts = e->dts;
+            e->pts = -1;
+            e->dts = -1;
+
+            found = 1;
+            d = self->tsCount; if (d >= 2) d = 1; self->tsCount -= d;
+        }
+    }
+
+    SignalSema(self->sema);
+
+    return 1;
+}
 extern void iosFree();
 
 void func_0025A4A8(int a0)
@@ -801,7 +988,7 @@ __asm__(
     "    .set at\n"
 );
 extern void SignalSema();
-extern void WaitSema();
+extern int WaitSema();
 
 int viBufCount(int *self)
 {
@@ -811,4 +998,31 @@ int viBufCount(int *self)
     SignalSema(self[0x40 / 4]);
     return ret;
 }
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufPutTs);
+extern int viBufModifyPts(ViBuf *self, ViTs *ts);
+
+/* Record one PTS/DTS pair against the bytes the caller just wrote.  Returns 0
+   only when the timestamp ring is full. */
+int viBufPutTs(ViBuf *self, ViTs *ts)
+{
+    int ret = 0;
+
+    WaitSema(self->sema);
+
+    if (self->tsCount < self->tsMax) {
+        viBufModifyPts(self, ts);
+
+        if (ts->pts >= 0 || ts->dts >= 0) {
+            self->ts[self->tsWr].pts = ts->pts;
+            self->ts[self->tsWr].dts = ts->dts;
+            self->ts[self->tsWr].pos = ts->pos;
+            self->ts[self->tsWr].len = ts->len;
+
+            self->tsCount++;
+            self->tsWr = (self->tsWr + 1) % self->tsMax;
+        }
+        ret = 1;
+    }
+    SignalSema(self->sema);
+
+    return ret;
+}
