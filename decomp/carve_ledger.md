@@ -953,6 +953,17 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   members' fade rates (1/1800, 1/3800, 1/720) and Conte09_3Jimaku's bound as
   literals; no blob remnant remains between st02a and st04b.
 
+- `[0x5399E0, .lit4, src/st10l]` — two words, actSt10lFloorLeft's -705 and
+  actSt10lSekizo's 1274 as literals (the TU's whole pool), after st09a's carve.
+
+- `[0x5399E8, .lit4, src/st10r]` — the TU's whole pool, 6 words: a slot for the
+  still-asm actSt10rFence's 417, then Cage, Sekizo and TowerResqueChk's constants
+  as literals; st13a's carve follows, so no blob remnant remains at 0x5399E0.
+
+- `[0x539A54, .lit4, src/st13c]` — three words between st13b's and st17a's carves:
+  actSt13cBmg1's -5725 twice and actSt13cHandChk's 550 as literals (the TU's
+  whole pool); no blob remnant remains there.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
