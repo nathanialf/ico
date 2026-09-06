@@ -936,6 +936,9 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   stageSEProc's carves: two slots for the still-asm actSt47aSekizo1Chk, then the
   two Sekizo actors' targets as literals; no blob remnant remains here.
 
+- `[0x5399D4, .lit4, src/st09a]` — three words, actSt09aSekizo's target as literals
+  (the TU's only pool owner); blob resumes at `0x5399E0`.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
