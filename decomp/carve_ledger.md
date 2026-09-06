@@ -969,6 +969,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   and actStaff3RollChk's constants as literals; the blob resumed at 0x5397E8 now ends
   at 0x539898.
 
+- `[0x539130, .lit4, src/camera-root]` — the TU's whole pool, four words of pi
+  (= MAIN.MAP camera-root.o .lit4 0x10): ConvertCameraSet's and
+  CameraGetOtherObjOffset's as literals, two slots for the still-asm SetCameraMatrix;
+  the blob resumes at `0x539140` up to chain's carve.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections

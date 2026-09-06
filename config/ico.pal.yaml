@@ -443,6 +443,8 @@ segments:
       - [0x539090, lit4, src/cod/539090]     # .lit4 blob resume
       - [0x5390D4, .lit4, src/st25a]  # carved D_006390D4..D_00639104 (13 slots, 7 fns actConte11..func_00187DF0), VMA 0x6390D4..0x639108, 52 B; MAIN.MAP st25a.o .lit4 is 0x44 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
       - [0x539108, lit4, src/cod/539108]     # .lit4 blob resume
+      - [0x539130, .lit4, src/camera-root]  # carved D_00639130..D_0063913C (4 words of pi: ConvertCameraSet and CameraGetOtherObjOffset as literals, two slots for the still-asm SetCameraMatrix; the TU's whole pool = MAIN.MAP camera-root.o .lit4 0x10), VMA 0x639130..0x639140
+      - [0x539140, lit4, src/cod/539140]     # .lit4 blob resume (chain's words follow at 0x539190)
       - [0x539190, .lit4, src/chain]  # carved D_00639190..D_006391D4 (18 slots: chain_simulate_free..TestChainUpDown still asm, then IncreasePdlChain, DecreasePdlChain, GetChainDirCorrectVal, InitPendulum x2, _GetCorrectOrientOfChain as literals; the TU's whole pool), VMA 0x639190..0x6391D8
       - [0x5391D8, lit4, src/cod/5391D8]     # .lit4 blob resume (ebrain's words, then gv's)
       - [0x539230, .lit4, src/act_bird]  # carved D_00639230..D_00639290 (25 slots, 5 fns interp_vector_sa..vector_angle_degree; 8x 2*pi), VMA 0x639230..0x639294, 100 B; MAIN.MAP act_bird.o .lit4 0x64 agrees.  USA: - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
