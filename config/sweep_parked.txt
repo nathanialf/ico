@@ -99,9 +99,6 @@ RandomizeEnemy      # rc9 non-sibcall
 ReleaseWeapon       # rc2 store
 func_0016AB60       # rc10 0x164 reload per branch
 Init_Player         # rc17 extern fn address null-test
-CanThisEnemyFly     # rc1 0x18 displacement folded into the table address (struct-field, cast and index forms tried)
-GetEnemyBattleType  # rc1 0x18 displacement folded into the table address (struct-field, cast and index forms tried)
-GetEnemyDefParaIndex# rc1 0x18 displacement folded into the table address (struct-field, cast and index forms tried)
 fiprintf            # rc11 varargs home layout (va_alist and next_arg forms)
 actSt13cHandSub     # rc2 v0/v1 for the gp store before _ACTWait
 scpAdpcmPlayRequestNum# rc7 after refinement
