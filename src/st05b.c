@@ -20,6 +20,7 @@ extern int gflagChk(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 
 INCLUDE_ASM("asm/nonmatchings/src/st05b", actSt05bCrest01XL);
+ASM_LIT4_SLOT(D_0063997C, 10350.0f);
 ASM_LIT4_SLOT(D_00639980, -2150.0f);
 ASM_LIT4_SLOT(D_00639984, -10793.0f);
 ASM_LIT4_SLOT(D_00639988, 2122.0f);
