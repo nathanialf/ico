@@ -39,8 +39,8 @@ extern int iosMallocAlignDebug(int heap, int size, int align, const char *file, 
 extern void debug_assert(const char *file, int line);   /* assert reporter */
 extern void __assert(const char *file, int line, const char *expr);  extern void *memset(void *p, int c, int n);
 #ifdef MV_DEFS_WANT_ALLOC   /* opt-in: see the note below line 46 */
-static __inline__ int alloc_zeroed(int size)  /* RECONSTRUCTION; 5 census hosts */
-{ int p = iosMallocAlignDebug(D_0063A468, size, 0x40, __FILE__, __LINE__);
+static __inline__ int alloc_zeroed(int size, int align)  /* RECONSTRUCTION; 5 census hosts; align = 0x40 at four sites, 4 at viBufCreate's third */
+{ int p = iosMallocAlignDebug(D_0063A468, size, align, __FILE__, __LINE__);
   if (p == 0) { debug_assert(__FILE__, __LINE__); __assert(__FILE__, __LINE__, "p != NULL"); }
   memset((void *)p, 0, size); return p; }
 #endif

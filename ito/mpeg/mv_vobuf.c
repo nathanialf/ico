@@ -26,12 +26,12 @@ int voBufCreate(VoBuf *self)
     int tag;
     int i;
 
-    data = alloc_zeroed(0x7E9000);
+    data = alloc_zeroed(0x7E9000, 0x40);
     if (data == 0) {
         return -1;
     }
     self->data = (void *)uncached_accel_addr(data);
-    tag = alloc_zeroed(0x3C1040);
+    tag = alloc_zeroed(0x3C1040, 0x40);
     self->tag = (void *)tag;
     if (tag == 0) {
         return -1;
