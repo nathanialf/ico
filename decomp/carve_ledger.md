@@ -897,6 +897,13 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   blob resumes at `0x539994` (st05e's word). Owners are mapped from `%gp_rel` in
   the `.s` files, not from MAIN.MAP's size (0x18 there is the debug link's).
 
+- `[0x539190, .lit4, src/chain]` — the TU's whole pool, 18 words 0x639190..0x6391D4
+  (the debug link's 0xa8 is not the ELF's): 12 slot lines beside seven still-asm
+  owners, then the C owners' literals in emission order; every C owner reads its
+  OWN word as a literal, since an extern read of a sibling's word passes the
+  gp-masked oracle but links to the wrong address. Resumes at `0x5391D8`
+  (ebrain's two words, then gv's).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
