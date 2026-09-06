@@ -466,6 +466,7 @@ segments:
       - [0x539710, .lit4, src/worm]  # carved D_00639710..D_00639720 (5 slots: getAnimation 0.8f, disp 0.02f, WormGeo 0.05f + 8.99999f, TraceWormRoute 8.99999f), VMA 0x639710..0x639724, 20 B; the TU's whole pool
       - [0x539724, .lit4, src/BgAnimation]  # carved D_00639724..D_006397E4 (49 slots, bga_GetMotion..bga_CheckSdfCameraFrameIn; the TU's whole pool, right after worm's), VMA 0x639724..0x6397E8
       - [0x5397E8, lit4, src/cod/5397E8]     # .lit4 blob resume
+      - [0x539898, .lit4, src/end]  # carved D_00639898..D_006398AC (6 words: actEndDemo14's 7046/1678 as slots while it is asm; Conte14_7, Staff3Demo, Staff3RollChk's constants as literals; the TU's whole pool, op's word follows), VMA 0x639898..0x6398B0
       - [0x5398B0, .lit4, src/op]  # carved D_006398B0 (1 slot, 2700.0f in actSt24aConte01_2_Jimaku; = MAIN.MAP op.o .lit4 0x4), VMA 0x6398B0..0x6398B4
       - [0x5398B4, .lit4, src/st02a]  # carved D_006398B4..D_006398C8 (6 slots: actSt02aDoorUpChk x2, DoorDownChk x2 still asm; actSt02aSekizo's 1828/1150 as literals; the TU's whole pool, bounded by op's 2700 and st03t's -913), VMA 0x6398B4..0x6398CC
       - [0x5398CC, .lit4, src/st03t]  # carved D_006398CC..D_006398D4 (3 slots, actSt03tSekizo's -913/605/550 as literals; the TU's whole pool, bounded by st02a's and st04a's words), VMA 0x6398CC..0x6398D8

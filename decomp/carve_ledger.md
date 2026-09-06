@@ -964,6 +964,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   actSt13cBmg1's -5725 twice and actSt13cHandChk's 550 as literals (the TU's
   whole pool); no blob remnant remains there.
 
+- `[0x539898, .lit4, src/end]` — the TU's whole pool, 6 words directly before op's
+  2700: two slots for the still-asm actEndDemo14, then actConte14_7's, actStaff3Demo's
+  and actStaff3RollChk's constants as literals; the blob resumed at 0x5397E8 now ends
+  at 0x539898.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
