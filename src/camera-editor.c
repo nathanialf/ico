@@ -62,31 +62,158 @@ void CameraEdit_DispBoxType2(int a0, int a1) {
     dispCameraGroupType2(a0, a1 & 0xFF);
 }
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018CDC0);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", wakeup_cameraedit);
+extern int print_y;
+extern int D_0028F94C[];
+extern char D_002AD010[];
+extern StageParam D_005F5D50[];
+extern int stage_no;
+extern int *D_0063AA7C;
+extern void iosThreadWakeup(void *thread);
+extern void saveEditedDataBinary(int a0, int a1, int a2);
+
+void wakeup_cameraedit(void) {
+    print_y = 50;
+    if (curmenu != 0) {
+        iosThreadWakeup((void *)curmenu);
+        if (D_0028F94C[0] & 0x400) {
+            saveEditedDataBinary(
+                (int)&D_002AD010[D_005F5D50[stage_no].camSetId * 0x20],
+                D_0063AA7C[1],
+                D_0063AA7C[0]);
+        }
+    }
+}
 extern void EnterMenu(void *a0, int a1, void *a2);
 extern void func_0018CDC0(void);
 
 void test_camedit(void) {
     EnterMenu((void *)func_0018CDC0, 0, 0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", _CameraEdit_del_box);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", _CameraEdit_del_pin);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", CameraEdit_add_box);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", CameraEdit_add_pin);
+extern char D_00555038[];
+extern void debug_StdPrintfDummy();
+
+static inline void _CameraEdit_free_box_pool(CamMgr *mgr, int idx) {
+    S4C *box = (S4C *)(idx * 0x4C + (int)mgr->items);
+    char *p = mgr->pool;
+    int i;
+    for (i = 0; i < 0x64; i++) {
+        if (p == *(char **)&box->w[0x48 / 4]) {
+            mgr->flags[i] = 0;
+        }
+        p += 0x23F0;
+    }
+}
+
+void _CameraEdit_del_box(CamMgr *mgr, int idx) {
+    if (mgr->count <= 0) {
+        debug_StdPrintfDummy(D_00555038);
+        return;
+    }
+    _CameraEdit_free_box_pool(mgr, idx);
+    while (idx < mgr->count) {
+        *(S4C *)(mgr->items + idx * 0x4C) = *(S4C *)(mgr->items + idx * 0x4C + 0x4C);
+        idx++;
+    }
+    mgr->count = mgr->count - 1;
+}
+static inline S4C *_CameraEdit_BOX_p(CamMgr *mgr, int i) {
+    return (S4C *)(i * 0x4C + (int)mgr->items);
+}
+static inline S5C *_CameraEdit_PIN_p(CamMgr *mgr, int i, int j) {
+    return (S5C *)(_CameraEdit_BOX_p(mgr, i)->w[0x48 / 4] + j * 0x5C);
+}
+
+void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin) {
+    S5C *p;
+    if (_CameraEdit_BOX_p(mgr, box)->w[0x3C / 4] <= 0) {
+        debug_StdPrintfDummy(D_00555038);
+        return;
+    }
+    for (p = _CameraEdit_PIN_p(mgr, box, pin);
+         p < _CameraEdit_PIN_p(mgr, box, _CameraEdit_BOX_p(mgr, box)->w[0x3C / 4]);
+         p++) {
+        *p = p[1];
+    }
+    _CameraEdit_BOX_p(mgr, box)->w[0x3C / 4] = _CameraEdit_BOX_p(mgr, box)->w[0x3C / 4] - 1;
+}
+extern char D_00555020[];
 extern int *D_0063AA78;
 extern int *D_0063AA7C;
-extern void _CameraEdit_del_box(int *a0, void *a1);
 
-void CameraEdit_del_box(void *a0) {
-    _CameraEdit_del_box(D_0063AA78, a0);
-    _CameraEdit_del_box(D_0063AA7C, a0);
+static inline char *_CameraEdit_alloc_pool(CamMgr *mgr) {
+    int i;
+    for (i = 0; i < 0x64; i++) {
+        if (mgr->flags[i] == 0) {
+            mgr->flags[i] = 1;
+            return mgr->pool + i * 0x23F0;
+        }
+    }
+    return 0;
 }
-extern void _CameraEdit_del_pin(int a0, int a1, int a2);
+
+inline int _CameraEdit_add_box(CamMgr *mgr, S4C *src) {
+    int result = -1;
+    char *p;
+    S4C *dst;
+    if (mgr->count < 0x64) {
+        p = _CameraEdit_alloc_pool(mgr);
+        if (p != 0) {
+            dst = (S4C *)(mgr->items + mgr->count * 0x4C);
+            result = mgr->count;
+            *dst = *src;
+            dst->w[0x38 / 4] = 0;
+            dst->w[0x3C / 4] = 0;
+            *(char **)((char *)dst + 0x48) = p;
+            mgr->count = mgr->count + 1;
+        }
+        return result;
+    }
+    debug_StdPrintfDummy(D_00555020);
+    return -1;
+}
+
+int CameraEdit_add_box(S4C *src) {
+    _CameraEdit_add_box((CamMgr *)D_0063AA78, src);
+    return _CameraEdit_add_box((CamMgr *)D_0063AA7C, src);
+}
+extern char D_00555020[];
+extern int *D_0063AA78;
+extern int *D_0063AA7C;
+
+inline int _CameraEdit_add_pin(void *a0, int a1, S5C *src) {
+    int base = a1 * 0x4C + *(int *)((char *)a0 + 4);
+    int n = *(int *)(base + 0x3C);
+    int result = -1;
+    if (n < 0x64) {
+        int base2;
+        *(S5C *)(*(int *)(base + 0x48) + n * 0x5C) = *src;
+        base2 = a1 * 0x4C + *(int *)((char *)a0 + 4);
+        result = *(int *)(base2 + 0x3C);
+        *(int *)(base2 + 0x3C) = result + 1;
+    } else {
+        debug_StdPrintfDummy(D_00555020);
+    }
+    return result;
+}
+
+int CameraEdit_add_pin(int box, char *src) {
+    _CameraEdit_add_pin(D_0063AA78, box, (S5C *)src);
+    return _CameraEdit_add_pin(D_0063AA7C, box, (S5C *)src);
+}
+extern int *D_0063AA78;
+extern int *D_0063AA7C;
+extern void _CameraEdit_del_box(CamMgr *mgr, int idx);
+
+void CameraEdit_del_box(int a0) {
+    _CameraEdit_del_box((CamMgr *)D_0063AA78, a0);
+    _CameraEdit_del_box((CamMgr *)D_0063AA7C, a0);
+}
+extern void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin);
 
 void CameraEdit_del_pin(int a0, int a1)
 {
-    _CameraEdit_del_pin(D_0063AA78, a0, a1);
-    _CameraEdit_del_pin(D_0063AA7C, a0, a1);
+    _CameraEdit_del_pin((CamMgr *)D_0063AA78, a0, a1);
+    _CameraEdit_del_pin((CamMgr *)D_0063AA7C, a0, a1);
 }
 extern void DispCameraGroup(int a0, unsigned char a1);
 
@@ -209,8 +336,42 @@ int CameraEdit_BOX(int a0) {
 int CameraEdit_PIN(int a0, int a1) {
     return *(int *)(D_0063AA7C[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
 }
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", CameraEdit_DispPin);
-extern void CameraEdit_add_box(S4C *a0);
+typedef union {
+    unsigned int c[4];
+    unsigned long long w[2];
+} CamColor;
+
+extern CamColor D_00554E70;
+extern void *MatrixDrive_GetMatrix(void);
+extern void sceVu0UnitMatrix(void *m);
+extern void gif_StartPacketPri(int prio);
+extern void gif_EndPacket(void);
+extern void DrawLine(float *from, float *to, CamColor *color, int z);
+
+static inline void dispPinRange(int box, int from, int to) {
+    CamColor col = D_00554E70;
+    int i;
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    ((float (*)[4])MatrixDrive_GetMatrix())[0][0] =
+        ((float (*)[4])MatrixDrive_GetMatrix())[1][1] =
+            ((float (*)[4])MatrixDrive_GetMatrix())[2][2] = -1.0f;
+    gif_StartPacketPri(11);
+    for (i = from; i < to; i++) {
+        float a[3] = { ((float *)CameraEdit_PIN(box, i))[0],
+                       ((float *)CameraEdit_PIN(box, i))[1],
+                       ((float *)CameraEdit_PIN(box, i))[2] };
+        float b[3] = { ((float *)CameraEdit_PIN(box, i))[3],
+                       ((float *)CameraEdit_PIN(box, i))[4],
+                       ((float *)CameraEdit_PIN(box, i))[5] };
+        DrawLine(a, b, &col, -1);
+    }
+    gif_EndPacket();
+}
+
+void CameraEdit_DispPin(int box, int pin) {
+    dispPinRange(box, pin, pin + 1);
+}
+extern int CameraEdit_add_box(S4C *a0);
 extern int CameraEdit_add_pin(int a0, char *a1);
 extern float D_002A5D68[];
 extern StageParam D_005F5D50[];
@@ -304,50 +465,4 @@ int _CameraEdit_PIN(int *a0, int a1, int a2)
 extern char D_00555020[];
 extern void debug_StdPrintfDummy();
 
-int _CameraEdit_add_box(CamMgr *mgr, S4C *src) {
-    int result = -1;
-    int i;
-    char *p;
-    S4C *dst;
-    if (mgr->count < 0x64) {
-        for (i = 0; i < 0x64; i++) {
-            if (mgr->flags[i] == 0) {
-                mgr->flags[i] = 1;
-                p = mgr->pool + i * 0x23F0;
-                goto have;
-            }
-        }
-        p = 0;
-    have:
-        if (p != 0) {
-            dst = (S4C *)(mgr->items + mgr->count * 0x4C);
-            result = mgr->count;
-            *dst = *src;
-            dst->w[0x38 / 4] = 0;
-            dst->w[0x3C / 4] = 0;
-            *(char **)((char *)dst + 0x48) = p;
-            mgr->count = mgr->count + 1;
-        }
-        return result;
-    }
-    debug_StdPrintfDummy(D_00555020);
-    return -1;
-}
-extern void debug_StdPrintfDummy__pn(char *a0, ...) __asm__("debug_StdPrintfDummy");
-
-int _CameraEdit_add_pin(void *a0, int a1, S5C *src) {
-    int base = a1 * 0x4C + *(int *)((char *)a0 + 4);
-    int n = *(int *)(base + 0x3C);
-    int result = -1;
-    if (n < 0x64) {
-        int base2;
-        *(S5C *)(*(int *)(base + 0x48) + n * 0x5C) = *src;
-        base2 = a1 * 0x4C + *(int *)((char *)a0 + 4);
-        result = *(int *)(base2 + 0x3C);
-        *(int *)(base2 + 0x3C) = result + 1;
-    } else {
-        debug_StdPrintfDummy__pn(D_00555020, (void *)a1);
-    }
-    return result;
-}
-void CameraEdit_Enter(void) {}
+inline void CameraEdit_Enter(void) {}
