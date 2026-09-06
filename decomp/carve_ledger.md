@@ -908,6 +908,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   the debug link's): nine slots beside four still-asm owners, then actSt13aElev's
   camera target as literals; blob resumes at `0x539A30` (st13b's words).
 
+- `[0x539A60, .lit4, src/st17a]` — the TU's whole pool, 9 words: six slots for the two
+  still-asm door checks, then actSt17aSekizo's target as literals; bounded by st13c's
+  and st17b's words (blob resumes at `0x539A84`).
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
