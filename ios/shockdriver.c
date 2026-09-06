@@ -15,6 +15,41 @@ typedef struct ShockReq {
     /* 0x5 */ unsigned char val;
 } ShockReq;
 
+typedef struct SHOCKREQUEST {
+    /* 0x00 */ unsigned char flags;
+    /* 0x01 */ unsigned char b1;
+    /* 0x02 */ unsigned char b2;
+    /* 0x03 */ unsigned char b3;
+    /* 0x04 */ unsigned char pad04[0x24];
+    /* 0x28 */ int key;
+    /* 0x2C */ int arg;
+    /* 0x30 */ struct SHOCKREQUEST *prev;
+    /* 0x34 */ struct SHOCKREQUEST *next;
+    /* 0x38 */ unsigned char voice;
+    /* 0x39 */ unsigned char pad39[7];
+} SHOCKREQUEST;
+
+typedef struct ShockVoiceSet {
+    /* 0x0 */ int unk0;
+    /* 0x4 */ int *wave;
+    /* 0x8 */ int *shot;
+} ShockVoiceSet;
+
+typedef struct ShockParam {
+    /* 0x0 */ unsigned char voice;
+    /* 0x1 */ unsigned char b1;
+    /* 0x2 */ unsigned char b2;
+    /* 0x3 */ unsigned char b3;
+} ShockParam;
+
+typedef struct ShockRequestBox {
+    /* 0x0 */ void *head;
+    /* 0x4 */ void *(*alloc)(void *, int);
+    /* 0x8 */ void (*free)(SHOCKREQUEST *, void *);
+    /* 0xC */ void *arg;
+} ShockRequestBox;
+
+extern ShockMgr *System_shock_driver;
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Vibration_ShotDecode);
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Vibration_WaveDecode);
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Shock_Request);
@@ -91,7 +126,7 @@ void Init_ShockVoiceSet(int **a0, int *a1) {
     a1 = a1 + *(unsigned short *)((char *)a1 + 0x6);
     a0[2] = a1;
 }
-void Vibration_SetDecodeData(void *a0, int a1, int a2, char a3, char a4) {
+void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigned char a4) {
     char *p = (char *)a0;
     p[0x3] = a4;
     p[0x0] = 0x11;
@@ -114,7 +149,12 @@ void Vibration_SetDecodeData(void *a0, int a1, int a2, char a3, char a4) {
 }
 extern int dumyAllocFunc();
 
-void Init_ShockRequestBox(int *a0, int a1, int a2, int a3)
+/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
+ * Init_ShockRequestBox into Init_Player, so it is a public `inline` of the deferred
+ * tail; until the tail's asm member (Init_Shock) is C the copy is emitted in
+ * place as a plain function at its ROM position and the caller inlines this
+ * static stand-in, which collapses at layout. */
+static inline void initShockRequestBox(int *a0, int a1, int a2, int a3)
 {
     a0[0] = 0;
     if (a1) {
@@ -124,6 +164,10 @@ void Init_ShockRequestBox(int *a0, int a1, int a2, int a3)
     }
     a0[2] = a2;
     a0[3] = a3;
+}
+void Init_ShockRequestBox(int *a0, int a1, int a2, int a3)
+{
+    initShockRequestBox(a0, a1, a2, a3);
 }
 void ShockRequestBox_Clear(int *self)
 {
@@ -154,9 +198,88 @@ void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node) {
     }
     *head = new_node;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockRequestBox_Request);
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockRequestBox_DecodeRequest);
-extern int requestFree(void *a0, int *p);
+SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, ShockParam v, int key, int arg)
+{
+    ShockVoiceSet *vs;
+    SHOCKREQUEST *req;
+    int wave;
+    int shot;
+    int t;
+
+    if (System_shock_driver == 0) return 0;
+    if (box == 0) return 0;
+
+    vs = (ShockVoiceSet *)System_shock_driver->arr[v.voice];
+    if (vs == 0) return 0;
+
+    req = box->alloc(box->arg, arg);
+    if (req == 0) return 0;
+
+    req->voice = v.voice;
+    req->arg = arg;
+    req->key = key;
+
+    if (p->voice != 0xFF) {
+        wave = (int)vs->wave + vs->wave[p->voice];
+    } else {
+        wave = 0;
+    }
+    if (p->b1 != 0xFF) {
+        shot = (int)vs->shot + vs->shot[p->b1];
+    } else {
+        shot = 0;
+    }
+    Vibration_SetDecodeData(req, wave, shot, 0xFF, 0x40);
+    req->b1 = v.b1;
+    t = p->b2 * v.b2 / 0xFF;
+    req->b2 = (t < 0x100) ? t : 0xFF;
+    t = p->b3 * v.b3 / 0x40;
+    if (t >= 0x100) t = 0xFF;
+    req->b3 = t;
+    ShockRequestBox_Regst((struct PadNode **)box, (struct PadNode *)req);
+    return req;
+}
+extern int Vibration_WaveDecode(SHOCKREQUEST *p, int level);
+extern int Vibration_ShotDecode(SHOCKREQUEST *p, int level);
+extern int *ShockRequestBox_EndRequestFree(int **a0);
+
+/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
+ * ShockRequestBox_DecodeRequest into Shock_Decode, so it is a public `inline` of the deferred
+ * tail; until the tail's asm member (Init_Shock) is C the copy is emitted in
+ * place as a plain function at its ROM position and the caller inlines this
+ * static stand-in, which collapses at layout. */
+static inline int decodeRequestBox(ShockRequestBox *box, unsigned char *pFlags, unsigned char *pLevel)
+{
+    SHOCKREQUEST *p;
+    int flags = 0;
+    int sum = 0;
+    int count;
+
+    if (box == 0) {
+        return 0;
+    }
+    p = (SHOCKREQUEST *)box->head;
+    count = 0;
+    while (p != 0) {
+        count++;
+        sum += Vibration_WaveDecode(p, ((int *)System_shock_driver)[2]);
+        flags |= Vibration_ShotDecode(p, ((int *)System_shock_driver)[2]);
+        p = p->next;
+    }
+    count |= sum << 16;
+    if (sum >= 0x100) {
+        sum = 0xFF;
+    }
+    *pLevel = sum;
+    *pFlags = flags;
+    ShockRequestBox_EndRequestFree((int **)box);
+    return count;
+}
+int ShockRequestBox_DecodeRequest(ShockRequestBox *box, unsigned char *pFlags, unsigned char *pLevel)
+{
+    return decodeRequestBox(box, pFlags, pLevel);
+}
+inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req);
 
 int *ShockRequestBox_EndRequestFree(int **a0) {
     int *p; unsigned char b;
@@ -165,14 +288,49 @@ int *ShockRequestBox_EndRequestFree(int **a0) {
         if (p != 0) {
             do {
                 b = *(unsigned char *)p;
-                if (b == 0) p = (int *)requestFree(a0, p);
+                if (b == 0) p = (int *)requestFree((ShockRequestBox *)a0, (SHOCKREQUEST *)p);
                 else        p = (int *)p[0x34 / 4];
             } while (p != 0);
         }
     }
     return *a0;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockRequestBox_VoiceSetUseRequestFree);
+inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req)
+{
+    SHOCKREQUEST *p;
+
+    if (req->prev != 0) {
+        req->prev->next = req->next;
+    } else {
+        box->head = req->next;
+    }
+    if (req->next != 0) {
+        req->next->prev = req->prev;
+    }
+    p = req;
+    req = req->next;
+    if (box->free != 0) {
+        box->free(p, box->arg);
+    }
+    return req;
+}
+void *ShockRequestBox_VoiceSetUseRequestFree(ShockRequestBox *box, int voice)
+{
+    SHOCKREQUEST *p;
+    if (box != 0) {
+        p = (SHOCKREQUEST *)box->head;
+        if (p != 0) {
+            do {
+                if (p->voice == voice) {
+                    p = requestFree(box, p);
+                } else {
+                    p = p->next;
+                }
+            } while (p != 0);
+        }
+    }
+    return box->head;
+}
 int *ShockRequestBox_GetRequest(int **head_ptr, int key)
 {
     int *p;
@@ -239,7 +397,11 @@ int ShockRequestBox_RequestDirectCancel(int *a0, int *a1) {
     }
     return 1;
 }
-extern ShockMgr *System_shock_driver;
+
+extern int ShockDriver[4];
+extern int ShockVoiceSetBuf[2];
+extern int ShockRequestMemory[2];
+extern char ShockRequest[];
 
 void Init_ShockDriver(int *a0, int a1, int a2)
 {
@@ -343,14 +505,12 @@ unsigned short ShockEmulator_EmulationWave(short *a0, int a1) {
     return (unsigned short)a0[0];
 }
 void Init_ShockRequestAlloc(int *a0, char *a1, int a2) {
+    int i;
     if (a0 != 0 && a1 != 0) {
         a0[0] = a2;
         a0[1] = (int)a1;
-        if (a2 > 0) {
-            do {
-                *a1 = 0;
-                a1 += 0x40;
-            } while (--a2 != 0);
+        for (i = 0; i < a2; i++) {
+            a1[i * 0x40] = 0;
         }
     } else {
         a0[0] = 0;
@@ -370,13 +530,43 @@ void *Get_ShockRequestStruct(int *a0) {
 void Reset_ShockRequestStruct(char *p) {
     *p = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockRevice_Wave);
+int ShockRevice_Wave(int a0, int a1)
+{
+    int diff = a0 - a1;
+
+    if (diff <= 0) goto Ldec;
+    if (diff >= 0x29) goto Lff;
+    if (a0 >= 0x3D) goto L40;
+    if (a1 >= 0x3D) goto L40;
+    if (a1 >= 0x33) goto Lquad;
+Lff:
+    a0 = 0xFF;
+    goto Lend;
+Lquad:
+    diff = 0x3C - a0;
+    diff = (diff * 0xFF) * diff / 0x64;
+    a0 = (a1 < diff) ? diff : a0;
+    goto Lend;
+L40:
+    diff = diff * 0xFF / 0x28;
+    a0 = (a1 < diff) ? diff : a0;
+    goto Lend;
+Ldec:
+    if (diff >= 0) goto Lend;
+    if (diff < -0x1E) {
+        a0 = 0;
+        goto Lend;
+    }
+    diff = diff * 0xFF / 0x1E + 0xFF;
+    a0 = (diff < a1) ? diff : a0;
+Lend:
+    return a0;
+}
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Init_Shock);
-extern int *D_0063A5D0__pn __asm__("System_shock_driver");
 
 int Shock_SetShockVoiceSet(int idx, int val)
 {
-    int *base = (int *)D_0063A5D0__pn;
+    int *base = (int *)System_shock_driver;
     int *array;
     if ((unsigned int)idx < (unsigned int)base[0]) goto store;
     idx = -1;
@@ -387,7 +577,12 @@ store:
 end:
     return idx;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Init_Player);
+
+void Init_Player(int *box)
+{
+    initShockRequestBox(box, (int)Get_ShockRequestStruct,
+                         (int)Reset_ShockRequestStruct, (int)ShockRequestMemory);
+}
 void Init_Controler(short *a0) {
     a0[1] = 0;
     a0[0] = 0;
@@ -412,7 +607,10 @@ void Shock_RequestClear(int *self)
 end:
     self[0] = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Shock_Decode);
+void Shock_Decode(ShockRequestBox *box, unsigned char *pFlags, unsigned char *pLevel)
+{
+    decodeRequestBox(box, pFlags, pLevel);
+}
 int dumyAllocFunc(void)
 {
     return 0;
@@ -421,4 +619,3 @@ void Vibration_SetDecodeEnd(unsigned char *p, int a1, int a2) {
     if (a1) *p &= 0xFE;
     if (a2) *p &= 0xEF;
 }
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", requestFree);
