@@ -96,7 +96,7 @@ nine helpers.  Every one is inline-only, so **all nine names are ours**.
 | 58-61 `crt_random_unit` | `((rand()>>4)&0xFFFF) * 1/65535` | 3 hosts (line 60) | reconstruction |
 | 63-66 `random_signed_b` | identical body to lines 53-56 | 5 hosts (47+65) | reconstruction |
 | 69-72 `plane_distance` | `dot(plane.xyz,pos.xyz)+plane.w` on VU0 | 28 expansions | **PROVEN** |
-| 85-88 `distance_squared` | `\|a-b\|^2` (xyz) on VU0 | 22 hosts (85/87) | reconstruction |
+| 85-88 `distance_squared` | `\|a-b\|^2` (xyz) on VU0 | 22 hosts (85/87) | MATCHED 2026-09-07 (host GetChainCollision): one clobber-free asm block like plane_distance; the macro form's "memory" clobber killed gcse's MEM expressions in every host |
 | 95-98 `distance_squared_b` | identical body to lines 85-88 | 1 host (87+97) | reconstruction |
 | 100-103 `distance_squared_xz` | `dx^2+dz^2` (`vmul.xz`) | 1 host (line 102) | reconstruction |
 | 115-120 `byte_checksum` | byte sum over n bytes | 2 hosts (115/118/119) | reconstruction |
