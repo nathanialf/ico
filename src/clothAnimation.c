@@ -61,8 +61,136 @@ ASM_LIT4_SLOT(D_00639480, 0.98f);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetClothAnimationFix4Points);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", clipCylinderCollision);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitChains);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitClothes);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitClothesNoShade);
+typedef struct {
+    long long q[89];
+} TexBlob;
+
+typedef struct {
+    int num;
+    int **rec;
+} ClothSet;
+
+extern char *iosMallocDebug(int heap, int size, char *file, int line);
+extern char *prim_InitMesh3D(int a0, int a1, int a2, int a3, unsigned int a4, int a5);
+extern int tex_GetTextureNo(void *a0);
+extern void *tex_GetTextureData(int a0);
+extern void *memset(void *a0, int a1, int a2);
+extern int D_0063A438;
+extern char D_0061F270[];
+extern char D_0061F288[];
+
+ClothSet *InitClothes(int cfg)
+{
+    ClothSet *r;
+    int i = 0;
+    int m;
+    int q;
+    float aa[4];
+    float bb[4];
+
+    r = (ClothSet *)iosMallocDebug(D_0063A438, 8, D_0061F270, 1235);
+    debug_StdPrintfDummy(D_0061F288);
+    while (*(int *)(i * 0x1C + cfg) != -1) {
+        i++;
+    }
+    r->num = i;
+    r->rec = (int **)iosMallocDebug(D_0063A438, i * 0x2E0, D_0061F270, 1240);
+    for (i = 0; i < r->num; i++) {
+        if (*(int *)(i * 0x1C + cfg + 0x14) != 0) {
+            *(char **)(i * 0x2E0 + (int)r->rec) =
+                prim_InitMesh3D(*(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x5C,
+                                0x80808080, 1);
+            *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 1;
+            *(TexBlob *)(i * 0x2E0 + (int)r->rec + 0x18) =
+                *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(*(void **)(i * 0x1C + cfg + 0x14)));
+        } else {
+            *(char **)(i * 0x2E0 + (int)r->rec) =
+                prim_InitMesh3D(*(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x4C,
+                                0xFFFFFF80, 1);
+            *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 0;
+        }
+        *(char **)(i * 0x2E0 + (int)r->rec + 4) =
+            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, D_0061F270, 1268);
+        *(char **)(i * 0x2E0 + (int)r->rec + 8) =
+            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, D_0061F270, 1269);
+        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) =
+            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, D_0061F270, 1270);
+        for (m = 0; m < *(int *)(i * 0x1C + cfg); m++) {
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) =
+                (char *)(*(int *)(*(char **)(i * 0x2E0 + (int)r->rec) + 0x6C) +
+                         m * *(int *)(i * 0x1C + cfg + 8) * 16);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) =
+                iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg + 8) * 16, D_0061F270, 1275);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC)) =
+                iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg + 8) * 4, D_0061F270, 1276);
+            memset(aa, 0, 16);
+            aa[3] = 1.0f;
+            memset(bb, 0, 16);
+            for (q = 0; q < *(int *)(i * 0x1C + cfg + 8); q++) {
+                CopyVector(*(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) + q * 16, aa);
+                CopyVector(*(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) + q * 16, bb);
+                *(int *)(q * 4 + (int)*(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC))) = -1;
+            }
+        }
+    }
+    return r;
+}
+ClothSet *InitClothesNoShade(int cfg)
+{
+    ClothSet *r;
+    int i = 0;
+    int m;
+    int q;
+    float aa[4];
+    float bb[4];
+
+    r = (ClothSet *)iosMallocDebug(D_0063A438, 8, D_0061F270, 1296);
+    debug_StdPrintfDummy(D_0061F288);
+    while (*(int *)(i * 0x1C + cfg) != -1) {
+        i++;
+    }
+    r->num = i;
+    r->rec = (int **)iosMallocDebug(D_0063A438, i * 0x2E0, D_0061F270, 1301);
+    for (i = 0; i < r->num; i++) {
+        if (*(int *)(i * 0x1C + cfg + 0x14) != 0) {
+            *(char **)(i * 0x2E0 + (int)r->rec) =
+                prim_InitMesh3D(*(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x5C,
+                                0x80808080, 0);
+            *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 1;
+            *(TexBlob *)(i * 0x2E0 + (int)r->rec + 0x18) =
+                *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(*(void **)(i * 0x1C + cfg + 0x14)));
+        } else {
+            *(char **)(i * 0x2E0 + (int)r->rec) =
+                prim_InitMesh3D(*(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x4C,
+                                0xFFFFFF80, 0);
+            *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 0;
+        }
+        *(char **)(i * 0x2E0 + (int)r->rec + 4) =
+            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, D_0061F270, 1329);
+        *(char **)(i * 0x2E0 + (int)r->rec + 8) =
+            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, D_0061F270, 1330);
+        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) =
+            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, D_0061F270, 1331);
+        for (m = 0; m < *(int *)(i * 0x1C + cfg); m++) {
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) =
+                (char *)(*(int *)(*(char **)(i * 0x2E0 + (int)r->rec) + 0x6C) +
+                         m * *(int *)(i * 0x1C + cfg + 8) * 16);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) =
+                iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg + 8) * 16, D_0061F270, 1336);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC)) =
+                iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg + 8) * 4, D_0061F270, 1337);
+            memset(aa, 0, 16);
+            aa[3] = 1.0f;
+            memset(bb, 0, 16);
+            for (q = 0; q < *(int *)(i * 0x1C + cfg + 8); q++) {
+                CopyVector(*(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) + q * 16, aa);
+                CopyVector(*(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) + q * 16, bb);
+                *(int *)(q * 4 + (int)*(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC))) = -1;
+            }
+        }
+    }
+    return r;
+}
 extern int buffer_ID;
 extern int matrixptr;
 extern void _SetCurrentMatrix(int a0);
@@ -192,7 +320,7 @@ ASM_LIT4_SLOT(D_0063948C, 0.2f);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", getCloth4D);
 extern void CopyMatrix(void *dst, void *src);
 extern void SubVectorXYZ(void *a0, void *a1, void *a2);
-extern void memset(void *a0, int a1, int a2);
+extern void *memset(void *a0, int a1, int a2);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
 
 void getCloth4D_postProcess(int *a0, int **a1)
@@ -300,7 +428,124 @@ void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w) {
 void GetCloth4DWithTight(void *a0, void *a1, void *a2, float x, float y, float z, float w) {
     _getCloth4D(a0, x, y, z, w, 1, a1, a2);
 }
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitCloth4D);
+typedef struct {
+    long long q[8];
+} Blob64;
+
+typedef struct {
+    char pad[0x6C];
+    char *p6C;
+    char *p70;
+    char *p74;
+} Mesh3D;
+
+typedef struct {
+    int gobj;
+    Mesh3D *mesh;
+    char **p8;
+    char **pC;
+    char **p10;
+    int pad14;
+    TexBlob tex;
+    int cfg;
+    int n2E4;
+    char **p2E8;
+    char *p2EC;
+    char *p2F0;
+    int f2F4;
+    int f2F8;
+} Cloth4D;
+
+typedef struct {
+    int nx;
+    int ny;
+    int f08;
+    int f0C;
+    int f10;
+    int f14;
+    int f18;
+    int f1C;
+    void *tex;
+    char *p24;
+} Cloth4DCfg;
+
+extern void prim_UpdateMesh3D(int a0, int a1, int a2);
+extern int buffer_ID;
+extern void sceVu0UnitMatrix(void *m);
+extern int GetSkeltonFocusNode(int a0, int a1);
+extern char D_0028FF00[];
+extern char D_0028FEF0[];
+
+Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
+{
+    Cloth4D *r;
+    int i;
+    int j;
+    float sc;
+
+    r = (Cloth4D *)iosMallocDebug(D_0063A438, 0x300, D_0061F270, 2183);
+    r->gobj = a0;
+    r->cfg = (int)cfg;
+    r->f2F4 = 0;
+    if (cfg->tex != 0) {
+        r->mesh = (Mesh3D *)prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x5C, 0x80808080, 1);
+        r->tex = *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg->tex));
+    } else {
+        r->mesh = (Mesh3D *)prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x4C, 0xFFFFFF80, 1);
+    }
+    r->p8 = (char **)iosMallocDebug(D_0063A438, cfg->nx * 4, D_0061F270, 2218);
+    r->pC = (char **)iosMallocDebug(D_0063A438, cfg->nx * 4, D_0061F270, 2219);
+    r->p10 = (char **)iosMallocDebug(D_0063A438, cfg->nx * 4, D_0061F270, 2220);
+    for (i = 0; i < cfg->nx; i++) {
+        *(char **)(i * 4 + (int)r->p8) =
+            (char *)((int)r->mesh->p6C + i * cfg->ny * 16);
+        *(char **)(i * 4 + (int)r->pC) =
+            iosMallocDebug(D_0063A438, cfg->ny * 16, D_0061F270, 2224);
+        *(char **)(i * 4 + (int)r->p10) =
+            (char *)((int)r->mesh->p70 + i * cfg->ny * 16);
+        for (j = 0; j < cfg->ny; j++) {
+            CopyVector(*(char **)(i * 4 + (int)r->p8) + j * 16, D_0028FF00);
+            CopyVector(*(char **)(i * 4 + (int)r->pC) + j * 16, D_0028FEF0);
+            *(float *)((i * cfg->ny + j) * 16 + (int)r->mesh->p74) =
+                *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->p24 + 0x40));
+            *(float *)((i * cfg->ny + j) * 16 + (int)r->mesh->p74 + 4) =
+                1.0f - *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->p24 + 0x40) + 4);
+        }
+    }
+    prim_UpdateMesh3D((int)r->mesh, 8, buffer_ID);
+    prim_UpdateMesh3D((int)r->mesh, 8, (buffer_ID + 1) & 1);
+    if (tbl != 0) {
+        i = 0;
+        sc = *(float *)(*(int *)(*(int *)(r->gobj + 0x15C) + 0x870) + 0x20);
+        while (*(int *)(i * 0x40 + tbl) != -1) {
+            i++;
+        }
+        r->n2E4 = i;
+        r->p2F0 = iosMallocDebug(D_0063A438, i * 0x40, D_0061F270, 2253);
+        r->p2EC = iosMallocDebug(D_0063A438, r->n2E4 * 0x40, D_0061F270, 2254);
+        r->p2E8 = (char **)iosMallocDebug(D_0063A438, r->n2E4 * 4, D_0061F270, 2255);
+        for (i = 0; *(int *)(i * 0x40 + tbl) != -1; i++) {
+            *(Blob64 *)(i * 0x40 + (int)r->p2F0) = *(Blob64 *)(i * 0x40 + tbl);
+            *(float *)(i * 0x40 + (int)r->p2F0 + 0xC) =
+                *(float *)(i * 0x40 + (int)r->p2F0 + 0xC) * sc;
+            *(float *)(i * 0x40 + (int)r->p2F0 + 8) =
+                *(float *)(i * 0x40 + (int)r->p2F0 + 8) * sc;
+            *(float *)(i * 0x40 + (int)r->p2F0 + 4) =
+                *(float *)(i * 0x40 + (int)r->p2F0 + 4) * sc;
+            *(float *)(i * 0x40 + (int)r->p2F0 + 0x34) =
+                1.0f / (*(float *)(i * 0x40 + (int)r->p2F0 + 0xC) +
+                        *(float *)(i * 0x40 + (int)r->p2F0 + 0xC));
+            sceVu0UnitMatrix(r->p2EC + i * 0x40);
+            *(int *)(i * 4 + (int)r->p2E8) =
+                GetSkeltonFocusNode(a0, *(int *)(i * 0x40 + tbl + 0x10));
+        }
+        r->f2F8 = 1;
+    } else {
+        r->n2E4 = 0;
+        r->f2F8 = 0;
+    }
+    return r;
+}
 extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y, float z);
 extern void RotQuaternionX(void *a0, int a1);
 extern void RotQuaternionZ(void *a0, int a1);
@@ -372,8 +617,33 @@ void ResetClothAnimation(int *a0, int *a1, int *a2) {
         } while (i < outer);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetChainExWeightGlobalQuaternion);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetChainCollision);
+void GetChainExWeightGlobalQuaternion(int a0, int a1, int i, int j)
+{
+    ClothBuf buf;
+    SetIdentityQuaternion(a0);
+    SubVectorXYZ(&buf, j * 0x50 + a1 + 0x30, i * 0x50 + a1 + 0x20);
+    buf.v[1] = buf.v[1] + 100.0f;
+    MatrixDrive_GetTurnYAngleXZ(&buf.a, &buf.b, buf.v[0], buf.v[1], buf.v[2]);
+    RotQuaternionX(a0, (short)-buf.a);
+    RotQuaternionZ(a0, (short)-buf.b);
+}
+float GetChainCollision(int *a0, void *pos, float r)
+{
+    int i;
+    int j;
+
+    r = r * r;
+    for (i = 0; i < a0[1]; i++) {
+        char *pts = *(char **)(i * 0x1A0 + a0[2]);
+        for (j = 0; j < *(int *)(i * 0x50 + a0[0]) - 1; j++) {
+            if (distance_squared(pts + j * 16, pos) < r) {
+                return (float)j * *(float *)(i * 0x50 + a0[0] + 0x14);
+            }
+        }
+    }
+    return -1.0f;
+}
+
 void FSqrtInv(void)
 {
     VU0_NOREORDER_BEGIN();

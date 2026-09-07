@@ -124,19 +124,23 @@ static __inline__ float plane_distance(const void *pos, const void *plane)
  * ReviveCarryableItemsWithBoundary, checkCliffState, GetNearestOfLayoutSpiders,
  * CheckSpidersInsideOfReviveRange, CheckTorchChainReaction(+Reverse),
  * procChainReaction, CheckSwapableWeapon, flyCoreLoop.  Line 85 carries the
- * argument-address arithmetic.  RECONSTRUCTION — no matched host yet. */
+ * argument-address arithmetic.  Matched host: GetChainCollision (2026-09-07). */
 static __inline__ float distance_squared(const void *a, const void *b)
 {
     float d;
-    int t;
-    VU0_LSV_R(lqc2, 1, 0x0, a);
-    VU0_LSV_R(lqc2, 2, 0x0, b);
-    VU0_V3OP(vsub.wxyz, 3, 1, 2);
-    VU0_V3OP(vmul.xyz, 3, 3, 3);
-    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
-    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    __asm__ __volatile__("qmfc2.ni %0, $vf3" : "=r"(t));
-    __asm__ __volatile__("mtc1 %1, %0" : "=f"(d) : "r"(t));
+    /* One asm block in plane_distance's style, no memory clobber: the VU0_LSV_R
+       macros' "memory" clobber kills every MEM expression in the block for gcse
+       (record_last_mem_set_info), which is what kept ROM's reaching-reg copies
+       out of every host. GetChainCollision is the first matched host. */
+    __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
+                         "lqc2 $vf2, 0x0(%2)\n\t"
+                         "vsub.wxyz $vf3, $vf1, $vf2\n\t"
+                         "vmul.xyz $vf3, $vf3, $vf3\n\t"
+                         "vaddy.x $vf3, $vf3, $vf3y\n\t"
+                         "vaddz.x $vf3, $vf3, $vf3z\n\t"
+                         "qmfc2.ni $2, $vf3\n\t"
+                         "mtc1 $2, %0"
+                         : "=f"(d) : "r"(a), "r"(b) : "$2");
     return d;
 }
 
