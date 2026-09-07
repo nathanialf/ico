@@ -2,7 +2,13 @@
 
 #include "ico/types.h"
 
+#include "vu0.h"
+
 typedef struct { char b[0x20]; } ShiftBlk;
+extern char D_004EC950[];
+extern char D_004EC960[];
+extern char D_004EC970[];
+extern char D_004EC980[];
 extern char D_004EC990[];
 extern char D_004EC9A0[];
 extern char D_004EC9B0[];
@@ -23,7 +29,7 @@ extern char D_0028FF30[];
 extern char D_004EC9E0[];
 extern char D_004EC9F0[];
 extern char D_004ECA00[];
-extern int D_0063C490;
+extern char *D_0063C490;
 extern int MatrixDrive_PushMatrix(void);
 extern void SetQuaternionByAxisRotateV(void *dst, short ang, void *v);
 extern void _ApplyMatrix(void *a0, int a1, char *a2);
@@ -40,7 +46,7 @@ extern void ClipWall(void *a0);
 extern void CopyVector(void *dst, void *src);
 extern char D_004ECA10[];
 extern char D_004ECA20[];
-extern int D_0063C494;
+extern char *D_0063C494;
 extern float GetPointDistance(void *a0, void *a1);
 extern void MatrixDrive_TransMatrixV(void *a0);
 extern void memset(void *a0, int a1, int a2);
@@ -64,8 +70,8 @@ typedef struct {
     int a;
     int b;
 } MotShift;
-extern char D_004ECB10[];
-extern char D_004ECB28[];
+extern int D_004ECB10[];
+extern int D_004ECB28[];
 extern char D_0061FDC0[];
 extern char D_0061FFD8[];
 extern char D_0063B920[];
@@ -83,19 +89,19 @@ extern void MatrixDrive_SetTransposeMatrix(void *a0, int a1);
 extern void sceVu0Normalize(void *dst, void *src);
 extern float atan2f(float y, float x);
 extern void clearCollisionStatus(void);
-extern void *findActPoint(void *a0);
-extern void *checkActPointWithHeight(int a0, float h);
+extern int findActPoint(int *list);
+extern int checkActPointWithHeight(int a0, float h);
 extern int sprintf(char *buf, char *fmt, ...);
 extern void debug_assertMessage(char *file, int line, char *msg);
 extern void __assert(char *file, int line, char *expr);
 extern MotShift rootUpdateDirectPlayForStream(void);
-extern MotShift rootUpdateXZ(int a0, void *a1);
-extern MotShift rootUpdateXZ_MotPos(int a0, void *a1);
+extern MotShift rootUpdateXZ(int a0, int a1);
+extern MotShift rootUpdateXZ_MotPos(int a0, int a1);
 extern MotShift rootUpdateStepSolution(int a0);
-extern MotShift rootUpdateHang(int a0, void *a1, void *a2);
+extern MotShift rootUpdateHang(int a0, int a1, int a2);
 extern MotShift rootUpdateSwim(void);
 extern MotShift rootUpdateNodeFix(void);
-extern void rootUpdateY_Rope(void *a0);
+extern void rootUpdateY_Rope(int a0);
 extern MotShift rootUpdateY(void);
 extern MotShift rootUpdateTrueMotion(int a0);
 extern MotShift rootUpdateDirectPlay(int a0);
@@ -105,6 +111,44 @@ extern void func_001ECE40();
 extern void gif_EndPacket();
 extern void gif_SetAlpha();
 extern void gif_StartPacketPri();
+extern void checkCliffState(int a0);
+extern void checkWallState(int a0);
+extern void _SubVectorXYZ(void *dst, void *a, void *b);
+extern float VectorLengthSquare(void *v);
+extern void UnitRotation(int m);
+extern float _Sqrt(float x);
+extern void DrawGObjWallCollision(int a0, int a1);
+extern char D_0061FDD8[];
+extern const float D_0063B924[];
+extern unsigned char D_002C2DC8[];
+extern int D_0063C498;
+extern int D_0063B158;
+extern float D_004ECB70[];
+extern float D_004ECB80[];
+extern char D_004ECBC0[];
+extern char D_004ECBD0[];
+extern void MatrixDrive_RotMatrixZ(int a0);
+extern void getFinalMatrixWithNaturalGeometry(int id);
+extern void AddVectorXYZ(void *dst, void *a, void *b);
+extern void _SubVector(void *dst, void *a, void *b);
+extern void _NormalizeVector(void *dst, void *a);
+extern void _ScaleVector(void *dst, void *a, float s);
+extern void _AddVector(void *dst, void *a, void *b);
+typedef struct { int obj; int node; } ActPt;
+extern int D_00639EA4;
+extern char D_004ECB50[];
+extern char D_004ECB60[];
+extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+extern void prim_DispWireSphere(void *a0, int a1, int a2, float r);
+typedef struct { long long b[0x18]; } ClipBuf;
+extern char D_0061FD00[];
+extern void ClipWallField(void *a0);
+extern void DrawCollisionRay(void *a0);
+extern void SubVectorXYZ(void *dst, void *a, void *b);
+extern float sceVu0InnerProduct(void *a, void *b);
+extern float FSqrt(float x);
+extern void MatrixDrive_ScaleMatrix(float, float, float);
+extern const float D_0063B91C[];
 extern int sceVu0UnitMatrix__pn(int) __asm__("sceVu0UnitMatrix");
 extern int D_0063B148;
 extern int D_0063B938__pn __asm__("D_0063B938");
@@ -122,7 +166,14 @@ extern char *D_0063B93C__pn __asm__("D_0063B93C");
 void SetHitCollisionDisplay(int a, int b);
 int ResetMotionProgramInterpInfo(char *a0, int a1);
 int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f);
-void dispSquare2(void) {
+static inline void dispSquare(int alpha) {
+    int col[4] = { 0, 128 * 255 / alpha, alpha, 128 };
+    DrawLineG(D_004EC950, col, D_004EC970, col, -1);
+    DrawLineG(D_004EC970, col, D_004EC960, col, -1);
+    DrawLineG(D_004EC960, col, D_004EC980, col, -1);
+    DrawLineG(D_004EC980, col, D_004EC950, col, -1);
+}
+void dispSquare2(int alpha) {
     DrawLineG(D_004EC9A0, D_004EC990, D_004EC9C0, D_004EC990, -1);
     DrawLineG(D_004EC9C0, D_004EC990, D_004EC9B0, D_004EC990, -1);
     DrawLineG(D_004EC9B0, D_004EC990, D_004EC9D0, D_004EC990, -1);
@@ -133,14 +184,62 @@ inline void SetHitCollisionDisplay(int a, int b) {
     D_0063B8F8 = a;
     D_0063B8FC = b;
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", findActPoint);
+static inline int findActPointOrder(int *list, int kind) {
+    int *p = list;
+    int i = 1;
+    while (*p != -1) {
+        if (*p++ == kind) {
+            return i;
+        }
+        i++;
+    }
+    return 0;
+}
+int findActPoint(int *list) {
+    int bestOrder = 255;
+    int minVal = 249;
+    int ret = -1;
+    int i;
+
+    if (*(int *)(D_0063C490 + 0x308) != 0) {
+        return -1;
+    }
+    for (i = 0; i < D_0063C48C; i++) {
+        int order = findActPointOrder(list, *(int *)(D_0063B938 + i * 0x40 + 4));
+        int v;
+        if (order == 0) {
+            continue;
+        }
+        if (*(int *)(D_0063C490 + 0x230) != 0) {
+            int k = *(int *)(D_0063B938 + i * 0x40 + 4);
+            if (k == 6 || k == 11) {
+                continue;
+            }
+        }
+        if (*(int *)(D_0063C490 + 0x290) != 0) {
+            int k = *(int *)(D_0063B938 + i * 0x40 + 4);
+            if (k == 22 || k == 27) {
+                continue;
+            }
+        }
+        v = *(int *)(D_0063C478 + i * 0x20);
+        if (v < minVal || (v == minVal && order < bestOrder)) {
+            ret = i;
+            minVal = v;
+            bestOrder = order;
+        }
+    }
+    return ret;
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkActPointWithHeight);
 inline void GetWallVector(int a0, int a1)
 {
     CopyVector(a0, a1 + 0xA0);
     *(int *)(a0 + 0xC) = 0;
 }
+/*SWEEPclearCollisionStatus*/
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", clearCollisionStatus);
+/*SWEEP-ENDclearCollisionStatus*/
 void checkUpperWallState(void) {
     char buf[0xC0];
     memset(buf, 0, 0xC0);
@@ -160,7 +259,32 @@ void checkUpperWallState(void) {
         *(int *)((char *)D + 0x14) = *(int *)((char *)D + 0x14) | 0x1000;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkWallSideState);
+void checkWallSideState(void) {
+    ClipBuf buf = *(ClipBuf *)D_0061FD00;
+    float v[4];
+    char *p = (char *)&buf;
+
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(D_004ECA10);
+    CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    sceVu0ApplyMatrix((int *)(p + 0x10), MatrixDrive_GetMatrix(), D_004ECA20);
+    MatrixDrive_PopMatrix();
+
+    if (*(int *)(D_0063C490 + 0x320) != 0) {
+        ClipWallField(p);
+    } else {
+        ClipWall(p);
+    }
+    if (D_0063B8FC != 0) {
+        DrawCollisionRay(p);
+    }
+    if (*(int *)(p + 0x88) != 0) {
+        SubVectorXYZ(v, p + 0x20, p);
+        *(float *)(D_0063C494 + 0x174) = FSqrt(sceVu0InnerProduct(v, v)) + 50.0f;
+        *(int *)(D_0063C494 + 0x10C) = 1;
+        CopyVector((void *)(D_0063C494 + 0x160), (void *)(p + 0xA0));
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkWallState);
 ASM_LIT4_SLOT(D_006395B0, 1e+04f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkCliffState);
@@ -173,7 +297,7 @@ void checkCliffAndWallStateOfLastPlane(void)
     _UnitMatrix(MatrixDrive_GetMatrix());
     {
         register float *p = (float *)D_0063C490;
-        float r = GetYProjectionOfPlane(D_0063C490 + 0x130, D_0063C490);
+        float r = GetYProjectionOfPlane((int)(D_0063C490 + 0x130), (int)D_0063C490);
         MatrixDrive_TransMatrix(p[0], r, *(float *)(D_0063C490 + 8));
     }
     MultiMatrixByQuaternion((char *)D_0063C490 + 0x30);
@@ -197,7 +321,19 @@ void checkCliffAndWallStateAtJump(void)
     _checkCliffAndWall();
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispActNode);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispLastNode);
+void dispLastNode(void) {
+    float *p;
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0x80);
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    p = (float *)D_0063C490;
+    MatrixDrive_TransMatrix(p[0x6C], p[0x6D], p[0x6E]);
+    MatrixDrive_ScaleMatrix(8.0f, 8.0f, 8.0f);
+    dispSquare2(0xFF);
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+}
 #include "motMan_rootUpdate.c.inc"
 static inline void calcMaxNodeHeight(int n) {
     int i;
