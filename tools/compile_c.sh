@@ -163,7 +163,7 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
     j=i+1; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
     if (j<=NR && ln[j] ~ /^[ \t]*(cvt\.[swd]\.[swd]|c\.(eq|lt|le)\.[sd])[ \t]/) {
       m=j+1; while (m<=NR && ln[m] ~ /^[ \t]*(#|$)/) m++;
-      if (m>NR || ln[m] !~ /^[ \t]*(b|j|beq|bne|beql|bnel|bgez|bgtz|blez|bltz|bc1)/) {
+      if (m>NR || (ln[m] !~ /^[ \t]*(b|j|beq|bne|beql|bnel|bgez|bgtz|blez|bltz|bc1)/ && ln[m] !~ /:[ \t]*$/ && ln[m] !~ /^[ \t]*\./)) {
       print "\t.set noreorder"; print ln[i];
       for (k=i+1; k<j; k++) print ln[k];
       print ln[j]; print "\t.set reorder";
