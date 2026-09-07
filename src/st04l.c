@@ -7,15 +7,15 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -30,8 +30,8 @@ extern void scpTorchLightOn(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int D_0063AA08;
 typedef struct Pad {
-    int on;                     /* 0x00 */
-    int trg;                    /* 0x04 */
+    int on;  /* 0x00 */
+    int trg; /* 0x04 */
 } Pad;
 extern Pad D_0028F8F0[];
 extern int D_0028F8F4[];
@@ -56,8 +56,8 @@ extern void preload(int idx);
 extern int RequestStageChange(int a0, void *a1, int a2, float a3, float a4);
 extern void scpWakeupEnemyAll(void);
 typedef struct AdpcmReq {
-    char pad00[0x2C];           /* 0x00 */
-    int unk2C;                  /* 0x2C */
+    char pad00[0x2C]; /* 0x00 */
+    int unk2C;        /* 0x2C */
 } AdpcmReq;
 extern AdpcmReq *st04d_hasi;
 extern AdpcmReq *sekizo4c;
@@ -331,8 +331,7 @@ void actSt04lBallTurnCommon(volatile int a0)
     D_0063C52C = 0;
     ball1_4l = 0xFFFFFFFF;
 
-    while (D_0063C52C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C52C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -453,9 +452,7 @@ void actSt04lCrestMain(volatile int a0)
 {
     int h;
 
-    while (scpIsTorchLightOn(0x45A) == 0 ||
-           scpIsTorchLightOn(0x45B) == 0 ||
-           gflagChk(0xB1) == 0) {
+    while (scpIsTorchLightOn(0x45A) == 0 || scpIsTorchLightOn(0x45B) == 0 || gflagChk(0xB1) == 0) {
         _ACTWait(1);
     }
 
@@ -484,8 +481,7 @@ void actSt04lCrestMain(volatile int a0)
     D_0063C52C = 0;
     oriup4c = 0xFFFFFFFF;
 
-    while (D_0063C52C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C52C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -556,8 +552,7 @@ void actSt04lCrest2Main(volatile int a0)
     if (D_00639ED4 == 0x13) {
         D_0063C530 = 0xC9;
 
-        while (scpIsTorchLightOn(0x45E) == 0 ||
-               scpIsTorchLightOn(0x45F) == 0 ||
+        while (scpIsTorchLightOn(0x45E) == 0 || scpIsTorchLightOn(0x45F) == 0 ||
                gflagChk(0xB2) == 0) {
             _ACTWait(1);
         }
@@ -566,8 +561,7 @@ void actSt04lCrest2Main(volatile int a0)
     if (D_00639ED4 == 0x14) {
         D_0063C530 = 0xCA;
 
-        while (scpIsTorchLightOn(0x4B2) == 0 ||
-               scpIsTorchLightOn(0x4B3) == 0 ||
+        while (scpIsTorchLightOn(0x4B2) == 0 || scpIsTorchLightOn(0x4B3) == 0 ||
                gflagChk(0xB2) == 0) {
             _ACTWait(1);
         }
@@ -590,8 +584,7 @@ void actSt04lCrest2Main(volatile int a0)
     D_0063C52C = 0;
     oriup4c = 0xFFFFFFFF;
 
-    while (D_0063C52C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C52C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -657,9 +650,7 @@ void actSt04lCrest3Main(volatile int a0)
 {
     int h;
 
-    while (scpIsTorchLightOn(0x4B4) == 0 ||
-           scpIsTorchLightOn(0x4B5) == 0 ||
-           gflagChk(0xB3) == 0) {
+    while (scpIsTorchLightOn(0x4B4) == 0 || scpIsTorchLightOn(0x4B5) == 0 || gflagChk(0xB3) == 0) {
         _ACTWait(1);
     }
 
@@ -681,8 +672,7 @@ void actSt04lCrest3Main(volatile int a0)
     D_0063C52C = 0;
     oriup4c = 0xFFFFFFFF;
 
-    while (D_0063C52C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C52C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -736,8 +726,7 @@ void actSt04eSolarBeamChk(volatile int a0)
         _ACTWait(1);
     }
 
-    while (D_0063C52C == 0 &&
-           ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C52C == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -854,8 +843,7 @@ void actSt04lStairChk(volatile int a0)
     D_0063C534 = 0;
     oriup4c = 0xFFFFFFFF;
 
-    while (D_0063C52C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C52C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1094,14 +1082,12 @@ void actSt04lSekizoChk(volatile int a0)
 
     _ACTWait(1);
 
-    sceVu0SubVector(dir, test_CURRENTROOT((void *)a0),
-                    test_CURRENTROOT(D_00639EA8));
+    sceVu0SubVector(dir, test_CURRENTROOT((void *)a0), test_CURRENTROOT(D_00639EA8));
     scpPlayMotDir(D_00639EA8, dir);
 
     D_0063AA08 = 1;
 
-    sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8),
-                    test_CURRENTROOT(D_00639EA4));
+    sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
 
     scpSekizouCheckPoint();
@@ -1210,8 +1196,7 @@ void actSt04lGondolaChk(volatile int a0)
         gflagOn(0xBE);
     }
 
-    if (D_00639EA8 != 0 &&
-        scpTriggerFloorAttr(D_00639EA8, 0xA000000) == 0) {
+    if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0xA000000) == 0) {
         gflagOn(0xC2);
     } else {
         gflagOff(0xC2);
@@ -1567,8 +1552,7 @@ void actSt04lOriChk(volatile int a0)
 {
     int h;
 
-    while (gflagChk(0xAF) == 0 ||
-           scpGameStat_BoyWeaponkind() != 4 ||
+    while (gflagChk(0xAF) == 0 || scpGameStat_BoyWeaponkind() != 4 ||
            scpTriggerBall(a0, D_00639EA4, 1000.0f) == 0) {
         _ACTWait(1);
     }
@@ -1593,8 +1577,7 @@ void actSt04lOriChk(volatile int a0)
 
     D_0063C52C = 0;
 
-    while (D_0063C52C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C52C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1634,8 +1617,7 @@ void actSt04lOriRopeCutRChk(volatile int a0)
     _ACTWait(1);
 
     while (1) {
-        if (scpGameStat_BoyWeaponkind() == 4 &&
-            scpTriggerBall(a0, D_00639EA4, 100.0f) != 0 &&
+        if (scpGameStat_BoyWeaponkind() == 4 && scpTriggerBall(a0, D_00639EA4, 100.0f) != 0 &&
             (ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x26 ||
              ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x2B ||
              ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x2D ||
@@ -1673,8 +1655,7 @@ void actSt04lOriRopeCutLChk(volatile int a0)
     _ACTWait(1);
 
     while (1) {
-        if (scpGameStat_BoyWeaponkind() == 4 &&
-            scpTriggerBall(a0, D_00639EA4, 100.0f) != 0 &&
+        if (scpGameStat_BoyWeaponkind() == 4 && scpTriggerBall(a0, D_00639EA4, 100.0f) != 0 &&
             (ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x26 ||
              ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x2B ||
              ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x2D ||
@@ -1785,8 +1766,7 @@ void actSt04lOri2Chk(volatile int a0)
 
     D_0063C52C = 0;
 
-    while (D_0063C52C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C52C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -2864,13 +2844,16 @@ void actSt04eSolarBeamChkSub(volatile int a0)
     D_0063C52C = 1;
     _ACTWait(0);
 }
-void actSt04lRope1Event(int x) {
+void actSt04lRope1Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lRope2Event(int x) {
+void actSt04lRope2Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lBrg1Event(int x) {
+void actSt04lBrg1Event(int x)
+{
     volatile int local = x;
 }
 extern ActMail D_004F8D40[];
@@ -2895,13 +2878,16 @@ void actSt04lBrg1Chk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-void actSt04lRope3Event(int x) {
+void actSt04lRope3Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lRope4Event(int x) {
+void actSt04lRope4Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lBrg2Event(int x) {
+void actSt04lBrg2Event(int x)
+{
     volatile int local = x;
 }
 extern ActMail D_004F8DC0[];
@@ -2943,7 +2929,8 @@ void actSt04lBrg2WayChk(volatile int a0)
 
     SetWayGroupActive(4, 1);
 }
-void actSt04lTuriEvent(int x) {
+void actSt04lTuriEvent(int x)
+{
     volatile int local = x;
 }
 void actSt04lTuriChk(volatile int a0)
@@ -2972,31 +2959,40 @@ void actSt04lTuriChk(volatile int a0)
 extern void actSt04lGondolaChk(volatile int a0);
 
 INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lGondolaCharaChk);
-void actSt04lMonyou01Event(int x) {
+void actSt04lMonyou01Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lMonyou02Event(int x) {
+void actSt04lMonyou02Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lMonyou03Event(int x) {
+void actSt04lMonyou03Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lMonyou04Event(int x) {
+void actSt04lMonyou04Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lMonyou05Event(int x) {
+void actSt04lMonyou05Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lMonyou06Event(int x) {
+void actSt04lMonyou06Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lMonyou07Event(int x) {
+void actSt04lMonyou07Event(int x)
+{
     volatile int local = x;
 }
-void actSt04lOriEvent(int x) {
+void actSt04lOriEvent(int x)
+{
     volatile int local = x;
 }
-void actSt04lOri2Event(int x) {
+void actSt04lOri2Event(int x)
+{
     volatile int local = x;
 }
 void actSt04lSwordChk(volatile int a0)

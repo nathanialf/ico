@@ -5,8 +5,7 @@
 
 #include "r5900.h"
 
-void func_001A7180(a0, a1)
-int *a0;
+void func_001A7180(a0, a1) int *a0;
 int a1;
 {
     func_001A7318(a0[0]);
@@ -46,7 +45,8 @@ int voBufCreate(VoBuf *self)
 }
 extern void func_001A7180();
 
-void voBufDelete(void) {
+void voBufDelete(void)
+{
     func_001A7180();
 }
 extern void iosFree();
@@ -66,10 +66,12 @@ void voBufReset(volatile int *self)
  * as a plain function, which is its ROM position, and voBufGetData inlines
  * the static stand-in below; the two collapse into one `inline voBufIsFull`
  * at layout time. */
-int voBufIsFull(int *self) {
+int voBufIsFull(int *self)
+{
     return self[3] == self[4];
 }
-static inline int isFull(int *self) {
+static inline int isFull(int *self)
+{
     return self[3] == self[4];
 }
 extern void DIntr(void);
@@ -93,11 +95,13 @@ static __inline__ int voBufIsEmpty(int *self)
 }
 void *voBufGetTag(int *self)
 {
-    return !voBufIsEmpty(self)
-        ? (void *)(self[1] + (*(volatile int *)(self + 2) - *(volatile int *)(self + 3) + self[4]) % self[4] * 0xC0340)
-        : 0;
+    return !voBufIsEmpty(self) ? (void *)(self[1] + (*(volatile int *)(self + 2) -
+                                                     *(volatile int *)(self + 3) + self[4]) %
+                                                        self[4] * 0xC0340)
+                               : 0;
 }
-void voBufDecCount(int *p) {
+void voBufDecCount(int *p)
+{
     if (*(volatile int *)(p + 3) > 0) {
         --(*(volatile int *)(p + 3));
     }

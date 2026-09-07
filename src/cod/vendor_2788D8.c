@@ -8,7 +8,8 @@ extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
 
-float sinf(float x) {
+float sinf(float x)
+{
     float y[2];
     int n;
     int ix;
@@ -43,7 +44,8 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __ieee754_asinf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __ieee754_atan2f);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __ieee754_fmodf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __ieee754_rem_pio2f);
-float __ieee754_sqrtf(float x) {
+float __ieee754_sqrtf(float x)
+{
     int ix, s, q, m, t, i;
     unsigned int r;
     float z;
@@ -92,7 +94,8 @@ float __ieee754_sqrtf(float x) {
     SET_FLOAT_WORD(z, ix);
     return z;
 }
-float __kernel_cosf(float x, float y) {
+float __kernel_cosf(float x, float y)
+{
     float a, hz, qx, z;
     int ix;
     register int cmp __asm__("$2");
@@ -116,31 +119,30 @@ float __kernel_cosf(float x, float y) {
      * (cmp = 0x3e999999 < ix) in the exact ROM instruction order — the EE
      * scheduler will not interleave GPR comparison ops among asm-opaque coeff
      * loads, so the interleave is hand-placed here. */
-    __asm__(
-        "lui   $1,0xad47\n\t"
-        "ori   $1,$1,0xd74e\n\t"
-        "mtc1  $1,%0\n\t"
-        "lui   $1,0x310f\n\t"
-        "ori   $1,$1,0x74f6\n\t"
-        "mtc1  $1,%1\n\t"
-        "lui   %6,0x3e99\n\t"
-        "lui   $1,0xb493\n\t"
-        "ori   $1,$1,0xf27c\n\t"
-        "mtc1  $1,%2\n\t"
-        "ori   %6,%6,0x9999\n\t"
-        "mul.s %0,%7,%0\n\t"
-        "lui   $1,0x37d0\n\t"
-        "ori   $1,$1,0x0d01\n\t"
-        "mtc1  $1,%3\n\t"
-        "lui   $1,0xbab6\n\t"
-        "ori   $1,$1,0x0b61\n\t"
-        "mtc1  $1,%4\n\t"
-        "slt   %6,%6,%8\n\t"
-        "lui   $1,0x3d2a\n\t"
-        "ori   $1,$1,0xaaab\n\t"
-        "mtc1  $1,%5"
-        : "=f"(acc), "=f"(c2), "=f"(c3), "=f"(c1), "=f"(c4), "=f"(c5), "=r"(cmp)
-        : "f"(z), "r"(ix));
+    __asm__("lui   $1,0xad47\n\t"
+            "ori   $1,$1,0xd74e\n\t"
+            "mtc1  $1,%0\n\t"
+            "lui   $1,0x310f\n\t"
+            "ori   $1,$1,0x74f6\n\t"
+            "mtc1  $1,%1\n\t"
+            "lui   %6,0x3e99\n\t"
+            "lui   $1,0xb493\n\t"
+            "ori   $1,$1,0xf27c\n\t"
+            "mtc1  $1,%2\n\t"
+            "ori   %6,%6,0x9999\n\t"
+            "mul.s %0,%7,%0\n\t"
+            "lui   $1,0x37d0\n\t"
+            "ori   $1,$1,0x0d01\n\t"
+            "mtc1  $1,%3\n\t"
+            "lui   $1,0xbab6\n\t"
+            "ori   $1,$1,0x0b61\n\t"
+            "mtc1  $1,%4\n\t"
+            "slt   %6,%6,%8\n\t"
+            "lui   $1,0x3d2a\n\t"
+            "ori   $1,$1,0xaaab\n\t"
+            "mtc1  $1,%5"
+            : "=f"(acc), "=f"(c2), "=f"(c3), "=f"(c1), "=f"(c4), "=f"(c5), "=r"(cmp)
+            : "f"(z), "r"(ix));
     acc = acc + c2;
     acc = z * acc + c3;
     acc = z * acc + c1;
@@ -169,20 +171,23 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __kernel_rem_pio2f);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __kernel_sinf);
 extern int dpcmp(long a0, long a1);
 
-int matherr(void *a0) {
+int matherr(void *a0)
+{
     long p = *(long *)((char *)a0 + 8);
     dpcmp(p, p);
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", atanf);
-float fabsf(float a0) {
+float fabsf(float a0)
+{
     unsigned int ix;
     GET_FLOAT_WORD(ix, a0);
     SET_FLOAT_WORD(a0, ix & 0x7fffffff);
     return a0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", floorf);
-int isnanf(float x) {
+int isnanf(float x)
+{
     int hx;
     GET_FLOAT_WORD(hx, x);
     hx &= 0x7fffffff;
@@ -190,7 +195,8 @@ int isnanf(float x) {
     return (unsigned)hx >> 31;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", scalbnf);
-float copysignf(float a0, float a1) {
+float copysignf(float a0, float a1)
+{
     unsigned int ix, iy;
     GET_FLOAT_WORD(ix, a0);
     GET_FLOAT_WORD(iy, a1);

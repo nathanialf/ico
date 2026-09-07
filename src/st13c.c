@@ -11,58 +11,58 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct JimakuSub {
-    char unk00[0x2C];           /* 0x0C */
-    int  unk2C;                 /* 0x38 */
-    int  n;                     /* 0x3C */
-    int  unk34;                 /* 0x40 */
-    int  unk38;                 /* 0x44 */
-    void *unk3C;                /* 0x48 */
-    void *unk40;                /* 0x4C */
+    char unk00[0x2C]; /* 0x0C */
+    int unk2C;        /* 0x38 */
+    int n;            /* 0x3C */
+    int unk34;        /* 0x40 */
+    int unk38;        /* 0x44 */
+    void *unk3C;      /* 0x48 */
+    void *unk40;      /* 0x4C */
 } JimakuSub;
 typedef struct JimakuArg {
-    int  cmd;                   /* 0x00 */
-    int  unk04;                 /* 0x04 */
-    int  done;                  /* 0x08 */
-    JimakuSub sub;              /* 0x0C */
+    int cmd;       /* 0x00 */
+    int unk04;     /* 0x04 */
+    int done;      /* 0x08 */
+    JimakuSub sub; /* 0x0C */
 } JimakuArg;
 typedef struct EffectArg {
-    long long lo;               /* 0x00 */
-    long long hi;               /* 0x08 */
+    long long lo; /* 0x00 */
+    long long hi; /* 0x08 */
 } EffectArg;
 typedef struct AnimSet {
-    int anim[5];                /* 0x00 */
+    int anim[5]; /* 0x00 */
 } AnimSet;
 typedef struct AnimSet16 {
-    int anim[16];               /* 0x00 */
+    int anim[16]; /* 0x00 */
 } AnimSet16;
 typedef struct AdpcmSlot {
-    char pad00[0x2C];           /* 0x00 */
-    int unk2C;                  /* 0x2C */
+    char pad00[0x2C]; /* 0x00 */
+    int unk2C;        /* 0x2C */
 } AdpcmSlot;
 typedef struct MotObj {
-    char pad00[0x514];          /* 0x000 */
-    int unk514;                 /* 0x514 */
+    char pad00[0x514]; /* 0x000 */
+    int unk514;        /* 0x514 */
 } MotObj;
 typedef struct Act {
-    char unk00[0x20];           /* 0x00 */
-    ActStatus flags20;          /* 0x20 */
-    char unk28[0xC];            /* 0x28 */
-    int unk34;                  /* 0x34 */
-    char unk38[0x68];           /* 0x38 */
-    long long flags;            /* 0xA0 */
-    char unkA8[0x28];           /* 0xA8 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
-    char unkD8[0x20C];          /* 0xD8 */
-    int unk2E4;                 /* 0x2E4 */
+    char unk00[0x20];  /* 0x00 */
+    ActStatus flags20; /* 0x20 */
+    char unk28[0xC];   /* 0x28 */
+    int unk34;         /* 0x34 */
+    char unk38[0x68];  /* 0x38 */
+    long long flags;   /* 0xA0 */
+    char unkA8[0x28];  /* 0xA8 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
+    char unkD8[0x20C]; /* 0xD8 */
+    int unk2E4;        /* 0x2E4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x15C];          /* 0x000 */
-    int unk15C;                 /* 0x15C */
-    int unk160;                 /* 0x160 */
-    int act;                    /* 0x164 (Act * handle) */
-    int unk168;                 /* 0x168 */
-    int unk16C;                 /* 0x16C */
+    char pad00[0x15C]; /* 0x000 */
+    int unk15C;        /* 0x15C */
+    int unk160;        /* 0x160 */
+    int act;           /* 0x164 (Act * handle) */
+    int unk168;        /* 0x168 */
+    int unk16C;        /* 0x16C */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -220,12 +220,14 @@ extern int D_0063C00C;
 extern int D_0063C594;
 extern int D_00639EA8;
 
-void actSt13cInit(void) {
+void actSt13cInit(void)
+{
     if (gflagChk(0x15)) {
         SetWayGroupActive(9, 0);
     }
 }
-void actSt13cEnd(void) {
+void actSt13cEnd(void)
+{
     if (gflagChk(0x1F) == 0) {
         debug_StdPrintfDummy(D_00622E10);
         gflagOn(0x186);
@@ -296,8 +298,7 @@ void actSt13cBmg1Chk(volatile int a0)
 
     D_0063C590 = 0;
 
-    while (D_0063C590 == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C590 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -424,8 +425,7 @@ void actSt13cCage1stDownDemoCancel(volatile int a0)
 
     th = (int *)(actCreateSubThread(actSt13cCage1stDownDemo, 0x15) + 0x24);
 
-    while (D_0063C590 == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C590 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -601,8 +601,7 @@ void actSt13cCageFallChk(volatile int a0)
 
     D_0063C590 = 0;
 
-    while (D_0063C590 == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C590 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -923,8 +922,7 @@ void actSt13cSekizoChk(volatile int a0)
     }
 
     while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0 ||
-           scpTriggerBall(a0, D_00639EA8, 200.0f) == 0 ||
-           gflagChk(0x1C) == 0) {
+           scpTriggerBall(a0, D_00639EA8, 200.0f) == 0 || gflagChk(0x1C) == 0) {
         _ACTWait(1);
     }
 
@@ -999,10 +997,8 @@ void actSt13cGirlCarryChk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (gflagChk(0x19) == 0 ||
-           ((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 == 0x6F ||
-           ((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 == 0x6E ||
-           gflagChk(0x1D) != 0) {
+    while (gflagChk(0x19) == 0 || ((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 == 0x6F ||
+           ((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 == 0x6E || gflagChk(0x1D) != 0) {
         _ACTWait(1);
     }
 
@@ -1040,8 +1036,7 @@ void actSt13cHandChk(volatile int a0)
         if (scpActStatusDeathFall(D_00639EA4) == 0 &&
             actEnemyFlagCheckDead(scpSearchGobj(0x96)) != 0 &&
             scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0 &&
-            scpTriggerFloorAttr(D_00639EA4, 0x3000000) != 0 &&
-            gflagChk(0x1A) != 0 &&
+            scpTriggerFloorAttr(D_00639EA4, 0x3000000) != 0 && gflagChk(0x1A) != 0 &&
             scpTriggerBall(D_00639EA8, D_00639EA4, 550.0f) != 0 &&
             (((Act *)((PObjGObj *)D_00639EA4)->act)->unk2E4 & 8) != 0 &&
             ((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 != 0x6E) {
@@ -1100,8 +1095,7 @@ void actSt13cHandChk(volatile int a0)
 
     D_0063C590 = 0;
 
-    while (D_0063C590 == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C590 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1364,8 +1358,7 @@ void actSt13cBuki(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4,
-                       float x1, float y1, float z1,
+extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
 void actE3St13cSekizo(volatile int a0)
@@ -1375,9 +1368,7 @@ void actE3St13cSekizo(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x1F, 0x4D, 0, 0x11,
-               -300.0f, -100.0f, 100.0f,
-               -300.0f, -100.0f, 0.0f);
+    scpSekizou(a0, 0x1F, 0x4D, 0, 0x11, -300.0f, -100.0f, 100.0f, -300.0f, -100.0f, 0.0f);
 
     if (gflagChk(0x1F) == 0) {
         SetWayGroupActive(2, 0);
@@ -1385,10 +1376,12 @@ void actE3St13cSekizo(volatile int a0)
         SetWayGroupActive(2, 1);
     }
 }
-void actSt13cBmg1Event(int x) {
+void actSt13cBmg1Event(int x)
+{
     volatile int local = x;
 }
-void actSt13cSleepEvent(int x) {
+void actSt13cSleepEvent(int x)
+{
     volatile int local = x;
 }
 void actSt13cSleepChk(volatile int a0)
@@ -1460,10 +1453,12 @@ void actSt13cCageFallReadyChk(volatile int a0)
 
     scpAdpcmPlayRequestFunc(0xF, &D_0063C004, 1, 1, 0);
 }
-void actSt13cCageFallEvent(int x) {
+void actSt13cCageFallEvent(int x)
+{
     volatile int local = x;
 }
-void actE3St13cSekizoEvent(int x) {
+void actE3St13cSekizoEvent(int x)
+{
     volatile int local = x;
 }
 void actSt13cSekizoJimakuChk(volatile int a0)
@@ -1559,7 +1554,8 @@ void actSt13cRescueChk(volatile int a0)
 
     gflagOn(0x1E);
 }
-void actSt13cBukiEvent(int x) {
+void actSt13cBukiEvent(int x)
+{
     volatile int local = x;
 }
 void actSt13cBukiChk(volatile int a0)

@@ -7,10 +7,12 @@ extern void GetRootPosition(void *dst, void *src);
 extern float GetChainCollision(void *a0, void *a1, float w);
 extern void *D_00639EA4;
 INCLUDE_ASM("asm/nonmatchings/src/rope", InitRopeGeo);
-inline int CheckRopeUpperWallClimbable(int a0, char *a1) {
+inline int CheckRopeUpperWallClimbable(int a0, char *a1)
+{
     return *(int *)(*(char **)(*(char **)(a1 + 0x15C) + 0x830) + 4);
 }
-void SetRopeFixPoint(char *a0, void *a1) {
+void SetRopeFixPoint(char *a0, void *a1)
+{
     CopyVector(**(char ***)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) + 0x20, a1);
 }
 INCLUDE_ASM("asm/nonmatchings/src/rope", HoldRope);

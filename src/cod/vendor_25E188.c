@@ -7,7 +7,8 @@
 
 extern int D_0054A320[];
 
-int sceDmaGetChan(unsigned int a0) {
+int sceDmaGetChan(unsigned int a0)
+{
     if (a0 < 0xA) {
         return D_0054A320[a0];
     }
@@ -16,15 +17,19 @@ int sceDmaGetChan(unsigned int a0) {
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaReset);
 extern int D_0054A348[];
 
-int sceDmaDebug(int a0) {
+int sceDmaDebug(int a0)
+{
     int old = D_0054A348[0];
     D_0054A348[0] = a0;
     return old;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaPutEnv);
-typedef struct { int w[5]; } DmaEnv;
+typedef struct {
+    int w[5];
+} DmaEnv;
 extern DmaEnv D_0054A3B8;
-DmaEnv *sceDmaGetEnv(DmaEnv *a0) {
+DmaEnv *sceDmaGetEnv(DmaEnv *a0)
+{
     *a0 = D_0054A3B8;
     return a0;
 }
@@ -37,12 +42,14 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaRecvN);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaRecvI);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaSync);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaWatch);
-int sceDmaPause(void *a0) {
+int sceDmaPause(void *a0)
+{
     int v = *(int *)a0;
     *(int *)a0 = v & ~0x100;
     return ((unsigned int)v >> 8) & 1;
 }
-int sceDmaRestart(void *a0) {
+int sceDmaRestart(void *a0)
+{
     int v = *(int *)a0;
     *(int *)a0 = v & ~0x100;
     return ((unsigned int)v >> 8) & 1;

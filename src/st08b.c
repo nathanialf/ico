@@ -1,14 +1,14 @@
 #include "common.h"
 
 typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(int);          /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
+    int mail;          /* 0x00 */
+    void (*func)(int); /* 0x04 */
+    int unk08;         /* 0x08 */
+    int unk0C;         /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD4];           /* 0x00 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD4]; /* 0x00 */
+    ActMail *mail;    /* 0xD4 */
 } Act;
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -42,7 +42,8 @@ void actSt08bDoorEvent(int x);
 void actSt08bDoorUpEffect(volatile int a0);
 void actSt08bDoorDownEffect(volatile int a0);
 void actSt08bEneChk(volatile int a0);
-inline void actSt08bKuren(volatile int a0) {
+inline void actSt08bKuren(volatile int a0)
+{
     int x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
@@ -77,25 +78,61 @@ inline void actSt08aGirlYoro(volatile int a0)
     scpPlayWaitMotEnd(D_00639EA8);
     _ACTWait(0);
 }
-inline void actSt08bDoorEvent(int x) {
+inline void actSt08bDoorEvent(int x)
+{
     volatile int local = x;
 }
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bDoor);
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bDoorUpChk);
-inline void actSt08bDoorUpEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_00622D80[0]; long long v0b=D_00622D90[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00622D80[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00622D90[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
-inline void actSt08bDoorDownEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_00622D90[0]; long long v0b=D_00622D80[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00622D90[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00622D80[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
+inline void actSt08bDoorUpEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_00622D80[0];
+    long long v0b = D_00622D90[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_00622D80[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_00622D90[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+inline void actSt08bDoorDownEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_00622D90[0];
+    long long v0b = D_00622D80[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_00622D90[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_00622D80[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bDoorDownChk);
-inline void actSt08bEne(volatile int a0) {
+inline void actSt08bEne(volatile int a0)
+{
     int x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
@@ -119,7 +156,8 @@ inline void actSt08bEneChk(volatile int a0)
     gflagOn(0x51);
     gflagOn(0x52);
 }
-inline void actSt08bEnemy1(volatile int a0) {
+inline void actSt08bEnemy1(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
@@ -133,7 +171,8 @@ inline void actSt08bEnemy1(volatile int a0) {
     _ACTWait(0x3C);
     Generator_Call(a0);
 }
-inline void actSt08bEnemy2(volatile int a0) {
+inline void actSt08bEnemy2(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);

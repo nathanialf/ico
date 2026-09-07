@@ -7,13 +7,13 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    Act *act;                   /* 0x164 */
+    char pad00[0x164]; /* 0x000 */
+    Act *act;          /* 0x164 */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -53,7 +53,7 @@ extern ActMail D_004FAA80[];
    of each entry is the mail id the entry answers (0x1AE the actor post,
    0x1AD the trailing entry); .func is filled in at run time. Named for the
    thread that owns and posts it. */
-static ActMail chain_ok_mes[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail chain_ok_mes[2] = {{0x1AE}, {0x1AD}};
 extern ActMail D_004FAAC0[];
 
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aElevUpSub);

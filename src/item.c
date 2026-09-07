@@ -6,10 +6,12 @@ void bombSparkStartSE(int a0)
 {
     ExecuteSEPackage(a0, 0x32);
 }
-void bombSparkSE(int a0) {
+void bombSparkSE(int a0)
+{
     ExecuteSEPackage(a0, 0x33);
 }
-void bombExplodeSE(int a0) {
+void bombExplodeSE(int a0)
+{
     ExecuteSEPackage(a0, 0x34);
 }
 INCLUDE_ASM("asm/nonmatchings/src/item", HoldItem);
@@ -41,7 +43,8 @@ INCLUDE_ASM("asm/nonmatchings/src/item", execBombGeo);
 INCLUDE_ASM("asm/nonmatchings/src/item", ItemGeo);
 INCLUDE_ASM("asm/nonmatchings/src/item", ItemDL);
 INCLUDE_ASM("asm/nonmatchings/src/item", BreakItemFromOutside);
-int CheckCarryableItem(char *a0) {
+int CheckCarryableItem(char *a0)
+{
     int r = 0;
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if (*(int *)(a0 + 0x16C) != 0) {
@@ -51,27 +54,34 @@ int CheckCarryableItem(char *a0) {
     }
     return r;
 }
-int GetItemKind(char *a0) {
+int GetItemKind(char *a0)
+{
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4);
 }
-int GetCharHeldItem(char *a0) {
+int GetCharHeldItem(char *a0)
+{
     char *w;
-    if (a0 == 0) return -1;
+    if (a0 == 0)
+        return -1;
     w = *(char **)(*(char **)(a0 + 0x164) + 0x154);
-    if (w == 0) return -1;
+    if (w == 0)
+        return -1;
     return *(int *)(*(char **)(*(char **)(w + 0x15C) + 0x830) + 4);
 }
-int IsItemHoldable(char *a0) {
+int IsItemHoldable(char *a0)
+{
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) == 0;
 }
-int IsBombExplode(char *a0) {
+int IsBombExplode(char *a0)
+{
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x48) == 2;
 }
 INCLUDE_ASM("asm/nonmatchings/src/item", GetBombTorchGObj);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveAllCarryableItems);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveCarryableItemsWithBoundary);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveAllCarryableItemsWithRandomVelocity);
-int CheckItemDead(char *a0) {
+int CheckItemDead(char *a0)
+{
     int r = 0;
     if (*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) == 1 || *(int *)(a0 + 0x16C) == 0) {
         r = 1;

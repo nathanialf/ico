@@ -7,32 +7,32 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x15C];          /* 0x000 */
-    char *f15C;                 /* 0x15C */
-    char pad160[0x4];           /* 0x160 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x15C]; /* 0x000 */
+    char *f15C;        /* 0x15C */
+    char pad160[0x4];  /* 0x160 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 typedef struct JimakuSub {
-    char unk00[0x2C];           /* 0x0C */
-    int  unk2C;                 /* 0x38 */
-    int  n;                     /* 0x3C */
-    int  unk34;                 /* 0x40 */
-    int  unk38;                 /* 0x44 */
-    void *unk3C;                /* 0x48 */
-    void *unk40;                /* 0x4C */
+    char unk00[0x2C]; /* 0x0C */
+    int unk2C;        /* 0x38 */
+    int n;            /* 0x3C */
+    int unk34;        /* 0x40 */
+    int unk38;        /* 0x44 */
+    void *unk3C;      /* 0x48 */
+    void *unk40;      /* 0x4C */
 } JimakuSub;
 typedef struct JimakuArg {
-    int  cmd;                   /* 0x00 */
-    int  unk04;                 /* 0x04 */
-    int  done;                  /* 0x08 */
-    JimakuSub sub;              /* 0x0C */
+    int cmd;       /* 0x00 */
+    int unk04;     /* 0x04 */
+    int done;      /* 0x08 */
+    JimakuSub sub; /* 0x0C */
 } JimakuArg;
 
 extern Act *actInitialize(int a0);
@@ -1054,7 +1054,7 @@ extern void ACTSendMailCorrect(int a0, int mail);
    post, 0x1AD the trailing entry); .func is filled in at run time. Named in
    this TU's own terse snake_case house style (its MAIN.MAP globals are
    ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
-static ActMail ed_demo14_mes[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail ed_demo14_mes[2] = {{0x1AE}, {0x1AD}};
 extern int D_0063A054;
 extern int D_0063AA08;
 extern int D_0063BE34;
@@ -1364,7 +1364,7 @@ extern void ACTSendMailCorrect(int a0, int mail);
    (its MAIN.MAP globals are ed1..ed6, sea, happy_end) for the sequence it
    belongs to; among the role-plausible spellings this is one that also puts
    the record ahead of the handler in gcc's expression-hash order. */
-static ActMail end_mes[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail end_mes[2] = {{0x1AE}, {0x1AD}};
 extern int D_0063AA08;
 extern int NonLinearCameraMove;
 extern int enable_game_pause;
@@ -1984,8 +1984,8 @@ extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void preload(int idx);
 extern int stage_CheckAnimationFinish(int a0);
 extern void _ACTWait(int a0);
-extern int RequestStageChangeWithColor(int a0, int a1, int a2, float a3, float a4,
-                                       int r, int g, int b);
+extern int RequestStageChangeWithColor(int a0, int a1, int a2, float a3, float a4, int r, int g,
+                                       int b);
 extern int D_00639EA4;
 extern int D_00639EA8;
 

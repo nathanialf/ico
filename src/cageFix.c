@@ -12,11 +12,13 @@ inline int InitCageFixGeo(void)
 {
     return 0;
 }
-void CageFixGeo(char *a0) {
+void CageFixGeo(char *a0)
+{
     char *g = isysGObjSearchFromObjKindID_begin(0x2C);
     if (g != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(*(char **)(a0 + 0x15C) + 0xC));
-        SetCageFixGeometry(g, MatrixDrive_GetMatrix() + 0x30, *(int *)(*(char **)(a0 + 0x15C) + 0x10));
+        SetCageFixGeometry(g, MatrixDrive_GetMatrix() + 0x30,
+                           *(int *)(*(char **)(a0 + 0x15C) + 0x10));
     }
 }
 void CageFixDL(int a0)

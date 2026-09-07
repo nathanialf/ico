@@ -30,9 +30,11 @@ void EnemyDL(int *self)
 {
     char *sub = *(char **)((char *)self + 0x164);
     unsigned long long flag = *(unsigned long long *)(sub + 0x18);
-    if (((flag >> 33) & 1) == 0) return;
+    if (((flag >> 33) & 1) == 0)
+        return;
     IsActCharDead();
-    if (isEnemyHyde(self) != 0) return;
+    if (isEnemyHyde(self) != 0)
+        return;
     DisplayEnemy(self);
 }
 extern void ExecMotionOrient();
@@ -55,7 +57,8 @@ void SetEnemyDissolve(char *self, float ratio)
     if (*(float *)(*(char **)(sub + 0x870) + 0x30) > 1.0f)
         *(float *)(*(char **)(sub + 0x870) + 0x30) = 1.0f;
 }
-void SetEnemyFlyXZAccel(char *a0, float f) {
+void SetEnemyFlyXZAccel(char *a0, float f)
+{
     *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x50) = f;
 }
 extern char *isysGObjSearchFromObjKindID_begin(int kind);
@@ -69,11 +72,13 @@ void SetEnemyFlyXZAccelAll(float accel)
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
-float GetEnemyFlyXZAccel(char *a0) {
+float GetEnemyFlyXZAccel(char *a0)
+{
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x50);
 }
 void EnemyAI(void) {}
-void SetEnemyFootPrintSwitch(char *a0, int a1) {
+void SetEnemyFootPrintSwitch(char *a0, int a1)
+{
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x2C) = a1;
 }
 void EnemySetfAppearAll(char *self)
@@ -127,7 +132,8 @@ void EnemySetfDisappear(char *self, float *dir)
     }
 }
 
-void enemySetParticleDie(void *a0, float *a1) {
+void enemySetParticleDie(void *a0, float *a1)
+{
     char buf[0x20];
     MatrixDrive_GetTurnZAngleXY(buf + 0x10, buf + 0x12, a1[0], a1[1], -a1[2]);
     SetIdentityQuaternion(buf);
@@ -135,15 +141,18 @@ void enemySetParticleDie(void *a0, float *a1) {
     RotQuaternionY(buf, (short)(-*(unsigned short *)(buf + 0x12)));
     SetParticleEffect(0xC, a0, buf);
 }
-void ReviveEnemyParticle(char *a0, int a1) {
+void ReviveEnemyParticle(char *a0, int a1)
+{
     (*(int **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14))[a1] = 0;
 }
-int isExistEnemyParticle(char *a0, int a1) {
+int isExistEnemyParticle(char *a0, int a1)
+{
     return (*(int **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14))[a1] == 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyGetNSafeParts);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyDeleteParticle);
-void SetEnemyHitGeometryAction(char *a0, int a1) {
+void SetEnemyHitGeometryAction(char *a0, int a1)
+{
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x38) = a1;
 }
 extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
@@ -162,7 +171,8 @@ void HotInitDemoMotionGeo(char *self)
     SetLodLevel(self, 0);
     *(int *)(self + 0x16C) = 0;
 }
-int GetEnemyHitNodeFlag(char *a0) {
+int GetEnemyHitNodeFlag(char *a0)
+{
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14);
 }
 extern int setEnemyObject(void *self, int a1, int *a2);
@@ -176,22 +186,28 @@ int RandomizeEnemy(char *self)
     *(int *)(*(char **)(sub + 0x870) + 0x30) = 0;
     return setEnemyObject(self, kind, w);
 }
-void SetEnemyWingRatio(char *a0, float f) {
+void SetEnemyWingRatio(char *a0, float f)
+{
     *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x44) = f;
 }
-int CanThisEnemyFly(char *a0) {
+int CanThisEnemyFly(char *a0)
+{
     return D_00624880[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)].flyType;
 }
-int GetEnemyBattleType(char *a0) {
+int GetEnemyBattleType(char *a0)
+{
     return D_00624880[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)].battleType;
 }
-float GetEnemyDefLife(char *a0) {
+float GetEnemyDefLife(char *a0)
+{
     return D_00624880[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)].life;
 }
-float GetEnemyDefDodgeRange(char *a0) {
+float GetEnemyDefDodgeRange(char *a0)
+{
     return D_00624880[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)].dodge;
 }
-float GetEnemyDefParaIndex(char *a0) {
+float GetEnemyDefParaIndex(char *a0)
+{
     return D_00624880[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)].paraIndex;
 }
 extern int D_0028F4C0[];

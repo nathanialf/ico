@@ -7,11 +7,10 @@
    position vector bga_ApplyDObject hands to
    SetParticleEffectActiveSensing. */
 unsigned int D_004EE5B0[12] = {
-    0x00000000, 0x00000000, 0x00000000, 0x3F800000,
-    0x00000000, 0x00000000, 0x00000000, 0x3F800000,
-    0x00000000, 0xFFFFFFFF, 0x00000001, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000,
+    0x00000000, 0x3F800000, 0x00000000, 0xFFFFFFFF, 0x00000001, 0x00000000,
 };
-float D_004EE5E0[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+float D_004EE5E0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_InitData);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_initLightEnvelope);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_ApplyDObject);
@@ -71,7 +70,8 @@ ASM_LIT4_SLOT(D_006397C0, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_DispLightning);
 extern int D_0063C4B4;
 
-void bga_ResetCamera(void) {
+void bga_ResetCamera(void)
+{
     D_0063C4B4 = 0;
 }
 extern int D_0063BCC0;
@@ -95,7 +95,8 @@ extern char D_0063BCE0[];
 extern char D_006215D8[];
 extern char D_00621598[];
 extern char D_0063BCD8[];
-char *bga_InitSdfCamera(char *a0) {
+char *bga_InitSdfCamera(char *a0)
+{
     if (strncmp(a0, D_0063BCE0, 3) != 0) {
         debug_StdPrintfDummy(D_006215D8);
         debug_assert(D_00621598, 0x415);
@@ -231,7 +232,8 @@ int bga_CheckSdfCameraFrameIn(char *p, int in, int out)
     }
     return r;
 }
-void bga_SetCameraForceOff(void) {
+void bga_SetCameraForceOff(void)
+{
     D_0063BCC8 = 1;
 }
 extern int D_0063BCCC;
@@ -243,13 +245,15 @@ void bga_InitBGA(void)
 }
 extern int D_0063BCC4;
 
-void bga_SetUniqAnimationFlag(int val) {
+void bga_SetUniqAnimationFlag(int val)
+{
     D_0063BCC4 = val;
 }
 extern int D_0028F4D4[];
 extern void freeseki(void *p);
 
-void bga_ResetAnimation(void) {
+void bga_ResetAnimation(void)
+{
     void *p;
     D_0063C4B4 = 0;
     if (D_0028F4D4[0] != 0) {

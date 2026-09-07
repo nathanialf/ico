@@ -25,7 +25,8 @@ extern int D_0054C014[];
 extern char D_0072F5C0[];
 extern char D_00730B80[];
 
-void *_lmcGetClientPtr(int *a0, int *a1) {
+void *_lmcGetClientPtr(int *a0, int *a1)
+{
     a0[0] = (int)D_00730B80;
     a1[0] = (int)D_0054C010;
     *(int *)(D_00730B80 + 0x3C) = D_0054C014[0];
@@ -36,7 +37,8 @@ extern int PollSema(int sema);
 extern void SignalSema(int sema);
 extern int sceSifCallRpc();
 
-int sceMcChangeThreadPriority(int arg) {
+int sceMcChangeThreadPriority(int arg)
+{
     char *dev;
     char *blk;
     int r;
@@ -61,7 +63,8 @@ unlock:
 done:
     return r;
 }
-int sceMcGetSlotMax(int arg) {
+int sceMcGetSlotMax(int arg)
+{
     char *dev;
     char *blk;
     int r;
@@ -86,14 +89,16 @@ int sceMcGetSlotMax(int arg) {
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcOpen);
 extern int sceMcOpen(int a0, int a1, int a2, int a3);
 
-int sceMcMkdir(int a0, int a1, int a2) {
+int sceMcMkdir(int a0, int a1, int a2)
+{
     int ret = sceMcOpen(a0, a1, a2, 0x40);
     if (ret == 0) {
         *(int *)D_0054C010 = 0xB;
     }
     return ret;
 }
-int sceMcClose(int arg) {
+int sceMcClose(int arg)
+{
     char *dev;
     int r;
     if (PollSema(D_0054C014[0]) < 0) {
@@ -116,7 +121,8 @@ unlock:
 done:
     return r;
 }
-int sceMcSeek(int a0, int a1, int a2) {
+int sceMcSeek(int a0, int a1, int a2)
+{
     char *dev;
     int r;
     if (PollSema(D_0054C014[0]) < 0) {
@@ -146,7 +152,8 @@ extern char D_0072FAC0[];
 extern void func_00265A38(void *addr, int len);
 extern int mceIntrReadFixAlign();
 
-int sceMcRead(int a0, void *buf, int len) {
+int sceMcRead(int a0, void *buf, int len)
+{
     char *dev;
     int r;
     if (PollSema(D_0054C014[0]) < 0) {
@@ -163,8 +170,7 @@ int sceMcRead(int a0, void *buf, int len) {
     *(int *)(D_0072F640 + 0xC) = len;
     func_00265A38(buf, len);
     func_00265A38(D_0072FAC0, 0xC0);
-    r = sceSifCallRpc(dev, 5, 1, D_0072F640, 0x30, D_00730B80, 4,
-                      mceIntrReadFixAlign, D_0072FAC0);
+    r = sceSifCallRpc(dev, 5, 1, D_0072F640, 0x30, D_00730B80, 4, mceIntrReadFixAlign, D_0072FAC0);
     if (r != 0) {
         goto unlock;
     }
@@ -178,7 +184,8 @@ done:
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcWrite);
 extern void iWakeupThread(int a0);
 
-void mcHearAlarm(int a0, int a1, int a2) {
+void mcHearAlarm(int a0, int a1, int a2)
+{
     iWakeupThread(a2);
     SYNC();
     EI();
@@ -186,7 +193,8 @@ void mcHearAlarm(int a0, int a1, int a2) {
 extern int GetThreadId(void);
 extern void SetAlarm(int a0, void *a1, int a2);
 extern void SleepThread(void);
-void mcDelayThread(int a0) {
+void mcDelayThread(int a0)
+{
     SetAlarm((unsigned short)a0, mcHearAlarm, GetThreadId());
     SleepThread();
 }
@@ -194,14 +202,17 @@ extern void SignalSema(int sema);
 extern void mcDelayThread(int a0);
 extern int sceSifCheckStatRpc(char *a0);
 
-int sceMcSync(int a0, int *a1, int *a2) {
+int sceMcSync(int a0, int *a1, int *a2)
+{
     int r;
     if (*(int *)D_0054C010 == 0) {
         return 0xFFFFFFFF;
     }
     r = sceSifCheckStatRpc(D_0072F5C0);
-    if (a0 != 0) goto L050;
-    if (r == 0) goto L050;
+    if (a0 != 0)
+        goto L050;
+    if (r == 0)
+        goto L050;
     while (sceSifCheckStatRpc(D_0072F5C0) != 0) {
         mcDelayThread(0x3C);
     }
@@ -224,18 +235,23 @@ extern int *D_0072F5E8[];
 extern int *D_0072F5EC[];
 extern int *D_0072F5F0[];
 
-void mceGetInfoApdx(int a0) {
+void mceGetInfoApdx(int a0)
+{
     a0 |= 0x20000000;
-    if (D_0072F5E8[0]) *D_0072F5E8[0] = *(int *)a0;
-    if (D_0072F5EC[0]) *D_0072F5EC[0] = *(int *)(a0 + 4);
-    if (D_0072F5F0[0]) *D_0072F5F0[0] = *(int *)(a0 + 0x90);
+    if (D_0072F5E8[0])
+        *D_0072F5E8[0] = *(int *)a0;
+    if (D_0072F5EC[0])
+        *D_0072F5EC[0] = *(int *)(a0 + 4);
+    if (D_0072F5F0[0])
+        *D_0072F5F0[0] = *(int *)(a0 + 0x90);
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcGetInfo);
 extern NameReq D_0072F670;
 extern void func_00265A38(void *addr, int len);
 extern char *strncpy(char *dst, const char *src, int n);
 
-int sceMcGetDir(int a0, int a1, char *name, int a3, int nblk, void *buf) {
+int sceMcGetDir(int a0, int a1, char *name, int a3, int nblk, void *buf)
+{
     char *dev;
     int r;
     if (PollSema(D_0054C014[0]) < 0) {
@@ -281,7 +297,8 @@ extern char D_0072FB80[];
 extern int memcpy(char *a0, char *a1, int a2);
 extern int strlen(char *a0);
 
-void mceStorePwd(char *a0) {
+void mceStorePwd(char *a0)
+{
     int n;
     if (a0 != 0) {
         if ((unsigned int)strlen((char *)((int)D_0072FB80 | 0x20000000)) < 0x400) {
@@ -294,7 +311,8 @@ void mceStorePwd(char *a0) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcChdir);
-int sceMcFormat(int a0, int a1) {
+int sceMcFormat(int a0, int a1)
+{
     char *dev;
     char *blk;
     int r;
@@ -321,7 +339,8 @@ done:
     return r;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcDelete);
-int sceMcFlush(int arg) {
+int sceMcFlush(int arg)
+{
     char *dev;
     int r;
     if (PollSema(D_0054C014[0]) < 0) {
@@ -347,7 +366,8 @@ done:
 extern AuxReq D_0072F600;
 extern void FlushCache(int a0);
 
-int sceMcSetFileInfo(int a0, int a1, char *name, void *src, int flags) {
+int sceMcSetFileInfo(int a0, int a1, char *name, void *src, int flags)
+{
     char *dev;
     int r;
     if (PollSema(D_0054C014[0]) < 0) {
@@ -389,7 +409,8 @@ done:
     return r;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcRename);
-int sceMcUnformat(int a0, int a1) {
+int sceMcUnformat(int a0, int a1)
+{
     char *dev;
     char *blk;
     int r;
@@ -415,7 +436,8 @@ unlock:
 done:
     return r;
 }
-int sceMcGetEntSpace(int a0, int a1, char *name) {
+int sceMcGetEntSpace(int a0, int a1, char *name)
+{
     char *dev;
     int r;
     if (PollSema(D_0054C014[0]) < 0) {

@@ -31,7 +31,8 @@ extern void debugEEExceptionMain();
 extern int SetDebugHandler();
 extern void scePrintf();
 
-inline void debugExceptionInit(void *workBuf) {
+inline void debugExceptionInit(void *workBuf)
+{
     int i;
 
     D_0063B268 = workBuf;
@@ -42,11 +43,13 @@ inline void debugExceptionInit(void *workBuf) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugIOPExceptionMain);
 inline void debugIOPExceptionInit(void) {}
-inline void debug_assertMessage(char *file, int line, char *mes) {
+inline void debug_assertMessage(char *file, int line, char *mes)
+{
     for (;;)
         ;
 }
-inline void debug_assert(char *file, int line) {
+inline void debug_assert(char *file, int line)
+{
     for (;;)
         ;
 }

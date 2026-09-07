@@ -23,7 +23,8 @@ void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5);
 void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
 int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r);
 void MoveNextStage_Clear(void);
-inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5) {
+inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5)
+{
     D_0071D960[0] = a0[0];
     D_0071D960[1] = a0[1];
     D_0071D960[2] = a0[2];
@@ -36,12 +37,14 @@ inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int 
     D_0071D970[2] = a1[2];
     D_0063B640 = 1;
 }
-inline void test_nextstage_firstwalk_set(int unused, int a, int b, int c) {
+inline void test_nextstage_firstwalk_set(int unused, int a, int b, int c)
+{
     D_0063C414 = a;
     D_0063C418 = b;
     D_0063C41C = c;
 }
-inline int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r) {
+inline int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r)
+{
     int ret = 1;
     if (exit_no == 0) {
         *r = 1;
@@ -51,10 +54,14 @@ inline int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r) {
         *p = D_0063C414;
         *q = D_0063C418;
         *r = D_0063C41C;
-        if (*q == 0) ret = 0;
-        if (*p == 0) *p = 1;
-        if (*q == 0) *q = 1;
-        if (*r == 0) *r = 1;
+        if (*q == 0)
+            ret = 0;
+        if (*p == 0)
+            *p = 1;
+        if (*q == 0)
+            *q = 1;
+        if (*r == 0)
+            *r = 1;
     }
     *q = 0x32;
     return ret;
@@ -71,7 +78,8 @@ inline void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0)
         D_0063C41C = t0;
     }
 }
-inline void MoveNextStage_Clear(void) {
+inline void MoveNextStage_Clear(void)
+{
     D_0063B640 = 0;
     D_0063B644 = -1;
 }
@@ -102,7 +110,8 @@ void initWayData(int a0, int a1, int a2, int a3)
     ExtractWayData(a0, a1, a2, a3);
 }
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", InitSceneObjects);
-int HotInitSceneObjects(int a0) {
+int HotInitSceneObjects(int a0)
+{
     int *node = isysGObjGetExist_begin(a0);
     if (node != 0) {
         do {

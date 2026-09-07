@@ -37,7 +37,8 @@ float GetQuaternionCosRadian(void *p0, void *p1);
 
 extern int D_00639F3C;
 extern int D_00669640[];
-void MultiCurrentQuaternion(void *a0) {
+void MultiCurrentQuaternion(void *a0)
+{
     int *q = &D_00669640[D_00639F3C * 4];
     MultiQuaternion(q, q, a0);
 }
@@ -76,7 +77,8 @@ extern char D_0054DAA8[];
 extern void InitQuaternionDrive(void);
 extern void debug_StdPrintfDummy(char *p);
 
-void PushQuaternion(void) {
+void PushQuaternion(void)
+{
     int v = D_00639F3C;
     if (v < 0) {
         debug_StdPrintfDummy(D_0054DA80);
@@ -105,59 +107,64 @@ void InitQuaternionDrive(void)
 extern void CopyQuaternion__pn(void *a0, void *a1) __asm__("CopyQuaternion");
 extern int D_002907E0[];
 
-void SetIdentityQuaternion(void *a0) {
+void SetIdentityQuaternion(void *a0)
+{
     CopyQuaternion__pn(a0, D_002907E0);
 }
 extern void CopyVector();
 extern char D_0028FF00[];
 extern char D_002907F0[];
 
-void GetMatrixFromQuaternion(char *a0, char *a1) {
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf11, 0x0($5)\n"
-        "lqc2 $vf12, 0x0(%0)\n"
-        "vmr32.w $vf14, $vf0\n"
-        "vmr32.w $vf15, $vf0\n"
-        "vmr32.w $vf16, $vf0\n"
-        "vopmula.xyz ACC, $vf11, $vf12\n"
-        "vmadd.xyz $vf11, $vf0, $vf0\n"
-        "vmulw.xyzw $vf11, $vf11, $vf12w\n"
-        "vmul.xyz $vf13, $vf11, $vf11\n"
-        "vopmula.xyz ACC, $vf11, $vf11\n"
-        "vmaddw.xyz $vf15, $vf11, $vf11w\n"
-        "vmsubw.xyz $vf16, $vf11, $vf11w\n"
-        "vopmula.xyz ACC, $vf13, $vf12\n"
-        "vmadd.xyz $vf17, $vf13, $vf12\n"
-        "vopmula.xyz ACC, $vf15, $vf12\n"
-        "vmadd.xyz $vf15, $vf0, $vf0\n"
-        "vsub.xyz $vf14, $vf12, $vf17\n"
-        "vmove.y $vf17, $vf14\n"
-        "vmove.y $vf14, $vf16\n"
-        "vmove.y $vf16, $vf15\n"
-        "vmove.y $vf15, $vf17\n"
-        "vmove.z $vf17, $vf14\n"
-        "vmove.z $vf14, $vf15\n"
-        "vmove.z $vf15, $vf16\n"
-        "vmove.z $vf16, $vf17\n"
-        "sqc2 $vf14, 0x0($4)\n"
-        "sqc2 $vf15, 0x10($4)\n"
-        "sqc2 $vf16, 0x20($4)\n"
-        ".set reorder\n"
-        : : "r"(D_002907F0) : "memory");
+void GetMatrixFromQuaternion(char *a0, char *a1)
+{
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf11, 0x0($5)\n"
+                         "lqc2 $vf12, 0x0(%0)\n"
+                         "vmr32.w $vf14, $vf0\n"
+                         "vmr32.w $vf15, $vf0\n"
+                         "vmr32.w $vf16, $vf0\n"
+                         "vopmula.xyz ACC, $vf11, $vf12\n"
+                         "vmadd.xyz $vf11, $vf0, $vf0\n"
+                         "vmulw.xyzw $vf11, $vf11, $vf12w\n"
+                         "vmul.xyz $vf13, $vf11, $vf11\n"
+                         "vopmula.xyz ACC, $vf11, $vf11\n"
+                         "vmaddw.xyz $vf15, $vf11, $vf11w\n"
+                         "vmsubw.xyz $vf16, $vf11, $vf11w\n"
+                         "vopmula.xyz ACC, $vf13, $vf12\n"
+                         "vmadd.xyz $vf17, $vf13, $vf12\n"
+                         "vopmula.xyz ACC, $vf15, $vf12\n"
+                         "vmadd.xyz $vf15, $vf0, $vf0\n"
+                         "vsub.xyz $vf14, $vf12, $vf17\n"
+                         "vmove.y $vf17, $vf14\n"
+                         "vmove.y $vf14, $vf16\n"
+                         "vmove.y $vf16, $vf15\n"
+                         "vmove.y $vf15, $vf17\n"
+                         "vmove.z $vf17, $vf14\n"
+                         "vmove.z $vf14, $vf15\n"
+                         "vmove.z $vf15, $vf16\n"
+                         "vmove.z $vf16, $vf17\n"
+                         "sqc2 $vf14, 0x0($4)\n"
+                         "sqc2 $vf15, 0x10($4)\n"
+                         "sqc2 $vf16, 0x20($4)\n"
+                         ".set reorder\n"
+                         :
+                         : "r"(D_002907F0)
+                         : "memory");
     CopyVector(a0 + 0x30, D_0028FF00);
 }
 INCLUDE_ASM("asm/nonmatchings/src/quaternion", getQuaternionFromMatrix);
 extern void _TransposeMatrix(void *a0, void *a1);
 extern int getQuaternionFromMatrix();
 
-void GetQuaternionFromMatrix(void *a0, void *a1) {
+void GetQuaternionFromMatrix(void *a0, void *a1)
+{
     auto void getQuaternionFromMatrix(void *a, void *b) __asm__("getQuaternionFromMatrix");
     char local[0x40];
     _TransposeMatrix(local, a1);
     getQuaternionFromMatrix(a0, local);
 }
-void CopyQuaternion(void *a0, void *a1) {
+void CopyQuaternion(void *a0, void *a1)
+{
     CopyVector(a0, a1);
 }
 extern void _ScaleVectorXYZ(int a0, int a1, float f);
@@ -170,37 +177,40 @@ void GetInverseQuaternion(int a0, int a1)
 extern void _ScaleVector(void *a, void *b, float c);
 extern float _Sqrt(float);
 
-void RegularizeQuaternion(void *a0) {
+void RegularizeQuaternion(void *a0)
+{
     register float d __asm__("$f12");
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf14, 0x0(%1)\n"
-        "lqc2 $vf15, 0x0(%1)\n"
-        "vmul.xyzw $vf15, $vf14, $vf15\n"
-        "vaddy.x $vf15, $vf15, $vf15y\n"
-        "vaddz.x $vf15, $vf15, $vf15z\n"
-        "vaddw.x $vf15, $vf15, $vf15w\n"
-        "qmfc2.ni $2, $vf15\n"
-        "mtc1 $2, $f12\n"
-        ".set reorder\n"
-        : "=f"(d) : "r"(a0) : "$2");
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf14, 0x0(%1)\n"
+                         "lqc2 $vf15, 0x0(%1)\n"
+                         "vmul.xyzw $vf15, $vf14, $vf15\n"
+                         "vaddy.x $vf15, $vf15, $vf15y\n"
+                         "vaddz.x $vf15, $vf15, $vf15z\n"
+                         "vaddw.x $vf15, $vf15, $vf15w\n"
+                         "qmfc2.ni $2, $vf15\n"
+                         "mtc1 $2, $f12\n"
+                         ".set reorder\n"
+                         : "=f"(d)
+                         : "r"(a0)
+                         : "$2");
     _ScaleVector(a0, a0, 1.0f / _Sqrt(d));
 }
 inline float GetQuaternionCosRadian(void *p0, void *p1)
 {
     float r;
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf14, 0x0(%1)\n"
-        "lqc2 $vf15, 0x0(%2)\n"
-        "vmul.xyzw $vf15, $vf14, $vf15\n"
-        "vaddy.x $vf15, $vf15, $vf15y\n"
-        "vaddz.x $vf15, $vf15, $vf15z\n"
-        "vaddw.x $vf15, $vf15, $vf15w\n"
-        "qmfc2.ni $2, $vf15\n"
-        "mtc1 $2, %0\n"
-        ".set reorder\n"
-        : "=f"(r) : "r"(p0), "r"(p1) : "$2");
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf14, 0x0(%1)\n"
+                         "lqc2 $vf15, 0x0(%2)\n"
+                         "vmul.xyzw $vf15, $vf14, $vf15\n"
+                         "vaddy.x $vf15, $vf15, $vf15y\n"
+                         "vaddz.x $vf15, $vf15, $vf15z\n"
+                         "vaddw.x $vf15, $vf15, $vf15w\n"
+                         "qmfc2.ni $2, $vf15\n"
+                         "mtc1 $2, %0\n"
+                         ".set reorder\n"
+                         : "=f"(r)
+                         : "r"(p0), "r"(p1)
+                         : "$2");
     return r;
 }
 extern void CopyQuaternion(void *a0, void *a1);
@@ -305,14 +315,15 @@ inline void SetQuaternionByAxisRotateV(int *self, short a1, int *src)
 }
 inline void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, float z)
 {
-    float v[4] = { x, y, z, 0.0f };
+    float v[4] = {x, y, z, 0.0f};
     SetQuaternionByAxisRotateV(self, a1, (int *)v);
 }
 extern float GetTableCos(int x);
 extern float GetTableSin(int x);
 extern float _ScaleVector__pn(int *self, void *p, float arg) __asm__("_ScaleVector");
 
-inline void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x, float y, float z) {
+inline void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x, float y, float z)
+{
     char buf[0x10];
     int half = (a1 << 16) >> 17;
     float f;
@@ -327,7 +338,8 @@ inline void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x
 extern void _NormalizeVector(void *out, int *p);
 extern float _Sqrt__pn(float t) __asm__("_Sqrt");
 
-inline void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2) {
+inline void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2)
+{
     float buf[4];
     float first, second;
     first = _Sqrt((a1[0] + 1.0f) * 0.5f);
@@ -338,8 +350,9 @@ inline void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2) {
     *(float *)((char *)a0 + 0x4) = buf[1] * second;
     *(float *)((char *)a0 + 0x8) = buf[2] * second;
 }
-inline void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, float y, float z) {
-    float v[4] = { x, y, z, 0.0f };
+inline void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, float y, float z)
+{
+    float v[4] = {x, y, z, 0.0f};
     SetQuaternionByAxisRotateVEAngle(out, in, v);
 }
 inline void MultiQuaternion(void *p0, void *p1, void *p2)
@@ -368,80 +381,82 @@ inline void DivQuaternion(int self, int a1, int a2)
 }
 inline void GetMatrixFromQuaternionRotElem(char *a0, char *a1)
 {
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf11, 0x0($5)\n"
-        "lqc2 $vf12, 0x0(%0)\n"
-        "vmr32.w $vf14, $vf0\n"
-        "vmr32.w $vf15, $vf0\n"
-        "vmr32.w $vf16, $vf0\n"
-        "vopmula.xyz ACC, $vf11, $vf12\n"
-        "vmadd.xyz $vf11, $vf0, $vf0\n"
-        "vmulw.xyzw $vf11, $vf11, $vf12w\n"
-        "vmul.xyz $vf13, $vf11, $vf11\n"
-        "vopmula.xyz ACC, $vf11, $vf11\n"
-        "vmaddw.xyz $vf15, $vf11, $vf11w\n"
-        "vmsubw.xyz $vf16, $vf11, $vf11w\n"
-        "vopmula.xyz ACC, $vf13, $vf12\n"
-        "vmadd.xyz $vf17, $vf13, $vf12\n"
-        "vopmula.xyz ACC, $vf15, $vf12\n"
-        "vmadd.xyz $vf15, $vf0, $vf0\n"
-        "vsub.xyz $vf14, $vf12, $vf17\n"
-        "vmove.y $vf17, $vf14\n"
-        "vmove.y $vf14, $vf16\n"
-        "vmove.y $vf16, $vf15\n"
-        "vmove.y $vf15, $vf17\n"
-        "vmove.z $vf17, $vf14\n"
-        "vmove.z $vf14, $vf15\n"
-        "vmove.z $vf15, $vf16\n"
-        "vmove.z $vf16, $vf17\n"
-        "sqc2 $vf14, 0x0($4)\n"
-        "sqc2 $vf15, 0x10($4)\n"
-        "sqc2 $vf16, 0x20($4)\n"
-        ".set reorder\n"
-        : : "r"(D_002907F0) : "memory");
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf11, 0x0($5)\n"
+                         "lqc2 $vf12, 0x0(%0)\n"
+                         "vmr32.w $vf14, $vf0\n"
+                         "vmr32.w $vf15, $vf0\n"
+                         "vmr32.w $vf16, $vf0\n"
+                         "vopmula.xyz ACC, $vf11, $vf12\n"
+                         "vmadd.xyz $vf11, $vf0, $vf0\n"
+                         "vmulw.xyzw $vf11, $vf11, $vf12w\n"
+                         "vmul.xyz $vf13, $vf11, $vf11\n"
+                         "vopmula.xyz ACC, $vf11, $vf11\n"
+                         "vmaddw.xyz $vf15, $vf11, $vf11w\n"
+                         "vmsubw.xyz $vf16, $vf11, $vf11w\n"
+                         "vopmula.xyz ACC, $vf13, $vf12\n"
+                         "vmadd.xyz $vf17, $vf13, $vf12\n"
+                         "vopmula.xyz ACC, $vf15, $vf12\n"
+                         "vmadd.xyz $vf15, $vf0, $vf0\n"
+                         "vsub.xyz $vf14, $vf12, $vf17\n"
+                         "vmove.y $vf17, $vf14\n"
+                         "vmove.y $vf14, $vf16\n"
+                         "vmove.y $vf16, $vf15\n"
+                         "vmove.y $vf15, $vf17\n"
+                         "vmove.z $vf17, $vf14\n"
+                         "vmove.z $vf14, $vf15\n"
+                         "vmove.z $vf15, $vf16\n"
+                         "vmove.z $vf16, $vf17\n"
+                         "sqc2 $vf14, 0x0($4)\n"
+                         "sqc2 $vf15, 0x10($4)\n"
+                         "sqc2 $vf16, 0x20($4)\n"
+                         ".set reorder\n"
+                         :
+                         : "r"(D_002907F0)
+                         : "memory");
 }
 extern void CopyVector__pn(char *a0, char *a1) __asm__("CopyVector");
 
 inline void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2)
 {
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf11, 0x0(%2)\n"
-        "lqc2 $vf12, 0x0(%0)\n"
-        "vmr32.w $vf14, $vf0\n"
-        "vmr32.w $vf15, $vf0\n"
-        "vmr32.w $vf16, $vf0\n"
-        "vopmula.xyz ACC, $vf11, $vf12\n"
-        "vmadd.xyz $vf11, $vf0, $vf0\n"
-        "vmulw.xyzw $vf11, $vf11, $vf12w\n"
-        "vmul.xyz $vf13, $vf11, $vf11\n"
-        "vopmula.xyz ACC, $vf11, $vf11\n"
-        "vmaddw.xyz $vf15, $vf11, $vf11w\n"
-        "vmsubw.xyz $vf16, $vf11, $vf11w\n"
-        "vopmula.xyz ACC, $vf13, $vf12\n"
-        "vmadd.xyz $vf17, $vf13, $vf12\n"
-        "vopmula.xyz ACC, $vf15, $vf12\n"
-        "vmadd.xyz $vf15, $vf0, $vf0\n"
-        "vsub.xyz $vf14, $vf12, $vf17\n"
-        "vmove.y $vf17, $vf14\n"
-        "vmove.y $vf14, $vf16\n"
-        "vmove.y $vf16, $vf15\n"
-        "vmove.y $vf15, $vf17\n"
-        "vmove.z $vf17, $vf14\n"
-        "vmove.z $vf14, $vf15\n"
-        "vmove.z $vf15, $vf16\n"
-        "vmove.z $vf16, $vf17\n"
-        "sqc2 $vf14, 0x0(%1)\n"
-        "sqc2 $vf15, 0x10(%1)\n"
-        "sqc2 $vf16, 0x20(%1)\n"
-        ".set reorder\n"
-        : : "r"(D_002907F0), "r"(a0), "r"(a1) : "memory");
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf11, 0x0(%2)\n"
+                         "lqc2 $vf12, 0x0(%0)\n"
+                         "vmr32.w $vf14, $vf0\n"
+                         "vmr32.w $vf15, $vf0\n"
+                         "vmr32.w $vf16, $vf0\n"
+                         "vopmula.xyz ACC, $vf11, $vf12\n"
+                         "vmadd.xyz $vf11, $vf0, $vf0\n"
+                         "vmulw.xyzw $vf11, $vf11, $vf12w\n"
+                         "vmul.xyz $vf13, $vf11, $vf11\n"
+                         "vopmula.xyz ACC, $vf11, $vf11\n"
+                         "vmaddw.xyz $vf15, $vf11, $vf11w\n"
+                         "vmsubw.xyz $vf16, $vf11, $vf11w\n"
+                         "vopmula.xyz ACC, $vf13, $vf12\n"
+                         "vmadd.xyz $vf17, $vf13, $vf12\n"
+                         "vopmula.xyz ACC, $vf15, $vf12\n"
+                         "vmadd.xyz $vf15, $vf0, $vf0\n"
+                         "vsub.xyz $vf14, $vf12, $vf17\n"
+                         "vmove.y $vf17, $vf14\n"
+                         "vmove.y $vf14, $vf16\n"
+                         "vmove.y $vf16, $vf15\n"
+                         "vmove.y $vf15, $vf17\n"
+                         "vmove.z $vf17, $vf14\n"
+                         "vmove.z $vf14, $vf15\n"
+                         "vmove.z $vf15, $vf16\n"
+                         "vmove.z $vf16, $vf17\n"
+                         "sqc2 $vf14, 0x0(%1)\n"
+                         "sqc2 $vf15, 0x10(%1)\n"
+                         "sqc2 $vf16, 0x20(%1)\n"
+                         ".set reorder\n"
+                         :
+                         : "r"(D_002907F0), "r"(a0), "r"(a1)
+                         : "memory");
     CopyVector__pn(a0 + 0x30, a2);
     *(float *)(a0 + 0x3C) = 1.0f;
 }
 extern void GetMatrixFromQuaternion__pn() __asm__("GetMatrixFromQuaternion");
-extern int * MatrixDrive_GetMatrix();
+extern int *MatrixDrive_GetMatrix();
 extern void _MulMatrix();
 
 inline void MultiMatrixByQuaternion(void *src)
@@ -497,23 +512,24 @@ inline void RotQuaternionX(void *self, int a1)
     f = GetTableSin(half);
     _ScaleVector__pn((int *)buf, axis, f);
     *(float *)(buf + 0xC) = GetTableCos(half);
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf11, 0x0(%0)\n"
-        "lqc2 $vf12, %1\n"
-        "vmul.xyzw $vf13, $vf11, $vf12\n"
-        "vaddy.x $vf13, $vf13, $vf13y\n"
-        "vaddz.x $vf13, $vf13, $vf13z\n"
-        "vsubx.w $vf13, $vf13, $vf13x\n"
-        "vmulw.xyz $vf14, $vf12, $vf11w\n"
-        "vmulw.xyz $vf15, $vf11, $vf12w\n"
-        "vopmula.xyz ACC, $vf12, $vf11\n"
-        "vopmsub.xyz $vf16, $vf11, $vf12\n"
-        "vadd.xyz $vf13, $vf14, $vf15\n"
-        "vadd.xyz $vf13, $vf13, $vf16\n"
-        "sqc2 $vf13, 0x0(%0)\n"
-        ".set reorder\n"
-        : : "r"(self), "m"(buf[0]) : "memory");
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf11, 0x0(%0)\n"
+                         "lqc2 $vf12, %1\n"
+                         "vmul.xyzw $vf13, $vf11, $vf12\n"
+                         "vaddy.x $vf13, $vf13, $vf13y\n"
+                         "vaddz.x $vf13, $vf13, $vf13z\n"
+                         "vsubx.w $vf13, $vf13, $vf13x\n"
+                         "vmulw.xyz $vf14, $vf12, $vf11w\n"
+                         "vmulw.xyz $vf15, $vf11, $vf12w\n"
+                         "vopmula.xyz ACC, $vf12, $vf11\n"
+                         "vopmsub.xyz $vf16, $vf11, $vf12\n"
+                         "vadd.xyz $vf13, $vf14, $vf15\n"
+                         "vadd.xyz $vf13, $vf13, $vf16\n"
+                         "sqc2 $vf13, 0x0(%0)\n"
+                         ".set reorder\n"
+                         :
+                         : "r"(self), "m"(buf[0])
+                         : "memory");
 }
 extern char D_0028FF20[];
 
@@ -526,23 +542,24 @@ inline void RotQuaternionY(void *self, int a1)
     f = GetTableSin(half);
     _ScaleVector__pn((int *)buf, axis, f);
     *(float *)(buf + 0xC) = GetTableCos(half);
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf11, 0x0(%0)\n"
-        "lqc2 $vf12, %1\n"
-        "vmul.xyzw $vf13, $vf11, $vf12\n"
-        "vaddy.x $vf13, $vf13, $vf13y\n"
-        "vaddz.x $vf13, $vf13, $vf13z\n"
-        "vsubx.w $vf13, $vf13, $vf13x\n"
-        "vmulw.xyz $vf14, $vf12, $vf11w\n"
-        "vmulw.xyz $vf15, $vf11, $vf12w\n"
-        "vopmula.xyz ACC, $vf12, $vf11\n"
-        "vopmsub.xyz $vf16, $vf11, $vf12\n"
-        "vadd.xyz $vf13, $vf14, $vf15\n"
-        "vadd.xyz $vf13, $vf13, $vf16\n"
-        "sqc2 $vf13, 0x0(%0)\n"
-        ".set reorder\n"
-        : : "r"(self), "m"(buf[0]) : "memory");
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf11, 0x0(%0)\n"
+                         "lqc2 $vf12, %1\n"
+                         "vmul.xyzw $vf13, $vf11, $vf12\n"
+                         "vaddy.x $vf13, $vf13, $vf13y\n"
+                         "vaddz.x $vf13, $vf13, $vf13z\n"
+                         "vsubx.w $vf13, $vf13, $vf13x\n"
+                         "vmulw.xyz $vf14, $vf12, $vf11w\n"
+                         "vmulw.xyz $vf15, $vf11, $vf12w\n"
+                         "vopmula.xyz ACC, $vf12, $vf11\n"
+                         "vopmsub.xyz $vf16, $vf11, $vf12\n"
+                         "vadd.xyz $vf13, $vf14, $vf15\n"
+                         "vadd.xyz $vf13, $vf13, $vf16\n"
+                         "sqc2 $vf13, 0x0(%0)\n"
+                         ".set reorder\n"
+                         :
+                         : "r"(self), "m"(buf[0])
+                         : "memory");
 }
 extern char D_0028FF30[];
 
@@ -555,67 +572,70 @@ inline void RotQuaternionZ(void *self, int a1)
     f = GetTableSin(half);
     _ScaleVector__pn((int *)buf, axis, f);
     *(float *)(buf + 0xC) = GetTableCos(half);
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf11, 0x0(%0)\n"
-        "lqc2 $vf12, %1\n"
-        "vmul.xyzw $vf13, $vf11, $vf12\n"
-        "vaddy.x $vf13, $vf13, $vf13y\n"
-        "vaddz.x $vf13, $vf13, $vf13z\n"
-        "vsubx.w $vf13, $vf13, $vf13x\n"
-        "vmulw.xyz $vf14, $vf12, $vf11w\n"
-        "vmulw.xyz $vf15, $vf11, $vf12w\n"
-        "vopmula.xyz ACC, $vf12, $vf11\n"
-        "vopmsub.xyz $vf16, $vf11, $vf12\n"
-        "vadd.xyz $vf13, $vf14, $vf15\n"
-        "vadd.xyz $vf13, $vf13, $vf16\n"
-        "sqc2 $vf13, 0x0(%0)\n"
-        ".set reorder\n"
-        : : "r"(self), "m"(buf[0]) : "memory");
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf11, 0x0(%0)\n"
+                         "lqc2 $vf12, %1\n"
+                         "vmul.xyzw $vf13, $vf11, $vf12\n"
+                         "vaddy.x $vf13, $vf13, $vf13y\n"
+                         "vaddz.x $vf13, $vf13, $vf13z\n"
+                         "vsubx.w $vf13, $vf13, $vf13x\n"
+                         "vmulw.xyz $vf14, $vf12, $vf11w\n"
+                         "vmulw.xyz $vf15, $vf11, $vf12w\n"
+                         "vopmula.xyz ACC, $vf12, $vf11\n"
+                         "vopmsub.xyz $vf16, $vf11, $vf12\n"
+                         "vadd.xyz $vf13, $vf14, $vf15\n"
+                         "vadd.xyz $vf13, $vf13, $vf16\n"
+                         "sqc2 $vf13, 0x0(%0)\n"
+                         ".set reorder\n"
+                         :
+                         : "r"(self), "m"(buf[0])
+                         : "memory");
 }
 inline void RotQuaternionEAX(void *self, float *in)
 {
     float q[4];
     SetQuaternionByAxisRotateEAngle(q, in, 1.0f, 0.0f, 0.0f);
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf11, 0x0(%0)\n"
-        "lqc2 $vf12, %1\n"
-        "vmul.xyzw $vf13, $vf11, $vf12\n"
-        "vaddy.x $vf13, $vf13, $vf13y\n"
-        "vaddz.x $vf13, $vf13, $vf13z\n"
-        "vsubx.w $vf13, $vf13, $vf13x\n"
-        "vmulw.xyz $vf14, $vf12, $vf11w\n"
-        "vmulw.xyz $vf15, $vf11, $vf12w\n"
-        "vopmula.xyz ACC, $vf12, $vf11\n"
-        "vopmsub.xyz $vf16, $vf11, $vf12\n"
-        "vadd.xyz $vf13, $vf14, $vf15\n"
-        "vadd.xyz $vf13, $vf13, $vf16\n"
-        "sqc2 $vf13, 0x0(%0)\n"
-        ".set reorder\n"
-        : : "r"(self), "m"(q[0]) : "memory");
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf11, 0x0(%0)\n"
+                         "lqc2 $vf12, %1\n"
+                         "vmul.xyzw $vf13, $vf11, $vf12\n"
+                         "vaddy.x $vf13, $vf13, $vf13y\n"
+                         "vaddz.x $vf13, $vf13, $vf13z\n"
+                         "vsubx.w $vf13, $vf13, $vf13x\n"
+                         "vmulw.xyz $vf14, $vf12, $vf11w\n"
+                         "vmulw.xyz $vf15, $vf11, $vf12w\n"
+                         "vopmula.xyz ACC, $vf12, $vf11\n"
+                         "vopmsub.xyz $vf16, $vf11, $vf12\n"
+                         "vadd.xyz $vf13, $vf14, $vf15\n"
+                         "vadd.xyz $vf13, $vf13, $vf16\n"
+                         "sqc2 $vf13, 0x0(%0)\n"
+                         ".set reorder\n"
+                         :
+                         : "r"(self), "m"(q[0])
+                         : "memory");
 }
 inline void RotQuaternionEAZ(void *self, float *in)
 {
     float q[4];
     SetQuaternionByAxisRotateEAngle(q, in, 0.0f, 0.0f, 1.0f);
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf11, 0x0(%0)\n"
-        "lqc2 $vf12, %1\n"
-        "vmul.xyzw $vf13, $vf11, $vf12\n"
-        "vaddy.x $vf13, $vf13, $vf13y\n"
-        "vaddz.x $vf13, $vf13, $vf13z\n"
-        "vsubx.w $vf13, $vf13, $vf13x\n"
-        "vmulw.xyz $vf14, $vf12, $vf11w\n"
-        "vmulw.xyz $vf15, $vf11, $vf12w\n"
-        "vopmula.xyz ACC, $vf12, $vf11\n"
-        "vopmsub.xyz $vf16, $vf11, $vf12\n"
-        "vadd.xyz $vf13, $vf14, $vf15\n"
-        "vadd.xyz $vf13, $vf13, $vf16\n"
-        "sqc2 $vf13, 0x0(%0)\n"
-        ".set reorder\n"
-        : : "r"(self), "m"(q[0]) : "memory");
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf11, 0x0(%0)\n"
+                         "lqc2 $vf12, %1\n"
+                         "vmul.xyzw $vf13, $vf11, $vf12\n"
+                         "vaddy.x $vf13, $vf13, $vf13y\n"
+                         "vaddz.x $vf13, $vf13, $vf13z\n"
+                         "vsubx.w $vf13, $vf13, $vf13x\n"
+                         "vmulw.xyz $vf14, $vf12, $vf11w\n"
+                         "vmulw.xyz $vf15, $vf11, $vf12w\n"
+                         "vopmula.xyz ACC, $vf12, $vf11\n"
+                         "vopmsub.xyz $vf16, $vf11, $vf12\n"
+                         "vadd.xyz $vf13, $vf14, $vf15\n"
+                         "vadd.xyz $vf13, $vf13, $vf16\n"
+                         "sqc2 $vf13, 0x0(%0)\n"
+                         ".set reorder\n"
+                         :
+                         : "r"(self), "m"(q[0])
+                         : "memory");
 }
 inline void GetXUnitVectorOfQuaternion(float *out, float *q)
 {
@@ -623,7 +643,7 @@ inline void GetXUnitVectorOfQuaternion(float *out, float *q)
     float x = q[0];
     float y = q[1];
     float z = q[2];
-    float v[4] = { -(y * y + z * z), x * y - w * z, x * z + w * y, 0.0f };
+    float v[4] = {-(y * y + z * z), x * y - w * z, x * z + w * y, 0.0f};
     _ScaleVectorXYZ((int)out, (int)v, 2.0f);
     out[0] = out[0] + 1.0f;
 }
@@ -633,7 +653,7 @@ inline void GetYUnitVectorOfQuaternion(float *out, float *q)
     float x = q[0];
     float y = q[1];
     float z = q[2];
-    float v[4] = { x * y + w * z, -(x * x + z * z), y * z - w * x, 0.0f };
+    float v[4] = {x * y + w * z, -(x * x + z * z), y * z - w * x, 0.0f};
     _ScaleVectorXYZ((int)out, (int)v, 2.0f);
     out[1] = out[1] + 1.0f;
 }
@@ -643,18 +663,20 @@ inline void GetZUnitVectorOfQuaternion(float *out, float *q)
     float x = q[0];
     float y = q[1];
     float z = q[2];
-    float v[4] = { x * z - w * y, y * z + w * x, -(x * x + y * y), 0.0f };
+    float v[4] = {x * z - w * y, y * z + w * x, -(x * x + y * y), 0.0f};
     _ScaleVectorXYZ((int)out, (int)v, 2.0f);
     out[2] = out[2] + 1.0f;
 }
-inline void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *a0, void *a1, float angle) {
+inline void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *a0, void *a1, float angle)
+{
     float first, second;
     first = _Sqrt((angle + 1.0f) * 0.5f);
     second = _Sqrt((1.0f - angle) * 0.5f);
     _ScaleVector(a0, a1, second);
     *(float *)((char *)a0 + 0xC) = first;
 }
-inline void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle) {
+inline void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle)
+{
     float buf[4];
     _NormalizeVector(buf, a1);
     SetQuaternionByCosineAxisRotateVWithNoRegularize(a0, buf, angle);
@@ -670,19 +692,19 @@ inline void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *
     c = _InnerProduct(a, b);
     SetQuaternionByCosineAxisRotateV(out, v, c);
 }
-inline float GetQuaternionMagnitude(void *a0) {
+inline float GetQuaternionMagnitude(void *a0)
+{
     float r;
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf14, 0x0(%1)\n"
-        "lqc2 $vf15, 0x0(%1)\n"
-        "vmul.xyzw $vf15, $vf14, $vf15\n"
-        "vaddy.x $vf15, $vf15, $vf15y\n"
-        "vaddz.x $vf15, $vf15, $vf15z\n"
-        "vaddw.x $vf15, $vf15, $vf15w\n"
-        "qmfc2.ni %0, $vf15\n"
-        ".set reorder\n"
-        : "=r"(r) : "r"(a0));
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf14, 0x0(%1)\n"
+                         "lqc2 $vf15, 0x0(%1)\n"
+                         "vmul.xyzw $vf15, $vf14, $vf15\n"
+                         "vaddy.x $vf15, $vf15, $vf15y\n"
+                         "vaddz.x $vf15, $vf15, $vf15z\n"
+                         "vaddw.x $vf15, $vf15, $vf15w\n"
+                         "qmfc2.ni %0, $vf15\n"
+                         ".set reorder\n"
+                         : "=r"(r)
+                         : "r"(a0));
     return _Sqrt(r);
 }
-

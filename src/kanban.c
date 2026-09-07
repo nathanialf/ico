@@ -1,6 +1,8 @@
 #include "common.h"
 
-typedef struct { unsigned char b[4]; } Col4;
+typedef struct {
+    unsigned char b[4];
+} Col4;
 typedef struct KanbanProp KanbanProp;
 typedef struct Node {
     KanbanProp *f0;
@@ -12,7 +14,9 @@ typedef struct Node {
     struct Node *f18;
     struct Node *f1C;
 } Node;
-typedef struct { char b[16]; } Pkt16;
+typedef struct {
+    char b[16];
+} Pkt16;
 extern int *D_0063C398;
 extern int D_0063C39C;
 extern int D_0071CB10[];
@@ -190,7 +194,8 @@ Node *kanbanReqAdd(int no, int pri)
     p = (Node *)D_0071CB10;
     pr = &D_00533FE8[no];
     for (i = 0; i < 30; i++, p++) {
-        if (p->f0 == 0) goto found;
+        if (p->f0 == 0)
+            goto found;
     }
     debug_StdPrintfDummy(D_0061D670);
     return 0;
@@ -224,7 +229,7 @@ found:
             cur->f1C = p;
             p->f18 = cur;
             goto done;
-append:
+        append:
             cur->f18 = p;
             p->f1C = cur;
             p->f18 = 0;
@@ -351,7 +356,8 @@ void display_layout(Node *k)
         }
     }
 }
-inline void kanbanExec(void) {
+inline void kanbanExec(void)
+{
     Node *k;
     unsigned char col[4];
     Pkt16 pkt;

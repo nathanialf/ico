@@ -6,14 +6,31 @@
 
 #include "sugiCommon.h"
 
-struct Pack32 { long long a, b, c, d; };
+struct Pack32 {
+    long long a, b, c, d;
+};
 
-typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
+typedef struct {
+    char _0;
+    signed char f1;
+    unsigned char f2;
+    unsigned char f3;
+} FloorAttr;
 
-typedef struct { long long w[62]; } _0x1F0;
+typedef struct {
+    long long w[62];
+} _0x1F0;
 
-typedef struct { long long d[2]; float q[4]; } StreamElem;
-typedef struct { int idx; char pad[0x1C]; float q[4]; char pad2[0x10]; } StreamNode;
+typedef struct {
+    long long d[2];
+    float q[4];
+} StreamElem;
+typedef struct {
+    int idx;
+    char pad[0x1C];
+    float q[4];
+    char pad2[0x10];
+} StreamNode;
 
 extern int GetFloorAttribute();
 extern int CompareAttribute();
@@ -26,8 +43,8 @@ extern void CopyVector();
 extern int D_0028F4C0[];
 extern char D_0028FEF0[];
 
-int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *vel,
-                     float h0, float h1, float h2, float scaleIn, float amp)
+int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *vel, float h0,
+                     float h1, float h2, float scaleIn, float amp)
 {
     float drain[4];
     float waterH;
@@ -55,14 +72,15 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
                 vel[1] = vel[1] + amp * (h1 - waterH) / (h1 - h0);
             } else if (waterH < h2) {
                 r = (waterH - h1) / (h2 - h1);
-                vel[1] = vel[1]
-                       + (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f
-                          * (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]))
-                          + amp * (1.0f - r)) * r;
+                vel[1] =
+                    vel[1] + (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
+                                  (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) +
+                              amp * (1.0f - r)) *
+                                 r;
             } else {
-                vel[1] = vel[1]
-                       + 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f
-                         * (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                vel[1] = vel[1] + 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) *
+                                      0.5f *
+                                      (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
                 scale = 1.0f;
                 CopyVector(drain, D_0028FEF0);
             }
@@ -93,7 +111,8 @@ void GetOrientOfCliffOfGObj(int a0, int a1)
 extern void LocalizeDirectionOrient(char *a0, void *a1);
 extern void sceVu0Normalize(int *a0, int *a1);
 
-void SetMotionDirection(void *a0, float *a1) {
+void SetMotionDirection(void *a0, float *a1)
+{
     char *base = *(char **)((char *)a0 + 0x15C);
     char *s2 = base + 0x470;
     char *m;
@@ -162,17 +181,18 @@ extern void SubVectorXYZ();
 
 void GetRootPosOfNextFrame(int a0, int *a1)
 {
-  int *p = (int *)((GObj *)(a1))->p_15C;
-  char *new_var;
-  new_var = ((char *) p) + 0xA0;
-  CopyVector(a0, (int) (((char *) p) + 0x130));
-  SubVectorXYZ(a0, a0, (int) new_var);
+    int *p = (int *)((GObj *)(a1))->p_15C;
+    char *new_var;
+    new_var = ((char *)p) + 0xA0;
+    CopyVector(a0, (int)(((char *)p) + 0x130));
+    SubVectorXYZ(a0, a0, (int)new_var);
 }
 extern int D_0054D860[];
 extern float GetYProjectionOfPlane();
 extern void debug_StdPrintfDummy();
 
-void AdjustMotionHeightToField(int *a0) {
+void AdjustMotionHeightToField(int *a0)
+{
     char *o = (char *)a0[0x57];
     char *sub = o + 0xA0;
     *(float *)(sub + 0x1B4) = GetYProjectionOfPlane(o + 0x1D0, o + 0x250);
@@ -196,7 +216,9 @@ void getLowerPlaneCollisionE(int a0, int a1)
     *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
     ClipFloorE(a0);
 }
-typedef struct { int a, b, c; } MotAttr12;
+typedef struct {
+    int a, b, c;
+} MotAttr12;
 extern void sceVu0CopyVector();
 extern void GetRootPosition();
 
@@ -344,7 +366,9 @@ int calcFootIK(char *skel, char *arg, int node, float scale, float ratio)
     DivQuaternion(qk, qv, qu);
     return ang;
 }
-typedef struct { long long d[122]; } _0x3D0;
+typedef struct {
+    long long d[122];
+} _0x3D0;
 extern _0x3D0 D_00290080;
 extern void RotQuaternionX(void *q, short ang);
 extern void RegularizeQuaternion(void *q);
@@ -635,8 +659,14 @@ int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, int *cfg, int
 
 extern void sceVu0CopyVector(void *dst, void *src);
 
-typedef struct { float x, y, z, w; } __attribute__((aligned(16))) Vec4f;
-typedef struct { unsigned char n; signed char adj : 7; unsigned char neg : 1; } MotS16Hdr;
+typedef struct {
+    float x, y, z, w;
+} __attribute__((aligned(16))) Vec4f;
+typedef struct {
+    unsigned char n;
+    signed char adj : 7;
+    unsigned char neg : 1;
+} MotS16Hdr;
 
 /* dev lines 1588-1605: 2^e as a float, built by repeated multiply/divide so the
    exponent can exceed a single shift's range. */
@@ -679,12 +709,12 @@ static inline void motSqrtStart(float d)
 {
     float t = 1.0f - d;
 
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "mfc1 $6, %0\n"
-        "qmtc2.ni $6, $vf1\n"
-        ".set reorder\n"
-        : : "f"(t));
+    __asm__ __volatile__(".set noreorder\n"
+                         "mfc1 $6, %0\n"
+                         "qmtc2.ni $6, $vf1\n"
+                         ".set reorder\n"
+                         :
+                         : "f"(t));
     VU0_WORD(0x4A0103BD);
 }
 
@@ -693,21 +723,19 @@ static inline float motSqrtEnd(void)
     float r;
 
     VU0_WAIT();
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "cfc2.ni $7, $vi22\n"
-        "mtc1 $7, %0\n"
-        ".set reorder\n"
-        : "=f"(r));
+    __asm__ __volatile__(".set noreorder\n"
+                         "cfc2.ni $7, $vi22\n"
+                         "mtc1 $7, %0\n"
+                         ".set reorder\n"
+                         : "=f"(r));
     return r;
 }
 
 void _getS16MotRotElem(void *dst, void *src)
 {
-    Vec4f v = { motDecodeS16(*(unsigned short *)((char *)src + 2)),
-                motDecodeS16(*(unsigned short *)((char *)src + 4)),
-                motDecodeS16(*(unsigned short *)((char *)src + 6)),
-                1.0f };
+    Vec4f v = {motDecodeS16(*(unsigned short *)((char *)src + 2)),
+               motDecodeS16(*(unsigned short *)((char *)src + 4)),
+               motDecodeS16(*(unsigned short *)((char *)src + 6)), 1.0f};
     float d = _InnerProduct((float *)&v, (float *)&v);
     if (d > 1.0f) {
         d = 1.0f;
@@ -722,8 +750,16 @@ void _getS16MotRotElem(void *dst, void *src)
     }
     *(float *)((char *)dst + 0x1C) += (float)((MotS16Hdr *)src)->adj * 0.001f;
 }
-typedef struct { unsigned char n; unsigned char s; float x, y, z; } MotElemF;
-typedef struct { unsigned char n; unsigned char s; unsigned short a, b, c; } MotElemS;
+typedef struct {
+    unsigned char n;
+    unsigned char s;
+    float x, y, z;
+} MotElemF;
+typedef struct {
+    unsigned char n;
+    unsigned char s;
+    unsigned short a, b, c;
+} MotElemS;
 
 extern void SetIdentityQuaternion(void *q);
 extern float FSqrt(float x);
@@ -740,9 +776,9 @@ static inline void getMotRotElem(char *dst, char *src)
 {
     float sum;
 
-    sum = *(float *)(src + 0x4) * *(float *)(src + 0x4)
-        + *(float *)(src + 0x8) * *(float *)(src + 0x8)
-        + *(float *)(src + 0xC) * *(float *)(src + 0xC);
+    sum = *(float *)(src + 0x4) * *(float *)(src + 0x4) +
+          *(float *)(src + 0x8) * *(float *)(src + 0x8) +
+          *(float *)(src + 0xC) * *(float *)(src + 0xC);
     sum = (sum > 1.0f) ? 1.0f : sum;
     *(int *)dst = *(unsigned char *)src;
     *(float *)(dst + 0x1C) = FSqrt(1.0f - sum);
@@ -773,16 +809,15 @@ void _getMotion(void *dst, void *m, int node, int frame)
     }
     case 2: {
         char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
-        MotElemF e = { ((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 4),
-                       *(float *)(p + 8), *(float *)(p + 0xC), *(float *)(p + 0x10) };
+        MotElemF e = {((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 4),
+                      *(float *)(p + 8), *(float *)(p + 0xC), *(float *)(p + 0x10)};
         getMotRotElem((char *)dst, (char *)&e);
         break;
     }
     case 3: {
         char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
-        MotElemF e = { ((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 8),
-                       *(float *)(p + 0xC), *(float *)(p + 0x10),
-                       ((float *)*(int *)(p + 4))[frame] };
+        MotElemF e = {((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 8),
+                      *(float *)(p + 0xC), *(float *)(p + 0x10), ((float *)*(int *)(p + 4))[frame]};
         getMotRotElem((char *)dst, (char *)&e);
         break;
     }
@@ -793,17 +828,17 @@ void _getMotion(void *dst, void *m, int node, int frame)
     }
     case 5: {
         char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
-        MotElemS e = { ((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 4),
-                       *(unsigned short *)(p + 6), *(unsigned short *)(p + 8),
-                       *(unsigned short *)(p + 0xA) };
+        MotElemS e = {((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 4),
+                      *(unsigned short *)(p + 6), *(unsigned short *)(p + 8),
+                      *(unsigned short *)(p + 0xA)};
         _getS16MotRotElem(dst, &e);
         break;
     }
     case 6: {
         char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
-        MotElemS e = { ((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 8),
-                       *(unsigned short *)(p + 0xA), *(unsigned short *)(p + 0xC),
-                       ((unsigned short *)*(int *)(p + 4))[frame] };
+        MotElemS e = {((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 8),
+                      *(unsigned short *)(p + 0xA), *(unsigned short *)(p + 0xC),
+                      ((unsigned short *)*(int *)(p + 4))[frame]};
         _getS16MotRotElem(dst, &e);
         break;
     }
@@ -915,8 +950,8 @@ extern void GetSlerpQuaternionNoRegularize(float *dst, float *a, float *b, float
    members a deferred inline would land at the object end instead of at its ROM
    slot, so the public bodies stay plain definitions further down and this caller
    uses these stand-ins.  Collapses to one `inline` definition each at layout. */
-static inline void getMotion(char *dst, float *root, void *motion, int idx,
-                             unsigned char *mask, int count, char *hrc)
+static inline void getMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask,
+                             int count, char *hrc)
 {
     int i;
 
@@ -948,8 +983,8 @@ static inline void getMotion(char *dst, float *root, void *motion, int idx,
     }
 }
 static inline void getBlendedMotion(StreamElem *dst, float *root, StreamElem *a, float *rootA,
-                                    StreamElem *b, float *rootB, unsigned char *mask,
-                                    int count, float t)
+                                    StreamElem *b, float *rootB, unsigned char *mask, int count,
+                                    float t)
 {
     int i;
     float u = 1.0f - t;
@@ -973,8 +1008,8 @@ static inline void getBlendedMotion(StreamElem *dst, float *root, StreamElem *a,
     }
 }
 
-void GetFloatingMotion(StreamElem *dst, float *root, void *motion, int count,
-                       unsigned char *mask, char *hrc, float t)
+void GetFloatingMotion(StreamElem *dst, float *root, void *motion, int count, unsigned char *mask,
+                       char *hrc, float t)
 {
     float rootA[4];
     float rootB[4];
@@ -1006,7 +1041,8 @@ extern void GetInverseQuaternion(float *dst, float *src);
 extern void GetMirrorQuaternion(float *a0, float *a1, unsigned int a2);
 extern void MultiQuaternion(void *a0, void *a1, void *a2);
 
-int MakeMirrorMotion(StreamElem *a, StreamNode *b) {
+int MakeMirrorMotion(StreamElem *a, StreamNode *b)
+{
     int i;
     int n;
     float buf[4];
@@ -1078,17 +1114,24 @@ void GetFloatingShapeMotion(float *dst, char *m, float t, int count)
         }
     }
 }
-typedef struct { int a; int b; int c; } WallWork;
-void FeedbackWallWorkInfoToBrainSystem(char *a0) {
+typedef struct {
+    int a;
+    int b;
+    int c;
+} WallWork;
+void FeedbackWallWorkInfoToBrainSystem(char *a0)
+{
     char *p = *(char **)(a0 + 0x15C);
     char *d = *(char **)(a0 + 0x164);
     *(WallWork *)(p + 0x180) = *(WallWork *)(p + 0x1A0);
     *(WallWork *)(d + 0x620) = *(WallWork *)(p + 0x1A0);
 }
-void *GetMotionPointer(char *self) {
+void *GetMotionPointer(char *self)
+{
     return (char *)((GObj *)(self))->p_15C + 0x680;
 }
-int GetCollisionOfLastActiveField(char *self) {
+int GetCollisionOfLastActiveField(char *self)
+{
     return ((GObj *)(self))->p_15C->f_1E0;
 }
 extern int GetFloorAttribute();
@@ -1208,7 +1251,8 @@ void DebugDisp1CollisionWithColor(int *cfg, void *color)
    (SetMotionBlendlessNode, the two GetDifferenceFromWall*Plane, the node fix
    mode setter) calls this static stand-in.
    Collapses to one `inline` definition at layout. */
-static inline int getSkeltonFocusNode(char *a0, int a1) {
+static inline int getSkeltonFocusNode(char *a0, int a1)
+{
     return *(char *)(*(int *)(*(int *)(a0 + 0x15C) + 0x840) + a1);
 }
 extern void ClearMotionBlendlessNode(char *a0);
@@ -1226,7 +1270,8 @@ void SetMotionBlendlessNode(char *self, int *node)
         }
     }
 }
-void ClearMotionBlendlessNode(char *a0) {
+void ClearMotionBlendlessNode(char *a0)
+{
     int i = 0;
     char *arr = *(char **)(*(char **)(a0 + 0x15C) + 0x820);
     while (i < *(int *)(*(char **)(a0 + 0x15C) + 0x88)) {
@@ -1237,12 +1282,14 @@ void ClearMotionBlendlessNode(char *a0) {
 extern _0x1F0 D_00290450;
 extern int soundSeGroupGet(void);
 
-void InitMotionStateInfo(_0x1F0 *self) {
+void InitMotionStateInfo(_0x1F0 *self)
+{
     *self = D_00290450;
     *(int *)((char *)self + 0x1AC) = soundSeGroupGet();
     *(int *)((char *)self + 0x1B0) = soundSeGroupGet();
 }
-int GetSkeltonFocusNode(char *a0, int a1) {
+int GetSkeltonFocusNode(char *a0, int a1)
+{
     return *(char *)(*(int *)(*(int *)(a0 + 0x15C) + 0x840) + a1);
 }
 int AdjustMotionHeightToNearestField(char *self)
@@ -1253,64 +1300,79 @@ int AdjustMotionHeightToNearestField(char *self)
     GetRootPosition(pos, self);
     return adjustMotionHeightToNearestField(o, pos);
 }
-void SetRootUpdateMode(char *self, int val) {
+void SetRootUpdateMode(char *self, int val)
+{
     ((GObj *)(self))->p_15C->f_4D8 = val;
 }
-float ForMotionViewer_GetCurrentAnimationFrame(char *self) {
+float ForMotionViewer_GetCurrentAnimationFrame(char *self)
+{
     return *(float *)(*(char **)(self + 0x15C) + 0x4AC);
 }
-int ForMotionViewer_GetCurrentMotion(char *self) {
+int ForMotionViewer_GetCurrentMotion(char *self)
+{
     return ((GObj *)(self))->p_15C->f_4A0;
 }
-void EnableMotionOrientUpdate(char *self) {
+void EnableMotionOrientUpdate(char *self)
+{
     ((GObj *)(self))->p_15C->f_4E4 = 0;
 }
-void DisableMotionOrientUpdate(char *self) {
+void DisableMotionOrientUpdate(char *self)
+{
     ((GObj *)(self))->p_15C->f_4E4 = 1;
 }
 extern int CompareAttribute();
 
-int CheckFloorAttribute(char *self) {
+int CheckFloorAttribute(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     return CompareAttribute(*(int *)(sub + 0x5F8));
 }
-int CheckWallAttribute(char *self) {
+int CheckWallAttribute(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     return CompareAttribute(*(int *)(sub + 0x5F4));
 }
-int CheckPureWallAttribute(char *self) {
+int CheckPureWallAttribute(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     return CompareAttribute(*(int *)(sub + 0x5EC));
 }
-int CheckPureCliffAttribute(char *self) {
+int CheckPureCliffAttribute(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     return CompareAttribute(*(int *)(sub + 0x5F0));
 }
-int GetStreamShapeMotion(float *dst, FloorAttr *a1) {
-    int i, n, f2; float *src, *p;
+int GetStreamShapeMotion(float *dst, FloorAttr *a1)
+{
+    int i, n, f2;
+    float *src, *p;
     if (a1->f1 == 0 && (f2 = a1->f2, (n = a1->f3)) != 0) {
         int o = f2 * 8 + 0x10;
         src = (float *)o;
         p = (float *)((char *)a1 + (int)src);
         src = p;
-        for (i = 0; i < n; i++) *dst++ = *src++;
+        for (i = 0; i < n; i++)
+            *dst++ = *src++;
         return 1;
     }
     return 0;
 }
 extern float GetYDistanceFromPlane(void *a0, void *a1);
-float GetDifferenceFromWallUpperField(char *a0, int a1) {
+float GetDifferenceFromWallUpperField(char *a0, int a1)
+{
     char *e = *(char **)(a0 + 0x15C);
     int idx = (*(char **)(e + 0x840))[a1];
     return GetYDistanceFromPlane(e + 0x3F0, *(char **)(e + 0xC) + idx * 0x40 + 0x30);
 }
-float GetDifferenceFromLastField(char *a0, int a1) {
+float GetDifferenceFromLastField(char *a0, int a1)
+{
     char *e = *(char **)(a0 + 0x15C);
     int idx = (*(char **)(e + 0x840))[a1];
     return GetYDistanceFromPlane(e + 0x1D0, *(char **)(e + 0xC) + idx * 0x40 + 0x30);
 }
 extern float D_00639F20[];
-float GetDifferenceFromLowerField(char *a0, int a1) {
+float GetDifferenceFromLowerField(char *a0, int a1)
+{
     char buf[0xC0];
     char *ctrl;
     int idx;
@@ -1331,7 +1393,8 @@ float GetDifferenceFromWallLowerPlane(char *self, int node)
 
     idx = getSkeltonFocusNode(self, node);
     GetPureVerticalPlane(pos, 0, pts, *(char **)(self + 0x15C) + 0x180, 1);
-    return GetYDistanceFromPlane(pos, *(char **)(*(char **)(self + 0x15C) + 0xC) + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(pos,
+                                 *(char **)(*(char **)(self + 0x15C) + 0xC) + idx * 0x40 + 0x30);
 }
 float GetDifferenceFromWallUpperPlane(char *self, int node)
 {
@@ -1341,25 +1404,31 @@ float GetDifferenceFromWallUpperPlane(char *self, int node)
 
     idx = getSkeltonFocusNode(self, node);
     GetPureVerticalPlane(pos, 0, pts, *(char **)(self + 0x15C) + 0x180, 0);
-    return GetYDistanceFromPlane(pos, *(char **)(*(char **)(self + 0x15C) + 0xC) + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(pos,
+                                 *(char **)(*(char **)(self + 0x15C) + 0xC) + idx * 0x40 + 0x30);
 }
-void DisableChangeRootUpdateMode(char *self) {
+void DisableChangeRootUpdateMode(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     *(int *)(sub + 0x4D0) = 1;
 }
-void EnableChangeRootUpdateMode(char *self) {
+void EnableChangeRootUpdateMode(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     *(int *)(sub + 0x4D0) = 0;
 }
-float GetRopeHangablePos(char *self) {
+float GetRopeHangablePos(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     return *(float *)(sub + 0x618);
 }
-int GetMotionFrameFlag1(char *self) {
+int GetMotionFrameFlag1(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     return *(int *)(sub + 0x600);
 }
-int GetMotionFrameFlag2(char *self) {
+int GetMotionFrameFlag2(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     return *(int *)(sub + 0x604);
 }
@@ -1375,11 +1444,13 @@ float GetHeightOfFieldPlaneDifference(int *a, int *b)
     r2 = GetYProjectionOfPlane((int *)((char *)pb + 0x1D0), (int *)((char *)pb + 0xA0));
     return r1 - r2;
 }
-float GetHeightOfWallFromGObj(char *self) {
+float GetHeightOfWallFromGObj(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     return *(float *)(sub + 0x5A0);
 }
-float GetHeightOfCliffFromGObj(char *self) {
+float GetHeightOfCliffFromGObj(char *self)
+{
     char *sub = ((GObj *)(self))->p_15C;
     return *(float *)(sub + 0x580);
 }
@@ -1389,7 +1460,8 @@ void InitMotionRotElem(int *a0, int count)
 {
     int *p;
     int i;
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     p = a0;
     i = count;
 loop:
@@ -1400,14 +1472,15 @@ loop:
         SetIdentityQuaternion(call_arg);
     }
     --i;
-    if (i != 0) goto loop;
+    if (i != 0)
+        goto loop;
 }
 extern void CopyQuaternion();
 
-void SetMotionNodeFixModeParameter(char *self, char *obj, float x, float y, float z,
-                                   int mode, int node, float w, void *quat)
+void SetMotionNodeFixModeParameter(char *self, char *obj, float x, float y, float z, int mode,
+                                   int node, float w, void *quat)
 {
-    float vec[4] = { x, y, z, 1.0f };
+    float vec[4] = {x, y, z, 1.0f};
 
     *(int *)(*(int *)(self + 0x15C) + 0x424) = (int)obj;
     *(int *)(*(int *)(self + 0x15C) + 0x428) = getSkeltonFocusNode(obj, node);
@@ -1423,7 +1496,8 @@ void GetRootProjectionPosOfGObj(int a0, int a1)
     GetRootPosition(a0, a1);
     *(float *)(a0 + 0x4) += *(float *)((int)((GObj *)(a1))->p_15C + 0x270);
 }
-void SetMotionPlaySpeedRatio(char *self, float val) {
+void SetMotionPlaySpeedRatio(char *self, float val)
+{
     *(float *)(*(char **)(self + 0x15C) + 0x4B8) = val;
 }
 extern char D_0028FEF0[];
@@ -1431,24 +1505,26 @@ extern void sceVu0AddVector();
 
 void ClearMotionGeometryInfo(int *self)
 {
-  int *p = (int *)((GObj *)(self))->p_15C;
-  int *p1 = (int *) (((char *) p) + 0x230);
-  int *p2 = (int *) (((char *) p) + 0xA0);
-  int ret;
-  CopyVector(p1, D_0028FEF0);
-  sceVu0AddVector((int *) (((char *) p) + 0x250), p2, p1);
-  ret = -1;
-  *((int *) (((char *) p2) + 0x180)) = ret;
-  return ret;
+    int *p = (int *)((GObj *)(self))->p_15C;
+    int *p1 = (int *)(((char *)p) + 0x230);
+    int *p2 = (int *)(((char *)p) + 0xA0);
+    int ret;
+    CopyVector(p1, D_0028FEF0);
+    sceVu0AddVector((int *)(((char *)p) + 0x250), p2, p1);
+    ret = -1;
+    *((int *)(((char *)p2) + 0x180)) = ret;
+    return ret;
 }
 extern int D_00639F08;
 
-void SetSkeltonDispSwitch(int val) {
+void SetSkeltonDispSwitch(int val)
+{
     D_00639F08 = val;
 }
 void CopyMotion(struct Pack32 *dst, struct Pack32 *src, int n)
 {
-    if (n <= 0) return;
+    if (n <= 0)
+        return;
     do {
         *dst = *src;
         n--;
@@ -1456,7 +1532,9 @@ void CopyMotion(struct Pack32 *dst, struct Pack32 *src, int n)
         dst++;
     } while (n != 0);
 }
-void GetMotionRootPos(float *dst, void *a1, int idx) /* `inline` once GetFloatingMotionRootPos, which the listing shows inlining it, is C; plain until then (deferred inlines land at the object end) */
+void GetMotionRootPos(
+    float *dst, void *a1,
+    int idx) /* `inline` once GetFloatingMotionRootPos, which the listing shows inlining it, is C; plain until then (deferred inlines land at the object end) */
 {
     float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
     getRootPos(dst, src);
@@ -1464,7 +1542,8 @@ void GetMotionRootPos(float *dst, void *a1, int idx) /* `inline` once GetFloatin
 extern int D_002906D0[];
 extern void _getMotion(void *dst, void *m, int node, int idx);
 
-void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask, int count, char *hrc)
+void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask, int count,
+               char *hrc)
 {
     int i;
 
@@ -1497,8 +1576,8 @@ void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mas
 }
 extern void GetSlerpQuaternionNoRegularize(float *dst, float *a, float *b, float t);
 
-void GetBlendedMotion(StreamElem *dst, float *root, StreamElem *a, float *rootA,
-                      StreamElem *b, float *rootB, unsigned char *mask, int count, float t)
+void GetBlendedMotion(StreamElem *dst, float *root, StreamElem *a, float *rootA, StreamElem *b,
+                      float *rootB, unsigned char *mask, int count, float t)
 {
     int i;
     float u = 1.0f - t;
@@ -1558,7 +1637,8 @@ extern float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, floa
 extern void GetRootPosition__pn(void *a0, void *a1) __asm__("GetRootPosition");
 extern void SetDirectRootPosition(void *a0, void *a1);
 
-void GetOutOutsideOfWall(void *obj, float threshold) {
+void GetOutOutsideOfWall(void *obj, float threshold)
+{
     int buf0[4];
     int buf1[4];
     if (*(int *)(*(char **)((char *)obj + 0x15C) + 0x188) != 0) {
@@ -1592,7 +1672,8 @@ extern void ClipWall(void *a0);
 extern char D_0054D938[];
 extern void memset(void *a0, int a1, int a2);
 
-void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f) {
+void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f)
+{
     char buf[0xC0];
     memset(buf, 0, 0xC0);
     GetRootPosition__pn(buf, a0);
@@ -1605,7 +1686,8 @@ void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f) {
         SetDirectRootPosition(a0, buf + 0x10);
     }
 }
-void fitYToPlane(long long *src, int *dest) {
+void fitYToPlane(long long *src, int *dest)
+{
     long long buf[2];
     buf[0] = src[0];
     buf[1] = src[1];
@@ -1613,7 +1695,8 @@ void fitYToPlane(long long *src, int *dest) {
 }
 extern float FSqrt(float a0);
 
-void GetBlendedMotionRootPos(float *dst, float *a, float *b, float t) /* same note as GetMotionRootPos */
+void GetBlendedMotionRootPos(float *dst, float *a, float *b,
+                             float t) /* same note as GetMotionRootPos */
 {
     float u = 1.0f - t;
     dst[0] = a[0] * t + b[0] * u;
@@ -1624,9 +1707,9 @@ void _getMotRotElem(char *dst, char *src)
 {
     float sum;
 
-    sum = *(float *)(src + 0x4) * *(float *)(src + 0x4)
-        + *(float *)(src + 0x8) * *(float *)(src + 0x8)
-        + *(float *)(src + 0xC) * *(float *)(src + 0xC);
+    sum = *(float *)(src + 0x4) * *(float *)(src + 0x4) +
+          *(float *)(src + 0x8) * *(float *)(src + 0x8) +
+          *(float *)(src + 0xC) * *(float *)(src + 0xC);
     sum = (sum > 1.0f) ? 1.0f : sum;
     *(int *)dst = *(unsigned char *)src;
     *(float *)(dst + 0x1C) = FSqrt(1.0f - sum);

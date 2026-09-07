@@ -4,8 +4,6 @@ extern int D_0063BD64;
 extern int D_0063BD60;
 extern int D_0063BD68;
 
-
-
 static inline void ClearWpPos(void)
 {
     if (D_0063BD64 == 0) {
@@ -68,7 +66,6 @@ typedef struct WayWork {
     int f70;
     char unk74[0xC];
 } WayWork;
-
 
 extern WayPoint *visible_waypoint_of_all(float *pos);
 extern WayPoint *WayPoint_begin(void);
@@ -163,7 +160,10 @@ extern void qsort(void *base, int n, int size, int (*cmp)());
  * WayPointWithRangeFromPos.  Its out-of-line definition keeps its own ROM slot
  * further down this TU (the tail still has asm members), so the call sites here
  * go through a stand-in with the identical body. */
-static inline int numOfWpPos(void) { return D_0063BD60; }
+static inline int numOfWpPos(void)
+{
+    return D_0063BD60;
+}
 
 static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int limit, int chk)
 {
@@ -226,7 +226,8 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
     }
 
     return numOfWpPos();
-}extern WpNode D_004F31E0[];
+}
+extern WpNode D_004F31E0[];
 extern char D_004F1EC0[];
 extern char D_004F1EC8[];
 extern char D_004F1ED8[];
@@ -288,21 +289,17 @@ static inline WpNode *SearchOpenNode(WpNode *start)
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayPointWithRangeFromPos2);
 extern char D_00621D58[];
 
-
 extern void GetRootPosition(void *buf, void *obj);
 extern float WayLengthOfPos_Pos(float *p0, float *p1);
 
-
-
-
 extern int WayPointWithRangeFromPos(float *pos, int zero, float f);
-
 
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 extern int isEnemyKidnapEnable(void *gobj);
 extern void *D_00639EA8;
-static inline float wayLengthOfGObj_Pos(void *obj, float *pos) {
+static inline float wayLengthOfGObj_Pos(void *obj, float *pos)
+{
     float buf[4];
     if (obj == 0) {
         return -1.0f;
@@ -315,7 +312,8 @@ static inline float wayLengthOfGObj_Pos(void *obj, float *pos) {
  * WayLengthOfGObj_Pos) into NearestEnemyFromGirl.  Both are public functions of
  * the TU's deferred-`inline` tail, so their plain definitions stay at their ROM
  * slots below and these static stand-ins carry the inlined copies. */
-static inline float wayLengthOfGObj_GObj(void *obj0, void *obj1) {
+static inline float wayLengthOfGObj_GObj(void *obj0, void *obj1)
+{
     float pos[4];
     if (obj1 == 0) {
         return -1.0f;
@@ -353,7 +351,8 @@ void *NearestEnemyFromGirl(float *len)
     return nearest;
 }
 
-int NumOfWpPos(void) {
+int NumOfWpPos(void)
+{
     return D_0063BD60;
 }
 
@@ -377,7 +376,8 @@ int CopyWpPos(float dst[][4], int from, int to)
  * the deferred tail; until the tail's asm members are C the copy is emitted
  * here as a plain function at its ROM position and the caller inlines the
  * static stand-in wayLengthOfGObj_Pos, which collapses at layout. */
-float WayLengthOfGObj_Pos(void *obj, float *pos) {
+float WayLengthOfGObj_Pos(void *obj, float *pos)
+{
     float buf[4];
     if (obj == 0) {
         return -1.0f;
@@ -386,7 +386,8 @@ float WayLengthOfGObj_Pos(void *obj, float *pos) {
     return WayLengthOfPos_Pos(buf, pos);
 }
 
-float WayLengthOfGObj_GObj(void *obj0, void *obj1) {
+float WayLengthOfGObj_GObj(void *obj0, void *obj1)
+{
     float pos[4];
     if (obj1 == 0) {
         return -1.0f;
@@ -407,8 +408,10 @@ int WayPointWithRangeFromGObj(void *obj, float f)
 
 int func_00215C68(float *a, float *b)
 {
-    if (a[1] < b[1]) return -1;
-    if (b[1] < a[1]) return 1;
+    if (a[1] < b[1])
+        return -1;
+    if (b[1] < a[1])
+        return 1;
     return 0;
 }
 

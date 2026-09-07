@@ -10,13 +10,43 @@ typedef struct {
     char pad2[0xC0 - 0x8C];
 } ClipBox;
 
-typedef struct { int pad[8]; int f20; int pad2[7]; } WPElem;
-typedef struct { int f0; int f4; int i8; int iC; int f10; int f14; int i18; int f1C; int i20; int i24; } WPNode;
+typedef struct {
+    int pad[8];
+    int f20;
+    int pad2[7];
+} WPElem;
+typedef struct {
+    int f0;
+    int f4;
+    int i8;
+    int iC;
+    int f10;
+    int f14;
+    int i18;
+    int f1C;
+    int i20;
+    int i24;
+} WPNode;
 
-typedef struct WNODE { char _p[0x20]; int i20; int i24; } WNODE;
+typedef struct WNODE {
+    char _p[0x20];
+    int i20;
+    int i24;
+} WNODE;
 
-typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
-typedef struct { int f0, f4; char *f8; char *fC; int f10, f14, f18, f1C, f20, f24, f28, f2C; int f30; } WayGrp;
+typedef struct Nd {
+    int pad[2];
+    struct Nd *f8;
+    struct Nd *fC;
+    char pad2[0x40 - 16];
+} Nd;
+typedef struct {
+    int f0, f4;
+    char *f8;
+    char *fC;
+    int f10, f14, f18, f1C, f20, f24, f28, f2C;
+    int f30;
+} WayGrp;
 
 typedef struct {
     int f0, f4, f8, fC, f10, f14, f18;
@@ -26,10 +56,12 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_gid)
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_gid_ThreadVersion);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_temp);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_temp_ThreadVersion);
-void ez_line(void) {
+void ez_line(void)
+{
     volatile int local[12];
 }
-void ez_circle(void) {
+void ez_circle(void)
+{
     volatile int local[12];
 }
 INCLUDE_ASM("asm/nonmatchings/src/way_util", short_direction_between_wp);
@@ -38,7 +70,8 @@ extern char D_00554300[];
 extern int D_0063A438;
 extern int iosMallocDebug(int, int, const char *, int);
 
-void *WayUtilWorkAlloc(void) {
+void *WayUtilWorkAlloc(void)
+{
     WgAll *p = (WgAll *)iosMallocDebug(D_0063A438, 0x1C, D_00554300, 0x359);
     int *q;
     int i;
@@ -102,7 +135,8 @@ inline char *nearest_waypoint_of_group(int *arg0, int handle)
 }
 extern int D_0063BD78;
 
-inline char *nearest_waypoint(int *a0) {
+inline char *nearest_waypoint(int *a0)
+{
     return nearest_waypoint_of_group(a0, D_0063BD78);
 }
 extern void GetRootPosition(void *a0, void *a1);
@@ -124,8 +158,10 @@ inline char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid)
     char *best = 0;
     char *next, *n;
     next = *(char **)(cur + 0xC);
-    if (next == 0) goto out;
-    if (next == cur) goto out;
+    if (next == 0)
+        goto out;
+    if (next == cur)
+        goto out;
     do {
         float d = fzMagnitudeByLineSeg(cur + 0x10, next + 0x10, arg0);
         if (d < bestDist) {
@@ -135,7 +171,8 @@ inline char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid)
         cur = *(char **)(cur + 0xC);
         n = *(char **)(cur + 0xC);
         next = n;
-        if (n == 0) goto out;
+        if (n == 0)
+            goto out;
     } while (n != cur);
 out:
     return best;
@@ -148,8 +185,10 @@ inline char *nearest_waypoint_by_lineseg(void *arg0)
     char *best = 0;
     char *next, *n;
     next = *(char **)(cur + 0xC);
-    if (next == 0) goto out;
-    if (next == cur) goto out;
+    if (next == 0)
+        goto out;
+    if (next == cur)
+        goto out;
     do {
         float d = fzMagnitudeByLineSeg(cur + 0x10, next + 0x10, arg0);
         if (d < bestDist) {
@@ -159,7 +198,8 @@ inline char *nearest_waypoint_by_lineseg(void *arg0)
         cur = *(char **)(cur + 0xC);
         n = *(char **)(cur + 0xC);
         next = n;
-        if (n == 0) goto out;
+        if (n == 0)
+            goto out;
     } while (n != cur);
 out:
     return best;
@@ -179,8 +219,10 @@ inline char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid)
         char *cur = g->f8;
         char *next, *n;
         next = *(char **)(cur + 0xC);
-        if (next == 0) goto out;
-        if (next == cur) goto out;
+        if (next == 0)
+            goto out;
+        if (next == cur)
+            goto out;
         do {
             float d = fzMagnitudeByLineSeg(cur + 0x10, next + 0x10, pos);
             if (d < bestDist) {
@@ -190,9 +232,10 @@ inline char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid)
             cur = *(char **)(cur + 0xC);
             n = *(char **)(cur + 0xC);
             next = n;
-            if (n == 0) goto out;
+            if (n == 0)
+                goto out;
         } while (n != cur);
-out:
+    out:
         return best;
     }
 }
@@ -210,8 +253,10 @@ inline char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
         char *cur = g->f8;
         char *next, *n;
         next = *(char **)(cur + 0xC);
-        if (next == 0) goto out;
-        if (next == cur) goto out;
+        if (next == 0)
+            goto out;
+        if (next == cur)
+            goto out;
         do {
             float d = fzMagnitudeByLineSeg(cur + 0x10, next + 0x10, pos);
             if (d < bestDist) {
@@ -221,9 +266,10 @@ inline char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
             cur = *(char **)(cur + 0xC);
             n = *(char **)(cur + 0xC);
             next = n;
-            if (n == 0) goto out;
+            if (n == 0)
+                goto out;
         } while (n != cur);
-out:
+    out:
         return best;
     }
 }
@@ -237,7 +283,8 @@ inline char *waypoint_with_range(int *arg0, float thresh)
 {
     int buf[4];
     char *node = WayPointList_begin(D_0063BD78);
-    if (node == 0) goto ret0;
+    if (node == 0)
+        goto ret0;
     do {
         sceVu0SubVector(buf, (int *)(node + 0x10), arg0);
         if (fzMagnitudefv((int)buf) < thresh) {
@@ -251,7 +298,8 @@ ret0:
 extern char *WayPoint_begin(void);
 extern int WayPoint_next(int a0);
 
-inline char *nearest_waypoint_of_all_except_group(int *arg0, int a1) {
+inline char *nearest_waypoint_of_all_except_group(int *arg0, int a1)
+{
     int buf[4];
     char *t = WayPoint_begin();
     float bestDist = 100000.0f;
@@ -276,7 +324,8 @@ inline char *nearest_waypoint_of_all_except_group(int *arg0, int a1) {
 }
 extern unsigned char D_004F1ED8[];
 
-inline char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid) {
+inline char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid)
+{
     int buf[4];
     char *t = WayPoint_begin();
     float bestDist = 100000.0f;
@@ -300,7 +349,8 @@ inline char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid)
     }
     return best;
 }
-inline char *nearest_waypoint_of_all(int *a0) {
+inline char *nearest_waypoint_of_all(int *a0)
+{
     int buf[4];
     int neg1 = -1;
     char *t = WayPoint_begin();
@@ -326,12 +376,14 @@ inline char *nearest_waypoint_of_all(int *a0) {
 }
 extern char *visible_waypoint_of_all_except_gid(int *arg0, int gid);
 
-inline int visible_waypoint_of_all(void *a0) {
+inline int visible_waypoint_of_all(void *a0)
+{
     return visible_waypoint_of_all_except_gid(a0, -1);
 }
 extern void GetRootPosition(void *a0, void *a1);
 
-inline void visible_waypoint_of_all_from_gobj(void *a0) {
+inline void visible_waypoint_of_all_from_gobj(void *a0)
+{
     int buf[4];
     GetRootPosition(buf, a0);
     visible_waypoint_of_all_except_gid(buf, -1);
@@ -387,21 +439,27 @@ inline void *get_wp_nearest_bridge_side_me(int arg0, int arg1)
     char *bA, *bB, *a;
     for (i = 0; i < 0x1318; i += 0x34) {
         a = (char *)base + i;
-        if (*(int *)(a + 0x0) == 0) continue;
-        if (*(int *)(a + 0x18) == 0) continue;
+        if (*(int *)(a + 0x0) == 0)
+            continue;
+        if (*(int *)(a + 0x18) == 0)
+            continue;
         bA = (char *)(*(int *)(a + 0x20) * 0x40 + (int)b);
         new_var = *(int *)(a + 0x24) * 0x40;
         va = *(int *)(bA + 0x20);
         bB = (char *)(new_var + (int)b);
-        if (va != arg0) goto skipA;
+        if (va != arg0)
+            goto skipA;
         vb = *(int *)(bB + 0x20);
-        if (vb != arg1) goto chkB;
+        if (vb != arg1)
+            goto chkB;
         return bB;
     skipA:
         vb = *(int *)(bB + 0x20);
     chkB:
-        if (vb != arg0) continue;
-        if (va != arg1) continue;
+        if (vb != arg0)
+            continue;
+        if (va != arg1)
+            continue;
         return bA;
     }
     return 0;
@@ -414,21 +472,27 @@ inline int get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
     char *bA, *bB, *a;
     for (i = 0; i < 0x1318; i += 0x34) {
         a = (char *)base + i;
-        if (*(int *)(a + 0x0) == 0) continue;
-        if (*(int *)(a + 0x18) == 0) continue;
+        if (*(int *)(a + 0x0) == 0)
+            continue;
+        if (*(int *)(a + 0x18) == 0)
+            continue;
         bA = (char *)(*(int *)(a + 0x20) * 0x40 + (int)b);
         new_var = *(int *)(a + 0x24) * 0x40;
         va = *(int *)(bA + 0x20);
         bB = (char *)(new_var + (int)b);
-        if (va != arg0) goto skipA;
+        if (va != arg0)
+            goto skipA;
         vb = *(int *)(bB + 0x20);
-        if (vb != arg1) goto chkB;
+        if (vb != arg1)
+            goto chkB;
         return *(int *)(a + 0xC);
     skipA:
         vb = *(int *)(bB + 0x20);
     chkB:
-        if (vb != arg0) continue;
-        if (va != arg1) continue;
+        if (vb != arg0)
+            continue;
+        if (va != arg1)
+            continue;
         return *(int *)(a + 0x8);
     }
     return 0;
@@ -439,7 +503,8 @@ extern void __assert(void *a0, int a1, void *a2);
 extern extern void debug_StdPrintfDummy();
 extern void debug_assert(void *a0, int a1);
 
-inline int direction_across_bridge(void *a0, int a1) {
+inline int direction_across_bridge(void *a0, int a1)
+{
     char *e1 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x20) * 0x40;
     char *e2;
     if (*(int *)(e1 + 0x20) == a1) {
@@ -456,7 +521,8 @@ inline int direction_across_bridge(void *a0, int a1) {
 extern WNODE *WayBridge_begin(void);
 extern WNODE *WayBridge_next(WNODE *);
 
-inline WNODE *waybridge_between_group(int a0, int a1) {
+inline WNODE *waybridge_between_group(int a0, int a1)
+{
     WNODE *p = WayBridge_begin();
     while (p != 0) {
         char *eA = (char *)D_004F31E0 + p->i20 * 0x40;
@@ -473,25 +539,31 @@ inline WNODE *waybridge_between_group(int a0, int a1) {
     }
     return 0;
 }
-inline char *bridge_waypoint_side_me(int me, int target) {
+inline char *bridge_waypoint_side_me(int me, int target)
+{
     WNODE *p = WayBridge_begin();
     while (p != 0) {
         char *eA = (char *)D_004F31E0 + p->i20 * 0x40;
         char *eB = (char *)D_004F31E0 + p->i24 * 0x40;
         int a = *(int *)(eA + 0x20);
-        if (a == me && *(int *)(eB + 0x20) == target) return eB;
-        if (*(int *)(eB + 0x20) == me && a == target) return eA;
+        if (a == me && *(int *)(eB + 0x20) == target)
+            return eB;
+        if (*(int *)(eB + 0x20) == me && a == target)
+            return eA;
         p = WayBridge_next(p);
     }
     return 0;
 }
-inline WPElem *waypoint_connect_group_side_me(WPNode *a0, int a1) {
+inline WPElem *waypoint_connect_group_side_me(WPNode *a0, int a1)
+{
     WPElem *e = &D_004F31E0[a0->i20];
-    if (e->f20 == a1) return e;
+    if (e->f20 == a1)
+        return e;
     e = &D_004F31E0[a0->i24];
     return e->f20 == a1 ? e : 0;
 }
-inline int bridge_waypoint_side_bridge(int a0, int a1) {
+inline int bridge_waypoint_side_bridge(int a0, int a1)
+{
     WPNode *p = (WPNode *)WayBridge_begin();
     while (p != 0) {
         char *eA = (char *)D_004F31E0 + p->i20 * 0x40;
@@ -507,28 +579,35 @@ inline int bridge_waypoint_side_bridge(int a0, int a1) {
     }
     return 0;
 }
-inline int waypoint_connect_group_side_bridge(WPNode *a0, int a1) {
+inline int waypoint_connect_group_side_bridge(WPNode *a0, int a1)
+{
     WPElem *e = &D_004F31E0[a0->i20];
-    if (e->f20 == a1) return a0->i8;
+    if (e->f20 == a1)
+        return a0->i8;
     e = &D_004F31E0[a0->i24];
-    if (e->f20 == a1) return a0->iC;
+    if (e->f20 == a1)
+        return a0->iC;
     return 0;
 }
 extern unsigned char D_004F1ED8[];
 
-inline int NearestWgFromTarget(int cur, int end, WgAll *w) {
+inline int NearestWgFromTarget(int cur, int end, WgAll *w)
+{
     int *dist = (int *)w->f14;
     int *prev = (int *)w->f10;
     while (1) {
         if (dist[cur] != 0x7FFFFFFF) {
-            if (*(int *)(D_004F1ED8 + cur * 0x34) == 0) break;
+            if (*(int *)(D_004F1ED8 + cur * 0x34) == 0)
+                break;
         }
-        if (cur == end) break;
+        if (cur == end)
+            break;
         cur = prev[cur];
     }
     return cur;
 }
-inline int wpsort_compfnc(int a0, int a1) {
+inline int wpsort_compfnc(int a0, int a1)
+{
     float x = *(float *)(a0 + 4);
     float y = *(float *)(a1 + 4);
     if (x < y) {

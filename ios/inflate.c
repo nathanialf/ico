@@ -9,11 +9,11 @@ extern void init_mblock(int *self);
 
 void inflate_start(void *a0)
 {
-    int *w = (int *)((char *) a0 + 0x18000);
+    int *w = (int *)((char *)a0 + 0x18000);
     w[0x78 / 4] = -1;
     w[0x48 / 4] = 0;
-    *(long long *)((char *) w + 0x68) = 0;
-    *(long long *)((char *) w + 0x70) = 0;
+    *(long long *)((char *)w + 0x68) = 0;
+    *(long long *)((char *)w + 0x70) = 0;
     w[0x50 / 4] = 0;
     w[0x4C / 4] = 0;
     w[0x54 / 4] = 0;
@@ -22,7 +22,7 @@ void inflate_start(void *a0)
     w[0x84 / 4] = 0;
     w[0x80 / 4] = 0;
     w[0x88 / 4] = 0;
-    init_mblock((char *) a0 + 0x18098);
+    init_mblock((char *)a0 + 0x18098);
 }
 extern int D_0063A464;
 extern void iosFree__pn(void *p) __asm__("iosFree");
@@ -40,7 +40,8 @@ void close_inflate_handler(void *a0)
                 char *node = p;
                 p = *(char **)(p + 4);
                 iosFree__pn(node);
-                if (p == 0) break;
+                if (p == 0)
+                    break;
                 p -= 8;
             }
         }
@@ -51,7 +52,8 @@ void close_inflate_handler(void *a0)
                 char *node = p;
                 p = *(char **)(p + 4);
                 iosFree__pn(node);
-                if (p == 0) break;
+                if (p == 0)
+                    break;
                 p -= 8;
             }
         }
@@ -76,18 +78,15 @@ int open_inflate_handler(int a0, int a1)
     int *s1;
     D_0063A464 = g;
     D_0063A470 = 0;
-    s1 = (int *) iosMallocDebug(g, 0x180A8, D_00550FF0, 0x2E3);
+    s1 = (int *)iosMallocDebug(g, 0x180A8, D_00550FF0, 0x2E3);
     inflate_start(s1);
     s1[0] = a1;
-    if (a0 == 0)
-    {
+    if (a0 == 0) {
         debug_StdPrintfDummy(D_00551040);
-    }
-    else
-    {
+    } else {
         s1[0x4 / 4] = a0;
     }
-    return (int) s1;
+    return (int)s1;
 }
 /* The inflate handler block carries the gzip-style input buffer at +0x10008
  * and the decoder state at +0x18000 (insize at +0x4C, inptr at +0x50); the
@@ -104,14 +103,15 @@ static int fill_inbuf(void *a0)
 
     INFLATE_STATE(a0)[0x4C / 4] = 0;
     do {
-        len = (*(InflateReadFn *)((char *)a0 + 4))(
-                  INFLATE_INBUF(a0) + INFLATE_STATE(a0)[0x4C / 4],
-                  0x8000 - INFLATE_STATE(a0)[0x4C / 4],
-                  *(void **)a0);
-        if (len == 0 || len == -1) break;
+        len = (*(InflateReadFn *)((char *)a0 + 4))(INFLATE_INBUF(a0) + INFLATE_STATE(a0)[0x4C / 4],
+                                                   0x8000 - INFLATE_STATE(a0)[0x4C / 4],
+                                                   *(void **)a0);
+        if (len == 0 || len == -1)
+            break;
         INFLATE_STATE(a0)[0x4C / 4] += len;
     } while (INFLATE_STATE(a0)[0x4C / 4] < 0x8000);
-    if (INFLATE_STATE(a0)[0x4C / 4] == 0) return -1;
+    if (INFLATE_STATE(a0)[0x4C / 4] == 0)
+        return -1;
     INFLATE_STATE(a0)[0x50 / 4] = 1;
     return INFLATE_INBUF(a0)[0];
 }
@@ -120,13 +120,15 @@ extern void iosFree();
 int huft_free(char *p)
 {
     char *next;
-    if (p == (char *)0) goto end;
+    if (p == (char *)0)
+        goto end;
     p -= 8;
     while (1) {
         next = *(char **)(p + 4);
         iosFree(p);
         p = next;
-        if (p == (char *)0) break;
+        if (p == (char *)0)
+            break;
         p -= 8;
     }
 end:

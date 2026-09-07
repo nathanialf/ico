@@ -1,8 +1,18 @@
 #include "common.h"
 
-typedef union { long long ll; struct { int lo, hi; } w; } McHdr;
+typedef union {
+    long long ll;
+    struct {
+        int lo, hi;
+    } w;
+} McHdr;
 
-typedef union { long long ll; struct { int lo, hi; } w; } McTestVal;
+typedef union {
+    long long ll;
+    struct {
+        int lo, hi;
+    } w;
+} McTestVal;
 
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetInfo);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcHandlerWrite);
@@ -12,13 +22,15 @@ INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrSaveSeg);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrLoadSeg);
 extern void iosMcMgrSaveSeg(void *a0, int a1);
 
-void iosMcMgrSaveProductBlock(void *a0) {
+void iosMcMgrSaveProductBlock(void *a0)
+{
     *(int *)((char *)a0 + 0x24) = 0;
     iosMcMgrSaveSeg(a0, 0);
 }
 extern void iosMcMgrLoadSeg(void *a0, int a1);
 
-void iosMcMgrLoadProductBlock(void *a0) {
+void iosMcMgrLoadProductBlock(void *a0)
+{
     *(int *)((char *)a0 + 0x24) = 0;
     iosMcMgrLoadSeg(a0, 0);
 }
@@ -60,19 +72,22 @@ int iosMcSync(unsigned long *a0)
 extern char D_0029B9E8[];
 extern int iosMsgSend(void *a0, void *a1, int a2);
 
-int iosMcGetInfo(void *a0) {
+int iosMcGetInfo(void *a0)
+{
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 0;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8, a0, 0);
 }
-int iosMcFormat(void *a0) {
+int iosMcFormat(void *a0)
+{
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 3;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8, a0, 0);
 }
-int iosMcUnformat(void *a0) {
+int iosMcUnformat(void *a0)
+{
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 4;
     v->ll = v->ll & -2;
@@ -80,7 +95,8 @@ int iosMcUnformat(void *a0) {
 }
 extern int D_0029B9E8__pn[] __asm__("D_0029B9E8");
 
-int iosMcGetDir(void *a0) {
+int iosMcGetDir(void *a0)
+{
     McHdr *v = (McHdr *)a0;
     v->w.hi = 6;
     v->ll = v->ll & -2;
@@ -88,57 +104,67 @@ int iosMcGetDir(void *a0) {
 }
 extern int D_0029B9E8__pn[] __asm__("D_0029B9E8");
 
-int iosMcDelete(void *a0) {
+int iosMcDelete(void *a0)
+{
     McHdr *v = (McHdr *)a0;
     v->w.hi = 2;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-int iosMcSaveIconBlock(void *a0) {
+int iosMcSaveIconBlock(void *a0)
+{
     McHdr *v = (McHdr *)a0;
     v->w.hi = 7;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-int iosMcSaveProductBlock(void *a0) {
+int iosMcSaveProductBlock(void *a0)
+{
     McHdr *v = (McHdr *)a0;
     v->w.hi = 8;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-int iosMcLoadProductBlock(void *a0) {
+int iosMcLoadProductBlock(void *a0)
+{
     McHdr *v = (McHdr *)a0;
     v->w.hi = 9;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-int iosMcSaveGameBlock(void *a0, int a1) {
+int iosMcSaveGameBlock(void *a0, int a1)
+{
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xA;
     *(int *)((char *)a0 + 0x48) = a1;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-int iosMcLoadGameBlock(void *a0, int a1) {
+int iosMcLoadGameBlock(void *a0, int a1)
+{
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xB;
     *(int *)((char *)a0 + 0x48) = a1;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-int iosMcChdirProduct(void *a0) {
+int iosMcChdirProduct(void *a0)
+{
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xC;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-int iosMcGetBlockSaveInfo(void *a0) {
+int iosMcGetBlockSaveInfo(void *a0)
+{
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xD;
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
-typedef struct { char b[0x40]; } McBlk;
+typedef struct {
+    char b[0x40];
+} McBlk;
 
 typedef struct {
     char unk0[0x190];
@@ -172,7 +198,8 @@ int product_write(int *self)
     iosMcHandlerWrite((int)self, (int)(D_0029B5F0 + self[2]), 0x1F0);
     return 0;
 }
-int product_read(int *self) {
+int product_read(int *self)
+{
     int idx = self[0x8 / 4];
     iosMcHandlerRead((int)self, (int)&D_0029B5F0[idx], 0x1F0);
     return self[0x10 / 4];

@@ -2,7 +2,9 @@
 
 #include "ico/types.h"
 
-typedef struct { int w[8]; } FloorLeverGeo;
+typedef struct {
+    int w[8];
+} FloorLeverGeo;
 
 /* box.h */
 int CanHoldBox(char *a0);
@@ -68,14 +70,16 @@ INCLUDE_ASM("asm/nonmatchings/src/box", execNormalMove);
 
 INCLUDE_ASM("asm/nonmatchings/src/box", execAutoMove);
 
-static inline float getAlign(float v, float g) {
+static inline float getAlign(float v, float g)
+{
     if (0.0f <= v) {
         return (float)(int)((v + g * 0.5f) / g) * g;
     }
     return -getAlign(-v, g);
 }
 
-static inline void alignPosition(char *self, float *dst, float *src, float grid) {
+static inline void alignPosition(char *self, float *dst, float *src, float grid)
+{
     float npos[4];
     char *n = (char *)*(int *)(self + 0x15C);
     float cx = *(float *)(n + 0x50);
@@ -91,7 +95,8 @@ static inline void alignPosition(char *self, float *dst, float *src, float grid)
 extern void GetInverseQuaternion(void *dst, void *src);
 extern void SetRootQuaternion(void *obj, void *q);
 extern void SetDirectRootPosition(void *obj, void *pos);
-int AlignBox(char *a0, float grid) {
+int AlignBox(char *a0, float grid)
+{
     float pos[4];
     float quat[4];
     char *sub = *(char **)(a0 + 0x15C);
@@ -122,7 +127,8 @@ ASM_LIT4_SLOT(D_006393B4, 10430.378f);
 
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern float FSqrt(float f);
-inline float GetDistanceOfGObj(void *a0, void *a1) {
+inline float GetDistanceOfGObj(void *a0, void *a1)
+{
     char v[0x10];
     char w[0x10];
     GetRootPosition(v, a1);
@@ -162,7 +168,8 @@ INCLUDE_ASM("asm/nonmatchings/src/box", execFallDown);
 
 INCLUDE_ASM("asm/nonmatchings/src/box", inertiaMove);
 
-inline int IsThisBoxTruck(char *a0) {
+inline int IsThisBoxTruck(char *a0)
+{
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x58);
 }
 
@@ -181,7 +188,8 @@ inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
 
 INCLUDE_ASM("asm/nonmatchings/src/box", GetBoxHoldPoint);
 
-inline int CanHoldBox(char *a0) {
+inline int CanHoldBox(char *a0)
+{
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20) == 0;
 }
 
@@ -215,9 +223,12 @@ extern char D_0028FEF0[];
 extern int D_0028F4C0[];
 extern char D_0061F080[];
 
-typedef struct { float x, y, z; } BoxVec3;
+typedef struct {
+    float x, y, z;
+} BoxVec3;
 
-static inline void setupClipWork(char *w, char *obj, float *dir, float len, float h) {
+static inline void setupClipWork(char *w, char *obj, float *dir, float len, float h)
+{
     float t[4];
 
     _ScaleVector(t, dir, len);
@@ -226,8 +237,8 @@ static inline void setupClipWork(char *w, char *obj, float *dir, float len, floa
     _AddVectorXYZ(w + 0x10, w, t);
 }
 
-
-static inline int checkBoxStopWall(char *obj, float *dir) {
+static inline int checkBoxStopWall(char *obj, float *dir)
+{
     char w[0xC0];
     int r = 1;
 
@@ -240,8 +251,8 @@ static inline int checkBoxStopWall(char *obj, float *dir) {
     return r;
 }
 
-
-static inline int checkMoveWall(char *obj, float *dir) {
+static inline int checkMoveWall(char *obj, float *dir)
+{
     char w[0xC0];
     int r = 1;
 
@@ -254,124 +265,160 @@ static inline int checkMoveWall(char *obj, float *dir) {
     return r;
 }
 
-static inline int moveXPlus(float *a0, float f12, float f13, float f14) {
+static inline int moveXPlus(float *a0, float f12, float f13, float f14)
+{
     float w;
     float f0;
     int rv;
     f13 = f13 + f14;
     w = a0[2];
     if (w < 0.0f) {
-        if (-w < f13) goto p4;
+        if (-w < f13)
+            goto p4;
         return 0;
     }
     rv = 0;
-    if (!(w < f13)) goto end;
+    if (!(w < f13))
+        goto end;
 p4:
     w = a0[1];
     if (w < 0.0f) {
-        if (-w < f13) goto rng;
+        if (-w < f13)
+            goto rng;
         return 0;
     }
     rv = 0;
-    if (!(w < f13)) goto end;
+    if (!(w < f13))
+        goto end;
 rng:
     f0 = f12 - f13;
-    if (!(f0 + f14 < a0[0])) { rv = 0; goto end; }
-    if (a0[0] < f12 + f13) return 1;
+    if (!(f0 + f14 < a0[0])) {
+        rv = 0;
+        goto end;
+    }
+    if (a0[0] < f12 + f13)
+        return 1;
     rv = 0;
 end:
     return rv;
 }
 
-static inline int moveXMinus(float *a0, float f12, float f13, float f14) {
+static inline int moveXMinus(float *a0, float f12, float f13, float f14)
+{
     float w;
     float f0;
     int rv;
     f13 = f13 + f14;
     w = a0[2];
     if (w < 0.0f) {
-        if (-w < f13) goto p4;
+        if (-w < f13)
+            goto p4;
         return 0;
     }
     rv = 0;
-    if (!(w < f13)) goto end;
+    if (!(w < f13))
+        goto end;
 p4:
     w = a0[1];
     if (w < 0.0f) {
-        if (-w < f13) goto rng;
+        if (-w < f13)
+            goto rng;
         return 0;
     }
     rv = 0;
-    if (!(w < f13)) goto end;
+    if (!(w < f13))
+        goto end;
 rng:
     f0 = f12 - f13;
-    if (!(f0 + f14 < -a0[0])) { rv = 0; goto end; }
-    if (-a0[0] < f12 + f13) return 1;
+    if (!(f0 + f14 < -a0[0])) {
+        rv = 0;
+        goto end;
+    }
+    if (-a0[0] < f12 + f13)
+        return 1;
     rv = 0;
 end:
     return rv;
 }
 
-static inline int moveZPlus(float *a0, float f12, float f13, float f14) {
+static inline int moveZPlus(float *a0, float f12, float f13, float f14)
+{
     float w;
     float f0;
     int rv;
     f13 = f13 + f14;
     w = a0[0];
     if (w < 0.0f) {
-        if (-w < f13) goto p4;
+        if (-w < f13)
+            goto p4;
         return 0;
     }
     rv = 0;
-    if (!(w < f13)) goto end;
+    if (!(w < f13))
+        goto end;
 p4:
     w = a0[1];
     if (w < 0.0f) {
-        if (-w < f13) goto rng;
+        if (-w < f13)
+            goto rng;
         return 0;
     }
     rv = 0;
-    if (!(w < f13)) goto end;
+    if (!(w < f13))
+        goto end;
 rng:
     f0 = f12 - f13;
-    if (!(f0 + f14 < a0[2])) { rv = 0; goto end; }
-    if (a0[2] < f12 + f13) return 1;
+    if (!(f0 + f14 < a0[2])) {
+        rv = 0;
+        goto end;
+    }
+    if (a0[2] < f12 + f13)
+        return 1;
     rv = 0;
 end:
     return rv;
 }
 
-static inline int moveZMinus(float *a0, float f12, float f13, float f14) {
+static inline int moveZMinus(float *a0, float f12, float f13, float f14)
+{
     float w;
     float f0;
     int rv;
     f13 = f13 + f14;
     w = a0[0];
     if (w < 0.0f) {
-        if (-w < f13) goto p4;
+        if (-w < f13)
+            goto p4;
         return 0;
     }
     rv = 0;
-    if (!(w < f13)) goto end;
+    if (!(w < f13))
+        goto end;
 p4:
     w = a0[1];
     if (w < 0.0f) {
-        if (-w < f13) goto rng;
+        if (-w < f13)
+            goto rng;
         return 0;
     }
     rv = 0;
-    if (!(w < f13)) goto end;
+    if (!(w < f13))
+        goto end;
 rng:
     f0 = f12 - f13;
-    if (!(f0 + f14 < -a0[2])) { rv = 0; goto end; }
-    if (-a0[2] < f12 + f13) return 1;
+    if (!(f0 + f14 < -a0[2])) {
+        rv = 0;
+        goto end;
+    }
+    if (-a0[2] < f12 + f13)
+        return 1;
     rv = 0;
 end:
     return rv;
 }
 
-
-static inline int checkCharGObjs(char *obj, char *holder, float *dir) {
+static inline int checkCharGObjs(char *obj, char *holder, float *dir)
+{
     float pos[4];
     float pos2[4];
     float d[4];
@@ -407,8 +454,8 @@ static inline int checkCharGObjs(char *obj, char *holder, float *dir) {
 
 INCLUDE_ASM("asm/nonmatchings/src/box", _checkItemCollision);
 
-
-static inline int checkItemHit(char *obj, float *dir) {
+static inline int checkItemHit(char *obj, float *dir)
+{
     float pos[4];
     float d[4];
     float to[4];
@@ -424,8 +471,8 @@ ASM_LIT4_SLOT(D_006393F0, 0.85f);
 ASM_LIT4_SLOT(D_006393F4, 0.98f);
 ASM_LIT4_SLOT(D_006393F8, 0.98f);
 
-
-int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4) {
+int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
+{
     float plane[4];
     float nv[4];
     float hp[4];
@@ -447,7 +494,8 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4) {
     SetSimplePlane(plane, nv[0], nv[1], nv[2], -dot);
 
     idx = GetSkeltonFocusNode(a2, a3);
-    dist = GetDistanceFromPlane(plane, *(char **)(*(char **)(a2 + 0x15C) + 0xC) + (idx << 6) + 0x30);
+    dist =
+        GetDistanceFromPlane(plane, *(char **)(*(char **)(a2 + 0x15C) + 0xC) + (idx << 6) + 0x30);
 
     sceVu0ScaleVector(mv, nv, dist);
 
@@ -467,10 +515,11 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4) {
             }
         }
         ReviveCarryableItemsWithBoundary(pos, 100.0f);
-    } else if (checkCharGObjs(a0, a2, a4) && checkBoxStopWall(a0, a4)
-               && CheckGeneratorCollision(a0, a4) && checkItemHit(a0, a4)) {
-        *(int *)(q + 0x30) = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]
-            * (GetNbMotionFrames(*(int *)(*(char **)(a2 + 0x15C) + 0x4A0)) - 1) / 0x1E;
+    } else if (checkCharGObjs(a0, a2, a4) && checkBoxStopWall(a0, a4) &&
+               CheckGeneratorCollision(a0, a4) && checkItemHit(a0, a4)) {
+        *(int *)(q + 0x30) = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] *
+                             (GetNbMotionFrames(*(int *)(*(char **)(a2 + 0x15C) + 0x4A0)) - 1) /
+                             0x1E;
         _ScaleVectorXYZ(q + 0x40, a4, 100.0f / (float)*(int *)(q + 0x30));
 
         hit = checkMoveWall(a0, a4);
@@ -504,7 +553,8 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4) {
     }
 }
 
-inline int BoxRideFunc(int *a0, char *a1) {
+inline int BoxRideFunc(int *a0, char *a1)
+{
     char *obj = (char *)*a0;
     char *p15c = *(char **)(obj + 0x15C);
     char *s0 = *(char **)(p15c + 0x830);
@@ -520,7 +570,8 @@ inline int BoxRideFunc(int *a0, char *a1) {
     return 1;
 }
 
-inline void ExecBoxMoveStartReaction(char *a0, int a1) {
+inline void ExecBoxMoveStartReaction(char *a0, int a1)
+{
     char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if (*(int *)(q + 0x58) != 0) {
         if (*(int *)(q + 0x110) != 0) {
@@ -538,7 +589,8 @@ end:
     *(int *)(q + 0x110) = 1;
 }
 
-inline void ExecBoxMoveEndReaction(char *a0) {
+inline void ExecBoxMoveEndReaction(char *a0)
+{
     char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if (*(int *)(q + 0x58) == 0 || *(int *)(q + 0x110) != 0) {
         StopSEPackage((int)a0);
@@ -566,7 +618,8 @@ extern void p2o_DispVU1(void *a0);
 extern void StopSEPackageWithGroupVariation(int a0, int a1);
 extern void dispWheels(char *a0);
 extern int D_0028F4D4[];
-inline void BoxDL(char *a0) {
+inline void BoxDL(char *a0)
+{
     char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     p2o_SetDefaultEnviroment((int)a0);
     p2o_DispVU1(a0);
@@ -581,7 +634,8 @@ inline void BoxDL(char *a0) {
 
 extern char D_0061F148[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
-inline int BoxGeoRestore(float *a0, float *a1) {
+inline int BoxGeoRestore(float *a0, float *a1)
+{
     a0[0] = a1[4];
     a0[1] = a1[5];
     a0[2] = a1[6];
@@ -592,10 +646,17 @@ inline int BoxGeoRestore(float *a0, float *a1) {
     return 1;
 }
 
-inline int BoxExtGeoRestore(void) { return 1; }
+inline int BoxExtGeoRestore(void)
+{
+    return 1;
+}
 
-inline int BoxMemoryFunc(void) { return 1; }
+inline int BoxMemoryFunc(void)
+{
+    return 1;
+}
 
-int GetBoxMode(char *a0) {
+int GetBoxMode(char *a0)
+{
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20);
 }

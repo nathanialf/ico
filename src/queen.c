@@ -5,11 +5,22 @@ typedef struct {
     float v[4];
 } LVec;
 
-typedef union { float f[4]; long long ll[2]; } QVec;
+typedef union {
+    float f[4];
+    long long ll[2];
+} QVec;
 
-
-typedef struct { QVec x; QVec y; QVec z; QVec w; } QMat33;
-typedef struct { QVec x; QVec y; QVec z; } QMat3;
+typedef struct {
+    QVec x;
+    QVec y;
+    QVec z;
+    QVec w;
+} QMat33;
+typedef struct {
+    QVec x;
+    QVec y;
+    QVec z;
+} QMat3;
 
 typedef struct QueenMailEntry {
     /* 0x0 */ unsigned int mail;
@@ -84,13 +95,24 @@ extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
 /* PAL listing rows 87-90: a static identity-3x3 helper, expanded into
  * QueenBarrierGeo (and QueenBallGeo). */
-static inline void UnitMatrix33(QMat3 *m) {
-    m->x.f[0] = 1.0f; m->x.f[1] = 0.0f; m->x.f[2] = 0.0f; m->x.f[3] = 0.0f;
-    m->y.f[0] = 0.0f; m->y.f[1] = 1.0f; m->y.f[2] = 0.0f; m->y.f[3] = 0.0f;
-    m->z.f[0] = 0.0f; m->z.f[1] = 0.0f; m->z.f[2] = 1.0f; m->z.f[3] = 0.0f;
+static inline void UnitMatrix33(QMat3 *m)
+{
+    m->x.f[0] = 1.0f;
+    m->x.f[1] = 0.0f;
+    m->x.f[2] = 0.0f;
+    m->x.f[3] = 0.0f;
+    m->y.f[0] = 0.0f;
+    m->y.f[1] = 1.0f;
+    m->y.f[2] = 0.0f;
+    m->y.f[3] = 0.0f;
+    m->z.f[0] = 0.0f;
+    m->z.f[1] = 0.0f;
+    m->z.f[2] = 1.0f;
+    m->z.f[3] = 0.0f;
 }
 
-void scale_m34(LVec *a0, void *a1, float f) {
+void scale_m34(LVec *a0, void *a1, float f)
+{
     sceVu0CopyMatrix(a0, a1);
     sceVu0ScaleVector(a0, a0, f);
     sceVu0ScaleVector(a0 + 1, a0 + 1, f);
@@ -99,7 +121,8 @@ void scale_m34(LVec *a0, void *a1, float f) {
 /* census: static effect_end_func (ito/src/itou_boss.c holds the public symbol
    of the same name, so this copy stays file-static). */
 extern void LightTorchOnOfWeapon(void *o);
-static void effect_end_func(int no) {
+static void effect_end_func(int no)
+{
     char *g = isysGObjSearchFromObjKindID_begin(0x2F);
     char *weapon = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
 
@@ -110,12 +133,16 @@ static void effect_end_func(int no) {
         LightTorchOnOfWeapon(weapon);
     }
 }
-typedef struct { float f[8]; } QMotBlock;
+typedef struct {
+    float f[8];
+} QMotBlock;
 extern const char D_00556CA0[];
 extern const char D_00556CB0[];
 extern char D_002907E0[];
-extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int), float speed);
-void queenBeforeFunc(char *g) {
+extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int),
+                            float speed);
+void queenBeforeFunc(char *g)
+{
     QVec pos;
     QVec target;
     QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
@@ -179,8 +206,12 @@ extern void SetRootPosition(char *g, float *p);
 extern void Generator_Call(char *g);
 extern int stage_CheckAnimationFinish(int a0);
 
-void gene_enemy(volatile int g) {
-    union { float f[4]; int i[4]; } pos;
+void gene_enemy(volatile int g)
+{
+    union {
+        float f[4];
+        int i[4];
+    } pos;
     char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
     QueenGenTable *tbl;
     char *o;
@@ -218,13 +249,13 @@ void gene_enemy(volatile int g) {
                 debug_Printf(10, 0x5A, -1, D_00556D00, total, alive, timer);
             }
             if (alive < total) {
-                if (timer > ((stage_no == 0x25) ? D_00556910 : D_00556AD8)[num] * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) {
+                if (timer > ((stage_no == 0x25) ? D_00556910 : D_00556AD8)[num] *
+                                ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) {
                     if (stage_no == 0x25) {
                         obj = (char *)isysGObjSearchFromObjLayoutID(
                             tbl->list[(int)(_GetRandom() * tbl->n)]);
                         if (obj != 0) {
-                            lw_pos_to_ico_pos(pos.f,
-                                &D_002A78C0[(int)(_GetRandom() * 6.0f) * 4]);
+                            lw_pos_to_ico_pos(pos.f, &D_002A78C0[(int)(_GetRandom() * 6.0f) * 4]);
                             SetRootPosition(obj, pos.f);
                             wait = (int)(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f);
                             for (k = 0; k <= wait; k++) {
@@ -258,8 +289,8 @@ void gene_enemy(volatile int g) {
  * .r5.body.c (this block only).  Residual: one scheduling cluster, see LEDGER r5. */
 extern void SetDirectRootPosition(char *g, void *pos);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
-extern void tex_SetUVScroll(void *p, int a1, float a2, float a3, float a4, float a5,
-                            float a6, float a7);
+extern void tex_SetUVScroll(void *p, int a1, float a2, float a3, float a4, float a5, float a6,
+                            float a7);
 extern void ParticleEffects_SetAllGoal(void *pos);
 extern int InqQueenBarrierExist(void);
 extern void _GetMotionDirection(void *dir, char *g);
@@ -316,7 +347,8 @@ typedef struct QueenStatus {
 } QueenStatus;
 
 /* PAL listing rows 402-424. */
-static inline void QueenStatusUpdate(char *g, QueenStatus *st) {
+static inline void QueenStatusUpdate(char *g, QueenStatus *st)
+{
     st->prevMotion = st->motion;
     st->prevRatio.f = st->ratio.f;
     st->prevStep = st->step;
@@ -338,7 +370,8 @@ static inline void QueenStatusUpdate(char *g, QueenStatus *st) {
 }
 
 /* PAL listing rows 426-433. */
-static inline void QueenStatusRestart(char *g, QueenStatus *st) {
+static inline void QueenStatusRestart(char *g, QueenStatus *st)
+{
     QueenStatusUpdate(g, st);
     st->changed = 0;
     st->active = 1;
@@ -349,7 +382,8 @@ static inline void QueenStatusRestart(char *g, QueenStatus *st) {
  * inline here, but the tail of this TU still holds asm members, so the public
  * definition stays at its own ROM slot below and this stand-in serves the C
  * caller.  Fold the two together once the TU is fully C. */
-static inline void QueenStartAttack_inl(int flag) {
+static inline void QueenStartAttack_inl(int flag)
+{
     char *g;
 
     g = isysGObjSearchFromObjKindID_begin(0x2F);
@@ -367,7 +401,8 @@ static inline void QueenStartAttack_inl(int flag) {
  * the GObj between resumes, so the thread's own copy in its frame is re-read at
  * every use rather than cached in a register (ROM reloads 0(sp) at every use).
  */
-void subQueenBrainMain(volatile int g) {
+void subQueenBrainMain(volatile int g)
+{
     QueenStatus st;
     QVec pos;
     QVec rootPos;
@@ -410,8 +445,8 @@ void subQueenBrainMain(volatile int g) {
         if (D_0063B13C & 1) {
             debug_Printf(10, 0x50, -1, D_0063AC58, InqQueenBarrierExist());
         }
-        if ((*(int *)w & 0xFF0000FF) == 0 && *(signed char *)(w + 1) != 0 &&
-            bar != 0 && ball != 0) {
+        if ((*(int *)w & 0xFF0000FF) == 0 && *(signed char *)(w + 1) != 0 && bar != 0 &&
+            ball != 0) {
             qw = *(char **)(*(char **)(g + 0x15C) + 0x830);
 
             GetRootPosition(&rootPos, (char *)g);
@@ -457,9 +492,8 @@ void subQueenBrainMain(volatile int g) {
                          SetMotionRequest((char *)g, 0x144, ext + 0x620)) != 0) {
                     if (first) {
                         startFrame = D_0063C300;
-                        wait = (int)(*((stage_no == 0x25)
-                                           ? &D_00556940[*(int *)(ballw + 0x18)]
-                                           : &D_00556B08[*(int *)(ballw + 0x18)]) *
+                        wait = (int)(*((stage_no == 0x25) ? &D_00556940[*(int *)(ballw + 0x18)]
+                                                          : &D_00556B08[*(int *)(ballw + 0x18)]) *
                                      ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
                     }
                     first = 0;
@@ -490,20 +524,18 @@ void subQueenBrainMain(volatile int g) {
                     *(int *)(barw + 0x14) = 0;
                     *(char *)(barw + 0x19) = 0;
                     startFrame = D_0063C300;
-                    wait = (int)(*((stage_no == 0x25)
-                                       ? &D_00556940[*(int *)(ballw + 0x18)]
-                                       : &D_00556B08[*(int *)(ballw + 0x18)]) *
+                    wait = (int)(*((stage_no == 0x25) ? &D_00556940[*(int *)(ballw + 0x18)]
+                                                      : &D_00556B08[*(int *)(ballw + 0x18)]) *
                                  ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-                    tex_SetUVScroll(D_00556D50, 1, uv->v[0], uv->v[1], uv->v[2],
-                                    uv->v[3], uv->v[4], uv->v[5]);
+                    tex_SetUVScroll(D_00556D50, 1, uv->v[0], uv->v[1], uv->v[2], uv->v[3], uv->v[4],
+                                    uv->v[5]);
                 }
                 break;
 
             case 0x437:
                 startFrame = D_0063C300;
-                wait = (int)(*((stage_no == 0x25)
-                                   ? &D_00556970[*(int *)(ballw + 0x18)]
-                                   : &D_00556B38[*(int *)(ballw + 0x18)]) *
+                wait = (int)(*((stage_no == 0x25) ? &D_00556970[*(int *)(ballw + 0x18)]
+                                                  : &D_00556B38[*(int *)(ballw + 0x18)]) *
                              ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
                 ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
                 break;
@@ -528,7 +560,8 @@ extern int CorrectStickInfo(void *dir, void *stick);
 extern void ConvertStickToAbsCoord(void *out, void *stick);
 /* census: static Debug_StickControl; ito/src/act_bird.c holds the public symbol
    of that name, so this copy is a file-static. */
-static void Debug_StickControl(char *self) {
+static void Debug_StickControl(char *self)
+{
     QVec dir;
     char *ext = *(char **)(self + 0x164);
 
@@ -550,7 +583,8 @@ static void Debug_StickControl(char *self) {
         iosPadConnect(ext + 0x2D8, 0, 1, ext + 0x1E8);
     }
 }
-void *InitQueenGeo(char *g) {
+void *InitQueenGeo(char *g)
+{
     char *ext = *(char **)(g + 0x15C);
     char *w;
     int i;
@@ -570,7 +604,8 @@ void *InitQueenGeo(char *g) {
     actInitialize_ext_charcter(g);
     return w;
 }
-void QueenGeo(char *g) {
+void QueenGeo(char *g)
+{
     char *w;
 
     if (D_0028F4D4[0] == 0) {
@@ -585,7 +620,8 @@ void QueenGeo(char *g) {
     }
     CylinderCollision(g, 1, 100.0f, 100.0f, 0.001f);
 }
-void QueenDL(char *g) {
+void QueenDL(char *g)
+{
     char *w;
 
     if (D_00639EA4 != 0) {
@@ -595,16 +631,15 @@ void QueenDL(char *g) {
     p2o_DispVU1(g);
     w = *(char **)(*(char **)(g + 0x15C) + 0x830);
     if (*(int *)(w + 0xC) != 0) {
-        DispCloth4D(*(void **)(w + 0x10),
-                    *(char **)(*(char **)(g + 0x15C) + 0x874) + 0x40,
+        DispCloth4D(*(void **)(w + 0x10), *(char **)(*(char **)(g + 0x15C) + 0x874) + 0x40,
                     *(char **)(*(char **)(g + 0x15C) + 0x874));
     }
-    DispCloth4D(*(void **)(w + 0x14),
-                *(char **)(*(char **)(g + 0x15C) + 0x874) + 0x40,
+    DispCloth4D(*(void **)(w + 0x14), *(char **)(*(char **)(g + 0x15C) + 0x874) + 0x40,
                 *(char **)(*(char **)(g + 0x15C) + 0x874));
 }
 /* PAL listing rows 871-873 belong to a static angle-wrap helper. */
-static inline float WrapRad(float a) {
+static inline float WrapRad(float a)
+{
     a = fmodf(a, 6.2831854820251465f);
     if (a > 3.1415927410125732f) {
         a -= 6.2831854820251465f;
@@ -614,7 +649,8 @@ static inline float WrapRad(float a) {
     return a;
 }
 
-void QueenBarrierGeo(char *g) {
+void QueenBarrierGeo(char *g)
+{
     QVec pos;
     QVec rootPos;
     QMat33 m1;
@@ -712,7 +748,8 @@ void QueenBarrierGeo(char *g) {
     queen_barrier_anim();
 }
 extern void queen_barrier_disp_proc(float);
-void QueenBarrierDL(char *g) {
+void QueenBarrierDL(char *g)
+{
     char *b = *(char **)(*(char **)(g + 0x15C) + 0x830);
     if (*(signed char *)(b + 0x12)) {
         queen_barrier_disp_proc(1.0f - *(int *)(b + 0x18) / 5.0f);
@@ -740,7 +777,8 @@ extern float D_00556B68[];
 
 /* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL
  * each expand inline. */
-static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to) {
+static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to)
+{
     QVec side;
     QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
     QVec dir;
@@ -761,7 +799,8 @@ static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to) {
  * block, incl. the three helpers it alone expands) and .r4.rc55.c (whole-TU).
  * Residual: the FP-constant census, see LEDGER r4. */
 /* PAL listing rows 1092-1093. */
-static inline void StartQueenBallEffect(int *bga, int id, QVec *from, QVec *to) {
+static inline void StartQueenBallEffect(int *bga, int id, QVec *from, QVec *to)
+{
     if (*bga == 0) {
         pbga_start(bga, id);
         SetQueenBallOrient((char *)*bga, from, to);
@@ -769,8 +808,8 @@ static inline void StartQueenBallEffect(int *bga, int id, QVec *from, QVec *to) 
 }
 
 /* PAL listing rows 1105-1116. */
-static inline void CheckQueenBallRing(int *bga, int id, QVec *from, QVec *to,
-                                      float r) {
+static inline void CheckQueenBallRing(int *bga, int id, QVec *from, QVec *to, float r)
+{
     float d = _GetLength(to, from);
     int in = (d < r && r < d + 100.0f);
 
@@ -791,8 +830,9 @@ static inline void CheckQueenBallRing(int *bga, int id, QVec *from, QVec *to,
  * parameter is substituted as a CONST_INT by integrate.c's const_equiv_map, the
  * int->float conversion folds to a CONST_DOUBLE at the compare itself, and ROM
  * materialises 130.0f/-120.0f there in a call-clobbered register (queen.c:1150). */
-static inline int CheckQueenBallBox(QVec *pos, QVec *from, QVec *target,
-                                    int xl, float yl, int zmin, float zmax) {
+static inline int CheckQueenBallBox(QVec *pos, QVec *from, QVec *target, int xl, float yl, int zmin,
+                                    float zmax)
+{
     QVec side;
     QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
     QVec dir;
@@ -813,14 +853,15 @@ static inline int CheckQueenBallBox(QVec *pos, QVec *from, QVec *target,
     m.w.f[3] = 1.0f;
     sceVu0InversMatrix(&inv, &m);
     apply_matrix_w1(&out, &inv, target);
-    if (__builtin_fabsf(out.f[0]) < xl && __builtin_fabsf(out.f[1]) < yl &&
-        out.f[2] >= zmin && out.f[2] < zmax) {
+    if (__builtin_fabsf(out.f[0]) < xl && __builtin_fabsf(out.f[1]) < yl && out.f[2] >= zmin &&
+        out.f[2] < zmax) {
         hit = 1;
     }
     return hit;
 }
 
-void QueenBallGeo(char *g) {
+void QueenBallGeo(char *g)
+{
     /* The root matrix is a plain float matrix, not a QMat33 of the (union) QVec:
      * ROM's scheduler hoists the CopyMatrix destination load above the far-position
      * stores of the else arm below, which a store through a union member -- alias
@@ -855,8 +896,7 @@ void QueenBallGeo(char *g) {
             QVec objPos;
 
             GetRootPosition(&objPos, o);
-            hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 130, 300.0f,
-                                     -120, 600.0f);
+            hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 130, 300.0f, -120, 600.0f);
             bga = &D_006EA7F0[i];
             CheckQueenBallRing(bga, 0x1E2, (QVec *)m[3], &objPos, r);
             if (*bga != 0) {
@@ -869,8 +909,8 @@ void QueenBallGeo(char *g) {
                 QVec objPos;
 
                 GetRootPosition(&objPos, sword);
-                hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 75, 300.0f,
-                                         -150, 500.0f);
+                hit |=
+                    CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 75, 300.0f, -150, 500.0f);
                 CheckQueenBallRing(&D_006EA7F0[2], 0x1E4, (QVec *)m[3], &objPos, r);
             }
         }
@@ -935,7 +975,8 @@ void QueenBallGeo(char *g) {
 /* The loop is written ASCENDING: gcc's check_dbra_loop reverses it into ROM's
  * `addiu $18,$18,-1` / `bgez $18` countdown, which is what puts the counter's
  * initial value after loop.c's hoisted 0x1E3/0x1E5 constants. */
-void QueenBallDL(char *g) {
+void QueenBallDL(char *g)
+{
     QVec ballPos;
     QVec selfPos;
     QVec queenPos;
@@ -979,7 +1020,8 @@ void QueenBallDL(char *g) {
         }
     }
 }
-void actQueenStart(char *g) {
+void actQueenStart(char *g)
+{
     char *sub = actInitialize(g);
 
     actInitialize_ext_charcter(g);
@@ -990,7 +1032,8 @@ void actQueenStart(char *g) {
     *(int *)(sub + 0x130) = SetMotionRequest(g, 0x10E, sub + 0x620);
     *(int *)(*(int *)(g + 0x15C) + 0x7C) = 1;
 }
-void QueenStartAttack(void) {
+void QueenStartAttack(void)
+{
     char *g;
 
     g = isysGObjSearchFromObjKindID_begin(0x2F);
@@ -1002,18 +1045,22 @@ void QueenStartAttack(void) {
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
-int QueenInqDead(void) {
+int QueenInqDead(void)
+{
     char *g = isysGObjSearchFromObjKindID_begin(0x2F);
     return *(signed char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 3);
 }
-int QueenBoysWeaponPower(void) {
+int QueenBoysWeaponPower(void)
+{
     char *g = isysGObjSearchFromObjKindID_begin(0x2F);
     return *(int *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 4);
 }
-float QueenBarrierRadius(char *a0) {
+float QueenBarrierRadius(char *a0)
+{
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14);
 }
-int QueenBarrierInqBreakable(void) {
+int QueenBarrierInqBreakable(void)
+{
     char *b;
     int ret = 0;
 
@@ -1023,7 +1070,8 @@ int QueenBarrierInqBreakable(void) {
     }
     return ret;
 }
-void queenBarrierBeforeFunc(char *g) {
+void queenBarrierBeforeFunc(char *g)
+{
     QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
     char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
     char *other;
@@ -1045,7 +1093,8 @@ void queenBarrierBeforeFunc(char *g) {
     }
     q->num = 0;
 }
-int InqQueenBarrierExist(void) {
+int InqQueenBarrierExist(void)
+{
     char *g;
     int exist = 0;
 
@@ -1055,7 +1104,8 @@ int InqQueenBarrierExist(void) {
     }
     return exist;
 }
-void *InitQueenBarrierGeo(char *g) {
+void *InitQueenBarrierGeo(char *g)
+{
     char *w;
 
     char *ext = *(char **)(g + 0x15C);
@@ -1070,13 +1120,16 @@ void *InitQueenBarrierGeo(char *g) {
     queen_barrier_disp_init();
     return w;
 }
-float QueenBallRadius(char *a0) {
+float QueenBallRadius(char *a0)
+{
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14) * 100.0f;
 }
-float GetQueenBallThickness(void) {
+float GetQueenBallThickness(void)
+{
     return 150.0f;
 }
-void queenBallBeforeFunc(char *g) {
+void queenBallBeforeFunc(char *g)
+{
     QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
     char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
     int i;
@@ -1094,7 +1147,8 @@ void queenBallBeforeFunc(char *g) {
     }
     q->num = 0;
 }
-void *InitQueenBallGeo(char *g) {
+void *InitQueenBallGeo(char *g)
+{
     char *w;
 
     char *ext = *(char **)(g + 0x15C);
@@ -1108,7 +1162,8 @@ void *InitQueenBallGeo(char *g) {
     actInitialize_ext_charcter(g);
     return w;
 }
-void subQueenControl(volatile int g) {
+void subQueenControl(volatile int g)
+{
     signed char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
 
     _ACTWait(1);

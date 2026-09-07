@@ -7,25 +7,25 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0x34];           /* 0x00 */
-    int f34;                    /* 0x34 */
-    char unk38[0x98];           /* 0x38 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0x34];  /* 0x00 */
+    int f34;           /* 0x34 */
+    char unk38[0x98];  /* 0x38 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
 typedef struct Pad {
-    int unk00;                  /* 0x00 */
-    int trg;                    /* 0x04 */
-    char unk08[0x50];           /* 0x08 */
+    int unk00;        /* 0x00 */
+    int trg;          /* 0x04 */
+    char unk08[0x50]; /* 0x08 */
 } Pad;
 extern Pad D_0028F8F0[];
 
@@ -84,8 +84,7 @@ extern void scpPlayPosSet(int a0, float f12, float f13, float f14);
 extern void scpPlayStart(int a0);
 extern void scpPlayMot(int a0, int mot);
 extern void scpPlayEnd(int a0);
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4,
-                       float x1, float y1, float z1,
+extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
 extern void actSt10lChainMain(volatile int a0);
@@ -149,19 +148,18 @@ void actSt10lFloorLeft(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    if (gflagChk(0x122) == 0 && D_00639EA8 != 0
-        && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
+    if (gflagChk(0x122) == 0 && D_00639EA8 != 0 &&
+        scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
         gflagOn(0x122);
     }
 
-    if (D_00639EA8 != 0
-        && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0) {
+    if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0) {
         scpPlayStart(D_00639EA8);
         scpPlayMot(D_00639EA8, 0x214);
     }
 
-    if (gflagChk(0x122) != 0 && D_00639EA8 != 0
-        && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
+    if (gflagChk(0x122) != 0 && D_00639EA8 != 0 &&
+        scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
         scpPlayPosSet(D_00639EA8, -167.0f, -72.0f, -705.0f);
         scpPlayStart(D_00639EA8);
         scpPlayMot(D_00639EA8, 0x214);
@@ -213,8 +211,8 @@ void actSt10lFloorRight(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    if (gflagChk(0x122) != 0 && D_00639EA8 != 0
-        && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
+    if (gflagChk(0x122) != 0 && D_00639EA8 != 0 &&
+        scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
         scpPlayPosSet(D_00639EA8, -196.0f, -72.0f, 62.0f);
         scpPlayStart(D_00639EA8);
         scpPlayMot(D_00639EA8, 0x214);
@@ -349,10 +347,8 @@ void actSt10lEneCam2Chk(volatile int a0)
 {
     int save;
 
-    while (D_00639EA8 == 0
-        || scpTriggerFloorAttr(D_00639EA4, 0x4000000) == 0
-        || gflagChk(0x11F) == 0
-        || ((PObjGObj *)D_00639EA8)->act->f34 == 0x6F) {
+    while (D_00639EA8 == 0 || scpTriggerFloorAttr(D_00639EA4, 0x4000000) == 0 ||
+           gflagChk(0x11F) == 0 || ((PObjGObj *)D_00639EA8)->act->f34 == 0x6F) {
         _ACTWait(1);
     }
 
@@ -534,9 +530,7 @@ void actSt10lSekizo(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x120, 0x17F, 0, 0x13,
-               0.0f, -72.0f, 1274.0f,
-               76.0f, -72.0f, 1274.0f);
+    scpSekizou(a0, 0x120, 0x17F, 0, 0x13, 0.0f, -72.0f, 1274.0f, 76.0f, -72.0f, 1274.0f);
 }
 void actSt10lBox(volatile int a0)
 {
@@ -847,9 +841,9 @@ void actSt10lEneCam1Chk(volatile int a0)
         _ACTWait(0);
     }
 
-    while ((D_00639EA8 == 0 || gflagChk(0x124) == 0)
-        && (scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0
-         || scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0)) {
+    while ((D_00639EA8 == 0 || gflagChk(0x124) == 0) &&
+           (scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0 ||
+            scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0)) {
         _ACTWait(1);
     }
 
@@ -867,7 +861,8 @@ void actSt10lBoxChk(volatile int a0)
 
     gflagOn(0x124);
 }
-void actSt10lSekizoEvent(int x) {
+void actSt10lSekizoEvent(int x)
+{
     volatile int local = x;
 }
 void actSt10lBoxAChk(volatile int a0)

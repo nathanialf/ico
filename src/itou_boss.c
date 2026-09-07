@@ -7,14 +7,17 @@ INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlGeo);
 extern unsigned char D_006E9A30[];
 extern void memset(void *a0, int a1, int a2);
 
-void itou_boss_gflag_init(void) {
+void itou_boss_gflag_init(void)
+{
     memset(D_006E9A30, 0, 0xD50);
 }
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlDL);
 extern int stage_no;
-int InqCapsuleGhostBossStage(void) {
+int InqCapsuleGhostBossStage(void)
+{
     int r = 0;
-    if (stage_no == 0x56 || stage_no == 3 || stage_no == 0x2E) r = 1;
+    if (stage_no == 0x56 || stage_no == 3 || stage_no == 0x2E)
+        r = 1;
     return r;
 }
 extern char D_00556850[];
@@ -48,7 +51,8 @@ static inline void bossCtrlInit(void *a0)
     D_0063C2F0 = 0;
 }
 
-void actBossCtrlStart(void *a0) {
+void actBossCtrlStart(void *a0)
+{
     int no;
     char *o;
     int i;
@@ -80,7 +84,8 @@ extern void ico_m33_to_quat(void *a0, void *a1);
 extern int iosMallocDebug(void *ptr, int a1, char *file, int line);
 extern void sceVu0CopyVector(void *a0, void *a1);
 
-int InitBossCtrlGeo(void *a0) {
+int InitBossCtrlGeo(void *a0)
+{
     int ret;
     unsigned int k;
     signed char *base;
@@ -97,7 +102,7 @@ int InitBossCtrlGeo(void *a0) {
 
     base = D_006E9A40;
     m = (char *)base + 0x20;
-    q_arr = (char (*)[])&D_005557E0;
+    q_arr = (char (*)[]) & D_005557E0;
     r = D_005564F0;
     q = *q_arr;
     k = 0;
@@ -117,12 +122,14 @@ int InitBossCtrlGeo(void *a0) {
     } while (k < 0x35);
     return ret;
 }
-void CapsuleGhostBossStart(void) {
+void CapsuleGhostBossStart(void)
+{
     D_006E9A30[0] = 1;
 }
 extern int isEnemyHyde(void *o);
 
-int InqCapsuleGhostBossEnd(void) {
+int InqCapsuleGhostBossEnd(void)
+{
     int no = 0;
     unsigned int cnt = 0;
     void *o;
@@ -147,6 +154,7 @@ int InqCapsuleGhostBossEnd(void) {
     return cnt >= 0x35 && no == 0;
 }
 extern char *GetParticleEffectData(void);
-void gene_eff_end_func(void) {
+void gene_eff_end_func(void)
+{
     **(int **)(GetParticleEffectData() + 0x70) = 1;
 }

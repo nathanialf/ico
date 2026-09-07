@@ -32,8 +32,11 @@ int freeseki(void *a0);
 void resetmallocseki(void);
 int mallocsekistage(int size);
 int reallocseki(int size, int align);
-void dma_init(void) {
-    union U { int i; } *p;
+void dma_init(void)
+{
+    union U {
+        int i;
+    } *p;
     sceDmaReset(1);
     dmaVif = sceDmaGetChan(1);
     p = (union U *)dmaVif;
@@ -51,7 +54,8 @@ void matrix_init(void)
     matrixptr = 0x70000000;
     _UnitMatrix(0x70000000);
 }
-inline void malloc_SetPartition(int val) {
+inline void malloc_SetPartition(int val)
+{
     D_0063BC88 = val;
 }
 inline int malloc_GetPartition(void)
@@ -96,8 +100,7 @@ inline int reallocseki(int size, int align)
 }
 inline int freeseki(void *a0)
 {
-    if (a0 != 0)
-    {
+    if (a0 != 0) {
         return iosFree(a0);
     }
 }

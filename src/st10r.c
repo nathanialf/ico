@@ -7,20 +7,20 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x8];            /* 0x000 */
-    int f08;                    /* 0x008 */
-    int f0C;                    /* 0x00C */
-    char pad10[0x14C];          /* 0x010 */
-    char *f15C;                 /* 0x15C */
-    char pad160[0x4];           /* 0x160 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x8];   /* 0x000 */
+    int f08;           /* 0x008 */
+    int f0C;           /* 0x00C */
+    char pad10[0x14C]; /* 0x010 */
+    char *f15C;        /* 0x15C */
+    char pad160[0x4];  /* 0x160 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -82,7 +82,7 @@ extern void actSt10rFenceDownChk(volatile int a0);
    id the entry answers (0x1AE the actor post, 0x1AD the trailing entry);
    .func is filled in at run time. Named for the thread that owns and posts
    it. */
-static ActMail fence_up2_mes[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail fence_up2_mes[2] = {{0x1AE}, {0x1AD}};
 extern void actSt10rFenceDownChk2(volatile int a0);
 extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern int scpTriggerBall(int a0, int a1, float radius);
@@ -98,7 +98,6 @@ extern void scpPlayStart(int a0);
 extern void scpPlayPosSet(int a0, float f12, float f13, float f14);
 extern void scpPlayMot(int a0, int mot);
 extern void scpPlayEnd(int a0);
-
 
 void actSt10rInit(void)
 {
@@ -168,12 +167,13 @@ void actSt10rFloorChk(volatile int a0)
     WakeupHint(0x15);
 
     scpAdpcmPlayRequestFunc(0x5C, &st10r_floor, 1, 1, 1);
-    while (st10r_floor == 0) { _ACTWait(1); }
+    while (st10r_floor == 0) {
+        _ACTWait(1);
+    }
 
     D_0063C574 = 0;
     th = actCreateSubThread(actSt10rFloorSub, 0x15);
-    while (D_0063C574 == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C574 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -182,8 +182,12 @@ void actSt10rFloorChk(volatile int a0)
     if (D_0063C574 == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         scpAdpcmFadeCloseFunc(&st10r_floor, 0x200);
-        while (scpFadeChk() != 0) { _ACTWait(1); }
-        while (lt_fade_status() != 2) { _ACTWait(1); }
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
         stage_SetAnimation(0x181, 0, -1);
         scpFadeIn(3.0f);
     }
@@ -200,8 +204,7 @@ extern void actSt10rCageSub(volatile int a0);
 void actSt10rFloorHitChk(volatile int a0)
 {
     for (;;) {
-        while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0 ||
-               gflagChk(0x12C) != 0 ||
+        while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0 || gflagChk(0x12C) != 0 ||
                (ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x2F &&
                 ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x30 &&
                 ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x31 &&
@@ -211,13 +214,17 @@ void actSt10rFloorHitChk(volatile int a0)
 
         stage_SetAnimation(0x182, 1, 0);
 
-        while (stage_CheckAnimationFrame(0x182, 0xC, 0) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFrame(0x182, 0xC, 0) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
 
         soundSeDefPlay(0x537, 0, 0, 1);
         soundSeDefPlay(0x537, 0, 0, 1);
 
-        while (stage_CheckAnimationFinish(0x182) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFinish(0x182) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
     }
 }
@@ -226,7 +233,9 @@ void actSt10rCageMain(volatile int a0)
 {
     int th;
 
-    while (!(scpGetRotObjectRotCount(0x645) < -2.0f)) { _ACTWait(1); }
+    while (!(scpGetRotObjectRotCount(0x645) < -2.0f)) {
+        _ACTWait(1);
+    }
 
     lt_switch_layout(0x37);
     D_0063AA08 = 1;
@@ -242,8 +251,7 @@ void actSt10rCageMain(volatile int a0)
 
     th = actCreateSubThread(actSt10rCageSub, 0x15);
 
-    while (D_0063C574 == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C574 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -252,12 +260,18 @@ void actSt10rCageMain(volatile int a0)
     if (D_0063C574 == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        while (cage10r == 0) { _ACTWait(1); }
+        while (cage10r == 0) {
+            _ACTWait(1);
+        }
 
         scpAdpcmFadeCloseFunc(&cage10r, 0x200);
 
-        while (scpFadeChk() != 0) { _ACTWait(1); }
-        while (lt_fade_status() != 2) { _ACTWait(1); }
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
 
         stage_SetAnimation(0x184, 0, -1);
         _ACTWait(1);
@@ -289,8 +303,7 @@ void actSt10rTowerChk(volatile int a0)
     int n;
     int f;
 
-    while ((n = scpIsBombExplode(0x13)) == 0 ||
-           scpTriggerBall(a0, n, 350.0f) == 0) {
+    while ((n = scpIsBombExplode(0x13)) == 0 || scpTriggerBall(a0, n, 350.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -309,15 +322,16 @@ void actSt10rTowerChk(volatile int a0)
     scpAdpcmPlayRequestFunc(0x48, &D_0063BF9C, 1, 1, 0);
 
     _ACTWait(0x3C);
-    while (D_0063BF9C == 0) { _ACTWait(1); }
+    while (D_0063BF9C == 0) {
+        _ACTWait(1);
+    }
 
     gflagOn(0x12E);
 
     th = actCreateSubThread(actSt10rTowerConte, 0x15);
     D_0063C574 = 0;
 
-    while (D_0063C574 == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C574 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -326,7 +340,9 @@ void actSt10rTowerChk(volatile int a0)
     if (f) {
         scpAdpcmFadeCloseFunc(&D_0063BF9C, 0xC0);
         scpFadeOut(16.0f, 0, 0, 0);
-        while (scpFadeChk() != 0) { _ACTWait(1); }
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
     }
 
     iosPadActStopAll();
@@ -339,7 +355,9 @@ void actSt10rTowerChk(volatile int a0)
         scpPlayMot(D_00639EA4, 0);
         SetCameraFlag_GamecamCutBack();
         scpFadeIn(8.0f);
-        while (scpFadeChk() != 0) { _ACTWait(1); }
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
     }
 
     scpSearchGobj(0x63A)->f16C = 1;
@@ -368,23 +386,33 @@ void actSt10rTowerConte(volatile int a0)
     scpSearchGobj(0x63A)->f16C = 0;
     scpSearchGobj(0x63B)->f16C = 0;
 
-    while (stage_CheckAnimationFrame(0x185, 0xD7, 0) == 0) { _ACTWait(1); }
+    while (stage_CheckAnimationFrame(0x185, 0xD7, 0) == 0) {
+        _ACTWait(1);
+    }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0xF);
 
-    while (stage_CheckAnimationFrame(0x185, 0x10E, 0) == 0) { _ACTWait(1); }
+    while (stage_CheckAnimationFrame(0x185, 0x10E, 0) == 0) {
+        _ACTWait(1);
+    }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
 
-    while (stage_CheckAnimationFrame(0x185, 0x118, 0) == 0) { _ACTWait(1); }
+    while (stage_CheckAnimationFrame(0x185, 0x118, 0) == 0) {
+        _ACTWait(1);
+    }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0xF);
 
-    while (stage_CheckAnimationFrame(0x185, 0x12C, 0) == 0) { _ACTWait(1); }
+    while (stage_CheckAnimationFrame(0x185, 0x12C, 0) == 0) {
+        _ACTWait(1);
+    }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x10);
 
-    while (stage_CheckAnimationFinish(0x185) == 0) { _ACTWait(1); }
+    while (stage_CheckAnimationFinish(0x185) == 0) {
+        _ACTWait(1);
+    }
     _ACTWait(1);
 
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 6);
@@ -410,8 +438,7 @@ void actSt10rChainMove(volatile int a0)
 
     th = actCreateSubThread(actSt10rChainMoveSub, 0x15);
 
-    while (D_0063C574 == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C574 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -772,8 +799,7 @@ void actSt10rChain(volatile int a0)
         stage_SetAnimation(0x183, 0, -1);
     }
 }
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4,
-                       float x1, float y1, float z1,
+extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
 void actSt10rSekizo(volatile int a0)
@@ -783,9 +809,7 @@ void actSt10rSekizo(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x131, 0x186, 0, 0x12,
-               0.0f, 327.0f, 4649.0f,
-               -75.0f, 327.0f, 4649.0f);
+    scpSekizou(a0, 0x131, 0x186, 0, 0x12, 0.0f, 327.0f, 4649.0f, -75.0f, 327.0f, 4649.0f);
 }
 
 void actSt10rEne(volatile int a0)
@@ -1001,7 +1025,8 @@ void actSt10rChainMoveSub(volatile int a0)
     D_0063C574 = 1;
     _ACTWait(0);
 }
-void actSt10rSekizoEvent(int x) {
+void actSt10rSekizoEvent(int x)
+{
     volatile int local = x;
 }
 
@@ -1028,8 +1053,7 @@ void actSt10rWayOnChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() != 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1048,8 +1072,7 @@ void actSt10rWayOffChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() == 0 &&
-           scpTriggerFloorAttr(D_00639EA8, 0x6000000) == 0) {
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(D_00639EA8, 0x6000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1063,8 +1086,7 @@ void actSt10rWayOffChk(volatile int a0)
 
 void actSt10rTowerResqueChk(volatile int a0)
 {
-    while (gflagChk(0x12F) != 0 ||
-           gflagChk(0x12E) == 0 ||
+    while (gflagChk(0x12F) != 0 || gflagChk(0x12E) == 0 ||
            scpTriggerBall(a0, D_00639EA4, 500.0f) == 0 ||
            (ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x54 &&
             ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x55)) {

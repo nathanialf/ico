@@ -80,7 +80,8 @@ int reg_clipPacketBoundingBox(char *pk)
         break;
     default:
         debug_StdPrintfDummy(D_0054FB40, type);
-        debug_assert(D_0054FA80, 821); __assert(D_0054FA80, 821, D_0063A170);
+        debug_assert(D_0054FA80, 821);
+        __assert(D_0054FA80, 821, D_0063A170);
         break;
     }
     if (D_0063B184 & 2) {
@@ -89,7 +90,8 @@ int reg_clipPacketBoundingBox(char *pk)
     return ret;
 }
 extern void mc_TransMicroCode(int a0);
-void reg_transMicroCode(char *a0, int mask) {
+void reg_transMicroCode(char *a0, int mask)
+{
     if (*(signed char *)(*(char **)(a0 + 0x854) + 0x2F) != 0) {
         mc_TransMicroCode(3);
         return;
@@ -261,7 +263,8 @@ INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", setLight_120);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setMMatrixPacket);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setCMatrixPacket);
 
-void func_00121428(char *a0, int a1, int a2) {
+void func_00121428(char *a0, int a1, int a2)
+{
     short h;
     dl_SetDLPriority(4);
     h = *(short *)(a0 + 0x86);
@@ -276,7 +279,7 @@ void func_00121428(char *a0, int a1, int a2) {
 }
 void reg_transMaterialPacket(short *self, int *p)
 {
-    short idx = self[0x80/2];
+    short idx = self[0x80 / 2];
     if (idx != -1) {
         int v = *p + idx * 0x70;
         dl_OpenDma(2, v, 6);
@@ -434,7 +437,8 @@ INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_DispAccessoryWithShadow);
    of at its ROM slot, so the public body stays a plain definition there and the
    C callers that inline it call this static stand-in.
    Collapses to one `inline` definition at layout. */
-static inline void regTransTexturePacket(int tex, int pri) {
+static inline void regTransTexturePacket(int tex, int pri)
+{
     if (tex >= 0) {
         D_0063B124 += tex_TransTexture(tex, pri);
     }
@@ -519,7 +523,8 @@ void reg_DispObj2(int a0, int a1, int a2, int a3)
 }
 extern int D_0063A168;
 
-void reg_SetScissorSw(int val) {
+void reg_SetScissorSw(int val)
+{
     D_0063A168 = val;
 }
 void reg_TransTexturePacket(int tex, int pri)
@@ -528,15 +533,19 @@ void reg_TransTexturePacket(int tex, int pri)
         D_0063B124 += tex_TransTexture(tex, pri);
     }
 }
-void reg_Init(void) {
+void reg_Init(void)
+{
     D_0063A168 = 0;
 }
 int reg_GetShinePri(int a0)
 {
     switch (a0) {
-        case 1: return 7;
-        case 2: return 8;
-        case 3: return 9;
+    case 1:
+        return 7;
+    case 2:
+        return 8;
+    case 3:
+        return 9;
     }
     return 7;
 }

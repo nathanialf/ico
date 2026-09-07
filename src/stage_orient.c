@@ -1,7 +1,7 @@
 #include "common.h"
 
 typedef struct {
-    char  name[16];
+    char name[16];
     float angle;
     float pos[3];
     float pos2[3];
@@ -57,7 +57,7 @@ inline int StageOrientGet(VECTOR *ret, int stA, int stB)
         float *va = pa->pos;
         float *vb = D_00556E50[b].pos;
         float m[16];
-        VECTOR d = { vb[0] - va[0], vb[1] - va[1], vb[2] - va[2], 1.0f };
+        VECTOR d = {vb[0] - va[0], vb[1] - va[1], vb[2] - va[2], 1.0f};
 
         sceVu0Normalize(ret, &d);
 

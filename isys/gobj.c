@@ -1,9 +1,17 @@
 #include "common.h"
 
-struct GObj__p4 { int unk0; int unk4; int unk8; char pad[0x150]; int unk15C; char pad2[0x14]; };
+struct GObj__p4 {
+    int unk0;
+    int unk4;
+    int unk8;
+    char pad[0x150];
+    int unk15C;
+    char pad2[0x14];
+};
 
 extern char *D_006BF380[];
-void isysGObjKindTableInit(void) {
+void isysGObjKindTableInit(void)
+{
     memset(D_006BF380, 0, 0x118);
 }
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjInit);
@@ -11,7 +19,8 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", cut_gobj_link);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjRemoveAll);
 extern char D_0029C4F0[];
 extern char *D_0029C510[];
-void add_gobj_to_tail(int a0, int a1, int a2) {
+void add_gobj_to_tail(int a0, int a1, int a2)
+{
     char *g = (char *)a0;
     unsigned char kind = a1;
     unsigned int val = a2;
@@ -52,7 +61,8 @@ void add_gobj_to_tail(int a0, int a1, int a2) {
     *(char **)(p + 0x10) = g;
     *(char **)(*(char **)(g + 0x10) + 0x14) = g;
 }
-void add_gobj_to_head(char *g, int a1, int a2) {
+void add_gobj_to_head(char *g, int a1, int a2)
+{
     unsigned char kind = a1;
     unsigned int val = a2;
     char *head;
@@ -210,7 +220,8 @@ void isysGObjAlloc(int n)
 extern char *D_006BF380[];
 extern char D_00551F30[];
 extern char D_0063A608[];
-void isysGObjRemove(char *g) {
+void isysGObjRemove(char *g)
+{
     int kind = *(int *)(g + 0xC);
     char *proc = *(char **)(g + 0x2C);
     char *p;
@@ -249,8 +260,7 @@ void isysGObjKindTableAdd(char *g, int kind)
         *(int *)(g + 0xC) = kind;
         return;
     }
-    for (p = isysGObjSearchFromObjKindID_begin(*(int *)(g + 0xC));
-         p != 0;
+    for (p = isysGObjSearchFromObjKindID_begin(*(int *)(g + 0xC)); p != 0;
          isysGObjSearchFromObjKindID_next(p)) {
         if (p == g) {
             isysGObjKindTableRemove(g);
@@ -274,7 +284,8 @@ void isysGObjKindTableAdd(char *g, int kind)
 extern char *D_006BF380[];
 extern char D_00551F30[];
 extern char D_0063A608[];
-void isysGObjKindTableRemove(char *g) {
+void isysGObjKindTableRemove(char *g)
+{
     int kind = *(int *)(g + 0xC);
     char *p;
     if ((unsigned int)(kind - 1) < 0x45) {
@@ -283,7 +294,8 @@ void isysGObjKindTableRemove(char *g) {
             D_006BF380[kind] = *(char **)(g + 0x3C);
             return;
         }
-        if (p == 0) return;
+        if (p == 0)
+            return;
         while (*(char **)(p + 0x3C) != g) {
             if (p == 0) {
                 debug_assert(D_00551F30, 0x92);
@@ -371,7 +383,8 @@ char *isysGObjAddHead(char *owner, int a1, int a2)
     *(int *)(g + 0x58) = 0;
     return g;
 }
-void *isysGObjSearchFromObjLayoutID(int a0) {
+void *isysGObjSearchFromObjLayoutID(int a0)
+{
     unsigned int i;
     for (i = 0; i < D_0063C1AC; i++) {
         char *e = (char *)D_0063C1A8 + i * 0x174;
@@ -411,7 +424,8 @@ void *isysGObjSearchFromObjKindID_next(char *g)
     }
     return *(char **)(g + 0x3C);
 }
-void *isysGObjSearchFromLabelTypeID(int a0) {
+void *isysGObjSearchFromLabelTypeID(int a0)
+{
     unsigned int i;
     for (i = 0; i < D_0063C1AC; i++) {
         char *e = (char *)D_0063C1A8 + i * 0x174;
@@ -447,7 +461,8 @@ extern int D_0063A60C;
 
 void isysGObjActiveLink(int bit, int set)
 {
-    if (set != 0) goto set_path;
+    if (set != 0)
+        goto set_path;
     D_0063A60C &= ~(1 << bit);
     return;
 set_path:
@@ -455,7 +470,8 @@ set_path:
 }
 extern unsigned int D_0063A610;
 
-void isysGObjActiveDlLink(int a0, int a1) {
+void isysGObjActiveDlLink(int a0, int a1)
+{
     if (a1 == 0) {
         D_0063A610 &= ~(1 << a0);
     } else {

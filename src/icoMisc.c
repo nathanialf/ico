@@ -13,7 +13,8 @@ extern void iosMallocCheckLeak(void *a0);
 extern void sprintf();
 inline void ExitIcoMisc(void) {}
 INCLUDE_ASM("asm/nonmatchings/src/icoMisc", disp_memory_partition_bar);
-void disp_memory_partition(void) {
+void disp_memory_partition(void)
+{
     char *p;
     int y = 0x70;
     debug_PrintfDummy(0x18, 0x64, 0xFFFFFF00, D_0061D3E0);

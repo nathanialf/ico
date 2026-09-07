@@ -1,35 +1,35 @@
 #include "common.h"
 
-struct jSub {       /* sub-object at offset 0xC of the argument */
-    char  _0[0x2C];
-    int   field2C;
-    int   n;
-    int   field34;
-    char  _38[4];
+struct jSub { /* sub-object at offset 0xC of the argument */
+    char _0[0x2C];
+    int field2C;
+    int n;
+    int field34;
+    char _38[4];
     void *field3C;
     void *field40;
 };
-struct jArg {       /* the object queued on jimakuMsgQ */
-    int   cmd;        /* 0x0 command: 0 begin, 1 next, 2 jump, 3 end */
-    int   _4;
-    int   done;       /* 0x8 cleared while the manager services it, 1 when finished */
-    struct jSub sub;  /* 0xC */
+struct jArg { /* the object queued on jimakuMsgQ */
+    int cmd;  /* 0x0 command: 0 begin, 1 next, 2 jump, 3 end */
+    int _4;
+    int done;        /* 0x8 cleared while the manager services it, 1 when finished */
+    struct jSub sub; /* 0xC */
 };
 struct jNode {
-    char  _0[4];
-    int   status;
-    int   field8;
-    int   fieldC;
-    char  _10[4];
-    int   field14;
+    char _0[4];
+    int status;
+    int field8;
+    int fieldC;
+    char _10[4];
+    int field14;
 };
-struct jWayGroup {  /* D_006C1E80 element, stride 0x18 */
-    int   f0;
-    int   f4;
-    int   f8;
-    char  _c[4];
+struct jWayGroup { /* D_006C1E80 element, stride 0x18 */
+    int f0;
+    int f4;
+    int f8;
+    char _c[4];
     struct jNode *node;
-    char  _14[4];
+    char _14[4];
 };
 extern void iosCdvdBackGroundMgrSeek(char *self, int val);
 extern void iosCdvdBackGroundRead();
@@ -64,7 +64,8 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
     int large = size + 0x7FE;
     int v1 = size - 1;
     int neg_one = -1;
-    if (neg_one < v1) large = v1;
+    if (neg_one < v1)
+        large = v1;
     large = ((large >> 11) + 1) << 11;
     iosCdvdBackGroundRead(self, a1, large);
     iosCdvdBackGroundMgrSeek(self, *(int *)((char *)self + 0x110) + size);
@@ -130,15 +131,18 @@ void jimakuBegin(int a0)
     *(int *)a0 = 0;
     iosMsgSend(jimakuMsgQ, a0, 1);
 }
-void jimakuNext(int *p) {
+void jimakuNext(int *p)
+{
     if (D_0028F4E8[0] != 0) {
         *p = 1;
         iosMsgSend(jimakuMsgQ, p, 0);
     }
 }
-void jimakuJump(int a0) {
+void jimakuJump(int a0)
+{
     int *w = (int *)(a0 + 0xC);
-    if (D_0028F4C0[10] == 0) return;
+    if (D_0028F4C0[10] == 0)
+        return;
     {
         int v = w[14];
         if (v == -1) {

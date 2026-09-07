@@ -9,14 +9,14 @@ INCLUDE_ASM("asm/nonmatchings/src/st99a", actDevilLightning);
 INCLUDE_ASM("asm/nonmatchings/src/st99a", actQueenLightning);
 INCLUDE_ASM("asm/nonmatchings/src/st99a", actSt17aTest);
 typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(int);          /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
+    int mail;          /* 0x00 */
+    void (*func)(int); /* 0x04 */
+    int unk08;         /* 0x08 */
+    int unk0C;         /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD4];           /* 0x00 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD4]; /* 0x00 */
+    ActMail *mail;    /* 0xD4 */
 } Act;
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -24,7 +24,8 @@ extern void ACTSendMailCorrect(int a0, int mail);
 extern ActMail D_004FB910[];
 extern void actSt27aWaveChk(int a0);
 
-void actSt27aWave(volatile int a0) {
+void actSt27aWave(volatile int a0)
+{
     int x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
@@ -82,10 +83,12 @@ void actSplash2Chk(volatile int a0)
 extern void actCreateSubThread(void *entry, int prio);
 extern void actWave1(int a0);
 
-void actWaveChk(volatile int a0) {
+void actWaveChk(volatile int a0)
+{
     actCreateSubThread(actWave1, 0x15);
 }
-void actWave1(volatile int a0) {
+void actWave1(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     while (1) {
@@ -101,10 +104,12 @@ void actWave1(volatile int a0) {
 }
 extern void actSt27aWave1(int a0);
 
-void actSt27aWaveChk(volatile int a0) {
+void actSt27aWaveChk(volatile int a0)
+{
     actCreateSubThread(actSt27aWave1, 0x15);
 }
-void actSt27aWave1(volatile int a0) {
+void actSt27aWave1(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     while (1) {
@@ -132,9 +137,9 @@ void actSpiderChk(volatile int a0)
     }
 }
 typedef struct PadState {
-    int unk00;                  /* 0x00 */
-    int flags;                  /* 0x04 */
-    char unk08[0x50];           /* 0x08 */
+    int unk00;        /* 0x00 */
+    int flags;        /* 0x04 */
+    char unk08[0x50]; /* 0x08 */
 } PadState;
 extern PadState D_0028F8F0[];
 

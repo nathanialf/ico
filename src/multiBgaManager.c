@@ -1,16 +1,18 @@
 #include "common.h"
 
 typedef struct {
-    float f0;          /* 0x00 */
-    char  pad04[0xC];  /* 0x04 */
-    char  m10[0x10];   /* 0x10 */
-    char  m20[0x10];   /* 0x20 */
-    char  m30[0x10];   /* 0x30 */
-    int   obj;         /* 0x40 */
-    int   x44;         /* 0x44 */
-    char  pad48[0x8];  /* 0x48 */
+    float f0;        /* 0x00 */
+    char pad04[0xC]; /* 0x04 */
+    char m10[0x10];  /* 0x10 */
+    char m20[0x10];  /* 0x20 */
+    char m30[0x10];  /* 0x30 */
+    int obj;         /* 0x40 */
+    int x44;         /* 0x44 */
+    char pad48[0x8]; /* 0x48 */
 } BgaDisp;
-typedef struct { long long w[10]; } MultiBga;
+typedef struct {
+    long long w[10];
+} MultiBga;
 extern MultiBga D_004ECCA0;
 extern char D_006208C8[];
 extern int D_0063A438;
@@ -35,7 +37,8 @@ static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void
     CopyQuaternion(p->m30, rot);
     p->f0 = 0.0f;
 }
-void *InitMultiBgaManager(int n) {
+void *InitMultiBgaManager(int n)
+{
     MultiBga *base = (MultiBga *)iosMallocDebug(D_0063A438, n * 0x50, D_006208C8, 0xB);
     int i;
     for (i = 0; i < n; i++) {

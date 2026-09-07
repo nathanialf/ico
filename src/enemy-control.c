@@ -15,7 +15,8 @@ inline int InitEnemyCtrlGeo(void)
     D_0063C2DC = 0;
     return 0;
 }
-void EnemyCtrlBeforeFunc(void) {
+void EnemyCtrlBeforeFunc(void)
+{
     if (D_0063C2D4 > 0) {
         D_0063C2D8 = D_006E6BD0[(int)(random_unit() * 10.0f) % D_0063C2D4];
     } else {
@@ -26,8 +27,10 @@ void EnemyCtrlBeforeFunc(void) {
 }
 inline int IsSelectID_EnemyCtrl(int a0)
 {
-    if (D_0063C2D8 < 0) goto init;
-    if (a0 != D_0063C2D8) goto append;
+    if (D_0063C2D8 < 0)
+        goto init;
+    if (a0 != D_0063C2D8)
+        goto append;
     return 1;
 init:
     D_0063C2D8 = a0;

@@ -7,19 +7,20 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern char D_005549D0[];
-extern void tex_SetUVScroll(void *a0, float f12, float f13, float f14, float f15, float f16, float f17, int a1);
+extern void tex_SetUVScroll(void *a0, float f12, float f13, float f14, float f15, float f16,
+                            float f17, int a1);
 extern void Generator_Mask(char *self);
 extern Act *actInitialize(int a0);
 extern int scpGameStat_BoyWeaponkind(void);
@@ -28,19 +29,19 @@ extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int D_0063AA30;
 extern int D_00639EA4;
 typedef struct JimakuSub {
-    char unk00[0x2C];           /* 0x0C */
-    int  unk2C;                 /* 0x38 */
-    int  n;                     /* 0x3C */
-    int  unk34;                 /* 0x40 */
-    int  unk38;                 /* 0x44 */
-    void *unk3C;                /* 0x48 */
-    void *unk40;                /* 0x4C */
+    char unk00[0x2C]; /* 0x0C */
+    int unk2C;        /* 0x38 */
+    int n;            /* 0x3C */
+    int unk34;        /* 0x40 */
+    int unk38;        /* 0x44 */
+    void *unk3C;      /* 0x48 */
+    void *unk40;      /* 0x4C */
 } JimakuSub;
 typedef struct JimakuArg {
-    int  cmd;                   /* 0x00 */
-    int  unk04;                 /* 0x04 */
-    int  done;                  /* 0x08 */
-    JimakuSub sub;              /* 0x0C */
+    int cmd;       /* 0x00 */
+    int unk04;     /* 0x04 */
+    int done;      /* 0x08 */
+    JimakuSub sub; /* 0x0C */
 } JimakuArg;
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
@@ -96,7 +97,8 @@ INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aQueenDeadChk);
 INCLUDE_ASM("asm/nonmatchings/src/st25a", actConte13Jimaku);
 ASM_LIT4_SLOT(D_006390F0, 3100.0f);
 
-void BoySekikaTexScroll(void) {
+void BoySekikaTexScroll(void)
+{
     tex_SetUVScroll(D_005549D0, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
 }
 INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aElevChk);
@@ -229,7 +231,8 @@ void actSt25aQueenBeforeChk(volatile int a0)
     jimakuBegin((int)&jimaku_msg);
     scpAdpcmPlayRequestFunc(0x27, &D_0063AA30, 1, 1, 0);
 }
-void actConte11Jimaku(volatile int a0) {
+void actConte11Jimaku(volatile int a0)
+{
     float t;
     float tn;
     int n;
@@ -275,7 +278,8 @@ void actSt25aQueenDeadReadyChk(volatile int a0)
     }
     scpAdpcmPlayRequestFunc(0x2A, &dead, 0, 1, 0);
 }
-void actSt25aQueenDeadEvent(int x) {
+void actSt25aQueenDeadEvent(int x)
+{
     volatile int local = x;
 }
 

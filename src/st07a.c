@@ -7,16 +7,16 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    int act;                    /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    int act;           /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern Act *actInitialize(int a0);
@@ -282,7 +282,9 @@ void actSt07aChanReadyChk(volatile int a0)
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
-    while (scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) { _ACTWait(1); }
+    while (scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
     scpAdpcmPlayRequestFunc(0x3B, &bridge, 1, 1, 0);
 }
 extern int GetAttackCheckBoundaryManagerStatus(PObjGObj *a0);
@@ -314,7 +316,8 @@ void actSt07aChanChainChk(volatile int a0)
         }
     }
 }
-void actSt07ChanEvent(int x) {
+void actSt07ChanEvent(int x)
+{
     volatile int local = x;
 }
 extern void scpTorchLightOn(int a0);
@@ -325,7 +328,9 @@ void actSt07aChanFall(volatile int a0)
     _ACTWait(5);
     stage_SetAnimation(0x163, -1, -2);
 
-    while (stage_CheckAnimationFinish(0x164) == 0) { _ACTWait(1); }
+    while (stage_CheckAnimationFinish(0x164) == 0) {
+        _ACTWait(1);
+    }
 
     _ACTWait(1);
     DeleteLayoutedCandleParticleEffect();
@@ -370,7 +375,8 @@ void actSt07aChanWay2(volatile unsigned int a0)
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
-void actSt07TsuroEvent(int x) {
+void actSt07TsuroEvent(int x)
+{
     volatile int local = x;
 }
 extern void SetCameraFlag_LwsCutBack(void);
@@ -382,7 +388,9 @@ void actSt07aTsuroConte(volatile int a0)
 
     SetCameraFlag_LwsCutBack();
 
-    while (stage_CheckAnimationFinish(0x166) == 0) { _ACTWait(1); }
+    while (stage_CheckAnimationFinish(0x166) == 0) {
+        _ACTWait(1);
+    }
 
     _ACTWait(1);
 
@@ -399,7 +407,8 @@ void actSt07aGirlWay(volatile unsigned int a0)
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
-void actSt07aCamera2(int x) {
+void actSt07aCamera2(int x)
+{
     volatile int local = x;
 }
 extern int scpTriggerBall(int a0, int a1, float radius);
@@ -408,7 +417,9 @@ extern int D_0063AA08;
 
 void actSt07aIntroChk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0) { _ACTWait(1); }
+    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0) {
+        _ACTWait(1);
+    }
 
     lt_switch_layout(0x37);
     gflagOn(0x81);
@@ -417,23 +428,27 @@ void actSt07aIntroChk(volatile int a0)
     _ACTWait(1);
 
     stage_SetAnimation(0x161, 1, 0);
-    while (stage_CheckAnimationFinish(0x161) == 0) { _ACTWait(1); }
+    while (stage_CheckAnimationFinish(0x161) == 0) {
+        _ACTWait(1);
+    }
     _ACTWait(1);
 
     lt_switch_layout(0x36);
     D_0063AA08 = 0;
 }
-void actSt07aSekizoEvent(int x) {
+void actSt07aSekizoEvent(int x)
+{
     volatile int local = x;
 }
 extern void gflagOff(int a0);
 
 void actSt07aEne2Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) { _ACTWait(0); }
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
 
-    while (gflagChk(0xAE) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+    while (gflagChk(0xAE) == 0 || scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
         _ACTWait(1);
     }
 

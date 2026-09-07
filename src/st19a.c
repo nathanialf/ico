@@ -7,15 +7,15 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    int act;                    /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    int act;           /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern Act *actInitialize(int a0);
@@ -96,7 +96,6 @@ void actSt19aPipe(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x138) == 0) {
-
         scpSearchGobj(0x7A7)->f16C = 0;
         stage_SetAnimation(0x8F, 0, 0);
 
@@ -106,7 +105,6 @@ void actSt19aPipe(volatile int a0)
         _ACTWait(0);
 
     } else {
-
         scpSearchGobj(0x7A6)->f16C = 0;
         stage_SetAnimation(0x8F, 0, -1);
     }

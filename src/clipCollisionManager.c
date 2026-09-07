@@ -12,7 +12,8 @@ extern void _ACTWait(int a0);
 
 INCLUDE_ASM("asm/nonmatchings/src/clipCollisionManager", actClipCollisionCore);
 
-inline void *RequestClipCollision(int *a0) {
+inline void *RequestClipCollision(int *a0)
+{
     void *t = actCreateSubThreadGOppArg(actClipCollisionCore, 0x15);
     *(int **)((char *)t + 0x20) = a0;
     a0[0] = 0;
@@ -28,7 +29,8 @@ static inline void thStart(void)
     }
 }
 
-int CreateClipCollisionManagerGObj(void) {
+int CreateClipCollisionManagerGObj(void)
+{
     int v = CreateGObjByFuncSet(0, 0, 0, 0, thStart, 0, 0);
     D_0063B754 = v;
     return v;

@@ -4,7 +4,9 @@
 
 #include "vu0.h"
 
-typedef struct { char b[0x20]; } ShiftBlk;
+typedef struct {
+    char b[0x20];
+} ShiftBlk;
 extern char D_004EC950[];
 extern char D_004EC960[];
 extern char D_004EC970[];
@@ -134,13 +136,18 @@ extern void _SubVector(void *dst, void *a, void *b);
 extern void _NormalizeVector(void *dst, void *a);
 extern void _ScaleVector(void *dst, void *a, float s);
 extern void _AddVector(void *dst, void *a, void *b);
-typedef struct { int obj; int node; } ActPt;
+typedef struct {
+    int obj;
+    int node;
+} ActPt;
 extern int D_00639EA4;
 extern char D_004ECB50[];
 extern char D_004ECB60[];
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 extern void prim_DispWireSphere(void *a0, int a1, int a2, float r);
-typedef struct { long long b[0x18]; } ClipBuf;
+typedef struct {
+    long long b[0x18];
+} ClipBuf;
 extern char D_0061FD00[];
 extern void ClipWallField(void *a0);
 extern void DrawCollisionRay(void *a0);
@@ -166,25 +173,29 @@ extern char *D_0063B93C__pn __asm__("D_0063B93C");
 void SetHitCollisionDisplay(int a, int b);
 int ResetMotionProgramInterpInfo(char *a0, int a1);
 int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f);
-static inline void dispSquare(int alpha) {
-    int col[4] = { 0, 128 * 255 / alpha, alpha, 128 };
+static inline void dispSquare(int alpha)
+{
+    int col[4] = {0, 128 * 255 / alpha, alpha, 128};
     DrawLineG(D_004EC950, col, D_004EC970, col, -1);
     DrawLineG(D_004EC970, col, D_004EC960, col, -1);
     DrawLineG(D_004EC960, col, D_004EC980, col, -1);
     DrawLineG(D_004EC980, col, D_004EC950, col, -1);
 }
-void dispSquare2(int alpha) {
+void dispSquare2(int alpha)
+{
     DrawLineG(D_004EC9A0, D_004EC990, D_004EC9C0, D_004EC990, -1);
     DrawLineG(D_004EC9C0, D_004EC990, D_004EC9B0, D_004EC990, -1);
     DrawLineG(D_004EC9B0, D_004EC990, D_004EC9D0, D_004EC990, -1);
     DrawLineG(D_004EC9D0, D_004EC990, D_004EC9A0, D_004EC990, -1);
 }
 #include "motMan_getFinalMatrix.c.inc"
-inline void SetHitCollisionDisplay(int a, int b) {
+inline void SetHitCollisionDisplay(int a, int b)
+{
     D_0063B8F8 = a;
     D_0063B8FC = b;
 }
-static inline int findActPointOrder(int *list, int kind) {
+static inline int findActPointOrder(int *list, int kind)
+{
     int *p = list;
     int i = 1;
     while (*p != -1) {
@@ -195,7 +206,8 @@ static inline int findActPointOrder(int *list, int kind) {
     }
     return 0;
 }
-int findActPoint(int *list) {
+int findActPoint(int *list)
+{
     int bestOrder = 255;
     int minVal = 249;
     int ret = -1;
@@ -240,7 +252,8 @@ inline void GetWallVector(int a0, int a1)
 /*SWEEPclearCollisionStatus*/
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", clearCollisionStatus);
 /*SWEEP-ENDclearCollisionStatus*/
-void checkUpperWallState(void) {
+void checkUpperWallState(void)
+{
     char buf[0xC0];
     memset(buf, 0, 0xC0);
     MatrixDrive_PushMatrix();
@@ -259,7 +272,8 @@ void checkUpperWallState(void) {
         *(int *)((char *)D + 0x14) = *(int *)((char *)D + 0x14) | 0x1000;
     }
 }
-void checkWallSideState(void) {
+void checkWallSideState(void)
+{
     ClipBuf buf = *(ClipBuf *)D_0061FD00;
     float v[4];
     char *p = (char *)&buf;
@@ -321,7 +335,8 @@ void checkCliffAndWallStateAtJump(void)
     _checkCliffAndWall();
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispActNode);
-void dispLastNode(void) {
+void dispLastNode(void)
+{
     float *p;
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 5, 0x80);
@@ -335,7 +350,8 @@ void dispLastNode(void) {
     gif_EndPacket();
 }
 #include "motMan_rootUpdate.c.inc"
-static inline void calcMaxNodeHeight(int n) {
+static inline void calcMaxNodeHeight(int n)
+{
     int i;
     *(float *)(D_0063C490 + 0x1D0) = 0.0f;
     for (i = 0; i < n; i++) {
@@ -344,7 +360,8 @@ static inline void calcMaxNodeHeight(int n) {
         }
     }
 }
-void _getGeometryOfMotion(MotShift *out, int second) {
+void _getGeometryOfMotion(MotShift *out, int second)
+{
     float v[4];
     char q[0x10];
     int save180 = *(int *)(D_0063C490 + 0x180);
@@ -356,8 +373,7 @@ void _getGeometryOfMotion(MotShift *out, int second) {
     sceVu0Normalize((void *)v, (void *)v);
     RotQuaternionY(q, atan2f(v[0], v[2]) * 10430.378f);
     CopyQuaternion((char *)D_0063C490 + 0x30, q);
-    GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(),
-                            (char *)D_0063C490 + 0x30);
+    GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(), (char *)D_0063C490 + 0x30);
     SetCurrentQuaternion((char *)D_0063C490 + 0x30);
 
     D_0063C4A4 = D_0063C478;
@@ -371,8 +387,7 @@ void _getGeometryOfMotion(MotShift *out, int second) {
     } else {
         int i;
         for (i = 0; i < D_0063C48C; i++) {
-            CopyVector((void *)(D_0063C488 + i * 0x10),
-                       (void *)(D_0063C484 + i * 0x10));
+            CopyVector((void *)(D_0063C488 + i * 0x10), (void *)(D_0063C484 + i * 0x10));
         }
     }
     calcMaxNodeHeight(D_0063C48C);
@@ -395,8 +410,7 @@ void _getGeometryOfMotion(MotShift *out, int second) {
         switch (*(int *)(pm + 0x68)) {
         default: {
             char buf[0x400];
-            sprintf(buf, D_0061FFD8, D_0063C4A8 + 0xC0, *(int *)(pm + 0x30),
-                    *(int *)(pm + 0x68));
+            sprintf(buf, D_0061FFD8, D_0063C4A8 + 0xC0, *(int *)(pm + 0x30), *(int *)(pm + 0x68));
             debug_assertMessage(D_0061FDC0, 997, buf);
             __assert(D_0061FDC0, 997, D_0063B920);
         } break;
@@ -406,8 +420,7 @@ void _getGeometryOfMotion(MotShift *out, int second) {
             break;
         case 2:
         case 17:
-            *out = rootUpdateXZ_MotPos(*(int *)(pm + 0x68),
-                                       findActPoint(D_004ECB10));
+            *out = rootUpdateXZ_MotPos(*(int *)(pm + 0x68), findActPoint(D_004ECB10));
             break;
         case 7:
         case 8:
@@ -418,8 +431,7 @@ void _getGeometryOfMotion(MotShift *out, int second) {
             break;
         case 10:
         case 15:
-            *out = rootUpdateHang(*(int *)(pm + 0x68),
-                                  checkActPointWithHeight(6, 10.0f),
+            *out = rootUpdateHang(*(int *)(pm + 0x68), checkActPointWithHeight(6, 10.0f),
                                   checkActPointWithHeight(0x16, 10.0f));
             break;
         case 11:
@@ -452,13 +464,11 @@ void _getGeometryOfMotion(MotShift *out, int second) {
         MatrixDrive_PopMatrix();
     }
 
-    *(float *)(D_0063C494 + 0xF0) = *(float *)(D_0063C490 + 4) +
-                                    *(float *)(D_0063B938 + 0x14) -
-                                    *(float *)(D_0063C490 + 0x1B4);
+    *(float *)(D_0063C494 + 0xF0) =
+        *(float *)(D_0063C490 + 4) + *(float *)(D_0063B938 + 0x14) - *(float *)(D_0063C490 + 0x1B4);
 
     MatrixDrive_PushMatrix();
-    MatrixDrive_SetTransposeMatrix((void *)MatrixDrive_GetMatrix(),
-                                   MatrixDrive_GetMatrix());
+    MatrixDrive_SetTransposeMatrix((void *)MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
     sceVu0ApplyMatrix((int *)(D_0063C490 + 0x170), MatrixDrive_GetMatrix(),
                       (char *)D_0063C490 + 0x90);
     MatrixDrive_PopMatrix();
@@ -470,7 +480,8 @@ void _getGeometryOfMotion(MotShift *out, int second) {
         *(int *)(D_0063C494 + 0x1CC) = 1;
     }
 }
-inline void getGeometryOfMotion(void) {
+inline void getGeometryOfMotion(void)
+{
     ShiftBlk buf;
     int x, y;
     char *p;
@@ -486,7 +497,8 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", GetGeometryOfMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", GetMatrixOfMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001ECE40);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001ED110);
-void dispSkelton(void) {
+void dispSkelton(void)
+{
     int v;
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 5, 0x80);
@@ -497,7 +509,8 @@ void dispSkelton(void) {
     MatrixDrive_PopMatrix();
     gif_EndPacket();
 }
-void SkelTest(char *a0) {
+void SkelTest(char *a0)
+{
     int sub = *(int *)(a0 + 0x15C);
     int v;
     D_0063B93C = (int)a0;
@@ -510,7 +523,8 @@ void SkelTest(char *a0) {
         }
     }
 }
-void SkelTestGeo(char *a0) {
+void SkelTestGeo(char *a0)
+{
     int sub = *(int *)(a0 + 0x15C);
     int v;
     int i;

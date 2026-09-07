@@ -50,39 +50,39 @@
 
 /* --- ios thread object (SCE ee_thread_t at offset 0 + ICO bookkeeping) --- */
 typedef struct IOSThread {
-    int status;                 /* 0x00 ee_thread_t.status              */
-    void (*entry)();            /* 0x04 ee_thread_t.func  == iosThreadMain */
-    void *stack;                /* 0x08 ee_thread_t.stack               */
-    int stackSize;              /* 0x0C ee_thread_t.stack_size          */
-    void *gpReg;                /* 0x10 ee_thread_t.gp_reg              */
-    int initPriority;           /* 0x14 ee_thread_t.initial_priority    */
-    int currentPriority;        /* 0x18 ee_thread_t.current_priority    */
-    int attr;                   /* 0x1C */
-    int option;                 /* 0x20 */
-    int reserved[3];            /* 0x24 */
-    int id;                     /* 0x30 kernel thread id                */
-    int arg;                    /* 0x34 argument handed to func         */
-    void (*func)();             /* 0x38 body run by iosThreadMain       */
-    int flags;                  /* 0x3C */
-    int sleeping;               /* 0x40 read by iosThreadMain           */
-    int pad44;                  /* 0x44 */
-    int hasQueue;               /* 0x48 */
-    void *queue;                /* 0x4C */
-    char name[16];              /* 0x50 */
+    int status;          /* 0x00 ee_thread_t.status              */
+    void (*entry)();     /* 0x04 ee_thread_t.func  == iosThreadMain */
+    void *stack;         /* 0x08 ee_thread_t.stack               */
+    int stackSize;       /* 0x0C ee_thread_t.stack_size          */
+    void *gpReg;         /* 0x10 ee_thread_t.gp_reg              */
+    int initPriority;    /* 0x14 ee_thread_t.initial_priority    */
+    int currentPriority; /* 0x18 ee_thread_t.current_priority    */
+    int attr;            /* 0x1C */
+    int option;          /* 0x20 */
+    int reserved[3];     /* 0x24 */
+    int id;              /* 0x30 kernel thread id                */
+    int arg;             /* 0x34 argument handed to func         */
+    void (*func)();      /* 0x38 body run by iosThreadMain       */
+    int flags;           /* 0x3C */
+    int sleeping;        /* 0x40 read by iosThreadMain           */
+    int pad44;           /* 0x44 */
+    int hasQueue;        /* 0x48 */
+    void *queue;         /* 0x4C */
+    char name[16];       /* 0x50 */
 } IOSThread;
 
-extern void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg,
-                            void *stack, long stackSize, int pri);
-extern int  iosThreadGetPri(int *a0);
-extern int  iosGetIOSThreadFromId(unsigned int a0);
-extern int  iosThreadWakeup(int *self);
-extern int  iosThreadJoin(void *a0);
-extern int  iosThreadCancelWakeup(int *self);
-extern int  iosSemaCreate(int *self, int a1, int a2, int a3);
-extern int  iosSemaDelete(int *self);
-extern int  iosSemaWait(int *self);
-extern int  iosSemaSignal(int *self);
-extern int  iosSemaReferStatus(int *self);
+extern void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack,
+                            long stackSize, int pri);
+extern int iosThreadGetPri(int *a0);
+extern int iosGetIOSThreadFromId(unsigned int a0);
+extern int iosThreadWakeup(int *self);
+extern int iosThreadJoin(void *a0);
+extern int iosThreadCancelWakeup(int *self);
+extern int iosSemaCreate(int *self, int a1, int a2, int a3);
+extern int iosSemaDelete(int *self);
+extern int iosSemaWait(int *self);
+extern int iosSemaSignal(int *self);
+extern int iosSemaReferStatus(int *self);
 
 extern void debug_StdPrintfDummy();
 
@@ -93,30 +93,29 @@ extern void iosThreadSetPri(int *a0, int a1);
 void iosThreadMain(int a0)
 {
     int idx = GetThreadId();
-    int *obj = (int *) D_006BCEE0[idx];
-    (*(void (**)(int))((char *) obj + 0x38))(a0);
-    if (*(int *)((char *) obj + 0x40) == 0)
-    {
+    int *obj = (int *)D_006BCEE0[idx];
+    (*(void (**)(int))((char *)obj + 0x38))(a0);
+    if (*(int *)((char *)obj + 0x40) == 0) {
         iosThreadSetPri((int *)obj, 0x21);
-    }
-    else
-    {
+    } else {
         iosThreadSetPri((int *)obj, 0x22);
     }
 }
 /* 16-byte guard word stamped at both ends of a thread stack */
-typedef struct { char c[16]; } IosStackMark;
+typedef struct {
+    char c[16];
+} IosStackMark;
 
-extern IOSThread D_006BD310;    /* the main (boot) IOS thread */
-extern char D_006BD380[];       /* its 8 KB stack */
-extern int _gp;                 /* linker-defined global pointer */
-extern int D_0063A5F0;          /* number of live IOS threads */
-extern const char D_00551DB0[16];   /* "<THREAD_SP>...."  */
-extern const char D_00551DC0[16];   /* "<THREAD_SP_END>"  */
+extern IOSThread D_006BD310;      /* the main (boot) IOS thread */
+extern char D_006BD380[];         /* its 8 KB stack */
+extern int _gp;                   /* linker-defined global pointer */
+extern int D_0063A5F0;            /* number of live IOS threads */
+extern const char D_00551DB0[16]; /* "<THREAD_SP>...."  */
+extern const char D_00551DC0[16]; /* "<THREAD_SP_END>"  */
 extern char D_00551DD0[];
 extern char D_00551E00[];
 extern char D_00551E20[];
-inline void iosThreadDestroyMgr();  /* deferred-tail member; see the emission-order note */
+inline void iosThreadDestroyMgr(); /* deferred-tail member; see the emission-order note */
 extern int CreateThread(IOSThread *param);
 extern const char D_00551DF0[];
 extern char D_0063A5F8[];
@@ -132,8 +131,8 @@ extern void __assert(const char *file, int line, const char *expr);
  * `inline` (not `static inline`, not `extern inline`): gcc 2.9 defers the
  * out-of-line copy of a plain `inline` to the end of the object.  See the
  * emission-order note at the top of this file for why that lands it here. */
-inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg,
-                            void *stack, long stackSize, int pri)
+inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack,
+                            long stackSize, int pri)
 {
     th->entry = iosThreadMain;
     th->func = func;
@@ -176,8 +175,8 @@ extern void *iosMallocDebug(void *a, int n, void *c, int d);
 /* thread.c:171 - iosThreadCreateS: iosThreadCreate over a malloc'd stack.
  * flags bit 0 marks "this stack came from the heap"; iosThreadDestroyMgr
  * reads it back and frees the stack. */
-void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg,
-                      void *heap, long stackSize, int pri)
+void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap, long stackSize,
+                      int pri)
 {
     void *stack;
 
@@ -229,18 +228,15 @@ extern void ChangeThreadPriority();
 
 void iosThreadSetPri(int *a0, int a1)
 {
-  int *v;
-  v = a0;
-  if (v == 0)
-  {
-    v = (int *) D_006BCEE0[GetThreadId()];
-  }
-  else
-  {
+    int *v;
     v = a0;
-  }
-  v[0x18 / 4] = a1;
-  ChangeThreadPriority(v[0x30 / 4], a1);
+    if (v == 0) {
+        v = (int *)D_006BCEE0[GetThreadId()];
+    } else {
+        v = a0;
+    }
+    v[0x18 / 4] = a1;
+    ChangeThreadPriority(v[0x30 / 4], a1);
 }
 extern const char D_00551DF0[];
 extern char D_00551E90[];
@@ -248,7 +244,8 @@ extern void *D_0063A428;
 extern void *iosMallocDebug(void *a, int n, void *c, int d);
 extern void iosMsgQueueCreate(void *a, void *b, int c);
 
-void iosThreadMessage(int a0) {
+void iosThreadMessage(int a0)
+{
     void *obj = (void *)D_006BCEE0[GetThreadId()];
     int q;
     if (*(int *)((char *)obj + 0x48) == 0) {
@@ -300,7 +297,8 @@ extern char D_00551E78[];
 inline int iosGetIOSThreadFromId(unsigned int a0)
 {
     int ret;
-    if (a0 < 0x101) goto valid;
+    if (a0 < 0x101)
+        goto valid;
     debug_StdPrintfDummy(D_00551E78);
     ret = 0;
     goto out;
@@ -318,7 +316,8 @@ inline int iosThreadWakeup(int *self)
 extern char D_00551EA0[];
 extern int iosMsgRecv(void *a, void *b, int c);
 
-inline int iosThreadJoin(void *a0) {
+inline int iosThreadJoin(void *a0)
+{
     int buf[4];
     if (*(int *)((char *)a0 + 0x48) == 0) {
         void *r;
@@ -339,7 +338,7 @@ inline int iosThreadCancelWakeup(int *self)
     if (self == 0) {
         v = GetThreadId();
     } else {
-        v = self[0x30/4];
+        v = self[0x30 / 4];
     }
     return CancelWakeupThread(v);
 }
@@ -402,8 +401,7 @@ inline int iosSemaSignal(int *self)
     int rv;
     v = SignalSema(self[0x30 / 4]);
     rv = 0;
-    if (v < 0)
-    {
+    if (v < 0) {
         debug_StdPrintfDummy(D_00551F00, self[0x30 / 4]);
         rv = v;
     }
@@ -425,9 +423,9 @@ inline int iosSemaReferStatus(int *self)
 /* thread.c:299 - the destroy-manager thread body.  iosThreadInit creates a
  * thread running this; iosThreadDestroy posts the dying IOSThread to its
  * message queue and this loop does the actual teardown.  Never returns. */
-extern char D_00551E48[];       /* "iosThreadDestroyMgr() in\n" */
-extern char D_00551E68[];       /* "1:n_thread %d\n"           */
-extern int D_0063C1A0[2];       /* the manager queue's 2-slot message ring */
+extern char D_00551E48[]; /* "iosThreadDestroyMgr() in\n" */
+extern char D_00551E68[]; /* "1:n_thread %d\n"           */
+extern int D_0063C1A0[2]; /* the manager queue's 2-slot message ring */
 extern void iosFree(void *p);
 extern void iosMsgQueueDestroy(void *q);
 extern void DeleteThread(int id);
@@ -448,7 +446,8 @@ inline void iosThreadDestroyMgr(void)
         debug_StdPrintfDummy(D_00551E68, D_0063A5F0);
         TerminateThread(id);
         DeleteThread(id);
-        if ((th->flags & 1) == (unsigned)1) iosFree(((IOSThread *)D_006BCEE0[id])->stack);
+        if ((th->flags & 1) == (unsigned)1)
+            iosFree(((IOSThread *)D_006BCEE0[id])->stack);
 
         if (th->hasQueue) {
             iosMsgQueueDestroy(th->queue);

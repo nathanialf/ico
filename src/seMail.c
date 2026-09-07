@@ -17,7 +17,8 @@ void setMailTarget(int a0, int *a1, int *a2)
     a1[v] = a0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/seMail", seMail);
-int seMailTargetDistCheck(void *a0, void *a1, void *a2) {
+int seMailTargetDistCheck(void *a0, void *a1, void *a2)
+{
     float buf0[4];
     float buf1[4];
     float buf2[4];

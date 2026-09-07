@@ -52,7 +52,8 @@ inline void audioDecReset(int *self)
     *(volatile int *)((char *)self + 0x4C) = 0;
 }
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", audioDecEndPut);
-inline int audioDecIsPreset(int *self) {
+inline int audioDecIsPreset(int *self)
+{
     return *(int *)((char *)self + 0x54) >= *(int *)((char *)self + 0x48);
 }
 inline void audioDecStart(int *self)

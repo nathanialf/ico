@@ -14,8 +14,12 @@ extern void CopyMotion(void *dst, void *src, int n);
 extern void CopyVector(void *dst, void *src);
 extern void MultiQuaternion(void *dst, void *a, void *b);
 extern void SetQuaternionByAxisRotate(void *dst, int ang, float x, float y, float z);
-struct MotOriHead8 { long long v; } __attribute__((packed));
-struct MotOriFloat { float f; };
+struct MotOriHead8 {
+    long long v;
+} __attribute__((packed));
+struct MotOriFloat {
+    float f;
+};
 #define MOWORK(self) (*(char **)((char *)(self) + 0x15C))
 extern int parallelMotionShift(void *self);
 extern void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
@@ -87,7 +91,8 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", shiftMotionOrientBeginFunc);
-void ForTest_ForceShiftMotion(int a0, int a1) {
+void ForTest_ForceShiftMotion(int a0, int a1)
+{
     shiftMotionData(a0, a1, a1, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", normalMotionShift);
@@ -140,11 +145,13 @@ inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)
     *(int *)(m + 0x1AC) = soundSeGroupGet();
     *(int *)(m + 0x1B0) = soundSeGroupGet();
 }
-inline unsigned int GetCurrentMotionDirectionAdjustFlag(char *a0) {
+inline unsigned int GetCurrentMotionDirectionAdjustFlag(char *a0)
+{
     char *rec = D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194;
     return *(unsigned int *)(rec + 0x188) >> 30;
 }
-inline int ExecuteSlipProc(char *a0) {
+inline int ExecuteSlipProc(char *a0)
+{
     char *e = *(char **)(a0 + 0x15C);
     if (*(int *)(e + 0x628) != *(int *)(e + 0x624)) {
         StopSEPackageWithGroupVariation(a0, 1);
@@ -163,7 +170,8 @@ inline int ExecuteSlipProc(char *a0) {
     }
     return 1;
 }
-inline int ExecutePauseSlipProc(char *a0) {
+inline int ExecutePauseSlipProc(char *a0)
+{
     if (D_0028F4D4[0] != 0) {
         *(int *)(*(char **)(a0 + 0x15C) + 0x628) = 0;
         StopSEPackageWithGroupVariation(a0, 1);

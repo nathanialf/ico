@@ -44,7 +44,8 @@ int videoDecDelete(int a0)
 }
 extern void sceMpegAddStrCallback();
 
-int videoDecSetStream(void) {
+int videoDecSetStream(void)
+{
     sceMpegAddStrCallback();
     return 1;
 }
@@ -97,19 +98,22 @@ int mpegNodata(int a0, int a1, int a2)
 }
 extern void viBufStopDMA();
 
-int mpegStopDMA(int a0_unused, int a1_unused, char *p) {
+int mpegStopDMA(int a0_unused, int a1_unused, char *p)
+{
     viBufStopDMA((int)(p + 0x50));
     return 1;
 }
 extern void viBufRestartDMA();
 
-int mpegRestartDMA(int a0_unused, int a1_unused, char *p) {
+int mpegRestartDMA(int a0_unused, int a1_unused, char *p)
+{
     viBufRestartDMA((int)(p + 0x50));
     return 1;
 }
 extern void viBufGetTs();
 
-int mpegTS(int a0_unused, int *a1, char *a2) {
+int mpegTS(int a0_unused, int *a1, char *a2)
+{
     long long buf[4];
     viBufGetTs((int *)(a2 + 0x50), (int *)buf);
     *(long long *)((char *)a1 + 0x8) = buf[0];

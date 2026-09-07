@@ -2,21 +2,27 @@
 
 #include "ico/types.h"
 
-typedef struct PEGeo PEGeo;   /* the allocated per-effect geometry object */
-typedef struct { float v[4]; } PEVector;
-typedef struct { float v[4]; } PEQuaternion;
+typedef struct PEGeo PEGeo; /* the allocated per-effect geometry object */
 typedef struct {
-    int           used;      /* 0x00 */
-    int           pause;     /* 0x04 */
-    int           geoCtrl;   /* 0x08 */
-    int           sensing;   /* 0x0C */
-    PEVector     *sensPos;   /* 0x10 */
-    PEQuaternion *sensQuat;  /* 0x14 */
-    PEGeo        *geo;       /* 0x18 */
+    float v[4];
+} PEVector;
+typedef struct {
+    float v[4];
+} PEQuaternion;
+typedef struct {
+    int used;               /* 0x00 */
+    int pause;              /* 0x04 */
+    int geoCtrl;            /* 0x08 */
+    int sensing;            /* 0x0C */
+    PEVector *sensPos;      /* 0x10 */
+    PEQuaternion *sensQuat; /* 0x14 */
+    PEGeo *geo;             /* 0x18 */
 } PEffect;
 extern PEffect D_00720220[];
 
-typedef struct { long long q[20]; } PE160;
+typedef struct {
+    long long q[20];
+} PE160;
 
 extern void CopyQuaternion();
 extern void CopyVector();
@@ -49,8 +55,7 @@ static inline int searchFreeParticleEffect(void)
         if (D_00720220[i].used == 0) {
             if (D_00720220[i].geo != 0) {
                 debug_StdPrintfDummy(D_006208E0);
-                for (;;) {
-                }
+                for (;;) {}
             }
             return i;
         }
@@ -75,8 +80,8 @@ int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int 
     D_00720220[id].sensQuat = 0;
     if (D_00720220[id].geo != 0) {
         setParticleEffectGeometry((int)D_00720220[id].geo, (int)pos, (int)quat);
-        if (setParticleEffect((int)D_00720220[id].geo,
-                              (int *)((char *)D_00721020 + no * 0xA0), part) == 0) {
+        if (setParticleEffect((int)D_00720220[id].geo, (int *)((char *)D_00721020 + no * 0xA0),
+                              part) == 0) {
             iosFree(D_00720220[id].geo);
             D_00720220[id].geo = 0;
             D_00720220[id].used = 0;
@@ -103,7 +108,8 @@ static inline void deleteParticleEffectGeo(int no)
     D_00720220[no].geo = 0;
 }
 
-void SetParticleEffectGeometry(int a0, int a1, int a2) {
+void SetParticleEffectGeometry(int a0, int a1, int a2)
+{
     if (a0 >= 0) {
         if (D_00720220[a0].used == 0) {
             debug_StdPrintfDummy(D_00620940);
@@ -113,7 +119,8 @@ void SetParticleEffectGeometry(int a0, int a1, int a2) {
     }
 }
 extern int execParticleEffect(void *a0);
-void SetParticleEffectUpperLimit(int no, float f) {
+void SetParticleEffectUpperLimit(int no, float f)
+{
     char *o;
     if (no >= 0) {
         o = (char *)D_00720220[no].geo;
@@ -197,13 +204,11 @@ void ResetParticleEffectPackages(int *pkg)
 
     part = D_0063A450;
     for (i = 0; i < 0x80; i++) {
-        if (D_00720220[i].used != 0 &&
-            *(int **)((char *)D_00720220[i].geo + 0x20) == pkg) {
+        if (D_00720220[i].used != 0 && *(int **)((char *)D_00720220[i].geo + 0x20) == pkg) {
             CopyVector(&pos, D_00720220[i].geo);
             CopyQuaternion(&quat, (char *)D_00720220[i].geo + 0x10);
             deleteParticleEffectGeo(i);
-            D_00720220[i].geo =
-                (PEGeo *)iosMallocDebugNoAssert(part, 0x80, D_00620908, 663);
+            D_00720220[i].geo = (PEGeo *)iosMallocDebugNoAssert(part, 0x80, D_00620908, 663);
             D_00720220[i].used = 1;
             setParticleEffectGeometry((int)D_00720220[i].geo, (int)&pos, (int)&quat);
             setParticleEffect((int)D_00720220[i].geo, pkg, part);
@@ -216,7 +221,8 @@ extern int D_00721020[];
 extern void debug_StdPrintfDummy();
 extern void memcpy(void *dst, int *a1, int a2);
 
-void SetParticleEffectPackage(int a0, int *a1, int a2) {
+void SetParticleEffectPackage(int a0, int *a1, int a2)
+{
     *(PE160 *)((unsigned char *)D_00721020 + a0 * 0xA0) = D_004ECDF0;
     if (*(int *)&D_004ECDF0 != *a1) {
         debug_StdPrintfDummy(D_00620980, *a1);
@@ -233,7 +239,8 @@ void InitParticleEffects(void)
         D_00720220[i] = D_004ECDD0;
     }
 }
-void ExecParticleEffects(void) {
+void ExecParticleEffects(void)
+{
     int i;
     for (i = 0; i < 0x80; i++) {
         ExecParticleEffect(i);
@@ -258,7 +265,8 @@ void DeleteParticleEffect(int no)
         D_00720220[no].used = 0;
     }
 }
-void SetParticleEffectPauseFlag(int a0, int a1) {
+void SetParticleEffectPauseFlag(int a0, int a1)
+{
     D_00720220[a0].pause = a1;
 }
 extern int D_0063A450;
@@ -299,8 +307,7 @@ void DeleteParticleEffectsByPackage(int *pkg)
     int i;
 
     for (i = 0; i < 0x80; i++) {
-        if (D_00720220[i].used != 0 &&
-            *(int **)((char *)D_00720220[i].geo + 0x20) == pkg) {
+        if (D_00720220[i].used != 0 && *(int **)((char *)D_00720220[i].geo + 0x20) == pkg) {
             deleteParticleEffectGeo(i);
             D_00720220[i].used = 0;
         }
@@ -322,8 +329,7 @@ static inline void DeleteParticleEffectsByPackage_inl(int *pkg)
     int i;
 
     for (i = 0; i < 0x80; i++) {
-        if (D_00720220[i].used != 0 &&
-            *(int **)((char *)D_00720220[i].geo + 0x20) == pkg) {
+        if (D_00720220[i].used != 0 && *(int **)((char *)D_00720220[i].geo + 0x20) == pkg) {
             deleteParticleEffectGeo(i);
             D_00720220[i].used = 0;
         }
@@ -334,14 +340,17 @@ void DeleteParticleEffectsByID(int id)
 {
     DeleteParticleEffectsByPackage_inl(GetParticleEffectPackage_inl(id));
 }
-int GetParticleEffectData(int a0) {
+int GetParticleEffectData(int a0)
+{
     return (int)D_00720220[a0].geo;
 }
-void DisableParticleEffectGeometryControl(int a0) {
+void DisableParticleEffectGeometryControl(int a0)
+{
     D_00720220[a0].geoCtrl = 0;
 }
 extern char D_0062A278[];
-int GetParticleIDWithName(char *name) {
+int GetParticleIDWithName(char *name)
+{
     int i;
     for (i = 0; i < 0x3D; i++) {
         if (strcmp(D_0062A278 + i * 0x50, name) == 0) {
@@ -374,12 +383,14 @@ void ParticleEffects_SetAllGoal(void *goal)
         }
     }
 }
-void SetParticleEffectClipEnableFlag(int a0, int a1) {
+void SetParticleEffectClipEnableFlag(int a0, int a1)
+{
     if (a0 >= 0) {
         *(int *)((char *)D_00720220[a0].geo + 0x34) = a1;
     }
 }
-void SetParticleEffectDrainLevel(int a0, float f) {
+void SetParticleEffectDrainLevel(int a0, float f)
+{
     if (a0 >= 0) {
         *(float *)((char *)D_00720220[a0].geo + 0x40) = f;
     }

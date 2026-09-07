@@ -14,7 +14,8 @@ void queen_barrier_set_damage(void)
     D_0063C308 = 0x3C;
     debug_StdPrintfDummy(D_00556E10);
 }
-inline void queen_barrier_anim(void) {
+inline void queen_barrier_anim(void)
+{
     D_0063AC64 += 0x7D0;
     D_0063C30C += 0x1000;
     if (D_0063C308 > 0) {

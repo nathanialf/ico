@@ -19,19 +19,23 @@ void setMotionSpeed(float ratio)
 }
 /* dispProgressBar is defined as a nested function inside dispMotFrameProgress
  * below (the listing names it dispProgressBar.108). */
-typedef struct { unsigned char r, g, b, a; } BarCol;
-typedef struct { int x, y, w, h; } BarRect;
+typedef struct {
+    unsigned char r, g, b, a;
+} BarCol;
+typedef struct {
+    int x, y, w, h;
+} BarRect;
 
 typedef struct {
     char pad000[0x134];
-    int unk134;                     /* 0x134 */
+    int unk134; /* 0x134 */
     char pad138[0x13C - 0x138];
-    int frameA;                     /* 0x13C */
-    int frameB;                     /* 0x140 */
+    int frameA; /* 0x13C */
+    int frameB; /* 0x140 */
     char pad144[0x178 - 0x144];
-    int unk178;                     /* 0x178 */
+    int unk178; /* 0x178 */
     char pad17C[0x18C - 0x17C];
-    unsigned int flags;             /* 0x18C */
+    unsigned int flags; /* 0x18C */
     char pad190[0x194 - 0x190];
 } MotRec;
 
@@ -64,30 +68,22 @@ void dispMotFrameProgress(int obj, float cur)
         gif_SetZWrite(0);
         gif_SetAlpha(1, 5, 0x80);
         if (r0 < rc && rc <= r1) {
-            BarCol dark = { col->r / 2, col->g / 2, col->b / 2, 0x80 };
-            BarRect ra = {
-                (int)((-(D_0063A064 << 4) / 2 + (D_0063A064 << 4) * r0) * 8 / 10),
-                ((D_0063A068 << 4) * 6 / 20) & ~15,
-                (int)(((D_0063A064 << 4) * (rc - r0)) * 8 / 10),
-                (((D_0063A068 << 4) / 100) & ~15) + 24
-            };
-            BarRect rb = {
-                (int)((-(D_0063A064 << 4) / 2 + (D_0063A064 << 4) * rc) * 8 / 10),
-                ra.y,
-                (int)(((D_0063A064 << 4) * (r1 - rc)) * 8 / 10),
-                ra.h
-            };
+            BarCol dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
+            BarRect ra = {(int)((-(D_0063A064 << 4) / 2 + (D_0063A064 << 4) * r0) * 8 / 10),
+                          ((D_0063A068 << 4) * 6 / 20) & ~15,
+                          (int)(((D_0063A064 << 4) * (rc - r0)) * 8 / 10),
+                          (((D_0063A068 << 4) / 100) & ~15) + 24};
+            BarRect rb = {(int)((-(D_0063A064 << 4) / 2 + (D_0063A064 << 4) * rc) * 8 / 10), ra.y,
+                          (int)(((D_0063A064 << 4) * (r1 - rc)) * 8 / 10), ra.h};
             gif_SpriteSensitiveOrg(&ra, 0, 0, col, 1);
             gif_SpriteSensitiveOrg(&rb, 0, 0, &dark, 1);
         } else {
-            BarRect rc2 = {
-                (int)((-(D_0063A064 << 4) / 2 + (D_0063A064 << 4) * r0) * 8 / 10),
-                ((D_0063A068 << 4) * 6 / 20) & ~15,
-                (int)(((D_0063A064 << 4) * (r1 - r0)) * 8 / 10),
-                (((D_0063A068 << 4) / 100) & ~15) + 24
-            };
+            BarRect rc2 = {(int)((-(D_0063A064 << 4) / 2 + (D_0063A064 << 4) * r0) * 8 / 10),
+                           ((D_0063A068 << 4) * 6 / 20) & ~15,
+                           (int)(((D_0063A064 << 4) * (r1 - r0)) * 8 / 10),
+                           (((D_0063A068 << 4) / 100) & ~15) + 24};
             if (rc <= r0) {
-                BarCol dark = { col->r / 2, col->g / 2, col->b / 2, 0x80 };
+                BarCol dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
                 gif_SpriteSensitiveOrg(&rc2, 0, 0, &dark, 1);
             } else {
                 gif_SpriteSensitiveOrg(&rc2, 0, 0, col, 1);
@@ -116,44 +112,44 @@ void dispMotFrameProgress(int obj, float cur)
     }
 }
 typedef struct MvSub {
-    char  pad000[0xC];
-    char  *nodes;               /* 0x00C — per-node 0x40 matrices */
-    char  pad010[0x8C - 0x10];
-    float *ground;              /* 0x08C */
-    char  pad090[0xF0 - 0x90];
-    short rot;                  /* 0x0F0 */
-    char  padF2[2];
-    float speed;                /* 0x0F4 */
-    char  padF8[0x2D0 - 0xF8];
-    int   lookMode;             /* 0x2D0 */
-    char  pad2D4[0x2E0 - 0x2D4];
-    float lookAt[4];            /* 0x2E0 */
-    char  pad2F0[0x330 - 0x2F0];
-    int   headMode;             /* 0x330 */
-    char  pad334[0x340 - 0x334];
-    float headAt[4];            /* 0x340 */
-    char  pad350[0x380 - 0x350];
-    int   testMode;             /* 0x380 */
-    char  pad384[0x390 - 0x384];
-    float testAt[4];            /* 0x390 */
-    char  pad3A0[0x488 - 0x3A0];
-    int   select;               /* 0x488 — "this object is the viewer target" */
+    char pad000[0xC];
+    char *nodes; /* 0x00C — per-node 0x40 matrices */
+    char pad010[0x8C - 0x10];
+    float *ground; /* 0x08C */
+    char pad090[0xF0 - 0x90];
+    short rot; /* 0x0F0 */
+    char padF2[2];
+    float speed; /* 0x0F4 */
+    char padF8[0x2D0 - 0xF8];
+    int lookMode; /* 0x2D0 */
+    char pad2D4[0x2E0 - 0x2D4];
+    float lookAt[4]; /* 0x2E0 */
+    char pad2F0[0x330 - 0x2F0];
+    int headMode; /* 0x330 */
+    char pad334[0x340 - 0x334];
+    float headAt[4]; /* 0x340 */
+    char pad350[0x380 - 0x350];
+    int testMode; /* 0x380 */
+    char pad384[0x390 - 0x384];
+    float testAt[4]; /* 0x390 */
+    char pad3A0[0x488 - 0x3A0];
+    int select; /* 0x488 — "this object is the viewer target" */
 } MvSub;
 
 typedef struct MvObj {
-    char   pad00[0x28];
-    void  *motTbl;              /* 0x28 — parallel motion table, parked while viewing */
-    char   pad2C[0x15C - 0x2C];
-    MvSub *sub;                 /* 0x15C */
+    char pad00[0x28];
+    void *motTbl; /* 0x28 — parallel motion table, parked while viewing */
+    char pad2C[0x15C - 0x2C];
+    MvSub *sub; /* 0x15C */
 } MvObj;
 
 typedef struct MvMenuEnt {
-    char *name;                 /* 0x00 — csv window title */
-    int  kind;                  /* 0x04 — isys object kind */
-    int  motFirst;              /* 0x08 — first motion id of this object's block */
-    int  motLast;               /* 0x0C */
-    int  oriFrom;               /* 0x10 — first motionOrient row */
-    int  oriTo;                 /* 0x14 — one past the last motionOrient row */
+    char *name;   /* 0x00 — csv window title */
+    int kind;     /* 0x04 — isys object kind */
+    int motFirst; /* 0x08 — first motion id of this object's block */
+    int motLast;  /* 0x0C */
+    int oriFrom;  /* 0x10 — first motionOrient row */
+    int oriTo;    /* 0x14 — one past the last motionOrient row */
 } MvMenuEnt;
 
 extern MvMenuEnt objMenu[];
@@ -166,8 +162,8 @@ extern int D_0063BA24;
 extern char *D_0063BA28;
 extern void Camctrl_SetTarget(MvObj *gobj, int a1, int a2);
 extern void CameraSetMode(int mode);
-extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl,
-                                 int stride, int a6, int a7, int count, int *cur);
+extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
+                                 int a7, int count, int *cur);
 extern int isEnemyActive(MvObj *gobj);
 extern MvObj *isysGObjSearchFromObjKindID_begin(int kind);
 extern MvObj *isysGObjSearchFromObjKindID_next(MvObj *gobj);
@@ -175,8 +171,7 @@ extern void SetParallelMotionTableWithNoRequest(MvObj *gobj, int a1, int a2);
 
 int objMenuProc(void)
 {
-    int ret = debug_SelectCsvWindow(D_00620718, 10, 0x32, 0xB, objMenu, 0x18, 0, 1, 5,
-                                    &D_0063B9F8);
+    int ret = debug_SelectCsvWindow(D_00620718, 10, 0x32, 0xB, objMenu, 0x18, 0, 1, 5, &D_0063B9F8);
 
     if (D_0063BA24 != D_0063B9F8) {
         if (D_0063BA08) {
@@ -227,12 +222,12 @@ int objMenuProc(void)
 }
 /*SWEEPmotKindMenuProc*/
 typedef struct MvPad {
-    int  now;                   /* 0x00 */
-    int  trg;                   /* 0x04 */
-    int  unk08;                 /* 0x08 */
-    int  rep;                   /* 0x0C */
+    int now;   /* 0x00 */
+    int trg;   /* 0x04 */
+    int unk08; /* 0x08 */
+    int rep;   /* 0x0C */
     char unk10[0x54 - 0x10];
-    unsigned char stick[4];     /* 0x54 — the two analog sticks */
+    unsigned char stick[4]; /* 0x54 — the two analog sticks */
 } MvPad;
 
 /* motionOrientManager's table row (same object as src/motionOrientManager.c) */
@@ -244,8 +239,8 @@ typedef struct MotionOrientEntry {
 
 /* one row of the orient csv the viewer browses: name + the kind it selects */
 typedef struct OriRow {
-    char *name;                 /* 0x00 */
-    int   kind;                 /* 0x04 */
+    char *name; /* 0x00 */
+    int kind;   /* 0x04 */
 } OriRow;
 
 extern MotionOrientEntry D_002ADD60[];
@@ -257,7 +252,10 @@ extern char D_00620728[];
 extern char D_00620748[];
 extern char D_00620760[];
 extern int D_0063A438;
-typedef struct OriCsv { int sel; OriRow *rows; } OriCsv;
+typedef struct OriCsv {
+    int sel;
+    OriRow *rows;
+} OriCsv;
 extern OriCsv D_0063BA00;
 extern int D_0063BA0C;
 extern float D_0063BA14;
@@ -273,9 +271,8 @@ extern MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind);
 extern float GetMotionPlaySpeedRatio(int motion);
 extern void InitMotionOrient(MvObj *gobj, int a1, int a2, int a3, int a4, int a5);
 extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt, ...);
-extern int debug_SelectCsvWindowWithLine(char *title, int a1, int a2, int a3,
-                                         void *tbl, int stride, int a6, int a7,
-                                         int count, int *cur, int a10);
+extern int debug_SelectCsvWindowWithLine(char *title, int a1, int a2, int a3, void *tbl, int stride,
+                                         int a6, int a7, int count, int *cur, int a10);
 extern int fptodp(float f);
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 
@@ -327,14 +324,11 @@ int motKindMenuProc(void)
     int cur;
 
     dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08));
-    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 0x46, 6,
-                                        &D_0055FE58[ent->motFirst], 0x194, 0xC0, 0,
-                                        ent->motLast - ent->motFirst,
-                                        &D_0063B9FC, 0);
+    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 0x46, 6, &D_0055FE58[ent->motFirst], 0x194,
+                                        0xC0, 0, ent->motLast - ent->motFirst, &D_0063B9FC, 0);
     base = D_0063B9FC;
     cur = base + ent->motFirst;
-    if (D_0055FE58[cur].unk134 != 0 && D_0055FE58[cur].unk178 == 0x140 &&
-        D_004EB758[cur] == 0) {
+    if (D_0055FE58[cur].unk134 != 0 && D_0055FE58[cur].unk178 == 0x140 && D_004EB758[cur] == 0) {
         base = 0;
         if (((D_0063BA0C >> 4) & 3) != 0) {
             debug_PrintfDummy(10, 0x3C, 0x4080FF00, D_00620728);
@@ -397,8 +391,12 @@ extern int scePadRead(int port, int slot, unsigned char *rdata);
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", modeMessage);
 /*SWEEP-ENDmodeMessage*/
 /*SWEEPlookAtTest*/
-typedef struct MvVec { float x, y, z, w; } __attribute__((aligned(16))) MvVec;
-typedef struct MvCol { int r, g, b, a; } __attribute__((aligned(16))) MvCol;
+typedef struct MvVec {
+    float x, y, z, w;
+} __attribute__((aligned(16))) MvVec;
+typedef struct MvCol {
+    int r, g, b, a;
+} __attribute__((aligned(16))) MvCol;
 
 extern float D_0028FF00[];
 extern void CopyVector(void *dst, void *src);
@@ -414,8 +412,7 @@ extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
 extern void MatrixDrive_TransMatrixV(void *v);
 extern void sceVu0UnitMatrix(void *m);
 
-void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy,
-                short ang)
+void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, short ang)
 {
     float p0[4];
     float p1[4];
@@ -477,8 +474,7 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy,
     MatrixDrive_RotMatrixX(random_unit() * 65536.0f);
     MatrixDrive_RotMatrixY(random_unit() * 65536.0f);
     MatrixDrive_RotMatrixZ(random_unit() * 65536.0f);
-    MatrixDrive_ScaleMatrix(random_unit() * 3.0f + 1.0f,
-                            random_unit() * 3.0f + 1.0f,
+    MatrixDrive_ScaleMatrix(random_unit() * 3.0f + 1.0f, random_unit() * 3.0f + 1.0f,
                             random_unit() * 3.0f + 1.0f);
     for (a = 0; a < 3; a++) {
         CopyVector(p0, D_0028FF00);

@@ -1,6 +1,9 @@
 #include "common.h"
 
-typedef union { float f[4]; long long ll[2]; } Vec4;
+typedef union {
+    float f[4];
+    long long ll[2];
+} Vec4;
 extern char D_00621BB0[];
 extern char D_00621BD0[];
 extern char D_002C2DC8[];
@@ -37,7 +40,8 @@ inline void ActSetStartBrainStatus(char *self, int status)
         *(int *)(brain + 0x448) = status;
     }
 }
-void actChangeActBrain(int a0, int a1, int *a2) {
+void actChangeActBrain(int a0, int a1, int *a2)
+{
     int old = *a2;
     int n = actCreateSubThread(a1, 0x14);
     *a2 = n;
@@ -48,15 +52,16 @@ void actChangeActBrain(int a0, int a1, int *a2) {
         debug_StdPrintfDummy(D_00621BD0, a0, n);
     }
 }
-void actChangeActMain(void *a0, void *a1, void **a2) {
+void actChangeActMain(void *a0, void *a1, void **a2)
+{
     char *e = D_002C2DC8 + *(int *)((char *)a0 + 8) * 0x4C;
     unsigned short fld = *(unsigned short *)(e + 0x40);
     void *old = *a2;
     int ret;
-    if (((long long) fld << 10) == 0) {
+    if (((long long)fld << 10) == 0) {
         ret = isysGObjProcAdd(a0, a1, 0, (void *)0x13);
     } else {
-        ret = isysGObjProcAddS(a0, a1, 0, (void *)0x13, (long long) fld << 10);
+        ret = isysGObjProcAddS(a0, a1, 0, (void *)0x13, (long long)fld << 10);
     }
     *a2 = (void *)ret;
     if (old != 0) {
@@ -66,7 +71,8 @@ void actChangeActMain(void *a0, void *a1, void **a2) {
         debug_StdPrintfDummy(D_00621C10, a0, ret);
     }
 }
-void actCreateMotionThread(void *a0, void *a1, void **a2) {
+void actCreateMotionThread(void *a0, void *a1, void **a2)
+{
     void *old = *a2;
     int ret = isysGObjProcAdd(D_0063A61C, a0, 0, a1);
     *a2 = (void *)ret;
@@ -82,16 +88,19 @@ inline void actCreateSubThreadGOppArg(int a0, int a1)
 {
     *(int *)((char *)isysGObjProcAddGOppArg(D_0063A61C, a0, 0, a1) + 0x64) = 1;
 }
-inline void actSetInterrupt(char *self, int val) {
+inline void actSetInterrupt(char *self, int val)
+{
     *(int *)(self + 0x0) = val;
 }
-inline void ConvertStickToAbsCoord(void *a0, float *a1) {
-    Vec4 v = {{ a1[3], 0.0f, -a1[4], 0.0f }};
+inline void ConvertStickToAbsCoord(void *a0, float *a1)
+{
+    Vec4 v = {{a1[3], 0.0f, -a1[4], 0.0f}};
     float m[16];
     sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
     sceVu0ApplyMatrix(a0, m, &v);
 }
-inline void _ACTRun(int n) {
+inline void _ACTRun(int n)
+{
     int i;
     if (n == 0) {
         for (;;) {
@@ -106,7 +115,8 @@ inline void _ACTRun(int n) {
         } while (i != 0);
     }
 }
-inline void _ACTWait(int a0) {
+inline void _ACTWait(int a0)
+{
     int count = (a0 * ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1])) / 0x3C;
     if (a0 != 0) {
         if (count == 0) {
@@ -126,7 +136,8 @@ inline void _ACTWait(int a0) {
         } while (i != 0);
     }
 }
-inline void actWaitCondition(int a0, int a1) {
+inline void actWaitCondition(int a0, int a1)
+{
     int t = a0 & a1;
     if (t == 0) {
         do {
@@ -155,7 +166,8 @@ inline void actInitialize_geo(void) {}
 INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_ext_charcter);
 INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_only_charcter);
 INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize);
-inline int ACTReserveTarget(char *self, void *a1, int a2) {
+inline int ACTReserveTarget(char *self, void *a1, int a2)
+{
     char *g = *(char **)(self + 0x164);
     if (*(int *)(g + 0x13C) == 0) {
         *(char **)(g + 0x13C) = self;

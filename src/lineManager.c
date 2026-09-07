@@ -15,8 +15,10 @@ void Draw2DLineSeg_Start(void)
 {
     gif_SetGsReg(0, D_0063B8E8);
 }
-void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2) {
-    gif_SpriteOrg_ll(1, (long long)a2[0] | ((long long)a2[1] << 8) | ((long long)a2[2] << 16) | ((long long)a2[3] << 24));
+void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2)
+{
+    gif_SpriteOrg_ll(1, (long long)a2[0] | ((long long)a2[1] << 8) | ((long long)a2[2] << 16) |
+                            ((long long)a2[3] << 24));
     gif_SpriteOrg_ll(5, (long long)a0[0] | ((long long)a0[1] << 16) | ((long long)a0[2] << 32));
     gif_SpriteOrg_ll(5, (long long)a1[0] | ((long long)a1[1] << 16) | ((long long)a1[2] << 32));
 }
@@ -28,12 +30,14 @@ void DrawLine(int *p1, int *p2, int a2, int a3)
     int t1[4];
     int t2[4];
     int t3[4];
-    if (_getLine(t0, t1, p1, p2) < 0) return;
+    if (_getLine(t0, t1, p1, p2) < 0)
+        return;
     _FTOI4Vector(t2, t0);
     _FTOI4Vector(t3, t1);
     Draw2DLine(t2, t3, a2, a3);
 }
-void DrawLineG(int *a0, int *a1, int *a2, int *a3, int a4) {
+void DrawLineG(int *a0, int *a1, int *a2, int *a3, int a4)
+{
     int t0[4];
     int t1[4];
     int t2[4];

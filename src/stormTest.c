@@ -20,7 +20,8 @@ inline int *InitStormTestGeo(int a0, int *a1)
     register int v = *(int *)((char *)a1 + 0x30);
     register int flag = 1;
     *obj = v;
-    if (!(0.0f < *(float *)a1)) flag = 0;
+    if (!(0.0f < *(float *)a1))
+        flag = 0;
     *(int *)((char *)obj + 0x20) = InitStormPackage(1, v, flag);
     *(float *)((char *)obj + 0x10) = *(float *)((char *)a1 + 0x20);
     *(float *)((char *)obj + 0x14) = *(float *)((char *)a1 + 0x24);
@@ -28,10 +29,12 @@ inline int *InitStormTestGeo(int a0, int *a1)
     *(float *)((char *)obj + 0x1C) = 128.0f;
     return obj;
 }
-void StormTestGeo(char *a0) {
+void StormTestGeo(char *a0)
+{
     UpdateStormPackage(*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20));
 }
-void StormTestDL(char *a0) {
+void StormTestDL(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     DispStormPackage(*(int *)(p + 0x20), p + 0x10);
 }

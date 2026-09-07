@@ -3,14 +3,14 @@
 /* The actor mail table entries this TU installs live in the shared
  * src/cod .data carve, so they stay extern here. */
 typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(int);          /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
+    int mail;          /* 0x00 */
+    void (*func)(int); /* 0x04 */
+    int unk08;         /* 0x08 */
+    int unk0C;         /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD4];           /* 0x00 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD4]; /* 0x00 */
+    ActMail *mail;    /* 0xD4 */
 } Act;
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -28,7 +28,8 @@ extern ActMail D_004FB5F0[];
 extern void actSt24aSwordChk(int a0);
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 
-void actSt24aSword(volatile int a0) {
+void actSt24aSword(volatile int a0)
+{
     int x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
@@ -42,14 +43,16 @@ void actSt24aSword(volatile int a0) {
         _ACTWait(0);
     }
 }
-void actSt24aSaku(volatile int a0) {
+void actSt24aSaku(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
     stage_SetAnimation(0x97, 0, 0);
 }
-void actSt24aDemoCam(volatile int a0) {
+void actSt24aDemoCam(volatile int a0)
+{
     int x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
@@ -62,8 +65,8 @@ void actSt24aDemoCam(volatile int a0) {
     }
 }
 typedef struct SwordObj {
-    char unk00[0x2C];           /* 0x00 */
-    void *unk2C;                /* 0x2C */
+    char unk00[0x2C]; /* 0x00 */
+    void *unk2C;      /* 0x2C */
 } SwordObj;
 extern SwordObj *sword;
 extern void *D_00639EA4;
@@ -75,7 +78,8 @@ extern int stage_CheckAnimationFinish(int a0);
 extern int scpSearchGobj(int a0);
 extern void scpSetBoyWeaponGObj(int a0);
 
-void actSt24aSwordSub(volatile int a0) {
+void actSt24aSwordSub(volatile int a0)
+{
     while (sword == 0) {
         _ACTWait(1);
     }

@@ -18,6 +18,7 @@ inline void kanbanBootInit(void)
 }
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootMcCheck);
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootMain);
-inline void kanbanBootStart(void) {
+inline void kanbanBootStart(void)
+{
     D_0063B4C4 = 1;
 }

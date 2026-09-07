@@ -26,8 +26,12 @@ extern void gif_SetZWrite(int on);
 extern void gif_SpriteSensitiveOrg(void *rect, unsigned int z, void *uv, void *col, int e);
 extern void gif_StartPacketPri(int pri);
 
-typedef struct { int f[4]; } SprUV;
-typedef struct { unsigned char f[4]; } SprCol;
+typedef struct {
+    int f[4];
+} SprUV;
+typedef struct {
+    unsigned char f[4];
+} SprCol;
 extern int D_004ED02C[];
 extern SprUV D_00620DE0;
 extern SprCol D_0063BB70[];
@@ -39,8 +43,7 @@ extern int D_0063BB68;
 
 void auraInspireBefore(void)
 {
-    int rect[4] = { -D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16,
-                    D_0063A064 * 16, D_0063A068 * 16 };
+    int rect[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16, D_0063A068 * 16};
 
     gif_StartPacketPri(8);
     gif_SetGsReg(8, 5);
@@ -85,23 +88,20 @@ extern void _ApplyMatrix(void *a0, int a1, void *a2);
 
 void auraInspireAfter(int mode)
 {
-    int halfRect[4] = { -D_0063A064 / 2 * 16, -D_0063A068 / 4 * 16,
-                        D_0063A064 * 16, D_0063A068 / 2 * 16 };
-    int uv[4] = { 8, 8, D_0063A064 * 16, D_0063A068 * 16 };
-    int rect[4] = { -D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16,
-                    D_0063A064 * 16, D_0063A068 * 16 };
-    int halfUv[4] = { 8, 28, D_0063A064 * 16, D_0063A068 / 2 * 16 };
+    int halfRect[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 4 * 16, D_0063A064 * 16,
+                       D_0063A068 / 2 * 16};
+    int uv[4] = {8, 8, D_0063A064 * 16, D_0063A068 * 16};
+    int rect[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16, D_0063A068 * 16};
+    int halfUv[4] = {8, 28, D_0063A064 * 16, D_0063A068 / 2 * 16};
 
     void reduceCopyAlphaChannelOfWork1ToWork0(void)
     {
-        int suv[4] = { D_00724A78[0] + 16, D_00724A78[1] + 16,
-                       D_0063A064 * 16 + D_00724A78[2],
-                       D_0063A068 * 16 + D_00724A78[3] };
-        int srect[4] = { D_00724A78[4] - 2048, D_00724A78[5] - 1032, 4096,
-                         D_0028F4C0[0] == 0 ? 1792 : 2048 };
+        int suv[4] = {D_00724A78[0] + 16, D_00724A78[1] + 16, D_0063A064 * 16 + D_00724A78[2],
+                      D_0063A068 * 16 + D_00724A78[3]};
+        int srect[4] = {D_00724A78[4] - 2048, D_00724A78[5] - 1032, 4096,
+                        D_0028F4C0[0] == 0 ? 1792 : 2048};
 
-        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14)
-                            | 0x664000000LL);
+        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14) | 0x664000000LL);
 
         gif_SetDrawEnviroment(D_004ED020[0], 0, 0x100, 0x80, 0, 0);
 
@@ -111,10 +111,8 @@ void auraInspireAfter(int mode)
 
     void copyAlphaChannelOfWork0ToFeedBackArea(void)
     {
-        int suv[4] = { D_00724A78[6], D_00724A78[7], D_00724A78[8] + 4096,
-                       D_00724A78[9] + 2048 };
-        int srect[4] = { D_00724A78[10] - 1024, D_00724A78[11] - 1024, 2048,
-                         2048 };
+        int suv[4] = {D_00724A78[6], D_00724A78[7], D_00724A78[8] + 4096, D_00724A78[9] + 2048};
+        int srect[4] = {D_00724A78[10] - 1024, D_00724A78[11] - 1024, 2048, 2048};
 
         gif_SetGsReg(6, D_004ED020[0] | 0x20010000 | 0x5C0000000LL);
 
@@ -126,7 +124,7 @@ void auraInspireAfter(int mode)
 
     inline void pasteFeedBackAreaToFB(void)
     {
-        int suv[4] = { 8, 8, 2048, D_0028F4C0[0] ? 2048 : 1792 };
+        int suv[4] = {8, 8, 2048, D_0028F4C0[0] ? 2048 : 1792};
 
         gif_SetGsReg(6, 0x5DC00BF00LL);
 
@@ -147,12 +145,10 @@ void auraInspireAfter(int mode)
             gif_SpriteSensitiveOrg(&a, 0, (void *)0, &D_0063BB40, 0);
         }
         {
-            int suv[4] = { 8, 8, D_0063A064 * 16, D_0063A068 * 16 };
-            int srect[4] = { -1024, -1024, 2048,
-                             D_0028F4C0[0] ? 2048 : 1792 };
+            int suv[4] = {8, 8, D_0063A064 * 16, D_0063A068 * 16};
+            int srect[4] = {-1024, -1024, 2048, D_0028F4C0[0] ? 2048 : 1792};
 
-            gif_SetGsReg(6, ((long long)(D_0063A064 / 64) << 14)
-                                | 0x664000800LL);
+            gif_SetGsReg(6, ((long long)(D_0063A064 / 64) << 14) | 0x664000800LL);
 
             gif_SetDrawEnviroment(0x3F00, 0, 0x80, 0x80, 0, 0);
 
@@ -166,13 +162,12 @@ void auraInspireAfter(int mode)
         void blendWork0ToWork1(void)
         {
             SprUV a = D_00620E00;
-            int srect[4] = { -D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16,
-                             D_0063A064 * 16, D_0063A068 * 16 };
+            int srect[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16,
+                            D_0063A068 * 16};
 
             gif_SetGsReg(6, D_004ED020[0] | 0x1C008000 | 0x5C0000000LL);
 
-            gif_SetDrawEnviroment(D_004ED020[1], 0, D_0063A064, D_0063A068, 0,
-                                  0);
+            gif_SetDrawEnviroment(D_004ED020[1], 0, D_0063A064, D_0063A068, 0, 0);
 
             gif_SetAlpha(1, 0, D_0063C4B3);
             gif_SpriteSensitiveOrg(srect, 0, &a, &D_0063C4B0, 1);
@@ -193,7 +188,7 @@ void auraInspireAfter(int mode)
             inline void addTap(int x, int y)
             {
                 SprUV a = D_00620E00;
-                int srect[4] = { x, y, 2048, 2048 };
+                int srect[4] = {x, y, 2048, 2048};
 
                 gif_SetGsReg(6, 0x5DC00BF00LL);
 
@@ -216,8 +211,7 @@ void auraInspireAfter(int mode)
 
     inline void pasteWork0ToFeedBackArea(void)
     {
-        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14)
-                            | 0x664000000LL);
+        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14) | 0x664000000LL);
 
         gif_SetDrawEnviroment(0x3F00, 0, 0x80, 0x80, 0, 0);
 
@@ -235,8 +229,7 @@ void auraInspireAfter(int mode)
 
     inline void pasteWork1ToFB(void)
     {
-        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14)
-                            | 0x664000000LL);
+        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14) | 0x664000000LL);
 
         gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 0, 0);
 
@@ -246,14 +239,14 @@ void auraInspireAfter(int mode)
 
     void testAA(void)
     {
-        int srect[4] = { -D_0063A064 / 5 * 16, -D_0063A068 / 5 * 16,
-                         D_0063A064 / 4 * 16, D_0063A068 / 4 * 16 };
+        int srect[4] = {-D_0063A064 / 5 * 16, -D_0063A068 / 5 * 16, D_0063A064 / 4 * 16,
+                        D_0063A068 / 4 * 16};
 
         gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 0, 0);
 
         {
-            unsigned char c1[4] = { 0, 0, 0, 0 };
-            unsigned char c2[4] = { 0, 0, 0, 128 };
+            unsigned char c1[4] = {0, 0, 0, 0};
+            unsigned char c2[4] = {0, 0, 0, 128};
 
             gif_SetAlpha(1, 5, 0);
             gif_SpriteSensitiveOrg(rect, 0, (void *)0, c1, 1);
@@ -263,8 +256,7 @@ void auraInspireAfter(int mode)
 
     inline void addWork1ToFB(void)
     {
-        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14)
-                            | 0x664000000LL);
+        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14) | 0x664000000LL);
 
         gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 0, 0);
 
@@ -274,8 +266,7 @@ void auraInspireAfter(int mode)
 
     inline void addWork1ToFBWithZ(void)
     {
-        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14)
-                            | 0x664000000LL);
+        gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14) | 0x664000000LL);
 
         gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 0, 0);
 
@@ -292,8 +283,7 @@ void auraInspireAfter(int mode)
         gif_SetZTest(1);
         gif_SetZWrite(0);
 
-        gif_SetGsReg(6, D_004ED024[0] | ((long long)(D_0063A064 / 64) << 14)
-                            | 0x664000000LL);
+        gif_SetGsReg(6, D_004ED024[0] | ((long long)(D_0063A064 / 64) << 14) | 0x664000000LL);
 
         gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 0, 0);
 
@@ -301,8 +291,7 @@ void auraInspireAfter(int mode)
         _ApplyMatrix(v, matrixptr + 192, D_004ED090);
 
         gif_SetAlpha(1, 1, 128);
-        gif_SpriteSensitiveOrg(rect, (int)(v[2] * 16.0f / v[3]), uv,
-                               &D_0063BB58, 1);
+        gif_SpriteSensitiveOrg(rect, (int)(v[2] * 16.0f / v[3]), uv, &D_0063BB58, 1);
 
         gif_SetZTest(0);
         gif_SetZWrite(0);
@@ -363,16 +352,14 @@ extern SprCol D_0063BB50;
 extern SprUV D_00620E20;
 extern void memset(void *dst, int c, int n);
 extern void prim_DispFan2D(int handle, int a);
-extern void prim_SetFan2D(int handle, float radius, void *pos, unsigned int c0,
-                          unsigned int c1);
+extern void prim_SetFan2D(int handle, float radius, void *pos, unsigned int c0, unsigned int c1);
 extern void sceVu0ITOF0Vector(void *dst, void *src);
 
 void makeFullScreenFlareBefore(int mode)
 {
-    int rect[4] = { -D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16,
-                    D_0063A064 * 16, D_0063A068 * 16 };
+    int rect[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16, D_0063A068 * 16};
 
-    int uv[4] = { 0, 0, D_0063A064 * 16, D_0063A068 * 16 };
+    int uv[4] = {0, 0, D_0063A064 * 16, D_0063A068 * 16};
 
     void cleanUpFB(void)
     {
@@ -396,17 +383,17 @@ void makeFullScreenFlareBefore(int mode)
         gif_SetZWrite(0);
 
         {
-            unsigned char col[4] = { 0, 0, 0, 192 };
+            unsigned char col[4] = {0, 0, 0, 192};
             SprUV r = D_00620E20;
 
             gif_SetAlpha(1, 2, 0x80);
-            gif_SetDrawEnviroment(D_004ED020[2] + D_0063A064 * D_0063A068 / 64,
-                                  0, 0x100, 0x40, 0, 0);
+            gif_SetDrawEnviroment(D_004ED020[2] + D_0063A064 * D_0063A068 / 64, 0, 0x100, 0x40, 0,
+                                  0);
 
             gif_SpriteSensitiveOrg(&r, 0, (void *)0, col, 1);
         }
         {
-            unsigned char col2[4] = { 0, 0, 0, 192 };
+            unsigned char col2[4] = {0, 0, 0, 192};
 
             if (mode & 2) {
                 col2[0] = col2[1] = col2[2] = 128;
@@ -422,9 +409,8 @@ void makeFullScreenFlareBefore(int mode)
 
     void dispSun(void)
     {
-        if (0.0f < D_004ED048[0] && -D_0063A064 < D_004ED030[0]
-            && D_004ED030[0] < D_0063A064 && -D_0063A068 < D_004ED030[1]
-            && D_004ED030[1] < D_0063A068) {
+        if (0.0f < D_004ED048[0] && -D_0063A064 < D_004ED030[0] && D_004ED030[0] < D_0063A064 &&
+            -D_0063A068 < D_004ED030[1] && D_004ED030[1] < D_0063A068) {
             float v[4];
 
             sceVu0ITOF0Vector(v, D_004ED030);
@@ -441,8 +427,7 @@ void makeFullScreenFlareBefore(int mode)
 
     void pasteBackLightShadowToFB(void)
     {
-        gif_SetGsReg(6, D_004ED028[0] | ((long long)(D_0063A064 / 64) << 14)
-                            | 0x664000000LL);
+        gif_SetGsReg(6, D_004ED028[0] | ((long long)(D_0063A064 / 64) << 14) | 0x664000000LL);
 
         gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 0, 0);
 
@@ -452,7 +437,7 @@ void makeFullScreenFlareBefore(int mode)
         gif_SetGsReg(0x47, 0x30815);
 
         {
-            int suv[4] = { 8, 8, D_0063A064 * 16 - 8, D_0063A068 * 16 - 8 };
+            int suv[4] = {8, 8, D_0063A064 * 16 - 8, D_0063A068 * 16 - 8};
             SprCol col = D_0063BB70[0];
 
             gif_SpriteSensitiveOrg(rect, 0, suv, &col, 1);
@@ -510,8 +495,7 @@ void makeFullScreenFlareAfter(int mode)
 {
     void reduceWork2ToWork0(void)
     {
-        gif_SetGsReg(6, D_004ED020[2] | ((long long)(D_0063A064 / 64) << 14)
-                            | 0x664000000LL);
+        gif_SetGsReg(6, D_004ED020[2] | ((long long)(D_0063A064 / 64) << 14) | 0x664000000LL);
         gif_SetGsReg(0x14, 0x60);
 
         gif_SetDrawEnviroment(D_004ED020[0], 0, 0x100, 0x80, 0, 0);
@@ -521,8 +505,7 @@ void makeFullScreenFlareAfter(int mode)
         {
             SprUV r = D_00620E30;
 
-            int uv[4] = { 64, 64,
-                          D_0063A064 * 16, D_0063A068 * 16 };
+            int uv[4] = {64, 64, D_0063A064 * 16, D_0063A068 * 16};
             SprCol col = D_0063BB70[0];
 
             gif_SpriteSensitiveOrg(&r, 0, uv, &col, 0);
@@ -533,8 +516,8 @@ void makeFullScreenFlareAfter(int mode)
 
     void eyeBlur(int alpha, SprCol *col)
     {
-        int rect[4] = { -D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16,
-                        D_0063A064 * 16, D_0063A068 * 16 };
+        int rect[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16,
+                       D_0063A068 * 16};
 
         gif_SetGsReg(0x14, 0x60);
 
@@ -549,15 +532,15 @@ void makeFullScreenFlareAfter(int mode)
 
             SprUV b = D_00620DE0;
 
-            unsigned char c[4] = { alpha, alpha, alpha, 128 };
+            unsigned char c[4] = {alpha, alpha, alpha, 128};
 
             gif_SetAlpha(1, 7, 0);
             gif_SpriteSensitiveOrg(&a, 0, &b, c, 0);
         }
 
-        if ((mode & 2) == 0 && D_0063BB24 && 0.0f < D_004ED048[0]
-            && -D_0063A064 < D_004ED030[0] && D_004ED030[0] < D_0063A064
-            && -D_0063A068 < D_004ED030[1] && D_004ED030[1] < D_0063A068) {
+        if ((mode & 2) == 0 && D_0063BB24 && 0.0f < D_004ED048[0] && -D_0063A064 < D_004ED030[0] &&
+            D_004ED030[0] < D_0063A064 && -D_0063A068 < D_004ED030[1] &&
+            D_004ED030[1] < D_0063A068) {
             int arr[4];
             SprCol c1;
             SprCol c2;
@@ -578,11 +561,14 @@ void makeFullScreenFlareAfter(int mode)
                 int x1 = 4112 - (4096 - x0) * i / 5;
                 int y1 = 2064 - (2048 - y0) * i / 5;
 
-                arr[0] = x; arr[1] = y; arr[2] = x1 - x; arr[3] = y1 - y;
+                arr[0] = x;
+                arr[1] = y;
+                arr[2] = x1 - x;
+                arr[3] = y1 - y;
                 c1 = D_0063BB70[0];
 
-                if (0 < x && x < 4095 && 0 < y && y < 4095 && 0 < x1
-                    && x1 < 4095 && 0 < y1 && y1 < 4095) {
+                if (0 < x && x < 4095 && 0 < y && y < 4095 && 0 < x1 && x1 < 4095 && 0 < y1 &&
+                    y1 < 4095) {
                     gif_SetAlpha(1, 0, alpha / (i + 1));
                     gif_SpriteSensitiveOrg(D_004ED0A0, 0, arr, &c1, 1);
                 }
@@ -601,7 +587,10 @@ void makeFullScreenFlareAfter(int mode)
                 int px1 = 4096.0f - (4096 - x0) * 0.9f;
                 int py1 = 2048.0f - (2048 - y0) * 0.9f;
 
-                arr[0] = px; arr[1] = py; arr[2] = px1 - px; arr[3] = py1 - py;
+                arr[0] = px;
+                arr[1] = py;
+                arr[2] = px1 - px;
+                arr[3] = py1 - py;
                 c2 = D_0063BB70[0];
 
                 gif_SetAlpha(1, 4, 0);
@@ -616,12 +605,10 @@ void makeFullScreenFlareAfter(int mode)
             d = D_00620E40;
             {
                 int rate = 10;
-                unsigned char cc[4] = {
-                    (col->f[0] - 128) * (col->f[3] * rate) / 128,
-                    (col->f[1] - 128) * (col->f[3] * rate) / 128,
-                    (col->f[2] - 128) * (col->f[3] * rate) / 128,
-                    col->f[3] + 128
-                };
+                unsigned char cc[4] = {(col->f[0] - 128) * (col->f[3] * rate) / 128,
+                                       (col->f[1] - 128) * (col->f[3] * rate) / 128,
+                                       (col->f[2] - 128) * (col->f[3] * rate) / 128,
+                                       col->f[3] + 128};
 
                 gif_SetAlpha(1, 5, 0);
                 gif_SpriteSensitiveOrg(D_004ED0C0, 0, &d, cc, 1);
@@ -704,8 +691,7 @@ void makeFullScreenFlareAfter(int mode)
 }
 void pasteFullScreenFlare(void)
 {
-    int rect[4] = { -D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16,
-                    D_0063A064 * 16, D_0063A068 * 16 };
+    int rect[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16, D_0063A068 * 16};
     SprUV uv;
     SprCol col;
 
@@ -760,8 +746,8 @@ static inline int depthFieldPass(int n, int cur, int pre)
     gif_SetAlpha(1, 4, 0);
 
     {
-        int rect[4] = { -2032, -1008, 4064 - cur, 2016 - cur };
-        int uv[4] = { 24, 24, 4064 - pre, 2016 - pre };
+        int rect[4] = {-2032, -1008, 4064 - cur, 2016 - cur};
+        int uv[4] = {24, 24, 4064 - pre, 2016 - pre};
 
         gif_SpriteSensitiveOrg(rect, 0, uv, &D_0063BB90, 0);
     }
@@ -783,7 +769,7 @@ void depthField(float depth, float alpha, float rate)
         gif_SetGsReg(0x14, 96);
 
         {
-            int uv[4] = { 8, 8, D_0063A064 * 16, 8192 };
+            int uv[4] = {8, 8, D_0063A064 * 16, 8192};
 
             gif_SpriteSensitiveOrg(D_004ED0D0, 0, uv, &D_0063BB78, 0);
         }
@@ -821,20 +807,18 @@ void depthField(float depth, float alpha, float rate)
         gif_SetAlpha(1, 2, (int)(rate * 128.0f));
 
         {
-            int rect[4] = { -D_0063A064 / 2 * 16 - 4, -D_0063A068 / 2 * 16 - 4,
-                            D_0063A064 * 16, D_0063A068 * 16 };
-            int uv[4] = { 16, 16, 4096, D_0028F4C0[0] == 0 ? 1792 : 2048 };
+            int rect[4] = {-D_0063A064 / 2 * 16 - 4, -D_0063A068 / 2 * 16 - 4, D_0063A064 * 16,
+                           D_0063A068 * 16};
+            int uv[4] = {16, 16, 4096, D_0028F4C0[0] == 0 ? 1792 : 2048};
             float v[4];
 
             D_004ED0E0[2] = z;
             _ApplyMatrix(v, matrixptr + 192, D_004ED0E0);
 
             if (rate == 1.0f) {
-                gif_SpriteSensitiveOrg(rect, (int)(v[2] * 16.0f / v[3]), uv,
-                                       &D_0063BB88, 0);
+                gif_SpriteSensitiveOrg(rect, (int)(v[2] * 16.0f / v[3]), uv, &D_0063BB88, 0);
             } else {
-                gif_SpriteSensitiveOrg(rect, (int)(v[2] * 16.0f / v[3]), uv,
-                                       &D_0063BB88, 1);
+                gif_SpriteSensitiveOrg(rect, (int)(v[2] * 16.0f / v[3]), uv, &D_0063BB88, 1);
             }
         }
         gif_SetGsReg(0x47, 0x5000D);
@@ -855,12 +839,18 @@ void depthField(float depth, float alpha, float rate)
     gif_SetZWrite(0);
 
     pre = 0;
-    cur = w;         pre = depthFieldPass(0, cur, pre);
-    cur = w * 4 / 5; pre = depthFieldPass(1, cur, pre);
-    cur = w * 3 / 5; pre = depthFieldPass(0, cur, pre);
-    cur = w * 2 / 5; pre = depthFieldPass(1, cur, pre);
-    cur = w * 1 / 5; pre = depthFieldPass(0, cur, pre);
-    cur = 0;         pre = depthFieldPass(1, cur, pre);
+    cur = w;
+    pre = depthFieldPass(0, cur, pre);
+    cur = w * 4 / 5;
+    pre = depthFieldPass(1, cur, pre);
+    cur = w * 3 / 5;
+    pre = depthFieldPass(0, cur, pre);
+    cur = w * 2 / 5;
+    pre = depthFieldPass(1, cur, pre);
+    cur = w * 1 / 5;
+    pre = depthFieldPass(0, cur, pre);
+    cur = 0;
+    pre = depthFieldPass(1, cur, pre);
 
     gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 0, 0);
 
@@ -889,7 +879,8 @@ extern void _FTOI0Vector(void *a0, void *a1);
 extern void _ScaleVector(void *a0, void *a1, float f);
 extern void _ScaleVectorXYZ(void *a0, void *a1, float f);
 
-void calcSun(void) {
+void calcSun(void)
+{
     float buf[4];
     _NormalizeVector((int)buf, D_004ED050);
     _ScaleVector(buf, buf, 1000000.0f);
@@ -1108,7 +1099,8 @@ void FullScreenEffectBefore(void)
     dispFeedInfo();
 
     if (D_0063BB24)
-        if (D_0063B13C & 1) debug_Printf(250, 40, 0xFFFFFF00, D_0063BBE8);
+        if (D_0063B13C & 1)
+            debug_Printf(250, 40, 0xFFFFFF00, D_0063BBE8);
 
     D_004ED020[0] = 0x2800;
     D_004ED020[1] = 0x2A00;
@@ -1256,12 +1248,14 @@ void StaticBlur(void) {}
 void StaticBlurDL(void) {}
 extern int D_0063BB94;
 
-void SetMotionBlur(int val) {
+void SetMotionBlur(int val)
+{
     D_0063BB94 = val;
 }
 extern int D_0028F808[];
 
-void SetStaticBlur(int x) {
+void SetStaticBlur(int x)
+{
     D_0028F808[0] = x;
 }
 extern struct D275 D_0028F720;
@@ -1274,10 +1268,12 @@ void SetDepthFadeParam(float f12, float f13, int a0)
 }
 extern float D_0063BB30;
 
-void SetAuraInspireParam(float a0) {
+void SetAuraInspireParam(float a0)
+{
     D_0063BB30 = a0;
 }
-void InitializeStaticBlur(void) {
+void InitializeStaticBlur(void)
+{
     D_0063BB24 = 0;
 }
 void _initStaticBlur(void)

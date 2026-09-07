@@ -76,7 +76,8 @@ inline int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int fl
             ret = fn(node, arg);
             if (flag != 0) {
                 if (flag == 1) {
-                    if (ret != 0) return ret;
+                    if (ret != 0)
+                        return ret;
                 }
             }
         } while (node != 0);
@@ -91,25 +92,30 @@ inline int *iosOmSearchGObjId(int idx, int target)
             if (p[0] == target) {
                 return p;
             }
-            p = (int *)p[0x10/4];
+            p = (int *)p[0x10 / 4];
         } while (p != 0);
     }
     return 0;
 }
-inline int *iosOmSearchGObjIdAll(int a0) {
+inline int *iosOmSearchGObjIdAll(int a0)
+{
     int i;
     for (i = 0; i < 8; i++) {
         int *p = D_0029C4F0[i];
         int *found;
         if (p != 0) {
             do {
-                if (p[0] == a0) { found = p; goto check; }
+                if (p[0] == a0) {
+                    found = p;
+                    goto check;
+                }
                 p = (int *)p[4];
             } while (p != 0);
         }
         found = 0;
     check:
-        if (found != 0) return found;
+        if (found != 0)
+            return found;
     }
     return 0;
 }
@@ -121,7 +127,8 @@ inline int iosOmSendMail(char *self_arg, int val5, int val6)
     int count = p[1];
     register int idx;
     register char *addr;
-    if (count == 0x20) return -1;
+    if (count == 0x20)
+        return -1;
     idx = count * 8;
     __asm__("addu %0, %1, %2" : "=r"(addr) : "r"(self), "0"(idx));
     *(int *)(addr + 0x5C) = val5;
@@ -166,7 +173,8 @@ inline int iosOmSendMailLink(int a0, int val5, int val6)
                 }
             }
             node = (int *)node[0x10 / 4];
-            if (full != 0) ret = -1;
+            if (full != 0)
+                ret = -1;
         } while (node != 0);
     }
     return ret;

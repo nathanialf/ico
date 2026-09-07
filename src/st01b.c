@@ -7,14 +7,14 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    int act;                    /* 0x164 */
+    char pad00[0x164]; /* 0x000 */
+    int act;           /* 0x164 */
 } PObjGObj;
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
@@ -22,11 +22,11 @@ typedef struct PObjGObj {
    entry); the handler in .func is installed at run time just before the
    record is posted. Each record is named for the actor thread that owns
    and posts it. */
-static ActMail ene_mes[2]    = { { 0x1AE }, { 0x1AD } };
-static ActMail floor_mes[2]  = { { 0x1AE }, { 0x1AD } };
-static ActMail way_mes[2]    = { { 0x1AE }, { 0x1AD } };
-static ActMail way_on_mes[2] = { { 0x1AE }, { 0x1AD } };
-static ActMail way_off_mes[2]  = { { 0x1AE }, { 0x1AD } };
+static ActMail ene_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail floor_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail way_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail way_on_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail way_off_mes[2] = {{0x1AE}, {0x1AD}};
 
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -40,8 +40,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bInit);
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bEneChk);
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bFloorChkSub);
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bFloorChk);
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4,
-                       float x1, float y1, float z1,
+extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
 void actSt01bSekizo(volatile int a0)
@@ -51,9 +50,7 @@ void actSt01bSekizo(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x41, 0xB2, 0, 0x12,
-               1000.0f, 528.0f, -150.0f,
-               1000.0f, 528.0f, -100.0f);
+    scpSekizou(a0, 0x41, 0xB2, 0, 0x12, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
 }
 extern void actSt01bEneChk(volatile int a0);
 
@@ -207,10 +204,12 @@ void actSt01bWay(volatile int a0)
     _ACTWait(0);
 }
 void actSt01bEnd(void) {}
-void actSt01bSekizoEvent(int x) {
+void actSt01bSekizoEvent(int x)
+{
     volatile int local = x;
 }
-void actSt01bFloorEvent(int x) {
+void actSt01bFloorEvent(int x)
+{
     volatile int local = x;
 }
 extern void actSt01bWayOffChk(volatile int a0);
@@ -225,8 +224,7 @@ void actSt01bWayOnChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0 ||
-           gflagChk(0x46) == 0) {
+    while (scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0 || gflagChk(0x46) == 0) {
         _ACTWait(1);
     }
 
@@ -245,8 +243,7 @@ void actSt01bWayOffChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0 ||
-           gflagChk(0x46) == 0) {
+    while (scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0 || gflagChk(0x46) == 0) {
         _ACTWait(1);
     }
 

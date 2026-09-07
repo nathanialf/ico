@@ -56,21 +56,16 @@ void GirlGeo(char *a0)
     if (CylinderCollision(a0, 4, 50.0f, 50.0f, 0.0f)) {
         iosOmSendMail(a0, 6, a0);
     }
-    if (CylinderCollision(a0, 1, ACTGame_FLAG_TETSUNAGI() ? 15.0f : 30.0f, 50.0f,
-                          0.3f)) {
+    if (CylinderCollision(a0, 1, ACTGame_FLAG_TETSUNAGI() ? 15.0f : 30.0f, 50.0f, 0.3f)) {
         iosOmSendMail(a0, 6, a0);
         GirlAct_BoyAndMeCollisionMail(a0);
     } else {
         w = *(char **)(a0 + 0x15C);
-        if (*(int *)(w + 0x310) == 4 && *(int *)(w + 0x7C) != 0 &&
-            *(int *)(w + 0x3C8) != 0) {
+        if (*(int *)(w + 0x310) == 4 && *(int *)(w + 0x7C) != 0 && *(int *)(w + 0x3C8) != 0) {
             n0 = GetSkeltonFocusNode(D_00639EA4, 6);
             n1 = GetSkeltonFocusNode(a0, 0x16);
-            sceVu0SubVector(v,
-                            *(char **)(*(char **)(D_00639EA4 + 0x15C) + 0xC) +
-                                n0 * 64 + 0x30,
-                            *(char **)(*(char **)(a0 + 0x15C) + 0xC) + n1 * 64 +
-                                0x30);
+            sceVu0SubVector(v, *(char **)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + n0 * 64 + 0x30,
+                            *(char **)(*(char **)(a0 + 0x15C) + 0xC) + n1 * 64 + 0x30);
             len = FSqrt(sceVu0InnerProduct(v, v));
             if (10.0f < len) {
                 ratio = 1.0f - len / 50.0f;
@@ -200,7 +195,8 @@ void GirlDL(int a0)
     func_001DD440(a0);
     return debugWireStringGirl((char *)a0);
 }
-void SetGirlClothDispSwitch(char *a0, int a1, int a2) {
+void SetGirlClothDispSwitch(char *a0, int a1, int a2)
+{
     char *cloth = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
     switch (a1) {
     case 0:
@@ -214,7 +210,8 @@ void SetGirlClothDispSwitch(char *a0, int a1, int a2) {
         break;
     }
 }
-void SetGirlHairDispSwitch(char *a0, int a1) {
+void SetGirlHairDispSwitch(char *a0, int a1)
+{
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x28) = a1;
 }
 extern char D_0061F8D0[];

@@ -6,7 +6,10 @@
 #include "r5900.h"
 
 typedef int Qw128 __attribute__((mode(TI)));
-typedef struct { char pad[0x30]; Qw128 q; } MatDrive;
+typedef struct {
+    char pad[0x30];
+    Qw128 q;
+} MatDrive;
 
 extern int D_00639F00;
 extern char D_00668640[];
@@ -28,8 +31,7 @@ extern char D_00668640[];
 void MatrixDrive_PushMatrix(void)
 {
     D_00639F00 += 1;
-    CopyMatrix(&D_00668640[D_00639F00 * 0x40],
-                                    &D_00668640[D_00639F00 * 0x40 - 0x40]);
+    CopyMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40 - 0x40]);
 }
 extern float D_0028FF80[];
 extern float GetTableCos(short a0);
@@ -44,8 +46,7 @@ void MatrixDrive_RotMatrixX(short a0)
     D_0028FF80[9] = -s;
     D_0028FF80[6] = s;
     D_0028FF80[5] = c;
-    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
-                  (int)D_0028FF80);
+    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40], (int)D_0028FF80);
 }
 extern float D_0028FFC0[];
 
@@ -57,8 +58,7 @@ void MatrixDrive_RotMatrixY(short a0)
     D_0028FFC0[8] = s;
     D_0028FFC0[2] = -s;
     D_0028FFC0[0] = c;
-    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
-                  (int)D_0028FFC0);
+    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40], (int)D_0028FFC0);
 }
 extern float D_00290000[];
 
@@ -70,8 +70,7 @@ void MatrixDrive_RotMatrixZ(short a0)
     D_00290000[4] = -s;
     D_00290000[1] = s;
     D_00290000[0] = c;
-    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
-                  (int)D_00290000);
+    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40], (int)D_00290000);
 }
 extern float D_00290040[];
 
@@ -80,8 +79,7 @@ void MatrixDrive_ScaleMatrix(float x, float y, float z)
     D_00290040[0] = x;
     D_00290040[5] = y;
     D_00290040[10] = z;
-    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
-                      (int)D_00290040);
+    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40], (int)D_00290040);
 }
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TurnViewMatrix);
 void MatrixDrive_PushMatrixWithNoCopy(void)
@@ -92,12 +90,14 @@ void MatrixDrive_PopMatrix(void)
 {
     D_00639F00 -= 1;
 }
-void *MatrixDrive_GetMatrix(void) {
+void *MatrixDrive_GetMatrix(void)
+{
     return &D_00668640[D_00639F00 * 0x40];
 }
 extern char D_00668600[];
 
-void *MatrixDrive_GetLastMatrix(void) {
+void *MatrixDrive_GetLastMatrix(void)
+{
     return &D_00668600[D_00639F00 * 0x40];
 }
 extern void CopyVector(void *dst, void *src);
@@ -142,7 +142,8 @@ ASM_LIT4_SLOT(D_00638B28, 0.01f);
 extern float FSqrt(float a0);
 extern void sceVu0Normalize(void *a0, void *a1);
 
-void MatrixDrive_GetTurnYEAngleXZ(float *a0, float *a1, float x, float y, float z) {
+void MatrixDrive_GetTurnYEAngleXZ(float *a0, float *a1, float x, float y, float z)
+{
     float v0[4];
     float v1[4];
     float t;
@@ -208,7 +209,8 @@ void SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 }
 extern void sceVu0UnitMatrix(void *);
 
-void UnitRotation(MatDrive *a0) {
+void UnitRotation(MatDrive *a0)
+{
     Qw128 tmp[1];
     void *p = &a0->q;
     LQ16_FROM(p);
@@ -254,20 +256,21 @@ void VectorLengthSquare(void *p0)
 }
 extern void sceVu0SubVector();
 
-float GetPointDistance(void *a0, void *a1) {
+float GetPointDistance(void *a0, void *a1)
+{
     float v[4] __attribute__((aligned(16)));
     float r;
     sceVu0SubVector(v, a0, a1);
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "lqc2 $vf4, 0x0(%1)\n"
-        "vmul.xyz $vf4, $vf4, $vf4\n"
-        "vaddy.x $vf4, $vf4, $vf4y\n"
-        "vaddz.x $vf4, $vf4, $vf4z\n"
-        ".word 0x4A0403BD\n"
-        "vwaitq\n"
-        "cfc2.ni %0, $vi22\n"
-        ".set reorder\n"
-        : "=r"(r) : "r"(v));
+    __asm__ __volatile__(".set noreorder\n"
+                         "lqc2 $vf4, 0x0(%1)\n"
+                         "vmul.xyz $vf4, $vf4, $vf4\n"
+                         "vaddy.x $vf4, $vf4, $vf4y\n"
+                         "vaddz.x $vf4, $vf4, $vf4z\n"
+                         ".word 0x4A0403BD\n"
+                         "vwaitq\n"
+                         "cfc2.ni %0, $vi22\n"
+                         ".set reorder\n"
+                         : "=r"(r)
+                         : "r"(v));
     return r;
 }

@@ -1,14 +1,14 @@
 #include "common.h"
 
 typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(int);          /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
+    int mail;          /* 0x00 */
+    void (*func)(int); /* 0x04 */
+    int unk08;         /* 0x08 */
+    int unk0C;         /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD4];           /* 0x00 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD4]; /* 0x00 */
+    ActMail *mail;    /* 0xD4 */
 } Act;
 extern Act *actInitialize(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -39,8 +39,7 @@ void actLinkTest(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4,
-                       float x1, float y1, float z1,
+extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
 void actSt17aSekizo(volatile int a0)
@@ -50,9 +49,7 @@ void actSt17aSekizo(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x20, 0x52, 0x82, 0x12,
-               6450.0f, -2100.0f, 1000.0f,
-               6450.0f, -2100.0f, 1100.0f);
+    scpSekizou(a0, 0x20, 0x52, 0x82, 0x12, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
 }
 extern ActMail D_004FAFD0[];
 extern void actSt17aHasiChk(int a0);
@@ -128,7 +125,8 @@ void actSt17aFall(volatile int a0)
         _ACTWait(0);
     }
 }
-void actSt17aSekizoEvent(int x) {
+void actSt17aSekizoEvent(int x)
+{
     volatile int local = x;
 }
 extern int *D_00639EA4;
@@ -142,28 +140,64 @@ void actLinkTestChk(volatile int a0)
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(0x3C);
 }
-void actSt17aDoorEvent(int x) {
+void actSt17aDoorEvent(int x)
+{
     volatile int local = x;
 }
 extern long long D_00622F70[];
 extern long long D_00622F80[];
 extern void scpEffectStart(int *buf, int a1);
 
-void actSt17aDoorUpEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_00622F70[0]; long long v0b=D_00622F80[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00622F70[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00622F80[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
+void actSt17aDoorUpEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_00622F70[0];
+    long long v0b = D_00622F80[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_00622F70[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_00622F80[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 extern long long D_00622F90[];
 
-void actSt17aDoorDownEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_00622F80[0]; long long v0b=D_00622F90[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00622F80[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00622F90[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
-void actSt17aHasiEvent(int x) {
+void actSt17aDoorDownEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_00622F80[0];
+    long long v0b = D_00622F90[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_00622F80[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_00622F90[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+void actSt17aHasiEvent(int x)
+{
     volatile int local = x;
 }
 extern void lt_switch_layout(int a0);

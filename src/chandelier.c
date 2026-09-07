@@ -17,7 +17,8 @@ inline int InitChandelierGeo(void)
 {
     return 0;
 }
-void ChandelierGeo(char *a0) {
+void ChandelierGeo(char *a0)
+{
     int obj = isysGObjSearchFromObjKindID_begin(0x14);
     if (obj != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), *(int *)(*(char **)(a0 + 0x15C) + 0xC));

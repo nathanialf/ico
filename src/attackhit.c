@@ -39,7 +39,8 @@ void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float ra
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", inner_check);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", MakeAttackPack_Actor);
 /* listing lines ~405-435: shared by _AttackCenter and AttackCenter_WithDir */
-static inline void SetupAttackPack(AttackPack *pack, char *gop, int group, float *pos, float *ofs, float radius)
+static inline void SetupAttackPack(AttackPack *pack, char *gop, int group, float *pos, float *ofs,
+                                   float radius)
 {
     *pack = D_00554A40;
 
@@ -79,7 +80,8 @@ INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackCheckSameGroup);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackMail);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackCheckHit);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackGenerate);
-inline void CommonAttackCenter(char *a0) {
+inline void CommonAttackCenter(char *a0)
+{
     char pack[0x80];
     MakeAttackPack_Actor(pack, a0, *(int *)(*(char **)(a0 + 0x164) + 0x150));
     AttackGenerate(pack);

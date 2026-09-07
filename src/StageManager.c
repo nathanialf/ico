@@ -1,9 +1,21 @@
 #include "common.h"
 
 /* header prototypes (order fixes the inline tail) */
-typedef struct { unsigned char _0[0xA0]; short ent[0x18]; unsigned char _d0[0xC4]; } StgPre;
-typedef struct { int f0; unsigned char _4[0x24]; } StgFile;
-typedef struct { int f0; unsigned char _4[0xC]; int f10; unsigned char _14[0xC]; } StgSlot;
+typedef struct {
+    unsigned char _0[0xA0];
+    short ent[0x18];
+    unsigned char _d0[0xC4];
+} StgPre;
+typedef struct {
+    int f0;
+    unsigned char _4[0x24];
+} StgFile;
+typedef struct {
+    int f0;
+    unsigned char _4[0xC];
+    int f10;
+    unsigned char _14[0xC];
+} StgSlot;
 extern int stage_no;
 extern int DeleteStreamMotionManager();
 extern void backStageProcessOutStage();
@@ -54,12 +66,14 @@ void exit_stage(int *self)
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", start_stage_Load_thread);
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stgmgrNextStagePreLoad);
-static inline void stgmgrNextStagePreLoadDiskNotReady(void) {
+static inline void stgmgrNextStagePreLoadDiskNotReady(void)
+{
     stagePreLoadStageNo = 0;
     D_0063ACC4 = 0;
     stagePreLoadLsn = 0;
 }
-void stgmgrNextStagePreLoadEntry(int stage) {
+void stgmgrNextStagePreLoadEntry(int stage)
+{
     StgPre *pre = &D_005F5D50[stage];
     int i;
     int ret;
@@ -75,7 +89,8 @@ void stgmgrNextStagePreLoadEntry(int stage) {
             }
         }
     }
-    ret = iosCdvdBackGroundMgrAdd(D_00619128, stgmgrNextStagePreLoad, 0, stgmgrNextStagePreLoadDiskNotReady, 0, 0, 0, 0);
+    ret = iosCdvdBackGroundMgrAdd(D_00619128, stgmgrNextStagePreLoad, 0,
+                                  stgmgrNextStagePreLoadDiskNotReady, 0, 0, 0, 0);
     D_0063ACD0 = ret;
     iosCdvdBackGroundMgrNotDiskReadyPauseSet(ret, 1);
     stagePreLoadStageNo = 0;
@@ -86,16 +101,19 @@ void stgmgrNextStagePreLoadEntry(int stage) {
     D_0063ACC4 = 0;
     D_0063ACC8 = 0;
 }
-inline void stgmgrNextStagePreLoadDistBoyMode(void) {
+inline void stgmgrNextStagePreLoadDistBoyMode(void)
+{
     D_0063ACC8 = 0;
     D_0063ACCC = 0;
 }
-inline void stgmgrNextStagePreLoadForceStageSet(int val) {
+inline void stgmgrNextStagePreLoadForceStageSet(int val)
+{
     D_0063C34C = val;
     D_0063ACC8 = 1;
     D_0063ACCC = 0;
 }
-inline void stgmgrNextStagePreLoadForceNoCancel(int val) {
+inline void stgmgrNextStagePreLoadForceNoCancel(int val)
+{
     D_0063ACCC = val;
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", StageManager);
@@ -107,7 +125,8 @@ inline void CheckPoint(void)
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stgmgrForceSwitch);
-void stgmgrForceSwitchWithFade(int a0) {
+void stgmgrForceSwitchWithFade(int a0)
+{
     stgmgrForceSwitchWithFadeColor(a0, 0, 0, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stgmgrForceSwitchWithFadeColor);

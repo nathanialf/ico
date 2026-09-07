@@ -1,7 +1,19 @@
 #include "common.h"
 
-typedef struct EnNode { char pad[0x34]; struct EnNode *next; struct EnNode *prev; } EnNode;
-typedef struct { char p[0x34]; void *f34; void *f38; char p2[4]; unsigned char f40; char p3[3]; int f44; } AdpT;
+typedef struct EnNode {
+    char pad[0x34];
+    struct EnNode *next;
+    struct EnNode *prev;
+} EnNode;
+typedef struct {
+    char p[0x34];
+    void *f34;
+    void *f38;
+    char p2[4];
+    unsigned char f40;
+    char p3[3];
+    int f44;
+} AdpT;
 extern char D_00621970[];
 extern int *D_0063A614;
 extern AdpT *D_0063A618;
@@ -59,7 +71,8 @@ static inline void insert_camera_dl_by_key(int *self, int key)
     cur[0xD] = (int)self;
     ((int *)self[0xD])[0xE] = (int)self;
 }
-inline void isysGObjCameraDlInit(void) {
+inline void isysGObjCameraDlInit(void)
+{
     D_0063A614 = 0;
     D_0063A618 = 0;
 }
@@ -70,7 +83,8 @@ void cut_gobj_camera_dl_link(EnNode *gobj)
         return;
     }
     if (gobj->prev == 0) {
-        if (gobj->next == 0) goto head_check;
+        if (gobj->next == 0)
+            goto head_check;
     } else {
         gobj->prev->next = gobj->next;
     }
@@ -107,7 +121,8 @@ inline void isysGObjMoveCameraDLHead(int a0, int a1)
     cut_gobj_camera_dl_link((EnNode *)a0);
     insert_camera_dl_by_key((int *)a0, a1);
 }
-inline void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1) {
+inline void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1)
+{
     cut_gobj_camera_dl_link((EnNode *)a0);
     a0->f40 = a1->f40;
     a0->f38 = a1;
@@ -118,7 +133,8 @@ inline void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1) {
         D_0063A618 = a0;
     }
 }
-inline void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1) {
+inline void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1)
+{
     int next;
     cut_gobj_camera_dl_link((EnNode *)a0);
     *(unsigned char *)(a0 + 0x40) = *(unsigned char *)(a1 + 0x40);
@@ -131,7 +147,8 @@ inline void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1) {
         D_0063A614 = (int *)a0;
     }
 }
-void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4) {
+void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4)
+{
     debug_StdPrintfDummy(D_006219D0);
     *(int *)(a0 + 0x48) = a1;
     *(int *)(a0 + 0x4C) = a3;

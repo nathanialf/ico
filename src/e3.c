@@ -7,15 +7,15 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    int act;                    /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    int act;           /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern void lt_switch_layout(int a0);
@@ -50,7 +50,8 @@ INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St09aSekizoChk);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3GateChk);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3GateDemo);
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3GateJimaku);
-void actE3St01bInit(void) {
+void actE3St01bInit(void)
+{
     stage_SetAnimation(0xB7, 0, -1);
 }
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St09aBrgDown);
@@ -76,7 +77,11 @@ void actE3Warning(volatile int a0)
     RequestStageChange(1, D_00639EA4, 0, 255.0f, 0.0f);
 }
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
-typedef struct { unsigned char _0[0xA0]; short ent[0x18]; unsigned char _d0[0xC4]; } StgPre;
+typedef struct {
+    unsigned char _0[0xA0];
+    short ent[0x18];
+    unsigned char _d0[0xC4];
+} StgPre;
 extern StgPre D_005F5D50[];
 extern int D_0055C518[][10];
 extern void actE3Inst1Chk(volatile int a0);
@@ -158,7 +163,8 @@ void actE3St13cIntro(volatile int a0)
         _ACTWait(0);
     }
 }
-void actE3St13cGene1(volatile int a0) {
+void actE3St13cGene1(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
@@ -176,7 +182,8 @@ void actE3St13cGene1(volatile int a0) {
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
-void actE3St13cGene2(volatile int a0) {
+void actE3St13cGene2(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
@@ -194,7 +201,8 @@ void actE3St13cGene2(volatile int a0) {
 extern void _ACTWait(int a0);
 extern int actInitialize(int a0);
 
-void actE3Floor(volatile int a0) {
+void actE3Floor(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
@@ -216,7 +224,8 @@ void actE3St01bEne(volatile int a0)
         _ACTWait(0);
     }
 }
-void actE3St01bGene1(volatile int a0) {
+void actE3St01bGene1(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
@@ -234,7 +243,8 @@ void actE3St01bGene1(volatile int a0) {
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
-void actE3St01bGene2(volatile int a0) {
+void actE3St01bGene2(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
@@ -251,7 +261,8 @@ void actE3St01bGene2(volatile int a0) {
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
-void actE3St01bGene3(volatile int a0) {
+void actE3St01bGene3(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
@@ -335,7 +346,9 @@ void actE3CapsuleChk(volatile int a0)
     gflagOn(0x166);
 
     scpAdpcmPlayRequestFunc(2, &D_0063BDF8, 1, 1, 1);
-    while (D_0063BDF8 == 0) { _ACTWait(1); }
+    while (D_0063BDF8 == 0) {
+        _ACTWait(1);
+    }
 
     scpFadeIn(6.0f);
 
@@ -464,19 +477,24 @@ extern int actInitialize(int a0);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern int scpTriggerFloorAttr(int a0, int a1);
 
-void actE3CageFallReadyChk(volatile int a0) {
+void actE3CageFallReadyChk(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     D_0063BDFC = 0;
     _ACTWait(1);
-    while (scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0) { _ACTWait(1); }
+    while (scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0) {
+        _ACTWait(1);
+    }
     scpAdpcmPlayRequestFunc(3, &D_0063BDFC, 1, 1, 0);
 }
 extern int D_00639EA8;
 
 void actE3St01bEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) { _ACTWait(0); }
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
 
     while (scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0) {
         _ACTWait(1);

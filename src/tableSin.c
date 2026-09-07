@@ -54,11 +54,18 @@ inline void InitTableSin(void)
    clamp the cosine/sine argument to [-1, 1] and split off its sign. */
 static inline void arcClamp(float *x, int *neg)
 {
-    if (1.0f < *x) { *x = 1.0f; }
-    if (*x < -1.0f) { *x = -1.0f; }
-    if (*x < 0.0f) { *neg = 1;
+    if (1.0f < *x) {
+        *x = 1.0f;
+    }
+    if (*x < -1.0f) {
+        *x = -1.0f;
+    }
+    if (*x < 0.0f) {
+        *neg = 1;
         *x = -*x;
-    } else { *neg = 0; }
+    } else {
+        *neg = 0;
+    }
 }
 
 inline int GetTableArcTan2(float f12, float f13)
@@ -94,12 +101,13 @@ inline float GetTableSin(short a0)
     int idx = __builtin_abs(a0);
     int s;
     float v;
-    s = (unsigned int) a0 >> 0x1F;
+    s = (unsigned int)a0 >> 0x1F;
     if (idx >= 0x4000) {
         idx = 0x8000 - idx;
     }
     v = D_00669A40[idx];
-    if (s == 0) goto done;
+    if (s == 0)
+        goto done;
     v = -v;
 done:
     return v;

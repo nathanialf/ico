@@ -3,13 +3,18 @@
 /* prototypes: their order is the inline tail's emission order */
 void ChangeColorWireString(int a0, int a1, int a2);
 void Draw2DBox(float x0, float y0, float x1, float y1);
-typedef struct { float x; float y; int z; } WLPnt;
+typedef struct {
+    float x;
+    float y;
+    int z;
+} WLPnt;
 extern int D_004EE590[];
 extern int D_004EE5A0[];
 extern void DrawLineG(void *a0, void *a1, void *a2, void *a3, int a4);
 extern void gif_EndPacket(void);
 extern void gif_StartPacketPri(int a0);
-inline void Draw2DBox(float x0, float y0, float x1, float y1) {
+inline void Draw2DBox(float x0, float y0, float x1, float y1)
+{
     WLPnt a __attribute__((aligned(16))) = {x0, y0, 0};
     WLPnt b __attribute__((aligned(16))) = {x0, y1, 0};
     WLPnt c __attribute__((aligned(16))) = {x1, y1, 0};
@@ -31,9 +36,9 @@ inline void ChangeColorWireString(int a0, int a1, int a2)
 }
 void DefaultColorWireString(void)
 {
-  int new_var;
-  new_var = D_004EE590[1];
-  D_004EE5A0[0] = D_004EE590[0];
-  D_004EE5A0[1] = new_var;
-  D_004EE5A0[2] = D_004EE590[2];
+    int new_var;
+    new_var = D_004EE590[1];
+    D_004EE5A0[0] = D_004EE590[0];
+    D_004EE5A0[1] = new_var;
+    D_004EE5A0[2] = D_004EE590[2];
 }

@@ -14,7 +14,8 @@ extern void dl_OpenDma(int a0, int a1, int a2);
 extern int dl_SetDLPriority(int a0);
 extern void mc_setBaseOffset(int a0, int a1);
 INCLUDE_ASM("asm/nonmatchings/src/MicroCode", mc_setBaseOffset);
-inline void mc_TransMicroCode(int a0, int a1) {
+inline void mc_TransMicroCode(int a0, int a1)
+{
     int *q = &D_00290B20[a0];
     int i;
     for (i = 0; i < 0xD; i++) {

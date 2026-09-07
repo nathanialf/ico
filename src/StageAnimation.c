@@ -2,12 +2,16 @@
 
 #include "vu0.h"
 
-typedef struct { char _b[8]; } Blob8;
-struct B8 { char _b[8]; };
+typedef struct {
+    char _b[8];
+} Blob8;
+struct B8 {
+    char _b[8];
+};
 typedef struct AnimNode {
-    long field0;            /* 0x00 */
+    long field0; /* 0x00 */
     char _pad[0x14 - 0x8];
-    struct AnimNode *next;  /* 0x14 */
+    struct AnimNode *next; /* 0x14 */
 } AnimNode;
 extern int D_0028F4D4[];
 extern void bga_ResetAnimation();
@@ -46,7 +50,8 @@ INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakeGObj);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ApplyData);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_Init);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetAnimation);
-inline int stage_CheckAnimationFinish(int a0) {
+inline int stage_CheckAnimationFinish(int a0)
+{
     int i;
     char *e = (char *)D_0067D098;
     for (i = 0; i < D_0063C158; i++, e += 0x290) {
@@ -54,10 +59,10 @@ inline int stage_CheckAnimationFinish(int a0) {
         if (a0 == entry1[0x58 / 4]) {
             int mode = *(int *)(e + 0x28C) >> 30;
             switch (mode) {
-                case 0:
-                    return bga_CheckAnimationFinish(*(int *)(e + 0x284));
-                case 1:
-                    return bga_CheckSdfCameraFinish(*(int *)(e + 0x288));
+            case 0:
+                return bga_CheckAnimationFinish(*(int *)(e + 0x284));
+            case 1:
+                return bga_CheckSdfCameraFinish(*(int *)(e + 0x288));
             }
         }
     }
@@ -67,7 +72,8 @@ inline int stage_CheckAnimationFinish(int a0) {
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ContinueAnimation);
-inline int stage_CheckAnimationFrame(int a0, int a1, int a2) {
+inline int stage_CheckAnimationFrame(int a0, int a1, int a2)
+{
     int i;
     char *e = (char *)D_0067D098;
     for (i = 0; i < D_0063C158; i++, e += 0x290) {
@@ -75,16 +81,17 @@ inline int stage_CheckAnimationFrame(int a0, int a1, int a2) {
         if (a0 == entry1[0x58 / 4]) {
             int mode = *(int *)(e + 0x28C) >> 30;
             switch (mode) {
-                case 0:
-                    return bga_CheckAnimationFrame(*(int *)(e + 0x284), a1, a2);
-                case 1:
-                    return bga_CheckSdfCameraFrame(*(int *)(e + 0x288), a1, a2);
+            case 0:
+                return bga_CheckAnimationFrame(*(int *)(e + 0x284), a1, a2);
+            case 1:
+                return bga_CheckSdfCameraFrame(*(int *)(e + 0x288), a1, a2);
             }
         }
     }
     return -1;
 }
-inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2) {
+inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2)
+{
     int i;
     char *e = (char *)D_0067D098;
     for (i = 0; i < D_0063C158; i++, e += 0x290) {
@@ -92,10 +99,10 @@ inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2) {
         if (a0 == entry1[0x58 / 4]) {
             int mode = *(int *)(e + 0x28C) >> 30;
             switch (mode) {
-                case 0:
-                    return bga_CheckAnimationFrameIn(*(int *)(e + 0x284), a1, a2);
-                case 1:
-                    return bga_CheckSdfCameraFrameIn(*(int *)(e + 0x288), a1, a2);
+            case 0:
+                return bga_CheckAnimationFrameIn(*(int *)(e + 0x284), a1, a2);
+            case 1:
+                return bga_CheckSdfCameraFrameIn(*(int *)(e + 0x288), a1, a2);
             }
         }
     }
@@ -104,7 +111,8 @@ inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2) {
 void stage_ResetAnimation(void)
 {
     bga_ResetAnimation();
-    if (D_0028F4D4[0] != 0) return;
+    if (D_0028F4D4[0] != 0)
+        return;
     light_KillAllFixLight();
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_CalcAnimationNoParent);
@@ -129,7 +137,8 @@ inline void stage_SetFrameStep(int target, int val)
     int n = D_0063C158;
     char *p = (char *)D_0067D098;
     int i;
-    if (n <= 0) return;
+    if (n <= 0)
+        return;
     i = n;
     do {
         int *entry1 = *(int **)(p + 0x280);
@@ -140,7 +149,8 @@ inline void stage_SetFrameStep(int target, int val)
         p += 0x290;
     } while (--i);
 }
-inline void stage_SetParentOfGObj(int a0, void *a1) {
+inline void stage_SetParentOfGObj(int a0, void *a1)
+{
     int i;
     int one = 1;
     char *e = D_0067D098;
@@ -152,7 +162,8 @@ inline void stage_SetParentOfGObj(int a0, void *a1) {
         e += 0x290;
     }
 }
-inline void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2) {
+inline void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2)
+{
     int i;
     char *e = D_0067D098;
     for (i = 0; i < D_0063C158; i++) {
@@ -168,7 +179,8 @@ inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
     int count = *(volatile int *)&D_0063C158;
     int i = 0;
     char *e = (char *)D_0067D098;
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     do {
         int *entry1 = *(int **)(e + 0x280);
         if (key == entry1[0x58 / 4]) {
@@ -195,7 +207,8 @@ void stage_KillPlayBgAnimation(int **self)
     int *node = *self;
     int *next;
     int *prev;
-    if (node == 0) return;
+    if (node == 0)
+        return;
     next = (int *)node[0x10 / 4];
     if (next != 0) {
         next[0x14 / 4] = node[0x14 / 4];

@@ -20,7 +20,8 @@ void init_mblock(int *a0);
 void *new_segment(MBlock *mb, unsigned int len);
 void reuse_mblock(int *a0);
 char *strdup_mblock(MBlock *mb, const char *str);
-inline void init_mblock(int *a0) {
+inline void init_mblock(int *a0)
+{
     a0[0] = 0;
     a0[1] = 0;
 }
@@ -72,7 +73,8 @@ void reuse_mblock1(int *a0)
     }
     return iosFree(*a0);
 }
-inline void reuse_mblock(int *a0) {
+inline void reuse_mblock(int *a0)
+{
     int *node = (int *)a0[0];
     if (node != 0) {
         do {

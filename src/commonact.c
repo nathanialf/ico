@@ -2,9 +2,13 @@
 
 #include "ico/types.h"
 
-typedef struct { int a, b, c; } Blob12;
+typedef struct {
+    int a, b, c;
+} Blob12;
 
-typedef struct { int w[6]; } SlowrunRec;
+typedef struct {
+    int w[6];
+} SlowrunRec;
 
 extern void iosOmSendMail(void *a0, int a1, int a2);
 extern void SetDirectRootPosition();
@@ -72,15 +76,13 @@ int ChangeMailInLadder(char *a0, int a1)
             }
             switch (a1) {
             case 0x14A:
-                if (q[1] < p[1] &&
-                    (q[1] - p[1] < 0.0f ? -(q[1] - p[1]) : q[1] - p[1]) < lim2) {
+                if (q[1] < p[1] && (q[1] - p[1] < 0.0f ? -(q[1] - p[1]) : q[1] - p[1]) < lim2) {
                     *(unsigned long long *)(s + 0x18) |= (1ULL << 36);
                     ret = 0x150;
                 }
                 break;
             case 0x14B:
-                if (q[1] > p[1] &&
-                    (q[1] - p[1] < 0.0f ? -(q[1] - p[1]) : q[1] - p[1]) < lim1) {
+                if (q[1] > p[1] && (q[1] - p[1] < 0.0f ? -(q[1] - p[1]) : q[1] - p[1]) < lim1) {
                     *(unsigned long long *)(s + 0x18) |= (1ULL << 37);
                     ret = 0x150;
                 }
@@ -93,14 +95,16 @@ int ChangeMailInLadder(char *a0, int a1)
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTCorrectMsg);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTGetOrientFromIntrK);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTRunIntrCorrect);
-void WithMailFunc_WayBeginPosError(void *a0) {
+void WithMailFunc_WayBeginPosError(void *a0)
+{
     ACTWay_SetBeginPositionIllegal(a0);
 }
 extern char *D_00639EA4;
 extern char *D_00639EA8;
 extern void ExecWeaponHitReaction(void *a0);
 
-void WithMailFunc_AttackFail(char *a0) {
+void WithMailFunc_AttackFail(char *a0)
+{
     char *s = *(char **)(a0 + 0x164);
     char *p = *(char **)(s + 0x30);
     int v = p != 0 ? *(int *)p : *(int *)(s + 0x5E0);
@@ -117,7 +121,8 @@ extern int D_0063B210;
 extern void ReleaseWeaponWithFumbleSequential(void *a0);
 extern void *isysGObjSearchFromObjKindID_begin(int a0);
 
-void WithMailFunc_AttackRejectInQueen(char *a0) {
+void WithMailFunc_AttackRejectInQueen(char *a0)
+{
     char *s = *(char **)(a0 + 0x164);
     void *w = *(void **)(s + 0x150);
     if (w != 0) {
@@ -147,10 +152,12 @@ void GetCorrectOrientOfChain(void *buf, void *obj)
     if (GetChainDirCorrectVal(*(int *)(*(char **)((char *)obj + 0x164) + 0x190), &deg) != 0) {
         memset(q, 0, 16);
         q[2] = 1.0f;
-        _ApplyRyGV(q,
-                   (float)RoundDegGV(deg + AlignDegGV(RoundDegGV(
-                       (int)(_GetDirection(test_CURRENTORIENT((char *)obj)) / 3.1415927f * 180.0f) - deg)))
-                       * 3.1415927f / 180.0f);
+        _ApplyRyGV(
+            q, (float)RoundDegGV(deg + AlignDegGV(RoundDegGV(
+                                           (int)(_GetDirection(test_CURRENTORIENT((char *)obj)) /
+                                                 3.1415927f * 180.0f) -
+                                           deg))) *
+                   3.1415927f / 180.0f);
         ((float *)buf)[0] = q[0];
         ((float *)buf)[1] = q[1];
         ((float *)buf)[2] = q[2];
@@ -177,7 +184,8 @@ ASM_LIT4_SLOT(D_00638E54, 3.1415927f);
 extern void SetFloorLeverWithNodePoint(void *a0, void *a1, int a2);
 extern void SetWallLeverWithNodePoint(void *a0, void *a1, int a2);
 
-void lever_nego1(void *a0, void *a1) {
+void lever_nego1(void *a0, void *a1)
+{
     int m = *(int *)((char *)a1 + 0xC);
     if (m < 0x16) {
         return;
@@ -196,14 +204,18 @@ lever:
 extern void SetDirectRootPositionNoFitting(void *a0, void *a1);
 extern void *test_CURRENTROOT(void *a0);
 
-void SetDirectRootPositionXZ(void *a0, void *a1) {
+void SetDirectRootPositionXZ(void *a0, void *a1)
+{
     void *ret = test_CURRENTROOT(a0);
     *(float *)((char *)a1 + 4) = *(float *)((char *)ret + 4);
     SetDirectRootPositionNoFitting(a0, a1);
 }
 extern int D_0028F4C0[];
 
-typedef struct { char _0[0x394]; int f394; } LeverAnim;
+typedef struct {
+    char _0[0x394];
+    int f394;
+} LeverAnim;
 extern char D_00552DF0[];
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern void SetMotionDirection();
@@ -219,13 +231,15 @@ extern void SetDirectRootPositionNoFittingWithNodePointXZ(void *a0, int node, vo
    inline would land at the object end instead of at its ROM slot, so the public
    body below stays a plain definition and this caller uses the static stand-in.
    Collapses to one `inline` definition at layout. */
-static inline void actMotDirToWall(char *a0) {
+static inline void actMotDirToWall(char *a0)
+{
     int local[4];
     sceVu0ScaleVector(local, *(char **)(a0 + 0x164) + 0x4B0, -1.0f);
     SetMotionDirection(a0, local);
 }
 
-static inline void correctLeverHoldPoint(void *a0, char *lev) {
+static inline void correctLeverHoldPoint(void *a0, char *lev)
+{
     float w[4];
     if (*(int *)(lev + 0xC) >= 0x16) {
         if (*(int *)(lev + 0xC) < 0x18) {
@@ -266,7 +280,8 @@ void actCommonLever(volatile int a0)
 }
 extern void eBrainSendMes(void *a0);
 
-void EBRAIN_SEND_MES(void *a0, int a1) {
+void EBRAIN_SEND_MES(void *a0, int a1)
+{
     if (a0 && *(int *)((char *)a0 + 0xC) == 4)
         eBrainSendMes(a0);
 }
@@ -274,7 +289,8 @@ extern char D_0063A720[];
 extern void debug_StdPrintfDummy();
 extern void EnemyDeleteParticle(void *a0, void *a1, void *a2);
 
-void DamageFunc(char *a0) {
+void DamageFunc(char *a0)
+{
     int s = *(int *)(a0 + 0x164);
     debug_StdPrintfDummy(D_0063A720);
     if (a0 != D_00639EA8) {
@@ -289,7 +305,8 @@ void DamageFunc(char *a0) {
 }
 extern void DamageFunc(char *a0);
 
-void DownFunc(char *a0) {
+void DownFunc(char *a0)
+{
     DamageFunc(a0);
     if (*(int *)(a0 + 0xC) == 1) {
         EBRAIN_SEND_MES(*(void **)(*(char **)(a0 + 0x164) + 0x1B0), 6);
@@ -341,8 +358,8 @@ extern void *memset(void *dst, int c, int n);
 extern void RotQuaternionX(float *q, short a);
 extern void RotQuaternionY(float *q, short a);
 extern void RotQuaternionZ(float *q, short a);
-extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q,
-                                          float x, float y, float z, float w);
+extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
+                                          float y, float z, float w);
 extern void ACTGameCollisionOff(volatile int *self);
 extern char D_00552D90[];
 extern char D_00552E60[];
@@ -361,7 +378,11 @@ typedef struct {
 
 extern ClingRec D_002BC4C0[];
 
-typedef struct { char _0[0x21C]; int f21C; int f220; } ClingSub;
+typedef struct {
+    char _0[0x21C];
+    int f21C;
+    int f220;
+} ClingSub;
 
 void actCommonCling(volatile int a0)
 {
@@ -398,8 +419,8 @@ void actCommonCling(volatile int a0)
                 }
             }
         }
-        SetMotionNodeFixModeParameter((void *)a0, (void *)m, r->f18, r->f20, q,
-                                      r->f0C, r->f10, r->f14, 1.0f);
+        SetMotionNodeFixModeParameter((void *)a0, (void *)m, r->f18, r->f20, q, r->f0C, r->f10,
+                                      r->f14, 1.0f);
         return r->f1C;
     }
 
@@ -426,7 +447,8 @@ void actCommonSlip(volatile int a0)
         dir[1] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x274);
         dir[2] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x278);
     } else {
-        sceVu0ScaleVector(dir, (float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x270), -1.0f);
+        sceVu0ScaleVector(dir, (float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x270),
+                          -1.0f);
     }
     v2[0] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x270);
     v2[1] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x274);
@@ -476,7 +498,12 @@ extern void _ACTParaStatus_Set(int a0, int a1);
 extern void afterCommonStone(volatile int a0);
 extern int D_0063B13C;
 
-typedef struct { char _0[0x14]; int f14; char _18[0x34]; int f4C; } StoneSub;
+typedef struct {
+    char _0[0x14];
+    int f14;
+    char _18[0x34];
+    int f4C;
+} StoneSub;
 
 void actCommonStone(volatile int a0)
 {
@@ -508,8 +535,7 @@ void actCommonStone(volatile int a0)
             ACTSendMailCorrect((char *)a0, 0xC7);
             *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C) = 0;
         }
-        if (s->f4C >= 0x3D &&
-            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C) >= 3) {
+        if (s->f4C >= 0x3D && *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C) >= 3) {
             ACT_LAYOUT_GAMEOVER();
             _ACTWait(0);
         }
@@ -520,8 +546,14 @@ void actCommonStone(volatile int a0)
 extern int D_0028F4C0[];
 extern void ACTSendMailCorrect(char *a0, int a1);
 
-typedef struct { char _0[0x250]; int f250, f254, f258, f25C; } SofaObj;
-typedef struct { char _0[0x3A0]; int f3A0, f3A4; } SofaAnim;
+typedef struct {
+    char _0[0x250];
+    int f250, f254, f258, f25C;
+} SofaObj;
+typedef struct {
+    char _0[0x3A0];
+    int f3A0, f3A4;
+} SofaAnim;
 
 void actCommonSofa(volatile int a0)
 {
@@ -545,7 +577,8 @@ void actCommonSofa(volatile int a0)
         _ACTWait(1);
     }
 }
-void BoxBarSoundOn(char *a0) {
+void BoxBarSoundOn(char *a0)
+{
     char *s = *(char **)(a0 + 0x164);
     switch (*(int *)(s + 0x34)) {
     case 0x31:
@@ -556,7 +589,8 @@ void BoxBarSoundOn(char *a0) {
         break;
     }
 }
-void BoxBarSoundOff(char *a0) {
+void BoxBarSoundOff(char *a0)
+{
     char *s = *(char **)(a0 + 0x164);
     switch (*(int *)(s + 0x34)) {
     case 0x31:
@@ -603,7 +637,8 @@ void funcCommonJumpDircorrect(char *a0)
 }
 ASM_LIT4_SLOT(D_00638E60, 0.3f);
 ASM_LIT4_SLOT(D_00638E64, 0.3f);
-void funcCommonFallDircorrect(char *a0) {
+void funcCommonFallDircorrect(char *a0)
+{
     SetMotionDirection(a0, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x360);
 }
 extern void GetRootPosition(float *out, void *a0);
@@ -654,8 +689,13 @@ void correctJumpOrientByChain(char *a0)
         if (p[1] + GetChainLength(o) + 200.0f < pos[1]) {
             continue;
         }
-        ang = q[0]; best = q[2]; if (ang < 0.0f) ang = -ang;
-        out[0] = p[0]; out[1] = p[1]; out[2] = p[2];
+        ang = q[0];
+        best = q[2];
+        if (ang < 0.0f)
+            ang = -ang;
+        out[0] = p[0];
+        out[1] = p[1];
+        out[2] = p[2];
     }
     if (best == D_0063A748[0]) {
         return;
@@ -672,8 +712,14 @@ void correctJumpOrientByChain(char *a0)
 extern char D_0055FE58[];
 extern void actAfterJump(volatile int a0);
 
-typedef union { unsigned long long ll; void *p; } ActFlagJ;
-typedef struct { char _0[0x18E]; unsigned short f18E; } MotRecJ;
+typedef union {
+    unsigned long long ll;
+    void *p;
+} ActFlagJ;
+typedef struct {
+    char _0[0x18E];
+    unsigned short f18E;
+} MotRecJ;
 
 void actCommonJump(volatile int a0)
 {
@@ -721,7 +767,8 @@ void actCommonJump(volatile int a0)
         }
     }
     while (1) {
-        if (((MotRecJ *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f18E & 1) {
+        if (((MotRecJ *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f18E &
+            1) {
             hit = 1;
         }
         if (hit != 0 &&
@@ -745,27 +792,30 @@ extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
 extern void prim_DispWireSphere(float a3, void *a0, int a1, int a2);
 extern char D_0029CF30[];
 
-typedef union { float f[4]; long long ll[2]; } FlyPt;
+typedef union {
+    float f[4];
+    long long ll[2];
+} FlyPt;
 
 static void debugDispFlyLimit(float *pos, float y0, float y1)
 {
     MatrixDrive_PushMatrix();
     {
-    FlyPt a = { { pos[0], y0, pos[2], 1.0f } };
-    FlyPt b = { { pos[0], y1, pos[2], 1.0f } };
+        FlyPt a = {{pos[0], y0, pos[2], 1.0f}};
+        FlyPt b = {{pos[0], y1, pos[2], 1.0f}};
 
-    _UnitMatrix(MatrixDrive_GetMatrix());
-    gif_StartPacketPri(11);
-    DrawLineG(&b, D_0029CF30, &a, D_0029CF30, 0);
-    MatrixDrive_PushMatrix();
-    MatrixDrive_TransMatrixV(&a);
-    prim_DispWireSphere(10.0f, D_0029CF30, 4, 4);
-    MatrixDrive_PopMatrix();
-    MatrixDrive_PushMatrix();
-    MatrixDrive_TransMatrixV(&b);
-    prim_DispWireSphere(10.0f, D_0029CF30, 4, 4);
-    MatrixDrive_PopMatrix();
-    gif_EndPacket();
+        _UnitMatrix(MatrixDrive_GetMatrix());
+        gif_StartPacketPri(11);
+        DrawLineG(&b, D_0029CF30, &a, D_0029CF30, 0);
+        MatrixDrive_PushMatrix();
+        MatrixDrive_TransMatrixV(&a);
+        prim_DispWireSphere(10.0f, D_0029CF30, 4, 4);
+        MatrixDrive_PopMatrix();
+        MatrixDrive_PushMatrix();
+        MatrixDrive_TransMatrixV(&b);
+        prim_DispWireSphere(10.0f, D_0029CF30, 4, 4);
+        MatrixDrive_PopMatrix();
+        gif_EndPacket();
     }
     MatrixDrive_PopMatrix();
 }
@@ -778,7 +828,8 @@ extern void gif_EndPacket(void);
 extern void gif_StartPacketPri(int a0);
 extern void prim_DispWireSphere(float a3, void *a0, int a1, int a2);
 
-void debugDispSphere(void *a0, void *a1, float f) {
+void debugDispSphere(void *a0, void *a1, float f)
+{
     MatrixDrive_PushMatrix();
     _UnitMatrix(MatrixDrive_GetMatrix());
     gif_StartPacketPri(0xB);
@@ -813,7 +864,10 @@ extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern void ACTAdjustPlane(int a0, int a1);
 
-typedef struct { char _0[0x190]; unsigned int f190; } StageRecEH;
+typedef struct {
+    char _0[0x190];
+    unsigned int f190;
+} StageRecEH;
 
 typedef struct {
     char _00[0x20];
@@ -867,8 +921,7 @@ extern char D_005531E0[];
 void funcCommonBeginReady(char *a0, int a1, char *a2)
 {
     *(int *)(*(char **)(a0 + 0x164) + 0xE0) |= 1;
-    debug_StdPrintfDummy(D_005531E0,
-                         a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
+    debug_StdPrintfDummy(D_005531E0, a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
                          a0 == D_00639EA4 ? D_0063A760 : D_0063A768);
 }
 extern char D_005531F8[];
@@ -876,8 +929,7 @@ extern char D_005531F8[];
 void funcCommonEndReady(char *a0, int a1, char *a2)
 {
     *(int *)(*(char **)(a0 + 0x164) + 0xE0) |= 2;
-    debug_StdPrintfDummy(D_005531F8,
-                         a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
+    debug_StdPrintfDummy(D_005531F8, a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
                          a0 == D_00639EA4 ? D_0063A760 : D_0063A768);
 }
 extern char D_00553210[];
@@ -885,8 +937,7 @@ extern char D_00553210[];
 void funcCommonEndExec(char *a0, int a1, char *a2)
 {
     *(int *)(*(char **)(a0 + 0x164) + 0xE0) |= 8;
-    debug_StdPrintfDummy(D_00553210,
-                         a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
+    debug_StdPrintfDummy(D_00553210, a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
                          a0 == D_00639EA4 ? D_0063A760 : D_0063A768);
 }
 extern char D_00553228[];
@@ -894,8 +945,7 @@ extern char D_00553228[];
 void funcCommonError(char *a0, int a1, char *a2)
 {
     *(int *)(*(char **)(a0 + 0x164) + 0xE0) |= 0x10;
-    debug_StdPrintfDummy(D_00553228,
-                         a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
+    debug_StdPrintfDummy(D_00553228, a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
                          a0 == D_00639EA4 ? D_0063A760 : D_0063A768);
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", SetMotionDirectionSmooze);
@@ -918,8 +968,14 @@ extern char D_0055FF18[];
 extern void *D_00639EA0;
 extern int fptodp(float v);
 
-typedef struct { char _0[0xC2]; short fC2; } MotNameRecDP;
-typedef struct { char _0[0x186]; short f186; } MotRecDP;
+typedef struct {
+    char _0[0xC2];
+    short fC2;
+} MotNameRecDP;
+typedef struct {
+    char _0[0x186];
+    short f186;
+} MotRecDP;
 
 void _ACTDebugPrint(char *a0)
 {
@@ -938,47 +994,60 @@ void _ACTDebugPrint(char *a0)
         return;
     }
     if (D_0063B13C & 1) {
-    debug_Printf(30, 90, 0xFFFFFFF, D_00553240, D_005D1278 + *(int *)(w + 0xD0) * 32);
-    if (D_0063B13C & 1) {
-    debug_Printf(30, 100, 0xFFFFFFF, D_00553250,
-                 D_0055FF18 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194);
-    if (D_0063B13C & 1) {
-    debug_Printf(30, 110, 0xFFFFFFF, D_00553260, D_005577F4 + *(int *)(sub + 0x34) * 0x50);
-    if (D_0063B13C & 1) {
-    debug_Printf(30, 120, 0xFFFFFFF, D_00553270,
-                 fptodp(*(float *)(*(char **)(a0 + 0x15C) + 0x4AC)));
-    if (D_0063B13C & 1) {
-    debug_Printf(30, 130, 0xFFFFFFF, D_00553280,
-                 a0 == D_00639EA8 && D_00639EA0 != 0
-                     ? ((MotNameRecDP *)(D_0055FF18 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->fC2
-                     : ((MotRecDP *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f186);
-    if (D_0063B13C & 1) {
-    debug_Printf(30, 140, 0xFFFFFFF, D_00553290, (int)*(float *)(sub + 0x1E0));
-    if (D_0063B13C & 1) {
-    debug_Printf(30, 150, 0xFFFFFFF, D_005532A0,
-                 (int)*(float *)(*(char **)(sub + 0x130) + 0x138),
-                 (int)-*(float *)(*(char **)(sub + 0x130) + 0x130));
-    if (D_0063B13C & 1) {
-    debug_Printf(30, 160, 0xFFFFFFF, D_005532B8,
-                 (int)*(float *)(*(char **)(sub + 0x130) + 0x114),
-                 (int)*(float *)(*(char **)(sub + 0x130) + 0x110));
-    if (D_0063B13C & 1) {
-    debug_Printf(30, 170, 0xFFFFFFF, D_005532D0, *(int *)(*(char **)(a0 + 0x15C) + 0x5F4));
-    if (D_0063B13C & 1) {
-    debug_Printf(30, 180, 0xFFFFFFF, D_005532E0,
-                 *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1EC));
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
+        debug_Printf(30, 90, 0xFFFFFFF, D_00553240, D_005D1278 + *(int *)(w + 0xD0) * 32);
+        if (D_0063B13C & 1) {
+            debug_Printf(30, 100, 0xFFFFFFF, D_00553250,
+                         D_0055FF18 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194);
+            if (D_0063B13C & 1) {
+                debug_Printf(30, 110, 0xFFFFFFF, D_00553260,
+                             D_005577F4 + *(int *)(sub + 0x34) * 0x50);
+                if (D_0063B13C & 1) {
+                    debug_Printf(30, 120, 0xFFFFFFF, D_00553270,
+                                 fptodp(*(float *)(*(char **)(a0 + 0x15C) + 0x4AC)));
+                    if (D_0063B13C & 1) {
+                        debug_Printf(
+                            30, 130, 0xFFFFFFF, D_00553280,
+                            a0 == D_00639EA8 && D_00639EA0 != 0
+                                ? ((MotNameRecDP *)(D_0055FF18 +
+                                                    *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) *
+                                                        0x194))
+                                      ->fC2
+                                : ((MotRecDP *)(D_0055FE58 +
+                                                *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))
+                                      ->f186);
+                        if (D_0063B13C & 1) {
+                            debug_Printf(30, 140, 0xFFFFFFF, D_00553290,
+                                         (int)*(float *)(sub + 0x1E0));
+                            if (D_0063B13C & 1) {
+                                debug_Printf(30, 150, 0xFFFFFFF, D_005532A0,
+                                             (int)*(float *)(*(char **)(sub + 0x130) + 0x138),
+                                             (int)-*(float *)(*(char **)(sub + 0x130) + 0x130));
+                                if (D_0063B13C & 1) {
+                                    debug_Printf(30, 160, 0xFFFFFFF, D_005532B8,
+                                                 (int)*(float *)(*(char **)(sub + 0x130) + 0x114),
+                                                 (int)*(float *)(*(char **)(sub + 0x130) + 0x110));
+                                    if (D_0063B13C & 1) {
+                                        debug_Printf(30, 170, 0xFFFFFFF, D_005532D0,
+                                                     *(int *)(*(char **)(a0 + 0x15C) + 0x5F4));
+                                        if (D_0063B13C & 1) {
+                                            debug_Printf(
+                                                30, 180, 0xFFFFFFF, D_005532E0,
+                                                *(int *)(*(char **)(*(char **)(a0 + 0x164) +
+                                                                    0x680) +
+                                                         0x1EC));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
-void ACTSendMailCorrect(char *a0, int a1) {
+void ACTSendMailCorrect(char *a0, int a1)
+{
     char *s = *(char **)(a0 + 0x164);
     if ((a1 == 0xB5 || a1 == 0xBA) && *(int *)(a0 + 0xC) == 1) {
         long long f = *(long long *)(s + 0x488);
@@ -1009,16 +1078,19 @@ extern void *test_CURRENTORIENT(char *a0);
 
 extern int _RotyGV(void *a0, void *a1);
 
-int E3_LeverCheck(char *a0) {
+int E3_LeverCheck(char *a0)
+{
     float buf[3];
     int v;
-    buf[0] = *(float *)((char *)test_CURRENTORIENT(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x0);
-    buf[1] = *(float *)((char *)test_CURRENTORIENT(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x4);
-    buf[2] = *(float *)((char *)test_CURRENTORIENT(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x8);
+    buf[0] =
+        *(float *)((char *)test_CURRENTORIENT(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x0);
+    buf[1] =
+        *(float *)((char *)test_CURRENTORIENT(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x4);
+    buf[2] =
+        *(float *)((char *)test_CURRENTORIENT(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x8);
     _ApplyRyGV(buf, -1.5707964f);
-    return _RotyGV(test_CURRENTORIENT(a0), buf) < 0
-               ? -_RotyGV(test_CURRENTORIENT(a0), buf) < 0x2D
-               : _RotyGV(test_CURRENTORIENT(a0), buf) < 0x2D;
+    return _RotyGV(test_CURRENTORIENT(a0), buf) < 0 ? -_RotyGV(test_CURRENTORIENT(a0), buf) < 0x2D
+                                                    : _RotyGV(test_CURRENTORIENT(a0), buf) < 0x2D;
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBecarry);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", subCommonIdle);
@@ -1059,10 +1131,20 @@ extern int GetSkeltonFocusNode(void *a0, void *a1);
 extern char D_0055FE58[];
 extern void SetDirectRootPositionNoFittingWithNodePointXZ(void *a0, int node, void *pos, float t);
 
-typedef union { int i; float f; } IntFloatSR;
+typedef union {
+    int i;
+    float f;
+} IntFloatSR;
 
-typedef struct { char _0[0x182]; short f182; short f184; short f186; char _188[4]; unsigned int f18C; char _190[4]; } MotRecSR;
-
+typedef struct {
+    char _0[0x182];
+    short f182;
+    short f184;
+    short f186;
+    char _188[4];
+    unsigned int f18C;
+    char _190[4];
+} MotRecSR;
 
 void actCommonSlowrun(volatile int a0)
 {
@@ -1074,13 +1156,22 @@ void actCommonSlowrun(volatile int a0)
 
         i1 = GetSkeltonFocusNode(D_00639EA8, (void *)0x16);
         i2 = GetSkeltonFocusNode(D_00639EA4, (void *)6);
-        ((IntFloatSR *)p[0])[0].f = *(float *)((i1 << 6) + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0xC) + 0x30);
-        ((IntFloatSR *)p[0])[1].f = *(float *)((i1 << 6) + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0xC) + 0x34);
-        ((IntFloatSR *)p[0])[2].f = *(float *)((i1 << 6) + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0xC) + 0x38);
-        ((IntFloatSR *)p[1])[0].f = *(float *)((i2 << 6) + *(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + 0x30);
-        ((IntFloatSR *)p[1])[1].f = *(float *)((i2 << 6) + *(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + 0x34);
-        ((IntFloatSR *)p[1])[2].f = *(float *)((i2 << 6) + *(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + 0x38);
-        if ((((MotRecSR *)(D_0055FE58 + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0x4A0) * 0x194))->f18C >> 29) & 1) {
+        ((IntFloatSR *)p[0])[0].f =
+            *(float *)((i1 << 6) + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0xC) + 0x30);
+        ((IntFloatSR *)p[0])[1].f =
+            *(float *)((i1 << 6) + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0xC) + 0x34);
+        ((IntFloatSR *)p[0])[2].f =
+            *(float *)((i1 << 6) + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0xC) + 0x38);
+        ((IntFloatSR *)p[1])[0].f =
+            *(float *)((i2 << 6) + *(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + 0x30);
+        ((IntFloatSR *)p[1])[1].f =
+            *(float *)((i2 << 6) + *(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + 0x34);
+        ((IntFloatSR *)p[1])[2].f =
+            *(float *)((i2 << 6) + *(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + 0x38);
+        if ((((MotRecSR *)(D_0055FE58 + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0x4A0) * 0x194))
+                 ->f18C >>
+             29) &
+            1) {
             SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 6, p[0], 0.2f);
         } else {
             SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 6, p[0], 0.1f);
@@ -1090,7 +1181,10 @@ void actCommonSlowrun(volatile int a0)
 }
 extern void afterCommonTruckLever(volatile int a0);
 
-typedef struct { char _0[0x14]; int f14; } TruckLeverWork;
+typedef struct {
+    char _0[0x14];
+    int f14;
+} TruckLeverWork;
 
 void actCommonTruckLever(volatile int a0)
 {
@@ -1112,7 +1206,8 @@ void actCommonTruckLever(volatile int a0)
     }
 }
 extern int D_00639EB8;
-void ACT_LAYOUT_GAMEOVER(void) {
+void ACT_LAYOUT_GAMEOVER(void)
+{
     if (D_00639EB8 == 0) {
         D_00639EB8 = 1;
         lt_switch_layout(0x3E);
@@ -1120,12 +1215,14 @@ void ACT_LAYOUT_GAMEOVER(void) {
 }
 extern void AdjustRootPositionToVerticalSidePlaneOfWall(int a0, int a1, float a2);
 
-void ACTAdjustPlane(int a0, int a1) {
+void ACTAdjustPlane(int a0, int a1)
+{
     AdjustRootPositionToVerticalSidePlaneOfWall(a0, a1, 30.0f);
 }
 extern int D_0028F4C0[];
 
-void ACTAcceptMail(char *a0, int a1) {
+void ACTAcceptMail(char *a0, int a1)
+{
     if (a1 == 0xB1) {
         *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x3C4) =
             ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10;
@@ -1143,10 +1240,14 @@ int _ACTMotDirSmzDirect(char *a0, float *a1)
     return SetMotionDirectionSmooze(
         (int)a0, a1,
         (float)(a0 == D_00639EA8 && D_00639EA0 != 0
-                    ? ((MotRecSR *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f182
-                    : ((MotRecSR *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f186));
+                    ? ((MotRecSR *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))
+                          ->f182
+                    : ((MotRecSR *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))
+                          ->f186));
 }
-typedef struct { int w[5]; } IdleRangeRec;
+typedef struct {
+    int w[5];
+} IdleRangeRec;
 
 extern IdleRangeRec D_002A7DC8[];
 extern SlowrunRec D_002ADD60[];
@@ -1176,14 +1277,16 @@ void WithMailFunc_Idling(char *a0)
 
     SetIdleMotionRange(k, mot);
 }
-void WithMailFunc_BossDamaged(char *a0) {
+void WithMailFunc_BossDamaged(char *a0)
+{
     char *m = *(char **)(*(char **)(a0 + 0x164) + 0x680);
     *(int *)(m + 0x20C) -= 1;
 }
 extern float FSqrt(float a0);
 extern void sceVu0Normalize(void *a0, void *a1);
 
-void WithMailFunc_FallDead(char *a0) {
+void WithMailFunc_FallDead(char *a0)
+{
     float v[4];
     char *s = *(char **)(a0 + 0x15C);
     v[0] = *(float *)(s + 0x1D0);
@@ -1201,7 +1304,10 @@ extern void afterCommonRevive(volatile unsigned int a0);
 extern void EnemySetfAppearAll(void *a0);
 extern void ResetEnemyPositionInfo(void *a0);
 
-typedef struct { char _0[0x14]; int f14; } ReviveSub;
+typedef struct {
+    char _0[0x14];
+    int f14;
+} ReviveSub;
 
 void actCommonRevive(volatile int a0)
 {
@@ -1345,7 +1451,9 @@ extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern int ACTCheckCollis_CI(int a0, int a1, int *a2, char *a3);
 extern int CompareAttribute(unsigned int a, unsigned int b);
 
-typedef struct { float x, y, z; } Vec3f;
+typedef struct {
+    float x, y, z;
+} Vec3f;
 
 void actCommonLadderBellow(volatile int a0)
 {
@@ -1519,8 +1627,7 @@ void actCommonLever2(volatile int a0)
                exactly this dead volatile re-read and nothing else; retail
                dropped the body (actCommonLever keeps correctLeverHoldPoint
                here). */
-            if (*(int *)(*(char **)(a0 + 0x15C) + 0x604) != 0) {
-            }
+            if (*(int *)(*(char **)(a0 + 0x15C) + 0x604) != 0) {}
             if (*(int *)(*(char **)(a0 + 0x15C) + 0x600) != 0) {
                 lever_nego1((void *)a0, lev);
             }
@@ -1546,7 +1653,10 @@ extern void ChainGeo(int a0);
 extern void PlumbOrientUpdateChain(int a0, float *q);
 extern int CollisCheckInRope(void *a0, int chain);
 
-typedef struct { char _0[0x18]; int f18; } RopeSwingWork;
+typedef struct {
+    char _0[0x18];
+    int f18;
+} RopeSwingWork;
 
 void actCommonRopeSwing(volatile int a0)
 {
@@ -1632,7 +1742,12 @@ void actCommonRopeDownEnd(volatile int a0)
 }
 extern void actAfterRopeJump(volatile int a0);
 
-typedef struct { char _0[0x130]; int f130; int f134; int f138; } RopeJumpWork;
+typedef struct {
+    char _0[0x130];
+    int f130;
+    int f134;
+    int f138;
+} RopeJumpWork;
 
 void actCommonRopeJump(volatile int a0)
 {
@@ -1661,8 +1776,14 @@ extern int GetCageChainPoint(float *out, float *buf, void *a0);
 extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
 extern void SetChainRootUpdateMode(void *a0, int mode, float *p);
 
-typedef struct { char _0[0x18]; int f18; } RopeTurnSpWork;
-typedef union { float f[4]; int i[4]; } Vec4u;
+typedef struct {
+    char _0[0x18];
+    int f18;
+} RopeTurnSpWork;
+typedef union {
+    float f[4];
+    int i[4];
+} Vec4u;
 
 void actCommonRopeTurnSpecial(volatile int a0)
 {
@@ -1757,7 +1878,12 @@ void actCommonPPipe(volatile int a0)
 {
     _ACTWait(0);
 }
-typedef struct { char _0[0x4C0]; float f4C0; float f4C4; float f4C8; } HandrailNode;
+typedef struct {
+    char _0[0x4C0];
+    float f4C0;
+    float f4C4;
+    float f4C8;
+} HandrailNode;
 
 void actCommonHandrail(volatile int a0)
 {
@@ -1821,12 +1947,16 @@ void motCommonBarPush(volatile int a0)
     *(int *)(*(int *)(a0 + 0x164) + 0x38) = 1;
     _ACTWait(0);
 }
-void motCommonBarPull(volatile int a0) {
+void motCommonBarPull(volatile int a0)
+{
     char *g = (char *)a0;
     *(unsigned int *)(*(char **)(g + 0x164) + 0x38) = 0xFFFFFFFFu;
     _ACTWait(0);
 }
-typedef struct { char _0[0x38]; int f38; } LadderMotWork;
+typedef struct {
+    char _0[0x38];
+    int f38;
+} LadderMotWork;
 
 void motCommonLadderUp(volatile int a0)
 {
@@ -1844,7 +1974,10 @@ void motCommonLadderUp(volatile int a0)
         _ACTWait(1);
     }
 }
-typedef struct { char _0[0x38]; unsigned int f38; } LadderDownMotWork;
+typedef struct {
+    char _0[0x38];
+    unsigned int f38;
+} LadderDownMotWork;
 
 void motCommonLadderDown(volatile int a0)
 {
@@ -1903,13 +2036,15 @@ extern char D_00553188[];
 extern void _ACTWait(int a0);
 extern void debug_StdPrintfDummy();
 
-void motCommonHangWall(volatile int a0) {
+void motCommonHangWall(volatile int a0)
+{
     debug_StdPrintfDummy(D_00553188);
     _ACTWait(0);
 }
 extern char D_005531A8[];
 
-void motCommonHangCliff(volatile int a0) {
+void motCommonHangCliff(volatile int a0)
+{
     debug_StdPrintfDummy(D_005531A8);
     _ACTWait(0);
 }
@@ -1934,7 +2069,8 @@ void motCommonTruckLeverLoop(volatile int a0)
 extern char D_0063A780[];
 extern void SetSwitchState(int a0, int a1);
 
-void motCommonTruckLeverPull(volatile int a0) {
+void motCommonTruckLeverPull(volatile int a0)
+{
     int sw = *(int *)(*(int *)(a0 + 0x164) + 0x5FC);
     _ACTWait(0x1E);
     SetSwitchState(sw, -1);
@@ -1943,20 +2079,23 @@ void motCommonTruckLeverPull(volatile int a0) {
 }
 extern char D_0063A788[];
 
-void motCommonTruckLeverPush(volatile int a0) {
+void motCommonTruckLeverPush(volatile int a0)
+{
     int sw = *(int *)(*(int *)(a0 + 0x164) + 0x5FC);
     _ACTWait(0x1E);
     SetSwitchState(sw, 1);
     debug_StdPrintfDummy(D_0063A788);
     _ACTWait(0);
 }
-void funcCommonRopeBefore(char *a0, int a1, int a2) {
+void funcCommonRopeBefore(char *a0, int a1, int a2)
+{
     *(int *)(*(char **)(a0 + 0x164) + 0x190) = a2;
 }
 extern char D_00552D78[];
 extern void ReleaseChain(int a0, int a1);
 
-void afterCommonRope(volatile int a0) {
+void afterCommonRope(volatile int a0)
+{
     int s = *(int *)(a0 + 0x164);
     debug_StdPrintfDummy(D_00552D78);
     ReleaseChain(*(int *)(s + 0x190), a0);
@@ -1966,7 +2105,8 @@ void afterCommonRope(volatile int a0) {
         *(int *)(*(int *)(g + 0x15C) + 0x420) = 0;
     }
 }
-void extraCommonNull(volatile int a0) {
+void extraCommonNull(volatile int a0)
+{
     for (;;) {
         _ACTWait(1);
     }
@@ -1974,7 +2114,8 @@ void extraCommonNull(volatile int a0) {
 extern int D_0063A61C;
 extern void iosOmSendMail(void *a0, int a1, int a2);
 
-void extraCommonCall(volatile int a0) {
+void extraCommonCall(volatile int a0)
+{
     if (D_00639EA8) {
         iosOmSendMail(D_00639EA8, 0x44, D_0063A61C);
     }
@@ -1984,15 +2125,18 @@ void extraCommonCall(volatile int a0) {
 }
 extern int girlcalled;
 
-void funcCommonWayOn(void *a0) {
+void funcCommonWayOn(void *a0)
+{
     if (a0 == D_00639EA8) {
         girlcalled = 1;
     }
 }
-void funcCommonSofaWakeup(char *a0) {
+void funcCommonSofaWakeup(char *a0)
+{
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x250) = 0;
 }
-int _ACTMotReqResult(char *a0, int a1) {
+int _ACTMotReqResult(char *a0, int a1)
+{
     char *s = *(char **)(a0 + 0x164);
     char *r = SetMotionRequest(a0, a1, s + 0x620);
     *(char **)(s + 0x130) = r;
@@ -2002,7 +2146,8 @@ extern char D_006C0BA0[];
 extern void GetRootOrient(void *a0, void *a1);
 extern void _GetMotionDirection(void *a0, void *a1);
 
-void *test_CURRENTORIENT(char *a0) {
+void *test_CURRENTORIENT(char *a0)
+{
     if (a0 != D_00639EA4 && a0 != D_00639EA8 && *(int *)(a0 + 0xC) != 4) {
         GetRootOrient(D_006C0BA0, a0);
         return D_006C0BA0;
@@ -2045,7 +2190,10 @@ void *test_CURRENTROOT(void *a0)
         return D_006C0BB0;
     }
 }
-typedef union { unsigned long long ll; int i; } CorrFlag;
+typedef union {
+    unsigned long long ll;
+    int i;
+} CorrFlag;
 
 void StartCorrectPosition(char *a0, float *pos, float *dir, int mode, float t)
 {
@@ -2074,18 +2222,21 @@ void StartCorrectPosition(char *a0, float *pos, float *dir, int mode, float t)
     ((CorrFlag *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0xB8))->i = mode;
     ((CorrFlag *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0xB8))->ll |= (1ULL << 32);
 }
-int IsCorrectPosition(char *a0) {
+int IsCorrectPosition(char *a0)
+{
     unsigned long long v = *(unsigned int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xBC);
     return (int)v & 1;
 }
 extern SlowrunRec D_002ADD60[];
 
-void ControlMotionOrient(int a0, int a1) {
+void ControlMotionOrient(int a0, int a1)
+{
     D_002ADD60[a0].w[2] = a1;
 }
 extern int IsThisBoxTruck(void *a0);
 
-int FloorIsTruck(void *a0) {
+int FloorIsTruck(void *a0)
+{
     char *p = *(char **)(*(int *)((char *)a0 + 0x15C));
     if (p != 0) {
         if (*(int *)(p + 0xC) == 0x11) {
@@ -2099,19 +2250,22 @@ int FloorIsTruck(void *a0) {
 extern void SetMotionDirection();
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
-void _ACTMotDir_V(void *a0, void *a1) {
+void _ACTMotDir_V(void *a0, void *a1)
+{
     int local[4];
     sceVu0ScaleVector(local, a1, -1.0f);
     SetMotionDirection(a0, local);
 }
-void ACTMotDirToWall(char *a0) {
+void ACTMotDirToWall(char *a0)
+{
     int local[4];
     sceVu0ScaleVector(local, *(char **)(a0 + 0x164) + 0x4B0, -1.0f);
     SetMotionDirection(a0, local);
 }
 extern void GetCorrectOrientOfChain(void *buf, void *obj);
 
-void SetCorrectOrientOfChain(void *a0) {
+void SetCorrectOrientOfChain(void *a0)
+{
     int local[4];
     GetCorrectOrientOfChain(local, a0);
     SetMotionDirection(a0, local);
@@ -2122,7 +2276,8 @@ extern void debug_assert(char *a0, int a1);
 extern void __assert(char *a0, int a1, char *a2);
 extern void UnLockChainGeo(int a0);
 
-void actAfterForceRope(volatile int a0) {
+void actAfterForceRope(volatile int a0)
+{
     int s = *(int *)(a0 + 0x164);
     if (*(int *)(s + 0x190) == 0) {
         debug_assert(D_00552D90, 0x5FB);
@@ -2130,7 +2285,8 @@ void actAfterForceRope(volatile int a0) {
     }
     UnLockChainGeo(*(int *)(s + 0x190));
 }
-void actAfterForceRopeSwing(volatile int a0) {
+void actAfterForceRopeSwing(volatile int a0)
+{
     int s = *(int *)(a0 + 0x164);
     if (*(int *)(s + 0x190) == 0) {
         debug_assert(D_00552D90, 0x675);
@@ -2138,22 +2294,26 @@ void actAfterForceRopeSwing(volatile int a0) {
     }
     UnLockChainGeo(*(int *)(s + 0x190));
 }
-void actAfterRopeJump(volatile int a0) {
+void actAfterRopeJump(volatile int a0)
+{
     char *g = (char *)a0;
     *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) |= (1ULL << 31);
 }
 extern char *D_00639EA4;
 
-void afterCommonRopeCliff(char *a0) {
+void afterCommonRopeCliff(char *a0)
+{
     char *volatile local = a0;
     char *g = *(char **)(D_00639EA4 + 0x15C);
     *(int *)(g + 0x420) = 0;
 }
-void afterCommonRopeTurnSpecial(volatile int a0) {
+void afterCommonRopeTurnSpecial(volatile int a0)
+{
     char *g = (char *)a0;
     *(int *)(*(char **)(g + 0x15C) + 0x420) = 0;
 }
-void actAfterDown(volatile int a0) {
+void actAfterDown(volatile int a0)
+{
     *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x688) + 0x37C) =
         ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0x82 / 0x3C;
 }
@@ -2163,14 +2323,16 @@ void afterCommonCling(volatile unsigned int a0)
 {
     ACTGameCollisionOn(a0);
 }
-void actAfterSlip(int x) {
+void actAfterSlip(int x)
+{
     volatile int local = x;
 }
 void afterCommonRevive(volatile unsigned int a0)
 {
     ACTGameCollisionOn(a0);
 }
-void afterCommonStone(volatile int a0) {
+void afterCommonStone(volatile int a0)
+{
     int g1 = a0;
     int g2 = a0;
     *(int *)(*(int *)(*(int *)(g1 + 0x164) + 0x680) + 0x2A0) = -1;
@@ -2178,23 +2340,27 @@ void afterCommonStone(volatile int a0) {
 }
 extern void _boxbar_set_sound(int a0, int a1);
 
-void afterCommonBox(volatile int a0) {
+void afterCommonBox(volatile int a0)
+{
     _boxbar_set_sound(a0, 0);
 }
 extern Blob12 InitialColInfo;
 
 extern void debug_StdPrintfDummy();
 
-void afterCommonBar(volatile int a0) {
+void afterCommonBar(volatile int a0)
+{
     debug_StdPrintfDummy("reset\n");
     *(Blob12 *)(*(char **)(a0 + 0x15C) + 0x1C0) = InitialColInfo;
     _boxbar_set_sound(a0, 0);
 }
-void actAfterJump(volatile int a0) {
+void actAfterJump(volatile int a0)
+{
     char *g = (char *)a0;
     *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) |= (1ULL << 31);
 }
-void actAfterFall(volatile int a0) {
+void actAfterFall(volatile int a0)
+{
     int s = *(int *)(a0 + 0x164);
     unsigned long long st = *(unsigned long long *)(s + 0x20) & ~(1ULL << 42);
     unsigned long long fl = *(unsigned long long *)(s + 0x18) & ~(1ULL << 53);
@@ -2202,14 +2368,18 @@ void actAfterFall(volatile int a0) {
     *(unsigned long long *)(s + 0x20) = st | (1ULL << 31);
 }
 extern void SetEnemyFootPrintSwitch(int a0, int a1);
-typedef struct { char _0[0x20]; unsigned long long status; } FlySub;
+typedef struct {
+    char _0[0x20];
+    unsigned long long status;
+} FlySub;
 
 static inline void ResetFlyLimit(int a0)
 {
     *(int *)(*(int *)(a0 + 0x15C) + 0x654) = 0;
 }
 
-void actAfterFly(volatile int a0) {
+void actAfterFly(volatile int a0)
+{
     FlySub *s = (FlySub *)*(int *)(a0 + 0x164);
     s->status |= 0x200;
     SetEnemyFootPrintSwitch(a0, 1);
@@ -2219,7 +2389,8 @@ extern void sceVu0CopyVector(void *a0, void *a1);
 extern void ClipWallField(void *a0);
 extern void ClipFloor(void *a0);
 
-void ClipCollisionWithField(char *a0) {
+void ClipCollisionWithField(char *a0)
+{
     int tmp[4];
     sceVu0CopyVector(tmp, a0 + 0x10);
     ClipWallField(a0);
@@ -2227,23 +2398,30 @@ void ClipCollisionWithField(char *a0) {
     ClipFloor(a0);
     sceVu0CopyVector(a0 + 0x10, tmp);
 }
-void afterCommonOneWall(int x) {
+void afterCommonOneWall(int x)
+{
     volatile int local = x;
 }
-int ACTCheckFlagAttack(char *a0) {
+int ACTCheckFlagAttack(char *a0)
+{
     return *(int *)(*(char **)(a0 + 0x164) + 0x34) == 0xF;
 }
 extern void SetKidnapInfo(int a0, int a1);
 extern void gflagOff(int a0);
-typedef struct { char _0[0x74]; int coll; } BecSub;
+typedef struct {
+    char _0[0x74];
+    int coll;
+} BecSub;
 
-void afterCommonBecarry(volatile int a0) {
+void afterCommonBecarry(volatile int a0)
+{
     SetKidnapInfo(-1, -1);
     ((BecSub *)*(int *)(a0 + 0x15C))->coll = 1;
     ACTGameCollisionOn(a0);
     gflagOff(0x189);
 }
-void afterCommonTruckLever(volatile int a0) {
+void afterCommonTruckLever(volatile int a0)
+{
     char *g = (char *)a0;
     SetSwitchState(*(int *)(*(char **)(g + 0x164) + 0x5FC), 0);
 }

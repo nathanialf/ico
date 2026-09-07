@@ -24,7 +24,8 @@ extern char D_00551FE0[];
 void isysGObjDlInit(void);
 void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
 void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
-inline void isysGObjDlInit(void) {
+inline void isysGObjDlInit(void)
+{
     int i;
     for (i = 0; i < 8; i++) {
         D_0029C530[i] = 0;
@@ -43,7 +44,8 @@ void cut_gobj_dl_link(int *self)
     if (p->prev == 0 && p->next == 0) {
         /* not linked into a list */
     } else {
-        if (p->prev != 0) p->prev->next = p->next;
+        if (p->prev != 0)
+            p->prev->next = p->next;
 
         if (p->next != 0) {
             p->next->prev = p->prev;
@@ -57,7 +59,8 @@ void cut_gobj_dl_link(int *self)
         ((DLN **)D_0029C550)[p->id] = p->prev;
     }
 }
-void isysGObjRemoveObjDL(int *self) {
+void isysGObjRemoveObjDL(int *self)
+{
     cut_gobj_dl_link(self);
 }
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", func_00141248);
@@ -118,7 +121,8 @@ void isysGObjMoveObjDLHead(int a0, int a1, int a2)
     cut_gobj_dl_link(a0);
     return add_gobj_to_head(a0, s1, new_var);
 }
-inline void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj) {
+inline void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj)
+{
     cut_gobj_dl_link((int *)self);
     self->id = obj->id;
     self->prev = obj;
@@ -129,7 +133,8 @@ inline void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj) {
         ((DLN **)D_0029C550)[self->id] = self;
     }
 }
-inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj) {
+inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj)
+{
     cut_gobj_dl_link((int *)self);
     self->id = obj->id;
     self->prev = obj->prev;
@@ -140,7 +145,8 @@ inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj) {
         ((DLN **)D_0029C530)[self->id] = self;
     }
 }
-void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4) {
+void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
+{
     debug_StdPrintfDummy(D_00551FD0);
     if (a1 != 0) {
         *(void **)((char *)a0 + 0x48) = a1;
@@ -149,7 +155,8 @@ void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
         debug_StdPrintfDummy(D_00551FE0);
     }
 }
-void isysGObjLinkObjDLHead(void *a0, void *a1, unsigned char a2, void *a3, void *a4) {
+void isysGObjLinkObjDLHead(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
+{
     if (a1 != 0) {
         *(void **)((char *)a0 + 0x48) = a1;
         *(void **)((char *)a0 + 0x50) = a4;
@@ -160,7 +167,8 @@ void isysGObjLinkObjDLAfterGObj(int *self, int *a1, int a2, int *a3)
 {
     int *t0;
     int v34, v44;
-    if (a1 == 0) return;
+    if (a1 == 0)
+        return;
     t0 = self;
     if (a3 == 0) {
         debug_StdPrintfDummy(D_00551F78);
@@ -183,7 +191,8 @@ void isysGObjLinkObjDLBeforeGObj(int *self, int *a1, int a2, int *a3)
 {
     int *t0;
     int v34, v44;
-    if (a1 == 0) return;
+    if (a1 == 0)
+        return;
     t0 = self;
     if (a3 == 0) {
         debug_StdPrintfDummy(D_00551F78);

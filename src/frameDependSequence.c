@@ -8,8 +8,15 @@ INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execEff);
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execVibCondition);
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecFrameDependSequence);
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", executeSEPackageByGObj);
-typedef struct { int se[2]; int id; } SePackage;
-typedef struct { char _0[0x20]; int f_20; char _24[0x18]; } GsysObjInfo;
+typedef struct {
+    int se[2];
+    int id;
+} SePackage;
+typedef struct {
+    char _0[0x20];
+    int f_20;
+    char _24[0x18];
+} GsysObjInfo;
 
 extern SePackage D_005339C0[];
 extern GsysObjInfo D_005D6DB0[];
@@ -21,7 +28,8 @@ extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
 
 /* static helper the listing places at frameDependSequence.c lines 533-542; never
  * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline int *findSEPackage(int no, int id) {
+static inline int *findSEPackage(int no, int id)
+{
     while (D_005339C0[no].id != -1 && D_005339C0[no].id != id) {
         no++;
     }
@@ -31,7 +39,8 @@ static inline int *findSEPackage(int no, int id) {
     return D_005339C0[no].se;
 }
 
-void executeSEPackageWithNoGObj(int no) {
+void executeSEPackageWithNoGObj(int no)
+{
     int *p;
     int i;
 
@@ -47,7 +56,8 @@ void executeSEPackageWithNoGObj(int no) {
 }
 extern float D_0063B8B0;
 extern void executeSEPackageWithNoGObj(int a0);
-void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2) {
+void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
+{
     D_0063B8B0 = 1.0f;
     if (a0 != 0) {
         executeSEPackageByGObj(a0, a1, a2);
@@ -57,7 +67,8 @@ void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2) {
 }
 extern void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2);
 
-void ExecuteSEPackage(int a0, int a1) {
+void ExecuteSEPackage(int a0, int a1)
+{
     ExecuteSEPackageWithGroupVariation(a0, a1, 0);
 }
 extern float D_0063B8B0;
@@ -70,15 +81,18 @@ void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f)
 }
 extern void soundSeGroupStop(int a0);
 
-void StopSEPackageWithGroupVariation(int a0, int a1) {
+void StopSEPackageWithGroupVariation(int a0, int a1)
+{
     int *p = *(int **)((char *)a0 + 0x15C);
     p += a1;
     soundSeGroupStop(p[0x187]);
 }
-void StopSEPackage(int a0) {
+void StopSEPackage(int a0)
+{
     StopSEPackageWithGroupVariation(a0, 0);
 }
-void InitFrameDependSequence(void *a0) {
+void InitFrameDependSequence(void *a0)
+{
     int *p = (int *)a0;
     int *se = (int *)((char *)a0 + 0x8);
     int *eff = (int *)((char *)a0 + 0x38);
@@ -103,7 +117,8 @@ extern int playSE(int no);
 extern int playSEConditionID(int no, void *entry);
 extern int playSERandomID(int no, void *entry);
 
-inline int execSE(int a0, void *a1) {
+inline int execSE(int a0, void *a1)
+{
     if (a0 <= 0xFFFF) {
         return playSE(a0);
     } else if (a0 <= 0x1FFFF) {
@@ -122,7 +137,8 @@ extern int D_0063B8B4;
 
 /* static helper the listing places at frameDependSequence.c lines 549-564; never
  * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline int setSEEnvironment(void *gobj, int id) {
+static inline int setSEEnvironment(void *gobj, int id)
+{
     char *w;
     char *p;
     int no;
@@ -148,17 +164,20 @@ static inline int setSEEnvironment(void *gobj, int id) {
     return no;
 }
 
-int ExecuteDirectSEWithGroupVariation(void *gobj, int id, int grp) {
+int ExecuteDirectSEWithGroupVariation(void *gobj, int id, int grp)
+{
     setSEEnvironment(gobj, id);
     return execSE(id, 0);
 }
-int ExecuteDirectSE(void *gobj, int id) {
+int ExecuteDirectSE(void *gobj, int id)
+{
     setSEEnvironment(gobj, id);
     return execSE(id, 0);
 }
 extern void iosPadActStop(int key);
 
-void StopFDSVibration(void *a0) {
+void StopFDSVibration(void *a0)
+{
     int *p = (int *)((char *)a0 + 0x6C);
     int i;
 
@@ -169,17 +188,20 @@ void StopFDSVibration(void *a0) {
         }
     }
 }
-inline int checkWaterDepth(void *a0, int a1) {
+inline int checkWaterDepth(void *a0, int a1)
+{
     int *p = *(int **)((char *)a0 + 0x15C);
     return (int)(*(float *)((char *)p + 0x644)) < a1;
 }
-inline int checkModelDataID(void *a0, int a1) {
+inline int checkModelDataID(void *a0, int a1)
+{
     int *p = *(int **)((char *)a0 + 0x15C);
     return p[0x21] == a1;
 }
 extern int CheckWeaponKind(char *self);
 
-inline int checkWeaponType(void *a0, int a1) {
+inline int checkWeaponType(void *a0, int a1)
+{
     int *p = *(int **)((char *)a0 + 0x15C);
     char *w = (char *)p[0x630 / 4];
     if (w != 0 && CheckWeaponKind(w) == a1) {
@@ -191,7 +213,8 @@ extern int D_00639EAC;
 extern void iosPadActRequest(int port, int id);
 extern int execVibCondition(int id, void *entry);
 
-inline int execVib(int a0, void *a1) {
+inline int execVib(int a0, void *a1)
+{
     if (a0 <= 0xFFFF) {
         if (a0 > 0) {
             iosPadActRequest(D_00639EAC, a0);
@@ -208,12 +231,12 @@ inline int execWeaponLightOff(void)
 {
     int *p;
     int *q;
-    p = (int *)((int *)D_0063B8AC)[0x15C/4];
-    q = (int *)p[0x630/4];
+    p = (int *)((int *)D_0063B8AC)[0x15C / 4];
+    q = (int *)p[0x630 / 4];
     if (q != 0) {
         if (CheckWeaponKind(q) == 1) {
-            int *r = (int *)((int *)D_0063B8AC)[0x15C/4];
-            LightTorchOffOfWeapon((int *)r[0x630/4]);
+            int *r = (int *)((int *)D_0063B8AC)[0x15C / 4];
+            LightTorchOffOfWeapon((int *)r[0x630 / 4]);
         }
     }
     return 1;

@@ -48,6 +48,15 @@ ROOT="$(git rev-parse --show-toplevel)"
 
 "$ROOT/tools/check_no_rom.sh"
 
+# Staged C must be clang-formatted (whitespace only; the byte gate below
+# proves formatting never changes the ROM). Fix with: tools/format.sh FILE
+STAGED_C=$(git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' |
+    grep -E '^(src|ios|sound|isys|ito/mpeg)/[^/]+\.c$' || true)
+if [[ -n "$STAGED_C" ]]; then
+    # shellcheck disable=SC2086
+    "$ROOT/tools/format.sh" --check $STAGED_C
+fi
+
 # Decide whether staged changes can affect the build. Pure-docs commits
 # (only docs/, README.md, .gitignore, etc.) bypass the build gate.
 BUILD_SENSITIVE=$(git diff --cached --name-only -z |

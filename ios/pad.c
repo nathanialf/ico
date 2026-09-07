@@ -10,16 +10,19 @@ INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadActRequest);
 extern unsigned char padDevMgrMsgQ[];
 extern int iosMsgSend(void *a0, int a1, int a2);
 
-int iosPadDevRead(void) {
+int iosPadDevRead(void)
+{
     iosMsgSend(padDevMgrMsgQ, 0, 0);
     return 0;
 }
 extern unsigned char iosPadDev[];
 
-int iosPadGetPort(int a0, int a1) {
+int iosPadGetPort(int a0, int a1)
+{
     return *(int *)&iosPadDev[a1 * 0x200];
 }
-int iosPadGetSlot(int a0, int a1) {
+int iosPadGetSlot(int a0, int a1)
+{
     int *base = (int *)&iosPadDev[a1 * 0x200];
     return base[1];
 }
@@ -38,7 +41,8 @@ int iosPadGetDevice(int a, int b)
     } while (count < 2);
     return -1;
 }
-int iosPadConnect(void *a0, int a1, int a2, int a3) {
+int iosPadConnect(void *a0, int a1, int a2, int a3)
+{
     int *p = (int *)a0;
     p[1] = a3;
     p[0] = (int)&iosPadDev[a2 * 0x200];
@@ -56,14 +60,17 @@ int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5)
     _PopVu0Registers();
     return rv;
 }
-typedef union { float f[4]; long long ll[2]; } Vec4;
+typedef union {
+    float f[4];
+    long long ll[2];
+} Vec4;
 extern int matrixptr;
 extern void sceVu0TransposeMatrix(void *a0, void *a1);
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 
 void iosPadStickCameraCoord(void *a0, float *a1)
 {
-    Vec4 v = {{ a1[3], 0.0f, -a1[4], 0.0f }};
+    Vec4 v = {{a1[3], 0.0f, -a1[4], 0.0f}};
     float m[16];
     sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
     sceVu0ApplyMatrix(a0, m, &v);
@@ -74,10 +81,12 @@ void iosPadEnable(void)
 {
     D_0063C19C = 1;
 }
-void iosPadDisable(void) {
+void iosPadDisable(void)
+{
     D_0063C19C = 0;
 }
-int iosPadEnableGet(void) {
+int iosPadEnableGet(void)
+{
     return D_0063C19C;
 }
 extern int ShockVoiceSetCommon;
@@ -88,7 +97,8 @@ extern void Init_Shock();
 extern int Shock_SetShockVoiceSet(int a0, int a1);
 extern void memset(void *a0, int a1, int a2);
 
-void iosPadActInit(void) {
+void iosPadActInit(void)
+{
     unsigned char *base;
     unsigned char *p;
     int i;
@@ -110,27 +120,22 @@ extern int ShockRequestBox_RequestCancel(int a0, int a1);
 
 void iosPadActStop(int key)
 {
-    if (key == 0)
-    {
+    if (key == 0) {
         return;
     }
-    for (;;)
-    {
+    for (;;) {
         int *p = D_006BCD58__pn;
         int *entry;
         int i = 0xF;
-        while (1)
-        {
-            if (*p == key)
-            {
+        while (1) {
+            if (*p == key) {
                 goto found;
             }
             i--;
-            if (i == -1)
-            {
+            if (i == -1) {
                 goto notfound;
             }
-            p = (int *)((char *) p + 0x18);
+            p = (int *)((char *)p + 0x18);
         }
     notfound:
         entry = 0;
@@ -138,8 +143,7 @@ void iosPadActStop(int key)
     found:
         entry = p;
     check:
-        if (entry == 0)
-        {
+        if (entry == 0) {
             break;
         }
         ShockRequestBox_RequestCancel(entry[0x4 / 4], key);
@@ -167,9 +171,11 @@ int *iosPadActVolumeSet(int key, unsigned int val)
     val = val & 0xFF;
     i = 0xF;
     while (1) {
-        if (*p == key) goto found;
+        if (*p == key)
+            goto found;
         i--;
-        if (i == -1) goto notfound;
+        if (i == -1)
+            goto notfound;
         p = (int *)((char *)p + 0x18);
     }
 notfound:
@@ -206,20 +212,20 @@ typedef struct {
 } ShockPrm;
 
 typedef struct {
-    int key;            /* 0x00 */
-    int box;            /* 0x04 */
-    int player;         /* 0x08 */
-    ShockPrm prm;       /* 0x0C */
-    short life;         /* 0x10 */
-    short tick;         /* 0x12 */
+    int key;              /* 0x00 */
+    int box;              /* 0x04 */
+    int player;           /* 0x08 */
+    ShockPrm prm;         /* 0x0C */
+    short life;           /* 0x10 */
+    short tick;           /* 0x12 */
     unsigned char volume; /* 0x14 */
     unsigned char pad[3];
 } PadAct;
 
 typedef struct ShockRequest {
-    ShockPrm prm;                   /* 0x00 */
+    ShockPrm prm; /* 0x00 */
     unsigned char pad[0x38];
-    struct ShockRequest *org;       /* 0x3C */
+    struct ShockRequest *org; /* 0x3C */
 } ShockRequest;
 
 extern ShockRequest *ShockRequestBox_GetRequest(int box, int key);

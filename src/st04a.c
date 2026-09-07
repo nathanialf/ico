@@ -12,17 +12,17 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x15C];          /* 0x000 */
-    char *f15C;                 /* 0x15C */
-    char pad160[0x4];           /* 0x160 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x15C]; /* 0x000 */
+    char *f15C;        /* 0x15C */
+    char pad160[0x4];  /* 0x160 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -165,7 +165,6 @@ void actSt04aGateOpen2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x8D) == 0) {
-
         scpSearchGobj(0x29D)->f16C = 0;
 
         D_004F8670[0].func = actSt04aGateOpen2Chk;
@@ -284,8 +283,12 @@ void actSt04aEnvSeWakare1(volatile int a0)
     }
     _ACTWait(0);
 }
-typedef struct { float m[16]; } Mtx44 __attribute__((aligned(16)));
-typedef struct { float m[4]; } Vec4;
+typedef struct {
+    float m[16];
+} Mtx44 __attribute__((aligned(16)));
+typedef struct {
+    float m[4];
+} Vec4;
 
 extern void _ApplyMatrix(int dst, int m, int src);
 extern void _NormalizeVector(int dst, int src);
@@ -359,19 +362,19 @@ void actSt04aEnvSeWakare2(volatile int a0)
     _ACTWait(0);
 }
 typedef struct JimakuSub {
-    char unk00[0x2C];           /* 0x0C */
-    int  unk2C;                 /* 0x38 */
-    int  n;                     /* 0x3C */
-    int  unk34;                 /* 0x40 */
-    int  unk38;                 /* 0x44 */
-    void *unk3C;                /* 0x48 */
-    void *unk40;                /* 0x4C */
+    char unk00[0x2C]; /* 0x0C */
+    int unk2C;        /* 0x38 */
+    int n;            /* 0x3C */
+    int unk34;        /* 0x40 */
+    int unk38;        /* 0x44 */
+    void *unk3C;      /* 0x48 */
+    void *unk40;      /* 0x4C */
 } JimakuSub;
 typedef struct JimakuArg {
-    int  cmd;                   /* 0x00 */
-    int  unk04;                 /* 0x04 */
-    int  done;                  /* 0x08 */
-    JimakuSub sub;              /* 0x0C */
+    int cmd;       /* 0x00 */
+    int unk04;     /* 0x04 */
+    int done;      /* 0x08 */
+    JimakuSub sub; /* 0x0C */
 } JimakuArg;
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
@@ -465,7 +468,7 @@ void actSt04aGirlSitChk(volatile int a0)
    and posts it. Word 0 of each entry is the mail id the entry answers (0x1AE
    the actor post, 0x1AD the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
-static ActMail model_on[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail model_on[2] = {{0x1AE}, {0x1AD}};
 extern void actSt04aModelOffChk(volatile int a0);
 
 void actSt04aModelOnChk(volatile int a0)
@@ -484,7 +487,7 @@ void actSt04aModelOnChk(volatile int a0)
     _ACTWait(0);
 }
 /* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
-static ActMail model_off[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail model_off[2] = {{0x1AE}, {0x1AD}};
 extern void actSt04aModelOnChk(volatile int a0);
 
 void actSt04aModelOffChk(volatile int a0)

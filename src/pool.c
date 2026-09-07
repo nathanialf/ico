@@ -2,11 +2,16 @@
 
 #include "ico/types.h"
 #include "vu0.h"
-typedef struct { char c[16]; } Blob16;
-typedef struct { char c[4]; } Blob4;
+typedef struct {
+    char c[16];
+} Blob16;
+typedef struct {
+    char c[4];
+} Blob4;
 
 extern void ExecuteSEPackage(int a0, int a1);
-void falldownSE(int a0) {
+void falldownSE(int a0)
+{
     ExecuteSEPackage(a0, 0x56);
 }
 INCLUDE_ASM("asm/nonmatchings/src/pool", copyToWork);
@@ -22,7 +27,8 @@ extern void gif_SpriteSensitiveOrg(void *a0, int a1, int a2, void *a3, int a4);
 extern int tex_AllocVramAuto(int a0, int a1);
 extern void tex_ResetVramPri(void);
 
-void flushWork(void) {
+void flushWork(void)
+{
     char buf[0x20];
 
     tex_ResetVramPri();
@@ -47,13 +53,15 @@ void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float
     int ret = GetSkeltonFocusNode(a1, a2);
     if (ret != -1) {
         char *p = *(char **)(a1 + 0x15C);
-        int r = SetParticleEffectActiveSensing((int)a0, *(int *)(p + 0xC) + ret * 0x40 + 0x30, (int)D_002907E0);
+        int r = SetParticleEffectActiveSensing((int)a0, *(int *)(p + 0xC) + ret * 0x40 + 0x30,
+                                               (int)D_002907E0);
         SetParticleEffectUpperLimit(r, f);
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetFallDownSplash);
 extern void CopyVector(void *a0, void *a1);
-void GetPoolGlobalDrainVector(void *dst, char *a0) {
+void GetPoolGlobalDrainVector(void *dst, char *a0)
+{
     CopyVector(dst, *(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10);
 }
 ASM_LIT4_SLOT(D_00638B84, 3.1415927f);
@@ -75,10 +83,12 @@ ASM_LIT4_SLOT(D_00638BA8, 0.3f);
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetLimitedPoolReflactionMesh);
 INCLUDE_ASM("asm/nonmatchings/src/pool", DispLimitedPoolReflactionMesh);
 void PoolGeo(void) {}
-float GetPoolGlobalHeight(char *a0) {
+float GetPoolGlobalHeight(char *a0)
+{
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4);
 }
-float GetPoolGlobalHeightDetail(char *a0, float *pos) {
+float GetPoolGlobalHeightDetail(char *a0, float *pos)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     float inv;
     int ix;
@@ -90,17 +100,20 @@ float GetPoolGlobalHeightDetail(char *a0, float *pos) {
         iz = (int)((pos[2] - *(float *)(p + 0x8)) * inv + (float)(*(int *)(p + 0x38) >> 1));
         ix = ix >= 0 ? (ix < *(int *)(p + 0x34) ? ix : *(int *)(p + 0x34) - 1) : 0;
         iz = iz >= 0 ? (iz < *(int *)(p + 0x38) ? iz : *(int *)(p + 0x38) - 1) : 0;
-        return *(float *)(*(char **)(*(char **)(p + 0x4C) + ix * 4) + iz * 4) * 100.0f + *(float *)(p + 0x4);
+        return *(float *)(*(char **)(*(char **)(p + 0x4C) + ix * 4) + iz * 4) * 100.0f +
+               *(float *)(p + 0x4);
     }
     return *(float *)(p + 0x4);
 }
-int CheckPoolHasGridMesh(char *a0) {
+int CheckPoolHasGridMesh(char *a0)
+{
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x30) != 0;
 }
 extern void InitLimitedPoolReflactionMesh(char *a0);
 extern void _InterVectorXYZ(void *p0, void *p1, void *p2, float t);
 
-void InitLayoutedPoolReflactionMesh(char *a0, char *a1) {
+void InitLayoutedPoolReflactionMesh(char *a0, char *a1)
+{
     float v0[4];
     float v1[4];
     int i;
@@ -111,19 +124,24 @@ void InitLayoutedPoolReflactionMesh(char *a0, char *a1) {
         _InterVectorXYZ(v0, a1 + 0x0, a1 + 0x20, (float)i / (float)(*(int *)(a0 + 0x0) - 1));
         _InterVectorXYZ(v1, a1 + 0x10, a1 + 0x30, (float)i / (float)(*(int *)(a0 + 0x0) - 1));
         for (j = 0; j < *(int *)(a0 + 0x4); j++) {
-            _InterVectorXYZ(*(char **)(*(char **)(a0 + 0x10) + 0x6C) + (i * *(int *)(a0 + 0x4) + j) * 0x10, v0, v1, (float)j / (float)(*(int *)(a0 + 0x4) - 1));
-            *(float *)(*(char **)(*(char **)(a0 + 0x10) + 0x6C) + (i * *(int *)(a0 + 0x4) + j) * 0x10 + 0xC) = 1.0f;
+            _InterVectorXYZ(*(char **)(*(char **)(a0 + 0x10) + 0x6C) +
+                                (i * *(int *)(a0 + 0x4) + j) * 0x10,
+                            v0, v1, (float)j / (float)(*(int *)(a0 + 0x4) - 1));
+            *(float *)(*(char **)(*(char **)(a0 + 0x10) + 0x6C) +
+                       (i * *(int *)(a0 + 0x4) + j) * 0x10 + 0xC) = 1.0f;
         }
     }
 }
-int poolRideFunc(char **a0, char *a1) {
+int poolRideFunc(char **a0, char *a1)
+{
     char *e = *(char **)(a1 + 0x15C);
     char *p = *(char **)(*(char **)(a0[0] + 0x15C) + 0x830);
     *(float *)(e + 0x644) = *(float *)(e + 0xA4) - *(float *)(p + 4);
     return 1;
 }
 
-float getWave(float t) {
+float getWave(float t)
+{
     t += 50.0f;
     t -= (float)(int)(t * 0.005f) * 200.0f;
     if (t < 100.0f) {

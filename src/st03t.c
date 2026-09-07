@@ -7,16 +7,16 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 
 extern Act *actInitialize(int a0);
 
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    int act;                    /* 0x164 */
+    char pad00[0x164]; /* 0x000 */
+    int act;           /* 0x164 */
 } PObjGObj;
 
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSwitchL);
@@ -48,8 +48,7 @@ void actSt03tGirlCam(volatile int a0)
     _ACTWait(0);
 }
 extern void _ACTWait(int a0);
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4,
-                       float x1, float y1, float z1,
+extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
 void actSt03tSekizo(volatile int a0)
@@ -59,9 +58,7 @@ void actSt03tSekizo(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x5F, 0x50, 0, 0x12,
-               -913.0f, -400.0f, 605.0f,
-               -1000.0f, -400.0f, 550.0f);
+    scpSekizou(a0, 0x5F, 0x50, 0, 0x12, -913.0f, -400.0f, 605.0f, -1000.0f, -400.0f, 550.0f);
 }
 extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
@@ -150,7 +147,8 @@ void actSt03tHint1Sleep(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-void actSt03tGirlCamEvent(int x) {
+void actSt03tGirlCamEvent(int x)
+{
     volatile int local = x;
 }
 extern int D_00639EA4;
@@ -214,7 +212,8 @@ void actSt03tGirlCamEndChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-void actSt03tSekizoEvent(int x) {
+void actSt03tSekizoEvent(int x)
+{
     volatile int local = x;
 }
 extern int D_00639EA4;
@@ -265,7 +264,7 @@ extern void ACTSendMailCorrect(int a0, int mail);
    posts it. Word 0 of each entry is the mail id the entry answers (0x1AE the
    actor post, 0x1AD the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
-static ActMail way_on_mes[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail way_on_mes[2] = {{0x1AE}, {0x1AD}};
 extern void actSt03tWayOffChk(volatile int a0);
 
 void actSt03tWayOnChk(volatile int a0)
@@ -275,8 +274,7 @@ void actSt03tWayOnChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() != 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
         _ACTWait(1);
     }
 
@@ -296,7 +294,7 @@ extern void SetWayGroupActive(int a0, int a1);
 extern void gflagOff(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 /* The way-off watcher's own mail record (installs actSt03tWayOnChk). */
-static ActMail way_off_mes[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail way_off_mes[2] = {{0x1AE}, {0x1AD}};
 extern void actSt03tWayOnChk(volatile int a0);
 
 void actSt03tWayOffChk(volatile int a0)
@@ -306,8 +304,7 @@ void actSt03tWayOffChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() == 0 &&
-           scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
         _ACTWait(1);
     }
 
@@ -327,8 +324,7 @@ extern void WakeupHint(int a0);
 
 void actSt03tGirlPosChk(volatile int a0)
 {
-    while (D_00639EA8 == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+    while (D_00639EA8 == 0 || scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
         _ACTWait(1);
     }
 
@@ -341,8 +337,7 @@ extern void FinishHint(int a0);
 
 void actSt03tGirlUpChk(volatile int a0)
 {
-    while (D_00639EA8 == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+    while (D_00639EA8 == 0 || scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
         _ACTWait(1);
     }
 

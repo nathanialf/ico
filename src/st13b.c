@@ -7,15 +7,15 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -51,19 +51,19 @@ extern PObjGObj *scpSearchGobj(int a0);
 extern void scpPlayMot(void *a0, int mot);
 
 typedef struct JimakuSub {
-    char unk00[0x2C];           /* 0x0C */
-    int  unk2C;                 /* 0x38 */
-    int  n;                     /* 0x3C */
-    int  unk34;                 /* 0x40 */
-    int  unk38;                 /* 0x44 */
-    void *unk3C;                /* 0x48 */
-    void *unk40;                /* 0x4C */
+    char unk00[0x2C]; /* 0x0C */
+    int unk2C;        /* 0x38 */
+    int n;            /* 0x3C */
+    int unk34;        /* 0x40 */
+    int unk38;        /* 0x44 */
+    void *unk3C;      /* 0x48 */
+    void *unk40;      /* 0x4C */
 } JimakuSub;
 typedef struct JimakuArg {
-    int  cmd;                   /* 0x00 */
-    int  unk04;                 /* 0x04 */
-    int  done;                  /* 0x08 */
-    JimakuSub sub;              /* 0x0C */
+    int cmd;       /* 0x00 */
+    int unk04;     /* 0x04 */
+    int done;      /* 0x08 */
+    JimakuSub sub; /* 0x0C */
 } JimakuArg;
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
@@ -244,7 +244,8 @@ void actBossTest(volatile int a0)
     stage_SetAnimation(0x24, 0, 0);
     stage_SetAnimation(0x26, 0, 0);
 }
-void actSt13bConte02Jimaku(volatile int a0) {
+void actSt13bConte02Jimaku(volatile int a0)
+{
     float t;
     float tn;
     int n;
@@ -273,7 +274,8 @@ void actSt13bConte02Jimaku(volatile int a0) {
         }
     } while (t < 2500.0f);
 }
-void actSt13bSekizo2Event(int x) {
+void actSt13bSekizo2Event(int x)
+{
     volatile int local = x;
 }
 void actConte10c(volatile int a0)

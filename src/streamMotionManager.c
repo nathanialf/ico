@@ -41,9 +41,12 @@ void DisableStreamMotionManagerAutomaticDelete(void)
 }
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", getStreamMotionData);
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", getStreamMotionBlendData);
-typedef struct { int w[7]; } SMotion;
+typedef struct {
+    int w[7];
+} SMotion;
 extern SMotion D_00724AA8[];
-void GetStreamMotionDataNext(int a0, int a1) {
+void GetStreamMotionDataNext(int a0, int a1)
+{
     getStreamMotionData(a0, D_00724AA8[a1].w[4], a1);
 }
 extern void memcpy();
@@ -109,7 +112,8 @@ inline void StandbyStreamMotion(int self)
     D_0063BBFC = iosCdvdBackGroundMgrAdd(self, _handler, 0, 0, 0, 0, _closeHander, 0);
     D_0063BC1C = self;
 }
-inline void StopStreamMotion(void) {
+inline void StopStreamMotion(void)
+{
     D_0063BBF4 = 0;
 }
 inline int EntryStreamMotion(char *a0)
@@ -141,7 +145,9 @@ extern int D_0063BC28;
 extern float D_006396CC;
 extern void getStreamMotionData();
 
-typedef struct { char c[4]; } StreamMotionHead;
+typedef struct {
+    char c[4];
+} StreamMotionHead;
 
 inline float GetStreamMotionData(char *dst, int no)
 {
@@ -157,7 +163,8 @@ extern int D_0063BC08;
 extern int D_0063BC0C;
 extern int D_0063BC10;
 
-inline void InitStreamMotionManager(void) {
+inline void InitStreamMotionManager(void)
+{
     D_0063BC10 = 0;
     D_0063BC08 = 0;
     D_0063BC0C = 0;
@@ -178,7 +185,8 @@ inline int CheckReadyStreamMotion(void)
         r = 0;
     return r;
 }
-inline void SetStreamMotionFinishCallBackFunc(int a0, int a1) {
+inline void SetStreamMotionFinishCallBackFunc(int a0, int a1)
+{
     D_00724AA8[a0].w[6] = a1;
 }
 extern int D_0063BC08;
@@ -198,7 +206,8 @@ inline void FreeStreamMotionBuffer(void)
 }
 extern void _deleteStreamMotionManager();
 
-inline int _closeHander(void) {
+inline int _closeHander(void)
+{
     _deleteStreamMotionManager();
     return 1;
 }

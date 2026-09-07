@@ -16,13 +16,15 @@ extern int m33_to_quat();
 extern void sceVu0TransposeMatrix();
 extern void stage_KillPlayBgAnimation(int **self);
 extern int stage_MakePlayBgAnimation();
-inline void lw_pos_to_ico_pos(float *dst, float *src) {
+inline void lw_pos_to_ico_pos(float *dst, float *src)
+{
     dst[0] = -src[0];
     dst[1] = -src[1];
     dst[2] = -src[2];
     dst[3] = src[3];
 }
-inline void apply_matrix_w1(void *a0, void *a1, void *a2) {
+inline void apply_matrix_w1(void *a0, void *a1, void *a2)
+{
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x10, 5);
     VU0_LSV(lqc2, 6, 0x20, 5);

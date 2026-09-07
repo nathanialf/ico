@@ -7,12 +7,13 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD4];           /* 0x00 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD4]; /* 0x00 */
+    ActMail *mail;    /* 0xD4 */
 } Act;
 
 extern char *D_00639EA8;
-void actSt18aEnd(void) {
+void actSt18aEnd(void)
+{
     if (D_00639EA8 != 0) {
         if (gflagChk(0x3D) == 0) {
             gflagOn(0x187);
@@ -244,7 +245,8 @@ void actSt18aEnemy2_2(volatile int a0)
     _ACTWait(60);
     Generator_Call(a0);
 }
-void actSt18aCamera(int x) {
+void actSt18aCamera(int x)
+{
     volatile int local = x;
 }
 extern void _ACTWait(int a0);
@@ -304,8 +306,7 @@ void actSt18aEne2Chk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (D_00639EA8 == 0 ||
-           scpTriggerFloorAttr(scpSearchGobj(0x306), 0x4000000) == 0) {
+    while (D_00639EA8 == 0 || scpTriggerFloorAttr(scpSearchGobj(0x306), 0x4000000) == 0) {
         _ACTWait(1);
     }
     FinishHint(8);

@@ -4,21 +4,21 @@
 
 typedef struct Light {
     char _pad0[0x10];
-    float f_10[4];              /* 0x10 */
-    float f_20[4];              /* 0x20 */
-    float f_30;                 /* 0x30 */
-    int f_34;                   /* 0x34 */
-    float f_38;                 /* 0x38 */
-    float f_3C;                 /* 0x3C */
+    float f_10[4]; /* 0x10 */
+    float f_20[4]; /* 0x20 */
+    float f_30;    /* 0x30 */
+    int f_34;      /* 0x34 */
+    float f_38;    /* 0x38 */
+    float f_3C;    /* 0x3C */
     char _pad40[4];
-    short f_44;                 /* 0x44 */
+    short f_44; /* 0x44 */
     char _pad46[2];
-    struct Light *next;         /* 0x48 */
-    struct Light *prev;         /* 0x4C */
+    struct Light *next; /* 0x48 */
+    struct Light *prev; /* 0x4C */
 } Light;
 typedef struct AmbientVolume {
     char _pad0[0x80];
-    float f_80;                 /* 0x80 */
+    float f_80; /* 0x80 */
     char _pad84[0xC];
     int f_90;                   /* 0x90 */
     struct AmbientVolume *next; /* 0x94 */
@@ -64,7 +64,8 @@ extern char D_0063A088[8];
 extern int D_0063C134;
 extern int D_0063C138;
 
-void light_InitLight(void) {
+void light_InitLight(void)
+{
     D_0063C134 = 0;
     D_0063C138 = 0;
     *(int *)D_0063A088 = 0;
@@ -133,8 +134,8 @@ AmbientVolume *light_AddAmbientObject(int obj)
     return p;
 }
 typedef struct StageSetting {
-    float flatLightDir[3][4];   /* 0x00 */
-    float flatLightCol[3][4];   /* 0x30 */
+    float flatLightDir[3][4]; /* 0x00 */
+    float flatLightCol[3][4]; /* 0x30 */
 } StageSetting;
 
 extern StageSetting D_0028F720;

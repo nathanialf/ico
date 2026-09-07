@@ -9,16 +9,14 @@ extern void ExecKeyInput();
 INCLUDE_ASM("asm/nonmatchings/src/main", Emergency_DestroyAllThread);
 int movie_abort_check(void)
 {
-  int ret = 0;
-  if (D_00639C94 != D_00639C80)
-  {
-    D_00639C94 = D_00639C80;
-    ExecKeyInput();
-    ret = 0;
-    ret = (D_0028F8F4[0] & 0x800) != ret;
-  }
-  return ret;
+    int ret = 0;
+    if (D_00639C94 != D_00639C80) {
+        D_00639C94 = D_00639C80;
+        ExecKeyInput();
+        ret = 0;
+        ret = (D_0028F8F4[0] & 0x800) != ret;
+    }
+    return ret;
 }
-void demoEnd(void) {
-}
+void demoEnd(void) {}
 INCLUDE_ASM("asm/nonmatchings/src/main", main);

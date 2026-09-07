@@ -8,7 +8,8 @@ INCLUDE_ASM("asm/nonmatchings/src/spider", CallSpidersToReviveEnemy);
 INCLUDE_ASM("asm/nonmatchings/src/spider", SpiderLayoutGeo);
 INCLUDE_ASM("asm/nonmatchings/src/spider", DispAllMemberOfSpider);
 extern char D_0063BAC8[];
-void SetSpiderGroupReviveStatus(char *a0) {
+void SetSpiderGroupReviveStatus(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     *(int *)(p + 0x3C) = 1;
     gamesysObjInfoUniqDataSet(a0);
@@ -62,7 +63,8 @@ int GetAliveSpiders(char *gp)
     }
     return -1;
 }
-char *DeleteSpiderFromLayoutGroup(char *a0, int a1) {
+char *DeleteSpiderFromLayoutGroup(char *a0, int a1)
+{
     char **arr = *(char ***)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x24);
     char *r = arr[a1];
     arr[a1] = 0;

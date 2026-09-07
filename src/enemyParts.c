@@ -37,16 +37,16 @@ int DispEnemyFootPrints(int *a0)
     return 1;
 }
 typedef struct PointBlur {
-    /* 0x00 */ int   f0;
-    /* 0x04 */ int   num;
+    /* 0x00 */ int f0;
+    /* 0x04 */ int num;
     /* 0x08 */ void *f8;
     /* 0x0C */ void *fC;
     /* 0x10 */ void *f10;
     /* 0x14 */ unsigned char col[4];
-    /* 0x18 */ long long _pad18;   /* ROM proves 8-byte struct alignment: the
+    /* 0x18 */ long long _pad18; /* ROM proves 8-byte struct alignment: the
                                      0x40-byte template copy is ld/sd, not lw/sw */
     /* 0x20 */ float pos[4];
-    /* 0x30 */ char  _pad30[0x10];
+    /* 0x30 */ char _pad30[0x10];
 } PointBlur;
 
 extern int D_0063A438;
@@ -100,7 +100,8 @@ int UpdateEnemyEye(char *a0, int a1, float f)
 extern void _CopyMatrix();
 extern void reg_DispMultiPri();
 
-int DispEnemyEye(char *a0) {
+int DispEnemyEye(char *a0)
+{
     _CopyMatrix(*(int *)(*(char **)(a0 + 0x50) + 0xC), a0 + 0x10);
     reg_DispMultiPri(*(int *)(a0 + 0x50), 0xA);
     if (*(int *)a0 != 0) {
@@ -112,12 +113,15 @@ int DispEnemyEye(char *a0) {
     }
     return 1;
 }
-int ResetEnemyEye(char *self) {
+int ResetEnemyEye(char *self)
+{
     char *p = *(char **)(self + 0x4);
     *(int *)(p + 0x30) = 1;
     return 1;
 }
-typedef struct IVec { float x, y, z, w; } IVec;
+typedef struct IVec {
+    float x, y, z, w;
+} IVec;
 
 extern void _CopyIVector(void *dst, void *src);
 

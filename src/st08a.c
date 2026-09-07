@@ -7,17 +7,17 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x15C];          /* 0x000 */
-    char *f15C;                 /* 0x15C */
-    char pad160[0x4];           /* 0x160 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x15C]; /* 0x000 */
+    char *f15C;        /* 0x15C */
+    char pad160[0x4];  /* 0x160 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -108,7 +108,6 @@ void actSt08aEne1(volatile int a0)
     shadow_SetLength(scpSearchGobj(0x170)->f15C, 100.0f);
 
     if (gflagChk(0x48) == 0) {
-
         D_004FA020[0].func = actSt08aEne1Chk;
         self->mail = D_004FA020;
         ACTSendMailCorrect(a0, 0x1AE);
@@ -122,7 +121,6 @@ void actSt08aEne2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x49) == 0) {
-
         D_004FA040[0].func = actSt08aEne2Chk;
         self->mail = D_004FA040;
         ACTSendMailCorrect(a0, 0x1AE);
@@ -248,7 +246,6 @@ void actSt08aGirlPos(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x4E) == 0) {
-
         SleepHint(2);
         D_004FA0F0[0].func = actSt08aGirlPosChk;
         self->mail = D_004FA0F0;
@@ -364,8 +361,7 @@ void actSt08aIntroChk(volatile int a0)
 }
 void actSt08aGirlPosChk(volatile int a0)
 {
-    while (D_00639EA8 == 0 ||
-           scpTriggerBall(a0, D_00639EA8, 200.0f) == 0) {
+    while (D_00639EA8 == 0 || scpTriggerBall(a0, D_00639EA8, 200.0f) == 0) {
         _ACTWait(1);
     }
 

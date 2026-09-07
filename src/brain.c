@@ -155,10 +155,14 @@ void brainStatusDefaultSet(Brain *b, int gobj, int idx)
 }
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainLevelProcess);
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainGetTarget);
-void brainStatusDel(char *self) {
+void brainStatusDel(char *self)
+{
     *(int *)(self + 0x0) = 0;
 }
-float brainGetLevel(Brain *b, BrainTarget *t) /* inlined by brainLevelProcess and brainGetTarget in ROM: `inline` once those are C, plain until then (the tail still has asm members) */
+float brainGetLevel(
+    Brain *b,
+    BrainTarget *
+        t) /* inlined by brainLevelProcess and brainGetTarget in ROM: `inline` once those are C, plain until then (the tail still has asm members) */
 {
     if (b->cur == t) {
         return t->level + b->f14;
@@ -184,7 +188,8 @@ void brainClsTargetLevel(Brain *b)
 }
 extern void ACTGameView_Add(void *a0, int a1);
 
-void brainInitGirlSet(void *a0, int a1) {
+void brainInitGirlSet(void *a0, int a1)
+{
     int *base = D_002A5580;
     int *p = (int *)((char *)base + 0x28);
     int key;
@@ -281,15 +286,18 @@ found:
 }
 extern int D_002A558C[];
 
-void brainSetSpMode(void) {
+void brainSetSpMode(void)
+{
     D_002A558C[0] = 1;
 }
 extern int D_002A5588[];
 
-void brainLockGirl(void) {
+void brainLockGirl(void)
+{
     D_002A5588[0] = 1;
 }
-void brainUnlockGirl(void) {
+void brainUnlockGirl(void)
+{
     D_002A5588[0] = 0;
 }
 void brainAddLevel(BrainTarget *t, float lv)
@@ -306,7 +314,8 @@ void brainAddLevel(BrainTarget *t, float lv)
     }
     t->level = r;
 }
-void brainSetLevel(int *b, BrainTarget *t, float lv) {
+void brainSetLevel(int *b, BrainTarget *t, float lv)
+{
     int cond;
     if (t->b19 != 0) {
         cond = 1;

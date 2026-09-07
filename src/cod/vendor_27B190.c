@@ -4,16 +4,28 @@
 #include "vu0.h"
 #include "math_private.h"
 
-typedef struct { unsigned int type; int f4; int f8; int fC; } PCmpV;
+typedef struct {
+    unsigned int type;
+    int f4;
+    int f8;
+    int fC;
+} PCmpV;
 
-typedef struct { unsigned int type; int f4; int f8; int fC; unsigned long long f10; } PCmpV2;
+typedef struct {
+    unsigned int type;
+    int f4;
+    int f8;
+    int fC;
+    unsigned long long f10;
+} PCmpV2;
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __do_global_dtors);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __do_global_ctors);
 extern void __do_global_ctors();
 
 extern int D_00736168[];
-void __main(void) {
+void __main(void)
+{
     if (D_00736168[0] == 0) {
         D_00736168[0] = 1;
         __do_global_ctors();
@@ -33,14 +45,22 @@ extern long long __pack_d(void *s);
 extern void __unpack_d(void *in, void *out);
 extern void *_fpadd_parts(void *a, void *b, void *c);
 
-void dpadd(long a0, long a1) {
-    struct { int a, b, c, pad; long long d; } x, y, z;
+void dpadd(long a0, long a1)
+{
+    struct {
+        int a, b, c, pad;
+        long long d;
+    } x, y, z;
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
     __pack_d(_fpadd_parts(&x, &y, &z));
 }
-long long dpsub(long a0, long a1) {
-    struct { int a, b, c, pad; long long d; } x, y, z;
+long long dpsub(long a0, long a1)
+{
+    struct {
+        int a, b, c, pad;
+        long long d;
+    } x, y, z;
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
     y.b ^= 1;
@@ -49,8 +69,12 @@ long long dpsub(long a0, long a1) {
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", dpmul);
 extern char D_736170[];
 
-void dpdiv(long a0, long a1) {
-    struct { int a, b, c, pad; long long d; } x, y, *p;
+void dpdiv(long a0, long a1)
+{
+    struct {
+        int a, b, c, pad;
+        long long d;
+    } x, y, *p;
     void *r;
     unsigned long long m1, m2, bit, q;
     int exp;
@@ -58,36 +82,42 @@ void dpdiv(long a0, long a1) {
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
     p = &x;
-    if ((unsigned int) x.a >= 2) goto op2check;
+    if ((unsigned int)x.a >= 2)
+        goto op2check;
     r = &x;
     goto pack;
 op2check:
-    if ((unsigned int) y.a < 2) {
+    if ((unsigned int)y.a < 2) {
         r = &y;
         goto pack;
     }
     x.b = x.b ^ y.b;
-    if ((x.a ^ 4) == 0) goto chk_same;
-    if ((x.a ^ 2) != 0) goto op1_normal;
+    if ((x.a ^ 4) == 0)
+        goto chk_same;
+    if ((x.a ^ 2) != 0)
+        goto op1_normal;
 chk_same:
     r = &x;
-    if (x.a != y.a) goto pack;
+    if (x.a != y.a)
+        goto pack;
     r = D_736170;
     goto pack;
 op1_normal:
-    if ((y.a ^ 4) != 0) goto chk_zero;
+    if ((y.a ^ 4) != 0)
+        goto chk_zero;
     x.d = 0;
     x.c = 0;
     r = &x;
     goto pack;
 chk_zero:
-    if ((y.a ^ 2) != 0) goto divide;
+    if ((y.a ^ 2) != 0)
+        goto divide;
     x.a = 4;
     r = &x;
     goto pack;
 divide:
-    m1 = (unsigned long long) x.d;
-    m2 = (unsigned long long) y.d;
+    m1 = (unsigned long long)x.d;
+    m2 = (unsigned long long)y.d;
     x.c = x.c - y.c;
     if (m1 < m2) {
         x.c = x.c - 1;
@@ -117,7 +147,8 @@ divide:
 pack:
     __pack_d(r);
 }
-int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b) {
+int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b)
+{
     unsigned int at = a->type;
     unsigned int bt;
     if (at < 2) {
@@ -180,8 +211,12 @@ int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b) {
         }
     }
 }
-int dpcmp(long a0, long a1) {
-    struct { int a, b, c, pad; long long d; } x, y;
+int dpcmp(long a0, long a1)
+{
+    struct {
+        int a, b, c, pad;
+        long long d;
+    } x, y;
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
     return __fpcmp_parts_d(&x, &y);
@@ -189,15 +224,23 @@ int dpcmp(long a0, long a1) {
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", litodp);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", dptoli);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", dptoul);
-void __negdf2(long long a0) {
-    struct { int a, b, c, pad; long long d; } s;
+void __negdf2(long long a0)
+{
+    struct {
+        int a, b, c, pad;
+        long long d;
+    } s;
     long long t = a0;
     __unpack_d(&t, &s);
     s.b = (s.b == 0);
     __pack_d(&s);
 }
-int __make_dp(int a0, int a1, int a2, long long a3) {
-    struct { int a, b, c, pad; long long d; } s;
+int __make_dp(int a0, int a1, int a2, long long a3)
+{
+    struct {
+        int a, b, c, pad;
+        long long d;
+    } s;
     s.a = a0;
     s.b = a1;
     s.c = a2;
@@ -206,14 +249,23 @@ int __make_dp(int a0, int a1, int a2, long long a3) {
 }
 extern void __make_fp(int a0, int a1, int a2, int a3);
 
-float dptofp(long a0) {
-    struct { int f0; int f4; int f8; int fC; long long f10; } buf;
-    long long m; int hi, t;
+float dptofp(long a0)
+{
+    struct {
+        int f0;
+        int f4;
+        int f8;
+        int fC;
+        long long f10;
+    } buf;
+    long long m;
+    int hi, t;
     __unpack_d(&a0, &buf);
     m = buf.f10;
     hi = (int)(m >> 30);
     t = hi | 1;
-    if ((m & 0x3FFFFFFF) == 0) t = hi;
+    if ((m & 0x3FFFFFFF) == 0)
+        t = hi;
     __make_fp(buf.f0, buf.f4, buf.f8, t);
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __pack_f);
@@ -223,7 +275,8 @@ extern int __pack_f(void *s);
 extern void __unpack_f(void *in, void *out);
 extern int func_0027DBA0();
 
-int fpadd(float a0, float a1) {
+int fpadd(float a0, float a1)
+{
     char buf[0x40];
     int ret;
     *(float *)(buf + 0x30) = a0;
@@ -233,7 +286,8 @@ int fpadd(float a0, float a1) {
     ret = func_0027DBA0(buf, buf + 0x10, buf + 0x20);
     return __pack_f(ret);
 }
-int fpsub(float a0, float a1) {
+int fpsub(float a0, float a1)
+{
     char buf[0x40];
     int ret;
     *(float *)(buf + 0x30) = a0;
@@ -246,7 +300,8 @@ int fpsub(float a0, float a1) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", fpmul);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", fpdiv);
-int __fpcmp_parts_f(PCmpV *a, PCmpV *b) {
+int __fpcmp_parts_f(PCmpV *a, PCmpV *b)
+{
     unsigned int at = a->type;
     unsigned int bt;
     if (at < 2) {
@@ -309,7 +364,8 @@ int __fpcmp_parts_f(PCmpV *a, PCmpV *b) {
         }
     }
 }
-int fpcmp(float a0, float a1) {
+int fpcmp(float a0, float a1)
+{
     char buf[0x30];
     *(float *)(buf + 0x20) = a0;
     *(float *)(buf + 0x24) = a1;
@@ -329,7 +385,8 @@ int __negsf2(float f12)
     o[1] = (o[1] == 0);
     return __pack_f(o);
 }
-void __make_fp(int a0, int a1, int a2, int a3) {
+void __make_fp(int a0, int a1, int a2, int a3)
+{
     int buf[4];
     buf[0] = a0;
     buf[1] = a1;
@@ -345,6 +402,5 @@ int fptodp(float f12)
     local1[0] = f12;
     __unpack_f(local1, local0);
     a3_val = (long long)(unsigned int)local0[3] << 32;
-    return __make_dp(local0[0], local0[1], local0[2],
-                         (long long)((unsigned long long)a3_val >> 2));
+    return __make_dp(local0[0], local0[1], local0[2], (long long)((unsigned long long)a3_val >> 2));
 }

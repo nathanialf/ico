@@ -2,23 +2,28 @@
 #include "sugiCommon.h"
 
 extern void ExecuteSEPackage(int a0, int a1);
-void torchOnOfWeaponSE(int a0) {
+void torchOnOfWeaponSE(int a0)
+{
     ExecuteSEPackage(a0, 0x42);
 }
 extern void StopSEPackage(int a0);
-void torchOffOfWeaponSE(int a0) {
+void torchOffOfWeaponSE(int a0)
+{
     StopSEPackage(a0);
     ExecuteSEPackage(a0, 0x43);
 }
 extern void ExecuteSEPackage(int a0, int a1);
-void weaponHitReactionSE(int a0, int a1, int a2, int a3) {
+void weaponHitReactionSE(int a0, int a1, int a2, int a3)
+{
     ExecuteSEPackage(a0, 0x44);
 }
 extern void ExecuteSEPackage(int a0, int a1);
-void weaponFumbleSE(int a0) {
+void weaponFumbleSE(int a0)
+{
     ExecuteSEPackage(a0, 0x5C);
 }
-void weaponStickSE(int a0) {
+void weaponStickSE(int a0)
+{
     ExecuteSEPackage(a0, 0x5D);
 }
 INCLUDE_ASM("asm/nonmatchings/src/weapon", ReleaseWeaponWithFumbleTargetPos);
@@ -26,14 +31,16 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", ReleaseWeaponWithFumbleSequential);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", calcDynamicPathGeometry);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", calcDynamicGeometry);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", getGeometry);
-void WeaponCurPos(char *a0, void *a1, void *a2, void *a3) {
+void WeaponCurPos(char *a0, void *a1, void *a2, void *a3)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     CopyVector(a1, p + 0x20);
     CopyVector(a2, p + 0x30);
     CopyVector(a3, p + 0x40);
 }
 extern void CheckEnemyHit(void *a0, void *a1, void *a2, void *a3);
-void WeaponHitEffect(char *a0, void *a1) {
+void WeaponHitEffect(char *a0, void *a1)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     CheckEnemyHit(a1, p + 0x20, p + 0x30, p + 0x40);
 }
@@ -53,7 +60,8 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", calcBlur);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", WeaponGeo);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", WeaponDL);
 extern int GetSkeltonFocusNode(char *obj, int kind);
-void PickupWeapon(char *a0, char *a1, int a2) {
+void PickupWeapon(char *a0, char *a1, int a2)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
 
     *(char **)(p + 0x8) = a1;
@@ -65,7 +73,8 @@ extern void GetRootPosition(void *out, void *obj);
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 
-char *CheckSwapableWeapon(char *a0, float dist) {
+char *CheckSwapableWeapon(char *a0, float dist)
+{
     char *found = 0;
     float best = dist * dist;
     char *g = (char *)isysGObjSearchFromObjKindID_begin(14);
@@ -78,17 +87,22 @@ char *CheckSwapableWeapon(char *a0, float dist) {
         char *w;
         char *wp;
 
-        if (g == a0) continue;
+        if (g == a0)
+            continue;
 
         w = *(char **)(*(char **)(g + 0x15C) + 0x830);
-        if (*(int *)w == 0) continue;
+        if (*(int *)w == 0)
+            continue;
 
-        if (*(int *)(w + 0x8) != 0) continue;
+        if (*(int *)(w + 0x8) != 0)
+            continue;
 
-        if (*(int *)(g + 0x16C) == 0) continue;
+        if (*(int *)(g + 0x16C) == 0)
+            continue;
 
         wp = w + 0xD0;
-        if (stage_no == 4 && *(int *)(g + 0x8) != 0x80) continue;
+        if (stage_no == 4 && *(int *)(g + 0x8) != 0x80)
+            continue;
 
         d = distance_squared(pos, wp);
         if (d < best) {
@@ -98,7 +112,8 @@ char *CheckSwapableWeapon(char *a0, float dist) {
     }
     return found;
 }
-void ReleaseWeapon(char *a0) {
+void ReleaseWeapon(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if (*(char **)(p + 0x8)) {
         *(int *)(*(char **)(*(char **)(p + 0x8) + 0x15C) + 0x630) = 0;
@@ -107,11 +122,13 @@ void ReleaseWeapon(char *a0) {
     *(int *)(p + 0xC) = -1;
     *(int *)(p + 0x4) = 0;
 }
-int CheckWeaponKind(char *a0) {
+int CheckWeaponKind(char *a0)
+{
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830));
 }
 extern void LightTorchOn(int torch);
-void LightTorchOnOfWeapon(char *a0) {
+void LightTorchOnOfWeapon(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     int i;
 
@@ -122,7 +139,8 @@ void LightTorchOnOfWeapon(char *a0) {
         LightTorchOn(*(int *)(*(char **)(p + 0x54) + i * 4));
     }
 }
-void LightTorchOnOfWeaponWithNoSE(char *a0) {
+void LightTorchOnOfWeaponWithNoSE(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     int i;
 
@@ -134,7 +152,8 @@ void LightTorchOnOfWeaponWithNoSE(char *a0) {
     }
 }
 extern void LightTorchOff(char *torch);
-void LightTorchOffOfWeapon(char *a0) {
+void LightTorchOffOfWeapon(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     int i;
 
@@ -142,7 +161,8 @@ void LightTorchOffOfWeapon(char *a0) {
         LightTorchOff(*(char **)(*(char **)(p + 0x54) + i * 4));
     }
 }
-int GetTorchGObjOfWeapon(char *a0) {
+int GetTorchGObjOfWeapon(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if (*(int *)(p + 0x50)) {
         return **(int **)(p + 0x54);
@@ -156,7 +176,8 @@ extern void CopyQuaternion(void *dst, void *src);
  * members are C, when it collapses into a call.  LightTorchOnOfWeapon and
  * LightTorchOnOfWeaponWithNoSE are one source body (both symbols carry
  * weapon.c:173-177); their shared form is decided at layout. */
-void ReleaseWeaponWithFumble(char *a0, void *a1, void *a2) {
+void ReleaseWeaponWithFumble(char *a0, void *a1, void *a2)
+{
     char *e = *(char **)(a0 + 0x15C);
     char *w = *(char **)(e + 0x830);
     char *f = e + 0xA0;
@@ -174,25 +195,29 @@ void ReleaseWeaponWithFumble(char *a0, void *a1, void *a2) {
     CopyVector(e + 0x130, a1);
     *(int *)(f + 0x9C) = 0;
 }
-int InitWeaponFumbleSequence(char *a0) {
+int InitWeaponFumbleSequence(char *a0)
+{
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xA0) = 0;
     return 1;
 }
-typedef struct { int w[9]; } WeaponDef;
+typedef struct {
+    int w[9];
+} WeaponDef;
 extern WeaponDef D_00318EB8[];
-float GetWeaponWeight(char *a0) {
+float GetWeaponWeight(char *a0)
+{
     return (float)D_00318EB8[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830))].w[3];
 }
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 extern void SetTorchChainReactionFlag(char *gobj, int flag);
-void SetWeaponTorchChainReactionFlagAll(int a0) {
+void SetWeaponTorchChainReactionFlagAll(int a0)
+{
     char *g;
     char *w;
     int i;
 
-    for (g = isysGObjSearchFromObjKindID_begin(14); g;
-         g = isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(14); g; g = isysGObjSearchFromObjKindID_next(g)) {
         w = *(char **)(*(char **)(g + 0x15C) + 0x830);
         if (*(int *)w == 1) {
             for (i = 0; i < *(int *)(w + 0x50); i++) {
@@ -201,14 +226,17 @@ void SetWeaponTorchChainReactionFlagAll(int a0) {
         }
     }
 }
-typedef struct { double d[28]; } DemoQueenSwordWork;
+typedef struct {
+    double d[28];
+} DemoQueenSwordWork;
 extern int D_0063A438;
 extern const char D_006214E0[];
 extern DemoQueenSwordWork D_004ED1F0;
 extern void *iosMallocDebug(int heap, int size, const char *file, int line);
 extern void initializeQueenzSword(char *gobj, int index, void *a2);
 
-void *InitDemoQueensSword(char *a0, void *a1) {
+void *InitDemoQueensSword(char *a0, void *a1)
+{
     DemoQueenSwordWork *w;
     int i;
 
@@ -220,11 +248,13 @@ void *InitDemoQueensSword(char *a0, void *a1) {
     }
     return w;
 }
-void ExecDemoQueensSword(char *a0) {
+void ExecDemoQueensSword(char *a0)
+{
     char *e = *(char **)(a0 + 0x15C);
     char *p = *(char **)(e + 0x830);
     *(int *)(*(char **)(p + 0x5C) + 0x16C) = *(int *)(e + 0x74);
 }
-void SetWeaponOffsetMode(char *a0, int a1) {
+void SetWeaponOffsetMode(char *a0, int a1)
+{
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC0) = a1;
 }

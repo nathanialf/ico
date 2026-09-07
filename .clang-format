@@ -1,0 +1,33 @@
+# Repo C style, matched to the existing sources (4-space indent, K&R braces,
+# pointer stars on the name). Whitespace and line breaks only: the byte gate
+# proves formatting never changes the ROM. Run tools/format.sh.
+BasedOnStyle: LLVM
+Language: Cpp
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+BreakBeforeBraces: Linux
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: false
+PointerAlignment: Right
+DerivePointerAlignment: false
+SpaceAfterCStyleCast: false
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignTrailingComments: true
+AlignAfterOpenBracket: Align
+BinPackArguments: true
+BinPackParameters: true
+ReflowComments: false
+SortIncludes: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+IndentCaseLabels: false
+BreakBeforeBinaryOperators: None
+ContinuationIndentWidth: 4
+AlignOperands: Align
+SpacesBeforeTrailingComments: 1

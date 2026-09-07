@@ -2,7 +2,8 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aInit);
 extern char *D_00639EA8;
-void actSt00aEnd(void) {
+void actSt00aEnd(void)
+{
     if (D_00639EA8 != 0) {
         if (gflagChk(0x2A) == 0) {
             gflagOn(0x187);
@@ -18,14 +19,14 @@ INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor1);
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor1UpChk);
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor1DownChk);
 typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(int);          /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
+    int mail;          /* 0x00 */
+    void (*func)(int); /* 0x04 */
+    int unk08;         /* 0x08 */
+    int unk0C;         /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD4];           /* 0x00 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD4]; /* 0x00 */
+    ActMail *mail;    /* 0xD4 */
 } Act;
 extern Act *actInitialize(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -34,7 +35,8 @@ extern void _ACTWait(int a0);
 extern ActMail D_004F7E70[];
 void actSt00aEneChk(int a0);
 
-void actSt00aEne(volatile int a0) {
+void actSt00aEne(volatile int a0)
+{
     int x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
@@ -50,7 +52,8 @@ extern void Generator_Mask(int a0);
 extern void Generator_MaskOff(int a0);
 extern void Generator_Call(int a0);
 
-void actSt00aEnemy1(volatile int a0) {
+void actSt00aEnemy1(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
@@ -67,7 +70,8 @@ void actSt00aEnemy1(volatile int a0) {
     Generator_Call(a0);
 }
 
-void actSt00aEnemy2(volatile int a0) {
+void actSt00aEnemy2(volatile int a0)
+{
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
@@ -91,7 +95,8 @@ extern PObjGObj *scpSearchGobj(int a0);
 extern ActMail D_004F7E90[];
 void actSt00aStairChk(int a0);
 
-void actSt00aStair(volatile int a0) {
+void actSt00aStair(volatile int a0)
+{
     int x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
@@ -109,7 +114,8 @@ void actSt00aStair(volatile int a0) {
 extern ActMail D_004F7E50[];
 void actSt00aAtr2Chk(volatile int a0);
 
-void actSt00aAtr2(volatile int a0) {
+void actSt00aAtr2(volatile int a0)
+{
     int x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
@@ -123,7 +129,8 @@ void actSt00aAtr2(volatile int a0) {
 }
 extern int scpTriggerFloorAttr(int a0, int a1);
 
-void actSt00aAtr2Chk(volatile int a0) {
+void actSt00aAtr2Chk(volatile int a0)
+{
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
@@ -141,7 +148,8 @@ extern int *iosPadActVolumeSet(int key, unsigned int val);
 extern int stage_CheckAnimationFinish(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 
-void actSt00aStairChkSub(volatile int a0) {
+void actSt00aStairChkSub(volatile int a0)
+{
     _ACTWait(0x5A);
     iosPadActRequest(D_00639EAC, 0x11);
     while (stage_CheckAnimationFinish(0x57) == 0) {
@@ -157,7 +165,8 @@ void actSt00aStairChkSub(volatile int a0) {
     D_0063C4F8 = 1;
     _ACTWait(0);
 }
-void actSt00aDoor2Event(int x) {
+void actSt00aDoor2Event(int x)
+{
     volatile int local = x;
 }
 extern long long D_006226B0[];
@@ -165,33 +174,102 @@ extern long long D_006226C0[];
 extern void _ACTWait(int a0);
 extern void scpEffectStart(int *buf, int a1);
 
-void actSt00aDoor2UpEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_006226B0[0]; long long v0b=D_006226C0[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_006226B0[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_006226C0[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
-void actSt00aDoor2DownEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_006226C0[0]; long long v0b=D_006226B0[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_006226C0[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_006226B0[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
-void actSt00aDoor1Event(int x) {
+void actSt00aDoor2UpEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_006226B0[0];
+    long long v0b = D_006226C0[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_006226B0[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_006226C0[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+void actSt00aDoor2DownEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_006226C0[0];
+    long long v0b = D_006226B0[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_006226C0[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_006226B0[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+void actSt00aDoor1Event(int x)
+{
     volatile int local = x;
 }
 extern long long D_006226E0[];
 extern long long D_006226F0[];
 
-void actSt00aDoor1UpEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_006226E0[0]; long long v0b=D_006226F0[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_006226E0[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_006226F0[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
-void actSt00aDoor1DownEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_006226F0[0]; long long v0b=D_006226E0[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_006226F0[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_006226E0[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
+void actSt00aDoor1UpEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_006226E0[0];
+    long long v0b = D_006226F0[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_006226E0[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_006226F0[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+void actSt00aDoor1DownEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_006226F0[0];
+    long long v0b = D_006226E0[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_006226F0[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_006226E0[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}

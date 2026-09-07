@@ -21,7 +21,8 @@ inline int GetCageChainPoint(char *a0, char *a1, char *a2)
     return *(int *)(w + 0x40);
 }
 INCLUDE_ASM("asm/nonmatchings/src/cage", InitCageGeo);
-inline void SetCageChainHangableFlag(char *a0, int a1) {
+inline void SetCageChainHangableFlag(char *a0, int a1)
+{
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x40) = a1;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cage", HotInitCageGeo);
@@ -35,7 +36,8 @@ inline void StabilizeAllLayoutedCage(void)
         gobj = isysGObjSearchFromObjKindID_next(gobj);
     }
 }
-inline void SetCageVelocityFriction(char *a0, float a1) {
+inline void SetCageVelocityFriction(char *a0, float a1)
+{
     *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x3C) = a1;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cage", CageGeo);

@@ -19,7 +19,8 @@ inline void PuddleGeo(char *a0)
     p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     for (i = 0; i < 6; i++) {
         if (*(float *)(p + 0x20) < 200.0f) {
-            *(float *)(p + 0x20) += 60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 2.0f;
+            *(float *)(p + 0x20) +=
+                60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 2.0f;
         }
         p += 0x20;
     }

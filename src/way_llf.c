@@ -9,22 +9,45 @@ typedef struct WayGroup {
     char _2c[0x8];
 } WayGroup;
 
-typedef struct { int w[13]; } WayRec;
+typedef struct {
+    int w[13];
+} WayRec;
 
-typedef struct { int w[16]; } WayGroup_DW;
+typedef struct {
+    int w[16];
+} WayGroup_DW;
 
-typedef struct { int w[16]; } WayGroup_CT;
+typedef struct {
+    int w[16];
+} WayGroup_CT;
 
-typedef struct WpNode { int f0; char _4[0x14]; int f18; char _1C[0x0C]; int f28; char _2C[0x08]; } WpNode;
+typedef struct WpNode {
+    int f0;
+    char _4[0x14];
+    int f18;
+    char _1C[0x0C];
+    int f28;
+    char _2C[0x08];
+} WpNode;
 
 typedef struct NdW {
-    int f0; int _4;
-    struct NdW *f8; struct NdW *fC;
-    int f10; char _14[0xC];
-    int f20; char _24[0x4];
-    int f28; char _2C[0x14];
+    int f0;
+    int _4;
+    struct NdW *f8;
+    struct NdW *fC;
+    int f10;
+    char _14[0xC];
+    int f20;
+    char _24[0x4];
+    int f28;
+    char _2C[0x14];
 } NdW;
-typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
+typedef struct Nd {
+    int pad[2];
+    struct Nd *f8;
+    struct Nd *fC;
+    char pad2[0x40 - 16];
+} Nd;
 
 typedef struct WayGrp {
     int f0;
@@ -214,7 +237,8 @@ inline int DeleteWayPoint(int pno)
     NdW *next = wp->fC;
     WayGrp *wg = (WayGrp *)&D_004F1EC0[wp->f20];
 
-    if (wg->f10 < 4) wg->f14 = 0;
+    if (wg->f10 < 4)
+        wg->f14 = 0;
 
     if (wg->f14 != 0) {
         if (wp == wg->f8) {
@@ -262,7 +286,8 @@ inline WpNode *WayGroup_begin(void)
     if (p != 0 && p != end) {
         do {
             p++;
-            if (p->f0 != 0) return p;
+            if (p->f0 != 0)
+                return p;
         } while (p != end);
     }
     return 0;
@@ -276,7 +301,8 @@ inline WpNode *WayGroup_next(WpNode *p)
         WpNode *q = p;
         do {
             q++;
-            if (q->f0 != 0) return q;
+            if (q->f0 != 0)
+                return q;
         } while (q != end);
     }
     return 0;
@@ -288,7 +314,8 @@ inline WpNode *WayBridge_begin(void)
     if (p != 0 && p != end) {
         do {
             p++;
-            if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0) return p;
+            if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0)
+                return p;
         } while (p != end);
     }
     return 0;
@@ -300,7 +327,8 @@ inline WpNode *WayBridge_next(WpNode *p)
         WpNode *q = p;
         do {
             q++;
-            if (q->f0 != 0 && q->f18 != 0 && q->f28 != 0) return q;
+            if (q->f0 != 0 && q->f18 != 0 && q->f28 != 0)
+                return q;
         } while (q != end);
     }
     return 0;
@@ -312,7 +340,8 @@ inline WpNode *WayBridgeAll_begin(void)
     if (p != 0 && p != end) {
         do {
             p++;
-            if (p->f0 != 0 && p->f18 != 0) return p;
+            if (p->f0 != 0 && p->f18 != 0)
+                return p;
         } while (p != end);
     }
     return 0;
@@ -324,29 +353,36 @@ inline WpNode *WayBridgeAll_next(WpNode *p)
         WpNode *q = p;
         do {
             q++;
-            if (q->f0 != 0 && q->f18 != 0) return q;
+            if (q->f0 != 0 && q->f18 != 0)
+                return q;
         } while (q != end);
     }
     return 0;
 }
 
-inline void *WayBridgeVar_begin(void) {
+inline void *WayBridgeVar_begin(void)
+{
     WayRec *p = (WayRec *)&D_004F1E8C;
     WayRec *end = (WayRec *)&D_004F1E8C + 94;
-    if (p == 0) goto ret0;
-    if (p == end) goto ret0;
-    for (p++; ; p++) {
-        if (p->w[0] != 0 && p->w[6] != 0 && p->w[10] != 0) return p;
-        if (p == end) break;
+    if (p == 0)
+        goto ret0;
+    if (p == end)
+        goto ret0;
+    for (p++;; p++) {
+        if (p->w[0] != 0 && p->w[6] != 0 && p->w[10] != 0)
+            return p;
+        if (p == end)
+            break;
     }
 ret0:
     return 0;
 }
 
-inline WayGroup *WayBridgeVar_next(WayGroup *a0) {
+inline WayGroup *WayBridgeVar_next(WayGroup *a0)
+{
     WayGroup *p, *end = (WayGroup *)&D_004F31A4;
     if (a0 != 0 && a0 != end) {
-        for (p = a0 + 1; ; p++) {
+        for (p = a0 + 1;; p++) {
             if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0)
                 return p;
             if (p == end)
@@ -357,61 +393,75 @@ inline WayGroup *WayBridgeVar_next(WayGroup *a0) {
 }
 extern WayGroup_CT D_004F31A0[];
 
-inline void *WayPoint_begin(void) {
+inline void *WayPoint_begin(void)
+{
     WayGroup_CT *p = D_004F31A0;
     WayGroup_CT *end = D_004F31A0 + 275;
-    if (p == 0) goto ret0;
-    if (p == end) goto ret0;
+    if (p == 0)
+        goto ret0;
+    if (p == end)
+        goto ret0;
     for (p++;; p++) {
-        if (p->w[0] != 0) return p;
-        if (p == end) break;
+        if (p->w[0] != 0)
+            return p;
+        if (p == end)
+            break;
     }
 ret0:
     return 0;
 }
 extern WayGroup_DW D_004F7660;
 
-inline void *WayPoint_next(WayGroup_DW *a0) {
+inline void *WayPoint_next(WayGroup_DW *a0)
+{
     WayGroup_DW *end = &D_004F7660;
-    if (a0 == 0) goto ret0;
-    if (a0 == end) goto ret0;
-    for (a0++; ; a0++) {
-        if (a0->w[0] != 0) return a0;
-        if (a0 == end) break;
+    if (a0 == 0)
+        goto ret0;
+    if (a0 == end)
+        goto ret0;
+    for (a0++;; a0++) {
+        if (a0->w[0] != 0)
+            return a0;
+        if (a0 == end)
+            break;
     }
 ret0:
     return 0;
 }
 
-inline int WayPointList_begin(int a0) {
+inline int WayPointList_begin(int a0)
+{
     return D_004F1EC0[a0].w[2];
 }
-inline int WayPointList_next(int *a0) {
+inline int WayPointList_next(int *a0)
+{
     register int v __asm__("$4") = (int)a0;
-    __asm__ (
-        ".set noreorder\n\t"
-        "daddu  $5, $4, $0\n\t"
-        "lui    $2, %%hi(D_004F1EC0)\n\t"
-        "lw     $3, 0x20($5)\n\t"
-        "addiu  $4, $0, 0x34\n\t"
-        "addiu  $2, $2, %%lo(D_004F1EC0)\n\t"
-        "mult   $3, $3, $4\n\t"
-        "addu   $3, $3, $2\n\t"
-        "beqz   $5, 1f\n\t"
-        " daddu $4, $0, $0\n\t"
-        "lw     $4, 0xC($5)\n\t"
-        "lw     $2, 0x8($3)\n\t"
-        "xor    $2, $4, $2\n\t"
-        "movz   $4, $0, $2\n\t"
-        "1:\n\t"
-        ".set reorder\n\t"
-        : "+r"(v) : : "$2", "$3", "$5");
+    __asm__(".set noreorder\n\t"
+            "daddu  $5, $4, $0\n\t"
+            "lui    $2, %%hi(D_004F1EC0)\n\t"
+            "lw     $3, 0x20($5)\n\t"
+            "addiu  $4, $0, 0x34\n\t"
+            "addiu  $2, $2, %%lo(D_004F1EC0)\n\t"
+            "mult   $3, $3, $4\n\t"
+            "addu   $3, $3, $2\n\t"
+            "beqz   $5, 1f\n\t"
+            " daddu $4, $0, $0\n\t"
+            "lw     $4, 0xC($5)\n\t"
+            "lw     $2, 0x8($3)\n\t"
+            "xor    $2, $4, $2\n\t"
+            "movz   $4, $0, $2\n\t"
+            "1:\n\t"
+            ".set reorder\n\t"
+            : "+r"(v)
+            :
+            : "$2", "$3", "$5");
     return v;
 }
 extern char D_00621EB0[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
-inline int waypoint_bidirectional_list(int *self, int which) {
+inline int waypoint_bidirectional_list(int *self, int which)
+{
     if (self == 0) {
         return 0;
     }
@@ -421,7 +471,8 @@ inline int waypoint_bidirectional_list(int *self, int which) {
     }
     return self[0xC / 4];
 }
-inline void SetWayGroupActive(int a0, int a1) {
+inline void SetWayGroupActive(int a0, int a1)
+{
     D_004F1EC0[a0].w[10] = a1;
 }
 inline int CheckWayGroupActive(int idx)

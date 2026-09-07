@@ -432,19 +432,18 @@ INCLUDE_ASM("asm/nonmatchings/src/Matrix", _PushVu0Registers);
 INCLUDE_ASM("asm/nonmatchings/src/Matrix", _PopVu0Registers);
 inline void _NormalizeVector(void *p0, void *p1, void *p2)
 {
-    __asm__ __volatile__(
-        "lqc2 $vf1, 0x0(%1)\n\t"
-        "vmul.xyz $vf3, $vf1, $vf1\n\t"
-        "vmulax.w ACC, $vf0, $vf3x\n\t"
-        "vmadday.w ACC, $vf0, $vf3y\n\t"
-        "vmaddz.w $vf3, $vf0, $vf3z\n\t"
-        "vrsqrt Q, $vf0w, $vf3w\n\t"
-        "vwaitq\n\t"
-        "vmulq.xyz $vf1, $vf1, Q\n\t"
-        "sqc2 $vf1, 0x0(%0)"
-        :
-        : "r"(p0), "r"(p1)
-        : "memory");
+    __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
+                         "vmul.xyz $vf3, $vf1, $vf1\n\t"
+                         "vmulax.w ACC, $vf0, $vf3x\n\t"
+                         "vmadday.w ACC, $vf0, $vf3y\n\t"
+                         "vmaddz.w $vf3, $vf0, $vf3z\n\t"
+                         "vrsqrt Q, $vf0w, $vf3w\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyz $vf1, $vf1, Q\n\t"
+                         "sqc2 $vf1, 0x0(%0)"
+                         :
+                         : "r"(p0), "r"(p1)
+                         : "memory");
 }
 inline void _InnerProduct(void *p0, void *p1, void *p2)
 {
@@ -460,16 +459,15 @@ inline void _InnerProduct(void *p0, void *p1, void *p2)
 }
 inline void _OuterProduct(void *p0, void *p1, void *p2, void *p3)
 {
-    __asm__ __volatile__(
-        "lqc2 $vf1, 0x0(%1)\n\t"
-        "lqc2 $vf2, 0x0(%2)\n\t"
-        "vopmula.xyz ACC, $vf1, $vf2\n\t"
-        "vopmsub.xyz $vf3, $vf2, $vf1\n\t"
-        "vsub.w $vf3, $vf3, $vf3\n\t"
-        "sqc2 $vf3, 0x0(%0)"
-        :
-        : "r"(p0), "r"(p1), "r"(p2)
-        : "memory");
+    __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
+                         "lqc2 $vf2, 0x0(%2)\n\t"
+                         "vopmula.xyz ACC, $vf1, $vf2\n\t"
+                         "vopmsub.xyz $vf3, $vf2, $vf1\n\t"
+                         "vsub.w $vf3, $vf3, $vf3\n\t"
+                         "sqc2 $vf3, 0x0(%0)"
+                         :
+                         : "r"(p0), "r"(p1), "r"(p2)
+                         : "memory");
 }
 inline void _AddVector(void *p0, void *p1, void *p2, void *p3)
 {
@@ -542,12 +540,11 @@ inline void _FTOI0Vector(void *p0, void *p1, void *p2)
 }
 inline void _CopyVector(void *dst, void *src)
 {
-    __asm__ __volatile__(
-        "lq $t0, 0x0(%1)\n\t"
-        "sq $t0, 0x0(%0)"
-        :
-        : "r"(dst), "r"(src)
-        : "$8", "memory");
+    __asm__ __volatile__("lq $t0, 0x0(%1)\n\t"
+                         "sq $t0, 0x0(%0)"
+                         :
+                         : "r"(dst), "r"(src)
+                         : "$8", "memory");
 }
 inline void _CopyIVector(void *dst, void *src)
 {
@@ -647,39 +644,38 @@ inline void _CopyMatrix(void *dst, void *src)
 }
 inline void _MulMatrix(void *p0, void *p1, void *p2)
 {
-    __asm__ __volatile__(
-        "lqc2 $vf14, 0x0(%1)\n\t"
-        "lqc2 $vf15, 0x10(%1)\n\t"
-        "lqc2 $vf16, 0x20(%1)\n\t"
-        "lqc2 $vf17, 0x30(%1)\n\t"
-        "lqc2 $vf24, 0x0(%2)\n\t"
-        "lqc2 $vf25, 0x10(%2)\n\t"
-        "lqc2 $vf26, 0x20(%2)\n\t"
-        "lqc2 $vf27, 0x30(%2)\n\t"
-        "vmulax.xyzw ACC, $vf14, $vf24x\n\t"
-        "vmadday.xyzw ACC, $vf15, $vf24y\n\t"
-        "vmaddaz.xyzw ACC, $vf16, $vf24z\n\t"
-        "vmaddw.xyzw $vf24, $vf17, $vf24w\n\t"
-        "vmulax.xyzw ACC, $vf14, $vf25x\n\t"
-        "vmadday.xyzw ACC, $vf15, $vf25y\n\t"
-        "vmaddaz.xyzw ACC, $vf16, $vf25z\n\t"
-        "vmaddw.xyzw $vf25, $vf17, $vf25w\n\t"
-        "vmulax.xyzw ACC, $vf14, $vf26x\n\t"
-        "vmadday.xyzw ACC, $vf15, $vf26y\n\t"
-        "vmaddaz.xyzw ACC, $vf16, $vf26z\n\t"
-        "vmaddw.xyzw $vf26, $vf17, $vf26w\n\t"
-        "vmulax.xyzw ACC, $vf14, $vf27x\n\t"
-        "vmadday.xyzw ACC, $vf15, $vf27y\n\t"
-        "vmaddaz.xyzw ACC, $vf16, $vf27z\n\t"
-        "vmaddw.xyzw $vf27, $vf17, $vf27w\n\t"
-        "sqc2 $vf24, 0x0(%0)\n\t"
-        "sqc2 $vf25, 0x10(%0)\n\t"
-        "sqc2 $vf26, 0x20(%0)\n\t"
-        "sqc2 $vf27, 0x30(%0)\n\t"
-        "nop"
-        :
-        : "r"(p0), "r"(p1), "r"(p2)
-        : "memory");
+    __asm__ __volatile__("lqc2 $vf14, 0x0(%1)\n\t"
+                         "lqc2 $vf15, 0x10(%1)\n\t"
+                         "lqc2 $vf16, 0x20(%1)\n\t"
+                         "lqc2 $vf17, 0x30(%1)\n\t"
+                         "lqc2 $vf24, 0x0(%2)\n\t"
+                         "lqc2 $vf25, 0x10(%2)\n\t"
+                         "lqc2 $vf26, 0x20(%2)\n\t"
+                         "lqc2 $vf27, 0x30(%2)\n\t"
+                         "vmulax.xyzw ACC, $vf14, $vf24x\n\t"
+                         "vmadday.xyzw ACC, $vf15, $vf24y\n\t"
+                         "vmaddaz.xyzw ACC, $vf16, $vf24z\n\t"
+                         "vmaddw.xyzw $vf24, $vf17, $vf24w\n\t"
+                         "vmulax.xyzw ACC, $vf14, $vf25x\n\t"
+                         "vmadday.xyzw ACC, $vf15, $vf25y\n\t"
+                         "vmaddaz.xyzw ACC, $vf16, $vf25z\n\t"
+                         "vmaddw.xyzw $vf25, $vf17, $vf25w\n\t"
+                         "vmulax.xyzw ACC, $vf14, $vf26x\n\t"
+                         "vmadday.xyzw ACC, $vf15, $vf26y\n\t"
+                         "vmaddaz.xyzw ACC, $vf16, $vf26z\n\t"
+                         "vmaddw.xyzw $vf26, $vf17, $vf26w\n\t"
+                         "vmulax.xyzw ACC, $vf14, $vf27x\n\t"
+                         "vmadday.xyzw ACC, $vf15, $vf27y\n\t"
+                         "vmaddaz.xyzw ACC, $vf16, $vf27z\n\t"
+                         "vmaddw.xyzw $vf27, $vf17, $vf27w\n\t"
+                         "sqc2 $vf24, 0x0(%0)\n\t"
+                         "sqc2 $vf25, 0x10(%0)\n\t"
+                         "sqc2 $vf26, 0x20(%0)\n\t"
+                         "sqc2 $vf27, 0x30(%0)\n\t"
+                         "nop"
+                         :
+                         : "r"(p0), "r"(p1), "r"(p2)
+                         : "memory");
 }
 inline void _ApplyMatrix(void *p0, void *p1, void *p2, void *p3)
 {
@@ -696,18 +692,17 @@ inline void _ApplyMatrix(void *p0, void *p1, void *p2, void *p3)
 }
 inline void _UnitMatrix(void *p0)
 {
-    __asm__ __volatile__(
-        "vmove.xyzw $vf17, $vf0\n\t"
-        "vmr32.xyzw $vf16, $vf17\n\t"
-        "vmr32.xyzw $vf15, $vf16\n\t"
-        "vmr32.xyzw $vf14, $vf15\n\t"
-        "sqc2 $vf14, 0x0(%0)\n\t"
-        "sqc2 $vf15, 0x10(%0)\n\t"
-        "sqc2 $vf16, 0x20(%0)\n\t"
-        "sqc2 $vf17, 0x30(%0)"
-        :
-        : "r"(p0)
-        : "memory");
+    __asm__ __volatile__("vmove.xyzw $vf17, $vf0\n\t"
+                         "vmr32.xyzw $vf16, $vf17\n\t"
+                         "vmr32.xyzw $vf15, $vf16\n\t"
+                         "vmr32.xyzw $vf14, $vf15\n\t"
+                         "sqc2 $vf14, 0x0(%0)\n\t"
+                         "sqc2 $vf15, 0x10(%0)\n\t"
+                         "sqc2 $vf16, 0x20(%0)\n\t"
+                         "sqc2 $vf17, 0x30(%0)"
+                         :
+                         : "r"(p0)
+                         : "memory");
 }
 inline void _UnitRotation(void *p0)
 {
@@ -730,7 +725,7 @@ inline void _ScaleMatrixV(void *dst, void *src, void *v)
 }
 inline void _TransposeMatrix(void *dst, void *src)
 {
-    __asm__ __volatile__("lq $t0, 0x0($a1)"  : : : "memory");
+    __asm__ __volatile__("lq $t0, 0x0($a1)" : : : "memory");
     __asm__ __volatile__("lq $t1, 0x10($a1)" : : : "memory");
     __asm__ __volatile__("lq $t2, 0x20($a1)" : : : "memory");
     __asm__ __volatile__("lq $t3, 0x30($a1)" : : : "memory");
@@ -742,43 +737,42 @@ inline void _TransposeMatrix(void *dst, void *src)
     __asm__ __volatile__("pcpyud $t1, $t4, $t6");
     __asm__ __volatile__("pcpyld $t2, $t7, $t5");
     __asm__ __volatile__("pcpyud $t3, $t5, $t7");
-    __asm__ __volatile__("sq $t0, 0x0($a0)"  : : : "memory");
+    __asm__ __volatile__("sq $t0, 0x0($a0)" : : : "memory");
     __asm__ __volatile__("sq $t1, 0x10($a0)" : : : "memory");
     __asm__ __volatile__("sq $t2, 0x20($a0)" : : : "memory");
     __asm__ __volatile__("sq $t3, 0x30($a0)" : : : "memory");
 }
 inline void _InversMatrix(void *dst, void *src)
 {
-    __asm__ __volatile__(
-        "lq $t0, 0x0(%1)\n\t"
-        "lq $t1, 0x10(%1)\n\t"
-        "lq $t2, 0x20(%1)\n\t"
-        "lqc2 $vf4, 0x30(%1)\n\t"
-        "vmove.xyzw $vf5, $vf4\n\t"
-        "vsub.xyz $vf4, $vf4, $vf4\n\t"
-        "vmove.xyzw $vf9, $vf4\n\t"
-        "qmfc2.ni $t3, $vf4\n\t"
-        "pextlw $t4, $t1, $t0\n\t"
-        "pextuw $t5, $t1, $t0\n\t"
-        "pextlw $t6, $t3, $t2\n\t"
-        "pextuw $t7, $t3, $t2\n\t"
-        "pcpyld $t0, $t6, $t4\n\t"
-        "pcpyud $t1, $t4, $t6\n\t"
-        "pcpyld $t2, $t7, $t5\n\t"
-        "qmtc2.ni $t0, $vf6\n\t"
-        "qmtc2.ni $t1, $vf7\n\t"
-        "qmtc2.ni $t2, $vf8\n\t"
-        "vmulax.xyz ACC, $vf6, $vf5x\n\t"
-        "vmadday.xyz ACC, $vf7, $vf5y\n\t"
-        "vmaddz.xyz $vf4, $vf8, $vf5z\n\t"
-        "vsub.xyz $vf4, $vf9, $vf4\n\t"
-        "sq $t0, 0x0(%0)\n\t"
-        "sq $t1, 0x10(%0)\n\t"
-        "sq $t2, 0x20(%0)\n\t"
-        "sqc2 $vf4, 0x30(%0)"
-        :
-        : "r"(dst), "r"(src)
-        : "$8", "$9", "$10", "$11", "$12", "$13", "$14", "$15", "memory");
+    __asm__ __volatile__("lq $t0, 0x0(%1)\n\t"
+                         "lq $t1, 0x10(%1)\n\t"
+                         "lq $t2, 0x20(%1)\n\t"
+                         "lqc2 $vf4, 0x30(%1)\n\t"
+                         "vmove.xyzw $vf5, $vf4\n\t"
+                         "vsub.xyz $vf4, $vf4, $vf4\n\t"
+                         "vmove.xyzw $vf9, $vf4\n\t"
+                         "qmfc2.ni $t3, $vf4\n\t"
+                         "pextlw $t4, $t1, $t0\n\t"
+                         "pextuw $t5, $t1, $t0\n\t"
+                         "pextlw $t6, $t3, $t2\n\t"
+                         "pextuw $t7, $t3, $t2\n\t"
+                         "pcpyld $t0, $t6, $t4\n\t"
+                         "pcpyud $t1, $t4, $t6\n\t"
+                         "pcpyld $t2, $t7, $t5\n\t"
+                         "qmtc2.ni $t0, $vf6\n\t"
+                         "qmtc2.ni $t1, $vf7\n\t"
+                         "qmtc2.ni $t2, $vf8\n\t"
+                         "vmulax.xyz ACC, $vf6, $vf5x\n\t"
+                         "vmadday.xyz ACC, $vf7, $vf5y\n\t"
+                         "vmaddz.xyz $vf4, $vf8, $vf5z\n\t"
+                         "vsub.xyz $vf4, $vf9, $vf4\n\t"
+                         "sq $t0, 0x0(%0)\n\t"
+                         "sq $t1, 0x10(%0)\n\t"
+                         "sq $t2, 0x20(%0)\n\t"
+                         "sqc2 $vf4, 0x30(%0)"
+                         :
+                         : "r"(dst), "r"(src)
+                         : "$8", "$9", "$10", "$11", "$12", "$13", "$14", "$15", "memory");
 }
 inline void _SetCameraMatrix(void *dst, void *pos, void *dir, void *up)
 {
@@ -809,78 +803,76 @@ inline void _Sqrt(void *p0, void *p1, void *p2, void *p3, void *p4, void *p5)
 }
 inline void _MakeNormalLightMatrix(void *dst, void *s0, void *s1, void *s2)
 {
-    __asm__ __volatile__(
-        "vsubw.x $vf1, $vf0, $vf0w\n\t"
-        "lqc2 $vf24, 0(%1)\n\t"
-        "lqc2 $vf25, 0(%2)\n\t"
-        "lqc2 $vf26, 0(%3)\n\t"
-        "vmulx.xyz $vf24, $vf24, $vf1x\n\t"
-        "vmulx.xyz $vf25, $vf25, $vf1x\n\t"
-        "vmulx.xyz $vf26, $vf26, $vf1x\n\t"
-        "vmul.xyz $vf14, $vf24, $vf24\n\t"
-        "vaddy.x $vf14, $vf14, $vf14y\n\t"
-        "vaddz.x $vf14, $vf14, $vf14z\n\t"
-        "vrsqrt Q, $vf0w, $vf14x\n\t"
-        "vmul.xyz $vf15, $vf25, $vf25\n\t"
-        "vaddy.x $vf15, $vf15, $vf15y\n\t"
-        "vaddz.x $vf15, $vf15, $vf15z\n\t"
-        "vwaitq\n\t"
-        "vmulq.xyz $vf24, $vf24, Q\n\t"
-        "vnop\n\t"
-        "vnop\n\t"
-        "vrsqrt Q, $vf0w, $vf15x\n\t"
-        "vmul.xyz $vf16, $vf26, $vf26\n\t"
-        "vaddy.x $vf16, $vf16, $vf16y\n\t"
-        "vaddz.x $vf16, $vf16, $vf16z\n\t"
-        "vwaitq\n\t"
-        "vmulq.xyz $vf25, $vf25, Q\n\t"
-        "vnop\n\t"
-        "vnop\n\t"
-        "vrsqrt Q, $vf0w, $vf16x\n\t"
-        "vwaitq\n\t"
-        "vmulq.xyz $vf26, $vf26, Q\n\t"
-        "vmove.xyzw $vf27, $vf0\n\t"
-        "vmove.xyzw $vf14, $vf24\n\t"
-        "vmove.xyzw $vf15, $vf25\n\t"
-        "vmove.xyzw $vf16, $vf26\n\t"
-        "vmove.xyzw $vf17, $vf27\n\t"
-        "vsub.xyzw $vf1, $vf0, $vf0\n\t"
-        "vaddx.y $vf14, $vf1, $vf25x\n\t"
-        "vaddx.z $vf14, $vf1, $vf26x\n\t"
-        "vaddx.w $vf14, $vf1, $vf27x\n\t"
-        "vaddy.x $vf15, $vf1, $vf24y\n\t"
-        "vaddy.z $vf15, $vf1, $vf26y\n\t"
-        "vaddy.w $vf15, $vf1, $vf27y\n\t"
-        "vaddz.x $vf16, $vf1, $vf24z\n\t"
-        "vaddz.y $vf16, $vf1, $vf25z\n\t"
-        "vaddz.w $vf16, $vf1, $vf27z\n\t"
-        "vaddw.x $vf17, $vf1, $vf24w\n\t"
-        "vaddw.y $vf17, $vf1, $vf25w\n\t"
-        "vaddw.z $vf17, $vf1, $vf26w\n\t"
-        "sqc2 $vf14, 0x0(%0)\n\t"
-        "sqc2 $vf15, 0x10(%0)\n\t"
-        "sqc2 $vf16, 0x20(%0)\n\t"
-        "sqc2 $vf17, 0x30(%0)\n\t"
-        "nop"
-        :
-        : "r"(dst), "r"(s0), "r"(s1), "r"(s2)
-        : "$6", "$7", "$8", "$9", "memory");
+    __asm__ __volatile__("vsubw.x $vf1, $vf0, $vf0w\n\t"
+                         "lqc2 $vf24, 0(%1)\n\t"
+                         "lqc2 $vf25, 0(%2)\n\t"
+                         "lqc2 $vf26, 0(%3)\n\t"
+                         "vmulx.xyz $vf24, $vf24, $vf1x\n\t"
+                         "vmulx.xyz $vf25, $vf25, $vf1x\n\t"
+                         "vmulx.xyz $vf26, $vf26, $vf1x\n\t"
+                         "vmul.xyz $vf14, $vf24, $vf24\n\t"
+                         "vaddy.x $vf14, $vf14, $vf14y\n\t"
+                         "vaddz.x $vf14, $vf14, $vf14z\n\t"
+                         "vrsqrt Q, $vf0w, $vf14x\n\t"
+                         "vmul.xyz $vf15, $vf25, $vf25\n\t"
+                         "vaddy.x $vf15, $vf15, $vf15y\n\t"
+                         "vaddz.x $vf15, $vf15, $vf15z\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyz $vf24, $vf24, Q\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vrsqrt Q, $vf0w, $vf15x\n\t"
+                         "vmul.xyz $vf16, $vf26, $vf26\n\t"
+                         "vaddy.x $vf16, $vf16, $vf16y\n\t"
+                         "vaddz.x $vf16, $vf16, $vf16z\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyz $vf25, $vf25, Q\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vrsqrt Q, $vf0w, $vf16x\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyz $vf26, $vf26, Q\n\t"
+                         "vmove.xyzw $vf27, $vf0\n\t"
+                         "vmove.xyzw $vf14, $vf24\n\t"
+                         "vmove.xyzw $vf15, $vf25\n\t"
+                         "vmove.xyzw $vf16, $vf26\n\t"
+                         "vmove.xyzw $vf17, $vf27\n\t"
+                         "vsub.xyzw $vf1, $vf0, $vf0\n\t"
+                         "vaddx.y $vf14, $vf1, $vf25x\n\t"
+                         "vaddx.z $vf14, $vf1, $vf26x\n\t"
+                         "vaddx.w $vf14, $vf1, $vf27x\n\t"
+                         "vaddy.x $vf15, $vf1, $vf24y\n\t"
+                         "vaddy.z $vf15, $vf1, $vf26y\n\t"
+                         "vaddy.w $vf15, $vf1, $vf27y\n\t"
+                         "vaddz.x $vf16, $vf1, $vf24z\n\t"
+                         "vaddz.y $vf16, $vf1, $vf25z\n\t"
+                         "vaddz.w $vf16, $vf1, $vf27z\n\t"
+                         "vaddw.x $vf17, $vf1, $vf24w\n\t"
+                         "vaddw.y $vf17, $vf1, $vf25w\n\t"
+                         "vaddw.z $vf17, $vf1, $vf26w\n\t"
+                         "sqc2 $vf14, 0x0(%0)\n\t"
+                         "sqc2 $vf15, 0x10(%0)\n\t"
+                         "sqc2 $vf16, 0x20(%0)\n\t"
+                         "sqc2 $vf17, 0x30(%0)\n\t"
+                         "nop"
+                         :
+                         : "r"(dst), "r"(s0), "r"(s1), "r"(s2)
+                         : "$6", "$7", "$8", "$9", "memory");
 }
 inline void _MakeLightColorMatrix(void *dst, void *s0, void *s1, void *s2, void *s3)
 {
-    __asm__ __volatile__(
-        "lq $6, 0(%1)\n\t"
-        "lq $7, 0(%2)\n\t"
-        "lq $8, 0(%3)\n\t"
-        "lq $9, 0(%4)\n\t"
-        "sq $6, 0(%0)\n\t"
-        "sq $7, 0x10(%0)\n\t"
-        "sq $8, 0x20(%0)\n\t"
-        "sq $9, 0x30(%0)\n\t"
-        "nop"
-        :
-        : "r"(dst), "r"(s0), "r"(s1), "r"(s2), "r"(s3)
-        : "$6", "$7", "$8", "$9", "memory");
+    __asm__ __volatile__("lq $6, 0(%1)\n\t"
+                         "lq $7, 0(%2)\n\t"
+                         "lq $8, 0(%3)\n\t"
+                         "lq $9, 0(%4)\n\t"
+                         "sq $6, 0(%0)\n\t"
+                         "sq $7, 0x10(%0)\n\t"
+                         "sq $8, 0x20(%0)\n\t"
+                         "sq $9, 0x30(%0)\n\t"
+                         "nop"
+                         :
+                         : "r"(dst), "r"(s0), "r"(s1), "r"(s2), "r"(s3)
+                         : "$6", "$7", "$8", "$9", "memory");
 }
 inline void _InitRandom(void *p0, void *p1, void *p2, void *p3)
 {
@@ -893,16 +885,16 @@ inline void _InitRandom(void *p0, void *p1, void *p2, void *p3)
     VU0_REG("vrinit R, $vf2x");
     VU0_REG("vrxor R, $vf1x");
 }
-inline float _GetRandom(void) {
+inline float _GetRandom(void)
+{
     register float ret __asm__("$f0");
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "vrnext.x $vf1, R\n"
-        "vsubw.x $vf1, $vf1, $vf0w\n"
-        "qmfc2.ni $7, $vf1\n"
-        "mtc1 $7, $f0\n"
-        ".set reorder\n"
-        : "=f"(ret) :: "$7");
+    __asm__ __volatile__(".set noreorder\n"
+                         "vrnext.x $vf1, R\n"
+                         "vsubw.x $vf1, $vf1, $vf0w\n"
+                         "qmfc2.ni $7, $vf1\n"
+                         "mtc1 $7, $f0\n"
+                         ".set reorder\n"
+                         : "=f"(ret)::"$7");
     return ret;
 }
 inline void _GetRandomVector(void *p0)

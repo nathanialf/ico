@@ -7,15 +7,15 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -101,9 +101,9 @@ extern unsigned char st04r_yure_vol;
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
 typedef struct Pad {
-    int unk00;                  /* 0x00 */
-    int trg;                    /* 0x04 */
-    char unk08[0x50];           /* 0x08 */
+    int unk00;        /* 0x00 */
+    int trg;          /* 0x04 */
+    char unk08[0x50]; /* 0x08 */
 } Pad;
 extern Pad D_0028F8F0[];
 extern void scpSleepEnemyOne(int a0);
@@ -113,7 +113,8 @@ extern void fightSoundProcessRequestStart(void);
 extern int fightSoundPlayChk(void);
 
 extern int solar4r;
-void actSt05eEnd(void) {
+void actSt05eEnd(void)
+{
     if (solar4r != 0) {
         if (gflagChk(0xEA) == 0) {
             scpAdpcmCloseFunc(&solar4r);
@@ -372,8 +373,7 @@ void openGate(int a0)
     D_0063C53C = 0;
     D_0063C538 = -1;
 
-    while (D_0063C53C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C53C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -412,7 +412,8 @@ void actSt04rCrest2Main(volatile int a0)
 
     if (D_00639ED4 == 0x1C) {
         anim = 0x137;
-        while (scpIsTorchLightOn(0x580) == 0 || scpIsTorchLightOn(0x581) == 0 || gflagChk(0xFB) == 0) {
+        while (scpIsTorchLightOn(0x580) == 0 || scpIsTorchLightOn(0x581) == 0 ||
+               gflagChk(0xFB) == 0) {
             _ACTWait(1);
         }
 
@@ -422,7 +423,8 @@ void actSt04rCrest2Main(volatile int a0)
     if (D_00639ED4 == 0x1D) {
         anim = 0x138;
 
-        while (scpIsTorchLightOn(0x5CF) == 0 || scpIsTorchLightOn(0x5D0) == 0 || gflagChk(0xFB) == 0) {
+        while (scpIsTorchLightOn(0x5CF) == 0 || scpIsTorchLightOn(0x5D0) == 0 ||
+               gflagChk(0xFB) == 0) {
             _ACTWait(1);
         }
 
@@ -491,8 +493,8 @@ void actSt04rSolarBeam(volatile int a0)
     if (gflagChk(0xEA) == 0) {
         scpAdpcmPlayRequestFunc(0x1C, &solar4r, 0, 1, 0);
 
-        if (gflagChk(0xF3) != 0 && gflagChk(0xF4) != 0 &&
-            gflagChk(0xF5) != 0 && gflagChk(0xE8) != 0) {
+        if (gflagChk(0xF3) != 0 && gflagChk(0xF4) != 0 && gflagChk(0xF5) != 0 &&
+            gflagChk(0xE8) != 0) {
             if (D_00639EA4 != 0) {
                 scpPlayMot(D_00639EA4, 0);
             }
@@ -521,8 +523,8 @@ void actSt04rSolarBeam(volatile int a0)
 }
 void actSt04rSolarBeamChk(volatile int a0)
 {
-    while (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 ||
-           gflagChk(0xF5) == 0 || gflagChk(0xE8) == 0) {
+    while (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 || gflagChk(0xF5) == 0 ||
+           gflagChk(0xE8) == 0) {
         _ACTWait(1);
     }
 
@@ -549,8 +551,12 @@ void actSt04rSolarBeamChk(volatile int a0)
 
             scpAdpcmFadeCloseFunc(&solar4r, 0x100);
 
-            while (scpFadeChk() != 0) { _ACTWait(1); }
-            while (lt_fade_status() != 2) { _ACTWait(1); }
+            while (scpFadeChk() != 0) {
+                _ACTWait(1);
+            }
+            while (lt_fade_status() != 2) {
+                _ACTWait(1);
+            }
 
             stage_SetAnimation(0x15A, 0, -1);
             stage_SetAnimation(0x126, 0, -1);
@@ -664,24 +670,31 @@ void actSt04rStairChk(volatile int a0)
     D_0063C538 = -1;
     D_0063C548 = 0;
 
-    while (D_0063C53C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C53C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
     if (D_0063C53C == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        while (crest3_4r == 0) { _ACTWait(1); }
+        while (crest3_4r == 0) {
+            _ACTWait(1);
+        }
 
         scpAdpcmFadeCloseFunc(&crest3_4r, 0x200);
 
-        while (D_0063C548 == 0) { _ACTWait(1); }
+        while (D_0063C548 == 0) {
+            _ACTWait(1);
+        }
 
         iosThreadSetPri((int *)(th + 0x24), 0x22);
 
-        while (scpFadeChk() != 0) { _ACTWait(1); }
-        while (lt_fade_status() != 2) { _ACTWait(1); }
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
 
         stage_SetAnimation(0x15E, 0, -1);
         stage_SetAnimation(0x14A, 0, -1);
@@ -889,8 +902,7 @@ void actSt04rBrgCommon(volatile int a0)
 
     D_0063C53C = 0;
 
-    while (D_0063C53C == 0 &&
-           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C53C == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1348,8 +1360,7 @@ void actSt04rBarricadeChk(volatile int a0)
 {
     int n;
 
-    while ((n = scpIsBombExplode(0x13)) == 0 ||
-           scpTriggerBall(a0, n, 350.0f) == 0) {
+    while ((n = scpIsBombExplode(0x13)) == 0 || scpTriggerBall(a0, n, 350.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -1368,8 +1379,12 @@ void actSt04rBarricadeChk(volatile int a0)
         if ((D_0028F8F0[0].trg & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
-            while (scpFadeChk() != 0) { _ACTWait(1); }
-            while (lt_fade_status() != 2) { _ACTWait(1); }
+            while (scpFadeChk() != 0) {
+                _ACTWait(1);
+            }
+            while (lt_fade_status() != 2) {
+                _ACTWait(1);
+            }
 
             stage_SetAnimation(0x158, 0, -1);
 
@@ -1410,27 +1425,37 @@ void actSt04rGondolaChk(volatile int a0)
 
         scpWakeupItemWithBoundary(-675.0f, -150.0f, -1600.0f, 200.0f);
 
-        while (stage_CheckAnimationFrame(0xE5, 0xDC, 0) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFrame(0xE5, 0xDC, 0) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
 
         soundSeDefPlay(0x529, 0, 0, 1);
 
-        while (stage_CheckAnimationFrame(0xE5, 0xF0, 0) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFrame(0xE5, 0xF0, 0) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
 
         soundSeDefPlay(0x52A, 0, 0, 1);
 
-        while (stage_CheckAnimationFrame(0xE5, 0xFA, 0) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFrame(0xE5, 0xFA, 0) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
 
         soundSeDefPlay(0x527, 0, 0, 1);
 
-        while (stage_CheckAnimationFrame(0xE5, 0x19F, 0) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFrame(0xE5, 0x19F, 0) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
 
         soundSeDefPlay(0x528, 0, 0, 1);
 
-        while (stage_CheckAnimationFinish(0xE5) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFinish(0xE5) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
 
         gflagOff(0x11A);
@@ -1443,18 +1468,24 @@ void actSt04rGondolaChk(volatile int a0)
 
         soundSeDefPlay(0x527, 0, 0, 1);
 
-        while (stage_CheckAnimationFrame(0xE5, 0x91, 0) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFrame(0xE5, 0x91, 0) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
 
         soundSeDefPlay(0x528, 0, 0, 1);
         soundSeDefPlay(0x529, 0, 0, 1);
 
-        while (stage_CheckAnimationFrame(0xE5, 0xAA, 0) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFrame(0xE5, 0xAA, 0) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
 
         soundSeDefPlay(0x52A, 0, 0, 1);
 
-        while (stage_CheckAnimationFrame(0xE5, 0xC8, 1) == 0) { _ACTWait(1); }
+        while (stage_CheckAnimationFrame(0xE5, 0xC8, 1) == 0) {
+            _ACTWait(1);
+        }
         _ACTWait(1);
 
         ClearGirlDangerGObj();
@@ -2253,7 +2284,8 @@ void actSt04rC1BallSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-void actSt04rC1BallTurn(volatile int a0) {
+void actSt04rC1BallTurn(volatile int a0)
+{
     turnBall(a0, 0xFA, 0x13D, 0x57C, 0x57D);
 }
 extern ActMail D_004F91C0[];
@@ -2283,7 +2315,8 @@ void actSt04rC2BallSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-void actSt04rC2BallTurn(volatile int a0) {
+void actSt04rC2BallTurn(volatile int a0)
+{
     turnBall(a0, 0xFB, 0x13E, 0x5CF, 0x5D0);
 }
 extern ActMail D_004F9220[];
@@ -2313,7 +2346,8 @@ void actSt04rC3BallSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-void actSt04rC3BallTurn(volatile int a0) {
+void actSt04rC3BallTurn(volatile int a0)
+{
     turnBall(a0, 0xFC, 0x13F, 0x5D1, 0x5D2);
 }
 void actSt04rCrestMain(volatile int a0)
@@ -2336,22 +2370,27 @@ void actSt04rCrestMain(volatile int a0)
 }
 void actSt04rSolarStageChangeChk(volatile int a0)
 {
-    while (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 || gflagChk(0xF5) == 0 || gflagChk(0xE8) == 0) {
+    while (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 || gflagChk(0xF5) == 0 ||
+           gflagChk(0xE8) == 0) {
         _ACTWait(1);
     }
 
     RequestStageChange(8, D_00639EA4, 0, 2.0f, 8.0f);
 }
-void actSt04rStairEvent(int x) {
+void actSt04rStairEvent(int x)
+{
     volatile int local = x;
 }
-void actSt04rRope1Event(int x) {
+void actSt04rRope1Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rRope2Event(int x) {
+void actSt04rRope2Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rBrg1Event(int x) {
+void actSt04rBrg1Event(int x)
+{
     volatile int local = x;
 }
 extern ActMail D_004F93C0[];
@@ -2400,13 +2439,16 @@ void actSt04rBrg1Sub(volatile int a0)
     D_0063C53C = 1;
     _ACTWait(0);
 }
-void actSt04rRope3Event(int x) {
+void actSt04rRope3Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rRope4Event(int x) {
+void actSt04rRope4Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rBrg2Event(int x) {
+void actSt04rBrg2Event(int x)
+{
     volatile int local = x;
 }
 extern ActMail D_004F9440[];
@@ -2444,28 +2486,36 @@ void actSt04rBrg2WayChk(volatile int a0)
 
     SetWayGroupActive(4, 1);
 }
-void actSt04rMonyou01Event(int x) {
+void actSt04rMonyou01Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rMonyou02Event(int x) {
+void actSt04rMonyou02Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rMonyou03Event(int x) {
+void actSt04rMonyou03Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rMonyou04Event(int x) {
+void actSt04rMonyou04Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rMonyou05Event(int x) {
+void actSt04rMonyou05Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rMonyou06Event(int x) {
+void actSt04rMonyou06Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rMonyou07Event(int x) {
+void actSt04rMonyou07Event(int x)
+{
     volatile int local = x;
 }
-void actSt04rBarricadeEvent(int x) {
+void actSt04rBarricadeEvent(int x)
+{
     volatile int local = x;
 }
 extern ActMail D_004F9600[];

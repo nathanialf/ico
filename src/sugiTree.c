@@ -13,7 +13,8 @@ extern float GetTableSin(short a0);
 short *InitSugiLeafGeo(void);
 void SugiLeafGeo(void *gobj);
 short *InitSugiLeafGeo2(void *gobj);
-inline short *InitSugiLeafGeo(void) {
+inline short *InitSugiLeafGeo(void)
+{
     short *h = iosMallocDebug(D_0063A438, 2, (void *)D_00621328, 0xC);
     int r = rand();
     *h = r % 0x10000;

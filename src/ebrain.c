@@ -1,14 +1,14 @@
 #include "common.h"
 
 typedef struct EBSlot {
-    unsigned short f0;          /* 0x00 status */
+    unsigned short f0; /* 0x00 status */
     char pad2[2];
-    void *f04;                  /* 0x04 target GObj */
-    float f08;                  /* 0x08 */
-    float f0C;                  /* 0x0C */
-    int f10;                    /* 0x10 message */
-    int f14;                    /* 0x14 */
-    void *f18;                  /* 0x18 owner GObj */
+    void *f04; /* 0x04 target GObj */
+    float f08; /* 0x08 */
+    float f0C; /* 0x0C */
+    int f10;   /* 0x10 message */
+    int f14;   /* 0x14 */
+    void *f18; /* 0x18 owner GObj */
 } EBSlot;
 extern int eBrainBoyChaseCount;
 extern int eBrainGirlChaseCount;
@@ -19,8 +19,8 @@ extern char D_00555580[];
 extern void debug_StdPrintfDummy(const char *);
 typedef struct StageLabelRange {
     char pad0[0x128];
-    int labelTop;               /* 0x128 */
-    int labelEnd;               /* 0x12C */
+    int labelTop; /* 0x128 */
+    int labelEnd; /* 0x12C */
     char pad130[0x194 - 0x130];
 } StageLabelRange;
 extern StageLabelRange D_005F5D50[];
@@ -30,9 +30,9 @@ extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 typedef struct GenGeo {
     char pad0[0x46];
-    unsigned char kind;         /* 0x46 */
+    unsigned char kind; /* 0x46 */
     char pad47[1];
-    unsigned int f48;           /* 0x48 */
+    unsigned int f48; /* 0x48 */
 } GenGeo;
 extern GenGeo D_002C2DC8[];
 extern char D_005555C8[];
@@ -58,7 +58,8 @@ static inline void eBrainSetStatus(EBSlot *p, int newst)
     switch (newst) {
     case 1:
         eBrainBoyChaseCount++;
-        if (st != 1) p->f14 = 0;
+        if (st != 1)
+            p->f14 = 0;
         break;
     case 2:
         eBrainGirlChaseCount++;
@@ -71,7 +72,8 @@ static inline EBSlot *eBrainGetPacket(void *gop)
     int i;
 
     for (i = 0; i < 0x20; i++) {
-        if (((EBSlot *)D_006E6750)[i].f18 == gop) break;
+        if (((EBSlot *)D_006E6750)[i].f18 == gop)
+            break;
     }
     if (i == 0x20)
         return 0;
@@ -94,15 +96,20 @@ inline void eBrainInit(void)
         i--;
     } while (i >= 0);
 }
-inline int eBrainStatusSet(void *a0, int a1) {
+inline int eBrainStatusSet(void *a0, int a1)
+{
     EBSlot *slot;
     int i;
-    if (a1 != 4) return 0;
+    if (a1 != 4)
+        return 0;
     for (i = 0; i < 0x20; i++) {
-        if (((EBSlot *)D_006E6750)[i].f18 == 0) break;
+        if (((EBSlot *)D_006E6750)[i].f18 == 0)
+            break;
     }
-    if (i < 0x20) slot = &((EBSlot *)D_006E6750)[i];
-    else slot = 0;
+    if (i < 0x20)
+        slot = &((EBSlot *)D_006E6750)[i];
+    else
+        slot = 0;
     if (slot == 0) {
         debug_StdPrintfDummy(D_00555580);
         return 0;
@@ -228,8 +235,7 @@ EBSlot *eBrainGetTarget(void *gop)
     do {
         changed = 0;
         switch (p->f0) {
-        case 0:
-        {
+        case 0: {
             int n;
             int cnt;
             int found;
@@ -244,10 +250,12 @@ EBSlot *eBrainGetTarget(void *gop)
                     found = 1;
                     break;
                 }
-                if (e != 0) cnt++;
+                if (e != 0)
+                    cnt++;
             }
             boyIdx = -1;
-            if (found && cnt + eBrainBoyChaseCount <= 31) boyIdx = n;
+            if (found && cnt + eBrainBoyChaseCount <= 31)
+                boyIdx = n;
             found = 0;
             cnt = 0;
             for (n = 0; n < D_0063C2C8; n++) {
@@ -256,10 +264,12 @@ EBSlot *eBrainGetTarget(void *gop)
                     found = 1;
                     break;
                 }
-                if (e != 0) cnt++;
+                if (e != 0)
+                    cnt++;
             }
             girlIdx = -1;
-            if (found && cnt + eBrainGirlChaseCount <= 31) girlIdx = n;
+            if (found && cnt + eBrainGirlChaseCount <= 31)
+                girlIdx = n;
 
             {
                 int order[3];
@@ -366,12 +376,14 @@ inline void eBrainSendMes(void *gop, int mes)
         D_0063C2CC = gop;
         break;
     case 10:
-        if (D_0063C2CC == gop) D_0063C2CC = 0;
+        if (D_0063C2CC == gop)
+            D_0063C2CC = 0;
         eBrainSetStatus(p, 7);
         break;
     case 4:
     case 5:
-        if (D_0063C2CC == gop) D_0063C2CC = 0;
+        if (D_0063C2CC == gop)
+            D_0063C2CC = 0;
         break;
     }
 }

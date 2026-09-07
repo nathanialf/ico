@@ -12,7 +12,8 @@ INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cEne);
 INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cEnemy1);
 INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cEnemy2);
 INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cCrestHint);
-void actSt05cDoorDownEvent(int x) {
+void actSt05cDoorDownEvent(int x)
+{
     volatile int local = x;
 }
 INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cDoorDownEffect);

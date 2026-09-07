@@ -34,16 +34,20 @@ SYSCALL_WRAPPER(RemoveIntcHandler, 17)
 SYSCALL_WRAPPER(AddDmacHandler, 18)
 SYSCALL_WRAPPER(AddDmacHandler2, 18)
 SYSCALL_WRAPPER(RemoveDmacHandler, 19)
-int _EnableIntc() {
+int _EnableIntc()
+{
     __asm__ __volatile__("addiu $3, $zero, 20\n\tsyscall 0" : : : "$3", "memory");
 }
-int _DisableIntc(int a0) {
+int _DisableIntc(int a0)
+{
     __asm__ __volatile__("addiu $3, $zero, 21\n\tsyscall 0" : : : "$3", "memory");
 }
-int _EnableDmac(int a0) {
+int _EnableDmac(int a0)
+{
     __asm__ __volatile__("addiu $3, $zero, 22\n\tsyscall 0" : : : "$3", "memory");
 }
-int _DisableDmac(int a0) {
+int _DisableDmac(int a0)
+{
     __asm__ __volatile__("addiu $3, $zero, 23\n\tsyscall 0" : : : "$3", "memory");
 }
 SYSCALL_WRAPPER(SetAlarm, 252)
@@ -74,13 +78,15 @@ SYSCALL_WRAPPER(ReferThreadStatus, 48)
 SYSCALL_WRAPPER(iReferThreadStatus, -49)
 SYSCALL_WRAPPER(SleepThread, 50)
 SYSCALL_WRAPPER(WakeupThread, 51)
-int _iWakeupThread(void) {
+int _iWakeupThread(void)
+{
     __asm__ __volatile__("addiu $3, $zero, -52\n\tsyscall 0" : : : "$3", "memory");
 }
 SYSCALL_WRAPPER(CancelWakeupThread, 53)
 SYSCALL_WRAPPER(iCancelWakeupThread, -54)
 SYSCALL_WRAPPER(SuspendThread, 55)
-int _iSuspendThread(void) {
+int _iSuspendThread(void)
+{
     __asm__ __volatile__("addiu $3, $zero, -56\n\tsyscall 0" : : : "$3", "memory");
 }
 SYSCALL_WRAPPER(ResumeThread, 57)
@@ -93,7 +99,8 @@ SYSCALL_WRAPPER(RFU063, 63)
 SYSCALL_WRAPPER(CreateSema, 64)
 SYSCALL_WRAPPER(DeleteSema, 65)
 SYSCALL_WRAPPER(SignalSema, 66)
-void iSignalSema(int handle) {
+void iSignalSema(int handle)
+{
     __asm__ __volatile__("addiu $3, $zero, -67\n\tsyscall 0" : : : "$3", "memory");
 }
 SYSCALL_WRAPPER(WaitSema, 68)
@@ -159,18 +166,21 @@ SYSCALL_WRAPPER(isceSifSetDChain, -120)
 SYSCALL_WRAPPER(sceSifSetReg, 121)
 SYSCALL_WRAPPER(sceSifGetReg, 122)
 SYSCALL_WRAPPER(ExecOSD, 123)
-void Deci2Call(int req, void *args) {
+void Deci2Call(int req, void *args)
+{
     __asm__ __volatile__("addiu $3, $zero, 124\n\tsyscall 0" : : : "$3", "memory");
 }
 SYSCALL_WRAPPER(PSMode, 125)
 SYSCALL_WRAPPER(MachineType, 126)
 SYSCALL_WRAPPER(GetMemorySize, 127)
-void setup(int a0, int a1) {
+void setup(int a0, int a1)
+{
     __asm__ __volatile__("addiu $3, $zero, 116\n\tsyscall 0" : : : "$3", "memory");
 }
 extern void setup();
 
-void InitSysCall(void) {
+void InitSysCall(void)
+{
     int i = 0x80;
     do {
         setup(i, 0);
@@ -180,7 +190,8 @@ void InitSysCall(void) {
 extern void InitAlarm(void);
 extern void func_00100E40(void);
 
-void _InitSys(void) {
+void _InitSys(void)
+{
     InitSysCall();
     InitAlarm();
     func_00100E40();
@@ -188,7 +199,8 @@ void _InitSys(void) {
 extern void DIntr(void);
 extern void EIntr__pn(void) __asm__("EIntr");
 
-int DisableIntc(int a0) {
+int DisableIntc(int a0)
+{
     int eie;
     int rv;
     MFC0_STATUS(eie);
@@ -205,7 +217,8 @@ int DisableIntc(int a0) {
 }
 extern int _EnableIntc();
 
-int EnableIntc(int a0) {
+int EnableIntc(int a0)
+{
     int eie;
     int rv;
     MFC0_STATUS(eie);
@@ -220,7 +233,8 @@ int EnableIntc(int a0) {
     }
     return rv;
 }
-int DisableDmac(int a0) {
+int DisableDmac(int a0)
+{
     int eie;
     int rv;
     MFC0_STATUS(eie);
@@ -235,7 +249,8 @@ int DisableDmac(int a0) {
     }
     return rv;
 }
-int EnableDmac(int a0) {
+int EnableDmac(int a0)
+{
     int eie;
     int rv;
     MFC0_STATUS(eie);
@@ -252,31 +267,36 @@ int EnableDmac(int a0) {
 }
 extern void _iEnableIntc();
 
-void iEnableIntc(void) {
+void iEnableIntc(void)
+{
     _iEnableIntc();
     SYNC();
 }
 extern void _iDisableIntc();
 
-void iDisableIntc(void) {
+void iDisableIntc(void)
+{
     _iDisableIntc();
     SYNC();
 }
 extern void _iEnableDmac();
 
-void iEnableDmac(void) {
+void iEnableDmac(void)
+{
     _iEnableDmac();
     SYNC();
 }
 extern void _iDisableDmac();
 
-void iDisableDmac(void) {
+void iDisableDmac(void)
+{
     _iDisableDmac();
     SYNC();
 }
 SYSCALL_WRAPPER(func_00100C28, 116)
 SYSCALL_WRAPPER(Copy, 90)
-int kCopy(int *dst, int *src, unsigned int n) {
+int kCopy(int *dst, int *src, unsigned int n)
+{
     unsigned int i;
     n >>= 2;
     for (i = 0; i < n; i++) {
@@ -294,7 +314,8 @@ extern KernEventRing D_0063CB58;
 extern int _iWakeupThread(void);
 extern void iSignalSema(int handle);
 
-int iWakeupThread(int id) {
+int iWakeupThread(int id)
+{
     int r;
     int i;
     SYSCALL_INLINE(-0x2F, r);
@@ -317,7 +338,8 @@ post:
     iSignalSema(D_0063CB50[0]);
     return r;
 }
-int iRotateThreadReadyQueue(int id) {
+int iRotateThreadReadyQueue(int id)
+{
     int i;
     if ((unsigned int)id >= 0x80) {
         goto fail;
@@ -337,7 +359,8 @@ post:
 }
 extern int _iSuspendThread(void);
 
-int iSuspendThread(int id) {
+int iSuspendThread(int id)
+{
     int r;
     int i;
     SYSCALL_INLINE(-0x2F, r);
@@ -360,7 +383,8 @@ post:
     iSignalSema(D_0063CB50[0]);
     return r;
 }
-int kputchar(int c) {
+int kputchar(int c)
+{
     unsigned int base;
 
     do {
@@ -371,7 +395,8 @@ int kputchar(int c) {
     return c;
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", deci2Putchar);
-void serialPutchar(int c) {
+void serialPutchar(int c)
+{
     if (c == 0xA) {
         kputchar(0xD);
         kputchar(0xA);
@@ -384,13 +409,15 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", printfloat);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", _printf);
 extern int _printf(int a0, void *va);
 
-void kprintf(int a0, ...) {
+void kprintf(int a0, ...)
+{
     void *va = (char *)__builtin_next_arg(a0) - 0x38;
     _printf(a0, va);
 }
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", scePrintf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", DIntr);
-int EIntr(void) {
+int EIntr(void)
+{
     int eie;
     MFC0_STATUS(eie);
     eie &= COP0_STATUS_EIE;
@@ -400,53 +427,62 @@ int EIntr(void) {
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", sceDeci2Open);
 extern void Deci2Call(int req, void *args);
 
-void sceDeci2Close(int a0) {
+void sceDeci2Close(int a0)
+{
     int args[4];
     args[0] = a0;
     Deci2Call(2, args);
 }
-void sceDeci2ReqSend(int a0, signed char a1) {
+void sceDeci2ReqSend(int a0, signed char a1)
+{
     int args[4];
     args[0] = a0;
     args[1] = a1;
     Deci2Call(3, args);
 }
-void sceDeci2Poll(int a0) {
+void sceDeci2Poll(int a0)
+{
     int args[4];
     args[0] = a0;
     Deci2Call(4, args);
 }
-void sceDeci2ExRecv(int a0, int a1, unsigned short a2) {
+void sceDeci2ExRecv(int a0, int a1, unsigned short a2)
+{
     int args[4];
     args[0] = a0;
     args[1] = a1;
     args[2] = a2;
     Deci2Call(-5, args);
 }
-void sceDeci2ExSend(int a0, int a1, unsigned short a2) {
+void sceDeci2ExSend(int a0, int a1, unsigned short a2)
+{
     int args[4];
     args[0] = a0;
     args[1] = a1;
     args[2] = a2;
     Deci2Call(-6, args);
 }
-void sceDeci2ExReqSend(int a0, signed char a1) {
+void sceDeci2ExReqSend(int a0, signed char a1)
+{
     int args[4];
     args[0] = a0;
     args[1] = a1;
     Deci2Call(-7, args);
 }
-void sceDeci2ExLock(int a0) {
+void sceDeci2ExLock(int a0)
+{
     int args[4];
     args[0] = a0;
     Deci2Call(-8, args);
 }
-void sceDeci2ExUnLock(int a0) {
+void sceDeci2ExUnLock(int a0)
+{
     int args[4];
     args[0] = a0;
     Deci2Call(-9, args);
 }
-void kputs(int a0) {
+void kputs(int a0)
+{
     int args[4];
     args[0] = a0;
     Deci2Call(0x10, args);

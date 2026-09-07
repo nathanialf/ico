@@ -29,7 +29,8 @@ extern void DispAllMemberOfSpider();
 extern int D_00723F98[];
 extern int isysGObjSearchFromObjKindID_begin();
 extern int isysGObjSearchFromObjKindID_next();
-inline void InitSpiderGroupManager(void) {
+inline void InitSpiderGroupManager(void)
+{
     D_0063BAE4 = 0;
     D_0063BAEC = 0;
 
@@ -46,20 +47,17 @@ inline void InitSpiderGroupManager(void) {
 }
 inline int *getReviveEnemyGObj(int count)
 {
-  int *p = isysGObjSearchFromObjKindID_begin(4);
-  int i;
-  {
-    for (i = 0; i < count; i++)
+    int *p = isysGObjSearchFromObjKindID_begin(4);
+    int i;
     {
-      if (p == 0)
-      {
-        return 0;
-      }
-      p = isysGObjSearchFromObjKindID_next(p);
+        for (i = 0; i < count; i++) {
+            if (p == 0) {
+                return 0;
+            }
+            p = isysGObjSearchFromObjKindID_next(p);
+        }
     }
-
-  }
-  return p;
+    return p;
 }
 inline void EntryRevivedSpiderGroupManager(int a0)
 {
@@ -70,38 +68,34 @@ inline void EntryRevivedSpiderGroupManager(int a0)
 INCLUDE_ASM("asm/nonmatchings/src/spiderGroupManager", EntrySpiderGroupManager);
 inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
 {
-  int idx = D_0063BAEC;
-  int *p;
-  int new_var;
-  int *new_var2;
-  new_var2 = &a1;
-  D_0063BAF4 = *new_var2;
-  p = D_00723F98 + idx;
-  new_var = idx;
-  idx = new_var + 1;
-  *p = a0;
-  D_0063BAEC = idx;
+    int idx = D_0063BAEC;
+    int *p;
+    int new_var;
+    int *new_var2;
+    new_var2 = &a1;
+    D_0063BAF4 = *new_var2;
+    p = D_00723F98 + idx;
+    new_var = idx;
+    idx = new_var + 1;
+    *p = a0;
+    D_0063BAEC = idx;
 }
 INCLUDE_ASM("asm/nonmatchings/src/spiderGroupManager", tryToRevive);
 INCLUDE_ASM("asm/nonmatchings/src/spiderGroupManager", ExecSpiderGroupManager);
 inline void DispAllSpiderGroups(void)
 {
-  int v = D_0028F8F4[0];
-  D_0063BADC = 0;
-  if (v & 0x1000)
-  {
-    D_0063BAC4 = D_0063BAC4 - 1;
-  }
-  if (v & 0x4000)
-  {
-    D_0063BAC4 = D_0063BAC4 + 1;
-  }
-  {
-    int i;
-    for (i = 0; i < D_0063BAE4; i++)
-    {
-      DispAllMemberOfSpider(D_00723C98[i], &D_004ECFB0[i * 0x10]);
+    int v = D_0028F8F4[0];
+    D_0063BADC = 0;
+    if (v & 0x1000) {
+        D_0063BAC4 = D_0063BAC4 - 1;
     }
-
-  }
+    if (v & 0x4000) {
+        D_0063BAC4 = D_0063BAC4 + 1;
+    }
+    {
+        int i;
+        for (i = 0; i < D_0063BAE4; i++) {
+            DispAllMemberOfSpider(D_00723C98[i], &D_004ECFB0[i * 0x10]);
+        }
+    }
 }

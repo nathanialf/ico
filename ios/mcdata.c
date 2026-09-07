@@ -4,8 +4,8 @@ int iosMcIconWriteIconsys(int self, int *p);
 int iosMcIconWriteIcon(int self, int *p);
 
 struct McIconWork {
-    int   remain;
-    int   size;
+    int remain;
+    int size;
     void *buf;
 };
 extern int iosCdvdBackGroundRead(int self, void *buf, int size);
@@ -34,7 +34,8 @@ static inline int _iosMcIconWriteIconsys(int self, struct McIconWork *p)
         iosCdvdBackGroundRead(self, ptr, size);
         p->size = size;
         p->remain -= size;
-        if (p->remain <= 0) loop = 0;
+        if (p->remain <= 0)
+            loop = 0;
         D_0063A368 = 1;
         D_0063C18C = 0;
         do {

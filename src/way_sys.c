@@ -1,8 +1,20 @@
 #include "common.h"
 
-typedef struct { int pad[8]; int f20; int pad2[7]; } WVTElem;
-typedef struct { char pad[0x64]; int w64; } WVTObj;
-typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
+typedef struct {
+    int pad[8];
+    int f20;
+    int pad2[7];
+} WVTElem;
+typedef struct {
+    char pad[0x64];
+    int w64;
+} WVTObj;
+typedef struct Nd {
+    int pad[2];
+    struct Nd *f8;
+    struct Nd *fC;
+    char pad2[0x40 - 16];
+} Nd;
 extern int _FUNC_GetWay_begin(void *a0, int a1, int a2, int a3);
 extern Nd D_004F31E0[];
 extern char D_00554220[];
@@ -14,13 +26,15 @@ int GetWay_begin(void *a0, int a1, int a2);
 void BridgeBox(void);
 void DeleteGuideWay(WVTObj *o);
 INCLUDE_ASM("asm/nonmatchings/src/way_sys", _FUNC_GetWay_begin);
-inline int GetWay_begin(void *a0, int a1, int a2) {
+inline int GetWay_begin(void *a0, int a1, int a2)
+{
     return _FUNC_GetWay_begin(a0, a1, a2, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/way_sys", avoid_obstacle2);
 INCLUDE_ASM("asm/nonmatchings/src/way_sys", create_box_bridge);
 inline void BridgeBox(void) {}
-inline void DeleteGuideWay(WVTObj *o) {
+inline void DeleteGuideWay(WVTObj *o)
+{
     if (o->w64 >= 0) {
         debug_StdPrintfDummy(D_00554220, o->w64);
         {

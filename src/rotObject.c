@@ -1,17 +1,20 @@
 #include "common.h"
 
 extern void ExecuteSEPackage(int a0, int a1);
-void moveStartSE(int a0, int a1, int a2, int a3) {
+void moveStartSE(int a0, int a1, int a2, int a3)
+{
     ExecuteSEPackage(a0, 0x35);
 }
 extern void StopSEPackage(int a0);
 extern void ExecuteSEPackage(int a0, int a1);
-void moveEndSE(int a0, int a1, int a2, int a3) {
+void moveEndSE(int a0, int a1, int a2, int a3)
+{
     StopSEPackage(a0);
     ExecuteSEPackage(a0, 0x3A);
 }
 extern void gamesysObjInfoUniqDataSet(void *a0);
-void RotObjectGeo(char *a0) {
+void RotObjectGeo(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if ((*(int *)(p + 0x30))++ >= 0x1F) {
         *(int *)(p + 0x30) = 0;
@@ -54,7 +57,8 @@ extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 extern void sceVu0Normalize(void *a0, void *a1);
 extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
 
-void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3) {
+void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
+{
     char buf[0x60];
 
     GetRootPosition(buf + 0x10, a3);
@@ -63,8 +67,8 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3) {
     *(int *)((char *)a1 + 0xC) = 0;
     AdjustVerticalSidePlaneOfWall(a0, a2, buf + 0x10, 10.0f);
     GetProjectionPosOfPlane(a0, buf, a0);
-    MatrixDrive_SetTransposeMatrix(buf + 0x20,
-        *(int *)(*(char **)(*(int *)a2 + 0x15C) + 0xC) + (*(int *)((char *)a2 + 4) << 6));
+    MatrixDrive_SetTransposeMatrix(buf + 0x20, *(int *)(*(char **)(*(int *)a2 + 0x15C) + 0xC) +
+                                                   (*(int *)((char *)a2 + 4) << 6));
     sceVu0ApplyMatrix(a0, buf + 0x20, a0);
     sceVu0ApplyMatrix(a1, buf + 0x20, a1);
     *(float *)((char *)a0 + 4) = -50.0f;
@@ -89,7 +93,8 @@ void ExecRotObjectMoveEndReaction(int a0, int a1, int a2, int a3)
 {
     moveEndSE(a0, a1, a2, a3);
 }
-void SetRotObjectArmRadius(char *a0, float f) {
+void SetRotObjectArmRadius(char *a0, float f)
+{
     *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x3C) = 100.0f / f;
 }
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posMtx, void *dirMtx)
@@ -110,7 +115,10 @@ extern char D_0028FF00[];
 /* A GObj slot read as an int but written elsewhere as a float: reading it
  * through the union keeps both views in one alias set, so the reload of
  * gobj->_15C stays behind the float stores it follows (COOKBOOK 8.26/8.32). */
-typedef union RotObjWord { int i; float f; } RotObjWord;
+typedef union RotObjWord {
+    int i;
+    float f;
+} RotObjWord;
 
 char *InitRotObjectGeo(char *gobj, char *src)
 {
@@ -140,7 +148,8 @@ char *InitRotObjectGeo(char *gobj, char *src)
     }
     return p;
 }
-void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2) {
+void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2)
+{
     *a0 = *(unsigned short *)(a2 + 0x30);
     *a1 = *(int *)(a2 + 0x34);
 }
@@ -149,7 +158,8 @@ void RotObjectDL(void *gobj)
     getRotObjectDriveMatrix(gobj, *(void **)(*(char **)((char *)gobj + 0x15C) + 0xC));
     p2o_DispVU1(gobj);
 }
-float GetRotObjectRotCount(char *a0) {
+float GetRotObjectRotCount(char *a0)
+{
     return (float)*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x24) * (1.0f / 65536.0f);
 }
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
@@ -172,18 +182,21 @@ int RestoreRotObjectGeo(void)
 {
     return 1;
 }
-int RestoreRotObjectExtGeo(char *a0, char *a1) {
+int RestoreRotObjectExtGeo(char *a0, char *a1)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     *(short *)(p + 0x20) = *(unsigned short *)(a1 + 0x30);
     *(int *)(p + 0x24) = *(int *)(a1 + 0x34);
     return 1;
 }
-int MemoryRotObject(char *a0, char *a1) {
+int MemoryRotObject(char *a0, char *a1)
+{
     char *p = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
     *(short *)a0 = *(unsigned short *)(p + 0x20);
     *(int *)(a0 + 4) = *(int *)(p + 0x24);
     return 1;
 }
-void SetRotObjectLockFlag(char *a0, int a1) {
+void SetRotObjectLockFlag(char *a0, int a1)
+{
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x34) = a1;
 }

@@ -57,7 +57,8 @@ void DispFlyInfo(void)
     }
     return DrawGObjFloorCollision(a0, 0);
 }
-inline void InitFlyManager(void) {
+inline void InitFlyManager(void)
+{
     D_0063B898 = 0;
 }
 inline int GetFlyLimitClearance(void *pos)

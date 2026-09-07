@@ -21,7 +21,8 @@ extern int dmaVif;
 extern void sceDmaSend();
 /* prototypes: their order is the inline tail's emission order */
 void p2o_SetDefaultEnviroment(void);
-void p2o_MakePacket(char *a0) {
+void p2o_MakePacket(char *a0)
+{
     *(char **)(*(char **)(a0 + 0x854) + 0x28) = a0;
     pac_MakePacket(a0);
 }
@@ -45,16 +46,20 @@ void p2o_DispVU1DObjMulti(void *req)
 {
     reg_DispObj(req);
 }
-void p2o_DispVU1Multi(GObj *self) {
+void p2o_DispVU1Multi(GObj *self)
+{
     p2o_DispVU1DObjMulti__pn(GOBJ_SUB(self));
 }
-void p2o_DispVU1MultiDefault(GObj *self) {
+void p2o_DispVU1MultiDefault(GObj *self)
+{
     p2o_DispVU1Multi(self);
 }
-void p2o_DispVU1(GObj *self) {
+void p2o_DispVU1(GObj *self)
+{
     p2o_DispVU1DObj__pn(GOBJ_SUB(self));
 }
-void p2o_DispVU1Default(GObj *self) {
+void p2o_DispVU1Default(GObj *self)
+{
     p2o_DispVU1__pn(self);
 }
 void p2o_TransMicroProgram(void)

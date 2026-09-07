@@ -44,7 +44,8 @@ ASM_LIT4_SLOT(D_0063943C, 18.99998f);
 ASM_LIT4_SLOT(D_00639440, 0.05f);
 ASM_LIT4_SLOT(D_00639444, 0.4f);
 INCLUDE_ASM("asm/nonmatchings/src/boy", LightLineDL);
-inline void SelectBoyCrown(char *a0, int a1) {
+inline void SelectBoyCrown(char *a0, int a1)
+{
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x0) = a1;
 }
 INCLUDE_ASM("asm/nonmatchings/src/boy", InitBoyGeo);
@@ -56,7 +57,8 @@ ASM_LIT4_SLOT(D_00639450, 0.7f);
 INCLUDE_ASM("asm/nonmatchings/src/boy", BoyGeo);
 INCLUDE_ASM("asm/nonmatchings/src/boy", dispSubParts);
 INCLUDE_ASM("asm/nonmatchings/src/boy", dispCrown);
-inline void SetBoyStonizedVisual(char *a0) {
+inline void SetBoyStonizedVisual(char *a0)
+{
     char *crown = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
     AdjustMotionHeightToNearestField(a0);
     *(int *)(crown + 0x18) = 1;

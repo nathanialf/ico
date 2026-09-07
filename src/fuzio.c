@@ -19,7 +19,8 @@ void fzShowV(float *p)
     } while (i >= 0);
     debug_StdPrintfDummy(D_0063A870);
 }
-void fzShowM(int *p) {
+void fzShowM(int *p)
+{
     int i = 0;
     do {
         debug_StdPrintfDummy(D_0063A878, i);
@@ -42,7 +43,8 @@ float fzMagnitudefv(int v)
 }
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitude2fv);
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitudeByLine);
-float fzMagnitudeByLineSeg(float *p0, float *p1, float *p2) {
+float fzMagnitudeByLineSeg(float *p0, float *p1, float *p2)
+{
     float d1[4];
     float d2[4];
     float r1, r2;

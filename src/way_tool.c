@@ -1,6 +1,8 @@
 #include "common.h"
 
-typedef struct { int w[13]; } WayRec;
+typedef struct {
+    int w[13];
+} WayRec;
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", group_create);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", group_select);
@@ -20,7 +22,8 @@ extern void debug_Printf();
 extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void *nearest_waypoint_by_lineseg(void *a0);
 
-int point_insert(void) {
+int point_insert(void)
+{
     WayRec *entry = &D_004F1EC0[D_0063BD78];
     int f;
 
@@ -41,12 +44,12 @@ int point_insert(void) {
     }
     {
         void *res = nearest_waypoint_by_lineseg(D_004F76A0);
-        if (*(int *) ((char *) res + 0xC) == 0) {
+        if (*(int *)((char *)res + 0xC) == 0) {
             return 0;
         }
         {
             int n = CreateWayPoint(D_004F76A0);
-            InsertWayPointAfter(D_0063BD78, *(int *) ((char *) res + 4), n);
+            InsertWayPointAfter(D_0063BD78, *(int *)((char *)res + 4), n);
             entry->w[4] = entry->w[4] + 1;
             debug_StdPrintfDummy(D_00622350, n);
         }
@@ -64,7 +67,8 @@ extern int D_0063BD9C;
 extern void *isysGObjSearchFromObjKindID_begin(int id);
 extern void *isysGObjSearchFromObjKindID_next(void *o);
 
-int play_way(void) {
+int play_way(void)
+{
     char *g;
     int f;
 
@@ -99,12 +103,12 @@ extern int D_0063BD80;
 extern void debug_Printf__pn(int, int, int, void *) __asm__("debug_Printf");
 extern char *waypoint_with_range(int *, float);
 
-int point_nige(void) {
+int point_nige(void)
+{
     int *p;
     int v;
 
-extern char D_004F76A0[];
-
+    extern char D_004F76A0[];
 
     if (D_0063B13C & 1) {
         unsigned int color = 0xFF000000;
@@ -136,7 +140,8 @@ extern void debug_StdPrintfDummy__pn() __asm__("debug_StdPrintfDummy");
 extern void sceWrite(int a0, void *a1, int a2);
 extern void sprintf(void *a0, char *a1);
 
-int quick_save_wpfile(void) {
+int quick_save_wpfile(void)
+{
     char buf[0x70];
     int s0;
     int i;
@@ -169,7 +174,8 @@ extern void _ACTWait(int a0);
 extern int iosPadConnect(void *a0, int a1, int a2, void *a3);
 extern void iosPadRead(void *a0);
 
-void cursor_control(volatile int a0) {
+void cursor_control(volatile int a0)
+{
     char *w = *(char **)(a0 + 0x164);
 
     iosPadConnect(w + 0x2D8, 0, 0, iosPadConfDefault);

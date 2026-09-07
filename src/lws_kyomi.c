@@ -37,10 +37,10 @@ void SetParamKyomiGObj(void *gobj, int a1, float *param)
     brainSetLevelGop(gobj, lv, on1, on2);
 }
 struct HintInfo {
-    int  _0;
-    int  no;
-    int  time;
-    int  flags;
+    int _0;
+    int no;
+    int time;
+    int flags;
 };
 extern struct HintInfo D_002ADBA0[];
 
@@ -67,11 +67,13 @@ void DebugHintStart(void *gobj)
     hint = *(struct HintInfo **)(*(char **)((char *)gobj + 0x15C) + 0x830);
     D_0063C2E8[hint->no] = hint->time;
 }
-int GetSizeHintSaveInfo(void) {
+int GetSizeHintSaveInfo(void)
+{
     return 0x78;
 }
 extern char D_006E99B0[];
-char *GetBuffHintSaveInfo(void) {
+char *GetBuffHintSaveInfo(void)
+{
     return D_006E99B0;
 }
 extern void memset(void *a0, int a1, int a2);

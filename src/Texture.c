@@ -53,10 +53,8 @@ int tex_GetTWTH(int a0)
 {
     int ret = -1;
     int i;
-    for (i = 0; i < 11; i++)
-    {
-        if ((1 << i) >= a0)
-        {
+    for (i = 0; i < 11; i++) {
+        if ((1 << i) >= a0) {
             ret = i;
             break;
         }
@@ -103,12 +101,9 @@ int tex_GetTextureNo(char *name)
     int i;
     int ret = -1;
 
-    for (i = 0; i < D_0063C164; i++)
-    {
-        if (D_0068AFD8[i].used)
-        {
-            if (strcmp(name, D_0068AFD8[i].name) == 0)
-            {
+    for (i = 0; i < D_0063C164; i++) {
+        if (D_0068AFD8[i].used) {
+            if (strcmp(name, D_0068AFD8[i].name) == 0) {
                 ret = i;
                 break;
             }
@@ -121,12 +116,9 @@ static inline int getTextureNo(char *name)
     int i;
     int ret = -1;
 
-    for (i = 0; i < D_0063C164; i++)
-    {
-        if (D_0068AFD8[i].used)
-        {
-            if (strcmp(name, D_0068AFD8[i].name) == 0)
-            {
+    for (i = 0; i < D_0063C164; i++) {
+        if (D_0068AFD8[i].used) {
+            if (strcmp(name, D_0068AFD8[i].name) == 0) {
                 ret = i;
                 break;
             }
@@ -183,29 +175,24 @@ extern int D_0028F804[];
 void tex_UpdateMipMapLevel(void)
 {
     int i;
-    for (i = 0; i < D_0063C164; i++)
-    {
+    for (i = 0; i < D_0063C164; i++) {
         CdvdRec *tex = &D_0068AFE0[i];
         int mxl = tex->xE0;
         int k, l;
         int mmag, mmin;
-        if (tex->x2A8 != 0)
-        {
+        if (tex->x2A8 != 0) {
             k = tex->x2A4;
             l = tex->x2A6;
             mmag = tex->x290;
             mmin = tex->x294;
-        }
-        else
-        {
+        } else {
             k = -165;
             l = 0;
             mmag = 1;
             mmin = D_0028F804[0];
         }
-        tex->x78 = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) |
-                   ((long long)mmin << 6) | ((long long)l << 19) |
-                   ((long long)k << 32);
+        tex->x78 = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) | ((long long)mmin << 6) |
+                   ((long long)l << 19) | ((long long)k << 32);
     }
 }
 extern void dl_SetDLPriority(int pri);
@@ -222,18 +209,14 @@ static inline void resetVramPri(int pri)
 
     dl_SetDLPriority(pri);
 
-    if (D_006AF518[pri] != 0)
-    {
+    if (D_006AF518[pri] != 0) {
         D_0068AF88[pri].f0 = D_006AF518[pri];
-    }
-    else
-    {
+    } else {
         D_0068AF88[pri].f0 = 0x2800;
     }
     D_0068AF88[pri].f1 = 0x3E80;
     D_0068AF88[pri].f2 = -1;
-    for (i = 0; i < D_0063C164; i++)
-    {
+    for (i = 0; i < D_0063C164; i++) {
         D_0068AFD8[i].x2D0[pri] = 0;
     }
 }
@@ -253,24 +236,21 @@ void tex_ResetVramPri(int pri)
 
     dl_SetDLPriority(pri);
 
-    if (D_006AF518[pri] != 0)
-    {
+    if (D_006AF518[pri] != 0) {
         D_0068AF88[pri].f0 = D_006AF518[pri];
-    }
-    else
-    {
+    } else {
         D_0068AF88[pri].f0 = 0x2800;
     }
     D_0068AF88[pri].f1 = 0x3E80;
     D_0068AF88[pri].f2 = -1;
-    for (i = 0; i < D_0063C164; i++)
-    {
+    for (i = 0; i < D_0063C164; i++) {
         D_0068AFD8[i].x2D0[pri] = 0;
     }
 }
 extern int D_0063C164;
 
-int tex_GetTextureNum(void) {
+int tex_GetTextureNum(void)
+{
     return D_0063C164;
 }
 typedef struct TexUV {
@@ -303,8 +283,7 @@ void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou,
     TexExt *ext = (TexExt *)(tex + 0x268);
     TexUV *uv = (TexUV *)(tex + 0xA8);
 
-    if (ext->x40 != 0)
-    {
+    if (ext->x40 != 0) {
         ext->f04 = su;
         ext->f08 = sv;
         ext->h50 = 0;
@@ -320,7 +299,8 @@ extern int D_0028F720[];
 extern int D_0063C164;
 extern CdvdRec D_0068AFE0[];
 
-int tex_RemakeRegistersSampleMin(void) {
+int tex_RemakeRegistersSampleMin(void)
+{
     int count = D_0063C164;
     int i;
     for (i = 0; i < count; i++) {

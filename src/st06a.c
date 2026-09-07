@@ -7,15 +7,15 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    int act;                    /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    int act;           /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -90,9 +90,9 @@ void actSt06aSuimon(volatile int a0)
     }
 }
 typedef struct Pad {
-    int unk00;                  /* 0x00 */
-    int trg;                    /* 0x04 */
-    char unk08[0x50];           /* 0x08 */
+    int unk00;        /* 0x00 */
+    int trg;          /* 0x04 */
+    char unk08[0x50]; /* 0x08 */
 } Pad;
 extern Pad D_0028F8F0[];
 extern void lt_switch_layout(int a0);
@@ -111,7 +111,8 @@ extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern void scpFadeIn(float f);
 extern int scpFadeChk(void);
 extern int lt_fade_status(void);
-extern void SetCameraFlag_LwsCutBack(void);extern int suimon;
+extern void SetCameraFlag_LwsCutBack(void);
+extern int suimon;
 extern int D_0063C55C;
 extern float scpGetRotObjectRotCount(int a0);
 extern void actSt06aSuimonFlagOn(volatile int a0);
@@ -157,8 +158,7 @@ void actSt06aSuimonChk(volatile int a0)
     he = actCreateSubThread(actSt06aSuimonEffect, 0x15);
     hs = actCreateSubThread(actSt06aSuimonSub, 0x15);
 
-    while (D_0063C558 == 0 &&
-           ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C558 == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -322,8 +322,7 @@ void actSt06aShutterOpen(volatile int a0)
 
     D_0063C558 = 0;
 
-    while (D_0063C558 == 0 &&
-           ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C558 == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -364,8 +363,7 @@ void actSt06aBoxChk(volatile int a0)
 {
     int h;
 
-    while (scpTriggerBall(a0, scpSearchGobj(0x6ED), 300.0f) == 0 ||
-           gflagChk(0x6A) != 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(0x6ED), 300.0f) == 0 || gflagChk(0x6A) != 0) {
         _ACTWait(1);
     }
 
@@ -378,8 +376,7 @@ void actSt06aBoxChk(volatile int a0)
 
     D_0063C558 = 0;
 
-    while (D_0063C558 == 0 &&
-           ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C558 == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -470,8 +467,7 @@ extern void scpPlayMot(void *a0, int a1);
 
 void actSt06aHeadChk(volatile int a0)
 {
-    while (scpTriggerBall(a0, scpSearchGobj(0x6EA), 70.0f) == 0 ||
-           gflagChk(0x71) == 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(0x6EA), 70.0f) == 0 || gflagChk(0x71) == 0) {
         _ACTWait(1);
     }
 
@@ -569,8 +565,7 @@ void actSt06aJumpMove(volatile int a0)
 
     D_0063C558 = 0;
 
-    while (D_0063C558 == 0 &&
-           ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (D_0063C558 == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1017,7 +1012,8 @@ void actSt06aSound2(volatile int a0)
         _ACTWait(0);
     }
 }
-void actSt06aSuimonEvent(int x) {
+void actSt06aSuimonEvent(int x)
+{
     volatile int local = x;
 }
 extern long long D_00622B60[];
@@ -1025,14 +1021,35 @@ extern long long D_00622B70[];
 extern long long D_00622B80[];
 extern int scpEffectStart(int *buf, int a1);
 
-void actSt06aSuimonEffect(volatile int a0){ long long b1[2]; long long b2[2]; long long b3[2];
- long long v0a=D_00622B60[0]; long long v0b=D_00622B70[0]; long long v0c=D_00622B80[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00622B60[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00622B70[1]; scpEffectStart((int*)b2,0);
-             b3[0]=v0c; b3[1]=D_00622B80[1]; scpEffectStart((int*)b3,0); break;
-  } _ACTWait(1); }
- _ACTWait(0); }
+void actSt06aSuimonEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long b3[2];
+    long long v0a = D_00622B60[0];
+    long long v0b = D_00622B70[0];
+    long long v0c = D_00622B80[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_00622B60[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_00622B70[1];
+            scpEffectStart((int *)b2, 0);
+            b3[0] = v0c;
+            b3[1] = D_00622B80[1];
+            scpEffectStart((int *)b3, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+    _ACTWait(0);
+}
 extern int D_0028F4C0[];
 extern float D_006399A8;
 extern float D_0063C088;
@@ -1066,7 +1083,8 @@ void actSt06aSuimonSub(volatile int a0)
     D_0063C558 = 1;
     _ACTWait(0);
 }
-void actSt06aDoorEvent(int x) {
+void actSt06aDoorEvent(int x)
+{
     volatile int local = x;
 }
 extern long long D_00622BA0[];
@@ -1074,18 +1092,52 @@ extern long long D_00622BB0[];
 extern void _ACTWait(int a0);
 extern int scpEffectStart(int *buf, int a1);
 
-void actSt06aDoorUpEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_00622BA0[0]; long long v0b=D_00622BB0[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00622BA0[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00622BB0[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
-void actSt06aDoorDownEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_00622BB0[0]; long long v0b=D_00622BA0[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00622BB0[1]; scpEffectStart((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00622BA0[1]; scpEffectStart((int*)b2,0); break;
-  } _ACTWait(1); } }
+void actSt06aDoorUpEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_00622BA0[0];
+    long long v0b = D_00622BB0[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_00622BA0[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_00622BB0[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+void actSt06aDoorDownEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_00622BB0[0];
+    long long v0b = D_00622BA0[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_00622BB0[1];
+            scpEffectStart((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_00622BA0[1];
+            scpEffectStart((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 extern ActMail D_004F99D0[];
 
 void actSt06aShutterMain(volatile int a0)
@@ -1142,8 +1194,7 @@ extern int RequestStageChange(int a0, void *a1, int a2, float a3, float a4);
 
 void actSt06aExitChk(volatile int a0)
 {
-    while (gflagChk(0x6A) != 0 ||
-           scpTriggerBall(a0, D_00639EA4, 400.0f) == 0) {
+    while (gflagChk(0x6A) != 0 || scpTriggerBall(a0, D_00639EA4, 400.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -1165,8 +1216,7 @@ void actSt06aExitGirlChk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (gflagChk(0x6A) != 0 ||
-           scpTriggerBall(a0, D_00639EA8, 400.0f) == 0) {
+    while (gflagChk(0x6A) != 0 || scpTriggerBall(a0, D_00639EA8, 400.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -1201,8 +1251,7 @@ void actSt06aBoxSub(volatile int a0)
 }
 void actSt06aBox2Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, scpSearchGobj(0x6ED), 200.0f) == 0 ||
-           gflagChk(0x6A) == 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(0x6ED), 200.0f) == 0 || gflagChk(0x6A) == 0) {
         _ACTWait(1);
     }
 
@@ -1211,15 +1260,13 @@ void actSt06aBox2Chk(volatile int a0)
 }
 void actSt06aBox3Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, scpSearchGobj(0x6ED), 200.0f) == 0 ||
-           gflagChk(0x6A) != 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(0x6ED), 200.0f) == 0 || gflagChk(0x6A) != 0) {
         _ACTWait(1);
     }
 }
 void actSt06aBallDeleteChk(volatile int a0)
 {
-    while (scpTriggerBall(a0, scpSearchGobj(0x6EA), 200.0f) == 0 ||
-           gflagChk(0x6A) != 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(0x6EA), 200.0f) == 0 || gflagChk(0x6A) != 0) {
         _ACTWait(1);
     }
 
@@ -1273,8 +1320,7 @@ void actSt06aWayOnChk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (scpCheckExistAliveEnemy() != 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1296,8 +1342,7 @@ void actSt06aWayOffChk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (scpCheckExistAliveEnemy() == 0 &&
-           scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1334,7 +1379,7 @@ extern void actSt06aWallWayOnChk(volatile int a0);
    here and posts it. Word 0 of each entry is the mail id the entry answers
    (0x1AE the actor post, 0x1AD the trailing entry); .func is filled in at
    run time. Named for the thread that owns and posts it. */
-static ActMail wall_way_off[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail wall_way_off[2] = {{0x1AE}, {0x1AD}};
 
 void actSt06aWallWayOffChk(volatile int a0)
 {
@@ -1519,14 +1564,13 @@ extern int scpTriggerFloorAttr(void *a0, int a1);
 extern void actSt06aPistonRideOffChk(volatile int a0);
 /* The piston-ride-on watcher's own mail record (installs
    actSt06aPistonRideOffChk). */
-static ActMail piston_ride_on[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail piston_ride_on[2] = {{0x1AE}, {0x1AD}};
 
 void actSt06aPistonRideOnChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    while (gflagChk(0x74) == 0 ||
-           scpTriggerFloorAttr(D_00639EA4, 0x6000000) == 0) {
+    while (gflagChk(0x74) == 0 || scpTriggerFloorAttr(D_00639EA4, 0x6000000) == 0) {
         _ACTWait(1);
     }
 

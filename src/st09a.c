@@ -7,15 +7,15 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    int act;                    /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    int act;           /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern void _ACTWait(int a0);
@@ -44,8 +44,7 @@ extern int gflagChk(int a0);
 extern int D_0063AA08;
 extern Act *actInitialize(int a0);
 extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4,
-                       float x1, float y1, float z1,
+extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
 extern void actSt09aBrgDown(volatile int a0);
@@ -59,7 +58,7 @@ extern void actSt09aHint2Chk(volatile int a0);
    actor mail packets. */
 extern ActMail D_004FA310[];
 extern ActMail D_004FA390[];
-extern float D_004FA3B0[];   /* the sekizou SE position, (1548, -412, -608) */
+extern float D_004FA3B0[]; /* the sekizou SE position, (1548, -412, -608) */
 extern ActMail D_004FA3C0[];
 extern ActMail D_004FA3E0[];
 extern ActMail D_004FA2F0[];
@@ -104,9 +103,7 @@ void actSt09aSekizo(volatile int a0)
     soundSeDefPlay(0x543, 0, D_004FA3B0, 1);
     soundSeDefPlay(0x544, 0, D_004FA3B0, 1);
 
-    scpSekizou(a0, 0x54, 0x178, 0, 0x12,
-               -1350.0f, -100.0f, 1515.0f,
-               -1450.0f, -100.0f, 1515.0f);
+    scpSekizou(a0, 0x54, 0x178, 0, 0x12, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
 }
 void actSt09aIntro(volatile int a0)
 {
@@ -229,7 +226,8 @@ void actSt09aElvUp(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-void actSt09aSekizoEvent(int x) {
+void actSt09aSekizoEvent(int x)
+{
     volatile int local = x;
 }
 void actSt09aIntroChk(volatile int a0)

@@ -1,8 +1,13 @@
 #include "common.h"
 
-typedef struct { int w[6]; } AssertRec;
+typedef struct {
+    int w[6];
+} AssertRec;
 
-typedef struct { int f_0; char _4[0x14]; } DbgSlot;
+typedef struct {
+    int f_0;
+    char _4[0x14];
+} DbgSlot;
 
 extern char *iosMallocDebug(int heap, int size, char *file, int line);
 extern void iosFree(void *p);
@@ -26,7 +31,8 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadMotionFile);
 extern int D_0063A438;
 extern char D_006193B0[];
 extern int D_0028F4C0[];
-void ReadParticleEffectFile(void *h, int a1, int size, int a3) {
+void ReadParticleEffectFile(void *h, int a1, int size, int a3)
+{
     char *buf = iosMallocDebug(D_0063A438, size, D_006193B0, 0x228);
     D_0028F4C0[8]++;
     iosCdvdHandlerRead(h, buf, size);
@@ -40,7 +46,8 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadCamerasetFile);
 extern char D_006193B0[];
 extern int D_0063A450;
 extern int D_0028F4C0[];
-void ReadEndCheckFile(void *h, int a1, int size) {
+void ReadEndCheckFile(void *h, int a1, int size)
+{
     char *buf = iosMallocDebug(D_0063A450, size, D_006193B0, 0x356);
     D_0028F4C0[8]++;
     iosCdvdHandlerRead(h, buf, size);
@@ -48,7 +55,10 @@ void ReadEndCheckFile(void *h, int a1, int size) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadStageSettingFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", CSVSYSTEM_ReadCharFiles);
-typedef struct { int mode; int bank; } SqInfo;
+typedef struct {
+    int mode;
+    int bank;
+} SqInfo;
 
 extern int D_0063A444;
 extern int D_0063A458;
@@ -58,7 +68,8 @@ extern char D_006198D0[];
 extern char D_0063AD10[];
 extern int D_0028F4C0[];
 
-void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6) {
+void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
+{
     /* the sound bank/mode pair the switch fills in and soundSQDataSet reads back:
        ROM keeps both words memory-resident and reloads mode at the call. */
     volatile SqInfo info;
@@ -102,14 +113,16 @@ extern char *adpcmDataSet(char *buf, int a3, int bank, int a6, int size, void *i
 extern void AdpcmPlay(int handle);
 extern char D_00619900[];
 
-void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6) {
+void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
+{
     int key;
     int hi;
     char *p;
     char *q;
 
     D_0028F4C0[8]++;
-    if (size > 0x5C000) size = 0x5C000;
+    if (size > 0x5C000)
+        size = 0x5C000;
     hi = a4 << 16;
     key = (a3 & 0xFFFF) | hi;
     if (soundDataAreaSearch(&key) == 0) {
@@ -128,6 +141,7 @@ extern DbgSlot D_006FAD00[];
 
 extern AssertRec D_006FAD00__pn[] __asm__("D_006FAD00");
 
-int GetPObjAddress(int a0) {
+int GetPObjAddress(int a0)
+{
     return D_006FAD00__pn[a0].w[0];
 }

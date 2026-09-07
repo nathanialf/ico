@@ -1,21 +1,39 @@
 #include "common.h"
 #include "sugiCommon.h"
 
-struct DQW { float f0, f4, f8, fc, f10, f14; char _18[0x18]; int f30; };
+struct DQW {
+    float f0, f4, f8, fc, f10, f14;
+    char _18[0x18];
+    int f30;
+};
 
-struct SPMD { int a; int b; };
+struct SPMD {
+    int a;
+    int b;
+};
 
-struct SVF { int a; int b; };
+struct SVF {
+    int a;
+    int b;
+};
 
-typedef union { float f[4]; int i[4]; } Vec4u;
+typedef union {
+    float f[4];
+    int i[4];
+} Vec4u;
 
 /* the 16-byte primitive colour record the debug wire-draws copy out of
    .rodata before overriding the first word */
-typedef struct Blob16 { long long a, b; } Blob16;
+typedef struct Blob16 {
+    long long a, b;
+} Blob16;
 
 /* the 16-byte work vector scpSekizou reuses for the motion direction and
    for the stone-statue SE position it copies out of .rodata */
-typedef union Vec16 { float f[4]; long long ll[2]; } Vec16;
+typedef union Vec16 {
+    float f[4];
+    long long ll[2];
+} Vec16;
 
 /* MUST be above the TU's first call site: with the implicit `int` return the
    call SETs $2 and global-alloc picks different scratch registers. */
@@ -26,16 +44,19 @@ extern void _ACTWait(int a0);
    src/st04a.c), not as a bare `unsigned long long`: a union-member access has
    alias set 0, so a store through it aliases every other load -- which is why
    ROM re-loads `gobj->0x164` after a status store. */
-typedef union ActStatus { unsigned long long ll; int i[2]; } ActStatus;
+typedef union ActStatus {
+    unsigned long long ll;
+    int i[2];
+} ActStatus;
 
 /* the two-slot ADPCM play-request table at D_006E5950 (2 x 0x18 bytes) */
 typedef struct AdpcmReq {
-    int  kind;   /* 0x00, 0 == slot free */
-    char **id;   /* 0x04: the caller's handle variable */
-    int  unk08;  /* 0x08 */
-    int  unk0C;  /* 0x0C */
-    int  unk10;  /* 0x10 */
-    int  unk14;  /* 0x14 */
+    int kind;  /* 0x00, 0 == slot free */
+    char **id; /* 0x04: the caller's handle variable */
+    int unk08; /* 0x08 */
+    int unk0C; /* 0x0C */
+    int unk10; /* 0x10 */
+    int unk14; /* 0x14 */
 } AdpcmReq;
 extern AdpcmReq D_006E5950[2];
 
@@ -46,19 +67,24 @@ static inline int scpAdpcmRequestSlot(char **id)
 {
     int i;
     for (i = 0; i < 2; i++) {
-        if (D_006E5950[i].kind != 0 && D_006E5950[i].id == id) goto found;
+        if (D_006E5950[i].kind != 0 && D_006E5950[i].id == id)
+            goto found;
     }
     i = -1;
 found:
     return i;
 }
 
-struct S { int a; int b; };
+struct S {
+    int a;
+    int b;
+};
 
 extern void LightTorchOn(void *a0);
 extern int scpSearchGobj();
 
-void scpTorchLightOn(void) {
+void scpTorchLightOn(void)
+{
     void *r = scpSearchGobj();
     if (r) {
         LightTorchOn(r);
@@ -79,7 +105,8 @@ extern void SetCageVelocityFriction(char *self, float val);
 extern void debug_StdPrintfDummy();
 extern int scpSearchGobj();
 
-void scpSetCageVelocityFriction(float f12) {
+void scpSetCageVelocityFriction(float f12)
+{
     int *v = scpSearchGobj();
     if (v) {
         SetCageVelocityFriction(v, f12);
@@ -97,14 +124,20 @@ void scpPlayMotDir(char *self, float *dir)
     SetMotionDirection(self, dir);
 }
 extern void SetMotionDirectionSmooze(char *self, float *dir, float ang);
-extern struct MotTblRec { char _000[0x186]; short smzAngle; char _188[0xC]; } D_0055FE58[];
+extern struct MotTblRec {
+    char _000[0x186];
+    short smzAngle;
+    char _188[0xC];
+} D_0055FE58[];
 
 void scpPlayMotDirSmz(char *self, float *dir)
 {
     sceVu0Normalize(dir, dir);
-    SetMotionDirectionSmooze(self, dir,
-        (float)((struct MotTblRec *)(*(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194
-                                     + (char *)D_0055FE58))->smzAngle);
+    SetMotionDirectionSmooze(
+        self, dir,
+        (float)((struct MotTblRec *)(*(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194 +
+                                     (char *)D_0055FE58))
+            ->smzAngle);
 }
 extern char *D_00639EA4;
 extern char *D_00639EA8;
@@ -135,7 +168,8 @@ void scpPlayMot(char *self, int mot)
     ControlMotionOrient(id, mot);
     *(int *)(act + 0x130) = SetMotionRequest(self, 0x10C, act + 0x620);
 }
-void scpPlayJump(char *a0, int a1) {
+void scpPlayJump(char *a0, int a1)
+{
     ACTItemForceDrop(a0);
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xC0) = a1;
     iosOmSendMail(a0, 0x2D, a0);
@@ -250,14 +284,18 @@ extern void scpDoorTypeUpMain(volatile int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 /* the 0x20-byte door "mail" records in .data; the slot at +4 is the actor
    thread the mail starts. */
-struct ScpMail { int mail; void (*func)(volatile int); char _08[0x18]; };
+struct ScpMail {
+    int mail;
+    void (*func)(volatile int);
+    char _08[0x18];
+};
 extern struct ScpMail D_002A51B0[];
 struct ScpAct {
     char _000[0x18];
-    ActStatus st18;             /* 0x18 -- the 64-bit actor status word */
+    ActStatus st18; /* 0x18 -- the 64-bit actor status word */
     char _020[0xB0];
-    struct ScpMail *mainMail;   /* 0xD0 */
-    struct ScpMail *mail;       /* 0xD4 */
+    struct ScpMail *mainMail; /* 0xD0 */
+    struct ScpMail *mail;     /* 0xD4 */
 };
 
 /* one linear step of *p toward TARGET; returns non-zero once it arrives */
@@ -417,7 +455,8 @@ static inline void scpAdpcmRequestClose(char **id)
     int i;
     for (i = 0; i < 2; i++)
         if (D_006E5950[i].kind != 0 && D_006E5950[i].id == id) {
-            D_006E5950[i].unk14 = 1; break;
+            D_006E5950[i].unk14 = 1;
+            break;
         }
 }
 
@@ -504,7 +543,8 @@ void scpGirlHintVoiceReady(int kind)
 }
 extern char *D_0063AA10;
 extern char D_00554750[];
-void scpGirlHintVoicePlay(void) {
+void scpGirlHintVoicePlay(void)
+{
     char *p = D_0063AA10;
     if (p != 0) {
         AdpcmPlay(*(int *)(p + 0x2C));
@@ -521,14 +561,14 @@ INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceTickProc);
    trigger `kind` that selects which axis test runs, the bridge end offset the
    way group is built from, and the four axis bounds the tests read. */
 struct WoodBoxEnt {
-    short id;         /* 0x00 */
-    char  kind;       /* 0x02 */
-    char  _03[0x0D];  /* 0x03 */
-    float ofs[4];     /* 0x10 */
-    float b0;         /* 0x20 */
-    float b1;         /* 0x24 */
-    float b2;         /* 0x28 */
-    float b3;         /* 0x2C */
+    short id;       /* 0x00 */
+    char kind;      /* 0x02 */
+    char _03[0x0D]; /* 0x03 */
+    float ofs[4];   /* 0x10 */
+    float b0;       /* 0x20 */
+    float b1;       /* 0x24 */
+    float b2;       /* 0x28 */
+    float b3;       /* 0x2C */
 };
 
 extern const char D_00554790[];
@@ -609,8 +649,7 @@ void scpWoodSrh(char *self, struct WoodBoxEnt *w)
             }
             break;
         case 7:
-            if (pos[1] > -190.0f && (pos[0] < 660.0f || pos[0] > 916.0f)
-                && pos[2] > -1600.0f) {
+            if (pos[1] > -190.0f && (pos[0] < 660.0f || pos[0] > 916.0f) && pos[2] > -1600.0f) {
                 st = 1;
                 if (pos[0] > 916.0) {
                     w->ofs[0] = 100.0f;
@@ -687,7 +726,8 @@ extern void SetDirectRootPosition();
 /* INTERIM stand-ins: scpPlayPosSet, scpPlayWaitMotEnd and
    scpAdpcmPlayRequestFunc are real TU functions with their own ROM slots
    (below); the compiler inlines them here. */
-static inline void scpPlayPosSetInline(void *a0, float f12, float f13, float f14) {
+static inline void scpPlayPosSetInline(void *a0, float f12, float f13, float f14)
+{
     float buf[4];
     memset(buf, 0, 0x10);
     buf[0] = f12;
@@ -696,14 +736,15 @@ static inline void scpPlayPosSetInline(void *a0, float f12, float f13, float f14
     SetDirectRootPosition(a0, buf);
     ClearMotionGeometryInfo(a0);
 }
-static inline void scpPlayWaitMotEndInline(char *a0) {
+static inline void scpPlayWaitMotEndInline(char *a0)
+{
     char *p = *(char **)(a0 + 0x164);
     while ((*(int *)(*(char **)(p + 0x130) + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
 }
-void scpSekizou(char *self, int flag, int anim, int anim2, int kind,
-                float bx, float by, float bz, float gx, float gy, float gz)
+void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, float by, float bz,
+                float gx, float gy, float gz)
 {
     int fade = 0;
 
@@ -716,9 +757,9 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind,
         return;
     }
     for (;;) {
-        if (scpTriggerBallInline(self, D_00639EA8, 200.0f) == 0
-            || scpTriggerBallInline(self, D_00639EA4, 200.0f) == 0
-            || scpActStatusDeathFall(D_00639EA4) != 0) {
+        if (scpTriggerBallInline(self, D_00639EA8, 200.0f) == 0 ||
+            scpTriggerBallInline(self, D_00639EA4, 200.0f) == 0 ||
+            scpActStatusDeathFall(D_00639EA4) != 0) {
             _ACTWait(1);
         } else {
             break;
@@ -795,24 +836,29 @@ extern const char D_005544E0[];
 extern void ClipWall(void *w);
 
 /* the wall-collision result the ClipWall work area hands back at +0x80 */
-struct WallColPos { int f00, f04; };
-struct WallCol { struct WallColPos pos; int f08; };
+struct WallColPos {
+    int f00, f04;
+};
+struct WallCol {
+    struct WallColPos pos;
+    int f08;
+};
 extern struct WallCol D_006E5940;
 
 typedef struct {
-    float p0[4];            /* 0x00 */
-    float p1[4];            /* 0x10 */
-    char _020[0x50];        /* 0x20 */
-    float f70;              /* 0x70 */
-    char _074[0x0C];        /* 0x74 */
-    struct WallCol res;     /* 0x80 */
-    char _08C[0x34];        /* 0x8C */
-} ClipWork;                 /* 0xC0 */
+    float p0[4];        /* 0x00 */
+    float p1[4];        /* 0x10 */
+    char _020[0x50];    /* 0x20 */
+    float f70;          /* 0x70 */
+    char _074[0x0C];    /* 0x74 */
+    struct WallCol res; /* 0x80 */
+    char _08C[0x34];    /* 0x8C */
+} ClipWork;             /* 0xC0 */
 
 /* INTERIM stand-in.  scpGetWallCollision is a real TU function with its own
    ROM slot (below); the compiler inlines it here. */
-static inline struct WallCol *scpGetWallCollisionInline(float x0, float y0, float z0,
-                                                        float x1, float y1, float z1)
+static inline struct WallCol *scpGetWallCollisionInline(float x0, float y0, float z0, float x1,
+                                                        float y1, float z1)
 {
     ClipWork work;
 
@@ -837,8 +883,8 @@ extern void sceVu0ScaleVector(float *dst, float *src, float scale);
 
 void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float z1)
 {
-    float v0[4] = { x0, y0, z0 };
-    float v1[4] = { x1, y1, z1 };
+    float v0[4] = {x0, y0, z0};
+    float v1[4] = {x1, y1, z1};
     struct WallCol *wc;
 
     if (D_00639EA4 == 0 || D_00639EA8 == 0) {
@@ -854,7 +900,8 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
         iosOmSendMail(D_00639EA8, 386, D_00639EA4);
     }
 }
-void _SCPMoveCharactorByWay_Cancel(char *a0) {
+void _SCPMoveCharactorByWay_Cancel(char *a0)
+{
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 47);
     ACTCharctrl_Unlock(a0);
 }
@@ -872,11 +919,11 @@ void scpSekizouCheckPoint(void)
     int was;
 
     if (D_00639EA8 != 0) {
-        gamesysObjInfoPosSetStage(D_00639EA8,
-            *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x444), 0, stage_no);
+        gamesysObjInfoPosSetStage(D_00639EA8, *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x444), 0,
+                                  stage_no);
     }
-    gamesysObjInfoPosSetStage(D_00639EA4,
-        *(int *)(*(char **)(D_00639EA4 + 0x164) + 0x444), 0, stage_no);
+    gamesysObjInfoPosSetStage(D_00639EA4, *(int *)(*(char **)(D_00639EA4 + 0x164) + 0x444), 0,
+                              stage_no);
     was = gflagChk(0x17D);
     gflagOn(0x17D);
     CheckPoint();
@@ -926,8 +973,14 @@ void scpKillSpiderGroup(void)
 }
 /* the 0x28-byte stage table at D_0055C518 and the per-stage 0x194-byte link
    table at D_005F5D50: row [stage_no], entry .next[no - 1] at +0xA0. */
-struct StgEnt { char _00[0x24]; int id; };            /* 0x28 */
-struct StgRow { char _000[0xA0]; short next[122]; };  /* 0x194 */
+struct StgEnt {
+    char _00[0x24];
+    int id;
+}; /* 0x28 */
+struct StgRow {
+    char _000[0xA0];
+    short next[122];
+}; /* 0x194 */
 extern struct StgEnt D_0055C518[];
 extern struct StgRow D_005F5D50[];
 extern int stage_no;
@@ -961,15 +1014,13 @@ void scpDispOffAllWithKind(void)
 }
 void scpDispOnAllWithKind(int x)
 {
-  unsigned int new_var;
-  int *p = isysGObjSearchFromObjKindID_begin(x);
-  while (p != 0)
-  {
-    new_var = (int) 0xFFFFFFFFU;
-    p[0x50 / 4] = new_var;
-    p = isysGObjSearchFromObjKindID_next(p);
-  }
-
+    unsigned int new_var;
+    int *p = isysGObjSearchFromObjKindID_begin(x);
+    while (p != 0) {
+        new_var = (int)0xFFFFFFFFU;
+        p[0x50 / 4] = new_var;
+        p = isysGObjSearchFromObjKindID_next(p);
+    }
 }
 void scpActivateAllWithKind(void)
 {
@@ -990,10 +1041,11 @@ void scpDisActivateAllWithKind(void)
 extern int scpSearchGobj__pn(int a0) __asm__("scpSearchGobj");
 extern void stage_SetParentOfGObj(int a0, int *a1);
 
-void scpLinkBGAtoLayoutedTarget(int a0, int a1) {
+void scpLinkBGAtoLayoutedTarget(int a0, int a1)
+{
     int ret = scpSearchGobj__pn(a0);
     if (ret != 0) {
-        int msg[2] = { ret, 0 };
+        int msg[2] = {ret, 0};
         stage_SetParentOfGObj(a1, msg);
     }
 }
@@ -1001,32 +1053,52 @@ extern char D_00554498[];
 extern int GetSkeltonFocusNode(int a0, int a1);
 extern void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
 
-void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2){
- int ret = scpSearchGobj(a0);
- if(ret != 0){ struct S copy; struct S pair;
-  pair.a=ret; pair.b=GetSkeltonFocusNode(ret,a1);
-  copy=pair;
-  if(copy.b==-1) debug_StdPrintfDummy(D_00554498);
-  else stage_SetParentOfGObjWithLocalRotationFlag(a2,&copy,1);
- } }
-void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3){
-  int ret = scpSearchGobj(a0);
-  if(ret != 0){ struct SVF copy; struct SVF pair;
-   pair.a=ret; pair.b=GetSkeltonFocusNode(ret,a1);
-   copy=pair;
-   if(copy.b==-1) debug_StdPrintfDummy(D_00554498);
-   else stage_SetParentOfGObjWithLocalRotationFlag(a2,&copy,a3);
-  } }
-void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3){
-  int *ret = isysGObjSearchFromObjKindID_begin(a0);
-  if(ret != 0){ struct SPMD copy; struct SPMD pair;
-   pair.a=(int)ret; pair.b=GetSkeltonFocusNode((int)ret,a1);
-   copy=pair;
-   if(copy.b==-1) debug_StdPrintfDummy(D_00554498);
-   else stage_SetParentOfGObjWithLocalRotationFlag(a2,&copy,a3);
-  } }
-struct WallCol *scpGetWallCollision(float x0, float y0, float z0,
-                                    float x1, float y1, float z1)
+void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2)
+{
+    int ret = scpSearchGobj(a0);
+    if (ret != 0) {
+        struct S copy;
+        struct S pair;
+        pair.a = ret;
+        pair.b = GetSkeltonFocusNode(ret, a1);
+        copy = pair;
+        if (copy.b == -1)
+            debug_StdPrintfDummy(D_00554498);
+        else
+            stage_SetParentOfGObjWithLocalRotationFlag(a2, &copy, 1);
+    }
+}
+void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3)
+{
+    int ret = scpSearchGobj(a0);
+    if (ret != 0) {
+        struct SVF copy;
+        struct SVF pair;
+        pair.a = ret;
+        pair.b = GetSkeltonFocusNode(ret, a1);
+        copy = pair;
+        if (copy.b == -1)
+            debug_StdPrintfDummy(D_00554498);
+        else
+            stage_SetParentOfGObjWithLocalRotationFlag(a2, &copy, a3);
+    }
+}
+void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3)
+{
+    int *ret = isysGObjSearchFromObjKindID_begin(a0);
+    if (ret != 0) {
+        struct SPMD copy;
+        struct SPMD pair;
+        pair.a = (int)ret;
+        pair.b = GetSkeltonFocusNode((int)ret, a1);
+        copy = pair;
+        if (copy.b == -1)
+            debug_StdPrintfDummy(D_00554498);
+        else
+            stage_SetParentOfGObjWithLocalRotationFlag(a2, &copy, a3);
+    }
+}
+struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x1, float y1, float z1)
 {
     ClipWork work;
 
@@ -1055,8 +1127,7 @@ void scpDoorTypeUp(volatile int a0)
 
     if (gflagChk(*(int *)(act + 0x454)) != 0) {
         int self = a0;
-        scpTransLinearInline((void *)self, 1, -*(float *)(act + 0x458),
-                             *(float *)(act + 0x458));
+        scpTransLinearInline((void *)self, 1, -*(float *)(act + 0x458), *(float *)(act + 0x458));
     }
     D_002A5150[0].func = scpDoorTypeUpMain;
     ((struct ScpAct *)act)->mail = D_002A5150;
@@ -1223,7 +1294,8 @@ found:
 }
 extern int IsTorchLightOn(int a0);
 
-int scpIsTorchLightOn(int a0) {
+int scpIsTorchLightOn(int a0)
+{
     int ret1 = scpSearchGobj(a0);
     int *ret2 = (int *)scpSearchGobj(0);
     ret2[0x16C / 4] = 1;
@@ -1259,18 +1331,24 @@ float scpGetRotObjectRotCount(void)
 extern char D_00554450[];
 extern int GetRotObjectZPlusDirection(int a0);
 
-int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2){
- int q = scpSearchGobj(a0);
- if(q != 0){
-  int e = GetRotObjectZPlusDirection(q);
-  short A1 = (a1 << 15) / 0xB4;
-  short A2 = (a2 << 15) / 0xB4;
-  if(A2 < A1){ if(A1 < e || e < A2) return 1; return 0; }
-  if(A1 < e && e < A2) return 1;
-  return 0;
- }
- debug_StdPrintfDummy(D_00554450);
- return 0;
+int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2)
+{
+    int q = scpSearchGobj(a0);
+    if (q != 0) {
+        int e = GetRotObjectZPlusDirection(q);
+        short A1 = (a1 << 15) / 0xB4;
+        short A2 = (a2 << 15) / 0xB4;
+        if (A2 < A1) {
+            if (A1 < e || e < A2)
+                return 1;
+            return 0;
+        }
+        if (A1 < e && e < A2)
+            return 1;
+        return 0;
+    }
+    debug_StdPrintfDummy(D_00554450);
+    return 0;
 }
 void scpTransLinear(void *obj, int axis, float target, float step)
 {
@@ -1388,8 +1466,8 @@ static inline int scpTriggerIgnoreInline(char *self)
     while (D_00554570[i] != -1) {
         if (*(int *)(self + 0xC) == D_00554570[i]) {
             char *sub = *(char **)(self + 0x15C);
-            if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x560)
-                || *(int *)(*(char **)(self + 0x164) + 0x34) == 0x16) {
+            if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x560) ||
+                *(int *)(*(char **)(self + 0x164) + 0x34) == 0x16) {
                 return 1;
             }
         }
@@ -1453,9 +1531,8 @@ int scpTriggerPosBox(float *p, float *pos, float *size)
 {
     int hit = 0;
 
-    if (pos[0] - size[0] < p[0] && p[0] < pos[0] + size[0]
-        && pos[1] - size[1] < p[1] && p[1] < pos[1] + size[1]
-        && pos[2] - size[2] < p[2] && p[2] < pos[2] + size[2]) {
+    if (pos[0] - size[0] < p[0] && p[0] < pos[0] + size[0] && pos[1] - size[1] < p[1] &&
+        p[1] < pos[1] + size[1] && pos[2] - size[2] < p[2] && p[2] < pos[2] + size[2]) {
         hit = 1;
     }
     if (D_0063B150 != 0) {
@@ -1483,26 +1560,35 @@ void scpEffectStart(int a0, int a1)
     SetIdentityQuaternion(buf);
     SetParticleEffect(a1, a0, buf);
 }
-void scpSleepEnemyAll(void) {
+void scpSleepEnemyAll(void)
+{
     char *g;
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x20, g);
     }
-    for (g = isysGObjSearchFromObjKindID_begin(0x3E); g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x20, g);
     }
 }
-void scpWakeupEnemyAll(void) {
+void scpWakeupEnemyAll(void)
+{
     char *g;
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x1F, g);
     }
-    for (g = isysGObjSearchFromObjKindID_begin(0x3E); g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x1F, g);
     }
 }
 extern char D_002C2DC8[];
-struct EnemyEnt { char _00[0x42]; unsigned short f42; };   /* 0x4C stride */
+struct EnemyEnt {
+    char _00[0x42];
+    unsigned short f42;
+}; /* 0x4C stride */
 
 void scpKillEnemyAll(void)
 {
@@ -1532,14 +1618,13 @@ extern char D_002C2DC8[];
 
 void scpKillEnemyOne(void)
 {
-  char *new_var;
-  int *p = isysGObjSearchFromObjLayoutID();
-  if (p != 0)
-  {
-    iosOmSendMail((int) p, 0x26, (int) p);
-    new_var = (char *) D_002C2DC8;
-    *((unsigned short *) ((new_var + (p[0x8 / 4] * 0x4C)) + 0x42)) = 0;
-  }
+    char *new_var;
+    int *p = isysGObjSearchFromObjLayoutID();
+    if (p != 0) {
+        iosOmSendMail((int)p, 0x26, (int)p);
+        new_var = (char *)D_002C2DC8;
+        *((unsigned short *)((new_var + (p[0x8 / 4] * 0x4C)) + 0x42)) = 0;
+    }
 }
 extern void ACTCharctrl_Lock(char *self);
 /* declared int: the call's result register is live-out of the call in ROM's
@@ -1597,30 +1682,39 @@ int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float scale,
 void _SCPCharacterStop(char *self)
 {
     char *p = *(char **)(self + 0x164);
-    *(int *)(p + 0x120) = 0; *(int *)(p + 0x124) = 0; *(int *)(p + 0x128) = 0; *(int *)(p + 0x338) = *(int *)(p + 0x33C) = 0x7F; *(int *)(p + 0x34C) = 0;
+    *(int *)(p + 0x120) = 0;
+    *(int *)(p + 0x124) = 0;
+    *(int *)(p + 0x128) = 0;
+    *(int *)(p + 0x338) = *(int *)(p + 0x33C) = 0x7F;
+    *(int *)(p + 0x34C) = 0;
 }
-int scpSearchGobj(int id) {
+int scpSearchGobj(int id)
+{
     return isysGObjSearchFromObjLayoutID(id);
 }
-extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, void *a4, float f12, float f13, float f14, float f15);
+extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, void *a4, float f12,
+                                          float f13, float f14, float f15);
 extern void memset(void *a0, int a1, int a2);
 extern void scpPlayMot(char *a0, int a1);
 
-void scpPlayMotNode(void *a0, int a1, void *a2, int a3) {
+void scpPlayMotNode(void *a0, int a1, void *a2, int a3)
+{
     float buf[4];
     memset(buf, 0, 0x10);
     buf[3] = 1.0f;
     SetMotionNodeFixModeParameter(a0, a2, 0, a3, buf, 0.0f, 0.0f, 0.0f, 1.0f);
     scpPlayMot(a0, a1);
 }
-void scpPlayMotReq(char *a0, int a1) {
+void scpPlayMotReq(char *a0, int a1)
+{
     char *p = *(char **)(a0 + 0x164);
     *(int *)(p + 0x130) = SetMotionRequest(a0, a1, p + 0x620);
 }
 extern void ClearMotionGeometryInfo(void *a0);
 extern void SetDirectRootPosition();
 
-void scpPlayPosSet(void *a0, float f12, float f13, float f14) {
+void scpPlayPosSet(void *a0, float f12, float f13, float f14)
+{
     float buf[4];
     memset(buf, 0, 0x10);
     buf[0] = f12;
@@ -1629,7 +1723,8 @@ void scpPlayPosSet(void *a0, float f12, float f13, float f14) {
     SetDirectRootPosition(a0, buf);
     ClearMotionGeometryInfo(a0);
 }
-void scpPlayWaitMotEnd(char *a0) {
+void scpPlayWaitMotEnd(char *a0)
+{
     char *p = *(char **)(a0 + 0x164);
     while ((*(int *)(*(char **)(p + 0x130) + 0x5C) & 1) == 0) {
         _ACTWait(1);
@@ -1637,7 +1732,8 @@ void scpPlayWaitMotEnd(char *a0) {
 }
 extern int D_0063C24C;
 
-void InitStageChange(void) {
+void InitStageChange(void)
+{
     D_0063C24C = 0;
 }
 /* EABI: the six int parameters land in $a0..$t1 and the two floats in
@@ -1647,11 +1743,11 @@ void InitStageChange(void) {
    colour components are `unsigned char`: the disc listing attributes their
    three `andi 0xff` masks to the function's declarator line, so they are
    parameter promotions and not statements in the body. */
-extern int RequestStageChangeWithColor(int no, char *g, int flag, float speed,
-                                       float wait, unsigned char r,
-                                       unsigned char gr, unsigned char b);
+extern int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wait,
+                                       unsigned char r, unsigned char gr, unsigned char b);
 
-int RequestStageChange(int no, char *g, int flag, float speed, float wait) {
+int RequestStageChange(int no, char *g, int flag, float speed, float wait)
+{
     return RequestStageChangeWithColor(no, g, flag, speed, wait, 0, 0, 0);
 }
 extern int D_00639EB4;
@@ -1660,8 +1756,8 @@ extern void ACTGame_StageChangeGObj(char *g, int no);
 extern void BoyInfoUpdate_StageChange(void);
 extern void stgmgrForceSwitchWithFadeColor(int id, float speed, float wait, int r, int gr, int b);
 
-int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wait,
-                                unsigned char r, unsigned char gr, unsigned char b)
+int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wait, unsigned char r,
+                                unsigned char gr, unsigned char b)
 {
     int ret;
     short next;
@@ -1730,7 +1826,8 @@ extern unsigned char fadeColor;
 extern unsigned char D_0063BCB1;
 extern unsigned char D_0063BCB2;
 
-void scpFadeOut(float a0, int a1, int a2, int a3) {
+void scpFadeOut(float a0, int a1, int a2, int a3)
+{
     fadeStatus = 1;
     fadeSpeed = a0;
     fadeContinue = 1;
@@ -1738,29 +1835,30 @@ void scpFadeOut(float a0, int a1, int a2, int a3) {
     D_0063BCB1 = a2;
     D_0063BCB2 = a3;
 }
-void scpFadeIn(float f) {
+void scpFadeIn(float f)
+{
     fadeStatus = 1;
     fadeContinue = 0;
     fadeSpeed = -f;
 }
 int scpFadeChk(void)
 {
-  int v = fadeStatus;
-  if (v == 0)
-  {
-    return 0;
-  }
-  if (v == 3)
-  {
-    v = 0;
-    return v;
-  }
-  return 1;
+    int v = fadeStatus;
+    if (v == 0) {
+        return 0;
+    }
+    if (v == 3) {
+        v = 0;
+        return v;
+    }
+    return 1;
 }
 extern char *D_00639EA4;
-int scpGameStat_BoyWeaponkind(void) {
+int scpGameStat_BoyWeaponkind(void)
+{
     char *w = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
-    if (w == 0) return 0;
+    if (w == 0)
+        return 0;
     return CheckWeaponKind(w);
 }
 extern int IsWallLeverStatus(void);
@@ -1771,21 +1869,23 @@ int scpIsWallLever2On(void)
 }
 extern int ACTGame_isHangChain();
 
-int scpIsHangChain(void) {
+int scpIsHangChain(void)
+{
     return ACTGame_isHangChain() != 0;
 }
 extern int ACTGame_isHangChain();
 
 int scpIsHangChainOptional(int a0, int b)
 {
-    register int *p;  /* v1 */
-    register int b_save;  /* s0 */
-    register unsigned int v;  /* v0 */
+    register int *p;         /* v1 */
+    register int b_save;     /* s0 */
+    register unsigned int v; /* v0 */
     b_save = b;
     p = ACTGame_isHangChain(a0);
     v = 0;
-    if (p == 0) goto out;
-    v = (unsigned int)(p[0x8/4] ^ b_save) < 1;
+    if (p == 0)
+        goto out;
+    v = (unsigned int)(p[0x8 / 4] ^ b_save) < 1;
 out:
     return (int)v;
 }
@@ -1795,7 +1895,8 @@ extern void WakeUpAP1(int a0);
 extern void _ACTWait(int a0);
 extern int rand(void);
 
-void scpBornSpider(int n, float a, float b, float c, float d) {
+void scpBornSpider(int n, float a, float b, float c, float d)
+{
     int i;
     float t1, t2;
     int r, dead;
@@ -1893,7 +1994,8 @@ void scpWakeupItemWithBoundary(float x, float y, float z, float r)
 }
 extern int CheckReadyAllSwitches();
 
-int scpCheckReadyAllObjects(void) {
+int scpCheckReadyAllObjects(void)
+{
     return CheckReadyAllSwitches() != 0;
 }
 extern float D_006E5980[];
@@ -1903,7 +2005,7 @@ void ScpCallCameraSetTarget(float x, float y, float z)
     /* the camera target is the NEGATED point, as a homogeneous vector; the
        block initializer is what keeps ROM's 0/4/8/C store order (a separate
        `pos[3] = 1.0f` statement lets sched hoist the constant store first) */
-    float pos[4] = { -x, -y, -z, 1.0f };
+    float pos[4] = {-x, -y, -z, 1.0f};
     char *g = D_00639EA4;
 
     if (g != 0) {
@@ -1922,20 +2024,23 @@ void ScpCallCameraGetTarget(float *dst)
     dst[1] = D_006E5980[1];
     dst[2] = D_006E5980[2];
 }
-void ScpCallCameraOff(void) {
+void ScpCallCameraOff(void)
+{
     char *g = D_00639EA4;
     if (g != 0) {
         *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) &= ~(1ULL << 23);
     }
 }
 extern char *D_00639EA4;
-void ScpCallCameraOn(void) {
+void ScpCallCameraOn(void)
+{
     char *g = D_00639EA4;
     if (g != 0) {
         *(long long *)(*(char **)(g + 0x164) + 0x20) |= 0x800000;
     }
 }
-void ScpCallCameraTargetOff(void) {
+void ScpCallCameraTargetOff(void)
+{
     char *g = D_00639EA4;
     if (g != 0) {
         *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) &= ~(3ULL << 24);
@@ -1944,7 +2049,8 @@ void ScpCallCameraTargetOff(void) {
 extern void GetRootPosition(void *a0, void *a1);
 extern void SetDirectRootPosition__pn(void *a0, void *a1) __asm__("SetDirectRootPosition");
 
-void scpTransGObj(void *a0, float f12, float f13, float f14) {
+void scpTransGObj(void *a0, float f12, float f13, float f14)
+{
     float buf[4];
     GetRootPosition(buf, a0);
     buf[0] = buf[0] + f12;
@@ -1955,10 +2061,13 @@ void scpTransGObj(void *a0, float f12, float f13, float f14) {
 extern void BreakItemFromOutside(void *o);
 extern int CheckItemDead(void *o);
 extern int GetItemKind(void *o);
-extern void *isysGObjSearchFromObjKindID_begin__pn(int id) __asm__("isysGObjSearchFromObjKindID_begin");
-extern void *isysGObjSearchFromObjKindID_next__pn(void *o) __asm__("isysGObjSearchFromObjKindID_next");
+extern void *
+isysGObjSearchFromObjKindID_begin__pn(int id) __asm__("isysGObjSearchFromObjKindID_begin");
+extern void *
+isysGObjSearchFromObjKindID_next__pn(void *o) __asm__("isysGObjSearchFromObjKindID_next");
 
-void scpExplodeSecretItem(void) {
+void scpExplodeSecretItem(void)
+{
     void *o = isysGObjSearchFromObjKindID_begin__pn(0x13);
     while (o) {
         if (GetItemKind(o) == 6 && CheckItemDead(o) == 0) {
@@ -2002,11 +2111,13 @@ int scpCheckExistAliveSpider(void)
     debug_StdPrintfDummy(D_005548B8);
     return 0;
 }
-void scpLockMaxRotate(char *a0, float f12) {
+void scpLockMaxRotate(char *a0, float f12)
+{
     ((ActStatus *)(*(char **)(a0 + 0x164) + 0x20))->ll |= (1ULL << 33);
     *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x344) = f12;
 }
-void scpUnLockMaxRotate(char *a0) {
+void scpUnLockMaxRotate(char *a0)
+{
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) &= ~(1ULL << 33);
 }
 extern char *gamesysObjInfoGet(int kind, int no);
@@ -2023,10 +2134,12 @@ int scpGetRotObjectCurrentRot(int no)
     }
     return 0;
 }
-void scpCheckDisconnectWallStart(char *a0) {
+void scpCheckDisconnectWallStart(char *a0)
+{
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) |= (1ULL << 58);
 }
-void scpCheckDisconnectWallEnd(char *a0) {
+void scpCheckDisconnectWallEnd(char *a0)
+{
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 58);
 }
 extern int D_00554570[];
@@ -2064,8 +2177,8 @@ extern void stage_SetLoopFlag(int key, int a1);
    argument registers, so ($a0 name, $a1 flag, $f12..$f17 the six scroll
    values) is the same register assignment either way, but ROM emits the flag
    move after every float move -- i.e. it is declared last. */
-extern void tex_SetUVScroll(char *name, float u, float v, float su, float sv,
-                            float ou, float ov, int flag);
+extern void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov,
+                            int flag);
 extern void actSt25aQueenAppearChk(volatile int a0);
 extern struct ScpMail D_002A5460[];
 extern char D_005548F0[];

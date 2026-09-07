@@ -15,7 +15,8 @@ extern char D_00552118[];
 extern void SgStAdpcmPlay(long long a0);
 extern extern void debug_StdPrintfDummy();
 
-void AdpcmPlay(void *a0) {
+void AdpcmPlay(void *a0)
+{
     debug_StdPrintfDummy(D_00552118);
     SgStAdpcmPlay(*(long long *)((char *)a0 + 0x30));
 }
@@ -30,7 +31,8 @@ INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmClose);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmInterStereoVolumeSet);
 extern void AdpcmInterStereoVolumeSet(void *a0, int a1, int a2);
 
-void AdpcmInterLeaveVolumeSet(int a0, int a1, int a2) {
+void AdpcmInterLeaveVolumeSet(int a0, int a1, int a2)
+{
     char *b = *(char **)(a0 + 0x2C);
     short *q = (short *)(b + (a1 * 2 + 1) * 2);
     short *r = (short *)(b + a1 * 4);
@@ -38,12 +40,14 @@ void AdpcmInterLeaveVolumeSet(int a0, int a1, int a2) {
     r[0x1E] = a2;
     AdpcmInterStereoVolumeSet(b, a1 * 2, a2);
 }
-void AdpcmVolumeSet(int a0, int a1) {
+void AdpcmVolumeSet(int a0, int a1)
+{
     AdpcmInterLeaveVolumeSet(a0, 0, a1);
 }
 extern int D_0063C1C8;
 
-inline void adpcmPauseRequest(int val) {
+inline void adpcmPauseRequest(int val)
+{
     D_0063C1C8 = val;
 }
 extern char D_00552098[];
@@ -88,7 +92,8 @@ extern char D_005520B0[];
 extern int D_0063C1B8;
 extern int D_0063C1C0[2];
 
-inline int AdpcmIopBuffAlloc(void) {
+inline int AdpcmIopBuffAlloc(void)
+{
     int i;
     for (i = 0; i < 2; i++) {
         if (D_0063C1C0[i] == 0) {
@@ -147,7 +152,8 @@ inline int *AdpcmOpenSync(int *self)
 {
     int *r;
     debug_StdPrintfDummy((int *)D_00552140);
-    if (self[5] != 0) goto body;
+    if (self[5] != 0)
+        goto body;
     return 0;
 body:
     if (((int *)self[5])[0x40] != 0) {
@@ -182,7 +188,8 @@ inline int AdpcmUseAreaGet(void)
         int next = count + 1;
         p++;
         n--;
-        if (v != 0) count = next;
+        if (v != 0)
+            count = next;
     } while (n >= 0);
     return count;
 }
@@ -196,7 +203,8 @@ inline int AdpcmFreeAreaGet(void)
         int next = count + 1;
         p++;
         n--;
-        if (v == 0) count = next;
+        if (v == 0)
+            count = next;
     } while (n >= 0);
     return count;
 }
@@ -209,21 +217,25 @@ inline void AdpcmInterStereoVolumeSetAll(void)
         int *p = (int *)((char *)D_006BF498 + i);
         if (*p != 0) {
             int v = *(int *)((char *)p + 0x38);
-            if (v == 0x20000) goto call0;
-            if (v != 0x40000) goto skip;
+            if (v == 0x20000)
+                goto call0;
+            if (v != 0x40000)
+                goto skip;
             adpcmPauseRequest__p4((short *)p, 2);
         call0:
             adpcmPauseRequest__p4((short *)p, 0);
-        skip: ;
+        skip:;
         }
     }
 }
-inline short AdpcmInterLeaveVolumeGet(char *self, int idx) {
+inline short AdpcmInterLeaveVolumeGet(char *self, int idx)
+{
     char *base = *(char **)(self + 0x2C);
     base += idx * 4;
     return *(short *)(base + 0x3C);
 }
-inline short AdpcmVolumeGet(char *self) {
+inline short AdpcmVolumeGet(char *self)
+{
     return *(short *)(*(char **)(self + 0x2C) + 0x3C);
 }
 extern int SgStAdpcmIopReadAddr(int a);

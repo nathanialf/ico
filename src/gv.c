@@ -15,39 +15,51 @@ int _InterRotGV(float *dst, float *cur, float *tgt, int step)
 
     if (__builtin_abs(d) < step) {
         hit = 1;
-        buf[0] = cur[0]; buf[1] = cur[1]; buf[2] = cur[2];
+        buf[0] = cur[0];
+        buf[1] = cur[1];
+        buf[2] = cur[2];
     } else if (d > 0) {
-        buf[0] = tgt[0]; buf[1] = tgt[1]; buf[2] = tgt[2];
+        buf[0] = tgt[0];
+        buf[1] = tgt[1];
+        buf[2] = tgt[2];
         _ApplyRyGV(buf, -step * D_006391F0 / 180.0f);
     } else {
-        buf[0] = tgt[0]; buf[1] = tgt[1]; buf[2] = tgt[2];
+        buf[0] = tgt[0];
+        buf[1] = tgt[1];
+        buf[2] = tgt[2];
         _ApplyRyGV(buf, step * D_006391F4 / 180.0f);
     }
-    dst[0] = buf[0]; dst[1] = buf[1]; dst[2] = buf[2];
+    dst[0] = buf[0];
+    dst[1] = buf[1];
+    dst[2] = buf[2];
     return hit;
 }
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern void sceVu0SubVector();
 
-void _DistxzSqGV(void *a0, void *a1) {
+void _DistxzSqGV(void *a0, void *a1)
+{
     char buf[0x10];
     sceVu0SubVector(buf, a0, a1);
     *(int *)(buf + 4) = 0;
     sceVu0InnerProduct(buf, buf);
 }
-void _DistSqGV(void *a0, void *a1) {
+void _DistSqGV(void *a0, void *a1)
+{
     char buf[0x10];
     sceVu0SubVector(buf, a0, a1);
     sceVu0InnerProduct(buf, buf);
 }
 extern float FSqrt(float a0);
 
-void _DistGV(void *a0, void *a1) {
+void _DistGV(void *a0, void *a1)
+{
     char buf[0x10];
     sceVu0SubVector(buf, a0, a1);
     FSqrt(sceVu0InnerProduct(buf, buf));
 }
-void _DistxzGV(void *a0, void *a1) {
+void _DistxzGV(void *a0, void *a1)
+{
     char buf[0x10];
     sceVu0SubVector(buf, a0, a1);
     *(int *)(buf + 4) = 0;
@@ -79,8 +91,10 @@ int _RotyGV(float *a0, float *a1)
     float b = atan2f(a1[0], a1[2]);
     int d = (int)((a - b) * 180.0f / D_006391F8);
 
-    if (d > 180) d -= 360;
-    if (d <= -180) d += 360;
+    if (d > 180)
+        d -= 360;
+    if (d <= -180)
+        d += 360;
     return d;
 }
 int _AbsRotyGV(void *a0, void *a1)
@@ -203,13 +217,17 @@ inline int RoundDegGV(int a0)
 }
 inline int AlignDegGV(int a0)
 {
-    if (a0 < -135) a0 = 180;
-    else if (a0 < -45) a0 = -90;
-    else if (a0 < 45) a0 = 0;
+    if (a0 < -135)
+        a0 = 180;
+    else if (a0 < -45)
+        a0 = -90;
+    else if (a0 < 45)
+        a0 = 0;
     else {
         int v = a0;
         a0 = 180;
-        if (v <= 134) a0 = 90;
+        if (v <= 134)
+            a0 = 90;
     }
     return a0;
 }

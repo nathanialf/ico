@@ -16,12 +16,15 @@ void fightSoundClose(void)
         D_006E6D60[0] = 0;
     }
 }
-void fightSoundProcessRequestStart(void) {
+void fightSoundProcessRequestStart(void)
+{
     D_0063ABE8 = 0;
 }
-int fightSoundProcessRequestStatus(void) {
+int fightSoundProcessRequestStatus(void)
+{
     return D_0063ABE8;
 }
-int fightSoundPlayChk(void) {
+int fightSoundPlayChk(void)
+{
     return D_006E6D60[0];
 }

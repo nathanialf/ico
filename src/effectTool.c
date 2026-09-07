@@ -20,11 +20,11 @@ INCLUDE_ASM("asm/nonmatchings/src/effectTool", dispEffectToolField);
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
  * pad, trg at 0x4 and rep at 0xC; this tool reads pad 0 and pad 1. */
 typedef struct {
-    int unk00;          /* 0x00 */
-    int trg;            /* 0x04 */
-    int unk08;          /* 0x08 */
-    int rep;            /* 0x0C */
-    char unk10[0x48];   /* 0x10 */
+    int unk00;        /* 0x00 */
+    int trg;          /* 0x04 */
+    int unk08;        /* 0x08 */
+    int rep;          /* 0x0C */
+    char unk10[0x48]; /* 0x10 */
 } EffToolPad;
 extern EffToolPad D_0028F8F0[];
 
@@ -36,8 +36,8 @@ extern int D_0063B864;
 /* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
  * entry, name pointer first, NULL-terminated. */
 typedef struct {
-    char *name;         /* 0x00 */
-    char unk04[0x18];   /* 0x04 */
+    char *name;       /* 0x00 */
+    char unk04[0x18]; /* 0x04 */
 } EffParamDef;
 extern EffParamDef D_004E74A0[];
 
@@ -76,8 +76,7 @@ static inline void dispEffectParams(int id, int sel)
         start = n - 10;
     }
     for (i = 0; i < 10 && start + i < n; i++) {
-        _dispParam(pkg, start + i, 10, i * 8 + 0x32,
-                   (sel == start + i) ? 0x00E0FF00 : 0xFFFFFF00);
+        _dispParam(pkg, start + i, 10, i * 8 + 0x32, (sel == start + i) ? 0x00E0FF00 : 0xFFFFFF00);
     }
 }
 
@@ -137,8 +136,8 @@ int saveEffectData(int id)
     if (debugSceOpen(D_0062A298 + id * 0x50, 0x602) < 0) {
         debug_StdPrintfDummy(D_0061F570);
     } else {
-        debug_StdPrintfDummy(D_0061F598, D_0062A298 + id * 0x50,
-                             D_0062A298 + id * 0x50 - 0x20, 0xA0);
+        debug_StdPrintfDummy(D_0061F598, D_0062A298 + id * 0x50, D_0062A298 + id * 0x50 - 0x20,
+                             0xA0);
         debug_StdPrintfDummy(D_0061F5C8, sceWrite(0, pkg, 0xA0));
         debugSceClose(0);
     }
@@ -154,13 +153,13 @@ extern int D_0063B854;
 /* iosPadGetStick's output block (camera-ico2.c's IosPadStick, extended): the
  * camera-coord helper reads the two floats at 0xC/0x10 as a1[3]/a1[4]. */
 typedef struct {
-    int x;              /* 0x00 */
-    int y;              /* 0x04 */
-    int unk08;          /* 0x08 */
-    float fx;           /* 0x0C */
-    float fz;           /* 0x10 */
-    float mag;          /* 0x14 */
-    char unk18[8];      /* 0x18 */
+    int x;         /* 0x00 */
+    int y;         /* 0x04 */
+    int unk08;     /* 0x08 */
+    float fx;      /* 0x0C */
+    float fz;      /* 0x10 */
+    float mag;     /* 0x14 */
+    char unk18[8]; /* 0x18 */
 } EffToolStick;
 
 extern int iosPadConnect(void *pad, int slot, int port, void *conf);
@@ -218,8 +217,8 @@ extern int D_0063B860;
 extern int D_0063B864;
 extern int D_0063B868;
 
-extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl,
-                                 int stride, int a6, int a7, int count, int *cur);
+extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
+                                 int a7, int count, int *cur);
 extern void DeleteParticleEffect(int id);
 extern int SetParticleEffect(int id, void *pos, void *quat);
 extern int EditTarget(int idx);
@@ -235,8 +234,8 @@ int execEffectTool(void)
     switch (targetMemo) {
     default:
     case 0:
-        r = debug_SelectCsvWindow(D_0061F618, 10, 0x32, 0xB, D_0062A278, 0x50, 0, 0,
-                                  0x3D, &D_0063B85C);
+        r = debug_SelectCsvWindow(D_0061F618, 10, 0x32, 0xB, D_0062A278, 0x50, 0, 0, 0x3D,
+                                  &D_0063B85C);
         if (D_0063B85C != D_0063B860) {
             setQ(q);
             if (D_0063B854 != -1) {

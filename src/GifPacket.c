@@ -2,7 +2,9 @@
 
 #include "vu0.h"
 
-typedef struct { int a, b, c, d; } GsAlphaEnt;
+typedef struct {
+    int a, b, c, d;
+} GsAlphaEnt;
 
 /* The display-list packet builder state.  `ptr` is the write cursor; `dma`,
    `tail`, `gif` and `end` are the back-pointers into the packet that
@@ -31,7 +33,8 @@ typedef union {
    instead of at its ROM slot, so the public body stays a plain definition
    there and every C caller the listing shows inlining it calls this static
    stand-in.  Collapses to one `inline` definition at layout. */
-static inline void setGsReg(long long a0, long long a1) {
+static inline void setGsReg(long long a0, long long a1)
+{
     *D_004EE6F0.ptr++ = a1;
     *D_004EE6F0.ptr++ = a0;
 }
@@ -39,20 +42,23 @@ static inline void setGsReg(long long a0, long long a1) {
 /* The two GS register payloads this file packs over and over: RGBAQ from a
    4-byte colour, and XYZ2 from a 2D screen point plus a 64-bit Z.  The GS
    window origin is 2048.0 pixels, i.e. 0x8000 in 1/16-pixel units. */
-#define GIF_RGBA(c)   ((long long)(c)[0] | ((long long)(c)[1] << 8) \
-                       | ((long long)(c)[2] << 16) | ((long long)(c)[3] << 24))
+#define GIF_RGBA(c)                                                                                \
+    ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
+     ((long long)(c)[3] << 24))
 /* the same packed XYZ2 word with the window origin already folded into the
    coordinates (the sprite family offsets its size once, then adds the corner) */
 #define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32))
 /* the ST/UV pair the textured-sprite family packs into the UV register */
 #define GIF_UV(u, v) ((long long)(u) | ((long long)(v) << 16))
-#define GIF_XY(x, y, z) ((long long)((x) + 0x8000) \
-                         | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
+#define GIF_XY(x, y, z)                                                                            \
+    ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
 #define GIF_XYZ(v, z) GIF_XY((v)[0], (v)[1], z)
 
 /* The textured-sprite UV rectangle: two GS UV corners, in 1/16-texel units
    like the screen rect beside it. */
-typedef struct { int u0, v0, u1, v1; } GifUvRect;
+typedef struct {
+    int u0, v0, u1, v1;
+} GifUvRect;
 extern int D_0063A064;
 extern int D_0063A068;
 extern float D_0063A05C;
@@ -62,7 +68,6 @@ extern float D_0063A060;
 #define GIF_OX ((int)D_0063A05C * 16)
 #define GIF_OY ((int)D_0063A060 * 16)
 #define GIF_XYZOFF(v, z) GIF_XY0(GIF_OX + (v)[0], GIF_OY + (v)[1], z)
-
 
 void gif_StartPacket(void)
 {
@@ -90,13 +95,13 @@ void gif_EndPacket(void)
     char *p;
 
     ((GifPkWord *)D_004EE6F0.end)->d =
-        (unsigned int)(((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.end) >> 4) - 1)
-        | 0x1000000000008000LL;
+        (unsigned int)(((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.end) >> 4) - 1) |
+        0x1000000000008000LL;
     ((GifPkWord *)D_004EE6F0.gif)->w[0] =
         ((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.gif) >> 4) | 0x50000000;
     ((GifPkWord *)D_004EE6F0.tail)->d =
-        (unsigned int)((((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.tail) >> 4) - 1)
-                       | 0x10000000);
+        (unsigned int)((((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.tail) >> 4) - 1) |
+                       0x10000000);
     p = (char *)D_004EE6F0.ptr;
     D_004EE6F0.tail = p;
     ((GifPkWord *)p)->d = 0x60000000;
@@ -132,8 +137,8 @@ void gif_EndPacketPath1(void)
     char *q;
 
     ((GifPkWord *)D_004EE6F0.end)->d =
-        (unsigned int)(((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.end) >> 4) - 1)
-        | 0x1000000000008000LL;
+        (unsigned int)(((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.end) >> 4) - 1) |
+        0x1000000000008000LL;
     ((GifPkWord *)D_004EE6F0.gif)->w[0] =
         (((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.gif) >> 4) << 16) | 0x6C008000;
     p = (char *)D_004EE6F0.ptr;
@@ -147,8 +152,8 @@ void gif_EndPacketPath1(void)
     ((GifPkWord *)(p + 8))->w[0] = 0;
     D_004EE6F0.ptr = (unsigned long long *)(p + 0xC);
     ((GifPkWord *)D_004EE6F0.tail)->d =
-        (unsigned int)((((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.tail) >> 4) - 1)
-                       | 0x10000000);
+        (unsigned int)((((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.tail) >> 4) - 1) |
+                       0x10000000);
     q = (char *)D_004EE6F0.ptr;
     D_004EE6F0.tail = q;
     ((GifPkWord *)q)->d = 0x60000000;
@@ -161,16 +166,15 @@ void gif_EndPacketPath1(void)
     dl_CloseDma();
     D_00639F60 = 0;
 }
-void gif_MakeLine2DOffset(int *v0, int *v1, long long z0, long long z1,
-                          unsigned char *col, int prim)
+void gif_MakeLine2DOffset(int *v0, int *v1, long long z0, long long z1, unsigned char *col,
+                          int prim)
 {
     setGsReg(0x00, ((long long)prim << 6) | 0xA);
     setGsReg(0x01, GIF_RGBA(col));
     setGsReg(0x05, GIF_XYZOFF(v0, z0));
     setGsReg(0x05, GIF_XYZOFF(v1, z1));
 }
-void gif_MakeSprite(int x, int y, int w, int h, long long z, int *uv,
-                    unsigned char *col, int prim)
+void gif_MakeSprite(int x, int y, int w, int h, long long z, int *uv, unsigned char *col, int prim)
 {
     int fx = w + 0x8000;
     int fy = h + 0x8000;
@@ -182,8 +186,8 @@ void gif_MakeSprite(int x, int y, int w, int h, long long z, int *uv,
     setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
     setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
 }
-void gif_MakeSpriteOffset(int x, int y, int w, int h, long long z, int *uv,
-                          unsigned char *col, int prim)
+void gif_MakeSpriteOffset(int x, int y, int w, int h, long long z, int *uv, unsigned char *col,
+                          int prim)
 {
     setGsReg(0x00, (prim << 6) | 0x116);
     setGsReg(0x01, GIF_RGBA(col));
@@ -192,8 +196,7 @@ void gif_MakeSpriteOffset(int x, int y, int w, int h, long long z, int *uv,
     setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
     setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
 }
-void gif_MakeSpriteWithStrip(int *r, long long z, int *uv, unsigned char *col,
-                             int prim)
+void gif_MakeSpriteWithStrip(int *r, long long z, int *uv, unsigned char *col, int prim)
 {
     setGsReg(0x00, (prim << 6) | 0x114);
     setGsReg(0x01, GIF_RGBA(col));
@@ -208,8 +211,7 @@ void gif_MakeSpriteWithStrip(int *r, long long z, int *uv, unsigned char *col,
 }
 /* gif_MakePoint2DOffset is `inline` too (its lines appear inside gif_PointOffset);
    same interim stand-in as makePoint2D. */
-static inline void makePoint2DOffset(int *v, long long z, unsigned char *col,
-                                     int prim)
+static inline void makePoint2DOffset(int *v, long long z, unsigned char *col, int prim)
 {
     setGsReg(0x00, 0x100 | ((long long)prim << 6));
     setGsReg(0x01, GIF_RGBA(col));
@@ -225,8 +227,8 @@ void gif_PointOffset(int *v, long long z, unsigned char *col, int prim)
     makePoint2DOffset(p, z, col, prim);
 }
 /* gif_MakeLine2D is `inline` (its lines appear inside gif_Line); interim stand-in. */
-static inline void makeLine2D(int *v0, int *v1, long long z0, long long z1,
-                              unsigned char *col, int prim)
+static inline void makeLine2D(int *v0, int *v1, long long z0, long long z1, unsigned char *col,
+                              int prim)
 {
     setGsReg(0x00, ((long long)prim << 6) | 0xA);
     setGsReg(0x01, GIF_RGBA(col));
@@ -234,8 +236,7 @@ static inline void makeLine2D(int *v0, int *v1, long long z0, long long z1,
     setGsReg(0x05, GIF_XYZ(v1, z1));
 }
 
-void gif_Line(int *v0, int *v1, long long z0, long long z1,
-              unsigned char *col, int prim)
+void gif_Line(int *v0, int *v1, long long z0, long long z1, unsigned char *col, int prim)
 {
     int p0[4];
     int p1[4];
@@ -248,8 +249,8 @@ void gif_Line(int *v0, int *v1, long long z0, long long z1,
 }
 /* gif_MakeSpriteNoTexture is `inline` and small enough that the Sprite wrappers
    inline it, while gif_MakeSprite stays a call; interim stand-in. */
-static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z,
-                                       unsigned char *col, int prim)
+static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col,
+                                       int prim)
 {
     int fx = w + 0x8000;
     int fy = h + 0x8000;
@@ -261,9 +262,8 @@ static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z,
 }
 
 /* gif_MakeSpriteNoTextureOffset is `inline` too; interim stand-in. */
-static inline void makeSpriteNoTextureOffset(int x, int y, int w, int h,
-                                             long long z, unsigned char *col,
-                                             int prim)
+static inline void makeSpriteNoTextureOffset(int x, int y, int w, int h, long long z,
+                                             unsigned char *col, int prim)
 {
     setGsReg(0x00, (prim << 6) | 0x406);
     setGsReg(0x01, GIF_RGBA(col));
@@ -290,8 +290,7 @@ void gif_Sprite(int *r, long long z, int *uv, unsigned char *col, int prim)
         gif_MakeSprite(x, y, w, h, z, (int *)&t, col, prim);
     }
 }
-void gif_SpriteSensitive(int *r, long long z, int *uv, unsigned char *col,
-                         int prim)
+void gif_SpriteSensitive(int *r, long long z, int *uv, unsigned char *col, int prim)
 {
     int x = r[0] * D_0063A064 / 640;
     int y = r[1] * D_0063A068 / 224;
@@ -304,8 +303,7 @@ void gif_SpriteSensitive(int *r, long long z, int *uv, unsigned char *col,
         makeSpriteNoTexture(x, y, w, h, z, col, prim);
     }
 }
-void gif_SpriteOffset(int *r, long long z, int *uv, unsigned char *col,
-                      int prim)
+void gif_SpriteOffset(int *r, long long z, int *uv, unsigned char *col, int prim)
 {
     int x = r[0] * D_0063A064 / 640 * 16;
     int y = r[1] * D_0063A068 / 224 * 16;
@@ -324,8 +322,7 @@ void gif_SpriteOffset(int *r, long long z, int *uv, unsigned char *col,
         gif_MakeSpriteOffset(x, y, w, h, z, (int *)&t, col, prim);
     }
 }
-void gif_SpriteSensitiveOffset(int *r, long long z, int *uv,
-                               unsigned char *col, int prim)
+void gif_SpriteSensitiveOffset(int *r, long long z, int *uv, unsigned char *col, int prim)
 {
     int x = r[0] * D_0063A064 / 640;
     int y = r[1] * D_0063A068 / 224;
@@ -357,8 +354,7 @@ void gif_SpriteOrg(int *r, long long z, int *uv, unsigned char *col, int prim)
         gif_MakeSprite(x, y, w, h, z, (int *)&t, col, prim);
     }
 }
-void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col,
-                            int prim)
+void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col, int prim)
 {
     int x = r[0];
     int y = r[1];
@@ -374,29 +370,26 @@ void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col,
 extern int D_0063A074;
 extern int D_0063A078;
 
-void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm,
-                           unsigned int w, unsigned int h, int useoffset, int clear)
+void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
+                           unsigned int h, int useoffset, int clear)
 {
-
-    setGsReg(0x4C, (fbp >> 5) | ((unsigned long long)((w >> 6) & 0x3F) << 16)
-                   | ((psm & 0xF) << 24));
-    setGsReg(0x40, ((unsigned long long)(w - 1) << 16)
-                   | ((unsigned long long)(h - 1) << 48));
+    setGsReg(0x4C,
+             (fbp >> 5) | ((unsigned long long)((w >> 6) & 0x3F) << 16) | ((psm & 0xF) << 24));
+    setGsReg(0x40, ((unsigned long long)(w - 1) << 16) | ((unsigned long long)(h - 1) << 48));
     if (clear) {
         setGsReg(0x47, 0x30000);
         setGsReg(0x00, 6);
         setGsReg(0x01, 0xFE00LL << 46);
         setGsReg(0x05, 0);
-        setGsReg(0x05, (unsigned long long)(w << 4)
-                       | ((unsigned long long)(h << 4) << 16));
+        setGsReg(0x05, (unsigned long long)(w << 4) | ((unsigned long long)(h << 4) << 16));
         setGsReg(0x47, 0x50000);
     }
     if (useoffset) {
-        setGsReg(0x18, (unsigned long long)(unsigned int)(((0x800 - (w >> 1)) << 4) + D_0063A074)
-                       | ((unsigned long long)(((0x800 - (h >> 1)) << 4) + D_0063A078) << 32));
+        setGsReg(0x18, (unsigned long long)(unsigned int)(((0x800 - (w >> 1)) << 4) + D_0063A074) |
+                           ((unsigned long long)(((0x800 - (h >> 1)) << 4) + D_0063A078) << 32));
     } else {
-        setGsReg(0x18, (unsigned long long)(unsigned int)((0x800 - (w >> 1)) << 4)
-                       | ((unsigned long long)((0x800 - (h >> 1)) << 4) << 32));
+        setGsReg(0x18, (unsigned long long)(unsigned int)((0x800 - (w >> 1)) << 4) |
+                           ((unsigned long long)((0x800 - (h >> 1)) << 4) << 32));
     }
 }
 extern int D_00639F68[2];
@@ -406,11 +399,16 @@ extern int D_00639F70;
    its own ROM slot further down this file); same construct as setGsReg. */
 static inline int isInScreen(volatile int *p)
 {
-    if (p[2] < 0) return 0;
-    if (p[2] > 0x0FFFFFF0) return 0;
-    if (p[0] < 0) return 0;
-    if (p[0] > 0xFFF0) return 0;
-    if (p[1] < 0) return 0;
+    if (p[2] < 0)
+        return 0;
+    if (p[2] > 0x0FFFFFF0)
+        return 0;
+    if (p[0] < 0)
+        return 0;
+    if (p[0] > 0xFFF0)
+        return 0;
+    if (p[1] < 0)
+        return 0;
     return p[1] <= 0xFFF0;
 }
 
@@ -443,21 +441,24 @@ static inline int projectVertex(int *d, void *src)
     return isInScreen(d);
 }
 
-void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3,
-                    int r, int g, int b, int a, int prim)
+void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3, int r, int g, int b, int a, int prim)
 {
     int q[4][4];
     int i;
 
     setGsReg(0x00, ((long long)prim << 6) | 0x104);
-    setGsReg(0x01, (long long)r | ((long long)g << 8) | ((long long)b << 16)
-                   | ((long long)a << 24) | (0xFE00LL << 46));
+    setGsReg(0x01, (long long)r | ((long long)g << 8) | ((long long)b << 16) |
+                       ((long long)a << 24) | (0xFE00LL << 46));
     rotTransPers(p0);
     VU0_LSV_R(sqc2, 11, 0x0, q[0]);
-    if (!isInScreen(q[0])) return;
-    if (!projectVertex(q[1], p1)) return;
-    if (!projectVertex(q[2], p2)) return;
-    if (!projectVertex(q[3], p3)) return;
+    if (!isInScreen(q[0]))
+        return;
+    if (!projectVertex(q[1], p1))
+        return;
+    if (!projectVertex(q[2], p2))
+        return;
+    if (!projectVertex(q[3], p3))
+        return;
     for (i = 0; i < 4; i++) {
         int *s = q[i];
 
@@ -535,7 +536,8 @@ void gif_Draw2DUVStripG(int *v, int *uv, unsigned char *col, int n, int prim)
         D_00639F70 &= 1;
     }
 }
-void gif_Init(void) {
+void gif_Init(void)
+{
     D_00639F60 = 0;
 }
 extern void dl_SetDLPriority();
@@ -556,19 +558,20 @@ void gif_StartPacketPriPath1(void)
     D_00639F60 = 1;
 }
 
-void gif_SetGsReg(long long a0, long long a1) {
+void gif_SetGsReg(long long a0, long long a1)
+{
     *D_004EE6F0.ptr++ = a1;
     *D_004EE6F0.ptr++ = a0;
 }
-int gif_CheckOpen(void) {
+int gif_CheckOpen(void)
+{
     return D_00639F60;
 }
 /* gif_MakePoint2D is `inline` per the listing: its lines 318-320 appear inside
    gif_Point and the rest of the point family.  While its own out-of-line copy
    is still asm, the callers the listing shows inlining it call this static
    stand-in; it collapses to one `inline` definition at layout. */
-static inline void makePoint2D(int *v, long long z, unsigned char *col,
-                               long long prim)
+static inline void makePoint2D(int *v, long long z, unsigned char *col, long long prim)
 {
     setGsReg(0x00, (prim << 6) | 0x100);
     setGsReg(0x01, GIF_RGBA(col));
@@ -587,16 +590,14 @@ void gif_MakePoint2DOffset(int *v, long long z, unsigned char *col, int prim)
     setGsReg(0x01, GIF_RGBA(col));
     setGsReg(0x05, GIF_XYZOFF(v, z));
 }
-void gif_MakeLine2D(int *v0, int *v1, long long z0, long long z1,
-                    unsigned char *col, int prim)
+void gif_MakeLine2D(int *v0, int *v1, long long z0, long long z1, unsigned char *col, int prim)
 {
     setGsReg(0x00, ((long long)prim << 6) | 0xA);
     setGsReg(0x01, GIF_RGBA(col));
     setGsReg(0x05, GIF_XYZ(v0, z0));
     setGsReg(0x05, GIF_XYZ(v1, z1));
 }
-void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z,
-                             unsigned char *col, int prim)
+void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col, int prim)
 {
     int fx = w + 0x8000;
     int fy = h + 0x8000;
@@ -606,8 +607,8 @@ void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z,
     setGsReg(0x05, GIF_XY(x, y, z));
     setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
 }
-void gif_MakeSpriteNoTextureOffset(int x, int y, int w, int h, long long z,
-                                   unsigned char *col, int prim)
+void gif_MakeSpriteNoTextureOffset(int x, int y, int w, int h, long long z, unsigned char *col,
+                                   int prim)
 {
     setGsReg(0x00, (prim << 6) | 0x406);
     setGsReg(0x01, GIF_RGBA(col));
@@ -622,8 +623,7 @@ void gif_Point(int *v, long long z, unsigned char *col, int prim)
     p[1] = v[1] * D_0063A068 / 224;
     makePoint2D(p, z, col, prim);
 }
-void gif_LineOffset(int *v0, int *v1, long long z0, long long z1,
-                    unsigned char *col, int prim)
+void gif_LineOffset(int *v0, int *v1, long long z0, long long z1, unsigned char *col, int prim)
 {
     int p0[4];
     int p1[4];
@@ -638,12 +638,12 @@ void gif_LineOffset(int *v0, int *v1, long long z0, long long z1,
    quadruples gif_SetAlpha packs into the GS ALPHA register, bytes verified
    against baserom/pal/baseelf.rom */
 const GsAlphaEnt D_0054E0B0[12] = {
-    { 0, 2, 2, 1 }, { 2, 0, 2, 1 }, { 0, 1, 2, 1 }, { 1, 2, 2, 0 },
-    { 0, 1, 0, 1 }, { 0, 2, 0, 1 }, { 2, 0, 0, 1 }, { 0, 1, 0, 1 },
-    { 0, 2, 1, 1 }, { 2, 0, 1, 1 }, { 0, 1, 1, 1 }, { 1, 2, 0, 1 },
+    {0, 2, 2, 1}, {2, 0, 2, 1}, {0, 1, 2, 1}, {1, 2, 2, 0}, {0, 1, 0, 1}, {0, 2, 0, 1},
+    {2, 0, 0, 1}, {0, 1, 0, 1}, {0, 2, 1, 1}, {2, 0, 1, 1}, {0, 1, 1, 1}, {1, 2, 0, 1},
 };
 
-void gif_SetAlpha(long long a0, long long a1, long long a2) {
+void gif_SetAlpha(long long a0, long long a1, long long a2)
+{
     unsigned long long *p, *q;
     unsigned long long v;
     int idx;
@@ -652,75 +652,85 @@ void gif_SetAlpha(long long a0, long long a1, long long a2) {
     p = D_004EE6F0.ptr;
     *(volatile unsigned long long *)p = (a0 == 0);
     p++;
-    *(unsigned long long * volatile *)&D_004EE6F0.ptr = p;
+    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p;
     *(volatile unsigned long long *)p = 0x49;
-    *(unsigned long long * volatile *)&D_004EE6F0.ptr = p + 1;
+    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p + 1;
     a1 = 0x42;
     v = (unsigned long long)D_0054E0B0[idx].a | ((unsigned long long)a2 << 32);
-    v |= ((unsigned long long)D_0054E0B0[idx].c << 4)
-       | ((unsigned long long)D_0054E0B0[idx].b << 2);
+    v |=
+        ((unsigned long long)D_0054E0B0[idx].c << 4) | ((unsigned long long)D_0054E0B0[idx].b << 2);
     v |= (unsigned long long)D_0054E0B0[idx].d << 6;
     *(volatile unsigned long long *)(p + 1) = v;
-    *(unsigned long long * volatile *)&D_004EE6F0.ptr = p + 2;
+    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p + 2;
     q = p + 3;
     *(volatile unsigned long long *)(p + 2) = a1;
     D_004EE6F0.ptr = q;
 }
-void gif_MoveImage(long long sbp, long long sbw, long long psm, int *rect,
-                   long long dbp, long long dbw, long long dsax, long long dsay)
+void gif_MoveImage(long long sbp, long long sbw, long long psm, int *rect, long long dbp,
+                   long long dbw, long long dsax, long long dsay)
 {
-    setGsReg(0x50, (psm << 56) | (dbw << 48) | (dbp << 32) | (psm << 24)
-                   | (sbw << 16) | sbp);
+    setGsReg(0x50, (psm << 56) | (dbw << 48) | (dbp << 32) | (psm << 24) | (sbw << 16) | sbp);
     setGsReg(0x51, (dsay << 48) | (rect[1] << 16) | (dsax << 32) | rect[0]);
     setGsReg(0x52, ((long long)rect[3] << 32) | rect[2]);
     setGsReg(0x53, 2);
 }
-void gif_SetZTest(int a0) {
+void gif_SetZTest(int a0)
+{
     int new_var;
     unsigned long long *p, *q;
     if (a0) {
         a0 = 0x50000;
-        new_var = 0; do { } while (new_var);
+        new_var = 0;
+        do {
+        } while (new_var);
     } else {
         a0 = 0x30000;
     }
     p = D_004EE6F0.ptr;
     *(volatile unsigned long long *)p = a0;
     p++;
-    *(unsigned long long * volatile *)&D_004EE6F0.ptr = p;
+    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p;
     q = p + 1;
     *(volatile unsigned long long *)p = 0x47;
     D_004EE6F0.ptr = q;
 }
-void gif_SetZWrite(int a0) {
+void gif_SetZWrite(int a0)
+{
     unsigned long long *p, *q;
     int new_var;
     unsigned long long tag;
     if (a0) {
         tag = 0x300000C0;
-        new_var = 0; do { } while (new_var);
+        new_var = 0;
+        do {
+        } while (new_var);
     } else {
         tag = 0x1300000C0;
     }
     p = D_004EE6F0.ptr;
     *(volatile unsigned long long *)p = tag;
     p++;
-    *(unsigned long long * volatile *)&D_004EE6F0.ptr = p;
+    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p;
     q = p + 1;
     *(volatile unsigned long long *)p = 0x4E;
     D_004EE6F0.ptr = q;
 }
 void gif_SetHalfOffset(void)
 {
-    setGsReg(0x18,
-             (long long)(((0x800 - D_0063A064 / 2) << 4) + D_0063A074)
-             | ((long long)(((0x800 - D_0063A068 / 2) << 4) + D_0063A078) << 32));
+    setGsReg(0x18, (long long)(((0x800 - D_0063A064 / 2) << 4) + D_0063A074) |
+                       ((long long)(((0x800 - D_0063A068 / 2) << 4) + D_0063A078) << 32));
 }
-int _IsInScreen(volatile int *a0) {
-    if (a0[2] < 0) return 0;
-    if (a0[2] > 0x0FFFFFF0) return 0;
-    if (a0[0] < 0) return 0;
-    if (a0[0] > 0xFFF0) return 0;
-    if (a0[1] < 0) return 0;
+int _IsInScreen(volatile int *a0)
+{
+    if (a0[2] < 0)
+        return 0;
+    if (a0[2] > 0x0FFFFFF0)
+        return 0;
+    if (a0[0] < 0)
+        return 0;
+    if (a0[0] > 0xFFF0)
+        return 0;
+    if (a0[1] < 0)
+        return 0;
     return a0[1] <= 0xFFF0;
 }

@@ -34,7 +34,8 @@ inline void pac_Dump(int *a0, int size)
     } while (count != 0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_DumpPac);
-inline void pac_DispVu1Memory(int idx, int n, void *a2) {
+inline void pac_DispVu1Memory(int idx, int n, void *a2)
+{
     char *p = (char *)0x1100C000 + (idx << 4);
     int i;
     for (i = 0; i < n; i++) {
@@ -66,11 +67,13 @@ void pac_openDmaTag(int a0)
     *(float *)(ctx + 0x50) = f1;
     debug_StdPrintfDummy__pn(D_0054F5C0, a0 & mask);
 }
-void pac_setVifCode(int a0) {
+void pac_setVifCode(int a0)
+{
     char *ctx = D_0067C010;
     *(int *)(*(int *)(ctx + 0x24)) = 0;
     *(int *)(*(int *)(ctx + 0x24) + 4) = (a0 << 16) | 0x6C008000;
-    debug_StdPrintfDummy(D_0054F5D0, *(int *)(*(int *)(ctx + 0x24)), *(int *)(*(int *)(ctx + 0x24) + 4), *(int *)(ctx + 0x24), a0);
+    debug_StdPrintfDummy(D_0054F5D0, *(int *)(*(int *)(ctx + 0x24)),
+                         *(int *)(*(int *)(ctx + 0x24) + 4), *(int *)(ctx + 0x24), a0);
 }
 void pac_setVifEndCode(void)
 {
@@ -98,10 +101,12 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTableLine);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_getTextureInfo);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeShapeTable);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makePacket);
-void pac_MakePacket(char *a0) {
+void pac_MakePacket(char *a0)
+{
     char *p = *(char **)(a0 + 0x854);
     pac_makePacket(p, *(int *)(*(char **)(a0 + 0x874) + 0xF0), *(signed char *)(p + 0x2F) > 0);
 }
-inline void pac_Init(void) {
+inline void pac_Init(void)
+{
     D_0063C154 = 0;
 }

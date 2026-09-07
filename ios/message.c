@@ -2,14 +2,14 @@
 
 typedef struct IosMsg {
     char pad0[0x44];
-    struct IosMsg *next;        /* 0x44 */
+    struct IosMsg *next; /* 0x44 */
 } IosMsg;
 
 typedef struct IosMsgQueue {
     char pad0[0x10];
-    IosMsg *head;               /* 0x10 */
+    IosMsg *head; /* 0x10 */
     char pad14[0x18];
-    int sema;                   /* 0x2C */
+    int sema; /* 0x2C */
 } IosMsgQueue;
 
 extern void SignalSema(int sema);
@@ -44,7 +44,8 @@ extern char D_00551A80[];
 extern char D_00551A60[];
 extern char D_0063A510[];
 extern char D_00551A98[];
-int iosMsgSend(char *q, int val, int mode) {
+int iosMsgSend(char *q, int val, int mode)
+{
     int st[8];
     if (q == 0) {
         debug_StdPrintfDummy(D_00551A80);
@@ -69,7 +70,8 @@ int iosMsgSend(char *q, int val, int mode) {
 extern char D_00551A80[];
 extern char D_00551A60[];
 extern char D_0063A510[];
-int iosMsgRecv(char *q, int *out, int mode) {
+int iosMsgRecv(char *q, int *out, int mode)
+{
     int st[8];
     if (q == 0) {
         debug_StdPrintfDummy(D_00551A80);
@@ -78,7 +80,8 @@ int iosMsgRecv(char *q, int *out, int mode) {
     }
     ReferSemaStatus(*(int *)(q + 0x2C), st);
     if (*(int *)(q + 8) == 0) {
-        if (mode != 1) return -1;
+        if (mode != 1)
+            return -1;
         WaitSema(*(int *)(q + 0x2C));
     }
     *out = (*(int **)q)[*(int *)(q + 4)];
@@ -93,7 +96,8 @@ int iosMsgRecv(char *q, int *out, int mode) {
 }
 extern int iosMsgQueueDestroy(int a0);
 
-void iosMsgQueueDestroyAll(void) {
+void iosMsgQueueDestroyAll(void)
+{
     int *p;
     int i;
     int **q = (int **)D_006BC938;
@@ -110,7 +114,8 @@ extern int odd_even;
 extern int *D_0063A530;
 extern void iWakeupThread(int);
 
-int signal_handler(int a0) {
+int signal_handler(int a0)
+{
     if (a0 == 2) {
         volatile unsigned long long *reg = (volatile unsigned long long *)0x12001000;
         odd_even = (int)(((*reg >> 13) & 1) ^ 1);

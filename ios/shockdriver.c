@@ -1,6 +1,9 @@
 #include "common.h"
 
-typedef struct { int count; int *arr; } ShockMgr;
+typedef struct {
+    int count;
+    int *arr;
+} ShockMgr;
 
 struct PadNode {
     char pad[0x30];
@@ -66,11 +69,16 @@ void Shock_SetMotor(int a0, int a1, ShockReq *box, int a3, int a4)
     int sum;
     unsigned int outv;
 
-    if (diff <= 0) goto Ldec;
-    if (diff >= 0x29) goto Lff;
-    if (n >= 0x3D) goto L40;
-    if (cur >= 0x3D) goto L40;
-    if (cur >= 0x33) goto Lquad;
+    if (diff <= 0)
+        goto Ldec;
+    if (diff >= 0x29)
+        goto Lff;
+    if (n >= 0x3D)
+        goto L40;
+    if (cur >= 0x3D)
+        goto L40;
+    if (cur >= 0x33)
+        goto Lquad;
 Lff:
     r = 0xFF;
     goto Ltail;
@@ -84,7 +92,8 @@ L40:
     r = (cur < diff) ? diff : n;
     goto Ltail;
 Ldec:
-    if (diff >= 0) goto Ltail;
+    if (diff >= 0)
+        goto Ltail;
     if (diff < -0x1E) {
         r = 0;
         goto Ltail;
@@ -110,7 +119,8 @@ Ltail:
         scePadSetActDirect(a3, a4, &box->type);
     }
 }
-void Init_ShockVoiceSet(int **a0, int *a1) {
+void Init_ShockVoiceSet(int **a0, int *a1)
+{
     /* The empty loop is a basic-block boundary, and it is the only thing found
      * that keeps `sw a1,0(a0)` in ROM's first slot: the store has no successors
      * so sched2 gives it priority 0 and sinks it to slot 9 behind the three
@@ -119,14 +129,16 @@ void Init_ShockVoiceSet(int **a0, int *a1) {
      * loads' is `unsigned short`, and every combination measured (short/char/int
      * store types, volatile loads, struct-typed header, four statement orders)
      * leaves them in different alias sets, or regresses.  Not retired. */
-    do { } while (0);
+    do {
+    } while (0);
     a0[0] = a1;
     a0[3] = a1 + *(unsigned short *)((char *)a1 + 0xA);
     a0[1] = a1 + *(unsigned short *)((char *)a1 + 0x2);
     a1 = a1 + *(unsigned short *)((char *)a1 + 0x6);
     a0[2] = a1;
 }
-void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigned char a4) {
+void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigned char a4)
+{
     char *p = (char *)a0;
     p[0x3] = a4;
     p[0x0] = 0x11;
@@ -171,25 +183,23 @@ void Init_ShockRequestBox(int *a0, int a1, int a2, int a3)
 }
 void ShockRequestBox_Clear(int *self)
 {
-    int *node = (int *) self[0];
-    if (self[0x8 / 4] == 0)
-    {
+    int *node = (int *)self[0];
+    if (self[0x8 / 4] == 0) {
         goto end;
     }
-    if (node == 0)
-    {
+    if (node == 0) {
         goto end;
     }
-    do
-    {
+    do {
         int *cur = node;
-        node = (int *) node[0x34 / 4];
-        (*(void (**)(int, int))((char *) self + 8))((int) cur, self[0xC / 4]);
+        node = (int *)node[0x34 / 4];
+        (*(void (**)(int, int))((char *)self + 8))((int)cur, self[0xC / 4]);
     } while (node != 0);
 end:
     self[0] = 0;
 }
-void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node) {
+void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node)
+{
     struct PadNode *old = *head;
     new_node->prev = (struct PadNode *)0;
     new_node->next = old;
@@ -198,7 +208,8 @@ void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node) {
     }
     *head = new_node;
 }
-SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, ShockParam v, int key, int arg)
+SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, ShockParam v, int key,
+                                      int arg)
 {
     ShockVoiceSet *vs;
     SHOCKREQUEST *req;
@@ -206,14 +217,18 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
     int shot;
     int t;
 
-    if (System_shock_driver == 0) return 0;
-    if (box == 0) return 0;
+    if (System_shock_driver == 0)
+        return 0;
+    if (box == 0)
+        return 0;
 
     vs = (ShockVoiceSet *)System_shock_driver->arr[v.voice];
-    if (vs == 0) return 0;
+    if (vs == 0)
+        return 0;
 
     req = box->alloc(box->arg, arg);
-    if (req == 0) return 0;
+    if (req == 0)
+        return 0;
 
     req->voice = v.voice;
     req->arg = arg;
@@ -234,7 +249,8 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
     t = p->b2 * v.b2 / 0xFF;
     req->b2 = (t < 0x100) ? t : 0xFF;
     t = p->b3 * v.b3 / 0x40;
-    if (t >= 0x100) t = 0xFF;
+    if (t >= 0x100)
+        t = 0xFF;
     req->b3 = t;
     ShockRequestBox_Regst((struct PadNode **)box, (struct PadNode *)req);
     return req;
@@ -248,7 +264,8 @@ extern int *ShockRequestBox_EndRequestFree(int **a0);
  * tail; until the tail's asm member (Init_Shock) is C the copy is emitted in
  * place as a plain function at its ROM position and the caller inlines this
  * static stand-in, which collapses at layout. */
-static inline int decodeRequestBox(ShockRequestBox *box, unsigned char *pFlags, unsigned char *pLevel)
+static inline int decodeRequestBox(ShockRequestBox *box, unsigned char *pFlags,
+                                   unsigned char *pLevel)
 {
     SHOCKREQUEST *p;
     int flags = 0;
@@ -275,21 +292,26 @@ static inline int decodeRequestBox(ShockRequestBox *box, unsigned char *pFlags, 
     ShockRequestBox_EndRequestFree((int **)box);
     return count;
 }
-int ShockRequestBox_DecodeRequest(ShockRequestBox *box, unsigned char *pFlags, unsigned char *pLevel)
+int ShockRequestBox_DecodeRequest(ShockRequestBox *box, unsigned char *pFlags,
+                                  unsigned char *pLevel)
 {
     return decodeRequestBox(box, pFlags, pLevel);
 }
 inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req);
 
-int *ShockRequestBox_EndRequestFree(int **a0) {
-    int *p; unsigned char b;
+int *ShockRequestBox_EndRequestFree(int **a0)
+{
+    int *p;
+    unsigned char b;
     if (a0 != 0) {
         p = *a0;
         if (p != 0) {
             do {
                 b = *(unsigned char *)p;
-                if (b == 0) p = (int *)requestFree((ShockRequestBox *)a0, (SHOCKREQUEST *)p);
-                else        p = (int *)p[0x34 / 4];
+                if (b == 0)
+                    p = (int *)requestFree((ShockRequestBox *)a0, (SHOCKREQUEST *)p);
+                else
+                    p = (int *)p[0x34 / 4];
             } while (p != 0);
         }
     }
@@ -334,9 +356,11 @@ void *ShockRequestBox_VoiceSetUseRequestFree(ShockRequestBox *box, int voice)
 int *ShockRequestBox_GetRequest(int **head_ptr, int key)
 {
     int *p;
-    if (head_ptr == 0) goto fail;
+    if (head_ptr == 0)
+        goto fail;
     p = *head_ptr;
-    if (p == 0) goto fail;
+    if (p == 0)
+        goto fail;
     do {
         if (p[0x28 / 4] == key) {
             return p;
@@ -346,7 +370,8 @@ int *ShockRequestBox_GetRequest(int **head_ptr, int key)
 fail:
     return 0;
 }
-int ShockRequestBox_RequestCancel(int a0_, int a1) {
+int ShockRequestBox_RequestCancel(int a0_, int a1)
+{
     int *a0 = (int *)a0_;
     int *node;
     int *next;
@@ -373,7 +398,8 @@ int ShockRequestBox_RequestCancel(int a0_, int a1) {
     }
     return 1;
 }
-int ShockRequestBox_RequestDirectCancel(int *a0, int *a1) {
+int ShockRequestBox_RequestDirectCancel(int *a0, int *a1)
+{
     int *next;
     int *prev;
     int (*fn)(int *, int);
@@ -407,40 +433,49 @@ void Init_ShockDriver(int *a0, int a1, int a2)
 {
     int *b;
     int i;
-    if (a0 == 0) return;
-    if (a1 == 0) return;
+    if (a0 == 0)
+        return;
+    if (a1 == 0)
+        return;
     b = a0;
     a0 = 0;
     b[1] = a1;
     System_shock_driver = (ShockMgr *)b;
     b[0] = a2;
-    for (i = 0; i < a2; i++) *(int *)(b[1] + i*4) = 0;
+    for (i = 0; i < a2; i++)
+        *(int *)(b[1] + i * 4) = 0;
     b[2] = 0;
 }
 int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, int val)
 {
     int *base = (int *)System_shock_driver;
-    if (idx >= (unsigned int)base[0]) return -1;
+    if (idx >= (unsigned int)base[0])
+        return -1;
     ((int *)base[1])[idx] = val;
     return idx;
 }
-int ShockDriver_VoiceSet_Regist(int value) {
+int ShockDriver_VoiceSet_Regist(int value)
+{
     int i;
     for (i = 0; i < System_shock_driver->count; i++) {
-        if (System_shock_driver->arr[i] == 0) break;
+        if (System_shock_driver->arr[i] == 0)
+            break;
     }
-    if (i == System_shock_driver->count) return -1;
+    if (i == System_shock_driver->count)
+        return -1;
     System_shock_driver->arr[i] = value;
     return i;
 }
 int ShockDriver_VoiceSet_Remove(unsigned int idx)
 {
     int *base = (int *)System_shock_driver;
-    if (idx >= (unsigned int)base[0]) return -1;
+    if (idx >= (unsigned int)base[0])
+        return -1;
     ((int *)base[1])[idx] = 0;
     return idx;
 }
-int ShockDriver_GetShockVoiceMax(int a0) {
+int ShockDriver_GetShockVoiceMax(int a0)
+{
     int p;
     if ((unsigned int)a0 < (unsigned int)System_shock_driver->count) {
         goto body;
@@ -456,12 +491,15 @@ check:
     }
     return 0;
 }
-int ShockDriver_GetShockVoiceSet(unsigned idx) {
+int ShockDriver_GetShockVoiceSet(unsigned idx)
+{
     int *base = (int *)System_shock_driver;
-    if (idx >= (unsigned)base[0]) return 0;
+    if (idx >= (unsigned)base[0])
+        return 0;
     return ((int *)base[1])[idx];
 }
-int ShockDriver_GetShockVoice(int a0, int a1) {
+int ShockDriver_GetShockVoice(int a0, int a1)
+{
     int p;
     if ((unsigned int)a0 < (unsigned int)System_shock_driver->count) {
         goto body;
@@ -483,7 +521,8 @@ ret_b:
 ret_a:
     return 0;
 }
-void Init_ShockEmulator(short *a0) {
+void Init_ShockEmulator(short *a0)
+{
     a0[1] = 0;
     a0[0] = 0;
 }
@@ -491,20 +530,24 @@ int ShockEmulator_EmulationShot(int a0, int a1)
 {
     return a1;
 }
-unsigned short ShockEmulator_EmulationWave(short *a0, int a1) {
+unsigned short ShockEmulator_EmulationWave(short *a0, int a1)
+{
     int sum = (unsigned short)a0[1] + a1;
     unsigned int q;
     short w;
     a0[1] = sum;
-    if ((short)sum >= 0x40B) a0[1] = 0x40A;
-    else if ((short)sum < 0) a0[1] = 0;
+    if ((short)sum >= 0x40B)
+        a0[1] = 0x40A;
+    else if ((short)sum < 0)
+        a0[1] = 0;
     w = a0[1];
     q = ((unsigned int)(w << 8)) / 0x40B;
     a0[0] = q;
     a0[1] = ((unsigned int)(w * 3)) >> 2;
     return (unsigned short)a0[0];
 }
-void Init_ShockRequestAlloc(int *a0, char *a1, int a2) {
+void Init_ShockRequestAlloc(int *a0, char *a1, int a2)
+{
     int i;
     if (a0 != 0 && a1 != 0) {
         a0[0] = a2;
@@ -516,7 +559,8 @@ void Init_ShockRequestAlloc(int *a0, char *a1, int a2) {
         a0[0] = 0;
     }
 }
-void *Get_ShockRequestStruct(int *a0) {
+void *Get_ShockRequestStruct(int *a0)
+{
     unsigned char *p = (unsigned char *)a0[1];
     int i;
     for (i = 0; i < a0[0]; i++) {
@@ -527,18 +571,24 @@ void *Get_ShockRequestStruct(int *a0) {
     }
     return 0;
 }
-void Reset_ShockRequestStruct(char *p) {
+void Reset_ShockRequestStruct(char *p)
+{
     *p = 0;
 }
 int ShockRevice_Wave(int a0, int a1)
 {
     int diff = a0 - a1;
 
-    if (diff <= 0) goto Ldec;
-    if (diff >= 0x29) goto Lff;
-    if (a0 >= 0x3D) goto L40;
-    if (a1 >= 0x3D) goto L40;
-    if (a1 >= 0x33) goto Lquad;
+    if (diff <= 0)
+        goto Ldec;
+    if (diff >= 0x29)
+        goto Lff;
+    if (a0 >= 0x3D)
+        goto L40;
+    if (a1 >= 0x3D)
+        goto L40;
+    if (a1 >= 0x33)
+        goto Lquad;
 Lff:
     a0 = 0xFF;
     goto Lend;
@@ -552,7 +602,8 @@ L40:
     a0 = (a1 < diff) ? diff : a0;
     goto Lend;
 Ldec:
-    if (diff >= 0) goto Lend;
+    if (diff >= 0)
+        goto Lend;
     if (diff < -0x1E) {
         a0 = 0;
         goto Lend;
@@ -568,7 +619,8 @@ int Shock_SetShockVoiceSet(int idx, int val)
 {
     int *base = (int *)System_shock_driver;
     int *array;
-    if ((unsigned int)idx < (unsigned int)base[0]) goto store;
+    if ((unsigned int)idx < (unsigned int)base[0])
+        goto store;
     idx = -1;
     goto end;
 store:
@@ -580,29 +632,27 @@ end:
 
 void Init_Player(int *box)
 {
-    initShockRequestBox(box, (int)Get_ShockRequestStruct,
-                         (int)Reset_ShockRequestStruct, (int)ShockRequestMemory);
+    initShockRequestBox(box, (int)Get_ShockRequestStruct, (int)Reset_ShockRequestStruct,
+                        (int)ShockRequestMemory);
 }
-void Init_Controler(short *a0) {
+void Init_Controler(short *a0)
+{
     a0[1] = 0;
     a0[0] = 0;
 }
 void Shock_RequestClear(int *self)
 {
-    int *node = (int *) self[0];
-    if (self[0x8 / 4] == 0)
-    {
+    int *node = (int *)self[0];
+    if (self[0x8 / 4] == 0) {
         goto end;
     }
-    if (node == 0)
-    {
+    if (node == 0) {
         goto end;
     }
-    do
-    {
+    do {
         int *cur = node;
-        node = (int *) node[0x34 / 4];
-        (*(void (**)(int, int))((char *) self + 8))((int) cur, self[0xC / 4]);
+        node = (int *)node[0x34 / 4];
+        (*(void (**)(int, int))((char *)self + 8))((int)cur, self[0xC / 4]);
     } while (node != 0);
 end:
     self[0] = 0;
@@ -615,7 +665,10 @@ int dumyAllocFunc(void)
 {
     return 0;
 }
-void Vibration_SetDecodeEnd(unsigned char *p, int a1, int a2) {
-    if (a1) *p &= 0xFE;
-    if (a2) *p &= 0xEF;
+void Vibration_SetDecodeEnd(unsigned char *p, int a1, int a2)
+{
+    if (a1)
+        *p &= 0xFE;
+    if (a2)
+        *p &= 0xEF;
 }

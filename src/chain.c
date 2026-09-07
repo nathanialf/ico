@@ -51,15 +51,18 @@ ASM_LIT4_SLOT(D_006391BC, 1.5707964f);
 INCLUDE_ASM("asm/nonmatchings/src/chain", TestChainUpDown);
 INCLUDE_ASM("asm/nonmatchings/src/chain", SetChainRootUpdateMode);
 extern void StartPendulum(void *a0);
-void HoldChain(char *a0) {
+void HoldChain(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     StartPendulum(a0);
     *(char *)(p + 0x60) = 1;
 }
-void ReleaseChain(char *a0) {
+void ReleaseChain(char *a0)
+{
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x60) = 0;
 }
-void GetChainPendulum(char *a0, float *a, float *b, float *c) {
+void GetChainPendulum(char *a0, float *a, float *b, float *c)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     *a = *(float *)(p + 0x30);
     *b = *(float *)(p + 0x34);
@@ -68,44 +71,56 @@ void GetChainPendulum(char *a0, float *a, float *b, float *c) {
     }
     *c = *(float *)(p + 0x40);
 }
-void IncreasePdlChain(char *a0) {
+void IncreasePdlChain(char *a0)
+{
     *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x44) = 0.1f;
 }
 extern int D_0063B218;
-void DecreasePdlChain(char *a0) {
-    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x44) = (float)D_0063B218 * 0.5f * -0.1f;
+void DecreasePdlChain(char *a0)
+{
+    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x44) =
+        (float)D_0063B218 * 0.5f * -0.1f;
 }
-void PlumbOrientUpdateChain(char *a0, float *src) {
+void PlumbOrientUpdateChain(char *a0, float *src)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     *(float *)(p + 0x20) = src[0];
     *(float *)(p + 0x24) = src[1];
     *(float *)(p + 0x28) = src[2];
 }
-int isBottomOfChain(char *a0) {
+int isBottomOfChain(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     return *(int *)(p + 0x68) == *(int *)(p + 0x74) - 1;
 }
-int isStopChain(char *a0) {
+int isStopChain(char *a0)
+{
     return *(unsigned char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC0);
 }
-void GetChainClimbOrient(float *dst, char *a0) {
+void GetChainClimbOrient(float *dst, char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     dst[0] = *(float *)(p + 0xB0);
     dst[1] = *(float *)(p + 0xB4);
     dst[2] = *(float *)(p + 0xB8);
 }
-int CheckChainClimbablePos(char *a0) {
+int CheckChainClimbablePos(char *a0)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
 
-    if (*(unsigned char *)(p + 0xA0) != 0 &&
-        *(int *)(p + 0x68) < 3) return 1;
+    if (*(unsigned char *)(p + 0xA0) != 0 && *(int *)(p + 0x68) < 3)
+        return 1;
     return 0;
 }
-typedef struct { int a, b, c; } ClimbCol;
-void GetChainClimbCollision(ClimbCol *dst, char *a0) {
+typedef struct {
+    int a, b, c;
+} ClimbCol;
+void GetChainClimbCollision(ClimbCol *dst, char *a0)
+{
     *dst = *(ClimbCol *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xA4);
 }
-void SetChainParentGObj(char *a0, void *a1) {
+void SetChainParentGObj(char *a0, void *a1)
+{
     *(void **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) = a1;
 }
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
@@ -113,19 +128,22 @@ void SetChainParentGObj(char *a0, void *a1) {
  * public `inline` of the deferred tail; until the tail's asm members are C the
  * copy is emitted here as a plain function at its ROM position and the caller
  * inlines the static stand-in getChainDirCorrectVal, which collapses at layout. */
-int GetChainDirCorrectVal(char *a0, int *a1) {
+int GetChainDirCorrectVal(char *a0, int *a1)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     *a1 = (int)(*(float *)(p + 0x70) * 180.0f / 3.1415927f);
     return *(unsigned char *)(p + 0x6C);
 }
-static inline int getChainDirCorrectVal(char *a0, int *a1) {
+static inline int getChainDirCorrectVal(char *a0, int *a1)
+{
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     *a1 = (int)(*(float *)(p + 0x70) * 180.0f / 3.1415927f);
     return *(unsigned char *)(p + 0x6C);
 }
 extern float *test_CURRENTROOT(void *a0);
 
-void GetRootPositionHandExtra(void *a0, float *a1) {
+void GetRootPositionHandExtra(void *a0, float *a1)
+{
     a1[0] = test_CURRENTROOT(a0)[0];
     a1[1] = test_CURRENTROOT(a0)[1];
     a1[2] = test_CURRENTROOT(a0)[2];
@@ -145,32 +163,40 @@ void InitPendulum(char *a0)
     y = (float)(int)(a * 6.0f * FSqrt(*(float *)(cw + 0x3C) / 2.5f) * 8.0f / 10.0f);
 
     *(float *)(cw + 0x40) = y;
-    *(float *)(cw + 0x40) = *(float *)(cw + 0x40) < 1.0f ? 1.0f
-        : (*(float *)(cw + 0x40) > 255.0f ? 255.0f : *(float *)(cw + 0x40));
+    *(float *)(cw + 0x40) = *(float *)(cw + 0x40) < 1.0f
+                                ? 1.0f
+                                : (*(float *)(cw + 0x40) > 255.0f ? 255.0f : *(float *)(cw + 0x40));
 
     *(float *)(cw + 0x38) = *(float *)(cw + 0x40) * 0.5f;
     *(float *)(cw + 0x48) = 360.0f;
     *(char *)(cw + 0x50) = 1;
 }
-void LockChainGeo(char *a0) {
+void LockChainGeo(char *a0)
+{
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCC) = 1;
 }
-void UnLockChainGeo(char *a0) {
+void UnLockChainGeo(char *a0)
+{
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCC) = 0;
 }
-float GetChainHangRange(char *a0) {
+float GetChainHangRange(char *a0)
+{
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC8);
 }
-float GetChainLength(char *a0) {
+float GetChainLength(char *a0)
+{
     return (float)(*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x74) - 1) * 50.0f;
 }
-void EnableChainHang(char *a0) {
+void EnableChainHang(char *a0)
+{
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD) = 1;
 }
-void UnableChainHang(char *a0) {
+void UnableChainHang(char *a0)
+{
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD) = 0;
 }
-int IsAbleChainHang(char *a0) {
+int IsAbleChainHang(char *a0)
+{
     return *(unsigned char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD);
 }
 extern void UpdateRootMatrix(void *a0);
@@ -187,9 +213,13 @@ static inline void ResetChainNodes(char *cw, float *pos)
 
     for (i = 0; i < *(int *)(cw + 0x74); i++) {
         ChainNode *e = *(ChainNode **)(cw + 0xD0) + i;
-        e->x = pos[0]; e->y = pos[1]; e->z = pos[2];
+        e->x = pos[0];
+        e->y = pos[1];
+        e->z = pos[2];
         e->y += (float)i * 50.0f;
-        e->vx = 0.0f; e->vy = 0.0f; e->vz = 0.0f;
+        e->vx = 0.0f;
+        e->vy = 0.0f;
+        e->vz = 0.0f;
     }
 }
 
@@ -239,8 +269,8 @@ extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern void correct_vector(void *a0, void *a1);
 extern float FSqrt(float a0);
 
-void chain_sub_simulate(int a0, ChainNode *nd, int from, int to, unsigned char flag,
-                        float grav, float len, float damp)
+void chain_sub_simulate(int a0, ChainNode *nd, int from, int to, unsigned char flag, float grav,
+                        float len, float damp)
 {
     float d[4];
     float t[4];
@@ -266,8 +296,10 @@ void chain_sub_simulate(int a0, ChainNode *nd, int from, int to, unsigned char f
         sceVu0AddVector(t, p, &p->vx);
         sceVu0SubVector(d, t, q);
         l = FSqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
-        if (l == 0.0f) continue;
-        if (l < len && d[1] < 0.0f) continue;
+        if (l == 0.0f)
+            continue;
+        if (l < len && d[1] < 0.0f)
+            continue;
         sceVu0ScaleVector(d, d, len / l);
         sceVu0AddVector(t, q, d);
         sceVu0SubVector(&p->vx, t, p);
@@ -308,7 +340,9 @@ int GetChainNearestNodePosition(float *out, char *gobj, float *p)
 
         if (d < best) {
             float *e = (float *)(i * 32 + *(int *)(cw + 0xD0));
-            out[0] = e[0]; out[1] = e[1]; out[2] = e[2];
+            out[0] = e[0];
+            out[1] = e[1];
+            out[2] = e[2];
             best = d;
             ret = 1;
         }

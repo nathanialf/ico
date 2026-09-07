@@ -8,14 +8,14 @@ extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 extern void DeleteParticleEffect(int id);
 typedef struct CandleFlame {
-    int effect;  /* 0x0 */
-    int off;     /* 0x4 */
+    int effect; /* 0x0 */
+    int off;    /* 0x4 */
 } CandleFlame;
 typedef struct CandleWork {
     char _pad0[0x8];
-    int num;                    /* 0x8  — flame count */
+    int num; /* 0x8  — flame count */
     char _pad_c[0x830 - 0xC];
-    CandleFlame *flame;         /* 0x830 */
+    CandleFlame *flame; /* 0x830 */
 } CandleWork;
 #define CANDLE_WORK(o) ((CandleWork *)*(int *)((char *)(o) + 0x15C))
 /* prototypes: their order is the inline tail's emission order */

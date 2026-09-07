@@ -13,7 +13,8 @@ extern void gif_EndPacket(void);
 extern void gif_SetAlpha(int a0, int a1, int a2);
 extern void gif_StartPacketPri(int a0);
 
-void drawSenpuuki(float scale) {
+void drawSenpuuki(float scale)
+{
     char *cur;
 
     gif_StartPacketPri(0xB);
@@ -40,14 +41,16 @@ void drawSenpuuki(float scale) {
 INCLUDE_ASM("asm/nonmatchings/src/windField", ExecWindField);
 extern int (*D_0063BC58)(void);
 
-int GetWindVector(void) {
+int GetWindVector(void)
+{
     return D_0063BC58();
 }
 extern char D_0028FEF0[];
 
 int *dummyGetWindVector(int *a0)
 {
-    if (a0) *a0 = 0;
+    if (a0)
+        *a0 = 0;
     return D_0028FEF0;
 }
 extern int D_0028F4C0[];
@@ -66,12 +69,14 @@ float *getParallelWindVector(float *power, void *pos)
     int n;
 
     d = plane_distance(pos, D_004ED370);
-    if (d < 0.0f) d = -d;
+    if (d < 0.0f)
+        d = -d;
 
     n = (int)(d * D_00639700 * ((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f));
     i = n < 256 ? n : 255;
     s = D_00724BF0[i] * (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
-    if (power) *power = s;
+    if (power)
+        *power = s;
     sceVu0ScaleVector(D_00724BE0, D_004ED360, s);
     return D_00724BE0;
 }
@@ -93,16 +98,19 @@ WindCell *getRadiateWindVector(float *power, float *pos)
     x = (int)(pos[0] * D_00639704 + 10.0f);
     z = z < 0 ? 0 : (z < 20 ? z : 19);
     x = x < 0 ? 0 : (x < 20 ? x : 19);
-    if (power) *power = (D_00724FF0[0] + x + z * 20)->str;
+    if (power)
+        *power = (D_00724FF0[0] + x + z * 20)->str;
     return &D_00724FF0[z][x];
 }
-void StopWindField(void) {
+void StopWindField(void)
+{
     D_0063BC58 = (int (*)(void))dummyGetWindVector;
 }
 extern char D_004ED380[];
 extern void DrawLineG();
 
-void drawLines(char *a0) {
+void drawLines(char *a0)
+{
     char *cur = a0;
     if (-1000.0f < *(float *)cur) {
         do {
@@ -115,7 +123,8 @@ extern float D_004ED380__pn[] __asm__("D_004ED380");
 extern float D_004ED390[];
 extern void DrawLineG__pn(void *a0, void *a1, void *a2, void *a3, int a4) __asm__("DrawLineG");
 
-void drawSenpuukiHane(void) {
+void drawSenpuukiHane(void)
+{
     float *p;
     for (p = D_004ED390; -1000.0f < *p; p += 8) {
         DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
@@ -123,7 +132,8 @@ void drawSenpuukiHane(void) {
 }
 extern float D_004ED4F0[];
 
-void drawSenpuukiUnit(void) {
+void drawSenpuukiUnit(void)
+{
     float *p;
     for (p = D_004ED4F0; -1000.0f < *p; p += 8) {
         DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
@@ -131,7 +141,8 @@ void drawSenpuukiUnit(void) {
 }
 extern float D_004ED690[];
 
-void drawSenpuukiBase(void) {
+void drawSenpuukiBase(void)
+{
     float *p;
     for (p = D_004ED690; -1000.0f < *p; p += 8) {
         DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);

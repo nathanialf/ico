@@ -33,7 +33,7 @@ static inline void setGameOverEffect(int a0, float t)
     D_0063B7C0 = 0;
     D_0063B7C4 = 1;
     D_0063B7C8 = 0;
-    CopyVector((int) D_004E7460, a0);
+    CopyVector((int)D_004E7460, a0);
     D_0063B7CC = t;
 }
 
@@ -54,11 +54,13 @@ inline void StartQueenAttackEffect(int a0, float t)
     D_0063B7C8 = 1;
     D_0063B7C4 = 0;
 }
-inline void ResetGameOverEffect(void) {
+inline void ResetGameOverEffect(void)
+{
     D_0063B7BC = 0;
     D_0063B7C4 = 0;
 }
-void SetDarkVolumeEffect(int a0, float a1) {
+void SetDarkVolumeEffect(int a0, float a1)
+{
     D_0063B7D4 = a1;
     CopyVector(D_004E7470, (void *)a0);
 }
@@ -68,7 +70,8 @@ void GetGameOverEffectCenterPosition(int a0)
     CopyVector(a0, D_004E7460);
 }
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", InitGameOverEffect);
-inline int InitDarkVolumeGeo(char *a0) {
+inline int InitDarkVolumeGeo(char *a0)
+{
     **(int **)(*(char **)(a0 + 0x15C) + 0xC) = 0;
     return 0;
 }

@@ -7,19 +7,18 @@ typedef struct ActMail {
     int unk0C;                  /* 0x0C */
 } ActMail;
 typedef struct Act {
-    char unk00[0xD0];           /* 0x00 */
-    ActMail *mainMail;          /* 0xD0 */
-    ActMail *mail;              /* 0xD4 */
+    char unk00[0xD0];  /* 0x00 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 } Act;
 typedef struct PObjGObj {
-    char pad00[0x164];          /* 0x000 */
-    Act *act;                   /* 0x164 */
-    char pad168[0x4];           /* 0x168 */
-    int f16C;                   /* 0x16C */
+    char pad00[0x164]; /* 0x000 */
+    Act *act;          /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
 extern PObjGObj *scpSearchGobj(int a0);
-
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aInit);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aDoor);
@@ -38,20 +37,32 @@ extern void _ACTWait(int a0);
 extern void scpEffectStart(void *buf, int kind);
 extern int scpTriggerPosBall(void *a, void *b, float f);
 
-void actSt02WaterFallBoySplashCheck(volatile int a0){
- long long buf[4]; long long buf2[2]; int idx;
- if(D_00639EA4==0) return;
- buf[0]=D_00622740[0]; buf[1]=D_00622740[1]; buf[2]=D_00622740[2]; buf[3]=D_00622740[3];
- for(;;){
-  idx=GetSkeltonFocusNode(D_00639EA4,0x23);
-  CopyVector(buf2,(float*)(*(int*)(*(char**)(D_00639EA4+0x15C)+0xC)+(idx<<6)+0x30));
-  if(scpTriggerPosBall(&buf[0],buf2,100.0f)) scpEffectStart(buf2,0x2F);
-  _ACTWait(0xA);
-  idx=GetSkeltonFocusNode(D_00639EA4,0x23);
-  CopyVector(buf2,(float*)(*(int*)(*(char**)(D_00639EA4+0x15C)+0xC)+(idx<<6)+0x30));
-  if(scpTriggerPosBall(&buf[2],buf2,100.0f)) scpEffectStart(buf2,0x2F);
-  _ACTWait(0xA);
- } }
+void actSt02WaterFallBoySplashCheck(volatile int a0)
+{
+    long long buf[4];
+    long long buf2[2];
+    int idx;
+    if (D_00639EA4 == 0)
+        return;
+    buf[0] = D_00622740[0];
+    buf[1] = D_00622740[1];
+    buf[2] = D_00622740[2];
+    buf[3] = D_00622740[3];
+    for (;;) {
+        idx = GetSkeltonFocusNode(D_00639EA4, 0x23);
+        CopyVector(buf2,
+                   (float *)(*(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + (idx << 6) + 0x30));
+        if (scpTriggerPosBall(&buf[0], buf2, 100.0f))
+            scpEffectStart(buf2, 0x2F);
+        _ACTWait(0xA);
+        idx = GetSkeltonFocusNode(D_00639EA4, 0x23);
+        CopyVector(buf2,
+                   (float *)(*(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + (idx << 6) + 0x30));
+        if (scpTriggerPosBall(&buf[2], buf2, 100.0f))
+            scpEffectStart(buf2, 0x2F);
+        _ACTWait(0xA);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWaterFallReflactionEffect);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWaterFallChk);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaUp);
@@ -219,8 +230,7 @@ void actSt02aEnemy2(volatile int a0)
     Generator_Call((int)scpSearchGobj(0x6A7));
 }
 extern Act *actInitialize(int a0);
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4,
-                       float x1, float y1, float z1,
+extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
 void actSt02aSekizo(volatile int a0)
@@ -230,9 +240,7 @@ void actSt02aSekizo(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x7B, 0x66, 0, 0x12,
-               900.0f, 1828.0f, 1150.0f,
-               800.0f, 1828.0f, 1150.0f);
+    scpSekizou(a0, 0x7B, 0x66, 0, 0x12, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
 }
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
@@ -301,30 +309,60 @@ void actSt02aSecretItem(volatile int a0)
         _ACTWait(0);
     }
 }
-void actSt02aDoorEvent(int x) {
+void actSt02aDoorEvent(int x)
+{
     volatile int local = x;
 }
 extern long long D_00622720[];
 extern long long D_00622730[];
 extern void scpEffectStart__pn(int *buf, int a1) __asm__("scpEffectStart");
 
-void actSt02aDoorUpEffect(volatile int a0){
- long long b1[2]; long long b2[2];
- long long v0a=D_00622720[0]; long long v0b=D_00622730[0];
- int i;
- for(i=0;i<0x32;i++){
-  switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00622720[1]; scpEffectStart__pn((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00622730[1]; scpEffectStart__pn((int*)b2,0); break;
-  }
-  _ACTWait(1);
- } }
-void actSt02aDoorDownEffect(volatile int a0){ long long b1[2]; long long b2[2];
- long long v0a=D_00622730[0]; long long v0b=D_00622720[0]; int i;
- for(i=0;i<0x32;i++){ switch(i){
-  case 0: b1[0]=v0a; b1[1]=D_00622730[1]; scpEffectStart__pn((int*)b1,0); break;
-  case 0x1E: b2[0]=v0b; b2[1]=D_00622720[1]; scpEffectStart__pn((int*)b2,0); break;
-  } _ACTWait(1); } }
+void actSt02aDoorUpEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_00622720[0];
+    long long v0b = D_00622730[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_00622720[1];
+            scpEffectStart__pn((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_00622730[1];
+            scpEffectStart__pn((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+void actSt02aDoorDownEffect(volatile int a0)
+{
+    long long b1[2];
+    long long b2[2];
+    long long v0a = D_00622730[0];
+    long long v0b = D_00622720[0];
+    int i;
+    for (i = 0; i < 0x32; i++) {
+        switch (i) {
+        case 0:
+            b1[0] = v0a;
+            b1[1] = D_00622730[1];
+            scpEffectStart__pn((int *)b1, 0);
+            break;
+        case 0x1E:
+            b2[0] = v0b;
+            b2[1] = D_00622720[1];
+            scpEffectStart__pn((int *)b2, 0);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 extern ActMail D_004F80D0[];
 
 void actSt02aFenceMain(volatile int a0)
@@ -429,7 +467,8 @@ void actSt02aEneChk(volatile int a0)
     gflagOn(0x79);
     gflagOn(0x7A);
 }
-void actSt02aSekizoEvent(int x) {
+void actSt02aSekizoEvent(int x)
+{
     volatile int local = x;
 }
 extern int scpCheckExistAliveEnemy(void);
@@ -439,7 +478,7 @@ extern void gflagOff(int a0);
    posts it. Word 0 of each entry is the mail id the entry answers (0x1AE the
    actor post, 0x1AD the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
-static ActMail way_on_mail[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail way_on_mail[2] = {{0x1AE}, {0x1AD}};
 extern void actSt02aWayOffChk(volatile int a0);
 
 void actSt02aWayOnChk(volatile int a0)
@@ -449,8 +488,7 @@ void actSt02aWayOnChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() != 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
         _ACTWait(1);
     }
 
@@ -477,8 +515,7 @@ void actSt02aWayOffChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() == 0 &&
-           scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
         _ACTWait(1);
     }
 
@@ -495,7 +532,7 @@ void actSt02aWayOffChk(volatile int a0)
 }
 /* The waterfall way-on watcher's own mail record (installs
    actSt02aTakiWayOffChk). */
-static ActMail taki_on_mail[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail taki_on_mail[2] = {{0x1AE}, {0x1AD}};
 extern void actSt02aTakiWayOffChk(volatile int a0);
 
 void actSt02aTakiWayOnChk(volatile int a0)
@@ -505,8 +542,7 @@ void actSt02aTakiWayOnChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() != 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x6000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(D_00639EA8, 0x6000000) == 0) {
         _ACTWait(1);
     }
 
@@ -520,7 +556,7 @@ void actSt02aTakiWayOnChk(volatile int a0)
 }
 /* The waterfall way-off watcher's own mail record (installs
    actSt02aTakiWayOnChk). */
-static ActMail taki_off_mail[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail taki_off_mail[2] = {{0x1AE}, {0x1AD}};
 extern void actSt02aTakiWayOnChk(volatile int a0);
 
 void actSt02aTakiWayOffChk(volatile int a0)
@@ -530,8 +566,7 @@ void actSt02aTakiWayOffChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() == 0 &&
-           scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
         _ACTWait(1);
     }
 
