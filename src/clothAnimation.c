@@ -12,7 +12,55 @@ typedef struct {
 
 extern void CopyVector(void *dst, void *src);
 
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", TestDispChainAnimation);
+typedef struct {
+    float x, y, z, w;
+} __attribute__((aligned(16))) VECTOR;
+
+/* Both colour constants live in the shared .rodata run
+   (asm/data/src/cod/51DD44.rodata.s), so they are `const` objects: the
+   qualifier is the recovered type, and it is what lets sched2 place the
+   parameter home store where ROM has it. */
+extern const VECTOR D_0061F220;
+extern const VECTOR D_0061F230;
+extern void *MatrixDrive_GetMatrix(void);
+extern void sceVu0UnitMatrix(void *m);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void DrawLine(void *a, void *b, void *color, int z);
+extern void gif_StartPacketPri(int a0);
+extern void gif_SetAlpha(int a0, int a1, int a2);
+extern void gif_EndPacket(void);
+
+void TestDispChainAnimation(int *a0)
+{
+    VECTOR c0 = D_0061F220;
+    VECTOR c1 = D_0061F230;
+    VECTOR mid;
+    int i;
+    int j;
+
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0x80);
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    for (i = 0; i < a0[1]; i++) {
+        int n = *(int *)((char *)a0[0] + i * 0x50);
+        char *pts = *(char **)((char *)a0[2] + i * 0x1A0);
+        for (j = 1; j < n; j++) {
+            char *p = pts + j * 16;
+            char *q = pts + (j * 16 - 16);
+            VECTOR *col = (j & 1) ? &c1 : &c0;
+            sceVu0AddVector(&mid, p, q);
+            DrawLine(p, q, col, 0);
+        }
+        for (j = 0; j < 5; j++) {
+            char *base = (char *)a0[2] + i * 0x1A0;
+            char *w = base + j * 0x50;
+            if (0.0f <= *(float *)(w + 0x10)) {
+                DrawLine(base + 0x30, base + 0x80, &c0, 0);
+            }
+        }
+    }
+    gif_EndPacket();
+}
 void GetChainExWeightGlobalPos(int a0, int a1, int a2)
 {
     CopyVector(a0, a1 + a2 * 0x50 + 0x30);
@@ -59,8 +107,161 @@ INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", yTension);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", xTension);
 ASM_LIT4_SLOT(D_00639480, 0.98f);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetClothAnimationFix4Points);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", clipCylinderCollision);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", InitChains);
+extern void AddVectorXYZ(void *dst, void *a, void *b);
+extern void sceVu0Normalize(void *dst, void *src);
+extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern char D_004E6ED0[];
+extern char D_004E6EF0[];
+extern float D_0063B758;
+
+/* INTERIM (same shape as GetSkeltonFocusNode in src/motionManager2.c): the
+   listing inlines checkOverThePlane (1085), checkFrontAcross (1126) and
+   getCrossPoint (1069) into clipCylinderCollision, so all three are `inline`
+   in the dev's TU; while this tail still has asm members a deferred inline
+   would land at the object end instead of at its own ROM slot, so each public
+   body stays a plain definition there and this caller uses these stand-ins.
+   Collapses to one `inline` definition per function at layout. */
+static __inline__ int checkOverThePlane_i(void *a0, void *a1)
+{
+    if (0.0f < plane_distance(a0, a1)) return 1;
+    return 0;
+}
+static __inline__ int checkFrontAcross_i(void *a0, void *a1)
+{
+    if (0.0f <= plane_distance(a0, a1)) {
+        if (plane_distance((char *)a0 + 0x10, a1) < 0.0f) return 1;
+    }
+    return 0;
+}
+static __inline__ void getCrossPoint_i(void *out, void *seg, void *plane)
+{
+    float v[4];
+    float d0 = plane_distance(seg, plane);
+    float d1 = -plane_distance((char *)seg + 0x10, plane);
+
+    sceVu0SubVector(v, (char *)seg + 0x10, seg);
+    sceVu0ScaleVectorXYZ(v, v, d0 / (d0 + d1));
+    AddVectorXYZ(out, seg, v);
+}
+/* clothAnimation.c:78-80 in the listing: the squared XZ length, a second copy
+   of the getXZLengthSquare sequence that is only ever inlined. */
+static __inline__ float xzLengthSquare(const void *p)
+{
+    float d;
+    /* One asm block in plane_distance's style, no memory clobber: the
+       VU0_LSV_R macros' "memory" clobber kills every MEM expression in the
+       block for gcse, which costs the reload of the parm home that ROM
+       shares between this test and the AddVectorXYZ that follows it. */
+    __asm__ __volatile__("lqc2 $vf4, 0x0(%1)\n\t"
+                         "vmul.xz $vf4, $vf4, $vf4\n\t"
+                         "vaddz.x $vf4, $vf4, $vf4z\n\t"
+                         "qmfc2.ni $2, $vf4\n\t"
+                         "mtc1 $2, %0"
+                         : "=f"(d) : "r"(p) : "$2");
+    return d;
+}
+/* `bothOverThePlane` is a nested function, and it must be declared BEFORE
+   `d`: the listing shows both plane tests sharing rows 1139/1141/1143 (one
+   inlined helper used twice, its `&&` materialised into $v0 as a return
+   value), and referencing `p` from a nested body is what makes the parameter
+   memory-resident with its home at frame offset 0 — ahead of `d`@0x10 and
+   getCrossPoint's `v`@0x20, which is ROM's frame layout. */
+int clipCylinderCollision(char *p)
+{
+    __inline__ int bothOverThePlane(const void *pl)
+    {
+        if (checkOverThePlane_i(p, pl) && checkOverThePlane_i(p + 0x10, pl)) return 1;
+        return 0;
+    }
+    float d[4];
+
+    if (bothOverThePlane(D_004E6ED0)) {
+        return -1;
+    }
+    if (bothOverThePlane(D_004E6EF0)) {
+        return -1;
+    }
+    sceVu0SubVector(d, p, p + 0x10);
+    d[1] = 0.0f;
+    if (checkFrontAcross_i(p, d)) {
+        sceVu0Normalize(d, d);
+        getCrossPoint_i(p + 0x20, p, d);
+        if (xzLengthSquare(p + 0x20) < D_0063B758) {
+            AddVectorXYZ(p + 0x20, p + 0x20, d);
+            return 1;
+        }
+    }
+    return -1;
+}
+extern char *iosMallocDebug(int heap, int size, char *file, int line);
+extern int D_0063A438;
+extern char D_0061F270[];
+extern char D_0028FF00[];
+
+typedef struct {
+    float w;
+    char pad[0xC];
+    float v0[4];
+    float v1[4];
+    float v2[4];
+    char pad2[0x10];
+} ExW;
+
+typedef struct {
+    char *p0;
+    char *p4;
+    char *p8;
+    int fC;
+    ExW ex[5];
+} ChainNode;
+
+typedef struct {
+    char *cfg;
+    int num;
+    ChainNode *nodes;
+    int f3;
+} ChainSet;
+
+ChainSet *InitChains(char *a0)
+{
+    ChainSet *r;
+    int i = 0;
+    int j;
+    float step;
+
+    r = (ChainSet *)iosMallocDebug(D_0063A438, 0x10, D_0061F270, 0x4A8);
+    r->cfg = a0;
+    while (*(int *)(i * 0x50 + (int)a0) != -1) {
+        i++;
+    }
+    r->num = i;
+    r->nodes = (ChainNode *)iosMallocDebug(D_0063A438, i * 0x1A0, D_0061F270, 0x4AE);
+    r->f3 = 0;
+    for (i = 0; i < r->num; i++) {
+        r->nodes[i].p0 = iosMallocDebug(D_0063A438, *(int *)(i * 0x50 + (int)a0) * 16, D_0061F270, 0x4B2);
+        r->nodes[i].p4 = iosMallocDebug(D_0063A438, *(int *)(i * 0x50 + (int)a0) * 16, D_0061F270, 0x4B3);
+        r->nodes[i].p8 = iosMallocDebug(D_0063A438, *(int *)(i * 0x50 + (int)a0) * 4, D_0061F270, 0x4B4);
+        r->nodes[i].fC = 0;
+        for (j = 0; j < 5; j++) {
+            r->nodes[i].ex[j].w = -1.0f;
+            CopyVector(r->nodes[i].ex[j].v0, D_0028FF00);
+            CopyVector(r->nodes[i].ex[j].v1, D_0028FF00);
+            CopyVector(r->nodes[i].ex[j].v2, D_0028FEF0);
+        }
+        for (j = 0; j < *(int *)(i * 0x50 + (int)r->cfg); j++) {
+            CopyVector(r->nodes[i].p0 + j * 16, a0 + i * 0x50 + 0x20);
+            CopyVector(r->nodes[i].p4 + j * 16, D_0028FEF0);
+            step = *(float *)(a0 + i * 0x50 + 0x14);
+            *(float *)(j * 4 + (int)r->nodes[i].p8) = step;
+            if (j != 0) {
+                *(float *)(j * 16 + (int)r->nodes[i].p0 + 4) =
+                    *(float *)(j * 16 + (int)r->nodes[i].p0 - 0xC) + step;
+            }
+        }
+    }
+    return r;
+}
 typedef struct {
     long long q[89];
 } TexBlob;
