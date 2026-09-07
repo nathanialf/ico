@@ -464,7 +464,67 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", Danger_Box);
 ASM_LIT4_SLOT(D_00638FE4, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177098);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", Danger_Rotobject);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_HideAdvance);
+extern int ACTWayMove_BeginDetail(void *obj, float *b, float *a, void *tgt, int e, int f);
+extern long long ACTWayMove_NextDetail(void *obj, char *w, float *a, int d, int e);
+extern void debug_NMarker(void *pos, int r, int g, int b, float size);
+extern int ACTWay_IsMustWalkFromWay(void *obj);
+
+/* girl_brain_main.c.inc:2-8 -- a file-scope static helper with no out-of-line
+ * ROM copy (no MAIN.MAP symbol); the listing attributes lines 3/4/5/7 of the
+ * .inc inside subGirlBrain_HideAdvance's move arm. */
+static inline void girlBrainSetWalkRatio(void *g)
+{
+    float run = 1.0f;
+    char *s = *(char **)((char *)g + 0x164);
+    float walk = 0.5f;
+
+    if (ACTWay_IsMustWalkFromWay(g)) {
+        *(float *)(s + 0x34C) = walk;
+    } else {
+        *(float *)(s + 0x34C) = run;
+    }
+}
+void subGirlBrain_HideAdvance(volatile int a0)
+{
+    float self_pos[4];
+    float boy_pos[4];
+    char *sub = *(char **)((char *)a0 + 0x164);
+    long long p;
+    unsigned char hit;
+
+    GetRootProjectionPosOfGObj(self_pos, (void *)a0);
+    GetRootProjectionPosOfGObj(boy_pos, D_00639EA4);
+    ACTWayMove_BeginDetail((void *)a0, self_pos, boy_pos, 0, 0, 0);
+    for (;;) {
+        ((GirlBrainWork *)D_0029D650)->f_5914 = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+        GetRootProjectionPosOfGObj(boy_pos, D_00639EA4);
+        p = ACTWayMove_NextDetail((void *)a0, sub + 0x120, boy_pos, 0, 0);
+        hit = p;
+        debug_NMarker(boy_pos, 0xFF, 0, 0, 100.0f);
+        if (!hit
+            || (*(float *)(sub + 0x3F8) < 100.0f
+                && (*(float *)(sub + 0x3FC) < 0.0f ? -*(float *)(sub + 0x3FC)
+                                                   : *(float *)(sub + 0x3FC)) < 100.0f)) {
+            *(int *)(sub + 0x34C) = 0;
+            _ACTWait(1);
+            continue;
+        }
+        {
+            /* the actor-entry home is `volatile` (the scheduler rewrites the
+             * GObj slot between waits), so the arm reads it once at its top
+             * and works from the captured pointer -- ROM's `lw $v0,0($sp)`
+             * followed by `move $a0,$v0`. */
+            void *g = (void *)a0;
+
+            *(float *)(sub + 0x120) = *(float *)(sub + 0x3E0);
+            *(float *)(sub + 0x124) = *(float *)(sub + 0x3E4);
+            *(float *)(sub + 0x128) = *(float *)(sub + 0x3E8);
+            girlBrainSetWalkRatio(g);
+        }
+        _ACTWait(1);
+    }
+}
+
 ASM_LIT4_SLOT(D_00638FE8, 1500.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", isEnterHideadv_EnemyLocation);
 extern int D_00639EA4__pn __asm__("D_00639EA4");
@@ -519,8 +579,6 @@ extern int D_0063C244;
 extern void debug_StdPrintfDummy();
 extern void sceVu0ScaleVector(float *dst, float *src, float scale);
 extern int _RotyGV(void *buf, void *vec);
-extern int ACTWayMove_BeginDetail(void *obj, float *b, float *a, void *tgt, int e, int f);
-extern int ACTWayMove_NextDetail(void *obj, char *w, float *a, int d, int e);
 extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
 
 /* girl_brain_main.c.inc:313-317 (rows outside WayTest's span => static inline) */
@@ -799,7 +857,6 @@ void actGirlPulledGo(volatile int a0)
     }
 }
 extern void PAIR_GetPosition_BOY_DITCH(float *bpos, float *gpos);
-extern void debug_NMarker(void *pos, int r, int g, int b, float size);
 extern int PAIR_IsStatus_BOY_DITCH(void);
 
 void actGirlDitch3mReady(volatile int a0)
