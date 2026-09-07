@@ -983,6 +983,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   QueenBarrierGeo's and its three WrapRad expansions' constants as literals, a slot for
   the still-asm QueenBallGeo; blob resumes at `0x539324` with queen_barrier_disp's words.
 
+- `[0x539474, .lit4, src/clothAnimation]` — the TU's whole pool, 7 words between
+  clipCollisionManager's and darkVolume's: SetChainExtendedWeight's 1e-6 as a literal,
+  six slots beside four still-asm owners; MAIN.MAP's 0x14 is the debug link's size.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
