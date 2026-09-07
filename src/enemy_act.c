@@ -658,12 +658,13 @@ void actEnemyBodylift(volatile int a0)
                 hit = 1;
             }
         }
-        /* The listing attributes one more read of the actor-entry home to the
-           source line here and then 22 lines that emit nothing: a guarded block
-           whose body was compiled out of the retail build. The test survives
-           because the home is volatile; the empty block is byte-identical. */
-        if (a0) {
-        }
+        /* Listing row 167d4c is a volatile read of the actor-entry home whose
+           value nothing consumes, attributed to source line 2785 -- and lines
+           2786..2807 emit no instructions at all, so 2785 is the surviving
+           access of a statement whose remaining 22 lines were compiled out.
+           A volatile access cannot be manufactured by scheduling, so the read
+           has to be written. */
+        (void)a0;
         if (GetMotionFrameFlag1((void *)a0) != 0 && hit != 0) {
             iosOmSendMail((int)D_00639EA4, 0x170, a0);
         }
@@ -845,7 +846,63 @@ store:
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", BrainMode_Requset);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrainMain);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToGenerator);
+extern char D_005535A0[];
+extern void debug_StdPrintfDummy(char *fmt);
+extern char *isysGObjSearchFromObjKindID_begin(int kind);
+extern char *isysGObjSearchFromObjKindID_next(char *g);
+extern float _DistSqGV(float *a, float *b);
+extern void SetKidnapInfo(int a, int b);
+extern int IsOpenGenerator(char *g);
+extern int _ApproachTarget(char *self, void *tgt, void *pos, void *fn, float range, unsigned char flag);
+
+void subEnemyBrain_ToGenerator(int self)
+{
+    /* The actor handle is kept in a `volatile` local: this brain thread is
+       resumed by the actor scheduler at every _ACTWait, so the frame slot --
+       not a register -- is the live copy of the handle. */
+    volatile int a0 = self;
+    char *sub = *(char **)(a0 + 0x164);
+    char *target = *(char **)(sub + 0x14C);
+
+    *(char **)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x460) = target;
+    SetKidnapInfo(-1, -1);
+    if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x4D0) != 0) {
+        float best = 0.0f;
+        char *g;
+
+        for (g = isysGObjSearchFromObjKindID_begin(0x21); g != 0;
+             g = isysGObjSearchFromObjKindID_next(g)) {
+            if (IsOpenGenerator(g) != 0) {
+                float d;
+
+                d = _DistSqGV((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x4E0),
+                              (float *)test_CURRENTROOT((int)g));
+                if (best < d) {
+                    best = d;
+                    *(char **)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x460) = g;
+                    *(char **)(sub + 0x14C) = g;
+                    target = g;
+                    SetKidnapInfo(*(int *)(a0 + 8), *(int *)(target + 8));
+                }
+            }
+        }
+    }
+    if ((unsigned char)_ApproachTarget((char *)a0, target, sub + 0x120, 0, 50.0f,
+                                       *(unsigned char *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x224)) == 0) {
+        debug_StdPrintfDummy(D_005535A0);
+        *(int *)(sub + 0x34C) = 0;
+        *(int *)(sub + 0x120) = 0;
+        *(int *)(sub + 0x124) = 0;
+        *(int *)(sub + 0x128) = 0;
+        _ACTWait(0x1E);
+        ACTSendMailCorrect((void *)a0, 0x100);
+        _ACTWait(0);
+    }
+    while (1) {
+        ACTSendMailCorrect((void *)a0, 0x166);
+        _ACTWait(1);
+    }
+}
 
 extern float _DistGV(void *a, void *b);
 extern void GetRootPosition(float *dst, char *gobj);
