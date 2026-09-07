@@ -1,10 +1,86 @@
 #include "common.h"
 
+ASM_LIT4_SLOT(D_006394FC, 0.98f);
+ASM_LIT4_SLOT(D_00639500, 0.98f);
+ASM_LIT4_SLOT(D_00639504, 0.002f);
+ASM_LIT4_SLOT(D_00639508, 0.01f);
+ASM_LIT4_SLOT(D_0063950C, 0.98f);
+ASM_LIT4_SLOT(D_00639510, 0.98f);
+ASM_LIT4_SLOT(D_00639514, 0.002f);
+ASM_LIT4_SLOT(D_00639518, 0.01f);
+ASM_LIT4_SLOT(D_0063951C, 0.98f);
+ASM_LIT4_SLOT(D_00639520, 0.98f);
+ASM_LIT4_SLOT(D_006394FC, 0.98f);
+ASM_LIT4_SLOT(D_00639500, 0.98f);
+ASM_LIT4_SLOT(D_00639504, 0.002f);
+ASM_LIT4_SLOT(D_00639508, 0.01f);
+ASM_LIT4_SLOT(D_0063950C, 0.98f);
+ASM_LIT4_SLOT(D_00639510, 0.98f);
+ASM_LIT4_SLOT(D_00639514, 0.002f);
+ASM_LIT4_SLOT(D_00639518, 0.01f);
+ASM_LIT4_SLOT(D_0063951C, 0.98f);
+ASM_LIT4_SLOT(D_00639520, 0.98f);
 INCLUDE_ASM("asm/nonmatchings/src/girl", func_001DD128);
+ASM_LIT4_SLOT(D_00639524, 1.1111112f);
+ASM_LIT4_SLOT(D_00639524, 1.1111112f);
 INCLUDE_ASM("asm/nonmatchings/src/girl", func_001DD340);
 INCLUDE_ASM("asm/nonmatchings/src/girl", func_001DD440);
 INCLUDE_ASM("asm/nonmatchings/src/girl", InitGirlGeo);
-INCLUDE_ASM("asm/nonmatchings/src/girl", GirlGeo);
+extern char *D_00639EA4;
+extern void HandManager(char *gobj);
+extern void ExecMotionOrient(char *gobj);
+extern void SetActressLight(char *gobj, int a1, int a2, int a3);
+extern int CylinderCollision(char *gobj, int no, float r, float h, float y);
+extern void iosOmSendMail(void *a0, int a1, void *a2);
+extern int ACTGame_FLAG_TETSUNAGI(void);
+extern void GirlAct_BoyAndMeCollisionMail(char *gobj);
+extern int GetSkeltonFocusNode(char *obj, int kind);
+extern void sceVu0SubVector(void *out, void *a, void *b);
+extern float sceVu0InnerProduct(void *a0, void *a1);
+extern float FSqrt(float a0);
+extern void SetMotionPlaySpeedRatio(char *gobj, float ratio);
+extern void func_001DD128(char *gobj);
+
+void GirlGeo(char *a0)
+{
+    float v[4];
+    int n0;
+    int n1;
+    float len;
+    float ratio;
+    char *w;
+
+    HandManager(a0);
+    ExecMotionOrient(a0);
+    SetActressLight(a0, 0x23, 0x2C, 0x1D6);
+    if (CylinderCollision(a0, 4, 50.0f, 50.0f, 0.0f)) {
+        iosOmSendMail(a0, 6, a0);
+    }
+    if (CylinderCollision(a0, 1, ACTGame_FLAG_TETSUNAGI() ? 15.0f : 30.0f, 50.0f,
+                          0.3f)) {
+        iosOmSendMail(a0, 6, a0);
+        GirlAct_BoyAndMeCollisionMail(a0);
+    } else {
+        w = *(char **)(a0 + 0x15C);
+        if (*(int *)(w + 0x310) == 4 && *(int *)(w + 0x7C) != 0 &&
+            *(int *)(w + 0x3C8) != 0) {
+            n0 = GetSkeltonFocusNode(D_00639EA4, 6);
+            n1 = GetSkeltonFocusNode(a0, 0x16);
+            sceVu0SubVector(v,
+                            *(char **)(*(char **)(D_00639EA4 + 0x15C) + 0xC) +
+                                n0 * 64 + 0x30,
+                            *(char **)(*(char **)(a0 + 0x15C) + 0xC) + n1 * 64 +
+                                0x30);
+            len = FSqrt(sceVu0InnerProduct(v, v));
+            if (10.0f < len) {
+                ratio = 1.0f - len / 50.0f;
+                ratio = ratio < 0.75f ? 0.75f : ratio;
+                SetMotionPlaySpeedRatio(D_00639EA4, ratio);
+            }
+        }
+    }
+    func_001DD128(a0);
+}
 extern char D_0061F910[];
 extern char D_0061F930[];
 extern char D_0061F948[];

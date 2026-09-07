@@ -964,6 +964,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   actSt13cBmg1's -5725 twice and actSt13cHandChk's 550 as literals (the TU's
   whole pool); no blob remnant remains there.
 
+- `[0x5394FC, .lit4, src/girl]` — the TU's whole pool, 12 words between frameDependSequence's
+  and handManager's: eleven slots beside two still-asm placeholders, GirlGeo's 0.3 as a
+  literal (the parked "delay-slot" residual was this pool constant read as an extern).
+
 - `[0x539090, .lit4, src/script]` — the TU's whole pool, 17 words between way_util's and
   st25a's: sixteen slots beside six still-asm owners (two adjacent copies of pi, one per
   function, since the constant pool is per function), scpBornSpider's pi as a literal.

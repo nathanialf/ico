@@ -96,7 +96,34 @@ void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
     }
     debug_StdPrintfDummy(D_006198D0, a3, a1, size);
 }
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundAdpcmFile);
+extern void *soundDataAreaSearch(int *key);
+extern void *AdpcmIopBuffAlloc(void);
+extern char *adpcmDataSet(char *buf, int a3, int bank, int a6, int size, void *iop, int zero);
+extern void AdpcmPlay(int handle);
+extern char D_00619900[];
+
+void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6) {
+    int key;
+    int hi;
+    char *p;
+    char *q;
+
+    D_0028F4C0[8]++;
+    if (size > 0x5C000) size = 0x5C000;
+    hi = a4 << 16;
+    key = (a3 & 0xFFFF) | hi;
+    if (soundDataAreaSearch(&key) == 0) {
+        p = iosMallocDebug(D_0063A444, size, D_006193B0, 757);
+        iosCdvdHandlerRead(h, p, size);
+        debug_StdPrintfDummy(D_00619900, a3, a1, size);
+        q = adpcmDataSet(p, a3, a4, a6, size, AdpcmIopBuffAlloc(), 0);
+        iosFree(p);
+        AdpcmPlay(*(int *)(q + 0x2C));
+    } else {
+        iosCdvdHandlerRead(h, 0, size);
+    }
+}
+
 extern DbgSlot D_006FAD00[];
 
 extern AssertRec D_006FAD00__pn[] __asm__("D_006FAD00");

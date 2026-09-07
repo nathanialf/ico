@@ -159,6 +159,11 @@ found:
 }
 extern int func_00215C68(float *a, float *b);
 extern void qsort(void *base, int n, int size, int (*cmp)());
+/* INTERIM: the PAL listing inlines the public NumOfWpPos into
+ * WayPointWithRangeFromPos.  Its out-of-line definition keeps its own ROM slot
+ * further down this TU (the tail still has asm members), so the call sites here
+ * go through a stand-in with the identical body. */
+static inline int numOfWpPos(void) { return D_0063BD60; }
 
 static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int limit, int chk)
 {
@@ -183,8 +188,45 @@ static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int li
     D_0063BD68 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayPointWithRangeFromPos);
-extern WpNode D_004F31E0[];
+int WayPointWithRangeFromPos(float *pos, int mode, float range)
+{
+    WpPosEntry e;
+    int n;
+    int i;
+
+    switch (mode) {
+    case 0:
+    default:
+        WayRangeSearch(pos, range, &e, 0, 0);
+        break;
+
+    case 1:
+        WayRangeSearch(pos, range, &e, 0, 1);
+
+        n = numOfWpPos();
+        qsort(D_007292C0, n, 8, func_00215C68);
+        for (i = 0; i < n; i++) {
+            sceVu0CopyVector(D_00728AC0[i], D_007292C0[i].wp->pos);
+        }
+        break;
+
+    case 2:
+        WayRangeSearch(pos, range, &e, 1, 0);
+        break;
+
+    case 3:
+        WayRangeSearch(pos, range, &e, 1, 1);
+
+        n = numOfWpPos();
+        qsort(D_007292C0, n, 8, func_00215C68);
+        for (i = 0; i < n; i++) {
+            sceVu0CopyVector(D_00728AC0[i], D_007292C0[i].wp->pos);
+        }
+        break;
+    }
+
+    return numOfWpPos();
+}extern WpNode D_004F31E0[];
 extern char D_004F1EC0[];
 extern char D_004F1EC8[];
 extern char D_004F1ED8[];
