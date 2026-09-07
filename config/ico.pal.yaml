@@ -414,7 +414,7 @@ segments:
       - [0x4555E0, .rodata, src/ebrain]  # carved jtbl_005555E0 (7 arms, 0x1C) + jtbl_00555600 (9 arms, 0x24) at 16-byte alignment: eBrainGetTarget's two switch tables, emitted by the compiled function; VMA 0x5555E0..0x555624; the TU's strings before them stay in the blob
       - [0x455624, rodata, src/cod/455624]   # .rodata blob resume (the zero pad word after the second table is the blob's first word)
       - [0x4568B0, .rodata, src/lightning]  # carved $LC0/$LC1 of lightning_test (VMA 0x5568B0..0x556900, 80 B): the colour quad and the four vertices, local brace initialisers in the source; the "lightning_test" string before them belongs to the still-asm DrawLightning2 and stays in the blob
-      - [0x456900, rodata, src/cod/456900]   # .rodata blob resume (queen's strings and rate tables until QueenBallGeo lands)
+      - [0x456900, rodata, src/cod/456900]   # .rodata blob resume (queen's strings and rate tables; TU fully C, strings still in the blob)
       - [0x456D60, .rodata, src/queen]  # carved jtbl_00556D60 (8 arms, 0x20, 16-aligned): subQueenBrainMain's switch table, emitted by the compiled function; VMA 0x556D60..0x556D80
       - [0x456D80, rodata, src/cod/456D80]   # .rodata blob resume (the "src/queen.c" __FILE__ string and pad)
       - [0x456DF0, .rodata, src/queen]  # plain-rodata: SetQueenBallOrient's `up` initialiser template {0,1,0,1} emitted by the compiled QueenBallDL, 0x10 B 8-aligned, VMA 0x556DF0..0x556E00 (the last words of queen.o's 0x556900..0x556E00 run)
@@ -480,7 +480,7 @@ segments:
       - [0x5391D8, lit4, src/cod/5391D8]     # .lit4 blob resume (ebrain's words, then gv's)
       - [0x539230, .lit4, src/act_bird]  # carved D_00639230..D_00639290 (25 slots, 5 fns interp_vector_sa..vector_angle_degree; 8x 2*pi), VMA 0x639230..0x639294, 100 B; MAIN.MAP act_bird.o .lit4 0x64 agrees.  USA: - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
       - [0x539294, lit4, src/cod/539294]     # .lit4 blob resume (lightning's words)
-      - [0x5392C0, .lit4, src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: Debug_StickControl, QueenGeo, QueenBarrierGeo and its WrapRad expansions as literals, one slot for the still-asm QueenBallGeo.s 5000), VMA 0x6392C0..0x639324
+      - [0x5392C0, .lit4, src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: Debug_StickControl, QueenGeo, QueenBarrierGeo and its WrapRad expansions as literals, QueenBallGeo's 5000 now compiler-emitted; TU fully C), VMA 0x6392C0..0x639324
       - [0x539324, lit4, src/cod/539324]     # .lit4 blob resume (queen_barrier_disp's words)
       - [0x539338, .lit4, src/debug]  # carved D_00639338..D_00639350 (7 slots, 5 fns debug_Load..debug_DrawBar), VMA 0x639338..0x639354, 28 B
       - [0x539354, .lit4, src/debug_exception]  # carved D_00639354 (1 slot: drawWin's 0.8f, debug_exception_screen.c.inc), VMA 0x639354..0x639358, 4 B

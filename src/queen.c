@@ -733,18 +733,13 @@ extern float _GetLength(QVec *a, QVec *b);
 extern void apply_matrix_w1(QVec *dst, QMat33 *m, QVec *src);
 extern void _CopyVector(void *dst, void *src);
 extern void CopyQuaternion(void *dst, void *src);
-extern int _AttackCenter(char *g, int kind, QVec *pos, int a3, int a4, float r);
+extern int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
 extern char D_002907E0[];
 extern float D_005569A0[];
 extern float D_00556B68[];
 
 /* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL
  * each expand inline. */
-/* INTERIM: the still-asm QueenBallGeo loads this helper's `up` template through
- * splat's D_00556DF0. gcc emits the template ($LC0) when it saves the inline
- * body at this definition, so the label is bound here. Delete when QueenBallGeo
- * lands. */
-ASM_RODATA_LABEL(D_00556DF0);
 static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to) {
     QVec side;
     QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
@@ -765,8 +760,177 @@ static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to) {
 /* r4/r5 seed (rc55 / 36 sites) at scratchpad/seeds/QueenBallGeo.r5.body.c (this
  * block, incl. the three helpers it alone expands) and .r4.rc55.c (whole-TU).
  * Residual: the FP-constant census, see LEDGER r4. */
-ASM_LIT4_SLOT(D_00639320, 5000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallGeo);
+/* PAL listing rows 1092-1093. */
+static inline void StartQueenBallEffect(int *bga, int id, QVec *from, QVec *to) {
+    if (*bga == 0) {
+        pbga_start(bga, id);
+        SetQueenBallOrient((char *)*bga, from, to);
+    }
+}
+
+/* PAL listing rows 1105-1116. */
+static inline void CheckQueenBallRing(int *bga, int id, QVec *from, QVec *to,
+                                      float r) {
+    float d = _GetLength(to, from);
+    int in = (d < r && r < d + 100.0f);
+
+    if (in) {
+        StartQueenBallEffect(bga, id, from, to);
+    }
+}
+
+/* PAL listing rows 1131-1151: the parameterised box test.  Builds the frame that
+ * looks from `from` towards `pos`, transforms `target` into it and reports whether
+ * the target sits inside the box around `pos`.
+ *
+ * The half-width and the near plane are ints and the half-height and the far plane
+ * floats: that asymmetry is what ROM's register census shows.  A float parameter is
+ * bound by a movsf at the top of the inlined body (the listing attributes 300.0f and
+ * 600.0f to queen.c:1131, the helper's own first line) and inside the object loop it
+ * can never be sunk to its use, so it takes a callee-saved FP register; an int
+ * parameter is substituted as a CONST_INT by integrate.c's const_equiv_map, the
+ * int->float conversion folds to a CONST_DOUBLE at the compare itself, and ROM
+ * materialises 130.0f/-120.0f there in a call-clobbered register (queen.c:1150). */
+static inline int CheckQueenBallBox(QVec *pos, QVec *from, QVec *target,
+                                    int xl, float yl, int zmin, float zmax) {
+    QVec side;
+    QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
+    QVec dir;
+    QMat33 m;
+    QMat33 inv;
+    QVec out;
+    int hit = 0;
+
+    sceVu0SubVector(&dir, pos, from);
+    dir.f[1] = 0.0f;
+    sceVu0Normalize(&dir, &dir);
+    sceVu0OuterProduct(&side, &up, &dir);
+    sceVu0CopyVector(&m.x, &side);
+    sceVu0CopyVector(&m.y, &up);
+    sceVu0CopyVector(&m.z, &dir);
+    sceVu0CopyVector(&m.w, pos);
+    m.x.f[3] = m.y.f[3] = m.z.f[3] = 0.0f;
+    m.w.f[3] = 1.0f;
+    sceVu0InversMatrix(&inv, &m);
+    apply_matrix_w1(&out, &inv, target);
+    if (__builtin_fabsf(out.f[0]) < xl && __builtin_fabsf(out.f[1]) < yl &&
+        out.f[2] >= zmin && out.f[2] < zmax) {
+        hit = 1;
+    }
+    return hit;
+}
+
+void QueenBallGeo(char *g) {
+    /* The root matrix is a plain float matrix, not a QMat33 of the (union) QVec:
+     * ROM's scheduler hoists the CopyMatrix destination load above the far-position
+     * stores of the else arm below, which a store through a union member -- alias
+     * set 0, conflicting with every load -- would forbid. */
+    float m[4][4];
+    QVec queenPos;
+    int num;
+    int i;
+    char *weapon;
+    char *w;
+    char *ball;
+    char *o;
+    char *sword;
+    char *act;
+    int *bga;
+    int hit;
+    float r;
+
+    w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    ball = isysGObjSearchFromObjKindID_begin(0x36);
+    num = (ball != 0) ? *(int *)(*(char **)(*(char **)(ball + 0x15C) + 0x830) + 0x18) : 0;
+    r = *(float *)(w + 0x14) * 100.0f;
+    weapon = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
+    GetRootMatrix(m, g);
+    GetRootPosition(&queenPos, D_00639EA4);
+    i = 0;
+    act = *(char **)(D_00639EA4 + 0x164);
+    hit = (*(int *)(act + 0x34) == 0x31);
+    if (*(signed char *)(w + 0x11) != 0) {
+        for (o = isysGObjSearchFromObjKindID_begin(0x11); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o), i++) {
+            QVec objPos;
+
+            GetRootPosition(&objPos, o);
+            hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 130, 300.0f,
+                                     -120, 600.0f);
+            bga = &D_006EA7F0[i];
+            CheckQueenBallRing(bga, 0x1E2, (QVec *)m[3], &objPos, r);
+            if (*bga != 0) {
+                SetQueenBallOrient((char *)*bga, (QVec *)m[3], &objPos);
+            }
+        }
+        if (*(signed char *)(w + 0x11) != 0) {
+            sword = isysGObjSearchFromObjKindID_begin(0xE);
+            if (weapon == 0 && sword != 0) {
+                QVec objPos;
+
+                GetRootPosition(&objPos, sword);
+                hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 75, 300.0f,
+                                         -150, 500.0f);
+                CheckQueenBallRing(&D_006EA7F0[2], 0x1E4, (QVec *)m[3], &objPos, r);
+            }
+        }
+    }
+    if (hit) {
+        *(int *)(*(char **)(g + 0x15C) + 0x74) = 0;
+    } else {
+        *(int *)(*(char **)(g + 0x15C) + 0x74) = 1;
+    }
+    if (*(signed char *)(w + 0x18) != 0) {
+        *(char *)(w + 0x18) = 0;
+        *(char *)(w + 0x11) = 0;
+        pbga_start((int *)(w + 0x1C), 0x1DF);
+        _CopyVector(*(char **)(w + 0x1C) + 0x20, m[3]);
+        CopyQuaternion(*(char **)(w + 0x1C) + 0x30, D_002907E0);
+        ExecuteSEPackage((int)g, 0x5E);
+    }
+    if (*(signed char *)(w + 0x1A) != 0) {
+        *(char *)(w + 0x1A) = 0;
+        *(char *)(w + 0x10) = 0;
+        *(char *)(w + 0x11) = 0;
+    }
+    if (*(signed char *)(w + 0x11) != 0) {
+        UnitMatrix33((QMat3 *)m);
+        scale_m34((LVec *)m, m, *(float *)(w + 0x14));
+        CopyMatrix(*(void **)(*(char **)(g + 0x15C) + 0xC), m);
+        if (hit == 0 && *(signed char *)(w + 0x19) == 0 &&
+            _AttackCenter(g, 0x10, m[3], 0, r, 0) != 0) {
+            *(char *)(w + 0x19) = 1;
+            if (weapon != 0) {
+                ExecuteSEPackage((int)D_00639EA4, 0x61);
+            } else {
+                ExecuteSEPackage((int)D_00639EA4, 0x5B);
+            }
+        }
+        if (r > 5000.0f) {
+            *(char *)(w + 0x10) = 0;
+            *(char *)(w + 0x11) = 0;
+        }
+        {
+            /* Per-ball-index growth rate, one table per stage.  ROM selects the
+             * table ENTRY, not the table: the sll/addu that index it are shared by
+             * both arms, and the address pseudo is the one that survives the join. */
+            float *rate;
+
+            if (stage_no == 0x25) {
+                rate = &D_005569A0[num];
+            } else {
+                rate = &D_00556B68[num];
+            }
+            *(float *)(w + 0x14) += *rate;
+        }
+    } else {
+        m[3][0] = 4294967296.0f;
+        m[3][1] = 4294967296.0f;
+        m[3][2] = 4294967296.0f;
+        m[3][3] = 0.0f;
+        CopyMatrix(*(void **)(*(char **)(g + 0x15C) + 0xC), m);
+    }
+}
 
 /* The loop is written ASCENDING: gcc's check_dbra_loop reverses it into ROM's
  * `addiu $18,$18,-1` / `bgez $18` countdown, which is what puts the counter's
