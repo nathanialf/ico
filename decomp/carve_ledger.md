@@ -974,6 +974,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   CameraGetOtherObjOffset's as literals, two slots for the still-asm SetCameraMatrix;
   the blob resumes at `0x539140` up to chain's carve.
 
+- `[0x538F5C, .lit4, src/fieldCollision]` — two words, DrawCollisionRay's 0.05 and 0.3
+  as literals (the TU's whole pool), directly before girl_act's carve; no blob remnant
+  remains between enemy_act's words and girl_act.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections
