@@ -34,6 +34,31 @@ static inline void setGsReg(long long a0, long long a1) {
     *D_004EE6F0.ptr++ = a0;
 }
 
+/* The two GS register payloads this file packs over and over: RGBAQ from a
+   4-byte colour, and XYZ2 from a 2D screen point plus a 64-bit Z.  The GS
+   window origin is 2048.0 pixels, i.e. 0x8000 in 1/16-pixel units. */
+#define GIF_RGBA(c)   ((long long)(c)[0] | ((long long)(c)[1] << 8) \
+                       | ((long long)(c)[2] << 16) | ((long long)(c)[3] << 24))
+/* the same packed XYZ2 word with the window origin already folded into the
+   coordinates (the sprite family offsets its size once, then adds the corner) */
+#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32))
+/* the ST/UV pair the textured-sprite family packs into the UV register */
+#define GIF_UV(u, v) ((long long)(u) | ((long long)(v) << 16))
+#define GIF_XY(x, y, z) ((long long)((x) + 0x8000) \
+                         | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
+#define GIF_XYZ(v, z) GIF_XY((v)[0], (v)[1], z)
+
+extern int D_0063A064;
+extern int D_0063A068;
+extern float D_0063A05C;
+extern float D_0063A060;
+/* The "Offset" family adds the float draw origin (in 1/16-pixel units) instead
+   of the fixed 2048.0-pixel window origin. */
+#define GIF_OX ((int)D_0063A05C * 16)
+#define GIF_OY ((int)D_0063A060 * 16)
+#define GIF_XYZOFF(v, z) GIF_XY0(GIF_OX + (v)[0], GIF_OY + (v)[1], z)
+
+
 void gif_StartPacket(void)
 {
     char *c;
@@ -131,18 +156,123 @@ void gif_EndPacketPath1(void)
     dl_CloseDma();
     D_00639F60 = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakeLine2DOffset);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakeSprite);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakeSpriteOffset);
+/*SENTINEL_BEGIN gif_MakeLine2DOffset*/
+void gif_MakeLine2DOffset(int *v0, int *v1, long long z0, long long z1,
+                          unsigned char *col, int prim)
+{
+    setGsReg(0x00, ((long long)prim << 6) | 0xA);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XYZOFF(v0, z0));
+    setGsReg(0x05, GIF_XYZOFF(v1, z1));
+}
+/*SENTINEL_END gif_MakeLine2DOffset*/
+/*SENTINEL_BEGIN gif_MakeSprite*/
+void gif_MakeSprite(int x, int y, int w, int h, long long z, int *uv,
+                    unsigned char *col, int prim)
+{
+    int fx = w + 0x8000;
+    int fy = h + 0x8000;
+
+    setGsReg(0x00, (prim << 6) | 0x116);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x03, GIF_UV(uv[0], uv[1]));
+    setGsReg(0x05, GIF_XY(x, y, z));
+    setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
+    setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
+}
+/*SENTINEL_END gif_MakeSprite*/
+/*SENTINEL_BEGIN gif_MakeSpriteOffset*/
+void gif_MakeSpriteOffset(int x, int y, int w, int h, long long z, int *uv,
+                          unsigned char *col, int prim)
+{
+    setGsReg(0x00, (prim << 6) | 0x116);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x03, GIF_UV(uv[0], uv[1]));
+    setGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
+    setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
+    setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
+}
+/*SENTINEL_END gif_MakeSpriteOffset*/
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakeSpriteWithStrip);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_PointOffset);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_Line);
+/* gif_MakePoint2DOffset is `inline` too (its lines appear inside gif_PointOffset);
+   same interim stand-in as makePoint2D. */
+static inline void makePoint2DOffset(int *v, long long z, unsigned char *col,
+                                     int prim)
+{
+    setGsReg(0x00, 0x100 | ((long long)prim << 6));
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XYZOFF(v, z));
+}
+
+/*SENTINEL_BEGIN gif_PointOffset*/
+void gif_PointOffset(int *v, long long z, unsigned char *col, int prim)
+{
+    int p[4];
+
+    p[0] = v[0] * D_0063A064 / 640;
+    p[1] = v[1] * D_0063A068 / 224;
+    makePoint2DOffset(p, z, col, prim);
+}
+/*SENTINEL_END gif_PointOffset*/
+/* gif_MakeLine2D is `inline` (its lines appear inside gif_Line); interim stand-in. */
+static inline void makeLine2D(int *v0, int *v1, long long z0, long long z1,
+                              unsigned char *col, int prim)
+{
+    setGsReg(0x00, ((long long)prim << 6) | 0xA);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XYZ(v0, z0));
+    setGsReg(0x05, GIF_XYZ(v1, z1));
+}
+
+/*SENTINEL_BEGIN gif_Line*/
+void gif_Line(int *v0, int *v1, long long z0, long long z1,
+              unsigned char *col, int prim)
+{
+    int p0[4];
+    int p1[4];
+
+    p0[0] = v0[0] * D_0063A064 / 640 * 16;
+    p0[1] = v0[1] * D_0063A068 / 224 * 16;
+    p1[0] = v1[0] * D_0063A064 / 640 * 16;
+    p1[1] = v1[1] * D_0063A068 / 224 * 16;
+    makeLine2D(p0, p1, z0, z1, col, prim);
+}
+/*SENTINEL_END gif_Line*/
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_Sprite);
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteSensitive);
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteOffset);
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteSensitiveOffset);
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteOrg);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteSensitiveOrg);
+/* gif_MakeSpriteNoTexture is `inline` and small enough that the Sprite wrappers
+   inline it, while gif_MakeSprite stays a call; interim stand-in. */
+static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z,
+                                       unsigned char *col, int prim)
+{
+    int fx = w + 0x8000;
+    int fy = h + 0x8000;
+
+    setGsReg(0x00, (prim << 6) | 0x406);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XY(x, y, z));
+    setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
+}
+
+/*SENTINEL_BEGIN gif_SpriteSensitiveOrg*/
+void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col,
+                            int prim)
+{
+    int x = r[0];
+    int y = r[1];
+    int w = r[2];
+    int h = r[3];
+
+    if (uv) {
+        gif_MakeSprite(x, y, w, h, z, uv, col, prim);
+    } else {
+        makeSpriteNoTexture(x, y, w, h, z, col, prim);
+    }
+}
+/*SENTINEL_END gif_SpriteSensitiveOrg*/
 extern int D_0063A074;
 extern int D_0063A078;
 
@@ -205,19 +335,79 @@ void gif_SetGsReg(long long a0, long long a1) {
 int gif_CheckOpen(void) {
     return D_00639F60;
 }
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakePoint2D);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakePoint2DOffset);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakeLine2D);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakeSpriteNoTexture);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakeSpriteNoTextureOffset);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_Point);
-extern int D_0063A064;
-extern int D_0063A068;
-extern void gif_MakeLine2DOffset(int *v0, int *v1, long long z0, long long z1,
-                                 unsigned char *col, long long prim);
+/* gif_MakePoint2D is `inline` per the listing: its lines 318-320 appear inside
+   gif_Point and the rest of the point family.  While its own out-of-line copy
+   is still asm, the callers the listing shows inlining it call this static
+   stand-in; it collapses to one `inline` definition at layout. */
+static inline void makePoint2D(int *v, long long z, unsigned char *col,
+                               long long prim)
+{
+    setGsReg(0x00, (prim << 6) | 0x100);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XYZ(v, z));
+}
 
+/*SENTINEL_BEGIN gif_MakePoint2D*/
+void gif_MakePoint2D(int *v, long long z, unsigned char *col, int prim)
+{
+    setGsReg(0x00, ((long long)prim << 6) | 0x100);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XYZ(v, z));
+}
+/*SENTINEL_END gif_MakePoint2D*/
+/*SENTINEL_BEGIN gif_MakePoint2DOffset*/
+void gif_MakePoint2DOffset(int *v, long long z, unsigned char *col, int prim)
+{
+    setGsReg(0x00, 0x100 | ((long long)prim << 6));
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XYZOFF(v, z));
+}
+/*SENTINEL_END gif_MakePoint2DOffset*/
+/*SENTINEL_BEGIN gif_MakeLine2D*/
+void gif_MakeLine2D(int *v0, int *v1, long long z0, long long z1,
+                    unsigned char *col, int prim)
+{
+    setGsReg(0x00, ((long long)prim << 6) | 0xA);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XYZ(v0, z0));
+    setGsReg(0x05, GIF_XYZ(v1, z1));
+}
+/*SENTINEL_END gif_MakeLine2D*/
+/*SENTINEL_BEGIN gif_MakeSpriteNoTexture*/
+void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z,
+                             unsigned char *col, int prim)
+{
+    int fx = w + 0x8000;
+    int fy = h + 0x8000;
+
+    setGsReg(0x00, (prim << 6) | 0x406);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XY(x, y, z));
+    setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
+}
+/*SENTINEL_END gif_MakeSpriteNoTexture*/
+/*SENTINEL_BEGIN gif_MakeSpriteNoTextureOffset*/
+void gif_MakeSpriteNoTextureOffset(int x, int y, int w, int h, long long z,
+                                   unsigned char *col, int prim)
+{
+    setGsReg(0x00, (prim << 6) | 0x406);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
+    setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
+}
+/*SENTINEL_END gif_MakeSpriteNoTextureOffset*/
+/*SENTINEL_BEGIN gif_Point*/
+void gif_Point(int *v, long long z, unsigned char *col, int prim)
+{
+    int p[2];
+
+    p[0] = v[0] * D_0063A064 / 640;
+    p[1] = v[1] * D_0063A068 / 224;
+    makePoint2D(p, z, col, prim);
+}
+/*SENTINEL_END gif_Point*/
 void gif_LineOffset(int *v0, int *v1, long long z0, long long z1,
-                    unsigned char *col, long long prim)
+                    unsigned char *col, int prim)
 {
     int p0[4];
     int p1[4];
