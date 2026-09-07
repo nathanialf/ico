@@ -964,6 +964,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   actSt13cBmg1's -5725 twice and actSt13cHandChk's 550 as literals (the TU's
   whole pool); no blob remnant remains there.
 
+- `[0x539090, .lit4, src/script]` — the TU's whole pool, 17 words between way_util's and
+  st25a's: sixteen slots beside six still-asm owners (two adjacent copies of pi, one per
+  function, since the constant pool is per function), scpBornSpider's pi as a literal.
+
 - `[0x539898, .lit4, src/end]` — the TU's whole pool, 6 words directly before op's
   2700: two slots for the still-asm actEndDemo14, then actConte14_7's, actStaff3Demo's
   and actStaff3RollChk's constants as literals; the blob resumed at 0x5397E8 now ends
