@@ -32,8 +32,13 @@ _SRC_PATTERNS = ("src/{tu}.c", "tough_nuts/{tu}/{tu}.c",
 
 # A C definition opener: `<rettype...> func_<hex>(<args>) {`. The trailing `{`
 # (not `;`) excludes prototypes/externs; INCLUDE_ASM lines have no return type.
+# Any file-scope definition whose name has a ROM `.s` under asm/matchings or
+# asm/nonmatchings for the TU (filtered in matched_funcs): the PAL branch names
+# its functions from the disc maps, so a `func_<hex>`-only pattern would report
+# "no matched C functions" for every named TU.
 _C_DEF_RE = re.compile(
-    r"^[A-Za-z_][\w *]*\b(func_[0-9A-Fa-f]+)\s*\([^;{]*\)\s*\{", re.M)
+    r"^[A-Za-z_][\w *]*\b([A-Za-z_]\w*)\s*\([^;{]*\)\s*\{", re.M)
+_KEYWORDS = {"if", "for", "while", "switch", "return", "sizeof", "else", "do"}
 
 
 def resolve_tu_path(tu: str) -> Path | None:
@@ -52,11 +57,18 @@ def matched_funcs(tu: str) -> list[str]:
     if p is None:
         return []
     text = p.read_text(errors="replace")
+    rel = p.relative_to(ROOT).with_suffix("")
+    have = set()
+    for sub in ("matchings", "nonmatchings"):
+        d = ROOT / "asm" / sub / rel
+        if d.is_dir():
+            have.update(f.stem for f in d.glob("*.s"))
     seen, out = set(), []
     for m in _C_DEF_RE.finditer(text):
         fn = m.group(1)
-        if fn not in seen:
-            seen.add(fn); out.append(fn)
+        if fn in _KEYWORDS or fn in seen or (have and fn not in have):
+            continue
+        seen.add(fn); out.append(fn)
     return out
 
 
