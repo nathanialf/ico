@@ -224,11 +224,129 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos)
     *(float *)(sub + 0x1BC) = 1.0f;
     return 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", calcFootIK);
+extern void memset(void *a0, int a1, int a2);
+extern void RotQuaternionX(void *q, short ang);
+/* RotQuaternionZ's second parameter is `int`, not `short`: calcFootIK's dev line
+   1035 passes the raw GetTableArcSin result with no sign extension, and its 1040
+   site sign-extends explicitly.  InitMotionGeoInfo's site carries the (short). */
+extern void RotQuaternionZ(void *q, int ang);
+extern void SetIdentityQuaternion(void *q);
+extern void CopyQuaternion(void *dst, void *src);
+extern void DivQuaternion(void *dst, void *a, void *b);
+extern void MultiQuaternion(void *dst, void *a, void *b);
+extern int GetTableArcSin(float v);
+extern void MatrixDrive_PushMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void MatrixDrive_TransMatrixV(void *v);
+extern void MultiMatrixByQuaternion(void *q);
+extern void sceVu0TransposeMatrix(float *dst, float *src);
+extern void sceVu0ScaleVectorXYZ(float *dst, float *a, float s);
+
+int calcFootIK(char *skel, char *arg, int node, float scale, float ratio)
+{
+    float q0[4];
+    float q1[4];
+    float qa[4];
+    float qb[4];
+    float qc[4];
+    float qi[4];
+    float v[4];
+    float dir[4];
+    float qt[4];
+    float qu[4];
+    float qv[4];
+    char *p;
+    char *dstq;
+    char *qk;
+    float *m;
+    int i;
+    int j;
+    int k;
+    int n;
+    int ang;
+    short ang2;
+
+    memset(qa, 0, 16);
+    qa[3] = 1.0f;
+    memset(qb, 0, 16);
+    qb[3] = 1.0f;
+    memset(qc, 0, 16);
+    qc[3] = 1.0f;
+
+    SetIdentityQuaternion(qi);
+    RotQuaternionX(qi, -0x8000);
+    RotQuaternionY(qi, -0x8000);
+
+    i = node;
+    while (i != -1) {
+        MultiQuaternion(qb, arg + i * 0x20 + 0x10, qb);
+        MultiQuaternion(qc, skel + i * 0x40 + 0x20, qc);
+        i = *(int *)(skel + i * 0x40 + 0x38);
+    }
+    MultiQuaternion(qc, qi, qc);
+
+    i = *(int *)(skel + node * 0x40 + 0x38);
+    while (i != -1) {
+        MultiQuaternion(qa, arg + i * 0x20 + 0x10, qa);
+        i = *(int *)(skel + i * 0x40 + 0x38);
+    }
+
+    DivQuaternion(q0, qc, qa);
+    DivQuaternion(q1, qb, qc);
+
+    p = skel + node * 0x40;
+
+    GetMatrixFromQuaternion(MatrixDrive_GetMatrix(), qc);
+    MatrixDrive_PushMatrix();
+    MultiMatrixByQuaternion(q1);
+    for (n = 0; n < 2; n++) {
+        j = *(int *)(p + 0x30);
+        if (j == -1) {
+            return 0;
+        }
+        p = skel + j * 0x40;
+        sceVu0ScaleVectorXYZ(v, (float *)(p + 0x10), scale);
+        MatrixDrive_TransMatrixV(v);
+        MultiMatrixByQuaternion(arg + j * 0x20 + 0x10);
+    }
+    CopyVector((int)dir, (int)((char *)MatrixDrive_GetMatrix() + 0x30));
+    MatrixDrive_PopMatrix();
+
+    m = (float *)MatrixDrive_GetMatrix();
+    sceVu0TransposeMatrix(m, m);
+    sceVu0ApplyMatrix(dir, m, dir);
+    sceVu0Normalize((int *)dir, (int *)dir);
+    ang = GetTableArcSin(dir[1]);
+    ang2 = -GetTableArcSin(dir[2]);
+
+    CopyQuaternion(qt, qc);
+    RotQuaternionZ(qt, ang);
+    RotQuaternionY(qt, ang2);
+    DivQuaternion(qt, qb, qt);
+
+    dstq = arg + node * 0x20 + 0x10;
+    CopyQuaternion(dstq, q0);
+    RotQuaternionZ(dstq, (short)((float)ang * ratio));
+    RotQuaternionY(dstq, ang2);
+    MultiQuaternion(dstq, dstq, qt);
+
+    CopyQuaternion(qv, qb);
+    k = node;
+    for (n = 1; n >= 0; n--) {
+        k = *(int *)(skel + k * 0x40 + 0x30);
+        qk = arg + k * 0x20 + 0x10;
+        MultiQuaternion(qv, qv, qk);
+    }
+    CopyQuaternion(qu, qa);
+    MultiQuaternion(qu, qu, arg + node * 0x20 + 0x10);
+    MultiQuaternion(qu, qu, arg + *(int *)(skel + node * 0x40 + 0x30) * 0x20 + 0x10);
+    DivQuaternion(qk, qv, qu);
+    return ang;
+}
 typedef struct { long long d[122]; } _0x3D0;
 extern _0x3D0 D_00290080;
 extern void RotQuaternionX(void *q, short ang);
-extern void RotQuaternionZ(void *q, short ang);
 extern void RegularizeQuaternion(void *q);
 extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
 
@@ -243,14 +361,47 @@ void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry
     CopyVector((int)(self + 0x160), (int)self);
     RotQuaternionY(self + 0x30, -(int)(ry * 10430.378f));
     RotQuaternionX(self + 0x30, -(int)(rx * 10430.378f));
-    RotQuaternionZ(self + 0x30, -(int)(rz * 10430.378f));
+    RotQuaternionZ(self + 0x30, (short)-(int)(rz * 10430.378f));
     RegularizeQuaternion(self + 0x30);
     adjustMotionHeightToNearestField(self - 0xA0, (float *)self);
     SetSimplePlane(self + 0x130, 0.0f, -1.0f, 0.0f, y);
     CopyVector((int)(self + 0x1B0), (int)self);
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", dispSkeltonHierarchy);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", DispSkelton);
+extern int D_00639F08;
+/* motionManager2.o's own .sbss run (MAIN.MAP: 0xC after main.o's).  Only
+   DispSkelton writes them; dispSkeltonHierarchy reads C10C and C114.  The two
+   store types are the developer's TBAA: `int` for the flag pairs it with the
+   int-typed 0x15C read, `void *` for the object pairs it with the 0x8C read,
+   which is what orders the four gp memory ops in this block. */
+extern void *D_0063C10C;
+extern int D_0063C110;
+extern void *D_0063C114;
+extern void gif_StartPacketPri(int pri);
+extern void gif_SetAlpha(int a, int b, int c);
+extern void MatrixDrive_PushMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void sceVu0UnitMatrix(void *m);
+extern void gif_EndPacket(void);
+extern void dispSkeltonHierarchy(int node);
+
+void DispSkelton(GObj *self, int a1)
+{
+    D_0063C114 = *(void **)((char *)GOBJ_SUB(self) + 0x8C);
+    D_0063C110 = a1;
+    D_0063C10C = self;
+
+    if (D_00639F08) {
+        gif_StartPacketPri(11);
+        gif_SetAlpha(1, 5, 128);
+        MatrixDrive_PushMatrix();
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        dispSkeltonHierarchy(0);
+        MatrixDrive_PopMatrix();
+        gif_EndPacket();
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SlopeIKControl);
 ASM_LIT4_SLOT(D_00638B50, 0.2f);
 ASM_LIT4_SLOT(D_00638B54, 0.45f);
@@ -737,7 +888,120 @@ void CopyMotionWithNodeHrc(struct Pack32 *dst, struct Pack32 *src, char *hrc, in
         copyMotionWithNodeHrc(*(int *)(hrc + node * 64 + 0x30));
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetFloatingMotion);
+/* INTERIM (same reason as getSkeltonFocusNode above): the listing inlines
+   GetMotionRootPos and GetBlendedMotionRootPos into their callers, so both are
+   `inline` in the dev's TU; while this tail still has asm members a deferred
+   inline would land at the object end instead of at its ROM slot, so the public
+   bodies stay plain definitions there and the callers use these stand-ins.
+   Collapses to one `inline` definition each at layout. */
+static inline void getMotionRootPos(float *dst, void *a1, int idx)
+{
+    float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
+    getRootPos(dst, src);
+}
+static inline void getBlendedMotionRootPos(float *dst, float *a, float *b, float t)
+{
+    float u = 1.0f - t;
+    dst[0] = a[0] * t + b[0] * u;
+    dst[1] = a[1] * t + b[1] * u;
+    dst[2] = a[2] * t + b[2] * u;
+}
+extern int D_002906D0[];
+extern void GetSlerpQuaternionNoRegularize(float *dst, float *a, float *b, float t);
+
+/* INTERIM (same reason as getSkeltonFocusNode above): the listing shows the dev's
+   TU inlining GetMotion (five sites) and GetBlendedMotion (one) into
+   GetFloatingMotion, so both are `inline` there; while this tail still has asm
+   members a deferred inline would land at the object end instead of at its ROM
+   slot, so the public bodies stay plain definitions further down and this caller
+   uses these stand-ins.  Collapses to one `inline` definition each at layout. */
+static inline void getMotion(char *dst, float *root, void *motion, int idx,
+                             unsigned char *mask, int count, char *hrc)
+{
+    int i;
+
+    if (mask != 0) {
+        for (i = 0; i < count; i++) {
+            if (mask[i] == 0) {
+                _getMotion(dst + i * 0x20, motion, i, idx);
+            }
+        }
+    } else {
+        for (i = 0; i < count; i++) {
+            _getMotion(dst + i * 0x20, motion, i, idx);
+        }
+    }
+
+    if (hrc != 0) {
+        i = 0;
+        do {
+            MultiQuaternion(dst + i * 0x20 + 0x10, D_002906D0, dst + i * 0x20 + 0x10);
+            i = *(int *)(hrc + i * 0x40 + 0x34);
+        } while (i != -1);
+    } else {
+        for (i = 0; i < count; i++) {
+            MultiQuaternion(dst + i * 0x20 + 0x10, D_002906D0, dst + i * 0x20 + 0x10);
+        }
+    }
+    if (root != 0) {
+        getMotionRootPos(root, motion, idx);
+    }
+}
+static inline void getBlendedMotion(StreamElem *dst, float *root, StreamElem *a, float *rootA,
+                                    StreamElem *b, float *rootB, unsigned char *mask,
+                                    int count, float t)
+{
+    int i;
+    float u = 1.0f - t;
+
+    if (mask != 0) {
+        for (i = 0; i < count; i++) {
+            if (mask[i] != 0) {
+                dst[i] = a[i];
+            } else {
+                *(int *)&dst[i] = (float)*(int *)&a[i] * t + (float)*(int *)&b[i] * u;
+                GetSlerpQuaternionNoRegularize(dst[i].q, a[i].q, b[i].q, t);
+            }
+        }
+    } else {
+        for (i = 0; i < count; i++) {
+            dst[i] = a[i];
+        }
+    }
+    if (root != 0) {
+        getBlendedMotionRootPos(root, rootA, rootB, t);
+    }
+}
+
+void GetFloatingMotion(StreamElem *dst, float *root, void *motion, int count,
+                       unsigned char *mask, char *hrc, float t)
+{
+    float rootA[4];
+    float rootB[4];
+    StreamElem buf0[count];
+    StreamElem buf1[count];
+    int idx;
+    int idx1;
+    float frac;
+
+    t = t - (*(int *)motion - 1) * (int)(t / (*(int *)motion - 1));
+    idx = (int)t;
+    idx1 = idx + 1;
+    frac = t - (float)idx;
+    if (frac == 0.0f) {
+        getMotion((char *)dst, root, motion, idx, 0, count, hrc);
+        return;
+    }
+    if (frac < 0.5f) {
+        getMotion((char *)buf0, rootA, motion, idx, 0, count, hrc);
+        getMotion((char *)buf1, rootB, motion, idx1, mask, count, hrc);
+        getBlendedMotion(dst, root, buf0, rootA, buf1, rootB, mask, count, 1.0f - frac);
+    } else {
+        getMotion((char *)buf0, rootA, motion, idx, mask, count, hrc);
+        getMotion((char *)buf1, rootB, motion, idx1, 0, count, hrc);
+        getBlendedMotion(dst, root, buf1, rootB, buf0, rootA, mask, count, frac);
+    }
+}
 extern void GetInverseQuaternion(float *dst, float *src);
 extern void GetMirrorQuaternion(float *a0, float *a1, unsigned int a2);
 extern void MultiQuaternion(void *a0, void *a1, void *a2);
@@ -1196,24 +1460,6 @@ void GetMotionRootPos(float *dst, void *a1, int idx) /* `inline` once GetFloatin
 {
     float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
     getRootPos(dst, src);
-}
-/* INTERIM (same reason as getSkeltonFocusNode above): the listing inlines
-   GetMotionRootPos and GetBlendedMotionRootPos into their callers, so both are
-   `inline` in the dev's TU; while this tail still has asm members a deferred
-   inline would land at the object end instead of at its ROM slot, so the public
-   bodies stay plain definitions there and the callers use these stand-ins.
-   Collapses to one `inline` definition each at layout. */
-static inline void getMotionRootPos(float *dst, void *a1, int idx)
-{
-    float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
-    getRootPos(dst, src);
-}
-static inline void getBlendedMotionRootPos(float *dst, float *a, float *b, float t)
-{
-    float u = 1.0f - t;
-    dst[0] = a[0] * t + b[0] * u;
-    dst[1] = a[1] * t + b[1] * u;
-    dst[2] = a[2] * t + b[2] * u;
 }
 extern int D_002906D0[];
 extern void _getMotion(void *dst, void *m, int node, int idx);
