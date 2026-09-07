@@ -658,13 +658,12 @@ void actEnemyBodylift(volatile int a0)
                 hit = 1;
             }
         }
-        /* Listing row 167d4c is a volatile read of the actor-entry home whose
-           value nothing consumes, attributed to source line 2785 -- and lines
-           2786..2807 emit no instructions at all, so 2785 is the surviving
-           access of a statement whose remaining 22 lines were compiled out.
-           A volatile access cannot be manufactured by scheduling, so the read
-           has to be written. */
-        (void)a0;
+        /* The listing attributes one more read of the actor-entry home to the
+           source line here and then 22 lines that emit nothing: a guarded block
+           whose body was compiled out of the retail build. The test survives
+           because the home is volatile; the empty block is byte-identical. */
+        if (a0) {
+        }
         if (GetMotionFrameFlag1((void *)a0) != 0 && hit != 0) {
             iosOmSendMail((int)D_00639EA4, 0x170, a0);
         }
