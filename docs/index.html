@@ -227,24 +227,30 @@
     font:500 10px/1.6 var(--f-mono); color:var(--dim);
     text-transform:uppercase; letter-spacing:.1em;
   }
+  /* A grid, not a flex row: every row shares the same five column tracks
+     (name, metric caption, bar, percentage, bytes) so the captions, bars and
+     figures align down the strip instead of drifting with each name's
+     length. The bar track is the tree's --w-bar so the two line up too. */
   .secrow {
-    background:var(--panel); display:flex; align-items:center;
-    gap:var(--gap-col); padding:6px 14px;
+    background:var(--panel); display:grid; align-items:center;
+    grid-template-columns:minmax(0,1fr) 62px var(--w-bar) var(--w-pct) 150px;
+    column-gap:var(--gap-col); padding:6px 14px;
   }
-  .secnm { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis;
+  .secrow .bar { width:auto; }
+  .secnm { min-width:0; overflow:hidden; text-overflow:ellipsis;
            white-space:nowrap; font-family:var(--f-mono); font-size:12px;
            color:var(--fg); }
   /* The metric caption. Not decoration: it names which of the two meanings
      the number on this row carries. */
-  .secmt { flex:0 0 auto; font-family:var(--f-mono); font-size:10px;
+  .secmt { font-family:var(--f-mono); font-size:10px;
            color:var(--faint); text-transform:uppercase; letter-spacing:.08em; }
-  .secsz { flex:0 0 auto; text-align:right; color:var(--dim);
+  .secsz { text-align:right; color:var(--dim);
            font-family:var(--f-mono); font-size:11px;
            font-variant-numeric:tabular-nums; white-space:nowrap; }
-  /* A section the ELF sizes at zero has nothing to be a fraction of; it stays
-     listed (it is part of the layout) but reads as inert. */
-  .secrow.zero .secnm, .secrow.zero .secsz { color:var(--faint); }
-  @media (max-width:559px) { .secsz { display:none; } }
+  @media (max-width:559px) {
+    .secrow { grid-template-columns:minmax(0,1fr) 62px var(--w-bar) var(--w-pct); }
+    .secsz { display:none; }
+  }
 
   /* Per-TU data ownership, as a compact mono suffix on the TU row. Bytes
      only: the ROM does not record which TU owns which slice of a data
@@ -462,14 +468,15 @@ const NOBITS_FALLBACK = [".sbss", ".bss"];
 // summary cells use, percentage, matched/total bytes.
 function sectionStrip(T){
   const secs = T.sections || {};
-  const names = Object.keys(secs);
+  // A section the ELF sizes at zero has nothing to be a fraction of: the
+  // generator already omits it, this guards an older JSON.
+  const names = Object.keys(secs).filter(n => secs[n][1] > 0);
   document.getElementById("strip").hidden = names.length === 0;
   const nobits = new Set(T.nobits_sections || NOBITS_FALLBACK);
   document.getElementById("striprows").innerHTML = names.map(n=>{
     const m = secs[n][0], t = secs[n][1];
     const own = nobits.has(n);
-    // A zero-sized section has no ratio to state; fmtPct renders "–".
-    return `<div class="secrow${t ? "" : " zero"}" role="listitem">`
+    return `<div class="secrow" role="listitem">`
       + `<span class="secnm">${n}</span>`
       + `<span class="secmt">${own ? "owned" : "matched"}</span>`
       + bar(m,t)
@@ -507,7 +514,9 @@ function render(data){
   sectionStrip(T);
 
   const tree = document.getElementById("tree");
-  tree.innerHTML = data.programmers.map(p=>{
+  // The .vutext bucket (VU1 microprograms) is a section, not a source
+  // directory: the strip carries it, so it does not get a tree group.
+  tree.innerHTML = data.programmers.filter(p => p.name !== ".vutext").map(p=>{
     const tus = p.tus.map(t=>{
       const funcs = t.funcs.map(f=>
         `<div class="row func" data-name="${f.name}" data-m="${f.matched?1:0}">`
@@ -659,9 +668,8 @@ function loadVersion(v){
         + `bytes actually reproduced. A TU row's mono suffix is the same ownership figure `
         + `for that TU's object.</p>`
         + `<p>The headline byte figure is the ELF <code>.text</code> section only. `
-        + `The <code>.vutext</code> group (VU1 microprograms) is a different section `
-        + `and is counted apart from it, so the group rows sum to more than the headline `
-        + `by exactly that section's size. The <b>vendor</b> group is library archive `
+        + `The VU1 microprograms live in <code>.vutext</code>, a different section: `
+        + `they appear in the strip and not in the tree. The <b>vendor</b> group is library archive `
         + `members (crt0, SCE SDK, newlib/libgcc) linked from pre-built <code>.a</code> `
         + `files — not ICO source; those bytes are already byte-identical in the link, `
         + `assembled from ROM. Policy: <code>decomp/VENDOR.md</code>.</p>`; })
