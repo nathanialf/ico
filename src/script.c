@@ -159,7 +159,84 @@ void scpTrans(void *a0, float *rot)
 {
     SetRootMatrixWithTransOffset(a0, rot[0], rot[1], rot[2]);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerBallTargetMan);
+extern int D_00554560[];
+extern int D_0063B150;
+extern char D_00554550[];
+extern void sceVu0SubVector(float *d, float *a, float *b);
+extern float sceVu0InnerProduct(float *a, float *b);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void sceVu0UnitMatrix(void *m);
+extern void MatrixDrive_TransMatrixV(float *v);
+extern void gif_StartPacketPri(int pri);
+extern void gif_EndPacket(void);
+extern void prim_DispWireSphere(void *col, int a1, int a2, float r);
+extern void GetRootPosition(void *dst, void *obj);
+/* INTERIM stand-in: scpTriggerPosBall is a real TU function with its own ROM
+   slot (matched above), but the compiler inlines it into scpTriggerBall and
+   scpTriggerBallTargetMan.  Delete it and mark the real definition `inline`
+   once this TU is C-complete. */
+static inline int scpTriggerPosBallInline(float *pos, float *target, float r)
+{
+    float d[4];
+    Blob16 col;
+    float rr;
+    int hit;
+
+    sceVu0SubVector(d, target, pos);
+    rr = r * r;
+    if (sceVu0InnerProduct(d, d) < rr) {
+        hit = 1;
+    } else {
+        hit = 0;
+    }
+    if (D_0063B150 != 0) {
+        MatrixDrive_PushMatrix();
+        col = *(Blob16 *)D_00554550;
+        if (hit != 0) {
+            *(int *)&col = 0xFF;
+        }
+        gif_StartPacketPri(0xB);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(pos);
+        prim_DispWireSphere(&col, 0x10, 8, r);
+        gif_EndPacket();
+        MatrixDrive_PopMatrix();
+    }
+    return hit;
+}
+
+/* INTERIM stand-in: scpTriggerBall is a real TU function with its own ROM slot
+   (matched below), but the compiler inlines it here.  Delete it and mark the
+   real definition `inline` once this TU is C-complete. */
+static inline int scpTriggerBallInline(char *obj, char *target, float r)
+{
+    float tpos[4];
+    float pos[4];
+
+    GetRootPosition(tpos, target);
+    GetRootPosition(pos, obj);
+    return scpTriggerPosBallInline(pos, tpos, r);
+}
+
+int scpTriggerBallTargetMan(char *obj, float r)
+{
+    char *g;
+    unsigned int i;
+    int hit = 0;
+
+    for (i = 0; i < 3 && hit == 0; i++) {
+        for (g = isysGObjSearchFromObjKindID_begin(D_00554560[i]); g != 0;
+             g = isysGObjSearchFromObjKindID_next(g)) {
+            if (scpTriggerBallInline(obj, g, r) != 0) {
+                hit = 1;
+                break;
+            }
+        }
+    }
+    return hit;
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpDown);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpUp);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpSubAdpcmPlay);
@@ -588,11 +665,113 @@ int scpTriggerPosBall(float *pos, float *target, float r)
     }
     return hit;
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerBall);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerFloorAttr);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerWallAttr);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerFloorAttrTargetMan);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerPosBox);
+int scpTriggerBall(char *obj, char *target, float r)
+{
+    float tpos[4];
+    float pos[4];
+
+    GetRootPosition(tpos, target);
+    GetRootPosition(pos, obj);
+    return scpTriggerPosBallInline(pos, tpos, r);
+}
+extern int D_00554570[];
+extern float _ACTGame_GetParamF(int idx);
+/* INTERIM stand-in for scpTriggerIgnore (matched at its own ROM slot below);
+   the compiler inlines it into every scpTrigger* entry point and a deferred
+   `inline` definition would have to sit at the object's end. */
+static inline int scpTriggerIgnoreInline(char *self)
+{
+    int i = 0;
+
+    while (D_00554570[i] != -1) {
+        if (*(int *)(self + 0xC) == D_00554570[i]) {
+            char *sub = *(char **)(self + 0x15C);
+            if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x560)
+                || *(int *)(*(char **)(self + 0x164) + 0x34) == 0x16) {
+                return 1;
+            }
+        }
+        i++;
+    }
+    return 0;
+}
+extern int CheckFloorAttribute(char *self, int attr);
+
+int scpTriggerFloorAttr(char *self, int attr)
+{
+    if (scpTriggerIgnoreInline(self) != 0) {
+        return 0;
+    }
+    return CheckFloorAttribute(self, attr);
+}
+extern int CheckWallAttribute(char *self, int attr);
+
+int scpTriggerWallAttr(char *self, int attr)
+{
+    if (scpTriggerIgnoreInline(self) != 0) {
+        return 0;
+    }
+    return CheckWallAttribute(self, attr);
+}
+extern int D_00554580[];
+/* INTERIM stand-in: scpTriggerFloorAttr is a real TU function with its own ROM
+   slot (matched above), but the compiler inlines it here.  Delete it and mark
+   the real definition `inline` once this TU is C-complete. */
+static inline int scpTriggerFloorAttrInline(char *self, int attr)
+{
+    if (scpTriggerIgnoreInline(self) != 0) {
+        return 0;
+    }
+    return CheckFloorAttribute(self, attr);
+}
+
+int scpTriggerFloorAttrTargetMan(char *self, int attr)
+{
+    char *g;
+    unsigned int i;
+    int hit = 0;
+
+    for (i = 0; i < 4 && hit == 0; i++) {
+        for (g = isysGObjSearchFromObjKindID_begin(D_00554580[i]); g != 0;
+             g = isysGObjSearchFromObjKindID_next(g)) {
+            if (scpTriggerFloorAttrInline(g, attr) != 0) {
+                hit = 1;
+                break;
+            }
+        }
+    }
+    return hit;
+}
+/* the 16-byte wire-box colour packet; declared as the full 4-word record so
+   gcc addresses it with a %hi/%lo pair rather than gp-relative (-G 8). */
+extern int D_002A5100[4];
+extern void prim_DispWireBox(float *size, int *col);
+
+int scpTriggerPosBox(float *p, float *pos, float *size)
+{
+    int hit = 0;
+
+    if (pos[0] - size[0] < p[0] && p[0] < pos[0] + size[0]
+        && pos[1] - size[1] < p[1] && p[1] < pos[1] + size[1]
+        && pos[2] - size[2] < p[2] && p[2] < pos[2] + size[2]) {
+        hit = 1;
+    }
+    if (D_0063B150 != 0) {
+        MatrixDrive_PushMatrix();
+        if (hit != 0) {
+            D_002A5100[0] = 0xFF;
+        } else {
+            D_002A5100[0] = 0;
+        }
+        gif_StartPacketPri(0xB);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(pos);
+        prim_DispWireBox(size, D_002A5100);
+        gif_EndPacket();
+        MatrixDrive_PopMatrix();
+    }
+    return hit;
+}
 extern void SetIdentityQuaternion(int a0);
 extern int SetParticleEffect(int a0, int a1, int a2);
 
@@ -712,9 +891,13 @@ void InitStageChange(void) {
 /* EABI: the six int parameters land in $a0..$t1 and the two floats in
    $f12/$f13, so the floats are parameters 4 and 5 (proved by the ROM body of
    RequestStageChangeWithColor, which reads $a0,$a1,$a2,$a3,$t0,$t1,$f12,$f13,
-   and by RequestStageChange, which forwards $f12/$f13 untouched). */
+   and by RequestStageChange, which forwards $f12/$f13 untouched).  The three
+   colour components are `unsigned char`: the disc listing attributes their
+   three `andi 0xff` masks to the function's declarator line, so they are
+   parameter promotions and not statements in the body. */
 extern int RequestStageChangeWithColor(int no, char *g, int flag, float speed,
-                                       float wait, int r, int gr, int b);
+                                       float wait, unsigned char r,
+                                       unsigned char gr, unsigned char b);
 
 int RequestStageChange(int no, char *g, int flag, float speed, float wait) {
     return RequestStageChangeWithColor(no, g, flag, speed, wait, 0, 0, 0);
