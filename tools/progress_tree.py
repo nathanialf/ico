@@ -42,6 +42,16 @@ the README badge reports it. The five VU1 microprograms live in a
 different ELF section (`.vutext`), so they are grouped separately and
 counted in `totals.sections` — never folded into a `.text` roll-up.
 
+`totals.sections` carries EVERY section the reference ELF declares (.text,
+.vutext, .data, .vudata, .rodata, .lit4, .sdata, .sbss, .bss), credited by
+progress.py's own helpers so the dashboard and the README badges cannot
+drift. `totals.nobits_sections` names the ones whose figure is OWNERSHIP
+rather than reproduced bytes (.sbss, .bss — they hold no ROM bytes), and
+each TU node carries `section_bytes`: the non-.text bytes that TU's built
+object contributes, from the same helper. There is no per-TU DENOMINATOR
+for those — the ROM does not record which TU owns which slice of a data
+section — so `section_bytes` is a byte count, never a ratio.
+
 Run via `tools/build.sh progress` (which also runs progress.py) so the
 JSON stays in lockstep with the README badges and PROGRESS.md table.
 """
@@ -278,6 +288,25 @@ def _global_index() -> dict:
     return _GLOBAL
 
 
+def _tu_section_bytes() -> dict[str, dict[str, int]]:
+    """{tu_stem: {section: bytes}} for the non-.text sections, straight from
+    progress.py's shared object-crediting helper (so the tree and the README
+    badges count the same bytes the same way).
+
+    Keyed by the repo-root-relative TU stem — `src/DisplayFont` — which is
+    also the TU key this tree groups by, so the join is exact. A TU whose
+    object contributes nothing simply has no entry. Empty when the build
+    tree is absent (CI, fresh checkout): the dashboard then just omits the
+    suffix."""
+    if _progress is None:
+        return {}
+    try:
+        credits = _progress.object_section_credits()
+    except Exception:
+        return {}
+    return {tu: dict(secs) for tu, secs in credits["by_tu"].items() if secs}
+
+
 def _programmer_of(tu: str | None) -> str:
     if not tu:
         return UNASSIGNED_GROUP
@@ -331,6 +360,7 @@ def build_tree() -> dict:
 
     # Cache per-TU unmatched sets so we read each source once.
     tu_unmatched: dict[str, set[str] | None] = {}
+    tu_sections = _tu_section_bytes()
     programmers: dict[str, dict] = {}
 
     for idx, sym in enumerate(syms):
@@ -390,12 +420,18 @@ def build_tree() -> dict:
             m_funcs = sum(1 for f in funcs if f["matched"])
             m_bytes = sum(f["size"] for f in funcs if f["matched"])
             b = sum(f["size"] for f in funcs)
-            tu_list.append({
+            node = {
                 "name": t["name"], "path": t["path"],
                 "matched_funcs": m_funcs, "total_funcs": len(funcs),
                 "matched_bytes": m_bytes, "total_bytes": b,
                 "funcs": funcs,
-            })
+            }
+            # Additive, and only when there is something to say: the data /
+            # bss bytes this TU's object owns, beside its function count.
+            secs = tu_sections.get(t["path"])
+            if secs:
+                node["section_bytes"] = {k: secs[k] for k in sorted(secs)}
+            tu_list.append(node)
             p_m_funcs += m_funcs; p_funcs += len(funcs)
             p_m_bytes += m_bytes; p_bytes += b
         entry = {
@@ -430,12 +466,24 @@ def build_tree() -> dict:
     # symbol-derived figures are kept as `sections_from_symbols` so the gap is
     # inspectable rather than silently reconciled.
     sections = {k: list(v) for k, v in sorted(sym_sections.items())}
+    nobits: list[str] = []
     if _progress is not None:
         try:
             authoritative = _progress.compute_progress()
-            for sec in sections:
-                if sec in authoritative:
-                    sections[sec] = list(authoritative[sec])
+            # Every section the reference ELF declares, not just the two the
+            # symbol table can see. The data and bss rows come from the
+            # same crediting that progress.py badges, so a reader comparing
+            # the dashboard strip with the README finds the same numbers.
+            for sec, mt in authoritative.items():
+                sections[sec] = list(mt)
+            # ELF link order (progress.py's badge order), so the dashboard
+            # strip and the README badge column read top-to-bottom the same
+            # way `readelf -S` does. Anything only the symbol table knew
+            # about keeps its alphabetical place at the end.
+            order = [s for s in _progress.README_SECTIONS if s in sections]
+            order += [s for s in sorted(sections) if s not in order]
+            sections = {k: sections[k] for k in order}
+            nobits = [s for s in _progress.NOBITS_SECTIONS if s in sections]
         except Exception:
             pass
 
@@ -454,6 +502,11 @@ def build_tree() -> dict:
             "matched_funcs": tot_m_funcs, "total_funcs": tot_funcs,
             "matched_bytes": text_matched, "total_bytes": text_total,
             "sections": sections,
+            # The sections whose `sections` figure is OWNERSHIP (bytes a
+            # compiled TU defines) rather than reproduced ROM bytes. Named
+            # rather than assumed so the page can label the metric it is
+            # showing without hard-coding a section list.
+            "nobits_sections": nobits,
             "sections_from_symbols": {
                 k: list(v) for k, v in sorted(sym_sections.items())},
         },

@@ -4,9 +4,12 @@
 ![.text progress](https://img.shields.io/badge/text-22.46%20%25-orange.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
 ![.data progress](https://img.shields.io/badge/data-0.10%20%25-orange.svg)
+![.vudata progress](https://img.shields.io/badge/vudata-%2D-lightgrey.svg)
 ![.rodata progress](https://img.shields.io/badge/rodata-2.86%20%25-orange.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-44.17%20%25-yellow.svg)
 ![.sdata progress](https://img.shields.io/badge/sdata-1.20%20%25-orange.svg)
+![.sbss progress](https://img.shields.io/badge/sbss-0.00%20%25-red.svg)
+![.bss progress](https://img.shields.io/badge/bss-0.00%20%25-red.svg)
 <!-- progress:end -->
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/#us)** — per-directory / per-TU / per-function decomp status for this branch's target (USA retail, SLUS-20218), updated on every push. The dashboard carries all three targets (PAL retail on `main`, this USA retail branch, the Aug-6-2001 prototype on `aug6`); switch with the picker at the top.
