@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "vu0.h"
+
 typedef struct { int a, b, c, d; } GsAlphaEnt;
 
 /* The display-list packet builder state.  `ptr` is the write cursor; `dma`,
@@ -397,12 +399,109 @@ void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm,
                        | ((unsigned long long)((0x800 - (h >> 1)) << 4) << 32));
     }
 }
+extern int D_00639F68[2];
+extern int D_00639F70;
+
+/* INTERIM stand-in for the `inline` _IsInScreen (its out-of-line copy sits at
+   its own ROM slot further down this file); same construct as setGsReg. */
+static inline int isInScreen(volatile int *p)
+{
+    if (p[2] < 0) return 0;
+    if (p[2] > 0x0FFFFFF0) return 0;
+    if (p[0] < 0) return 0;
+    if (p[0] > 0xFFF0) return 0;
+    if (p[1] < 0) return 0;
+    return p[1] <= 0xFFF0;
+}
+
+/* One vertex through the VU0 macro-mode pipeline: transform by the current
+   matrix in vf4..vf7, perspective-divide by w and convert to the GS's 12.4
+   fixed-point screen coordinates. */
+static inline void rotTransPers(void *src)
+{
+    VU0_LSV_R(lqc2, 8, 0x0, src);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 10, 7, 8, w);
+    VU0_REG("vdiv Q, $vf0w, $vf10w");
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf10, $vf10, Q");
+    VU0_V2OP(vftoi4.xyz, 11, 10);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_DrawPolyF4);
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_DrawStripF);
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_DrawStripFST);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_DrawStripG);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_Draw2DStripG);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_Draw2DUVStripG);
+void gif_DrawStripG(void *v, void *col, int n, int prim)
+{
+    char *p = v;
+    unsigned char *c = col;
+    int i;
+
+    D_00639F68[0] = D_00639F68[1] = 0;
+    setGsReg(0x00, ((long long)prim << 6) | 0x10C);
+    D_00639F70 = 0;
+    for (i = 0; i < n; i++, c += 4, p += 16) {
+        volatile int q[4];
+        int t;
+
+        rotTransPers(p);
+        VU0_LSV_R(sqc2, 11, 0x0, q);
+        t = isInScreen(q);
+        setGsReg(0x01, GIF_RGBA(c) | (0xFE00LL << 46));
+        if (t && D_00639F68[0] && D_00639F68[1]) {
+            setGsReg(0x05, GIF_XY0(q[0], q[1], (long long)q[2]));
+        } else {
+            setGsReg(0x0D, GIF_XY0(q[0], q[1], (long long)q[2]));
+        }
+        D_00639F68[D_00639F70++] = t;
+        D_00639F70 &= 1;
+    }
+}
+void gif_Draw2DStripG(int *v, unsigned char *col, int n, int prim)
+{
+    int i;
+
+    D_00639F68[0] = D_00639F68[1] = 0;
+    setGsReg(0x00, ((long long)prim << 6) | 0x10C);
+    D_00639F70 = 0;
+    for (i = 0; i < n; i++, col += 4, v += 4) {
+        int c;
+
+        c = isInScreen(v);
+        setGsReg(0x01, GIF_RGBA(col) | (0xFE00LL << 46));
+        if (c && D_00639F68[0] && D_00639F68[1]) {
+            setGsReg(0x05, GIF_XY0(v[0], v[1], (long long)v[2]));
+        } else {
+            setGsReg(0x0D, GIF_XY0(v[0], v[1], (long long)v[2]));
+        }
+        D_00639F68[D_00639F70++] = c;
+        D_00639F70 &= 1;
+    }
+}
+void gif_Draw2DUVStripG(int *v, int *uv, unsigned char *col, int n, int prim)
+{
+    int i;
+
+    D_00639F68[0] = D_00639F68[1] = 0;
+    setGsReg(0x00, ((long long)prim << 6) | 0x11C);
+    D_00639F70 = 0;
+    for (i = 0; i < n; i++, col += 4, v += 4, uv += 4) {
+        int c;
+
+        c = isInScreen(v);
+        setGsReg(0x01, GIF_RGBA(col) | (0xFE00LL << 46));
+        setGsReg(0x03, GIF_UV(uv[0], uv[1]));
+        if (c && D_00639F68[0] && D_00639F68[1]) {
+            setGsReg(0x05, GIF_XY0(v[0], v[1], (long long)v[2]));
+        } else {
+            setGsReg(0x0D, GIF_XY0(v[0], v[1], (long long)v[2]));
+        }
+        D_00639F68[D_00639F70++] = c;
+        D_00639F70 &= 1;
+    }
+}
 void gif_Init(void) {
     D_00639F60 = 0;
 }
