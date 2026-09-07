@@ -102,6 +102,27 @@
     __asm__(".lit4_slot " #NAME ", " #VALUE)
 #endif
 
+/* ASM_RODATA_LABEL(NAME) — bind a splat data symbol to a compiler-emitted
+ * `.rodata` constant that a still-INCLUDE_ASM sibling references.
+ *
+ * When a matched function's local brace initialiser (an `$LCn` template) is
+ * the first thing a TU emits into `.rodata`, and an asm sibling still loads
+ * the same template through splat's `D_<VMA>` name, the carve row assigns
+ * the bytes to the compiled object but nothing defines the name. This macro
+ * emits ONLY a label at the current `.rodata` position, so it must sit
+ * immediately before the definition that makes gcc emit the template — for a
+ * `static inline` helper that is its DEFINITION (gcc 2.9 expands an inline
+ * body when it saves it, and outputs its constants then): the label
+ * and `$LCn` then share the address, no bytes are added, and the sibling's
+ * `%hi/%lo(D_<VMA>)` resolve to the template. `.rdata` is the spelling gcc
+ * itself uses (ee-as maps it to `.rodata`).
+ *
+ * Delete the line when the sibling lands in C. */
+#ifndef ASM_RODATA_LABEL
+#define ASM_RODATA_LABEL(NAME) \
+    __asm__(".rdata\n\t.align 3\n" #NAME ":\n\t.text")
+#endif
+
 /* INCLUDE_ASM_NOP_PAD(label) — emit a single 4-byte nop in .text.
  *
  * Splat omits per-function .s files for tiny pad functions (verified
@@ -152,6 +173,9 @@ __asm__(".include \"include/labels.inc\"\n");
 /* Pure assembler bookkeeping — nothing for m2c/permuter to model. */
 #ifndef ASM_LIT4_SLOT
 #define ASM_LIT4_SLOT(NAME, VALUE)
+#endif
+#ifndef ASM_RODATA_LABEL
+#define ASM_RODATA_LABEL(NAME)
 #endif
 
 #endif /* !defined(M2CTX) && !defined(PERMUTER) */

@@ -1095,6 +1095,12 @@ words become the blob's first words.
   header allocator bakes once `MV_DEFS_WANT_ALLOC` is defined, 48 B 8-aligned; blob
   resumes at `0x523458` (viBufAddDMA's string).
 
+- `src/queen` `.rodata` 0x456DF0..0x456E00 (VMA 0x556DF0..0x556E00, 16 B): the
+  `QVec up = {{0,1,0,1}}` initialiser template of the static inline
+  SetQueenBallOrient, emitted by the compiled QueenBallDL. Plain-rodata row;
+  the rest of queen.o's run (strings, rate tables, jtbl_00556D60) stays in
+  the blob until subQueenBrainMain and QueenBallGeo land.
+
 ### Deferred
 
 - Per-TU `__FILE__` strings for the `iosMalloc(size)` macro form

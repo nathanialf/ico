@@ -253,6 +253,9 @@ void gene_enemy(volatile int g) {
         _ACTWait(1);
     }
 }
+/* r5 seed (478/478 insns, 7 diff sites / 20 non-reloc rows) at
+ * scratchpad/seeds/subQueenBrainMain.r5.rc220_7sites.c (whole-TU snapshot) and
+ * .r5.body.c (this block only).  Residual: one scheduling cluster, see LEDGER r5. */
 INCLUDE_ASM("asm/nonmatchings/src/queen", subQueenBrainMain);
 extern char *D_00639EC0;
 extern char *D_00639ED0;
@@ -454,13 +457,103 @@ void QueenBarrierDL(char *g) {
         queen_barrier_disp_proc(1.0f - *(int *)(b + 0x18) / 5.0f);
     }
 }
+extern void SetupDarkVolume(void *pos, float r, float h);
+extern void p2o_DispVU1Default(char *g);
+/* ROM 0x0012B6F0 never reads $a1: the callee takes (id, scale) only. */
+extern void stage_SetScale(int id, float s);
+extern int stage_DispBgAnimation(void *p);
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern void sceVu0Normalize(void *dst, void *src);
+extern void sceVu0OuterProduct(void *dst, void *a, void *b);
+extern void sceVu0InversMatrix(void *dst, void *src);
+extern void ico_m33_to_quat(void *dst, void *m);
+extern void pbga_start(int *bga, int id);
+extern float _GetLength(QVec *a, QVec *b);
+extern void apply_matrix_w1(QVec *dst, QMat33 *m, QVec *src);
+extern void _CopyVector(void *dst, void *src);
+extern void CopyQuaternion(void *dst, void *src);
+extern int _AttackCenter(char *g, int kind, QVec *pos, int a3, int a4, float r);
+extern char D_002907E0[];
+extern float D_005569A0[];
+extern float D_00556B68[];
+
+/* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL
+ * each expand inline. */
+/* INTERIM: the still-asm QueenBallGeo loads this helper's `up` template through
+ * splat's D_00556DF0. gcc emits the template ($LC0) when it saves the inline
+ * body at this definition, so the label is bound here. Delete when QueenBallGeo
+ * lands. */
+ASM_RODATA_LABEL(D_00556DF0);
+static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to) {
+    QVec side;
+    QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
+    QVec dir;
+    QMat33 m;
+
+    sceVu0CopyVector(o + 0x20, to);
+    sceVu0SubVector(&dir, from, to);
+    dir.f[1] = 0.0f;
+    sceVu0Normalize(&dir, &dir);
+    sceVu0OuterProduct(&side, &up, &dir);
+    sceVu0CopyVector(&m.x, &side);
+    sceVu0CopyVector(&m.y, &up);
+    sceVu0CopyVector(&m.z, &dir);
+    ico_m33_to_quat(o + 0x30, &m);
+}
+
+/* r4/r5 seed (rc55 / 36 sites) at scratchpad/seeds/QueenBallGeo.r5.body.c (this
+ * block, incl. the three helpers it alone expands) and .r4.rc55.c (whole-TU).
+ * Residual: the FP-constant census, see LEDGER r4. */
 ASM_LIT4_SLOT(D_00639320, 5000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallGeo);
 
-/* r3 seed (rc9 by real_count) at scratchpad/seeds/QueenBallDL.r3.rc9.c: the whole
- * body is derived and byte-correct except one sched1 ready-list tie in the
- * stage_SetScale arg block (see LEDGER r3). */
-INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallDL);
+/* The loop is written ASCENDING: gcc's check_dbra_loop reverses it into ROM's
+ * `addiu $18,$18,-1` / `bgez $18` countdown, which is what puts the counter's
+ * initial value after loop.c's hoisted 0x1E3/0x1E5 constants. */
+void QueenBallDL(char *g) {
+    QVec ballPos;
+    QVec selfPos;
+    QVec queenPos;
+    char *w;
+    char *o;
+    int *q;
+    int i;
+
+    w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    if (*(signed char *)(w + 0x11) != 0) {
+        GetRootPosition(&ballPos, g);
+        SetupDarkVolume(&ballPos, *(float *)(w + 0x14) * 100.0f, 10.0f);
+        p2o_SetDefaultEnviroment();
+        p2o_DispVU1Default(g);
+    }
+    if (*(int *)(w + 0x1C) != 0) {
+        stage_SetScale(0x1DF, *(float *)(w + 0x14));
+        if (stage_DispBgAnimation(w + 0x1C) != 0) {
+            char *act;
+
+            *(int *)(w + 0x1C) = 0;
+            *(char *)(w + 0x10) = 0;
+            act = *(char **)(g + 0x164);
+            *(int *)(act + 0x1B0) = 0;
+            *(char *)(act + 0x1DA) = 0;
+        }
+    }
+    GetRootPosition(&selfPos, g);
+    GetRootPosition(&queenPos, D_00639EA4);
+    q = D_006EA7F0;
+    for (i = 0; i < 4; i++, q++) {
+        if ((o = (char *)*q) != 0) {
+            long long id = *(long long *)o & 0x3FFF;
+
+            if (id == 0x1E3 || id == 0x1E5) {
+                SetQueenBallOrient(o, &selfPos, &queenPos);
+            }
+            if (stage_DispBgAnimation(q) != 0) {
+                *q = 0;
+            }
+        }
+    }
+}
 void actQueenStart(char *g) {
     char *sub = actInitialize(g);
 
