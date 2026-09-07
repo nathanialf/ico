@@ -987,6 +987,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   clipCollisionManager's and darkVolume's: SetChainExtendedWeight's 1e-6 as a literal,
   six slots beside four still-asm owners; MAIN.MAP's 0x14 is the debug link's size.
 
+- `[0x538D30, .lit4, src/boyact]` — the TU's whole pool, 67 words between act-wish's
+  words and commonact's carve: 65 slots beside twelve still-asm owners (subBoyControl
+  alone owns 45), then DeleteBoyWeapon's and GetBoyRootPositionForCamera's constants
+  as literals; MAIN.MAP's 0x108 is the debug link's size.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections

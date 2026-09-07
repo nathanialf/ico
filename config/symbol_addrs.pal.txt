@@ -277,6 +277,32 @@ subGirlBrain_DangerEnv = 0x0017C600; // type:func  // src/girl_act
 // script: actSubSekizoSe is MAIN.MAP script.o's last symbol (no census row), inside the former func_00185CA0 stub after scpDoorTypeUpMain
 actSubSekizoSe = 0x00185CD0; // type:func  // src/script
 
+// boyact: census names for the splat placeholders (listing table aligned by ROM order, 93 = 60 named + 33 covered; every start is its own prologue)
+motBoyHand100 = 0x001507F8; // type:func  // src/boyact
+motBoyHand200 = 0x00150AA8; // type:func  // src/boyact
+InitSwapWeapon = 0x00153180; // type:func  // src/boyact
+actBoySwim = 0x00154B58; // type:func  // src/boyact
+actBoyWalk = 0x00154DD0; // type:func  // src/boyact
+actBoyRun = 0x00154F40; // type:func  // src/boyact
+actBoyAttack = 0x001550B0; // type:func  // src/boyact
+actBoyTakeWeaponReady = 0x001552E8; // type:func  // src/boyact
+actBoyTakeWeapon = 0x00155470; // type:func  // src/boyact
+actBoyCliffHesitate = 0x00155658; // type:func  // src/boyact
+actBoyHang = 0x00157890; // type:func  // src/boyact
+actBoyCall = 0x00157940; // type:func  // src/boyact
+actBoyHangBefore = 0x001579B8; // type:func  // src/boyact
+actBoyBeslam = 0x00157A68; // type:func  // src/boyact
+actBoyRescueSrc = 0x00157AC0; // type:func  // src/boyact
+actBoySupportGBBegin = 0x00157AF0; // type:func  // src/boyact
+actBoySupportGBLoop = 0x00157B30; // type:func  // src/boyact
+actBoySupportGBEnd = 0x00157B90; // type:func  // src/boyact
+actBoySupportBGBegin = 0x00157BD0; // type:func  // src/boyact
+actBoyDitch3mExec = 0x00157C00; // type:func  // src/boyact
+actBoyHangG3M = 0x00157C30; // type:func  // src/boyact
+afterBoyHand50 = 0x00157D40; // type:func  // src/boyact
+afterBoyHand100 = 0x00157DF8; // type:func  // src/boyact
+afterBoyHand200 = 0x00157EB0; // type:func  // src/boyact
+
 // ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — do not hand-edit below this line ====
 // ---------------------------------------------------------------------------
 // Recovered PAL (SCES-50760 / SCES_507.60) function symbols.  Regenerate with:
@@ -1640,29 +1666,29 @@ ACTGetWish_FromPad = 0x0014EA68; // type:func  // src/act-wish  // provisional-o
 // ---- src/boyact
 findChainInJump = 0x0014FD50; // type:func  // src/boyact
 CorrectOrient_RopeCliff = 0x00150530; // type:func  // src/boyact
-func_001506E8 = 0x001506E8; // type:func  // src/boyact
+motBoyHand50 = 0x001506E8; // type:func  // src/boyact
 CheckCollisionAttr = 0x00151178; // type:func  // src/boyact  // provisional-ordinal
 UpdateGeo = 0x00151318; // type:func  // src/boyact
 BoyBgaManager = 0x00151478; // type:func  // src/boyact
 E3_StageStartBoy = 0x00151598; // type:func  // src/boyact
 GetChainSlope = 0x001516D0; // type:func  // src/boyact
-func_00151908 = 0x00151908; // type:func  // src/boyact
+subBoyControl = 0x00151908; // type:func  // src/boyact
 PutWeapon = 0x001532B8; // type:func  // src/boyact
 OtherStageGirlPinchCamera_After = 0x00153348; // type:func  // src/boyact
 ACTDispLwsBoyStonize_InQueenStage = 0x00153530; // type:func  // src/boyact
 PrivInsCamProcess = 0x001535C0; // type:func  // src/boyact  // provisional-ordinal
-func_001537B0 = 0x001537B0; // type:func  // src/boyact
+subBoyCollision = 0x001537B0; // type:func  // src/boyact
 pullup_check_heroin_position = 0x00155900; // type:func  // src/boyact
 ditch_check_heroin_position = 0x00155AB8; // type:func  // src/boyact
 CorrectStickInfo = 0x001577D0; // type:func  // src/boyact
 GetBoyWeaponGObj = 0x00157808; // type:func  // src/boyact
-func_00157828 = 0x00157828; // type:func  // src/boyact
-func_001578C8 = 0x001578C8; // type:func  // src/boyact
-func_00157900 = 0x00157900; // type:func  // src/boyact
+actBoyStand = 0x00157828; // type:func  // src/boyact
+actBoyBHang = 0x001578C8; // type:func  // src/boyact
+actBoyFall = 0x00157900; // type:func  // src/boyact
 IsAbleBoyControl = 0x00157CB8; // type:func  // src/boyact
-func_00157CC0 = 0x00157CC0; // type:func  // src/boyact
-func_00157D78 = 0x00157D78; // type:func  // src/boyact
-func_00157E30 = 0x00157E30; // type:func  // src/boyact
+actBoyHand50 = 0x00157CC0; // type:func  // src/boyact
+actBoyHand100 = 0x00157D78; // type:func  // src/boyact
+actBoyHand200 = 0x00157E30; // type:func  // src/boyact
 ACTSearchEnemy = 0x00157EE8; // type:func  // src/boyact
 DeleteBoyWeapon = 0x00158060; // type:func  // src/boyact
 isLiftBoyEnable = 0x001580F0; // type:func  // src/boyact
