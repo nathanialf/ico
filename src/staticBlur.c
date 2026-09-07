@@ -1,11 +1,19 @@
 #include "common.h"
 
 struct D275 {
-    char pad[0xEC];
+    char pad[0xE8];
+    int field_E8;
     int field_EC;
     int field_F0;
     int field_F4;
     int field_F8;
+    char pad2[0x104 - 0xFC];
+    int field_104;
+    char pad3[0x110 - 0x108];
+    int field_110;
+    int field_114;
+    int field_118;
+    int field_11C;
 };
 
 extern int D_004ED020[];
@@ -895,7 +903,79 @@ void calcSun(void) {
 extern int D_0063B13C;
 extern void debug_Printf();
 extern int sprintf();
-INCLUDE_ASM("asm/nonmatchings/src/staticBlur", colorSetting);
+extern int D_0028F954[];
+extern int D_0063BB98;
+extern char D_00620E80[];
+extern char D_00620E90[];
+extern char D_00620EA0[];
+extern char D_00620EB0[];
+
+/* staticBlur.c:1401-1405 in the PAL listing: rows outside colorSetting's own
+   span (1410-1455), i.e. a static helper the listing inlines at all four
+   switch arms. */
+static inline void colorSettingStep(unsigned char *p, int d)
+{
+    int v = *p;
+
+    v += d;
+    if (v < 0) {
+        v = 0;
+    }
+    if (v > 255) {
+        v = 255;
+    }
+    *p = v;
+}
+
+void colorSetting(void)
+{
+    char buf[256];
+    int f = D_0028F954[0];
+    int d;
+
+    if (f & 0x1000) {
+        D_0063BB98--;
+    }
+    if (f & 0x4000) {
+        D_0063BB98++;
+    }
+    if (D_0063BB98 >= 4) {
+        D_0063BB98 = 0;
+    }
+    if (D_0063BB98 < 0) {
+        D_0063BB98 = 3;
+    }
+    d = 0;
+    if (f & 0x2000) {
+        d = 1;
+    }
+    if (f & 0x8000) {
+        d = -1;
+    }
+
+    switch (D_0063BB98) {
+    case 0:
+    default:
+        sprintf(buf, D_00620E80, D_0063BB60.f[0]);
+        colorSettingStep(&D_0063BB60.f[0], d);
+        break;
+    case 1:
+        sprintf(buf, D_00620E90, D_0063BB60.f[1]);
+        colorSettingStep(&D_0063BB60.f[1], d);
+        break;
+    case 2:
+        sprintf(buf, D_00620EA0, D_0063BB60.f[2]);
+        colorSettingStep(&D_0063BB60.f[2], d);
+        break;
+    case 3:
+        sprintf(buf, D_00620EB0, D_0063BB60.f[3]);
+        colorSettingStep(&D_0063BB60.f[3], d);
+        break;
+    }
+    if (D_0063B13C & 1) {
+        debug_Printf(0x1B8, 0x28, 0xFFFFFF00, buf);
+    }
+}
 extern char D_00620EC0[];
 extern int D_0063BB08;
 extern int D_0063BB9C;
@@ -995,8 +1075,157 @@ void dispFeedInfo(void)
         }
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/staticBlur", FullScreenEffectBefore);
-INCLUDE_ASM("asm/nonmatchings/src/staticBlur", FullScreenEffectAfter);
+extern int D_0063B1F0;
+extern int D_0063BB0C;
+extern int D_0063BB10;
+extern int D_0063BB18;
+extern struct D275 D_0028F720;
+extern char D_0063BBE8[];
+extern void tex_LockHeadTBP(int tbp, int n);
+
+void FullScreenEffectBefore(void)
+{
+    if (D_0063B1F0 == 0) {
+        return;
+    }
+
+    D_0063BB0C = D_0028F720.field_E8;
+    D_0063BB18 = D_0028F720.field_104;
+
+    D_0063C4B0.f[0] = D_0028F720.field_110;
+    D_0063C4B0.f[1] = D_0028F720.field_114;
+    D_0063C4B0.f[2] = D_0028F720.field_118;
+    D_0063C4B0.f[3] = D_0028F720.field_11C;
+
+    if (D_0063BB08 != D_0063BB0C) {
+        D_0063BB08 = D_0063BB0C;
+    }
+    if (D_0063BB14 != D_0063BB18) {
+        D_0063BB14 = D_0063BB18;
+    }
+
+    dispPostInfo();
+    dispFeedInfo();
+
+    if (D_0063BB24)
+        if (D_0063B13C & 1) debug_Printf(250, 40, 0xFFFFFF00, D_0063BBE8);
+
+    D_004ED020[0] = 0x2800;
+    D_004ED020[1] = 0x2A00;
+    D_004ED020[2] = 0x2E00;
+    D_004ED020[3] = 0x3000;
+
+    if (D_0028F4C0[0] == 1) {
+        tex_LockHeadTBP(0x3A00, 8);
+    } else {
+        tex_LockHeadTBP(0x3800, 8);
+    }
+
+    if (D_0063BB24) {
+        calcSun();
+    }
+
+    switch (D_0063BB08) {
+    case 1:
+    case 3:
+        if (D_0063BB10) {
+            makeFullScreenFlareBefore(0);
+        }
+        break;
+    case 4:
+    case 5:
+        if (D_0063BB10) {
+            makeFullScreenFlareBefore(2);
+        }
+        break;
+    case 6:
+    case 7:
+        if (D_0063BB10) {
+            makeFullScreenFlareBefore(1);
+        }
+        break;
+    case 2:
+    case 8:
+        break;
+    }
+
+    if (D_0063BB14) {
+        auraInspireBefore();
+    }
+}
+extern float D_0063BB28;
+extern float D_0063BB2C;
+extern void tex_UnlockHeadTBP(int slot);
+
+void FullScreenEffectAfter(void)
+{
+    if (D_0063B1F0 == 0) {
+        return;
+    }
+
+    switch (D_0063BB08) {
+    case 1:
+        if (D_0063BB10) {
+            makeFullScreenFlareAfter(0);
+            pasteFullScreenFlare();
+        }
+        break;
+    case 2:
+        depthField(D_0063BB28, D_0063BB2C, 1.0f);
+        break;
+    case 3:
+        if (D_0063BB10) {
+            makeFullScreenFlareAfter(0);
+        }
+        depthField(D_0063BB28, D_0063BB2C, 1.0f);
+        if (D_0063BB10) {
+            pasteFullScreenFlare();
+        }
+        break;
+    case 4:
+        if (D_0063BB10) {
+            makeFullScreenFlareAfter(2);
+            pasteFullScreenFlare();
+        }
+        break;
+    case 5:
+        if (D_0063BB10) {
+            makeFullScreenFlareAfter(2);
+        }
+        depthField(D_0063BB28, D_0063BB2C, 1.0f);
+        if (D_0063BB10) {
+            pasteFullScreenFlare();
+        }
+        break;
+    case 6:
+        if (D_0063BB10) {
+            makeFullScreenFlareAfter(1);
+            pasteFullScreenFlare();
+        }
+        break;
+    case 7:
+        if (D_0063BB10) {
+            makeFullScreenFlareAfter(1);
+        }
+        depthField(D_0063BB28, D_0063BB2C, 1.0f);
+        if (D_0063BB10) {
+            pasteFullScreenFlare();
+        }
+        break;
+    case 8:
+        break;
+    }
+
+    if (D_0063BB14) {
+        auraInspireAfter(D_0063BB14);
+    }
+
+    D_0063BB28 = D_0028F720.field_EC;
+    D_0063BB2C = D_0028F720.field_F0;
+
+    tex_UnlockHeadTBP(7);
+    tex_UnlockHeadTBP(8);
+}
 extern int D_0028FF00[];
 extern int D_0063BB1C;
 extern int D_0063BB20;

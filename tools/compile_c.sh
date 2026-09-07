@@ -147,8 +147,13 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
   if (ln[i] ~ /^[ \t]*m[ft]c1[ \t]/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
     j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
     if (j<=NR && ln[j] !~ /^[ \t]*\./ && ln[j] !~ /:[ \t]*$/ && ln[j] !~ /^[ \t]*[bj][a-z0-9]*[ \t]/) {
+      # Same label look-ahead as Case 2: when the dependent insn is an FCC
+      # compare and the next real line is a label, the period assembler
+      # flushes the FCC hazard at the label with a nop; wrapping would hide it.
+      m=j+1; while (m<=NR && ln[m] ~ /^[ \t]*(#|$)/) m++;
+      if (!(ln[j] ~ /^[ \t]*c\.(eq|lt|le)\.[sd][ \t]/ && m<=NR && (ln[m] ~ /:[ \t]*$/ || ln[m] ~ /^[ \t]*\./))) {
       print "\t.set noreorder"; print ln[i]; print ln[j]; print "\t.set reorder";
-      nr=0; seen=0; i=j+1; continue } }
+      nr=0; seen=0; i=j+1; continue } } }
 
   # Case 2 (new): a marker-less `mtc1` that is the FIRST real insn of a reorder
   # region (or first after a label/branch-target), immediately followed by a

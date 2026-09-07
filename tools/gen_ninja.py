@@ -219,12 +219,21 @@ def check_ld_carve_globs(ld_path: Path) -> None:
     yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
     rows: dict[str, list[int]] = {}
     plain: dict[str, int] = {}
+    # A `.rodata` row holding MORE than one section (two adjacent jump tables,
+    # or named `static const` objects) lists them in a `syms:` token, each
+    # either a `0x<VMA>` jtbl name or an object name: `syms: 0x00620F60,0x00620F80`.
+    rsyms: dict[tuple[str, int], list[str]] = {}
     for line in yaml_path.read_text().splitlines():
-        m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.rodata,\s*(\S+?)\]", line)
+        m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.rodata,\s*(\S+?)\]\s*(#.*)?$", line)
         if m:
-            rows.setdefault(m.group(2), []).append(int(m.group(1), 16))
-            if "plain-rodata" in line:
-                plain[m.group(2)] = int(m.group(1), 16)
+            off = int(m.group(1), 16)
+            rows.setdefault(m.group(2), []).append(off)
+            comment = m.group(3) or ""
+            if "plain-rodata" in comment:
+                plain[m.group(2)] = off
+            sm = re.search(r"syms:\s*([\w,\s]+?)(?:\s{2,}|;|$)", comment)
+            if sm:
+                rsyms[(m.group(2), off)] = [s for s in re.split(r"[,\s]+", sm.group(1)) if s]
     # `.data` has no VMA-named sections to key on, so a TU with several `.data`
     # carve rows names the objects each row holds in its yaml comment:
     #   - [0x3F7D90, .data, src/end]  # syms: ed_demo14_mes
@@ -283,8 +292,10 @@ def check_ld_carve_globs(ld_path: Path) -> None:
             # C definition order, so a carved run of named packets lays out as
             # written. `[A-Za-z_]` excludes the `0x...` jump-table names.
             plain_here = (plain.get(tu) == offs[k]) if tu in plain else (k == 0)
-            sel = (f".rodata .rodata.0x{vma:08X} .rodata.[A-Za-z_]*" if plain_here
-                   else f".rodata.0x{vma:08X}")
+            listed = rsyms.get((tu, offs[k]))
+            named = (" ".join(f".rodata.{s}" for s in listed) if listed
+                     else f".rodata.0x{vma:08X}")
+            sel = (f".rodata {named} .rodata.[A-Za-z_]*" if plain_here else named)
             line = f"{m.group(1)}{m.group(2)}({sel});"
         out.append(line)
     ld_path.write_text("\n".join(out) + "\n")

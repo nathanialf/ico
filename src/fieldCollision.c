@@ -124,7 +124,58 @@ static __inline__ int FloorPointInside(FcFloorEnt *e, float *pt)
     return cross & 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", clip_floor_1);
+int clip_floor_1(void *a0, int a1, int a2)
+{
+    float *ray = (float *) a0;
+    FcFloorEnt *e = (FcFloorEnt *) a1;
+    float hit[4];
+    float nx = e->nx;
+    float ex = ray[8];
+    float ny = e->ny;
+    float ey = ray[9];
+    float nz = e->nz;
+    float ez = ray[10];
+    float pd = e->d;
+    float sx;
+    float sy;
+    float sz;
+    float de;
+    float ds;
+    float t;
+
+    de = nx * ex + ny * ey + nz * ez + pd;
+    if (a2 != 0) {
+        if (de < 0.0f) {
+            return 0;
+        }
+    } else {
+        if (de >= 0.0f) {
+            return 0;
+        }
+    }
+    sx = ray[0];
+    sy = ray[1];
+    sz = ray[2];
+    ds = nx * sx + ny * sy + nz * sz + pd;
+    if (a2 != 0) {
+        if (ds >= 0.0f) {
+            return 0;
+        }
+    } else {
+        if (ds < 0.0f) {
+            return 0;
+        }
+    }
+    t = 1.0f / (ds - de);
+    hit[0] = (ex * ds - sx * de) * t;
+    hit[1] = (ey * ds - sy * de) * t;
+    hit[2] = (ez * ds - sz * de) * t;
+    if (FloorPointInside(e, hit) == 0) {
+        return 0;
+    }
+    sceVu0CopyVector((int *) (ray + 8), (int *) hit);
+    return 1;
+}
 extern int game_pause;
 extern int D_0063B13C;
 extern int D_0063A064;
