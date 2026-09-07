@@ -472,7 +472,7 @@ segments:
       - [0x5391D8, lit4, src/cod/5391D8]     # .lit4 blob resume (ebrain's words, then gv's)
       - [0x539230, .lit4, src/act_bird]  # carved D_00639230..D_00639290 (25 slots, 5 fns interp_vector_sa..vector_angle_degree; 8x 2*pi), VMA 0x639230..0x639294, 100 B; MAIN.MAP act_bird.o .lit4 0x64 agrees.  USA: - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
       - [0x539294, lit4, src/cod/539294]     # .lit4 blob resume (lightning's words)
-      - [0x5392C0, .lit4, src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: a slot for the still-asm static Debug_StickControl's 0.001, then QueenGeo x3, QueenBarrierGeo x5 + three WrapRad groups x5 as literals, a slot for the still-asm QueenBallGeo's 5000), VMA 0x6392C0..0x639324
+      - [0x5392C0, .lit4, src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: Debug_StickControl, QueenGeo, QueenBarrierGeo and its WrapRad expansions as literals, one slot for the still-asm QueenBallGeo.s 5000), VMA 0x6392C0..0x639324
       - [0x539324, lit4, src/cod/539324]     # .lit4 blob resume (queen_barrier_disp's words)
       - [0x539338, .lit4, src/debug]  # carved D_00639338..D_00639350 (7 slots, 5 fns debug_Load..debug_DrawBar), VMA 0x639338..0x639354, 28 B
       - [0x539354, .lit4, src/debug_exception]  # carved D_00639354 (1 slot: drawWin's 0.8f, debug_exception_screen.c.inc), VMA 0x639354..0x639358, 4 B

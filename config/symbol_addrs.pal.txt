@@ -243,7 +243,7 @@ _RotMatrixY_02 = 0x0025D950; // type:func  // src/cod/vendor_25D410
 sceVu0RotTransPersN = 0x0025DEB0; // type:func  // src/cod/vendor_25D410
 sceVu0RotTransPers = 0x0025DF08; // type:func  // src/cod/vendor_25D410
 
-// func_001A27D0 and func_001A34D8 are the census statics effect_end_func and Debug_StickControl (itou_boss and act_bird hold those names), renamed in C only when matched
+// func_001A27D0 and func_001A34D8 are the census statics effect_end_func and Debug_StickControl (itou_boss and act_bird hold those names); both are matched C file statics under those names in src/queen.c (2026-09-07)
 subQueenBrainMain = 0x001A2D60; // type:func  // src/queen
 func_001A34D8 = 0x001A34D8; // type:func  // src/queen
 

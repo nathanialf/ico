@@ -96,13 +96,24 @@ void scale_m34(LVec *a0, void *a1, float f) {
     sceVu0ScaleVector(a0 + 1, a0 + 1, f);
     return sceVu0ScaleVector(a0 + 2, a0 + 2, f);
 }
-/* census: static effect_end_func (another TU holds the public symbol name). */
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A27D0);
+/* census: static effect_end_func (ito/src/itou_boss.c holds the public symbol
+   of the same name, so this copy stays file-static). */
+extern void LightTorchOnOfWeapon(void *o);
+static void effect_end_func(int no) {
+    char *g = isysGObjSearchFromObjKindID_begin(0x2F);
+    char *weapon = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
+
+    if (g != 0) {
+        *(int *)(*(int *)(*(int *)(g + 0x15C) + 0x830) + 4) += 1;
+    }
+    if (weapon != 0) {
+        LightTorchOnOfWeapon(weapon);
+    }
+}
 typedef struct { float f[8]; } QMotBlock;
 extern const char D_00556CA0[];
 extern const char D_00556CB0[];
 extern char D_002907E0[];
-extern void func_001A27D0(int a0);
 extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int), float speed);
 void queenBeforeFunc(char *g) {
     QVec pos;
@@ -141,7 +152,7 @@ void queenBeforeFunc(char *g) {
             if (e->data != 0 && boy != 0) {
                 GetRootPosition(&pos, e->data);
                 GetRootPosition(&target, boy);
-                GatherEffect_Set(0xC, &pos, (int)D_002907E0, &target, func_001A27D0, 2.5f);
+                GatherEffect_Set(0xC, &pos, (int)D_002907E0, &target, effect_end_func, 2.5f);
             }
             break;
         }
@@ -243,10 +254,38 @@ void gene_enemy(volatile int g) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/queen", subQueenBrainMain);
-ASM_LIT4_SLOT(D_006392C0, 0.001f);
-/* census: static Debug_StickControl; the symbol name is held by act_bird's copy, so the
-   placeholder stays until this one is C (then it is a file-static of that name). */
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A34D8);
+extern char *D_00639EC0;
+extern char *D_00639ED0;
+extern int iosPadConnect(void *pad, int slot, int port, void *conf);
+extern void iosPadRead(void *pad);
+extern int iosPadGetStick(void *pad, void *out, int a2, int a3, int a4, int a5);
+extern void _GetMotionDirection(void *dir, char *g);
+extern int CorrectStickInfo(void *dir, void *stick);
+extern void ConvertStickToAbsCoord(void *out, void *stick);
+/* census: static Debug_StickControl; ito/src/act_bird.c holds the public symbol
+   of that name, so this copy is a file-static. */
+static void Debug_StickControl(char *self) {
+    QVec dir;
+    char *ext = *(char **)(self + 0x164);
+
+    if (self == D_00639EC0) {
+        char *pad = ext + 0x2D8;
+        char *stick = ext + 0x338;
+
+        iosPadConnect(pad, 0, 0, ext + 0x1E8);
+        iosPadRead(pad);
+        iosPadGetStick(pad, stick, 0, 2, 2, 0);
+        _GetMotionDirection(&dir, self);
+        *(int *)(ext + 0x340) = CorrectStickInfo(&dir, stick);
+        if (*(float *)(ext + 0x34C) > 0.001f) {
+            ConvertStickToAbsCoord(ext + 0x120, stick);
+        }
+    } else if (self == D_00639ED0) {
+        iosPadConnect(ext + 0x2D8, 0, 1, ext + 0x1E8);
+    } else {
+        iosPadConnect(ext + 0x2D8, 0, 1, ext + 0x1E8);
+    }
+}
 void *InitQueenGeo(char *g) {
     char *ext = *(char **)(g + 0x15C);
     char *w;
@@ -418,6 +457,9 @@ void QueenBarrierDL(char *g) {
 ASM_LIT4_SLOT(D_00639320, 5000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallGeo);
 
+/* r3 seed (rc9 by real_count) at scratchpad/seeds/QueenBallDL.r3.rc9.c: the whole
+ * body is derived and byte-correct except one sched1 ready-list tie in the
+ * stage_SetScale arg block (see LEDGER r3). */
 INCLUDE_ASM("asm/nonmatchings/src/queen", QueenBallDL);
 void actQueenStart(char *g) {
     char *sub = actInitialize(g);
@@ -548,16 +590,13 @@ void *InitQueenBallGeo(char *g) {
     actInitialize_ext_charcter(g);
     return w;
 }
-/* census: Debug_StickControl (still the func_001A34D8 placeholder above). */
-extern void func_001A34D8(int g);
-
 void subQueenControl(volatile int g) {
     signed char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
 
     _ACTWait(1);
     for (;;) {
         if (*w == 0) {
-            func_001A34D8(g);
+            Debug_StickControl((char *)g);
         }
         _ACTWait(1);
     }
