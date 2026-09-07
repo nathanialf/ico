@@ -1001,10 +1001,12 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
 - `[0x452680, .rodata, src/act-game]` — _ACTCharStatus_Set's 17-arm table; the blob resumes
   at `0x4526C4` with the pad word before the string run.
 
-- `[0x51BDC0, .rodata, src/debug]` — debug_mcRetErrCheck's 17-arm table; the blob resumes
-  at `0x51BE04` with the pad word and the string run. src/debug's tail has eight switch
-  functions; the next ones to land extend this row or add their own when their tables
-  are contiguous.
+- `[0x51BAE0]`, `[0x51BDC0]`, `[0x51BE30]`, `[0x51BEA0]`, `[0x51BF30]`, `[0x51C0E0]` `.rodata, src/debug`
+  — six jump tables (DispQW 17 arms, mcRetErrCheck 17, selectFile 7, mcSaveMainBlock 14,
+  mcLoadMainBlock 100, mcDeleteFile 5), each its own row with the blob resuming at the
+  table's true end (a pad word follows DispQW, mcRetErrCheck, selectFile and
+  mcDeleteFile; strings follow the other two). One compiled TU supplies them all: its
+  postprocessed object names each table's section by VMA.
 
 - `[0x520F20, .rodata, src/staticBlur]` — dispPostInfo's 10-arm table only; the blob
   resumes at `0x520F48` (the string there and the FullScreenEffectBefore/After tables at

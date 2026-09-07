@@ -174,29 +174,35 @@ def section_for(basename: str) -> str:
 
 
 def check_ld_carve_globs(ld_path: Path) -> None:
-    """Fail loudly on a per-TU/per-section carve glob emitted more than once.
+    """Resolve or reject a per-TU/per-section carve glob emitted more than once.
 
     splat emits one whole-object selector — `build/src/<tu>.o(.data*)` — per
     dot-form carve subsegment. GNU ld assigns each input section to the FIRST
     output statement that matches it, so a TU with TWO disjoint carved runs in
     the SAME section produces two identical globs of which only the first is
     live: every carved section of that TU collapses into the first run's
-    address and the link silently mislays the rest. One contiguous carved run
-    per (TU, section) is therefore a hard constraint of the one-pass model, and
-    this check makes violating it a build error instead of a SHA mismatch.
+    address and the link silently mislays the rest.
+
+    `.rodata` is the one section where the C build already names each run:
+    tools/postprocess_split_jtbls.py puts every switch jump table into its own
+    `.rodata.0x<VMA>` section. So for a TU with several `.rodata` carve rows
+    the k-th duplicate glob is rewritten to the typed selector of the k-th row
+    (rows in address order, VMA = ROM offset + 0x100000 on this target); the
+    first row also keeps the plain `.rodata` (strings, doubles) so nothing is
+    orphaned. Every other section keeps the hard constraint: one contiguous
+    carved run per (TU, section), or the build stops here instead of at the
+    SHA mismatch.
     """
     if not ld_path.exists():
         return
-    seen: dict[tuple[str, str], int] = {}
-    dupes: list[str] = []
-    for line in ld_path.read_text().splitlines():
+    lines = ld_path.read_text().splitlines()
+    counts: dict[tuple[str, str], int] = {}
+    for line in lines:
         m = re.match(r"\s*(build/\S+\.o)\((\S+?)\);", line)
-        if not m:
-            continue
-        key = (m.group(1), m.group(2))
-        seen[key] = seen.get(key, 0) + 1
-        if seen[key] == 2:
-            dupes.append(f"{key[0]}({key[1]})")
+        if m:
+            counts[(m.group(1), m.group(2))] = counts.get((m.group(1), m.group(2)), 0) + 1
+    dup_rodata = {k[0] for k, n in counts.items() if n > 1 and k[1] == ".rodata*"}
+    dupes = [f"{k[0]}({k[1]})" for k, n in counts.items() if n > 1 and k[1] != ".rodata*"]
     if dupes:
         raise SystemExit(
             "gen_ninja: duplicate linker-script selector(s) — a TU may hold only "
@@ -206,6 +212,29 @@ def check_ld_carve_globs(ld_path: Path) -> None:
             + "\nMerge the runs into one contiguous carve (absorbing any "
             "verified in-between bytes) or leave the later run in the blob."
         )
+    if not dup_rodata:
+        return
+    yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
+    rows: dict[str, list[int]] = {}
+    for line in yaml_path.read_text().splitlines():
+        m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.rodata,\s*(\S+?)\]", line)
+        if m:
+            rows.setdefault(m.group(2), []).append(int(m.group(1), 16))
+    seen: dict[str, int] = {}
+    out = []
+    for line in lines:
+        m = re.match(r"(\s*)(build/(\S+)\.o)\(\.rodata\*\);", line)
+        if m and m.group(2) in dup_rodata:
+            tu = m.group(3)
+            k = seen.get(tu, 0); seen[tu] = k + 1
+            offs = sorted(rows.get(tu, []))
+            if k >= len(offs):
+                raise SystemExit(f"gen_ninja: {tu}: more .rodata selectors than carve rows")
+            vma = offs[k] + 0x100000
+            sel = f".rodata.0x{vma:08X}" if k else f".rodata .rodata.0x{vma:08X}"
+            line = f"{m.group(1)}{m.group(2)}({sel});"
+        out.append(line)
+    ld_path.write_text("\n".join(out) + "\n")
 
 
 def source_for(obj_path: str) -> tuple[str, str]:

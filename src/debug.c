@@ -358,7 +358,48 @@ void debug_FlushFont(void) {
 INCLUDE_ASM("asm/nonmatchings/src/debug", draw_batsu);
 INCLUDE_ASM("asm/nonmatchings/src/debug", draw_shikaku);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_brainBar);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_MakeBarString);
+extern char D_00704680[];
+extern char D_0063AE90[];
+extern int D_0063B13C;
+extern void strcat(char *dst, char *src);
+extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
+int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
+{
+    char buf[16];
+    int i;
+    int len;
+
+    len = strlen(p);
+    if (len == 0) {
+        return 0;
+    }
+    D_00704680[0] = 0;
+    for (i = 0; i < len; i++, p++) {
+        if (*p == '$') {
+            switch (p[1]) {
+            case 'P':
+                sprintf(buf, D_0063AE90, a);
+                strcat(D_00704680, buf);
+                break;
+            case 'T':
+                sprintf(buf, D_0063AE90, b);
+                strcat(D_00704680, buf);
+                break;
+            }
+            p++;
+            i++;
+        } else {
+            buf[0] = *p;
+            buf[1] = 0;
+            strcat(D_00704680, buf);
+        }
+    }
+    if (strlen(D_00704680) != 0 && (D_0063B13C & 1)) {
+        debug_Printf((int)(x + 0x148), fr.y + line * 7 + (fr.h + 0x71),
+                     0xFFFFFF00u, (int)D_00704680);
+    }
+    return strlen(D_00704680);
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DrawBar);
 ASM_LIT4_SLOT(D_0063933C, 270000.0f);
 ASM_LIT4_SLOT(D_00639340, 0.01f);
@@ -460,7 +501,47 @@ void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SnapShot);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispQW);
+extern char D_0061BAA8[];
+extern char D_0061BAC0[];
+extern char D_0063AF38[];
+extern char D_0063AF40[];
+extern char D_0063AF48[];
+extern char D_0063AF50[];
+extern int fptodp(float v);
+void debug_DispQW(void *p, int size)
+{
+    int isf = 0;
+    int i;
+    int j;
+
+    switch (size) {
+    case 0:
+        isf = 1;
+        size = 4;
+        debug_StdPrintfDummy(D_0061BAA8, p);
+        break;
+    case 1:
+    case 2:
+    case 4:
+    case 8:
+    case 16:
+        debug_StdPrintfDummy(D_0061BAC0, p, size);
+        break;
+    default:
+        return;
+    }
+    for (i = 0; i < 16 / size; i++) {
+        if (isf == 0) {
+            for (j = 16 / (16 / size) - 1; j >= 0; j--) {
+                debug_StdPrintfDummy(D_0063AF38, ((unsigned char *)p)[i * size + j]);
+            }
+            debug_StdPrintfDummy(D_0063AF40);
+        } else {
+            debug_StdPrintfDummy(D_0063AF48, fptodp(((float *)p)[i]));
+        }
+    }
+    debug_StdPrintfDummy(D_0063AF50);
+}
 extern void debug_PrintFont();
 void debug_Printf(int a, int b, unsigned int c, int x, ...)
 {
@@ -621,17 +702,32 @@ int debug_SelectStageMain(int ret, int stage)
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectStage);
 /* memory-card request block */
+/* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
+   (debug_selectFile forms the table base as mc+0x4C0 and the name as
+   mc + i*0x40 + 0x4E0). */
 typedef struct {
     char _0[0x10];
+    int size;           /* 0x10 */
+    char _14[0xC];
+    char name[0x20];    /* 0x20 */
+} McDirEnt;
+typedef struct {
+    long long f0;       /* 0x00 -- iosMc flag word, 64-bit */
+    char _8[0x8];
     int ret;            /* 0x10 */
     char _14[0x10];
     int f24;            /* 0x24 */
-    char _28[0x24];
+    char _28[0x18];
+    int sel;            /* 0x40 */
+    int num;            /* 0x44 -- entries filled in by iosMcGetDir */
+    int _48;
     int f4C;            /* 0x4C */
     int f50;            /* 0x50 */
     char _54[0x400];
     char name454[0x28]; /* 0x454 */
     char name47C[0x24]; /* 0x47C */
+    char _4A0[0x20];    /* 0x4A0 */
+    McDirEnt dir[8];    /* 0x4C0 -- sceMcTblGetDir records, 0x40 each */
 } McReq;
 extern int D_0028F8F4[];
 
@@ -699,10 +795,309 @@ int debug_mcRetErrCheck(McReq *mc)
     }
     return r;
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_selectFile);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_mcSaveMainBlock);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_mcLoadMainBlock);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_mcDeleteFile);
+/* src/debug.c:4415-4423 in the listing: a static helper both mc(Un)format
+   inline -- prints the confirmation prompt and reads the pad:
+   circle (0x20) = yes -> 1, cross (0x40) = cancel -> -1, otherwise 0. */
+extern char D_0061BC98[];
+extern int D_0028F8F4[];
+static inline int debug_mcConfirm(char *msg)
+{
+    int yes = 0;
+    debug_PrintfDummy(0x50, 0x46, 0xFFFFFF00u, (int)D_0061BC98, (int)msg);
+    if (D_0028F8F4[0] & 0x20) {
+        yes = 1;
+    }
+    return (D_0028F8F4[0] & 0x40) ? -1 : yes;
+}
+/* the "*" wildcard pattern D_0063AFC0 is copied into the request block's name
+   field as a 2-byte object, not by strcpy */
+typedef struct { char c[2]; } McPat;
+extern char D_0063AFC0[];
+extern int D_0063AFB8;
+extern char D_0061BE08[];
+extern char D_0061BE18[];
+extern void iosMcChdirProduct(McReq *mc);
+extern void iosMcGetDir(McReq *mc);
+extern int iosMcSync();
+int debug_selectFile(McReq *mc)
+{
+    int i;
+    int r = 0;
+    int ret = 0;
+
+    switch (D_0063AFB8) {
+    case 0:
+        mc->f0 &= ~2;
+        iosMcChdirProduct(mc);
+        D_0063AFB8++;
+        break;
+    case 1:
+    case 4:
+        if (iosMcSync(mc)) {
+            D_0063AFB8++;
+        }
+        break;
+    case 2:
+    case 5:
+        if ((ret = debug_mcRetErrCheck(mc)) != 0) {
+            D_0063AFB8++;
+        }
+        break;
+    case 3:
+        *(McPat *)mc->name47C = *(McPat *)D_0063AFC0;
+        iosMcGetDir(mc);
+        D_0063AFB8++;
+        break;
+    case 6:
+        for (i = 0; i < mc->num; i++) {
+            debug_StdPrintfDummy(D_0061BE08, mc->dir[i].name, *(int *)((char *)mc + (i << 6) + 0x4D0));
+        }
+        D_0063AFB8++;
+        break;
+    default:
+        debug_SelectCsvWindow(D_0061BE18, 0x50, 0x46, 0xA, mc->dir, 0x40, 0x20, 0,
+                              mc->num, &mc->sel);
+        if (D_0028F8F4[0] & 0x20) {
+            r = 1;
+        }
+        if (D_0028F8F4[0] & 0x40) {
+            r = -1;
+        }
+        break;
+    }
+    if (ret < 0) {
+        r = -1;
+    }
+    if (r) {
+        D_0063AFB8 = 0;
+    }
+    return r;
+}
+extern int D_0063AFD4;
+extern char D_0063AFD8[];
+extern char D_0061BE50[];
+extern char D_0061BE90[];
+extern char D_0063AFE0[];
+extern char D_004DA788[];
+extern char D_004DD700[];
+extern void iosMcGetBlockSaveInfo(McReq *mc);
+extern void iosMcSaveIconBlock(McReq *mc);
+extern void iosMcSaveProductBlock(McReq *mc);
+extern void iosMcSaveGameBlock(McReq *mc, void *buf);
+extern void gamesysMemorySave(void *a0, void *a1, int a2);
+extern void *debug_saveNumFunc(int a0, void *a1);
+extern int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
+                                    int (*fn)(int, int), int a7);
+/* the default save-file name "game." lives in .sdata as 6 bytes */
+typedef struct { char c[6]; } McName6;
+int debug_mcSaveMainBlock(McReq *mc)
+{
+    int r = 0;
+    int ret = 0;
+
+    switch (D_0063AFD4) {
+    case 0:
+        *(McName6 *)mc->name47C = *(McName6 *)D_0063AFD8;
+        iosMcGetBlockSaveInfo(mc);
+        D_0063AFD4++;
+        break;
+    case 1:
+        if (iosMcSync(mc)) {
+            D_0063AFD4++;
+        }
+        break;
+    case 2:
+    case 8:
+    case 13:
+        if ((ret = debug_mcRetErrCheck(mc)) != 0) {
+            D_0063AFD4++;
+        }
+        break;
+    case 3:
+        if (mc->num >= 11) {
+            debug_StdPrintfDummy(D_0061BE50);
+        }
+        r = debug_SelectCsvWindowVal((int)D_0061BE90, 0x50, 0x46, 0xA, 0xA,
+                                     (int)&mc->sel,
+                                     (int (*)(int, int))debug_saveNumFunc, (int)mc);
+        if (r > 0) {
+            r = 0;
+            D_0063AFD4++;
+        }
+        break;
+    case 4:
+        iosMcSaveIconBlock(mc);
+        D_0063AFD4++;
+        break;
+    case 6:
+        iosMcSaveProductBlock(mc);
+        D_0063AFD4++;
+        break;
+    case 5:
+    case 7:
+    case 12:
+        debug_PrintfDummy(0x78, 0x46, 0xFFFFFF00u, (int)D_0063AFE0, (int)mc->name47C);
+        if (iosMcSync(mc)) {
+            D_0063AFD4++;
+        }
+        break;
+    case 9:
+        gamesysMemorySave(D_004DA788, D_004DD700, 0);
+        iosMcSaveGameBlock(mc, D_004DD700);
+        D_0063AFD4++;
+        break;
+    default:
+        r = 1;
+        break;
+    }
+    if (ret < 0) {
+        r = -1;
+    }
+    if (r) {
+        D_0063AFD4 = 0;
+    }
+    return r;
+}
+extern int D_0063AFE8;
+extern int D_0063AA08;
+extern char D_0061BED8[];
+extern char D_0063AFF0[];
+extern char D_0061BF18[];
+extern void iosMcLoadProductBlock(McReq *mc);
+extern void iosMcLoadGameBlock(McReq *mc, void *buf);
+extern void gamesysMemoryLoad(void *a0, void *a1, int a2);
+int debug_mcLoadMainBlock(McReq *mc)
+{
+    int r = 0;
+    int ret = 0;
+
+    switch (D_0063AFE8) {
+    case 0:
+        *(McName6 *)mc->name47C = *(McName6 *)D_0063AFD8;
+        iosMcGetBlockSaveInfo(mc);
+        D_0063AFE8++;
+        break;
+    case 1:
+        if (iosMcSync(mc)) {
+            D_0063AFE8++;
+        }
+        break;
+    case 2:
+    case 6:
+    case 10:
+        if ((ret = debug_mcRetErrCheck(mc)) != 0) {
+            D_0063AFE8++;
+        }
+        break;
+    case 3:
+        if (mc->num >= 11) {
+            debug_StdPrintfDummy(D_0061BED8);
+        }
+        r = debug_SelectCsvWindowVal((int)D_0061BE90, 0x50, 0x46, 0xA, 0xA,
+                                     (int)&mc->sel,
+                                     (int (*)(int, int))debug_saveNumFunc, (int)mc);
+        if (r > 0) {
+            r = 0;
+            D_0063AFE8++;
+        }
+        break;
+    case 4:
+        if (((1 << mc->sel) & *(long long *)((char *)mc + 0x9C0)) == 0) {
+            D_0063AFE8 = 99;
+            break;
+        }
+        iosMcLoadProductBlock(mc);
+        D_0063AFE8++;
+        break;
+    case 5:
+    case 8:
+        debug_PrintfDummy(0x78, 0x46, 0xFFFFFF00u, (int)D_0063AFF0, (int)mc->name47C);
+        if (iosMcSync(mc)) {
+            D_0063AFE8++;
+        }
+        break;
+    case 7:
+        iosMcLoadGameBlock(mc, D_004DD700);
+        D_0063AFE8++;
+        break;
+    case 9:
+        gamesysMemoryLoad(D_004DA788, D_004DD700, 0);
+        D_0063AA08 = 0;
+        D_0063AFE8++;
+        break;
+    case 99:
+        if (debug_mcAsk(D_0061BF18)) {
+            D_0063AFE8 = 3;
+        }
+        break;
+    default:
+        r = 1;
+        break;
+    }
+    if (ret < 0) {
+        r = -1;
+    }
+    if (r) {
+        D_0063AFE8 = 0;
+    }
+    return r;
+}
+extern char D_0061C0C0[];
+extern char D_0061C0D0[];
+extern int D_0063AFF8;
+extern int debug_selectFile(McReq *mc);
+extern void iosMcDelete(McReq *mc);
+extern char *strcpy(char *dst, const char *src);
+int debug_mcDeleteFile(McReq *mc)
+{
+    char buf[0x20];
+    int ret = 0;
+    int r;
+
+    switch (D_0063AFF8) {
+    case 0:
+        ret = debug_selectFile(mc);
+        if (ret) {
+            D_0063AFF8++;
+        }
+        if (ret > 0) {
+            ret = 0;
+        }
+        break;
+    case 1:
+        sprintf(buf, D_0061C0C0, mc->dir[mc->sel].name);
+        r = debug_mcConfirm(buf);
+        if (r > 0) {
+            D_0063AFF8++;
+        } else if (r < 0) {
+            D_0063AFF8 = 0;
+        }
+        break;
+    case 2:
+        strcpy(mc->name47C, mc->dir[mc->sel].name);
+        iosMcDelete(mc);
+        D_0063AFF8++;
+        break;
+    case 3:
+        debug_PrintfDummy(0x78, 0x46, 0xFFFFFF00u, (int)D_0061C0D0, (int)mc->name47C);
+        if (iosMcSync(mc)) {
+            D_0063AFF8++;
+        }
+        break;
+    case 4:
+        if (debug_mcRetErrCheck(mc)) {
+            D_0063AFF8++;
+        }
+        break;
+    default:
+        ret = 1;
+        break;
+    }
+    if (ret) {
+        D_0063AFF8 = 0;
+    }
+    return ret;
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_MemoryCard);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SETest);
 extern void memset();
@@ -1077,20 +1472,6 @@ void debug_SaveStartStageFile(int stage)
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", _debug_SelectCsvWindow);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectCsvWindowWithLineColor);
-/* src/debug.c:4415-4423 in the listing: a static helper both mc(Un)format
-   inline -- prints the confirmation prompt and reads the pad:
-   circle (0x20) = yes -> 1, cross (0x40) = cancel -> -1, otherwise 0. */
-extern char D_0061BC98[];
-extern int D_0028F8F4[];
-static inline int debug_mcConfirm(char *msg)
-{
-    int yes = 0;
-    debug_PrintfDummy(0x50, 0x46, 0xFFFFFF00u, (int)D_0061BC98, (int)msg);
-    if (D_0028F8F4[0] & 0x20) {
-        yes = 1;
-    }
-    return (D_0028F8F4[0] & 0x40) ? -1 : yes;
-}
 extern int D_0063AFA0;
 extern int D_0063AFA4;
 extern char D_0063AFA8[];
