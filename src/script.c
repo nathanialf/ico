@@ -9,6 +9,42 @@ struct SVF { int a; int b; };
 
 typedef union { float f[4]; int i[4]; } Vec4u;
 
+/* MUST be above the TU's first call site: with the implicit `int` return the
+   call SETs $2 and global-alloc picks different scratch registers. */
+extern void _ACTWait(int a0);
+
+/* ACT+0x20 / ACT+0x18 are the 64-bit actor status words.  The dev header
+   declares them as a UNION (cf. `union ActStatus` in src/st13c.c and
+   src/st04a.c), not as a bare `unsigned long long`: a union-member access has
+   alias set 0, so a store through it aliases every other load -- which is why
+   ROM re-loads `gobj->0x164` after a status store. */
+typedef union ActStatus { unsigned long long ll; int i[2]; } ActStatus;
+
+/* the two-slot ADPCM play-request table at D_006E5950 (2 x 0x18 bytes) */
+typedef struct AdpcmReq {
+    int  kind;   /* 0x00, 0 == slot free */
+    int  id;     /* 0x04 */
+    int  unk08;  /* 0x08 */
+    int  unk0C;  /* 0x0C */
+    int  unk10;  /* 0x10 */
+    int  unk14;  /* 0x14 */
+} AdpcmReq;
+extern AdpcmReq D_006E5950[2];
+
+/* the PAL listing's static helper at script.c:1636-1644 (inlined into
+   scpAdpcmCloseChkFunc, scpGirlHintVoiceCancel, ... -- it has no MAIN.MAP
+   symbol, so its rows show up outside every caller's own line span) */
+static inline int scpAdpcmRequestSlot(int id)
+{
+    int i;
+    for (i = 0; i < 2; i++) {
+        if (D_006E5950[i].kind != 0 && D_006E5950[i].id == id) goto found;
+    }
+    i = -1;
+found:
+    return i;
+}
+
 struct S { int a; int b; };
 
 extern void LightTorchOn(void *a0);
@@ -42,19 +78,26 @@ void scpSetCageVelocityFriction(float f12) {
     }
     debug_StdPrintfDummy(D_005543C0);
 }
-extern int SetMotionDirection();
+extern void SetMotionDirection(char *self, float *dir);
+/* SCE VU0 library: sceVu0Normalize(dst, src) -- normalised in place here, so
+   the second argument is already in $a1 and cse drops the redundant copy. */
 extern void sceVu0Normalize();
 
-void scpPlayMotDir(int a0, int a1)
+void scpPlayMotDir(char *self, float *dir)
 {
-    int new_var;
-    new_var = 1;
-    if (new_var) {
-        sceVu0Normalize(a1);
-    }
-    return SetMotionDirection(a0, (0, a1));
+    sceVu0Normalize(dir, dir);
+    SetMotionDirection(self, dir);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayMotDirSmz);
+extern void SetMotionDirectionSmooze(char *self, float *dir, float ang);
+extern struct MotTblRec { char _000[0x186]; short smzAngle; char _188[0xC]; } D_0055FE58[];
+
+void scpPlayMotDirSmz(char *self, float *dir)
+{
+    sceVu0Normalize(dir, dir);
+    SetMotionDirectionSmooze(self, dir,
+        (float)((struct MotTblRec *)(*(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194
+                                     + (char *)D_0055FE58))->smzAngle);
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayMot);
 void scpPlayJump(char *a0, int a1) {
     ACTItemForceDrop(a0);
@@ -101,14 +144,39 @@ void scpGirlHintVoicePlay(void) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceTickProc);
-INCLUDE_ASM("asm/nonmatchings/src/script", func_00182810);
+INCLUDE_ASM("asm/nonmatchings/src/script", scpWoodSrh);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpSekizou);
 INCLUDE_ASM("asm/nonmatchings/src/script", _SCPBoySupportGirl);
 void _SCPMoveCharactorByWay_Cancel(char *a0) {
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 47);
     ACTCharctrl_Unlock(a0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpSekizouCheckPoint);
+extern char *D_00639EA8;
+extern char *D_00639EA4;
+extern int stage_no;
+extern void gamesysObjInfoPosSetStage(char *g, int no, int a2, int stage);
+extern void CheckPoint(void);
+extern int gflagChk(int no);
+extern void gflagOn(int no);
+extern void gflagOff(int no);
+
+void scpSekizouCheckPoint(void)
+{
+    int was;
+
+    if (D_00639EA8 != 0) {
+        gamesysObjInfoPosSetStage(D_00639EA8,
+            *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x444), 0, stage_no);
+    }
+    gamesysObjInfoPosSetStage(D_00639EA4,
+        *(int *)(*(char **)(D_00639EA4 + 0x164) + 0x444), 0, stage_no);
+    was = gflagChk(0x17D);
+    gflagOn(0x17D);
+    CheckPoint();
+    if (was == 0) {
+        gflagOff(0x17D);
+    }
+}
 extern int isysGObjSearchFromObjLayoutID();
 
 void scpWakeupEnemyOne(void)
@@ -258,13 +326,103 @@ void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, 
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGetWallCollision);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUp);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpSwitch);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpAdpcmPlayRequestFunc);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpAdpcmPlayRequestNum);
+void scpAdpcmPlayRequestFunc(int kind, int *id, int a2, int a3, int a4)
+{
+    int i;
+
+    if (id != 0) {
+        *id = 0;
+    }
+    for (i = 0; i < 2; i++) {
+        if (D_006E5950[i].kind == 0) {
+            goto found;
+        }
+    }
+    return;
+
+found:
+    D_006E5950[i].kind = kind;
+    D_006E5950[i].unk08 = a3;
+    D_006E5950[i].unk0C = a2;
+    D_006E5950[i].unk10 = a4;
+    D_006E5950[i].unk14 = 0;
+    D_006E5950[i].id = (int)id;
+}
+int scpAdpcmPlayRequestNum(void)
+{
+    int i;
+    int n = 0;
+    for (i = 0; i < 2; i++) {
+        if (D_006E5950[i].kind != 0) {
+            n++;
+        }
+    }
+    return n;
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpAdpcmFadeCloseFunc);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpAdpcmCloseChkFunc);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpDeamon);
+int scpAdpcmCloseChkFunc(int *h)
+{
+    int no;
+    char *p = *(char **)h;
+    if (p != 0) {
+        if (*(char **)(p + 0x2C) == 0 || *(int *)(*(char **)(p + 0x2C) + 0x28) == 0) {
+            return 0;
+        }
+        return 1;
+    }
+    no = -1;
+    return no < scpAdpcmRequestSlot((int)h);
+}
+extern char D_005546E0[];
+extern char *D_0063AA10;
+extern float D_0063AA0C;
+extern int startStagePauseDisableTimer;
+extern void actCreateSubThread(void (*func)(volatile int), int a1);
+extern void scpSubAdpcmPlay(volatile int a0);
+extern void StabilizeAllLayoutedCage(void);
+extern void backStageProcessInStage(float f);
+
+void scpDeamon(volatile int a0)
+{
+    debug_StdPrintfDummy(D_005546E0);
+    D_0063AA10 = 0;
+    startStagePauseDisableTimer = 0;
+    if (stage_no == 0xB && gflagChk(0x89) == 0) {
+        D_0063AA0C = 0.0f;
+    } else {
+        D_0063AA0C = 1.0f;
+    }
+    gflagOff(0x185);
+    _ACTWait(1);
+    actCreateSubThread(scpSubAdpcmPlay, 0x15);
+    _ACTWait(3);
+    StabilizeAllLayoutedCage();
+    _ACTWait(1);
+    backStageProcessInStage(0.0f);
+    gflagOff(0x18A);
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceCancel);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpWoodBox);
+extern void _ACTWait(int a0);
+extern void scpWoodSrh(int self);
+extern struct WoodBoxEnt { short id; char _02[0x2E]; } D_002A51F0[11];
+
+void scpWoodBox(volatile int a0)
+{
+    struct WoodBoxEnt *p;
+    unsigned int i;
+
+    _ACTWait(0xA);
+
+    for (i = 0, p = D_002A51F0; i < 11; i++, p++) {
+        if (p->id == *(int *)(a0 + 8)) {
+            goto found;
+        }
+    }
+    return;
+
+found:
+    scpWoodSrh(a0);
+}
 extern int IsTorchLightOn(int a0);
 
 int scpIsTorchLightOn(int a0) {
@@ -351,7 +509,23 @@ void scpWakeupEnemyAll(void) {
         iosOmSendMail(g, 0x1F, g);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpKillEnemyAll);
+extern char D_002C2DC8[];
+struct EnemyEnt { char _00[0x42]; unsigned short f42; };   /* 0x4C stride */
+
+void scpKillEnemyAll(void)
+{
+    char *g;
+
+    for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 0x26, g);
+        ((struct EnemyEnt *)(*(int *)(g + 8) * 0x4C + (char *)D_002C2DC8))->f42 = 0;
+    }
+    for (g = (char *)isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 0x26, g);
+    }
+}
 extern void Generator_Mask(char *self);
 
 void scpMaskGeneratorAll(void)
@@ -377,7 +551,11 @@ void scpKillEnemyOne(void)
 }
 INCLUDE_ASM("asm/nonmatchings/src/script", _SCPMoveCharactorByWay);
 INCLUDE_ASM("asm/nonmatchings/src/script", _SCPMoveByWay_ToChar);
-INCLUDE_ASM("asm/nonmatchings/src/script", _SCPCharacterStop);
+void _SCPCharacterStop(char *self)
+{
+    char *p = *(char **)(self + 0x164);
+    *(int *)(p + 0x120) = 0; *(int *)(p + 0x124) = 0; *(int *)(p + 0x128) = 0; *(int *)(p + 0x338) = *(int *)(p + 0x33C) = 0x7F; *(int *)(p + 0x34C) = 0;
+}
 int scpSearchGobj(void) {
     return isysGObjSearchFromObjLayoutID();
 }
@@ -419,10 +597,15 @@ extern int D_0063C24C;
 void InitStageChange(void) {
     D_0063C24C = 0;
 }
-extern int RequestStageChangeWithColor(int a0, int a1, int a2, int a3, int a4, int a5);
+/* EABI: the six int parameters land in $a0..$t1 and the two floats in
+   $f12/$f13, so the floats are parameters 4 and 5 (proved by the ROM body of
+   RequestStageChangeWithColor, which reads $a0,$a1,$a2,$a3,$t0,$t1,$f12,$f13,
+   and by RequestStageChange, which forwards $f12/$f13 untouched). */
+extern int RequestStageChangeWithColor(int no, char *g, int flag, float speed,
+                                       float wait, int r, int gr, int b);
 
-int RequestStageChange(int a0, int a1, int a2) {
-    return RequestStageChangeWithColor(a0, a1, a2, 0, 0, 0);
+int RequestStageChange(int no, char *g, int flag, float speed, float wait) {
+    return RequestStageChangeWithColor(no, g, flag, speed, wait, 0, 0, 0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/script", RequestStageChangeWithColor);
 extern int D_00639EB4;
@@ -561,7 +744,40 @@ void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
     v.i[3] = 0;
     CopyVector(*(int *)(a0 + 0x15C) + 0x670, &v);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpWakeupItemWithBoundary);
+typedef struct Blob16 { long long a, b; } Blob16;
+extern char D_00554810[];
+extern int D_0063B150;
+extern int ReviveCarryableItemsWithBoundary(float *pos, float r);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void sceVu0UnitMatrix(void *m);
+extern void MatrixDrive_TransMatrixV(float *v);
+extern void gif_StartPacketPri(int pri);
+extern void gif_EndPacket(void);
+extern void prim_DispWireSphere(void *col, int a1, int a2, float r);
+
+void scpWakeupItemWithBoundary(float x, float y, float z, float r)
+{
+    float pos[4];
+    Blob16 col;
+
+    pos[0] = x;
+    pos[1] = y;
+    pos[2] = z;
+    ((int *)pos)[3] = 0;
+    ReviveCarryableItemsWithBoundary(pos, r);
+    if (D_0063B150 != 0) {
+        MatrixDrive_PushMatrix();
+        col = *(Blob16 *)D_00554810;
+        gif_StartPacketPri(0xB);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(pos);
+        prim_DispWireSphere(&col, 0x10, 8, r);
+        gif_EndPacket();
+        MatrixDrive_PopMatrix();
+    }
+}
 extern int CheckReadyAllSwitches();
 
 int scpCheckReadyAllObjects(void) {
@@ -622,13 +838,61 @@ void scpExplodeSecretItem(void) {
         o = isysGObjSearchFromObjKindID_next__pn(o);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckExistAliveEnemy);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpCheckExistAliveSpider);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpLockMaxRotate);
+extern char D_00554820[];
+extern char D_00554850[];
+extern int actEnemyFlagCheckDead(char *g);
+
+int scpCheckExistAliveEnemy(void)
+{
+    char *g;
+    for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+        if (actEnemyFlagCheckDead(g) == 0) {
+            debug_StdPrintfDummy(D_00554820);
+            return 1;
+        }
+    }
+    debug_StdPrintfDummy(D_00554850);
+    return 0;
+}
+extern char D_00554888[];
+extern char D_005548B8[];
+extern int IsActCharDead(char *g);
+
+int scpCheckExistAliveSpider(void)
+{
+    char *g;
+    for (g = (char *)isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+        if (IsActCharDead(g) == 0) {
+            debug_StdPrintfDummy(D_00554888);
+            return 1;
+        }
+    }
+    debug_StdPrintfDummy(D_005548B8);
+    return 0;
+}
+void scpLockMaxRotate(char *a0, float f12) {
+    ((ActStatus *)(*(char **)(a0 + 0x164) + 0x20))->ll |= (1ULL << 33);
+    *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x344) = f12;
+}
 void scpUnLockMaxRotate(char *a0) {
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) &= ~(1ULL << 33);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpGetRotObjectCurrentRot);
+extern char *gamesysObjInfoGet(int kind, int no);
+extern void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2);
+
+int scpGetRotObjectCurrentRot(int no)
+{
+    short rot;
+    int ext;
+    char *info = gamesysObjInfoGet(0x12, no);
+    if (info != 0) {
+        GetRotObjectGameSysObjInfoExtData(&rot, &ext, info);
+        return rot;
+    }
+    return 0;
+}
 void scpCheckDisconnectWallStart(char *a0) {
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) |= (1ULL << 58);
 }
@@ -636,4 +900,5 @@ void scpCheckDisconnectWallEnd(char *a0) {
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 58);
 }
 INCLUDE_ASM("asm/nonmatchings/src/script", scpTriggerIgnore);
-INCLUDE_ASM("asm/nonmatchings/src/script", func_00185CA0);
+INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpMain);
+INCLUDE_ASM("asm/nonmatchings/src/script", actSubSekizoSe);

@@ -274,6 +274,9 @@ subGirlBrain_Becarry = 0x0017C4C8; // type:func  // src/girl_act
 subGirlBrain_DangerEnv = 0x0017C600; // type:func  // src/girl_act
 // girl_act func_00174CE8 / func_001762A0 / func_00176838 / func_00177098 are gcc local copies (CorrectList.331, GetSafePosition.364/.371/.379) of nested functions, named in C only when their parents land
 
+// script: actSubSekizoSe is MAIN.MAP script.o's last symbol (no census row), inside the former func_00185CA0 stub after scpDoorTypeUpMain
+actSubSekizoSe = 0x00185CD0; // type:func  // src/script
+
 // ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — do not hand-edit below this line ====
 // ---------------------------------------------------------------------------
 // Recovered PAL (SCES-50760 / SCES_507.60) function symbols.  Regenerate with:
@@ -2066,7 +2069,7 @@ scpDoorTypeUpUp = 0x001820D0; // type:func  // src/script
 scpGirlHintVoiceReady = 0x00182478; // type:func  // src/script
 scpGirlHintVoicePlay = 0x001825F8; // type:func  // src/script  // provisional-ordinal
 scpGirlHintVoiceTickProc = 0x00182618; // type:func  // src/script
-func_00182810 = 0x00182810; // type:func  // src/script
+scpWoodSrh = 0x00182810; // type:func  // src/script
 _SCPBoySupportGirl = 0x00183298; // type:func  // src/script
 _SCPMoveCharactorByWay_Cancel = 0x001834F8; // type:func  // src/script
 scpSekizouCheckPoint = 0x00183528; // type:func  // src/script
@@ -2153,7 +2156,7 @@ scpGetRotObjectCurrentRot = 0x00185B38; // type:func  // src/script
 scpCheckDisconnectWallStart = 0x00185B78; // type:func  // src/script
 scpCheckDisconnectWallEnd = 0x00185B98; // type:func  // src/script
 scpTriggerIgnore = 0x00185BC8; // type:func  // src/script  // provisional-ordinal
-func_00185CA0 = 0x00185CA0; // type:func  // src/script
+scpDoorTypeUpMain = 0x00185CA0; // type:func  // src/script
 
 // ---- src/st25a
 actSt25aQueenAppearChk = 0x00185E60; // type:func  // src/st25a
