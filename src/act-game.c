@@ -24,6 +24,25 @@ typedef struct {
 
 typedef union { int i; float f; } IntFloat;
 
+/* The 0x194-byte-per-entry motion record table, indexed by the object's
+   current motion id (obj->0x15C->0x4A0). */
+typedef struct {
+    char _000[0x150];
+    int f_150;
+    char _154[0x2C];
+    short f_180;
+    short f_182;
+    short f_184;
+    char _186[0x02];
+    union {
+        unsigned int w;
+        struct { unsigned short lo, hi; } h;
+    } u_188;
+    unsigned int f_18C;
+    char _190[0x04];
+} MotionRec;
+extern MotionRec D_0055FE58[];
+
 extern void gamesysObjInfoCls(int a0, int a1);
 
 extern int stage_no;
@@ -71,7 +90,41 @@ void EXITDATA_GetNextPosition(int idx, float *pos, float *rot)
 
     sceVu0ScaleVector(rot, rot, 0.017453292f);
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObj);
+typedef struct { float x, y, z, w; } __attribute__((aligned(16))) Vec4S;
+
+extern char *D_00639EA8;
+extern void *memset(void *a0, int a1, int a2);
+extern void _ApplyRyGV(void *v, float ry);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void gamesysObjInfoPosNewStageSet(char *self, char *other, int v, float *tmp_a, float *tmp_b);
+
+void ACTGame_StageChangeGObj(char *self, int idx)
+{
+    float tmp_a[4];
+    float tmp_b[4];
+    float buf[4];
+    Vec4S buf2;
+    Vec4S buf3;
+
+    EXITDATA_GetNextPosition(idx, tmp_a, tmp_b);
+    if (*(int *)(self + 0xC) == 0x11) {
+        memset(buf, 0, 0x10);
+        buf[2] = 250.0f;
+        _ApplyRyGV(buf, -tmp_b[1]);
+        sceVu0AddVector(tmp_a, tmp_a, buf);
+    }
+    if (self == D_00639EA8) {
+        if (0.0f <= *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x330)) {
+            memset(&buf3, 0, 0x10);
+            buf3.z = -*(float *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x330);
+            buf2 = buf3;
+            _ApplyRyGV(&buf2, -tmp_b[1]);
+            sceVu0AddVector(tmp_a, tmp_a, &buf2);
+        }
+    }
+    gamesysObjInfoPosNewStageSet((char *)*(int *)(self + 0x8), (char *)*(int *)(self + 0xC),
+                                 D_0055C518[idx].f_24, tmp_a, tmp_b);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetActors_Debug);
 extern char *D_00639EA4;
 extern char *D_00639EA8;
@@ -104,15 +157,185 @@ void ACTGame_LwsEffectProcess(char *a0) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTGame_SearchGObj);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTarget_Exec);
+extern int D_0063B13C;
+extern char D_00552450[];
+extern void debug_Printf(int a, int b, int c, const char *d, int e);
+extern void GetRootPosition(void *dst, void *self);
+extern int GetSkeltonFocusNode(void *a0, void *a1);
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines GetSkeltonPosition (line 2244) here, so it is `inline` in
+   the dev's TU; while this tail still has asm members a deferred inline would
+   land at the object end instead of at its ROM slot, so the public body above
+   stays a plain definition and this caller uses the static stand-in.
+   Collapses to one `inline` definition at layout. */
+static inline void getSkeltonPosition(float *dst, char *obj, void *a2)
+{
+    int idx = GetSkeltonFocusNode(obj, a2) << 6;
+    ((IntFloat *)dst)[0].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x30);
+    ((IntFloat *)dst)[1].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x34);
+    ((IntFloat *)dst)[2].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
+}
+
+int ACTLookTarget_Exec(char *a0)
+{
+    float pos[4];
+    char *s = *(char **)(a0 + 0x164);
+    char *t = *(char **)(s + 0xA8);
+    int rv;
+    int b0;
+
+    if (D_0063B13C & 1) {
+        debug_Printf(0xA, 0xAA, 0x0FFFFFFF, D_00552450,
+                     *(int *)((char *)*(int *)(a0 + 0x15C) + 0x380));
+    }
+    rv = 0;
+    if (*(int *)(s + 0xAC) == 0) {
+        *(int *)((char *)*(int *)(a0 + 0x15C) + 0x380) = 0;
+    } else {
+        if (t == 0) {
+            pos[0] = *(float *)(s + 0xC0);
+            pos[1] = *(float *)(s + 0xC4);
+            pos[2] = *(float *)(s + 0xC8);
+        } else if (t == D_00639EA4) {
+            getSkeltonPosition(pos, t, (void *)0x23);
+        } else {
+            GetRootPosition(pos, t);
+        }
+        b0 = *(int *)(s + 0xB0);
+        rv = 1;
+        ((IntFloat *)((char *)*(int *)(a0 + 0x15C) + 0x390))->f = pos[0];
+        ((IntFloat *)((char *)*(int *)(a0 + 0x15C) + 0x394))->f = pos[1];
+        ((IntFloat *)((char *)*(int *)(a0 + 0x15C) + 0x398))->f = pos[2];
+        *(int *)((char *)*(int *)(a0 + 0x15C) + 0x380) = b0;
+    }
+    return rv;
+}
 extern void _ACTParaStatus_Set(char *a0, int a1);
 void ACTParaStatus_Clear(char *a0) {
     *(long long *)(*(char **)(a0 + 0x164) + 0x90) = 0;
     _ACTParaStatus_Set(a0, 0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTParaStatus_Exec);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTCharStatus_Clear);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", GetSkeltonOrient);
+extern void ActPara_MakeTbl(int a0, long long a1, int a2);
+extern int ActPara_GetDefTbl(void);
+extern void SetParallelMotionTable(char *self, int tbl, int def, int a3, int a4);
+extern float _GetRandom(void);
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines _ACTParaStatus_Set (lines 2287-2288) here, so it is
+   `inline` in the dev's TU; while this tail still has asm members a deferred
+   inline would land at the object end instead of at its ROM slot, so the
+   public body below stays a plain definition and this caller uses the static
+   stand-in.  Collapses to one `inline` definition at layout. */
+static inline void actParaStatus_Set(char *a0, int bit)
+{
+    char *s = (char *)*(int *)(a0 + 0x164);
+    *(unsigned long long *)(s + 0x90) |= (1ULL << bit) & ~*(unsigned long long *)(s + 0xA0);
+}
+
+void ACTParaStatus_Exec(char *self)
+{
+    char *s = (char *)*(int *)(self + 0x164);
+    char *sub;
+    char *p;
+    int changed;
+
+    changed = 0;
+    if ((int)(*(unsigned long long *)(s + 0x20) >> 16) & 1) {
+        actParaStatus_Set(self, 42);
+    }
+    if ((int)(*(unsigned long long *)(s + 0x20) >> 17) & 1) {
+        actParaStatus_Set(self, 43);
+    }
+    if (*(unsigned long long *)(s + 0x90) != *(unsigned long long *)(s + 0x98)) {
+        *(unsigned long long *)(s + 0x98) = *(unsigned long long *)(s + 0x90);
+        changed = 1;
+    }
+    p = *(char **)(s + 0x680);
+    if ((*(int *)(p + 0x5C))++ >= 121) {
+        sub = *(char **)(self + 0x15C);
+        if ((*(int *)(sub + 0x480) & 0x16) || *(int *)(sub + 0x4CC) != 0) {
+            if (D_0055FE58[*(int *)(sub + 0x4A0)].f_150 == 1) {
+                *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x5C) = 0;
+                *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x60) =
+                    (int)(_GetRandom() * 10.0f);
+                changed = 1;
+            }
+        }
+    }
+    actParaStatus_Set(self, 1);
+    if (changed == 0) {
+        return;
+    }
+    ActPara_MakeTbl(*(int *)((char *)*(int *)(self + 0x164) + 0x688),
+                    *(long long *)(s + 0x90),
+                    *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x60));
+    SetParallelMotionTable(self, *(int *)((char *)*(int *)(self + 0x164) + 0x688),
+                           ActPara_GetDefTbl(), 0,
+                           (int)*(float *)(*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x348));
+}
+extern float D_0063A69C[];
+extern int D_0028F4C0[];
+extern int *test_CURRENTROOT(int *a0);
+extern float _DistGV(void *a, void *b);
+extern int actEnemyFlagCheckActive(void *g);
+extern int *isysGObjSearchFromObjKindID_begin(int);
+extern int *isysGObjSearchFromObjKindID_next(int *);
+extern void *memset(void *a0, int a1, int a2);
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+
+void _ACTCharStatus_Clear(char *a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+    int old = *(int *)(s + 0x7C);
+    int *sel;
+    int *g;
+    float nearest;
+    float d;
+
+    memset(s + 0x58, 0, 0x38);
+    if (a0 == D_00639EA4 || a0 == D_00639EA8) {
+        nearest = D_0063A69C[0];
+        sel = 0;
+        g = isysGObjSearchFromObjKindID_begin(4);
+        while (g != 0) {
+            d = _DistGV(test_CURRENTROOT((int *)a0), test_CURRENTROOT(g));
+            if (actEnemyFlagCheckActive(g)) {
+                if (d < nearest) {
+                    sel = g;
+                    nearest = d;
+                }
+            }
+            g = isysGObjSearchFromObjKindID_next(g);
+        }
+        *(int **)(s + 0x7C) = sel;
+        if (a0 == D_00639EA4) {
+            if (old != 0
+                && *(int *)(s + 0x10) % ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 2) != 0) {
+                *(int *)(s + 0x7C) = old;
+            }
+        }
+    }
+}
+extern int GetSkeltonFocusNode(void *a0, void *a1);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
+
+void GetSkeltonOrient(float *out, void *obj, int node)
+{
+    int n = GetSkeltonFocusNode(obj, (void *)node);
+    if (*(int *)((char *)obj + 0xC) == 4) {
+        *(int *)((char *)out + 0x0) = 0;
+        ((IntFloat *)((char *)out + 0x4))->f = -1.0f;
+        *(int *)((char *)out + 0x8) = 0;
+    } else {
+        *(int *)((char *)out + 0x0) = 0;
+        ((IntFloat *)((char *)out + 0x4))->f = 1.0f;
+        *(int *)((char *)out + 0x8) = 0;
+    }
+    *(int *)((char *)out + 0xC) = 0;
+    sceVu0ApplyMatrix(out, (char *)(*(int *)(*(int *)((char *)obj + 0x15C) + 0xC) + (n << 6)), out);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_InnerVelocityUpdate);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_BeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", FunctionAboutClingedStatus);
@@ -132,9 +355,38 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTargetSystem_Exec);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemThrow);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemWatchMotion);
 ASM_LIT4_SLOT(D_00638CF0, 0.2f);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_InsertCamera_GirlIsPinch);
-ASM_LIT4_SLOT(D_00638CF4, 22500.0f);
-ASM_LIT4_SLOT(D_00638CF8, 0.05f);
+extern void GetRootPosition(void *dst, void *self);
+extern float _DistSqGV(int *a0, int a1);
+extern float IsPointIsInScreen(void *dst, void *root);
+extern void PrivInsCamSet(void *a0, void *a1, void *a2, int a3, int a4, int a5,
+                          float f0, float f1);
+
+void ACTGame_InsertCamera_GirlIsPinch(void)
+{
+    float p0[4];
+    float p1[4];
+    float p2[4];
+
+    if (D_00639EA4 == 0 || D_00639EA8 == 0) {
+        return;
+    }
+    GetRootPosition(p0, D_00639EA4);
+    GetRootPosition(p1, D_00639EA8);
+    if (_DistSqGV((int *)p0, (int)p1) < 22500.0f) {
+        return;
+    }
+    if (IsPointIsInScreen(p2, test_CURRENTROOT((int *)D_00639EA8)) > 0.0f) {
+        return;
+    }
+    if (D_00639EA4 == 0 || D_00639EA8 == 0) {
+        return;
+    }
+    PrivInsCamSet(test_CURRENTROOT((int *)D_00639EA4),
+                  test_CURRENTROOT((int *)D_00639EA8), D_00639EA4,
+                  (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 100 / 60,
+                  (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 45 / 60,
+                  1, 0.05f, 0.25f);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", updateHMC);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", RequestChangeHandMode);
 extern char *D_00639EA4;
@@ -162,24 +414,6 @@ void ACTGameCollisionOff(volatile int *self)
     ((int *)self[0x57])[0x152] = 0;
     ((int *)self[0x57])[0x1F] = 0;
 }
-/* The 0x194-byte-per-entry motion record table, indexed by the object's
-   current motion id (obj->0x15C->0x4A0). */
-typedef struct {
-    char _000[0x150];
-    int f_150;
-    char _154[0x2C];
-    short f_180;
-    short f_182;
-    short f_184;
-    char _186[0x02];
-    union {
-        unsigned int w;
-        struct { unsigned short lo, hi; } h;
-    } u_188;
-    unsigned int f_18C;
-    char _190[0x04];
-} MotionRec;
-extern MotionRec D_0055FE58[];
 int ACTGame_CheckItemMotion(char *a0) {
     MotionRec *rec = &D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)];
     return (rec->u_188.w >> 19) & 7;
@@ -200,7 +434,7 @@ void ACTGame_StageChangeGObjID(char *self, char *other, int idx)
     EXITDATA_GetNextPosition(idx, tmp_a, tmp_b);
     gamesysObjInfoPosNewStageSet(self, other, D_0055C518[idx].f_24, tmp_a, tmp_b);
 }
-extern void memset(void *a0, int a1, int a2);
+extern void *memset(void *a0, int a1, int a2);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
 void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3) {
@@ -478,7 +712,7 @@ int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout)
 }
 extern void ClipWall(void *);
 extern void GetOrientOfWall(void *out, int n, void *vec);
-extern void memset(void *a0, int a1, int a2);
+extern void *memset(void *a0, int a1, int a2);
 extern void sceVu0CopyVector(void *buf, int x);
 
 int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget, int *flagout) {
@@ -569,8 +803,68 @@ int ACTCheckCollis_WELL(float f, void *p0, void *p1, void *actor, void *posout)
     return rv;
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WAY);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewCl);
-ASM_LIT4_SLOT(D_00638D00, 25000000.0f);
+extern void ClipWall(void *);
+extern void ClipFloor(void *);
+extern void sceVu0CopyVector(void *buf, int x);
+extern int ACTCheckView(char *self, void *a1, void *a2, void *a3, float f);
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines ACTCheckCollis_VIEW (line 1606) here and in
+   ACTCheckViewClDetail, so it is `inline` in the dev's TU; while this tail
+   still has asm members a deferred inline would land at the object end
+   instead of at its ROM slot, so the public body below stays a plain
+   definition and these callers use the static stand-in.  Collapses to one
+   `inline` definition at layout. */
+static inline unsigned char actCheckCollis_VIEW(float f, void *p0, void *p1, void *actor)
+{
+    HandWork work;
+    int flag;
+    int rv;
+
+    memset(&work, 0, 0xC0);
+    rv = 1;
+    flag = actor ? *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) : 0;
+
+    if (!(_DistSqGV((int *)p0, (int)p1) < 25000000.0f)) {
+        return 1;
+    }
+
+    work._70 = f;
+    sceVu0CopyVector(&work, (int) p0);
+    sceVu0CopyVector((char *) &work + 0x10, (int) p1);
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 0;
+    }
+    ClipWall(&work);
+    if (work._88 == 0) {
+        ClipFloor(&work);
+        if (work._94 == 0) {
+            rv = 0;
+        }
+    }
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 1;
+    }
+    return rv;
+}
+
+int ACTCheckViewCl(char *self, void *a1, void *a2, void *a3, float f)
+{
+    float pos[4];
+    float *m;
+    int n;
+
+    if (*(int *)(self + 0xC) == 4) {
+        return 1;
+    }
+    n = GetSkeltonFocusNode(self, (void *)0x23) << 6;
+    m = (float *)(n + *(int *)((int)((GObj *)(self))->p_15C + 0xC));
+    pos[0] = m[12]; pos[1] = m[13]; pos[2] = m[14];
+    if (ACTCheckView(self, a1, a2, a3, f) == 0) {
+        return 0;
+    }
+    return actCheckCollis_VIEW(0.0f, pos, a2, a1) == 0;
+}
 extern char D_00552400[];
 extern char D_00552420[];
 extern char D_0063A698[];
@@ -991,7 +1285,7 @@ int ACTChkAttackIgnore_ENEMY(char *a0)
 extern float _DistSqGV(int *a0, int a1);
 extern void ClipFloor(void *);
 
-int ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor)
+unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor)
 {
     HandWork work;
     int flag;
@@ -1021,10 +1315,30 @@ int ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor)
     if (flag != 0) {
         *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 1;
     }
-    return rv & 0xFF;
+    return rv;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewClDetail);
-ASM_LIT4_SLOT(D_00638D0C, 25000000.0f);
+int ACTCheckViewClDetail(char *self, void *a1, void *a2, void *a3, float f)
+{
+    float pos[4];
+    float *m;
+    int n;
+    int ret;
+
+    if (*(int *)(self + 0xC) == 4) {
+        return 1;
+    }
+    n = GetSkeltonFocusNode(self, (void *)0x23) << 6;
+    m = (float *)(n + *(int *)((int)((GObj *)(self))->p_15C + 0xC));
+    pos[0] = m[12]; pos[1] = m[13]; pos[2] = m[14];
+    ret = ACTCheckView(self, a1, a2, a3, f);
+    if (actCheckCollis_VIEW(0.0f, pos, a2, a1)) {
+        return 0;
+    }
+    if (ret != 0) {
+        return 1;
+    }
+    return 2;
+}
 void ACTGame_SetMotionPlaySpeedRatio_Clear(char *a0) {
     char *p = *(char **)(*(char **)(a0 + 0x164) + 0x680);
     *(float *)(p + 0x58) = 1.0f;
