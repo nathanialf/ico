@@ -47,7 +47,7 @@ extern int ForMotionViewer_GetCurrentMotion(void *a0);
 extern void gflagOff(int a0);
 extern int actCreateSubThread(void *entry, int prio);
 extern void iosThreadSetPri(int a0, int a1);
-extern void scpAdpcmFadeCloseFunc(void *a0, int a1);
+extern int scpAdpcmFadeCloseFunc(void *a0, int a1);
 extern int scpAdpcmPlayRequestNum(void);
 extern int scpFadeChk(void);
 extern void scpFadeIn(float f);
@@ -112,6 +112,22 @@ extern int D_0063C520;
 extern int D_0063C524;
 extern int D_0063C528;
 extern void actSt04lBallTurnCommon(volatile int a0);
+extern AdpcmReq *crest3;
+extern AdpcmReq *stair4d;
+extern const long long D_00622AB0[];
+extern int D_0063C534;
+extern unsigned int st04l_yure;
+extern unsigned char st04l_yure_vol;
+extern void scpKillEnemyAll(void);
+extern void scpMaskGeneratorAll(void);
+extern void scpPlayPosSet(void *a0, float x, float y, float z);
+extern void scpPlayMotDir(void *a0, float *dir);
+extern void sceVu0SubVector(float *d, const void *a, const void *b);
+extern void *test_CURRENTROOT(void *a0);
+extern void scpSekizouCheckPoint(void);
+extern void scpPlayWaitMotEnd(void *a0);
+extern void scpSleepEnemyOne(int a0);
+extern void scpWakeupEnemyOne(int a0);
 
 void actSt04cInit(void)
 {
@@ -355,7 +371,24 @@ void actSt04lBallTurnCommon(volatile int a0)
     lt_switch_layout(0x36);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st04l", turnBall);
+extern ActMail D_004F8B20[];
+
+void turnBall(int a0, int a1, int a2, int a3, int a4)
+{
+    /* the 0x164 chase is spelled int-typed: ROM re-chases it in the int
+       alias set of the D_0063C51C.. stores, so it cannot be sunk below them */
+    Act *sub = (Act *)*(int *)(a0 + 0x164);
+
+    D_0063C51C = a1;
+    D_0063C520 = a2;
+    D_0063C524 = a3;
+    D_0063C528 = a4;
+
+    D_004F8B20[0].func = actSt04lBallTurnCommon;
+    sub->mail = D_004F8B20;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 extern ActMail D_004F8C60[];
 extern void actSt04lCrest2Main(volatile int a0);
 
@@ -728,10 +761,156 @@ void actSt04eSolarBeamChk(volatile int a0)
 
     RequestStageChange(7, D_00639EA4, 0, 2.0f, 8.0f);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lStairSub);
+void actSt04lStairSub(volatile int a0)
+{
+    long long ofs[2];
+    float dir[4];
+
+    _ACTWait(0x3C);
+
+    while (crest3 == 0) {
+        _ACTWait(1);
+    }
+
+    AdpcmPlay(crest3->unk2C);
+
+    stage_SetAnimation(0x102, 1, 0);
+
+    scpPlayStart(D_00639EA4);
+    scpPlayStart(D_00639EA8);
+    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayPosSet(D_00639EA4, 55.0f, 28.0f, -3881.0f);
+    scpPlayPosSet(D_00639EA8, -58.0f, 28.0f, -3891.0f);
+
+    ofs[0] = D_00622AB0[0];
+    ofs[1] = D_00622AB0[1];
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(D_00639EA4));
+    scpPlayMotDir(D_00639EA4, dir);
+
+    ofs[0] = D_00622AB0[0];
+    ofs[1] = D_00622AB0[1];
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(D_00639EA8));
+    scpPlayMotDir(D_00639EA8, dir);
+
+    D_0063C534 = 1;
+
+    while (stage_CheckAnimationFinish(0x102) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(D_00639EAC, 0x11);
+
+    stage_SetAnimation(0xE3, 1, 0);
+
+    while (stage_CheckAnimationFrame(0xE3, 0x8C, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    oriup4c = iosPadActRequest(D_00639EAC, 9);
+    oridown4c = 0x80;
+    iosPadActVolumeSet(oriup4c, 0x80);
+
+    while (stage_CheckAnimationFinish(0xE3) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    D_0063C52C = 1;
+    _ACTWait(0);
+}
 extern void actSt04lStairSub(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lStairChk);
+void actSt04lStairChk(volatile int a0)
+{
+    int h;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerFloorAttr(D_00639EA4, 0xB000000) == 0 ||
+           scpTriggerFloorAttr(D_00639EA8, 0xB000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    scpSleepEnemyOne(0xEAD);
+    gflagOn(0xB4);
+    FinishHint(0x11);
+
+    scpSearchGobj(0x4DA)->f16C = 0;
+
+    stage_SetAnimation(0x103, -1, -2);
+
+    scpAdpcmPlayRequestFunc(0x3D, &crest3, 1, 1, 0);
+
+    h = actCreateSubThread(actSt04lStairSub, 0x15);
+
+    D_0063C52C = 0;
+    D_0063C534 = 0;
+    oriup4c = 0xFFFFFFFF;
+
+    while (D_0063C52C == 0 &&
+           ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    if (D_0063C52C == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+
+        while (crest3 == 0) {
+            _ACTWait(1);
+        }
+
+        scpAdpcmFadeCloseFunc(&crest3, 0x200);
+
+        while (D_0063C534 == 0) {
+            _ACTWait(1);
+        }
+
+        iosThreadSetPri(h + 0x24, 0x22);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+
+        stage_SetAnimation(0x102, 0, -1);
+        stage_SetAnimation(0xE3, 0, -1);
+
+        _ACTWait(1);
+
+        scpPlayMot(D_00639EA4, 0);
+        scpPlayMot(D_00639EA8, 0x214);
+        scpPlayPosSet(D_00639EA4, 55.0f, 234.0f, -3881.0f);
+        scpPlayPosSet(D_00639EA8, -58.0f, 234.0f, -3891.0f);
+
+        _ACTWait(1);
+        iosOmSendMail(D_00639EA8, 0x3E, D_00639EA4);
+
+        scpFadeIn(3.0f);
+    } else {
+        iosThreadSetPri(h + 0x24, 0x22);
+    }
+
+    iosPadActStop(oriup4c);
+
+    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayEnd(D_00639EA4);
+    scpPlayEnd(D_00639EA8);
+
+    D_0063AA08 = 0;
+    lt_switch_layout(0x36);
+    gflagOn(0xDC);
+    scpWakeupEnemyOne(0xEAD);
+}
 void actSt04lRope1Chk(volatile int a0)
 {
     int x = a0;
@@ -872,7 +1051,89 @@ void actSt04lRope4Chk(volatile int a0)
         }
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/st04l", actSt04lSekizoChk);
+void actSt04lSekizoChk(volatile int a0)
+{
+    float dir[4];
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0 ||
+           scpTriggerBall(a0, D_00639EA8, 200.0f) == 0 ||
+           scpTriggerFloorAttr(D_00639EA4, 0x8000000) == 0 ||
+           scpTriggerFloorAttr(D_00639EA8, 0x8000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    scpKillEnemyAll();
+    scpMaskGeneratorAll();
+
+    scpAdpcmPlayRequestFunc(0x12, &stair4d, 1, 1, 1);
+
+    while (stair4d == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(1, 1);
+
+    stage_SetAnimation(0xE2, 1, 0);
+
+    st04l_yure = iosPadActRequest(D_00639EAC, 9);
+    st04l_yure_vol = 0x80;
+    iosPadActVolumeSet(st04l_yure, 0x80);
+
+    scpPlayStart(D_00639EA4);
+    scpPlayStart(D_00639EA8);
+    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayPosSet(D_00639EA8, 0.0f, -1300.0f, -1700.0f);
+    scpPlayPosSet(D_00639EA4, 20.0f, -1300.0f, -1700.0f);
+
+    _ACTWait(1);
+
+    sceVu0SubVector(dir, test_CURRENTROOT((void *)a0),
+                    test_CURRENTROOT(D_00639EA8));
+    scpPlayMotDir(D_00639EA8, dir);
+
+    D_0063AA08 = 1;
+
+    sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8),
+                    test_CURRENTROOT(D_00639EA4));
+    scpPlayMotDir(D_00639EA4, dir);
+
+    scpSekizouCheckPoint();
+
+    scpPlayMot(D_00639EA8, 0x285);
+    scpPlayWaitMotEnd(D_00639EA8);
+
+    gflagOn(0xBC);
+
+    while (stage_CheckAnimationFrame(0xE2, 0x97, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActStop(st04l_yure);
+
+    while (stage_CheckAnimationFinish(0xE2) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayEnd(D_00639EA8);
+    scpPlayMot(D_00639EA4, 0);
+    scpPlayEnd(D_00639EA4);
+
+    _ACTWait(1);
+    iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+
+    lt_switch_layout(0x36);
+    D_0063AA08 = 0;
+}
 extern ActMail D_004F8EA0[];
 extern void actSt04lGondolaCharaChk(volatile int a0);
 

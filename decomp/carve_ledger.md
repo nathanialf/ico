@@ -1001,8 +1001,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   as literals; MAIN.MAP's 0x108 is the debug link's size.
 
 - `[0x53995C, .lit4, src/st04r]` — the TU's whole pool, 8 words, all literals (the tail
-  is fully C); the blob at 0x539940 keeps st04e's and st04l's seven words until those
-  land, and st05b's carve follows at 0x53997C.
+  is fully C); st05b's carve follows at 0x53997C.
+
+- `[0x539944, .lit4, src/st04l]` — the TU's whole pool, 6 words, all literals (two copies
+  of -3881/-3891, one per function pool, then SekizoChk's pair); the blob at 0x539940
+  keeps st04e's single word until that owner lands.
 
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 

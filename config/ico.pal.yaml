@@ -503,7 +503,8 @@ segments:
       - [0x5398CC, .lit4, src/st03t]  # carved D_006398CC..D_006398D4 (3 slots, actSt03tSekizo's -913/605/550 as literals; the TU's whole pool, bounded by st02a's and st04a's words), VMA 0x6398CC..0x6398D8
       - [0x5398D8, .lit4, src/st04a]  # carved D_006398D8..D_00639924 (20 slots: GateChk, Conte06 x4, Conte06Jimaku, Conte09Jimaku, Conte09_2 x3, Conte09_3 x4, TorchHintChk x2 still asm; EnvSe/EnvSeWakare1/EnvSeWakare2/Conte09_3Jimaku's rates and bound as literals; the TU's whole pool, bounded by st03t's and st04b's words), VMA 0x6398D8..0x639928
       - [0x539928, .lit4, src/st04b]  # carved D_00639928..D_0063993C (6 slots: actSt04bSekizoChk x4 still asm, actSt04bSekizo's 10793/2122 as literals; the TU's whole pool, bounded by st04a's and st04e's words), VMA 0x639928..0x639940
-      - [0x539940, lit4, src/cod/539940]     # .lit4 blob resume (st04e's 0.005 and st04l's six StairSub/StairChk/SekizoChk words, still asm)
+      - [0x539940, lit4, src/cod/539940]     # .lit4 blob resume (st04e's 0.005, still asm)
+      - [0x539944, .lit4, src/st04l]  # carved D_00639944..D_00639958 (6 words, all literals: StairSub -3881/-3891, StairChk -3881/-3891, SekizoChk -1300/-1700; the TU's whole pool, one word per function pool; MAIN.MAP's 0x10 is the debug link's), VMA 0x639944..0x63995C
       - [0x53995C, .lit4, src/st04r]  # carved D_0063995C..D_00639978 (8 words, all literals in StairSub, StairChk, SekizoChk, GondolaChk; the TU's whole pool, st05b's carve follows), VMA 0x63995C..0x63997C
       - [0x53997C, .lit4, src/st05b]  # carved D_0063997C..D_00639990 (6 slots: actSt05bSekizoChk x4, actSt05bSekizo's camera target -10793/2122 as literals; the TU's whole pool — MAIN.MAP's 0x18 is the debug link's, 0x639994 is st05e's), VMA 0x63997C..0x639994
       - [0x539994, lit4, src/cod/539994]     # .lit4 blob resume (st05e's words)
