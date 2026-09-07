@@ -1122,6 +1122,11 @@ words become the blob's first words.
   records, st13a's D_004FAA00 and the other blob pieces wait for their
   still-asm owners.
 
+- `src/way_kidnap` `.lit4` 0x539860..0x539864 (VMA 0x639860, 4 B): 1.0e10f,
+  NearestEnemyFromGirl's initial minimum, the TU's entire pool run; the
+  literal in C produces the word (a pool MEM is RTX_UNCHANGING_P, which is
+  what lets the load leave the call it followed).
+
 ### Deferred
 
 - Per-TU `__FILE__` strings for the `iosMalloc(size)` macro form

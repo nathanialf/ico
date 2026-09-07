@@ -302,8 +302,56 @@ extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 extern int isEnemyKidnapEnable(void *gobj);
 extern void *D_00639EA8;
-extern float D_00639860;
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", NearestEnemyFromGirl);
+static inline float wayLengthOfGObj_Pos(void *obj, float *pos) {
+    float buf[4];
+    if (obj == 0) {
+        return -1.0f;
+    }
+    GetRootPosition(buf, obj);
+    return WayLengthOfPos_Pos(buf, pos);
+}
+
+/* INTERIM: the listing inlines WayLengthOfGObj_GObj (and through it
+ * WayLengthOfGObj_Pos) into NearestEnemyFromGirl.  Both are public functions of
+ * the TU's deferred-`inline` tail, so their plain definitions stay at their ROM
+ * slots below and these static stand-ins carry the inlined copies. */
+static inline float wayLengthOfGObj_GObj(void *obj0, void *obj1) {
+    float pos[4];
+    if (obj1 == 0) {
+        return -1.0f;
+    }
+    GetRootPosition(pos, obj1);
+    return wayLengthOfGObj_Pos(obj0, pos);
+}
+
+void *NearestEnemyFromGirl(float *len)
+{
+    float min;
+    void *nearest = 0;
+    void *obj;
+    float d;
+
+    obj = isysGObjSearchFromObjKindID_begin(4);
+    min = 1.0e10f;
+
+    while (obj != 0 && !isEnemyKidnapEnable(obj))
+        obj = isysGObjSearchFromObjKindID_next(obj);
+
+    while (obj != 0) {
+        d = wayLengthOfGObj_GObj(D_00639EA8, obj);
+
+        if (d >= 0.0f && d < min) {
+            min = d;
+            nearest = obj;
+        }
+
+        do {
+            obj = isysGObjSearchFromObjKindID_next(obj);
+        } while (obj != 0 && !isEnemyKidnapEnable(obj));
+    }
+    *len = min;
+    return nearest;
+}
 
 int NumOfWpPos(void) {
     return D_0063BD60;
@@ -322,15 +370,6 @@ int CopyWpPos(float dst[][4], int from, int to)
     }
 
     return 0;
-}
-
-static inline float wayLengthOfGObj_Pos(void *obj, float *pos) {
-    float buf[4];
-    if (obj == 0) {
-        return -1.0f;
-    }
-    GetRootPosition(buf, obj);
-    return WayLengthOfPos_Pos(buf, pos);
 }
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines

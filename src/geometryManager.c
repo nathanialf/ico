@@ -170,8 +170,6 @@ void LocalizeDirectionOrient(int *self, int *a1)
                   (int *)((char *)((GObj *)((char *)self))->p_15C + 0x520));
     ((GObj *)((char *)self))->p_15C->f_52C = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetCylinderCollision);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetCylinderCollisionWithExceptOwnCollision);
 extern int D_00668540[];
 extern int D_00639EFC;
 extern int isMustCheckCylinder(void *a0, void *a1);
@@ -198,6 +196,24 @@ static __inline__ void GetRootPosition_ic(void *a0, char *outer)
     f0 = p[0x30];
     *(float *)((char *)a0 + 0x4) += f0;
     *(float *)((char *)a0 + 0xC) = 1.0f;
+}
+
+int GetCylinderCollision(char *self, int target, float r, float h, float s, int ctrl)
+{
+    float pos[4];
+
+    GetRootPosition_ic(pos, self);
+    return cylinderCollisionCheck(self, pos, target, r, r * r, h, s, 1.0f - s, ctrl, 0);
+}
+
+int GetCylinderCollisionWithExceptOwnCollision(char *self, int target,
+                                               float r, float h, float s, float t,
+                                               int ctrl)
+{
+    float pos[4];
+
+    GetRootPosition_ic(pos, self);
+    return cylinderCollisionCheck(self, pos, target, r, r * r, h, s, t, ctrl, 1);
 }
 
 static __inline__ int CylinderCollisionWithControlDynamics_i(char *self, int group, int ctrl,
