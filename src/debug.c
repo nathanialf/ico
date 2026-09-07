@@ -355,9 +355,170 @@ extern void debug_FlushFontWindow(void);
 void debug_FlushFont(void) {
     debug_FlushFontWindow();
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", draw_batsu);
-INCLUDE_ASM("asm/nonmatchings/src/debug", draw_shikaku);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_brainBar);
+/* The bar colours are 4-byte GS colour records this TU only sees as far
+   (incomplete-array) symbols; their byte alignment is what makes every copy
+   an lwl/lwr pair. */
+typedef struct { unsigned char r, g, b, a; } DbgCol;
+extern DbgCol D_0063AEB8[];
+extern DbgCol D_0063AEC0[];
+extern DbgCol D_0063AEC8[];
+extern DbgCol D_0063AED0[];
+extern DbgCol D_0063AED8[];
+typedef struct { int x, y, z; } DbgPos;
+typedef struct { int x, y, z, w; } DbgVtx;
+typedef struct {
+    int gobj;
+    float level;
+    float f8;
+    float fC;
+    float f10;
+    int timer;
+    unsigned char b18;
+    unsigned char b19;
+    unsigned char b1A;
+    unsigned char b1B;
+} BrainTarget;
+typedef struct {
+    int girl;
+    BrainTarget *cur;
+    int w8;
+    int wC;
+    int w10;
+    float f14;
+    float f18;
+    short h1C;
+    short _1E;
+    float f20;
+    short idx;
+    short _26;
+    BrainTarget tgt[0x28];
+} Brain;
+extern Brain D_002A5580[];
+extern float brainGetLevel(Brain *b, BrainTarget *t);
+extern int brainCheckView(Brain *b, BrainTarget *t);
+extern void gif_Line(void *v0, void *v1, unsigned int z0, unsigned int z1,
+                     void *col, int prim);
+/* The four corners of a marker box, shared by draw_batsu and draw_shikaku
+   (the listing inlines lines 2379-2393 into both).  `q` carries no traffic in
+   the shipped build, but the ROM's inlined frame proves the slot: the offsets
+   table is addressed as <inline frame base>+0x10, i.e. 16 bytes of this
+   function's locals sit in front of it.  The table is built element by element
+   (not copied from .rodata) because `r` makes the initialiser non-constant. */
+static inline void make_mark_points(DbgVtx *v, DbgPos *p, int r)
+{
+    DbgPos q;   /* unused in the 2001 source too: ROM's frame keeps its 16-byte slot
+                   ahead of the offsets table (0xD0, not 0xC0), and the listing
+                   has exactly one declaration line here (2381). */
+    int ofs[4][2] = { { -r, -r }, { r, -r }, { -r, r }, { r, r } };
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        v[i].x = p->x;
+        v[i].y = p->y;
+        v[i].z = p->z;
+        v[i].x += ofs[i][0];
+        v[i].y += ofs[i][1];
+    }
+}
+void debug_brainBar(void)
+{
+    void draw_batsu(DbgPos *p)
+    {
+        DbgCol col = D_0063AEB8[0];
+        DbgVtx v[4];
+
+        make_mark_points(v, p, 3);
+        gif_Line(&v[0], &v[3], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[1], &v[2], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+    }
+    void draw_shikaku(DbgPos *p)
+    {
+        DbgCol col = D_0063AEB8[0];
+        DbgVtx v[4];
+
+        make_mark_points(v, p, 3);
+        gif_Line(&v[0], &v[1], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[1], &v[3], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[3], &v[2], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[2], &v[0], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+    }
+    DbgCol c0 = D_0063AEC0[0];
+    DbgCol c1 = D_0063AEC8[0];
+    DbgCol c2 = D_0063AED0[0];
+    DbgCol c3 = D_0063AED8[0];
+    DbgPos a;
+    DbgPos b;
+    DbgPos c;
+    Brain *brain;
+    DbgCol *col;
+    int i;
+    int y;
+    int ytop;
+
+    ytop = -100;
+    y = ytop;
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 2, c3.a);
+    brain = &D_002A5580[0];
+    for (i = 0; i < 0x28; i++) {
+        b.x = 300;
+        a.y = b.y = y;
+        if (brain->tgt[i].gobj == 0) {
+            continue;
+        }
+        y += 4;
+        a.y = b.y = y;
+        a.x = 300.0f - brainGetLevel(brain, &brain->tgt[i]) * 20.0f;
+        if (brain->idx == i) {
+            col = &c2;
+        } else if (brainGetLevel(brain, &brain->tgt[i]) < brain->f14) {
+            col = &c0;
+        } else {
+            col = &c1;
+        }
+        gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
+        if (*(int *)(brain->tgt[i].gobj + 0xC) == 0x3D) {
+            /* a.z is never written: the ROM reads sp+0x48 uninitialised here
+               too, so the 2001 source carried the same bug. */
+            c.x = a.x;
+            c.y = a.y;
+            c.z = a.z;
+            c.x -= 15;
+            if (brain->tgt[i].b19) {
+                draw_shikaku(&c);
+            } else {
+                draw_batsu(&c);
+            }
+            c.x += 10;
+            if (brainCheckView(brain, &brain->tgt[i])) {
+                draw_shikaku(&c);
+            } else {
+                draw_batsu(&c);
+            }
+            c.x += 15;
+            if (brain->tgt[i].b18) {
+                draw_shikaku(&c);
+            } else {
+                draw_batsu(&c);
+            }
+        }
+        y += 4;
+    }
+    b.x = 300.0f - brain->f14 * 20.0f;
+    a.x = b.x;
+    a.y = ytop;
+    b.y = y;
+    gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, &c2, 1);
+    a.x = b.x = 260;
+    a.y = ytop;
+    b.y = y;
+    gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, &c1, 1);
+    a.x = b.x = 220;
+    a.y = ytop;
+    b.y = y;
+    gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, &c0, 1);
+    gif_EndPacket();
+}
 extern char D_00704680[];
 extern char D_0063AE90[];
 extern int D_0063B13C;
