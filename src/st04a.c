@@ -461,5 +461,44 @@ void actSt04aGirlSitChk(volatile int a0)
         _ACTWait(1);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aModelOnChk);
-INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aModelOffChk);
+/* The model-on watcher's mail record: it installs actSt04aModelOffChk here
+   and posts it. Word 0 of each entry is the mail id the entry answers (0x1AE
+   the actor post, 0x1AD the trailing entry); .func is filled in at run time.
+   Named for the thread that owns and posts it. */
+static ActMail model_on[2] = { { 0x1AE }, { 0x1AD } };
+extern void actSt04aModelOffChk(volatile int a0);
+
+void actSt04aModelOnChk(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    while (scpTriggerFloorAttr(D_00639EA4, 0x3000000) != 0) {
+        _ACTWait(1);
+    }
+
+    scpSearchGobj(0x288)->f16C = 1;
+
+    model_on[0].func = actSt04aModelOffChk;
+    sub->mail = model_on;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+/* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
+static ActMail model_off[2] = { { 0x1AE }, { 0x1AD } };
+extern void actSt04aModelOnChk(volatile int a0);
+
+void actSt04aModelOffChk(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    while (scpTriggerFloorAttr(D_00639EA4, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+
+    scpSearchGobj(0x288)->f16C = 0;
+
+    model_off[0].func = actSt04aModelOnChk;
+    sub->mail = model_off;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}

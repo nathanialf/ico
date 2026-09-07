@@ -48,7 +48,12 @@ extern ActMail D_004FAA20[];
 extern ActMail D_004FAA40[];
 extern ActMail D_004FAA60[];
 extern ActMail D_004FAA80[];
-extern ActMail D_004FAAA0[];
+/* The chain-OK watcher's mail record: it installs actSt13aChainNG here and
+   posts it to hand the chain back to the NG (hang-disabled) watcher. Word 0
+   of each entry is the mail id the entry answers (0x1AE the actor post,
+   0x1AD the trailing entry); .func is filled in at run time. Named for the
+   thread that owns and posts it. */
+static ActMail chain_ok_mes[2] = { { 0x1AE }, { 0x1AD } };
 extern ActMail D_004FAAC0[];
 
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aElevUpSub);
@@ -164,7 +169,22 @@ void actSt13aCheckChk(volatile int a0)
     CheckPoint();
     gflagOn(0x147);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aChainOK);
+void actSt13aChainOK(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    while (scpTriggerBall(a0, scpSearchGobj(0x818), 200.0f) != 0) {
+        _ACTWait(1);
+    }
+
+    EnableChainHang((char *)scpSearchGobj(0x817));
+    gflagOff(0x148);
+
+    chain_ok_mes[0].func = actSt13aChainNG;
+    sub->mail = chain_ok_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 void actSt13aChainNG(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;

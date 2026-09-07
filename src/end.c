@@ -1038,9 +1038,61 @@ void actStaff3Demo(volatile int a0)
 
     scpFadeOut(6.0f, 0, 0, 0);
 }
-ASM_LIT4_SLOT(D_006398A4, 7046.0f);
-ASM_LIT4_SLOT(D_006398A8, 1678.0f);
-INCLUDE_ASM("asm/nonmatchings/src/end", actEndDemo14);
+extern Act *actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void lt_switch_layout(int a0);
+extern void scpFadeOut(float a0, int a1, int a2, int a3);
+extern int scpFadeChk(void);
+extern void ScpCallCameraSetTarget(float x, float y, float z);
+extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+extern void SelectBoyCrown(int a0, int a1);
+extern PObjGObj *scpSearchGobj(int a0);
+extern void SetGirlClothDispSwitch(PObjGObj *gobj, int a1, int a2);
+extern void ACTSendMailCorrect(int a0, int mail);
+/* Demo 14's mail record: the actor installs actEndDemo14Chk in it and posts
+   it. Word 0 of each entry is the mail id the entry answers (0x1AE the actor
+   post, 0x1AD the trailing entry); .func is filled in at run time. Named in
+   this TU's own terse snake_case house style (its MAIN.MAP globals are
+   ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
+static ActMail ed_demo14_mes[2] = { { 0x1AE }, { 0x1AD } };
+extern int D_0063A054;
+extern int D_0063AA08;
+extern int D_0063BE34;
+extern int D_00639EA4;
+extern void actEndDemo14Chk(volatile int a0);
+
+void actEndDemo14(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+
+    _ACTWait(1);
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    D_0063A054 = 1;
+    scpFadeOut(3.0f, 0xFF, 0xFF, 0xFF);
+
+    while (scpFadeChk() != 0) {
+        _ACTWait(1);
+    }
+
+    D_0063A054 = 0;
+    ScpCallCameraSetTarget(7046.0f, -77.0f, 1678.0f);
+
+    scpAdpcmPlayRequestFunc(0x5F, &D_0063BE34, 1, 0, 1);
+
+    while (D_0063BE34 == 0) {
+        _ACTWait(1);
+    }
+
+    SelectBoyCrown(D_00639EA4, 2);
+    SetGirlClothDispSwitch(scpSearchGobj(0x8CD), 1, 2);
+    ed_demo14_mes[0].func = actEndDemo14Chk;
+    self->mail = ed_demo14_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 extern void scpPlayStart(int a0);
 extern void scpFadeIn(float f);
 extern void stage_SetAnimation(int a0, int a1, int a2);
@@ -1294,7 +1346,84 @@ void actSt27aEndDemo(volatile int a0)
         RequestStageChange(1, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/end", actEndLogoChk);
+extern Act *actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void stage_SetLoopFlag(int key, int a1);
+extern void stage_SetAnimation(int a0, int a1, int a2);
+extern void SetHandCameraLimitInDemo(int a0, int a1);
+extern void SetZoomMaxValInDemo(int a0);
+extern void preload(int idx);
+extern void scpFadeOut(float a0, int a1, int a2, int a3);
+extern int scpFadeChk(void);
+extern void scpFadeIn(float f);
+extern void ACTSendMailCorrect(int a0, int mail);
+/* The ending's save hand-off mail record: the logo watcher installs
+   actEndingSave in it and posts it. Word 0 of each entry is the mail id the
+   entry answers (0x1AE the actor post, 0x1AD the trailing entry); .func is
+   filled in at run time. Named in this TU's own terse snake_case house style
+   (its MAIN.MAP globals are ed1..ed6, sea, happy_end) for the sequence it
+   belongs to; among the role-plausible spellings this is one that also puts
+   the record ahead of the handler in gcc's expression-hash order. */
+static ActMail end_mes[2] = { { 0x1AE }, { 0x1AD } };
+extern int D_0063AA08;
+extern int NonLinearCameraMove;
+extern int enable_game_pause;
+extern int D_0028F4C0[];
+extern void actEndingSave(volatile int a0);
+
+void actEndLogoChk(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+    int id = 0x3C;
+
+    _ACTWait(1);
+
+    D_0063AA08 = 1;
+    enable_game_pause = 0;
+
+    switch (NonLinearCameraMove) {
+    case 3:
+        id = 0x3D;
+        break;
+    case 4:
+        id = 0x3E;
+        break;
+    case 6:
+        id = 0x40;
+        break;
+    case 5:
+        id = 0x3F;
+        break;
+    }
+
+    stage_SetLoopFlag(id, 1);
+
+    stage_SetAnimation(id, 1, 0);
+
+    SetHandCameraLimitInDemo(0, 0);
+
+    SetZoomMaxValInDemo(0);
+
+    preload(1);
+
+    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x1E);
+
+    scpFadeOut(6.0f, 0, 0, 0);
+
+    while (scpFadeChk() != 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(id, -1, -2);
+
+    scpFadeIn(6.0f);
+
+    end_mes[0].func = actEndingSave;
+    self->mail = end_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void scpPlayMot(int a0, int mot);

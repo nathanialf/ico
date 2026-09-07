@@ -389,6 +389,28 @@ segments:
       - [0x3EE6F0, data, src/cod/3EE6F0]     # .data blob resume
       - [0x3F1D60, .data, src/act-env]  # carved D_004F1D60..D_004F1E00 (VMA 0x4F1D60..0x4F1E10, 176 B, 11 float[4] tables), all referenced only by still-asm getDitchDistTbl via %hi/%lo
       - [0x3F1E10, data, src/cod/3F1E10]     # .data blob resume
+      - [0x3F7D90, .data, src/end]  # syms: ed_demo14_mes  actEndDemo14 mail record (VMA 0x4F7D90..0x4F7DB0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F7DB0, data, src/cod/3F7DB0]     # .data blob resume
+      - [0x3F7DF0, .data, src/end]  # syms: end_mes  actEndLogoChk save hand-off mail record (VMA 0x4F7DF0..0x4F7E10, the end of end.o's .data run); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F7E10, data, src/cod/3F7E10]     # .data blob resume
+      - [0x3F7FB0, .data, src/st01b]  # syms: ene_mes,floor_mes,way_mes,way_on_mes,way_off_mes  the TU's whole .data run, five mail records (VMA 0x4F7FB0..0x4F8050, 0xA0 = MAIN.MAP st01b.o .data); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F8050, data, src/cod/3F8050]     # .data blob resume
+      - [0x3F8270, .data, src/st02a]  # syms: way_on_mail  actSt02aWayOnChk mail record (VMA 0x4F8270..0x4F8290); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F8290, data, src/cod/3F8290]     # .data blob resume
+      - [0x3F82D0, .data, src/st02a]  # syms: taki_on_mail,taki_off_mail  the two Taki mail records (VMA 0x4F82D0..0x4F8310); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F8310, data, src/cod/3F8310]     # .data blob resume
+      - [0x3F84F0, .data, src/st03t]  # syms: way_on_mes,way_off_mes  WayOn/WayOff mail records (VMA 0x4F84F0..0x4F8530); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F8530, data, src/cod/3F8530]     # .data blob resume
+      - [0x3F8770, .data, src/st04a]  # syms: model_on,model_off  ModelOn/ModelOff mail records, the tail of st04a.o's .data run (VMA 0x4F8770..0x4F87B0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F87B0, data, src/cod/3F87B0]     # .data blob resume
+      - [0x3F9C30, .data, src/st06a]  # syms: wall_way_off  WallWayOff mail record (VMA 0x4F9C30..0x4F9C50); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F9C50, data, src/cod/3F9C50]     # .data blob resume
+      - [0x3F9E10, .data, src/st06a]  # syms: piston_ride_on  PistonRideOn mail record (VMA 0x4F9E10..0x4F9E30); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F9E30, data, src/cod/3F9E30]     # .data blob resume
+      - [0x3FA900, .data, src/st10r]  # syms: fence_up2_mes  FenceUpChk2 mail record (VMA 0x4FA900..0x4FA920); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3FA920, data, src/cod/3FA920]     # .data blob resume
+      - [0x3FAAA0, .data, src/st13a]  # syms: chain_ok_mes  ChainOK mail record (VMA 0x4FAAA0..0x4FAAC0); D_004FAA00 before it stays in the blob for the still-asm actSt13aElevDown; static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3FAAC0, data, src/cod/3FAAC0]     # .data blob resume
       - [0x44D380, rodata, src/cod/44D380]   # .rodata blob
       - [0x44DA30, .rodata, src/motionManager2]  # carved jtbl_0054DA30 (6 arms, 0x18): _getMotion's switch table, emitted by the compiled function; VMA 0x54DA30..0x54DA48; the TU's other rodata stays in the blob
       - [0x44DA48, rodata, src/cod/44DA48]   # .rodata blob resume (two zero pad words then the next TU's data)

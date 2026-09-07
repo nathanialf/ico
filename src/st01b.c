@@ -17,6 +17,17 @@ typedef struct PObjGObj {
     int act;                    /* 0x164 */
 } PObjGObj;
 
+/* This stage's actor mail records. Word 0 of each entry is the mail id the
+   entry answers (0x1AE = the actor's own wake-up post, 0x1AD = the trailing
+   entry); the handler in .func is installed at run time just before the
+   record is posted. Each record is named for the actor thread that owns
+   and posts it. */
+static ActMail ene_mes[2]    = { { 0x1AE }, { 0x1AD } };
+static ActMail floor_mes[2]  = { { 0x1AE }, { 0x1AD } };
+static ActMail way_mes[2]    = { { 0x1AE }, { 0x1AD } };
+static ActMail way_on_mes[2] = { { 0x1AE }, { 0x1AD } };
+static ActMail way_off_mes[2]  = { { 0x1AE }, { 0x1AD } };
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -45,7 +56,6 @@ void actSt01bSekizo(volatile int a0)
                1000.0f, 528.0f, -100.0f);
 }
 extern void actSt01bEneChk(volatile int a0);
-extern ActMail D_004F7FB0[];
 
 void actSt01bEne(volatile int a0)
 {
@@ -55,8 +65,8 @@ void actSt01bEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x44) == 0) {
-        D_004F7FB0[0].func = actSt01bEneChk;
-        self->mail = D_004F7FB0;
+        ene_mes[0].func = actSt01bEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 0x1AE);
         _ACTWait(0);
     }
@@ -167,7 +177,6 @@ void actSt01bEnemy6(volatile int a0)
     Generator_Call(a0);
 }
 extern void actSt01bFloorChk(volatile int a0);
-extern ActMail D_004F7FD0[];
 
 void actSt01bFloor(volatile int a0)
 {
@@ -177,14 +186,13 @@ void actSt01bFloor(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x46) == 0) {
-        D_004F7FD0[0].func = actSt01bFloorChk;
-        self->mail = D_004F7FD0;
+        floor_mes[0].func = actSt01bFloorChk;
+        self->mail = floor_mes;
         ACTSendMailCorrect(a0, 0x1AE);
         _ACTWait(0);
     }
 }
 extern void actSt01bWayOnChk(volatile int a0);
-extern ActMail D_004F7FF0[];
 
 void actSt01bWay(volatile int a0)
 {
@@ -193,8 +201,8 @@ void actSt01bWay(volatile int a0)
 
     _ACTWait(1);
 
-    D_004F7FF0[0].func = actSt01bWayOnChk;
-    self->mail = D_004F7FF0;
+    way_mes[0].func = actSt01bWayOnChk;
+    self->mail = way_mes;
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
@@ -205,11 +213,30 @@ void actSt01bSekizoEvent(int x) {
 void actSt01bFloorEvent(int x) {
     volatile int local = x;
 }
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bWayOnChk);
+extern void actSt01bWayOffChk(volatile int a0);
 extern int D_00639EA8;
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern void SetWayGroupActive(int a0, int a1);
-extern ActMail D_004F8030[];
+
+void actSt01bWayOnChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0 ||
+           gflagChk(0x46) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(4, 1);
+
+    way_on_mes[0].func = actSt01bWayOffChk;
+    sub->mail = way_on_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 
 void actSt01bWayOffChk(volatile int a0)
 {
@@ -225,8 +252,8 @@ void actSt01bWayOffChk(volatile int a0)
 
     SetWayGroupActive(4, 0);
 
-    D_004F8030[0].func = actSt01bWayOnChk;
-    sub->mail = D_004F8030;
+    way_off_mes[0].func = actSt01bWayOnChk;
+    sub->mail = way_off_mes;
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }

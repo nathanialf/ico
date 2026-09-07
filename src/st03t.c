@@ -254,8 +254,71 @@ void actSt03tEneChk(volatile int a0)
     D_0063AA08 = 0;
     scpWakeupEnemyOne(0xEAD);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tWayOnChk);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tWayOffChk);
+extern int D_00639EA8;
+extern void _ACTWait(int a0);
+extern int scpCheckExistAliveEnemy(void);
+extern int scpTriggerFloorAttr(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
+extern void gflagOn(int a0);
+extern void ACTSendMailCorrect(int a0, int mail);
+/* The way-on watcher's mail record: it installs actSt03tWayOffChk here and
+   posts it. Word 0 of each entry is the mail id the entry answers (0x1AE the
+   actor post, 0x1AD the trailing entry); .func is filled in at run time.
+   Named for the thread that owns and posts it. */
+static ActMail way_on_mes[2] = { { 0x1AE }, { 0x1AD } };
+extern void actSt03tWayOffChk(volatile int a0);
+
+void actSt03tWayOnChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() != 0 ||
+           scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(0x11, 1);
+    gflagOn(0x64);
+
+    way_on_mes[0].func = actSt03tWayOffChk;
+    sub->mail = way_on_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+extern int D_00639EA8;
+extern void _ACTWait(int a0);
+extern int scpCheckExistAliveEnemy(void);
+extern int scpTriggerFloorAttr(int a0, int a1);
+extern void SetWayGroupActive(int a0, int a1);
+extern void gflagOff(int a0);
+extern void ACTSendMailCorrect(int a0, int mail);
+/* The way-off watcher's own mail record (installs actSt03tWayOnChk). */
+static ActMail way_off_mes[2] = { { 0x1AE }, { 0x1AD } };
+extern void actSt03tWayOnChk(volatile int a0);
+
+void actSt03tWayOffChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() == 0 &&
+           scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(0x11, 0);
+    gflagOff(0x64);
+
+    way_off_mes[0].func = actSt03tWayOnChk;
+    sub->mail = way_off_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 extern int D_00639EA8;
 extern void _ACTWait(int a0);
 extern int scpTriggerFloorAttr(int a0, int a1);

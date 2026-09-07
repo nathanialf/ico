@@ -202,7 +202,9 @@ def check_ld_carve_globs(ld_path: Path) -> None:
         if m:
             counts[(m.group(1), m.group(2))] = counts.get((m.group(1), m.group(2)), 0) + 1
     dup_rodata = {k[0] for k, n in counts.items() if n > 1 and k[1] == ".rodata*"}
-    dupes = [f"{k[0]}({k[1]})" for k, n in counts.items() if n > 1 and k[1] != ".rodata*"]
+    dup_data = {k[0] for k, n in counts.items() if n > 1 and k[1] == ".data*"}
+    dupes = [f"{k[0]}({k[1]})" for k, n in counts.items()
+             if n > 1 and k[1] not in (".rodata*", ".data*")]
     if dupes:
         raise SystemExit(
             "gen_ninja: duplicate linker-script selector(s) — a TU may hold only "
@@ -212,7 +214,7 @@ def check_ld_carve_globs(ld_path: Path) -> None:
             + "\nMerge the runs into one contiguous carve (absorbing any "
             "verified in-between bytes) or leave the later run in the blob."
         )
-    if not dup_rodata:
+    if not dup_rodata and not dup_data:
         return
     yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
     rows: dict[str, list[int]] = {}
@@ -223,9 +225,47 @@ def check_ld_carve_globs(ld_path: Path) -> None:
             rows.setdefault(m.group(2), []).append(int(m.group(1), 16))
             if "plain-rodata" in line:
                 plain[m.group(2)] = int(m.group(1), 16)
+    # `.data` has no VMA-named sections to key on, so a TU with several `.data`
+    # carve rows names the objects each row holds in its yaml comment:
+    #   - [0x3F7D90, .data, src/end]  # syms: ed_demo14_mes
+    # Under -fdata-sections each named object is its own `.data.<name>` section,
+    # so the k-th duplicate `(.data*)` glob becomes the k-th row's list of those
+    # sections (in one input-file spec, so the object's own order — the C
+    # definition order — is kept). The unnamed `.data` goes to the row marked
+    # `plain-data`, else to the first row. A row without `syms:` in such a TU is
+    # an error: its bytes would have no selector and the link would mislay them.
+    drows: dict[str, list[tuple[int, list[str], bool]]] = {}
+    for line in yaml_path.read_text().splitlines():
+        m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.data,\s*(\S+?)\]\s*(#.*)?$", line)
+        if m:
+            comment = m.group(3) or ""
+            sm = re.search(r"syms:\s*([\w,\s]+?)(?:\s{2,}|;|$)", comment)
+            syms = [s for s in re.split(r"[,\s]+", sm.group(1)) if s] if sm else []
+            drows.setdefault(m.group(2), []).append(
+                (int(m.group(1), 16), syms, "plain-data" in comment))
+    dseen: dict[str, int] = {}
     seen: dict[str, int] = {}
     out = []
     for line in lines:
+        m = re.match(r"(\s*)(build/(\S+)\.o)\(\.data\*\);", line)
+        if m and m.group(2) in dup_data:
+            tu = m.group(3)
+            k = dseen.get(tu, 0); dseen[tu] = k + 1
+            rows_tu = sorted(drows.get(tu, []))
+            if k >= len(rows_tu):
+                raise SystemExit(f"gen_ninja: {tu}: more .data selectors than carve rows")
+            off, syms, plain_flag = rows_tu[k]
+            if not syms:
+                raise SystemExit(
+                    f"gen_ninja: {tu}: .data carve row 0x{off:X} has no `syms:` list; a TU "
+                    "with several .data rows must name the objects each row holds")
+            any_plain = any(r[2] for r in rows_tu)
+            plain_here = plain_flag if any_plain else (k == 0)
+            sel = " ".join(f".data.{s}" for s in syms)
+            if plain_here:
+                sel = ".data " + sel
+            out.append(f"{m.group(1)}{m.group(2)}({sel});")
+            continue
         m = re.match(r"(\s*)(build/(\S+)\.o)\(\.rodata\*\);", line)
         if m and m.group(2) in dup_rodata:
             tu = m.group(3)

@@ -1112,6 +1112,16 @@ words become the blob's first words.
   the compiled function on its own `.rodata.0x00556D60` section. The blob
   resumes at 0x456D80 with the TU's `__FILE__` string.
 
+- Packet-name class (2026-09-07 ruling): the file-static mail records of
+  end, st01b, st02a, st03t, st04a, st06a, st10r and st13a are `static
+  ActMail <role>[2] = {{0x1AE},{0x1AD}}` definitions in their TUs, each a
+  `.data.<name>` section placed by its own `.data` carve row whose comment
+  lists `syms:` (tools/gen_ninja.py builds the per-row selector from it; the
+  first row of a TU also takes the unnamed `.data`). Runs are interleaved
+  with blob pieces; st01b's whole 0xA0 run is C. st02a's remaining 20
+  records, st13a's D_004FAA00 and the other blob pieces wait for their
+  still-asm owners.
+
 ### Deferred
 
 - Per-TU `__FILE__` strings for the `iosMalloc(size)` macro form

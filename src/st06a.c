@@ -1329,7 +1329,30 @@ void actSt06aWallWayOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aWallWayOffChk);
+extern void actSt06aWallWayOnChk(volatile int a0);
+/* The wall-way-off watcher's mail record: it installs actSt06aWallWayOnChk
+   here and posts it. Word 0 of each entry is the mail id the entry answers
+   (0x1AE the actor post, 0x1AD the trailing entry); .func is filled in at
+   run time. Named for the thread that owns and posts it. */
+static ActMail wall_way_off[2] = { { 0x1AE }, { 0x1AD } };
+
+void actSt06aWallWayOffChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+
+    while (scpIsRotObjectZPlusDirInclude(0x6EF, 0xF0, 0x12C) != 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(0x17, 0);
+    SetWayGroupActive(0x18, 0);
+    gflagOff(0x6F);
+
+    wall_way_off[0].func = actSt06aWallWayOnChk;
+    sub->mail = wall_way_off;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 extern void actSt06aWallWay2OffChk(volatile int a0);
 extern ActMail D_004F9C90[];
 
@@ -1492,7 +1515,26 @@ void actSt06aJumpSub(volatile int a0)
     D_0063C558 = 1;
     _ACTWait(1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aPistonRideOnChk);
+extern int scpTriggerFloorAttr(void *a0, int a1);
+extern void actSt06aPistonRideOffChk(volatile int a0);
+/* The piston-ride-on watcher's own mail record (installs
+   actSt06aPistonRideOffChk). */
+static ActMail piston_ride_on[2] = { { 0x1AE }, { 0x1AD } };
+
+void actSt06aPistonRideOnChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+
+    while (gflagChk(0x74) == 0 ||
+           scpTriggerFloorAttr(D_00639EA4, 0x6000000) == 0) {
+        _ACTWait(1);
+    }
+
+    piston_ride_on[0].func = actSt06aPistonRideOffChk;
+    sub->mail = piston_ride_on;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 extern void iosOmSendMail(void *a0, int a1, void *a2);
 extern char D_00622BE0[];
 extern void actSt06aPistonRideOnChk(volatile int a0);

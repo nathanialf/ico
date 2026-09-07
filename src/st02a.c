@@ -432,7 +432,39 @@ void actSt02aEneChk(volatile int a0)
 void actSt02aSekizoEvent(int x) {
     volatile int local = x;
 }
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWayOnChk);
+extern int scpCheckExistAliveEnemy(void);
+extern void SetWayGroupActive(int a0, int a1);
+extern void gflagOff(int a0);
+/* The way-on watcher's mail record: it installs actSt02aWayOffChk here and
+   posts it. Word 0 of each entry is the mail id the entry answers (0x1AE the
+   actor post, 0x1AD the trailing entry); .func is filled in at run time.
+   Named for the thread that owns and posts it. */
+static ActMail way_on_mail[2] = { { 0x1AE }, { 0x1AD } };
+extern void actSt02aWayOffChk(volatile int a0);
+
+void actSt02aWayOnChk(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() != 0 ||
+           scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(0x35, 1);
+    SetWayGroupActive(0x37, 1);
+    SetWayGroupActive(0x38, 1);
+    SetWayGroupActive(0x39, 1);
+    gflagOff(0x7C);
+
+    way_on_mail[0].func = actSt02aWayOffChk;
+    sub->mail = way_on_mail;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 extern int scpCheckExistAliveEnemy(void);
 extern void SetWayGroupActive(int a0, int a1);
 extern ActMail D_004F8290[];
@@ -461,8 +493,56 @@ void actSt02aWayOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aTakiWayOnChk);
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aTakiWayOffChk);
+/* The waterfall way-on watcher's own mail record (installs
+   actSt02aTakiWayOffChk). */
+static ActMail taki_on_mail[2] = { { 0x1AE }, { 0x1AD } };
+extern void actSt02aTakiWayOffChk(volatile int a0);
+
+void actSt02aTakiWayOnChk(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() != 0 ||
+           scpTriggerFloorAttr(D_00639EA8, 0x6000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(0x23, 1);
+    SetWayGroupActive(0x3B, 1);
+
+    taki_on_mail[0].func = actSt02aTakiWayOffChk;
+    sub->mail = taki_on_mail;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+/* The waterfall way-off watcher's own mail record (installs
+   actSt02aTakiWayOnChk). */
+static ActMail taki_off_mail[2] = { { 0x1AE }, { 0x1AD } };
+extern void actSt02aTakiWayOnChk(volatile int a0);
+
+void actSt02aTakiWayOffChk(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() == 0 &&
+           scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(0x23, 0);
+    SetWayGroupActive(0x3B, 0);
+
+    taki_off_mail[0].func = actSt02aTakiWayOnChk;
+    sub->mail = taki_off_mail;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 extern void scpExplodeSecretItem(void);
 
 void actSt02aSecretItemChk(volatile int a0)

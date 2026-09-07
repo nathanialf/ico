@@ -77,7 +77,12 @@ extern int scpTriggerFloorAttr(int a0, int a1);
 extern void FinishHint(int a0);
 extern ActMail D_004FA8C0[];
 extern void actSt10rFenceDownChk(volatile int a0);
-extern ActMail D_004FA900[];
+/* The second fence-up watcher's mail record: it installs
+   actSt10rFenceDownChk2 here and posts it. Word 0 of each entry is the mail
+   id the entry answers (0x1AE the actor post, 0x1AD the trailing entry);
+   .func is filled in at run time. Named for the thread that owns and posts
+   it. */
+static ActMail fence_up2_mes[2] = { { 0x1AE }, { 0x1AD } };
 extern void actSt10rFenceDownChk2(volatile int a0);
 extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern int scpTriggerBall(int a0, int a1, float radius);
@@ -622,7 +627,44 @@ void actSt10rFenceDownChk2(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rFenceUpChk2);
+
+void actSt10rFenceUpChk2(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    while (scpTriggerBall(a0, (int)scpSearchGobj(0x65F), 5.0f) != 0) {
+        _ACTWait(1);
+    }
+
+    scpSearchGobj(0x663)->f16C = 1;
+    scpSearchGobj(0x664)->f16C = 1;
+    scpSearchGobj(0x665)->f16C = 1;
+    scpSearchGobj(0x666)->f16C = 1;
+
+    stage_SetAnimation(0x95, 1, 0x1F);
+
+    while (stage_CheckAnimationFrame(0x95, 0x28, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefPlay(0x53B, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(0x95) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    SetWayGroupActive(0x25, 0);
+    SetWayGroupActive(0x26, 0);
+
+    gflagOn(0x134);
+
+    fence_up2_mes[0].func = actSt10rFenceDownChk2;
+    sub->mail = fence_up2_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 
 void actSt10rFloor(volatile int a0)
 {
