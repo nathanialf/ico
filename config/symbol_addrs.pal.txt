@@ -361,6 +361,11 @@ enemy_dodge = 0x00167300; // type:func  // src/enemy_act
 actEnemyKidnapBegin = 0x00165DC8; // type:func  // src/enemy_act
 funcEnemyAiGetGirl = 0x00169E38; // type:func  // src/enemy_act
 
+// motionManager2: its .sbss run starts at 0x63C10C (MAIN.MAP: main.o 0xC, then motionManager2.o 0xC; the Jan-2002
+// sampleMode.o word between them is absent from retail). splat merged 0x63C100..0x63C110 into one main.o object, so the
+// TU's first word had no label; DispSkelton stores all three words and main.o touches only +0x8.
+D_0063C10C = 0x0063C10C; // size:0x4  // src/motionManager2
+
 // ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — do not hand-edit below this line ====
 // ---------------------------------------------------------------------------
 // Recovered PAL (SCES-50760 / SCES_507.60) function symbols.  Regenerate with:
