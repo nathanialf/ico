@@ -206,6 +206,55 @@
     .card .bar { display:block; flex:none; width:100%; margin-top:auto; }
   }
 
+  /* ---------- section strip ---------- *
+   * The summary panel answers "how far along is the CODE"; this answers the
+   * same question for every ELF section, in one row each. Same hairline grid
+   * as .stats (1px gaps over a --line ground), same 6px bar, same mono
+   * micro-labels — it reads as a continuation of the panel above it, not as
+   * a second component.
+   * Two sections are NOBITS (.sbss, .bss): they hold no ROM bytes, so their
+   * figure is ownership, not reproduction. The metric caption on every row
+   * says which one it is, so the difference is never left to be inferred.
+   * The 1px gaps ARE the hairlines: children paint --panel, the container
+   * paints --line, and what shows through between them is the rule. The
+   * strip hangs off the panel above it (no top border, no margin), so the
+   * two share one hairline rather than stacking two. */
+  .strip { margin:0; border:1px solid var(--line); border-top:0;
+           background:var(--line); display:flex; flex-direction:column; gap:1px; }
+  .striprows { display:flex; flex-direction:column; gap:1px; }
+  .striphd {
+    background:var(--panel); margin:0; padding:9px 14px;
+    font:500 10px/1.6 var(--f-mono); color:var(--dim);
+    text-transform:uppercase; letter-spacing:.1em;
+  }
+  .secrow {
+    background:var(--panel); display:flex; align-items:center;
+    gap:var(--gap-col); padding:6px 14px;
+  }
+  .secnm { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis;
+           white-space:nowrap; font-family:var(--f-mono); font-size:12px;
+           color:var(--fg); }
+  /* The metric caption. Not decoration: it names which of the two meanings
+     the number on this row carries. */
+  .secmt { flex:0 0 auto; font-family:var(--f-mono); font-size:10px;
+           color:var(--faint); text-transform:uppercase; letter-spacing:.08em; }
+  .secsz { flex:0 0 auto; text-align:right; color:var(--dim);
+           font-family:var(--f-mono); font-size:11px;
+           font-variant-numeric:tabular-nums; white-space:nowrap; }
+  /* A section the ELF sizes at zero has nothing to be a fraction of; it stays
+     listed (it is part of the layout) but reads as inert. */
+  .secrow.zero .secnm, .secrow.zero .secsz { color:var(--faint); }
+  @media (max-width:559px) { .secsz { display:none; } }
+
+  /* Per-TU data ownership, as a compact mono suffix on the TU row. Bytes
+     only: the ROM does not record which TU owns which slice of a data
+     section, so there is no denominator to make a percentage from. Dropped
+     first when the row runs out of room. */
+  .secsuf { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis;
+            white-space:nowrap; font-family:var(--f-mono); font-size:10px;
+            color:var(--faint); letter-spacing:.02em; }
+  @media (max-width:899px) { .secsuf { display:none; } }
+
   /* ---------- toolbar ---------- *
    * Field and label are FormControls.module.css:9-51 verbatim except for the
    * outline colour, which the contrast note at the top explains. */
@@ -341,12 +390,18 @@
         </button>
         <button type="button" class="seg-btn" role="radio" data-v="aug6" aria-checked="false" tabindex="-1"
                 aria-label="Aug-6-2001 prototype" title="Aug-6-2001 prototype">
-          <span>Aug-6 proto</span>
+          <span>Proto</span>
         </button>
       </div>
     </div>
   </div>
   <div class="stats" id="cards"></div>
+  <!-- Filled by render(); hidden outright when the loaded JSON predates
+       `totals.sections` (another branch's older publish). -->
+  <section class="strip" id="strip" aria-labelledby="striphd" hidden>
+    <h2 class="striphd" id="striphd">ELF sections</h2>
+    <div class="striprows" id="striprows" role="list"></div>
+  </section>
 </header>
 <main class="wrap">
   <div class="toolbar">
@@ -373,13 +428,17 @@ function bar(m,t){ const p=t?100*m/t:0;
 // programmer directory — the vendor library archives, the .vutext VU1
 // microprograms, the "(unassigned)" data-bug bucket. It rides as the button's
 // title/aria-description so it can never disturb the row layout.
-function nodeRow(name, m, t, mb, tb, cls, note){
+// `extra` (optional) is a pre-built span that rides between the name and the
+// bar — the per-TU data-ownership suffix. It is plain text this file builds,
+// never anything from the JSON, so it needs no escaping of its own.
+function nodeRow(name, m, t, mb, tb, cls, note, extra){
   const esc = s => String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;")
                             .replace(/</g,"&lt;").replace(/>/g,"&gt;");
   return `<button type="button" class="row ${cls}" aria-expanded="false"`
     + (note ? ` title="${esc(note)}" aria-description="${esc(note)}"` : ``) + `>`
     + `<span class="tw" aria-hidden="true"></span>`
     + `<span class="nm">${name}</span>`
+    + (extra || "")
     + bar(mb,tb)
     + `<span class="pct">${fmtPct(mb,tb)}</span>`
     + `<span class="cnt">${m}/${t} fn</span>`
@@ -394,6 +453,45 @@ function setOpen(node, on){
   node.firstElementChild.setAttribute("aria-expanded", on ? "true" : "false");
 }
 
+// Which sections carry an OWNERSHIP figure rather than a reproduced-bytes
+// one. The JSON names them (totals.nobits_sections); the literal is the
+// fallback for a JSON published before that key existed.
+const NOBITS_FALLBACK = [".sbss", ".bss"];
+
+// One row per ELF section: name, which metric it is, the same 6px bar the
+// summary cells use, percentage, matched/total bytes.
+function sectionStrip(T){
+  const secs = T.sections || {};
+  const names = Object.keys(secs);
+  document.getElementById("strip").hidden = names.length === 0;
+  const nobits = new Set(T.nobits_sections || NOBITS_FALLBACK);
+  document.getElementById("striprows").innerHTML = names.map(n=>{
+    const m = secs[n][0], t = secs[n][1];
+    const own = nobits.has(n);
+    // A zero-sized section has no ratio to state; fmtPct renders "–".
+    return `<div class="secrow${t ? "" : " zero"}" role="listitem">`
+      + `<span class="secnm">${n}</span>`
+      + `<span class="secmt">${own ? "owned" : "matched"}</span>`
+      + bar(m,t)
+      + `<span class="pct">${fmtPct(m,t)}</span>`
+      + `<span class="secsz">${fmtB(m)} / ${fmtB(t)}</span>`
+      + `</div>`;
+  }).join("");
+}
+
+// `section_bytes` is {section: bytes} for what this TU's built object owns
+// outside .text. Bytes only, and only the non-zero ones — the generator
+// already drops empties, this guards a hand-edited or older JSON.
+function tuSections(t){
+  const sb = t.section_bytes;
+  if(!sb) return "";
+  const parts = Object.keys(sb).filter(k=>sb[k]>0).map(k=>`${k} ${fmtB(sb[k])}`);
+  return parts.length
+    ? `<span class="secsuf" title="data bytes this TU's object owns">`
+      + parts.join(" · ") + `</span>`
+    : "";
+}
+
 function render(data){
   // NB: no #ver element — the version picker and the footer name it.
   const T = data.totals;
@@ -406,6 +504,7 @@ function render(data){
     stat(`${fmtB(T.matched_bytes)} / ${fmtB(T.total_bytes)}`, ".text bytes matched"),
     stat(fmtPct(T.matched_bytes,T.total_bytes), "by code bytes", [T.matched_bytes,T.total_bytes]),
   ].join("");
+  sectionStrip(T);
 
   const tree = document.getElementById("tree");
   tree.innerHTML = data.programmers.map(p=>{
@@ -419,7 +518,8 @@ function render(data){
         + `<span class="sz">${f.size} B</span>`
         + `</div>`).join("");
       return `<div class="node tu" data-name="${t.path}">`
-        + nodeRow(t.name, t.matched_funcs, t.total_funcs, t.matched_bytes, t.total_bytes, "tu")
+        + nodeRow(t.name, t.matched_funcs, t.total_funcs, t.matched_bytes,
+                  t.total_bytes, "tu", null, tuSections(t))
         + `<div class="children">${funcs}</div></div>`;
     }).join("");
     return `<div class="node prog" data-name="${p.name}">`
@@ -552,6 +652,12 @@ function loadVersion(v){
         + `<code>config/symbol_addrs.${d.version}.txt</code> + per-TU `
         + `<code>INCLUDE_ASM</code> directives. Function sizes are next-symbol deltas. `
         + `Updates on every push to any of the three branches.</p>`
+        + `<p>The strip under the summary lists every section of the reference ELF. `
+        + `<code>.sbss</code> and <code>.bss</code> are NOBITS — they hold no ROM bytes — `
+        + `so their figure is <b>ownership</b>: how much of the section a compiled TU `
+        + `defines and the link seats at the ROM's addresses. Every other section counts `
+        + `bytes actually reproduced. A TU row's mono suffix is the same ownership figure `
+        + `for that TU's object.</p>`
         + `<p>The headline byte figure is the ELF <code>.text</code> section only. `
         + `The <code>.vutext</code> group (VU1 microprograms) is a different section `
         + `and is counted apart from it, so the group rows sum to more than the headline `
