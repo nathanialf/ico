@@ -601,6 +601,10 @@ def _render_readme_badges(progress: dict[str, tuple[int, int]]) -> str:
     lines = []
     for sec in README_SECTIONS:
         matched, total = progress.get(sec, (0, 0))
+        if total == 0:
+            # The ELF has no bytes in this section (.vudata on every ICO
+            # target); nothing to be a fraction of, so no badge.
+            continue
         label = sec.lstrip(".")
         lines.append(f"![{sec} progress]({_badge_url(label, matched, total)})")
     return "\n".join(lines)
@@ -664,6 +668,8 @@ def _render_progress_table(progress: dict[str, tuple[int, int]]) -> str:
     # (see object_section_credits).
     for sec in README_SECTIONS:
         matched, total = progress.get(sec, (0, 0))
+        if total == 0:
+            continue                      # zero-sized in this ELF: no row
         metric = " (owned)" if sec in NOBITS_SECTIONS else ""
         lines.append(
             f"| `{sec}`{metric} | {matched} | {total} | "
@@ -674,8 +680,8 @@ def _render_progress_table(progress: dict[str, tuple[int, int]]) -> str:
         "`.sbss` and `.bss` are NOBITS: they hold no ROM bytes, so their "
         "figure is **ownership** — how much of the section a compiled C "
         "object defines and the link seats at the ROM's VMAs — not "
-        "reproduced bytes. A zero-sized section (`.vudata` on this target) "
-        "reports `-`."
+        "reproduced bytes. A section the ELF sizes at zero (`.vudata` on "
+        "this target) is omitted."
     )
 
     return "\n".join(lines)
