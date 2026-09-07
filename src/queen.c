@@ -256,7 +256,268 @@ void gene_enemy(volatile int g) {
 /* r5 seed (478/478 insns, 7 diff sites / 20 non-reloc rows) at
  * scratchpad/seeds/subQueenBrainMain.r5.rc220_7sites.c (whole-TU snapshot) and
  * .r5.body.c (this block only).  Residual: one scheduling cluster, see LEDGER r5. */
-INCLUDE_ASM("asm/nonmatchings/src/queen", subQueenBrainMain);
+extern void SetDirectRootPosition(char *g, void *pos);
+extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
+extern void tex_SetUVScroll(void *p, int a1, float a2, float a3, float a4, float a5,
+                            float a6, float a7);
+extern void ParticleEffects_SetAllGoal(void *pos);
+extern int InqQueenBarrierExist(void);
+extern void _GetMotionDirection(void *dir, char *g);
+extern QVec D_00556D30;
+extern char D_0063AC58[];
+extern char D_00556D40[];
+extern float D_00556940[];
+extern float D_00556B08[];
+extern float D_00556970[];
+extern float D_00556B38[];
+extern int D_00556D50[];
+
+typedef struct QueenUVScroll {
+    float v[6];
+} QueenUVScroll;
+extern QueenUVScroll D_005569D0[];
+extern QueenUVScroll D_00556B98[];
+
+/* The queen's per-frame motion-status record, refreshed from the actor
+ * extension at gobj->x15C every tick. */
+/* One status slot: the motion-parameter words the actor extension keeps are
+ * read as a float here and as an int elsewhere, so the record stores them in a
+ * union (ROM re-loads gobj->x15C after every write to one, which only an
+ * alias-set-0 union member does). */
+typedef union QueenVal {
+    int i;
+    float f;
+} QueenVal;
+
+/* The look-at block the queen's motion system keeps in her actor parameter
+ * area (gobj->x15C): a world-space target the head and body steer toward, and
+ * the slot that enables it.  Like every other slot of that parameter block the
+ * enable is a QueenVal (the block's words are written as int here and read as
+ * float by the motion evaluator), and the target is a QVec. */
+typedef struct QueenLookAt {
+    /* 0x00 */ QueenVal on;
+    /* 0x04 */ QueenVal pad[3];
+    /* 0x10 */ QVec pos;
+} QueenLookAt;
+
+typedef struct QueenStatus {
+    /* 0x00 */ int motion;
+    /* 0x04 */ int prevMotion;
+    /* 0x08 */ QueenVal ratio;
+    /* 0x0C */ QueenVal prevRatio;
+    /* 0x10 */ int step;
+    /* 0x14 */ int prevStep;
+    /* 0x18 */ int changed;
+    /* 0x1C */ int active;
+    /* 0x20 */ int count;
+    /* 0x24 */ int unk24;
+    /* 0x28 */ int unk28;
+    /* 0x2C */ int unk2C;
+} QueenStatus;
+
+/* PAL listing rows 402-424. */
+static inline void QueenStatusUpdate(char *g, QueenStatus *st) {
+    st->prevMotion = st->motion;
+    st->prevRatio.f = st->ratio.f;
+    st->prevStep = st->step;
+
+    st->motion = *(int *)(*(int *)(g + 0x15C) + 0x4A0);
+    st->ratio.f = *(float *)(*(int *)(g + 0x15C) + 0x4AC);
+    st->step = *(int *)(*(int *)(g + 0x15C) + 0x4CC);
+    st->changed = 0;
+    if (st->motion != st->prevMotion) {
+        st->count = 1;
+        st->changed = 1;
+    }
+    if (st->motion == st->prevMotion) {
+        if (st->prevStep != 0) {
+            st->count++;
+        }
+    }
+    st->active = (st->changed != 0 || st->step != 0) ? 1 : 0;
+}
+
+/* PAL listing rows 426-433. */
+static inline void QueenStatusRestart(char *g, QueenStatus *st) {
+    QueenStatusUpdate(g, st);
+    st->changed = 0;
+    st->active = 1;
+    st->count = 1;
+}
+
+/* INTERIM: the PAL listing shows QueenStartAttack (queen.c:164-169) expanded
+ * inline here, but the tail of this TU still holds asm members, so the public
+ * definition stays at its own ROM slot below and this stand-in serves the C
+ * caller.  Fold the two together once the TU is fully C. */
+static inline void QueenStartAttack_inl(int flag) {
+    char *g;
+
+    g = isysGObjSearchFromObjKindID_begin(0x2F);
+    *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 1) = flag;
+
+    g = isysGObjSearchFromObjKindID_begin(0x36);
+    while (g != 0) {
+        *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 0x12) = 1;
+        g = isysGObjSearchFromObjKindID_next(g);
+    }
+}
+
+/* The queen's brain thread.  `g` is volatile because this body is an actor
+ * coroutine: _ACTWait() unwinds and resumes it, and the actor system can move
+ * the GObj between resumes, so the thread's own copy in its frame is re-read at
+ * every use rather than cached in a register (ROM reloads 0(sp) at every use).
+ */
+void subQueenBrainMain(volatile int g) {
+    QueenStatus st;
+    QVec pos;
+    QVec rootPos;
+    QVec dir;
+    LVec target;
+    char *w;
+    int motionOk;
+    int first;
+    int wait;
+    char *ext;
+    int startFrame;
+    char *bar;
+    char *ball;
+    char *barw;
+    char *ballw;
+    char *qw;
+    char *boy;
+    QueenUVScroll *uv;
+
+    ext = *(char **)(g + 0x164);
+    w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+
+    motionOk = 0;
+    first = 1;
+    startFrame = D_0063C300;
+    wait = 1000;
+
+    _ACTWait(1);
+    if (stage_no != 0x25) {
+        pos = D_00556D30;
+        SetDirectRootPosition(D_00639EA4, &pos);
+        QueenStartAttack_inl(first);
+    }
+    QueenStatusRestart((char *)g, &st);
+
+    for (;;) {
+        bar = isysGObjSearchFromObjKindID_begin(0x35);
+        ball = isysGObjSearchFromObjKindID_begin(0x36);
+        QueenStatusUpdate((char *)g, &st);
+        if (D_0063B13C & 1) {
+            debug_Printf(10, 0x50, -1, D_0063AC58, InqQueenBarrierExist());
+        }
+        if ((*(int *)w & 0xFF0000FF) == 0 && *(signed char *)(w + 1) != 0 &&
+            bar != 0 && ball != 0) {
+            qw = *(char **)(*(char **)(g + 0x15C) + 0x830);
+
+            GetRootPosition(&rootPos, (char *)g);
+            _GetMotionDirection(&dir, (char *)g);
+            barw = *(char **)(*(char **)(bar + 0x15C) + 0x830);
+            ballw = *(char **)(*(char **)(ball + 0x15C) + 0x830);
+
+            if (*(signed char *)(qw + 2) != 0 && *(signed char *)(ballw + 0x12) == 0) {
+                *(char *)(qw + 3) = 1;
+                debug_StdPrintfDummy(D_00556D40);
+            }
+
+            if (*(signed char *)(ballw + 0x11) != 0) {
+                if ((((QueenVal *)(ext + 0x130))->i =
+                         SetMotionRequest((char *)g, 0x146, ext + 0x620)) != 0) {
+                    *(char *)(ballw + 0x11) = 0;
+                }
+            }
+
+            switch (*(int *)(*(char **)(g + 0x15C) + 0x4A0)) {
+            case 0x430:
+            case 0x435:
+            case 0x436:
+                GetRootPosition(&target, D_00639EA4);
+                ((QueenLookAt *)(*(char **)(g + 0x15C) + 0x380))->pos.f[0] = target.v[0];
+                ((QueenLookAt *)(*(char **)(g + 0x15C) + 0x380))->pos.f[1] = target.v[1];
+                ((QueenLookAt *)(*(char **)(g + 0x15C) + 0x380))->pos.f[2] = target.v[2];
+                ((QueenLookAt *)(*(char **)(g + 0x15C) + 0x380))->on.i = 1;
+            }
+
+            switch (*(int *)(*(char **)(g + 0x15C) + 0x4A0)) {
+            case 0x431:
+            case 0x432:
+            case 0x433:
+            case 0x434:
+            default:
+                ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
+                break;
+
+            case 0x430:
+                motionOk = 1;
+                if ((((QueenVal *)(ext + 0x130))->i =
+                         SetMotionRequest((char *)g, 0x144, ext + 0x620)) != 0) {
+                    if (first) {
+                        startFrame = D_0063C300;
+                        wait = (int)(*((stage_no == 0x25)
+                                           ? &D_00556940[*(int *)(ballw + 0x18)]
+                                           : &D_00556B08[*(int *)(ballw + 0x18)]) *
+                                     ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                    }
+                    first = 0;
+                }
+                break;
+
+            case 0x435:
+                if (*(signed char *)(barw + 0x10) == 0 && motionOk != 0 &&
+                    D_0063C300 - startFrame >= wait) {
+                    ((QueenVal *)(ext + 0x130))->i =
+                        SetMotionRequest((char *)g, 0x145, ext + 0x620);
+                }
+                break;
+
+            case 0x436:
+                ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
+                if (*(float *)(*(char **)(g + 0x15C) + 0x4AC) > 15.0f &&
+                    *(signed char *)(barw + 0x10) == 0 && motionOk != 0) {
+                    uv = (stage_no == 0x25) ? &D_005569D0[*(int *)(ballw + 0x18)]
+                                            : &D_00556B98[*(int *)(ballw + 0x18)];
+
+                    motionOk = 0;
+                    sceVu0ScaleVectorXYZ(&target, &dir, 100.0f);
+                    sceVu0AddVector(&target, &rootPos, &target);
+                    SetDirectRootPosition(bar, &target);
+                    *(char *)(barw + 0x10) = 1;
+                    *(char *)(barw + 0x11) = 1;
+                    *(int *)(barw + 0x14) = 0;
+                    *(char *)(barw + 0x19) = 0;
+                    startFrame = D_0063C300;
+                    wait = (int)(*((stage_no == 0x25)
+                                       ? &D_00556940[*(int *)(ballw + 0x18)]
+                                       : &D_00556B08[*(int *)(ballw + 0x18)]) *
+                                 ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                    tex_SetUVScroll(D_00556D50, 1, uv->v[0], uv->v[1], uv->v[2],
+                                    uv->v[3], uv->v[4], uv->v[5]);
+                }
+                break;
+
+            case 0x437:
+                startFrame = D_0063C300;
+                wait = (int)(*((stage_no == 0x25)
+                                   ? &D_00556970[*(int *)(ballw + 0x18)]
+                                   : &D_00556B38[*(int *)(ballw + 0x18)]) *
+                             ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
+                break;
+            }
+        }
+        boy = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
+        if (boy != 0) {
+            GetRootPosition(&target, boy);
+            ParticleEffects_SetAllGoal(&target);
+        }
+        *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 2) = 0;
+        _ACTWait(1);
+    }
+}
 extern char *D_00639EC0;
 extern char *D_00639ED0;
 extern int iosPadConnect(void *pad, int slot, int port, void *conf);

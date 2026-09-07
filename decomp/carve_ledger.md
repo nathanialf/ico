@@ -1107,6 +1107,11 @@ words become the blob's first words.
   _getS16MotRotElem's 0.001f is now produced by the C (ASM_LIT4_SLOT removed);
   the pool 0x638B3C..0x638B84 is byte-identical to ROM.
 
+- `src/queen` `.rodata` 0x456D60..0x456D80 (VMA 0x556D60..0x556D80, 32 B):
+  `jtbl_00556D60`, subQueenBrainMain's eight-arm switch table, emitted by
+  the compiled function on its own `.rodata.0x00556D60` section. The blob
+  resumes at 0x456D80 with the TU's `__FILE__` string.
+
 ### Deferred
 
 - Per-TU `__FILE__` strings for the `iosMalloc(size)` macro form
