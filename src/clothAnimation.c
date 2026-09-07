@@ -65,10 +65,331 @@ void GetChainExWeightGlobalPos(int a0, int a1, int a2)
 {
     CopyVector(a0, a1 + a2 * 0x50 + 0x30);
 }
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", bindExWeight);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", bind2);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", calc2);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetChainAnimation);
+typedef struct {
+    float w;
+    char pad[0xC];
+    VECTOR v0;
+    VECTOR v1;
+    VECTOR v2;
+    char pad2[0x10];
+} ExW;
+
+typedef struct {
+    char *p0;
+    char *p4;
+    char *p8;
+    int fC;
+    ExW ex[5];
+} ChainNode;
+
+typedef struct {
+    char *cfg;
+    int num;
+    ChainNode *nodes;
+    int f3;
+} ChainSet;
+
+extern int D_0028F4C0[];
+extern void AddVectorXYZ(void *dst, void *a, void *b);
+extern void SubVectorXYZ(void *dst, void *a, void *b);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern void sceVu0InterVector(void *dst, void *a, void *b, float t);
+extern void sceVu0ScaleVector(void *dst, void *src, float k);
+extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float k);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+extern float VectorLengthSquare(void *v);
+extern float _Sqrt(float x);
+extern int GetSkeltonFocusNode(int a0, int a1);
+
+/* Compiled-out debug hook: the Jan-2002 listing emits nothing for the dev's
+   clothAnimation.c:573-574 (calc2's next-to-last statement), which is what an
+   empty-bodied display hook looks like in a shipping build -- the TU carries the
+   live half of the same debug path in TestDispChainAnimation.  Naming `old` here
+   is also what puts the parent's VLA into the frame at 0xCC: ee-gcc spills a
+   variable-sized object's address pseudo only for a DECL_NONLOCAL decl, i.e. one
+   a NESTED function names, and the parent's slot order (sys 0xB0 .. n 0xC8, then
+   old 0xCC, then the reload spills obj/pm/stack-save) proves the naming is the
+   LAST nested reference, after calc2's use of `n`.  Measured: at calc2's head the
+   slot lands at 0xBC instead. */
+static __inline__ void chainDebugOld(VECTOR *old)
+{
+}
+
+void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
+{
+    VECTOR dv;
+    VECTOR tv;
+    float mm[16];
+    VECTOR ew[5];
+    char *pm;
+    int i;
+
+    pm = (char *)mm;
+    sceVu0UnitMatrix(pm);
+    for (i = 0; i < sys->num; i++) {
+        char *cf = (char *)(i * 0x50 + (int)sys->cfg);
+        int n = *(int *)cf;
+        char *pts = (sys->nodes + i)->p0;
+        char *vel = (sys->nodes + i)->p4;
+        char *cp = cf + 0x10;
+        int no;
+        int j;
+        int k;
+        VECTOR old[n];
+
+        if (mtx != 0 && obj != 0 && *(int *)(cf + 0x10) != -1) {
+            no = GetSkeltonFocusNode(obj, *(int *)(cf + 0x10));
+        } else {
+            if (mtx == 0) {
+                mtx = pm;
+            }
+            no = 0;
+        }
+
+        /* Vestigial loop: the listing (SRCFILE.TXT, clothAnimation.c:343) emits an
+           EMPTY up-counting loop here, and lines 344-354 of the dev's file emit
+           nothing at all.  ee-gcc's check_dbra_loop reverses every empty counting
+           loop into a countdown (COOKBOOK 3.22); the only source class that leaves
+           ROM's `addiu/slt/bnez` up-count is a use of the counter inside the body
+           whose result dies before reload -- i.e. a dead register assignment.  All
+           six empty-body spellings measured reverse; this one is byte-exact.
+           RULING-VESTIGIAL-EXCEPTION instance (2026-09-07): the listing shows
+           source lines 344-354 here that emit nothing, an empty debug-hook call
+           is deleted before the loop pass (measured), and only a store to a
+           variable the function reassigns survives -- the 2001 source held such
+           a line. Re-verified on the final frame. */
+        for (j = 0; j < n; j++) {
+            k = j;
+        }
+
+        for (j = 0; j < n; j++) {
+            CopyVector(&dv, pts + j * 16);
+            *(float *)(vel + j * 16 + 4) +=
+                60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 0.5f *
+                (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
+            AddVectorXYZ(pts + j * 16, pts + j * 16, vel + j * 16);
+            CopyVector(&old[j], pts + j * 16);
+            sceVu0ScaleVector(vel + j * 16, &dv, -1.0f);
+        }
+
+        for (k = 0; k < 5; k++) {
+            if (0.0f <= (sys->nodes + i)->ex[k].w) {
+                CopyVector(&dv, (char *)&(sys->nodes + i)->ex[k] + 0x20);
+                (sys->nodes + i)->ex[k].v2.y +=
+                    60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 0.5f *
+                    (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
+                CopyVector(&ew[k], (char *)&(sys->nodes + i)->ex[k] + 0x30);
+                AddVectorXYZ((char *)&(sys->nodes + i)->ex[k] + 0x20,
+                             (char *)&(sys->nodes + i)->ex[k] + 0x20,
+                             (char *)&(sys->nodes + i)->ex[k] + 0x30);
+                sceVu0ScaleVector((char *)&(sys->nodes + i)->ex[k] + 0x30, &dv, -1.0f);
+            }
+        }
+
+        {
+            void bindExWeight(char *ex, void *ev, float t)
+            {
+                VECTOR va;
+                VECTOR vb;
+                int id;
+                int id1;
+                float ll;
+                float ka;
+                float kb;
+                float ka2;
+                float kb2;
+                float cl;
+                float wa;
+                float wb;
+                float l;
+
+                id = (int)*(float *)ex;
+                id1 = id + 1;
+                ll = *(float *)(ex + 0x40) * *(float *)(ex + 0x40);
+                ka = t * (*(float *)ex - (float)(int)*(float *)ex);
+                kb = t * (1.0f - (*(float *)ex - (float)(int)*(float *)ex));
+                ka2 = ka * ka;
+                kb2 = kb * kb;
+                cl = *(float *)(sys->cfg + i * 0x50 + 0x40);
+
+                wa = cl;
+                wb = *(float *)(ex + 0x44);
+
+                sceVu0InterVector(&vb, pts + id * 16, pts + id1 * 16,
+                                  1.0f - (*(float *)ex - (float)(int)*(float *)ex));
+
+                sceVu0SubVector(&dv, &vb, ex + 0x20);
+                l = VectorLengthSquare(&dv);
+                if (ll < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, *(float *)(ex + 0x40) / _Sqrt(l));
+                    AddVectorXYZ(ex + 0x10, ex + 0x20, &dv);
+
+                    SubVectorXYZ(&dv, ex + 0x10, pts + id * 16);
+                    l = VectorLengthSquare(&dv);
+                    if (ka2 < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                        AddVectorXYZ(&dv, pts + id * 16, &dv);
+                    } else {
+                        CopyVector(&dv, ex + 0x10);
+                        wa = wb;
+                    }
+
+                    SubVectorXYZ(&va, ex + 0x10, pts + id1 * 16);
+                    l = VectorLengthSquare(&va);
+                    if (kb2 < l) {
+                        sceVu0ScaleVectorXYZ(&va, &va, kb / _Sqrt(l));
+                        AddVectorXYZ(&va, pts + id1 * 16, &va);
+                    } else {
+                        CopyVector(&va, ex + 0x10);
+                        cl = wb;
+                    }
+
+                    sceVu0ScaleVector(&dv, &dv, wa / (cl + wa));
+                    sceVu0ScaleVector(&va, &va, cl / (cl + wa));
+                    AddVectorXYZ(&dv, &dv, &va);
+
+                    SubVectorXYZ(&dv, &dv, ex + 0x10);
+                    sceVu0ScaleVector(&dv, &dv, 1.0f - wb / (cl + wa + wb));
+                    AddVectorXYZ(ex + 0x10, ex + 0x10, &dv);
+
+                    SubVectorXYZ(&dv, pts + id * 16, ex + 0x10);
+                    l = VectorLengthSquare(&dv);
+                    if (ka2 < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                        AddVectorXYZ(pts + id * 16, ex + 0x10, &dv);
+                    }
+
+                    SubVectorXYZ(&dv, pts + id1 * 16, ex + 0x10);
+                    l = VectorLengthSquare(&dv);
+                    if (kb2 < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, kb / _Sqrt(l));
+                        AddVectorXYZ(pts + id1 * 16, ex + 0x10, &dv);
+                    }
+
+                    sceVu0SubVector(&dv, ex + 0x20, ex + 0x10);
+                    l = VectorLengthSquare(&dv);
+                    if (ll < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, *(float *)(ex + 0x40) / _Sqrt(l));
+                        sceVu0AddVector(ex + 0x20, ex + 0x10, &dv);
+                    }
+                }
+                sceVu0InterVector(ex + 0x10, pts + id * 16, pts + id1 * 16,
+                                  1.0f - (*(float *)ex - (float)(int)*(float *)ex));
+            }
+
+            void bind2(char *pp, int id, int ip, int in, float t)
+            {
+                float ka;
+                float kb;
+                float ka2;
+                float kb2;
+                float cl;
+                float wa;
+                float wb;
+                float l;
+
+                ka = (float)(id - ip < 0 ? -(id - ip) : id - ip) * t;
+                kb = (float)(id - in < 0 ? -(id - in) : id - in) * t;
+                ka2 = ka * ka;
+                kb2 = kb * kb;
+                cl = *(float *)(sys->cfg + i * 0x50 + 0x40);
+
+                wa = cl;
+                wb = cl;
+
+                SubVectorXYZ(&dv, pp + id * 16, pp + ip * 16);
+                l = VectorLengthSquare(&dv);
+                if (ka2 < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                    AddVectorXYZ(&dv, pp + ip * 16, &dv);
+                } else {
+                    CopyVector(&dv, pp + id * 16);
+                    cl = wb;
+                }
+
+                SubVectorXYZ(&tv, pp + id * 16, pp + in * 16);
+                l = VectorLengthSquare(&tv);
+                if (kb2 < l) {
+                    sceVu0ScaleVectorXYZ(&tv, &tv, kb / _Sqrt(l));
+                    AddVectorXYZ(&tv, pp + in * 16, &tv);
+                } else {
+                    CopyVector(&tv, pp + id * 16);
+                    cl = wb;
+                }
+
+                sceVu0ScaleVector(&dv, &dv, wa / (cl + wa));
+                sceVu0ScaleVector(&tv, &tv, cl / (cl + wa));
+                AddVectorXYZ(&dv, &dv, &tv);
+
+                SubVectorXYZ(&dv, &dv, pp + id * 16);
+                sceVu0ScaleVector(&dv, &dv, 1.0f - wb / (cl + wa + wb));
+                AddVectorXYZ(pp + id * 16, pp + id * 16, &dv);
+
+                SubVectorXYZ(&dv, pp + ip * 16, pp + id * 16);
+                l = VectorLengthSquare(&dv);
+                if (ka < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                }
+                AddVectorXYZ(pp + ip * 16, pp + id * 16, &dv);
+
+                SubVectorXYZ(&dv, pp + in * 16, pp + id * 16);
+                l = VectorLengthSquare(&dv);
+                if (kb < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, kb / _Sqrt(l));
+                }
+                AddVectorXYZ(pp + in * 16, pp + id * 16, &dv);
+            }
+
+            void calc2(char *pp, int lo, int hi)
+            {
+                int m;
+                int q;
+
+                sceVu0ApplyMatrix(pts, mtx + no * 64, cp + 0x10);
+                for (m = 0; m < 5; m++) {
+                    if (0.0f <= (sys->nodes + i)->ex[m].w) {
+                        bindExWeight((char *)&(sys->nodes + i)->ex[m], &ew[m],
+                                     *(float *)(cp + 4));
+                    }
+                }
+                for (m = 0; m < n; m++) {
+                    int mp = m + 1;
+                    q = n - mp;
+                    bind2(pp, m, m - 1 < 0 ? 0 : m - 1, mp < n ? mp : n - 1,
+                          *(float *)(cp + 4));
+                    bind2(pp, q, q - 1 < 0 ? 0 : q - 1, q + 1 < n ? q + 1 : n - 1,
+                          *(float *)(cp + 4));
+                }
+                chainDebugOld(old);
+                sceVu0ApplyMatrix(pts, mtx + no * 64, cp + 0x10);
+            }
+
+            calc2(pts, 0, n - 1);
+            calc2(pts, 0, n - 1);
+            calc2(pts, 0, n - 1);
+            calc2(pts, 0, n - 1);
+        }
+
+        sceVu0ApplyMatrix(pts, mtx + no * 64, cp + 0x10);
+
+        sceVu0ApplyMatrix(pts, mtx + no * 64, cp + 0x10);
+
+        for (j = 0; j < n; j++) {
+            AddVectorXYZ(vel + j * 16, vel + j * 16, pts + j * 16);
+            *(float *)(vel + j * 16 + 12) = 0.0f;
+        }
+
+        for (k = 0; k < 5; k++) {
+            if (0.0f <= (sys->nodes + i)->ex[k].w) {
+                AddVectorXYZ((char *)&(sys->nodes + i)->ex[k] + 0x30,
+                             (char *)&(sys->nodes + i)->ex[k] + 0x30,
+                             (char *)&(sys->nodes + i)->ex[k] + 0x20);
+            }
+        }
+    }
+    sys->f3 = sys->f3 == 0;
+}
 extern void debug_StdPrintfDummy();
 extern char D_0061F240[];
 extern char D_0061F258[];
@@ -199,30 +520,6 @@ extern int D_0063A438;
 extern char D_0061F270[];
 extern char D_0028FF00[];
 
-typedef struct {
-    float w;
-    char pad[0xC];
-    float v0[4];
-    float v1[4];
-    float v2[4];
-    char pad2[0x10];
-} ExW;
-
-typedef struct {
-    char *p0;
-    char *p4;
-    char *p8;
-    int fC;
-    ExW ex[5];
-} ChainNode;
-
-typedef struct {
-    char *cfg;
-    int num;
-    ChainNode *nodes;
-    int f3;
-} ChainSet;
-
 ChainSet *InitChains(char *a0)
 {
     ChainSet *r;
@@ -245,9 +542,9 @@ ChainSet *InitChains(char *a0)
         r->nodes[i].fC = 0;
         for (j = 0; j < 5; j++) {
             r->nodes[i].ex[j].w = -1.0f;
-            CopyVector(r->nodes[i].ex[j].v0, D_0028FF00);
-            CopyVector(r->nodes[i].ex[j].v1, D_0028FF00);
-            CopyVector(r->nodes[i].ex[j].v2, D_0028FEF0);
+            CopyVector(&r->nodes[i].ex[j].v0, D_0028FF00);
+            CopyVector(&r->nodes[i].ex[j].v1, D_0028FF00);
+            CopyVector(&r->nodes[i].ex[j].v2, D_0028FEF0);
         }
         for (j = 0; j < *(int *)(i * 0x50 + (int)r->cfg); j++) {
             CopyVector(r->nodes[i].p0 + j * 16, a0 + i * 0x50 + 0x20);
