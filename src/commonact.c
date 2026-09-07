@@ -25,7 +25,71 @@ void ACTSetPositionNodeWithFitting(int a0, int a1, int a2, int a3)
 {
     SetDirectRootPositionWithNodePoint(a0, a1, a2, a3);
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", ChangeMailInLadder);
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+extern void *test_CURRENTROOT(void *a0);
+extern float _DistxzSqGV(void *a, void *b);
+
+int ChangeMailInLadder(char *a0, int a1)
+{
+    float p[4];
+    float q[4];
+    char *s = *(char **)(a0 + 0x164);
+    int ret = a1;
+    int flag = 0;
+    float lim1;
+    float lim2;
+
+    if (D_00639EA4 != 0 && D_00639EA8 != 0) {
+        if (a0 == D_00639EA4) {
+            if (*(int *)(s + 0x34) == 0x26) {
+                flag = (*(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) == 0x26);
+            }
+        }
+        if (a0 == D_00639EA8) {
+            if (*(int *)(s + 0x34) == 0x26) {
+                flag = 1;
+            }
+        }
+        if (flag != 0 &&
+            _DistxzSqGV(test_CURRENTROOT(D_00639EA4), test_CURRENTROOT(D_00639EA8)) < 3600.0f) {
+            lim1 = a0 == D_00639EA4 ? 175.0f : 225.0f;
+            lim2 = a0 == D_00639EA4 ? 175.0f : 210.0f;
+            if (a0 == D_00639EA4) {
+                p[0] = ((float *)test_CURRENTROOT(a0))[0];
+                p[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+                p[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+                q[0] = ((float *)test_CURRENTROOT(D_00639EA8))[0];
+                q[1] = ((float *)test_CURRENTROOT(D_00639EA8))[1];
+                q[2] = ((float *)test_CURRENTROOT(D_00639EA8))[2];
+            } else {
+                p[0] = ((float *)test_CURRENTROOT(D_00639EA8))[0];
+                p[1] = ((float *)test_CURRENTROOT(D_00639EA8))[1];
+                p[2] = ((float *)test_CURRENTROOT(D_00639EA8))[2];
+                q[0] = ((float *)test_CURRENTROOT(D_00639EA4))[0];
+                q[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+                q[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+            }
+            switch (a1) {
+            case 0x14A:
+                if (q[1] < p[1] &&
+                    (q[1] - p[1] < 0.0f ? -(q[1] - p[1]) : q[1] - p[1]) < lim2) {
+                    *(unsigned long long *)(s + 0x18) |= (1ULL << 36);
+                    ret = 0x150;
+                }
+                break;
+            case 0x14B:
+                if (q[1] > p[1] &&
+                    (q[1] - p[1] < 0.0f ? -(q[1] - p[1]) : q[1] - p[1]) < lim1) {
+                    *(unsigned long long *)(s + 0x18) |= (1ULL << 37);
+                    ret = 0x150;
+                }
+                break;
+            }
+        }
+    }
+    return ret;
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTCorrectMsg);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTGetOrientFromIntrK);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTRunIntrCorrect);
@@ -542,10 +606,134 @@ ASM_LIT4_SLOT(D_00638E64, 0.3f);
 void funcCommonFallDircorrect(char *a0) {
     SetMotionDirection(a0, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x360);
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", correctJumpOrientByChain);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonJump);
+extern void GetRootPosition(float *out, void *a0);
+extern float D_0063A748[];
+extern void GetMatrixDirectionToZ(void *m, void *orient);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
+extern void sceVu0SubVector(void *out, void *a, void *b);
+extern void sceVu0ApplyMatrix(void *out, void *m, void *v);
+extern float GetChainHangRange(void *o);
+extern float GetChainLength(void *o);
+
+void correctJumpOrientByChain(char *a0)
+{
+    float out[4];
+    float mtx[16];
+    float pos[4];
+    float p[4];
+    float q[4];
+    float dir[4];
+    char *o;
+    float t;
+    float best = D_0063A748[0];
+    float ang = 0.0f;
+
+    pos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
+    pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+    pos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+    GetMatrixDirectionToZ(mtx, test_CURRENTORIENT(a0));
+
+    for (o = isysGObjSearchFromObjKindID_begin(0x15); o != 0;
+         o = isysGObjSearchFromObjKindID_next(o)) {
+        if (*(int *)(o + 0x16C) == 0) {
+            continue;
+        }
+        GetRootPosition(p, o);
+        sceVu0SubVector(q, p, pos);
+        q[3] = 0.0f;
+        sceVu0ApplyMatrix(q, mtx, q);
+        if (q[2] < 0.0f || 1000.0f < q[2]) {
+            continue;
+        }
+        if (GetChainHangRange(o) < (q[0] < 0.0f ? -q[0] : q[0])) {
+            continue;
+        }
+        if (pos[1] < p[1]) {
+            continue;
+        }
+        if (p[1] + GetChainLength(o) + 200.0f < pos[1]) {
+            continue;
+        }
+        ang = q[0]; best = q[2]; if (ang < 0.0f) ang = -ang;
+        out[0] = p[0]; out[1] = p[1]; out[2] = p[2];
+    }
+    if (best == D_0063A748[0]) {
+        return;
+    }
+    _OrientXZGV(dir, out, test_CURRENTROOT((void *)a0));
+    t = ang * 20.0f / 300.0f;
+    if (t < 0.0f) {
+        t = 0.0f;
+    } else if (20.0f < t) {
+        t = 20.0f;
+    }
+    SetMotionDirectionSmooze((int)a0, dir, t);
+}
+extern char D_0055FE58[];
+extern void actAfterJump(volatile int a0);
+
+typedef union { unsigned long long ll; void *p; } ActFlagJ;
+typedef struct { char _0[0x18E]; unsigned short f18E; } MotRecJ;
+
+void actCommonJump(volatile int a0)
+{
+    float dir[4];
+    char *s = *(char **)(a0 + 0x164);
+    int chk = 0;
+    int hit = 0;
+    int n;
+
+    ((ActFlagJ *)(s + 0x18))->ll &= ~(1ULL << 55);
+    ((ActFlagJ *)(s + 0x18))->p = (void *)actAfterJump;
+    if (*(int *)(s + 0xD8) == 0x52) {
+        *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x3B4) =
+            ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10;
+    }
+    if (*(int *)(s + 0xD8) == 0x105) {
+        ((ActFlagJ *)(s + 0x18))->ll |= (1ULL << 55);
+        if ((char *)a0 == D_00639EA8 && D_00639EA4 != 0) {
+            _OrientXZGV(dir, test_CURRENTROOT(D_00639EA4), test_CURRENTROOT((void *)a0));
+            SetMotionDirection(a0, dir);
+        }
+    }
+    ((ActFlagJ *)(s + 0x18))->ll &= ~(1ULL << 56);
+    if (*(int *)(s + 0xD8) == 0xC5) {
+        SetMotionDirection(a0, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x510);
+        ((ActFlagJ *)(s + 0x18))->ll |= (1ULL << 56);
+    }
+    n = *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x900);
+    if (n < 4) {
+        if (0 < n) {
+            switch ((unsigned int)*(int *)(s + 0xD8)) {
+            case 0xBF:
+            case 0xC0:
+                chk = 1;
+                break;
+            case 0xBD:
+                if (0.1f < *(float *)(s + 0x34C)) {
+                    chk = 1;
+                }
+                break;
+            }
+            if (chk != 0) {
+                correctJumpOrientByChain((char *)a0);
+            }
+        }
+    }
+    while (1) {
+        if (((MotRecJ *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f18E & 1) {
+            hit = 1;
+        }
+        if (hit != 0 &&
+            *(int *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194 + 0x150) == 1) {
+            *(float *)(*(char **)(a0 + 0x15C) + 0x130) =
+                *(float *)(*(char **)(a0 + 0x15C) + 0x138) = 0.0f;
+        }
+        ACTSendMailCorrect((char *)a0, 0xBD);
+        _ACTWait(1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonFall);
-ASM_LIT4_SLOT(D_00638E68, 0.1f);
 extern void MatrixDrive_PushMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
 extern int MatrixDrive_GetMatrix(void);
@@ -713,7 +901,83 @@ void funcCommonError(char *a0, int a1, char *a2)
 INCLUDE_ASM("asm/nonmatchings/src/commonact", SetMotionDirectionSmooze);
 ASM_LIT4_SLOT(D_00638E94, 3.1415927f);
 ASM_LIT4_SLOT(D_00638E98, 3.1415927f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTDebugPrint);
+extern char D_00553240[];
+extern char D_00553250[];
+extern char D_00553260[];
+extern char D_00553270[];
+extern char D_00553280[];
+extern char D_00553290[];
+extern char D_005532A0[];
+extern char D_005532B8[];
+extern char D_005532D0[];
+extern char D_005532E0[];
+extern char D_005577F4[];
+extern char D_005D1278[];
+extern char D_0055FE58[];
+extern char D_0055FF18[];
+extern void *D_00639EA0;
+extern int fptodp(float v);
+
+typedef struct { char _0[0xC2]; short fC2; } MotNameRecDP;
+typedef struct { char _0[0x186]; short f186; } MotRecDP;
+
+void _ACTDebugPrint(char *a0)
+{
+    char *sub;
+    char *w;
+
+    if (a0 == 0) {
+        return;
+    }
+    sub = *(char **)(a0 + 0x164);
+    if (sub == 0) {
+        return;
+    }
+    w = *(char **)(a0 + 0x15C) + 0x470;
+    if (w == 0) {
+        return;
+    }
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 90, 0xFFFFFFF, D_00553240, D_005D1278 + *(int *)(w + 0xD0) * 32);
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 100, 0xFFFFFFF, D_00553250,
+                 D_0055FF18 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194);
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 110, 0xFFFFFFF, D_00553260, D_005577F4 + *(int *)(sub + 0x34) * 0x50);
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 120, 0xFFFFFFF, D_00553270,
+                 fptodp(*(float *)(*(char **)(a0 + 0x15C) + 0x4AC)));
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 130, 0xFFFFFFF, D_00553280,
+                 a0 == D_00639EA8 && D_00639EA0 != 0
+                     ? ((MotNameRecDP *)(D_0055FF18 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->fC2
+                     : ((MotRecDP *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f186);
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 140, 0xFFFFFFF, D_00553290, (int)*(float *)(sub + 0x1E0));
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 150, 0xFFFFFFF, D_005532A0,
+                 (int)*(float *)(*(char **)(sub + 0x130) + 0x138),
+                 (int)-*(float *)(*(char **)(sub + 0x130) + 0x130));
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 160, 0xFFFFFFF, D_005532B8,
+                 (int)*(float *)(*(char **)(sub + 0x130) + 0x114),
+                 (int)*(float *)(*(char **)(sub + 0x130) + 0x110));
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 170, 0xFFFFFFF, D_005532D0, *(int *)(*(char **)(a0 + 0x15C) + 0x5F4));
+    if (D_0063B13C & 1) {
+    debug_Printf(30, 180, 0xFFFFFFF, D_005532E0,
+                 *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1EC));
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+}
 void ACTSendMailCorrect(char *a0, int a1) {
     char *s = *(char **)(a0 + 0x164);
     if ((a1 == 0xB5 || a1 == 0xBA) && *(int *)(a0 + 0xC) == 1) {
@@ -797,7 +1061,8 @@ extern void SetDirectRootPositionNoFittingWithNodePointXZ(void *a0, int node, vo
 
 typedef union { int i; float f; } IntFloatSR;
 
-typedef struct { char _0[0x18C]; unsigned int f18C; char _190[4]; } MotRecSR;
+typedef struct { char _0[0x182]; short f182; short f184; short f186; char _188[4]; unsigned int f18C; char _190[4]; } MotRecSR;
+
 
 void actCommonSlowrun(volatile int a0)
 {
@@ -866,7 +1131,21 @@ void ACTAcceptMail(char *a0, int a1) {
             ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTMotDirSmzDirect);
+extern void *D_00639EA0;
+
+int _ACTMotDirSmzDirect(char *a0, float *a1)
+{
+    char *s = *(char **)(a0 + 0x164);
+
+    *(float *)(s + 0x120) = a1[0];
+    *(float *)(s + 0x124) = a1[1];
+    *(float *)(s + 0x128) = a1[2];
+    return SetMotionDirectionSmooze(
+        (int)a0, a1,
+        (float)(a0 == D_00639EA8 && D_00639EA0 != 0
+                    ? ((MotRecSR *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f182
+                    : ((MotRecSR *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f186));
+}
 typedef struct { int w[5]; } IdleRangeRec;
 
 extern IdleRangeRec D_002A7DC8[];
