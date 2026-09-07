@@ -48,6 +48,9 @@ static inline void setGsReg(long long a0, long long a1) {
                          | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
 #define GIF_XYZ(v, z) GIF_XY((v)[0], (v)[1], z)
 
+/* The textured-sprite UV rectangle: two GS UV corners, in 1/16-texel units
+   like the screen rect beside it. */
+typedef struct { int u0, v0, u1, v1; } GifUvRect;
 extern int D_0063A064;
 extern int D_0063A068;
 extern float D_0063A05C;
@@ -156,7 +159,6 @@ void gif_EndPacketPath1(void)
     dl_CloseDma();
     D_00639F60 = 0;
 }
-/*SENTINEL_BEGIN gif_MakeLine2DOffset*/
 void gif_MakeLine2DOffset(int *v0, int *v1, long long z0, long long z1,
                           unsigned char *col, int prim)
 {
@@ -165,8 +167,6 @@ void gif_MakeLine2DOffset(int *v0, int *v1, long long z0, long long z1,
     setGsReg(0x05, GIF_XYZOFF(v0, z0));
     setGsReg(0x05, GIF_XYZOFF(v1, z1));
 }
-/*SENTINEL_END gif_MakeLine2DOffset*/
-/*SENTINEL_BEGIN gif_MakeSprite*/
 void gif_MakeSprite(int x, int y, int w, int h, long long z, int *uv,
                     unsigned char *col, int prim)
 {
@@ -180,8 +180,6 @@ void gif_MakeSprite(int x, int y, int w, int h, long long z, int *uv,
     setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
     setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
 }
-/*SENTINEL_END gif_MakeSprite*/
-/*SENTINEL_BEGIN gif_MakeSpriteOffset*/
 void gif_MakeSpriteOffset(int x, int y, int w, int h, long long z, int *uv,
                           unsigned char *col, int prim)
 {
@@ -192,8 +190,20 @@ void gif_MakeSpriteOffset(int x, int y, int w, int h, long long z, int *uv,
     setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
     setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
 }
-/*SENTINEL_END gif_MakeSpriteOffset*/
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_MakeSpriteWithStrip);
+void gif_MakeSpriteWithStrip(int *r, long long z, int *uv, unsigned char *col,
+                             int prim)
+{
+    setGsReg(0x00, (prim << 6) | 0x114);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x03, GIF_UV(uv[0], uv[1]));
+    setGsReg(0x0D, GIF_XY(r[0], r[1], z));
+    setGsReg(0x03, GIF_UV(uv[0], uv[1] + uv[3]));
+    setGsReg(0x0D, GIF_XY(r[2], r[3], z));
+    setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1]));
+    setGsReg(0x05, GIF_XY(r[4], r[5], z));
+    setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
+    setGsReg(0x05, GIF_XY(r[6], r[7], z));
+}
 /* gif_MakePoint2DOffset is `inline` too (its lines appear inside gif_PointOffset);
    same interim stand-in as makePoint2D. */
 static inline void makePoint2DOffset(int *v, long long z, unsigned char *col,
@@ -204,7 +214,6 @@ static inline void makePoint2DOffset(int *v, long long z, unsigned char *col,
     setGsReg(0x05, GIF_XYZOFF(v, z));
 }
 
-/*SENTINEL_BEGIN gif_PointOffset*/
 void gif_PointOffset(int *v, long long z, unsigned char *col, int prim)
 {
     int p[4];
@@ -213,7 +222,6 @@ void gif_PointOffset(int *v, long long z, unsigned char *col, int prim)
     p[1] = v[1] * D_0063A068 / 224;
     makePoint2DOffset(p, z, col, prim);
 }
-/*SENTINEL_END gif_PointOffset*/
 /* gif_MakeLine2D is `inline` (its lines appear inside gif_Line); interim stand-in. */
 static inline void makeLine2D(int *v0, int *v1, long long z0, long long z1,
                               unsigned char *col, int prim)
@@ -224,7 +232,6 @@ static inline void makeLine2D(int *v0, int *v1, long long z0, long long z1,
     setGsReg(0x05, GIF_XYZ(v1, z1));
 }
 
-/*SENTINEL_BEGIN gif_Line*/
 void gif_Line(int *v0, int *v1, long long z0, long long z1,
               unsigned char *col, int prim)
 {
@@ -237,12 +244,6 @@ void gif_Line(int *v0, int *v1, long long z0, long long z1,
     p1[1] = v1[1] * D_0063A068 / 224 * 16;
     makeLine2D(p0, p1, z0, z1, col, prim);
 }
-/*SENTINEL_END gif_Line*/
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_Sprite);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteSensitive);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteOffset);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteSensitiveOffset);
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteOrg);
 /* gif_MakeSpriteNoTexture is `inline` and small enough that the Sprite wrappers
    inline it, while gif_MakeSprite stays a call; interim stand-in. */
 static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z,
@@ -257,7 +258,103 @@ static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z,
     setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
 }
 
-/*SENTINEL_BEGIN gif_SpriteSensitiveOrg*/
+/* gif_MakeSpriteNoTextureOffset is `inline` too; interim stand-in. */
+static inline void makeSpriteNoTextureOffset(int x, int y, int w, int h,
+                                             long long z, unsigned char *col,
+                                             int prim)
+{
+    setGsReg(0x00, (prim << 6) | 0x406);
+    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
+    setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
+}
+
+void gif_Sprite(int *r, long long z, int *uv, unsigned char *col, int prim)
+{
+    int x = r[0] * D_0063A064 / 640 * 16;
+    int y = r[1] * D_0063A068 / 224 * 16;
+    int w = r[2] * D_0063A064 / 640 * 16;
+    int h = r[3] * D_0063A068 / 224 * 16;
+
+    if (uv == 0) {
+        makeSpriteNoTexture(x, y, w, h, z, col, prim);
+    } else {
+        GifUvRect t = *(GifUvRect *)uv;
+
+        t.u0 *= 16;
+        t.v0 *= 16;
+        t.u1 *= 16;
+        t.v1 *= 16;
+        gif_MakeSprite(x, y, w, h, z, (int *)&t, col, prim);
+    }
+}
+void gif_SpriteSensitive(int *r, long long z, int *uv, unsigned char *col,
+                         int prim)
+{
+    int x = r[0] * D_0063A064 / 640;
+    int y = r[1] * D_0063A068 / 224;
+    int w = r[2] * D_0063A064 / 640;
+    int h = r[3] * D_0063A068 / 224;
+
+    if (uv) {
+        gif_MakeSprite(x, y, w, h, z, uv, col, prim);
+    } else {
+        makeSpriteNoTexture(x, y, w, h, z, col, prim);
+    }
+}
+void gif_SpriteOffset(int *r, long long z, int *uv, unsigned char *col,
+                      int prim)
+{
+    int x = r[0] * D_0063A064 / 640 * 16;
+    int y = r[1] * D_0063A068 / 224 * 16;
+    int w = r[2] * D_0063A064 / 640 * 16;
+    int h = r[3] * D_0063A068 / 224 * 16;
+
+    if (uv == 0) {
+        makeSpriteNoTextureOffset(x, y, w, h, z, col, prim);
+    } else {
+        GifUvRect t = *(GifUvRect *)uv;
+
+        t.u0 *= 16;
+        t.v0 *= 16;
+        t.u1 *= 16;
+        t.v1 *= 16;
+        gif_MakeSpriteOffset(x, y, w, h, z, (int *)&t, col, prim);
+    }
+}
+void gif_SpriteSensitiveOffset(int *r, long long z, int *uv,
+                               unsigned char *col, int prim)
+{
+    int x = r[0] * D_0063A064 / 640;
+    int y = r[1] * D_0063A068 / 224;
+    int w = r[2] * D_0063A064 / 640;
+    int h = r[3] * D_0063A068 / 224;
+
+    if (uv) {
+        gif_MakeSpriteOffset(x, y, w, h, z, uv, col, prim);
+    } else {
+        makeSpriteNoTextureOffset(x, y, w, h, z, col, prim);
+    }
+}
+void gif_SpriteOrg(int *r, long long z, int *uv, unsigned char *col, int prim)
+{
+    int x = r[0] * 16;
+    int y = r[1] * 16;
+    int w = r[2] * 16;
+    int h = r[3] * 16;
+
+    if (uv == 0) {
+        makeSpriteNoTexture(x, y, w, h, z, col, prim);
+    } else {
+        GifUvRect t = *(GifUvRect *)uv;
+
+        t.u0 *= 16;
+        t.v0 *= 16;
+        t.u1 *= 16;
+        t.v1 *= 16;
+        gif_MakeSprite(x, y, w, h, z, (int *)&t, col, prim);
+    }
+}
 void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col,
                             int prim)
 {
@@ -272,7 +369,6 @@ void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col,
         makeSpriteNoTexture(x, y, w, h, z, col, prim);
     }
 }
-/*SENTINEL_END gif_SpriteSensitiveOrg*/
 extern int D_0063A074;
 extern int D_0063A078;
 
@@ -347,23 +443,18 @@ static inline void makePoint2D(int *v, long long z, unsigned char *col,
     setGsReg(0x05, GIF_XYZ(v, z));
 }
 
-/*SENTINEL_BEGIN gif_MakePoint2D*/
 void gif_MakePoint2D(int *v, long long z, unsigned char *col, int prim)
 {
     setGsReg(0x00, ((long long)prim << 6) | 0x100);
     setGsReg(0x01, GIF_RGBA(col));
     setGsReg(0x05, GIF_XYZ(v, z));
 }
-/*SENTINEL_END gif_MakePoint2D*/
-/*SENTINEL_BEGIN gif_MakePoint2DOffset*/
 void gif_MakePoint2DOffset(int *v, long long z, unsigned char *col, int prim)
 {
     setGsReg(0x00, 0x100 | ((long long)prim << 6));
     setGsReg(0x01, GIF_RGBA(col));
     setGsReg(0x05, GIF_XYZOFF(v, z));
 }
-/*SENTINEL_END gif_MakePoint2DOffset*/
-/*SENTINEL_BEGIN gif_MakeLine2D*/
 void gif_MakeLine2D(int *v0, int *v1, long long z0, long long z1,
                     unsigned char *col, int prim)
 {
@@ -372,8 +463,6 @@ void gif_MakeLine2D(int *v0, int *v1, long long z0, long long z1,
     setGsReg(0x05, GIF_XYZ(v0, z0));
     setGsReg(0x05, GIF_XYZ(v1, z1));
 }
-/*SENTINEL_END gif_MakeLine2D*/
-/*SENTINEL_BEGIN gif_MakeSpriteNoTexture*/
 void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z,
                              unsigned char *col, int prim)
 {
@@ -385,8 +474,6 @@ void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z,
     setGsReg(0x05, GIF_XY(x, y, z));
     setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
 }
-/*SENTINEL_END gif_MakeSpriteNoTexture*/
-/*SENTINEL_BEGIN gif_MakeSpriteNoTextureOffset*/
 void gif_MakeSpriteNoTextureOffset(int x, int y, int w, int h, long long z,
                                    unsigned char *col, int prim)
 {
@@ -395,8 +482,6 @@ void gif_MakeSpriteNoTextureOffset(int x, int y, int w, int h, long long z,
     setGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
     setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
 }
-/*SENTINEL_END gif_MakeSpriteNoTextureOffset*/
-/*SENTINEL_BEGIN gif_Point*/
 void gif_Point(int *v, long long z, unsigned char *col, int prim)
 {
     int p[2];
@@ -405,7 +490,6 @@ void gif_Point(int *v, long long z, unsigned char *col, int prim)
     p[1] = v[1] * D_0063A068 / 224;
     makePoint2D(p, z, col, prim);
 }
-/*SENTINEL_END gif_Point*/
 void gif_LineOffset(int *v0, int *v1, long long z0, long long z1,
                     unsigned char *col, int prim)
 {
