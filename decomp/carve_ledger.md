@@ -994,6 +994,9 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
 
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
+- `[0x452680, .rodata, src/act-game]` — _ACTCharStatus_Set's 17-arm table; the blob resumes
+  at `0x4526C4` with the pad word before the string run.
+
 - `[0x51BDC0, .rodata, src/debug]` — debug_mcRetErrCheck's 17-arm table; the blob resumes
   at `0x51BE04` with the pad word and the string run. src/debug's tail has eight switch
   functions; the next ones to land extend this row or add their own when their tables

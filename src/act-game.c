@@ -12,10 +12,12 @@ typedef struct {
     char _2c[0x44];
     float _70;
     char _74[0x0C];
-    float _80;
+    int _80;
     char _84[0x04];
     int _88;
-    char _8c[0x0C];
+    int _8c;
+    char _90[0x04];
+    int _94;
     int _98;
     char _9c[0x24];
 } HandWork;
@@ -24,22 +26,59 @@ typedef union { int i; float f; } IntFloat;
 
 extern void gamesysObjInfoCls(int a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SaveActorInformation);
+extern int stage_no;
+extern void gamesysObjInfoPosSetStage(char *a0, int a1, int a2, int a3);
+
+void ACTGame_SaveActorInformation(char *a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+    if (((int)(*(unsigned long long *)(s + 0x18) >> 39) & 1) &&
+        *(int *)(s + 0x4C) % 30 == 0) {
+        gamesysObjInfoPosSetStage(a0, *(int *)(s + 0x444), 0, stage_no);
+    }
+}
 void ACTGame_DeleteActorInformation(int *a0)
 {
     gamesysObjInfoCls(a0[3], a0[2]);
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", EXITDATA_GetNextPosition);
-ASM_LIT4_SLOT(D_00638CC8, 0.017453292f);
+/* The exit table: one 40-byte entry per exit, in .rodata. */
+typedef struct {
+    float pos[3];
+    float rot[3];
+    int f_18;
+    int f_1C;
+    int f_20;
+    int f_24;
+} ExitData;
+extern const ExitData D_0055C518[];
+extern int exit_no;
+extern void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
+extern void sceVu0ScaleVector(void *dst, void *src, float k);
+
+void EXITDATA_GetNextPosition(int idx, float *pos, float *rot)
+{
+    exit_no = idx;
+    test_nextstage_firstwalk_set(idx, D_0055C518[idx].f_18, D_0055C518[idx].f_1C,
+                                 D_0055C518[idx].f_20);
+
+    pos[0] = -D_0055C518[idx].pos[0];
+    pos[1] = -D_0055C518[idx].pos[1];
+    pos[2] = -D_0055C518[idx].pos[2];
+
+    rot[0] = D_0055C518[idx].rot[0];
+    rot[1] = D_0055C518[idx].rot[1];
+    rot[2] = D_0055C518[idx].rot[2];
+
+    sceVu0ScaleVector(rot, rot, 0.017453292f);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObj);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetActors_Debug);
 extern char *D_00639EA4;
 extern char *D_00639EA8;
+extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, int a4, int a5, int a6);
 void ACTGame_TryConnectHand(void) {
     RequestChangeHandMode(D_00639EA4, 1, 5, 5, (int)D_00639EA8, 0, 0);
 }
-extern char *D_00639EA4;
-extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, int a4, int a5, int a6);
 void ACTGame_TryDisconnectHand(void) {
     RequestChangeHandMode(D_00639EA4, 1, 5, 0, 0, 0, 0);
 }
@@ -123,31 +162,52 @@ void ACTGameCollisionOff(volatile int *self)
     ((int *)self[0x57])[0x152] = 0;
     ((int *)self[0x57])[0x1F] = 0;
 }
-extern char D_0055FE58[];
+/* The 0x194-byte-per-entry motion record table, indexed by the object's
+   current motion id (obj->0x15C->0x4A0). */
+typedef struct {
+    char _000[0x150];
+    int f_150;
+    char _154[0x2C];
+    short f_180;
+    short f_182;
+    short f_184;
+    char _186[0x02];
+    union {
+        unsigned int w;
+        struct { unsigned short lo, hi; } h;
+    } u_188;
+    unsigned int f_18C;
+    char _190[0x04];
+} MotionRec;
+extern MotionRec D_0055FE58[];
 int ACTGame_CheckItemMotion(char *a0) {
-    char *rec = D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194;
-    return (*(unsigned int *)(rec + 0x188) >> 19) & 7;
+    MotionRec *rec = &D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)];
+    return (rec->u_188.w >> 19) & 7;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CheckHandMotion);
-extern int D_0055C518[][10];
-extern void EXITDATA_GetNextPosition(int idx, char *tmp_a, char *tmp_b);
-extern void gamesysObjInfoPosNewStageSet(char *self, char *other, int v, char *tmp_a, char *tmp_b);
+int ACTGame_CheckHandMotion(char *a0, char *a1) {
+    MotionRec *rec0 = &D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)];
+    MotionRec *rec1 = &D_0055FE58[*(int *)(*(char **)(a1 + 0x15C) + 0x4A0)];
+    int b0 = (rec0->f_18C >> 18) & 1;
+    int b1 = (rec1->f_18C >> 18) & 1;
+    return b0 & b1;
+}
+extern void gamesysObjInfoPosNewStageSet(char *self, char *other, int v, float *tmp_a, float *tmp_b);
 
 void ACTGame_StageChangeGObjID(char *self, char *other, int idx)
 {
-    char tmp_a[0x10];
-    char tmp_b[0x10];
+    float tmp_a[4];
+    float tmp_b[4];
     EXITDATA_GetNextPosition(idx, tmp_a, tmp_b);
-    gamesysObjInfoPosNewStageSet(self, other, D_0055C518[idx][9], tmp_a, tmp_b);
+    gamesysObjInfoPosNewStageSet(self, other, D_0055C518[idx].f_24, tmp_a, tmp_b);
 }
 extern void memset(void *a0, int a1, int a2);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
 void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3) {
-    char buf0[0x10];
-    char buf1[0x10];
+    float buf0[4];
+    float buf1[4];
     memset(buf1, 0, 0x10);
-    *(float *)(buf1 + 4) = (float)a3 * 3.1415927f / 180.0f;
+    buf1[1] = (float)a3 * 3.1415927f / 180.0f;
     sceVu0ScaleVector(buf0, a2, -1.0f);
     gamesysObjInfoPosNewStageSet((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
 }
@@ -156,10 +216,18 @@ int ACTGame_FLAG_LIFEPINCH(char *a0) {
     return 0;
 }
 extern char *D_00639EA8;
-int ACTGame_FLAG_TETSUNAGI(void) {
+/* Returns a char-width boolean: the three PAIR_IsStatus_* sites the listing
+   inlines this into all mask the result with `andi 0xff`, which only a
+   narrower-than-int return type produces.  The `int` intermediate keeps the
+   SI->QI conversion at the `return`; folding it into the `& 1` (i.e. writing
+   the expression directly in the return) makes gcc distribute the narrowing
+   over the mask and emit a second `andi`. */
+unsigned char ACTGame_FLAG_TETSUNAGI(void) {
     char *g = D_00639EA8;
+    int flag;
     if (g == 0) return 0;
-    return (int)(*(unsigned long long *)(*(char **)(g + 0x164) + 0x18) >> 40) & 1;
+    flag = (int)(*(unsigned long long *)(*(char **)(g + 0x164) + 0x18) >> 40) & 1;
+    return flag;
 }
 int ACTGame_FLAG_TETSUNAGI_VISUAL(void) {
     char *g = D_00639EA8;
@@ -245,9 +313,73 @@ void PAIR_GetPosition_BOY(float *a0, float *a1) {
     a1[1] = q[0x4C4/4];
     a1[2] = q[0x4C8/4];
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_BOY_PULL);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_GIRL_PULL);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_BOY_WAIT);
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines ACTGame_FLAG_TETSUNAGI (lines 1175-1177) into the three
+   PAIR_IsStatus_* predicates below, so it is `inline` in the dev's TU; while
+   this tail still has asm members a deferred inline would land at the object
+   end instead of at its ROM slot, so the public body above stays a plain
+   definition and these callers use the static stand-in.
+   Collapses to one `inline` definition at layout. */
+static inline unsigned char actGame_FLAG_TETSUNAGI(void) {
+    char *g = D_00639EA8;
+    int flag;
+    if (g == 0) return 0;
+    flag = (int)(*(unsigned long long *)(*(char **)(g + 0x164) + 0x18) >> 40) & 1;
+    return flag;
+}
+
+int PAIR_IsStatus_BOY_PULL(void)
+{
+    switch (*(unsigned int *)(*(char **)(D_00639EA4 + 0x164) + 0x34)) {
+    case 0x4E:
+    case 0x4F:
+        return 1;
+
+    case 1:
+    case 2:
+    case 3:
+        if (actGame_FLAG_TETSUNAGI()) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
+}
+int PAIR_IsStatus_GIRL_PULL(void)
+{
+    switch (*(unsigned int *)(*(char **)(D_00639EA8 + 0x164) + 0x34)) {
+    case 4:
+    case 0x45:
+    case 0x50:
+    case 0x51:
+        return 1;
+
+    case 1:
+    case 2:
+    case 3:
+        if (actGame_FLAG_TETSUNAGI()) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
+}
+int PAIR_IsStatus_BOY_WAIT(void)
+{
+    char *b = D_00639EA4;
+
+    if (b != 0) {
+        switch (*(unsigned int *)(*(char **)(b + 0x164) + 0x34)) {
+        case 0x4E:
+        case 0x58:
+            if (D_0055FE58[*(int *)(*(char **)(b + 0x15C) + 0x4A0)].f_150 == 1) {
+                return 1;
+            }
+            break;
+        }
+    }
+    return 0;
+}
 extern char *D_00639EA4;
 void PAIR_GetPosition_BOY_DITCH(float *a0, float *a1) {
     float *q = (float *)*(char **)(D_00639EA4 + 0x164);
@@ -258,7 +390,30 @@ void PAIR_GetPosition_BOY_DITCH(float *a0, float *a1) {
     a1[1] = q[0x524/4];
     a1[2] = q[0x528/4];
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_IsStatus_BOY_DITCH);
+int PAIR_IsStatus_BOY_DITCH(void)
+{
+    char *b = D_00639EA4;
+
+    switch (*(unsigned int *)(*(char **)(b + 0x164) + 0x34)) {
+    case 0x58:
+        if (D_0055FE58[*(int *)(*(char **)(b + 0x15C) + 0x4A0)].f_150 != 1) {
+            break;
+        }
+        /* fall through */
+    case 0x59:
+    case 0x5C:
+        return 1;
+
+    case 1:
+    case 2:
+    case 3:
+        if (actGame_FLAG_TETSUNAGI()) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
+}
 extern char *D_00639EA4;
 extern char D_005577D0[];
 int ACTGame_isHangChain(char *a0) {
@@ -285,7 +440,42 @@ int ACTGame_isWeaponEnableCatchfire(int *self)
     }
     return ret;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WF);
+extern void ClipWall(void *);
+extern void ClipFloor(void *);
+extern void sceVu0CopyVector(void *buf, int x);
+
+int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout)
+{
+    HandWork work;
+    int flag;
+    int rv;
+
+    memset(&work, 0, 0xC0);
+    rv = 1;
+    flag = actor ? *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) : 0;
+    work._70 = f;
+    sceVu0CopyVector(&work, (int) p0);
+    sceVu0CopyVector((char *) &work + 0x10, (int) p1);
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 0;
+    }
+    ClipWall(&work);
+    if (work._88 == 0) {
+        ClipFloor(&work);
+        if (work._94 == 0) {
+            rv = 0;
+        }
+    }
+    if (posout != 0) {
+        *(float *) ((char *) posout + 0) = work._20;
+        *(float *) ((char *) posout + 4) = work._24;
+        *(float *) ((char *) posout + 8) = work._28;
+    }
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 1;
+    }
+    return rv & 0xFF;
+}
 extern void ClipWall(void *);
 extern void GetOrientOfWall(void *out, int n, void *vec);
 extern void memset(void *a0, int a1, int a2);
@@ -344,12 +534,101 @@ int ACTCheckCollis_CI(int a0, int a1, int *a2, char *a3)
     }
     return *(int *)(buf + 0x88) != 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WELL);
+extern int D_0063A6B0;
+
+int ACTCheckCollis_WELL(float f, void *p0, void *p1, void *actor, void *posout)
+{
+    HandWork work;
+    int flag;
+    int rv;
+
+    memset(&work, 0, 0xC0);
+    rv = 1;
+    flag = actor ? *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) : 0;
+    work._70 = f;
+    D_0063A6B0 = 0;
+    sceVu0CopyVector(&work, (int) p0);
+    sceVu0CopyVector((char *) &work + 0x10, (int) p1);
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 0;
+    }
+    ClipFloor(&work);
+    if (work._94 == 0) {
+        rv = 0;
+    } else {
+        D_0063A6B0 = work._8c;
+    }
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 1;
+    }
+    if (posout != 0) {
+        *(float *) ((char *) posout + 0) = work._20;
+        *(float *) ((char *) posout + 4) = work._24;
+        *(float *) ((char *) posout + 8) = work._28;
+    }
+    return rv;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WAY);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewCl);
 ASM_LIT4_SLOT(D_00638D00, 25000000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_FirstSet);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_Add);
+extern char D_00552400[];
+extern char D_00552420[];
+extern char D_0063A698[];
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+extern int *isysGObjSearchFromObjKindID_begin(int);
+extern int *isysGObjSearchFromObjKindID_next(int *);
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines ACTGameView_Add (line 1788) here, so it is `inline` in the
+   dev's TU; while this tail still has asm members a deferred inline would
+   land at the object end instead of at its ROM slot, so the public body
+   below stays a plain definition and this caller uses the static stand-in.
+   Collapses to one `inline` definition at layout. */
+static inline void actGameView_Add(char *a0, char *a1)
+{
+    int n = D_006C0470[0x4B0 / 4]++;
+    if (n >= 100) {
+        debug_StdPrintfDummy(D_00552400);
+        debug_assert(D_00552420, 0x6FF); __assert(D_00552420, 0x6FF, D_0063A698);
+    }
+    *(char **)&D_006C0470[n] = a1;
+    *(int *)((char *)D_006C0470 + n * 4 + 0x190) = 0;
+    *(int *)((char *)D_006C0470 + n * 4 + 0x320) = 0;
+}
+
+void ACTGameView_FirstSet(void)
+{
+    int *g;
+
+    g = isysGObjSearchFromObjKindID_begin(4);
+    while (g != 0) {
+        actGameView_Add((char *)g, (char *)g);
+        g = isysGObjSearchFromObjKindID_next(g);
+    }
+}
+extern char D_00552400[];
+extern char D_00552420[];
+extern char D_0063A698[];
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+
+/* D_006C0470 is one table: a 100-entry object list at +0x000, two parallel
+   100-entry int arrays at +0x190 and +0x320, and the entry count at +0x4B0.
+   The list slot holds a pointer, so its store is in a different alias set
+   from the two int stores -- that is what lets ROM schedule the +0x190
+   address ahead of the list address. */
+void ACTGameView_Add(char *a0, char *a1)
+{
+    int n = D_006C0470[0x4B0 / 4]++;
+    if (n >= 100) {
+        debug_StdPrintfDummy(D_00552400);
+        debug_assert(D_00552420, 0x6FF); __assert(D_00552420, 0x6FF, D_0063A698);
+    }
+    *(char **)&D_006C0470[n] = a1;
+    *(int *)((char *)D_006C0470 + n * 4 + 0x190) = 0;
+    *(int *)((char *)D_006C0470 + n * 4 + 0x320) = 0;
+}
 int ACTGameView_Check(int a0, int a1)
 {
     int i;
@@ -421,8 +700,51 @@ void ACTLookTarget_Init(char *a0) {
     *(int *)(s + 0xB0) = 0;
     *(int *)(s + 0xAC) = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTLookTarget_Set);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTParaStatus_Init);
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines ACTLookTarget_Init (lines 2183-2187) into
+   _ACTLookTarget_Set, so it is `inline` in the dev's TU; while this tail
+   still has asm members a deferred inline would land at the object end
+   instead of at its ROM slot, so the public body above stays a plain
+   definition and this caller uses the static stand-in.
+   Collapses to one `inline` definition at layout. */
+static inline void actLookTarget_Init(char *a0) {
+    char *s = *(char **)(a0 + 0x164);
+    *(int *)(s + 0xA8) = 0;
+    *(int *)(s + 0xB0) = 0;
+    *(int *)(s + 0xAC) = 0;
+}
+
+int _ACTLookTarget_Set(char *a0, int a1, float *a2, int a3, int a4)
+{
+    char *s = *(char **)(a0 + 0x164);
+    int ret = 0;
+
+    if (a3 == 6) {
+        actLookTarget_Init(a0);
+    } else if (a3 >= *(int *)(s + 0xAC)) {
+        *(int *)(s + 0xA8) = a1;
+        if (a2 != 0) {
+            *(float *)(s + 0xC0) = a2[0];
+            *(float *)(s + 0xC4) = a2[1];
+            *(float *)(s + 0xC8) = a2[2];
+        }
+        *(int *)(s + 0xB0) = a4;
+        *(int *)(s + 0xAC) = a3;
+        ret = 1;
+    }
+    return ret;
+}
+extern void ActPara_InitSystem(void);
+extern void ActPara_MakeTbl(int a0, long long a1, int a2);
+
+void ACTParaStatus_Init(char *a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+    ActPara_InitSystem();
+    ACTParaStatus_Clear(a0);
+    ActPara_MakeTbl(*(int *)(*(char **)(a0 + 0x164) + 0x688), *(long long *)(s + 0x90), 0);
+    *(long long *)(s + 0x98) = *(long long *)(s + 0x90);
+}
 void _ACTParaStatus_Set(char *a0, int bit) {
     char *s = *(char **)(a0 + 0x164);
     *(unsigned long long *)(s + 0x90) |= (1ULL << bit) & ~*(unsigned long long *)(s + 0xA0);
@@ -436,7 +758,42 @@ void _ACTCharStatus_Init(int **a0) {
     p[0xB] = 0;
     p[0xC] = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTCharStatus_Set);
+void _ACTCharStatus_Set(char *a0, int bit, float f, int val)
+{
+    char *s = *(char **)(a0 + 0x164);
+
+    *(long long *)(s + 0x58) |= 1LL << bit;
+
+    switch (bit) {
+    case 8:
+        *(float *)(s + 0x68) = f;
+        break;
+
+    case 5:
+        *(float *)(s + 0x6C) = f;
+        break;
+
+    case 17:
+        *(float *)(s + 0x70) = f;
+        break;
+
+    case 18:
+        *(int *)(s + 0x74) = val;
+        break;
+
+    case 10:
+        *(int *)(s + 0x78) = val;
+        break;
+
+    case 2:
+        *(int *)(s + 0x7C) = val;
+        break;
+
+    case 11:
+        *(int *)(s + 0x88) = val;
+        break;
+    }
+}
 unsigned long long _ACTCharStatus_Check(char *a0, int bit) {
     char *s = *(char **)(a0 + 0x164);
     unsigned long long r = 0;
@@ -463,16 +820,93 @@ float _ACTGame_GetParamF(int idx)
     return D_002ADAF0[idx];
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_GetCurrentCallStatus);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CheckPriInputFrame);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SendSoundMail);
+int ACTGame_CheckPriInputFrame(char *a0)
+{
+    short f;
+
+    f = D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f_184;
+    if ((float)f < *(float *)(*(char **)(a0 + 0x15C) + 0x4AC) && f != -1) {
+        return 1;
+    }
+    f = D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f_180;
+    if (f != -1 && *(float *)(*(char **)(a0 + 0x15C) + 0x4AC) < (float)f) {
+        return 1;
+    }
+    return 0;
+}
+extern int iosOmSendMail(char *a0, int mail);
+
+void ACTGame_SendSoundMail(char *a0, int mail, int a2, int a3, int a4)
+{
+    switch (mail) {
+    case 0x1A0:
+        if (a4 != 0 && *(short *)(*(char **)(a0 + 0x164) + 0x13A) > 0) {
+            break;
+        }
+        iosOmSendMail(a0, 0x1A0);
+        if (a3 == 0) {
+            break;
+        }
+        *(int *)(*(char **)(a0 + 0x164) + 0x134) = a3;
+        *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x138) =
+            (*(unsigned long long *)(*(char **)(a0 + 0x164) + 0x138) & ~1ULL) | (a4 & 1);
+        break;
+
+    case 0x1A1:
+        iosOmSendMail(a0, 0x1A1);
+
+        *(int *)(*(char **)(a0 + 0x164) + 0x134) = a3;
+        break;
+    }
+}
 extern int InitMultiBgaManager(int a0);
 void ACTGame_LwsEffectInit(char *a0) {
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1B8) = InitMultiBgaManager(1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_LwsEffect_Guard);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ActGame_GetOrientQ);
-ASM_LIT4_SLOT(D_00638D04, 3.1415927f);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", _GetRootObjectOrient);
+extern int *test_CURRENTROOT(int *a0);
+extern void ActGame_GetOrientQ(void *q, void *v, int deg);
+extern void _OrientXZGV(void *dst, void *a, void *b);
+extern void stage_SetLoopFlag(int key, int a1);
+extern void stage_SetFrameStep(int key, int a1);
+extern void EntryMultiBgaManager(int id, int a1, int a2, int *root, void *q);
+
+void ACTGame_LwsEffect_Guard(char *a0)
+{
+    float q[4];
+    float v[4];
+    char *p;
+
+    _OrientXZGV(v, test_CURRENTROOT((int *)D_00639EA4), test_CURRENTROOT((int *)a0));
+    ActGame_GetOrientQ(q, v, 0);
+
+    stage_SetLoopFlag(0x1F8, 0);
+    stage_SetFrameStep(0x1F8, 1);
+    p = *(char **)(*(char **)(a0 + 0x164) + 0x680);
+    EntryMultiBgaManager(*(int *)(p + 0x1B8), 0, -1, test_CURRENTROOT((int *)a0), q);
+}
+extern void sceVu0ScaleVector(void *dst, void *src, float k);
+extern float _GetDirection(void *v);
+extern void SetIdentityQuaternion(void *q);
+extern void RotQuaternionY(void *q, int ang);
+
+void ActGame_GetOrientQ(void *q, void *v, int deg)
+{
+    float tmp[4];
+    int n;
+
+    sceVu0ScaleVector(tmp, v, -1.0f);
+    n = (int)(_GetDirection(tmp) / 3.1415927f * 180.0f) + deg;
+    SetIdentityQuaternion(q);
+    RotQuaternionY(q, (short)(n * 32768 / 180));
+}
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
+
+void _GetRootObjectOrient(void *a0, char *a1)
+{
+    float v[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
+    sceVu0ApplyMatrix(a0, *(void **)(*(char **)(a1 + 0x15C) + 0xC), v);
+}
+extern void ReleaseItem(int item);
 void ACTItemForceDrop(char *a0) {
     char *s = *(char **)(a0 + 0x164);
     int item = *(int *)(s + 0x180);
@@ -482,12 +916,113 @@ void ACTItemForceDrop(char *a0) {
         *(int *)(s + 0x184) = 0;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", GetOtherStageGirlOrient);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTChkAttackIgnore_BOY);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTChkAttackIgnore_GIRL);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTChkAttackIgnore_ENEMY);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_VIEW);
-ASM_LIT4_SLOT(D_00638D08, 25000000.0f);
+extern int gamesysGetGirlStageIDAndPosition(int *buf);
+extern void OtherStagePositionGet(float *dst, int stage, int id, int *buf);
+extern void _OrientGV(float *dst, float *a, float *b);
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines GetGirlPositionAtThisStage (lines 4063-4067) here, so it is
+   `inline` in the dev's TU; while this tail still has asm members a deferred
+   inline would land at the object end instead of at its ROM slot, so the
+   public body below stays a plain definition and this caller uses the static
+   stand-in.  Collapses to one `inline` definition at layout. */
+static inline void getGirlPositionAtThisStage(float *dst)
+{
+    int buf[4];
+    int id = gamesysGetGirlStageIDAndPosition(buf);
+    OtherStagePositionGet(dst, stage_no, id, buf);
+}
+
+void GetOtherStageGirlOrient(float *a0, float *a1)
+{
+    float pos[4];
+    getGirlPositionAtThisStage(pos);
+    _OrientGV(a0, pos, a1);
+}
+extern int D_0063AA08;
+
+int ACTChkAttackIgnore_BOY(char *a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+    if (*(int *)(s + 0x34) == 0x35
+        || (*(int *)(*(char **)(s + 0x688) + 0x394) != 0 && D_0063AA08 != 0)
+        || ((int)(*(unsigned long long *)(s + 0x18) >> 35) & 1) == 0) {
+        return 1;
+    }
+    return 0;
+}
+int ACTChkAttackIgnore_GIRL(char *a0, int *a1)
+{
+    char *s = *(char **)(a0 + 0x164);
+    switch (*(int *)(s + 0x34)) {
+    case 0x6F:
+        return 1;
+
+    case 5:
+        if (a1 != 0 && a1[3] == 0x11) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
+}
+extern int D_0028F4C0[];
+
+int ACTChkAttackIgnore_ENEMY(char *a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+
+    switch (*(int *)(s + 0x34)) {
+    case 0x67:
+        if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2 < *(int *)(s + 0x4C)) {
+            return 1;
+        }
+        break;
+
+    case 6:
+        if (((int)(*(unsigned long long *)(s + 0x18) >> 57) & 1)
+            && stage_no != 0x56 && stage_no != 3 && stage_no != 0x2E) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
+}
+extern float _DistSqGV(int *a0, int a1);
+extern void ClipFloor(void *);
+
+int ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor)
+{
+    HandWork work;
+    int flag;
+    int rv;
+
+    memset(&work, 0, 0xC0);
+    rv = 1;
+    flag = actor ? *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) : 0;
+
+    if (!(_DistSqGV((int *)p0, (int)p1) < 25000000.0f)) {
+        return 1;
+    }
+
+    work._70 = f;
+    sceVu0CopyVector(&work, (int) p0);
+    sceVu0CopyVector((char *) &work + 0x10, (int) p1);
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 0;
+    }
+    ClipWall(&work);
+    if (work._88 == 0) {
+        ClipFloor(&work);
+        if (work._94 == 0) {
+            rv = 0;
+        }
+    }
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 1;
+    }
+    return rv & 0xFF;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewClDetail);
 ASM_LIT4_SLOT(D_00638D0C, 25000000.0f);
 void ACTGame_SetMotionPlaySpeedRatio_Clear(char *a0) {
@@ -496,16 +1031,9 @@ void ACTGame_SetMotionPlaySpeedRatio_Clear(char *a0) {
     *(int *)(p + 0x54) = 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Exec);
-extern int stage_no;
-extern void OtherStagePositionGet();
-extern int gamesysGetGirlStageIDAndPosition(int a0);
-
-extern void OtherStagePositionGet__pn(int a0, int a1, int a2, int *buf) __asm__("OtherStagePositionGet");
-extern int gamesysGetGirlStageIDAndPosition__pn(int *buf) __asm__("gamesysGetGirlStageIDAndPosition");
-
-void GetGirlPositionAtThisStage(int a0)
+void GetGirlPositionAtThisStage(float *a0)
 {
     int buf[4];
-    int v0 = gamesysGetGirlStageIDAndPosition__pn(buf);
-    OtherStagePositionGet__pn(a0, stage_no, v0, buf);
+    int id = gamesysGetGirlStageIDAndPosition(buf);
+    OtherStagePositionGet(a0, stage_no, id, buf);
 }

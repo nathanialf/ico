@@ -399,6 +399,8 @@ segments:
       - [0x44E170, rodata, src/cod/44E170]   # .rodata blob resume
       - [0x452080, .rodata, isys/obj_manager]  # carved jtbl_00552080 (VMA 0x552080..0x552094, 5 arms, 20 B): iosOmExeMail's switch table, emitted by the compiled function
       - [0x452094, rodata, src/cod/452094]   # .rodata blob resume (the zero pad word before the 8-aligned string at 0x552098 is the blob's first word: the compiled table is 0x14 B and blob sections align at most to 8)
+      - [0x452680, .rodata, src/act-game]  # carved jtbl_00552680 (_ACTCharStatus_Set's 17-arm table), VMA 0x552680..0x5526C4
+      - [0x4526C4, rodata, src/cod/4526C4]   # .rodata blob resume (zero pad word, then the 8-aligned strings at 0x5526C8)
       - [0x453EB0, .rodata, src/girl_act]  # carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
       - [0x453FBC, rodata, src/cod/453FBC]   # .rodata blob resume (the zero pad word before the .align 3 D_00553FC0 is the blob's first word)
       - [0x4555E0, .rodata, src/ebrain]  # carved jtbl_005555E0 (7 arms, 0x1C) + jtbl_00555600 (9 arms, 0x24) at 16-byte alignment: eBrainGetTarget's two switch tables, emitted by the compiled function; VMA 0x5555E0..0x555624; the TU's strings before them stay in the blob
