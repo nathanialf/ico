@@ -324,7 +324,111 @@ void actEnemyAttack(volatile int a0)
         _ACTWait(1);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyRestart);
+extern void SetDirectRootPositionNoFitting(int *self, char *spill);
+extern int gamesysObjInfoPosSetStage(int w, int a1, int a2, int stage);
+extern int stage_no;
+extern void RandomizeEnemy(char *self);
+extern int GetEnemyBattleType(char *self);
+extern float GetEnemyDefLife(char *self);
+extern float _ACTGame_GetParamF(int idx);
+extern void InitMotionGeoInfo(char *p, float x, float y, float z, float a, float b,
+                              float c);
+extern void ResetEnemyPositionInfo(int *self);
+extern void SetEnemyDissolve(char *self, float t);
+extern void _BrainMode_SetDirect(char *a0, int a1, int *a2);
+extern int D_0063AA00;
+extern char D_002A8570[];
+
+/* The disc listing attributes rows 2138-2143 -- which lie ABOVE this function's
+   own def line 2151 -- to bodies inside both actEnemyRestart and actEnemyStart,
+   so the 2001 source has a `static inline` here.  `max` really is a local (line
+   2138 is its `li $a1,43`): with the literal 43 written into the compare, fold
+   rewrites `idx <= 43` into `idx < 44` and gcc emits `slti`+`movn`, where ROM
+   has `slt`+`movz` off a register-held 43.  Name derived: a fully-inlined
+   static has no MAIN.MAP symbol. */
+static inline float getEnemyRestartLife(char *self)
+{
+    int max = 43;
+    int idx = D_0063AA00 + 38;
+
+    idx = (idx < 38) ? 38 : ((idx <= max) ? idx : max);
+    return GetEnemyDefLife(self) * _ACTGame_GetParamF(idx);
+}
+
+void actEnemyRestart(char *self, float *pos, float *dir, int kind, int mot)
+{
+    float v[4];
+    char *sub;
+    int mail;
+    int idx;
+    float life;
+
+    sub = *(char **)(self + 0x164);
+    mail = 50;
+    v[0] = pos[0];
+    v[2] = pos[2];
+    v[1] = pos[1] - 100.0f;
+    SetDirectRootPositionNoFitting((int *)self, (char *)v);
+    gamesysObjInfoPosSetStage((int)self, *(int *)(sub + 0x444), 0, stage_no);
+    switch (kind) {
+    case 0:
+        pos[1] = pos[1] +
+                 *(float *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x1E0) *
+                     100.0f;
+        break;
+    case 1:
+        mail = 51;
+        break;
+    case 2:
+        mail = 52;
+        break;
+    }
+    if (((int)(*(long long *)(sub + 0x20) >> 29)) & 1) {
+        *(long long *)(sub + 0x20) = *(long long *)(sub + 0x20) & ~0x20000000;
+    } else {
+        RandomizeEnemy(self);
+    }
+    idx = 0;
+    switch (GetEnemyBattleType(self)) {
+    case 0:
+        break;
+    case 1:
+        idx = 1;
+        break;
+    case 2:
+        idx = 2;
+        break;
+    case 3:
+        idx = 3;
+        break;
+    default:
+        debug_assert(D_00553370, 2161);
+        __assert(D_00553370, 2161, D_0063A7E8);
+    }
+    *(int *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x1EC) = idx;
+    setBattleStatus((EnemyBattleGObj *)self);
+    life = getEnemyRestartLife(self);
+    *(float *)(sub + 0x1E4) = life;
+    *(float *)(sub + 0x1E0) = life;
+    *(int *)(sub + 0x350) = 0;
+    if (mot != 0) {
+        *(int *)(sub + 0x54) = mot;
+    } else {
+        *(int *)(sub + 0x54) = 0;
+    }
+    *(int *)(sub + 0xD4) = (int)D_002A8570;
+    ACTSendMailCorrect(self, mail);
+    InitMotionGeoInfo(*(char **)(self + 0x15C) + 0xA0, pos[0], pos[1], pos[2], 0.0f,
+                      0.0f, 0.0f);
+    ResetEnemyPositionInfo((int *)self);
+    SetEnemyDissolve(self, 0.0f);
+    *(float *)(sub + 0x170) = pos[0];
+    *(float *)(sub + 0x174) = pos[1];
+    *(float *)(sub + 0x178) = pos[2];
+    SetMotionDirection(self, dir);
+    eBrainSendMes((int)self, 4);
+    _BrainMode_SetDirect(self, 0, 0);
+}
 ASM_LIT4_SLOT(D_00638EF8, 0.001f);
 ASM_LIT4_SLOT(D_00638EFC, 0.1f);
 ASM_LIT4_SLOT(D_00638F00, 0.99f);
@@ -443,9 +547,10 @@ void MoveChestForCatchBoy(char *self)
     float d[4];
     float sc[4];
     float t;
-    float a;
     float b;
+    float a;
     int ang;
+    int far;
     int ang2;
 
     *(int *)(*(int *)(self + 0x15C) + 0x550) = 1;
@@ -644,9 +749,15 @@ extern void sceVu0Normalize(float *dst, float *src);
 extern float _GetRandom(void);
 extern int EnemyUtil_isOtherStatus(char *self, int mode);
 
-/* static inline of the 2001 source, listing lines 1989-1997 */
-static inline void enemyDodgeSendMail(char *self, char *sub)
+/* static inline of the 2001 source, listing lines 1985-1997.  `sub` is computed
+   INSIDE the helper (row 1986): in enemy_dodge the caller already holds it so
+   cse deletes the load, which is why that call site shows only rows 1989-1997,
+   while subEnemyBrain_Attack's two expansions carry 1985 and 1986 as real
+   instructions. */
+static inline void enemyDodgeSendMail(char *self)
 {
+    char *sub = *(char **)(self + 0x164);
+
     if (EnemyUtil_isOtherStatus(self, 0) != 0) {
         return;
     }
@@ -690,7 +801,7 @@ void enemy_dodge(char *self)
             sub = *(char **)(self + 0x164);
             if ((((int)(*(long long *)(*(char **)(sub + 0x680) + 0x210) >> 1)) & 1) == 0) {
                 if (d < 200.0f) {
-                    enemyDodgeSendMail(self, sub);
+                    enemyDodgeSendMail(self);
                 }
             } else if (D_0063B240 == 0) {
                 ACTSendMailCorrect(self, 0x113);
@@ -742,12 +853,242 @@ void enemy_dodge_to_boy(char *self)
         }
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", Battle_isCurrentStatus);
-ASM_LIT4_SLOT(D_00638F34, 0.7f);
-ASM_LIT4_SLOT(D_00638F38, 0.7f);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", GetFlyPosition);
-ASM_LIT4_SLOT(D_00638F3C, 160000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", NakaBoss);
+extern float _DistxzGV(float *a, void *b);
+extern int _AbsRotyGV(float *a, float *b);
+
+/* listing rows 3858-3870: a `static inline` outside this function's span,
+   expanded twice here (each expansion gets its OWN .lit4 0.7f and its own
+   `1.2` .rodata double -- the pool duplication in ROM is what proves it is an
+   inline function and not a shared helper). */
+static inline float battleRangeScale(char *self, float v)
+{
+    char *work = *(char **)(*(char **)(self + 0x164) + 0x680);
+
+    switch (*(int *)(work + 0x1E8)) {
+    case 0:
+    case 1:
+        v = *(float *)(work + 0x1E0) * v;
+        if (((int)(*(long long *)(work + 0x210) >> 1)) & 1) {
+            v = v * 1.2;
+        }
+        break;
+    case 2:
+        v = *(float *)(work + 0x1E0) * 0.7f * v;
+        break;
+    }
+    return v;
+}
+
+int Battle_isCurrentStatus(char *self, char *tgt, float *pos)
+{
+    float ori[4];
+    float dir[4];
+    int ret;
+    float xz;
+    float dy;
+    float range;
+    float vflag;
+    float a;
+    float b;
+    int ang;
+    int far;
+
+    ret = 0;
+    xz = _DistxzGV(pos, test_CURRENTROOT((int)tgt));
+    dy = ((pos[1] - ((float *)test_CURRENTROOT((int)tgt))[1]) < 0.0f)
+             ? -(pos[1] - ((float *)test_CURRENTROOT((int)tgt))[1])
+             : (pos[1] - ((float *)test_CURRENTROOT((int)tgt))[1]);
+    vflag = 0.0f;
+    range = GetEnemyDefDodgeRange(self);
+    if (200.0f < xz || battleRangeScale(self, 200.0f) < dy) {
+        vflag = 1.0f;
+    }
+    if (xz < range && dy < battleRangeScale(self, 150.0f)) {
+        vflag = -1.0f;
+    }
+    ori[0] = ((float *)test_CURRENTORIENT((int)tgt))[0];
+    ori[1] = ((float *)test_CURRENTORIENT((int)tgt))[1];
+    ori[2] = ((float *)test_CURRENTORIENT((int)tgt))[2];
+    _OrientXZGV(dir, (float *)test_CURRENTROOT((int)self),
+                (float *)test_CURRENTROOT((int)tgt));
+    ang = _AbsRotyGV(ori, dir);
+    a = (ang < 75) ? 1.0f : 0.0f;
+    far = (101 <= ang);
+    b = (a != 0.0f && *(int *)(*(char **)(tgt + 0x164) + 0x34) == 15) ? 1.0f : 0.0f;
+    if (vflag < 0.0f) {
+        ret = 1;
+    }
+    if (0.0f < vflag) {
+        ret = 2;
+    }
+    if (b != 0.0f) {
+        ret = 3;
+    }
+    if (vflag <= 0.0f) {
+        ret = far ? 4 : ret;
+    }
+    return ret;
+}
+extern float _DistSqGV(float *a, float *b);
+extern float _GetRandom(void);
+extern float D_0063A7F4[];
+extern float D_0029D130[4][4];
+extern float D_0029D170[4][4];
+extern float D_0029D1B0[];
+
+int GetFlyPosition(float *out, float *me, float *tgt)
+{
+    int ret;
+
+    ret = 0;
+    if (tgt[1] < -500.0f && 1000.0f < ((tgt[2] < 0.0f) ? -tgt[2] : tgt[2]) &&
+        -500.0f < me[1]) {
+        out[0] = D_0029D1B0[0];
+        out[1] = D_0029D1B0[1];
+        out[2] = D_0029D1B0[2];
+        return 2;
+    }
+    if (tgt[1] < -500.0f && 1000.0f < ((tgt[2] < 0.0f) ? -tgt[2] : tgt[2]) &&
+        _DistSqGV(me, tgt) < 160000.0f) {
+        out[0] = D_0029D1B0[0];
+        out[1] = D_0029D1B0[1];
+        out[2] = D_0029D1B0[2];
+        return 2;
+    }
+    if (-150.0f < me[1]) {
+        float best = D_0063A7F4[0];
+        int besti = -1;
+        int i;
+
+        for (i = 0; i < 4; i++) {
+            float d = _DistSqGV(me, D_0029D130[i]);
+
+            if (d < best) {
+                best = d;
+                besti = i;
+            }
+        }
+        if (besti != -1) {
+            float *p = D_0029D170[besti];
+
+            ret = 1;
+            out[0] = p[0];
+            out[1] = p[1];
+            out[2] = p[2];
+        }
+    } else {
+        float best = 0.0f;
+        int besti = -1;
+        int i;
+
+        for (i = 0; i < 4; i++) {
+            float d = _DistSqGV(tgt, D_0029D130[i]);
+
+            if (best < d) {
+                best = d;
+                besti = i;
+            }
+        }
+        if (besti != -1) {
+            ret = 1;
+            if (((int)(_GetRandom() * 10.0f)) & 1) {
+                out[0] = D_0029D1B0[0];
+                out[1] = D_0029D1B0[1];
+                out[2] = D_0029D1B0[2];
+            } else {
+                /* The table base is its OWN statement: ROM computes
+                   `addiu $v1,$s5,%lo(D_0029D130)` BEFORE `sll $v0,$s4,4`, which
+                   only happens when the address is op0 of the PLUS.  Written as
+                   one expression, `fold` sinks the (constant) address to op1 in
+                   every spelling measured -- `D_0029D130[besti]`,
+                   `(float *)D_0029D130 + besti*4`, `D_0029D130[0] + besti*4`,
+                   `&D_0029D130[besti][0]`, `&D_0029D130[0][besti*4]`,
+                   `besti*4 + D_0029D130[0]`, a struct-typed row, and `p = base;
+                   p += besti*4;` -- so `sll` is emitted first, both arms' copy
+                   blocks end up in the same registers and jump2 cross-jumps
+                   them into one (6 insns short). */
+                float *tbl = D_0029D130[0];
+                float *p = tbl + besti * 4;
+
+                out[0] = p[0];
+                out[1] = p[1];
+                out[2] = p[2];
+            }
+        }
+    }
+    return ret;
+}
+extern int _AbsRotyGV(float *a, float *b);
+extern int stage_no;
+extern void debug_StdPrintfDummy(char *fmt);
+
+void NakaBoss(char *self, int flag)
+{
+    float bpos[4];
+    float mpos[4];
+    float ori[4];
+    float dir[4];
+    char *boy = D_00639EA4;
+    int inc = 0;
+    int half = (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 4;
+    float dist;
+    char *sub;
+
+    if (stage_no != 86 && stage_no != 3 && stage_no != 46) {
+        if (flag != 0) {
+            enemy_dodge_to_boy(self);
+        }
+        return;
+    }
+    {
+        if (boy == 0) {
+            return;
+        }
+        dist = _DistGV(test_CURRENTROOT((int)boy), test_CURRENTROOT((int)self));
+        if (GetFlyPosition((float *)(*(char **)(*(char **)(self + 0x164) + 0x688) +
+                                     0x8A0),
+                           test_CURRENTROOT((int)self),
+                           test_CURRENTROOT((int)boy)) == 2) {
+            ACTSendMailCorrect(self, 0x1D);
+        }
+        if (dist < 360.0) {
+            GetRootPosition(bpos, boy);
+            GetRootPosition(mpos, self);
+            _OrientXZGV(dir, mpos, bpos);
+            ori[0] = ((float *)test_CURRENTORIENT((int)boy))[0];
+            ori[1] = ((float *)test_CURRENTORIENT((int)boy))[1];
+            ori[2] = ((float *)test_CURRENTORIENT((int)boy))[2];
+            if (_AbsRotyGV(ori, dir) < 60) {
+                if (dist < 270.0) {
+                    if (GetFlyPosition((float *)(*(char **)(*(char **)(self + 0x164) +
+                                                            0x688) +
+                                                 0x8A0),
+                                       mpos, bpos) == 0) {
+                        debug_StdPrintfDummy("not found");
+                    }
+                    inc = 1;
+                    if (half <
+                        *(int *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x398)) {
+                        ACTSendMailCorrect(self, 0x1D);
+                    } else if (dist < 120.0) {
+                        ACTSendMailCorrect(self, 0x113);
+                    }
+                } else {
+                    ACTSendMailCorrect(self, 0x113);
+                }
+            } else if (dist < 200.0f) {
+                ACTSendMailCorrect(self, 0x113);
+            }
+        }
+        sub = *(char **)(self + 0x164);
+        if (inc != 0) {
+            *(int *)(*(char **)(sub + 0x688) + 0x398) =
+                *(int *)(*(char **)(sub + 0x688) + 0x398) + 1;
+        } else {
+            *(int *)(*(char **)(sub + 0x688) + 0x398) = 0;
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToAttack);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToBoy);
 ASM_LIT4_SLOT(D_00638F40, 22500.0f);
@@ -890,7 +1231,33 @@ ASM_LIT4_SLOT(D_00638F50, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyStart);
 ASM_LIT4_SLOT(D_00638F54, 369.0f);
 ASM_LIT4_SLOT(D_00638F58, 0.05f);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Attack);
+void subEnemyBrain_Attack(volatile int a0)
+{
+    int i;
+
+    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 6; i++) {
+        enemyDodgeSendMail((char *)a0);
+        _DoAwait((char *)a0);
+        if (_MustChase(a0) != 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 100 / 60; i++) {
+        if (i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 50 / 60) {
+            enemyDodgeSendMail((char *)a0);
+        }
+        _DoAwait((char *)a0);
+        if ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 80 / 60 < i) {
+            if (_MustChase(a0) != 0) {
+                break;
+            }
+        }
+        _ACTWait(1);
+    }
+    _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
+    _ACTWait(0);
+}
 extern float _DistSqGV(float *a, float *b);
 
 void subEnemyBrain_Cling(volatile int a0)

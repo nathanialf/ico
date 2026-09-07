@@ -1009,6 +1009,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
 
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
+- `[0x4535B8, .rodata, src/enemy_act]` (`plain-rodata`) — 0x30 B: two doubles 1.2 (one per
+  inlining, the pool is per function), the "not found" string, 360 and 270; the blob
+  resumes at `0x4535E8`. The TU's four jump tables wait for their owners.
+
 - `[0x452B70, .rodata, src/boyact]` (`plain-rodata`) — four 8-byte doubles (actBoyWalk/actBoyRun's
   li.d constants, interned by ee-as into the object's own .rodata); the blob resumes at
   `0x452B90`. boyact's strings and its three jump tables (subBoyControl 0x552840 and

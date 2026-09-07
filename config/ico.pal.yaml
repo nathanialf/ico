@@ -405,6 +405,8 @@ segments:
       - [0x452B90, rodata, src/cod/452B90]   # .rodata blob resume (boyact's strings)
       - [0x453318, .rodata, src/commonact]  # carved WithMailFunc_FallDead's double 0.3 (a constant-pool operand, 8 B), VMA 0x553318..0x553320
       - [0x453320, rodata, src/cod/453320]   # .rodata blob resume (strings)
+      - [0x4535B8, .rodata, src/enemy_act]  # plain-rodata: NakaBoss's and Battle_isCurrentStatus's doubles (1.2 x2, 360, 270) and the "not found" string, 0x30 B 8-aligned, VMA 0x5535B8..0x5535E8; the TU's four jump tables stay in the blob until their owners land
+      - [0x4535E8, rodata, src/cod/4535E8]   # .rodata blob resume ("**toboy " strings)
       - [0x453EB0, .rodata, src/girl_act]  # carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
       - [0x453FBC, rodata, src/cod/453FBC]   # .rodata blob resume (the zero pad word before the .align 3 D_00553FC0 is the blob's first word)
       - [0x4555E0, .rodata, src/ebrain]  # carved jtbl_005555E0 (7 arms, 0x1C) + jtbl_00555600 (9 arms, 0x24) at 16-byte alignment: eBrainGetTarget's two switch tables, emitted by the compiled function; VMA 0x5555E0..0x555624; the TU's strings before them stay in the blob
