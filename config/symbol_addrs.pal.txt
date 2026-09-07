@@ -1421,7 +1421,7 @@ requestFree = 0x0013F4B8; // type:func  // ios/shockdriver
 
 // ---- ios/thread
 iosThreadMain = 0x0013F528; // type:func  // ios/thread
-iosThreadCreateS = 0x0013F598; // type:func  // ios/thread  // provisional-ordinal
+iosThreadCreateS = 0x0013F598; // type:func  // ios/thread
 iosThreadStart = 0x0013F7B0; // type:func  // ios/thread
 iosThreadStop = 0x0013F7C0; // type:func  // ios/thread
 iosThreadSleep = 0x0013F7D8; // type:func  // ios/thread  // provisional-ordinal
