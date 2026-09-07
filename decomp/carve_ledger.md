@@ -1127,6 +1127,18 @@ words become the blob's first words.
   literal in C produces the word (a pool MEM is RTX_UNCHANGING_P, which is
   what lets the load leave the call it followed).
 
+- `src/staticBlur` `.rodata` 0x520F60..0x520FA0 (VMA 0x620F60..0x620FA0, 32 B):
+  `jtbl_00620F60` + `jtbl_00620F80`, FullScreenEffectBefore/After's eight-arm
+  tables on one row (`syms:` lists both VMA-named sections); the "FEED: %s"
+  string between the dispPostInfo table and these stays in the blob as
+  dispFeedInfo's extern.
+
+- `src/script` `.rodata` 0x4547B0..0x4547E8 (VMA 0x5547B0..0x5547E8, 56 B):
+  `jtbl_005547B0` (scpWoodSrh's switch) then its two doubles 916.0 and 325.0
+  in the unnamed `.rodata`; one row with `syms:` naming the table and the
+  `plain-rodata` marker for the doubles. The neighbouring strings stay in the
+  blob as externs.
+
 ### Deferred
 
 - Per-TU `__FILE__` strings for the `iosMalloc(size)` macro form

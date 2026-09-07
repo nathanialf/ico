@@ -293,7 +293,10 @@ typedef struct TexExt {
     char pad52[0x80 - 0x52];
 } TexExt;
 
-void tex_SetUVScroll(char *name, int a1, float u, float v, float su, float sv, float ou, float ov)
+/* The int flag is the LAST parameter: EABI assigns the same registers either
+   way, but a caller (script.c actSubSekizoSe) shows ROM loading it after the
+   six floats. */
+void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov, int a1)
 {
     int no = getTextureNo(name);
     char *tex = (char *)getTextureData(no);

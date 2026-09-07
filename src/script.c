@@ -13,6 +13,10 @@ typedef union { float f[4]; int i[4]; } Vec4u;
    .rodata before overriding the first word */
 typedef struct Blob16 { long long a, b; } Blob16;
 
+/* the 16-byte work vector scpSekizou reuses for the motion direction and
+   for the stone-statue SE position it copies out of .rodata */
+typedef union Vec16 { float f[4]; long long ll[2]; } Vec16;
+
 /* MUST be above the TU's first call site: with the implicit `int` return the
    call SETs $2 and global-alloc picks different scratch registers. */
 extern void _ACTWait(int a0);
@@ -27,7 +31,7 @@ typedef union ActStatus { unsigned long long ll; int i[2]; } ActStatus;
 /* the two-slot ADPCM play-request table at D_006E5950 (2 x 0x18 bytes) */
 typedef struct AdpcmReq {
     int  kind;   /* 0x00, 0 == slot free */
-    int  id;     /* 0x04 */
+    char **id;   /* 0x04: the caller's handle variable */
     int  unk08;  /* 0x08 */
     int  unk0C;  /* 0x0C */
     int  unk10;  /* 0x10 */
@@ -38,7 +42,7 @@ extern AdpcmReq D_006E5950[2];
 /* the PAL listing's static helper at script.c:1636-1644 (inlined into
    scpAdpcmCloseChkFunc, scpGirlHintVoiceCancel, ... -- it has no MAIN.MAP
    symbol, so its rows show up outside every caller's own line span) */
-static inline int scpAdpcmRequestSlot(int id)
+static inline int scpAdpcmRequestSlot(char **id)
 {
     int i;
     for (i = 0; i < 2; i++) {
@@ -340,11 +344,164 @@ void scpDoorTypeUpUp(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpSubAdpcmPlay);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpAdpcmCloseFunc);
-ASM_LIT4_SLOT(D_00639090, 5e+05f);
-ASM_LIT4_SLOT(D_00639094, 5e+05f);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceReady);
+extern const char D_005545C0[];
+extern const char D_005545E0[];
+extern const char D_00554628[];
+extern const char D_00554680[];
+extern int AdpcmFreeAreaGet(void);
+extern int AdpcmNotUseIopAreaFree(void);
+extern int fightSoundPlayChk(void);
+extern void fightSoundProcessRequestPause(void);
+extern void AdpcmFadeCloseAll(int a0);
+extern void soundDataOpen(void *work, int mode, int kind, int a3, int a4);
+extern char *soundDataOpenSync(void *work);
+extern void AdpcmPlay(int a0);
+extern void soundDataClose(char *h);
+
+void scpSubAdpcmPlay(volatile int a0)
+{
+    int work[8];
+    int i;
+    char *h;
+
+    memset(D_006E5950, 0, sizeof(D_006E5950));
+    for (;;) {
+        AdpcmReq *tbl = D_006E5950;
+        for (i = 0; i < 2; i++) {
+            if (tbl[i].kind != 0) {
+                AdpcmReq *p = &tbl[i];
+
+                while (AdpcmFreeAreaGet() == 0) {
+                    debug_StdPrintfDummy(D_005545C0);
+                    if (AdpcmNotUseIopAreaFree() != 0) {
+                        debug_StdPrintfDummy(D_005545E0);
+                    } else if (fightSoundPlayChk() != 0) {
+                        debug_StdPrintfDummy(D_00554628);
+                        fightSoundProcessRequestPause();
+                        while (fightSoundPlayChk() != 0) {
+                            _ACTWait(1);
+                        }
+                    } else {
+                        debug_StdPrintfDummy(D_00554680);
+                        AdpcmFadeCloseAll(0x3FFF);
+                        _ACTWait(1);
+                    }
+                }
+                soundDataOpen(work, 2, p->kind, p->unk0C, p->unk08);
+                while ((h = soundDataOpenSync(work)) == (char *)-1) {
+                    _ACTWait(1);
+                }
+                if (h != 0) {
+                    if (p->unk10 != 0) {
+                        AdpcmPlay(*(int *)(h + 0x2C));
+                    }
+                    if (p->unk14 == 0) {
+                        if (p->id != 0) {
+                            *p->id = h;
+                        }
+                    } else {
+                        soundDataClose(h);
+                    }
+                }
+                p->kind = 0;
+            }
+        }
+        _ACTWait(1);
+    }
+}
+/* the PAL listing's second static helper at script.c:1651-1653 (inlined into
+   scpAdpcmCloseFunc and scpAdpcmFadeCloseFunc): flag the pending play request
+   whose id is ID so the ADPCM daemon closes it. */
+static inline void scpAdpcmRequestClose(char **id)
+{
+    int i;
+    for (i = 0; i < 2; i++)
+        if (D_006E5950[i].kind != 0 && D_006E5950[i].id == id) {
+            D_006E5950[i].unk14 = 1; break;
+        }
+}
+
+void scpAdpcmCloseFunc(char **h)
+{
+    char *handle = *h;
+    if (handle != 0) {
+        soundDataClose(handle);
+        return;
+    }
+    scpAdpcmRequestClose(h);
+}
+extern const char D_005546F0[];
+extern const char D_00554720[];
+extern char *D_0063AA10;
+extern float D_0063AA14;
+extern float D_0063AA18;
+extern int AdpcmFreeAreaGet(void);
+extern void _SubVector(float *dst, float *a, float *b);
+extern float _InnerProduct(float *a, float *b);
+
+/* INTERIM stand-in.  scpAdpcmPlayRequestFunc is a real TU function with its own
+   ROM slot (above); the compiler inlines it here.  Delete it and mark the real
+   definition `inline` once this TU is C-complete. */
+static inline void scpAdpcmPlayRequestFuncInline(int kind, char **id, int a2, int a3, int a4)
+{
+    int i;
+
+    if (id != 0) {
+        *id = 0;
+    }
+    for (i = 0; i < 2; i++) {
+        if (D_006E5950[i].kind == 0) {
+            goto found;
+        }
+    }
+    return;
+
+found:
+    D_006E5950[i].kind = kind;
+    D_006E5950[i].id = id;
+    D_006E5950[i].unk08 = a3;
+    D_006E5950[i].unk0C = a2;
+    D_006E5950[i].unk10 = a4;
+    D_006E5950[i].unk14 = 0;
+}
+
+void scpGirlHintVoiceReady(int kind)
+{
+    float p0[4];
+    float p1[4];
+    float d[4];
+    float dist;
+
+    if (D_0063AA10 != 0) {
+        debug_StdPrintfDummy(D_005546F0);
+    }
+    if (AdpcmFreeAreaGet() == 0) {
+        debug_StdPrintfDummy(D_00554720);
+        return;
+    }
+    if (D_00639EA4 == 0) {
+        return;
+    }
+    GetRootPosition(p0, D_00639EA4);
+    GetRootPosition(p1, D_00639EA8);
+    _SubVector(d, p0, p1);
+    dist = _InnerProduct(d, d);
+    D_0063AA14 = 500.0f;
+    D_0063AA18 = 4000.0f;
+    switch (kind) {
+    case 0x65:
+        if (500000.0f < dist) {
+            kind = 0x66;
+        }
+        break;
+    case 0x67:
+        if (500000.0f < dist) {
+            kind = 0x68;
+        }
+        break;
+    }
+    scpAdpcmPlayRequestFuncInline(kind, &D_0063AA10, 1, 1, 0);
+}
 extern char *D_0063AA10;
 extern char D_00554750[];
 void scpGirlHintVoicePlay(void) {
@@ -360,13 +517,280 @@ ASM_LIT4_SLOT(D_0063909C, -0.01f);
 ASM_LIT4_SLOT(D_006390A0, -0.01f);
 ASM_LIT4_SLOT(D_006390A4, 16383.0f);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGirlHintVoiceTickProc);
-ASM_LIT4_SLOT(D_006390A8, 7.5e+02f);
-ASM_LIT4_SLOT(D_006390AC, -515.0f);
-ASM_LIT4_SLOT(D_006390B0, 325.0f);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpWoodSrh);
-ASM_LIT4_SLOT(D_006390B4, 4e+04f);
-ASM_LIT4_SLOT(D_006390B8, 4e+04f);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpSekizou);
+/* the 0x30-byte wood-bridge table entry at D_002A51F0: an object id, the
+   trigger `kind` that selects which axis test runs, the bridge end offset the
+   way group is built from, and the four axis bounds the tests read. */
+struct WoodBoxEnt {
+    short id;         /* 0x00 */
+    char  kind;       /* 0x02 */
+    char  _03[0x0D];  /* 0x03 */
+    float ofs[4];     /* 0x10 */
+    float b0;         /* 0x20 */
+    float b1;         /* 0x24 */
+    float b2;         /* 0x28 */
+    float b3;         /* 0x2C */
+};
+
+extern const char D_00554790[];
+extern const char D_005547A0[];
+extern void sceVu0AddVector(float *dst, float *a, float *b);
+extern void DeleteWayGroup(void *way);
+extern void *func_00215CA0(float *a, float *b);
+
+void scpWoodSrh(char *self, struct WoodBoxEnt *w)
+{
+    float pos[4];
+    float dst[4];
+    float gpos[4];
+    char *g;
+    int st;
+    void *way = 0;
+
+    for (;;) {
+        st = 0;
+        GetRootPosition(pos, self);
+        pos[1] -= 50.0f;
+        switch (w->kind) {
+        case 0:
+            if (pos[0] < w->b0 && pos[1] > w->b1) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 1:
+            if (pos[0] > w->b0 && pos[1] > w->b1) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 2:
+            if (pos[2] > w->b0 && pos[1] > w->b1) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 4:
+        case 8:
+            if (pos[0] < w->b0 && pos[1] > w->b1 && pos[2] > w->b2 && pos[2] < w->b3) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            if (st == 1 && w->kind == 8) {
+                for (g = isysGObjSearchFromObjKindID_begin(0x11); g != 0;
+                     g = isysGObjSearchFromObjKindID_next(g)) {
+                    if (g != self) {
+                        if (*(int *)(g + 8) == 865 || *(int *)(g + 8) == 866) {
+                            GetRootPosition(gpos, g);
+                            gpos[1] -= 50.0f;
+                            if (gpos[1] < -182.0f && gpos[1] > -280.0f) {
+                                st = 2;
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        case 5:
+            if (pos[2] < w->b0 && pos[1] > w->b1 && pos[0] > w->b2 && pos[0] < w->b3) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 6:
+            if (pos[2] > w->b0 && pos[1] > w->b1 && pos[0] > w->b2 && pos[0] < w->b3) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 7:
+            if (pos[1] > -190.0f && (pos[0] < 660.0f || pos[0] > 916.0f)
+                && pos[2] > -1600.0f) {
+                st = 1;
+                if (pos[0] > 916.0) {
+                    w->ofs[0] = 100.0f;
+                } else {
+                    w->ofs[0] = -100.0f;
+                }
+            } else {
+                st = 2;
+            }
+            break;
+        case 9:
+            if (pos[1] > 750.0f && (pos[0] < -515.0f || pos[0] > 325.0f)) {
+                st = 1;
+                if (pos[0] > 325.0) {
+                    w->ofs[0] = 100.0f;
+                } else {
+                    w->ofs[0] = -100.0f;
+                }
+            } else {
+                st = 2;
+            }
+            break;
+        }
+        switch (st) {
+        case 1:
+            if (way != 0) {
+                DeleteWayGroup(way);
+            } else {
+                debug_StdPrintfDummy(D_00554790);
+            }
+            sceVu0AddVector(dst, pos, w->ofs);
+            way = func_00215CA0(pos, dst);
+            break;
+        case 2:
+            if (way != 0) {
+                debug_StdPrintfDummy(D_005547A0);
+                DeleteWayGroup(way);
+                way = 0;
+            }
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+extern void stage_SetAnimation(int anim, int a1, int a2);
+extern void lt_switch_layout(int no);
+extern void stgmgrNextStagePreLoadDistBoyMode(void);
+extern void ReviveAllCarryableItemsWithNonSleepFrame(int frames);
+extern int iosPadActRequest(char *g, int no);
+extern void iosPadActVolumeSet(int h, int vol);
+extern void iosPadActStop(int h);
+extern int soundSeDefPlay(int no, int a1, void *pos, int a3);
+extern void soundSeDefStop(int h);
+extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
+extern int stage_CheckAnimationFinish(int anim);
+extern char *D_00639EAC;
+extern int D_0063AA08;
+extern char *D_0063AA1C;
+extern int D_0063AA28;
+extern unsigned char D_0063AA2C;
+extern char D_005547F0[];
+extern int gflagChk(int no);
+extern void stgmgrNextStagePreLoadForceStageSet(int val);
+extern void scpSekizouCheckPoint(void);
+extern void scpKillEnemyAll(void);
+extern void scpMaskGeneratorAll(void);
+extern int scpActStatusDeathFall(char *self);
+extern void scpFadeOut(float a0, int a1, int a2, int a3);
+extern void scpFadeIn(float f);
+extern float *test_CURRENTROOT(char *target);
+extern void ClearMotionGeometryInfo(void *a0);
+extern void SetDirectRootPosition();
+
+/* INTERIM stand-ins: scpPlayPosSet, scpPlayWaitMotEnd and
+   scpAdpcmPlayRequestFunc are real TU functions with their own ROM slots
+   (below); the compiler inlines them here. */
+static inline void scpPlayPosSetInline(void *a0, float f12, float f13, float f14) {
+    float buf[4];
+    memset(buf, 0, 0x10);
+    buf[0] = f12;
+    buf[1] = f13;
+    buf[2] = f14;
+    SetDirectRootPosition(a0, buf);
+    ClearMotionGeometryInfo(a0);
+}
+static inline void scpPlayWaitMotEndInline(char *a0) {
+    char *p = *(char **)(a0 + 0x164);
+    while ((*(int *)(*(char **)(p + 0x130) + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+}
+void scpSekizou(char *self, int flag, int anim, int anim2, int kind,
+                float bx, float by, float bz, float gx, float gy, float gz)
+{
+    int fade = 0;
+
+    if (gflagChk(flag) != 0) {
+        stage_SetAnimation(anim, 0, -1);
+        return;
+    }
+    stage_SetAnimation(anim, 0, 0);
+    if (D_00639EA8 == 0) {
+        return;
+    }
+    for (;;) {
+        if (scpTriggerBallInline(self, D_00639EA8, 200.0f) == 0
+            || scpTriggerBallInline(self, D_00639EA4, 200.0f) == 0
+            || scpActStatusDeathFall(D_00639EA4) != 0) {
+            _ACTWait(1);
+        } else {
+            break;
+        }
+    }
+    if (gflagChk(394) != 0) {
+        fade = 1;
+        scpFadeOut(255.0f, 0, 0, 0);
+    }
+    stgmgrNextStagePreLoadForceStageSet(0);
+    lt_switch_layout(55);
+    D_0063AA08 = 1;
+    scpAdpcmPlayRequestFuncInline(kind, &D_0063AA1C, 1, 1, 0);
+    while (D_0063AA1C == 0) {
+        _ACTWait(1);
+    }
+    AdpcmPlay(*(int *)(D_0063AA1C + 0x2C));
+    if (fade != 0) {
+        scpFadeIn(8.0f);
+    }
+    stgmgrNextStagePreLoadDistBoyMode();
+    scpKillEnemyAll();
+    scpMaskGeneratorAll();
+    stage_SetAnimation(anim, 1, 0);
+    ReviveAllCarryableItemsWithNonSleepFrame(250);
+    D_0063AA28 = iosPadActRequest(D_00639EAC, 9);
+    D_0063AA2C = 128;
+    iosPadActVolumeSet(D_0063AA28, 128);
+    scpPlayStart(D_00639EA8);
+    scpPlayMot(D_00639EA8, 532);
+    scpPlayPosSetInline(D_00639EA8, gx, gy, gz);
+    scpPlayPosSetInline(D_00639EA4, bx, by, bz);
+    _ACTWait(1);
+    {
+        Vec16 v;
+
+        sceVu0SubVector(v.f, test_CURRENTROOT(self), test_CURRENTROOT(D_00639EA8));
+        scpPlayMotDir(D_00639EA8, v.f);
+        D_0063AA08 = 1;
+        sceVu0SubVector(v.f, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
+        scpPlayMotDir(D_00639EA4, v.f);
+        scpSekizouCheckPoint();
+        scpPlayMot(D_00639EA8, 645);
+        scpPlayWaitMotEndInline(D_00639EA8);
+        gflagOn(flag);
+        if (anim2 != 0) {
+            int h;
+
+            stage_SetAnimation(anim2, 1, 0);
+            v = *(Vec16 *)D_005547F0;
+            soundSeDefPlay(1220, 0, v.f, 1);
+            _ACTWait(30);
+            h = soundSeDefPlay(1221, 0, v.f, 1);
+            _ACTWait(38);
+            soundSeDefStop(h);
+            soundSeDefPlay(1222, 0, v.f, 1);
+        }
+    }
+    while (stage_CheckAnimationFrame(anim, 180, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActStop(D_0063AA28);
+    while (stage_CheckAnimationFinish(anim) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpPlayMot(D_00639EA8, 532);
+    scpPlayEnd(D_00639EA8);
+    lt_switch_layout(54);
+    D_0063AA08 = 0;
+}
 extern const char D_005544E0[];
 extern void ClipWall(void *w);
 
@@ -660,7 +1084,7 @@ void scpDoorTypeUpSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-void scpAdpcmPlayRequestFunc(int kind, int *id, int a2, int a3, int a4)
+void scpAdpcmPlayRequestFunc(int kind, char **id, int a2, int a3, int a4)
 {
     int i;
 
@@ -676,11 +1100,11 @@ void scpAdpcmPlayRequestFunc(int kind, int *id, int a2, int a3, int a4)
 
 found:
     D_006E5950[i].kind = kind;
+    D_006E5950[i].id = id;
     D_006E5950[i].unk08 = a3;
     D_006E5950[i].unk0C = a2;
     D_006E5950[i].unk10 = a4;
     D_006E5950[i].unk14 = 0;
-    D_006E5950[i].id = (int)id;
 }
 int scpAdpcmPlayRequestNum(void)
 {
@@ -693,11 +1117,25 @@ int scpAdpcmPlayRequestNum(void)
     }
     return n;
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpAdpcmFadeCloseFunc);
-int scpAdpcmCloseChkFunc(int *h)
+int scpAdpcmFadeCloseFunc(char **h, short fade)
+{
+    char *p = *h;
+
+    if (p != 0) {
+        char *s = *(char **)(p + 0x2C);
+        if (s == 0) {
+            return 0;
+        }
+        *(short *)(s + 0x44) = fade;
+        return 1;
+    }
+    scpAdpcmRequestClose(h);
+    return 0;
+}
+int scpAdpcmCloseChkFunc(char **h)
 {
     int no;
-    char *p = *(char **)h;
+    char *p = *h;
     if (p != 0) {
         if (*(char **)(p + 0x2C) == 0 || *(int *)(*(char **)(p + 0x2C) + 0x28) == 0) {
             return 0;
@@ -705,7 +1143,7 @@ int scpAdpcmCloseChkFunc(int *h)
         return 1;
     }
     no = -1;
-    return no < scpAdpcmRequestSlot((int)h);
+    return no < scpAdpcmRequestSlot(h);
 }
 extern char D_005546E0[];
 extern char *D_0063AA10;
@@ -735,16 +1173,16 @@ void scpDeamon(volatile int a0)
     backStageProcessInStage(0.0f);
     gflagOff(0x18A);
 }
-/* INTERIM stand-in.  scpAdpcmCloseChkFunc above is a real TU function with its
+/* INTERIM stand-in.  scpAdpcmCloseChkFunc is a real TU function with its
    own ROM slot, but the compiler INLINES it here.  While the tail of this TU
    still holds INCLUDE_ASM members its definition cannot be turned into a
    single `inline` one ahead of its callers without moving its ROM slot, so
    this caller uses a byte-identical static copy.  Delete it once the TU is
    C-complete. */
-static inline int scpAdpcmCloseChkFuncInline(int *h)
+static inline int scpAdpcmCloseChkFuncInline(char **h)
 {
     int no;
-    char *p = *(char **)h;
+    char *p = *h;
     if (p != 0) {
         if (*(char **)(p + 0x2C) == 0 || *(int *)(*(char **)(p + 0x2C) + 0x28) == 0) {
             return 0;
@@ -752,20 +1190,19 @@ static inline int scpAdpcmCloseChkFuncInline(int *h)
         return 1;
     }
     no = -1;
-    return no < scpAdpcmRequestSlot((int)h);
+    return no < scpAdpcmRequestSlot(h);
 }
-extern void scpAdpcmCloseFunc(int *h);
+extern void scpAdpcmCloseFunc(char **h);
 
 void scpGirlHintVoiceCancel(void)
 {
-    if (scpAdpcmCloseChkFuncInline((int *)&D_0063AA10) != 0) {
-        scpAdpcmCloseFunc((int *)&D_0063AA10);
+    if (scpAdpcmCloseChkFuncInline(&D_0063AA10) != 0) {
+        scpAdpcmCloseFunc(&D_0063AA10);
         D_0063AA10 = 0;
     }
 }
 extern void _ACTWait(int a0);
-extern void scpWoodSrh(int self);
-extern struct WoodBoxEnt { short id; char _02[0x2E]; } D_002A51F0[11];
+extern struct WoodBoxEnt D_002A51F0[11];
 
 void scpWoodBox(volatile int a0)
 {
@@ -782,7 +1219,7 @@ void scpWoodBox(volatile int a0)
     return;
 
 found:
-    scpWoodSrh(a0);
+    scpWoodSrh(a0, p);
 }
 extern int IsTorchLightOn(int a0);
 
@@ -1162,8 +1599,8 @@ void _SCPCharacterStop(char *self)
     char *p = *(char **)(self + 0x164);
     *(int *)(p + 0x120) = 0; *(int *)(p + 0x124) = 0; *(int *)(p + 0x128) = 0; *(int *)(p + 0x338) = *(int *)(p + 0x33C) = 0x7F; *(int *)(p + 0x34C) = 0;
 }
-int scpSearchGobj(void) {
-    return isysGObjSearchFromObjLayoutID();
+int scpSearchGobj(int id) {
+    return isysGObjSearchFromObjLayoutID(id);
 }
 extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, void *a4, float f12, float f13, float f14, float f15);
 extern void memset(void *a0, int a1, int a2);
@@ -1621,8 +2058,41 @@ void scpDoorTypeUpMain(volatile int a0)
         _ACTWait(1);
     }
 }
-ASM_LIT4_SLOT(D_006390C4, 3834.0f);
-ASM_LIT4_SLOT(D_006390C8, 0.8f);
-ASM_LIT4_SLOT(D_006390CC, 0.45f);
-ASM_LIT4_SLOT(D_006390D0, 3834.0f);
-INCLUDE_ASM("asm/nonmatchings/src/script", actSubSekizoSe);
+extern int actInitialize(volatile int a0);
+extern void stage_SetLoopFlag(int key, int a1);
+/* the flag is the LAST parameter: the EE ABI hands ints and floats separate
+   argument registers, so ($a0 name, $a1 flag, $f12..$f17 the six scroll
+   values) is the same register assignment either way, but ROM emits the flag
+   move after every float move -- i.e. it is declared last. */
+extern void tex_SetUVScroll(char *name, float u, float v, float su, float sv,
+                            float ou, float ov, int flag);
+extern void actSt25aQueenAppearChk(volatile int a0);
+extern struct ScpMail D_002A5460[];
+extern char D_005548F0[];
+extern char D_00554900[];
+
+void actSubSekizoSe(volatile int a0)
+{
+    int x = a0;
+    struct ScpAct *act = (struct ScpAct *)actInitialize(a0);
+
+    _ACTWait(1);
+    if (gflagChk(0x14C) == 0) {
+        ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
+        *(int *)(scpSearchGobj(0x865) + 0x16C) = 0;
+        stage_SetLoopFlag(0x22B, 0);
+        D_002A5460[0].func = actSt25aQueenAppearChk;
+        act->mail = D_002A5460;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+        return;
+    }
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x2F, 0, 0x22B, 0);
+    *(int *)(scpSearchGobj(0x865) + 0x16C) = 1;
+    scpPlayMot((char *)scpSearchGobj(0x865), 0x450);
+    tex_SetUVScroll(D_005548F0, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll(D_00554900, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+    ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
+    stage_SetAnimation(0x9C, 0, -1);
+    stage_SetAnimation(0x9F, 1, 0);
+}
