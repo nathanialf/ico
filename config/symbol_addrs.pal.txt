@@ -353,6 +353,14 @@ motCommonRopeTurnSpecialL = 0x001633A8; // type:func  // src/commonact
 motCommonTruckLeverLoop = 0x00163500; // type:func  // src/commonact
 funcCommonJumpDircorrect = 0x0015D588; // type:func  // src/commonact
 
+// enemy_act: census names for the splat placeholders (88-row listing aligned onto 82 splat spans, order-preserving; insn counts + callee sets equal); actEnemyKidnapBegin and funcEnemyAiGetGirl were glued onto actEnemyKidnapEnd / subEnemyBrain_Cling
+subEnemyCollision = 0x001649A0; // type:func  // src/enemy_act
+actEnemyAttack = 0x00164F40; // type:func  // src/enemy_act
+subEnemyBrain_ToGenerator = 0x00167160; // type:func  // src/enemy_act
+enemy_dodge = 0x00167300; // type:func  // src/enemy_act
+actEnemyKidnapBegin = 0x00165DC8; // type:func  // src/enemy_act
+funcEnemyAiGetGirl = 0x00169E38; // type:func  // src/enemy_act
+
 // ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — do not hand-edit below this line ====
 // ---------------------------------------------------------------------------
 // Recovered PAL (SCES-50760 / SCES_507.60) function symbols.  Regenerate with:
@@ -1865,17 +1873,17 @@ boss_effect_process = 0x001642A0; // type:func  // src/enemy_act
 _DoAwait = 0x00164408; // type:func  // src/enemy_act  // provisional-ordinal
 _DoAwaitGirl = 0x00164480; // type:func  // src/enemy_act  // provisional-ordinal
 _MustChase = 0x001644F8; // type:func  // src/enemy_act
-func_00164600 = 0x00164600; // type:func  // src/enemy_act
+subEnemyControl = 0x00164600; // type:func  // src/enemy_act
 PairSetGeometry = 0x00165338; // type:func  // src/enemy_act
 actEnemyForceSwitchToCarry = 0x00165490; // type:func  // src/enemy_act
 BrainMode_Requset = 0x00166898; // type:func  // src/enemy_act
-func_00166B70 = 0x00166B70; // type:func  // src/enemy_act
+subEnemyBrainMain = 0x00166B70; // type:func  // src/enemy_act
 enemy_dodge_to_boy = 0x001674E0; // type:func  // src/enemy_act
 Battle_isCurrentStatus = 0x00167680; // type:func  // src/enemy_act
 GetFlyPosition = 0x001679B0; // type:func  // src/enemy_act
 NakaBoss = 0x00167CA0; // type:func  // src/enemy_act
 ChangeBrain_ToAttack = 0x00167F68; // type:func  // src/enemy_act
-func_001680B8 = 0x001680B8; // type:func  // src/enemy_act
+subEnemyBrain_ToBoy = 0x001680B8; // type:func  // src/enemy_act
 flyMailCore = 0x00168C98; // type:func  // src/enemy_act
 _ApproachTarget_Way = 0x00168DF0; // type:func  // src/enemy_act
 actEnemyCarry = 0x00169F78; // type:func  // src/enemy_act
@@ -1904,8 +1912,8 @@ GetMotherGeneratorGObjAskEnemy = 0x0016A558; // type:func  // src/enemy_act
 EnemyUtil_TurnToBoy = 0x0016AB90; // type:func  // src/enemy_act
 FlyMail = 0x0016ACF8; // type:func  // src/enemy_act
 boss_effect_callback = 0x0016AD28; // type:func  // src/enemy_act
-func_0016AE70 = 0x0016AE70; // type:func  // src/enemy_act
-func_0016AEC8 = 0x0016AEC8; // type:func  // src/enemy_act
+motEnemyRun = 0x0016AE70; // type:func  // src/enemy_act
+actEnemyJump = 0x0016AEC8; // type:func  // src/enemy_act
 EnemyUtil_isOtherStatus = 0x0016AF10; // type:func  // src/enemy_act
 isEnemyHyde = 0x0016AF98; // type:func  // src/enemy_act
 _ApproachTarget = 0x0016AFC8; // type:func  // src/enemy_act
