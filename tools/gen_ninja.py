@@ -235,9 +235,16 @@ def check_ld_carve_globs(ld_path: Path) -> None:
                 raise SystemExit(f"gen_ninja: {tu}: more .rodata selectors than carve rows")
             vma = offs[k] + 0x100000
             # the unnamed `.rodata` (strings, doubles, initialiser templates) goes to
-            # the row marked `plain-rodata` in its yaml comment, else to the first row
+            # the row marked `plain-rodata` in its yaml comment, else to the first row.
+            # So do the NAMED runs: under -fdata-sections every `static const` /
+            # `const` object gets its own `.rodata.<symbol>` section, which the
+            # `0x`-prefixed jtbl selectors never match. Listing the patterns in one
+            # input-file spec keeps them in the object's own section order, i.e. the
+            # C definition order, so a carved run of named packets lays out as
+            # written. `[A-Za-z_]` excludes the `0x...` jump-table names.
             plain_here = (plain.get(tu) == offs[k]) if tu in plain else (k == 0)
-            sel = f".rodata .rodata.0x{vma:08X}" if plain_here else f".rodata.0x{vma:08X}"
+            sel = (f".rodata .rodata.0x{vma:08X} .rodata.[A-Za-z_]*" if plain_here
+                   else f".rodata.0x{vma:08X}")
             line = f"{m.group(1)}{m.group(2)}({sel});"
         out.append(line)
     ld_path.write_text("\n".join(out) + "\n")
