@@ -171,8 +171,53 @@ void SetTurnSpeedInEscape(char *a0) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", sort_list);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_MakeOthersList);
-ASM_LIT4_SLOT(D_00638F64, 10000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainHideCheckIntercept);
+extern void GetMatrixDirectionToZ(void *m, void *dir);
+extern float FSqrt(float x);
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+
+int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
+{
+    float d[4];
+    float m[16];
+    float v[4];
+    int i;
+    float dist;
+    float flag;
+    float dy;
+
+    sceVu0SubVector(d, from, to);
+    d[1] = 0.0f;
+    GetMatrixDirectionToZ(m, d);
+    dist = FSqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
+    for (i = 0; i < n; i++) {
+        flag = *(int *)(*(char **)(*(char **)(list + i * 0x30) + 0x164) + 0x34) == 6 ? 1.0f : 0.0f;
+        dy = *(float *)(list + i * 0x30 + 0x14) - from[1] < 0.0f ? -(*(float *)(list + i * 0x30 + 0x14) - from[1]) : *(float *)(list + i * 0x30 + 0x14) - from[1];
+
+        if (flag != 0.0f) {
+            if (80.0f < dy) {
+                continue;
+            }
+        } else {
+            if (200.0f < dy) {
+                continue;
+            }
+        }
+        sceVu0SubVector(v, list + i * 0x30 + 0x10, to);
+        v[1] = 0.0f;
+        v[3] = 0.0f;
+        sceVu0ApplyMatrix(v, m, v);
+
+        if (0.0f < v[2]) {
+            if (v[2] < dist) {
+                if (v[0] * v[0] + v[1] * v[1] < 10000.0f) {
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
 ASM_LIT4_SLOT(D_00638F68, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_CheckWarningMode);
 ASM_LIT4_SLOT(D_00638F6C, 160000.0f);
@@ -428,8 +473,128 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174CE8);
 ASM_LIT4_SLOT(D_00638FC0, 10000.0f);
 ASM_LIT4_SLOT(D_00638FC4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainRunawaySearchPoint);
-ASM_LIT4_SLOT(D_00638FC8, 10000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainRunawayMoveByWay);
+typedef struct {
+    float a[4];        /* 0x00 start point   */
+    float b[4];        /* 0x10 end point     */
+    float pos[4];      /* 0x20 clipped point */
+    char  _30[0x40];
+    float f_70;        /* 0x70 radius/height */
+    char  _74[0x14];
+    int   f_88;        /* 0x88 wall hit      */
+    char  _8c[0x08];
+    int   f_94;        /* 0x94 floor hit     */
+    char  _98[0x28];
+} ClipWork;
+extern void ClipWall(void *);
+extern void ClipWallField(void *);
+extern void ClipFloor(void *);
+extern void sceVu0CopyVector(void *dst, void *src);
+extern void sceVu0Normalize(void *dst, void *src);
+extern void GetRootPosition(void *out, void *obj);
+extern void GetRootProjectionPosOfGObj(void *out, void *obj);
+extern int GetWay_next(void *way, float *cur);
+extern void DeleteGuideWay(void *way);
+extern float _DistSqGV(void *a, void *b);
+extern char D_0029D650[];
+
+/* girl_brain_main.c.inc:2276-2291 (rows outside every caller's span => static
+   inline; the listing inlines it three times).  True when the straight segment
+   from `from` to `to` clears both the wall and the wall-field collision. */
+static inline int isNoWallBetween(float *from, float *to)
+{
+    ClipWork work;
+
+    work.f_70 = 10.0f;
+    sceVu0CopyVector(work.a, from);
+    sceVu0CopyVector(work.b, to);
+    ClipWall(&work);
+    if (work.f_88 == 0) {
+        ClipWallField(&work);
+        if (work.f_88 == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* girl_brain_main.c.inc:2221-2226 (rows outside its callers' span => static
+   inline).  True when `b` is within 100 units vertically and 100 units in the
+   plane of `a`. */
+static inline unsigned char isNearPoint(float *a, float *b)
+{
+    if ((a[1] - b[1] < 0.0f ? -(a[1] - b[1]) : a[1] - b[1]) < 100.0f) {
+        if (_DistSqGV(a, b) < 10000.0f) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
+{
+    float d[4];
+    float pos[4];
+    char *sub;
+    int way;
+    int done;
+
+    sub = *(char **)(self + 0x164);
+    d[0] = tgt[0];
+    d[1] = tgt[1];
+    d[2] = tgt[2];
+    switch (*(int *)(sub + 0x3A4)) {
+    case 0:
+        done = 0;
+        GetRootProjectionPosOfGObj(pos, self);
+        pos[1] = pos[1] - 0.0f;
+        way = GetWay_next(sub + 0x360, pos);
+        if (way == 0) {
+            sceVu0CopyVector(out, sub + 0x3B0);
+        } else {
+            char *w;
+
+            sceVu0CopyVector(out, sub + 0x3B0);
+            w = D_0029D650;
+            if (*(int *)(w + 0x5860) != way) {
+                if (*(int *)(w + 0x5860) != 0) {
+                    done = *(int *)(sub + 0x3C4) < 1;
+                }
+                *(int *)(w + 0x5860) = way;
+            }
+        }
+        if (*(int *)(sub + 0x388) == 0) {
+            if (isNoWallBetween(pos, d)) {
+                *(int *)(sub + 0x3A4) = 1;
+                DeleteGuideWay(sub + 0x360);
+            }
+        }
+        if (done) {
+            return 2;
+        }
+        break;
+    case 1:
+        {
+            float cur[4];
+            float dir[4];
+
+            GetRootPosition(cur, self);
+            if (isNoWallBetween(cur, d)) {
+                float dx = d[0];
+                float dz = d[2];
+
+                dir[0] = dx - cur[0];
+                dir[1] = 0.0f;
+                dir[2] = dz - cur[2];
+                sceVu0Normalize(out, dir);
+                if (isNearPoint(d, cur)) {
+                    return 1;
+                }
+            }
+        }
+        break;
+    }
+    return 0;
+}
 ASM_LIT4_SLOT(D_00638FCC, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Escape);
 extern float _DistGV(void *a, void *b);
@@ -452,21 +617,6 @@ void ClipTwinVector(float *out, float *from, float *to, float max)
 }
 extern int ACTWayMove_BeginDetail(void *obj, float *b, float *a, void *tgt, int e, int f);
 extern int ACTWayMove_NextDetail(void *obj, char *w, float *a, int d, int e);
-typedef struct {
-    float a[4];        /* 0x00 start point   */
-    float b[4];        /* 0x10 end point     */
-    float pos[4];      /* 0x20 clipped point */
-    char  _30[0x40];
-    float f_70;        /* 0x70 radius/height */
-    char  _74[0x14];
-    int   f_88;        /* 0x88 wall hit      */
-    char  _8c[0x08];
-    int   f_94;        /* 0x94 floor hit     */
-    char  _98[0x28];
-} ClipWork;
-extern void ClipWall(void *);
-extern void ClipWallField(void *);
-extern void ClipFloor(void *);
 
 /* INTERIM: ACTCheckCollis_SAFE is `inline` in the 2001 source -- the PAL
  * listing attributes girl_brain_main.c.inc:2868-2909 both to its out-of-line
@@ -658,9 +808,206 @@ ASM_LIT4_SLOT(D_00638FD8, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001762A0);
 ASM_LIT4_SLOT(D_00638FDC, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", Danger_Gondola);
-ASM_LIT4_SLOT(D_00638FE0, 3.1415927f);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176838);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", Danger_Box);
+extern int IsThisBoxTruck(void *a0);
+
+/* girl_brain_main.c.inc:44-53 -- a file-scope static helper with no MAIN.MAP
+ * symbol of its own; the listing attributes lines 45/50/52 to Danger_Box, to
+ * its nested GetSafePosition and to subGirlBrainMain, i.e. it is inlined at
+ * every site.  Name chosen here: it asks whether the boy is currently pushing
+ * a truck-type box (his sub-object's status 0x34 == 0x31 and the object he
+ * holds at 0x158 is box kind 7). */
+static inline unsigned char isBoyPushBoxTruck(void)
+{
+    char *sub;
+    char *box;
+
+    if (D_00639EA4 != 0 &&
+        *(int *)((sub = *(char **)((char *)D_00639EA4 + 0x164)) + 0x34) == 0x31 &&
+        (box = *(char **)(sub + 0x158)) != 0 &&
+        IsThisBoxTruck(box) == 7) {
+        return 1;
+    }
+    return 0;
+}
+extern void *test_CURRENTORIENT(void *a0);
+extern float _GetDirection(void *orient);
+extern void sceVu0ScaleVector(float *dst, float *src, float scale);
+extern char D_00553C58[];
+extern int D_0029D618[];
+
+static void Danger_Box(void *self)
+{
+    /* girl_brain_main.c.inc:3438 -- a GNU nested function (the listing's
+     * GetSafePosition.371); see Danger_Bomb for the parameter-order note.
+     * This copy takes six integer parameters; the fifth (the boy root the
+     * callers hand in) is never read and is reused as the collision flag. */
+    int GetSafePosition(float *dst, float *way, float *center, float rad, int ok,
+                        int mode, float *girl)
+    {
+        float dir[4];
+        float pos[4];
+        float from[4];
+        float best;
+        float d;
+        int found;
+        int i;
+        int ang;
+
+        best = 0.0f;
+        found = 0;
+        for (i = 0; i < 3; i++) {
+            memset(dir, 0, 0x10); dir[2] = rad;
+            if (i == 0 && !isBoyPushBoxTruck()) {
+                continue;
+            }
+            ang = (int)(_GetDirection(test_CURRENTORIENT(D_00639EA4)) / 3.1415927f * 180.0f)
+                  + D_0029D618[i];
+            if (ang >= 181) {
+                ang -= 360;
+            }
+            if (ang <= -181) {
+                ang += 360;
+            }
+            _ApplyRyGV(dir, (float)ang * 3.1415927f / 180.0f);
+            sceVu0AddVector(pos, center, dir);
+            pos[1] = center[1];
+            from[0] = center[0];
+            from[2] = center[2];
+            from[1] = center[1] - 70.0f;
+            ok = ACTCheckCollis_SAFE_inl(200.0f, from, pos, 0, pos, 40);
+            if (ok) {
+                d = _DistxzSqGV(way, pos);
+                if (mode != 1) {
+                    if (_DistxzSqGV(pos, way) < _DistxzSqGV(way, center)) {
+                        continue;
+                    }
+                }
+                if (_DistxzSqGV(pos, girl) < 3600.0f) {
+                    continue;
+                }
+                if (best < d) {
+                    best = d;
+                    dst[0] = pos[0];
+                    dst[1] = pos[1];
+                    dst[2] = pos[2];
+                    found = 1;
+                }
+            }
+        }
+        if (found) {
+            /* ROM evaluates both calls and drops the comparison: the body of
+             * this test is empty in the shipped build. */
+            if (_DistSqGV(dst, way) < _DistSqGV(center, way)) {
+            }
+        } else {
+            dst[0] = center[0];
+            dst[1] = center[1];
+            dst[2] = center[2];
+        }
+        return found;
+    }
+    float goal[4];
+    float girl[4];
+    float objp[4];
+    float way[4];
+    float cur[4];
+    float boxp[4];
+    float sideA[4];
+    float sideB[4];
+    float ofs[4];
+    float orient[4];
+    float tmp[4];
+    float dir[4];
+    char *sub;
+    void *box;
+    float rad;
+    long long f;
+    unsigned char r;
+    unsigned char r2;
+    long long p;
+    int turn;
+
+    sub = *(char **)((char *)self + 0x164);
+    rad = isBoyPushBoxTruck() ? 400.0f : 200.0f;
+    box = D_006C1E44[0];
+    GetRootProjectionPosOfGObj(goal, box);
+    GetRootProjectionPosOfGObj(girl, self);
+    objp[0] = ((float *)test_CURRENTROOT(box))[0];
+    objp[1] = ((float *)test_CURRENTROOT(box))[1];
+    objp[2] = ((float *)test_CURRENTROOT(box))[2];
+    GetRootProjectionPosOfGObj(way, box);
+    orient[0] = ((float *)test_CURRENTORIENT(D_00639EA4))[0];
+    orient[1] = ((float *)test_CURRENTORIENT(D_00639EA4))[1];
+    orient[2] = ((float *)test_CURRENTORIENT(D_00639EA4))[2];
+    boxp[0] = ((float *)test_CURRENTROOT(*(void **)(*(char **)((char *)D_00639EA4 + 0x164) + 0x158)))[0];
+    boxp[1] = ((float *)test_CURRENTROOT(*(void **)(*(char **)((char *)D_00639EA4 + 0x164) + 0x158)))[1];
+    boxp[2] = ((float *)test_CURRENTROOT(*(void **)(*(char **)((char *)D_00639EA4 + 0x164) + 0x158)))[2];
+    cur[0] = ((float *)test_CURRENTROOT(self))[0];
+    cur[1] = ((float *)test_CURRENTROOT(self))[1];
+    cur[2] = ((float *)test_CURRENTROOT(self))[2];
+    sceVu0ScaleVector(ofs, orient, 100.0f);
+    sceVu0AddVector(sideA, boxp, ofs);
+    sceVu0ScaleVector(ofs, orient, -100.0f);
+    sceVu0AddVector(sideB, boxp, ofs);
+    if (_DistSqGV(sideA, cur) < _DistSqGV(sideB, cur)) {
+        way[0] = sideA[0];
+        way[1] = sideA[1];
+        way[2] = sideA[2];
+    } else {
+        way[0] = sideB[0];
+        way[1] = sideB[1];
+        way[2] = sideB[2];
+    }
+    _ACTWait(1);
+    if (!GetSafePosition(goal, way, girl, rad, (int)test_CURRENTROOT(D_00639EA4), 0, girl)) {
+        GetRootProjectionPosOfGObj(cur, box);
+        if (!GetSafePosition(goal, way, cur, rad, (int)test_CURRENTROOT(D_00639EA4), 1, girl)) {
+            debug_StdPrintfDummy(D_00553C58);
+            goal[0] = girl[0];
+            goal[1] = girl[1];
+            goal[2] = girl[2];
+        }
+    }
+    _ACTWait(1);
+    p = ACTWayMove_BeginDetail(self, girl, goal, 0, 0, 0);
+    r = p;
+    if (!r) {
+        _ACTWait(0);
+    }
+    *(long long *)(sub + 0x438) |= 0x10000;
+    _ACTWait(1);
+    turn = 0;
+    while (1) {
+        _ACTCharStatus_Set(self, 11, -1.0f, (int)box);
+        GetRootProjectionPosOfGObj(cur, box);
+        GetRootProjectionPosOfGObj(girl, self);
+        GetRootProjectionPosOfGObj(tmp, box);
+        p = ACTWayMove_NextDetail(self, sub + 0x120, goal, 0, 0);
+        r2 = p;
+        f = *(long long *)(sub + 0x3F0);
+        if (((int)(f >> 16) & 1)) {
+            turn = 0;
+        }
+        if (!r2) {
+            turn = 1;
+        } else if (((int)(f >> 17) & 1)) {
+            turn = 1;
+        } else if (*(float *)(sub + 0x3F8) < 50.0f) {
+            turn = 1;
+        } else if (turn == 0) {
+            *(float *)(sub + 0x120) = *(float *)(sub + 0x3E0);
+            *(float *)(sub + 0x124) = *(float *)(sub + 0x3E4);
+            *(float *)(sub + 0x128) = *(float *)(sub + 0x3E8);
+            *(float *)(sub + 0x34C) = 1.0f;
+        }
+        if (turn) {
+            *(float *)(sub + 0x34C) = 0.0f;
+            _OrientXZGV(dir, objp, test_CURRENTROOT(self));
+            girlBrainHide_GoalTurn(dir, 0);
+        }
+        _ACTWait(1);
+    }
+}
 
 static void Danger_Rotobject(void *self)
 {
@@ -875,6 +1222,7 @@ static inline void dispWayMarker(char *p)
     sceVu0ScaleVector(buf, (float *)(p + 0x10), -1.0f);
     debug_Marker(buf, 0xFF, 0, 0, 70.0f, 0.0f);
 }
+
 
 void WayTest(void)
 {
