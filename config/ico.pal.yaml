@@ -422,7 +422,9 @@ segments:
       - [0x51BF30, .rodata, src/debug]  # carved jtbl_0061BF30 (debug_mcLoadMainBlock, 100 arms), VMA 0x61BF30..0x61C0C0
       - [0x51C0C0, rodata, src/cod/51C0C0]   # .rodata blob resume (strings)
       - [0x51C0E0, .rodata, src/debug]  # carved jtbl_0061C0E0 (debug_mcDeleteFile, 5 arms), VMA 0x61C0E0..0x61C0F4
-      - [0x51C0F4, rodata, src/cod/51C0F4]   # .rodata blob resume (pad word, strings)
+      - [0x51C0F4, rodata, src/cod/51C0F4]   # .rodata blob resume (the pad word after mcDeleteFile's table)
+      - [0x51C0F8, .rodata, src/debug]  # plain-rodata: debug_MemoryCard's initialiser templates and strings (menu table, state captions), VMA 0x61C0F8..0x61C1A8
+      - [0x51C1A8, rodata, src/cod/51C1A8]   # .rodata blob resume (strings)
       - [0x51CF00, .rodata, src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
       - [0x51CF14, rodata, src/cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x51DD30, .rodata, src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
@@ -525,6 +527,8 @@ segments:
       # the literal's own VMA, and holds only literals the TU's C actually emits.
       - [0x53A738, .sdata, src/commonact]     # carved D_0063A738 ("reset\n", afterCommonBar's string literal) + ROM's 1 pad byte, VMA 0x63A738..0x63A740, 8 B.  NARROW: commonact's full .sdata run is 0x63A710..0x63A7E0 (208 B, ~17 more <=8-byte string literals whose owners are still INCLUDE_ASM); the one-run-per-(TU,section) rule means widening it later needs those bodies in C first.  MAIN.MAP commonact.o .sdata is 0x6d (a different link; the PAL ELF's own run is 0xd0).  USA: - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes); D_006322F0 is func_0015F578's "reset\n" string literal, the other 4 are sidecar objects
       - [0x53A740, sdata, src/cod/53A740]    # .sdata blob resume
+      - [0x53B008, .sdata, src/debug]  # carved debug_MemoryCard's short menu labels ("LOAD".."MENU", -G 8 puts them in small data), VMA 0x63B008..0x63B040
+      - [0x53B040, sdata, src/cod/53B040]    # .sdata blob resume
       - { type: sbss, vram: 0x0063C100, name: src/cod/0063C100, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
       - { type: bss,  vram: 0x0063C600, name: src/cod/0063C600, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
   - [0x53C0F6]

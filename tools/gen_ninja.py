@@ -216,10 +216,13 @@ def check_ld_carve_globs(ld_path: Path) -> None:
         return
     yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
     rows: dict[str, list[int]] = {}
+    plain: dict[str, int] = {}
     for line in yaml_path.read_text().splitlines():
         m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.rodata,\s*(\S+?)\]", line)
         if m:
             rows.setdefault(m.group(2), []).append(int(m.group(1), 16))
+            if "plain-rodata" in line:
+                plain[m.group(2)] = int(m.group(1), 16)
     seen: dict[str, int] = {}
     out = []
     for line in lines:
@@ -231,7 +234,10 @@ def check_ld_carve_globs(ld_path: Path) -> None:
             if k >= len(offs):
                 raise SystemExit(f"gen_ninja: {tu}: more .rodata selectors than carve rows")
             vma = offs[k] + 0x100000
-            sel = f".rodata.0x{vma:08X}" if k else f".rodata .rodata.0x{vma:08X}"
+            # the unnamed `.rodata` (strings, doubles, initialiser templates) goes to
+            # the row marked `plain-rodata` in its yaml comment, else to the first row
+            plain_here = (plain.get(tu) == offs[k]) if tu in plain else (k == 0)
+            sel = f".rodata .rodata.0x{vma:08X}" if plain_here else f".rodata.0x{vma:08X}"
             line = f"{m.group(1)}{m.group(2)}({sel});"
         out.append(line)
     ld_path.write_text("\n".join(out) + "\n")

@@ -1434,7 +1434,85 @@ int debug_mcDeleteFile(McReq *mc)
     }
     return ret;
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_MemoryCard);
+/* one line of the memory-card menu: the label debug_SelectCsvWindow prints and
+   the state machine it hands control to */
+typedef struct { char *label; int (*fn)(); } McMenuItem;
+/* the card-state line: the iosMc state code, its colour and its caption */
+typedef struct { int type; unsigned int col; char *msg; } McTypeMsg;
+extern McReq mc;
+extern int D_0063B000;
+extern int D_0063AFFC;
+extern void iosMcGetInfo(McReq *mc);
+extern int debug_mcFormat();
+extern int debug_mcUnformat();
+extern int debug_mcTest();
+int debug_MemoryCard(void)
+{
+    McMenuItem menu[6] = {
+        { "LOAD", debug_mcLoadMainBlock },
+        { "SAVE", debug_mcSaveMainBlock },
+        { "DELETE", debug_mcDeleteFile },
+        { "FORMAT", debug_mcFormat },
+        { "UNFORMAT", debug_mcUnformat },
+        { "TEST", debug_mcTest },
+    };
+    McTypeMsg tm[3] = {
+        { -1, 0x00FFFF00, "Formatted" },
+        { -2, 0x00FFFF00, "Unformatted" },
+        { 0, 0xFF222200, "No card" },
+    };
+    McTypeMsg *p;
+    int r;
+    int (*fn)();
+
+    switch (D_0063B000) {
+    case 0:
+        mc.fC = 0;
+        mc.f8 = 0;
+        iosMcGetInfo(&mc);
+        D_0063B000++;
+        break;
+    case 1:
+        if (iosMcSync(&mc)) {
+            D_0063B000++;
+        }
+        break;
+    case 2:
+        p = tm;
+        while (mc.f1C != p->type && p->type != 0) {
+            p++;
+        }
+        if (mc.f14 != 2) {
+            p = &tm[2];
+        }
+        debug_PrintfDummy(0xA, 0x3C, p->col, (int)"Memory card port 0: %s free:%d Kbytes",
+                          (int)p->msg, mc.f18);
+        if (mc.ret >= -2) {
+            r = debug_SelectCsvWindow("MENU", 0xA, 0x44, 0xA, menu, 8, 0, 1, 6, &D_0063AFFC);
+            if (r == 1) {
+                D_0063B000++;
+            } else if (r == -1) {
+                D_0063B000 = 0;
+                return -1;
+            }
+        } else if (D_0028F8F4[0] & 0x40) {
+            D_0063B000 = 0;
+            return -1;
+        }
+        break;
+    default:
+        fn = menu[D_0063AFFC].fn;
+        if (fn != 0) {
+            if (fn(&mc) != 0) {
+                D_0063B000 = 0;
+                return 1;
+            }
+        }
+        break;
+    }
+    return 0;
+}
+
 /* INTERIM (see _debug_SelectCsvWindow_inl above): debug_SelectCsvWindowWithLineColor
    is `inline` in the 2001 source, so its callers inline it while the ELF also
    carries the out-of-line copy at its own ROM slot. */

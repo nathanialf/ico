@@ -1011,6 +1011,12 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   mcDeleteFile; strings follow the other two). One compiled TU supplies them all: its
   postprocessed object names each table's section by VMA.
 
+- `[0x51C0F8, .rodata, src/debug]` (`plain-rodata`) and `[0x53B008, .sdata, src/debug]` —
+  debug_MemoryCard's own data: the menu and caption initialiser templates and their
+  strings in .rodata, the short labels ("LOAD".."MENU") in .sdata under -G 8. The
+  `plain-rodata` marker tells gen_ninja which of a TU's several .rodata rows receives
+  the unnamed section (the first row otherwise).
+
 - `[0x520F20, .rodata, src/staticBlur]` — dispPostInfo's 10-arm table only; the blob
   resumes at `0x520F48` (the string there and the FullScreenEffectBefore/After tables at
   0x620F60/0x620F80 stay in it until those functions land, when one contiguous
