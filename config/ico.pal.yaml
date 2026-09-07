@@ -407,6 +407,8 @@ segments:
       - [0x456900, rodata, src/cod/456900]   # .rodata blob resume
       - [0x4577A0, .rodata, ito/mpeg/mv_vobuf]  # carved D_005577A0 "../ito/include/mv_defs.h" + D_005577C0 "p != NULL" (mv_defs.h alloc_zeroed's __FILE__ and assert literals, 8-aligned), VMA 0x5577A0..0x5577D0, 48 B; the TU's own rodata run
       - [0x4577D0, rodata, src/cod/4577D0]   # .rodata blob resume
+      - [0x51BDC0, .rodata, src/debug]  # carved jtbl_0061BDC0 (debug_mcRetErrCheck's 17-arm table), VMA 0x61BDC0..0x61BE04; one zero pad word then the 8-aligned string run stay in the blob
+      - [0x51BE04, rodata, src/cod/51BE04]   # .rodata blob resume (pad word + D_0061BE08 strings)
       - [0x51CF00, .rodata, src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
       - [0x51CF14, rodata, src/cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x51DD30, .rodata, src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44

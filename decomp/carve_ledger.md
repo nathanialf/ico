@@ -994,6 +994,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
 
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
+- `[0x51BDC0, .rodata, src/debug]` — debug_mcRetErrCheck's 17-arm table; the blob resumes
+  at `0x51BE04` with the pad word and the string run. src/debug's tail has eight switch
+  functions; the next ones to land extend this row or add their own when their tables
+  are contiguous.
+
 - `[0x520F20, .rodata, src/staticBlur]` — dispPostInfo's 10-arm table only; the blob
   resumes at `0x520F48` (the string there and the FullScreenEffectBefore/After tables at
   0x620F60/0x620F80 stay in it until those functions land, when one contiguous
