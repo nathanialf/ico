@@ -992,6 +992,10 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   alone owns 45), then DeleteBoyWeapon's and GetBoyRootPositionForCamera's constants
   as literals; MAIN.MAP's 0x108 is the debug link's size.
 
+- `[0x53995C, .lit4, src/st04r]` — the TU's whole pool, 8 words, all literals (the tail
+  is fully C); the blob at 0x539940 keeps st04e's and st04l's seven words until those
+  land, and st05b's carve follows at 0x53997C.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 - `[0x452680, .rodata, src/act-game]` — _ACTCharStatus_Set's 17-arm table; the blob resumes
