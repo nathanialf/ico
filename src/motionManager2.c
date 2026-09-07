@@ -170,7 +170,7 @@ void GetRootPosOfNextFrame(int a0, int *a1)
 }
 extern int D_0054D860[];
 extern float GetYProjectionOfPlane();
-extern void debug_StdPrintfDummy(void *msg);
+extern void debug_StdPrintfDummy();
 
 void AdjustMotionHeightToField(int *a0) {
     char *o = (char *)a0[0x57];
@@ -481,9 +481,183 @@ int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, int *cfg, int
     }
     return bestIdx;
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _getS16MotRotElem);
-ASM_LIT4_SLOT(D_00638B7C, 0.001f);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _getMotion);
+
+extern void sceVu0CopyVector(void *dst, void *src);
+
+typedef struct { float x, y, z, w; } __attribute__((aligned(16))) Vec4f;
+typedef struct { unsigned char n; signed char adj : 7; unsigned char neg : 1; } MotS16Hdr;
+
+/* dev lines 1588-1605: 2^e as a float, built by repeated multiply/divide so the
+   exponent can exceed a single shift's range. */
+static inline float motPow2(int e)
+{
+    float s = 1.0f;
+
+    if (e > 0) {
+        while (e >= 31) {
+            s *= (float)(1 << 31);
+            e -= 31;
+        }
+        s *= (float)(1 << e);
+    } else {
+        e = -e;
+        while (e >= 31) {
+            s /= (float)(1 << 31);
+            e -= 31;
+        }
+        s /= (float)(1 << e);
+    }
+    return s;
+}
+
+/* dev lines 1608-1622: one 16-bit mini-float (sign:1 exp:5 mantissa:10). */
+static inline float motDecodeS16(int h)
+{
+    float m = (float)(h & 0x3FF) + 1024.0f;
+    float s = motPow2(-((h >> 10) & 0x1F) - 10);
+
+    if ((h >> 15) & 1) {
+        m = -m;
+    }
+    return m * s;
+}
+
+/* dev lines 1623-1627 / 1636-1639: the VU0 square root split in two so the
+   Q-pipeline latency is covered by the vector copy in between. */
+static inline void motSqrtStart(float d)
+{
+    float t = 1.0f - d;
+
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "mfc1 $6, %0\n"
+        "qmtc2.ni $6, $vf1\n"
+        ".set reorder\n"
+        : : "f"(t));
+    VU0_WORD(0x4A0103BD);
+}
+
+static inline float motSqrtEnd(void)
+{
+    float r;
+
+    VU0_WAIT();
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "cfc2.ni $7, $vi22\n"
+        "mtc1 $7, %0\n"
+        ".set reorder\n"
+        : "=f"(r));
+    return r;
+}
+
+void _getS16MotRotElem(void *dst, void *src)
+{
+    Vec4f v = { motDecodeS16(*(unsigned short *)((char *)src + 2)),
+                motDecodeS16(*(unsigned short *)((char *)src + 4)),
+                motDecodeS16(*(unsigned short *)((char *)src + 6)),
+                1.0f };
+    float d = _InnerProduct((float *)&v, (float *)&v);
+    if (d > 1.0f) {
+        d = 1.0f;
+    }
+    motSqrtStart(d);
+
+    *(int *)dst = *(unsigned char *)src;
+    sceVu0CopyVector((char *)dst + 0x10, &v);
+    *(float *)((char *)dst + 0x1C) = motSqrtEnd();
+    if (*(signed char *)((char *)src + 1) < 0) {
+        *(float *)((char *)dst + 0x1C) = -*(float *)((char *)dst + 0x1C);
+    }
+    *(float *)((char *)dst + 0x1C) += (float)((MotS16Hdr *)src)->adj * 0.001f;
+}
+typedef struct { unsigned char n; unsigned char s; float x, y, z; } MotElemF;
+typedef struct { unsigned char n; unsigned char s; unsigned short a, b, c; } MotElemS;
+
+extern void SetIdentityQuaternion(void *q);
+extern float FSqrt(float x);
+extern char D_0054D9F0[];
+extern void _getS16MotRotElem(void *dst, void *src);
+
+/* INTERIM (see the getSkeltonFocusNode note below): the listing inlines
+   _getMotRotElem (dev line 1667) into _getMotion, so it is `inline` in the dev's
+   TU; while this tail still has asm members a deferred inline would land at the
+   object end instead of at its ROM slot, so the public body stays a plain
+   definition there and this static stand-in is used here.
+   Collapses to one `inline` definition at layout. */
+static inline void getMotRotElem(char *dst, char *src)
+{
+    float sum;
+
+    sum = *(float *)(src + 0x4) * *(float *)(src + 0x4)
+        + *(float *)(src + 0x8) * *(float *)(src + 0x8)
+        + *(float *)(src + 0xC) * *(float *)(src + 0xC);
+    sum = (sum > 1.0f) ? 1.0f : sum;
+    *(int *)dst = *(unsigned char *)src;
+    *(float *)(dst + 0x1C) = FSqrt(1.0f - sum);
+    *(float *)(dst + 0x10) = *(float *)(src + 0x4);
+    *(float *)(dst + 0x14) = *(float *)(src + 0x8);
+    *(float *)(dst + 0x18) = *(float *)(src + 0xC);
+    if (*(signed char *)(src + 1) < 0) {
+        *(float *)(dst + 0x1C) = -*(float *)(dst + 0x1C);
+    }
+}
+
+void _getMotion(void *dst, void *m, int node, int frame)
+{
+    int type;
+
+    char *mm = (char *)m;
+
+    type = ((unsigned char *)*(int *)(mm + 8))[node];
+    switch (type) {
+    default:
+        debug_StdPrintfDummy(D_0054D9F0, type);
+        SetIdentityQuaternion((char *)dst + 0x10);
+        break;
+    case 1: {
+        int off = frame * 0x10;
+        getMotRotElem((char *)dst, (char *)((int *)*(int *)(mm + 0xC))[node] + off);
+        break;
+    }
+    case 2: {
+        char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
+        MotElemF e = { ((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 4),
+                       *(float *)(p + 8), *(float *)(p + 0xC), *(float *)(p + 0x10) };
+        getMotRotElem((char *)dst, (char *)&e);
+        break;
+    }
+    case 3: {
+        char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
+        MotElemF e = { ((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 8),
+                       *(float *)(p + 0xC), *(float *)(p + 0x10),
+                       ((float *)*(int *)(p + 4))[frame] };
+        getMotRotElem((char *)dst, (char *)&e);
+        break;
+    }
+    case 4: {
+        char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
+        _getS16MotRotElem(dst, &((MotElemS *)p)[frame]);
+        break;
+    }
+    case 5: {
+        char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
+        MotElemS e = { ((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 4),
+                       *(unsigned short *)(p + 6), *(unsigned short *)(p + 8),
+                       *(unsigned short *)(p + 0xA) };
+        _getS16MotRotElem(dst, &e);
+        break;
+    }
+    case 6: {
+        char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
+        MotElemS e = { ((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 8),
+                       *(unsigned short *)(p + 0xA), *(unsigned short *)(p + 0xC),
+                       ((unsigned short *)*(int *)(p + 4))[frame] };
+        _getS16MotRotElem(dst, &e);
+        break;
+    }
+    }
+}
 extern void memset(void *a0, int a1, int a2);
 extern void CopyQuaternion();
 extern void RotQuaternionX(void *q, short ang);

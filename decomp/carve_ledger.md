@@ -1101,6 +1101,12 @@ words become the blob's first words.
   the rest of queen.o's run (strings, rate tables, jtbl_00556D60) stays in
   the blob until subQueenBrainMain and QueenBallGeo land.
 
+- `src/motionManager2` `.rodata` 0x44DA30..0x44DA48 (VMA 0x54DA30..0x54DA48, 24 B):
+  `jtbl_0054DA30`, _getMotion's six-arm switch table, emitted by the compiled
+  function on its own `.rodata.0x0054DA30` section. Its `.lit4` slot for
+  _getS16MotRotElem's 0.001f is now produced by the C (ASM_LIT4_SLOT removed);
+  the pool 0x638B3C..0x638B84 is byte-identical to ROM.
+
 ### Deferred
 
 - Per-TU `__FILE__` strings for the `iosMalloc(size)` macro form
