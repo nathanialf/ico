@@ -475,6 +475,11 @@ def build_tree() -> dict:
             # same crediting that progress.py badges, so a reader comparing
             # the dashboard strip with the README finds the same numbers.
             for sec, mt in authoritative.items():
+                if mt[1] == 0:
+                    # Zero-sized in this ELF (.vudata on every ICO target):
+                    # the badges omit it and so does the strip.
+                    sections.pop(sec, None)
+                    continue
                 sections[sec] = list(mt)
             # ELF link order (progress.py's badge order), so the dashboard
             # strip and the README badge column read top-to-bottom the same
