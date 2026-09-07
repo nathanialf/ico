@@ -367,7 +367,69 @@ INCLUDE_ASM("asm/nonmatchings/src/script", scpWoodSrh);
 ASM_LIT4_SLOT(D_006390B4, 4e+04f);
 ASM_LIT4_SLOT(D_006390B8, 4e+04f);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpSekizou);
-INCLUDE_ASM("asm/nonmatchings/src/script", _SCPBoySupportGirl);
+extern const char D_005544E0[];
+extern void ClipWall(void *w);
+
+/* the wall-collision result the ClipWall work area hands back at +0x80 */
+struct WallColPos { int f00, f04; };
+struct WallCol { struct WallColPos pos; int f08; };
+extern struct WallCol D_006E5940;
+
+typedef struct {
+    float p0[4];            /* 0x00 */
+    float p1[4];            /* 0x10 */
+    char _020[0x50];        /* 0x20 */
+    float f70;              /* 0x70 */
+    char _074[0x0C];        /* 0x74 */
+    struct WallCol res;     /* 0x80 */
+    char _08C[0x34];        /* 0x8C */
+} ClipWork;                 /* 0xC0 */
+
+/* INTERIM stand-in.  scpGetWallCollision is a real TU function with its own
+   ROM slot (below); the compiler inlines it here. */
+static inline struct WallCol *scpGetWallCollisionInline(float x0, float y0, float z0,
+                                                        float x1, float y1, float z1)
+{
+    ClipWork work;
+
+    work.p0[0] = x0;
+    work.p0[1] = y0;
+    work.p0[2] = z0;
+    work.p0[3] = 1.0f;
+    work.p1[0] = x1;
+    work.p1[1] = y1;
+    work.p1[2] = z1;
+    work.p1[3] = 1.0f;
+    work.f70 = 0.0f;
+    ClipWall(&work);
+    D_006E5940.f08 = work.res.f08;
+    D_006E5940.pos = work.res.pos;
+    if (work.res.f08 == 0) {
+        debug_StdPrintfDummy(D_005544E0, x0, y0, z0, x1, y1, z1);
+    }
+    return &D_006E5940;
+}
+extern void sceVu0ScaleVector(float *dst, float *src, float scale);
+
+void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float z1)
+{
+    float v0[4] = { x0, y0, z0 };
+    float v1[4] = { x1, y1, z1 };
+    struct WallCol *wc;
+
+    if (D_00639EA4 == 0 || D_00639EA8 == 0) {
+        return;
+    }
+    sceVu0ScaleVector(v0, v0, -1.0f);
+    sceVu0ScaleVector(v1, v1, -1.0f);
+    wc = scpGetWallCollisionInline(v0[0], v0[1], v0[2], v1[0], v1[1], v1[2]);
+    if (wc != 0) {
+        *(struct WallCol *)(*(char **)(D_00639EA4 + 0x164) + 0x670) = *wc;
+        *(struct WallCol *)(*(char **)(D_00639EA8 + 0x164) + 0x660) = *wc;
+        iosOmSendMail(D_00639EA4, 385, D_00639EA4);
+        iosOmSendMail(D_00639EA8, 386, D_00639EA4);
+    }
+}
 void _SCPMoveCharactorByWay_Cancel(char *a0) {
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 47);
     ACTCharctrl_Unlock(a0);
@@ -539,7 +601,28 @@ void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, 
    if(copy.b==-1) debug_StdPrintfDummy(D_00554498);
    else stage_SetParentOfGObjWithLocalRotationFlag(a2,&copy,a3);
   } }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpGetWallCollision);
+struct WallCol *scpGetWallCollision(float x0, float y0, float z0,
+                                    float x1, float y1, float z1)
+{
+    ClipWork work;
+
+    work.p0[0] = x0;
+    work.p0[1] = y0;
+    work.p0[2] = z0;
+    work.p0[3] = 1.0f;
+    work.p1[0] = x1;
+    work.p1[1] = y1;
+    work.p1[2] = z1;
+    work.p1[3] = 1.0f;
+    work.f70 = 0.0f;
+    ClipWall(&work);
+    D_006E5940.f08 = work.res.f08;
+    D_006E5940.pos = work.res.pos;
+    if (work.res.f08 == 0) {
+        debug_StdPrintfDummy(D_005544E0, x0, y0, z0, x1, y1, z1);
+    }
+    return &D_006E5940;
+}
 extern struct ScpMail D_002A5150[];
 
 void scpDoorTypeUp(volatile int a0)
@@ -764,7 +847,47 @@ void scpTransLinear(void *obj, int axis, float target, float step)
         _ACTWait(1);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpRotateLinear);
+extern void GetRootMatrixRotOffset(float *q, void *obj);
+extern void SetRootMatrixRotOffset(void *obj, float *q);
+extern void RotQuaternionX(float *q, int step);
+extern void RotQuaternionY(float *q, int step);
+extern void RotQuaternionZ(float *q, int step);
+
+void scpRotateLinear(void *obj, int deg, short step, int axis)
+{
+    float q[4];
+    int t;
+    int n;
+    short rem;
+
+    t = (deg << 15) / 180;
+    rem = (short)(t % step);
+    n = t / step < 0 ? -(t / step) : t / step;
+    if (deg < 0) {
+        step = -step;
+    }
+    while (n-- > 0 || rem != 0) {
+        if (n < 0) {
+            step = rem;
+            rem = 0;
+        }
+        GetRootMatrixRotOffset(q, obj);
+        step = -step;
+        switch (axis) {
+        case 0:
+            RotQuaternionX(q, step);
+            break;
+        case 1:
+            RotQuaternionY(q, step);
+            break;
+        case 2:
+            RotQuaternionZ(q, step);
+            break;
+        }
+        SetRootMatrixRotOffset(obj, q);
+        _ACTWait(1);
+    }
+}
 extern int D_0063B150;
 extern char D_00554550[];
 extern void sceVu0SubVector(float *d, float *a, float *b);
@@ -981,9 +1104,59 @@ void scpKillEnemyOne(void)
     *((unsigned short *) ((new_var + (p[0x8 / 4] * 0x4C)) + 0x42)) = 0;
   }
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", _SCPMoveCharactorByWay);
-ASM_LIT4_SLOT(D_006390BC, 3.1415927f);
-INCLUDE_ASM("asm/nonmatchings/src/script", _SCPMoveByWay_ToChar);
+extern void ACTCharctrl_Lock(char *self);
+/* declared int: the call's result register is live-out of the call in ROM's
+   allocation (the same C89 default-int prototype the TU's other way/thread
+   callees carry) */
+extern int ACTWayExec_Position(char *self, int a1, int a2, float speed, int a3);
+
+int _SCPMoveCharactorByWay(char *self, int a1, int a2, float speed, int a3)
+{
+    struct ScpAct *act = (struct ScpAct *)*(char **)(self + 0x164);
+
+    act->st18.ll |= 1ULL << 47;
+    ACTCharctrl_Lock(self);
+    ACTSendMailCorrect(self, 0x106);
+    ACTWayExec_Position(self, a1, a2, speed, a3);
+    act->st18.ll &= ~(1ULL << 47);
+    ACTCharctrl_Unlock(self);
+    return 0;
+}
+extern float *test_CURRENTORIENT(char *target);
+extern float *test_CURRENTROOT(char *target);
+extern void _ApplyRyGV(float *v, float ang);
+extern void sceVu0ScaleVector(float *dst, float *src, float scale);
+extern void sceVu0AddVector(float *dst, float *a, float *b);
+
+/* INTERIM stand-in.  _SCPMoveCharactorByWay is a real TU function with its own
+   ROM slot (just above); the compiler inlines it here.  Delete once the TU is
+   C-complete and the real definition can carry `inline`. */
+static inline int _SCPMoveCharactorByWayInline(char *self, int a1, int a2, float speed, int a3)
+{
+    struct ScpAct *act = (struct ScpAct *)*(char **)(self + 0x164);
+
+    act->st18.ll |= 1ULL << 47;
+    ACTCharctrl_Lock(self);
+    ACTSendMailCorrect(self, 0x106);
+    ACTWayExec_Position(self, a1, a2, speed, a3);
+    act->st18.ll &= ~(1ULL << 47);
+    ACTCharctrl_Unlock(self);
+    return 0;
+}
+
+int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float scale, float speed)
+{
+    float v[4];
+    float w[4];
+
+    v[0] = test_CURRENTORIENT(target)[0];
+    v[1] = test_CURRENTORIENT(target)[1];
+    v[2] = test_CURRENTORIENT(target)[2];
+    _ApplyRyGV(v, (float)deg * 3.1415927f / 180.0f);
+    sceVu0ScaleVector(v, v, scale);
+    sceVu0AddVector(w, test_CURRENTROOT(target), v);
+    return _SCPMoveCharactorByWayInline(self, (int)target, (int)w, speed, a3);
+}
 void _SCPCharacterStop(char *self)
 {
     char *p = *(char **)(self + 0x164);
