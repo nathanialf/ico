@@ -94,7 +94,49 @@ void setBattleStatus(EnemyBattleGObj *self)
         __assert(D_00553370, 0x36B, D_0063A7E8);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", boss_effect_start);
+extern void boss_effect_callback(int id);
+extern void *memset(void *dst, int c, int n);
+extern void sceVu0CopyVector(float *dst, float *src);
+extern int GatherEffect_Set(int kind, char *a, float *b, char *c, float f, void *fn);
+extern void ReviveEnemyParticle(char *self, int id);
+extern int D_0028F4C0[];
+
+/* static inline of the 2001 source, listing lines 973-977 -- inlined by both
+   boss_effect_start and boss_effect_process (the rows attributed to 973 are
+   each call's argument setup, which is why they differ between the two). */
+static inline void bossEffectSetNodePos(char *self, float *dst, int idx)
+{
+    char *g = *(char **)(self + 0x15C);
+
+    sceVu0CopyVector(dst, (float *)(*(char **)(g + 0xC) + idx * 0x40 + 0x30));
+    dst[3] = 1.0f;
+}
+
+#define BOSS_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
+
+void boss_effect_start(char *self, int id)
+{
+    int i;
+
+    for (i = 0; i < 5; i++) {
+        if (*(char *)(i * 0x20 + BOSS_START_WORK(self) + 0x37D) == 0) {
+            float buf[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+            bossEffectSetNodePos(self, (float *)(i * 0x20 + BOSS_START_WORK(self) + 0x360), id);
+            *(int *)(i * 0x20 + BOSS_START_WORK(self) + 0x370) =
+                GatherEffect_Set(12, (char *)BOSS_START_WORK(self) + (i * 0x20 + 0x360), buf,
+                                 (char *)BOSS_START_WORK(self) + (i * 0x20 + 0x360), 1.0f,
+                                 (void *)boss_effect_callback);
+            *(int *)(i * 0x20 + BOSS_START_WORK(self) + 0x374) = id;
+            *(int *)(i * 0x20 + BOSS_START_WORK(self) + 0x378) =
+                (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+            *(char *)(i * 0x20 + BOSS_START_WORK(self) + 0x37C) = 1;
+            *(char *)(i * 0x20 + BOSS_START_WORK(self) + 0x37D) = 1;
+            return;
+        }
+    }
+    ReviveEnemyParticle(self, id);
+}
 extern void boss_effect_start(char *a0, int a1);
 
 void boss_effect_check_parts(char *a0, int a1) {
@@ -107,7 +149,51 @@ void boss_effect_check_parts(char *a0, int a1) {
     }
     boss_effect_start(a0, a1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", boss_effect_process);
+extern int isExistEnemyParticle(char *self, int i);
+extern void GatherEffect_SetGoal(int gobj, float *pos);
+
+typedef struct {
+    char pad00[0x14];
+    int id;
+    int timer;
+    char busy;
+    char alive;
+    char pad1E[2];
+} BossPart;
+
+#define BOSS_EFFECT_WORK(self) ((char *)*(int *)(*(int *)((self) + 0x164) + 0x680))
+#define BOSS_EFFECT_PARTS(self, i) ((BossPart *)((i) * 0x20 + BOSS_EFFECT_WORK(self) + 0x360))
+
+void boss_effect_process(char *self)
+{
+    float tmp[4];
+    int n;
+    int i;
+
+    n = *(int *)(*(char **)(self + 0x15C) + 0x88);
+    for (i = 0; i < n; i++) {
+        if (isExistEnemyParticle(self, i) == 0) {
+            boss_effect_check_parts(self, i);
+        }
+    }
+    for (i = 0; i < 5; i++) {
+        if (BOSS_EFFECT_PARTS(self, i)->alive == 0) {
+            continue;
+        }
+        if (BOSS_EFFECT_PARTS(self, i)->busy != 0) {
+            bossEffectSetNodePos(self, tmp, BOSS_EFFECT_PARTS(self, i)->id);
+            GatherEffect_SetGoal(*(int *)((char *)(i * 0x20 + BOSS_EFFECT_WORK(self)) + 0x370),
+                                 tmp);
+        }
+        if (BOSS_EFFECT_PARTS(self, i)->timer == 0) {
+            ReviveEnemyParticle(self, BOSS_EFFECT_PARTS(self, i)->id);
+        }
+        if (BOSS_EFFECT_PARTS(self, i)->busy == 0 && BOSS_EFFECT_PARTS(self, i)->timer < 0) {
+            BOSS_EFFECT_PARTS(self, i)->alive = 0;
+        }
+        BOSS_EFFECT_PARTS(self, i)->timer -= 1;
+    }
+}
 extern void *D_00639EA4;
 
 typedef struct {
@@ -188,7 +274,56 @@ end:
 }
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyControl);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyCollision);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyAttack);
+extern void _OrientXZGV(float *dst, float *a, float *b);
+extern void SetMotionDirection(void *self, float *dir);
+extern void ACTSendMailCorrect(void *a0, int a1);
+extern void _ACTWait(int a0);
+extern void ACTSearchEnemy(void *self, int *target, float *buf);
+extern int GetMotionFrameFlag2(void *self);
+extern void SetMotionDirectionWithLimit(void *self, float *buf, float a, float b);
+extern void EnemyAttackCenter(void *self);
+
+/* The actor sub-state's requested motion direction, a 3-float vector at
+   +0x120 (the same slot _ApproachTarget and the brain zero-fills below).
+   Spelling the three stores as struct members rather than `*(float *)`
+   casts is what lets the volatile `a0` home reload hoist above the first
+   of them, as ROM has it (gcc 2.9 alias.c fixed_scalar_and_varying_struct_p:
+   a COMPONENT_REF store is in-struct/varying, a cast store is not). */
+typedef struct {
+    char pad000[0x120];
+    float dir[3];
+} ActSubDir;
+
+void actEnemyAttack(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    int hit = 0;
+    float buf[4];
+    float v[4];
+
+    _ACTWait(2);
+    ACTSearchEnemy((void *)a0, (int *)(sub + 0x188), buf);
+    _OrientXZGV(v, (float *)test_CURRENTROOT((int)D_00639EA4),
+                (float *)test_CURRENTROOT(a0));
+    ((ActSubDir *)sub)->dir[0] = v[0];
+    ((ActSubDir *)sub)->dir[1] = v[1];
+    ((ActSubDir *)sub)->dir[2] = v[2];
+    SetMotionDirection((void *)a0, v);
+    while (1) {
+        if (GetMotionFrameFlag2((void *)a0) != 0 && *(int *)(sub + 0x188) != 0) {
+            SetMotionDirectionWithLimit((void *)a0, buf, 10.0f, 90.0f);
+        }
+        if (*(int *)(sub + 0x2E4) & 0x80) {
+            hit = 1;
+        }
+        if (hit != 0) {
+            ACTSendMailCorrect((void *)a0, 0xCD);
+        }
+        ACTSendMailCorrect((void *)a0, 0xC7);
+        EnemyAttackCenter((void *)a0);
+        _ACTWait(1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyRestart);
 ASM_LIT4_SLOT(D_00638EF8, 0.001f);
 ASM_LIT4_SLOT(D_00638EFC, 0.1f);
@@ -200,16 +335,149 @@ ASM_LIT4_SLOT(D_00638F10, 0.99f);
 ASM_LIT4_SLOT(D_00638F14, 0.1f);
 ASM_LIT4_SLOT(D_00638F18, 0.1f);
 ASM_LIT4_SLOT(D_00638F1C, 0.1f);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", PairSetGeometry);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyForceSwitchToCarry);
+extern int ACTReserveTarget(void *owner, void *self, int pri);
+extern void sceVu0ScaleVector(float *dst, float *src, float k);
+extern void sceVu0AddVector(float *dst, float *a, float *b);
+extern void SetDirectRootPositionNoFitting(int *self, char *spill);
+extern void RotQuaternionY(float *q, int deg);
+extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q,
+                                          float e, float f, float g, float h);
+extern int D_0063B248;
+
+/* PairSetGeometry is a NESTED function in the 2001 source: ROM passes it a
+   static chain in $2 (STATIC_CHAIN_REGNUM) which it spills to 0($sp), and the
+   listing names it PairSetGeometry.229, emitting its body ahead of its parent
+   exactly as gcc 2.9 does for a nested definition. */
+int actEnemyForceSwitchToCarry(void *a0)
+{
+    void PairSetGeometry(void *me, void *pair, float dist)
+    {
+        float p0[4];
+        float p1[4];
+        float dir[4];
+        float ofs[4];
+
+        p0[0] = ((float *)test_CURRENTROOT((int)me))[0];
+        p0[1] = ((float *)test_CURRENTROOT((int)me))[1];
+        p0[2] = ((float *)test_CURRENTROOT((int)me))[2];
+        p1[0] = ((float *)test_CURRENTROOT((int)pair))[0];
+        p1[1] = ((float *)test_CURRENTROOT((int)pair))[1];
+        p1[2] = ((float *)test_CURRENTROOT((int)pair))[2];
+        _OrientXZGV(dir, p1, p0);
+        sceVu0ScaleVector(ofs, dir, dist);
+        sceVu0AddVector(p1, p0, ofs);
+        SetDirectRootPositionNoFitting((int *)pair, (char *)p1);
+        *(float *)(*(char **)((char *)me + 0x164) + 0x120) = dir[0];
+        *(float *)(*(char **)((char *)me + 0x164) + 0x124) = dir[1];
+        *(float *)(*(char **)((char *)me + 0x164) + 0x128) = dir[2];
+        sceVu0ScaleVector((float *)(*(char **)((char *)pair + 0x164) + 0x120), dir, -1.0f);
+        SetMotionDirection(me, (float *)(*(char **)((char *)me + 0x164) + 0x120));
+        SetMotionDirection(pair, (float *)(*(char **)((char *)pair + 0x164) + 0x120));
+    }
+    float q[4];
+    char *sub = *(char **)((char *)a0 + 0x164);
+
+    if (D_00639EA8 == 0) {
+        return 0;
+    }
+    if (ACTReserveTarget(D_00639EA8, a0, 0xFF) == 0) {
+        return 0;
+    }
+    if (*(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) == 0x6F) {
+        return 0;
+    }
+    PairSetGeometry(a0, D_00639EA8, 50.0f);
+    memset(q, 0, 0x10);
+    q[3] = 1.0f;
+    RotQuaternionY(q, -0x8000);
+    SetMotionNodeFixModeParameter(D_00639EA8, a0, 2,
+                                  *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x1F4),
+                                  q, 18.0f, 0.0f, 0.0f, 1.0f);
+    *(int *)(sub + 0x148) = (int)D_00639EA8;
+    *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) = (int)a0;
+    eBrainSendMes((int)a0, 9);
+    eBrainSendMes((int)a0, 7);
+    if ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 2 < *(int *)(sub + 0x10) && D_0063B248 != 0) {
+        *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4D0) = 1;
+        if (D_00639EA4 != 0) {
+            *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E0) =
+                ((float *)test_CURRENTROOT((int)D_00639EA4))[0];
+            *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E4) =
+                ((float *)test_CURRENTROOT((int)D_00639EA4))[1];
+            *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E8) =
+                ((float *)test_CURRENTROOT((int)D_00639EA4))[2];
+        } else {
+            *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E0) =
+                ((float *)test_CURRENTROOT((int)a0))[0];
+            *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E4) =
+                ((float *)test_CURRENTROOT((int)a0))[1];
+            *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E8) =
+                ((float *)test_CURRENTROOT((int)a0))[2];
+        }
+    }
+    return 1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyKidnapEnd);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyKidnapBegin);
 ASM_LIT4_SLOT(D_00638F20, 10000.0f);
 ASM_LIT4_SLOT(D_00638F24, 0.0001f);
 ASM_LIT4_SLOT(D_00638F28, 0.01f);
 ASM_LIT4_SLOT(D_00638F2C, 0.1f);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", MoveChestForCatchBoy);
-ASM_LIT4_SLOT(D_00638F30, 3.1415927f);
+extern void *D_00639EA4;
+extern void *test_CURRENTORIENT(int a0);
+extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
+extern void GetSkeltonPosition(float *dst, char *gobj, int idx);
+extern void _OrientXZGV(float *dst, float *a, float *b);
+extern int _RotyGV(float *a0, void *a1);
+extern void _ApplyRyGV(float *v, float ang);
+extern void sceVu0ScaleVector(float *dst, float *src, float s);
+extern void sceVu0AddVector(float *dst, float *a, float *b);
+extern void debug_NMarker(float *pos, int r, int g, int b, float size);
+
+void MoveChestForCatchBoy(char *self)
+{
+    float p0[4];
+    float p1[4];
+    float sk[4];
+    float ori[4];
+    float d[4];
+    float sc[4];
+    float t;
+    float a;
+    float b;
+    int ang;
+    int ang2;
+
+    *(int *)(*(int *)(self + 0x15C) + 0x550) = 1;
+    *(int *)(*(int *)(self + 0x15C) + 0x380) = 2;
+    GetRootProjectionPosOfGObj(p0, self);
+    GetRootProjectionPosOfGObj(p1, (char *)D_00639EA4);
+    GetSkeltonPosition(sk, self, 1);
+    t = (p0[1] - p1[1]) / 600.0f;
+    t = (t < 0.0f) ? 0.0f : ((1.0f < t) ? 1.0f : t);
+    a = t * 1000.0f + -200.0f;
+    b = t * -400.0f;
+    ori[0] = ((float *)test_CURRENTORIENT((int)self))[0];
+    ori[1] = ((float *)test_CURRENTORIENT((int)self))[1];
+    ori[2] = ((float *)test_CURRENTORIENT((int)self))[2];
+    _OrientXZGV(d, p1, p0);
+    ang = _RotyGV(ori, (void *)d);
+    if (-45 <= ang) {
+        if (45 < ang) {
+            ang2 = 45;
+        } else {
+            ang2 = ang;
+        }
+    } else {
+        ang2 = -45;
+    }
+    _ApplyRyGV(ori, (float)ang2 * 3.1415927f / 180.0f);
+    sceVu0ScaleVector(sc, ori, a);
+    sc[1] = b;
+    sceVu0AddVector((float *)(*(char **)(self + 0x15C) + 0x390), p0, sc);
+    debug_NMarker((float *)(*(char **)(self + 0x15C) + 0x390), 255, 0, 0, 200.0f);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyBodylift);
 extern void *test_CURRENTROOT(int a0);
 extern void *test_CURRENTORIENT(int a0);
@@ -365,6 +633,7 @@ store:
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", BrainMode_Requset);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrainMain);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToGenerator);
+
 extern float _DistGV(void *a, void *b);
 extern void GetRootPosition(float *dst, char *gobj);
 extern float GetEnemyDefDodgeRange(char *self);
@@ -484,8 +753,69 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToBoy);
 ASM_LIT4_SLOT(D_00638F40, 22500.0f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToKidnap);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToGirl);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _ApproachTarget_Boss);
-ASM_LIT4_SLOT(D_00638F44, 160000.0f);
+extern void GetRootMotionOrient(float *out, char *self);
+extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
+/* static inline of the 2001 source: the disc listing attributes rows
+   1643-1660 -- which lie outside every function's own line span -- to the
+   bodies of EnemyUtil_TurnToBoy, _ApproachTarget_Boss and subEnemyCollision
+   alike, so this is a helper defined above them and inlined at each call.
+   Name is descriptive, not recovered. */
+static inline unsigned char enemyCheckTurnAngle(char *self)
+{
+    float mot[4];
+    float cur[4];
+    char *s = *(char **)(self + 0x164);
+    int limit = (*(int *)(s + 0x34) == 3) ? 0x5A : 0x69;
+    int ang;
+    int aang;
+
+    cur[0] = *(float *)(s + 0x120);
+    cur[1] = *(float *)(s + 0x124);
+    cur[2] = *(float *)(s + 0x128);
+    GetRootMotionOrient(mot, self);
+    ang = _RotyGV(mot, cur);
+    aang = ang < 0 ? -ang : ang;
+    if (limit < aang) {
+        *(float *)(s + 0x5C0) = cur[0];
+        *(float *)(s + 0x5C4) = cur[1];
+        *(float *)(s + 0x5C8) = cur[2];
+        if (ang > 0) {
+            ACTSendMailCorrect(self, 0xE8);
+        } else {
+            ACTSendMailCorrect(self, 0xE7);
+        }
+        return 1;
+    } else if (aang < 0xF) {
+        ACTSendMailCorrect(self, 0xF1);
+    }
+    return 0;
+}
+
+int _ApproachTarget_Boss(char *self, void *tgt, void *pos, void *fn, float range,
+                         unsigned char flag)
+{
+    float p0[4];
+    float p1[4];
+    char *sub = *(char **)(self + 0x164);
+
+    for (;;) {
+        GetRootProjectionPosOfGObj(p0, (char *)tgt);
+        GetRootProjectionPosOfGObj(p1, self);
+        if (fn != 0) {
+            ((void (*)(char *, void *, float))fn)(
+                self, tgt,
+                _DistGV(test_CURRENTROOT((int)self), test_CURRENTROOT((int)tgt)));
+        }
+        *(float *)(sub + 0x34C) = 1.0f;
+        _OrientXZGV((float *)pos, p0, p1);
+        if (_DistxzSqGV(p0, p1) < 160000.0f && -50.0f < -(p0[1] - p1[1]) &&
+            p1[1] - p0[1] < 500.0f && enemyCheckTurnAngle(self) == 0 &&
+            *(int *)(sub + 0x34) != 10) {
+            return 1;
+        }
+        _ACTWait(1);
+    }
+}
 extern char D_00553380[];
 extern char D_00553510[];
 extern int D_0063B220;
@@ -561,7 +891,36 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyStart);
 ASM_LIT4_SLOT(D_00638F54, 369.0f);
 ASM_LIT4_SLOT(D_00638F58, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Attack);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Cling);
+extern float _DistSqGV(float *a, float *b);
+
+void subEnemyBrain_Cling(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    int tgt = *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x218);
+    float v[4];
+
+    *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x21C) = tgt;
+    _OrientXZGV(v, (float *)test_CURRENTROOT(tgt), (float *)test_CURRENTROOT(a0));
+    ((ActSubDir *)sub)->dir[0] = v[0];
+    ((ActSubDir *)sub)->dir[1] = v[1];
+    ((ActSubDir *)sub)->dir[2] = v[2];
+    SetMotionDirection((void *)a0, v);
+    ACTSendMailCorrect((void *)a0, 0xC2);
+    _ACTWait(1);
+    _ACTWait(1);
+    while (1) {
+        if (*(int *)(sub + 0x34) == 4 || *(int *)(sub + 0x34) == 0x10) {
+            if (_DistSqGV((float *)test_CURRENTROOT(tgt),
+                          (float *)test_CURRENTROOT(a0)) < 3600.0f) {
+                ACTSendMailCorrect((void *)a0, 0xD0);
+            }
+        } else {
+            _ACTWait(0x1E);
+            _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
+        }
+        _ACTWait(1);
+    }
+}
 void funcEnemyAiGetGirl(int a0) {
     char *sub = *(char **)(a0 + 0x164);
     if (*(int *)(sub + 0x350) == 0) {
@@ -1012,7 +1371,25 @@ void _BrainMode_SetDirect(char *a0, int a1, int *a2) {
         *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x214) = D_0063A7E0;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", EnemyUtil_TurnToBoy);
+extern void GetRootMotionOrient(float *out, char *self);
+extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
+
+void EnemyUtil_TurnToBoy(char *self, int tgt, int smooze)
+{
+    float dir[4];
+    char *sub = *(char **)(self + 0x164);
+
+    _OrientXZGV(dir, (float *)test_CURRENTROOT(tgt), (float *)test_CURRENTROOT((int)self));
+    *(float *)(sub + 0x120) = dir[0];
+    *(float *)(sub + 0x124) = dir[1];
+    *(float *)(sub + 0x128) = dir[2];
+    enemyCheckTurnAngle(self);
+    if (smooze == 0) {
+        SetMotionDirection(self, dir);
+    } else {
+        SetMotionDirectionSmooze(self, dir, (float)smooze);
+    }
+}
 extern int flyMailCore(void *a0);
 
 int FlyMail(void *a0) {
