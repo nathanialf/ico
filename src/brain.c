@@ -106,7 +106,53 @@ void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC
     }
     debug_StdPrintfDummy(D_00554C88);
 }
-INCLUDE_ASM("asm/nonmatchings/src/brain", brainStatusDefaultSet);
+typedef struct {
+    char _0[0x46];
+    unsigned char b46;
+    char _47[1];
+    unsigned int w48;
+} BrainDefEnt;
+
+extern BrainDefEnt D_002C2DC8[];
+
+static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
+{
+    float fc = D_002C1270[k].f28;
+    float f10 = D_002C1270[k].f2C;
+    BrainTarget *t;
+    int i;
+
+    for (i = 0; i < 0x28; i++) {
+        if (b->tgt[i].gobj == 0) {
+            break;
+        }
+    }
+    if (i == 0x28) {
+        return;
+    }
+    t = &b->tgt[i];
+    t->gobj = gobj;
+    t->level = 0.0f;
+    t->f8 = lvl;
+    t->fC = fc;
+    t->f10 = f10;
+    t->b18 = 0;
+    t->b19 = 0;
+    *(int *)&t->b18 &= ~0x10000;
+    brainSetTargetTimer(t);
+}
+
+void brainStatusDefaultSet(Brain *b, int gobj, int idx)
+{
+    BrainDefEnt *d = D_002C2DC8 + idx;
+    int k = d->b46;
+
+    if ((d->w48 >> 20) & 1) {
+        if (D_002C1270[k].w30 != 0) {
+            brainSetTargetSub(b, gobj, (float)D_002C1270[k].w30, k);
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainLevelProcess);
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainGetTarget);
 void brainStatusDel(char *self) {

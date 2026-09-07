@@ -239,7 +239,18 @@ void ExecParticleEffects(void) {
         ExecParticleEffect(i);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DispParticleEffects);
+extern void dispParticleEffect(PEGeo *geo);
+
+void DispParticleEffects(void)
+{
+    int i;
+
+    for (i = 0; i < 0x80; i++) {
+        if (D_00720220[i].used != 0) {
+            dispParticleEffect(D_00720220[i].geo);
+        }
+    }
+}
 void DeleteParticleEffect(int no)
 {
     if (D_00720220[no].used != 0 || D_00720220[no].geo != 0) {
