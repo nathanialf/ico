@@ -450,10 +450,210 @@ void ClipTwinVector(float *out, float *from, float *to, float max)
         out[2] = to[2];
     }
 }
-ASM_LIT4_SLOT(D_00638FD0, 3.1415927f);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetSafePosition);
-ASM_LIT4_SLOT(D_00638FD4, 10000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", Danger_Bomb);
+extern int ACTWayMove_BeginDetail(void *obj, float *b, float *a, void *tgt, int e, int f);
+extern int ACTWayMove_NextDetail(void *obj, char *w, float *a, int d, int e);
+typedef struct {
+    float a[4];        /* 0x00 start point   */
+    float b[4];        /* 0x10 end point     */
+    float pos[4];      /* 0x20 clipped point */
+    char  _30[0x40];
+    float f_70;        /* 0x70 radius/height */
+    char  _74[0x14];
+    int   f_88;        /* 0x88 wall hit      */
+    char  _8c[0x08];
+    int   f_94;        /* 0x94 floor hit     */
+    char  _98[0x28];
+} ClipWork;
+extern void ClipWall(void *);
+extern void ClipWallField(void *);
+extern void ClipFloor(void *);
+
+/* INTERIM: ACTCheckCollis_SAFE is `inline` in the 2001 source -- the PAL
+ * listing attributes girl_brain_main.c.inc:2868-2909 both to its out-of-line
+ * copy (this TU's deferred-inline tail, ROM 0x0017C6D0, still spelled as a
+ * plain definition further down) and to the four Danger_* GetSafePosition
+ * bodies that inline it.  Marking the real definition `inline` would move its
+ * out-of-line copy past the tail members that are still INCLUDE_ASM, so the
+ * callers above it use this identical static-inline stand-in.  Delete it and
+ * mark the real definition `inline` once the tail is complete. */
+static inline int ACTCheckCollis_SAFE_inl(float height, float *p0, float *p1, void *actor, float *posout, int radius)
+{
+    ClipWork work;
+    float tmp[4];
+    int flag;
+    int rv;
+
+    rv = 1;
+    flag = actor ? *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) : 0;
+
+    work.f_70 = (float)radius;
+    work.a[0] = p0[0];
+    work.a[1] = p0[1];
+    work.a[2] = p0[2];
+    work.b[0] = p1[0];
+    work.b[2] = p1[2];
+    work.b[1] = p0[1];
+
+    tmp[0] = p1[0];
+    tmp[1] = p0[1];
+    tmp[2] = p1[2];
+
+    if (flag != 0) {
+        *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 0;
+    }
+    ClipWall(&work);
+    if (work.f_88 == 0) {
+        ClipWallField(&work);
+        if (work.f_88 == 0) goto no_wall;
+    }
+    tmp[0] = work.pos[0];
+    tmp[1] = work.pos[1];
+    tmp[2] = work.pos[2];
+no_wall:
+    work.a[0] = tmp[0];
+    work.a[1] = tmp[1];
+    work.a[2] = tmp[2];
+    work.b[0] = tmp[0];
+    work.b[2] = tmp[2];
+    work.b[1] = tmp[1] + height;
+    ClipFloor(&work);
+    if (work.f_94 == 0) {
+        rv = 0;
+    } else {
+        work.pos[1] -= 10.0f;
+    }
+    if (posout != 0) {
+        posout[0] = work.pos[0];
+        posout[1] = work.pos[1];
+        posout[2] = work.pos[2];
+    }
+    if (flag != 0) {
+        *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 1;
+    }
+    return rv;
+}
+extern void _ApplyRyGV(float *v, float ang);
+extern void sceVu0AddVector(float *dst, float *a, float *b);
+extern float _DistSqGV(void *a, void *b);
+extern float _DistxzSqGV(void *a, void *b);
+extern void _OrientXZGV(void *out, void *a, void *b);
+extern void _ACTCharStatus_Set(void *obj, int id, float v, int flag);
+extern void *D_006C1E44[];
+
+static void Danger_Bomb(void *self)
+{
+    /* girl_brain_main.c.inc:2942 -- a GNU nested function: ROM sets the static
+     * chain with `daddu $2,$29,$0` at the call and the callee homes it with
+     * `sw $2,0($sp)`.  Each Danger_* parent carries its own copy (the listing
+     * names them GetSafePosition.357/.364/.371/.379).  The float radius is the
+     * FIRST parameter (ee-gcc still passes it in $f12 with the four pointers in
+     * $a0-$a3), and the last parameter -- the boy position the callers hand in
+     * and this copy never reads -- is reused as the collision flag. */
+    int GetSafePosition(float rad, float *dst, float *center, float *cur, int ok)
+    {
+        float dir[4];
+        float pos[4];
+        float best;
+        float d;
+        int found;
+        int i;
+
+        best = 0.0f;
+        found = 0;
+        for (i = 0; i < 8; i++) {
+            memset(dir, 0, 0x10); dir[2] = rad;
+            _ApplyRyGV(dir, (float)(i * 45 - 180) * 3.1415927f / 180.0f);
+            sceVu0AddVector(pos, center, dir);
+            ok = ACTCheckCollis_SAFE_inl(200.0f, center, pos, 0, pos, 40);
+            if (ok) {
+                d = _DistGV(center, pos);
+                if (best < d) {
+                    best = d;
+                    dst[0] = pos[0];
+                    dst[1] = pos[1];
+                    dst[2] = pos[2];
+                    found = 1;
+                }
+            }
+        }
+        if (found && _DistSqGV(dst, center) < _DistSqGV(cur, center)) {
+            dst[0] = cur[0];
+            dst[1] = cur[1];
+            dst[2] = cur[2];
+        }
+        return found;
+    }
+    float goal[4];
+    float girl[4];
+    float obj[4];
+    float base[4];
+    float tmp[4];
+    float now[4];
+    float dir[4];
+    char *sub;
+    void *bomb;
+    long long f;
+    unsigned char r;
+    unsigned char r2;
+    long long p;
+    int turn;
+
+    sub = *(char **)((char *)self + 0x164);
+    bomb = D_006C1E44[0];
+retry:
+    {
+        GetRootProjectionPosOfGObj(goal, bomb);
+        GetRootProjectionPosOfGObj(girl, self);
+        obj[0] = ((float *)test_CURRENTROOT(bomb))[0];
+        obj[1] = ((float *)test_CURRENTROOT(bomb))[1];
+        obj[2] = ((float *)test_CURRENTROOT(bomb))[2];
+        GetRootProjectionPosOfGObj(base, bomb);
+        _ACTWait(1);
+        GetSafePosition(500.0f, goal, (float *)test_CURRENTROOT(bomb), girl,
+                        (int)test_CURRENTROOT(D_00639EA4));
+        _ACTWait(1);
+        p = ACTWayMove_BeginDetail(self, girl, goal, 0, 0, 0);
+        r = p;
+        if (!r) {
+            _ACTWait(0);
+        }
+        _ACTWait(1);
+        turn = 0;
+        while (1) {
+            _ACTCharStatus_Set(self, 11, -1.0f, (int)bomb);
+            GetRootProjectionPosOfGObj(tmp, bomb);
+            GetRootProjectionPosOfGObj(girl, self);
+            GetRootProjectionPosOfGObj(now, bomb);
+            if (!(_DistxzSqGV(now, base) < 10000.0f)) {
+                goto retry;
+            }
+            p = ACTWayMove_NextDetail(self, sub + 0x120, goal, 0, 0);
+            r2 = p;
+            f = *(long long *)(sub + 0x3F0);
+            if (((int)(f >> 16) & 1)) {
+                turn = 0;
+            }
+            if (!r2) {
+                turn = 1;
+            } else if (((int)(f >> 17) & 1)) {
+                turn = 1;
+            } else if (*(float *)(sub + 0x3F8) < 50.0f) {
+                turn = 1;
+            } else if (turn == 0) {
+                *(float *)(sub + 0x120) = *(float *)(sub + 0x3E0);
+                *(float *)(sub + 0x124) = *(float *)(sub + 0x3E4);
+                *(float *)(sub + 0x128) = *(float *)(sub + 0x3E8);
+                *(float *)(sub + 0x34C) = 1.0f;
+            }
+            if (turn) {
+                *(float *)(sub + 0x34C) = 0.0f;
+                _OrientXZGV(dir, obj, test_CURRENTROOT(self));
+                girlBrainHide_GoalTurn(dir, 1);
+            }
+            _ACTWait(1);
+        }
+    }
+}
 ASM_LIT4_SLOT(D_00638FD8, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001762A0);
 ASM_LIT4_SLOT(D_00638FDC, 10000.0f);
@@ -461,11 +661,98 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", Danger_Gondola);
 ASM_LIT4_SLOT(D_00638FE0, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176838);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", Danger_Box);
-ASM_LIT4_SLOT(D_00638FE4, 3.1415927f);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00177098);
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", Danger_Rotobject);
-extern int ACTWayMove_BeginDetail(void *obj, float *b, float *a, void *tgt, int e, int f);
-extern long long ACTWayMove_NextDetail(void *obj, char *w, float *a, int d, int e);
+
+static void Danger_Rotobject(void *self)
+{
+    /* girl_brain_main.c.inc -- a GNU nested function (the listing's
+     * GetSafePosition.379); see Danger_Bomb for the parameter-order note. */
+    int GetSafePosition(float rad, float *dst, float *center, float *girl, int ok)
+    {
+        float boy[4];
+        float dir[4];
+        float pos[4];
+        float from[4];
+        float best;
+        float d;
+        int found;
+        int i;
+
+        boy[0] = ((float *)test_CURRENTROOT(D_00639EA4))[0];
+        boy[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+        boy[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+        best = 0.0f;
+        found = 0;
+        for (i = 0; i < 4; i++) {
+            memset(dir, 0, 0x10); dir[2] = rad;
+            _ApplyRyGV(dir, (float)(i * 90 - 135) * 3.1415927f / 180.0f);
+            sceVu0AddVector(pos, center, dir);
+            pos[1] = girl[1];
+            from[0] = girl[0];
+            from[1] = girl[1] - 70.0f;
+            from[2] = girl[2];
+            ok = ACTCheckCollis_SAFE_inl(200.0f, from, pos, 0, pos, 30);
+            if (ok) {
+                d = _DistxzSqGV(boy, pos);
+                if (best < d) {
+                    best = d;
+                    dst[0] = pos[0];
+                    dst[1] = pos[1];
+                    dst[2] = pos[2];
+                    found = 1;
+                }
+            }
+        }
+        return found;
+    }
+    float goal[4];
+    float girl[4];
+    float objp[4];
+    float base[4];
+    float tmp1[4];
+    float tmp2[4];
+    float dir[4];
+    char *sub;
+    void *obj;
+    int turn;
+
+    sub = *(char **)((char *)self + 0x164);
+    obj = D_006C1E44[0];
+    GetRootProjectionPosOfGObj(goal, obj);
+    GetRootProjectionPosOfGObj(girl, self);
+    objp[0] = ((float *)test_CURRENTROOT(obj))[0];
+    objp[1] = ((float *)test_CURRENTROOT(obj))[1];
+    objp[2] = ((float *)test_CURRENTROOT(obj))[2];
+    GetRootProjectionPosOfGObj(base, obj);
+    _ACTWait(1);
+    if (!GetSafePosition(300.0f, goal, (float *)test_CURRENTROOT(obj), girl,
+                         (int)test_CURRENTROOT(D_00639EA4))) {
+        while (1) {
+            *(float *)(sub + 0x34C) = 0.0f;
+            _ACTWait(1);
+        }
+    }
+    turn = 0;
+    _ACTWait(1);
+    while (1) {
+        _ACTCharStatus_Set(self, 11, -1.0f, (int)obj);
+        GetRootProjectionPosOfGObj(tmp1, obj);
+        GetRootProjectionPosOfGObj(girl, self);
+        GetRootProjectionPosOfGObj(tmp2, obj);
+        if (_DistxzSqGV(girl, goal) < 3600.0f) {
+            turn = 1;
+        } else {
+            _OrientXZGV(sub + 0x120, goal, girl);
+            *(float *)(sub + 0x34C) = 1.0f;
+        }
+        if (turn) {
+            *(float *)(sub + 0x34C) = 0.0f;
+            _OrientXZGV(dir, objp, test_CURRENTROOT(self));
+            girlBrainHide_GoalTurn(dir, 0);
+        }
+        _ACTWait(1);
+    }
+}
+
 extern void debug_NMarker(void *pos, int r, int g, int b, float size);
 extern int ACTWay_IsMustWalkFromWay(void *obj);
 
@@ -1776,21 +2063,6 @@ int enemy_list_compare(int a0, int a1)
     float diff = *(float *)(a0 + 0x20) - *(float *)(a1 + 0x20);
     return (int)diff;
 }
-typedef struct {
-    float a[4];        /* 0x00 start point   */
-    float b[4];        /* 0x10 end point     */
-    float pos[4];      /* 0x20 clipped point */
-    char  _30[0x40];
-    float f_70;        /* 0x70 radius/height */
-    char  _74[0x14];
-    int   f_88;        /* 0x88 wall hit      */
-    char  _8c[0x08];
-    int   f_94;        /* 0x94 floor hit     */
-    char  _98[0x28];
-} ClipWork;
-extern void ClipWall(void *);
-extern void ClipWallField(void *);
-extern void ClipFloor(void *);
 
 int ACTCheckCollis_SAFE(float height, float *p0, float *p1, void *actor, float *posout, int radius)
 {
