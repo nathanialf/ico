@@ -430,7 +430,40 @@ static inline void rotTransPers(void *src)
     VU0_V2OP(vftoi4.xyz, 11, 10);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_DrawPolyF4);
+/* One vertex through the VU0 pipeline into a caller-supplied projected-vertex
+   slot, answering whether the result is on screen.  The destination is a
+   parameter, so its address is materialised at the call site — which is why
+   each `addiu aN,sp,K` sits in the previous visibility test's delay slot.
+   The first vertex lands at frame offset 0, where the address folds to $sp
+   itself and no address register is needed, so it is written out here. */
+static inline int projectVertex(int *d, void *src)
+{
+    rotTransPers(src);
+    VU0_LSV_R(sqc2, 11, 0x0, d);
+    return isInScreen(d);
+}
+
+void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3,
+                    int r, int g, int b, int a, int prim)
+{
+    int q[4][4];
+    int i;
+
+    setGsReg(0x00, ((long long)prim << 6) | 0x104);
+    setGsReg(0x01, (long long)r | ((long long)g << 8) | ((long long)b << 16)
+                   | ((long long)a << 24) | (0xFE00LL << 46));
+    rotTransPers(p0);
+    VU0_LSV_R(sqc2, 11, 0x0, q[0]);
+    if (!isInScreen(q[0])) return;
+    if (!projectVertex(q[1], p1)) return;
+    if (!projectVertex(q[2], p2)) return;
+    if (!projectVertex(q[3], p3)) return;
+    for (i = 0; i < 4; i++) {
+        int *s = q[i];
+
+        setGsReg(0x05, GIF_XY0(s[0], s[1], (long long)s[2]));
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_DrawStripF);
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_DrawStripFST);
 void gif_DrawStripG(void *v, void *col, int n, int prim)
