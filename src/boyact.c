@@ -9,7 +9,63 @@ typedef struct { char pad[4]; float f4; } CCPResult;
 ASM_LIT4_SLOT(D_00638D30, 0.8f);
 ASM_LIT4_SLOT(D_00638D34, 4.9e+03f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", findChainInJump);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", CorrectOrient_RopeCliff);
+extern void GetRootProjectionPosOfGObj(void *out, void *obj);
+extern void *isysGObjSearchFromObjKindID_begin(int id);
+extern void *isysGObjSearchFromObjKindID_next(void *p);
+extern void _OrientXZGV(void *dst, void *a, void *b);
+extern void GetRootPosition(void *out, void *obj);
+extern float _DistxzSqGV(void *a, void *b);
+extern int _AbsRotyGV(void *a, void *b);
+extern void GetChainClimbOrient(void *dst, void *obj);
+
+int CorrectOrient_RopeCliff(float *out, void *gobj)
+{
+    float pos[4];
+    float rpos[4];
+    float orient[4];
+    float climb[4];
+    char *sub = *(char **)((char *)gobj + 0x164);
+    void *p;
+    int r;
+    int a;
+    int b;
+    float dy;
+
+    switch (*(int *)(sub + 0x34)) {
+    case 3:
+        r = 0x78;
+        break;
+    case 2:
+        r = 0x5A;
+        break;
+    default:
+        return 0;
+    }
+    GetRootProjectionPosOfGObj(pos, gobj);
+    p = isysGObjSearchFromObjKindID_begin(0x15);
+    while (p != 0) {
+        if (*(int *)((char *)p + 0x16C) != 0) {
+            GetRootPosition(rpos, p);
+            if (_DistxzSqGV(pos, rpos) < (float)(r * r)) {
+                dy = pos[1] - rpos[1];
+                if ((dy < 0.0f ? -dy : dy) < 70.0f) {
+                    _OrientXZGV(orient, rpos, pos);
+                    a = _AbsRotyGV(sub + 0x120, orient);
+                    GetChainClimbOrient(climb, p);
+                    b = _AbsRotyGV(sub + 0x120, climb);
+                    if (a < 0x4B && b < 0x4B) {
+                        out[0] = orient[0];
+                        out[1] = orient[1];
+                        out[2] = orient[2];
+                        return 1;
+                    }
+                }
+            }
+        }
+        p = isysGObjSearchFromObjKindID_next(p);
+    }
+    return 0;
+}
 extern void debug_StdPrintfDummy();
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -56,7 +112,69 @@ void motBoyHand50(volatile int a0)
 INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand100);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand200);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", handoff_heroin);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", CheckCollisionAttr);
+extern long long D_006C0AD0[];
+extern void *D_00639EA4;
+extern float _ACTGame_GetParamF(int idx);
+extern int CheckFloorAttribute(void *self, int id);
+extern int ACTGame_FLAG_TETSUNAGI(void);
+extern int IsGirlStatusEscortEnable(int stage, int id);
+extern void RequestStageChange(int id, void *boy, void *girl, float a, float b);
+extern int stage_no;
+extern int D_00639EB4;
+extern int D_0063AA08;
+extern int D_00639EBC;
+extern int D_006C0AE0[];
+
+void CheckCollisionAttr(void *self)
+{
+    char *stage = *(char **)((char *)self + 0x15C);
+    int i;
+    int flag = 1;
+    int esc = 0;
+
+    if (_ACTGame_GetParamF(2) < *(float *)(stage + 0x560)) {
+        return;
+    }
+    if (*(int *)(*(char **)((char *)self + 0x164) + 0x34) == 0x16) {
+        return;
+    }
+    if (D_00639EB4 != 0) {
+        return;
+    }
+    if (D_0063AA08 != 0) {
+        return;
+    }
+    for (i = 1; i < 0x10; i++) {
+        if (CheckFloorAttribute(self, i)) {
+            int *w = (int *)D_006C0AD0;
+
+            flag = 0;
+            if (w[4] < 0) {
+                w[4] = i;
+                return;
+            }
+            if (w[4] != i) {
+                if (ACTGame_FLAG_TETSUNAGI()) {
+                    esc = 1;
+                } else if (D_00639EA8 != 0) {
+                    if (IsGirlStatusEscortEnable(stage_no, i)) {
+                        esc = 1;
+                    }
+                }
+                if (esc) {
+                    D_006C0AD0[1] |= 0x800000000LL;
+                    RequestStageChange(i, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
+                } else {
+                    RequestStageChange(i, D_00639EA4, 0, 1.0f, 8.0f);
+                }
+                D_00639EBC = 1;
+            }
+        }
+    }
+    if (flag) {
+        D_006C0AE0[0] = 0xFF;
+    }
+}
 typedef struct {
     int id;                     /* 0x00 */
     float f04;
@@ -199,7 +317,55 @@ void E3_StageStartBoy(void *self)
     scpPlayEnd(self);
     _ACTWait(w3);
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", GetChainSlope);
+extern void GetChainPendulum(void *chain, float *a, float *b, float *c);
+extern int D_0028F4C0[];
+extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, int a1, float f);
+extern int *D_004EB758[];
+extern int D_0063B13C;
+extern char D_00552818[];
+extern char D_00552830[];
+extern int fptodp(float v);
+extern void debug_Printf(int x, int y, unsigned int color, char *fmt, ...);
+
+int GetChainSlope(void)
+{
+    float a;
+    float b;
+    float c;
+    float ratio;
+    char *g = (char *)D_00639EA4;
+    int up;
+    int down;
+
+    GetChainPendulum(*(void **)(*(char **)(g + 0x164) + 0x190), &a, &b, &c);
+    if (b < 5.0f) {
+        return 0;
+    }
+    ratio = (float)*D_004EB758[*(int *)(*(char **)(g + 0x15C) + 0x4A0)] / (c * 0.5f);
+    ACTGame_SetMotionPlaySpeedRatio_Reserve(g, 7,
+                                            ratio
+                                            * (float)((60 - D_0028F4C0[0] * 10)
+                                                      / D_0028F4C0[1]) / 30.0f);
+    if (D_0063B13C & 1) {
+        debug_Printf(10, 0x8C, 0x0FFFFFFF, D_00552818, fptodp(ratio), fptodp(c));
+    }
+    if (D_0063B13C & 1) {
+        debug_Printf(10, 0x96, 0x0FFFFFFF, D_00552830,
+                     fptodp(*(float *)(*(char **)(g + 0x15C) + 0x4AC)),
+                     fptodp((float)*D_004EB758[*(int *)(*(char **)(g + 0x15C) + 0x4A0)]));
+    }
+    if ((b < 0.0f ? -b : b) < 30.0f) {
+        up = 1;
+        down = 2;
+    } else {
+        up = 3;
+        down = 4;
+    }
+    if (a < 0.0f) {
+        return up;
+    }
+    return down;
+}
 ASM_LIT4_SLOT(D_00638D3C, 8.5e+02f);
 ASM_LIT4_SLOT(D_00638D40, 0.1f);
 ASM_LIT4_SLOT(D_00638D44, 3.1415927f);
@@ -342,8 +508,43 @@ void PutWeapon(void)
         UpdateRootMatrix(*(void **)(p + 0x20));
     }
 }
-ASM_LIT4_SLOT(D_00638DF4, 0.05f);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", OtherStageGirlPinchCamera_After);
+extern float D_006C0A80[];
+extern float D_006C0A90[];
+extern float D_006C0AA0[];
+extern int D_0028F4C0[];
+extern CCPResult *test_CURRENTROOT(void *a0);
+extern float _ACTGame_GetParamF(int idx);
+extern void GetOtherStageGirlOrient(float *out, void *cam);
+extern float *GetCurrentCameraSet2(void);
+extern void sceVu0ScaleVector(void *dst, void *src, float s);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4,
+                          float f5, float f6, unsigned char a7);
+
+void OtherStageGirlPinchCamera_After(float t)
+{
+    float buf[4];
+
+    D_006C0A80[0] = ((float *)test_CURRENTROOT(D_00639EA4))[0];
+    D_006C0A80[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+    D_006C0A80[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+    if (_ACTGame_GetParamF(0xE) * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])
+        / 60.0f <= t) {
+        D_006C0AA0[0] = ((float *)test_CURRENTROOT(D_00639EA4))[0];
+        D_006C0AA0[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+        D_006C0AA0[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+        GetOtherStageGirlOrient(buf, GetCurrentCameraSet2());
+        sceVu0ScaleVector(buf, buf, 500.0f);
+        sceVu0AddVector(D_006C0A90, GetCurrentCameraSet2(), buf);
+    } else {
+        /* a2 is the gobj the insert-camera record tracks, not a frame count. */
+        PrivInsCamSet((float *)test_CURRENTROOT(D_00639EA4), D_006C0A90, (int)D_00639EA4,
+                      (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 100 / 60,
+                      (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 45 / 60,
+                      0.05f, 0.25f, 0);
+        *(int *)(*(char **)(*(char **)((char *)D_00639EA4 + 0x164) + 0x688) + 0x4B0) = 0;
+    }
+}
 extern void BoyBgaManager(void *self, int id, void *p);
 
 void ACTDispLwsBoyStonize_InQueenStage(void *self)
@@ -354,14 +555,141 @@ void ACTDispLwsBoyStonize_InQueenStage(void *self)
     BoyBgaManager(self, 0x1E5, *(char **)(*(char **)((char *)self + 0x164) + 0x680) + 0x2AC);
     BoyBgaManager(self, 0x1E6, *(char **)(*(char **)((char *)self + 0x164) + 0x680) + 0x2A8);
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", PrivInsCamProcess);
+typedef struct {
+    float pos[3];           /* 0x00 */
+    float unk0C;
+    float tgt[3];           /* 0x10 */
+    float unk1C;
+    int unk20;              /* 0x20 */
+    int unk24;
+    int unk28;
+    float unk2C;
+    float unk30;            /* 0x30 */
+    unsigned char unk34;    /* 0x34 */
+    unsigned char pad35[3];
+    int cnt;                /* 0x38 */
+    int on;                 /* 0x3C */
+    float cur[4];           /* 0x40 */
+} PrivInsCam;
+
+extern PrivInsCam D_006C0B50;
+
+extern void _InterGV(void *dst, void *a, void *b, float t, float u);
+extern float *GetCurrentCameraSet2(void);
+extern void InsertCamera_SetDetail(float *cam, float *p, int a2, int a3, int a4, int a5,
+                                   float f);
+extern CCPResult *test_CURRENTROOT(void *a0);
+
+void PrivInsCamProcess(void)
+{
+    float p[4];
+
+    switch (D_006C0B50.on) {
+    case 1:
+        D_006C0B50.cur[0] = D_006C0B50.pos[0];
+        D_006C0B50.cur[1] = D_006C0B50.pos[1];
+        D_006C0B50.cur[2] = D_006C0B50.pos[2];
+        D_006C0B50.cnt = D_006C0B50.unk24;
+        D_006C0B50.on = 2;
+        break;
+    case 2:
+        _InterGV(D_006C0B50.cur, D_006C0B50.tgt, D_006C0B50.cur, 1.0f, D_006C0B50.unk2C);
+        InsertCamera_SetDetail(GetCurrentCameraSet2(), D_006C0B50.cur, 5, 1, 2, 0,
+                               D_006C0B50.unk30);
+        if (--D_006C0B50.cnt <= 0) {
+            D_006C0B50.on = 3;
+        }
+        break;
+    case 3:
+        D_006C0B50.tgt[0] = D_006C0B50.cur[0];
+        D_006C0B50.tgt[1] = D_006C0B50.cur[1];
+        D_006C0B50.tgt[2] = D_006C0B50.cur[2];
+        D_006C0B50.cnt = D_006C0B50.unk28;
+        D_006C0B50.on = 4;
+        break;
+    case 4:
+        if (D_006C0B50.unk20 != 0) {
+            p[0] = ((float *)test_CURRENTROOT((void *)D_006C0B50.unk20))[0];
+            p[1] = ((float *)test_CURRENTROOT((void *)D_006C0B50.unk20))[1];
+            p[2] = ((float *)test_CURRENTROOT((void *)D_006C0B50.unk20))[2];
+        } else {
+            p[0] = D_006C0B50.pos[0];
+            p[1] = D_006C0B50.pos[1];
+            p[2] = D_006C0B50.pos[2];
+        }
+        _InterGV(D_006C0B50.cur, p, D_006C0B50.tgt, (float)D_006C0B50.cnt,
+                 (float)(D_006C0B50.unk28 - D_006C0B50.cnt));
+        InsertCamera_SetDetail(GetCurrentCameraSet2(), D_006C0B50.cur, 2, 1, 0, 0,
+                               D_006C0B50.unk30);
+        if (--D_006C0B50.cnt <= 0) {
+            D_006C0B50.on = 0;
+        }
+        break;
+    }
+}
 ASM_LIT4_SLOT(D_00638DF8, 0.1f);
 ASM_LIT4_SLOT(D_00638DFC, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", subBoyCollision);
 ASM_LIT4_SLOT(D_00638E00, 4e+04f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySwim);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyWalk);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyRun);
+extern void *D_00639EA4;
+extern int ACTGame_FLAG_TETSUNAGI(void);
+extern void GetSkeltonPosition(float *out, void *gobj, int node);
+extern float _DistGV(CCPResult *a, CCPResult *b);
+extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, int a1, float f);
+extern int D_0028F4C0[];
+
+void actBoyWalk(volatile int a0)
+{
+    char *sub = *(char **)((char *)a0 + 0x164);
+
+    while (1) {
+        if (ACTGame_FLAG_TETSUNAGI()) {
+            float gp[4];
+            float bp[4];
+            float d;
+            float ratio;
+
+            GetSkeltonPosition(bp, D_00639EA4, 2);
+            GetSkeltonPosition(gp, D_00639EA8, 0x12);
+            d = _DistGV((CCPResult *)gp, (CCPResult *)bp);
+            if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 100 / 60 < *(int *)(sub + 0x4C)
+                && 80.0f < d) {
+                d = (d - 80.0f) / 10.0f;
+                d = d < 0.0f ? 0.0f : (1.0f < d ? 1.0f : d);
+                ratio = 0.9 - d * 0.2;
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, 2, ratio);
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+void actBoyRun(volatile int a0)
+{
+    char *sub = *(char **)((char *)a0 + 0x164);
+
+    while (1) {
+        if (ACTGame_FLAG_TETSUNAGI()) {
+            float gp[4];
+            float bp[4];
+            float d;
+            float ratio;
+
+            GetSkeltonPosition(bp, D_00639EA4, 2);
+            GetSkeltonPosition(gp, D_00639EA8, 0x12);
+            d = _DistGV((CCPResult *)gp, (CCPResult *)bp);
+            if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 100 / 60 < *(int *)(sub + 0x4C)
+                && 90.0f < d) {
+                d = (d - 90.0f) / 10.0f;
+                d = d < 0.0f ? 0.0f : (1.0f < d ? 1.0f : d);
+                ratio = 0.7 - d * 0.2;
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, 2, ratio);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyAttack);
 extern CCPResult *test_CURRENTROOT(void *a0);
 extern void *test_CURRENTORIENT(void *a0);
@@ -403,7 +731,66 @@ void actBoyTakeWeaponReady(volatile int a0)
         _ACTWait(1);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyTakeWeapon);
+extern void ExecuteSEPackage(int a0, int a1);
+extern void afterBoyTakeWeapon(volatile int a0);
+extern void PickupWeapon(void *w, void *boy, int kind);
+extern void ReleaseWeapon(void *w);
+extern void PutWeapon(void);
+
+/* sub->0x14 is the actor's "after" callback slot: actBoyTakeWeapon arms it with
+   afterBoyTakeWeapon and calls it through the slot once the motion frame passes
+   the swap point, so it is written and read as a function pointer. */
+typedef void (*BoyAfterFunc)(volatile int a0);
+
+void actBoyTakeWeapon(volatile int a0)
+{
+    float p[4];
+    float dir[4];
+    char *sub = *(char **)((char *)a0 + 0x164);
+    int picked = 0;
+    int put = 0;
+
+    InitSwapWeapon((void *)a0);
+    *(BoyAfterFunc *)(sub + 0x14) = afterBoyTakeWeapon;
+    p[0] = ((float *)test_CURRENTROOT(BOYINFO.nextWeapon))[0];
+    p[1] = ((float *)test_CURRENTROOT(BOYINFO.nextWeapon))[1];
+    p[2] = ((float *)test_CURRENTROOT(BOYINFO.nextWeapon))[2];
+    _OrientXZGV(dir, p, test_CURRENTROOT((void *)a0));
+    SetMotionDirection((void *)a0, dir);
+    while (1) {
+        if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x4A0) == 0xE6) {
+            if (15.0f < *(float *)(*(char **)((char *)a0 + 0x15C) + 0x4AC)
+                && *(float *)(*(char **)((char *)a0 + 0x15C) + 0x4AC) < 48.0f
+                && !picked) {
+                PickupWeapon(BOYINFO.nextWeapon, (void *)a0, 6);
+                picked = 1;
+            }
+            if (30.0f < *(float *)(*(char **)((char *)a0 + 0x15C) + 0x4AC) && !put) {
+                if (BOYINFO.weapon != 0) {
+                    ReleaseWeapon(BOYINFO.weapon);
+                    ExecuteSEPackage((int)BOYINFO.weapon, 0x50);
+                }
+                PutWeapon();
+                put = 1;
+            }
+            if (48.0f < *(float *)(*(char **)((char *)a0 + 0x15C) + 0x4AC)) {
+                if (*(BoyAfterFunc *)(sub + 0x14) != 0) {
+                    (*(BoyAfterFunc *)(sub + 0x14))(a0);
+                    *(BoyAfterFunc *)(sub + 0x14) = 0;
+                }
+            }
+        } else {
+            if (16.0f < *(float *)(*(char **)((char *)a0 + 0x15C) + 0x4AC)) {
+                if (*(BoyAfterFunc *)(sub + 0x14) != 0) {
+                    (*(BoyAfterFunc *)(sub + 0x14))(a0);
+                    *(BoyAfterFunc *)(sub + 0x14) = 0;
+                }
+            }
+        }
+        ACTSendMailCorrect(a0, 0xC7);
+        _ACTWait(1);
+    }
+}
 extern void ACTAdjustPlane(int a0, void *p);
 extern void GetOrientOfWall(void *out, void *wall, void *pos);
 extern int CompareAttribute(int attr, int mask);
@@ -556,7 +943,78 @@ ASM_LIT4_SLOT(D_00638E24, 9e+04f);
 ASM_LIT4_SLOT(D_00638E28, 1e+04f);
 ASM_LIT4_SLOT(D_00638E2C, 7.84e+04f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyDitch3mReady);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyRescueGirlBhang);
+extern char D_0055FFA8[];
+extern void afterBoyRescueGirlBhang(volatile int a0);
+extern void ACTGame_ConnectHand(void);
+extern void _MoveGV(float *dst, float *from, float *to, float d);
+extern void SetRootPosition(void *self, float *p);
+extern CCPResult *test_CURRENTROOT(void *a0);
+extern int D_0028F4C0[];
+
+void actBoyRescueGirlBhang(volatile int a0)
+{
+    float tgt[4];
+    float mv[4];
+    float boy[4];
+    float girl[4];
+    char *sub = *(char **)((char *)a0 + 0x164);
+    int mode;
+    int connect = 1;
+
+    *(void **)(sub + 0x18) = (void *)afterBoyRescueGirlBhang;
+    while (1) {
+        mode = 0;
+        switch (*(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x34)) {
+        case 0x1C:
+            mode = 1;
+            break;
+        case 0x1D:
+            mode = 2;
+            if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2 < *(int *)(sub + 0x4C)) {
+                if (connect) {
+                    ACTGame_ConnectHand();
+                    connect = 0;
+                }
+            }
+            break;
+        }
+        if (mode != 0) {
+            if (*(int *)(sub + 0x4C) < 0xA) {
+                boy[0] = ((float *)test_CURRENTROOT(D_00639EA4))[0];
+                boy[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+                boy[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+                girl[0] = ((float *)test_CURRENTROOT(D_00639EA8))[0];
+                girl[1] = ((float *)test_CURRENTROOT(D_00639EA8))[1];
+                girl[2] = ((float *)test_CURRENTROOT(D_00639EA8))[2];
+                tgt[0] = girl[0];
+                tgt[2] = girl[2];
+                tgt[1] = boy[1];
+                _MoveGV(mv, boy, tgt, 5.0f);
+                SetRootPosition((void *)a0, mv);
+            }
+        }
+        if (*(int *)(*(int *)(*(char **)((char *)a0 + 0x15C) + 0x4A0) * 0x194
+                     + D_0055FFA8) == 1) {
+            if (mode == 1) {
+                ACTSendMailCorrect(a0, 0x15B);
+                if (D_00639EA8 != 0) {
+                    iosOmSendMail(D_00639EA8, 0x51, D_0063A61C);
+                }
+                *(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x44) = 0x66;
+            }
+            if (mode == 2) {
+                ACTSendMailCorrect(a0, 0x15B);
+                if (D_00639EA8 != 0) {
+                    iosOmSendMail(D_00639EA8, 0x40, D_0063A61C);
+                }
+            }
+        }
+        if (mode == 0) {
+            ACTSendMailCorrect(a0, 0xC7);
+        }
+        _ACTWait(1);
+    }
+}
 extern float _ACTGame_GetParamF(int idx);
 extern void ExecuteSEPackage(int a0, int a1);
 extern void GetOtherStageGirlOrient(float *out, void *cam);
@@ -989,23 +1447,6 @@ void GetKidnapInfo(int *a0, int *a1) {
     *a0 = D_006C0B30[5];
     *a1 = D_006C0B30[6];
 }
-typedef struct {
-    float pos[3];           /* 0x00 */
-    float unk0C;
-    float tgt[3];           /* 0x10 */
-    float unk1C;
-    int unk20;              /* 0x20 */
-    int unk24;
-    int unk28;
-    float unk2C;
-    float unk30;
-    unsigned char unk34;    /* 0x34 */
-    unsigned char pad35[7];
-    int on;                 /* 0x3C */
-} PrivInsCam;
-
-extern PrivInsCam D_006C0B50;
-
 void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, float f5, float f6, unsigned char a7)
 {
     D_006C0B50.pos[0] = pos[0];

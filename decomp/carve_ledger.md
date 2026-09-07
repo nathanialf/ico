@@ -1002,6 +1002,12 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
 
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
+- `[0x452B70, .rodata, src/boyact]` (`plain-rodata`) — four 8-byte doubles (actBoyWalk/actBoyRun's
+  li.d constants, interned by ee-as into the object's own .rodata); the blob resumes at
+  `0x452B90`. boyact's strings and its three jump tables (subBoyControl 0x552840 and
+  0x552A20, subBoyCollision 0x552A60, with a string and a small table between the last
+  two) wait for their owners.
+
 - `[0x453318, .rodata, src/commonact]` — one 8-byte double (WithMailFunc_FallDead's 0.3, a
   constant-pool operand ROM addresses as a literal); the blob resumes at `0x453320`.
 
