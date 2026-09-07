@@ -668,7 +668,7 @@ extern char D_0063AF38[];
 extern char D_0063AF40[];
 extern char D_0063AF48[];
 extern char D_0063AF50[];
-extern int fptodp(float v);
+extern double fptodp(float v);
 void debug_DispQW(void *p, int size)
 {
     int isf = 0;
@@ -727,18 +727,79 @@ void debug_StdPrintfDummy(char *fmt, ...)
 {
     (void)fmt;
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_PrintFontf);
+extern char D_007046C0[];
+extern char D_0063AE90[];
+extern char D_0063AF58[];
+extern char D_0063AF60[];
+extern char D_0061BB28[];
+extern float dptofp(double v);
+extern double fptodp(float v);
+extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
+void debug_PrintFontf(int x, int y, char *p, ...)
+{
+    char *d;
+    char *va;
+    char *f;
+    char c;
+    float v;
+    d = D_007046C0;
+    va = (char *)__builtin_next_arg(p) - 0x28;
+    if (*p == 0) {
+        *d = 0;
+        return;
+    }
+    do {
+        c = *p;
+        if (c == '\n') {
+            *d = 0;
+            if (D_0063B13C & 1) {
+                debug_Printf(x, y, 0xFFFFFF00u, (int)D_007046C0);
+            }
+            d = D_007046C0;
+            y += 8;
+        } else if (c != '%') {
+            *d = *p;
+            d++;
+        } else {
+            p++;
+            switch (*p) {
+            case 'd':
+                va += 8;
+                f = D_0063AE90;
+                d += sprintf(d, f, *(int *)(va - 8));
+                break;
+            case 'x':
+                va += 8;
+                f = D_0063AF58;
+                d += sprintf(d, f, *(int *)(va - 8));
+                break;
+            case 'f':
+                va += 8;
+                v = dptofp(*(double *)(va - 8));
+                f = D_0063AF60;
+                d += sprintf(d, f, fptodp(v));
+                break;
+            default:
+                f = D_0061BB28;
+                debug_StdPrintfDummy(f);
+                break;
+            }
+        }
+        p++;
+    } while (*p != 0);
+    *d = 0;
+}
 extern const char D_0060DAF0_a[] __asm__("D_0061BB40");
 extern const char D_00631CF0_a[] __asm__("D_0063AF50");
 extern void debug_StdPrintfDummy__pn() __asm__("debug_StdPrintfDummy");
-extern int fptodp(float);
+extern double fptodp(float);
 void debug_PrintMatrix(float *arg) {
     int i;
     for (i = 3; i >= 0; i--) {
-        int v0 = fptodp(arg[0]);
-        int v1 = fptodp(arg[1]);
-        int v2 = fptodp(arg[2]);
-        int v3 = fptodp(arg[3]);
+        double v0 = fptodp(arg[0]);
+        double v1 = fptodp(arg[1]);
+        double v2 = fptodp(arg[2]);
+        double v3 = fptodp(arg[3]);
         debug_StdPrintfDummy__pn((int)D_0060DAF0_a, v0, v1, v2, v3);
         arg += 4;
     }
@@ -817,7 +878,117 @@ void getBuffer(int a0)
 {
     sprintf(a0, D_0063AF80);
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectCsvWindow);
+typedef struct { int _0; int hold; int _8; int trg; } DbgReverbPad;
+extern DbgReverbPad D_0028F8F0[];
+extern int D_0063AF7C;
+extern int D_0028F4C4[];
+extern char D_0063AF88[];
+/* INTERIM: `_debug_SelectCsvWindow` is `inline` in the 2001 source -- the four
+   public wrappers inline it, and the ELF also carries the out-of-line copy as
+   its own census function (matched at its ROM slot later in this file).  gcc
+   2.9 emits an `inline` definition at the END of the object in
+   first-declaration order, which would move that copy off its ROM slot while
+   this TU's tail still holds INCLUDE_ASM members, so the body is duplicated
+   here as a static stand-in; fold the two together once the tail is C. */
+static inline int _debug_SelectCsvWindow_inl(char *title, int x, int y, int rows, int base, int stride,
+                           int off, int deref, int n, int *psel,
+                           void (*getline)(),
+                           int (*colfunc)(int))
+{
+    char buf[0x100];
+    int sel;
+    int i;
+    int half;
+    int k;
+    int top;
+    int end;
+    int yy;
+    int len;
+    int v;
+    int col;
+
+    sel = *psel;
+    debug_PrintfDummy(x, y, 0xFFFFFF00u, (int)D_0063AF80, (int)title);
+    if ((D_0028F8F0[0]._0 & 2) == 0) {
+        if (D_0028F8F0[0].hold & 0x80) {
+            D_0063B13C ^= 2;
+        }
+        if (sel >= n) {
+            sel = n - 1;
+        }
+        if (D_0028F8F0[0].trg & 0x4000) {
+            sel++;
+            if (sel >= n) {
+                sel = 0;
+            }
+        }
+        if (D_0028F8F0[0].trg & 0x1000) {
+            sel--;
+            if (sel < 0) {
+                sel = n - 1;
+            }
+        }
+        if (n < rows) {
+            rows = n;
+        }
+        half = (int)(((float)rows - 0.5f) * 0.5f);
+        if (sel < half) {
+            k = sel;
+        } else if (n - (rows - half) < sel) {
+            k = rows - (n - sel);
+        } else {
+            k = half;
+        }
+        top = sel - k;
+        yy = y + 8;
+        for (i = top; i < top + rows; i++) {
+            if (i - top == k) {
+                col = 0xFF404000;
+            } else if (colfunc == 0) {
+                col = 0xFFFFFF00;
+            } else {
+                col = colfunc(i);
+            }
+            v = base + stride * i + off;
+            if (deref == 1) {
+                v = *(int *)v;
+            }
+            len = D_0063AF7C;
+            getline(buf, i, v);
+            if (len >= 2) {
+                if (len >= 0x100) {
+                    len = 0xFF;
+                }
+                buf[len - 1] = -110;
+                buf[len] = 0;
+            } else {
+                buf[0] = 0;
+            }
+            debug_PrintfDummy(x, yy, col, (int)D_0063AF88, (int)buf);
+            yy += 8;
+        }
+        if (D_0063AF7C <= 0xFFFE) {
+            D_0063AF7C += D_0028F4C4[0];
+        }
+        *psel = sel;
+        if (D_0028F8F0[0].hold & 0x20) {
+            D_0063AF7C = 0;
+            return 1;
+        } else if (D_0028F8F0[0].hold & 0x140) {
+            D_0063AF7C = 0;
+            return -1;
+        }
+    }
+    return 0;
+}
+
+extern void getBuffer();
+int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *base, int stride,
+                          int off, int deref, int n, int *psel)
+{
+    return _debug_SelectCsvWindow_inl(title, x, y, rows, (int)base, stride, off, deref,
+                                      n, psel, getBuffer, 0);
+}
 /* stage records are 0x194 bytes; +0x80 (= D_005F5DD0) is the data file name */
 typedef struct { char pad[0x194]; } StgFileName;
 extern StgFileName D_005F5DD0[];
@@ -874,9 +1045,13 @@ typedef struct {
 } McDirEnt;
 typedef struct {
     long long f0;       /* 0x00 -- iosMc flag word, 64-bit */
-    char _8[0x8];
+    int f8;             /* 0x08 */
+    int fC;             /* 0x0C */
     int ret;            /* 0x10 */
-    char _14[0x10];
+    int f14;            /* 0x14 */
+    int f18;            /* 0x18 */
+    int f1C;            /* 0x1C */
+    char _20[0x4];
     int f24;            /* 0x24 */
     char _28[0x18];
     int sel;            /* 0x40 */
@@ -1260,7 +1435,43 @@ int debug_mcDeleteFile(McReq *mc)
     return ret;
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_MemoryCard);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SETest);
+/* INTERIM (see _debug_SelectCsvWindow_inl above): debug_SelectCsvWindowWithLineColor
+   is `inline` in the 2001 source, so its callers inline it while the ELF also
+   carries the out-of-line copy at its own ROM slot. */
+static inline int debug_SelectCsvWindowWithLineColor_inl(char *title, int x, int y, int rows,
+                                                         int base, int stride, int off, int deref,
+                                                         int n, int *psel, int (*colfunc)(int))
+{
+    return _debug_SelectCsvWindow_inl(title, x, y, rows, base, stride, off, deref, n, psel,
+                                      getLineBuffer, colfunc);
+}
+extern char *D_00639EA4;
+extern int D_0063B040;
+extern int D_0063B044;
+extern char D_0063B048[];
+extern GsysObjInfo D_005D6DB0[];
+extern int debug_SETest_color(int idx);
+extern int soundSeDefPlay(int no, int a1, int a2, int a3);
+extern void soundSeGroupStop(int grp);
+int debug_SETest(int reset)
+{
+    int r;
+
+    if (reset != 0) {
+        D_0063B044 = -1;
+    }
+    r = debug_SelectCsvWindowWithLineColor_inl(D_0063B048, 0xA, 0x3C, 0xA, (int)D_005D6DB0, 0x3C,
+                                               0, 0, 0x592, &D_0063B040, debug_SETest_color);
+    if (r > 0) {
+        D_0063B044 = soundSeDefPlay(D_0063B040, 0,
+                                    *(int *)(*(int *)(D_00639EA4 + 0x15C) + 0xC) + 0x30, 1);
+        return 0;
+    }
+    if (r < 0) {
+        soundSeGroupStop(1);
+    }
+    return r;
+}
 extern void memset();
 extern void strcat();
 extern int SgGetSlotStatus(int a0, int slot);
@@ -1375,7 +1586,107 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispBall);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_CollisionTest);
 ASM_LIT4_SLOT(D_00639348, 0.001f);
 ASM_LIT4_SLOT(D_0063934C, 0.001f);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Menu);
+/* one debug-menu entry: the label the selector prints, the handler, and a
+   "stay in the menu" flag */
+typedef struct { char *label; int (*fn)(int); int stay; } DbgMenuItem;
+extern DbgMenuItem D_004D9D90[];
+extern char *D_004D9ED8[];
+extern int D_0063B0F0;
+extern int D_0063B0F4;
+extern int D_0063B0F8;
+extern int D_0063B0FC;
+extern int D_0063AE74;
+extern char D_0061C528[];
+extern char D_0061C538[];
+extern char D_0061C548[];
+extern char D_0061C558[];
+extern char D_0061C570[];
+static inline void debug_MenuHelp(void)
+{
+    int x;
+    int y;
+    int i;
+
+    debug_PrintfDummy(0xDC, 0x46, 0xFFFFFF80u, (int)D_0061C558);
+    x = 0xF0;
+    y = 0x50;
+    i = 0;
+    while (D_004D9ED8[i] != 0) {
+        debug_PrintfDummy(x, y, 0x80808080u, (int)D_0063AF80, (int)D_004D9ED8[i]);
+        y += 10;
+        if (y >= 301) {
+            y = 0x50;
+            x += 200;
+        }
+        i++;
+    }
+}
+static inline void debug_MenuBlink(void)
+{
+    if (D_0063B0F0 >> 4) {
+        debug_PrintfDummy(0xDC, 0x3C, 0x80C0FF80u, (int)D_0061C528, (int)D_0061C538,
+                          (int)D_0061C548);
+    }
+    D_0063B0F0++;
+    if (D_0063B0F0 >= 0x41) {
+        D_0063B0F0 = 0;
+    }
+}
+void debug_Menu(void)
+{
+    int state;
+    int r;
+    int (*fn)(int);
+
+    if ((D_0028F8F0[0]._0 & 2) == 0) {
+        if (D_0028F8F0[0].hold & 0x100) {
+            if (D_0063B0F4 == 0) {
+                D_0063AE74 = 1;
+                D_0063B0F4 = 1;
+                D_0063B0F8 = 0;
+                return;
+            }
+        }
+    }
+    state = D_0063B0F4;
+    if (state == 1) {
+        r = debug_SelectCsvWindow(D_0061C570, 0xA, 0x32, 0xB, D_004D9D90, 0xC, 0, 1, 0x1B,
+                                  &D_0063B0F8);
+        switch (r) {
+        case 0:
+            break;
+        case -1:
+            D_0063B0F4 = 0;
+            D_0063AE74 = 0;
+            break;
+        default:
+            D_0063B0F4 = 2;
+            D_0063B0FC = state;
+            break;
+        }
+        debug_MenuHelp();
+        debug_MenuBlink();
+    } else if (state == 2) {
+        fn = D_004D9D90[D_0063B0F8].fn;
+        if (fn == 0) {
+            D_0063B0F4 = 0;
+            D_0063AE74 = 0;
+        } else {
+            r = fn(D_0063B0FC);
+            D_0063B0FC = 0;
+            if (r == -1) {
+                D_0063B0F4 = 1;
+            } else if (r != 0) {
+                if (D_004D9D90[D_0063B0F8].stay == 0) {
+                    D_0063B0F4 = 1;
+                } else {
+                    D_0063B0F4 = 0;
+                    D_0063AE74 = 0;
+                }
+            }
+        }
+    }
+}
 extern int D_0063B0F4;
 void debug_Menu_off(void) {
     D_0063B0F4 = 0;
@@ -1530,7 +1841,13 @@ void debug_DispMatrix(int *a0)
     }
 }
 void debug_SetBarDummy(void) {}
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectCsvWindowWithLine);
+extern void getLineBuffer();
+int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *base, int stride,
+                                  int off, int deref, int n, int *psel)
+{
+    return _debug_SelectCsvWindow_inl(title, x, y, rows, (int)base, stride, off, deref,
+                                      n, psel, getLineBuffer, 0);
+}
 int debug_TryToGetStartStage(void) {
     return -1;
 }
@@ -1631,8 +1948,107 @@ void debug_SaveStartStageFile(int stage)
     debug_StdPrintfDummy(D_0061B570);
     debug_openLog();
 }
-INCLUDE_ASM("asm/nonmatchings/src/debug", _debug_SelectCsvWindow);
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectCsvWindowWithLineColor);
+extern int D_0063AF7C;
+extern int D_0028F4C4[];
+extern char D_0063AF88[];
+int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride,
+                           int off, int deref, int n, int *psel,
+                           void (*getline)(),
+                           int (*colfunc)(int))
+{
+    char buf[0x100];
+    int sel;
+    int i;
+    int half;
+    int k;
+    int top;
+    int end;
+    int yy;
+    int len;
+    int v;
+    int col;
+
+    sel = *psel;
+    debug_PrintfDummy(x, y, 0xFFFFFF00u, (int)D_0063AF80, (int)title);
+    if ((D_0028F8F0[0]._0 & 2) == 0) {
+        if (D_0028F8F0[0].hold & 0x80) {
+            D_0063B13C ^= 2;
+        }
+        if (sel >= n) {
+            sel = n - 1;
+        }
+        if (D_0028F8F0[0].trg & 0x4000) {
+            sel++;
+            if (sel >= n) {
+                sel = 0;
+            }
+        }
+        if (D_0028F8F0[0].trg & 0x1000) {
+            sel--;
+            if (sel < 0) {
+                sel = n - 1;
+            }
+        }
+        if (n < rows) {
+            rows = n;
+        }
+        half = (int)(((float)rows - 0.5f) * 0.5f);
+        if (sel < half) {
+            k = sel;
+        } else if (n - (rows - half) < sel) {
+            k = rows - (n - sel);
+        } else {
+            k = half;
+        }
+        top = sel - k;
+        yy = y + 8;
+        for (i = top; i < top + rows; i++) {
+            if (i - top == k) {
+                col = 0xFF404000;
+            } else if (colfunc == 0) {
+                col = 0xFFFFFF00;
+            } else {
+                col = colfunc(i);
+            }
+            v = base + stride * i + off;
+            if (deref == 1) {
+                v = *(int *)v;
+            }
+            len = D_0063AF7C;
+            getline(buf, i, v);
+            if (len >= 2) {
+                if (len >= 0x100) {
+                    len = 0xFF;
+                }
+                buf[len - 1] = -110;
+                buf[len] = 0;
+            } else {
+                buf[0] = 0;
+            }
+            debug_PrintfDummy(x, yy, col, (int)D_0063AF88, (int)buf);
+            yy += 8;
+        }
+        if (D_0063AF7C <= 0xFFFE) {
+            D_0063AF7C += D_0028F4C4[0];
+        }
+        *psel = sel;
+        if (D_0028F8F0[0].hold & 0x20) {
+            D_0063AF7C = 0;
+            return 1;
+        } else if (D_0028F8F0[0].hold & 0x140) {
+            D_0063AF7C = 0;
+            return -1;
+        }
+    }
+    return 0;
+}
+int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, void *base,
+                                       int stride, int off, int deref, int n, int *psel,
+                                       int (*colfunc)(int))
+{
+    return _debug_SelectCsvWindow_inl(title, x, y, rows, (int)base, stride, off, deref,
+                                      n, psel, getLineBuffer, colfunc);
+}
 extern int D_0063AFA0;
 extern int D_0063AFA4;
 extern char D_0063AFA8[];
@@ -1732,8 +2148,6 @@ int debug_SETest_color(int idx)
 extern int soundReverbDepthGet(void);
 extern void soundReverbDepthSet(int depth);
 /* pad state block: +0x4 held buttons, +0xC newly-pressed (trigger) buttons */
-typedef struct { int _0; int hold; int _8; int trg; } DbgReverbPad;
-extern DbgReverbPad D_0028F8F0[];
 extern char D_0061C1A8[];
 int debug_reverbTest(void)
 {
