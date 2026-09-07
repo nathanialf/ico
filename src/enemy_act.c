@@ -39,7 +39,61 @@ static inline void _BrainMode_SetDirect_INTERIM(char *a0, int a1, int *a2) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", setBattleStatus);
+extern char D_00553370[];
+extern char D_0063A7E8[];
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+
+/* The enemy work's status word at +0x210 is a 64-bit flag set with a byte
+   view; the union is what makes a write to it alias the pointer chase that
+   reaches it, which is why ROM re-walks self->sub->enemy for the second
+   assignment of every arm below. */
+typedef union {
+    char c[8];
+    long long ll;
+} EnemyStatusFlags;
+
+typedef struct {
+    char pad000[0x1EC];
+    int battleType;
+    char pad1F0[0x210 - 0x1F0];
+    EnemyStatusFlags flags;
+} EnemyBattleWork;
+
+typedef struct {
+    char pad000[0x680];
+    EnemyBattleWork *enemy;
+} EnemyActSub;
+
+typedef struct {
+    char pad000[0x164];
+    EnemyActSub *sub;
+} EnemyBattleGObj;
+
+void setBattleStatus(EnemyBattleGObj *self)
+{
+    switch (self->sub->enemy->battleType) {
+    case 0:
+        self->sub->enemy->flags.ll &= ~1LL;
+        self->sub->enemy->flags.ll &= ~2LL;
+        break;
+    case 1:
+        self->sub->enemy->flags.ll &= ~1LL;
+        self->sub->enemy->flags.ll |= 2LL;
+        break;
+    case 2:
+        self->sub->enemy->flags.ll |= 1LL;
+        self->sub->enemy->flags.ll &= ~2LL;
+        break;
+    case 3:
+        self->sub->enemy->flags.ll |= 1LL;
+        self->sub->enemy->flags.ll |= 2LL;
+        break;
+    default:
+        debug_assert(D_00553370, 0x36B);
+        __assert(D_00553370, 0x36B, D_0063A7E8);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", boss_effect_start);
 extern void boss_effect_start(char *a0, int a1);
 
@@ -57,7 +111,9 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", boss_effect_process);
 extern void *D_00639EA4;
 
 typedef struct {
-    char pad00[0x18C];
+    char pad00[0x100];
+    int f100;
+    char pad104[0x18C - 0x104];
     unsigned int flags18C;
     char pad190[4];
 } EnemyParaRow;
@@ -155,13 +211,268 @@ ASM_LIT4_SLOT(D_00638F2C, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", MoveChestForCatchBoy);
 ASM_LIT4_SLOT(D_00638F30, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyBodylift);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyPickupBegin);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", CheckEnemyBrainMode);
+extern void *test_CURRENTROOT(int a0);
+extern void *test_CURRENTORIENT(int a0);
+extern void _OrientXZGV(float *dst, float *a, float *b);
+extern void SetMotionDirection(void *self, float *dir);
+extern int _RotyGV(float *a0, void *a1);
+extern int _ACTGame_SearchGObj(int self, char *tgt, float range, float height, int angle, float *out);
+extern void ACTGame_InsertCamera_GirlIsPinch(void);
+extern int actEnemyForceSwitchToCarry(void *a0);
+extern void ACTSendMailCorrect(void *a0, int a1);
+extern void _ACTWait(int a0);
+
+/* Static inline of the 2001 source (listing lines 2889-2892 sit inside
+   actEnemyPickupBegin's ROM range but above its own body lines).  ROM's frame
+   is 0x80 with the 16-byte slot at sp+0x10 never referenced and buf at sp+0x20,
+   so a second 16-byte vector was declared here ahead of buf and left unused. */
+static inline int enemyPickupCheckGirl(int self)
+{
+    float pos[4];
+    float buf[4];
+    int ang;
+    int mode;
+
+    if (_ACTGame_SearchGObj(self, D_00639EA8, 170.0f, 100.0f, 45, buf) != 0) {
+        ang = _RotyGV(buf, test_CURRENTORIENT((int)D_00639EA8));
+        ang = (ang < 0) ? -ang : ang;
+        mode = 2;
+        if (ang <= 89) {
+            mode = 1;
+        }
+    } else {
+        mode = 0;
+    }
+    return mode;
+}
+
+void actEnemyPickupBegin(volatile int a0)
+{
+    float *dir = (float *)(*(char **)(a0 + 0x164) + 0x120);
+    float *girl = (float *)test_CURRENTROOT((int)D_00639EA8);
+    float *me = (float *)test_CURRENTROOT(a0);
+    int mode;
+
+    _OrientXZGV(dir, girl, me);
+    SetMotionDirection((void *)a0, dir);
+    while (1) {
+        mode = enemyPickupCheckGirl(a0);
+        if (mode < 3 && mode != 0) {
+            if (actEnemyForceSwitchToCarry((void *)a0) != 0) {
+                ACTGame_InsertCamera_GirlIsPinch();
+                while (1) {
+                    ACTSendMailCorrect((void *)a0, 0x16D);
+                    _ACTWait(1);
+                }
+            }
+        }
+        ACTSendMailCorrect((void *)a0, 0x16E);
+        _ACTWait(1);
+    }
+}
+extern char D_002C2DC8[];
+
+/* INTERIM stand-in: actEnemyFlagCheckActive is `inline` in the 2001 source (the
+   disc listing attributes this call site's words to its body lines 2077-2096,
+   and isEnemyHyde's line 2047 inside it), but its out-of-line copy must keep its
+   own ROM slot above while the rest of this TU's tail is asm.  Drop it and mark
+   the real definition `inline` once the tail is C. */
+static inline int actEnemyFlagCheckActive_INTERIM(int *a0)
+{
+    unsigned int *p = (unsigned int *)(D_002C2DC8 + a0[2] * 0x4C);
+    unsigned int field = p[0x48 / 4];
+    unsigned int v0 = (field >> 18) & 1;
+    if (v0 != 0) goto zero;
+    v0 = (field >> 21) & 1;
+    v0 = v0 ^ 1;
+    if (v0 == 0) goto one;
+zero:
+    return 0;
+one:
+    return 1;
+}
+
+extern void *eBrainGetTarget(char *self);
+
+/* static inline of the 2001 source, listing lines 1148-1164 */
+static inline int getEnemyBrainMes(char *self, int *data)
+{
+    char *t = (char *)eBrainGetTarget(self);
+
+    if (t == 0) {
+        *data = 0;
+        return 0;
+    }
+    *data = *(int *)(t + 4);
+    return *(unsigned short *)t;
+}
+
+void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
+{
+    char *sub = *(char **)(self + 0x164);
+    int mode;
+
+    *outData = 0;
+    if (*(int *)(sub + 0x148) != 0 &&
+        D_0055FE58[*(int *)(*(char **)(self + 0x15C) + 0x4A0)].f100 == 0) {
+        *outMode = -1;
+        return;
+    }
+    if (((*(unsigned long long *)(sub + 0x18) >> 49) & 1) == 0) {
+        *outMode = -1;
+        return;
+    }
+    if (actEnemyFlagCheckActive_INTERIM((int *)self) == 0) {
+        *outMode = -1;
+        return;
+    }
+    switch (*(unsigned int *)(sub + 0x34)) {
+    case 7:
+    case 19:
+    case 20:
+    case 21:
+    case 22:
+    case 114:
+    case 115:
+        *outMode = -1;
+        return;
+    case 103:
+        if (D_00639EA8 == 0) {
+            *outMode = -1;
+            return;
+        }
+        if (*(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) != 0x6F) {
+            *outMode = -1;
+            return;
+        }
+        if (*(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) != (int)self) {
+            *outMode = -1;
+            return;
+        }
+        break;
+    }
+    if (((*(unsigned long long *)(sub + 0x20) >> 34) & 1) == 0) {
+        goto no_bit;
+    }
+    *(unsigned long long *)(sub + 0x20) &= ~(1ULL << 34);
+    mode = -2;
+    goto store;
+no_bit:
+    mode = getEnemyBrainMes(self, outData);
+store:
+    *outMode = mode;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", BrainMode_Requset);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrainMain);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToGenerator);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", enemy_dodge);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", enemy_dodge_to_boy);
+extern float _DistGV(void *a, void *b);
+extern void GetRootPosition(float *dst, char *gobj);
+extern float GetEnemyDefDodgeRange(char *self);
+extern int IsBoyStatus_NotDanger(void);
+extern int D_0063B240;
+extern void sceVu0SubVector(float *dst, float *a, float *b);
+extern void sceVu0Normalize(float *dst, float *src);
+extern float _GetRandom(void);
+extern int EnemyUtil_isOtherStatus(char *self, int mode);
+
+/* static inline of the 2001 source, listing lines 1989-1997 */
+static inline void enemyDodgeSendMail(char *self, char *sub)
+{
+    if (EnemyUtil_isOtherStatus(self, 0) != 0) {
+        return;
+    }
+    if (((int)(_GetRandom() * 10.0f)) & 1) {
+        ACTSendMailCorrect(self, 0xCF);
+    }
+    ACTSendMailCorrect(self, 0xCD);
+    *(long long *)(sub + 0x20) |= 0x400;
+}
+
+void enemy_dodge(char *self)
+{
+    float a[4];
+    float b[4];
+    float c[4];
+    char *boy = (char *)D_00639EA4;
+    char *sub;
+    float d;
+    int ang;
+
+    if (boy == 0) {
+        return;
+    }
+    d = _DistGV(test_CURRENTROOT((int)boy), test_CURRENTROOT((int)self));
+    if (d < GetEnemyDefDodgeRange(self)) {
+        GetRootPosition(a, self);
+        GetRootPosition(b, boy);
+        sceVu0SubVector(c, b, a);
+        sceVu0Normalize(c, c);
+        ang = _RotyGV(c, test_CURRENTORIENT((int)boy));
+        ang = (ang < 0) ? -ang : ang;
+        if (ang < 114) {
+            return;
+        }
+        ang = _RotyGV(c, test_CURRENTORIENT((int)self));
+        ang = (ang < 0) ? -ang : ang;
+        if ((float)ang < 45.0f) {
+            if (IsBoyStatus_NotDanger() != 0) {
+                return;
+            }
+            sub = *(char **)(self + 0x164);
+            if ((((int)(*(long long *)(*(char **)(sub + 0x680) + 0x210) >> 1)) & 1) == 0) {
+                if (d < 200.0f) {
+                    enemyDodgeSendMail(self, sub);
+                }
+            } else if (D_0063B240 == 0) {
+                ACTSendMailCorrect(self, 0x113);
+            }
+        }
+    }
+}
+extern float GetEnemyDefDodgeRange(char *self);
+extern float _DistSqGV(float *a, float *b);
+extern int IsBoyStatus_NotDanger(void);
+extern int D_0063B240;
+
+void enemy_dodge_to_boy(char *self)
+{
+    float boy[4];
+    float me[4];
+    float v[4];
+    int ang;
+
+    if (D_00639EA4 == 0) {
+        return;
+    }
+    if (((int)(*(long long *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x210) >> 1)) & 1) {
+        boy[0] = ((float *)test_CURRENTROOT((int)D_00639EA4))[0];
+        boy[1] = ((float *)test_CURRENTROOT((int)D_00639EA4))[1];
+        boy[2] = ((float *)test_CURRENTROOT((int)D_00639EA4))[2];
+        me[0] = ((float *)test_CURRENTROOT((int)self))[0];
+        me[1] = ((float *)test_CURRENTROOT((int)self))[1];
+        me[2] = ((float *)test_CURRENTROOT((int)self))[2];
+        if (_DistSqGV(boy, me) <
+            GetEnemyDefDodgeRange(self) * GetEnemyDefDodgeRange(self)) {
+            _OrientXZGV(v, boy, me);
+            ang = _RotyGV(v, test_CURRENTORIENT((int)D_00639EA4));
+            ang = (ang < 0) ? -ang : ang;
+            if (ang < 114) {
+                return;
+            }
+            ang = _RotyGV(v, test_CURRENTORIENT((int)self));
+            ang = (ang < 0) ? -ang : ang;
+            if ((float)ang < 45.0f) {
+                if (IsBoyStatus_NotDanger() != 0) {
+                    return;
+                }
+                if (D_0063B240 != 0) {
+                    return;
+                }
+                ACTSendMailCorrect(self, 0x113);
+            }
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", Battle_isCurrentStatus);
 ASM_LIT4_SLOT(D_00638F34, 0.7f);
 ASM_LIT4_SLOT(D_00638F38, 0.7f);
@@ -175,7 +486,73 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToKidnap);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToGirl);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _ApproachTarget_Boss);
 ASM_LIT4_SLOT(D_00638F44, 160000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", flyMailCore);
+extern char D_00553380[];
+extern char D_00553510[];
+extern int D_0063B220;
+extern int CanThisEnemyFly(void *self);
+extern int actEnemyFlagCheckActive(int *a0);
+
+/* INTERIM stand-ins: isEnemyActive (listing lines 2087-2088) and
+   IsEnemyBrainToGenerator (831-834) are `inline` in the 2001 source; their
+   out-of-line copies keep their own ROM slots further down while this TU's tail
+   is asm.  See the note on _BrainMode_SetDirect_INTERIM. */
+static inline int isEnemyActive_INTERIM(int *self)
+{
+    if (self == 0 || *(int *)((char *)self + 0xC) != 4) {
+        debug_assert(D_00553370, 0x827);
+        __assert(D_00553370, 0x827, D_00553510);
+    }
+    return actEnemyFlagCheckActive(self);
+}
+
+static inline int IsEnemyBrainToGenerator_INTERIM(char *a0)
+{
+    char *b = *(char **)(a0 + 0x164);
+
+    if (*(int *)(*(char **)(b + 0x680) + 0x204) != 5) {
+        return 0;
+    }
+    if (*(int *)(*(char **)(b + 0x688) + 0x460) == 0) {
+        debug_assert(D_00553370, 0x341);
+        __assert(D_00553370, 0x341, D_00553380);
+    }
+    return 1;
+}
+
+int flyMailCore(void *self)
+{
+    int flyLow = 0;
+    int flyHigh = 0;
+    int ret = 0;
+
+    switch (CanThisEnemyFly(self)) {
+    case 1:
+        flyLow = 1;
+        break;
+    case 2:
+        flyLow = 1;
+        flyHigh = 1;
+        break;
+    }
+    if (isEnemyActive_INTERIM((int *)self) == 0) {
+        goto end;
+    }
+    if (IsEnemyBrainToGenerator_INTERIM((char *)self)) {
+        if (flyHigh == 0 && D_0063B220 == 0) {
+            goto end;
+        }
+        ACTSendMailCorrect(self, 0x1E);
+        ret = 1;
+    } else {
+        if (flyLow == 0) {
+            goto end;
+        }
+        ACTSendMailCorrect(self, 0x1D);
+        ret = 1;
+    }
+end:
+    return ret;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _ApproachTarget_Way);
 ASM_LIT4_SLOT(D_00638F48, 1440000.0f);
 ASM_LIT4_SLOT(D_00638F4C, 40000.0f);
@@ -185,7 +562,12 @@ ASM_LIT4_SLOT(D_00638F54, 369.0f);
 ASM_LIT4_SLOT(D_00638F58, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Attack);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Cling);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", funcEnemyAiGetGirl);
+void funcEnemyAiGetGirl(int a0) {
+    char *sub = *(char **)(a0 + 0x164);
+    if (*(int *)(sub + 0x350) == 0) {
+        *(int *)(sub + 0x350) = 1;
+    }
+}
 extern char D_00553438[];
 extern void debug_StdPrintfDummy(char *fmt);
 extern void _ACTWait(int a0);
@@ -426,27 +808,6 @@ int GetEnemyTypeFromGObj(char *a0) {
 int GetEnemyType(void) {
     return 1;
 }
-extern char D_002C2DC8[];
-
-/* INTERIM stand-in: actEnemyFlagCheckActive is `inline` in the 2001 source (the
-   disc listing attributes this call site's words to its body lines 2077-2096,
-   and isEnemyHyde's line 2047 inside it), but its out-of-line copy must keep its
-   own ROM slot above while the rest of this TU's tail is asm.  Drop it and mark
-   the real definition `inline` once the tail is C. */
-static inline int actEnemyFlagCheckActive_INTERIM(int *a0)
-{
-    unsigned int *p = (unsigned int *)(D_002C2DC8 + a0[2] * 0x4C);
-    unsigned int field = p[0x48 / 4];
-    unsigned int v0 = (field >> 18) & 1;
-    if (v0 != 0) goto zero;
-    v0 = (field >> 21) & 1;
-    v0 = v0 ^ 1;
-    if (v0 == 0) goto one;
-zero:
-    return 0;
-one:
-    return 1;
-}
 
 int isEnemyKidnapEnable(int *self)
 {
@@ -512,7 +873,31 @@ void subEnemyBrain_Await(volatile int a0)
         _ACTWait(1);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_FindGirl);
+extern int D_0028F4C0[];
+
+void subEnemyBrain_FindGirl(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    int i;
+
+    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2; i++) {
+        *(int *)(sub + 0x34C) = 0;
+        *(int *)(sub + 0x120) = 0;
+        *(int *)(sub + 0x124) = 0;
+        *(int *)(sub + 0x128) = 0;
+        ACTSendMailCorrect((void *)a0, 0xE6);
+        if (*(int *)(sub + 0x34) == 0x47) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 250 / 60; i++) {
+        _DoAwait((char *)a0);
+        _ACTWait(1);
+    }
+    eBrainSendMes(a0, 1);
+    _ACTWait(0);
+}
 extern float _DistGV(void *a, void *b);
 
 void subEnemyBrain_BodyGuard(volatile int a0)
@@ -579,7 +964,44 @@ void subEnemyBrain_Bodyslam(volatile int a0) {
         _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_Irregular);
+/* Static inline helper of the 2001 source at enemy_act.c:816-826 (it has no
+   symbol of its own and no census row; the disc listing shows its lines inlined
+   here and in subEnemyCollision).  Name is descriptive, not recovered. */
+static inline unsigned char isEnemyCarriedByGirl(int self)
+{
+    char *gsub;
+    if (*(int *)(*(char **)(self + 0x164) + 0x148) == 0 || D_00639EA8 == 0) {
+        return 0;
+    }
+    gsub = *(char **)(D_00639EA8 + 0x164);
+    if (gsub == 0 || *(int *)(gsub + 0x34) != 0x6F) {
+        return 0;
+    }
+    if (*(int *)(gsub + 0x144) == self) {
+        return 1;
+    }
+    return 0;
+}
+
+typedef struct {
+    char pad00[0x20];
+    long long flags;
+} EnemyBrainWork;
+
+void subEnemyBrain_Irregular(volatile int a0)
+{
+    EnemyBrainWork *sub = *(EnemyBrainWork **)(a0 + 0x164);
+
+    sub->flags &= ~(1LL << 34);
+    eBrainSendMes(a0, 4);
+    if (isEnemyCarriedByGirl(a0)) {
+        afterCommonCarry_INTERIM(a0);
+    }
+    while (1) {
+        _ACTWait(0x1E);
+        _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
+    }
+}
 extern int D_0063A7E0;
 
 void _BrainMode_SetDirect(char *a0, int a1, int *a2) {
@@ -600,7 +1022,27 @@ int FlyMail(void *a0) {
     }
     return flyMailCore(a0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", boss_effect_callback);
+extern char *isysGObjSearchFromObjKindID_begin(int kind);
+extern char *isysGObjSearchFromObjKindID_next(char *g);
+
+void boss_effect_callback(int id)
+{
+    char *g;
+    int i;
+    char *p;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (*(int *)(*(int *)(*(char **)(g + 0x164) + 0x680) + 0x1E4) == 3) {
+            for (i = 0; i < 5; i++) {
+                p = (char *)(i * 0x20 + *(int *)(*(char **)(g + 0x164) + 0x680) + 0x360);
+                if (p[0x1D] != 0 && *(int *)(p + 0x10) == id) {
+                    p[0x1C] = 0;
+                    return;
+                }
+            }
+        }
+    }
+}
 extern char D_00553450[];
 extern void debug_StdPrintfDummy(char *fmt);
 extern char *SetMotionRequest(int self, int mot, char *work);
@@ -628,16 +1070,38 @@ void motEnemyWalk(volatile int a0) {
     *(int *)(mot + 0x114) = 0;
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", motEnemyRun);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyJump);
-extern char *isysGObjSearchFromObjKindID_begin(int kind);
-extern char *isysGObjSearchFromObjKindID_next(void);
+extern char D_005534B0[];
+extern void debug_StdPrintfDummy(char *fmt);
+extern char *SetMotionRequest(int self, int mot, char *work);
+extern void _ACTWait(int a0);
 
-int EnemyUtil_isOtherStatus(char *self)
+void motEnemyRun(volatile int a0) {
+    char *sub = *(char **)(a0 + 0x164);
+    char *mot;
+    debug_StdPrintfDummy(D_005534B0);
+    mot = SetMotionRequest(a0, 0xD, sub + 0x620);
+    *(char **)(sub + 0x130) = mot;
+    *(int *)(mot + 0x114) = 0;
+    _ACTWait(0);
+}
+extern char D_005534C8[];
+extern void debug_StdPrintfDummy(char *fmt);
+extern void _ACTWait(int a0);
+
+void actEnemyJump(volatile int a0) {
+    char *sub = *(char **)(a0 + 0x164);
+    debug_StdPrintfDummy(D_005534C8);
+    *(int *)(sub + 0x34) = 4;
+    _ACTWait(0);
+}
+extern char *isysGObjSearchFromObjKindID_begin(int kind);
+extern char *isysGObjSearchFromObjKindID_next(char *g);
+
+int EnemyUtil_isOtherStatus(char *self, int mode)
 {
     char *g;
     for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next()) {
+         g = isysGObjSearchFromObjKindID_next(g)) {
         if (g != self) {
             char *sub = *(char **)(g + 0x164);
             if (*(int *)(sub + 0x34) == 0xF) {
