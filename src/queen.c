@@ -98,8 +98,150 @@ void scale_m34(LVec *a0, void *a1, float f) {
 }
 /* census: static effect_end_func (another TU holds the public symbol name). */
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_001A27D0);
-INCLUDE_ASM("asm/nonmatchings/src/queen", queenBeforeFunc);
-INCLUDE_ASM("asm/nonmatchings/src/queen", gene_enemy);
+typedef struct { float f[8]; } QMotBlock;
+extern const char D_00556CA0[];
+extern const char D_00556CB0[];
+extern char D_002907E0[];
+extern void func_001A27D0(int a0);
+extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int), float speed);
+void queenBeforeFunc(char *g) {
+    QVec pos;
+    QVec target;
+    QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
+    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *act = *(char **)(g + 0x164);
+    int i;
+
+    for (i = 0; i < q->num; i++) {
+        QueenMailEntry *e = &q->e[i];
+
+        switch (e->mail) {
+        case 0x2E:
+            *(char *)w = 1;
+            break;
+        case 0x2F:
+            *(char *)w = 0;
+            break;
+        case 0xD:
+            if (scpGameStat_BoyWeaponkind() == 5) {
+                char *o;
+
+                debug_StdPrintfDummy(D_00556CA0);
+                *(char *)(w + 2) = 1;
+                o = isysGObjSearchFromObjKindID_begin(0x35);
+                if (o != 0) {
+                    *(char *)(*(char **)(*(char **)(o + 0x15C) + 0x830) + 0x1A) = 1;
+                }
+            }
+            break;
+        case 0x12: {
+            char *boy = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
+
+            debug_StdPrintfDummy(D_00556CB0, boy);
+            if (e->data != 0 && boy != 0) {
+                GetRootPosition(&pos, e->data);
+                GetRootPosition(&target, boy);
+                GatherEffect_Set(0xC, &pos, (int)D_002907E0, &target, func_001A27D0, 2.5f);
+            }
+            break;
+        }
+        }
+    }
+    q->num = 0;
+    *(QMotBlock *)(act + 0x620) = *(QMotBlock *)(*(int *)(g + 0x15C) + 0x180);
+}
+/* PAL listing: queen.c lines 300-385 (the disc's objdump -dl line map). */
+typedef struct QueenGenTable {
+    /* 0x0 */ int n;
+    /* 0x4 */ int *list;
+} QueenGenTable;
+extern QueenGenTable D_00556CF0[];
+extern char D_00556D00[];
+extern int D_0028F4C0[];
+extern float D_00556910[];
+extern float D_00556AD8[];
+extern float D_002A78C0[];
+extern float _GetRandom(void);
+extern int isEnemyHyde(char *g);
+extern void lw_pos_to_ico_pos(float *dst, float *src);
+extern void SetRootPosition(char *g, float *p);
+extern void Generator_Call(char *g);
+extern int stage_CheckAnimationFinish(int a0);
+
+void gene_enemy(volatile int g) {
+    union { float f[4]; int i[4]; } pos;
+    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    QueenGenTable *tbl;
+    char *o;
+    char *c;
+    char *e;
+    int num;
+    int total;
+    int alive;
+    int timer;
+    int wait;
+    int k;
+    char *obj;
+
+    o = isysGObjSearchFromObjKindID_begin(0x36);
+    num = (o != 0) ? *(int *)(*(char **)(*(char **)(o + 0x15C) + 0x830) + 0x18) : 0;
+    tbl = (stage_no == 0x25) ? &D_00556CF0[0] : &D_00556CF0[1];
+
+    timer = 0;
+    total = 0;
+    for (c = isysGObjSearchFromObjKindID_begin(4); c != 0;
+         c = isysGObjSearchFromObjKindID_next(c)) {
+        total++;
+    }
+    _ACTWait(1);
+
+    for (;;) {
+        if ((*(int *)w & 0xFF0000FF) == 0 && *(signed char *)(w + 1) != 0) {
+            alive = 0;
+            e = isysGObjSearchFromObjKindID_begin(4);
+            while (e != 0 && isEnemyHyde(e) == 0) {
+                alive++;
+                e = isysGObjSearchFromObjKindID_next(e);
+            }
+            if (D_0063B13C & 1) {
+                debug_Printf(10, 0x5A, -1, D_00556D00, total, alive, timer);
+            }
+            if (alive < total) {
+                if (timer > ((stage_no == 0x25) ? D_00556910 : D_00556AD8)[num] * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) {
+                    if (stage_no == 0x25) {
+                        obj = (char *)isysGObjSearchFromObjLayoutID(
+                            tbl->list[(int)(_GetRandom() * tbl->n)]);
+                        if (obj != 0) {
+                            lw_pos_to_ico_pos(pos.f,
+                                &D_002A78C0[(int)(_GetRandom() * 6.0f) * 4]);
+                            SetRootPosition(obj, pos.f);
+                            wait = (int)(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f);
+                            for (k = 0; k <= wait; k++) {
+                                _ACTWait(1);
+                            }
+                            Generator_Call(obj);
+                            _ACTWait(1);
+                            while (stage_CheckAnimationFinish(0x1FA) == 0) {
+                                _ACTWait(1);
+                            }
+                            for (k = 0; k <= wait; k++) {
+                                _ACTWait(1);
+                            }
+                            pos.f[0] = 4294967296.0f;
+                            pos.f[1] = 4294967296.0f;
+                            pos.f[2] = 4294967296.0f;
+                            pos.i[3] = 0;
+                            SetRootPosition(obj, pos.f);
+                        }
+                        timer = 0;
+                    }
+                }
+            }
+            timer++;
+        }
+        _ACTWait(1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/queen", subQueenBrainMain);
 ASM_LIT4_SLOT(D_006392C0, 0.001f);
 /* census: static Debug_StickControl; the symbol name is held by act_bird's copy, so the
@@ -406,4 +548,17 @@ void *InitQueenBallGeo(char *g) {
     actInitialize_ext_charcter(g);
     return w;
 }
-INCLUDE_ASM("asm/nonmatchings/src/queen", subQueenControl);
+/* census: Debug_StickControl (still the func_001A34D8 placeholder above). */
+extern void func_001A34D8(int g);
+
+void subQueenControl(volatile int g) {
+    signed char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+
+    _ACTWait(1);
+    for (;;) {
+        if (*w == 0) {
+            func_001A34D8(g);
+        }
+        _ACTWait(1);
+    }
+}

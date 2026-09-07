@@ -375,8 +375,43 @@ void actSt02aFenceOpenSub(volatile int a0)
     D_0063C504 = 1;
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaMain);
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaSwitch);
+extern void scpSleepEnemyAll(void);
+extern ActMail D_004F8150[];
+extern ActMail D_004F8190[];
+extern ActMail D_004F81B0[];
+extern void actSt02aGondolaUp(volatile int a0);
+extern void actSt02aGondolaDown(volatile int a0);
+
+void actSt02aGondolaMain(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    sub->mainMail = D_004F8150;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+void actSt02aGondolaSwitch(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    sub->mainMail = 0;
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    scpSleepEnemyAll();
+
+    if (gflagChk(0x77) != 0) {
+        D_004F8190[0].func = actSt02aGondolaDown;
+        sub->mail = D_004F8190;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    }
+
+    D_004F81B0[0].func = actSt02aGondolaUp;
+    sub->mail = D_004F81B0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 extern int D_00639EA8;
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern void gflagOn(int a0);
