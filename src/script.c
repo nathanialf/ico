@@ -237,8 +237,109 @@ int scpTriggerBallTargetMan(char *obj, float r)
     }
     return hit;
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpDown);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpUp);
+extern const char D_00554590[];
+extern void Camctrl_SetTarget(int target, int a1, int a2);
+extern void Camctrl_ExitEveRock(void);
+extern void gflagOff(int no);
+extern void GetRootMatrixTransOffset(float *dst, void *obj);
+extern void scpDoorTypeUpMain(volatile int a0);
+extern void ACTSendMailCorrect(int a0, int mail);
+/* the 0x20-byte door "mail" records in .data; the slot at +4 is the actor
+   thread the mail starts. */
+struct ScpMail { int mail; void (*func)(volatile int); char _08[0x18]; };
+extern struct ScpMail D_002A51B0[];
+struct ScpAct {
+    char _000[0x18];
+    ActStatus st18;             /* 0x18 -- the 64-bit actor status word */
+    char _020[0xB0];
+    struct ScpMail *mainMail;   /* 0xD0 */
+    struct ScpMail *mail;       /* 0xD4 */
+};
+
+/* one linear step of *p toward TARGET; returns non-zero once it arrives */
+static inline int scpTransStep(float *p, float target, float step)
+{
+    int done = 0;
+
+    if (0.0f < target) {
+        *p += step;
+        if (target < *p) {
+            *p = target;
+            done = 1;
+        }
+    } else {
+        *p -= step;
+        if (*p < target) {
+            *p = target;
+            done = 1;
+        }
+    }
+    return done;
+}
+
+/* INTERIM stand-in: scpTransLinear is a real TU function with its own ROM slot
+   (below), but the compiler inlines it into the door threads.  Delete it and
+   mark the real definition `inline` once this TU is C-complete. */
+static inline void scpTransLinearInline(void *obj, int axis, float target, float step)
+{
+    int done = 0;
+    float pos[4];
+
+    GetRootMatrixTransOffset(pos, obj);
+    while (done == 0) {
+        done = scpTransStep(&pos[axis], target, step);
+        scpTrans(obj, pos);
+        _ACTWait(1);
+    }
+}
+void scpDoorTypeUpDown(volatile int a0)
+{
+    char *act = *(char **)(a0 + 0x164);
+
+    if (*(int *)(act + 0x46C) != 0) {
+        Camctrl_SetTarget(*(int *)(act + 0x46C), 0, 3);
+        if (*(int *)(act + 0x464) != 0) {
+            _ACTWait(*(int *)(act + 0x464));
+        }
+    }
+    debug_StdPrintfDummy(D_00554590);
+    gflagOff(*(int *)(act + 0x454));
+    scpTransLinearInline((void *)a0, 1, *(float *)(act + 0x458), *(float *)(act + 0x45C));
+    if (*(int *)(act + 0x468) != 0) {
+        _ACTWait(*(int *)(act + 0x468));
+    }
+    Camctrl_ExitEveRock();
+    D_002A51B0[0].func = scpDoorTypeUpMain;
+    ((struct ScpAct *)act)->mail = D_002A51B0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+extern const char D_005545A8[];
+extern void gflagOn(int no);
+extern struct ScpMail D_002A51D0[];
+
+void scpDoorTypeUpUp(volatile int a0)
+{
+    char *act = *(char **)(a0 + 0x164);
+
+    if (*(int *)(act + 0x46C) != 0) {
+        Camctrl_SetTarget(*(int *)(act + 0x46C), 0, 3);
+        if (*(int *)(act + 0x464) != 0) {
+            _ACTWait(*(int *)(act + 0x464));
+        }
+    }
+    debug_StdPrintfDummy(D_005545A8);
+    gflagOn(*(int *)(act + 0x454));
+    scpTransLinearInline((void *)a0, 1, -*(float *)(act + 0x458), *(float *)(act + 0x45C));
+    if (*(int *)(act + 0x468) != 0) {
+        _ACTWait(*(int *)(act + 0x468));
+    }
+    Camctrl_ExitEveRock();
+    D_002A51D0[0].func = scpDoorTypeUpMain;
+    ((struct ScpAct *)act)->mail = D_002A51D0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpSubAdpcmPlay);
 INCLUDE_ASM("asm/nonmatchings/src/script", scpAdpcmCloseFunc);
 ASM_LIT4_SLOT(D_00639090, 5e+05f);
@@ -337,28 +438,23 @@ void scpKillSpiderGroup(void)
 {
     DeleteAllSpidersOfLayoutGroup(isysGObjSearchFromObjLayoutID());
 }
-extern char D_0055C518[];
-extern unsigned char D_005F5D50[];
+/* the 0x28-byte stage table at D_0055C518 and the per-stage 0x194-byte link
+   table at D_005F5D50: row [stage_no], entry .next[no - 1] at +0xA0. */
+struct StgEnt { char _00[0x24]; int id; };            /* 0x28 */
+struct StgRow { char _000[0xA0]; short next[122]; };  /* 0x194 */
+extern struct StgEnt D_0055C518[];
+extern struct StgRow D_005F5D50[];
 extern int stage_no;
 extern void stgmgrNextStagePreLoadForceNoCancel(int val);
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
 
 void preload(int idx)
 {
-  int new_var;
-  char *p;
-  char *q;
-  int new_var2;
-  short s;
-  new_var = 0xA0;
-  p = &D_005F5D50[new_var];
-  new_var = ((idx - 1) * 2) + (stage_no * 0x194);
-  s = *((short *) (p + new_var));
-  new_var2 = 0x28;
-  ;
-  q = &D_0055C518[new_var];
-  stgmgrNextStagePreLoadForceStageSet(*((int *) ((&D_0055C518[s * new_var2]) + 0x24)));
-  stgmgrNextStagePreLoadForceNoCancel(1);
+    short s;
+
+    s = D_005F5D50[stage_no].next[idx - 1];
+    stgmgrNextStagePreLoadForceStageSet(D_0055C518[s].id);
+    stgmgrNextStagePreLoadForceNoCancel(1);
 }
 extern void SetBoyWeaponGObj();
 
@@ -444,8 +540,43 @@ void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, 
    else stage_SetParentOfGObjWithLocalRotationFlag(a2,&copy,a3);
   } }
 INCLUDE_ASM("asm/nonmatchings/src/script", scpGetWallCollision);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUp);
-INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpSwitch);
+extern struct ScpMail D_002A5150[];
+
+void scpDoorTypeUp(volatile int a0)
+{
+    char *act = *(char **)(a0 + 0x164);
+
+    if (gflagChk(*(int *)(act + 0x454)) != 0) {
+        int self = a0;
+        scpTransLinearInline((void *)self, 1, -*(float *)(act + 0x458),
+                             *(float *)(act + 0x458));
+    }
+    D_002A5150[0].func = scpDoorTypeUpMain;
+    ((struct ScpAct *)act)->mail = D_002A5150;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+extern struct ScpMail D_002A5170[];
+extern struct ScpMail D_002A5190[];
+extern void scpDoorTypeUpDown(volatile int a0);
+extern void scpDoorTypeUpUp(volatile int a0);
+
+void scpDoorTypeUpSwitch(volatile int a0)
+{
+    struct ScpAct *act = (struct ScpAct *)*(char **)(a0 + 0x164);
+
+    act->mainMail = 0;
+    if (gflagChk(*(int *)((char *)act + 0x454)) != 0) {
+        D_002A5170[0].func = scpDoorTypeUpDown;
+        act->mail = D_002A5170;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    }
+    D_002A5190[0].func = scpDoorTypeUpUp;
+    act->mail = D_002A5190;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 void scpAdpcmPlayRequestFunc(int kind, int *id, int a2, int a3, int a4)
 {
     int i;
@@ -621,7 +752,18 @@ int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2){
  debug_StdPrintfDummy(D_00554450);
  return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTransLinear);
+void scpTransLinear(void *obj, int axis, float target, float step)
+{
+    int done = 0;
+    float pos[4];
+
+    GetRootMatrixTransOffset(pos, obj);
+    while (done == 0) {
+        done = scpTransStep(&pos[axis], target, step);
+        scpTrans(obj, pos);
+        _ACTWait(1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/script", scpRotateLinear);
 extern int D_0063B150;
 extern char D_00554550[];
@@ -902,7 +1044,42 @@ extern int RequestStageChangeWithColor(int no, char *g, int flag, float speed,
 int RequestStageChange(int no, char *g, int flag, float speed, float wait) {
     return RequestStageChangeWithColor(no, g, flag, speed, wait, 0, 0, 0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", RequestStageChangeWithColor);
+extern int D_00639EB4;
+extern char *D_00639EA8;
+extern void ACTGame_StageChangeGObj(char *g, int no);
+extern void BoyInfoUpdate_StageChange(void);
+extern void stgmgrForceSwitchWithFadeColor(int id, float speed, float wait, int r, int gr, int b);
+
+int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wait,
+                                unsigned char r, unsigned char gr, unsigned char b)
+{
+    int ret;
+    short next;
+    char *act;
+
+    next = D_005F5D50[stage_no].next[no - 1];
+    ret = 0;
+    if (D_00639EB4 == 0 && D_0063C24C == 0 && next != 0) {
+        if (g != 0) {
+            act = *(char **)(g + 0x164);
+            ACTGame_StageChangeGObj(g, next);
+            if (*(char **)(act + 0x150) != 0) {
+                ACTGame_StageChangeGObj(*(char **)(act + 0x150), next);
+            }
+            if (*(char **)(act + 0x154) != 0) {
+                ACTGame_StageChangeGObj(*(char **)(act + 0x154), next);
+            }
+            BoyInfoUpdate_StageChange();
+        }
+        if (flag != 0) {
+            ACTGame_StageChangeGObj(D_00639EA8, next);
+        }
+        stgmgrForceSwitchWithFadeColor(D_0055C518[next].id, speed, wait, r, gr, b);
+        ret = 1;
+        D_0063C24C = 1;
+    }
+    return ret;
+}
 extern int D_00639EB4;
 extern int D_0063C24C;
 extern void stgmgrForceSwitchWithFadeColor();
@@ -1026,7 +1203,40 @@ void scpBornSpider(int n, float a, float b, float c, float d) {
         WakeUpAP1(dead);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/script", scpActStatusDeathFall);
+extern float _ACTGame_GetParamF(int idx);
+
+int scpActStatusDeathFall(char *self)
+{
+    char *sub;
+
+    switch (*(unsigned int *)(*(char **)(self + 0x164) + 0x34)) {
+    case 4:
+    case 5:
+    case 0x3E:
+        break;
+    case 0x16:
+    case 0x18:
+        return 1;
+    default:
+        return 0;
+    }
+
+    sub = *(char **)(self + 0x15C);
+    if (stage_no == 0x22) {
+        if (_ACTGame_GetParamF(2) - 200.0f < *(float *)(sub + 0x560)) {
+            return 1;
+        }
+        sub = *(char **)(self + 0x15C);
+    }
+    if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x560)) {
+        return 1;
+    }
+    sub = *(char **)(self + 0x15C);
+    if (!(_ACTGame_GetParamF(2) < *(float *)(sub + 0x55C))) {
+        return 0;
+    }
+    return 1;
+}
 extern void CopyVector(int a0, void *a1);
 
 void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
