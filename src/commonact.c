@@ -6,11 +6,12 @@ typedef struct { int a, b, c; } Blob12;
 
 typedef struct { int w[6]; } SlowrunRec;
 
+extern void iosOmSendMail(void *a0, int a1, int a2);
 extern void SetDirectRootPosition();
 
-void ACTSetPositionWithFitting(int a0, int a1, int a2, int a3)
+void ACTSetPositionWithFitting(void *a0, float *pos)
 {
-    SetDirectRootPosition(a0, a1, a2, a3);
+    SetDirectRootPosition(a0, pos);
 }
 extern void SetDirectRootPositionNoFitting__pn() __asm__("SetDirectRootPositionNoFitting");
 
@@ -66,8 +67,35 @@ void WithMailFunc_AttackRejectInQueen(char *a0) {
         }
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", GetCorrectOrientOfChain);
-ASM_LIT4_SLOT(D_00638E3C, 3.1415927f);
+extern int GetChainDirCorrectVal(int chain, int *out);
+extern void *memset(void *dst, int c, int n);
+extern float _GetDirection(void *p);
+extern int RoundDegGV(int deg);
+extern int AlignDegGV(int deg);
+extern void _ApplyRyGV(void *a0, float a1);
+extern void *test_CURRENTORIENT(char *a0);
+
+void GetCorrectOrientOfChain(void *buf, void *obj)
+{
+    float q[4];
+    int deg;
+
+    if (GetChainDirCorrectVal(*(int *)(*(char **)((char *)obj + 0x164) + 0x190), &deg) != 0) {
+        memset(q, 0, 16);
+        q[2] = 1.0f;
+        _ApplyRyGV(q,
+                   (float)RoundDegGV(deg + AlignDegGV(RoundDegGV(
+                       (int)(_GetDirection(test_CURRENTORIENT((char *)obj)) / 3.1415927f * 180.0f) - deg)))
+                       * 3.1415927f / 180.0f);
+        ((float *)buf)[0] = q[0];
+        ((float *)buf)[1] = q[1];
+        ((float *)buf)[2] = q[2];
+    } else {
+        ((float *)buf)[0] = *(float *)((char *)test_CURRENTORIENT((char *)obj) + 0);
+        ((float *)buf)[1] = *(float *)((char *)test_CURRENTORIENT((char *)obj) + 4);
+        ((float *)buf)[2] = *(float *)((char *)test_CURRENTORIENT((char *)obj) + 8);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", CollisCheckInRope);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRope);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonRopeTurnR);
@@ -109,15 +137,92 @@ void SetDirectRootPositionXZ(void *a0, void *a1) {
     *(float *)((char *)a1 + 4) = *(float *)((char *)ret + 4);
     SetDirectRootPositionNoFitting(a0, a1);
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonLever);
-ASM_LIT4_SLOT(D_00638E58, 0.2f);
+extern int D_0028F4C0[];
+
+typedef struct { char _0[0x394]; int f394; } LeverAnim;
+extern char D_00552DF0[];
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern void SetMotionDirection();
+extern void _ACTWait(int a0);
+extern void debug_StdPrintfDummy();
+extern void GetFloorLeverGlobalHoldPoint(void *out, void *lev);
+extern void GetWallLeverGlobalHoldPoint(void *out, void *lev);
+extern void SetDirectRootPositionNoFittingWithNodePointXZ(void *a0, int node, void *pos, float t);
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines ACTMotDirToWall (lines 1307-1312) into actCommonLever, so it
+   is `inline` in the dev's TU; while this tail still has asm members a deferred
+   inline would land at the object end instead of at its ROM slot, so the public
+   body below stays a plain definition and this caller uses the static stand-in.
+   Collapses to one `inline` definition at layout. */
+static inline void actMotDirToWall(char *a0) {
+    int local[4];
+    sceVu0ScaleVector(local, *(char **)(a0 + 0x164) + 0x4B0, -1.0f);
+    SetMotionDirection(a0, local);
+}
+
+static inline void correctLeverHoldPoint(void *a0, char *lev) {
+    float w[4];
+    if (*(int *)(lev + 0xC) >= 0x16) {
+        if (*(int *)(lev + 0xC) < 0x18) {
+            GetFloorLeverGlobalHoldPoint(w, lev);
+        } else if (*(int *)(lev + 0xC) < 0x1A) {
+            GetWallLeverGlobalHoldPoint(w, lev);
+            debug_StdPrintfDummy(D_00552DF0, w[0], w[1], w[2]);
+        }
+    }
+    SetDirectRootPositionNoFittingWithNodePointXZ(a0, 0x16, w, 0.2f);
+}
+
+void actCommonLever(volatile int a0)
+{
+    float p[4];
+    char *s = *(char **)(a0 + 0x164);
+    char *lev = *(char **)(s + 0x5FC);
+
+    ((LeverAnim *)*(char **)(*(char **)(a0 + 0x164) + 0x688))->f394 =
+        ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 5;
+    p[0] = *(float *)(s + 0x5A0);
+    p[1] = *(float *)(s + 0x5A4);
+    p[2] = *(float *)(s + 0x5A8);
+    p[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+    SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 0x2C, s + 0x5A0, 1.0f);
+    actMotDirToWall((char *)a0);
+    while (1) {
+        if (lev != 0) {
+            if (*(int *)(*(char **)(a0 + 0x15C) + 0x604) != 0) {
+                correctLeverHoldPoint((void *)a0, lev);
+            }
+            if (*(int *)(*(char **)(a0 + 0x15C) + 0x600) != 0) {
+                lever_nego1((void *)a0, lev);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 extern void eBrainSendMes(void *a0);
 
 void EBRAIN_SEND_MES(void *a0, int a1) {
     if (a0 && *(int *)((char *)a0 + 0xC) == 4)
         eBrainSendMes(a0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", DamageFunc);
+extern char D_0063A720[];
+extern void debug_StdPrintfDummy();
+extern void EnemyDeleteParticle(void *a0, void *a1, void *a2);
+
+void DamageFunc(char *a0) {
+    int s = *(int *)(a0 + 0x164);
+    debug_StdPrintfDummy(D_0063A720);
+    if (a0 != D_00639EA8) {
+        *(float *)(s + 0x1E0) -= (float)*(int *)(*(char **)(a0 + 0x164) + 0x1D0);
+    }
+    if (*(int *)(a0 + 0xC) == 4) {
+        char *b;
+        EBRAIN_SEND_MES(a0, 5);
+        b = *(char **)(*(char **)(a0 + 0x164) + 0x680);
+        EnemyDeleteParticle(a0, b + 0xE0, b + 0xF0);
+    }
+}
 extern void DamageFunc(char *a0);
 
 void DownFunc(char *a0) {
@@ -126,15 +231,256 @@ void DownFunc(char *a0) {
         EBRAIN_SEND_MES(*(void **)(*(char **)(a0 + 0x164) + 0x1B0), 6);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDown);
+extern char D_00552E30[];
+extern void actAfterDown(volatile int a0);
+extern void brainAddLevelGirl(float f);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern void SetMotionDirection();
+extern void ACTSendMailCorrect(char *a0, int a1);
+
+void actCommonDown(volatile int a0)
+{
+    float v[4];
+    char *s = *(char **)(a0 + 0x164);
+    int notDamage = *(int *)(s + 0xD8) != 0x37 && *(int *)(s + 0xD8) != 0x38;
+
+    debug_StdPrintfDummy(D_00552E30);
+    *(int *)(s + 0x18) = (int)actAfterDown;
+    if (notDamage) {
+        if ((char *)a0 == D_00639EA4) {
+            brainAddLevelGirl(1000.0f);
+        }
+        if ((char *)a0 == D_00639EA8) {
+            sceVu0ScaleVector(v, *(char **)(a0 + 0x164) + 0x1C0, -1.0f);
+            SetMotionDirection(a0, v);
+        } else {
+            SetMotionDirection(a0, *(char **)(a0 + 0x164) + 0x1C0);
+        }
+        DownFunc((char *)a0);
+    }
+    *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xCC) = 0x10;
+    while (1) {
+        if (*(int *)(a0 + 0xC) != 4) {
+            *(char *)(*(char **)(a0 + 0x164) + 0x1DA) = 1;
+        }
+        ACTSendMailCorrect((char *)a0, 0xC7);
+        if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xCC) <= 0) {
+            ACTSendMailCorrect((char *)a0, 0x124);
+        }
+        _ACTWait(1);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDie);
 ASM_LIT4_SLOT(D_00638E5C, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", Cling);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonCling);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonSlip);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStoneDead);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStone);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonSofa);
+extern float _GetRandom(void);
+extern void *memset(void *dst, int c, int n);
+extern void RotQuaternionX(float *q, short a);
+extern void RotQuaternionY(float *q, short a);
+extern void RotQuaternionZ(float *q, short a);
+extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q,
+                                          float x, float y, float z, float w);
+extern void ACTGameCollisionOff(volatile int *self);
+extern char D_00552D90[];
+extern char D_00552E60[];
+extern void debug_assert(char *a0, int a1);
+extern void __assert(char *a0, int a1, char *a2);
+
+typedef struct {
+    int rot[3];
+    float f0C;
+    float f10;
+    float f14;
+    int f18;
+    int f1C;
+    int f20;
+} ClingRec;
+
+extern ClingRec D_002BC4C0[];
+
+typedef struct { char _0[0x21C]; int f21C; int f220; } ClingSub;
+
+void actCommonCling(volatile int a0)
+{
+    int no;
+    int mot;
+
+    int Cling(int idx, int m)
+    {
+        float q[4];
+        ClingRec *r;
+        int i;
+        int v;
+
+        r = &D_002BC4C0[idx];
+        memset(q, 0, 16);
+        q[3] = 1.0f;
+        if (!((unsigned int)idx < 15)) {
+            debug_assert(D_00552D90, 0xAAD);
+            __assert(D_00552D90, 0xAAD, D_00552E60);
+        }
+        for (i = 0; i < 3; i++) {
+            v = (r->rot[i] << 15) / 180;
+            if (v != 0) {
+                switch (i) {
+                case 0:
+                    RotQuaternionX(q, v);
+                    break;
+                case 1:
+                    RotQuaternionY(q, v);
+                    break;
+                case 2:
+                    RotQuaternionZ(q, v);
+                    break;
+                }
+            }
+        }
+        SetMotionNodeFixModeParameter((void *)a0, (void *)m, r->f18, r->f20, q,
+                                      r->f0C, r->f10, r->f14, 1.0f);
+        return r->f1C;
+    }
+
+    no = (int)(_GetRandom() * 10.0f) % 15;
+    mot = ((ClingSub *)*(int *)(*(int *)(a0 + 0x164) + 0x680))->f21C;
+
+    ((ClingSub *)*(int *)(*(int *)(a0 + 0x164) + 0x680))->f220 = mot;
+    ACTGameCollisionOff(a0);
+    Cling(no, mot);
+    _ACTWait(0);
+}
+
+extern int SetMotionDirectionSmooze(int a0, float *dir, float s);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+
+void actCommonSlip(volatile int a0)
+{
+    float dir[4];
+    float v2[4];
+    float v3[4];
+
+    if (*(unsigned char *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x280) == 0) {
+        dir[0] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x270);
+        dir[1] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x274);
+        dir[2] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x278);
+    } else {
+        sceVu0ScaleVector(dir, (float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x270), -1.0f);
+    }
+    v2[0] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x270);
+    v2[1] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x274);
+    v2[2] = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x278);
+    sceVu0ScaleVector(v3, (float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x270), 30.0f);
+    v3[1] = -20.0f;
+    while (1) {
+        SetMotionDirectionSmooze(a0, dir, 3.0f);
+        _ACTWait(1);
+    }
+}
+extern void ACT_LAYOUT_GAMEOVER(void);
+extern int enable_game_pause;
+extern int D_0063AA08;
+extern void SetBoyStonizedVisual(volatile int a0);
+extern void GetGameOverEffectCenterPosition(float *out);
+extern void _OrientXZGV(void *out, void *a, void *b);
+extern void ACTSetPositionWithFitting(void *a0, float *pos);
+extern void SetMotionDirection();
+
+void actCommonStoneDead(volatile int a0)
+{
+    float center[4];
+    float dir[4];
+    char *s = *(char **)(a0 + 0x164);
+
+    if (*(int *)(s + 0xD8) == 0x22) {
+        SetBoyStonizedVisual(a0);
+        GetGameOverEffectCenterPosition(center);
+        _OrientXZGV(dir, center, test_CURRENTROOT((void *)a0));
+        SetMotionDirection(a0, dir);
+    } else {
+        ACTSetPositionWithFitting((void *)a0, test_CURRENTROOT((void *)a0));
+        SetMotionDirection(a0, *(char **)(a0 + 0x164) + 0x1C0);
+        *(int *)(a0 + 0x50) = 0;
+    }
+    enable_game_pause = 0;
+    D_0063AA08 = 1;
+    _ACTWait(300);
+    ACT_LAYOUT_GAMEOVER();
+    _ACTWait(0);
+}
+extern void debug_Printf(int a, int b, unsigned int c, char *d, ...);
+extern char D_00552EB8[];
+extern char D_00552EC8[];
+extern void _ACTParaStatus_Set(int a0, int a1);
+extern void afterCommonStone(volatile int a0);
+extern int D_0063B13C;
+
+typedef struct { char _0[0x14]; int f14; char _18[0x34]; int f4C; } StoneSub;
+
+void actCommonStone(volatile int a0)
+{
+    StoneSub *s = (StoneSub *)*(char **)(a0 + 0x164);
+
+    s->f14 = (int)afterCommonStone;
+    *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x2A0) = 0;
+    while (1) {
+        if (D_0063B13C & 1) {
+            debug_Printf(10, 0xAA, 0xFFFFFFF, D_00552EB8,
+                         *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xCC));
+        }
+        if (D_0063B13C & 1) {
+            debug_Printf(10, 0xB4, 0xFFFFFFF, D_00552EC8,
+                         *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C));
+        }
+        switch (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C)) {
+        case 0:
+        case 1:
+            break;
+        case 2:
+            _ACTParaStatus_Set(a0, 0x26);
+            break;
+        default:
+            _ACTParaStatus_Set(a0, 0x27);
+            break;
+        }
+        if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xCC) < 0) {
+            ACTSendMailCorrect((char *)a0, 0xC7);
+            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C) = 0;
+        }
+        if (s->f4C >= 0x3D &&
+            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C) >= 3) {
+            ACT_LAYOUT_GAMEOVER();
+            _ACTWait(0);
+        }
+        ACTSendMailCorrect((char *)a0, 0x70);
+        _ACTWait(1);
+    }
+}
+extern int D_0028F4C0[];
+extern void ACTSendMailCorrect(char *a0, int a1);
+
+typedef struct { char _0[0x250]; int f250, f254, f258, f25C; } SofaObj;
+typedef struct { char _0[0x3A0]; int f3A0, f3A4; } SofaAnim;
+
+void actCommonSofa(volatile int a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+
+    SetDirectRootPositionNoFitting((void *)a0, s + 0x5B0);
+    ((SofaObj *)*(int *)(*(int *)(a0 + 0x164) + 0x680))->f250 = 0;
+    ((SofaObj *)*(int *)(*(int *)(a0 + 0x164) + 0x680))->f258 = 0;
+    ((SofaObj *)*(int *)(*(int *)(a0 + 0x164) + 0x680))->f25C = 0;
+    *(void **)(s + 0x160) = *(void **)(s + 0x61C);
+    while (1) {
+        ((SofaAnim *)*(int *)(*(int *)(a0 + 0x164) + 0x688))->f3A0 =
+            ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 3;
+        ((SofaAnim *)*(int *)(*(int *)(a0 + 0x164) + 0x688))->f3A4 =
+            ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10;
+        if (((SofaObj *)*(int *)(*(int *)(a0 + 0x164) + 0x680))->f250 >
+            ((SofaObj *)*(int *)(*(int *)(a0 + 0x164) + 0x680))->f254) {
+            ACTSendMailCorrect((char *)a0, 0x73);
+        }
+        ((SofaObj *)*(int *)(*(int *)(a0 + 0x164) + 0x680))->f250 += 1;
+        _ACTWait(1);
+    }
+}
 void BoxBarSoundOn(char *a0) {
     char *s = *(char **)(a0 + 0x164);
     switch (*(int *)(s + 0x34)) {
@@ -157,7 +503,34 @@ void BoxBarSoundOff(char *a0) {
         break;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", _boxbar_set_sound);
+void _boxbar_set_sound(int a0, int mode)
+{
+    switch (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x310)) {
+    case 0:
+        if (mode == 1) {
+            BoxBarSoundOn((char *)a0);
+            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x310) = 1;
+        }
+        break;
+    case 1:
+        if (mode == 0 || mode == 2) {
+            BoxBarSoundOff((char *)a0);
+            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x310) = mode;
+        } else {
+            BoxBarSoundOn((char *)a0);
+        }
+        break;
+    case 2:
+        if (mode == 0) {
+            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x310) = 0;
+        }
+        if (mode == 3) {
+            BoxBarSoundOn((char *)a0);
+            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x310) = 1;
+        }
+        break;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBox);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBar);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonJumpDircorrect);
@@ -170,7 +543,41 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", correctJumpOrientByChain);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonJump);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonFall);
 ASM_LIT4_SLOT(D_00638E68, 0.1f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", debugDispFlyLimit);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern int MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_TransMatrixV(void *v);
+extern void _UnitMatrix(int a0);
+extern void gif_StartPacketPri(int pri);
+extern void gif_EndPacket(void);
+extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
+extern void prim_DispWireSphere(float a3, void *a0, int a1, int a2);
+extern char D_0029CF30[];
+
+typedef union { float f[4]; long long ll[2]; } FlyPt;
+
+static void debugDispFlyLimit(float *pos, float y0, float y1)
+{
+    MatrixDrive_PushMatrix();
+    {
+    FlyPt a = { { pos[0], y0, pos[2], 1.0f } };
+    FlyPt b = { { pos[0], y1, pos[2], 1.0f } };
+
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    gif_StartPacketPri(11);
+    DrawLineG(&b, D_0029CF30, &a, D_0029CF30, 0);
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(&a);
+    prim_DispWireSphere(10.0f, D_0029CF30, 4, 4);
+    MatrixDrive_PopMatrix();
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(&b);
+    prim_DispWireSphere(10.0f, D_0029CF30, 4, 4);
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+    }
+    MatrixDrive_PopMatrix();
+}
 extern int MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
 extern void MatrixDrive_PushMatrix(void);
@@ -178,14 +585,14 @@ extern void MatrixDrive_TransMatrixV(void *a0);
 extern void _UnitMatrix(int a0);
 extern void gif_EndPacket(void);
 extern void gif_StartPacketPri(int a0);
-extern void prim_DispWireSphere(void *a0, int a1, int a2, float a3);
+extern void prim_DispWireSphere(float a3, void *a0, int a1, int a2);
 
 void debugDispSphere(void *a0, void *a1, float f) {
     MatrixDrive_PushMatrix();
     _UnitMatrix(MatrixDrive_GetMatrix());
     gif_StartPacketPri(0xB);
     MatrixDrive_TransMatrixV(a0);
-    prim_DispWireSphere(a1, 4, 4, f);
+    prim_DispWireSphere(f, a1, 4, 4);
     gif_EndPacket();
     MatrixDrive_PopMatrix();
 }
@@ -288,12 +695,56 @@ void ACTAcceptMail(char *a0, int a1) {
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTMotDirSmzDirect);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_Idling);
+typedef struct { int w[5]; } IdleRangeRec;
+
+extern IdleRangeRec D_002A7DC8[];
+extern SlowrunRec D_002ADD60[];
+
+static inline void SetIdleMotionRange(int k, int mot)
+{
+    int n1 = D_002A7DC8[k].w[1];
+    int n2 = D_002A7DC8[k].w[2];
+    int n3 = D_002A7DC8[k].w[3];
+    int n4 = D_002A7DC8[k].w[4];
+    int i;
+
+    if (mot != 0x47B) {
+        D_002ADD60[n1].w[2] = mot;
+        D_002ADD60[n2].w[2] = mot;
+        for (i = n3; i < n4; i++) {
+            D_002ADD60[i].w[0] = mot;
+        }
+    }
+}
+
+void WithMailFunc_Idling(char *a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+    int k = *(int *)(s + 0x48);
+    int mot = *(int *)(*(char **)(a0 + 0x15C) + 0x4A0);
+
+    SetIdleMotionRange(k, mot);
+}
 void WithMailFunc_BossDamaged(char *a0) {
     char *m = *(char **)(*(char **)(a0 + 0x164) + 0x680);
     *(int *)(m + 0x20C) -= 1;
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_FallDead);
+extern float FSqrt(float a0);
+extern void sceVu0Normalize(void *a0, void *a1);
+
+void WithMailFunc_FallDead(char *a0) {
+    float v[4];
+    char *s = *(char **)(a0 + 0x15C);
+    v[0] = *(float *)(s + 0x1D0);
+    v[1] = *(float *)(s + 0x1D4);
+    v[2] = *(float *)(s + 0x1D8);
+    sceVu0Normalize(v, v);
+    if ((double)FSqrt(v[0] * v[0] + v[2] * v[2]) > 0.3) {
+        v[1] = 0.0f;
+        sceVu0Normalize(v, v);
+        SetMotionDirection(a0, v);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRevive);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonReviveAir);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonPlay);
@@ -449,8 +900,67 @@ void *test_CURRENTORIENT(char *a0) {
         return p;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", test_CURRENTROOT);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", StartCorrectPosition);
+extern float D_006C0BB0[];
+extern float D_0063A790[];
+extern int GetCageChainPoint(float *out, float *buf, void *a0);
+extern void GetRootPosition(float *out, void *a0);
+
+void *test_CURRENTROOT(void *a0)
+{
+    float buf[4];
+    float *p;
+    float v;
+
+    switch (*(int *)((char *)a0 + 0xC)) {
+    case 1:
+    case 2:
+    case 4:
+        p = (float *)*(char **)((char *)a0 + 0x164);
+        p = (float *)((char *)p + 0x100);
+        GetRootPosition(p, a0);
+        return p;
+    case 0x2C:
+        if (GetCageChainPoint(D_006C0BB0, buf, a0) == 0) {
+            v = D_0063A790[0];
+            D_006C0BB0[0] = v;
+            D_006C0BB0[1] = v;
+            D_006C0BB0[2] = v;
+        }
+        return D_006C0BB0;
+    default:
+        GetRootPosition(D_006C0BB0, a0);
+        return D_006C0BB0;
+    }
+}
+typedef union { unsigned long long ll; int i; } CorrFlag;
+
+void StartCorrectPosition(char *a0, float *pos, float *dir, int mode, float t)
+{
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x70) =
+        ((float *)test_CURRENTROOT(a0))[0];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x74) =
+        ((float *)test_CURRENTROOT(a0))[1];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x78) =
+        ((float *)test_CURRENTROOT(a0))[2];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x80) =
+        ((float *)test_CURRENTORIENT(a0))[0];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x84) =
+        ((float *)test_CURRENTORIENT(a0))[1];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x88) =
+        ((float *)test_CURRENTORIENT(a0))[2];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x90) = pos[0];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x94) = pos[1];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x98) = pos[2];
+    if (dir != 0) {
+        *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0xA0) = dir[0];
+        *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0xA4) = dir[1];
+        *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0xA8) = dir[2];
+    }
+    *(int *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0xB0) = (int)t;
+    *(int *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0xB4) = 0;
+    ((CorrFlag *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0xB8))->i = mode;
+    ((CorrFlag *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0xB8))->ll |= (1ULL << 32);
+}
 int IsCorrectPosition(char *a0) {
     unsigned long long v = *(unsigned int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xBC);
     return (int)v & 1;
@@ -578,7 +1088,20 @@ void actAfterFall(volatile int a0) {
     *(unsigned long long *)(s + 0x18) = fl;
     *(unsigned long long *)(s + 0x20) = st | (1ULL << 31);
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actAfterFly);
+extern void SetEnemyFootPrintSwitch(int a0, int a1);
+typedef struct { char _0[0x20]; unsigned long long status; } FlySub;
+
+static inline void ResetFlyLimit(int a0)
+{
+    *(int *)(*(int *)(a0 + 0x15C) + 0x654) = 0;
+}
+
+void actAfterFly(volatile int a0) {
+    FlySub *s = (FlySub *)*(int *)(a0 + 0x164);
+    s->status |= 0x200;
+    SetEnemyFootPrintSwitch(a0, 1);
+    ResetFlyLimit(a0);
+}
 extern void sceVu0CopyVector(void *a0, void *a1);
 extern void ClipWallField(void *a0);
 extern void ClipFloor(void *a0);
@@ -597,7 +1120,16 @@ void afterCommonOneWall(int x) {
 int ACTCheckFlagAttack(char *a0) {
     return *(int *)(*(char **)(a0 + 0x164) + 0x34) == 0xF;
 }
-INCLUDE_ASM("asm/nonmatchings/src/commonact", afterCommonBecarry);
+extern void SetKidnapInfo(int a0, int a1);
+extern void gflagOff(int a0);
+typedef struct { char _0[0x74]; int coll; } BecSub;
+
+void afterCommonBecarry(volatile int a0) {
+    SetKidnapInfo(-1, -1);
+    ((BecSub *)*(int *)(a0 + 0x15C))->coll = 1;
+    ACTGameCollisionOn(a0);
+    gflagOff(0x189);
+}
 void afterCommonTruckLever(volatile int a0) {
     char *g = (char *)a0;
     SetSwitchState(*(int *)(*(char **)(g + 0x164) + 0x5FC), 0);

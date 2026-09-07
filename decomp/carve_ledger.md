@@ -998,6 +998,9 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
 
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
+- `[0x453318, .rodata, src/commonact]` — one 8-byte double (WithMailFunc_FallDead's 0.3, a
+  constant-pool operand ROM addresses as a literal); the blob resumes at `0x453320`.
+
 - `[0x452680, .rodata, src/act-game]` — _ACTCharStatus_Set's 17-arm table; the blob resumes
   at `0x4526C4` with the pad word before the string run.
 
