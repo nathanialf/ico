@@ -54,14 +54,21 @@ typedef union {
 } EnemyStatusFlags;
 
 typedef struct {
-    char pad000[0x1EC];
+    char pad000[0x1E0];
+    float bodySize;
+    int liftKind;
+    char pad1E8[0x1EC - 0x1E8];
     int battleType;
     char pad1F0[0x210 - 0x1F0];
     EnemyStatusFlags flags;
 } EnemyBattleWork;
 
 typedef struct {
-    char pad000[0x680];
+    char pad000[0x14];
+    void *after;
+    char pad018[0x120 - 0x18];
+    float dir[4];
+    char pad130[0x680 - 0x130];
     EnemyBattleWork *enemy;
 } EnemyActSub;
 
@@ -583,7 +590,109 @@ void MoveChestForCatchBoy(char *self)
     debug_NMarker((float *)(*(char **)(self + 0x15C) + 0x390), 255, 0, 0, 200.0f);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyBodylift);
+extern void GetMatrixDirectionToZ(float *dst, void *ori);
+extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
+extern void sceVu0SubVector(float *dst, float *a, float *b);
+extern float _DistSqGV(float *a, float *b);
+extern int GetMotionFrameFlag1(void *self);
+extern int GetMotionFrameFlag2(void *self);
+extern void _ACTMotDirSmzDirect(void *self, float *dir);
+extern void afterEnemyBodylift(volatile int a0);
+extern float D_0029D100[];
+
+/* listing rows 2655-2657: a `static inline` outside this function's span. */
+static inline void enemyBodyliftClearBoy(char *self)
+{
+    *(int *)(*(int *)(self + 0x15C) + 0x550) = 0;
+    *(int *)(*(int *)(self + 0x15C) + 0x380) = 0;
+}
+
+void actEnemyBodylift(volatile int a0)
+{
+    float dir[4];
+    float pos[4];
+    float bpos[4];
+    float mtx[16];
+    float lv[4];
+    EnemyActSub *sub;
+    int hit;
+
+    sub = ((EnemyBattleGObj *)a0)->sub;
+    hit = 0;
+    ((EnemyBattleGObj *)a0)->sub->enemy->flags.ll &= ~4LL;
+    _OrientXZGV(dir, D_0029D100, (float *)test_CURRENTROOT((int)a0));
+    sub->after = (void *)afterEnemyBodylift;
+    if (((EnemyBattleGObj *)a0)->sub->enemy->liftKind != 3) {
+        _OrientXZGV(sub->dir, (float *)test_CURRENTROOT((int)D_00639EA4),
+                    (float *)test_CURRENTROOT((int)a0));
+        SetMotionDirection((void *)a0, sub->dir);
+    }
+    for (;;) {
+        ((EnemyBattleGObj *)a0)->sub->enemy->flags.ll &= ~4LL;
+        if (((EnemyBattleGObj *)a0)->sub->enemy->liftKind == 3) {
+            if (*(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34) == 94) {
+                enemyBodyliftClearBoy((char *)a0);
+            } else {
+                MoveChestForCatchBoy((char *)a0);
+            }
+        }
+        GetSkeltonPosition(pos, (char *)a0, 22);
+        bpos[0] = ((float *)test_CURRENTROOT((int)D_00639EA4))[0];
+        bpos[1] = ((float *)test_CURRENTROOT((int)D_00639EA4))[1];
+        bpos[2] = ((float *)test_CURRENTROOT((int)D_00639EA4))[2];
+        if (((EnemyBattleGObj *)a0)->sub->enemy->liftKind == 3) {
+            sceVu0SubVector(lv, (float *)test_CURRENTROOT((int)D_00639EA4), pos);
+            GetMatrixDirectionToZ(mtx, test_CURRENTORIENT((int)a0));
+            lv[3] = 0.0f;
+            sceVu0ApplyMatrix(lv, mtx, lv);
+            if (((lv[0] < 0.0f) ? -lv[0] : lv[0]) < 100.0f &&
+                ((lv[1] < 0.0f) ? -lv[1] : lv[1]) < 100.0f && -300.0f < lv[2] &&
+                lv[2] < 200.0f) {
+                hit = 1;
+            }
+        } else {
+            if (_DistSqGV(pos, bpos) <
+                *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E0) * 45.0f *
+                    (*(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E0) *
+                     45.0f)) {
+                hit = 1;
+            }
+        }
+        /* Listing row 167d4c is a volatile read of the actor-entry home whose
+           value nothing consumes, attributed to source line 2785 -- and lines
+           2786..2807 emit no instructions at all, so 2785 is the surviving
+           access of a statement whose remaining 22 lines were compiled out.
+           A volatile access cannot be manufactured by scheduling, so the read
+           has to be written. */
+        (void)a0;
+        if (GetMotionFrameFlag1((void *)a0) != 0 && hit != 0) {
+            iosOmSendMail((int)D_00639EA4, 0x170, a0);
+        }
+        if (GetMotionFrameFlag2((void *)a0) != 0) {
+            _OrientXZGV(bpos, (float *)test_CURRENTROOT((int)D_00639EA4),
+                        (float *)test_CURRENTROOT((int)a0));
+            _ACTMotDirSmzDirect((void *)a0, bpos);
+        }
+        if (*(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34) == 94 &&
+            *(int *)(*(char **)(*(char **)((char *)D_00639EA4 + 0x164) + 0x680) +
+                     0x22C) == (int)a0) {
+            if (((EnemyBattleGObj *)a0)->sub->enemy->liftKind == 3) {
+                if (0 < *(int *)(*(char **)(*(char **)((char *)D_00639EA4 + 0x164) +
+                                            0x680) +
+                                 0xCC)) {
+                    ACTSendMailCorrect((void *)a0, 0x176);
+                } else {
+                    ACTSendMailCorrect((void *)a0, 0x177);
+                }
+            } else {
+                ACTSendMailCorrect((void *)a0, 0x174);
+            }
+        } else {
+            ACTSendMailCorrect((void *)a0, 0xC7);
+        }
+        _ACTWait(1);
+    }
+}
 extern void *test_CURRENTROOT(int a0);
 extern void *test_CURRENTORIENT(int a0);
 extern void _OrientXZGV(float *dst, float *a, float *b);
@@ -1529,7 +1638,7 @@ int IsEnemyBrainToBoy(char *self) {
     return *(int *)(sub2 + 0x204) == 3;
 }
 int GetEnemyTypeFromGObj(char *a0) {
-    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E4);
+    return ((EnemyBattleGObj *)a0)->sub->enemy->liftKind;
 }
 int GetEnemyType(void) {
     return 1;
