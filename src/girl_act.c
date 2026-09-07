@@ -196,11 +196,19 @@ void girlBrainMain_Init(void) {
     memset(D_0029D650, 0, 0x5920);
 }
 typedef struct {
-    char _0[0x58F8];
-    int  runMode;
+    char _0[0xC90];
+    int  f_C90;            /* 0xC90 */
+    char _C94[0x0C];
+    int  f_CA0;            /* 0xCA0 */
+    char _CA4[0x4C4C];
+    unsigned char f_58F0;  /* 0x58F0 */
+    char _58F1[0x07];
+    int  runMode;          /* 0x58F8 */
     int  wait;
     int  timer;
     int  limit;
+    char _5908[0x0C];
+    int  f_5914;           /* 0x5914 */
 } GirlBrainWork;
 extern float D_002A5594[];
 extern char D_0029D4A0[];
@@ -1660,7 +1668,28 @@ void subGirlBrain_Becarry(volatile int a0) {
     *(int *)(*(char **)(g + 0x164) + 0x34C) = 0;
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Busy);
+extern int ACTGameView_Check(void *self, void *target);
+
+void subGirlBrain_Busy(volatile int a0)
+{
+    char *sub = *(char **)((char *)a0 + 0x164);
+    GirlBrainWork *w = (GirlBrainWork *)D_0029D650;
+    int i = 0;
+
+    *(int *)(sub + 0x34C) = 0;
+    while (1) {
+        if (w->f_C90) {
+            _ACTCharStatus_Set((void *)a0, 2, -1.0f, w->f_CA0);
+        }
+        if (((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] < i
+             && ACTGameView_Check((void *)a0, D_00639EA4))
+            || (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 2 < i) {
+            w->f_58F0 = 1;
+        }
+        i++;
+        _ACTWait(1);
+    }
+}
 extern int D_006C1E40[];
 extern void Danger_Bomb(void *self);
 extern void Danger_Gondola(void *self);
