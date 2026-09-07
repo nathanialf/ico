@@ -222,8 +222,91 @@ void actSt06aDoor(volatile int a0)
         _ACTWait(0);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aDoorUpChk);
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aDoorDownChk);
+/* The four door-boundary X/Z corners and the exit-camera Z live in the -G8
+   gp float pool and are written by the stage's layout/script side, so the
+   compiler may not sink their loads into a jal delay slot; ROM has a nop at
+   every one of these call sites. */
+extern volatile float D_00639998;
+extern volatile float D_0063999C;
+extern volatile float D_006399A0;
+extern volatile float D_006399A4;
+extern volatile float D_006399AC;
+extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
+extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
+extern void actSt06aDoorUpEffect(volatile int a0);
+extern void actSt06aDoorDownEffect(volatile int a0);
+extern long long D_00622B90[];
+extern ActMail D_004F9990[];
+extern ActMail D_004F99B0[];
+
+void actSt06aDoorUpChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0xF);
+
+    actCreateSubThread(actSt06aDoorUpEffect, 0x15);
+
+    scpWakeupItemWithBoundary(D_00639998, D_0063999C, -620.0f, 100.0f);
+
+    stage_SetAnimation(0x6F, 1, 0);
+
+    buf[0] = D_00622B90[0];
+    buf[1] = D_00622B90[1];
+    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(0x6F) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    D_004F9990[0].func = actSt06aDoorDownChk;
+    sub->mail = D_004F9990;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+void actSt06aDoorDownChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0xF);
+
+    actCreateSubThread(actSt06aDoorDownEffect, 0x15);
+
+    scpWakeupItemWithBoundary(D_006399A0, D_006399A4, -620.0f, 100.0f);
+
+    stage_SetAnimation(0x70, 1, 0);
+
+    buf[0] = D_00622B90[0];
+    buf[1] = D_00622B90[1];
+    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(0x70) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    D_004F99B0[0].func = actSt06aDoorUpChk;
+    sub->mail = D_004F99B0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 void actSt06aShutterOpen(volatile int a0)
 {
     int h;
@@ -1067,7 +1150,36 @@ void actSt06aExitChk(volatile int a0)
     D_0063AA08 = 0;
     RequestStageChange(3, D_00639EA4, 0, 16.0f, 16.0f);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aExitGirlChk);
+extern const long long D_00622BC0[];
+extern const long long D_00622BD0[];
+extern void RequestStageChangeDirect(void *a0, int a1, void *buf, int a3);
+extern void SetDirectRootPosition(void *a0, void *a1);
+extern void ScpCallCameraSetTarget(float x, float y, float z);
+
+void actSt06aExitGirlChk(volatile int a0)
+{
+    long long buf1[2];
+    long long buf2[2];
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (gflagChk(0x6A) != 0 ||
+           scpTriggerBall(a0, D_00639EA8, 400.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    buf1[0] = D_00622BC0[0];
+    buf1[1] = D_00622BC0[1];
+    RequestStageChangeDirect(D_00639EA8, 0x16, buf1, 0xB4);
+
+    buf2[0] = D_00622BD0[0];
+    buf2[1] = D_00622BD0[1];
+    SetDirectRootPosition(D_00639EA8, buf2);
+
+    ScpCallCameraSetTarget(-800.0f, -500.0f, D_006399AC);
+}
 
 void actSt06aBoxSub(volatile int a0)
 {

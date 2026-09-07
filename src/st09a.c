@@ -200,7 +200,35 @@ void actSt09aElvSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
-INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aElvUp);
+void actSt09aElvUp(volatile int a0)
+{
+    Act *self = (Act *)((PObjGObj *)a0)->act;
+    /* sound handle owned by the sound subsystem: ROM homes it at 4(sp)
+       across the animation wait and reloads it for soundSeDefStop. */
+    volatile int se;
+
+    lt_switch_layout(0x37);
+
+    stage_SetAnimation(0x177, 1, 0xD3);
+
+    se = soundSeDefPlay(0x4C1, 0, 0, 1);
+
+    gflagOff(0x53);
+
+    while (stage_CheckAnimationFrame(0x177, 0x1A4, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefStop(se);
+
+    lt_switch_layout(0x36);
+
+    D_004FA390[0].func = actSt09aElvMain;
+    self->mail = D_004FA390;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 void actSt09aSekizoEvent(int x) {
     volatile int local = x;
 }

@@ -4,6 +4,15 @@ typedef struct { int w[6]; } AssertRec;
 
 typedef struct { int f_0; char _4[0x14]; } DbgSlot;
 
+extern char *iosMallocDebug(int heap, int size, char *file, int line);
+extern void iosFree(void *p);
+extern void iosCdvdHandlerRead(void *h, void *buf, int size);
+extern void SetParticleEffectPackage(int a0, void *buf, int size);
+extern void debug_StdPrintfDummy(char *fmt, ...);
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+extern void soundSQDataSet(void *buf, int a3, int kind, int mode, int a6);
+
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", InitCharFileManager);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ResetCharFileManager);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadModelFile);
@@ -39,7 +48,54 @@ void ReadEndCheckFile(void *h, int a1, int size) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadStageSettingFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", CSVSYSTEM_ReadCharFiles);
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundSqFile);
+typedef struct { int mode; int bank; } SqInfo;
+
+extern int D_0063A444;
+extern int D_0063A458;
+extern int D_0063A684;
+extern char D_006193B0[];
+extern char D_006198D0[];
+extern char D_0063AD10[];
+extern int D_0028F4C0[];
+
+void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6) {
+    /* the sound bank/mode pair the switch fills in and soundSQDataSet reads back:
+       ROM keeps both words memory-resident and reloads mode at the call. */
+    volatile SqInfo info;
+    char *buf;
+
+    D_0028F4C0[8]++;
+    if (size == 0) {
+        return;
+    }
+    switch (kind) {
+    case 11:
+        info.mode = 0;
+        info.bank = 0;
+        break;
+    case 10:
+        info.mode = 1;
+        info.bank = D_0063A684;
+        break;
+    default:
+        debug_assert(D_006193B0, 709);
+        __assert(D_006193B0, 709, D_0063AD10);
+    }
+    if (info.bank == 0) {
+        if (a6 == 0) {
+            buf = iosMallocDebug(D_0063A444, size, D_006193B0, 715);
+        } else {
+            buf = iosMallocDebug(D_0063A458, size, D_006193B0, 717);
+        }
+    } else {
+        buf = 0;
+    }
+    iosCdvdHandlerRead(h, buf, size);
+    if (buf != 0) {
+        soundSQDataSet(buf, a3, kind, info.mode, a6);
+    }
+    debug_StdPrintfDummy(D_006198D0, a3, a1, size);
+}
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundAdpcmFile);
 extern DbgSlot D_006FAD00[];
 

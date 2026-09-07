@@ -911,7 +911,86 @@ void actSt13cConte05Jimaku(volatile int a0)
     _ACTWait(0);
 }
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFallEffect);
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cSekizoChk);
+void actSt13cSekizoChk(volatile int a0)
+{
+    /* the family's SE-handle slot at 4(sp): sound-subsystem owned, and here
+       never written before soundSeDefStop reads it back (ROM: lw $4,4($sp)). */
+    volatile int se;
+    float dir[4];
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0 ||
+           scpTriggerBall(a0, D_00639EA8, 200.0f) == 0 ||
+           gflagChk(0x1C) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    SetWayGroupActive(2, 1);
+
+    scpAdpcmPlayRequestFunc(0x11, &hand, 1, 1, 1);
+    while (hand == 0) {
+        _ACTWait(1);
+    }
+
+    scpKillEnemyAll();
+    scpMaskGeneratorAll();
+
+    stage_SetAnimation(0x4D, 1, 0);
+
+    D_0063C010 = iosPadActRequest(D_00639EAC, 9);
+    D_0063C014 = 0x80;
+    iosPadActVolumeSet(D_0063C010, 0x80);
+
+    scpPlayStart(D_00639EA4);
+    scpPlayStart(D_00639EA8);
+    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayPosSet(D_00639EA4, -300.0f, -100.0f, 100.0f);
+    scpPlayPosSet(D_00639EA8, -300.0f, -100.0f, 0.0f);
+    _ACTWait(1);
+
+    sceVu0SubVector(dir, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA8));
+    scpPlayMotDir(D_00639EA8, dir);
+
+    D_0063AA08 = 1;
+
+    sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
+    scpPlayMotDir(D_00639EA4, dir);
+
+    scpSekizouCheckPoint();
+
+    scpPlayMot(D_00639EA8, 0x285);
+    scpPlayWaitMotEnd(D_00639EA8);
+
+    gflagOn(0x1F);
+
+    soundSeDefStop(se);
+
+    while (stage_CheckAnimationFrame(0x4D, 0xB4, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActStop(D_0063C010);
+
+    while (stage_CheckAnimationFinish(0x4D) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayEnd(D_00639EA8);
+    scpPlayMot(D_00639EA4, 0);
+    scpPlayEnd(D_00639EA4);
+
+    D_0063AA08 = 0;
+    lt_switch_layout(0x36);
+}
 void actSt13cGirlCarryChk(volatile int a0)
 {
     Act *self = (Act *)((PObjGObj *)a0)->act;
