@@ -978,6 +978,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
   as literals (the TU's whole pool), directly before girl_act's carve; no blob remnant
   remains between enemy_act's words and girl_act.
 
+- `[0x5392C0, .lit4, src/queen]` — the TU's whole pool, 25 words (= MAIN.MAP queen.o
+  .lit4 0x64): a slot for the still-asm static Debug_StickControl, then QueenGeo's,
+  QueenBarrierGeo's and its three WrapRad expansions' constants as literals, a slot for
+  the still-asm QueenBallGeo; blob resumes at `0x539324` with queen_barrier_disp's words.
+
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
 The compiled table is often shorter than ROM's padded run (blob sections

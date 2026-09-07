@@ -243,6 +243,10 @@ _RotMatrixY_02 = 0x0025D950; // type:func  // src/cod/vendor_25D410
 sceVu0RotTransPersN = 0x0025DEB0; // type:func  // src/cod/vendor_25D410
 sceVu0RotTransPers = 0x0025DF08; // type:func  // src/cod/vendor_25D410
 
+// func_001A27D0 and func_001A34D8 are the census statics effect_end_func and Debug_StickControl (itou_boss and act_bird hold those names), renamed in C only when matched
+subQueenBrainMain = 0x001A2D60; // type:func  // src/queen
+func_001A34D8 = 0x001A34D8; // type:func  // src/queen
+
 // ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — do not hand-edit below this line ====
 // ---------------------------------------------------------------------------
 // Recovered PAL (SCES-50760 / SCES_507.60) function symbols.  Regenerate with:
@@ -2553,7 +2557,7 @@ cmpr = 0x001A2760; // type:func  // src/lightning
 scale_m34 = 0x001A2770; // type:func  // src/queen
 func_001A27D0 = 0x001A27D0; // type:func  // src/queen
 queenBeforeFunc = 0x001A2828; // type:func  // src/queen
-func_001A2A10 = 0x001A2A10; // type:func  // src/queen
+gene_enemy = 0x001A2A10; // type:func  // src/queen
 InitQueenGeo = 0x001A35D8; // type:func  // src/queen
 QueenGeo = 0x001A36E0; // type:func  // src/queen
 QueenDL = 0x001A3790; // type:func  // src/queen  // provisional-ordinal
@@ -2574,8 +2578,8 @@ QueenBallRadius = 0x001A4968; // type:func  // src/queen
 GetQueenBallThickness = 0x001A4988; // type:func  // src/queen
 queenBallBeforeFunc = 0x001A4998; // type:func  // src/queen
 InitQueenBallGeo = 0x001A4A90; // type:func  // src/queen
-func_001A4B18 = 0x001A4B18; // type:func  // src/queen
-func_001A4B68 = 0x001A4B68; // type:func  // src/queen
+subQueenControl = 0x001A4B18; // type:func  // src/queen
+MakeRefractTexture = 0x001A4B68; // type:func  // src/queen_barrier_disp
 
 // ---- src/queen_barrier_disp
 queen_barrier_set_damage = 0x001A4E48; // type:func  // src/queen_barrier_disp

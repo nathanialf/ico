@@ -8,6 +8,7 @@ extern unsigned short D_0063AC64;
 extern int D_0063C30C;
 /* prototypes: their order is the inline tail's emission order */
 void queen_barrier_anim(void);
+INCLUDE_ASM("asm/nonmatchings/src/queen_barrier_disp", MakeRefractTexture);
 void queen_barrier_set_damage(void)
 {
     D_0063C308 = 0x3C;
