@@ -994,6 +994,11 @@ Rows are yaml offsets (ROM offset = VMA − 0x100000).
 
 ### `.rodata` — jump tables, with the blob resuming at the table's TRUE end
 
+- `[0x520F20, .rodata, src/staticBlur]` — dispPostInfo's 10-arm table only; the blob
+  resumes at `0x520F48` (the string there and the FullScreenEffectBefore/After tables at
+  0x620F60/0x620F80 stay in it until those functions land, when one contiguous
+  `[0x620F20,0x620FA0)` carve replaces this row).
+
 The compiled table is often shorter than ROM's padded run (blob sections
 align at most to 8), so the resume row starts at the table end and the pad
 words become the blob's first words.
