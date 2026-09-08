@@ -303,7 +303,7 @@ void reg_transMaterialPacket(short *self, int *p)
     }
 }
 
-int reg_setDissolve(int pri, float a)
+int reg_setDissolve(float a, int pri)
 {
     char *p;
     char *q;
@@ -405,7 +405,7 @@ extern char D_0054FBD0[];
 extern char D_0054FC30[];
 extern int buffer_ID;
 extern int D_0063B1AC;
-extern int reg_setDissolve(int pri, float a);
+extern int reg_setDissolve(float a, int pri);
 extern void reg_resetDissolve(int pri);
 extern char *reg_setMMatrixPacket(char *o, int idx);
 extern void reg_setCMatrixPacket(char *o, float alpha, int prilist);
@@ -534,7 +534,118 @@ void reg_dispNObj(char *o)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispMObj);
+extern void shadow_RenderVolumeMulti(char *o, int idx);
+
+void reg_dispMObj(char *o)
+{
+    char *mdl;
+    char *grp;
+    char *pkt;
+    char *pk;
+    float *w;
+    float alpha;
+    int i;
+    int j;
+    int r;
+    int dis;
+    int fade;
+    int pri;
+    int mode;
+    int prilist;
+
+    mdl = *(char **)(o + 0x854);
+    grp = *(char **)(mdl + 0x48);
+    reg_transMicroCode(o, 0x3B5);
+    for (i = 0; i < *(int *)(o + 8); i++) {
+        w = (float *)(i * 0x50 + *(int *)(o + 0x870));
+        alpha = 1.0f - (1.0f - w[12]) * w[13];
+        if ((alpha < 0.0f ? -alpha : alpha) == 1.0f) {
+            continue;
+        }
+        pk = reg_setMMatrixPacket(o, i);
+        if (pk != 0) {
+            prilist = 0x3B5;
+            for (j = 0; j < 13; j++) {
+                if ((prilist >> j) & 1) {
+                    dl_SetDLPriority(j);
+                    dl_OpenDma(5, pk, 0);
+                    dl_CloseDma();
+                }
+            }
+            if (*(int *)(i * 0x180 + *(int *)(mdl + 0x40) + 0x124) != 0) {
+                if (*(char **)(grp + 0xC) != 0) {
+                    if (buffer_ID != 0) {
+                        pkt = *(char **)(grp + 8);
+                    } else {
+                        pkt = *(char **)(grp + 0xC);
+                    }
+                    reg_setShape(o, i, buffer_ID == 0, pkt,
+                                 (char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70));
+                } else {
+                    pkt = *(char **)(grp + 8);
+                }
+            } else {
+                pkt = *(char **)(grp + 8);
+            }
+            while (pkt != 0) {
+                r = reg_clipPacketBoundingBox(pkt);
+                if (r != 0) {
+                    fade = 0;
+                    if ((*(long long *)(i * 0x50 + *(int *)(o + 0x870) + 0x38) & 1) == 1) {
+                        if (alpha != 0.0f) {
+                            fade = 1;
+                        }
+                    }
+                    pri = regMaterialDLPri((int *)grp, *(short *)(pkt + 0x80),
+                                           tex_GetTexExtData(*(short *)(pkt + 0x84)), fade);
+                    regTransTexturePacket(*(short *)(pkt + 0x84), pri);
+                    reg_transMaterialPacket((short *)pkt, (int *)grp);
+                    dis = 0;
+                    if (fade != 0) {
+                        dis = reg_setDissolve(alpha, pri);
+                    }
+                    if (dis != -1) {
+                        reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70),
+                                            r, pri);
+                        dl_OpenDma(2, *(char **)(pkt + 0x98),
+                                   (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                        dl_CloseDma();
+                        if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
+                            if (*(short *)(pkt + 0x86) != -1) {
+                                func_00121428(pkt, r, 0);
+                            }
+                        }
+                        mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
+                        if (*(short *)(pkt + 0x88) != -1) {
+                            if (mode == 0) {
+                                debug_StdPrintfDummy(D_0054FC30);
+                                mc_TransMicroCode(2, 0x10);
+                            }
+                            dl_SetDLPriority(4);
+                            regTransTexturePacket(*(short *)(pkt + 0x88), 4);
+                            dl_OpenDma(2, D_0054FBD0, 6);
+                            dl_CloseDma();
+                            reg_chooseReflectionMicroCode(0, r, 4);
+                            dl_OpenDma(2, *(char **)(pkt + 0x98),
+                                       (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                            dl_CloseDma();
+                            if (mode == 0) {
+                                mc_TransMicroCode(1, 0x10);
+                            }
+                        }
+                    }
+                    if (dis == 1) {
+                        reg_resetDissolve(pri);
+                    }
+                }
+                pkt = *(char **)(pkt + 0x94);
+            }
+        }
+        if (*(int *)(o + 0x858) != 0) {
+            shadow_RenderVolumeMulti(o, i);
+        }
+    }
+}
 
 extern char *reg_setMMatrixPacket(char *o, int idx);
 
