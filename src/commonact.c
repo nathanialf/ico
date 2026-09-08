@@ -1094,7 +1094,96 @@ void _boxbar_set_sound(int a0, int mode)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBox);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBar);
+
+extern void afterCommonBar(volatile int a0);
+extern void GetRotObjectHoldPoint(void *hold, void *hold2, void *obj, void *self);
+extern int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, void *up);
+extern void GetRotObjectGlobalHoldGeometry(void *pos, void *ori, void *bar, void *hold,
+                                           void *hold2);
+extern int GetMotionFrameFlag1(void *a0);
+extern int GetMotionFrameFlag2(void *a0);
+extern int GetSkeltonFocusNode(void *a0, void *a1);
+extern void CopyVector(void *dst, void *src);
+extern void SetDirectRootPositionNoFittingWithNodePoint(void *a0, int node, void *pos, float t);
+extern char D_0063A740[];
+
+typedef struct {
+    char _0[0x1C0];
+    int f1C0;
+    int f1C4;
+    int f1C8;
+} BarHold;
+
+void actCommonBar(volatile int a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+    char *bar;
+    float pos[4];
+    float ori[4];
+    float hold[4];
+    float hold2[4];
+
+    bar = *(char **)(s + 0x5F8);
+    actMotDirToWall((char *)a0);
+    pos[0] = *(float *)((char *)test_CURRENTROOT((void *)a0) + 0);
+    pos[1] = *(float *)((char *)test_CURRENTROOT((void *)a0) + 4);
+    pos[2] = *(float *)((char *)test_CURRENTROOT((void *)a0) + 8);
+    ori[0] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 0);
+    ori[1] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 4);
+    ori[2] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 8);
+    GetRotObjectHoldPoint(hold, hold2, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x8B0,
+                          (void *)a0);
+    *(int *)(s + 0x15C) = (int)bar;
+    *(int *)(s + 0x14) = (int)afterCommonBar;
+    debug_StdPrintfDummy(D_0063A740, bar);
+    ((BarHold *)*(int *)(a0 + 0x15C))->f1C0 = (int)bar;
+    ((BarHold *)*(int *)(a0 + 0x15C))->f1C4 = -1;
+    ((BarHold *)*(int *)(a0 + 0x15C))->f1C8 = 0;
+    while (1) {
+        int had = *(int *)(s + 0x38) != 0;
+        int lit = 0;
+        int miss = 0;
+        int flag = 0;
+        if (GetMotionFrameFlag1((void *)a0)) {
+            float dir[4];
+            float up[4];
+            int node = GetSkeltonFocusNode((void *)a0, (void *)0x20);
+            unsigned char ok;
+            lit = 1;
+            CopyVector(dir, *(char **)(*(char **)(a0 + 0x15C) + 0xC) + node * 64 + 0x30);
+            if (*(unsigned int *)(s + 0x38) == 0xFFFFFFFF) {
+                sceVu0ScaleVector(up, test_CURRENTORIENT((char *)a0), -1.0f);
+            } else {
+                up[0] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 0);
+                up[1] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 4);
+                up[2] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 8);
+            }
+            ok = MoveRotObjectWithHoldPoint(bar, hold, (void *)a0, dir, up);
+            if (ok) {
+                flag = 1;
+            } else {
+                miss = 1;
+            }
+        }
+        if (GetMotionFrameFlag2((void *)a0)) {
+            GetRotObjectGlobalHoldGeometry(pos, ori, bar, hold, hold2);
+            SetDirectRootPositionNoFittingWithNodePoint((void *)a0, 0x20, pos, lit ? 1.0f : 0.3f);
+            SetMotionDirection(a0, ori);
+        }
+        if (!had) {
+            _boxbar_set_sound(a0, 0);
+        } else if (lit && !miss) {
+            _boxbar_set_sound(a0, 1);
+        }
+        if (flag) {
+            _boxbar_set_sound(a0, 3);
+        }
+        if (miss) {
+            _boxbar_set_sound(a0, 2);
+        }
+        _ACTWait(1);
+    }
+}
 
 void funcCommonJumpDircorrect(char *a0)
 {
@@ -1102,7 +1191,6 @@ void funcCommonJumpDircorrect(char *a0)
 }
 
 ASM_LIT4_SLOT(D_00638E60, 0.3f);
-ASM_LIT4_SLOT(D_00638E64, 0.3f);
 
 void funcCommonFallDircorrect(char *a0)
 {
@@ -1370,7 +1458,159 @@ ASM_LIT4_SLOT(D_00638E84, 0.05f);
 ASM_LIT4_SLOT(D_00638E88, 0.005f);
 ASM_LIT4_SLOT(D_00638E8C, 360000.0f);
 ASM_LIT4_SLOT(D_00638E90, 0.92f);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonLadder);
+
+extern float GetDifferenceFromWallUpperField(void *a0, int node);
+extern float GetDifferenceFromLastField(void *a0, int node);
+extern float GetDifferenceFromWallUpperPlane(void *a0, int node);
+extern float GetDifferenceFromWallLowerPlane(void *a0, int node);
+extern float _DistSqGV(void *a, void *b);
+extern void *isysGObjSearchFromObjKindID_begin(int kind);
+extern char D_0055FE58[];
+
+typedef struct {
+    char _0[0x290];
+    int f290;
+    int f294;
+
+    union {
+        unsigned long long ll;
+        int i[2];
+    } f298;
+} LadderWork;
+
+typedef struct {
+    char _0[0x150];
+    int f150;
+    char _154[0x40];
+} LadMotRec;
+
+/* the motion table is an array of LadMotRec; this TU's other members declare
+   the symbol as char[], so it is indexed here through a one-member array view */
+typedef struct {
+    LadMotRec m[1];
+} LadMotTbl;
+
+#define LADW ((LadderWork *)*(int *)(*(int *)(a0 + 0x164) + 0x680))
+
+void actCommonLadder(volatile int a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+    int mot = *(int *)(s + 0x3C);
+    float pos[4];
+    int uf22;
+    int uf6;
+    int lf52;
+    int lf48;
+    int up22;
+    int up6;
+    int lp52;
+    int lp48;
+    char *o;
+
+    if (*(float *)(s + 0x57C) != 0.0f) {
+        pos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
+        pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+        pos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+        pos[0] = *(float *)(s + 0x570);
+        pos[2] = *(float *)(s + 0x578);
+        *(float *)(s + 0x57C) = 0.0f;
+    }
+    LADW->f290 = 0;
+    LADW->f294 = 0;
+    LADW->f298.ll &= ~1ULL;
+    LADW->f298.ll &= ~2ULL;
+    LADW->f298.ll &= ~4ULL;
+    if (a0 == (int)D_00639EA4) {
+        *(char *)(*(char **)(a0 + 0x164) + 0x1DA) = 1;
+    }
+    if (mot == 0x7F || mot == 0x80 || mot == 0x7B) {
+        while (1) {
+            if (a0 == (int)D_00639EA4 && *(float *)(*(char **)(a0 + 0x15C) + 0x4AC) > 40.0f) {
+                break;
+            }
+            if (((LadMotTbl *)D_0055FE58)->m[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f150 == 1) {
+                break;
+            }
+            _ACTWait(1);
+        }
+    }
+    while (1) {
+        uf22 = (int)GetDifferenceFromWallUpperField((void *)a0, 22);
+        uf6 = (int)GetDifferenceFromWallUpperField((void *)a0, 6);
+        lf52 = (int)GetDifferenceFromLastField((void *)a0, 52);
+        lf48 = (int)GetDifferenceFromLastField((void *)a0, 48);
+        up22 = (int)GetDifferenceFromWallUpperPlane((void *)a0, 22);
+        up6 = (int)GetDifferenceFromWallUpperPlane((void *)a0, 6);
+        lp52 = (int)GetDifferenceFromWallLowerPlane((void *)a0, 52);
+        lp48 = (int)GetDifferenceFromWallLowerPlane((void *)a0, 48);
+        LADW->f290 = 0;
+        LADW->f294 = 0;
+        LADW->f298.ll &= ~4ULL;
+        LADW->f298.ll |= 1ULL;
+        LADW->f298.ll |= 2ULL;
+        if ((uf22 - up22 < 0 ? up22 - uf22 : uf22 - up22) < 30) {
+            if (uf22 < 10) {
+                LADW->f290 = 1;
+            }
+            if (uf6 < 10) {
+                LADW->f290 = 2;
+            }
+        } else {
+            if (up22 < 40) {
+                LADW->f298.ll &= ~1ULL;
+            }
+            if (up6 < 40) {
+                LADW->f298.ll &= ~1ULL;
+            }
+        }
+        if ((lf52 - lp52 < 0 ? lp52 - lf52 : lf52 - lp52) < 30) {
+            if (lf52 >= -9) {
+                LADW->f294 = 1;
+            }
+            if (lf48 >= -9) {
+                LADW->f294 = 2;
+            }
+        } else {
+            if (lp52 >= 31) {
+                LADW->f298.ll |= 4ULL;
+            }
+            if (lp48 >= 31) {
+                LADW->f298.ll |= 4ULL;
+            }
+        }
+        if (*(unsigned int *)(s + 0x38) == 0xFFFFFFFF &&
+            ((int)((long long)LADW->f298.ll >> 2) & 1)) {
+            ACTSendMailCorrect((char *)a0, 0x8E);
+            if (a0 != (int)D_00639EA4) {
+                ACTSendMailCorrect((char *)a0, 0x8F);
+            }
+        }
+        if (a0 == (int)D_00639EA4 && D_00639EA8 != 0 &&
+            *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) == 0x26) {
+            if (_DistSqGV(test_CURRENTROOT((void *)a0), test_CURRENTROOT(D_00639EA8)) < 3600.0f) {
+                ACTSendMailCorrect((char *)a0, 0x31);
+            }
+        }
+        if (a0 == (int)D_00639EA4 || a0 == (int)D_00639EA8) {
+            pos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
+            pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+            pos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+            for (o = (char *)isysGObjSearchFromObjKindID_begin(4); o != 0;
+                 o = (char *)isysGObjSearchFromObjKindID_next(o)) {
+                if (*(int *)(o + 0x16C) != 0) {
+                    if (*(int *)(*(char **)(o + 0x164) + 0x34) == 0x26 &&
+                        _DistSqGV(pos, test_CURRENTROOT(o)) < 6400.0f) {
+                        ACTSendMailCorrect((char *)a0, 0x31);
+                        break;
+                    }
+                }
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+#undef LADW
 
 extern char D_005F5D50[];
 extern int stage_no;
