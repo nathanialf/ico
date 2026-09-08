@@ -1,6 +1,138 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setShape);
+extern char D_0054FA50[];
+extern char D_0054FA80[];
+extern char D_0054FA98[];
+extern char D_0063A170[];
+extern void _CopyVector(void *dst, void *src);
+extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+extern void _AddVectorXYZ(void *dst, void *a, void *b);
+extern void debug_StdPrintfDummy();
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+
+void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
+{
+    float vec[4];
+    char *mdl;
+    char *s;
+    char *p;
+    char *m;
+    char *v;
+    char *pk;
+    char *t;
+    int base;
+    int i;
+    int n;
+
+    mdl = *(char **)(o + 0x854);
+    s = *(char **)(mdl + 0x40) + idx * 0x180;
+    {
+        char *dst = *(char **)(s + 0x90);
+
+        for (i = 0; i < *(unsigned int *)(s + 0x94); i++) {
+            _CopyVector(dst + i * 0x10, *(char **)(s + 0x174) + i * 0x10);
+        }
+    }
+    {
+        char *dst = *(char **)(s + 0xA0);
+
+        if (dst != 0) {
+            for (i = 0; i < *(unsigned int *)(s + 0xA4); i++) {
+                _CopyVector(dst + i * 0x10, *(char **)(s + 0x178) + i * 0x10);
+            }
+        }
+    }
+    for (i = 0; i < *(unsigned int *)(s + 0x124); i++) {
+        if (*(float *)(i * 4 + *(int *)(o + 0x838)) != 0.0f) {
+            m = *(char **)(i * 4 + *(int *)(s + 0x120));
+            if (m != 0) {
+                while (*(int *)(m + 0x10) != -1) {
+                    _ScaleVectorXYZ(vec, m, *(float *)(i * 4 + *(int *)(o + 0x838)));
+                    if (*(float *)(m + 0xC) == 1.0f) {
+                        if (*(unsigned int *)(m + 0x10) >= *(unsigned int *)(s + 0x94)) {
+                            debug_StdPrintfDummy(D_0054FA50, *(unsigned int *)(m + 0x10),
+                                                 *(unsigned int *)(s + 0x94));
+                            debug_assert(D_0054FA80, 635);
+                            __assert(D_0054FA80, 635, D_0063A170);
+                        }
+                        t = *(char **)(s + 0x90);
+                        t += *(int *)(m + 0x10) * 0x10;
+                        _AddVectorXYZ(t, t, vec);
+                    } else if (*(float *)(m + 0xC) == 0.0f) {
+                        if ((((int)(*(long long *)(mat + 0x60) >> 5)) & 3) == 0) {
+                            switch (*(int *)(mat + 0x60) & 1) {
+                            case 1:
+                                break;
+                            default:
+                                goto nextbone;
+                            }
+                        }
+                        if (*(unsigned int *)(m + 0x10) >= *(unsigned int *)(s + 0xA4)) {
+                            debug_StdPrintfDummy(D_0054FA98, *(unsigned int *)(m + 0x10),
+                                                 *(unsigned int *)(s + 0xA4));
+                            debug_assert(D_0054FA80, 642);
+                            __assert(D_0054FA80, 642, D_0063A170);
+                        }
+                        t = *(char **)(s + 0xA0);
+                        t += *(int *)(m + 0x10) * 0x10;
+                        _AddVectorXYZ(t, t, vec);
+                    } else {
+                        debug_assert(D_0054FA80, 647);
+                        __assert(D_0054FA80, 647, D_0063A170);
+                    }
+                nextbone:
+                    m += 0x20;
+                }
+            }
+        }
+    }
+    for (i = 0; i < *(unsigned int *)(s + 0x104); i++) {
+        v = *(char **)(i * 4 + *(int *)(s + 0x100));
+        while (*(short *)v != -1) {
+            pk = pkt;
+            n = *(short *)v;
+            v += 0x10;
+            while (pk != 0) {
+                if (*(short *)(v + 0xE) == *(short *)(pk + 0x82) &&
+                    *(short *)(v + 0xC) == *(short *)(pk + 0x80)) {
+                    break;
+                }
+                pk = *(char **)(pk + 0x94);
+            }
+            if (pk == 0) {
+                break;
+            }
+            base = *(int *)(pk + 0x98);
+            p = (char *)(*(int *)(v - 0xC) + base);
+            if (*(int *)(v - 0xC) != 0) {
+                if (n != 0) {
+                    do {
+                        _CopyVector(p, *(char **)(s + 0x90) + *(short *)(v + 4) * 0x10);
+                        p += 0x10;
+                        if ((((int)(*(long long *)(mat + 0x60) >> 5)) & 3) == 0) {
+                            switch (*(int *)(mat + 0x60) & 1) {
+                            case 1:
+                                break;
+                            default:
+                                goto nocopy;
+                            }
+                        }
+                        _CopyVector(p, *(char **)(s + 0xA0) + *(short *)(v + 6) * 0x10);
+                        p += 0x10;
+                    nocopy:
+                        if (*(signed char *)(mdl + 0x2F) != 0) {
+                            p += 0x10;
+                        }
+                        n--;
+                        v += 0x10;
+                        p += 0x20;
+                    } while (n != 0);
+                }
+            }
+        }
+    }
+}
 
 typedef union {
     unsigned int c[4];
@@ -46,13 +178,8 @@ void reg_dispBoxLine(char *pk)
 extern char *matrixptr;
 extern int D_0063B184;
 extern char D_0054FB40[];
-extern char D_0054FA80[];
-extern char D_0063A170[];
 extern void _SetCurrentMatrix(void *mtx);
 extern int gsb_ClipBox(void *pk);
-extern void debug_StdPrintfDummy();
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
 extern void reg_dispBoxLine(char *pk);
 
 int reg_clipPacketBoundingBox(char *pk)
@@ -395,7 +522,6 @@ static inline void regTransTexturePacket(int tex, int pri)
 
 /* ===== su-a sweep begin ===== */
 
-extern void _CopyVector(void *dst, void *src);
 extern int *tex_GetTexExtData(int idx);
 extern void shadow_RenderVolume(char *o);
 extern void reg_chooseReflectionMicroCode(int a0, int a1, int a2);
