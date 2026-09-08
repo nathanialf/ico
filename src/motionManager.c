@@ -32,7 +32,7 @@ extern char D_004EC9E0[];
 extern char D_004EC9F0[];
 extern char D_004ECA00[];
 extern char *D_0063C490;
-extern int MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PushMatrix(void);
 extern void SetQuaternionByAxisRotateV(void *dst, short ang, void *v);
 extern void _ApplyMatrix(void *a0, int a1, char *a2);
 extern float D_0063B900;
@@ -86,6 +86,7 @@ extern char *D_0063C488;
 extern int D_0063C48C;
 extern char *D_0063C4A8;
 extern void PushQuaternion(void);
+extern void PopQuaternion(void);
 extern void SetIdentityQuaternion(void *q);
 extern void RotQuaternionY(void *q, short ang);
 extern void SetCurrentQuaternion(void *q);
@@ -711,7 +712,98 @@ void execPositionReserver(char *self, MotShift m)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", GetGeometryOfMotion);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", GetMatrixOfMotion);
+
+/* GObj+8 is the index into D_002C2DC8, the 0x4C-byte GenGeo table (ebrain.c
+   types that array `GenGeo D_002C2DC8[]`; enemy_act.c indexes it with the same
+   `obj[2]` field).  ROM proves the field is NOT read in the `int` alias set:
+   the load is issued ABOVE the line-1484 `int` store to D_0063C48C, which an
+   int-typed read cannot cross.  An enumerated kind is the type that both fits
+   the data model and reproduces the hoist. */
+typedef enum { GENGEO_KIND_0 = 0 } GenGeoKind;
+
+void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
+{
+    float v[4];
+    float w[4];
+    float p1[4];
+    float p2[4];
+    int i;
+
+    /* The sub-object fields are read as `int` addresses (not `char **`): as
+       pointer-typed reads they share the alias set of the five pointer globals
+       stored just below, and gcc can no longer issue every load ahead of the
+       nine gp stores the way ROM does. */
+    D_0063C478 = tbl;
+    D_0063C480 = (char *)*(int *)(*(int *)(self + 0x15C) + 0x10);
+    D_0063B938 = (char *)*(int *)(*(int *)(self + 0x15C) + 0x8C);
+    D_0063B900 = *(float *)(*(int *)(*(int *)(self + 0x15C) + 0x870) + 0x20);
+    D_0063C490 = (char *)(*(int *)(self + 0x15C) + 0xA0);
+    D_0063C494 = (char *)(*(int *)(self + 0x15C) + 0x470);
+    D_0063C48C = *(int *)(*(int *)(self + 0x15C) + 0x88);
+    D_0063C498 = D_002C2DC8[*(GenGeoKind *)(self + 8) * 0x4C + 0x46];
+    D_0063B93C = (int)self;
+    MatrixDrive_PushMatrix();
+    PushQuaternion();
+
+    GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(), D_0063C490 + 0x30);
+    SetCurrentQuaternion(D_0063C490 + 0x30);
+
+    MatrixDrive_PushMatrix();
+
+    D_004ECB70[1] = *(float *)(D_0063C490 + 0xC0);
+    MatrixDrive_RotMatrixZ(*(short *)(D_0063C490 + 0x50));
+
+    sceVu0ApplyMatrix((int *)v, MatrixDrive_GetMatrix(), (char *)D_004ECB70);
+
+    v[1] -= *(float *)(D_0063C490 + 0xC0);
+    v[0] *= 0.5f;
+    v[2] *= 0.5f;
+    MatrixDrive_PopMatrix();
+
+    if (*(int *)(D_0063C494 + 0xE0) != 0) {
+        getFinalMatrix(0);
+    } else {
+        getFinalMatrixWithNaturalGeometry(0);
+    }
+
+    D_004ECB80[0] = D_004ECB80[5] = D_004ECB80[10] = D_0063B900;
+
+    AddVectorXYZ(w, ofs, v);
+    for (i = 0; i < D_0063C48C; i++) {
+        char *nd = *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + i * 0x40;
+        char *pos = nd + 0x30;
+        func_0025D440((int)nd, (int)nd, (int)D_004ECB80);
+        AddVectorXYZ(pos, pos, w);
+    }
+    MatrixDrive_PopMatrix();
+    PopQuaternion();
+
+    if (D_0063B158 != 0) {
+        dispActNode(*(int *)(D_0063C490 + 0x180));
+        dispLastNode();
+    }
+    if (D_0063B148 != 0) {
+        int n;
+
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        gif_StartPacketPri(0xB);
+        n = GetSkeltonFocusNode(self, 0x23);
+        CopyVector(w, *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + n * 0x40 + 0x30);
+        CopyVector(p1, D_0063C490 + 0x2F0);
+        _SubVector(p2, p1, w);
+        _NormalizeVector(p2, p2);
+        _ScaleVector(p2, p2, 100.0f);
+        _AddVector(p1, w, p2);
+        gif_SetAlpha(1, 5, 0x80);
+        if (*(int *)(D_0063C490 + 0x318) != 0 && *(int *)(D_0063C490 + 0x2E0) != 0) {
+            DrawLineG(w, D_004ECBC0, p1, D_004ECBC0, -1);
+        } else {
+            DrawLineG(w, D_004ECBD0, p1, D_004ECBD0, -1);
+        }
+        gif_EndPacket();
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001ECE40);
 
 /* census: sugipon/src/motionManager.c getInitialMatrix, def line 1625 (1625-1647).
