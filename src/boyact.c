@@ -957,8 +957,74 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyPullupGo);
 ASM_LIT4_SLOT(D_00638E10, 0.2f);
 ASM_LIT4_SLOT(D_00638E14, 2.5e+03f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyBelift);
-ASM_LIT4_SLOT(D_00638E18, 0.1f);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyReadyMove);
+
+extern void *D_00639EA0;
+extern void *D_00639EA8;
+extern char D_0055FE58[];
+extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
+extern void _ACTMotDirSmzDirect(void *self, float *dir);
+extern void ACTSendMailCorrect(int a0, int mail);
+extern CCPResult *test_CURRENTROOT(void *a0);
+extern float _DistxzSqGV(void *a, void *b);
+extern int _AbsRotyGV(void *a, void *b);
+extern void _ACTWait(int a0);
+
+/* The walk order the boy is executing: sub->0x30 points at the request record
+   the caller filled in, and actBoyReadyMove works on a private copy of it. */
+typedef struct {
+    float pos[4];
+    float dir[4];
+    float range;
+    int frames;
+    int fix;
+    int _2C;
+} __attribute__((aligned(16))) BoyMoveOrder;
+
+/* the motion parameter table: one 0x194-byte row per motion id */
+typedef struct {
+    char _000[0x182];
+    short f_182;
+    char _184[0x02];
+    short f_186;
+    char _188[0x0C];
+} BoyMotionRow;
+
+void actBoyReadyMove(volatile int a0)
+{
+    char *sub = *(char **)((char *)a0 + 0x164);
+    BoyMoveOrder ord = *(BoyMoveOrder *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x30));
+
+    while (1) {
+        if ((((void *)a0 == D_00639EA8 && D_00639EA0 != 0)
+                 ? ((BoyMotionRow *)(*(int *)(*(char **)((char *)a0 + 0x15C) + 0x4A0) *
+                                         sizeof(BoyMotionRow) +
+                                     D_0055FE58))
+                       ->f_182
+                 : ((BoyMotionRow *)(*(int *)(*(char **)((char *)a0 + 0x15C) + 0x4A0) *
+                                         sizeof(BoyMotionRow) +
+                                     D_0055FE58))
+                       ->f_186) == 0) {
+            SetMotionDirectionSmooze((void *)a0, ord.dir, 10.0f);
+        } else {
+            _ACTMotDirSmzDirect((void *)a0, ord.dir);
+        }
+        if (ord.fix) {
+            *(unsigned long long *)(sub + 0x490) |= 0x80000;
+            *(unsigned long long *)(sub + 0x490) |= 0x40;
+        }
+        if (ord.frames-- < 0) {
+            ACTSendMailCorrect(a0, 0x10A);
+        }
+        if (_DistxzSqGV(test_CURRENTROOT((void *)a0), &ord) < ord.range * ord.range) {
+            ACTSendMailCorrect(a0, 0x10A);
+        }
+        if (0.1f < *(float *)(sub + 0x34C) && 100 < _AbsRotyGV(ord.dir, sub + 0x120)) {
+            ACTSendMailCorrect(a0, 0x10A);
+        }
+        _ACTWait(1);
+    }
+}
+
 ASM_LIT4_SLOT(D_00638E1C, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyRescueReady);
 ASM_LIT4_SLOT(D_00638E20, 2.5e+05f);
