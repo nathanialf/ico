@@ -423,10 +423,152 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
 ASM_LIT4_SLOT(D_00639478, 0.8f);
 ASM_LIT4_SLOT(D_0063947C, 0.98f);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetClothAnimation);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", yTension);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", xTension);
-ASM_LIT4_SLOT(D_00639480, 0.98f);
-INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetClothAnimationFix4Points);
+
+extern void _ScaleVector(void *dst, void *src, float k);
+extern void _AddVectorXYZ(void *dst, void *a, void *b);
+extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+extern void _ApplyMatrix(void *dst, void *m, void *src);
+extern void AddVectorXYZ(void *dst, void *a, void *b);
+extern void *GetWindVector(void *out, void *pos);
+extern int rand(void);
+
+/* One entry of the four-corner anchor table the cloth is pinned to: the
+   middle vector is the local-space anchor position _ApplyMatrix transforms
+   into the corner point. */
+typedef struct {
+    VECTOR v0;
+    VECTOR v1;
+    VECTOR v2;
+} ClothFixPoint;
+
+typedef struct {
+    int nx;
+    int f04;
+    int ny;
+    int f0C;
+    ClothFixPoint *fix;
+} ClothFixCfg;
+
+/* Compiled-out debug hook, the same construct as chainDebugOld above: naming
+   `fix` inside yTension is what puts GetClothAnimationFix4Points' own `q` into
+   its frame.  ee-gcc marks a parent local DECL_NONLOCAL at PARSE time, when a
+   nested function's body names it, and put_var_into_stack then allocates the
+   slots in that reference order -- so ROM's layout (the `pa` parm home at 0x10,
+   then q 0x14, ny 0x18, nx 0x1C) proves `q` is named after `pa` and before
+   yTension's first use of `ny`.  The hook inlines to nothing: no clothFixDebug
+   symbol is emitted and the argument is dead-code-eliminated. */
+static __inline__ void clothFixDebug(ClothFixPoint *fix) {}
+
+void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, void *mtx)
+{
+    VECTOR dv;
+    int i;
+    int j;
+    int nx;
+    int ny;
+    ClothFixPoint *q;
+
+    nx = cfg->nx;
+    ny = cfg->ny;
+    q = cfg->fix;
+
+    for (i = 0; i < nx; i++) {
+        for (j = 0; j < ny; j++) {
+            _ScaleVector(&dv, &pv[i][j], 0.98f);
+            _ScaleVector(&pv[i][j], &pa[i][j], -1.0f);
+            pv[i][j].w = 0.0f;
+            _AddVectorXYZ(&pa[i][j], &pa[i][j], &dv);
+        }
+    }
+
+    for (i = 0; i < nx; i++) {
+        for (j = 0; j < ny; j++) {}
+    }
+
+    _ApplyMatrix(pa[0], mtx, &q[0].v1);
+    _ApplyMatrix(pa[nx - 1], mtx, &q[1].v1);
+    _ApplyMatrix(&pa[0][ny - 1], mtx, &q[2].v1);
+    _ApplyMatrix(&pa[nx - 1][ny - 1], mtx, &q[3].v1);
+
+    {
+        void yTension(int y)
+        {
+            __inline__ void interHalf(VECTOR * d, VECTOR * a, VECTOR * b)
+            {
+                _InterVectorXYZ(d, a, b, 0.5f);
+            }
+            VECTOR *r;
+            int x;
+            int xp;
+            int m;
+            int mp;
+            int mm;
+
+            r = pa[y];
+            clothFixDebug(q);
+            for (x = 1; x < ny - 1; x++) {
+                xp = x + 1;
+                m = ny - xp;
+                mp = m + 1;
+                mm = m - 1;
+                interHalf(&r[x], &r[x + 1], &r[x - 1]);
+                interHalf(&r[m], &r[mp], &r[mm]);
+            }
+        }
+        void xTension(int x)
+        {
+            __inline__ void interHalf(VECTOR * d, VECTOR * a, VECTOR * b)
+            {
+                _InterVectorXYZ(d, a, b, 0.5f);
+            }
+            int y;
+            int yp;
+            int m;
+            int mp;
+            int mm;
+
+            for (y = 1; y < nx - 1; y++) {
+                yp = y + 1;
+                m = nx - yp;
+                mp = m + 1;
+                mm = m - 1;
+                interHalf(&pa[y][x], &pa[y + 1][x], &pa[y - 1][x]);
+                interHalf(&pa[m][x], &pa[mp][x], &pa[mm][x]);
+            }
+        }
+        VECTOR rv;
+        VECTOR rt;
+        VECTOR wp;
+        VECTOR *wv;
+        int n;
+
+        yTension(0);
+        yTension(nx - 1);
+        xTension(0);
+        xTension(ny - 1);
+        for (n = 1; n < nx - 1; n++) {
+            yTension(n);
+        }
+        for (n = 1; n < ny - 1; n++) {
+            xTension(n);
+        }
+
+        wv = (VECTOR *)GetWindVector(&wp, pa[0]);
+        wp.x = wp.x / 40960.0f;
+        for (i = 0; i < nx; i++) {
+            for (j = 0; j < ny; j++) {
+                AddVectorXYZ(&pv[i][j], &pv[i][j], &pa[i][j]);
+                AddVectorXYZ(&pv[i][j], &pv[i][j], wv);
+                rt.x = wp.x * 3.0f * (float)((rand() & 0x7fff) - 16383);
+                rt.y = wp.x * 3.0f * (float)((rand() & 0x7fff) - 16383);
+                rt.z = wp.x * 3.0f * (float)((rand() & 0x7fff) - 16383);
+                rt.w = 0.0f;
+                rv = rt;
+                AddVectorXYZ(&pv[i][j], &pv[i][j], &rv);
+            }
+        }
+    }
+}
 
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 extern void sceVu0Normalize(void *dst, void *src);
