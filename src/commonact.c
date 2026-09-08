@@ -176,8 +176,136 @@ void GetCorrectOrientOfChain(void *buf, void *obj)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", CollisCheckInRope);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRope);
-ASM_LIT4_SLOT(D_00638E40, 3.1415927f);
+
+extern void afterCommonRope(volatile int a0);
+extern void actAfterForceRope(volatile int a0);
+extern void GetRootPositionHandExtra(void *a0, void *out);
+extern void HoldChain(int chain, void *a0, void *pos);
+extern void LockChainGeo(int a0);
+extern void UnLockChainGeo(int a0);
+extern void ChainGeo(int a0);
+extern int CollisCheckInRope(void *a0, int chain);
+extern int CheckChainClimbablePos(int chain);
+extern void GetChainClimbOrient(void *out, int chain);
+extern void GetRootPosition(float *out, void *a0);
+extern void GetChainClimbCollision(void *out, int chain);
+extern void ActSendMail_WithAdditionalData(char *a0, int mail, void *from, void *data);
+extern void GetSkeltonPosition(float *dst, char *obj, int node);
+extern void ClipFloor(void *a0);
+extern void debug_StdPrintfDummy();
+extern char D_00552DB0[];
+extern char D_0055FE58[];
+extern int D_0028F4C0[];
+extern int _RotyGV(void *a0, void *a1);
+extern void _ApplyRyGV(void *a0, float a1);
+extern void *test_CURRENTORIENT(char *a0);
+extern void SetMotionDirection();
+extern void ACTSendMailCorrect(char *a0, int mail);
+extern void _ACTWait(int n);
+
+typedef struct {
+    char _0[0x35C];
+    int f35C;
+} RopeSubObj;
+
+typedef struct {
+    char _00[0x94];
+    int f94;
+    char _98[0x28];
+} RopeFloorWork;
+
+typedef struct {
+    char _0[0x18C];
+    unsigned int f18C;
+    char _190[4];
+} RopeMotRec;
+
+static inline int chainFloorHit(char *a0, void *w)
+{
+    if ((((RopeMotRec *)D_0055FE58)[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f18C >> 4) & 1) {
+        GetSkeltonPosition((float *)w, a0, 0x2C);
+        GetSkeltonPosition((float *)((char *)w + 0x10), a0, 0x33);
+        *(float *)((char *)w + 0x14) -= 5.0f;
+        ClipFloor(w);
+        if (((RopeFloorWork *)w)->f94 != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void actCommonRope(volatile int a0)
+{
+    char *s;
+    float dir[4];
+    float ori[4];
+    float hand[4];
+    RopeFloorWork work;
+    int step;
+    int nsteps;
+    int total;
+    int roty;
+
+    nsteps = ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 3;
+    total = nsteps;
+    step = -1;
+    s = *(char **)(a0 + 0x164);
+    GetCorrectOrientOfChain(dir, (void *)a0);
+    ori[0] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 0);
+    ori[1] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 4);
+    ori[2] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 8);
+    roty = _RotyGV(dir, ori);
+    if (*(int *)(s + 0x14) == 0) {
+        GetRootPositionHandExtra((void *)a0, hand);
+        step = 0;
+        HoldChain(*(int *)(s + 0x190), (void *)a0, hand);
+    }
+    *(int *)(s + 0x14) = (int)afterCommonRope;
+    *(int *)(s + 0x18) = (int)actAfterForceRope;
+    LockChainGeo(*(int *)(s + 0x190));
+    _ACTWait(1);
+    debug_StdPrintfDummy(D_00552DB0);
+    while (1) {
+        UnLockChainGeo(*(int *)(s + 0x190));
+        ChainGeo(*(int *)(s + 0x190));
+        LockChainGeo(*(int *)(s + 0x190));
+        switch (CollisCheckInRope((void *)a0, *(int *)(s + 0x190))) {
+        case 1:
+            ACTSendMailCorrect((char *)a0, 0xA8);
+            break;
+        case 2:
+            ACTSendMailCorrect((char *)a0, 0xA7);
+            break;
+        }
+        if (chainFloorHit((char *)a0, &work)) {
+            ACTSendMailCorrect((char *)a0, 0xA9);
+        }
+        if (step >= 0) {
+            if (step == nsteps) {
+                SetMotionDirection(a0, dir);
+            } else if (step < nsteps) {
+                ((float *)&work)[0] = ori[0];
+                ((float *)&work)[1] = ori[1];
+                ((float *)&work)[2] = ori[2];
+                _ApplyRyGV(&work, (float)(roty * step / total) * 3.1415927f / 180.0f);
+                SetMotionDirection(a0, &work);
+            }
+            step++;
+        }
+        if (CheckChainClimbablePos(*(int *)(s + 0x190))) {
+            GetChainClimbOrient(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330,
+                                *(int *)(s + 0x190));
+            GetRootPosition((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x340),
+                            (void *)*(int *)(s + 0x190));
+            GetChainClimbCollision(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x350,
+                                   *(int *)(s + 0x190));
+            ((RopeSubObj *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f35C = *(int *)(s + 0x190);
+            ActSendMail_WithAdditionalData((char *)a0, 0x98, (void *)a0,
+                                           *(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330);
+        }
+        _ACTWait(1);
+    }
+}
 
 extern void *memset(void *dst, int c, int n);
 extern void *test_CURRENTROOT(void *a0);
@@ -245,13 +373,260 @@ void motCommonRopeTurnL(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeClimbEnd1);
+extern void TestCageUpDown(int obj, void *a0);
+extern int _AbsRotyGV(void *a0, void *a1);
+extern int _RotyGV(void *a0, void *a1);
+extern void _ApplyRyGV(void *a0, float a1);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern void GetSkeltonPosition(float *dst, char *obj, int node);
+extern void SetChainRootUpdateMode(void *a0, int mode, float *p);
+extern void *test_CURRENTORIENT(char *a0);
+extern void SetMotionDirection();
+extern void ACTSendMailCorrect(char *a0, int mail);
+extern void _ACTWait(int n);
+extern char *D_00639EA4;
+
+typedef struct {
+    float x, y, z;
+} ClimbVec3;
+
+typedef union {
+    float f[4];
+    long long ll[2];
+} ClimbVec4;
+
+typedef struct {
+    float v0[4] __attribute__((aligned(16)));
+    float v1[4];
+    ClimbVec3 v2;
+    int obj;
+} ClimbEndRec;
+
+void actCommonRopeClimbEnd1(volatile int a0)
+{
+    ClimbEndRec c;
+    ClimbVec4 dir;
+    float pos[4];
+    float ori[4];
+    float hand[4];
+    float foot[4];
+    float base[4];
+    int flag;
+    int step = 5;
+    int isCage;
+    int i;
+    long back;
+    int n;
+    int r;
+
+    c = *(ClimbEndRec *)*(char **)(*(char **)(a0 + 0x164) + 0x30);
+    isCage = *(int *)(c.obj + 0xC) == 0x2C;
+    flag = 0;
+    *(int *)(*(char **)(D_00639EA4 + 0x15C) + 0x420) = 0;
+    dir.f[0] = c.v0[0];
+    dir.f[1] = c.v0[1];
+    dir.f[2] = c.v0[2];
+    sceVu0ScaleVector(&dir, &dir, -1.0f);
+    if (_AbsRotyGV(&dir, test_CURRENTORIENT((char *)a0)) < 10) {
+        flag = 1;
+    } else {
+        back = -5;
+        while (1) {
+            if (isCage) {
+                TestCageUpDown(c.obj, (void *)a0);
+            }
+            if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) == 118) {
+                break;
+            }
+            _ACTWait(1);
+        }
+        i = 0;
+        r = _RotyGV(&dir, test_CURRENTORIENT((char *)a0));
+        step = (r > -1) ? step : back;
+        n = r / step;
+        n = (n < 0) ? -n : n;
+        GetSkeltonPosition(pos, (char *)a0, 22);
+        pos[0] = c.v1[0];
+        pos[2] = c.v1[2];
+        while (i < n) {
+            i++;
+            ori[0] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 0);
+            ori[1] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 4);
+            ori[2] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 8);
+            _ApplyRyGV(ori, (float)step * 3.1415927f / 180.0f);
+            SetMotionDirection(a0, ori);
+            if (0 < step) {
+                ACTSendMailCorrect((char *)a0, 0xA0);
+            } else {
+                ACTSendMailCorrect((char *)a0, 0xA1);
+            }
+            SetChainRootUpdateMode((void *)a0, 3, pos);
+            _ACTWait(1);
+        }
+        if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) != 118) {
+            do {
+                ACTSendMailCorrect((char *)a0, 0x150);
+                _ACTWait(1);
+            } while (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) != 118);
+        }
+    }
+    SetMotionDirection(a0, &dir);
+    while (1) {
+        ACTSendMailCorrect((char *)a0, 0x99);
+        if (flag) {
+            ACTSendMailCorrect((char *)a0, 0x9A);
+        }
+        GetSkeltonPosition(hand, (char *)a0, 22);
+        GetSkeltonPosition(foot, (char *)a0, 6);
+        base[0] = c.v1[0];
+        base[1] = c.v1[1];
+        base[2] = c.v1[2];
+        if (isCage) {
+            TestCageUpDown(c.obj, (void *)a0);
+        }
+        *(ClimbVec3 *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x350) = c.v2;
+        if (hand[1] - base[1] < 10.0f) {
+            ACTSendMailCorrect((char *)a0, 0x9B);
+        }
+        if (foot[1] - base[1] < 10.0f) {
+            ACTSendMailCorrect((char *)a0, 0x9C);
+        }
+        _ACTWait(1);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeCliff);
-ASM_LIT4_SLOT(D_00638E4C, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", TestCageUpDown);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeSpecial);
-ASM_LIT4_SLOT(D_00638E50, 0.7853982f);
-ASM_LIT4_SLOT(D_00638E54, 3.1415927f);
+
+extern int GetCageChainPoint(float *out, float *buf, void *a0);
+extern int MatrixDrive_GetMatrix(void);
+extern void sceVu0UnitMatrix(void *m);
+extern void MatrixDrive_TransMatrix(float x, float y, float z);
+extern void MatrixDrive_RotMatrixY(int deg);
+extern void sceVu0ApplyMatrix(void *out, void *m, void *v);
+extern void ClipWall(void *a0);
+extern void GetOrientOfWall(void *out, void *obj, void *pos);
+extern void TestCageUpDown(int obj, void *a0);
+extern void GetSkeltonPosition(float *dst, char *obj, int node);
+extern char D_00552DD0[];
+extern char D_00552DE0[];
+extern char D_0063A718[];
+extern int D_0063B13C;
+extern void debug_Printf(int a, int b, unsigned int c, char *d, ...);
+
+typedef struct {
+    float x, y;
+} RsVec2;
+
+typedef struct {
+    RsVec2 xy;
+    void *obj;
+} RsHit;
+
+typedef union {
+    float f[4];
+    long long ll[2];
+} RsVec4;
+
+typedef struct {
+    char _0[0x330];
+    char f330[0x10];
+    float f340;
+    float f344;
+    float f348;
+    char f34C[4];
+    RsHit f350;
+    int f35C;
+} RsSub;
+
+typedef struct {
+    char _00[0x80];
+    RsVec2 h80;
+    int f88;
+    char _8C[0x34];
+} RsWork;
+
+static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, RsHit *hit)
+{
+    RsVec4 va;
+    RsVec4 vb;
+    RsWork work;
+    int i;
+
+    va = *(RsVec4 *)D_00552DD0;
+    vb = *(RsVec4 *)D_00552DE0;
+    for (i = 0; i < 4; i++) {
+        sceVu0UnitMatrix((void *)MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrix(p1->f[0], p1->f[1] + 0.0f, p1->f[2]);
+        MatrixDrive_RotMatrixY((short)((float)i * 0.7853982f * 32768.0f / 3.1415927f));
+        sceVu0ApplyMatrix(&work, (void *)MatrixDrive_GetMatrix(), &va);
+        sceVu0ApplyMatrix((char *)&work + 0x10, (void *)MatrixDrive_GetMatrix(), &vb);
+        ClipWall(&work);
+        if (work.f88 != 0) {
+            hit->xy = work.h80;
+            hit->obj = (void *)work.f88;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void actCommonRopeSpecial(volatile int a0)
+{
+    char *s;
+    RsHit hit;
+    RsVec4 p1;
+    RsVec4 p2;
+    RsVec4 pos;
+    int cage;
+    unsigned char found;
+
+    s = *(char **)(a0 + 0x164);
+    cage = *(int *)(s + 0x610);
+    if (cage != 0) {
+        *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x400) = cage;
+    } else {
+        cage = *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x400);
+    }
+    if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x900) == 4 ||
+        *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x900) == 5) {
+        GetSkeltonPosition((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x410),
+                           (char *)a0, 35);
+    } else {
+        GetSkeltonPosition((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x410),
+                           (char *)a0, 22);
+    }
+    GetCageChainPoint(p1.f, p2.f, (void *)cage);
+    found = ropeSpecialWallHit(&p1, &hit);
+    *(int *)(*(char **)(a0 + 0x15C) + 0x420) = 0;
+    while (1) {
+        if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) == 118) {
+            *(long long *)(s + 0x20) &= ~(1ULL << 11);
+        }
+        GetSkeltonPosition(pos.f, (char *)a0, 35);
+        GetCageChainPoint(p1.f, p2.f, (void *)cage);
+        if (D_0063B13C & 1) {
+            debug_Printf(10, 120, 0xFFFFFFF, D_0063A718,
+                         (int)*(float *)((char *)test_CURRENTROOT((void *)a0) + 4), (int)p2.f[1]);
+        }
+        if (*(float *)((char *)test_CURRENTROOT((void *)a0) + 4) > p2.f[1] - 30.0f) {
+            ACTSendMailCorrect((char *)a0, 0xC7);
+        }
+        if (found && pos.f[1] < p1.f[1] + 60.0f) {
+            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f35C = cage;
+            GetOrientOfWall(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330, hit.obj, &hit);
+            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f340 = p1.f[0];
+            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f344 = p1.f[1];
+            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f348 = p1.f[2];
+            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f344 -= 100.0f;
+            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f350 = hit;
+            ActSendMail_WithAdditionalData((char *)a0, 0xB0, (void *)a0,
+                                           *(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330);
+        }
+        TestCageUpDown(cage, (void *)a0);
+        _ACTWait(1);
+    }
+}
 
 extern void SetFloorLeverWithNodePoint(void *a0, void *a1, int a2);
 extern void SetWallLeverWithNodePoint(void *a0, void *a1, int a2);
