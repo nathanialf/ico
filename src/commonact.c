@@ -177,13 +177,76 @@ void GetCorrectOrientOfChain(void *buf, void *obj)
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", CollisCheckInRope);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRope);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonRopeTurnR);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonRopeTurnL);
+ASM_LIT4_SLOT(D_00638E40, 3.1415927f);
+
+extern void *memset(void *dst, int c, int n);
+extern void *test_CURRENTROOT(void *a0);
+extern void SetMotionDirection();
+extern void ACTSendMailCorrect(char *a0, int mail);
+extern void _ACTWait(int n);
+extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines SetCorrectOrientOfChain (line 1410) here, so it is `inline`
+   in the dev's TU; while this tail still has asm members a deferred inline
+   would land at the object end instead of at its ROM slot, so the public body
+   later in this file stays a plain definition and this caller uses the static
+   stand-in.  Collapses to one `inline` definition at layout. */
+static inline void setCorrectOrientOfChain_inl(void *a0)
+{
+    int local[4];
+    GetCorrectOrientOfChain(local, a0);
+    SetMotionDirection(a0, local);
+}
+
+void motCommonRopeTurnR(volatile int a0)
+{
+    int i = 0;
+    int base = (int)(_GetDirection(test_CURRENTORIENT((char *)a0)) / 3.1415927f * 180.0f);
+    float dir[4];
+    int wait = 18, deg = 0;
+
+    while (1) {
+        i++;
+        memset(dir, 0, 16);
+        dir[2] = 1.0f;
+        _ApplyRyGV(dir, (float)RoundDegGV(base + deg) * 3.1415927f / 180.0f);
+        debug_Arrow(200.0f, test_CURRENTROOT((void *)a0), dir, 0xFF, 0, 0xFF);
+        SetMotionDirection(a0, dir);
+        deg += 5;
+        if (i % wait == 0) {
+            setCorrectOrientOfChain_inl((void *)a0);
+            ACTSendMailCorrect((char *)a0, 0x150);
+        }
+        _ACTWait(1);
+    }
+}
+
+void motCommonRopeTurnL(volatile int a0)
+{
+    int i = 0;
+    int base = (int)(_GetDirection(test_CURRENTORIENT((char *)a0)) / 3.1415927f * 180.0f);
+    float dir[4];
+    int wait = 18, deg = 0;
+
+    while (1) {
+        i++;
+        memset(dir, 0, 16);
+        dir[2] = 1.0f;
+        _ApplyRyGV(dir, (float)RoundDegGV(base - deg) * 3.1415927f / 180.0f);
+        debug_Arrow(200.0f, test_CURRENTROOT((void *)a0), dir, 0xFF, 0, 0xFF);
+        SetMotionDirection(a0, dir);
+        deg += 5;
+        if (i % wait == 0) {
+            setCorrectOrientOfChain_inl((void *)a0);
+            ACTSendMailCorrect((char *)a0, 0x150);
+        }
+        _ACTWait(1);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeClimbEnd1);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeCliff);
-ASM_LIT4_SLOT(D_00638E40, 3.1415927f);
-ASM_LIT4_SLOT(D_00638E44, 3.1415927f);
-ASM_LIT4_SLOT(D_00638E48, 3.1415927f);
 ASM_LIT4_SLOT(D_00638E4C, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", TestCageUpDown);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeSpecial);
@@ -2158,12 +2221,59 @@ void motCommonHangCliff(volatile int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonRopeTurnSpecialR);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonRopeTurnSpecialL);
-ASM_LIT4_SLOT(D_00638EE4, 0.1f);
-ASM_LIT4_SLOT(D_00638EE8, 3.1415927f);
-ASM_LIT4_SLOT(D_00638EEC, 0.1f);
-ASM_LIT4_SLOT(D_00638EF0, 3.1415927f);
+extern float _GetDirection(void *p);
+extern int RoundDegGV(int deg);
+extern void _ApplyRyGV(void *a0, float a1);
+extern void *test_CURRENTORIENT(char *a0);
+extern void *test_CURRENTROOT(void *a0);
+extern void *memset(void *dst, int c, int n);
+extern void SetMotionDirection();
+extern void ACTSendMailCorrect(char *a0, int mail);
+extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
+
+void motCommonRopeTurnSpecialR(volatile int a0)
+{
+    int i = 0;
+    int base = (int)(_GetDirection(test_CURRENTORIENT((char *)a0)) / 3.1415927f * 180.0f);
+    char *s = *(char **)(a0 + 0x164);
+    float dir[4];
+    int wait = 18, deg = 0;
+
+    while (1) {
+        memset(dir, 0, 16);
+        dir[2] = 1.0f;
+        _ApplyRyGV(dir, (float)RoundDegGV(base + deg) * 3.1415927f / 180.0f);
+        debug_Arrow(200.0f, test_CURRENTROOT((void *)a0), dir, 0xFF, 0, 0xFF);
+        SetMotionDirection(a0, dir);
+        if (i++ % wait == 0 && !(0.1f < *(float *)(s + 0x34C))) {
+            ACTSendMailCorrect((char *)a0, 0xAC);
+        }
+        deg += 5;
+        _ACTWait(1);
+    }
+}
+
+void motCommonRopeTurnSpecialL(volatile int a0)
+{
+    int i = 0;
+    int base = (int)(_GetDirection(test_CURRENTORIENT((char *)a0)) / 3.1415927f * 180.0f);
+    char *s = *(char **)(a0 + 0x164);
+    float dir[4];
+    int wait = 18, deg = 0;
+
+    while (1) {
+        memset(dir, 0, 16);
+        dir[2] = 1.0f;
+        _ApplyRyGV(dir, (float)RoundDegGV(base - deg) * 3.1415927f / 180.0f);
+        debug_Arrow(200.0f, test_CURRENTROOT((void *)a0), dir, 0xFF, 0, 0xFF);
+        SetMotionDirection(a0, dir);
+        if (i++ % wait == 0 && !(0.1f < *(float *)(s + 0x34C))) {
+            ACTSendMailCorrect((char *)a0, 0xAC);
+        }
+        deg += 5;
+        _ACTWait(1);
+    }
+}
 
 extern char D_0063A778[];
 extern void SetSwitchState(int a0, int a1);
