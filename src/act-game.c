@@ -132,7 +132,7 @@ void ACTGame_StageChangeGObj(char *self, int idx)
         sceVu0AddVector(tmp_a, tmp_a, buf);
     }
     if (self == D_00639EA8) {
-        if (0.0f <= *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x330)) {
+        if (0.0f <= *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x330)) {
             memset(&buf3, 0, 0x10);
             buf3.z = -*(float *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x330);
             buf2 = buf3;
@@ -171,9 +171,58 @@ void ACTGame_DisconnectHand_WithMail(void)
     debug_StdPrintfDummy(D_005523F0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckView);
-ASM_LIT4_SLOT(D_00638CCC, 0.8f);
-ASM_LIT4_SLOT(D_00638CD0, 0.8f);
+extern int GetSkeltonFocusNode(void *a0, void *a1);
+extern float _DistGV(void *a, void *b);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern float *test_CURRENTORIENT(char *a0);
+extern int _RotyGV(void *a, void *b);
+
+int ACTCheckView(char *self, void *a1, void *a2, void *a3, float f)
+{
+    float pos[4];
+    float v[4];
+    float d[4];
+    float *m;
+    int n;
+
+    n = GetSkeltonFocusNode(self, (void *)0x23) << 6;
+    m = (float *)(n + *(int *)(*(char **)(self + 0x15C) + 0xC));
+    pos[0] = m[12];
+    pos[1] = m[13];
+    pos[2] = m[14];
+    if (_DistGV(pos, a2) < f) {
+        return 1;
+    }
+    if ((int)a3 >= 360) {
+        return 1;
+    }
+    /* SRCFILE.TXT rows put the whole of each arm on ONE source line (1666 /
+       1667) -- a three-component vector set; v[3] is zeroed on the next line.
+       The duplicated v[0]/v[2] stores are cross-jumped back into one copy. */
+    if (*(int *)(self + 0xC) == 4) {
+        v[0] = 0.0f;
+        v[1] = -1.0f;
+        v[2] = 0.0f;
+    } else {
+        v[0] = 0.0f;
+        v[1] = 1.0f;
+        v[2] = 0.0f;
+    }
+    v[3] = 0.0f;
+    sceVu0ApplyMatrix(v, (char *)*(int *)(*(char **)(self + 0x15C) + 0xC) + n, v);
+    sceVu0SubVector(d, a2, pos);
+    if (0.8f < (v[1] < 0.0f ? -v[1] : v[1])) {
+        v[0] = test_CURRENTORIENT(self)[0];
+        v[1] = test_CURRENTORIENT(self)[1];
+        v[2] = test_CURRENTORIENT(self)[2];
+    }
+    if ((int)a3 / 2 < (_RotyGV(v, d) < 0 ? -_RotyGV(v, d) : _RotyGV(v, d))) {
+        return 0;
+    }
+    return 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_Loop);
 ASM_LIT4_SLOT(D_00638CD4, 5000.0f);
 
@@ -187,7 +236,39 @@ void ACTGame_LwsEffectProcess(char *a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTGame_SearchGObj);
+extern int *test_CURRENTROOT(int *a0);
+extern float _DistxzSqGV(void *a, void *b);
+
+/* Both absolute values are MACRO-shaped: ROM re-calls test_CURRENTROOT twice
+   per arm of the height test and _RotyGV once per arm of the angle test, i.e.
+   the classic `((x) < 0 ? -(x) : (x))` triple evaluation. */
+int _ACTGame_SearchGObj(char *self, char *tgt, float range, float height, int angle, float *out)
+{
+    float buf[4];
+    int n;
+
+    if (!(_DistxzSqGV(test_CURRENTROOT((int *)self), test_CURRENTROOT((int *)tgt)) <
+          range * range)) {
+        return 0;
+    }
+    if ((((float *)test_CURRENTROOT((int *)self))[1] - ((float *)test_CURRENTROOT((int *)tgt))[1] <
+                 0.0f
+             ? -(((float *)test_CURRENTROOT((int *)self))[1] -
+                 ((float *)test_CURRENTROOT((int *)tgt))[1])
+             : ((float *)test_CURRENTROOT((int *)self))[1] -
+                   ((float *)test_CURRENTROOT((int *)tgt))[1]) < height) {
+        sceVu0SubVector(buf, test_CURRENTROOT((int *)tgt), test_CURRENTROOT((int *)self));
+        n = _RotyGV(buf, test_CURRENTORIENT(self)) < 0 ? -_RotyGV(buf, test_CURRENTORIENT(self))
+                                                       : _RotyGV(buf, test_CURRENTORIENT(self));
+        if (n < angle) {
+            out[0] = buf[0];
+            out[1] = buf[1];
+            out[2] = buf[2];
+            return 1;
+        }
+    }
+    return 0;
+}
 
 extern int D_0063B13C;
 extern char D_00552450[];
@@ -421,10 +502,12 @@ static inline void actCharStatus_Set(char *a0, int bit, float f, int val)
 static inline unsigned char actCharStatus_Check(char *a0, int bit)
 {
     char *s = (char *)*(int *)(a0 + 0x164);
-    int r = 0;
-    if (s != 0) {
-        r = (*(unsigned long long *)(s + 0x58) >> bit) & 1;
+    int r;
+
+    if (s == 0) {
+        return 0;
     }
+    r = (*(unsigned long long *)(s + 0x58) >> bit) & 1;
     if (r != 0) {
         return 1;
     }
@@ -440,7 +523,89 @@ static inline void actGame_SetMotionPlaySpeedRatio_Reserve(char *a0, unsigned in
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", FunctionAboutClingedStatus);
+/* act-game.c:2853-2859 -- masks the 16-byte request-flag block in place. */
+static inline void andRequestFlags(char *d, char *m)
+{
+    int i;
+    for (i = 15; i >= 0; i--) {
+        *d = *d & *m;
+        d++;
+        m++;
+    }
+}
+
+void FunctionAboutClingedStatus(char *self)
+{
+    int buf[4];
+    char *s;
+    int *g;
+    int clinged;
+    int mode;
+    int st;
+    char *p;
+    unsigned char cl;
+
+    clinged = 0;
+    mode = 0;
+    s = *(char **)(self + 0x164);
+    g = isysGObjSearchFromObjKindID_begin(4);
+    while (g != 0) {
+        if (self == actEnemy_GetClingTarget(g)) {
+            clinged = 1;
+            break;
+        }
+        g = isysGObjSearchFromObjKindID_next(g);
+    }
+    if (clinged != 0) {
+        actCharStatus_Set(self, 30, 0.0f, 0);
+        actParaStatus_Set(self, 37);
+    }
+    cl = actCharStatus_Check(self, 30);
+    if (cl != 0) {
+        st = *(int *)(s + 0x34);
+        if (st != 0) {
+            if ((unsigned int)st >= 4) {
+                if (st == 15) {
+                    mode = 1;
+                    if (*(int *)(s + 0x4C) == 0) {
+                        p = *(char **)((char *)*(int *)(self + 0x164) + 0x680);
+                        *(int *)(p + 0x260) += 1;
+                        if (*(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x260) >=
+                            5) {
+                            mode = 2;
+                        }
+                    }
+                }
+            } else {
+                mode = 1;
+            }
+        }
+    } else {
+        *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x260) = 0;
+    }
+    switch (mode) {
+    case 0:
+        break;
+    case 1:
+        memset(buf, 0, 0x10);
+        buf[0] |= 0x1000;
+        andRequestFlags(s + 0x48C, (char *)buf);
+        actGame_SetMotionPlaySpeedRatio_Reserve(self, 6, 1.0f / ((float)clinged * 0.25f + 1.0f));
+        break;
+    case 2:
+        g = isysGObjSearchFromObjKindID_begin(4);
+        while (g != 0) {
+            if (self == actEnemy_GetClingTarget(g)) {
+                iosOmSendMail(g, 0xD6, self);
+                break;
+            }
+            g = isysGObjSearchFromObjKindID_next(g);
+        }
+        *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x260) = 0;
+        break;
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTEnvGetTest);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ActOrientTest);
 ASM_LIT4_SLOT(D_00638CD8, -1.5707964f);
@@ -1036,7 +1201,59 @@ int ACTCheckCollis_WELL(float f, void *p0, void *p1, void *actor, void *posout)
     return rv;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WAY);
+extern int D_0063A6B4;
+extern void ClipWallField(void *);
+extern int CompareAttribute(int attr, int mask);
+
+int ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout)
+{
+    HandWork work;
+    int flag;
+    int attr;
+
+    memset(&work, 0, 0xC0);
+    flag = actor ? *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) : 0;
+    work._70 = f;
+    D_0063A6B4 = 0;
+    sceVu0CopyVector(&work, (int)p0);
+    sceVu0CopyVector((char *)&work + 0x10, (int)p1);
+    if (flag != 0) {
+        *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 0;
+    }
+    ClipWall(&work);
+    attr = work._98;
+    if (flag != 0) {
+        *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 1;
+    }
+    /* The wall record is published on BOTH paths: SRCFILE.TXT rows put the
+       surviving `sw ...%gp_rel(D_0063A6B4)` on line 1586 with a seven-line
+       gap (1579-1585) above it, i.e. an else arm; jump.c cross-jumps the two
+       copies back into the one store ROM carries. */
+    if (work._88 == 0) {
+        if (flag != 0) {
+            *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 0;
+        }
+        ClipWallField(&work);
+        if (flag != 0) {
+            *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 1;
+        }
+        if (work._88 == 0) {
+            return 0;
+        }
+        D_0063A6B4 = work._80;
+    } else {
+        D_0063A6B4 = work._80;
+    }
+    if (CompareAttribute(attr, 0x30000) != 0) {
+        return 0;
+    }
+    if (posout != 0) {
+        *(float *)((char *)posout + 0) = work._20;
+        *(float *)((char *)posout + 4) = work._24;
+        *(float *)((char *)posout + 8) = work._28;
+    }
+    return 1;
+}
 
 extern void ClipWall(void *);
 extern void ClipFloor(void *);
