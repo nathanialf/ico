@@ -3508,6 +3508,10 @@ execVib = 0x001DD070; // type:func  // src/frameDependSequence
 execWeaponLightOff = 0x001DD0D8; // type:func  // src/frameDependSequence
 
 // ---- src/girl
+// girl: three file-static twins of boy's execClothes / dispCrown / dispClothes (census girl.c 706/763/787,
+// 133/63/81 insns; callee sequences identical; the listing's dispClothes -> dispCrown edge lands on
+// 0x1DD440 -> 0x1DD340). Absent from MAIN.MAP; splat rejects a duplicate global name, so the placeholder
+// rows stay and the C defines them as statics under the census names at layout (motionManager precedent).
 func_001DD128 = 0x001DD128; // type:func  // src/girl
 func_001DD340 = 0x001DD340; // type:func  // src/girl
 func_001DD440 = 0x001DD440; // type:func  // src/girl
