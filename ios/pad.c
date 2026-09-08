@@ -7,6 +7,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadRead);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadNormalizeStick);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadGetStick_func);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadActRequest);
+
 extern unsigned char padDevMgrMsgQ[];
 extern int iosMsgSend(void *a0, int a1, int a2);
 

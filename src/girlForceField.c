@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 extern char D_0061F9E0[]; /* "...sugipon/src/girlForceField.c": this TU's __FILE__ */

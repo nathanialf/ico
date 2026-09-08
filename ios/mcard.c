@@ -22,6 +22,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcHandlerRead);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrChdirProduct);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrSaveSeg);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrLoadSeg);
+
 extern void iosMcMgrSaveSeg(void *a0, int a1);
 
 void iosMcMgrSaveProductBlock(void *a0)
@@ -40,6 +41,7 @@ void iosMcMgrLoadProductBlock(void *a0)
 
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetBlockSaveInfo);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcManager);
+
 extern int D_006BC8C0[];
 extern char D_0063A490[];
 extern int D_0063A47C;

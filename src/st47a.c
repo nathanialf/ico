@@ -28,6 +28,7 @@ extern void gflagOff(int a0);
 extern PObjGObj *scpSearchGobj(int a0);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aInit);
+
 extern int D_00639EA8;
 
 void actSt47aEnd(void)
@@ -51,6 +52,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aRopeChk);
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aBarricadeChk);
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aEnemy1);
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aTorch);
+
 extern Act *actInitialize(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ScpCallCameraSetTarget(float x, float y, float z);

@@ -5,6 +5,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_codes);
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_stored);
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_fixed);
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_dynamic);
+
 extern void init_mblock(int *self);
 
 void inflate_start(void *a0)
@@ -67,6 +68,7 @@ void close_inflate_handler(void *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate);
+
 extern char D_00550FF0[];
 extern char D_00551040[];
 extern int D_0063A450;

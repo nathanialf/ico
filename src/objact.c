@@ -5,7 +5,6 @@ void ObjAction_CorrectGeo(int a0, int a1);
 void ObjAction_Mail(void *a0, int a1);
 void ObjAction_MailCenter(void *a0, int a1);
 void ObjAction_Init(void);
-
 extern void BeforeFunc2();
 extern void iosOmSendMail(void *a0, int a1, void *a2);
 extern void *isysGObjGetExist_begin(void);

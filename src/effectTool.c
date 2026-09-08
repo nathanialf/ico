@@ -4,6 +4,7 @@ INCLUDE_ASM("asm/nonmatchings/src/effectTool", _dispParam);
 INCLUDE_ASM("asm/nonmatchings/src/effectTool", editParam);
 INCLUDE_ASM("asm/nonmatchings/src/effectTool", dispXZYZCircle);
 INCLUDE_ASM("asm/nonmatchings/src/effectTool", dispCircle2);
+
 extern short D_0063B858;
 extern short D_0063B85A;
 extern void RotQuaternionX(int *self, short y);
@@ -30,7 +31,6 @@ typedef struct {
 } EffToolPad;
 
 extern EffToolPad D_0028F8F0[];
-
 extern float D_00720170[];
 extern int D_0063B854;
 extern int D_0063B85C;
@@ -44,7 +44,6 @@ typedef struct {
 } EffParamDef;
 
 extern EffParamDef D_004E74A0[];
-
 extern int *GetParticleEffectPackage(int id);
 extern void ResetParticleEffectPackages(int *pkg);
 extern void DeleteParticleEffect(int id);
@@ -223,7 +222,6 @@ extern int D_0063B85C;
 extern int D_0063B860;
 extern int D_0063B864;
 extern int D_0063B868;
-
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
 extern void DeleteParticleEffect(int id);

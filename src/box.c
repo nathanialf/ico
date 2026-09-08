@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 typedef struct {
@@ -16,7 +15,6 @@ void ExecBoxMoveEndReaction(char *a0);
 int BoxGeoRestore(float *a0, float *a1);
 int BoxExtGeoRestore(void);
 int BoxMemoryFunc(void);
-
 /* switch.h */
 int InitSwitchGeo(void);
 void SwitchGeo(void);
@@ -63,11 +61,8 @@ void wallHitSE(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/box", initFallDown);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", checkFieldContact);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", execNormalMove);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", execAutoMove);
 
 static inline float getAlign(float v, float g)
@@ -113,16 +108,12 @@ int AlignBox(char *a0, float grid)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/box", initWheels);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", dispWheels);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", getNearestPosition);
 ASM_LIT4_SLOT(D_006393A8, 0.707f);
 ASM_LIT4_SLOT(D_006393AC, 0.707f);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", onPathInitialize);
 ASM_LIT4_SLOT(D_006393B0, 0.010000001f);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", onPath);
 ASM_LIT4_SLOT(D_006393B4, 10430.378f);
 
@@ -140,16 +131,13 @@ inline float GetDistanceOfGObj(void *a0, void *a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/box", playAnimationCore);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", MoveFloatingBox);
 ASM_LIT4_SLOT(D_006393B8, 0.2f);
 ASM_LIT4_SLOT(D_006393BC, 0.31830987f);
 ASM_LIT4_SLOT(D_006393C0, 0.31830987f);
 ASM_LIT4_SLOT(D_006393C4, 0.05f);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", avoidCharGObj);
 ASM_LIT4_SLOT(D_006393C8, 1.414f);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", execFloating);
 ASM_LIT4_SLOT(D_006393CC, 70.700005f);
 ASM_LIT4_SLOT(D_006393D0, -0.1f);
@@ -159,15 +147,10 @@ ASM_LIT4_SLOT(D_006393DC, -0.01f);
 ASM_LIT4_SLOT(D_006393E0, 0.95f);
 ASM_LIT4_SLOT(D_006393E4, 20.48f);
 ASM_LIT4_SLOT(D_006393E8, 0.1f);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", initFloating);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", _checkItemBreak);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", initLanding);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", execFallDown);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", inertiaMove);
 
 inline int IsThisBoxTruck(char *a0)
@@ -608,11 +591,9 @@ inline void ExecBoxMoveEndReaction(char *a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/box", ReInitBoxGeo);
 ASM_LIT4_SLOT(D_00639400, 100000.0f);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", InitBoxGeo);
 ASM_LIT4_SLOT(D_00639404, 0.98f);
 ASM_LIT4_SLOT(D_00639408, 0.85f);
-
 INCLUDE_ASM("asm/nonmatchings/src/box", BoxGeo);
 
 extern int p2o_SetDefaultEnviroment(int a0);

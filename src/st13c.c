@@ -154,7 +154,6 @@ extern void lt_switch_layout(int a0);
 extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
 extern void soundSeDefStop(int handle);
-
 extern void actSt13cBukiChk(volatile int a0);
 extern void actSt13cSleepChk(volatile int a0);
 extern void actSt13cBmg1Chk(volatile int a0);
@@ -178,10 +177,8 @@ extern void actSt13cCageFallReadyChk(volatile int a0);
 extern void actSt13cRescueChk(volatile int a0);
 extern void actSt13cSekizoChk(volatile int a0);
 extern void actSt13cCageDownMain(volatile int a0);
-
 extern int D_00639EA4;
 extern int D_0063C590;
-
 extern char D_00622E10[];
 /* st13c.o's own .rodata: the sleeping-girl wake-up offset vector. */
 extern AnimSet D_00622E20;
@@ -200,7 +197,6 @@ extern int D_0028F4C0[];
 extern int D_0028F8F4[];
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
-
 /* st13c.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
 extern ActMail D_004FAD50[];
 extern ActMail D_004FAD10[];

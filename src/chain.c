@@ -12,6 +12,7 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_moveup);
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_free);
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_down);
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_hangstart);
+
 extern char D_00555300[];
 extern int D_0063B13C;
 extern int D_0063C2C0;
@@ -51,6 +52,7 @@ ASM_LIT4_SLOT(D_006391B8, 1.5707964f);
 ASM_LIT4_SLOT(D_006391BC, 1.5707964f);
 INCLUDE_ASM("asm/nonmatchings/src/chain", TestChainUpDown);
 INCLUDE_ASM("asm/nonmatchings/src/chain", SetChainRootUpdateMode);
+
 extern void StartPendulum(void *a0);
 
 void HoldChain(char *a0)

@@ -13,6 +13,7 @@ INCLUDE_ASM("asm/nonmatchings/src/Primitive", clearUVOffset);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispMesh3D);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_InitParticleByPartition);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispParticle);
+
 extern void EntryDelayFree(int a0);
 
 void prim_DeleteParticle(int a0)
@@ -26,6 +27,7 @@ INCLUDE_ASM("asm/nonmatchings/src/Primitive", drawDisc);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispWireYCylinder);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispWireSphere);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispWireBox);
+
 extern int D_0063A450;
 extern int prim_InitParticleByPartition();
 

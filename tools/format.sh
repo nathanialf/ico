@@ -21,6 +21,8 @@ else
     mapfile -t files < <(cd "$ROOT" && git ls-files 'src/*.c' 'ios/*.c' 'sound/*.c' 'isys/*.c' 'ito/mpeg/*.c')
 fi
 cd "$ROOT"
+PY="$ROOT/.venv/bin/python"
+LAYOUT="$ROOT/tools/format_layout.py"
 if [[ "$mode" == check ]]; then
     bad=0
     for f in "${files[@]}"; do
@@ -30,6 +32,9 @@ if [[ "$mode" == check ]]; then
             bad=1
         fi
     done
+    # top-level blank-line layout (include / extern / INCLUDE_ASM blocks)
+    "$PY" "$LAYOUT" --check "${files[@]}" || bad=1
     exit $bad
 fi
 "$CF" -i "${files[@]}"
+"$PY" "$LAYOUT" "${files[@]}"

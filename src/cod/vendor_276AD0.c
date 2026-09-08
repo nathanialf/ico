@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -13,6 +12,7 @@ typedef struct {
 } P16Ent;
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgSndn2RemoteInit);
+
 extern char D_00736140[];
 extern void *_SgGetComContext(void);
 extern int sceSifCheckStatRpc(char *a0);
@@ -84,6 +84,7 @@ int SgDmaRead(void *a0, int a1, void *a2)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", _SgDmaCommon);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgGetDmaTransferStatus);
+
 extern int SgVabOpenFakeBody(int *a0, int a1);
 
 int SgVabOpen(int a0, int *a1, int a2)
@@ -97,6 +98,7 @@ int SgVabOpen(int a0, int *a1, int a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgVabOpenFakeBody);
+
 extern void *_SgGetSeqContext(int a0);
 extern void *_SgGetSlotContext(int a0);
 extern void *_SgGetVabContext(int a0);

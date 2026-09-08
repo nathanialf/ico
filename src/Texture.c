@@ -20,6 +20,7 @@ INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_loadImage);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_setTexReg);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_transVramClutTex);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_transVramDirectTex);
+
 extern void dl_CloseDma();
 extern void dl_OpenDma();
 
@@ -315,6 +316,7 @@ void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou,
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_Init);
+
 extern int D_0028F720[];
 extern int D_0063C164;
 extern CdvdRec D_0068AFE0[];

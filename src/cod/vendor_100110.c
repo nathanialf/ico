@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "syscall.h"
 #include "r5900.h"
 
@@ -55,6 +54,7 @@ int _DisableDmac(int a0)
 {
     __asm__ __volatile__("addiu $3, $zero, 23\n\tsyscall 0" : : : "$3", "memory");
 }
+
 SYSCALL_WRAPPER(SetAlarm, 252)
 SYSCALL_WRAPPER(ReleaseAlarm, 253)
 SYSCALL_WRAPPER(_iEnableIntc, -26)
@@ -88,6 +88,7 @@ int _iWakeupThread(void)
 {
     __asm__ __volatile__("addiu $3, $zero, -52\n\tsyscall 0" : : : "$3", "memory");
 }
+
 SYSCALL_WRAPPER(CancelWakeupThread, 53)
 SYSCALL_WRAPPER(iCancelWakeupThread, -54)
 SYSCALL_WRAPPER(SuspendThread, 55)
@@ -96,6 +97,7 @@ int _iSuspendThread(void)
 {
     __asm__ __volatile__("addiu $3, $zero, -56\n\tsyscall 0" : : : "$3", "memory");
 }
+
 SYSCALL_WRAPPER(ResumeThread, 57)
 SYSCALL_WRAPPER(iResumeThread, -58)
 SYSCALL_WRAPPER(JoinThread, 59)
@@ -111,6 +113,7 @@ void iSignalSema(int handle)
 {
     __asm__ __volatile__("addiu $3, $zero, -67\n\tsyscall 0" : : : "$3", "memory");
 }
+
 SYSCALL_WRAPPER(WaitSema, 68)
 SYSCALL_WRAPPER(PollSema, 69)
 SYSCALL_WRAPPER(iPollSema, -70)
@@ -179,6 +182,7 @@ void Deci2Call(int req, void *args)
 {
     __asm__ __volatile__("addiu $3, $zero, 124\n\tsyscall 0" : : : "$3", "memory");
 }
+
 SYSCALL_WRAPPER(PSMode, 125)
 SYSCALL_WRAPPER(MachineType, 126)
 SYSCALL_WRAPPER(GetMemorySize, 127)
@@ -313,6 +317,7 @@ void iDisableDmac(void)
     _iDisableDmac();
     SYNC();
 }
+
 SYSCALL_WRAPPER(func_00100C28, 116)
 SYSCALL_WRAPPER(Copy, 90)
 
@@ -325,10 +330,13 @@ int kCopy(int *dst, int *src, unsigned int n)
     }
     return 0;
 }
+
 SYSCALL_WRAPPER(GetEntryAddress, 91)
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", InitAlarm);
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100D68);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100E40);
+
 extern int D_0028F4B0[];
 extern int D_0063CB50[];
 extern KernEventRing D_0063CB58;
@@ -434,6 +442,7 @@ void serialPutchar(int c)
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", ftoi);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", printfloat);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", _printf);
+
 extern int _printf(int a0, void *va);
 
 void kprintf(int a0, ...)
@@ -455,6 +464,7 @@ int EIntr(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", sceDeci2Open);
+
 extern void Deci2Call(int req, void *args);
 
 void sceDeci2Close(int a0)

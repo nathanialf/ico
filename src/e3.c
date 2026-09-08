@@ -59,6 +59,7 @@ void actE3St01bInit(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/e3", actE3St09aBrgDown);
+
 extern void scpFadeOut(float t, int a1, int a2, int a3);
 extern void InitStageLight(int stage);
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);

@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "sugiCommon.h"
 
 typedef struct {
@@ -14,6 +13,7 @@ extern void AdjustMotionHeightToNearestField(void *a0);
 void SelectBoyCrown(char *a0, int a1);
 void LightLineGeo(void);
 void SetBoyStonizedVisual(char *a0);
+
 INCLUDE_ASM("asm/nonmatchings/src/boy", dispClothes);
 ASM_LIT4_SLOT(D_0063940C, 0.98f);
 ASM_LIT4_SLOT(D_00639410, 0.98f);

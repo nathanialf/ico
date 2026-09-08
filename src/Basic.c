@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 extern int *dmaVif;

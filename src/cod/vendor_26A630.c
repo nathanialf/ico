@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -12,6 +11,7 @@ typedef struct {
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _type2id);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _id2type);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", sceMpegDemuxPssRing);
+
 extern void sceMpegDemuxPssRing(void *a0, int a1, int a2, int a3, int a4);
 
 void sceMpegDemuxPss(void *a0, int a1, int a2)
@@ -22,6 +22,7 @@ void sceMpegDemuxPss(void *a0, int a1, int a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", sceMpegAddStrCallback);
+
 extern int _sysbitGet(int *bs, int nbits);
 extern int _sysbitMarker(int *bs);
 extern int _sysbitNext(void *a0, int a1);
@@ -335,6 +336,7 @@ int _alalcRest(int *a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _getpic);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decodeOrSkipFrame);
+
 extern int _picture_structure[];
 extern int _decodeOrSkipField(int a0, int a1, int a2);
 extern int _decodeOrSkipFrame(int a0, int a1, int a2);
@@ -348,6 +350,7 @@ int _decodeOrSkip(int a0, int a1, int a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decodeOrSkipField);
+
 extern void _lastFrame(int a0);
 
 int _sceMpegFlush(int *self)
@@ -412,6 +415,7 @@ void _clearOnce(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _clearEach);
+
 extern int D_00636DF8[];
 extern void printf(void *a0, ...);
 
@@ -467,6 +471,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _initRefImages);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _setDefaultQM);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sequenceExtension);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sequenceDisplayExtension);
+
 extern int D_00636E68[];
 
 void _sequenceScalableExtension(void)
@@ -509,6 +514,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _motionComp0);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _getAllRefs);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _getRef0);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _doMC);
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -550,6 +556,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -600,6 +607,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -658,6 +666,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -723,6 +732,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -778,6 +788,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -836,6 +847,7 @@ __asm__(".section .text\n"
         ".size _ri0_010, . - _ri0_010\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -910,6 +922,7 @@ __asm__(".section .text\n"
         ".size _rix_011, . - _rix_011\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -987,7 +1000,9 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _rix_100);
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1044,6 +1059,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1114,6 +1130,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1185,6 +1202,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1252,6 +1270,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1316,6 +1335,7 @@ __asm__(".section .text\n"
         ".size _ri0_110, . - _ri0_110\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1402,6 +1422,7 @@ __asm__(".section .text\n"
         ".size _rix_111, . - _rix_111\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1485,6 +1506,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 extern int D_0026E920;
 
 void _copyAddRefImage(void *a0, void *a1, void *a2)
@@ -1525,6 +1547,7 @@ void _ipuSetMPEG1(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _waitBdecOut);
+
 extern int _ipuVdec(int a0);
 
 int _dmVector(void)
@@ -1533,6 +1556,7 @@ int _dmVector(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dualPrimeVector);
+
 extern int _isError[];
 extern int D_00636FE0[];
 extern void _flushBuf(int a0);
@@ -1576,6 +1600,7 @@ int _mbAddressIncrement(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _pictureData0);
+
 extern int _widthMB[];
 extern int _sp_dcr[];
 extern int D_00637038[];
@@ -1623,6 +1648,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _skipMB0);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decMB0);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decode_motion_vector);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _motionVectors);
+
 extern void _decode_motion_vector();
 extern int _nextBit(int a0);
 
@@ -1673,7 +1699,6 @@ c2c:
 
 extern int _isTop32dirty[];
 extern int D_0054CA08[];
-
 extern int D_0054CA08[];
 
 void _sendIpuCommand(unsigned int a0)
@@ -1688,6 +1713,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _ipuVdec);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _peepBit);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _flushBuf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _nextBit);
+
 extern void _waitIpuIdle(void);
 
 void _nextStartCode(void)
@@ -1707,6 +1733,7 @@ extern int _intra_slice[];
 extern void _extrainfo(void);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sliceB);
+
 extern int _picture_coding_type[];
 extern long long _headerPts[];
 extern long long _headerDts[];
@@ -1734,6 +1761,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _copyrightExtension);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decPicture);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _outputFrame);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _updateRefImage);
+
 extern char D_00637188[];
 extern void sprintf__pn() __asm__("sprintf");
 
@@ -1756,6 +1784,7 @@ int _isOutSizeOK(char *p)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _cpr8);
+
 extern int _isOutputPicture[];
 
 int _markOutput(void)
@@ -1776,10 +1805,10 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dispRefImageField);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _doCSC);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _ch3dmaCSC);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _doCSC2);
+
 extern int D_007315DC[];
 extern int D_007315E0[];
 extern int D_007315E4[];
-
 extern int D_007315DC[];
 extern int D_007315E0[];
 extern int D_007315E4[];
@@ -1806,6 +1835,7 @@ int _ch4dma(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _csc_storeRefImage);
+
 extern void _sysbitFlush(int *a0, int a1);
 
 void _sysbitInit(int *a0, int a1, int a2, int a3)

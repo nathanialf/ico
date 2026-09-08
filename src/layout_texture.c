@@ -10,6 +10,7 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_texture", exec_layout_texture);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001C09A8);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", init_layout_texture);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_switch_layout);
+
 extern unsigned int D_0063B610;
 
 int lt_current_property_item(void)
@@ -20,6 +21,7 @@ int lt_current_property_item(void)
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_link_layout);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_prev_layout);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_next_layout);
+
 extern char D_0030CFF8[];
 
 void lt_mask_property(int idx, int flag)

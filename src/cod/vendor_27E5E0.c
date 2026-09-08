@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -45,6 +44,7 @@ int __errno(void)
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", fiprintf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", memcmp);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", memcpy);
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -115,6 +115,7 @@ __asm__(".section .text\n"
         "    .size memset, . - memset\n"
         "    .set reorder\n"
         "    .set at\n");
+
 extern int _vfprintf_r(int *self, int subj, int b, void *args);
 
 int _printf_r(int *self, int b, ...)
@@ -187,6 +188,7 @@ int eofread(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", sscanf);
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -280,6 +282,7 @@ __asm__(".section .text\n"
         "    .size strcat, . - strcat\n"
         "    .set reorder\n"
         "    .set at\n");
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", strcmp);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", strcpy);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", strlen);
@@ -299,6 +302,7 @@ char *strrchr(char *s, char c)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", strstr);
+
 extern int func_0027FE08(int a0, int a1, int a2);
 
 int strtok(int a0, int a1)
@@ -352,6 +356,7 @@ cont:
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", func_0027FEA8);
+
 extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
 
 long long strtol(void *a0, int a1, int a2)
@@ -415,6 +420,7 @@ int vsprintf(void *out, void *a1, void *a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", __swsetup);
+
 extern void func_001000B8(int a0);
 extern int raise(int a0);
 
@@ -436,6 +442,7 @@ int func_00283518(int a0)
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", quorem);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _dtoa_r);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", fflush);
+
 extern int __sread(void *a0, int a1, int a2);
 extern long __swrite(void *a0, int a1, int a2);
 extern long __sseek(void *a0, int a1, int a2);
@@ -480,6 +487,7 @@ void *__sfmoreglue(void *a0, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", __sfp);
+
 extern void _fwalk(int a0, void *a1);
 extern int fflush(void);
 
@@ -551,6 +559,7 @@ int fread(char *dst, int size, int count, StreamBuf *s)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _free_r);
+
 extern struct D520 D_0054CEC8;
 extern int D_0054D2E0[];
 extern int D_0054D2F8[];
@@ -598,6 +607,7 @@ adjust:
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", __sfvwrite);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _fwalk);
+
 extern int D_00638878[];
 extern const unsigned int D_00638888[];
 extern int strcmp(int *p, int *buf);
@@ -679,6 +689,7 @@ void _Bfree(char *a0, int *a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _multadd);
+
 extern int *_Balloc(void *a0, int a1);
 extern int *_multadd(void *a0, int *a1, int a2, int a3);
 
@@ -834,6 +845,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _ulp);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _b2d);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _d2b);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _ratio);
+
 extern const long D_006388A0[];
 extern long dpmul(long a, long b);
 
@@ -904,6 +916,7 @@ int _sbrk_r(int *self, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _init_signal_r);
+
 extern int _init_signal_r(int a0);
 
 unsigned int _signal_r(void *a0, int a1, int a2)
@@ -927,6 +940,7 @@ unsigned int _signal_r(void *a0, int a1, int a2)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _raise_r);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", __sigtramp_r);
+
 extern int _raise_r(int a0, int a1);
 
 int raise(int a0)
@@ -1025,12 +1039,16 @@ int __sclose(void *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _strtod_r);
+
 int strtod(s, end)
 char *s;
+
 char **end;
+
 {
     return _strtod_r(D_0054CEAC[0], s, end);
 }
+
 extern int dptofp(long a0);
 extern int strtod();
 
@@ -1040,6 +1058,7 @@ int strtodf(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _strtoul_r);
+
 extern long long _strtoul_r(void *a0, void *a1, int a2, int a3);
 
 long long strtoul(void *a0, int a1, int a2)
@@ -1049,6 +1068,7 @@ long long strtoul(void *a0, int a1, int a2)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", __submore);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", ungetc);
+
 extern int write(int a1, int a2, int a3);
 
 int _write_r(int *self, int a1, int a2, int a3)
@@ -1065,6 +1085,7 @@ int _write_r(int *self, int a1, int a2, int a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27E5E0", _calloc_r);
+
 extern int close(int a1);
 
 int _close_r(int *self, int a1)

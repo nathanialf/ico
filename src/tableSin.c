@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 #include "ico/types.h"
 
@@ -10,7 +9,6 @@ void InitTableSin(void);
 int GetTableArcSin(float x);
 int GetTableArcCos(float x);
 int GetTableArcTan2(float f12, float f13);
-
 extern float D_00669A40[];
 extern unsigned short D_00679A50[];
 extern float D_00638BBC;

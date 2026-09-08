@@ -182,6 +182,7 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainGetTargetGeneratorFromLabel);
+
 extern void *D_00639EA4;
 extern void *D_00639EA8;
 extern int D_0063C2C4;

@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"

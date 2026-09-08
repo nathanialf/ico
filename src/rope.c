@@ -1,11 +1,11 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 extern void ropeGeo(void *o);
 extern void GetRootPosition(void *dst, void *src);
 extern float GetChainCollision(void *a0, void *a1, float w);
 extern void *D_00639EA4;
+
 INCLUDE_ASM("asm/nonmatchings/src/rope", InitRopeGeo);
 
 inline int CheckRopeUpperWallClimbable(int a0, char *a1)
@@ -23,6 +23,7 @@ INCLUDE_ASM("asm/nonmatchings/src/rope", HoldRope);
 inline void ReleaseRope(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/rope", ropeGeo);
+
 /* The listing inlines rope.c:215-221 into RopeGeo: the chain-length update
    is a static helper defined above it (its name is not recoverable). */
 /* prototypes: their order is the inline tail's emission order */

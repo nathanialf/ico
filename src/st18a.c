@@ -32,6 +32,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aDoorChk);
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aDoorDownChk);
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aEnemy1_1);
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aEnemy2_1);
+
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern Act *actInitialize(int a0);

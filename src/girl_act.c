@@ -221,6 +221,7 @@ void SetTurnSpeedInEscape(char *a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", sort_list);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_MakeOthersList);
+
 extern void GetMatrixDirectionToZ(void *m, void *dir);
 extern float FSqrt(float x);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
@@ -276,6 +277,7 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_CheckWarningMode);
 ASM_LIT4_SLOT(D_00638F6C, 160000.0f);
 ASM_LIT4_SLOT(D_00638F70, 40000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_DecideMode);
+
 extern char D_002A2E70[];
 extern int *D_00639EA4;
 extern void *D_00639EA8;
@@ -347,6 +349,7 @@ ASM_LIT4_SLOT(D_00638F7C, 160000.0f);
 ASM_LIT4_SLOT(D_00638F80, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrainMain);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Pulledup);
+
 extern int D_006C1E20[];
 extern void GetSkeltonOrient(float *out, void *obj, int node);
 extern int _RotyGV(void *buf, void *vec);
@@ -492,6 +495,7 @@ ASM_LIT4_SLOT(D_00638FB0, 40000.0f);
 ASM_LIT4_SLOT(D_00638FB4, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Attract);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", _girlBrainHide_MakeHidePoint);
+
 extern void GetRootMotionOrient(float *out, void *obj);
 extern int _RotyGV(void *buf, void *vec);
 extern void ACTSendMailCorrect(void *a0, int mail);
@@ -668,6 +672,7 @@ int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
 
 ASM_LIT4_SLOT(D_00638FCC, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Escape);
+
 extern float _DistGV(void *a, void *b);
 extern void _InterGV(float *dst, float *a, float *b, float t0, float t1);
 
@@ -885,6 +890,7 @@ ASM_LIT4_SLOT(D_00638FD8, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001762A0);
 ASM_LIT4_SLOT(D_00638FDC, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", Danger_Gondola);
+
 extern int IsThisBoxTruck(void *a0);
 
 /* girl_brain_main.c.inc:44-53 -- a file-scope static helper with no MAIN.MAP
@@ -1242,6 +1248,7 @@ void subGirlBrain_HideAdvance(volatile int a0)
 
 ASM_LIT4_SLOT(D_00638FE8, 1500.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", isEnterHideadv_EnemyLocation);
+
 extern int D_00639EA4__pn __asm__("D_00639EA4");
 extern void *D_00629DE4, *D_00639EA8__pn __asm__("D_00639EA8");
 extern float _DistxzSqGV(void *, void *);
@@ -1372,6 +1379,7 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlControl);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlCollision);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_GetDistHand);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Update);
+
 extern GirlStand D_002A2F70;
 extern int _RotyGV(void *buf, void *vec);
 
@@ -1412,6 +1420,7 @@ ASM_LIT4_SLOT(D_0063903C, 1.1f);
 ASM_LIT4_SLOT(D_00639040, 1.4f);
 ASM_LIT4_SLOT(D_00639044, 1.3f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Speed);
+
 extern char D_0055FE58[];
 
 void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
@@ -1493,6 +1502,7 @@ ASM_LIT4_SLOT(D_00639050, 0.1f);
 ASM_LIT4_SLOT(D_00639054, 0.7f);
 ASM_LIT4_SLOT(D_00639058, 0.6f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHand);
+
 extern void PAIR_GetPosition_BOY(float *boy, float *dir);
 extern void sceVu0ScaleVector(float *dst, float *src, float scale);
 extern void sceVu0AddVector(float *dst, float *a, float *b);
@@ -1938,7 +1948,6 @@ extern Vec4 D_005540A0; /* { FLT_MAX, 0, 0, 1 } : "no girl" position */
 extern Col4 D_00554090; /* { 0, 0x10, 0x20, 0x80 } : wire sphere colour */
 extern int D_0063B228;  /* debug display switch */
 extern int stage_no;
-
 extern void MatrixDrive_PushMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
 extern void *MatrixDrive_GetMatrix(void);

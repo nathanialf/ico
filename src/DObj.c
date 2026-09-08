@@ -19,6 +19,7 @@ extern void GlobalizeGeometry(void *a0);
 void FreeDObj(void);
 void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1);
 void UnlinkParentOfDObj(void *a0);
+
 INCLUDE_ASM("asm/nonmatchings/src/DObj", initGeometryState);
 INCLUDE_ASM("asm/nonmatchings/src/DObj", initMatrixDObj);
 INCLUDE_ASM("asm/nonmatchings/src/DObj", allocObjectData);

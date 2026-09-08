@@ -3,6 +3,7 @@
 typedef struct {
     unsigned char b[4];
 } Col4;
+
 typedef struct KanbanProp KanbanProp;
 
 typedef struct Node {

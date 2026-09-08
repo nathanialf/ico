@@ -19,6 +19,7 @@ void ExecGameOverEffect(void);
 void StartGameOverEffect(int a0, float t);
 void StartQueenAttackEffect(int a0, float t);
 void ResetGameOverEffect(void);
+
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", draw);
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", drawHT);
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", renderViewCoordZSphere);

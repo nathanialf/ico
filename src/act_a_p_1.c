@@ -1,9 +1,9 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", standAI);
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", walkAI);
+
 extern char *D_004E5A78[];
 extern void debug_StdPrintfDummy(char *a0);
 
@@ -15,6 +15,7 @@ void hehehe(char *a0)
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", SleepAP1);
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", WakeUpAP1);
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", subAP1BrainMain);
+
 extern int AP1MotReqForce(int *self, int a1);
 
 void hitProc(int a0)

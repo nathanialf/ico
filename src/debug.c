@@ -99,6 +99,7 @@ void debug_SaveDebugOptionFile(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_GetDebugOption);
+
 extern int AddDmacHandler();
 extern unsigned int D_0063AE8C;
 extern void EnableDmac();
@@ -317,6 +318,7 @@ void debug_Init(void)
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Load);
 ASM_LIT4_SLOT(D_00639338, 10059776.0f);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_MakeFont);
+
 /* D_00619BB0 = the 8x8 1bpp font bitmap (8 bytes per glyph);
    D_00706AD0 = the glyph re-expanded to 8 shorts (shifted left one column);
    D_00704AD0 = the 3x3-dilated outline, 16 shorts per glyph. */
@@ -356,6 +358,7 @@ void debug_makeBackImage(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_PrintCharacter);
+
 extern int D_0063AEB0;
 extern int D_0063B13C;
 extern void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz);
@@ -400,6 +403,7 @@ void debug_PrintFont(int a0, int a1, int a2, char *a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_FlushFontWindow);
+
 extern void debug_FlushFontWindow(void);
 
 void debug_FlushFont(void)
@@ -743,6 +747,7 @@ void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SnapShot);
+
 extern char D_0061BAA8[];
 extern char D_0061BAC0[];
 extern char D_0063AF38[];
@@ -940,6 +945,7 @@ void debug_DispVu1FReg(int no, int mode)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Mode);
+
 extern char D_0061BC38[];
 extern char D_0063AF70[];
 extern char D_0063AF78[];

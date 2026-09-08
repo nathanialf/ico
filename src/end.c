@@ -1068,12 +1068,14 @@ extern void SelectBoyCrown(int a0, int a1);
 extern PObjGObj *scpSearchGobj(int a0);
 extern void SetGirlClothDispSwitch(PObjGObj *gobj, int a1, int a2);
 extern void ACTSendMailCorrect(int a0, int mail);
+
 /* Demo 14's mail record: the actor installs actEndDemo14Chk in it and posts
    it. Word 0 of each entry is the mail id the entry answers (0x1AE the actor
    post, 0x1AD the trailing entry); .func is filled in at run time. Named in
    this TU's own terse snake_case house style (its MAIN.MAP globals are
    ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
 static ActMail ed_demo14_mes[2] = {{0x1AE}, {0x1AD}};
+
 extern int D_0063A054;
 extern int D_0063AA08;
 extern int D_0063BE34;
@@ -1241,6 +1243,7 @@ void actSt27aEnd(volatile int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/end", actSt27aEndChk);
+
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int gflagChk(int a0);
 extern void scpPlayMot(int a0, int mot);
@@ -1380,6 +1383,7 @@ extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern int scpFadeChk(void);
 extern void scpFadeIn(float f);
 extern void ACTSendMailCorrect(int a0, int mail);
+
 /* The ending's save hand-off mail record: the logo watcher installs
    actEndingSave in it and posts it. Word 0 of each entry is the mail id the
    entry answers (0x1AE the actor post, 0x1AD the trailing entry); .func is
@@ -1388,6 +1392,7 @@ extern void ACTSendMailCorrect(int a0, int mail);
    belongs to; among the role-plausible spellings this is one that also puts
    the record ahead of the handler in gcc's expression-hash order. */
 static ActMail end_mes[2] = {{0x1AE}, {0x1AD}};
+
 extern int D_0063AA08;
 extern int NonLinearCameraMove;
 extern int enable_game_pause;

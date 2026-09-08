@@ -1,9 +1,7 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 extern int D_0063A7E0;
-
 /* INTERIM stand-in: the 2001 source declares _BrainMode_SetDirect `inline` -- the
    disc listing attributes the call sites below (subEnemyBrain_Shoulder, _Pickup,
    _Bodyslam, ...) to its body lines 3055-3060 -- but its out-of-line copy must
@@ -292,6 +290,7 @@ end:
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyControl);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyCollision);
+
 extern void _OrientXZGV(float *dst, float *a, float *b);
 extern void SetMotionDirection(void *self, float *dir);
 extern void ACTSendMailCorrect(void *a0, int a1);
@@ -454,6 +453,7 @@ ASM_LIT4_SLOT(D_00638F10, 0.99f);
 ASM_LIT4_SLOT(D_00638F14, 0.1f);
 ASM_LIT4_SLOT(D_00638F18, 0.1f);
 ASM_LIT4_SLOT(D_00638F1C, 0.1f);
+
 extern int ACTReserveTarget(void *owner, void *self, int pri);
 extern void sceVu0ScaleVector(float *dst, float *src, float k);
 extern void sceVu0AddVector(float *dst, float *a, float *b);
@@ -543,6 +543,7 @@ ASM_LIT4_SLOT(D_00638F20, 10000.0f);
 ASM_LIT4_SLOT(D_00638F24, 0.0001f);
 ASM_LIT4_SLOT(D_00638F28, 0.01f);
 ASM_LIT4_SLOT(D_00638F2C, 0.1f);
+
 extern void *D_00639EA4;
 extern void *test_CURRENTORIENT(int a0);
 extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
@@ -858,6 +859,7 @@ store:
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", BrainMode_Requset);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrainMain);
+
 extern char D_005535A0[];
 extern void debug_StdPrintfDummy(char *fmt);
 extern char *isysGObjSearchFromObjKindID_begin(int kind);
@@ -1271,6 +1273,7 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToBoy);
 ASM_LIT4_SLOT(D_00638F40, 22500.0f);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToKidnap);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToGirl);
+
 extern void GetRootMotionOrient(float *out, char *self);
 extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
 

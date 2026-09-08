@@ -37,6 +37,7 @@ extern float GetQueenBallThickness(void);
 void CommonAttackCenter(char *a0);
 int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
 void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float radius);
+
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", inner_check);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", MakeAttackPack_Actor);
 

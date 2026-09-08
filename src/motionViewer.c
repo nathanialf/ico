@@ -1,8 +1,8 @@
 #include "common.h"
-
 #include "sugiCommon.h"
 
 struct MvObj;
+
 extern struct MvObj *D_0063BA08;
 extern int D_0063BA10;
 extern void SetRootUpdateMode(void *self, int val);
@@ -386,6 +386,7 @@ extern void iosFree();
 extern void sprintf();
 
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", motOriMenuProc);
+
 /*SWEEP-ENDmotOriMenuProc*/
 /*SWEEPmodeMessage*/
 extern char D_006207C0[];
@@ -528,4 +529,5 @@ extern float sceVu0InnerProduct(MvVec *a, MvVec *b);
 extern void sceVu0TransposeMatrix(void *dst, void *src);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", MotionViewer);
+
 /*SWEEP-ENDMotionViewer*/

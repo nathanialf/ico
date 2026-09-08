@@ -42,6 +42,7 @@ void EnterMenu(void *a0, int a1, void *a2)
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedDataBinary);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedData);
+
 extern void gif_SetGsReg(int code, long data);
 
 void gif_test(int *a0, int *a1, int *a2, unsigned char *a3)
@@ -58,6 +59,7 @@ INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DispCameraGroup);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", drawXZArrow);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DispAxisArrow);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", dispCameraPinType2);
+
 extern void dispCameraPinType2(int a0, int a1, int a2, int a3);
 
 void CameraEdit_DispPinType2(int a0, int a1, int a2)
@@ -197,6 +199,7 @@ void CameraEdit_DispBoxType2(int a0, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018CDC0);
+
 extern int print_y;
 extern int D_0028F94C[];
 extern char D_002AD010[];

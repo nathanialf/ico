@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 extern char D_006209C0[];

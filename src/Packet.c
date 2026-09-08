@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 
 /* header prototypes (order fixes the inline tail) */
@@ -17,6 +16,7 @@ void pac_Init(void);
 void pac_DispVu1Memory(int idx, int n, void *a2);
 extern void pac_DispQW(void *p, void *a2);
 extern int D_0063C154;
+
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_DispQW);
 
 inline void pac_Dump(int *a0, int size)

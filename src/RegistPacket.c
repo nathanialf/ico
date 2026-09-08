@@ -384,6 +384,7 @@ INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispSObj);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispCObj);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispPoint);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispLine);
+
 extern int D_0063A06C;
 extern int GlobalTimer;
 extern void _MulCurrentMatrixL(void *m);
@@ -505,6 +506,7 @@ void reg_RenderReflection(char *o, int pri)
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setEMatrixPacket);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_DispEnemy);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_DispMultiPri);
+
 extern void reg_dispNObj(char *o);
 extern void reg_dispCObj(char *o);
 extern void reg_dispMObj(char *o);

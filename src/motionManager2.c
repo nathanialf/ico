@@ -1,9 +1,6 @@
 #include "common.h"
-
 #include "ico/types.h"
-
 #include "vu0.h"
-
 #include "sugiCommon.h"
 
 struct Pack32 {
@@ -100,6 +97,7 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", dispPlane);
+
 extern void CopyVector();
 
 void GetOrientOfWallOfGObj(int a0, int a1)
@@ -408,6 +406,7 @@ void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", dispSkeltonHierarchy);
+
 extern int D_00639F08;
 /* motionManager2.o's own .sbss run (MAIN.MAP: 0xC after main.o's).  Only
    DispSkelton writes them; dispSkeltonHierarchy reads C10C and C114.  The two
@@ -454,6 +453,7 @@ ASM_LIT4_SLOT(D_00638B68, 0.45f);
 ASM_LIT4_SLOT(D_00638B6C, 1.1f);
 ASM_LIT4_SLOT(D_00638B70, 0.3f);
 ASM_LIT4_SLOT(D_00638B74, 0.1f);
+
 extern void sceVu0SubVector(float *dst, float *a, float *b);
 extern void sceVu0OuterProduct(float *dst, float *a, float *b);
 extern void sceVu0ScaleVectorXYZ(float *dst, float *a, float s);

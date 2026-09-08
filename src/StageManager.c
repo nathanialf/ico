@@ -56,6 +56,7 @@ void stgmgrNextStagePreLoadDistBoyMode(void);
 void stgmgrNextStagePreLoadForceNoCancel(int val);
 void CheckPoint(void);
 static void stgmgrNextStagePreLoadDiskNotReady(void);
+
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stop_free_resources);
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stage_initialize);
 

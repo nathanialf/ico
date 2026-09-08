@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -57,6 +56,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", func_00265C70);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", _sceCd_cd_read_intr);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", cmd_sem_init);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", cdvd_exit);
+
 extern int D_0054A57C[];
 extern void (*D_0072EF04[])(int);
 extern int D_0072EF08[];
@@ -88,6 +88,7 @@ void _sceCd_Poff_Intr(void)
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", PowerOffCB);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdSearchFile);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", _sceCd_ncmd_prechk);
+
 extern int _sceCd_ncmd_semid[];
 extern int _sceCd_ncmdrdata[];
 extern int _sceCd_cd_ncmd[];
@@ -113,6 +114,7 @@ int sceCdNcmdDiskReady(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdSync);
+
 extern int SCE_CD_debug[];
 extern char _sceCd_cd_scmd[];
 extern char D_006368C8[];
@@ -143,6 +145,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdGetError);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdStatus);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdBreak);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdReadClock);
+
 extern int D_0054BFB0[];
 extern int D_0072F1D8[];
 extern int sceCdStream(int a0, int a1, int a2, int a3, void *a4);
@@ -176,6 +179,7 @@ int sceCdStStop(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdStRead);
+
 extern char D_00636AB0[];
 
 int sceCdStPause(void)
@@ -209,6 +213,7 @@ int sceCdStStat(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_265B10", sceCdStream);
+
 extern int D_0054BFCC[];
 extern char D_00636B38[];
 extern PObjA8B8Ent D_0072F250[][4];

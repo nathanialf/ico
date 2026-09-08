@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -20,6 +19,7 @@ typedef struct {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadInit);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadInit2);
+
 extern int D_0054BFC8[];
 extern int D_0072F200[];
 extern int D_0072F540[];
@@ -43,6 +43,7 @@ int scePadEnd(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadPortOpen);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadPortClose);
+
 extern PObjA8B8Ent D_0072F250[][4];
 extern void SyncDCache(void *a0, void *a1);
 

@@ -53,9 +53,11 @@ typedef struct ShockRequestBox {
 } ShockRequestBox;
 
 extern ShockMgr *System_shock_driver;
+
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Vibration_ShotDecode);
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Vibration_WaveDecode);
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Shock_Request);
+
 extern void scePadSetActDirect(int a0, int a1, void *box);
 
 void Shock_SetMotor(int a0, int a1, ShockReq *box, int a3, int a4)

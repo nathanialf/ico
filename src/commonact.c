@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 typedef struct {
@@ -190,6 +189,7 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", TestCageUpDown);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeSpecial);
 ASM_LIT4_SLOT(D_00638E50, 0.7853982f);
 ASM_LIT4_SLOT(D_00638E54, 3.1415927f);
+
 extern void SetFloorLeverWithNodePoint(void *a0, void *a1, int a2);
 extern void SetWallLeverWithNodePoint(void *a0, void *a1, int a2);
 
@@ -370,6 +370,7 @@ void actCommonDown(volatile int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDie);
 ASM_LIT4_SLOT(D_00638E5C, 0.01f);
+
 extern float _GetRandom(void);
 extern void *memset(void *dst, int c, int n);
 extern void RotQuaternionX(float *q, short a);
@@ -813,6 +814,7 @@ void actCommonJump(volatile int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonFall);
+
 extern void MatrixDrive_PushMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
 extern int MatrixDrive_GetMatrix(void);
@@ -888,6 +890,7 @@ ASM_LIT4_SLOT(D_00638E88, 0.005f);
 ASM_LIT4_SLOT(D_00638E8C, 360000.0f);
 ASM_LIT4_SLOT(D_00638E90, 0.92f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonLadder);
+
 extern char D_005F5D50[];
 extern int stage_no;
 extern int CheckWallAttributeEdegWall(void *a0);
@@ -990,6 +993,7 @@ void funcCommonError(char *a0, int a1, char *a2)
 INCLUDE_ASM("asm/nonmatchings/src/commonact", SetMotionDirectionSmooze);
 ASM_LIT4_SLOT(D_00638E94, 3.1415927f);
 ASM_LIT4_SLOT(D_00638E98, 3.1415927f);
+
 extern char D_00553240[];
 extern char D_00553250[];
 extern char D_00553260[];
@@ -1115,9 +1119,9 @@ ASM_LIT4_SLOT(D_00638EC0, 0.1f);
 ASM_LIT4_SLOT(D_00638EC4, 0.99f);
 ASM_LIT4_SLOT(D_00638EC8, 0.1f);
 ASM_LIT4_SLOT(D_00638ECC, 0.99f);
+
 extern void _ApplyRyGV(void *a0, float a1);
 extern void *test_CURRENTORIENT(char *a0);
-
 extern int _RotyGV(void *a0, void *a1);
 
 int E3_LeverCheck(char *a0)
@@ -1139,6 +1143,7 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBecarry);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", subCommonIdle);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ContinueCorrectPosition);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonTurn);
+
 extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern void SetDirectRootPositionNoFittingWithNodePointXZ(void *a0, int node, void *pos, float t);
 
@@ -2159,6 +2164,7 @@ ASM_LIT4_SLOT(D_00638EE4, 0.1f);
 ASM_LIT4_SLOT(D_00638EE8, 3.1415927f);
 ASM_LIT4_SLOT(D_00638EEC, 0.1f);
 ASM_LIT4_SLOT(D_00638EF0, 3.1415927f);
+
 extern char D_0063A778[];
 extern void SetSwitchState(int a0, int a1);
 
@@ -2480,7 +2486,6 @@ void afterCommonBox(volatile int a0)
 }
 
 extern Blob12 InitialColInfo;
-
 extern void debug_StdPrintfDummy();
 
 void afterCommonBar(volatile int a0)

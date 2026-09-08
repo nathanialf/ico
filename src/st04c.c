@@ -17,7 +17,6 @@ extern void ACTSendMailCorrect(int a0, int mail);
 extern void _ACTWait(int a0);
 extern int stage_CheckAnimationFinish(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
-
 extern char *D_00639EA8;
 
 void actSt04cEnd(void)

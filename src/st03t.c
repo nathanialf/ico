@@ -31,6 +31,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tBoxA);
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tBoxB);
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tInit);
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tGirlUp);
+
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern ActMail D_004F8430[];
@@ -272,11 +273,13 @@ extern int scpTriggerFloorAttr(int a0, int a1);
 extern void SetWayGroupActive(int a0, int a1);
 extern void gflagOn(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
+
 /* The way-on watcher's mail record: it installs actSt03tWayOffChk here and
    posts it. Word 0 of each entry is the mail id the entry answers (0x1AE the
    actor post, 0x1AD the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
 static ActMail way_on_mes[2] = {{0x1AE}, {0x1AD}};
+
 extern void actSt03tWayOffChk(volatile int a0);
 
 void actSt03tWayOnChk(volatile int a0)
@@ -306,8 +309,10 @@ extern int scpTriggerFloorAttr(int a0, int a1);
 extern void SetWayGroupActive(int a0, int a1);
 extern void gflagOff(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
+
 /* The way-off watcher's own mail record (installs actSt03tWayOnChk). */
 static ActMail way_off_mes[2] = {{0x1AE}, {0x1AD}};
+
 extern void actSt03tWayOnChk(volatile int a0);
 
 void actSt03tWayOffChk(volatile int a0)

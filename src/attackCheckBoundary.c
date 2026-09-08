@@ -3,6 +3,7 @@
 extern char D_0061EEC8[];
 extern int D_0063A438;
 extern int iosMallocDebug(int handle, int size, char *file, int line);
+
 /* .data — carved VMA 0x4E5A90..0x4E5AA0; bytes verified against baserom/pal/baseelf.rom */
 unsigned int D_004E5A90[4] = {
     0x00000000,
@@ -10,6 +11,7 @@ unsigned int D_004E5A90[4] = {
     0x000000FF,
     0x00000080,
 };
+
 extern int D_0063B148;
 extern void CopyVector(void *dst, void *src);
 extern void *MatrixDrive_GetMatrix(void);

@@ -1,7 +1,5 @@
 #include "common.h"
-
 #include "mv_defs.h"
-
 #include "r5900.h"
 
 extern void Free(int a0);
@@ -12,6 +10,7 @@ void free_buf(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", videoDecCreate);
+
 extern void viBufBeginPut();
 
 void videoDecBeginPut(int a0)
@@ -29,6 +28,7 @@ void videoDecEndPut(int a0)
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", videoDecFlush);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", videoCallback);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", decBitStrm0);
+
 extern void iosFree();
 
 void Free(int a0)

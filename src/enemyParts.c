@@ -1,11 +1,11 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", UpdatePointBlur);
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", InitEnemyEye);
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", InitEnemyFootPrint);
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", ExecEnemyFootPrints);
+
 extern float D_006394D4;
 extern void _CopyVector(void *dst, void *src);
 

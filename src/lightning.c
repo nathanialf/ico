@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 
 typedef union {
@@ -18,10 +17,13 @@ typedef struct {
 
 /* prototypes: their order is the inline tail's emission order */
 void apply_m34(void *p0, void *p1, void *p2, void *p3);
+
 void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, float f3, float f4,
                    float f5, float f6, float f7, float f8, float f9, int a3);
+
 void lightning_test(void);
 int cmpr(int *self, int *other);
+
 INCLUDE_ASM("asm/nonmatchings/src/lightning", set_vertex);
 INCLUDE_ASM("asm/nonmatchings/src/lightning", DrawLightning2);
 INCLUDE_ASM("asm/nonmatchings/src/lightning", DrawLightningN);

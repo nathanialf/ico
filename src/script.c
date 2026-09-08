@@ -304,6 +304,7 @@ struct ScpMail {
     void (*func)(volatile int);
     char _08[0x18];
 };
+
 extern struct ScpMail D_002A51B0[];
 
 struct ScpAct {
@@ -873,6 +874,7 @@ struct WallCol {
     struct WallColPos pos;
     int f08;
 };
+
 extern struct WallCol D_006E5940;
 
 typedef struct {
@@ -1021,6 +1023,7 @@ struct StgRow {
     char _000[0xA0];
     short next[122];
 }; /* 0x194 */
+
 extern struct StgEnt D_0055C518[];
 extern struct StgRow D_005F5D50[];
 extern int stage_no;
@@ -1169,6 +1172,7 @@ struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x1, floa
     }
     return &D_006E5940;
 }
+
 extern struct ScpMail D_002A5150[];
 
 void scpDoorTypeUp(volatile int a0)
@@ -1184,6 +1188,7 @@ void scpDoorTypeUp(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern struct ScpMail D_002A5170[];
 extern struct ScpMail D_002A5190[];
 extern void scpDoorTypeUpDown(volatile int a0);
@@ -1990,6 +1995,7 @@ int scpIsHangChainOptional(int a0, int b)
 out:
     return (int)v;
 }
+
 extern struct DQW D_002A5400;
 extern int MakeAP1GObj(void *p);
 extern void WakeUpAP1(int a0);

@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 typedef struct {
@@ -14,6 +13,7 @@ typedef struct {
 ASM_LIT4_SLOT(D_00638D30, 0.8f);
 ASM_LIT4_SLOT(D_00638D34, 4.9e+03f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", findChainInJump);
+
 extern void GetRootProjectionPosOfGObj(void *out, void *obj);
 extern void *isysGObjSearchFromObjKindID_begin(int id);
 extern void *isysGObjSearchFromObjKindID_next(void *p);
@@ -119,6 +119,7 @@ void motBoyHand50(volatile int a0)
 INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand100);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand200);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", handoff_heroin);
+
 extern long long D_006C0AD0[];
 extern void *D_00639EA4;
 extern float _ACTGame_GetParamF(int idx);
@@ -421,6 +422,7 @@ ASM_LIT4_SLOT(D_00638DE4, 0.1f);
 ASM_LIT4_SLOT(D_00638DE8, 0.1f);
 ASM_LIT4_SLOT(D_00638DEC, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", subBoyControl);
+
 extern long long D_006C0AD0[];
 
 typedef struct {
@@ -587,7 +589,6 @@ typedef struct {
 } PrivInsCam;
 
 extern PrivInsCam D_006C0B50;
-
 extern void _InterGV(void *dst, void *a, void *b, float t, float u);
 extern float *GetCurrentCameraSet2(void);
 extern void InsertCamera_SetDetail(float *cam, float *p, int a2, int a3, int a4, int a5, float f);
@@ -646,6 +647,7 @@ ASM_LIT4_SLOT(D_00638DFC, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", subBoyCollision);
 ASM_LIT4_SLOT(D_00638E00, 4e+04f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySwim);
+
 extern void *D_00639EA4;
 extern int ACTGame_FLAG_TETSUNAGI(void);
 extern void GetSkeltonPosition(float *out, void *gobj, int node);
@@ -706,6 +708,7 @@ void actBoyRun(volatile int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyAttack);
+
 extern CCPResult *test_CURRENTROOT(void *a0);
 extern void *test_CURRENTORIENT(void *a0);
 extern void _OrientXZGV(void *dst, void *a, void *b);
@@ -752,7 +755,6 @@ extern void afterBoyTakeWeapon(volatile int a0);
 extern void PickupWeapon(void *w, void *boy, int kind);
 extern void ReleaseWeapon(void *w);
 extern void PutWeapon(void);
-
 /* sub->0x14 is the actor's "after" callback slot: actBoyTakeWeapon arms it with
    afterBoyTakeWeapon and calls it through the slot once the motion frame passes
    the swap point, so it is written and read as a function pointer. */
@@ -964,6 +966,7 @@ ASM_LIT4_SLOT(D_00638E24, 9e+04f);
 ASM_LIT4_SLOT(D_00638E28, 1e+04f);
 ASM_LIT4_SLOT(D_00638E2C, 7.84e+04f);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyDitch3mReady);
+
 extern char D_0055FFA8[];
 extern void afterBoyRescueGirlBhang(volatile int a0);
 extern void ACTGame_ConnectHand(void);
@@ -1076,6 +1079,7 @@ void SetStatusBoy_OtherStageGirlPinch(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyStart);
+
 extern void ConvertStickToAbsCoord();
 extern void _RotyGV();
 

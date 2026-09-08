@@ -17,6 +17,7 @@ int audioDecIsPreset(int *self);
 void audioDecStart(int *self);
 int audioDecPause(int a0);
 void audioDecResume(int *self);
+
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", audioDecCreate);
 
 inline int audioDecDelete(int *self)

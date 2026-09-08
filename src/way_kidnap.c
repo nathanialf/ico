@@ -25,7 +25,6 @@ typedef struct WpPosEntry {
 
 extern WpPosEntry D_007292C0[];
 extern float D_00728AC0[][4];
-
 extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void fzShowV(float *v);
 extern void sceVu0CopyVector(float *dst, float *src);
@@ -291,13 +290,11 @@ static inline WpNode *SearchOpenNode(WpNode *start)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayPointWithRangeFromPos2);
-extern char D_00621D58[];
 
+extern char D_00621D58[];
 extern void GetRootPosition(void *buf, void *obj);
 extern float WayLengthOfPos_Pos(float *p0, float *p1);
-
 extern int WayPointWithRangeFromPos(float *pos, int zero, float f);
-
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 extern int isEnemyKidnapEnable(void *gobj);

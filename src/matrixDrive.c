@@ -1,8 +1,6 @@
 #include "common.h"
-
 #include "ico/types.h"
 #include "vu0.h"
-
 #include "r5900.h"
 
 typedef int Qw128 __attribute__((mode(TI)));
@@ -153,6 +151,7 @@ INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnXAngleYZ);
 ASM_LIT4_SLOT(D_00638B24, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnYAngleXZ);
 ASM_LIT4_SLOT(D_00638B28, 0.01f);
+
 extern float FSqrt(float a0);
 extern void sceVu0Normalize(void *a0, void *a1);
 

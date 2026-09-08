@@ -15,6 +15,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrPackLoad);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdStRead);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdHandlerReadNoInflate);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdHandlerReadInflate);
+
 extern unsigned char D_006B83B8[];
 extern void iosCdvdHandlerReadInflate(int *a0, void *buf, int n);
 extern void iosCdvdHandlerReadNoInflate(int *a0, void *buf, int n);
@@ -44,6 +45,7 @@ void iosCdvdHandlerRead(int *a0, void *a1, int a2)
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", unifile_read_func);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdUnifileInfoGet);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdManager);
+
 extern unsigned char CdvdMsgQ[];
 extern void iosMsgSend(void *a0, void *a1, int a2);
 

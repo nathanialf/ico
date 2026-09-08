@@ -1,6 +1,7 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_menu", debug_TargetGObj);
+
 extern int D_0063C388;
 extern int D_0063C38C;
 extern int D_0063C390;
@@ -14,7 +15,6 @@ void init_debug_menu(void)
 
 extern int D_002C1270[];
 extern int GetGObjP();
-
 extern char D_002C1270__pn[] __asm__("D_002C1270");
 extern void *GetGObjP__pn(void) __asm__("GetGObjP");
 

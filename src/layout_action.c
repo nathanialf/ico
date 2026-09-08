@@ -94,6 +94,7 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_over_continue);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_key_config);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_game_option);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_adjust_screen);
+
 extern int D_0063B4D0;
 extern int D_0028F4EC[];
 extern int layout_boot_flag;
@@ -626,6 +627,7 @@ int la_save_confirm_yesno(void)
     }
     return -1;
 }
+
 extern struct S40 D_0029BC00;
 extern struct S40 D_0061D968;
 

@@ -3,6 +3,7 @@
 extern int D_0063ABE8;
 extern int D_006E6D60[];
 extern void soundDataClose();
+
 INCLUDE_ASM("asm/nonmatchings/src/fightSound", fightSoundProcessMain);
 INCLUDE_ASM("asm/nonmatchings/src/fightSound", fightSoundProcess);
 

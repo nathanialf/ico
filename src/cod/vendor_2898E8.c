@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -60,6 +59,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -104,6 +104,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 extern void _sceSDC(int a0, int a1);
 
 void iSyncDCache(int a0, int a1)
@@ -166,6 +167,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -210,6 +212,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 extern void _sceIDC(int a0, int a1);
 
 void iInvalidDCache(int a0, int a1)

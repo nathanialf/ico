@@ -27,6 +27,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aDoorDownChk);
 INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aHasiChk);
 INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aHasiEffect);
 INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aIntroCancel);
+
 extern ActMail D_004FAF10[];
 extern void actLinkTestChk(int a0);
 

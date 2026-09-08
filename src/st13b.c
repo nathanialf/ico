@@ -79,10 +79,8 @@ extern ActMail D_004FABC0[];
 extern ActMail D_004FAC90[];
 extern ActMail D_004FACB0[];
 extern void actSt13bElevMain(volatile int a0);
-
 extern void actSt13bElevDown(volatile int a0);
 extern void actSt13bDoorUp(volatile int a0);
-
 /* st13b.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
 extern ActMail D_004FABA0[];
 extern ActMail D_004FABE0[];

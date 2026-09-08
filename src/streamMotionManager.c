@@ -16,6 +16,7 @@ int _closeHander(void);
 int _handler(int self);
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", _infoUpdate);
+
 extern char D_00621150[];
 extern int D_0063BBF4;
 extern int D_0063BBFC;
@@ -32,6 +33,7 @@ void PlayStreamMotion(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", ClearStreamMotionEntry);
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", _deleteStreamMotionManager);
+
 extern int D_006211C8[];
 extern unsigned int D_0063BC24;
 
@@ -75,6 +77,7 @@ void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", ExecStreamMotionManager);
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", MallocStreamMotionBuffer);
+
 extern int D_0063BBF0;
 
 inline void ClearAllStreamMotionEntry(void)

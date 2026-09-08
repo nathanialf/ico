@@ -1,7 +1,5 @@
 #include "common.h"
-
 #include "vu0.h"
-
 #include "sugiCommon.h"
 
 typedef struct {
@@ -429,6 +427,7 @@ INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", yTension);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", xTension);
 ASM_LIT4_SLOT(D_00639480, 0.98f);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetClothAnimationFix4Points);
+
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 extern void sceVu0Normalize(void *dst, void *src);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
@@ -844,6 +843,7 @@ INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", proc);
 ASM_LIT4_SLOT(D_00639488, 0.2f);
 ASM_LIT4_SLOT(D_0063948C, 0.2f);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", getCloth4D);
+
 extern void CopyMatrix(void *dst, void *src);
 extern void SubVectorXYZ(void *a0, void *a1, void *a2);
 extern void *memset(void *a0, int a1, int a2);

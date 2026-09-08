@@ -1,9 +1,6 @@
 #include "common.h"
-
 #include "ico/types.h"
-
 #include "vu0.h"
-
 #include "sugiCommon.h"
 
 void GetRootQuaternionByDObj(int a0, int *a1)
@@ -136,6 +133,7 @@ void SetRootMatrixRotOffset(int a0, void *a1)
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePoint);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePointXZ);
+
 extern void AdjustMotionHeightToNearestField(void *a0);
 extern void SetDirectRootPositionNoFittingWithNodePoint(void *a0);
 
@@ -146,6 +144,7 @@ void SetDirectRootPositionWithNodePoint(void *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", LocalizeGeometry);
+
 extern void CopyVector();
 extern void sceVu0ApplyMatrix();
 extern void sceVu0Normalize();
@@ -179,6 +178,7 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialInverseMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialSkeltonMatrixByDObj);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", MakeCharGObjList);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", cylinderCollisionCheck);
+
 extern void MatrixDrive_SetTransposeMatrix();
 
 void LocalizeDirectionOrient(int *self, int *a1)

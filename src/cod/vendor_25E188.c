@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -16,6 +15,7 @@ int sceDmaGetChan(unsigned int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E188", sceDmaReset);
+
 extern int D_0054A348[];
 
 int sceDmaDebug(int a0)

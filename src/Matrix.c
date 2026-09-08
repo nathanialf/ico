@@ -1,7 +1,5 @@
 #include "common.h"
-
 #include "vu0.h"
-
 #include "r5900.h"
 
 extern float GetTableCos(short a0);

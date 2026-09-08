@@ -1,7 +1,5 @@
 #include "common.h"
-
 #include "vu0.h"
-
 #include "ico/types.h"
 
 /* prototypes: their order is the inline tail's emission order */
@@ -34,7 +32,6 @@ void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *a0, void *a1, float 
 void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle);
 void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2);
 float GetQuaternionCosRadian(void *p0, void *p1);
-
 extern int D_00639F3C;
 extern int D_00669640[];
 
@@ -161,6 +158,7 @@ void GetMatrixFromQuaternion(char *a0, char *a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/quaternion", getQuaternionFromMatrix);
+
 extern void _TransposeMatrix(void *a0, void *a1);
 extern int getQuaternionFromMatrix();
 

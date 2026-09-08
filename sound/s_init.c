@@ -32,6 +32,7 @@ found:
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundInit);
+
 extern int D_0063A654;
 extern void SgSetOutputMode();
 
@@ -83,6 +84,7 @@ void soundAllocIopFree(void)
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenChk);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBufAlloc);
+
 extern int D_0063A640;
 extern int D_0063A644;
 extern char D_0063A660[];
@@ -125,6 +127,7 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBDDataSet);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpen);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenSync);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataClose);
+
 extern char D_006BF570[];
 extern void soundBufSegFree(int a0, int a1);
 extern void soundDataClose(char *p);
@@ -159,6 +162,7 @@ ASM_LIT4_SLOT(D_00638CB0, 0.1f);
 ASM_LIT4_SLOT(D_00638CB4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", _soundSeDefPlay);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", _soundSeDefStop);
+
 extern void _soundSeDefStop(int a0, int a1);
 
 void soundSeDefStop(int a0)
@@ -193,6 +197,7 @@ ASM_LIT4_SLOT(D_00638CBC, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeEnvPlay);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeEnvNotUseClose);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataSegNextStageNotUseClose);
+
 extern char D_00552170[];
 extern char D_00552188[];
 extern char D_005521A0[];
@@ -288,6 +293,7 @@ found:
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataAreaGet);
+
 extern char D_0063A660[];
 extern char D_006A95B0_2[] __asm__("D_006BF570");
 extern void __assert(char *file, int line, char *msg);
@@ -320,6 +326,7 @@ char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSQDataSet);
+
 extern int _soundSeDefPlay(int a0, int a1, int a2, int a3, float f, int t0, int t1);
 extern void sound3DParamSet(int *p);
 

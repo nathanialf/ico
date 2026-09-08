@@ -41,6 +41,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aSekizoChk);
 INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aEne);
 INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aEneChk);
 INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aGene1);
+
 extern void actSt07aChanChk(volatile int a0);
 extern ActMail D_004F9F60[];
 

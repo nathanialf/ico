@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -114,6 +113,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .align 3\n"
         "    .set noat\n"
@@ -255,6 +255,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .align 3\n"
         "    .set noat\n"
@@ -362,6 +363,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -418,6 +420,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -474,6 +477,7 @@ __asm__(".section .text\n"
         "    .size sceVu0RotMatrixX, . - sceVu0RotMatrixX\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -530,6 +534,7 @@ __asm__(".section .text\n"
         "    .size sceVu0RotMatrixY, . - sceVu0RotMatrixY\n"
         "    .set reorder\n"
         "    .set at\n");
+
 extern void sceVu0RotMatrixZ(int a, int b, float f);
 extern void sceVu0RotMatrixX(int a, int b, float f);
 extern void sceVu0RotMatrixY(int a, int b, float f);
@@ -788,6 +793,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 extern int D_0054A300[];
 
 void sceVpu0Reset(void)

@@ -34,6 +34,7 @@ extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void iosFree(int a0);
 extern int D_00728310__pn[] __asm__("D_00728310");
 extern int dl_CloseDma__pn(void) __asm__("dl_CloseDma");
+
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_Init);
 
 inline void dl_Out(void)

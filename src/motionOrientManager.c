@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 extern void shiftMotionData(int a0, int a1, int a2, int a3);
@@ -26,6 +25,7 @@ struct MotOriFloat {
 };
 
 #define MOWORK(self) (*(char **)((char *)(self) + 0x15C))
+
 extern int parallelMotionShift(void *self);
 extern void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
 extern int soundSeGroupGet(void);
@@ -42,6 +42,7 @@ void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5);
 unsigned int GetCurrentMotionDirectionAdjustFlag(char *a0);
 int ExecuteSlipProc(char *a0);
 int ExecutePauseSlipProc(char *a0);
+
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", orientDebug);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", GetNbMotionFrames);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", GetMotionPlaySpeedRatio);

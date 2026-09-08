@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 
 typedef struct {
@@ -49,6 +48,7 @@ void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
 void stage_SetLocalizeGeometry(int key, int arg1, int arg2);
 void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1);
 int stage_CheckAnimationFrameIn(int a0, int a1, int a2);
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakeGObj);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ApplyData);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_Init);

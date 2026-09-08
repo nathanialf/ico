@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 #include "vu0.h"
 
@@ -19,6 +18,7 @@ void falldownSE(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", copyToWork);
+
 extern char D_0054DA50[];
 extern int D_00639F28;
 extern int D_00639F2C;
@@ -65,6 +65,7 @@ void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetFallDownSplash);
+
 extern void CopyVector(void *a0, void *a1);
 
 void GetPoolGlobalDrainVector(void *dst, char *a0)

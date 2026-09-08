@@ -9,6 +9,7 @@ int GetCageChainPoint(char *a0, char *a1, char *a2);
 void SetCageVelocityFriction(char *a0, float a1);
 void StabilizeAllLayoutedCage(void);
 void SetCageChainHangableFlag(char *a0, int a1);
+
 INCLUDE_ASM("asm/nonmatchings/src/cage", CageRideFunc);
 INCLUDE_ASM("asm/nonmatchings/src/cage", SetCageFixGeometry);
 

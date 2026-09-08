@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 
 /* prototypes: their order is the inline tail's emission order */
@@ -13,6 +12,7 @@ extern int dl_CloseDma(void);
 extern void dl_OpenDma(int a0, int a1, int a2);
 extern int dl_SetDLPriority(int a0);
 extern void mc_setBaseOffset(int a0, int a1);
+
 INCLUDE_ASM("asm/nonmatchings/src/MicroCode", mc_setBaseOffset);
 
 inline void mc_TransMicroCode(int a0, int a1)

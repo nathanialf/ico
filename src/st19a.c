@@ -35,13 +35,11 @@ extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern int D_0063AA08;
 extern char *pipe19a;
 extern int D_0063C5A4;
-
 extern void actSt19aOriUp(volatile int a0);
 extern void actSt19aPipeChk(volatile int a0);
 extern void actSt19aChainDown(volatile int a0);
 extern void actSt19aChainMain(volatile int a0);
 extern void actSt19aOriMain(volatile int a0);
-
 /* st19a.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
 extern ActMail D_004FB250[];
 extern ActMail D_004FB270[];

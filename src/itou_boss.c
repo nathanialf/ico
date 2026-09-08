@@ -4,6 +4,7 @@ INCLUDE_ASM("asm/nonmatchings/src/itou_boss", effect_end_func);
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", bossCtrlBeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossEnemyFunc);
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlGeo);
+
 extern unsigned char D_006E9A30[];
 extern void memset(void *a0, int a1, int a2);
 
@@ -13,6 +14,7 @@ void itou_boss_gflag_init(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlDL);
+
 extern int stage_no;
 
 int InqCapsuleGhostBossStage(void)

@@ -1,7 +1,5 @@
 #include "common.h"
-
 #include "mv_defs.h"
-
 #include "r5900.h"
 
 /* prototypes: their order is the inline tail's emission order */
@@ -15,10 +13,13 @@ void *setGIFtag(int *a0, long long a1, int a2, int a3, int p4, int p5, int p6, i
 void *setGIFad(int *a0, int a1, long long a2);
 char *setTEXFLUSH(char *p);
 void *setTEX1_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7);
+
 void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8,
                 unsigned int p9, unsigned int p10, unsigned int p11, unsigned int p12);
+
 void *setPRIM(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8,
               unsigned int p9);
+
 void *setUV(int *a0, int a1, int a2);
 void *setRGBAQ(int *a0, int a1, int a2, int a3, int p4, int p5);
 void *setXYZ2(int *a0, int a1, int a2, int a3);
@@ -28,8 +29,10 @@ void *setSCISSOR_1(int *a0, int a1, int a2, int a3, int p4);
 void *setXYOFFSET_1(int *a0, unsigned int a1, unsigned int a2);
 void *setPRMODECONT(int *a0, int a1);
 void *setPRMODE(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8);
+
 void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4,
                  unsigned int a5, unsigned int a6);
+
 int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3);
 int *setTRXPOS(int *a0, long long a1, long long a2, long long a3);
 void *setTRXREG(int *a0, int a1, int a2);

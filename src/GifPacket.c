@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 
 typedef struct {
@@ -67,6 +66,7 @@ extern int D_0063A064;
 extern int D_0063A068;
 extern float D_0063A05C;
 extern float D_0063A060;
+
 /* The "Offset" family adds the float draw origin (in 1/16-pixel units) instead
    of the fixed 2048.0-pixel window origin. */
 #define GIF_OX ((int)D_0063A05C * 16)

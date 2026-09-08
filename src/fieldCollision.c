@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 typedef struct {
@@ -23,7 +22,6 @@ typedef union {
 } FcColor;
 
 typedef int (*FcFunc)(void *a0, int a1);
-
 extern void *isysGObjGetExist_begin(void);
 extern void *isysGObjGetExist_next(void);
 extern void debug_assertMessage(char *file, int line, char *mes);
@@ -91,6 +89,7 @@ void GetReflectionElement(char *a0, float arg0, float arg1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", clip_wall_1);
+
 extern void sceVu0CopyVector(int *dst, int *src);
 
 typedef struct {
@@ -236,6 +235,7 @@ void DispCollisionPC(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", makeCollisionBlockTable);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _Clip);
+
 extern FcBlk8 D_0063A810;
 extern void _Clip(char *a0, int a1);
 
@@ -419,6 +419,7 @@ void DBG_VECTOR(float *vec)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", GetEdgeOfFloor);
+
 extern void memset(void *p, int c, int n);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern void MatrixDrive_TransMatrixV(void *v);
@@ -521,6 +522,7 @@ void MakeExitAttributeIndex(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloorByGObj);
+
 extern int (*D_0063A840)(void *a0, int a1);
 
 int ClipWallDebug(void *a0)

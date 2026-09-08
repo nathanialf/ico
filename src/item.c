@@ -18,6 +18,7 @@ void bombExplodeSE(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/item", HoldItem);
+
 extern void ClipWall(int arg);
 extern float D_004EB500[48];
 extern void GetRootPosition(void *a0, char *outer);

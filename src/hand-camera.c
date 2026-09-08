@@ -7,6 +7,7 @@ void SetLimitHandCameraCorrect(float a0, float a1);
 extern int D_0028F4C0[];
 extern float D_0063C2E0;
 extern float D_006E9990[];
+
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", RotateAccordingToStick_PatternThree);
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", SetCurrentInfo);
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", HandyCamera_TargetMoveType);

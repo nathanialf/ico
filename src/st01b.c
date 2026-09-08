@@ -24,9 +24,13 @@ typedef struct PObjGObj {
    record is posted. Each record is named for the actor thread that owns
    and posts it. */
 static ActMail ene_mes[2] = {{0x1AE}, {0x1AD}};
+
 static ActMail floor_mes[2] = {{0x1AE}, {0x1AD}};
+
 static ActMail way_mes[2] = {{0x1AE}, {0x1AD}};
+
 static ActMail way_on_mes[2] = {{0x1AE}, {0x1AD}};
+
 static ActMail way_off_mes[2] = {{0x1AE}, {0x1AD}};
 
 extern Act *actInitialize(int a0);
@@ -41,6 +45,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bInit);
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bEneChk);
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bFloorChkSub);
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bFloorChk);
+
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 

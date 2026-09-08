@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 
 typedef struct Light {
@@ -61,6 +60,7 @@ ASM_LIT4_SLOT(D_00638C30, 1.01f);
 ASM_LIT4_SLOT(D_00638C34, 0.99f);
 ASM_LIT4_SLOT(D_00638C38, 0.3333f);
 INCLUDE_ASM("asm/nonmatchings/src/Light", light_Tool);
+
 extern char D_0063A088[8];
 extern int D_0063C134;
 extern int D_0063C138;

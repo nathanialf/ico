@@ -3,6 +3,7 @@
 extern int ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, void *a4);
 /* prototypes: their order is the inline tail's emission order */
 int WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3);
+
 INCLUDE_ASM("asm/nonmatchings/src/act-way", DetourCheck);
 INCLUDE_ASM("asm/nonmatchings/src/act-way", checkPositionIllegal);
 

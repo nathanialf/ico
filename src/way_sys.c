@@ -28,6 +28,7 @@ extern WVTElem D_004C7CF0_ve[] __asm__("D_004F31E0");
 int GetWay_begin(void *a0, int a1, int a2);
 void BridgeBox(void);
 void DeleteGuideWay(WVTObj *o);
+
 INCLUDE_ASM("asm/nonmatchings/src/way_sys", _FUNC_GetWay_begin);
 
 inline int GetWay_begin(void *a0, int a1, int a2)

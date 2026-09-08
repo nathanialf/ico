@@ -114,7 +114,6 @@ extern void scpWakeupEnemyOne(int a0);
 extern void fightSoundProcessRequestPause(void);
 extern void fightSoundProcessRequestStart(void);
 extern int fightSoundPlayChk(void);
-
 extern int solar4r;
 
 void actSt05eEnd(void)

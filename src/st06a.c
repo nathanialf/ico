@@ -31,7 +31,6 @@ extern PObjGObj *scpSearchGobj(int a0);
 extern int scpTriggerBall(int a0, void *a1, float radius);
 extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
 extern void soundSeDefStop(int handle);
-
 extern void SetWayGroupActive(int a0, int a1);
 extern int scpTriggerFloorAttr(void *obj, int attr);
 extern void FinishHint(int a0);
@@ -1429,6 +1428,7 @@ void actSt06aWallWayOnChk(volatile int a0)
 }
 
 extern void actSt06aWallWayOnChk(volatile int a0);
+
 /* The wall-way-off watcher's mail record: it installs actSt06aWallWayOnChk
    here and posts it. Word 0 of each entry is the mail id the entry answers
    (0x1AE the actor post, 0x1AD the trailing entry); .func is filled in at
@@ -1625,6 +1625,7 @@ void actSt06aJumpSub(volatile int a0)
 
 extern int scpTriggerFloorAttr(void *a0, int a1);
 extern void actSt06aPistonRideOffChk(volatile int a0);
+
 /* The piston-ride-on watcher's own mail record (installs
    actSt06aPistonRideOffChk). */
 static ActMail piston_ride_on[2] = {{0x1AE}, {0x1AD}};

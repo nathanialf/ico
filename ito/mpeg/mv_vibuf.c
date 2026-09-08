@@ -1,6 +1,6 @@
 #define MV_DEFS_WANT_ALLOC
-#include "common.h"
 
+#include "common.h"
 #include "mv_defs.h"
 
 /* One entry of the timestamp ring: the PTS/DTS pair the demuxer read out of a
@@ -455,6 +455,7 @@ __asm__(".section .text\n"
         ".size viBufAddDMA, . - viBufAddDMA\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -564,6 +565,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1044,6 +1046,7 @@ __asm__(".section .text\n"
         ".size viBufDelete, . - viBufDelete\n"
         "    .set reorder\n"
         "    .set at\n");
+
 extern void SignalSema();
 extern int WaitSema();
 

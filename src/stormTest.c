@@ -9,6 +9,7 @@ extern int D_0063A438;
 int *InitStormTestGeo(int a0, int *a1);
 extern int InitStormPackage(int a, int b, int c);
 extern int iosMallocDebug(int t, int sz, const char *file, int line);
+
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", InitStormPackage);
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", ClipStormByVolume);
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", ClipStormByCamera);

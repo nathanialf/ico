@@ -4,6 +4,7 @@ INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", CreateKyomiGObj);
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", LwsKyomiGeo);
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", MakeHintSaveInfo);
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", ReadHintSaveInfo);
+
 extern int D_0063B238;
 extern void SetDirectRootPosition(void *gobj);
 extern void UpdateRootMatrix(void *gobj);
@@ -43,6 +44,7 @@ struct HintInfo {
     int time;
     int flags;
 };
+
 extern struct HintInfo D_002ADBA0[];
 
 void FinishHint(int no)
@@ -61,6 +63,7 @@ void WakeupHint(int no)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", IsTopHint);
+
 extern float *D_0063C2E8;
 
 void DebugHintStart(void *gobj)

@@ -1,10 +1,8 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 /* clipCollisionManager.h prototype: the inline tail's emission order */
 void *RequestClipCollision(int *a0);
-
 extern int D_0063B754;
 extern void actClipCollisionCore(volatile unsigned int self);
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);

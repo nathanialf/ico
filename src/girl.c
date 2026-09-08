@@ -26,6 +26,7 @@ ASM_LIT4_SLOT(D_00639524, 1.1111112f);
 INCLUDE_ASM("asm/nonmatchings/src/girl", func_001DD340);
 INCLUDE_ASM("asm/nonmatchings/src/girl", func_001DD440);
 INCLUDE_ASM("asm/nonmatchings/src/girl", InitGirlGeo);
+
 extern char *D_00639EA4;
 extern void HandManager(char *gobj);
 extern void ExecMotionOrient(char *gobj);

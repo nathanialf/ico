@@ -9,6 +9,7 @@ INCLUDE_ASM("asm/nonmatchings/src/puddle", copy);
 INCLUDE_ASM("asm/nonmatchings/src/puddle", drawRipple);
 INCLUDE_ASM("asm/nonmatchings/src/puddle", drawRipples);
 INCLUDE_ASM("asm/nonmatchings/src/puddle", PuddleDL);
+
 extern int D_0028F4C0[];
 
 inline void PuddleGeo(char *a0)

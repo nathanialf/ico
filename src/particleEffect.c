@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 typedef struct PEGeo PEGeo; /* the allocated per-effect geometry object */
@@ -41,6 +40,7 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", _setParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", execParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", dispParticleEffect);
+
 extern char D_006208E0[];
 extern char D_00620920[];
 extern char D_00620908[];

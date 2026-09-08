@@ -1,6 +1,7 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aInit);
+
 extern char *D_00639EA8;
 
 void actSt00aEnd(void)

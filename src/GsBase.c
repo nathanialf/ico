@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_SetFrame);
@@ -11,6 +10,7 @@ INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_SetMotionBlur);
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_scissorOnDemo);
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_controlBrightness);
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_antiAlias);
+
 extern int dl_GetPri(void);
 extern void dl_SetDLPriority();
 extern void gif_EndPacketPath1(void);
@@ -75,6 +75,7 @@ INCLUDE_ASM("asm/nonmatchings/src/GsBase", appendLogFile);
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_FilmNoiseTool);
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_StageSettingTool);
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", updateOtherEditingLockFlag);
+
 extern int stage_no;
 extern char D_005F5D90[];
 extern char D_0067BB88[];

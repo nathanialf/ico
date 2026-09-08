@@ -4,6 +4,7 @@ typedef void (*func_001AE8F0_FnPtr)(int *buf, int a2);
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoInit);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoSave);
+
 extern char D_004DA980[];
 extern int D_004DA7D0[];
 extern int gamesysTimeCount;
@@ -17,6 +18,7 @@ void gamesysObjInfoLoad(void *h)
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoEmptyAreaSearch);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoBaseSet);
+
 extern char D_004DA980[];
 extern short D_0063B418;
 extern int gamesysTimeCount;
@@ -45,6 +47,7 @@ void func_001B6CA0(int *self, int n, int a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001B6CF8);
+
 extern int *GetbufpGeneratorPacket(void);
 extern int GetsizeGeneratorPacket(void);
 extern int ReadGeneratorPacket();
@@ -61,6 +64,7 @@ void gamesysGeneratorInfoLoad(int *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001B6DA8);
+
 extern int *GetBuffHintSaveInfo(void);
 extern int GetSizeHintSaveInfo(void);
 extern int ReadHintSaveInfo();
@@ -78,6 +82,7 @@ void gamesysHintInfoLoad(int *a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001B6E58);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysCharacterInfoLoad);
+
 extern char D_004DA980[];
 
 void gamesysNObjInfoInit(void)

@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 extern int D_0063C1CC;
@@ -12,6 +11,7 @@ void AdpcmStreamFree(void)
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", adpcmTickProc2);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", adpcmDataSet);
+
 extern char D_00552118[];
 extern void SgStAdpcmPlay(long long a0);
 extern extern void debug_StdPrintfDummy();
@@ -32,6 +32,7 @@ void AdpcmStop(int a0)
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmOpen);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmClose);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmInterStereoVolumeSet);
+
 extern void AdpcmInterStereoVolumeSet(void *a0, int a1, int a2);
 
 void AdpcmInterLeaveVolumeSet(int a0, int a1, int a2)

@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -173,6 +172,7 @@ float __kernel_cosf(float x, float y)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __kernel_rem_pio2f);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __kernel_sinf);
+
 extern int dpcmp(long a0, long a1);
 
 int matherr(void *a0)

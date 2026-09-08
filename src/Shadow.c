@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 
 /* prototypes: their order is the inline tail's emission order */
@@ -21,6 +20,7 @@ extern void _ScaleVector(void *a0, void *a1, float a2);
 extern void _TransposeCurrentMatrix(void);
 extern int D_0063A17C;
 extern int D_0063A178;
+
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Reset);
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Draw);
 

@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 extern int p2o_DispVU1DObjMulti(int a0);
@@ -21,9 +20,11 @@ typedef struct CandleWork {
 } CandleWork;
 
 #define CANDLE_WORK(o) ((CandleWork *)*(int *)((char *)(o) + 0x15C))
+
 /* prototypes: their order is the inline tail's emission order */
 void DeleteLayoutedCandleParticleEffect(void);
 void _deleteLayoutedCandleParticleEffect(void *gobj);
+
 INCLUDE_ASM("asm/nonmatchings/src/candle", InitCandleGeo);
 INCLUDE_ASM("asm/nonmatchings/src/candle", CandleGeo);
 

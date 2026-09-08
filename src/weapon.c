@@ -73,6 +73,7 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", dispBlur);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", calcBlur);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", WeaponGeo);
 INCLUDE_ASM("asm/nonmatchings/src/weapon", WeaponDL);
+
 extern int GetSkeltonFocusNode(char *obj, int kind);
 
 void PickupWeapon(char *a0, char *a1, int a2)

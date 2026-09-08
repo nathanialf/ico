@@ -24,6 +24,7 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy", CheckEnemyHit);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", InitEnemyGeo);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyGeo);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", DisplayEnemy);
+
 extern void DisplayEnemy();
 extern int IsActCharDead();
 extern int isEnemyHyde(int *a0);

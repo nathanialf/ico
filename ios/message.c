@@ -29,6 +29,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueCreate);
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueDestroy);
 INCLUDE_ASM("asm/nonmatchings/ios/message", send_signal_message);
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgSetEvent);
+
 extern int D_006BC938[];
 
 void iosMsgInit(void)

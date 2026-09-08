@@ -1,14 +1,15 @@
 #include "common.h"
-
 #include "vu0.h"
 #include "ico/types.h"
 
 /* header prototypes (order fixes the inline tail) */
 extern void pac_MakePacket(void *a0);
 extern void shadow_Render();
+
 /* .rodata — carved VMA 0x54DB10..0x54DB30; string + ROM zero pad,
    bytes verified against baserom/pal/baseelf.rom */
 const char D_0054DB10[32] = "display object = %d";
+
 extern int D_00639F44;
 extern int D_0063B160;
 extern void debug_PrintFontWindow();

@@ -29,19 +29,16 @@ extern void EnableChainHang(char *a0);
 extern void UnableChainHang(char *a0);
 extern void lt_switch_layout(int a0);
 extern int D_0063AA08;
-
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-
 extern void actSt13aElevMain(volatile int a0);
 extern void actSt13aElevUp(volatile int a0);
 extern void actSt13aCheckChk(volatile int a0);
 extern void actSt13aSekizoChk(volatile int a0);
 extern void actSt13aChainOK(volatile int a0);
 extern void actSt13aChainNG(volatile int a0);
-
 /* st13a.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
 extern ActMail D_004FA9A0[];
 extern ActMail D_004FA9C0[];
@@ -50,12 +47,14 @@ extern ActMail D_004FAA20[];
 extern ActMail D_004FAA40[];
 extern ActMail D_004FAA60[];
 extern ActMail D_004FAA80[];
+
 /* The chain-OK watcher's mail record: it installs actSt13aChainNG here and
    posts it to hand the chain back to the NG (hang-disabled) watcher. Word 0
    of each entry is the mail id the entry answers (0x1AE the actor post,
    0x1AD the trailing entry); .func is filled in at run time. Named for the
    thread that owns and posts it. */
 static ActMail chain_ok_mes[2] = {{0x1AE}, {0x1AD}};
+
 extern ActMail D_004FAAC0[];
 
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aElevUpSub);

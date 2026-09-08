@@ -79,12 +79,14 @@ extern int scpTriggerFloorAttr(int a0, int a1);
 extern void FinishHint(int a0);
 extern ActMail D_004FA8C0[];
 extern void actSt10rFenceDownChk(volatile int a0);
+
 /* The second fence-up watcher's mail record: it installs
    actSt10rFenceDownChk2 here and posts it. Word 0 of each entry is the mail
    id the entry answers (0x1AE the actor post, 0x1AD the trailing entry);
    .func is filled in at run time. Named for the thread that owns and posts
    it. */
 static ActMail fence_up2_mes[2] = {{0x1AE}, {0x1AD}};
+
 extern void actSt10rFenceDownChk2(volatile int a0);
 extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern int scpTriggerBall(int a0, int a1, float radius);
@@ -147,7 +149,6 @@ extern int scpFadeChk(void);
 extern int lt_fade_status(void);
 extern int D_0028F8F4[];
 extern void actSt10rChainMoveSub(volatile int a0);
-
 extern void WakeupHint(int a0);
 extern int st10r_floor;
 extern void actSt10rFloorSub(volatile int a0);

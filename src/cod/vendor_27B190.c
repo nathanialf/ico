@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -21,8 +20,8 @@ typedef struct {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __do_global_dtors);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __do_global_ctors);
-extern void __do_global_ctors();
 
+extern void __do_global_ctors();
 extern int D_00736168[];
 
 void __main(void)
@@ -43,6 +42,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __umoddi3);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __pack_d);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __unpack_d);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", _fpadd_parts);
+
 extern long long __pack_d(void *s);
 extern void __unpack_d(void *in, void *out);
 extern void *_fpadd_parts(void *a, void *b, void *c);
@@ -73,6 +73,7 @@ long long dpsub(long a0, long a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", dpmul);
+
 extern char D_736170[];
 
 void dpdiv(long a0, long a1)
@@ -289,6 +290,7 @@ float dptofp(long a0)
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __pack_f);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __unpack_f);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", func_0027DBA0);
+
 extern int __pack_f(void *s);
 extern void __unpack_f(void *in, void *out);
 extern int func_0027DBA0();

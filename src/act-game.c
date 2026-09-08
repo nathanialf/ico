@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 typedef struct {
@@ -57,9 +56,7 @@ typedef struct {
 } MotionRec;
 
 extern MotionRec D_0055FE58[];
-
 extern void gamesysObjInfoCls(int a0, int a1);
-
 extern int stage_no;
 extern void gamesysObjInfoPosSetStage(char *a0, int a1, int a2, int a3);
 
@@ -148,6 +145,7 @@ void ACTGame_StageChangeGObj(char *self, int idx)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetActors_Debug);
+
 extern char *D_00639EA4;
 extern char *D_00639EA8;
 extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, int a4, int a5, int a6);
@@ -177,6 +175,7 @@ ASM_LIT4_SLOT(D_00638CCC, 0.8f);
 ASM_LIT4_SLOT(D_00638CD0, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_Loop);
 ASM_LIT4_SLOT(D_00638CD4, 5000.0f);
+
 extern void DispMultiBgaManagerWithKind(int a0, int a1, int a2);
 
 void ACTGame_LwsEffectProcess(char *a0)
@@ -188,6 +187,7 @@ void ACTGame_LwsEffectProcess(char *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTGame_SearchGObj);
+
 extern int D_0063B13C;
 extern char D_00552450[];
 extern void debug_Printf(int a, int b, int c, const char *d, int e);
@@ -392,6 +392,7 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTargetSystem_Exec);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemThrow);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemWatchMotion);
 ASM_LIT4_SLOT(D_00638CF0, 0.2f);
+
 extern void GetRootPosition(void *dst, void *self);
 extern float _DistSqGV(int *a0, int a1);
 extern float IsPointIsInScreen(void *dst, void *root);
@@ -424,6 +425,7 @@ void ACTGame_InsertCamera_GirlIsPinch(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", updateHMC);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", RequestChangeHandMode);
+
 extern char *D_00639EA4;
 
 int ACTNotNeedCameraOffset(char *a0)
@@ -897,6 +899,7 @@ int ACTCheckCollis_WELL(float f, void *p0, void *p1, void *actor, void *posout)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_WAY);
+
 extern void ClipWall(void *);
 extern void ClipFloor(void *);
 extern void sceVu0CopyVector(void *buf, int x);

@@ -2,6 +2,7 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/gv", _InterGV);
 INCLUDE_ASM("asm/nonmatchings/src/gv", GetMatrixDirectionToZ);
+
 extern int _RotyGV(float *a0, float *a1);
 extern void _ApplyRyGV(float *a0, float a1);
 extern float D_006391F0;

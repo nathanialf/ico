@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -20,6 +19,7 @@ typedef struct {
 } NameReq;
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcInit);
+
 extern char D_0054C010[];
 extern int D_0054C014[];
 extern char D_0072F5C0[];
@@ -90,6 +90,7 @@ int sceMcGetSlotMax(int arg)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcOpen);
+
 extern int sceMcOpen(int a0, int a1, int a2, int a3);
 
 int sceMcMkdir(int a0, int a1, int a2)
@@ -154,6 +155,7 @@ done:
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", mceIntrReadFixAlign);
+
 extern char D_0072FAC0[];
 extern void func_00265A38(void *addr, int len);
 extern int mceIntrReadFixAlign();
@@ -189,6 +191,7 @@ done:
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcWrite);
+
 extern void iWakeupThread(int a0);
 
 void mcHearAlarm(int a0, int a1, int a2)
@@ -258,6 +261,7 @@ void mceGetInfoApdx(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcGetInfo);
+
 extern NameReq D_0072F670;
 extern void func_00265A38(void *addr, int len);
 extern char *strncpy(char *dst, const char *src, int n);

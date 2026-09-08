@@ -39,6 +39,7 @@ extern SprUV D_00620DE0;
 extern SprCol D_0063BB70[];
 
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", blur);
+
 extern int D_0063A064;
 extern int D_0063A068;
 extern int D_0063BB68;
@@ -878,6 +879,7 @@ void GetSunWorldPos(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", MotionBlur);
+
 extern int D_004ED030[];
 extern int D_004ED040[];
 extern int D_004ED060[];
@@ -1278,6 +1280,7 @@ void SetStaticBlur(int x)
 {
     D_0028F808[0] = x;
 }
+
 extern struct D275 D_0028F720;
 
 void SetDepthFadeParam(float f12, float f13, int a0)

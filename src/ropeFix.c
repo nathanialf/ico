@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "ico/types.h"
 
 /* header prototypes (order fixes the inline tail) */

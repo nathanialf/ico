@@ -1,12 +1,13 @@
 #define MV_DEFS_WANT_ALLOC
+
 #include "common.h"
-
 #include "mv_defs.h"
-
 #include "r5900.h"
 
 void func_001A7180(a0, a1) int *a0;
+
 int a1;
+
 {
     func_001A7318(a0[0]);
     func_001A7318(a0[1]);

@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -29,6 +28,7 @@ void sceResetttyinit(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", VSync);
+
 extern void SetVSyncFlag(void *a0, void *a1);
 
 long long VSync2(void)
@@ -47,6 +47,7 @@ long long VSync2(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", write);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", read);
+
 extern int __errno(void);
 
 int open(void)
@@ -211,6 +212,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceTtyWrite);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceTtyRead);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceTtyInit);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifInitRpc);
+
 extern int D_0054A3E8[];
 extern void sceSifExitCmd(void);
 
@@ -252,6 +254,7 @@ elem:
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _request_end);
+
 extern int isceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);
 
 void _request_rdata(int *a0, int *a1)
@@ -282,6 +285,7 @@ void *_search_svdata(int a0, void *a1)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _request_bind);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifBindRpc);
+
 extern void iWakeupThread(int a0);
 
 void _request_call(int *a0)
@@ -336,6 +340,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifSetRpcQueue);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifRegisterRpc);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifRemoveRpc);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifRemoveRpcQueue);
+
 extern void DIntr(int *self);
 extern void EIntr(void);
 
@@ -358,6 +363,7 @@ after:
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifExecRequest);
+
 extern void SleepThread(void);
 extern void sceSifExecRequest(int *item);
 
@@ -430,6 +436,7 @@ ok:
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceFs_Rcv_Intr);
+
 extern int D_0054A474[];
 
 void _sceFsSemInit(void)
@@ -456,6 +463,7 @@ void _sceFsSigSema(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceFsInit);
+
 extern char D_0028ED0C[];
 extern int D_0054A480[];
 extern char D_0072D528[];
@@ -498,6 +506,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceWrite);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceIoctl);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceIoctl2);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceCallCode);
+
 extern int _sceCallCode(void *a0, int a1);
 
 int sceRemove(void *a0)
@@ -521,6 +530,7 @@ int sceDelDrv(void *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceDopen);
+
 extern int D_0072C240[];
 extern int D_0072CE80[];
 extern int D_0072D500[];
@@ -650,6 +660,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceLseek64);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceDevctl);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSymlink);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceReadlink);
+
 extern int D_0054A484[];
 extern int D_0072D580[];
 extern char D_FFFFF[];
@@ -707,6 +718,7 @@ int sceSifFreeIopHeap(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifLoadIopHeap);
+
 extern int D_0054A488[];
 extern char D_0072D780[];
 extern char D_0072D980[];
@@ -769,6 +781,7 @@ int sceSifLoadFileReset(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceSifLoadModuleBuffer);
+
 extern int _sceSifLoadModuleBuffer(void *a0, int a1, int a2, void *a3);
 
 void sceSifLoadModuleBuffer(void *a0, int a1, int a2)
@@ -783,6 +796,7 @@ int sceSifLoadStartModuleBuffer(void *a0, int a1, int a2, void *a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceSifLoadModule);
+
 extern void _sceSifLoadModule(void *a0, int a1, int a2, int a3, int a4);
 
 void sceSifLoadModule(void *a0, int a1, int a2)
@@ -799,6 +813,7 @@ void sceSifLoadStartModule(void *a0, int a1, int a2, int a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceSifLoadElfPart);
+
 extern int _sceSifLoadElfPart(void *a0, int a1, int a2, int a3);
 
 int sceSifLoadElfPart(void *a0, int a1, int a2)
@@ -842,6 +857,7 @@ int sceSifGetIopAddr(int a0, void *a1, int a2)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifSetIopAddr);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifResetIop);
+
 extern int sceSifGetReg(int a0);
 
 int sceSifIsAliveIop(void)
@@ -864,6 +880,7 @@ int sceSifSyncIop(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifRebootIop);
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -914,6 +931,7 @@ __asm__(".section .text\n"
         ".size _DumpTLB, . - _DumpTLB\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -978,6 +996,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1008,6 +1027,7 @@ __asm__(".section .text\n"
         "    .size kSetTLBEntry, . - kSetTLBEntry\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1039,6 +1059,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1071,6 +1092,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1162,6 +1184,7 @@ __asm__(".section .text\n"
         ".size kExpandScratchPad, . - kExpandScratchPad\n"
         "    .set reorder\n"
         "    .set at\n");
+
 extern int D_0054A490[];
 extern void SetVTLBRefillHandler();
 extern void func_00265040(void);
@@ -1209,6 +1232,7 @@ __asm__(".section .text\n"
         "endlabel func_00264F40\n"
         "    .set reorder\n"
         "    .set at\n");
+
 extern int D_0054A4D8[];
 extern void func_00264F40(int x, int y);
 
@@ -1235,6 +1259,7 @@ __asm__(".section .text\n"
         "endlabel PutTLBEntry\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1247,6 +1272,7 @@ __asm__(".section .text\n"
         "endlabel iPutTLBEntry\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1259,6 +1285,7 @@ __asm__(".section .text\n"
         "endlabel SetTLBEntry\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1271,6 +1298,7 @@ __asm__(".section .text\n"
         "endlabel iSetTLBEntry\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1283,6 +1311,7 @@ __asm__(".section .text\n"
         "endlabel GetTLBEntry\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1295,6 +1324,7 @@ __asm__(".section .text\n"
         "endlabel iGetTLBEntry\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1307,6 +1337,7 @@ __asm__(".section .text\n"
         "endlabel ProbeTLBEntry\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1319,6 +1350,7 @@ __asm__(".section .text\n"
         "endlabel iProbeTLBEntry\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1335,6 +1367,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", func_00265040);
 
 void _change_addr(int *a0, int *a1)
@@ -1365,6 +1398,7 @@ void *sceSifGetDataTable(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifInitCmd);
+
 extern int D_0054A508[];
 extern int D_0072ED54[];
 extern int DisableDmac(int a0);
@@ -1428,6 +1462,7 @@ void sceSifRemoveCmdHandler(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceSifSendCmd);
+
 extern int _sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1, int t2);
 
 int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1)
@@ -1529,6 +1564,7 @@ __asm__(".section .text\n"
         ".size _sceSifCmdIntrHdlr, . - _sceSifCmdIntrHdlr\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1586,6 +1622,7 @@ __asm__(".section .text\n"
         ".size func_00265A38, . - func_00265A38\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1596,6 +1633,7 @@ __asm__(".section .text\n"
         "endlabel func_00265AE4\n"
         "    .set reorder\n"
         "    .set at\n");
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"

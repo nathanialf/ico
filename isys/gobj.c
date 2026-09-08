@@ -19,6 +19,7 @@ void isysGObjKindTableInit(void)
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjInit);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", cut_gobj_link);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjRemoveAll);
+
 extern char D_0029C4F0[];
 extern char *D_0029C510[];
 
@@ -129,6 +130,7 @@ void isysGObjMoveHead(int a0, int a1, int a2)
     cut_gobj_link(a0);
     return add_gobj_to_head(a0, s1, new_var);
 }
+
 extern struct GObj__pn *D_0063C1A8;
 extern unsigned int D_0063C1AC;
 extern char D_00551F50[];
@@ -157,6 +159,7 @@ static __inline__ char *allocGObjEntry(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjAddAfterGObj);
+
 extern char D_00551F40[];
 
 char *isysGObjAddBeforeGObj(char *owner, char *other)

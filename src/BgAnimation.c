@@ -10,7 +10,9 @@ unsigned int D_004EE5B0[12] = {
     0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000,
     0x00000000, 0x3F800000, 0x00000000, 0xFFFFFFFF, 0x00000001, 0x00000000,
 };
+
 float D_004EE5E0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_InitData);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_initLightEnvelope);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_ApplyDObject);
@@ -68,6 +70,7 @@ INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_CalcSdfCamera);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_addLightning);
 ASM_LIT4_SLOT(D_006397C0, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_DispLightning);
+
 extern int D_0063C4B4;
 
 void bga_ResetCamera(void)

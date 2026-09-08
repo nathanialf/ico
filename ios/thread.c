@@ -83,9 +83,7 @@ extern int iosSemaDelete(int *self);
 extern int iosSemaWait(int *self);
 extern int iosSemaSignal(int *self);
 extern int iosSemaReferStatus(int *self);
-
 extern void debug_StdPrintfDummy();
-
 extern int D_006BCEE0[];
 extern int GetThreadId();
 extern void iosThreadSetPri(int *a0, int a1);

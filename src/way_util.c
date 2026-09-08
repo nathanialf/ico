@@ -71,6 +71,7 @@ void ez_circle(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", short_direction_between_wp);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", wgid_next);
+
 extern char D_00554300[];
 extern int D_0063A438;
 extern int iosMallocDebug(int, int, const char *, int);
@@ -113,6 +114,7 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path_ThreadVersion);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", GetWgAll);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", set_check_wp);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", set_bridge);
+
 extern int WayPointList_begin();
 extern int WayPointList_next();
 extern float fzMagnitudefv(int a0);

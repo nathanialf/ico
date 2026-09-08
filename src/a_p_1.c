@@ -9,6 +9,7 @@ typedef struct {
 } Vec4;
 
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", InitAP1);
+
 extern char D_004E55D0[];
 extern void GetMatrixFromQuaternion(int dst, int src);
 extern void GetRootQuaternion(int p, int *self);

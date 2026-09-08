@@ -7,6 +7,7 @@ typedef struct {
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", group_create);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", group_select);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", point_delete);
+
 extern int CreateWayPoint(void *a0);
 extern WayRec D_004F1EC0[];
 extern char D_004F76A0[];
@@ -63,6 +64,7 @@ INCLUDE_ASM("asm/nonmatchings/src/way_tool", wp_print_out);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", draw_way_group);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", way_toolDL);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", debug_WayTool);
+
 extern char D_0063BDA0[];
 extern int D_0063BD9C;
 extern void *isysGObjSearchFromObjKindID_begin(int id);

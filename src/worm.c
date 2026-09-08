@@ -47,6 +47,7 @@ extern void sceVu0InterVectorXYZ(void *v0, void *v1, void *v2, float t);
 void SetDirectWormTargetPos(int act, void *pos);
 void SetWormReduceRatio(int a0, float f12);
 void TraceWormRoute(int act, float t);
+
 INCLUDE_ASM("asm/nonmatchings/src/worm", outerProcess);
 INCLUDE_ASM("asm/nonmatchings/src/worm", simulate);
 ASM_LIT4_SLOT(D_00639710, 0.8f);

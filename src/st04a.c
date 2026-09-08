@@ -81,6 +81,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aTorchAllFlagfChk);
 ASM_LIT4_SLOT(D_00639910, 0.001f);
 ASM_LIT4_SLOT(D_00639914, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aTorchHintChk);
+
 extern ActMail D_004F86B0[];
 extern void actSt04aGateLChk(volatile int a0);
 
@@ -490,6 +491,7 @@ void actSt04aGirlSitChk(volatile int a0)
    the actor post, 0x1AD the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
 static ActMail model_on[2] = {{0x1AE}, {0x1AD}};
+
 extern void actSt04aModelOffChk(volatile int a0);
 
 void actSt04aModelOnChk(volatile int a0)
@@ -510,6 +512,7 @@ void actSt04aModelOnChk(volatile int a0)
 
 /* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
 static ActMail model_off[2] = {{0x1AE}, {0x1AD}};
+
 extern void actSt04aModelOnChk(volatile int a0);
 
 void actSt04aModelOffChk(volatile int a0)

@@ -10,6 +10,7 @@ extern void Draw2DLineG(int *a0, int *a1, int *a2, int *a3, int a4);
 extern void _FTOI4Vector__pn(int *out, int *src) __asm__("_FTOI4Vector");
 extern void _InitCurrentMatrix();
 extern int _getLine__pn(int *t0, int *t1, int *p1, int *p2) __asm__("_getLine");
+
 INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLine);
 
 void Draw2DLineSeg_Start(void)

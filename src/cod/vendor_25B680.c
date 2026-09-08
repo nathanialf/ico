@@ -1,11 +1,11 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
 #include "math_private.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsResetGraph);
+
 extern int D_0054A2B0[];
 
 void *sceGsGetGParam(void)
@@ -49,7 +49,9 @@ __asm__(".section .text\n"
         "    .size sceGsResetPath, . - sceGsResetPath\n"
         "    .set reorder\n"
         "    .set at\n");
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefDispEnv);
+
 extern void *sceGsGetGParam(void);
 
 void sceGsPutDispEnv(void *a0)
@@ -72,6 +74,7 @@ void sceGsPutDispEnv(void *a0)
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefDrawEnv);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsPutDrawEnv);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefDBuff);
+
 extern int sceGsPutDispEnv__pn() __asm__("sceGsPutDispEnv");
 extern int sceGsPutDrawEnv();
 
@@ -113,6 +116,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefLoadImage);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefStoreImage);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsExecLoadImage);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsExecStoreImage);
+
 extern int GsGetIMR(void);
 extern void GsPutIMR(void *a0);
 

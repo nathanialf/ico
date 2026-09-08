@@ -30,7 +30,6 @@ extern int D_0028F4C0[];
 extern void InitWindField(int a0, float *a1, float *a2, float a3);
 extern void ExecWindField(float f);
 extern int GetWindVector(float *power, void *pos);
-
 /* prototypes: their order is the inline tail's emission order */
 void ReinitWindManager(void);
 void SetWindManager(float a, float b, float c, float d, float e, float f, float g, float h);

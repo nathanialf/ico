@@ -26,6 +26,7 @@ ASM_LIT4_SLOT(D_00639AE8, -550.0f);
 ASM_LIT4_SLOT(D_00639AEC, 1685.0f);
 INCLUDE_ASM("asm/nonmatchings/src/st24a", actSt24aSwordChk);
 INCLUDE_ASM("asm/nonmatchings/src/st24a", actSt24aDemoCamChk);
+
 extern ActMail D_004FB5F0[];
 extern void actSt24aSwordChk(int a0);
 extern void ScpCallCameraSetTarget(float x, float y, float z);

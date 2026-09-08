@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -75,6 +74,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", subhour);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", AdjustTime);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", sceScfGetGMTfromRTC);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", sceScfGetLocalTimefromRTC);
+
 extern unsigned char D_00731C00[];
 
 void *_SgGetSlotContext(int a0)
@@ -149,6 +149,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgBgmMain);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSetRealtimeTickProc);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSetRealtimeVolume);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgTableEnvAdd);
+
 extern void *_SgGetComContext(void);
 
 int _SgSeqKeyOnSlot(void)
@@ -190,6 +191,7 @@ int _SgSeqKeyOnSlot(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSeKeyOnSlot);
+
 extern void *_SgGetHeadContext(void);
 
 int _SgSeKeyOff(char *a0)
@@ -423,6 +425,7 @@ int _SgfadeParam(int a0, int a1, int a2, int a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgInit);
+
 extern char D_00736140[];
 extern int sceSifCallRpc();
 

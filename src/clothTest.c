@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "vu0.h"
 
 extern char D_004E7420[];

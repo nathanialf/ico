@@ -28,6 +28,7 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSkeltonFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadCollisionFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadStageAnimationFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadMotionFile);
+
 extern int D_0063A438;
 extern char D_006193B0[];
 extern int D_0028F4C0[];
@@ -45,6 +46,7 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundBdFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundHdFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadShockFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadCamerasetFile);
+
 extern char D_006193B0[];
 extern int D_0063A450;
 extern int D_0028F4C0[];
@@ -144,7 +146,6 @@ void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a
 }
 
 extern DbgSlot D_006FAD00[];
-
 extern AssertRec D_006FAD00__pn[] __asm__("D_006FAD00");
 
 int GetPObjAddress(int a0)

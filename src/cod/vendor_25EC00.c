@@ -1,5 +1,4 @@
 #include "common.h"
-
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
@@ -47,6 +46,7 @@ int *sceVif1PkTerminate(int **a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EC00", sceVif1PkCnt);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EC00", sceVif1PkEnd);
+
 extern void sceVif1PkAlign(void *a0, int a1, int a2);
 
 void sceVif1PkOpenDirectCode(void *a0, int a1)

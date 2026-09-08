@@ -1,6 +1,7 @@
 #include "common.h"
 
 extern unsigned char D_002A50C0[];
+
 INCLUDE_ASM("asm/nonmatchings/src/gflag", gflagInit);
 INCLUDE_ASM("asm/nonmatchings/src/gflag", gflagSave);
 INCLUDE_ASM("asm/nonmatchings/src/gflag", gflagLoad);

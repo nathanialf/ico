@@ -7,6 +7,7 @@ INCLUDE_ASM("asm/nonmatchings/src/spider", WakeUpLayoutedSpiders);
 INCLUDE_ASM("asm/nonmatchings/src/spider", CallSpidersToReviveEnemy);
 INCLUDE_ASM("asm/nonmatchings/src/spider", SpiderLayoutGeo);
 INCLUDE_ASM("asm/nonmatchings/src/spider", DispAllMemberOfSpider);
+
 extern char D_0063BAC8[];
 
 void SetSpiderGroupReviveStatus(char *a0)

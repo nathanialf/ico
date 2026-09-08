@@ -321,7 +321,6 @@ typedef struct InsertCameraWork {
 } InsertCameraWork;
 
 extern InsertCameraWork D_006E6710;
-
 extern int *D_00639EA4;
 extern int GetEfStageCameraTargetID(void);
 extern int isysGObjSearchFromObjLayoutID();

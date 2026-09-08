@@ -31,7 +31,6 @@ typedef struct Pad {
 } Pad;
 
 extern Pad D_0028F8F0[];
-
 extern void _ACTWait(int a0);
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
@@ -89,7 +88,6 @@ extern void scpPlayMot(int a0, int mot);
 extern void scpPlayEnd(int a0);
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
-
 extern void actSt10lChainMain(volatile int a0);
 extern void actSt10lChainMove(volatile int a0);
 extern void actSt10lGondolaMain(volatile int a0);
@@ -105,11 +103,9 @@ extern void actSt10lEneCam3Chk(volatile int a0);
 extern void actSt10lBoxAChk(volatile int a0);
 extern void actSt10lBoxBChk(volatile int a0);
 extern void actSt10lEneKillChk(volatile int a0);
-
 /* st10l.o's own .rodata run 0x00622DE0..0x00622DF0 (no MAIN.MAP symbol):
    the girl's way-point packet for actSt10lEneCam3Chk. */
 extern long long D_00622DE0[];
-
 /* st10l.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
 extern ActMail D_004FA480[];
 extern ActMail D_004FA4A0[];

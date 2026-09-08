@@ -3,6 +3,7 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/windField", InitWindField);
 INCLUDE_ASM("asm/nonmatchings/src/windField", drawSenpuukiHaneUnit);
+
 extern char D_004ED380[];
 extern char D_004ED4F0__pn[] __asm__("D_004ED4F0");
 extern char D_004ED690__pn[] __asm__("D_004ED690");
@@ -40,6 +41,7 @@ void drawSenpuuki(float scale)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/windField", ExecWindField);
+
 extern int (*D_0063BC58)(void);
 
 int GetWindVector(void)

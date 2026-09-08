@@ -88,6 +88,7 @@ ASM_LIT4_SLOT(D_00639684, 0.01f);
 ASM_LIT4_SLOT(D_00639688, 31.83098793f);
 ASM_LIT4_SLOT(D_0063968C, 10430.378f);
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", MoveRotObjectWithHoldPoint);
+
 extern void moveStartSE();
 
 void ExecRotObjectMoveStartReaction(int a0, int a1, int a2, int a3)

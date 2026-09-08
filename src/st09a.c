@@ -37,7 +37,6 @@ extern int stage_CheckAnimationFinish(int a0);
 extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern void soundSeDefStop(int handle);
 extern void iosPadActRequest(int a0, int a1);
-
 /* st09a.o's own .rodata run 0x00622DA0..0x00622DE0 (no MAIN.MAP symbols):
    the two hint-finished debug strings. */
 extern char D_00622DA0[];
@@ -48,14 +47,12 @@ extern Act *actInitialize(int a0);
 extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
-
 extern void actSt09aBrgDown(volatile int a0);
 extern void actSt09aBrgMain(volatile int a0);
 extern void actSt09aElvMain(volatile int a0);
 extern void actSt09aIntroChk(volatile int a0);
 extern void actSt09aHint1Chk(volatile int a0);
 extern void actSt09aHint2Chk(volatile int a0);
-
 /* st09a.o's own .data run 0x004FA2F0..0x004FA480 (no MAIN.MAP symbols):
    actor mail packets. */
 extern ActMail D_004FA310[];

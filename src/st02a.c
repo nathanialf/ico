@@ -31,6 +31,7 @@ ASM_LIT4_SLOT(D_006398BC, -1827.0f);
 ASM_LIT4_SLOT(D_006398C0, 2285.0f);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aDoorDownChk);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aFenceOpen);
+
 extern void CopyVector(void *a0, float *a1);
 extern long long D_00622740[];
 extern char *D_00639EA4;
@@ -71,6 +72,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWaterFallChk);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaUp);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaDown);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aBox);
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern ActMail D_004F8170[];
@@ -498,11 +500,13 @@ void actSt02aSekizoEvent(int x)
 extern int scpCheckExistAliveEnemy(void);
 extern void SetWayGroupActive(int a0, int a1);
 extern void gflagOff(int a0);
+
 /* The way-on watcher's mail record: it installs actSt02aWayOffChk here and
    posts it. Word 0 of each entry is the mail id the entry answers (0x1AE the
    actor post, 0x1AD the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
 static ActMail way_on_mail[2] = {{0x1AE}, {0x1AD}};
+
 extern void actSt02aWayOffChk(volatile int a0);
 
 void actSt02aWayOnChk(volatile int a0)
@@ -559,6 +563,7 @@ void actSt02aWayOffChk(volatile int a0)
 /* The waterfall way-on watcher's own mail record (installs
    actSt02aTakiWayOffChk). */
 static ActMail taki_on_mail[2] = {{0x1AE}, {0x1AD}};
+
 extern void actSt02aTakiWayOffChk(volatile int a0);
 
 void actSt02aTakiWayOnChk(volatile int a0)
@@ -584,6 +589,7 @@ void actSt02aTakiWayOnChk(volatile int a0)
 /* The waterfall way-off watcher's own mail record (installs
    actSt02aTakiWayOnChk). */
 static ActMail taki_off_mail[2] = {{0x1AE}, {0x1AD}};
+
 extern void actSt02aTakiWayOnChk(volatile int a0);
 
 void actSt02aTakiWayOffChk(volatile int a0)

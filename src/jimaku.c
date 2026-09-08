@@ -62,6 +62,7 @@ extern int jimakuOn;
 /* prototypes: their order is the inline tail's emission order */
 void jimakuManager(void);
 void jimakuUndisp(void);
+
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", display_texture);
 
 void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
