@@ -24,9 +24,9 @@ void ACTSetPositionNoFitting(int a0, int a1, int a2, int a3)
     SetDirectRootPositionNoFitting__pn(a0, a1, a2, a3);
 }
 
-extern void SetDirectRootPositionWithNodePoint();
+extern void SetDirectRootPositionWithNodePoint(int a0, int a1, int a2, float a3);
 
-void ACTSetPositionNodeWithFitting(int a0, int a1, int a2, int a3)
+void ACTSetPositionNodeWithFitting(int a0, int a1, int a2, float a3)
 {
     SetDirectRootPositionWithNodePoint(a0, a1, a2, a3);
 }
@@ -373,7 +373,7 @@ void motCommonRopeTurnL(volatile int a0)
     }
 }
 
-extern void TestCageUpDown(int obj, void *a0);
+extern void TestCageUpDown(int obj, char *a0);
 extern int _AbsRotyGV(void *a0, void *a1);
 extern int _RotyGV(void *a0, void *a1);
 extern void _ApplyRyGV(void *a0, float a1);
@@ -496,7 +496,145 @@ void actCommonRopeClimbEnd1(volatile int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeCliff);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", TestCageUpDown);
+
+/* SU-E BEGIN TestCageUpDown */
+extern int *D_004EB758[];
+extern int GetCageChainPoint(float *out, float *buf, void *a0);
+extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
+extern void SetDirectRootPositionNoFitting(void *a0, void *a1);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern int GetSkeltonFocusNode(void *a0, void *a1);
+
+typedef union {
+    char *p;
+    float *f;
+} CagePtr;
+
+typedef struct {
+    float a[4];
+    float b[4];
+    int cnt;
+    int lim;
+    int last;
+} CageUD;
+
+extern CageUD D_0029CF00;
+
+void TestCageUpDown(int cage, char *gobj)
+{
+    inline void initCage(char *o)
+    {
+        int n;
+
+        D_0029CF00.cnt = 0;
+        D_0029CF00.lim = (float)*D_004EB758[*(int *)(((CagePtr *)(o + 0x15C))->p + 0x4A0)];
+        n = GetSkeltonFocusNode(o, (void *)0x23);
+        D_0029CF00.a[0] =
+            *(float *)(*(char **)(((CagePtr *)(o + 0x15C))->p + 0xC) + n * 0x40 + 0x30);
+        D_0029CF00.a[1] =
+            *(float *)(*(char **)(((CagePtr *)(o + 0x15C))->p + 0xC) + n * 0x40 + 0x34);
+        D_0029CF00.a[2] =
+            *(float *)(*(char **)(((CagePtr *)(o + 0x15C))->p + 0xC) + n * 0x40 + 0x38);
+        D_0029CF00.b[0] = D_0029CF00.a[0];
+        D_0029CF00.b[2] = D_0029CF00.a[2];
+        D_0029CF00.b[1] = D_0029CF00.a[1] + 200.0f;
+    }
+
+    inline void cageMove(char *o, float *dst, float *lo, float *hi, float *res, float x, float y,
+                         float z)
+    {
+        dst[0] = x;
+        dst[1] = y;
+        dst[2] = z;
+        GetCageChainPoint(lo, hi, (void *)cage);
+        _InterGV(dst, lo, hi, dst[1] - lo[1], hi[1] - dst[1]);
+        sceVu0ScaleVector(res, test_CURRENTORIENT(o), -20.0f);
+        sceVu0AddVector(res, dst, res);
+        ACTSetPositionNodeWithFitting((int)o, 0x23, (int)res, 1.0f);
+    }
+
+    inline void putRoot(float *pos, float *lo, float *hi, int clamp)
+    {
+        float lim;
+        float low;
+        float d;
+
+        lim = 50.0f;
+        if (stage_no == 8) {
+            lim = 80.0f;
+        }
+        pos[0] = ((float *)test_CURRENTROOT(gobj))[0];
+        pos[1] = ((float *)test_CURRENTROOT(gobj))[1];
+        pos[2] = ((float *)test_CURRENTROOT(gobj))[2];
+        low = lo[1] + lim;
+        d = ((CagePtr *)(gobj + 0x15C))->f[81];
+        pos[1] = pos[1] + d;
+        if (clamp) {
+            pos[1] = pos[1] < low ? low : (hi[1] < pos[1] ? hi[1] : pos[1]);
+        }
+        SetDirectRootPositionNoFitting(D_00639EA4, pos);
+    }
+
+    inline void chainUpdate(float *sk, float *out, float *lo, float *hi)
+    {
+        GetSkeltonPosition(sk, gobj, 22);
+        _InterGV(out, lo, hi, sk[1] - lo[1], hi[1] - sk[1]);
+        SetChainRootUpdateMode(gobj, 2, out);
+    }
+
+    float vA[4];
+    float vB[4];
+    float vC[4];
+    float vD[4];
+    float vE[4];
+    float vF[4];
+    float vG[4];
+    float vH[4];
+    int mot = *(int *)(((CagePtr *)(gobj + 0x15C))->p + 0x4A0);
+
+    GetCageChainPoint(vB, vC, (void *)cage);
+    *(int *)(((CagePtr *)(D_00639EA4 + 0x15C))->p + 0x420) = 0;
+    switch (mot) {
+    case 0x78:
+        putRoot(vE, vB, vC, 1);
+        chainUpdate(vG, vH, vB, vC);
+        break;
+    case 0x77:
+        if (*(int *)(*(char **)(gobj + 0x164) + 0x34) == 0x3F) {
+            putRoot(vE, vB, vC, 0);
+            chainUpdate(vE, vF, vB, vC);
+        } else {
+            putRoot(vE, vB, vC, 1);
+            chainUpdate(vE, vF, vB, vC);
+        }
+        break;
+    case 0x79:
+    case 0x7A:
+        if (D_0029CF00.last != mot) {
+            initCage(gobj);
+        }
+        _InterGV(vA, D_0029CF00.a, D_0029CF00.b, (float)D_0029CF00.cnt,
+                 (float)(D_0029CF00.lim - D_0029CF00.cnt));
+        vA[1] = vA[1] < vB[1] ? vB[1] : (vC[1] < vA[1] ? vC[1] : vA[1]);
+        cageMove(gobj, vF, vG, vH, vE, vA[0], vA[1], vA[2]);
+        D_0029CF00.cnt = D_0029CF00.cnt + 1;
+        chainUpdate(vE, vF, vB, vC);
+        break;
+    default:
+        if (D_0029CF00.last != mot) {
+            GetSkeltonPosition((float *)(*(char **)(*(char **)(gobj + 0x164) + 0x688) + 0x410),
+                               gobj, 22);
+        }
+        _InterGV(vD, vB, vC,
+                 *(float *)(*(char **)(*(char **)(gobj + 0x164) + 0x688) + 0x414) - vB[1],
+                 vC[1] - *(float *)(*(char **)(*(char **)(gobj + 0x164) + 0x688) + 0x414));
+        SetChainRootUpdateMode(gobj, 3, vD);
+        break;
+    }
+    D_0029CF00.last = mot;
+}
+
+/* SU-E END TestCageUpDown */
 
 extern int GetCageChainPoint(float *out, float *buf, void *a0);
 extern int MatrixDrive_GetMatrix(void);
@@ -506,7 +644,7 @@ extern void MatrixDrive_RotMatrixY(int deg);
 extern void sceVu0ApplyMatrix(void *out, void *m, void *v);
 extern void ClipWall(void *a0);
 extern void GetOrientOfWall(void *out, void *obj, void *pos);
-extern void TestCageUpDown(int obj, void *a0);
+extern void TestCageUpDown(int obj, char *a0);
 extern void GetSkeltonPosition(float *dst, char *obj, int node);
 extern char D_00552DD0[];
 extern char D_00552DE0[];
@@ -1876,20 +2014,106 @@ void ACTSendMailCorrect(char *a0, int a1)
     iosOmSendMail(a0, a1, (int)a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTCommonMailTest);
-ASM_LIT4_SLOT(D_00638E9C, 0.1f);
-ASM_LIT4_SLOT(D_00638EA0, 0.1f);
-ASM_LIT4_SLOT(D_00638EA4, 0.1f);
-ASM_LIT4_SLOT(D_00638EA8, 0.1f);
-ASM_LIT4_SLOT(D_00638EAC, 0.1f);
-ASM_LIT4_SLOT(D_00638EB0, 0.99f);
-ASM_LIT4_SLOT(D_00638EB4, 0.1f);
-ASM_LIT4_SLOT(D_00638EB8, 0.99f);
-ASM_LIT4_SLOT(D_00638EBC, 0.1f);
-ASM_LIT4_SLOT(D_00638EC0, 0.1f);
-ASM_LIT4_SLOT(D_00638EC4, 0.99f);
-ASM_LIT4_SLOT(D_00638EC8, 0.1f);
-ASM_LIT4_SLOT(D_00638ECC, 0.99f);
+extern int CurrentTargetGObj;
+extern void handoff_heroin(void);
+extern char D_0055FE58[];
+
+typedef struct {
+    char _0[0x190];
+    unsigned int f190;
+    char _194[0];
+} MtMotRec;
+
+void _ACTCommonMailTest(char *self, int a1, int a2, int a3)
+{
+    char *s;
+    int ret = 0;
+    unsigned int m;
+
+    s = *(char **)(self + 0x164);
+    if (self == D_00639EA4) {
+        if (CurrentTargetGObj == 1 ? (*(int *)(s + 0x2E4) & 8) != 0
+                                   : (*(int *)(s + 0x2E0) & 8) == 0) {
+            handoff_heroin();
+        }
+    }
+    m = *(unsigned int *)(s + 0x34);
+    switch (m) {
+    case 1:
+    case 2:
+    case 3:
+    case 14:
+    case 79:
+    case 116:
+        ret = 1;
+        break;
+    case 36:
+        if (self == D_00639EA4 || self == D_00639EA8) {
+            ret = 1;
+        }
+        break;
+    case 29:
+        ret = self == D_00639EA8;
+        break;
+    case 15:
+    case 20:
+    case 21:
+        ret = self == D_00639EA4;
+        break;
+    }
+    if ((((MtMotRec *)D_0055FE58)[*(int *)(*(char **)(self + 0x15C) + 0x4A0)].f190 >> 1) & 1) {
+        ret = 1;
+    }
+    if (ret) {
+        if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) + 45) < 91) {
+            ACTSendMailCorrect(self, 0x14C);
+        }
+        if (0.1f < *(float *)(s + 0x34C) && !((unsigned int)(*(int *)(s + 0x340) + 134) < 269) &&
+            !(*(int *)(s + 0x34) == 3 && ((int)(*(unsigned long long *)(s + 0x18) >> 44) & 1))) {
+            ACTSendMailCorrect(self, 0x14D);
+            if (((int)(*(unsigned long long *)(s + 0x20) >> 18) & 1) &&
+                !((int)(*(unsigned long long *)(s + 0x18) >> 44) & 1)) {
+                ACTSendMailCorrect(self, 0xBC);
+            }
+        }
+        if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) - 46) < 89) {
+            ACTSendMailCorrect(self, 0x14E);
+        }
+        if (0.1f < *(float *)(s + 0x34C) && !(*(int *)(s + 0x340) < -134) &&
+            *(int *)(s + 0x340) < -45) {
+            ACTSendMailCorrect(self, 0x14F);
+        }
+        if (0.1f < *(float *)(s + 0x34C) &&
+            (*(float *)(s + 0x34C) < 0.99f || (*(int *)(s + 0x2E0) & 0x20)) && !(a2 < 4)) {
+            ACTSendMailCorrect(self, 0xB5);
+        }
+        /* the negated conjunct is the 0xB5 guard's whole predicate, repeated;
+           it emits a real (dead) branch, so it is in the shipped code. */
+        if (0.1f < *(float *)(s + 0x34C) &&
+            !(0.1f < *(float *)(s + 0x34C) &&
+              (*(float *)(s + 0x34C) < 0.99f || (*(int *)(s + 0x2E0) & 0x20))) &&
+            !(a3 < 4)) {
+            ACTSendMailCorrect(self, 0xBA);
+        }
+        if (!(0.1f < *(float *)(s + 0x34C)) && 0 < a1) {
+            ACTSendMailCorrect(self, 0xC7);
+        }
+    }
+    if (*(int *)(s + 0x34) == 0x49) {
+        if (0.1f < *(float *)(s + 0x34C) &&
+            (*(float *)(s + 0x34C) < 0.99f || (*(int *)(s + 0x2E0) & 0x20)) && !(a2 < 4)) {
+            ACTSendMailCorrect(self, 0xB5);
+        }
+        /* the negated conjunct is the 0xB5 guard's whole predicate, repeated;
+           it emits a real (dead) branch, so it is in the shipped code. */
+        if (0.1f < *(float *)(s + 0x34C) &&
+            !(0.1f < *(float *)(s + 0x34C) &&
+              (*(float *)(s + 0x34C) < 0.99f || (*(int *)(s + 0x2E0) & 0x20))) &&
+            !(a3 < 4)) {
+            ACTSendMailCorrect(self, 0xBA);
+        }
+    }
+}
 
 extern void _ApplyRyGV(void *a0, float a1);
 extern void *test_CURRENTORIENT(char *a0);
