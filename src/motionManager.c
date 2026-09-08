@@ -1,6 +1,7 @@
 #include "common.h"
 #include "ico/types.h"
 #include "vu0.h"
+#include "sugiCommon.h"
 
 typedef struct {
     char b[0x20];
@@ -122,7 +123,17 @@ extern void UnitRotation(int m);
 extern float _Sqrt(float x);
 extern void DrawGObjWallCollision(int a0, int a1);
 extern char D_0061FDD8[];
-extern const float D_0063B924[];
+
+/* FLT_MAX word in .sdata (D_0063B91C/24 both hold 0x7F7FFFFF). Only an alias-set-0
+   (union member) read reproduces ROM's hoist of this load above the four int
+   stores in _checkCliffAndWall; the object's real type is unresolved until the
+   data-name pass. */
+typedef union {
+    float f;
+    int i;
+} FltWord;
+
+extern FltWord D_0063B924[];
 extern unsigned char D_002C2DC8[];
 extern int D_0063C498;
 extern int D_0063B158;
@@ -181,7 +192,7 @@ int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f);
 
 static inline void dispSquare(int alpha)
 {
-    int col[4] = {0, 128 * 255 / alpha, alpha, 128};
+    int col[4] = {0, 128 * alpha / 255, alpha, 128};
     DrawLineG(D_004EC950, col, D_004EC970, col, -1);
     DrawLineG(D_004EC970, col, D_004EC960, col, -1);
     DrawLineG(D_004EC960, col, D_004EC980, col, -1);
@@ -255,7 +266,35 @@ int findActPoint(int *list)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkActPointWithHeight);
+int checkActPointWithHeight(int kind, float h)
+{
+    int i;
+
+    if (*(int *)(D_0063C490 + 0x230) != 0) {
+        if (kind == 6 || kind == 11) {
+            return -1;
+        }
+    }
+    if (*(int *)(D_0063C490 + 0x290) != 0) {
+        if (kind == 22 || kind == 27) {
+            return -1;
+        }
+    }
+    for (i = 0; i < D_0063C48C; i++) {
+        if (*(int *)(D_0063B938 + i * 0x40 + 4) == kind) {
+            float d;
+            if (*(int *)(D_0063C478 + i * 0x20) >= 249) {
+                return -1;
+            }
+            d = *(float *)(D_0063C484 + i * 0x10 + 4) + D_007201F4[0];
+            if ((d < 0.0f ? -d : d) < h) {
+                return kind;
+            }
+            return -1;
+        }
+    }
+    return -1;
+}
 
 inline void GetWallVector(int a0, int a1)
 {
@@ -321,8 +360,77 @@ ASM_LIT4_SLOT(D_006395B0, 1e+04f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkCliffState);
 ASM_LIT4_SLOT(D_006395B4, 1e+04f);
 ASM_LIT4_SLOT(D_006395B8, 1e+04f);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", _checkCliffAndWall);
-ASM_LIT4_SLOT(D_006395BC, 0.01f);
+
+void _checkCliffAndWall(void)
+{
+    float v[4];
+    float d;
+    float t;
+
+    if (*(int *)(D_0063C494 + 0xDC) == 1 ||
+        (*(int *)(D_0063C494 + 0xDC) == 2 && *(int *)(D_0063C494 + 0xE8) == 0)) {
+        MatrixDrive_PushMatrix();
+        checkCliffState(1);
+        MatrixDrive_PopMatrix();
+    }
+    if (*(int *)(D_0063C494 + 0xDC) == 1 ||
+        (*(int *)(D_0063C494 + 0xDC) == 2 && *(int *)(D_0063C494 + 0xE8) == 1)) {
+        MatrixDrive_PushMatrix();
+        checkWallState(3);
+        MatrixDrive_PopMatrix();
+    }
+    if (*(int *)(D_0063C494 + 0xDC) == 1) {
+        if ((*(int *)(D_0063C494 + 0x14) & 0x20) == 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, -30.0f, 0.0f);
+            checkWallState(3);
+            MatrixDrive_PopMatrix();
+
+            if ((*(int *)(D_0063C494 + 0x14) & 0x20) != 0) {
+                *(float *)(D_0063C494 + 0x130) += 30.0f;
+                *(float *)(D_0063C494 + 0x134) += 30.0f;
+            }
+        }
+        if (D_0063B93C == D_00639EA4 && *(int *)(*(int *)(D_0063B93C + 0x15C) + 0x568) == 0) {
+            _SubVectorXYZ(v, D_0063C490, D_0063C490 + 0x150);
+            v[1] = 0.0f;
+            d = VectorLengthSquare(v);
+            if (0.01f < d) {
+                MatrixDrive_PushMatrix();
+                UnitRotation(MatrixDrive_GetMatrix());
+                _ScaleVectorXYZ(v, v, 1.0f / _Sqrt(d));
+                *(float *)(MatrixDrive_GetMatrix() + 0x00) =
+                    *(float *)(MatrixDrive_GetMatrix() + 0x28) = v[2];
+                *(float *)(MatrixDrive_GetMatrix() + 0x08) = -v[0];
+                *(float *)(MatrixDrive_GetMatrix() + 0x20) =
+                    -*(float *)(MatrixDrive_GetMatrix() + 0x08);
+                checkCliffState(0);
+                MatrixDrive_PopMatrix();
+            }
+        }
+        if (*(int *)(D_0063C494 + 0xF4) != 0 && *(int *)(D_0063C494 + 0xF8) != 0) {
+            t = *(float *)(D_0063C494 + 0x138) - *(float *)(D_0063C494 + 0x114);
+            if ((t < 0.0f ? -t : t) < 10.0f) {
+                *(unsigned int *)(D_0063C494 + 0x14) &= ~0x10;
+                *(int *)(D_0063C494 + 0x104) = 0;
+                *(int *)(D_0063C494 + 0xF8) = 0;
+                *(int *)(D_0063C494 + 0xFC) = 0;
+                *(int *)(D_0063C494 + 0x100) = 0;
+                *(float *)(D_0063C494 + 0x114) = *(float *)(D_0063C494 + 0x110) = D_0063B924[0].f;
+            }
+        }
+    }
+    if (D_0063B8FC != 0) {
+        if (*(int *)(D_0063C494 + 0xF4) != 0) {
+            DrawGObjWallCollision(*(int *)(D_0063C490 + 0xE0), 0);
+        }
+    }
+    if (*(int *)(*(int *)(D_0063B93C + 0x15C) + 0x564) != 0 &&
+        *(int *)(*(int *)(D_0063B93C + 0x15C) + 0x188) == 0) {
+        debug_assertMessage(D_0061FDC0, 822, D_0061FDD8);
+        __assert(D_0061FDC0, 822, D_0063B920);
+    }
+}
 
 void checkCliffAndWallStateOfLastPlane(void)
 {
@@ -354,7 +462,22 @@ void checkCliffAndWallStateAtJump(void)
     _checkCliffAndWall();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispActNode);
+void dispActNode(int id)
+{
+    if (id == -1) {
+        return;
+    }
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0x80);
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    CopyVector((void *)(MatrixDrive_GetMatrix() + 0x30),
+               (void *)(*(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + id * 0x40 + 0x30));
+    MatrixDrive_ScaleMatrix(5.0f, 5.0f, 5.0f);
+    dispSquare(0xFF);
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+}
 
 void dispLastNode(void)
 {
@@ -518,11 +641,113 @@ inline void getGeometryOfMotion(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", execPositionReserver);
+void execPositionReserver(char *self, MotShift m)
+{
+    int ext;
+    float buf[4];
+    float buf2[4];
+    int flg;
+
+    ext = *(int *)(self + 0x15C);
+    if (*(int *)(ext + 0x4F0) == 1) {
+        if (*(int *)(ext + 0x4EC) == 0 || *(int *)(ext + 0x4EC) != *(int *)(ext + 0x4F0)) {
+            if (m.a != 0) {
+                if (!(*(int *)(D_0063C494 + 0x1BC) != 0 &&
+                      (*(int *)(D_0063C494 + 0x188) & 0xF00000)) &&
+                    !(*(long long *)(D_0063C494 + 0x10) & ((long long)0x8008 << 30))) {
+                    *(int *)(ext + 0x4EC) = *(int *)(ext + 0x4F0);
+                    CopyVector(D_0063C490 + 0x70, D_0063C490);
+                    *(MotShift *)(D_0063C490 + 0x80) = m;
+                    *(int *)(D_0063C494 + 0x84) = 0;
+                }
+            }
+        } else {
+            *(int *)(D_0063C494 + 0x84) = 2;
+            CopyVector(D_0063C490, D_0063C490 + 0x70);
+        }
+    }
+    *(int *)(D_0063C494 + 0x88) = 1;
+    if (*(int *)(*(int *)(self + 0x15C) + 0x4EC) == 1) {
+        if (m.a != 0) {
+            CopyVector(buf, D_0063C490 + 0x70);
+            _ApplyMatrix(buf, (int)(*(char **)(*(char **)(m.a + 0x15C) + 0xC) + m.b * 0x40),
+                         (char *)buf);
+            if (distance_squared(buf, D_0063C490 + 0x1C0) == 0.0f) {
+                *(int *)(D_0063C494 + 0x88) = 0;
+            }
+            buf[3] = 1.0f;
+            CopyVector(D_0063C490 + 0x1C0, buf);
+        }
+        flg = *(int *)(D_0063C494 + 0x14);
+        if ((flg & 0x2000) || m.a != *(int *)(D_0063C490 + 0x80) ||
+            m.b != *(int *)(D_0063C490 + 0x84) ||
+            (*(int *)(D_0063C494 + 0x1BC) != 0 && (*(int *)(D_0063C494 + 0x188) & 0xF00000)) ||
+            (flg & 2)) {
+            *(int *)(*(int *)(self + 0x15C) + 0x4EC) = 0;
+        } else if (*(int *)(D_0063C494 + 0x84) != 0) {
+            _InterVectorXYZ(D_0063C490, D_0063C490 + 0x70, D_0063C490,
+                            1.0f - (float)*(int *)(D_0063C494 + 0x84) * 0.5f);
+            *(int *)(D_0063C494 + 0x84) -= 1;
+        }
+    }
+    if (D_0063B148 != 0) {
+        if (D_0063B93C == D_00639EA4) {
+            CopyVector(buf2, D_0063C490 + 0x70);
+            _UnitMatrix(MatrixDrive_GetMatrix());
+            if (m.a != 0) {
+                _ApplyMatrix(buf2, (int)(*(char **)(*(char **)(m.a + 0x15C) + 0xC) + m.b * 0x40),
+                             (char *)buf2);
+                MatrixDrive_TransMatrixV(buf2);
+                gif_StartPacketPri(0xB);
+                if (*(int *)(*(int *)(self + 0x15C) + 0x4EC) == 1) {
+                    prim_DispWireSphere(D_004ECB50, 0x10, 8, 50.0f);
+                } else {
+                    prim_DispWireSphere(D_004ECB60, 0x10, 8, 50.0f);
+                }
+                gif_EndPacket();
+            }
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", GetGeometryOfMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", GetMatrixOfMotion);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001ECE40);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001ED110);
+
+/* census: sugipon/src/motionManager.c getInitialMatrix, def line 1625 (1625-1647).
+   A file-static (absent from MAIN.MAP's globals; geometryManager.c has its own
+   getInitialMatrix), defined under the splat placeholder name while INCLUDE_ASM
+   siblings still call it; renamed static getInitialMatrix at layout. */
+extern void MatrixDrive_RotMatrixY(int a0);
+extern unsigned char D_0028F8F0[];
+
+void func_001ED110(int obj, int idx)
+{
+    char *nd;
+    char *mtx;
+
+    nd = *(char **)(obj + 0x8C) + idx * 0x40;
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(nd + 0x10);
+    MultiMatrixByQuaternion(nd + 0x20);
+    switch (*(int *)(nd + 4)) {
+    case 19:
+    case 20:
+    case 22:
+        MatrixDrive_RotMatrixY((short)((D_0028F8F0[0x54] - 0x80) << 7));
+        MatrixDrive_RotMatrixZ((short)((D_0028F8F0[0x55] - 0x80) << 7));
+        break;
+    }
+    mtx = *(char **)(obj + 0xC) + idx * 0x40;
+    CopyMatrix(mtx, (void *)MatrixDrive_GetMatrix());
+    if (*(int *)(nd + 0x30) != -1) {
+        func_001ED110(obj, *(int *)(nd + 0x30));
+    }
+    MatrixDrive_PopMatrix();
+    if (*(int *)(nd + 0x34) != -1) {
+        func_001ED110(obj, *(int *)(nd + 0x34));
+    }
+}
 
 void dispSkelton(void)
 {
