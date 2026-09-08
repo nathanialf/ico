@@ -148,7 +148,8 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetActors_Debug);
 
 extern char *D_00639EA4;
 extern char *D_00639EA8;
-extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, int a4, int a5, int a6);
+extern void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int p6,
+                                  float *p7);
 
 void ACTGame_TryConnectHand(void)
 {
@@ -375,6 +376,70 @@ void GetSkeltonOrient(float *out, void *obj, int node)
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_InnerVelocityUpdate);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_BeforeFunc);
+
+extern char *actEnemy_GetClingTarget(void *g);
+extern int iosOmSendMail();
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines _ACTCharStatus_Set (2430-2431), _ACTCharStatus_Check
+   (2469-2472) and ACTGame_SetMotionPlaySpeedRatio_Reserve (2493-2496) here,
+   so they are `inline` in the dev's TU; while this tail still has asm members
+   a deferred inline would land at the object end instead of at its ROM slot,
+   so the public bodies below stay plain definitions and this caller uses the
+   static stand-ins.  Collapses to one `inline` definition at layout. */
+static inline void actCharStatus_Set(char *a0, int bit, float f, int val)
+{
+    char *s = *(char **)(a0 + 0x164);
+
+    *(long long *)(s + 0x58) |= 1LL << bit;
+
+    switch (bit) {
+    case 8:
+        *(float *)(s + 0x68) = f;
+        break;
+    case 5:
+        *(float *)(s + 0x6C) = f;
+        break;
+    case 17:
+        *(float *)(s + 0x70) = f;
+        break;
+    case 18:
+        *(int *)(s + 0x74) = val;
+        break;
+    case 10:
+        *(int *)(s + 0x78) = val;
+        break;
+    case 2:
+        *(int *)(s + 0x7C) = val;
+        break;
+    case 11:
+        *(int *)(s + 0x88) = val;
+        break;
+    }
+}
+
+static inline unsigned char actCharStatus_Check(char *a0, int bit)
+{
+    char *s = (char *)*(int *)(a0 + 0x164);
+    int r = 0;
+    if (s != 0) {
+        r = (*(unsigned long long *)(s + 0x58) >> bit) & 1;
+    }
+    if (r != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+static inline void actGame_SetMotionPlaySpeedRatio_Reserve(char *a0, unsigned int a1, float f)
+{
+    char *p = *(char **)(*(char **)(a0 + 0x164) + 0x680);
+    if (*(unsigned int *)(p + 0x54) <= a1) {
+        *(float *)(p + 0x58) = f;
+        *(unsigned int *)(p + 0x54) = a1;
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/act-game", FunctionAboutClingedStatus);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTEnvGetTest);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ActOrientTest);
@@ -423,8 +488,81 @@ void ACTGame_InsertCamera_GirlIsPinch(void)
                   (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 45 / 60, 1, 0.05f, 0.25f);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", updateHMC);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", RequestChangeHandMode);
+extern char D_00552420[];
+extern char D_0063A698[];
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+
+/* The pending hand-mode command record: two ints at +0x314 (connect) and
+   +0x31C (disconnect) of the actor's hand work block. */
+typedef struct {
+    int f_0;
+    int f_4;
+} HandModeCmd;
+
+void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int p6, float *p7)
+{
+    HandModeCmd *hmc = 0;
+
+    /* updateHMC is a nested function in the ROM: RequestChangeHandMode
+       passes it a static chain in $2 (STATIC_CHAIN_REGNUM) which it spills
+       to 0(sp), and reads self/mode/pri/flag/p5/p6/p7 and hmc out of the
+       parent frame through it.  The listing names it updateHMC.415. */
+    void updateHMC(void)
+    {
+        hmc->f_0 = flag;
+        hmc->f_4 = pri;
+        switch (mode) {
+        case 0:
+            *(int *)(*(char **)(self + 0x15C) + 0x310) = hmc->f_0;
+            *(int *)(*(char **)(self + 0x15C) + 0x314) = p5;
+            *(int *)(*(char **)(self + 0x15C) + 0x318) = p6;
+            if (p7 != 0) {
+                *(float *)(*(char **)(self + 0x15C) + 0x320) = p7[0];
+                *(float *)(*(char **)(self + 0x15C) + 0x324) = p7[1];
+                *(float *)(*(char **)(self + 0x15C) + 0x328) = p7[2];
+            }
+            break;
+        case 1:
+            *(int *)(*(char **)(self + 0x15C) + 0x2B0) = hmc->f_0;
+            *(int *)(*(char **)(self + 0x15C) + 0x2B4) = p5;
+            *(int *)(*(char **)(self + 0x15C) + 0x2B8) = p6;
+            if (p7 != 0) {
+                *(float *)(*(char **)(self + 0x15C) + 0x2C0) = p7[0];
+                *(float *)(*(char **)(self + 0x15C) + 0x2C4) = p7[1];
+                *(float *)(*(char **)(self + 0x15C) + 0x2C8) = p7[2];
+            }
+            break;
+        }
+    }
+
+    switch (mode) {
+    case 0:
+        hmc = (HandModeCmd *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x314);
+        break;
+    case 1:
+        hmc = (HandModeCmd *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x31C);
+        break;
+    default:
+        debug_assert(D_00552420, 4727);
+        __assert(D_00552420, 4727, D_0063A698);
+        break;
+    }
+    if (pri < 3) {
+        if (pri > 0) {
+            if (flag == 0) {
+                if (hmc->f_4 != pri) {
+                    return;
+                }
+            }
+        }
+    }
+    if (hmc->f_4 == 0 || hmc->f_0 == 0) {
+        updateHMC();
+    } else if (pri >= hmc->f_4) {
+        updateHMC();
+    }
+}
 
 extern char *D_00639EA4;
 
