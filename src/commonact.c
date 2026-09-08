@@ -943,7 +943,50 @@ ASM_LIT4_SLOT(D_00638E6C, 7000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", emergencyCheck);
 ASM_LIT4_SLOT(D_00638E70, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", flyCoreLoop);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonFly);
+
+extern int D_0063B234;
+extern void actAfterFly(volatile int a0);
+extern int IsEnemyBrainToGenerator(volatile int a0, char **gen);
+extern int IsEnemyBrainToBoy(volatile int a0);
+extern void SetEnemyFootPrintSwitch();
+extern void flyCoreLoop(volatile int a0, char *target, int flag);
+
+typedef struct {
+    char _0[0x5F8];
+    int f5F8;
+} FlyCtlJ;
+
+void actCommonFly(volatile int a0)
+{
+    char *s = (char *)*(int *)(a0 + 0x164);
+    char *target;
+    char *gen = 0;
+
+    ((ActFlagJ *)(s + 0x18))->ll &= ~(1ULL << 57);
+    ((ActFlagJ *)(s + 0x18))->p = (void *)actAfterFly;
+
+    ((FlyCtlJ *)*(char **)(a0 + 0x15C))->f5F8 = 0;
+
+    if (IsEnemyBrainToGenerator(a0, &gen)) {
+        target = gen;
+    } else if (IsEnemyBrainToBoy(a0) && D_00639EA4 != 0) {
+        target = D_00639EA4;
+    } else if (D_00639EA8 != 0) {
+        target = D_00639EA8;
+    } else if (D_00639EA4 != 0) {
+        target = D_00639EA4;
+    } else {
+        target = 0;
+    }
+
+    SetEnemyFootPrintSwitch(a0, 0);
+
+    flyCoreLoop(a0, target,
+                (D_00639EA8 != 0 && *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) == 0x6F &&
+                 *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) == a0) ||
+                    D_0063B234 != 0);
+}
+
 ASM_LIT4_SLOT(D_00638E74, 0.005f);
 ASM_LIT4_SLOT(D_00638E78, 10000.0f);
 ASM_LIT4_SLOT(D_00638E7C, 0.005f);
@@ -1053,9 +1096,59 @@ void funcCommonError(char *a0, int a1, char *a2)
                          a0 == D_00639EA4 ? D_0063A760 : D_0063A768);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", SetMotionDirectionSmooze);
-ASM_LIT4_SLOT(D_00638E94, 3.1415927f);
-ASM_LIT4_SLOT(D_00638E98, 3.1415927f);
+typedef struct {
+    char _0[0x18C];
+    unsigned int f18C;
+    char _190[0x04];
+} MotRecSm;
+
+extern char D_0055FE58[];
+extern int D_0028F4C0[];
+extern void *test_CURRENTORIENT(char *a0);
+extern int _RotyGV(void *a0, void *a1);
+extern void _ApplyRyGV(void *a0, float a1);
+extern void SetMotionDirection();
+
+int SetMotionDirectionSmooze(int a0, float *dir, float s)
+{
+    float v[4];
+    char *sub = *(char **)(a0 + 0x164);
+    int ret = 0;
+    int r;
+
+    if (s < 0.0f) {
+        return 0;
+    }
+    s = s * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    if (dir[0] == 0.0f && dir[1] == 0.0f && dir[2] == 0.0f) {}
+    if ((((MotRecSm *)(D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194))->f18C >> 6) &
+            1 &&
+        *(long long *)(*(char **)(sub + 0x688) + 0x900) == 0x1A00000005LL) {
+        s = 30.0f;
+    }
+    if ((int)(*(unsigned long long *)(sub + 0x20) >> 33) & 1) {
+        s = *(float *)(*(char **)(sub + 0x688) + 0x344);
+    }
+    r = _RotyGV(test_CURRENTORIENT((char *)a0), dir);
+    if ((float)(r < 0 ? -r : r) < s) {
+        ret = 1;
+        v[0] = dir[0];
+        v[1] = dir[1];
+        v[2] = dir[2];
+    } else if (r > 0) {
+        v[0] = ((float *)test_CURRENTORIENT((char *)a0))[0];
+        v[1] = ((float *)test_CURRENTORIENT((char *)a0))[1];
+        v[2] = ((float *)test_CURRENTORIENT((char *)a0))[2];
+        _ApplyRyGV(v, -s * 3.1415927f / 180.0f);
+    } else {
+        v[0] = ((float *)test_CURRENTORIENT((char *)a0))[0];
+        v[1] = ((float *)test_CURRENTORIENT((char *)a0))[1];
+        v[2] = ((float *)test_CURRENTORIENT((char *)a0))[2];
+        _ApplyRyGV(v, s * 3.1415927f / 180.0f);
+    }
+    SetMotionDirection(a0, v);
+    return ret;
+}
 
 extern char D_00553240[];
 extern char D_00553250[];
@@ -1205,7 +1298,58 @@ int E3_LeverCheck(char *a0)
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBecarry);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", subCommonIdle);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ContinueCorrectPosition);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonTurn);
+
+extern int D_0028F4C0[];
+extern char *D_00639EA8;
+extern void GetRootMotionOrient(float *out, volatile int a0);
+extern int _RotyGV(void *a0, void *a1);
+extern void *test_CURRENTROOT(void *a0);
+extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
+extern void GetSkeltonOrient(float *out, volatile int a0, int node);
+extern int _AbsRotyGV(void *a0, void *a1);
+extern void ACTSendMailCorrect(char *a0, int a1);
+extern void _ACTWait(int a0);
+
+void actCommonTurn(volatile int a0)
+{
+    float q[4];
+    float o[4];
+    char *s = *(char **)(a0 + 0x164);
+    char *t = s + 0x5C0;
+    int d;
+
+    while (1) {
+        GetRootMotionOrient(q, a0);
+        d = _RotyGV(s + 0x5C0, q);
+        debug_Arrow(100.0f, test_CURRENTROOT((void *)a0), s + 0x5C0, 0, 0, 0xFF);
+        if (a0 == (int)D_00639EA8) {
+            GetSkeltonOrient(o, a0, 1);
+            if (_AbsRotyGV(t, o) < 60) {
+                if (*(float *)(s + 0x34C) != 0.0f) {
+                    ACTSendMailCorrect((char *)a0, 0xF0);
+                }
+                ACTSendMailCorrect((char *)a0, 0xF1);
+            }
+        } else {
+            if ((d < 0 ? -d : d) < 15) {
+                ACTSendMailCorrect((char *)a0, 0xF1);
+            }
+        }
+        switch (*(unsigned int *)(s + 0xD8)) {
+        case 0xE7:
+        case 0xE9:
+            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x384) =
+                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+            break;
+        case 0xE8:
+        case 0xEA:
+            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x388) =
+                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 
 extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern void SetDirectRootPositionNoFittingWithNodePointXZ(void *a0, int node, void *pos, float t);
