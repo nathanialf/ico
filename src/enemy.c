@@ -5,7 +5,7 @@ typedef struct {
     int b;
     float life;
     int c;
-    int d;
+    float d;
     float dodge;
     int paraIndex : 8;
     unsigned int flyType : 2;
@@ -17,15 +17,104 @@ extern EnemyDef D_00624880[];
 #include "ico/types.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy", setEnemyParticleObject);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", setEnemyObject);
+
+extern void debug_StdPrintfDummy();
+
+typedef struct {
+    int first;
+    int last;
+} EnemyKindRange;
+
+extern EnemyKindRange D_00624F68[];
+extern int D_00625018[];
+extern char D_0061F6C8[];
+extern char D_0061F6F0[];
+extern char D_0063B890[];
+extern int GetPObjAddress(int obj);
+extern void setEnemyParticleObject(void *self, int pid);
+
+/* static helper the listing places at enemy.c lines 223-233, expanded only into
+ * setEnemyObject; never emitted out of line, so it has no MAIN.MAP symbol and
+ * this name is ours. */
+static inline int enemyRandomizeID(int kind, int *ctr)
+{
+    int lo = D_00624F68[kind - 0x10000].first;
+    int n = D_00624F68[kind - 0x10000].last - lo;
+    int id = lo + *ctr;
+
+    debug_StdPrintfDummy(D_0061F6C8, *ctr, id);
+    *ctr = *ctr + 1;
+    if (*ctr >= n) {
+        *ctr = 0;
+    }
+    return D_00625018[id];
+}
+
+int setEnemyObject(char *self, int kind, int *ctr)
+{
+    char *p;
+    char *sub;
+    char *w;
+    float sc;
+    int obj;
+    int pid;
+
+retry:
+    sub = *(char **)(self + 0x15C);
+    w = *(char **)(sub + 0x830);
+    if (kind > 0xFFFF) {
+        kind = enemyRandomizeID(kind, ctr);
+        goto retry;
+    }
+    p = *(char **)(sub + 0x870);
+    sc = D_00624880[kind].d;
+    *(float *)(p + 0x28) = sc;
+    *(float *)(p + 0x24) = sc;
+    *(float *)(p + 0x20) = sc;
+    *(float *)(w + 0x48) = sc;
+    obj = D_00624880[kind].a;
+    if (obj != 0x610) {
+        *(int *)(*(int *)(self + 0x15C) + 0x854) = GetPObjAddress(obj);
+        *(int *)(*(int *)(self + 0x15C) + 0x84) = obj;
+        debug_StdPrintfDummy(D_0063B890, *(int *)(*(int *)(self + 0x15C) + 0x854));
+        *(int *)(w + 0x38) = 1;
+    }
+    pid = D_00624880[kind].b;
+    if (pid != -1) {
+        setEnemyParticleObject(self, pid);
+    }
+    debug_StdPrintfDummy(D_0061F6F0, kind);
+    return kind;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/enemy", dispEnemyObject);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyCheckHit);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", CheckEnemyHit);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", InitEnemyGeo);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyGeo);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", DisplayEnemy);
 
-extern void DisplayEnemy();
+extern void reg_DispEnemy(void *sub);
+extern int DispEnemyEye(char *node);
+extern int DispEnemyFootPrints(int *fp);
+extern void dispEnemyObject(void *self);
+
+void DisplayEnemy(char *self)
+{
+    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+
+    if (*(int *)(w + 0x38) != 0) {
+        reg_DispEnemy(*(char **)(self + 0x15C));
+        if (*(float *)(*(char **)(*(char **)(self + 0x15C) + 0x870) + 0x30) == 0.0f) {
+            DispEnemyEye(*(char **)(w + 0x18));
+            DispEnemyEye(*(char **)(w + 0x20));
+        }
+    }
+    DispEnemyFootPrints(*(int **)(w + 0x28));
+    if (*(int *)(w + 0x10) != 0) {
+        dispEnemyObject(self);
+    }
+}
+
 extern int IsActCharDead();
 extern int isEnemyHyde(int *a0);
 
@@ -38,7 +127,7 @@ void EnemyDL(int *self)
     IsActCharDead();
     if (isEnemyHyde(self) != 0)
         return;
-    DisplayEnemy(self);
+    DisplayEnemy((char *)self);
 }
 
 extern void ExecMotionOrient();
@@ -165,7 +254,21 @@ int isExistEnemyParticle(char *a0, int a1)
     return (*(int **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14))[a1] == 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyGetNSafeParts);
+int EnemyGetNSafeParts(char *self)
+{
+    int n = *(int *)(*(char **)(self + 0x15C) + 0x88);
+    int *p;
+    int i;
+    int cnt = 0;
+
+    for (i = 0; i < n; i++) {
+        p = *(int **)(*(char **)(*(char **)(self + 0x15C) + 0x830) + 0x14);
+        if (p[i] == 0)
+            cnt++;
+    }
+    return cnt;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyDeleteParticle);
 
 void SetEnemyHitGeometryAction(char *a0, int a1)
@@ -195,8 +298,6 @@ int GetEnemyHitNodeFlag(char *a0)
 {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14);
 }
-
-extern int setEnemyObject(void *self, int a1, int *a2);
 
 int RandomizeEnemy(char *self)
 {
