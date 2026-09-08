@@ -1,8 +1,41 @@
 #include "common.h"
 
+struct HintInfo {
+    int _0;
+    int no;
+    int time;
+    int flags;
+};
+
+extern struct HintInfo D_002ADBA0[];
+extern char D_006E99B0[];
+extern char D_006E99B4[];
+
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", CreateKyomiGObj);
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", LwsKyomiGeo);
-INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", MakeHintSaveInfo);
+
+/* lws_kyomi.c:264 and :265 are one source line each, so the clear-then-pack
+ * pair of loops is a macro; the name is ours.  `buf` is the 4-byte half of the
+ * save block being packed and `off` its byte offset inside it. */
+#define MAKE_HINT_SAVE_BITS(buf, off, bit)                                                         \
+    for (i = 0; i < 4; i++) {                                                                      \
+        D_006E99B0[(off) + i] = 0;                                                                 \
+    }                                                                                              \
+    for (i = 0; i < 0x1C; i++) {                                                                   \
+        if (((unsigned int)D_002ADBA0[i].flags >> (bit)) & 1) {                                    \
+            int m = 1 << (i % 8);                                                                  \
+            (buf)[i / 8] |= m;                                                                     \
+        }                                                                                          \
+    }
+
+void MakeHintSaveInfo(void)
+{
+    int i;
+
+    MAKE_HINT_SAVE_BITS(D_006E99B0, 0, 0);
+    MAKE_HINT_SAVE_BITS(D_006E99B4, 4, 1);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/lws_kyomi", ReadHintSaveInfo);
 
 extern int D_0063B238;
@@ -38,15 +71,6 @@ void SetParamKyomiGObj(void *gobj, int a1, float *param)
     brainSetLevelGop(gobj, lv, on1, on2);
 }
 
-struct HintInfo {
-    int _0;
-    int no;
-    int time;
-    int flags;
-};
-
-extern struct HintInfo D_002ADBA0[];
-
 void FinishHint(int no)
 {
     (D_002ADBA0 + no)->flags |= 1;
@@ -78,8 +102,6 @@ int GetSizeHintSaveInfo(void)
 {
     return 0x78;
 }
-
-extern char D_006E99B0[];
 
 char *GetBuffHintSaveInfo(void)
 {
