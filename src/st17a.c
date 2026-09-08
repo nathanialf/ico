@@ -6,10 +6,12 @@ typedef struct ActMail {
     int unk08;         /* 0x08 */
     int unk0C;         /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD4]; /* 0x00 */
     ActMail *mail;    /* 0xD4 */
 } Act;
+
 extern Act *actInitialize(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 
@@ -39,6 +41,7 @@ void actLinkTest(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
@@ -51,6 +54,7 @@ void actSt17aSekizo(volatile int a0)
 
     scpSekizou(a0, 0x20, 0x52, 0x82, 0x12, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
 }
+
 extern ActMail D_004FAFD0[];
 extern void actSt17aHasiChk(int a0);
 extern int scpSearchGobj(int a0);
@@ -75,6 +79,7 @@ void actSt17aHasi(volatile int a0)
         stage_SetAnimation(0x84, 0, -1);
     }
 }
+
 extern ActMail D_004FAFF0[];
 extern void actSt17aIntroChk(int a0);
 
@@ -91,6 +96,7 @@ void actSt17aIntro(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004FB010[];
 extern void actSt17aHint1Chk(int a0);
 
@@ -109,6 +115,7 @@ void actSt17aHint1(volatile int a0)
         FinishHint(0);
     }
 }
+
 extern ActMail D_004FB030[];
 extern void actSt17aFallChk(int a0);
 
@@ -125,10 +132,12 @@ void actSt17aFall(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt17aSekizoEvent(int x)
 {
     volatile int local = x;
 }
+
 extern int *D_00639EA4;
 extern void _ACTWait();
 extern void scpGetWallCollision(float a0, float a1, float a2, float a3, float a4, float a5);
@@ -140,10 +149,12 @@ void actLinkTestChk(volatile int a0)
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(0x3C);
 }
+
 void actSt17aDoorEvent(int x)
 {
     volatile int local = x;
 }
+
 extern long long D_00622F70[];
 extern long long D_00622F80[];
 extern void scpEffectStart(int *buf, int a1);
@@ -171,6 +182,7 @@ void actSt17aDoorUpEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern long long D_00622F90[];
 
 void actSt17aDoorDownEffect(volatile int a0)
@@ -196,10 +208,12 @@ void actSt17aDoorDownEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt17aHasiEvent(int x)
 {
     volatile int local = x;
 }
+
 extern void lt_switch_layout(int a0);
 extern int D_0063AA08;
 extern int D_0063C598;
@@ -225,6 +239,7 @@ void actSt17aIntroChk(volatile int a0)
     _ACTWait(1);
     D_0063C598 = 1;
 }
+
 extern long long D_00623020[];
 extern void *D_00639EA8;
 extern void _SCPMoveCharactorByWay(void *a0, int a1, int *buf, int a3, float f);
@@ -236,6 +251,7 @@ void actSt17aGirlWay(volatile int a0)
     buf[1] = D_00623020[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 2, 100.0f);
 }
+
 extern int scpTriggerBall(int a0, void *a1, float radius);
 extern char D_00623030[];
 
@@ -250,6 +266,7 @@ void actSt17aHint1Chk(volatile int a0)
     gflagOn(0x23);
     FinishHint(0);
 }
+
 extern char D_00623050[];
 
 void actSt17aFallChk(volatile int a0)

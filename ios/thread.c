@@ -101,6 +101,7 @@ void iosThreadMain(int a0)
         iosThreadSetPri((int *)obj, 0x22);
     }
 }
+
 /* 16-byte guard word stamped at both ends of a thread stack */
 typedef struct {
     char c[16];
@@ -188,12 +189,14 @@ void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap
     iosThreadCreate(th, no, func, arg, stack, stackSize, pri);
     th->flags |= 1;
 }
+
 extern void StartThread();
 
 void iosThreadStart(int a0)
 {
     StartThread(*(int *)(a0 + 0x30), *(int *)(a0 + 0x34));
 }
+
 extern void ExitThread();
 extern void TerminateThread();
 
@@ -205,12 +208,14 @@ void iosThreadStop(int a0)
         TerminateThread(*(int *)(a0 + 0x30));
     }
 }
+
 extern void SleepThread();
 
 void iosThreadSleep(int a0, int a1, int a2, int a3)
 {
     SleepThread(a0, a1, a2, a3);
 }
+
 extern int D_006BCEE0[];
 extern char D_006BD2E0[];
 extern int GetThreadId();
@@ -224,6 +229,7 @@ void iosThreadDestroy(int a0)
     }
     iosMsgSend(D_006BD2E0, a1, 0);
 }
+
 extern void ChangeThreadPriority();
 
 void iosThreadSetPri(int *a0, int a1)
@@ -238,6 +244,7 @@ void iosThreadSetPri(int *a0, int a1)
     v[0x18 / 4] = a1;
     ChangeThreadPriority(v[0x30 / 4], a1);
 }
+
 extern const char D_00551DF0[];
 extern char D_00551E90[];
 extern void *D_0063A428;
@@ -258,29 +265,34 @@ void iosThreadMessage(int a0)
     q = iosMsgSend((char *)*(void **)((char *)obj + 0x4C), a0, 0);
     debug_StdPrintfDummy(D_00551E90, q);
 }
+
 extern void strcpy();
 
 void iosThreadName(int a0)
 {
     strcpy(a0 + 0x50);
 }
+
 extern void SuspendThread();
 
 void iosThreadSuspend(int a0)
 {
     SuspendThread(*(int *)(a0 + 0x30));
 }
+
 extern void ResumeThread();
 
 void iosThreadResume(int a0)
 {
     ResumeThread(*(int *)(a0 + 0x30));
 }
+
 void iosThreadInit(void)
 {
     iosThreadCreate(&D_006BD310, 0, iosThreadDestroyMgr, 0, D_006BD380, 0x2000, 13);
     iosThreadStart((int)&D_006BD310);
 }
+
 inline int iosThreadGetPri(int *a0)
 {
     int **base;
@@ -292,6 +304,7 @@ inline int iosThreadGetPri(int *a0)
     }
     return a0[0x18 / 4];
 }
+
 extern char D_00551E78[];
 
 inline int iosGetIOSThreadFromId(unsigned int a0)
@@ -307,12 +320,14 @@ valid:
 out:
     return ret;
 }
+
 extern int WakeupThread();
 
 inline int iosThreadWakeup(int *self)
 {
     return WakeupThread(self[0x30 / 4]);
 }
+
 extern char D_00551EA0[];
 extern int iosMsgRecv(void *a, void *b, int c);
 
@@ -330,6 +345,7 @@ inline int iosThreadJoin(void *a0)
     debug_StdPrintfDummy(D_00551EA0);
     return buf[0];
 }
+
 extern int CancelWakeupThread();
 
 inline int iosThreadCancelWakeup(int *self)
@@ -342,6 +358,7 @@ inline int iosThreadCancelWakeup(int *self)
     }
     return CancelWakeupThread(v);
 }
+
 extern int CreateSema(int *self);
 extern char D_00551EB8[];
 extern char D_0063A5F8[];
@@ -364,6 +381,7 @@ inline int iosSemaCreate(int *self, int a1, int a2, int a3)
     }
     return 0;
 }
+
 extern char D_00551ED0[];
 extern int DeleteSema(int sem);
 
@@ -378,6 +396,7 @@ inline int iosSemaDelete(int *self)
     }
     return 0;
 }
+
 extern char D_00551EE8[];
 extern int ReferSemaStatus(int sem, int *self);
 extern int WaitSema(int sem);
@@ -392,6 +411,7 @@ inline int iosSemaWait(int *self)
     WaitSema(self[0x30 / 4]);
     return 0;
 }
+
 extern char D_00551F00[];
 extern int SignalSema(int x);
 
@@ -407,6 +427,7 @@ inline int iosSemaSignal(int *self)
     }
     return rv;
 }
+
 extern char D_00551F18[];
 
 inline int iosSemaReferStatus(int *self)
@@ -420,6 +441,7 @@ inline int iosSemaReferStatus(int *self)
     }
     return 0;
 }
+
 /* thread.c:299 - the destroy-manager thread body.  iosThreadInit creates a
  * thread running this; iosThreadDestroy posts the dying IOSThread to its
  * message queue and this loop does the actual teardown.  Never returns. */
@@ -456,6 +478,7 @@ inline void iosThreadDestroyMgr(void)
         D_006BCEE0[id] = 0;
     }
 }
+
 /* thread.c:723 — the last function of the TU.  Never called anywhere in the
  * retail ELF; the PAL listing puts it last in the object's deferred-`inline`
  * tail, and a plain definition in this file position emits the same bytes. */

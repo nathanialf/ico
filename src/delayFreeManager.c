@@ -7,6 +7,7 @@ extern int iosFree();
 /* prototypes: their order is the inline tail's emission order */
 void InitDelayFree(void);
 void ExecDelayFree(void);
+
 static inline void ClearDelayFreeBuffer(int no)
 {
     int i;
@@ -15,6 +16,7 @@ static inline void ClearDelayFreeBuffer(int no)
         D_00667340[no][i] = 0;
     }
 }
+
 static inline void FreeDelayFreeBuffer(int no)
 {
     int i;
@@ -23,6 +25,7 @@ static inline void FreeDelayFreeBuffer(int no)
         iosFree(D_00667340[no][i]);
     }
 }
+
 inline void InitDelayFree(void)
 {
     ClearDelayFreeBuffer(0);
@@ -31,6 +34,7 @@ inline void InitDelayFree(void)
     D_00639EE4 = 0;
     D_00639EE0 = 0;
 }
+
 inline void ExecDelayFree(void)
 {
     int no = (D_00639EE0 + 2) % 3;
@@ -40,4 +44,5 @@ inline void ExecDelayFree(void)
     D_00639EE4 = 0;
     D_00639EE0 = no;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", EntryDelayFree);

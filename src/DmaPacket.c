@@ -9,10 +9,12 @@ typedef struct {
     int *_18;
     int *_1C;
 } DpkCtl;
+
 extern DpkCtl D_004EE6F0;
 extern char D_00621950[];
 extern int D_0063A43C;
 extern int D_004EE6F0__pn[] __asm__("D_004EE6F0");
+
 void dpk_Init(void)
 {
     D_004EE6F0.cur = 0;
@@ -22,6 +24,7 @@ void dpk_Init(void)
         (int *)((int)iosMallocDebug(D_0063A43C, 0x80000, D_00621950, 0x87) | 0x30000000);
     D_004EE6F0.ptr = D_004EE6F0.buf[D_004EE6F0.cur];
 }
+
 void dpk_SwapBuffer(void)
 {
     int i = D_004EE6F0.cur ^ 1;
@@ -31,6 +34,7 @@ void dpk_SwapBuffer(void)
     D_004EE6F0._18 = 0;
     D_004EE6F0._1C = 0;
 }
+
 int dpk_CheckBufferSize(void)
 {
     int idx = D_004EE6F0__pn[0];

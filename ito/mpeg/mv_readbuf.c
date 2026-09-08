@@ -1,7 +1,9 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_readbuf", readBufCreate);
+
 void readBufDelete(void) {}
+
 int readBufBeginPut(int *a0, int *a1)
 {
     int new_var;
@@ -12,6 +14,7 @@ int readBufBeginPut(int *a0, int *a1)
     }
     return diff;
 }
+
 void readBufEndPut(int *a0, int a1)
 {
     int size;
@@ -29,6 +32,7 @@ void readBufEndPut(int *a0, int a1)
     a0[2] = pos % size;
     a0[3] = cum;
 }
+
 int readBufBeginGet(int *a0, int *out)
 {
     int a2 = a0[3];
@@ -40,6 +44,7 @@ int readBufBeginGet(int *a0, int *out)
     }
     return a2;
 }
+
 int readBufEndGet(int a0, int a1)
 {
     int rest = *(int *)(a0 + 0xC);

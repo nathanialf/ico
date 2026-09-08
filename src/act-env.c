@@ -1,10 +1,12 @@
 #include "common.h"
 
 #include "ico/types.h"
+
 union ENVIF {
     int i;
     float f;
 };
+
 /* .data — carved VMA 0x4F1D60..0x4F1E10: the per-stage ditch-distance
    tables getDitchDistTbl selects between (the first six are ranges
    terminated by -1.0f, the rest position/orientation vectors).  Values are
@@ -22,9 +24,11 @@ float D_004F1DE0[4] = {602.0f, -3775.0f, 2480.0f, 1.0f};
 float D_004F1DF0[4] = {749.0f, -3775.0f, 2650.0f, 1.0f};
 float D_004F1E00[4] = {559.0f, -3775.0f, 2503.0f, 1.0f};
 extern int ACTGame_FLAG_TETSUNAGI(void);
+
 typedef struct {
     float x, y, z, w;
 } Vec4 __attribute__((aligned(16)));
+
 /* {30, 0, -50, 0}: the sofa seat offset in the room's local space.  Lives in
    act-env's own .rodata run at 0x621A00 (only this TU's code references
    0x621A00..0x621A3F); extern until that run is carved. */
@@ -43,6 +47,7 @@ void ACTSetEnvAllmighty(char *a0);
 void GetSofaPosition(char *a0, char *a1);
 void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2);
 int CheckWallAttributeEdegWall(int a0);
+
 inline void GetSofaPosition(char *a0, char *a1)
 {
     char *w = *(char **)(a0 + 0x164);
@@ -56,8 +61,10 @@ inline void GetSofaPosition(char *a0, char *a1)
     v.w = 1.0f;
     sceVu0ApplyMatrix(w + 0x5B0, *(void **)(*(char **)(a1 + 0x15C) + 0xC), &v);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/act-env", getDitchDistTbl);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", GetDitchPosition);
+
 inline void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
 {
     float acc[4] __attribute__((aligned(16)));
@@ -79,7 +86,9 @@ inline void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
         sceVu0ApplyMatrix(a0, (void *)*(int *)(*(char **)((char *)a1 + 0x15C) + 0xC), a0);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/act-env", DebugActOrientFlag);
+
 inline void ACTSetEnvAllmighty(char *a0)
 {
     char *s = *(char **)(a0 + 0x164);
@@ -104,6 +113,7 @@ inline void ACTSetEnvAllmighty(char *a0)
     *(unsigned long long *)(s + 0x478) |= (1ULL << 49);
     *(unsigned long long *)(s + 0x480) |= (1ULL << 43);
 }
+
 inline int CheckWallAttributeEdegWall(int a0)
 {
     if (stage_no == 4) {
@@ -111,4 +121,5 @@ inline int CheckWallAttributeEdegWall(int a0)
     }
     return (unsigned char)CheckWallAttribute__pn(a0, 0x1000);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/act-env", ACTGetEnvironment);

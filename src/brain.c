@@ -37,6 +37,7 @@ typedef struct {
     int w30;
     char _34[0x30];
 } SceneEnt;
+
 extern SceneEnt D_002C1270[];
 extern int D_0028F4C0[];
 
@@ -66,6 +67,7 @@ void brainAddLevelGirl(float lv)
         brainAddLevel((BrainTarget *)D_002A5584[0], lv);
     }
 }
+
 extern void eBrainInit(void);
 
 void brainInit(void)
@@ -86,6 +88,7 @@ void brainInit(void)
     b->w8 = 0;
     eBrainInit();
 }
+
 extern void debug_StdPrintfDummy(const char *fmt);
 extern char D_00554C88[];
 
@@ -106,6 +109,7 @@ void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC
     }
     debug_StdPrintfDummy(D_00554C88);
 }
+
 typedef struct {
     char _0[0x46];
     unsigned char b46;
@@ -153,12 +157,15 @@ void brainStatusDefaultSet(Brain *b, int gobj, int idx)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainLevelProcess);
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainGetTarget);
+
 void brainStatusDel(char *self)
 {
     *(int *)(self + 0x0) = 0;
 }
+
 float brainGetLevel(
     Brain *b,
     BrainTarget *
@@ -169,6 +176,7 @@ float brainGetLevel(
     }
     return t->level;
 }
+
 void brainClsTargetLevel(Brain *b)
 {
     BrainTarget *t;
@@ -186,6 +194,7 @@ void brainClsTargetLevel(Brain *b)
     *(int *)&t->b18 &= ~0x10000;
     brainSetTargetTimer(t);
 }
+
 extern void ACTGameView_Add(void *a0, int a1);
 
 void brainInitGirlSet(void *a0, int a1)
@@ -209,6 +218,7 @@ void brainInitGirlSet(void *a0, int a1)
         key = t;
     } while (t != 0);
 }
+
 void brainAddLevelGirlDetail(int flag, float lv)
 {
     Brain *b = (Brain *)D_002A5580;
@@ -220,6 +230,7 @@ void brainAddLevelGirlDetail(int flag, float lv)
         }
     }
 }
+
 void brainAddLevelGop(int gobj, float lv)
 {
     int brain = (int)D_002A5580;
@@ -232,7 +243,9 @@ void brainAddLevelGop(int gobj, float lv)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainSubLevelGop);
+
 void brainSetLevelGop(int gobj, int a1, int a2, float lv)
 {
     int brain = (int)D_002A5580;
@@ -247,6 +260,7 @@ void brainSetLevelGop(int gobj, int a1, int a2, float lv)
         }
     }
 }
+
 static inline int brainDecTimer(BrainTarget *e)
 {
     int t;
@@ -284,22 +298,26 @@ int brainDecTargetTimer(int gobj)
 found:
     return brainDecTimer(e);
 }
+
 extern int D_002A558C[];
 
 void brainSetSpMode(void)
 {
     D_002A558C[0] = 1;
 }
+
 extern int D_002A5588[];
 
 void brainLockGirl(void)
 {
     D_002A5588[0] = 1;
 }
+
 void brainUnlockGirl(void)
 {
     D_002A5588[0] = 0;
 }
+
 void brainAddLevel(BrainTarget *t, float lv)
 {
     float r;
@@ -314,6 +332,7 @@ void brainAddLevel(BrainTarget *t, float lv)
     }
     t->level = r;
 }
+
 void brainSetLevel(int *b, BrainTarget *t, float lv)
 {
     int cond;
@@ -335,6 +354,7 @@ void brainSetLevel(int *b, BrainTarget *t, float lv)
         t->level = r;
     }
 }
+
 int brainCheckView(int *a0, int *a1)
 {
     if (((unsigned char *)a1)[0x19] != 0) {

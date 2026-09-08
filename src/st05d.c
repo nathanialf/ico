@@ -7,10 +7,12 @@ INCLUDE_ASM("asm/nonmatchings/src/st05d", actSt05dEne);
 INCLUDE_ASM("asm/nonmatchings/src/st05d", actSt05dEnemy1);
 INCLUDE_ASM("asm/nonmatchings/src/st05d", actSt05dEnemy2);
 INCLUDE_ASM("asm/nonmatchings/src/st05d", actSt05dCrestHint);
+
 void actSt05dDoor2Event(int x)
 {
     volatile int local = x;
 }
+
 extern long long D_00622B40[];
 extern long long D_00622B50[];
 extern void _ACTWait(int a0);
@@ -39,6 +41,7 @@ void actSt05dDoor2UpEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt05dDoor2DownEffect(volatile int a0)
 {
     long long b1[2];
@@ -62,6 +65,7 @@ void actSt05dDoor2DownEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern char *D_00639EA8;
 
 void actSt05dEneChk(volatile int a0)

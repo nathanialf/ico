@@ -11,6 +11,7 @@ void init_debug_menu(void)
     D_0063C38C = 1;
     D_0063C390 = 0;
 }
+
 extern int D_002C1270[];
 extern int GetGObjP();
 

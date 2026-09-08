@@ -5,6 +5,7 @@ void dl_Out(void);
 void dl_SetDLPriority(int a0);
 void dl_OpenDma(int a0, int a1, int a2);
 int dl_GetPri(void);
+
 typedef struct {
     int f_0;           /* 0x00 */
     int f_4;           /* 0x04 */
@@ -15,6 +16,7 @@ typedef struct {
     int pad_20;        /* 0x20 */
     int f_24;          /* 0x24 */
 } DlEntry;
+
 extern int D_0063C4BC;
 extern int D_0063C4C0;
 extern DlEntry D_00728310[];
@@ -33,6 +35,7 @@ extern void iosFree(int a0);
 extern int D_00728310__pn[] __asm__("D_00728310");
 extern int dl_CloseDma__pn(void) __asm__("dl_CloseDma");
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_Init);
+
 inline void dl_Out(void)
 {
     int i;
@@ -45,6 +48,7 @@ inline void dl_Out(void)
         }
     }
 }
+
 void dl_Clear(void)
 {
     int flag = D_0063C4BC ^ 1;
@@ -65,6 +69,7 @@ void dl_Clear(void)
     gif_Init();
     mc_Reset();
 }
+
 void dl_Swap(void)
 {
     int i;
@@ -91,6 +96,7 @@ void dl_Swap(void)
     }
     dl_Clear();
 }
+
 inline void dl_SetDLPriority(int a0)
 {
     if (a0 < 0) {
@@ -101,12 +107,15 @@ inline void dl_SetDLPriority(int a0)
         D_0063C4C0 = a0;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_PushPriority);
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_PopPriority);
+
 inline int dl_GetPri(void)
 {
     return D_0063C4C0;
 }
+
 void dl_Debug(void)
 {
     int *entry = (int *)D_00728310 + D_0063C4C0 * 10;
@@ -115,6 +124,7 @@ void dl_Debug(void)
     unsigned int count = (end - start) >> 4;
     return debug_StdPrintfDummy(D_006218E0, count - 1);
 }
+
 inline void dl_OpenDma(int a0, int a1, int a2)
 {
     int *entry = &D_00728310__pn[D_0063C4C0 * 10];
@@ -130,4 +140,5 @@ inline void dl_OpenDma(int a0, int a1, int a2)
     entry[1] = old;
     entry[9] = old + 0x10;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_CloseDma);

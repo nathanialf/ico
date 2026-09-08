@@ -5,17 +5,21 @@
 typedef struct {
     float f[4];
 } __attribute__((packed)) Blk16;
+
 typedef struct {
     int x, y, w, h;
 } FR;
+
 typedef struct {
     char _0[0x20];
     int f_20;
     char _24[0x18];
 } GsysObjInfo;
+
 extern char D_0061B440[];
 extern char D_0063AE78[];
 extern char D_0063AE80[];
+
 void debug_Assert(char *fmt, ...)
 {
     char buf[0x100];
@@ -25,17 +29,21 @@ void debug_Assert(char *fmt, ...)
     debug_assert(D_0061B440, 0x571);
     __assert(D_0061B440, 0x571, D_0063AE80);
 }
+
 extern int D_0063AE84;
+
 void debug_openLog(void)
 {
     volatile char buf[256];
     D_0063AE84 = -1;
 }
+
 /* sceWrite returns the byte count (SCE sifdev); the unused return value is
    what makes $v0 live-and-dying at each call site. */
 extern int sceWrite();
 extern int strlen();
 extern void vsprintf();
+
 void debug_LogPrintf(const char *fmt, ...)
 {
     char buf[0x100];
@@ -44,7 +52,9 @@ void debug_LogPrintf(const char *fmt, ...)
     info = strlen(buf);
     sceWrite(D_0063AE84, buf, info);
 }
+
 extern void debug_StdPrintfDummy(char *fmt, ...);
+
 /* the debug-option table: 76 records of 0x1C bytes */
 typedef struct {
     char *name;
@@ -52,6 +62,7 @@ typedef struct {
     int *val;
     char _C[0x10];
 } DbgOpt;
+
 extern DbgOpt D_0061A4D0[];
 extern char D_0061B5B0[];
 extern char D_0061B5F0[];
@@ -63,6 +74,7 @@ extern char D_0063AEA0[];
 extern int sprintf();
 extern int debugSceOpen(int a0, int a1);
 extern int debugSceClose(int a0);
+
 void debug_SaveDebugOptionFile(void)
 {
     char buf[0x100];
@@ -85,12 +97,14 @@ void debug_SaveDebugOptionFile(void)
     debug_StdPrintfDummy(D_0061B570);
     debug_openLog();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_GetDebugOption);
 extern int AddDmacHandler();
 extern unsigned int D_0063AE8C;
 extern void EnableDmac();
 extern void RemoveDmacHandler();
 extern int debug_CallbackGsFinish();
+
 void debug_SetDmaCallback(void)
 {
     if ((int)D_0063AE8C != -1) {
@@ -99,6 +113,7 @@ void debug_SetDmaCallback(void)
     D_0063AE8C = AddDmacHandler(1, (int)debug_CallbackGsFinish, -1);
     EnableDmac(1);
 }
+
 extern int D_0063AD28;
 extern int D_0063AE64;
 extern int D_0063B130;
@@ -178,6 +193,7 @@ extern int D_0063B260;
 extern int game_pause;
 extern int D_00639EA0;
 extern void ChangeFieldCollisionDebugMode(int mode);
+
 /* INTERIM: ChangeGirlControlMode (census function, own ROM slot later in this
    TU) is inlined here per the listing (rows src/debug.c:1188-1189 inside
    debug_VariableInit's ROM). While the tail still carries asm members its own
@@ -189,6 +205,7 @@ static inline void ChangeGirlControlMode_interim(int a0)
         D_00639EA0 = a0;
     }
 }
+
 void debug_VariableInit(void)
 {
     D_0063B170 = 15;
@@ -271,6 +288,7 @@ void debug_VariableInit(void)
     ChangeFieldCollisionDebugMode(0);
     ChangeGirlControlMode_interim(D_0063B24C);
 }
+
 extern int D_0063B110;
 extern int D_0063B114;
 extern int D_0063B118;
@@ -280,6 +298,7 @@ extern int D_0063B124;
 extern int D_0063B1C4;
 extern void debug_ClearFontWindow(void);
 extern void debug_makeBackImage(void);
+
 void debug_Init(void)
 {
     debug_ClearFontWindow();
@@ -294,6 +313,7 @@ void debug_Init(void)
     *(volatile int *)0x10000810 = 0x82;
     debug_makeBackImage();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Load);
 ASM_LIT4_SLOT(D_00639338, 10059776.0f);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_MakeFont);
@@ -304,6 +324,7 @@ extern unsigned char D_00619BB0[];
 extern unsigned short D_00704AD0[];
 extern unsigned short D_00706AD0[];
 extern void debug_MakeFont(void);
+
 void debug_makeBackImage(void)
 {
     int i;
@@ -333,6 +354,7 @@ void debug_makeBackImage(void)
     }
     debug_MakeFont();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_PrintCharacter);
 extern int D_0063AEB0;
 extern int D_0063B13C;
@@ -344,6 +366,7 @@ extern void gif_SetZTest(int a0);
 extern void gif_SetZWrite(int a0);
 extern void gif_Sprite(void *a0, unsigned int a1, int a2, void *a3, int a4);
 extern void gif_StartPacketPri(int a0);
+
 void debug_PrintFont(int a0, int a1, int a2, char *a3)
 {
     FR buf[2];
@@ -375,29 +398,36 @@ void debug_PrintFont(int a0, int a1, int a2, char *a3)
     debug_PrintCharacter(a3, a0, a1, (unsigned)a2 >> 24, ((unsigned)a2 >> 16) & 0xFF,
                          ((unsigned)a2 >> 8) & 0xFF, 0x70);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_FlushFontWindow);
 extern void debug_FlushFontWindow(void);
+
 void debug_FlushFont(void)
 {
     debug_FlushFontWindow();
 }
+
 /* The bar colours are 4-byte GS colour records this TU only sees as far
    (incomplete-array) symbols; their byte alignment is what makes every copy
    an lwl/lwr pair. */
 typedef struct {
     unsigned char r, g, b, a;
 } DbgCol;
+
 extern DbgCol D_0063AEB8[];
 extern DbgCol D_0063AEC0[];
 extern DbgCol D_0063AEC8[];
 extern DbgCol D_0063AED0[];
 extern DbgCol D_0063AED8[];
+
 typedef struct {
     int x, y, z;
 } DbgPos;
+
 typedef struct {
     int x, y, z, w;
 } DbgVtx;
+
 typedef struct {
     int gobj;
     float level;
@@ -410,6 +440,7 @@ typedef struct {
     unsigned char b1A;
     unsigned char b1B;
 } BrainTarget;
+
 typedef struct {
     int girl;
     BrainTarget *cur;
@@ -425,10 +456,12 @@ typedef struct {
     short _26;
     BrainTarget tgt[0x28];
 } Brain;
+
 extern Brain D_002A5580[];
 extern float brainGetLevel(Brain *b, BrainTarget *t);
 extern int brainCheckView(Brain *b, BrainTarget *t);
 extern void gif_Line(void *v0, void *v1, unsigned int z0, unsigned int z1, void *col, int prim);
+
 /* The four corners of a marker box, shared by draw_batsu and draw_shikaku
    (the listing inlines lines 2379-2393 into both).  `q` carries no traffic in
    the shipped build, but the ROM's inlined frame proves the slot: the offsets
@@ -451,6 +484,7 @@ static inline void make_mark_points(DbgVtx *v, DbgPos *p, int r)
         v[i].y += ofs[i][1];
     }
 }
+
 void debug_brainBar(void)
 {
     void draw_batsu(DbgPos * p)
@@ -550,11 +584,13 @@ void debug_brainBar(void)
     gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, &c0, 1);
     gif_EndPacket();
 }
+
 extern char D_00704680[];
 extern char D_0063AE90[];
 extern int D_0063B13C;
 extern void strcat(char *dst, char *src);
 extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
+
 int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
 {
     char buf[16];
@@ -592,9 +628,11 @@ int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
     }
     return strlen(D_00704680);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DrawBar);
 ASM_LIT4_SLOT(D_0063933C, 270000.0f);
 ASM_LIT4_SLOT(D_00639340, 0.01f);
+
 /* the profiler ring: 0x400 entries of 28 bytes, filled by debug_SetBar. */
 typedef struct {
     char name[12];        /* 0x00 */
@@ -604,6 +642,7 @@ typedef struct {
     short pad16;          /* 0x16 */
     int line;             /* 0x18 */
 } DebugBar;
+
 extern DebugBar D_00708880[];
 extern int D_0063C384;
 extern int D_0063AE68;
@@ -614,6 +653,7 @@ extern char D_0061BA28[];
 extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
 extern void debug_brainBar(void);
 extern void debug_DrawBar(void);
+
 void debug_DispBar(void)
 {
     float inv;
@@ -639,7 +679,9 @@ void debug_DispBar(void)
                          D_0063B110 / n, D_0063B118, D_0063B124 / 1024, D_0063B11C);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_ResizeSnapShot);
+
 /* 24-bit BMP file header, offset by two pad bytes so the 32-bit fields land
    4-aligned on the stack; the file image starts at &hdr.bfType. */
 typedef struct {
@@ -660,6 +702,7 @@ typedef struct {
     int biClrUsed;           /* 0x30 */
     int biClrImportant;      /* 0x34 */
 } BmpHeader;
+
 void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
 {
     unsigned char line[w * 3];
@@ -698,6 +741,7 @@ void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
         sceWrite(fd, line, w * 3);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SnapShot);
 extern char D_0061BAA8[];
 extern char D_0061BAC0[];
@@ -706,6 +750,7 @@ extern char D_0063AF40[];
 extern char D_0063AF48[];
 extern char D_0063AF50[];
 extern double fptodp(float v);
+
 void debug_DispQW(void *p, int size)
 {
     int isf = 0;
@@ -740,7 +785,9 @@ void debug_DispQW(void *p, int size)
     }
     debug_StdPrintfDummy(D_0063AF50);
 }
+
 extern void debug_PrintFont();
+
 void debug_Printf(int a, int b, unsigned int c, int x, ...)
 {
     char buf[0x100];
@@ -748,6 +795,7 @@ void debug_Printf(int a, int b, unsigned int c, int x, ...)
     vsprintf(buf, x, args);
     debug_PrintFont(a, b, c, buf);
 }
+
 void debug_Printf2(int a, int b, unsigned int c, int x, ...)
 {
     char buf[0x100];
@@ -755,13 +803,18 @@ void debug_Printf2(int a, int b, unsigned int c, int x, ...)
     vsprintf(buf, x, args);
     debug_PrintFont(a, b, c, buf);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_PrintFontWindow);
+
 void debug_PrintfDummy(int a0, int a1, unsigned int a2, int a3, ...) {}
+
 void debug_PrintFontWindowDummy(int a0, int a1, ...) {}
+
 void debug_StdPrintfDummy(char *fmt, ...)
 {
     (void)fmt;
 }
+
 extern char D_007046C0[];
 extern char D_0063AE90[];
 extern char D_0063AF58[];
@@ -770,6 +823,7 @@ extern char D_0061BB28[];
 extern float dptofp(double v);
 extern double fptodp(float v);
 extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
+
 void debug_PrintFontf(int x, int y, char *p, ...)
 {
     char *d;
@@ -824,10 +878,12 @@ void debug_PrintFontf(int x, int y, char *p, ...)
     } while (*p != 0);
     *d = 0;
 }
+
 extern const char D_0060DAF0_a[] __asm__("D_0061BB40");
 extern const char D_00631CF0_a[] __asm__("D_0063AF50");
 extern void debug_StdPrintfDummy__pn() __asm__("debug_StdPrintfDummy");
 extern double fptodp(float);
+
 void debug_PrintMatrix(float *arg)
 {
     int i;
@@ -841,8 +897,10 @@ void debug_PrintMatrix(float *arg)
     }
     debug_StdPrintfDummy__pn((int)D_00631CF0_a);
 }
+
 extern char D_0061BB50[];
 extern char D_0061BB68[];
+
 void debug_DispVu1FReg(int no, int mode)
 {
     int i;
@@ -880,6 +938,7 @@ void debug_DispVu1FReg(int no, int mode)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Mode);
 extern char D_0061BC38[];
 extern char D_0063AF70[];
@@ -888,6 +947,7 @@ extern int debug_SelectCsvWindow(char *a0, int a1, int a2, int a3, void *a4, int
                                  int a8, int *a9);
 extern int sprintf();
 extern unsigned int strlen__pn(char *buf) __asm__("strlen");
+
 int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int),
                              int a7)
 {
@@ -907,27 +967,34 @@ int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, 
     }
     return debug_SelectCsvWindow(a0, a1, a2, a3, (char *)buf, 0x25, 0, 0, count, a5);
 }
+
 extern int D_0063AF90[];
 extern int sprintf();
+
 void getLineBuffer(int a0, int a1, int a2)
 {
     sprintf(a0, D_0063AF90, a1, a2);
 }
+
 extern int D_0063AF80[];
+
 void getBuffer(int a0)
 {
     sprintf(a0, D_0063AF80);
 }
+
 typedef struct {
     int _0;
     int hold;
     int _8;
     int trg;
 } DbgReverbPad;
+
 extern DbgReverbPad D_0028F8F0[];
 extern int D_0063AF7C;
 extern int D_0028F4C4[];
 extern char D_0063AF88[];
+
 /* INTERIM: `_debug_SelectCsvWindow` is `inline` in the 2001 source -- the four
    public wrappers inline it, and the ELF also carries the out-of-line copy as
    its own census function (matched at its ROM slot later in this file).  gcc
@@ -1027,16 +1094,19 @@ static inline int _debug_SelectCsvWindow_inl(char *title, int x, int y, int rows
 }
 
 extern void getBuffer();
+
 int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *base, int stride, int off,
                           int deref, int n, int *psel)
 {
     return _debug_SelectCsvWindow_inl(title, x, y, rows, (int)base, stride, off, deref, n, psel,
                                       getBuffer, 0);
 }
+
 /* stage records are 0x194 bytes; +0x80 (= D_005F5DD0) is the data file name */
 typedef struct {
     char pad[0x194];
 } StgFileName;
+
 extern StgFileName D_005F5DD0[];
 extern int D_0028F4D8[];
 extern char D_0063AF98[];
@@ -1053,6 +1123,7 @@ extern void gflagOn(int a0);
 extern void gflagOff(int a0);
 extern void stgmgrForceSwitch(int stage);
 extern void ACTGame_SetActors_Debug(int stage, int a1);
+
 int debug_SelectStageMain(int ret, int stage)
 {
     if (D_0028F4D8[0] != 0) {
@@ -1078,7 +1149,9 @@ int debug_SelectStageMain(int ret, int stage)
     }
     return ret;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SelectStage);
+
 /* memory-card request block */
 /* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
    (debug_selectFile forms the table base as mc+0x4C0 and the name as
@@ -1089,6 +1162,7 @@ typedef struct {
     char _14[0xC];
     char name[0x20]; /* 0x20 */
 } McDirEnt;
+
 typedef struct {
     long long f0; /* 0x00 -- iosMc flag word, 64-bit */
     int f8;       /* 0x08 */
@@ -1111,6 +1185,7 @@ typedef struct {
     char _4A0[0x20];    /* 0x4A0 */
     McDirEnt dir[8];    /* 0x4C0 -- sceMcTblGetDir records, 0x40 each */
 } McReq;
+
 extern int D_0028F8F4[];
 
 /* src/debug.c:4426-4435 in the listing: the sibling of debug_mcConfirm that
@@ -1127,6 +1202,7 @@ static inline int debug_mcAsk(char *msg)
     }
     return yes;
 }
+
 extern char D_0061BCE0[];
 extern char D_0061BD10[];
 extern char D_0061BD28[];
@@ -1134,6 +1210,7 @@ extern char D_0061BD40[];
 extern char D_0061BD70[];
 extern char D_0061BD90[];
 extern char D_0061BDA0[];
+
 int debug_mcRetErrCheck(McReq *mc)
 {
     char buf[0x40];
@@ -1177,11 +1254,13 @@ int debug_mcRetErrCheck(McReq *mc)
     }
     return r;
 }
+
 /* src/debug.c:4415-4423 in the listing: a static helper both mc(Un)format
    inline -- prints the confirmation prompt and reads the pad:
    circle (0x20) = yes -> 1, cross (0x40) = cancel -> -1, otherwise 0. */
 extern char D_0061BC98[];
 extern int D_0028F8F4[];
+
 static inline int debug_mcConfirm(char *msg)
 {
     int yes = 0;
@@ -1191,11 +1270,13 @@ static inline int debug_mcConfirm(char *msg)
     }
     return (D_0028F8F4[0] & 0x40) ? -1 : yes;
 }
+
 /* the "*" wildcard pattern D_0063AFC0 is copied into the request block's name
    field as a 2-byte object, not by strcpy */
 typedef struct {
     char c[2];
 } McPat;
+
 extern char D_0063AFC0[];
 extern int D_0063AFB8;
 extern char D_0061BE08[];
@@ -1203,6 +1284,7 @@ extern char D_0061BE18[];
 extern void iosMcChdirProduct(McReq *mc);
 extern void iosMcGetDir(McReq *mc);
 extern int iosMcSync();
+
 int debug_selectFile(McReq *mc)
 {
     int i;
@@ -1258,6 +1340,7 @@ int debug_selectFile(McReq *mc)
     }
     return r;
 }
+
 extern int D_0063AFD4;
 extern char D_0063AFD8[];
 extern char D_0061BE50[];
@@ -1273,10 +1356,12 @@ extern void gamesysMemorySave(void *a0, void *a1, int a2);
 extern void *debug_saveNumFunc(int a0, void *a1);
 extern int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
                                     int (*fn)(int, int), int a7);
+
 /* the default save-file name "game." lives in .sdata as 6 bytes */
 typedef struct {
     char c[6];
 } McName6;
+
 int debug_mcSaveMainBlock(McReq *mc)
 {
     int r = 0;
@@ -1344,6 +1429,7 @@ int debug_mcSaveMainBlock(McReq *mc)
     }
     return r;
 }
+
 extern int D_0063AFE8;
 extern int D_0063AA08;
 extern char D_0061BED8[];
@@ -1352,6 +1438,7 @@ extern char D_0061BF18[];
 extern void iosMcLoadProductBlock(McReq *mc);
 extern void iosMcLoadGameBlock(McReq *mc, void *buf);
 extern void gamesysMemoryLoad(void *a0, void *a1, int a2);
+
 int debug_mcLoadMainBlock(McReq *mc)
 {
     int r = 0;
@@ -1427,12 +1514,14 @@ int debug_mcLoadMainBlock(McReq *mc)
     }
     return r;
 }
+
 extern char D_0061C0C0[];
 extern char D_0061C0D0[];
 extern int D_0063AFF8;
 extern int debug_selectFile(McReq *mc);
 extern void iosMcDelete(McReq *mc);
 extern char *strcpy(char *dst, const char *src);
+
 int debug_mcDeleteFile(McReq *mc)
 {
     char buf[0x20];
@@ -1483,18 +1572,21 @@ int debug_mcDeleteFile(McReq *mc)
     }
     return ret;
 }
+
 /* one line of the memory-card menu: the label debug_SelectCsvWindow prints and
    the state machine it hands control to */
 typedef struct {
     char *label;
     int (*fn)();
 } McMenuItem;
+
 /* the card-state line: the iosMc state code, its colour and its caption */
 typedef struct {
     int type;
     unsigned int col;
     char *msg;
 } McTypeMsg;
+
 extern McReq mc;
 extern int D_0063B000;
 extern int D_0063AFFC;
@@ -1502,6 +1594,7 @@ extern void iosMcGetInfo(McReq *mc);
 extern int debug_mcFormat();
 extern int debug_mcUnformat();
 extern int debug_mcTest();
+
 int debug_MemoryCard(void)
 {
     McMenuItem menu[6] = {
@@ -1576,6 +1669,7 @@ static inline int debug_SelectCsvWindowWithLineColor_inl(char *title, int x, int
     return _debug_SelectCsvWindow_inl(title, x, y, rows, base, stride, off, deref, n, psel,
                                       getLineBuffer, colfunc);
 }
+
 extern char *D_00639EA4;
 extern int D_0063B040;
 extern int D_0063B044;
@@ -1584,6 +1678,7 @@ extern GsysObjInfo D_005D6DB0[];
 extern int debug_SETest_color(int idx);
 extern int soundSeDefPlay(int no, int a1, int a2, int a3);
 extern void soundSeGroupStop(int grp);
+
 int debug_SETest(int reset)
 {
     int r;
@@ -1603,11 +1698,13 @@ int debug_SETest(int reset)
     }
     return r;
 }
+
 extern void memset();
 extern void strcat();
 extern int SgGetSlotStatus(int a0, int slot);
 extern char D_0063B050[];
 extern char D_0063B058[];
+
 void debug_SESlotDisp(void)
 {
     unsigned char mask[6];
@@ -1647,12 +1744,14 @@ void debug_SESlotDisp(void)
         }
     }
 }
+
 extern int D_0070F880[];
 extern char D_0063B068[];
 extern char D_0063B070[];
 extern char D_0055F828[];
 extern char D_0061C1D0[];
 extern char D_007048C0[];
+
 char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
 {
     char buf[0x10];
@@ -1669,15 +1768,18 @@ char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
             *(int *)((char *)D_0070F880 + (page * 0xD0 + idx * 8) + 4), buf);
     return D_007048C0;
 }
+
 /* src/debug.c:5364-5376 in the listing: the sibling of debug_ListPadControlGobj
    that lists the actor GObjs the debug menu can print (kinds 1, 2, 4 and 0x2F). */
 typedef struct {
     char *name;
     void *obj;
 } DbgGobjEnt;
+
 extern void *isysGObjGetExist_begin(void);
 extern void *isysGObjGetExist_next(void *gobj);
 extern char D_002C1270[];
+
 static inline int debug_ListActGobj(DbgGobjEnt *list)
 {
     void *g;
@@ -1696,9 +1798,11 @@ static inline int debug_ListActGobj(DbgGobjEnt *list)
     }
     return n;
 }
+
 extern char D_0061C210[];
 extern int D_0063B080;
 extern void _ACTDebugPrint(void *gobj);
+
 int debug_SelectActGobj(int reset)
 {
     DbgGobjEnt list[10];
@@ -1714,11 +1818,13 @@ int debug_SelectActGobj(int reset)
     }
     return (r == -1) ? -1 : 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispBox);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispBall);
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_CollisionTest);
 ASM_LIT4_SLOT(D_00639348, 0.001f);
 ASM_LIT4_SLOT(D_0063934C, 0.001f);
+
 /* one debug-menu entry: the label the selector prints, the handler, and a
    "stay in the menu" flag */
 typedef struct {
@@ -1726,6 +1832,7 @@ typedef struct {
     int (*fn)(int);
     int stay;
 } DbgMenuItem;
+
 extern DbgMenuItem D_004D9D90[];
 extern char *D_004D9ED8[];
 extern int D_0063B0F0;
@@ -1738,6 +1845,7 @@ extern char D_0061C538[];
 extern char D_0061C548[];
 extern char D_0061C558[];
 extern char D_0061C570[];
+
 static inline void debug_MenuHelp(void)
 {
     int x;
@@ -1758,6 +1866,7 @@ static inline void debug_MenuHelp(void)
         i++;
     }
 }
+
 static inline void debug_MenuBlink(void)
 {
     if (D_0063B0F0 >> 4) {
@@ -1769,6 +1878,7 @@ static inline void debug_MenuBlink(void)
         D_0063B0F0 = 0;
     }
 }
+
 void debug_Menu(void)
 {
     int state;
@@ -1824,17 +1934,22 @@ void debug_Menu(void)
         }
     }
 }
+
 extern int D_0063B0F4;
+
 void debug_Menu_off(void)
 {
     D_0063B0F4 = 0;
 }
+
 void debug_BeginTimer(int a0)
 {
     *(volatile int *)0x10000800 = 0;
     *(volatile int *)0x10000810 = a0 | 0x80;
 }
+
 extern Blk16 D_0061B7C8;
+
 float debug_GetTimerSec(void)
 {
     Blk16 buf;
@@ -1849,6 +1964,7 @@ float debug_GetTimerSec(void)
     f2 = (float)(unsigned int)v;
     return f2 / buf.f[*(volatile unsigned int *)0x10000810 & 3] / 60.0f;
 }
+
 float debug_GetTimerCount(void)
 {
     if ((*(volatile int *)0x10000810) & 0x800) {
@@ -1856,8 +1972,10 @@ float debug_GetTimerCount(void)
     }
     return (float)(*(volatile unsigned int *)0x10000800);
 }
+
 extern int D_0063AE64;
 extern char D_007082D0[];
+
 void debug_ClearFontWindow(void)
 {
     char *p = D_007082D0;
@@ -1869,11 +1987,14 @@ void debug_ClearFontWindow(void)
     }
     D_0063AE64 = 0;
 }
+
 extern int D_0063AEB4;
+
 void debug_ResizeFontWindowHeight(int val)
 {
     D_0063AEB4 = val;
 }
+
 /* Profiler bar table: 0x400 entries of 0x1C bytes; D_0063C384 = live count.
    Callers pass (label, colour, __FILE__, __LINE__) -- see the call sites in
    main.c and motionManager2.c, where a3 is literally the caller's line number.
@@ -1882,6 +2003,7 @@ void debug_ResizeFontWindowHeight(int val)
 extern int D_0063C384;
 extern int D_0063B1D4;
 extern char D_0063AF30[];
+
 void debug_SetBar(char *name, unsigned int col, char *file, int line)
 {
     DebugBar *p = &D_00708880[D_0063C384];
@@ -1897,6 +2019,7 @@ void debug_SetBar(char *name, unsigned int col, char *file, int line)
         D_0063C384++;
     }
 }
+
 /* debug_SetBar with the inverted D_0063B1D4 gate (records only while the
    profiler flag is set). */
 void debug_SetBar2(char *name, unsigned int col, char *file, int line)
@@ -1914,6 +2037,7 @@ void debug_SetBar2(char *name, unsigned int col, char *file, int line)
         D_0063C384++;
     }
 }
+
 extern int D_0063B110;
 extern int D_0063B114;
 extern int D_0063B118;
@@ -1921,6 +2045,7 @@ extern int D_0063B11C;
 extern int D_0063B120;
 extern int D_0063B124;
 extern int D_0063C384;
+
 void debug_ResetBar(void)
 {
     D_0063B120 = 0;
@@ -1932,7 +2057,9 @@ void debug_ResetBar(void)
     D_0063B124 = 0;
     D_0063C384 = 0;
 }
+
 extern char D_0061BB80[];
+
 void debug_DispVu1IReg(int no)
 {
     int i;
@@ -1951,7 +2078,9 @@ void debug_DispVu1IReg(int no)
         }
     }
 }
+
 extern char D_0061BBA0[];
+
 void debug_DispVu1SReg(int no)
 {
     int i;
@@ -1970,7 +2099,9 @@ void debug_DispVu1SReg(int no)
         }
     }
 }
+
 extern void debug_DispQW();
+
 void debug_DispMatrix(int *a0)
 {
     int *p = a0;
@@ -1980,31 +2111,39 @@ void debug_DispMatrix(int *a0)
         p = (int *)((char *)p + 0x10);
     }
 }
+
 void debug_SetBarDummy(void) {}
+
 extern void getLineBuffer();
+
 int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *base, int stride,
                                   int off, int deref, int n, int *psel)
 {
     return _debug_SelectCsvWindow_inl(title, x, y, rows, (int)base, stride, off, deref, n, psel,
                                       getLineBuffer, 0);
 }
+
 int debug_TryToGetStartStage(void)
 {
     return -1;
 }
+
 extern int D_0061C580[];
 extern int D_0063B100;
 extern int D_0063B108[];
 extern int D_007049D0[];
 extern int sceOpen(void *a0, int a1);
 extern void sprintf__pn(void *a0, void *a1, void *a2, int a3) __asm__("sprintf");
+
 int debugSceOpen(int a0, int a1)
 {
     sprintf__pn(D_007049D0, D_0063B108, D_0061C580, a0);
     return D_0063B100 = sceOpen(D_007049D0, a1);
 }
+
 extern int D_0063B100;
 extern int sceClose();
+
 int debugSceClose(int a0)
 {
     if (a0 == D_0063B100) {
@@ -2012,6 +2151,7 @@ int debugSceClose(int a0)
     }
     return sceClose();
 }
+
 int debugSceCloseFdNew(void)
 {
     int r = 0;
@@ -2023,8 +2163,11 @@ int debugSceCloseFdNew(void)
     }
     return r;
 }
+
 void debug_closeLog(void) {}
+
 extern int D_0070F880[];
+
 void debugCdvdLoadInfoSegInit(int idx)
 {
     int *p;
@@ -2040,40 +2183,50 @@ void debugCdvdLoadInfoSegInit(int idx)
         }
     }
 }
+
 void debugCdvdLoadInfoSegAdd(int page, int idx, int delta)
 {
     *(int *)((char *)D_0070F880 + (page * 0xD0 + idx * 8)) += delta;
 }
+
 void debugCdvdLoadInfoSegCls(int page, int idx)
 {
     *(int *)((char *)D_0070F880 + (page * 0xD0 + idx * 8)) = 0;
 }
+
 extern int D_0028F4F0[];
 extern void gsb_Init();
+
 int gsResetFunc(void)
 {
     gsb_Init(D_0028F4F0);
     return 1;
 }
+
 extern int D_00639EA0;
+
 void ChangeGirlControlMode(int a0)
 {
     if (a0 == 1) {
         D_00639EA0 = a0;
     }
 }
+
 extern int D_0063AE68;
+
 int debug_CallbackGsFinish(void)
 {
     D_0063AE68 = *(volatile int *)0x10000000;
     return 0;
 }
+
 extern char D_0061B4A8[];
 extern char D_0061B4E8[];
 extern char D_0061B500[];
 extern char D_0061B538[];
 extern char D_0061B570[];
 extern char D_0063AE90[];
+
 void debug_SaveStartStageFile(int stage)
 {
     char buf[0x100];
@@ -2089,9 +2242,11 @@ void debug_SaveStartStageFile(int stage)
     debug_StdPrintfDummy(D_0061B570);
     debug_openLog();
 }
+
 extern int D_0063AF7C;
 extern int D_0028F4C4[];
 extern char D_0063AF88[];
+
 int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,
                            int deref, int n, int *psel, void (*getline)(), int (*colfunc)(int))
 {
@@ -2181,18 +2336,21 @@ int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int st
     }
     return 0;
 }
+
 int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, void *base, int stride,
                                        int off, int deref, int n, int *psel, int (*colfunc)(int))
 {
     return _debug_SelectCsvWindow_inl(title, x, y, rows, (int)base, stride, off, deref, n, psel,
                                       getLineBuffer, colfunc);
 }
+
 extern int D_0063AFA0;
 extern int D_0063AFA4;
 extern char D_0063AFA8[];
 extern char D_0061BCA8[];
 extern void iosMcFormat(int port);
 extern int iosMcSync(int port);
+
 int debug_mcFormat(int port)
 {
     int r;
@@ -2219,11 +2377,13 @@ int debug_mcFormat(int port)
     }
     return 0;
 }
+
 extern int D_0063AFB0;
 extern int D_0063AFB4;
 extern char D_0061BCB8[];
 extern char D_0061BCC8[];
 extern void iosMcUnformat(int port);
+
 int debug_mcUnformat(int port)
 {
     int r;
@@ -2250,8 +2410,10 @@ int debug_mcUnformat(int port)
     }
     return 0;
 }
+
 extern char D_0063AFC8[];
 extern char D_0063AFD0[];
+
 void *debug_saveNumFunc(int a0, void *a1)
 {
     if ((1 << a0) & *(long long *)((char *)a1 + 0x9C0)) {
@@ -2259,20 +2421,26 @@ void *debug_saveNumFunc(int a0, void *a1)
     }
     return D_0063AFD0;
 }
+
 extern void iosMcTest(void);
+
 int debug_mcTest(void)
 {
     iosMcTest();
     return 1;
 }
+
 extern void staffRollStart(int a0, float a1);
+
 int debug_STAFFROLLTest(void)
 {
     staffRollStart(0x80, 1.0f);
     return 1;
 }
+
 extern unsigned short D_0030C4E0[];
 extern GsysObjInfo D_005D6DB0[];
+
 int debug_SETest_color(int idx)
 {
     int new_var;
@@ -2285,10 +2453,12 @@ int debug_SETest_color(int idx)
     }
     return v0;
 }
+
 extern int soundReverbDepthGet(void);
 extern void soundReverbDepthSet(int depth);
 /* pad state block: +0x4 held buttons, +0xC newly-pressed (trigger) buttons */
 extern char D_0061C1A8[];
+
 int debug_reverbTest(void)
 {
     int depth = soundReverbDepthGet();
@@ -2304,10 +2474,12 @@ int debug_reverbTest(void)
     debug_PrintfDummy(10, 0x50, 0xFFFFFF00u, (int)D_0061C1A8, soundReverbDepthGet());
     return (D_0028F8F0[0].hold & 0x60) != 0;
 }
+
 extern int D_0063B060;
 extern int D_0063B05C;
 extern char D_0061C1C0[];
 extern char D_00559D50[];
+
 int debug_AdpcmTest(int a0)
 {
     int r;
@@ -2322,19 +2494,23 @@ int debug_AdpcmTest(int a0)
     }
     return r;
 }
+
 typedef struct {
     char s[20];
 } DbgTitle20;
+
 typedef struct {
     long long a;
     long long b;
     unsigned short c;
     unsigned char d;
 } DbgTitle19;
+
 extern DbgTitle20 D_0061C1E0;
 extern DbgTitle19 D_0061C1F8;
 extern int D_0063B078;
 extern int D_0063B07C;
+
 int debugCdvdLoadInfoSegDisp(void)
 {
     char title[0x20];
@@ -2359,32 +2535,40 @@ int debugCdvdLoadInfoSegDisp(void)
     }
     return r;
 }
+
 int debug_GameOver(void)
 {
     debug_Menu_off();
     return -1;
 }
+
 int debug_EndingDemo(void)
 {
     debug_Menu_off();
     return -1;
 }
+
 extern void backStageProcessInStage(float a0);
+
 int debug_BackStageTest(void)
 {
     backStageProcessInStage(10000000.0f);
     return 1;
 }
+
 extern void backStageDebugTimeZero(void);
+
 int debug_tsuresariTimeZero(void)
 {
     backStageDebugTimeZero();
     return 1;
 }
+
 extern void *isysGObjGetExist_begin(void);
 extern void *isysGObjGetExist_next(void *gobj);
 extern int IsTopHint(void *gobj);
 extern void DebugHintStart(void *gobj);
+
 int debug_hintStart(void)
 {
     void *gobj;
@@ -2396,6 +2580,7 @@ int debug_hintStart(void)
     }
     return 1;
 }
+
 /* src/debug.c:5380-5397 in the listing: a static helper that builds the
    {name, gobj} list of the pad-controllable objects (kind 2 = boy, 4 = girl). */
 static inline int debug_ListPadControlGobj(DbgGobjEnt *list)
@@ -2412,9 +2597,11 @@ static inline int debug_ListPadControlGobj(DbgGobjEnt *list)
     }
     return n;
 }
+
 extern int D_0063B084;
 extern void *D_00639ED0;
 extern char D_0061C228[];
+
 int debug_SelectPad2ControlGobj(int reset)
 {
     DbgGobjEnt list[10];
@@ -2431,8 +2618,10 @@ int debug_SelectPad2ControlGobj(int reset)
     }
     return (r == -1) ? -1 : 0;
 }
+
 extern void CameraSetMode(int x);
 extern int D_0028F8F4[];
+
 int debug_FreeCamera(int a0)
 {
     if (a0 != 0) {

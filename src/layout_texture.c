@@ -16,32 +16,38 @@ int lt_current_property_item(void)
 {
     return D_0063B610;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_link_layout);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_prev_layout);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_next_layout);
 extern char D_0030CFF8[];
+
 void lt_mask_property(int idx, int flag)
 {
     int *p = (int *)(D_0030CFF8 + idx * 0x70);
     p[0x1B] = (p[0x1B] & ~0x10) | ((flag & 1) << 4);
 }
+
 void lt_default_mask_property(int idx, int flag)
 {
     int *p = (int *)(D_0030CFF8 + idx * 0x70);
     p[0x1B] = (p[0x1B] & ~0x20) | ((flag & 1) << 5);
 }
+
 extern int D_0063B618;
 
 int lt_fade_status(void)
 {
     return D_0063B618;
 }
+
 extern int D_0063B624;
 
 void lt_set_item_select_func(int val)
 {
     D_0063B624 = val;
 }
+
 extern int D_0063B61C;
 
 void lt_set_fade_mode(int val)

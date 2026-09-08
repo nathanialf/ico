@@ -7,17 +7,20 @@ extern void memset(void *a0, int a1, int a2);
 extern void CopyVector(void *dst, void *src);
 extern void ClipFloorByGObj(void *work, int gobj);
 extern int stage_no;
+
 typedef struct {
     float floorY;
     float limitY;
     float limitOfs;
     int flags;
 } FlyLimitInfo;
+
 /* prototypes: their order is the inline tail's emission order */
 int InitFlyInfo(int *self);
 void InitFlyManager(void);
 int GetFlyLimitHeight(FlyLimitInfo *info, void *pos);
 int GetFlyLimitClearance(void *pos);
+
 static inline int getFloorLimitValue(int attr)
 {
     int type = attr & 0xF;
@@ -30,6 +33,7 @@ static inline int getFloorLimitValue(int attr)
     }
     return type * 100;
 }
+
 static inline int clipFlyFloor(char *work, void *pos)
 {
     CopyVector(work, pos);
@@ -38,6 +42,7 @@ static inline int clipFlyFloor(char *work, void *pos)
     ClipFloorByGObj(work, D_0063B898);
     return *(int *)(work + 0x94);
 }
+
 inline int InitFlyInfo(int *self)
 {
     int *p = (int *)self[0x57];
@@ -45,6 +50,7 @@ inline int InitFlyInfo(int *self)
     p[0x1D] = 0;
     return 0;
 }
+
 void DispFlyInfo(void)
 {
     int v0 = D_0063B234;
@@ -57,10 +63,12 @@ void DispFlyInfo(void)
     }
     return DrawGObjFloorCollision(a0, 0);
 }
+
 inline void InitFlyManager(void)
 {
     D_0063B898 = 0;
 }
+
 inline int GetFlyLimitClearance(void *pos)
 {
     char work[0xC0];
@@ -73,6 +81,7 @@ inline int GetFlyLimitClearance(void *pos)
     }
     return -10000;
 }
+
 inline int GetFlyLimitHeight(FlyLimitInfo *info, void *pos)
 {
     char work[0xC0];

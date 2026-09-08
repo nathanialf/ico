@@ -29,6 +29,7 @@ void PlayStreamMotion(void)
     D_0063BBF4 = 1;
     return 1;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", ClearStreamMotionEntry);
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", _deleteStreamMotionManager);
 extern int D_006211C8[];
@@ -39,16 +40,21 @@ void DisableStreamMotionManagerAutomaticDelete(void)
     D_0063BC24 = 0;
     debug_StdPrintfDummy(D_006211C8);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", getStreamMotionData);
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", getStreamMotionBlendData);
+
 typedef struct {
     int w[7];
 } SMotion;
+
 extern SMotion D_00724AA8[];
+
 void GetStreamMotionDataNext(int a0, int a1)
 {
     getStreamMotionData(a0, D_00724AA8[a1].w[4], a1);
 }
+
 extern void memcpy();
 
 void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
@@ -66,6 +72,7 @@ void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
     }
     memcpy(dst + old_idx, src, amt);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", ExecStreamMotionManager);
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", MallocStreamMotionBuffer);
 extern int D_0063BBF0;
@@ -85,6 +92,7 @@ inline void ClearAllStreamMotionEntry(void)
     }
     D_0063BBF0 = 0;
 }
+
 extern int D_0063BBFC;
 extern void iosCdvdBackGroundMgrDelete();
 
@@ -97,6 +105,7 @@ inline void DeleteStreamMotionManager(void)
     }
     ClearAllStreamMotionEntry();
 }
+
 extern int iosCdvdBackGroundMgrAdd();
 extern void iosThreadSleep(void);
 extern char D_00621310[];
@@ -112,10 +121,12 @@ inline void StandbyStreamMotion(int self)
     D_0063BBFC = iosCdvdBackGroundMgrAdd(self, _handler, 0, 0, 0, 0, _closeHander, 0);
     D_0063BC1C = self;
 }
+
 inline void StopStreamMotion(void)
 {
     D_0063BBF4 = 0;
 }
+
 inline int EntryStreamMotion(char *a0)
 {
     int no = D_0063BBF0;
@@ -129,6 +140,7 @@ inline int EntryStreamMotion(char *a0)
     D_0063BBF0 = no + 1;
     return no;
 }
+
 extern char D_006211E8[];
 
 inline int GetDataSizeOfStreamMotion(int no)
@@ -139,6 +151,7 @@ inline int GetDataSizeOfStreamMotion(int no)
     }
     return D_00724AA8[no].w[2];
 }
+
 extern char D_00621228[];
 extern char D_00621230[];
 extern int D_0063BC28;
@@ -159,6 +172,7 @@ inline float GetStreamMotionData(char *dst, int no)
     getStreamMotionData(dst, D_00724AA8[no].w[3], no);
     return (float)D_0063BC28 / D_006396CC;
 }
+
 extern int D_0063BC08;
 extern int D_0063BC0C;
 extern int D_0063BC10;
@@ -169,6 +183,7 @@ inline void InitStreamMotionManager(void)
     D_0063BC08 = 0;
     D_0063BC0C = 0;
 }
+
 extern int D_0063BC00;
 extern int D_0063BC04;
 
@@ -185,10 +200,12 @@ inline int CheckReadyStreamMotion(void)
         r = 0;
     return r;
 }
+
 inline void SetStreamMotionFinishCallBackFunc(int a0, int a1)
 {
     D_00724AA8[a0].w[6] = a1;
 }
+
 extern int D_0063BC08;
 extern int D_0063BC0C;
 extern int D_0063BC10;
@@ -204,6 +221,7 @@ inline void FreeStreamMotionBuffer(void)
         D_0063BC0C = 0;
     }
 }
+
 extern void _deleteStreamMotionManager();
 
 inline int _closeHander(void)
@@ -211,6 +229,7 @@ inline int _closeHander(void)
     _deleteStreamMotionManager();
     return 1;
 }
+
 extern int D_0063BBF8;
 extern void iosCdvdBackGroundRead();
 

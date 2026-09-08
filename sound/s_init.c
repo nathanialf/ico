@@ -12,6 +12,7 @@ typedef struct SqEntry {
     int unk20[2];     /* 0x20 */
     int unk28;        /* 0x28 */
 } SqEntry;
+
 static inline char *hd_search(char *base, int *pk)
 {
     char *p = base;
@@ -39,6 +40,7 @@ void soundOutputModeSet(int a0)
     D_0063A654 = a0;
     SgSetOutputMode(a0);
 }
+
 extern int D_0063A648;
 extern void SgSetMasterVol(int a0, int a1, int a2);
 extern void SgSetReverbDepth(int a0, int a1, int a2);
@@ -53,6 +55,7 @@ void soundReverbDepthSet(int a0)
     SgSetMasterVol(0, 0x3FFF, 0x3FFF);
     SgSetMasterVol(1, 0x3FFF, 0x3FFF);
 }
+
 extern char D_005521E8[];
 extern char D_005521F8[];
 extern char D_00552210[];
@@ -70,12 +73,14 @@ void soundAllocIopHeap(void)
         debug_StdPrintfDummy(D_00552210, r, 0x78000);
     }
 }
+
 extern void sceSifFreeIopHeap();
 
 void soundAllocIopFree(void)
 {
     sceSifFreeIopHeap(D_0063A680);
 }
+
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenChk);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBufAlloc);
 extern int D_0063A640;
@@ -115,6 +120,7 @@ void soundBufSegFree(int a0, int a1)
     debug_assert(D_005521E8, 0x1E7);
     __assert(D_005521E8, 0x1E7, D_0063A660);
 }
+
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBDDataSet);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpen);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenSync);
@@ -141,6 +147,7 @@ void soundDataSegAllClose(int a0, int a1)
         return;
     soundBufSegFree(a0, a1);
 }
+
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeVolSet);
 ASM_LIT4_SLOT(D_00638CA0, 0.1f);
 ASM_LIT4_SLOT(D_00638CA4, 0.05f);
@@ -158,10 +165,12 @@ void soundSeDefStop(int a0)
 {
     _soundSeDefStop(a0, 0);
 }
+
 void soundSeDefStopNoRelease(int a0)
 {
     _soundSeDefStop(a0, 1);
 }
+
 extern char D_006BF870[];
 extern void SgSetSePitchDirect();
 
@@ -178,6 +187,7 @@ void soundSeDefPitchSet(int a0)
         return;
     SgSetSePitchDirect(id);
 }
+
 ASM_LIT4_SLOT(D_00638CB8, 3000.0f);
 ASM_LIT4_SLOT(D_00638CBC, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeEnvPlay);
@@ -208,14 +218,17 @@ int Ee2Iop(int a0, int a1, int a2)
     FlushCache(0);
     return (x >= 0) ? 0 : -1;
 }
+
 int soundOutputModeGet(void)
 {
     return D_0063A654;
 }
+
 int soundReverbDepthGet(void)
 {
     return D_0063A648;
 }
+
 extern long long D_0063C1E0;
 extern char D_00552280[];
 
@@ -245,6 +258,7 @@ found:
         return (ch << 14) + 0x1E0000;
     }
 }
+
 extern long long D_0063C1E0;
 
 void soundBufAdpcmFree(char *self)
@@ -253,6 +267,7 @@ void soundBufAdpcmFree(char *self)
     D_0063C1E0 &= mask;
     *(long long *)(self + 0x18) = 0;
 }
+
 char *soundDataAreaSearch(int *a0)
 {
     int key = *a0;
@@ -271,6 +286,7 @@ char *soundDataAreaSearch(int *a0)
 found:
     return r;
 }
+
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataAreaGet);
 extern char D_0063A660[];
 extern char D_006A95B0_2[] __asm__("D_006BF570");
@@ -302,6 +318,7 @@ char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4)
     soundDataOpenChk((char *)e);
     return (char *)e;
 }
+
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSQDataSet);
 extern int _soundSeDefPlay(int a0, int a1, int a2, int a3, float f, int t0, int t1);
 extern void sound3DParamSet(int *p);
@@ -314,6 +331,7 @@ int soundSeDefPlay(int a0, int a1, int a2, int a3)
     }
     return idx;
 }
+
 int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3)
 {
     int idx = ((int (*)(int, int, int, int, int, int))_soundSeDefPlay)(a0, a1, a2, a3, 0, 0);
@@ -322,6 +340,7 @@ int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3)
     }
     return idx;
 }
+
 float soundSeDefVolumeRateGet(int a0)
 {
     int off = (a0 & 0xFF) * 64;
@@ -338,6 +357,7 @@ check:
     }
     return *(float *)(D_006BF870 + off + 0x18);
 }
+
 void soundSeDefVolumeRateSet(int a0, float f)
 {
     int off = (a0 & 0xFF) * 64;
@@ -349,6 +369,7 @@ void soundSeDefVolumeRateSet(int a0, float f)
         }
     }
 }
+
 extern void soundSeDefStop(int a0);
 
 void soundSeGroupStop(int arg)
@@ -371,6 +392,7 @@ void soundSeGroupStop(int arg)
         p += 0x40;
     } while (i < 0x30);
 }
+
 extern int D_0063A67C;
 
 int soundSeGroupGet(void)
@@ -379,6 +401,7 @@ int soundSeGroupGet(void)
     D_0063A67C = next;
     return next;
 }
+
 extern void soundSeDefStopNoRelease(int a0);
 
 void soundSePlayModeStop(int arg)
@@ -398,6 +421,7 @@ void soundSePlayModeStop(int arg)
         p += 0x40;
     } while (i < 0x30);
 }
+
 extern int D_0028F4C0[];
 extern int D_0063B14C;
 extern int SgGetSlotStatus(int a0, int a1);
@@ -427,6 +451,7 @@ void soundReqTickProc(void)
         p += 0x40;
     } while (i < 0x30);
 }
+
 extern void adpcmTickProc2();
 
 void soundVBlank(void)
@@ -439,6 +464,7 @@ void soundVBlank(void)
         }
     }
 }
+
 typedef struct SeKind {
     short num;  /* 0x0 */
     short unk2; /* 0x2 */
@@ -473,12 +499,14 @@ void soundSeKindBuild(void)
         }
     }
 }
+
 extern int D_0063A658;
 
 int soundSeSemiCommonLoadChk(void)
 {
     return D_0063A658;
 }
+
 typedef struct SeEnvDef {
     float unk0;          /* 0x00 */
     float unk4;          /* 0x04 */
@@ -546,6 +574,7 @@ void soundSeEnvDefaultSet(SeSlot *self)
     self->f27 = env->b2;
     self->unk1C = 0.1f;
 }
+
 extern const char D_00552398[];
 extern char D_005D6DB0[];
 

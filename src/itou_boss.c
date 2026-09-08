@@ -11,8 +11,10 @@ void itou_boss_gflag_init(void)
 {
     memset(D_006E9A30, 0, 0xD50);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlDL);
 extern int stage_no;
+
 int InqCapsuleGhostBossStage(void)
 {
     int r = 0;
@@ -20,6 +22,7 @@ int InqCapsuleGhostBossStage(void)
         r = 1;
     return r;
 }
+
 extern char D_00556850[];
 extern int D_0063C2EC;
 extern int D_0063C2F0;
@@ -71,6 +74,7 @@ void actBossCtrlStart(void *a0)
         actCreateSubThread(BossCtrlGeo, 0x15);
     }
 }
+
 extern char D_005557E0[];
 extern char D_005564F0[];
 extern char D_00556860[];
@@ -122,10 +126,12 @@ int InitBossCtrlGeo(void *a0)
     } while (k < 0x35);
     return ret;
 }
+
 void CapsuleGhostBossStart(void)
 {
     D_006E9A30[0] = 1;
 }
+
 extern int isEnemyHyde(void *o);
 
 int InqCapsuleGhostBossEnd(void)
@@ -153,7 +159,9 @@ int InqCapsuleGhostBossEnd(void)
     }
     return cnt >= 0x35 && no == 0;
 }
+
 extern char *GetParticleEffectData(void);
+
 void gene_eff_end_func(void)
 {
     **(int **)(GetParticleEffectData() + 0x70) = 1;

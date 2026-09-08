@@ -8,10 +8,12 @@ INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execEff);
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execVibCondition);
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecFrameDependSequence);
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", executeSEPackageByGObj);
+
 typedef struct {
     int se[2];
     int id;
 } SePackage;
+
 typedef struct {
     char _0[0x20];
     int f_20;
@@ -54,8 +56,10 @@ void executeSEPackageWithNoGObj(int no)
         }
     }
 }
+
 extern float D_0063B8B0;
 extern void executeSEPackageWithNoGObj(int a0);
+
 void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
 {
     D_0063B8B0 = 1.0f;
@@ -65,12 +69,14 @@ void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
         executeSEPackageWithNoGObj(a1);
     }
 }
+
 extern void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2);
 
 void ExecuteSEPackage(int a0, int a1)
 {
     ExecuteSEPackageWithGroupVariation(a0, a1, 0);
 }
+
 extern float D_0063B8B0;
 extern void executeSEPackageByGObj();
 
@@ -79,6 +85,7 @@ void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f)
     D_0063B8B0 = f;
     executeSEPackageByGObj(a0, a1, 0);
 }
+
 extern void soundSeGroupStop(int a0);
 
 void StopSEPackageWithGroupVariation(int a0, int a1)
@@ -87,10 +94,12 @@ void StopSEPackageWithGroupVariation(int a0, int a1)
     p += a1;
     soundSeGroupStop(p[0x187]);
 }
+
 void StopSEPackage(int a0)
 {
     StopSEPackageWithGroupVariation(a0, 0);
 }
+
 void InitFrameDependSequence(void *a0)
 {
     int *p = (int *)a0;
@@ -113,6 +122,7 @@ void InitFrameDependSequence(void *a0)
         vib[i] = -1;
     }
 }
+
 extern int playSE(int no);
 extern int playSEConditionID(int no, void *entry);
 extern int playSERandomID(int no, void *entry);
@@ -127,6 +137,7 @@ inline int execSE(int a0, void *a1)
         return playSEConditionID(a0 - 0x20000, a1);
     }
 }
+
 extern char D_0055FE58[];
 extern void *D_0063B89C;
 extern void *D_0063B8A0;
@@ -169,11 +180,13 @@ int ExecuteDirectSEWithGroupVariation(void *gobj, int id, int grp)
     setSEEnvironment(gobj, id);
     return execSE(id, 0);
 }
+
 int ExecuteDirectSE(void *gobj, int id)
 {
     setSEEnvironment(gobj, id);
     return execSE(id, 0);
 }
+
 extern void iosPadActStop(int key);
 
 void StopFDSVibration(void *a0)
@@ -188,16 +201,19 @@ void StopFDSVibration(void *a0)
         }
     }
 }
+
 inline int checkWaterDepth(void *a0, int a1)
 {
     int *p = *(int **)((char *)a0 + 0x15C);
     return (int)(*(float *)((char *)p + 0x644)) < a1;
 }
+
 inline int checkModelDataID(void *a0, int a1)
 {
     int *p = *(int **)((char *)a0 + 0x15C);
     return p[0x21] == a1;
 }
+
 extern int CheckWeaponKind(char *self);
 
 inline int checkWeaponType(void *a0, int a1)
@@ -209,6 +225,7 @@ inline int checkWeaponType(void *a0, int a1)
     }
     return 0;
 }
+
 extern int D_00639EAC;
 extern void iosPadActRequest(int port, int id);
 extern int execVibCondition(int id, void *entry);
@@ -224,6 +241,7 @@ inline int execVib(int a0, void *a1)
     }
     return 1;
 }
+
 extern int CheckWeaponKind(char *self);
 extern void LightTorchOffOfWeapon(int *self);
 

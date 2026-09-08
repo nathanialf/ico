@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x164]; /* 0x000 */
     int act;           /* 0x164 */
@@ -57,6 +59,7 @@ ASM_LIT4_SLOT(D_00639AA8, 3933.0f);
 INCLUDE_ASM("asm/nonmatchings/src/st19a", actSt19aPipeChk);
 INCLUDE_ASM("asm/nonmatchings/src/st19a", actSt19aChainDown);
 INCLUDE_ASM("asm/nonmatchings/src/st19a", actSt19bIntro);
+
 void actSt19aOri(volatile int a0)
 {
     int x = a0;
@@ -77,6 +80,7 @@ void actSt19aOri(volatile int a0)
         stage_SetAnimation(0x8E, 0, 0x59);
     }
 }
+
 void actSt19aOriXL(volatile int a0)
 {
     int x = a0;
@@ -88,6 +92,7 @@ void actSt19aOriXL(volatile int a0)
 
     stage_SetAnimation(0x8E, 0, 0);
 }
+
 void actSt19aPipe(volatile int a0)
 {
     int x = a0;
@@ -109,6 +114,7 @@ void actSt19aPipe(volatile int a0)
         stage_SetAnimation(0x8F, 0, -1);
     }
 }
+
 void actSt19aPipeXL(volatile int a0)
 {
     int x = a0;
@@ -122,6 +128,7 @@ void actSt19aPipeXL(volatile int a0)
         stage_SetAnimation(0x8F, 0, -1);
     }
 }
+
 void actSt19aChain(volatile int a0)
 {
     int x = a0;
@@ -140,6 +147,7 @@ void actSt19aChain(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt19aOriMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -152,6 +160,7 @@ void actSt19aOriMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt19aOriSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -164,6 +173,7 @@ void actSt19aOriSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt19aChainMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -176,6 +186,7 @@ void actSt19aChainMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt19aChainSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -191,6 +202,7 @@ void actSt19aChainSwitch(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt19aChainDownSub(volatile int a0)
 {
     _ACTWait(0x3C);

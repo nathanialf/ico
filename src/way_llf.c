@@ -42,6 +42,7 @@ typedef struct NdW {
     int f28;
     char _2C[0x14];
 } NdW;
+
 typedef struct Nd {
     int pad[2];
     struct Nd *f8;
@@ -127,6 +128,7 @@ inline int CreateWayGroup(void)
     }
     return -1;
 }
+
 inline int CreateTempWayGroup(void)
 {
     int no = CreateWayGroup();
@@ -136,6 +138,7 @@ inline int CreateTempWayGroup(void)
     }
     return no;
 }
+
 inline int DeleteWayGroup(int gno)
 {
     WayGrp *wg = (WayGrp *)&D_004F1EC0[gno];
@@ -166,6 +169,7 @@ inline void CloseWayGroup(int idx)
     *(int *)(v1 + 8) = v0;
     *(int *)(v0 + 12) = v1;
 }
+
 extern Nd D_004F31E0[];
 extern void sceVu0CopyVector(int *, int);
 
@@ -187,6 +191,7 @@ inline int CreateWayPoint(int a0)
     }
     return -1;
 }
+
 inline int AddWayPoint(int gno, int pno)
 {
     WayGrp *wg = (WayGrp *)&D_004F1EC0[gno];
@@ -207,6 +212,7 @@ inline int AddWayPoint(int gno, int pno)
     wg->f10++;
     return 0;
 }
+
 inline int AddWayPointTop(int a0, int a1)
 {
     int *ch = (int *)&D_004F1EC0[a0];
@@ -219,6 +225,7 @@ inline int AddWayPointTop(int a0, int a1)
     old->f8 = node;
     return 0;
 }
+
 inline int InsertWayPointAfter(int dummy, int idx1, int idx2)
 {
     int *node_a = (int *)((char *)D_004F31E0 + idx1 * 0x40);
@@ -230,6 +237,7 @@ inline int InsertWayPointAfter(int dummy, int idx1, int idx2)
     old[2] = (int)node_b;
     return 0;
 }
+
 inline int DeleteWayPoint(int pno)
 {
     NdW *wp = (NdW *)&D_004F31E0[pno];
@@ -277,6 +285,7 @@ inline int DeleteWayPoint(int pno)
     wg->f10--;
     return 0;
 }
+
 extern WpNode D_004F1E8C;
 
 inline WpNode *WayGroup_begin(void)
@@ -292,6 +301,7 @@ inline WpNode *WayGroup_begin(void)
     }
     return 0;
 }
+
 extern WpNode D_004F31A4;
 
 inline WpNode *WayGroup_next(WpNode *p)
@@ -307,6 +317,7 @@ inline WpNode *WayGroup_next(WpNode *p)
     }
     return 0;
 }
+
 inline WpNode *WayBridge_begin(void)
 {
     WpNode *p = &D_004F1E8C;
@@ -320,6 +331,7 @@ inline WpNode *WayBridge_begin(void)
     }
     return 0;
 }
+
 inline WpNode *WayBridge_next(WpNode *p)
 {
     WpNode *end = &D_004F31A4;
@@ -333,6 +345,7 @@ inline WpNode *WayBridge_next(WpNode *p)
     }
     return 0;
 }
+
 inline WpNode *WayBridgeAll_begin(void)
 {
     WpNode *p = &D_004F1E8C;
@@ -346,6 +359,7 @@ inline WpNode *WayBridgeAll_begin(void)
     }
     return 0;
 }
+
 inline WpNode *WayBridgeAll_next(WpNode *p)
 {
     WpNode *end = &D_004F31A4;
@@ -391,6 +405,7 @@ inline WayGroup *WayBridgeVar_next(WayGroup *a0)
     }
     return 0;
 }
+
 extern WayGroup_CT D_004F31A0[];
 
 inline void *WayPoint_begin(void)
@@ -410,6 +425,7 @@ inline void *WayPoint_begin(void)
 ret0:
     return 0;
 }
+
 extern WayGroup_DW D_004F7660;
 
 inline void *WayPoint_next(WayGroup_DW *a0)
@@ -433,6 +449,7 @@ inline int WayPointList_begin(int a0)
 {
     return D_004F1EC0[a0].w[2];
 }
+
 inline int WayPointList_next(int *a0)
 {
     register int v __asm__("$4") = (int)a0;
@@ -457,6 +474,7 @@ inline int WayPointList_next(int *a0)
             : "$2", "$3", "$5");
     return v;
 }
+
 extern char D_00621EB0[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
@@ -471,10 +489,12 @@ inline int waypoint_bidirectional_list(int *self, int which)
     }
     return self[0xC / 4];
 }
+
 inline void SetWayGroupActive(int a0, int a1)
 {
     D_004F1EC0[a0].w[10] = a1;
 }
+
 inline int CheckWayGroupActive(int idx)
 {
     return D_004F1EC0[idx].w[10] != 0;

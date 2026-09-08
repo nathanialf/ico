@@ -5,10 +5,12 @@ extern int D_006E6D60[];
 extern void soundDataClose();
 INCLUDE_ASM("asm/nonmatchings/src/fightSound", fightSoundProcessMain);
 INCLUDE_ASM("asm/nonmatchings/src/fightSound", fightSoundProcess);
+
 void fightSoundProcessRequestPause(void)
 {
     D_0063ABE8 = 1;
 }
+
 void fightSoundClose(void)
 {
     if (D_006E6D60[0] != 0) {
@@ -16,14 +18,17 @@ void fightSoundClose(void)
         D_006E6D60[0] = 0;
     }
 }
+
 void fightSoundProcessRequestStart(void)
 {
     D_0063ABE8 = 0;
 }
+
 int fightSoundProcessRequestStatus(void)
 {
     return D_0063ABE8;
 }
+
 int fightSoundPlayChk(void)
 {
     return D_006E6D60[0];

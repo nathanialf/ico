@@ -6,6 +6,7 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
@@ -47,6 +48,7 @@ void actSt03tGirlCam(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void _ACTWait(int a0);
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
@@ -60,6 +62,7 @@ void actSt03tSekizo(volatile int a0)
 
     scpSekizou(a0, 0x5F, 0x50, 0, 0x12, -913.0f, -400.0f, 605.0f, -1000.0f, -400.0f, 550.0f);
 }
+
 extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -87,6 +90,7 @@ void actSt03tWay(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -107,6 +111,7 @@ void actSt03tEne(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void SleepHint(int a0);
@@ -130,6 +135,7 @@ void actSt03tGirlPos(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern ActMail D_004F8570[];
@@ -147,10 +153,12 @@ void actSt03tHint1Sleep(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt03tGirlCamEvent(int x)
 {
     volatile int local = x;
 }
+
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern void _ACTWait(int a0);
@@ -182,6 +190,7 @@ void actSt03tGirlCamStartChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern int D_00639EA4;
 extern void _ACTWait(int a0);
 extern int scpTriggerBall(int a0, int a1, float radius);
@@ -212,10 +221,12 @@ void actSt03tGirlCamEndChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt03tSekizoEvent(int x)
 {
     volatile int local = x;
 }
+
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_0063AA08;
@@ -253,6 +264,7 @@ void actSt03tEneChk(volatile int a0)
     D_0063AA08 = 0;
     scpWakeupEnemyOne(0xEAD);
 }
+
 extern int D_00639EA8;
 extern void _ACTWait(int a0);
 extern int scpCheckExistAliveEnemy(void);
@@ -286,6 +298,7 @@ void actSt03tWayOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern int D_00639EA8;
 extern void _ACTWait(int a0);
 extern int scpCheckExistAliveEnemy(void);
@@ -316,6 +329,7 @@ void actSt03tWayOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern int D_00639EA8;
 extern void _ACTWait(int a0);
 extern int scpTriggerFloorAttr(int a0, int a1);
@@ -331,6 +345,7 @@ void actSt03tGirlPosChk(volatile int a0)
     gflagOn(0x65);
     WakeupHint(0xC);
 }
+
 extern char D_00622820[];
 extern void debug_StdPrintfDummy();
 extern void FinishHint(int a0);
@@ -345,6 +360,7 @@ void actSt03tGirlUpChk(volatile int a0)
     gflagOn(0x5D);
     FinishHint(0xC);
 }
+
 extern int D_0028F4C0[];
 extern void _ACTWait(int a0);
 extern void WakeupHint(int a0);
@@ -364,6 +380,7 @@ void actSt03tHint1OnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void SleepHint(int a0);

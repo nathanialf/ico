@@ -4,6 +4,7 @@ typedef union {
     float f[4];
     long long ll[2];
 } Vec4;
+
 extern char D_00621BB0[];
 extern char D_00621BD0[];
 extern char D_002C2DC8[];
@@ -33,6 +34,7 @@ void actSetInterrupt(char *self, int val);
 void ConvertStickToAbsCoord(void *a0, float *a1);
 void ActSetStartBrainStatus(char *self, int status);
 void actWaitCondition(int a0, int a1);
+
 inline void ActSetStartBrainStatus(char *self, int status)
 {
     char *brain = *(char **)(self + 0x164);
@@ -40,6 +42,7 @@ inline void ActSetStartBrainStatus(char *self, int status)
         *(int *)(brain + 0x448) = status;
     }
 }
+
 void actChangeActBrain(int a0, int a1, int *a2)
 {
     int old = *a2;
@@ -52,6 +55,7 @@ void actChangeActBrain(int a0, int a1, int *a2)
         debug_StdPrintfDummy(D_00621BD0, a0, n);
     }
 }
+
 void actChangeActMain(void *a0, void *a1, void **a2)
 {
     char *e = D_002C2DC8 + *(int *)((char *)a0 + 8) * 0x4C;
@@ -71,6 +75,7 @@ void actChangeActMain(void *a0, void *a1, void **a2)
         debug_StdPrintfDummy(D_00621C10, a0, ret);
     }
 }
+
 void actCreateMotionThread(void *a0, void *a1, void **a2)
 {
     void *old = *a2;
@@ -83,15 +88,19 @@ void actCreateMotionThread(void *a0, void *a1, void **a2)
         debug_StdPrintfDummy(D_00621C50, ret, ret);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/act", actCreateSubThread);
+
 inline void actCreateSubThreadGOppArg(int a0, int a1)
 {
     *(int *)((char *)isysGObjProcAddGOppArg(D_0063A61C, a0, 0, a1) + 0x64) = 1;
 }
+
 inline void actSetInterrupt(char *self, int val)
 {
     *(int *)(self + 0x0) = val;
 }
+
 inline void ConvertStickToAbsCoord(void *a0, float *a1)
 {
     Vec4 v = {{a1[3], 0.0f, -a1[4], 0.0f}};
@@ -99,6 +108,7 @@ inline void ConvertStickToAbsCoord(void *a0, float *a1)
     sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
     sceVu0ApplyMatrix(a0, m, &v);
 }
+
 inline void _ACTRun(int n)
 {
     int i;
@@ -115,6 +125,7 @@ inline void _ACTRun(int n)
         } while (i != 0);
     }
 }
+
 inline void _ACTWait(int a0)
 {
     int count = (a0 * ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1])) / 0x3C;
@@ -136,6 +147,7 @@ inline void _ACTWait(int a0)
         } while (i != 0);
     }
 }
+
 inline void actWaitCondition(int a0, int a1)
 {
     int t = a0 & a1;
@@ -161,11 +173,15 @@ inline void actWaitCondition(int a0, int a1)
         } while (t == 0);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/act", after_func_exec);
+
 inline void actInitialize_geo(void) {}
+
 INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_ext_charcter);
 INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_only_charcter);
 INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize);
+
 inline int ACTReserveTarget(char *self, void *a1, int a2)
 {
     char *g = *(char **)(self + 0x164);
@@ -177,6 +193,7 @@ inline int ACTReserveTarget(char *self, void *a1, int a2)
     }
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/act", act_check_intr_list);
 INCLUDE_ASM("asm/nonmatchings/src/act", act_check_mail);
 INCLUDE_ASM("asm/nonmatchings/src/act", BeforeFunc);

@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x164]; /* 0x000 */
     Act *act;          /* 0x164 */
@@ -28,6 +30,7 @@ extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int D_0063AA30;
 extern int D_00639EA4;
+
 typedef struct JimakuSub {
     char unk00[0x2C]; /* 0x0C */
     int unk2C;        /* 0x38 */
@@ -37,12 +40,14 @@ typedef struct JimakuSub {
     void *unk3C;      /* 0x48 */
     void *unk40;      /* 0x4C */
 } JimakuSub;
+
 typedef struct JimakuArg {
     int cmd;       /* 0x00 */
     int unk04;     /* 0x04 */
     int done;      /* 0x08 */
     JimakuSub sub; /* 0x0C */
 } JimakuArg;
+
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 extern void jimakuJump(int a0);
@@ -101,12 +106,14 @@ void BoySekikaTexScroll(void)
 {
     tex_SetUVScroll(D_005549D0, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aElevChk);
 
 void actSt25aGenerator(volatile unsigned int a0)
 {
     Generator_Mask(a0);
 }
+
 void actSt25aQueenBefore(volatile int a0)
 {
     int x = a0;
@@ -123,6 +130,7 @@ void actSt25aQueenBefore(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt25aQueenTalk(volatile int a0)
 {
     int x = a0;
@@ -140,6 +148,7 @@ void actSt25aQueenTalk(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt25aQueenDeadReady(volatile int a0)
 {
     int x = a0;
@@ -152,6 +161,7 @@ void actSt25aQueenDeadReady(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt25aQueenDead(volatile int a0)
 {
     int x = a0;
@@ -164,6 +174,7 @@ void actSt25aQueenDead(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actItouQueenAttack(volatile int a0)
 {
     int x = a0;
@@ -176,6 +187,7 @@ void actItouQueenAttack(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt25aElev(volatile int a0)
 {
     int x = a0;
@@ -197,6 +209,7 @@ void actSt25aElev(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSwordEff(volatile int a0)
 {
     int x = a0;
@@ -231,6 +244,7 @@ void actSt25aQueenBeforeChk(volatile int a0)
     jimakuBegin((int)&jimaku_msg);
     scpAdpcmPlayRequestFunc(0x27, &D_0063AA30, 1, 1, 0);
 }
+
 void actConte11Jimaku(volatile int a0)
 {
     float t;
@@ -278,6 +292,7 @@ void actSt25aQueenDeadReadyChk(volatile int a0)
     }
     scpAdpcmPlayRequestFunc(0x2A, &dead, 0, 1, 0);
 }
+
 void actSt25aQueenDeadEvent(int x)
 {
     volatile int local = x;
@@ -293,6 +308,7 @@ void actItouQueenAttackChk(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt25aElevCharaChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;

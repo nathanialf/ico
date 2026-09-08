@@ -16,6 +16,7 @@ typedef struct Light {
     struct Light *next; /* 0x48 */
     struct Light *prev; /* 0x4C */
 } Light;
+
 typedef struct AmbientVolume {
     char _pad0[0x80];
     float f_80; /* 0x80 */
@@ -70,7 +71,9 @@ void light_InitLight(void)
     D_0063C138 = 0;
     *(int *)D_0063A088 = 0;
 }
+
 void light_ResetLight(void) {}
+
 extern int D_0063C13C;
 extern void light_killLinkLight(char *node);
 
@@ -91,6 +94,7 @@ void light_KillAllFixLight(void)
     }
     D_0063C13C = 0;
 }
+
 extern int D_0063C138;
 extern void light_killLinkAmbient();
 
@@ -110,6 +114,7 @@ void light_KillAllAmbient(void)
         p = p->prev;
     }
 }
+
 extern char D_0054F0C8[];
 extern int D_0063A44C;
 extern void *iosMallocDebug(int part, int size, char *file, int line);
@@ -133,6 +138,7 @@ AmbientVolume *light_AddAmbientObject(int obj)
     light_setLinkAmbient(p);
     return p;
 }
+
 typedef struct StageSetting {
     float flatLightDir[3][4]; /* 0x00 */
     float flatLightCol[3][4]; /* 0x30 */

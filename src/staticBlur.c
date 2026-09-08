@@ -29,9 +29,11 @@ extern void gif_StartPacketPri(int pri);
 typedef struct {
     int f[4];
 } SprUV;
+
 typedef struct {
     unsigned char f[4];
 } SprCol;
+
 extern int D_004ED02C[];
 extern SprUV D_00620DE0;
 extern SprCol D_0063BB70[];
@@ -66,6 +68,7 @@ void auraInspireBefore(void)
     gif_SetGsReg(0x4A, 0);
     gif_EndPacket();
 }
+
 extern int D_0028F4C0[];
 extern int D_0028F4D4[];
 extern int D_0063BB40;
@@ -340,6 +343,7 @@ void auraInspireAfter(int mode)
     gif_SetZTest(1);
     gif_EndPacket();
 }
+
 extern int D_004ED028[];
 extern int D_004ED030[];
 extern float D_004ED048[];
@@ -481,6 +485,7 @@ void makeFullScreenFlareBefore(int mode)
     makeMaskPatternToWork2();
     gif_EndPacket();
 }
+
 extern int D_004ED0A0[];
 extern int D_004ED0B0[];
 extern int D_004ED0C0[];
@@ -689,6 +694,7 @@ void makeFullScreenFlareAfter(int mode)
 
     gif_EndPacket();
 }
+
 void pasteFullScreenFlare(void)
 {
     int rect[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16, D_0063A068 * 16};
@@ -714,6 +720,7 @@ void pasteFullScreenFlare(void)
 
     gif_EndPacket();
 }
+
 extern int D_004ED024[];
 extern SprUV D_00620E50;
 extern SprUV D_00620E60;
@@ -861,6 +868,7 @@ void depthField(float depth, float alpha, float rate)
 
     gif_EndPacket();
 }
+
 extern int D_004ED050[];
 extern void _NormalizeVector();
 
@@ -868,6 +876,7 @@ void GetSunWorldPos(int a0)
 {
     _NormalizeVector(a0, D_004ED050);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", MotionBlur);
 extern int D_004ED030[];
 extern int D_004ED040[];
@@ -891,6 +900,7 @@ void calcSun(void)
     _FTOI0Vector(D_004ED030, buf);
     _ApplyMatrix(D_004ED040, matrixptr + 0x80, D_004ED050);
 }
+
 extern int D_0063B13C;
 extern void debug_Printf();
 extern int sprintf();
@@ -967,6 +977,7 @@ void colorSetting(void)
         debug_Printf(0x1B8, 0x28, 0xFFFFFF00, buf);
     }
 }
+
 extern char D_00620EC0[];
 extern int D_0063BB08;
 extern int D_0063BB9C;
@@ -980,6 +991,7 @@ extern char D_0063BBA8[];
 extern char D_0063BBB0[];
 extern char D_0063BBB8[];
 extern char D_0063BBC0[];
+
 void dispPostInfo(void)
 {
     char buf[256];
@@ -1066,6 +1078,7 @@ void dispFeedInfo(void)
         }
     }
 }
+
 extern int D_0063B1F0;
 extern int D_0063BB0C;
 extern int D_0063BB10;
@@ -1145,6 +1158,7 @@ void FullScreenEffectBefore(void)
         auraInspireBefore();
     }
 }
+
 extern float D_0063BB28;
 extern float D_0063BB2C;
 extern void tex_UnlockHeadTBP(int slot);
@@ -1218,12 +1232,14 @@ void FullScreenEffectAfter(void)
     tex_UnlockHeadTBP(7);
     tex_UnlockHeadTBP(8);
 }
+
 extern int D_0028FF00[];
 extern int D_0063BB1C;
 extern int D_0063BB20;
 extern int D_0063BB24;
 extern void CopyVector();
 extern int prim_InitFan2D(int a, float e, int *b, unsigned int c, int d);
+
 /* INTERIM (same pattern as GetSkeltonFocusNode in src/motionManager2.c): the
    listing inlines _initStaticBlur (staticBlur.c:1310-1311) into InitStaticBlur,
    so it is `inline` in the dev's TU; while this tail still has asm members a
@@ -1244,14 +1260,18 @@ int InitStaticBlur(void)
     D_0063BB24 = 1;
     return 0;
 }
+
 void StaticBlur(void) {}
+
 void StaticBlurDL(void) {}
+
 extern int D_0063BB94;
 
 void SetMotionBlur(int val)
 {
     D_0063BB94 = val;
 }
+
 extern int D_0028F808[];
 
 void SetStaticBlur(int x)
@@ -1266,19 +1286,23 @@ void SetDepthFadeParam(float f12, float f13, int a0)
     D_0028F720.field_F0 = (int)f13;
     D_0028F720.field_F8 = a0;
 }
+
 extern float D_0063BB30;
 
 void SetAuraInspireParam(float a0)
 {
     D_0063BB30 = a0;
 }
+
 void InitializeStaticBlur(void)
 {
     D_0063BB24 = 0;
 }
+
 void _initStaticBlur(void)
 {
     D_0063BB1C = prim_InitFan2D(0x10, 80.0f, D_0028FF00, 0xFFFFFF80u, 0);
     D_0063BB20 = prim_InitFan2D(0x10, 80.0f, D_0028FF00, 0xFFFFFF80u, 0);
 }
+
 void SetAuraEffect(void) {}

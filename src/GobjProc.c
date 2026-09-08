@@ -24,6 +24,7 @@ typedef struct PObjGObj {
     /*0x168*/ char pad168[0x4];
     /*0x16C*/ int f16C;
 } PObjGObj;
+
 extern int D_0063C0C8;
 extern int D_0072A2C0[];
 extern char D_0063C0D0[];
@@ -35,18 +36,22 @@ extern int isysGObjProcAdd(void *a0, int a1, int a2, int a3);
 extern void isysGObjProcAddS(void *a0, int a1, int a2, int a3, int a4);
 /* prototypes: their order is the inline tail's emission order */
 PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
+
 void ResetGObjProc(void)
 {
     D_0063C0C8 = 0;
 }
+
 int GetMaxGObj(void)
 {
     return D_0063C0C8;
 }
+
 int GetGObjP(int idx)
 {
     return D_0072A2C0[idx];
 }
+
 int GetGObjId(int a0)
 {
     int i;
@@ -57,6 +62,7 @@ int GetGObjId(int a0)
     }
     return -1;
 }
+
 void PrintGObjID(int a0)
 {
     int i;
@@ -66,7 +72,9 @@ void PrintGObjID(int a0)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/GobjProc", InitCameraGObjs);
+
 inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
 {
     PObjGObj *g;
@@ -87,6 +95,7 @@ inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int
     }
     return g;
 }
+
 PObjGObj *CreateGObj(PObjGObj *p, int a1, int a2, int a3, int a4)
 {
     PObjGObj *g;

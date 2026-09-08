@@ -6,6 +6,7 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
@@ -52,6 +53,7 @@ void actSt01bSekizo(volatile int a0)
 
     scpSekizou(a0, 0x41, 0xB2, 0, 0x12, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
 }
+
 extern void actSt01bEneChk(volatile int a0);
 
 void actSt01bEne(volatile int a0)
@@ -68,6 +70,7 @@ void actSt01bEne(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt01bEnemy1(volatile int a0)
 {
     int x = a0;
@@ -90,6 +93,7 @@ void actSt01bEnemy1(volatile int a0)
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
+
 void actSt01bEnemy2(volatile int a0)
 {
     int x = a0;
@@ -110,6 +114,7 @@ void actSt01bEnemy2(volatile int a0)
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
+
 void actSt01bEnemy3(volatile int a0)
 {
     int x = a0;
@@ -128,6 +133,7 @@ void actSt01bEnemy3(volatile int a0)
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
+
 void actSt01bEnemy4(volatile int a0)
 {
     int x = a0;
@@ -143,6 +149,7 @@ void actSt01bEnemy4(volatile int a0)
     _ACTWait(0x73);
     Generator_Call(a0);
 }
+
 void actSt01bEnemy5(volatile int a0)
 {
     int x = a0;
@@ -158,6 +165,7 @@ void actSt01bEnemy5(volatile int a0)
     _ACTWait(0x7D);
     Generator_Call(a0);
 }
+
 void actSt01bEnemy6(volatile int a0)
 {
     int x = a0;
@@ -173,6 +181,7 @@ void actSt01bEnemy6(volatile int a0)
     _ACTWait(0x6E);
     Generator_Call(a0);
 }
+
 extern void actSt01bFloorChk(volatile int a0);
 
 void actSt01bFloor(volatile int a0)
@@ -189,6 +198,7 @@ void actSt01bFloor(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void actSt01bWayOnChk(volatile int a0);
 
 void actSt01bWay(volatile int a0)
@@ -203,15 +213,19 @@ void actSt01bWay(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt01bEnd(void) {}
+
 void actSt01bSekizoEvent(int x)
 {
     volatile int local = x;
 }
+
 void actSt01bFloorEvent(int x)
 {
     volatile int local = x;
 }
+
 extern void actSt01bWayOffChk(volatile int a0);
 extern int D_00639EA8;
 extern int scpTriggerFloorAttr(int a0, int a1);

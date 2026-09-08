@@ -28,6 +28,7 @@ extern void AdpcmInterStereoVolumeSetAll();
 extern void _PopVu0Registers();
 /* prototypes: their order is the inline tail's emission order */
 void sndManager(void);
+
 inline void sndManager(void)
 {
     int mode;
@@ -53,6 +54,7 @@ inline void sndManager(void)
         _PopVu0Registers();
     }
 }
+
 void sndBgmReadyNextStage(int *a, int *b)
 {
     soundDataSegNextStageNotUseClose(1, a);
@@ -61,6 +63,7 @@ void sndBgmReadyNextStage(int *a, int *b)
     soundDataSegAllClose(1, 0);
     soundSeEnvNotUseClose(a, b);
 }
+
 void sndInit(int idx)
 {
     short new_var;

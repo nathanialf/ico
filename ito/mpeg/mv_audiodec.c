@@ -18,6 +18,7 @@ void audioDecStart(int *self);
 int audioDecPause(int a0);
 void audioDecResume(int *self);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", audioDecCreate);
+
 inline int audioDecDelete(int *self)
 {
     if (self[0x44 / 4]) {
@@ -38,6 +39,7 @@ inline int audioDecDelete(int *self)
     }
     return 1;
 }
+
 inline void audioDecReset(int *self)
 {
     SgStPcmVolume(3, 0, 0);
@@ -51,11 +53,14 @@ inline void audioDecReset(int *self)
     *(volatile int *)((char *)self + 0x54) = 0;
     *(volatile int *)((char *)self + 0x4C) = 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", audioDecEndPut);
+
 inline int audioDecIsPreset(int *self)
 {
     return *(int *)((char *)self + 0x54) >= *(int *)((char *)self + 0x48);
 }
+
 inline void audioDecStart(int *self)
 {
     SgStPcmLseek(0, 0);
@@ -70,8 +75,10 @@ inline void audioDecStart(int *self)
     SgStPcmPlay(3);
     self[0] = 2;
 }
+
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", sendToIOP2area);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", audioDecSendToIOP);
+
 inline int audioDecPause(int a0)
 {
     *(int *)a0 = 3;
@@ -79,8 +86,10 @@ inline int audioDecPause(int a0)
     SgStPcmStop(3);
     return 0;
 }
+
 inline void audioDecResume(int *self)
 {
     audioDecStart(self);
 }
+
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", pcmCallback);

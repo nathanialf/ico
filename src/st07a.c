@@ -6,6 +6,7 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
@@ -65,6 +66,7 @@ void actSt07aChan(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void actSt07aChanReadyChk(volatile int a0);
 extern ActMail D_004F9F20[];
 
@@ -82,6 +84,7 @@ void actSt07aChanReady(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void actSt07aChanChainChk(volatile int a0);
 extern ActMail D_004F9F40[];
 
@@ -101,6 +104,7 @@ void actSt07aChanChain(volatile int a0)
         scpSearchGobj(0x1C6)->f16C = 0;
     }
 }
+
 extern void actSt07aTsuroChk(volatile int a0);
 extern ActMail D_004F9F80[];
 
@@ -120,6 +124,7 @@ void actSt07aTsuro(volatile int a0)
         gflagOn(0x85);
     }
 }
+
 extern void actSt07aIntroChk(volatile int a0);
 extern ActMail D_004F9FA0[];
 
@@ -137,6 +142,7 @@ void actSt07aIntro(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void actSt07aSekizoChk(volatile int a0);
 extern ActMail D_004F9FC0[];
 
@@ -157,6 +163,7 @@ void actSt07aSekizo(volatile int a0)
         stage_SetAnimation(0x16A, 0, -1);
     }
 }
+
 extern void Generator_Mask(int a0);
 extern void Generator_MaskOff(int a0);
 extern void Generator_Call(int a0);
@@ -182,6 +189,7 @@ void actSt07aGene2(volatile int a0)
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
+
 void actSt07aGene3(volatile int a0)
 {
     int x = a0;
@@ -203,6 +211,7 @@ void actSt07aGene3(volatile int a0)
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
+
 extern void actSt07aEne2Chk(volatile int a0);
 extern ActMail D_004FA000[];
 
@@ -220,6 +229,7 @@ void actSt07aEne2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt07aGene2_1(volatile int a0)
 {
     int x = a0;
@@ -239,6 +249,7 @@ void actSt07aGene2_1(volatile int a0)
     _ACTWait(0x3C);
     Generator_Call(a0);
 }
+
 void actSt07aGene2_2(volatile int a0)
 {
     int x = a0;
@@ -260,6 +271,7 @@ void actSt07aGene2_2(volatile int a0)
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
+
 void actSt07aGene2_3(volatile int a0)
 {
     int x = a0;
@@ -272,6 +284,7 @@ void actSt07aGene2_3(volatile int a0)
     _ACTWait(1);
     Generator_MaskOff(a0);
 }
+
 extern int D_00639EA4;
 extern int bridge;
 extern int scpTriggerFloorAttr(int a0, int a1);
@@ -287,6 +300,7 @@ void actSt07aChanReadyChk(volatile int a0)
     }
     scpAdpcmPlayRequestFunc(0x3B, &bridge, 1, 1, 0);
 }
+
 extern int GetAttackCheckBoundaryManagerStatus(PObjGObj *a0);
 extern int scpGameStat_BoyWeaponkind(void);
 extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
@@ -316,10 +330,12 @@ void actSt07aChanChainChk(volatile int a0)
         }
     }
 }
+
 void actSt07ChanEvent(int x)
 {
     volatile int local = x;
 }
+
 extern void scpTorchLightOn(int a0);
 
 void actSt07aChanFall(volatile int a0)
@@ -339,6 +355,7 @@ void actSt07aChanFall(volatile int a0)
     scpTorchLightOn(0x1B0);
     _ACTWait(0);
 }
+
 extern void scpPlayMot(int a0, int mot);
 extern void scpPlayWaitMotEnd(int a0);
 extern int D_0063C560;
@@ -353,6 +370,7 @@ void actSt07aChanMot(volatile int a0)
     D_0063C560 = 1;
     _ACTWait(0);
 }
+
 extern long long D_00622C70[];
 extern int D_00639EA8;
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
@@ -365,6 +383,7 @@ void actSt07aChanWay1(volatile unsigned int a0)
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
+
 extern long long D_00622C80[];
 
 void actSt07aChanWay2(volatile unsigned int a0)
@@ -375,10 +394,12 @@ void actSt07aChanWay2(volatile unsigned int a0)
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
+
 void actSt07TsuroEvent(int x)
 {
     volatile int local = x;
 }
+
 extern void SetCameraFlag_LwsCutBack(void);
 
 void actSt07aTsuroConte(volatile int a0)
@@ -397,6 +418,7 @@ void actSt07aTsuroConte(volatile int a0)
     D_0063C560 = 1;
     _ACTWait(0);
 }
+
 extern long long D_00622C90[];
 
 void actSt07aGirlWay(volatile unsigned int a0)
@@ -407,10 +429,12 @@ void actSt07aGirlWay(volatile unsigned int a0)
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
+
 void actSt07aCamera2(int x)
 {
     volatile int local = x;
 }
+
 extern int scpTriggerBall(int a0, int a1, float radius);
 extern void lt_switch_layout(int a0);
 extern int D_0063AA08;
@@ -436,10 +460,12 @@ void actSt07aIntroChk(volatile int a0)
     lt_switch_layout(0x36);
     D_0063AA08 = 0;
 }
+
 void actSt07aSekizoEvent(int x)
 {
     volatile int local = x;
 }
+
 extern void gflagOff(int a0);
 
 void actSt07aEne2Chk(volatile int a0)

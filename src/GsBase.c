@@ -27,6 +27,7 @@ void gsb_setNormalReg(void)
     gif_SetGsReg(0x3B, 0x8000000080LL);
     gif_EndPacketPath1();
 }
+
 void gsb_setSemitransReg(void)
 {
     dl_SetDLPriority();
@@ -37,6 +38,7 @@ void gsb_setSemitransReg(void)
     gif_SetGsReg(0x3B, 0x810000807FLL);
     gif_EndPacketPath1();
 }
+
 void gsb_setSpecularReg(void)
 {
     dl_SetDLPriority();
@@ -47,6 +49,7 @@ void gsb_setSpecularReg(void)
     gif_SetGsReg(0x3B, 0x8000000080LL);
     gif_EndPacketPath1();
 }
+
 void gsb_setParticleReg(void)
 {
     dl_SetDLPriority();
@@ -57,6 +60,7 @@ void gsb_setParticleReg(void)
     gif_SetGsReg(0x3B, 0x8000000080LL);
     gif_EndPacketPath1();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_MakeCommonMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_SetGsDefault);
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_filmNoise);
@@ -108,6 +112,7 @@ int createLockFile(void)
     D_00639F7C = 1;
     return 1;
 }
+
 extern char D_0054EF78[];
 extern char D_0054EF90[];
 extern char D_0063A040[];
@@ -128,6 +133,7 @@ int removeLockFile(void)
     D_00639F7C = 0;
     return 1;
 }
+
 extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt, ...);
 
 typedef struct {
@@ -193,6 +199,7 @@ int gsb_StageSetting(void)
     }
     return (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
 }
+
 extern unsigned char D_0067BCD0[];
 
 inline void gsb_SetBGColor(void *a0, int r, int g, int b)
@@ -208,6 +215,7 @@ inline void gsb_SetBGColor(void *a0, int r, int g, int b)
     *(unsigned long long *)((char *)a0 + 0x1F0) = v;
     *(unsigned long long *)((char *)a0 + 0x100) = v;
 }
+
 inline void gsb_GetBGColor(unsigned char *a0)
 {
     a0[0] = D_0067BCD0[0];
@@ -215,6 +223,7 @@ inline void gsb_GetBGColor(unsigned char *a0)
     a0[2] = D_0067BCD0[8];
     a0[3] = D_0067BCD0[0xC];
 }
+
 extern void stage_SetLoopFlag(int key, int a1);
 extern int CurrentTargetGObjSub;
 extern int D_0054E3C0[];
@@ -236,6 +245,7 @@ inline void gsb_ResetFilmNoise(void)
         }
     }
 }
+
 extern float D_00639F88;
 extern float D_00639F90;
 
@@ -244,6 +254,7 @@ inline void gsb_SetZoom(float a, float b)
     D_00639F88 = a;
     D_00639F90 = b;
 }
+
 extern int sceGsSyncPath(int mode, int timeout);
 extern void gsb_ResetGSSystem(void);
 extern void gsb_PostEffect(void);
@@ -265,12 +276,14 @@ inline int gsb_SyncGSSystem(void)
     gsb_PostEffect();
     return 0;
 }
+
 extern int stage_no;
 extern char D_005F5D90[];
 extern char D_0054E488[];
 extern char D_0054E4A8[];
 extern char D_0054E4D8[];
 extern char D_0028F720[];
+
 inline int gsb_LoadStageSettings(void)
 {
     char buf[0x100];
@@ -286,6 +299,7 @@ inline int gsb_LoadStageSettings(void)
     }
     return -1;
 }
+
 extern int D_00639F78;
 extern char D_0054E568[];
 extern char D_0054E598[];
@@ -309,12 +323,16 @@ inline int gsb_SaveStageSettings(void)
     }
     return -1;
 }
+
 inline void gsb_ClearFrameBuffer(void)
 {
     volatile int local[96];
 }
+
 inline void gsb_ResetSnap(void) {}
+
 inline void gsb_TakeSnap(void) {}
+
 extern void updateOtherEditingLockFlag(void);
 
 inline int lockOtherEditing(void)

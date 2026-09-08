@@ -6,6 +6,7 @@ typedef struct {
     int stay;       /* 0x44 */
     long long w48;  /* 0x48 */
 } MultiBga;
+
 extern MultiBga D_004ECCA0;
 extern MultiBga D_007240A0[];
 extern char *D_00724A00[];
@@ -23,6 +24,7 @@ void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, int sens
 void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay);
 void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, int sensitive,
                                                 int stay);
+
 inline void InitStageMultiBgaManager(void)
 {
     int i;
@@ -33,6 +35,7 @@ inline void InitStageMultiBgaManager(void)
     }
     D_0063BB04 = 0;
 }
+
 inline void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay)
 {
     D_00724A00[D_0063BB04] = stage_MakePlayBgAnimation(kind);
@@ -44,10 +47,12 @@ inline void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, in
         D_0063BB04 = 0;
     }
 }
+
 inline void EntryStageMultiBgaManager(int kind, void *pos, void *rot)
 {
     EntryStageMultiBgaManagerWithStay(kind, pos, rot, 0);
 }
+
 inline void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot,
                                                        int sensitive, int stay)
 {
@@ -60,8 +65,10 @@ inline void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void
         D_0063BB04 = 0;
     }
 }
+
 inline void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, int sensitive)
 {
     EntryStageMultiBgaManagerSensitiveWithStay(kind, pos, rot, sensitive, 0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/stageMultiBgaManager", DispStageMultiBgaManager);

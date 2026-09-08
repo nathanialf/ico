@@ -10,6 +10,7 @@ typedef struct CamMgr {
     char *pool;       /* 0x08 */
     char flags[0x64]; /* 0x0C */
 } CamMgr;
+
 typedef struct StageParam {
     char pad0[0x118];
     int camSetId; /* 0x118 */
@@ -25,6 +26,7 @@ typedef struct {
 extern char D_00554CE0[];
 extern int D_0063A450;
 extern int curmenu;
+
 void EnterMenu(void *a0, int a1, void *a2)
 {
     char *m = iosMallocDebug(D_0063A450, 0x78, D_00554CE0, 0xD9);
@@ -37,6 +39,7 @@ void EnterMenu(void *a0, int a1, void *a2)
         iosThreadSleep(a2);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedDataBinary);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedData);
 extern void gif_SetGsReg(int code, long data);
@@ -49,6 +52,7 @@ void gif_test(int *a0, int *a1, int *a2, unsigned char *a3)
     gif_SetGsReg(4, (long)a1[0] | ((long)a1[1] << 16) | ((long)a1[2] << 32));
     gif_SetGsReg(4, (long)a2[0] | ((long)a2[1] << 16) | ((long)a2[2] << 32));
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DebugDispBox);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DispCameraGroup);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", drawXZArrow);
@@ -60,7 +64,9 @@ void CameraEdit_DispPinType2(int a0, int a1, int a2)
 {
     dispCameraPinType2(a0, a1, a1 + 1, a2);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", dispCameraGroupType2);
+
 /* dispBox is defined as a nested function inside
  * CameraEdit_DispBoxType2_Plane below (the listing names it dispBox.152). */
 /* Box corner, a VU0 quadword: _InterGV / DrawPolygon / DrawLineG all take
@@ -182,12 +188,14 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
         gif_EndPacket();
     }
 }
+
 extern void dispCameraGroupType2(int a0, int a1);
 
 void CameraEdit_DispBoxType2(int a0, int a1)
 {
     dispCameraGroupType2(a0, a1 & 0xFF);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018CDC0);
 extern int print_y;
 extern int D_0028F94C[];
@@ -209,6 +217,7 @@ void wakeup_cameraedit(void)
         }
     }
 }
+
 extern void EnterMenu(void *a0, int a1, void *a2);
 extern void func_0018CDC0(void);
 
@@ -216,6 +225,7 @@ void test_camedit(void)
 {
     EnterMenu((void *)func_0018CDC0, 0, 0);
 }
+
 extern char D_00555038[];
 extern void debug_StdPrintfDummy();
 
@@ -245,10 +255,12 @@ void _CameraEdit_del_box(CamMgr *mgr, int idx)
     }
     mgr->count = mgr->count - 1;
 }
+
 static inline S4C *_CameraEdit_BOX_p(CamMgr *mgr, int i)
 {
     return (S4C *)(i * 0x4C + (int)mgr->items);
 }
+
 static inline S5C *_CameraEdit_PIN_p(CamMgr *mgr, int i, int j)
 {
     return (S5C *)(_CameraEdit_BOX_p(mgr, i)->w[0x48 / 4] + j * 0x5C);
@@ -267,6 +279,7 @@ void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin)
     }
     _CameraEdit_BOX_p(mgr, box)->w[0x3C / 4] = _CameraEdit_BOX_p(mgr, box)->w[0x3C / 4] - 1;
 }
+
 extern char D_00555020[];
 extern int *D_0063AA78;
 extern int *D_0063AA7C;
@@ -310,6 +323,7 @@ int CameraEdit_add_box(S4C *src)
     _CameraEdit_add_box((CamMgr *)D_0063AA78, src);
     return _CameraEdit_add_box((CamMgr *)D_0063AA7C, src);
 }
+
 extern char D_00555020[];
 extern int *D_0063AA78;
 extern int *D_0063AA7C;
@@ -336,6 +350,7 @@ int CameraEdit_add_pin(int box, char *src)
     _CameraEdit_add_pin(D_0063AA78, box, (S5C *)src);
     return _CameraEdit_add_pin(D_0063AA7C, box, (S5C *)src);
 }
+
 extern int *D_0063AA78;
 extern int *D_0063AA7C;
 extern void _CameraEdit_del_box(CamMgr *mgr, int idx);
@@ -345,6 +360,7 @@ void CameraEdit_del_box(int a0)
     _CameraEdit_del_box((CamMgr *)D_0063AA78, a0);
     _CameraEdit_del_box((CamMgr *)D_0063AA7C, a0);
 }
+
 extern void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin);
 
 void CameraEdit_del_pin(int a0, int a1)
@@ -352,12 +368,14 @@ void CameraEdit_del_pin(int a0, int a1)
     _CameraEdit_del_pin((CamMgr *)D_0063AA78, a0, a1);
     _CameraEdit_del_pin((CamMgr *)D_0063AA7C, a0, a1);
 }
+
 extern void DispCameraGroup(int a0, unsigned char a1);
 
 void CameraEdit_DispBox(int a0, unsigned char a1)
 {
     DispCameraGroup(a0, a1);
 }
+
 extern void ReflectCameraSetBinary(int a0, int a1);
 
 void CameraEdit_Reflect(void)
@@ -365,6 +383,7 @@ void CameraEdit_Reflect(void)
     int *p = D_0063AA78;
     ReflectCameraSetBinary(p[1], p[0]);
 }
+
 extern void saveEditedDataBinary(int a0, int a1, int a2);
 
 void CameraEdit_Save(int a0)
@@ -372,6 +391,7 @@ void CameraEdit_Save(int a0)
     int *p = D_0063AA78;
     saveEditedDataBinary(a0, p[1], p[0]);
 }
+
 extern void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13);
 extern void sceVu0ScaleVector(int *buf, int *p, float t);
 
@@ -381,8 +401,11 @@ void debug_NMarker(int *self, int a1, int a2, int a3, float t)
     sceVu0ScaleVector(buf, self, -1.0f);
     debug_Marker(buf, a1, a2, a3, t, 0.0f);
 }
+
 void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13) {}
+
 void debug_Arrow(void) {}
+
 extern int curmenu;
 extern char exit_f;
 
@@ -391,6 +414,7 @@ void InitCameraEditor(void)
     curmenu = 0;
     exit_f = 0;
 }
+
 extern void CameraSetMode(int a0);
 extern unsigned char D_0063AB40__pn __asm__("exit_f");
 extern int D_0063B13C;
@@ -412,6 +436,7 @@ int debug_CameraEditor(void)
     CameraEdit_Reflect();
     return -1;
 }
+
 extern int CameraEdit_BOX(int a0);
 extern void CameraEdit_reset_pin(int a0, int a1);
 
@@ -434,12 +459,14 @@ void CameraEdit_reset_box(int a0)
         i++;
     }
 }
+
 void CameraEdit_reset_pin(int a0, int a1)
 {
     S5C *dst = (S5C *)(*(int *)(D_0063AA7C[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
     S5C *src = (S5C *)(*(int *)(D_0063AA78[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
     *dst = *src;
 }
+
 extern void CameraEdit_reflect_pin(int a0, int a1);
 
 void CameraEdit_reflect_box(int a0)
@@ -456,22 +483,26 @@ void CameraEdit_reflect_box(int a0)
         i++;
     }
 }
+
 void CameraEdit_reflect_pin(int a0, int a1)
 {
     S5C *dst = (S5C *)(*(int *)(D_0063AA78[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
     S5C *src = (S5C *)(*(int *)(D_0063AA7C[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
     *dst = *src;
 }
+
 int CameraEdit_BOX_NUMBER(void)
 {
     return *D_0063AA7C;
 }
+
 int CameraEdit_PIN_NUMBER(int a0)
 {
     int r1 = CameraEdit_BOX(a0);
     int r2 = CameraEdit_BOX(a0);
     return *(int *)(r1 + 0x3C) - *(int *)(r2 + 0x38);
 }
+
 int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1)
 {
     int sum = 0;
@@ -481,14 +512,17 @@ int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1)
     }
     return sum;
 }
+
 int CameraEdit_BOX(int a0)
 {
     return D_0063AA7C[1] + a0 * 0x4C;
 }
+
 int CameraEdit_PIN(int a0, int a1)
 {
     return *(int *)(D_0063AA7C[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
 }
+
 typedef union {
     unsigned int c[4];
     unsigned long long w[2];
@@ -523,6 +557,7 @@ void CameraEdit_DispPin(int box, int pin)
 {
     dispPinRange(box, pin, pin + 1);
 }
+
 extern int CameraEdit_add_box(S4C *a0);
 extern int CameraEdit_add_pin(int a0, char *a1);
 extern float D_002A5D68[];
@@ -563,6 +598,7 @@ void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
         item = (S4C *)((char *)item + 0x4C);
     }
 }
+
 extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
 extern void MatrixDrive_PushMatrix(void);
@@ -610,12 +646,15 @@ void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
         out[2] = out[2] * (float)a5;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018F590);
+
 int _CameraEdit_PIN(int *a0, int a1, int a2)
 {
     int *p;
     return ((int *)(a0[1] + (a1 * 0x4C)))[0x48 / 4] + (a2 * 0x5C);
 }
+
 extern char D_00555020[];
 extern void debug_StdPrintfDummy();
 

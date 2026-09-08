@@ -15,6 +15,7 @@ typedef struct {
     int f20;
     int pad2[7];
 } WPElem;
+
 typedef struct {
     int f0;
     int f4;
@@ -40,6 +41,7 @@ typedef struct Nd {
     struct Nd *fC;
     char pad2[0x40 - 16];
 } Nd;
+
 typedef struct {
     int f0, f4;
     char *f8;
@@ -56,14 +58,17 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_gid)
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_gid_ThreadVersion);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_temp);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_temp_ThreadVersion);
+
 void ez_line(void)
 {
     volatile int local[12];
 }
+
 void ez_circle(void)
 {
     volatile int local[12];
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/way_util", short_direction_between_wp);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", wgid_next);
 extern char D_00554300[];
@@ -88,6 +93,7 @@ void *WayUtilWorkAlloc(void)
     }
     return p;
 }
+
 extern void iosFree();
 
 void WayUtilWorkFree(int *self)
@@ -101,6 +107,7 @@ void WayUtilWorkFree(int *self)
     iosFree(self[6]);
     iosFree((int)self);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path_ThreadVersion);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", GetWgAll);
@@ -133,12 +140,14 @@ inline char *nearest_waypoint_of_group(int *arg0, int handle)
     }
     return best;
 }
+
 extern int D_0063BD78;
 
 inline char *nearest_waypoint(int *a0)
 {
     return nearest_waypoint_of_group(a0, D_0063BD78);
 }
+
 extern void GetRootPosition(void *a0, void *a1);
 
 inline char *nearest_waypoint_from_gobj(void *dobj)
@@ -147,6 +156,7 @@ inline char *nearest_waypoint_from_gobj(void *dobj)
     GetRootPosition(mtx, dobj);
     return nearest_waypoint_of_group(mtx, D_0063BD78);
 }
+
 extern WayGrp D_004F1EC0[];
 extern float fzMagnitudeByLineSeg(void *a0, void *a1, void *a2);
 
@@ -177,6 +187,7 @@ inline char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid)
 out:
     return best;
 }
+
 inline char *nearest_waypoint_by_lineseg(void *arg0)
 {
     WayGrp *g = &D_004F1EC0[D_0063BD78];
@@ -204,6 +215,7 @@ inline char *nearest_waypoint_by_lineseg(void *arg0)
 out:
     return best;
 }
+
 extern void GetRootPosition(void *a0, void *a1);
 
 inline char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid)
@@ -239,6 +251,7 @@ inline char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid)
         return best;
     }
 }
+
 inline char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
 {
     int mtx[4];
@@ -273,6 +286,7 @@ inline char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
         return best;
     }
 }
+
 extern int D_0063BD78;
 extern int WayPointList_begin();
 extern int WayPointList_next();
@@ -295,6 +309,7 @@ inline char *waypoint_with_range(int *arg0, float thresh)
 ret0:
     return 0;
 }
+
 extern char *WayPoint_begin(void);
 extern int WayPoint_next(int a0);
 
@@ -322,6 +337,7 @@ inline char *nearest_waypoint_of_all_except_group(int *arg0, int a1)
     }
     return best;
 }
+
 extern unsigned char D_004F1ED8[];
 
 inline char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid)
@@ -349,6 +365,7 @@ inline char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid)
     }
     return best;
 }
+
 inline char *nearest_waypoint_of_all(int *a0)
 {
     int buf[4];
@@ -374,12 +391,14 @@ inline char *nearest_waypoint_of_all(int *a0)
     }
     return best;
 }
+
 extern char *visible_waypoint_of_all_except_gid(int *arg0, int gid);
 
 inline int visible_waypoint_of_all(void *a0)
 {
     return visible_waypoint_of_all_except_gid(a0, -1);
 }
+
 extern void GetRootPosition(void *a0, void *a1);
 
 inline void visible_waypoint_of_all_from_gobj(void *a0)
@@ -388,6 +407,7 @@ inline void visible_waypoint_of_all_from_gobj(void *a0)
     GetRootPosition(buf, a0);
     visible_waypoint_of_all_except_gid(buf, -1);
 }
+
 extern void ClipWall(void *);
 extern void sceVu0CopyVector(void *buf, int x);
 
@@ -422,12 +442,14 @@ inline char *visible_waypoint(int *arg0, int handle)
     }
     return best;
 }
+
 inline char *visible_waypoint_from_gobj(void *dobj, int handle)
 {
     int mtx[4];
     GetRootPosition(mtx, dobj);
     return visible_waypoint(mtx, handle);
 }
+
 extern WayGrp D_004F1EC0[];
 extern Nd D_004F31E0[];
 
@@ -464,6 +486,7 @@ inline void *get_wp_nearest_bridge_side_me(int arg0, int arg1)
     }
     return 0;
 }
+
 inline int get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
 {
     unsigned char *base = (unsigned char *)D_004F1EC0;
@@ -497,6 +520,7 @@ inline int get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
     }
     return 0;
 }
+
 extern char D_00554378[];
 extern char D_0063A9E8[];
 extern void __assert(void *a0, int a1, void *a2);
@@ -518,6 +542,7 @@ inline int direction_across_bridge(void *a0, int a1)
     }
     return 0;
 }
+
 extern WNODE *WayBridge_begin(void);
 extern WNODE *WayBridge_next(WNODE *);
 
@@ -539,6 +564,7 @@ inline WNODE *waybridge_between_group(int a0, int a1)
     }
     return 0;
 }
+
 inline char *bridge_waypoint_side_me(int me, int target)
 {
     WNODE *p = WayBridge_begin();
@@ -554,6 +580,7 @@ inline char *bridge_waypoint_side_me(int me, int target)
     }
     return 0;
 }
+
 inline WPElem *waypoint_connect_group_side_me(WPNode *a0, int a1)
 {
     WPElem *e = &D_004F31E0[a0->i20];
@@ -562,6 +589,7 @@ inline WPElem *waypoint_connect_group_side_me(WPNode *a0, int a1)
     e = &D_004F31E0[a0->i24];
     return e->f20 == a1 ? e : 0;
 }
+
 inline int bridge_waypoint_side_bridge(int a0, int a1)
 {
     WPNode *p = (WPNode *)WayBridge_begin();
@@ -579,6 +607,7 @@ inline int bridge_waypoint_side_bridge(int a0, int a1)
     }
     return 0;
 }
+
 inline int waypoint_connect_group_side_bridge(WPNode *a0, int a1)
 {
     WPElem *e = &D_004F31E0[a0->i20];
@@ -589,6 +618,7 @@ inline int waypoint_connect_group_side_bridge(WPNode *a0, int a1)
         return a0->iC;
     return 0;
 }
+
 extern unsigned char D_004F1ED8[];
 
 inline int NearestWgFromTarget(int cur, int end, WgAll *w)
@@ -606,6 +636,7 @@ inline int NearestWgFromTarget(int cur, int end, WgAll *w)
     }
     return cur;
 }
+
 inline int wpsort_compfnc(int a0, int a1)
 {
     float x = *(float *)(a0 + 4);

@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x164]; /* 0x000 */
     int act;           /* 0x164 */
@@ -59,6 +61,7 @@ void actSt06aInit(void)
         SetWayGroupActive(0xC, 1);
     }
 }
+
 extern void SetRotObjectLockFlag(PObjGObj *a0, int a1);
 extern void ReInitBoxGeo(PObjGObj *a0);
 extern void actSt06aSuimonChk(volatile int a0);
@@ -89,11 +92,13 @@ void actSt06aSuimon(volatile int a0)
         ReInitBoxGeo(scpSearchGobj(0x6ED));
     }
 }
+
 typedef struct Pad {
     int unk00;        /* 0x00 */
     int trg;          /* 0x04 */
     char unk08[0x50]; /* 0x08 */
 } Pad;
+
 extern Pad D_0028F8F0[];
 extern void lt_switch_layout(int a0);
 extern void scpSleepEnemyAll(void);
@@ -194,6 +199,7 @@ void actSt06aSuimonChk(volatile int a0)
     SetWayGroupActive(9, 1);
     SetWayGroupActive(0xA, 1);
 }
+
 extern void actSt06aDoorDownChk(volatile int a0);
 extern void actSt06aDoorUpChk(volatile int a0);
 extern ActMail D_004F9950[];
@@ -222,6 +228,7 @@ void actSt06aDoor(volatile int a0)
         _ACTWait(0);
     }
 }
+
 /* The four door-boundary X/Z corners and the exit-camera Z live in the -G8
    gp float pool and are written by the stage's layout/script side, so the
    compiler may not sink their loads into a jal delay slot; ROM has a nop at
@@ -273,6 +280,7 @@ void actSt06aDoorUpChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt06aDoorDownChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -307,6 +315,7 @@ void actSt06aDoorDownChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt06aShutterOpen(volatile int a0)
 {
     int h;
@@ -356,6 +365,7 @@ void actSt06aShutterOpen(volatile int a0)
     lt_switch_layout(0x36);
     SetWayGroupActive(0xC, 1);
 }
+
 extern void SetCameraFlag_GamecamCutBack(void);
 extern void actSt06aBoxSub(volatile int a0);
 
@@ -406,6 +416,7 @@ void actSt06aBoxChk(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
 }
+
 extern void ReviveAllCarryableItemsWithRandomVelocity(float a0, float a1);
 
 void actSt06aStatueChk(volatile int a0)
@@ -460,6 +471,7 @@ void actSt06aStatueChk(volatile int a0)
 
     gflagOn(0x71);
 }
+
 extern int toge;
 extern int D_0063AA00;
 extern int GetCharHeldItem(void *a0);
@@ -554,6 +566,7 @@ void actSt06aHeadChk(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
 }
+
 void actSt06aJumpMove(volatile int a0)
 {
     int h;
@@ -597,6 +610,7 @@ void actSt06aJumpMove(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
 }
+
 extern char D_00622C08[];
 extern float D_004F9E70[];
 extern void actSt06aPistonFlagOffChk(volatile int a0);
@@ -629,6 +643,7 @@ void actSt06aPistonFlagOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void SleepHint(int a0);
 extern void actSt06aShutterMain(volatile int a0);
 extern ActMail D_004F99F0[];
@@ -653,6 +668,7 @@ void actSt06aShutter(volatile int a0)
         scpSearchGobj(0x6CE)->f16C = 0;
     }
 }
+
 extern void actSt06aExitChk(volatile int a0);
 extern ActMail D_004F9A30[];
 
@@ -668,6 +684,7 @@ void actSt06aExit(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aExitGirlChk(volatile int a0);
 extern ActMail D_004F9A50[];
 
@@ -683,6 +700,7 @@ void actSt06aExitGirl(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aBoxChk(volatile int a0);
 extern ActMail D_004F9A70[];
 
@@ -702,6 +720,7 @@ void actSt06aBox(volatile int a0)
         scpSearchGobj(0x6ED)->f16C = 0;
     }
 }
+
 extern void actSt06aBox2Chk(volatile int a0);
 extern ActMail D_004F9A90[];
 
@@ -719,6 +738,7 @@ void actSt06aBox2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void actSt06aBox3Chk(volatile int a0);
 extern ActMail D_004F9AB0[];
 
@@ -736,6 +756,7 @@ void actSt06aBox3(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void actSt06aBoxEvent2InChk(volatile int a0);
 extern void actSt06aBoxEvent2OutChk(volatile int a0);
 extern ActMail D_004F9AF0[];
@@ -760,6 +781,7 @@ void actSt06aBoxEvent2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void actSt06aWayOnChk(volatile int a0);
 extern ActMail D_004F9B70[];
 
@@ -775,6 +797,7 @@ void actSt06aWay(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aWallWayOnChk(volatile int a0);
 extern void actSt06aWallWayOffChk(volatile int a0);
 extern ActMail D_004F9BD0[];
@@ -801,6 +824,7 @@ void actSt06aWallWay(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void actSt06aWallWay2OnChk(volatile int a0);
 extern void actSt06aWallWay2OffChk(volatile int a0);
 extern ActMail D_004F9C50[];
@@ -827,6 +851,7 @@ void actSt06aWallWay2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F9CD0[];
 extern void actSt06aStatueChk(volatile int a0);
 
@@ -849,6 +874,7 @@ void actSt06aStatue(volatile int a0)
         stage_SetAnimation(0x103, -1, -2);
     }
 }
+
 extern void actSt06aHeadChk(volatile int a0);
 extern ActMail D_004F9CF0[];
 
@@ -875,6 +901,7 @@ void actSt06aHead(volatile int a0)
         }
     }
 }
+
 extern void actSt06aTreeChk(volatile int a0);
 extern ActMail D_004F9D10[];
 
@@ -895,6 +922,7 @@ void actSt06aTree(volatile int a0)
         scpSearchGobj(0x6EA)->f16C = 0;
     }
 }
+
 extern void actSt06aBallDeleteChk(volatile int a0);
 extern ActMail D_004F9AD0[];
 
@@ -910,6 +938,7 @@ void actSt06aBallDelete(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aKyomiOffChk(volatile int a0);
 extern ActMail D_004F9D30[];
 
@@ -925,6 +954,7 @@ void actSt06aKyomi(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aJumpMain(volatile int a0);
 extern ActMail D_004F9DB0[];
 
@@ -948,6 +978,7 @@ void actSt06aJump(volatile int a0)
         stage_SetAnimation(0x71, 0, 0);
     }
 }
+
 extern void actSt06aPistonRideOnChk(volatile int a0);
 extern ActMail D_004F9DF0[];
 
@@ -963,6 +994,7 @@ void actSt06aPiston(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aPistonFlagOnChk(volatile int a0);
 extern ActMail D_004F9E50[];
 
@@ -978,6 +1010,7 @@ void actSt06aPistonFlag(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aSoundChk(volatile int a0);
 extern ActMail D_004F9EC0[];
 
@@ -995,6 +1028,7 @@ void actSt06aSound(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void actSt06aSound2Chk(volatile int a0);
 extern ActMail D_004F9EF0[];
 
@@ -1012,10 +1046,12 @@ void actSt06aSound2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt06aSuimonEvent(int x)
 {
     volatile int local = x;
 }
+
 extern long long D_00622B60[];
 extern long long D_00622B70[];
 extern long long D_00622B80[];
@@ -1050,6 +1086,7 @@ void actSt06aSuimonEffect(volatile int a0)
     }
     _ACTWait(0);
 }
+
 extern int D_0028F4C0[];
 extern float D_006399A8;
 extern float D_0063C088;
@@ -1083,10 +1120,12 @@ void actSt06aSuimonSub(volatile int a0)
     D_0063C558 = 1;
     _ACTWait(0);
 }
+
 void actSt06aDoorEvent(int x)
 {
     volatile int local = x;
 }
+
 extern long long D_00622BA0[];
 extern long long D_00622BB0[];
 extern void _ACTWait(int a0);
@@ -1115,6 +1154,7 @@ void actSt06aDoorUpEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt06aDoorDownEffect(volatile int a0)
 {
     long long b1[2];
@@ -1138,6 +1178,7 @@ void actSt06aDoorDownEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern ActMail D_004F99D0[];
 
 void actSt06aShutterMain(volatile int a0)
@@ -1152,6 +1193,7 @@ void actSt06aShutterMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern ActMail D_004F9A10[];
 extern void actSt06aShutterOpen(volatile int a0);
 
@@ -1168,6 +1210,7 @@ void actSt06aShutterSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void AdpcmPlay(int a0);
 
 void actSt06aShutterOpenSub(volatile int a0)
@@ -1190,6 +1233,7 @@ void actSt06aShutterOpenSub(volatile int a0)
     D_0063C558 = 1;
     _ACTWait(0);
 }
+
 extern int RequestStageChange(int a0, void *a1, int a2, float a3, float a4);
 
 void actSt06aExitChk(volatile int a0)
@@ -1201,6 +1245,7 @@ void actSt06aExitChk(volatile int a0)
     D_0063AA08 = 0;
     RequestStageChange(3, D_00639EA4, 0, 16.0f, 16.0f);
 }
+
 extern const long long D_00622BC0[];
 extern const long long D_00622BD0[];
 extern void RequestStageChangeDirect(void *a0, int a1, void *buf, int a3);
@@ -1249,6 +1294,7 @@ void actSt06aBoxSub(volatile int a0)
     D_0063C558 = 1;
     _ACTWait(0);
 }
+
 void actSt06aBox2Chk(volatile int a0)
 {
     while (scpTriggerBall(a0, scpSearchGobj(0x6ED), 200.0f) == 0 || gflagChk(0x6A) == 0) {
@@ -1258,12 +1304,14 @@ void actSt06aBox2Chk(volatile int a0)
     gflagOn(0x6C);
     scpSearchGobj(0x6ED)->f16C = 0;
 }
+
 void actSt06aBox3Chk(volatile int a0)
 {
     while (scpTriggerBall(a0, scpSearchGobj(0x6ED), 200.0f) == 0 || gflagChk(0x6A) != 0) {
         _ACTWait(1);
     }
 }
+
 void actSt06aBallDeleteChk(volatile int a0)
 {
     while (scpTriggerBall(a0, scpSearchGobj(0x6EA), 200.0f) == 0 || gflagChk(0x6A) != 0) {
@@ -1272,6 +1320,7 @@ void actSt06aBallDeleteChk(volatile int a0)
 
     scpSearchGobj(0x6EA)->f16C = 0;
 }
+
 extern void actSt06aBoxEvent2OutChk(volatile int a0);
 extern ActMail D_004F9B30[];
 
@@ -1290,6 +1339,7 @@ void actSt06aBoxEvent2InChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aBoxEvent2InChk(volatile int a0);
 extern ActMail D_004F9B50[];
 
@@ -1308,6 +1358,7 @@ void actSt06aBoxEvent2OutChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern int scpCheckExistAliveEnemy(void);
 extern void actSt06aWayOffChk(volatile int a0);
 extern ActMail D_004F9B90[];
@@ -1331,6 +1382,7 @@ void actSt06aWayOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aWayOnChk(volatile int a0);
 extern ActMail D_004F9BB0[];
 
@@ -1353,6 +1405,7 @@ void actSt06aWayOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2);
 extern void actSt06aWallWayOffChk(volatile int a0);
 extern ActMail D_004F9C10[];
@@ -1374,6 +1427,7 @@ void actSt06aWallWayOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aWallWayOnChk(volatile int a0);
 /* The wall-way-off watcher's mail record: it installs actSt06aWallWayOnChk
    here and posts it. Word 0 of each entry is the mail id the entry answers
@@ -1398,6 +1452,7 @@ void actSt06aWallWayOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aWallWay2OffChk(volatile int a0);
 extern ActMail D_004F9C90[];
 
@@ -1418,6 +1473,7 @@ void actSt06aWallWay2OnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aWallWay2OnChk(volatile int a0);
 extern ActMail D_004F9CB0[];
 
@@ -1438,6 +1494,7 @@ void actSt06aWallWay2OffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern int ForMotionViewer_GetCurrentMotion(void *a0);
 extern void ReviveAllCarryableItems(void);
 
@@ -1454,6 +1511,7 @@ void actSt06aTreeChk(volatile int a0)
     scpSearchGobj(0x6EA)->f16C = 1;
     ReviveAllCarryableItems();
 }
+
 extern void actSt06aKyomiOffChk(volatile int a0);
 extern ActMail D_004F9D50[];
 
@@ -1480,6 +1538,7 @@ void actSt06aKyomiOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void actSt06aKyomiOnChk(volatile int a0);
 extern ActMail D_004F9D70[];
 
@@ -1506,6 +1565,7 @@ void actSt06aKyomiOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern ActMail D_004F9D90[];
 
 void actSt06aJumpMain(volatile int a0)
@@ -1520,6 +1580,7 @@ void actSt06aJumpMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern ActMail D_004F9DD0[];
 extern void actSt06aJumpMove(volatile int a0);
 
@@ -1536,6 +1597,7 @@ void actSt06aJumpSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void SetCameraFlag_LwsCutBack(void);
 
 void actSt06aJumpSub(volatile int a0)
@@ -1560,6 +1622,7 @@ void actSt06aJumpSub(volatile int a0)
     D_0063C558 = 1;
     _ACTWait(1);
 }
+
 extern int scpTriggerFloorAttr(void *a0, int a1);
 extern void actSt06aPistonRideOffChk(volatile int a0);
 /* The piston-ride-on watcher's own mail record (installs
@@ -1579,6 +1642,7 @@ void actSt06aPistonRideOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void iosOmSendMail(void *a0, int a1, void *a2);
 extern char D_00622BE0[];
 extern void actSt06aPistonRideOnChk(volatile int a0);
@@ -1601,6 +1665,7 @@ void actSt06aPistonRideOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern char D_00622C20[];
 extern ActMail D_004F9EA0[];
 
@@ -1626,6 +1691,7 @@ void actSt06aPistonFlagOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern float D_004F9EE0[];
 
 void actSt06aSoundChk(volatile int a0)
@@ -1638,6 +1704,7 @@ void actSt06aSoundChk(volatile int a0)
 
     soundSeDefStop(handle);
 }
+
 extern char D_00622C38[];
 extern float D_004F9F10[];
 

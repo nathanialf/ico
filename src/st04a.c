@@ -11,11 +11,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x15C]; /* 0x000 */
     char *f15C;        /* 0x15C */
@@ -101,6 +103,7 @@ void actSt04aGateL(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F86D0[];
 extern void actSt04aGateRChk(volatile int a0);
 
@@ -123,6 +126,7 @@ void actSt04aGateR(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt04aTorchXL(volatile int a0)
 {
     int x = a0;
@@ -132,6 +136,7 @@ void actSt04aTorchXL(volatile int a0)
 
     stage_SetAnimation(0x123, 0, 0);
 }
+
 void actSt04aDeadCam(volatile int a0)
 {
     int x = a0;
@@ -155,6 +160,7 @@ void actSt04aDeadCam(volatile int a0)
     }
     _ACTWait(1);
 }
+
 extern ActMail D_004F8670[];
 extern void actSt04aGateOpen2Chk(volatile int a0);
 
@@ -173,6 +179,7 @@ void actSt04aGateOpen2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F8650[];
 extern void actSt04aGateOpen2ReadyChk(volatile int a0);
 
@@ -187,6 +194,7 @@ void actSt04aGateOpen2Ready(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern ActMail D_004F8710[];
 extern void actSt04aGirlSitChk(volatile int a0);
 
@@ -201,6 +209,7 @@ void actSt04aGirlSit(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern ActMail D_004F8730[];
 extern void actSt04aTorchHintChk(volatile int a0);
 
@@ -217,6 +226,7 @@ void actSt04aTorchHint(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F8750[];
 extern void actSt04aModelOnChk(volatile int a0);
 
@@ -283,9 +293,11 @@ void actSt04aEnvSeWakare1(volatile int a0)
     }
     _ACTWait(0);
 }
+
 typedef struct {
     float m[16];
 } Mtx44 __attribute__((aligned(16)));
+
 typedef struct {
     float m[4];
 } Vec4;
@@ -308,6 +320,7 @@ void finishCallBackFunc(int a0)
         *(Mtx44 *)(*(int *)(*(int *)(a0 + 0x15C) + 0x80C) + i * 64) = D_004F8610;
     }
 }
+
 extern char D_00618DE0[];
 extern char D_00622840[];
 extern void StandbyStreamMotion(char *a0);
@@ -361,6 +374,7 @@ void actSt04aEnvSeWakare2(volatile int a0)
     }
     _ACTWait(0);
 }
+
 typedef struct JimakuSub {
     char unk00[0x2C]; /* 0x0C */
     int unk2C;        /* 0x38 */
@@ -370,12 +384,14 @@ typedef struct JimakuSub {
     void *unk3C;      /* 0x48 */
     void *unk40;      /* 0x4C */
 } JimakuSub;
+
 typedef struct JimakuArg {
     int cmd;       /* 0x00 */
     int unk04;     /* 0x04 */
     int done;      /* 0x08 */
     JimakuSub sub; /* 0x0C */
 } JimakuArg;
+
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 extern void jimakuBegin(int a0);
@@ -411,6 +427,7 @@ void actConte09_3Jimaku(volatile int a0)
         }
     } while (t < 3000.0f);
 }
+
 extern void _ACTWait(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
@@ -422,6 +439,7 @@ void actConte09_3_demoCancel(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt04aGateLSub(volatile int a0)
 {
     stage_SetAnimation(0x125, 1, 0);
@@ -432,6 +450,7 @@ void actSt04aGateLSub(volatile int a0)
     D_0063C508 = 1;
     _ACTWait(0);
 }
+
 void actSt04aGateRSub(volatile int a0)
 {
     stage_SetAnimation(0x127, 1, 0);
@@ -442,6 +461,7 @@ void actSt04aGateRSub(volatile int a0)
     D_0063C508 = 1;
     _ACTWait(0);
 }
+
 void actSt04aGirlSitChk(volatile int a0)
 {
     int n;
@@ -464,6 +484,7 @@ void actSt04aGirlSitChk(volatile int a0)
         _ACTWait(1);
     }
 }
+
 /* The model-on watcher's mail record: it installs actSt04aModelOffChk here
    and posts it. Word 0 of each entry is the mail id the entry answers (0x1AE
    the actor post, 0x1AD the trailing entry); .func is filled in at run time.
@@ -486,6 +507,7 @@ void actSt04aModelOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 /* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
 static ActMail model_off[2] = {{0x1AE}, {0x1AD}};
 extern void actSt04aModelOnChk(volatile int a0);

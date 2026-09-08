@@ -10,9 +10,11 @@ typedef struct {
     int x44;         /* 0x44 */
     char pad48[0x8]; /* 0x48 */
 } BgaDisp;
+
 typedef struct {
     long long w[10];
 } MultiBga;
+
 extern MultiBga D_004ECCA0;
 extern char D_006208C8[];
 extern int D_0063A438;
@@ -26,6 +28,7 @@ extern char D_002907E0[];
 /* prototypes: their order is the inline tail's emission order */
 void EntryMultiBgaManagerNoKind(BgaDisp *bga, int no, void *pos);
 void DispMultiBgaManagerWithKind(int kind, BgaDisp *base, int n);
+
 static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void *rot)
 {
     BgaDisp *p = &bga[no];
@@ -37,6 +40,7 @@ static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void
     CopyQuaternion(p->m30, rot);
     p->f0 = 0.0f;
 }
+
 void *InitMultiBgaManager(int n)
 {
     MultiBga *base = (MultiBga *)iosMallocDebug(D_0063A438, n * 0x50, D_006208C8, 0xB);
@@ -46,15 +50,19 @@ void *InitMultiBgaManager(int n)
     }
     return base;
 }
+
 void EntryMultiBgaManager(BgaDisp *bga, int no, int kind, void *pos, void *rot)
 {
     entryMultiBga(bga, no, kind, pos, rot);
 }
+
 inline void EntryMultiBgaManagerNoKind(BgaDisp *bga, int no, void *pos)
 {
     entryMultiBga(bga, no, -1, pos, D_002907E0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/multiBgaManager", EntryMultiBgaManagerSensitive);
+
 void DispMultiBgaManager(BgaDisp *base, int n)
 {
     int i;
@@ -74,6 +82,7 @@ void DispMultiBgaManager(BgaDisp *base, int n)
         _AddVector(e->m10, e->m10, e->m20);
     }
 }
+
 inline void DispMultiBgaManagerWithKind(int kind, BgaDisp *base, int n)
 {
     int i;

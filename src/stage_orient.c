@@ -6,15 +6,18 @@ typedef struct {
     float pos[3];
     float pos2[3];
 } StageOrientDef;
+
 extern char D_005F5D70[][404];
 extern StageOrientDef D_00556E50[41];
 extern short D_006EA800[];
 extern char D_0063AC68[];
 extern int sscanf(const char *, const char *, ...);
 extern int strcmp(const char *, const char *);
+
 typedef struct {
     float x, y, z, w;
 } __attribute__((aligned(16))) VECTOR;
+
 extern void sceVu0Normalize(VECTOR *out, VECTOR *in);
 extern void sceVu0UnitMatrix(float *m);
 extern void sceVu0RotMatrixY(float *m0, float *m1, float rot); /* sceVu0RotMatrixY */
@@ -23,6 +26,7 @@ extern void sceVu0ApplyMatrix(VECTOR *out, float *m, VECTOR *in);
 /* prototypes: their order is the inline tail's emission order */
 void StageOrientInit(void);
 int StageOrientGet(VECTOR *ret, int stA, int stB);
+
 inline void StageOrientInit(void)
 {
     int i, j;
@@ -39,7 +43,9 @@ inline void StageOrientInit(void)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/stage_orient", GetStageDifferenceMatrix);
+
 inline int StageOrientGet(VECTOR *ret, int stA, int stB)
 {
     int a = D_006EA800[stA];
@@ -69,5 +75,6 @@ inline int StageOrientGet(VECTOR *ret, int stA, int stB)
     ret->y = -ret->y;
     return 1;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/stage_orient", StageOrientGet2);
 INCLUDE_ASM("asm/nonmatchings/src/stage_orient", OtherStagePositionGet);

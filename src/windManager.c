@@ -50,6 +50,7 @@ inline void SetWindManager(float a, float b, float c, float d, float e, float f,
     D_0063BC78 = g;
     InitWindField(1, buf1, buf2, g);
 }
+
 inline void InitWindManager(int no)
 {
     float *pos = D_005F5E1C[no].pos;
@@ -59,6 +60,7 @@ inline void InitWindManager(int no)
                    D_005F5E1C[no].amp);
     D_0063BC60 = no;
 }
+
 void ExecWindManager(void)
 {
     D_0063BC7C++;
@@ -70,6 +72,7 @@ void ExecWindManager(void)
     D_0063BC78 = D_0063BC78 + (D_0063BC74 - D_0063BC78) * D_00639708;
     ExecWindField(D_0063BC78);
 }
+
 inline float GetRegularizedWindSpeed(void *pos)
 {
     float s;
@@ -82,6 +85,7 @@ inline float GetRegularizedWindSpeed(void *pos)
             (1.0f - D_0063BC6C)) *
            0.5f * D_0063BC70;
 }
+
 inline void ReinitWindManager(void)
 {
     InitWindManager(D_0063BC60);

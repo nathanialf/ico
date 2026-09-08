@@ -21,14 +21,17 @@ extern int D_0063BD04;
 extern int D_0063BD08;
 extern int D_0063BD0C;
 extern int D_0063BD10;
+
 inline int font_GetWidth(void)
 {
     return 0x14;
 }
+
 inline int font_GetHeight(void)
 {
     return (0x3200 / D_0063A064) / 2;
 }
+
 inline void font_Init(void)
 {
     D_0063BD00 = 0;
@@ -37,5 +40,6 @@ inline void font_Init(void)
     D_0063BD08 = 0x80;
     D_0063BD04 = 0x80;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_CheckAlign);
 INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_Print);

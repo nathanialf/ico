@@ -7,17 +7,20 @@ INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoSave);
 extern char D_004DA980[];
 extern int D_004DA7D0[];
 extern int gamesysTimeCount;
+
 void gamesysObjInfoLoad(void *h)
 {
     gamesysMemoryHandlerRead(h, &gamesysTimeCount, 4);
     gamesysMemoryHandlerRead(h, D_004DA980, 0x2D80);
     gamesysMemoryHandlerRead(h, D_004DA7D0, 0x1A8);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoEmptyAreaSearch);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoBaseSet);
 extern char D_004DA980[];
 extern short D_0063B418;
 extern int gamesysTimeCount;
+
 void gamesysBackStageProcess(void)
 {
     unsigned short *h = (unsigned short *)D_004DA980;
@@ -27,6 +30,7 @@ void gamesysBackStageProcess(void)
     gamesysTimeCount++;
     backStageProcessMain();
 }
+
 extern char D_0061D328[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void memcpy();
@@ -39,6 +43,7 @@ void func_001B6CA0(int *self, int n, int a2)
     self[1] += a2;
     debug_StdPrintfDummy(D_0061D328, self[1]);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001B6CF8);
 extern int *GetbufpGeneratorPacket(void);
 extern int GetsizeGeneratorPacket(void);
@@ -54,6 +59,7 @@ void gamesysGeneratorInfoLoad(int *a0)
     a0[1] += s2;
     return ReadGeneratorPacket();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001B6DA8);
 extern int *GetBuffHintSaveInfo(void);
 extern int GetSizeHintSaveInfo(void);
@@ -69,6 +75,7 @@ void gamesysHintInfoLoad(int *a0)
     a0[1] += s2;
     return ReadHintSaveInfo();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001B6E58);
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysCharacterInfoLoad);
 extern char D_004DA980[];
@@ -86,6 +93,7 @@ void gamesysNObjInfoInit(void)
         i--;
     } while (i >= 0);
 }
+
 void gamesysObjInfoStageInitFlagCls(void)
 {
     long long mask = -2LL;
@@ -97,6 +105,7 @@ void gamesysObjInfoStageInitFlagCls(void)
         i--;
     } while (i >= 0);
 }
+
 void gamesysObjInfoStageInitPosSaveUnlock(void)
 {
     long long mask = -3LL;
@@ -108,6 +117,7 @@ void gamesysObjInfoStageInitPosSaveUnlock(void)
         i--;
     } while (i >= 0);
 }
+
 extern int *gamesysObjInfoBaseSet(int *self, int a1);
 
 int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
@@ -117,6 +127,7 @@ int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
     p[0xD] = a2;
     return p;
 }
+
 extern char D_002C1270[];
 extern int stage_no;
 extern int *gamesysObjInfoBaseSet__pn(int a0, int a3) __asm__("gamesysObjInfoBaseSet");
@@ -137,6 +148,7 @@ int *gamesysObjInfoUniqDataSet(int a0)
     }
     return p;
 }
+
 typedef struct {
     int start;
     int end;
@@ -216,6 +228,7 @@ GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float 
     }
     return p;
 }
+
 static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req, int no)
 {
     int i;
@@ -238,6 +251,7 @@ GamesysObjInfo *gamesysObjInfoGet(int kind, int no)
     gamesysObjInfoReqSet(&req, no, kind);
     return gamesysObjInfoSearch(&req, no);
 }
+
 void gamesysObjInfoCls(int kind, int no)
 {
     GamesysObjInfoReq req;
@@ -249,6 +263,7 @@ void gamesysObjInfoCls(int kind, int no)
         p->no = 0;
     }
 }
+
 extern unsigned short D_004DA9C0[];
 
 int gamesysGirlStageGet(void)
@@ -257,6 +272,7 @@ int gamesysGirlStageGet(void)
         return D_004DA9C0[2];
     return 4;
 }
+
 extern void CopyVector(void *dst, void *src);
 extern int D_0028FF00[4];
 
@@ -269,6 +285,7 @@ int gamesysGetGirlStageIDAndPosition(int a0)
     CopyVector(a0, (int *)D_0028FF00);
     return 4;
 }
+
 extern int D_004DA7D0[];
 extern int gamesysTimeCount;
 
@@ -276,6 +293,7 @@ void gamesysStageExitTimeSet(int a0)
 {
     D_004DA7D0[a0] = gamesysTimeCount;
 }
+
 void gamesysMemoryHandlerRead(int *self, int a1, int a2)
 {
     if (a1 != 0) {
@@ -283,6 +301,7 @@ void gamesysMemoryHandlerRead(int *self, int a1, int a2)
     }
     self[0x4 / 4] = self[0x4 / 4] + a2;
 }
+
 void gamesysMemorySave(int *self, int a1, int a2)
 {
     func_001AE8F0_FnPtr new_var;
@@ -303,7 +322,9 @@ void gamesysMemorySave(int *self, int a1, int a2)
         } while (new_var2);
     }
 }
+
 extern void gflagOn(int a0);
+
 void gamesysMemoryLoad(void **tbl, int a1, void *a2)
 {
     int buf[2];
@@ -315,6 +336,7 @@ void gamesysMemoryLoad(void **tbl, int a1, void *a2)
     }
     gflagOn(0x18A);
 }
+
 extern int D_004DA770[];
 extern int gamesysVersionDiff;
 extern int gamesysMemoryHandlerRead__pn(void *, void *, int) __asm__("gamesysMemoryHandlerRead");
@@ -330,6 +352,7 @@ void gamesysVersionLoad(int *self)
         gamesysVersionDiff = 0;
     }
 }
+
 extern void func_001B6CA0__pn(int a, char *p, int n) __asm__("func_001B6CA0");
 extern void memset(char *p, int a, int n);
 

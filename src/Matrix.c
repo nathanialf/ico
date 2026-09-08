@@ -67,6 +67,7 @@ float _GetRandom(void);
 void _GetRandomVector(void *p0);
 void _GetRandomVector0(void *p0);
 void _RotTransCurrentMatrix(void *p0, void *p1);
+
 inline void _InitCurrentMatrix(void)
 {
     VU0_V2OP(vmove.xyzw, 7, 0);
@@ -75,6 +76,7 @@ inline void _InitCurrentMatrix(void)
     VU0_V2OP(vmr32.xyzw, 4, 5);
     VU0_REG("viaddi $vi15, $vi0, 0x0");
 }
+
 inline void _UnitCurrentMatrix(void)
 {
     VU0_V2OP(vmove.xyzw, 7, 0);
@@ -83,6 +85,7 @@ inline void _UnitCurrentMatrix(void)
     VU0_V2OP(vmr32.xyzw, 4, 5);
     VU0_REG("viaddi $vi15, $vi0, 0x0");
 }
+
 inline void _PushCurrentMatrix(void)
 {
     VU0_REG("vsqi.xyzw $vf4, ($vi15++)");
@@ -90,6 +93,7 @@ inline void _PushCurrentMatrix(void)
     VU0_REG("vsqi.xyzw $vf6, ($vi15++)");
     VU0_REG("vsqi.xyzw $vf7, ($vi15++)");
 }
+
 inline void _PopCurrentMatrix(void)
 {
     VU0_REG("vlqd.xyzw $vf7, (--$vi15)");
@@ -97,6 +101,7 @@ inline void _PopCurrentMatrix(void)
     VU0_REG("vlqd.xyzw $vf5, (--$vi15)");
     VU0_REG("vlqd.xyzw $vf4, (--$vi15)");
 }
+
 inline void _TransCurrentMatrix(void *p0)
 {
     VU0_LSV(lqc2, 8, 0x0, a0);
@@ -105,15 +110,18 @@ inline void _TransCurrentMatrix(void *p0)
     VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
     VU0_V3OP_BC(vmaddw.xyzw, 7, 7, 8, w);
 }
+
 inline void _SetTransCurrentMatrix(void *p0)
 {
     VU0_LSV(lqc2, 8, 0x0, a0);
     VU0_V2OP(vmove.xyzw, 7, 8);
 }
+
 inline void _ClearTransCurrentMatrix(void)
 {
     VU0_V2OP(vmove.xyzw, 7, 0);
 }
+
 inline void _RotCurrentMatrixX(short a0)
 {
     float c = GetTableCos(a0);
@@ -151,6 +159,7 @@ inline void _RotCurrentMatrixX(short a0)
     VU0_V2OP(vmove.xyzw, 6, 16);
     VU0_V2OP(vmove.xyzw, 7, 17);
 }
+
 inline void _RotCurrentMatrixY(short a0)
 {
     float c = GetTableCos(a0);
@@ -188,6 +197,7 @@ inline void _RotCurrentMatrixY(short a0)
     VU0_V2OP(vmove.xyzw, 6, 16);
     VU0_V2OP(vmove.xyzw, 7, 17);
 }
+
 inline void _RotCurrentMatrixZ(short a0)
 {
     float c = GetTableCos(a0);
@@ -225,6 +235,7 @@ inline void _RotCurrentMatrixZ(short a0)
     VU0_V2OP(vmove.xyzw, 6, 16);
     VU0_V2OP(vmove.xyzw, 7, 17);
 }
+
 inline void _ScaleCurrentMatrix(float a0, float a1, float a2)
 {
     VU0_MFC1(6, 12);
@@ -261,6 +272,7 @@ inline void _ScaleCurrentMatrix(float a0, float a1, float a2)
     VU0_V2OP(vmove.xyzw, 6, 16);
     VU0_V2OP(vmove.xyzw, 7, 17);
 }
+
 inline void _GetCurrentMatrix(void *p0)
 {
     VU0_LSV(sqc2, 4, 0x0, a0);
@@ -268,10 +280,12 @@ inline void _GetCurrentMatrix(void *p0)
     VU0_LSV(sqc2, 6, 0x20, a0);
     VU0_LSV(sqc2, 7, 0x30, a0);
 }
+
 inline void _GetCurrentMatrixTrans(void *p0)
 {
     VU0_LSV(sqc2, 7, 0x0, a0);
 }
+
 inline void _SetCurrentMatrix(void *p0)
 {
     VU0_LSV(lqc2, 4, 0x0, a0);
@@ -279,6 +293,7 @@ inline void _SetCurrentMatrix(void *p0)
     VU0_LSV(lqc2, 6, 0x20, a0);
     VU0_LSV(lqc2, 7, 0x30, a0);
 }
+
 inline void _MulCurrentMatrixR(void *a0)
 {
     VU0_LSV(lqc2, 14, 0x0, 4);
@@ -306,6 +321,7 @@ inline void _MulCurrentMatrixR(void *a0)
     VU0_V2OP(vmove.xyzw, 6, 16);
     VU0_V2OP(vmove.xyzw, 7, 17);
 }
+
 inline void _MulCurrentMatrixL(void *m)
 {
     VU0_LSV(lqc2, 14, 0x0, a0);
@@ -329,6 +345,7 @@ inline void _MulCurrentMatrixL(void *m)
     VU0_V3OP_ACC_BC(vmaddaz.xyzw, 16, 7, z);
     VU0_V3OP_BC(vmaddw.xyzw, 7, 17, 7, w);
 }
+
 inline void _ApplyCurrentMatrix(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 8, 0x0, a1);
@@ -338,6 +355,7 @@ inline void _ApplyCurrentMatrix(void *p0, void *p1, void *p2)
     VU0_V3OP_BC(vmaddw.xyzw, 10, 7, 8, w);
     VU0_LSV(sqc2, 10, 0x0, a0);
 }
+
 inline void _RotTransPersCurrentMatrix(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 8, 0x0, a1);
@@ -350,6 +368,7 @@ inline void _RotTransPersCurrentMatrix(void *p0, void *p1, void *p2)
     VU0_REG("vmulq.xyz $vf10, $vf10, Q");
     VU0_LSV(sqc2, 10, 0x0, a0);
 }
+
 inline void _RotTransCurrentMatrix(void *p0, void *p1)
 {
     VU0_LSV(lqc2, 8, 0x0, a1);
@@ -375,6 +394,7 @@ inline void _RotTransCurrentMatrix(void *p0, void *p1)
     VU0_V2OP(vmove.xy, 12, 11);
     VU0_V2OP(vmove.xy, 11, 10);
 }
+
 inline void _TransposeCurrentMatrix(void)
 {
     VU0_V3OP(vsub.xyzw, 1, 0, 0);
@@ -395,6 +415,7 @@ inline void _TransposeCurrentMatrix(void)
     VU0_V2OP(vmove.xyw, 6, 16);
     VU0_V2OP(vmove.xyz, 7, 17);
 }
+
 inline void _TransposeRotationCurrentMatrix(void)
 {
     VU0_V3OP(vsub.xyzw, 1, 0, 0);
@@ -408,6 +429,7 @@ inline void _TransposeRotationCurrentMatrix(void)
     VU0_V2OP(vmove.xz, 5, 15);
     VU0_V2OP(vmove.xy, 6, 16);
 }
+
 inline void _InverseCurrentMatrix(void)
 {
     VU0_V3OP(vsub.xyzw, 1, 0, 0);
@@ -428,8 +450,10 @@ inline void _InverseCurrentMatrix(void)
     VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
     VU0_V3OP_BC(vmaddw.xyzw, 7, 0, 17, w);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/Matrix", _PushVu0Registers);
 INCLUDE_ASM("asm/nonmatchings/src/Matrix", _PopVu0Registers);
+
 inline void _NormalizeVector(void *p0, void *p1, void *p2)
 {
     __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
@@ -445,6 +469,7 @@ inline void _NormalizeVector(void *p0, void *p1, void *p2)
                          : "r"(p0), "r"(p1)
                          : "memory");
 }
+
 inline void _InnerProduct(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a0);
@@ -457,6 +482,7 @@ inline void _InnerProduct(void *p0, void *p1, void *p2)
     VU0_QMFC2_NI(v0, 2);
     VU0_MTC1(v0, 0);
 }
+
 inline void _OuterProduct(void *p0, void *p1, void *p2, void *p3)
 {
     __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
@@ -469,6 +495,7 @@ inline void _OuterProduct(void *p0, void *p1, void *p2, void *p3)
                          : "r"(p0), "r"(p1), "r"(p2)
                          : "memory");
 }
+
 inline void _AddVector(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
@@ -476,6 +503,7 @@ inline void _AddVector(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP(vadd.xyzw, 3, 1, 2);
     VU0_LSV(sqc2, 3, 0x0, a0);
 }
+
 inline void _AddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
@@ -483,6 +511,7 @@ inline void _AddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP(vadd.xyz, 1, 1, 2);
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
+
 inline void _SubVector(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
@@ -490,6 +519,7 @@ inline void _SubVector(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP(vsub.xyzw, 3, 1, 2);
     VU0_LSV(sqc2, 3, 0x0, a0);
 }
+
 inline void _SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
@@ -497,6 +527,7 @@ inline void _SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP(vsub.xyz, 1, 1, 2);
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
+
 inline void _ScaleVector(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
@@ -507,6 +538,7 @@ inline void _ScaleVector(void *p0, void *p1, void *p2)
     VU0_V3OP_BC(vmulx.xyzw, 3, 1, 2, x);
     VU0_LSV(sqc2, 3, 0x0, a0);
 }
+
 inline void _ScaleVectorXYZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
@@ -517,6 +549,7 @@ inline void _ScaleVectorXYZ(void *p0, void *p1, void *p2)
     VU0_V3OP_BC(vmulx.xyz, 1, 1, 2, x);
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
+
 inline void _ScaleVector2XYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
@@ -526,18 +559,21 @@ inline void _ScaleVector2XYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP_BC(vmulz.z, 1, 1, 2, z);
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
+
 inline void _FTOI4Vector(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_V2OP(vftoi4.xyzw, 2, 1);
     VU0_LSV(sqc2, 2, 0x0, a0);
 }
+
 inline void _FTOI0Vector(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_V2OP(vftoi0.xyzw, 2, 1);
     VU0_LSV(sqc2, 2, 0x0, a0);
 }
+
 inline void _CopyVector(void *dst, void *src)
 {
     __asm__ __volatile__("lq $t0, 0x0(%1)\n\t"
@@ -546,14 +582,17 @@ inline void _CopyVector(void *dst, void *src)
                          : "r"(dst), "r"(src)
                          : "$8", "memory");
 }
+
 inline void _CopyIVector(void *dst, void *src)
 {
     QCOPY16("$t0");
 }
+
 inline void _UnitVector(void *p0)
 {
     VU0_LSV(sqc2, 0, 0x0, a0);
 }
+
 inline void _InterVector(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_NOREORDER_BEGIN();
@@ -567,6 +606,7 @@ inline void _InterVector(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP_BC(vmaddw.xyzw, 9, 2, 8, w);
     VU0_LSV(sqc2, 9, 0x0, a0);
 }
+
 inline void _InterVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_NOREORDER_BEGIN();
@@ -580,6 +620,7 @@ inline void _InterVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP_BC(vmaddw.xyz, 1, 2, 8, w);
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
+
 inline void _GetNorm(void *p0)
 {
     VU0_LSV(lqc2, 3, 0x0, a0);
@@ -594,6 +635,7 @@ inline void _GetNorm(void *p0)
     VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }
+
 inline void _GetLength(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a0);
@@ -610,6 +652,7 @@ inline void _GetLength(void *p0, void *p1, void *p2)
     VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }
+
 inline void _GetLengthXY(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a0);
@@ -624,6 +667,7 @@ inline void _GetLengthXY(void *p0, void *p1, void *p2)
     VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }
+
 inline void _GetLengthXZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a0);
@@ -638,10 +682,12 @@ inline void _GetLengthXZ(void *p0, void *p1, void *p2)
     VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }
+
 inline void _CopyMatrix(void *dst, void *src)
 {
     QCOPY64_PARALLEL("$a2", "$a3", "$t0", "$t1");
 }
+
 inline void _MulMatrix(void *p0, void *p1, void *p2)
 {
     __asm__ __volatile__("lqc2 $vf14, 0x0(%1)\n\t"
@@ -677,6 +723,7 @@ inline void _MulMatrix(void *p0, void *p1, void *p2)
                          : "r"(p0), "r"(p1), "r"(p2)
                          : "memory");
 }
+
 inline void _ApplyMatrix(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 8, 0x0, a2);
@@ -690,6 +737,7 @@ inline void _ApplyMatrix(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP_BC(vmaddw.xyzw, 10, 17, 8, w);
     VU0_LSV(sqc2, 10, 0x0, a0);
 }
+
 inline void _UnitMatrix(void *p0)
 {
     __asm__ __volatile__("vmove.xyzw $vf17, $vf0\n\t"
@@ -704,6 +752,7 @@ inline void _UnitMatrix(void *p0)
                          : "r"(p0)
                          : "memory");
 }
+
 inline void _UnitRotation(void *p0)
 {
     VU0_V2OP(vmove.xyzw, 17, 0);
@@ -714,6 +763,7 @@ inline void _UnitRotation(void *p0)
     VU0_LSV(sqc2, 15, 0x10, a0);
     VU0_LSV(sqc2, 16, 0x20, a0);
 }
+
 inline void _ScaleMatrixV(void *dst, void *src, void *v)
 {
     float *m = &D_002908E0[0][0];
@@ -723,6 +773,7 @@ inline void _ScaleMatrixV(void *dst, void *src, void *v)
     m[10] = ((float *)v)[2];
     _MulMatrix(dst, src, m);
 }
+
 inline void _TransposeMatrix(void *dst, void *src)
 {
     __asm__ __volatile__("lq $t0, 0x0($a1)" : : : "memory");
@@ -742,6 +793,7 @@ inline void _TransposeMatrix(void *dst, void *src)
     __asm__ __volatile__("sq $t2, 0x20($a0)" : : : "memory");
     __asm__ __volatile__("sq $t3, 0x30($a0)" : : : "memory");
 }
+
 inline void _InversMatrix(void *dst, void *src)
 {
     __asm__ __volatile__("lq $t0, 0x0(%1)\n\t"
@@ -774,6 +826,7 @@ inline void _InversMatrix(void *dst, void *src)
                          : "r"(dst), "r"(src)
                          : "$8", "$9", "$10", "$11", "$12", "$13", "$14", "$15", "memory");
 }
+
 inline void _SetCameraMatrix(void *dst, void *pos, void *dir, void *up)
 {
     float m[4][4];
@@ -801,6 +854,7 @@ inline void _Sqrt(void *p0, void *p1, void *p2, void *p3, void *p4, void *p5)
     VU0_MTC1(a3, 0);
     VU0_NOREORDER_END();
 }
+
 inline void _MakeNormalLightMatrix(void *dst, void *s0, void *s1, void *s2)
 {
     __asm__ __volatile__("vsubw.x $vf1, $vf0, $vf0w\n\t"
@@ -859,6 +913,7 @@ inline void _MakeNormalLightMatrix(void *dst, void *s0, void *s1, void *s2)
                          : "r"(dst), "r"(s0), "r"(s1), "r"(s2)
                          : "$6", "$7", "$8", "$9", "memory");
 }
+
 inline void _MakeLightColorMatrix(void *dst, void *s0, void *s1, void *s2, void *s3)
 {
     __asm__ __volatile__("lq $6, 0(%1)\n\t"
@@ -874,6 +929,7 @@ inline void _MakeLightColorMatrix(void *dst, void *s0, void *s1, void *s2, void 
                          : "r"(dst), "r"(s0), "r"(s1), "r"(s2), "r"(s3)
                          : "$6", "$7", "$8", "$9", "memory");
 }
+
 inline void _InitRandom(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_NOREORDER_BEGIN();
@@ -885,6 +941,7 @@ inline void _InitRandom(void *p0, void *p1, void *p2, void *p3)
     VU0_REG("vrinit R, $vf2x");
     VU0_REG("vrxor R, $vf1x");
 }
+
 inline float _GetRandom(void)
 {
     register float ret __asm__("$f0");
@@ -897,6 +954,7 @@ inline float _GetRandom(void)
                          : "=f"(ret)::"$7");
     return ret;
 }
+
 inline void _GetRandomVector(void *p0)
 {
     VU0_REG("vrnext.x $vf1, R");
@@ -905,10 +963,12 @@ inline void _GetRandomVector(void *p0)
     VU0_V3OP_BC(vsubw.xyz, 1, 1, 0, w);
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
+
 inline void _GetRandomVector0(void *p0)
 {
     VU0_REG("vrnext.xyz $vf1, R");
     VU0_V3OP_BC(vsubw.xyz, 1, 1, 0, w);
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/Matrix", _RemakeNormal);

@@ -13,6 +13,7 @@ extern float GetTableSin(short a0);
 short *InitSugiLeafGeo(void);
 void SugiLeafGeo(void *gobj);
 short *InitSugiLeafGeo2(void *gobj);
+
 inline short *InitSugiLeafGeo(void)
 {
     short *h = iosMallocDebug(D_0063A438, 2, (void *)D_00621328, 0xC);
@@ -20,6 +21,7 @@ inline short *InitSugiLeafGeo(void)
     *h = r % 0x10000;
     return h;
 }
+
 inline void SugiLeafGeo(void *gobj)
 {
     char *p = *(char **)((char *)gobj + 0x15C);
@@ -31,6 +33,7 @@ inline void SugiLeafGeo(void *gobj)
     CopyMatrix(*(void **)(p + 0xC), MatrixDrive_GetMatrix());
     *ang += 0x80;
 }
+
 inline short *InitSugiLeafGeo2(void *gobj)
 {
     char *p = *(char **)((char *)gobj + 0x15C);
@@ -43,5 +46,6 @@ inline short *InitSugiLeafGeo2(void *gobj)
     }
     return buf;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/sugiTree", SugiLeafGeo2);
 INCLUDE_ASM("asm/nonmatchings/src/sugiTree", SugiLeafDL2);

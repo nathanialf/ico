@@ -56,6 +56,7 @@ int point_insert(void)
     }
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", quick_load_wpfile);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", ExtractWayData);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", wp_print_out);
@@ -98,6 +99,7 @@ int play_way(void)
     }
     return 0;
 }
+
 extern unsigned char D_00622368[];
 extern int D_0063BD80;
 extern void debug_Printf__pn(int, int, int, void *) __asm__("debug_Printf");
@@ -129,6 +131,7 @@ int point_nige(void)
     }
     return 0;
 }
+
 extern char D_00622378[];
 extern int load_save_flag;
 extern char D_0063BDA8[];
@@ -167,6 +170,7 @@ int quick_save_wpfile(void)
     load_save_flag = 0;
     return 1;
 }
+
 extern char iosPadConfDefault[];
 extern int D_00639EC0;
 extern void ACTDebugMove(int a0, int a1);

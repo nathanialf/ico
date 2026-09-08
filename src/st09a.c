@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x164]; /* 0x000 */
     int act;           /* 0x164 */
@@ -74,6 +76,7 @@ extern ActMail D_004FA460[];
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aInit);
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aElvDown);
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aBrgDown);
+
 void actSt09aElv(volatile int a0)
 {
     int x = a0;
@@ -92,6 +95,7 @@ void actSt09aElv(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt09aSekizo(volatile int a0)
 {
     int x = a0;
@@ -105,6 +109,7 @@ void actSt09aSekizo(volatile int a0)
 
     scpSekizou(a0, 0x54, 0x178, 0, 0x12, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
 }
+
 void actSt09aIntro(volatile int a0)
 {
     int x = a0;
@@ -119,6 +124,7 @@ void actSt09aIntro(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt09aBrg(volatile int a0)
 {
     int x = a0;
@@ -133,6 +139,7 @@ void actSt09aBrg(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt09aHint1(volatile int a0)
 {
     int x = a0;
@@ -149,6 +156,7 @@ void actSt09aHint1(volatile int a0)
         FinishHint(0xA);
     }
 }
+
 void actSt09aHint2(volatile int a0)
 {
     int x = a0;
@@ -165,6 +173,7 @@ void actSt09aHint2(volatile int a0)
         FinishHint(0xB);
     }
 }
+
 void actSt09aElvMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -177,6 +186,7 @@ void actSt09aElvMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt09aElvSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -197,6 +207,7 @@ void actSt09aElvSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt09aElvUp(volatile int a0)
 {
     Act *self = (Act *)((PObjGObj *)a0)->act;
@@ -226,10 +237,12 @@ void actSt09aElvUp(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt09aSekizoEvent(int x)
 {
     volatile int local = x;
 }
+
 void actSt09aIntroChk(volatile int a0)
 {
     lt_switch_layout(0x37);
@@ -249,6 +262,7 @@ void actSt09aIntroChk(volatile int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt09aBrgMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -259,6 +273,7 @@ void actSt09aBrgMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt09aBrgSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -272,6 +287,7 @@ void actSt09aBrgSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt09aBrgDownSub(volatile int a0)
 {
     stage_SetAnimation(0x17A, 1, 0);
@@ -298,6 +314,7 @@ void actSt09aBrgDownSub(volatile int a0)
     D_0063C570 = 1;
     _ACTWait(0);
 }
+
 void actSt09aHint1Chk(volatile int a0)
 {
     while (scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) {
@@ -309,6 +326,7 @@ void actSt09aHint1Chk(volatile int a0)
     gflagOn(0x57);
     FinishHint(0xA);
 }
+
 void actSt09aHint2Chk(volatile int a0)
 {
     while (scpTriggerBall(a0, D_00639EA4, 400.0f) == 0) {

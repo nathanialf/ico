@@ -29,6 +29,7 @@ int EntryEnemyFootPrint(char *self, void *pos)
     }
     return 0;
 }
+
 extern void p2o_DispVU1DObj();
 
 int DispEnemyFootPrints(int *a0)
@@ -36,6 +37,7 @@ int DispEnemyFootPrints(int *a0)
     p2o_DispVU1DObj(a0[1]);
     return 1;
 }
+
 typedef struct PointBlur {
     /* 0x00 */ int f0;
     /* 0x04 */ int num;
@@ -71,6 +73,7 @@ PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
     _CopyVector(p->pos, pos);
     return p;
 }
+
 extern void gif_Draw2DStripG();
 extern void gif_EndPacket();
 extern void gif_SetAlpha();
@@ -84,6 +87,7 @@ int DispPointBlur(int *self)
     gif_EndPacket();
     return 1;
 }
+
 extern char D_004E79A0[];
 extern char D_004E79E0[];
 extern void UpdatePointBlur(int a0, void *a1, void *a2, float a3);
@@ -97,6 +101,7 @@ int UpdateEnemyEye(char *a0, int a1, float f)
     }
     return 1;
 }
+
 extern void _CopyMatrix();
 extern void reg_DispMultiPri();
 
@@ -113,12 +118,14 @@ int DispEnemyEye(char *a0)
     }
     return 1;
 }
+
 int ResetEnemyEye(char *self)
 {
     char *p = *(char **)(self + 0x4);
     *(int *)(p + 0x30) = 1;
     return 1;
 }
+
 typedef struct IVec {
     float x, y, z, w;
 } IVec;

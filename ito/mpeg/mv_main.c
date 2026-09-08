@@ -11,19 +11,23 @@ extern char D_0063AC80[];
 extern char D_006F2AD0[];
 extern char D_006F2AC0[];
 extern char D_006EA900[];
+
 void switchThread(void)
 {
     RotateThreadReadyQueue(D_0063C320);
 }
+
 void proceedAudio(void)
 {
     audioDecSendToIOP(D_006F2B98);
 }
+
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", readMpeg);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", initAll);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", termAll);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", movie_init);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", movie_end);
+
 int movie_proc(int a0)
 {
     int r;

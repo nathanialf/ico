@@ -6,10 +6,12 @@ typedef struct ActMail {
     int unk08;         /* 0x08 */
     int unk0C;         /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD4]; /* 0x00 */
     ActMail *mail;    /* 0xD4 */
 } Act;
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -42,6 +44,7 @@ void actSt08bDoorEvent(int x);
 void actSt08bDoorUpEffect(volatile int a0);
 void actSt08bDoorDownEffect(volatile int a0);
 void actSt08bEneChk(volatile int a0);
+
 inline void actSt08bKuren(volatile int a0)
 {
     int x = a0;
@@ -53,6 +56,7 @@ inline void actSt08bKuren(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 inline void actSt08bKurenMain(volatile int a0)
 {
     int sub = *(int *)(a0 + 0x164);
@@ -66,9 +70,11 @@ inline void actSt08bKurenMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bKurenSwitch);
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bKurenLeft);
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bKurenRight);
+
 inline void actSt08aGirlYoro(volatile int a0)
 {
     scpPlayStart(D_00639EA8);
@@ -78,12 +84,15 @@ inline void actSt08aGirlYoro(volatile int a0)
     scpPlayWaitMotEnd(D_00639EA8);
     _ACTWait(0);
 }
+
 inline void actSt08bDoorEvent(int x)
 {
     volatile int local = x;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bDoor);
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bDoorUpChk);
+
 inline void actSt08bDoorUpEffect(volatile int a0)
 {
     long long b1[2];
@@ -107,6 +116,7 @@ inline void actSt08bDoorUpEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 inline void actSt08bDoorDownEffect(volatile int a0)
 {
     long long b1[2];
@@ -130,7 +140,9 @@ inline void actSt08bDoorDownEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bDoorDownChk);
+
 inline void actSt08bEne(volatile int a0)
 {
     int x = a0;
@@ -144,6 +156,7 @@ inline void actSt08bEne(volatile int a0)
         _ACTWait(0);
     }
 }
+
 inline void actSt08bEneChk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -156,6 +169,7 @@ inline void actSt08bEneChk(volatile int a0)
     gflagOn(0x51);
     gflagOn(0x52);
 }
+
 inline void actSt08bEnemy1(volatile int a0)
 {
     int x = a0;
@@ -171,6 +185,7 @@ inline void actSt08bEnemy1(volatile int a0)
     _ACTWait(0x3C);
     Generator_Call(a0);
 }
+
 inline void actSt08bEnemy2(volatile int a0)
 {
     int x = a0;

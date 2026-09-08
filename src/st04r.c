@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x164]; /* 0x000 */
     Act *act;          /* 0x164 */
@@ -105,6 +107,7 @@ typedef struct Pad {
     int trg;          /* 0x04 */
     char unk08[0x50]; /* 0x08 */
 } Pad;
+
 extern Pad D_0028F8F0[];
 extern void scpSleepEnemyOne(int a0);
 extern void scpWakeupEnemyOne(int a0);
@@ -113,6 +116,7 @@ extern void fightSoundProcessRequestStart(void);
 extern int fightSoundPlayChk(void);
 
 extern int solar4r;
+
 void actSt05eEnd(void)
 {
     if (solar4r != 0) {
@@ -121,6 +125,7 @@ void actSt05eEnd(void)
         }
     }
 }
+
 void actSt05cInit(void)
 {
     if (gflagChk(0x112) == 0) {
@@ -187,6 +192,7 @@ void actSt05cInit(void)
         scpSearchGobj(0x563)->f16C = 0;
     }
 }
+
 void actSt05dInit(void)
 {
     if (gflagChk(0x103) == 0) {
@@ -275,6 +281,7 @@ void actSt05dInit(void)
         stage_SetAnimation(0xE5, 0, 0);
     }
 }
+
 void actSt05eInit(void)
 {
     if (gflagChk(0xE7) == 0) {
@@ -295,6 +302,7 @@ void actSt05eInit(void)
         stage_SetAnimation(0x149, 0, -1);
     }
 }
+
 extern ActMail D_004F92A0[];
 extern void actSt04rCrest2Main(volatile int a0);
 
@@ -325,6 +333,7 @@ void actSt04rCrest02(volatile int a0)
         D_0063AA08 = 0;
     }
 }
+
 void openGateSub(volatile int a0)
 {
     stage_SetAnimation(D_0063C540, 1, 0);
@@ -353,6 +362,7 @@ void openGateSub(volatile int a0)
     D_0063C53C = 1;
     _ACTWait(0);
 }
+
 void openGate(int a0)
 {
     int th;
@@ -406,6 +416,7 @@ void openGate(int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt04rCrest2Main(volatile int a0)
 {
     int anim;
@@ -447,6 +458,7 @@ void actSt04rCrest2Main(volatile int a0)
     gflagOff(0xF9);
     gflagOff(0xE9);
 }
+
 void actSt04rCrest3Main(volatile int a0)
 {
     while (scpIsTorchLightOn(0x5D1) == 0 || scpIsTorchLightOn(0x5D2) == 0 || gflagChk(0xFC) == 0) {
@@ -479,6 +491,7 @@ void actSt04rCrest3Main(volatile int a0)
     gflagOn(0xF9);
     gflagOff(0xE9);
 }
+
 extern ActMail D_004F92E0[];
 extern void actSt04rSolarBeamChk(volatile int a0);
 
@@ -521,6 +534,7 @@ void actSt04rSolarBeam(volatile int a0)
         D_0063AA08 = 0;
     }
 }
+
 void actSt04rSolarBeamChk(volatile int a0)
 {
     while (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 || gflagChk(0xF5) == 0 ||
@@ -573,6 +587,7 @@ void actSt04rSolarBeamChk(volatile int a0)
 
     RequestStageChange(0xF, D_00639EA4, 0, 2.0f, 8.0f);
 }
+
 void actSt04rStairSub(volatile int a0)
 {
     long long buf[2];
@@ -731,6 +746,7 @@ void actSt04rStairChk(volatile int a0)
 
     lt_switch_layout(0x36);
 }
+
 void actSt04rSekizoChk(volatile int a0)
 {
     float dir[4];
@@ -817,6 +833,7 @@ void actSt04rSekizoChk(volatile int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt04rRope1Chk(volatile int a0)
 {
     int x = a0;
@@ -851,6 +868,7 @@ void actSt04rRope1Chk(volatile int a0)
         }
     }
 }
+
 void actSt04rRope2Chk(volatile int a0)
 {
     int x = a0;
@@ -885,6 +903,7 @@ void actSt04rRope2Chk(volatile int a0)
         }
     }
 }
+
 extern void actSt04rBrg1Sub(volatile int a0);
 
 void actSt04rBrgCommon(volatile int a0)
@@ -931,6 +950,7 @@ void actSt04rBrgCommon(volatile int a0)
 
     lt_switch_layout(0x36);
 }
+
 void actSt04rRope3Chk(volatile int a0)
 {
     int x = a0;
@@ -965,6 +985,7 @@ void actSt04rRope3Chk(volatile int a0)
         }
     }
 }
+
 void actSt04rRope4Chk(volatile int a0)
 {
     int x = a0;
@@ -999,6 +1020,7 @@ void actSt04rRope4Chk(volatile int a0)
         }
     }
 }
+
 void actSt04rMonyou01Chk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -1050,6 +1072,7 @@ void actSt04rMonyou01Chk(volatile int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt04rMonyou02Chk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -1101,6 +1124,7 @@ void actSt04rMonyou02Chk(volatile int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt04rMonyou03Chk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -1152,6 +1176,7 @@ void actSt04rMonyou03Chk(volatile int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt04rMonyou04Chk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -1203,6 +1228,7 @@ void actSt04rMonyou04Chk(volatile int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt04rMonyou05Chk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -1254,6 +1280,7 @@ void actSt04rMonyou05Chk(volatile int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt04rMonyou06Chk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -1305,6 +1332,7 @@ void actSt04rMonyou06Chk(volatile int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt04rMonyou07Chk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -1356,6 +1384,7 @@ void actSt04rMonyou07Chk(volatile int a0)
 
     D_0063AA08 = 0;
 }
+
 void actSt04rBarricadeChk(volatile int a0)
 {
     int n;
@@ -1402,6 +1431,7 @@ void actSt04rBarricadeChk(volatile int a0)
 
     lt_switch_layout(0x36);
 }
+
 extern ActMail D_004F95E0[];
 extern void actSt04rGondolaCharaChk(volatile int a0);
 
@@ -1510,6 +1540,7 @@ void actSt04rGondolaChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern ActMail D_004F9300[];
 extern void actSt04rSolarStageChangeChk(volatile int a0);
 
@@ -1526,6 +1557,7 @@ void actSt04rSolarStageChange(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F9280[];
 extern void actSt04rCrestMain(volatile int a0);
 
@@ -1547,6 +1579,7 @@ void actSt04rCrest01(volatile int a0)
         D_0063AA08 = 0;
     }
 }
+
 extern ActMail D_004F92C0[];
 
 void actSt04rCrest03(volatile int a0)
@@ -1567,6 +1600,7 @@ void actSt04rCrest03(volatile int a0)
         D_0063AA08 = 0;
     }
 }
+
 extern ActMail D_004F9180[];
 extern void actSt04rC1BallMain(volatile int a0);
 
@@ -1590,6 +1624,7 @@ void actSt04rC1Ball(volatile int a0)
         stage_SetAnimation(0x13D, 0, -1);
     }
 }
+
 extern ActMail D_004F91E0[];
 extern void actSt04rC2BallMain(volatile int a0);
 
@@ -1613,6 +1648,7 @@ void actSt04rC2Ball(volatile int a0)
         stage_SetAnimation(0x13E, 0, -1);
     }
 }
+
 extern ActMail D_004F9240[];
 extern void actSt04rC3BallMain(volatile int a0);
 
@@ -1636,6 +1672,7 @@ void actSt04rC3Ball(volatile int a0)
         stage_SetAnimation(0x13F, 0, -1);
     }
 }
+
 extern ActMail D_004F9320[];
 
 void actSt04rStair(volatile int a0)
@@ -1657,6 +1694,7 @@ void actSt04rStair(volatile int a0)
         stage_SetAnimation(0x15F, -1, -2);
     }
 }
+
 extern ActMail D_004F93A0[];
 extern void actSt04rBrg1Chk(volatile int a0);
 
@@ -1673,6 +1711,7 @@ void actSt04rBrg1(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F9420[];
 extern void actSt04rBrg2Chk(volatile int a0);
 
@@ -1689,6 +1728,7 @@ void actSt04rBrg2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F9460[];
 extern void actSt04rBrg1WayChk(volatile int a0);
 
@@ -1705,6 +1745,7 @@ void actSt04rBrg1Way(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F9480[];
 extern void actSt04rBrg2WayChk(volatile int a0);
 
@@ -1721,6 +1762,7 @@ void actSt04rBrg2Way(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F9360[];
 
 void actSt04rRope1(volatile int a0)
@@ -1742,6 +1784,7 @@ void actSt04rRope1(volatile int a0)
         scpSearchGobj(0x5B3)->f16C = 0;
     }
 }
+
 extern ActMail D_004F9380[];
 
 void actSt04rRope2(volatile int a0)
@@ -1763,6 +1806,7 @@ void actSt04rRope2(volatile int a0)
         scpSearchGobj(0x5B4)->f16C = 0;
     }
 }
+
 extern ActMail D_004F93E0[];
 
 void actSt04rRope3(volatile int a0)
@@ -1784,6 +1828,7 @@ void actSt04rRope3(volatile int a0)
         scpSearchGobj(0x5B5)->f16C = 0;
     }
 }
+
 extern ActMail D_004F9400[];
 
 void actSt04rRope4(volatile int a0)
@@ -1805,6 +1850,7 @@ void actSt04rRope4(volatile int a0)
         scpSearchGobj(0x5B6)->f16C = 0;
     }
 }
+
 extern ActMail D_004F9340[];
 
 void actSt04rSekizo(volatile int a0)
@@ -1824,6 +1870,7 @@ void actSt04rSekizo(volatile int a0)
         stage_SetAnimation(0x14B, 0, -1);
     }
 }
+
 extern ActMail D_004F9580[];
 
 void actSt04rBarricade(volatile int a0)
@@ -1843,6 +1890,7 @@ void actSt04rBarricade(volatile int a0)
         stage_SetAnimation(0x158, 0, -1);
     }
 }
+
 extern ActMail D_004F95A0[];
 extern ActMail D_004F95C0[];
 
@@ -1868,6 +1916,7 @@ void actSt04rGondola(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt04rCrest01XL(volatile int a0)
 {
     int x = a0;
@@ -1881,6 +1930,7 @@ void actSt04rCrest01XL(volatile int a0)
         stage_SetAnimation(0x13A, 0, -1);
     }
 }
+
 void actSt04rCrest02XL(volatile int a0)
 {
     int x = a0;
@@ -1894,6 +1944,7 @@ void actSt04rCrest02XL(volatile int a0)
         stage_SetAnimation(0x13B, 0, -1);
     }
 }
+
 void actSt04rCrest03XL(volatile int a0)
 {
     int x = a0;
@@ -1907,6 +1958,7 @@ void actSt04rCrest03XL(volatile int a0)
         stage_SetAnimation(0x13C, 0, -1);
     }
 }
+
 void actSt04rC2BallXL(volatile int a0)
 {
     int x = a0;
@@ -1923,6 +1975,7 @@ void actSt04rC2BallXL(volatile int a0)
         stage_SetAnimation(0x13E, 0, -1);
     }
 }
+
 void actSt04rC3BallXL(volatile int a0)
 {
     int x = a0;
@@ -1939,6 +1992,7 @@ void actSt04rC3BallXL(volatile int a0)
         stage_SetAnimation(0x13F, 0, -1);
     }
 }
+
 extern ActMail D_004F9620[];
 extern void actSt04rTorch1_1Chk(volatile int a0);
 
@@ -1958,6 +2012,7 @@ void actSt04rTorch1_1(volatile int a0)
         stage_SetAnimation(0xD2, 0, -1);
     }
 }
+
 extern ActMail D_004F9640[];
 extern void actSt04rTorch1_2Chk(volatile int a0);
 
@@ -1977,6 +2032,7 @@ void actSt04rTorch1_2(volatile int a0)
         stage_SetAnimation(0xD3, 0, -1);
     }
 }
+
 extern ActMail D_004F9660[];
 extern void actSt04rTorch2_1Chk(volatile int a0);
 
@@ -1995,6 +2051,7 @@ void actSt04rTorch2_1(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F9680[];
 extern void actSt04rTorch2_2Chk(volatile int a0);
 
@@ -2013,6 +2070,7 @@ void actSt04rTorch2_2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F96A0[];
 extern void actSt04rTorch3_1Chk(volatile int a0);
 
@@ -2031,6 +2089,7 @@ void actSt04rTorch3_1(volatile int a0)
         scpTorchLightOn(0x5D1);
     }
 }
+
 extern ActMail D_004F96C0[];
 extern void actSt04rTorch3_2Chk(volatile int a0);
 
@@ -2049,6 +2108,7 @@ void actSt04rTorch3_2(volatile int a0)
         scpTorchLightOn(0x5D2);
     }
 }
+
 extern ActMail D_004F96E0[];
 extern void actSt04rTorch2_1XLChk(volatile int a0);
 
@@ -2068,6 +2128,7 @@ void actSt04rTorch2_1XL(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F9700[];
 extern void actSt04rTorch2_2XLChk(volatile int a0);
 
@@ -2087,6 +2148,7 @@ void actSt04rTorch2_2XL(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt04rTorch3_1XL(volatile int a0)
 {
     int x = a0;
@@ -2098,6 +2160,7 @@ void actSt04rTorch3_1XL(volatile int a0)
         scpTorchLightOn(0x61A);
     }
 }
+
 void actSt04rTorch3_2XL(volatile int a0)
 {
     int x = a0;
@@ -2109,6 +2172,7 @@ void actSt04rTorch3_2XL(volatile int a0)
         scpTorchLightOn(0x61B);
     }
 }
+
 extern ActMail D_004F94A0[];
 
 void actSt04rMonyou01(volatile int a0)
@@ -2128,6 +2192,7 @@ void actSt04rMonyou01(volatile int a0)
         stage_SetAnimation(0x151, 0, -1);
     }
 }
+
 extern ActMail D_004F94C0[];
 
 void actSt04rMonyou02(volatile int a0)
@@ -2147,6 +2212,7 @@ void actSt04rMonyou02(volatile int a0)
         stage_SetAnimation(0x152, 0, -1);
     }
 }
+
 extern ActMail D_004F94E0[];
 
 void actSt04rMonyou03(volatile int a0)
@@ -2166,6 +2232,7 @@ void actSt04rMonyou03(volatile int a0)
         stage_SetAnimation(0x153, 0, -1);
     }
 }
+
 extern ActMail D_004F9500[];
 
 void actSt04rMonyou04(volatile int a0)
@@ -2185,6 +2252,7 @@ void actSt04rMonyou04(volatile int a0)
         stage_SetAnimation(0x154, 0, -1);
     }
 }
+
 extern ActMail D_004F9520[];
 
 void actSt04rMonyou05(volatile int a0)
@@ -2204,6 +2272,7 @@ void actSt04rMonyou05(volatile int a0)
         stage_SetAnimation(0x155, 0, -1);
     }
 }
+
 extern ActMail D_004F9540[];
 
 void actSt04rMonyou06(volatile int a0)
@@ -2223,6 +2292,7 @@ void actSt04rMonyou06(volatile int a0)
         stage_SetAnimation(0x156, 0, -1);
     }
 }
+
 extern ActMail D_004F9560[];
 
 void actSt04rMonyou07(volatile int a0)
@@ -2242,6 +2312,7 @@ void actSt04rMonyou07(volatile int a0)
         stage_SetAnimation(0x157, 0, -1);
     }
 }
+
 void actSt05cDoorInit(volatile int a0)
 {
     int x = a0;
@@ -2257,6 +2328,7 @@ void actSt05cDoorInit(volatile int a0)
         stage_SetAnimation(0x15B, 0, 0);
     }
 }
+
 extern ActMail D_004F9160[];
 
 void actSt04rC1BallMain(volatile int a0)
@@ -2268,6 +2340,7 @@ void actSt04rC1BallMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern ActMail D_004F91A0[];
 extern void actSt04rC1BallTurn(volatile int a0);
 
@@ -2284,10 +2357,12 @@ void actSt04rC1BallSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt04rC1BallTurn(volatile int a0)
 {
     turnBall(a0, 0xFA, 0x13D, 0x57C, 0x57D);
 }
+
 extern ActMail D_004F91C0[];
 
 void actSt04rC2BallMain(volatile int a0)
@@ -2299,6 +2374,7 @@ void actSt04rC2BallMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern ActMail D_004F9200[];
 extern void actSt04rC2BallTurn(volatile int a0);
 
@@ -2315,10 +2391,12 @@ void actSt04rC2BallSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt04rC2BallTurn(volatile int a0)
 {
     turnBall(a0, 0xFB, 0x13E, 0x5CF, 0x5D0);
 }
+
 extern ActMail D_004F9220[];
 
 void actSt04rC3BallMain(volatile int a0)
@@ -2330,6 +2408,7 @@ void actSt04rC3BallMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern ActMail D_004F9260[];
 extern void actSt04rC3BallTurn(volatile int a0);
 
@@ -2346,10 +2425,12 @@ void actSt04rC3BallSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt04rC3BallTurn(volatile int a0)
 {
     turnBall(a0, 0xFC, 0x13F, 0x5D1, 0x5D2);
 }
+
 void actSt04rCrestMain(volatile int a0)
 {
     while (scpIsTorchLightOn(0x57C) == 0 || scpIsTorchLightOn(0x57D) == 0 || gflagChk(0xFA) == 0) {
@@ -2368,6 +2449,7 @@ void actSt04rCrestMain(volatile int a0)
     gflagOff(0xF9);
     gflagOff(0xE9);
 }
+
 void actSt04rSolarStageChangeChk(volatile int a0)
 {
     while (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 || gflagChk(0xF5) == 0 ||
@@ -2377,22 +2459,27 @@ void actSt04rSolarStageChangeChk(volatile int a0)
 
     RequestStageChange(8, D_00639EA4, 0, 2.0f, 8.0f);
 }
+
 void actSt04rStairEvent(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rRope1Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rRope2Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rBrg1Event(int x)
 {
     volatile int local = x;
 }
+
 extern ActMail D_004F93C0[];
 
 void actSt04rBrg1Chk(volatile int a0)
@@ -2412,6 +2499,7 @@ void actSt04rBrg1Chk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt04rBrg1Sub(volatile int a0)
 {
     _ACTWait(0x3C);
@@ -2439,18 +2527,22 @@ void actSt04rBrg1Sub(volatile int a0)
     D_0063C53C = 1;
     _ACTWait(0);
 }
+
 void actSt04rRope3Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rRope4Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rBrg2Event(int x)
 {
     volatile int local = x;
 }
+
 extern ActMail D_004F9440[];
 
 void actSt04rBrg2Chk(volatile int a0)
@@ -2470,6 +2562,7 @@ void actSt04rBrg2Chk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt04rBrg1WayChk(volatile int a0)
 {
     while (gflagChk(0x103) == 0) {
@@ -2478,6 +2571,7 @@ void actSt04rBrg1WayChk(volatile int a0)
 
     SetWayGroupActive(3, 1);
 }
+
 void actSt04rBrg2WayChk(volatile int a0)
 {
     while (gflagChk(0x103) == 0 || gflagChk(0x104) == 0) {
@@ -2486,38 +2580,47 @@ void actSt04rBrg2WayChk(volatile int a0)
 
     SetWayGroupActive(4, 1);
 }
+
 void actSt04rMonyou01Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rMonyou02Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rMonyou03Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rMonyou04Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rMonyou05Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rMonyou06Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rMonyou07Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt04rBarricadeEvent(int x)
 {
     volatile int local = x;
 }
+
 extern ActMail D_004F9600[];
 
 void actSt04rGondolaCharaChk(volatile int a0)
@@ -2534,6 +2637,7 @@ void actSt04rGondolaCharaChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt04rTorch1_1Chk(volatile int a0)
 {
     while (scpIsTorchLightOn(0x57C) == 0) {
@@ -2543,6 +2647,7 @@ void actSt04rTorch1_1Chk(volatile int a0)
     gflagOn(0x10A);
     stage_SetAnimation(0xD2, 1, 0);
 }
+
 void actSt04rTorch1_2Chk(volatile int a0)
 {
     while (scpIsTorchLightOn(0x57D) == 0) {
@@ -2552,6 +2657,7 @@ void actSt04rTorch1_2Chk(volatile int a0)
     gflagOn(0x10B);
     stage_SetAnimation(0xD3, 1, 0);
 }
+
 void actSt04rTorch2_1Chk(volatile int a0)
 {
     while (scpIsTorchLightOn(0x5CF) == 0) {
@@ -2560,6 +2666,7 @@ void actSt04rTorch2_1Chk(volatile int a0)
 
     gflagOn(0x10C);
 }
+
 void actSt04rTorch2_2Chk(volatile int a0)
 {
     while (scpIsTorchLightOn(0x5D0) == 0) {
@@ -2568,6 +2675,7 @@ void actSt04rTorch2_2Chk(volatile int a0)
 
     gflagOn(0x10D);
 }
+
 void actSt04rTorch3_1Chk(volatile int a0)
 {
     while (scpIsTorchLightOn(0x5D1) == 0) {
@@ -2576,6 +2684,7 @@ void actSt04rTorch3_1Chk(volatile int a0)
 
     gflagOn(0x110);
 }
+
 void actSt04rTorch3_2Chk(volatile int a0)
 {
     while (scpIsTorchLightOn(0x5D2) == 0) {
@@ -2584,6 +2693,7 @@ void actSt04rTorch3_2Chk(volatile int a0)
 
     gflagOn(0x111);
 }
+
 void actSt04rTorch2_1XLChk(volatile int a0)
 {
     while (scpIsTorchLightOn(0x580) == 0) {
@@ -2593,6 +2703,7 @@ void actSt04rTorch2_1XLChk(volatile int a0)
     gflagOn(0x10E);
     stage_SetAnimation(0xD4, 1, 0);
 }
+
 void actSt04rTorch2_2XLChk(volatile int a0)
 {
     while (scpIsTorchLightOn(0x581) == 0) {

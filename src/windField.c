@@ -38,6 +38,7 @@ void drawSenpuuki(float scale)
     drawSenpuukiHaneUnit(scale);
     gif_EndPacket();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/windField", ExecWindField);
 extern int (*D_0063BC58)(void);
 
@@ -45,6 +46,7 @@ int GetWindVector(void)
 {
     return D_0063BC58();
 }
+
 extern char D_0028FEF0[];
 
 int *dummyGetWindVector(int *a0)
@@ -53,6 +55,7 @@ int *dummyGetWindVector(int *a0)
         *a0 = 0;
     return D_0028FEF0;
 }
+
 extern int D_0028F4C0[];
 extern float D_00639700;
 extern float D_004ED360[];
@@ -80,6 +83,7 @@ float *getParallelWindVector(float *power, void *pos)
     sceVu0ScaleVector(D_00724BE0, D_004ED360, s);
     return D_00724BE0;
 }
+
 typedef struct {
     float v[4];
     float str;
@@ -102,10 +106,12 @@ WindCell *getRadiateWindVector(float *power, float *pos)
         *power = (D_00724FF0[0] + x + z * 20)->str;
     return &D_00724FF0[z][x];
 }
+
 void StopWindField(void)
 {
     D_0063BC58 = (int (*)(void))dummyGetWindVector;
 }
+
 extern char D_004ED380[];
 extern void DrawLineG();
 
@@ -119,6 +125,7 @@ void drawLines(char *a0)
         } while (-1000.0f < *(float *)cur);
     }
 }
+
 extern float D_004ED380__pn[] __asm__("D_004ED380");
 extern float D_004ED390[];
 extern void DrawLineG__pn(void *a0, void *a1, void *a2, void *a3, int a4) __asm__("DrawLineG");
@@ -130,6 +137,7 @@ void drawSenpuukiHane(void)
         DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
     }
 }
+
 extern float D_004ED4F0[];
 
 void drawSenpuukiUnit(void)
@@ -139,6 +147,7 @@ void drawSenpuukiUnit(void)
         DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
     }
 }
+
 extern float D_004ED690[];
 
 void drawSenpuukiBase(void)

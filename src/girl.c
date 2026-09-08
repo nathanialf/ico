@@ -76,6 +76,7 @@ void GirlGeo(char *a0)
     }
     func_001DD128(a0);
 }
+
 extern char D_0061F910[];
 extern char D_0061F930[];
 extern char D_0061F948[];
@@ -147,6 +148,7 @@ void GirlAI(char *a0)
         }
     }
 }
+
 extern int matrixptr;
 extern void GetRootPosition(void *dst, void *self);
 extern void sceVu0TransposeMatrix(void *dst, void *src);
@@ -184,6 +186,7 @@ void debugWireStringGirl(char *a0)
     DispWireString(D_004EB420[cloth[0]]);
     MatrixDrive_PopMatrix();
 }
+
 extern void func_001DD440(int a0);
 extern void p2o_DispVU1(int a0);
 extern void p2o_SetDefaultEnviroment(int a0);
@@ -195,6 +198,7 @@ void GirlDL(int a0)
     func_001DD440(a0);
     return debugWireStringGirl((char *)a0);
 }
+
 void SetGirlClothDispSwitch(char *a0, int a1, int a2)
 {
     char *cloth = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
@@ -210,10 +214,12 @@ void SetGirlClothDispSwitch(char *a0, int a1, int a2)
         break;
     }
 }
+
 void SetGirlHairDispSwitch(char *a0, int a1)
 {
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x28) = a1;
 }
+
 extern char D_0061F8D0[];
 extern char D_0061F8E8[];
 

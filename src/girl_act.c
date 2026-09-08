@@ -21,6 +21,7 @@ union GAIF {
     int i;
     float f;
 };
+
 extern int GetSkeltonFocusNode(void *obj, int kind);
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 
@@ -39,6 +40,7 @@ void GetEyeDirection(char *dir, char *obj)
     *(int *)(dir + 0xC) = 0;
     sceVu0ApplyMatrix(dir, (char *)(*(int *)(*(int *)(obj + 0x15C) + 0xC) + (node << 6)), dir);
 }
+
 extern void ACTGame_DisconnectHand(void);
 extern char D_00553990[];
 extern void debug_StdPrintfDummy__pn(void *a0) __asm__("debug_StdPrintfDummy");
@@ -48,6 +50,7 @@ void funcGirlHandDisconnect(void)
     ACTGame_DisconnectHand();
     debug_StdPrintfDummy__pn(D_00553990);
 }
+
 extern void debug_StdPrintfDummy();
 extern char D_005539E8[];
 extern int *D_00639EA4;
@@ -95,6 +98,7 @@ void motGirlHand50(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern char D_00553A18[];
 
 void motGirlHand100(volatile int a0)
@@ -140,6 +144,7 @@ void motGirlHand100(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern char D_00553A48[];
 extern char D_00553A60[];
 extern char D_0063A880[];
@@ -196,6 +201,7 @@ held:
         _ACTWait(1);
     }
 }
+
 extern int D_002A5580[];
 extern void brainClsTargetLevel();
 
@@ -203,13 +209,16 @@ void GirlBrainClearTarget(void)
 {
     brainClsTargetLevel(D_002A5580);
 }
+
 extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, int a1, float f);
+
 void SetTurnSpeedInEscape(char *a0)
 {
     if (*(int *)(*(char **)(a0 + 0x164) + 0x34) == 10) {
         ACTGame_SetMotionPlaySpeedRatio_Reserve(a0, 5, 1.5f);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", sort_list);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_MakeOthersList);
 extern void GetMatrixDirectionToZ(void *m, void *dir);
@@ -261,6 +270,7 @@ int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
     }
     return 0;
 }
+
 ASM_LIT4_SLOT(D_00638F68, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_CheckWarningMode);
 ASM_LIT4_SLOT(D_00638F6C, 160000.0f);
@@ -279,12 +289,15 @@ void girlBrainMain_PositionUpdate(void)
     GetRootProjectionPosOfGObj(D_002A2E70 + 0x10, D_00639EA8);
     GetRootProjectionPosOfGObj(D_002A2E70 + 0x30, D_00639EA4);
 }
+
 extern char D_0029D650[];
 extern void *memset(void *dst, int c, int n);
+
 void girlBrainMain_Init(void)
 {
     memset(D_0029D650, 0, 0x5920);
 }
+
 typedef struct {
     char _0[0xC90];
     int f_C90; /* 0xC90 */
@@ -300,6 +313,7 @@ typedef struct {
     char _5908[0x0C];
     int f_5914; /* 0x5914 */
 } GirlBrainWork;
+
 extern float D_002A5594[];
 extern char D_0029D4A0[];
 extern char D_005D3EF0[];
@@ -326,6 +340,7 @@ void ChangeRunMode(int mode)
     hi = *(int *)(D_005D3EF0 + (t * 16 + mode * 8) + 4);
     ((GirlBrainWork *)D_0029D650)->limit = lo + rand() % (hi - lo);
 }
+
 ASM_LIT4_SLOT(D_00638F74, 250000.0f);
 ASM_LIT4_SLOT(D_00638F78, 22500.0f);
 ASM_LIT4_SLOT(D_00638F7C, 160000.0f);
@@ -389,6 +404,7 @@ int ATGoalTurnMail(void *actor, float *dir, int node)
     }
     return ret;
 }
+
 extern void *test_CURRENTROOT(void *a0);
 
 int checkWaterfallResult(float *out)
@@ -397,6 +413,7 @@ int checkWaterfallResult(float *out)
         float f[4];
         int i[4];
     } t;
+
     float pa[4];
     float pb[4];
     int r1;
@@ -468,6 +485,7 @@ int checkWaterfallResult(float *out)
     }
     return ret;
 }
+
 ASM_LIT4_SLOT(D_00638FA8, 90000.0f);
 ASM_LIT4_SLOT(D_00638FAC, 10000.0f);
 ASM_LIT4_SLOT(D_00638FB0, 40000.0f);
@@ -516,6 +534,7 @@ void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", isHideRecheck);
 ASM_LIT4_SLOT(D_00638FB8, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Hide);
@@ -524,6 +543,7 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174CE8);
 ASM_LIT4_SLOT(D_00638FC0, 10000.0f);
 ASM_LIT4_SLOT(D_00638FC4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainRunawaySearchPoint);
+
 typedef struct {
     float a[4];   /* 0x00 start point   */
     float b[4];   /* 0x10 end point     */
@@ -536,6 +556,7 @@ typedef struct {
     int f_94; /* 0x94 floor hit     */
     char _98[0x28];
 } ClipWork;
+
 extern void ClipWall(void *);
 extern void ClipWallField(void *);
 extern void ClipFloor(void *);
@@ -644,6 +665,7 @@ int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
     }
     return 0;
 }
+
 ASM_LIT4_SLOT(D_00638FCC, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Escape);
 extern float _DistGV(void *a, void *b);
@@ -664,6 +686,7 @@ void ClipTwinVector(float *out, float *from, float *to, float max)
         out[2] = to[2];
     }
 }
+
 extern int ACTWayMove_BeginDetail(void *obj, float *b, float *a, void *tgt, int e, int f);
 extern int ACTWayMove_NextDetail(void *obj, char *w, float *a, int d, int e);
 
@@ -733,6 +756,7 @@ no_wall:
     }
     return rv;
 }
+
 extern void _ApplyRyGV(float *v, float ang);
 extern void sceVu0AddVector(float *dst, float *a, float *b);
 extern float _DistSqGV(void *a, void *b);
@@ -856,6 +880,7 @@ retry:
         }
     }
 }
+
 ASM_LIT4_SLOT(D_00638FD8, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001762A0);
 ASM_LIT4_SLOT(D_00638FDC, 10000.0f);
@@ -880,6 +905,7 @@ static inline unsigned char isBoyPushBoxTruck(void)
     }
     return 0;
 }
+
 extern void *test_CURRENTORIENT(void *a0);
 extern float _GetDirection(void *orient);
 extern void sceVu0ScaleVector(float *dst, float *src, float scale);
@@ -1173,6 +1199,7 @@ static inline void girlBrainSetWalkRatio(void *g)
         *(float *)(s + 0x34C) = run;
     }
 }
+
 void subGirlBrain_HideAdvance(volatile int a0)
 {
     float self_pos[4];
@@ -1259,6 +1286,7 @@ test:
 ret0:
     return 0;
 }
+
 extern int D_0028F8F4[];
 extern unsigned char D_0063A8E0[4];
 extern unsigned char D_0063A8E4;
@@ -1322,6 +1350,7 @@ void WayTest(void)
     dispWayMarker(*(char **)(s + 0x380));
     dispWayMarker(*(char **)(s + 0x384));
 }
+
 ASM_LIT4_SLOT(D_00638FF4, 0.001f);
 ASM_LIT4_SLOT(D_00638FF8, 0.1f);
 ASM_LIT4_SLOT(D_00638FFC, 0.1f);
@@ -1376,6 +1405,7 @@ void HandMgr_Judge(void)
         D_002A2F70.f_5D = 1;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", HandMgr_Print);
 ASM_LIT4_SLOT(D_00639038, 0.9f);
 ASM_LIT4_SLOT(D_0063903C, 1.1f);
@@ -1456,6 +1486,7 @@ void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
         break;
     }
 }
+
 ASM_LIT4_SLOT(D_00639048, 0.1f);
 ASM_LIT4_SLOT(D_0063904C, -1.5707964f);
 ASM_LIT4_SLOT(D_00639050, 0.1f);
@@ -1503,9 +1534,11 @@ void actGirlPulledReady(volatile int a0)
         _ACTWait(1);
     }
 }
+
 typedef struct {
     int w[8];
 } GirlPullBlk;
+
 extern void afterGirlHand(unsigned int a0);
 extern void afterGirlPulledGo(void *a0);
 extern void ACTGame_ConnectHand(void);
@@ -1549,6 +1582,7 @@ void actGirlPulledGo(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern void PAIR_GetPosition_BOY_DITCH(float *bpos, float *gpos);
 extern int PAIR_IsStatus_BOY_DITCH(void);
 
@@ -1574,6 +1608,7 @@ void actGirlDitch3mReady(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern int D_0028F4C0[];
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 
@@ -1603,6 +1638,7 @@ void actGirlReadyMove(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern char *D_0063A61C;
 extern int iosOmSendMail(void *a0, int a1, void *a2);
 extern void gflagOff(int a0);
@@ -1673,6 +1709,7 @@ void actGirlRescueDst(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern void *memset(void *dst, int c, int n);
 extern void RotQuaternionY(float *q, int a1);
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
@@ -1712,6 +1749,7 @@ void actGirlSupportBGBegin(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern int girlcalled;
 extern int GirlInfo;
 extern int D_0063A954;
@@ -1775,6 +1813,7 @@ void actGirlStart(void *self)
     ACTSendMailCorrect(self, 0xC7);
     _ACTWait(0);
 }
+
 extern void ACTSendMailCorrect(void *a0, int mail);
 extern void *test_CURRENTORIENT(void *a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
@@ -1813,6 +1852,7 @@ void GirlAct_BoyAndMeCollisionMail(void *a0)
         ACTSendMailCorrect(a0, 0x111);
     }
 }
+
 extern char D_005577D0[];
 
 typedef struct {
@@ -1883,10 +1923,12 @@ int IsGirlStatusEscortEnable(int a0, int a1)
     }
     return 0;
 }
+
 typedef union {
     float f[4];
     long long ll[2];
 } Vec4;
+
 typedef union {
     int c[4];
     long long ll[2];
@@ -1954,6 +1996,7 @@ void DebugDispAutoEscort(void)
         }
     }
 }
+
 /* the *(sub+0x688) ACT parameter block, viewed as a struct.  Stores through it
    must be COMPONENT_REFs (MEM_IN_STRUCT_P) and not plain scalar indirections:
    alias.c can then tell them apart from the fixed-address parameter home, which
@@ -1966,6 +2009,7 @@ typedef struct {
     float f_524;
     float f_528;
 } ActPara;
+
 extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, void *a4, int a5, void *a6);
 extern void _OrientXZGV(void *out, void *a, void *b);
 extern int _AbsRotyGV(void *a, void *b);
@@ -2014,6 +2058,7 @@ void actGirlHintPoint(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern int D_006C1E20[];
 extern int ACTGame_FLAG_TETSUNAGI(void);
 extern void GetSkeltonPosition(float *out, void *obj, int node);
@@ -2043,6 +2088,7 @@ void ACTGame_GirlBeforeFunc(void *self)
         }
     }
 }
+
 extern int D_002A2E2C[];
 
 void *FindGirlPullupFloorBoxGObj(void)
@@ -2053,6 +2099,7 @@ void *FindGirlPullupFloorBoxGObj(void)
     }
     return 0;
 }
+
 extern float _MoveGV(float *dst, float *from, float *to, float t);
 extern void SetDirectRootPositionNoFitting(void *self, float *pos);
 
@@ -2076,6 +2123,7 @@ void actGirlSupportGBBegin(volatile int a0)
         _ACTWait(1);
     }
 }
+
 /* girl_act.c:3933 — the status-range test the listing attributes to its own
    line inside actGirlSupportGBLoop's loop. */
 static inline unsigned char isGirlSupportGBStatus(void)
@@ -2099,6 +2147,7 @@ void actGirlSupportGBLoop(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actGirlSupportGBEnd(volatile int a0)
 {
     for (;;) {
@@ -2106,6 +2155,7 @@ void actGirlSupportGBEnd(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern void ACTWay_SetBeginPositionIllegal(char *self);
 
 void actGirlHangG3M(volatile int a0)
@@ -2118,6 +2168,7 @@ void actGirlHangG3M(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern void ACTGame_ConnectHand(void);
 extern void SetRootPosition(void *self, float *pos);
 extern void _InterGV(float *dst, float *a, float *b, float t0, float t1);
@@ -2150,6 +2201,7 @@ void actGirlDitch3mExec(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern char D_00554000[];
 
 void actGirlStand(volatile int a0)
@@ -2160,6 +2212,7 @@ void actGirlStand(volatile int a0)
     *(int *)(sub + 0x34) = 1;
     _ACTWait(0);
 }
+
 extern char D_00554018[];
 
 void actGirlWalk(volatile int a0)
@@ -2170,6 +2223,7 @@ void actGirlWalk(volatile int a0)
     *(int *)(sub + 0x34) = 2;
     _ACTWait(0);
 }
+
 extern char D_00554030[];
 
 void actGirlRun(volatile int a0)
@@ -2180,6 +2234,7 @@ void actGirlRun(volatile int a0)
     *(int *)(sub + 0x34) = 3;
     _ACTWait(0);
 }
+
 extern void *D_00639EA0;
 extern void ACTAdjustPlane(void *self, void *plane);
 
@@ -2208,6 +2263,7 @@ void actGirlHang(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actGirlBHang(volatile int a0)
 {
     char *s = *(char **)((char *)a0 + 0x164);
@@ -2225,6 +2281,7 @@ void actGirlBHang(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern char D_00554060[];
 
 void actGirlAttack(volatile int a0)
@@ -2235,6 +2292,7 @@ void actGirlAttack(volatile int a0)
     *(int *)(sub + 0x34) = 15;
     _ACTWait(0);
 }
+
 extern int D_0028F4C0[];
 extern void _ACTLookTarget_Set(void *self, void *target, float *pos, int kind, int flag);
 
@@ -2249,6 +2307,7 @@ void actGirlBecall(volatile int a0)
     ACTSendMailCorrect((void *)a0, 252);
     _ACTWait(0);
 }
+
 void actGirlBehanged(volatile int a0)
 {
     float q[4];
@@ -2261,6 +2320,7 @@ void actGirlBehanged(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actGirlAttractAction(volatile int a0)
 {
     for (;;) {
@@ -2268,6 +2328,7 @@ void actGirlAttractAction(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern void _ACTCharStatus_Set(void *self, int status, float time, int flag);
 
 void actGirlHintVoice(volatile int a0)
@@ -2278,6 +2339,7 @@ void actGirlHintVoice(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actGirlCannotReach(volatile int a0)
 {
     for (;;) {
@@ -2287,6 +2349,7 @@ void actGirlCannotReach(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern char D_005539D0[];
 extern char D_005539B8[];
 extern void afterGirlHand50(volatile int a0);
@@ -2311,6 +2374,7 @@ void actGirlHand50(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern char D_005539A0[];
 
 void afterGirlHand50(volatile int a0)
@@ -2319,6 +2383,7 @@ void afterGirlHand50(volatile int a0)
     iosOmSendMail(D_00639EA4, 0x60, D_0063A61C);
     ACTGame_DisconnectHand();
 }
+
 extern char D_00553A00[];
 extern char D_005539D0[];
 extern void afterGirlHand100(volatile int a0);
@@ -2340,12 +2405,14 @@ void actGirlHand100(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void afterGirlHand100(volatile int a0)
 {
     debug_StdPrintfDummy(D_005539A0);
     iosOmSendMail(D_00639EA4, 0x65, D_0063A61C);
     ACTGame_DisconnectHand();
 }
+
 extern char D_00553A30[];
 extern char D_005539D0[];
 extern void afterGirlHand200(volatile int a0);
@@ -2367,12 +2434,14 @@ void actGirlHand200(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void afterGirlHand200(volatile int a0)
 {
     debug_StdPrintfDummy(D_005539A0);
     iosOmSendMail(D_00639EA4, 0x6A, D_0063A61C);
     ACTGame_DisconnectHand();
 }
+
 int NotNeedBackHand(void)
 {
     char *g = D_00639EA8;
@@ -2386,6 +2455,7 @@ int NotNeedBackHand(void)
     }
     return 0;
 }
+
 void SetGirlDangerGObj(int a0)
 {
     char *g = D_00639EA8;
@@ -2393,6 +2463,7 @@ void SetGirlDangerGObj(int a0)
         *(int *)(*(char **)(*(char **)(g + 0x164) + 0x688) + 0x3E4) = a0;
     }
 }
+
 void ClearGirlDangerGObj(void)
 {
     char *g = (char *)D_00639EA8;
@@ -2400,12 +2471,14 @@ void ClearGirlDangerGObj(void)
         *(int *)(*(char **)(*(char **)(g + 0x164) + 0x688) + 0x3E4) = 0;
     }
 }
+
 void subGirlBrain_Idle(volatile int a0)
 {
     char *g = (char *)a0;
     *(int *)(*(char **)(g + 0x164) + 0x34C) = 0;
     _ACTWait(0);
 }
+
 void subGirlBrain_Hesitate(volatile int a0)
 {
     char *s = *(char **)((char *)a0 + 0x164);
@@ -2420,12 +2493,14 @@ void subGirlBrain_Hesitate(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void subGirlBrain_Becarry(volatile int a0)
 {
     char *g = (char *)a0;
     *(int *)(*(char **)(g + 0x164) + 0x34C) = 0;
     _ACTWait(0);
 }
+
 extern int ACTGameView_Check(void *self, void *target);
 
 void subGirlBrain_Busy(volatile int a0)
@@ -2448,6 +2523,7 @@ void subGirlBrain_Busy(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern int D_006C1E40[];
 extern void Danger_Bomb(void *self);
 extern void Danger_Gondola(void *self);
@@ -2472,6 +2548,7 @@ void subGirlBrain_DangerEnv(volatile int a0)
     }
     _ACTWait(0);
 }
+
 int enemy_list_compare(int a0, int a1)
 {
     float diff = *(float *)(a0 + 0x20) - *(float *)(a1 + 0x20);
@@ -2535,6 +2612,7 @@ no_wall:
     }
     return rv;
 }
+
 extern void ACTGame_DisconnectHand(void);
 extern void ACTWay_SetBeginPositionIllegal(char *self);
 extern char D_00553E50[];
@@ -2551,13 +2629,16 @@ void afterGirlHand(unsigned int a0)
         ACTWay_SetBeginPositionIllegal(local);
     } while (0);
 }
+
 void afterGirlPulledGo(void *a0)
 {
     void *volatile q = a0;
     int *p = *(int **)((char *)q + 0x15C);
     *(int *)((char *)p + 0x634) = 0;
 }
+
 extern char D_00554048[];
+
 void actGirlJump(volatile int a0)
 {
     char *g = (char *)a0;
@@ -2566,11 +2647,13 @@ void actGirlJump(volatile int a0)
     *(int *)(s + 0x34) = 4;
     _ACTWait(0);
 }
+
 void afterGirlSupportBGBegin(unsigned int a0)
 {
     volatile unsigned int local = a0;
     ACTGame_DisconnectHand();
 }
+
 int isMustCheckCylinder(void *a, void *b)
 {
     if ((a == (void *)D_00639EA4 && b == D_00639EA8) ||
@@ -2581,7 +2664,9 @@ int isMustCheckCylinder(void *a, void *b)
     }
     return 0;
 }
+
 extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, void *a4, int a5, void *a6);
+
 void afterGirlHintPoint(volatile int a0)
 {
     RequestChangeHandMode((void *)a0, 1, 4, 0, 0, 0, 0);

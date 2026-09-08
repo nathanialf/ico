@@ -122,6 +122,7 @@ void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
         _AddVector(hw + 0x30, (char *)*(int *)(*(int *)(obj + 0x15C) + 0xC) + (na << 6) + 0x30, v);
     }
 }
+
 typedef union {
     float f[4];
     long long ll[2];
@@ -240,6 +241,7 @@ float _handManager(char *obj, char *hw, char *vec, char *ref, int node)
     }
     return 1.0f;
 }
+
 typedef union {
     int i;
     float f;

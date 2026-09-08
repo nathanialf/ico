@@ -11,17 +11,20 @@ void setRootUpdateMode(void)
 {
     SetRootUpdateMode(D_0063BA08, D_0063BA10);
 }
+
 extern void SetMotionPlaySpeedRatio(void *obj, float ratio);
 
 void setMotionSpeed(float ratio)
 {
     SetMotionPlaySpeedRatio(D_0063BA08, ratio);
 }
+
 /* dispProgressBar is defined as a nested function inside dispMotFrameProgress
  * below (the listing names it dispProgressBar.108). */
 typedef struct {
     unsigned char r, g, b, a;
 } BarCol;
+
 typedef struct {
     int x, y, w, h;
 } BarRect;
@@ -111,6 +114,7 @@ void dispMotFrameProgress(int obj, float cur)
         dispProgressBar(0, GetNbMotionFrames(obj) - 1, GetNbMotionFrames(obj) - 1, cur, &colA);
     }
 }
+
 typedef struct MvSub {
     char pad000[0xC];
     char *nodes; /* 0x00C — per-node 0x40 matrices */
@@ -220,6 +224,7 @@ int objMenuProc(void)
     }
     return ret;
 }
+
 /*SWEEPmotKindMenuProc*/
 typedef struct MvPad {
     int now;   /* 0x00 */
@@ -252,10 +257,12 @@ extern char D_00620728[];
 extern char D_00620748[];
 extern char D_00620760[];
 extern int D_0063A438;
+
 typedef struct OriCsv {
     int sel;
     OriRow *rows;
 } OriCsv;
+
 extern OriCsv D_0063BA00;
 extern int D_0063BA0C;
 extern float D_0063BA14;
@@ -364,6 +371,7 @@ int motKindMenuProc(void)
     }
     return ret;
 }
+
 /*SWEEP-ENDmotKindMenuProc*/
 /*SWEEPmotOriMenuProc*/
 extern char D_0055FF18[];
@@ -389,11 +397,13 @@ extern char D_0063BA50[];
 extern int scePadRead(int port, int slot, unsigned char *rdata);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", modeMessage);
+
 /*SWEEP-ENDmodeMessage*/
 /*SWEEPlookAtTest*/
 typedef struct MvVec {
     float x, y, z, w;
 } __attribute__((aligned(16))) MvVec;
+
 typedef struct MvCol {
     int r, g, b, a;
 } __attribute__((aligned(16))) MvCol;
@@ -485,6 +495,7 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, s
     }
     gif_EndPacket();
 }
+
 /*SWEEP-ENDlookAtTest*/
 /*SWEEPMotionViewer*/
 extern MvCol D_004ECC70;

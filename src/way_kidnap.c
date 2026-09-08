@@ -41,6 +41,7 @@ void add_wp_pos(WayPoint *wp, float *pos, float len)
     D_007292C0[D_0063BD60].len = len;
     sceVu0CopyVector(D_00728AC0[D_0063BD60++], pos);
 }
+
 typedef struct WpNode {
     int f0;
     int _4;
@@ -154,8 +155,10 @@ found:
 
     return len;
 }
+
 extern int func_00215C68(float *a, float *b);
 extern void qsort(void *base, int n, int size, int (*cmp)());
+
 /* INTERIM: the PAL listing inlines the public NumOfWpPos into
  * WayPointWithRangeFromPos.  Its out-of-line definition keeps its own ROM slot
  * further down this TU (the tail still has asm members), so the call sites here
@@ -227,6 +230,7 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
 
     return numOfWpPos();
 }
+
 extern WpNode D_004F31E0[];
 extern char D_004F1EC0[];
 extern char D_004F1EC8[];
@@ -298,6 +302,7 @@ extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 extern int isEnemyKidnapEnable(void *gobj);
 extern void *D_00639EA8;
+
 static inline float wayLengthOfGObj_Pos(void *obj, float *pos)
 {
     float buf[4];

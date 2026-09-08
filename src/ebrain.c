@@ -10,6 +10,7 @@ typedef struct EBSlot {
     int f14;   /* 0x14 */
     void *f18; /* 0x18 owner GObj */
 } EBSlot;
+
 extern int eBrainBoyChaseCount;
 extern int eBrainGirlChaseCount;
 extern void *D_0063C2CC;
@@ -17,23 +18,27 @@ extern int D_0063C2D0;
 extern int D_006E6750[];
 extern char D_00555580[];
 extern void debug_StdPrintfDummy(const char *);
+
 typedef struct StageLabelRange {
     char pad0[0x128];
     int labelTop; /* 0x128 */
     int labelEnd; /* 0x12C */
     char pad130[0x194 - 0x130];
 } StageLabelRange;
+
 extern StageLabelRange D_005F5D50[];
 extern char D_005555A8[];
 extern char D_005555B8[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
+
 typedef struct GenGeo {
     char pad0[0x46];
     unsigned char kind; /* 0x46 */
     char pad47[1];
     unsigned int f48; /* 0x48 */
 } GenGeo;
+
 extern GenGeo D_002C2DC8[];
 extern char D_005555C8[];
 extern int GetMotherGenerator(int label);
@@ -43,6 +48,7 @@ int eBrainStatusSet(void *a0, int a1);
 void eBrainSendMes(void *gop, int mes);
 int GetStageFromLabel(int label);
 int eBrainGetTargetGeneratorFromLabelStage(int label, int stage);
+
 static inline void eBrainSetStatus(EBSlot *p, int newst)
 {
     int st = p->f0;
@@ -67,6 +73,7 @@ static inline void eBrainSetStatus(EBSlot *p, int newst)
     }
     p->f0 = newst;
 }
+
 static inline EBSlot *eBrainGetPacket(void *gop)
 {
     int i;
@@ -80,6 +87,7 @@ static inline EBSlot *eBrainGetPacket(void *gop)
     else
         return &((EBSlot *)D_006E6750)[i];
 }
+
 inline void eBrainInit(void)
 {
     int *p = D_006E6750;
@@ -96,6 +104,7 @@ inline void eBrainInit(void)
         i--;
     } while (i >= 0);
 }
+
 inline int eBrainStatusSet(void *a0, int a1)
 {
     EBSlot *slot;
@@ -119,7 +128,9 @@ inline int eBrainStatusSet(void *a0, int a1)
     slot->f10 = 0;
     return (int)slot;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainProcess);
+
 inline int GetStageFromLabel(int label)
 {
     int stage = -1;
@@ -137,6 +148,7 @@ inline int GetStageFromLabel(int label)
     }
     return stage;
 }
+
 inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
 {
     int pri = -1;
@@ -168,6 +180,7 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
     }
     return no;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainGetTargetGeneratorFromLabel);
 extern void *D_00639EA4;
 extern void *D_00639EA8;
@@ -366,6 +379,7 @@ EBSlot *eBrainGetTarget(void *gop)
     }
     return p;
 }
+
 inline void eBrainSendMes(void *gop, int mes)
 {
     EBSlot *p = eBrainGetPacket(gop);

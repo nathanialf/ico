@@ -19,6 +19,7 @@ void sceVif1PkInit(int *a0, int a1)
     a0[0] = a1;
     a0[2] = 0;
 }
+
 int sceVif1PkReset(int *a0)
 {
     int v = a0[1];
@@ -26,6 +27,7 @@ int sceVif1PkReset(int *a0)
     a0[0] = v;
     return v;
 }
+
 int *sceVif1PkTerminate(int **a0)
 {
     int *p = a0[0];
@@ -42,6 +44,7 @@ int *sceVif1PkTerminate(int **a0)
     a0[2] = 0;
     return p;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EC00", sceVif1PkCnt);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EC00", sceVif1PkEnd);
 extern void sceVif1PkAlign(void *a0, int a1, int a2);
@@ -57,6 +60,7 @@ void sceVif1PkOpenDirectCode(void *a0, int a1)
     *(int **)((char *)a0 + 0xC) = v;
     *(int **)a0 = v + 1;
 }
+
 int sceVif1PkCloseDirectCode(Pool241748 *a0)
 {
     int n = (int)a0->end - 4;
@@ -67,6 +71,7 @@ int sceVif1PkCloseDirectCode(Pool241748 *a0)
     *p = *p + n;
     return n;
 }
+
 void sceVif1PkOpenGifTag(void *a0, u128_241778 a1)
 {
     void **pp = (void **)a0;
@@ -75,8 +80,10 @@ void sceVif1PkOpenGifTag(void *a0, u128_241778 a1)
     *(void **)((char *)a0 + 0x14) = p;
     *pp = (char *)p + 0x10;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EC00", sceVif1PkCloseGifTag);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EC00", sceVif1PkAlign);
+
 void sceVif1PkAddGsData(int **a0, long long a1)
 {
     int *p = *a0;

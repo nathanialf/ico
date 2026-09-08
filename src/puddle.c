@@ -25,6 +25,7 @@ inline void PuddleGeo(char *a0)
         p += 0x20;
     }
 }
+
 extern void CopyVector(void *a0, void *a1);
 
 typedef struct {
@@ -52,6 +53,7 @@ inline void EntryRippleToPuddle(char *a0, void *vec)
         w->idx = 0;
     }
 }
+
 inline int puddleRideFunc(char **a0, char *a1)
 {
     float v[4];

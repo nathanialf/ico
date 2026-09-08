@@ -6,6 +6,7 @@ extern int sceSifAllocIopHeap(int size);
 extern void debug_StdPrintfDummy(char *fmt, ...);
 /* prototypes: their order is the inline tail's emission order */
 int iosSifAllocIopHeapDebug(int size, char *file, int line);
+
 inline int iosSifAllocIopHeapDebug(int size, char *file, int line)
 {
     int p = sceSifAllocIopHeap(size);
@@ -22,5 +23,6 @@ inline int iosSifAllocIopHeapDebug(int size, char *file, int line)
     }
     return p;
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/ios", ios_init_plus);
 INCLUDE_ASM("asm/nonmatchings/ios/ios", iosInitialize);

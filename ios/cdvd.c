@@ -40,6 +40,7 @@ void iosCdvdHandlerRead(int *a0, void *a1, int a2)
         a2 -= n;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", unifile_read_func);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdUnifileInfoGet);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdManager);
@@ -53,16 +54,19 @@ void iosCdvdLoad(int a0, int a1)
     p->ll = (p->ll & ~1LL) | (a1 & 1);
     iosMsgSend(CdvdMsgQ, (void *)a0, 0);
 }
+
 void iosCdvdPackLoad(void *a0)
 {
     *(int *)((char *)a0 + 4) = 2;
     iosMsgSend(CdvdMsgQ, a0, 0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgrAdd);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", cdWait);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundRead);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundReadIOPm);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdDirectStOpen);
+
 void iosCdvdDirectStClose(int *self)
 {
     int err;
@@ -73,6 +77,7 @@ void iosCdvdDirectStClose(int *self)
     }
     sceSifFreeIopHeap(self[0x164 / 4]);
 }
+
 extern char D_00637E69[];
 extern char D_0063A3A0[];
 extern void sprintf();
@@ -107,6 +112,7 @@ int iosCdvdChgFileName(int a0)
     } while (nc != 0);
     return strcpy(a0, buf);
 }
+
 /* iosCdvdSrhBuff is the directory cache: D_0063A36C records of 0x30 bytes,
  * and D_00298E68 is iosCdvdSrhBuff[0].name (the ROM addresses the name column
  * through its own symbol).  */
@@ -115,6 +121,7 @@ typedef struct {
     int size;
     char name[0x28];
 } CdSrhEnt;
+
 extern CdSrhEnt iosCdvdSrhBuff[];
 extern char D_00298E68[];
 extern char D_00550C58[];
@@ -138,6 +145,7 @@ found:
     *size = iosCdvdSrhBuff[i].size;
     return iosCdvdSrhBuff[i].lsn;
 }
+
 extern int CdvdMsgQ_LoadEnd[];
 extern void iosMsgRecv();
 
@@ -147,7 +155,9 @@ int iosCdvdSync(int a0)
     iosMsgRecv(CdvdMsgQ_LoadEnd, &local, 1);
     return 1;
 }
+
 extern char iosCdvd[];
+
 void iosCdvdLoadPackFile(int a0, char *name, int a2)
 {
     int buf[4];
@@ -160,21 +170,25 @@ void iosCdvdLoadPackFile(int a0, char *name, int a2)
     buf[0] = (int)iosCdvd;
     iosMsgRecv(CdvdMsgQ_LoadEnd, buf, 1);
 }
+
 extern int D_0063A384;
 
 int iosCdvdDiskStatusGet(void)
 {
     return D_0063A384;
 }
+
 void iosCdvdBackGroundMgrDelete(char *self)
 {
     *(int *)(self + 0x108) |= 2;
 }
+
 int iosCdvdBackGroundMgrNotDiskReadyPauseSet(void *a0, int a1)
 {
     int *p = (int *)((char *)a0 + 0x108);
     return *p = (*p & ~0x10) | ((a1 & 1) << 4);
 }
+
 extern char D_006B7B80[];
 
 int iosCdvdBackGroundMgrDeleteRequestGet(void)
@@ -190,6 +204,7 @@ int iosCdvdBackGroundMgrDeleteRequestGet(void)
     } while ((int)p < (int)limit);
     return count;
 }
+
 int iosCdvdBackGroundMgrEntryNum(void)
 {
     char *p = D_006B7B80;
@@ -205,16 +220,19 @@ int iosCdvdBackGroundMgrEntryNum(void)
     } while ((int)p < (int)limit);
     return count;
 }
+
 void iosCdvdBackGroundMgrSeek(char *self, int val)
 {
     *(int *)(self + 0x110) = val;
 }
+
 extern int D_0063C17C;
 
 int iosCdvdBackGroundMgrGetRunning(void)
 {
     return D_0063C17C;
 }
+
 extern char D_00550FD8[];
 extern void debug_StdPrintfDummy();
 extern int sceCdStRead(int a0, int a1, int a2, void *a3);
@@ -230,6 +248,7 @@ int iosCdvdDirectStRead(int a0, int a1, int a2, int *a3)
     }
     return result;
 }
+
 /* The inflate handler's read callback (installed by iosCdvdMgrStStart): hand
  * the decoder at most as many bytes as are still left in the streamed file --
  * its total length at +0x13C minus the bytes already consumed at +0x28.  */
@@ -250,6 +269,7 @@ long long inflate_cd_read_func(void *buf, long long size, int *self)
 
     return len;
 }
+
 extern int D_0063C17C;
 
 void iosCdvdBackGroundMgrInit(void)
@@ -263,6 +283,7 @@ void iosCdvdBackGroundMgrInit(void)
     }
     D_0063C17C = 0;
 }
+
 typedef int (*BgFunc)(char *self, int arg);
 
 void iosCdvdBackGroundMgr(void)
@@ -289,6 +310,7 @@ void iosCdvdBackGroundMgr(void)
         D_0063C17C = 0;
     }
 }
+
 /* The record sceCdSearchFile fills in: it writes 0x24 bytes of it (lsn, size,
  * the name column and the date), and the stack slot it is given is 0x30.  */
 typedef struct {
@@ -298,6 +320,7 @@ typedef struct {
     unsigned char date[8];
     unsigned int reserved;
 } CdlFILE;
+
 extern char D_00550CC8[];
 extern char D_00550CD8[];
 extern int D_0063A374;

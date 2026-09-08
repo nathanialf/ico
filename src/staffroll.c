@@ -10,6 +10,7 @@ INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollStart);
 INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollScroll);
 INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollNameOut);
 INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollMain);
+
 void staffRollWide(void)
 {
     D_0063C438 = 1;

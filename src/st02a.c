@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x164]; /* 0x000 */
     Act *act;          /* 0x164 */
@@ -63,6 +65,7 @@ void actSt02WaterFallBoySplashCheck(volatile int a0)
         _ACTWait(0xA);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWaterFallReflactionEffect);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWaterFallChk);
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaUp);
@@ -93,6 +96,7 @@ void actSt02aGondola(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -113,6 +117,7 @@ void actSt02aFence(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -140,6 +145,7 @@ void actSt02aWaterFall(volatile int a0)
     actCreateSubThread(actSt02WaterFallBoySplashCheck, 0x15);
     actCreateSubThread(actSt02aWaterFallReflactionEffect, 0x15);
 }
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 
@@ -155,6 +161,7 @@ void actSt02aBoxEvent2(volatile int a0)
         scpSearchGobj(0x6AD)->f16C = 0;
     }
 }
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -175,6 +182,7 @@ void actSt02aEne(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void Generator_Mask(int a0);
@@ -201,6 +209,7 @@ void actSt02aEnemy1(volatile int a0)
     _ACTWait(0x3C);
     Generator_Call(a0);
 }
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void Generator_Mask(int a0);
@@ -229,6 +238,7 @@ void actSt02aEnemy2(volatile int a0)
     Generator_Call(a0);
     Generator_Call((int)scpSearchGobj(0x6A7));
 }
+
 extern Act *actInitialize(int a0);
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
@@ -242,6 +252,7 @@ void actSt02aSekizo(volatile int a0)
 
     scpSekizou(a0, 0x7B, 0x66, 0, 0x12, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
 }
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -269,6 +280,7 @@ void actSt02aWay(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -289,6 +301,7 @@ void actSt02aTakiWay(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -309,10 +322,12 @@ void actSt02aSecretItem(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt02aDoorEvent(int x)
 {
     volatile int local = x;
 }
+
 extern long long D_00622720[];
 extern long long D_00622730[];
 extern void scpEffectStart__pn(int *buf, int a1) __asm__("scpEffectStart");
@@ -340,6 +355,7 @@ void actSt02aDoorUpEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt02aDoorDownEffect(volatile int a0)
 {
     long long b1[2];
@@ -363,6 +379,7 @@ void actSt02aDoorDownEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern ActMail D_004F80D0[];
 
 void actSt02aFenceMain(volatile int a0)
@@ -374,6 +391,7 @@ void actSt02aFenceMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern void lt_switch_layout(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
@@ -393,6 +411,7 @@ void actSt02aFenceSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
 extern int st02a_fence;
@@ -413,6 +432,7 @@ void actSt02aFenceOpenSub(volatile int a0)
     D_0063C504 = 1;
     _ACTWait(0);
 }
+
 extern void scpSleepEnemyAll(void);
 extern ActMail D_004F8150[];
 extern ActMail D_004F8190[];
@@ -429,6 +449,7 @@ void actSt02aGondolaMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt02aGondolaSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -450,6 +471,7 @@ void actSt02aGondolaSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern int D_00639EA8;
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern void gflagOn(int a0);
@@ -467,10 +489,12 @@ void actSt02aEneChk(volatile int a0)
     gflagOn(0x79);
     gflagOn(0x7A);
 }
+
 void actSt02aSekizoEvent(int x)
 {
     volatile int local = x;
 }
+
 extern int scpCheckExistAliveEnemy(void);
 extern void SetWayGroupActive(int a0, int a1);
 extern void gflagOff(int a0);
@@ -503,6 +527,7 @@ void actSt02aWayOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern int scpCheckExistAliveEnemy(void);
 extern void SetWayGroupActive(int a0, int a1);
 extern ActMail D_004F8290[];
@@ -530,6 +555,7 @@ void actSt02aWayOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 /* The waterfall way-on watcher's own mail record (installs
    actSt02aTakiWayOffChk). */
 static ActMail taki_on_mail[2] = {{0x1AE}, {0x1AD}};
@@ -554,6 +580,7 @@ void actSt02aTakiWayOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 /* The waterfall way-off watcher's own mail record (installs
    actSt02aTakiWayOnChk). */
 static ActMail taki_off_mail[2] = {{0x1AE}, {0x1AD}};
@@ -578,6 +605,7 @@ void actSt02aTakiWayOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void scpExplodeSecretItem(void);
 
 void actSt02aSecretItemChk(volatile int a0)

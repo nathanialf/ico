@@ -2,18 +2,22 @@
 
 #include "ico/types.h"
 #include "vu0.h"
+
 typedef struct {
     char c[16];
 } Blob16;
+
 typedef struct {
     char c[4];
 } Blob4;
 
 extern void ExecuteSEPackage(int a0, int a1);
+
 void falldownSE(int a0)
 {
     ExecuteSEPackage(a0, 0x56);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/pool", copyToWork);
 extern char D_0054DA50[];
 extern int D_00639F28;
@@ -43,6 +47,7 @@ void flushWork(void)
     gif_SpriteSensitiveOrg(buf, 0, 0, buf + 0x10, 0);
     gif_SetZTest(1);
 }
+
 extern char D_002907E0[];
 extern int GetSkeltonFocusNode(char *a0, int a1);
 extern int SetParticleEffectActiveSensing(int a0, int a1, int a2);
@@ -58,12 +63,15 @@ void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float
         SetParticleEffectUpperLimit(r, f);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetFallDownSplash);
 extern void CopyVector(void *a0, void *a1);
+
 void GetPoolGlobalDrainVector(void *dst, char *a0)
 {
     CopyVector(dst, *(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10);
 }
+
 ASM_LIT4_SLOT(D_00638B84, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/src/pool", InitPoolGeo);
 ASM_LIT4_SLOT(D_00638B88, 0.0005f);
@@ -82,11 +90,14 @@ INCLUDE_ASM("asm/nonmatchings/src/pool", SetLayoutedPoolReflactionMesh);
 ASM_LIT4_SLOT(D_00638BA8, 0.3f);
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetLimitedPoolReflactionMesh);
 INCLUDE_ASM("asm/nonmatchings/src/pool", DispLimitedPoolReflactionMesh);
+
 void PoolGeo(void) {}
+
 float GetPoolGlobalHeight(char *a0)
 {
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4);
 }
+
 float GetPoolGlobalHeightDetail(char *a0, float *pos)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -105,10 +116,12 @@ float GetPoolGlobalHeightDetail(char *a0, float *pos)
     }
     return *(float *)(p + 0x4);
 }
+
 int CheckPoolHasGridMesh(char *a0)
 {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x30) != 0;
 }
+
 extern void InitLimitedPoolReflactionMesh(char *a0);
 extern void _InterVectorXYZ(void *p0, void *p1, void *p2, float t);
 
@@ -132,6 +145,7 @@ void InitLayoutedPoolReflactionMesh(char *a0, char *a1)
         }
     }
 }
+
 int poolRideFunc(char **a0, char *a1)
 {
     char *e = *(char **)(a1 + 0x15C);

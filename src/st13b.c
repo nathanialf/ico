@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x164]; /* 0x000 */
     Act *act;          /* 0x164 */
@@ -59,12 +61,14 @@ typedef struct JimakuSub {
     void *unk3C;      /* 0x48 */
     void *unk40;      /* 0x4C */
 } JimakuSub;
+
 typedef struct JimakuArg {
     int cmd;       /* 0x00 */
     int unk04;     /* 0x04 */
     int done;      /* 0x08 */
     JimakuSub sub; /* 0x0C */
 } JimakuArg;
+
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 extern void jimakuBegin(int a0);
@@ -112,6 +116,7 @@ ASM_LIT4_SLOT(D_00639A4C, 527.0f);
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bElevUpChk);
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bDoorUp);
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bElev2Chk);
+
 void actSt13bSekizo(volatile int a0)
 {
     int x = a0;
@@ -130,6 +135,7 @@ void actSt13bSekizo(volatile int a0)
         stage_SetAnimation(0x21, 0, -1);
     }
 }
+
 void actSt13bSekizo2(volatile int a0)
 {
     int x = a0;
@@ -148,6 +154,7 @@ void actSt13bSekizo2(volatile int a0)
         stage_SetAnimation(0x22, 0, -1);
     }
 }
+
 void actSt13bBossAfter(volatile int a0)
 {
     int x = a0;
@@ -166,6 +173,7 @@ void actSt13bBossAfter(volatile int a0)
         stage_SetAnimation(0x23, 0, -1);
     }
 }
+
 void actSt13bStoneGirl(volatile int a0)
 {
     int x = a0;
@@ -178,6 +186,7 @@ void actSt13bStoneGirl(volatile int a0)
         scpSearchGobj(0x99E)->f16C = 1;
     }
 }
+
 void actSt13bElev(volatile int a0)
 {
     int x = a0;
@@ -190,6 +199,7 @@ void actSt13bElev(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt13bElev2(volatile int a0)
 {
     int x = a0;
@@ -213,6 +223,7 @@ void actSt13bElev2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13bDoor(volatile int a0)
 {
     int x = a0;
@@ -231,6 +242,7 @@ void actSt13bDoor(volatile int a0)
         stage_SetAnimation(0x2B, 0, -1);
     }
 }
+
 void actBossTest(volatile int a0)
 {
     int x = a0;
@@ -244,6 +256,7 @@ void actBossTest(volatile int a0)
     stage_SetAnimation(0x24, 0, 0);
     stage_SetAnimation(0x26, 0, 0);
 }
+
 void actSt13bConte02Jimaku(volatile int a0)
 {
     float t;
@@ -274,10 +287,12 @@ void actSt13bConte02Jimaku(volatile int a0)
         }
     } while (t < 2500.0f);
 }
+
 void actSt13bSekizo2Event(int x)
 {
     volatile int local = x;
 }
+
 void actConte10c(volatile int a0)
 {
     stage_SetAnimation(0x2FB, 1, 0);
@@ -299,6 +314,7 @@ void actConte10c(volatile int a0)
     D_0063C57C = 1;
     _ACTWait(0);
 }
+
 void actSt13bElevMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -308,6 +324,7 @@ void actSt13bElevMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt13bElevSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -320,6 +337,7 @@ void actSt13bElevSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt13bElevUpSub(volatile int a0)
 {
     stage_SetAnimation(0x28, 1, 0);
@@ -339,6 +357,7 @@ void actSt13bElevUpSub(volatile int a0)
     D_0063C57C = 1;
     _ACTWait(0);
 }
+
 void actSt13bDoorMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -348,6 +367,7 @@ void actSt13bDoorMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt13bDoorSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -360,6 +380,7 @@ void actSt13bDoorSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt13bDoorUpSub(volatile int a0)
 {
     _ACTWait(0x3C);
@@ -383,6 +404,7 @@ void actSt13bDoorUpSub(volatile int a0)
     D_0063C57C = 1;
     _ACTWait(0);
 }
+
 void actSt13bElev2CharaChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;

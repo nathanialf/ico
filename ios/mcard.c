@@ -2,6 +2,7 @@
 
 typedef union {
     long long ll;
+
     struct {
         int lo, hi;
     } w;
@@ -9,6 +10,7 @@ typedef union {
 
 typedef union {
     long long ll;
+
     struct {
         int lo, hi;
     } w;
@@ -27,6 +29,7 @@ void iosMcMgrSaveProductBlock(void *a0)
     *(int *)((char *)a0 + 0x24) = 0;
     iosMcMgrSaveSeg(a0, 0);
 }
+
 extern void iosMcMgrLoadSeg(void *a0, int a1);
 
 void iosMcMgrLoadProductBlock(void *a0)
@@ -34,6 +37,7 @@ void iosMcMgrLoadProductBlock(void *a0)
     *(int *)((char *)a0 + 0x24) = 0;
     iosMcMgrLoadSeg(a0, 0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetBlockSaveInfo);
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcManager);
 extern int D_006BC8C0[];
@@ -60,7 +64,9 @@ void iosMcMgrSync(void *mp)
     DeleteSema(D_0063A47C);
     D_0063A47C = -1;
 }
+
 void iosMcTest(void) {}
+
 int iosMcSync(unsigned long *a0)
 {
     unsigned long x = *a0;
@@ -69,6 +75,7 @@ int iosMcSync(unsigned long *a0)
     y = z;
     return -((int)y);
 }
+
 extern char D_0029B9E8[];
 extern int iosMsgSend(void *a0, void *a1, int a2);
 
@@ -79,6 +86,7 @@ int iosMcGetInfo(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8, a0, 0);
 }
+
 int iosMcFormat(void *a0)
 {
     McTestVal *v = (McTestVal *)a0;
@@ -86,6 +94,7 @@ int iosMcFormat(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8, a0, 0);
 }
+
 int iosMcUnformat(void *a0)
 {
     McTestVal *v = (McTestVal *)a0;
@@ -93,6 +102,7 @@ int iosMcUnformat(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8, a0, 0);
 }
+
 extern int D_0029B9E8__pn[] __asm__("D_0029B9E8");
 
 int iosMcGetDir(void *a0)
@@ -102,6 +112,7 @@ int iosMcGetDir(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
+
 extern int D_0029B9E8__pn[] __asm__("D_0029B9E8");
 
 int iosMcDelete(void *a0)
@@ -111,6 +122,7 @@ int iosMcDelete(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
+
 int iosMcSaveIconBlock(void *a0)
 {
     McHdr *v = (McHdr *)a0;
@@ -118,6 +130,7 @@ int iosMcSaveIconBlock(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
+
 int iosMcSaveProductBlock(void *a0)
 {
     McHdr *v = (McHdr *)a0;
@@ -125,6 +138,7 @@ int iosMcSaveProductBlock(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
+
 int iosMcLoadProductBlock(void *a0)
 {
     McHdr *v = (McHdr *)a0;
@@ -132,6 +146,7 @@ int iosMcLoadProductBlock(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
+
 int iosMcSaveGameBlock(void *a0, int a1)
 {
     McHdr *v = (McHdr *)a0;
@@ -140,6 +155,7 @@ int iosMcSaveGameBlock(void *a0, int a1)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
+
 int iosMcLoadGameBlock(void *a0, int a1)
 {
     McHdr *v = (McHdr *)a0;
@@ -148,6 +164,7 @@ int iosMcLoadGameBlock(void *a0, int a1)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
+
 int iosMcChdirProduct(void *a0)
 {
     McHdr *v = (McHdr *)a0;
@@ -155,6 +172,7 @@ int iosMcChdirProduct(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
+
 int iosMcGetBlockSaveInfo(void *a0)
 {
     McHdr *v = (McHdr *)a0;
@@ -162,6 +180,7 @@ int iosMcGetBlockSaveInfo(void *a0)
     v->ll = v->ll & -2;
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
+
 typedef struct {
     char b[0x40];
 } McBlk;
@@ -198,12 +217,14 @@ int product_write(int *self)
     iosMcHandlerWrite((int)self, (int)(D_0029B5F0 + self[2]), 0x1F0);
     return 0;
 }
+
 int product_read(int *self)
 {
     int idx = self[0x8 / 4];
     iosMcHandlerRead((int)self, (int)&D_0029B5F0[idx], 0x1F0);
     return self[0x10 / 4];
 }
+
 extern int CurrentTargetGObjSub;
 extern int D_00639EA0;
 
@@ -214,6 +235,7 @@ int gameblock_write(int self, void *buf)
     iosMcHandlerWrite(self, &D_00639EA0, 4);
     return 0;
 }
+
 extern int D_0028F4EC[];
 extern void soundOutputModeSet(int mode);
 

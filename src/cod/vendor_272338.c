@@ -23,7 +23,9 @@ void sceIpuStopDMA(void *a0)
     ((int *)a0)[7] = *(volatile int *)0x10002020;
     ((int *)a0)[8] = *(volatile int *)0x10002010;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", sceIpuRestartDMA);
+
 int sceIpuSync(int a0)
 {
     int r = 0;
@@ -38,6 +40,7 @@ int sceIpuSync(int a0)
     }
     return r;
 }
+
 extern void DIntr(int *self);
 extern void EIntr(void);
 
@@ -49,6 +52,7 @@ void func_002725D8(int *a0)
     *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
     EIntr();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", sceIpuInit);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", GetRomName);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", IsT10K);
@@ -77,50 +81,59 @@ void *_SgGetSlotContext(int a0)
 {
     return &D_00731C00[a0 * 0x58];
 }
+
 extern unsigned char D_00732C80[];
 
 void *_SgGetSeqContext(int a0)
 {
     return &D_00732C80[a0 * 0x54];
 }
+
 extern int D_00733C40[];
 
 void *_SgGetComContext(void)
 {
     return D_00733C40;
 }
+
 extern unsigned char D_00731600[];
 
 void *_SgGetVabContext(int a0)
 {
     return &D_00731600[a0 * 0xC];
 }
+
 extern int D_00735F00[];
 
 void _SgSetSeVolValue(int a0, int a1)
 {
     D_00735F00[a0] = a1;
 }
+
 int _SgGetSeVolValue(int a0)
 {
     return D_00735F00[a0];
 }
+
 void *_SgSetSeContext(void)
 {
     return D_00735F00;
 }
+
 extern int D_00736100[];
 
 void *_SgGetHeadContext(void)
 {
     return D_00736100;
 }
+
 extern int D_00735EC0[];
 
 int _SgGetIop2EeContext(void)
 {
     return D_00735EC0[0];
 }
+
 extern unsigned char D_00733CC0[];
 
 void *_SgGetPacketCntext(int a0, int a1)
@@ -128,6 +141,7 @@ void *_SgGetPacketCntext(int a0, int a1)
     unsigned char *p = &D_00733CC0[a1 * 0x10];
     return (void *)(a0 * 0x1000 + (int)p);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgCalledTickProc);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSetPkAdd);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSeMain);
@@ -174,6 +188,7 @@ int _SgSeqKeyOnSlot(void)
     } while (--i >= 0);
     return best_idx;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSeKeyOnSlot);
 extern void *_SgGetHeadContext(void);
 
@@ -220,7 +235,9 @@ int _SgSeKeyOff(char *a0)
     *(int *)(a0 + 4) += 4;
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSeqKeyOff);
+
 int _SgIntoKeyOn(int a0, int a1, int a2)
 {
     int *r = (int *)_SgGetHeadContext();
@@ -241,6 +258,7 @@ int _SgIntoKeyOn(int a0, int a1, int a2)
     }
     return a0;
 }
+
 extern void _SgSetPkAdd(int a0, int a1, int a2, int a3);
 
 int _SgPitchTableVag(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
@@ -248,9 +266,11 @@ int _SgPitchTableVag(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
     _SgSetPkAdd(4, a0, (a1 << 24) | (a2 << 16) | ((a3 & 0xFF) << 8) | a4, (a5 << 24) | a6);
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSeqSeVolume);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgPan);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgEndSeq);
+
 void _SgTempoChange(int *a0)
 {
     unsigned char *p = (unsigned char *)(a0[2] + a0[1]);
@@ -263,6 +283,7 @@ void _SgTempoChange(int *a0)
         0x3C;
     a0[1] += 4;
 }
+
 void _SgProgChange(int *a0)
 {
     int *p;
@@ -285,8 +306,10 @@ void _SgProgChange(int *a0)
     }
     *(a0 + 1) += 2;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgContMod);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgContModLoop);
+
 void _SgContPolta(char *a0)
 {
     char *p;
@@ -326,11 +349,13 @@ void _SgContPolta(char *a0)
     } while (i >= 0);
     *(int *)(a0 + 0x4) += 6;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgContVol);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgContPan);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgContDump);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgContSeLoop);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgContParam);
+
 void _SgContLoopCount(void *a0)
 {
     void *s0 = a0;
@@ -368,8 +393,10 @@ done:
     val = *(int *)((char *)s0 + 0x4);
     *(int *)((char *)s0 + 0x4) = val + 3;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgContLoop);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgBendForm);
+
 void _SgDeltaTime(char *s)
 {
     unsigned char *base = *(unsigned char **)(s + 0x8);
@@ -387,11 +414,14 @@ void _SgDeltaTime(char *s)
         *(int *)(s + 0x14) += acc << 12;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgSeqSeRrEnd);
+
 int _SgfadeParam(int a0, int a1, int a2, int a3)
 {
     return ((a0 & 0xFF) + ((a1 & 0xFF) - (a0 & 0xFF)) * (a3 & 0xFF) / (a2 & 0xFF)) & 0xFF;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_272338", _SgInit);
 extern char D_00736140[];
 extern int sceSifCallRpc();

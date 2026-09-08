@@ -25,10 +25,12 @@ extern void memset(void *dst, int c, int n);
 extern void CopyVector(void *dst, void *src);
 extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
 extern void SetLodLevel(void *o, int lod);
+
 typedef union {
     int i;
     float f;
 } IntFloat;
+
 extern void _ACTSendMailToBird();
 extern void *isysGObjSearchFromObjKindID_begin(int id);
 extern void *isysGObjSearchFromObjKindID_next(void *o);
@@ -40,6 +42,7 @@ void actBirdStart(void *a0);
 char *InitBirdGeo(char *a0, void *a1);
 void BirdAI(void);
 void _ACTSendMailToBirdAll(void *a0, void *a1);
+
 inline float vector_angle_degree(void *a0, void *a1)
 {
     float v0[4];
@@ -48,6 +51,7 @@ inline float vector_angle_degree(void *a0, void *a1)
     sceVu0Normalize(v1, a1);
     return radians_to_degrees(acosf(sceVu0InnerProduct(v0, v1)));
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", interp_vector_sa);
 ASM_LIT4_SLOT(D_00639230, 10430.378f);
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", birdBeforeFunc);
@@ -75,6 +79,7 @@ ASM_LIT4_SLOT(D_0063927C, -1.3f);
 ASM_LIT4_SLOT(D_00639280, 0.6f);
 ASM_LIT4_SLOT(D_00639284, 0.14285715f);
 ASM_LIT4_SLOT(D_00639288, 0.2f);
+
 inline void subBirdControl(void *volatile gobj)
 {
     _ACTWait(1);
@@ -83,6 +88,7 @@ inline void subBirdControl(void *volatile gobj)
         _ACTWait(1);
     }
 }
+
 inline void subBirdCollision(void *volatile gobj)
 {
     _ACTWait(1);
@@ -90,6 +96,7 @@ inline void subBirdCollision(void *volatile gobj)
         _ACTWait(1);
     }
 }
+
 inline void actBirdStart(void *a0)
 {
     char *w;
@@ -101,14 +108,18 @@ inline void actBirdStart(void *a0)
     actCreateSubThread(subBirdCollision, 0x15);
     *(int *)(w + 0x130) = SetMotionRequest(a0, 0x10E, w + 0x620);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_WireString_Bird);
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_StickControl);
 ASM_LIT4_SLOT(D_0063928C, 0.001f);
+
 void func_0019FE30(int a0, int a1, int a2, int a3)
 {
     ExecMotionOrient(a0, a1, a2, a3);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_0019FE38);
+
 inline char *InitBirdGeo(char *a0, void *a1)
 {
     char *w;
@@ -130,11 +141,14 @@ inline char *InitBirdGeo(char *a0, void *a1)
     SetLodLevel(a0, 3);
     return w;
 }
+
 inline void BirdAI(void) {}
+
 void _ACTSendMailToBird(void *a0, void *a1, void *a2)
 {
     iosOmSendMail(a0);
 }
+
 inline void _ACTSendMailToBirdAll(void *a0, void *a1)
 {
     void *obj = isysGObjSearchFromObjKindID_begin(0x20);

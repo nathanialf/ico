@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x15C]; /* 0x000 */
     char *f15C;        /* 0x15C */
@@ -19,6 +21,7 @@ typedef struct PObjGObj {
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
 } PObjGObj;
+
 typedef struct JimakuSub {
     char unk00[0x2C]; /* 0x0C */
     int unk2C;        /* 0x38 */
@@ -28,6 +31,7 @@ typedef struct JimakuSub {
     void *unk3C;      /* 0x48 */
     void *unk40;      /* 0x4C */
 } JimakuSub;
+
 typedef struct JimakuArg {
     int cmd;       /* 0x00 */
     int unk04;     /* 0x04 */
@@ -71,6 +75,7 @@ void actEndDemo01(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void scpPlayStart(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void scpPlayMot(int a0, int mot);
@@ -158,6 +163,7 @@ void actConte14_1(volatile int a0)
 
     RequestStageChange(2, D_00639EA4, 0, 1.0f, 8.0f);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void scpPlayMot(int a0, int mot);
@@ -202,6 +208,7 @@ void actEndDemo02(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void scpPlayStart(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void scpPlayMot(int a0, int mot);
@@ -285,6 +292,7 @@ void actConte14_2(volatile int a0)
 
     RequestStageChange(3, D_00639EA4, 0, 1.0f, 8.0f);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
@@ -329,6 +337,7 @@ void actEndDemo06(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void preload(int idx);
 extern void scpPlayStart(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
@@ -374,6 +383,7 @@ void actConte14_6(volatile int a0)
 
     RequestStageChange(3, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -412,6 +422,7 @@ void actEndDemo07(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void preload(int idx);
 extern void scpPlayStart(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
@@ -473,6 +484,7 @@ void actConte14_7(volatile int a0)
 
     RequestStageChange(6, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -508,6 +520,7 @@ void actEndDemo10(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void preload(int idx);
 extern void scpPlayStart(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
@@ -625,6 +638,7 @@ void actConte14_10(volatile int a0)
 
     RequestStageChange(3, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
+
 extern void scpPlayStart(int a0);
 extern void scpFadeIn(float f);
 extern void preload(int idx);
@@ -669,6 +683,7 @@ void actConte14_13(volatile int a0)
 
     RequestStageChange(6, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -699,6 +714,7 @@ void actStaff1(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void preload(int idx);
 extern void staffRollStart(int a0, float a1);
 extern void stage_SetAnimation(int a0, int a1, int a2);
@@ -809,6 +825,7 @@ void actStaff1Demo(volatile int a0)
 
     RequestStageChange(1, D_00639EA4, D_00639EA8, 0.0f, 8.0f);
 }
+
 extern void preload(int idx);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void scpPlayMot(int a0, int mot);
@@ -937,6 +954,7 @@ void actStaff2Demo(volatile int a0)
 
     RequestStageChange(1, D_00639EA4, D_00639EA8, 0.0f, 8.0f);
 }
+
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern PObjGObj *scpSearchGobj(int a0);
 extern void scpPlayPosSet(int a0, float x, float y, float z);
@@ -1038,6 +1056,7 @@ void actStaff3Demo(volatile int a0)
 
     scpFadeOut(6.0f, 0, 0, 0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -1093,6 +1112,7 @@ void actEndDemo14(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void scpPlayStart(int a0);
 extern void scpFadeIn(float f);
 extern void stage_SetAnimation(int a0, int a1, int a2);
@@ -1184,6 +1204,7 @@ void actConte14_14(volatile int a0)
 
     gflagOff(0x152);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern PObjGObj *scpSearchGobj(int a0);
@@ -1218,6 +1239,7 @@ void actSt27aEnd(volatile int a0)
         _ACTWait(0);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/end", actSt27aEndChk);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int gflagChk(int a0);
@@ -1346,6 +1368,7 @@ void actSt27aEndDemo(volatile int a0)
         RequestStageChange(1, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
     }
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void stage_SetLoopFlag(int key, int a1);
@@ -1424,6 +1447,7 @@ void actEndLogoChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void scpPlayMot(int a0, int mot);
@@ -1458,6 +1482,7 @@ void actEndDemo03(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void scpPlayMot(int a0, int mot);
@@ -1488,6 +1513,7 @@ void actEndDemo04(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -1510,6 +1536,7 @@ void actEndDemo05(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -1535,6 +1562,7 @@ void actEndDemo11(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -1559,6 +1587,7 @@ void actEndDemo12(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -1586,6 +1615,7 @@ void actEndDemo13(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -1615,6 +1645,7 @@ void actStaff2(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
@@ -1644,6 +1675,7 @@ void actStaff3(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -1662,6 +1694,7 @@ void actEndLogo(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void _ACTWait(int a0);
 extern void preload(int idx);
@@ -1693,6 +1726,7 @@ void actEndDemo01Chk(volatile int a0)
 
     actCreateSubThread(actConte14_1, 0x15);
 }
+
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void _ACTWait(int a0);
 extern void preload(int idx);
@@ -1718,6 +1752,7 @@ void actEndDemo02Chk(volatile int a0)
 
     actCreateSubThread(actConte14_2, 0x15);
 }
+
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void _ACTWait(int a0);
 extern void preload(int idx);
@@ -1743,6 +1778,7 @@ void actEndDemo03Chk(volatile int a0)
 
     actCreateSubThread(actConte14_3, 0x15);
 }
+
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
 extern void _ACTWait(int a0);
@@ -1760,6 +1796,7 @@ void actConte14_3(volatile int a0)
 
     RequestStageChange(2, D_00639EA4, 0, 1.0f, 8.0f);
 }
+
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void _ACTWait(int a0);
 extern void preload(int idx);
@@ -1785,6 +1822,7 @@ void actEndDemo04Chk(volatile int a0)
 
     actCreateSubThread(actConte14_4, 0x15);
 }
+
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
 extern void _ACTWait(int a0);
@@ -1803,6 +1841,7 @@ void actConte14_4(volatile int a0)
 
     RequestStageChange(5, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
+
 extern void gflagOn(int a0);
 extern void actCreateSubThread(void *entry, int prio);
 extern void actConte14_5(volatile int a0);
@@ -1813,6 +1852,7 @@ void actEndDemo05Chk(volatile int a0)
 
     actCreateSubThread(actConte14_5, 0x15);
 }
+
 extern void preload(int idx);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
@@ -1834,6 +1874,7 @@ void actConte14_5(volatile int a0)
 
     RequestStageChange(6, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
+
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void _ACTWait(int a0);
 extern void scpFadeIn(float f);
@@ -1858,6 +1899,7 @@ void actEndDemo06Chk(volatile int a0)
 
     actCreateSubThread(actConte14_6, 0x15);
 }
+
 extern void _ACTWait(int a0);
 extern void scpFadeIn(float f);
 extern void gflagOn(int a0);
@@ -1874,6 +1916,7 @@ void actEndDemo07Chk(volatile int a0)
 
     actCreateSubThread(actConte14_7, 0x15);
 }
+
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void _ACTWait(int a0);
 extern void scpFadeIn(float f);
@@ -1899,6 +1942,7 @@ void actEndDemo10Chk(volatile int a0)
 
     actCreateSubThread(actConte14_10_Jimaku, 0x15);
 }
+
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 extern void jimakuBegin(int a0);
@@ -1936,6 +1980,7 @@ void actConte14_10_Jimaku(volatile int a0)
         }
     } while (t < 1800.0f);
 }
+
 extern void gflagOn(int a0);
 extern void actCreateSubThread(void *entry, int prio);
 extern void actConte14_11(volatile int a0);
@@ -1946,6 +1991,7 @@ void actEndDemo11Chk(volatile int a0)
 
     actCreateSubThread(actConte14_11, 0x15);
 }
+
 extern void preload(int idx);
 extern void scpPlayStart(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
@@ -1970,6 +2016,7 @@ void actConte14_11(volatile int a0)
 
     RequestStageChange(2, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
+
 extern void gflagOn(int a0);
 extern void actCreateSubThread(void *entry, int prio);
 extern void actConte14_12(volatile int a0);
@@ -1980,6 +2027,7 @@ void actEndDemo12Chk(volatile int a0)
 
     actCreateSubThread(actConte14_12, 0x15);
 }
+
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void preload(int idx);
 extern int stage_CheckAnimationFinish(int a0);
@@ -2002,6 +2050,7 @@ void actConte14_12(volatile int a0)
 
     RequestStageChangeWithColor(4, D_00639EA4, D_00639EA8, 16.0f, 16.0f, 0xFF, 0xFF, 0xFF);
 }
+
 extern void gflagOn(int a0);
 extern void actCreateSubThread(void *entry, int prio);
 extern void actConte14_13(volatile int a0);
@@ -2012,6 +2061,7 @@ void actEndDemo13Chk(volatile int a0)
 
     actCreateSubThread(actConte14_13, 0x15);
 }
+
 extern void actCreateSubThread(void *entry, int prio);
 extern void actStaff1Demo(volatile int a0);
 
@@ -2019,6 +2069,7 @@ void actStaff1Chk(volatile int a0)
 {
     actCreateSubThread(actStaff1Demo, 0x15);
 }
+
 extern void reg_SetScissorSw(int val);
 extern void SetStaticBlur(int x);
 extern void actCreateSubThread(void *entry, int prio);
@@ -2032,6 +2083,7 @@ void actStaff2Chk(volatile int a0)
 
     actCreateSubThread(actStaff2Demo, 0x15);
 }
+
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void _ACTWait(int a0);
 extern void scpFadeIn(float f);
@@ -2054,6 +2106,7 @@ void actStaff3Chk(volatile int a0)
 
     actCreateSubThread(actStaff3RollChk, 0x15);
 }
+
 extern void preload(int idx);
 extern void _ACTWait(int a0);
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
@@ -2076,6 +2129,7 @@ void actStaff3RollChk(volatile int a0)
 
     RequestStageChange(1, D_00639EA4, 0, 16.0f, 0.001f);
 }
+
 extern void gflagOn(int a0);
 extern void actCreateSubThread(void *entry, int prio);
 extern void actConte14_14(volatile int a0);
@@ -2086,6 +2140,7 @@ void actEndDemo14Chk(volatile int a0)
 
     actCreateSubThread(actConte14_14, 0x15);
 }
+
 extern void gflagInit(void);
 extern void gflagOn(int a0);
 extern void lt_switch_layout(int a0);
@@ -2127,4 +2182,5 @@ void actEndingSave(volatile int a0)
     CurrentTargetGObjSub = 0;
     RequestStageChange(1, D_00639EA4, 0, 255.0f, 8.0f);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/end", func_0021F060);

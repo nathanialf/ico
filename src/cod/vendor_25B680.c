@@ -12,6 +12,7 @@ void *sceGsGetGParam(void)
 {
     return D_0054A2B0;
 }
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -67,6 +68,7 @@ void sceGsPutDispEnv(void *a0)
         *(volatile long *)0x120000E0 = s[4];
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefDrawEnv);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsPutDrawEnv);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefDBuff);
@@ -87,9 +89,11 @@ zero_path:
 done:
     return ret;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSyncV);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSyncPath);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefTexEnv);
+
 int sceGsSetDefAlphaEnv(long long *a0, int a1)
 {
     short t = a1;
@@ -104,6 +108,7 @@ int sceGsSetDefAlphaEnv(long long *a0, int a1)
     SYNC();
     return 4;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefLoadImage);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefStoreImage);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsExecLoadImage);
@@ -117,6 +122,7 @@ int sceGsPutIMR(void *a0)
     GsPutIMR(a0);
     return r;
 }
+
 void sceGsSetHalfOffset(void *a0, short a1, short a2, short a3)
 {
     unsigned long long v = *(unsigned long long *)((char *)a0 + 0x30);
@@ -133,11 +139,13 @@ void sceGsSetHalfOffset(void *a0, short a1, short a2, short a3)
         hi = b << 36;
     *(long long *)((char *)a0 + 0x20) = ta | hi;
 }
+
 void sceGsGetIMR(void)
 {
     do {
         GsGetIMR();
     } while (0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGszbufaddr);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25B680", sceGsSetDefClear);

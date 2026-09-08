@@ -19,14 +19,17 @@ void POSITIVE_SE(void)
 {
     soundSeDefPlay(0x19C, 0xFFFFFFFE, 0, 0);
 }
+
 void NEGATIVE_SE()
 {
     soundSeDefPlay(0x19D, 0xFFFFFFFE, 0, 0);
 }
+
 void CUR_SE(void)
 {
     soundSeDefPlay(0x19B, 0xFFFFFFFE, 0, 0);
 }
+
 extern R58 D_0028F8F0[];
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
@@ -47,6 +50,7 @@ one:
 zero:
     return 0;
 }
+
 extern int D_0061D750[];
 extern void debug_StdPrintfDummy();
 
@@ -54,6 +58,7 @@ void la_TESTFUNCTION(void)
 {
     debug_StdPrintfDummy(D_0061D750);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_mcard_error_check);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_memory_card_check);
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_set_current_port_2);
@@ -106,6 +111,7 @@ int la_boot_memory_card_check(void)
     D_0063B4F4 = 0;
     return 0x37;
 }
+
 extern int D_0061D948[];
 extern void debug_StdPrintfDummy();
 
@@ -114,6 +120,7 @@ int la_boot_no_memory_card(int a0, int a1)
     debug_StdPrintfDummy(D_0061D948);
     return a1;
 }
+
 extern int D_0061D958[];
 
 int la_boot_no_free_area(int a0, int a1)
@@ -121,6 +128,7 @@ int la_boot_no_free_area(int a0, int a1)
     debug_StdPrintfDummy(D_0061D958);
     return a1;
 }
+
 extern int D_0028F8F4[];
 extern int lt_link_layout();
 
@@ -131,6 +139,7 @@ int la_boot_confirm_memory_card(void)
     }
     return -1;
 }
+
 extern int D_0028F4D4[];
 extern int lock_execIcoMisc;
 extern int D_0063C3CC;
@@ -155,10 +164,12 @@ int la_scei_logo(int a0)
     }
     return -1;
 }
+
 int la_title_demo(void)
 {
     return -1;
 }
+
 extern int D_0063B4E4;
 extern int D_0063B4F0;
 extern void _la_set_preview_info();
@@ -173,13 +184,16 @@ int la_mc_preview_info(void)
     _la_set_preview_info();
     return -1;
 }
+
 extern int D_0063B4E0;
+
 int la_mc_current_slot(void)
 {
     lt_mask_property(0xB0, D_0063B4E0);
     lt_mask_property(0xB1, D_0063B4E0 ^ 1);
     return -1;
 }
+
 extern R8 D_0071D900[];
 extern R8 *D_0063B4D8;
 extern int D_0063B4DC;
@@ -209,6 +223,7 @@ int la_mc_load_current_slot_select(void)
     }
     return -1;
 }
+
 extern R8 D_0071D900[];
 extern R8 *D_0063B4D8;
 extern int D_0063B4DC;
@@ -236,6 +251,7 @@ int la_mc_save_current_slot_select(void)
     }
     return -1;
 }
+
 extern int lt_current_property_item(void);
 
 int la_general_mc_confirm(void)
@@ -245,6 +261,7 @@ int la_general_mc_confirm(void)
     }
     return -1;
 }
+
 extern int mc[];
 extern int D_0063B4F4;
 extern int D_0063B528;
@@ -281,6 +298,7 @@ int la_save_confirm_no_memory_card(int a0)
     }
     return -1;
 }
+
 extern int mc[];
 extern int D_0063B4F4;
 extern int D_0063B528;
@@ -317,6 +335,7 @@ int la_save_confirm_no_free_area(int a0)
     }
     return -1;
 }
+
 extern int D_0063B5C8;
 extern int D_0063B4E0;
 extern int D_0063B4F4;
@@ -361,9 +380,11 @@ int la_format_processing(int a0)
     }
     return -1;
 }
+
 struct S14 {
     int w[5];
 };
+
 extern int D_0071D910[];
 extern int D_0029B9D0[];
 extern int D_0028F4D4[];
@@ -402,14 +423,17 @@ int la_save_confirm_complete(int a0, int a1)
     }
     return -1;
 }
+
 int la_save_confirm_fail(void)
 {
     return -1;
 }
+
 int la_format_confirm_fail(void)
 {
     return -1;
 }
+
 extern int mc[];
 extern int D_0063B4F4;
 extern int D_0063B4E8;
@@ -438,7 +462,9 @@ int la_delete_start_check(int a0)
     }
     return -1;
 }
+
 extern int D_0063B4F4;
+
 int la_delete_confirm(int a0, int a1)
 {
     switch (a1) {
@@ -453,8 +479,10 @@ int la_delete_confirm(int a0, int a1)
     }
     return -1;
 }
+
 extern int D_0063B4F4;
 extern void lt_set_item_select_func(int a0);
+
 int la_delete_confirm_complete(void)
 {
     int ret;
@@ -469,10 +497,12 @@ fail:
 out:
     return ret;
 }
+
 int la_delete_confirm_fail(void)
 {
     return -1;
 }
+
 extern int D_0028F4D8[];
 
 int la_game_loading(int a0)
@@ -482,14 +512,17 @@ int la_game_loading(int a0)
     }
     return -1;
 }
+
 extern int D_0028F4D4[];
 extern int D_0029B9D0[];
+
 void la_playtime_count(void)
 {
     if (D_0028F4D4[0] == 0) {
         D_0029B9D0[2]++;
     }
 }
+
 extern int stage_no;
 extern int title_demo_mode;
 extern int D_0063B5F0;
@@ -526,8 +559,10 @@ int la_game_demo(int a0)
     }
     return -1;
 }
+
 extern int D_0028F4D4[];
 extern int D_0063B4F4;
+
 int la_game_demo_pause(int a0)
 {
     if (a0) {
@@ -540,6 +575,7 @@ int la_game_demo_pause(int a0)
     D_0063B4F4 = 0;
     return 0x37;
 }
+
 extern int D_0028F4D4[];
 extern int D_00534CC0[];
 extern R58 D_0028F8F0[];
@@ -570,6 +606,7 @@ int la_game_pause(int a0)
     }
     return -1;
 }
+
 extern int D_0063B4EC;
 extern int fightSoundPlayChk(void);
 extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
@@ -581,6 +618,7 @@ int la_switching_stage(void)
     }
     return -1;
 }
+
 int la_save_confirm_yesno(void)
 {
     if (D_0028F8F4[0] & 0x10) {
@@ -603,12 +641,14 @@ one:
 zero:
     return 0;
 }
+
 void keyconfig_reset(void)
 {
     struct S40 tmp;
     tmp = D_0061D968;
     D_0029BC00 = tmp;
 }
+
 typedef struct {
     int _0;
     char _4[0x10];

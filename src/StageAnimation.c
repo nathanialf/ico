@@ -5,14 +5,17 @@
 typedef struct {
     char _b[8];
 } Blob8;
+
 struct B8 {
     char _b[8];
 };
+
 typedef struct AnimNode {
     long field0; /* 0x00 */
     char _pad[0x14 - 0x8];
     struct AnimNode *next; /* 0x14 */
 } AnimNode;
+
 extern int D_0028F4D4[];
 extern void bga_ResetAnimation();
 extern void light_KillAllFixLight(void);
@@ -50,6 +53,7 @@ INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakeGObj);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ApplyData);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_Init);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetAnimation);
+
 inline int stage_CheckAnimationFinish(int a0)
 {
     int i;
@@ -71,7 +75,9 @@ inline int stage_CheckAnimationFinish(int a0)
     __assert(D_00550028, 0x38D, D_0063A1A8);
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ContinueAnimation);
+
 inline int stage_CheckAnimationFrame(int a0, int a1, int a2)
 {
     int i;
@@ -90,6 +96,7 @@ inline int stage_CheckAnimationFrame(int a0, int a1, int a2)
     }
     return -1;
 }
+
 inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2)
 {
     int i;
@@ -108,6 +115,7 @@ inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2)
     }
     return -1;
 }
+
 void stage_ResetAnimation(void)
 {
     bga_ResetAnimation();
@@ -115,9 +123,11 @@ void stage_ResetAnimation(void)
         return;
     light_KillAllFixLight();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_CalcAnimationNoParent);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_CalcAnimationParent);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_DispAnimation);
+
 inline void stage_SetLoopFlag(int key, int a1)
 {
     int count = *(volatile int *)&D_0063C158;
@@ -132,6 +142,7 @@ inline void stage_SetLoopFlag(int key, int a1)
         }
     }
 }
+
 inline void stage_SetFrameStep(int target, int val)
 {
     int n = D_0063C158;
@@ -149,6 +160,7 @@ inline void stage_SetFrameStep(int target, int val)
         p += 0x290;
     } while (--i);
 }
+
 inline void stage_SetParentOfGObj(int a0, void *a1)
 {
     int i;
@@ -162,6 +174,7 @@ inline void stage_SetParentOfGObj(int a0, void *a1)
         e += 0x290;
     }
 }
+
 inline void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2)
 {
     int i;
@@ -174,6 +187,7 @@ inline void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2)
         e += 0x290;
     }
 }
+
 inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
 {
     int count = *(volatile int *)&D_0063C158;
@@ -198,10 +212,12 @@ inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
         e += 0x290;
     } while (i < count);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetScale);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_PlayBgAnimation);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_PlayBgAnimationDissolve);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakePlayBgAnimation);
+
 void stage_KillPlayBgAnimation(int **self)
 {
     int *node = *self;
@@ -225,6 +241,7 @@ void stage_KillPlayBgAnimation(int **self)
     }
     freeseki(*self);
 }
+
 inline void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1)
 {
     AnimNode *p = (AnimNode *)D_0063C15C__pn;
@@ -242,8 +259,10 @@ inline void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1)
         p = p->next;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_DispBgAnimation);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_DispBgAnimationNoFinish);
+
 void stage_SetCameraForceOff(int a0, int a1, int a2, int a3)
 {
     bga_SetCameraForceOff(a0, a1, a2, a3);

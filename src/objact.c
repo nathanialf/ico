@@ -16,6 +16,7 @@ typedef struct {
     int x34;
     char pad2[0x4C - 0x38];
 } OaRecA;
+
 typedef struct {
     int x0;
     int x4;
@@ -23,6 +24,7 @@ typedef struct {
     int xC;
     int x10;
 } OaRecB;
+
 extern OaRecA D_002C2DC8[];
 extern OaRecB D_002BC6E0[];
 
@@ -85,6 +87,7 @@ typedef struct {
     int id;
     int idx;
 } ObjActMailEnt;
+
 extern ObjActMailEnt D_00629D38[];
 extern int D_00629D08[];
 

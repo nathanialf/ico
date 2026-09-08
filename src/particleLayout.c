@@ -9,6 +9,7 @@ extern void DeleteParticleEffect(int a0);
 int *InitParticleLayoutGeo(char *self, int *other);
 void ParticleLayoutDL(void);
 void DeleteParticleLayout(char *a0);
+
 inline int *InitParticleLayoutGeo(char *self, int *other)
 {
     int *r;
@@ -16,6 +17,7 @@ inline int *InitParticleLayoutGeo(char *self, int *other)
     *r = SetParticleEffect(other[0x30 / 4], other, *(char **)(self + 0x15C) + 0x60);
     return r;
 }
+
 inline void DeleteParticleLayout(char *a0)
 {
     int *q = *(int **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -24,5 +26,7 @@ inline void DeleteParticleLayout(char *a0)
         q[0] = -1;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/particleLayout", ParticleLayoutGeo);
+
 inline void ParticleLayoutDL(void) {}

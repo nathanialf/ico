@@ -6,14 +6,17 @@ void bombSparkStartSE(int a0)
 {
     ExecuteSEPackage(a0, 0x32);
 }
+
 void bombSparkSE(int a0)
 {
     ExecuteSEPackage(a0, 0x33);
 }
+
 void bombExplodeSE(int a0)
 {
     ExecuteSEPackage(a0, 0x34);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/item", HoldItem);
 extern void ClipWall(int arg);
 extern float D_004EB500[48];
@@ -33,6 +36,7 @@ void avoidInsideOfWall(void *self, int arg)
         return;
     SetDirectRootPositionNoFitting(self, p + 0x20);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/item", ReleaseItem);
 INCLUDE_ASM("asm/nonmatchings/src/item", ThrowItem);
 INCLUDE_ASM("asm/nonmatchings/src/item", InitItemGeo);
@@ -43,6 +47,7 @@ INCLUDE_ASM("asm/nonmatchings/src/item", execBombGeo);
 INCLUDE_ASM("asm/nonmatchings/src/item", ItemGeo);
 INCLUDE_ASM("asm/nonmatchings/src/item", ItemDL);
 INCLUDE_ASM("asm/nonmatchings/src/item", BreakItemFromOutside);
+
 int CheckCarryableItem(char *a0)
 {
     int r = 0;
@@ -54,10 +59,12 @@ int CheckCarryableItem(char *a0)
     }
     return r;
 }
+
 int GetItemKind(char *a0)
 {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4);
 }
+
 int GetCharHeldItem(char *a0)
 {
     char *w;
@@ -68,18 +75,22 @@ int GetCharHeldItem(char *a0)
         return -1;
     return *(int *)(*(char **)(*(char **)(w + 0x15C) + 0x830) + 4);
 }
+
 int IsItemHoldable(char *a0)
 {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) == 0;
 }
+
 int IsBombExplode(char *a0)
 {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x48) == 2;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/item", GetBombTorchGObj);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveAllCarryableItems);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveCarryableItemsWithBoundary);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveAllCarryableItemsWithRandomVelocity);
+
 int CheckItemDead(char *a0)
 {
     int r = 0;
@@ -88,6 +99,7 @@ int CheckItemDead(char *a0)
     }
     return r;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/item", StopItemExplodeAnimationAll);
 INCLUDE_ASM("asm/nonmatchings/src/item", BreakItemWithAttackHit);
 INCLUDE_ASM("asm/nonmatchings/src/item", ReviveAllCarryableItemsWithNonSleepFrame);

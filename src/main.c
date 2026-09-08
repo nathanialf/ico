@@ -7,6 +7,7 @@ extern int D_00639C80;
 extern int D_00639C94;
 extern void ExecKeyInput();
 INCLUDE_ASM("asm/nonmatchings/src/main", Emergency_DestroyAllThread);
+
 int movie_abort_check(void)
 {
     int ret = 0;
@@ -18,5 +19,7 @@ int movie_abort_check(void)
     }
     return ret;
 }
+
 void demoEnd(void) {}
+
 INCLUDE_ASM("asm/nonmatchings/src/main", main);

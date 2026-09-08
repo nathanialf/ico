@@ -10,11 +10,13 @@ typedef struct {
 } CamTgt;
 
 extern int D_006E66C0[];
+
 void SetWSMatrix(void *a0)
 {
     ConvertCameraSet(D_006E66C0, a0);
     MakeCameraMatrix(D_006E66C0);
 }
+
 /* The camera set the whole TU works on: position (0x00) plus the three
    fixed-point angles MatrixDrive rotates by (0x10/0x12/0x1C). */
 typedef struct CameraSet2 {
@@ -26,12 +28,14 @@ typedef struct CameraSet2 {
     char pad18[0x1C - 0x18];
     short rotZ; /* 0x1C */
 } CameraSet2;
+
 /* What SetWSMatrix / DebugCameraSemiAuto hand in: eye (0x00) and look-at
    (0x10) points plus the field of view at 0x20, copied 8 bytes at a time. */
 union CameraSetIn {
     float f[12];
     long long q[6];
 };
+
 extern float FSqrt(float v);
 extern float atan2f(float y, float x);
 extern void memset(void *p, int c, int n);
@@ -54,6 +58,7 @@ void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src)
     dst->fov = in.f[8];
     dst->rotZ = 0;
 }
+
 extern void CopyMatrix(void *dst, void *src);
 extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
@@ -77,6 +82,7 @@ void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
     CopyMatrix(dst, MatrixDrive_GetMatrix());
     MatrixDrive_PopMatrix();
 }
+
 extern float GetTableCos(short a0);
 extern float GetTableSin(short a0);
 extern void gsb_MakeCommonMatrix(void);
@@ -99,6 +105,7 @@ void MakeCameraMatrix(CameraSet2 *cs)
     MatrixDrive_PopMatrix();
     gsb_MakeCommonMatrix();
 }
+
 typedef struct EditPad {
     int flags; /* 0x00 */
     char pad04[0x58 - 0x04];
@@ -107,6 +114,7 @@ typedef struct EditPad {
     char pad60[0xAC - 0x60];
     unsigned char stick[4]; /* 0xAC */
 } EditPad;
+
 extern EditPad D_0028F8F0;
 extern int D_0063AB68;
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
@@ -217,6 +225,7 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     set->pos[2] += out[2];
     MatrixDrive_PopMatrix();
 }
+
 extern void CameraEditManual();
 extern int D_006E66C0[];
 extern void MakeCameraMatrix();
@@ -226,6 +235,7 @@ void DebugCameraManual(void)
     CameraEditManual(D_006E66C0, 0);
     MakeCameraMatrix(D_006E66C0);
 }
+
 extern void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src);
 extern int D_0063C290;
 extern int D_006E66E0[];
@@ -250,6 +260,7 @@ void DebugCameraSemiAuto(void)
     }
     MakeCameraMatrix(D_006E66C0);
 }
+
 extern void CopyVector(void *, void *);
 extern char *matrixptr;
 extern int D_0063AB9C;
@@ -281,6 +292,7 @@ void BackToGameCamera(void)
     sceVu0AddVector(buf, buf, buf + 0x10);
     SetCameraTargetPosition(buf, buf + 0x10, D_0063C2A8);
 }
+
 extern void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle);
 extern int D_0063B1B0;
 extern float D_006E66D4[];
@@ -291,6 +303,7 @@ void GetCameraInfomationFromGlobalPosition(int a0, int a1, int a2, int a3, int a
     *(float *)a4 = (float)D_0063B1B0 / 100.0f;
     CameraGetOtherObjOffset(a0, a1, a2);
 }
+
 typedef struct InsertCameraWork {
     int gobj; /* 0x00 */
     int w04;  /* 0x04 */
@@ -306,6 +319,7 @@ typedef struct InsertCameraWork {
     unsigned char b37;     /* 0x37 */
     unsigned char b38;     /* 0x38 */
 } InsertCameraWork;
+
 extern InsertCameraWork D_006E6710;
 
 extern int *D_00639EA4;
@@ -323,6 +337,7 @@ static inline int getCameraDefaultTargetGObj(void)
     }
     return D_00639EA4;
 }
+
 extern int D_006E6700[];
 
 /* The listing shows these two bodies inlined (rows at camera-root.c:227-230
@@ -334,14 +349,17 @@ static inline void Camctrl_ForceTarget(int gobj)
     D_006E6700[0] = gobj;
     D_006E6700[1] = 0;
 }
+
 static inline void Camctrl_Init(int gobj)
 {
     D_006E6700[3] = 0;
     Camctrl_ForceTarget(gobj);
 }
+
 typedef struct {
     unsigned long _0, _8, _10, _18, _20, _28, _30, _38;
 } InsCamImage;
+
 extern CamTgt D_002A5E70;
 extern InsCamImage D_002A5E90;
 
@@ -351,6 +369,7 @@ static inline void InsertCamera_Clear(void)
 {
     *(InsCamImage *)&D_006E6710 = D_002A5E90;
 }
+
 extern void InitCameraEditor(void);
 extern void InitIco2Camera(void);
 extern int D_0028F720[];
@@ -365,6 +384,7 @@ extern int D_0063C2A0;
 extern int D_0063C2B0;
 extern int D_0063C2B4;
 extern int D_0063C2B8;
+
 void InitCamera(void)
 {
     int gobj = getCameraDefaultTargetGObj();
@@ -388,15 +408,18 @@ void InitCamera(void)
     D_0063C2B4 = D_0028F720[0x184 / 4];
     D_0063C2B8 = D_0028F720[0x190 / 4];
 }
+
 ASM_LIT4_SLOT(D_00639134, 3.14159265f);
 ASM_LIT4_SLOT(D_00639138, 3.14159265f);
 INCLUDE_ASM("asm/nonmatchings/src/camera-root", SetCameraMatrix);
+
 void Camctrl_ExitEveRock(void)
 {
     if (D_006E6700[2] < 4) {
         Camctrl_ForceTarget(D_0063AB9C);
     }
 }
+
 void Camctrl_SetTarget(int a0, int a1, int a2)
 {
     if (a2 < D_006E6700[2]) {
@@ -406,6 +429,7 @@ void Camctrl_SetTarget(int a0, int a1, int a2)
     D_006E6700[1] = a1;
     D_006E6700[2] = a2;
 }
+
 extern int D_0063C294;
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
@@ -425,11 +449,13 @@ int GetCameraDefaultTargetGObj(void)
     }
     return D_00639EA4;
 }
+
 void CameraSetTargetGObj(int a, int b)
 {
     D_0063C290 = a;
     D_0063C294 = b;
 }
+
 extern void sceVu0SubVector(void *, void *, void *);
 
 void CameraChangeTargetParallel(int a0, int a1)
@@ -448,10 +474,12 @@ void CameraChangeTargetParallel(int a0, int a1)
     sceVu0AddVector(D_006E66E0, D_006E66E0, buf);
     D_006E66E0[6] = 1;
 }
+
 int CameraGetTarget(void)
 {
     return D_0063C290;
 }
+
 extern int D_0063C294;
 
 void CameraGetTargets(int *a0, int *a1)
@@ -459,6 +487,7 @@ void CameraGetTargets(int *a0, int *a1)
     *a0 = D_0063C290;
     *a1 = D_0063C294;
 }
+
 extern int D_0063C2A0;
 extern int D_006E66F8[];
 
@@ -467,10 +496,12 @@ void CameraSetMode(int x)
     D_0063C2A0 = x;
     D_006E66F8[0] = 0;
 }
+
 int CameraGetMode(void)
 {
     return D_0063C2A0;
 }
+
 extern float _GetDirection(void *v);
 extern void sceVu0Normalize(void *dst, void *src);
 
@@ -491,6 +522,7 @@ void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle)
     }
     *outAngle = ang;
 }
+
 extern int InsertCamera_isEnable(void);
 
 void InsertCamera_Set(float *pos, float *tgt, int gobj)
@@ -512,6 +544,7 @@ void InsertCamera_Set(float *pos, float *tgt, int gobj)
         D_006E6710.blend = -1.0f;
     }
 }
+
 void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType)
 {
     if (InsertCamera_isEnable()) {
@@ -527,6 +560,7 @@ void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType)
         D_006E6710.blend = -1.0f;
     }
 }
+
 void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38,
                             float blend)
 {
@@ -565,67 +599,84 @@ void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable)
         *enable = 1;
     }
 }
+
 int *GetCurrentCameraSet2(void)
 {
     return D_006E66C0;
 }
+
 extern char D_0063C2AC;
 
 void SetCameraFlag_LwsCutBack(void)
 {
     D_0063C2AC = 1;
 }
+
 extern char D_0063C298;
 
 void SetCameraFlag_GamecamCutBack(void)
 {
     D_0063C298 = 1;
 }
+
 extern int D_0063C2B0;
 extern int D_0063C2B4;
+
 void SetHandCameraLimitInDemo(int a0, int a1)
 {
     D_0063C2B0 = a0;
     D_0063C2B4 = a1;
 }
+
 extern int D_0028F720[];
 extern int D_0063C2B0;
 extern int D_0063C2B4;
+
 void ResetHandCameraLimitInDemo(void)
 {
     D_0063C2B0 = D_0028F720[0x180 / 4];
     D_0063C2B4 = D_0028F720[0x184 / 4];
 }
+
 extern int D_0063C2B8;
+
 void SetZoomMaxValInDemo(int a0)
 {
     D_0063C2B8 = a0;
 }
+
 extern int D_0063C2B8;
 extern int D_0028F8B0[];
+
 void ResetZoomMaxValInDemo(void)
 {
     D_0063C2B8 = D_0028F8B0[0];
 }
+
 extern int D_0028F8A0[];
 extern int D_0063C2B0;
+
 int UpdateHandCameraLimitP(void)
 {
     D_0063C2B0 = D_0028F8A0[0];
     return 0;
 }
+
 extern int D_0028F8A4[];
 extern int D_0063C2B4;
+
 int UpdateHandCameraLimitV(void)
 {
     D_0063C2B4 = D_0028F8A4[0];
     return 0;
 }
+
 int UpdateZoomMaxVallInDemo(void)
 {
     D_0063C2B8 = D_0028F8B0[0];
     return 0;
 }
+
 extern int D_006E6708[];
 
 int InsertCamera_isEnable(void)
@@ -644,7 +695,9 @@ void CameraSetCameraPosition(float *src)
         ((float *)D_006E66E0)[2] = src[2];
     }
 }
+
 void CameraSetTargetPos(void) {}
+
 extern int D_0063AB98;
 
 void *GetCameraPos(void)
@@ -654,6 +707,7 @@ void *GetCameraPos(void)
     }
     return D_006E66C0;
 }
+
 void GetCameraInfo_tmp(void *dst, float *out)
 {
     union PendCopy *s = (union PendCopy *)D_006E66C0;
@@ -664,12 +718,14 @@ void GetCameraInfo_tmp(void *dst, float *out)
     d->q[3] = s->q[3];
     *out = D_0063B1B0 / 100.0f;
 }
+
 extern unsigned char D_0063C299;
 
 void testcamerazoom(void)
 {
     D_0063C299 = 1;
 }
+
 extern int D_0063AB6C;
 
 void SetMonitorCameraInitializeFlag(void)

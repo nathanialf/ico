@@ -11,8 +11,11 @@ extern char D_0071CA90[];
 extern void debug_PrintfDummy(int a0, int a1, unsigned int a2, void *a3);
 extern void iosMallocCheckLeak(void *a0);
 extern void sprintf();
+
 inline void ExitIcoMisc(void) {}
+
 INCLUDE_ASM("asm/nonmatchings/src/icoMisc", disp_memory_partition_bar);
+
 void disp_memory_partition(void)
 {
     char *p;
@@ -46,6 +49,7 @@ void disp_memory_partition(void)
         } while (p != 0);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/icoMisc", ExecIcoMisc);
 INCLUDE_ASM("asm/nonmatchings/src/icoMisc", InitIcoMisc);
 INCLUDE_ASM("asm/nonmatchings/src/icoMisc", DispIcoMisc);

@@ -5,6 +5,7 @@
 typedef struct IosMemTag {
     char c[16];
 } IosMemTag;
+
 typedef struct IosMemNode {
     char tag[16];                 /* 0x00 */
     char name[16];                /* 0x10 */
@@ -19,6 +20,7 @@ typedef struct IosMemNode {
     struct IosMemNode *pad40;     /* 0x40 (partition header view) */
     struct IosMemNode *head;      /* 0x44 (partition header view: free-list head) */
 } IosMemNode;
+
 typedef struct IosMemPart {
     char tag[16];              /* 0x00 */
     char name[16];             /* 0x10 */
@@ -33,6 +35,7 @@ typedef struct IosMemPart {
     int total;                 /* 0x40 */
     struct IosMemNode *head;   /* 0x44 */
 } IosMemPart;
+
 extern char D_00551490[];
 extern char D_005514D8[];
 extern char D_005514F8[];
@@ -83,6 +86,7 @@ extern void *_iosMallocDebug();
 IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end);
 void *iosMallocDebug(IosMemPart *part, int size, char *file, int line);
 void *iosMallocDebugNoAssert(void);
+
 inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
 {
     IosMemPart *part;
@@ -122,8 +126,10 @@ inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
     debug_StdPrintfDummy(D_005514B0, part->start, part->end - 1);
     return part;
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocSetPartition);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocResetPartition);
+
 int iosMallocSetPartitionName(int *a0, int a1)
 {
     if (a0 == 0) {
@@ -136,8 +142,10 @@ int iosMallocSetPartitionName(int *a0, int a1)
     }
     strcpy((unsigned char *)((char *)a0 + 0x10), a1);
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocClearPartition);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", _iosMallocDebug);
+
 inline void *iosMallocDebug(IosMemPart *part, int size, char *file, int line)
 {
     char buf[1024];
@@ -155,11 +163,14 @@ inline void *iosMallocDebug(IosMemPart *part, int size, char *file, int line)
     }
     return ptr;
 }
+
 inline void *iosMallocDebugNoAssert(void)
 {
     return _iosMallocDebug();
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocAlignDebug);
+
 void _iosFreeWithFill(int *a0, int a1, int a2)
 {
     int *end = *(int **)((char *)a0 - 0x1C);
@@ -177,6 +188,7 @@ void _iosFreeWithFill(int *a0, int a1, int a2)
     }
     FlushCache(0);
 }
+
 void *iosFree(void *ptr)
 {
     char buf[1024];
@@ -334,7 +346,9 @@ err_3bf:
 ret_ptr:
     return ptr;
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocCheckLeak);
+
 void iosMallocCheckLeak2(int a0, int a1)
 {
     int node = *(int *)(a0 + a1 + 0x38);
@@ -374,4 +388,5 @@ void iosMallocCheckLeak2(int a0, int a1)
         node = *(volatile int *)(node + 0x24);
     } while (node != 0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/memory", iosReallocDebug);

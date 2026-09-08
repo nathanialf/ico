@@ -23,6 +23,7 @@ void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5);
 void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
 int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r);
 void MoveNextStage_Clear(void);
+
 inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5)
 {
     D_0071D960[0] = a0[0];
@@ -37,12 +38,14 @@ inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int 
     D_0071D970[2] = a1[2];
     D_0063B640 = 1;
 }
+
 inline void test_nextstage_firstwalk_set(int unused, int a, int b, int c)
 {
     D_0063C414 = a;
     D_0063C418 = b;
     D_0063C41C = c;
 }
+
 inline int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r)
 {
     int ret = 1;
@@ -66,6 +69,7 @@ inline int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r)
     *q = 0x32;
     return ret;
 }
+
 inline void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0)
 {
     if (a2 >= 0) {
@@ -78,13 +82,16 @@ inline void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0)
         D_0063C41C = t0;
     }
 }
+
 inline void MoveNextStage_Clear(void)
 {
     D_0063B640 = 0;
     D_0063B644 = -1;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", GetRealModelId);
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", InitStageLight);
+
 inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
     char *layout = D_002C1270 + id * 0x64;
@@ -103,13 +110,17 @@ inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, 
     }
     return gobj;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", initSceneGObj);
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", initParentLink);
+
 void initWayData(int a0, int a1, int a2, int a3)
 {
     ExtractWayData(a0, a1, a2, a3);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", InitSceneObjects);
+
 int HotInitSceneObjects(int a0)
 {
     int *node = isysGObjGetExist_begin(a0);

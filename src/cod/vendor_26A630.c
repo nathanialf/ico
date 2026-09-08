@@ -20,6 +20,7 @@ void sceMpegDemuxPss(void *a0, int a1, int a2)
         sceMpegDemuxPssRing(a0, a1, a2, 0, -1);
     } while (0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", sceMpegAddStrCallback);
 extern int _sysbitGet(int *bs, int nbits);
 extern int _sysbitMarker(int *bs);
@@ -58,6 +59,7 @@ unset:
 end:
     return 1;
 }
+
 int _system_header(int *a0)
 {
     _sysbitGet(a0, 0x38);
@@ -67,13 +69,16 @@ int _system_header(int *a0)
     }
     return 1;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _PES_packet);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", sceMpegInit);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", sceMpegCreate);
+
 int sceMpegDelete(void)
 {
     return 1;
 }
+
 extern int D_0054C0E8[];
 extern int _bsDataSize[];
 extern void _sendDataToIPU(int a0, int a1);
@@ -85,6 +90,7 @@ void sceMpegAddBs(int a0, int a1, int a2)
     _bsDataSize[0] = rounded;
     _sendDataToIPU(a1, rounded);
 }
+
 extern int _getpic(int self);
 
 int sceMpegGetPicture(int *a0, unsigned int a1, int a2)
@@ -98,6 +104,7 @@ int sceMpegGetPicture(int *a0, unsigned int a1, int a2)
     p[0xDC / 4] = 0;
     return _getpic((int)a0);
 }
+
 int sceMpegGetPictureRAW8(int *self, unsigned int a1, int a2, int a3)
 {
     int *p = (int *)self[0x40 / 4];
@@ -108,6 +115,7 @@ int sceMpegGetPictureRAW8(int *self, unsigned int a1, int a2, int a3)
     p[0xDC / 4] = 0;
     return _getpic((int)self);
 }
+
 int sceMpegGetPictureRAW8xy(int *self, unsigned int a1, int a2, int a3)
 {
     int *p = (int *)self[0x40 / 4];
@@ -120,6 +128,7 @@ int sceMpegGetPictureRAW8xy(int *self, unsigned int a1, int a2, int a3)
     p[0xB0 / 4] = 0;
     return _getpic((int)self);
 }
+
 void sceMpegSetDecodeMode(void *a0, int a1, int a2, int a3)
 {
     int *p = *(int **)((char *)a0 + 0x40);
@@ -127,6 +136,7 @@ void sceMpegSetDecodeMode(void *a0, int a1, int a2, int a3)
     p[0x26] = a2;
     p[0x27] = a3;
 }
+
 void sceMpegGetDecodeMode(void *a0, int *a1, int *a2, int *a3)
 {
     int *p = *(int **)((char *)a0 + 0x40);
@@ -134,15 +144,18 @@ void sceMpegGetDecodeMode(void *a0, int *a1, int *a2, int *a3)
     *a2 = *(int *)((char *)p + 0x98);
     *a3 = *(int *)((char *)p + 0x9C);
 }
+
 int sceMpegIsEnd(int **a0)
 {
     return a0[0x10][0];
 }
+
 int sceMpegIsRefBuffEmpty(void *a0)
 {
     void *p = *(void **)((char *)a0 + 0x40);
     return *(int *)((char *)p + 0x4) == 0;
 }
+
 extern int _totalFrames[];
 extern void _clearEach(void);
 extern void _initSeqAgain(void);
@@ -160,6 +173,7 @@ void sceMpegReset(int *a0)
     _totalFrames[0] = 0;
     _initSeqAgain();
 }
+
 extern int _forwFrame[];
 extern int _backFrame[];
 extern int _forwTop[];
@@ -183,6 +197,7 @@ int sceMpegClearRefBuff(void)
         *(int *)(_backBot[0] + 0x28) = 0;
     return 1;
 }
+
 int sceMpegAddCallback(void *a0, int a1, int a2, int a3)
 {
     char *p = *(char **)((char *)a0 + 0x40);
@@ -195,6 +210,7 @@ int sceMpegAddCallback(void *a0, int a1, int a2, int a3)
     *q = a2;
     return old;
 }
+
 void *_dispatchMpegCallback(void *a0, void *a1)
 {
     void *rv = 0;
@@ -212,24 +228,28 @@ void *_dispatchMpegCallback(void *a0, void *a1)
     }
     return rv;
 }
+
 void _dispatchMpegCbNodata(void *a0)
 {
     int buf[8];
     buf[0] = 1;
     _dispatchMpegCallback(a0, buf);
 }
+
 void sceMpegSetDefaultPtsGap(void *a0, long long a1)
 {
     int *p = *(int **)((char *)a0 + 0x40);
     p[0x1C] = 1;
     *(long long *)((char *)p + 0x78) = a1;
 }
+
 void sceMpegResetDefaultPtsGap(void *a0)
 {
     void *p = *(void **)((char *)a0 + 0x40);
     *(int *)((char *)p + 0x70) = 0;
     *(long long *)((char *)p + 0x78) = 0;
 }
+
 extern void *D_0054C0E4[];
 
 void sceMpegSetImageBuff(int a0)
@@ -237,22 +257,27 @@ void sceMpegSetImageBuff(int a0)
     int *q = *(int **)((char *)D_0054C0E4[0] + 0x40);
     q[0x36] = a0;
 }
+
 int sceMpegDispWidth(int **a0)
 {
     return a0[0x10][0x33];
 }
+
 int sceMpegDispHeight(int **a0)
 {
     return a0[0x10][0x34];
 }
+
 void *sceMpegDispCenterOffX(int **a0)
 {
     return (char *)a0[0x10] + 0xB4;
 }
+
 void *sceMpegDispCenterOffY(int **a0)
 {
     return (char *)a0[0x10] + 0xB4;
 }
+
 int sceSetBrokenLink(void *a0, int a1)
 {
     void *p = *(void **)((char *)a0 + 0x40);
@@ -260,12 +285,14 @@ int sceSetBrokenLink(void *a0, int a1)
     *(int *)((char *)p + 0xE8) = a1;
     return old;
 }
+
 void sceSetPtm(void *a0, long long a1)
 {
     int *p = *(int **)((char *)a0 + 0x40);
     *(long long *)((char *)p + 0xF0) = a1;
     p[0x3E] = 1;
 }
+
 void _alalcInit(int *a0, int a1, int a2)
 {
     a0[0] = a1;
@@ -273,14 +300,17 @@ void _alalcInit(int *a0, int a1, int a2)
     a0[2] = a1;
     a0[3] = a1;
 }
+
 void _alalcSetDynamic(int *a0)
 {
     a0[3] = a0[2];
 }
+
 void _alalcFree(int *a0)
 {
     a0[2] = a0[3];
 }
+
 extern int D_00636D58[];
 extern void _Error(void *a0);
 
@@ -297,10 +327,12 @@ int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2)
     _Error(D_00636D58);
     return 0;
 }
+
 int _alalcRest(int *a0)
 {
     return a0[0] + a0[1] - a0[2];
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _getpic);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decodeOrSkipFrame);
 extern int _picture_structure[];
@@ -314,6 +346,7 @@ int _decodeOrSkip(int a0, int a1, int a2)
     }
     return _decodeOrSkipFrame(a0, a1, a2);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decodeOrSkipField);
 extern void _lastFrame(int a0);
 
@@ -329,6 +362,7 @@ int _sceMpegFlush(int *self)
     }
     return ret;
 }
+
 extern int _isMpeg2[];
 extern void _ipuSetMPEG1(int a0);
 
@@ -337,6 +371,7 @@ void _initSeqAgain(void)
     _isMpeg2[0] = 0;
     _ipuSetMPEG1(1);
 }
+
 extern int _isSecondField[];
 extern char D_00636DD8[];
 extern void _dispRefImage();
@@ -360,6 +395,7 @@ void _lastFrame(int a0)
     }
     _isSecondField[0] = 0;
 }
+
 extern int D_0054C0D8[];
 extern int _mbcont[];
 
@@ -374,6 +410,7 @@ void _clearOnce(void)
     *(void **)&_mbcont[0x51] = (void *)(v + 0x3300);
     *(float *)((char *)_mbcont + 0x280) = 0.0f;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _clearEach);
 extern int D_00636DF8[];
 extern void printf(void *a0, ...);
@@ -382,6 +419,7 @@ void _ErrMessage(int a0)
 {
     printf(D_00636DF8, a0);
 }
+
 extern void sprintf(void *a0, int a1, ...);
 
 void _Error1(int a0, int a1)
@@ -390,6 +428,7 @@ void _Error1(int a0, int a1)
     sprintf(buf, a0, a1);
     _Error(buf);
 }
+
 extern void _ErrMessage(int a0);
 
 void _Error(void *a0)
@@ -410,7 +449,9 @@ void _Error(void *a0)
     }
     _ErrMessage(a0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sendDataToIPU);
+
 int _RefImageInit(int *a0, int a1, int a2)
 {
     a0[0x4 / 4] = a1;
@@ -419,6 +460,7 @@ int _RefImageInit(int *a0, int a1, int a2)
     a0[0x10 / 4] = a2 >> 4;
     return 1;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sequenceHeader);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _initSeq);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _initRefImages);
@@ -431,30 +473,35 @@ void _sequenceScalableExtension(void)
 {
     _Error(D_00636E68);
 }
+
 extern int D_00636E98[];
 
 void _unknown_extension(void)
 {
     _Error(D_00636E98);
 }
+
 extern int D_00636EB0[];
 
 void _pictureSpatialScalableExtension(void)
 {
     _Error(D_00636EB0);
 }
+
 extern int D_00636EE8[];
 
 void _pictureTemporalScalableExtension(void)
 {
     _Error(D_00636EE8);
 }
+
 extern void sceIpuStopDMA(void *a0);
 
 void _defStopDMA(int **a0)
 {
     sceIpuStopDMA((char *)a0[0x10] + 0x4C);
 }
+
 extern void sceIpuRestartDMA(void *a0);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _defRestartDMA);
@@ -1468,12 +1515,15 @@ void _copyAddRefImage(void *a0, void *a1, void *a2)
                          ".set reorder\n" ::
                              : "$2", "$8", "$9", "$10", "$11", "$12", "$13", "memory");
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", func_0026E8D8);
+
 void _ipuSetMPEG1(int a0)
 {
     int *reg = (int *)0x10002010;
     *reg = (*reg & 0xFF7FFFFF) | (a0 << 23);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _waitBdecOut);
 extern int _ipuVdec(int a0);
 
@@ -1481,6 +1531,7 @@ int _dmVector(void)
 {
     return _ipuVdec(3);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dualPrimeVector);
 extern int _isError[];
 extern int D_00636FE0[];
@@ -1523,6 +1574,7 @@ int _mbAddressIncrement(void)
     } while (cont);
     return sum;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _pictureData0);
 extern int _widthMB[];
 extern int _sp_dcr[];
@@ -1565,6 +1617,7 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
     a3[2] = 0;
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _slice0);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _skipMB0);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _decMB0);
@@ -1617,15 +1670,18 @@ c2c:
         *(int *)(a1 + 4) = _dmVector();
     }
 }
+
 extern int _isTop32dirty[];
 extern int D_0054CA08[];
 
 extern int D_0054CA08[];
+
 void _sendIpuCommand(unsigned int a0)
 {
     *(volatile unsigned int *)0x10002000 = a0;
     _isTop32dirty[0] = D_0054CA08[a0 >> 28];
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _waitIpuIdle);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _waitIpuIdle64);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _ipuVdec);
@@ -1645,6 +1701,7 @@ void _nextStartCode(void)
         _flushBuf(8);
     }
 }
+
 extern int _qscqsc[];
 extern int _intra_slice[];
 extern void _extrainfo(void);
@@ -1661,12 +1718,14 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _nextHeader);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _pictureHeader);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _extensionAndUserData);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _pictureCodingExtension);
+
 void _extrainfo(void)
 {
     while (_nextBit(1) != 0) {
         _flushBuf(8);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _updateTempTackData);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _groupOfPicturesHeader);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _quantMatrixExtension);
@@ -1695,6 +1754,7 @@ int _isOutSizeOK(char *p)
     }
     return flag;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _cpr8);
 extern int _isOutputPicture[];
 
@@ -1709,6 +1769,7 @@ int _markOutput(void)
     _isOutputPicture[0] = 1;
     return 1;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _getPtsDtsFlags);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dispRefImage);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _dispRefImageField);
@@ -1722,6 +1783,7 @@ extern int D_007315E4[];
 extern int D_007315DC[];
 extern int D_007315E0[];
 extern int D_007315E4[];
+
 int _ch4dma(void)
 {
     *(volatile unsigned int *)0x1000E010 = 0x10;
@@ -1742,6 +1804,7 @@ int _ch4dma(void)
     }
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _csc_storeRefImage);
 extern void _sysbitFlush(int *a0, int a1);
 
@@ -1757,6 +1820,7 @@ void _sysbitInit(int *a0, int a1, int a2, int a3)
     a0[0xA] = a3;
     _sysbitFlush(a0, 0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitNext);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_26A630", _sysbitFlush);
 
@@ -1766,12 +1830,14 @@ int _sysbitGet(int *self, int a1)
     _sysbitFlush(self, a1);
     return ret;
 }
+
 int _sysbitMarker(int *self)
 {
     int ret = _sysbitNext(self, 1);
     _sysbitFlush(self, 1);
     return ret;
 }
+
 void _sysbitJump(int *a0, int a1)
 {
     long long x = *(long long *)(a0 + 6) + (a1 << 3);
@@ -1786,6 +1852,7 @@ void _sysbitJump(int *a0, int a1)
     }
     _sysbitFlush(a0, 0);
 }
+
 int _sysbitPtr(int *a0, int a1)
 {
     int v = a0[2] + (a1 >> 3);
@@ -1794,6 +1861,7 @@ int _sysbitPtr(int *a0, int a1)
     }
     return v;
 }
+
 extern void DIntr(int *self);
 extern void EIntr(void);
 
@@ -1805,6 +1873,7 @@ void setD3_CHCR(int *a0)
     *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
     EIntr();
 }
+
 void setD4_CHCR(int *a0)
 {
     DIntr(a0);

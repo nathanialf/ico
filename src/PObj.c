@@ -11,6 +11,7 @@ INCLUDE_ASM("asm/nonmatchings/src/PObj", MakeBoundingBox);
 INCLUDE_ASM("asm/nonmatchings/src/PObj", MakePacket);
 INCLUDE_ASM("asm/nonmatchings/src/PObj", AllocPObj);
 INCLUDE_ASM("asm/nonmatchings/src/PObj", InitPObj);
+
 void FreePObj(void)
 {
     do {

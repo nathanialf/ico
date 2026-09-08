@@ -16,7 +16,9 @@ void setQ(int *self)
     RotQuaternionY(self, -D_0063B858);
     RotQuaternionX(self, -D_0063B85A);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/effectTool", dispEffectToolField);
+
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
  * pad, trg at 0x4 and rep at 0xC; this tool reads pad 0 and pad 1. */
 typedef struct {
@@ -26,6 +28,7 @@ typedef struct {
     int rep;          /* 0x0C */
     char unk10[0x48]; /* 0x10 */
 } EffToolPad;
+
 extern EffToolPad D_0028F8F0[];
 
 extern float D_00720170[];
@@ -39,6 +42,7 @@ typedef struct {
     char *name;       /* 0x00 */
     char unk04[0x18]; /* 0x04 */
 } EffParamDef;
+
 extern EffParamDef D_004E74A0[];
 
 extern int *GetParticleEffectPackage(int id);
@@ -110,6 +114,7 @@ int EditTarget(int id)
     }
     return 0;
 }
+
 extern char D_0061F530[];
 extern char D_0061F570[];
 extern char D_0061F598[];
@@ -145,6 +150,7 @@ int saveEffectData(int id)
     debug_openLog();
     return 0;
 }
+
 extern char iosPadConfDefault[];
 extern float D_006394B8;
 extern float D_00720170[];
@@ -207,6 +213,7 @@ void moveEffectToolGeometry(int idx)
         SetParticleEffectGeometry(D_0063B854, D_00720170, q);
     }
 }
+
 extern char D_0061F618[];
 extern char D_0062A278[];
 extern float D_00720170[];
@@ -285,6 +292,7 @@ int execEffectTool(void)
     }
     return r;
 }
+
 extern void Camctrl_SetTarget(int x, int y, int z);
 extern int D_0063AA08;
 extern int D_0063B854;
@@ -301,6 +309,7 @@ void exitEffectTool(void)
     D_0063AA08 = 0;
     debug_StdPrintfDummy(D_0063B878);
 }
+
 extern char D_0061F520[];
 extern float D_00720170[];
 extern int D_00720070[];

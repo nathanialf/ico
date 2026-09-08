@@ -1,6 +1,7 @@
 #include "common.h"
 
 #include "vu0.h"
+
 typedef struct {
     float v[4];
 } LVec;
@@ -16,6 +17,7 @@ typedef struct {
     QVec z;
     QVec w;
 } QMat33;
+
 typedef struct {
     QVec x;
     QVec y;
@@ -118,9 +120,11 @@ void scale_m34(LVec *a0, void *a1, float f)
     sceVu0ScaleVector(a0 + 1, a0 + 1, f);
     return sceVu0ScaleVector(a0 + 2, a0 + 2, f);
 }
+
 /* census: static effect_end_func (ito/src/itou_boss.c holds the public symbol
    of the same name, so this copy stays file-static). */
 extern void LightTorchOnOfWeapon(void *o);
+
 static void effect_end_func(int no)
 {
     char *g = isysGObjSearchFromObjKindID_begin(0x2F);
@@ -133,14 +137,17 @@ static void effect_end_func(int no)
         LightTorchOnOfWeapon(weapon);
     }
 }
+
 typedef struct {
     float f[8];
 } QMotBlock;
+
 extern const char D_00556CA0[];
 extern const char D_00556CB0[];
 extern char D_002907E0[];
 extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int),
                             float speed);
+
 void queenBeforeFunc(char *g)
 {
     QVec pos;
@@ -188,11 +195,13 @@ void queenBeforeFunc(char *g)
     q->num = 0;
     *(QMotBlock *)(act + 0x620) = *(QMotBlock *)(*(int *)(g + 0x15C) + 0x180);
 }
+
 /* PAL listing: queen.c lines 300-385 (the disc's objdump -dl line map). */
 typedef struct QueenGenTable {
     /* 0x0 */ int n;
     /* 0x4 */ int *list;
 } QueenGenTable;
+
 extern QueenGenTable D_00556CF0[];
 extern char D_00556D00[];
 extern int D_0028F4C0[];
@@ -212,6 +221,7 @@ void gene_enemy(volatile int g)
         float f[4];
         int i[4];
     } pos;
+
     char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
     QueenGenTable *tbl;
     char *o;
@@ -284,6 +294,7 @@ void gene_enemy(volatile int g)
         _ACTWait(1);
     }
 }
+
 /* r5 seed (478/478 insns, 7 diff sites / 20 non-reloc rows) at
  * scratchpad/seeds/subQueenBrainMain.r5.rc220_7sites.c (whole-TU snapshot) and
  * .r5.body.c (this block only).  Residual: one scheduling cluster, see LEDGER r5. */
@@ -306,6 +317,7 @@ extern int D_00556D50[];
 typedef struct QueenUVScroll {
     float v[6];
 } QueenUVScroll;
+
 extern QueenUVScroll D_005569D0[];
 extern QueenUVScroll D_00556B98[];
 
@@ -550,6 +562,7 @@ void subQueenBrainMain(volatile int g)
         _ACTWait(1);
     }
 }
+
 extern char *D_00639EC0;
 extern char *D_00639ED0;
 extern int iosPadConnect(void *pad, int slot, int port, void *conf);
@@ -558,6 +571,7 @@ extern int iosPadGetStick(void *pad, void *out, int a2, int a3, int a4, int a5);
 extern void _GetMotionDirection(void *dir, char *g);
 extern int CorrectStickInfo(void *dir, void *stick);
 extern void ConvertStickToAbsCoord(void *out, void *stick);
+
 /* census: static Debug_StickControl; ito/src/act_bird.c holds the public symbol
    of that name, so this copy is a file-static. */
 static void Debug_StickControl(char *self)
@@ -583,6 +597,7 @@ static void Debug_StickControl(char *self)
         iosPadConnect(ext + 0x2D8, 0, 1, ext + 0x1E8);
     }
 }
+
 void *InitQueenGeo(char *g)
 {
     char *ext = *(char **)(g + 0x15C);
@@ -604,6 +619,7 @@ void *InitQueenGeo(char *g)
     actInitialize_ext_charcter(g);
     return w;
 }
+
 void QueenGeo(char *g)
 {
     char *w;
@@ -620,6 +636,7 @@ void QueenGeo(char *g)
     }
     CylinderCollision(g, 1, 100.0f, 100.0f, 0.001f);
 }
+
 void QueenDL(char *g)
 {
     char *w;
@@ -637,6 +654,7 @@ void QueenDL(char *g)
     DispCloth4D(*(void **)(w + 0x14), *(char **)(*(char **)(g + 0x15C) + 0x874) + 0x40,
                 *(char **)(*(char **)(g + 0x15C) + 0x874));
 }
+
 /* PAL listing rows 871-873 belong to a static angle-wrap helper. */
 static inline float WrapRad(float a)
 {
@@ -747,7 +765,9 @@ void QueenBarrierGeo(char *g)
     *(char *)(w + 0x10) = 0;
     queen_barrier_anim();
 }
+
 extern void queen_barrier_disp_proc(float);
+
 void QueenBarrierDL(char *g)
 {
     char *b = *(char **)(*(char **)(g + 0x15C) + 0x830);
@@ -755,6 +775,7 @@ void QueenBarrierDL(char *g)
         queen_barrier_disp_proc(1.0f - *(int *)(b + 0x18) / 5.0f);
     }
 }
+
 extern void SetupDarkVolume(void *pos, float r, float h);
 extern void p2o_DispVU1Default(char *g);
 /* ROM 0x0012B6F0 never reads $a1: the callee takes (id, scale) only. */
@@ -1020,6 +1041,7 @@ void QueenBallDL(char *g)
         }
     }
 }
+
 void actQueenStart(char *g)
 {
     char *sub = actInitialize(g);
@@ -1032,6 +1054,7 @@ void actQueenStart(char *g)
     *(int *)(sub + 0x130) = SetMotionRequest(g, 0x10E, sub + 0x620);
     *(int *)(*(int *)(g + 0x15C) + 0x7C) = 1;
 }
+
 void QueenStartAttack(void)
 {
     char *g;
@@ -1045,20 +1068,24 @@ void QueenStartAttack(void)
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
+
 int QueenInqDead(void)
 {
     char *g = isysGObjSearchFromObjKindID_begin(0x2F);
     return *(signed char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 3);
 }
+
 int QueenBoysWeaponPower(void)
 {
     char *g = isysGObjSearchFromObjKindID_begin(0x2F);
     return *(int *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 4);
 }
+
 float QueenBarrierRadius(char *a0)
 {
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14);
 }
+
 int QueenBarrierInqBreakable(void)
 {
     char *b;
@@ -1070,6 +1097,7 @@ int QueenBarrierInqBreakable(void)
     }
     return ret;
 }
+
 void queenBarrierBeforeFunc(char *g)
 {
     QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
@@ -1093,6 +1121,7 @@ void queenBarrierBeforeFunc(char *g)
     }
     q->num = 0;
 }
+
 int InqQueenBarrierExist(void)
 {
     char *g;
@@ -1104,6 +1133,7 @@ int InqQueenBarrierExist(void)
     }
     return exist;
 }
+
 void *InitQueenBarrierGeo(char *g)
 {
     char *w;
@@ -1120,14 +1150,17 @@ void *InitQueenBarrierGeo(char *g)
     queen_barrier_disp_init();
     return w;
 }
+
 float QueenBallRadius(char *a0)
 {
     return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14) * 100.0f;
 }
+
 float GetQueenBallThickness(void)
 {
     return 150.0f;
 }
+
 void queenBallBeforeFunc(char *g)
 {
     QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
@@ -1147,6 +1180,7 @@ void queenBallBeforeFunc(char *g)
     }
     q->num = 0;
 }
+
 void *InitQueenBallGeo(char *g)
 {
     char *w;
@@ -1162,6 +1196,7 @@ void *InitQueenBallGeo(char *g)
     actInitialize_ext_charcter(g);
     return w;
 }
+
 void subQueenControl(volatile int g)
 {
     signed char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);

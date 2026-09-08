@@ -119,6 +119,7 @@ Ltail:
         scePadSetActDirect(a3, a4, &box->type);
     }
 }
+
 void Init_ShockVoiceSet(int **a0, int *a1)
 {
     /* The empty loop is a basic-block boundary, and it is the only thing found
@@ -137,6 +138,7 @@ void Init_ShockVoiceSet(int **a0, int *a1)
     a1 = a1 + *(unsigned short *)((char *)a1 + 0x6);
     a0[2] = a1;
 }
+
 void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigned char a4)
 {
     char *p = (char *)a0;
@@ -159,6 +161,7 @@ void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigne
     p[0x27] = 0;
     p[0x24] = 0;
 }
+
 extern int dumyAllocFunc();
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
@@ -177,10 +180,12 @@ static inline void initShockRequestBox(int *a0, int a1, int a2, int a3)
     a0[2] = a2;
     a0[3] = a3;
 }
+
 void Init_ShockRequestBox(int *a0, int a1, int a2, int a3)
 {
     initShockRequestBox(a0, a1, a2, a3);
 }
+
 void ShockRequestBox_Clear(int *self)
 {
     int *node = (int *)self[0];
@@ -198,6 +203,7 @@ void ShockRequestBox_Clear(int *self)
 end:
     self[0] = 0;
 }
+
 void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node)
 {
     struct PadNode *old = *head;
@@ -208,6 +214,7 @@ void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node)
     }
     *head = new_node;
 }
+
 SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, ShockParam v, int key,
                                       int arg)
 {
@@ -255,6 +262,7 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
     ShockRequestBox_Regst((struct PadNode **)box, (struct PadNode *)req);
     return req;
 }
+
 extern int Vibration_WaveDecode(SHOCKREQUEST *p, int level);
 extern int Vibration_ShotDecode(SHOCKREQUEST *p, int level);
 extern int *ShockRequestBox_EndRequestFree(int **a0);
@@ -292,11 +300,13 @@ static inline int decodeRequestBox(ShockRequestBox *box, unsigned char *pFlags,
     ShockRequestBox_EndRequestFree((int **)box);
     return count;
 }
+
 int ShockRequestBox_DecodeRequest(ShockRequestBox *box, unsigned char *pFlags,
                                   unsigned char *pLevel)
 {
     return decodeRequestBox(box, pFlags, pLevel);
 }
+
 inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req);
 
 int *ShockRequestBox_EndRequestFree(int **a0)
@@ -317,6 +327,7 @@ int *ShockRequestBox_EndRequestFree(int **a0)
     }
     return *a0;
 }
+
 inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req)
 {
     SHOCKREQUEST *p;
@@ -336,6 +347,7 @@ inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req)
     }
     return req;
 }
+
 void *ShockRequestBox_VoiceSetUseRequestFree(ShockRequestBox *box, int voice)
 {
     SHOCKREQUEST *p;
@@ -353,6 +365,7 @@ void *ShockRequestBox_VoiceSetUseRequestFree(ShockRequestBox *box, int voice)
     }
     return box->head;
 }
+
 int *ShockRequestBox_GetRequest(int **head_ptr, int key)
 {
     int *p;
@@ -370,6 +383,7 @@ int *ShockRequestBox_GetRequest(int **head_ptr, int key)
 fail:
     return 0;
 }
+
 int ShockRequestBox_RequestCancel(int a0_, int a1)
 {
     int *a0 = (int *)a0_;
@@ -398,6 +412,7 @@ int ShockRequestBox_RequestCancel(int a0_, int a1)
     }
     return 1;
 }
+
 int ShockRequestBox_RequestDirectCancel(int *a0, int *a1)
 {
     int *next;
@@ -446,6 +461,7 @@ void Init_ShockDriver(int *a0, int a1, int a2)
         *(int *)(b[1] + i * 4) = 0;
     b[2] = 0;
 }
+
 int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, int val)
 {
     int *base = (int *)System_shock_driver;
@@ -454,6 +470,7 @@ int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, int val)
     ((int *)base[1])[idx] = val;
     return idx;
 }
+
 int ShockDriver_VoiceSet_Regist(int value)
 {
     int i;
@@ -466,6 +483,7 @@ int ShockDriver_VoiceSet_Regist(int value)
     System_shock_driver->arr[i] = value;
     return i;
 }
+
 int ShockDriver_VoiceSet_Remove(unsigned int idx)
 {
     int *base = (int *)System_shock_driver;
@@ -474,6 +492,7 @@ int ShockDriver_VoiceSet_Remove(unsigned int idx)
     ((int *)base[1])[idx] = 0;
     return idx;
 }
+
 int ShockDriver_GetShockVoiceMax(int a0)
 {
     int p;
@@ -491,6 +510,7 @@ check:
     }
     return 0;
 }
+
 int ShockDriver_GetShockVoiceSet(unsigned idx)
 {
     int *base = (int *)System_shock_driver;
@@ -498,6 +518,7 @@ int ShockDriver_GetShockVoiceSet(unsigned idx)
         return 0;
     return ((int *)base[1])[idx];
 }
+
 int ShockDriver_GetShockVoice(int a0, int a1)
 {
     int p;
@@ -521,15 +542,18 @@ ret_b:
 ret_a:
     return 0;
 }
+
 void Init_ShockEmulator(short *a0)
 {
     a0[1] = 0;
     a0[0] = 0;
 }
+
 int ShockEmulator_EmulationShot(int a0, int a1)
 {
     return a1;
 }
+
 unsigned short ShockEmulator_EmulationWave(short *a0, int a1)
 {
     int sum = (unsigned short)a0[1] + a1;
@@ -546,6 +570,7 @@ unsigned short ShockEmulator_EmulationWave(short *a0, int a1)
     a0[1] = ((unsigned int)(w * 3)) >> 2;
     return (unsigned short)a0[0];
 }
+
 void Init_ShockRequestAlloc(int *a0, char *a1, int a2)
 {
     int i;
@@ -559,6 +584,7 @@ void Init_ShockRequestAlloc(int *a0, char *a1, int a2)
         a0[0] = 0;
     }
 }
+
 void *Get_ShockRequestStruct(int *a0)
 {
     unsigned char *p = (unsigned char *)a0[1];
@@ -571,10 +597,12 @@ void *Get_ShockRequestStruct(int *a0)
     }
     return 0;
 }
+
 void Reset_ShockRequestStruct(char *p)
 {
     *p = 0;
 }
+
 int ShockRevice_Wave(int a0, int a1)
 {
     int diff = a0 - a1;
@@ -613,6 +641,7 @@ Ldec:
 Lend:
     return a0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Init_Shock);
 
 int Shock_SetShockVoiceSet(int idx, int val)
@@ -635,11 +664,13 @@ void Init_Player(int *box)
     initShockRequestBox(box, (int)Get_ShockRequestStruct, (int)Reset_ShockRequestStruct,
                         (int)ShockRequestMemory);
 }
+
 void Init_Controler(short *a0)
 {
     a0[1] = 0;
     a0[0] = 0;
 }
+
 void Shock_RequestClear(int *self)
 {
     int *node = (int *)self[0];
@@ -657,14 +688,17 @@ void Shock_RequestClear(int *self)
 end:
     self[0] = 0;
 }
+
 void Shock_Decode(ShockRequestBox *box, unsigned char *pFlags, unsigned char *pLevel)
 {
     decodeRequestBox(box, pFlags, pLevel);
 }
+
 int dumyAllocFunc(void)
 {
     return 0;
 }
+
 void Vibration_SetDecodeEnd(unsigned char *p, int a1, int a2)
 {
     if (a1)

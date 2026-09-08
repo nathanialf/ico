@@ -74,6 +74,7 @@ void bga_ResetCamera(void)
 {
     D_0063C4B4 = 0;
 }
+
 extern int D_0063BCC0;
 extern int D_0063BCC8;
 extern int D_0063C4B4;
@@ -91,10 +92,12 @@ int bga_GetCameraMatrix(void *p)
     }
     return v != 0 && D_0063BCC8 == 0;
 }
+
 extern char D_0063BCE0[];
 extern char D_006215D8[];
 extern char D_00621598[];
 extern char D_0063BCD8[];
+
 char *bga_InitSdfCamera(char *a0)
 {
     if (strncmp(a0, D_0063BCE0, 3) != 0) {
@@ -104,6 +107,7 @@ char *bga_InitSdfCamera(char *a0)
     }
     return a0;
 }
+
 extern int D_0028F4C0[];
 extern int D_0063C4B4;
 extern int D_0063BCB8;
@@ -174,6 +178,7 @@ int bga_CheckAnimationFrame(char *p, int frame, int reset)
     }
     return r;
 }
+
 int bga_CheckAnimationFrameIn(char *p, int in, int out)
 {
     float a = in;
@@ -217,6 +222,7 @@ int bga_CheckSdfCameraFrame(char *p, int frame, int reset)
     }
     return r;
 }
+
 int bga_CheckSdfCameraFrameIn(char *p, int in, int out)
 {
     float t = *(float *)(p + 8);
@@ -232,10 +238,12 @@ int bga_CheckSdfCameraFrameIn(char *p, int in, int out)
     }
     return r;
 }
+
 void bga_SetCameraForceOff(void)
 {
     D_0063BCC8 = 1;
 }
+
 extern int D_0063BCCC;
 
 void bga_InitBGA(void)
@@ -243,12 +251,14 @@ void bga_InitBGA(void)
     D_0063BCC8 = 0;
     D_0063BCCC = 0;
 }
+
 extern int D_0063BCC4;
 
 void bga_SetUniqAnimationFlag(int val)
 {
     D_0063BCC4 = val;
 }
+
 extern int D_0028F4D4[];
 extern void freeseki(void *p);
 
@@ -270,6 +280,7 @@ void bga_ResetAnimation(void)
         p = next;
     } while (p != 0);
 }
+
 extern float D_0063BCC0__pn __asm__("D_0063BCC0");
 
 float bga_GetZoom(void)

@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x15C]; /* 0x000 */
     char *f15C;        /* 0x15C */
@@ -80,6 +82,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aHasiUpSub);
 INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aHasiUp);
 INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aTorchOnChk);
 INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aTorchOffChk);
+
 void actSt08aDoor(volatile int a0)
 {
     int x = a0;
@@ -97,6 +100,7 @@ void actSt08aDoor(volatile int a0)
         stage_SetAnimation(0x69, 0, -1);
     }
 }
+
 void actSt08aEne1(volatile int a0)
 {
     int x = a0;
@@ -114,6 +118,7 @@ void actSt08aEne1(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt08aEne2(volatile int a0)
 {
     int x = a0;
@@ -127,6 +132,7 @@ void actSt08aEne2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt08aEnemy1(volatile int a0)
 {
     int x = a0;
@@ -149,6 +155,7 @@ void actSt08aEnemy1(volatile int a0)
     _ACTWait(0x3C);
     Generator_Call(a0);
 }
+
 void actSt08aEnemy2(volatile int a0)
 {
     int x = a0;
@@ -171,6 +178,7 @@ void actSt08aEnemy2(volatile int a0)
     _ACTWait(0x3C);
     Generator_Call(a0);
 }
+
 void actSt08aEnemy3(volatile int a0)
 {
     int x = a0;
@@ -191,6 +199,7 @@ void actSt08aEnemy3(volatile int a0)
     _ACTWait(0x3C);
     Generator_Call(a0);
 }
+
 void actSt08aEnemy4(volatile int a0)
 {
     int x = a0;
@@ -211,6 +220,7 @@ void actSt08aEnemy4(volatile int a0)
     _ACTWait(0x3C);
     Generator_Call(a0);
 }
+
 void actSt08aIntro(volatile int a0)
 {
     int x = a0;
@@ -224,6 +234,7 @@ void actSt08aIntro(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt08aHint1(volatile int a0)
 {
     int x = a0;
@@ -239,6 +250,7 @@ void actSt08aHint1(volatile int a0)
         FinishHint(2);
     }
 }
+
 void actSt08aGirlPos(volatile int a0)
 {
     int x = a0;
@@ -253,6 +265,7 @@ void actSt08aGirlPos(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt08aHasi(volatile int a0)
 {
     int x = a0;
@@ -271,6 +284,7 @@ void actSt08aHasi(volatile int a0)
         SetWayGroupActive(0x1E, 1);
     }
 }
+
 void actSt08aTorch(volatile int a0)
 {
     int x = a0;
@@ -282,6 +296,7 @@ void actSt08aTorch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt08aInit(void)
 {
     float f = D_006399C0;
@@ -297,6 +312,7 @@ void actSt08aInit(void)
         scpSearchGobj(0x16C)->f16C = 0;
     }
 }
+
 void actSt08aDoorMain(volatile int a0)
 {
     int sub = *(int *)(a0 + 0x164);
@@ -308,6 +324,7 @@ void actSt08aDoorMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt08aDoorSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -320,6 +337,7 @@ void actSt08aDoorSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt08aDoorUpSub(volatile int a0)
 {
     _ACTWait(0x3C);
@@ -339,6 +357,7 @@ void actSt08aDoorUpSub(volatile int a0)
     D_0063C564 = 1;
     _ACTWait(0);
 }
+
 void actSt08aIntroChk(volatile int a0)
 {
     while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0) {
@@ -359,6 +378,7 @@ void actSt08aIntroChk(volatile int a0)
     lt_switch_layout(0x36);
     D_0063AA08 = 0;
 }
+
 void actSt08aGirlPosChk(volatile int a0)
 {
     while (D_00639EA8 == 0 || scpTriggerBall(a0, D_00639EA8, 200.0f) == 0) {
@@ -368,6 +388,7 @@ void actSt08aGirlPosChk(volatile int a0)
     gflagOn(0x4E);
     WakeupHint(2);
 }
+
 void actSt08aHint1Chk(volatile int a0)
 {
     while (gflagChk(0x50) == 0) {
@@ -379,6 +400,7 @@ void actSt08aHint1Chk(volatile int a0)
     gflagOn(0x4D);
     FinishHint(2);
 }
+
 void actSt08aHasiMain(volatile int a0)
 {
     int sub = *(int *)(a0 + 0x164);
@@ -390,6 +412,7 @@ void actSt08aHasiMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt08aHasiSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;

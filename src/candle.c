@@ -7,22 +7,26 @@ extern int p2o_SetDefaultEnviroment(int a0);
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 extern void DeleteParticleEffect(int id);
+
 typedef struct CandleFlame {
     int effect; /* 0x0 */
     int off;    /* 0x4 */
 } CandleFlame;
+
 typedef struct CandleWork {
     char _pad0[0x8];
     int num; /* 0x8  — flame count */
     char _pad_c[0x830 - 0xC];
     CandleFlame *flame; /* 0x830 */
 } CandleWork;
+
 #define CANDLE_WORK(o) ((CandleWork *)*(int *)((char *)(o) + 0x15C))
 /* prototypes: their order is the inline tail's emission order */
 void DeleteLayoutedCandleParticleEffect(void);
 void _deleteLayoutedCandleParticleEffect(void *gobj);
 INCLUDE_ASM("asm/nonmatchings/src/candle", InitCandleGeo);
 INCLUDE_ASM("asm/nonmatchings/src/candle", CandleGeo);
+
 inline void _deleteLayoutedCandleParticleEffect(void *gobj)
 {
     CandleFlame *flame;
@@ -39,6 +43,7 @@ inline void _deleteLayoutedCandleParticleEffect(void *gobj)
         }
     }
 }
+
 inline void DeleteLayoutedCandleParticleEffect(void)
 {
     void *gobj;
@@ -49,6 +54,7 @@ inline void DeleteLayoutedCandleParticleEffect(void)
         gobj = isysGObjSearchFromObjKindID_next(gobj);
     }
 }
+
 void CandleDL(int a0)
 {
     int *s0 = ((GObj *)((char *)a0))->p_15C;

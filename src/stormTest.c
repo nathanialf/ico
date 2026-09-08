@@ -14,6 +14,7 @@ INCLUDE_ASM("asm/nonmatchings/src/stormTest", ClipStormByVolume);
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", ClipStormByCamera);
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", UpdateStormPackage);
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", DispStormPackage);
+
 inline int *InitStormTestGeo(int a0, int *a1)
 {
     int *obj = (int *)iosMallocDebug(D_0063A438, 0x30, D_00620FA0, 0x11B);
@@ -29,10 +30,12 @@ inline int *InitStormTestGeo(int a0, int *a1)
     *(float *)((char *)obj + 0x1C) = 128.0f;
     return obj;
 }
+
 void StormTestGeo(char *a0)
 {
     UpdateStormPackage(*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20));
 }
+
 void StormTestDL(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);

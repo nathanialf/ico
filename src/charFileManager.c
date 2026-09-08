@@ -31,6 +31,7 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadMotionFile);
 extern int D_0063A438;
 extern char D_006193B0[];
 extern int D_0028F4C0[];
+
 void ReadParticleEffectFile(void *h, int a1, int size, int a3)
 {
     char *buf = iosMallocDebug(D_0063A438, size, D_006193B0, 0x228);
@@ -39,6 +40,7 @@ void ReadParticleEffectFile(void *h, int a1, int size, int a3)
     SetParticleEffectPackage(a3, buf, size);
     iosFree(buf);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundBdFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadSoundHdFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadShockFile);
@@ -46,6 +48,7 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadCamerasetFile);
 extern char D_006193B0[];
 extern int D_0063A450;
 extern int D_0028F4C0[];
+
 void ReadEndCheckFile(void *h, int a1, int size)
 {
     char *buf = iosMallocDebug(D_0063A450, size, D_006193B0, 0x356);
@@ -53,8 +56,10 @@ void ReadEndCheckFile(void *h, int a1, int size)
     iosCdvdHandlerRead(h, buf, size);
     iosFree(buf);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadStageSettingFile);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", CSVSYSTEM_ReadCharFiles);
+
 typedef struct {
     int mode;
     int bank;
@@ -107,6 +112,7 @@ void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
     }
     debug_StdPrintfDummy(D_006198D0, a3, a1, size);
 }
+
 extern void *soundDataAreaSearch(int *key);
 extern void *AdpcmIopBuffAlloc(void);
 extern char *adpcmDataSet(char *buf, int a3, int bank, int a6, int size, void *iop, int zero);

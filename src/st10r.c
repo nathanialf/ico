@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x8];   /* 0x000 */
     int f08;           /* 0x008 */
@@ -130,6 +132,7 @@ void actSt10rEnd(void)
     gamesysObjInfoCls(scpSearchGobj(0x662)->f0C, scpSearchGobj(0x662)->f08);
     gamesysObjInfoCls(scpSearchGobj(0x660)->f0C, scpSearchGobj(0x660)->f08);
 }
+
 extern void lt_switch_layout(int a0);
 extern void scpSleepEnemyAll(void);
 extern void scpWakeupEnemyAll(void);
@@ -197,6 +200,7 @@ void actSt10rFloorChk(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
 }
+
 extern float scpGetRotObjectRotCount(int a0);
 extern void HotInitCageGeo(PObjGObj *a0);
 extern void actSt10rCageSub(volatile int a0);
@@ -288,6 +292,7 @@ void actSt10rCageMain(volatile int a0)
 
     lt_switch_layout(0x36);
 }
+
 extern char *D_0063BF9C;
 extern int scpIsBombExplode(int a0);
 extern void reg_SetScissorSw(int a0);
@@ -375,6 +380,7 @@ void actSt10rTowerChk(volatile int a0)
 
     gflagOn(0x12F);
 }
+
 extern int D_0028F4C0[];
 
 void actSt10rTowerConte(volatile int a0)
@@ -420,6 +426,7 @@ void actSt10rTowerConte(volatile int a0)
     D_0063C574 = 1;
     _ACTWait(0);
 }
+
 void actSt10rChainMove(volatile int a0)
 {
     int th;
@@ -475,6 +482,7 @@ void actSt10rChainMove(volatile int a0)
 
     lt_switch_layout(0x36);
 }
+
 extern ActMail D_004FA860[];
 extern void actSt10rFenceUpChk(volatile int a0);
 extern ActMail D_004FA880[];
@@ -534,6 +542,7 @@ void actSt10rFence(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004FA8A0[];
 extern void actSt10rFenceUpChk(volatile int a0);
 
@@ -574,6 +583,7 @@ void actSt10rFenceDownChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 /*SWEEPactSt10rFenceUpChk*/
 
 void actSt10rFenceUpChk(volatile int a0)
@@ -613,6 +623,7 @@ void actSt10rFenceUpChk(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 /*SWEEP-ENDactSt10rFenceUpChk*/
 extern ActMail D_004FA8E0[];
 extern void actSt10rFenceUpChk2(volatile int a0);
@@ -799,6 +810,7 @@ void actSt10rChain(volatile int a0)
         stage_SetAnimation(0x183, 0, -1);
     }
 }
+
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
@@ -881,6 +893,7 @@ void actSt10rElv(volatile int a0)
         scpSearchGobj(0x660)->f16C = 0;
     }
 }
+
 void actSt10rGateXL(volatile int a0)
 {
     int x = a0;
@@ -1025,6 +1038,7 @@ void actSt10rChainMoveSub(volatile int a0)
     D_0063C574 = 1;
     _ACTWait(0);
 }
+
 void actSt10rSekizoEvent(int x)
 {
     volatile int local = x;

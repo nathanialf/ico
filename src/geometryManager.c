@@ -21,8 +21,10 @@ void GetRootQuaternionByDObj(int a0, int *a1)
 null_path:
     CopyQuaternion(a0, (int)a1 + 0xD0);
 }
+
 extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
 extern void func_0025D440(void *a0, void *a1, void *a2);
+
 void UpdateRootMatrixByDObj(char *a0)
 {
     char *p = a0 + 0xA0;
@@ -38,24 +40,28 @@ void UpdateRootMatrixByDObj(char *a0)
     *(float *)(fobj + 0x34) = *(float *)(fobj + 0x34) + *(float *)(p + 0xC0);
     GetRootQuaternionByDObj(*(void **)(a0 + 0x10), a0);
 }
+
 extern void GetRootQuaternionByDObj(int a0, int *a1);
 
 void GetRootQuaternion(int a0, int a1)
 {
     GetRootQuaternionByDObj(a0, (int)((GObj *)(a1))->p_15C);
 }
+
 extern void UpdateRootMatrixByDObj();
 
 void UpdateRootMatrix(int a0)
 {
     UpdateRootMatrixByDObj((int)((GObj *)(a0))->p_15C);
 }
+
 extern void CopyQuaternion();
 
 void SetRootBaseQuaternion(int a0)
 {
     CopyQuaternion((int)((GObj *)(a0))->p_15C + 0xC0);
 }
+
 extern void CopyQuaternion__pn(void *a0, void *a1) __asm__("CopyQuaternion");
 extern void DivQuaternion(void *a0, void *a1, int a2);
 
@@ -70,6 +76,7 @@ void SetRootQuaternion(char *a0, void *a1)
         DivQuaternion(q, a1, *(int *)(m + 0x10) + (*(int *)(p + 4) << 4));
     }
 }
+
 extern void CopyMatrix();
 extern int *MatrixDrive_GetMatrix();
 extern void MatrixDrive_PopMatrix();
@@ -90,10 +97,12 @@ void SetRootMatrixWithTransOffsetByDObj(void *a0)
     CopyMatrix((void *)*(int *)((char *)a0 + 0xC), MatrixDrive_GetMatrix());
     MatrixDrive_PopMatrix();
 }
+
 void SetRootMatrixWithTransOffset(int a0)
 {
     SetRootMatrixWithTransOffsetByDObj((int)((GObj *)(a0))->p_15C);
 }
+
 extern void GetInverseQuaternion();
 extern void MultiQuaternion();
 
@@ -102,10 +111,12 @@ void GetRootMatrixRotOffsetByDObj(int a0, int a1)
     GetInverseQuaternion(a0, a1 + 0x60);
     MultiQuaternion(a0, a0, *(int *)(a1 + 0x10));
 }
+
 void GetRootMatrixRotOffset(void *a0, int a1)
 {
     GetRootMatrixRotOffsetByDObj(a0, *(void **)(a1 + 0x15C));
 }
+
 extern void MultiMatrixByQuaternion();
 
 void SetRootMatrixRotOffsetByDObj(int *self, int *other)
@@ -117,10 +128,12 @@ void SetRootMatrixRotOffsetByDObj(int *self, int *other)
     MatrixDrive_PopMatrix();
     MultiQuaternion((void *)self[0x10 / 4], (char *)self + 0x60, other);
 }
+
 void SetRootMatrixRotOffset(int a0, void *a1)
 {
     SetRootMatrixRotOffsetByDObj(*(void **)(a0 + 0x15C), a1);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePoint);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePointXZ);
 extern void AdjustMotionHeightToNearestField(void *a0);
@@ -131,6 +144,7 @@ void SetDirectRootPositionWithNodePoint(void *a0)
     SetDirectRootPositionNoFittingWithNodePoint(a0);
     AdjustMotionHeightToNearestField(a0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", LocalizeGeometry);
 extern void CopyVector();
 extern void sceVu0ApplyMatrix();
@@ -152,11 +166,14 @@ void GetGlobalDirectionOrient(int *self, int *other, char *p)
     *(int *)((char *)self + 0x4) = 0;
     sceVu0Normalize(self, self);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GlobalizeGeometry);
+
 void GetRootVelocity(int a0, int a1)
 {
     CopyVector(a0, (int)((GObj *)(a1))->p_15C + 0x130);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialInverseMatrixByDObj);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialInverseMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialSkeltonMatrixByDObj);
@@ -177,11 +194,13 @@ void LocalizeDirectionOrient(int *self, int *a1)
                     (int *)((char *)((GObj *)((char *)self))->p_15C + 0x520));
     ((GObj *)((char *)self))->p_15C->f_52C = 0;
 }
+
 extern int D_00668540[];
 extern int D_00639EFC;
 extern int isMustCheckCylinder(void *a0, void *a1);
 extern int cylinderCollisionCheck(void *a0, void *a1, int a2, float f0, float f1, float f2,
                                   float f3, float f4, int a3, int a4);
+
 /* INTERIM: ROM inlines GetRootPosition into both cylinder-collision walkers and
  * inlines CylinderCollisionWithControlDynamics into CylinderCollision; the TU's
  * out-of-line copies stay plain definitions while the deferred-inline tail
@@ -258,6 +277,7 @@ int CylinderCollision(char *self, int group, float r, float h, float s)
 {
     return CylinderCollisionWithControlDynamics_i(self, group, 1, r, h, s);
 }
+
 int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float r, float h, float s)
 {
     float pos[4];
@@ -289,6 +309,7 @@ int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float 
     }
     return hit;
 }
+
 extern void GetMatrixFromQuaternionPos();
 extern void func_0025D440();
 
@@ -307,6 +328,7 @@ void GetRootMatrixByDObj(void *a0, char *src)
     }
     *(float *)((char *)a0 + 0x34) += p[0x30];
 }
+
 void GetRootMatrix(void *a0, char *outer)
 {
     char *src = ((GObj *)(outer))->p_15C;
@@ -323,6 +345,7 @@ void GetRootMatrix(void *a0, char *outer)
     }
     *(float *)((char *)a0 + 0x34) += p[0x30];
 }
+
 void GetRootPositionByDObj(void *a0, char *src)
 {
     float *p = (float *)(src + 0xA0);
@@ -339,7 +362,9 @@ void GetRootPositionByDObj(void *a0, char *src)
     *(float *)((char *)a0 + 0x4) += f0;
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
+
 extern char D_0028FEF0[];
+
 /* INTERIM: ROM inlines SetRootPosition into this function and into
  * SetDirectRootPositionNoFitting; the TU's out-of-line copy stays a plain
  * definition while the deferred-inline tail still has asm members. */
@@ -347,6 +372,7 @@ typedef union {
     float f[4];
     long long ll[2];
 } SdrpVec4;
+
 static __inline__ void SetRootPosition_i(char *a0, void *a1)
 {
     char buf[0x40];
@@ -401,6 +427,7 @@ void SetDirectRootPositionNoFitting(char *self, void *v)
     CopyVector(sub + 0x130, D_0028FEF0);
     CopyVector(sub + 0x170, D_0028FEF0);
 }
+
 /* The root position at sub+0xA0 is a 4-lane vector the engine also moves as
  * two quadwords (CopyVector); the union is the TU's view of it. */
 typedef union {
@@ -425,6 +452,7 @@ void SetRootPosition(char *a0, void *a1)
         }
     }
 }
+
 void GetRootPosition(void *a0, char *outer)
 {
     char *src = ((GObj *)(outer))->p_15C;
@@ -442,6 +470,7 @@ void GetRootPosition(void *a0, char *outer)
     *(float *)((char *)a0 + 0x4) += f0;
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
+
 extern char D_0028FF30[];
 extern void GetMatrixFromQuaternionPos__pn(void *a0, void *a1,
                                            void *a2) __asm__("GetMatrixFromQuaternionPos");
@@ -467,6 +496,7 @@ void GetRootOrient(char *a0, char *a1)
     *(int *)(a0 + 4) = 0;
     sceVu0Normalize__pn(a0, a0);
 }
+
 int LimitExistGeometry(float *pos, int *exist)
 {
     int ret = 0;
@@ -485,6 +515,7 @@ int LimitExistGeometry(float *pos, int *exist)
     }
     return ret;
 }
+
 extern void CopyVector__pn(void *dst, void *src) __asm__("CopyVector");
 
 void GetRootMatrixTransOffsetByDObj(char *dst, char *src)
@@ -494,6 +525,7 @@ void GetRootMatrixTransOffsetByDObj(char *dst, char *src)
     func_0025D440(tmp, tmp, *(int *)(src + 0xC));
     CopyVector__pn((int)dst, (int)(tmp + 0x30));
 }
+
 void GetRootMatrixTransOffset(char *dst, char *src)
 {
     char tmp[0x40];
@@ -502,6 +534,7 @@ void GetRootMatrixTransOffset(char *dst, char *src)
     func_0025D440(tmp, tmp, *(int *)(p + 0xC));
     CopyVector__pn((int)dst, (int)(tmp + 0x30));
 }
+
 extern void GetMatrixFromQuaternion(int dst, int src);
 
 void GetRootMotionOrient(char *a0, char *a1)
@@ -525,6 +558,7 @@ void GetRootMotionOrient(char *a0, char *a1)
     func_0025D440(m, b, (int)m);
     sceVu0ApplyMatrix__pn((int *)a0, m, (int)D_0028FF30);
 }
+
 void GetRootMotionMatrix(char *a0, char *a1)
 {
     char buf[0x40];
@@ -543,6 +577,7 @@ void GetRootMotionMatrix(char *a0, char *a1)
     GetMatrixFromQuaternion((int)a0, (int)(*(char **)(a1 + 0x15C) + 0xE0));
     func_0025D440(a0, buf, (int)a0);
 }
+
 extern void AddVectorXYZ(void *a0, void *a1, void *a2);
 extern void _ScaleVectorXYZ(void *a0, void *a1, float f);
 
@@ -555,6 +590,7 @@ void GetProjectionPosOfPlane(void *a0, void *a1, void *a2)
     AddVectorXYZ(a0, a2, buf);
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
+
 extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
 
 float GetProjectionOfPlane(void *a0, void *a1, void *a2)
@@ -567,6 +603,7 @@ float GetProjectionOfPlane(void *a0, void *a1, void *a2)
     _AddVectorXYZ(a0, a2, buf);
     return dot;
 }
+
 float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f)
 {
     float buf[4];
@@ -576,12 +613,14 @@ float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f)
     _AddVectorXYZ(a0, a2, buf);
     return dot;
 }
+
 extern int D_00668540[];
 
 int *GetCharGObjList(void)
 {
     return D_00668540;
 }
+
 extern void MatrixDrive_TransMatrixV();
 
 void getInitialInverseMatrix(char *mat, char *mdl, int no)
@@ -599,6 +638,7 @@ void getInitialInverseMatrix(char *mat, char *mdl, int no)
         getInitialInverseMatrix(mat, mdl, *(int *)(nd + 0x34));
     }
 }
+
 void getInitialMatrix(char *mdl, int no)
 {
     char *nd = *(char **)(mdl + 0x8C) + (no << 6);

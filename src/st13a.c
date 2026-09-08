@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x164]; /* 0x000 */
     Act *act;          /* 0x164 */
@@ -71,6 +73,7 @@ ASM_LIT4_SLOT(D_00639A18, 3527.0f);
 ASM_LIT4_SLOT(D_00639A1C, 2502.0f);
 ASM_LIT4_SLOT(D_00639A20, -3688.0f);
 INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aSekizoChk);
+
 void actSt13aElev(volatile int a0)
 {
     int x = a0;
@@ -89,6 +92,7 @@ void actSt13aElev(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13aSekizo(volatile int a0)
 {
     int x = a0;
@@ -107,6 +111,7 @@ void actSt13aSekizo(volatile int a0)
         stage_SetAnimation(0xB0, 0, -1);
     }
 }
+
 void actSt13aCheck(volatile int a0)
 {
     int x = a0;
@@ -121,6 +126,7 @@ void actSt13aCheck(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13aChain(volatile int a0)
 {
     int x = a0;
@@ -140,6 +146,7 @@ void actSt13aChain(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13aElevMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -149,6 +156,7 @@ void actSt13aElevMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt13aElevSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -162,6 +170,7 @@ void actSt13aElevSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt13aCheckChk(volatile int a0)
 {
     _ACTWait(1);
@@ -169,6 +178,7 @@ void actSt13aCheckChk(volatile int a0)
     CheckPoint();
     gflagOn(0x147);
 }
+
 void actSt13aChainOK(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -185,6 +195,7 @@ void actSt13aChainOK(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt13aChainNG(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;

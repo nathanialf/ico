@@ -34,6 +34,7 @@ int _InterRotGV(float *dst, float *cur, float *tgt, int step)
     dst[2] = buf[2];
     return hit;
 }
+
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern void sceVu0SubVector();
 
@@ -44,12 +45,14 @@ void _DistxzSqGV(void *a0, void *a1)
     *(int *)(buf + 4) = 0;
     sceVu0InnerProduct(buf, buf);
 }
+
 void _DistSqGV(void *a0, void *a1)
 {
     char buf[0x10];
     sceVu0SubVector(buf, a0, a1);
     sceVu0InnerProduct(buf, buf);
 }
+
 extern float FSqrt(float a0);
 
 void _DistGV(void *a0, void *a1)
@@ -58,6 +61,7 @@ void _DistGV(void *a0, void *a1)
     sceVu0SubVector(buf, a0, a1);
     FSqrt(sceVu0InnerProduct(buf, buf));
 }
+
 void _DistxzGV(void *a0, void *a1)
 {
     char buf[0x10];
@@ -65,6 +69,7 @@ void _DistxzGV(void *a0, void *a1)
     *(int *)(buf + 4) = 0;
     FSqrt(sceVu0InnerProduct(buf, buf));
 }
+
 extern void _InterGV(float *a0, float *a1, float *a2, float a3, float a4);
 
 float _MoveGV(float *a0, float *a1, float *a2, float a3)
@@ -82,6 +87,7 @@ float _MoveGV(float *a0, float *a1, float *a2, float a3)
     }
     return ang;
 }
+
 extern float atan2f(float a0, float a1);
 extern float D_006391F8;
 
@@ -97,12 +103,14 @@ int _RotyGV(float *a0, float *a1)
         d += 360;
     return d;
 }
+
 int _AbsRotyGV(void *a0, void *a1)
 {
     int d = _RotyGV(a0, a1);
 
     return (d < 0) ? -d : d;
 }
+
 extern void sceVu0RotMatrixY(float *dst, float *src, float a);
 extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
 extern void sceVu0UnitMatrix(float *m);
@@ -119,6 +127,7 @@ void _ApplyRyGV(float *a0, float a1)
     a0[1] = v[1];
     a0[2] = v[2];
 }
+
 extern void sceVu0Normalize(void *dst, void *src);
 
 float _GetDirection(float *a0)
@@ -130,6 +139,7 @@ float _GetDirection(float *a0)
     sceVu0Normalize(buf, buf);
     return atan2f(buf[0], buf[2]);
 }
+
 extern int GetTableArcCos(float a0);
 
 inline int _RotGV(float *a0, float *a1)
@@ -146,6 +156,7 @@ inline int _RotGV(float *a0, float *a1)
     sceVu0Normalize(buf2, buf2);
     return GetTableArcCos(sceVu0InnerProduct(buf, buf2)) * 180 / 32768;
 }
+
 extern float D_006391FC;
 
 inline float _RotGVF(float *a0, float *a1)
@@ -160,6 +171,7 @@ inline void _OrientXZGV(int a0)
     buf[1] = 0;
     sceVu0Normalize((void *)a0, buf);
 }
+
 inline void _OrientGV(int a0)
 {
     int buf[4];
@@ -182,6 +194,7 @@ inline int _FrontGV(int a0, int a1, int a2, int a3)
     r = _RotyGV((float *)p, (float *)sa2);
     return __builtin_abs(r) < sa3;
 }
+
 inline void SwapGV(float *a, float *b)
 {
     float tmp[3];
@@ -195,6 +208,7 @@ inline void SwapGV(float *a, float *b)
     b[1] = tmp[1];
     b[2] = tmp[2];
 }
+
 extern unsigned int D_006327B0_far[] __asm__("D_0063AC18");
 extern float GetTableCos(int x);
 
@@ -205,6 +219,7 @@ inline float GetCorrectDistance(int a0, float a1)
         return *(float *)D_006327B0_far;
     return a1 / r;
 }
+
 inline int RoundDegGV(int a0)
 {
     if (a0 > 0) {
@@ -215,6 +230,7 @@ inline int RoundDegGV(int a0)
     }
     return (a0 < 181) ? a0 : a0 - 360;
 }
+
 inline int AlignDegGV(int a0)
 {
     if (a0 < -135)

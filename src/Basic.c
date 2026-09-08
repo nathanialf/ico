@@ -32,11 +32,13 @@ int freeseki(void *a0);
 void resetmallocseki(void);
 int mallocsekistage(int size);
 int reallocseki(int size, int align);
+
 void dma_init(void)
 {
     union U {
         int i;
     } *p;
+
     sceDmaReset(1);
     dmaVif = sceDmaGetChan(1);
     p = (union U *)dmaVif;
@@ -49,20 +51,25 @@ void dma_init(void)
     p->i |= 0x40;
     debug_SetDmaCallback();
 }
+
 void matrix_init(void)
 {
     matrixptr = 0x70000000;
     _UnitMatrix(0x70000000);
 }
+
 inline void malloc_SetPartition(int val)
 {
     D_0063BC88 = val;
 }
+
 inline int malloc_GetPartition(void)
 {
     return D_0063BC88;
 }
+
 inline void resetmallocseki(void) {}
+
 inline int mallocseki(int size)
 {
     int ptr = 0;
@@ -84,6 +91,7 @@ inline int mallocseki(int size)
     }
     return ptr;
 }
+
 inline int mallocsekistage(int size)
 {
     int save = D_0063BC88;
@@ -94,16 +102,19 @@ inline int mallocsekistage(int size)
     D_0063BC88 = save;
     return r;
 }
+
 inline int reallocseki(int size, int align)
 {
     return iosReallocDebug(size, align, D_00621568, 0x1A8);
 }
+
 inline int freeseki(void *a0)
 {
     if (a0 != 0) {
         return iosFree(a0);
     }
 }
+
 void malloc_MemCpy(int a0, int a1, int a2, int a3)
 {
     memcpy(a0, a1, a2, a3);

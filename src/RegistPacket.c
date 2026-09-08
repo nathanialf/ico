@@ -1,13 +1,16 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setShape);
+
 typedef union {
     unsigned int c[4];
     unsigned long long w[2];
 } RegColor;
+
 typedef struct {
     int e[12][2];
 } RegBoxLines;
+
 extern RegColor D_0054FAD0;
 extern RegBoxLines D_0054FAE0;
 extern char *matrixptr;
@@ -39,6 +42,7 @@ void reg_dispBoxLine(char *pk)
     }
     gif_EndPacket();
 }
+
 extern char *matrixptr;
 extern int D_0063B184;
 extern char D_0054FB40[];
@@ -89,7 +93,9 @@ int reg_clipPacketBoundingBox(char *pk)
     }
     return ret;
 }
+
 extern void mc_TransMicroCode(int a0);
+
 void reg_transMicroCode(char *a0, int mask)
 {
     if (*(signed char *)(*(char **)(a0 + 0x854) + 0x2F) != 0) {
@@ -102,6 +108,7 @@ void reg_transMicroCode(char *a0, int mask)
     }
     mc_TransMicroCode(2);
 }
+
 extern void mc_SetMicroCode();
 
 void reg_chooseMicroCode(char *self, int b, int c)
@@ -110,26 +117,31 @@ void reg_chooseMicroCode(char *self, int b, int c)
     int v_int = *(int *)(self + 0x60);
     mc_SetMicroCode(v_int & 1, ((int)(v_ll >> 5)) & 3, 0, b, c);
 }
+
 void reg_chooseSpecularMicroCode(int a0, int a1, int a2)
 {
     mc_SetMicroCode(a0, 1, 1, a1, a2);
 }
+
 void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
 {
     mc_SetMicroCode(a0, 1, 2, a1, a2);
 }
+
 extern char D_0054FB80[];
 extern int D_0063B124;
 extern void dl_CloseDma();
 extern void dl_OpenDma();
 extern void dl_SetDLPriority(int a0);
 extern int tex_TransTexture(int a0, int a1);
+
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMAtag, GIFtag, A+D data) or as its two 32-bit halves. */
 typedef union {
     long long d;
     int w[2];
 } RegPkWord;
+
 typedef struct {
     int cur;
     int *buf[2];
@@ -139,6 +151,7 @@ typedef struct {
     char *gif;
     char *end;
 } RegDpk;
+
 extern RegDpk D_004EE6F0;
 extern void _InitCurrentMatrix(void);
 extern void _GetCurrentMatrix(void *dst);
@@ -258,6 +271,7 @@ char *reg_setNMatrixPacket(char *o, int idx)
     }
     return pkt;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", setMatrix_116);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", setLight_120);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setMMatrixPacket);
@@ -277,6 +291,7 @@ void func_00121428(char *a0, int a1, int a2)
     dl_OpenDma(2, *(void **)(a0 + 0x98), (*(int *)(a0 + 0x90) & 0xFFFFFF) >> 4);
     dl_CloseDma();
 }
+
 void reg_transMaterialPacket(short *self, int *p)
 {
     short idx = self[0x80 / 2];
@@ -353,6 +368,7 @@ int reg_setDissolve(int pri, float a)
     dl_CloseDma();
     return 1;
 }
+
 extern char D_0054FC60[];
 
 void reg_resetDissolve(int a0)
@@ -361,6 +377,7 @@ void reg_resetDissolve(int a0)
     dl_OpenDma(2, D_0054FC60, 4);
     dl_CloseDma();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispNObj);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispMObj);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispSObj);
@@ -426,10 +443,12 @@ void reg_dispPointLineObj(char *o)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", setMatrix_190);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", setLight_194);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setNMatrixPacketNoLightCalc);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_DispAccessoryWithShadow);
+
 /* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
    listing inlines reg_TransTexturePacket (line 1259) into reg_RenderReflection
    and reg_DispMultiPri, so it is `inline` in the dev's TU; while this tail
@@ -443,6 +462,7 @@ static inline void regTransTexturePacket(int tex, int pri)
         D_0063B124 += tex_TransTexture(tex, pri);
     }
 }
+
 extern char *reg_setNMatrixPacket(char *o, int flag);
 
 void reg_RenderReflection(char *o, int pri)
@@ -481,6 +501,7 @@ void reg_RenderReflection(char *o, int pri)
         grp += 0x30;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setEMatrixPacket);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_DispEnemy);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_DispMultiPri);
@@ -515,28 +536,33 @@ void reg_DispObj(char *o)
         }
     }
 }
+
 extern void reg_dispSObj();
 
 void reg_DispObj2(int a0, int a1, int a2, int a3)
 {
     reg_dispSObj(a0, a1, a2, a3);
 }
+
 extern int D_0063A168;
 
 void reg_SetScissorSw(int val)
 {
     D_0063A168 = val;
 }
+
 void reg_TransTexturePacket(int tex, int pri)
 {
     if (tex >= 0) {
         D_0063B124 += tex_TransTexture(tex, pri);
     }
 }
+
 void reg_Init(void)
 {
     D_0063A168 = 0;
 }
+
 int reg_GetShinePri(int a0)
 {
     switch (a0) {

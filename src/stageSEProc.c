@@ -42,6 +42,7 @@ ASM_LIT4_SLOT(D_00639B58, -1837.0f);
 ASM_LIT4_SLOT(D_00639B5C, -987.0f);
 ASM_LIT4_SLOT(D_00639B60, -2788.0f);
 ASM_LIT4_SLOT(D_00639B64, 0.8f);
+
 typedef struct {
     Blk16 a;
     Blk16 b;
@@ -100,6 +101,7 @@ int stageSE02astrong(char *a0)
     *(float *)(a0 + 0x18) = w;
     return 1;
 }
+
 extern int gflagChk(int a0);
 
 int stageSE02ataki(char *self)
@@ -113,6 +115,7 @@ int stageSE02ataki(char *self)
     }
     return 1;
 }
+
 int stageSE02atakib(char *self)
 {
     float *p = *(float **)(self + 0x34);
@@ -125,6 +128,7 @@ int stageSE02atakib(char *self)
     }
     return 1;
 }
+
 extern int GetCameraGroupCurrent(void);
 
 int stageSE03tsuiro(void)
@@ -135,6 +139,7 @@ int stageSE03tsuiro(void)
     }
     return 0;
 }
+
 int stageSE03tnotSuiro(void)
 {
     int r = GetCameraGroupCurrent();
@@ -144,6 +149,7 @@ int stageSE03tnotSuiro(void)
     }
     return -1;
 }
+
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
@@ -175,6 +181,7 @@ int stageSE04agate(char *a0)
     *(float *)(a0 + 0x18) = ratio * w;
     return -1;
 }
+
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
@@ -194,6 +201,7 @@ int stageSE04bstrong(void *a0)
     *(float *)((char *)a0 + 0x18) = v;
     return -1;
 }
+
 int stageSE04ewind(char *a0)
 {
     float x = ((float *)GetCameraPos__pn())[2];
@@ -208,6 +216,7 @@ int stageSE04ewind(char *a0)
     *(float *)(a0 + 0x18) = 1.0f - f;
     return -1;
 }
+
 extern int *GetCameraPos();
 extern int stage_no;
 
@@ -234,6 +243,7 @@ int stageSE04eriverDown(char *a0)
     *(float *)(a0 + 0x18) = f;
     return -1;
 }
+
 int stageSE06astrong(char *a0)
 {
     float *p = (float *)GetCameraPos(a0);
@@ -262,6 +272,7 @@ int stageSE06astrong(char *a0)
         return 1;
     }
 }
+
 extern int *GetCameraPos();
 
 int stageSE06abirdIn(int *self)
@@ -277,6 +288,7 @@ int stageSE06abirdIn(int *self)
         return v0;
     } while (0);
 }
+
 int stageSE06abirdOut(int *self)
 {
     int new_var;
@@ -292,6 +304,7 @@ int stageSE06abirdOut(int *self)
         return v0;
     } while (0);
 }
+
 extern int UpdateRootPosition__p4() __asm__("GetCameraPos");
 extern int stageSEtaimatsu(int a0);
 
@@ -305,6 +318,7 @@ int stageSE06ataimatsu(int *self)
     }
     return 0;
 }
+
 extern Blk16 D_00623110;
 extern Blk16 D_00623120;
 extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
@@ -335,6 +349,7 @@ int stageSE08astrong(char *a0)
     }
     return -1;
 }
+
 extern Blk16 D_00623110;
 extern Blk16 D_00623120;
 extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
@@ -367,6 +382,7 @@ int stageSE08astrong2(char *a0)
     }
     return -1;
 }
+
 extern Blk16 D_00623110;
 extern Blk16 D_00623120;
 extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
@@ -385,6 +401,7 @@ int stageSE08anoise3(int self)
     }
     return -1;
 }
+
 extern Blk16 D_00623110;
 extern Blk16 D_00623120;
 extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
@@ -401,6 +418,7 @@ int stageSE08ataimatsu(int a0)
     }
     return stageSEtaimatsu(a0);
 }
+
 int stageSE08bcrane(void *a0)
 {
     AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);
@@ -419,6 +437,7 @@ int stageSE08bcrane(void *a0)
     *(float *)((char *)a0 + 0x18) = f;
     return 1;
 }
+
 int stageSE08brail(void *a0)
 {
     AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);
@@ -437,6 +456,7 @@ int stageSE08brail(void *a0)
     *(float *)((char *)a0 + 0x18) = f;
     return 1;
 }
+
 int stageSE09asea(char *a0)
 {
     AudFrame *p = *(AudFrame **)(a0 + 0x34);
@@ -446,6 +466,7 @@ int stageSE09asea(char *a0)
     *(float *)(a0 + 0x18) = 1.0f;
     return 1;
 }
+
 extern Blk16 D_00623130;
 extern Blk16 D_00623140;
 
@@ -481,6 +502,7 @@ int stageSE10lstrong(char *a0)
     }
     return -1;
 }
+
 int stageSE10rstrong(char *a0)
 {
     float x = ((float *)GetCameraPos(a0))[2];
@@ -495,6 +517,7 @@ int stageSE10rstrong(char *a0)
     *(float *)(a0 + 0x18) = f * 0.3f;
     return -1;
 }
+
 int stageSE10rstrong2(int self)
 {
     float f;
@@ -509,6 +532,7 @@ int stageSE10rstrong2(int self)
     *(float *)(self + 0x18) = f;
     return -1;
 }
+
 int stageSE13arain(char *a0)
 {
     float *v1 = *(float **)(a0 + 0x34);
@@ -518,6 +542,7 @@ int stageSE13arain(char *a0)
     *(float *)(a0 + 0x1C) = 0.5f;
     return 1;
 }
+
 int stageSE13cNoise(int a0)
 {
     float *v1 = *(float **)(a0 + 0x34);
@@ -527,6 +552,7 @@ int stageSE13cNoise(int a0)
     v1[2] = -966.0f;
     return 1;
 }
+
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
    stageSE13dterrace into stageSE13dstrong, so it is `inline` in the dev's TU;
    while this tail still has asm members a deferred inline would land at the
@@ -540,6 +566,7 @@ int stageSE13dterrace(void)
         return 0;
     return -1;
 }
+
 static inline int stageSE13dterrace_(void)
 {
     float *p = (float *)GetCameraPos();
@@ -547,6 +574,7 @@ static inline int stageSE13dterrace_(void)
         return 0;
     return -1;
 }
+
 extern void soundReverbDepthSet(int a0);
 
 int stageSE13dstrong(char *a0)
@@ -569,6 +597,7 @@ int stageSE13dstrong(char *a0)
     }
     return r;
 }
+
 int stageSE17astrong(int self)
 {
     float f;
@@ -584,6 +613,7 @@ int stageSE17astrong(int self)
     *(float *)(self + 0x18) = f;
     return -1;
 }
+
 int stageSE18awind(char *a0)
 {
     float x = ((float *)GetCameraPos(a0))[0];
@@ -598,6 +628,7 @@ int stageSE18awind(char *a0)
     *(float *)(a0 + 0x18) = f * 0.7f;
     return -1;
 }
+
 int stageSE17brain(char *a0)
 {
     float x = ((float *)GetCameraPos(a0))[0];
@@ -612,6 +643,7 @@ int stageSE17brain(char *a0)
     *(float *)(a0 + 0x18) = 1.0f - f;
     return -1;
 }
+
 int stageSE17bstrong(char *a0)
 {
     float x = ((float *)GetCameraPos(a0))[0];
@@ -638,6 +670,7 @@ int stageSE17bstrong(char *a0)
     *(float *)(a0 + 0x18) = *(float *)(a0 + 0x18) * w;
     return -1;
 }
+
 int stageSE17btaki(char *self)
 {
     float a, b;
@@ -648,6 +681,7 @@ int stageSE17btaki(char *self)
     p[2] = b;
     return 1;
 }
+
 int stageSE19astrong(void *a0)
 {
     float *p = *(float **)((char *)a0 + 0x34);
@@ -665,6 +699,7 @@ int stageSE19astrong(void *a0)
     *(float *)((char *)a0 + 0x18) = f;
     return 1;
 }
+
 int stageSE19arain(int *self)
 {
     float *p = (float *)self[0xD];
@@ -676,6 +711,7 @@ int stageSE19arain(int *self)
     p[2] = c;
     return 1;
 }
+
 int stageSE20astrong(void *a0)
 {
     float *p = *(float **)((char *)a0 + 0x34);
@@ -695,6 +731,7 @@ int stageSE20astrong(void *a0)
     *(float *)((char *)a0 + 0x18) = f;
     return 1;
 }
+
 int stageSE20astrong2(void *a0)
 {
     float f;
@@ -709,6 +746,7 @@ int stageSE20astrong2(void *a0)
     *(float *)((char *)a0 + 0x18) = f;
     return -1;
 }
+
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
@@ -731,6 +769,7 @@ int stageSE22astrong(void *a0)
     *(float *)((char *)a0 + 0x18) = 1.0f - f * 0.5f;
     return -1;
 }
+
 int stageSE22arain(char *a0)
 {
     float x = ((float *)GetCameraPos(a0))[2];
@@ -748,6 +787,7 @@ int stageSE22arain(char *a0)
     }
     return -1;
 }
+
 int stageSE24astrong(void *a0)
 {
     float f;
@@ -762,6 +802,7 @@ int stageSE24astrong(void *a0)
     *(float *)((char *)a0 + 0x18) = f;
     return -1;
 }
+
 unsigned int stageSE24arain(char *a0)
 {
     LoadImg *p = *(LoadImg **)(a0 + 0x34);
@@ -770,6 +811,7 @@ unsigned int stageSE24arain(char *a0)
     *(float *)(a0 + 0x1C) = 0.5f;
     return 1;
 }
+
 int stageSE24ariver(char *self)
 {
     float a, b;
@@ -780,6 +822,7 @@ int stageSE24ariver(char *self)
     p[2] = b;
     return 1;
 }
+
 int stageSE47anoise(char *a0)
 {
     float x = ((float *)GetCameraPos(a0))[1];

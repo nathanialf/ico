@@ -14,6 +14,7 @@ extern void dl_OpenDma(int a0, int a1, int a2);
 extern int dl_SetDLPriority(int a0);
 extern void mc_setBaseOffset(int a0, int a1);
 INCLUDE_ASM("asm/nonmatchings/src/MicroCode", mc_setBaseOffset);
+
 inline void mc_TransMicroCode(int a0, int a1)
 {
     int *q = &D_00290B20[a0];
@@ -31,7 +32,9 @@ inline void mc_TransMicroCode(int a0, int a1)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/MicroCode", mc_SetMicroCode);
+
 inline void mc_Init(void)
 {
     int *p = D_0067BFD0;
@@ -44,6 +47,7 @@ inline void mc_Init(void)
         p--;
     } while (i >= 0);
 }
+
 inline void mc_Reset(void)
 {
     int *p = D_0067BFD0;

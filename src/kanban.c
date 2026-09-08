@@ -4,6 +4,7 @@ typedef struct {
     unsigned char b[4];
 } Col4;
 typedef struct KanbanProp KanbanProp;
+
 typedef struct Node {
     KanbanProp *f0;
     int f4;
@@ -14,19 +15,23 @@ typedef struct Node {
     struct Node *f18;
     struct Node *f1C;
 } Node;
+
 typedef struct {
     char b[16];
 } Pkt16;
+
 extern int *D_0063C398;
 extern int D_0063C39C;
 extern int D_0071CB10[];
 extern Pkt16 D_0061D698;
+
 typedef struct {
     unsigned char pad0[0x130];
     int texFirst;
     int texLast;
     unsigned char pad1[0x194 - 0x138];
 } KanbanStage;
+
 struct KanbanProp {
     int first;
     int last;
@@ -41,6 +46,7 @@ struct KanbanProp {
     int f2C;
     unsigned char pad30[0x08];
 };
+
 extern KanbanStage D_005F5D50[];
 extern KanbanProp D_00533FE8[];
 extern int kanbanCommonRead;
@@ -48,6 +54,7 @@ extern Col4 D_0063B4A0;
 extern char D_0061D670[];
 extern int D_0028F4C0[];
 extern void debug_StdPrintfDummy();
+
 typedef struct {
     unsigned char pad00[0x18];
     void *f18;
@@ -61,6 +68,7 @@ typedef struct {
     int f58;
     unsigned char pad5C[0x14];
 } LayoutTex;
+
 extern LayoutTex D_0030CFF8[];
 extern char D_0030D014[];
 extern int D_0028F8F0[];
@@ -94,6 +102,7 @@ void kanbanReqDelFade(int a0);
 void kanbanReqAllDel(void);
 void kanbanReqAllDelFade(void);
 void kanbanExec(void);
+
 static inline char *get_texture_base_name(char *src)
 {
     char buf[256];
@@ -116,6 +125,7 @@ static inline char *get_texture_base_name(char *src)
     }
     return p;
 }
+
 static inline int get_texture_no_of_property(int idx)
 {
     int n;
@@ -137,6 +147,7 @@ static inline int get_texture_no_of_property(int idx)
     }
     return no;
 }
+
 static inline void init_textures_of_property_range(int first, int last)
 {
     int i;
@@ -145,6 +156,7 @@ static inline void init_textures_of_property_range(int first, int last)
         init_textures_of_specified_property(D_00533FE8[i].first, D_00533FE8[i].last);
     }
 }
+
 static inline int kanban_layout_key(KanbanProp *pr)
 {
     int ret = 0;
@@ -169,12 +181,14 @@ static inline int kanban_layout_key(KanbanProp *pr)
     }
     return ret;
 }
+
 void kanbanReqAllDel(void);
 void kanbanReqAllDelFade(void);
 void kanbanExec(void);
 void kanbanReqAllDel(void);
 void kanbanReqAllDelFade(void);
 void kanbanExec(void);
+
 inline void kanbanReqAllDel(void)
 {
     int i;
@@ -184,6 +198,7 @@ inline void kanbanReqAllDel(void)
     D_0063C398 = 0;
     D_0063C39C = 0;
 }
+
 Node *kanbanReqAdd(int no, int pri)
 {
     Node *p;
@@ -245,6 +260,7 @@ done:
     }
     return p;
 }
+
 inline void kanbanReqDel(int *self)
 {
     int *next = (int *)self[0x1C / 4];
@@ -262,6 +278,7 @@ inline void kanbanReqDel(int *self)
     }
     self[0] = 0;
 }
+
 inline void kanbanReqDelFade(int a0)
 {
     int v1 = D_0063C39C;
@@ -270,6 +287,7 @@ inline void kanbanReqDelFade(int a0)
         D_0063C39C = 0;
     }
 }
+
 inline void kanbanReqAllDelFade(void)
 {
     int *p = D_0071CB10;
@@ -282,6 +300,7 @@ inline void kanbanReqAllDelFade(void)
         p += 8;
     } while (i >= 0);
 }
+
 void init_textures_of_specified_property(int first, int last)
 {
     int i;
@@ -295,6 +314,7 @@ void init_textures_of_specified_property(int first, int last)
         tex_SetSamplingType(*(void **)(D_0030D014 + i * 0x70 - 4), 1, 1);
     }
 }
+
 void kanbanInit(int no)
 {
     if (no != 0) {
@@ -305,7 +325,9 @@ void kanbanInit(int no)
         kanbanCommonRead = 1;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B8B10);
+
 int fade_exec(Node *p)
 {
     int ret = 0;
@@ -336,6 +358,7 @@ int fade_exec(Node *p)
     p->f14.b[3] = (char)p->f10;
     return ret;
 }
+
 void display_layout(Node *k)
 {
     KanbanProp *pr;
@@ -356,6 +379,7 @@ void display_layout(Node *k)
         }
     }
 }
+
 inline void kanbanExec(void)
 {
     Node *k;

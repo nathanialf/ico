@@ -3,12 +3,15 @@
 #include "ico/types.h"
 
 typedef struct PEGeo PEGeo; /* the allocated per-effect geometry object */
+
 typedef struct {
     float v[4];
 } PEVector;
+
 typedef struct {
     float v[4];
 } PEQuaternion;
+
 typedef struct {
     int used;               /* 0x00 */
     int pause;              /* 0x04 */
@@ -18,6 +21,7 @@ typedef struct {
     PEQuaternion *sensQuat; /* 0x14 */
     PEGeo *geo;             /* 0x18 */
 } PEffect;
+
 extern PEffect D_00720220[];
 
 typedef struct {
@@ -32,6 +36,7 @@ void setParticleEffectGeometry(int a0, int a1, int a2)
     CopyVector(a0);
     CopyQuaternion(a0 + 0x10, a2);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", _setParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", execParticleEffect);
@@ -93,6 +98,7 @@ int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int 
     }
     return id;
 }
+
 extern char D_00620940[];
 extern void prim_DeleteParticle(int a0);
 extern void *iosFree(void *ptr);
@@ -118,7 +124,9 @@ void SetParticleEffectGeometry(int a0, int a1, int a2)
         }
     }
 }
+
 extern int execParticleEffect(void *a0);
+
 void SetParticleEffectUpperLimit(int no, float f)
 {
     char *o;
@@ -129,6 +137,7 @@ void SetParticleEffectUpperLimit(int no, float f)
         execParticleEffect(o);
     }
 }
+
 /* the listing's lines 159-164: the per-particle vector setup, a static helper
  * with no out-of-line copy shared by setParticleEffect / execParticleEffect /
  * ExecParticleEffect. */
@@ -190,6 +199,7 @@ void ExecParticleEffect(int no)
         }
     }
 }
+
 extern int D_0063A450;
 extern char D_00620908[];
 extern int iosMallocDebugNoAssert(int heap, int size, char *file, int line);
@@ -215,6 +225,7 @@ void ResetParticleEffectPackages(int *pkg)
         }
     }
 }
+
 extern PE160 D_004ECDF0;
 extern char D_00620980[];
 extern int D_00721020[];
@@ -229,6 +240,7 @@ void SetParticleEffectPackage(int a0, int *a1, int a2)
     }
     memcpy(((unsigned char *)D_00721020 + a0 * 0xA0), a1, a2);
 }
+
 extern PEffect D_004ECDD0;
 
 void InitParticleEffects(void)
@@ -239,6 +251,7 @@ void InitParticleEffects(void)
         D_00720220[i] = D_004ECDD0;
     }
 }
+
 void ExecParticleEffects(void)
 {
     int i;
@@ -246,6 +259,7 @@ void ExecParticleEffects(void)
         ExecParticleEffect(i);
     }
 }
+
 extern void dispParticleEffect(PEGeo *geo);
 
 void DispParticleEffects(void)
@@ -258,6 +272,7 @@ void DispParticleEffects(void)
         }
     }
 }
+
 void DeleteParticleEffect(int no)
 {
     if (D_00720220[no].used != 0 || D_00720220[no].geo != 0) {
@@ -265,10 +280,12 @@ void DeleteParticleEffect(int no)
         D_00720220[no].used = 0;
     }
 }
+
 void SetParticleEffectPauseFlag(int a0, int a1)
 {
     D_00720220[a0].pause = a1;
 }
+
 extern int D_0063A450;
 extern int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int part);
 
@@ -276,6 +293,7 @@ int SetParticleEffect(int no, PEVector *pos, PEQuaternion *quat)
 {
     return SetParticleEffectByPartition(no, pos, quat, D_0063A450);
 }
+
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
  * SetParticleEffect's line 532 into SetParticleEffectActiveSensing, so it is a
  * public `inline` of the deferred tail; until the tail's asm members are C its
@@ -298,10 +316,12 @@ int SetParticleEffectActiveSensing(int no, PEVector *pos, PEQuaternion *quat)
     }
     return id;
 }
+
 int *GetParticleEffectPackage(int idx)
 {
     return (int *)((char *)D_00721020 + idx * 0xA0);
 }
+
 void DeleteParticleEffectsByPackage(int *pkg)
 {
     int i;
@@ -313,6 +333,7 @@ void DeleteParticleEffectsByPackage(int *pkg)
         }
     }
 }
+
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
  * GetParticleEffectPackage's line 118 and DeleteParticleEffectsByPackage's
  * lines 673-676 into DeleteParticleEffectsByID, so both are public `inline`s of
@@ -340,15 +361,19 @@ void DeleteParticleEffectsByID(int id)
 {
     DeleteParticleEffectsByPackage_inl(GetParticleEffectPackage_inl(id));
 }
+
 int GetParticleEffectData(int a0)
 {
     return (int)D_00720220[a0].geo;
 }
+
 void DisableParticleEffectGeometryControl(int a0)
 {
     D_00720220[a0].geoCtrl = 0;
 }
+
 extern char D_0062A278[];
+
 int GetParticleIDWithName(char *name)
 {
     int i;
@@ -359,6 +384,7 @@ int GetParticleIDWithName(char *name)
     }
     return -1;
 }
+
 int GetParticleLoopFlag(int a0)
 {
     int *p;
@@ -368,6 +394,7 @@ int GetParticleLoopFlag(int a0)
     p = (int *)((char *)D_00721020 + a0 * 0xA0);
     return p[1] == 1;
 }
+
 extern void sceVu0CopyVector(void *dst, void *src);
 
 void ParticleEffects_SetAllGoal(void *goal)
@@ -383,12 +410,14 @@ void ParticleEffects_SetAllGoal(void *goal)
         }
     }
 }
+
 void SetParticleEffectClipEnableFlag(int a0, int a1)
 {
     if (a0 >= 0) {
         *(int *)((char *)D_00720220[a0].geo + 0x34) = a1;
     }
 }
+
 void SetParticleEffectDrainLevel(int a0, float f)
 {
     if (a0 >= 0) {

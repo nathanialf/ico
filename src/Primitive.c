@@ -21,6 +21,7 @@ void prim_DeleteParticle(int a0)
     EntryDelayFree(*(int *)(a0 + 0x188));
     EntryDelayFree(a0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", drawDisc);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispWireYCylinder);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispWireSphere);

@@ -24,6 +24,7 @@ void deq_mes_th(IosMsgQueue *self)
         SignalSema(self->sema);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueCreate);
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueDestroy);
 INCLUDE_ASM("asm/nonmatchings/ios/message", send_signal_message);
@@ -40,10 +41,12 @@ void iosMsgInit(void)
         p--;
     }
 }
+
 extern char D_00551A80[];
 extern char D_00551A60[];
 extern char D_0063A510[];
 extern char D_00551A98[];
+
 int iosMsgSend(char *q, int val, int mode)
 {
     int st[8];
@@ -67,9 +70,11 @@ int iosMsgSend(char *q, int val, int mode)
     }
     return 0;
 }
+
 extern char D_00551A80[];
 extern char D_00551A60[];
 extern char D_0063A510[];
+
 int iosMsgRecv(char *q, int *out, int mode)
 {
     int st[8];
@@ -94,6 +99,7 @@ int iosMsgRecv(char *q, int *out, int mode)
     }
     return 0;
 }
+
 extern int iosMsgQueueDestroy(int a0);
 
 void iosMsgQueueDestroyAll(void)
@@ -110,6 +116,7 @@ void iosMsgQueueDestroyAll(void)
         i--;
     } while (i >= 0);
 }
+
 extern int odd_even;
 extern int *D_0063A530;
 extern void iWakeupThread(int);

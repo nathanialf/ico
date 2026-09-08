@@ -28,6 +28,7 @@ void tex_transRegister(int a0)
     dl_OpenDma(2, a0 + 0x58, 5);
     dl_CloseDma();
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_transTM2);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_initClutTexture);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_setRegisters);
@@ -49,6 +50,7 @@ INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_dispClut);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_printTexture);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_Tool);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_ListTool);
+
 int tex_GetTWTH(int a0)
 {
     int ret = -1;
@@ -61,18 +63,21 @@ int tex_GetTWTH(int a0)
     }
     return ret;
 }
+
 extern int tex_initTextureSub();
 
 int tex_InitTexture(void)
 {
     return tex_initTextureSub();
 }
+
 extern int tex_LoadTexturePart(void *a0, int a1);
 
 int tex_LoadTexture(void *a0)
 {
     return tex_LoadTexturePart(a0, 0);
 }
+
 typedef struct TexEntry {
     char pad0[8];
     char name[0x78];
@@ -111,6 +116,7 @@ int tex_GetTextureNo(char *name)
     }
     return ret;
 }
+
 static inline int getTextureNo(char *name)
 {
     int i;
@@ -126,6 +132,7 @@ static inline int getTextureNo(char *name)
     }
     return ret;
 }
+
 extern int D_0068AFE0__pn[] __asm__("D_0068AFE0");
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
@@ -137,25 +144,30 @@ int *tex_GetTextureData(int idx)
 {
     return (int *)((char *)D_0068AFE0__pn + idx * 0x2E8);
 }
+
 static inline int *getTextureData(int idx)
 {
     return (int *)((char *)D_0068AFE0__pn + idx * 0x2E8);
 }
+
 int *tex_GetTextureName(int idx)
 {
     return (int *)((char *)D_0068AFE0__pn + idx * 0x2E8);
 }
+
 void tex_SetSamplingType(int *a0, int a1, int a2)
 {
     long long *slot = (long long *)((char *)a0 + 0x78);
     *slot = (*slot & ~(long long)0xE0) | (a1 << 5) | (a2 << 6);
 }
+
 extern int D_0068B248[];
 
 int *tex_GetTexExtData(int idx)
 {
     return (int *)((char *)D_0068B248 + idx * 0x2E8);
 }
+
 typedef struct VramPri {
     short f0;
     short f1;
@@ -168,6 +180,7 @@ short tex_GetVramFreeAddress(int a0)
 {
     return D_0068AF88[a0].f0;
 }
+
 extern int D_0063C164;
 extern CdvdRec D_0068AFE0[];
 extern int D_0028F804[];
@@ -195,6 +208,7 @@ void tex_UpdateMipMapLevel(void)
                    ((long long)l << 19) | ((long long)k << 32);
     }
 }
+
 extern void dl_SetDLPriority(int pri);
 extern int D_006AF518[];
 
@@ -220,16 +234,19 @@ static inline void resetVramPri(int pri)
         D_0068AFD8[i].x2D0[pri] = 0;
     }
 }
+
 void tex_LockHeadTBP(int tbp, int pri)
 {
     D_006AF518[pri] = tbp;
     resetVramPri(pri);
 }
+
 void tex_UnlockHeadTBP(int pri)
 {
     D_006AF518[pri] = 0;
     resetVramPri(pri);
 }
+
 void tex_ResetVramPri(int pri)
 {
     int i;
@@ -247,12 +264,14 @@ void tex_ResetVramPri(int pri)
         D_0068AFD8[i].x2D0[pri] = 0;
     }
 }
+
 extern int D_0063C164;
 
 int tex_GetTextureNum(void)
 {
     return D_0063C164;
 }
+
 typedef struct TexUV {
     char pad0[0x10];
     float f10;
@@ -294,6 +313,7 @@ void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou,
         ext->x4C = a1;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_Init);
 extern int D_0028F720[];
 extern int D_0063C164;

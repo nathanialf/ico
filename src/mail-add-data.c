@@ -64,6 +64,7 @@ inline int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void
     p->num++;
     return 0;
 }
+
 inline void *GetMailAdditionalData(char *gop, int mail)
 {
     MailAdditionalData *p;
@@ -78,11 +79,13 @@ inline void *GetMailAdditionalData(char *gop, int mail)
     }
     return 0;
 }
+
 void InitMailAdditionalData(char *a0, int a1)
 {
     *(int *)(*(char **)(a0 + 0x164) + 0x684) = a1;
     ClearMailAdditionalData(a0);
 }
+
 inline void ClearMailAdditionalData(char *gop)
 {
     MailAdditionalData *p;

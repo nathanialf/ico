@@ -15,17 +15,20 @@ int iosPadDevRead(void)
     iosMsgSend(padDevMgrMsgQ, 0, 0);
     return 0;
 }
+
 extern unsigned char iosPadDev[];
 
 int iosPadGetPort(int a0, int a1)
 {
     return *(int *)&iosPadDev[a1 * 0x200];
 }
+
 int iosPadGetSlot(int a0, int a1)
 {
     int *base = (int *)&iosPadDev[a1 * 0x200];
     return base[1];
 }
+
 int iosPadGetDevice(int a, int b)
 {
     int *p = iosPadDev;
@@ -41,6 +44,7 @@ int iosPadGetDevice(int a, int b)
     } while (count < 2);
     return -1;
 }
+
 int iosPadConnect(void *a0, int a1, int a2, int a3)
 {
     int *p = (int *)a0;
@@ -48,6 +52,7 @@ int iosPadConnect(void *a0, int a1, int a2, int a3)
     p[0] = (int)&iosPadDev[a2 * 0x200];
     return 0;
 }
+
 extern void _PushVu0Registers();
 extern void _PopVu0Registers();
 extern int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5);
@@ -60,10 +65,12 @@ int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5)
     _PopVu0Registers();
     return rv;
 }
+
 typedef union {
     float f[4];
     long long ll[2];
 } Vec4;
+
 extern int matrixptr;
 extern void sceVu0TransposeMatrix(void *a0, void *a1);
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
@@ -75,20 +82,24 @@ void iosPadStickCameraCoord(void *a0, float *a1)
     sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
     sceVu0ApplyMatrix(a0, m, &v);
 }
+
 extern int D_0063C19C;
 
 void iosPadEnable(void)
 {
     D_0063C19C = 1;
 }
+
 void iosPadDisable(void)
 {
     D_0063C19C = 0;
 }
+
 int iosPadEnableGet(void)
 {
     return D_0063C19C;
 }
+
 extern int ShockVoiceSetCommon;
 extern unsigned char D_006BCD58[];
 extern void Init_Controler(void *a0);
@@ -115,6 +126,7 @@ void iosPadActInit(void)
         p += 0x200;
     } while (i >= 0);
 }
+
 extern int D_006BCD58__pn[] __asm__("D_006BCD58");
 extern int ShockRequestBox_RequestCancel(int a0, int a1);
 
@@ -150,6 +162,7 @@ void iosPadActStop(int key)
         entry[0] = 0;
     }
 }
+
 void iosPadActStopAll(void)
 {
     int *p = D_006BCD58__pn;
@@ -163,6 +176,7 @@ void iosPadActStopAll(void)
         p = (int *)((char *)p + 0x18);
     }
 }
+
 int *iosPadActVolumeSet(int key, unsigned int val)
 {
     int *p = D_006BCD58__pn;
@@ -189,6 +203,7 @@ end:
     }
     return rv;
 }
+
 extern char D_0029C0B0__pn[] __asm__("padDevMgrMsgQ");
 extern int D_006BCD38[];
 extern void iosMsgQueueCreate(int *a, int *b, int c);
@@ -204,6 +219,7 @@ void iosPadDevManager(void)
         iosPadDevReadFunc();
     }
 }
+
 typedef struct {
     unsigned char mode;
     unsigned char b1;
@@ -262,5 +278,7 @@ void iosPadActTickProc(void)
         p++;
     }
 }
+
 void iosPadDisconWait(void) {}
+
 void iosPadErrorWait(void) {}

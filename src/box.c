@@ -95,6 +95,7 @@ static inline void alignPosition(char *self, float *dst, float *src, float grid)
 extern void GetInverseQuaternion(void *dst, void *src);
 extern void SetRootQuaternion(void *obj, void *q);
 extern void SetDirectRootPosition(void *obj, void *pos);
+
 int AlignBox(char *a0, float grid)
 {
     float pos[4];
@@ -127,6 +128,7 @@ ASM_LIT4_SLOT(D_006393B4, 10430.378f);
 
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern float FSqrt(float f);
+
 inline float GetDistanceOfGObj(void *a0, void *a1)
 {
     char v[0x10];
@@ -618,6 +620,7 @@ extern void p2o_DispVU1(void *a0);
 extern void StopSEPackageWithGroupVariation(int a0, int a1);
 extern void dispWheels(char *a0);
 extern int D_0028F4D4[];
+
 inline void BoxDL(char *a0)
 {
     char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -634,6 +637,7 @@ inline void BoxDL(char *a0)
 
 extern char D_0061F148[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
+
 inline int BoxGeoRestore(float *a0, float *a1)
 {
     a0[0] = a1[4];

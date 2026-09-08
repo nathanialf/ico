@@ -14,16 +14,19 @@ extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void actDejaChk(int a0);
 extern int D_0063AA08;
+
 typedef struct ActMail {
     int mail;          /* 0x00 */
     void (*func)(int); /* 0x04 */
     int unk08;         /* 0x08 */
     int unk0C;         /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD4]; /* 0x00 */
     ActMail *mail;    /* 0xD4 */
 } Act;
+
 extern ActMail D_004F7988[];
 extern Act *actInitialize(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -31,6 +34,7 @@ extern void scpSleepEnemyAll(void);
 /* prototypes: their order is the inline tail's emission order */
 void actDeja(volatile int a0);
 void actEnemySleep(volatile int a0);
+
 inline void actEnemySleep(volatile int a0)
 {
     while (1) {
@@ -38,6 +42,7 @@ inline void actEnemySleep(volatile int a0)
         _ACTWait(1);
     }
 }
+
 inline void actDeja(volatile int a0)
 {
     int x = a0;
@@ -55,6 +60,7 @@ inline void actDeja(volatile int a0)
         _ACTWait(0);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/deja", actDejaChk);
 INCLUDE_ASM("asm/nonmatchings/src/deja", actDejaDemo);
 INCLUDE_ASM("asm/nonmatchings/src/deja", actDejaAfter);

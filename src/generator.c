@@ -4,6 +4,7 @@ typedef union {
     unsigned long ll;
     unsigned int i;
 } GVBits;
+
 typedef struct {
     char _0[0x42];
     short f42;
@@ -12,17 +13,20 @@ typedef struct {
     char _47;
     unsigned int f48;
 } GVGeo2;
+
 extern int D_0063A438;
 extern char D_00555640[];
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 extern void _ApplyRyGV(void *a0, float a1);
 extern int InitMultiBgaManager(int a0);
+
 typedef struct StageLabelRange {
     char pad0[0x128];
     int labelTop; /* 0x128 */
     int labelEnd; /* 0x12C */
     char pad130[0x194 - 0x130];
 } StageLabelRange;
+
 extern StageLabelRange D_005F5D50[];
 extern GVGeo2 D_002C2DC8[];
 extern int stage_no;
@@ -64,6 +68,7 @@ void SetInfoSpKidnapGenerator(short *a0);
 void SetInfoSpKidnapEnemy(void);
 int IsOpenGenerator(char *gobj);
 int IsEnableCallEnemyByTargetGObj(void *a0);
+
 inline int SearchActiveGenerator(void)
 {
     char *g;
@@ -81,11 +86,13 @@ inline int SearchActiveGenerator(void)
     }
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/generator", CheckGeneratorCollision);
 INCLUDE_ASM("asm/nonmatchings/src/generator", GetGeneratorSafePosition);
 INCLUDE_ASM("asm/nonmatchings/src/generator", switch_MainStatus);
 INCLUDE_ASM("asm/nonmatchings/src/generator", endfunc_BGA);
 INCLUDE_ASM("asm/nonmatchings/src/generator", IsNeedGeneratorHard);
+
 inline int IsEnableCallEnemyByTargetGObj(void *a0)
 {
     GVGeo2 *g = &D_002C2DC8[*(int *)((char *)a0 + 0x8)];
@@ -101,6 +108,7 @@ inline int IsEnableCallEnemyByTargetGObj(void *a0)
     }
     return 0;
 }
+
 inline void *IsEnableCallEnemy(char *self)
 {
     char *g;
@@ -129,6 +137,7 @@ inline void *IsEnableCallEnemy(char *self)
     }
     return 0;
 }
+
 inline char *DirectCallEnemy(char *gobj, char *mother, float *pos, int a3, int a4)
 {
     GVGeo2 *gg = &D_002C2DC8[*(int *)(gobj + 8)];
@@ -149,7 +158,9 @@ inline char *DirectCallEnemy(char *gobj, char *mother, float *pos, int a3, int a
     ACTGame_SaveActorInformation(gobj);
     return gobj;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/generator", CallEnemy);
+
 inline void LockEnemyGenerate(int *self)
 {
     int *p;
@@ -157,6 +168,7 @@ inline void LockEnemyGenerate(int *self)
     debug_StdPrintfDummy(D_00555688, self[0x8 / 4]);
     *(long long *)((char *)p + 0x18) = *(long long *)((char *)p + 0x18) | 0x400000000LL;
 }
+
 inline void UnlockEnemyGenerate(void *a0)
 {
     void *p = *(void **)((char *)a0 + 0x164);
@@ -165,6 +177,7 @@ inline void UnlockEnemyGenerate(void *a0)
     ((GVBits *)((char *)p + 0x18))->ll &= ~((unsigned long)0x8000 << 19);
     g->f48 = (g->f48 | 0x200000) & 0xFFFBFFFF;
 }
+
 inline void RestoreReviveCount(char *gobj)
 {
     GVGeo2 *g = (GVGeo2 *)((char *)D_002C2DC8 + *(int *)(gobj + 8) * 0x4C);
@@ -178,28 +191,36 @@ inline void RestoreReviveCount(char *gobj)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_QuickCall);
+
 inline void Generator_Call(char *a0)
 {
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) += 1;
 }
+
 inline void Generator_ResetCount(char *a0)
 {
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x12) = 1;
 }
+
 inline void Generator_Mask(char *a0)
 {
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10) = 1;
 }
+
 inline void Generator_MaskOff(char *a0)
 {
     *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10) = 0;
 }
+
 void Generator_Delete(void *a0)
 {
     switch_MainStatus(a0, 0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/generator", GetMotherGenerator);
+
 inline void SetMotherGenerator(int no, int label)
 {
     int i;
@@ -221,6 +242,7 @@ inline void SetMotherGenerator(int no, int label)
         }
     }
 }
+
 inline void Generator_Init(void)
 {
     int i;
@@ -242,6 +264,7 @@ inline void Generator_Init(void)
         }
     }
 }
+
 inline void ReturnEnemyToGenerator(int a0)
 {
     GVGeo2 *g = &D_002C2DC8[a0];
@@ -257,22 +280,27 @@ inline void ReturnEnemyToGenerator(int a0)
         }
     }
 }
+
 inline int *GetbufpGeneratorPacket(void)
 {
     return D_006E6D80;
 }
+
 inline int GetsizeGeneratorPacket(void)
 {
     return 11277;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/generator", ReadGeneratorPacket);
 INCLUDE_ASM("asm/nonmatchings/src/generator", MakeGeneratorPacket);
+
 inline void ResetReviveCountEnemy(int a0)
 {
     int idx = *(int *)(a0 + 0x8);
     char *base = (char *)D_002C2DC8 + idx * 0x4C;
     *(short *)(base + 0x42) = 0;
 }
+
 inline void SetInfoSpKidnapEnemy(void)
 {
     int new_var;
@@ -280,11 +308,13 @@ inline void SetInfoSpKidnapEnemy(void)
     *((short *)(D_00308924 + new_var)) = 0;
     *((int *)(D_00308924 + 0x48)) = ((*((int *)(D_00308924 + 0x48))) | 0x200000) & (~0x40000);
 }
+
 inline void SetInfoSpKidnapGenerator(short *a0)
 {
     a0[0] = 1;
     a0[1] = 1;
 }
+
 inline int RestoreGeneratorGeo(float *dst, float *src)
 {
     dst[0] = src[4];
@@ -292,6 +322,7 @@ inline int RestoreGeneratorGeo(float *dst, float *src)
     dst[2] = src[6];
     return 1;
 }
+
 inline int RestoreGeneratorExtGeo(char *a0, short *a1)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -303,6 +334,7 @@ inline int RestoreGeneratorExtGeo(char *a0, short *a1)
     }
     return 1;
 }
+
 inline int MemoryGenerator(short *a0, char *a1)
 {
     char *p = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
@@ -310,7 +342,9 @@ inline int MemoryGenerator(short *a0, char *a1)
     a0[1] = *(unsigned short *)(p + 8);
     return 1;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/generator", generatorBeforeFunc);
+
 inline char *InitGeneratorGeo(char *gobj, char *src)
 {
     char *p = iosMallocDebug(D_0063A438, 0x70, D_00555640, 1230);
@@ -351,12 +385,15 @@ inline char *InitGeneratorGeo(char *gobj, char *src)
 
     return p;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/generator", GeneratorGeo);
 INCLUDE_ASM("asm/nonmatchings/src/generator", GeneratorDL);
+
 inline int GeneratorWorkEnd(char *a0)
 {
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) == 0;
 }
+
 inline int IsOpenGenerator(char *gobj)
 {
     char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);

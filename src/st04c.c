@@ -6,10 +6,12 @@ typedef struct ActMail {
     int unk08;         /* 0x08 */
     int unk0C;         /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD4]; /* 0x00 */
     ActMail *mail;    /* 0xD4 */
 } Act;
+
 extern Act *actInitialize(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern void _ACTWait(int a0);
@@ -17,6 +19,7 @@ extern int stage_CheckAnimationFinish(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 
 extern char *D_00639EA8;
+
 void actSt04cEnd(void)
 {
     if (D_00639EA8 != 0) {
@@ -25,9 +28,11 @@ void actSt04cEnd(void)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cDoorDownChk);
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cIntroChk);
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04lDoorChk);
+
 void actSt04cSolarXL(volatile int a0)
 {
     int x = a0;
@@ -39,6 +44,7 @@ void actSt04cSolarXL(volatile int a0)
         stage_SetAnimation(0x12E, -1, -2);
     }
 }
+
 extern ActMail D_004F8850[];
 extern void actSt04lDoorChk(int a0);
 extern int scpSearchGobj(int a0);
@@ -62,6 +68,7 @@ void actSt04lDoor(volatile int a0)
         FinishHint(0xF);
     }
 }
+
 extern ActMail D_004F8830[];
 extern void actSt04cIntroChk(int a0);
 
@@ -78,6 +85,7 @@ void actSt04cIntro(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F87F0[];
 extern void actSt04cDoorDownChk(int a0);
 
@@ -93,6 +101,7 @@ void actSt04cDoorDown(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern ActMail D_004F8810[];
 extern void actSt04cEneChk(int a0);
 
@@ -109,6 +118,7 @@ void actSt04cEne(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void Generator_Mask(int a0);
 extern void Generator_MaskOff(int a0);
 extern void Generator_Call(int a0);
@@ -131,6 +141,7 @@ void actSt04cEnemy1(volatile int a0)
     _ACTWait(60);
     Generator_Call(a0);
 }
+
 void actSt04cEnemy2(volatile int a0)
 {
     int x = a0;
@@ -149,6 +160,7 @@ void actSt04cEnemy2(volatile int a0)
     _ACTWait(60);
     Generator_Call(a0);
 }
+
 void actSt04cWaterXL(volatile int a0)
 {
     int x = a0;
@@ -160,10 +172,12 @@ void actSt04cWaterXL(volatile int a0)
         *(int *)(scpSearchGobj(0x446) + 0x16C) = 0;
     }
 }
+
 void actSt04cDoorDownEvent(int x)
 {
     volatile int local = x;
 }
+
 /* Effect-parameter triples in .rodata; the `const` is the data model and is
    load-bearing: RTX_UNCHANGING_P is what keeps sched2 from ordering each
    b[0] store behind the b[1] load in the two remat'd-address switch arms. */
@@ -199,7 +213,9 @@ void actSt04cDoorDownEffect(volatile int a0)
         _ACTWait(1);
     }
 }
+
 extern char *D_00639EA8;
+
 void actSt04cEneChk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -213,6 +229,7 @@ void actSt04cEneChk(volatile int a0)
     gflagOn(0xA3);
     gflagOn(0xA4);
 }
+
 extern int D_0063C510;
 
 void actSt04cIntroChkSub(volatile int a0)
@@ -224,6 +241,7 @@ void actSt04cIntroChkSub(volatile int a0)
     D_0063C510 = 1;
     _ACTWait(0);
 }
+
 void actSt04lDoorEvent(int x)
 {
     volatile int local = x;

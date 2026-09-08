@@ -110,6 +110,7 @@ void iSyncDCache(int a0, int a1)
 {
     _sceSDC(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
 }
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"

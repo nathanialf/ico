@@ -14,6 +14,7 @@ INCLUDE_ASM("asm/nonmatchings/src/debug_exception", traceLine);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", dispSource);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", display);
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugEEExceptionMain);
+
 /* The EE exceptions the debug monitor traps: {cause code, printable name}.
  * The table is this TU's own .data -- it heads the 0x800-byte debug_exception
  * .data run at 0x004D9F70 -- and stays an extern until that run is carved. */
@@ -21,6 +22,7 @@ typedef struct {
     int code;
     char *name;
 } DebugExcEntry;
+
 extern DebugExcEntry D_004D9F70[11];
 /* The source-listing work buffer handed in at init; initLineTraceTable and
  * traceLine read it back and pass it to sceRead as the read buffer. It sits in
@@ -41,13 +43,17 @@ inline void debugExceptionInit(void *workBuf)
         SetDebugHandler(D_004D9F70[i].code, debugEEExceptionMain);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugIOPExceptionMain);
+
 inline void debugIOPExceptionInit(void) {}
+
 inline void debug_assertMessage(char *file, int line, char *mes)
 {
     for (;;)
         ;
 }
+
 inline void debug_assert(char *file, int line)
 {
     for (;;)

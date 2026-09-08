@@ -8,6 +8,7 @@ struct McIconWork {
     int size;
     void *buf;
 };
+
 extern int iosCdvdBackGroundRead(int self, void *buf, int size);
 extern void iosThreadSleep(void);
 extern int D_0063A368;

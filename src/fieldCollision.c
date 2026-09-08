@@ -16,6 +16,7 @@ typedef struct {
     unsigned char m[3];
     unsigned char hi;
 } FcBlk8;
+
 typedef union {
     unsigned char rgba[4];
     long long ll[2];
@@ -57,6 +58,7 @@ void MakeCollisionDependGObjList(void)
         __assert(D_00553750, 533, D_0063A820);
     }
 }
+
 extern void CopyVector(void *a0, void *a1);
 extern float GetDistanceFromPlane(void *a0, void *a1);
 extern float GetPointDistance(void *a0, void *a1);
@@ -87,6 +89,7 @@ void GetReflectionElement(char *a0, float arg0, float arg1)
         sceVu0AddVector(a0 + 0x50, a0 + 0x20, p20);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", clip_wall_1);
 extern void sceVu0CopyVector(int *dst, int *src);
 
@@ -185,6 +188,7 @@ int clip_floor_1(void *a0, int a1, int a2)
     sceVu0CopyVector((int *)(ray + 8), (int *)hit);
     return 1;
 }
+
 extern int game_pause;
 extern int D_0063B13C;
 extern int D_0063A064;
@@ -229,6 +233,7 @@ void DispCollisionPC(void)
         debug_Printf(D_0063A064 / 2, D_0063A068 / 2 + 0x18, 0xFFFFFF00, D_006C0BC0);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", makeCollisionBlockTable);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _Clip);
 extern FcBlk8 D_0063A810;
@@ -242,12 +247,14 @@ void __ClipWall(char *a0, int a1)
     *(FcBlk8 *)(a0 + 0x80) = D_0063A810;
     _Clip(a0, a1);
 }
+
 void __ClipFloor(void *a0, int a1)
 {
     *(int *)((char *)a0 + 0x94) = 0;
     *(FcBlk8 *)((char *)a0 + 0x8C) = D_0063A810;
     _Clip(a0, a1);
 }
+
 extern void gif_StartPacketPri(int a0);
 extern void MatrixDrive_PushMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
@@ -348,6 +355,7 @@ void DrawGObjWallCollision(char *gobj, int col)
     MatrixDrive_PopMatrix();
     gif_EndPacket();
 }
+
 extern void gif_StartPacketPri(int a0);
 extern void MatrixDrive_PushMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
@@ -400,6 +408,7 @@ void DrawGObjFloorCollision(char *gobj, int col)
     MatrixDrive_PopMatrix();
     gif_EndPacket();
 }
+
 extern char D_00553830[];
 extern void debug_StdPrintfDummy();
 extern int fptodp(float f);
@@ -408,6 +417,7 @@ void DBG_VECTOR(float *vec)
 {
     return debug_StdPrintfDummy(D_00553830, fptodp(vec[0]), fptodp(vec[1]), fptodp(vec[2]));
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", GetEdgeOfFloor);
 extern void memset(void *p, int c, int n);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
@@ -461,6 +471,7 @@ void DrawCollisionRay(char *ray)
     MatrixDrive_PopMatrix();
     gif_EndPacket();
 }
+
 extern char D_00553960[];
 extern char D_00553980[];
 extern int frame_count;
@@ -508,6 +519,7 @@ void MakeExitAttributeIndex(void)
         } while (D_0063C20C < D_0063A818);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloorByGObj);
 extern int (*D_0063A840)(void *a0, int a1);
 
@@ -515,42 +527,52 @@ int ClipWallDebug(void *a0)
 {
     return D_0063A840(a0, 0);
 }
+
 int ClipWall(void *a0)
 {
     return D_0063A840(a0, 0x1);
 }
+
 int ClipWallR(void *a0)
 {
     return D_0063A840(a0, 0x2);
 }
+
 int ClipWallWaveForce(void *a0)
 {
     return D_0063A840(a0, 0x6);
 }
+
 int ClipWallFuchiHangWalkStop(void *a0)
 {
     return D_0063A840(a0, 0x7);
 }
+
 int ClipWallField(void *a0)
 {
     return D_0063A840(a0, 0x3);
 }
+
 int ClipWallEField(void *a0)
 {
     return D_0063A840(a0, 0x5);
 }
+
 int ClipWallBoxStop(void *a0)
 {
     return D_0063A840(a0, 0xA);
 }
+
 int ClipWallAdjustPos(void *a0)
 {
     return D_0063A840(a0, 0xB);
 }
+
 int ClipWallE(void *a0)
 {
     return D_0063A840(a0, 0x4);
 }
+
 extern int (*D_0063C23C)(void *obj);
 
 void ClipWallCheckCB(void *a0, int a1)
@@ -558,34 +580,41 @@ void ClipWallCheckCB(void *a0, int a1)
     D_0063C23C = (int (*)(void *))a1;
     D_0063A840(a0, 8);
 }
+
 void ClipWallFieldCheckCB(void *a0, int a1)
 {
     D_0063C23C = (int (*)(void *))a1;
     D_0063A840(a0, 9);
 }
+
 extern int (*D_0063A844)(void *a0, int a1);
 
 int ClipFloor(void *a0)
 {
     return D_0063A844(a0, 0xC);
 }
+
 int ClipFloorE(void *a0)
 {
     return D_0063A844(a0, 0xD);
 }
+
 int ClipFloorR(void *a0)
 {
     return D_0063A844(a0, 0xE);
 }
+
 int ClipFloorIH(void *a0)
 {
     return D_0063A844(a0, 0xF);
 }
+
 void ClipFloorCheckCB(void *a0, int a1)
 {
     D_0063C23C = (int (*)(void *))a1;
     D_0063A844(a0, 0x10);
 }
+
 extern void sceVu0CopyVector(int *dst, int *src);
 
 void ClipCollision(int *self)
@@ -598,8 +627,10 @@ void ClipCollision(int *self)
     D_0063A844((int)self, 0xC);
     sceVu0CopyVector(p10, buf);
 }
+
 extern void __ClipWallWithDrawRay();
 extern void __ClipFloorWithDrawRay();
+
 int ChangeFieldCollisionDebugMode(int a0)
 {
     D_0063A840 = (int (*)(void *, int))__ClipWall;
@@ -610,6 +641,7 @@ int ChangeFieldCollisionDebugMode(int a0)
     }
     return 0;
 }
+
 extern int file_LoadFile(int a0, int a1, int a2);
 
 void LoadCollision(int *self, int a1)
@@ -622,6 +654,7 @@ void LoadCollision(int *self, int a1)
     p[0x10 / 4] = (int)(((char *)p) + p[0x10 / 4]);
     p[0x14 / 4] = (int)(((char *)p) + p[new_var]);
 }
+
 extern void DrawGObjWallCollision(char *a0, int a1);
 extern void DrawGObjFloorCollision(char *a0, int a1);
 extern void gif_StartPacketPri(int a0);
@@ -658,6 +691,7 @@ void DrawCollision(int a0)
         } while (D_0063C20C < D_0063A818);
     }
 }
+
 extern float sceVu0InnerProduct(int a0, int a1);
 
 int ClipPlane(int a0)
@@ -683,6 +717,7 @@ int ClipPlane(int a0)
     p[10] = (p[6] * t1 - p[2] * t0) / d;
     return 1;
 }
+
 extern char D_005538C8[];
 extern char D_005538F8[];
 extern float GetTableCos(short a0);
@@ -730,6 +765,7 @@ void GetOrientOfWall(void *a0, void *a1, int *a2)
         debug_StdPrintfDummy(D_005538F8);
     }
 }
+
 void SetSimplePlane(float *self, float a, float b, float c, float d)
 {
     self[0] = a;
@@ -737,18 +773,21 @@ void SetSimplePlane(float *self, float a, float b, float c, float d)
     self[2] = c;
     self[3] = d;
 }
+
 int GetWallAttribute(int a0)
 {
     if (*(int *)(a0 + 0x88) == 0)
         return 0;
     return *(int *)(a0 + 0x98);
 }
+
 int GetFloorAttribute(int a0)
 {
     if (*(int *)(a0 + 0x94) == 0)
         return 0;
     return *(int *)(a0 + 0x98);
 }
+
 int CompareAttribute(unsigned int a, unsigned int b)
 {
     int i;
@@ -762,6 +801,7 @@ int CompareAttribute(unsigned int a, unsigned int b)
     }
     return 0;
 }
+
 typedef union {
     float f[4];
     long long ll[2];
@@ -784,6 +824,7 @@ static inline void getWallGlobalInfo(char *pts, void *nrm, char *w, void *m)
     }
     sceVu0ApplyMatrix(nrm, m, &vec);
 }
+
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
    GetWallGlobalInfo into DrawGObjWallCollision, so it is `inline` in the dev's TU;
    while this tail still has asm members the public body stays a plain definition
@@ -806,18 +847,22 @@ void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m)
     }
     sceVu0ApplyMatrix(nrm, m, &vec);
 }
+
 float GetDistanceFromPlane(void *a0, void *a1)
 {
     return sceVu0InnerProduct((int)a0, (int)a1) + ((float *)a0)[3];
 }
+
 float GetYDistanceFromPlane(float *a0, float *a1)
 {
     return a1[1] - (-(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1]);
 }
+
 float GetYProjectionOfPlane(float *a0, float *a1)
 {
     return -(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1];
 }
+
 extern int D_0063C210;
 extern int D_0063C214;
 extern int D_0063C218;
@@ -853,6 +898,7 @@ int PositionOfExit(int a0, int a1)
     }
     return 1;
 }
+
 void GetGlobalWallPlane(float *plane, int *r)
 {
     FcVec pts[4];
@@ -861,6 +907,7 @@ void GetGlobalWallPlane(float *plane, int *r)
                       (void *)((r[1] << 6) + *(int *)(*(int *)(r[0] + 0x15C) + 0xC)));
     plane[3] = -sceVu0InnerProduct((int)plane, (int)pts);
 }
+
 extern int D_0063C234;
 extern FuzioCtx *D_0063C238;
 extern short D_006C10C0[];
@@ -888,6 +935,7 @@ int _clipWDebug(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 extern int D_0063C234;
 extern FuzioCtx *D_0063C238;
 extern short D_006C10C0[];
@@ -920,6 +968,7 @@ int _clipW(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipWE(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -951,6 +1000,7 @@ int _clipWE(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipWEField(void *arg0, int arg1, int arg2)
 {
     int found = 0;
@@ -979,6 +1029,7 @@ int _clipWEField(void *arg0, int arg1, int arg2)
     }
     return found;
 }
+
 int _clipWR(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1006,6 +1057,7 @@ int _clipWR(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipWField(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1030,6 +1082,7 @@ int _clipWField(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipWDitchHangWalkStop(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1054,6 +1107,7 @@ int _clipWDitchHangWalkStop(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipWWaveForce(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1078,6 +1132,7 @@ int _clipWWaveForce(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipWBoxStop(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1105,6 +1160,7 @@ int _clipWBoxStop(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipWAdjustPos(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1129,6 +1185,7 @@ int _clipWAdjustPos(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 extern int clip_floor_1(void *a0, int a1, int a2);
 
 int _clipF(void *arg0, int arg1, int arg2)
@@ -1154,6 +1211,7 @@ int _clipF(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipFE(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1180,6 +1238,7 @@ int _clipFE(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipFIH(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1205,6 +1264,7 @@ int _clipFIH(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 int _clipFR(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1228,6 +1288,7 @@ int _clipFR(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
+
 extern void gif_StartPacketPri(int a0);
 extern void MatrixDrive_PushMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
@@ -1258,6 +1319,7 @@ void __ClipWallWithDrawRay(char *w, int a1)
     MatrixDrive_PopMatrix();
     gif_EndPacket();
 }
+
 extern const FcColor D_00553800;
 extern const FcColor D_00553810;
 
@@ -1279,6 +1341,7 @@ void __ClipFloorWithDrawRay(char *w, int a1)
     MatrixDrive_PopMatrix();
     gif_EndPacket();
 }
+
 extern int collision_pick;
 
 void ClipWallRD(void)
@@ -1301,6 +1364,7 @@ int ClipWallVector(int *a0, int *a1)
     D_0063A840(buf, 1);
     return buf[34];
 }
+
 void MapCollisionData(void *a0)
 {
     int *p = (int *)a0;

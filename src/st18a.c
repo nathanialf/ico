@@ -6,12 +6,14 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD4]; /* 0x00 */
     ActMail *mail;    /* 0xD4 */
 } Act;
 
 extern char *D_00639EA8;
+
 void actSt18aEnd(void)
 {
     if (D_00639EA8 != 0) {
@@ -20,6 +22,7 @@ void actSt18aEnd(void)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aIntroChk);
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aSwitchLChk);
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aSwitchLUpChk);
@@ -49,6 +52,7 @@ void actSt18aIntro(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern Act *actInitialize(int a0);
@@ -81,6 +85,7 @@ void actSt18aDoor(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern Act *actInitialize(int a0);
@@ -113,6 +118,7 @@ void actSt18aSwitchL(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern Act *actInitialize(int a0);
@@ -145,6 +151,7 @@ void actSt18aSwitchR(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern Act *actInitialize(int a0);
@@ -165,6 +172,7 @@ void actSt18aEne(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void _ACTWait(int a0);
 extern Act *actInitialize(int a0);
 extern void Generator_Mask(int a0);
@@ -195,6 +203,7 @@ void actSt18aEnemy1_2(volatile int a0)
     _ACTWait(30);
     Generator_Call(a0);
 }
+
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern Act *actInitialize(int a0);
@@ -215,6 +224,7 @@ void actSt18aEne2(volatile int a0)
         _ACTWait(0);
     }
 }
+
 extern void _ACTWait(int a0);
 extern Act *actInitialize(int a0);
 extern void Generator_Mask(int a0);
@@ -245,10 +255,12 @@ void actSt18aEnemy2_2(volatile int a0)
     _ACTWait(60);
     Generator_Call(a0);
 }
+
 void actSt18aCamera(int x)
 {
     volatile int local = x;
 }
+
 extern void _ACTWait(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
@@ -280,6 +292,7 @@ void actSt18aDoorChkSub(volatile int a0)
     D_0063C59C = 1;
     _ACTWait(0);
 }
+
 extern void _ACTWait(int a0);
 extern int scpTriggerFloorAttr(int a0, int a1);
 
@@ -296,6 +309,7 @@ void actSt18aEneChk(volatile int a0)
     gflagOn(0x3D);
     gflagOn(0x3E);
 }
+
 extern void _ACTWait(int a0);
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern int scpSearchGobj(int a0);

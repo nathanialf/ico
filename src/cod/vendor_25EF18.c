@@ -27,6 +27,7 @@ void sceResetttyinit(int a0)
     D_0054A3E0[0] = 0;
     sceTtyInit(a0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", VSync);
 extern void SetVSyncFlag(void *a0, void *a1);
 
@@ -43,6 +44,7 @@ long long VSync2(void)
     *p = 4;
     return val;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", write);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", read);
 extern int __errno(void);
@@ -52,18 +54,22 @@ int open(void)
     *(int *)__errno() = 5;
     return -1;
 }
+
 int close(int a1)
 {
     return -1;
 }
+
 int ioctl(void)
 {
     return -1;
 }
+
 int lseek(int a1, int a2, int a3)
 {
     return -1;
 }
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -124,20 +130,24 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 int isatty(void)
 {
     return 1;
 }
+
 int fstat(void *a0, void *a1)
 {
     *(long long *)((char *)a1 + 0x48) = 0;
     *(int *)((char *)a1 + 0x4) = 0x2000;
     return 0;
 }
+
 int getpid(void)
 {
     return 1;
 }
+
 extern void Exit(void *a0);
 
 int kill(int a0, void *a1)
@@ -147,16 +157,19 @@ int kill(int a0, void *a1)
     }
     return 0;
 }
+
 int stat(void)
 {
     *(int *)__errno() = 5;
     return -1;
 }
+
 int unlink(void)
 {
     *(int *)__errno() = 5;
     return -1;
 }
+
 extern PrintSink D_0072A600;
 
 void *QueueInit(int a0)
@@ -167,6 +180,7 @@ void *QueueInit(int a0)
     D_0072A600.f8 = D_0072A600.buf;
     return &D_0072A600;
 }
+
 void QueuePeekWriteDone(int *q)
 {
     int count = q[1] + 1;
@@ -182,6 +196,7 @@ void QueuePeekWriteDone(int *q)
         }
     }
 }
+
 void QueuePeekReadDone(RingBuf_241C80 *a0)
 {
     a0->f4--;
@@ -190,6 +205,7 @@ void QueuePeekReadDone(RingBuf_241C80 *a0)
         a0->f8 = (char *)a0 + 0x10;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceTtyHandler);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceTtyWrite);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceTtyRead);
@@ -203,13 +219,16 @@ void sceSifExitRpc(void)
     sceSifExitCmd();
     D_0054A3E8[0] = 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceRpcGetPacket);
+
 void _sceRpcFreePacket(void *a0)
 {
     int *p = (int *)a0;
     p[6] = 0;
     p[4] &= 0xFFFFFFFE;
 }
+
 int _sceRpcGetFPacket(int *a0)
 {
     int rem = a0[9] % a0[6];
@@ -217,6 +236,7 @@ int _sceRpcGetFPacket(int *a0)
     a0[9] = rem + 1;
     return ret;
 }
+
 int _sceRpcGetFPacket2(int *a0, int a1)
 {
     if (a1 < 0) {
@@ -230,6 +250,7 @@ err:
 elem:
     return a0[7] + a1 * 64;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _request_end);
 extern int isceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);
 
@@ -242,7 +263,9 @@ void _request_rdata(int *a0, int *a1)
     ret[8] = 0x8000000C;
     isceSifSendCmd(0x80000008, (int)ret, 0x40, a0[8], a0[9], a0[10]);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifGetOtherData);
+
 void *_search_svdata(int a0, void *a1)
 {
     void *n5;
@@ -256,6 +279,7 @@ void *_search_svdata(int a0, void *a1)
     }
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _request_bind);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifBindRpc);
 extern void iWakeupThread(int a0);
@@ -290,7 +314,9 @@ void _request_call(int *a0)
     }
     iWakeupThread(a6[0]);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifCallRpc);
+
 int sceSifCheckStatRpc(char *a0)
 {
     char *p = *(char **)a0;
@@ -305,6 +331,7 @@ ret0:
 ret1:
     return 1;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifSetRpcQueue);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifRegisterRpc);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifRemoveRpc);
@@ -329,6 +356,7 @@ after:
     EIntr();
     return p;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifExecRequest);
 extern void SleepThread(void);
 extern void sceSifExecRequest(int *item);
@@ -343,6 +371,7 @@ void func_00260690(int *self)
         SleepThread();
     }
 }
+
 extern int CreateSema(int *self);
 extern int D_0054A478[];
 extern int D_0054A47C[];
@@ -359,6 +388,7 @@ void func_002606D0(void)
         D_0054A47C[0] = CreateSema(args);
     }
 }
+
 extern char D_0072D300[];
 extern void SignalSema(int a0);
 extern int WaitSema(int a0);
@@ -382,6 +412,7 @@ int new_iob(void)
     SignalSema(D_0054A478[0]);
     return 0;
 }
+
 void *get_iob(unsigned int i)
 {
     char *p;
@@ -397,6 +428,7 @@ ok:
     SignalSema(D_0054A478[0]);
     return p;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceFs_Rcv_Intr);
 extern int D_0054A474[];
 
@@ -410,16 +442,19 @@ void _sceFsSemInit(void)
         D_0054A474[0] = CreateSema(self);
     }
 }
+
 int _sceFsWaitS(int arg)
 {
     _sceFsSemInit();
     WaitSema(D_0054A474[0]);
     return 0;
 }
+
 void _sceFsSigSema(void)
 {
     SignalSema(D_0054A474[0]);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceFsInit);
 extern char D_0028ED0C[];
 extern int D_0054A480[];
@@ -443,6 +478,7 @@ int _fs_version(void)
 done:
     return s2;
 }
+
 extern int D_0054A470[];
 extern char D_0072D528[];
 extern void memset(void *a0, int a1, int a2);
@@ -453,6 +489,7 @@ int sceFsReset(void)
     memset(D_0072D528, 0, 4);
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceOpen);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceClose);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceLseek);
@@ -467,17 +504,22 @@ int sceRemove(void *a0)
 {
     return _sceCallCode(a0, 6);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceMkdir);
+
 int sceRmdir(void *a0)
 {
     return _sceCallCode(a0, 8);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceFormat);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceAddDrv);
+
 int sceDelDrv(void *a0)
 {
     return _sceCallCode(a0, 0x10);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceDopen);
 extern int D_0072C240[];
 extern int D_0072CE80[];
@@ -538,6 +580,7 @@ int sceDclose(unsigned int a0)
     }
     return 0;
 }
+
 int sceDread(unsigned int a0, int a1)
 {
     extern int CreateSema(int *a0);
@@ -585,19 +628,24 @@ int sceDread(unsigned int a0, int a1)
     DeleteSema(a1);
     return result;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceGetstat);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceChstat);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceRename);
+
 int sceChdir(void *a0)
 {
     return _sceCallCode(a0, 0x12);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSync);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceMount);
+
 int sceUmount(void *a0)
 {
     return _sceCallCode(a0, 0x15);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceLseek64);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceDevctl);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSymlink);
@@ -628,6 +676,7 @@ int sceSifInitIopHeap(void)
     }
     return 0;
 }
+
 extern int D_0072D5C0[];
 extern int D_0072D600[];
 
@@ -642,6 +691,7 @@ int sceSifAllocIopHeap(int a0)
         return D_0072D5C0[0];
     return 0;
 }
+
 extern int D_0072D640[];
 
 int sceSifFreeIopHeap(int a0)
@@ -655,6 +705,7 @@ int sceSifFreeIopHeap(int a0)
         return -1;
     return D_0072D5C0[0];
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifLoadIopHeap);
 extern int D_0054A488[];
 extern char D_0072D780[];
@@ -690,6 +741,7 @@ delay:
 ret0:
     return 0;
 }
+
 extern int D_0054A48C[];
 
 int _lf_version(void)
@@ -708,12 +760,14 @@ int _lf_version(void)
 done:
     return s2;
 }
+
 int sceSifLoadFileReset(void)
 {
     D_0054A488[0] = -1;
     memset(D_0072D9A8, 0, 4);
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceSifLoadModuleBuffer);
 extern int _sceSifLoadModuleBuffer(void *a0, int a1, int a2, void *a3);
 
@@ -722,10 +776,12 @@ void sceSifLoadModuleBuffer(void *a0, int a1, int a2)
     int local[4];
     _sceSifLoadModuleBuffer(a0, a1, a2, &local);
 }
+
 int sceSifLoadStartModuleBuffer(void *a0, int a1, int a2, void *a3)
 {
     return _sceSifLoadModuleBuffer(a0, a1, a2, a3);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceSifLoadModule);
 extern void _sceSifLoadModule(void *a0, int a1, int a2, int a3, int a4);
 
@@ -734,12 +790,14 @@ void sceSifLoadModule(void *a0, int a1, int a2)
     int local;
     _sceSifLoadModule(a0, a1, a2, (int)&local, 0);
 }
+
 void sceSifLoadStartModule(void *a0, int a1, int a2, int a3)
 {
     do {
         _sceSifLoadModule(a0, a1, a2, a3, 0);
     } while (0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceSifLoadElfPart);
 extern int _sceSifLoadElfPart(void *a0, int a1, int a2, int a3);
 
@@ -747,12 +805,14 @@ int sceSifLoadElfPart(void *a0, int a1, int a2)
 {
     return _sceSifLoadElfPart(a0, a1, a2, 1);
 }
+
 extern char D_00636718[];
 
 int sceSifLoadElf(void *a0, int a1)
 {
     return _sceSifLoadElfPart(a0, (int)D_00636718, a1, 1);
 }
+
 int sceSifGetIopAddr(int a0, void *a1, int a2)
 {
     int r;
@@ -779,6 +839,7 @@ int sceSifGetIopAddr(int a0, void *a1, int a2)
     }
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifSetIopAddr);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifResetIop);
 extern int sceSifGetReg(int a0);
@@ -788,6 +849,7 @@ int sceSifIsAliveIop(void)
     int t = sceSifGetReg(4) & 0x10000;
     return t != 0;
 }
+
 extern void sceResetttyinit();
 extern void sceSifSetReg(int a0, int a1);
 
@@ -800,6 +862,7 @@ int sceSifSyncIop(void)
     }
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifRebootIop);
 __asm__(".section .text\n"
         "    .set noat\n"
@@ -1111,6 +1174,7 @@ void *SetTLBHandler(void *a0)
     SetVTLBRefillHandler(3, func_00265040);
     return a0;
 }
+
 extern char D_00265280[];
 extern int D_0054A498[];
 extern void SetVCommonHandler();
@@ -1132,6 +1196,7 @@ int SetDebugHandler(int a0, int a1)
     }
     return old;
 }
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1157,6 +1222,7 @@ void InitTLBFunctions(void)
         p += 2;
     } while (i < 6);
 }
+
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -1270,16 +1336,19 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", func_00265040);
+
 void _change_addr(int *a0, int *a1)
 {
     a1[2] = a0[4];
 }
+
 extern int D_0072EE80[];
 
 int sceSifGetSreg(int a0)
 {
     return D_0072EE80[a0];
 }
+
 extern int D_0072EE80[];
 
 int sceSifSetSreg(int a0, int a1)
@@ -1287,12 +1356,14 @@ int sceSifSetSreg(int a0, int a1)
     D_0072EE80[a0] = a1;
     return a1;
 }
+
 extern int D_0072ED58[];
 
 void *sceSifGetDataTable(void)
 {
     return D_0072ED58;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", sceSifInitCmd);
 extern int D_0054A508[];
 extern int D_0072ED54[];
@@ -1305,6 +1376,7 @@ void sceSifExitCmd(void)
     RemoveDmacHandler(5, D_0072ED54[0]);
     D_0054A508[0] = 0;
 }
+
 extern int D_0072ED58[];
 
 int sceSifSetCmdBuffer(int a0, int a1)
@@ -1314,6 +1386,7 @@ int sceSifSetCmdBuffer(int a0, int a1)
     D_0072ED58[6] = a1;
     return old;
 }
+
 int sceSifSetSysCmdBuffer(int a0, int a1)
 {
     int old = D_0072ED58[3];
@@ -1321,6 +1394,7 @@ int sceSifSetSysCmdBuffer(int a0, int a1)
     D_0072ED58[4] = a1;
     return old;
 }
+
 extern int D_0072ED64[];
 extern int D_0072ED6C[];
 
@@ -1340,6 +1414,7 @@ done:
     p[0] = a1;
     p[1] = a2;
 }
+
 void sceSifRemoveCmdHandler(int a0)
 {
     int off = a0 * 8;
@@ -1351,6 +1426,7 @@ void sceSifRemoveCmdHandler(int a0)
     off += a0;
     *(int *)off = 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25EF18", _sceSifSendCmd);
 extern int _sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1, int t2);
 
@@ -1358,10 +1434,12 @@ int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1)
 {
     return _sceSifSendCmd(a0, 0, a1, a2, a3, t0, t1);
 }
+
 int isceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1)
 {
     return _sceSifSendCmd(a0, 1, a1, a2, a3, t0, t1);
 }
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"

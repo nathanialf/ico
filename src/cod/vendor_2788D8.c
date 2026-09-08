@@ -35,6 +35,7 @@ float sinf(float x)
         }
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", acosf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", asinf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", atan2f);
@@ -44,6 +45,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __ieee754_asinf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __ieee754_atan2f);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __ieee754_fmodf);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __ieee754_rem_pio2f);
+
 float __ieee754_sqrtf(float x)
 {
     int ix, s, q, m, t, i;
@@ -94,6 +96,7 @@ float __ieee754_sqrtf(float x)
     SET_FLOAT_WORD(z, ix);
     return z;
 }
+
 float __kernel_cosf(float x, float y)
 {
     float a, hz, qx, z;
@@ -167,6 +170,7 @@ float __kernel_cosf(float x, float y)
         return a - (hz - (c2 - x * y));
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __kernel_rem_pio2f);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", __kernel_sinf);
 extern int dpcmp(long a0, long a1);
@@ -177,7 +181,9 @@ int matherr(void *a0)
     dpcmp(p, p);
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", atanf);
+
 float fabsf(float a0)
 {
     unsigned int ix;
@@ -185,7 +191,9 @@ float fabsf(float a0)
     SET_FLOAT_WORD(a0, ix & 0x7fffffff);
     return a0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", floorf);
+
 int isnanf(float x)
 {
     int hx;
@@ -194,7 +202,9 @@ int isnanf(float x)
     hx = 0x7f800000 - hx;
     return (unsigned)hx >> 31;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2788D8", scalbnf);
+
 float copysignf(float a0, float a1)
 {
     unsigned int ix, iy;

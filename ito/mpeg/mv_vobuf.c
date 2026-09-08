@@ -11,6 +11,7 @@ int a1;
     func_001A7318(a0[0]);
     func_001A7318(a0[1]);
 }
+
 typedef struct VoBuf {
     void *data;
     void *tag;
@@ -43,23 +44,27 @@ int voBufCreate(VoBuf *self)
     }
     return 0;
 }
+
 extern void func_001A7180();
 
 void voBufDelete(void)
 {
     func_001A7180();
 }
+
 extern void iosFree();
 
 void func_001A7318(int a0)
 {
     iosFree(phys_addr(a0));
 }
+
 void voBufReset(volatile int *self)
 {
     self[3] = 0;
     self[2] = 0;
 }
+
 /* The listing expands voBufIsFull's line 52 into voBufGetData, so it is a
  * public `inline` of the deferred tail.  Until the tail's asm member (the
  * mv_defs.h file-static Free, func_001A7318) is C the copy is emitted here
@@ -70,10 +75,12 @@ int voBufIsFull(int *self)
 {
     return self[3] == self[4];
 }
+
 static inline int isFull(int *self)
 {
     return self[3] == self[4];
 }
+
 extern void DIntr(void);
 
 void voBufIncCount(int *self)
@@ -85,14 +92,17 @@ void voBufIncCount(int *self)
     SYNC();
     EI();
 }
+
 void *voBufGetData(int *self)
 {
     return !isFull(self) ? (void *)(self[0] + *(volatile int *)(self + 2) * 0x195000) : 0;
 }
+
 static __inline__ int voBufIsEmpty(int *self)
 {
     return *(volatile int *)(self + 3) == 0;
 }
+
 void *voBufGetTag(int *self)
 {
     return !voBufIsEmpty(self) ? (void *)(self[1] + (*(volatile int *)(self + 2) -
@@ -100,6 +110,7 @@ void *voBufGetTag(int *self)
                                                         self[4] * 0xC0340)
                                : 0;
 }
+
 void voBufDecCount(int *p)
 {
     if (*(volatile int *)(p + 3) > 0) {

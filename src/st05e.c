@@ -6,11 +6,13 @@ typedef struct ActMail {
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD0];  /* 0x00 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -26,12 +28,14 @@ extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
 extern int D_0063C550;
 extern int gflagChk(int a0);
+
 typedef struct PObjGObj {
     /*0x00*/ char pad00[0x164];
     /*0x164*/ Act *act;
     /*0x168*/ char pad168[0x4];
     /*0x16C*/ int f16C;
 } PObjGObj;
+
 extern PObjGObj *scpSearchGobj(int a0);
 extern void actSt05eWaterMain(volatile int a0);
 extern int D_0028F4C0[];
@@ -46,6 +50,7 @@ extern void actSt05eSolarChk(volatile int a0);
 
 INCLUDE_ASM("asm/nonmatchings/src/st05e", actSt05eWaterStop);
 INCLUDE_ASM("asm/nonmatchings/src/st05e", actSt05eSolarChk);
+
 void actSt05eWater(volatile int a0)
 {
     int x = a0;
@@ -65,6 +70,7 @@ void actSt05eWater(volatile int a0)
         stage_SetAnimation(0x10A, -1, -2);
     }
 }
+
 void actSt05eSolar(volatile int a0)
 {
     int x = a0;
@@ -86,6 +92,7 @@ void actSt05eSolar(volatile int a0)
         FinishHint(0x1A);
     }
 }
+
 void actSt05eWaterMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -95,6 +102,7 @@ void actSt05eWaterMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt05eWaterSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -107,6 +115,7 @@ void actSt05eWaterSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 void actSt05eWaterFlagOn(volatile int a0)
 {
     int i = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 6.0;
@@ -122,6 +131,7 @@ void actSt05eWaterFlagOn(volatile int a0)
     }
     gflagOn(0xE7);
 }
+
 void actSt05eWaterStopSub(volatile int a0)
 {
     _ACTWait(0x3C);

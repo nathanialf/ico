@@ -42,6 +42,7 @@ void func_00259480(int *a0)
     func_0025A4A8(a0[1]);
     func_0025A4A8(a0[20]);
 }
+
 extern int CreateSema(int *param);
 extern void viBufReset(ViBuf *self);
 
@@ -95,6 +96,7 @@ int viBufCreate(ViBuf *self)
 
     return 0;
 }
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -250,6 +252,7 @@ void viBufBeginPut(ViBuf *self, void **addr1, int *size1, void **addr2, int *siz
     }
     SignalSema(self->sema);
 }
+
 extern void SignalSema__pn(int x) __asm__("SignalSema");
 extern unsigned char WaitSema__pn(int x) __asm__("WaitSema");
 
@@ -261,6 +264,7 @@ void viBufEndPut(int *self, int a1)
         ((long long)a1) + (*((long long *)(((char *)self) + 0x48)));
     SignalSema__pn(self[0x40 / 4]);
 }
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -841,12 +845,14 @@ __asm__(".section .text\n"
         ".size viBufRestartDMA, . - viBufRestartDMA\n"
         "    .set reorder\n"
         "    .set at\n");
+
 void viBufFlush(int *self)
 {
     WaitSema__pn(self[0x40 / 4]);
     self[0x14 / 4] = (self[0x14 / 4] + 0x7FF) / 0x800 * 0x800;
     SignalSema__pn(self[0x40 / 4]);
 }
+
 /* Does the entry's byte position still lie inside the run of ts->len bytes
    the reader just consumed at ts->pos, measured around a size-byte ring? */
 static __inline__ int tsRunCovers(int pos, ViTs *t, int size)
@@ -906,6 +912,7 @@ int viBufModifyPts(ViBuf *self, ViTs *ts)
     }
     return 0;
 }
+
 /* Hand back the PTS/DTS pair covering the byte the IPU is reading right now,
    and retire it.  The read position is the DMA address the IPU_TO channel has
    reached, less what is still sitting in the IPU's input FIFO. */
@@ -970,12 +977,14 @@ int viBufGetTs(ViBuf *self, ViTs *out)
 
     return 1;
 }
+
 extern void iosFree();
 
 void func_0025A4A8(int a0)
 {
     iosFree(phys_addr(a0));
 }
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -1046,6 +1055,7 @@ int viBufCount(int *self)
     SignalSema(self[0x40 / 4]);
     return ret;
 }
+
 extern int viBufModifyPts(ViBuf *self, ViTs *ts);
 
 /* Record one PTS/DTS pair against the bytes the caller just wrote.  Returns 0

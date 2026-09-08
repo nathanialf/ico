@@ -32,6 +32,7 @@ void *_lmcGetClientPtr(int *a0, int *a1)
     *(int *)(D_00730B80 + 0x3C) = D_0054C014[0];
     return D_0072F5C0;
 }
+
 extern char D_0072F640[];
 extern int PollSema(int sema);
 extern void SignalSema(int sema);
@@ -63,6 +64,7 @@ unlock:
 done:
     return r;
 }
+
 int sceMcGetSlotMax(int arg)
 {
     char *dev;
@@ -86,6 +88,7 @@ int sceMcGetSlotMax(int arg)
     SignalSema(D_0054C014[0]);
     return *(int *)D_00730B80;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcOpen);
 extern int sceMcOpen(int a0, int a1, int a2, int a3);
 
@@ -97,6 +100,7 @@ int sceMcMkdir(int a0, int a1, int a2)
     }
     return ret;
 }
+
 int sceMcClose(int arg)
 {
     char *dev;
@@ -121,6 +125,7 @@ unlock:
 done:
     return r;
 }
+
 int sceMcSeek(int a0, int a1, int a2)
 {
     char *dev;
@@ -147,6 +152,7 @@ unlock:
 done:
     return r;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", mceIntrReadFixAlign);
 extern char D_0072FAC0[];
 extern void func_00265A38(void *addr, int len);
@@ -181,6 +187,7 @@ unlock:
 done:
     return r;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcWrite);
 extern void iWakeupThread(int a0);
 
@@ -190,14 +197,17 @@ void mcHearAlarm(int a0, int a1, int a2)
     SYNC();
     EI();
 }
+
 extern int GetThreadId(void);
 extern void SetAlarm(int a0, void *a1, int a2);
 extern void SleepThread(void);
+
 void mcDelayThread(int a0)
 {
     SetAlarm((unsigned short)a0, mcHearAlarm, GetThreadId());
     SleepThread();
 }
+
 extern void SignalSema(int sema);
 extern void mcDelayThread(int a0);
 extern int sceSifCheckStatRpc(char *a0);
@@ -231,6 +241,7 @@ L050:
     }
     return r;
 }
+
 extern int *D_0072F5E8[];
 extern int *D_0072F5EC[];
 extern int *D_0072F5F0[];
@@ -245,6 +256,7 @@ void mceGetInfoApdx(int a0)
     if (D_0072F5F0[0])
         *D_0072F5F0[0] = *(int *)(a0 + 0x90);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcGetInfo);
 extern NameReq D_0072F670;
 extern void func_00265A38(void *addr, int len);
@@ -293,6 +305,7 @@ unlock:
 done:
     return r;
 }
+
 extern char D_0072FB80[];
 extern int memcpy(char *a0, char *a1, int a2);
 extern int strlen(char *a0);
@@ -310,7 +323,9 @@ void mceStorePwd(char *a0)
         a0[n] = 0;
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcChdir);
+
 int sceMcFormat(int a0, int a1)
 {
     char *dev;
@@ -338,7 +353,9 @@ unlock:
 done:
     return r;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcDelete);
+
 int sceMcFlush(int arg)
 {
     char *dev;
@@ -363,6 +380,7 @@ unlock:
 done:
     return r;
 }
+
 extern AuxReq D_0072F600;
 extern void FlushCache(int a0);
 
@@ -408,7 +426,9 @@ unlock:
 done:
     return r;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_268E78", sceMcRename);
+
 int sceMcUnformat(int a0, int a1)
 {
     char *dev;
@@ -436,6 +456,7 @@ unlock:
 done:
     return r;
 }
+
 int sceMcGetEntSpace(int a0, int a1, char *name)
 {
     char *dev;

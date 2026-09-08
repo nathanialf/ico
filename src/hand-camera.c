@@ -10,6 +10,7 @@ extern float D_006E9990[];
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", RotateAccordingToStick_PatternThree);
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", SetCurrentInfo);
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", HandyCamera_TargetMoveType);
+
 inline void ClearHandCameraCorrect(void)
 {
     int a = D_0028F4C0[0];
@@ -22,6 +23,7 @@ inline void ClearHandCameraCorrect(void)
     q = diff / b;
     D_0063C2E0 = 60.0f / (float)q;
 }
+
 inline void InitHandCameraCorrect(void)
 {
     int a = D_0028F4C0[0];
@@ -36,9 +38,11 @@ inline void InitHandCameraCorrect(void)
     D_006E9990[6] = 80.0f;
     D_0063C2E0 = 60.0f / (float)q;
 }
+
 inline void SetLimitHandCameraCorrect(float a0, float a1)
 {
     D_006E9990[5] = a0;
     D_006E9990[6] = a1;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", HandCameraCorrect);

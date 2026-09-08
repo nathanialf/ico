@@ -25,6 +25,7 @@ typedef struct AttackPack {
     /* 0x6C */ int f6C;
     /* 0x70 */ float dir[4];
 } __attribute__((aligned(16))) AttackPack;
+
 extern AttackPack D_00554A40;
 extern char D_00554C68[];
 extern char D_00554C78[];
@@ -38,6 +39,7 @@ int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, in
 void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float radius);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", inner_check);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", MakeAttackPack_Actor);
+
 /* listing lines ~405-435: shared by _AttackCenter and AttackCenter_WithDir */
 static inline void SetupAttackPack(AttackPack *pack, char *gop, int group, float *pos, float *ofs,
                                    float radius)
@@ -80,12 +82,14 @@ INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackCheckSameGroup);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackMail);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackCheckHit);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackGenerate);
+
 inline void CommonAttackCenter(char *a0)
 {
     char pack[0x80];
     MakeAttackPack_Actor(pack, a0, *(int *)(*(char **)(a0 + 0x164) + 0x150));
     AttackGenerate(pack);
 }
+
 inline int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind)
 {
     AttackPack pack;
@@ -98,6 +102,7 @@ inline int _AttackCenter(char *gop, int group, float *pos, float *ofs, float rad
     pack.f08 = kind;
     return AttackGenerate(&pack);
 }
+
 inline void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float radius)
 {
     AttackPack pack;
@@ -115,5 +120,7 @@ inline void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, f
     }
     AttackGenerate(&pack);
 }
+
 void EnemyAttackCenter(void) {}
+
 void BoyAttackCenter(void) {}

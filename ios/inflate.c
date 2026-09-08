@@ -24,6 +24,7 @@ void inflate_start(void *a0)
     w[0x88 / 4] = 0;
     init_mblock((char *)a0 + 0x18098);
 }
+
 extern int D_0063A464;
 extern void iosFree__pn(void *p) __asm__("iosFree");
 extern void iosMallocResetPartition(int a0);
@@ -64,6 +65,7 @@ void close_inflate_handler(void *a0)
     iosFree__pn(a0);
     iosMallocResetPartition(D_0063A464);
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate);
 extern char D_00550FF0[];
 extern char D_00551040[];
@@ -88,6 +90,7 @@ int open_inflate_handler(int a0, int a1)
     }
     return (int)s1;
 }
+
 /* The inflate handler block carries the gzip-style input buffer at +0x10008
  * and the decoder state at +0x18000 (insize at +0x4C, inptr at +0x50); the
  * read callback and the handle it is given live at +0x4 and +0x0.  The
@@ -115,6 +118,7 @@ static int fill_inbuf(void *a0)
     INFLATE_STATE(a0)[0x50 / 4] = 1;
     return INFLATE_INBUF(a0)[0];
 }
+
 extern void iosFree();
 
 int huft_free(char *p)

@@ -8,10 +8,12 @@ typedef struct ActMail {
     int unk08;         /* 0x08 */
     int unk0C;         /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD4]; /* 0x00 */
     ActMail *mail;    /* 0xD4 */
 } Act;
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -43,6 +45,7 @@ void actSt24aSword(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt24aSaku(volatile int a0)
 {
     int x = a0;
@@ -51,6 +54,7 @@ void actSt24aSaku(volatile int a0)
 
     stage_SetAnimation(0x97, 0, 0);
 }
+
 void actSt24aDemoCam(volatile int a0)
 {
     int x = a0;
@@ -64,10 +68,12 @@ void actSt24aDemoCam(volatile int a0)
         _ACTWait(0);
     }
 }
+
 typedef struct SwordObj {
     char unk00[0x2C]; /* 0x00 */
     void *unk2C;      /* 0x2C */
 } SwordObj;
+
 extern SwordObj *sword;
 extern void *D_00639EA4;
 extern int D_0063C5B0;

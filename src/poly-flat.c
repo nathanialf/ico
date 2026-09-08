@@ -22,32 +22,39 @@ extern void sceVu0UnitMatrix(void *a0);
 void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a4, void *a5);
 void do_DrawLine(void *p0, void *p1, int *c);
 void IsPointIsInScreen(void *a0, void *a1);
+
 static inline unsigned char DrawLineTrans(int *dst, void *src)
 {
     sceVu0RotTransPers(dst, drawline_ws_matrix, src, 1);
     return _IsInScreen(dst);
 }
+
 static inline void DrawLineOffset(int *p)
 {
     p[0] -= 0x8000;
     p[1] -= 0x8000;
 }
+
 void before_DrawPolygon(void)
 {
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 2, 0x40);
 }
+
 void after_DrawPolygon(int a0, int a1, int a2, int a3)
 {
     gif_EndPacket(a0, a1, a2, a3);
 }
+
 inline void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a4, void *a5)
 {
     _InitCurrentMatrix();
     _SetCurrentMatrix(a5);
     gif_DrawPolyF4(a0, a1, a2, a3, a4[0], a4[1], a4[2], a4[3], 1);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/poly-flat", _IsInScreen2);
+
 inline void IsPointIsInScreen(void *a0, void *a1)
 {
     float buf[16];
@@ -57,15 +64,18 @@ inline void IsPointIsInScreen(void *a0, void *a1)
     sceVu0RotTransPers(a0, buf, a1, 1);
     _IsInScreen2(a0);
 }
+
 void before_DrawLine(int a0)
 {
     CopyMatrix(drawline_ws_matrix, a0);
     gif_StartPacketPri(0xB);
 }
+
 void after_DrawLine(int a0, int a1, int a2, int a3)
 {
     gif_EndPacket(a0, a1, a2, a3);
 }
+
 inline void do_DrawLine(void *p0, void *p1, int *c)
 {
     unsigned char col[4] = {c[0], c[1], c[2], c[3]};

@@ -6,6 +6,7 @@ extern void debug_StdPrintfDummy__pn(void *a0) __asm__("debug_StdPrintfDummy");
 extern void GetRootPosition(void *out, void *obj);
 extern float sceVu0InnerProduct(void *a, void *b);
 extern void sceVu0SubVector(void *out, void *a, void *b);
+
 void setMailTarget(int a0, int *a1, int *a2)
 {
     int v = *a2;
@@ -16,7 +17,9 @@ void setMailTarget(int a0, int *a1, int *a2)
     *a2 = v + 1;
     a1[v] = a0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/seMail", seMail);
+
 int seMailTargetDistCheck(void *a0, void *a1, void *a2)
 {
     float buf0[4];

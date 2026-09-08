@@ -31,3 +31,4 @@ BreakBeforeBinaryOperators: None
 ContinuationIndentWidth: 4
 AlignOperands: Align
 SpacesBeforeTrailingComments: 1
+SeparateDefinitionBlocks: Always

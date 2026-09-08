@@ -6,6 +6,7 @@ extern void RotQuaternionX(void *a0, int a1);
 extern void RotQuaternionZ(void *a0, int a1);
 extern void stage_PlayBgAnimation(void *a0, int a1, void *a2, float a3);
 extern void stage_SetLoopFlag(void *a0, int a1);
+
 void SetActressLight(void *a0, int a1, int a2, void *a3)
 {
     char buf[0x10];

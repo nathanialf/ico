@@ -3,6 +3,7 @@
 typedef struct {
     float m[16];
 } Mtx44;
+
 typedef struct {
     float m[4];
 } Vec4;
@@ -43,6 +44,7 @@ void yAxisRotFitting(int *self, int arg2)
         SetRootQuaternion((int)self, (int)&l70);
     }
 }
+
 extern char D_0028FF30[];
 
 void zAxisRotFitting(int *self, int arg2)
@@ -68,11 +70,13 @@ void zAxisRotFitting(int *self, int arg2)
         SetRootQuaternion((int)self, (int)&l70);
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", fitToCol);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", walkMot);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", rolling);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", calcSubMission);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", updateMatrix);
+
 void resetPositionInfo(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -80,19 +84,24 @@ void resetPositionInfo(char *a0)
     GetRootQuaternion(p + 0x1D0, a0);
     ResetEnemyEye(*(int *)(p + 0x19C));
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1Geo);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1DL);
+
 int GetAP1SpecType(char *a0)
 {
     return **(int **)(*(char **)(a0 + 0x15C) + 0x830);
 }
+
 void SetAP1VisualState(char *a0, int a1)
 {
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x278) = a1;
 }
+
 extern void RotQuaternionY(int q, int ang);
 extern void RegularizeQuaternion(int q);
 extern void updateMatrix(char *a0);
+
 int AP1Turn(char *a0, short a1)
 {
     Vec4 q;
@@ -110,7 +119,9 @@ int AP1Turn(char *a0, short a1)
 out:
     return 0;
 }
+
 extern int (*motFuncList[][2])(char *);
+
 int AP1MotReqForce(char *a0, int a1)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -121,6 +132,7 @@ int AP1MotReqForce(char *a0, int a1)
     }
     return 1;
 }
+
 int AP1MotReq(char *a0, int a1)
 {
     int s = *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8);
@@ -131,6 +143,7 @@ int AP1MotReq(char *a0, int a1)
     AP1MotReqForce(a0, a1);
     return 1;
 }
+
 int AP1JumpReq(char *a0, int a1, void *a2)
 {
     int flag;
@@ -153,6 +166,7 @@ check:
     }
     return 0;
 }
+
 typedef struct {
     int unk0;  /* 0x00 */
     int unk4;  /* 0x04 */
@@ -163,18 +177,24 @@ typedef struct {
     int unk18; /* 0x18 */
     int unk1C; /* 0x1C */
 } AP1Layout;
+
 extern AP1Layout D_0062B588[];
 extern char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
+
 char *MakeAP1GObj(char *a0)
 {
     return CreateLayoutedGObj(0x3E, D_0062B588[*(int *)(a0 + 0x30)].unkC, -1, 0, a0, 0, 7, 1);
 }
+
 extern int D_004E5520[];
+
 int GetAP1Mode(char *a0)
 {
     return D_004E5520[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)];
 }
+
 extern int fitToCol(char *a0, int a1);
+
 int standMot(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -186,7 +206,9 @@ int standMot(char *a0)
     *(int *)(p + 0x1C8) = 0;
     return 0;
 }
+
 extern int rolling(char *a0);
+
 int rollingMot(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -198,6 +220,7 @@ int rollingMot(char *a0)
     *(int *)(p + 0x1C8) = 0;
     return 2;
 }
+
 extern int D_00639EA4;
 extern void GetRootPosition(void *dst, void *self);
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
@@ -238,7 +261,9 @@ void attackMotInit(char *a0)
     setAP1MotCtrlVector((AP1MotCtrl *)(p + 0x10), &dir);
     setAP1MotCtrlVector((AP1MotCtrl *)(p + 0x60), &dir);
 }
+
 extern float D_00639390;
+
 int attackMot(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);

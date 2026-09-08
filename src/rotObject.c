@@ -1,18 +1,23 @@
 #include "common.h"
 
 extern void ExecuteSEPackage(int a0, int a1);
+
 void moveStartSE(int a0, int a1, int a2, int a3)
 {
     ExecuteSEPackage(a0, 0x35);
 }
+
 extern void StopSEPackage(int a0);
 extern void ExecuteSEPackage(int a0, int a1);
+
 void moveEndSE(int a0, int a1, int a2, int a3)
 {
     StopSEPackage(a0);
     ExecuteSEPackage(a0, 0x3A);
 }
+
 extern void gamesysObjInfoUniqDataSet(void *a0);
+
 void RotObjectGeo(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -21,6 +26,7 @@ void RotObjectGeo(char *a0)
         gamesysObjInfoUniqDataSet(a0);
     }
 }
+
 extern void *MatrixDrive_GetMatrix(void);
 extern void GetRootMatrix(void *m, void *gobj);
 extern void MatrixDrive_RotMatrixY(short a0);
@@ -74,6 +80,7 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
     *(float *)((char *)a0 + 4) = -50.0f;
     sceVu0Normalize(a1, a1);
 }
+
 /* MoveRotObjectWithHoldPoint owns the first four words of this TU's .lit4 run
  * (VMA 0x639680..0x63968C); reserve them until it lands in C. */
 ASM_LIT4_SLOT(D_00639680, 10430.378f);
@@ -87,16 +94,19 @@ void ExecRotObjectMoveStartReaction(int a0, int a1, int a2, int a3)
 {
     moveStartSE(a0, a1, a2, a3);
 }
+
 extern void moveEndSE();
 
 void ExecRotObjectMoveEndReaction(int a0, int a1, int a2, int a3)
 {
     moveEndSE(a0, a1, a2, a3);
 }
+
 void SetRotObjectArmRadius(char *a0, float f)
 {
     *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x3C) = 100.0f / f;
 }
+
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posMtx, void *dirMtx)
 {
     float m[16];
@@ -105,6 +115,7 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posM
     sceVu0ApplyMatrix(pos, m, posMtx);
     sceVu0ApplyMatrix(dir, m, dirMtx);
 }
+
 extern void *iosMallocDebug(int handle, int size, void *file, int line);
 extern void CopyVector(void *dst, void *src);
 extern int D_0063A438;
@@ -148,20 +159,24 @@ char *InitRotObjectGeo(char *gobj, char *src)
     }
     return p;
 }
+
 void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2)
 {
     *a0 = *(unsigned short *)(a2 + 0x30);
     *a1 = *(int *)(a2 + 0x34);
 }
+
 void RotObjectDL(void *gobj)
 {
     getRotObjectDriveMatrix(gobj, *(void **)(*(char **)((char *)gobj + 0x15C) + 0xC));
     p2o_DispVU1(gobj);
 }
+
 float GetRotObjectRotCount(char *a0)
 {
     return (float)*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x24) * (1.0f / 65536.0f);
 }
+
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
 extern void sceVu0Normalize(void *dst, void *src);
 extern int GetTableArcTan2(float f12, float f13);
@@ -178,10 +193,12 @@ int GetRotObjectZPlusDirection(void *gobj)
     sceVu0Normalize(v, v);
     return GetTableArcTan2(v[0], v[2]);
 }
+
 int RestoreRotObjectGeo(void)
 {
     return 1;
 }
+
 int RestoreRotObjectExtGeo(char *a0, char *a1)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -189,6 +206,7 @@ int RestoreRotObjectExtGeo(char *a0, char *a1)
     *(int *)(p + 0x24) = *(int *)(a1 + 0x34);
     return 1;
 }
+
 int MemoryRotObject(char *a0, char *a1)
 {
     char *p = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
@@ -196,6 +214,7 @@ int MemoryRotObject(char *a0, char *a1)
     *(int *)(a0 + 4) = *(int *)(p + 0x24);
     return 1;
 }
+
 void SetRotObjectLockFlag(char *a0, int a1)
 {
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x34) = a1;

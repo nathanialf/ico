@@ -9,6 +9,7 @@ extern void _ACTWait(int a0);
 void *RequestGetWayBegin(int *a0);
 static void actWaySystemCore(volatile unsigned int self);
 static void thStart(void);
+
 static inline void actWaySystemCore(volatile unsigned int self)
 {
     int *s = (int *)((int *)self)[0x20 / 4];
@@ -19,6 +20,7 @@ static inline void actWaySystemCore(volatile unsigned int self)
     s[0] = 1;
     s[0xB0 / 4] = 0;
 }
+
 inline void *RequestGetWayBegin(int *a0)
 {
     void *t = actCreateSubThreadGOppArg(actWaySystemCore, 0x15);
@@ -26,12 +28,14 @@ inline void *RequestGetWayBegin(int *a0)
     a0[0] = 0;
     return t;
 }
+
 static inline void thStart(void)
 {
     for (;;) {
         _ACTWait(1);
     }
 }
+
 int CreateWaySystemManagerGObj(void)
 {
     int v = CreateGObjByFuncSet(0, 0, 0, 0, (int)&thStart, 0, 0);

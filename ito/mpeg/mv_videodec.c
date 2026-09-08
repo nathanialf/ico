@@ -10,6 +10,7 @@ void free_buf(int a0)
 {
     Free(*(int *)(a0 + 0x48));
 }
+
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", videoDecCreate);
 extern void viBufBeginPut();
 
@@ -17,12 +18,14 @@ void videoDecBeginPut(int a0)
 {
     viBufBeginPut(a0 + 0x50);
 }
+
 extern void viBufEndPut();
 
 void videoDecEndPut(int a0)
 {
     viBufEndPut(a0 + 0x50);
 }
+
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", videoDecFlush);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", videoCallback);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", decBitStrm0);
@@ -32,6 +35,7 @@ void Free(int a0)
 {
     iosFree(phys_addr(a0));
 }
+
 extern int sceMpegDelete();
 extern void viBufDelete();
 
@@ -42,6 +46,7 @@ int videoDecDelete(int a0)
     free_buf(a0);
     return 1;
 }
+
 extern void sceMpegAddStrCallback();
 
 int videoDecSetStream(void)
@@ -49,14 +54,17 @@ int videoDecSetStream(void)
     sceMpegAddStrCallback();
     return 1;
 }
+
 void videoDecAbort(int a0)
 {
     *(int *)(a0 + 0xB8) = 1;
 }
+
 int videoDecGetState(int a0)
 {
     return *(int *)(a0 + 0xB8);
 }
+
 extern int sceMpegIsRefBuffEmpty(char *self);
 extern int viBufCount(int *self);
 
@@ -68,6 +76,7 @@ int videoDecIsFlushed(int *self)
     }
     return ret;
 }
+
 extern void decBitStrm0();
 extern void viBufReset();
 extern void voBufReset();
@@ -79,6 +88,7 @@ void videoDecMain(int *self)
     decBitStrm0(self[0], self[1], self[2]);
     *(int *)(self[0] + 0xB8) = 3;
 }
+
 extern const char D_0063AC88[];
 extern void debug_StdPrintfDummy(const char *fmt, int arg);
 
@@ -87,6 +97,7 @@ int mpegError(int a0, int *self)
     debug_StdPrintfDummy(D_0063AC88, self[1]);
     return 1;
 }
+
 extern void switchThread();
 extern void viBufAddDMA();
 
@@ -96,6 +107,7 @@ int mpegNodata(int a0, int a1, int a2)
     viBufAddDMA(a2 + 0x50);
     return 1;
 }
+
 extern void viBufStopDMA();
 
 int mpegStopDMA(int a0_unused, int a1_unused, char *p)
@@ -103,6 +115,7 @@ int mpegStopDMA(int a0_unused, int a1_unused, char *p)
     viBufStopDMA((int)(p + 0x50));
     return 1;
 }
+
 extern void viBufRestartDMA();
 
 int mpegRestartDMA(int a0_unused, int a1_unused, char *p)
@@ -110,6 +123,7 @@ int mpegRestartDMA(int a0_unused, int a1_unused, char *p)
     viBufRestartDMA((int)(p + 0x50));
     return 1;
 }
+
 extern void viBufGetTs();
 
 int mpegTS(int a0_unused, int *a1, char *a2)

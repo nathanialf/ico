@@ -29,6 +29,7 @@ extern void DispAllMemberOfSpider();
 extern int D_00723F98[];
 extern int isysGObjSearchFromObjKindID_begin();
 extern int isysGObjSearchFromObjKindID_next();
+
 inline void InitSpiderGroupManager(void)
 {
     D_0063BAE4 = 0;
@@ -45,6 +46,7 @@ inline void InitSpiderGroupManager(void)
     D_0063BAF8 = 0;
     D_0063BAFC = 0;
 }
+
 inline int *getReviveEnemyGObj(int count)
 {
     int *p = isysGObjSearchFromObjKindID_begin(4);
@@ -59,13 +61,16 @@ inline int *getReviveEnemyGObj(int count)
     }
     return p;
 }
+
 inline void EntryRevivedSpiderGroupManager(int a0)
 {
     int idx = D_0063BAE4;
     D_0063BAE4 = idx + 1;
     D_00723C98[idx] = a0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/spiderGroupManager", EntrySpiderGroupManager);
+
 inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
 {
     int idx = D_0063BAEC;
@@ -80,8 +85,10 @@ inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
     *p = a0;
     D_0063BAEC = idx;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/spiderGroupManager", tryToRevive);
 INCLUDE_ASM("asm/nonmatchings/src/spiderGroupManager", ExecSpiderGroupManager);
+
 inline void DispAllSpiderGroups(void)
 {
     int v = D_0028F8F4[0];

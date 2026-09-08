@@ -5,6 +5,7 @@ typedef struct EnNode {
     struct EnNode *next;
     struct EnNode *prev;
 } EnNode;
+
 typedef struct {
     char p[0x34];
     void *f34;
@@ -14,6 +15,7 @@ typedef struct {
     char p3[3];
     int f44;
 } AdpT;
+
 extern char D_00621970[];
 extern int *D_0063A614;
 extern AdpT *D_0063A618;
@@ -29,6 +31,7 @@ void isysGObjMoveCameraDLHead(int a0, int a1);
 void isysGObjLinkCameraDLHead(int *self, int a1, int key, int a3, int a4);
 void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1);
 void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1);
+
 static inline void insert_camera_dl_by_key(int *self, int key)
 {
     int *head;
@@ -71,11 +74,13 @@ static inline void insert_camera_dl_by_key(int *self, int key)
     cur[0xD] = (int)self;
     ((int *)self[0xD])[0xE] = (int)self;
 }
+
 inline void isysGObjCameraDlInit(void)
 {
     D_0063A614 = 0;
     D_0063A618 = 0;
 }
+
 void cut_gobj_camera_dl_link(EnNode *gobj)
 {
     if (gobj == 0) {
@@ -99,11 +104,14 @@ head_check:
         D_0063A618 = (AdpT *)gobj->prev;
     }
 }
+
 void isysGObjRemoveCameraDL(void *a0)
 {
     cut_gobj_camera_dl_link((EnNode *)a0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", func_0020BFD8);
+
 inline void isysGObjLinkCameraDLHead(int *self, int a1, int key, int a3, int a4)
 {
     self[0x12] = a1;
@@ -111,16 +119,19 @@ inline void isysGObjLinkCameraDLHead(int *self, int a1, int key, int a3, int a4)
     self[0x14] = a4;
     insert_camera_dl_by_key(self, key);
 }
+
 void isysGObjMoveCameraDL(int a0, int a1)
 {
     cut_gobj_camera_dl_link((EnNode *)a0);
     return func_0020BFD8(a0, a1);
 }
+
 inline void isysGObjMoveCameraDLHead(int a0, int a1)
 {
     cut_gobj_camera_dl_link((EnNode *)a0);
     insert_camera_dl_by_key((int *)a0, a1);
 }
+
 inline void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1)
 {
     cut_gobj_camera_dl_link((EnNode *)a0);
@@ -133,6 +144,7 @@ inline void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1)
         D_0063A618 = a0;
     }
 }
+
 inline void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1)
 {
     int next;
@@ -147,6 +159,7 @@ inline void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1)
         D_0063A614 = (int *)a0;
     }
 }
+
 void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4)
 {
     debug_StdPrintfDummy(D_006219D0);
@@ -156,6 +169,7 @@ void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4)
     func_0020BFD8(a0, a2);
     debug_StdPrintfDummy(D_006219E8);
 }
+
 void isysGObjLinkCameraDLAfterGObj(int *self, int a1, int a2, int a3, int *t0)
 {
     register int *t1 = self;
@@ -179,6 +193,7 @@ void isysGObjLinkCameraDLAfterGObj(int *self, int a1, int a2, int a3, int *t0)
         D_0063A618 = (AdpT *)t1;
     }
 }
+
 void isysGObjLinkCameraDLBeforeGObj(int *self, int a1, int a2, int a3, int *t0)
 {
     register int *t1 = self;

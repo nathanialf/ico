@@ -24,6 +24,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __do_global_ctors);
 extern void __do_global_ctors();
 
 extern int D_00736168[];
+
 void __main(void)
 {
     if (D_00736168[0] == 0) {
@@ -31,6 +32,7 @@ void __main(void)
         __do_global_ctors();
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __divdi3);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __fixunsdfdi);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __floatdidf);
@@ -51,21 +53,25 @@ void dpadd(long a0, long a1)
         int a, b, c, pad;
         long long d;
     } x, y, z;
+
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
     __pack_d(_fpadd_parts(&x, &y, &z));
 }
+
 long long dpsub(long a0, long a1)
 {
     struct {
         int a, b, c, pad;
         long long d;
     } x, y, z;
+
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
     y.b ^= 1;
     return __pack_d(_fpadd_parts(&x, &y, &z));
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", dpmul);
 extern char D_736170[];
 
@@ -75,6 +81,7 @@ void dpdiv(long a0, long a1)
         int a, b, c, pad;
         long long d;
     } x, y, *p;
+
     void *r;
     unsigned long long m1, m2, bit, q;
     int exp;
@@ -147,6 +154,7 @@ divide:
 pack:
     __pack_d(r);
 }
+
 int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b)
 {
     unsigned int at = a->type;
@@ -211,42 +219,50 @@ int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b)
         }
     }
 }
+
 int dpcmp(long a0, long a1)
 {
     struct {
         int a, b, c, pad;
         long long d;
     } x, y;
+
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
     return __fpcmp_parts_d(&x, &y);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", litodp);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", dptoli);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", dptoul);
+
 void __negdf2(long long a0)
 {
     struct {
         int a, b, c, pad;
         long long d;
     } s;
+
     long long t = a0;
     __unpack_d(&t, &s);
     s.b = (s.b == 0);
     __pack_d(&s);
 }
+
 int __make_dp(int a0, int a1, int a2, long long a3)
 {
     struct {
         int a, b, c, pad;
         long long d;
     } s;
+
     s.a = a0;
     s.b = a1;
     s.c = a2;
     s.d = a3;
     __pack_d(&s);
 }
+
 extern void __make_fp(int a0, int a1, int a2, int a3);
 
 float dptofp(long a0)
@@ -258,6 +274,7 @@ float dptofp(long a0)
         int fC;
         long long f10;
     } buf;
+
     long long m;
     int hi, t;
     __unpack_d(&a0, &buf);
@@ -268,6 +285,7 @@ float dptofp(long a0)
         t = hi;
     __make_fp(buf.f0, buf.f4, buf.f8, t);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __pack_f);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", __unpack_f);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", func_0027DBA0);
@@ -286,6 +304,7 @@ int fpadd(float a0, float a1)
     ret = func_0027DBA0(buf, buf + 0x10, buf + 0x20);
     return __pack_f(ret);
 }
+
 int fpsub(float a0, float a1)
 {
     char buf[0x40];
@@ -298,8 +317,10 @@ int fpsub(float a0, float a1)
     ret = func_0027DBA0(buf, buf + 0x10, buf + 0x20);
     return __pack_f(ret);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", fpmul);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", fpdiv);
+
 int __fpcmp_parts_f(PCmpV *a, PCmpV *b)
 {
     unsigned int at = a->type;
@@ -364,6 +385,7 @@ int __fpcmp_parts_f(PCmpV *a, PCmpV *b)
         }
     }
 }
+
 int fpcmp(float a0, float a1)
 {
     char buf[0x30];
@@ -373,9 +395,11 @@ int fpcmp(float a0, float a1)
     __unpack_f(buf + 0x24, buf + 0x10);
     return __fpcmp_parts_f(buf, buf + 0x10);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", sitofp);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", fptosi);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_27B190", fptoui);
+
 int __negsf2(float f12)
 {
     int o[4];
@@ -385,6 +409,7 @@ int __negsf2(float f12)
     o[1] = (o[1] == 0);
     return __pack_f(o);
 }
+
 void __make_fp(int a0, int a1, int a2, int a3)
 {
     int buf[4];
@@ -394,6 +419,7 @@ void __make_fp(int a0, int a1, int a2, int a3)
     buf[3] = a3;
     __pack_f(buf);
 }
+
 int fptodp(float f12)
 {
     int local0[4];

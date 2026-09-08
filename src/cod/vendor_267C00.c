@@ -40,6 +40,7 @@ int scePadEnd(void)
     }
     return val;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadPortOpen);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadPortClose);
 extern PObjA8B8Ent D_0072F250[][4];
@@ -56,6 +57,7 @@ int scePadGetDmaStr(int a0, int a1)
     r = (v0 < v1);
     return s0 + (r << 7);
 }
+
 int scePadGetFrameCount(int a0, int a1)
 {
     int ret = 0;
@@ -64,6 +66,7 @@ int scePadGetFrameCount(int a0, int a1)
     }
     return *(int *)(scePadGetDmaStr(a0, a1) + 0x58);
 }
+
 extern int memcpy(char *a0, char *a1, int a2);
 
 int scePadRead(int a0, int a1, int a2)
@@ -76,6 +79,7 @@ int scePadRead(int a0, int a1, int a2)
     memcpy(a2, s0, *(int *)(s0 + 0x60));
     return *(int *)(s0 + 0x60);
 }
+
 int scePadGetState(int a0, int a1)
 {
     unsigned char *p;
@@ -88,8 +92,10 @@ int scePadGetState(int a0, int a1)
         return 5;
     return p[0x70];
 }
+
 extern char *D_0054BFD0[];
 extern char D_00636C58[];
+
 void scePadStateIntToStr(unsigned int a0, char *a1)
 {
     if (a0 < 8) {
@@ -98,6 +104,7 @@ void scePadStateIntToStr(unsigned int a0, char *a1)
         *a1 = D_00636C58[0];
     }
 }
+
 int scePadSetReqState(int a0, int a1, int a2)
 {
     if (D_0072F250[a0][a1].f10 == 0) {
@@ -106,6 +113,7 @@ int scePadSetReqState(int a0, int a1, int a2)
     ((unsigned char *)scePadGetDmaStr(a0, a1))[0x71] = a2;
     return 1;
 }
+
 int scePadGetReqState(int a0, int a1)
 {
     if (D_0072F250[a0][a1].f10 == 0) {
@@ -113,8 +121,10 @@ int scePadGetReqState(int a0, int a1)
     }
     return ((unsigned char *)scePadGetDmaStr(a0, a1))[0x71];
 }
+
 extern char *D_0054BFF0[];
 extern char D_00636C58[];
+
 void scePadReqIntToStr(unsigned int a0, char *a1)
 {
     if (a0 < 4) {
@@ -123,8 +133,10 @@ void scePadReqIntToStr(unsigned int a0, char *a1)
         *a1 = D_00636C58[0];
     }
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadInfoAct);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadInfoComb);
+
 int scePadInfoMode(int a0, int a1, int a2, int a3)
 {
     int q;
@@ -185,6 +197,7 @@ int scePadInfoMode(int a0, int a1, int a2, int a3)
     }
     return 0;
 }
+
 int scePadSetMainMode(int a0, int a1, int a2, int a3)
 {
     int *s0 = D_0072F540;
@@ -207,7 +220,9 @@ int scePadSetMainMode(int a0, int a1, int a2, int a3)
     }
     return s;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadSetActDirect);
+
 int scePadSetActAlign(int a0, int a1, char *a2)
 {
     int *s0 = D_0072F540;
@@ -235,7 +250,9 @@ int scePadSetActAlign(int a0, int a1, char *a2)
     }
     return val;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_267C00", scePadGetButtonMask);
+
 int scePadSetButtonInfo(int a0, int a1, int a2)
 {
     int ret;
@@ -253,6 +270,7 @@ int scePadSetButtonInfo(int a0, int a1, int a2)
     }
     return ret;
 }
+
 extern int scePadGetButtonMask(int a0, int a1);
 
 int scePadInfoPressMode(int a0, int a1)
@@ -262,6 +280,7 @@ int scePadInfoPressMode(int a0, int a1)
     }
     return scePadGetButtonMask(a0, a1) == 0x3FFFF;
 }
+
 int scePadEnterPressMode(int a0, int a1)
 {
     if (D_0072F250[a0][a1].f10 == 0) {
@@ -269,6 +288,7 @@ int scePadEnterPressMode(int a0, int a1)
     }
     return scePadSetButtonInfo(a0, a1, 0xFFF);
 }
+
 int scePadExitPressMode(int a0, int a1)
 {
     if (D_0072F250[a0][a1].f10 == 0) {
@@ -276,6 +296,7 @@ int scePadExitPressMode(int a0, int a1)
     }
     return scePadSetButtonInfo(a0, a1, 0);
 }
+
 int scePadSetVrefParam(int a0, int a1, void *a2)
 {
     int r;
@@ -292,6 +313,7 @@ int scePadSetVrefParam(int a0, int a1, void *a2)
     }
     return D_0072F540[7];
 }
+
 int scePadGetPortMax(void)
 {
     int ret;
@@ -302,6 +324,7 @@ int scePadGetPortMax(void)
     }
     return D_0072F540[3];
 }
+
 int scePadGetSlotMax(int a0)
 {
     int ret;
@@ -313,6 +336,7 @@ int scePadGetSlotMax(int a0)
     }
     return D_0072F540[3];
 }
+
 int scePadGetModVersion(void)
 {
     int ret;
@@ -323,6 +347,7 @@ int scePadGetModVersion(void)
     }
     return D_0072F540[3];
 }
+
 int scePadSetWarningLevel(int a0)
 {
     int ret;

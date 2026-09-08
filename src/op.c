@@ -6,10 +6,12 @@ typedef struct ActMail {
     int unk08;         /* 0x08 */
     int unk0C;         /* 0x0C */
 } ActMail;
+
 typedef struct Act {
     char unk00[0xD4]; /* 0x00 */
     ActMail *mail;    /* 0xD4 */
 } Act;
+
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -28,11 +30,13 @@ extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
 extern char *D_00639EA4;
 extern char D_00622680[];
 extern char D_00622690[];
+
 typedef struct PadState {
     int unk00;        /* 0x00 */
     int flags;        /* 0x04 */
     char unk08[0x50]; /* 0x08 */
 } PadState;
+
 extern PadState D_0028F8F0[];
 extern int actCreateSubThread(void *entry, int prio);
 extern void actSt24aConte01_2(int a0);
@@ -41,6 +45,7 @@ extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
 extern int D_0063C4F0;
 extern int D_0063C4F4;
 extern int D_0063BE60;
+
 typedef struct JimakuSub {
     char unk00[0x2C]; /* 0x0C */
     int unk2C;        /* 0x38 */
@@ -50,12 +55,14 @@ typedef struct JimakuSub {
     void *unk3C;      /* 0x48 */
     void *unk40;      /* 0x4C */
 } JimakuSub;
+
 typedef struct JimakuArg {
     int cmd;       /* 0x00 */
     int unk04;     /* 0x04 */
     int done;      /* 0x08 */
     JimakuSub sub; /* 0x0C */
 } JimakuArg;
+
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 extern void jimakuBegin(int a0);
@@ -66,13 +73,16 @@ void actSubMpegReturnPreload(volatile int a0);
 void actSt26aConte01_1_newgame(volatile int a0);
 void actOpDemo02Chk(volatile int a0);
 void actSt24aConte01_2_Jimaku(volatile int a0);
+
 inline void actSubMpegReturnPreload(volatile int a0)
 {
     _ACTWait((int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 5.0f));
     stgmgrNextStagePreLoadForceStageSet(1);
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/op", actTitleReadTimeDemo0);
+
 inline void actSt26aConte01_1_newgame(volatile int a0)
 {
     _ACTWait(1);
@@ -89,9 +99,11 @@ inline void actSt26aConte01_1_newgame(volatile int a0)
 
     RequestStageChange(1, D_00639EA4, 0, 0.25f, 2.0f);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo01_2);
 INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo01_2Chk);
 INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo02);
+
 inline void actOpDemo02Chk(volatile int a0)
 {
     gflagOn(3);
@@ -119,7 +131,9 @@ inline void actOpDemo02Chk(volatile int a0)
 
     RequestStageChange(2, D_00639EA4, 0, 0.5f, 4.0f);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/op", actSt24aConte01_2);
+
 inline void actSt24aConte01_2_Jimaku(volatile int a0)
 {
     float t;
@@ -150,6 +164,7 @@ inline void actSt24aConte01_2_Jimaku(volatile int a0)
         }
     } while (t < 2700.0f);
 }
+
 inline void actOpDemo03(volatile int a0)
 {
     int x = a0;
@@ -167,5 +182,6 @@ inline void actOpDemo03(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo03Chk);
 INCLUDE_ASM("asm/nonmatchings/src/op", actSt13aConte01_3);

@@ -20,6 +20,7 @@ void sceVu0ApplyMatrix(void *a0, void *a1, void *a2)
     VU0_V3OP_BC(vmaddw.xyzw, 9, 7, 8, w);
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
+
 void func_0025D440(void *a0, void *a1, void *a2)
 {
     __asm__ __volatile__(".set noreorder\n"
@@ -42,6 +43,7 @@ void func_0025D440(void *a0, void *a1, void *a2)
                          ".set reorder\n" ::
                              : "$7", "memory");
 }
+
 void sceVu0OuterProduct(void *a0, void *a1, void *a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -51,6 +53,7 @@ void sceVu0OuterProduct(void *a0, void *a1, void *a2)
     VU0_V3OP(vsub.w, 6, 6, 6);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
+
 float sceVu0InnerProduct(void *a0, void *a1)
 {
     register float ret __asm__("$f0");
@@ -66,6 +69,7 @@ float sceVu0InnerProduct(void *a0, void *a1)
                          : "=f"(ret)::"$2");
     return ret;
 }
+
 void sceVu0Normalize(void *a0, void *a1)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -81,6 +85,7 @@ void sceVu0Normalize(void *a0, void *a1)
     VU0_REG("vmulq.xyz $vf6, $vf4, Q");
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
+
 __asm__(".section .text\n"
         "    .align 3\n"
         "    .set noat\n"
@@ -147,6 +152,7 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 void sceVu0DivVector(void *a0, void *a1, float a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -159,6 +165,7 @@ void sceVu0DivVector(void *a0, void *a1, float a2)
     VU0_REG("vmulq.xyzw $vf4, $vf4, Q");
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
+
 void sceVu0DivVectorXYZ(void *a0, void *a1, float a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -171,6 +178,7 @@ void sceVu0DivVectorXYZ(void *a0, void *a1, float a2)
     VU0_REG("vmulq.xyz $vf4, $vf4, Q");
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
+
 void sceVu0InterVector(void *a0, void *a1, void *a2, float t)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -185,6 +193,7 @@ void sceVu0InterVector(void *a0, void *a1, void *a2, float t)
     VU0_REG("vmaddx.xyzw $vf9, $vf5, $vf8x");
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
+
 void sceVu0AddVector(void *a0, void *a1, void *a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -192,6 +201,7 @@ void sceVu0AddVector(void *a0, void *a1, void *a2)
     VU0_V3OP(vadd.xyzw, 6, 4, 5);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
+
 void sceVu0SubVector(void *a0, void *a1, void *a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -199,6 +209,7 @@ void sceVu0SubVector(void *a0, void *a1, void *a2)
     VU0_V3OP(vsub.xyzw, 6, 4, 5);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
+
 void sceVu0MulVector(void *a0, void *a1, void *a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -206,6 +217,7 @@ void sceVu0MulVector(void *a0, void *a1, void *a2)
     VU0_V3OP(vmul.xyzw, 6, 4, 5);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
+
 void sceVu0ScaleVector(void *a0, void *a1, float a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -214,6 +226,7 @@ void sceVu0ScaleVector(void *a0, void *a1, float a2)
     VU0_V3OP_BC(vmulx.xyzw, 6, 4, 5, x);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
+
 void sceVu0TransMatrix(void *a0, void *a1, void *a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 6);
@@ -227,6 +240,7 @@ void sceVu0TransMatrix(void *a0, void *a1, void *a2)
     VU0_LSGP(sq, 9, 0x20, 4);
     VU0_LSV(sqc2, 5, 0x30, 4);
 }
+
 __asm__(".section .text\n"
         "    .align 3\n"
         "    .set noat\n"
@@ -261,30 +275,35 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
+
 void sceVu0FTOI4Vector(void *a0, void *a1)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vftoi4.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
+
 void sceVu0FTOI0Vector(void *a0, void *a1)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vftoi0.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
+
 void sceVu0ITOF4Vector(void *a0, void *a1)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vitof4.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
+
 void sceVu0ITOF0Vector(void *a0, void *a1)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vitof0.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
+
 void sceVu0UnitMatrix(void *a0)
 {
     __asm__ __volatile__("vsub.xyzw $vf4, $vf0, $vf0\n"
@@ -300,6 +319,7 @@ void sceVu0UnitMatrix(void *a0)
                          :
                          : "memory");
 }
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -520,6 +540,7 @@ void sceVu0RotMatrix(int a0, int a1, float *fa)
     sceVu0RotMatrixY(a0, a0, fa[1]);
     sceVu0RotMatrixX(a0, a0, fa[0]);
 }
+
 void sceVu0ClampVector(void *a0, void *a1, float a2, float a3)
 {
     VU0_MFC1(8, 12);
@@ -531,6 +552,7 @@ void sceVu0ClampVector(void *a0, void *a1, float a2, float a3)
     VU0_V3OP_BC(vminix.xyzw, 6, 6, 5, x);
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
+
 extern void sceVu0InversMatrix(void *a0, void *a1);
 
 void sceVu0CameraMatrix(void *a0, void *a1, void *a2, void *a3)
@@ -544,6 +566,7 @@ void sceVu0CameraMatrix(void *a0, void *a1, void *a2, void *a3)
     sceVu0TransMatrix(buf, buf, a1);
     sceVu0InversMatrix(a0, buf);
 }
+
 extern void sceVu0ScaleVector__pn(float *a0, float *a1, float a2) __asm__("sceVu0ScaleVector");
 extern void sceVu0TransposeMatrix(void *a0, void *a1);
 
@@ -565,6 +588,7 @@ void sceVu0NormalLightMatrix(void *a0, void *a1, void *a2, void *a3)
     }
     sceVu0TransposeMatrix(a0, a0);
 }
+
 extern void sceVu0CopyVector(void *buf, int x);
 
 void sceVu0LightColorMatrix(void *a0, void *a1, void *a2, void *a3, void *a4)
@@ -574,8 +598,10 @@ void sceVu0LightColorMatrix(void *a0, void *a1, void *a2, void *a3, void *a4)
     sceVu0CopyVector((char *)a0 + 0x20, a3);
     sceVu0CopyVector((char *)a0 + 0x30, a4);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25D410", sceVu0ViewScreenMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25D410", sceVu0DropShadowMatrix);
+
 void sceVu0RotTransPersN(void *a0, void *a1, void *a2, int a3, int a4)
 {
     __asm__ __volatile__(".set noreorder\n"
@@ -604,6 +630,7 @@ void sceVu0RotTransPersN(void *a0, void *a1, void *a2, int a3, int a4)
                          ".set reorder\n" ::
                              : "$7", "memory");
 }
+
 void sceVu0RotTransPers(void *a0, void *a1, void *a2, int a3)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -624,12 +651,14 @@ void sceVu0RotTransPers(void *a0, void *a1, void *a2, int a3)
     }
     VU0_LSV(sqc2, 10, 0x0, 4);
 }
+
 void sceVu0CopyVectorXYZ(void *a0, void *a1)
 {
     ((float *)a0)[0] = ((float *)a1)[0];
     ((float *)a0)[1] = ((float *)a1)[1];
     ((float *)a0)[2] = ((float *)a1)[2];
 }
+
 void sceVu0InterVectorXYZ(void *a0, void *a1, void *a2, float a3)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -645,6 +674,7 @@ void sceVu0InterVectorXYZ(void *a0, void *a1, void *a2, float a3)
     VU0_V3OP_BC(vmaddx.xyz, 9, 5, 8, x);
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
+
 void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -653,6 +683,7 @@ void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2)
     VU0_V3OP_BC(vmulx.xyz, 4, 4, 5, x);
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
+
 int sceVu0ClipScreen(void *a0)
 {
     register int r __asm__("$2");
@@ -677,6 +708,7 @@ int sceVu0ClipScreen(void *a0)
                          : "=r"(r));
     return r & 0xC0;
 }
+
 int sceVu0ClipScreen3(void *a0, void *a1, void *a2)
 {
     register int ret __asm__("$2");
@@ -707,6 +739,7 @@ int sceVu0ClipScreen3(void *a0, void *a1, void *a2)
                          : "=r"(ret));
     return ret & 0xC0;
 }
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -781,6 +814,7 @@ void sceVpu0Reset(void)
         *fifo = pkt[1];
     }
 }
+
 void memclr(unsigned char *a0, int a1)
 {
     int i;

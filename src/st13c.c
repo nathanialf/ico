@@ -4,12 +4,14 @@ typedef union ActStatus {
     unsigned long long ll;
     int i[2];
 } ActStatus;
+
 typedef struct ActMail {
     int mail;                   /* 0x00 */
     void (*func)(volatile int); /* 0x04 */
     int unk08;                  /* 0x08 */
     int unk0C;                  /* 0x0C */
 } ActMail;
+
 typedef struct JimakuSub {
     char unk00[0x2C]; /* 0x0C */
     int unk2C;        /* 0x38 */
@@ -19,30 +21,37 @@ typedef struct JimakuSub {
     void *unk3C;      /* 0x48 */
     void *unk40;      /* 0x4C */
 } JimakuSub;
+
 typedef struct JimakuArg {
     int cmd;       /* 0x00 */
     int unk04;     /* 0x04 */
     int done;      /* 0x08 */
     JimakuSub sub; /* 0x0C */
 } JimakuArg;
+
 typedef struct EffectArg {
     long long lo; /* 0x00 */
     long long hi; /* 0x08 */
 } EffectArg;
+
 typedef struct AnimSet {
     int anim[5]; /* 0x00 */
 } AnimSet;
+
 typedef struct AnimSet16 {
     int anim[16]; /* 0x00 */
 } AnimSet16;
+
 typedef struct AdpcmSlot {
     char pad00[0x2C]; /* 0x00 */
     int unk2C;        /* 0x2C */
 } AdpcmSlot;
+
 typedef struct MotObj {
     char pad00[0x514]; /* 0x000 */
     int unk514;        /* 0x514 */
 } MotObj;
+
 typedef struct Act {
     char unk00[0x20];  /* 0x00 */
     ActStatus flags20; /* 0x20 */
@@ -56,6 +65,7 @@ typedef struct Act {
     char unkD8[0x20C]; /* 0xD8 */
     int unk2E4;        /* 0x2E4 */
 } Act;
+
 typedef struct PObjGObj {
     char pad00[0x15C]; /* 0x000 */
     int unk15C;        /* 0x15C */
@@ -226,6 +236,7 @@ void actSt13cInit(void)
         SetWayGroupActive(9, 0);
     }
 }
+
 void actSt13cEnd(void)
 {
     if (gflagChk(0x1F) == 0) {
@@ -233,6 +244,7 @@ void actSt13cEnd(void)
         gflagOn(0x186);
     }
 }
+
 void actSt13cBmg1(volatile int a0)
 {
     int x = a0;
@@ -265,6 +277,7 @@ void actSt13cBmg1(volatile int a0)
         scpPlayPosSet(D_00639EA8, -7.0f, -5725.0f, 18.0f);
     }
 }
+
 void actSt13cBmg1Chk(volatile int a0)
 {
     AnimSet w;
@@ -337,6 +350,7 @@ void actSt13cBmg1Chk(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
 }
+
 void actSt13cConte04(volatile int a0)
 {
     scpPlayStart(D_00639EA4);
@@ -372,6 +386,7 @@ void actSt13cConte04(volatile int a0)
     D_0063C590 = 1;
     _ACTWait(0);
 }
+
 void actSt13cConte04Jimaku(volatile int a0)
 {
     float t;
@@ -415,6 +430,7 @@ void actSt13cConte04Jimaku(volatile int a0)
     } while (t < 1400.0f);
     _ACTWait(0);
 }
+
 void actSt13cCage1stDownDemoCancel(volatile int a0)
 {
     float ofs[4];
@@ -466,6 +482,7 @@ void actSt13cCage1stDownDemoCancel(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
 }
+
 void actSt13cCage1stDown(volatile int a0)
 {
     int se;
@@ -512,6 +529,7 @@ void actSt13cCage1stDown(volatile int a0)
     }
     _ACTWait(1);
 }
+
 void actSt13cCageFall(volatile int a0)
 {
     int x = a0;
@@ -713,6 +731,7 @@ void actSt13cCageFallChk(volatile int a0)
 
     ((Act *)((PObjGObj *)D_00639EA4)->act)->flags &= ~0x100000;
 }
+
 void actSt13cConte05(volatile int a0)
 {
     lt_switch_layout(0x37);
@@ -860,6 +879,7 @@ void actSt13cConte05(volatile int a0)
     D_0063C590 = 1;
     _ACTWait(0);
 }
+
 void actSt13cConte05Jimaku(volatile int a0)
 {
     float t;
@@ -909,7 +929,9 @@ void actSt13cConte05Jimaku(volatile int a0)
     } while (t < 4000.0f);
     _ACTWait(0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFallEffect);
+
 void actSt13cSekizoChk(volatile int a0)
 {
     /* the family's SE-handle slot at 4(sp): sound-subsystem owned, and here
@@ -989,6 +1011,7 @@ void actSt13cSekizoChk(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
 }
+
 void actSt13cGirlCarryChk(volatile int a0)
 {
     Act *self = (Act *)((PObjGObj *)a0)->act;
@@ -1021,6 +1044,7 @@ void actSt13cGirlCarryChk(volatile int a0)
 
     _ACTWait(1);
 }
+
 void actSt13cHandChk(volatile int a0)
 {
     float dir[4];
@@ -1141,6 +1165,7 @@ void actSt13cHandChk(volatile int a0)
     fightSoundProcessRequestStart();
     gflagOn(0x1C);
 }
+
 void actSt13cHandJimaku(volatile int a0)
 {
     float t;
@@ -1183,6 +1208,7 @@ void actSt13cHandJimaku(volatile int a0)
         }
     } while (t < 800.0f);
 }
+
 void actSt13cSleep(volatile int a0)
 {
     int x = a0;
@@ -1197,6 +1223,7 @@ void actSt13cSleep(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13cCageDown(volatile int a0)
 {
     int x = a0;
@@ -1218,6 +1245,7 @@ void actSt13cCageDown(volatile int a0)
         CameraSetCameraSet(0x25);
     }
 }
+
 void actSt13cCageFallReady(volatile int a0)
 {
     int x = a0;
@@ -1232,6 +1260,7 @@ void actSt13cCageFallReady(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13cEnemy(volatile int a0)
 {
     int x = a0;
@@ -1254,6 +1283,7 @@ void actSt13cEnemy(volatile int a0)
     scpSleepEnemyAll();
     gflagOff(0x17);
 }
+
 void actSt13cEnemyNull(volatile int a0)
 {
     int x = a0;
@@ -1270,6 +1300,7 @@ void actSt13cEnemyNull(volatile int a0)
 
     Generator_MaskOff(a0);
 }
+
 void actSt13cSekizo(volatile int a0)
 {
     int x = a0;
@@ -1290,6 +1321,7 @@ void actSt13cSekizo(volatile int a0)
         SetWayGroupActive(2, 1);
     }
 }
+
 void actSt13cSekizoJimaku(volatile int a0)
 {
     int x = a0;
@@ -1304,6 +1336,7 @@ void actSt13cSekizoJimaku(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13cHand(volatile int a0)
 {
     int x = a0;
@@ -1318,6 +1351,7 @@ void actSt13cHand(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13cGirlCarry(volatile int a0)
 {
     int x = a0;
@@ -1332,6 +1366,7 @@ void actSt13cGirlCarry(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13cRescue(volatile int a0)
 {
     int x = a0;
@@ -1346,6 +1381,7 @@ void actSt13cRescue(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13cBuki(volatile int a0)
 {
     int x = a0;
@@ -1358,6 +1394,7 @@ void actSt13cBuki(volatile int a0)
     ACTSendMailCorrect(a0, 0x1AE);
     _ACTWait(0);
 }
+
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
@@ -1376,14 +1413,17 @@ void actE3St13cSekizo(volatile int a0)
         SetWayGroupActive(2, 1);
     }
 }
+
 void actSt13cBmg1Event(int x)
 {
     volatile int local = x;
 }
+
 void actSt13cSleepEvent(int x)
 {
     volatile int local = x;
 }
+
 void actSt13cSleepChk(volatile int a0)
 {
     long long ofs[2];
@@ -1407,6 +1447,7 @@ void actSt13cSleepChk(volatile int a0)
 
     scpPlayMotReq(D_00639EA8, 0x11D);
 }
+
 void actSt13cCageDownMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -1416,6 +1457,7 @@ void actSt13cCageDownMain(volatile int a0)
         _ACTWait(1);
     }
 }
+
 void actSt13cCageDownSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -1430,6 +1472,7 @@ void actSt13cCageDownSwitch(volatile int a0)
         _ACTWait(0);
     }
 }
+
 void actSt13cCage1stDownDemo(volatile int a0)
 {
     scpPlayStart(D_00639EA4);
@@ -1439,6 +1482,7 @@ void actSt13cCage1stDownDemo(volatile int a0)
     D_0063C590 = 1;
     _ACTWait(0);
 }
+
 void actSt13cCageFallReadyChk(volatile int a0)
 {
     int x = a0;
@@ -1453,14 +1497,17 @@ void actSt13cCageFallReadyChk(volatile int a0)
 
     scpAdpcmPlayRequestFunc(0xF, &D_0063C004, 1, 1, 0);
 }
+
 void actSt13cCageFallEvent(int x)
 {
     volatile int local = x;
 }
+
 void actE3St13cSekizoEvent(int x)
 {
     volatile int local = x;
 }
+
 void actSt13cSekizoJimakuChk(volatile int a0)
 {
     int x = a0;
@@ -1476,6 +1523,7 @@ void actSt13cSekizoJimakuChk(volatile int a0)
     gflagOff(0x186);
     actCreateSubThread(actSt13cSekizoJimakuEff, 0x15);
 }
+
 void actSt13cSekizoJimakuEff(volatile int a0)
 {
     float t;
@@ -1506,6 +1554,7 @@ void actSt13cSekizoJimakuEff(volatile int a0)
         }
     } while (t < 500.0f);
 }
+
 void actSt13cGirlCarryAgainChk(volatile int a0)
 {
     Act *self = (Act *)((PObjGObj *)a0)->act;
@@ -1527,6 +1576,7 @@ void actSt13cGirlCarryAgainChk(volatile int a0)
 
     _ACTWait(1);
 }
+
 void actSt13cHandSub(volatile int a0)
 {
     _ACTWait(100);
@@ -1534,6 +1584,7 @@ void actSt13cHandSub(volatile int a0)
     D_0063C590 = 1;
     _ACTWait(0);
 }
+
 void actSt13cRescueChk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -1554,10 +1605,12 @@ void actSt13cRescueChk(volatile int a0)
 
     gflagOn(0x1E);
 }
+
 void actSt13cBukiEvent(int x)
 {
     volatile int local = x;
 }
+
 void actSt13cBukiChk(volatile int a0)
 {
     while (ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0xE7) {

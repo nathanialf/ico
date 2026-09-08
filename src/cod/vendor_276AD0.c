@@ -26,18 +26,21 @@ int SgSndn2RemoteSync(void)
     }
     return ret;
 }
+
 extern void _SgInit(int a0);
 
 void SgInit(void)
 {
     _SgInit(0);
 }
+
 extern void _SgInit(int a0);
 
 void SgInitHot(void)
 {
     _SgInit(1);
 }
+
 extern void _SgSetPkAdd(int a0, int a1, int a2, int a3);
 
 void SgQuit(void)
@@ -49,6 +52,7 @@ void SgQuit(void)
     }
     _SgSetPkAdd(0x1F, 0, 0, 0);
 }
+
 extern void _SgCalledTickProc(void);
 
 void SgCalledTickProc(void)
@@ -58,10 +62,12 @@ void SgCalledTickProc(void)
         _SgCalledTickProc();
     }
 }
+
 void SgSetDigitalOutputMode(int a0)
 {
     _SgSetPkAdd(0x32, 0xA, a0, 0);
 }
+
 extern void _SgDmaCommon(int a0, int a1, void *a2, void *a3);
 
 int SgDmaWrite(int a0, void *a1, void *a2)
@@ -69,11 +75,13 @@ int SgDmaWrite(int a0, void *a1, void *a2)
     _SgDmaCommon(0x20, a0, a1, a2);
     return 0;
 }
+
 int SgDmaRead(void *a0, int a1, void *a2)
 {
     _SgDmaCommon(0x21, a1, a0, a2);
     return 0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", _SgDmaCommon);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgGetDmaTransferStatus);
 extern int SgVabOpenFakeBody(int *a0, int a1);
@@ -87,6 +95,7 @@ int SgVabOpen(int a0, int *a1, int a2)
     }
     return r;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgVabOpenFakeBody);
 extern void *_SgGetSeqContext(int a0);
 extern void *_SgGetSlotContext(int a0);
@@ -129,6 +138,7 @@ int SgVabClose(int a0)
     }
     return rv;
 }
+
 int SgBgmOpen(int a0, void *a1)
 {
     char *obj;
@@ -170,6 +180,7 @@ int SgBgmOpen(int a0, void *a1)
     }
     return rv;
 }
+
 int SgBgmClose(int a0)
 {
     volatile int *p;
@@ -186,41 +197,51 @@ int SgBgmClose(int a0)
     }
     return ret;
 }
+
 void SgSetReverbEndAddr(int a0, int a1)
 {
     _SgSetPkAdd(0x14, a0, a1, 0);
 }
+
 void SgSetReverbType(int a0, int a1)
 {
     _SgSetPkAdd(0x15, a0, a1, 0);
 }
+
 void SgSetReverbDepth(int a0, int a1, int a2)
 {
     _SgSetPkAdd(0x16, a0, a1, a2);
 }
+
 void SgSetReverbDelaytime(int a0, int a1)
 {
     _SgSetPkAdd(0x17, a0, a1, 0);
 }
+
 void SgSetReverbFeedback(int a0, int a1)
 {
     _SgSetPkAdd(0x18, a0, a1, 0);
 }
+
 void SgSetOutputMode(int a0)
 {
     void *r = _SgGetComContext();
     *(short *)((char *)r + 0x38) = a0;
 }
+
 void SgSetTickMode(int a0)
 {
     void *r = _SgGetComContext();
     *(short *)((char *)r + 0x3A) = a0;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgGetSlotStatus);
+
 void SgSetMasterVol(int a0, int a1, int a2)
 {
     _SgSetPkAdd(0x28, a0, a1, a2);
 }
+
 int SgSetBgmVol(unsigned int a0, int a1, int a2)
 {
     int ret = -1;
@@ -241,6 +262,7 @@ int SgSetBgmVol(unsigned int a0, int a1, int a2)
     }
     return ret;
 }
+
 extern int _SgGetSeVolValue(int a0);
 extern void _SgSetSeVolValue(int a0, int a1);
 
@@ -258,8 +280,10 @@ int SgSetSeMasterVol(int a0, int a1)
     }
     return ret;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgBgmPlay);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgBgmStop);
+
 void SgSetBgmTempo(unsigned int a0, int a1)
 {
     if (a0 < 0x30 && a1 >= 0 && a1 < 0x3C0) {
@@ -275,6 +299,7 @@ void SgSetBgmTempo(unsigned int a0, int a1)
         *(volatile int *)p &= 0xFFFFDFFF;
     }
 }
+
 int SgGetBgmTempo(unsigned int a0)
 {
     int ret = -1;
@@ -284,6 +309,7 @@ int SgGetBgmTempo(unsigned int a0)
     }
     return ret;
 }
+
 int SgGetBgmStatus(int a0)
 {
     volatile int *p;
@@ -301,9 +327,11 @@ int SgGetBgmStatus(int a0)
     }
     return ret;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgGetBgmChStatus);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgSetBgmPanpot);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgSePlay);
+
 void SgSeStop(int a0)
 {
     unsigned int idx = a0 & 0x7FFF;
@@ -331,6 +359,7 @@ void SgSeStop(int a0)
         *p17 &= 0xFFFFDFFF;
     }
 }
+
 void SgSeStopAll(int a0)
 {
     int i;
@@ -344,6 +373,7 @@ void SgSeStopAll(int a0)
         p = (volatile int *)((char *)p + 0x54);
     }
 }
+
 void SgSetSeVolDirect(unsigned int a0, int a1, int a2)
 {
     if (a0 < 0x30 && a1 >= -0x1000 && a1 < 0x1001 && a2 >= -0x1000 && a2 < 0x1001) {
@@ -355,6 +385,7 @@ void SgSetSeVolDirect(unsigned int a0, int a1, int a2)
         *(volatile int *)p &= 0xFFFFDFFF;
     }
 }
+
 void SgSetSePitchDirect(unsigned int a0, int a1)
 {
     volatile int *p;
@@ -377,7 +408,9 @@ void SgSetSePitchDirect(unsigned int a0, int a1)
     v3 = (int)((unsigned int)v3 & 0xFFFFDFFFU);
     p[0] = v3;
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgGetSpuSlotMalloc);
+
 int SgSetSpuSlotFree(unsigned int a0)
 {
     if (a0 < 0x30) {
@@ -388,15 +421,19 @@ int SgSetSpuSlotFree(unsigned int a0)
     }
     return -1;
 }
+
 void SgStAdpcmInit(void)
 {
     _SgSetPkAdd(0x3C, 0, 0, 0);
 }
+
 void SgStAdpcmQuit(void)
 {
     _SgSetPkAdd(0x3D, 0, 0, 0);
 }
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_276AD0", SgStAdpcmOpen);
+
 int SgStAdpcmClose(unsigned int a0)
 {
     int ret = -1;
@@ -406,6 +443,7 @@ int SgStAdpcmClose(unsigned int a0)
     }
     return ret;
 }
+
 int SgStAdpcmChannelVolume(unsigned long long a0, unsigned int a1, int a2)
 {
     int ret = -1;
@@ -415,6 +453,7 @@ int SgStAdpcmChannelVolume(unsigned long long a0, unsigned int a1, int a2)
     }
     return ret;
 }
+
 int SgStAdpcmChannelPitch(unsigned long long a0, int a1)
 {
     int ret = -1;
@@ -424,6 +463,7 @@ int SgStAdpcmChannelPitch(unsigned long long a0, int a1)
     }
     return ret;
 }
+
 int SgStAdpcmPlay(unsigned long long a0)
 {
     int ret = -1;
@@ -433,6 +473,7 @@ int SgStAdpcmPlay(unsigned long long a0)
     }
     return ret;
 }
+
 int SgStAdpcmStop(unsigned long long a0)
 {
     int ret = -1;
@@ -442,6 +483,7 @@ int SgStAdpcmStop(unsigned long long a0)
     }
     return ret;
 }
+
 extern int _SgGetIop2EeContext(void);
 
 int SgStAdpcmIopReadAddr(int a0)
@@ -453,14 +495,17 @@ int SgStAdpcmIopReadAddr(int a0)
     }
     return ret;
 }
+
 void SgStPcmInit(void)
 {
     _SgSetPkAdd(0x46, 0, 0, 0);
 }
+
 void SgStPcmQuit(void)
 {
     _SgSetPkAdd(0x47, 0, 0, 0);
 }
+
 int SgStPcmOpen(int *a0)
 {
     unsigned int n1, n2;
@@ -483,6 +528,7 @@ int SgStPcmOpen(int *a0)
 done:
     return ret;
 }
+
 int SgStPcmClose(unsigned int a0)
 {
     int ret = -1;
@@ -492,10 +538,12 @@ int SgStPcmClose(unsigned int a0)
     }
     return ret;
 }
+
 void SgStPcmSetEffect(int a0)
 {
     _SgSetPkAdd(0x4E, a0, 0, 0);
 }
+
 int SgStPcmPlay(unsigned long long a0)
 {
     if ((a0 & 0xFF000000) == 0) {
@@ -503,6 +551,7 @@ int SgStPcmPlay(unsigned long long a0)
     }
     return 0;
 }
+
 int SgStPcmStop(unsigned long long a0)
 {
     if ((a0 & 0xFF000000) == 0) {
@@ -510,6 +559,7 @@ int SgStPcmStop(unsigned long long a0)
     }
     return 0;
 }
+
 int SgStPcmLseek(unsigned int a0, unsigned int a1)
 {
     int ret = -1;
@@ -521,12 +571,14 @@ int SgStPcmLseek(unsigned int a0, unsigned int a1)
     }
     return ret;
 }
+
 void SgStPcmVolume(unsigned long long a0, unsigned int a1, int a2)
 {
     if (a1 <= 0x7FFF && a2 >= 0 && a2 <= 0x7FFF && (a0 & 0xFF000000) == 0) {
         _SgSetPkAdd(0x4A, (int)a0, a1, a2);
     }
 }
+
 int SgStPcmIopReadAddr(unsigned int a0)
 {
     int ret = 0;
@@ -536,6 +588,7 @@ int SgStPcmIopReadAddr(unsigned int a0)
     }
     return ret;
 }
+
 int SgStPcmBufMode(int a0, long a1, int a2)
 {
     int ret;

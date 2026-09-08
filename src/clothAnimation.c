@@ -61,10 +61,12 @@ void TestDispChainAnimation(int *a0)
     }
     gif_EndPacket();
 }
+
 void GetChainExWeightGlobalPos(int a0, int a1, int a2)
 {
     CopyVector(a0, a1 + a2 * 0x50 + 0x30);
 }
+
 typedef struct {
     float w;
     char pad[0xC];
@@ -386,6 +388,7 @@ void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
     }
     sys->f3 = sys->f3 == 0;
 }
+
 extern void debug_StdPrintfDummy();
 extern char D_0061F240[];
 extern char D_0061F258[];
@@ -418,6 +421,7 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
     debug_StdPrintfDummy(D_0061F258);
     return -1;
 }
+
 ASM_LIT4_SLOT(D_00639478, 0.8f);
 ASM_LIT4_SLOT(D_0063947C, 0.98f);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", GetClothAnimation);
@@ -446,6 +450,7 @@ static __inline__ int checkOverThePlane_i(void *a0, void *a1)
         return 1;
     return 0;
 }
+
 static __inline__ int checkFrontAcross_i(void *a0, void *a1)
 {
     if (0.0f <= plane_distance(a0, a1)) {
@@ -454,6 +459,7 @@ static __inline__ int checkFrontAcross_i(void *a0, void *a1)
     }
     return 0;
 }
+
 static __inline__ void getCrossPoint_i(void *out, void *seg, void *plane)
 {
     float v[4];
@@ -464,6 +470,7 @@ static __inline__ void getCrossPoint_i(void *out, void *seg, void *plane)
     sceVu0ScaleVectorXYZ(v, v, d0 / (d0 + d1));
     AddVectorXYZ(out, seg, v);
 }
+
 /* clothAnimation.c:78-80 in the listing: the squared XZ length, a second copy
    of the getXZLengthSquare sequence that is only ever inlined. */
 static __inline__ float xzLengthSquare(const void *p)
@@ -483,6 +490,7 @@ static __inline__ float xzLengthSquare(const void *p)
                          : "$2");
     return d;
 }
+
 /* `bothOverThePlane` is a nested function, and it must be declared BEFORE
    `d`: the listing shows both plane tests sharing rows 1139/1141/1143 (one
    inlined helper used twice, its `&&` materialised into $v0 as a return
@@ -517,6 +525,7 @@ int clipCylinderCollision(char *p)
     }
     return -1;
 }
+
 extern char *iosMallocDebug(int heap, int size, char *file, int line);
 extern int D_0063A438;
 extern char D_0061F270[];
@@ -564,6 +573,7 @@ ChainSet *InitChains(char *a0)
     }
     return r;
 }
+
 typedef struct {
     long long q[89];
 } TexBlob;
@@ -640,6 +650,7 @@ ClothSet *InitClothes(int cfg)
     }
     return r;
 }
+
 ClothSet *InitClothesNoShade(int cfg)
 {
     ClothSet *r;
@@ -698,6 +709,7 @@ ClothSet *InitClothesNoShade(int cfg)
     }
     return r;
 }
+
 extern int buffer_ID;
 extern int matrixptr;
 extern void _SetCurrentMatrix(int a0);
@@ -729,6 +741,7 @@ void DispClothMesh(int *a0, void *a1, void *a2)
     }
     prim_DispMesh3D(a0[0], a1, a2, t);
 }
+
 extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
 extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
@@ -774,6 +787,7 @@ void DispMeshWire(int *rows, int nx, int ny)
     }
     gif_EndPacket();
 }
+
 extern int D_0063B1D8;
 
 void DispCloth4D(int *a0, void *a1, void *a2)
@@ -799,6 +813,7 @@ void DispCloth4D(int *a0, void *a1, void *a2)
         DispMeshWire((int *)a0[2], m[0], m[1]);
     }
 }
+
 void DispCloth4DWithAdd(int *a0, void *a1, void *a2)
 {
     int t;
@@ -822,6 +837,7 @@ void DispCloth4DWithAdd(int *a0, void *a1, void *a2)
         DispMeshWire((int *)a0[2], m[0], m[1]);
     }
 }
+
 ASM_LIT4_SLOT(D_00639484, 2.44140625e-05f);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", getCloth4D_preProcess);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", proc);
@@ -873,6 +889,7 @@ void getCloth4D_postProcess(int *a0, int **a1)
                        ((int *)a0[186])[i] * 64);
     }
 }
+
 extern void getCloth4D_preProcess(void *a0, int tight, void *a6, void *a7, float x, float y,
                                   float z, float w);
 extern void getCloth4D(void *a0, int **rows);
@@ -928,20 +945,24 @@ void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a
     }
     getCloth4D_postProcess(a0, rows);
 }
+
 extern char D_002907E0[];
 
 void GetCloth4D(void *a0, float x, float y)
 {
     _getCloth4D(a0, x, y, 1.0f, 1.0f, 0, D_002907E0, D_002907E0);
 }
+
 void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w)
 {
     _getCloth4D(a0, x, y, z, w, 0, D_002907E0, D_002907E0);
 }
+
 void GetCloth4DWithTight(void *a0, void *a1, void *a2, float x, float y, float z, float w)
 {
     _getCloth4D(a0, x, y, z, w, 1, a1, a2);
 }
+
 typedef struct {
     long long q[8];
 } Blob64;
@@ -1055,6 +1076,7 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
     }
     return r;
 }
+
 extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y,
                                         float z);
 extern void RotQuaternionX(void *a0, int a1);
@@ -1075,10 +1097,12 @@ void GetChainNodeGlobalQuaternion(void *a0, int *a1, int count)
         RotQuaternionZ(a0, (short)-buf.b);
     }
 }
+
 void MoveChainExtendedWeight(int a0, int a1, float f)
 {
     *(float *)(a0 + a1 * 0x50 + 0x10) = f;
 }
+
 extern char D_0028FEF0[];
 
 void InitChainVelocity(int *a0)
@@ -1098,16 +1122,19 @@ void InitChainVelocity(int *a0)
         }
     }
 }
+
 void DeleteChainExtendedWeight(int *a0, int a1)
 {
     int *p = (int *)((char *)a0 + a1 * 0x50);
     *(float *)((char *)p + 0x10) = -1.0f;
     a0[3] = a0[3] - 1;
 }
+
 float GetChainNodeID(int a0, float f)
 {
     return f / *(float *)(a0 + 0x14);
 }
+
 extern void CopyVector(void *a0, void *a1);
 extern char D_0028FEF0[];
 
@@ -1129,6 +1156,7 @@ void ResetClothAnimation(int *a0, int *a1, int *a2)
         } while (i < outer);
     }
 }
+
 void GetChainExWeightGlobalQuaternion(int a0, int a1, int i, int j)
 {
     ClothBuf buf;
@@ -1139,6 +1167,7 @@ void GetChainExWeightGlobalQuaternion(int a0, int a1, int i, int j)
     RotQuaternionX(a0, (short)-buf.a);
     RotQuaternionZ(a0, (short)-buf.b);
 }
+
 float GetChainCollision(int *a0, void *pos, float r)
 {
     int i;
@@ -1169,6 +1198,7 @@ void FSqrtInv(void)
     VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }
+
 void getXZLength(void *p0)
 {
     VU0_LSV(lqc2, 4, 0x0, a0);
@@ -1181,6 +1211,7 @@ void getXZLength(void *p0)
     VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }
+
 void getXZInvLength(void *p0)
 {
     VU0_LSV(lqc2, 4, 0x0, a0);
@@ -1193,6 +1224,7 @@ void getXZInvLength(void *p0)
     VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }
+
 void getXZLengthSquare(void *p0)
 {
     VU0_LSV(lqc2, 4, 0x0, a0);
@@ -1201,6 +1233,7 @@ void getXZLengthSquare(void *p0)
     VU0_QMFC2_NI(v0, 4);
     VU0_MTC1(v0, 0);
 }
+
 void subAndGetInvLength(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
@@ -1217,6 +1250,7 @@ void subAndGetInvLength(void *p0, void *p1, void *p2, void *p3)
     VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }
+
 void scaleAndAddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_LSV(lqc2, 4, 0x0, a1);
@@ -1229,6 +1263,7 @@ void scaleAndAddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP(vadd.xyz, 4, 4, 5);
     VU0_LSV(sqc2, 4, 0x0, a0);
 }
+
 void scaleVectorXZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 4, 0x0, a1);
@@ -1239,6 +1274,7 @@ void scaleVectorXZ(void *p0, void *p1, void *p2)
     VU0_V3OP_BC(vmulx.xz, 4, 4, 5, x);
     VU0_LSV(sqc2, 4, 0x0, a0);
 }
+
 void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
 {
     int sp_buf[4];
@@ -1269,6 +1305,7 @@ void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
     VU0_V3OP(vadd.xyz, 4, 4, 5);
     VU0_LSV(sqc2, 4, 0x0, a0);
 }
+
 void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
 {
     int sp_buf[4];
@@ -1302,6 +1339,7 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
         VU0_LSV(sqc2, 4, 0x0, a0);
     }
 }
+
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
@@ -1316,12 +1354,14 @@ void getCrossPoint(void *out, void *seg, void *plane)
     sceVu0ScaleVectorXYZ(v, v, d0 / (d0 + d1));
     AddVectorXYZ(out, seg, v);
 }
+
 int checkOverThePlane(void *a0, void *a1)
 {
     if (0.0f < plane_distance(a0, a1))
         return 1;
     return 0;
 }
+
 int checkFrontAcross(void *a0, void *a1)
 {
     if (0.0f <= plane_distance(a0, a1)) {
@@ -1330,6 +1370,7 @@ int checkFrontAcross(void *a0, void *a1)
     }
     return 0;
 }
+
 void LockZAnimation(int *a0)
 {
     int i;
@@ -1343,6 +1384,7 @@ void LockZAnimation(int *a0)
         }
     }
 }
+
 extern void _ScaleVector(void *dst, void *src, float k);
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
 
