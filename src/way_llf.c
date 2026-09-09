@@ -67,9 +67,43 @@ typedef struct WayGrp {
 } WayGrp;
 
 extern WayRec D_004F1EC0[];
+extern Nd D_004F31E0[];
+extern int D_0063BD70;
 extern int D_0063BD74;
 
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", InitWayPointSystem);
+void InitWayPointSystem(void)
+{
+    int i;
+
+    for (i = 0; i < 0x113; i++) {
+        NdW *node = (NdW *)&D_004F31E0[i];
+
+        node->f0 = 0;
+        node->_4 = i;
+        node->f8 = 0;
+        node->fC = 0;
+        node->f20 = -1;
+    }
+
+    for (i = 0; i < 94; i++) {
+        WayGrp *wg = (WayGrp *)&D_004F1EC0[i];
+
+        wg->f0 = 0;
+        wg->_4 = i;
+        wg->f8 = 0;
+        wg->fC = 0;
+        wg->f10 = 0;
+        wg->f14 = 0;
+        wg->f18 = 0;
+        wg->f1C = 0;
+        wg->_28 = 0;
+        wg->f20 = -1;
+        wg->f24 = -1;
+    }
+
+    D_0063BD70 = 0;
+    D_0063BD74 = 0;
+}
 
 /* gcc 2.9 emits a non-static `inline` function's out-of-line copy at the end of
  * the object, in first-declaration order, so the whole TU is declared here in

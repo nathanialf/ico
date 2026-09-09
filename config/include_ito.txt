@@ -12,3 +12,5 @@ mv_videodec
 ito/mpeg/mv_videodec
 mv_vobuf
 ito/mpeg/mv_vobuf
+mv_readbuf
+ito/mpeg/mv_readbuf

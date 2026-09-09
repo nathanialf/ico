@@ -32,6 +32,9 @@ extern PObjGObj *isysGObjAdd(int a0, int a1, int a2);
 extern void isysGObjKindTableAdd(void *a0, int a1);
 extern void isysGObjLinkObjDL(void *a0, int a1, int a2, int a3, unsigned int a4);
 extern int isysGObjProcAdd(void *a0, int a1, int a2, int a3);
+extern void isysGObjLinkCameraDL(void *a0, int a1, int a2, int a3, unsigned int a4);
+extern void SetCameraMatrix(void);
+extern void DispIcoMisc(void);
 extern void isysGObjProcAddS(void *a0, int a1, int a2, int a3, int a4);
 /* prototypes: their order is the inline tail's emission order */
 PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
@@ -72,7 +75,28 @@ void PrintGObjID(int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/GobjProc", InitCameraGObjs);
+PObjGObj *InitCameraGObjs(int a0, int from, int to)
+{
+    PObjGObj *g = 0;
+    PObjGObj *cam;
+    int i;
+
+    for (i = from; i < to; i++) {
+        g = isysGObjAdd((int)SetCameraMatrix, 0, 0);
+        g->f164 = 0;
+        g->f04 = 0;
+        g->f08 = -1;
+        g->f0C = -1;
+        g->f16C = 1;
+        isysGObjLinkObjDL(g, (int)DispIcoMisc, 0, 0, 0xFFFFFFFF);
+    }
+
+    cam = isysGObjAdd(0, 0, 0);
+    cam->f164 = 0;
+    isysGObjLinkCameraDL(cam, 0, 0, 1, 0xFFFFFFFF);
+
+    return g;
+}
 
 inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
 {

@@ -4,6 +4,12 @@ extern void *D_00667340[3][384];
 extern int D_00639EE0;
 extern int D_00639EE4;
 extern int iosFree();
+extern char D_0054D6F8[];
+extern char D_0054D738[];
+extern char D_00639EE8[];
+extern void debug_StdPrintfDummy();
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
 /* prototypes: their order is the inline tail's emission order */
 void InitDelayFree(void);
 void ExecDelayFree(void);
@@ -45,4 +51,12 @@ inline void ExecDelayFree(void)
     D_00639EE0 = no;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", EntryDelayFree);
+void EntryDelayFree(void *p)
+{
+    D_00667340[D_00639EE0][D_00639EE4++] = p;
+    if (D_00639EE4 >= 384) {
+        debug_StdPrintfDummy(D_0054D6F8);
+        debug_assert(D_0054D738, 0x33);
+        __assert(D_0054D738, 0x33, D_00639EE8);
+    }
+}

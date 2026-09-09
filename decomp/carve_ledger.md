@@ -1153,3 +1153,6 @@ words become the blob's first words.
 - `[0x452460, .rodata, src/act-game]` syms 0x00552460: jtbl_00552460, ACTEnvGetTest's 98-arm table (0x188 B), VMA 0x552460..0x5525E8.
 - Blob resumes at 0x452450 ("mode=[%d]\n") and 0x4525E8 (two strings, then jtbl_00552620/00552660 until GetTarget and ACTItemWatchMotion land); the 0x452680 row gained its `syms:` token (multi-row TU).
 - act-game's .lit4 row unchanged: 5000.0f (D_00638CD4) now emitted by ACTGameView_Loop at object offset 0x0C, its ASM_LIT4_SLOT line retired.
+
+### 2026-09-09 mv_readbuf: alloc_zeroed literals carved with the TU (header form)
+- `[0x4576A8, .rodata, ito/mpeg/mv_readbuf]`: D_005576A8 "../ito/include/mv_defs.h" + D_005576C8 "p != NULL", 48 B, VMA 0x5576A8..0x5576D8 (mv_defs.h alloc_zeroed's __FILE__/assert literals; mirror of mv_vobuf's and mv_vibuf's rows); blob resumes at 0x4576D8 with the next ito/mpeg TU's copy. mv_readbuf added to config/include_ito.txt so __FILE__ resolves to the developer's spelling.

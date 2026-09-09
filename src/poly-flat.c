@@ -15,7 +15,8 @@ extern int _IsInScreen(int *p);
 extern void sceVu0RotTransPers(void *a0, void *a1, void *a2, int a3);
 extern void gif_MakeLine2D(int *v0, int *v1, int z0, int z1, unsigned char *col, int n);
 extern char *matrixptr;
-extern void _IsInScreen2(void *a0);
+extern int D_0063A064; /* screen width  */
+extern int D_0063A068; /* screen height */
 extern void func_0025D440(void *a0, void *a1, void *a2);
 extern void sceVu0UnitMatrix(void *a0);
 /* prototypes: their order is the inline tail's emission order */
@@ -53,7 +54,49 @@ inline void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a
     gif_DrawPolyF4(a0, a1, a2, a3, a4[0], a4[1], a4[2], a4[3], 1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/poly-flat", _IsInScreen2);
+float _IsInScreen2(int *p)
+{
+    int hw;
+    int hh;
+    float rx;
+    float ry;
+
+    if (p[2] < 0) {
+        return -1.0f;
+    }
+    if (0x0FFFFFF0 < p[2]) {
+        return -1.0f;
+    }
+    hw = D_0063A064 / 2;
+    if (p[0] < (0x800 - hw) * 16) {
+        return -1.0f;
+    }
+    if ((0x800 + hw) * 16 < p[0]) {
+        return -1.0f;
+    }
+    hh = D_0063A068 / 2;
+    if (p[1] < (0x800 - hh) * 16) {
+        return -1.0f;
+    }
+    if ((0x800 + hh) * 16 < p[1]) {
+        return -1.0f;
+    }
+
+    rx = (float)(p[0] - 0x8000) / (float)((0x800 + hw) * 16 - 0x8000);
+    if (rx < 0.0f) {
+        rx = -rx;
+    }
+    ry = (float)(p[2] - 0x8000) / (float)((0x800 + hh) * 16 - 0x8000);
+    if (ry < 0.0f) {
+        ry = -ry;
+    }
+
+    if (ry < rx) {
+        ry = rx;
+    }
+
+    return ry;
+}
 
 inline void IsPointIsInScreen(void *a0, void *a1)
 {

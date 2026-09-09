@@ -15,6 +15,10 @@ extern char *stage_MakePlayBgAnimation(int kind);
 extern void _CopyVector(void *dst, void *src);
 extern void CopyQuaternion(void *dst, void *src);
 extern void EntryMultiBgaManager(MultiBga *bga, int no, int kind, void *pos, void *rot);
+extern int D_0028F4C0[];
+extern int stage_DispBgAnimation(char **slot);
+extern void stage_DispBgAnimationNoFinish(char **slot);
+extern void _AddVector(void *dst, void *a, void *b);
 extern void EntryMultiBgaManagerSensitive(MultiBga *bga, int no, int kind, void *pos, void *rot,
                                           int sensitive);
 /* prototypes: their order is the inline tail's emission order */
@@ -72,4 +76,24 @@ inline void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, i
     EntryStageMultiBgaManagerSensitiveWithStay(kind, pos, rot, sensitive, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/stageMultiBgaManager", DispStageMultiBgaManager);
+void DispStageMultiBgaManager(void)
+{
+    int i;
+
+    for (i = 0; i < 30; i++) {
+        if (D_00724A00[i] == 0) {
+            continue;
+        }
+        if (D_007240A0[i].stay) {
+            stage_DispBgAnimationNoFinish(&D_00724A00[i]);
+        } else {
+            if (stage_DispBgAnimation(&D_00724A00[i])) {
+                D_00724A00[i] = 0;
+                continue;
+            }
+        }
+        if (D_0028F4C0[5] == 0) {
+            _AddVector(D_00724A00[i] + 0x20, D_00724A00[i] + 0x20, &D_007240A0[i].w[4]);
+        }
+    }
+}

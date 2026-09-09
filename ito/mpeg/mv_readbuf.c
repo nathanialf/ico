@@ -1,6 +1,21 @@
-#include "common.h"
+#define MV_DEFS_WANT_ALLOC
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_readbuf", readBufCreate);
+#include "common.h"
+#include "mv_defs.h"
+
+int readBufCreate(int *self)
+{
+    int buf;
+
+    buf = alloc_zeroed(0x50000, 0x40);
+    self[0] = buf;
+    if (buf == 0) {
+        return -1;
+    }
+    self[1] = 0x50000;
+    self[2] = self[3] = 0;
+    return 0;
+}
 
 void readBufDelete(void) {}
 

@@ -6,7 +6,14 @@ typedef struct {
 
 extern DispBuf D_005F5DD0[];
 extern char D_0063C090[];
-extern int GetDataFileName2(void *p);
+extern char *GetDataFileName2();
+extern int sprintf(char *buf, char *fmt, ...);
+extern char D_0063C098[]; /* "DFDATAS" */
+extern char D_0063C0A0[]; /* "DF" */
+extern char D_0063C0A8[]; /* "DATAS" */
+extern char D_0063C0B0[]; /* "BIN" */
+extern char D_00623150[]; /* "%s/%s.%s" */
+extern char D_00729E30[];
 
 int GetDataFileName(int a0)
 {
@@ -20,4 +27,20 @@ int GetDataFileName(int a0)
     return GetDataFileName2(p);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/access", GetDataFileName2);
+char *GetDataFileName2(char *name, int isDF)
+{
+    char dir[128];
+    char ext[128];
+
+    if (isDF) {
+        sprintf(dir, D_0063C098);
+        sprintf(ext, D_0063C0A0);
+    } else {
+        sprintf(dir, D_0063C0A8);
+        sprintf(ext, D_0063C0B0);
+    }
+
+    sprintf(D_00729E30, D_00623150, dir, name, ext);
+
+    return D_00729E30;
+}

@@ -447,6 +447,8 @@ segments:
       - [0x456D80, rodata, src/cod/456D80]   # .rodata blob resume (the "src/queen.c" __FILE__ string and pad)
       - [0x456DF0, .rodata, src/queen]  # plain-rodata: SetQueenBallOrient's `up` initialiser template {0,1,0,1} emitted by the compiled QueenBallDL, 0x10 B 8-aligned, VMA 0x556DF0..0x556E00 (the last words of queen.o's 0x556900..0x556E00 run)
       - [0x456E00, rodata, src/cod/456E00]   # .rodata blob resume
+      - [0x4576A8, .rodata, ito/mpeg/mv_readbuf]  # carved D_005576A8 "../ito/include/mv_defs.h" + D_005576C8 "p != NULL" (mv_defs.h alloc_zeroed's __FILE__ and assert literals, 8-aligned), VMA 0x5576A8..0x5576D8, 48 B; the TU's own rodata run, mirror of mv_vobuf's
+      - [0x4576D8, rodata, src/cod/4576D8]   # .rodata blob resume (the next ito/mpeg TU's copy of the same two literals)
       - [0x4577A0, .rodata, ito/mpeg/mv_vobuf]  # carved D_005577A0 "../ito/include/mv_defs.h" + D_005577C0 "p != NULL" (mv_defs.h alloc_zeroed's __FILE__ and assert literals, 8-aligned), VMA 0x5577A0..0x5577D0, 48 B; the TU's own rodata run
       - [0x4577D0, rodata, src/cod/4577D0]   # .rodata blob resume
       - [0x51BAE0, .rodata, src/debug]  # carved jtbl_0061BAE0 (debug_DispQW, 17 arms), VMA 0x61BAE0..0x61BB24

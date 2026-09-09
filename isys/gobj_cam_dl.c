@@ -20,7 +20,11 @@ extern char D_00621970[];
 extern int *D_0063A614;
 extern AdpT *D_0063A618;
 extern void debug_StdPrintfDummy();
-extern int func_0020BFD8();
+extern void func_0020BFD8();
+extern char D_00621980[];
+extern char D_00621990[];
+extern char D_006219A0[];
+extern char D_006219B8[];
 extern char D_006219D0[];
 extern char D_006219E8[];
 /* listing lines 130-165: sorted insert by key, inlined into
@@ -110,7 +114,54 @@ void isysGObjRemoveCameraDL(void *a0)
     cut_gobj_camera_dl_link((EnNode *)a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", func_0020BFD8);
+/* census: fumi/isys/gobj_cam_dl.c 76-118, file-static `add_gobj_to_tail`
+ * (the debug link's local symbol table names it; renaming needs config/). */
+void func_0020BFD8(int *self, unsigned int key)
+{
+    int *head;
+    int *tail;
+    int *cur;
+
+    debug_StdPrintfDummy(D_00621980, self);
+
+    self[0x11] = key;
+    head = D_0063A614;
+    if (head == 0) {
+        self[0xE] = 0;
+        self[0xD] = 0;
+        D_0063A614 = self;
+        D_0063A618 = (AdpT *)self;
+        debug_StdPrintfDummy(D_00621990);
+        return;
+    }
+    if (key < (unsigned int)head[0x11]) {
+        self[0xE] = 0;
+        self[0xD] = (int)head;
+        head[0xE] = (int)self;
+        D_0063A614 = self;
+        debug_StdPrintfDummy(D_006219A0);
+        return;
+    }
+    tail = (int *)D_0063A618;
+    if (key >= (unsigned int)tail[0x11]) {
+        self[0xE] = (int)tail;
+        self[0xD] = 0;
+        tail[0xD] = (int)self;
+        D_0063A618 = (AdpT *)self;
+        debug_StdPrintfDummy(D_006219B8);
+        return;
+    }
+
+    cur = head;
+    while (key >= (unsigned int)((int *)cur[0xD])[0x11]) {
+        cur = (int *)cur[0xD];
+    }
+
+    self[0xE] = (int)cur;
+    self[0xD] = cur[0xD];
+    cur[0xD] = (int)self;
+    ((int *)self[0xD])[0xE] = (int)self;
+}
 
 inline void isysGObjLinkCameraDLHead(int *self, int a1, int key, int a3, int a4)
 {
