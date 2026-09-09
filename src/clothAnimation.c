@@ -1100,7 +1100,13 @@ void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w)
     _getCloth4D(a0, x, y, z, w, 0, D_002907E0, D_002907E0);
 }
 
-void GetCloth4DWithTight(void *a0, void *a1, void *a2, float x, float y, float z, float w)
+/* Parameter ORDER corrected 2026-09-09: the two pointers follow the four
+ * floats, like _getCloth4D's own tail.  src/girl.c's execClothes proves it —
+ * with `a2` declared third, gcc's load_register_parameters emits `daddu
+ * a2,sp,zero` before the `mov.s $f15,$f13` that loads the last float, and ROM
+ * has them the other way round (two sites).  Byte-neutral here: the incoming
+ * registers are a0/a1/a2 + $f12-$f15 either way. */
+void GetCloth4DWithTight(void *a0, float x, float y, float z, float w, void *a1, void *a2)
 {
     _getCloth4D(a0, x, y, z, w, 1, a1, a2);
 }

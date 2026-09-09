@@ -1,26 +1,70 @@
 #include "common.h"
 
-ASM_LIT4_SLOT(D_006394FC, 0.98f);
-ASM_LIT4_SLOT(D_00639500, 0.98f);
-ASM_LIT4_SLOT(D_00639504, 0.002f);
-ASM_LIT4_SLOT(D_00639508, 0.01f);
-ASM_LIT4_SLOT(D_0063950C, 0.98f);
-ASM_LIT4_SLOT(D_00639510, 0.98f);
-ASM_LIT4_SLOT(D_00639514, 0.002f);
-ASM_LIT4_SLOT(D_00639518, 0.01f);
-ASM_LIT4_SLOT(D_0063951C, 0.98f);
-ASM_LIT4_SLOT(D_00639520, 0.98f);
-ASM_LIT4_SLOT(D_006394FC, 0.98f);
-ASM_LIT4_SLOT(D_00639500, 0.98f);
-ASM_LIT4_SLOT(D_00639504, 0.002f);
-ASM_LIT4_SLOT(D_00639508, 0.01f);
-ASM_LIT4_SLOT(D_0063950C, 0.98f);
-ASM_LIT4_SLOT(D_00639510, 0.98f);
-ASM_LIT4_SLOT(D_00639514, 0.002f);
-ASM_LIT4_SLOT(D_00639518, 0.01f);
-ASM_LIT4_SLOT(D_0063951C, 0.98f);
-ASM_LIT4_SLOT(D_00639520, 0.98f);
-INCLUDE_ASM("asm/nonmatchings/src/girl", func_001DD128);
+extern int D_0063B250;
+extern int D_0063B254;
+extern int D_0063B258;
+extern int D_0063B25C;
+extern char D_0028FF30[];
+extern int GetSkeltonFocusNode(char *obj, int kind);
+extern void SetQuaternionByAxisRotateV(void *self, short ang, void *axis);
+extern void GetCloth4D(void *cloth, float x, float y);
+extern void GetCloth4DWithTight(void *cloth, float x, float y, float z, float w, void *a1,
+                                void *a2);
+
+/* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; the name here is
+ * splat's placeholder, which is what this repo's symbol table carries). */
+void func_001DD128(char *gobj)
+{
+    int q[4];
+    char *w;
+    int n;
+
+    n = GetSkeltonFocusNode(gobj, 35);
+    w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    SetQuaternionByAxisRotateV(q, -D_0063B258 * 16, D_0028FF30);
+    if (*(void **)(w + 0x18) != 0) {
+        *(int *)(*(char **)(w + 0x18) + 0x2F8) = D_0063B25C;
+    }
+    switch (*(int *)(w + 0xC)) {
+    default:
+    case 1:
+        if (*(void **)(w + 0x10) != 0) {
+            GetCloth4D(*(void **)(w + 0x10), 4.0f, 0.98f);
+        }
+        if (*(void **)(w + 0x14) != 0) {
+            GetCloth4D(*(void **)(w + 0x14), 4.0f, 0.98f);
+        }
+        if (*(void **)(w + 0x18) != 0) {
+            GetCloth4DWithTight(*(void **)(w + 0x18), D_0063B254 * 0.002f, 1.0f, D_0063B250 * 0.01f,
+                                1.0f, *(char **)(*(char **)(gobj + 0x15C) + 0x10) + n * 16, q);
+        }
+        break;
+    case 2:
+        if (*(void **)(w + 0x10) != 0) {
+            GetCloth4D(*(void **)(w + 0x10), 0.0f, 0.98f);
+        }
+        if (*(void **)(w + 0x14) != 0) {
+            GetCloth4D(*(void **)(w + 0x14), 4.0f, 0.98f);
+        }
+        if (*(void **)(w + 0x18) != 0) {
+            GetCloth4DWithTight(*(void **)(w + 0x18), D_0063B254 * 0.002f, 1.0f, D_0063B250 * 0.01f,
+                                1.0f, *(char **)(*(char **)(gobj + 0x15C) + 0x10) + n * 16, q);
+        }
+        break;
+    case 0:
+        break;
+    }
+    if (*(int *)(w + 0x4) != 0) {
+        if (*(void **)(w + 0x8) != 0) {
+            GetCloth4D(*(void **)(w + 0x8), 3.0f, 0.98f);
+        }
+    }
+    if (*(int *)(w + 0x1C) != 0) {
+        if (*(void **)(w + 0x20) != 0) {
+            GetCloth4D(*(void **)(w + 0x20), 4.0f, 0.98f);
+        }
+    }
+}
 
 extern int GetSkeltonFocusNode(char *obj, int kind);
 extern void *MatrixDrive_GetMatrix(void);
@@ -124,7 +168,6 @@ extern void sceVu0SubVector(void *out, void *a, void *b);
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern float FSqrt(float a0);
 extern void SetMotionPlaySpeedRatio(char *gobj, float ratio);
-extern void func_001DD128(char *gobj);
 
 void GirlGeo(char *a0)
 {
