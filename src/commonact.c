@@ -17,11 +17,11 @@ void ACTSetPositionWithFitting(void *a0, float *pos)
     SetDirectRootPosition(a0, pos);
 }
 
-extern void SetDirectRootPositionNoFitting__pn() __asm__("SetDirectRootPositionNoFitting");
+extern void SetDirectRootPositionNoFitting(void *a0, void *a1);
 
-void ACTSetPositionNoFitting(int a0, int a1, int a2, int a3)
+void ACTSetPositionNoFitting(void *a0, float *pos)
 {
-    SetDirectRootPositionNoFitting__pn(a0, a1, a2, a3);
+    SetDirectRootPositionNoFitting(a0, pos);
 }
 
 extern void SetDirectRootPositionWithNodePoint(int a0, int a1, int a2, float a3);
