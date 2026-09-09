@@ -91,7 +91,80 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy", dispEnemyObject);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyCheckHit);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", CheckEnemyHit);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", InitEnemyGeo);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyGeo);
+
+extern int GetEnemyTypeFromGObj(char *self);
+extern void ExecMotionOrient();
+extern void CylinderCollisionWithControlDynamics(char *self, int a1, int a2, float f12, float f13,
+                                                 float f14);
+extern int isEnemyActive(int *self);
+extern void GetProjectionOfPlane(float *dst, float *plane, float *pos);
+extern void EntryEnemyFootPrint(int *fp, float *v);
+extern void ExecEnemyFootPrints(int *fp);
+extern void *MatrixDrive_GetMatrix(void);
+extern int GetSkeltonFocusNode(char *self, int kind);
+extern void _MulMatrix(void *d, void *a, void *b);
+extern void UpdateEnemyEye(char *eye, void *m, float ratio);
+extern char D_004E78A0[];
+
+void EnemyGeo(char *self)
+{
+    int sub = *(int *)(self + 0x15C);
+    char *node = *(char **)(self + 0x164);
+    unsigned long long flag = *(unsigned long long *)(node + 0x18);
+    char *w = *(char **)(sub + 0x830);
+    float ratio;
+    float buf[4];
+
+    if ((int)(flag >> 33) & 1) {
+        *(int *)(w + 0x4C) = 0;
+    } else {
+        if (*(int *)(w + 0x4C) >= 0xB)
+            return;
+        *(int *)(w + 0x4C) = *(int *)(w + 0x4C) + 1;
+    }
+
+    *(int *)(*(int *)(self + 0x15C) + 0x550) = 0;
+    *(int *)(*(int *)(self + 0x15C) + 0x54C) = 2;
+    *(int *)(*(int *)(self + 0x15C) + 0x548) = 0;
+    if (GetEnemyTypeFromGObj(self) == 3)
+        *(int *)(*(int *)(self + 0x15C) + 0x550) = 1;
+
+    ExecMotionOrient(self);
+
+    CylinderCollisionWithControlDynamics(self, 4, 0, *(float *)(w + 0x48) * 70.0f,
+                                         *(float *)(w + 0x48) * 50.0f, 0.5f);
+
+    if (isEnemyActive((int *)self) != 0) {
+        char *s = *(char **)(self + 0x15C);
+        if (*(int *)(s + 0x63C) != 0) {
+            if (*(int *)(w + 0x2C) != 0) {
+                if (!(*(int *)(s + 0x4A0) == 0x3A1 || *(int *)(s + 0x4A0) == 0x3A2)) {
+                    GetProjectionOfPlane(
+                        buf, (float *)(s + 0x1D0),
+                        (float *)(*(char **)(s + 0xC) + *(int *)(s + 0x220) * 0x40 + 0x30));
+                    EntryEnemyFootPrint(*(int **)(w + 0x28), buf);
+                }
+            }
+        }
+    }
+    ExecEnemyFootPrints(*(int **)(w + 0x28));
+
+    *(int *)(*(int *)(self + 0x15C) + 0x558) = (*(int *)(*(int *)(self + 0x15C) + 0x558) + 1) % 10;
+
+    ratio = (*(float *)(*(char **)(*(int *)(self + 0x15C) + 0x870) + 0x20) +
+             *(float *)(*(char **)(*(int *)(self + 0x15C) + 0x870) + 0x24) +
+             *(float *)(*(char **)(*(int *)(self + 0x15C) + 0x870) + 0x28)) /
+            3.0f;
+
+    _MulMatrix(MatrixDrive_GetMatrix(),
+               *(char **)(*(int *)(self + 0x15C) + 0xC) + GetSkeltonFocusNode(self, 0x24) * 0x40,
+               D_004E78A0);
+    UpdateEnemyEye(*(char **)(w + 0x18), MatrixDrive_GetMatrix(), ratio);
+    _MulMatrix(MatrixDrive_GetMatrix(),
+               *(char **)(*(int *)(self + 0x15C) + 0xC) + GetSkeltonFocusNode(self, 0x25) * 0x40,
+               D_004E78A0);
+    UpdateEnemyEye(*(char **)(w + 0x20), MatrixDrive_GetMatrix(), ratio);
+}
 
 extern void reg_DispEnemy(void *sub);
 extern int DispEnemyEye(char *node);

@@ -159,7 +159,110 @@ void brainStatusDefaultSet(Brain *b, int gobj, int idx)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/brain", brainLevelProcess);
-INCLUDE_ASM("asm/nonmatchings/src/brain", brainGetTarget);
+
+extern void *test_CURRENTROOT(void *g);
+extern float _DistSqGV(void *a, void *b);
+extern char *D_00639EA8;
+
+/* INTERIM stand-in for brainGetLevel (listing brain.c:541-545), which the ROM
+ * expands into brainGetTarget; the out-of-line definition stays at its own ROM
+ * slot below while this TU still has asm members. */
+static inline float brainGetLevel_INTERIM(Brain *b, BrainTarget *t)
+{
+    if (b->cur == t) {
+        return t->level + b->f14;
+    }
+    return t->level;
+}
+
+void brainGetTarget(Brain *b)
+{
+    BrainTarget *best = 0;
+    BrainTarget *t;
+    float r;
+    /* volatile: ROM keeps the winner index in its frame slot (0(sp)) and
+       re-reads it, where a plain local is register-allocated; the same
+       memory-resident scalar pattern recurs in setEnemyParticleObject and
+       dispEnemyObject (volatile locals are an accepted shape, 2026-09-07). */
+    volatile int idx;
+    int n;
+    int lv;
+    int i;
+
+    for (i = 0; i < 0x28; i++) {
+        if (b->tgt[i].gobj == 0) {
+            continue;
+        }
+        t = &b->tgt[i];
+        if (best == 0 || brainGetLevel_INTERIM(b, t) > brainGetLevel_INTERIM(b, best)) {
+            best = t;
+            idx = i;
+        } else if (best != 0 && brainGetLevel_INTERIM(b, t) == brainGetLevel_INTERIM(b, best)) {
+            if (D_00639EA8 != 0) {
+                if (_DistSqGV(test_CURRENTROOT((void *)t->gobj), test_CURRENTROOT(D_00639EA8)) <
+                    _DistSqGV(test_CURRENTROOT((void *)best->gobj), test_CURRENTROOT(D_00639EA8))) {
+                    best = t;
+                    idx = i;
+                }
+            }
+        }
+    }
+
+    if (b->wC != 0) {
+        b->wC = 0;
+        b->w10 = b->w10 + 1;
+    } else {
+        b->w10 = b->w10 - 1;
+    }
+    if (b->w10 >= 0) {
+        n = b->w10 > (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 3 +
+                         (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 12
+                ? (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 3 +
+                      (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 12
+                : b->w10;
+    } else {
+        n = 0;
+    }
+    b->w10 = n;
+
+    if ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 3 < b->w10) {
+        best = b->cur;
+        for (i = 0; i < 0x28; i++) {
+            t = &b->tgt[i];
+            if (t == best) {
+                idx = i;
+                break;
+            }
+        }
+    }
+
+    b->idx = -1;
+    if (best != 0) {
+        b->idx = idx;
+        lv = (int)(brainGetLevel_INTERIM(b, best) - b->f14);
+
+        b->f20 = (float)lv / 10.0f;
+        if (b->f20 < 0.0f) {
+            r = 0.0f;
+        } else if (b->f20 > 1.0f) {
+            r = 1.0f;
+        } else {
+            r = b->f20;
+        }
+        b->f20 = r;
+        if (lv > 0) {
+            if (best->b18 != 0 || lv < 2) {
+                b->h1C = 1;
+            } else if (lv < 4) {
+                b->h1C = 2;
+            } else {
+                b->h1C = 3;
+            }
+        } else {
+            b->h1C = 0;
+        }
+    }
+}
 
 void brainStatusDel(char *self)
 {
