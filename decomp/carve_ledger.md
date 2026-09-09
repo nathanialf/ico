@@ -1147,3 +1147,9 @@ words become the blob's first words.
   referencer of it is C (girlForceField waits on GirlForceFieldDL).
 - girl_act's seven other jump tables (0x553AD0..0x553D30), interleaved with its
   strings: a spanning carve once the owning functions are C.
+
+### 2026-09-09 act-game: two switch tables carved with their owners (C-first)
+- `[0x452430, .rodata, src/act-game]` syms 0x00552430: jtbl_00552430, ACTGameView_Loop's 8-arm table (0x20 B), VMA 0x552430..0x552450.
+- `[0x452460, .rodata, src/act-game]` syms 0x00552460: jtbl_00552460, ACTEnvGetTest's 98-arm table (0x188 B), VMA 0x552460..0x5525E8.
+- Blob resumes at 0x452450 ("mode=[%d]\n") and 0x4525E8 (two strings, then jtbl_00552620/00552660 until GetTarget and ACTItemWatchMotion land); the 0x452680 row gained its `syms:` token (multi-row TU).
+- act-game's .lit4 row unchanged: 5000.0f (D_00638CD4) now emitted by ACTGameView_Loop at object offset 0x0C, its ASM_LIT4_SLOT line retired.

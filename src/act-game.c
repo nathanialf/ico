@@ -223,8 +223,108 @@ int ACTCheckView(char *self, void *a1, void *a2, void *a3, float f)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_Loop);
-ASM_LIT4_SLOT(D_00638CD4, 5000.0f);
+/* One table: a 100-entry object list, two parallel per-entry int arrays
+   (the full view result and the simple one), the entry count and the
+   round-robin cursor the loop below advances one entry per frame. */
+typedef struct {
+    char *obj[100];  /* 0x000 */
+    int view[100];   /* 0x190 */
+    int simple[100]; /* 0x320 */
+    int num;         /* 0x4B0 */
+    int cur;         /* 0x4B4 */
+} ActGameViewTbl;
+
+extern ActGameViewTbl D_006C0470;
+extern void GetRootPosition(void *dst, void *self);
+extern int *test_CURRENTROOT(int *a0);
+extern void GetSkeltonPosition(float *dst, char *obj, void *a2);
+extern void RequestClipCollision(void *w);
+extern void ClipWall(void *);
+extern void ClipFloor(void *);
+
+/* The view work record is reached as `self->act->view`, and the two chase
+   loads are spelled as int reads: that puts them in the same alias set as the
+   table's own int fields, so the `simple[i]` / `cur` stores in the later arms
+   invalidate the chase and the arm re-reads it, while the record's own
+   pointer slots (the clip callback, the target object, the cleared result
+   pointer) leave it alone. */
+void ACTGameView_Loop(char *self)
+{
+    float pos[4];
+    int i;
+
+    i = D_006C0470.cur;
+    if (D_006C0470.simple[i] != 0) {
+        GetRootPosition(pos, D_006C0470.obj[i]);
+        D_006C0470.view[i] = ACTCheckView(self, D_006C0470.obj[i], pos, (void *)0x96, 300.0f);
+    } else {
+        D_006C0470.view[i] = 0;
+    }
+
+    switch (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800)) {
+    case 0:
+        if (5000.0f <
+            _DistGV(test_CURRENTROOT((int *)self), test_CURRENTROOT((int *)D_006C0470.obj[i]))) {
+            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 6;
+        } else {
+            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 1;
+        }
+        break;
+    case 1:
+        *(void (**)(void *))(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F4) = ClipWall;
+        *(char **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F0) = D_006C0470.obj[i];
+        *(void **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7A0) = 0;
+        GetSkeltonPosition((float *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x730), self,
+                           (void *)0x23);
+        GetRootPosition(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x740, D_006C0470.obj[i]);
+        RequestClipCollision(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720);
+        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 2;
+        break;
+    case 2:
+        if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720) != 0) {
+            if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7B8) != 0) {
+                *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 6;
+            } else {
+                *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 3;
+            }
+        }
+        break;
+    case 3:
+        *(void (**)(void *))(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F4) = ClipFloor;
+        *(char **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F0) = D_006C0470.obj[i];
+        *(void **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7A0) = 0;
+        GetSkeltonPosition((float *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x730), self,
+                           (void *)0x23);
+        GetRootPosition(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x740, D_006C0470.obj[i]);
+        RequestClipCollision(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720);
+        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 4;
+        break;
+    case 4:
+        if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720) != 0) {
+            if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7C4) != 0) {
+                *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 6;
+            } else {
+                *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 5;
+            }
+        }
+        break;
+    case 5:
+        D_006C0470.simple[i] = 1;
+        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 7;
+        break;
+    case 6:
+        D_006C0470.simple[i] = 0;
+        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 7;
+        break;
+    case 7:
+        D_006C0470.cur++;
+        if (!(D_006C0470.cur < D_006C0470.num)) {
+            D_006C0470.cur = 0;
+        }
+        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 0;
+        break;
+    }
+}
 
 extern void DispMultiBgaManagerWithKind(int a0, int a1, int a2);
 
@@ -606,7 +706,151 @@ void FunctionAboutClingedStatus(char *self)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTEnvGetTest);
+/* The environment work block the actor rebuilds every frame: 464 bytes at
+   +0x4B0, plus the four sub-blocks that survive the rebuild. */
+typedef struct {
+    long long d[0x1D0 / 8];
+} EnvWork;
+
+/* 8-aligned 16-byte and 4-aligned 32-byte sub-blocks of that work area. */
+typedef struct {
+    long long d[2];
+} EnvPair;
+
+typedef struct {
+    float f[8];
+} EnvOct;
+
+extern MotionRec D_0055FE58[];
+extern void *memset(void *a0, int a1, int a2);
+extern float *test_CURRENTORIENT(char *a0);
+extern void ACTGetEnvironment(char *self, void *a1, float *orient, void *a3, void *a4);
+extern void ACTSetEnvAllmighty(char *self);
+extern void ACTGetWish_FromPad(char *self, void *a1);
+extern void FunctionAboutClingedStatus(char *self);
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines ACTGame_CheckPriInputFrame (line 1255) here and into its own
+   ROM slot, so it is `inline` in the dev's TU; while this tail still has asm
+   members a deferred inline would land at the object end instead of at its ROM
+   slot, so the public body below stays a plain definition and this caller uses
+   the static stand-in.  Collapses to one `inline` definition at layout. */
+static inline unsigned char actGame_CheckPriInputFrame(char *a0)
+{
+    short e;
+    short s;
+
+    e = D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f_184;
+    if ((float)e < *(float *)(*(char **)(a0 + 0x15C) + 0x4AC) && e != -1) {
+        return 1;
+    }
+    s = D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f_180;
+    if (s != -1 && *(float *)(*(char **)(a0 + 0x15C) + 0x4AC) < (float)s) {
+        return 1;
+    }
+    return 0;
+}
+
+/* OR the 16 pending-request bytes into the live request bytes. */
+static inline void actEnv_OrRequestBytes(unsigned char *dst, unsigned char *src)
+{
+    int i;
+
+    for (i = 15; i >= 0; i--, dst++, src++) {
+        *dst |= *src;
+    }
+}
+
+void ACTEnvGetTest(char *self, void *a1)
+{
+    EnvWork old;
+    char *s = *(char **)(self + 0x164);
+
+    *(unsigned long long *)(s + 0x18) &= ~(1ULL << 59);
+    *(unsigned long long *)(s + 0x18) &= ~(1ULL << 60);
+    *(unsigned long long *)(s + 0x18) &= ~(1ULL << 61);
+    *(unsigned long long *)(s + 0x20) &= ~(1ULL << 19);
+    *(unsigned long long *)(s + 0x20) &= ~(1ULL << 38);
+    *(unsigned long long *)(s + 0x20) &= ~(1ULL << 39);
+
+    switch (*(int *)(s + 0x34)) {
+    case 38:
+    case 107:
+        *(EnvOct *)(s + 0x620) = *(EnvOct *)(*(char **)(self + 0x15C) + 0x180);
+        break;
+
+    default:
+        old = *(EnvWork *)(s + 0x4B0);
+        memset(s + 0x4B0, 0, sizeof(EnvWork));
+        *(EnvPair *)(s + 0x5C0) = *(EnvPair *)((char *)&old + 0x110);
+        *(EnvOct *)(s + 0x620) = *(EnvOct *)((char *)&old + 0x170);
+        *(EnvOct *)(s + 0x660) = *(EnvOct *)((char *)&old + 0x1B0);
+        *(EnvOct *)(s + 0x640) = *(EnvOct *)((char *)&old + 0x190);
+        ACTGetEnvironment(self, a1, test_CURRENTORIENT(self), s + 0x47C, s + 0x4B0);
+        break;
+
+    case 10:
+    case 12:
+    case 14:
+    case 26:
+    case 36:
+    case 45:
+    case 46:
+    case 47:
+    case 48:
+    case 51:
+    case 52:
+    case 53:
+    case 54:
+    case 63:
+    case 64:
+    case 65:
+    case 66:
+    case 78:
+    case 79:
+    case 80:
+    case 81:
+    case 82:
+    case 88:
+    case 104:
+    case 105:
+    case 106:
+        break;
+    }
+
+    ACTSetEnvAllmighty(self);
+    ACTGetWish_FromPad(self, a1);
+
+    if (actGame_CheckPriInputFrame(self)) {
+        actEnv_OrRequestBytes((unsigned char *)(s + 0x49C), (unsigned char *)(s + 0x48C));
+    } else {
+        memset(s + 0x49C, 0, 0x10);
+    }
+
+    if ((int)(*(unsigned long long *)(s + 0x498) >> 39) & 1) {
+        *(unsigned long long *)(s + 0x488) |= 1ULL << 39;
+    }
+    if ((int)(*(unsigned long long *)(s + 0x498) >> 44) & 1) {
+        *(unsigned long long *)(s + 0x488) |= 1ULL << 44;
+    }
+    if ((int)(*(unsigned long long *)(s + 0x498) >> 45) & 1) {
+        *(unsigned long long *)(s + 0x488) |= 1ULL << 45;
+    }
+    if ((int)(*(unsigned long long *)(s + 0x498) >> 50) & 1) {
+        *(unsigned long long *)(s + 0x488) |= 1ULL << 50;
+    }
+    if ((int)(*(unsigned long long *)(s + 0x498) >> 51) & 1) {
+        *(unsigned long long *)(s + 0x488) |= 1ULL << 51;
+    }
+    if ((int)(*(unsigned long long *)(s + 0x498) >> 52) & 1) {
+        *(unsigned long long *)(s + 0x488) |= 1ULL << 52;
+    }
+    if ((int)(*(unsigned long long *)(s + 0x498) >> 53) & 1) {
+        *(unsigned long long *)(s + 0x488) |= 1ULL << 53;
+    }
+    FunctionAboutClingedStatus(self);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ActOrientTest);
 ASM_LIT4_SLOT(D_00638CD8, -1.5707964f);
 ASM_LIT4_SLOT(D_00638CDC, 1.5707964f);
@@ -870,13 +1114,12 @@ void SetDirectRootPositionWithNodePointLimit(void *a0, void *a1, void *a2, float
     SetDirectRootPositionNoFittingWithNodePoint(a0, a1, a2, farg0);
 }
 
-extern int D_006C0470[];
+extern ActGameViewTbl D_006C0470;
 
 void ACTGameView_Init(void)
 {
-    int *p = D_006C0470;
-    *(int *)((char *)p + 0x4B0) = 0;
-    *(int *)((char *)p + 0x4B4) = 0;
+    D_006C0470.num = 0;
+    D_006C0470.cur = 0;
 }
 
 void ACTCharctrl_Lock(char *a0)
@@ -1336,15 +1579,15 @@ extern int *isysGObjSearchFromObjKindID_next(int *);
    Collapses to one `inline` definition at layout. */
 static inline void actGameView_Add(char *a0, char *a1)
 {
-    int n = D_006C0470[0x4B0 / 4]++;
+    int n = D_006C0470.num++;
     if (n >= 100) {
         debug_StdPrintfDummy(D_00552400);
         debug_assert(D_00552420, 0x6FF);
         __assert(D_00552420, 0x6FF, D_0063A698);
     }
-    *(char **)&D_006C0470[n] = a1;
-    *(int *)((char *)D_006C0470 + n * 4 + 0x190) = 0;
-    *(int *)((char *)D_006C0470 + n * 4 + 0x320) = 0;
+    D_006C0470.obj[n] = a1;
+    D_006C0470.view[n] = 0;
+    D_006C0470.simple[n] = 0;
 }
 
 void ACTGameView_FirstSet(void)
@@ -1371,23 +1614,23 @@ extern void __assert(char *file, int line, char *expr);
    address ahead of the list address. */
 void ACTGameView_Add(char *a0, char *a1)
 {
-    int n = D_006C0470[0x4B0 / 4]++;
+    int n = D_006C0470.num++;
     if (n >= 100) {
         debug_StdPrintfDummy(D_00552400);
         debug_assert(D_00552420, 0x6FF);
         __assert(D_00552420, 0x6FF, D_0063A698);
     }
-    *(char **)&D_006C0470[n] = a1;
-    *(int *)((char *)D_006C0470 + n * 4 + 0x190) = 0;
-    *(int *)((char *)D_006C0470 + n * 4 + 0x320) = 0;
+    D_006C0470.obj[n] = a1;
+    D_006C0470.view[n] = 0;
+    D_006C0470.simple[n] = 0;
 }
 
 int ACTGameView_Check(int a0, int a1)
 {
     int i;
-    for (i = 0; i < D_006C0470[0x4B0 / 4]; i++) {
-        if (D_006C0470[i] == a1) {
-            return *((unsigned char *)&D_006C0470[i] + 0x190);
+    for (i = 0; i < D_006C0470.num; i++) {
+        if ((int)D_006C0470.obj[i] == a1) {
+            return *(unsigned char *)&D_006C0470.view[i];
         }
     }
     return 0;
@@ -1396,9 +1639,9 @@ int ACTGameView_Check(int a0, int a1)
 int ACTGameViewSimple_Check(int a0, int a1)
 {
     int i;
-    for (i = 0; i < D_006C0470[0x12C]; i++) {
-        if (D_006C0470[i] == a1) {
-            return *(unsigned char *)((char *)D_006C0470 + i * 4 + 0x320);
+    for (i = 0; i < D_006C0470.num; i++) {
+        if ((int)D_006C0470.obj[i] == a1) {
+            return *(unsigned char *)&D_006C0470.simple[i];
         }
     }
     return 0;
@@ -1856,7 +2099,39 @@ void ACTGame_SetMotionPlaySpeedRatio_Clear(char *a0)
     *(int *)(p + 0x54) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Exec);
+extern MotionRec D_0055FE58[];
+extern char *D_00639EA8;
+extern void SetMotionPlaySpeedRatio(char *a0, float f);
+
+void ACTGame_SetMotionPlaySpeedRatio_Exec(char *a0)
+{
+    float ratio;
+    int keep;
+
+    ratio = 1.0f;
+    keep = (unsigned int)*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x54) < 3 &&
+           a0 == D_00639EA8;
+    if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x54) == 1) {
+        if (((&D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)])->f_18C >> 30) & 1) {
+            ratio = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x58);
+            keep = 0;
+        }
+    } else {
+        if ((((&D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)])->f_18C >> 26) & 1) == 0) {
+            ratio = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x58);
+        }
+    }
+    if (keep) {
+        ratio = 1.0f;
+    }
+    /* The dev's wrapper macro expanded to a do/while(0) block; the back-edge
+       is what keeps this a real `jal` with a frame instead of the tail call
+       ee-gcc makes of a trailing void call (decomp/NOTES.md, "Defeating an
+       over-eager sibling-call"). It emits no instructions of its own. */
+    do {
+        SetMotionPlaySpeedRatio(a0, ratio);
+    } while (0);
+}
 
 void GetGirlPositionAtThisStage(float *a0)
 {
