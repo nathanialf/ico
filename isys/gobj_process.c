@@ -1,7 +1,16 @@
 #include "common.h"
 
+/* one process node: 0x4 owner GObj, 0x8 prev, 0xC next; the owner keeps the
+   list head at +0x2C and the tail at +0x30 */
+typedef struct GProc {
+    char _p0[0x4];
+    char *owner;        /* 0x04 */
+    struct GProc *prev; /* 0x08 */
+    struct GProc *next; /* 0x0C */
+} GProc;
+
+extern void cut_gobj_process_link(GProc *p);
 /* header prototypes (order fixes the inline tail) */
-extern void cut_gobj_process_link(int a0);
 extern int iosThreadDestroy(int a0);
 extern char D_00551FF0[];
 extern int D_0063A430;
@@ -122,7 +131,32 @@ inline void free_gobj_process_resource(char *self)
     *(int *)(self + 0x0) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", cut_gobj_process_link);
+extern char D_00552068[];
+extern void debug_StdPrintfDummy();
+
+void cut_gobj_process_link(GProc *p)
+{
+    if (p == 0) {
+        debug_StdPrintfDummy(D_00552068);
+        return;
+    }
+    if (p->next == 0 && p->prev == 0) {
+        /* not linked into a list */
+    } else {
+        if (p->next != 0) {
+            p->next->prev = p->prev;
+        }
+        if (p->prev != 0) {
+            p->prev->next = p->next;
+        }
+    }
+    if (p == *(GProc **)(p->owner + 0x2C)) {
+        *(GProc **)(p->owner + 0x2C) = p->prev;
+    }
+    if (p == *(GProc **)(p->owner + 0x30)) {
+        *(GProc **)(p->owner + 0x30) = p->next;
+    }
+}
 
 void isysGObjProcRemove(int *a0)
 {

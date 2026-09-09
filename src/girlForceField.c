@@ -1,5 +1,7 @@
 #include "common.h"
 #include "ico/types.h"
+#include "vu0.h"
+#include "sugiCommon.h"
 
 extern char D_0061F9E0[]; /* "...sugipon/src/girlForceField.c": this TU's __FILE__ */
 extern int D_0063A438;    /* game heap handle */
@@ -38,4 +40,59 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
 
 inline void GirlForceFieldGeo(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/girlForceField", GirlForceFieldDL);
+/* The girl's GObj, or NULL before she is spawned. */
+extern void *D_00639EA8;
+
+/* The per-object-kind action record table (0x4C bytes/entry, indexed by the
+   GObj's kind id at +8) and the animation-record table it selects into. */
+typedef struct OaRecA {
+    char pad[0x34];
+    int x34;
+    char pad2[0x4C - 0x38];
+} OaRecA;
+
+typedef struct OaRecB {
+    void *x0;
+    int x4;
+    int x8;
+    int xC;
+    int x10;
+} OaRecB;
+
+extern OaRecA D_002C2DC8[];
+extern OaRecB D_002BC6E0[];
+extern void UpdateRootMatrix(void *gobj);
+extern void GetRootPosition(void *dst, void *gobj);
+extern void GetRootQuaternion(void *dst, void *gobj);
+extern float FSqrt(float x);
+extern float stage_PlayBgAnimationDissolve(void *anim, float *pos, float *quat, float frame,
+                                           float ratio);
+
+void GirlForceFieldDL(char *self)
+{
+    float pos[4];
+    float quat[4];
+    float gpos[4];
+    GirlForceFieldWork *w = *(GirlForceFieldWork **)(*(char **)(self + 0x15C) + 0x830);
+    float d2;
+    float ratio;
+
+    UpdateRootMatrix(self);
+    GetRootPosition(pos, self);
+
+    if (D_00639EA8 != 0) {
+        GetRootPosition(gpos, D_00639EA8);
+        d2 = distance_squared(gpos, pos);
+        if (d2 < w->radius * w->radius) {
+            ratio = 1.0f - FSqrt(d2) * w->invRadius;
+            ratio = ratio < 0.0f ? 0.0f : ratio;
+
+            GetRootQuaternion(quat, self);
+            w->frame = (int)stage_PlayBgAnimationDissolve(
+                D_002BC6E0[D_002C2DC8[*(int *)(self + 8)].x34].x0, pos, quat, (float)w->frame,
+                ratio);
+            return;
+        }
+    }
+    w->frame = 0;
+}

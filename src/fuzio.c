@@ -47,8 +47,31 @@ float fzMagnitudefv(int v)
     return FSqrt(sceVu0InnerProduct(v, v));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitude2fv);
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitudeByLine);
+/* 8-byte aligned so the initializer's block copy is ld/sd, not ldl/ldr+sdl/sdr */
+typedef union FzVec {
+    float f[4];
+    long long ll[2];
+} FzVec;
+
+float fzMagnitude2fv(float *p0, float *p1)
+{
+    FzVec d = {{p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]}};
+    return FSqrt(sceVu0InnerProduct((int)&d, (int)&d));
+}
+
+float fzMagnitudeByLine(float *p0, float *p1, float *p2)
+{
+    float a, b, c, mdret;
+    int ci;
+
+    a = -(p1[0] - p0[0]);
+    b = p1[2] - p0[2];
+    c = p0[2] * p1[0] - p0[0] * p1[2];
+    mdret = FSqrt(b * b + a * a);
+    ci = (int)(b * p2[0] + a * p2[2] + c);
+    ci = __builtin_abs(ci);
+    return (float)ci / mdret;
+}
 
 float fzMagnitudeByLineSeg(float *p0, float *p1, float *p2)
 {

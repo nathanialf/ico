@@ -15,8 +15,11 @@ typedef struct DLN {
 extern void cut_gobj_dl_link(int *self);
 extern int D_0029C530[];
 extern int D_0029C550[];
-extern void func_00141248(int a0, int a1, int a2);
 extern char D_00551F78[];
+extern char D_00551F88[];
+extern char D_00551FA0[];
+extern char D_00551FB0[];
+extern char D_00551FC0[];
 extern void debug_StdPrintfDummy();
 /* prototypes: their order is the inline tail's emission order */
 /* the listing's add_gobj_to_head; every gobj list TU has its own static copy, so the
@@ -69,7 +72,54 @@ void isysGObjRemoveObjDL(int *self)
     cut_gobj_dl_link(self);
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", func_00141248);
+/* the listing's add_gobj_to_tail; the global of that name belongs to isys/gobj,
+   so this file-static copy keeps the census name only in C */
+static void add_gobj_to_tail(int a0, int a1, int a2)
+{
+    DLN *self = (DLN *)a0;
+    unsigned char idx = a1 & 0xFF;
+    DLN *head;
+    DLN *tail;
+    DLN *cur;
+
+    debug_StdPrintfDummy(D_00551F88);
+    self->id = idx;
+    self->key = a2;
+    head = ((DLN **)D_0029C530)[idx];
+    if (head == 0) {
+        ((DLN **)D_0029C530)[idx] = self;
+        self->prev = 0;
+        self->next = 0;
+        ((DLN **)D_0029C550)[idx] = self;
+        debug_StdPrintfDummy(D_00551FA0, self->next);
+        return;
+    }
+    if ((unsigned int)a2 < (unsigned int)head->key) {
+        self->prev = 0;
+        self->next = head;
+        head->prev = self;
+        ((DLN **)D_0029C530)[idx] = self;
+        debug_StdPrintfDummy(D_00551FB0, self->next);
+        return;
+    }
+    tail = ((DLN **)D_0029C550)[idx];
+    if ((unsigned int)a2 >= (unsigned int)tail->key) {
+        self->prev = tail;
+        self->next = 0;
+        tail->next = self;
+        ((DLN **)D_0029C550)[idx] = self;
+        debug_StdPrintfDummy(D_00551FC0, self->next);
+        return;
+    }
+    cur = head;
+    while ((unsigned int)cur->next->key <= (unsigned int)a2) {
+        cur = cur->next;
+    }
+    self->prev = cur;
+    self->next = cur->next;
+    cur->next = self;
+    self->next->prev = self;
+}
 
 static void add_gobj_to_head(int a0, int a1, int a2)
 {
@@ -119,7 +169,7 @@ void isysGObjMoveObjDL(int a0, int a1, int a2)
     int new_var;
     new_var = a2;
     cut_gobj_dl_link(a0);
-    return func_00141248(a0, s1, new_var);
+    return add_gobj_to_tail(a0, s1, new_var);
 }
 
 void isysGObjMoveObjDLHead(int a0, int a1, int a2)
@@ -163,7 +213,7 @@ void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
     if (a1 != 0) {
         *(void **)((char *)a0 + 0x48) = a1;
         *(void **)((char *)a0 + 0x50) = a4;
-        func_00141248(a0, a2, a3);
+        add_gobj_to_tail(a0, a2, a3);
         debug_StdPrintfDummy(D_00551FE0);
     }
 }

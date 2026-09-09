@@ -3,15 +3,26 @@
 extern int D_0063B8E8;
 extern void gif_SetGsReg();
 extern void gif_SpriteOrg_ll(int a0, long long a1) __asm__("gif_SetGsReg");
-extern void Draw2DLine();
 extern void _FTOI4Vector();
 extern int _getLine();
-extern void Draw2DLineG(int *a0, int *a1, int *a2, int *a3, int a4);
 extern void _FTOI4Vector__pn(int *out, int *src) __asm__("_FTOI4Vector");
 extern void _InitCurrentMatrix();
 extern int _getLine__pn(int *t0, int *t1, int *p1, int *p2) __asm__("_getLine");
+extern int D_0063B8E4;
 
-INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLine);
+void Draw2DLine(int *p1, int *p2, int *color, int z)
+{
+    gif_SetGsReg(0, D_0063B8E4);
+    gif_SpriteOrg_ll(1, (long long)color[0] | ((long long)color[1] << 8) |
+                            ((long long)color[2] << 16) | ((long long)color[3] << 24));
+    if (z == 0) {
+        gif_SpriteOrg_ll(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)p1[2] << 32));
+        gif_SpriteOrg_ll(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)p2[2] << 32));
+    } else {
+        gif_SpriteOrg_ll(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)z << 32));
+        gif_SpriteOrg_ll(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)z << 32));
+    }
+}
 
 void Draw2DLineSeg_Start(void)
 {
@@ -26,7 +37,28 @@ void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2)
     gif_SpriteOrg_ll(5, (long long)a1[0] | ((long long)a1[1] << 16) | ((long long)a1[2] << 32));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLineG);
+extern int D_0063B8EC;
+
+void Draw2DLineG(int *p1, int *c1, int *p2, int *c2, int z)
+{
+    gif_SetGsReg(0, D_0063B8EC);
+    if (z == 0) {
+        gif_SpriteOrg_ll(1, (long long)c1[0] | ((long long)c1[1] << 8) | ((long long)c1[2] << 16) |
+                                ((long long)c1[3] << 24));
+        gif_SpriteOrg_ll(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)p1[2] << 32));
+        gif_SpriteOrg_ll(1, (long long)c2[0] | ((long long)c2[1] << 8) | ((long long)c2[2] << 16) |
+                                ((long long)c2[3] << 24));
+        gif_SpriteOrg_ll(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)p2[2] << 32));
+    } else {
+        gif_SpriteOrg_ll(1, (long long)c1[0] | ((long long)c1[1] << 8) | ((long long)c1[2] << 16) |
+                                ((long long)c1[3] << 24));
+        gif_SpriteOrg_ll(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)z << 32));
+        gif_SpriteOrg_ll(1, (long long)c2[0] | ((long long)c2[1] << 8) | ((long long)c2[2] << 16) |
+                                ((long long)c2[3] << 24));
+        gif_SpriteOrg_ll(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)z << 32));
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/lineManager", _getLine);
 
 void DrawLine(int *p1, int *p2, int a2, int a3)

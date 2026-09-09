@@ -14,8 +14,11 @@ typedef struct CandleFlame {
 
 typedef struct CandleWork {
     char _pad0[0x8];
-    int num; /* 0x8  — flame count */
-    char _pad_c[0x830 - 0xC];
+    int num;   /* 0x8  — flame count */
+    char *mtx; /* 0xC  — the per-flame 0x40-byte matrix run */
+    char _pad_10[0x74 - 0x10];
+    int alive; /* 0x74 */
+    char _pad_78[0x830 - 0x78];
     CandleFlame *flame; /* 0x830 */
 } CandleWork;
 
@@ -24,8 +27,42 @@ typedef struct CandleWork {
 /* prototypes: their order is the inline tail's emission order */
 void DeleteLayoutedCandleParticleEffect(void);
 void _deleteLayoutedCandleParticleEffect(void *gobj);
+extern int D_0063A438;
+extern char D_0061F198[];
+extern char D_0061F1A8[];
+extern char D_002907E0[];
+extern int iosMallocDebug(int heap, int size, const char *file, int line);
+extern void debug_StdPrintfDummy();
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_TransMatrix(float x, float y, float z);
+extern void CopyMatrix(void *dst, void *src);
+extern int SetParticleEffect(int id, void *pos, void *quat);
+extern void SetParticleEffectGeometry(int id, void *pos, void *quat);
 
-INCLUDE_ASM("asm/nonmatchings/src/candle", InitCandleGeo);
+int InitCandleGeo(void *self, void *mtx)
+{
+    CandleWork *w = CANDLE_WORK(self);
+    CandleFlame *flame;
+    int i;
+
+    if (w->num >= 2) {
+        flame = (CandleFlame *)iosMallocDebug(D_0063A438, w->num * 8, D_0061F198, 0x18);
+        for (i = 0; i < w->num; i++) {
+            CopyMatrix(MatrixDrive_GetMatrix(), w->mtx + i * 0x40);
+            MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
+            flame[i].effect =
+                SetParticleEffect(4, (char *)MatrixDrive_GetMatrix() + 0x30, D_002907E0);
+            flame[i].off = 0;
+        }
+    } else {
+        flame = (CandleFlame *)iosMallocDebug(D_0063A438, 8, D_0061F198, 0x23);
+        flame->effect = SetParticleEffect(4, mtx, D_002907E0);
+        flame->off = 0;
+    }
+    debug_StdPrintfDummy(D_0061F1A8);
+    return (int)flame;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/candle", CandleGeo);
 
 inline void _deleteLayoutedCandleParticleEffect(void *gobj)

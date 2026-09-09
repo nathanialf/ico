@@ -1156,3 +1156,10 @@ words become the blob's first words.
 
 ### 2026-09-09 mv_readbuf: alloc_zeroed literals carved with the TU (header form)
 - `[0x4576A8, .rodata, ito/mpeg/mv_readbuf]`: D_005576A8 "../ito/include/mv_defs.h" + D_005576C8 "p != NULL", 48 B, VMA 0x5576A8..0x5576D8 (mv_defs.h alloc_zeroed's __FILE__/assert literals; mirror of mv_vobuf's and mv_vibuf's rows); blob resumes at 0x4576D8 with the next ito/mpeg TU's copy. mv_readbuf added to config/include_ito.txt so __FILE__ resolves to the developer's spelling.
+
+### 2026-09-09 su-a pass 2: five small carves with their owners
+- `[0x539108, .lit4, src/warpGirl]`: D_00639108, warpGirlInStage's pi/180 (1 slot; MAIN.MAP warpGirl.o .lit4 0x4), blob resumes at 0x53910C. Found at harvest: an object emitting `.lit4` with NO row is parked by the linker at the pool's head and shifts every later pool and the whole small-data area (+8 here); the ROM row is where the ROM keeps the word, not where the worker guessed (0x53970C holds another TU's 0.7f).
+- `[0x539A84, .lit4, src/st17b]`: 3 slots (14990/7074/-4694), VMA 0x639A84..0x639A90; blob resumes at 0x539A90.
+- `[0x539AE0, .lit4, src/st22a]`: 2 slots (-707.0f/-1112.0f), VMA 0x639AE0..0x639AE8, carved out of the 539AB8 blob's tail; MAIN.MAP says 0x24 for this object (debug link), the retail object needs 0x8.
+- `[0x456890, .rodata, src/itou_sub]`: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template, 12 B; blob resumes at 0x45689C (pad word + lightning's string).
+- `[0x51D730, .rodata, src/kanbanBoot]`: jtbl_0061D730, kanbanBootMain's 8-arm table, 0x20 B; blob resumes at 0x51D750.

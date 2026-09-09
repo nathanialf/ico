@@ -227,4 +227,54 @@ void iosOmMain(int a0, int a1, int a2, int a3)
     _iosOmMain(a0, a1, a2, a3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", iosOmCreateDL);
+/* the camera list node the DL walk hangs off (D_0063A614) and the per-kind
+   GObj list heads (D_0029C530) */
+typedef struct OmCam {
+    char _p0[0x34];
+    struct OmCam *next; /* 0x34 */
+    char _p38[0x48 - 0x38];
+    void (*dl)(struct OmCam *); /* 0x48 */
+    int kindMask;               /* 0x4C */
+    int drawMask;               /* 0x50 */
+} OmCam;
+
+typedef struct OmObj {
+    char _p0[0x34];
+    struct OmObj *next; /* 0x34 */
+    char _p38[0x48 - 0x38];
+    void (*dl)(struct OmObj *); /* 0x48 */
+    char _p4C[0x4];
+    int drawMask; /* 0x50 */
+    char _p54[0x16C - 0x54];
+    int active; /* 0x16C */
+} OmObj;
+
+extern OmCam *D_0063A614;
+extern int D_0063A60C;
+extern OmObj *D_0029C530[];
+
+void iosOmCreateDL(void)
+{
+    OmCam *c;
+    OmObj *g;
+    int i;
+
+    for (c = D_0063A614; c != 0; c = c->next) {
+        if (D_0063A60C & 1) {
+            if (c->dl != 0) {
+                c->dl(c);
+            }
+        }
+        for (i = 0; i < 0x20; i++) {
+            if ((D_0063A60C >> i) & 1) {
+                if ((c->kindMask >> i) & 1) {
+                    for (g = D_0029C530[i]; g != 0; g = g->next) {
+                        if (g->active != 0 && (c->drawMask & g->drawMask) != 0 && g->dl != 0) {
+                            g->dl(g);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

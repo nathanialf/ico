@@ -30,7 +30,37 @@ inline void Draw2DBox(float x0, float y0, float x1, float y1)
     gif_EndPacket();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/wireLetter", DispWireLetter);
+extern int D_004EE4D0[];
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void MatrixDrive_TransMatrix(float x, float y, float z);
+extern void gif_SetAlpha(int a, int b, int c);
+void DispWireLetter(int c);
+
+void DispWireLetter(int c)
+{
+    int idx = c - '.';
+    float *p;
+    int i;
+
+    if (c != ' ') {
+        p = (float *)D_004EE4D0[idx];
+        if (p != 0) {
+            MatrixDrive_PushMatrix();
+            gif_StartPacketPri(0xB);
+            gif_SetAlpha(1, 5, 0);
+            for (i = 0; p[i * 4] < 100.0f; i++) {
+                WLPnt a = {p[i * 4 + 0], -p[i * 4 + 1], 0};
+                WLPnt b = {p[i * 4 + 2], -p[i * 4 + 3], 0};
+
+                DrawLineG(&a, D_004EE5A0, &b, D_004EE5A0, -1);
+            }
+            gif_EndPacket();
+            MatrixDrive_PopMatrix();
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/wireLetter", DispWireString);
 
 inline void ChangeColorWireString(int a0, int a1, int a2)

@@ -148,7 +148,37 @@ inline void actAttackCheckBoundaryStart(int *self)
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryBeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", InitAttackCheckBoundaryManagerGeo);
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryManagerGeo);
+
+/* the manager's 8-byte roster entries and its work block at sub+0x830 */
+typedef struct AcbEntry {
+    char *obj; /* 0x00 */
+    int hit;   /* 0x04 */
+} AcbEntry;
+
+typedef struct AcbMgr {
+    int count;      /* 0x00 */
+    int cur;        /* 0x04 */
+    int prev;       /* 0x08 */
+    AcbEntry *list; /* 0x0C */
+} AcbMgr;
+
+void AttackCheckBoundaryManagerGeo(char *self)
+{
+    AcbMgr *m = *(AcbMgr **)(*(char **)(self + 0x15C) + 0x830);
+    int i;
+
+    for (i = 0; i < m->count; i++) {
+        char *e = m->list[i].obj;
+
+        /* int-typed chase (types.h GOBJ_SUB): the int store below may-alias the
+           chase, so ROM reloads 0x15C/0x830 for the second access */
+        m->list[i].hit = *(int *)(*(int *)(*(int *)(e + 0x15C) + 0x830) + 4);
+        *(int *)(*(int *)(*(int *)(e + 0x15C) + 0x830) + 4) = 0;
+        *(int *)(e + 0x16C) = 1;
+    }
+    m->prev = m->cur;
+    m->cur = 0;
+}
 
 void AttackCheckBoundaryManagerDL(void) {}
 

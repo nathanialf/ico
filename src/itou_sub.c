@@ -38,13 +38,51 @@ inline void apply_matrix_w1(void *a0, void *a1, void *a2)
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_sub", m33_to_quat);
+extern float _Sqrt(float x);
+
+int m33_to_quat(float *q, float (*m)[4])
+{
+    float tr;
+    float s;
+    float t;
+    int i;
+    int j;
+    int k;
+
+    tr = m[0][0] + m[1][1] + m[2][2];
+    if (tr > 0.0f) {
+        s = _Sqrt(tr + 1.0f);
+        q[3] = s * 0.5f;
+        t = 0.5f / s;
+        q[0] = (m[1][2] - m[2][1]) * t;
+        q[1] = (m[2][0] - m[0][2]) * t;
+        q[2] = (m[0][1] - m[1][0]) * t;
+    } else {
+        int nxt[3] = {1, 2, 0};
+
+        i = 0;
+        if (m[1][1] > m[0][0]) {
+            i = 1;
+        }
+        if (m[2][2] > m[i][i]) {
+            i = 2;
+        }
+        j = nxt[i];
+        k = nxt[j];
+        s = _Sqrt(m[i][i] - (m[j][j] + m[k][k]) + 1.0f);
+        q[i] = s * 0.5f;
+        t = (s != 0.0f) ? 0.5f / s : 0.0f;
+        q[3] = (m[j][k] - m[k][j]) * t;
+        q[j] = (m[i][j] + m[j][i]) * t;
+        q[k] = (m[i][k] + m[k][i]) * t;
+    }
+}
 
 inline int ico_m33_to_quat(int a0)
 {
     int buf[16];
     sceVu0TransposeMatrix(buf);
-    return m33_to_quat(a0, buf);
+    return m33_to_quat((float *)a0, (float (*)[4])buf);
 }
 
 inline void pbga_start(int *self, int *q)
