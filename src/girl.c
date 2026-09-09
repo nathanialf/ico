@@ -21,10 +21,94 @@ ASM_LIT4_SLOT(D_00639518, 0.01f);
 ASM_LIT4_SLOT(D_0063951C, 0.98f);
 ASM_LIT4_SLOT(D_00639520, 0.98f);
 INCLUDE_ASM("asm/nonmatchings/src/girl", func_001DD128);
-ASM_LIT4_SLOT(D_00639524, 1.1111112f);
-ASM_LIT4_SLOT(D_00639524, 1.1111112f);
-INCLUDE_ASM("asm/nonmatchings/src/girl", func_001DD340);
-INCLUDE_ASM("asm/nonmatchings/src/girl", func_001DD440);
+
+extern int GetSkeltonFocusNode(char *obj, int kind);
+extern void *MatrixDrive_GetMatrix(void);
+extern void CopyMatrix(void *dst, void *src);
+extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
+extern void reg_DispAccessoryWithShadow(char *o, char *src);
+
+/* census: sugipon/src/girl.c:763 `dispCrown` (a TU-static; the name here is
+ * splat's placeholder, which is what this repo's symbol table carries). */
+void func_001DD340(char *gobj, char *acc)
+{
+    char *w;
+    int n;
+
+    w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    n = GetSkeltonFocusNode(gobj, 35);
+    CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(*(char **)(gobj + 0x15C) + 0xC) + n * 0x40);
+    MatrixDrive_ScaleMatrix(1.1111112f, 1.1111112f, 1.1111112f);
+    if (*(int *)(w + 0x28) != 0) {
+        CopyMatrix(*(char **)(*(char **)(w + 0x2C) + 0xC), MatrixDrive_GetMatrix());
+        CopyMatrix(*(char **)(*(char **)(w + 0x30) + 0xC), MatrixDrive_GetMatrix());
+        reg_DispAccessoryWithShadow(*(char **)(w + 0x30), *(char **)(gobj + 0x15C));
+        reg_DispAccessoryWithShadow(*(char **)(w + 0x2C), *(char **)(gobj + 0x15C));
+    } else {
+        CopyMatrix(*(char **)(acc + 0xC), MatrixDrive_GetMatrix());
+        reg_DispAccessoryWithShadow(acc, *(char **)(gobj + 0x15C));
+    }
+}
+
+extern void DispCloth4D(void *cloth, void *a1, void *a2);
+extern void DispCloth4DWithAdd(void *cloth, void *a1, void *a2);
+extern void func_001DD340(char *gobj, char *acc);
+
+/* census: sugipon/src/girl.c:787 `dispClothes` (a TU-static; the name here is
+ * splat's placeholder). */
+void func_001DD440(char *gobj)
+{
+    char *w;
+    char *x;
+    char *y;
+
+    w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    y = x + 0x40;
+    if (*(int *)(w + 0x24) != 0) {
+        func_001DD340(gobj, *(char **)(w + 0x24));
+    }
+    if (*(int *)(w + 0xC) != 0) {
+        if (*(int *)(w + 0x28) != 0) {
+            if (*(int *)(w + 0x10) != 0) {
+                DispCloth4DWithAdd(*(void **)(w + 0x10), y, x);
+            }
+            if (*(int *)(w + 0x14) != 0) {
+                DispCloth4DWithAdd(*(void **)(w + 0x14), y, x);
+            }
+        } else {
+            if (*(int *)(w + 0x10) != 0) {
+                DispCloth4D(*(void **)(w + 0x10), y, x);
+            }
+            if (*(int *)(w + 0x14) != 0) {
+                DispCloth4D(*(void **)(w + 0x14), y, x);
+            }
+            if (*(int *)(w + 0x18) != 0) {
+                DispCloth4D(*(void **)(w + 0x18), y, x);
+            }
+        }
+    }
+    if (*(int *)(w + 0x4) != 0) {
+        /* Two separate tests, not `>= 642 || < 639`: gcc's fold_range_test
+         * merges a disjunction over one operand into `(unsigned)(v - 639) < 3`,
+         * which ROM does not have — ROM keeps both `slti`s. */
+        if (*(int *)(*(char **)(gobj + 0x15C) + 0x4A0) < 642) {
+            if (*(int *)(*(char **)(gobj + 0x15C) + 0x4A0) >= 639) {
+                goto skip;
+            }
+        }
+        if (*(int *)(w + 0x8) != 0) {
+            DispCloth4D(*(void **)(w + 0x8), y, x);
+        }
+    skip:;
+    }
+    if (*(int *)(w + 0x1C) != 0) {
+        if (*(int *)(w + 0x20) != 0) {
+            DispCloth4D(*(void **)(w + 0x20), y, x);
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/girl", InitGirlGeo);
 
 extern char *D_00639EA4;
@@ -188,7 +272,6 @@ void debugWireStringGirl(char *a0)
     MatrixDrive_PopMatrix();
 }
 
-extern void func_001DD440(int a0);
 extern void p2o_DispVU1(int a0);
 extern void p2o_SetDefaultEnviroment(int a0);
 
@@ -196,7 +279,7 @@ void GirlDL(int a0)
 {
     p2o_SetDefaultEnviroment(a0);
     p2o_DispVU1(a0);
-    func_001DD440(a0);
+    func_001DD440((char *)a0);
     return debugWireStringGirl((char *)a0);
 }
 
