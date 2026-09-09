@@ -16,9 +16,115 @@ extern EnemyDef D_00624880[];
 
 #include "ico/types.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", setEnemyParticleObject);
-
+extern int iosMallocDebug(int part, int size, char *file, int line);
+extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
+extern int enemy_GetPositionTable(int idx, int sub_idx);
+extern void _CopyVector(void *dst, void *src);
 extern void debug_StdPrintfDummy();
+extern void debug_assertMessage(char *file, int line, char *mes);
+extern void __assert(char *file, int line, char *mes);
+extern int rand(void);
+extern float D_006394BC;
+extern int D_0063A438;
+extern char D_0061F650[];
+extern char D_0061F660[];
+extern char D_0061F670[];
+extern char D_0061F6A0[];
+extern char D_0063B888[];
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+    float w;
+} EnemyPosEntry;
+
+/* static helper the listing places at enemy.c lines 99-100, expanded only into
+ * setEnemyParticleObject; never emitted out of line, so it has no MAIN.MAP
+ * symbol and this name is ours. */
+static inline void clearEnemyParticleFlags(int *p, int n)
+{
+    int i;
+    for (i = 0; i < n; i++)
+        p[i] = 0;
+}
+
+void setEnemyParticleObject(char *self, int pid)
+{
+    char *sub = *(char **)(self + 0x15C);
+    char *w = *(char **)(sub + 0x830);
+    int n = *(int *)(sub + 0x88);
+    char *tbl = *(char **)(sub + 0x8C);
+    char *p = *(char **)(sub + 0x870);
+    int *parts;
+    int *fl;
+    float size;
+    int i;
+    int cnt;
+    int num;
+    int n4;
+    int type;
+    EnemyPosEntry *v;
+    EnemyPosEntry *q;
+
+    size = (*(float *)(p + 0x20) + *(float *)(p + 0x24) + *(float *)(p + 0x28)) * 32.0f *
+           D_006394BC * 0.5f * 10.0f;
+    parts = (int *)iosMallocDebug(D_0063A438, n * 4, D_0061F650, 130);
+    *(int **)(w + 0x10) = parts;
+    fl = (int *)iosMallocDebug(D_0063A438, n * 4, D_0061F650, 132);
+    *(int **)(w + 0x30) = fl;
+    clearEnemyParticleFlags(fl, n);
+    for (i = 0; i < n; i++) {
+        q = (EnemyPosEntry *)enemy_GetPositionTable(pid, i);
+        v = q;
+        if (q == 0) {
+            (*(int **)(w + 0x30))[i] = 0;
+            continue;
+        }
+        (*(int **)(w + 0x30))[i] = 1;
+        for (cnt = 0; q->w > -1.0f; cnt++)
+            q++;
+        q = v;
+        parts[i] = 0;
+        if (cnt <= 0)
+            continue;
+        if (cnt >= 80)
+            num = 80;
+        else
+            num = cnt;
+        parts[i] = prim_InitParticle(size, 0.5f, 0.5f, num, 1, D_0061F660, 0);
+        if (parts[i] == 0) {
+            debug_StdPrintfDummy(D_0061F670);
+            debug_assertMessage(D_0061F650, 177, D_0061F6A0);
+            __assert(D_0061F650, 177, D_0063B888);
+        }
+        for (cnt = 0; q->w > -1.0f && cnt < 80; cnt++, q++) {
+            n4 = rand() % 4;
+            _CopyVector(*(char **)(parts[i] + 0x190) + cnt * 32, q);
+            _CopyVector(*(char **)(parts[i] + 0x194) + cnt * 32, q);
+            type = *(int *)(tbl + i * 0x40 + 4);
+            if (type >= 38)
+                goto spread;
+            if (type < 36)
+                goto spread;
+            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x10) =
+                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x10) = 0.5f;
+            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x14) =
+                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x14) = 0.0f;
+            goto done;
+        spread:
+            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x10) =
+                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x10) = (n4 / 2) * 0.5f;
+            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x14) =
+                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x14) = (n4 % 2) * 0.5f;
+        done:
+            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x18) =
+                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x18) = 128.0f;
+            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x1C) =
+                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x1C) = 64.0f;
+        }
+    }
+}
 
 typedef struct {
     int first;
@@ -31,7 +137,6 @@ extern char D_0061F6C8[];
 extern char D_0061F6F0[];
 extern char D_0063B890[];
 extern int GetPObjAddress(int obj);
-extern void setEnemyParticleObject(void *self, int pid);
 
 /* static helper the listing places at enemy.c lines 223-233, expanded only into
  * setEnemyObject; never emitted out of line, so it has no MAIN.MAP symbol and
