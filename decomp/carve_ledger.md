@@ -1172,3 +1172,7 @@ words become the blob's first words.
 
 ### 2026-09-10 st17a: door_mes carved with actSt17aDoor
 - `[0x3FAFB0, .data, src/st17a]` syms door_mes: actSt17aDoor's mail record, `static ActMail door_mes[2] = {{0x1AE},{0x1AD}}`, VMA 0x4FAFB0..0x4FAFD0; blob resumes at 0x3FAFD0. The record is a TU-owned file static named in the TU's chain_ok_mes/fence_up2_mes style (packet-name class ruling); as a placeholder `D_004FAFB0` its gcse bucket lowered the data allocno and stole $s4 in DoorDownChk (refs=3/live 128 exact tie). The TU's pool row 0x539A60 is now wholly compiler-emitted (all ASM_LIT4_SLOT lines retired).
+
+### 2026-09-10 FileManager: file_LoadCDFile's two switch tables and its one pool word
+- `[0x44DFB0, .rodata, src/FileManager]` syms 0x0054DFB0,0x0054DFE0: jtbl_0054DFB0 (11 arms, 0x2C + pad word) and jtbl_0054DFE0 (52 arms, 0xD0), VMA 0x54DFB0..0x54E0B0, contiguous with GifPacket's row; the 44DB30 blob ends at 0x44DFB0.
+- `[0x538BC8, .lit4, src/FileManager]`: D_00638BC8 = 10059776.0f (the CD-file size divisor), one word; blob resumes at 0x538BCC. The worker had read it as `extern float`; as an extern, reorg sank the load into the branch delay slot (ROM keeps the subtraction there), and the literal fixed the last two words on its own. Pool constants are literals: it is also the byte-exact spelling.

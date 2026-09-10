@@ -421,6 +421,7 @@ segments:
       - [0x44DB0C, rodata, src/cod/44DB0C]   # .rodata blob resume (the pad word before DisplayP2O's carve)
       - [0x44DB10, .rodata, src/DisplayP2O]  # carved D_0054DB10 (VMA 0x54DB10..0x54DB30, 32 B, 1 sym): "display object = %d" + ROM zero pad; TU fully matched, no asm stub to duplicate the dlabel
       - [0x44DB30, rodata, src/cod/44DB30]   # .rodata blob resume
+      - [0x44DFB0, .rodata, src/FileManager]  # syms: 0x0054DFB0,0x0054DFE0  carved jtbl_0054DFB0 (11 arms, 0x2C + pad word) + jtbl_0054DFE0 (52 arms, 0xD0): file_LoadCDFile's two switch tables, emitted by the compiled function, VMA 0x54DFB0..0x54E0B0
       - [0x44E0B0, .rodata, src/GifPacket]  # carved D_0054E0B0 (VMA 0x54E0B0..0x54E170, 192 B, 1 sym): the 12 GS ALPHA blend quadruples gif_SetAlpha indexes; referenced only from matched C, so no stub emits it and the carve must define it
       - [0x44E170, rodata, src/cod/44E170]   # .rodata blob resume
       - [0x44F1E0, .rodata, src/MicroCode]  # carved jtbl_0054F1E0 (5 arms, 0x14 B): mc_setBaseOffset's switch table, emitted by the compiled function, VMA 0x54F1E0..0x54F1F4
@@ -499,6 +500,8 @@ segments:
       - [0x538B3C, .lit4, src/motionManager2]# carved D_00638B3C..D_00638B80 (18 slots, GetWaterReaction..CheckFieldContact, 10 of them SlopeIKControl's), VMA 0x638B3C..0x638B84, 72 B; MAIN.MAP motionManager2.o .lit4 0x48 agrees.  USA: - [0x530944, .lit4, src/motionManager2]# carved D_00630944..D_00630980 (16 slots, SetMotionDirectionWithLimit + GetRootPosOfNextFrame + 14 asm), VMA 0x630944..0x630984
       - [0x538B84, .lit4, src/pool]  # carved D_00638B84..D_00638BB4 (13 slots, InitPoolGeo..getWave; the TU's whole pool, = MAIN.MAP pool.o .lit4 0x34), VMA 0x638B84..0x638BB8
       - [0x538BB8, lit4, src/cod/538BB8]     # .lit4 blob resume
+      - [0x538BC8, .lit4, src/FileManager]  # carved D_00638BC8 (1 slot: file_LoadCDFile's 10059776.0f, the CD-file size divisor, written as a literal), VMA 0x638BC8..0x638BCC
+      - [0x538BCC, lit4, src/cod/538BCC]     # .lit4 blob resume
       - [0x538BD8, .lit4, src/Light]  # carved D_00638BD8..D_00638C3C (26 slots, light_AddLight..light_resetFlatLight; the TU's whole pool, = MAIN.MAP Light.o .lit4 0x68), VMA 0x638BD8..0x638C40
       - [0x538C40, lit4, src/cod/538C40]     # .lit4 blob resume
       - [0x538CA0, .lit4, sound/s_init]  # carved D_00638CA0..D_00638CC4 (10 slots, one per occurrence: debug_DispSEInfo x2, sound3DParamSet, _soundSeDefPlay x3, soundSeEnvPlay x2, soundSeEnvDefaultSet x2; the TU's whole pool, adjacent to act-game's), VMA 0x638CA0..0x638CC8
