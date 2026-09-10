@@ -2521,7 +2521,33 @@ float _ACTGame_GetParamF(int idx)
     return D_002ADAF0[idx];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_GetCurrentCallStatus);
+int ACTGame_GetCurrentCallStatus(char *a0)
+{
+    char *s = (char *)*(int *)(a0 + 0x164);
+    int st;
+
+    if (a0 != D_00639EA4) {
+        return 0;
+    }
+    switch (D_0055FE58[*(int *)((char *)*(int *)(a0 + 0x15C) + 0x4A0)].u_188.h.hi & 7) {
+    case 1:
+        return 1;
+    case 2:
+        return 2;
+    case 3:
+        return 0;
+    }
+    if (((int)(*(unsigned long long *)(s + 0x478) >> 46) & 1) &&
+        ((int)(*(unsigned long long *)(s + 0x488) >> 46) & 1)) {
+        st = *(int *)(s + 0x34);
+        if ((unsigned int)st < 4) {
+            if (st != 0) {
+                return 2;
+            }
+        }
+    }
+    return 0;
+}
 
 int ACTGame_CheckPriInputFrame(char *a0)
 {
