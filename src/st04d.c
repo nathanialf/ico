@@ -226,9 +226,43 @@ void actSt04dDoor2(volatile int a0)
 
 inline void actSt04dDoor2UpEffect(volatile int a0);
 extern long long D_00622A60[];
-extern ActMail D_004F8930[];
 
-INCLUDE_ASM("asm/nonmatchings/src/st04d", actSt04dDoor2UpChk);
+/* TU-owned mail record: role-named file static per the 2026-09-07 ruling,
+   same shape as st17a's door_mes / st18a's switch_l_mes. */
+static ActMail door2_up_mes[2] = {{0x1AE}, {0x1AD}};
+
+void actSt04dDoor2UpChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0xF);
+
+    actCreateSubThread(actSt04dDoor2UpEffect, 0x15);
+
+    stage_SetAnimation(0x100, 1, 0);
+
+    buf[0] = D_00622A60[0];
+    buf[1] = D_00622A60[1];
+    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(0x100) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door2_up_mes[0].func = actSt04dDoor2DownChk;
+    sub->mail = door2_up_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 
 inline void actSt04dDoor2UpEffect(volatile int a0)
 {

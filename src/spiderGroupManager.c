@@ -87,7 +87,66 @@ inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/spiderGroupManager", tryToRevive);
-INCLUDE_ASM("asm/nonmatchings/src/spiderGroupManager", ExecSpiderGroupManager);
+
+extern int D_0063B138;
+extern int D_0028F4C0[];
+extern char D_00620DA8[];
+extern char D_00620DB8[];
+extern char D_00620DC8[];
+extern int tryToRevive(void);
+extern int GetAliveSpiders(int gobj);
+extern void DeadAllSpiders(int gobj);
+extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
+
+void ExecSpiderGroupManager(void)
+{
+    int i;
+    int total;
+    int groups;
+
+    if ((D_0063BAF0 & 0xF) == 0) {
+        tryToRevive();
+    }
+
+    if (D_0063BAE4 != 0 && D_0063BAFC == 0) {
+        groups = 0;
+        total = 0;
+        for (i = 0; i < D_0063BAE4; i++) {
+            int n = GetAliveSpiders(D_00723C98[i]);
+            if (n >= 0) {
+                total += n;
+                groups++;
+            }
+        }
+
+        if (groups != 0 && total > 0 && total < 5) {
+            D_0063BAF8 = D_0063BAF8 + 1;
+            if (D_0063B138 != 0) {
+                debug_PrintfDummy(400, 120, 0xFFFFFFFF, D_00620DA8, D_0063BAF8,
+                                  (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 45);
+            }
+        }
+
+        if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 45 < D_0063BAF8) {
+            for (i = 0; i < D_0063BAE4; i++) {
+                if (GetAliveSpiders(D_00723C98[i]) >= 0) {
+                    DeadAllSpiders(D_00723C98[i]);
+                }
+            }
+            D_0063BAFC = 1;
+        }
+
+        if (D_0063B138 != 0) {
+            if (groups != 0) {
+                debug_PrintfDummy(400, 110, 0xFFFFFFFF, D_00620DB8, total);
+            } else {
+                debug_PrintfDummy(400, 110, 0xFFFFFFFF, D_00620DC8);
+            }
+        }
+    }
+
+    D_0063BAF0 = D_0063BAF0 + 1;
+}
 
 inline void DispAllSpiderGroups(void)
 {

@@ -1205,3 +1205,6 @@ words become the blob's first words.
 ### 2026-09-11 clipCollisionManager and wireLetter pools (both TUs closed)
 - `[0x539470, .lit4, src/clipCollisionManager]`: D_00639470 = 0.01f (actClipCollisionCore), the tail of the 53945C blob (cage's words remain there).
 - `[0x53970C, .lit4, src/wireLetter]`: D_0063970C = 0.7f (DispWireString), the tail of the 5396B0 blob before worm's row. The pass-2 note assigning this slot to warpGirl was wrong (warpGirl's own word is at 0x639108, carved earlier).
+
+### 2026-09-11 st04d and st08b closed: their door mail records
+- `[0x3F8930, .data, src/st04d]` syms door2_up_mes (VMA 0x4F8930..0x4F8950) and `[0x3FA2B0, .data, src/st08b]` syms door_down_mes (VMA 0x4FA2B0..0x4FA2D0): the last mail records of the two door checkers as role-named TU statics; blobs resume at 0x3F8950 and 0x3FA2D0. st08b's pool row is now wholly compiler-emitted (both slot lines retired).

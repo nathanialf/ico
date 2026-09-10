@@ -403,10 +403,14 @@ segments:
       - [0x3F8530, data, src/cod/3F8530]     # .data blob resume
       - [0x3F8770, .data, src/st04a]  # syms: model_on,model_off  ModelOn/ModelOff mail records, the tail of st04a.o's .data run (VMA 0x4F8770..0x4F87B0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3F87B0, data, src/cod/3F87B0]     # .data blob resume
+      - [0x3F8930, .data, src/st04d]  # syms: door2_up_mes  actSt04dDoor2UpChk's mail record (VMA 0x4F8930..0x4F8950, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (its gcse bucket, computed from the name hash, is what wins the callee-saved pair)
+      - [0x3F8950, data, src/cod/3F8950]     # .data blob resume
       - [0x3F9C30, .data, src/st06a]  # syms: wall_way_off  WallWayOff mail record (VMA 0x4F9C30..0x4F9C50); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3F9C50, data, src/cod/3F9C50]     # .data blob resume
       - [0x3F9E10, .data, src/st06a]  # syms: piston_ride_on  PistonRideOn mail record (VMA 0x4F9E10..0x4F9E30); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3F9E30, data, src/cod/3F9E30]     # .data blob resume
+      - [0x3FA2B0, .data, src/st08b]  # syms: door_down_mes  actSt08bDoorDownChk's mail record (VMA 0x4FA2B0..0x4FA2D0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named (bucket 37 > DoorUpChk's 25)
+      - [0x3FA2D0, data, src/cod/3FA2D0]     # .data blob resume
       - [0x3FA900, .data, src/st10r]  # syms: fence_up2_mes  FenceUpChk2 mail record (VMA 0x4FA900..0x4FA920); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3FA920, data, src/cod/3FA920]     # .data blob resume
       - [0x3FAAA0, .data, src/st13a]  # syms: chain_ok_mes  ChainOK mail record (VMA 0x4FAAA0..0x4FAAC0); D_004FAA00 before it stays in the blob for the still-asm actSt13aElevDown; static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
@@ -582,7 +586,7 @@ segments:
       - [0x539994, lit4, src/cod/539994]     # .lit4 blob resume (st05e's words)
       - [0x5399B0, .lit4, src/st07a]  # carved D_006399B0..D_006399BC (4 words: actSt07aSekizoChk's -3300/977/-1050/-950 as literals; the TU is fully C), VMA 0x6399B0..0x6399C0
       - [0x5399C0, lit4, src/cod/5399C0]     # .lit4 blob resume (st08a's word D_006399C0, read as an extern by the matched actSt08aInit; data-sections pass item)
-      - [0x5399C4, .lit4, src/st08b]  # carved D_006399C4..D_006399D0 (4 words: actSt08bDoorUpChk's -1189/-2326 as literals, then two slots for the still-asm actSt08bDoorDownChk's -1189/-2326; the pool is per function, not deduplicated), VMA 0x6399C4..0x6399D4
+      - [0x5399C4, .lit4, src/st08b]  # carved D_006399C4..D_006399D0 (4 words: actSt08bDoorUpChk's and DoorDownChk's -1189/-2326 as literals; the pool is per function, not deduplicated), VMA 0x6399C4..0x6399D4
       - [0x5399D4, .lit4, src/st09a]  # carved D_006399D4..D_006399DC (3 slots, actSt09aSekizo's 1515/-1350/-1450 as literals; the TU's whole pool), VMA 0x6399D4..0x6399E0
       - [0x5399E0, .lit4, src/st10l]  # carved D_006399E0..D_006399E4 (2 words, actSt10lFloorLeft's -705 and actSt10lSekizo's 1274 as literals; the TU's whole pool), VMA 0x6399E0..0x6399E8
       - [0x5399E8, .lit4, src/st10r]  # carved D_006399E8..D_006399FC (6 words: a slot for the still-asm actSt10rFence's 417, then Cage/Sekizo x2/TowerResqueChk x2 as literals; the TU's whole pool, st13a's words follow), VMA 0x6399E8..0x639A00

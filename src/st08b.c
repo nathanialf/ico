@@ -78,7 +78,6 @@ extern long long D_00622D70[];
 extern ActMail D_004FA250[];
 extern ActMail D_004FA270[];
 extern ActMail D_004FA290[];
-extern ActMail D_004FA2B0[];
 void actSt08bDoorUpChk(volatile int a0);
 void actSt08bDoorDownChk(volatile int a0);
 
@@ -418,9 +417,44 @@ inline void actSt08bDoorDownEffect(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bDoorDownChk);
-ASM_LIT4_SLOT(D_006399CC, -1189.0f);
-ASM_LIT4_SLOT(D_006399D0, -2326.0f);
+/* TU-owned mail record: role-named file static per the 2026-09-07 ruling,
+   same shape as st17a's door_mes / st18a's switch_l_mes. */
+static ActMail door_down_mes[2] = {{0x1AE}, {0x1AD}};
+
+void actSt08bDoorDownChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(a0, 0x4000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0xF);
+
+    actCreateSubThread(actSt08bDoorDownEffect, 0x15);
+
+    scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
+
+    stage_SetAnimation(0x174, 1, 0);
+
+    buf[0] = D_00622D70[0];
+    buf[1] = D_00622D70[1];
+    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(0x174) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door_down_mes[0].func = actSt08bDoorUpChk;
+    sub->mail = door_down_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 
 inline void actSt08bEne(volatile int a0)
 {

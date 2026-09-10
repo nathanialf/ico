@@ -167,7 +167,106 @@ void actSt17aDoorDownChk(volatile int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aHasiChk);
+extern int scpTriggerFloorAttr(void *obj, int attr);
+extern void SetCameraFlag_LwsCutBack(void);
+extern void SetWayGroupActive(int a0, int a1);
+extern int scpSearchGobj(int a0);
+extern int D_0063AA08;
+extern void gflagOn(int flag);
+extern void iosPadActRequest(void *pad, int a1);
+extern void *D_00639EAC;
+extern int D_0028F4C0[];
+extern long long D_00622FA0[];
+extern void actSt17aHasiEffect(volatile int a0);
+extern int ACTGame_FLAG_TETSUNAGI(void);
+extern void scpPlayStart(void *o);
+extern void scpPlayMot(void *o, int mot);
+extern void scpPlayWaitMotEnd(void *o);
+extern void scpPlayEnd(void *o);
+
+void actSt17aHasiChk(volatile int a0)
+{
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (1) {
+        if ((*(int *)(*(int *)((char *)D_00639EA8 + 0x164) + 0x34) != 0x6F && D_00639EA8 != 0 &&
+             scpTriggerFloorAttr(D_00639EA8, 0x1000000) != 0 &&
+             scpTriggerFloorAttr(D_00639EA4, 0x2000000) != 0) ||
+            (*(int *)(*(int *)((char *)D_00639EA8 + 0x164) + 0x34) != 0x6F && D_00639EA8 != 0 &&
+             scpTriggerFloorAttr(D_00639EA8, 0x4000000) != 0 &&
+             scpTriggerFloorAttr(D_00639EA4, 0x2000000) != 0)) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    gflagOn(0x21);
+
+    iosPadActRequest(D_00639EAC, 0xF);
+    SetWayGroupActive(3, 0);
+
+    *(int *)(scpSearchGobj(0xF3) + 0x16C) = 0;
+    *(int *)(scpSearchGobj(0xF4) + 0x16C) = 1;
+
+    stage_SetAnimation(0x85, 1, 0);
+    SetCameraFlag_LwsCutBack();
+
+    actCreateSubThread(actSt17aHasiEffect, 0x15);
+
+    if (ACTGame_FLAG_TETSUNAGI() == 0) {
+        long long buf[2];
+
+        scpPlayStart(D_00639EA8);
+
+        stage_SetAnimation(0x84, 1, 0);
+
+        buf[0] = D_00622FA0[0];
+        buf[1] = D_00622FA0[1];
+        soundSeDefPlay(0x50A, 0, (float *)buf, 1);
+
+        scpPlayMot(D_00639EA8, 0x2D3);
+        scpPlayWaitMotEnd(D_00639EA8);
+
+        scpPlayMot(D_00639EA8, 0x214);
+        *(int *)(*(int *)((char *)D_00639EA8 + 0x15C) + 0x514) =
+            (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
+
+        scpPlayEnd(D_00639EA8);
+
+        D_0063AA08 = 0;
+    } else {
+        long long buf2[2];
+
+        scpPlayStart(D_00639EA4);
+        scpPlayStart(D_00639EA8);
+
+        stage_SetAnimation(0x84, 1, 0);
+
+        buf2[0] = D_00622FA0[0];
+        buf2[1] = D_00622FA0[1];
+        soundSeDefPlay(0x50A, 0, (float *)buf2, 1);
+
+        scpPlayMot(D_00639EA4, 0x106);
+        scpPlayMot(D_00639EA8, 0x2D2);
+        scpPlayWaitMotEnd(D_00639EA4);
+
+        scpPlayEnd(D_00639EA4);
+        scpPlayEnd(D_00639EA8);
+
+        scpPlayMot(D_00639EA4, 0);
+        scpPlayMot(D_00639EA8, 0x214);
+        *(int *)(*(int *)((char *)D_00639EA8 + 0x15C) + 0x514) =
+            (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
+    }
+
+    while (stage_CheckAnimationFinish(0x84) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aHasiEffect);
 
 typedef struct PadState {
