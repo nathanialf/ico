@@ -13,6 +13,11 @@ typedef struct SqEntry {
     int unk28;        /* 0x28 */
 } SqEntry;
 
+typedef struct SeReqRec {
+    int unk0[8];      /* 0x00 */
+    long long chMask; /* 0x20 */
+} SeReqRec;
+
 static inline char *hd_search(char *base, int *pk)
 {
     char *p = base;
@@ -31,7 +36,61 @@ found:
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundInit);
+extern char D_005521C0[];
+extern char D_005521D0[];
+extern char D_006BF570[];
+extern char D_006BF870[];
+extern int D_0063A370;
+extern int D_0063A650;
+extern long long D_0063C1E0;
+extern long long D_0063C1E8;
+extern void debug_StdPrintfDummy();
+extern void SgInit(void);
+extern void SgSetDigitalOutputMode(int a0);
+extern void SgSetTickMode(int a0);
+extern void SgSetReverbEndAddr(int a0, int a1);
+extern void SgSetReverbType(int a0, int a1);
+extern void SgSetReverbDepth(int a0, int a1, int a2);
+extern void SgSetMasterVol(int a0, int a1, int a2);
+extern void AdpcmStreamInit(void);
+
+int soundInit(void)
+{
+    int i;
+    char *p;
+
+    debug_StdPrintfDummy(D_005521C0);
+    SgInit();
+    if (D_0063A370 == 1) {
+        SgSetDigitalOutputMode(0x80);
+    } else {
+        SgSetDigitalOutputMode(0x880);
+    }
+    debug_StdPrintfDummy(D_005521D0);
+    SgSetTickMode(60);
+    SgSetReverbEndAddr(0, 0x1FFFFF);
+    SgSetReverbEndAddr(1, 0x1DFFFF);
+    SgSetReverbType(0, 4);
+    SgSetReverbDepth(0, 0xCCC, 0xCCC);
+    SgSetReverbType(1, 4);
+    SgSetReverbDepth(0, 0xCCC, 0xCCC);
+    SgSetMasterVol(0, 0, 0);
+    SgSetMasterVol(1, 0, 0);
+    for (i = 15; i >= 0; i--) {
+        *(int *)&D_006BF570[i * 48] = 0;
+    }
+    D_0063C1E0 = 0;
+    D_0063C1E8 = 0;
+    /* the request slot of every SeSlot, walked through a base pointer: that is
+       what keeps the +0x30 out of the symbol's %hi/%lo and in the loop start value */
+    p = D_006BF870;
+    for (i = 47; i >= 0; i--) {
+        *(int *)&p[i * 64 + 0x30] = 0;
+    }
+    AdpcmStreamInit();
+    D_0063A650 = 0;
+    return 0;
+}
 
 extern int D_0063A654;
 extern void SgSetOutputMode();
@@ -83,7 +142,84 @@ void soundAllocIopFree(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenChk);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBufAlloc);
+
+extern char D_005521E8[];
+extern char D_0063A660[];
+extern int D_0063A640;
+extern int D_0063A644;
+extern int D_0063C1D8;
+extern int D_0063C1DC;
+extern void __assert(char *file, int line, char *msg);
+extern void debug_assert(char *file, int line);
+
+/* The SPU-buffer view of a sound data area: at 0x18 the same bytes are the
+   adpcm channel mask (long long, see soundBufAdpcmChAlloc) in the SqEntry
+   view and an (addr, size) pair here, so this role gets its own record. */
+typedef struct SoundBufReq {
+    short unk0;          /* 0x00 */
+    short unk2;          /* 0x02 */
+    unsigned short unk4; /* 0x04 */
+    unsigned short unk6; /* 0x06 */
+    int unk8;            /* 0x08 */
+    int unkC;            /* 0x0C */
+    int unk10[2];        /* 0x10 */
+    int addr;            /* 0x18 */
+    int size;            /* 0x1C */
+} SoundBufReq;
+
+void soundBufAlloc(SoundBufReq *self, int size)
+{
+    switch (self->unk6) {
+    case 0:
+        self->addr = D_0063A640;
+        D_0063A640 = D_0063A640 + size;
+        D_0063C1D8 = D_0063A640;
+        D_0063C1DC = D_0063A640;
+        if (D_0063A640 > 0x1D901F) {
+            debug_assert(D_005521E8, 412);
+            __assert(D_005521E8, 412, D_0063A660);
+        }
+        break;
+    case 1:
+        switch (self->unk4) {
+        case 1:
+            self->addr = D_0063C1D8;
+            D_0063C1D8 = D_0063C1D8 + size;
+            if (D_0063C1D8 > D_0063A644) {
+                debug_assert(D_005521E8, 420);
+                __assert(D_005521E8, 420, D_0063A660);
+            }
+            break;
+        case 0:
+            D_0063A644 = D_0063A644 - size;
+            self->addr = D_0063A644;
+            if (D_0063A644 < D_0063C1D8) {
+                debug_assert(D_005521E8, 424);
+                __assert(D_005521E8, 424, D_0063A660);
+            }
+            break;
+        default:
+            debug_assert(D_005521E8, 428);
+            __assert(D_005521E8, 428, D_0063A660);
+        }
+        break;
+    case 2:
+        switch (self->unk4) {
+        case 0:
+            self->addr = D_0063C1DC;
+            D_0063C1DC = D_0063C1DC + size;
+            break;
+        default:
+            debug_assert(D_005521E8, 443);
+            __assert(D_005521E8, 443, D_0063A660);
+        }
+        break;
+    default:
+        debug_assert(D_005521E8, 448);
+        __assert(D_005521E8, 448, D_0063A660);
+    }
+    self->size = size;
+}
 
 extern int D_0063A640;
 extern int D_0063A644;
@@ -124,8 +260,52 @@ void soundBufSegFree(int a0, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBDDataSet);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpen);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenSync);
+
+extern void AdpcmOpen(int *self, int a1, int a2, int a3);
+
+void soundDataOpen(int *work, int mode, int a2, int a3, int a4)
+{
+    work[0] = mode;
+    switch (mode) {
+    case 0:
+        debug_assert(D_005521E8, 0x266);
+        __assert(D_005521E8, 0x266, D_0063A660);
+        break;
+    case 1:
+        debug_assert(D_005521E8, 0x269);
+        __assert(D_005521E8, 0x269, D_0063A660);
+        break;
+    case 2:
+        AdpcmOpen(work, a2, a3, a4);
+        break;
+    default:
+        debug_assert(D_005521E8, 0x26F);
+        __assert(D_005521E8, 0x26F, D_0063A660);
+    }
+}
+
+extern int *AdpcmOpenSync(int *self);
+
+int *soundDataOpenSync(int *work)
+{
+    switch (work[0]) {
+    case 0:
+        debug_assert(D_005521E8, 0x277);
+        __assert(D_005521E8, 0x277, D_0063A660);
+        break;
+    case 1:
+        debug_assert(D_005521E8, 0x27A);
+        __assert(D_005521E8, 0x27A, D_0063A660);
+        break;
+    case 2:
+        return AdpcmOpenSync(work);
+    default:
+        debug_assert(D_005521E8, 0x280);
+        __assert(D_005521E8, 0x280, D_0063A660);
+    }
+    return 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataClose);
 
 extern char D_006BF570[];
@@ -161,7 +341,68 @@ ASM_LIT4_SLOT(D_00638CAC, 3000.0f);
 ASM_LIT4_SLOT(D_00638CB0, 0.1f);
 ASM_LIT4_SLOT(D_00638CB4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", _soundSeDefPlay);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", _soundSeDefStop);
+
+extern char D_006BF870[];
+extern long long D_0063C1E8;
+extern void SgSeStop(int a0);
+extern void iosPadActStop(int a0);
+
+typedef struct SeInfo {
+    short unk0; /* 0x0 */
+    short unk2; /* 0x2 */
+    short unk4; /* 0x4 */
+    short unk6; /* 0x6 */
+} SeInfo;
+
+typedef struct SeSrcDef {
+    int unk0[13];         /* 0x00 */
+    short unk34;          /* 0x34 */
+    unsigned short unk36; /* 0x36 */
+    unsigned int b0 : 6;  /* 0x38 bits 0..5 */
+    unsigned int b6 : 1;
+    unsigned int b7 : 25;
+} SeSrcDef;
+
+extern SeInfo D_005F5C70[];
+
+void _soundSeDefStop(int a0, int a1)
+{
+    int ch = a0 & 0xFF;
+    char *self = &D_006BF870[ch * 64];
+    short h;
+    char **rp;
+    SeReqRec *req;
+    SeSrcDef *src;
+
+    h = *(short *)(self + 0x10);
+    if (h < 0)
+        return;
+    a0 = a0 >> 8;
+    if (a0 != *(unsigned short *)self)
+        return;
+    rp = (char **)&D_006BF870[ch * 64 + 0x30];
+    req = *(SeReqRec **)rp;
+    if (req != 0) {
+        long long bit = (long long)1 << ch;
+        long long m = req->chMask;
+        if ((m & bit) != 0) {
+            req->chMask = m & ~bit;
+            D_0063C1E8 &= ~bit;
+            *(unsigned short *)self = *(unsigned short *)self + 1;
+            *rp = 0;
+        }
+    }
+    if (a1 == 0) {
+        SgSeStop(h);
+    } else {
+        SgSeStop(h | 0x8000);
+    }
+    src = *(SeSrcDef **)(self + 0x38);
+    if (src->b6 == 1 || (&D_005F5C70[src->unk36])->unk6 == 0) {
+        if (*(int *)(self + 0xC) != 0)
+            iosPadActStop(*(int *)(self + 0xC));
+    }
+}
 
 extern void _soundSeDefStop(int a0, int a1);
 
