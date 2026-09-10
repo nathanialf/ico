@@ -170,6 +170,7 @@ actSt04aModelOnChk = 0x0022AF58; // type:func  // src/st04a
 actSt04eWaterMain = 0x0022D520; // type:func  // src/st04e
 actSt04eWaterSwitch = 0x0022D550; // type:func  // src/st04e
 actSt04eSeChk = 0x0022D9E0; // type:func  // src/st04e
+actSt04eHint1WakeUpChk = 0x0022DAE4; // type:func  // src/st04e  (census st04e.c 504-513, 20 rows, sat inside the actSt04eSeChk stub until both landed as C)
 actSt04lC1BallMain = 0x00232EC0; // type:func  // src/st04l
 actSt04lC1BallSwitch = 0x00232EF0; // type:func  // src/st04l
 actSt04lC2BallMain = 0x00232FD0; // type:func  // src/st04l

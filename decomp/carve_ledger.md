@@ -1208,3 +1208,8 @@ words become the blob's first words.
 
 ### 2026-09-11 st04d and st08b closed: their door mail records
 - `[0x3F8930, .data, src/st04d]` syms door2_up_mes (VMA 0x4F8930..0x4F8950) and `[0x3FA2B0, .data, src/st08b]` syms door_down_mes (VMA 0x4FA2B0..0x4FA2D0): the last mail records of the two door checkers as role-named TU statics; blobs resume at 0x3F8950 and 0x3FA2D0. st08b's pool row is now wholly compiler-emitted (both slot lines retired).
+
+### 2026-09-11 chain C pass 3: st04e pool, st13b double
+- `[0x539940, .lit4, src/st04e]`: D_00639940 = 0.005f, the TU's whole pool (replaces the one-word blob; st04l's row follows).
+- `[0x522E00, .rodata, src/st13b]` plain-rodata: actSt13bConte02's double 0.15 (8 B), VMA 0x622E00..0x622E08; blob resumes at 0x522E08. st13b's 8 ASM_LIT4_SLOT lines retired (its 9-word pool row is wholly compiler-emitted).
+- Symbol seated: actSt04eHint1WakeUpChk = 0x0022DAE4 (the ROM stub `actSt04eSeChk, 0x158` covered two census functions; the object's sizes 0x104 + 0x50 prove the split).
