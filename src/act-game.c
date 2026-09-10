@@ -556,7 +556,214 @@ void GetSkeltonOrient(float *out, void *obj, int node)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_InnerVelocityUpdate);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_BeforeFunc);
+
+extern void ACTGame_InnerVelocityUpdate(char *self);
+extern void SetDirectMotionProgramInterpInfo(char *self, int prog, float f);
+extern void ACTGame_GirlBeforeFunc(char *self);
+extern char D_005577D0[];
+
+/* One 0x50-byte record per act status, indexed by sub->0x34. */
+typedef struct {
+    char _00[0x4C];
+    unsigned int f_4C;
+} StatusAttr;
+
+/* The motion-play-speed-ratio mode at work+0x54 is an enumerated mode, not a
+   plain int: ACTGame_SetMotionPlaySpeedRatio_Exec dispatches on 0..2, and the
+   ROM proves the type here -- only an enum-typed store lets the scheduler
+   hoist the neighbouring +0x37C timer load past it (an `int` store aliases
+   that load and pins it below). */
+typedef enum { MPSR_OFF, MPSR_ONESHOT, MPSR_HOLD } MpsrMode;
+
+/* The 64-bit actor status words are a union view in the dev's TU: the ROM
+   re-reads sub+0x18 after every `int` store to the work block, which only a
+   union whose members include a 32-bit integer produces -- a plain
+   `unsigned long long` load survives an `int` store under TBAA. */
+typedef union {
+    unsigned long long q;
+    unsigned int w[2];
+} ActStatusWord;
+
+extern int D_0063AA08;
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines ACTLookTarget_Init (lines 2183-2187) and
+   ACTGame_SetMotionPlaySpeedRatio_Clear (lines 2489-2490) here, so both are
+   `inline` in the dev's TU; while this tail still has asm members a deferred
+   inline would land at the object end instead of at its ROM slot, so the
+   public bodies stay plain definitions further down and this caller uses the
+   static stand-ins.  Collapse to one `inline` definition each at layout. */
+static inline void actLookTarget_Init(char *a0)
+{
+    char *s = *(char **)(a0 + 0x164);
+    *(int *)(s + 0xA8) = 0;
+    *(int *)(s + 0xB0) = 0;
+    *(int *)(s + 0xAC) = 0;
+}
+
+static inline void actGame_SetMotionPlaySpeedRatio_Clear(char *a0)
+{
+    char *p = (char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x680);
+    *(float *)(p + 0x58) = 1.0f;
+    *(MpsrMode *)(p + 0x54) = MPSR_OFF;
+}
+
+/* self->0x164->0x688 -- the per-actor motion work block.  Every use in this
+   function re-derives the chase (the ROM reloads both links after each
+   store), so it is spelled as one accessor rather than a cached local. */
+#define ACTWORK(g) ((char *)*(int *)((char *)*(int *)((g) + 0x164) + 0x688))
+
+void ACTGame_BeforeFunc(char *self)
+{
+    char *s = (char *)*(int *)(self + 0x164);
+
+    *(float *)((char *)*(int *)(s + 0x688) + 0x348) = 3.0f;
+    ACTGame_InnerVelocityUpdate(self);
+
+    switch (*(unsigned int *)(s + 0x34)) {
+    case 1:
+    case 2:
+    case 3: {
+        char *p = (char *)*(int *)(self + 0x164);
+        *(int *)(p + 0x1B0) = 0;
+        *(char *)(p + 0x1DA) = 0;
+        break;
+    }
+    }
+
+    if (((int)(*(unsigned long long *)(s + 0x20) >> 40) & 1) == 0 &&
+        ((int)(&D_0055FE58[*(int *)((char *)*(int *)(self + 0x15C) + 0x4A0)])->f_18C >= 0 ||
+         *(int *)((char *)*(int *)(self + 0x15C) + 0x4F8) != 0)) {
+        GetRootPosition(s + 0x110, self);
+    }
+
+    *(unsigned long long *)(s + 0x20) &= ~(1ULL << 41);
+    *(unsigned long long *)(s + 0x20) &= ~(1ULL << 40);
+
+    ACTParaStatus_Clear(self);
+    _ACTCharStatus_Clear(self);
+    actLookTarget_Init(self);
+
+    memset(s + 0x47C, 0, 0x10);
+    memset(s + 0x48C, 0, 0x10);
+
+    actGame_SetMotionPlaySpeedRatio_Clear(self);
+
+    if (*(int *)(ACTWORK(self) + 0x37C) > 0) {
+        (*(int *)(ACTWORK(self) + 0x37C))--;
+    }
+    if (*(short *)(s + 0x13A) > 0) {
+        (*(short *)(s + 0x13A))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x384) > 0) {
+        (*(int *)(ACTWORK(self) + 0x384))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x388) > 0) {
+        (*(int *)(ACTWORK(self) + 0x388))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x390) != 0) {
+        (*(int *)(ACTWORK(self) + 0x390))--;
+
+        switch (*(unsigned int *)(s + 0x34)) {
+        case 2:
+        case 3:
+            break;
+
+        default:
+            *(int *)(ACTWORK(self) + 0x390) = 0;
+            break;
+        }
+        if (D_0063AA08 != 0) {
+            *(int *)(ACTWORK(self) + 0x390) = 0;
+        }
+    }
+
+    if (D_00639EA8 != 0 && *(int *)((char *)*(int *)(D_00639EA8 + 0x164) + 0x34) == 0x6F &&
+        *(int *)((char *)*(int *)(D_00639EA8 + 0x164) + 0x144) == (int)self &&
+        ((int)(*(unsigned long long *)(s + 0x20) >> 21) & 1) == 0) {
+        (*(int *)(ACTWORK(self) + 0x39C))++;
+    } else {
+        *(int *)(ACTWORK(self) + 0x39C) = 0;
+    }
+
+    if (*(int *)(ACTWORK(self) + 0x394) != 0) {
+        (*(int *)(ACTWORK(self) + 0x394))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x38C) > 0) {
+        (*(int *)(ACTWORK(self) + 0x38C))--;
+        SetDirectMotionProgramInterpInfo(self, 0x2C, 0.0f);
+        SetDirectMotionProgramInterpInfo(self, 0, 0.0f);
+        SetDirectMotionProgramInterpInfo(self, 1, 0.0f);
+        SetDirectMotionProgramInterpInfo(self, 0x22, 0.0f);
+        SetDirectMotionProgramInterpInfo(self, 0x23, 0.0f);
+    }
+    if (*(int *)(ACTWORK(self) + 0x3A0) != 0) {
+        (*(int *)(ACTWORK(self) + 0x3A0))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x3A4) != 0) {
+        (*(int *)(ACTWORK(self) + 0x3A4))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x3AC) != 0) {
+        (*(int *)(ACTWORK(self) + 0x3AC))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x3B0) != 0) {
+        (*(int *)(ACTWORK(self) + 0x3B0))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x3B4) != 0) {
+        (*(int *)(ACTWORK(self) + 0x3B4))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x3C4) != 0) {
+        (*(int *)(ACTWORK(self) + 0x3C4))--;
+    }
+    if (*(int *)(ACTWORK(self) + 0x3C8) != 0) {
+        (*(int *)(ACTWORK(self) + 0x3C8))--;
+    }
+
+    if ((int)(((ActStatusWord *)(s + 0x18))->q >> 36) & 1) {
+        (*(int *)(ACTWORK(self) + 0x3B8))++;
+    } else {
+        *(int *)(ACTWORK(self) + 0x3B8) = 0;
+    }
+    if ((int)(((ActStatusWord *)(s + 0x18))->q >> 37) & 1) {
+        (*(int *)(ACTWORK(self) + 0x3BC))++;
+    } else {
+        *(int *)(ACTWORK(self) + 0x3BC) = 0;
+    }
+
+    if ((((&D_0055FE58[*(int *)((char *)*(int *)(self + 0x15C) + 0x4A0)])->f_18C >> 14) & 1) ||
+        ((((StatusAttr *)(D_005577D0 + *(int *)((char *)*(int *)(self + 0x164) + 0x34) * 0x50))
+              ->f_4C >>
+          14) &
+         1)) {
+        ((ActStatusWord *)(s + 0x18))->q |= 1ULL << 38;
+        if (self == D_00639EA4) {
+            if (D_00639EA8 != 0) {
+                *(int *)(ACTWORK(D_00639EA8) + 0x3B0) =
+                    (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1];
+            }
+        }
+    }
+
+    if ((int)(((ActStatusWord *)(s + 0x18))->q >> 38) & 1) {
+        (*(int *)(ACTWORK(self) + 0x3C0))++;
+    } else {
+        *(int *)(ACTWORK(self) + 0x3C0) = 0;
+    }
+
+    if (self == D_00639EA8) {
+        ACTGame_GirlBeforeFunc(self);
+    }
+
+    if (*(int *)(self + 0x8) == 0xEAD) {
+        if ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 2 < *(int *)(s + 0x10)) {
+            if (!(D_00639EA8 != 0 &&
+                  *(int *)((char *)*(int *)(D_00639EA8 + 0x164) + 0x34) == 0x6F &&
+                  *(int *)((char *)*(int *)(D_00639EA8 + 0x164) + 0x144) == (int)self)) {
+                *(unsigned long long *)(s + 0x20) &= ~(1ULL << 30);
+            }
+        }
+    }
+}
 
 extern char *actEnemy_GetClingTarget(void *g);
 extern int iosOmSendMail();
@@ -604,12 +811,11 @@ static inline unsigned char actCharStatus_Check(char *a0, int bit)
     char *s = (char *)*(int *)(a0 + 0x164);
     int r;
 
-    if (s == 0) {
-        return 0;
-    }
-    r = (*(unsigned long long *)(s + 0x58) >> bit) & 1;
-    if (r != 0) {
-        return 1;
+    if (s != 0) {
+        r = (*(unsigned long long *)(s + 0x58) >> bit) & 1;
+        if (r != 0) {
+            return 1;
+        }
     }
     return 0;
 }
@@ -1709,21 +1915,10 @@ void ACTLookTarget_Init(char *a0)
     *(int *)(s + 0xAC) = 0;
 }
 
-/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
-   listing inlines ACTLookTarget_Init (lines 2183-2187) into
-   _ACTLookTarget_Set, so it is `inline` in the dev's TU; while this tail
-   still has asm members a deferred inline would land at the object end
-   instead of at its ROM slot, so the public body above stays a plain
-   definition and this caller uses the static stand-in.
+/* INTERIM: the listing inlines ACTLookTarget_Init (lines 2183-2187) into
+   _ACTLookTarget_Set as well; the static stand-in is defined once, above
+   ACTGame_BeforeFunc (its other inline site).
    Collapses to one `inline` definition at layout. */
-static inline void actLookTarget_Init(char *a0)
-{
-    char *s = *(char **)(a0 + 0x164);
-    *(int *)(s + 0xA8) = 0;
-    *(int *)(s + 0xB0) = 0;
-    *(int *)(s + 0xAC) = 0;
-}
-
 int _ACTLookTarget_Set(char *a0, int a1, float *a2, int a3, int a4)
 {
     char *s = *(char **)(a0 + 0x164);
