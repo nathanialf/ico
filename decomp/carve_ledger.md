@@ -1166,3 +1166,6 @@ words become the blob's first words.
 
 ### 2026-09-10 MicroCode: mc_setBaseOffset's switch table carved with its owner
 - `[0x44F1E0, .rodata, src/MicroCode]`: jtbl_0054F1E0, 5 arms, 0x14 B, VMA 0x54F1E0..0x54F1F4; blob resumes at 0x44F1F4 (three zero pad words to the 16-aligned string at 0x54F200). Found at harvest as undefined `.L0011A3xx` references from the blob once the stub was gone: a jtbl owner landing without its row is a LINK error, not a byte drift.
+
+### 2026-09-10 st08b: the TU's pool carved with actSt08bDoorUpChk
+- `[0x5399C4, .lit4, src/st08b]`: four words (DoorUpChk's -1189/-2326 as literals, then ASM_LIT4_SLOT words for the still-asm DoorDownChk's -1189/-2326), VMA 0x6399C4..0x6399D4; the 539994 blob shortens. The pool is per function, not deduplicated (the same two values appear twice). The worker had spelled these as `extern volatile float` reads of the blob symbols; pool constants are literals.

@@ -1,14 +1,5 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actExplode);
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actSplash1);
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actSplash2);
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actWave);
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actSpider);
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actDevilLightning);
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actQueenLightning);
-INCLUDE_ASM("asm/nonmatchings/src/st99a", actSt17aTest);
-
 typedef struct ActMail {
     int mail;          /* 0x00 */
     void (*func)(int); /* 0x04 */
@@ -26,6 +17,122 @@ extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern ActMail D_004FB910[];
 extern void actSt27aWaveChk(int a0);
+extern ActMail D_004FB890[];
+extern void actExplodeChk(int a0);
+
+void actExplode(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+    _ACTWait(1);
+
+    D_004FB890[0].func = actExplodeChk;
+    self->mail = D_004FB890;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+extern ActMail D_004FB8B0[];
+extern void actSplash1Chk(int a0);
+
+void actSplash1(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+    _ACTWait(1);
+
+    D_004FB8B0[0].func = actSplash1Chk;
+    self->mail = D_004FB8B0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+extern ActMail D_004FB8D0[];
+extern void actSplash2Chk(int a0);
+
+void actSplash2(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+    _ACTWait(1);
+
+    D_004FB8D0[0].func = actSplash2Chk;
+    self->mail = D_004FB8D0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+extern ActMail D_004FB8F0[];
+extern void actWaveChk(int a0);
+
+void actWave(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+    _ACTWait(1);
+
+    D_004FB8F0[0].func = actWaveChk;
+    self->mail = D_004FB8F0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+extern void stage_SetLoopFlag(int key, int a1);
+extern void stage_SetAnimation(int a0, int a1, int a2);
+extern ActMail D_004FB930[];
+extern void actSpiderChk(int a0);
+
+void actSpider(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+    _ACTWait(1);
+
+    stage_SetLoopFlag(0xA0, 1);
+    stage_SetAnimation(0xA0, 1, 0);
+
+    D_004FB930[0].func = actSpiderChk;
+    self->mail = D_004FB930;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+extern void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
+
+void actDevilLightning(volatile int a0)
+{
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+
+    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0xDB9, 0, 0x22A, 0);
+}
+
+void actQueenLightning(volatile int a0)
+{
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+
+    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0xDB8, 0, 0x22B, 0);
+}
+
+extern ActMail D_004FB950[];
+extern void actSt17aTestChk(int a0);
+
+void actSt17aTest(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+    _ACTWait(1);
+
+    stage_SetAnimation(0x84, 0, 0);
+
+    D_004FB950[0].func = actSt17aTestChk;
+    self->mail = D_004FB950;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 
 void actSt27aWave(volatile int a0)
 {
@@ -87,7 +194,7 @@ void actSplash2Chk(volatile int a0)
     _ACTWait(1);
 }
 
-extern void actCreateSubThread(void *entry, int prio);
+extern int actCreateSubThread(void *entry, int prio);
 extern void actWave1(int a0);
 
 void actWaveChk(volatile int a0)

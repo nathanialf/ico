@@ -557,6 +557,7 @@ segments:
       - [0x53995C, .lit4, src/st04r]  # carved D_0063995C..D_00639978 (8 words, all literals in StairSub, StairChk, SekizoChk, GondolaChk; the TU's whole pool, st05b's carve follows), VMA 0x63995C..0x63997C
       - [0x53997C, .lit4, src/st05b]  # carved D_0063997C..D_00639990 (6 slots: actSt05bSekizoChk x4, actSt05bSekizo's camera target -10793/2122 as literals; the TU's whole pool — MAIN.MAP's 0x18 is the debug link's, 0x639994 is st05e's), VMA 0x63997C..0x639994
       - [0x539994, lit4, src/cod/539994]     # .lit4 blob resume (st05e's words)
+      - [0x5399C4, .lit4, src/st08b]  # carved D_006399C4..D_006399D0 (4 words: actSt08bDoorUpChk's -1189/-2326 as literals, then two slots for the still-asm actSt08bDoorDownChk's -1189/-2326; the pool is per function, not deduplicated), VMA 0x6399C4..0x6399D4
       - [0x5399D4, .lit4, src/st09a]  # carved D_006399D4..D_006399DC (3 slots, actSt09aSekizo's 1515/-1350/-1450 as literals; the TU's whole pool), VMA 0x6399D4..0x6399E0
       - [0x5399E0, .lit4, src/st10l]  # carved D_006399E0..D_006399E4 (2 words, actSt10lFloorLeft's -705 and actSt10lSekizo's 1274 as literals; the TU's whole pool), VMA 0x6399E0..0x6399E8
       - [0x5399E8, .lit4, src/st10r]  # carved D_006399E8..D_006399FC (6 words: a slot for the still-asm actSt10rFence's 417, then Cage/Sekizo x2/TowerResqueChk x2 as literals; the TU's whole pool, st13a's words follow), VMA 0x6399E8..0x639A00
