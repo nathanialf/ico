@@ -144,14 +144,43 @@ void actSt13aElevUpSub(volatile int a0)
     _ACTWait(0);
 }
 
-/* NOT LANDED: byte-exact except that gcc hoists `%%hi(D_0028F8F4)` out of the
-   pad-wait loop into a second callee-saved register (extra `sd`, duplicated
-   `li $a0,0xF`, +1 insn here / +3 in ElevDownChk); ROM recomputes the `lui`
-   inside the loop.  The identical source shape DOES match in
-   src/st08b.c actSt08bKurenSwitch.  See the r1 ledger row and
-   seeds/st13a.r1_ElevUp_plus1_ElevDownChk_plus3_TU.c. */
-ASM_LIT4_SLOT(D_00639A00, 0.025f);
-INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aElevUp);
+void actSt13aElevUp(volatile int a0)
+{
+    int th;
+
+    scpAdpcmPlayRequestFunc(0x4D, &st13a_up, 0, 1, 0);
+    while (st13a_up == 0) {
+        _ACTWait(1);
+    }
+
+    preload(0xF);
+
+    st13a_yure = -1;
+    th = actCreateSubThread(actSt13aElevUpSub, 0x15);
+    D_0063C578 = 0;
+
+    while (D_0063C578 == 0 &&
+           ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(th + 0x24, 0x22);
+
+    if (D_0063C578 == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        scpAdpcmFadeCloseFunc(&st13a_up, 0x200);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+    }
+
+    iosPadActStop(st13a_yure);
+    gflagOn(0x145);
+    RequestStageChange(0xF, D_00639EA4, 0, 0.025f, 8.0f);
+}
 
 void actSt13aElevDown(volatile int a0)
 {
@@ -205,16 +234,51 @@ void actSt13aElevDownSub(volatile int a0)
     _ACTWait(0);
 }
 
-/* NOT LANDED: byte-exact except that gcc hoists `%%hi(D_0028F8F4)` out of the
-   pad-wait loop into a second callee-saved register (extra `sd`, duplicated
-   `li $a0,0xF`, +1 insn here / +3 in ElevDownChk); ROM recomputes the `lui`
-   inside the loop.  The identical source shape DOES match in
-   src/st08b.c actSt08bKurenSwitch.  See the r1 ledger row and
-   seeds/st13a.r1_ElevUp_plus1_ElevDownChk_plus3_TU.c. */
-ASM_LIT4_SLOT(D_00639A0C, 3527.0f);
-ASM_LIT4_SLOT(D_00639A10, 2699.0f);
-ASM_LIT4_SLOT(D_00639A14, -4871.0f);
-INCLUDE_ASM("asm/nonmatchings/src/st13a", actSt13aElevDownChk);
+void actSt13aElevDownChk(volatile int a0)
+{
+    int th;
+
+    while (st13a_down == 0) {
+        _ACTWait(1);
+    }
+
+    AdpcmPlay(*(int *)(st13a_down + 0x2C));
+    scpFadeIn(6.0f);
+
+    th = actCreateSubThread(actSt13aElevDownSub, 0x15);
+    D_0063C578 = 0;
+    st13a_yure = -1;
+
+    while (D_0063C578 == 0 &&
+           ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(th + 0x24, 0x22);
+
+    if (D_0063C578 == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        scpAdpcmFadeCloseFunc(&st13a_down, 0x200);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(0xAF, 0, -1);
+        stage_SetAnimation(0xAD, 0, -1);
+        _ACTWait(2);
+        scpPlayPosSet(D_00639EA4, -4871.0f, 3527.0f, 2699.0f);
+        iosPadActStop(st13a_yure);
+        scpFadeIn(3.0f);
+    }
+
+    scpPlayMot(D_00639EA4, 0);
+    scpPlayEnd(D_00639EA4);
+    lt_switch_layout(0x36);
+    D_0063AA08 = 0;
+    gflagOff(0xF);
+}
 
 void actSt13aSekizoChk(volatile int a0)
 {
