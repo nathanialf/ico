@@ -436,6 +436,8 @@ segments:
       - [0x452450, rodata, src/cod/452450]   # .rodata blob resume ("mode=[%d]\n" + pad; a still-asm act-game function's string)
       - [0x452460, .rodata, src/act-game]  # syms: 0x00552460  carved jtbl_00552460 (ACTEnvGetTest's 98-arm table), VMA 0x552460..0x5525E8
       - [0x4525E8, rodata, src/cod/4525E8]   # .rodata blob resume ("shoal mail\n", "[%d] [%d] [%d] [%d] [%d]\n" + pad, then the other act-game tables until their owners land)
+      - [0x452620, .rodata, src/act-game]  # plain-rodata syms: 0x00552620  carved jtbl_00552620 (GetTarget's 14-arm table, 0x38 B, 16-aligned: a nested function's table is emitted into the object's plain .rodata, not a selector; the two zero words before the next table are its alignment pad), VMA 0x552620..0x552660
+      - [0x452660, .rodata, src/act-game]  # syms: 0x00552660  carved jtbl_00552660 (ACTItemWatchMotion's 5-arm table, 0x14 B, 16-aligned; the three zero words up to the next table are its alignment pad), VMA 0x552660..0x552680
       - [0x452680, .rodata, src/act-game]  # syms: 0x00552680  carved jtbl_00552680 (_ACTCharStatus_Set's 17-arm table), VMA 0x552680..0x5526C4
       - [0x4526C4, rodata, src/cod/4526C4]   # .rodata blob resume (zero pad word, then the 8-aligned strings at 0x5526C8)
       - [0x452B70, .rodata, src/boyact]  # plain-rodata: the four li.d doubles of actBoyWalk/actBoyRun (0.2, 0.9, 0.2, 0.7; ee-as interns them into the object's own .rodata), VMA 0x552B70..0x552B90; the TU's strings and its three jump tables stay in the blob until their owners land

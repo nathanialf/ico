@@ -49,6 +49,8 @@ typedef struct {
         struct {
             unsigned short lo, hi;
         } h;
+
+        char b;
     } u_188;
 
     unsigned int f_18C;
@@ -1546,12 +1548,444 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", hand_able_connect);
 ASM_LIT4_SLOT(D_00638CE4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CommonLoop);
 ASM_LIT4_SLOT(D_00638CE8, 160000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", GetTarget);
-ASM_LIT4_SLOT(D_00638CEC, 0.3f);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTargetSystem_Exec);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemThrow);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTItemWatchMotion);
-ASM_LIT4_SLOT(D_00638CF0, 0.2f);
+
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+extern int stage_no;
+extern int GetSkeltonFocusNode(void *a0, void *a1);
+extern float *test_CURRENTORIENT(char *a0);
+extern int *test_CURRENTROOT(int *a0);
+extern void GetRootPosition(void *dst, void *self);
+extern void ScpCallCameraGetTarget(float *dst);
+extern void debug_NMarker(float *pos, int r, int g, int b, float size);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+extern int gamesysGetGirlStageIDAndPosition(int *buf);
+extern void OtherStagePositionGet(float *dst, int stage, int id, int *buf);
+
+/* INTERIM: the same stand-in as getGirlPositionAtThisStage further down this
+   file (the listing inlines GetGirlPositionAtThisStage, lines 4063-4067, into
+   GetTarget as well).  Its public definition sits at its own ROM slot below
+   this one, so a copy has to be in scope here; collapses to one `inline`
+   definition at layout. */
+static inline void getGirlPosAtThisStage(float *dst)
+{
+    int buf[4];
+    int id = gamesysGetGirlStageIDAndPosition(buf);
+    OtherStagePositionGet(dst, stage_no, id, buf);
+}
+
+/* The look-target candidate table: 27 rows, one column per character kind
+   (self->_164->_48). */
+extern int D_0055FD10[][3];
+
+void ACTLookTargetSystem_Exec(char *self)
+{
+    char *s = (char *)((int *)self)[89];
+
+    /* GNU nested function: the listing names it GetTarget.374 and passes
+       ACTLookTargetSystem_Exec's frame as the static chain, from which it
+       reads `self` and `s`. */
+    int GetTarget(int kind, float *pos, int *pmode)
+    {
+        float dir[4];
+        float p[4];
+        char *target = 0;
+        int rv = 0;
+
+        switch (kind) {
+        case 13:
+            getSkeltonPosition(p, self, (void *)0x23);
+            sceVu0ScaleVector(dir, (char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x4A0,
+                              300.0f);
+            sceVu0AddVector(pos, p, dir);
+            *(float *)((char *)*(int *)(self + 0x15C) + 0x45C) = 0.3f;
+            *(float *)((char *)*(int *)(self + 0x15C) + 0x464) = 0.3f;
+            *(float *)((char *)*(int *)(self + 0x15C) + 0x468) = 0.3f;
+            rv = 1;
+            break;
+        case 12:
+            target = *(char **)(s + 0x88);
+            break;
+        case 10:
+            target = *(char **)(s + 0x78);
+            break;
+        case 5:
+            target = *(char **)(s + 0x7C);
+            break;
+        case 4:
+            target = D_00639EA8;
+            if (target == 0 && (*(unsigned long long *)(s + 0x20) & 0x3800000) == 0x800000) {
+                getGirlPosAtThisStage(pos);
+                rv = 1;
+            }
+            if ((int)(*(unsigned long long *)(s + 0x20) >> 24) & 3) {
+                ScpCallCameraGetTarget(pos);
+                target = 0;
+                rv = 1;
+            }
+            break;
+        case 11:
+            GetRootPosition(pos, *(char **)(s + 0x74));
+            pos[1] = *(float *)&test_CURRENTROOT((int *)self)[1];
+            *pmode = 2;
+            rv = 1;
+            break;
+        case 6:
+            if ((int)(*(unsigned long long *)(s + 0x20) >> 23) & 1) {
+                target = D_00639EA8;
+                *pmode = 2;
+                if (target == 0) {
+                    getGirlPosAtThisStage(pos);
+                    rv = 1;
+                }
+            }
+            if ((int)(*(unsigned long long *)(s + 0x20) >> 24) & 3) {
+                ScpCallCameraGetTarget(pos);
+                target = 0;
+                rv = 1;
+            }
+            break;
+        case 8:
+            if (*(int *)(s + 0x10) % 15 / 10 != 0) {
+                target = *(char **)(s + 0x80);
+            } else {
+                target = D_00639EA4;
+            }
+            break;
+        case 9:
+            target = *(char **)(s + 0x84);
+            break;
+        case 7:
+            target = D_00639EA4;
+            if (*(int *)(s + 0x10) % 15 / 10 != 0) {
+                target = *(char **)(s + 0x80);
+            }
+            break;
+        case 3:
+            target = D_00639EA4;
+            break;
+        case 1:
+            sceVu0ScaleVector(pos, test_CURRENTORIENT(self), 200.0f);
+            pos[1] = 0.0f;
+            sceVu0AddVector(pos, test_CURRENTROOT((int *)self), pos);
+            rv = 1;
+            break;
+        case 2:
+            sceVu0ScaleVector(pos, test_CURRENTORIENT(self), *(float *)(s + 0x5E8));
+            pos[1] = 150.0f;
+            sceVu0AddVector(pos, test_CURRENTROOT((int *)self), pos);
+            rv = 1;
+            break;
+        case 14:
+            pos[0] = *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x520);
+            pos[1] = *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x524);
+            pos[2] = *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x528);
+            rv = 1;
+            break;
+        }
+        if (target != 0) {
+            if (target == D_00639EA4) {
+                /* the listing writes these two statements out at act-game.c
+                   4202-4203 instead of calling GetSkeltonPosition, so the
+                   node comes off `target` and the skeleton off the global. */
+                int idx = GetSkeltonFocusNode(target, (void *)0x23) << 6;
+                ((IntFloat *)pos)[0].f =
+                    *(float *)(idx + *(int *)((int)((GObj *)D_00639EA4)->p_15C + 0xC) + 0x30);
+                ((IntFloat *)pos)[1].f =
+                    *(float *)(idx + *(int *)((int)((GObj *)D_00639EA4)->p_15C + 0xC) + 0x34);
+                ((IntFloat *)pos)[2].f =
+                    *(float *)(idx + *(int *)((int)((GObj *)D_00639EA4)->p_15C + 0xC) + 0x38);
+            } else {
+                GetRootPosition(pos, target);
+            }
+            rv = 1;
+        }
+        return rv;
+    }
+
+    float pos[4];
+    int mode = 1;
+    int found = 0;
+    int col = ((int *)s)[18];
+    int flags;
+    int i;
+
+    flags = 0;
+    if (actCharStatus_Check(self, 32)) {
+        flags = 1;
+    }
+    if (actCharStatus_Check(self, 13)) {
+        flags |= 0x10;
+    }
+    if (actCharStatus_Check(self, 14)) {
+        flags |= 0x20;
+    }
+    if (actCharStatus_Check(self, 28)) {
+        if (*(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x32C) < 300.0f) {
+            flags |= 0x40;
+        } else {
+            flags |= 0x800;
+        }
+    }
+    if (actCharStatus_Check(self, 10)) {
+        flags |= 0x800000;
+    }
+    if (actCharStatus_Check(self, 11)) {
+        flags |= 0x1000;
+    }
+    if (actCharStatus_Check(self, 15)) {
+        if (self == D_00639EA8) {
+            if ((int)(*(unsigned long long *)(s + 0x20) >> 14) & 1) {
+                flags |= 0x200;
+            }
+        } else {
+            flags |= 0x200;
+        }
+    }
+    if (actCharStatus_Check(self, 5)) {
+        flags |= 0x20000;
+    }
+    if (actCharStatus_Check(self, 25)) {
+        flags |= 0x400;
+    }
+    if (actCharStatus_Check(self, 26)) {
+        flags |= 0x100;
+    }
+    if (actCharStatus_Check(self, 31)) {
+        flags |= 0x2000;
+    }
+    if (actCharStatus_Check(self, 3)) {
+        flags |= 0x8000;
+    }
+    if (actCharStatus_Check(self, 2)) {
+        flags |= 0x4000;
+    }
+    if (actCharStatus_Check(self, 6)) {
+        flags |= 0x40000;
+    }
+    if (actCharStatus_Check(self, 7)) {
+        flags |= 0x80000;
+    }
+    if (actCharStatus_Check(self, 33)) {
+        flags |= 0x2;
+    }
+    if (actCharStatus_Check(self, 34)) {
+        flags |= 0x4;
+    }
+    if (actCharStatus_Check(self, 35)) {
+        flags |= 0x8;
+    }
+    if (actCharStatus_Check(self, 4)) {
+        flags |= 0x10000;
+    }
+    if (actCharStatus_Check(self, 27)) {
+        flags |= 0x4000000;
+    }
+    if (actCharStatus_Check(self, 18)) {
+        flags |= 0x80;
+    }
+    if (actCharStatus_Check(self, 12)) {
+        flags |= 0x100000;
+    }
+    if (actCharStatus_Check(self, 0)) {
+        flags |= 0x200000;
+    }
+    if (actCharStatus_Check(self, 1)) {
+        flags |= 0x400000;
+    }
+    if (actCharStatus_Check(self, 17)) {
+        if (*(float *)(s + 0x70) < 1000.0f) {
+            flags |= 0x1000000;
+        }
+        if (*(float *)(s + 0x70) < 300.0f) {
+            flags |= 0x2000000;
+        }
+    }
+    for (i = 0; i < 27; i++) {
+        int kind = D_0055FD10[i][col];
+        if ((flags >> i) & 1) {
+            if (GetTarget(kind, pos, &mode) != 0) {
+                found = 1;
+                break;
+            }
+        }
+    }
+    if (found != 0) {
+        *(float *)((char *)((IntFloat *)(self + 0x15C))->i + 0x390) = pos[0];
+        *(float *)((char *)((IntFloat *)(self + 0x15C))->i + 0x394) = pos[1];
+        *(float *)((char *)((IntFloat *)(self + 0x15C))->i + 0x398) = pos[2];
+        *(int *)((char *)((IntFloat *)(self + 0x15C))->i + 0x380) = mode;
+        if (self == D_00639EA8) {
+            debug_NMarker((float *)((char *)*(int *)(self + 0x15C) + 0x390), 0xFF, 0xFF, 0xFF,
+                          100.0f);
+        }
+    } else {
+        *(int *)((char *)*(int *)(self + 0x15C) + 0x380) = 0;
+    }
+}
+
+extern char D_0063A6A0[];
+extern char D_0063A6A8[];
+extern float D_002ADAF0[];
+extern void sceVu0ScaleVector(void *dst, void *src, float k);
+extern int GetItemKind(int item);
+extern void ThrowItem(int item, float *v);
+extern void HoldItem(int item, char *self);
+extern void ReleaseItem(int item);
+extern void ACTSendMailCorrect(char *self, int mail);
+extern void SetBoyInfo(int *a0, int *a1);
+extern void GetRootPosition(void *dst, void *obj);
+extern void SetDirectRootPositionNoFittingWithNodePoint(void *a0, void *a1, void *a2, float a3);
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+extern int D_00639EBC;
+
+/* INTERIM: the listing inlines _ACTGame_GetParamF (act-game.c:4375) into
+   ACTItemThrow and keeps it at its own ROM slot, so it is `inline` in the
+   dev's TU; while this tail still has asm members a deferred inline would
+   land at the object end instead of at its ROM slot, so the public body
+   above stays a plain definition and this caller uses the static stand-in.
+   Collapses to one `inline` definition at layout. */
+static inline float actGame_GetParamF(int idx)
+{
+    return D_002ADAF0[idx];
+}
+
+void ACTItemWatchMotion(char *self)
+{
+    MotionRec *rec = &D_0055FE58[*(int *)((char *)*(int *)(self + 0x15C) + 0x4A0)];
+    char *sub = (char *)*(int *)(self + 0x164);
+    int mode = rec->u_188.w >> 19;
+    int frame = rec->u_188.b;
+
+    /* Nested inline (dev lines 4456-4464): the "take the pending item"
+       request, expanded at the four motion arms below. */
+    inline void ItemHold(void)
+    {
+        if (*(int *)(sub + 0x180) != 0) {
+            return;
+        }
+        if ((*(int *)(sub + 0x180) = *(int *)(sub + 0x184)) == 0) {
+            return;
+        }
+        HoldItem(*(int *)(sub + 0x180), self);
+    }
+
+    /* Nested inline (dev lines 4474-4476): drop whatever is held.  The two
+       slots hold the held / pending item object POINTERS (the same values the
+       head block above compares against the other actor's pair), so they are
+       read and cleared through `char **`. */
+    inline void ItemRelease(void)
+    {
+        if (*(char **)(sub + 0x180) == 0) {
+            return;
+        }
+        ReleaseItem((int)*(char **)(sub + 0x180));
+        *(char **)(sub + 0x184) = *(char **)(sub + 0x180) = 0;
+    }
+
+    /* A real GNU nested function: ROM passes the parent's frame in $2
+       (STATIC_CHAIN_REGNUM) and the body reads `sub` at 0($2) and `self`
+       at 4($2) through it. */
+    void ACTItemThrow(void)
+    {
+        float v[4];
+        int kind;
+
+        if (*(int *)(sub + 0x180) == 0) {
+            return;
+        }
+        sceVu0ScaleVector(v, test_CURRENTORIENT(self), actGame_GetParamF(9) + actGame_GetParamF(9));
+        kind = GetItemKind(*(int *)(sub + 0x180));
+        if (kind == 1 || kind == 6) {
+            debug_StdPrintfDummy(D_0063A6A0);
+            v[0] *= 0.5f;
+            v[1] -= 25.0f;
+            v[2] *= 0.5f;
+        }
+        ThrowItem(*(int *)(sub + 0x180), v);
+        *(int *)(sub + 0x184) = *(int *)(sub + 0x180) = 0;
+    }
+
+    mode &= 7;
+
+    if (self == D_00639EA8 && D_00639EA4 != 0) {
+        if (*(char **)(sub + 0x184) != 0) {
+            char *o = *(char **)(D_00639EA4 + 0x164);
+            if (*(char **)(sub + 0x184) == *(char **)(o + 0x184) ||
+                *(char **)(sub + 0x184) == *(char **)(o + 0x180)) {
+                *(char **)(sub + 0x184) = 0;
+            }
+        }
+        if (*(char **)(sub + 0x180) != 0) {
+            char *o = *(char **)(D_00639EA4 + 0x164);
+            if (*(char **)(sub + 0x180) == *(char **)(o + 0x184) ||
+                *(char **)(sub + 0x180) == *(char **)(o + 0x180)) {
+                *(char **)(sub + 0x180) = 0;
+            }
+        }
+    }
+
+    switch (mode) {
+    case 2:
+        if ((float)frame < *(float *)(*(char **)(self + 0x15C) + 0x4AC)) {
+            ItemHold();
+        } else if (*(int *)(sub + 0x180) != 0) {
+            float pos[4];
+            GetRootPosition(pos, *(int *)(sub + 0x180));
+            SetDirectRootPositionNoFittingWithNodePoint(self, (void *)0x16, pos, 0.2f);
+            debug_StdPrintfDummy(D_0063A6A8);
+        }
+        break;
+
+    case 4:
+        if (*(float *)(*(char **)(self + 0x15C) + 0x4AC) < (float)frame) {
+            ItemHold();
+        } else {
+            ItemRelease();
+        }
+        break;
+
+    case 3:
+        if (*(float *)(*(char **)(self + 0x15C) + 0x4AC) < (float)frame) {
+            ItemHold();
+        } else {
+            ACTItemThrow();
+        }
+        break;
+
+    case 1:
+        ItemHold();
+        break;
+
+    case 0:
+        ItemRelease();
+        break;
+    }
+
+    if (self == D_00639EA4 && D_00639EBC == 0) {
+        *(int *)(sub + 0x154) = *(int *)(sub + 0x180);
+        SetBoyInfo(*(void **)(sub + 0x150), *(void **)(sub + 0x180));
+    }
+    if (self == D_00639EA8) {
+        *(int *)(sub + 0x154) = *(int *)(sub + 0x180);
+        if (mode != 0) {
+            int item = *(int *)(sub + 0x180);
+            int drop = 0;
+            if (item != 0) {
+                drop = *(int *)(item + 0x16C) == 0;
+            }
+            if (*(int *)(sub + 0x180) == 0 && *(int *)(sub + 0x184) == 0) {
+                drop = 1;
+            }
+            if (drop) {
+                *(int *)(sub + 0x154) = *(int *)(sub + 0x180) = *(int *)(sub + 0x184) = 0;
+                ACTSendMailCorrect(self, 0x7E);
+            }
+        }
+    }
+}
 
 extern void GetRootPosition(void *dst, void *self);
 extern float _DistSqGV(int *a0, int a1);

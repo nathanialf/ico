@@ -1187,3 +1187,7 @@ words become the blob's first words.
 
 ### 2026-09-11 hand-camera: the TU's pool carved with SetCurrentInfo
 - `[0x539200, .lit4, src/hand-camera]`: 11 words, VMA 0x639200..0x63922C — three ASM_LIT4_SLOT words for the still-asm RotateAccordingToStick_PatternThree (0.1f, 0.008726646f, pi), SetCurrentInfo's seven literals (pi x3, +/-1.4835298 x2), one slot for the still-asm HandyCamera_TargetMoveType (pi); blob resumes at 0x53922C (lws_kyomi's word) before act_bird's row. The worker had left the pool in the blob "until the other owners land": slot lines are how a shared pool is carved with its first C owner.
+
+### 2026-09-11 act-game: GetTarget's and ACTItemWatchMotion's switch tables carved with their owners
+- `[0x452620, .rodata, src/act-game]` plain-rodata syms 0x00552620: jtbl_00552620, GetTarget's 14-arm table (0x38 B). GetTarget is a GNU nested function and its table is emitted into the object's PLAIN .rodata, not a `.rodata.0x<VMA>` selector, so the row carries the plain-rodata marker (the linker script routes the object's plain section there).
+- `[0x452660, .rodata, src/act-game]` syms 0x00552660: jtbl_00552660, ACTItemWatchMotion's 5-arm table (0x14 B, 16-aligned; the three zero words up to 0x552680 are its pad). The 4525E8 blob now ends at 0x452620 (strings only). Pool slots D_00638CEC (0.3f) and D_00638CF0 (0.2f) retired: emitted by the compiled functions.
