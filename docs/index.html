@@ -13,13 +13,13 @@
    * The look is ported from the author's site (defnf.com, the
    * React-Portfolio Next.js app): near-black ground, hairline borders,
    * square corners, no shadows anywhere, dense mono micro-labels, one
-   * serif for headings, and a single sand accent — the ICO entry's own
+   * serif for headings, and a single sand accent: the ICO entry's own
    * colour on the portfolio (src/data/projects.ts, hoverColor '#d9c9a3').
    *
    * FONTS: the portfolio loads Playfair Display / Outfit / JetBrains Mono
    * from next/font (src/app/layout.tsx:52-68). Fetching them here would be
    * a CDN request, which this page does not do, so each family is NAMED
-   * FIRST — a local install is used when the visitor has one — with a
+   * FIRST (a local install is used when the visitor has one) with a
    * system stack behind it. Nothing is downloaded either way.
    *
    * COLOUR: the ramp is the portfolio's own (Tailwind-neutral #0a0a0a ->
@@ -41,15 +41,15 @@
     --line:#262626;
 
     /* -- text ramp, ratios measured against --bg ---------------------- */
-    --fg:#e5e5e5;      /* 15.7:1 — UI.module.css:103, ToolPage.module.css:69 */
-    --fg2:#d4d4d4;     /* 13.4:1 — UI.module.css:69 section titles          */
-    --dim:#a3a3a3;     /*  7.9:1 — MainLayout.module.css:248                */
-    --faint:#8a8a8a;   /*  5.7:1 — one notch above the site's #737373 (4.2:1)*/
-    --ctl:#737373;     /*  4.2:1 — control outline; the site's #525252 is
+    --fg:#e5e5e5;      /* 15.7:1, UI.module.css:103, ToolPage.module.css:69 */
+    --fg2:#d4d4d4;     /* 13.4:1, UI.module.css:69 section titles          */
+    --dim:#a3a3a3;     /*  7.9:1, MainLayout.module.css:248                */
+    --faint:#8a8a8a;   /*  5.7:1, one notch above the site's #737373 (4.2:1)*/
+    --ctl:#737373;     /*  4.2:1, control outline; the site's #525252 is
                                    2.5:1 and would fail WCAG 1.4.11         */
 
     /* -- accent + status ---------------------------------------------- */
-    --accent:#d9c9a3;  /* 12.1:1 — the ICO project card's hoverColor,
+    --accent:#d9c9a3;  /* 12.1:1, the ICO project card's hoverColor,
                                    src/data/projects.ts                    */
     --on-accent:#0a0a0a;              /* 12.1:1 the other way round          */
     /* Focus is its OWN channel, not the accent: the selected segment is
@@ -57,11 +57,11 @@
        1:1. #f9fafb (MainLayout.module.css:225) is 19:1 on --bg, and the 2px
        outline-offset keeps --bg between the ring and any fill it sits on. */
     --focus:#f9fafb;
-    --bar:#262626;                    /* progress track — FormControls:76    */
+    --bar:#262626;                    /* progress track, FormControls:76    */
     --warn:#d4a000; --warn-bg:#2d2000; --warn-line:#4d3800;  /* FormControls:188-194 */
-    --err:#f87171;     /*  7.2:1 — same Tailwind family as the site's
+    --err:#f87171;     /*  7.2:1, same Tailwind family as the site's
                                    project colours (global.css:10-13)        */
-    --mkn:var(--faint);               /* "unmatched" marker — 5.7:1 on --bg  */
+    --mkn:var(--faint);               /* "unmatched" marker, 5.7:1 on --bg  */
     --layer:rgba(229,229,229,.08);    /* hover state layer: on-surface @ 8%  */
 
     /* -- type (see FONTS above) ---------------------------------------- */
@@ -133,10 +133,10 @@
    * and aria-checked carries it to assistive tech.
    * The metrics are the portfolio's nav buttons (MainLayout.module.css:
    * 116-129, 240-261): square, 1px outline, transparent until selected,
-   * solid accent fill when it is — over a 40px container that still gets a
+   * solid accent fill when it is: over a 40px container that still gets a
    * 48px touch target. */
   /* Sits beside the title when there is room, drops to its own row and fills
-     the column when there isn't — but never stretches past a comfortable
+     the column when there isn't, but never stretches past a comfortable
      control width. */
   .verpick { display:flex; flex-direction:column; gap:8px; flex:1 1 260px; max-width:420px; }
   .verpick-lbl {
@@ -156,7 +156,7 @@
   .seg-btn + .seg-btn { margin-left:-1px; }            /* collapse shared edge */
   /* A 48px target on a 40px container: grow the hit area without growing the
      button. Offsets are 5px, not 4px, because an absolutely positioned child
-     is laid out against the padding box — the 1px outline would otherwise eat
+     is laid out against the padding box, the 1px outline would otherwise eat
      2px of the target. */
   .seg-btn::after { content:""; position:absolute; inset:-5px 0; }
   .seg-btn:hover { background:var(--layer); color:var(--fg); }
@@ -210,7 +210,7 @@
    * The summary panel answers "how far along is the CODE"; this answers the
    * same question for every ELF section, in one row each. Same hairline grid
    * as .stats (1px gaps over a --line ground), same 6px bar, same mono
-   * micro-labels — it reads as a continuation of the panel above it, not as
+   * micro-labels: it reads as a continuation of the panel above it, not as
    * a second component.
    * Two sections are NOBITS (.sbss, .bss): they hold no ROM bytes, so their
    * figure is ownership, not reproduction. The metric caption on every row
@@ -298,7 +298,7 @@
   .row.prog:hover, .row.tu:hover { background:var(--hover); }
   .row:focus-visible { outline:2px solid var(--focus); outline-offset:-2px; }
   /* Group rows are this page's section headings, so they take the site's
-     serif (UI.module.css:65-73) — but NOT its uppercase: these are real
+     serif (UI.module.css:65-73), but NOT its uppercase: these are real
      directory names and a decomp reader needs their case intact. */
   .row.prog .nm { font-family:var(--f-serif); font-weight:700; font-size:15px;
                   letter-spacing:.04em; color:var(--fg2); }
@@ -330,7 +330,7 @@
      everywhere is what answers "how far along is this, and how big is it?":
      name, bar, percentage, size. The matched/total function count and the ROM
      address are reference detail you look up, not signal you scan, so they
-     are the first and second things to go. */
+     are the first and second casualties. */
   .cnt, .addr { display:none; }
   @media (min-width:560px) { .cnt { display:block; } }
   @media (min-width:760px) { .addr { display:block; } }
@@ -431,11 +431,11 @@ function bar(m,t){ const p=t?100*m/t:0;
   return `<span class="bar" aria-hidden="true"><i style="width:${p.toFixed(2)}%"></i></span>`; }
 
 // `note` (group rows only, optional) explains a bucket that is not a
-// programmer directory — the vendor library archives, the .vutext VU1
+// programmer directory, the vendor library archives, the .vutext VU1
 // microprograms, the "(unassigned)" data-bug bucket. It rides as the button's
 // title/aria-description so it can never disturb the row layout.
 // `extra` (optional) is a pre-built span that rides between the name and the
-// bar — the per-TU data-ownership suffix. It is plain text this file builds,
+// bar, the per-TU data-ownership suffix. It is plain text this file builds,
 // never anything from the JSON, so it needs no escaping of its own.
 function nodeRow(name, m, t, mb, tb, cls, note, extra){
   const esc = s => String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;")
@@ -487,7 +487,7 @@ function sectionStrip(T){
 }
 
 // `section_bytes` is {section: bytes} for what this TU's built object owns
-// outside .text. Bytes only, and only the non-zero ones — the generator
+// outside .text. Bytes only, and only the non-zero ones, the generator
 // already drops empties, this guards a hand-edited or older JSON.
 function tuSections(t){
   const sb = t.section_bytes;
@@ -500,7 +500,7 @@ function tuSections(t){
 }
 
 function render(data){
-  // NB: no #ver element — the version picker and the footer name it.
+  // NB: no #ver element, the version picker and the footer name it.
   const T = data.totals;
   const stat = (n,l,frac) =>
     `<div class="card"><span class="n">${n}</span><span class="l">${l}</span>`
@@ -604,7 +604,7 @@ function syncSeg(v){
     b.setAttribute("aria-checked", on ? "true" : "false");
     b.tabIndex = on ? 0 : -1;          // roving tabindex: one tab stop total
   });
-  // Single point where "the view is now v" is known — keep the repo link on
+  // Single point where "the view is now v" is known, keep the repo link on
   // the branch that actually develops this target.
   const rl = document.getElementById("repolink");
   if(rl) rl.href = `https://github.com/nathanialf/ico/tree/${VBRANCH[v] || VBRANCH[VDEFAULT]}`;
@@ -640,7 +640,7 @@ function loadVersion(v){
   // deploy publishes every version, so a miss here means either a local
   // preview (bare docs/ has no version dirs) or a deploy whose other-branch
   // ref was unreadable. Either way fall back to the root compat copy and SAY
-  // SO in the footer — a silent fallback would show one version's numbers
+  // SO in the footer, a silent fallback would show one version's numbers
   // under another version's tab.
   let fellBack = false;
   fetch(`${v}/progress.json`)
@@ -653,7 +653,7 @@ function loadVersion(v){
       render(d); applyFilter();
       const warn = (fellBack && d.version !== v)
         ? `<p class="warn">⚠ No <code>${v}/progress.json</code> was published by the `
-          + `last deploy — showing the site-wide fallback copy instead, which holds the `
+          + `last deploy, showing the site-wide fallback copy instead, which holds the `
           + `<b>${VLABEL[d.version] || d.version}</b> data.</p>`
         : "";
       document.getElementById("foot").innerHTML = warn
@@ -662,7 +662,7 @@ function loadVersion(v){
         + `<code>INCLUDE_ASM</code> directives. Function sizes are next-symbol deltas. `
         + `Updates on every push to any of the three branches.</p>`
         + `<p>The strip under the summary lists every section of the reference ELF. `
-        + `<code>.sbss</code> and <code>.bss</code> are NOBITS — they hold no ROM bytes — `
+        + `<code>.sbss</code> and <code>.bss</code> are NOBITS, so they hold no ROM bytes, `
         + `so their figure is <b>ownership</b>: how much of the section a compiled TU `
         + `defines and the link seats at the ROM's addresses. Every other section counts `
         + `bytes actually reproduced. A TU row's mono suffix is the same ownership figure `
@@ -671,7 +671,7 @@ function loadVersion(v){
         + `The VU1 microprograms live in <code>.vutext</code>, a different section: `
         + `they appear in the strip and not in the tree. The <b>vendor</b> group is library archive `
         + `members (crt0, SCE SDK, newlib/libgcc) linked from pre-built <code>.a</code> `
-        + `files — not ICO source; those bytes are already byte-identical in the link, `
+        + `files, not ICO source; those bytes are already byte-identical in the link, `
         + `assembled from ROM. Policy: <code>decomp/VENDOR.md</code>.</p>`; })
     .catch(e=> document.getElementById("tree").innerHTML =
         `<p class="err">Could not load progress.json: ${e}</p>`);
