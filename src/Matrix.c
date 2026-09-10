@@ -1056,4 +1056,172 @@ inline void _GetRandomVector0(void *p0)
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Matrix", _RemakeNormal);
+static inline void _MakeNormal3(void *dst, void *verts, int i0, int i1, int i2)
+{
+    char *v0 = (char *)((i0 << 4) + (int)verts);
+    char *v1 = (char *)((i1 << 4) + (int)verts);
+    char *v2 = (char *)((i2 << 4) + (int)verts);
+    VU0_LSV_R(lqc2, 10, 0x0, v0);
+    VU0_LSV_R(lqc2, 11, 0x0, v1);
+    VU0_LSV_R(lqc2, 12, 0x0, v2);
+    VU0_V3OP(vsub.w, 26, 0, 0);
+    VU0_V3OP(vsub.xyz, 11, 11, 10);
+    VU0_V3OP(vsub.xyz, 12, 12, 10);
+    VU0_V3OP(vmul.xyz, 16, 11, 11);
+    VU0_V3OP_BC(vaddz.x, 16, 16, 16, z);
+    VU0_V3OP_BC(vaddy.x, 16, 16, 16, y);
+    VU0_REG("vrsqrt Q, $vf0w, $vf16x");
+    VU0_V3OP(vmul.xyz, 17, 12, 12);
+    VU0_V3OP_BC(vaddz.x, 17, 17, 17, z);
+    VU0_V3OP_BC(vaddy.x, 17, 17, 17, y);
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf21, $vf11, Q");
+    VU0_REG("vnop");
+    VU0_REG("vnop");
+    VU0_REG("vrsqrt Q, $vf0w, $vf17x");
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf22, $vf12, Q");
+    VU0_V3OP_ACC(vopmula.xyz, 21, 22);
+    VU0_V3OP(vopmsub.xyz, 26, 22, 21);
+    VU0_LSV_R(sqc2, 26, 0x0, dst);
+}
+
+static inline void _MakeNormal4(void *dst, void *verts, int i0, int i1, int i2, int i3)
+{
+    float k;
+    char *v0 = (char *)((i0 << 4) + (int)verts);
+    char *v1 = (char *)((i1 << 4) + (int)verts);
+    char *v2 = (char *)((i2 << 4) + (int)verts);
+    char *v3 = (char *)((i3 << 4) + (int)verts);
+    k = 0.5f;
+    VU0_LSV_R(lqc2, 10, 0x0, v0);
+    VU0_LSV_R(lqc2, 11, 0x0, v1);
+    VU0_LSV_R(lqc2, 12, 0x0, v2);
+    VU0_LSV_R(lqc2, 13, 0x0, v3);
+    VU0_V3OP(vsub.xyz, 11, 11, 10);
+    VU0_V3OP(vsub.xyz, 12, 12, 10);
+    VU0_V3OP(vsub.xyz, 13, 13, 10);
+    VU0_V3OP(vmul.xyz, 16, 11, 11);
+    VU0_V3OP_BC(vaddz.x, 16, 16, 16, z);
+    VU0_V3OP_BC(vaddy.x, 16, 16, 16, y);
+    VU0_REG("vrsqrt Q, $vf0w, $vf16x");
+    VU0_V3OP(vmul.xyz, 17, 12, 12);
+    VU0_V3OP_BC(vaddz.x, 17, 17, 17, z);
+    VU0_V3OP_BC(vaddy.x, 17, 17, 17, y);
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf21, $vf11, Q");
+    VU0_REG("vnop");
+    VU0_REG("vnop");
+    VU0_REG("vrsqrt Q, $vf0w, $vf17x");
+    VU0_V3OP(vmul.xyz, 18, 13, 13);
+    VU0_V3OP_BC(vaddz.x, 18, 18, 18, z);
+    VU0_V3OP_BC(vaddy.x, 18, 18, 18, y);
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf22, $vf12, Q");
+    VU0_REG("vnop");
+    VU0_REG("vnop");
+    VU0_REG("vrsqrt Q, $vf0w, $vf18x");
+    VU0_NOREORDER_BEGIN();
+    __asm__ __volatile__("mfc1 $8, $f3" : : "f"(k) : "$8");
+    VU0_QMTC2_NI(8, 2);
+    VU0_NOREORDER_END();
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf23, $vf18, Q");
+    VU0_V3OP_ACC(vopmula.xyz, 21, 22);
+    VU0_V3OP(vopmsub.xyz, 26, 22, 21);
+    VU0_V3OP_ACC(vopmula.xyz, 22, 23);
+    VU0_V3OP(vopmsub.xyz, 27, 23, 22);
+    VU0_V3OP(vsub.w, 30, 0, 0);
+    VU0_V3OP(vadd.xyz, 30, 0, 26);
+    VU0_V3OP(vadd.xyz, 30, 30, 27);
+    VU0_V3OP_BC(vmulx.xyz, 30, 30, 2, x);
+    VU0_LSV_R(sqc2, 30, 0x0, dst);
+}
+
+static inline void _MakeNormal5(void *dst, void *verts, int i0, int i1, int i2, int i3, int i4)
+{
+    float k;
+    char *v0 = (char *)((i0 << 4) + (int)verts);
+    char *v1 = (char *)((i1 << 4) + (int)verts);
+    char *v2 = (char *)((i2 << 4) + (int)verts);
+    char *v3 = (char *)((i3 << 4) + (int)verts);
+    char *v4 = (char *)((i4 << 4) + (int)verts);
+    k = 0.25f;
+    VU0_LSV_R(lqc2, 10, 0x0, v0);
+    VU0_LSV_R(lqc2, 11, 0x0, v1);
+    VU0_LSV_R(lqc2, 12, 0x0, v2);
+    VU0_LSV_R(lqc2, 13, 0x0, v3);
+    VU0_LSV_R(lqc2, 14, 0x0, v4);
+    VU0_V3OP(vsub.xyz, 11, 11, 10);
+    VU0_V3OP(vsub.xyz, 12, 12, 10);
+    VU0_V3OP(vsub.xyz, 13, 13, 10);
+    VU0_V3OP(vsub.xyz, 14, 14, 10);
+    VU0_V3OP(vmul.xyz, 16, 11, 11);
+    VU0_V3OP_BC(vaddz.x, 16, 16, 16, z);
+    VU0_V3OP_BC(vaddy.x, 16, 16, 16, y);
+    VU0_REG("vrsqrt Q, $vf0w, $vf16x");
+    VU0_V3OP(vmul.xyz, 17, 12, 12);
+    VU0_V3OP_BC(vaddz.x, 17, 17, 17, z);
+    VU0_V3OP_BC(vaddy.x, 17, 17, 17, y);
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf21, $vf11, Q");
+    VU0_REG("vnop");
+    VU0_REG("vnop");
+    VU0_REG("vrsqrt Q, $vf0w, $vf17x");
+    VU0_V3OP(vmul.xyz, 18, 13, 13);
+    VU0_V3OP_BC(vaddz.x, 18, 18, 18, z);
+    VU0_V3OP_BC(vaddy.x, 18, 18, 18, y);
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf22, $vf12, Q");
+    VU0_REG("vnop");
+    VU0_REG("vnop");
+    VU0_REG("vrsqrt Q, $vf0w, $vf18x");
+    VU0_V3OP(vmul.xyz, 19, 14, 14);
+    VU0_V3OP_BC(vaddz.x, 19, 19, 19, z);
+    VU0_V3OP_BC(vaddy.x, 19, 19, 19, y);
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf23, $vf18, Q");
+    VU0_REG("vnop");
+    VU0_REG("vnop");
+    VU0_REG("vrsqrt Q, $vf0w, $vf19x");
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf24, $vf19, Q");
+    VU0_V3OP_ACC(vopmula.xyz, 21, 22);
+    VU0_V3OP(vopmsub.xyz, 26, 22, 21);
+    VU0_V3OP_ACC(vopmula.xyz, 22, 23);
+    VU0_V3OP(vopmsub.xyz, 27, 23, 22);
+    VU0_V3OP_ACC(vopmula.xyz, 23, 24);
+    VU0_V3OP(vopmsub.xyz, 28, 24, 23);
+    VU0_V3OP_ACC(vopmula.xyz, 24, 21);
+    VU0_V3OP(vopmsub.xyz, 29, 21, 24);
+    VU0_V3OP(vsub.w, 30, 0, 0);
+    VU0_V3OP(vadd.xyz, 30, 0, 26);
+    __asm__ __volatile__("mfc1 $8, $f4" : : "f"(k) : "$8");
+    VU0_V3OP(vadd.xyz, 30, 30, 27);
+    VU0_QMTC2_NI(8, 2);
+    VU0_V3OP(vadd.xyz, 30, 30, 28);
+    VU0_V3OP(vadd.xyz, 30, 30, 29);
+    VU0_V3OP_BC(vmulx.xyz, 30, 30, 2, x);
+    VU0_LSV_R(sqc2, 30, 0x0, dst);
+}
+
+void _RemakeNormal(void *dst, void *verts, int *idx)
+{
+    int i;
+
+    for (i = 0; idx[i] != -1; i++) {}
+
+    i--;
+
+    switch (i) {
+    case 2:
+        _MakeNormal3(dst, verts, idx[0], idx[1], idx[2]);
+        break;
+    case 3:
+        _MakeNormal4(dst, verts, idx[0], idx[1], idx[2], idx[3]);
+        break;
+    case 4:
+        _MakeNormal5(dst, verts, idx[0], idx[1], idx[2], idx[3], idx[4]);
+        break;
+    }
+}

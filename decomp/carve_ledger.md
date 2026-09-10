@@ -1201,3 +1201,7 @@ words become the blob's first words.
 
 ### 2026-09-11 effectTool closed: its three pool words
 - `[0x5394B0, .lit4, src/effectTool]`: 0.01f x2 (editParam) and 0.001f (moveEffectToolGeometry) as literals, VMA 0x6394B0..0x6394BC; the 539490 blob (darkVolume's words) ends at 0x5394B0 and resumes at 0x5394BC before flyManager's row. stageSEProc's 20 ASM_LIT4_SLOT lines retired: its existing row is wholly compiler-emitted (0x12C B).
+
+### 2026-09-11 clipCollisionManager and wireLetter pools (both TUs closed)
+- `[0x539470, .lit4, src/clipCollisionManager]`: D_00639470 = 0.01f (actClipCollisionCore), the tail of the 53945C blob (cage's words remain there).
+- `[0x53970C, .lit4, src/wireLetter]`: D_0063970C = 0.7f (DispWireString), the tail of the 5396B0 blob before worm's row. The pass-2 note assigning this slot to warpGirl was wrong (warpGirl's own word is at 0x639108, carved earlier).

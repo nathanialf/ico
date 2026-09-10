@@ -220,7 +220,96 @@ inline int iosOmExeMail(void (*func)(IosMail))
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", _iosOmMain);
+typedef struct OmProc {
+    char _p0[0x8];
+    struct OmProc *next; /* 0x08 */
+    char _pC[0x4];
+    int mode;           /* 0x10 */
+    int pri;            /* 0x14 */
+    int enabled;        /* 0x18 */
+    void (*fn)(void *); /* 0x1C */
+    char _p20[0x4];
+    char thread[0x4]; /* 0x24 */
+} OmProc;
+
+typedef struct OmGObj {
+    char _p0[0x10];
+    struct OmGObj *next; /* 0x10 */
+    char _p14[0x28 - 0x14];
+    void (*fn)(struct OmGObj *); /* 0x28 */
+    OmProc *procs;               /* 0x2C */
+    char _p30[0x16C - 0x30];
+    int active;      /* 0x16C */
+    int pauseExempt; /* 0x170 */
+} OmGObj;
+
+extern int D_0028F4C0[];
+extern int D_0063A60C;
+extern OmProc *D_0063A620;
+extern int iosThreadGetPri(void *thread);
+extern void iosThreadWakeup(void *thread);
+extern void isysGObjProcRemove(OmProc *p);
+
+void _iosOmMain(int a0, int a1, int a2, int a3)
+{
+    OmGObj *g;
+    OmGObj *g2;
+    OmProc *p;
+    int k;
+    int pri;
+
+    for (k = 0; k < 8; k++) {
+        g = (OmGObj *)D_0029C4F0[k];
+        if ((D_0063A60C >> k) & 1) {
+            for (; g != 0; g = g->next) {
+                D_0063A61C = (char *)g;
+                if (D_0028F4C0[5] == 0 || g->pauseExempt != 0) {
+                    if (g->active != 0) {
+                        if (g->fn != 0) {
+                            g->fn(g);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for (k = 0; k < 8; k++) {
+        g2 = (OmGObj *)D_0029C4F0[k];
+        if ((D_0063A60C >> k) & 1) {
+            for (; g2 != 0; g2 = g2->next) {
+                D_0063A61C = (char *)g2;
+                if (D_0028F4C0[5] == 0 || g2->pauseExempt != 0) {
+                    if (g2->active != 0) {
+                        for (pri = 0x13; pri < 0x1B; pri++) {
+                            p = g2->procs;
+                            while (p != 0) {
+                                if (p->pri == pri) {
+                                    if (p->enabled != 0) {
+                                        D_0063A620 = p;
+                                        if (p->mode == 0) {
+                                            if (iosThreadGetPri(p->thread) != 0x22) {
+                                                iosThreadWakeup(p->thread);
+                                            } else {
+                                                isysGObjProcRemove(p);
+                                            }
+                                            D_0063A620 = 0;
+                                        } else {
+                                            if (p->fn != 0) {
+                                                p->fn(g2);
+                                            }
+                                            D_0063A620 = 0;
+                                        }
+                                    }
+                                }
+                                p = p->next;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 void iosOmMain(int a0, int a1, int a2, int a3)
 {
