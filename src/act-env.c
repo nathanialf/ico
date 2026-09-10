@@ -72,8 +72,147 @@ inline void GetSofaPosition(char *a0, char *a1)
     sceVu0ApplyMatrix(w + 0x5B0, *(void **)(*(char **)(a1 + 0x15C) + 0xC), &v);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-env", getDitchDistTbl);
-INCLUDE_ASM("asm/nonmatchings/src/act-env", GetDitchPosition);
+extern char *D_00639EA8;
+extern float D_006397E8;
+extern float D_006397EC;
+extern Vec4 D_00621A10;
+extern float *test_CURRENTROOT(void *a0);
+extern void sceVu0SubVector(void *out, void *a, void *b);
+extern float _GetDirection(void *orient);
+extern void _ApplyRyGV(void *v, float ry);
+extern void _OrientXZGV(void *out, void *a, void *b);
+
+static inline int getDitchCarryMode(void)
+{
+    void *a;
+    void *b;
+
+    if (D_00639EA4 != 0 && D_00639EA8 != 0) {
+        a = *(void **)*(char **)(D_00639EA4 + 0x15C);
+        b = *(void **)*(char **)(D_00639EA8 + 0x15C);
+
+        if (a != 0 && *(int *)((char *)a + 0xC) == 0x2C)
+            return 1;
+        if (b != 0 && *(int *)((char *)b + 0xC) == 0x2C)
+            return 2;
+    }
+    return 0;
+}
+
+static inline int getDitchCarryModeStage8(void)
+{
+    if (stage_no == 8) {
+        return getDitchCarryMode();
+    }
+    return 0;
+}
+
+void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj, int *carry)
+{
+    Vec4 v;
+    int mode;
+
+    *tbl = D_004F1D60;
+
+    *sofa = 0;
+    *carry = 0;
+    *range = 0.0f;
+    if (stage_no == 26) {
+        *tbl = D_004F1D70;
+        if (getDitchCarryMode()) {
+            *range = 50.0f;
+        }
+    }
+    mode = getDitchCarryModeStage8();
+    if (mode) {
+        if (D_006397E8 < test_CURRENTROOT(D_00639EA4)[1]) {
+            *tbl = D_004F1D80;
+            if (mode == 1) {
+                v.x = test_CURRENTROOT(D_00639EA4)[0];
+                v.y = test_CURRENTROOT(D_00639EA4)[1];
+                v.z = test_CURRENTROOT(D_00639EA4)[2];
+                sceVu0SubVector(&v, &v, D_004F1DC0);
+                _ApplyRyGV(&v, (float)(int)(_GetDirection(D_004F1DD0) / D_006397EC * 180.0f) *
+                                   D_006397EC / 180.0f);
+                if (v.z < -150.0f) {
+                    *tbl = D_004F1DB0;
+                }
+            }
+            if (mode == 2) {
+                v.x = test_CURRENTROOT(D_00639EA4)[0];
+                v.y = test_CURRENTROOT(D_00639EA4)[1];
+                v.z = test_CURRENTROOT(D_00639EA4)[2];
+
+                if (520.0f < v.x) {
+                    *tbl = D_004F1DB0;
+                }
+            }
+        } else {
+            if (mode == 1) {
+                v = D_00621A10;
+
+                *tbl = D_004F1D90;
+                pos[0] = v.x;
+                pos[1] = v.y;
+                pos[2] = v.z;
+                _OrientXZGV(obj, D_004F1DE0, &v);
+
+                *carry = mode;
+            } else {
+                *tbl = D_004F1DA0;
+                pos[0] = D_004F1E00[0];
+                pos[1] = D_004F1E00[1];
+                pos[2] = D_004F1E00[2];
+                _OrientXZGV(obj, D_004F1DF0, D_004F1E00);
+            }
+            *sofa = 1;
+        }
+    }
+}
+
+typedef struct {
+    float a[4];   /* 0x00 start point   */
+    float b[4];   /* 0x10 end point     */
+    float pos[4]; /* 0x20 clipped point */
+    char _30[0x40];
+    float f_70;
+    char _74[0x14];
+    int f_88;
+    char _8c[0x08];
+    int f_94;
+    char _98[0x28];
+} ClipWork;
+
+extern void ClipFloor(void *a0);
+
+int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
+{
+    ClipWork work;
+    float tmp[4];
+    /* The ROM frame is 0x1F0 = 0xC0 (work) + 0x10 (tmp) + 0xD0 more of
+       aggregate locals under the register saves, and act-env.c:1175-1195 emit
+       no instructions anywhere in the listing: the dev's second probe was
+       disabled while its locals stayed declared.  Their sizes are what the
+       frame proves. */
+    ClipWork work2;
+    float tmp2[4];
+
+    sceVu0ScaleVector(tmp, dir, d0 + d1);
+    sceVu0AddVector(work.a, org, tmp);
+    work.b[0] = work.a[0];
+    work.b[1] = work.a[1];
+    work.b[2] = work.a[2];
+    work.a[1] -= 100.0f;
+    work.b[1] += h + 100.0f;
+    ClipFloor(&work);
+    if (work.f_94 != 0) {
+        out[0] = work.pos[0];
+        out[1] = work.pos[1];
+        out[2] = work.pos[2];
+        return 1;
+    }
+    return 0;
+}
 
 inline void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
 {
@@ -97,7 +236,58 @@ inline void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-env", DebugActOrientFlag);
+extern char D_00621A20[];
+extern char D_00621A30[];
+extern char D_00621A40[];
+extern char D_00621A50[];
+extern char D_00621A60[];
+extern char D_00621A70[];
+extern char D_00621A80[];
+extern char D_00621A90[];
+extern char D_00621AA0[];
+extern char D_00621AB0[];
+extern char D_00621AC0[];
+extern char D_00621AD0[];
+extern char D_00621AE0[];
+extern char D_00621AF0[];
+extern char D_00621B00[];
+extern char D_0063BD40[];
+extern char D_0063BD48[];
+extern int D_0063B13C;
+extern void debug_Printf(int x, int y, unsigned int color, char *fmt, ...);
+
+typedef struct {
+    int on;
+    char *name;
+} OrientFlagRow;
+
+void DebugActOrientFlag(unsigned int *f)
+{
+    OrientFlagRow tbl[16] = {
+        {(f[1] >> 18) & 1, D_00621A20}, {(f[1] >> 19) & 1, D_00621A30},
+        {(f[1] >> 20) & 1, D_00621A40}, {(f[1] >> 21) & 1, D_00621A50},
+        {(f[2] >> 4) & 1, D_00621A60},  {(f[2] >> 13) & 1, D_00621A70},
+        {(f[2] >> 14) & 1, D_00621A80}, {(f[2] >> 24) & 1, D_00621A90},
+        {(f[2] >> 25) & 1, D_00621AA0}, {(f[3] >> 1) & 1, D_00621AB0},
+        {(f[3] >> 3) & 1, D_00621AC0},  {(f[3] >> 5) & 1, D_00621AD0},
+        {(f[3] >> 6) & 1, D_00621AE0},  {(f[3] >> 7) & 1, D_00621AF0},
+        {(f[3] >> 8) & 1, D_00621B00},  {-1},
+    };
+    int y = 40;
+    int i;
+
+    for (i = 0; tbl[i].on != -1; i++) {
+        if (tbl[i].on) {
+            if (D_0063B13C & 1) {
+                debug_Printf(10, y += 8, 0x0FFFFFFF, D_0063BD40, tbl[i].name);
+            }
+        } else {
+            if (D_0063B13C & 1) {
+                debug_Printf(10, y += 8, 0x0FFFFFFF, D_0063BD48, tbl[i].name);
+            }
+        }
+    }
+}
 
 inline void ACTSetEnvAllmighty(char *a0)
 {
