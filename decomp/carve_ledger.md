@@ -1184,3 +1184,6 @@ words become the blob's first words.
 ### 2026-09-10 st07a and stage_orient pools carved with their (now fully C) owners
 - `[0x5399B0, .lit4, src/st07a]`: four words (actSt07aSekizoChk's -3300/977/-1050/-950 as literals), VMA 0x6399B0..0x6399C0; the 539994 blob shortens, and a one-word blob resume at 0x5399C0 keeps st08a's D_006399C0 (read as an extern by the matched actSt08aInit: data-sections pass item) before st08b's row.
 - `[0x539328, .lit4, src/stage_orient]`: one word (StageOrientGet2's literal), VMA 0x639328..0x63932C; blob resumes at 0x53932C.
+
+### 2026-09-11 hand-camera: the TU's pool carved with SetCurrentInfo
+- `[0x539200, .lit4, src/hand-camera]`: 11 words, VMA 0x639200..0x63922C — three ASM_LIT4_SLOT words for the still-asm RotateAccordingToStick_PatternThree (0.1f, 0.008726646f, pi), SetCurrentInfo's seven literals (pi x3, +/-1.4835298 x2), one slot for the still-asm HandyCamera_TargetMoveType (pi); blob resumes at 0x53922C (lws_kyomi's word) before act_bird's row. The worker had left the pool in the blob "until the other owners land": slot lines are how a shared pool is carved with its first C owner.

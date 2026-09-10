@@ -526,6 +526,8 @@ segments:
       - [0x539140, lit4, src/cod/539140]     # .lit4 blob resume (chain's words follow at 0x539190)
       - [0x539190, .lit4, src/chain]  # carved D_00639190..D_006391D4 (18 slots: chain_simulate_free..TestChainUpDown still asm, then IncreasePdlChain, DecreasePdlChain, GetChainDirCorrectVal, InitPendulum x2, _GetCorrectOrientOfChain as literals; the TU's whole pool), VMA 0x639190..0x6391D8
       - [0x5391D8, lit4, src/cod/5391D8]     # .lit4 blob resume (ebrain's words, then gv's)
+      - [0x539200, .lit4, src/hand-camera]  # carved D_00639200..D_00639228 (11 words: three slots for the still-asm RotateAccordingToStick_PatternThree, SetCurrentInfo's seven literals (pi x3, +/-1.4835298 x2), one slot for the still-asm HandyCamera_TargetMoveType), VMA 0x639200..0x63922C
+      - [0x53922C, lit4, src/cod/53922C]     # .lit4 blob resume (lws_kyomi's word before act_bird's run)
       - [0x539230, .lit4, src/act_bird]  # carved D_00639230..D_00639290 (25 slots, 5 fns interp_vector_sa..vector_angle_degree; 8x 2*pi), VMA 0x639230..0x639294, 100 B; MAIN.MAP act_bird.o .lit4 0x64 agrees.  USA: - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
       - [0x539294, lit4, src/cod/539294]     # .lit4 blob resume (lightning's words)
       - [0x5392C0, .lit4, src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: Debug_StickControl, QueenGeo, QueenBarrierGeo and its WrapRad expansions as literals, QueenBallGeo's 5000 now compiler-emitted; TU fully C), VMA 0x6392C0..0x639324
