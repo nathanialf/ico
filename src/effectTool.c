@@ -1,9 +1,282 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/effectTool", _dispParam);
-INCLUDE_ASM("asm/nonmatchings/src/effectTool", editParam);
-INCLUDE_ASM("asm/nonmatchings/src/effectTool", dispXZYZCircle);
-INCLUDE_ASM("asm/nonmatchings/src/effectTool", dispCircle2);
+/* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
+ * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
+ * field inside the effect package, `enums` an optional name table for a type-0
+ * field and (min,max) the range printed after the label. */
+typedef struct {
+    char *name;        /* 0x00 */
+    int off;           /* 0x04 */
+    char **enums;      /* 0x08 */
+    unsigned int type; /* 0x0C */
+    int step;          /* 0x10 */
+    int min;           /* 0x14 */
+    int max;           /* 0x18 */
+} EffParamDef;
+
+extern EffParamDef D_004E74A0[];
+extern char D_0061F490[]; /* "Unknown Data Type \"%s\"\n" */
+extern char D_0061F4A8[]; /* "%-20s:%s" */
+extern char D_0063B828[]; /* "%4.3f" */
+extern char D_0063B830[]; /* "(%d,%d)" */
+extern char D_0063B838[]; /* "%d" */
+extern char D_0063B840[]; /* "%s" */
+extern char D_0063B848[]; /* "%s%s" */
+extern double fptodp(float v);
+extern int sprintf();
+extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
+
+void _dispParam(int *pkg, int idx, int x, int y, int col)
+{
+    char lbl[256];
+    char val[256];
+    char rng[256];
+    char *p = (char *)pkg + D_004E74A0[idx].off;
+    EffParamDef *e = &D_004E74A0[idx];
+
+    switch (e->type) {
+    case 1:
+        sprintf(val, D_0063B828, fptodp(*(float *)p));
+        sprintf(rng, D_0063B830, e->min, e->max);
+        break;
+    case 0:
+        if (e->enums == 0) {
+            sprintf(val, D_0063B838, *(int *)p);
+            sprintf(rng, D_0063B830, e->min, e->max);
+        } else {
+            sprintf(val, D_0063B840, e->enums[*(int *)p]);
+            rng[0] = 0;
+        }
+        break;
+    case 2:
+        sprintf(val, D_0063B838, *(short *)p);
+        sprintf(rng, D_0063B830, e->min, e->max);
+        break;
+    case 3:
+        sprintf(val, D_0063B838, *(unsigned short *)p);
+        sprintf(rng, D_0063B830, e->min, e->max);
+        break;
+    default:
+        sprintf(val, D_0061F490, e->name);
+        break;
+    }
+    sprintf(lbl, D_0063B848, e->name, rng);
+    debug_PrintfDummy(x, y, col, D_0061F4A8, lbl, val);
+}
+
+/* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
+ * pad, trg at 0x4 and rep at 0xC; this tool reads pad 0 and pad 1. */
+typedef struct {
+    int unk00;        /* 0x00 */
+    int trg;          /* 0x04 */
+    int unk08;        /* 0x08 */
+    int rep;          /* 0x0C */
+    char unk10[0x48]; /* 0x10 */
+} EffToolPad;
+
+extern EffToolPad D_0028F8F0[];
+
+typedef union {
+    int i;
+    float f;
+    short s;
+    unsigned short us;
+} EffVal;
+
+extern int D_0063B850;
+extern int D_00720070[];
+extern int *GetParticleEffectPackage(int id);
+
+int editParam(int id, int sel)
+{
+    EffParamDef *e = &D_004E74A0[sel];
+    int *pkg = GetParticleEffectPackage(id);
+    EffVal *p = (EffVal *)((char *)pkg + D_004E74A0[sel].off);
+    int changed = 0;
+    float step;
+    int v;
+
+    if ((D_0028F8F0[0].unk00 & 0x8000) || (D_0028F8F0[1].unk00 & 0x8000) ||
+        (D_0028F8F0[0].unk00 & 0x2000) || (D_0028F8F0[1].unk00 & 0x2000)) {
+        D_0063B850++;
+    } else {
+        D_0063B850 = 0;
+    }
+    if (D_0063B850 > 30) {
+        step = (D_0063B850 - 10) / 10;
+    } else {
+        step = 1.0f;
+    }
+    switch (e->type) {
+    case 1:
+        if ((D_0028F8F0[0].rep & 0x8000) || (D_0028F8F0[1].rep & 0x8000)) {
+            p->f -= step * 0.01f;
+            if (p->f < e->min) {
+                p->f = e->min;
+            } else {
+                changed = 1;
+            }
+        }
+        if ((D_0028F8F0[0].rep & 0x2000) || (D_0028F8F0[1].rep & 0x2000)) {
+            p->f += step * 0.01f;
+            if (e->max < p->f) {
+                p->f = e->max;
+            } else {
+                changed |= 1;
+            }
+        }
+        break;
+    case 0:
+        if ((D_0028F8F0[0].rep & 0x8000) || (D_0028F8F0[1].rep & 0x8000)) {
+            p->i = (float)p->i - step;
+            if (p->i < e->min) {
+                p->i = e->min;
+            } else {
+                changed = 1;
+            }
+        }
+        if ((D_0028F8F0[0].rep & 0x2000) || (D_0028F8F0[1].rep & 0x2000)) {
+            p->i = (float)p->i + step;
+            if (e->max < p->i) {
+                p->i = e->max;
+            } else {
+                changed |= 1;
+            }
+        }
+        break;
+    case 2:
+        if ((D_0028F8F0[0].rep & 0x8000) || (D_0028F8F0[1].rep & 0x8000)) {
+            v = p->s;
+            v = (float)v - step;
+            if (v < e->min) {
+                p->s = e->min;
+            } else {
+                p->s = v;
+                changed = 1;
+            }
+        }
+        if ((D_0028F8F0[0].rep & 0x2000) || (D_0028F8F0[1].rep & 0x2000)) {
+            v = p->s;
+            v = (float)v + step;
+            if (e->max < v) {
+                p->s = e->max;
+            } else {
+                p->s = v;
+                changed |= 1;
+            }
+        }
+        break;
+    case 3:
+        if ((D_0028F8F0[0].rep & 0x8000) || (D_0028F8F0[1].rep & 0x8000)) {
+            v = p->us;
+            v = (float)v - step;
+            if (v < e->min) {
+                p->us = e->min;
+            } else {
+                p->us = v;
+                changed = 1;
+            }
+        }
+        if ((D_0028F8F0[0].rep & 0x2000) || (D_0028F8F0[1].rep & 0x2000)) {
+            v = p->us;
+            v = (float)v + step;
+            if (e->max < v) {
+                p->us = e->max;
+            } else {
+                p->us = v;
+                changed |= 1;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    if (changed) {
+        D_00720070[id] |= 1;
+    }
+    return (changed && e->step != 0) || (D_0028F8F0[0].trg & 0x20) || (D_0028F8F0[1].trg & 0x20);
+}
+
+/* the tool's line colour (r=0, g=0xC0, b=0xFF, a=0x1C) and the dimmed copy the
+ * second, blended pass draws with. */
+typedef struct {
+    int r;
+    int g;
+    int b;
+    int a;
+} __attribute__((aligned(16))) EffCol;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+    float w;
+} __attribute__((aligned(16))) EffVec;
+
+extern EffCol D_004E7860; /* {0, 0xC0, 0xFF, 0x1C} */
+extern EffCol D_004E7870; /* {0, 0x20, 0xFF, 0x1C} */
+extern EffCol D_004E7880;
+extern EffCol D_004E7890;
+extern float GetTableSin(short a);
+extern float GetTableCos(short a);
+extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
+extern void *memset(void *d, int c, int n);
+
+/* a static helper the PAL listing places at effectTool.c lines 286-289 and
+ * inlines into dispXZYZCircle (three times, with three different colours),
+ * dispCircle2 and dispEffectToolField; it is not emitted out of line, so it
+ * has no MAIN.MAP symbol and this name is ours.  It draws the edge once solid
+ * and once with a 1/16 colour over the top. */
+static inline void drawEdge(EffVec *p0, EffVec *p1, EffCol *c)
+{
+    EffCol dim = {c->r >> 4, c->g >> 4, c->b >> 4, c->a};
+
+    DrawLineG(p0, c, p1, c, 0);
+    DrawLineG(p0, &dim, p1, &dim, -1);
+}
+
+void dispXZYZCircle(float rad, int from, int to, int step)
+{
+    int i;
+
+    for (i = from; i < to; i += step) {
+        EffVec a = {rad * GetTableSin(i), 0.0f, rad * GetTableCos(i), 1.0f};
+        EffVec b = {rad * GetTableSin(i + step), 0.0f, rad * GetTableCos(i + step), 1.0f};
+
+        drawEdge(&a, &b, &D_004E7870);
+    }
+    for (i = from; i < to; i += step) {
+        EffVec a = {0.0f, rad * GetTableSin(i), rad * GetTableCos(i), 1.0f};
+        EffVec b = {0.0f, rad * GetTableSin(i + step), rad * GetTableCos(i + step), 1.0f};
+
+        drawEdge(&a, &b, &D_004E7880);
+    }
+    for (i = from; i < to; i += step) {
+        EffVec a = {rad * GetTableSin(i), rad * GetTableCos(i), 0.0f, 1.0f};
+        EffVec b = {rad * GetTableSin(i + step), rad * GetTableCos(i + step), 0.0f, 1.0f};
+
+        drawEdge(&a, &b, &D_004E7890);
+    }
+}
+
+void dispCircle2(float rad, short elev, int step)
+{
+    EffVec o;
+    int i;
+
+    memset(&o, 0, sizeof(o));
+    o.w = 1.0f;
+    for (i = 0; i <= 0xFFFF; i += step) {
+        float r = rad * GetTableSin(elev);
+        EffVec a = {r * GetTableSin((short)i), r * GetTableCos((short)i), rad * GetTableCos(elev),
+                    1.0f};
+        EffVec b = {r * GetTableSin((short)(i + step)), r * GetTableCos((short)(i + step)),
+                    rad * GetTableCos(elev), 1.0f};
+
+        drawEdge(&a, &b, &D_004E7860);
+        drawEdge(&o, &a, &D_004E7860);
+    }
+}
 
 extern short D_0063B858;
 extern short D_0063B85A;
@@ -18,38 +291,73 @@ void setQ(int *self)
     RotQuaternionX(self, -D_0063B85A);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/effectTool", dispEffectToolField);
+extern const EffVec D_0061F4C0; /* .rodata: { 0.0f, 0.0f, 100.0f, 1.0f } */
+extern char D_0061F4D0[];       /* "POS-X:%4.3f" */
+extern char D_0061F4E0[];       /* "POS-Y:%4.3f" */
+extern char D_0061F4F0[];       /* "POS-Z:%4.3f" */
+extern char D_0061F500[];
+extern char D_0061F510[];
+extern float D_00720170[];
+extern short D_0063B858;
+extern short D_0063B85A;
+extern int *GetParticleEffectPackage(int id);
+extern void gif_StartPacketPri(int pri);
+extern void gif_SetAlpha(int a, int b, int c);
+extern void gif_SetZTest(int on);
+extern void gif_EndPacket(void);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_TransMatrix(float x, float y, float z);
+extern void sceVu0UnitMatrix(void *m);
+extern void MultiMatrixByQuaternion(int *q);
+extern void dispXZYZCircle(float rad, int a, int b, int step);
+extern void dispCircle2(float rad, short elev, int step);
+extern double fptodp(float v);
+extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
-/* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
- * pad, trg at 0x4 and rep at 0xC; this tool reads pad 0 and pad 1. */
-typedef struct {
-    int unk00;        /* 0x00 */
-    int trg;          /* 0x04 */
-    int unk08;        /* 0x08 */
-    int rep;          /* 0x0C */
-    char unk10[0x48]; /* 0x10 */
-} EffToolPad;
+void dispEffectToolField(int idx)
+{
+    int q[4];
+    EffVec o;
+    EffVec e;
+    int *pkg = GetParticleEffectPackage(idx);
 
-extern EffToolPad D_0028F8F0[];
+    setQ(q);
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0x80);
+    gif_SetZTest(1);
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrix(D_00720170[0], D_00720170[1], D_00720170[2]);
+    dispXZYZCircle(50.0f, -0x8000, 0x8000, 0x1000);
+    MultiMatrixByQuaternion(q);
+    dispCircle2(50.0f, (*(unsigned short *)((char *)pkg + 0xC) << 14) / 180, 0x1000);
+    dispXZYZCircle(50.0f, -0x8000, 0x8000, 0x1000);
+
+    memset(&o, 0, sizeof(o));
+    o.w = 1.0f;
+    e = D_0061F4C0;
+    drawEdge(&o, &e, &D_004E7860);
+
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+    debug_PrintfDummy(450, 58, 0xFFFFFF00, D_0061F4D0, fptodp(-D_00720170[0]));
+    debug_PrintfDummy(450, 66, 0xFFFFFF00, D_0061F4E0, fptodp(-D_00720170[1]));
+    debug_PrintfDummy(450, 74, 0xFFFFFF00, D_0061F4F0, fptodp(-D_00720170[2]));
+    debug_PrintfDummy(450, 88, 0xFFFFFF00, D_0061F500, fptodp(D_0063B858 * -180.0f / 32768.0f));
+    debug_PrintfDummy(450, 96, 0xFFFFFF00, D_0061F510, fptodp(D_0063B85A * -180.0f / 32768.0f));
+}
+
 extern float D_00720170[];
 extern int D_0063B854;
 extern int D_0063B85C;
 extern int D_0063B864;
-
-/* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
- * entry, name pointer first, NULL-terminated. */
-typedef struct {
-    char *name;       /* 0x00 */
-    char unk04[0x18]; /* 0x04 */
-} EffParamDef;
-
-extern EffParamDef D_004E74A0[];
 extern int *GetParticleEffectPackage(int id);
 extern void ResetParticleEffectPackages(int *pkg);
 extern void DeleteParticleEffect(int id);
 extern int SetParticleEffect(int id, void *pos, void *quat);
 extern int editParam(int id, int sel);
-extern void _dispParam(int *pkg, int i, int x, int y, int color);
 
 /* two static helpers the PAL listing places at effectTool.c lines 260 and
  * 266-275 and inlines into EditTarget; neither is emitted out of line, so
@@ -151,7 +459,6 @@ int saveEffectData(int id)
 }
 
 extern char iosPadConfDefault[];
-extern float D_006394B8;
 extern float D_00720170[];
 extern int D_0063B854;
 
@@ -188,11 +495,11 @@ void moveEffectToolGeometry(int idx)
     iosPadGetStick(padCtx, &st0, 0, 2, 2, 0);
     iosPadGetStick(padCtx, &st1, 1, 2, 2, 0);
     iosPadStickCameraCoord(v, (float *)&st0);
-    if (st0.mag > D_006394B8) {
+    if (st0.mag > 0.001f) {
         D_00720170[0] += v[0] * st0.mag * 16.0f;
         D_00720170[2] += v[2] * st0.mag * 16.0f;
     }
-    if (st1.mag > D_006394B8) {
+    if (st1.mag > 0.001f) {
         if (padCtx[2] & 2) {
             D_00720170[1] += st1.fz * st1.mag * 16.0f;
         } else {

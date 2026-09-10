@@ -1198,3 +1198,6 @@ words become the blob's first words.
 
 ### 2026-09-11 kanbanBoot closed: two more switch tables
 - `[0x51D6F0, .rodata, src/kanbanBoot]` syms 0x0061D6F0 and `[0x51D710, .rodata, src/kanbanBoot]` syms 0x0061D710: kanbanBootMcCheck's two 5-arm tables (0x14 B each, 16-aligned), VMA 0x61D6F0..0x61D730, contiguous with kanbanBootMain's 0x61D730 row (which gained its syms token); the 51CF14 blob ends at 0x51D6F0.
+
+### 2026-09-11 effectTool closed: its three pool words
+- `[0x5394B0, .lit4, src/effectTool]`: 0.01f x2 (editParam) and 0.001f (moveEffectToolGeometry) as literals, VMA 0x6394B0..0x6394BC; the 539490 blob (darkVolume's words) ends at 0x5394B0 and resumes at 0x5394BC before flyManager's row. stageSEProc's 20 ASM_LIT4_SLOT lines retired: its existing row is wholly compiler-emitted (0x12C B).

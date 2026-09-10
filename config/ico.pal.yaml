@@ -550,6 +550,8 @@ segments:
       - [0x53945C, lit4, src/cod/53945C]     # .lit4 blob resume (cage's and clipCollisionManager's words)
       - [0x539474, .lit4, src/clothAnimation]  # carved D_00639474..D_0063948C (7 words: SetChainExtendedWeight's 1e-6 as a literal, then slots for the still-asm GetClothAnimation x2, GetClothAnimationFix4Points, getCloth4D_preProcess, getCloth4D x2; the TU's whole pool — MAIN.MAP's 0x14 is the debug link's, darkVolume's words start at 0x639490), VMA 0x639474..0x639490
       - [0x539490, lit4, src/cod/539490]     # .lit4 blob resume (darkVolume's words)
+      - [0x5394B0, .lit4, src/effectTool]  # carved D_006394B0..D_006394B8 (3 words: editParam's 0.01f x2, moveEffectToolGeometry's 0.001f, all literals; the TU is fully C), VMA 0x6394B0..0x6394BC
+      - [0x5394BC, lit4, src/cod/5394BC]     # .lit4 blob resume (the last words before flyManager's run)
       - [0x5394D8, .lit4, src/flyManager]  # carved D_006394D8..D_006394DC (2 slots, both 100000.0f: GetFlyLimitHeight and GetFlyLimitClearance), VMA 0x6394D8..0x6394E0, 8 B; the TU's whole pool, emitted by the compiled functions
       - [0x5394E0, lit4, src/cod/5394E0]     # .lit4 blob resume (frameDependSequence's words)
       - [0x5394FC, .lit4, src/girl]  # carved D_006394FC..D_00639528 (12 words: 11 slots beside the still-asm func_001DD128 and func_001DD340, GirlGeo's 0.3 as a literal; the TU's whole pool, handManager's words follow), VMA 0x6394FC..0x63952C
