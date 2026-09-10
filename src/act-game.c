@@ -52,7 +52,7 @@ typedef struct {
     } u_188;
 
     unsigned int f_18C;
-    char _190[0x04];
+    unsigned int f_190;
 } MotionRec;
 
 extern MotionRec D_0055FE58[];
@@ -1057,9 +1057,489 @@ void ACTEnvGetTest(char *self, void *a1)
     FunctionAboutClingedStatus(self);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ActOrientTest);
-ASM_LIT4_SLOT(D_00638CD8, -1.5707964f);
-ASM_LIT4_SLOT(D_00638CDC, 1.5707964f);
+extern void ACTSendMailCorrect(char *self, int mail);
+extern void ActSendMail_WithAdditionalData(char *self, int mail, char *from, void *data);
+extern int CheckWeaponKind();
+extern int rand(void);
+extern int GetMotionFrameFlag1(char *self);
+extern int CompareAttribute(int attr, int mask);
+extern void GetOrientOfWall(void *out, int n, void *vec);
+extern void SetMotionDirection(char *self, float *dir);
+extern void GetCollisCenterPositionSimple(float *dst, int a1, int a2);
+extern void SwapGV(void *a, void *b);
+extern float sceVu0InnerProduct(void *a, void *b);
+extern void SetRootPosition(char *self, void *pos);
+extern void debug_StdPrintfDummy();
+extern char D_005525E8[];
+extern char *D_00639EA0;
+
+/* The actor's orient-request bitfield: three 64-bit request words at
+   sub+0x478, each paired with the permission mask 16 bytes further on. */
+#define ORQ(s, i) (((ActStatusWord *)((s) + 0x478))[i].q)
+#define ORM(s, i) (((ActStatusWord *)((s) + 0x478))[(i) + 2].q)
+#define ORBIT(w, b) ((int)((w) >> (b)) & 1)
+
+/* INTERIM: the listing inlines GetSkeltonPosition (lines 2597-2599) into the
+   two skeleton fills below.  The out-of-line copy at its own ROM slot re-derives
+   `obj->p_15C->0xC` for each of the three components (the alias-set-0 union
+   store kills the load through the unknown `dst` pointer); the INLINED copy
+   does not, because `dst` is then a known stack slot and gcc's base
+   disambiguation drops the conflict.  Our build does not reproduce that
+   context-sensitivity, so the inline site carries its own stand-in with the
+   base hoisted into a local -- measured: the shared re-spelled spelling costs
+   8 extra words per fill here, and the hoisted spelling costs 12 words in the
+   out-of-line body.  Collapses to one `inline` definition at layout. */
+static inline void getSkeltonPositionInline(float *dst, char *obj, void *a2)
+{
+    char *p =
+        (char *)((GetSkeltonFocusNode(obj, a2) << 6) + *(int *)((int)((GObj *)(obj))->p_15C + 0xC));
+    ((IntFloat *)dst)[0].f = *(float *)(p + 0x30);
+    ((IntFloat *)dst)[1].f = *(float *)(p + 0x34);
+    ((IntFloat *)dst)[2].f = *(float *)(p + 0x38);
+}
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines ACTGame_NoWeapon (lines 2122-2123) here, so it is `inline`
+   in the dev's TU; while this tail still has asm members a deferred inline
+   would land at the object end instead of at its ROM slot, so the public body
+   below stays a plain definition and this caller uses the static stand-in.
+   Collapses to one `inline` definition at layout. */
+static inline unsigned char actGame_NoWeapon(char *a0)
+{
+    char *w = *(char **)(*(char **)(a0 + 0x164) + 0x150);
+    unsigned char r = 0;
+    if (w == 0 || CheckWeaponKind(w) == 0)
+        r = 1;
+    return r;
+}
+
+void ActOrientTest(char *self)
+{
+    float v0[4];
+    HandWork w1;
+    float p1[4];
+    float sk1[4];
+    float sk2[4];
+    float d1[4];
+    HandWork w2;
+    float p2[4];
+    float d2[4];
+    float c1[4];
+    HandWork w3;
+    float sk3[4];
+    float sk4[4];
+    float d3[4];
+    float ow[4];
+    char *s = *(char **)(self + 0x164);
+    char *vel;
+    int hitA;
+    int hitB;
+    int near;
+    int i;
+
+    if (ORBIT(ORQ(s, 0), 39) && ORBIT(ORM(s, 0), 39)) {
+        ACTSendMailCorrect(self, 189);
+    }
+    if (ORBIT(ORQ(s, 0), 40) && ORBIT(ORM(s, 0), 40)) {
+        ACTSendMailCorrect(self, 191);
+    }
+    if (ORBIT(ORQ(s, 0), 41) && ORBIT(ORM(s, 0), 41)) {
+        ACTSendMailCorrect(self, 192);
+    }
+    if (ORBIT(ORQ(s, 0), 42) && ORBIT(ORM(s, 0), 42)) {
+        ACTSendMailCorrect(self, 193);
+    }
+    if (ORBIT(ORQ(s, 0), 43) && ORBIT(ORM(s, 0), 43)) {
+        ACTSendMailCorrect(self, 197);
+    }
+    if (ORBIT(ORQ(s, 0), 44) && ORBIT(ORM(s, 0), 44)) {
+        if (*(int *)(self + 0xC) == 4) {
+            if (rand() & 1) {
+                ACTSendMailCorrect(self, 205);
+            } else {
+                ACTSendMailCorrect(self, 207);
+            }
+        } else {
+            ACTSendMailCorrect(self, 205);
+        }
+    }
+    if (ORBIT(ORQ(s, 0), 45) && ORBIT(ORM(s, 0), 45)) {
+        ACTSendMailCorrect(self, 206);
+    }
+    if (ORBIT(ORQ(s, 0), 51) && ORBIT(ORM(s, 0), 51)) {
+        ACTSendMailCorrect(self, 279);
+    }
+    if (self != D_00639EA4) {
+        if (ORBIT(ORQ(s, 0), 50) && ORBIT(ORM(s, 0), 50)) {
+            ACTSendMailCorrect(self, 278);
+        }
+        if (ORBIT(ORQ(s, 0), 52) && ORBIT(ORM(s, 0), 52)) {
+            ACTSendMailCorrect(self, 280);
+        }
+        if (ORBIT(ORQ(s, 0), 53) && ORBIT(ORM(s, 0), 53)) {
+            ACTSendMailCorrect(self, 281);
+        }
+    }
+    if (ORBIT(ORQ(s, 0), 55) && ORBIT(ORM(s, 0), 55)) {
+        ACTSendMailCorrect(self, 203);
+    }
+    if (ORBIT(ORQ(s, 0), 54) && ORBIT(ORM(s, 0), 54)) {
+        if (actGame_NoWeapon(self)) {
+            ACTSendMailCorrect(self, 202);
+        } else {
+            ACTSendMailCorrect(self, 201);
+        }
+    }
+    if (ORBIT(ORQ(s, 0), 56) && ORBIT(ORM(s, 0), 56)) {
+        ACTSendMailCorrect(self, 348);
+    }
+    if (ORBIT(ORQ(s, 0), 58) && ORBIT(ORM(s, 0), 58)) {
+        ACTSendMailCorrect(self, 345);
+    }
+    if (ORBIT(ORQ(s, 0), 57) && ORBIT(ORM(s, 0), 57)) {
+        ACTSendMailCorrect(self, 346);
+    }
+    if (ORBIT(ORQ(s, 0), 59) && ORBIT(ORM(s, 0), 59)) {
+        ACTSendMailCorrect(self, 378);
+    }
+    if (ORBIT(ORQ(s, 0), 62) && ORBIT(ORM(s, 0), 62)) {
+        ACTSendMailCorrect(self, 209);
+    }
+    if (ORBIT(ORQ(s, 0), 63) && ORBIT(ORM(s, 0), 63)) {
+        ACTSendMailCorrect(self, 210);
+    }
+    if (ORBIT(ORQ(s, 1), 0) && ORBIT(ORM(s, 1), 0)) {
+        ACTSendMailCorrect(self, 212);
+    }
+    if (ORBIT(ORQ(s, 1), 1) && ORBIT(ORM(s, 1), 1)) {
+        ACTSendMailCorrect(self, 213);
+    }
+    if (ORBIT(ORQ(s, 1), 2) && ORBIT(ORM(s, 1), 2)) {
+        ActSendMail_WithAdditionalData(self, 263, self, ACTWORK(self) + 2064);
+    }
+    if (ORBIT(ORQ(s, 1), 3) && ORBIT(ORM(s, 1), 3)) {
+        ActSendMail_WithAdditionalData(self, 264, self, ACTWORK(self) + 2112);
+    }
+    if (ORBIT(ORQ(s, 1), 4) && ORBIT(ORM(s, 1), 4)) {
+        ActSendMail_WithAdditionalData(self, 265, self, ACTWORK(self) + 2160);
+    }
+    if (ORBIT(ORQ(s, 0), 60) && ORBIT(ORM(s, 0), 60)) {
+        ACTSendMailCorrect(self, 174);
+        ACTSendMailCorrect(self, 173);
+    }
+    if (ORBIT(ORQ(s, 0), 61) && ORBIT(ORM(s, 0), 61)) {
+        ACTSendMailCorrect(self, 166);
+    }
+    if (ORBIT(ORQ(s, 1), 11) && ORBIT(ORM(s, 1), 11)) {
+        ACTSendMailCorrect(self, 216);
+        debug_StdPrintfDummy(D_005525E8);
+    } else if (*(int *)(s + 0x34) == 43) {
+        ACTSendMailCorrect(self, 217);
+    }
+    if (ORBIT(ORQ(s, 1), 12) && ORBIT(ORM(s, 1), 12)) {
+        ACTSendMailCorrect(self, 218);
+    }
+    if (ORBIT(ORQ(s, 1), 13) && ORBIT(ORM(s, 1), 13)) {
+        ACTSendMailCorrect(self, 219);
+    }
+    if (ORBIT(ORQ(s, 1), 14) && ORBIT(ORM(s, 1), 14)) {
+        ACTSendMailCorrect(self, 220);
+    }
+    if (ORBIT(ORQ(s, 1), 15) && ORBIT(ORM(s, 1), 15)) {
+        ACTSendMailCorrect(self, 223);
+    }
+    if (ORBIT(ORQ(s, 1), 16) && ORBIT(ORM(s, 1), 16)) {
+        ACTSendMailCorrect(self, 224);
+    }
+    if (ORBIT(ORQ(s, 1), 17) && ORBIT(ORM(s, 1), 17)) {
+        ACTSendMailCorrect(self, 225);
+    }
+    if (ORBIT(ORQ(s, 1), 36) && ORBIT(ORM(s, 1), 36)) {
+        ACTSendMailCorrect(self, 121);
+    }
+    if (ORBIT(ORQ(s, 1), 38) && ORBIT(ORM(s, 1), 38)) {
+        ACTSendMailCorrect(self, 122);
+    }
+    if (ORBIT(ORQ(s, 1), 40) && ORBIT(ORM(s, 1), 40)) {
+        ACTSendMailCorrect(self, 130);
+    }
+    if (ORBIT(ORQ(s, 1), 39) && ORBIT(ORM(s, 1), 39)) {
+        ACTSendMailCorrect(self, 127);
+    }
+    if (ORBIT(ORQ(s, 1), 41) && ORBIT(ORM(s, 1), 41)) {
+        ACTSendMailCorrect(self, 131);
+    }
+    if (ORBIT(ORQ(s, 1), 42) && ORBIT(ORM(s, 1), 42)) {
+        ACTSendMailCorrect(self, 132);
+    }
+    if (ORBIT(ORQ(s, 1), 43) && ORBIT(ORM(s, 1), 43)) {
+        ACTSendMailCorrect(self, 123);
+    }
+    if (ORBIT(ORQ(s, 1), 44) && ORBIT(ORM(s, 1), 44)) {
+        ACTSendMailCorrect(self, 124);
+        ACTSendMailCorrect(self, 125);
+    }
+    if (ORBIT(ORQ(s, 1), 33) && ORBIT(ORM(s, 1), 33)) {
+        ACTSendMailCorrect(self, 118);
+    }
+    if (ORBIT(ORQ(s, 1), 34) && ORBIT(ORM(s, 1), 34)) {
+        ACTSendMailCorrect(self, 119);
+    }
+    if (ORBIT(ORQ(s, 1), 35) && ORBIT(ORM(s, 1), 35)) {
+        ACTSendMailCorrect(self, 120);
+    }
+    if (ORBIT(ORQ(s, 1), 5) && ORBIT(ORM(s, 1), 5)) {
+        if (self == D_00639EA8) {
+            int ok = 0;
+            if (D_00639EA0 != 0) {
+                ok = 1;
+            }
+            if (*(int *)((char *)*(int *)(self + 0x164) + 0x34) == 0x75) {
+                ok = 1;
+            }
+            if (ok) {
+                ACTSendMailCorrect(self, 114);
+            }
+        } else {
+            ACTSendMailCorrect(self, 114);
+        }
+    }
+    if (ORBIT(ORQ(s, 1), 6) && ORBIT(ORM(s, 1), 6)) {
+        ACTSendMailCorrect(self, 324);
+    }
+    if (ORBIT(ORQ(s, 1), 8) && ORBIT(ORM(s, 1), 8)) {
+        ACTSendMailCorrect(self, 325);
+    }
+    if (ORBIT(ORQ(s, 1), 7) && ORBIT(ORM(s, 1), 7)) {
+        ACTSendMailCorrect(self, 326);
+    }
+    if (ORBIT(ORQ(s, 1), 9) && ORBIT(ORM(s, 1), 9)) {
+        ACTSendMailCorrect(self, 328);
+    }
+    if (ORBIT(ORQ(s, 1), 18) && ORBIT(ORM(s, 1), 18)) {
+        ACTSendMailCorrect(self, 317);
+    }
+    if (ORBIT(ORQ(s, 1), 19) && ORBIT(ORM(s, 1), 19)) {
+        ACTSendMailCorrect(self, 318);
+    }
+    if (ORBIT(ORQ(s, 1), 20) && ORBIT(ORM(s, 1), 20)) {
+        ACTSendMailCorrect(self, 319);
+    }
+    if (ORBIT(ORQ(s, 1), 22) && ORBIT(ORM(s, 1), 22)) {
+        ACTSendMailCorrect(self, 320);
+    }
+    if (ORBIT(ORQ(s, 1), 23) && ORBIT(ORM(s, 1), 23)) {
+        ACTSendMailCorrect(self, 320);
+    }
+    if (ORBIT(ORQ(s, 1), 27) && ORBIT(ORM(s, 1), 27)) {
+        ACTSendMailCorrect(self, 317);
+    }
+    if (ORBIT(ORQ(s, 1), 28) && ORBIT(ORM(s, 1), 28)) {
+        ACTSendMailCorrect(self, 318);
+    }
+    if (ORBIT(ORQ(s, 1), 29) && ORBIT(ORM(s, 1), 29)) {
+        ACTSendMailCorrect(self, 319);
+    }
+    if (ORBIT(ORQ(s, 1), 55) && ORBIT(ORM(s, 1), 55)) {
+        ACTSendMailCorrect(self, 42);
+    }
+    if (ORBIT(ORQ(s, 1), 56) && ORBIT(ORM(s, 1), 56)) {
+        ACTSendMailCorrect(self, 41);
+    }
+    if (ORBIT(ORQ(s, 1), 57) && ORBIT(ORM(s, 1), 57)) {
+        ACTSendMailCorrect(self, 135);
+    }
+    if (ORBIT(ORQ(s, 1), 58) && ORBIT(ORM(s, 1), 58)) {
+        ACTSendMailCorrect(self, 136);
+    }
+    if (ORBIT(ORQ(s, 1), 63) && ORBIT(ORM(s, 1), 63)) {
+        ACTSendMailCorrect(self, 297);
+    }
+    if (ORBIT(ORQ(s, 2), 0) && ORBIT(ORM(s, 2), 0)) {
+        ACTSendMailCorrect(self, 299);
+    }
+    if ((ORBIT(ORQ(s, 2), 1) && ORBIT(ORM(s, 2), 1)) ||
+        (ORBIT(ORQ(s, 2), 2) && ORBIT(ORM(s, 2), 2))) {
+        ACTSendMailCorrect(self, 295);
+    }
+    if (ORBIT(ORQ(s, 1), 53) && ORBIT(ORM(s, 1), 53)) {
+        ACTSendMailCorrect(self, 301);
+    }
+    if (ORBIT(ORQ(s, 1), 54) && ORBIT(ORM(s, 1), 54)) {
+        ACTSendMailCorrect(self, 146);
+    }
+    if (ORBIT(ORQ(s, 1), 45) && ORBIT(ORM(s, 1), 45)) {
+        ACTSendMailCorrect(self, 295);
+    }
+    if (ORBIT(ORQ(s, 1), 46) && ORBIT(ORM(s, 1), 46)) {
+        ACTSendMailCorrect(self, 300);
+    }
+    if (ORBIT(ORQ(s, 1), 47) && ORBIT(ORM(s, 1), 47)) {
+        ACTSendMailCorrect(self, 306);
+        if (stage_no == 32) {
+            ACTSendMailCorrect(self, 308);
+        }
+    }
+    if (ORBIT(ORQ(s, 1), 48) && ORBIT(ORM(s, 1), 48)) {
+        ACTSendMailCorrect(self, 307);
+    }
+    if (ORBIT(ORQ(s, 1), 50) && ORBIT(ORM(s, 1), 50)) {
+        ACTSendMailCorrect(self, 310);
+    }
+    if (ORBIT(ORQ(s, 1), 51) && ORBIT(ORM(s, 1), 51)) {
+        ACTSendMailCorrect(self, 311);
+    }
+    if (ORBIT(ORQ(s, 1), 49) && ORBIT(ORM(s, 1), 49)) {
+        ACTSendMailCorrect(self, 309);
+    }
+    if (ORBIT(ORQ(s, 1), 52) && ORBIT(ORM(s, 1), 52)) {
+        ACTSendMailCorrect(self, 312);
+    }
+    if (ORBIT(ORQ(s, 2), 10) && ORBIT(ORM(s, 2), 10)) {
+        ACTSendMailCorrect(self, 90);
+    }
+    if (ORBIT(ORQ(s, 2), 11) && ORBIT(ORM(s, 2), 11)) {
+        ACTSendMailCorrect(self, 91);
+    }
+    if (ORBIT(ORQ(s, 2), 12) && ORBIT(ORM(s, 2), 12)) {
+        (*(int *)(ACTWORK(self) + 0x3A8))++;
+    } else {
+        *(int *)(ACTWORK(self) + 0x3A8) = 0;
+    }
+    if (ORBIT(ORQ(s, 2), 7) && ORBIT(ORM(s, 2), 7)) {
+        ACTSendMailCorrect(self, 72);
+        *(int *)(s + 0x44) = 106;
+    }
+    if (ORBIT(ORQ(s, 2), 8) && ORBIT(ORM(s, 2), 8)) {
+        ACTSendMailCorrect(self, 72);
+        *(int *)(s + 0x44) = 108;
+    }
+    if (ORBIT(ORQ(s, 2), 9) && ORBIT(ORM(s, 2), 9)) {
+        ACTSendMailCorrect(self, 72);
+        *(int *)(s + 0x44) = 110;
+    }
+    if (ORBIT(ORQ(s, 1), 24) && ORBIT(ORM(s, 1), 24)) {
+        ACTSendMailCorrect(self, 321);
+    }
+    if (ORBIT(ORQ(s, 1), 25) && ORBIT(ORM(s, 1), 25)) {
+        ACTSendMailCorrect(self, 322);
+    }
+    if (ORBIT(ORQ(s, 1), 26) && ORBIT(ORM(s, 1), 26)) {
+        ACTSendMailCorrect(self, 323);
+    }
+    if (ORBIT(ORQ(s, 1), 62) && ORBIT(ORM(s, 1), 62)) {
+        ACTSendMailCorrect(self, 165);
+    }
+    if (ORBIT(ORQ(s, 2), 13) && ORBIT(ORM(s, 2), 13)) {
+        ACTSendMailCorrect(self, 392);
+    }
+    if (ORBIT(ORQ(s, 2), 14) && ORBIT(ORM(s, 2), 14)) {
+        vel = s + 0x4C0;
+        sceVu0ScaleVector(v0, vel,
+                          -sceVu0InnerProduct((char *)*(int *)(self + 0x15C) + 0x130, vel));
+        sceVu0AddVector((char *)*(int *)(self + 0x15C) + 0x130,
+                        (char *)*(int *)(self + 0x15C) + 0x130, v0);
+        SetRootPosition(self, s + 0x540);
+    }
+    if (*(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x29C) > 0) {
+        ACTSendMailCorrect(self, 111);
+    }
+    if (((&D_0055FE58[*(int *)((char *)*(int *)(self + 0x15C) + 0x4A0)])->f_190 >> 2) & 1) {
+        if (GetMotionFrameFlag1(self)) {
+            memset(&w1, 0, 0xC0);
+            getSkeltonPositionInline(sk1, self, (void *)0x33);
+            getSkeltonPositionInline(sk2, self, (void *)0x2F);
+            sceVu0AddVector(p1, sk1, sk2);
+            sceVu0ScaleVector(p1, p1, 0.5f);
+            p1[1] = p1[1] + 50.0f;
+            sceVu0ScaleVector(d1, test_CURRENTORIENT(self), 50.0f);
+            sceVu0AddVector(&w1, p1, d1);
+            sceVu0ScaleVector(d1, test_CURRENTORIENT(self), -50.0f);
+            sceVu0AddVector((char *)&w1 + 0x10, p1, d1);
+            w1._70 = 0.0f;
+            ClipWall(&w1);
+            if (CompareAttribute(w1._98, 0x2000)) {
+                ACTSendMailCorrect(self, 327);
+            }
+            if (CompareAttribute(w1._98, 0x20000)) {
+                if (*(int *)(s + 0x68C) != 0) {
+                    if (GetMotionFrameFlag1(self)) {
+                        char *ext;
+                        *(U64ag *)*(int *)(s + 0x68C) = *(U64ag *)((char *)&w1 + 0x80);
+                        ext = (char *)*(int *)(s + 0x68C);
+                        *(int *)(ext + 8) = *(int *)((char *)&w1 + 0x88);
+                        ActSendMail_WithAdditionalData(self, 298, self, ext);
+                    }
+                }
+            }
+        }
+    }
+    if (((&D_0055FE58[*(int *)((char *)*(int *)(self + 0x15C) + 0x4A0)])->f_190 >> 3) & 1) {
+        memset(&w2, 0, 0xC0);
+        near = 0;
+        p2[0] = ((float *)test_CURRENTROOT((int *)self))[0];
+        p2[1] = ((float *)test_CURRENTROOT((int *)self))[1];
+        p2[2] = ((float *)test_CURRENTROOT((int *)self))[2];
+        sceVu0ScaleVector(d2, test_CURRENTORIENT(self), -50.0f);
+        sceVu0AddVector(&w2, p2, d2);
+        sceVu0ScaleVector(d2, test_CURRENTORIENT(self), 50.0f);
+        sceVu0AddVector((char *)&w2 + 0x10, p2, d2);
+        hitA = 0;
+        w2._70 = 0.0f;
+        ClipWall(&w2);
+        hitB = 0;
+        if (CompareAttribute(w2._98, 0x400)) {
+            hitA = 1;
+        }
+        if (CompareAttribute(w2._98, 0xC000)) {
+            hitB = 1;
+        }
+        if (hitA || hitB) {
+            GetCollisCenterPositionSimple(c1, w2._80, w2._88);
+            if (_DistxzSqGV(c1, test_CURRENTROOT((int *)self)) < 400.0f) {
+                near = 1;
+            }
+        }
+        if (hitA && near) {
+            ACTSendMailCorrect(self, 139);
+        }
+        if (hitB && near) {
+            ACTSendMailCorrect(self, 310);
+        }
+    }
+    if (*(int *)(s + 0xD8) == 313) {
+        return;
+    }
+    for (i = 0; i < 2; i++) {
+        if (((int)(*(unsigned long long *)(s + 0x20) >> 42) & 1) == 0) {
+            continue;
+        }
+        memset(&w3, 0, 0xC0);
+        getSkeltonPositionInline(sk3, self, (void *)0x33);
+        getSkeltonPositionInline(sk4, self, (void *)0x2F);
+        sceVu0AddVector(c1, sk3, sk4);
+        sceVu0ScaleVector(c1, c1, 0.5f);
+        c1[1] = c1[1] + 50.0f;
+        sceVu0ScaleVector(d3, test_CURRENTORIENT(self), 50.0f);
+        _ApplyRyGV(d3, -1.5707964f);
+        sceVu0AddVector(&w3, c1, d3);
+        sceVu0ScaleVector(d3, test_CURRENTORIENT(self), 50.0f);
+        _ApplyRyGV(d3, 1.5707964f);
+        sceVu0AddVector((char *)&w3 + 0x10, c1, d3);
+        if (i == 1) {
+            SwapGV(&w3, (char *)&w3 + 0x10);
+        }
+        w3._70 = 0.0f;
+        ClipWall(&w3);
+        if (w3._88 != 0) {
+            GetOrientOfWall(ow, w3._88, &w3._80);
+            SetMotionDirection(self, ow);
+            *(unsigned long long *)(s + 0x20) &= ~(1ULL << 42);
+            return;
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/act-game", GetGirlHandlinkClInfo);
 ASM_LIT4_SLOT(D_00638CE0, 12100.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", hand_able_connect);
@@ -1867,10 +2347,10 @@ int ACTGame_GetMotOrientFromWeapon(int a0)
     return rv;
 }
 
-int ACTGame_NoWeapon(char *a0)
+unsigned char ACTGame_NoWeapon(char *a0)
 {
     char *w = *(char **)(*(char **)(a0 + 0x164) + 0x150);
-    int r = 0;
+    unsigned char r = 0;
     if (w == 0 || CheckWeaponKind(w) == 0)
         r = 1;
     return r;
