@@ -18,19 +18,425 @@ extern Act *actInitialize(int a0);
 typedef struct PObjGObj {
     char pad00[0x164]; /* 0x000 */
     int act;           /* 0x164 */
+    char pad168[0x4];  /* 0x168 */
+    int f16C;          /* 0x16C */
 } PObjGObj;
 
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSwitchL);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSwitchLChk);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSwitchLUpChk);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSwitchR);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSwitchRChk);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSwitchRUpChk);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tGene);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tBoxA);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tBoxB);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tInit);
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tGirlUp);
+extern void _ACTWait(int a0);
+extern int gflagChk(int a0);
+extern void ACTSendMailCorrect(int a0, int mail);
+extern void stage_SetAnimation(int a0, int a1, int a2);
+extern ActMail D_004F8330[];
+extern ActMail D_004F8350[];
+extern void actSt03tSwitchLChk(volatile int a0);
+extern void actSt03tSwitchLUpChk(volatile int a0);
+
+void actSt03tSwitchL(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+
+    _ACTWait(1);
+
+    if (gflagChk(0x59) == 0) {
+        stage_SetAnimation(0x16C, 0, 0);
+        stage_SetAnimation(0x16E, 0, 0);
+
+        D_004F8330[0].func = actSt03tSwitchLChk;
+        self->mail = D_004F8330;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(0x16C, 0, 0x2D);
+        stage_SetAnimation(0x16E, 0, -1);
+
+        D_004F8350[0].func = actSt03tSwitchLUpChk;
+        self->mail = D_004F8350;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    }
+}
+
+extern void gflagOn(int a0);
+extern void SetWayGroupActive(int a0, int a1);
+extern void stage_SetAnimation(int a0, int a1, int a2);
+extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
+extern int stage_CheckAnimationFinish(int a0);
+extern int scpTriggerFloorAttrTargetMan(int a0, int a1);
+extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
+extern void SetCameraFlag_LwsCutBack(void);
+extern int D_0028F4C0[];
+extern ActMail D_004F8370[];
+extern void actSt03tSwitchLUpChk(volatile int a0);
+
+void actSt03tSwitchLChk(volatile int a0)
+{
+    Act *self = (Act *)((PObjGObj *)a0)->act;
+    int i;
+
+    i = 0;
+    while (i < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) {
+        if (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
+            i++;
+        } else {
+            i = 0;
+        }
+        _ACTWait(1);
+    }
+
+    gflagOn(0x66);
+
+    stage_SetAnimation(0x16C, 1, 0);
+    soundSeDefPlay(0x4C4, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(0x16C, 0x2D, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    gflagOn(0x59);
+
+    stage_SetAnimation(0x16E, 1, 0);
+
+    SetWayGroupActive(7, 1);
+
+    gflagOn(0x5B);
+
+    while (stage_CheckAnimationFrame(0x16E, 0x4B, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefPlay(0x4C2, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(0x16E, 0x5A, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefPlay(0x4C3, 0, 0, 1);
+
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFinish(0x16E) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    D_004F8370[0].func = actSt03tSwitchLUpChk;
+    self->mail = D_004F8370;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+extern void gflagOff(int a0);
+extern int scpTriggerFloorAttrTargetMan(int a0, int a1);
+extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
+extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
+extern void scpCheckDisconnectWallStart(char *a0);
+extern void scpCheckDisconnectWallEnd(char *a0);
+extern void SetCameraFlag_LwsCutBack(void);
+extern void SetWayGroupActive(int a0, int a1);
+extern int D_00639EA8;
+extern ActMail D_004F8390[];
+
+void actSt03tSwitchLUpChk(volatile int a0)
+{
+    Act *self = (Act *)((PObjGObj *)a0)->act;
+
+    while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(0x3C);
+
+    gflagOff(0x59);
+
+    stage_SetAnimation(0x16C, 1, 0x2E);
+    soundSeDefPlay(0x4C4, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(0x16C, 0x5A, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    stage_SetAnimation(0x16F, 1, 0);
+
+    if (D_00639EA8 != 0) {
+        scpCheckDisconnectWallStart((char *)D_00639EA8);
+    }
+
+    SetWayGroupActive(7, 0);
+
+    soundSeDefPlay(0x4C2, 0, 0, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C3, 0, 0, 1);
+
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFrame(0x16F, 0x78, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    if (D_00639EA8 != 0) {
+        scpCheckDisconnectWallEnd((char *)D_00639EA8);
+    }
+
+    D_004F8390[0].func = actSt03tSwitchLChk;
+    self->mail = D_004F8390;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+extern void _ACTWait(int a0);
+extern int gflagChk(int a0);
+extern void ACTSendMailCorrect(int a0, int mail);
+extern void stage_SetAnimation(int a0, int a1, int a2);
+extern ActMail D_004F83B0[];
+extern ActMail D_004F83D0[];
+extern void actSt03tSwitchRChk(volatile int a0);
+extern void actSt03tSwitchRUpChk(volatile int a0);
+
+void actSt03tSwitchR(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+
+    _ACTWait(1);
+
+    if (gflagChk(0x5A) == 0) {
+        stage_SetAnimation(0x16D, 0, 0);
+        stage_SetAnimation(0x170, 0, 0);
+
+        D_004F83B0[0].func = actSt03tSwitchRChk;
+        self->mail = D_004F83B0;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(0x16D, 0, 0x2D);
+        stage_SetAnimation(0x170, 0, -1);
+
+        D_004F83D0[0].func = actSt03tSwitchRUpChk;
+        self->mail = D_004F83D0;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    }
+}
+
+extern ActMail D_004F83F0[];
+
+void actSt03tSwitchRChk(volatile int a0)
+{
+    Act *self = (Act *)((PObjGObj *)a0)->act;
+    int i;
+
+    i = 0;
+    while (i < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) {
+        if (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {
+            i++;
+        } else {
+            i = 0;
+        }
+        _ACTWait(1);
+    }
+
+    gflagOn(0x66);
+
+    stage_SetAnimation(0x16D, 1, 0);
+    soundSeDefPlay(0x4C4, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(0x16D, 0x2D, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    stage_SetAnimation(0x170, 1, 0);
+
+    SetWayGroupActive(5, 1);
+
+    gflagOn(0x5B);
+
+    soundSeDefPlay(0x4C2, 0, 0, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C3, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(0x170) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    gflagOn(0x5A);
+
+    D_004F83F0[0].func = actSt03tSwitchRUpChk;
+    self->mail = D_004F83F0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+extern int stage_CheckAnimationFinish(int a0);
+extern int D_0028F4C0[];
+extern ActMail D_004F8410[];
+
+void actSt03tSwitchRUpChk(volatile int a0)
+{
+    Act *self = (Act *)((PObjGObj *)a0)->act;
+
+    while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 0xA);
+
+    gflagOff(0x5A);
+
+    stage_SetAnimation(0x16D, 1, 0x2E);
+    soundSeDefPlay(0x4C4, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(0x16D, 0x5A, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    stage_SetAnimation(0x171, 1, 0);
+
+    SetWayGroupActive(5, 0);
+
+    soundSeDefPlay(0x4C2, 0, 0, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlay(0x4C3, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(0x171) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    D_004F8410[0].func = actSt03tSwitchRChk;
+    self->mail = D_004F8410;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+extern void _ACTWait(int a0);
+extern int gflagChk(int a0);
+extern PObjGObj *scpSearchGobj(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void Generator_Call(int a0);
+
+void actSt03tGene(volatile int a0)
+{
+    int x = a0;
+
+    actInitialize(a0);
+    _ACTWait(1);
+
+    Generator_Mask(a0);
+
+    Generator_Mask((int)scpSearchGobj(0x36D));
+    Generator_Mask((int)scpSearchGobj(0x36E));
+
+    while (gflagChk(0x69) == 0) {
+        _ACTWait(1);
+    }
+
+    Generator_MaskOff(a0);
+
+    Generator_Call(a0);
+    _ACTWait(0x14);
+    Generator_Call(a0);
+
+    Generator_Call((int)scpSearchGobj(0x36D));
+    Generator_Call((int)scpSearchGobj(0x36E));
+}
+
+extern void scpTransGObj(void *a0, float x, float y, float z);
+extern void ReInitBoxGeo(PObjGObj *a0);
+extern void gflagOn(int a0);
+
+void actSt03tBoxA(volatile int a0)
+{
+    int x = a0;
+
+    actInitialize(a0);
+    _ACTWait(1);
+
+    if (gflagChk(0x12A) == 0) {
+        scpSearchGobj(0x361)->f16C = 0;
+    } else {
+        scpSearchGobj(0x354)->f16C = 0;
+        scpSearchGobj(0x35F)->f16C = 0;
+        scpSearchGobj(0x361)->f16C = 1;
+
+        scpTransGObj(scpSearchGobj(0x361), 0.0f, -200.0f, 0.0f);
+        _ACTWait(1);
+        ReInitBoxGeo(scpSearchGobj(0x361));
+    }
+}
+
+void actSt03tBoxB(volatile int a0)
+{
+    int x = a0;
+
+    actInitialize(a0);
+    _ACTWait(1);
+
+    if (gflagChk(0x12B) == 0) {
+        scpSearchGobj(0x362)->f16C = 0;
+    } else {
+        scpSearchGobj(0x355)->f16C = 0;
+        scpSearchGobj(0x360)->f16C = 0;
+        scpSearchGobj(0x362)->f16C = 1;
+
+        gflagOn(0x62);
+
+        scpTransGObj(scpSearchGobj(0x362), 0.0f, -400.0f, 0.0f);
+        _ACTWait(1);
+        ReInitBoxGeo(scpSearchGobj(0x362));
+    }
+}
+
+extern int gflagChk(int a0);
+extern void SetWayGroupActive(int a0, int a1);
+
+void actSt03tInit(void)
+{
+    if (gflagChk(0x5B) != 0) {
+        SetWayGroupActive(7, 1);
+    } else {
+        SetWayGroupActive(7, 0);
+    }
+
+    if (gflagChk(0x5C) != 0) {
+        SetWayGroupActive(5, 1);
+    } else {
+        SetWayGroupActive(5, 0);
+    }
+}
+
+extern void _ACTWait(int a0);
+extern int gflagChk(int a0);
+extern void ACTSendMailCorrect(int a0, int mail);
+extern void FinishHint(int a0);
+extern ActMail D_004F8550[];
+extern void actSt03tGirlUpChk(volatile int a0);
+
+void actSt03tGirlUp(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+
+    _ACTWait(1);
+
+    if (gflagChk(0x5D) == 0) {
+        D_004F8550[0].func = actSt03tGirlUpChk;
+        self->mail = D_004F8550;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    } else {
+        FinishHint(0xC);
+    }
+}
 
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);

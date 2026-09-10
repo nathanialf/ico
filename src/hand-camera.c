@@ -46,4 +46,21 @@ inline void SetLimitHandCameraCorrect(float a0, float a1)
     D_006E9990[6] = a1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/hand-camera", HandCameraCorrect);
+extern char D_0063C2E4;
+extern void SetCurrentInfo(void *a0, void *a1);
+extern void RotateAccordingToStick_PatternThree(float *a, float *b, float rot, float y);
+extern void HandyCamera_TargetMoveType(void *a0, void *a1);
+
+void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14)
+{
+    float *p = D_006E9990;
+
+    D_0063C2E0 = f14;
+    D_0063C2E4 = a2;
+
+    SetCurrentInfo(a0, a1);
+
+    RotateAccordingToStick_PatternThree(p, p + 1, f12, -f13);
+
+    HandyCamera_TargetMoveType(a0, a1);
+}

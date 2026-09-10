@@ -1180,3 +1180,7 @@ words become the blob's first words.
 ### 2026-09-10 st18a closed: two mail records and its pool
 - `[0x3FB0F0, .data, src/st18a]` syms switch_l_mes (VMA 0x4FB0F0..0x4FB110) and `[0x3FB1F0, .data, src/st18a]` syms door_mes (0x4FB1F0..0x4FB210): actSt18aSwitchLUpChk's and DoorDownChk's mail records as role-named file statics (placeholder names lost gcse-hash ties: s1/s2 swapped); blob resumes at 0x3FB110 and 0x3FB210. SwitchRUpChk's record is byte-identical as a plain extern and stays in the blob.
 - `[0x539A90, .lit4, src/st18a]`: the TU's six pool words (3054, 1530, -3061, 1451, 1530, -3039) as literals, VMA 0x639A90..0x639AA8; replaces the 539A90 blob exactly (D_00639A84..8C are st17b's).
+
+### 2026-09-10 st07a and stage_orient pools carved with their (now fully C) owners
+- `[0x5399B0, .lit4, src/st07a]`: four words (actSt07aSekizoChk's -3300/977/-1050/-950 as literals), VMA 0x6399B0..0x6399C0; the 539994 blob shortens, and a one-word blob resume at 0x5399C0 keeps st08a's D_006399C0 (read as an extern by the matched actSt08aInit: data-sections pass item) before st08b's row.
+- `[0x539328, .lit4, src/stage_orient]`: one word (StageOrientGet2's literal), VMA 0x639328..0x63932C; blob resumes at 0x53932C.

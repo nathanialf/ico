@@ -1,8 +1,108 @@
 #include "common.h"
 #include "sugiCommon.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/windField", InitWindField);
-INCLUDE_ASM("asm/nonmatchings/src/windField", drawSenpuukiHaneUnit);
+extern int D_0063BC54;
+extern float D_004ED350[];
+extern float D_004ED360[];
+extern float D_004ED370[];
+extern char D_0028FEF0[];
+extern void CopyVector(void *dst, void *src);
+extern void sceVu0Normalize(void *dst, void *src);
+extern float sceVu0InnerProduct(void *a, void *b);
+extern float *getParallelWindVector(float *power, void *pos);
+
+typedef struct {
+    float v[4];
+    float str;
+    float pad[3];
+} WindCell;
+
+extern WindCell D_00724FF0[20][20];
+extern int *dummyGetWindVector(int *a0);
+extern WindCell *getRadiateWindVector(float *power, float *pos);
+extern int (*D_0063BC58)(void);
+extern float D_00724BF0[];
+
+void InitWindField(int mode, float str, void *center, void *dir)
+{
+    int i;
+    int j;
+
+    D_0063BC58 = (int (*)(void))dummyGetWindVector;
+    D_0063BC54 = mode;
+
+    for (i = 255; i >= 0; i--) {
+        D_00724BF0[i] = str;
+    }
+
+    if (mode == 0) {
+        for (i = 0; i < 20; i++) {
+            for (j = 0; j < 20; j++) {
+                CopyVector(D_00724FF0[i][j].v, D_0028FEF0);
+                D_00724FF0[i][j].str = 0.0f;
+            }
+        }
+        CopyVector(D_004ED350, center);
+        D_0063BC58 = (int (*)(void))getRadiateWindVector;
+    } else {
+        CopyVector(D_004ED350, center);
+        sceVu0Normalize(D_004ED360, dir);
+        D_004ED360[3] = 0.0f;
+        CopyVector(D_004ED370, D_004ED360);
+        D_004ED370[3] = -sceVu0InnerProduct(D_004ED370, D_004ED350);
+        D_0063BC58 = (int (*)(void))getParallelWindVector;
+    }
+}
+
+extern short D_0063BC5C;
+extern float D_004ED390[];
+extern float D_004ED430[];
+extern char D_004ED380[];
+extern void DrawLineG();
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void MatrixDrive_RotMatrixZ(short rot);
+extern void MatrixDrive_TransMatrix(float x, float y, float z);
+
+/* INTERIM: `drawLines` is a real function at its own ROM slot further down this
+   TU and the listing inlines it here; while the tail still carries asm members
+   its definition cannot move up, so the two inlined copies are spelled through
+   this stand-in. Fold them back onto drawLines once the TU is fully C. */
+static inline void drawLinesInline(char *a0)
+{
+    char *cur = a0;
+
+    if (-1000.0f < *(float *)cur) {
+        do {
+            DrawLineG(cur, D_004ED380, cur + 0x10, D_004ED380, -1);
+            cur += 0x20;
+        } while (-1000.0f < *(float *)cur);
+    }
+}
+
+void drawSenpuukiHaneUnit(float scale)
+{
+    int i;
+
+    MatrixDrive_PushMatrix();
+
+    for (i = 0; i < 16; i++) {
+        MatrixDrive_RotMatrixZ(0x1000);
+        drawLinesInline((char *)D_004ED430);
+    }
+
+    MatrixDrive_PopMatrix();
+
+    MatrixDrive_TransMatrix(0.0f, 0.0f, 10.0f);
+    MatrixDrive_RotMatrixZ(D_0063BC5C);
+
+    for (i = 0; i < 3; i++) {
+        MatrixDrive_RotMatrixZ(21845);
+        drawLinesInline((char *)D_004ED390);
+    }
+
+    D_0063BC5C = (short)(D_0063BC5C + scale * 4864.0f);
+}
 
 extern char D_004ED380[];
 extern char D_004ED4F0__pn[] __asm__("D_004ED4F0");
@@ -86,14 +186,7 @@ float *getParallelWindVector(float *power, void *pos)
     return D_00724BE0;
 }
 
-typedef struct {
-    float v[4];
-    float str;
-    float pad[3];
-} WindCell;
-
 extern float D_00639704;
-extern WindCell D_00724FF0[20][20];
 
 WindCell *getRadiateWindVector(float *power, float *pos)
 {

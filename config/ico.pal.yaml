@@ -530,6 +530,8 @@ segments:
       - [0x539294, lit4, src/cod/539294]     # .lit4 blob resume (lightning's words)
       - [0x5392C0, .lit4, src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: Debug_StickControl, QueenGeo, QueenBarrierGeo and its WrapRad expansions as literals, QueenBallGeo's 5000 now compiler-emitted; TU fully C), VMA 0x6392C0..0x639324
       - [0x539324, lit4, src/cod/539324]     # .lit4 blob resume (queen_barrier_disp's words)
+      - [0x539328, .lit4, src/stage_orient]  # carved D_00639328 (1 word, StageOrientGet2's literal; the TU is fully C), VMA 0x639328..0x63932C
+      - [0x53932C, lit4, src/cod/53932C]     # .lit4 blob resume
       - [0x539338, .lit4, src/debug]  # carved D_00639338..D_00639350 (7 slots, 5 fns debug_Load..debug_DrawBar), VMA 0x639338..0x639354, 28 B
       - [0x539354, .lit4, src/debug_exception]  # carved D_00639354 (1 slot: drawWin's 0.8f, debug_exception_screen.c.inc), VMA 0x639354..0x639358, 4 B
       - [0x539358, lit4, src/cod/539358]     # .lit4 blob resume
@@ -566,6 +568,8 @@ segments:
       - [0x53995C, .lit4, src/st04r]  # carved D_0063995C..D_00639978 (8 words, all literals in StairSub, StairChk, SekizoChk, GondolaChk; the TU's whole pool, st05b's carve follows), VMA 0x63995C..0x63997C
       - [0x53997C, .lit4, src/st05b]  # carved D_0063997C..D_00639990 (6 slots: actSt05bSekizoChk x4, actSt05bSekizo's camera target -10793/2122 as literals; the TU's whole pool — MAIN.MAP's 0x18 is the debug link's, 0x639994 is st05e's), VMA 0x63997C..0x639994
       - [0x539994, lit4, src/cod/539994]     # .lit4 blob resume (st05e's words)
+      - [0x5399B0, .lit4, src/st07a]  # carved D_006399B0..D_006399BC (4 words: actSt07aSekizoChk's -3300/977/-1050/-950 as literals; the TU is fully C), VMA 0x6399B0..0x6399C0
+      - [0x5399C0, lit4, src/cod/5399C0]     # .lit4 blob resume (st08a's word D_006399C0, read as an extern by the matched actSt08aInit; data-sections pass item)
       - [0x5399C4, .lit4, src/st08b]  # carved D_006399C4..D_006399D0 (4 words: actSt08bDoorUpChk's -1189/-2326 as literals, then two slots for the still-asm actSt08bDoorDownChk's -1189/-2326; the pool is per function, not deduplicated), VMA 0x6399C4..0x6399D4
       - [0x5399D4, .lit4, src/st09a]  # carved D_006399D4..D_006399DC (3 slots, actSt09aSekizo's 1515/-1350/-1450 as literals; the TU's whole pool), VMA 0x6399D4..0x6399E0
       - [0x5399E0, .lit4, src/st10l]  # carved D_006399E0..D_006399E4 (2 words, actSt10lFloorLeft's -705 and actSt10lSekizo's 1274 as literals; the TU's whole pool), VMA 0x6399E0..0x6399E8
