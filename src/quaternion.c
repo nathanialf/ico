@@ -157,17 +157,54 @@ void GetMatrixFromQuaternion(char *a0, char *a1)
     CopyVector(a0 + 0x30, D_0028FF00);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/quaternion", getQuaternionFromMatrix);
-
 extern void _TransposeMatrix(void *a0, void *a1);
-extern int getQuaternionFromMatrix();
+extern float _Sqrt(float);
+/* the file's `nxt` permutation table {1,2,0} (TU-owned .data) */
+extern int D_00290800[];
 
 void GetQuaternionFromMatrix(void *a0, void *a1)
 {
-    auto void getQuaternionFromMatrix(void *a, void *b) __asm__("getQuaternionFromMatrix");
+    auto void getQuaternionFromMatrix(float *q, float (*m)[4]);
     char local[0x40];
+
+    void getQuaternionFromMatrix(float *q, float (*m)[4])
+    {
+        float tr;
+        float s;
+        float t;
+        int i;
+        int j;
+        int k;
+
+        tr = m[0][0] + m[1][1] + m[2][2];
+        if (tr > 0.0f) {
+            s = _Sqrt(tr + 1.0f);
+            q[3] = s * 0.5f;
+            t = 0.5f / s;
+            q[0] = (m[1][2] - m[2][1]) * t;
+            q[1] = (m[2][0] - m[0][2]) * t;
+            q[2] = (m[0][1] - m[1][0]) * t;
+        } else {
+            i = 0;
+            if (m[1][1] > m[0][0]) {
+                i = 1;
+            }
+            if (m[2][2] > m[i][i]) {
+                i = 2;
+            }
+            j = D_00290800[i];
+            k = D_00290800[j];
+            s = _Sqrt(m[i][i] - (m[j][j] + m[k][k]) + 1.0f);
+            q[i] = s * 0.5f;
+            t = (s != 0.0f) ? 0.5f / s : 0.0f;
+            q[3] = (m[j][k] - m[k][j]) * t;
+            q[j] = (m[i][j] + m[j][i]) * t;
+            q[k] = (m[i][k] + m[k][i]) * t;
+        }
+    }
+
     _TransposeMatrix(local, a1);
-    getQuaternionFromMatrix(a0, local);
+    getQuaternionFromMatrix((float *)a0, (float (*)[4])local);
 }
 
 void CopyQuaternion(void *a0, void *a1)
