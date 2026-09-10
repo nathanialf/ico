@@ -98,7 +98,7 @@ typedef struct {
 } ThreadParam;
 
 extern int CreateThread(ThreadParam *th);
-extern int StartThread(int id, void **arg);
+extern int StartThread(int id, void *arg);
 extern int AddIntcHandler(int ch, void *fn, int a2);
 extern int AddDmacHandler(int ch, void *fn, int a2);
 extern int videoCallback();
@@ -106,9 +106,18 @@ extern int pcmCallback();
 extern void videoDecMain();
 extern int handler_endimage();
 extern int vblankHandler();
-extern void *D_006F2C00[];
+
+/* Argument block handed to the videoDecMain thread; it reads the three
+   members back as self[0], self[1] and self[2]. */
+typedef struct {
+    int *dec;   /* D_006F2AD0, the videoDec object   */
+    void *disp; /* D_002A7978, the display env       */
+    char *vo;   /* voBuf, the video-out ring         */
+} MvThreadArg;
+
+extern MvThreadArg D_006F2C00;
 extern int D_006F2C40[];
-extern int D_00640AF0[];
+extern int _gp; /* linker-defined global pointer */
 extern int D_0063C310;
 extern int D_0063C314;
 extern int D_0063C318;
@@ -221,7 +230,90 @@ term:
     return abort;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", initAll);
+int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
+{
+    ThreadParam th;
+    int ret = 0;
+
+    D_0063AC74 = 0;
+    D_006F2AD0[0xC4 / 4] = -1;
+    D_006F2AD0[0xC0 / 4] = -1;
+    D_0063C328 = 0;
+
+    dispCreate(D_002A7978, a1, a2, a3, p4);
+    dispClear(D_002A7978, p7);
+
+    D_0063C334 = *(volatile int *)0x1000E000;
+    debug_StdPrintfDummy(D_005575A0, *(volatile int *)0x1000E000);
+    *(volatile int *)0x1000E000 |= 3;
+    *(volatile int *)0x1000E010 = 4;
+
+    debug_StdPrintfDummy(D_005575B0, a0);
+    if (strFileOpen(D_006EA900, a0) == 0) {
+        return -1;
+    }
+    if (readBufCreate(D_006F2AC0) != 0) {
+        return -1;
+    }
+    sceMpegInit();
+    if (videoDecCreate(D_006F2AD0) != 0) {
+        return -1;
+    }
+    if (D_0063AC70 != 0) {
+        if (audioDecCreate(D_006F2B98, p5, p6) != 0) {
+            return -1;
+        }
+    }
+
+    D_0063C310 = (int)D_006F2AC0;
+    D_0063C314 = (int)D_006F2AD0;
+    videoDecSetStream(D_006F2AD0, 0, 0, videoCallback, &D_0063C310);
+    if (D_0063AC70 != 0) {
+        D_0063C318 = (int)D_006F2AC0;
+        D_0063C31C = (int)D_006F2B98;
+        videoDecSetStream(D_006F2AD0, 2, 0, pcmCallback, &D_0063C318);
+    }
+
+    if (voBufCreate(voBuf) != 0) {
+        return -1;
+    }
+    debug_StdPrintfDummy(D_005575C8);
+
+    th.entry = (void *)videoDecMain;
+    th.stack = (void *)D_006F2C40;
+    th.stackSize = 0x8000;
+    th.initPriority = D_0063C320;
+    th.gpReg = &_gp;
+    th.option = 0;
+    D_0063C324 = CreateThread(&th);
+    debug_StdPrintfDummy(D_005575E8);
+
+    D_006F2C00.dec = D_006F2AD0;
+    D_006F2C00.disp = D_002A7978;
+    D_006F2C00.vo = voBuf;
+    StartThread(D_0063C324, &D_006F2C00);
+    D_0063C328 = 1;
+
+    DIntr();
+    debug_StdPrintfDummy(D_005575F8);
+    D_006F2AD0[0xC4 / 4] = AddIntcHandler(2, vblankHandler, 0);
+    if (D_006F2AD0[0xC4 / 4] < 0) {
+        debug_StdPrintfDummy(D_00557608);
+        ret = -1;
+    } else {
+        D_0063C32C = EnableIntc(2);
+        debug_StdPrintfDummy(D_00557620);
+        D_006F2AD0[0xC0 / 4] = AddDmacHandler(2, handler_endimage, 0);
+        if (D_006F2AD0[0xC0 / 4] < 0) {
+            debug_StdPrintfDummy(D_00557630);
+            ret = -1;
+        } else {
+            D_0063C330 = EnableDmac(2);
+        }
+    }
+    EIntr();
+    return ret;
+}
 
 void termAll(void)
 {

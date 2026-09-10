@@ -19,7 +19,48 @@ void SetRopeFixPoint(char *a0, void *a1)
     CopyVector(**(char ***)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) + 0x20, a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/rope", HoldRope);
+/* The actor's 0x15C sub-object slot: the engine stores a different per-actor
+   struct pointer in it depending on the actor, so it is a union of pointers.
+   (ROM proves the union read: it may-alias the float chain-node writes in
+   HoldRope, which a plain typed pointer read would not.) */
+typedef union {
+    char *b;
+    float *f;
+    int *i;
+} Sub15CRef;
+
+extern float GetChainNodeID(void *n);
+extern int SetChainExtendedWeight(void *a0, int a1, float f12, float f13);
+extern char D_004ECEE0[];
+extern char D_00620AD8[];
+extern void debug_StdPrintfDummy(char *p);
+
+void HoldRope(void *a0, void *a1)
+{
+    float v[4];
+    float u[4];
+    void **p = *(void ***)((char *)*(void **)((char *)a0 + 0x15C) + 0x830);
+    void **sys = (void **)p[0];
+    int n = (int)GetChainNodeID(sys[0]);
+    int w1 = SetChainExtendedWeight(sys[2], n, 0.0f, 100.0f);
+    int w2 = SetChainExtendedWeight(sys[2], n, 100.0f, 300.0f);
+
+    GetRootPosition(v, a1);
+    CopyVector(u, *(char **)((char *)a1 + 0x15C) + 0x130);
+    CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 12, u);
+    CopyVector((float *)((char *)sys[2] + (w2 * 0x50 + 0x10)) + 12, u);
+    CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 4, v);
+    CopyVector((float *)((char *)sys[2] + (w2 * 0x50 + 0x10)) + 4, v);
+    CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 8, v);
+    CopyVector((float *)((char *)sys[2] + (w2 * 0x50 + 0x10)) + 8, v);
+    {
+        float *q = (float *)((char *)sys[2] + w1 * 0x50);
+        q[9] -= 100.0f;
+        q[13] -= 100.0f;
+    }
+    CopyVector(((Sub15CRef *)((char *)a1 + 0x15C))->b + 0x130, D_004ECEE0);
+    debug_StdPrintfDummy(D_00620AD8);
+}
 
 inline void ReleaseRope(void) {}
 
