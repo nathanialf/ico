@@ -387,9 +387,9 @@ extern int GetSkeltonFocusNode(void *a0, void *a1);
 static inline void getSkeltonPosition(float *dst, char *obj, void *a2)
 {
     int idx = GetSkeltonFocusNode(obj, a2) << 6;
-    ((IntFloat *)dst)[0].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x30);
-    ((IntFloat *)dst)[1].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x34);
-    ((IntFloat *)dst)[2].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
+    dst[0] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x30);
+    dst[1] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x34);
+    dst[2] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x38);
 }
 
 int ACTLookTarget_Exec(char *a0)
@@ -1082,22 +1082,20 @@ extern char *D_00639EA0;
 #define ORBIT(w, b) ((int)((w) >> (b)) & 1)
 
 /* INTERIM: the listing inlines GetSkeltonPosition (lines 2597-2599) into the
-   two skeleton fills below.  The out-of-line copy at its own ROM slot re-derives
-   `obj->p_15C->0xC` for each of the three components (the alias-set-0 union
-   store kills the load through the unknown `dst` pointer); the INLINED copy
-   does not, because `dst` is then a known stack slot and gcc's base
-   disambiguation drops the conflict.  Our build does not reproduce that
-   context-sensitivity, so the inline site carries its own stand-in with the
-   base hoisted into a local -- measured: the shared re-spelled spelling costs
-   8 extra words per fill here, and the hoisted spelling costs 12 words in the
-   out-of-line body.  Collapses to one `inline` definition at layout. */
+   two skeleton fills below.  The access spelling is now the SAME as the
+   out-of-line body's: the `p_15C`/`+0xC` pointer hops are read through the
+   `IntFloat` union (alias set 0, so the plain `float` stores into `dst`
+   invalidate them and each component re-derives the chain, as ROM does),
+   while the stores themselves are ordinary `float` writes.  Only the base
+   differs -- this site hoists it into a local; the shared `idx` spelling
+   costs 55 words here.  Collapses to one `inline` definition at layout. */
 static inline void getSkeltonPositionInline(float *dst, char *obj, void *a2)
 {
-    char *p =
-        (char *)((GetSkeltonFocusNode(obj, a2) << 6) + *(int *)((int)((GObj *)(obj))->p_15C + 0xC));
-    ((IntFloat *)dst)[0].f = *(float *)(p + 0x30);
-    ((IntFloat *)dst)[1].f = *(float *)(p + 0x34);
-    ((IntFloat *)dst)[2].f = *(float *)(p + 0x38);
+    char *p = (char *)((GetSkeltonFocusNode(obj, a2) << 6) +
+                       ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i);
+    dst[0] = *(float *)(p + 0x30);
+    dst[1] = *(float *)(p + 0x34);
+    dst[2] = *(float *)(p + 0x38);
 }
 
 /* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
@@ -1542,8 +1540,167 @@ void ActOrientTest(char *self)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", GetGirlHandlinkClInfo);
-ASM_LIT4_SLOT(D_00638CE0, 12100.0f);
+/* The pair of hand-link wall probes the debug overlay draws, mirrored into
+   the actor work area at +0x540; D_0029C5D0 is the cleared template each
+   frame starts from. */
+typedef struct {
+    unsigned char on;   /* 0x00 */
+    unsigned char hit;  /* 0x01 */
+    unsigned char attr; /* 0x02 */
+    char _03[0x0D];
+    long long orient[2]; /* 0x10 -- GetOrientOfWall's output */
+    unsigned char hit2;  /* 0x20 */
+    unsigned char attr2; /* 0x21 */
+    char _22[0x0E];
+    long long orient2[2]; /* 0x30 */
+} HandClInfo;
+
+extern HandClInfo D_0029C5D0;
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+extern int GetSkeltonFocusNode(void *a0, void *a1);
+extern void GetRootProjectionPosOfGObj(float *dst, char *obj);
+extern float _DistxzSqGV(void *a, void *b);
+extern int CompareAttribute(int attr, int mask);
+extern void debug_Arrow(void *root, void *vec, float len, int r, int g, int b);
+extern int *test_CURRENTROOT(int *a0);
+extern void ClipWall(void *);
+extern void GetOrientOfWall(void *out, int n, void *vec);
+extern void *memset(void *a0, int a1, int a2);
+extern void sceVu0CopyVector(void *buf, int x);
+
+/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
+   listing inlines ACTGame_FLAG_TETSUNAGI (lines 1175-1177), GetSkeltonPosition
+   (2597-2599) and ACTCheckCollis_W (1455-1481) here, so each is `inline` in
+   the dev's TU; while this tail still has asm members a deferred inline would
+   land at the object end instead of at its ROM slot, so the public bodies stay
+   plain definitions below and this caller uses the static stand-ins.
+   Collapses to one `inline` definition each at layout. */
+static inline unsigned char actGame_FLAG_TETSUNAGI_gh(void)
+{
+    char *g = D_00639EA8;
+    int flag;
+    if (g == 0)
+        return 0;
+    flag = (int)(*(unsigned long long *)(*(char **)(g + 0x164) + 0x18) >> 40) & 1;
+    return flag;
+}
+
+static inline void getSkeltonPosition_gh(float *dst, char *obj, void *a2)
+{
+    int idx = GetSkeltonFocusNode(obj, a2) << 6;
+    dst[0] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x30);
+    dst[1] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x34);
+    dst[2] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x38);
+}
+
+static inline int actCheckCollis_W_gh(float f, void *hand0, void *hand1, void *actor, void *posout,
+                                      void *magtarget, int *flagout)
+{
+    HandWork work;
+    int flag;
+    int rv;
+    int cnt;
+
+    memset(&work, 0, 0xC0);
+    rv = 1;
+    flag = actor ? *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) : 0;
+    work._70 = f;
+    sceVu0CopyVector(&work, (int)hand0);
+    sceVu0CopyVector((char *)&work + 0x10, (int)hand1);
+    if (flag != 0) {
+        *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 0;
+    }
+    ClipWall(&work);
+    if (flagout != 0) {
+        *flagout = work._98;
+    }
+    cnt = work._88;
+    if (cnt == 0) {
+        rv = 0;
+    }
+    if (posout != 0) {
+        *(float *)((char *)posout + 0) = work._20;
+        *(float *)((char *)posout + 4) = work._24;
+        *(float *)((char *)posout + 8) = work._28;
+    }
+    if (cnt != 0 && magtarget != 0) {
+        GetOrientOfWall(magtarget, cnt, &work._80);
+    }
+    if (flag != 0) {
+        *(int *)((char *)*(int *)((char *)actor + 0x15C) + 0x74) = 1;
+    }
+    return rv & 0xFF;
+}
+
+void GetGirlHandlinkClInfo(void)
+{
+    float boyPos[4];
+    float girlPos[4];
+    float boyHand[4];
+    float girlHand[4];
+    int attr;
+    int ok;
+    float dy;
+
+    *(HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540) = D_0029C5D0;
+    if (D_00639EA4 == 0 || D_00639EA8 == 0) {
+        return;
+    }
+    GetRootProjectionPosOfGObj(boyPos, D_00639EA4);
+    GetRootProjectionPosOfGObj(girlPos, D_00639EA8);
+    if (actGame_FLAG_TETSUNAGI_gh() == 0) {
+        if (!(_DistxzSqGV(boyPos, girlPos) < 12100.0f)) {
+            goto draw;
+        }
+        dy = boyPos[1] - girlPos[1];
+        if (dy < 0.0f) {
+            if (-dy < 60.0f) {
+                goto work;
+            }
+            goto draw;
+        }
+        if (!(dy < 60.0f)) {
+            goto draw;
+        }
+    }
+work:
+    ((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->on = 1;
+    getSkeltonPosition_gh(boyHand, D_00639EA4, (void *)44);
+    getSkeltonPosition_gh(girlHand, D_00639EA8, (void *)44);
+
+    ok = actCheckCollis_W_gh(
+        20.0f, girlHand, boyHand, 0, 0,
+        ((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->orient,
+        &attr);
+    ((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->hit = ok;
+    if (CompareAttribute(attr, 0x40000)) {
+        ((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->attr = 1;
+    }
+    ok = actCheckCollis_W_gh(
+        20.0f, boyHand, girlHand, 0, 0,
+        ((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->orient2,
+        &attr);
+    ((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->hit2 = ok;
+    if (CompareAttribute(attr, 0x40000)) {
+        ((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->attr2 = 1;
+    }
+
+draw:
+    if (((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->hit) {
+        debug_Arrow(
+            test_CURRENTROOT((int *)D_00639EA8),
+            ((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->orient,
+            100.0f, 255, 0, 0);
+    }
+    if (((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->hit2) {
+        debug_Arrow(
+            test_CURRENTROOT((int *)D_00639EA4),
+            ((HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540))->orient2,
+            100.0f, 0, 0, 255);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/act-game", hand_able_connect);
 ASM_LIT4_SLOT(D_00638CE4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CommonLoop);
@@ -2200,9 +2357,9 @@ extern int GetSkeltonFocusNode(void *a0, void *a1);
 void GetSkeltonPosition(float *dst, char *obj, void *a2)
 {
     int idx = GetSkeltonFocusNode(obj, a2) << 6;
-    ((IntFloat *)dst)[0].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x30);
-    ((IntFloat *)dst)[1].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x34);
-    ((IntFloat *)dst)[2].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
+    dst[0] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x30);
+    dst[1] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x34);
+    dst[2] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x38);
 }
 
 extern float FSqrt(float a0);
