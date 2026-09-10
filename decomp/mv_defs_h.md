@@ -1,13 +1,13 @@
 # Reconstructed header: `ito/include/mv_defs.h`
 
-Status: **DONE — the header is a real file at `ito/include/mv_defs.h`.**
+Status: **DONE: the header is a real file at `ito/include/mv_defs.h`.**
 This document is the recovery record: how the header's existence was proved
 from the binary, and the levers that made its inline match. Read the real
 file and `decomp/HEADERS.md` for the current form; read this for the *why*.
 
 IP-clean: derived entirely from our own disassembly + the `__FILE__`/`__LINE__`
 literals baked into the shipped ELF, no leaked source. The PAL disc listing
-later confirmed the header independently (`mv_defs.h`, 16 host functions —
+later confirmed the header independently (`mv_defs.h`, 16 host functions,
 `decomp/pal_source_tree.md`).
 
 > **Names below are aug6-era.** The recovery ran on the Aug-6-2001 prototype
@@ -15,8 +15,8 @@ later confirmed the header independently (`mv_defs.h`, 16 host functions —
 > `func_00XXXXXX` in this file is an **aug6 VMA** and names nothing on PAL;
 > the same callees are `iosMallocAlignDebug`, `func_001B6250` and `__assert`
 > in the header as it stands today, and the assert entry point is
-> `debug_Assert` on PAL. Read the code sample for its *shape* — the
-> `fp = __FILE__` lever and the line-42/43 placement — not for its symbols.
+> `debug_Assert` on PAL. Read the code sample for its *shape* (the
+> `fp = __FILE__` lever and the line-42/43 placement), not for its symbols.
 
 ## Why we know it exists
 
@@ -43,7 +43,7 @@ A constant `__LINE__` (42 for the deq, 43 for the assert) across four
 different `.c` files can only mean the code physically lives in the header
 and is **inlined** into each consumer. The single file-string register
 (`$18 = &"../ito/include/mv_defs.h"`) is CSE-reused across the `deq_mes_th`
-call *and* both assert-handler calls — confirming the deq and the assert
+call *and* both assert-handler calls, confirming the deq and the assert
 share one `__FILE__`, i.e. one inline body.
 
 Reconstructed body (offsets pinned by the `__LINE__` immediates):
@@ -61,7 +61,7 @@ static inline void *mvDeqMes(<queue> q) {                      /* ~41 */
 
 - `deq_mes_th` (`fumi/ios/message.c`) is the debug-instrumented IOS message
   dequeue; its last two params are `(__FILE__, __LINE__)`. Fixed call args:
-  `(queue, 0x50000, 0x40, file, line)` — `0x50000`/`0x40` constant, the
+  `(queue, 0x50000, 0x40, file, line)`: `0x50000`/`0x40` constant, the
   queue is the inline's parameter (e.g. `termAll` passes the global at
   `D_0062A340`, whose first word `0x0026347C` is the movie message queue).
 - `assert(cond)` is a **custom 2-call handler**, not libc:
@@ -78,7 +78,7 @@ static inline void *mvDeqMes(<queue> q) {                      /* ~41 */
 | `D_00557158` | `voBufDelete` | `ito/mpeg/mv_vobuf` | ×2 |
 | `D_00614F10` | `func_00239E18` | `ito/mpeg/mv_sub` | ×1 |
 | `D_00615190` | `func_0023BE80` | `common/src/GobjProc` | ×2 |
-| `D_00557090`, `D_00615120`, `D_00615150` | (unreferenced dup copies) | — | — |
+| `D_00557090`, `D_00615120`, `D_00615150` | (unreferenced dup copies) | none | none |
 
 The unreferenced copies are duplicate string emissions whose code refs were
 CSE'd/DCE'd away but whose rodata bytes remain (ee-gcc keeps unreferenced
@@ -90,8 +90,8 @@ string literals).
    42/43 is a hard codegen fact in the ELF. Any dev-intended rewrite of
    these consumers that `#include "mv_defs.h"` and calls the `mvDeqMes`
    inline (deq on line 42, assert on line 43) will regenerate these exact
-   strings — that's how we'll *prove* the reconstruction, not just match
-   the text. Today `termAll` hand-expands the inline against the existing
+   strings: that is how the reconstruction is proved, not only its text
+   matched. Today `termAll` hand-expands the inline against the existing
    `D_005570xx` rodata symbols (byte-correct, structurally not dev-form).
 2. **Data migration.** Because each TU owns its own string copies, the
    `mv_defs.h` rodata is cleanly carvable per-TU once the consumers are
@@ -103,10 +103,10 @@ string literals).
    That include-path plumbing is the open task before this can be the
    real source form.
 
-## Update — header materialized (func_ naming) + build mechanism + open match
+## Update: header materialized (func_ naming) + build mechanism + open match
 
 - The header now exists at `ito/include/mv_defs.h`. The inline is named
-  `deq_movie_mes` (placeholder — inlined everywhere, no MAIN.MAP symbol; per
+  `deq_movie_mes` (placeholder, inlined everywhere, no MAIN.MAP symbol; per
   user, `func_`-style not an invented API name).
 - **Build mechanism** (in `tools/compile_c.sh`, opt-in via `config/include_ito.txt`):
   to bake `__FILE__` as exactly `"../ito/include/mv_defs.h"`, the listed TU is
@@ -116,7 +116,7 @@ string literals).
 - **Rodata carve** `[0x457060, 0x457090)` (mv_main's file + "p != NULL") is
   proven byte-neutral as a plain blob split; with the header the strings come
   from `mv_main.o` and the blob is carved.
-- **OPEN — permuter-class regalloc swap.** A consumer (`termAll`) rewritten to
+- **OPEN: permuter-class regalloc swap.** A consumer (`termAll`) rewritten to
   call `deq_movie_mes` does NOT byte-match: ee-gcc's inliner gives the `__FILE__`
   pointer `$s1` and the struct param `$s2`, the reverse of the ROM (struct `$s1`,
   file `$s2`), costing one `move`. The swap is invariant across ~15 reshapes
@@ -124,7 +124,7 @@ string literals).
   hand-written `termAll` (extern `D_005570xx`) matches and is what's committed;
   the inline form is parked pending a permuter/structural crack.
 
-## RESOLVED — the inline matches (the `fp = __FILE__` lever)
+## RESOLVED: the inline matches (the `fp = __FILE__` lever)
 
 The $s1/$s2 regalloc swap is cracked. Root cause: when ee-gcc inlines the
 accessor, an inline-body `__FILE__` used directly at the deq + asserts gets a
