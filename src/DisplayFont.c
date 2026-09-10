@@ -43,5 +43,67 @@ inline void font_Init(void)
     D_0063BD04 = 0x80;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_CheckAlign);
+extern int strlen(const char *s);
+
+/* SRCFILE places this helper's rows (seki/src/DisplayFont.c:99-103) INSIDE
+   font_CheckAlign's own span (def line 95, body 110-143), i.e. it was a
+   function-local helper in the 2001 source; it is fully inlined at all
+   eight call sites, so the placement emits no bytes of its own. */
+static inline int font_HexDigit(char c)
+{
+    int r = -1;
+
+    if ((unsigned char)(c - '0') < 10)
+        r = c - '0';
+    else if ((unsigned)(c - 'A') < 6 || (unsigned)(c - 'a') < 6)
+        r = (c >= 'a') ? (c - ('a' - 10)) : (c - ('A' - 10));
+    return r;
+}
+
+int font_CheckAlign(unsigned char *col, unsigned char *str)
+{
+    unsigned char buf[256];
+    unsigned char *p;
+    int n;
+    int c;
+
+    n = 0;
+    p = str;
+    while ((c = *p++) != 0) {
+        if (c == '{') {
+            n = 1;
+        } else if (c == '}') {
+            buf[n - 1] = 0;
+            n = 0;
+            switch (buf[0]) {
+            case 'L':
+                D_0063BD00 = 1;
+                break;
+            case 'R':
+                D_0063BD00 = 2;
+                break;
+            case 'C':
+                D_0063BD00 = 0;
+                break;
+            case '#':
+                if (strlen((const char *)buf) == 9) {
+                    D_0063BD04 = font_HexDigit(buf[1]) * 16 + font_HexDigit(buf[2]);
+                    D_0063BD08 = font_HexDigit(buf[3]) * 16 + font_HexDigit(buf[4]);
+                    D_0063BD0C = font_HexDigit(buf[5]) * 16 + font_HexDigit(buf[6]);
+                    D_0063BD10 = font_HexDigit(buf[7]) * 16 + font_HexDigit(buf[8]);
+                }
+                break;
+            }
+        } else if (n != 0) {
+            buf[n - 1] = c;
+            n++;
+        }
+    }
+    col[0] = D_0063BD04;
+    col[1] = D_0063BD08;
+    col[2] = D_0063BD0C;
+    col[3] = D_0063BD10;
+    return D_0063BD00;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_Print);

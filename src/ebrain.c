@@ -3,12 +3,11 @@
 typedef struct EBSlot {
     unsigned short f0; /* 0x00 status */
     char pad2[2];
-    void *f04; /* 0x04 target GObj */
-    float f08; /* 0x08 */
-    float f0C; /* 0x0C */
-    int f10;   /* 0x10 message */
-    int f14;   /* 0x14 */
-    void *f18; /* 0x18 owner GObj */
+    void *f04;     /* 0x04 target GObj */
+    float dist[2]; /* 0x08 [0]=to boy, 0x0C [1]=to girl */
+    int f10;       /* 0x10 message */
+    int f14;       /* 0x14 */
+    void *f18;     /* 0x18 owner GObj */
 } EBSlot;
 
 extern int eBrainBoyChaseCount;
@@ -129,7 +128,87 @@ inline int eBrainStatusSet(void *a0, int a1)
     return (int)slot;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainProcess);
+extern void *D_00639EA4;
+extern void *D_00639EA8;
+extern int D_0063C2C4;
+extern int D_0063C2C8;
+extern EBSlot *D_006E6AD0[];
+extern EBSlot *D_006E6B50[];
+extern void GetRootPosition(void *out, void *gobj);
+extern int IsBoyStatus_EnemyMustWait(void);
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern float sceVu0InnerProduct(void *a0, void *a1);
+
+static inline void eBrainRegistTarget(EBSlot **list, int n, EBSlot *e, int w)
+{
+    int j;
+    EBSlot *cur = e;
+    EBSlot *t;
+    float key = cur->dist[w];
+    float tk;
+
+    for (j = 0; j < n; j++) {
+        t = list[j];
+        tk = t->dist[w];
+
+        if (key < tk) {
+            list[j] = cur;
+            cur = t;
+            key = tk;
+        }
+    }
+    list[j] = cur;
+}
+
+void eBrainProcess(void)
+{
+    float bpos[4];
+    float gpos[4];
+    float epos[4];
+    float d[4];
+    EBSlot *s;
+    int i;
+
+    D_0063C2C8 = 0;
+    D_0063C2C4 = 0;
+
+    if (D_00639EA4 == 0) {
+        if (D_00639EA8 == 0)
+            return;
+    } else {
+        D_0063C2D0 = IsBoyStatus_EnemyMustWait();
+        GetRootPosition(bpos, D_00639EA4);
+    }
+
+    if (D_00639EA8 != 0) {
+        GetRootPosition(gpos, D_00639EA8);
+    }
+
+    for (i = 0; i < 0x20; i++) {
+        s = &((EBSlot *)D_006E6750)[i];
+        if (s->f18 == 0)
+            continue;
+
+        GetRootPosition(epos, s->f18);
+        sceVu0SubVector(d, epos, bpos);
+        s->dist[0] = sceVu0InnerProduct(d, d);
+        sceVu0SubVector(d, epos, gpos);
+        s->dist[1] = sceVu0InnerProduct(d, d);
+
+        if (s->f0 == 0) {
+            if (D_00639EA4 != 0) {
+                eBrainRegistTarget(D_006E6AD0, D_0063C2C4, s, 0);
+                D_0063C2C4 = D_0063C2C4 + 1;
+            }
+            if (D_00639EA8 != 0) {
+                eBrainRegistTarget(D_006E6B50, D_0063C2C8, s, 1);
+                D_0063C2C8 = D_0063C2C8 + 1;
+            }
+        } else if (s->f0 == 1) {
+            s->f14++;
+        }
+    }
+}
 
 inline int GetStageFromLabel(int label)
 {
@@ -181,17 +260,53 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
     return no;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainGetTargetGeneratorFromLabel);
+int eBrainGetTargetGeneratorFromLabel(int label)
+{
+    int no = -1;
+    int pri = -1;
+    int stage;
+    int i;
+    int ret;
+    int st;
+    int f;
 
-extern void *D_00639EA4;
-extern void *D_00639EA8;
-extern int D_0063C2C4;
-extern int D_0063C2C8;
-extern EBSlot *D_006E6AD0[];
-extern EBSlot *D_006E6B50[];
+    ret = GetMotherGenerator(label);
+    if (ret != -1)
+        return ret;
+
+    stage = -1;
+    for (i = 0; i < 0x6A; i++) {
+        if (label >= D_005F5D50[i].labelTop && label < D_005F5D50[i].labelEnd) {
+            stage = i;
+            break;
+        }
+    }
+    if (!(stage > 0)) {
+        debug_assert(D_005555A8, 0x1D8);
+        __assert(D_005555A8, 0x1D8, D_005555B8);
+    }
+
+    st = stage;
+    for (i = D_005F5D50[st].labelTop; i < D_005F5D50[st].labelEnd; i++) {
+        GenGeo *g = &D_002C2DC8[i];
+        if (g->kind == 0x21) {
+            f = g->f48 >> 17;
+            f &= 1;
+            if (pri < f) {
+                pri = f;
+                no = i;
+            }
+        }
+    }
+    if (!(no > 0)) {
+        debug_assert(D_005555A8, 0x21E);
+        __assert(D_005555A8, 0x21E, D_005555C8);
+    }
+    return no;
+}
+
 extern float D_006391D8;
 extern float D_006391DC;
-extern void GetRootPosition(void *out, void *gobj);
 extern int ACTCheckViewCl(void *gop, void *target, void *pos, int deg, float dist);
 extern void *memset(void *dst, int c, int n);
 extern int eBrainGetTargetGeneratorFromLabel(int label);
@@ -293,7 +408,7 @@ EBSlot *eBrainGetTarget(void *gop)
                 i = 0;
                 if (boyIdx >= 0) {
                     if (girlIdx >= 0) {
-                        if (D_006E6AD0[boyIdx]->f08 < D_006E6B50[girlIdx]->f0C) {
+                        if (D_006E6AD0[boyIdx]->dist[0] < D_006E6B50[girlIdx]->dist[1]) {
                             order[0] = 1;
                             order[1] = 2;
                         } else {
@@ -329,7 +444,7 @@ EBSlot *eBrainGetTarget(void *gop)
         case 1:
             p->f04 = D_00639EA4;
             if (p->f14 >= 181) {
-                if (p->f0C < p->f08 + D_006391D8) {
+                if (p->dist[1] < p->dist[0] + D_006391D8) {
                     if (eBrainCanSeeTarget(gop, D_00639EA8)) {
                         eBrainSetStatus(p, 2);
                         changed = 1;
@@ -342,7 +457,7 @@ EBSlot *eBrainGetTarget(void *gop)
             break;
         case 5:
             p->f04 = D_00639EA8;
-            if (p->f08 < D_006391DC) {
+            if (p->dist[0] < D_006391DC) {
                 if (eBrainCanSeeTarget(gop, D_00639EA4)) {
                     eBrainSetStatus(p, 1);
                     changed = 1;
