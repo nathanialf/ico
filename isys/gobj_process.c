@@ -17,9 +17,8 @@ extern int D_0063A430;
 extern char *D_0063C1B0;
 extern int D_0063C1B4;
 extern int iosMallocDebug(int a0, int a1, const char *fmt, int line);
-extern int isysGObjProcAdd_(int a0, int a1, int a2, int a3, int a4, int a5);
+extern int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5);
 extern void iosThreadStop(int a0);
-extern int isysGObjProcAdd___pn() __asm__("isysGObjProcAdd_");
 /* prototypes: their order is the inline tail's emission order */
 void isysGObjProcessAlloc(unsigned int a0);
 int isysGObjProcAdd(int a0, int a1, int a2, int a3);
@@ -52,7 +51,92 @@ inline void isysGObjProcessAlloc(unsigned int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", isysGObjProcAdd_);
+extern void debug_StdPrintfDummy();
+extern char D_00552008[];
+extern char D_00552030[];
+extern char D_00552040[];
+extern int iosThreadCreateS(void *th, int a1, int a2, int a3, int a4, int a5, int a6);
+extern void iosThreadStart(void *th);
+
+static inline GProc *alloc_gobj_process(void)
+{
+    unsigned int i;
+    unsigned int j;
+
+    for (i = 0; i < D_0063C1B4; i++) {
+        if (*(int *)(D_0063C1B0 + i * 0x94) == 0) {
+            break;
+        }
+    }
+    if (i == D_0063C1B4) {
+        debug_StdPrintfDummy(D_00552008);
+        debug_StdPrintfDummy(D_00552008);
+        for (j = 0; j < D_0063C1B4; j++) {
+            debug_StdPrintfDummy(D_00552030, *(int *)(D_0063C1B0 + j * 0x94),
+                                 *(int *)(D_0063C1B0 + j * 0x94 + 0x1C),
+                                 *(int *)(D_0063C1B0 + j * 0x94 + 0x5C));
+        }
+        return 0;
+    }
+    return (GProc *)(D_0063C1B0 + i * 0x94);
+}
+
+int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5)
+{
+    GProc *p;
+    GProc *h;
+    GProc *t;
+
+    if (a2 == 0) {
+        return 0;
+    }
+    p = alloc_gobj_process();
+    if (p == 0) {
+        debug_StdPrintfDummy(D_00552040);
+        return 0;
+    }
+    *(GProc **)p = p;
+    if (a3 == 0) {
+        iosThreadCreateS((char *)p + 0x24, 1, a2, a1 ? a1 : (int)p, D_0063A430, a5, a4);
+        iosThreadStart((char *)p + 0x24);
+        *(int *)((char *)p + 0x1C) = 0;
+    } else {
+        *(int *)((char *)p + 0x1C) = a2;
+    }
+    *(int *)((char *)p + 0x10) = a3;
+    p->owner = (char *)a0;
+    *(int *)((char *)p + 0x18) = 1;
+    *(int *)((char *)p + 0x14) = a4;
+    h = *(GProc **)((char *)a0 + 0x2C);
+    if (h == 0) {
+        *(GProc **)((char *)p + 0xC) = 0;
+        *(GProc **)((char *)p + 0x8) = 0;
+        *(GProc **)((char *)a0 + 0x2C) = p;
+        *(GProc **)((char *)a0 + 0x30) = p;
+    } else if ((unsigned int)a4 < *(unsigned int *)((char *)h + 0x14)) {
+        *(GProc **)((char *)p + 0xC) = 0;
+        *(GProc **)((char *)p + 0x8) = *(GProc **)((char *)a0 + 0x2C);
+        p->prev->next = p;
+        *(GProc **)((char *)a0 + 0x2C) = p;
+    } else {
+        t = *(GProc **)((char *)a0 + 0x30);
+        if (!((unsigned int)a4 < *(unsigned int *)((char *)t + 0x14))) {
+            p->next = t;
+            p->prev = 0;
+            t->prev = p;
+            *(GProc **)((char *)a0 + 0x30) = p;
+        } else {
+            while (!((unsigned int)a4 < *(unsigned int *)((char *)h->prev + 0x14))) {
+                h = h->prev;
+            }
+            p->next = h;
+            p->prev = h->prev;
+            h->prev = p;
+            p->prev->next = p;
+        }
+    }
+    return (int)p;
+}
 
 inline int isysGObjProcAddGOppArg(int a0, int a1, int a2, int a3)
 {
@@ -71,7 +155,7 @@ inline int isysGObjProcAddS(int a0, int a1, int a2, int a3, int a4)
 
 inline int isysGObjProcAddSGOppArg(int a, int b, int c, int d, int e)
 {
-    return isysGObjProcAdd___pn(a, 0, b, c & 0xFF, d, e);
+    return isysGObjProcAdd_(a, 0, b, c & 0xFF, d, e);
 }
 
 inline void isysGObjProcPause(char *self)
