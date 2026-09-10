@@ -43,7 +43,7 @@ names verbatim):
   public Ghidra projects with explicit non-leaked provenance, academic
   papers on the EE/R5900.
 - Open community SDKs — the [`ps2dev`](https://github.com/ps2dev) family
-  (ps2sdk, ps2toolchain, ps2-packer), themselves clean-room and openly
+  (ps2sdk, ps2toolchain, ps2-packer), themselves independently written and openly
   licensed. Vendoring goes under `lib/<name>/` with a `PROVENANCE.md`.
 - Individual *facts* observed by reverse-engineering a copy you legally
   own: function/symbol names, struct offsets, strides, `__FILE__` strings.
@@ -112,7 +112,7 @@ function came from, which the USA cut could only infer by hashing.
 
 ---
 
-## 2. The de-facto policy: vendor code **is** matched, clean-room
+## 2. The de-facto policy: vendor code **is** matched, from the disassembly alone
 
 A stale YAML comment on the `aug6` branch still says *"crt0 + libkernl
 (vendor, not matched)"*. It is wrong: the `aug6` branch had already landed
@@ -148,7 +148,7 @@ redistributable:
 - **libm** — Sun's fdlibm, reached via newlib. Public domain. This is
   already the sanctioned path in this repo: `decomp/COOKBOOK.md` §7.3 and
   `include/math_private.h` re-derive `GET_FLOAT_WORD` / `SET_FLOAT_WORD`
-  "clean-room from the PUBLIC-DOMAIN fdlibm reference (freely published;
+  "re-derived from the PUBLIC-DOMAIN fdlibm reference (freely published;
   treat like a public paper — NOT the proprietary PS2 SDK or any leaked
   source)". `decomp/NOTES.md:403` records the same.
 - **libc** — newlib, BSD-style licence. **Snapshot pinned 2026-09-04 to
@@ -176,11 +176,11 @@ upstream files that are vendored wholesale go under `lib/<name>/` with a
 
 **No SDK source may be used. Ever.** Sony Pro-DG and Sony internal tools are
 named explicitly in the forbidden-inputs list (§0). There is no legitimate
-public source for these libraries. They are matched **clean-room from the
+public source for these libraries. They are matched **from the
 disassembly only**.
 
 `ps2sdk` is permitted as a *naming and structural* reference — it is open,
-clean-room, community work — but it is **a different implementation and must
+independently written community work — but it is **a different implementation and must
 never be used as a byte oracle.** Do not try to make ps2sdk code assemble to
 the ROM's bytes; re-derive from the disassembly and let ps2sdk inform naming
 and API shape only. The existing use of it in this repo is exactly that:
@@ -204,7 +204,7 @@ adds **zero correctness** — it moves bytes from *passthrough asm* to
 What it does change is the ceiling. Genuine vendor is **12.96 % of `.text`**,
 so a branch that refuses to touch vendor code caps out at **≈ 87 %**.
 That is the whole argument for doing it, and it should be weighed against
-the fact that ~99 KB of it (§3b) is proprietary-clean-room work with no
+the fact that ~99 KB of it (§3b) is proprietary-SDK code matched from the disassembly with no
 reference implementation, which is the slowest kind of matching there is.
 
 ---
@@ -278,7 +278,7 @@ Vendor accounting is per-branch; there is no cross-branch vendor total.
 
 The durable results of that port, restated because they are still true:
 
-- **Head leaves are clean-room from the ROM.** The 140 EE-syscall head leaves
+- **Head leaves are derived from the ROM alone.** The 140 EE-syscall head leaves
   were matched from the ROM's own four instructions via `include/syscall.h`'s
   `SYSCALL_WRAPPER`. ps2sdk's `SYSCALL_SPECIAL` is credited as a *structural*
   model only, per §3b; no SDK source was consulted and none is needed — the
@@ -286,7 +286,7 @@ The durable results of that port, restated because they are still true:
 - **Handwritten-asm vendor leaves are the most tractable class** (VU0
   macro-mode, MMI, privileged COP0/TLB/cache, syscall stubs): they are
   byte-exact by construction from the ROM's own instructions.
-- **§3b (proprietary SCE SDK) bodies are clean-room-from-disassembly only.**
+- **§3b (proprietary SCE SDK) bodies are matched from the disassembly only.**
   That is most of what remains unmatched on the vendor side, on every branch.
 
 ## 8. Open questions

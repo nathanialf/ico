@@ -13,7 +13,7 @@
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/#pal)** — per-directory / per-TU / per-function decomp status for this branch's target (PAL retail, SCES-50760), updated on every push. The dashboard carries all three targets; switch with the picker at the top.
 
-A clean-room decompilation of the PlayStation 2 game **ICO** (2001, Sony
+A decompilation of the PlayStation 2 game **ICO** (2001, Sony
 Computer Entertainment / Team Ico).
 
 This branch targets the **shipped PAL retail build** (disc SCES-50760; the
@@ -172,7 +172,7 @@ tough_nuts/     parked near-misses (INDEX.md maps dir → current symbol)
 ### File-structure conventions
 
 - **`src/<TU>.c`** (and `ios/`, `isys/`, `sound/`, `ito/mpeg/`) — tracked
-  clean-room C for one translation unit. Typed data defs live alongside the
+  matched C for one translation unit. Typed data defs live alongside the
   functions that reference them.
 - **Typed data** — placed by **per-TU yaml carving** (dot-form `.rodata`/
   `.data`/`.sdata`, and `.sbss`/`.bss` for the uninitialised runs, subsegments

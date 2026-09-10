@@ -6,10 +6,10 @@ Reads `assets/cod/16F5E0.textbin.bin` (20,704 valid bytes + 64 zero pad)
 and emits an annotated assembly listing to stdout. The output is a
 **reference** only — every line carries a "REFERENCE ONLY, DO NOT
 COMMIT TO GIT" banner because mechanical byte→mnemonic disassembly
-is itself extraction and is not IP-safe to commit to the clean-room
+is itself extraction and is not IP-safe to commit to the
 repo.
 
-The clean-room path (see decomp/MATCH_VU.md): a developer reads this
+The permitted path (see decomp/MATCH_VU.md): a developer reads this
 output, understands the loop structure and register usage, then
 re-types each chunk into `src/cod/16F5E0.S` from understanding —
 with hand-chosen labels, comments, and pseudocode annotations. The

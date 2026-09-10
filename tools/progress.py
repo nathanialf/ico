@@ -548,7 +548,7 @@ README_END = "<!-- progress:end -->"
 
 # Code and data are separate progress axes (MM-decomp style). The data
 # rows (.data/.vudata/.rodata/.lit4/.sdata) count only bytes emitted from
-# compiled *git-tracked* sources — i.e. hand-typed clean-room defs and
+# compiled *git-tracked* sources — i.e. hand-typed defs and
 # matched functions' embedded constants — so they start at 0% and move
 # as the aug6 per-TU data carving / dot-form migration lands. (The old
 # retail `_data.c` sidecar pattern that made these numbers misleading

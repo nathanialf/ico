@@ -1,7 +1,7 @@
 #ifndef MATH_PRIVATE_H
 #define MATH_PRIVATE_H
 
-/* Float<->word access macros, re-derived clean-room from the public-domain
+/* Float<->word access macros, re-derived from the public-domain
  * fdlibm reference (freely published, e.g. netlib's fdlibm) — NOT copied from
  * any SDK or other proprietary source. This is the well-known IEEE-754 idiom:
  * a union store/read whose do{}while(0) wrapper is the standard multi-statement

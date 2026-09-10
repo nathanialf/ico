@@ -16,7 +16,7 @@ For each requested symbol, this tool:
 
 The macro is a no-op identity — the literal value is the same JTEXT
 bytes the migrator would emit as `unsigned char[]`, just typed as
-`const char[]` so it counts as a clean-room reconstruction
+`const char[]` so it counts as a reconstruction from the disassembly
 (the developer has decoded and confirmed the meaning).
 
 Examples (run after a full build so symbol_addrs.<ver>.txt is complete):

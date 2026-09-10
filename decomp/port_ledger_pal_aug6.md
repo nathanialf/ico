@@ -5,7 +5,7 @@
 passes completed. This file is the accounting that outlived it.)*
 
 Bodies below were carried over from the `aug6` (Aug-6-2001 prototype)
-checkout's matched clean-room C with every aug6 symbol rebound to its PAL
+checkout's matched C with every aug6 symbol rebound to its PAL
 counterpart by the lockstep reloc-slot walk.  This pass runs AFTER the ntsc
 pass and only ever attempts functions the ntsc pass left as
 `INCLUDE_ASM`.  Nothing here was hand-tuned:

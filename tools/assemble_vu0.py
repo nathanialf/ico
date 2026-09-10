@@ -8,7 +8,7 @@ consisting solely of `.word` directives — which mips-linux-gnu-as can
 then assemble into a `.vutext` object. This keeps the build pipeline
 unchanged: the existing `as_hasm` ninja rule consumes the emitted `.s`.
 
-The clean-room boundary: this tool encodes mnemonics to bytes from
+The IP boundary: this tool encodes mnemonics to bytes from
 **published VU0 documentation** (EE User's Manual, ps2dev/ps2sdk
 headers, open-source VU disassemblers). It never reads
 `assets/cod/16F5E0.textbin.bin`. Hand-written `.S` files commit to

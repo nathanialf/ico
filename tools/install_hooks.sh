@@ -31,7 +31,7 @@ cat > "$HOOK" <<'EOF'
 # green if the per-TU data sidecars on disk happen to match a prior
 # state. Running setup forces the migrator/aligner/rewriter pipeline
 # to regenerate from current asm + linker map, so a commit can only
-# land if a clean-room rebuild also passes SHA-1.
+# land if a from-scratch rebuild also passes SHA-1.
 #
 # Bypass with --no-verify only when you're committing changes that
 # don't touch the build graph (docs-only edits, etc.) and you're

@@ -5,7 +5,7 @@
 file is the accounting that outlived it.)*
 
 Bodies below were carried over from the `ntsc` (USA retail SCUS-971.13)
-checkout's matched clean-room C with every US symbol rebound to its PAL
+checkout's matched C with every US symbol rebound to its PAL
 counterpart by the lockstep reloc-slot walk.  Nothing here was hand-tuned:
 each function either reproduced the PAL instruction stream as-is (`PORTED`)
 or went straight back to `INCLUDE_ASM` (`REVERTED`, with the first

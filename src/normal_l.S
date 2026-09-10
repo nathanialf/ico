@@ -5,7 +5,7 @@
 ; (cluster/mesh/normal_c/normal_l/particle), managed by MicroCode.o
 ; (mc_TransMicroCode).  Split by the MAIN.MAP .vutext .o boundaries.
 ;
-; Clean-room: bytes re-derived from published VU0/VU1 documentation
+; Bytes re-derived from published VU0/VU1 documentation
 ; (EE User's Manual, PCSX2 microVU GPL-3.0 opcode dispatch, ps2sdk) via
 ; tools/assemble_vu0.py — never from extracted disc data.  The whole
 ; 0x50E0-byte .vutext section is byte-identical across all three known
