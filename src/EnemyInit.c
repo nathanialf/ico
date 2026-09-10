@@ -7,7 +7,7 @@ INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", enemy_Initialize);
 
 int enemy_GetPositionTable(int idx, int sub_idx)
 {
-    register int factor;
+    int factor;
     if (idx < 0 || idx >= *(int *)D_0063BD38)
         return 0;
     factor = 0x6C;
