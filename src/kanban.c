@@ -65,15 +65,25 @@ typedef struct {
     int f34;
     int f38;
     int f3C;
-    unsigned char pad40[0x18];
+    unsigned char pad40[0x04];
+    int f44;
+    int f48;
+    int f4C;
+    int f50;
+    int f54;
     int f58;
-    unsigned char pad5C[0x14];
+    int f5C;
+    int f60;
+    int f64;
+    int f68;
+    unsigned int f6C;
 } LayoutTex;
 
 extern LayoutTex D_0030CFF8[];
 extern char D_0030D014[];
 extern int D_0028F8F0[];
-extern void func_001B8B10(KanbanProp *pr, LayoutTex *e, Col4 *col);
+extern void func_001B8B10(KanbanProp *pr, LayoutTex *e,
+                          Col4 *col); /* census: display_texture (name reused by src/jimaku) */
 extern char D_00535168[][0x34];
 extern char D_0063B4A8[];
 extern char D_0063B4B0[];
@@ -96,6 +106,12 @@ extern void gif_SetAlpha(int a0, int a1, int a2);
 extern void gif_SetZTest(int a0);
 extern void gif_SetZWrite(int a0);
 extern void gif_SpriteSensitive(void *a0, unsigned int a1, int a2, void *a3, int a4);
+extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
+                                      int prim);
+extern void gif_PointOffset(int *v, unsigned int z, unsigned char *col, int prim);
+extern int tex_TransTexture(int no, int pri);
+extern int rand(void);
+extern Col4 D_0063B4B8[];
 extern void gif_StartPacketPri(int a0);
 /* prototypes: their order is the inline tail's emission order */
 void kanbanReqDel(int *self);
@@ -327,7 +343,75 @@ void kanbanInit(int no)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B8B10);
+void func_001B8B10(KanbanProp *pr, LayoutTex *e, Col4 *col)
+{
+    int uv[4];
+    int r[4];
+    int pt[4];
+    Col4 col2;
+    int i;
+    int alpha;
+
+    uv[0] = (e->f5C << 4) + 8;
+    uv[1] = (e->f68 << 4) + 8;
+    uv[2] = e->f64 << 4;
+    uv[3] = e->f60 << 4;
+
+    r[2] = e->f4C << 4;
+    r[3] = e->f48 << 3;
+    if (r[2] == 0) {
+        r[2] = uv[2];
+    }
+    if (r[3] == 0) {
+        r[3] = uv[3] >> 1;
+    }
+
+    if (e->f44) {
+        r[0] = (0x2800 - r[2]) / 2 - 0x1400;
+    } else {
+        r[0] = (e->f54 - 320) << 4;
+    }
+    r[1] = (e->f50 - 112) << 4;
+
+    if (((e->f6C >> 4) & 1) == 0) {
+        tex_TransTexture(e->f1C, 11);
+
+        gif_StartPacketPri(11);
+
+        gif_SetAlpha(1, 7, 0);
+
+        gif_SetZWrite(0);
+
+        r[1] += 8;
+
+        r[3] -= 8;
+        uv[3] -= 8;
+
+        gif_SpriteSensitiveOffset(r, 0xFFFFFF9B, uv, col->b, 1);
+        gif_SetZWrite(1);
+        gif_EndPacket();
+    }
+
+    if (e == &D_0030CFF8[pr->f2C]) {
+        col2 = D_0063B4B8[0];
+
+        gif_StartPacketPri(11);
+        gif_SetZTest(0);
+
+        for (i = 0; i < r[2] * r[3] / 300; i++) {
+            pt[0] = r[0] + rand() % r[2];
+            pt[1] = r[1] + rand() % r[3];
+            alpha = rand() % 127 + 32;
+            col2.b[3] = alpha;
+            if (col->b[3] < col2.b[3]) {
+                col2.b[3] = col->b[3];
+            }
+
+            gif_PointOffset(pt, 0x800000, col2.b, 1);
+        }
+        gif_EndPacket();
+    }
+}
 
 int fade_exec(Node *p)
 {
