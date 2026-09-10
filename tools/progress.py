@@ -678,8 +678,8 @@ def _render_progress_table(progress: dict[str, tuple[int, int]]) -> str:
     lines.append("")
     lines.append(
         "`.sbss` and `.bss` are NOBITS: they hold no ROM bytes, so their "
-        "figure is **ownership** — how much of the section a compiled C "
-        "object defines and the link seats at the ROM's VMAs — not "
+        "figure is **ownership**, how much of the section a compiled C "
+        "object defines and the link seats at the ROM's VMAs, not "
         "reproduced bytes. A section the ELF sizes at zero (`.vudata` on "
         "this target) is omitted."
     )

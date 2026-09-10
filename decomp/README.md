@@ -1,9 +1,9 @@
-# `decomp/` and `docs/` — what each document is for
+# `decomp/` and `docs/`: what each document is for
 
 An index, not a summary. Every file is listed once, with what it is for and
 whether it is **tracked** (in git), **local-only** (gitignored; on this machine
 the same physical file is shared by the `main` / `ntsc` / `aug6` worktrees, so
-an edit here changes it on every branch) or **generated** (rewritten by a tool —
+an edit here changes it on every branch) or **generated** (rewritten by a tool,
 never hand-edit).
 
 `main` targets PAL retail (SCES-50760). See `CLAUDE.md` for the three-branch
@@ -13,7 +13,7 @@ layout and the matching rules; `tools/README.md` for the tools themselves.
 
 | I want to… | Read |
 |---|---|
-| match a function — find the C for an asm shape | `decomp/COOKBOOK.md` (shape→recipe, §1–13) |
+| match a function, find the C for an asm shape | `decomp/COOKBOOK.md` (shape→recipe, §1–13) |
 | understand *why* the compiler/assembler/linker does something | `decomp/NOTES.md` |
 | match a hard / plateaued function (whole-function convergence) | `COOKBOOK.md` §13 + the `decomp-convergence` skill |
 | know what was already tried on a specific function | `docs/MATCHING_NOTES.md` |
@@ -33,10 +33,10 @@ layout and the matching rules; `tools/README.md` for the tools themselves.
 |---|---|---|
 | `README.md` | tracked | this index |
 | `COOKBOOK.md` | local-only | the shape→C-recipe lookup, sectioned §1–13. Canonical home for recipes; auto-memories cite its section numbers, so numbering is stable |
-| `NOTES.md` | local-only | the catalog of *mechanisms* — EE/R5900, ee-gcc, ee-as, splat and linker quirks. Canonical home for "why" |
-| `ARCHIVE_retired_notes.md` | local-only | everything removed from the working docs in the 2026-09-04 audit, verbatim, each with the reason. Reference only — do not copy back without re-deriving |
+| `NOTES.md` | local-only | the catalog of *mechanisms*: EE/R5900, ee-gcc, ee-as, splat and linker quirks. Canonical home for "why" |
+| `ARCHIVE_retired_notes.md` | local-only | everything removed from the working docs in the 2026-09-04 audit, verbatim, each with the reason. Reference only. Do not copy back without re-deriving |
 | `MATCH_VU.md` | local-only | `.vutext`: the five hand-typed VU1 microprograms, their DVP labels from the PAL listing, and `tools/assemble_vu0.py` |
-| `HEADERS.md` | tracked | the developer headers reconstructed into `include/` — naming rule, hosts, and the inlining check |
+| `HEADERS.md` | tracked | the developer headers reconstructed into `include/`: naming rule, hosts, and the inlining check |
 | `mv_defs_h.md` | tracked | recovery record for `ito/include/mv_defs.h` (aug6-era names; the header itself is now real) |
 | `PROGRAMMERS.md` | tracked | per-programmer source dirs → subsystem and per-author idioms. Use it for idioms; the PAL listing supplies boundaries |
 | `VENDOR.md` | tracked | vendor-code policy: what counts as vendor, the legal split, how the dashboard accounts for it. Policy is binding; the USA-era numbers are marked as such |
@@ -70,4 +70,4 @@ layout and the matching rules; `tools/README.md` for the tools themselves.
   stay; the recipe goes.
 - **A `func_00XXXXXX` is a per-target VMA.** It means nothing on another branch.
   Names from `config/symbol_addrs.pal.txt` travel; addresses do not.
-- **Do not hand-edit a generated file** — fix the generator.
+- **Do not hand-edit a generated file.** Fix the generator.

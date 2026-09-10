@@ -1,9 +1,9 @@
-# tools/ — index
+# tools/ index
 
 One line per tool. Everything here works on the branch's target as reported by
 `tools/ico_version.py` (`main` = PAL retail). Anything that only made sense for a
 retired campaign (USA/aug6 port drivers, per-function compiler flags, per-func `.s`
-postprocess allowlists, asset decoders) has been deleted — see CLAUDE.md
+postprocess allowlists, asset decoders) has been deleted, see CLAUDE.md
 "Crutches are BANNED" before reintroducing that shape of tool.
 
 ## Build + gate chain
@@ -34,17 +34,17 @@ postprocess allowlists, asset decoders) has been deleted — see CLAUDE.md
 |---|---|
 | `match_drive.py` | the DRIVER that owns the single-function loop; invokes you only at verdict `iterate` |
 | `match_loop.py` | per-function state: stall counter, novelty gate, commit, park, clone |
-| `match_diff.py` | reloc-normalized diff + `real_count` — the authoritative per-function score |
+| `match_diff.py` | reloc-normalized diff + `real_count`, the authoritative per-function score |
 | `quick_diff.sh` | ~100 ms compile+diff inner loop; agrees with the ninja build by construction |
 | `classify_asm.py` | tags an asm shape and names the cookbook recipe / lever to try |
 | `lever.py` | applies and scores a named source-shape lever |
 | `tag_diff.py` | per-tag breakdown of a diff |
 | `first_diff.py` | locates the first diverging instruction |
-| `sched_diff.py` | gcc pass dumps (sched1/sched2/dbr) sliced per function — scheduling diagnosis |
+| `sched_diff.py` | gcc pass dumps (sched1/sched2/dbr) sliced per function, for scheduling diagnosis |
 | `stack_diff.py` | stack-slot assignment comparison (reccmp-style) |
 | `tu_check.py` | re-diffs EVERY matched function in a TU so an edit can't silently break a sibling |
 | `_asmsig.py` | reloc/immediate-masked instruction signatures, shared by the clone/family tools |
-| `templatize.py` | finds FAMILIES of same-shape functions — where one crack propagates furthest |
+| `templatize.py` | finds FAMILIES of same-shape functions, where one crack propagates furthest |
 | `m2c_scaffold.py` | m2c asm→C scaffolding for a fresh function |
 | `lookup_vma.py` | resolve a hex VMA to a symbol name + owning TU |
 | `park_tu.py` | park a function out of a coalesced TU into `tough_nuts/` |
