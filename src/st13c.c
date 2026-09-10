@@ -118,7 +118,10 @@ extern void memset(void *a0, int a1, int a2);
 extern void ScpCallCameraOn(void);
 extern void scpAdpcmFadeCloseFunc(int *a0, int a1);
 extern void jimakuUndisp(int a0);
-extern void scpEffectStart(void *a0, int a1);
+/* no prototype in the dev's TU: the C89 implicit-int return is what makes
+   ee-gcc treat $v0 as clobbered at every call site (it is why ROM alternates
+   $2/$3 across the nine calls below). The definition in src/script.c is void. */
+extern int scpEffectStart(void *a0, int a1);
 extern void scpKillEnemyAll(void);
 extern void SetHandCameraLimitInDemo(int a0, int a1);
 extern void ResetHandCameraLimitInDemo(void);
@@ -926,7 +929,73 @@ void actSt13cConte05Jimaku(volatile int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFallEffect);
+void actSt13cCageFallEffect(volatile int a0)
+{
+    EffectArg b1;
+    EffectArg b2;
+    EffectArg b3;
+    EffectArg b4;
+    EffectArg b5;
+    EffectArg b6;
+    EffectArg b7;
+    EffectArg b8;
+    EffectArg b9;
+    float t;
+    float tn;
+    int n;
+
+    t = 0.0f;
+    do {
+        switch ((int)t) {
+        case 0:
+            gflagOn(0x16);
+            break;
+        case 0x40:
+            iosPadActRequest(D_00639EAC, 0x11);
+            b1 = D_00622E90;
+            scpEffectStart(&b1, 0);
+            b2 = D_00622EA0;
+            scpEffectStart(&b2, 0);
+            break;
+        case 0x44:
+            b3 = D_00622EB0;
+            scpEffectStart(&b3, 0);
+            b4 = D_00622EC0;
+            scpEffectStart(&b4, 0);
+            break;
+        case 0x60:
+            b5 = D_00622ED0;
+            scpEffectStart(&b5, 0);
+            b6 = D_00622EE0;
+            scpEffectStart(&b6, 0);
+            b7 = D_00622EF0;
+            scpEffectStart(&b7, 0);
+            break;
+        case 0xB4:
+            iosPadActRequest(D_00639EAC, 0xF);
+            break;
+        case 0x12C:
+            b8 = D_00622F00;
+            scpEffectStart(&b8, 0);
+            b9 = D_00622F10;
+            scpEffectStart(&b9, 0);
+            break;
+        case 0x17C:
+            iosPadActRequest(D_00639EAC, 0x10);
+            break;
+        }
+
+        n = (int)t;
+        tn = t + (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
+        if (n != (int)tn) {
+            _ACTWait(1);
+            t = tn;
+        } else {
+            t = tn + 1.0f;
+        }
+    } while (t < 400.0f);
+    _ACTWait(0);
+}
 
 void actSt13cSekizoChk(volatile int a0)
 {

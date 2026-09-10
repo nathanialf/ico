@@ -449,8 +449,95 @@ inline void _InverseCurrentMatrix(void)
     VU0_V3OP_BC(vmaddw.xyzw, 7, 0, 17, w);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Matrix", _PushVu0Registers);
-INCLUDE_ASM("asm/nonmatchings/src/Matrix", _PopVu0Registers);
+extern int D_0063A0E8;
+extern char D_0054F1C8[];
+extern char D_0063A0F0[];
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+
+void _PushVu0Registers(void)
+{
+    DI();
+    VU0_REG("vsqi.xyzw $vf1, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf2, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf3, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf4, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf5, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf6, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf7, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf8, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf9, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf10, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf11, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf12, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf13, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf14, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf15, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf16, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf17, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf18, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf19, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf20, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf21, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf22, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf23, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf24, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf25, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf26, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf27, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf28, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf29, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf30, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf31, ($vi15++)");
+    EI();
+
+    if (++D_0063A0E8 >= 6) {
+        debug_assert(D_0054F1C8, 0x427);
+        __assert(D_0054F1C8, 0x427, D_0063A0F0);
+    }
+}
+
+void _PopVu0Registers(void)
+{
+    DI();
+    VU0_REG("vlqd.xyzw $vf31, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf30, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf29, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf28, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf27, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf26, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf25, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf24, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf23, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf22, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf21, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf20, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf19, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf18, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf17, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf16, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf15, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf14, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf13, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf12, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf11, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf10, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf9, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf8, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf7, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf6, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf5, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf4, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf3, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf2, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf1, (--$vi15)");
+    EI();
+
+    if (--D_0063A0E8 < 0) {
+        debug_assert(D_0054F1C8, 0x45F);
+        __assert(D_0054F1C8, 0x45F, D_0063A0F0);
+    }
+}
 
 inline void _NormalizeVector(void *p0, void *p1, void *p2)
 {

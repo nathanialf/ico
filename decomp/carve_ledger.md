@@ -1163,3 +1163,6 @@ words become the blob's first words.
 - `[0x539AE0, .lit4, src/st22a]`: 2 slots (-707.0f/-1112.0f), VMA 0x639AE0..0x639AE8, carved out of the 539AB8 blob's tail; MAIN.MAP says 0x24 for this object (debug link), the retail object needs 0x8.
 - `[0x456890, .rodata, src/itou_sub]`: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template, 12 B; blob resumes at 0x45689C (pad word + lightning's string).
 - `[0x51D730, .rodata, src/kanbanBoot]`: jtbl_0061D730, kanbanBootMain's 8-arm table, 0x20 B; blob resumes at 0x51D750.
+
+### 2026-09-10 MicroCode: mc_setBaseOffset's switch table carved with its owner
+- `[0x44F1E0, .rodata, src/MicroCode]`: jtbl_0054F1E0, 5 arms, 0x14 B, VMA 0x54F1E0..0x54F1F4; blob resumes at 0x44F1F4 (three zero pad words to the 16-aligned string at 0x54F200). Found at harvest as undefined `.L0011A3xx` references from the blob once the stub was gone: a jtbl owner landing without its row is a LINK error, not a byte drift.
