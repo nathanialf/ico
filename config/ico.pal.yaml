@@ -411,6 +411,8 @@ segments:
       - [0x3FA920, data, src/cod/3FA920]     # .data blob resume
       - [0x3FAAA0, .data, src/st13a]  # syms: chain_ok_mes  ChainOK mail record (VMA 0x4FAAA0..0x4FAAC0); D_004FAA00 before it stays in the blob for the still-asm actSt13aElevDown; static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3FAAC0, data, src/cod/3FAAC0]     # .data blob resume
+      - [0x3FAFB0, .data, src/st17a]  # syms: door_mes  actSt17aDoor's mail record (VMA 0x4FAFB0..0x4FAFD0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling; the remaining st17a records stay in the blob until their owners land
+      - [0x3FAFD0, data, src/cod/3FAFD0]     # .data blob resume
       - [0x44D380, rodata, src/cod/44D380]   # .rodata blob
       - [0x44DA30, .rodata, src/motionManager2]  # carved jtbl_0054DA30 (6 arms, 0x18): _getMotion's switch table, emitted by the compiled function; VMA 0x54DA30..0x54DA48; the TU's other rodata stays in the blob
       - [0x44DA48, rodata, src/cod/44DA48]   # .rodata blob resume (two zero pad words then the next TU's data)

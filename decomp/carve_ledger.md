@@ -1169,3 +1169,6 @@ words become the blob's first words.
 
 ### 2026-09-10 st08b: the TU's pool carved with actSt08bDoorUpChk
 - `[0x5399C4, .lit4, src/st08b]`: four words (DoorUpChk's -1189/-2326 as literals, then ASM_LIT4_SLOT words for the still-asm DoorDownChk's -1189/-2326), VMA 0x6399C4..0x6399D4; the 539994 blob shortens. The pool is per function, not deduplicated (the same two values appear twice). The worker had spelled these as `extern volatile float` reads of the blob symbols; pool constants are literals.
+
+### 2026-09-10 st17a: door_mes carved with actSt17aDoor
+- `[0x3FAFB0, .data, src/st17a]` syms door_mes: actSt17aDoor's mail record, `static ActMail door_mes[2] = {{0x1AE},{0x1AD}}`, VMA 0x4FAFB0..0x4FAFD0; blob resumes at 0x3FAFD0. The record is a TU-owned file static named in the TU's chain_ok_mes/fence_up2_mes style (packet-name class ruling); as a placeholder `D_004FAFB0` its gcse bucket lowered the data allocno and stole $s4 in DoorDownChk (refs=3/live 128 exact tie). The TU's pool row 0x539A60 is now wholly compiler-emitted (all ASM_LIT4_SLOT lines retired).

@@ -13,20 +13,212 @@ typedef struct Act {
 } Act;
 
 extern Act *actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int gflagChk(int a0);
+extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ACTSendMailCorrect(int a0, int mail);
+extern void actSt17aDoorUpChk(volatile int a0);
+extern void actSt17aDoorDownChk(volatile int a0);
+extern ActMail D_004FAF30[];
+extern ActMail D_004FAF50[];
+extern ActMail D_004FAF70[];
+extern int *D_00639EA4;
+extern void *D_00639EA8;
+extern int scpTriggerBall(int a0, void *a1, float radius);
+extern void stage_SetLoopFlag(int anim, int flag);
 
-INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aDoor);
-ASM_LIT4_SLOT(D_00639A60, 6573.0f);
-ASM_LIT4_SLOT(D_00639A64, -2077.0f);
-ASM_LIT4_SLOT(D_00639A68, 1089.0f);
-INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aDoorUpChk);
-ASM_LIT4_SLOT(D_00639A6C, 6573.0f);
-ASM_LIT4_SLOT(D_00639A70, -2077.0f);
-ASM_LIT4_SLOT(D_00639A74, 1089.0f);
-INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aDoorDownChk);
+void actSt17aDoor(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+    _ACTWait(1);
+
+    if (gflagChk(0x20) == 0) {
+        stage_SetLoopFlag(0x83, 1);
+        stage_SetAnimation(0x83, 1, 0);
+
+        D_004FAF30[0].func = actSt17aDoorUpChk;
+        self->mail = D_004FAF30;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    } else if (scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 ||
+               (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
+        stage_SetLoopFlag(0x83, 1);
+        stage_SetAnimation(0x83, 1, 0);
+
+        _ACTWait(0x3C);
+        D_004FAF50[0].func = actSt17aDoorDownChk;
+        self->mail = D_004FAF50;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(0x81, 0, 0);
+        D_004FAF70[0].func = actSt17aDoorUpChk;
+        self->mail = D_004FAF70;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    }
+}
+
+typedef struct PObjGObj {
+    char pad00[0x164]; /* 0x000 */
+    int act;           /* 0x164 */
+} PObjGObj;
+
+extern long long D_00622F60[];
+extern void actSt17aDoorDownEffect(volatile int a0);
+extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
+extern int actCreateSubThread(void *entry, int prio);
+extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
+extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
+extern void soundSeDefStop(int h);
+extern int stage_CheckAnimationFinish(int a0);
+extern ActMail D_004FAF90[];
+extern void actSt17aDoorUpEffect(volatile int a0);
+
+void actSt17aDoorUpChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    long long buf[2];
+    int h;
+
+    while (scpTriggerFloorAttrTargetMan(a0, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(0xF);
+
+    actCreateSubThread(actSt17aDoorUpEffect, 0x15);
+
+    scpWakeupItemWithBoundary(6573.0f, -2077.0f, 1089.0f, 100.0f);
+
+    stage_SetAnimation(0x81, 1, 0);
+
+    buf[0] = D_00622F60[0];
+    buf[1] = D_00622F60[1];
+    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+
+    h = soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
+    _ACTWait(0x3C);
+    soundSeDefStop(h);
+
+    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(0x81) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    stage_SetLoopFlag(0x83, 1);
+    stage_SetAnimation(0x83, 1, 0);
+
+    D_004FAF90[0].func = actSt17aDoorDownChk;
+    sub->mail = D_004FAF90;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+/* TU-owned .data record (VMA 0x004FAFB0..0x004FAFCF, ROM 0x3FAFB0): the mail
+   table actSt17aDoorDownChk hands to the door actor. Role-named file static per
+   the 2026-09-07 ruling, same shape as st13a's chain_ok_mes / st10r's
+   fence_up2_mes. Needs the carve row [0x3FAFB0, .data, src/st17a]. */
+static ActMail door_mes[2] = {{0x1AE}, {0x1AD}};
+
+void actSt17aDoorDownChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    long long buf[2];
+    int h;
+
+    while (scpTriggerFloorAttrTargetMan(a0, 0x3000000) != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(0xF);
+
+    actCreateSubThread(actSt17aDoorDownEffect, 0x15);
+
+    scpWakeupItemWithBoundary(6573.0f, -2077.0f, 1089.0f, 100.0f);
+
+    stage_SetLoopFlag(0x83, 0);
+
+    stage_SetAnimation(0x82, 1, 0);
+
+    buf[0] = D_00622F60[0];
+    buf[1] = D_00622F60[1];
+    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
+    _ACTWait(0x1E);
+
+    h = soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
+    _ACTWait(0x26);
+    soundSeDefStop(h);
+
+    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(0x82) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door_mes[0].func = actSt17aDoorUpChk;
+    sub->mail = door_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aHasiChk);
 INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aHasiEffect);
-INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aIntroCancel);
+
+typedef struct PadState {
+    int unk00;        /* 0x00 */
+    int flags;        /* 0x04 */
+    char unk08[0x50]; /* 0x08 */
+} PadState;
+
+extern PadState D_0028F8F0[];
+extern int lt_fade_status(void);
+extern int scpAdpcmPlayRequestNum(void);
+extern void scpFadeOut(float t, int a1, int a2, int a3);
+extern int scpFadeChk(void);
+extern void scpFadeIn(float f);
+extern void lt_switch_layout(int a0);
+extern void SetCameraFlag_LwsCutBack(void);
+extern int D_0063AA08;
+extern int D_0063C598;
+
+/* a0 is the actor entry parameter: its stack home is the actor-thread frame
+   slot the scheduler reads, so it is volatile like every other stage actor. */
+void actSt17aIntroCancel(volatile int a0)
+{
+    D_0063C598 = 0;
+
+    while (lt_fade_status() != 2) {
+        _ACTWait(1);
+    }
+
+    while (D_0063C598 == 0 &&
+           ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    if (D_0063C598 == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+
+        stage_SetAnimation(0x53, 1, -1);
+        SetCameraFlag_LwsCutBack();
+        scpFadeIn(3.0f);
+    }
+
+    lt_switch_layout(0x36);
+    D_0063AA08 = 0;
+}
 
 extern ActMail D_004FAF10[];
 extern void actLinkTestChk(int a0);
@@ -220,7 +412,6 @@ extern int D_0063AA08;
 extern int D_0063C598;
 extern int cam;
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void actCreateSubThread(void *entry, int prio);
 extern void actSt17aIntroCancel(int a0);
 
 void actSt17aIntroChk(volatile int a0)
