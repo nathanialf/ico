@@ -140,7 +140,67 @@ int videoCallback(int a0, char *pkt, int *a2)
     return 0 < n;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", decBitStrm0);
+extern void debug_StdPrintfDummy();
+extern void switchThread();
+extern int sceMpegIsEnd(int *dec);
+extern void *voBufGetData(int *vo);
+extern int sceMpegGetPicture(int *dec, void *p, int size);
+extern void voBufIncCount(int *vo);
+extern void sceMpegReset(int *dec);
+extern void dispSetTags(int *disp, int a1, int a2, int a3, int p4, int p5, int p6, int p7, int p8,
+                        int p9);
+extern char D_00557750[];
+extern char D_00557768[];
+extern char D_00557790[];
+
+int decBitStrm0(int *dec, int *disp, int *vo)
+{
+    int ret = 1;
+    void *p;
+    int w;
+    int h;
+    int ox;
+    int oy;
+    int hh;
+    int i;
+    int j;
+
+    while (!sceMpegIsEnd(dec)) {
+        /* videoDecGetState is defined below this function in ROM order, so its
+           one-line body is written out here (INTERIM: the dev's file had it above) */
+        if (dec[0xB8 / 4] == 1) {
+            ret = -1;
+            debug_StdPrintfDummy(D_00557750);
+            break;
+        }
+        while ((p = voBufGetData(vo)) == 0) {
+            switchThread();
+        }
+        if (sceMpegGetPicture(dec, p, 0x654) < 0) {
+            ErrMessage(D_00557768);
+            ret = -1;
+            break;
+        }
+        if (dec[2] == 0) {
+            debug_StdPrintfDummy(D_00557790, dec[0], dec[1]);
+            w = dec[0];
+            ox = (disp[0x38 / 4] - w) >> 1;
+            h = dec[1];
+            oy = (disp[0x3C / 4] - h) >> 2;
+            hh = h >> 1;
+            for (i = 0; i < vo[4]; i++) {
+                for (j = 0; j < 2; j++) {
+                    dispSetTags(disp, vo[1] + (i * 0xC0340 + (j * 0x26700 + 0x40)),
+                                vo[0] + i * 0x195000, j, ox, oy, w, hh, w, h);
+                }
+            }
+        }
+        voBufIncCount(vo);
+        switchThread();
+    }
+    sceMpegReset(dec);
+    return ret;
+}
 
 extern void iosFree();
 
@@ -190,7 +250,6 @@ int videoDecIsFlushed(int *self)
     return ret;
 }
 
-extern void decBitStrm0();
 extern void viBufReset();
 extern void voBufReset();
 
@@ -198,7 +257,7 @@ void videoDecMain(int *self)
 {
     viBufReset(self[0] + 0x50);
     voBufReset(self[2]);
-    decBitStrm0(self[0], self[1], self[2]);
+    decBitStrm0((int *)self[0], (int *)self[1], (int *)self[2]);
     *(int *)(self[0] + 0xB8) = 3;
 }
 

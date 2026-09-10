@@ -34,13 +34,11 @@ void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3, uns
                  unsigned int a5, unsigned int a6);
 
 int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3);
-int *setTRXPOS(int *a0, long long a1, long long a2, long long a3);
+int *setTRXPOS(int *a0, long long a1, int a2, int a3);
 void *setTRXREG(int *a0, int a1, int a2);
 void *setTRXDIR(char *a0, unsigned int a1);
-extern void setDispEnv(int *self, int a1, int a2, int a3, int a4);
 extern int D_0072A040[];
 extern void sceGsPutDispEnv__pn(void *a0) __asm__("sceGsPutDispEnv");
-extern void sceGsSyncPath(int a0, int a1);
 extern int sceGsPutDispEnv();
 extern char voBuf[];
 extern int D_0063C0BC;
@@ -57,8 +55,88 @@ inline void loadImage(int a0)
     *(volatile unsigned int *)0x1000A000 = 0x105;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispClear);
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setDispEnv);
+extern int D_0072A180[];
+extern int sceGsSyncPath(int a0, int a1);
+
+typedef struct MvRect {
+    int x;
+    int y;
+    int w;
+    int h;
+} MvRect;
+
+/* file-static: ROM carries no out-of-line copy, the listing inlines its body
+   (mv_disp.c:29-44) into dispSetTags */
+static inline int *setTexSprite(int *p, MvRect *r, MvRect *uv)
+{
+    p = setPRIM(p, 6, 0, 1, 0, 0, 0, 1, 0, 0);
+    p = setUV(p, uv->x, uv->y);
+    p = setXYZ2(p, r->x, r->y, 0);
+    p = setUV(p, uv->x + uv->w, uv->y + uv->h);
+    p = setXYZ2(p, r->x + r->w, r->y + r->h, 0);
+    return p;
+}
+
+/* file-static: ROM carries no out-of-line copy, the listing inlines its body
+   (mv_disp.c:54-70) into dispClear */
+static inline int *setClearSprite(int *p, MvRect *r, unsigned int col)
+{
+    p = setPRIM(p, 6, 0, 0, 0, 0, 0, 1, 0, 0);
+    p = setXYZ2(p, r->x, r->y, 0);
+    p = setRGBAQ(p, col & 0xFF, (col >> 8) & 0xFF, (col >> 16) & 0xFF, (col >> 24) & 0xFF, 0);
+    p = setXYZ2(p, r->x + r->w, r->y + r->h, 0);
+    return p;
+}
+
+void dispClear(int *self, unsigned int col)
+{
+    MvRect r;
+    int *p;
+
+    r.x = 0;
+    r.y = 0;
+    r.w = self[0x30 / 4] << 4;
+    r.h = ((self[0x34 / 4] + 31) / 32 * 64 + self[0x34 / 4] * 2) << 4;
+
+    p = setGIFtag((int *)uncached_accel_addr((int)D_0072A180), 14, 1, 0, 0, 0, 1, 4);
+    setClearSprite(p, &r, col);
+
+    *(volatile unsigned int *)0x1000A010 = phys_addr((int)D_0072A180);
+    *(volatile unsigned int *)0x1000A020 = 5;
+    *(volatile unsigned int *)0x1000A000 = 0x101;
+
+    sceGsSyncPath(0, 0);
+}
+
+extern void sceGsSetDefDispEnv(int *env, int psm, short w, short h, short dx, short dy);
+
+void setDispEnv(int *self, int a1, int a2, int a3, int a4)
+{
+    int *p;
+    int w = 720;
+    int h = 288;
+
+    self[0x28 / 4] = 0;
+    self[0x2C / 4] = 0x6C;
+    self[0x30 / 4] = w;
+    self[0x34 / 4] = h;
+    self[0x38 / 4] = a1;
+    self[0x3C / 4] = a2;
+
+    sceGsSetDefDispEnv(self, 0, a1, a2 / 2, 0, 0);
+
+    self[0x14 / 4] = (self[0x14 / 4] & ~0x7FF) | (a3 & 0x7FF);
+    self[0x14 / 4] = (self[0x14 / 4] & 0xFFC007FF) | ((a4 & 0x7FF) << 11);
+    self[0x10 / 4] = (self[0x10 / 4] & ~0x7E00) | 0x1800;
+
+    p = setGIFtag((int *)uncached_accel_addr((int)D_0072A040), 14, 1, 0, 0, 0, 1, 6);
+    p = setPRMODECONT(p, 1);
+    p = setFRAME_1(p, 0, (self[0x30 / 4] + 63) / 64, 0, 0);
+    p = setTEST_1(p, 0, 0, 0, 0, 0, 0, 0, 0);
+    p = setSCISSOR_1(p, 0, self[0x30 / 4] - 1, 0, (self[0x34 / 4] + 31) / 32 * 128 - 1);
+    p = setXYOFFSET_1(p, 0, 0);
+    setCLAMP_1(p, 1, 1, 0, 0, 0, 0);
+}
 
 void setImageSize(int *self, int a1, int a2, int a3, int a4)
 {
@@ -104,7 +182,63 @@ void dispCreate(int *self, int a1, int a2, int a3, int a4)
 
 inline void dispDelete(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispSetTags);
+void dispSetTags(int *self, int src, int a2, int a3, int p4, int p5, int p6, int p7, int p8, int p9)
+{
+    MvRect r;
+    MvRect uv;
+    void *p = (void *)uncached_accel_addr(src);
+    int nx;
+    int ny;
+    int bw;
+    int bh;
+    int dbp;
+    int i;
+    int j;
+
+    nx = p8 >> 4;
+    ny = p9 >> 4;
+
+    r.x = p4 << 4;
+    r.y = p5 << 4;
+    r.w = p6 << 4;
+    r.h = p7 << 4;
+    uv.x = 8;
+    uv.y = 8;
+    uv.w = p8 << 4;
+    uv.h = p9 << 4;
+
+    if (a3 == 0) {
+        bh = (self[0x34 / 4] + 31) / 32;
+        bw = (self[0x30 / 4] + 63) / 64;
+        dbp = bh * (bw << 6);
+        p = setDMAscTag(p, 0, 0, 0, 1, 0, 3);
+        p = setGIFtag(p, 14, 1, 0, 0, 0, 0, 2);
+        p = setBITBLTBUF(p, dbp, bw, 0);
+        p = setTRXREG(p, 16, 16);
+        for (i = 0; i < nx; i++) {
+            for (j = 0; j < ny; j++) {
+                p = setDMAscTag(p, 0, 0, 0, 1, 0, 4);
+                p = setGIFtag(p, 14, 1, 0, 0, 0, 0, 2);
+                p = setTRXPOS(p, 0, i << 4, j << 4);
+                p = setTRXDIR(p, 0);
+                p = setGIFtag(p, 0, 0, 2, 0, 0, 0, 64);
+                p = setDMAscTag(p, 0, phys_addr(a2), 0, 3, 0, 64);
+                a2 += 1024;
+            }
+        }
+    } else {
+        uv.y = 24;
+        r.y = (p5 + (self[0x34 / 4] + 31) / 32 * 32) << 4;
+    }
+
+    p = setDMAscTag(p, 0, 0, 0, 7, 0, 16);
+    p = setGIFtag(p, 14, 1, 0, 0, 0, 1, 15);
+    p = setTEXFLUSH(p);
+    p = setTEX1_1(p, 0, 0, 1, 1, 0, 0, 0);
+    p = setTEX0_1(p, (self[0x34 / 4] + 31) / 32 * ((self[0x30 / 4] + 63) / 64 << 6),
+                  (self[0x30 / 4] + 63) / 64, 0, 10, 10, 0, 1, 0, 0, 0, 0, 0);
+    setTexSprite(p, &r, &uv);
+}
 
 void dispSwitch(int *a0, int flag)
 {
@@ -125,7 +259,45 @@ void dispSwitch(int *a0, int flag)
     return sceGsPutDispEnv(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
+extern int D_002A7978[];
+extern int D_0063C5C4;
+extern int *voBufGetTag(char *vo);
+
+int vblankHandler(void)
+{
+    int *tag;
+    int st;
+
+    *(volatile int *)&D_0063C0C0 = (int)((*(volatile unsigned long long *)0x12001000 >> 13) & 1);
+    if (*(volatile int *)&D_0063C0B8 != 0) {
+        *(volatile int *)&D_0063C0B4 = *(volatile int *)&D_0063C0B4 + 1;
+        /* the display-state words are read back by this handler and by the
+           foreground code between vblanks, the file's existing idiom */
+        *(volatile int *)&D_0063C0C4 = sceGsSyncPath(1, 0);
+        if (*(volatile int *)&D_0063C0C4 == 0) {
+            tag = voBufGetTag(voBuf);
+            if (tag == 0) {
+                D_0063C5C4++;
+                SYNC();
+                EI();
+                return 0;
+            }
+            if (*(volatile int *)&D_0063C0C0 == 0 && tag[0] == 2) {
+                dispSwitch(D_002A7978, 0);
+                loadImage((int)tag + 0x26740);
+                tag[0] = 1;
+            } else if (*(volatile int *)&D_0063C0C0 != 0 && (st = tag[0]) == 1) {
+                dispSwitch(D_002A7978, 1);
+                loadImage((int)tag + 0x40);
+                tag[0] = 0;
+                *(volatile int *)&D_0063C0BC = st;
+            }
+        }
+    }
+    SYNC();
+    EI();
+    return 0;
+}
 
 inline int handler_endimage(void)
 {
@@ -371,9 +543,9 @@ inline int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3)
     return a0 + 4;
 }
 
-inline int *setTRXPOS(int *a0, long long a1, long long a2, long long a3)
+inline int *setTRXPOS(int *a0, long long a1, int a2, int a3)
 {
-    long long t = (a1 << (27 + 32)) | (a3 << 48) | (a2 << 32);
+    long long t = (a1 << (27 + 32)) | ((long long)a3 << 48) | ((long long)a2 << 32);
     a0[1] = (int)(t >> 32);
     a0[2] = 0x51;
     a0[0] = 0;
