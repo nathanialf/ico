@@ -14,10 +14,12 @@ typedef struct Act {
 } Act;
 
 typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    int act;           /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
+    char pad00[0x50];         /* 0x000 */
+    int f50;                  /* 0x050 */
+    char pad54[0x164 - 0x54]; /* 0x054 */
+    int act;                  /* 0x164 */
+    char pad168[0x4];         /* 0x168 */
+    int f16C;                 /* 0x16C */
 } PObjGObj;
 
 extern Act *actInitialize(int a0);
@@ -30,17 +32,185 @@ extern PObjGObj *scpSearchGobj(int a0);
 extern void gflagOn(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
+extern void FinishHint(int a0);
+extern void SetWayGroupActive(int a0, int a1);
+extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aInit);
-INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aEnd);
+void actSt07aInit(void)
+{
+    if (gflagChk(0x7E) != 0) {
+        scpSearchGobj(0x18D)->f16C = 0;
+
+        stage_SetAnimation(0x168, -1, -2);
+
+        FinishHint(3);
+
+        if (gflagChk(0x80) != 0) {
+            SetWayGroupActive(0xB, 0);
+            SetWayGroupActive(0xC, 0);
+            stage_SetAnimation(0x165, 0, -1);
+        } else {
+            SetWayGroupActive(0xD, 0);
+            SetWayGroupActive(0xE, 0);
+            SetWayGroupActive(0xF, 0);
+            stage_SetAnimation(0x164, 0, -1);
+        }
+    } else {
+        scpLinkBGAtoLayoutedTarget(0x18D, 0x168);
+
+        SetWayGroupActive(0xD, 0);
+        SetWayGroupActive(0xE, 0);
+        SetWayGroupActive(0xF, 0);
+
+        stage_SetAnimation(0x164, 0, 0);
+        stage_SetAnimation(0x163, 0, 0);
+    }
+}
+
+extern int D_00639EA8;
+
+void actSt07aEnd(void)
+{
+    if (D_00639EA8 != 0 && gflagChk(0x83) == 0 && gflagChk(0x80) != 0) {
+        gflagOn(0x187);
+    }
+    if (D_00639EA8 != 0 && gflagChk(0x86) == 0 && gflagChk(0xAE) != 0) {
+        gflagOn(0x187);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aChanChk);
 INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aChanEffect);
 INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aTsuroChk);
 INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aTsuroEffect);
 INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aSekizoChk);
-INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aEne);
-INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aEneChk);
-INCLUDE_ASM("asm/nonmatchings/src/st07a", actSt07aGene1);
+
+extern void actSt07aEneChk(volatile int a0);
+extern ActMail D_004F9FE0[];
+
+void actSt07aEne(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+
+    _ACTWait(1);
+
+    scpSearchGobj(0x18C)->f16C = 0;
+
+    scpSearchGobj(0x198)->f50 = 0;
+    scpSearchGobj(0x199)->f50 = 0;
+
+    if (gflagChk(0x83) == 0) {
+        scpSearchGobj(0x19B)->f16C = 0;
+        scpSearchGobj(0x19C)->f16C = 0;
+        scpSearchGobj(0x19D)->f16C = 0;
+        scpSearchGobj(0x19E)->f16C = 0;
+        scpSearchGobj(0x19F)->f16C = 0;
+        scpSearchGobj(0x1A0)->f16C = 0;
+
+        D_004F9FE0[0].func = actSt07aEneChk;
+        self->mail = D_004F9FE0;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    }
+}
+
+extern int scpTriggerBall(int a0, int a1, float radius);
+extern void lt_switch_layout(int a0);
+extern void scpSleepEnemyOne(int a0);
+extern void gflagOff(int a0);
+extern void SetCameraFlag_LwsCutBack(void);
+extern void reg_SetScissorSw(int a0);
+extern void SetStaticBlur(int a0);
+extern void scpSleepSpiderGroupOne(int a0);
+extern void scpWakeupEnemyOne(int a0);
+extern void scpWakeupSpiderGroupOne(int a0);
+extern int D_0063AA08;
+
+void actSt07aEneChk(volatile int a0)
+{
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (gflagChk(0x85) == 0 || scpTriggerBall(a0, D_00639EA8, 400.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    scpSearchGobj(0x18C)->f16C = 1;
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+
+    scpSleepEnemyOne(0xEAD);
+
+    gflagOff(0x187);
+
+    gflagOn(0x83);
+    gflagOn(0x84);
+
+    stage_SetAnimation(0x167, 1, 0);
+    SetCameraFlag_LwsCutBack();
+
+    reg_SetScissorSw(1);
+
+    SetStaticBlur(0);
+
+    scpSleepEnemyOne(0x190);
+    scpSleepSpiderGroupOne(0x195);
+
+    while (stage_CheckAnimationFinish(0x167) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    reg_SetScissorSw(0);
+
+    SetStaticBlur(1);
+
+    lt_switch_layout(0x36);
+    D_0063AA08 = 0;
+
+    scpSearchGobj(0x18C)->f16C = 0;
+
+    _ACTWait(0x1E);
+
+    scpWakeupEnemyOne(0xEAD);
+    scpWakeupEnemyOne(0x190);
+    scpWakeupSpiderGroupOne(0x195);
+}
+
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void Generator_Call(int a0);
+
+void actSt07aGene1(volatile int a0)
+{
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+
+    Generator_Mask(a0);
+
+    Generator_Mask((int)scpSearchGobj(0x19A));
+
+    while (gflagChk(0x84) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+
+    Generator_MaskOff(a0);
+
+    Generator_Call(a0);
+    _ACTWait(0x3C);
+    Generator_Call(a0);
+    _ACTWait(0x3C);
+    Generator_Call(a0);
+    _ACTWait(0x3C);
+    Generator_Call(a0);
+    Generator_Call((int)scpSearchGobj(0x19A));
+}
 
 extern void actSt07aChanChk(volatile int a0);
 extern ActMail D_004F9F60[];

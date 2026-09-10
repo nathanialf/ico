@@ -413,6 +413,10 @@ segments:
       - [0x3FAAC0, data, src/cod/3FAAC0]     # .data blob resume
       - [0x3FAFB0, .data, src/st17a]  # syms: door_mes  actSt17aDoor's mail record (VMA 0x4FAFB0..0x4FAFD0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling; the remaining st17a records stay in the blob until their owners land
       - [0x3FAFD0, data, src/cod/3FAFD0]     # .data blob resume
+      - [0x3FB0F0, .data, src/st18a]  # syms: switch_l_mes  actSt18aSwitchLUpChk's mail record (VMA 0x4FB0F0..0x4FB110, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (the placeholder name lost a gcse-hash tie)
+      - [0x3FB110, data, src/cod/3FB110]     # .data blob resume
+      - [0x3FB1F0, .data, src/st18a]  # syms: door_mes  actSt18aDoorDownChk's mail record (VMA 0x4FB1F0..0x4FB210, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named
+      - [0x3FB210, data, src/cod/3FB210]     # .data blob resume
       - [0x44D380, rodata, src/cod/44D380]   # .rodata blob
       - [0x44DA30, .rodata, src/motionManager2]  # carved jtbl_0054DA30 (6 arms, 0x18): _getMotion's switch table, emitted by the compiled function; VMA 0x54DA30..0x54DA48; the TU's other rodata stays in the blob
       - [0x44DA48, rodata, src/cod/44DA48]   # .rodata blob resume (two zero pad words then the next TU's data)
@@ -571,7 +575,7 @@ segments:
       - [0x539A54, .lit4, src/st13c]  # carved D_00639A54..D_00639A5C (3 words, actSt13cBmg1's -5725 x2 and actSt13cHandChk's 550 as literals; the TU's whole pool, between st13b's and st17a's), VMA 0x639A54..0x639A60
       - [0x539A60, .lit4, src/st17a]  # carved D_00639A60..D_00639A80 (9 slots: actSt17aDoorUpChk x3 and DoorDownChk x3 still asm, actSt17aSekizo's 6450/-2100/1100 as literals; the TU's whole pool, bounded by st13c and st17b), VMA 0x639A60..0x639A84
       - [0x539A84, .lit4, src/st17b]  # carved D_00639A84..D_00639A8C (3 slots: actSt17bTest/Check's 14990/7074/-4694 as literals; MAIN.MAP st17b.o .lit4 0xC), VMA 0x639A84..0x639A90
-      - [0x539A90, lit4, src/cod/539A90]     # .lit4 blob resume (the six words after st17b's run)
+      - [0x539A90, .lit4, src/st18a]  # carved D_00639A90..D_00639AA4 (6 words: 3054, 1530, -3061, 1451, 1530, -3039, all literals of the now fully-C TU), VMA 0x639A90..0x639AA8
       - [0x539AA8, .lit4, src/st19a]  # carved D_00639AA8..D_00639AB4 (4 slots: actSt19aPipeChk's 3933 still asm, actSt19aOri's 4298/-2342/1331 as literals; the TU's whole pool, bounded by st18a's and st20a's words), VMA 0x639AA8..0x639AB8
       - [0x539AB8, lit4, src/cod/539AB8]     # .lit4 blob resume (st20a's words)
       - [0x539AE0, .lit4, src/st22a]  # carved D_00639AE0..D_00639AE4 (2 slots: actSt22aIntroSub's -707.0f/-1112.0f; MAIN.MAP says 0x24, the retail object needs 0x8), VMA 0x639AE0..0x639AE8

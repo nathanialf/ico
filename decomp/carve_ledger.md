@@ -1176,3 +1176,7 @@ words become the blob's first words.
 ### 2026-09-10 FileManager: file_LoadCDFile's two switch tables and its one pool word
 - `[0x44DFB0, .rodata, src/FileManager]` syms 0x0054DFB0,0x0054DFE0: jtbl_0054DFB0 (11 arms, 0x2C + pad word) and jtbl_0054DFE0 (52 arms, 0xD0), VMA 0x54DFB0..0x54E0B0, contiguous with GifPacket's row; the 44DB30 blob ends at 0x44DFB0.
 - `[0x538BC8, .lit4, src/FileManager]`: D_00638BC8 = 10059776.0f (the CD-file size divisor), one word; blob resumes at 0x538BCC. The worker had read it as `extern float`; as an extern, reorg sank the load into the branch delay slot (ROM keeps the subtraction there), and the literal fixed the last two words on its own. Pool constants are literals: it is also the byte-exact spelling.
+
+### 2026-09-10 st18a closed: two mail records and its pool
+- `[0x3FB0F0, .data, src/st18a]` syms switch_l_mes (VMA 0x4FB0F0..0x4FB110) and `[0x3FB1F0, .data, src/st18a]` syms door_mes (0x4FB1F0..0x4FB210): actSt18aSwitchLUpChk's and DoorDownChk's mail records as role-named file statics (placeholder names lost gcse-hash ties: s1/s2 swapped); blob resumes at 0x3FB110 and 0x3FB210. SwitchRUpChk's record is byte-identical as a plain extern and stays in the blob.
+- `[0x539A90, .lit4, src/st18a]`: the TU's six pool words (3054, 1530, -3061, 1451, 1530, -3039) as literals, VMA 0x639A90..0x639AA8; replaces the 539A90 blob exactly (D_00639A84..8C are st17b's).
