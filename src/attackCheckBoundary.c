@@ -146,7 +146,61 @@ inline void actAttackCheckBoundaryStart(int *self)
     *(long long *)((char *)p + 0x18) = v;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryBeforeFunc);
+extern char *D_00639EA4;
+extern char D_0061EEE8[];
+extern char D_0061EF00[];
+extern void *GetBoyWeaponGObj(void);
+extern int CheckWeaponKind(void *w);
+extern void ExecuteSEPackage(void *a0, int a1);
+/* mail-add-data.c defines this returning int; declaring it void costs the
+   $v1 allocation of the reloaded state pointer in the mail block below. */
+extern int ActSendMail_WithAdditionalData(char *to, int mail, char *from, void *data);
+extern void debug_StdPrintfDummy(char *fmt, ...);
+
+void AttackCheckBoundaryBeforeFunc(char *self)
+{
+    int *mgr = (int *)(self + 0x54);
+    int *e = (int *)(self + 0x5C);
+    int i;
+
+    for (i = 0; i < mgr[1]; i++, e += 2) {
+        if (e[0] == 13) {
+            if (*(char **)&e[1] == D_00639EA4) {
+                int *b = *(int **)(*(char **)(self + 0x15C) + 0x830);
+                void *g = GetBoyWeaponGObj();
+
+                if (g != 0) {
+                    int k = CheckWeaponKind(g);
+
+                    if (k == 4 || k == 5 || k == 6 || k == 9 || k == 8) {
+                        if (*(int *)b[0] < 2) {
+                            *(int *)(*(char **)((char *)g + 0x15C) + 0x5F4) = b[2];
+                            ExecuteSEPackage(g, 74);
+                            b[1] = 2;
+                            *(int *)b[0] = 2;
+                            debug_StdPrintfDummy(D_0061EEE8);
+                        }
+                        goto done;
+                    }
+                }
+                if (*(int *)b[0] <= 0) {
+                    ActSendMail_WithAdditionalData(D_00639EA4, 209, self, &b[2]);
+                    b[1] = 1;
+                    *(int *)b[0] = 1;
+                    debug_StdPrintfDummy(D_0061EF00);
+                }
+            }
+        done:
+            {
+                char *q = *(char **)(self + 0x164);
+
+                q[0x1DA] = *(int *)(q + 0x1B0) = 0;
+            }
+        }
+    }
+    mgr[1] = 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", InitAttackCheckBoundaryManagerGeo);
 
 /* the manager's 8-byte roster entries and its work block at sub+0x830 */

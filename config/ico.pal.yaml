@@ -440,6 +440,8 @@ segments:
       - [0x452660, .rodata, src/act-game]  # syms: 0x00552660  carved jtbl_00552660 (ACTItemWatchMotion's 5-arm table, 0x14 B, 16-aligned; the three zero words up to the next table are its alignment pad), VMA 0x552660..0x552680
       - [0x452680, .rodata, src/act-game]  # syms: 0x00552680  carved jtbl_00552680 (_ACTCharStatus_Set's 17-arm table), VMA 0x552680..0x5526C4
       - [0x4526C4, rodata, src/cod/4526C4]   # .rodata blob resume (zero pad word, then the 8-aligned strings at 0x5526C8)
+      - [0x452710, .rodata, src/act-wish]  # plain-rodata: ACTGetWish_FromPad's "orient null" string + pad + the double 0.9 (0x18 B, 8-aligned), VMA 0x552710..0x552728
+      - [0x452728, rodata, src/cod/452728]   # .rodata blob resume (the 8 zero bytes ROM keeps after the double, then the rest of the run)
       - [0x452B70, .rodata, src/boyact]  # plain-rodata: the four li.d doubles of actBoyWalk/actBoyRun (0.2, 0.9, 0.2, 0.7; ee-as interns them into the object's own .rodata), VMA 0x552B70..0x552B90; the TU's strings and its three jump tables stay in the blob until their owners land
       - [0x452B90, rodata, src/cod/452B90]   # .rodata blob resume (boyact's strings)
       - [0x453318, .rodata, src/commonact]  # carved WithMailFunc_FallDead's double 0.3 (a constant-pool operand, 8 B), VMA 0x553318..0x553320
@@ -512,7 +514,7 @@ segments:
       - [0x538C40, lit4, src/cod/538C40]     # .lit4 blob resume
       - [0x538CA0, .lit4, sound/s_init]  # carved D_00638CA0..D_00638CC4 (10 slots, one per occurrence: debug_DispSEInfo x2, sound3DParamSet, _soundSeDefPlay x3, soundSeEnvPlay x2, soundSeEnvDefaultSet x2; the TU's whole pool, adjacent to act-game's), VMA 0x638CA0..0x638CC8
       - [0x538CC8, .lit4, src/act-game]  # carved D_00638CC8..D_00638D0C (18 slots, 15 fns EXITDATA_GetNextPosition..ACTCheckViewClDetail), VMA 0x638CC8..0x638D10, 72 B; MAIN.MAP act-game.o .lit4 is 0x40 (different link; PAL ELF is authoritative).  USA: - [0x530AEC, .lit4, src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
-      - [0x538D10, lit4, src/cod/538D10]     # .lit4 blob resume (act-wish's words)
+      - [0x538D10, .lit4, src/act-wish]  # carved D_00638D10..D_00638D2C (8 words, all 0.1f, ACTGetWish_FromPad's literals; the TU's whole pool), VMA 0x638D10..0x638D30
       - [0x538D30, .lit4, src/boyact]  # carved D_00638D30..D_00638E38 (67 words: 65 slots beside twelve still-asm owners — 45 of them subBoyControl's — then DeleteBoyWeapon's 1e7 and GetBoyRootPositionForCamera's 40000 as literals; the TU's whole pool up to commonact's carve; MAIN.MAP's 0x108 is the debug link's), VMA 0x638D30..0x638E3C
       - [0x538E3C, .lit4, src/commonact]  # carved D_00638E3C..D_00638EF0 (46 slots, 15 fns GetCorrectOrientOfChain..func_00163250; 13x 0.1f, 10x pi), VMA 0x638E3C..0x638EF4, 184 B; MAIN.MAP commonact.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).  USA: - [0x530C28, .lit4, src/commonact]     # carved D_00630C28..D_00630CDC (46 slots, _boxbar_set_sound + func_0015DF88 + 44 asm), VMA 0x630C28..0x630CE0
       - [0x538EF4, .lit4, src/enemy_act]  # carved D_00638EF4..D_00638F58 (26 slots, 10 fns _MustChase..func_00169498), VMA 0x638EF4..0x638F5C, 104 B; MAIN.MAP enemy_act.o .lit4 0x68 agrees.  USA: - [0x530CE0, .lit4, src/enemy_act]     # carved D_00630CE0..D_00630D48 (27 slots, actEnemyForceSwitchToCarry + 26 asm), VMA 0x630CE0..0x630D4C

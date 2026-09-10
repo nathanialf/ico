@@ -1191,3 +1191,7 @@ words become the blob's first words.
 ### 2026-09-11 act-game: GetTarget's and ACTItemWatchMotion's switch tables carved with their owners
 - `[0x452620, .rodata, src/act-game]` plain-rodata syms 0x00552620: jtbl_00552620, GetTarget's 14-arm table (0x38 B). GetTarget is a GNU nested function and its table is emitted into the object's PLAIN .rodata, not a `.rodata.0x<VMA>` selector, so the row carries the plain-rodata marker (the linker script routes the object's plain section there).
 - `[0x452660, .rodata, src/act-game]` syms 0x00552660: jtbl_00552660, ACTItemWatchMotion's 5-arm table (0x14 B, 16-aligned; the three zero words up to 0x552680 are its pad). The 4525E8 blob now ends at 0x452620 (strings only). Pool slots D_00638CEC (0.3f) and D_00638CF0 (0.2f) retired: emitted by the compiled functions.
+
+### 2026-09-11 act-wish closed: its pool and its rodata run
+- `[0x538D10, .lit4, src/act-wish]`: eight words, all 0.1f, ACTGetWish_FromPad's literals (the TU's whole pool, replacing the 538D10 blob exactly), VMA 0x638D10..0x638D30.
+- `[0x452710, .rodata, src/act-wish]` plain-rodata: the "orient null" string, 4 pad bytes and the double 0.9 (0x18 B, 8-aligned), VMA 0x552710..0x552728; blob resumes at 0x452728 with the 8 zero bytes ROM keeps after the double (the object does not emit them).
