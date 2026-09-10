@@ -30,6 +30,7 @@ extern int sceSifAllocIopHeap(int size);
 extern void SgStPcmInit(void);
 extern int SgStPcmOpen(int *param);
 extern void SgStPcmSetEffect(int a0);
+extern int SgStPcmIopReadAddr(int ch);
 
 int audioDecCreate(int *self, int a1, int a2)
 {
@@ -240,7 +241,78 @@ int sendToIOP2area(char *p0, int n0, char *p1, int n1, char *q0, int m0, char *q
     return total;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", audioDecSendToIOP);
+int audioDecSendToIOP(int *self)
+{
+    char *p0;
+    int n0;
+    char *p1;
+    int n1;
+    char *q0;
+    int m0;
+    char *q1;
+    int m1;
+    int n = 0;
+    int len;
+    int rsz;
+    int off;
+    int lim;
+
+    switch (self[0]) {
+    case 0:
+        return 0;
+    case 1:
+        n0 = self[0x48 / 4] - self[0x54 / 4];
+        p1 = 0;
+        n1 = 0;
+        p0 = (char *)(self[0x44 / 4] + self[0x54 / 4] % self[0x48 / 4]);
+        break;
+    case 2: {
+        int rd = SgStPcmIopReadAddr(0);
+        int sz = self[0x48 / 4];
+        int cur = self[0x4C / 4];
+        int want = (rd + sz - cur - 1024) % sz;
+        int tail = sz - cur;
+
+        want = want / 1024 * 1024;
+
+        if (tail >= want) {
+            n0 = want;
+            p1 = 0;
+            n1 = 0;
+            p0 = (char *)(self[0x44 / 4] + cur);
+        } else {
+            n0 = tail;
+            n1 = want - n0;
+            p0 = (char *)(self[0x44 / 4] + cur);
+            p1 = (char *)self[0x44 / 4];
+        }
+        break;
+    }
+    case 3:
+        return 0;
+    }
+
+    len = self[0x38 / 4];
+    rsz = self[0x3C / 4];
+    off = (self[0x34 / 4] - len + rsz) % rsz;
+    lim = len / 1024 * 1024;
+    m0 = rsz - off;
+    q0 = (char *)(self[0x30 / 4] + off);
+    if (lim < m0) {
+        m0 = lim;
+    }
+    m1 = lim - m0;
+    q1 = (char *)self[0x30 / 4];
+
+    if (n0 + n1 >= 1024 && m0 + m1 >= 1024) {
+        n = sendToIOP2area(p0, n0, p1, n1, q0, m0, q1, m1);
+    }
+
+    self[0x38 / 4] = self[0x38 / 4] - n;
+    self[0x54 / 4] += n;
+    self[0x4C / 4] = (self[0x4C / 4] + n) % self[0x48 / 4];
+    return n;
+}
 
 inline int audioDecPause(int a0)
 {
@@ -257,4 +329,59 @@ inline void audioDecResume(int *self)
 
 extern int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", pcmCallback);
+int pcmCallback(int a0, int *pkt, int *ctx)
+{
+    char *p0;
+    int n0;
+    char *p1;
+    int n1;
+    int *b = (int *)ctx[0];
+    int *ad = (int *)ctx[1];
+    unsigned int rd = pkt[2];
+    int base = b[0];
+    int n;
+    int first;
+    int rest;
+    int k;
+
+    rd += 4;
+    if (rd >= (unsigned int)(base + b[1])) {
+        rd -= b[1];
+    }
+    n = pkt[3] - 4;
+    first = (base + b[1]) - rd;
+    if (n < first) {
+        first = n;
+    }
+    rest = n - first;
+
+    /* INTERIM: the listing inlines the mv_audiodec.c:205-232 begin-put helper
+       here; written out because a pointer-output helper forces its four results
+       into stack slots that ROM does not have */
+    if (ad[0] == 0) {
+        p0 = (char *)ad + (ad[0x2C / 4] + 4);
+        n0 = 40 - ad[0x2C / 4];
+        p1 = (char *)ad[0x30 / 4];
+        n1 = ad[0x3C / 4];
+    } else {
+        int room = ad[0x3C / 4] - ad[0x38 / 4];
+        int wr = ad[0x34 / 4];
+        int tail = ad[0x3C / 4] - wr;
+
+        if (tail >= room) {
+            tail = room;
+            p1 = 0;
+            n1 = 0;
+            p0 = (char *)(ad[0x30 / 4] + wr);
+        } else {
+            n1 = room - tail;
+            p0 = (char *)(ad[0x30 / 4] + wr);
+            p1 = (char *)ad[0x30 / 4];
+        }
+        n0 = tail;
+    }
+
+    k = copy2area(p0, n0, p1, n1, (char *)rd, first, (char *)base, rest);
+    audioDecEndPut(ad, k);
+    return 0 < k;
+}

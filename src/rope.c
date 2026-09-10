@@ -2,6 +2,7 @@
 #include "ico/types.h"
 
 extern void ropeGeo(void *o);
+extern void CopyVector(void *dst, void *src);
 extern void GetRootPosition(void *dst, void *src);
 extern float GetChainCollision(void *a0, void *a1, float w);
 extern void *D_00639EA4;
