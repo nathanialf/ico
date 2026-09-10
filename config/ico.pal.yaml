@@ -482,7 +482,9 @@ segments:
       - [0x51C1A8, rodata, src/cod/51C1A8]   # .rodata blob resume (strings)
       - [0x51CF00, .rodata, src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
       - [0x51CF14, rodata, src/cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
-      - [0x51D730, .rodata, src/kanbanBoot]  # carved jtbl_0061D730 (8 arms, 0x20): kanbanBootMain's switch table, emitted by the compiled function, VMA 0x61D730..0x61D750
+      - [0x51D6F0, .rodata, src/kanbanBoot]  # syms: 0x0061D6F0  carved jtbl_0061D6F0 (kanbanBootMcCheck's first 5-arm table, 0x14 B, 16-aligned), VMA 0x61D6F0..0x61D710
+      - [0x51D710, .rodata, src/kanbanBoot]  # syms: 0x0061D710  carved jtbl_0061D710 (kanbanBootMcCheck's second 5-arm table, 0x14 B, 16-aligned), VMA 0x61D710..0x61D730
+      - [0x51D730, .rodata, src/kanbanBoot]  # syms: 0x0061D730  carved jtbl_0061D730 (8 arms, 0x20): kanbanBootMain's switch table, emitted by the compiled function, VMA 0x61D730..0x61D750
       - [0x51D750, rodata, src/cod/51D750]   # .rodata blob resume ("sync end\n" and the rest of the run)
       - [0x51DD30, .rodata, src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
       - [0x51DD44, rodata, src/cod/51DD44]   # .rodata blob resume (three pad words)

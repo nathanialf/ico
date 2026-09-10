@@ -1195,3 +1195,6 @@ words become the blob's first words.
 ### 2026-09-11 act-wish closed: its pool and its rodata run
 - `[0x538D10, .lit4, src/act-wish]`: eight words, all 0.1f, ACTGetWish_FromPad's literals (the TU's whole pool, replacing the 538D10 blob exactly), VMA 0x638D10..0x638D30.
 - `[0x452710, .rodata, src/act-wish]` plain-rodata: the "orient null" string, 4 pad bytes and the double 0.9 (0x18 B, 8-aligned), VMA 0x552710..0x552728; blob resumes at 0x452728 with the 8 zero bytes ROM keeps after the double (the object does not emit them).
+
+### 2026-09-11 kanbanBoot closed: two more switch tables
+- `[0x51D6F0, .rodata, src/kanbanBoot]` syms 0x0061D6F0 and `[0x51D710, .rodata, src/kanbanBoot]` syms 0x0061D710: kanbanBootMcCheck's two 5-arm tables (0x14 B each, 16-aligned), VMA 0x61D6F0..0x61D730, contiguous with kanbanBootMain's 0x61D730 row (which gained its syms token); the 51CF14 blob ends at 0x51D6F0.
