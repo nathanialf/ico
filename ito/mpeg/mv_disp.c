@@ -37,7 +37,7 @@ int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3);
 int *setTRXPOS(int *a0, long long a1, long long a2, long long a3);
 void *setTRXREG(int *a0, int a1, int a2);
 void *setTRXDIR(char *a0, unsigned int a1);
-extern void setDispEnv(int *self, int a1, int a2);
+extern void setDispEnv(int *self, int a1, int a2, int a3, int a4);
 extern int D_0072A040[];
 extern void sceGsPutDispEnv__pn(void *a0) __asm__("sceGsPutDispEnv");
 extern void sceGsSyncPath(int a0, int a1);
@@ -60,13 +60,13 @@ inline void loadImage(int a0)
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispClear);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setDispEnv);
 
-void setImageSize(int *self, int a1, int a2)
+void setImageSize(int *self, int a1, int a2, int a3, int a4)
 {
     int lim = self[0x3C / 4];
     if (a2 <= lim) {
         a2 = lim;
     }
-    setDispEnv(self, a1, a2);
+    setDispEnv(self, a1, a2, a3, a4);
 }
 
 void sendDispEnv(void *a0)
@@ -79,7 +79,28 @@ void sendDispEnv(void *a0)
     sceGsSyncPath(0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispCreate);
+extern int D_0063C0C0;
+extern int D_0063C0C4;
+extern int D_0028F4C0[];
+extern void sceGsResetGraph(int a0, int a1, int a2, int a3);
+extern void sceGsResetPath(void);
+
+void dispCreate(int *self, int a1, int a2, int a3, int a4)
+{
+    /* the five display-state words are read and written by vblankHandler on the
+       vblank interrupt, so the resets are volatile here exactly as they are at
+       the two sites further down this file */
+    *(volatile int *)&D_0063C0B8 = 0;
+    *(volatile int *)&D_0063C0B4 = 0;
+    *(volatile int *)&D_0063C0BC = 0;
+    *(volatile int *)&D_0063C0C0 = 0;
+    *(volatile int *)&D_0063C0C4 = 0;
+    sceGsSyncV(0);
+    sceGsResetGraph(0, 1, D_0028F4C0[0] != 0 ? 3 : 2, 1);
+    sceGsResetPath();
+    setDispEnv(self, a1, a2, a3, a4);
+    sendDispEnv(self);
+}
 
 inline void dispDelete(void) {}
 

@@ -16,9 +16,114 @@ void isysGObjKindTableInit(void)
     memset(D_006BF380, 0, 0x118);
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjInit);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", cut_gobj_link);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjRemoveAll);
+extern char D_0029C4F0[];
+extern char *D_0029C510[];
+extern int D_0063A60C;
+extern unsigned int D_0063A610;
+extern void isysGObjAlloc(int n);
+
+void isysGObjInit(int n)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        *(int *)(D_0029C4F0 + i * 4) = 0;
+        D_0029C510[i] = 0;
+    }
+    isysGObjAlloc(n);
+    D_0063A60C = 0;
+    D_0063A610 = 0;
+    isysGObjKindTableInit();
+}
+
+typedef struct GLNode {
+    char _p0[0x10];
+    struct GLNode *next;
+    struct GLNode *prev;
+    unsigned char id;
+    char _p1[0x3];
+    int key;
+} GLNode;
+
+extern char D_00551F40[];
+extern void debug_StdPrintfDummy(char *p);
+
+void cut_gobj_link(int a0)
+{
+    GLNode *p = (GLNode *)a0;
+
+    if (p == 0) {
+        debug_StdPrintfDummy(D_00551F40);
+        return;
+    }
+
+    if (p->prev == 0 && p->next == 0) {
+        /* not linked into a list */
+    } else {
+        if (p->prev != 0)
+            p->prev->next = p->next;
+
+        if (p->next != 0) {
+            p->next->prev = p->prev;
+        }
+    }
+
+    if (p == ((GLNode **)D_0029C4F0)[p->id]) {
+        ((GLNode **)D_0029C4F0)[p->id] = p->next;
+    }
+    if (p == ((GLNode **)D_0029C510)[p->id]) {
+        ((GLNode **)D_0029C510)[p->id] = p->prev;
+    }
+}
+
+extern struct GObj__pn *D_0063C1A8;
+extern unsigned int D_0063C1AC;
+extern char D_00551F30[];
+extern char D_0063A608[];
+
+/* INTERIM: the listing inlines isysGObjRemove here (its own lines 225-231 and,
+ * through it, isysGObjKindTableRemove's 138-147, appear inside this function's
+ * span).  isysGObjRemove is a MAIN.MAP symbol with its own ROM slot AFTER this
+ * one, so it cannot carry `inline` without moving to gcc's inline tail; the
+ * caller gets this stand-in instead.  Keep the two bodies identical. */
+static __inline__ void removeGObjEntry(char *g)
+{
+    int kind = *(int *)(g + 0xC);
+    char *proc = *(char **)(g + 0x2C);
+    char *p;
+    if ((unsigned int)(kind - 1) < 0x45) {
+        p = D_006BF380[kind];
+        if (p == g) {
+            D_006BF380[kind] = *(char **)(g + 0x3C);
+        } else if (p != 0) {
+            while (*(char **)(p + 0x3C) != g) {
+                if (p == 0) {
+                    debug_assert(D_00551F30, 0x92);
+                    __assert(D_00551F30, 0x92, D_0063A608);
+                }
+                p = *(char **)(p + 0x3C);
+            }
+            *(char **)(p + 0x10) = *(char **)(g + 0x3C);
+        }
+    }
+    cut_gobj_link((int)g);
+    *(int *)g = 0;
+    while (proc != 0) {
+        isysGObjProcRemove(proc);
+        proc = *(char **)(g + 0x2C);
+    }
+}
+
+void isysGObjRemoveAll(void)
+{
+    unsigned int i;
+
+    for (i = 0; i < D_0063C1AC; i++) {
+        if (*(int *)((char *)D_0063C1A8 + i * 0x174) != 0)
+            removeGObjEntry((char *)D_0063C1A8 + i * 0x174);
+    }
+    isysGObjKindTableInit();
+}
 
 extern char D_0029C4F0[];
 extern char *D_0029C510[];
@@ -136,6 +241,20 @@ extern unsigned int D_0063C1AC;
 extern char D_00551F50[];
 extern void debug_StdPrintfDummy(char *p);
 
+/* static helper the listing places at gobj.c lines 360-369; never emitted out
+ * of line, so it has no MAIN.MAP symbol and this name is ours. */
+static __inline__ void linkGObjAfter(GLNode *g, GLNode *other)
+{
+    g->id = other->id;
+    g->key = other->key;
+    g->prev = other;
+    g->next = other->next;
+    other->next = g;
+    if (g->next == 0) {
+        ((GLNode **)D_0029C510)[g->id] = g;
+    }
+}
+
 /* static helper the listing places at gobj.c lines 453-467; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
 static __inline__ char *allocGObjEntry(void)
@@ -158,7 +277,31 @@ static __inline__ char *allocGObjEntry(void)
     return g;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjAddAfterGObj);
+extern char D_00551F40[];
+
+char *isysGObjAddAfterGObj(char *owner, char *other)
+{
+    char *g = allocGObjEntry();
+
+    if (g == 0) {
+        debug_StdPrintfDummy(D_00551F50);
+        return 0;
+    }
+    if (other == 0) {
+        debug_StdPrintfDummy(D_00551F40);
+        return 0;
+    }
+    *(int *)g = (int)g;
+    *(char **)(g + 0x28) = owner;
+    linkGObjAfter((GLNode *)g, (GLNode *)other);
+    *(int *)(g + 0x15C) = 0;
+    *(int *)(g + 0x8) = -1;
+    *(int *)(g + 0x4) = -1;
+    *(int *)(g + 0x2C) = 0;
+    *(int *)(g + 0x30) = 0;
+    *(int *)(g + 0x58) = 0;
+    return g;
+}
 
 extern char D_00551F40[];
 
