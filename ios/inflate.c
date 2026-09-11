@@ -290,7 +290,154 @@ long long inflate_fixed(void *w, unsigned char *out, long long outlen)
     return inflate_codes(w, out, outlen);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_dynamic);
+extern int D_0029B530[]; /* border: order of the bit length code lengths */
+extern char D_00551000[];
+extern char D_00551020[];
+extern void reuse_mblock(void *p);
+extern void debug_StdPrintfDummy();
+
+#define IMB(w) ((void *)((char *)(w) + 0x18098))
+
+int inflate_dynamic(void *w, unsigned char *out, long long outlen)
+{
+    int i;
+    unsigned int j;
+    unsigned int l;
+    unsigned int n;
+    struct huft *tl;
+    struct huft *td;
+    int bl;
+    int bd;
+    unsigned int nb;
+    unsigned int nl;
+    unsigned int nd;
+    unsigned int ll[286 + 30];
+    unsigned long long k;
+    unsigned long long b;
+
+    b = IWORK(w)->bb;
+    k = IWORK(w)->bk;
+    reuse_mblock(IMB(w));
+
+    NEEDBITS(w, 5)
+    nl = 257 + (b & 0x1f);
+    DUMPBITS(5)
+    NEEDBITS(w, 5)
+    nd = 1 + (b & 0x1f);
+    DUMPBITS(5)
+    NEEDBITS(w, 4)
+    nb = 4 + (b & 0xf);
+    DUMPBITS(4)
+    if (nl > 286 || nd > 30) {
+        IWORK(w)->bb = b;
+        IWORK(w)->bk = k;
+        return -1;
+    }
+
+    for (j = 0; j < nb; j++) {
+        NEEDBITS(w, 3)
+        ll[D_0029B530[j]] = (unsigned int)(b & 7);
+        DUMPBITS(3)
+    }
+    for (; j < 19; j++)
+        ll[D_0029B530[j]] = 0;
+
+    bl = 7;
+    if ((i = huft_build(ll, 19, 19, (unsigned short *)0, (unsigned short *)0, &tl, &bl, IMB(w))) !=
+        0) {
+        reuse_mblock(IMB(w));
+        IWORK(w)->bb = b;
+        IWORK(w)->bk = k;
+        return -1;
+    }
+
+    n = nl + nd;
+    i = l = 0;
+    while ((unsigned int)i < n) {
+        NEEDBITS(w, (unsigned int)bl)
+        j = (td = tl + (unsigned int)(b & MASKBITS(bl)))->b;
+        DUMPBITS(j)
+        j = td->v.n;
+        if (j < 16) {
+            ll[i++] = l = j;
+        } else if (j == 16) {
+            NEEDBITS(w, 2)
+            j = 3 + (b & 3);
+            DUMPBITS(2)
+            if ((unsigned int)i + j > n) {
+                IWORK(w)->bb = b;
+                IWORK(w)->bk = k;
+                return -1;
+            }
+            while (j--)
+                ll[i++] = l;
+        } else if (j == 17) {
+            NEEDBITS(w, 3)
+            j = 3 + (b & 7);
+            DUMPBITS(3)
+            if ((unsigned int)i + j > n) {
+                IWORK(w)->bb = b;
+                IWORK(w)->bk = k;
+                return -1;
+            }
+            while (j--)
+                ll[i++] = 0;
+            l = 0;
+        } else {
+            NEEDBITS(w, 7)
+            j = 11 + (b & 0x7f);
+            DUMPBITS(7)
+            if ((unsigned int)i + j > n) {
+                IWORK(w)->bb = b;
+                IWORK(w)->bk = k;
+                return -1;
+            }
+            while (j--)
+                ll[i++] = 0;
+            l = 0;
+        }
+    }
+
+    IWORK(w)->bb = b;
+    IWORK(w)->bk = k;
+    reuse_mblock(IMB(w));
+
+    bl = 9;
+    i = huft_build(ll, nl, 257, D_0029B430, D_0029B470, &tl, &bl, IMB(w));
+    if (bl == 0)
+        i = 1;
+    if (i != 0) {
+        if (i == 1)
+            debug_StdPrintfDummy(D_00551000);
+        reuse_mblock(IMB(w));
+        return -1;
+    }
+
+    bd = 6;
+    i = huft_build(ll + nl, nd, 0, D_0029B4B0, D_0029B4F0, &td, &bd, IMB(w));
+    if (bd == 0 && nl > 257) {
+        debug_StdPrintfDummy(D_00551020);
+        reuse_mblock(IMB(w));
+        return -1;
+    }
+    if (i == 1)
+        debug_StdPrintfDummy(D_00551020);
+    if (i != 0) {
+        reuse_mblock(IMB(w));
+        return -1;
+    }
+
+    IWORK(w)->w_tl = tl;
+    IWORK(w)->w_td = td;
+    IWORK(w)->w_bl = bl;
+    IWORK(w)->w_bd = bd;
+    i = inflate_codes(w, out, outlen);
+    if (i == -1) {
+        reuse_mblock(IMB(w));
+        return -1;
+    }
+    return i;
+}
 
 extern void init_mblock(int *self);
 
