@@ -388,6 +388,7 @@ padding is injected. All 30 verified byte-identical with such ends.
 | `src/spider` | `[0x51A170]` | 0x61A170..0x61A184 | `jtbl_0061A170` (func_001EA5E8, 5) |
 | `src/DisplayList` | `[0x51AC40]` | 0x61AC40..0x61AC60 | `jtbl_0061AC40` (dl_GetPri, 8) |
 | `src/st04b` | `[0x51BCE0]` | 0x61BCE0..0x61BD00 | `jtbl_0061BCE0` (func_00217658, 8) |
+| `src/frameDependSequence` | `[0x51F7D0]` | 0x61F7D0..0x61F7E4 | `jtbl_0061F7D0` (playSEConditionID, 5) |
 | `src/DisplayList` | `[0x521930]` | 0x621930..0x621950 | `jtbl_00621930` (dl_CloseDma, 8) |
 | `src/item` | `[0x51FA90]` | 0x61FA90..0x61FAA4 | `jtbl_0061FA90` (execBombGeo, 5) |
 | `src/cod/vendor_2453C0` | `[0x52E5F0]` | 0x62E5F0..0x62E654 | `jtbl_0062E5F0` (func_00246CD0, 25) |
@@ -1067,6 +1068,9 @@ words become the blob's first words.
   `0x51FA18`; the two zero pad words become the blob's first words. Note the
   oracle cannot score a switch function whose ROM `.s` carries `jlabel`s
   (objdump -d dumps the region as hex); verify by objdump -D word compare and ninja.
+
+- `[0x51F7D0, .rodata, src/frameDependSequence]` playSEConditionID's 5-arm table (20 B),
+  resume `0x51F7E4`.
 
 - `[0x51FA90, .rodata, src/item]` execBombGeo's 5-arm table (20 B), resume
   `0x51FAA4` (c1ccaa792).
