@@ -15,6 +15,16 @@ typedef struct {
     LightningVtx v[4];
 } StructC;
 
+/* one entry of the caller's node array: a 16-byte position and the sort key
+   `cmpr` compares at +0x10 */
+typedef struct {
+    LightningVtx v; /* 0x00 */
+    int key;        /* 0x10 */
+    int unk14;      /* 0x14 */
+    int unk18;      /* 0x18 */
+    int unk1C;      /* 0x1C */
+} LightningNode;
+
 /* prototypes: their order is the inline tail's emission order */
 void apply_m34(void *p0, void *p1, void *p2, void *p3);
 
@@ -22,11 +32,29 @@ void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, f
                    float f5, float f6, float f7, float f8, float f9, int a3);
 
 void lightning_test(void);
-int cmpr(int *self, int *other);
+inline int cmpr(int *self, int *other);
+extern void qsort(void *base, int nmemb, int size, int (*compar)(int *, int *));
+extern void sceVu0CopyVector(void *dst, void *src);
+extern void DrawLightning2(int n, void *a, void *b, float f0, float f1, float f2, float f3,
+                           float f4, float f5, float f6, float f7, float f8, float f9, int c);
 
 INCLUDE_ASM("asm/nonmatchings/src/lightning", set_vertex);
 INCLUDE_ASM("asm/nonmatchings/src/lightning", DrawLightning2);
-INCLUDE_ASM("asm/nonmatchings/src/lightning", DrawLightningN);
+
+void DrawLightningN(int num, LightningNode *v, void *col, float f0, float f1, float f2, float f3,
+                    float f4, float f5, float f6, float f7, float f8, float f9, int c)
+{
+    StructB buf[num];
+    int i;
+
+    if (num >= 3) {
+        qsort(&v[1], num - 1, sizeof(LightningNode), cmpr);
+    }
+    for (i = 0; i < num; i++) {
+        sceVu0CopyVector(&buf[i], &v[i]);
+    }
+    DrawLightning2(num, buf, col, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, c);
+}
 
 inline void apply_m34(void *p0, void *p1, void *p2, void *p3)
 {
@@ -39,10 +67,6 @@ inline void apply_m34(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP_BC(vmaddz.xyzw, 12, 6, 8, z);
     VU0_LSV(sqc2, 12, 0x0, a0);
 }
-
-extern void DrawLightning2(int n, void *a, void *b, float f0, float f1, float f2, float f3,
-                           float f4, float f5, float f6, float f7, float f8, float f9, int c);
-extern void sceVu0CopyVector(void *a0, void *a1);
 
 inline int cmpr(int *self, int *other)
 {
