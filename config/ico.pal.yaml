@@ -494,6 +494,8 @@ segments:
       - [0x51DD44, rodata, src/cod/51DD44]   # .rodata blob resume (three pad words)
       - [0x51FA00, .rodata, src/handManager]  # carved jtbl_0061FA00 (VMA 0x61FA00..0x61FA18, 24 B, 6 arms): _handManager's switch table, emitted by the compiled function; the two zero pad words after it are the blob's first words
       - [0x51FA18, rodata, src/cod/51FA18]   # .rodata blob resume
+      - [0x51FA90, .rodata, src/item]  # carved jtbl_0061FA90 (VMA 0x61FA90..0x61FAA4, 20 B, 5 arms): execBombGeo's switch table, emitted by the compiled function
+      - [0x51FAA4, rodata, src/cod/51FAA4]   # .rodata blob resume
       - [0x520030, .rodata, src/motionManager]  # carved jtbl_00620030 (VMA 0x620030..0x620088, 88 B, 22 arms): _getGeometryOfMotion's switch table, emitted by the compiled function once matched (splat migrate_rodata_to_functions); the blob keeps every other motionManager string
       - [0x520088, rodata, src/cod/520088]   # .rodata blob resume
       - [0x520F20, .rodata, src/staticBlur]  # carved jtbl_00620F20 (dispPostInfo's 10-arm table), VMA 0x620F20..0x620F48
