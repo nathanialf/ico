@@ -710,6 +710,7 @@ All 32 bodies are ported.
 | `src/st25a` | `.lit4` | `[0x5390D4]` | 0x6390D4..0x639108 | 52 | 13 | 0x44, differs |
 | `src/camera-ico2` | `.lit4` | `[0x539118]` | 0x639118..0x639130 | 24 | 6 (two literals, four slots beside still-asm owners) | 0x24, differs |
 | `src/act_bird` | `.lit4` | `[0x539230]` | 0x639230..0x639294 | 100 | 25 | 0x64, agrees |
+| `src/backStage` | `.lit4` | `[0x539334]` | 0x639334..0x639338 | 4 | 1 (backStageProcessInStage's 10000000.0f) | agrees |
 | `src/debug` | `.lit4` | `[0x539338]` | 0x639338..0x639358 | 32 | 8 | 0x18, differs |
 | `src/layout_action` | `.lit4` | `[0x539360]` | 0x639360..0x63936C | 12 | 3 | 0x8, differs |
 | `src/a_p_1` | `.lit4` | `[0x539374]` | 0x639374..0x639394 | 32 | 8 (fitToCol..attackMot in source order; 3 beside still-asm owners) | 0x20, agrees |

@@ -308,3 +308,11 @@ dependencies** in this tree.  Editing a header does not rebuild the objects
 that include it; the stale objects link and the gate reports the *old* SHA-1.
 Delete the affected `.o`/`.s` (or do a clean rebuild) after any header edit,
 or a header change will silently go ungated.
+
+
+## Open prototype questions (2026-09-11)
+
+- `WayLengthOfGObj_GObj` takes two gobjs: routeSetPos (src/backStage) reaches rc0 only with the second parameter; the one-arg prototype sits at 6 diffs. Update the shared declaration when the definition is matched.
+- `WayPointWithRangeFromPos2`'s second parameter is a pointer: backStageProcessOutStage reaches rc0 only with `void *`.
+- `gamesysObjInfoPosSetStage` is defined in src/gamesys.c as `int *(int *self, int a1, int a2, int a3)` but six TUs declare it locally with six different signatures; reconcile when gamesys is matched.
+- `LockForceGroundParent` / `UnlockForceGroundParent`: empty retail bodies, now declared with the GObj parameter every call site passes (commit 009da5cd1).
