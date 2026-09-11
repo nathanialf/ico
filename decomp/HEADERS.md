@@ -93,7 +93,7 @@ nine helpers.  Every one is inline-only, so **all nine names are ours**.
 | --- | --- | --- | --- |
 | 45-48 `random_unit` | `jal _GetRandom` | 39 hosts (line 47) | reconstruction |
 | 53-56 `random_signed` | `2*x - 1.0f` over `random_unit` | 13 hosts (47+55) | reconstruction |
-| 58-61 `crt_random_unit` | `((rand()>>4)&0xFFFF) * 1/65535` | 3 hosts (line 60) | reconstruction |
+| 58-61 `crt_random_unit` | `((rand()>>4)&0xFFFF) * 1/65535` | 3 hosts (line 60) | MATCHED 2026-09-11 (hosts playSERandomID, execEff in src/frameDependSequence) |
 | 63-66 `random_signed_b` | identical body to lines 53-56 | 5 hosts (47+65) | reconstruction |
 | 69-72 `plane_distance` | `dot(plane.xyz,pos.xyz)+plane.w` on VU0 | 28 expansions | **PROVEN** |
 | 85-88 `distance_squared` | `\|a-b\|^2` (xyz) on VU0 | 22 hosts (85/87) | MATCHED 2026-09-07 (host GetChainCollision): one clobber-free asm block like plane_distance; the macro form's "memory" clobber killed gcse's MEM expressions in every host |
