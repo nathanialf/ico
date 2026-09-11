@@ -102,15 +102,176 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", InitEnemyEye);
-/* InitEnemyEye is still asm and owns the first word of this TU's .lit4 pool
-   (VMA 0x006394CC = 1e-5f).  The slot keeps the pool run contiguous and in
-   ROM order while the owner is an INCLUDE_ASM; delete this line when
-   InitEnemyEye lands in C and writes the literal itself. */
-ASM_LIT4_SLOT(D_006394CC, 1e-5f);
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", InitEnemyFootPrint);
+extern void *D_0063A438;
+extern void *D_0063A44C;
+extern const char D_0061F710[];
+extern void *iosMallocDebug(void *heap, int size, const char *file, int line);
+extern void iosFree(int p);
+extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
+extern char D_004E45C0[];
+extern PointBlur D_004E78E0;
+extern int D_004E7980[];
+extern float D_004E7990[];
 
-/* --- su-b sweep decls --- */
+/* The display row's flag word is 64 bits wide: ROM sets and clears single
+   bits in it with ld/or/sd and ld/and/sd, and reaches the 16-bit field two
+   bytes into the same container with a plain sh. */
+typedef union DlFlag {
+    int i;
+    long long ll;
+} DlFlag;
+
+/* The 0x60-byte eye record's initialiser.  ROM copies it with the MIPS
+   back end's block-move LOOP (four ld / four sd per turn, 0x20 at a time),
+   which is what a 0x60-byte 8-aligned struct assignment expands to. */
+typedef struct EnemyEyeTmpl {
+    long long d[12];
+} EnemyEyeTmpl;
+
+extern EnemyEyeTmpl D_004E7920;
+
+/* InitPointBlur is a public member of this TU with its own out-of-line body
+   further down at its ROM slot; the January listing shows its rows (15-28)
+   inlined whole into InitEnemyEye.  INTERIM: while the out-of-line copy has
+   to stay where the ROM puts it, the call site gets this static stand-in,
+   which carries the same body and emits no out-of-line code of its own. */
+static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos)
+{
+    PointBlur *p = (PointBlur *)iosMallocDebug(D_0063A438, 0x40, D_0061F710, 16);
+    *p = D_004E78E0;
+
+    p->f0 = a1;
+    p->fC = iosMallocDebug(D_0063A438, num << 5, D_0061F710, 20);
+    p->f8 = iosMallocDebug(D_0063A438, num << 4, D_0061F710, 21);
+    p->f10 = (Rgba *)iosMallocDebug(D_0063A438, num << 3, D_0061F710, 22);
+    p->num = num;
+    p->col.r = col[0];
+    p->col.g = col[1];
+    p->col.b = col[2];
+    p->col.a = col[3];
+    _CopyVector(p->pos, pos);
+    return p;
+}
+
+char *InitEnemyEye(int num, int a1, int a2)
+{
+    char *p;
+
+    p = (char *)iosMallocDebug(D_0063A438, 0x60, D_0061F710, 137);
+    *(EnemyEyeTmpl *)p = D_004E7920;
+
+    *(char **)(p + 0x50) = CSVSYSTEM_InitDObj(0x52A, D_004E45C0);
+    ((DlFlag *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x38))->ll |= 1;
+    *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x30) = 1e-5f;
+    ((DlFlag *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x38))->ll |= 4;
+    *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x20) =
+        *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x24) =
+            *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x28) = 3.0f;
+    *(short *)(*(char **)(p + 0x50) + 0x84C) = 2;
+
+    *(char **)(p + 0x54) = CSVSYSTEM_InitDObj(0x52B, D_004E45C0);
+    ((DlFlag *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x38))->ll |= 1;
+    *(float *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x30) = 1e-5f;
+    ((DlFlag *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x38))->ll &= ~4;
+    *(float *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x20) =
+        *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x24) =
+            *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x28) = 3.0f;
+    *(short *)(*(char **)(p + 0x54) + 0x84C) = 2;
+
+    *(char **)(p + 0x58) = CSVSYSTEM_InitDObj(0x52C, D_004E45C0);
+    ((DlFlag *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x38))->ll |= 1;
+    *(float *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x30) = 1e-5f;
+    ((DlFlag *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x38))->ll &= ~4;
+    *(float *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x20) =
+        *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x24) =
+            *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x28) = 3.0f;
+    *(short *)(*(char **)(p + 0x58) + 0x84C) = 2;
+
+    if (num != 0) {
+        *(int *)p = 1;
+        *(PointBlur **)(p + 0x4) = initPointBlurAt(num, a2, D_004E7980, D_004E7990);
+    }
+    return p;
+}
+
+/* The two templates the loops copy out of.  D_004E79F0 is 0x10 bytes of
+   zero at 4-byte alignment (ROM copies it with ldl/ldr + sdl/sdr, gcc's
+   unaligned block move); D_004E7A00 is 0x20 bytes at 8-byte alignment
+   (plain ld/sd).  Both live in the shared data blob and are reached by
+   %hi/%lo, so they stay blob-owned. */
+typedef struct EnemyFootPrintHead {
+    int num;    /* 0x00 */
+    char *dobj; /* 0x04 */
+    int idx;    /* 0x08 */
+    char *buf;  /* 0x0C */
+} EnemyFootPrintHead;
+
+typedef struct DlVtxTemplate {
+    long long d[4];
+} DlVtxTemplate;
+
+extern EnemyFootPrintHead D_004E79F0;
+extern DlVtxTemplate D_004E7A00;
+
+char *InitEnemyFootPrint(int num)
+{
+    char *p;
+    char *d;
+    int i;
+    int j;
+
+    p = (char *)iosMallocDebug(D_0063A438, 0x10, D_0061F710, 226);
+    *(EnemyFootPrintHead *)p = D_004E79F0;
+    *(int *)p = num;
+    *(int *)(p + 0xC) = (int)iosMallocDebug(D_0063A438, num << 5, D_0061F710, 229);
+    d = CSVSYSTEM_InitDObj(0x50F, D_004E45C0);
+    *(char **)(p + 0x4) = d;
+    if (*(int *)(d + 0xC) != 0) {
+        iosFree(*(int *)(d + 0xC) & 0xFFFFFFF);
+    }
+    if (*(int *)(*(char **)(p + 0x4) + 0x10) != 0) {
+        iosFree(*(int *)(*(char **)(p + 0x4) + 0x10) & 0xFFFFFFF);
+    }
+    *(int *)(*(char **)(p + 0x4) + 0xC) = 0;
+    *(int *)(*(char **)(p + 0x4) + 0x10) = 0;
+    *(int *)(*(char **)(p + 0x4) + 0xC) =
+        (int)iosMallocDebug(D_0063A44C, num << 6, D_0061F710, 232);
+    *(int *)(*(char **)(p + 0x4) + 0x10) =
+        (int)iosMallocDebug(D_0063A44C, num << 4, D_0061F710, 232);
+    *(int *)(*(char **)(p + 0x4) + 0x8) = num;
+    if (*(int *)(*(char **)(p + 0x4) + 0x870) != 0) {
+        iosFree(*(int *)(*(char **)(p + 0x4) + 0x870) & 0xFFFFFFF);
+    }
+    *(int *)(*(char **)(p + 0x4) + 0x870) =
+        (int)iosMallocDebug(D_0063A44C, num * 0x50, D_0061F710, 232);
+    for (i = 0; i < num; i++) {
+        ((DlFlag *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~1;
+        ((DlFlag *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~2;
+        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x40) = 0.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x44) = 0.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x48) = 0.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x4C) = 1.0f;
+        ((DlFlag *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~4;
+        *(int *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x30) = 0;
+        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x34) = 1.0f;
+        *(short *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x3A) = 0;
+        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x20) = 1.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x24) = 1.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x28) = 1.0f;
+    }
+    *(short *)(*(char **)(p + 0x4) + 0x84C) = 2;
+    for (j = 0; j < num; j++) {
+        *(DlVtxTemplate *)(j * 0x20 + *(int *)(p + 0xC)) = D_004E7A00;
+        ((DlFlag *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll |= 1;
+        *(float *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x30) = 1.0f;
+        ((DlFlag *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~4;
+        *(float *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x20) =
+            *(float *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x24) =
+                *(float *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x28) = 0.0f;
+    }
+    return p;
+}
+
 extern char D_0028FF20[];
 extern int rand(void);
 extern void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short ang, void *axis);
@@ -190,10 +351,8 @@ int DispEnemyFootPrints(int *a0)
     return 1;
 }
 
-extern int D_0063A438;
 extern const char D_0061F710[];
 extern PointBlur D_004E78E0;
-extern void *iosMallocDebug(int heap, int size, const char *file, int line);
 
 PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
 {
