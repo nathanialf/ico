@@ -705,6 +705,7 @@ All 32 bodies are ported.
 |---|---|---|---|---|---|---|
 | `src/matrixDrive` | `.lit4` | `[0x538B0C]` | 0x638B0C..0x638B3C | 48 | 12 (all 0.01f) | 0x30, agrees |
 | `src/motionManager2` | `.lit4` | `[0x538B3C]` | 0x638B3C..0x638B84 | 72 | 18 | 0x48, agrees |
+| `src/Packet` | `.lit4` | `[0x538C40]` | 0x638C40..0x638C58 | 24 | 6 (three 0.501960814f, pac_openDmaTag's two limits, one slot for pac_makePacket) | agrees |
 | `src/act-game` | `.lit4` | `[0x538CC8]` | 0x638CC8..0x638D10 | 72 | 18 | 0x40, differs |
 | `src/commonact` | `.lit4` | `[0x538E3C]` | 0x638E3C..0x638EF4 | 184 | 46 | 0xb4, differs |
 | `src/enemy_act` | `.lit4` | `[0x538EF4]` | 0x638EF4..0x638F5C | 104 | 26 | 0x68, agrees |
