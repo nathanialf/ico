@@ -7,14 +7,14 @@ void dl_OpenDma(int a0, int a1, int a2);
 int dl_GetPri(void);
 
 typedef struct {
-    int f_0;           /* 0x00 */
-    int f_4;           /* 0x04 */
-    long long f_8;     /* 0x08 */
-    unsigned int f_10; /* 0x10 */
-    int pad_14;        /* 0x14 */
-    long long f_18;    /* 0x18 */
-    int pad_20;        /* 0x20 */
-    int f_24;          /* 0x24 */
+    int f_0;                 /* 0x00 */
+    int f_4;                 /* 0x04 */
+    long long f_8;           /* 0x08 */
+    unsigned int f_10;       /* 0x10 */
+    int pad_14;              /* 0x14 */
+    unsigned long long f_18; /* 0x18 */
+    int pad_20;              /* 0x20 */
+    int f_24;                /* 0x24 */
 } DlEntry;
 
 extern int D_0063C4BC;
@@ -27,13 +27,24 @@ extern void mc_Reset(void);
 extern int D_0063A054;
 extern int dmaVif;
 extern void FlushCache(int a0);
-extern void dl_CloseDma();
+extern void dl_CloseDma(void);
 extern void sceDmaSend(int a0, int a1);
 extern int D_006218E0[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void iosFree(int a0);
-extern int D_00728310__pn[] __asm__("D_00728310");
-extern int dl_CloseDma__pn(void) __asm__("dl_CloseDma");
+extern void dpk_Init(void);
+extern void *iosMallocDebug(int handle, int size, char *file, int line);
+extern int D_00621840[];
+extern int D_0063A43C;
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+extern int D_0063BD20;
+extern int D_00728580[];
+extern char D_00621878[];
+extern char D_00621890[];
+extern char D_006218B8[];
+extern char D_0063BD28[];
+void dl_Clear(void);
 
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_Init);
 
@@ -109,8 +120,29 @@ inline void dl_SetDLPriority(int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_PushPriority);
-INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_PopPriority);
+void dl_PushPriority(void)
+{
+    if (D_0063BD20 < 7) {
+        D_0063BD20 = D_0063BD20 + 1;
+        D_00728580[D_0063BD20 - 1] = D_0063C4C0;
+    } else {
+        debug_StdPrintfDummy(D_00621890);
+        debug_assert(D_00621878, 0x216);
+        __assert(D_00621878, 0x216, D_0063BD28);
+    }
+}
+
+void dl_PopPriority(void)
+{
+    if (D_0063BD20 > 0) {
+        D_0063C4C0 = D_00728580[D_0063BD20 - 1];
+        D_0063BD20--;
+    } else {
+        debug_StdPrintfDummy(D_006218B8);
+        debug_assert(D_00621878, 0x228);
+        __assert(D_00621878, 0x228, D_0063BD28);
+    }
+}
 
 inline int dl_GetPri(void)
 {
@@ -128,10 +160,10 @@ void dl_Debug(void)
 
 inline void dl_OpenDma(int a0, int a1, int a2)
 {
-    int *entry = &D_00728310__pn[D_0063C4C0 * 10];
+    int *entry = (int *)&D_00728310[D_0063C4C0];
     int old;
     if (entry[0]) {
-        dl_CloseDma__pn();
+        dl_CloseDma();
     }
     old = entry[9];
     *(long long *)(entry + 6) = a0;
@@ -142,4 +174,57 @@ inline void dl_OpenDma(int a0, int a1, int a2)
     entry[9] = old + 0x10;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_CloseDma);
+void dl_CloseDma(void)
+{
+    DlEntry *e = &D_00728310[D_0063C4C0];
+    long long addr = (e->f_8 & 0x7FFFFFFF) << 32;
+    long long qwc;
+    long long *p;
+
+    switch (e->f_18) {
+    case 0:
+    case 6:
+        qwc = ((unsigned int)(e->f_24 - e->f_4) >> 4) - 1;
+        if (qwc == 0) {
+            e->f_24 = e->f_24 - 0x10;
+            e->f_0 = 0;
+            return;
+        }
+        break;
+    case 7:
+        qwc = ((unsigned int)(e->f_24 - e->f_4) >> 4) - 1;
+        break;
+    default:
+        qwc = e->f_10;
+        break;
+    }
+    p = (long long *)e->f_4;
+    switch (e->f_18) {
+    case 0:
+        p[0] = qwc | 0x10000000;
+        break;
+    case 1:
+        p[0] = qwc | 0x20000000 | addr;
+        break;
+    case 2:
+        p[0] = qwc | 0x30000000 | addr;
+        break;
+    case 3:
+        p[0] = qwc | 0x40000000 | addr;
+        break;
+    case 4:
+        p[0] = qwc | addr;
+        break;
+    case 5:
+        p[0] = qwc | 0x50000000 | addr;
+        break;
+    case 6:
+        p[0] = qwc | 0x60000000;
+        break;
+    case 7:
+        p[0] = qwc | 0x70000000;
+        break;
+    }
+    p[1] = 0;
+    e->f_0 = 0;
+}

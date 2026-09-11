@@ -502,6 +502,8 @@ segments:
       - [0x520F48, rodata, src/cod/520F48]   # .rodata blob resume (the "FEED: %s" string dispFeedInfo reads as an extern, and its pad)
       - [0x520F60, .rodata, src/staticBlur]  # syms: 0x00620F60,0x00620F80  carved jtbl_00620F60 + jtbl_00620F80 (FullScreenEffectBefore/After's 8-arm tables, 16-aligned), VMA 0x620F60..0x620FA0
       - [0x520FA0, rodata, src/cod/520FA0]   # .rodata blob resume
+      - [0x521930, .rodata, src/DisplayList]  # carved jtbl_00621930 (VMA 0x621930..0x621950, 32 B, 8 arms): dl_CloseDma's switch table, emitted by the compiled function; the three zero words before it are the blob's pad
+      - [0x521950, rodata, src/cod/521950]   # .rodata blob resume
       - [0x522E00, .rodata, src/st13b]  # plain-rodata: actSt13bConte02's double 0.15 (a constant-pool operand, 8 B), VMA 0x622E00..0x622E08
       - [0x522E08, rodata, src/cod/522E08]   # .rodata blob resume
       - [0x523428, .rodata, ito/mpeg/mv_vibuf]  # carved D_00623428 "../ito/include/mv_defs.h" + D_00623448 "p != NULL" (mv_defs.h alloc_zeroed's literals, 8-aligned), VMA 0x623428..0x623458, 48 B; the TU's own rodata run, mirror of mv_vobuf's
