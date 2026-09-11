@@ -11,11 +11,51 @@ extern void pac_makePacket(void *a0, int a1, int a2);
 /* prototypes: their order is the inline tail's emission order */
 void pac_Dump(int *a0, int size);
 void pac_Init(void);
-void pac_DispVu1Memory(int idx, int n, void *a2);
-extern void pac_DispQW(void *p, void *a2);
+void pac_DispVu1Memory(int idx, int n, int size);
+extern void pac_DispQW(void *p, int size);
 extern int D_0063C154;
+extern char D_0054F200[];
+extern char D_0054F218[];
+extern char D_0063A100[];
+extern char D_0063A108[];
+extern char D_0063A110[];
+extern char D_0063A118[];
+extern int fptodp(float v);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_DispQW);
+void pac_DispQW(void *p, int size)
+{
+    int i;
+    int j;
+    int flag;
+
+    flag = 0;
+    switch (size) {
+    case 0:
+        flag = 1;
+        size = 4;
+        debug_StdPrintfDummy(D_0054F200, p);
+        break;
+    case 1:
+    case 2:
+    case 4:
+    case 8:
+    case 16:
+        debug_StdPrintfDummy(D_0054F218, p, size);
+        break;
+    default:
+        return;
+    }
+    for (i = 0; i < 16 / size; i++) {
+        if (flag == 0) {
+            for (j = 16 / (16 / size) - 1; j >= 0; j--)
+                debug_StdPrintfDummy(D_0063A100, ((unsigned char *)p)[i * size + j]);
+            debug_StdPrintfDummy(D_0063A108);
+        } else {
+            debug_StdPrintfDummy(D_0063A110, fptodp(((float *)p)[i]));
+        }
+    }
+    debug_StdPrintfDummy(D_0063A118);
+}
 
 inline void pac_Dump(int *a0, int size)
 {
@@ -77,14 +117,14 @@ void pac_DumpPac(char *pac)
     }
 }
 
-inline void pac_DispVu1Memory(int idx, int n, void *a2)
+inline void pac_DispVu1Memory(int idx, int n, int size)
 {
     char *p = (char *)0x1100C000 + (idx << 4);
     int i;
     for (i = 0; i < n; i++) {
         char *q = p;
         p += 0x10;
-        pac_DispQW(q, a2);
+        pac_DispQW(q, size);
     }
 }
 
@@ -435,8 +475,43 @@ void pac_makeMaterialTable(MatTab *out, MatObj *obj, int p2, int p3, unsigned in
     out->f_10 = obj->f_D4;
 }
 
-ASM_LIT4_SLOT(D_00638C50, 0.501960814f);
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTableLine);
+typedef struct MatLine {
+    MatEnt *f_0;
+    char pad0[8];
+    short f_C;
+} MatLine;
+
+void pac_makeMaterialTableLine(MatLine *out, MatObj *obj, int p2, int p3, unsigned int p4)
+{
+    MatEnt *tbl;
+    MatEnt *ent;
+    MatSrc *src;
+    unsigned int i;
+    unsigned int flag;
+    short a;
+    int x;
+
+    tbl = (MatEnt *)mallocseki(obj->f_D4 * 0x70);
+    for (i = 0; i < obj->f_D4; i++) {
+        ent = &tbl[i];
+        src = (MatSrc *)(i * 0x10 + (int)obj->f_D0);
+        flag = src->f_C >= 0.501960814f;
+        a = src->f_5;
+        x = src->f_6 == 0;
+        ent->b0 = p4;
+        ent->b1 = flag * p3;
+        if (a >= 4)
+            a = 3;
+        ent->b3 = a;
+        ent->b9 = x;
+        ent->b5 = obj->f_A0 ? p2 : 0;
+        ent->b7 = obj->f_B0 != 0;
+        ent->b8 = obj->f_C0 != 0;
+        pac_setMaterialPacket(ent);
+    }
+    out->f_0 = tbl;
+    out->f_C = obj->f_D4;
+}
 
 extern char D_0054F820[];
 extern char D_0063A138[];
