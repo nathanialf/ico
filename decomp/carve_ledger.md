@@ -392,6 +392,7 @@ padding is injected. All 30 verified byte-identical with such ends.
 | `src/st04b` | `[0x51BCE0]` | 0x61BCE0..0x61BD00 | `jtbl_0061BCE0` (func_00217658, 8) |
 | `src/frameDependSequence` | `[0x51F7D0]` | 0x61F7D0..0x61F7E4 | `jtbl_0061F7D0` (playSEConditionID, 5) |
 | `src/DisplayList` | `[0x521930]` | 0x621930..0x621950 | `jtbl_00621930` (dl_CloseDma, 8) |
+| `src/st04a` | `[0x5229B0]` | 0x6229B0..0x6229D0 | `jtbl_006229B0` (actSt04aTorch1Chk, 8) |
 | `src/item` | `[0x51FA90]` | 0x61FA90..0x61FAA4 | `jtbl_0061FA90` (execBombGeo, 5) |
 | `src/cod/vendor_2453C0` | `[0x52E5F0]` | 0x62E5F0..0x62E654 | `jtbl_0062E5F0` (func_00246CD0, 25) |
 | `src/cod/vendor_2517D0` | `[0x52ECD0]` | 0x62ECD0..0x62ECE4 | `jtbl_0062ECD0` (func_00251ED0, 5), was `vendor_24E9D8` until the 2026-08-01 member-boundary re-carve moved its owner function |
@@ -723,6 +724,7 @@ All 32 bodies are ported.
 | `src/a_p_1` | `.lit4` | `[0x539374]` | 0x639374..0x639394 | 32 | 8 (fitToCol..attackMot in source order; 3 beside still-asm owners) | 0x20, agrees |
 | `src/item` | `.lit4` | `[0x539530]` | 0x639530..0x639560 | 48 | 12 (uncarriedItemGeo and its nested floatGeo) | 0x2c, differs |
 | `src/staticBlur` | `.lit4` | `[0x5396A8]` | 0x6396A8..0x6396B0 | 8 | 2 | 0x8, agrees |
+| `src/e3` | `.lit4` | `[0x539870]` | 0x639870..0x639898 | 40 | 10 (the TU's whole pool, all owners in C) | agrees |
 | `src/stageSEProc` | `.lit4` | `[0x539B18]` | 0x639B18..0x639C44 | 300 | 75 | 0x138, differs |
 | `src/commonact` | `.sdata` | `[0x53A738]` | 0x63A738..0x63A740 | 8 | 1 ("reset\n" + ROM pad byte) | 0x6d for the whole member, differs |
 
