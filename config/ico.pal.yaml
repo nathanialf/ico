@@ -510,6 +510,8 @@ segments:
       - [0x520FA0, rodata, src/cod/520FA0]   # .rodata blob resume
       - [0x521930, .rodata, src/DisplayList]  # carved jtbl_00621930 (VMA 0x621930..0x621950, 32 B, 8 arms): dl_CloseDma's switch table, emitted by the compiled function; the three zero words before it are the blob's pad
       - [0x521950, rodata, src/cod/521950]   # .rodata blob resume
+      - [0x5229B0, .rodata, src/st04a]  # carved jtbl_006229B0 (VMA 0x6229B0..0x6229D0, 32 B, 8 arms): actSt04aTorch1Chk's switch table, emitted by the compiled function
+      - [0x5229D0, rodata, src/cod/5229D0]   # .rodata blob resume
       - [0x522E00, .rodata, src/st13b]  # plain-rodata: actSt13bConte02's double 0.15 (a constant-pool operand, 8 B), VMA 0x622E00..0x622E08
       - [0x522E08, rodata, src/cod/522E08]   # .rodata blob resume
       - [0x523428, .rodata, ito/mpeg/mv_vibuf]  # carved D_00623428 "../ito/include/mv_defs.h" + D_00623448 "p != NULL" (mv_defs.h alloc_zeroed's literals, 8-aligned), VMA 0x623428..0x623458, 48 B; the TU's own rodata run, mirror of mv_vobuf's
@@ -594,6 +596,7 @@ segments:
       - [0x5397E8, lit4, src/cod/5397E8]     # .lit4 blob resume
       - [0x539860, .lit4, src/way_kidnap]  # carved D_00639860 (1.0e10f, NearestEnemyFromGirl's initial minimum, written as a literal), the TU's whole .lit4 run, VMA 0x639860..0x639864; 0x63985C is act's, 0x639864 way_tool's
       - [0x539864, lit4, src/cod/539864]     # .lit4 blob resume
+      - [0x539870, .lit4, src/e3]  # carved D_00639870..D_00639894 (10 slots, the TU's whole pool, all owners in C), VMA 0x639870..0x639898, 40 B
       - [0x539898, .lit4, src/end]  # carved D_00639898..D_006398AC (6 words: actEndDemo14's 7046/1678 as slots while it is asm; Conte14_7, Staff3Demo, Staff3RollChk's constants as literals; the TU's whole pool, op's word follows), VMA 0x639898..0x6398B0
       - [0x5398B0, .lit4, src/op]  # carved D_006398B0 (1 slot, 2700.0f in actSt24aConte01_2_Jimaku; = MAIN.MAP op.o .lit4 0x4), VMA 0x6398B0..0x6398B4
       - [0x5398B4, .lit4, src/st02a]  # carved D_006398B4..D_006398C8 (6 slots: actSt02aDoorUpChk x2, DoorDownChk x2 still asm; actSt02aSekizo's 1828/1150 as literals; the TU's whole pool, bounded by op's 2700 and st03t's -913), VMA 0x6398B4..0x6398CC
