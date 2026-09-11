@@ -29,6 +29,7 @@ ParticleMicroProgram = 0x0028E700; // type:func  // src/particle.s (VU1 micropro
 iosCdvdStManager = 0x00133250; // type:func  // ios/cdvd
 iosCdvdMgrSearchFile = 0x00133540; // type:func  // ios/cdvd
 iosCdvdManager = 0x001345C8; // type:func  // ios/cdvd
+iosCdvdDiskReady = 0x001347E0; // type:func  // ios/cdvd  // census line 1755, 7 insns, seated inside the iosCdvdManager stub after its pad nop
 iosMcManager = 0x001399A8; // type:func  // ios/mcard
 iosMcMgrSync = 0x0013A010; // type:func  // ios/mcard
 send_signal_message = 0x0013C608; // type:func  // ios/message

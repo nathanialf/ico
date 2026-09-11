@@ -138,15 +138,141 @@ extern char D_00550D68[];
 extern char D_0063A390[];
 extern int iosThreadGetPri(int tid);
 extern void iosThreadSetPri(int tid, int pri);
-extern void sceCdBreak(void);
-extern void iosMsgRecv();
+extern int sceCdBreak(void);
+extern int iosMsgRecv(void *q, void *buf, int mode);
 extern void sprintf();
 extern void debug_assertMessage(const char *file, int line, const char *msg);
 extern void __assert(const char *file, int line, char *expr);
 extern int close_inflate_handler(int handle);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrStStop);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrLoad);
+void iosCdvdMgrStStop(char *self)
+{
+    char buf[128];
+    int msg;
+    int pri;
+
+    pri = iosThreadGetPri(0);
+    iosThreadSetPri(0, 27);
+    D_0029B410.f_8 = 1;
+    iosMsgSend(D_006BC830, &D_0029B410, 1);
+    if (D_0029B410.f_4 == 1) {
+        sceCdBreak();
+    }
+    iosThreadSetPri(0, pri);
+    iosMsgRecv(D_0029B3E0, &msg, 1);
+    if (msg != 2) {
+        sprintf(buf, D_00550D68, msg);
+        debug_assertMessage(D_00550C58, 906, buf);
+        __assert(D_00550C58, 906, D_0063A390);
+    }
+    *(int *)(self + 0xC) = 0;
+    close_inflate_handler(*(int *)(self + 0x160));
+}
+
+extern char D_00637E69[];
+extern char D_0063A3A0[];
+extern int strcpy();
+extern int iosCdvdChgFileName(int a0);
+
+/* INTERIM: the January-2002 listing expands iosCdvdChgFileName (cdvd.c rows
+ * 958-967) inside unifile_read_func, so the 2001 source declared it `inline`
+ * and the compiler emitted both the inlined copy and the out-of-line body.
+ * While this TU still carries asm members the out-of-line body has to stay at
+ * its own ROM slot below, so the inlined copy is spelled here as a static
+ * stand-in.  Delete this once the TU is C-complete and mark the real
+ * definition `inline`.  */
+static inline int chgFileNameInlined(int a0)
+{
+    unsigned char buf[0x100];
+    unsigned char *p = buf;
+    unsigned char c;
+    unsigned char nc;
+    sprintf(buf, D_0063A3A0, a0);
+    c = buf[0];
+    do {
+        int t = ((int)c) << (nc = 24);
+        int sc = t >> 24;
+        if (sc == '/') {
+            *p = '\\';
+        } else {
+            int r = sc - 0x20;
+            if ((D_00637E69[sc] & 2) == 0) {
+                r = sc;
+            }
+            *p = r;
+        }
+        p++;
+        nc = *p;
+        c = nc;
+    } while (nc != 0);
+    return strcpy(a0, buf);
+}
+
+extern char D_00550CC8[];
+extern char D_00550CD8[];
+extern char D_00550D90[];
+extern char D_00550DA8[];
+extern unsigned char D_0063A378;
+extern int D_0063A374;
+extern int sceCdDiskReady(int mode);
+extern int sceCdGetDiskType(void);
+extern int sceCdSearchFile(CdlFILE *fp, const char *name);
+extern void debug_StdPrintfDummy();
+extern void iosCdvdMgrSearchFile(char *self);
+extern void iosCdvdMgrStStart(char *self);
+extern void iosCdvdMgrStStop(char *self);
+
+/* INTERIM: the listing expands iosCdvdDiskReadyBlock (cdvd.c rows 701-720)
+ * here too, so the 2001 source declared it `inline` as well.  Same treatment
+ * as chgFileNameInlined above: a static stand-in until the TU is C-complete.  */
+static inline void diskReadyBlockInlined(void)
+{
+    if (sceCdDiskReady(1) != 2) {
+        CdlFILE fp;
+        char file[32];
+        *(long long *)file = *(long long *)D_00550CC8;
+        *(int *)(file + 8) = *(int *)(D_00550CC8 + 8);
+        iosCdvdChgFileName((int)file);
+        debug_StdPrintfDummy(D_00550CD8, D_00550CC8, file);
+        do {
+            sceCdDiskReady(0);
+        } while (sceCdGetDiskType() != D_0063A374 || sceCdSearchFile(&fp, file) == 0);
+    }
+}
+
+void iosCdvdMgrLoad(char *self)
+{
+    int rv;
+
+    chgFileNameInlined((int)(self + 0x38));
+    *(char *)(self + 0x15C) = 0;
+    *(unsigned char *)(self + 0x15D) = D_0063A378;
+    *(char *)(self + 0x15E) = 0;
+    *(int *)(self + 0x28) = 0;
+    diskReadyBlockInlined();
+    *(int *)(self + 0xC) = 0;
+    iosCdvdMgrSearchFile(self);
+    if (*(int *)(self + 0xC) != 0) {
+        debug_StdPrintfDummy(D_00550D90, self + 0x38);
+        return;
+    }
+    *(int *)(self + 0x30) = ((unsigned int)(*(int *)(self + 0x13C) - 1) >> 11) + 1;
+    iosCdvdMgrStStart(self);
+    if (*(int *)(self + 0xC) != 0) {
+        return;
+    }
+    if (*(int (**)(char *, int))(self + 0x1C) != 0) {
+        rv = (*(int (**)(char *, int))(self + 0x1C))(self, *(int *)(self + 0x20));
+        if (rv != 0) {
+            *(int *)(self + 0xC) = 102;
+        }
+    }
+    debug_StdPrintfDummy(D_00550DA8);
+    iosCdvdMgrStStop(self);
+    if (*(int *)(self + 0xC) == 0) {
+        *(int *)(self + 0xC) = 0;
+    }
+}
 
 extern int D_0063A44C;
 extern char D_00550DB8[];
@@ -165,7 +291,63 @@ void temp_loadfunc(int *self, int name, int size, int a3, int a4, int a5, int se
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrPackLoad);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdStRead);
+
+extern char D_00550E58[];
+extern int D_0063A388;
+extern char *memcpy(char *d, const char *s, int n);
+
+int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
+{
+    char msgbuf[128];
+    int msg;
+    CdStReq *req = &D_0029B410;
+    int pri = iosThreadGetPri(0);
+    int total = 0;
+    int size;
+    int bytes;
+
+    while (n != 0) {
+        iosThreadSetPri(0, 27);
+        if (req->f_1C + n > req->size) {
+            size = req->size - req->f_1C;
+        } else {
+            size = n;
+        }
+        if (flag == 0) {
+            size = req->f_18;
+        } else {
+            while (req->f_18 < size) {
+                D_0063A388 = 1;
+                iosMsgRecv(D_0029B3E0, &msg, 1);
+                if (msg != 1) {
+                    sprintf(msgbuf, D_00550E58, msg);
+                    debug_assertMessage(D_00550C58, 1304, msgbuf);
+                    __assert(D_00550C58, 1304, D_0063A390);
+                }
+            }
+        }
+        if (size != 0) {
+            bytes = size << 11;
+            memcpy((char *)buf, (char *)((req->f_1C << 11) + (int)req->buf), bytes);
+            if (req->f_1C + size >= req->size) {
+                req->f_1C = 0;
+            } else {
+                req->f_1C = req->f_1C + size;
+            }
+            req->f_18 -= size;
+            buf += bytes;
+            n -= size;
+            total += size;
+            if (D_0029B410.f_4 == 2) {
+                D_0029B410.f_8 = 2;
+                iosMsgSend(D_006BC830, &D_0029B410, 1);
+            }
+        }
+        iosThreadSetPri(0, pri);
+    }
+    return total;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdHandlerReadNoInflate);
 
 extern char D_00550EC0[];
@@ -213,7 +395,27 @@ void iosCdvdHandlerRead(int *a0, void *a1, int a2)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", unifile_read_func);
+extern char D_00550ED8[];
+
+int unifile_read_func(int *self)
+{
+    char work[32];
+    int cnt;
+    int lsn;
+
+    iosCdvdHandlerRead(self, &cnt, 4);
+    while (cnt-- > 0) {
+        iosCdvdHandlerRead(self, work, 32);
+        sprintf((char *)self + 0x38, D_00550ED8, work);
+        chgFileNameInlined((int)((char *)self + 0x38));
+        strcpy(D_00298E68 + D_0063A36C * 0x30, (char *)self + 0x38);
+        iosCdvdHandlerRead(self, &lsn, 4);
+        *(int *)(D_00298E68 + D_0063A36C * 0x30 - 8) = lsn / 2048 + self[0x138 / 4];
+        iosCdvdHandlerRead(self, D_00298E68 + D_0063A36C * 0x30 - 4, 4);
+        D_0063A36C++;
+    }
+    return 1;
+}
 
 /* The 0x38 name column of a cdvd request is written 16 bytes at a time, so it
  * is typed as an 8-byte-aligned pair; D_00550EE8 is the fixed disc path the
@@ -225,18 +427,17 @@ typedef struct {
 
 extern CdvdName16 D_00550EE8;
 extern char D_006AF9C0[];
-extern void unifile_read_func();
-extern void iosCdvdMgrLoad(void *req);
 
 void iosCdvdUnifileInfoGet(void)
 {
     *(long long *)D_006AF9C0 &= ~1LL;
     *(CdvdName16 *)(D_006AF9C0 + 0x38) = D_00550EE8;
-    *(void (**)())(D_006AF9C0 + 0x1C) = unifile_read_func;
+    *(int (**)())(D_006AF9C0 + 0x1C) = unifile_read_func;
     iosCdvdMgrLoad(D_006AF9C0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdManager);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdDiskReady);
 
 extern unsigned char CdvdMsgQ[];
 extern int iosMsgSend(void *a0, void *a1, int a2);
@@ -257,8 +458,92 @@ void iosCdvdPackLoad(void *a0)
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgrAdd);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", cdWait);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundRead);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundReadIOPm);
+
+extern int D_0063A370;
+extern int D_0063A380;
+extern int D_0063A3D0;
+extern int D_0063A3D4;
+extern void cdWait(int *flag);
+extern int sceCdStatus(void);
+extern int sceCdSync(int mode);
+extern int sceCdGetError(void);
+extern int sceCdReadIOPm(int lsn, int sectors, void *buf, int *mode);
+extern int sceCdRead(int lsn, int sectors, void *buf, int *mode);
+
+int iosCdvdBackGroundRead(char *self, void *buf, int size)
+{
+    int flag;
+
+    D_0063A3D0++;
+    while (1) {
+        flag = 0;
+        while ((D_0063A370 == 1 && sceCdStatus() != 10) || sceCdDiskReady(1) != 2) {
+            cdWait(&flag);
+        }
+        while (sceCdRead(*(int *)(self + 0x114) + *(int *)(self + 0x110) / 2048, size / 2048, buf,
+                         &D_0063A380) == 0) {
+            cdWait(&flag);
+        }
+        while (sceCdSync(1) != 0) {
+            cdWait(&flag);
+        }
+        if (flag != 0) {
+            D_0063A3D4++;
+            while (sceCdBreak() == 0) {
+                cdWait(&flag);
+            }
+        } else {
+            if (sceCdGetError() != 0 && ((*(unsigned int *)(self + 0x108) >> 4) & 1) == 0) {
+                while (sceCdBreak() == 0) {
+                    cdWait(&flag);
+                }
+            } else {
+                break;
+            }
+        }
+        cdWait(&flag);
+    }
+    *(int *)(self + 0x110) += size;
+    return !(*(int *)(self + 0x110) < *(int *)(self + 0x10C));
+}
+
+int iosCdvdBackGroundReadIOPm(char *self, void *buf, int size)
+{
+    int flag;
+
+    D_0063A3D0++;
+    while (1) {
+        flag = 0;
+        while ((D_0063A370 == 1 && sceCdStatus() != 10) || sceCdDiskReady(1) != 2) {
+            cdWait(&flag);
+        }
+        while (sceCdReadIOPm(*(int *)(self + 0x114) + *(int *)(self + 0x110) / 2048, size / 2048,
+                             buf, &D_0063A380) == 0) {
+            cdWait(&flag);
+        }
+        while (sceCdSync(1) != 0) {
+            cdWait(&flag);
+        }
+        if (flag != 0) {
+            D_0063A3D4++;
+            while (sceCdBreak() == 0) {
+                cdWait(&flag);
+            }
+        } else {
+            if (sceCdGetError() != 0 && ((*(unsigned int *)(self + 0x108) >> 4) & 1) == 0) {
+                while (sceCdBreak() == 0) {
+                    cdWait(&flag);
+                }
+            } else {
+                break;
+            }
+        }
+        cdWait(&flag);
+    }
+    *(int *)(self + 0x110) += size;
+    return !(*(int *)(self + 0x110) < *(int *)(self + 0x10C));
+}
+
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdDirectStOpen);
 
 void iosCdvdDirectStClose(int *self)
@@ -328,7 +613,7 @@ found:
 }
 
 extern int CdvdMsgQ_LoadEnd[];
-extern void iosMsgRecv();
+extern int iosMsgRecv(void *q, void *buf, int mode);
 
 int iosCdvdSync(int a0)
 {
