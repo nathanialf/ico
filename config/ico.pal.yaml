@@ -434,6 +434,8 @@ segments:
       - [0x44E170, rodata, src/cod/44E170]   # .rodata blob resume
       - [0x44F1E0, .rodata, src/MicroCode]  # carved jtbl_0054F1E0 (5 arms, 0x14 B): mc_setBaseOffset's switch table, emitted by the compiled function, VMA 0x54F1E0..0x54F1F4
       - [0x44F1F4, rodata, src/cod/44F1F4]   # .rodata blob resume (three zero pad words up to the 16-aligned string at 0x54F200, then the rest of the run)
+      - [0x44F410, .rodata, src/Packet]  # carved jtbl_0054F410 (VMA 0x54F410..0x54F424, 20 B, 5 arms): pac_error's switch table, emitted by the compiled function; the pad word after it is the blob's
+      - [0x44F424, rodata, src/cod/44F424]   # .rodata blob resume
       - [0x452080, .rodata, isys/obj_manager]  # carved jtbl_00552080 (VMA 0x552080..0x552094, 5 arms, 20 B): iosOmExeMail's switch table, emitted by the compiled function
       - [0x452094, rodata, src/cod/452094]   # .rodata blob resume (the zero pad word before the 8-aligned string at 0x552098 is the blob's first word: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x452430, .rodata, src/act-game]  # syms: 0x00552430  carved jtbl_00552430 (ACTGameView_Loop's 8-arm table), VMA 0x552430..0x552450
