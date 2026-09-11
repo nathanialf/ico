@@ -724,6 +724,7 @@ All 32 bodies are ported.
 | `src/a_p_1` | `.lit4` | `[0x539374]` | 0x639374..0x639394 | 32 | 8 (fitToCol..attackMot in source order; 3 beside still-asm owners) | 0x20, agrees |
 | `src/item` | `.lit4` | `[0x539530]` | 0x639530..0x639560 | 48 | 12 (uncarriedItemGeo and its nested floatGeo) | 0x2c, differs |
 | `src/staticBlur` | `.lit4` | `[0x5396A8]` | 0x6396A8..0x6396B0 | 8 | 2 | 0x8, agrees |
+| `src/waterDot` | `.lit4` | `[0x5396D0]` | 0x6396D0..0x6396D8 | 8 | 2 (one slot beside the still-asm ExecWaterDot) | agrees |
 | `src/e3` | `.lit4` | `[0x539870]` | 0x639870..0x639898 | 40 | 10 (the TU's whole pool, all owners in C) | agrees |
 | `src/stageSEProc` | `.lit4` | `[0x539B18]` | 0x639B18..0x639C44 | 300 | 75 | 0x138, differs |
 | `src/commonact` | `.sdata` | `[0x53A738]` | 0x63A738..0x63A740 | 8 | 1 ("reset\n" + ROM pad byte) | 0x6d for the whole member, differs |
@@ -1082,6 +1083,9 @@ words become the blob's first words.
 
 - `[0x51FA90, .rodata, src/item]` execBombGeo's 5-arm table (20 B), resume
   `0x51FAA4` (c1ccaa792).
+
+- `[0x521398, .rodata, src/waterDot]` plain-rodata: ExecWaterDot's double 0.00078125 (8 B),
+  resume `0x5213A0`.
 
 - `[0x521930, .rodata, src/DisplayList]` dl_CloseDma's 8-arm table (32 B), resume
   `0x521950`; the three zero words before it are the blob's pad.
