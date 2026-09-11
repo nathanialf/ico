@@ -18,19 +18,58 @@ typedef struct SeReqRec {
     long long chMask; /* 0x20 */
 } SeReqRec;
 
-static inline char *hd_search(char *base, int *pk)
+typedef struct SeEnvDef {
+    float unk0;          /* 0x00 */
+    float unk4;          /* 0x04 */
+    float volume;        /* 0x08 */
+    float unkC;          /* 0x0C */
+    float unk10;         /* 0x10 */
+    float unk14;         /* 0x14 */
+    unsigned int b0 : 1; /* 0x18 bit 0 */
+    unsigned int b1 : 1;
+    unsigned int b2 : 1;
+    unsigned int b3 : 1;
+    unsigned int b4 : 28;
+} SeEnvDef;
+
+typedef struct SeSrc {
+    int unk0[9]; /* 0x00 */
+    float unk24; /* 0x24 */
+} SeSrc;
+
+typedef struct SeSlot {
+    int unk0;             /* 0x00 */
+    unsigned int f0 : 26; /* 0x04 bits 0..25 */
+    unsigned int f26 : 1;
+    unsigned int f27 : 1;
+    unsigned int f28 : 2;
+    unsigned int f30 : 1;
+    unsigned int f31 : 1;
+    int unk8[4];     /* 0x08 */
+    float unk18;     /* 0x18 */
+    float unk1C;     /* 0x1C */
+    float unk20;     /* 0x20 */
+    float unk24;     /* 0x24 */
+    float unk28;     /* 0x28 */
+    int unk2C[3];    /* 0x2C */
+    SeSrc *unk38;    /* 0x38 */
+    SeEnvDef *unk3C; /* 0x3C */
+} SeSlot;
+
+extern char D_006BF570[];
+
+/* INTERIM stand-in for soundDataAreaSearch (defined out of line further down,
+   where the compiler emits the inline's own body): the tail still carries asm
+   members, so the ROM-slot definition cannot be marked `inline` yet. */
+static inline SqEntry *hd_search(int *pk)
 {
-    char *p = base;
-    char *end = p + 0x300;
-    char *r = p;
-    do {
-        char *snap = r;
-        if (*(int *)p == *pk)
+    int i;
+    SqEntry *r;
+    for (i = 0; i < 16; i++) {
+        r = (SqEntry *)&D_006BF570[i * 0x30];
+        if (*(int *)&D_006BF570[i * 0x30] == *pk)
             goto found;
-        r += 0x30;
-        p += 0x30;
-        r = snap + 0x30;
-    } while ((int)p < (int)end);
+    }
     return 0;
 found:
     return r;
@@ -433,9 +472,72 @@ void soundSeDefPitchSet(int a0)
     SgSetSePitchDirect(id);
 }
 
-ASM_LIT4_SLOT(D_00638CB8, 3000.0f);
-ASM_LIT4_SLOT(D_00638CBC, 0.1f);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeEnvPlay);
+extern char D_005D3F30[];
+
+typedef struct SeEnvStage {
+    int unk0[68];   /* 0x000 */
+    int first;      /* 0x110 */
+    int last;       /* 0x114 */
+    int unk118[31]; /* 0x118 */
+} SeEnvStage;
+
+extern SeEnvStage D_005F5D50[];
+extern int D_0063A458;
+extern int stage_no;
+extern int _soundSeDefPlay(int a0, unsigned int a1, int a2, int a3, float f, int t0, int t1);
+extern int iosMallocDebug(int heap, int size, char *file, int line);
+
+/* INTERIM stand-in for soundSeEnvDefaultSet, whose ROM-slot definition sits in
+   this TU's inline tail: the tail still carries asm members, so that definition
+   cannot be marked `inline` yet. */
+static inline void env_default_set(SeSlot *self)
+{
+    SeEnvDef *env = self->unk3C;
+
+    if (env->volume != 0.0f) {
+        self->unk18 = env->volume;
+    } else {
+        self->unk18 = self->unk38->unk24;
+    }
+    if (env->unkC != 0.0f) {
+        self->unk24 = env->unkC;
+    } else {
+        self->unk24 = 500.0f;
+    }
+    if (env->unk10 != 0.0f) {
+        self->unk20 = env->unk10;
+    } else {
+        self->unk20 = 1000.0f;
+    }
+    if (env->unk14 != 0.0f) {
+        self->unk28 = env->unk14;
+    } else {
+        self->unk28 = 3000.0f;
+    }
+    self->f30 = env->b3;
+    self->f26 = env->b1;
+    self->f27 = env->b2;
+    self->unk1C = 0.1f;
+}
+
+void soundSeEnvPlay(void)
+{
+    SeSlot *slot;
+    int i;
+
+    for (i = D_005F5D50[stage_no].first; i < D_005F5D50[stage_no].last; i++) {
+        SeEnvDef *e = (SeEnvDef *)&D_005D3F30[i * 0x1C];
+        _soundSeDefPlay(*(int *)e, 0xFFFFFFFF, 0, 0, -1.0f, (int)e, (int)&slot);
+        if (slot != 0) {
+            slot->unk3C = e;
+            env_default_set(slot);
+            if (e->b0 == 1) {
+                slot->unk2C[2] = iosMallocDebug(D_0063A458, 0x10, D_005521E8, 0x61D);
+            }
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeEnvNotUseClose);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataSegNextStageNotUseClose);
 
@@ -516,27 +618,35 @@ void soundBufAdpcmFree(char *self)
 
 char *soundDataAreaSearch(int *a0)
 {
-    int key = *a0;
-    char *p = D_006BF570;
-    char *end = p + 0x300;
-    char *r = p;
-    do {
-        char *snap = r;
-        if (*(int *)p == key)
-            goto found;
-        r += 0x30;
-        p += 0x30;
-        r = snap + 0x30;
-    } while ((int)p < (int)end);
-    return 0;
-found:
-    return r;
+    return (char *)hd_search(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataAreaGet);
+char *soundDataAreaGet(int a0, int a1, int a2, int a3)
+{
+    SqEntry *e;
+    int hi = a1 << 0x10;
+    int key = (a0 & 0xFFFF) | hi;
+
+    e = hd_search(&key);
+    if (e == 0) {
+        key = 0;
+        e = hd_search(&key);
+        if (e == 0) {
+            debug_assert(D_005521E8, 0x14E);
+            __assert(D_005521E8, 0x14E, D_0063A660);
+        }
+        memset(e, 0, 0x30);
+        e->num = a0;
+        e->bank = a1;
+        e->unk6 = a3;
+        e->unk4 = a2;
+        e->unk28 = -1;
+    }
+    return (char *)e;
+}
 
 extern char D_0063A660[];
-extern char D_006A95B0_2[] __asm__("D_006BF570");
+extern char D_006BF570[];
 extern void __assert(char *file, int line, char *msg);
 extern void debug_assert(char *file, int line);
 extern int memset(void *dst, int val, int size);
@@ -546,10 +656,10 @@ char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4)
 {
     int hi = a2 << 0x10;
     int key = (a1 & 0xFFFF) | hi;
-    SqEntry *e = (SqEntry *)hd_search(D_006BF570, &key);
+    SqEntry *e = hd_search(&key);
     if (e == 0) {
         key = 0;
-        e = (SqEntry *)hd_search(D_006A95B0_2, &key);
+        e = hd_search(&key);
         if (e == 0) {
             debug_assert(D_005521E8, 0x14E);
             __assert(D_005521E8, 0x14E, D_0063A660);
@@ -566,9 +676,31 @@ char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4)
     return (char *)e;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSQDataSet);
+char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4)
+{
+    int hi = a2 << 0x10;
+    int key = (a1 & 0xFFFF) | hi;
+    SqEntry *e = hd_search(&key);
+    if (e == 0) {
+        key = 0;
+        e = hd_search(&key);
+        if (e == 0) {
+            debug_assert(D_005521E8, 0x14E);
+            __assert(D_005521E8, 0x14E, D_0063A660);
+        }
+        memset(e, 0, 0x30);
+        e->num = a1;
+        e->bank = a2;
+        e->unk6 = a4;
+        e->unk4 = a3;
+        e->unk28 = -1;
+    }
+    e->unk10[0] = a0;
+    soundDataOpenChk((char *)e);
+    return (char *)e;
+}
 
-extern int _soundSeDefPlay(int a0, int a1, int a2, int a3, float f, int t0, int t1);
+extern int _soundSeDefPlay(int a0, unsigned int a1, int a2, int a3, float f, int t0, int t1);
 extern void sound3DParamSet(int *p);
 
 int soundSeDefPlay(int a0, int a1, int a2, int a3)
@@ -754,44 +886,6 @@ int soundSeSemiCommonLoadChk(void)
 {
     return D_0063A658;
 }
-
-typedef struct SeEnvDef {
-    float unk0;          /* 0x00 */
-    float unk4;          /* 0x04 */
-    float volume;        /* 0x08 */
-    float unkC;          /* 0x0C */
-    float unk10;         /* 0x10 */
-    float unk14;         /* 0x14 */
-    unsigned int b0 : 1; /* 0x18 bit 0 */
-    unsigned int b1 : 1;
-    unsigned int b2 : 1;
-    unsigned int b3 : 1;
-    unsigned int b4 : 28;
-} SeEnvDef;
-
-typedef struct SeSrc {
-    int unk0[9]; /* 0x00 */
-    float unk24; /* 0x24 */
-} SeSrc;
-
-typedef struct SeSlot {
-    int unk0;             /* 0x00 */
-    unsigned int f0 : 26; /* 0x04 bits 0..25 */
-    unsigned int f26 : 1;
-    unsigned int f27 : 1;
-    unsigned int f28 : 2;
-    unsigned int f30 : 1;
-    unsigned int f31 : 1;
-    int unk8[4];     /* 0x08 */
-    float unk18;     /* 0x18 */
-    float unk1C;     /* 0x1C */
-    float unk20;     /* 0x20 */
-    float unk24;     /* 0x24 */
-    float unk28;     /* 0x28 */
-    int unk2C[3];    /* 0x2C */
-    SeSrc *unk38;    /* 0x38 */
-    SeEnvDef *unk3C; /* 0x3C */
-} SeSlot;
 
 void soundSeEnvDefaultSet(SeSlot *self)
 {
