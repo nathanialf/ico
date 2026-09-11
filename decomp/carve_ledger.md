@@ -711,7 +711,7 @@ All 32 bodies are ported.
 | `src/debug` | `.lit4` | `[0x539338]` | 0x639338..0x639358 | 32 | 8 | 0x18, differs |
 | `src/layout_action` | `.lit4` | `[0x539360]` | 0x639360..0x63936C | 12 | 3 | 0x8, differs |
 | `src/a_p_1` | `.lit4` | `[0x539374]` | 0x639374..0x639394 | 32 | 8 (fitToCol..attackMot in source order; 3 beside still-asm owners) | 0x20, agrees |
-| `src/item` | `.lit4` | `[0x539530]` | 0x639530..0x639560 | 48 | 12 (uncarriedItemGeo and its nested floatGeo) | agrees |
+| `src/item` | `.lit4` | `[0x539530]` | 0x639530..0x639560 | 48 | 12 (uncarriedItemGeo and its nested floatGeo) | 0x2c, differs |
 | `src/staticBlur` | `.lit4` | `[0x5396A8]` | 0x6396A8..0x6396B0 | 8 | 2 | 0x8, agrees |
 | `src/stageSEProc` | `.lit4` | `[0x539B18]` | 0x639B18..0x639C44 | 300 | 75 | 0x138, differs |
 | `src/commonact` | `.sdata` | `[0x53A738]` | 0x63A738..0x63A740 | 8 | 1 ("reset\n" + ROM pad byte) | 0x6d for the whole member, differs |
