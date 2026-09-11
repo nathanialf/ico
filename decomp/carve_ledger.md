@@ -388,6 +388,7 @@ padding is injected. All 30 verified byte-identical with such ends.
 | `src/spider` | `[0x51A170]` | 0x61A170..0x61A184 | `jtbl_0061A170` (func_001EA5E8, 5) |
 | `src/DisplayList` | `[0x51AC40]` | 0x61AC40..0x61AC60 | `jtbl_0061AC40` (dl_GetPri, 8) |
 | `src/st04b` | `[0x51BCE0]` | 0x61BCE0..0x61BD00 | `jtbl_0061BCE0` (func_00217658, 8) |
+| `src/item` | `[0x51FA90]` | 0x61FA90..0x61FAA4 | `jtbl_0061FA90` (execBombGeo, 5) |
 | `src/cod/vendor_2453C0` | `[0x52E5F0]` | 0x62E5F0..0x62E654 | `jtbl_0062E5F0` (func_00246CD0, 25) |
 | `src/cod/vendor_2517D0` | `[0x52ECD0]` | 0x62ECD0..0x62ECE4 | `jtbl_0062ECD0` (func_00251ED0, 5), was `vendor_24E9D8` until the 2026-08-01 member-boundary re-carve moved its owner function |
 | `src/cod/vendor_258CC0` | `[0x52F0E0]` | 0x62F0E0..0x62F2C0 | `jtbl_0062F0E0` (func_00258D10, 99) + pad + `jtbl_0062F270` (func_0025BA58, 20) |
@@ -1062,6 +1063,9 @@ words become the blob's first words.
   `0x51FA18`; the two zero pad words become the blob's first words. Note the
   oracle cannot score a switch function whose ROM `.s` carries `jlabel`s
   (objdump -d dumps the region as hex); verify by objdump -D word compare and ninja.
+
+- `[0x51FA90, .rodata, src/item]` execBombGeo's 5-arm table (20 B), resume
+  `0x51FAA4` (c1ccaa792).
 
 - `[0x4555E0, .rodata, src/ebrain]` eBrainGetTarget's two tables (7 and 9 arms) at
   16-byte alignment, resume `0x455624`; the TU's four strings before them belong
