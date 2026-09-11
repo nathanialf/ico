@@ -73,7 +73,60 @@ void zAxisRotFitting(int *self, int arg2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", fitToCol);
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", walkMot);
+
+extern int fitToCol(char *a0, int a1);
+extern void GetRootPosition(void *dst, void *self);
+extern void SetRootPosition(void *self, void *src);
+extern void GetRootMatrix(void *dst, void *self);
+extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
+extern void _ScaleVector(void *dst, void *src, float s);
+extern void _AddVectorXYZ(void *dst, void *a, void *b);
+extern float VectorLength(void *v);
+extern float D_00639378;
+extern float D_0063937C;
+
+typedef union {
+    int i;
+    float f;
+} AP1Val;
+
+int walkMot(char *a0)
+{
+    Vec4 pos;
+    Vec4 v;
+    Mtx44 m;
+    Mtx44 tm;
+    Vec4 out;
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    int ret = fitToCol(a0, 1);
+    int i;
+    int n;
+
+    if (ret != -1)
+        return ret;
+
+    GetRootPosition(&pos, a0);
+    GetRootMatrix(&m, a0);
+    _ApplyMatrix((int)&v, (int)&m, (int)(p + 0x1B0));
+    n = 0;
+    for (i = 0; i < 4; i++) {
+        if (*(int *)(p + 0x10 + i * 0x50) == 0) {
+            n++;
+        }
+    }
+    _ScaleVector(&v, &v, ((float)n * 0.25f + 0.5f) * 0.5f);
+    _ScaleVector(*(char **)(a0 + 0x15C) + 0x130, *(char **)(a0 + 0x15C) + 0x130, D_00639378);
+    _AddVectorXYZ(*(char **)(a0 + 0x15C) + 0x130, *(char **)(a0 + 0x15C) + 0x130, &v);
+    MatrixDrive_SetTransposeMatrix(&tm, &m);
+    _ApplyMatrix((int)&out, (int)&tm, (int)(*(char **)(a0 + 0x15C) + 0x130));
+    ((AP1Val *)(p + 0x1C4))->f = out.m[0];
+    ((AP1Val *)(p + 0x1C0))->f = VectorLength(*(char **)(a0 + 0x15C) + 0x130) * D_0063937C;
+    _AddVectorXYZ(&pos, &pos, *(char **)(a0 + 0x15C) + 0x130);
+    SetRootPosition(a0, &pos);
+    *(int *)(p + 0x1C8) = 0;
+    return 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", rolling);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", calcSubMission);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", updateMatrix);
@@ -87,7 +140,28 @@ void resetPositionInfo(char *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1Geo);
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1DL);
+
+extern void p2o_SetDefaultEnviroment(void);
+extern void p2o_DispVU1(void *gobj);
+extern void p2o_DispVU1DObjMulti(int obj);
+extern void DispEnemyEye(int eye);
+
+void AP1DL(char *a0)
+{
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+
+    if (*(int *)(p + 8) < 5) {
+        if (*(int *)(p + 0x278) != 0) {
+            p2o_SetDefaultEnviroment();
+            p2o_DispVU1(a0);
+            if (*(int *)(p + 4) == 0) {
+                p2o_DispVU1DObjMulti(*(int *)(p + 0x194));
+                p2o_DispVU1DObjMulti(*(int *)(p + 0x198));
+            }
+            DispEnemyEye(*(int *)(p + 0x19C));
+        }
+    }
+}
 
 int GetAP1SpecType(char *a0)
 {
