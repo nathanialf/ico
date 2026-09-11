@@ -551,6 +551,7 @@ segments:
       - [0x539324, lit4, src/cod/539324]     # .lit4 blob resume (queen_barrier_disp's words)
       - [0x539328, .lit4, src/stage_orient]  # carved D_00639328 (1 word, StageOrientGet2's literal; the TU is fully C), VMA 0x639328..0x63932C
       - [0x53932C, lit4, src/cod/53932C]     # .lit4 blob resume
+      - [0x539334, .lit4, src/backStage]  # carved D_00639334 (1 word, backStageProcessInStage's 10000000.0f; the TU's whole pool), VMA 0x639334..0x639338, 4 B
       - [0x539338, .lit4, src/debug]  # carved D_00639338..D_00639350 (7 slots, 5 fns debug_Load..debug_DrawBar), VMA 0x639338..0x639354, 28 B
       - [0x539354, .lit4, src/debug_exception]  # carved D_00639354 (1 slot: drawWin's 0.8f, debug_exception_screen.c.inc), VMA 0x639354..0x639358, 4 B
       - [0x539358, lit4, src/cod/539358]     # .lit4 blob resume
