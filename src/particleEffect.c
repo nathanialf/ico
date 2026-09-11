@@ -36,10 +36,228 @@ void setParticleEffectGeometry(int a0, int a1, int a2)
     CopyQuaternion(a0 + 0x10, a2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", _setParticleEffect);
+/* The two file-static staging records this function fills before block-copying
+   the finished particle into the caller's slot. D_004ECCF0 is the 0x70-byte
+   particle record itself; D_004ECE90 is the scratch vector the spread offset is
+   written into and the current matrix is applied to. Both still live in the
+   uncarved .data blob. */
+/* the 0x70-byte particle record this function fills and then copies whole */
+typedef struct {
+    int unk_00;
+    int spin; /* 0x04 */
+    long long unk_08;
+    float pos[4];    /* 0x10 */
+    float vel[4];    /* 0x20 */
+    short spinX;     /* 0x30 */
+    short spinY;     /* 0x32 */
+    float size;      /* 0x34 */
+    float sizeStep;  /* 0x38 */
+    float alpha;     /* 0x3C */
+    float alphaStep; /* 0x40 */
+    int life;        /* 0x44 */
+    int unk_48;
+    int unk_4C;
+    int col[4]; /* 0x50 */
+    float u;    /* 0x60 */
+    float v;    /* 0x64 */
+    int unk_68;
+    int unk_6C;
+} PEPartRec;
+
+extern PEPartRec D_004ECCF0;
+extern float D_004ECE90[4];
+extern float _GetRandom(void);
+extern void CopyMatrix(void *dst, void *src);
+extern void CopyIVector(void *dst, void *src);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_RotMatrixX(int angle);
+extern void MatrixDrive_RotMatrixY(int angle);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+
+/* sugiCommon.h:47 and :55 in the PAL listing: two nested static helpers, the
+   inner one the raw 0..1 draw and the outer one the same draw mapped onto
+   -1..1. Both are inlined at every site here. */
+static inline float sugiRandom(void)
+{
+    return _GetRandom();
+}
+
+static inline float sugiSignedRandom(void)
+{
+    return sugiRandom() * 2.0f - 1.0f;
+}
+
+void _setParticleEffect(char *out, char *pkg, char *m, float k)
+{
+    PEPartRec *w;
+    int n;
+    float span;
+
+    w = &D_004ECCF0;
+    CopyVector(w->pos, m + 0x30);
+    D_004ECE90[2] = *(float *)(pkg + 0x10) * (*(float *)(pkg + 0x14) * sugiSignedRandom() + 1.0f);
+    CopyMatrix(MatrixDrive_GetMatrix(), m);
+    if (*(unsigned short *)(pkg + 0xC) != 0) {
+        MatrixDrive_RotMatrixY(
+            (short)((float)*(unsigned short *)(pkg + 0xC) * (sugiRandom() - 0.5f) * 182.04445f));
+        MatrixDrive_RotMatrixX(
+            (short)((float)*(unsigned short *)(pkg + 0xC) * (sugiRandom() - 0.5f) * 182.04445f));
+    }
+    sceVu0ApplyMatrix(w->vel, MatrixDrive_GetMatrix(), D_004ECE90);
+    n = (int)((float)(unsigned int)*(int *)(pkg + 0x44) *
+              (*(float *)(pkg + 0x48) * sugiSignedRandom() + 1.0f));
+    w->life = (float)n * k;
+    w->size = *(float *)(pkg + 0x2C) * (*(float *)(pkg + 0x30) * sugiSignedRandom() + 1.0f);
+    w->alpha = *(float *)(pkg + 0x50) * (*(float *)(pkg + 0x54) * sugiSignedRandom() + 1.0f) * k;
+    w->sizeStep = *(float *)(pkg + 0x34) * (*(float *)(pkg + 0x38) * sugiSignedRandom() + 1.0f);
+    if (*(short *)(pkg + 0x20) != 0) {
+        w->spin = 1;
+        w->spinX = (short)((float)*(short *)(pkg + 0x88) *
+                           (*(float *)(pkg + 0x8C) * sugiSignedRandom() + 1.0f));
+        w->spinY = (short)((float)*(short *)(pkg + 0x20) *
+                           (*(float *)(pkg + 0x24) * sugiSignedRandom() + 1.0f));
+    } else {
+        w->spin = 0;
+    }
+    span = (float)*(int *)(pkg + 0x58) * (*(float *)(pkg + 0x5C) * sugiSignedRandom() + 1.0f);
+    w->alphaStep = w->alpha / span;
+    if ((float)w->life < span) {
+        w->alpha = w->alpha - (span - (float)w->life) * w->alphaStep;
+    }
+    CopyIVector(w->col, pkg + 0x70);
+    w->u = (float)*(int *)(pkg + 0x80) * 0.25f;
+    w->v = (float)*(int *)(pkg + 0x84) * 0.25f;
+    *(PEPartRec *)out = D_004ECCF0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffect);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", execParticleEffect);
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", dispParticleEffect);
+ASM_LIT4_SLOT(D_00639664, 4095.0f);
+ASM_LIT4_SLOT(D_00639668, 0.2f);
+
+/* The display-list packet builder state, the same record src/GifPacket.c
+   carries: `ptr` is the write cursor and `dma`, `tail`, `gif` and `end` are
+   the back-pointers the end-of-packet patch fills in once the size is known. */
+typedef struct {
+    int cur;
+    int *buf[2];
+    char *dma;
+    unsigned long long *ptr;
+    char *tail;
+    char *gif;
+    char *end;
+} GifDpk;
+
+/* One 64-bit slot of a DMA/GIF packet, written either whole or as one half. */
+typedef union {
+    long long d;
+    int w[2];
+} GifPkWord;
+
+extern GifDpk D_004EE6F0;
+extern char *matrixptr;
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float k);
+extern void dl_SetDLPriority(int pri);
+extern void dl_OpenDma(int chan, void *dma, int flag);
+extern void dl_CloseDma(void);
+extern void prim_DispParticle(int prim, void *m);
+
+/* particleEffect.c:358-367 in the PAL listing, rows outside dispParticleEffect's
+   own span (443-484): a static helper with no out-of-line copy, inlined at the
+   one call site. It projects the effect's origin through the current camera
+   matrix and reports whether the result falls outside the screen box. */
+static inline int particleEffectOffScreen(char *geo)
+{
+    float v[4];
+
+    if (*(int *)(geo + 0x34) != 0) {
+        sceVu0ApplyMatrix(v, matrixptr + 0x100, geo);
+        sceVu0ScaleVectorXYZ(v, v, 1.0f / v[3]);
+        if (v[2] < 0.0f || v[0] < 0.0f || 4095.0f < v[0] || v[1] < 0.0f || 4095.0f < v[1]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* INTERIM (the same construct src/GifPacket.c uses for its own gif_SetGsReg):
+   the listing inlines the GS-register writer at every site in this TU, so it is
+   `inline` in the dev's TU; the out-of-line copy lives in src/GifPacket.c and
+   stays at its own ROM slot. */
+static inline void peSetGsReg(long long a0, long long a1)
+{
+    *D_004EE6F0.ptr++ = a1;
+    *D_004EE6F0.ptr++ = a0;
+}
+
+void dispParticleEffect(PEGeo *geo)
+{
+    char *c;
+    char *p;
+    char *q;
+
+    if (particleEffectOffScreen((char *)geo)) {
+        return;
+    }
+    dl_SetDLPriority(6);
+    c = (char *)D_004EE6F0.ptr;
+    D_004EE6F0.gif = 0;
+    D_004EE6F0.end = 0;
+    D_004EE6F0.dma = c;
+    D_004EE6F0.tail = c;
+    D_004EE6F0.ptr = (unsigned long long *)(c + 8);
+    ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
+    D_004EE6F0.gif = c + 0xC;
+    D_004EE6F0.end = c + 0x10;
+    D_004EE6F0.ptr = (unsigned long long *)(c + 0x18);
+    ((GifPkWord *)(c + 0x18))->d = 0xE;
+    D_004EE6F0.ptr = (unsigned long long *)(c + 0x20);
+    switch (*(unsigned int *)(*(int *)((char *)geo + 0x20) + 0x8)) {
+    case 1:
+        peSetGsReg(0x49, 0);
+        peSetGsReg(0x42, 0x48);
+        break;
+    case 2:
+        peSetGsReg(0x49, 0);
+        peSetGsReg(0x42, 0x42);
+        break;
+    case 0:
+    default:
+        peSetGsReg(0x49, 0);
+        peSetGsReg(0x42, 0x44);
+        break;
+    }
+    ((GifPkWord *)D_004EE6F0.end)->d =
+        (unsigned int)(((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.end) >> 4) - 1) |
+        0x1000000000008000LL;
+    ((GifPkWord *)D_004EE6F0.gif)->w[0] =
+        (((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.gif) >> 4) << 16) | 0x6C008000;
+    p = (char *)D_004EE6F0.ptr;
+    ((GifPkWord *)p)->w[0] = 0x15000000;
+    p += 4;
+    D_004EE6F0.ptr = (unsigned long long *)p;
+    ((GifPkWord *)p)->w[0] = 0;
+    D_004EE6F0.ptr = (unsigned long long *)(p + 4);
+    ((GifPkWord *)(p + 4))->w[0] = 0;
+    D_004EE6F0.ptr = (unsigned long long *)(p + 8);
+    ((GifPkWord *)(p + 8))->w[0] = 0;
+    D_004EE6F0.ptr = (unsigned long long *)(p + 0xC);
+    ((GifPkWord *)D_004EE6F0.tail)->d =
+        (unsigned int)((((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.tail) >> 4) - 1) |
+                       0x10000000);
+    q = (char *)D_004EE6F0.ptr;
+    D_004EE6F0.tail = q;
+    ((GifPkWord *)q)->d = 0x60000000;
+    D_004EE6F0.ptr = (unsigned long long *)(q + 8);
+    ((GifPkWord *)(q + 8))->w[0] = 0;
+    D_004EE6F0.ptr = (unsigned long long *)(q + 0xC);
+    ((GifPkWord *)(q + 8))->w[1] = 0;
+    D_004EE6F0.ptr = (unsigned long long *)(q + 0x10);
+    dl_OpenDma(5, D_004EE6F0.dma, 0);
+    dl_CloseDma();
+    prim_DispParticle(*(int *)((char *)geo + 0x28), matrixptr + 0x100);
+}
 
 extern char D_006208E0[];
 extern char D_00620920[];
