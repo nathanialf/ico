@@ -74,7 +74,15 @@ extern void actSt08aIntroChk(volatile int a0);
 extern void actSt08aGirlPosChk(volatile int a0);
 extern void actSt08aHint1Chk(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEnd);
+void actSt08aEnd(void)
+{
+    if (D_00639EA8 != 0) {
+        if (gflagChk(0x49) == 0) {
+            gflagOn(0x187);
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEne1Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEne2Chk);
 INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aDoorUp);

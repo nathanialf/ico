@@ -1713,9 +1713,10 @@ void GetShapeMotion(float *dst, char *a1, int idx, int count)
     }
 }
 
-void LockForceGroundParent(void) {}
+/* Retail bodies are empty; every call site passes the actor's GObj. */
+void LockForceGroundParent(int gobj) {}
 
-void UnlockForceGroundParent(void) {}
+void UnlockForceGroundParent(int gobj) {}
 
 extern void GetGlobalWallPlane(void *a0, void *a1);
 extern float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float t);

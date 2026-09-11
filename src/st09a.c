@@ -69,10 +69,107 @@ extern ActMail D_004FA400[];
 extern ActMail D_004FA420[];
 extern ActMail D_004FA440[];
 extern ActMail D_004FA460[];
+extern ActMail D_004FA370[];
+extern int st09a_brg;
+extern int D_0028F8F4[];
+extern void actSt09aBrgDownSub(volatile int a0);
+extern void LockForceGroundParent(int a0);
+extern void UnlockForceGroundParent(int a0);
+extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
+extern int scpAdpcmPlayRequestNum(void);
+extern void scpAdpcmFadeCloseFunc(int *h, short a1);
+extern int actCreateSubThread(void *entry, int prio);
+extern void iosThreadSetPri(int th, int pri);
+extern void scpFadeOut(float t, int a1, int a2, int a3);
+extern void scpFadeIn(float t);
+extern int scpFadeChk(void);
+extern int lt_fade_status(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aInit);
-INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aElvDown);
-INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aBrgDown);
+void actSt09aInit(void)
+{
+    if (gflagChk(0x56) == 0) {
+        stage_SetAnimation(0x17A, 0, 0);
+    } else {
+        stage_SetAnimation(0x17A, 0, -1);
+    }
+}
+
+void actSt09aElvDown(volatile int a0)
+{
+    Act *self = (Act *)((PObjGObj *)a0)->act;
+    /* sound handle owned by the sound subsystem: ROM homes it at 4(sp)
+       across the animation wait and reloads it for soundSeDefStop. */
+    volatile int se;
+
+    lt_switch_layout(0x37);
+    LockForceGroundParent(D_00639EA4);
+
+    stage_SetAnimation(0x177, 1, 0);
+
+    se = soundSeDefPlay(0x4C1, 0, 0, 1);
+
+    gflagOn(0x53);
+
+    while (stage_CheckAnimationFrame(0x177, 0xD2, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefStop(se);
+
+    UnlockForceGroundParent(D_00639EA4);
+
+    lt_switch_layout(0x36);
+
+    D_004FA370[0].func = actSt09aElvMain;
+    self->mail = D_004FA370;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+void actSt09aBrgDown(volatile int a0)
+{
+    int th;
+
+    lt_switch_layout(0x37);
+    gflagOn(0x56);
+    scpAdpcmPlayRequestFunc(0x5A, &st09a_brg, 1, 1, 1);
+
+    while (st09a_brg == 0) {
+        _ACTWait(1);
+    }
+
+    th = actCreateSubThread(actSt09aBrgDownSub, 0x15);
+    D_0063C570 = 0;
+
+    while (D_0063C570 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(th + 0x24, 0x22);
+
+    if (D_0063C570 == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        scpAdpcmFadeCloseFunc(&st09a_brg, 0x100);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+
+        stage_SetAnimation(0x17A, 0, -1);
+        scpFadeIn(5.0f);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+    D_0063AA08 = 0;
+    lt_switch_layout(0x36);
+}
 
 void actSt09aElv(volatile int a0)
 {

@@ -31,7 +31,17 @@ extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
 extern void brainUnlockGirl(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/st04b", actSt04bEnd);
+void actSt04bEnd(void)
+{
+    if (D_00639EA8 != 0) {
+        if (gflagChk(0x8A) != 0) {
+            if (gflagChk(0x9D) == 0) {
+                gflagOn(0x187);
+            }
+        }
+    }
+}
+
 ASM_LIT4_SLOT(D_00639928, -10325.0f);
 ASM_LIT4_SLOT(D_0063992C, -2150.0f);
 ASM_LIT4_SLOT(D_00639930, 10793.0f);
