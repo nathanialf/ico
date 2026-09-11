@@ -56,7 +56,6 @@ extern void memset(float *a0, int a1, int a2);
 extern char D_006E64F4[];
 extern void SetMonitorCameraInitializeFlag();
 extern Mat4 D_00555050;
-extern float D_00639120;
 extern int D_0063AB9C;
 extern float FSqrt(float v);
 extern void _ApplyRyGV(void *a0, float v);
@@ -298,6 +297,10 @@ void initMonitorCamera(int a0)
     SetMonitorCameraInitializeFlag(masked);
 }
 
+/* monitorMonitorCamera owns the first two words of this TU's .lit4 pool
+ * (ROM 0x00639118 and 0x0063911C); its body is still INCLUDE_ASM. */
+ASM_LIT4_SLOT(D_00639118, 1000000.0f);
+ASM_LIT4_SLOT(D_0063911C, -1000000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", monitorMonitorCamera);
 
 void ChaseCamera(float *a0, float *a1)
@@ -309,7 +312,7 @@ void ChaseCamera(float *a0, float *a1)
     float t;
     mat = D_00555050;
     t = _GetDirection(test_CURRENTORIENT(D_0063AB9C));
-    _ApplyRyGV(&mat, (float)(int)(t / D_00639120 * 180.0f) * D_00639120 / 180.0f);
+    _ApplyRyGV(&mat, (float)(int)(t / 3.1415927f * 180.0f) * 3.1415927f / 180.0f);
     sceVu0AddVector(&v0, a0, &mat);
     sceVu0SubVector(&v3, a1, a0);
     v3.f[1] = 0.0f;
@@ -328,6 +331,9 @@ void ChaseCamera(float *a0, float *a1)
     a1[8] = 50.0f;
 }
 
+/* CameraMove owns pool words ROM 0x00639124 and 0x00639128; still INCLUDE_ASM. */
+ASM_LIT4_SLOT(D_00639124, 0.0001f);
+ASM_LIT4_SLOT(D_00639128, 0.0001f);
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", CameraMove);
 
 inline int GetSizeOfCameraSetBinary(S4C *p, int n)
@@ -371,9 +377,99 @@ inline void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
     } while (src != sEnd);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", ReflectCameraSetBinary);
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", InitIco2Camera);
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", GetTargetOffset);
+extern char *D_0063C260;
+extern char *D_0063C268;
+extern int D_0063A450;
+extern void iosFree(void *p);
+extern char *iosMallocDebug(int heap, int size, char *file, int line);
+
+void ReflectCameraSetBinary(S4C *src, int count)
+{
+    if (D_0063C260 != 0) {
+        iosFree(D_0063C260);
+    }
+
+    D_0063C260 = iosMallocDebug(D_0063A450, GetSizeOfCameraSetBinary(src, count), D_00555060, 1577);
+    D_0063C264 = D_0063C260;
+    D_0063C268 = D_0063C260 + count * 0x4C;
+    D_0063C26C = count;
+    MakeCameraSetBinary(src, count, (S4C *)D_0063C260);
+}
+
+extern int D_0063C270;
+extern float D_0063C278;
+extern float D_0063C27C;
+extern unsigned char D_0063C280;
+extern int D_0028F4C0[];
+extern void InitHandCameraCorrect(void);
+
+/* Static helper at camera-ico2.c lines 149-158 of the listing, hosted by both
+ * InitIco2Camera and CameraMove, so the name is ours: it scales the two
+ * hand-camera correction rates by the frame budget and reports the frame step.
+ * The divisor is spelled out at every use, as the same idiom is in
+ * src/hand-camera.c, so cse keeps a single `div` and the redundant div_trap
+ * insns survive with no encoding of their own. */
+static inline int setHandCameraRates(float a, float b)
+{
+    D_0063C278 = a * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    D_0063C27C = b * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    return (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+}
+
+void InitIco2Camera(void)
+{
+    D_0063C270 = 0;
+    D_0063C260 = 0;
+    CameraSetCameraSet_Default();
+    initMonitorCamera(1);
+    D_0063C274 = -1;
+    D_0063C280 = 1;
+    setHandCameraRates(D_005F5D50[stage_no].rate, 10.0f);
+    InitHandCameraCorrect();
+}
+
+extern float D_002A5E60[3];
+extern int ACTNotNeedCameraOffset(char *a0);
+
+void GetTargetOffset(char *gobj, float *v, unsigned char flag)
+{
+    float ofs[4];
+    float w[4];
+    char *p;
+    int n;
+    int need;
+
+    if ((int)gobj == D_0063AB9C && gobj != 0) {
+        n = (int)(_GetDirection(test_CURRENTORIENT((int)gobj)) / 3.1415927f * 180.0f);
+        ofs[0] = v[0];
+        ofs[1] = v[1];
+        ofs[2] = -v[2];
+        need = ACTNotNeedCameraOffset(gobj) ? 1 : flag;
+        if (need) {
+            D_002A5E60[0] = 0.0f;
+            D_002A5E60[1] = 0.0f;
+            D_002A5E60[2] = 0.0f;
+        }
+        _ApplyRyGV(ofs, (float)n * 3.1415927f / 180.0f);
+        p = *(char **)(gobj + 0x15C);
+        if (3.0f < FSqrt(*(float *)(p + 0x130) * *(float *)(p + 0x130) +
+                         *(float *)(p + 0x138) * *(float *)(p + 0x138))) {
+            sceVu0SubVector(w, ofs, D_002A5E60);
+            if (FSqrt(w[0] * w[0] + w[1] * w[1] + w[2] * w[2]) < 1.5f) {
+                D_002A5E60[0] = ofs[0];
+                D_002A5E60[1] = ofs[1];
+                D_002A5E60[2] = ofs[2];
+            } else {
+                sceVu0Normalize(w, w);
+                sceVu0ScaleVector(w, w, 1.5f);
+                sceVu0AddVector(D_002A5E60, D_002A5E60, w);
+            }
+        }
+        v[0] = D_002A5E60[0];
+        v[1] = D_002A5E60[1];
+        v[2] = D_002A5E60[2];
+    }
+}
 
 inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
 {
@@ -393,7 +489,149 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", SetCameraMatrix_Ico2);
+typedef struct CamWork {
+    Mat4 eye; /* 0x00 */
+    Mat4 at;  /* 0x10 */
+    Mat4 ext; /* 0x20 */
+} CamWork;
+
+typedef struct CameraState {
+    char pad0[0x50];
+    CamWork work; /* 0x50 */
+} CameraState;
+
+extern CameraState D_006E64B0;
+extern int D_0063ABA4;
+extern int D_0063B178;
+extern void monitorMonitorCamera(void *cam, void *prev);
+extern void CameraMove(int group, float *a1, void *cam, float *a3, float *a4);
+extern void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
+extern void SetWSMatrix(void *cam);
+extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
+extern unsigned char IsAbleBoyControl(void);
+extern void ClearHandCameraCorrect(void);
+extern void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14);
+
+/* The camera-group search the listing places at camera-ico2.c lines 921-946:
+ * a static helper shared by GetCameraGroupFromGObj, GetCameraGroupFromPosition
+ * and SetCameraMatrix_Ico2. */
+static inline int findCameraGroupContaining(float *pos)
+{
+    int result = -1;
+    int i;
+    for (i = 0; i < D_0063C26C; i++) {
+        int k = 0;
+        char *entry = D_0063C264 + i * 0x4C;
+        float *range = (float *)(entry + 0x2C);
+        float *center = (float *)(entry + 0x20);
+        float *p = pos;
+        do {
+            if (*p < *center - *range) {
+                break;
+            }
+            if (*center + *range < *p) {
+                break;
+            }
+            p++;
+            range++;
+            center++;
+        } while (++k < 3);
+        if (k == 3) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
+
+void SetCameraMatrix_Ico2(int flag)
+{
+    CamWork cw = D_006E64B0.work;
+    float vA[4];
+    float vB[4];
+    CamWork cw2;
+    int cut;
+    int cutType;
+    int enable;
+    int mode = 1;
+    int changed = 0;
+    unsigned char f8;
+    int group;
+
+    if (D_0063C280 != 0) {
+        flag = 1;
+        D_0063C280 = 0;
+        changed = 1;
+    }
+    if (flag) {
+        changed = mode;
+    }
+    f8 = flag;
+    ico2camera_GetTargetPos(f8);
+    group = findCameraGroupContaining(D_006E6590);
+    if (changed && group == -1) {
+        group = ico2camera_GetGroupNearest(D_006E6590);
+    }
+    if (group == -1) {
+        cw = D_006E64B0.work;
+        cw.at.f[0] = D_006E6570[0];
+        cw.at.f[1] = D_006E6570[1];
+        cw.at.f[2] = D_006E6570[2];
+        memset(vA, 0, 0x10);
+        GetTargetOffset((char *)D_0063AB9C, vA, 0);
+        sceVu0ScaleVector(vA, vA, D_0063AB48);
+        sceVu0AddVector(cw.at.f, cw.at.f, vA);
+    } else {
+        if (flag != 0 ||
+            (D_0063C274 != -1 && *(int *)(D_0063C264 + group * 0x4C + 0x44) !=
+                                     *(int *)(D_0063C264 + D_0063C274 * 0x4C + 0x44))) {
+            initMonitorCamera(1);
+            f8 = 1;
+        }
+        memset(vA, 0, 0x10);
+        memset(vB, 0, 0x10);
+        CameraMove(group, D_006E6580, &cw, vA, vB);
+        cw.at.f[0] = D_006E6570[0];
+        cw.at.f[1] = D_006E6570[1];
+        cw.at.f[2] = D_006E6570[2];
+        GetTargetOffset((char *)D_0063AB9C, vA, f8);
+        sceVu0ScaleVector(vA, vA, D_0063AB48);
+        sceVu0ScaleVector(vB, vB, D_0063AB48);
+        sceVu0AddVector(cw.at.f, cw.at.f, vA);
+        sceVu0AddVector(cw.at.f, cw.at.f, vB);
+        D_0063C274 = group;
+    }
+    InsertCamera_Exec((float *)&cw, &cut, &cutType, &enable);
+    if (cut != 0) {
+        initMonitorCamera(cutType == 0);
+    }
+    if (enable != 0) {
+        mode = 0;
+        D_0063ABA4 = 1;
+    }
+    monitorMonitorCamera(&cw, &cw2);
+    cw = cw2;
+    if (D_0063B178 != 0) {
+        debug_Marker(cw.at.f, 0, 0, 255, 100.0f, 0.0f);
+    }
+    sceVu0ScaleVector(&cw, &cw, -1.0f);
+    sceVu0ScaleVector(cw.at.f, cw.at.f, -1.0f);
+    {
+        float sx;
+        float sz;
+        float mag;
+
+        GetHandCameraStickInfo(&sx, &sz, &mag);
+        if (D_0028F4C0[5] != 0 || IsAbleBoyControl() == 0 || mode == 0) {
+            ClearHandCameraCorrect();
+        } else {
+            HandCameraCorrect(&cw, cw.at.f, 0, sx, sz,
+                              60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        }
+    }
+    SetWSMatrix(&cw);
+    D_0063C270 = D_0063C270 + 1;
+}
 
 inline void *GetPluralCameraSet(int id)
 {
