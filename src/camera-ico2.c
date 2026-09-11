@@ -122,7 +122,22 @@ inline void SetCameraZoomOffsetRatio(float val)
     D_0063AB48 = val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", CameraSetCameraSet);
+void CameraSetCameraSet(int id)
+{
+    CamSetItem *p;
+    CamSetItem *end;
+    int n;
+    int i;
+
+    D_0063ABB0 = GetPluralCameraSet(id);
+    D_0063ABB4 = n = *(int *)((char *)D_0063ABB0 + 8);
+    p = (CamSetItem *)((char *)D_0063ABB0 + 0x10);
+    end = &p[n];
+    for (i = 0; i < n; i++) {
+        p[i].end = end;
+    }
+    ReflectCameraSetBinary((S4C *)p, n);
+}
 
 void CameraSetCameraSet_Default(void)
 {
