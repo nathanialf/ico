@@ -309,7 +309,109 @@ inline void UpdateRealTimeGeometryValue(char *a0)
     CopyVector(sub + 0x1F0, buf);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/torch", procChainReaction);
-INCLUDE_ASM("asm/nonmatchings/src/torch", TorchGeo);
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+extern char D_00621348[];
+extern char D_00621370[];
+extern unsigned char ACTGame_NoWeapon(char *a0);
+extern void debug_StdPrintfDummy();
+
+/* static helper the listing places at torch.c lines 347-374; never emitted out
+ * of line, so it has no MAIN.MAP symbol and this name is ours. */
+static inline int chainReactionBlocked(char *gobj, char *other)
+{
+    char *p;
+    char *q;
+    int a;
+    int b;
+
+    b = *(int *)*(char **)(gobj + 0x15C);
+    a = *(int *)*(char **)(other + 0x15C);
+    if (D_00639EA8 != 0) {
+        q = *(char **)(D_00639EA8 + 0x164);
+        if (b != 0 && b == *(int *)(q + 0x154)) {
+            debug_StdPrintfDummy(D_00621348);
+            return 1;
+        }
+    }
+    if (b != 0 && a != 0) {
+        p = *(char **)(D_00639EA4 + 0x164);
+        if (ACTGame_NoWeapon(D_00639EA4) == 0 && a == *(int *)(p + 0x150) &&
+            b == *(int *)(p + 0x154)) {
+            debug_StdPrintfDummy(D_00621370);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void procChainReaction(char *gobj)
+{
+    TorchGeoWork *w;
+    char *o;
+
+    w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
+    if (w->chainFlag == 0) {
+        return;
+    }
+    o = CheckTorchChainReaction(gobj, 20.0f);
+    if (o != 0 && chainReactionBlocked(gobj, o) == 0) {
+        LightTorchOn(gobj);
+    }
+}
+
+extern int SetParticleEffectActiveSensing(int no, float *pos, void *quat);
+extern void ExecParticleEffect(int no);
+
+void TorchGeo(char *gobj)
+{
+    TorchGeoWork *w;
+    char *sub;
+    char *o;
+    float drain;
+    int id;
+
+    sub = *(char **)(gobj + 0x15C);
+    o = *(char **)sub;
+    w = *(TorchGeoWork **)(sub + 0x830);
+    if (o != 0) {
+        if (*(int *)(o + 0x16C) == 0) {
+            LightTorchOff(gobj);
+            return;
+        }
+        GetRootPosition(w->pos, gobj);
+    }
+    if (IsTorchLightOn(gobj) == 0) {
+        procChainReaction(gobj);
+        return;
+    }
+    if (*(int *)(gobj + 0x50) != 0) {
+        setPauseFlag(gobj, 0);
+    } else {
+        setPauseFlag(gobj, 1);
+    }
+    if (w->unk24 < 0xFFFF) {
+        w->unk24 = w->unk24 + 1;
+    }
+    if (o != 0) {
+        UpdateRealTimeGeometryValue(gobj);
+        moveTorch(gobj, w->pos);
+    }
+    if (w->life < w->unk24) {
+        LightTorchOff(gobj);
+        procChainReaction(gobj);
+        return;
+    }
+    if (w->chainFlag == 0 && w->lifeMax < w->unk24) {
+        drain = (float)(w->unk24 - w->lifeMax) / (float)(w->life - w->lifeMax);
+        torchDrainControl(gobj, 1.0f - drain);
+        if (w->unk24 == w->life - 1) {
+            id = SetParticleEffectActiveSensing(0x36, w->pos, D_002907E0);
+            if (id != -1) {
+                ExecParticleEffect(id);
+            }
+        }
+    }
+}
 
 inline void TorchDL(void) {}

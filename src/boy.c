@@ -13,8 +13,25 @@ extern void AdjustMotionHeightToNearestField(void *a0);
 void SelectBoyCrown(char *a0, int a1);
 void LightLineGeo(void);
 void SetBoyStonizedVisual(char *a0);
+extern void DispCloth4D(void *cloth, void *a1, void *a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/boy", dispClothes);
+void dispClothes(char *gobj)
+{
+    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *x;
+
+    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    DispCloth4D(*(void **)(w + 0x20), x + 0x40, x);
+    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    DispCloth4D(*(void **)(w + 0x24), x + 0x40, x);
+    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    DispCloth4D(*(void **)(w + 0x2C), x + 0x40, x);
+    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    DispCloth4D(*(void **)(w + 0x28), x + 0x40, x);
+    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    DispCloth4D(*(void **)(w + 0x30), x + 0x40, x);
+}
+
 ASM_LIT4_SLOT(D_0063940C, 0.98f);
 ASM_LIT4_SLOT(D_00639410, 0.98f);
 ASM_LIT4_SLOT(D_00639414, 0.98f);
@@ -58,10 +75,66 @@ ASM_LIT4_SLOT(D_00639448, 0.9f);
 INCLUDE_ASM("asm/nonmatchings/src/boy", synchronizeMotionOutputOriginForGirl);
 ASM_LIT4_SLOT(D_0063944C, 0.98f);
 INCLUDE_ASM("asm/nonmatchings/src/boy", actionOfWater);
-ASM_LIT4_SLOT(D_00639450, 0.7f);
-INCLUDE_ASM("asm/nonmatchings/src/boy", BoyGeo);
+
+extern void HandManager(char *gobj);
+extern void ExecMotionOrient(char *gobj);
+extern void ExecuteSlipProc(char *gobj);
+extern void SetActressLight(char *gobj, int a1, int a2, int a3);
+extern int CylinderCollision(char *self, int group, float r, float h, float s);
+extern void iosOmSendMail(char *gobj, int mail, char *a2);
+extern int ACTGame_FLAG_TETSUNAGI(void);
+void synchronizeMotionOutputOriginForGirl(char *gobj);
+void execClothes(char *gobj);
+void actionOfWater(char *gobj);
+
+void BoyGeo(char *gobj)
+{
+    HandManager(gobj);
+    ExecMotionOrient(gobj);
+    synchronizeMotionOutputOriginForGirl(gobj);
+    execClothes(gobj);
+    ExecuteSlipProc(gobj);
+    SetActressLight(gobj, 0x23, 0x2C, 0x1D7);
+    if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.7f) != 0) {
+        iosOmSendMail(gobj, 6, gobj);
+    }
+    CylinderCollision(gobj, 2, ACTGame_FLAG_TETSUNAGI() != 0 ? 15.0f : 30.0f, 50.0f, 0.7f);
+    actionOfWater(gobj);
+}
+
+extern void p2o_DispVU1DObj(void *a0);
+extern void p2o_DispVU1DObjMulti(void *a0);
+
 INCLUDE_ASM("asm/nonmatchings/src/boy", dispSubParts);
-INCLUDE_ASM("asm/nonmatchings/src/boy", dispCrown);
+
+extern void reg_DispAccessoryWithShadow(void *a0, void *a1);
+extern void MatrixDrive_RotMatrixX(int a0);
+extern void *MatrixDrive_GetMatrix(void);
+extern void CopyMatrix(void *dst, void *src);
+extern int GetSkeltonFocusNode(char *gobj, int node);
+
+void dispCrown(char *gobj)
+{
+    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    int node = GetSkeltonFocusNode(gobj, 0x23);
+    char *obj;
+
+    switch (*(int *)w) {
+    case 1:
+        obj = *(char **)(w + 0x10);
+        break;
+    case 2:
+        obj = *(char **)(w + 0x14);
+        break;
+    default:
+        obj = *(char **)(w + 0xC);
+        break;
+    }
+    CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6));
+    MatrixDrive_RotMatrixX(-0x8000);
+    CopyMatrix(*(char **)(obj + 0xC), MatrixDrive_GetMatrix());
+    reg_DispAccessoryWithShadow(obj, *(char **)(gobj + 0x15C));
+}
 
 inline void SetBoyStonizedVisual(char *a0)
 {
@@ -71,5 +144,20 @@ inline void SetBoyStonizedVisual(char *a0)
     *(int *)(crown + 0x1C) = 0;
     *(int *)(*(int *)(a0 + 0x15C) + 0x62C) = 0;
 }
+
+extern int stage_no;
+extern int D_0028F4D4[];
+extern void ExecutePauseSlipProc(char *gobj);
+extern void GetRootPosition(void *dst, char *gobj);
+extern void GetRootQuaternion(void *dst, char *gobj);
+extern void RotQuaternionY(void *q, int ang);
+extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
+extern void p2o_SetDefaultEnviroment(void);
+extern void p2o_DispVU1(char *gobj);
+extern int CheckPoolHasGridMesh(void);
+extern void SetLimitedPoolReflactionMesh(void *a0, int a1, char *a2);
+extern void DispLimitedPoolReflactionMesh(void *a0);
+extern void DispWaterDot(int a0);
+void dispSubParts(char *gobj);
 
 INCLUDE_ASM("asm/nonmatchings/src/boy", BoyDL);

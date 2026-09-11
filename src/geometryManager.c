@@ -131,17 +131,143 @@ void SetRootMatrixRotOffset(int a0, void *a1)
     SetRootMatrixRotOffsetByDObj(*(void **)(a0 + 0x15C), a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePoint);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePointXZ);
+extern void CopyVector();
+extern void sceVu0ApplyMatrix();
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern void sceVu0ScaleVector(void *dst, void *src, float s);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
+extern int GetSkeltonFocusNode(char *gobj, int node);
+extern char D_0028FEF0[];
+
+/* INTERIM stand-ins: the ROM inlines GetRootPosition (listing lines 55-64 and
+ * 85) and SetDirectRootPositionNoFitting (lines 255-274) into the two
+ * WithNodePoint entries, which sit AHEAD of them in the object because those
+ * three are deferred-inline tail members. Their out-of-line copies stay plain
+ * definitions at their ROM slots while the tail still has asm members. */
+typedef union {
+    float f[4];
+    long long ll[2];
+} SdrpVec4i;
+
+static __inline__ void GetRootPositionByDObj_i(void *a0, char *src)
+{
+    float *p = (float *)(src + 0xA0);
+    float f0;
+    int *g = *(int **)src;
+    if (g) {
+        sceVu0ApplyMatrix(
+            (int *)a0, *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
+            (char *)p);
+    } else {
+        CopyVector((int)a0, (int)p);
+    }
+    f0 = p[0x30];
+    *(float *)((char *)a0 + 0x4) += f0;
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+}
+
+static __inline__ void GetRootPosition_i(void *a0, char *outer)
+{
+    GetRootPositionByDObj_i(a0, (char *)((GObj *)(outer))->p_15C);
+}
+
+static __inline__ void SetRootPosition_ii(char *a0, void *a1)
+{
+    char buf[0x40];
+    SdrpVec4i *p = (SdrpVec4i *)(*(char **)(a0 + 0x15C) + 0xA0);
+    CopyVector(p, a1);
+    p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
+    p->f[3] = 1.0f;
+    {
+        char *sub = *(char **)(a0 + 0x15C);
+        char *q = *(char **)sub;
+        if (q != 0) {
+            MatrixDrive_SetTransposeMatrix(
+                buf, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)));
+            sceVu0ApplyMatrix(p, buf, p);
+        }
+    }
+}
+
+static __inline__ void SetDirectRootPositionNoFitting_i(char *self, void *v)
+{
+    char *sub = *(char **)(self + 0x15C);
+    char *p = sub + 0xA0;
+    char pos[0x10];
+    char tmp[0x10];
+
+    CopyVector(pos, v);
+    CopyVector(tmp, p);
+    SetRootPosition_ii(self, pos);
+    CopyVector(sub + 0x1F0, p);
+    CopyVector(sub + 0x110, p);
+    *(int *)(*(char **)(self + 0x15C) + 0x4EC) = 0;
+    CopyVector(sub + 0x200, v);
+    CopyVector(sub + 0x130, D_0028FEF0);
+    CopyVector(sub + 0x170, D_0028FEF0);
+}
+
+void SetDirectRootPositionNoFittingWithNodePoint(char *gobj, int node, float *pos, float t)
+{
+    float v[4];
+    float w[4];
+    int idx;
+
+    idx = GetSkeltonFocusNode(gobj, node);
+    sceVu0SubVector(v, pos,
+                    (char *)(*(int *)((int)((GObj *)(gobj))->p_15C + 0xC) + (idx << 6)) + 0x30);
+    sceVu0ScaleVector(v, v, t);
+    GetRootPosition_i(w, gobj);
+    sceVu0AddVector(w, w, v);
+    SetDirectRootPositionNoFitting_i(gobj, w);
+}
+
+void SetDirectRootPositionNoFittingWithNodePointXZ(char *gobj, int node, float *pos, float t)
+{
+    float v[4];
+    float w[4];
+    int idx;
+
+    idx = GetSkeltonFocusNode(gobj, node);
+    sceVu0SubVector(v, pos,
+                    (char *)(*(int *)((int)((GObj *)(gobj))->p_15C + 0xC) + (idx << 6)) + 0x30);
+    sceVu0ScaleVector(v, v, t);
+    GetRootPosition_i(w, gobj);
+    v[1] = 0.0f;
+    sceVu0AddVector(w, w, v);
+    SetDirectRootPositionNoFitting_i(gobj, w);
+}
 
 extern void AdjustMotionHeightToNearestField(void *a0);
-extern void SetDirectRootPositionNoFittingWithNodePoint(void *a0);
 
-void SetDirectRootPositionWithNodePoint(void *a0)
+void SetDirectRootPositionWithNodePoint(char *gobj, int node, float *pos, float t)
 {
-    SetDirectRootPositionNoFittingWithNodePoint(a0);
-    AdjustMotionHeightToNearestField(a0);
+    SetDirectRootPositionNoFittingWithNodePoint(gobj, node, pos, t);
+    AdjustMotionHeightToNearestField(gobj);
 }
+
+extern char D_0054D750[];
+extern char D_0054D768[];
+extern char D_00639EF0[];
+extern char D_00639EF8[];
+extern void debug_assertMessage(char *file, int line, char *msg);
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
+extern void sceVu0ApplyMatrix();
+extern void sceVu0Normalize();
+extern void CopyMatrix();
+
+/* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
+ * reads it back as a pointer, so every read of it is a union view and any store
+ * in between forces the reload the ROM performs. */
+typedef union SubHandle {
+    int i;
+    char *p;
+} SubHandle;
+
+#define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", LocalizeGeometry);
 
@@ -166,17 +292,173 @@ void GetGlobalDirectionOrient(int *self, int *other, char *p)
     sceVu0Normalize(self, self);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GlobalizeGeometry);
+void GlobalizeGeometry(char *gobj)
+{
+    char *sub = SUBOF(gobj);
+    char *m = sub + 0xA0;
+    char *w = sub + 0x470;
+
+    *(float *)(sub + 0xAC) = 1.0f;
+    if (*(char **)SUBOF(gobj) != 0) {
+        sceVu0ApplyMatrix(
+            m, *(char **)(SUBOF(*(char **)SUBOF(gobj)) + 0xC) + (*(int *)(SUBOF(gobj) + 0x4) << 6),
+            m);
+        sceVu0ApplyMatrix(SUBOF(gobj) + 0x1F0,
+                          *(char **)(SUBOF(*(char **)SUBOF(gobj)) + 0xC) +
+                              (*(int *)(SUBOF(gobj) + 0x4) << 6),
+                          SUBOF(gobj) + 0x1F0);
+    }
+    *(float *)(SUBOF(gobj) + 0xA4) =
+        *(float *)(SUBOF(gobj) + 0xA4) + *(float *)(SUBOF(gobj) + 0x160);
+    *(float *)(SUBOF(gobj) + 0x1F4) =
+        *(float *)(SUBOF(gobj) + 0x1F4) + *(float *)(SUBOF(gobj) + 0x160);
+    GetRootQuaternion(sub + 0xD0, gobj);
+    GetGlobalDirectionOrient(sub + 0x520, gobj, sub + 0x520);
+    *(int *)(w + 0xB4) = 0;
+    sceVu0Normalize(SUBOF(gobj) + 0x520, SUBOF(gobj) + 0x520);
+    *(int *)(w + 0xBC) = 0;
+}
 
 void GetRootVelocity(int a0, int a1)
 {
     CopyVector(a0, (int)((GObj *)(a1))->p_15C + 0x130);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialInverseMatrixByDObj);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialInverseMatrix);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialSkeltonMatrixByDObj);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", MakeCharGObjList);
+extern void sceVu0UnitMatrix(void *a0);
+extern void MatrixDrive_TransMatrixV(void *a0);
+extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
+extern void MatrixDrive_RotMatrixX(int a0);
+extern void getInitialInverseMatrix(char *mat, char *mdl, int no);
+extern void getInitialMatrix(char *mdl, int no);
+
+void GetInitialInverseMatrixByDObj(char *mat, char *mdl)
+{
+    int no;
+    char *nd;
+
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    no = 0;
+loop:
+    {
+        nd = *(char **)(mdl + 0x8C) + (no << 6);
+        MatrixDrive_PushMatrix();
+        MatrixDrive_TransMatrixV(nd + 0x10);
+        MultiMatrixByQuaternion(nd + 0x20);
+        MatrixDrive_SetTransposeMatrix(mat + (no << 6), MatrixDrive_GetMatrix());
+        if (*(int *)(nd + 0x30) != -1) {
+            getInitialInverseMatrix(mat, mdl, *(int *)(nd + 0x30));
+        }
+        MatrixDrive_PopMatrix();
+    }
+    if (*(int *)(nd + 0x34) != -1) {
+        no = *(int *)(nd + 0x34);
+        goto loop;
+    }
+    MatrixDrive_PopMatrix();
+}
+
+void GetInitialInverseMatrix(char *mat, char *gobj)
+{
+    char *mdl;
+    int no;
+    char *nd;
+
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    mdl = *(char **)(gobj + 0x15C);
+    no = 0;
+loop:
+    {
+        nd = *(char **)(mdl + 0x8C) + (no << 6);
+        MatrixDrive_PushMatrix();
+        MatrixDrive_TransMatrixV(nd + 0x10);
+        MultiMatrixByQuaternion(nd + 0x20);
+        MatrixDrive_SetTransposeMatrix(mat + (no << 6), MatrixDrive_GetMatrix());
+        if (*(int *)(nd + 0x30) != -1) {
+            getInitialInverseMatrix(mat, mdl, *(int *)(nd + 0x30));
+        }
+        MatrixDrive_PopMatrix();
+    }
+    if (*(int *)(nd + 0x34) != -1) {
+        no = *(int *)(nd + 0x34);
+        goto loop;
+    }
+    MatrixDrive_PopMatrix();
+}
+
+void GetInitialSkeltonMatrixByDObj(char *mdl)
+{
+    int no;
+    char *nd;
+    char *dst;
+
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_RotMatrixX(-0x8000);
+    no = 0;
+loop:
+    {
+        nd = *(char **)(mdl + 0x8C) + (no << 6);
+        MatrixDrive_PushMatrix();
+        MatrixDrive_TransMatrixV(nd + 0x10);
+        MultiMatrixByQuaternion(nd + 0x20);
+        dst = *(char **)(mdl + 0xC) + (no << 6);
+        CopyMatrix(dst, MatrixDrive_GetMatrix());
+        if (*(int *)(nd + 0x30) != -1) {
+            getInitialMatrix(mdl, *(int *)(nd + 0x30));
+        }
+        MatrixDrive_PopMatrix();
+    }
+    if (*(int *)(nd + 0x34) != -1) {
+        no = *(int *)(nd + 0x34);
+        goto loop;
+    }
+    MatrixDrive_PopMatrix();
+}
+
+extern int D_0028FEB8[];
+extern int D_00668540[];
+extern int D_00639EFC;
+extern char D_0054D7C8[];
+extern char *isysGObjGetExist_begin(void);
+extern char *isysGObjGetExist_next(char *o);
+
+/* listing lines 540-547: the kind test the list builder runs on every live
+   object; inlined at its single call site. */
+static inline int isCharGObj(char *o)
+{
+    int i;
+
+    if (*(int *)(o + 0x4) == 1 && *(int *)(o + 0x16C) != 0) {
+        for (i = 0; D_0028FEB8[i] != -1; i++) {
+            if (*(int *)(o + 0xC) == D_0028FEB8[i]) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+void MakeCharGObjList(void)
+{
+    char *o;
+
+    o = isysGObjGetExist_begin();
+    D_00639EFC = 0;
+    while (o != 0) {
+        if (isCharGObj(o) != 0) {
+            D_00668540[D_00639EFC++] = (int)o;
+            if (D_00639EFC >= 0x41) {
+                debug_assertMessage(D_0054D750, 0x22E, D_0054D7C8);
+                __assert(D_0054D750, 0x22E, D_00639EF0);
+            }
+        }
+        o = isysGObjGetExist_next(o);
+    }
+    D_00668540[D_00639EFC] = 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", cylinderCollisionCheck);
 
 extern void MatrixDrive_SetTransposeMatrix();
