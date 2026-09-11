@@ -509,10 +509,243 @@ void ChaseCamera(float *a0, float *a1)
     a1[8] = 50.0f;
 }
 
-/* CameraMove owns pool words ROM 0x00639124 and 0x00639128; still INCLUDE_ASM. */
-ASM_LIT4_SLOT(D_00639124, 0.0001f);
-ASM_LIT4_SLOT(D_00639128, 0.0001f);
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", CameraMove);
+extern char *D_0063C264;
+extern int D_0063C270;
+extern float D_0063C278;
+extern float D_0063C27C;
+extern int D_0028F4C0[];
+extern int D_0063B178;
+extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
+
+/* Static helper at camera-ico2.c lines 149-158 of the listing, hosted by both
+ * InitIco2Camera and CameraMove, so the name is ours: it scales the two
+ * hand-camera correction rates by the frame budget and reports the frame step.
+ * The divisor is spelled out at every use, as the same idiom is in
+ * src/hand-camera.c, so cse keeps a single `div` and the redundant div_trap
+ * insns survive with no encoding of their own. */
+static inline int setHandCameraRates(float a, float b)
+{
+    D_0063C278 = a * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    D_0063C27C = b * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    return (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+}
+
+typedef struct CamMoveItem { /* 0x5C */
+    float v[3];              /* 0x00 */
+    float pos[3];            /* 0x0C */
+    float ofs[3];            /* 0x18 */
+    int flag;                /* 0x24 */
+    float w28;               /* 0x28 */
+    char pad2C[0x30 - 0x2C];
+    float range; /* 0x30 */
+    char pad34[0x38 - 0x34];
+    float w38; /* 0x38 */
+    float w3C; /* 0x3C */
+    float w40; /* 0x40 */
+    float w44; /* 0x44 */
+    char pad48[0x50 - 0x48];
+    float z[3]; /* 0x50 */
+} CamMoveItem;
+
+typedef struct CamSetGroup { /* 0x4C */
+    char pad0[0x38];
+    int first; /* 0x38 */
+    int last;  /* 0x3C */
+    int mode;  /* 0x40 */
+    char pad44[0x48 - 0x44];
+    CamMoveItem *items; /* 0x48 */
+} CamSetGroup;
+
+#define CAMSET_GROUP(n) ((CamSetGroup *)(D_0063C264 + (n) * 0x4C))
+
+extern float D_006E6320[];
+extern float D_006E6190[];
+extern int D_0063AB50;
+extern void SetLimitHandCameraCorrect(float a, float b);
+
+/* camera-ico2.c lines 362-380 of the listing: the mean and the standard
+ * deviation of the first `n` weights, written back through two pointers. */
+static inline void cameraWeightStat(float *arr, int n, float *outSd, float *outMean)
+{
+    float var;
+    int j;
+
+    *outMean = 0.0f;
+    for (j = 0; j < n; j++) {
+        *outMean = *outMean + arr[j];
+    }
+    *outMean = *outMean / (float)n;
+    var = 0.0f;
+    for (j = 0; j < n; j++) {
+        float t = arr[j] - *outMean;
+        var = var + t * t;
+    }
+    *outSd = FSqrt(var / (float)n);
+}
+
+void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB)
+{
+    float acc[4];
+    Mat4 q;
+    float sd;
+    float mean;
+    CamMoveItem *p;
+    CamMoveItem *r;
+    int i;
+    int j;
+    float sum;
+    float total;
+    float w;
+    float u;
+    float d;
+    float t;
+    float rate;
+    float e0;
+    float e1;
+    float e2;
+    float e3;
+    float e4;
+
+    if (CAMSET_GROUP(group)->mode == 2) {
+        ChaseCamera(pos, out);
+        return;
+    }
+    ofsA[0] = 300.0f;
+    ofsA[1] = 100.0f;
+    ofsA[2] = 0.0f;
+    sum = ofsA[2];
+    i = 0;
+    for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
+         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+        if (p->flag != 0) {
+            {
+                Mat4 tv;
+                memset(tv.f, 0, 0x10);
+                tv.f[0] = p->pos[0];
+                tv.f[1] = p->pos[1];
+                tv.f[2] = p->pos[2];
+                q = tv;
+            }
+            d = _DistGV(pos, &q);
+            D_006E6190[i] = D_006E6320[i] = d;
+            sum = sum + d;
+            i++;
+        }
+    }
+    if (i == 1) {
+        D_006E6320[0] = 1.0f;
+    } else if (i < 5) {
+        i = 0;
+        for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
+             p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+            if (p->flag != 0) {
+                D_006E6320[i] = (sum - D_006E6320[i]) * (sum - D_006E6320[i]);
+                i++;
+            }
+        }
+    } else {
+        cameraWeightStat(D_006E6320, i, &sd, &mean);
+        i = 0;
+        for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
+             p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+            if (p->flag != 0) {
+                D_006E6320[i] = (D_006E6320[i] - mean) * 10.0f / sd + 50.0f;
+                if (D_006E6320[i] < 0.0f || 100.0f < D_006E6320[i]) {
+                    D_006E6320[i] = 0.0f;
+                }
+                D_006E6320[i] = 100.0f - D_006E6320[i];
+                if (D_006E6320[i] < 40.0f) {
+                    D_006E6320[i] = 0.0f;
+                } else {
+                    D_006E6320[i] = D_006E6320[i] - 40.0f;
+                }
+                D_006E6320[i] = (D_006E6320[i] * D_006E6320[i]) * (D_006E6320[i] * D_006E6320[i]);
+                i++;
+            }
+        }
+    }
+    i = 0;
+    for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
+         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+        if (p->flag != 0) {
+            if (p->range != 0.0f && D_006E6190[i] < p->range) {
+                u = (D_006E6190[i] - 100.0f) / p->range;
+                rate = u < 0.0001f ? 0.0001f : (1.0f < u ? 1.0f : u);
+                j = 0;
+                for (r = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
+                     r != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; r++) {
+                    if (r->flag != 0) {
+                        if (j != i) {
+                            D_006E6320[j] = D_006E6320[j] * rate;
+                        }
+                        j++;
+                    }
+                }
+            }
+            i++;
+        }
+    }
+    total = 0.0f;
+    i = 0;
+    for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
+         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+        if (p->flag != 0) {
+            total = total + D_006E6320[i];
+            i++;
+        }
+    }
+    acc[0] = acc[1] = acc[2] = 0.0f;
+    ofsA[0] = 0.0f;
+    ofsA[1] = 0.0f;
+    ofsA[2] = 0.0f;
+    ofsB[0] = 0.0f;
+    ofsB[1] = 0.0f;
+    ofsB[2] = 0.0f;
+    e0 = 0.0f;
+    e1 = 0.0f;
+    e2 = 0.0f;
+    e3 = 0.0f;
+    e4 = 0.0f;
+    i = 0;
+    for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
+         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+        if (p->flag != 0) {
+            w = D_006E6320[i] / total;
+            acc[0] = acc[0] + p->v[0] * w;
+            acc[1] = acc[1] + p->v[1] * w;
+            acc[2] = acc[2] + p->v[2] * w;
+            e0 = e0 + p->w28 * w;
+            e1 = e1 + p->w38 * w;
+            e2 = e2 + p->w3C * w;
+            e3 = e3 + p->w40 * w;
+            e4 = e4 + p->w44 * w;
+            ofsA[0] = ofsA[0] + p->ofs[0] * w;
+            ofsA[1] = ofsA[1] + p->ofs[1] * w;
+            ofsA[2] = ofsA[2] + p->ofs[2] * w;
+            ofsB[0] = ofsB[0] + p->z[0] * w;
+            ofsB[1] = ofsB[1] + p->z[1] * w;
+            ofsB[2] = ofsB[2] + p->z[2] * w;
+            if (D_0063B178 != 0) {
+                if (0.0f < p->range) {
+                    debug_Marker(p->pos, (int)(w * 255.0f), 0, 0, p->range, (float)D_0063AB50);
+                } else {
+                    debug_Marker(p->pos, 0, (int)(w * 255.0f), 0, 100.0f, (float)D_0063AB50);
+                }
+            }
+            i++;
+        }
+    }
+    D_0063AB50 = D_0063AB50 + 2;
+    out[0] = acc[0];
+    out[1] = acc[1];
+    out[2] = acc[2];
+    out[4] = pos[0];
+    out[5] = pos[1];
+    out[6] = pos[2];
+    setHandCameraRates(e1, e2);
+    SetLimitHandCameraCorrect(e3, e4);
+    out[8] = e0;
+}
 
 inline int GetSizeOfCameraSetBinary(S4C *p, int n)
 {
@@ -580,19 +813,6 @@ extern float D_0063C27C;
 extern unsigned char D_0063C280;
 extern int D_0028F4C0[];
 extern void InitHandCameraCorrect(void);
-
-/* Static helper at camera-ico2.c lines 149-158 of the listing, hosted by both
- * InitIco2Camera and CameraMove, so the name is ours: it scales the two
- * hand-camera correction rates by the frame budget and reports the frame step.
- * The divisor is spelled out at every use, as the same idiom is in
- * src/hand-camera.c, so cse keeps a single `div` and the redundant div_trap
- * insns survive with no encoding of their own. */
-static inline int setHandCameraRates(float a, float b)
-{
-    D_0063C278 = a * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
-    D_0063C27C = b * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
-    return (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
-}
 
 void InitIco2Camera(void)
 {
@@ -669,7 +889,7 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
 
 extern int D_0063ABA4;
 extern int D_0063B178;
-extern void CameraMove(int group, float *a1, void *cam, float *a3, float *a4);
+extern void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
 extern void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
 extern void SetWSMatrix(void *cam);
 extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
@@ -755,7 +975,7 @@ void SetCameraMatrix_Ico2(int flag)
         }
         memset(vA, 0, 0x10);
         memset(vB, 0, 0x10);
-        CameraMove(group, D_006E6580, &cw, vA, vB);
+        CameraMove(group, D_006E6580, (float *)&cw, vA, vB);
         cw.at.f[0] = D_006E6570[0];
         cw.at.f[1] = D_006E6570[1];
         cw.at.f[2] = D_006E6570[2];

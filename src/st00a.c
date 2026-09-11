@@ -106,22 +106,85 @@ extern int scpTriggerBall(int a0, int a1, float f);
 extern int D_0063BE70;
 extern unsigned int D_0063BE74;
 extern int D_0063C4F8;
-extern int D_0028F8F4;
+extern int D_0028F8F4[];
 extern void fightSoundProcessRequestPause(void);
 extern int fightSoundPlayChk(void);
 extern void fightSoundProcessRequestStart(void);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern int scpAdpcmPlayRequestNum(void);
-extern void scpAdpcmFadeCloseFunc(int *a0, int a1);
-extern void ReviveAllCarryableItemsWithNonSleepFrame(int a0);
-extern void scpFadeOut(int a0, int a1, int a2, float f);
+extern int scpAdpcmFadeCloseFunc(int *h, short fade);
+extern int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame);
+extern void scpFadeOut(float f, int a1, int a2, int a3);
 extern int scpFadeChk(void);
 extern void scpFadeIn(float f);
 extern void iosThreadSetPri(int th, int pri);
 extern void iosPadActStop(int a0);
 void actSt00aStairChkSub(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aStairChk);
+void actSt00aStairChk(volatile int a0)
+{
+    int th;
+    int fade;
+
+    while (scpTriggerBall(a0, (int)scpSearchGobj(0x114), 90.0f) != 0 || gflagChk(0x27) != 0) {
+        _ACTWait(1);
+    }
+    gflagOn(0x26);
+    FinishHint(1);
+    SetWayGroupActive(3, 1);
+    SetWayGroupActive(0xD, 0);
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    gflagOn(0x29);
+    scpSleepEnemyAll();
+    _ACTWait(0x3C);
+    fightSoundProcessRequestPause();
+    while (fightSoundPlayChk() != 0) {
+        _ACTWait(1);
+    }
+    scpAdpcmPlayRequestFunc(0x15, &D_0063BE70, 1, 1, 1);
+    while (D_0063BE70 == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(0x57, 1, 0);
+    ReviveAllCarryableItemsWithNonSleepFrame(0x104);
+    D_0063BE74 = 0xFFFFFFFF;
+    th = actCreateSubThread(actSt00aStairChkSub, 0x15);
+    D_0063C4F8 = 0;
+    while (D_0063C4F8 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+    fade = D_0063C4F8 ^ 1;
+    if (fade) {
+        scpAdpcmFadeCloseFunc(&D_0063BE70, 0x100);
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+    iosThreadSetPri(th + 0x24, 0x22);
+    if (fade) {
+        stage_SetAnimation(0x5A, 1, -1);
+        stage_SetAnimation(0x57, 0, -1);
+        scpFadeIn(3.0f);
+    }
+    iosPadActStop(D_0063BE74);
+    while (stage_CheckAnimationFinish(0x5A) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpSearchGobj(0x111)->f16C = 0;
+    scpSearchGobj(0x110)->f16C = 1;
+    lt_switch_layout(0x36);
+    _ACTWait(0x78);
+    ReviveAllCarryableItemsWithNonSleepFrame(0x3C);
+    stage_SetAnimation(0x58, 0, -1);
+    stage_SetAnimation(0x5A, -1, -2);
+    D_0063AA08 = 0;
+    scpWakeupEnemyAll();
+    gflagOff(0x26);
+    fightSoundProcessRequestStart();
+}
 
 extern int D_00639EA4;
 extern ActMail D_004F7F10[];
