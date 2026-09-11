@@ -6,15 +6,186 @@ union U001325D8 {
 };
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdStManager);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrSearchFile);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrStStart);
+
+/* The record sceCdSearchFile fills in: it writes 0x24 bytes of it (lsn, size,
+ * the name column and the date), and the stack slot it is given is 0x30.  */
+typedef struct {
+    unsigned int lsn;
+    unsigned int size;
+    char name[16];
+    unsigned char date[8];
+    unsigned int reserved;
+} CdlFILE;
+
+/* iosCdvdSrhBuff is the directory cache: D_0063A36C records of 0x30 bytes,
+ * and D_00298E68 is iosCdvdSrhBuff[0].name (the ROM addresses the name column
+ * through its own symbol).  */
+typedef struct {
+    int lsn;
+    int size;
+    char name[0x28];
+} CdSrhEnt;
+
+extern CdSrhEnt iosCdvdSrhBuff[];
+extern char D_00298E68[];
+extern int D_0063A36C;
+extern char D_00550CF8[];
+extern char D_00550D30[];
+extern unsigned int strlen(const char *s);
+extern int strcmp(const char *a, const char *b);
+extern char *strncpy(char *d, const char *s, int n);
+extern int sceCdSearchFile(CdlFILE *fp, const char *name);
+extern void debug_StdPrintfDummy();
+
+void iosCdvdMgrSearchFile(char *self)
+{
+    /* The walk index stays in its stack slot and is re-read after every
+     * strcmp: the directory cache it indexes is the table the cdvd thread
+     * also fills, so the counter is volatile. */
+    volatile int i;
+    int r = 1;
+
+    if (strlen(self + 0x38) < 0x28) {
+        for (i = 0; i < D_0063A36C; i++) {
+            r = strcmp(self + 0x38, D_00298E68 + i * 0x30);
+            if (r == 0) {
+                break;
+            }
+        }
+    } else {
+        debug_StdPrintfDummy(D_00550CF8);
+    }
+    if (r == 0) {
+        *(int *)(self + 0x138) = iosCdvdSrhBuff[i].lsn;
+        *(int *)(self + 0x13C) = iosCdvdSrhBuff[i].size;
+    } else {
+        *(int *)(self + 0xC) = 0;
+        if (sceCdSearchFile((CdlFILE *)(self + 0x138), self + 0x38) == 0) {
+            *(int *)(self + 0xC) = 100;
+        }
+        if (D_0063A36C < 200) {
+            iosCdvdSrhBuff[D_0063A36C].lsn = *(int *)(self + 0x138);
+            iosCdvdSrhBuff[D_0063A36C].size = *(int *)(self + 0x13C);
+            strncpy(iosCdvdSrhBuff[D_0063A36C].name, self + 0x38, 0x28);
+            D_0063A36C++;
+        } else {
+            debug_StdPrintfDummy(D_00550D30);
+        }
+    }
+}
+
+/* The streaming request iosCdvdMgrStStart hands to the cdvd thread: the
+ * request record at D_0029B410 and the preload window it describes. */
+typedef struct {
+    char *owner; /* 0x00 */
+    int f_4;
+    int f_8;
+    char *buf; /* 0x0C */
+    int size;  /* 0x10 */
+    int f_14;
+    int f_18;
+    int f_1C;
+} CdStReq;
+
+extern CdStReq D_0029B410;
+extern int stagePreLoadSectorCnt;
+extern int stagePreLoadLsn;
+extern int D_0063C178;
+extern char stagePreLoadBuff[];
+extern char D_006BC830[];
+extern int iosMsgSend(void *a0, void *a1, int a2);
+extern long long inflate_cd_read_func(void *buf, long long size, int *self);
+extern int open_inflate_handler(void *readfunc, void *arg);
+
+void iosCdvdMgrStStart(char *self)
+{
+    int total;
+    int rest;
+    int cnt = stagePreLoadSectorCnt;
+    int prelsn = stagePreLoadLsn;
+    int lsn = *(int *)(self + 0x138);
+
+    D_0063C178 = cnt;
+    *(int *)(self + 0x34) = 0;
+    *(int *)(self + 0xC) = 0;
+    if (lsn == prelsn) {
+        lsn += cnt;
+    } else {
+        stagePreLoadSectorCnt = 0;
+        D_0063C178 = 0;
+    }
+    D_0029B410.owner = self;
+    D_0029B410.buf = stagePreLoadBuff;
+    D_0029B410.size = 0x380;
+    D_0029B410.f_18 = D_0063C178;
+    D_0029B410.f_14 = D_0063C178;
+    if (D_0063C178 >= 0x380) {
+        D_0029B410.f_14 = 0;
+    }
+    D_0029B410.f_1C = 0;
+    *(int *)(self + 0x14) = lsn;
+    total = (*(unsigned int *)(self + 0x13C) - 1) >> 11;
+    rest = lsn - *(int *)(self + 0x138) - 1;
+    *(int *)(self + 0x18) = total - rest;
+    D_0029B410.f_8 = 0;
+    iosMsgSend(D_006BC830, &D_0029B410, 1);
+    *(int *)(self + 0x160) = open_inflate_handler(inflate_cd_read_func, self);
+}
+
+extern char D_0029B3E0[];
+extern char D_00550C58[];
+extern char D_00550D68[];
+extern char D_0063A390[];
+extern int iosThreadGetPri(int tid);
+extern void iosThreadSetPri(int tid, int pri);
+extern void sceCdBreak(void);
+extern void iosMsgRecv();
+extern void sprintf();
+extern void debug_assertMessage(const char *file, int line, const char *msg);
+extern void __assert(const char *file, int line, char *expr);
+extern int close_inflate_handler(int handle);
+
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrStStop);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrLoad);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", temp_loadfunc);
+
+extern int D_0063A44C;
+extern char D_00550DB8[];
+extern void debug_StdPrintfDummy();
+extern int iosMallocDebug(int heap, int size, const char *file, int line);
+extern void iosFree(void *p);
+extern void iosCdvdHandlerRead(int *self, void *buf, int n);
+
+void temp_loadfunc(int *self, int name, int size, int a3, int a4, int a5, int seg)
+{
+    void *p = (void *)iosMallocDebug(D_0063A44C, size, D_00550C58, 1102);
+
+    iosCdvdHandlerRead(self, p, size);
+    debug_StdPrintfDummy(D_00550DB8, name, size, seg);
+    iosFree(p);
+}
+
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrPackLoad);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdStRead);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdHandlerReadNoInflate);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdHandlerReadInflate);
+
+extern char D_00550EC0[];
+extern void debug_StdPrintfDummy();
+extern long long inflate(void *state, void *buf, int n);
+
+void iosCdvdHandlerReadInflate(int *self, void *buf, int n)
+{
+    char *p;
+    long long len;
+
+    p = buf;
+    while ((len = inflate((void *)self[0x160 / 4], p, n)) > 0) {
+        p += (int)len;
+        n -= (int)len;
+    }
+    if (len < 0) {
+        debug_StdPrintfDummy(D_00550EC0);
+    }
+}
 
 extern unsigned char D_006B83B8[];
 extern void iosCdvdHandlerReadInflate(int *a0, void *buf, int n);
@@ -43,11 +214,32 @@ void iosCdvdHandlerRead(int *a0, void *a1, int a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", unifile_read_func);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdUnifileInfoGet);
+
+/* The 0x38 name column of a cdvd request is written 16 bytes at a time, so it
+ * is typed as an 8-byte-aligned pair; D_00550EE8 is the fixed disc path the
+ * unifile request always loads. */
+typedef struct {
+    long long lo;
+    long long hi;
+} CdvdName16;
+
+extern CdvdName16 D_00550EE8;
+extern char D_006AF9C0[];
+extern void unifile_read_func();
+extern void iosCdvdMgrLoad(void *req);
+
+void iosCdvdUnifileInfoGet(void)
+{
+    *(long long *)D_006AF9C0 &= ~1LL;
+    *(CdvdName16 *)(D_006AF9C0 + 0x38) = D_00550EE8;
+    *(void (**)())(D_006AF9C0 + 0x1C) = unifile_read_func;
+    iosCdvdMgrLoad(D_006AF9C0);
+}
+
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdManager);
 
 extern unsigned char CdvdMsgQ[];
-extern void iosMsgSend(void *a0, void *a1, int a2);
+extern int iosMsgSend(void *a0, void *a1, int a2);
 
 void iosCdvdLoad(int a0, int a1)
 {
@@ -115,20 +307,7 @@ int iosCdvdChgFileName(int a0)
     return strcpy(a0, buf);
 }
 
-/* iosCdvdSrhBuff is the directory cache: D_0063A36C records of 0x30 bytes,
- * and D_00298E68 is iosCdvdSrhBuff[0].name (the ROM addresses the name column
- * through its own symbol).  */
-typedef struct {
-    int lsn;
-    int size;
-    char name[0x28];
-} CdSrhEnt;
-
-extern CdSrhEnt iosCdvdSrhBuff[];
-extern char D_00298E68[];
-extern char D_00550C58[];
 extern char D_0063A398[];
-extern int D_0063A36C;
 extern int strcmp();
 extern void debug_assert();
 extern void __assert();
@@ -312,16 +491,6 @@ void iosCdvdBackGroundMgr(void)
         D_0063C17C = 0;
     }
 }
-
-/* The record sceCdSearchFile fills in: it writes 0x24 bytes of it (lsn, size,
- * the name column and the date), and the stack slot it is given is 0x30.  */
-typedef struct {
-    unsigned int lsn;
-    unsigned int size;
-    char name[16];
-    unsigned char date[8];
-    unsigned int reserved;
-} CdlFILE;
 
 extern char D_00550CC8[];
 extern char D_00550CD8[];

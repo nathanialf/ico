@@ -567,6 +567,7 @@ segments:
       - [0x5394E0, lit4, src/cod/5394E0]     # .lit4 blob resume (frameDependSequence's words)
       - [0x5394FC, .lit4, src/girl]  # carved D_006394FC..D_00639528 (12 words: 11 slots beside the still-asm func_001DD128 and func_001DD340, GirlGeo's 0.3 as a literal; the TU's whole pool, handManager's words follow), VMA 0x6394FC..0x63952C
       - [0x53952C, lit4, src/cod/53952C]     # .lit4 blob resume (handManager's words)
+      - [0x539530, .lit4, src/item]  # carved D_00639530..D_0063955C (12 slots, uncarriedItemGeo and its nested floatGeo; the TU's whole pool), VMA 0x639530..0x639560, 48 B
       - [0x539560, .lit4, src/motionManager]  # carved D_00639560..D_0063961C (48 slots, 18 fns _getFinalMatrix.._getGeometryOfMotion, in source order: getFinalMatrix.c.inc, motionManager.c, rootUpdate.c.inc), VMA 0x639560..0x639620, 192 B; MAIN.MAP motionManager.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).
       - [0x539620, lit4, src/cod/539620]     # .lit4 blob resume
       - [0x539680, .lit4, src/rotObject]  # carved D_00639680..D_0063969C (8 slots: MoveRotObjectWithHoldPoint x4, GetRotObjectGlobalHoldGeometry, InitRotObjectGeo, RotObjectDL, GetRotObjectZPlusDirection — per-function copies of 10430.378f; the TU's whole pool), VMA 0x639680..0x6396A0
