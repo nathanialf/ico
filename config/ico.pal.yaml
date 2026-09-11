@@ -492,6 +492,8 @@ segments:
       - [0x51D750, rodata, src/cod/51D750]   # .rodata blob resume ("sync end\n" and the rest of the run)
       - [0x51DD30, .rodata, src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
       - [0x51DD44, rodata, src/cod/51DD44]   # .rodata blob resume (three pad words)
+      - [0x51F7D0, .rodata, src/frameDependSequence]  # carved jtbl_0061F7D0 (VMA 0x61F7D0..0x61F7E4, 20 B, 5 arms): playSEConditionID's switch table, emitted by the compiled function
+      - [0x51F7E4, rodata, src/cod/51F7E4]   # .rodata blob resume
       - [0x51FA00, .rodata, src/handManager]  # carved jtbl_0061FA00 (VMA 0x61FA00..0x61FA18, 24 B, 6 arms): _handManager's switch table, emitted by the compiled function; the two zero pad words after it are the blob's first words
       - [0x51FA18, rodata, src/cod/51FA18]   # .rodata blob resume
       - [0x51FA90, .rodata, src/item]  # carved jtbl_0061FA90 (VMA 0x61FA90..0x61FAA4, 20 B, 5 arms): execBombGeo's switch table, emitted by the compiled function

@@ -297,11 +297,189 @@ void initMonitorCamera(int a0)
     SetMonitorCameraInitializeFlag(masked);
 }
 
-/* monitorMonitorCamera owns the first two words of this TU's .lit4 pool
- * (ROM 0x00639118 and 0x0063911C); its body is still INCLUDE_ASM. */
-ASM_LIT4_SLOT(D_00639118, 1000000.0f);
-ASM_LIT4_SLOT(D_0063911C, -1000000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", monitorMonitorCamera);
+typedef struct CamWork {
+    Mat4 eye; /* 0x00 */
+    Mat4 at;  /* 0x10 */
+    Mat4 ext; /* 0x20 */
+} CamWork;
+
+typedef struct CameraState {
+    char pad0[0x44];
+    unsigned char active; /* 0x44 */
+    char pad45[0x50 - 0x45];
+    CamWork work;   /* 0x50 */
+    float dbgA[4];  /* 0x80 */
+    float dbgB[4];  /* 0x90 */
+    float moveDist; /* 0xA0 */
+    float atRate;   /* 0xA4 */
+} CameraState;
+
+extern CameraState D_006E64B0;
+extern int D_0063ABA8;
+extern int D_0063ABAC;
+extern int D_0063C270;
+extern float D_0063C278;
+extern float D_0063C27C;
+extern int D_0028F4C0[];
+extern float _DistGV(void *a0, void *a1);
+
+/* The retail build compiles out this function's debug arms (listing lines
+ * 1033-1063 and 1109-1131 carry no instructions), which is why `vDbg` is read
+ * at the writeback with nothing having written it, `vDiff` is written and never
+ * read, `vSpare` survives only as a frame slot, and the 1098 loop keeps its
+ * counter with an empty body. */
+void monitorMonitorCamera(CamWork *cam, CamWork *out)
+{
+    float vDiff[4];
+    float vDbg[4];
+    float vEye[4];
+    float vOut[4];
+    float vAt[4];
+    float vAt2[4];
+    float vSpare[4];
+    int p1;
+    int p2;
+    int flag;
+    int i;
+    int k;
+    int held;
+    int mode;
+    float len;
+    float t;
+    float d;
+    float d1;
+    float d2;
+    float r1;
+    float r2;
+
+    flag = 0;
+    for (i = 0; i < 3; i++) {
+        if (1000000.0f < cam->at.f[i] || cam->at.f[i] < -1000000.0f) {
+            flag = 1;
+            break;
+        }
+    }
+    if (D_006E64B0.active != 0) {
+        D_006E64B0.work = *cam;
+        D_006E64B0.moveDist = 0.0f;
+        D_006E64B0.atRate = 0.0f;
+        D_006E64B0.active = 0;
+        if (flag != 0 && D_0063C270 < 10) {
+            D_006E64B0.active = 1;
+        }
+        D_006E64B0.dbgA[0] = 0.0f;
+        D_006E64B0.dbgA[1] = 0.0f;
+        D_006E64B0.dbgA[2] = 0.0f;
+        D_006E64B0.dbgB[0] = 0.0f;
+        D_006E64B0.dbgB[1] = 0.0f;
+        D_006E64B0.dbgB[2] = 0.0f;
+        *out = *cam;
+        return;
+    }
+    if (D_0063ABA8 != 0) {
+        *cam = D_006E64B0.work;
+    }
+    *out = *cam;
+    vDiff[0] = cam->eye.f[0] - D_006E64B0.work.eye.f[0];
+    vDiff[1] = cam->eye.f[1] - D_006E64B0.work.eye.f[1];
+    vDiff[2] = cam->eye.f[2] - D_006E64B0.work.eye.f[2];
+    sceVu0SubVector(vEye, cam, &D_006E64B0.work);
+    len = FSqrt(vEye[0] * vEye[0] + vEye[1] * vEye[1] + vEye[2] * vEye[2]);
+    if (D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 11.0f < len) {
+        if (D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) <
+            D_006E64B0.moveDist) {
+            D_006E64B0.moveDist =
+                D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+        }
+        if (D_006E64B0.moveDist < len) {
+            len = D_006E64B0.moveDist +
+                  D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f;
+            sceVu0Normalize(vEye, vEye);
+            sceVu0ScaleVector(vEye, vEye, len);
+            sceVu0AddVector(out, &D_006E64B0.work, vEye);
+        } else {
+            len = D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+            sceVu0Normalize(vEye, vEye);
+            sceVu0ScaleVector(vEye, vEye, len);
+            sceVu0AddVector(out, &D_006E64B0.work, vEye);
+        }
+    } else {
+        _InterGV(out, cam, &D_006E64B0.work, 10.0f, 1.0f);
+        for (k = 0; k < 3; k++) {}
+    }
+    sceVu0SubVector(vOut, out, &D_006E64B0.work);
+    t = FSqrt(vOut[0] * vOut[0] + vOut[1] * vOut[1] + vOut[2] * vOut[2]);
+    D_006E64B0.moveDist = t;
+    held = 0;
+    d = D_0063C27C * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    if (d < 0.0f) {
+        d = -d;
+    }
+    sceVu0SubVector(vAt, &cam->at, &D_006E64B0.work.at);
+    len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
+    sceVu0Normalize(vAt, vAt);
+    CameraGetTargets(&p1, &p2);
+    if (p1 == D_00639EA4) {
+        held = (p2 == 0);
+    }
+    if (held == 0 && 95.0f <= d) {
+        d = (float)(600 / ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+    }
+    if (d * 9.0f < len) {
+        D_006E64B0.atRate = D_006E64B0.atRate + 0.5f;
+        if (d < D_006E64B0.atRate) {
+            D_006E64B0.atRate = d;
+        }
+        sceVu0ScaleVector(vAt, vAt, D_006E64B0.atRate);
+        sceVu0AddVector(&out->at, &D_006E64B0.work.at, vAt);
+    } else {
+        mode = 8;
+        if (held != 0) {
+            if (115.0f <= d) {
+                mode = 1;
+            } else if (105.0f <= d) {
+                mode = 2;
+            } else if (95.0f <= d) {
+                mode = 4;
+            }
+        }
+        _InterGV(&out->at, &cam->at, &D_006E64B0.work.at,
+                 mode * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f,
+                 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        sceVu0SubVector(vAt, &out->at, &D_006E64B0.work.at);
+        len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
+        if (d < len) {
+            len = d;
+        }
+        sceVu0Normalize(vAt, vAt);
+        sceVu0ScaleVector(vAt, vAt, len);
+        sceVu0AddVector(&out->at, &D_006E64B0.work.at, vAt);
+        sceVu0SubVector(vAt2, &out->at, &D_006E64B0.work.at);
+        len = FSqrt(vAt2[0] * vAt2[0] + vAt2[1] * vAt2[1] + vAt2[2] * vAt2[2]);
+        D_006E64B0.atRate = len;
+        if (d < len) {
+            D_006E64B0.atRate = d;
+        }
+    }
+    if (out->ext.f[0] - D_006E64B0.work.ext.f[0] != 0.0f) {
+        d1 = _DistGV(out, cam);
+        d2 = _DistGV(out, &D_006E64B0.work);
+        if (d1 + d2 != 0.0f) {
+            out->ext.f[0] = (out->ext.f[0] * d2 + D_006E64B0.work.ext.f[0] * d1) / (d1 + d2);
+        }
+    }
+    if (D_0063ABAC != 0) {
+        r1 = (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0;
+        r2 = 3.0 / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+        _InterGV(out, cam, &D_006E64B0.work, r1, r2);
+        _InterGV(&out->at, &cam->at, &D_006E64B0.work.at, r1, r2);
+        out->ext.f[0] = (cam->ext.f[0] * r2 + D_006E64B0.work.ext.f[0] * r1) / (r1 + r2);
+    }
+    D_006E64B0.work = *out;
+    D_006E64B0.dbgA[0] = vDbg[0];
+    D_006E64B0.dbgA[1] = vDbg[1];
+    D_006E64B0.dbgA[2] = vDbg[2];
+}
 
 void ChaseCamera(float *a0, float *a1)
 {
@@ -489,21 +667,8 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
     }
 }
 
-typedef struct CamWork {
-    Mat4 eye; /* 0x00 */
-    Mat4 at;  /* 0x10 */
-    Mat4 ext; /* 0x20 */
-} CamWork;
-
-typedef struct CameraState {
-    char pad0[0x50];
-    CamWork work; /* 0x50 */
-} CameraState;
-
-extern CameraState D_006E64B0;
 extern int D_0063ABA4;
 extern int D_0063B178;
-extern void monitorMonitorCamera(void *cam, void *prev);
 extern void CameraMove(int group, float *a1, void *cam, float *a3, float *a4);
 extern void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
 extern void SetWSMatrix(void *cam);

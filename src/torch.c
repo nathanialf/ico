@@ -58,10 +58,106 @@ void torchOffSE(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/torch", LightTorchOn);
-INCLUDE_ASM("asm/nonmatchings/src/torch", LightTorchOff);
-INCLUDE_ASM("asm/nonmatchings/src/torch", torchDrainControl);
-INCLUDE_ASM("asm/nonmatchings/src/torch", moveTorch);
-INCLUDE_ASM("asm/nonmatchings/src/torch", setPauseFlag);
+
+extern void DeleteParticleEffect(int a0);
+
+void LightTorchOff(char *gobj)
+{
+    TorchGeoWork *w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
+
+    if (w->lightOn != 0) {
+        if (w->unk40 != -1) {
+            DeleteParticleEffect(w->unk40);
+        }
+        if (w->unk3C != -1) {
+            DeleteParticleEffect(w->unk3C);
+        }
+        if (w->unk34 != -1) {
+            DeleteParticleEffect(w->unk34);
+        }
+        if (w->unk38 != -1) {
+            DeleteParticleEffect(w->unk38);
+        }
+        if (w->unk44 != -1) {
+            DeleteParticleEffect(w->unk44);
+        }
+        w->unk3C = w->unk40 = w->unk34 = w->unk38 = w->unk44 = -1;
+        w->unk24 = 0;
+        w->lightOn = 0;
+        *(int *)(*(int *)(gobj + 0x15C) + 0x83C) = 0;
+        torchOffSE(gobj);
+    }
+}
+
+extern void SetParticleEffectDrainLevel(int a0, float level);
+
+void torchDrainControl(char *gobj, float level)
+{
+    TorchGeoWork *w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
+
+    if (w->unk40 != -1) {
+        SetParticleEffectDrainLevel(w->unk40, level);
+    }
+    if (w->unk3C != -1) {
+        SetParticleEffectDrainLevel(w->unk3C, level);
+    }
+    if (w->unk34 != -1) {
+        SetParticleEffectDrainLevel(w->unk34, level);
+    }
+    if (w->unk38 != -1) {
+        SetParticleEffectDrainLevel(w->unk38, level);
+    }
+    if (w->unk44 != -1) {
+        SetParticleEffectDrainLevel(w->unk44, level);
+    }
+}
+
+extern char D_002907E0[];
+extern void SetParticleEffectGeometry(int a0, void *a1, void *a2);
+
+void moveTorch(char *gobj, void *mtx)
+{
+    TorchGeoWork *w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
+
+    if (w->unk40 != -1) {
+        SetParticleEffectGeometry(w->unk40, mtx, D_002907E0);
+    }
+    if (w->unk3C != -1) {
+        SetParticleEffectGeometry(w->unk3C, mtx, D_002907E0);
+    }
+    if (w->unk34 != -1) {
+        SetParticleEffectGeometry(w->unk34, mtx, D_002907E0);
+    }
+    if (w->unk38 != -1) {
+        SetParticleEffectGeometry(w->unk38, mtx, D_002907E0);
+    }
+    if (w->unk44 != -1) {
+        SetParticleEffectGeometry(w->unk44, mtx, D_002907E0);
+    }
+}
+
+extern void SetParticleEffectPauseFlag(int a0, int a1);
+
+void setPauseFlag(char *gobj, int flag)
+{
+    TorchGeoWork *w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
+
+    if (w->unk40 != -1) {
+        SetParticleEffectPauseFlag(w->unk40, flag);
+    }
+    if (w->unk3C != -1) {
+        SetParticleEffectPauseFlag(w->unk3C, flag);
+    }
+    if (w->unk34 != -1) {
+        SetParticleEffectPauseFlag(w->unk34, flag);
+    }
+    if (w->unk38 != -1) {
+        SetParticleEffectPauseFlag(w->unk38, flag);
+    }
+    if (w->unk44 != -1) {
+        SetParticleEffectPauseFlag(w->unk44, flag);
+    }
+}
 
 inline int IsTorchLightOn(char *a0)
 {

@@ -1,14 +1,5 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", playSE);
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", playSERandomID);
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", playSEConditionID);
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", playEff);
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execEff);
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execVibCondition);
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecFrameDependSequence);
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", executeSEPackageByGObj);
-
 typedef struct {
     int se[2];
     int id;
@@ -27,6 +18,98 @@ extern char D_0061F878[];
 extern char D_0061F798[];
 extern void debug_StdPrintfDummy();
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
+
+INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", playSE);
+INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", playSERandomID);
+
+typedef struct SECondEntry { /* 0x0C */
+    int kind;                /* 0x00 */
+    int cond;                /* 0x04 */
+    int se;                  /* 0x08 */
+} SECondEntry;
+
+extern SECondEntry D_00626F28[];
+extern char *D_0063B8AC;
+extern int CheckFloorAttribute(void *self, int id);
+extern int CheckWallAttribute(void *self, int id);
+/* Declared before the three predicates: gcc 2.9 emits deferred inline bodies
+   in first-declaration order, and the ROM has execSE before them. */
+extern int execSE(int a0, void *a1);
+extern int checkWaterDepth(void *a0, int a1);
+extern int checkModelDataID(void *a0, int a1);
+extern int checkWeaponType(void *a0, int a1);
+
+int playSEConditionID(int no, void *entry)
+{
+    int (*fn)(void *, int);
+    SECondEntry *p;
+
+    switch (D_00626F28[no].kind) {
+    case 0:
+    default:
+        fn = CheckFloorAttribute;
+        break;
+    case 1:
+        fn = CheckWallAttribute;
+        break;
+    case 2:
+        fn = checkWaterDepth;
+        break;
+    case 3:
+        fn = checkModelDataID;
+        break;
+    case 4:
+        fn = checkWeaponType;
+        break;
+    }
+    if (D_00626F28[no].kind != -1) {
+        p = &D_00626F28[no];
+        do {
+            if (p->cond == -1 || fn(D_0063B8AC, p->cond) != 0) {
+                if (execSE(p->se, entry) != 0) {
+                    return 1;
+                }
+            }
+            p++;
+        } while (p->kind != -1);
+    }
+    return 0;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", playEff);
+INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execEff);
+
+typedef struct VibCondEntry { /* 0x0C */
+    int kind;                 /* 0x00 */
+    int _04;                  /* 0x04 */
+    int actId;                /* 0x08 */
+} VibCondEntry;
+
+extern VibCondEntry D_00626010[];
+extern void *D_00639EA0;
+extern int D_00639EB0;
+extern char D_0061F858[];
+extern void *D_0063B89C;
+extern void StopFDSVibration(void *a0);
+extern int iosPadActRequest(int port, int id);
+extern void debug_StdPrintfDummy();
+
+void execVibCondition(int no, int *entry)
+{
+    if (D_00639EA0 != 0) {
+        debug_StdPrintfDummy(D_0061F858);
+        if (D_00626010[no].kind != 0) {
+            if (D_0063B89C != 0) {
+                StopFDSVibration(D_0063B89C);
+            }
+        } else {
+            *entry = iosPadActRequest(D_00639EB0, D_00626010[no].actId);
+        }
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecFrameDependSequence);
+INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", executeSEPackageByGObj);
 
 /* static helper the listing places at frameDependSequence.c lines 533-542; never
  * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
@@ -124,7 +207,6 @@ void InitFrameDependSequence(void *a0)
 }
 
 extern int playSE(int no);
-extern int playSEConditionID(int no, void *entry);
 extern int playSERandomID(int no, void *entry);
 
 inline int execSE(int a0, void *a1)
@@ -227,8 +309,7 @@ inline int checkWeaponType(void *a0, int a1)
 }
 
 extern int D_00639EAC;
-extern void iosPadActRequest(int port, int id);
-extern int execVibCondition(int id, void *entry);
+extern int iosPadActRequest(int port, int id);
 
 inline int execVib(int a0, void *a1)
 {
