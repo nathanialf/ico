@@ -131,9 +131,165 @@ void _setParticleEffect(char *out, char *pkg, char *m, float k)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffect);
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", execParticleEffect);
-ASM_LIT4_SLOT(D_00639664, 4095.0f);
-ASM_LIT4_SLOT(D_00639668, 0.2f);
+
+extern char *matrixptr;
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float k);
+extern void GetMatrixFromQuaternionPos(void *m, void *q, void *p);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+
+/* particleEffect.c:358-367 in the PAL listing, rows outside dispParticleEffect's
+   own span (443-484): a static helper with no out-of-line copy, inlined at the
+   one call site. It projects the effect's origin through the current camera
+   matrix and reports whether the result falls outside the screen box. */
+static inline int particleEffectOffScreen(char *geo)
+{
+    float v[4];
+
+    if (*(int *)(geo + 0x34) != 0) {
+        sceVu0ApplyMatrix(v, matrixptr + 0x100, geo);
+        sceVu0ScaleVectorXYZ(v, v, 1.0f / v[3]);
+        if (v[2] < 0.0f || v[0] < 0.0f || 4095.0f < v[0] || v[1] < 0.0f || 4095.0f < v[1]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* particleEffect.c:159-164: the vertex writer, a static helper with no
+   out-of-line copy, inlined at every site in this TU. */
+static inline void peSetVtx(char *dst, char *pt)
+{
+    CopyVector(dst, pt + 0x10);
+    *(float *)(dst + 0xC) = *(float *)(pt + 0x34);
+    *(float *)(dst + 0x1C) = *(float *)(pt + 0x3C) * 128.0f;
+    *(float *)(dst + 0x10) = *(float *)(pt + 0x60);
+    *(float *)(dst + 0x14) = *(float *)(pt + 0x64);
+    *(float *)(dst + 0x18) = 128.0f;
+}
+
+/* the blank particle template, the 0x70-byte record that follows D_004ECCF0 */
+extern char D_004ECD60[];
+extern void *GetWindVector(int a0, void *v);
+extern void sceVu0ScaleVector(void *dst, void *src, float k);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+extern void _AddVectorXYZ(void *dst, void *a, void *b);
+
+/* the EE scratchpad holds the particle being updated */
+#define PEWORK (*(PEPartRec *)0x70000000)
+
+/* particleEffect.c:217-276 in the PAL listing, rows outside execParticleEffect's
+   own span (383-427): the per-particle integrator, inlined at its one call site.
+   It returns 0 for a slot that is already dead and 1 otherwise. */
+static inline int updateParticle(char *self, float *m)
+{
+    float wv[4];
+    char *pkg;
+    void *wind;
+
+    pkg = *(char **)(self + 0x20);
+    if (PEWORK.unk_00 == 0) {
+        return 0;
+    }
+    wind = GetWindVector(0, PEWORK.pos);
+    PEWORK.vel[0] = PEWORK.vel[0] + (sugiRandom() - 0.5f) * 0.2f;
+    PEWORK.vel[1] = PEWORK.vel[1] + *(float *)(pkg + 0x1C);
+    PEWORK.vel[2] = PEWORK.vel[2] + (sugiRandom() - 0.5f) * 0.2f;
+    sceVu0ScaleVector(PEWORK.vel, PEWORK.vel, *(float *)(pkg + 0x18));
+    sceVu0AddVector(PEWORK.pos, PEWORK.pos, PEWORK.vel);
+    _ScaleVectorXYZ(wv, wind, *(float *)(pkg + 0x90));
+    _AddVectorXYZ(PEWORK.pos, PEWORK.pos, wv);
+    if (*(int *)(self + 0x38) != 0) {
+        if (*(float *)(self + 0x3C) > PEWORK.pos[1]) {
+            PEWORK.pos[1] = *(float *)(self + 0x3C);
+            PEWORK.vel[1] = 0.0f;
+        }
+    }
+    if (PEWORK.life < *(int *)(pkg + 0x58)) {
+        PEWORK.alpha = PEWORK.alpha - PEWORK.alphaStep;
+    }
+    if (PEWORK.alpha < 0.0f) {
+        PEWORK.alpha = 0.0f;
+    }
+    PEWORK.size = PEWORK.size + PEWORK.sizeStep;
+    if (PEWORK.size < 0.0f) {
+        PEWORK.size = 0.0f;
+    }
+    PEWORK.sizeStep = PEWORK.sizeStep * *(float *)(pkg + 0x3C);
+    if (PEWORK.spin != 0) {
+        PEWORK.spinX = PEWORK.spinX + PEWORK.spinY;
+        PEWORK.spinY = (short)((float)PEWORK.spinY * *(float *)(pkg + 0x28));
+    }
+    PEWORK.life = PEWORK.life - 1;
+    if (PEWORK.life < 0) {
+        if (*(int *)(pkg + 0x4) == 1) {
+            MatrixDrive_PushMatrix();
+            _setParticleEffect((char *)0x70000000, pkg, (char *)m, *(float *)(self + 0x40));
+            MatrixDrive_PopMatrix();
+        } else {
+            PEWORK.unk_00 = 0;
+        }
+    }
+    return 1;
+}
+
+int execParticleEffect(void *a0)
+{
+    float m[16];
+    char *self;
+    char *part;
+    char *base;
+    char *d0;
+    char *v0;
+    char *v1;
+    int flags;
+    int i;
+    int n;
+    float last;
+    float total;
+    float next;
+
+    self = (char *)a0;
+    d0 = *(char **)(*(int *)(self + 0x28) + 0x190);
+    flags = 0;
+    if (particleEffectOffScreen(self)) {
+        return *(int *)(*(int *)(self + 0x20) + 0x4) == 1;
+    }
+    GetMatrixFromQuaternionPos(m, self + 0x10, self);
+    part = *(char **)(self + 0x24);
+    for (i = 0; i < *(int *)(self + 0x30); i++, part += 0x70, d0 += 0x20) {
+        if ((float)i < *(float *)(self + 0x2C)) {
+            PEWORK = *(PEPartRec *)part;
+            flags |= updateParticle(self, m);
+            peSetVtx(d0, (char *)0x70000000);
+            *(PEPartRec *)part = PEWORK;
+        } else {
+            peSetVtx(d0, D_004ECD60);
+            flags |= 1;
+        }
+    }
+    total = (float)*(int *)(self + 0x30);
+    last = *(float *)(self + 0x2C);
+    if (last < total) {
+        v0 = *(char **)(*(int *)(self + 0x28) + 0x190);
+        v1 = *(char **)(*(int *)(self + 0x28) + 0x194);
+        base = *(char **)(self + 0x24);
+        next = last + *(float *)(*(char **)(self + 0x20) + 0x4C);
+        n = (int)next;
+        if (total < next) {
+            n = (int)total;
+        }
+        for (i = (int)last; i < n; i++) {
+            _setParticleEffect(base + i * 0x70, *(char **)(self + 0x20), (char *)m, 1.0f);
+            peSetVtx(v0 + i * 0x20, base + i * 0x70);
+            peSetVtx(v1 + i * 0x20, base + i * 0x70);
+        }
+        *(float *)(self + 0x2C) = next;
+    }
+    return flags;
+}
 
 /* The display-list packet builder state, the same record src/GifPacket.c
    carries: `ptr` is the write cursor and `dma`, `tail`, `gif` and `end` are
@@ -162,24 +318,6 @@ extern void dl_SetDLPriority(int pri);
 extern void dl_OpenDma(int chan, void *dma, int flag);
 extern void dl_CloseDma(void);
 extern void prim_DispParticle(int prim, void *m);
-
-/* particleEffect.c:358-367 in the PAL listing, rows outside dispParticleEffect's
-   own span (443-484): a static helper with no out-of-line copy, inlined at the
-   one call site. It projects the effect's origin through the current camera
-   matrix and reports whether the result falls outside the screen box. */
-static inline int particleEffectOffScreen(char *geo)
-{
-    float v[4];
-
-    if (*(int *)(geo + 0x34) != 0) {
-        sceVu0ApplyMatrix(v, matrixptr + 0x100, geo);
-        sceVu0ScaleVectorXYZ(v, v, 1.0f / v[3]);
-        if (v[2] < 0.0f || v[0] < 0.0f || 4095.0f < v[0] || v[1] < 0.0f || 4095.0f < v[1]) {
-            return 1;
-        }
-    }
-    return 0;
-}
 
 /* INTERIM (the same construct src/GifPacket.c uses for its own gif_SetGsReg):
    the listing inlines the GS-register writer at every site in this TU, so it is
