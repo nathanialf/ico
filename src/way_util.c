@@ -112,7 +112,63 @@ void WayUtilWorkFree(int *self)
 INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path_ThreadVersion);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", GetWgAll);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", set_check_wp);
+
+extern WayGrp D_004F1EC0[];
+extern Nd D_004F31E0[];
+extern char D_005543A8[];
+extern void debug_StdPrintfDummy();
+
+/* INTERIM stand-ins: waypoint_connect_group_side_me and
+   waypoint_connect_group_side_bridge are real TU functions whose out-of-line
+   copies sit in the tail of this file at their ROM slots; the compiler inlines
+   them here, and the tail copies must keep their emission order. */
+static inline WPElem *waypoint_connect_group_side_meInline(WPNode *a0, int a1)
+{
+    WPElem *e = &D_004F31E0[a0->i20];
+    if (e->f20 == a1)
+        return e;
+    e = &D_004F31E0[a0->i24];
+    return e->f20 == a1 ? e : 0;
+}
+
+static inline int waypoint_connect_group_side_bridgeInline(WPNode *a0, int a1)
+{
+    WPElem *e = &D_004F31E0[a0->i20];
+    if (e->f20 == a1)
+        return a0->i8;
+    e = &D_004F31E0[a0->i24];
+    if (e->f20 == a1)
+        return a0->iC;
+    return 0;
+}
+
+typedef struct CheckWp {
+    int f0;
+    void *f4;
+    void *f8;
+} CheckWp;
+
+void set_check_wp(CheckWp *out, int wp, int gid)
+{
+    switch (D_004F1EC0[gid].f18) {
+    case 0: {
+        WayGrp *f = &D_004F1EC0[wp];
+
+        out->f4 = waypoint_connect_group_side_meInline((WPNode *)f, gid);
+        out->f8 = (void *)waypoint_connect_group_side_bridgeInline((WPNode *)f, gid);
+        debug_StdPrintfDummy(D_005543A8, out->f4, out->f8);
+        break;
+    }
+    case 1: {
+        WayGrp *g = &D_004F1EC0[gid];
+
+        out->f4 = (void *)waypoint_connect_group_side_bridgeInline((WPNode *)g, wp);
+        out->f8 = waypoint_connect_group_side_meInline((WPNode *)g, wp);
+        break;
+    }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/way_util", set_bridge);
 
 extern int WayPointList_begin();
