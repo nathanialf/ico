@@ -362,6 +362,7 @@ padding is injected. All 30 verified byte-identical with such ends.
 
 | TU | carve (ROM off) | VMA range | jtbl(s), owner switch, entries |
 |---|---|---|---|
+| `src/Packet` | `[0x44F230]` | 0x54F230..0x54F274 | `jtbl_0054F230` (pac_DispQW, 17) |
 | `src/Packet` | `[0x44F410]` | 0x54F410..0x54F424 | `jtbl_0054F410` (pac_error, 5) |
 | `src/motionManager2` | `[0x453DB0]` | 0x553DB0..0x553DC8 | `jtbl_00553DB0` (AdjustVerticalSidePlaneOfWall, 6) |
 | `src/tableSin` | `[0x453E70]` | 0x553E70..0x553E8C | `jtbl_00553E70` (func_0010DFB8, 7) |
