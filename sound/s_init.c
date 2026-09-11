@@ -1,26 +1,29 @@
 #include "common.h"
 
 typedef struct SqEntry {
-    short num;        /* 0x0 */
-    short bank;       /* 0x2 */
-    short unk4;       /* 0x4 */
-    short unk6;       /* 0x6 */
-    int unk8;         /* 0x8 */
-    int unkC;         /* 0xC */
-    int unk10[2];     /* 0x10 */
-    long long chMask; /* 0x18 */
-    int unk20[2];     /* 0x20 */
-    int unk28;        /* 0x28 */
+    unsigned short num;  /* 0x0 */
+    short bank;          /* 0x2 */
+    unsigned short unk4; /* 0x4 */
+    unsigned short unk6; /* 0x6 */
+    int unk8;            /* 0x8 */
+    int unkC;            /* 0xC */
+    int unk10[2];        /* 0x10 */
+    long long chMask;    /* 0x18 */
+    long long seMask;    /* 0x20 */
+    int unk28;           /* 0x28 */
 } SqEntry;
 
 typedef struct SeReqRec {
-    int unk0[8];      /* 0x00 */
-    long long chMask; /* 0x20 */
+    int unk0;            /* 0x00 */
+    unsigned short unk4; /* 0x04 */
+    short unk6;          /* 0x06 */
+    int unk8[6];         /* 0x08 */
+    long long chMask;    /* 0x20 */
 } SeReqRec;
 
 typedef struct SeEnvDef {
     float unk0;          /* 0x00 */
-    float unk4;          /* 0x04 */
+    int (*unk4)();       /* 0x04 */
     float volume;        /* 0x08 */
     float unkC;          /* 0x0C */
     float unk10;         /* 0x10 */
@@ -32,28 +35,61 @@ typedef struct SeEnvDef {
     unsigned int b4 : 28;
 } SeEnvDef;
 
-typedef struct SeSrc {
-    int unk0[9]; /* 0x00 */
-    float unk24; /* 0x24 */
-} SeSrc;
+/* The SE source definition record (0x3C bytes) a slot plays from: the same
+   record `_soundSeDefStop` reaches through the slot's 0x38 pointer. */
+typedef struct SeSrcDef {
+    int unk0[8];          /* 0x00 */
+    int unk20;            /* 0x20 */
+    float unk24;          /* 0x24 */
+    int unk28[3];         /* 0x28 */
+    short unk34;          /* 0x34 */
+    unsigned short unk36; /* 0x36 */
+    unsigned int b0 : 4;  /* 0x38 bits 0..3 */
+    unsigned int b4 : 2;
+    unsigned int b6 : 1;
+    unsigned int b7 : 1;
+    unsigned int b8 : 1;
+    unsigned int b9 : 23;
+} SeSrcDef;
+
+/* The slot's 0x04 status word, written both as a whole and bit by bit. */
+typedef union SeFlag {
+    unsigned int all;
+
+    struct {
+        short f0;
+        unsigned int f16 : 8;
+        unsigned int f24 : 1;
+        unsigned int f25 : 1;
+        unsigned int f26 : 1;
+        unsigned int f27 : 1;
+        unsigned int f28 : 1;
+        unsigned int f29 : 1;
+        unsigned int f30 : 1;
+        unsigned int f31 : 1;
+    } bit;
+} SeFlag;
 
 typedef struct SeSlot {
-    int unk0;             /* 0x00 */
-    unsigned int f0 : 26; /* 0x04 bits 0..25 */
-    unsigned int f26 : 1;
-    unsigned int f27 : 1;
-    unsigned int f28 : 2;
-    unsigned int f30 : 1;
-    unsigned int f31 : 1;
-    int unk8[4];     /* 0x08 */
-    float unk18;     /* 0x18 */
-    float unk1C;     /* 0x1C */
-    float unk20;     /* 0x20 */
-    float unk24;     /* 0x24 */
-    float unk28;     /* 0x28 */
-    int unk2C[3];    /* 0x2C */
-    SeSrc *unk38;    /* 0x38 */
-    SeEnvDef *unk3C; /* 0x3C */
+    unsigned short num; /* 0x00 */
+    short unk2;         /* 0x02 */
+    SeFlag flag;        /* 0x04 */
+    unsigned int unk8;  /* 0x08 */
+    int unkC;           /* 0x0C */
+    short unk10;        /* 0x10 */
+    short unk12;        /* 0x12 */
+    short unk14;        /* 0x14 */
+    short unk16;        /* 0x16 */
+    float unk18;        /* 0x18 */
+    float unk1C;        /* 0x1C */
+    float unk20;        /* 0x20 */
+    float unk24;        /* 0x24 */
+    float unk28;        /* 0x28 */
+    int (*unk2C)();     /* 0x2C */
+    SqEntry *unk30;     /* 0x30 */
+    int unk34;          /* 0x34 */
+    SeSrcDef *unk38;    /* 0x38 */
+    SeEnvDef *unk3C;    /* 0x3C */
 } SeSlot;
 
 extern char D_006BF570[];
@@ -374,8 +410,121 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeVolSet);
 ASM_LIT4_SLOT(D_00638CA0, 0.1f);
 ASM_LIT4_SLOT(D_00638CA4, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", debug_DispSEInfo);
-ASM_LIT4_SLOT(D_00638CA8, -0.0027777778f);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", sound3DParamSet);
+
+extern void SgSetSeVolDirect(int id, int l, int r);
+extern float *GetCameraPos(void);
+extern void sceVu0CopyVector(float *dst, float *src);
+extern void CameraGetOtherObjOffset(float *pos, float *dist, int *ang);
+extern void soundSeVolSet(SeSlot *self);
+
+void sound3DParamSet(SeSlot *self)
+{
+    float v[4];
+    float dist;
+    int ang;
+    float *cam;
+    float *obj;
+    float vol;
+    float rate;
+    float range;
+    float front;
+    float volL;
+    float volR;
+    int n;
+    int a;
+    int pan;
+    int ret;
+
+    self->unk14 = 0x1000;
+    self->unk12 = 0x1000;
+    if (self->unk2C != 0) {
+        ret = self->unk2C();
+        if (ret > 0) {
+            self->flag.bit.f24 = 1;
+            self->flag.bit.f25 = 0;
+        } else if (ret < 0) {
+            self->flag.bit.f24 = 0;
+        } else {
+            self->unk12 = 0;
+            self->unk14 = 0;
+            self->flag.bit.f24 = 0;
+        }
+        self->unk38->b8 = 1;
+    }
+    if ((self->flag.all & 0x02000000) && self->unk38->b8 == 0) {
+        if (self->flag.all & 0x20000000) {
+            SgSetSeVolDirect(self->unk10, 0, 0);
+        }
+        return;
+    }
+    if ((self->flag.all & 0x01000000) == 0 || (obj = (float *)self->unk34) == 0) {
+        soundSeVolSet(self);
+        return;
+    }
+    self->flag.all |= 0x02000000;
+    if (self->flag.bit.f26 == 1) {
+        cam = GetCameraPos();
+        sceVu0CopyVector(v, (float *)self->unk34);
+        v[1] = cam[1];
+        CameraGetOtherObjOffset(v, &dist, &ang);
+    } else {
+        CameraGetOtherObjOffset(obj, &dist, &ang);
+    }
+    if (dist > self->unk28) {
+        vol = 0.0f;
+    } else if (dist < self->unk24) {
+        vol = 1.0f;
+    } else {
+        dist = dist - self->unk24;
+        range = self->unk20 - self->unk24;
+        if (self->flag.bit.f30 == 0) {
+            rate = dist / range;
+            vol = 1.0f / (rate + 1.0f);
+        } else {
+            if (dist < range) {
+                rate = dist / range;
+                vol = 1.0f / (rate + 1.0f);
+            } else {
+                dist = dist - range;
+                vol = 1.0f / (dist / ((self->unk28 - self->unk24) - range) + 1.0f) - 0.5f;
+            }
+        }
+    }
+    if (self->flag.bit.f27 == 1) {
+        a = ang;
+        pan = a;
+        if (self->flag.bit.f28 == 1) {
+            a = (a <= -1) ? -a : a;
+            front = (float)a * -0.0027777778f + 1.0f;
+        } else {
+            front = 1.0f;
+        }
+        if (pan >= 0) {
+            volL = 1.0f;
+            a = pan;
+            if (a >= 91) {
+                a = 180 - a;
+            }
+            volR = -(1.0f - self->unk1C) / 90.0f * (float)a + 1.0f;
+        } else {
+            volR = 1.0f;
+            a = -pan;
+            if (a >= 91) {
+                a = 180 - a;
+            }
+            volL = -(1.0f - self->unk1C) / 90.0f * (float)a + 1.0f;
+        }
+    } else {
+        volR = 1.0f;
+        front = 1.0f;
+        volL = 1.0f;
+    }
+    n = (int)(vol * 4096.0f * front);
+    self->unk12 = (float)n * volR;
+    self->unk14 = (float)n * volL;
+    soundSeVolSet(self);
+}
+
 ASM_LIT4_SLOT(D_00638CAC, 3000.0f);
 ASM_LIT4_SLOT(D_00638CB0, 0.1f);
 ASM_LIT4_SLOT(D_00638CB4, 10000.0f);
@@ -392,15 +541,6 @@ typedef struct SeInfo {
     short unk4; /* 0x4 */
     short unk6; /* 0x6 */
 } SeInfo;
-
-typedef struct SeSrcDef {
-    int unk0[13];         /* 0x00 */
-    short unk34;          /* 0x34 */
-    unsigned short unk36; /* 0x36 */
-    unsigned int b0 : 6;  /* 0x38 bits 0..5 */
-    unsigned int b6 : 1;
-    unsigned int b7 : 25;
-} SeSrcDef;
 
 extern SeInfo D_005F5C70[];
 
@@ -475,7 +615,9 @@ void soundSeDefPitchSet(int a0)
 extern char D_005D3F30[];
 
 typedef struct SeEnvStage {
-    int unk0[68];   /* 0x000 */
+    int unk0[66];   /* 0x000 */
+    int segFirst;   /* 0x108 */
+    int segLast;    /* 0x10C */
     int first;      /* 0x110 */
     int last;       /* 0x114 */
     int unk118[31]; /* 0x118 */
@@ -484,7 +626,8 @@ typedef struct SeEnvStage {
 extern SeEnvStage D_005F5D50[];
 extern int D_0063A458;
 extern int stage_no;
-extern int _soundSeDefPlay(int a0, unsigned int a1, int a2, int a3, float f, int t0, int t1);
+extern int _soundSeDefPlay(int kind, unsigned int a1, int a2, int a3, float vol, SeEnvDef *env,
+                           SeSlot **out);
 extern int iosMallocDebug(int heap, int size, char *file, int line);
 
 /* INTERIM stand-in for soundSeEnvDefaultSet, whose ROM-slot definition sits in
@@ -514,9 +657,9 @@ static inline void env_default_set(SeSlot *self)
     } else {
         self->unk28 = 3000.0f;
     }
-    self->f30 = env->b3;
-    self->f26 = env->b1;
-    self->f27 = env->b2;
+    self->flag.bit.f30 = env->b3;
+    self->flag.bit.f26 = env->b1;
+    self->flag.bit.f27 = env->b2;
     self->unk1C = 0.1f;
 }
 
@@ -527,12 +670,12 @@ void soundSeEnvPlay(void)
 
     for (i = D_005F5D50[stage_no].first; i < D_005F5D50[stage_no].last; i++) {
         SeEnvDef *e = (SeEnvDef *)&D_005D3F30[i * 0x1C];
-        _soundSeDefPlay(*(int *)e, 0xFFFFFFFF, 0, 0, -1.0f, (int)e, (int)&slot);
+        _soundSeDefPlay(*(int *)e, 0xFFFFFFFF, 0, 0, -1.0f, (SeEnvDef *)e, &slot);
         if (slot != 0) {
             slot->unk3C = e;
             env_default_set(slot);
             if (e->b0 == 1) {
-                slot->unk2C[2] = iosMallocDebug(D_0063A458, 0x10, D_005521E8, 0x61D);
+                slot->unk34 = iosMallocDebug(D_0063A458, 0x10, D_005521E8, 0x61D);
             }
         }
     }
@@ -700,14 +843,15 @@ char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4)
     return (char *)e;
 }
 
-extern int _soundSeDefPlay(int a0, unsigned int a1, int a2, int a3, float f, int t0, int t1);
-extern void sound3DParamSet(int *p);
+extern int _soundSeDefPlay(int kind, unsigned int a1, int a2, int a3, float vol, SeEnvDef *env,
+                           SeSlot **out);
+extern void sound3DParamSet(SeSlot *self);
 
 int soundSeDefPlay(int a0, int a1, int a2, int a3)
 {
     int idx = _soundSeDefPlay(a0, a1, a2, a3, -1.0f, 0, 0);
     if (idx >= 0) {
-        sound3DParamSet((int *)((char *)D_006BF870 + (idx & 0xFF) * 64));
+        sound3DParamSet((SeSlot *)((char *)D_006BF870 + (idx & 0xFF) * 64));
     }
     return idx;
 }
@@ -716,7 +860,7 @@ int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3)
 {
     int idx = ((int (*)(int, int, int, int, int, int))_soundSeDefPlay)(a0, a1, a2, a3, 0, 0);
     if (idx >= 0) {
-        sound3DParamSet((int *)((char *)D_006BF870 + (idx & 0xFF) * 64));
+        sound3DParamSet((SeSlot *)((char *)D_006BF870 + (idx & 0xFF) * 64));
     }
     return idx;
 }
@@ -824,7 +968,7 @@ void soundReqTickProc(void)
                         *(int *)(p + 4) &= 0xDFFFFFFF;
                     }
                 }
-                sound3DParamSet((int *)p);
+                sound3DParamSet((SeSlot *)p);
             }
         }
         i++;
@@ -911,9 +1055,9 @@ void soundSeEnvDefaultSet(SeSlot *self)
     } else {
         self->unk28 = 3000.0f;
     }
-    self->f30 = env->b3;
-    self->f26 = env->b1;
-    self->f27 = env->b2;
+    self->flag.bit.f30 = env->b3;
+    self->flag.bit.f26 = env->b1;
+    self->flag.bit.f27 = env->b2;
     self->unk1C = 0.1f;
 }
 
