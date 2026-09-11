@@ -57,7 +57,55 @@ void torchOffSE(int a0)
     ExecuteSEPackage(a0, 0x43);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/torch", LightTorchOn);
+extern char D_002907E0[];
+extern int D_0063A44C;
+extern int SetParticleEffectByPartition(int id, float *pos, void *geo, int part);
+
+void LightTorchOn(char *gobj)
+{
+    float pos[4];
+    TorchGeoWork *w;
+    char *o;
+    int n;
+
+    w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
+    if (w->lightOn != 0) {
+        return;
+    }
+    GetRootPosition(pos, gobj);
+    switch (w->flags) {
+    case 2:
+        n = 0;
+        o = (char *)isysGObjSearchFromObjKindID_begin(10);
+        while (o != 0) {
+            TorchGeoWork *ow = *(TorchGeoWork **)(*(char **)(o + 0x15C) + 0x830);
+            if (o != gobj && ow->flags == 2) {
+                if (IsTorchLightOn(o)) {
+                    n++;
+                }
+            }
+            o = (char *)isysGObjSearchFromObjKindID_next(o);
+        }
+        if (n > 0) {
+            return;
+        }
+        w->unk38 = SetParticleEffectByPartition(0x15, pos, D_002907E0, D_0063A44C);
+        w->unk44 = SetParticleEffectByPartition(0x13, pos, D_002907E0, D_0063A44C);
+        break;
+    case 4:
+        w->unk34 = SetParticleEffectByPartition(0x17, pos, D_002907E0, D_0063A44C);
+        break;
+    default:
+        w->unk40 = SetParticleEffectByPartition(7, pos, D_002907E0, D_0063A44C);
+        w->unk34 = SetParticleEffectByPartition(5, pos, D_002907E0, D_0063A44C);
+        w->unk38 = SetParticleEffectByPartition(9, pos, D_002907E0, D_0063A44C);
+        w->unk44 = SetParticleEffectByPartition(0x13, pos, D_002907E0, D_0063A44C);
+        break;
+    }
+    w->unk24 = 0;
+    w->lightOn = 1;
+    *(int *)(*(int *)(gobj + 0x15C) + 0x83C) = 1;
+}
 
 extern void DeleteParticleEffect(int a0);
 
@@ -211,7 +259,44 @@ inline char *CheckTorchChainReaction(char *a0, float dist)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/torch", CheckTorchChainReactionReverse);
+char *CheckTorchChainReactionReverse(char *a0, float dist)
+{
+    float pos[4];
+    float pos2[4];
+    char *o;
+    char *p;
+    int n;
+    int lit;
+
+    n = 0;
+    GetRootPosition(pos, a0);
+
+    o = (char *)isysGObjSearchFromObjKindID_begin(10);
+    while (o != 0) {
+        TorchGeoWork *w = *(TorchGeoWork **)(*(char **)(o + 0x15C) + 0x830);
+        if (w->flags == 2) {
+            if (IsTorchLightOn(o)) {
+                n++;
+            }
+        }
+        o = (char *)isysGObjSearchFromObjKindID_next(o);
+    }
+
+    dist = dist * dist;
+    lit = 0 < n;
+    p = (char *)isysGObjSearchFromObjKindID_begin(10);
+    while (p != 0) {
+        if (p != a0 && IsTorchLightOn(p) == 0 && *(int *)(p + 0x16C) != 0 &&
+            (((TorchGeoWork *)*(char **)(*(char **)(p + 0x15C) + 0x830))->flags != 2 || lit == 0)) {
+            GetRootPosition(pos2, p);
+            if (distance_squared(pos2, pos) < dist) {
+                return p;
+            }
+        }
+        p = (char *)isysGObjSearchFromObjKindID_next(p);
+    }
+    return 0;
+}
 
 inline void UpdateRealTimeGeometryValue(char *a0)
 {

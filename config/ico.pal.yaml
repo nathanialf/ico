@@ -573,7 +573,7 @@ segments:
       - [0x5394BC, lit4, src/cod/5394BC]     # .lit4 blob resume (the last words before flyManager's run)
       - [0x5394CC, .lit4, src/enemyParts]  # carved D_006394CC..D_006394D4 (3 slots: InitEnemyEye's 1e-5f as a slot beside the still-asm owner, ExecEnemyFootPrints' 0.9f, EntryEnemyFootPrint's 0.05f; the TU's whole pool), VMA 0x6394CC..0x6394D8, 12 B
       - [0x5394D8, .lit4, src/flyManager]  # carved D_006394D8..D_006394DC (2 slots, both 100000.0f: GetFlyLimitHeight and GetFlyLimitClearance), VMA 0x6394D8..0x6394E0, 8 B; the TU's whole pool, emitted by the compiled functions
-      - [0x5394E0, lit4, src/cod/5394E0]     # .lit4 blob resume (frameDependSequence's words)
+      - [0x5394E0, .lit4, src/frameDependSequence]  # carved D_006394E0..D_006394F8 (7 slots: playSE's 0.95f as a slot beside the still-asm owner, playSERandomID x3, playEff, execEff x2; the TU's whole pool), VMA 0x6394E0..0x6394FC, 28 B
       - [0x5394FC, .lit4, src/girl]  # carved D_006394FC..D_00639528 (12 words: 11 slots beside the still-asm func_001DD128 and func_001DD340, GirlGeo's 0.3 as a literal; the TU's whole pool, handManager's words follow), VMA 0x6394FC..0x63952C
       - [0x53952C, lit4, src/cod/53952C]     # .lit4 blob resume (handManager's words)
       - [0x539530, .lit4, src/item]  # carved D_00639530..D_0063955C (12 slots, uncarriedItemGeo and its nested floatGeo; the TU's whole pool), VMA 0x639530..0x639560, 48 B
