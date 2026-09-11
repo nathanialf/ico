@@ -18,12 +18,27 @@ typedef struct ShockReq {
     /* 0x5 */ unsigned char val;
 } ShockReq;
 
+typedef struct VibDecode {
+    /* 0x0 */ unsigned char *buf;
+    /* 0x4 */ unsigned short pos;
+    /* 0x6 */ unsigned short acc;
+    /* 0x8 */ unsigned short prev;
+    /* 0xA */ unsigned short len;
+    /* 0xC */ short time;
+    /* 0xE */ short cnt;
+} VibDecode;
+
 typedef struct SHOCKREQUEST {
     /* 0x00 */ unsigned char flags;
     /* 0x01 */ unsigned char b1;
     /* 0x02 */ unsigned char b2;
     /* 0x03 */ unsigned char b3;
-    /* 0x04 */ unsigned char pad04[0x24];
+    /* 0x04 */ VibDecode shot;
+    /* 0x14 */ VibDecode wave;
+    /* 0x24 */ unsigned char c24;
+    /* 0x25 */ unsigned char c25;
+    /* 0x26 */ unsigned char shotRep;
+    /* 0x27 */ unsigned char waveRep;
     /* 0x28 */ int key;
     /* 0x2C */ int arg;
     /* 0x30 */ struct SHOCKREQUEST *prev;
@@ -54,8 +69,188 @@ typedef struct ShockRequestBox {
 
 extern ShockMgr *System_shock_driver;
 
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Vibration_ShotDecode);
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Vibration_WaveDecode);
+int Vibration_ShotDecode(SHOCKREQUEST *p, int level)
+{
+    unsigned char *q;
+    int ret = 0;
+    int n;
+    unsigned short pos;
+    unsigned char c;
+
+    if ((p->flags & 1) == 0) {
+        return 0;
+    }
+    if (p->shot.buf == 0) {
+        p->flags &= 0xFE;
+        return 0;
+    }
+    for (;;) {
+        q = p->shot.buf + p->shot.pos;
+        c = *q;
+        if (p->shot.cnt != 0) {
+            p->shot.time = p->shot.time + 1;
+            if (c & 0x40) {
+                if (p->b2 >> 7) {
+                    if ((p->b2 >> 4) == 0xF) {
+                        ret = 1;
+                    } else {
+                        ret = 0;
+                    }
+                    if (p->shot.time % ((p->b2 >> 4) - 5) != 0) {
+                        ret = 1;
+                    }
+                } else {
+                    ret = (p->shot.time % (9 - (p->b2 >> 4))) == 0;
+                }
+            }
+            if (p->shot.time >= p->shot.len) {
+                p->shot.cnt = 0;
+                p->shot.pos = p->shot.pos + 1;
+                c = p->shot.buf[p->shot.pos];
+                if (c == 0x80) {
+                    p->flags &= 0xFE;
+                }
+            }
+            break;
+        }
+
+        if (c == 0x80) {
+            p->flags &= 0xFE;
+            break;
+        }
+        if (c & 0x80) {
+            switch (c & 0x3F) {
+            case 0x3F:
+                p->shot.pos = p->shot.pos + ((signed char)q[1] + 2);
+                if (level != 0) {
+                    ((void (*)(SHOCKREQUEST *, unsigned char *))level)(p,
+                                                                       p->shot.buf + p->shot.pos);
+                }
+                break;
+            case 1:
+                p->shot.pos = p->shot.pos + (signed char)q[1];
+                break;
+            case 2:
+                p->shotRep = q[1];
+                p->shot.pos = p->shot.pos + 2;
+                break;
+            case 3:
+                pos = p->shot.pos;
+                if (p->shotRep != 0) {
+                    p->shotRep = p->shotRep - 1;
+                    p->shot.pos = pos + (signed char)q[1];
+                } else {
+                    p->shot.pos = pos + 2;
+                }
+                break;
+            }
+        } else {
+            n = c & 0x3F;
+            p->shot.len = (p->shot.acc + n) * p->b3 / 64;
+            p->shot.prev = p->shot.time;
+            p->shot.cnt = p->shot.len - p->shot.time;
+            p->shot.acc = p->shot.acc + n;
+            if (p->shot.cnt <= 0) {
+                p->shot.len = p->shot.time + 1;
+                p->shot.cnt = 1;
+            }
+        }
+    }
+    return ret;
+}
+
+int Vibration_WaveDecode(SHOCKREQUEST *p, int level)
+{
+    unsigned char *q;
+    int sum = 0;
+    int ret = 0;
+    int num = 0;
+    int n;
+    unsigned short pos;
+    unsigned char c;
+
+    if ((p->flags & 0x10) == 0) {
+        return 0;
+    }
+    if (p->wave.buf == 0) {
+        p->flags &= 0xEF;
+        return 0;
+    }
+    for (;;) {
+        q = p->wave.buf + p->wave.pos;
+        c = *q;
+        if (p->wave.cnt != 0) {
+            p->wave.time = p->wave.time + 1;
+            n = (p->c24 * (p->wave.len - p->wave.time) + p->c25 * (p->wave.time - p->wave.prev)) /
+                p->wave.cnt;
+            ret = n * p->b2 / 255;
+            if (p->wave.time >= p->wave.len) {
+                p->wave.cnt = 0;
+                p->wave.pos = p->wave.pos + 2;
+                p->c24 = p->c25;
+                c = p->wave.buf[p->wave.pos];
+                if (c == 0x80) {
+                    p->flags &= 0xEF;
+                }
+            }
+            break;
+        }
+
+        if (c == 0x80) {
+            p->flags &= 0xEF;
+            break;
+        }
+        if (c & 0x80) {
+            switch (c & 0x3F) {
+            case 0x3F:
+                p->shot.pos = p->shot.pos + ((signed char)q[1] + 2);
+                if (level != 0) {
+                    ((void (*)(SHOCKREQUEST *, unsigned char *))level)(p, q);
+                }
+                break;
+            case 0:
+                p->wave.pos = p->wave.pos + (signed char)q[1];
+                break;
+            case 1:
+                p->waveRep = q[1];
+                p->wave.pos = p->wave.pos + 2;
+                break;
+            case 2:
+                pos = p->wave.pos;
+                if (p->waveRep != 0) {
+                    p->waveRep = p->waveRep - 1;
+                    p->wave.pos = pos + (signed char)q[1];
+                } else {
+                    p->wave.pos = pos + 2;
+                }
+                break;
+            }
+        } else {
+            n = c & 0x3F;
+            p->c25 = q[1];
+            p->wave.prev = p->wave.time;
+            p->wave.len = (p->wave.acc + n) * p->b3 / 64;
+            p->wave.cnt = p->wave.len - p->wave.time;
+            p->wave.acc = p->wave.acc + n;
+            if (p->wave.cnt <= 0) {
+                p->wave.cnt = 0;
+                p->wave.pos = p->wave.pos + 2;
+                num = num + 1;
+                sum = sum + p->c25;
+            } else if (num != 0) {
+                p->c25 = sum / num;
+                p->wave.len = p->wave.time + 1;
+                p->wave.cnt = 1;
+                p->wave.pos = p->wave.pos - 2;
+                p->wave.acc = p->wave.acc - n;
+                num = 0;
+                sum = 0;
+            }
+        }
+    }
+    return ret;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Shock_Request);
 
 extern void scePadSetActDirect(int a0, int a1, void *box);
