@@ -5,6 +5,21 @@ union U001325D8 {
     int i[2];
 };
 
+/* The streaming request iosCdvdMgrStStart hands to the cdvd thread: the
+ * request record at D_0029B410 and the preload window it describes. */
+typedef struct {
+    char *owner; /* 0x00 */
+    int f_4;
+    int f_8;
+    char *buf; /* 0x0C */
+    int size;  /* 0x10 */
+    int f_14;
+    int f_18;
+    int f_1C;
+} CdStReq;
+
+extern CdStReq D_0029B410;
+
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdStManager);
 
 /* The record sceCdSearchFile fills in: it writes 0x24 bytes of it (lsn, size,
@@ -74,20 +89,6 @@ void iosCdvdMgrSearchFile(char *self)
     }
 }
 
-/* The streaming request iosCdvdMgrStStart hands to the cdvd thread: the
- * request record at D_0029B410 and the preload window it describes. */
-typedef struct {
-    char *owner; /* 0x00 */
-    int f_4;
-    int f_8;
-    char *buf; /* 0x0C */
-    int size;  /* 0x10 */
-    int f_14;
-    int f_18;
-    int f_1C;
-} CdStReq;
-
-extern CdStReq D_0029B410;
 extern int stagePreLoadSectorCnt;
 extern int stagePreLoadLsn;
 extern int D_0063C178;
@@ -437,10 +438,16 @@ void iosCdvdUnifileInfoGet(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdManager);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdDiskReady);
 
 extern unsigned char CdvdMsgQ[];
 extern int iosMsgSend(void *a0, void *a1, int a2);
+
+void iosCdvdDiskReady(int a0)
+{
+    union U001325D8 *p = (union U001325D8 *)a0;
+    p->i[1] = 0;
+    iosMsgSend(CdvdMsgQ, (void *)a0, 0);
+}
 
 void iosCdvdLoad(int a0, int a1)
 {
@@ -456,8 +463,156 @@ void iosCdvdPackLoad(void *a0)
     iosMsgSend(CdvdMsgQ, a0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgrAdd);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", cdWait);
+extern char D_006B7B80[];
+extern char D_00550ED8[];
+extern char D_0063A398[];
+extern void debug_assert();
+extern char *strrchr(const char *s, int c);
+extern int strcmp(const char *a, const char *b);
+
+/* INTERIM: the January-2002 listing expands iosCdvdGetFileLsn (cdvd.c rows
+ * 739-753) inside iosCdvdBackGroundMgrAdd, so the 2001 source declared it
+ * `inline` and the compiler emitted both the inlined copy and the out-of-line
+ * body.  While this TU still carries asm members the out-of-line body has to
+ * stay at its own ROM slot below, so the inlined copy is spelled here as a
+ * static stand-in.  Delete this once the TU is C-complete and mark the real
+ * definition `inline`.  */
+static inline int getFileLsnInlined(char *name, int *size)
+{
+    int i;
+
+    for (i = 0; i < D_0063A36C; i++) {
+        if (strcmp(name, D_00298E68 + i * 0x30) == 0)
+            goto found;
+    }
+    debug_assert(D_00550C58, 749);
+    __assert(D_00550C58, 749, D_0063A398);
+found:
+    *size = iosCdvdSrhBuff[i].size;
+    return iosCdvdSrhBuff[i].lsn;
+}
+
+char *iosCdvdBackGroundMgrAdd(char *name, void *readFunc, int readArg, void *readyFunc,
+                              void *resumeFunc, int cbArg, void *closeFunc, int closeArg)
+{
+    char buf[0x100];
+    int size;
+    int i;
+    char *bg;
+    char *p;
+
+    for (i = 0; i < 7; i++) {
+        if (D_006B7B80[i * 0x12C] == 0)
+            goto found;
+    }
+    for (i = 0; i < 7; i++) {
+        /* the January-2002 listing prints the whole table here; the retail
+         * build compiles the printf out and leaves the empty countdown */
+    }
+    debug_assert(D_00550C58, 1890);
+    __assert(D_00550C58, 1890, D_0063A398);
+found:
+    bg = D_006B7B80 + i * 0x12C;
+    *(int *)(bg + 0x108) |= 1;
+    *(int *)(bg + 0x108) &= ~2;
+    *(int *)(bg + 0x108) &= ~0x10;
+    *(int *)(bg + 0x108) |= 4;
+    strcpy(bg, name);
+    *(void **)(bg + 0x100) = readFunc;
+    *(int *)(bg + 0x104) = readArg;
+    *(void **)(bg + 0x118) = readyFunc;
+    *(void **)(bg + 0x11C) = resumeFunc;
+    *(int *)(bg + 0x120) = cbArg;
+    *(void **)(bg + 0x124) = closeFunc;
+    *(int *)(bg + 0x128) = closeArg;
+    p = strrchr(bg, '/');
+    if (p != 0) {
+        p = p + 1;
+    } else {
+        p = bg;
+    }
+    sprintf(buf, D_00550ED8, p);
+    chgFileNameInlined((int)buf);
+    *(int *)(bg + 0x114) = getFileLsnInlined(buf, &size);
+    *(int *)(bg + 0x10C) = size;
+    *(int *)(bg + 0x110) = 0;
+    *(int *)(bg + 0x108) &= ~1;
+    return bg;
+}
+
+extern int D_0028F4C0[];
+extern int D_0063C17C;
+extern int D_0063A368;
+extern int D_0063A384;
+extern int D_0063A3C8;
+extern int D_0063A3CC;
+extern void iosThreadSleep(void);
+extern void iosPadDisable(void);
+extern void iosPadEnable(void);
+extern int sceCdStatus(void);
+typedef void (*BgReadyFunc)(char *self, int arg, int flag);
+typedef void (*BgResumeFunc)(char *self, int arg);
+
+void cdWait(int *busy)
+{
+    CdlFILE fp;
+    char file[32];
+    char *self;
+    int r;
+
+    D_0063A368 = 1;
+    iosThreadSleep();
+    D_0063A368 = 0;
+    while (1) {
+        self = (char *)D_0063C17C;
+        switch (D_0063A384) {
+        case 0:
+            if (sceCdStatus() != 1) {
+                break;
+            }
+            D_0063A384 = 1;
+            D_0063A3CC = D_0028F4C0[0x14 / 4];
+        case 1:
+            if (*(BgReadyFunc *)(self + 0x118) != 0) {
+                (*(BgReadyFunc *)(self + 0x118))(self, *(int *)(self + 0x120),
+                                                 (*(unsigned int *)(self + 0x108) >> 2) & 1);
+                *(int *)(self + 0x108) &= ~4;
+            }
+            if (((*(unsigned int *)(self + 0x108) >> 4) & 1) == 0) {
+                iosPadDisable();
+                D_0028F4C0[0x14 / 4] = 1;
+                D_0063A3C8 = 1;
+            }
+            *(long long *)file = *(long long *)D_00550CC8;
+            *(int *)(file + 8) = *(int *)(D_00550CC8 + 8);
+            chgFileNameInlined((int)file);
+            r = sceCdDiskReady(1);
+            if (r == 2 && sceCdGetDiskType() == D_0063A374 && sceCdSearchFile(&fp, file) != 0) {
+                *(int *)(self + 0x108) |= 4;
+                if (*(BgResumeFunc *)(self + 0x11C) != 0) {
+                    (*(BgResumeFunc *)(self + 0x11C))(self, *(int *)(self + 0x120));
+                }
+                D_0063A384 = r;
+                if (D_0063A3C8 != 0) {
+                    iosPadEnable();
+                    D_0063A3C8 = 0;
+                    D_0028F4C0[0x14 / 4] = D_0063A3CC;
+                }
+            }
+            break;
+        case 2:
+            D_0063A384 = 0;
+            break;
+        }
+        if (D_0063A384 == 0) {
+            break;
+        }
+        *busy = 1;
+        D_0063A368 = 1;
+        iosThreadSleep();
+        D_0063A368 = 0;
+    }
+}
 
 extern int D_0063A370;
 extern int D_0063A380;
