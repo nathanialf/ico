@@ -717,6 +717,7 @@ All 32 bodies are ported.
 | `src/backStage` | `.lit4` | `[0x539334]` | 0x639334..0x639338 | 4 | 1 (backStageProcessInStage's 10000000.0f) | agrees |
 | `src/enemyParts` | `.lit4` | `[0x5394CC]` | 0x6394CC..0x6394D8 | 12 | 3 (one slot beside the still-asm InitEnemyEye) | agrees |
 | `src/frameDependSequence` | `.lit4` | `[0x5394E0]` | 0x6394E0..0x6394FC | 28 | 7 (one slot beside the still-asm playSE) | agrees |
+| `src/particleEffect` | `.lit4` | `[0x539660]` | 0x639660..0x639670 | 16 | 4 (two slots beside the still-asm execParticleEffect) | agrees |
 | `src/debug` | `.lit4` | `[0x539338]` | 0x639338..0x639358 | 32 | 8 | 0x18, differs |
 | `src/layout_action` | `.lit4` | `[0x539360]` | 0x639360..0x63936C | 12 | 3 | 0x8, differs |
 | `src/a_p_1` | `.lit4` | `[0x539374]` | 0x639374..0x639394 | 32 | 8 (fitToCol..attackMot in source order; 3 beside still-asm owners) | 0x20, agrees |
