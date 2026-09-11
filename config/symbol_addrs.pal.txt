@@ -142,6 +142,7 @@ actBirdStart = 0x0019FF78; // type:func  // src/act_bird
 StageManager = 0x001A8AA8; // type:func  // src/StageManager
 stgmgrForceSwitch = 0x001A8D98; // type:func  // src/StageManager
 debugIOPExceptionMain = 0x001B6020; // type:func  // src/debug_exception
+debug_SetExceptionMessage = 0x001B6150; // type:func  // src/debug_exception  (census 778-783, 24 rows, sat inside the debugIOPExceptionMain stub until both landed as C)
 gamesysGeneratorInfoLoad = 0x001B6D40; // type:func  // src/gamesys
 gamesysHintInfoLoad = 0x001B6DF0; // type:func  // src/gamesys
 subAP1BrainMain = 0x001C4DC0; // type:func  // src/act_a_p_1

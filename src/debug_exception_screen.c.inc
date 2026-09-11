@@ -22,6 +22,7 @@ extern unsigned long long D_004DA570[];
 extern unsigned long long D_004DA600[];
 extern unsigned long long D_004DA6A0[];
 typedef unsigned int u128_dbgscr __attribute__((mode(TI)));
+
 /* sceVif1Packet: 0x20 bytes (two per drawSprite frame at sp+0x00 / sp+0x20).
  * Field offsets 0x00/0x04/0x0C/0x14 are the ones the libpkt bodies in
  * src/cod/vendor_25EC00.c touch; 0x08/0x10/0x18 are unused here. */
@@ -34,6 +35,7 @@ typedef struct {
     int *gifTag;
     int f_18[2];
 } Vif1Packet;
+
 extern void sceVif1PkInit();
 extern void sceVif1PkReset();
 extern void sceVif1PkCnt();
@@ -58,10 +60,12 @@ extern void sceDmaReset(int a0);
 extern void sceDmaSync(int *a0, int a1, int a2);
 extern void sceGsResetPath(void);
 extern void sceVpu0Reset();
+
 typedef struct {
     int col;
     char ch;
 } DbgChar;
+
 extern DbgChar D_0070FA90[26][256];
 extern DbgChar D_0063B388;
 extern int D_0063B394;
@@ -69,7 +73,14 @@ extern int D_0063B398;
 extern int D_0063B390;
 extern void SetDrawEnvironment(int a0);
 extern void drawSprite(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
-typedef struct { int _0; int _4; int _8; int btn; } DbgPad;
+
+typedef struct {
+    int _0;
+    int _4;
+    int _8;
+    int btn;
+} DbgPad;
+
 extern DbgPad D_0028F8F0[];
 extern int D_0063B39C;
 extern int buffer_ID;
@@ -81,13 +92,16 @@ extern void gsb_Reduction(void);
 extern void sceGsSwapDBuff(void *a0, int a1);
 extern void sceGsSyncPath__pn(int a0, int a1) __asm__("sceGsSyncPath");
 extern int sceGsSyncV(int a0);
-inline void OpenVif1DirectPacket(void *packet) {
+
+inline void OpenVif1DirectPacket(void *packet)
+{
     sceVif1PkInit(packet, (D_0063B370 << 13) | 0x70000000);
     sceVif1PkReset(packet);
     sceVif1PkCnt(packet, 0);
     sceVif1PkOpenDirectCode(packet, 0);
     D_0063B370 = (D_0063B370 + 1) & 1;
 }
+
 void CloseVif1DirectPacket(int a0)
 {
     sceVif1PkCloseGifTag(a0);
@@ -95,15 +109,18 @@ void CloseVif1DirectPacket(int a0)
     sceVif1PkEnd(a0, 0);
     sceVif1PkTerminate(a0);
 }
+
 void SendVif1DirectPacket(int *self)
 {
     int *p;
     sceGsSyncPath(0, 0);
     p = sceDmaGetChan(1);
     *p |= 0x40;
-    sceDmaSend(p, (self[0x4/4] & 0x3FF0) | 0x80000000);
+    sceDmaSend(p, (self[0x4 / 4] & 0x3FF0) | 0x80000000);
 }
-void RestoreNormalDrawEnvironment(void *a0, int a1, int a2) {
+
+void RestoreNormalDrawEnvironment(void *a0, int a1, int a2)
+{
     unsigned int base = (unsigned int)a0 | 0x20000000;
     if (a1 != 0) {
         sceGsSetHalfOffset((void *)(base + 0x150), 0x800, 0x800, (short)a2);
@@ -113,6 +130,7 @@ void RestoreNormalDrawEnvironment(void *a0, int a1, int a2) {
         sceGsPutDrawEnv((void *)(base + 0x50));
     }
 }
+
 void SetTextureWithFrameBuffer(int x)
 {
     unsigned long long *env;
@@ -128,6 +146,7 @@ void SetTextureWithFrameBuffer(int x)
     sceGsSyncPath(0, 0);
     sceGsPutDrawEnv(env);
 }
+
 void SetTexDrawEnvironment(int addr)
 {
     unsigned long long *env;
@@ -139,6 +158,7 @@ void SetTexDrawEnvironment(int addr)
     sceGsSyncPath(0, 0);
     sceGsPutDrawEnv(env);
 }
+
 void SetDrawnTextureEnvironment(int x)
 {
     unsigned long long *env;
@@ -155,6 +175,7 @@ void SetDrawnTextureEnvironment(int x)
     sceGsSyncPath(0, 0);
     sceGsPutDrawEnv(env);
 }
+
 void SetDrawEnvironment(int mode)
 {
     unsigned long long *env;
@@ -183,19 +204,22 @@ void SetDrawEnvironment(int mode)
     sceGsSyncPath(0, 0);
     sceGsPutDrawEnv(env);
 }
-inline void SetPrimColor(int prim, int r, int g, int b, int a) {
+
+inline void SetPrimColor(int prim, int r, int g, int b, int a)
+{
     Vif1Packet packet;
     OpenVif1DirectPacket(&packet);
     sceVif1PkOpenGifTag(&packet, D_0061CF20[0]);
     sceVif1PkAddGsData(&packet, prim | 0x40);
-    sceVif1PkAddGsData(&packet,
-                       (unsigned long long)r | ((unsigned long long)g << 8) |
-                           ((unsigned long long)b << 16) | ((unsigned long long)a << 24) |
-                           ((unsigned long long)D_0063B374 << 32));
+    sceVif1PkAddGsData(&packet, (unsigned long long)r | ((unsigned long long)g << 8) |
+                                    ((unsigned long long)b << 16) | ((unsigned long long)a << 24) |
+                                    ((unsigned long long)D_0063B374 << 32));
     CloseVif1DirectPacket((int)&packet);
     SendVif1DirectPacket((int *)&packet);
 }
-inline void SetPrimColorTex(int prim, int r, int g, int b, int a, int fst) {
+
+inline void SetPrimColorTex(int prim, int r, int g, int b, int a, int fst)
+{
     Vif1Packet packet;
     unsigned long long data;
     OpenVif1DirectPacket(&packet);
@@ -205,14 +229,15 @@ inline void SetPrimColorTex(int prim, int r, int g, int b, int a, int fst) {
         data |= 0x100;
     }
     sceVif1PkAddGsData(&packet, data);
-    sceVif1PkAddGsData(&packet,
-                       (unsigned long long)r | ((unsigned long long)g << 8) |
-                           ((unsigned long long)b << 16) | ((unsigned long long)a << 24) |
-                           ((unsigned long long)D_0063B378 << 32));
+    sceVif1PkAddGsData(&packet, (unsigned long long)r | ((unsigned long long)g << 8) |
+                                    ((unsigned long long)b << 16) | ((unsigned long long)a << 24) |
+                                    ((unsigned long long)D_0063B378 << 32));
     CloseVif1DirectPacket((int)&packet);
     SendVif1DirectPacket((int *)&packet);
 }
-void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int tex) {
+
+void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int tex)
+{
     Vif1Packet packet;
 
     if (tex != 0) {
@@ -220,36 +245,33 @@ void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int 
         OpenVif1DirectPacket(&packet);
         sceVif1PkOpenGifTag(&packet, D_004DA740[0]);
         sceVif1PkAddGsData(&packet, 0);
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)((x0 + 0x800) << 4) |
-                               ((unsigned long long)((y0 + 0x800) << 4) << 16) |
-                               0x0080000000000000ULL);
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)(D_0063A064 << 4) |
-                               ((unsigned long long)(D_0063A068 << 4) << 16));
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)((x1 + 0x800) << 4) |
-                               ((unsigned long long)((y1 + 0x800) << 4) << 16) |
-                               0x0080000000000000ULL);
+        sceVif1PkAddGsData(&packet, (unsigned long long)((x0 + 0x800) << 4) |
+                                        ((unsigned long long)((y0 + 0x800) << 4) << 16) |
+                                        0x0080000000000000ULL);
+        sceVif1PkAddGsData(&packet, (unsigned long long)(D_0063A064 << 4) |
+                                        ((unsigned long long)(D_0063A068 << 4) << 16));
+        sceVif1PkAddGsData(&packet, (unsigned long long)((x1 + 0x800) << 4) |
+                                        ((unsigned long long)((y1 + 0x800) << 4) << 16) |
+                                        0x0080000000000000ULL);
         CloseVif1DirectPacket((int)&packet);
         SendVif1DirectPacket((int *)&packet);
     } else {
         SetPrimColor(6, r, g, b, a);
         OpenVif1DirectPacket(&packet);
         sceVif1PkOpenGifTag(&packet, D_004DA750[0]);
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)((x0 + 0x800) << 4) |
-                               ((unsigned long long)((y0 + 0x800) << 4) << 16) |
-                               0x0080000000000000ULL);
-        sceVif1PkAddGsData(&packet,
-                           (unsigned long long)((x1 + 0x800) << 4) |
-                               ((unsigned long long)((y1 + 0x800) << 4) << 16) |
-                               0x0080000000000000ULL);
+        sceVif1PkAddGsData(&packet, (unsigned long long)((x0 + 0x800) << 4) |
+                                        ((unsigned long long)((y0 + 0x800) << 4) << 16) |
+                                        0x0080000000000000ULL);
+        sceVif1PkAddGsData(&packet, (unsigned long long)((x1 + 0x800) << 4) |
+                                        ((unsigned long long)((y1 + 0x800) << 4) << 16) |
+                                        0x0080000000000000ULL);
         CloseVif1DirectPacket((int)&packet);
         SendVif1DirectPacket((int *)&packet);
     }
 }
-void PutFont(int c, int x, int y) {
+
+void PutFont(int c, int x, int y)
+{
     Vif1Packet packet;
     int i, j;
     int y2 = y + 2;
@@ -261,14 +283,12 @@ void PutFont(int c, int x, int y) {
         int oy = j * 2 + 0x800;
         for (i = 0; i < 8; i++) {
             if ((D_0061C590[j + c * 8] >> i) & 1) {
-                sceVif1PkAddGsData(&packet,
-                                   (unsigned long long)((x + i - 2 + 0x800) << 4) |
-                                       ((unsigned long long)((y + oy - 1) << 4) << 16) |
-                                       0x0080000000000000ULL);
-                sceVif1PkAddGsData(&packet,
-                                   (unsigned long long)((x + i + 3 + 0x800) << 4) |
-                                       ((unsigned long long)((y2 + oy) << 4) << 16) |
-                                       0x0080000000000000ULL);
+                sceVif1PkAddGsData(&packet, (unsigned long long)((x + i - 2 + 0x800) << 4) |
+                                                ((unsigned long long)((y + oy - 1) << 4) << 16) |
+                                                0x0080000000000000ULL);
+                sceVif1PkAddGsData(&packet, (unsigned long long)((x + i + 3 + 0x800) << 4) |
+                                                ((unsigned long long)((y2 + oy) << 4) << 16) |
+                                                0x0080000000000000ULL);
             }
         }
     }
@@ -282,17 +302,18 @@ void PutFont(int c, int x, int y) {
         int oy = j * 2 + 0x800;
         for (i = 0; i < 8; i++) {
             if ((D_0061C590[j + c * 8] >> i) & 1) {
-                sceVif1PkAddGsData(&packet,
-                                   (unsigned long long)((x + i + 0x800) << 4) |
-                                       ((unsigned long long)((y + oy) << 4) << 16) |
-                                       0x0080000000000000ULL);
+                sceVif1PkAddGsData(&packet, (unsigned long long)((x + i + 0x800) << 4) |
+                                                ((unsigned long long)((y + oy) << 4) << 16) |
+                                                0x0080000000000000ULL);
             }
         }
     }
     CloseVif1DirectPacket((int)&packet);
     SendVif1DirectPacket((int *)&packet);
 }
-void resetPath(void) {
+
+void resetPath(void)
+{
     sceDmaReset(1);
     sceDmaSync((int *)sceDmaGetChan(0), 0, 0x64);
     sceDmaSync((int *)sceDmaGetChan(1), 0, 0x64);
@@ -302,12 +323,18 @@ void resetPath(void) {
     *(int *)sceDmaGetChan(2) |= 0x40;
     sceGsResetPath();
 }
-void resetGS(int a0)
+
+void resetGS(void)
 {
-    sceVpu0Reset(a0);
+    /* Both ROM call sites (debugEEExceptionMain, debugIOPExceptionMain) leave
+       the jal delay slot a nop, so resetGS takes no argument and passes none
+       on: sceVpu0Reset's own prototype is argument-less here. */
+    sceVpu0Reset();
     gsb_Init(D_0028F4F0);
 }
-static inline void scrollDbgScreen(void) {
+
+static inline void scrollDbgScreen(void)
+{
     int i, j;
 
     for (i = 1; i < 26; i++) {
@@ -319,7 +346,9 @@ static inline void scrollDbgScreen(void) {
         D_0070FA90[25][j] = D_0063B388;
     }
 }
-void putString(int color, char *fmt, ...) {
+
+void putString(unsigned int color, char *fmt, ...)
+{
     char buf[256];
     char *str = buf;
     unsigned int i;
@@ -345,16 +374,18 @@ void putString(int color, char *fmt, ...) {
         }
     }
 }
-void drawWin(void) {
+
+void drawWin(void)
+{
     int i, j, k;
     int len = 50;
     int st;
 
     for (i = 0; i < 26; i++) {
-        for (j = 255; D_0070FA90[i][j].ch == ' ' && j >= 0; j--) {
-        }
+        for (j = 255; D_0070FA90[i][j].ch == ' ' && j >= 0; j--) {}
         j++;
-        if (len < j) len = j;
+        if (len < j)
+            len = j;
 
         if (j < 50) {
             st = 0;
@@ -377,37 +408,58 @@ void drawWin(void) {
         D_0063B390 = len - 50;
     }
 }
+
 void saveBack(void)
 {
     SetDrawEnvironment(1);
     drawSprite(0x10, 0x20, 0x30, 0x40, -0x136, -0x6B, 0x136, 0x6B, 0);
     SetDrawEnvironment(1);
 }
-static inline void putBaseChar(int c) {
+
+static inline void putBaseChar(int c)
+{
     unsigned int col = 0xFFFFFF00;
     D_0070FA90[D_0063B398][D_0063B394].col = col;
     D_0070FA90[D_0063B398][D_0063B394].ch = c;
 }
-static inline void dispBase(void) {
+
+static inline void dispBase(void)
+{
     int c;
     switch (D_0063B39C) {
     case 0:
-    default: c = '-'; break;
-    case 1: c = '/'; break;
-    case 2: c = '|'; break;
-    case 3: c = '\\'; break;
+    default:
+        c = '-';
+        break;
+    case 1:
+        c = '/';
+        break;
+    case 2:
+        c = '|';
+        break;
+    case 3:
+        c = '\\';
+        break;
     }
     putBaseChar(c);
     D_0063B39C = (D_0063B39C + 1) & 3;
 }
-void baseFunc(void) {
-    if (D_0028F8F0[0].btn & 0x8000) if (--D_0063B390 < 0) D_0063B390 = 0;
-    if (D_0028F8F0[0].btn & 0x2000) if (++D_0063B390 >= 50) D_0063B390 = 49;
+
+void baseFunc(void)
+{
+    if (D_0028F8F0[0].btn & 0x8000)
+        if (--D_0063B390 < 0)
+            D_0063B390 = 0;
+    if (D_0028F8F0[0].btn & 0x2000)
+        if (++D_0063B390 >= 50)
+            D_0063B390 = 49;
     SetDrawEnvironment(1);
     dispBase();
     drawWin();
 }
-void syncGS(void) {
+
+void syncGS(void)
+{
     FlushCache(0);
     sceGsSyncPath__pn(1, 0);
     odd_even = sceGsSyncV(0);
