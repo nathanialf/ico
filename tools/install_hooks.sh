@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Install the IP-safety scan + byte-identical-build gate as git hooks
 # (opt-in). Installs:
-#   - pre-commit  — catches local commits that break the build
-#   - pre-push    — catches commits authored with --no-verify before
+#   - pre-commit: catches local commits that break the build
+#   - pre-push:   catches commits authored with --no-verify before
 #                   they reach a shared ref. This is the real gate;
 #                   30 commits got pushed in May 2026 that broke the
 #                   global SHA because pre-commit was --no-verify'd
@@ -21,10 +21,10 @@ fi
 cat > "$HOOK" <<'EOF'
 #!/usr/bin/env bash
 # Auto-installed by tools/install_hooks.sh. Runs:
-#   1. tools/check_no_rom.sh    — IP-safety scan on staged files
-#   2. tools/build.sh setup     — splat + migrator + ninja regen
-#   3. ninja                    — byte-identical-build gate (SHA-1 verify)
-#   4. tools/build.sh progress  — refresh progress tables + docs/progress.json,
+#   1. tools/check_no_rom.sh   : IP-safety scan on staged files
+#   2. tools/build.sh setup    : splat + migrator + ninja regen
+#   3. ninja                   : byte-identical-build gate (SHA-1 verify)
+#   4. tools/build.sh progress : refresh progress tables + docs/progress.json,
 #                                 then `git add` them into this commit
 #
 # The full-setup step matters: incremental ninja can be misleadingly
@@ -39,7 +39,7 @@ cat > "$HOOK" <<'EOF'
 #
 # Notes:
 # * Setup + ninja is invoked only when the staged changes can plausibly
-#   affect the build (src/, asm/, config/, tools/, include/, baserom/).
+#   affect the build (src/, ios/, isys/, ito/, sound/, asm/, config/, tools/, include/, baserom/).
 #   Pure docs/notes commits skip it.
 # * If `build.ninja` is absent (fresh checkout), the hook prints a hint
 #   and skips the gate rather than spending minutes mid-commit.
@@ -61,14 +61,14 @@ fi
 # (only docs/, README.md, .gitignore, etc.) bypass the build gate.
 BUILD_SENSITIVE=$(git diff --cached --name-only -z |
     tr '\0' '\n' |
-    grep -E '^([A-Za-z0-9_]+/src/|src/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
+    grep -E '^([A-Za-z0-9_]+/src/|src/|ios/|isys/|ito/|sound/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
     true)
 if [[ -z "$BUILD_SENSITIVE" ]]; then
     exit 0
 fi
 
 if [[ ! -f "$ROOT/build.ninja" ]]; then
-    echo "pre-commit: build.ninja not found — run \`tools/build.sh setup\` once," >&2
+    echo "pre-commit: build.ninja not found: run \`tools/build.sh setup\` once," >&2
     echo "  then this hook will be able to enforce the SHA-1 gate." >&2
     exit 0
 fi
@@ -78,14 +78,14 @@ if [[ ! -x "$NINJA" ]]; then
     NINJA="$(command -v ninja || true)"
 fi
 if [[ -z "$NINJA" ]]; then
-    echo "pre-commit: ninja not on PATH and .venv/bin/ninja missing — skip" >&2
+    echo "pre-commit: ninja not on PATH and .venv/bin/ninja missing: skip" >&2
     exit 0
 fi
 
 echo "pre-commit: tools/build.sh setup (full regen) ..."
 if ! "$ROOT/tools/build.sh" setup >/dev/null; then
     echo "" >&2
-    echo "pre-commit: SETUP FAILED — splat/migrator pipeline errored." >&2
+    echo "pre-commit: SETUP FAILED: splat/migrator pipeline errored." >&2
     echo "  Run \`tools/build.sh setup\` manually to see the error." >&2
     exit 1
 fi
@@ -93,14 +93,14 @@ fi
 echo "pre-commit: ninja (SHA-1 gate) ..."
 if ! "$NINJA" -C "$ROOT"; then
     echo "" >&2
-    echo "pre-commit: BUILD FAILED — the staged changes break the byte-identical" >&2
+    echo "pre-commit: BUILD FAILED: the staged changes break the byte-identical" >&2
     echo "  round-trip. Fix the build (or rebase) before committing." >&2
     echo "  Bypass with \`git commit --no-verify\` only if you understand why" >&2
     echo "  ninja is failing and have a follow-up commit ready that fixes it." >&2
     exit 1
 fi
 
-# Build is green — refresh the progress tables + GitHub Pages JSON so every
+# Build is green: refresh the progress tables + GitHub Pages JSON so every
 # build-affecting commit carries up-to-date numbers, and stage them into THIS
 # commit. These are derived artifacts, so a regen hiccup warns but never blocks
 # the commit (the SHA-1 gate above already passed). `git add` here re-stages the
@@ -110,7 +110,7 @@ echo "pre-commit: tools/build.sh progress (refresh + stage progress) ..."
 if "$ROOT/tools/build.sh" progress >/dev/null 2>&1; then
     git add "$ROOT/README.md" "$ROOT/docs/PROGRESS.md" "$ROOT/docs/progress.json" 2>/dev/null || true
 else
-    echo "pre-commit: progress regen failed (non-fatal) — commit proceeds" >&2
+    echo "pre-commit: progress regen failed (non-fatal): commit proceeds" >&2
     echo "  without refreshed progress; run \`tools/build.sh progress\` manually." >&2
 fi
 EOF
@@ -144,7 +144,7 @@ if [[ ! -x "$NINJA" ]]; then
     NINJA="$(command -v ninja || true)"
 fi
 if [[ -z "$NINJA" ]]; then
-    echo "pre-push: ninja not on PATH and .venv/bin/ninja missing — skip" >&2
+    echo "pre-push: ninja not on PATH and .venv/bin/ninja missing: skip" >&2
     exit 0
 fi
 
@@ -163,7 +163,7 @@ while read local_ref local_sha remote_ref remote_sha; do
         range="$remote_sha..$local_sha"
     fi
     BUILD_SENSITIVE=$(git diff --name-only "$range" 2>/dev/null |
-        grep -E '^([A-Za-z0-9_]+/src/|src/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
+        grep -E '^([A-Za-z0-9_]+/src/|src/|ios/|isys/|ito/|sound/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
         true)
     if [[ -z "$BUILD_SENSITIVE" ]]; then
         continue
@@ -181,12 +181,12 @@ while read local_ref local_sha remote_ref remote_sha; do
         continue
     fi
     if ! "$ROOT/tools/build.sh" setup >/dev/null 2>&1; then
-        echo "pre-push: SETUP FAILED on $local_ref — refusing push." >&2
+        echo "pre-push: SETUP FAILED on $local_ref: refusing push." >&2
         push_failed=1
         continue
     fi
     if ! "$NINJA" -C "$ROOT" >/dev/null 2>&1; then
-        echo "pre-push: SHA-1 GATE FAILED on $local_ref — refusing push." >&2
+        echo "pre-push: SHA-1 GATE FAILED on $local_ref: refusing push." >&2
         echo "  This is the byte-identical round-trip check. The commit being pushed" >&2
         echo "  was likely authored with \`git commit --no-verify\`. Fix the build" >&2
         echo "  (or rebase to drop the bad commit) before pushing." >&2
