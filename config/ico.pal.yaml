@@ -527,7 +527,8 @@ segments:
       - [0x538BC8, .lit4, src/FileManager]  # carved D_00638BC8 (1 slot: file_LoadCDFile's 10059776.0f, the CD-file size divisor, written as a literal), VMA 0x638BC8..0x638BCC
       - [0x538BCC, lit4, src/cod/538BCC]     # .lit4 blob resume
       - [0x538BD8, .lit4, src/Light]  # carved D_00638BD8..D_00638C3C (26 slots, light_AddLight..light_resetFlatLight; the TU's whole pool, = MAIN.MAP Light.o .lit4 0x68), VMA 0x638BD8..0x638C40
-      - [0x538C40, lit4, src/cod/538C40]     # .lit4 blob resume
+      - [0x538C40, .lit4, src/Packet]  # carved D_00638C40..D_00638C54 (6 slots: three 0.501960814f as one literal and two slots, pac_openDmaTag's 16777215.0f and -16777215.0f, one slot for the still-asm pac_makePacket; the TU's whole pool), VMA 0x638C40..0x638C58, 24 B
+      - [0x538C58, lit4, src/cod/538C58]     # .lit4 blob resume
       - [0x538CA0, .lit4, sound/s_init]  # carved D_00638CA0..D_00638CC4 (10 slots, one per occurrence: debug_DispSEInfo x2, sound3DParamSet, _soundSeDefPlay x3, soundSeEnvPlay x2, soundSeEnvDefaultSet x2; the TU's whole pool, adjacent to act-game's), VMA 0x638CA0..0x638CC8
       - [0x538CC8, .lit4, src/act-game]  # carved D_00638CC8..D_00638D0C (18 slots, 15 fns EXITDATA_GetNextPosition..ACTCheckViewClDetail), VMA 0x638CC8..0x638D10, 72 B; MAIN.MAP act-game.o .lit4 is 0x40 (different link; PAL ELF is authoritative).  USA: - [0x530AEC, .lit4, src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
       - [0x538D10, .lit4, src/act-wish]  # carved D_00638D10..D_00638D2C (8 words, all 0.1f, ACTGetWish_FromPad's literals; the TU's whole pool), VMA 0x638D10..0x638D30

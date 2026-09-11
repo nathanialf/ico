@@ -3,8 +3,6 @@
 
 /* header prototypes (order fixes the inline tail) */
 extern char D_0054F5C0[];
-extern float D_00638C44;
-extern float D_00638C48;
 extern char D_0067C010[];
 extern void debug_StdPrintfDummy__pn(const char *fmt, ...) __asm__("debug_StdPrintfDummy");
 extern char D_0054F5D0[];
@@ -35,7 +33,49 @@ inline void pac_Dump(int *a0, int size)
     } while (count != 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_DumpPac);
+extern char D_0054F278[];
+extern char D_0054F290[];
+extern char D_0054F2A8[];
+extern char D_0054F2C8[];
+extern char D_0054F2E8[];
+extern char D_0063A118[];
+
+void pac_DumpPac(char *pac)
+{
+    char *q;
+    int i;
+    int cnt;
+    int n;
+
+    while (pac != 0) {
+        q = *(char **)(pac + 0x98);
+        cnt = 0;
+        for (i = 0; i < ((*(int *)(pac + 0x90) & 0xFFFFFF) >> 4); i++) {
+            if (cnt == 0) {
+                if (i == 0)
+                    debug_StdPrintfDummy(D_0054F278);
+                else if (i == ((*(int *)(pac + 0x90) & 0xFFFFFF) >> 4) - 1)
+                    debug_StdPrintfDummy(D_0054F290);
+                else
+                    debug_StdPrintfDummy(D_0054F2A8);
+                debug_StdPrintfDummy(q);
+            } else if (cnt == -1) {
+                char *ctx = D_0067C010;
+                n = (*(int *)q & 0xFFF) * *(int *)(ctx + 0x30);
+                cnt = n + 1;
+                debug_StdPrintfDummy(D_0054F2C8, n, *(int *)(ctx + 0x30));
+                debug_StdPrintfDummy(q);
+                debug_StdPrintfDummy(D_0054F2E8, ctx);
+            } else {
+                debug_StdPrintfDummy(q);
+            }
+            q += 0x10;
+            cnt--;
+        }
+        pac = *(char **)(pac + 0x94);
+        debug_StdPrintfDummy(D_0063A118);
+    }
+}
 
 inline void pac_DispVu1Memory(int idx, int n, void *a2)
 {
@@ -85,6 +125,7 @@ void pac_error(char *name, int type)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeNormalStrip);
+ASM_LIT4_SLOT(D_00638C40, 0.99f);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_getWeight);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeClusterStrip);
 
@@ -92,8 +133,8 @@ void pac_openDmaTag(int a0)
 {
     register int mask = 0x0FFFFFFF;
     char *ctx = D_0067C010;
-    float f0 = D_00638C44;
-    float f1 = D_00638C48;
+    float f0 = 16777215.0f;
+    float f1 = -16777215.0f;
     *(int *)(ctx + 0x20) = a0 & mask;
     *(int *)(ctx + 0x24) = (a0 + 0x8) & mask;
     *(int *)(ctx + 0x28) = (a0 + 0x10) & mask;
@@ -316,7 +357,85 @@ void pac_countOneVertexPacketSize(char *shp, char *mat)
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeStrip);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_setMaterialPacket);
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTable);
+
+/* The material table entry's 64-bit mode word at +0x60: the same qword
+   pac_setMaterialPacket reads back as its three mode selectors. */
+typedef struct MatEnt {
+    char pad0[0x60];
+    unsigned long long b0 : 1;
+    unsigned long long b1 : 2;
+    unsigned long long b3 : 2;
+    unsigned long long b5 : 2;
+    unsigned long long b7 : 1;
+    unsigned long long b8 : 1;
+    unsigned long long b9 : 1;
+    char pad1[8];
+} MatEnt;
+
+typedef struct MatSrc {
+    char pad0[5];
+    unsigned char f_5;
+    unsigned char f_6;
+    char pad1[5];
+    float f_C;
+} MatSrc;
+
+typedef struct MatObj {
+    char pad0[0xA0];
+    int f_A0;
+    char pad1[0xC];
+    int f_B0;
+    char pad2[0xC];
+    int f_C0;
+    char pad3[0xC];
+    MatSrc *f_D0;
+    unsigned int f_D4;
+} MatObj;
+
+extern int mallocseki(int size);
+extern void pac_setMaterialPacket(MatEnt *ent);
+
+typedef struct MatTab {
+    MatEnt *f_0;
+    char pad0[0xC];
+    short f_10;
+} MatTab;
+
+extern int D_0063B1A8;
+
+void pac_makeMaterialTable(MatTab *out, MatObj *obj, int p2, int p3, unsigned int p4)
+{
+    MatEnt *tbl;
+    MatEnt *ent;
+    MatSrc *src;
+    unsigned int i;
+    unsigned int flag;
+    int a;
+    int x;
+
+    tbl = (MatEnt *)mallocseki(obj->f_D4 * 0x70);
+    for (i = 0; i < obj->f_D4; i++) {
+        ent = &tbl[i];
+        src = (MatSrc *)(i * 0x10 + (int)obj->f_D0);
+        flag = src->f_C >= 0.501960814f;
+        a = src->f_5;
+        x = src->f_6 == 0;
+        if (p4 != 0)
+            x = D_0063B1A8 == 1;
+        ent->b0 = p4;
+        ent->b1 = flag * p3;
+        ent->b3 = (a < 4) ? a : 3;
+        ent->b9 = x;
+        ent->b5 = obj->f_A0 ? p2 : 0;
+        ent->b7 = obj->f_B0 != 0;
+        ent->b8 = obj->f_C0 != 0;
+        pac_setMaterialPacket(ent);
+    }
+    out->f_0 = tbl;
+    out->f_10 = obj->f_D4;
+}
+
+ASM_LIT4_SLOT(D_00638C50, 0.501960814f);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTableLine);
 
 extern char D_0054F820[];
@@ -366,6 +485,7 @@ void pac_getTextureInfo(char *m, char *info, int idx)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeShapeTable);
+ASM_LIT4_SLOT(D_00638C54, 0.501960814f);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makePacket);
 
 void pac_MakePacket(char *a0)
