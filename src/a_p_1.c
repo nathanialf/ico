@@ -8,7 +8,212 @@ typedef struct {
     float m[4];
 } Vec4;
 
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", InitAP1);
+extern void GetRootMatrix(void *dst, void *gobj);
+extern void _ApplyMatrix(int a, int b, int c);
+extern char D_004E5670[];
+
+/* static helper the listing places at a_p_1.c lines 156-165, above InitAP1's
+ * def line 227, so the name is ours. */
+static inline void applyPartOrients(char *g)
+{
+    char *tbl = D_004E5670;
+    Mtx44 m;
+    char *q = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    int i;
+
+    GetRootMatrix(&m, g);
+    for (i = 0; i < 4; i++) {
+        _ApplyMatrix((int)(q + 0x20 + i * 0x50), (int)&m, (int)(tbl + i * 0x10));
+        _ApplyMatrix((int)(q + 0x30 + i * 0x50), (int)&m, (int)(tbl + i * 0x10));
+    }
+}
+
+extern char *iosMallocDebug(void *heap, int size, char *file, int line);
+extern void iosFree(int p);
+extern int rand(void);
+extern void CopyVector(void *dst, void *src);
+extern void _UnitMatrix(void *m);
+extern void GetRootQuaternion(int p, int *self);
+extern void GetRootPosition(void *dst, void *self);
+extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
+extern int GetSkeltonFocusNode(void *self, int id);
+extern void debug_assertMessage(char *file, int line, char *msg);
+extern void __assert(char *file, int line, char *expr);
+extern int InitEnemyEye(int a, int b, int c);
+extern void *D_0063A438;
+extern void *D_0063A44C;
+extern char D_0061EE30[];
+extern char D_0061EE40[];
+extern char D_0063B6C0[];
+
+typedef struct {
+    int unk0;    /* 0x00 */
+    int unk4;    /* 0x04 */
+    int unk8;    /* 0x08 */
+    int unkC;    /* 0x0C */
+    int unk10;   /* 0x10 */
+    int unk14;   /* 0x14 */
+    float unk18; /* 0x18 */
+    int unk1C;   /* 0x1C */
+} AP1Layout;
+
+extern AP1Layout D_0062B588[];
+extern char D_004E5550[];
+extern char D_004E55A0[];
+extern float D_004E56D0[];
+extern char InitialColInfo[];
+
+typedef union {
+    int i;
+    long long ll;
+} AP1Flag;
+
+typedef struct {
+    long long d[10];
+} AP1Part;
+
+typedef struct {
+    long long x;
+} __attribute__((packed, aligned(4))) AP1PackedLL;
+
+typedef struct {
+    AP1PackedLL p; /* 0x00 */
+    int attr;      /* 0x08 */
+} AP1ColHit;
+
+char *InitAP1(char *self, char *arg)
+{
+    char *p;
+    char *d;
+    int i;
+
+    p = iosMallocDebug(D_0063A438, 0x280, D_0061EE30, 0xE4);
+    *(char **)(*(int *)(self + 0x15C) + 0x830) = p;
+    *(int *)p = *(int *)(arg + 0x30);
+    *(int *)(p + 0x4) = 1;
+    *(int *)(p + 0x16C) = 0;
+    *(int *)(p + 0x8) = 7;
+    *(int *)(p + 0x168) = 0;
+    *(int *)(p + 0x1C4) = 0;
+    *(int *)(p + 0x1C8) = 0;
+    *(int *)(p + 0x1C0) = 0;
+    *(int *)(p + 0x270) = rand() & 0x1F;
+    *(int *)(p + 0x274) = 0;
+    *(int *)(p + 0x278) = 1;
+    D_004E56D0[2] = D_0062B588[*(int *)p].unk18;
+    CopyVector(p + 0x1B0, D_004E56D0);
+    _UnitMatrix(p + 0x1F0);
+    _UnitMatrix(p + 0x230);
+    GetRootQuaternion((int)(p + 0x1D0), (int *)self);
+    GetRootPosition(p + 0x1E0, self);
+    for (i = 0; i < 4; i++) {
+        *(AP1Part *)(p + 0x10 + i * 0x50) = *(AP1Part *)D_004E5550;
+    }
+    for (i = 0; i < 2; i++) {
+        *(AP1ColHit *)(p + 0x150 + i * 0xC) = *(AP1ColHit *)InitialColInfo;
+    }
+    applyPartOrients(self);
+    if (*(int *)(p + 0x4) == 0) {
+        d = CSVSYSTEM_InitDObj(7, arg);
+        *(char **)(p + 0x194) = d;
+        if (*(int *)(d + 0xC) != 0) {
+            iosFree(*(int *)(d + 0xC) & 0xFFFFFFF);
+        }
+        if (*(int *)(*(char **)(p + 0x194) + 0x10) != 0) {
+            iosFree(*(int *)(*(char **)(p + 0x194) + 0x10) & 0xFFFFFFF);
+        }
+        *(int *)(*(char **)(p + 0x194) + 0xC) = 0;
+        *(int *)(*(char **)(p + 0x194) + 0x10) = 0;
+        *(int *)(*(char **)(p + 0x194) + 0xC) =
+            (int)iosMallocDebug(D_0063A44C, 0x100, D_0061EE30, 0x105);
+        *(int *)(*(char **)(p + 0x194) + 0x10) =
+            (int)iosMallocDebug(D_0063A44C, 0x40, D_0061EE30, 0x105);
+        *(int *)(*(char **)(p + 0x194) + 0x8) = 4;
+        if (*(int *)(*(char **)(p + 0x194) + 0x870) != 0) {
+            iosFree(*(int *)(*(char **)(p + 0x194) + 0x870) & 0xFFFFFFF);
+        }
+        *(int *)(*(char **)(p + 0x194) + 0x870) =
+            (int)iosMallocDebug(D_0063A44C, 0x140, D_0061EE30, 0x105);
+        {
+            int n;
+
+            for (n = 0; n < 4; n++) {
+                ((AP1Flag *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x38))->ll &=
+                    ~1;
+                ((AP1Flag *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x38))->ll &=
+                    ~2;
+                *(float *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x40) = 0.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x44) = 0.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x48) = 0.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x4C) = 1.0f;
+                ((AP1Flag *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x38))->ll &=
+                    ~4;
+                *(int *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x30) = 0;
+                *(float *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x34) = 1.0f;
+                *(short *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x3A) = 0;
+                *(float *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x20) = 1.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x24) = 1.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x194) + 0x870) + n * 0x50 + 0x28) = 1.0f;
+            }
+        }
+        *(short *)(*(char **)(p + 0x194) + 0x84C) = 2;
+        d = CSVSYSTEM_InitDObj(8, arg);
+        *(char **)(p + 0x198) = d;
+        if (*(int *)(d + 0xC) != 0) {
+            iosFree(*(int *)(d + 0xC) & 0xFFFFFFF);
+        }
+        if (*(int *)(*(char **)(p + 0x198) + 0x10) != 0) {
+            iosFree(*(int *)(*(char **)(p + 0x198) + 0x10) & 0xFFFFFFF);
+        }
+        *(int *)(*(char **)(p + 0x198) + 0xC) = 0;
+        *(int *)(*(char **)(p + 0x198) + 0x10) = 0;
+        *(int *)(*(char **)(p + 0x198) + 0xC) =
+            (int)iosMallocDebug(D_0063A44C, 0x100, D_0061EE30, 0x108);
+        *(int *)(*(char **)(p + 0x198) + 0x10) =
+            (int)iosMallocDebug(D_0063A44C, 0x40, D_0061EE30, 0x108);
+        *(int *)(*(char **)(p + 0x198) + 0x8) = 4;
+        if (*(int *)(*(char **)(p + 0x198) + 0x870) != 0) {
+            iosFree(*(int *)(*(char **)(p + 0x198) + 0x870) & 0xFFFFFFF);
+        }
+        *(int *)(*(char **)(p + 0x198) + 0x870) =
+            (int)iosMallocDebug(D_0063A44C, 0x140, D_0061EE30, 0x108);
+        {
+            int n;
+
+            for (n = 0; n < 4; n++) {
+                ((AP1Flag *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x38))->ll &=
+                    ~1;
+                ((AP1Flag *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x38))->ll &=
+                    ~2;
+                *(float *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x40) = 0.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x44) = 0.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x48) = 0.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x4C) = 1.0f;
+                ((AP1Flag *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x38))->ll &=
+                    ~4;
+                *(int *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x30) = 0;
+                *(float *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x34) = 1.0f;
+                *(short *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x3A) = 0;
+                *(float *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x20) = 1.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x24) = 1.0f;
+                *(float *)(*(char **)(*(char **)(p + 0x198) + 0x870) + n * 0x50 + 0x28) = 1.0f;
+            }
+        }
+        *(short *)(*(char **)(p + 0x198) + 0x84C) = 2;
+    } else {
+        for (i = 0; i < 9; i++) {
+            *(int *)(p + 0x170 + i * 4) = GetSkeltonFocusNode(self, *(int *)(D_004E55A0 + i * 4));
+            if (*(int *)(p + 0x170 + i * 4) == -1) {
+                debug_assertMessage(D_0061EE30, 0x10D, D_0061EE40);
+                __assert(D_0061EE30, 0x10D, D_0063B6C0);
+            }
+        }
+        *(int *)(p + 0x198) = 0;
+        *(int *)(p + 0x194) = 0;
+    }
+    *(int *)(p + 0x19C) = InitEnemyEye(0xA, 0, 0xA);
+    return p;
+}
 
 extern char D_004E55D0[];
 extern void GetMatrixFromQuaternion(int dst, int src);
@@ -126,11 +331,150 @@ int walkMot(char *a0)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", rolling);
+extern void UnlinkParentOfDObj(void *gobj);
+extern void _AddVectorXYZ(void *dst, void *a, void *b);
+extern void ClipCollision(void *col);
+extern void ClipFloor(void *col);
+extern void LinkParentOfDObj(void *gobj, void *info);
+extern void UpdateRootMatrix(char *g);
+extern int GetWallAttribute(void *col);
+extern int CheckWallAttribute(void *gobj, int mask);
+extern int GetFloorAttribute(void *col);
+extern int CheckFloorAttribute(void *gobj, int mask);
+extern float GetPoolGlobalHeight(int pool);
+extern int CheckFieldContact(void *col, void *gobj, void *pos, float r);
+extern void iosOmSendMail(void *gobj, int mail, void *arg);
+extern void yAxisRotFitting(int *self, int arg2);
+extern int D_0028F4C0[];
+extern char D_0028FEF0[];
+extern char D_004E57A0[];
+extern char D_004E57C0[];
+
+/* Two static helpers the listing places at a_p_1.c lines 283-292 and 156-165,
+ * above the def lines of fitToCol and InitAP1, so both names are ours. */
+static inline int clipAndTakeHit(AP1ColHit *dst, char *col)
+{
+    ClipCollision(col);
+    if (*(int *)(col + 0x88) != 0) {
+        dst->attr = *(int *)(col + 0x88);
+        dst->p = *(AP1PackedLL *)(col + 0x80);
+        return 1;
+    }
+    if (*(int *)(col + 0x94) != 0) {
+        dst->attr = *(int *)(col + 0x94);
+        dst->p = *(AP1PackedLL *)(col + 0x8C);
+        return 1;
+    }
+    return 0;
+}
+
+int rolling(char *a0)
+{
+    AP1ColHit info;
+
+    if (*(int *)(*(char **)(a0 + 0x15C)) != 0) {
+        UnlinkParentOfDObj(a0);
+    }
+    ((AP1Val *)(*(char **)(a0 + 0x15C) + 0x134))->f +=
+        60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
+        (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+    _AddVectorXYZ(*(char **)(a0 + 0x15C) + 0xA0, *(char **)(a0 + 0x15C) + 0xA0,
+                  *(char **)(a0 + 0x15C) + 0x130);
+    {
+        char *col = D_004E57A0;
+        CopyVector(col, *(char **)(a0 + 0x15C) + 0x1F0);
+        CopyVector(col + 0x10, *(char **)(a0 + 0x15C) + 0xA0);
+        *(float *)(col + 4) -= 50.0f;
+        if (clipAndTakeHit(&info, col)) {
+            CopyVector(*(char **)(a0 + 0x15C) + 0xA0, D_004E57C0);
+            CopyVector(*(char **)(a0 + 0x15C) + 0x130, D_0028FEF0);
+            yAxisRotFitting((int *)a0, (int)(D_004E57C0 + 0x80));
+            LinkParentOfDObj(a0, &info);
+            UpdateRootMatrix(a0);
+            applyPartOrients(a0);
+            {
+                char *col = D_004E57A0;
+                if (*(int *)(col + 0x88) != 0) {
+                    *(int *)(*(char **)(a0 + 0x15C) + 0x5F8) = GetWallAttribute(col);
+                }
+                if (CheckWallAttribute(a0, 0x50) != 0) {
+                    if (GetPoolGlobalHeight(*(int *)(col + 0x80)) <
+                        *(float *)(*(char **)(a0 + 0x15C) + 0xA4) + 50.0f) {
+                        iosOmSendMail(a0, 0x26, a0);
+                    }
+                }
+            }
+            {
+                char *col = D_004E57A0;
+                if (*(int *)(col + 0x94) != 0) {
+                    *(int *)(*(char **)(a0 + 0x15C) + 0x5F8) = GetFloorAttribute(col);
+                    if (CheckFloorAttribute(a0, 0x50) != 0) {
+                        if (GetPoolGlobalHeight(*(int *)(col + 0x8C)) <
+                            *(float *)(*(char **)(a0 + 0x15C) + 0xA4) + 50.0f) {
+                            iosOmSendMail(a0, 0x26, a0);
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+    }
+    {
+        char *col = D_004E57A0;
+        *(float *)(col + 0x14) += 500.0f;
+        ClipFloor(col);
+        if (CheckFieldContact(col, a0, *(char **)(a0 + 0x15C) + 0xA0, 50.0f) == 2) {
+            CopyVector(*(char **)(a0 + 0x15C) + 0x130, D_0028FEF0);
+            iosOmSendMail(a0, 0x1A, a0);
+        }
+    }
+    return -1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", calcSubMission);
 ASM_LIT4_SLOT(D_00639380, 2500.0f);
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", updateMatrix);
-ASM_LIT4_SLOT(D_00639384, 0.1f);
+
+extern void CopyMatrix(void *dst, void *src);
+extern void GetRootPosition(void *dst, void *self);
+extern void RotQuaternionX(void *q, short ang);
+extern void RotQuaternionZ(void *q, short ang);
+extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
+extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
+extern void _MulMatrix(void *dst, void *a, void *b);
+extern float D_004E58E0[];
+extern float D_004E58F0[];
+
+void updateMatrix(char *a0)
+{
+    float pos[4];
+    float quat[4];
+    float mtx[16];
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+
+    CopyVector(*(char **)(a0 + 0x15C) + 0x1F0, *(char **)(a0 + 0x15C) + 0xA0);
+    UpdateRootMatrix(a0);
+    CopyMatrix(p + 0x230, *(void **)(*(char **)(a0 + 0x15C) + 0xC));
+
+    D_004E58E0[1] = ((float)*(int *)(p + 0x270) * 0.03125f < 0.5f)
+                        ? ((float)*(int *)(p + 0x270) * 0.03125f) * 2.0f * 5.0f + -10.0f
+                        : (1.0f - (float)*(int *)(p + 0x270) * 0.03125f) * 2.0f * 5.0f + -10.0f;
+    D_004E58E0[1] -= *(float *)(p + 0x1C8) * 25.0f;
+    D_004E58E0[2] = *(float *)(p + 0x1C8) * 50.0f;
+
+    GetRootPosition(pos, a0);
+    GetRootQuaternion((int)quat, (int *)a0);
+
+    RotQuaternionX(quat, (short)(*(float *)(p + 0x1C8) * 8192.0f));
+    RotQuaternionX(quat, (short)(*(float *)(p + 0x1C0) * 4096.0f));
+    GetMatrixFromQuaternionPos(mtx, quat, pos);
+    _ApplyMatrix((int)pos, (int)mtx, (int)D_004E58E0);
+    RotQuaternionZ(quat, (short)(-*(float *)(p + 0x1C4) * 2048.0f));
+    _InterVectorXYZ(p + 0x1E0, pos, p + 0x1E0, 0.5f);
+    GetSlerpQuaternion(p + 0x1D0, quat, p + 0x1D0, 0.1f);
+    GetMatrixFromQuaternionPos(p + 0x1F0, p + 0x1D0, p + 0x1E0);
+    _MulMatrix(*(void **)(*(char **)(a0 + 0x15C) + 0xC), p + 0x1F0, D_004E58F0);
+}
 
 void resetPositionInfo(char *a0)
 {
@@ -316,18 +660,6 @@ check:
     return 0;
 }
 
-typedef struct {
-    int unk0;  /* 0x00 */
-    int unk4;  /* 0x04 */
-    int unk8;  /* 0x08 */
-    int unkC;  /* 0x0C */
-    int unk10; /* 0x10 */
-    int unk14; /* 0x14 */
-    int unk18; /* 0x18 */
-    int unk1C; /* 0x1C */
-} AP1Layout;
-
-extern AP1Layout D_0062B588[];
 extern char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
 
 char *MakeAP1GObj(char *a0)
@@ -373,7 +705,6 @@ int rollingMot(char *a0)
 extern int D_00639EA4;
 extern void GetRootPosition(void *dst, void *self);
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
-extern void CopyVector(void *dst, void *src);
 
 typedef struct {
     int state;   /* 0x00 */
