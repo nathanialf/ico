@@ -73,6 +73,7 @@ void zAxisRotFitting(int *self, int arg2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", fitToCol);
+ASM_LIT4_SLOT(D_00639374, 10000.0f);
 
 extern int fitToCol(char *a0, int a1);
 extern void GetRootPosition(void *dst, void *self);
@@ -82,8 +83,6 @@ extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 extern void _ScaleVector(void *dst, void *src, float s);
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
 extern float VectorLength(void *v);
-extern float D_00639378;
-extern float D_0063937C;
 
 typedef union {
     int i;
@@ -115,12 +114,12 @@ int walkMot(char *a0)
         }
     }
     _ScaleVector(&v, &v, ((float)n * 0.25f + 0.5f) * 0.5f);
-    _ScaleVector(*(char **)(a0 + 0x15C) + 0x130, *(char **)(a0 + 0x15C) + 0x130, D_00639378);
+    _ScaleVector(*(char **)(a0 + 0x15C) + 0x130, *(char **)(a0 + 0x15C) + 0x130, 0.8f);
     _AddVectorXYZ(*(char **)(a0 + 0x15C) + 0x130, *(char **)(a0 + 0x15C) + 0x130, &v);
     MatrixDrive_SetTransposeMatrix(&tm, &m);
     _ApplyMatrix((int)&out, (int)&tm, (int)(*(char **)(a0 + 0x15C) + 0x130));
     ((AP1Val *)(p + 0x1C4))->f = out.m[0];
-    ((AP1Val *)(p + 0x1C0))->f = VectorLength(*(char **)(a0 + 0x15C) + 0x130) * D_0063937C;
+    ((AP1Val *)(p + 0x1C0))->f = VectorLength(*(char **)(a0 + 0x15C) + 0x130) * 0.1f;
     _AddVectorXYZ(&pos, &pos, *(char **)(a0 + 0x15C) + 0x130);
     SetRootPosition(a0, &pos);
     *(int *)(p + 0x1C8) = 0;
@@ -129,7 +128,9 @@ int walkMot(char *a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", rolling);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", calcSubMission);
+ASM_LIT4_SLOT(D_00639380, 2500.0f);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", updateMatrix);
+ASM_LIT4_SLOT(D_00639384, 0.1f);
 
 void resetPositionInfo(char *a0)
 {
@@ -139,7 +140,80 @@ void resetPositionInfo(char *a0)
     ResetEnemyEye(*(int *)(p + 0x19C));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1Geo);
+extern void calcSubMission(char *a0);
+extern void updateMatrix(char *a0);
+extern int (*motFuncList[][2])(char *);
+extern void *MatrixDrive_GetMatrix(void);
+extern void _MulMatrix(void *dst, void *a, void *b);
+extern void CopyMatrix(void *dst, void *src);
+extern void MatrixDrive_RotMatrixZ(int ang);
+extern void MatrixDrive_RotMatrixX(int ang);
+extern int UpdateEnemyEye(int eye, void *m, float s);
+extern void debug_StdPrintfDummy(char *fmt, ...);
+extern char D_004E5970[];
+extern char D_004E59F0[];
+extern char D_0061EE70[];
+
+/* static helper the listing places at a_p_1.c lines 889-891, expanded only
+ * into AP1Geo, so this name is ours. */
+static inline void stepAP1BlinkTimer(char *g)
+{
+    char *q = (char *)*(int *)(*(int *)(g + 0x15C) + 0x830);
+    int t = *(int *)(q + 0x270) + 1;
+
+    *(int *)(q + 0x270) = t;
+    if (t > 32) {
+        *(int *)(q + 0x270) = 0;
+    }
+}
+
+void AP1Geo(char *a0)
+{
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    float d;
+
+    switch (*(int *)(p + 8)) {
+    default:
+        if (*(int *)(p + 0x274) < 10) {
+            *(int *)(p + 0x274) = *(int *)(p + 0x274) + 1;
+            resetPositionInfo(a0);
+        }
+        *(int *)(p + 8) = motFuncList[*(int *)(p + 8)][1](a0);
+        stepAP1BlinkTimer(a0);
+        break;
+
+    case 5:
+        *(int *)(p + 8) = 4;
+        break;
+
+    case 4:
+        *(int *)(p + 8) = 6;
+        break;
+
+    case 6:
+        *(int *)(a0 + 0x16C) = 0;
+        break;
+
+    case 7:
+        break;
+    }
+    updateMatrix(a0);
+    calcSubMission(a0);
+    _MulMatrix(MatrixDrive_GetMatrix(), *(void **)(*(char **)(a0 + 0x15C) + 0xC), D_004E5970);
+    UpdateEnemyEye(*(int *)(p + 0x19C), MatrixDrive_GetMatrix(), 1.0f);
+    if (*(int *)(p + 4) != 0) {
+        CopyMatrix(MatrixDrive_GetMatrix(), *(void **)(*(char **)(a0 + 0x15C) + 0xC));
+        MatrixDrive_RotMatrixZ(0x4000);
+        MatrixDrive_RotMatrixX(0x4000);
+        _MulMatrix(*(void **)(*(char **)(a0 + 0x15C) + 0xC), MatrixDrive_GetMatrix(), D_004E59F0);
+    }
+    d = *(float *)(*(char **)(a0 + 0x15C) + 0x54) -
+        *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0xC) + 0x34);
+    if ((d < 0.0f) ? ((d = -d) > 10000.0f) : (d > 10000.0f)) {
+        *(int *)(*(char **)(a0 + 0x15C) + 0x5F8) = 0x800;
+        debug_StdPrintfDummy(D_0061EE70);
+    }
+}
 
 extern void p2o_SetDefaultEnviroment(void);
 extern void p2o_DispVU1(void *gobj);
@@ -337,8 +411,6 @@ void attackMotInit(char *a0)
     setAP1MotCtrlVector((AP1MotCtrl *)(p + 0x60), &dir);
 }
 
-extern float D_00639390;
-
 int attackMot(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -347,7 +419,7 @@ int attackMot(char *a0)
         return ret;
     *(int *)(p + 0x1C0) = 0;
     *(int *)(p + 0x1C4) = 0;
-    *(float *)(p + 0x1C8) += D_00639390;
+    *(float *)(p + 0x1C8) += 0.05f;
     if (*(float *)(p + 0x1C8) > 1.0f) {
         setAP1MotCtrlState((AP1MotCtrl *)(p + 0x10), 2);
         setAP1MotCtrlState((AP1MotCtrl *)(p + 0x60), 2);
