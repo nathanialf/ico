@@ -115,7 +115,7 @@ done
 # `unsigned char D_X[N] = { 0xAB, 0xCD, ... }` is just as much a raw dump
 # and must still be caught. The shape requires the first brace element to
 # be a hex byte AND at least one comma (>=2 elements), so the legitimate
-# inline forms tools/inline_tu_data.py emits all pass:
+# inline forms a data carve emits all pass:
 #   - all-zero `{ 0 };`        (no comma — never matches)
 #   - strings `= "...";`       (no brace — never matches)
 #   - word/short `unsigned int D_X[N] = { 0x.., .. }`  (non-byte type)

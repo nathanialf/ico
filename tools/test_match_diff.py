@@ -83,7 +83,7 @@ class TestRegisterBijection(unittest.TestCase):
         self.assertIsNone(md.detect_register_bijection(exp, blt))
 
     def test_mem_offset_diff(self):
-        # same base, different frame slot: stack_diff territory, not a rename
+        # same base, different frame slot: a stack-slot difference, not a rename
         exp = n(["lw v0,16(sp)", "jr ra"])
         blt = n(["lw v0,24(sp)", "jr ra"])
         self.assertIsNone(md.detect_register_bijection(exp, blt))

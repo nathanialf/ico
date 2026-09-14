@@ -5,13 +5,11 @@
 # One-shot host setup. Idempotent — running it twice is fine.
 #
 #   1. Create a Python venv at .venv and install tools/requirements.txt.
-#   2. Initialize / update git submodules (splat, asm-differ, decomp-permuter,
-#      m2c).
-#   3. Install m2c into the venv (editable).
-#   4. Set up the EE toolchain (system binary detection → Docker → source).
-#   5. Fetch a pinned Ghidra release into tools/ghidra/.
-#   6. Best-effort install pcsx2.
-#   7. Install the IP-safety pre-commit hook.
+#   2. Initialize / update git submodules (splat, asm-differ).
+#   3. Set up the EE toolchain (system binary detection → Docker → source).
+#   4. Fetch a pinned Ghidra release into tools/ghidra/.
+#   5. Best-effort install pcsx2.
+#   6. Install the IP-safety pre-commit hook.
 #
 # This script downloads no disc data, no assets, and no ICO-specific files.
 # Everything pulled is from open-source projects (ps2dev, ghidra, etc.) used
@@ -54,18 +52,7 @@ else
     echo "==> not a git repo yet; run 'git init' first (skipping submodules)"
 fi
 
-# --- 3. m2c (editable install) -----------------------------------------------
-
-if [[ -d lib/m2c ]] && [[ -f lib/m2c/setup.py || -f lib/m2c/pyproject.toml ]]; then
-    echo "==> installing m2c (editable)"
-    python -m pip install -e lib/m2c
-elif [[ -d lib/m2c ]]; then
-    echo "==> lib/m2c present but no setup.py/pyproject.toml; skipping pip install"
-else
-    echo "==> lib/m2c missing; add as submodule then re-run"
-fi
-
-# --- 4. EE GCC 2.9-991111 (matching compiler — same source as the
+# --- 3. EE GCC 2.9-991111 (matching compiler — same source as the
 #       PAL ICO-decomp project) and ee-gcc 2.96 (only its bundled ee-as
 #       2.10, used by the src/.o assembler step) ------------------------
 
@@ -116,7 +103,7 @@ if [[ -f "$EEGCC_BIN" ]] && ! "$EEGCC_BIN" --version >/dev/null 2>&1; then
 EOF
 fi
 
-# --- 4b. EE binutils (assembler/linker) -------------------------------------
+# --- 3b. EE binutils (assembler/linker) -------------------------------------
 
 if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
     :
@@ -141,7 +128,7 @@ binutils features; for matching work the generic binutils is sufficient.
 EOF
 fi
 
-# --- 5. Ghidra ---------------------------------------------------------------
+# --- 4. Ghidra ---------------------------------------------------------------
 
 GHIDRA_VER="${GHIDRA_VER:-11.2.1}"
 GHIDRA_REL="${GHIDRA_REL:-PUBLIC_20241105}"
@@ -165,7 +152,7 @@ else
     echo "==> curl not available; skipping Ghidra"
 fi
 
-# --- 6. pcsx2 (optional) -----------------------------------------------------
+# --- 5. pcsx2 (optional) -----------------------------------------------------
 
 if [[ "${SKIP_PCSX2:-0}" == "1" ]]; then
     echo "==> SKIP_PCSX2=1; not installing pcsx2"
@@ -179,7 +166,7 @@ else
     echo "==> non-apt host; install pcsx2 manually from https://pcsx2.net"
 fi
 
-# --- 7. pre-commit hook ------------------------------------------------------
+# --- 6. pre-commit hook ------------------------------------------------------
 
 if [[ -d .git ]]; then
     bash tools/install_hooks.sh

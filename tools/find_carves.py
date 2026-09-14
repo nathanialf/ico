@@ -52,9 +52,8 @@ from ico_version import detect_version, baseelf_path  # noqa: E402
 
 VERSION = detect_version(pathlib.Path(ROOT))
 ELF = str(baseelf_path(pathlib.Path(ROOT), VERSION))
-# asm root: retail (`us`) keeps asm/ flat; aug6 (and any other named version)
-# nests under asm/<version>/ — same convention as tools/park_tu.py's
-# asm_roots() and tools/match_drive.py's VERSION-keyed path.
+# asm root: retail (`us`, `pal`) keeps asm/ flat; aug6 (and any other named
+# version) nests under asm/<version>/.
 ASM_ROOT = "asm" if VERSION in ("us", "pal") else f"asm/{VERSION}"
 # TU source roots to scan for consumer .c files, per version. aug6's dev
 # tree is split by original programmer (omori/ito/sugipon/fumi/seki/common/

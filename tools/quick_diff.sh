@@ -483,8 +483,8 @@ canon_func() {
 # dev's REAL symbol names (from MAIN.MAP), and named retail funcs exist too, so
 # gating isolation on `func_*` would dump the whole TU object
 # against a single-func expected .s (thousands of phantom diffs). Whenever a
-# specific func is requested (match_diff/match_loop always pass it, and so does
-# the agent for coalesced TUs), isolate to THAT symbol regardless of its name.
+# specific func is requested (match_diff always passes it, and so does the
+# agent for coalesced TUs), isolate to THAT symbol regardless of its name.
 TGT_FN=""
 if [[ -n "${1:-}" ]]; then
     TGT_FN="$1"
