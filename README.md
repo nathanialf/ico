@@ -29,8 +29,8 @@ All three share the toolchain, conventions, and most recovered source; the
 tools detect which target a working tree carries from its
 `config/ico.<slug>.yaml` (`tools/ico_version.py`). The PAL tree was seeded
 by porting every matched body from `ntsc` and `aug6` whose bytes survive
-here (accounting: `docs/port_ledger_pal.md`, `docs/port_ledger_pal_aug6.md`);
-the port drivers themselves are retired now that both passes are done.
+here; the port drivers and their ledgers are retired now that both passes
+are done.
 
 The goal is to produce original source code that, compiled with the original
 build chain (ee-gcc 2.9-991111-01 + its period ee-as 2.9-991111), reproduces a byte-for-byte
@@ -94,10 +94,7 @@ For the long-form walkthrough, prerequisites, and PCSX2 sanity-check, see
    one `INCLUDE_ASM` line per unmatched function; its splat baseline is
    `asm/nonmatchings/<TU path>/<func>.s`. TUs still marked `asm` in the yaml
    have not been started.
-2. Check the queue first: `docs/easy_pickups.md` (near-miss ports from the
-   other two targets ranked by diff, plus the smallest unmatched functions;
-   regenerate with `tools/easy_pickups.py`). The port ledgers say why a
-   ported body was reverted; `docs/pal_source_tree.md` (local, from
+2. `docs/pal_source_tree.md` (local, from
    `tools/gen_pal_source_tree.py`) gives each file's functions in source
    order, the `#include`-coalesced TUs and the header-resident inline
    helpers; `docs/HEADERS.md` tracks the developer-named headers.
@@ -169,15 +166,14 @@ baserom/        local-only: user's disc + extracted ELF (gitignored)
 build/          build artifacts (gitignored)
 lib/            submodules (splat, asm-differ)
 tools/          build orchestration + matching aids (compile_c.sh,
-                quick_diff.sh, match_diff.py, find_carves.py,
+                quick_diff.sh, match_diff.py, tu_check.py,
                 gen_pal_symbol_addrs.py, gen_pal_data_symbols.py,
-                gen_pal_source_tree.py, easy_pickups.py …)
+                gen_pal_source_tree.py …)
 docs/           the project's one documentation directory: README.md indexes
-                every file in it. Ledgers (port_ledger_pal*, carve_ledger,
-                HEADERS.md, easy_pickups.md), the dashboard the Pages site
-                serves (index.html + progress.json + PROGRESS.md), and the
-                branch-shared pattern catalogs (NOTES.md, COOKBOOK.md,
-                MATCH_VU.md, gitignored)
+                every file in it. HEADERS.md and PROGRAMMERS.md, the
+                dashboard the Pages site serves (index.html + progress.json +
+                PROGRESS.md), and the branch-shared pattern catalogs
+                (NOTES.md, COOKBOOK.md, MATCH_VU.md, gitignored)
 ```
 
 ### File-structure conventions
@@ -192,7 +188,8 @@ docs/           the project's one documentation directory: README.md indexes
   in `config/ico.pal.yaml`), not a generated
   sidecar and never a `section` attribute in the source. Carved constants are
   written into the owning `<TU>.c` so gcc's emission replaces the asm-side
-  blob. See `docs/carve_ledger.md` for the carve rules and known blockers.
+  blob. Each carve row's comment in the yaml records its reasoning; the
+  carve mechanisms are in `docs/NOTES.md` "Data carves".
 - **A parked near-miss** stays as its `INCLUDE_ASM` line with the reasoning
   recorded next to the function, not in a separate directory.
 

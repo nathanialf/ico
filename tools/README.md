@@ -50,9 +50,7 @@ count. There is no driver that tracks it for you.
 
 | tool | what it does |
 |---|---|
-| `find_carves.py` | proposes carvable data runs and reports what blocks each one |
 | `map_data_tus.py` | assigns data symbols to owning TUs |
-| `emit_run_defs.py` | byte-verified C definitions for a carved run's standalone symbols |
 
 ## PAL generators (`main` only)
 
@@ -61,8 +59,6 @@ count. There is no driver that tracks it for you.
 | `gen_pal_symbol_addrs.py` | correlates the disc's `SRCFILE.TXT` listing to the shipped ELF → `config/symbol_addrs.pal.txt` + per-TU `.text` spans |
 | `gen_pal_data_symbols.py` | names data symbols from the disc's `MAIN.MAP` → `config/symbol_addrs.pal.data.txt` |
 | `gen_pal_source_tree.py` | writes the local-only `docs/pal_source_tree.{md,json}` census |
-| `easy_pickups.py` | ranks the cheapest remaining unmatched functions (`docs/easy_pickups.md`) |
-| `dump_all_struct_shapes.py` | mines every function `.s` for (offset, width, sign, stride) per symbol → `docs/struct_shapes.{json,md}` |
 
 ## Tests
 

@@ -65,7 +65,12 @@ static inline void MakeStageOrientMatrix(float *m, StageOrientDef *p)
        written; gcc materialises its address (sp+0xC0 in
        GetStageDifferenceMatrix) as the base register for the temp's `w` store.
        Deleting the declaration drops the frame to 224 and shifts every slot.
-       Measured alternatives and the open axes: docs/crutch_ledger.md. */
+       Measured: a nested static inline whose own VECTOR initialiser supplies
+       the third 16-byte object reproduces the frame size (vars 240) but puts
+       v at sp+192 and the temp at sp+208 where ROM has the unwritten slot at
+       sp+192, so the object must be declared before v; writing v field by
+       field removes the ld/sd pair ROM has. Open axis: a 16-byte object
+       declared before v that the body uses somewhere gcc drops. */
     VECTOR unused;
     VECTOR v = {p->pos[0], p->pos[1], p->pos[2], 1.0f};
 

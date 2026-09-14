@@ -383,7 +383,7 @@ fi
 # real TU data in `.data.<sym>` / `.rodata.<sym>` (whose gcc-assigned alignment
 # IS load-bearing: it reproduces intra-TU padding), so forcing the leftover
 # standard sections to 1 is free. `.text` keeps ${ALIGN} — it reproduces the
-# ROM's inter-TU function padding. See docs/carve_ledger.md "Root cause".
+# ROM's inter-TU function padding. See docs/NOTES.md "Data carves" (the section-alignment floor).
 "${OBJCOPY}" --set-section-alignment ".data=1" \
              --set-section-alignment ".bss=1" "${OUT}"
 
