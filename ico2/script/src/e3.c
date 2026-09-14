@@ -368,7 +368,7 @@ extern void scpFadeIn(float t);
 extern void actE3CapsuleDemoEnd(volatile int a0);
 extern int D_0063C4E0;
 extern int D_0063C4E4;
-extern int D_0063BDF8;
+extern int e3capsule;
 
 void actE3CapsuleDemoCancel(volatile int a0)
 {
@@ -383,7 +383,7 @@ void actE3CapsuleDemoCancel(volatile int a0)
         _ACTWait(1);
     }
 
-    scpAdpcmCloseFunc(&D_0063BDF8);
+    scpAdpcmCloseFunc(&e3capsule);
 
     stage_SetAnimation(0x20, 0, -1);
     stage_SetAnimation(0x1A, 0, -1);
@@ -820,7 +820,7 @@ extern void scpPlayEnd(int a0);
 extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
 extern void actE3St09aGirlWay(volatile int a0);
 extern int D_00639EAC;
-extern int D_0063BE08;
+extern int sekizo_e3_vol;
 extern unsigned char D_0063BE0C;
 
 void actE3St09aSekizoChk(volatile int a0)
@@ -855,9 +855,9 @@ void actE3St09aSekizoChk(volatile int a0)
 
     stage_SetAnimation(0x178, 1, 0);
 
-    D_0063BE08 = iosPadActRequest(D_00639EAC, 9);
+    sekizo_e3_vol = iosPadActRequest(D_00639EAC, 9);
     D_0063BE0C = 0x80;
-    iosPadActVolumeSet(D_0063BE08, 0x80);
+    iosPadActVolumeSet(sekizo_e3_vol, 0x80);
 
     scpPlayStart(D_00639EA4);
     scpPlayStart(D_00639EA8);
@@ -883,7 +883,7 @@ void actE3St09aSekizoChk(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActStop(D_0063BE08);
+    iosPadActStop(sekizo_e3_vol);
 
     scpPlayMot(D_00639EA8, 0x214);
     scpPlayEnd(D_00639EA8);
@@ -912,7 +912,7 @@ extern void reg_SetScissorSw(int val);
 extern void SetStaticBlur(int x);
 extern void actE3GateDemo(volatile int a0);
 extern void actE3GateJimaku(volatile int a0);
-extern int D_0063BE00;
+extern int e3gate1st;
 
 void actE3GateChk(volatile int a0)
 {
@@ -944,8 +944,8 @@ void actE3GateChk(volatile int a0)
     reg_SetScissorSw(1);
     SetStaticBlur(0);
 
-    scpAdpcmPlayRequestFunc(4, &D_0063BE00, 1, 1, 0);
-    while (D_0063BE00 == 0) {
+    scpAdpcmPlayRequestFunc(4, &e3gate1st, 1, 1, 0);
+    while (e3gate1st == 0) {
         _ACTWait(1);
     }
 
@@ -985,7 +985,7 @@ void actE3GateDemo(volatile int a0)
     }
     _ACTWait(1);
 
-    AdpcmPlay(*(int *)(D_0063BE00 + 0x2C));
+    AdpcmPlay(*(int *)(e3gate1st + 0x2C));
 
     while (stage_ContinueAnimation(0x288, 0x289) == 0) {
         _ACTWait(1);
@@ -1029,8 +1029,8 @@ void actE3GateDemo(volatile int a0)
     }
     _ACTWait(1);
 
-    if (D_0063BE00 != 0) {
-        scpAdpcmFadeCloseFunc(&D_0063BE00, 0x50);
+    if (e3gate1st != 0) {
+        scpAdpcmFadeCloseFunc(&e3gate1st, 0x50);
     }
 
     ReinitWindManager();
@@ -1121,7 +1121,7 @@ void actE3St01bInit(void)
 extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
 extern int iosPadActRequest(int port, int id);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern int D_0063BE04;
+extern int sekizo_e3;
 extern int D_00639EAC;
 
 void actE3St09aBrgDown(volatile int a0)
@@ -1129,8 +1129,8 @@ void actE3St09aBrgDown(volatile int a0)
     lt_switch_layout(0x37);
     gflagOn(0x56);
 
-    scpAdpcmPlayRequestFunc(0x5A, &D_0063BE04, 1, 1, 1);
-    while (D_0063BE04 == 0) {
+    scpAdpcmPlayRequestFunc(0x5A, &sekizo_e3, 1, 1, 1);
+    while (sekizo_e3 == 0) {
         _ACTWait(1);
     }
 
@@ -1457,7 +1457,7 @@ extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void scpFadeIn(float f);
 extern int actCreateSubThread(void *entry, int prio);
 extern void actE3CapsuleDemo(volatile int a0);
-extern int D_0063BDF8;
+extern int e3capsule;
 extern int D_0063C4E0;
 
 void actE3CapsuleChk(volatile int a0)
@@ -1466,8 +1466,8 @@ void actE3CapsuleChk(volatile int a0)
 
     gflagOn(0x166);
 
-    scpAdpcmPlayRequestFunc(2, &D_0063BDF8, 1, 1, 1);
-    while (D_0063BDF8 == 0) {
+    scpAdpcmPlayRequestFunc(2, &e3capsule, 1, 1, 1);
+    while (e3capsule == 0) {
         _ACTWait(1);
     }
 
