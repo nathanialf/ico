@@ -1272,3 +1272,8 @@ words become the blob's first words.
 ### 2026-09-14 chain D pass 21: way_tool pool, camera-editor split
 - `[0x539864, .lit4, src/way_tool]`: D_00639864..D_00639868, two words both 0.116355285f (draw_way_group's own literal plus one ASM_LIT4_SLOT for the still-asm way_toolDL), VMA 0x639864..0x63986C, 8 B; the blob resumes at 0x53986C.
 - Symbols seated: the ROM stub func_0018F590 covered three census functions; menu_2 = 0x0018F590 and _CameraEdit_BOX = 0x0018F668 take their census names, and func_0018F5F8 keeps a placeholder name because its census name group_select collides with way_tool's global. MAIN.MAP places the three at the same relative offsets (0x68 and 0x70).
+
+### 2026-09-14 chain E pass 23: Primitive pool and edge table
+- `[0x538C58, .lit4, src/Primitive]`: D_00638C58..D_00638C70, seven words in ROM order (6.2831855f, 10430.378f, 6.2831855f, 10430.378f, 4095.0f as a slot for the still-asm prim_DispFan2D, 3.1415927f, 10430.378f), VMA 0x638C58..0x638C74, 28 B; the TU's whole pool, bounded by Packet below and StageAnimation above, so the blob resume row is gone.
+- `[0x44F9E8, .rodata, src/Primitive]`: D_0054F9E8, prim_DispWireBox's twelve cube edges as `int[12][2]`, VMA 0x54F9E8..0x54FA48, 96 B, align 8, emitted by the compiled function; the blob resumes at 0x44FA48 with eight zero bytes before the next TU's string.
+- drawDisc lands as the local symbol drawDisc.N (a genuine nested function, the ROM's $2 static chain); the symbol file's drawDisc row at 0x0011F6E0 stays, as with RegistPacket's setMatrix and setLight.
