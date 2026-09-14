@@ -16,32 +16,26 @@ typedef union {
     } w;
 } McTestVal;
 
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetInfo);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcHandlerWrite);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcHandlerRead);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrChdirProduct);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrSaveSeg);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrLoadSeg);
-
-extern void iosMcMgrSaveSeg(void *a0, int a1);
-
-void iosMcMgrSaveProductBlock(void *a0)
-{
-    *(int *)((char *)a0 + 0x24) = 0;
-    iosMcMgrSaveSeg(a0, 0);
-}
-
-extern void iosMcMgrLoadSeg(void *a0, int a1);
-
-void iosMcMgrLoadProductBlock(void *a0)
-{
-    *(int *)((char *)a0 + 0x24) = 0;
-    iosMcMgrLoadSeg(a0, 0);
-}
-
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetBlockSaveInfo);
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcManager);
-
+/* prototypes: their order is the inline tail's emission order */
+void iosMcMgrSync(void *mp);
+void iosMcTest(void);
+int iosMcSync(unsigned long *a0);
+int iosMcGetInfo(void *a0);
+int iosMcFormat(void *a0);
+int iosMcUnformat(void *a0);
+int iosMcGetDir(void *a0);
+int iosMcDelete(void *a0);
+int iosMcSaveIconBlock(void *a0);
+int iosMcSaveProductBlock(void *a0);
+int iosMcLoadProductBlock(void *a0);
+int iosMcSaveGameBlock(void *a0, int a1);
+int iosMcLoadGameBlock(void *a0, int a1);
+int iosMcChdirProduct(void *a0);
+int iosMcGetBlockSaveInfo(void *a0);
+int product_write(int *self);
+int product_read(int *self);
+int gameblock_write(int self, void *buf);
+int gameblock_read(int *self, void *buf);
 extern int D_006BC8C0[];
 extern char D_0063A490[];
 extern int D_0063A47C;
@@ -52,7 +46,7 @@ extern int DeleteSema(int sema);
 extern int sceMcSync(int mode, int *cmd, int *result);
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
-void iosMcMgrSync(void *mp)
+inline void iosMcMgrSync(void *mp)
 {
     D_006BC8C0[4] = 1;
     D_006BC8C0[1] = 1;
@@ -67,9 +61,9 @@ void iosMcMgrSync(void *mp)
     D_0063A47C = -1;
 }
 
-void iosMcTest(void) {}
+inline void iosMcTest(void) {}
 
-int iosMcSync(unsigned long *a0)
+inline int iosMcSync(unsigned long *a0)
 {
     unsigned long x = *a0;
     char y = x;
@@ -81,7 +75,7 @@ int iosMcSync(unsigned long *a0)
 extern char D_0029B9E8[];
 extern int iosMsgSend(void *a0, void *a1, int a2);
 
-int iosMcGetInfo(void *a0)
+inline int iosMcGetInfo(void *a0)
 {
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 0;
@@ -89,7 +83,7 @@ int iosMcGetInfo(void *a0)
     return iosMsgSend(D_0029B9E8, a0, 0);
 }
 
-int iosMcFormat(void *a0)
+inline int iosMcFormat(void *a0)
 {
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 3;
@@ -97,7 +91,7 @@ int iosMcFormat(void *a0)
     return iosMsgSend(D_0029B9E8, a0, 0);
 }
 
-int iosMcUnformat(void *a0)
+inline int iosMcUnformat(void *a0)
 {
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 4;
@@ -107,7 +101,7 @@ int iosMcUnformat(void *a0)
 
 extern int D_0029B9E8__pn[] __asm__("D_0029B9E8");
 
-int iosMcGetDir(void *a0)
+inline int iosMcGetDir(void *a0)
 {
     McHdr *v = (McHdr *)a0;
     v->w.hi = 6;
@@ -117,7 +111,7 @@ int iosMcGetDir(void *a0)
 
 extern int D_0029B9E8__pn[] __asm__("D_0029B9E8");
 
-int iosMcDelete(void *a0)
+inline int iosMcDelete(void *a0)
 {
     McHdr *v = (McHdr *)a0;
     v->w.hi = 2;
@@ -125,7 +119,7 @@ int iosMcDelete(void *a0)
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
 
-int iosMcSaveIconBlock(void *a0)
+inline int iosMcSaveIconBlock(void *a0)
 {
     McHdr *v = (McHdr *)a0;
     v->w.hi = 7;
@@ -133,7 +127,7 @@ int iosMcSaveIconBlock(void *a0)
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
 
-int iosMcSaveProductBlock(void *a0)
+inline int iosMcSaveProductBlock(void *a0)
 {
     McHdr *v = (McHdr *)a0;
     v->w.hi = 8;
@@ -141,7 +135,7 @@ int iosMcSaveProductBlock(void *a0)
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
 
-int iosMcLoadProductBlock(void *a0)
+inline int iosMcLoadProductBlock(void *a0)
 {
     McHdr *v = (McHdr *)a0;
     v->w.hi = 9;
@@ -149,7 +143,7 @@ int iosMcLoadProductBlock(void *a0)
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
 
-int iosMcSaveGameBlock(void *a0, int a1)
+inline int iosMcSaveGameBlock(void *a0, int a1)
 {
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xA;
@@ -158,7 +152,7 @@ int iosMcSaveGameBlock(void *a0, int a1)
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
 
-int iosMcLoadGameBlock(void *a0, int a1)
+inline int iosMcLoadGameBlock(void *a0, int a1)
 {
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xB;
@@ -167,7 +161,7 @@ int iosMcLoadGameBlock(void *a0, int a1)
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
 
-int iosMcChdirProduct(void *a0)
+inline int iosMcChdirProduct(void *a0)
 {
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xC;
@@ -175,7 +169,7 @@ int iosMcChdirProduct(void *a0)
     return iosMsgSend(D_0029B9E8__pn, a0, 0);
 }
 
-int iosMcGetBlockSaveInfo(void *a0)
+inline int iosMcGetBlockSaveInfo(void *a0)
 {
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xD;
@@ -207,7 +201,7 @@ extern int D_0028F4C0[];
 extern int NonLinearCameraMove;
 extern int soundOutputModeGet(void);
 
-int product_write(int *self)
+inline int product_write(int *self)
 {
     (D_0029B5F0 + self[2])->soundMode = D_0028F4C0[11];
     (D_0029B5F0 + self[2])->outputMode = soundOutputModeGet();
@@ -220,7 +214,7 @@ int product_write(int *self)
     return 0;
 }
 
-int product_read(int *self)
+inline int product_read(int *self)
 {
     int idx = self[0x8 / 4];
     iosMcHandlerRead((int)self, (int)&D_0029B5F0[idx], 0x1F0);
@@ -230,7 +224,7 @@ int product_read(int *self)
 extern int CurrentTargetGObjSub;
 extern int D_00639EA0;
 
-int gameblock_write(int self, void *buf)
+inline int gameblock_write(int self, void *buf)
 {
     iosMcHandlerWrite(self, buf, 0x63F4);
     iosMcHandlerWrite(self, &CurrentTargetGObjSub, 4);
@@ -241,7 +235,7 @@ int gameblock_write(int self, void *buf)
 extern int D_0028F4EC[];
 extern void soundOutputModeSet(int mode);
 
-int gameblock_read(int *self, void *buf)
+inline int gameblock_read(int *self, void *buf)
 {
     iosMcHandlerRead((int)self, (int)buf, 0x63F4);
     D_0028F4EC[0] = (D_0029B5F0 + self[2])->soundMode;
@@ -253,3 +247,63 @@ int gameblock_read(int *self, void *buf)
     iosMcHandlerRead((int)self, (int)&D_00639EA0, 4);
     return self[4];
 }
+
+extern int sceMcGetInfo(int port, int slot, int *type, int *free, int *format);
+
+typedef struct {
+    int _0[2];  /* 0x00 */
+    int port;   /* 0x08 */
+    int slot;   /* 0x0C */
+    int f10;    /* 0x10 */
+    int f14;    /* 0x14 */
+    int f18;    /* 0x18 */
+    int f1C;    /* 0x1C */
+    int f20;    /* 0x20 */
+    int _24[3]; /* 0x24 */
+    int f30;    /* 0x30 */
+} McMgr;
+
+extern char D_00551140[];
+extern char D_00551168[];
+
+void iosMcMgrGetInfo(McMgr *mp)
+{
+    int r;
+
+    while ((r = sceMcGetInfo(mp->port, mp->slot, &mp->f14, &mp->f18, &mp->f20)) != 0) {
+        debug_StdPrintfDummy(D_00551140, r);
+    }
+
+    iosMcMgrSync(mp);
+
+    debug_StdPrintfDummy(D_00551168, mp->f10, mp->f14);
+
+    if (mp->f10 != 0 && mp->f10 >= -10) {
+        mp->f1C = mp->f10;
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcHandlerWrite);
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcHandlerRead);
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrChdirProduct);
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrSaveSeg);
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrLoadSeg);
+
+extern void iosMcMgrSaveSeg(void *a0, int a1);
+
+void iosMcMgrSaveProductBlock(void *a0)
+{
+    *(int *)((char *)a0 + 0x24) = 0;
+    iosMcMgrSaveSeg(a0, 0);
+}
+
+extern void iosMcMgrLoadSeg(void *a0, int a1);
+
+void iosMcMgrLoadProductBlock(void *a0)
+{
+    *(int *)((char *)a0 + 0x24) = 0;
+    iosMcMgrLoadSeg(a0, 0);
+}
+
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetBlockSaveInfo);
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcManager);
