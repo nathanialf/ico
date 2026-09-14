@@ -27,10 +27,16 @@ from pathlib import Path
 # working tree only ever carries its own target's config.
 VERSIONS = ("pal", "us", "aug6")
 
-# Source-tree shape. The retail targets (us, pal) use a flat repo-root layout
-# (src/ ios/ sound/ isys/); the aug6 prototype mirrors the dev's per-programmer
-# module tree recovered from TRFILE.TXT.
+# Source-tree shape. The USA retail target keeps the flat repo-root layout
+# (src/ ios/ sound/ isys/); the PAL target lays the game code out the way the
+# disc's own listing records it, ico2/<programmer>/<kind>/, beside the SCE SDK
+# code in sce/; the aug6 prototype mirrors the dev's per-programmer module tree
+# recovered from TRFILE.TXT.
 FLAT_SOURCE_ROOTS = ("src", "ios", "sound", "isys", "ito", "sce")
+# `src` stays on the PAL list for the five VU1 microprogram sources, which the
+# listing does not attribute to a programmer, and `include` for the headers
+# this project wrote itself.
+PAL_SOURCE_ROOTS = ("ico2", "sce", "src", "include")
 DEVTREE_SOURCE_ROOTS = ("common", "fumi", "sugipon", "seki", "omori",
                         "script", "ito")
 LAYOUTS = {"pal": "flat", "us": "flat", "aug6": "devtree"}
@@ -91,6 +97,8 @@ def source_roots(version: str) -> tuple[str, ...]:
     """Top-level dirs that may hold this target's C / hand-asm translation units."""
     if layout(version) == "devtree":
         return DEVTREE_SOURCE_ROOTS + FLAT_SOURCE_ROOTS
+    if version == "pal":
+        return PAL_SOURCE_ROOTS
     return FLAT_SOURCE_ROOTS
 
 

@@ -50,7 +50,7 @@ DUMP_FLAG = {"sched": "-dS", "sched2": "-dR", "dbr": "-dd"}
 # aug6 is the `main` layout: TUs live under per-programmer roots and are
 # addressed by their full subseg path (e.g. `ito/mpeg/mv_disp`). Retail (us)
 # addressed them by bare basename under src/. Resolve both.
-SRC_ROOTS = ("", "src", "common", "fumi", "sugipon", "seki", "omori",
+SRC_ROOTS = ("", "ico2", "sce", "src", "common", "fumi", "sugipon", "seki", "omori",
              "script", "ito", "ios", "sound", "isys")
 
 

@@ -27,7 +27,8 @@ from ico_version import detect_version, asm_root  # noqa: E402
 VER = detect_version(ROOT)
 ASM = ROOT / asm_root(ROOT, VER)
 OUT = ROOT / "decomp" / "easy_pickups.md"
-SRC_GLOBS = ("src/*.c", "src/cod/*.c", "ios/*.c", "isys/*.c", "sound/*.c", "ito/*/*.c")
+SRC_GLOBS = ("ico2/*/*/*.c", "sce/*.c", "sce/*/*.c", "sce/*/*/*.c",
+             "sce/*/*/*/*.c", "src/*.c")
 INSN_RE = re.compile(r"^\s*/\*\s*[0-9A-F]+\s+[0-9A-F]{8}\s+[0-9A-F]{8}\s*\*/", re.M)
 
 

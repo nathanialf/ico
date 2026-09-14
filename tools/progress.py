@@ -61,7 +61,8 @@ PROGRESS_DOC = REPO_ROOT / "docs" / "PROGRESS.md"
 # their compiled .o files live at build/<root>/ alongside build/src/. The aug6
 # prototype adds the dev's per-developer module tree. The union is walked on
 # every target — a root that doesn't exist contributes nothing.
-SOURCE_ROOTS = tuple(dict.fromkeys(source_roots("us") + source_roots("aug6")))
+SOURCE_ROOTS = tuple(dict.fromkeys(
+    source_roots("us") + source_roots("pal") + source_roots("aug6")))
 BUILD_OBJ_DIRS = tuple(REPO_ROOT / "build" / r for r in SOURCE_ROOTS)
 
 # Yaml subsegment types that correspond to each ELF section. Splat lumps

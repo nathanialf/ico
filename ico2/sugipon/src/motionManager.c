@@ -1,0 +1,1010 @@
+#include "common.h"
+#include "ico/types.h"
+#include "vu0.h"
+#include "sugiCommon.h"
+
+typedef struct {
+    char b[0x20];
+} ShiftBlk;
+
+extern char D_004EC950[];
+extern char D_004EC960[];
+extern char D_004EC970[];
+extern char D_004EC980[];
+extern char D_004EC990[];
+extern char D_004EC9A0[];
+extern char D_004EC9B0[];
+extern char D_004EC9C0[];
+extern char D_004EC9D0[];
+extern void DrawLineG(void *a0, void *a1, void *a2, void *a3, int a4);
+extern char *D_0063B938;
+extern char *D_0063C480;
+extern int D_0063B93C;
+extern int MatrixDrive_GetMatrix(void);
+extern void CopyMatrix(void *dst, void *src);
+extern void MatrixDrive_PopMatrix(void);
+extern void *GetCurrentQuaternion(void);
+extern void MatrixDrive_PushMatrixWithNoCopy(void);
+extern void PushQuaternionWithNoCopy(void);
+extern void _getFinalMatrix(int id);
+extern char D_0028FF30[];
+extern char D_004EC9E0[];
+extern char D_004EC9F0[];
+extern char D_004ECA00[];
+extern char *D_0063C490;
+extern void MatrixDrive_PushMatrix(void);
+extern void SetQuaternionByAxisRotateV(void *dst, short ang, void *v);
+extern void _ApplyMatrix(void *a0, int a1, char *a2);
+extern float D_0063B900;
+extern char *D_0063C4A4;
+extern char D_007201A0[];
+extern char D_007201E0[];
+extern void GetMatrixFromQuaternion(void *a0, void *a1);
+extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
+extern void *MatrixDrive_GetLastMatrix(void);
+extern void _MulMatrix(void *a0, void *a1, void *a2);
+extern void _ScaleVectorXYZ(void *buf, void *p1, float f);
+extern void ClipWall(void *a0);
+extern void CopyVector(void *dst, void *src);
+extern char D_004ECA10[];
+extern char D_004ECA20[];
+extern char *D_0063C494;
+extern float GetPointDistance(void *a0, void *a1);
+extern void MatrixDrive_TransMatrixV(void *a0);
+extern void memset(void *a0, int a1, int a2);
+extern void sceVu0ApplyMatrix(int *a0, int a1, char *a2);
+extern float GetYProjectionOfPlane(int a0, int a1);
+extern void MatrixDrive_TransMatrix(float, float, float);
+extern void MultiMatrixByQuaternion(char *p);
+extern void _UnitMatrix(int a0);
+extern void _checkCliffAndWall(void);
+extern void checkWallSideState(void);
+extern void ClipWallFuchiHangWalkStop(void *a0);
+extern char D_004ECA80[];
+extern int GetWallAttribute(void *a0);
+extern void _AddVectorXYZ(int a0, int a1, void *a2);
+extern int adjustSideWall(int a0, int a1, int a2);
+extern int iosOmSendMail(char *self_arg, int val5, int val6);
+extern float D_007201F4[];
+extern void sceVu0UnitMatrix(int);
+extern char *D_0063C4A0;
+
+typedef struct {
+    int a;
+    int b;
+} MotShift;
+
+extern int D_004ECB10[];
+extern int D_004ECB28[];
+extern char D_0061FDC0[];
+extern char D_0061FFD8[];
+extern char D_0063B920[];
+extern char *D_0063C478;
+extern char *D_0063C47C;
+extern char *D_0063C484;
+extern char *D_0063C488;
+extern int D_0063C48C;
+extern char *D_0063C4A8;
+extern void PushQuaternion(void);
+extern void PopQuaternion(void);
+extern void SetIdentityQuaternion(void *q);
+extern void RotQuaternionY(void *q, short ang);
+extern void SetCurrentQuaternion(void *q);
+extern void MatrixDrive_SetTransposeMatrix(void *a0, int a1);
+extern void sceVu0Normalize(void *dst, void *src);
+extern float atan2f(float y, float x);
+extern void clearCollisionStatus(void);
+extern int findActPoint(int *list);
+extern int checkActPointWithHeight(int a0, float h);
+extern int sprintf(char *buf, char *fmt, ...);
+extern void debug_assertMessage(char *file, int line, char *msg);
+extern void __assert(char *file, int line, char *expr);
+extern MotShift rootUpdateDirectPlayForStream(void);
+extern MotShift rootUpdateXZ(int a0, int a1);
+extern MotShift rootUpdateXZ_MotPos(int a0, int a1);
+extern MotShift rootUpdateStepSolution(int a0);
+extern MotShift rootUpdateHang(int a0, int a1, int a2);
+extern MotShift rootUpdateSwim(void);
+extern MotShift rootUpdateNodeFix(void);
+extern void rootUpdateY_Rope(int a0);
+extern MotShift rootUpdateY(void);
+extern MotShift rootUpdateTrueMotion(int a0);
+extern MotShift rootUpdateDirectPlay(int a0);
+extern MotShift rootUpdateFly(void);
+extern MotShift rootUpdateEnemyFly(void);
+extern void func_001ECE40();
+extern void gif_EndPacket();
+extern void gif_SetAlpha();
+extern void gif_StartPacketPri();
+extern void checkCliffState(int a0);
+extern void checkWallState(int a0);
+extern void _SubVectorXYZ(void *dst, void *a, void *b);
+extern float VectorLengthSquare(void *v);
+extern void UnitRotation(int m);
+extern float _Sqrt(float x);
+extern void DrawGObjWallCollision(int a0, int a1);
+extern char D_0061FDD8[];
+
+/* FLT_MAX word in .sdata (D_0063B91C/24 both hold 0x7F7FFFFF). Only an alias-set-0
+   (union member) read reproduces ROM's hoist of this load above the four int
+   stores in _checkCliffAndWall; the object's real type is unresolved until the
+   data-name pass. */
+typedef union {
+    float f;
+    int i;
+} FltWord;
+
+extern FltWord D_0063B924[];
+extern unsigned char D_002C2DC8[];
+extern int D_0063C498;
+extern int D_0063B158;
+extern float D_004ECB70[];
+extern float D_004ECB80[];
+extern char D_004ECBC0[];
+extern char D_004ECBD0[];
+extern void MatrixDrive_RotMatrixZ(int a0);
+extern void getFinalMatrixWithNaturalGeometry(int id);
+extern void AddVectorXYZ(void *dst, void *a, void *b);
+extern void _SubVector(void *dst, void *a, void *b);
+extern void _NormalizeVector(void *dst, void *a);
+extern void _ScaleVector(void *dst, void *a, float s);
+extern void _AddVector(void *dst, void *a, void *b);
+
+typedef struct {
+    int obj;
+    int node;
+} ActPt;
+
+extern int D_00639EA4;
+extern char D_004ECB50[];
+extern char D_004ECB60[];
+extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+extern void prim_DispWireSphere(void *a0, int a1, int a2, float r);
+
+typedef struct {
+    long long b[0x18];
+} ClipBuf;
+
+extern char D_0061FD00[];
+extern void ClipWallField(void *a0);
+extern void DrawCollisionRay(void *a0);
+extern void SubVectorXYZ(void *dst, void *a, void *b);
+extern float sceVu0InnerProduct(void *a, void *b);
+extern float FSqrt(float x);
+extern void MatrixDrive_ScaleMatrix(float, float, float);
+extern const float D_0063B91C[];
+extern int sceVu0UnitMatrix__pn(int) __asm__("sceVu0UnitMatrix");
+extern int D_0063B148;
+extern int D_0063B938__pn __asm__("D_0063B938");
+extern void func_001DDAB8_a(char *) __asm__("dispSkelton");
+extern void p2o_DispVU1();
+extern void MatrixDrive_RotMatrixX(int a0);
+extern void func_001ED110(int a0, int a1);
+extern void sceVu0MulMatrix(int a0, int a1, int a2);
+extern int D_0063B8F8;
+extern int D_0063B8FC;
+extern char D_002907E0[];
+extern void ClipFloor();
+extern char *D_0063B93C__pn __asm__("D_0063B93C");
+/* motionManager.h prototypes: their order is the inline tail's emission order */
+void SetHitCollisionDisplay(int a, int b);
+int ResetMotionProgramInterpInfo(char *a0, int a1);
+int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f);
+
+static inline void dispSquare(int alpha)
+{
+    int col[4] = {0, 128 * alpha / 255, alpha, 128};
+    DrawLineG(D_004EC950, col, D_004EC970, col, -1);
+    DrawLineG(D_004EC970, col, D_004EC960, col, -1);
+    DrawLineG(D_004EC960, col, D_004EC980, col, -1);
+    DrawLineG(D_004EC980, col, D_004EC950, col, -1);
+}
+
+void dispSquare2(int alpha)
+{
+    DrawLineG(D_004EC9A0, D_004EC990, D_004EC9C0, D_004EC990, -1);
+    DrawLineG(D_004EC9C0, D_004EC990, D_004EC9B0, D_004EC990, -1);
+    DrawLineG(D_004EC9B0, D_004EC990, D_004EC9D0, D_004EC990, -1);
+    DrawLineG(D_004EC9D0, D_004EC990, D_004EC9A0, D_004EC990, -1);
+}
+
+#include "motMan_getFinalMatrix.c.inc"
+
+inline void SetHitCollisionDisplay(int a, int b)
+{
+    D_0063B8F8 = a;
+    D_0063B8FC = b;
+}
+
+static inline int findActPointOrder(int *list, int kind)
+{
+    int *p = list;
+    int i = 1;
+    while (*p != -1) {
+        if (*p++ == kind) {
+            return i;
+        }
+        i++;
+    }
+    return 0;
+}
+
+int findActPoint(int *list)
+{
+    int bestOrder = 255;
+    int minVal = 249;
+    int ret = -1;
+    int i;
+
+    if (*(int *)(D_0063C490 + 0x308) != 0) {
+        return -1;
+    }
+    for (i = 0; i < D_0063C48C; i++) {
+        int order = findActPointOrder(list, *(int *)(D_0063B938 + i * 0x40 + 4));
+        int v;
+        if (order == 0) {
+            continue;
+        }
+        if (*(int *)(D_0063C490 + 0x230) != 0) {
+            int k = *(int *)(D_0063B938 + i * 0x40 + 4);
+            if (k == 6 || k == 11) {
+                continue;
+            }
+        }
+        if (*(int *)(D_0063C490 + 0x290) != 0) {
+            int k = *(int *)(D_0063B938 + i * 0x40 + 4);
+            if (k == 22 || k == 27) {
+                continue;
+            }
+        }
+        v = *(int *)(D_0063C478 + i * 0x20);
+        if (v < minVal || (v == minVal && order < bestOrder)) {
+            ret = i;
+            minVal = v;
+            bestOrder = order;
+        }
+    }
+    return ret;
+}
+
+int checkActPointWithHeight(int kind, float h)
+{
+    int i;
+
+    if (*(int *)(D_0063C490 + 0x230) != 0) {
+        if (kind == 6 || kind == 11) {
+            return -1;
+        }
+    }
+    if (*(int *)(D_0063C490 + 0x290) != 0) {
+        if (kind == 22 || kind == 27) {
+            return -1;
+        }
+    }
+    for (i = 0; i < D_0063C48C; i++) {
+        if (*(int *)(D_0063B938 + i * 0x40 + 4) == kind) {
+            float d;
+            if (*(int *)(D_0063C478 + i * 0x20) >= 249) {
+                return -1;
+            }
+            d = *(float *)(D_0063C484 + i * 0x10 + 4) + D_007201F4[0];
+            if ((d < 0.0f ? -d : d) < h) {
+                return kind;
+            }
+            return -1;
+        }
+    }
+    return -1;
+}
+
+inline void GetWallVector(int a0, int a1)
+{
+    CopyVector(a0, a1 + 0xA0);
+    *(int *)(a0 + 0xC) = 0;
+}
+
+/*SWEEPclearCollisionStatus*/
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", clearCollisionStatus);
+
+/*SWEEP-ENDclearCollisionStatus*/
+void checkUpperWallState(void)
+{
+    char buf[0xC0];
+    memset(buf, 0, 0xC0);
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(D_004ECA10);
+    CopyVector((void *)buf, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    sceVu0ApplyMatrix((int *)(buf + 0x10), MatrixDrive_GetMatrix(), D_004ECA20);
+    MatrixDrive_PopMatrix();
+    ClipWall(buf);
+    if (*(int *)(buf + 0x88) != 0) {
+        float a;
+        int *D;
+        a = GetPointDistance(buf + 0x20, buf);
+        D = (int *)D_0063C494;
+        *(float *)((char *)D + 0x170) = a;
+        *(int *)((char *)D + 0x108) = 1;
+        *(int *)((char *)D + 0x14) = *(int *)((char *)D + 0x14) | 0x1000;
+    }
+}
+
+void checkWallSideState(void)
+{
+    ClipBuf buf = *(ClipBuf *)D_0061FD00;
+    float v[4];
+    char *p = (char *)&buf;
+
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(D_004ECA10);
+    CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    sceVu0ApplyMatrix((int *)(p + 0x10), MatrixDrive_GetMatrix(), D_004ECA20);
+    MatrixDrive_PopMatrix();
+
+    if (*(int *)(D_0063C490 + 0x320) != 0) {
+        ClipWallField(p);
+    } else {
+        ClipWall(p);
+    }
+    if (D_0063B8FC != 0) {
+        DrawCollisionRay(p);
+    }
+    if (*(int *)(p + 0x88) != 0) {
+        SubVectorXYZ(v, p + 0x20, p);
+        *(float *)(D_0063C494 + 0x174) = FSqrt(sceVu0InnerProduct(v, v)) + 50.0f;
+        *(int *)(D_0063C494 + 0x10C) = 1;
+        CopyVector((void *)(D_0063C494 + 0x160), (void *)(p + 0xA0));
+    }
+}
+
+extern void sceVu0ScaleVector(void *dst, void *src, float s);
+extern int GetPureVerticalPlane(void *plane0, void *plane1, float *pts, int *cfg, int flip);
+extern float GetYDistanceFromPlane(void *plane, void *pos);
+extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
+extern void ClipFloorR(void *a0);
+extern void GetOrientOfWall(void *out, void *wall, void *vec);
+
+/* The wall-hit record at ClipBuf+0x80: the object and its node, then the hit
+   count.  GetPureVerticalPlane reads it as its `int *cfg` argument (see
+   getVerticalElementOfWallNormal in src/motionManager2) and the character
+   record keeps a copy at +0xE0.  The object/node pair is its own member: the
+   ROM copies it as an eight-byte block and the count as a separate word. */
+typedef struct {
+    int obj;
+    int node;
+} WallObj;
+
+typedef struct {
+    WallObj o;
+    int n;
+} WallCfg;
+
+void checkWallState(int flag)
+{
+    ClipBuf buf;
+    char *p;
+    float wv[4];
+    ClipBuf tmp;
+    float sv[4];
+    WallCfg cfg;
+    WallCfg cfg2;
+
+    memset(&buf, 0, 0xC0);
+    p = (char *)&buf; /* after the memset: the ROM's copy of $sp is the insn
+                           the assembler pulls into PushMatrix's delay slot */
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(D_004ECA10);
+    CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    sceVu0ApplyMatrix((int *)(p + 0x10), MatrixDrive_GetMatrix(), D_004ECA20);
+    MatrixDrive_PopMatrix();
+
+    if (*(int *)(D_0063C490 + 0x320) != 0) {
+        ClipWallField(p);
+    } else {
+        ClipWall(p);
+    }
+    if (D_0063B8FC != 0) {
+        DrawCollisionRay(p);
+    }
+    if (*(int *)(p + 0x88) != 0) {
+        tmp = *(ClipBuf *)p;
+        GetWallVector((int)wv, (int)p);
+        sceVu0ScaleVector(sv, wv, -200.0f);
+        AddVectorXYZ(p + 0x10, p, sv);
+        if (*(int *)(D_0063C490 + 0x320) != 0) {
+            ClipWallField(p);
+        } else {
+            ClipWall(p);
+        }
+        if (*(int *)(p + 0x88) != 0) {
+            if (*(int *)(p + 0x88) != ((WallCfg *)((char *)&tmp + 0x80))->n ||
+                *(int *)(p + 0x80) != ((WallCfg *)((char *)&tmp + 0x80))->o.obj ||
+                *(int *)(p + 0x84) != ((WallCfg *)((char *)&tmp + 0x80))->o.node) {
+                if (distance_squared(p, p + 0x20) > distance_squared(&tmp, (char *)&tmp + 0x20)) {
+                    *(ClipBuf *)p = tmp;
+                }
+            }
+            if (D_0063B8FC != 0) {
+                DrawCollisionRay(p);
+            }
+            /* One statement, SRCFILE.TXT line 387: the record is filled a
+               member at a time (an eight-byte block move, then a word) and
+               the whole twelve bytes are then copied out as one unit. */
+            cfg = (cfg2.o = ((WallCfg *)(p + 0x80))->o, cfg2.n = ((WallCfg *)(p + 0x80))->n, cfg2);
+            if (flag & 1) {
+                float v[4];
+
+                SubVectorXYZ(v, p + 0x20, p);
+                *(float *)(D_0063C494 + 0x138) = FSqrt(sceVu0InnerProduct(v, v));
+                sceVu0ScaleVector(D_0063C494 + 0x140, v, 1.0f / *(float *)(D_0063C494 + 0x138));
+                *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 0x20;
+                *(int *)(D_0063C494 + 0x17C) = *(int *)(D_0063C494 + 0x184) = GetWallAttribute(p);
+                /* The hit count reaches GetOrientOfWall as a pointer-typed
+                   load, which is what lets it issue ahead of the two int
+                   stores above it. */
+                GetOrientOfWall(D_0063C494 + 0x150, *(void **)(p + 0x88), p + 0x80);
+                *(WallCfg *)(D_0063C490 + 0xE0) = cfg;
+                *(int *)(D_0063C490 + 0xEC) = -1;
+                if (*(int *)(D_0063C490 + 0x320) != 0 && *(int *)(D_0063C494 + 0x184) == 0x10000) {
+                    *(int *)(D_0063C494 + 0x104) = 1;
+                } else {
+                    *(int *)(D_0063C494 + 0xF4) = 1;
+                }
+            }
+            if (flag & 2) {
+                float v2[4];
+                float plane[4];
+
+                GetPureVerticalPlane(plane, 0, 0, (int *)&cfg, 0);
+                *(float *)(D_0063C494 + 0x134) = -GetYDistanceFromPlane(plane, p) + -40.0f;
+                sceVu0ScaleVector(v2, wv, -10.0f);
+                AddVectorXYZ(p, p + 0x20, v2);
+                CopyVector((void *)(p + 0x10), (void *)p);
+                *(float *)(p + 0x14) = *(float *)(p + 0x14) - 10000.0f;
+                ClipFloorR(p);
+                if (*(int *)(p + 0x94) != 0) {
+                    *(float *)(D_0063C494 + 0x130) =
+                        (*(float *)(p + 0x24) - *(float *)(p + 0x4)) + -40.0f;
+                    SetSimplePlane(D_0063C490 + 0x350, 0.0f, -1.0f, 0.0f, *(float *)(p + 0x24));
+                    *(int *)(D_0063C490 + 0x144) = *(int *)(p + 0x94);
+                }
+            }
+        }
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", checkCliffState);
+ASM_LIT4_SLOT(D_006395B4, 1e+04f);
+ASM_LIT4_SLOT(D_006395B8, 1e+04f);
+
+void _checkCliffAndWall(void)
+{
+    float v[4];
+    float d;
+    float d2;
+    float t;
+
+    if (*(int *)(D_0063C494 + 0xDC) == 1 ||
+        (*(int *)(D_0063C494 + 0xDC) == 2 && *(int *)(D_0063C494 + 0xE8) == 0)) {
+        MatrixDrive_PushMatrix();
+        checkCliffState(1);
+        MatrixDrive_PopMatrix();
+    }
+    if (*(int *)(D_0063C494 + 0xDC) == 1 ||
+        (*(int *)(D_0063C494 + 0xDC) == 2 && *(int *)(D_0063C494 + 0xE8) == 1)) {
+        MatrixDrive_PushMatrix();
+        checkWallState(3);
+        MatrixDrive_PopMatrix();
+    }
+    if (*(int *)(D_0063C494 + 0xDC) == 1) {
+        if ((*(int *)(D_0063C494 + 0x14) & 0x20) == 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, -30.0f, 0.0f);
+            checkWallState(3);
+            MatrixDrive_PopMatrix();
+
+            if ((*(int *)(D_0063C494 + 0x14) & 0x20) != 0) {
+                *(float *)(D_0063C494 + 0x130) += 30.0f;
+                *(float *)(D_0063C494 + 0x134) += 30.0f;
+            }
+        }
+        if (D_0063B93C == D_00639EA4 && *(int *)(*(int *)(D_0063B93C + 0x15C) + 0x568) == 0) {
+            _SubVectorXYZ(v, D_0063C490, D_0063C490 + 0x150);
+            v[1] = 0.0f;
+            d = VectorLengthSquare(v);
+            if (0.01f < d) {
+                MatrixDrive_PushMatrix();
+                UnitRotation(MatrixDrive_GetMatrix());
+                _ScaleVectorXYZ(v, v, 1.0f / _Sqrt(d));
+                *(float *)(MatrixDrive_GetMatrix() + 0x00) =
+                    *(float *)(MatrixDrive_GetMatrix() + 0x28) = v[2];
+                *(float *)(MatrixDrive_GetMatrix() + 0x08) = -v[0];
+                *(float *)(MatrixDrive_GetMatrix() + 0x20) =
+                    -*(float *)(MatrixDrive_GetMatrix() + 0x08);
+                checkCliffState(0);
+                MatrixDrive_PopMatrix();
+            }
+        }
+        if (*(int *)(D_0063C494 + 0xF4) != 0 && *(int *)(D_0063C494 + 0xF8) != 0) {
+            t = *(float *)(D_0063C494 + 0x138) - *(float *)(D_0063C494 + 0x114);
+            if ((t < 0.0f ? -t : t) < 10.0f) {
+                *(unsigned int *)(D_0063C494 + 0x14) &= ~0x10;
+                *(int *)(D_0063C494 + 0x104) = 0;
+                *(int *)(D_0063C494 + 0xF8) = 0;
+                *(int *)(D_0063C494 + 0xFC) = 0;
+                *(int *)(D_0063C494 + 0x100) = 0;
+                *(float *)(D_0063C494 + 0x114) = *(float *)(D_0063C494 + 0x110) = D_0063B924[0].f;
+            }
+        }
+    }
+    if (D_0063B8FC != 0) {
+        if (*(int *)(D_0063C494 + 0xF4) != 0) {
+            DrawGObjWallCollision(*(int *)(D_0063C490 + 0xE0), 0);
+        }
+    }
+    if (*(int *)(*(int *)(D_0063B93C + 0x15C) + 0x564) != 0 &&
+        *(int *)(*(int *)(D_0063B93C + 0x15C) + 0x188) == 0) {
+        debug_assertMessage(D_0061FDC0, 822, D_0061FDD8);
+        __assert(D_0061FDC0, 822, D_0063B920);
+    }
+}
+
+void checkCliffAndWallStateOfLastPlane(void)
+{
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    {
+        register float *p = (float *)D_0063C490;
+        float r = GetYProjectionOfPlane((int)(D_0063C490 + 0x130), (int)D_0063C490);
+        MatrixDrive_TransMatrix(p[0], r, *(float *)(D_0063C490 + 8));
+    }
+    MultiMatrixByQuaternion((char *)D_0063C490 + 0x30);
+    MatrixDrive_PushMatrix();
+    _checkCliffAndWall();
+    MatrixDrive_PopMatrix();
+    if (*(int *)(D_0063C494 + 0xE4) != 0) {
+        MatrixDrive_PushMatrix();
+        checkWallSideState();
+        MatrixDrive_PopMatrix();
+    }
+}
+
+void checkCliffAndWallStateAtJump(void)
+{
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    {
+        register float *p = (float *)D_0063C490;
+        MatrixDrive_TransMatrix(p[0], p[1] + p[116] + 10.0f, p[2]);
+    }
+    MultiMatrixByQuaternion((char *)D_0063C490 + 0x30);
+    _checkCliffAndWall();
+}
+
+void dispActNode(int id)
+{
+    if (id == -1) {
+        return;
+    }
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0x80);
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    CopyVector((void *)(MatrixDrive_GetMatrix() + 0x30),
+               (void *)(*(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + id * 0x40 + 0x30));
+    MatrixDrive_ScaleMatrix(5.0f, 5.0f, 5.0f);
+    dispSquare(0xFF);
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+}
+
+void dispLastNode(void)
+{
+    float *p;
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0x80);
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    p = (float *)D_0063C490;
+    MatrixDrive_TransMatrix(p[0x6C], p[0x6D], p[0x6E]);
+    MatrixDrive_ScaleMatrix(8.0f, 8.0f, 8.0f);
+    dispSquare2(0xFF);
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+}
+
+#include "motMan_rootUpdate.c.inc"
+
+static inline void calcMaxNodeHeight(int n)
+{
+    int i;
+    *(float *)(D_0063C490 + 0x1D0) = 0.0f;
+    for (i = 0; i < n; i++) {
+        if (*(float *)(D_0063C490 + 0x1D0) < *(float *)(D_0063C488 + i * 0x10 + 4)) {
+            *(float *)(D_0063C490 + 0x1D0) = *(float *)(D_0063C488 + i * 0x10 + 4);
+        }
+    }
+}
+
+void _getGeometryOfMotion(MotShift *out, int second)
+{
+    float v[4];
+    char q[0x10];
+    int save180 = *(int *)(D_0063C490 + 0x180);
+
+    MatrixDrive_PushMatrix();
+    PushQuaternion();
+    CopyVector((void *)v, (void *)(D_0063C494 + 0xB0));
+    SetIdentityQuaternion(q);
+    sceVu0Normalize((void *)v, (void *)v);
+    RotQuaternionY(q, atan2f(v[0], v[2]) * 10430.378f);
+    CopyQuaternion((char *)D_0063C490 + 0x30, q);
+    GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(), (char *)D_0063C490 + 0x30);
+    SetCurrentQuaternion((char *)D_0063C490 + 0x30);
+
+    D_0063C4A4 = D_0063C478;
+    D_0063C4A0 = D_0063C484;
+    pursueNaturalGeometry(0);
+
+    if (second) {
+        D_0063C4A4 = D_0063C47C;
+        D_0063C4A0 = D_0063C488;
+        pursueNaturalGeometry(0);
+    } else {
+        int i;
+        for (i = 0; i < D_0063C48C; i++) {
+            CopyVector((void *)(D_0063C488 + i * 0x10), (void *)(D_0063C484 + i * 0x10));
+        }
+    }
+    calcMaxNodeHeight(D_0063C48C);
+
+    clearCollisionStatus();
+    {
+        char *fp = (char *)D_0063C490;
+        *(int *)(fp + 0x204) = 0;
+        *(int *)(fp + 0x208) = 0;
+        *(int *)(fp + 0x20C) = 0;
+        CopyVector(fp + 0x60, fp);
+    }
+
+    if (*(int *)D_0063C494 != -1) {
+        *out = rootUpdateDirectPlayForStream();
+    } else {
+        char *pm;
+        MatrixDrive_PushMatrix();
+        pm = (char *)D_0063C494;
+        switch (*(int *)(pm + 0x68)) {
+        default: {
+            char buf[0x400];
+            sprintf(buf, D_0061FFD8, D_0063C4A8 + 0xC0, *(int *)(pm + 0x30), *(int *)(pm + 0x68));
+            debug_assertMessage(D_0061FDC0, 997, buf);
+            __assert(D_0061FDC0, 997, D_0063B920);
+        } break;
+        case 1:
+        case 20:
+            *out = rootUpdateXZ(*(int *)(pm + 0x68), findActPoint(D_004ECB10));
+            break;
+        case 2:
+        case 17:
+            *out = rootUpdateXZ_MotPos(*(int *)(pm + 0x68), findActPoint(D_004ECB10));
+            break;
+        case 7:
+        case 8:
+        case 9:
+        case 13:
+        case 16:
+            *out = rootUpdateStepSolution(*(int *)(pm + 0x68));
+            break;
+        case 10:
+        case 15:
+            *out = rootUpdateHang(*(int *)(pm + 0x68), checkActPointWithHeight(6, 10.0f),
+                                  checkActPointWithHeight(0x16, 10.0f));
+            break;
+        case 11:
+            *out = rootUpdateSwim();
+            break;
+        case 5:
+            *out = rootUpdateNodeFix();
+            break;
+        case 4:
+            rootUpdateY_Rope(findActPoint(D_004ECB28));
+            break;
+        case 3:
+            *out = rootUpdateY();
+            break;
+        case 0:
+        case 19:
+            *out = rootUpdateTrueMotion(*(int *)(pm + 0x68));
+            break;
+        case 6:
+        case 14:
+            *out = rootUpdateDirectPlay(*(int *)(pm + 0x68));
+            break;
+        case 12:
+            *out = rootUpdateFly();
+            break;
+        case 18:
+            *out = rootUpdateEnemyFly();
+            break;
+        }
+        MatrixDrive_PopMatrix();
+    }
+
+    *(float *)(D_0063C494 + 0xF0) =
+        *(float *)(D_0063C490 + 4) + *(float *)(D_0063B938 + 0x14) - *(float *)(D_0063C490 + 0x1B4);
+
+    MatrixDrive_PushMatrix();
+    MatrixDrive_SetTransposeMatrix((void *)MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
+    sceVu0ApplyMatrix((int *)(D_0063C490 + 0x170), MatrixDrive_GetMatrix(),
+                      (char *)D_0063C490 + 0x90);
+    MatrixDrive_PopMatrix();
+
+    MatrixDrive_PopMatrix();
+    PopQuaternion();
+
+    if (*(int *)(D_0063C490 + 0x180) != -1 && save180 == -1) {
+        *(int *)(D_0063C494 + 0x1CC) = 1;
+    }
+}
+
+inline void getGeometryOfMotion(void)
+{
+    ShiftBlk buf;
+    int x, y;
+    char *p;
+    buf = *(ShiftBlk *)(*(char **)(D_0063B93C__pn + 0x15C) + 0x180);
+    _getGeometryOfMotion((MotShift *)x, y);
+    p = *(char **)(D_0063B93C__pn + 0x15C);
+    if (*(int *)(p + 0x634) != 0) {
+        *(ShiftBlk *)(p + 0x180) = buf;
+    }
+}
+
+void execPositionReserver(char *self, MotShift m)
+{
+    int ext;
+    float buf[4];
+    float buf2[4];
+    int flg;
+
+    ext = *(int *)(self + 0x15C);
+    if (*(int *)(ext + 0x4F0) == 1) {
+        if (*(int *)(ext + 0x4EC) == 0 || *(int *)(ext + 0x4EC) != *(int *)(ext + 0x4F0)) {
+            if (m.a != 0) {
+                if (!(*(int *)(D_0063C494 + 0x1BC) != 0 &&
+                      (*(int *)(D_0063C494 + 0x188) & 0xF00000)) &&
+                    !(*(long long *)(D_0063C494 + 0x10) & ((long long)0x8008 << 30))) {
+                    *(int *)(ext + 0x4EC) = *(int *)(ext + 0x4F0);
+                    CopyVector(D_0063C490 + 0x70, D_0063C490);
+                    *(MotShift *)(D_0063C490 + 0x80) = m;
+                    *(int *)(D_0063C494 + 0x84) = 0;
+                }
+            }
+        } else {
+            *(int *)(D_0063C494 + 0x84) = 2;
+            CopyVector(D_0063C490, D_0063C490 + 0x70);
+        }
+    }
+    *(int *)(D_0063C494 + 0x88) = 1;
+    if (*(int *)(*(int *)(self + 0x15C) + 0x4EC) == 1) {
+        if (m.a != 0) {
+            CopyVector(buf, D_0063C490 + 0x70);
+            _ApplyMatrix(buf, (int)(*(char **)(*(char **)(m.a + 0x15C) + 0xC) + m.b * 0x40),
+                         (char *)buf);
+            if (distance_squared(buf, D_0063C490 + 0x1C0) == 0.0f) {
+                *(int *)(D_0063C494 + 0x88) = 0;
+            }
+            buf[3] = 1.0f;
+            CopyVector(D_0063C490 + 0x1C0, buf);
+        }
+        flg = *(int *)(D_0063C494 + 0x14);
+        if ((flg & 0x2000) || m.a != *(int *)(D_0063C490 + 0x80) ||
+            m.b != *(int *)(D_0063C490 + 0x84) ||
+            (*(int *)(D_0063C494 + 0x1BC) != 0 && (*(int *)(D_0063C494 + 0x188) & 0xF00000)) ||
+            (flg & 2)) {
+            *(int *)(*(int *)(self + 0x15C) + 0x4EC) = 0;
+        } else if (*(int *)(D_0063C494 + 0x84) != 0) {
+            _InterVectorXYZ(D_0063C490, D_0063C490 + 0x70, D_0063C490,
+                            1.0f - (float)*(int *)(D_0063C494 + 0x84) * 0.5f);
+            *(int *)(D_0063C494 + 0x84) -= 1;
+        }
+    }
+    if (D_0063B148 != 0) {
+        if (D_0063B93C == D_00639EA4) {
+            CopyVector(buf2, D_0063C490 + 0x70);
+            _UnitMatrix(MatrixDrive_GetMatrix());
+            if (m.a != 0) {
+                _ApplyMatrix(buf2, (int)(*(char **)(*(char **)(m.a + 0x15C) + 0xC) + m.b * 0x40),
+                             (char *)buf2);
+                MatrixDrive_TransMatrixV(buf2);
+                gif_StartPacketPri(0xB);
+                if (*(int *)(*(int *)(self + 0x15C) + 0x4EC) == 1) {
+                    prim_DispWireSphere(D_004ECB50, 0x10, 8, 50.0f);
+                } else {
+                    prim_DispWireSphere(D_004ECB60, 0x10, 8, 50.0f);
+                }
+                gif_EndPacket();
+            }
+        }
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", GetGeometryOfMotion);
+
+/* GObj+8 is the index into D_002C2DC8, the 0x4C-byte GenGeo table (ebrain.c
+   types that array `GenGeo D_002C2DC8[]`; enemy_act.c indexes it with the same
+   `obj[2]` field).  ROM proves the field is NOT read in the `int` alias set:
+   the load is issued ABOVE the line-1484 `int` store to D_0063C48C, which an
+   int-typed read cannot cross.  An enumerated kind is the type that both fits
+   the data model and reproduces the hoist. */
+typedef enum { GENGEO_KIND_0 = 0 } GenGeoKind;
+
+void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
+{
+    float v[4];
+    float w[4];
+    float p1[4];
+    float p2[4];
+    int i;
+
+    /* The sub-object fields are read as `int` addresses (not `char **`): as
+       pointer-typed reads they share the alias set of the five pointer globals
+       stored just below, and gcc can no longer issue every load ahead of the
+       nine gp stores the way ROM does. */
+    D_0063C478 = tbl;
+    D_0063C480 = (char *)*(int *)(*(int *)(self + 0x15C) + 0x10);
+    D_0063B938 = (char *)*(int *)(*(int *)(self + 0x15C) + 0x8C);
+    D_0063B900 = *(float *)(*(int *)(*(int *)(self + 0x15C) + 0x870) + 0x20);
+    D_0063C490 = (char *)(*(int *)(self + 0x15C) + 0xA0);
+    D_0063C494 = (char *)(*(int *)(self + 0x15C) + 0x470);
+    D_0063C48C = *(int *)(*(int *)(self + 0x15C) + 0x88);
+    D_0063C498 = D_002C2DC8[*(GenGeoKind *)(self + 8) * 0x4C + 0x46];
+    D_0063B93C = (int)self;
+    MatrixDrive_PushMatrix();
+    PushQuaternion();
+
+    GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(), D_0063C490 + 0x30);
+    SetCurrentQuaternion(D_0063C490 + 0x30);
+
+    MatrixDrive_PushMatrix();
+
+    D_004ECB70[1] = *(float *)(D_0063C490 + 0xC0);
+    MatrixDrive_RotMatrixZ(*(short *)(D_0063C490 + 0x50));
+
+    sceVu0ApplyMatrix((int *)v, MatrixDrive_GetMatrix(), (char *)D_004ECB70);
+
+    v[1] -= *(float *)(D_0063C490 + 0xC0);
+    v[0] *= 0.5f;
+    v[2] *= 0.5f;
+    MatrixDrive_PopMatrix();
+
+    if (*(int *)(D_0063C494 + 0xE0) != 0) {
+        getFinalMatrix(0);
+    } else {
+        getFinalMatrixWithNaturalGeometry(0);
+    }
+
+    D_004ECB80[0] = D_004ECB80[5] = D_004ECB80[10] = D_0063B900;
+
+    AddVectorXYZ(w, ofs, v);
+    for (i = 0; i < D_0063C48C; i++) {
+        char *nd = *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + i * 0x40;
+        char *pos = nd + 0x30;
+        sceVu0MulMatrix((int)nd, (int)nd, (int)D_004ECB80);
+        AddVectorXYZ(pos, pos, w);
+    }
+    MatrixDrive_PopMatrix();
+    PopQuaternion();
+
+    if (D_0063B158 != 0) {
+        dispActNode(*(int *)(D_0063C490 + 0x180));
+        dispLastNode();
+    }
+    if (D_0063B148 != 0) {
+        int n;
+
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        gif_StartPacketPri(0xB);
+        n = GetSkeltonFocusNode(self, 0x23);
+        CopyVector(w, *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + n * 0x40 + 0x30);
+        CopyVector(p1, D_0063C490 + 0x2F0);
+        _SubVector(p2, p1, w);
+        _NormalizeVector(p2, p2);
+        _ScaleVector(p2, p2, 100.0f);
+        _AddVector(p1, w, p2);
+        gif_SetAlpha(1, 5, 0x80);
+        if (*(int *)(D_0063C490 + 0x318) != 0 && *(int *)(D_0063C490 + 0x2E0) != 0) {
+            DrawLineG(w, D_004ECBC0, p1, D_004ECBC0, -1);
+        } else {
+            DrawLineG(w, D_004ECBD0, p1, D_004ECBD0, -1);
+        }
+        gif_EndPacket();
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", func_001ECE40);
+
+/* census: sugipon/src/motionManager.c getInitialMatrix, def line 1625 (1625-1647).
+   A file-static (absent from MAIN.MAP's globals; geometryManager.c has its own
+   getInitialMatrix), defined under the splat placeholder name while INCLUDE_ASM
+   siblings still call it; renamed static getInitialMatrix at layout. */
+extern void MatrixDrive_RotMatrixY(int a0);
+extern unsigned char D_0028F8F0[];
+
+void func_001ED110(int obj, int idx)
+{
+    char *nd;
+    char *mtx;
+
+    nd = *(char **)(obj + 0x8C) + idx * 0x40;
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(nd + 0x10);
+    MultiMatrixByQuaternion(nd + 0x20);
+    switch (*(int *)(nd + 4)) {
+    case 19:
+    case 20:
+    case 22:
+        MatrixDrive_RotMatrixY((short)((D_0028F8F0[0x54] - 0x80) << 7));
+        MatrixDrive_RotMatrixZ((short)((D_0028F8F0[0x55] - 0x80) << 7));
+        break;
+    }
+    mtx = *(char **)(obj + 0xC) + idx * 0x40;
+    CopyMatrix(mtx, (void *)MatrixDrive_GetMatrix());
+    if (*(int *)(nd + 0x30) != -1) {
+        func_001ED110(obj, *(int *)(nd + 0x30));
+    }
+    MatrixDrive_PopMatrix();
+    if (*(int *)(nd + 0x34) != -1) {
+        func_001ED110(obj, *(int *)(nd + 0x34));
+    }
+}
+
+void dispSkelton(void)
+{
+    int v;
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0x80);
+    MatrixDrive_PushMatrix();
+    v = MatrixDrive_GetMatrix();
+    sceVu0UnitMatrix__pn(v);
+    func_001ECE40(0);
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+}
+
+void SkelTest(char *a0)
+{
+    int sub = *(int *)(a0 + 0x15C);
+    int v;
+    D_0063B93C = (int)a0;
+    v = *(int *)(sub + 0x8C);
+    D_0063B938__pn = v;
+    if (v != 0) {
+        p2o_DispVU1();
+        if (D_0063B148 != 0) {
+            func_001DDAB8_a(a0);
+        }
+    }
+}
+
+void SkelTestGeo(char *a0)
+{
+    int sub = *(int *)(a0 + 0x15C);
+    int v;
+    int i;
+    D_0063B93C = (int)a0;
+    v = *(int *)(sub + 0x8C);
+    D_0063B938__pn = v;
+    if (v != 0) {
+        int s2;
+        sceVu0UnitMatrix__pn(MatrixDrive_GetMatrix());
+        MatrixDrive_RotMatrixX(-0x8000);
+        func_001ED110(*(int *)(a0 + 0x15C), 0);
+        s2 = *(int *)(a0 + 0x15C);
+        for (i = 0; i < *(int *)(s2 + 0x88); i++) {
+            int e = *(int *)(s2 + 0xC) + i * 0x40;
+            sceVu0MulMatrix(e, s2 + 0x20, e);
+            s2 = *(int *)(a0 + 0x15C);
+        }
+        if (D_0063B148 != 0) {
+            func_001DDAB8_a(a0);
+        }
+    }
+}

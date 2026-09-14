@@ -33,7 +33,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-SRC = REPO / "src"
+SRC = REPO / "ico2"
 
 # Match `... unsigned char D_<VMA>[N] = { 0xNN, 0xNN, ... };` lines
 # (the only shape that holds raw JTEXT bytes — strings, floats, and

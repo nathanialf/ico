@@ -1,0 +1,254 @@
+#include "common.h"
+#include "sugiCommon.h"
+
+extern int D_0063BC54;
+extern float D_004ED350[];
+extern float D_004ED360[];
+extern float D_004ED370[];
+extern char D_0028FEF0[];
+extern void CopyVector(void *dst, void *src);
+extern void sceVu0Normalize(void *dst, void *src);
+extern float sceVu0InnerProduct(void *a, void *b);
+extern float *getParallelWindVector(float *power, void *pos);
+
+typedef struct {
+    float v[4];
+    float str;
+    float pad[3];
+} WindCell;
+
+extern WindCell D_00724FF0[20][20];
+extern int *dummyGetWindVector(int *a0);
+extern WindCell *getRadiateWindVector(float *power, float *pos);
+extern int (*D_0063BC58)(void);
+extern float D_00724BF0[];
+
+void InitWindField(int mode, float str, void *center, void *dir)
+{
+    int i;
+    int j;
+
+    D_0063BC58 = (int (*)(void))dummyGetWindVector;
+    D_0063BC54 = mode;
+
+    for (i = 255; i >= 0; i--) {
+        D_00724BF0[i] = str;
+    }
+
+    if (mode == 0) {
+        for (i = 0; i < 20; i++) {
+            for (j = 0; j < 20; j++) {
+                CopyVector(D_00724FF0[i][j].v, D_0028FEF0);
+                D_00724FF0[i][j].str = 0.0f;
+            }
+        }
+        CopyVector(D_004ED350, center);
+        D_0063BC58 = (int (*)(void))getRadiateWindVector;
+    } else {
+        CopyVector(D_004ED350, center);
+        sceVu0Normalize(D_004ED360, dir);
+        D_004ED360[3] = 0.0f;
+        CopyVector(D_004ED370, D_004ED360);
+        D_004ED370[3] = -sceVu0InnerProduct(D_004ED370, D_004ED350);
+        D_0063BC58 = (int (*)(void))getParallelWindVector;
+    }
+}
+
+extern short D_0063BC5C;
+extern float D_004ED390[];
+extern float D_004ED430[];
+extern char D_004ED380[];
+extern void DrawLineG();
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void MatrixDrive_RotMatrixZ(short rot);
+extern void MatrixDrive_TransMatrix(float x, float y, float z);
+
+/* INTERIM: `drawLines` is a real function at its own ROM slot further down this
+   TU and the listing inlines it here; while the tail still carries asm members
+   its definition cannot move up, so the two inlined copies are spelled through
+   this stand-in. Fold them back onto drawLines once the TU is fully C. */
+static inline void drawLinesInline(char *a0)
+{
+    char *cur = a0;
+
+    if (-1000.0f < *(float *)cur) {
+        do {
+            DrawLineG(cur, D_004ED380, cur + 0x10, D_004ED380, -1);
+            cur += 0x20;
+        } while (-1000.0f < *(float *)cur);
+    }
+}
+
+void drawSenpuukiHaneUnit(float scale)
+{
+    int i;
+
+    MatrixDrive_PushMatrix();
+
+    for (i = 0; i < 16; i++) {
+        MatrixDrive_RotMatrixZ(0x1000);
+        drawLinesInline((char *)D_004ED430);
+    }
+
+    MatrixDrive_PopMatrix();
+
+    MatrixDrive_TransMatrix(0.0f, 0.0f, 10.0f);
+    MatrixDrive_RotMatrixZ(D_0063BC5C);
+
+    for (i = 0; i < 3; i++) {
+        MatrixDrive_RotMatrixZ(21845);
+        drawLinesInline((char *)D_004ED390);
+    }
+
+    D_0063BC5C = (short)(D_0063BC5C + scale * 4864.0f);
+}
+
+extern char D_004ED380[];
+extern char D_004ED4F0__pn[] __asm__("D_004ED4F0");
+extern char D_004ED690__pn[] __asm__("D_004ED690");
+extern void DrawLineG();
+extern void MatrixDrive_TransMatrix(float f12, float f13, float f14);
+extern void drawSenpuukiHaneUnit(float f12);
+extern void gif_EndPacket(void);
+extern void gif_SetAlpha(int a0, int a1, int a2);
+extern void gif_StartPacketPri(int a0);
+
+void drawSenpuuki(float scale)
+{
+    char *cur;
+
+    gif_StartPacketPri(0xB);
+    gif_SetAlpha(1, 5, 0);
+    cur = D_004ED690__pn;
+    if (-1000.0f < *(float *)cur) {
+        do {
+            DrawLineG(cur, D_004ED380, cur + 0x10, D_004ED380, -1);
+            cur += 0x20;
+        } while (-1000.0f < *(float *)cur);
+    }
+    MatrixDrive_TransMatrix(0.0f, -100.0f, 0.0f);
+    cur = D_004ED4F0__pn;
+    if (-1000.0f < *(float *)cur) {
+        do {
+            DrawLineG(cur, D_004ED380, cur + 0x10, D_004ED380, -1);
+            cur += 0x20;
+        } while (-1000.0f < *(float *)cur);
+    }
+    MatrixDrive_TransMatrix(0.0f, -10.0f, 20.0f);
+    drawSenpuukiHaneUnit(scale);
+    gif_EndPacket();
+}
+
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/windField", ExecWindField);
+
+extern int (*D_0063BC58)(void);
+
+int GetWindVector(void)
+{
+    return D_0063BC58();
+}
+
+extern char D_0028FEF0[];
+
+int *dummyGetWindVector(int *a0)
+{
+    if (a0)
+        *a0 = 0;
+    return D_0028FEF0;
+}
+
+extern int D_0028F4C0[];
+extern float D_00639700;
+extern float D_004ED360[];
+extern float D_004ED370[];
+extern float D_00724BE0[];
+extern float D_00724BF0[];
+extern void sceVu0ScaleVector(void *dst, void *src, float k);
+
+float *getParallelWindVector(float *power, void *pos)
+{
+    float d;
+    float s;
+    int i;
+    int n;
+
+    d = plane_distance(pos, D_004ED370);
+    if (d < 0.0f)
+        d = -d;
+
+    n = (int)(d * D_00639700 * ((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f));
+    i = n < 256 ? n : 255;
+    s = D_00724BF0[i] * (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
+    if (power)
+        *power = s;
+    sceVu0ScaleVector(D_00724BE0, D_004ED360, s);
+    return D_00724BE0;
+}
+
+extern float D_00639704;
+
+WindCell *getRadiateWindVector(float *power, float *pos)
+{
+    int x;
+    int z;
+
+    z = (int)(pos[2] * D_00639704 + 10.0f);
+    x = (int)(pos[0] * D_00639704 + 10.0f);
+    z = z < 0 ? 0 : (z < 20 ? z : 19);
+    x = x < 0 ? 0 : (x < 20 ? x : 19);
+    if (power)
+        *power = (D_00724FF0[0] + x + z * 20)->str;
+    return &D_00724FF0[z][x];
+}
+
+void StopWindField(void)
+{
+    D_0063BC58 = (int (*)(void))dummyGetWindVector;
+}
+
+extern char D_004ED380[];
+extern void DrawLineG();
+
+void drawLines(char *a0)
+{
+    char *cur = a0;
+    if (-1000.0f < *(float *)cur) {
+        do {
+            DrawLineG(cur, D_004ED380, cur + 0x10, D_004ED380, -1);
+            cur += 0x20;
+        } while (-1000.0f < *(float *)cur);
+    }
+}
+
+extern float D_004ED380__pn[] __asm__("D_004ED380");
+extern float D_004ED390[];
+extern void DrawLineG__pn(void *a0, void *a1, void *a2, void *a3, int a4) __asm__("DrawLineG");
+
+void drawSenpuukiHane(void)
+{
+    float *p;
+    for (p = D_004ED390; -1000.0f < *p; p += 8) {
+        DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
+    }
+}
+
+extern float D_004ED4F0[];
+
+void drawSenpuukiUnit(void)
+{
+    float *p;
+    for (p = D_004ED4F0; -1000.0f < *p; p += 8) {
+        DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
+    }
+}
+
+extern float D_004ED690[];
+
+void drawSenpuukiBase(void)
+{
+    float *p;
+    for (p = D_004ED690; -1000.0f < *p; p += 8) {
+        DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
+    }
+}

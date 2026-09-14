@@ -60,30 +60,34 @@ these headers, and the census gives no evidence to reassign them.
 
 ## Headers created
 
-| header | dev path | helpers written | TODO |
-| --- | --- | --- | --- |
-| `include/sugiCommon.h` | `sugipon/include/sugiCommon.h` | 9 | none |
-| `include/itou_common.h` | `ito/include/itou_common.h` | 2 | none |
-| `include/typedef.h` | `common/include/typedef.h` | 0 | line 74 |
-| `ito/include/mv_defs.h` | `ito/include/mv_defs.h` | 3 | line 83 (`Free`) |
-| `include/b50climb.h` | `omori/include/b50climb.h` | 0 | 3 functions |
-| `include/b100climb.h` | `omori/include/b100climb.h` | 0 | 3 functions |
-| `include/b200climb.h` | `omori/include/b200climb.h` | 0 | 3 functions |
-| `include/g50climb.h` | `omori/include/g50climb.h` | 0 | 3 functions |
-| `include/g100climb.h` | `omori/include/g100climb.h` | 0 | 3 functions |
-| `include/g200climb.h` | `omori/include/g200climb.h` | 0 | 3 functions |
+Each header now sits at the path the listing records for it, under the
+programmer directory that owns it.
 
-`mv_defs.h` is the one header that is **not** under `include/`.  Its line-42
-helper bakes `__FILE__` into `.rodata` as the literal
+| header | helpers written | TODO |
+| --- | --- | --- |
+| `ico2/sugipon/include/sugiCommon.h` | 9 | none |
+| `ico2/ito/include/itou_common.h` | 2 | none |
+| `ico2/common/include/typedef.h` | 0 | line 74 |
+| `ico2/ito/include/mv_defs.h` | 3 | line 83 (`Free`) |
+| `ico2/omori/include/b50climb.h` | 0 | 3 functions |
+| `ico2/omori/include/b100climb.h` | 0 | 3 functions |
+| `ico2/omori/include/b200climb.h` | 0 | 3 functions |
+| `ico2/omori/include/g50climb.h` | 0 | 3 functions |
+| `ico2/omori/include/g100climb.h` | 0 | 3 functions |
+| `ico2/omori/include/g200climb.h` | 0 | 3 functions |
+
+`mv_defs.h`'s line-42 helper bakes `__FILE__` into `.rodata` as the literal
 `"../ito/include/mv_defs.h"` (`D_005576A8` in the ROM), which only comes out
-right if the consuming TU is compiled from CWD `${ROOT}/ito` with a relative
-`-I../ito/include`.  That mechanism already exists in `tools/compile_c.sh`
-and `tools/quick_diff.sh`, opt-in through `config/include_ito.txt`; putting
-the header anywhere else would break it.
+right if the consuming TU is compiled from CWD `${ROOT}/ico2/ito` with a
+relative `-I../ito/include`.  That is now how every game TU is compiled:
+`tools/compile_c.sh` runs each one from inside its own programmer directory
+with relative `-I../<other>/include` entries, so the spelling the ROM
+recorded is the spelling gcc is given.  The earlier opt-in list
+`config/include_ito.txt` is superseded by that rule.
 
 ---
 
-## `include/sugiCommon.h`
+## `ico2/sugipon/include/sugiCommon.h`
 
 Census sections: `{sugipon,fumi,script,omori,ito,common}/../sugipon/include/sugiCommon.h`
 adds up to 62 + 11 + 1 + 1 + 6 + 3 = 84 expansions.  Nine distinct line ranges, so
@@ -171,7 +175,7 @@ perturb a matched TU.
 
 ---
 
-## `include/itou_common.h`
+## `ico2/ito/include/itou_common.h`
 
 Census section `ito/../ito/include/itou_common.h`, 5 hosts, two line ranges.
 Both helpers are inline-only, so **both names are ours**.
@@ -187,7 +191,7 @@ at 0.  `degrees_to_radians` has four census hosts, all still `INCLUDE_ASM`.
 
 ---
 
-## `ito/include/mv_defs.h`
+## `ico2/ito/include/mv_defs.h`
 
 Census section `ito/../ito/include/mv_defs.h`: 16 inline expansions plus three
 out-of-line `Free` copies.  Four line ranges.
@@ -241,7 +245,7 @@ a different target.
 
 ---
 
-## `include/typedef.h`
+## `ico2/common/include/typedef.h`
 
 One census row: `avoid_obstacle2` (`src/way_sys`, 0x0017DA50) absorbs
 `typedef.h:74` twice.  The sequence is

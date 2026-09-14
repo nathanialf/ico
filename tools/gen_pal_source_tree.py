@@ -182,9 +182,10 @@ def programmer_of(path: str) -> str | None:
 
 
 def strip_programmer(path: str) -> str:
-    """Same convention as the yaml TU paths: drop the per-programmer dir,
-    normalise the `x/../y/` spellings objdump emits for an #include, keep the
-    ito/mpeg namespace."""
+    """The repo path for a listing path: `ico2/` plus the listing's own
+    `<programmer>/<kind>/<file>`, with the `x/../y/` spellings objdump emits
+    for an #include normalised away. The name is historical: the tree used to
+    drop the programmer dir, and now keeps it."""
     if path.startswith("/"):
         return path
     parts = []
@@ -194,9 +195,9 @@ def strip_programmer(path: str) -> str:
                 parts.pop()
             continue
         parts.append(seg)
-    if len(parts) > 1:
-        parts = parts[1:]
-    return "/".join(parts)
+    if len(parts) < 2:
+        return "/".join(parts)
+    return "ico2/" + "/".join(parts)
 
 
 def build_census(m):

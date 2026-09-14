@@ -260,7 +260,7 @@ def consumers(known):
         for s in set(IDENT_RE.findall(text)) & known:
             refs[s].add(tu)
 
-    for root in ("src", "ios", "isys", "ito", "sound", "sce"):
+    for root in ("ico2", "sce", "src"):
         for p in (ROOT / root).rglob("*.c"):
             scan(p, str(p.relative_to(ROOT))[:-2])
     asm = ROOT / "asm"
@@ -287,7 +287,7 @@ def tu_paths():
             continue
         parts = line.split()
         path = parts[2]
-        if path == "(vendor)" or path.startswith("src/cod/"):
+        if path == "(vendor)" or path.startswith("cod/"):
             continue
         base = os.path.basename(path)
         if base in out and out[base] != path:
@@ -547,7 +547,7 @@ def emit(placed, path):
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-IDENT_ROOTS = ("src", "ios", "isys", "ito", "sound", "sce", "include")
+IDENT_ROOTS = ("ico2", "sce", "src", "include")
 
 
 def rename_sources(mapping, dry=False):

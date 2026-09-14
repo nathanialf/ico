@@ -61,7 +61,7 @@ ASM_ROOT = "asm" if VERSION in ("us", "pal") else f"asm/{VERSION}"
 # script); retail (`us`) is a flat src/ + ios/isys/ito/sound tree.
 SRC_ROOTS = {
     "us": ("ios", "isys", "ito", "sound", "src", "sce"),
-    "pal": ("ios", "isys", "ito", "sound", "src", "sce"),
+    "pal": ("ico2", "sce", "src"),
     "aug6": ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"),
 }.get(VERSION, ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"))
 
@@ -132,7 +132,7 @@ def scan_consumers():
       consumers[sym] = set of KNOWN TUs that reference it (matched .c +
                        nonmatchings/<tu>/ .s) — these resolve ownership.
       blob_refs[sym] = count of refs from the monolithic unmatched-code blob
-                       (asm/aug6/src/cod/*.s); owner unknown, reported as a
+                       (asm/aug6/cod/*.s); owner unknown, reported as a
                        caveat but NOT counted toward shared-ness.
     """
     consumers = {}
@@ -143,7 +143,7 @@ def scan_consumers():
         if os.path.isdir(os.path.join(ROOT, d)):
             targets.append((d, "*.c"))
     data_marker = f"{ASM_ROOT}/data/"
-    cod_marker = f"{ASM_ROOT}/src/cod/"
+    cod_marker = f"{ASM_ROOT}/cod/"
     for base, inc in targets:
         try:
             out = subprocess.run(
@@ -163,7 +163,7 @@ def scan_consumers():
             # looks shared.
             if data_marker in ppath:
                 continue
-            # <asm_root>/src/cod/*.s is the monolithic unmatched-code blob:
+            # <asm_root>/cod/*.s is the monolithic unmatched-code blob:
             # owner unknown, so note it as a caveat rather than a TU consumer.
             if cod_marker in ppath:
                 blob_refs[sym] = blob_refs.get(sym, 0) + 1
@@ -363,7 +363,7 @@ def emit_runs(tu, carves, elf, secs):
                   f"# carved {run[0][1]}..{run[-1][1]} "
                   f"(VMA 0x{start:X}..0x{end:X}, {end - start} bytes, {len(run)} syms)")
             print(f"      - [0x{end - 0x100000:X}, {secname.lstrip('.')}, "
-                  f"src/cod/{end - 0x100000:06X}]     # {secname} blob resume")
+                  f"cod/{end - 0x100000:06X}]     # {secname} blob resume")
             print(f"\n/* {secname} — carved VMA 0x{start:X}..0x{end:X} "
                   f"({len(run)} symbols), bytes verified against the target ELF */")
             for vma, sym, s, size, *_ in run:
