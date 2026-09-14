@@ -40,7 +40,78 @@ void EnterMenu(void *a0, int a1, void *a2)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedDataBinary);
+/* the 0x10-byte camera-set binary header */
+typedef struct {
+    int magic;
+    int version;
+    int num;
+    int pins;
+} CamSetBinHdr;
+
+extern char D_00554CF8[];
+extern char D_00554D30[];
+extern char D_00554D40[];
+extern char D_00554D50[];
+extern char D_00554D60[];
+extern char D_00554D90[];
+extern char D_00554CE0[];
+extern int GetSizeOfCameraSetBinary(S4C *p, int n);
+extern int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1);
+extern void MakeCameraSetBinary(S4C *src, int count, S4C *dst);
+extern void debug_closeLog(void);
+extern void debug_openLog(void);
+extern void debug_StdPrintfDummy();
+extern void sprintf();
+extern int debugSceOpen(void *path, int mode);
+extern int debugSceClose(int fd);
+extern void sceWrite(int fd, void *buf, int len);
+extern void iosFree(void *p);
+
+/* SRCFILE.TXT rows 369-388: saveEditedDataBinary inlines this, which is why
+   the ROM folds the path buffer's frame address straight into $a0 at both the
+   sprintf and the debugSceOpen instead of holding it in a register */
+static inline void writeCameraSetFile(int no, void *buf, int size)
+{
+    char path[0x80];
+
+    debug_closeLog();
+    debug_StdPrintfDummy(D_00554CF8);
+    debug_StdPrintfDummy(D_00554D30, no);
+    debug_StdPrintfDummy(D_00554D40, size);
+    sprintf(path, D_00554D50, no);
+    if (debugSceOpen(path, 0x202) < 0) {
+        debug_StdPrintfDummy(D_00554D60);
+    } else {
+        sceWrite(0, buf, size);
+        debugSceClose(0);
+        debug_StdPrintfDummy(D_00554D90);
+    }
+    debug_openLog();
+}
+
+void saveEditedDataBinary(int no, int a1, int a2)
+{
+    /* the header record the 2001 source still declared: the body writes the
+       four words straight into buf at rows 407-410 and never reads it, but it
+       still sets the frame (SRCFILE.TXT rows 364-368, 370, 374, 376, 379, 382
+       and 386-387 carry no instructions) */
+    CamSetBinHdr hdr;
+    int size;
+    int *buf;
+    S4C *data;
+
+    size = GetSizeOfCameraSetBinary((S4C *)a1, a2) + 0x10;
+    buf = (int *)iosMallocDebug(D_0063A450, size, D_00554CE0, 0x194);
+    data = (S4C *)(buf + 4);
+    buf[2] = a2;
+    buf[0] = 0x1234;
+    buf[1] = 3;
+    buf[3] = CameraEdit_PIN_NUMBER_ALL((int *)a1, a2);
+    MakeCameraSetBinary((S4C *)a1, a2, data);
+    writeCameraSetFile(no, buf, size);
+    iosFree(buf);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedData);
 
 extern void gif_SetGsReg(int code, long data);
@@ -56,8 +127,107 @@ void gif_test(int *a0, int *a1, int *a2, unsigned char *a3)
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DebugDispBox);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DispCameraGroup);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", drawXZArrow);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DispAxisArrow);
+
+/* a VU0 quadword: DrawLineG takes 16-byte aligned vectors */
+typedef struct {
+    float x, y, z, w;
+} ArrowVtx __attribute__((aligned(16)));
+
+extern ArrowVtx D_0028FEF0;
+extern ArrowVtx D_002A5A10;
+extern ArrowVtx D_002A5A20;
+extern ArrowVtx D_002A5A30;
+extern ArrowVtx D_002A5A40;
+extern ArrowVtx D_002A5A50;
+extern ArrowVtx D_002A5A60;
+
+void drawXZArrow(void *col, int f, float z)
+{
+    ArrowVtx v0 = {-25.0f, 0.0f, -z, 1.0f};
+    ArrowVtx v1 = {25.0f, 0.0f, -z, 1.0f};
+
+    DrawLineG(&D_0028FEF0, col, &D_002A5A40, col, f);
+    DrawLineG(&D_0028FEF0, col, &D_002A5A10, col, f);
+    DrawLineG(&D_002A5A50, col, &D_002A5A40, col, f);
+    DrawLineG(&D_002A5A20, col, &D_002A5A10, col, f);
+    DrawLineG(&D_002A5A30, col, &v0, col, f);
+    DrawLineG(&D_002A5A60, col, &v1, col, f);
+    DrawLineG(&v0, col, &v1, col, f);
+}
+
+/* one axis of the arrow table: the tip and tail vectors of the arrow */
+typedef struct {
+    float tip[4];
+    float tail[4];
+} AxisPair;
+
+extern AxisPair D_002A5A80[];
+extern ArrowVtx D_002A5A70;
+extern char *matrixptr;
+extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
+extern void MatrixDrive_TransMatrixV(void *v);
+extern void MatrixDrive_TurnObjectMatrix(float x, float y, float z);
+extern void MatrixDrive_RotMatrixZ(short a);
+extern void MatrixDrive_TransMatrix(float x, float y, float z);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
+extern void sceVu0Normalize(void *dst, void *src);
+extern int GetTableArcTan2(float y, float x);
+extern void gif_SetAlpha(int a, int b, int c);
+extern void gif_SetZTest(int a);
+
+void DispAxisArrow(int mask, void *col)
+{
+    float v[4];
+    float m0[4][4];
+    float n[4];
+    float m1[4][4];
+    AxisPair *ax;
+    int i;
+
+    if (mask <= 0) {
+        return;
+    }
+    if (mask >= 3) {
+        if (mask >= 6) {
+            return;
+        }
+        if (mask < 4) {
+            return;
+        }
+    }
+    {
+        MatrixDrive_SetTransposeMatrix(m0, matrixptr + 0x80);
+        sceVu0ApplyMatrix(v, m0, &D_002A5A70);
+
+        gif_StartPacketPri(11);
+        gif_SetAlpha(1, 5, 0);
+        gif_SetZTest(0);
+
+        ax = D_002A5A80;
+        for (i = 0; i < 3; i++) {
+            if ((mask >> i) & 1) {
+                sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+                MatrixDrive_TransMatrixV(v);
+                MatrixDrive_TurnObjectMatrix(-(ax->tip[0] - ax->tail[0]), ax->tip[1] - ax->tail[1],
+                                             ax->tip[2] - ax->tail[2]);
+                MatrixDrive_SetTransposeMatrix(m1, MatrixDrive_GetMatrix());
+                sceVu0ApplyMatrix(n, matrixptr + 0x80, v);
+                n[3] = 0.0f;
+                sceVu0ApplyMatrix(n, m0, n);
+                sceVu0ApplyMatrix(n, m1, n);
+                sceVu0Normalize(n, n);
+                n[2] = 0.0f;
+                sceVu0Normalize(n, n);
+                MatrixDrive_RotMatrixZ((short)-GetTableArcTan2(n[0], n[1]));
+                MatrixDrive_TransMatrix(0.0f, 0.0f, 200.0f);
+                drawXZArrow(col, -1, 400.0f);
+            }
+            ax++;
+        }
+        gif_EndPacket();
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", dispCameraPinType2);
 
 extern void dispCameraPinType2(int a0, int a1, int a2, int a3);
@@ -650,10 +820,63 @@ void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", menu_2);
+/* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
+   pad, trg at 0x4 */
+typedef struct Pad {
+    int unk00;
+    int trg;
+    int unk08;
+    int rep;
+    char unk10[0x44];
+    unsigned char ana[4];
+} Pad;
+
+extern Pad D_0028F8F0[];
+extern char D_00555000[];
+extern char D_00555010[];
+extern int curmenu;
+extern void iosThreadSleep(void *th);
+extern void iosThreadDestroy(void *th);
+extern void debug_StdPrintfDummy();
+
+void menu_2(char *m)
+{
+    Pad *pad;
+
+    iosThreadSleep(m);
+
+    pad = D_0028F8F0;
+    while (1) {
+        debug_StdPrintfDummy(D_00555000, *(int *)(m + 0x74));
+        if (pad[1].trg & 0x20) {
+            curmenu = *(int *)(m + 0x70);
+            iosThreadDestroy(m);
+        }
+        iosThreadSleep(m);
+    }
+}
+
 /* census group_select, a file static; the name collides with way_tool's global group_select */
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018F5F8);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", _CameraEdit_BOX);
+void func_0018F5F8(char *m)
+{
+    Pad *pad;
+
+    iosThreadSleep(m);
+
+    pad = D_0028F8F0;
+    while (1) {
+        debug_StdPrintfDummy(D_00555010, *(int *)(m + 0x74));
+        if (pad[1].trg & 0x20) {
+            EnterMenu(menu_2, 3, m);
+        }
+        iosThreadSleep(m);
+    }
+}
+
+int _CameraEdit_BOX(int *a0, int a1)
+{
+    return a0[1] + (a1 * 0x4C);
+}
 
 int _CameraEdit_PIN(int *a0, int a1, int a2)
 {
