@@ -24,7 +24,7 @@ void sceVu0ApplyMatrix(void *a0, void *a1, void *a2)
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
-void func_0025D440(void *a0, void *a1, void *a2)
+void sceVu0MulMatrix(void *a0, void *a1, void *a2)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf4, 0x0($5)\n"
@@ -752,10 +752,10 @@ int sceVu0ClipScreen3(void *a0, void *a1, void *a2)
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
-        "    .global func_0025E060\n"
-        "    .type func_0025E060, @function\n"
+        "    .global sceVu0ClipAll\n"
+        "    .type sceVu0ClipAll, @function\n"
         "    .align 3\n"
-        "func_0025E060:\n"
+        "sceVu0ClipAll:\n"
         "    lqc2 $vf8, 0x0($7)\n"
         "    lqc2 $vf4, 0x0($6)\n"
         "    lqc2 $vf5, 0x10($6)\n"
@@ -793,7 +793,7 @@ __asm__(".section .text\n"
         "2:\n"
         "    jr $31\n"
         "    nop\n"
-        "    .size func_0025E060, . - func_0025E060\n"
+        "    .size sceVu0ClipAll, . - sceVu0ClipAll\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");

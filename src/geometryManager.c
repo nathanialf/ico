@@ -20,7 +20,7 @@ null_path:
 }
 
 extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
-extern void func_0025D440(void *a0, void *a1, void *a2);
+extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
 
 void UpdateRootMatrixByDObj(char *a0)
 {
@@ -30,8 +30,8 @@ void UpdateRootMatrixByDObj(char *a0)
     {
         char *q = *(char **)a0;
         if (q != 0) {
-            func_0025D440(fobj, *(char **)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(a0 + 0x4) << 6),
-                          fobj);
+            sceVu0MulMatrix(
+                fobj, *(char **)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(a0 + 0x4) << 6), fobj);
         }
     }
     *(float *)(fobj + 0x34) = *(float *)(fobj + 0x34) + *(float *)(p + 0xC0);
@@ -593,7 +593,7 @@ int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float 
 }
 
 extern void GetMatrixFromQuaternionPos();
-extern void func_0025D440();
+extern void sceVu0MulMatrix();
 
 void GetRootMatrixByDObj(void *a0, char *src)
 {
@@ -602,10 +602,10 @@ void GetRootMatrixByDObj(void *a0, char *src)
     {
         int *g = *(int **)src;
         if (g) {
-            func_0025D440(a0,
-                          (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) +
-                                   (*(int *)(src + 4) << 6)),
-                          (int)a0);
+            sceVu0MulMatrix(a0,
+                            (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) +
+                                     (*(int *)(src + 4) << 6)),
+                            (int)a0);
         }
     }
     *(float *)((char *)a0 + 0x34) += p[0x30];
@@ -619,10 +619,10 @@ void GetRootMatrix(void *a0, char *outer)
     {
         int *g = *(int **)src;
         if (g) {
-            func_0025D440(a0,
-                          (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) +
-                                   (*(int *)(src + 4) << 6)),
-                          (int)a0);
+            sceVu0MulMatrix(a0,
+                            (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) +
+                                     (*(int *)(src + 4) << 6)),
+                            (int)a0);
         }
     }
     *(float *)((char *)a0 + 0x34) += p[0x30];
@@ -768,7 +768,7 @@ void GetRootOrient(char *a0, char *a1)
     {
         char *q = *(char **)sub;
         if (q != 0) {
-            func_0025D440(
+            sceVu0MulMatrix(
                 buf, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)),
                 (int)buf);
         }
@@ -804,7 +804,7 @@ void GetRootMatrixTransOffsetByDObj(char *dst, char *src)
 {
     char tmp[0x40];
     MatrixDrive_SetTransposeMatrix(tmp, src + 0x20);
-    func_0025D440(tmp, tmp, *(int *)(src + 0xC));
+    sceVu0MulMatrix(tmp, tmp, *(int *)(src + 0xC));
     CopyVector__pn((int)dst, (int)(tmp + 0x30));
 }
 
@@ -813,7 +813,7 @@ void GetRootMatrixTransOffset(char *dst, char *src)
     char tmp[0x40];
     char *p = *(char **)(src + 0x15C);
     MatrixDrive_SetTransposeMatrix(tmp, p + 0x20);
-    func_0025D440(tmp, tmp, *(int *)(p + 0xC));
+    sceVu0MulMatrix(tmp, tmp, *(int *)(p + 0xC));
     CopyVector__pn((int)dst, (int)(tmp + 0x30));
 }
 
@@ -830,14 +830,14 @@ void GetRootMotionOrient(char *a0, char *a1)
     {
         char *q = *(char **)sub;
         if (q != 0) {
-            func_0025D440(
+            sceVu0MulMatrix(
                 b, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)),
                 (int)b);
         }
     }
     *(float *)(b + 0x34) = *(float *)(b + 0x34) + *(float *)(p + 0xC0);
     GetMatrixFromQuaternion((int)m, (int)(*(char **)(a1 + 0x15C) + 0xE0));
-    func_0025D440(m, b, (int)m);
+    sceVu0MulMatrix(m, b, (int)m);
     sceVu0ApplyMatrix__pn((int *)a0, m, (int)D_0028FF30);
 }
 
@@ -850,14 +850,14 @@ void GetRootMotionMatrix(char *a0, char *a1)
     {
         char *q = *(char **)sub;
         if (q != 0) {
-            func_0025D440(
+            sceVu0MulMatrix(
                 buf, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)),
                 (int)buf);
         }
     }
     *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + *(float *)(p + 0xC0);
     GetMatrixFromQuaternion((int)a0, (int)(*(char **)(a1 + 0x15C) + 0xE0));
-    func_0025D440(a0, buf, (int)a0);
+    sceVu0MulMatrix(a0, buf, (int)a0);
 }
 
 extern void AddVectorXYZ(void *a0, void *a1, void *a2);

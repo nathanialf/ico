@@ -48,7 +48,7 @@ inline short *InitSugiLeafGeo2(void *gobj)
 }
 
 extern float GetTableCos(short a0);
-extern void func_0025D440(void *a0, void *a1, void *a2);
+extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
 
 void SugiLeafGeo2(void *gobj)
 {
@@ -70,8 +70,8 @@ void SugiLeafGeo2(void *gobj)
                 (int)(GetTableSin((short)((ang[i / 3] * 6 + i) * 16)) * 768.0f);
             MatrixDrive_RotMatrixY(*(short *)(*(char **)(p + 0x870) + i * 0x50 + 4));
             MatrixDrive_RotMatrixX(*(short *)(*(char **)(p + 0x870) + i * 0x50));
-            func_0025D440(*(char **)(p + 0xC) + i * 0x40, *(char **)(p + 0xC) + i * 0x40,
-                          MatrixDrive_GetMatrix());
+            sceVu0MulMatrix(*(char **)(p + 0xC) + i * 0x40, *(char **)(p + 0xC) + i * 0x40,
+                            MatrixDrive_GetMatrix());
             ang[i / 3]++;
         }
     }
@@ -102,7 +102,7 @@ void SugiLeafDL2(void *gobj)
         MatrixDrive_TransMatrix(0.0f, -0.5f, 0.0f);
         MatrixDrive_ScaleMatrix(1.0f, 0.0f, 1.0f);
         MatrixDrive_RotMatrixX(0x2000);
-        func_0025D440(m, MatrixDrive_GetMatrix(), m);
+        sceVu0MulMatrix(m, MatrixDrive_GetMatrix(), m);
     }
     for (i = 0; i < n; i++) {
         CopyMatrix(*(char **)(*(char **)(p + 0x854) + 0x40) + i * 0x180 + 0x130, save[i]);

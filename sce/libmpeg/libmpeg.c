@@ -1540,7 +1540,7 @@ void _copyAddRefImage(void *a0, void *a1, void *a2)
                              : "$2", "$8", "$9", "$10", "$11", "$12", "$13", "memory");
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", func_0026E8D8);
+INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _copyRefImage);
 
 void _ipuSetMPEG1(int a0)
 {

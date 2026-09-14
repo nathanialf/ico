@@ -66,7 +66,7 @@ inline void ReleaseRope(void) {}
 
 extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
-extern void func_0025D440(void *a0, void *a1, void *a2);
+extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
 void ropeGeo(void *a0)
@@ -75,10 +75,10 @@ void ropeGeo(void *a0)
 
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     if (**(int **)((char *)a0 + 0x15C) != 0) {
-        func_0025D440(MatrixDrive_GetMatrix(),
-                      *(char **)(*(char **)(**(char ***)((char *)a0 + 0x15C) + 0x15C) + 0xC) +
-                          (*(int *)(*(char **)((char *)a0 + 0x15C) + 4) << 6),
-                      MatrixDrive_GetMatrix());
+        sceVu0MulMatrix(MatrixDrive_GetMatrix(),
+                        *(char **)(*(char **)(**(char ***)((char *)a0 + 0x15C) + 0x15C) + 0xC) +
+                            (*(int *)(*(char **)((char *)a0 + 0x15C) + 4) << 6),
+                        MatrixDrive_GetMatrix());
     }
     GetChainAnimation(obj[0], 0, MatrixDrive_GetMatrix());
 }

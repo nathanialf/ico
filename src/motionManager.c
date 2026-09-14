@@ -180,7 +180,7 @@ extern void func_001DDAB8_a(char *) __asm__("dispSkelton");
 extern void p2o_DispVU1();
 extern void MatrixDrive_RotMatrixX(int a0);
 extern void func_001ED110(int a0, int a1);
-extern void func_0025D440(int a0, int a1, int a2);
+extern void sceVu0MulMatrix(int a0, int a1, int a2);
 extern int D_0063B8F8;
 extern int D_0063B8FC;
 extern char D_002907E0[];
@@ -887,7 +887,7 @@ void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
     for (i = 0; i < D_0063C48C; i++) {
         char *nd = *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + i * 0x40;
         char *pos = nd + 0x30;
-        func_0025D440((int)nd, (int)nd, (int)D_004ECB80);
+        sceVu0MulMatrix((int)nd, (int)nd, (int)D_004ECB80);
         AddVectorXYZ(pos, pos, w);
     }
     MatrixDrive_PopMatrix();
@@ -1000,7 +1000,7 @@ void SkelTestGeo(char *a0)
         s2 = *(int *)(a0 + 0x15C);
         for (i = 0; i < *(int *)(s2 + 0x88); i++) {
             int e = *(int *)(s2 + 0xC) + i * 0x40;
-            func_0025D440(e, s2 + 0x20, e);
+            sceVu0MulMatrix(e, s2 + 0x20, e);
             s2 = *(int *)(a0 + 0x15C);
         }
         if (D_0063B148 != 0) {
