@@ -431,7 +431,7 @@ function bar(m,t){ const p=t?100*m/t:0;
   return `<span class="bar" aria-hidden="true"><i style="width:${p.toFixed(2)}%"></i></span>`; }
 
 // `note` (group rows only, optional) explains a bucket that is not a
-// programmer directory, the vendor library archives, the .vutext VU1
+// programmer directory, the sce library archives, the .vutext VU1
 // microprograms, the "(unassigned)" data-bug bucket. It rides as the button's
 // title/aria-description so it can never disturb the row layout.
 // `extra` (optional) is a pre-built span that rides between the name and the
@@ -643,9 +643,9 @@ function loadVersion(v){
   // SO in the footer, a silent fallback would show one version's numbers
   // under another version's tab.
   let fellBack = false;
-  fetch(`${v}/progress.json`)
+  fetch(`${v}/progress.json?t=${Date.now()}`)
     .catch(()=>null)
-    .then(r => (r && r.ok) ? r : (fellBack = true, fetch("progress.json")))
+    .then(r => (r && r.ok) ? r : (fellBack = true, fetch(`progress.json?t=${Date.now()}`)))
     .then(r=>r.json())
     .then(d=>{
       document.getElementById("grouplbl").textContent =
@@ -669,10 +669,11 @@ function loadVersion(v){
         + `for that TU's object.</p>`
         + `<p>The headline byte figure is the ELF <code>.text</code> section only. `
         + `The VU1 microprograms live in <code>.vutext</code>, a different section: `
-        + `they appear in the strip and not in the tree. The <b>vendor</b> group is library archive `
-        + `members (crt0, SCE SDK, newlib/libgcc) linked from pre-built <code>.a</code> `
-        + `files, not ICO source; those bytes are already byte-identical in the link, `
-        + `assembled from ROM. Policy: <code>decomp/VENDOR.md</code>.</p>`; })
+        + `they appear in the strip and not in the tree. The <b>sce</b> group is the SDK and `
+        + `newlib code linked from the archives MAIN.MAP records under <code>/usr/local/sce/ee/lib</code> `
+        + `(crt0, libkernl, libgraph, libc, libm, libgcc and the rest), laid out one file per `
+        + `archive member where the map tiles the link and one file per run where it does not; `
+        + `not ICO source. Policy: <code>decomp/VENDOR.md</code>.</p>`; })
     .catch(e=> document.getElementById("tree").innerHTML =
         `<p class="err">Could not load progress.json: ${e}</p>`);
 }
