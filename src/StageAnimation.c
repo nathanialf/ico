@@ -1,6 +1,16 @@
 #include "common.h"
 #include "vu0.h"
 
+typedef union {
+    int i;
+    float f;
+} AnimWord;
+
+typedef union {
+    long l;
+    short h;
+} PlayWord;
+
 typedef struct {
     char _b[8];
 } Blob8;
@@ -24,6 +34,7 @@ extern void bga_SetCameraForceOff();
 extern int D_0063C158;
 extern char D_0067D098[];
 extern char D_005501A8[];
+extern char D_005501E0[];
 extern char D_00550028[];
 extern char D_0063A1A8[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
@@ -33,6 +44,37 @@ extern int bga_CheckAnimationFinish(int a0);
 extern int bga_CheckSdfCameraFinish(int a0);
 extern int bga_CheckAnimationFrame(int a0, int a1, int a2);
 extern int bga_CheckSdfCameraFrame(int a0, int a1, int a2);
+extern char D_00550210[];
+extern int D_0063B13C;
+extern int D_0063A068;
+extern void debug_Printf(int x, int y, unsigned int color, char *fmt, ...);
+extern void bga_CalcSdfCamera(char *p, int a1);
+extern char D_005F5E70[];
+extern char D_002C2DC8[];
+extern char D_002BC6E0[];
+extern char D_00602FA0[];
+extern char D_0063A1B0[];
+extern char D_0063A1B8[];
+extern char D_00550068[];
+extern int stage_no;
+extern int strcmp(const char *a, const char *b);
+extern int strncmp(const char *a, const char *b, int n);
+extern int sprintf(char *buf, const char *fmt, ...);
+extern int bga_InitData(char *data);
+extern void debug_assertMessage(char *file, int line, char *msg);
+extern void bga_SetFrame();
+extern void bga_SetCamFrame();
+extern int graphics_ready;
+extern int D_0028F4C0[];
+extern void bga_SetUniqAnimationFlag(int val);
+extern void _InitCurrentMatrix(void);
+extern void bga_CalcAnimation(void *a0, int a1, int a2);
+extern char D_00550230[];
+extern char D_00550278[];
+extern int D_0063A44C;
+extern void *iosMallocDebug(int heap, int size, char *file, int line);
+extern void reg_DispObj(char *o);
+extern void bga_DispLightning(void);
 extern void CopyQuaternion();
 extern void _CopyVector(void *dst, void *src);
 extern int D_0063C15C__pn __asm__("D_0063C15C");
@@ -48,6 +90,10 @@ void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
 void stage_SetLocalizeGeometry(int key, int arg1, int arg2);
 void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1);
 int stage_CheckAnimationFrameIn(int a0, int a1, int a2);
+extern void stage_SetScale(int key, float scale);
+extern float stage_PlayBgAnimation(int key, float t, void *a, void *b);
+extern float stage_PlayBgAnimationDissolve(int key, float t, float d, void *a, void *b);
+extern void stage_KillPlayBgAnimation(int **self);
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakeGObj);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ApplyData);
@@ -76,7 +122,37 @@ inline int stage_CheckAnimationFinish(int a0)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ContinueAnimation);
+int stage_ContinueAnimation(int a0, int a1)
+{
+    int i;
+    char *e = (char *)D_0067D098;
+    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+        if (a0 == entry1[0x58 / 4]) {
+            int mode = *(int *)(e + 0x28C) >> 30;
+            switch (mode) {
+            case 0:
+                if (bga_CheckAnimationFinish(*(int *)(e + 0x284)) != 0) {
+                    stage_SetAnimation(a0, 0, -1);
+                    stage_SetAnimation(a1, 1, 0);
+                    return 1;
+                }
+                return 0;
+            case 1:
+                if (bga_CheckSdfCameraFinish(*(int *)(e + 0x288)) == 0) {
+                    return 0;
+                }
+                stage_SetAnimation(a0, 0, -1);
+                stage_SetAnimation(a1, 1, 0);
+                return 1;
+            }
+        }
+    }
+    debug_StdPrintfDummy(D_005501E0);
+    debug_assert(D_00550028, 0x3BA);
+    __assert(D_00550028, 0x3BA, D_0063A1A8);
+    return 0;
+}
 
 inline int stage_CheckAnimationFrame(int a0, int a1, int a2)
 {
@@ -124,9 +200,177 @@ void stage_ResetAnimation(void)
     light_KillAllFixLight();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_CalcAnimationNoParent);
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_CalcAnimationParent);
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_DispAnimation);
+void stage_CalcAnimationNoParent(void)
+{
+    int i;
+    char *e;
+
+    if (graphics_ready != 0) {
+        return;
+    }
+    if (D_0063C158 == 0) {
+        return;
+    }
+    bga_SetUniqAnimationFlag(1);
+    _InitCurrentMatrix();
+    e = (char *)D_0067D098;
+    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+        switch (*(int *)(e + 0x28C) >> 30) {
+        case 0: {
+            char *entry2 = *(char **)(e + 0x284);
+            signed char lock = *(signed char *)(entry2 + 0xB);
+
+            if (lock == 0) {
+                if (*(int *)(*(char **)(entry2 + 0x24) + 0x20) != 0) {
+                    continue;
+                }
+            }
+            if (D_0028F4C0[0x14 / 4] != 0) {
+                continue;
+            }
+            switch (*(signed char *)(entry2 + 0xA)) {
+            case -1: {
+                int k;
+
+                for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
+                    char *objs = e + 0x80;
+                    char *o = *(char **)(objs + (k << 2));
+
+                    ((int *)*(int *)(o + 0x15C))[0x74 / 4] = 0;
+                    if (((int *)*(int *)(o + 0x15C))[0x8 / 4] != 0) {
+                        *(int *)((int *)*(int *)(o + 0x15C))[0xC / 4] = 0;
+                    }
+                }
+                break;
+            }
+            case 0:
+                break;
+            case 1:
+                if (lock != 0) {
+                    if (D_0063B13C & 1) {
+                        debug_Printf(0, D_0063A068 / 2 - 28, 0xCCCCCC00, D_00550210,
+                                     *(int *)(e + 0x280));
+                    }
+                }
+                _InitCurrentMatrix();
+                bga_CalcAnimation(*(char **)(e + 0x284), *(int *)(*(char **)(e + 0x280) + 0x50), 0);
+                break;
+            }
+            break;
+        }
+        case 1:
+            if (D_0028F4C0[0x14 / 4] != 0) {
+                continue;
+            }
+            if (*(int *)(*(char **)(e + 0x288) + 0xC) != 1) {
+                continue;
+            }
+            _InitCurrentMatrix();
+            bga_CalcSdfCamera(*(char **)(e + 0x288), *(int *)(*(char **)(e + 0x280) + 0x50));
+            break;
+        }
+    }
+    bga_SetUniqAnimationFlag(0);
+}
+
+void stage_CalcAnimationParent(void)
+{
+    int i;
+    char *e;
+
+    if (graphics_ready != 0) {
+        return;
+    }
+    if (D_0063C158 == 0) {
+        return;
+    }
+    bga_SetUniqAnimationFlag(1);
+    e = (char *)D_0067D098;
+    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+        char *entry2;
+
+        if ((*(int *)(e + 0x28C) >> 30) != 0) {
+            continue;
+        }
+        entry2 = *(char **)(e + 0x284);
+        if (*(signed char *)(entry2 + 0xB) != 0) {
+            continue;
+        }
+        if (*(int *)(*(char **)(entry2 + 0x24) + 0x20) == 0) {
+            continue;
+        }
+        if (D_0028F4C0[0x14 / 4] != 0) {
+            continue;
+        }
+        switch (*(signed char *)(entry2 + 0xA)) {
+        case -1: {
+            int k;
+
+            for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
+                char *objs = e + 0x80;
+                char *o = *(char **)(objs + (k << 2));
+                ((int *)*(int *)(o + 0x15C))[0x74 / 4] = 0;
+                if (((int *)*(int *)(o + 0x15C))[0x8 / 4] != 0) {
+                    *(int *)((int *)*(int *)(o + 0x15C))[0xC / 4] = 0;
+                }
+            }
+            break;
+        }
+        case 1:
+            _InitCurrentMatrix();
+            bga_CalcAnimation(*(char **)(e + 0x284), *(int *)(*(char **)(e + 0x280) + 0x50), 0);
+            break;
+        case 0:
+            _InitCurrentMatrix();
+            bga_CalcAnimation(*(char **)(e + 0x284), *(int *)(*(char **)(e + 0x280) + 0x50), 1);
+            break;
+        }
+    }
+    bga_SetUniqAnimationFlag(0);
+}
+
+void stage_DispAnimation(void)
+{
+    int i;
+    char *e;
+
+    if (D_0063C158 == 0) {
+        return;
+    }
+
+    e = (char *)D_0067D098;
+    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+        signed char lv;
+        int k;
+
+        if (entry1[0x58 / 4] == 0x42) {
+            continue;
+        }
+        if ((*(int *)(e + 0x28C) >> 30) != 0) {
+            continue;
+        }
+        lv = *(signed char *)(*(int *)(e + 0x284) + 0xA);
+        if (lv == -1) {
+            continue;
+        }
+        if (lv < -1) {
+            continue;
+        }
+        if (lv >= 2) {
+            continue;
+        }
+        for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
+            char *objs = e + 0x80;
+            char *d = *(char **)(*(char **)(objs + (k << 2)) + 0x15C);
+
+            if (*(int *)(d + 0x74) != 0) {
+                reg_DispObj(d);
+            }
+        }
+    }
+    bga_DispLightning();
+}
 
 inline void stage_SetLoopFlag(int key, int a1)
 {
@@ -216,7 +460,58 @@ inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetScale);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_PlayBgAnimation);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_PlayBgAnimationDissolve);
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakePlayBgAnimation);
+
+int *stage_MakePlayBgAnimation(int key)
+{
+    int i;
+    int found = -1;
+    float f = 1.0f;
+    short num = 0;
+    char *e = (char *)D_0067D098;
+    int *p;
+
+    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+
+        if (key == entry1[0x58 / 4]) {
+            found = i;
+            {
+                int w = *(int *)(e + 0x28C);
+
+                int t = (w << 2) >> 22;
+
+                *(int *)(e + 0x28C) = (w & 0xC00FFFFF) | (((t + 1) & 0x3FF) << 20);
+                num = (short)t;
+            }
+            f = ((AnimWord *)(*(int *)(e + 0x284) + 0x14))->f;
+            break;
+        }
+    }
+
+    if (found == -1) {
+        debug_StdPrintfDummy(D_00550230);
+        return 0;
+    }
+
+    p = (int *)iosMallocDebug(D_0063A44C, 0x40, D_00550028, 0x5D6);
+    if (p == 0) {
+        debug_StdPrintfDummy(D_00550278);
+        return 0;
+    }
+
+    ((PlayWord *)p)->l = ((((PlayWord *)p)->l & ~0x3FFF) | (key & 0x3FFF) | 0x4000) & ~0x8000;
+    ((PlayWord *)((char *)p + 2))->h = num;
+    *(float *)((char *)p + 4) = f;
+    *(float *)((char *)p + 8) = 1.0f;
+    *(float *)((char *)p + 0xC) = 1.0f;
+    if (D_0063C15C != 0) {
+        D_0063C15C[0x10 / 4] = (int)p;
+    }
+    p[0x10 / 4] = 0;
+    p[0x14 / 4] = (int)D_0063C15C;
+    D_0063C15C = p;
+    return p;
+}
 
 void stage_KillPlayBgAnimation(int **self)
 {
