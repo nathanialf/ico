@@ -41,11 +41,6 @@
  * 0x42000039. */
 #define DI()        __asm__ __volatile__(".word 0x42000039" : : : "memory")
 
-/* `sync.p` -- the pipeline-drain flavour of `sync`, as opposed to the
- * store-completion SYNC() above. The kernel needs it after a DI() before
- * re-reading Status, or the read can still observe the pre-DI value. */
-#define SYNC_P()    __asm__ __volatile__("sync.p" : : : "memory")
-
 /* Quadword copy — single 128-bit `lq`/`sq` pair via a scratch GPR
  * (e.g. `$a2`, `$t0`).  The original ICO codegen uses a different
  * scratch register per call site, so the scratch is exposed as a
@@ -61,12 +56,6 @@
     __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");             \
     __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory");             \
     __asm__ __volatile__("nop")
-
-/* Same, but no trailing nop — matches the variant where the next
- * function's first insn fills the implicit jr-ra delay slot. */
-#define QCOPY16_NO_NOP(scratch)                                                \
-    __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");             \
-    __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory")
 
 /* Quadword copy of 64 bytes (4 quadwords) — serial form: each lq is
  * followed immediately by its sq, reusing a single scratch GPR.  The
@@ -97,18 +86,6 @@
     __asm__ __volatile__("sq " s2 ", 0x20($a0)" : : : "memory");               \
     __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory");               \
     __asm__ __volatile__("nop")
-
-/* Same as QCOPY64_PARALLEL but without trailing nop — used where the
- * next function's first insn fills the implicit jr-ra delay slot. */
-#define QCOPY64_PARALLEL_NO_NOP(s0, s1, s2, s3)                                \
-    __asm__ __volatile__("lq " s0 ", 0($a1)"    : : : "memory");               \
-    __asm__ __volatile__("lq " s1 ", 0x10($a1)" : : : "memory");               \
-    __asm__ __volatile__("lq " s2 ", 0x20($a1)" : : : "memory");               \
-    __asm__ __volatile__("lq " s3 ", 0x30($a1)" : : : "memory");               \
-    __asm__ __volatile__("sq " s0 ", 0($a0)"    : : : "memory");               \
-    __asm__ __volatile__("sq " s1 ", 0x10($a0)" : : : "memory");               \
-    __asm__ __volatile__("sq " s2 ", 0x20($a0)" : : : "memory");               \
-    __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory")
 
 /* lq 16 bytes from 0(P) into $a2, where P is a C pointer variable.
  * gcc binds P to whatever register holds it. */

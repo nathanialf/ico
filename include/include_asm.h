@@ -8,9 +8,10 @@
  * `lwc1 $f21, (D_006313F4)` that ee-as resolves via a macro which may
  * need $at for the %hi/%lo fallback. Under .set noat ee-as errors out
  * on these ("macro used $at after .set noat"). Most .s files work
- * with .set at as default; for files whose explicit `daddu reg,reg,$0`
- * instructions get canonicalized away under .set at, use the
- * INCLUDE_ASM_NOAT variant. */
+ * with .set at as default, and every .s file in the tree does. A `.set noat`
+ * variant and a `.text.<NAME>` function-section variant both lived here and
+ * were never used by any TU; recover either from git history if one is ever
+ * needed. */
 #define INCLUDE_ASM(FOLDER, NAME) \
     __asm__( \
         ".section .text\n" \
@@ -21,41 +22,6 @@
         "    .set at\n" \
     )
 
-/* INCLUDE_ASM_NOAT — variant of INCLUDE_ASM with .set noat, for the
- * rare .s file whose explicit `daddu reg,reg,$0` instructions get
- * canonicalized to `or reg,reg,$0` under the default .set at (same
- * semantics, different encoding → SHA mismatch). Trades macro
- * resolution for verbatim opcode preservation. */
-#ifndef INCLUDE_ASM_NOAT
-#define INCLUDE_ASM_NOAT(FOLDER, NAME) \
-    __asm__( \
-        ".section .text\n" \
-        "    .set noat\n" \
-        "    .set noreorder\n" \
-        "    .include \"" FOLDER "/" #NAME ".s\"\n" \
-        "    .set reorder\n" \
-        "    .set at\n" \
-    )
-#endif
-
-#endif
-
-/* INCLUDE_ASM_FS — function-section variant: place the included asm function
- * in its own `.text.<NAME>` section (mirroring gcc's -ffunction-sections for C
- * functions) so a TU whose final link order differs from source order (e.g. a
- * trace-reordered unit like box.o) can have its function sections placed
- * explicitly by VMA in the linker script. Byte-identical to INCLUDE_ASM modulo
- * the section name. Used in box.c/switch.c (see config/extra_cflags.txt BOX). */
-#ifndef INCLUDE_ASM_FS
-#define INCLUDE_ASM_FS(FOLDER, NAME) \
-    __asm__( \
-        ".section .text." #NAME ",\"ax\",@progbits\n" \
-        "    .set at\n" \
-        "    .set noreorder\n" \
-        "    .include \"" FOLDER "/" #NAME ".s\"\n" \
-        "    .set reorder\n" \
-        "    .set at\n" \
-    )
 #endif
 
 #ifndef INCLUDE_RODATA
@@ -157,12 +123,6 @@ __asm__(".include \"include/labels.inc\"\n");
 
 #ifndef INCLUDE_ASM
 #define INCLUDE_ASM(FOLDER, NAME)
-#endif
-#ifndef INCLUDE_ASM_NOAT
-#define INCLUDE_ASM_NOAT(FOLDER, NAME)
-#endif
-#ifndef INCLUDE_ASM_FS
-#define INCLUDE_ASM_FS(FOLDER, NAME)
 #endif
 #ifndef INCLUDE_ASM_NOP_PAD
 #define INCLUDE_ASM_NOP_PAD(LABEL)
