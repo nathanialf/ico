@@ -66,8 +66,87 @@ found:
     return D_0063C1B8 + i * 0x5C000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/adpcm_init", AdpcmOpen);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/adpcm_init", AdpcmClose);
+extern char D_00552128[];
+extern char D_00559D50[];
+extern char D_0063A638[];
+extern int soundDataAreaSearch(int *req);
+extern int iosCdvdBackGroundMgrAdd(char *name, void *proc, void *self, void *notready, int a4,
+                                   void *a5, int a6, int a7);
+
+void AdpcmOpen(int *self, int no, int a2, int a3)
+{
+    int req;
+
+    debug_StdPrintfDummy(D_00552128, no);
+    req = (no & 0xFFFF) | 0x110000;
+    if (soundDataAreaSearch(&req) != 0) {
+        self[5] = 0;
+        return;
+    }
+    self[2] = a2;
+    self[1] = no;
+    self[3] = AdpcmIopBuffAlloc();
+    if (self[3] != 0) {
+        self[5] = iosCdvdBackGroundMgrAdd(D_00559D50 + no * 0x40, adpcmOpenProc, self,
+                                          adpcmOpenDiskNotReady, 0, self, 0, 0);
+    } else {
+        self[5] = 0;
+        debug_StdPrintfDummy(D_0063A638, D_00559D50 + no * 0x40);
+    }
+    self[4] = a3;
+}
+
+extern char D_00552098[];
+extern char D_0063A630[];
+extern int D_006BF498[];
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+extern void iosCdvdBackGroundMgrDelete(int handle);
+extern int SgStAdpcmClose(int ch);
+extern void soundBufAdpcmFree(int *obj);
+
+static inline void AdpcmIopBuffFree(int *self)
+{
+    int adr = self[6];
+    int no = (adr - D_0063C1B8) / 0x5C000;
+
+    if (no >= 3) {
+        debug_assert(D_00552098, 0x8F);
+        __assert(D_00552098, 0x8F, D_0063A630);
+    }
+    D_0063C1C0[no] = 0;
+}
+
+void AdpcmClose(int *a0)
+{
+    int *self = (int *)a0[11];
+    int i;
+    int j;
+
+    if (self != 0 && self[10] != 0) {
+        iosCdvdBackGroundMgrDelete(self[10]);
+        self[10] = 0;
+        AdpcmStop((int)self);
+        for (i = 0; i < self[1]; i++) {
+            char *ch = (char *)(self + 2);
+            int ofs = i * 4;
+            SgStAdpcmClose(*(int *)(ch + ofs));
+        }
+        AdpcmIopBuffFree(self);
+        soundBufAdpcmFree(a0);
+        for (j = 0; j < 2; j++) {
+            int *p = (int *)((char *)D_006BF498 + j * 0x58);
+            if (p[0] != 0 && p == self) {
+                goto found;
+            }
+        }
+        debug_assert(D_00552098, 0x25D);
+        __assert(D_00552098, 0x25D, D_0063A630);
+    found:
+        *(int *)((char *)D_006BF498 + j * 0x58) = 0;
+        *(long long *)(self + 12) = 0;
+    }
+}
 
 extern int D_0063A628;
 extern int soundOutputModeGet(void);

@@ -120,7 +120,73 @@ inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
     D_0063BAEC = idx;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/spiderGroupManager", tryToRevive);
+extern int D_0063BAF4;
+extern int D_00723AE0[];
+extern char D_00620D90[];
+extern int D_0028FF30[];
+extern void GetRootPosition(float *pos, int gobj);
+extern int CheckSpidersInsideOfReviveRange(int *out, int group, float *pos);
+extern void UnlockEnemyGenerate(void *p);
+extern int DirectCallEnemy(void *p, int a1, float *pos, int *tbl, int a4);
+extern void ExecuteSEPackage(void *p, int id);
+extern int DeleteSpiderFromLayoutGroup(int a, int b);
+extern void SetAP1DeadStatus(int x);
+extern void SetSpiderGroupReviveStatus(void *gobj);
+
+typedef struct {
+    int group;    /* 0x00 */
+    void *spider; /* 0x04 */
+} SpiderPair;
+
+extern SpiderPair D_00723C70[];
+
+/* listing lines 124-171 */
+int tryToRevive(void)
+{
+    float pos[4];
+    int k = 0;
+    int i;
+    int j;
+    int n;
+    void *p;
+
+    if (D_0063BAF4 != 0) {
+        GetRootPosition(pos, D_0063BAF4);
+        pos[1] -= *(float *)(*(int *)(D_0063BAF4 + 0x15C) + 0x160);
+        for (i = 0; i < D_0063BAEC; i++) {
+            n = CheckSpidersInsideOfReviveRange(D_00723AE0, D_00723F98[i], pos);
+            if (n != 0) {
+                for (j = 0; j < n; j++) {
+                    D_00723C70[k].group = D_00723F98[i];
+                    D_00723C70[k].spider = D_00723AE0[j];
+                    k++;
+                    if (k == 5) {
+                        if (D_0063BAE0 < D_0063BAE8) {
+                            int m;
+
+                            p = D_00723D98[D_0063BAE0].rev;
+                            UnlockEnemyGenerate(p);
+                            debug_StdPrintfDummy(D_00620D90, p, D_0063BAE0);
+                            *(int *)((char *)p + 0x16C) = 1;
+                            if (DirectCallEnemy(p, 0, pos, D_0028FF30, 0) == 0) {
+                                return 0;
+                            }
+                            ExecuteSEPackage(p, 107);
+                            for (m = 0; m < 5; m++) {
+                                SetAP1DeadStatus(DeleteSpiderFromLayoutGroup(D_00723C70[m].group,
+                                                                             D_00723C70[m].spider));
+                            }
+                            SetSpiderGroupReviveStatus(D_00723D98[D_0063BAE0].gobj);
+                            D_0063BAE0++;
+                            return 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
 
 extern int D_0063B138;
 extern int D_0028F4C0[];
