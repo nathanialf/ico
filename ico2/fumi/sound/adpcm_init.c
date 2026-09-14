@@ -1,6 +1,24 @@
 #include "common.h"
 #include "ico/types.h"
 
+/* prototypes: their order is the deferred inline tail's emission order */
+void adpcmPauseRequest(int val);
+void AdpcmStreamHeap(void);
+void AdpcmStreamInit(void);
+int AdpcmIopBuffAlloc(void);
+int AdpcmNotUseIopAreaFree(void);
+int *AdpcmOpenSync(int *self);
+void AdpcmFadeCloseAll(short a0);
+int AdpcmUseAreaGet(void);
+int AdpcmFreeAreaGet(void);
+void AdpcmInterStereoVolumeSetAll(void);
+short AdpcmInterLeaveVolumeGet(char *self, int idx);
+short AdpcmVolumeGet(char *self);
+int adpcmTickProc(int self, int obj);
+void adpcmDiskNotReady(void);
+void adpcmDiskReturnReady(void);
+int adpcmOpenProc(int a0, int a1);
+void adpcmOpenDiskNotReady(void);
 extern int D_0063C1CC;
 extern void sceSifFreeIopHeap();
 
@@ -27,6 +45,25 @@ extern int SgStAdpcmStop(unsigned long long a0);
 void AdpcmStop(int a0)
 {
     SgStAdpcmStop(*(long long *)(a0 + 0x30));
+}
+
+extern char D_005520B0[];
+extern int D_0063C1B8;
+extern int D_0063C1C0[2];
+
+inline int AdpcmIopBuffAlloc(void)
+{
+    int i;
+    for (i = 0; i < 2; i++) {
+        if (D_0063C1C0[i] == 0) {
+            goto found;
+        }
+    }
+    debug_StdPrintfDummy(D_005520B0);
+    return 0;
+found:
+    D_0063C1C0[i] = 1;
+    return D_0063C1B8 + i * 0x5C000;
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/adpcm_init", AdpcmOpen);
@@ -130,25 +167,6 @@ inline void AdpcmStreamInit(void)
         D_0063C1C0[i] = 0;
     }
     D_0063C1C8 = 0;
-}
-
-extern char D_005520B0[];
-extern int D_0063C1B8;
-extern int D_0063C1C0[2];
-
-inline int AdpcmIopBuffAlloc(void)
-{
-    int i;
-    for (i = 0; i < 2; i++) {
-        if (D_0063C1C0[i] == 0) {
-            goto found;
-        }
-    }
-    debug_StdPrintfDummy(D_005520B0);
-    return 0;
-found:
-    D_0063C1C0[i] = 1;
-    return D_0063C1B8 + i * 0x5C000;
 }
 
 extern char D_005520D0[];

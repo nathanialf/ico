@@ -1283,3 +1283,6 @@ words become the blob's first words.
 
 ### 2026-09-14 chain F pass 10: motionFileManager switch table
 - `[0x51FBC0, .rodata, src/motionFileManager]`: jtbl_0061FBC0, pursueNodeList's 6-arm switch table (three targets repeated twice), VMA 0x61FBC0..0x61FBD8, 24 B, align 16, emitted by the compiled function; the blob resumes at 0x51FBD8 with two zero pad words.
+
+### 2026-09-14 chain F pass 12: st25a double
+- `[0x4549E0, .rodata, ico2/script/src/st25a]` plain-rodata: actSt25aElevChk's double 0.15 as an 8-byte constant-pool operand, VMA 0x5549E0..0x5549E8, emitted by the compiled function; the blob resumes at 0x4549E8. st19a is closed, 6 of 6 landed this pass.

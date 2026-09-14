@@ -27,7 +27,7 @@ extern void gif_SetAlpha(int a0, int a1, int a2);
 extern void gif_SetDrawEnviroment(int a0, int a1, int a2, int a3, int a4, int a5);
 extern void gif_SetGsReg(int a0, long long a1);
 extern void gif_SetZTest(int a0);
-extern void gif_SpriteSensitiveOrg(void *a0, int a1, int a2, void *a3, int a4);
+extern void gif_SpriteSensitiveOrg(void *a0, int a1, void *a2, void *a3, int a4);
 extern int tex_AllocVramAuto(int a0, int a1);
 extern void tex_ResetVramPri(void);
 
@@ -81,8 +81,58 @@ ASM_LIT4_SLOT(D_00638B90, 0.8f);
 ASM_LIT4_SLOT(D_00638B94, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", updatePoolGeo);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", dispPool);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", PoolDL);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", InitLimitedPoolReflactionMesh);
+
+extern int D_0028F4C0[];
+extern void DispMultiBgaManagerWithKind(int kind, int a1, int a2);
+extern void updatePoolGeo(char *self);
+extern void dispPool(char *self);
+extern void p2o_DispVU1(char *self);
+
+void PoolDL(char *self)
+{
+    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+
+    DispMultiBgaManagerWithKind(0x1F2, *(int *)(w + 0x2C), 10);
+    DispMultiBgaManagerWithKind(0x1F3, *(int *)(w + 0x24), 2);
+    if (D_0028F4C0[5] == 0) {
+        *(short *)(w + 0xCC) =
+            (short)((float)*(short *)(w + 0xCC) +
+                    60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 2000.0f);
+    }
+    if (*(int *)(w + 0x30) != 0) {
+        updatePoolGeo(self);
+        dispPool(self);
+    } else {
+        p2o_DispVU1(self);
+    }
+}
+
+extern void *iosMallocDebug(int heap, int size, char *file, int line);
+extern char *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int f58);
+extern char D_0054DA60[];
+extern int D_0063A438;
+
+void InitLimitedPoolReflactionMesh(char *a0)
+{
+    int i;
+    int j;
+
+    *(char **)(a0 + 0x10) = prim_InitMesh3D(*(int *)(a0 + 0x4), *(int *)(a0 + 0x0), 1, 0x1C,
+                                            *(unsigned int *)(a0 + 0x1C), 1);
+    *(char ****)(a0 + 0x14) =
+        (char ***)iosMallocDebug(D_0063A438, *(int *)(a0 + 0x0) * 4, D_0054DA60, 884);
+    *(char **)(a0 + 0x18) = iosMallocDebug(D_0063A438, *(int *)(a0 + 0x0) * 4, D_0054DA60, 885);
+    for (i = 0; i < *(int *)(a0 + 0x0); i++) {
+        *(char **)(*(char **)(a0 + 0x18) + i * 4) =
+            *(char **)(*(char **)(a0 + 0x10) + 0x6C) + i * *(int *)(a0 + 0x4) * 16;
+        (*(char ****)(a0 + 0x14))[i] =
+            (char **)iosMallocDebug(D_0063A438, *(int *)(a0 + 0x4) * 4, D_0054DA60, 890);
+        for (j = 0; j < *(int *)(a0 + 0x4); j++) {
+            (*(char ****)(a0 + 0x14))[i][j] = 0;
+        }
+    }
+}
+
 ASM_LIT4_SLOT(D_00638B98, 0.1f);
 ASM_LIT4_SLOT(D_00638B9C, 0.8f);
 ASM_LIT4_SLOT(D_00638BA0, 1.15f);
@@ -90,7 +140,38 @@ ASM_LIT4_SLOT(D_00638BA4, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", SetLayoutedPoolReflactionMesh);
 ASM_LIT4_SLOT(D_00638BA8, 0.3f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", SetLimitedPoolReflactionMesh);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", DispLimitedPoolReflactionMesh);
+
+extern int D_0063A064;
+extern int D_0063A068;
+extern int D_0063B148;
+extern char D_002906E0[];
+extern char D_00290720[];
+extern int matrixptr;
+extern void gif_StartPacketPri(int pri);
+extern void copyToWork(int a0);
+extern void gif_SetZWrite(int a0);
+extern void gif_EndPacket(void);
+extern void _SetCurrentMatrix(int m);
+extern void prim_DispMesh3D(int a0, void *a1, void *a2, int a3);
+extern void DispMeshWire(int *rows, int nx, int ny);
+
+void DispLimitedPoolReflactionMesh(int *a0)
+{
+    gif_StartPacketPri(4);
+    copyToWork(4);
+    gif_SetGsReg(6, D_00639F28 | 0x20010000 | 0x600000000LL);
+    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetGsReg(0x14, 0x60);
+    gif_SetZWrite(0);
+    gif_SetZTest(1);
+    gif_SetAlpha(0, 4, 0x80);
+    gif_EndPacket();
+    _SetCurrentMatrix(matrixptr + 0x100);
+    prim_DispMesh3D(a0[4], D_002906E0, D_00290720, -1);
+    if (D_0063B148 != 0) {
+        DispMeshWire((int *)a0[6], a0[0], a0[1]);
+    }
+}
 
 void PoolGeo(void) {}
 
