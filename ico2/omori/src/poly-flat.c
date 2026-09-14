@@ -2,8 +2,8 @@
 
 extern void gif_SetAlpha();
 extern void gif_StartPacketPri();
-extern void gif_SetAlpha__pn(int a0, int a1, int a2) __asm__("gif_SetAlpha");
-extern void gif_StartPacketPri__pn(int a0) __asm__("gif_StartPacketPri");
+extern void gif_SetAlpha(int a0, int a1, int a2);
+extern void gif_StartPacketPri(int a0);
 extern void gif_EndPacket();
 extern void CopyMatrix(void *dst, void *src);
 extern int drawline_ws_matrix[];

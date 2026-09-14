@@ -257,16 +257,15 @@ void viBufBeginPut(ViBuf *self, void **addr1, int *size1, void **addr2, int *siz
     SignalSema(self->sema);
 }
 
-extern void SignalSema__pn(int x) __asm__("SignalSema");
-extern unsigned char WaitSema__pn(int x) __asm__("WaitSema");
+extern void SignalSema(int x);
 
 void viBufEndPut(int *self, int a1)
 {
-    WaitSema__pn(self[0x40 / 4]);
+    WaitSema(self[0x40 / 4]);
     self[0x14 / 4] = self[0x14 / 4] + a1;
     *((long long *)(((char *)self) + 0x48)) =
         ((long long)a1) + (*((long long *)(((char *)self) + 0x48)));
-    SignalSema__pn(self[0x40 / 4]);
+    SignalSema(self[0x40 / 4]);
 }
 
 __asm__(".section .text\n"
@@ -854,9 +853,9 @@ __asm__(".section .text\n"
 
 void viBufFlush(int *self)
 {
-    WaitSema__pn(self[0x40 / 4]);
+    WaitSema(self[0x40 / 4]);
     self[0x14 / 4] = (self[0x14 / 4] + 0x7FF) / 0x800 * 0x800;
-    SignalSema__pn(self[0x40 / 4]);
+    SignalSema(self[0x40 / 4]);
 }
 
 /* Does the entry's byte position still lie inside the run of ts->len bytes

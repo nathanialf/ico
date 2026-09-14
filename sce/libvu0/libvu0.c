@@ -576,17 +576,16 @@ void sceVu0CameraMatrix(void *a0, void *a1, void *a2, void *a3)
     sceVu0InversMatrix(a0, buf);
 }
 
-extern void sceVu0ScaleVector__pn(float *a0, float *a1, float a2) __asm__("sceVu0ScaleVector");
 extern void sceVu0TransposeMatrix(void *a0, void *a1);
 
 void sceVu0NormalLightMatrix(void *a0, void *a1, void *a2, void *a3)
 {
     float buf[4];
-    sceVu0ScaleVector__pn(buf, a1, -1.0f);
+    sceVu0ScaleVector(buf, a1, -1.0f);
     sceVu0Normalize(a0, buf);
-    sceVu0ScaleVector__pn(buf, a2, -1.0f);
+    sceVu0ScaleVector(buf, a2, -1.0f);
     sceVu0Normalize((char *)a0 + 0x10, buf);
-    sceVu0ScaleVector__pn(buf, a3, -1.0f);
+    sceVu0ScaleVector(buf, a3, -1.0f);
     sceVu0Normalize((char *)a0 + 0x20, buf);
     {
         float fzero = 0.0f;

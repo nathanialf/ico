@@ -14,9 +14,9 @@ extern int D_00639F44;
 extern int D_0063B160;
 extern void debug_PrintFontWindow();
 extern void reg_DispObj(void *req);
-extern void p2o_DispVU1DObjMulti__pn() __asm__("p2o_DispVU1DObjMulti");
-extern void p2o_DispVU1DObj__pn() __asm__("p2o_DispVU1DObj");
-extern void p2o_DispVU1__pn() __asm__("p2o_DispVU1");
+extern void p2o_DispVU1DObjMulti();
+extern void p2o_DispVU1DObj();
+extern void p2o_DispVU1();
 extern int D_00290B24[];
 extern int dmaVif;
 extern void sceDmaSend();
@@ -56,7 +56,7 @@ void p2o_DispVU1DObjMulti(void *req)
 
 void p2o_DispVU1Multi(GObj *self)
 {
-    p2o_DispVU1DObjMulti__pn(GOBJ_SUB(self));
+    p2o_DispVU1DObjMulti(GOBJ_SUB(self));
 }
 
 void p2o_DispVU1MultiDefault(GObj *self)
@@ -66,12 +66,12 @@ void p2o_DispVU1MultiDefault(GObj *self)
 
 void p2o_DispVU1(GObj *self)
 {
-    p2o_DispVU1DObj__pn(GOBJ_SUB(self));
+    p2o_DispVU1DObj(GOBJ_SUB(self));
 }
 
 void p2o_DispVU1Default(GObj *self)
 {
-    p2o_DispVU1__pn(self);
+    p2o_DispVU1(self);
 }
 
 void p2o_TransMicroProgram(void)

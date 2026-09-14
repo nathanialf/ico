@@ -13,7 +13,6 @@ typedef struct {
 extern DpkCtl D_004EE6F0;
 extern char D_00621950[];
 extern int D_0063A43C;
-extern int D_004EE6F0__pn[] __asm__("D_004EE6F0");
 
 void dpk_Init(void)
 {
@@ -37,8 +36,8 @@ void dpk_SwapBuffer(void)
 
 int dpk_CheckBufferSize(void)
 {
-    int idx = D_004EE6F0__pn[0];
-    int adj_cur = D_004EE6F0__pn[4] - 0x80000;
-    int end_off = (D_004EE6F0__pn + idx)[1];
+    int idx = ((int *)&D_004EE6F0)[0];
+    int adj_cur = ((int *)&D_004EE6F0)[4] - 0x80000;
+    int end_off = ((int *)&D_004EE6F0 + idx)[1];
     return (end_off - adj_cur) >> 4;
 }

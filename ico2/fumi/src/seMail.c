@@ -2,7 +2,7 @@
 
 extern char D_00621D40[];
 extern void debug_StdPrintfDummy();
-extern void debug_StdPrintfDummy__pn(void *a0) __asm__("debug_StdPrintfDummy");
+extern void debug_StdPrintfDummy(void *a0);
 extern void GetRootPosition(void *out, void *obj);
 extern float sceVu0InnerProduct(void *a, void *b);
 extern void sceVu0SubVector(void *out, void *a, void *b);

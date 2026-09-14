@@ -416,7 +416,6 @@ int stageSE04agate(char *a0)
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
-extern void *GetCameraPos__pn(void) __asm__("GetCameraPos");
 extern float GetRegularizedWindSpeed(void *a0);
 
 int stageSE04bstrong(void *a0)
@@ -426,7 +425,7 @@ int stageSE04bstrong(void *a0)
         v = D_0063C078;
     } else {
         D_0063C07C = frame_count;
-        v = GetRegularizedWindSpeed(GetCameraPos__pn()) * 0.5f + 0.5f;
+        v = GetRegularizedWindSpeed((void *)GetCameraPos()) * 0.5f + 0.5f;
         D_0063C078 = v;
     }
     *(float *)((char *)a0 + 0x18) = v;
@@ -435,7 +434,7 @@ int stageSE04bstrong(void *a0)
 
 int stageSE04ewind(char *a0)
 {
-    float x = ((float *)GetCameraPos__pn())[2];
+    float x = ((float *)GetCameraPos())[2];
     float f;
     if (x < -5770.0f) {
         f = 0.0f;
@@ -536,12 +535,11 @@ int stageSE06abirdOut(int *self)
     } while (0);
 }
 
-extern int UpdateRootPosition__p4() __asm__("GetCameraPos");
 extern int stageSEtaimatsu(SEObj *a0);
 
 int stageSE06ataimatsu(int *self)
 {
-    float *p = (float *)UpdateRootPosition__p4((int)self);
+    float *p = (float *)GetCameraPos((int)self);
     if (p[0] < 300.0f) {
         if (848.0f < p[2]) {
             return stageSEtaimatsu((SEObj *)self);
@@ -622,7 +620,7 @@ int stageSE08anoise3(int self)
 {
     Blk16 b1;
     Blk16 b2;
-    int ret = UpdateRootPosition__p4(self);
+    int ret = GetCameraPos(self);
     b1 = D_00623110;
     b2 = D_00623120;
     if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
@@ -641,7 +639,7 @@ int stageSE08ataimatsu(int a0)
 {
     Blk16 b1;
     Blk16 b2;
-    int ret = UpdateRootPosition__p4(a0);
+    int ret = GetCameraPos(a0);
     b1 = D_00623110;
     b2 = D_00623120;
     if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
@@ -661,7 +659,7 @@ int stageSE08bcrane(void *a0)
         f = D_0063C078;
     } else {
         D_0063C07C = frame_count;
-        f = GetRegularizedWindSpeed((void *)UpdateRootPosition__p4());
+        f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
     }
@@ -756,7 +754,7 @@ int stageSE10rstrong2(int self)
         f = D_0063C078;
     } else {
         D_0063C07C = frame_count;
-        f = GetRegularizedWindSpeed((void *)GetCameraPos__pn());
+        f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
     }
@@ -923,7 +921,7 @@ int stageSE19astrong(void *a0)
         f = D_0063C078;
     } else {
         D_0063C07C = frame_count;
-        f = GetRegularizedWindSpeed(GetCameraPos__pn());
+        f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
     }
@@ -955,7 +953,7 @@ int stageSE20astrong(void *a0)
         f = D_0063C078;
     } else {
         D_0063C07C = frame_count;
-        f = GetRegularizedWindSpeed(GetCameraPos__pn());
+        f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
     }
@@ -970,7 +968,7 @@ int stageSE20astrong2(void *a0)
         f = D_0063C078;
     } else {
         D_0063C07C = frame_count;
-        f = GetRegularizedWindSpeed(GetCameraPos__pn());
+        f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
     }
@@ -981,7 +979,6 @@ int stageSE20astrong2(void *a0)
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
-extern void *GetCameraPos__pn(void) __asm__("GetCameraPos");
 extern float GetRegularizedWindSpeed(void *a0);
 
 int stageSE22astrong(void *a0)
@@ -992,7 +989,7 @@ int stageSE22astrong(void *a0)
     } else {
         float e;
         D_0063C07C = frame_count;
-        e = GetRegularizedWindSpeed(GetCameraPos__pn());
+        e = GetRegularizedWindSpeed((void *)GetCameraPos());
         e = e * 0.5f + 0.5f;
         D_0063C078 = e;
         f = e;
@@ -1026,7 +1023,7 @@ int stageSE24astrong(void *a0)
         f = D_0063C078;
     } else {
         D_0063C07C = frame_count;
-        f = GetRegularizedWindSpeed(GetCameraPos__pn());
+        f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
         D_0063C078 = f;
     }

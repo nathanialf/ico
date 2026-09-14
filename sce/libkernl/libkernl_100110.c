@@ -218,7 +218,6 @@ void _InitSys(void)
 }
 
 extern void DIntr(void);
-extern void EIntr__pn(void) __asm__("EIntr");
 
 int DisableIntc(int a0)
 {
@@ -232,7 +231,7 @@ int DisableIntc(int a0)
     rv = _DisableIntc(a0);
     SYNC();
     if (eie) {
-        EIntr__pn();
+        EIntr();
     }
     return rv;
 }
@@ -251,7 +250,7 @@ int EnableIntc(int a0)
     rv = _EnableIntc(a0);
     SYNC();
     if (eie) {
-        EIntr__pn();
+        EIntr();
     }
     return rv;
 }
@@ -268,7 +267,7 @@ int DisableDmac(int a0)
     rv = _DisableDmac(a0);
     SYNC();
     if (eie) {
-        EIntr__pn();
+        EIntr();
     }
     return rv;
 }
@@ -285,7 +284,7 @@ int EnableDmac(int a0)
     rv = _EnableDmac(a0);
     SYNC();
     if (eie) {
-        EIntr__pn();
+        EIntr();
     }
     return rv;
 }

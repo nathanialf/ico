@@ -2,7 +2,7 @@
 
 extern void _ACTWait();
 extern int actInitialize(int a0);
-extern void _ACTWait__pn(int a0) __asm__("_ACTWait");
+extern void _ACTWait(int a0);
 
 typedef struct ActMail {
     int mail;          /* 0x00 */

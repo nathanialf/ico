@@ -7,7 +7,6 @@ extern int fptodp(float f);
 extern char D_0063A878[];
 extern float FSqrt(float a0);
 extern float sceVu0InnerProduct(int a0, int a1);
-extern float sceVu0InnerProduct__pn(void *a, void *b) __asm__("sceVu0InnerProduct");
 
 void fzShowV(float *p)
 {
@@ -87,16 +86,16 @@ float fzMagnitudeByLineSeg(float *p0, float *p1, float *p2)
     d2[0] = p2[0] - p0[0];
     d2[2] = p2[2] - p0[2];
     d2[1] = 0.0f;
-    r1 = sceVu0InnerProduct__pn(d1, d2);
+    r1 = sceVu0InnerProduct(d1, d2);
     if (r1 < 0.0f) {
-        return FSqrt(sceVu0InnerProduct__pn(d2, d2));
+        return FSqrt(sceVu0InnerProduct(d2, d2));
     }
     d2[0] = p2[0] - p1[0];
     d2[1] = 0.0f;
     d2[2] = p2[2] - p1[2];
-    r2 = sceVu0InnerProduct__pn(d1, d2);
+    r2 = sceVu0InnerProduct(d1, d2);
     if (-r2 < 0.0f) {
-        return FSqrt(sceVu0InnerProduct__pn(d2, d2));
+        return FSqrt(sceVu0InnerProduct(d2, d2));
     }
     a = -(p1[0] - p0[0]);
     b = p1[2] - p0[2];

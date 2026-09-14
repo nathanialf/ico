@@ -38,7 +38,6 @@ int *setTRXPOS(int *a0, long long a1, int a2, int a3);
 void *setTRXREG(int *a0, int a1, int a2);
 void *setTRXDIR(char *a0, unsigned int a1);
 extern int D_0072A040[];
-extern void sceGsPutDispEnv__pn(void *a0) __asm__("sceGsPutDispEnv");
 extern int sceGsPutDispEnv();
 extern char voBuf[];
 extern int D_0063C0BC;
@@ -149,7 +148,7 @@ void setImageSize(int *self, int a1, int a2, int a3, int a4)
 
 void sendDispEnv(void *a0)
 {
-    sceGsPutDispEnv__pn(a0);
+    sceGsPutDispEnv(a0);
     a0 = (void *)phys_addr((int)D_0072A040);
     *(volatile unsigned int *)0x1000A010 = (unsigned int)a0;
     *(volatile unsigned int *)0x1000A020 = 7;

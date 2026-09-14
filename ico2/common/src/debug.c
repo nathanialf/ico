@@ -884,9 +884,8 @@ void debug_PrintFontf(int x, int y, char *p, ...)
     *d = 0;
 }
 
-extern const char D_0060DAF0_a[] __asm__("D_0061BB40");
-extern const char D_00631CF0_a[] __asm__("D_0063AF50");
-extern void debug_StdPrintfDummy__pn() __asm__("debug_StdPrintfDummy");
+extern const char D_0061BB40[];
+extern void debug_StdPrintfDummy();
 extern double fptodp(float);
 
 void debug_PrintMatrix(float *arg)
@@ -897,10 +896,10 @@ void debug_PrintMatrix(float *arg)
         double v1 = fptodp(arg[1]);
         double v2 = fptodp(arg[2]);
         double v3 = fptodp(arg[3]);
-        debug_StdPrintfDummy__pn((int)D_0060DAF0_a, v0, v1, v2, v3);
+        debug_StdPrintfDummy((int)D_0061BB40, v0, v1, v2, v3);
         arg += 4;
     }
-    debug_StdPrintfDummy__pn((int)D_00631CF0_a);
+    debug_StdPrintfDummy((int)D_0063AF50);
 }
 
 extern char D_0061BB50[];
@@ -952,7 +951,6 @@ extern char D_0063AF78[];
 extern int debug_SelectCsvWindow(char *a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7,
                                  int a8, int *a9);
 extern int sprintf();
-extern unsigned int strlen__pn(char *buf) __asm__("strlen");
 
 int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int),
                              int a7)
@@ -966,9 +964,9 @@ int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, 
         } else {
             sprintf(buf[i], D_0063AF78, i);
         }
-        if (strlen__pn(buf[i]) >= 0x26) {
+        if ((unsigned int)strlen(buf[i]) >= 0x26) {
             buf[i][0x24] = 0;
-            debug_StdPrintfDummy__pn((int)D_0061BC38);
+            debug_StdPrintfDummy((int)D_0061BC38);
         }
     }
     return debug_SelectCsvWindow(a0, a1, a2, a3, (char *)buf, 0x25, 0, 0, count, a5);
@@ -2139,11 +2137,10 @@ extern int D_0063B100;
 extern int D_0063B108[];
 extern int D_007049D0[];
 extern int sceOpen(void *a0, int a1);
-extern void sprintf__pn(void *a0, void *a1, void *a2, int a3) __asm__("sprintf");
 
 int debugSceOpen(int a0, int a1)
 {
-    sprintf__pn(D_007049D0, D_0063B108, D_0061C580, a0);
+    sprintf(D_007049D0, D_0063B108, D_0061C580, a0);
     return D_0063B100 = sceOpen(D_007049D0, a1);
 }
 
