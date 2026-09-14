@@ -145,8 +145,8 @@ segments:
       # preserves the type and name of any subsegment whose start offset
       # survives, so a flipped TU is not clobbered.
       - [0x0, c, sce/crt0]  # 4 funcs, vendor crt0.s (1/4 MAIN.MAP)
-      - [0x110, c, sce/libkernl/libkernl_100110]  # 179 funcs, vendor libkernl.a whole run (174/179 MAIN.MAP)
-      - [0x2460, c, ico2/common/src/main]  # 4 funcs, listing
+      - [0x110, c, sce/libkernl/libkernl_100110]  # 177 funcs, vendor libkernl.a whole run (174/177 MAIN.MAP)
+      - [0x1C80, c, ico2/common/src/main]  # 8 funcs, listing; starts with Main (main.c:1011), which the listing puts in main.c and splat had left inside the libkernl run
       - [0x25A8, c, ico2/sugipon/src/delayFreeManager]  # 3 funcs, census
       - [0x27D8, c, ico2/sugipon/src/geometryManager]  # 48 funcs, census
       - [0x4BE0, c, ico2/sugipon/src/keyInput]  # 2 funcs, listing
@@ -316,8 +316,8 @@ segments:
       - [0x1129A8, c, ico2/fumi/src/act]  # 21 funcs, census
       - [0x1149B0, c, ico2/fumi/src/act2]  # 2 funcs, listing
       - [0x114B38, c, ico2/fumi/src/seMail]  # 3 funcs, listing
-      - [0x114D80, c, ico2/fumi/src/way_kidnap]  # 12 funcs, listing
-      - [0x115F18, c, ico2/fumi/src/way_llf]  # 25 funcs, listing
+      - [0x114D80, c, ico2/fumi/src/way_kidnap]  # 11 funcs, listing
+      - [0x115CA0, c, ico2/fumi/src/way_llf]  # 26 funcs, listing; starts with CreateBridge (way_llf.c:98), which the retail link emits ahead of InitWayPointSystem where the January listing emits CreateTempWayGroup first
       - [0x116790, c, ico2/fumi/src/way_tool]  # 14 funcs, census
       - [0x117E08, c, ico2/script/src/deja]  # 6 funcs, listing; starts with actDejaChk, which splat had glued onto way_tool's cursor_control
       - [0x1186D8, c, ico2/script/src/e3]  # 43 funcs, listing; starts with actE3WarningChk (e3.c:488), its first parse-order member, which splat had glued onto deja's actEnemySleep

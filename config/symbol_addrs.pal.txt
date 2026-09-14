@@ -598,12 +598,12 @@ sceDeci2ExReqSend = 0x00101BD8; // type:func  // sce/libkernl/libkernl_100110  /
 sceDeci2ExLock = 0x00101C08; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 sceDeci2ExUnLock = 0x00101C30; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 kputs = 0x00101C58; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
-Main = 0x00101C80; // type:func  // sce/libkernl/libkernl_100110  // census Main (main.c 1011-1251) by call sequence and position, the first of three census functions the ROM stub func_00101C80 covered
-idle = 0x00101FB8; // type:func  // sce/libkernl/libkernl_100110  // census idle (main.c 1261-1320) by call sequence, the retail call list is the listing's minus its compiled-out debug calls
-scheduler = 0x001021A0; // type:func  // sce/libkernl/libkernl_100110  // census scheduler (main.c 1345-1417) by call sequence, the retail call list is the listing's minus printf and the debug strcmp arm
-boot = 0x00102388; // type:func  // sce/libkernl/libkernl_100110  // census boot (main.c 1443-1502) by instruction stream and call sequence, the listing body minus debugExceptionInit
 
 // ---- ico2/common/src/main
+Main = 0x00101C80; // type:func  // ico2/common/src/main  // census Main (main.c 1011-1251) by call sequence and position, the first of three census functions the ROM stub func_00101C80 covered
+idle = 0x00101FB8; // type:func  // ico2/common/src/main  // census idle (main.c 1261-1320) by call sequence, the retail call list is the listing's minus its compiled-out debug calls
+scheduler = 0x001021A0; // type:func  // ico2/common/src/main  // census scheduler (main.c 1345-1417) by call sequence, the retail call list is the listing's minus printf and the debug strcmp arm
+boot = 0x00102388; // type:func  // ico2/common/src/main  // census boot (main.c 1443-1502) by instruction stream and call sequence, the listing body minus debugExceptionInit
 Emergency_DestroyAllThread = 0x00102460; // type:func  // ico2/common/src/main
 movie_abort_check = 0x00102500; // type:func  // ico2/common/src/main
 demoEnd = 0x00102540; // type:func  // ico2/common/src/main  // provisional-ordinal
@@ -4214,9 +4214,9 @@ WayLengthOfGObj_Pos = 0x00215B78; // type:func  // ico2/fumi/src/way_kidnap
 WayLengthOfGObj_GObj = 0x00215BC8; // type:func  // ico2/fumi/src/way_kidnap
 WayPointWithRangeFromGObj = 0x00215C20; // type:func  // ico2/fumi/src/way_kidnap
 func_00215C68 = 0x00215C68; // type:func  // ico2/fumi/src/way_kidnap  // census wpsort_compfnc by instruction stream, a file static twin of the wpsort_compfnc already seated in ico2/fumi/src/way_util, so the placeholder name stays
-CreateBridge = 0x00215CA0; // type:func  // ico2/fumi/src/way_kidnap  // census CreateBridge (way_llf.c 98-369) by call sequence, the only listing function whose call list matches once the compiled-out printf and assert arms are removed, and the listing emits it inside the way_llf run, the retail link at the tail of way_kidnap
 
 // ---- ico2/fumi/src/way_llf
+CreateBridge = 0x00215CA0; // type:func  // ico2/fumi/src/way_llf  // census CreateBridge (way_llf.c 98-369) by call sequence, the only listing function whose call list matches once the compiled-out printf and assert arms are removed, and the listing emits it inside the way_llf run, the retail link at the tail of way_kidnap
 InitWayPointSystem = 0x00215F18; // type:func  // ico2/fumi/src/way_llf
 CreateWayGroup = 0x00215FA8; // type:func  // ico2/fumi/src/way_llf
 CreateTempWayGroup = 0x00216020; // type:func  // ico2/fumi/src/way_llf
@@ -6203,8 +6203,8 @@ __sprint = 0x00280118; // type:func  // sce/libc/stdio/vfiprintf  // (vendor) li
 __sbprintf = 0x00280160; // type:func  // sce/libc/stdio/vfiprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
 vfiprintf = 0x00280218; // type:func  // sce/libc/stdio/vfiprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
 _vfiprintf_r = 0x00280290; // type:func  // sce/libc/stdio/vfiprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
-func_00280E60 = 0x00280E60; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal  // census __sprint by instruction stream, a file static twin of the __sprint already seated in vfiprintf, so the placeholder name stays
-func_00280EA8 = 0x00280EA8; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal  // census __sbprintf by instruction stream and by calling vfprintf where the vfiprintf copy calls vfiprintf, a static twin of the __sbprintf already seated in vfiprintf, so the placeholder name stays
+func_00280E60 = 0x00280E60; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // census __sprint by instruction stream, a file static twin of the __sprint already seated in vfiprintf, so the placeholder name stays
+func_00280EA8 = 0x00280EA8; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // census __sbprintf by instruction stream and by calling vfprintf where the vfiprintf copy calls vfiprintf, a static twin of the __sbprintf already seated in vfiprintf, so the placeholder name stays
 vfprintf = 0x00280F60; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
 _vfprintf_r = 0x00280FD8; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
 cvt = 0x002824F0; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)

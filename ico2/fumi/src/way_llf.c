@@ -71,6 +71,11 @@ extern Nd D_004F31E0[];
 extern int D_0063BD70;
 extern int D_0063BD74;
 
+/* CreateBridge opens the object at VMA 0x00215CA0. The listing records it
+   in way_llf.c (lines 98 to 369) but emits it after CreateTempWayGroup;
+   the retail link emits it first, ahead of InitWayPointSystem. */
+INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_llf", CreateBridge);
+
 void InitWayPointSystem(void)
 {
     int i;

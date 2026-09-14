@@ -416,5 +416,3 @@ int func_00215C68(float *a, float *b)
         return 1;
     return 0;
 }
-
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_kidnap", CreateBridge);

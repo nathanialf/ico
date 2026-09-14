@@ -539,8 +539,3 @@ void kputs(int a0)
     args[0] = a0;
     Deci2Call(0x10, args);
 }
-
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", Main);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", idle);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", scheduler);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", boot);

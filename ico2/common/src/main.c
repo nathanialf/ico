@@ -10,6 +10,14 @@ typedef struct {
     int *th[6];
 } ThreadTbl;
 
+/* Main, idle, scheduler and boot open the object at VMA 0x00101C80. The
+   listing records all four in main.c (lines 1011 to 1502); splat had left
+   them inside the libkernl run that precedes them. */
+INCLUDE_ASM("asm/nonmatchings/ico2/common/src/main", Main);
+INCLUDE_ASM("asm/nonmatchings/ico2/common/src/main", idle);
+INCLUDE_ASM("asm/nonmatchings/ico2/common/src/main", scheduler);
+INCLUDE_ASM("asm/nonmatchings/ico2/common/src/main", boot);
+
 extern ThreadTbl D_0054D508;
 extern void iosThreadDestroy(int *th);
 
