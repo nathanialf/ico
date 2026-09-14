@@ -23,14 +23,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aGirlPos);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aBridgeMain);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aBridgeSwitch);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aBridgeDownSub);
+INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aGondolaMain);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aGondolaSwitch);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aExitChk);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aEneChk);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aGirlPosChk);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aHint1Chk);
-/* This stub is not st20a.c's: it spans two functions of st22a.o -- the
-   actSt22aLightningVolime loop at 0x00252418 (MAIN.MAP st22a.o base) and
-   actSt22aIntro after it.  config/ico.pal.yaml starts ico2/script/src/st22a at
-   0x252700, so the two names wait on that subsegment boundary moving to
-   0x252418. */
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", func_00252418);

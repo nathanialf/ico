@@ -223,7 +223,8 @@ actSt19aChainMain = 0x00250C28; // type:func  // ico2/script/src/st19a
 actSt19aChainSwitch = 0x00250C60; // type:func  // ico2/script/src/st19a
 actSt20aBridgeMain = 0x00251FB8; // type:func  // ico2/script/src/st20a
 actSt20aBridgeSwitch = 0x00251FF0; // type:func  // ico2/script/src/st20a
-actSt20aGondolaSwitch = 0x00252100; // type:func  // ico2/script/src/st20a
+actSt20aGondolaMain = 0x00252100; // type:func  // ico2/script/src/st20a  // MAIN.MAP st20a.o base+0xF40, the 0xF0 run to 0x2521F0 holds two functions, the second prologue at 0x252148
+actSt20aGondolaSwitch = 0x00252148; // type:func  // ico2/script/src/st20a  // MAIN.MAP st20a.o base+0xF88, the map's spacing exactly
 actSt47aHane1Main = 0x00254870; // type:func  // ico2/script/src/st47a
 actSt47aHane1Switch = 0x002548A0; // type:func  // ico2/script/src/st47a
 actSt47aHane1_1Girl = 0x00254948; // type:func  // ico2/script/src/st47a
@@ -4360,7 +4361,9 @@ actStaff3Chk = 0x0021EE38; // type:func  // ico2/script/src/end
 actStaff3RollChk = 0x0021EED8; // type:func  // ico2/script/src/end
 actEndDemo14Chk = 0x0021EF48; // type:func  // ico2/script/src/end
 actEndingSave = 0x0021EF78; // type:func  // ico2/script/src/end
-func_0021F060 = 0x0021F060; // type:func  // ico2/script/src/end  // the row spans THREE functions of op.o, not end.o. actTitleCamera2 at 0x0021F060 (MAIN.MAP op.o base), actOpDemo01 at 0x0021F1E8 (base+0x188, exact) and actTitleShortCut at 0x0021F708 (the alabel D_0021F708, MAIN.MAP base+0x688 plus the 0x20 actOpDemo01 grew). config/ico.pal.yaml starts ico2/script/src/op at 0x21F860 instead of 0x21F060, so the names wait on that boundary being moved
+actTitleCamera2 = 0x0021F060; // type:func  // ico2/script/src/op  // MAIN.MAP op.o base, the TU boundary moved here 2026-09-14
+actOpDemo01 = 0x0021F1E8; // type:func  // ico2/script/src/op  // MAIN.MAP op.o base+0x188, exact, prologue at 0x21F1F4 after the entry loads
+actTitleShortCut = 0x0021F708; // type:func  // ico2/script/src/op  // MAIN.MAP op.o base+0x688 plus the 0x20 actOpDemo01 grew, the address a function table holds, formerly the alabel D_0021F708
 
 // ---- ico2/script/src/op
 actTitleReadTimeDemo0 = 0x0021F860; // type:func  // ico2/script/src/op
@@ -5299,7 +5302,8 @@ actSt20aExitChk = 0x002521F0; // type:func  // ico2/script/src/st20a
 actSt20aEneChk = 0x002522C0; // type:func  // ico2/script/src/st20a
 actSt20aGirlPosChk = 0x00252338; // type:func  // ico2/script/src/st20a
 actSt20aHint1Chk = 0x002523A0; // type:func  // ico2/script/src/st20a
-func_00252418 = 0x00252418; // type:func  // ico2/script/src/st20a  // the row spans TWO functions of st22a.o, not st20a.o. actSt22aLightningVolime at 0x00252418 (MAIN.MAP st22a.o base, the GetCameraPos and AdpcmVolumeSet loop) and actSt22aIntro after it (instruction-stream identical to the listing's actSt22aIntro). config/ico.pal.yaml starts ico2/script/src/st22a at 0x252700 instead of 0x252418, so the names wait on that boundary being moved
+actSt22aLightningVolime = 0x00252418; // type:func  // ico2/script/src/st22a  // MAIN.MAP st22a.o base, the TU boundary moved here 2026-09-14
+actSt22aIntro = 0x002524D8; // type:func  // ico2/script/src/st22a  // MAIN.MAP st22a.o base+0xC0, exact, instruction stream identical to the listing
 
 // ---- ico2/script/src/st22a
 actSt22aIntroChk = 0x00252700; // type:func  // ico2/script/src/st22a

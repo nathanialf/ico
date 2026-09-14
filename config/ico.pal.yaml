@@ -321,8 +321,8 @@ segments:
       - [0x116790, c, ico2/fumi/src/way_tool]  # 14 funcs, census
       - [0x117E08, c, ico2/script/src/deja]  # 6 funcs, listing; starts with actDejaChk, which splat had glued onto way_tool's cursor_control
       - [0x1186D8, c, ico2/script/src/e3]  # 43 funcs, listing; starts with actE3WarningChk (e3.c:488), its first parse-order member, which splat had glued onto deja's actEnemySleep
-      - [0x11B8A0, c, ico2/script/src/end]  # 54 funcs, listing
-      - [0x11F860, c, ico2/script/src/op]  # 12 funcs, listing
+      - [0x11B8A0, c, ico2/script/src/end]  # 53 funcs, listing; ends at 0x21F060 where op.o begins
+      - [0x11F060, c, ico2/script/src/op]  # 15 funcs, listing; starts where MAIN.MAP puts op.o (actTitleCamera2), prologues at 0x21F060, 0x21F1E8 and 0x21F708 confirm the three functions before the hashed ones
       - [0x121238, c, ico2/script/src/st00a]  # 23 funcs, listing
       - [0x122710, c, ico2/script/src/st01b]  # 19 funcs, listing
       - [0x123318, c, ico2/script/src/st02a]  # 34 funcs, listing
@@ -354,8 +354,8 @@ segments:
       - [0x14E928, c, ico2/script/src/st17b]  # 3 funcs, listing
       - [0x14EA30, c, ico2/script/src/st18a]  # 22 funcs, listing
       - [0x14FE38, c, ico2/script/src/st19a]  # 14 funcs, listing
-      - [0x150D80, c, ico2/script/src/st20a]  # 28 funcs, listing
-      - [0x152700, c, ico2/script/src/st22a]  # 2 funcs, listing
+      - [0x150D80, c, ico2/script/src/st20a]  # 28 funcs, listing; ends at 0x252418 where st22a.o begins
+      - [0x152418, c, ico2/script/src/st22a]  # 4 funcs, listing; starts where MAIN.MAP puts st22a.o (actSt22aLightningVolime), the actSt22aIntro prologue at 0x2524D8 is the map's base+0xC0 exactly
       - [0x152AC0, c, ico2/script/src/st24a]  # 6 funcs, listing
       - [0x153090, c, ico2/script/src/st47a]  # 38 funcs, listing
       - [0x154D40, c, ico2/script/src/st99a]  # 15 funcs, listing

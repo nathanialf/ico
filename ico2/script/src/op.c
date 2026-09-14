@@ -1,5 +1,11 @@
 #include "common.h"
 
+/* The TU starts at 0x0021F060, where MAIN.MAP puts op.o: these three sit before
+   the functions the listing hashes named. */
+INCLUDE_ASM("asm/nonmatchings/ico2/script/src/op", actTitleCamera2);
+INCLUDE_ASM("asm/nonmatchings/ico2/script/src/op", actOpDemo01);
+INCLUDE_ASM("asm/nonmatchings/ico2/script/src/op", actTitleShortCut);
+
 typedef struct ActMail {
     int mail;          /* 0x00 */
     void (*func)(int); /* 0x04 */

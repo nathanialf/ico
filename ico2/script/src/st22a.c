@@ -1,5 +1,9 @@
 #include "common.h"
 
+/* The TU starts at 0x00252418, where MAIN.MAP puts st22a.o. */
+INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st22a", actSt22aLightningVolime);
+INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st22a", actSt22aIntro);
+
 extern int D_00639EA4;
 extern int D_0063C5AC;
 

@@ -2242,10 +2242,3 @@ void actEndingSave(volatile int a0)
     CurrentTargetGObjSub = 0;
     RequestStageChange(1, D_00639EA4, 0, 255.0f, 8.0f);
 }
-
-/* This stub is not end.c's: it spans three functions of op.o -- actTitleCamera2
-   at 0x0021F060 (MAIN.MAP op.o base), actOpDemo01 at 0x0021F1E8 (base+0x188,
-   exact) and actTitleShortCut at the alabel D_0021F708.  config/ico.pal.yaml
-   starts ico2/script/src/op at 0x21F860, so the three names wait on that
-   subsegment boundary moving to 0x21F060. */
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/end", func_0021F060);
