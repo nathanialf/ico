@@ -757,7 +757,8 @@ segments:
       - [0x53970C, .lit4, ico2/sugipon/src/wireLetter]  # carved D_0063970C (1 word, 0.7f, DispWireString's literal; the TU is fully C; the earlier note assigning this slot to warpGirl was wrong), VMA 0x63970C..0x639710
       - [0x539710, .lit4, ico2/sugipon/src/worm]  # carved D_00639710..D_00639720 (5 slots: getAnimation 0.8f, disp 0.02f, WormGeo 0.05f + 8.99999f, TraceWormRoute 8.99999f), VMA 0x639710..0x639724, 20 B; the TU's whole pool
       - [0x539724, .lit4, ico2/seki/src/BgAnimation]  # carved D_00639724..D_006397E4 (49 slots, bga_GetMotion..bga_CheckSdfCameraFrameIn; the TU's whole pool, right after worm's), VMA 0x639724..0x6397E8
-      - [0x5397E8, lit4, cod/5397E8]     # .lit4 blob resume
+      - [0x5397E8, .lit4, ico2/fumi/src/act-env]  # carved D_006397E8..D_00639834 (20 words: -3000.0f and pi as literals in the matched environment test, then eighteen slots beside the still-asm ACTGetEnvironment, one per use site in ROM order 4900 pi/2 40000 3000 3000 355 455 10000 -pi/2 pi/2 -pi/2 pi/2 10000 40000 pi/2 4900 22500 12100; the TU's whole pool), VMA 0x6397E8..0x639838, 80 B
+      - [0x539838, lit4, cod/539838]     # .lit4 blob resume (words before way_kidnap's carve)
       - [0x539860, .lit4, ico2/fumi/src/way_kidnap]  # carved D_00639860 (1.0e10f, NearestEnemyFromGirl's initial minimum, written as a literal), the TU's whole .lit4 run, VMA 0x639860..0x639864; 0x63985C is act's, 0x639864 way_tool's
       - [0x539864, .lit4, ico2/fumi/src/way_tool]  # carved D_00639864..D_00639868 (2 slots, both 0.116355285f: draw_way_group's own literal and one slot for the still-asm way_toolDL; the TU's whole pool), VMA 0x639864..0x63986C, 8 B
       - [0x53986C, lit4, cod/53986C]     # .lit4 blob resume

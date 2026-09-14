@@ -73,8 +73,6 @@ inline void GetSofaPosition(char *a0, char *a1)
 }
 
 extern char *D_00639EA8;
-extern float D_006397E8;
-extern float D_006397EC;
 extern Vec4 D_00621A10;
 extern float *test_CURRENTROOT(void *a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
@@ -125,15 +123,15 @@ void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj
     }
     mode = getDitchCarryModeStage8();
     if (mode) {
-        if (D_006397E8 < test_CURRENTROOT(D_00639EA4)[1]) {
+        if (-3000.0f < test_CURRENTROOT(D_00639EA4)[1]) {
             *tbl = D_004F1D80;
             if (mode == 1) {
                 v.x = test_CURRENTROOT(D_00639EA4)[0];
                 v.y = test_CURRENTROOT(D_00639EA4)[1];
                 v.z = test_CURRENTROOT(D_00639EA4)[2];
                 sceVu0SubVector(&v, &v, D_004F1DC0);
-                _ApplyRyGV(&v, (float)(int)(_GetDirection(D_004F1DD0) / D_006397EC * 180.0f) *
-                                   D_006397EC / 180.0f);
+                _ApplyRyGV(&v, (float)(int)(_GetDirection(D_004F1DD0) / 3.1415927f * 180.0f) *
+                                   3.1415927f / 180.0f);
                 if (v.z < -150.0f) {
                     *tbl = D_004F1DB0;
                 }
@@ -322,4 +320,22 @@ inline int CheckWallAttributeEdegWall(int a0)
     return (unsigned char)CheckWallAttribute__pn(a0, 0x1000);
 }
 
+ASM_LIT4_SLOT(D_006397F0, 4900.0f);
+ASM_LIT4_SLOT(D_006397F4, 1.5707964f);
+ASM_LIT4_SLOT(D_006397F8, 40000.0f);
+ASM_LIT4_SLOT(D_006397FC, 3000.0f);
+ASM_LIT4_SLOT(D_00639800, 3000.0f);
+ASM_LIT4_SLOT(D_00639804, 355.0f);
+ASM_LIT4_SLOT(D_00639808, 455.0f);
+ASM_LIT4_SLOT(D_0063980C, 10000.0f);
+ASM_LIT4_SLOT(D_00639810, -1.5707964f);
+ASM_LIT4_SLOT(D_00639814, 1.5707964f);
+ASM_LIT4_SLOT(D_00639818, -1.5707964f);
+ASM_LIT4_SLOT(D_0063981C, 1.5707964f);
+ASM_LIT4_SLOT(D_00639820, 10000.0f);
+ASM_LIT4_SLOT(D_00639824, 40000.0f);
+ASM_LIT4_SLOT(D_00639828, 1.5707964f);
+ASM_LIT4_SLOT(D_0063982C, 4900.0f);
+ASM_LIT4_SLOT(D_00639830, 22500.0f);
+ASM_LIT4_SLOT(D_00639834, 12100.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-env", ACTGetEnvironment);
