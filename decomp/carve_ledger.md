@@ -1084,6 +1084,10 @@ words become the blob's first words.
 - `[0x51FA90, .rodata, src/item]` execBombGeo's 5-arm table (20 B), resume
   `0x51FAA4` (c1ccaa792).
 
+- `[0x3ED170, .data, src/waterDot]` syms: initWaterDotWork, initWaterDot, initWaterDot2 (the
+  three static templates AllocWaterDot copies, 0x1C + pad, 0x30, 0x30; VMA 0x4ED170..0x4ED1F0),
+  resume `0x3ED1F0`.
+
 - `[0x521398, .rodata, src/waterDot]` plain-rodata: ExecWaterDot's double 0.00078125 (8 B),
   resume `0x5213A0`.
 
