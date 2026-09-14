@@ -706,8 +706,197 @@ void CameraEdit_DispBoxType2(int a0, int a1)
     dispCameraGroupType2(a0, a1 & 0xFF);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuGroupSelect);
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuGroupEdit);
+/* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
+   pad, trg at 0x4 */
+typedef struct Pad {
+    int unk00;
+    int trg;
+    int unk08;
+    int rep;
+    char unk10[0x44];
+    unsigned char ana[4];
+} Pad;
+
+extern Pad D_0028F8F0[];
+extern char D_0063AAD8[];
+extern char D_0063AAE0[];
+extern int D_0063B13C;
+extern int print_y;
+extern unsigned char exit_f;
+extern int *D_0063AA7C;
+extern int CameraEdit_BOX_NUMBER(void);
+extern void DispCameraGroup(int box, unsigned char sel);
+extern void debug_Printf(int x, int y, unsigned int col, char *fmt, ...);
+extern void iosThreadSleep(void *th);
+extern void EnterMenu(void *a0, int a1, void *a2);
+extern void menuGroupEdit(char *m);
+extern void menuPinSelect(char *m);
+
+void menuGroupSelect(char *m)
+{
+    Pad *pad;
+    int *box = (int *)(m + 0x74);
+    int i;
+    int n;
+    int start;
+    int end;
+
+    iosThreadSleep(m);
+
+    pad = D_0028F8F0;
+    while (1) {
+        if (pad[1].trg & 0x1000) {
+            (*(int *)(m + 0x74))--;
+        }
+        if (pad[1].trg & 0x4000) {
+            (*(int *)(m + 0x74))++;
+        }
+        for (i = 0; i < CameraEdit_BOX_NUMBER(); i++) {
+            DispCameraGroup(i, i == *box);
+        }
+        *box = (*box < 0) ? CameraEdit_BOX_NUMBER() - 1
+                          : ((*box < CameraEdit_BOX_NUMBER()) ? *box : 0);
+        n = *box - 5;
+        start = (n < 0) ? 0 : ((CameraEdit_BOX_NUMBER() < n) ? CameraEdit_BOX_NUMBER() : n);
+        n = start + 10;
+        end = (n < 0) ? 0 : ((CameraEdit_BOX_NUMBER() < n) ? CameraEdit_BOX_NUMBER() : n);
+        for (i = start; i < end; i++) {
+            if (i == *box) {
+                if (D_0063B13C & 1) {
+                    print_y += 10;
+                    debug_Printf(40, print_y, 0xFFFFFF00, D_0063AAD8, D_0063AA7C[1] + i * 0x4C);
+                }
+            } else {
+                if (D_0063B13C & 1) {
+                    print_y += 10;
+                    debug_Printf(40, print_y, 0xFFFFFF00, D_0063AAE0, D_0063AA7C[1] + i * 0x4C);
+                }
+            }
+        }
+        if (pad[1].trg & 0x20) {
+            EnterMenu(menuGroupEdit, *box, m);
+        } else if (pad[1].trg & 0x80) {
+            EnterMenu(menuPinSelect, *box, m);
+        } else if (pad[1].trg & 0x10) {
+            exit_f = 1;
+        }
+        iosThreadSleep(m);
+    }
+}
+
+/* one row of the group editor: the live value, the step the pad applies to it,
+   and whether the row steps on the trigger edge or on the held level */
+typedef struct {
+    int val;
+    int step;
+    int mode;
+    char *name;
+} EditItem;
+
+/* the camera box record as the group editor sees it: the centre and half-size
+   floats DispCameraGroup also reads, plus the type word at 0x44 */
+typedef struct {
+    char pad00[0x20];
+    float cx, cy, cz; /* 0x20 */
+    float sx, sy, sz; /* 0x2C */
+    char pad38[0x44 - 0x38];
+    int type; /* 0x44 */
+    char pad48[0x4C - 0x48];
+} EditRec;
+
+extern char D_00554F50[];
+extern char D_00554F60[];
+extern char D_00554F70[];
+extern char D_00554F80[];
+extern char D_00554F90[];
+extern char D_0063AAE8[];
+extern char D_0063AAF0[];
+extern char D_0063AAF8[];
+extern char D_0063AB00[];
+extern int curmenu;
+extern void iosThreadDestroy(void *th);
+
+void menuGroupEdit(char *m)
+{
+    EditRec *rec = (EditRec *)(D_0063AA7C[1] + *(int *)(m + 0x74) * 0x4C);
+    int cur = 0;
+    int i;
+
+    iosThreadSleep(m);
+
+    while (1) {
+        if (D_0028F8F0[1].trg & 0x1000) {
+            cur--;
+        }
+        if (D_0028F8F0[1].trg & 0x4000) {
+            cur++;
+        }
+        cur = (cur < 0) ? 7 : ((cur > 7) ? 0 : cur);
+
+        for (i = 0; i < CameraEdit_BOX_NUMBER(); i++) {
+            DispCameraGroup(i, i == *(int *)(m + 0x74));
+        }
+        {
+            EditItem item[7] = {
+                {rec->type, 1, 1, D_0063AAE8},     {(int)rec->cx, 10, 0, D_00554F50},
+                {(int)rec->cy, 10, 0, D_00554F60}, {(int)rec->cz, 10, 0, D_00554F70},
+                {(int)rec->sx, 10, 0, D_0063AAF0}, {(int)rec->sy, 10, 0, D_0063AAF8},
+                {(int)rec->sz, 10, 0, D_0063AB00}};
+            int d;
+
+            if (item[cur].mode) {
+                if (D_0028F8F0[1].trg & 0x2000) {
+                    d = 1;
+                } else {
+                    d = 0;
+                }
+                if (D_0028F8F0[1].trg & 0x8000) {
+                    d = -1;
+                }
+            } else {
+                if (D_0028F8F0[1].unk00 & 0x2000) {
+                    d = 1;
+                } else {
+                    d = 0;
+                }
+                if (D_0028F8F0[1].unk00 & 0x8000) {
+                    d = -1;
+                }
+            }
+            d = d * item[cur].step;
+            item[cur].val += d;
+            for (i = 0; i < 7; i++) {
+                if (i == cur) {
+                    if (D_0063B13C & 1) {
+                        print_y += 10;
+                        debug_Printf(40, print_y, 0xFFFFFF00, D_00554F80, item[i].name,
+                                     item[i].val);
+                    }
+                } else {
+                    if (D_0063B13C & 1) {
+                        print_y += 10;
+                        debug_Printf(40, print_y, 0xFFFFFF00, D_00554F90, item[i].name,
+                                     item[i].val);
+                    }
+                }
+            }
+            rec->type = item[0].val;
+
+            rec->cx = (float)item[1].val;
+            rec->cy = (float)item[2].val;
+            rec->cz = (float)item[3].val;
+            rec->sx = (float)item[4].val;
+            rec->sy = (float)item[5].val;
+            rec->sz = (float)item[6].val;
+        }
+        if (D_0028F8F0[1].trg & 0x10) {
+            curmenu = *(int *)(m + 0x70);
+            iosThreadDestroy(m);
+        }
+        iosThreadSleep(m);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuPinSelect);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuPinEdit);
 
@@ -733,7 +922,7 @@ void wakeup_cameraedit(void)
 }
 
 extern void EnterMenu(void *a0, int a1, void *a2);
-extern void menuGroupSelect(void);
+extern void menuGroupSelect(char *m);
 
 void test_camedit(void)
 {
@@ -921,7 +1110,7 @@ void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13) {}
 void debug_Arrow(void) {}
 
 extern int curmenu;
-extern char exit_f;
+extern unsigned char exit_f;
 
 void InitCameraEditor(void)
 {
@@ -930,7 +1119,7 @@ void InitCameraEditor(void)
 }
 
 extern void CameraSetMode(int a0);
-extern unsigned char D_0063AB40__pn __asm__("exit_f");
+extern unsigned char exit_f;
 extern int D_0063B13C;
 extern void wakeup_cameraedit(void);
 extern void test_camedit(void);
@@ -943,10 +1132,10 @@ int debug_CameraEditor(void)
     }
     wakeup_cameraedit();
     CameraSetMode(1);
-    if (D_0063AB40__pn == 0) {
+    if (exit_f == 0) {
         return 0;
     }
-    D_0063AB40__pn = 0;
+    exit_f = 0;
     CameraEdit_Reflect();
     return -1;
 }
@@ -1160,17 +1349,6 @@ void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
         out[2] = out[2] * (float)a5;
     }
 }
-
-/* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
-   pad, trg at 0x4 */
-typedef struct Pad {
-    int unk00;
-    int trg;
-    int unk08;
-    int rep;
-    char unk10[0x44];
-    unsigned char ana[4];
-} Pad;
 
 extern Pad D_0028F8F0[];
 extern char D_00555000[];
