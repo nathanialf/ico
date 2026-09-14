@@ -112,7 +112,17 @@ void BossEnemyFunc(void *self)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", func_001A08F8);
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlGeo);
+
+extern void scpWakeupEnemyAll(void);
+extern void scpSleepEnemyAll(void);
+
+void BossCtrlGeo(void *self)
+{
+    if (*(signed char *)D_006E9A30 != 0)
+        scpWakeupEnemyAll();
+    else
+        scpSleepEnemyAll();
+}
 
 extern unsigned char D_006E9A30[];
 extern void memset(void *a0, int a1, int a2);
@@ -180,7 +190,7 @@ extern void func_001A08F8();
 extern void BossCtrlGeo();
 
 /* listing lines 157-162: send an enemy off-world and clear its live flag
-   (also inlined into gene_enemy) */
+   (also inlined into the census gene_enemy at func_001A08F8) */
 static inline void sendEnemyAway(char *o)
 {
     float pos[4];

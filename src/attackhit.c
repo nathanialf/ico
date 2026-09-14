@@ -79,7 +79,51 @@ static inline void SetupAttackPack(AttackPack *pack, char *gop, int group, float
     pack->power = 20.0f;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackCheckSameGroup);
+typedef struct {
+    int kind;
+    unsigned int cls;
+} AttackGroupPair;
+
+typedef struct {
+    AttackGroupPair p[10];
+} AttackGroupTable;
+
+extern AttackGroupTable D_00554AC0;
+
+int AttackCheckSameGroup(char *self, char *other, char *third)
+{
+    AttackGroupTable tbl = D_00554AC0;
+    unsigned int g0 = 2;
+    unsigned int g1 = 2;
+    int i;
+    int k;
+
+    if (other == self || other == third) {
+        return 1;
+    }
+    k = *(int *)(other + 0xC);
+    if (k == 19) {
+        return 0;
+    }
+    for (i = 0; tbl.p[i].kind >= 0; i++) {
+        if (*(int *)(self + 0xC) == tbl.p[i].kind) {
+            g0 = tbl.p[i].cls;
+        }
+    }
+    for (i = 0; tbl.p[i].kind >= 0; i++) {
+        if (k == tbl.p[i].kind) {
+            g1 = tbl.p[i].cls;
+        }
+    }
+    switch (g1) {
+    case 2:
+        return 1;
+    case 3:
+        return g0 < 2;
+    }
+    return g1 == g0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackMail);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackCheckHit);
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", AttackGenerate);

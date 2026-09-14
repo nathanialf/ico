@@ -199,7 +199,7 @@ typedef union {
     int i[2];
 } DObjFlags;
 
-extern int D_0063A44C;
+extern void *D_0063A44C;
 extern void _CopyVector(void *dst, void *src);
 
 void allocObjectData(char *self, char *lay, int n)
@@ -208,7 +208,8 @@ void allocObjectData(char *self, char *lay, int n)
     int j;
     int k;
 
-    *(DObjNode **)(self + 0x870) = (DObjNode *)iosMallocDebug(D_0063A44C, n * 80, D_00618F30, 299);
+    *(DObjNode **)(self + 0x870) =
+        (DObjNode *)iosMallocDebug((int)D_0063A44C, n * 80, D_00618F30, 299);
     for (i = 0; i < n; i++) {
         {
             char *e = (char *)(i * 80 + (int)*(DObjNode **)(self + 0x870));
@@ -273,11 +274,196 @@ void initInitialInverseMatrix(char *a0)
     GetInitialInverseMatrixByDObj(m, a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/DObj", initPolygonState);
+typedef struct {
+    unsigned long long lo : 16;
+    unsigned long long kind : 2;
+} PolyFlags;
+
+extern void *D_0063A44C;
+extern void _CopyMatrix(void *dst, void *src);
+extern void CopyQuaternion(void *dst, void *src);
+extern void _MulMatrix(void *dst, void *a, void *b);
+extern void GetInitialSkeltonMatrixByDObj(char *d);
+
+/* listing lines 232-246 */
+static inline void initPolyHead(char *d)
+{
+    char *h;
+    char *q;
+
+    h = *(char **)(d + 0x854);
+    q = *(char **)(h + 0x28);
+    *(char **)(d + 0x874) = iosMallocDebug((int)D_0063A44C, 0x100, D_00618F30, 238);
+    *(int *)(*(char **)(d + 0x874) + 0xF0) = *(int *)(*(char **)(q + 0x874) + 0xF0);
+    if (*(int *)(*(char **)(d + 0x874) + 0xF0) == 4) {
+        ((PolyFlags *)(h + 0x30))->kind = 3;
+    } else {
+        ((PolyFlags *)(h + 0x30))->kind = *(signed char *)(h + 0x2F) > 0;
+        if (*(int *)(*(char **)(h + 0x40) + 0x114) != 0) {
+            ((PolyFlags *)(h + 0x30))->kind = 2;
+        }
+    }
+}
+
+/* listing lines 257-270 */
+static inline void allocMatrixArrays(char *d, int n)
+{
+    int i;
+
+    *(char **)(d + 0xC) = iosMallocDebug((int)D_0063A44C, n * 64, D_00618F30, 259);
+    *(char **)(d + 0x10) = iosMallocDebug((int)D_0063A44C, n * 16, D_00618F30, 259);
+    *(int *)(d + 0x8) = n;
+    for (i = 0; i < n; i++) {
+        _CopyMatrix(*(char **)(d + 0xC) + i * 64, d + 0x20);
+        CopyQuaternion(*(char **)(d + 0x10) + i * 16, d + 0x60);
+    }
+}
+
+/* listing lines 348-355 */
+static inline void applySkeltonMatrices(char *d)
+{
+    int i;
+
+    GetInitialSkeltonMatrixByDObj(d);
+    for (i = 0; i < *(int *)(d + 0x88); i++) {
+        _MulMatrix(*(char **)(d + 0xC) + i * 64, d + 0x20, *(char **)(d + 0xC) + i * 64);
+    }
+}
+
+/* listing lines 280-286 */
+static inline void allocIntTable(char *d, int n)
+{
+    int i;
+
+    *(char **)(d + 0x838) = iosMallocDebug((int)D_0063A44C, n * 4, D_00618F30, 283);
+    for (i = 0; i < n; i++) {
+        *(int *)(*(char **)(d + 0x838) + i * 4) = 0;
+    }
+}
+
+void initPolygonState(char *d, float *lay)
+{
+    char *p;
+    char *e;
+    unsigned int mx;
+    int j;
+    int k;
+
+    mx = 0;
+    p = *(char **)(d + 0x854);
+    initMatrixDObj(d, lay);
+    initPolyHead(d);
+
+    k = (unsigned short)(*(unsigned long long *)(p + 0x30) >> 16) & 3;
+    switch (k) {
+    case 1:
+        *(short *)(d + 0x84C) = k;
+        *(int *)(d + 0x8) = *(int *)(d + 0x88);
+        allocMatrixArrays(d, *(int *)(d + 0x88));
+        allocObjectData(d, (char *)lay, *(signed char *)(p + 0x2E));
+        applySkeltonMatrices(d);
+        break;
+    case 0:
+    case 2:
+    case 3:
+        *(short *)(d + 0x84C) = 0;
+        *(int *)(d + 0x8) = *(int *)(d + 0x88) < *(signed char *)(p + 0x2E)
+                                ? *(signed char *)(p + 0x2E)
+                                : *(int *)(d + 0x88);
+        allocMatrixArrays(d, *(int *)(d + 0x8));
+        allocObjectData(d, (char *)lay, *(signed char *)(p + 0x2E));
+        break;
+    }
+
+    for (j = 0; j < *(signed char *)(p + 0x2E); j++) {
+        e = *(char **)(p + 0x40) + j * 384;
+        if (mx < *(unsigned int *)(e + 0x124)) {
+            mx = *(unsigned int *)(e + 0x124);
+        }
+    }
+
+    if ((*(unsigned long long *)(p + 0x30) & 0x30000) == 0x10000) {
+        if (mx != 0) {
+            allocIntTable(d, mx);
+        }
+        *(int *)(d + 0x834) = mx;
+    } else {
+        if (mx != 0) {
+            allocIntTable(d, 6);
+        }
+        *(int *)(d + 0x834) = mx;
+    }
+}
 
 inline void FreeDObj(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/DObj", CSVSYSTEM_InitDObj);
+typedef struct {
+    long long w[272];
+} DObjBlk880;
+
+extern DObjBlk880 D_00319020;
+extern char D_00618F50[];
+extern char D_00618F68[];
+extern char D_00618F98[];
+extern char D_00618FB8[];
+extern char D_00618FD8[];
+extern void *D_0063A44C;
+extern void CSVSYSTEM_ReadCharFiles(char *d, int id);
+extern void debug_StdPrintfDummy();
+extern void initPolygonState(char *d, float *lay);
+
+/* listing lines 423-432: the slot index of the entry tagged id, or -1 */
+static inline int findSlot(char *d, int id)
+{
+    char *p;
+    int k;
+
+    p = *(char **)(d + 0x8C);
+    k = 0;
+    while (*(int *)(p + k * 64) != -1) {
+        if (*(int *)(p + k * 64 + 4) == id) {
+            return k;
+        }
+        k++;
+    }
+    return -1;
+}
+
+/* listing lines 437-443: the 53-entry slot lookup table */
+static inline void makeSlotTable(char *d)
+{
+    int i;
+
+    *(char **)(d + 0x840) = iosMallocDebug(D_0063A438, 53, D_00618F30, 440);
+    for (i = 0; i < 53; i++) {
+        (*(char **)(d + 0x840))[i] = findSlot(d, i);
+    }
+}
+
+char *CSVSYSTEM_InitDObj(int id, float *lay)
+{
+    char *d;
+
+    d = iosMallocDebug((int)D_0063A44C, 0x880, D_00618F30, 463);
+    *(DObjBlk880 *)d = D_00319020;
+    if (id != 0x610) {
+        CSVSYSTEM_ReadCharFiles(d, id);
+    }
+    debug_StdPrintfDummy(D_00618F50);
+    if (*(int *)(d + 0x854) != 0 || *(int *)(d + 0x8C) != 0) {
+        initPolygonState(d, lay);
+    }
+    debug_StdPrintfDummy(D_00618F68, d, *(int *)(d + 0x854));
+    debug_StdPrintfDummy(D_00618F98);
+    initGeometryState(d, lay);
+    debug_StdPrintfDummy(D_00618FB8);
+    if (*(int *)(d + 0x8C) != 0) {
+        initInitialInverseMatrix(d);
+        makeSlotTable(d);
+    }
+    debug_StdPrintfDummy(D_00618FD8);
+    return d;
+}
 
 inline void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1)
 {
