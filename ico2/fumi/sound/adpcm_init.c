@@ -31,9 +31,44 @@ void AdpcmStop(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/adpcm_init", AdpcmOpen);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/adpcm_init", AdpcmClose);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/adpcm_init", AdpcmInterStereoVolumeSet);
 
-extern void AdpcmInterStereoVolumeSet(void *a0, int a1, int a2);
+extern int D_0063A628;
+extern int soundOutputModeGet(void);
+extern int SgStAdpcmChannelVolume(long long mask, int l, int r);
+
+/* vol is in the ABI (AdpcmInterLeaveVolumeSet passes it) but the ROM never
+   reads $6: the levels come back out of the record the caller just wrote. */
+void AdpcmInterStereoVolumeSet(char *a0, int ch, int vol)
+{
+    int j = ch + 1;
+    short *r = (short *)(a0 + ch * 2);
+    short *q = (short *)(a0 + j * 2);
+    short lv = r[0x1E];
+    short rv = q[0x20];
+
+    if (D_0063A628 == 0) {
+        rv = 0;
+        lv = 0;
+    }
+    if (*(int *)(a0 + 0x38) == 0x10000) {
+        return;
+    }
+    if (soundOutputModeGet() == 0) {
+        int *p = (int *)(a0 + 8);
+        int *c = p + ch;
+        SgStAdpcmChannelVolume(1LL << *c, lv, 0);
+        p += j;
+        SgStAdpcmChannelVolume(1LL << *p, 0, rv);
+    } else {
+        int *p = (int *)(a0 + 8);
+        int *c = p + ch;
+        SgStAdpcmChannelVolume(1LL << *c, lv, rv);
+        p += j;
+        SgStAdpcmChannelVolume(1LL << *p, lv, rv);
+    }
+}
+
+extern void AdpcmInterStereoVolumeSet(char *a0, int a1, int a2);
 
 void AdpcmInterLeaveVolumeSet(int a0, int a1, int a2)
 {

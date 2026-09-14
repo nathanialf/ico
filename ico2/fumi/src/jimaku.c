@@ -30,7 +30,7 @@ struct jWayGroup { /* D_006C1E80 element, stride 0x18 */
     int f0;
     int f4;
     int f8;
-    char _c[4];
+    int fC;
     struct jNode *node;
     char _14[4];
 };
@@ -174,7 +174,62 @@ void jimakuEnd(void)
     jimakuMgrEnd__pn();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/jimaku", jimakuDisp);
+extern char D_006E5038[];
+extern char D_006E5070[];
+extern int lock_execIcoMisc;
+
+/* the 0x70-byte layout-texture property records (LtProperty in
+   src/layout_texture.c); jimaku owns entries 434 and 435. */
+typedef struct {
+    char _0[0x1C];
+    int f1C; /* 0x1C */
+    char _20[0x70 - 0x20];
+} JimakuLayout;
+
+extern JimakuLayout D_0030CFF8[];
+extern char D_00318DD8[];
+extern char D_00318E48[];
+extern int iosSemaReferStatus(void *s);
+extern void iosSemaSignal(void *s);
+extern void display_texture(void *t);
+
+void jimakuDisp(char *self)
+{
+    struct jWayGroup *g = &D_006C1E80[*(int *)(self + 0x3C)];
+    int c;
+
+    if (D_0028F4C0[10] == 0) {
+        return;
+    }
+    c = g->fC;
+    if ((unsigned int)(c + D_0063A960) < (unsigned int)lock_execIcoMisc) {
+        D_0063A964 = 0;
+    }
+    if ((unsigned int)(c + 5) < (unsigned int)lock_execIcoMisc) {
+        iosSemaReferStatus(D_006E5038);
+        if (((int *)D_006E5038)[9] > 0) {
+            iosSemaSignal(D_006E5038);
+        }
+    }
+    if (D_0028F4C0[10] != 0) {
+        iosSemaReferStatus(D_006E5070);
+        if (((int *)D_006E5070)[9] > 0) {
+            iosSemaSignal(D_006E5070);
+        }
+    }
+    if (D_0063A964 != 0) {
+        int v = g->f8;
+        D_0030CFF8[435].f1C = v;
+        D_0030CFF8[434].f1C = v;
+        if (v < 0) {
+            return;
+        }
+        if (jimakuOn != 0) {
+            display_texture(D_00318DD8);
+            display_texture(D_00318E48);
+        }
+    }
+}
 
 inline void jimakuUndisp(void)
 {
