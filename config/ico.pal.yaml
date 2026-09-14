@@ -659,6 +659,8 @@ segments:
       - [0x520FA0, rodata, cod/520FA0]   # .rodata blob resume
       - [0x521398, .rodata, ico2/sugipon/src/waterDot]  # plain-rodata: ExecWaterDot's double 0.00078125 (a constant-pool operand, 8 B, one ROM reference), VMA 0x621398..0x6213A0
       - [0x5213A0, rodata, cod/5213A0]   # .rodata blob resume
+      - [0x521680, .rodata, ico2/seki/src/BgAnimation]  # carved jtbl_00621680 (VMA 0x621680..0x6216B8, 56 B, 14 arms): bga_ApplyDObject's switch table, emitted by the compiled function
+      - [0x5216B8, rodata, cod/5216B8]   # .rodata blob resume (the strings after the table)
       - [0x521930, .rodata, ico2/seki/src/DisplayList]  # carved jtbl_00621930 (VMA 0x621930..0x621950, 32 B, 8 arms): dl_CloseDma's switch table, emitted by the compiled function; the three zero words before it are the blob's pad
       - [0x521950, rodata, cod/521950]   # .rodata blob resume
       - [0x5229B0, .rodata, ico2/script/src/st04a]  # carved jtbl_006229B0 (VMA 0x6229B0..0x6229D0, 32 B, 8 arms): actSt04aTorch1Chk's switch table, emitted by the compiled function

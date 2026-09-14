@@ -14,8 +14,239 @@ unsigned int D_004EE5B0[12] = {
 float D_004EE5E0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_InitData);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_initLightEnvelope);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_ApplyDObject);
+
+struct BgaEnvEnt;
+
+struct BgaLightEnv;
+
+typedef struct BgaDObjEnt {
+    /* 0x00 */ unsigned short type;
+    /* 0x02 */ short num;
+    /* 0x04 */ char name[0x20];
+    /* 0x24 */ union {
+        void *obj;                 /* particle record, geometry, Kyomi object */
+        struct BgaLightEnv *light; /* ambient-light record */
+    } u;
+    /* 0x28 */ struct BgaEnvEnt *env;
+    /* 0x2C */ struct BgaDObjEnt *f2C;
+    /* 0x30 */ struct BgaDObjEnt *f30;
+} BgaDObjEnt;
+
+typedef struct BgaGeom {
+    /* 0x000 */ int f00;
+    /* 0x004 */ int f04;
+    /* 0x008 */ int f08;
+    /* 0x00C */ char pad0C[0x848];
+    /* 0x854 */ char *name;
+} BgaGeom;
+
+typedef struct BgaGObj {
+    /* 0x000 */ char pad00[0x15C];
+    /* 0x15C */ void *geom;
+} BgaGObj;
+
+/* The particle entry's word at +0x20 packs three fields: the loop flag in
+   bits 0-1, the effect handle in bits 2-16 and the particle id in bits
+   17-31.  The union with the 8-byte word is what the record is: the ROM
+   reads and writes the whole doubleword (ld/sd) at every one of these
+   sites, and the int bitfields inside it give the sign-extending 15-bit
+   extraction the ROM uses for the id. */
+typedef union BgaParticleBits {
+    struct {
+        int loop : 2;
+        int eff : 15;
+        int id : 15;
+    } b;
+
+    long long w;
+} BgaParticleBits;
+
+typedef struct BgaParticleEnt {
+    /* 0x00 */ char pad00[0x20];
+    /* 0x20 */ BgaParticleBits u;
+} BgaParticleEnt;
+
+extern int D_0063A44C;
+extern char D_00621598[];
+extern char D_00621638[];
+extern char D_00621658[];
+extern char D_0063BCF0[];
+extern char D_0063BCE8[];
+extern int D_002907E0[];
+extern int GetParticleIDWithName(char *name);
+extern void *iosMallocDebug(int heap, int size, char *file, int line);
+extern int GetParticleLoopFlag(int id);
+extern int SetParticleEffectActiveSensing(int id, float *pos, int *quat);
+extern int sprintf(char *buf, char *fmt, ...);
+extern void debug_assertMessage(char *file, int line, char *mes);
+extern int strcmp(const char *a, const char *b);
+extern void *light_AddAmbientObject(int obj);
+extern char *CreateKyomiGObj(int no);
+
+typedef struct BgaEnvEnt {
+    /* 0x00 */ unsigned short type;
+    /* 0x02 */ short f02;
+    /* 0x04 */ unsigned char *data;
+} BgaEnvEnt;
+
+typedef struct BgaLightEnv {
+    /* 0x00 */ char pad00[0x20];
+    /* 0x20 */ float col[4];
+    /* 0x30 */ char pad30[0x10];
+    /* 0x40 */ float col2[4];
+    /* 0x50 */ float f50;
+    /* 0x54 */ float f54;
+    /* 0x58 */ float f58;
+    /* 0x5C */ int f5C;
+    /* 0x60 */ float f60;
+    /* 0x64 */ float f64;
+    /* 0x68 */ float f68;
+} BgaLightEnv;
+
+extern char D_006215F8[];
+extern char D_00621618[];
+extern void debug_Assert(char *fmt, ...);
+
+void bga_initLightEnvelope(BgaDObjEnt *p)
+{
+    BgaEnvEnt *e;
+    unsigned char *d;
+
+    e = p->env;
+    if (e == 0) {
+        return;
+    }
+    while ((d = e->data) != 0) {
+        switch (e->type) {
+        case 4:
+            switch (p->type) {
+            case 6:
+            case 11:
+                if (p->u.light != 0) {
+                    p->u.light->col[0] = (float)d[0] / 255.0f;
+                    p->u.light->col[1] = (float)d[1] / 255.0f;
+                    p->u.light->col[2] = (float)d[2] / 255.0f;
+                    p->u.light->col[3] = 1.0f;
+                } else {
+                    debug_Assert(D_006215F8);
+                    debug_assert(D_00621598, 1089);
+                    __assert(D_00621598, 1089, D_0063BCE8);
+                }
+                break;
+            case 7:
+            case 8:
+            case 9:
+                if (p->u.light != 0) {
+                    p->u.light->col2[0] = (float)d[0] / 255.0f;
+                    p->u.light->col2[1] = (float)d[1] / 255.0f;
+                    p->u.light->col2[2] = (float)d[2] / 255.0f;
+                    p->u.light->col2[3] = 1.0f;
+                } else {
+                    debug_Assert(D_00621618);
+                    debug_assert(D_00621598, 1109);
+                    __assert(D_00621598, 1109, D_0063BCE8);
+                }
+                break;
+            }
+            break;
+        case 5:
+            switch (p->type) {
+            case 8:
+            case 9:
+                if (p->u.light != 0) {
+                    p->u.light->f50 = 1.0f / (((float *)d)[0] * 50.0f);
+                    p->u.light->f54 = 1.0f / (((float *)d)[1] * 50.0f);
+                    p->u.light->f58 = 1.0f / (((float *)d)[2] * 50.0f);
+                    p->u.light->f60 = 1.0f / (((float *)d)[3] * 50.0f);
+                    p->u.light->f64 = 1.0f / (((float *)d)[4] * 50.0f);
+                    p->u.light->f68 = 1.0f / (((float *)d)[5] * 50.0f);
+                } else {
+                    debug_assert(D_00621598, 1141);
+                    __assert(D_00621598, 1141, D_0063BCE8);
+                }
+                break;
+            }
+            break;
+        /* A third arm above 5 with an empty body: the ROM's dispatch is the
+           three-test tree balance_case_nodes only builds for more than two
+           case values (== 5, then >= 6 to the default, then == 4), and jump
+           optimisation then deletes this arm's own test because its label is
+           the switch end.  That makes the value itself unobservable; 6 is the
+           next envelope type. */
+        case 6:
+            break;
+        }
+        e++;
+    }
+}
+
+void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
+{
+    char buf[1024];
+    int i;
+
+    switch (p->type) {
+    case 13:
+        i = GetParticleIDWithName(p->name);
+        if (i != -1) {
+            p->u.obj = iosMallocDebug(D_0063A44C, 0x30, D_00621598, 1177);
+            ((BgaParticleEnt *)p->u.obj)->u.b.id = i;
+            ((BgaParticleEnt *)p->u.obj)->u.b.loop =
+                GetParticleLoopFlag(((BgaParticleEnt *)p->u.obj)->u.b.id);
+            if (((BgaParticleEnt *)p->u.obj)->u.b.loop) {
+                ((BgaParticleEnt *)p->u.obj)->u.b.eff = SetParticleEffectActiveSensing(
+                    ((BgaParticleEnt *)p->u.obj)->u.b.id, D_004EE5E0, D_002907E0);
+            } else {
+                ((BgaParticleEnt *)p->u.obj)->u.b.eff = -1;
+            }
+            break;
+        }
+    case 1:
+    case 2:
+    case 5:
+        p->u.obj = 0;
+        break;
+    case 0:
+    case 4:
+    case 10:
+        p->u.obj = 0;
+        for (i = 0; i < n; i++) {
+            if (((BgaGeom *)((BgaGObj *)objs[i])->geom)->name == 0) {
+                sprintf(buf, D_00621638, p->name);
+                debug_StdPrintfDummy(D_00621658, p->name);
+                debug_assertMessage(D_00621598, 1201, buf);
+                __assert(D_00621598, 1201, D_0063BCF0);
+            }
+            if (strcmp(((BgaGeom *)((BgaGObj *)objs[i])->geom)->name, p->name) == 0) {
+                p->u.obj = ((BgaGObj *)objs[i])->geom;
+                p->num = ((BgaGeom *)((BgaGObj *)objs[i])->geom)->f08++;
+            }
+        }
+        break;
+    case 7:
+        p->u.obj = light_AddAmbientObject(0);
+        bga_initLightEnvelope(p);
+        break;
+    case 8:
+        p->u.obj = light_AddAmbientObject(2);
+        bga_initLightEnvelope(p);
+        break;
+    case 9:
+        p->u.obj = light_AddAmbientObject(1);
+        bga_initLightEnvelope(p);
+        break;
+    case 12:
+        p->u.obj = CreateKyomiGObj(no);
+        break;
+    }
+    if (p->f2C) {
+        bga_ApplyDObject(p->f2C, objs, n, no);
+    }
+    if (p->f30) {
+        bga_ApplyDObject(p->f30, objs, n, no);
+    }
+}
+
 ASM_LIT4_SLOT(D_00639724, 1.2075409f);
 ASM_LIT4_SLOT(D_00639728, 182.04445f);
 ASM_LIT4_SLOT(D_0063972C, 182.04445f);
