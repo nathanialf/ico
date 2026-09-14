@@ -684,9 +684,10 @@ int sceSifInitIopHeap(void)
             D_0054A484[0] = 0;
             break;
         }
-        __asm__ volatile("lui %0,%%hi(D_FFFFF)" : "=r"(i));
+        /* IOP-side retry back-off: spin 0x100000 times, no memory touched. */
+        i = 0x100000;
         do {
-            __asm__ volatile("addiu %0,%0,%%lo(D_FFFFF)" : "+r"(i));
+            i--;
         } while (i != -1);
     }
     return 0;
@@ -749,9 +750,10 @@ loop:
     __builtin_memcpy(D_0072D9A8, D_0072D780, 4);
     return 0;
 delay:
-    __asm__ volatile("lui %0,%%hi(D_FFFFF)" : "=r"(i));
+    /* IOP-side retry back-off: spin 0x100000 times, no memory touched. */
+    i = 0x100000;
     do {
-        __asm__ volatile("addiu %0,%0,%%lo(D_FFFFF)" : "+r"(i));
+        i--;
     } while (i != -1);
     goto loop;
 ret0:
