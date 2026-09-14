@@ -2,7 +2,7 @@
 
 The game tree under `ico2/` mirrors the paths the PAL disc's own listing
 records, one directory per programmer, and the ten headers the listing
-attributes live there (or, for newlib's `math_private.h`, under `sce/`):
+attributes live there:
 
 | header | home |
 |---|---|
@@ -11,7 +11,16 @@ attributes live there (or, for newlib's `math_private.h`, under `sce/`):
 | `b50climb.h`, `b100climb.h`, `b200climb.h` | `ico2/omori/include/` |
 | `g50climb.h`, `g100climb.h`, `g200climb.h` | `ico2/omori/include/` |
 | `itou_common.h`, `mv_defs.h` | `ico2/ito/include/` |
-| `math_private.h` | `sce/libm/common/` (newlib's own location) |
+
+Nothing is placed under `ico2/` or `sce/` unless the disc's maps attest it.
+Two headers stay here for that reason even though both plausibly existed in
+the original trees: `math_private.h` (newlib's public tree keeps one under
+`libm/common`, but the disc's listing cannot show it, since a header that
+emits no instructions leaves no rows; ours is a re-derivation of the public
+fdlibm idiom) and `vu0.h` (the game's inline VU0 instructions are attributed
+to the TU lines; whether the developers wrapped them in a header of their own
+is unknowable, so the wrapper is kept here as scaffolding and is neither
+promoted into the tree nor expanded into the TUs).
 
 The five VU1 microprogram sources sit at the `ico2/` root for the mirror
 image of that reason: MAIN.MAP pulls their objects in from `ico2000.a`, which

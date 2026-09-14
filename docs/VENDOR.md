@@ -150,7 +150,7 @@ redistributable:
   2.95-era base has already been fetched for other work.
 - **libm**: Sun's fdlibm, reached via newlib. Public domain. This is
   already the sanctioned path in this repo: `docs/COOKBOOK.md` §7.3 and
-  `include/math_private.h` re-derive `GET_FLOAT_WORD` / `SET_FLOAT_WORD`
+  `include/math_private.h` (build scaffolding, not part of the mirrored tree) re-derive `GET_FLOAT_WORD` / `SET_FLOAT_WORD`
   "re-derived from the PUBLIC-DOMAIN fdlibm reference (freely published;
   treat like a public paper, NOT the proprietary PS2 SDK or any leaked
   source)". `docs/NOTES.md:403` records the same.

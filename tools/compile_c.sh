@@ -40,10 +40,9 @@ OBJCOPY="${MIPS_PREFIX}objcopy"
 EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
 
 INCLUDE_DIR="${ROOT}/include"
-# math_private.h sits where newlib keeps it, sce/libm/common/, so the libm and
-# libc members include it by its own name the way newlib's sources do; the
-# three game TUs that use the GET_FLOAT_WORD macros reach it the same way.
-CFLAGS="-S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR} -I${ROOT}/sce/libm/common"
+# include/ holds build scaffolding only (math_private.h among it): the libm
+# members and the game TUs that use the GET_FLOAT_WORD macros reach it by name.
+CFLAGS="-S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}"
 ASFLAGS="-EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -I${INCLUDE_DIR}"
 EE_ASFLAGS="-EL -mcpu=5900 -G 8"
 

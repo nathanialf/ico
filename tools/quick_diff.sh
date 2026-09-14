@@ -206,14 +206,14 @@ if [[ -n "$ICO2_PROG" ]]; then
     done
     # shellcheck disable=SC2086
     ( cd "$ROOT/ico2/$ICO2_PROG" \
-      && $CC $ICO2_INCS $CFLAGS -I"$ROOT/include" -I"$ROOT/sce/libm/common" \
+      && $CC $ICO2_INCS $CFLAGS -I"$ROOT/include" \
            -o "$ASM_ABS" "$SRC_REL" )
 elif grep -qxF "$NAME" "$ROOT/config/include_ito.txt" 2>/dev/null; then
     CSRC_ABS="$CSRC"; case "$CSRC_ABS" in /*) ;; *) CSRC_ABS="$ROOT/$CSRC_ABS";; esac
     ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
     ( cd "$ROOT/ito" && $CC $CFLAGS -I"$ROOT/include" -I../ito/include -o "$ASM_ABS" "$CSRC_ABS" )
 else
-    $CC $CFLAGS -I"$ROOT/sce/libm/common" -o "$ASM_OUT" "$CSRC"
+    $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
 fi
 
 # Stage 1b: run postprocesses listed in their gate files (match
