@@ -216,6 +216,17 @@ def _include_asm_bytes(name: str) -> int:
         text = csrc.read_text(encoding="utf-8", errors="replace")
     except Exception:
         return 0
+    # A coalesced TU keeps members in sibling `.c.inc` files; their stubs are
+    # this TU's stubs too, so read every one the .c includes.
+    for inc in re.findall(r'^\s*#\s*include\s+"([^"]+\.c\.inc)"', text, re.M):
+        cand = csrc.parent / inc
+        if not cand.exists():
+            cand = REPO_ROOT / inc
+        if cand.exists():
+            try:
+                text += "\n" + cand.read_text(encoding="utf-8", errors="replace")
+            except Exception:
+                pass
     total = 0
     # Use the asm dir from the INCLUDE_ASM directive itself (e.g.
     # "asm/aug6/nonmatchings/sugipon/src/pool") so it works for any version's

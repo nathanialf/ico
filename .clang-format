@@ -34,4 +34,4 @@ SpacesBeforeTrailingComments: 1
 SeparateDefinitionBlocks: Always
 # INCLUDE_ASM paths under ico2/<programmer>/<kind>/ can exceed the column limit; splat only
 # recognises the macro on one line, so never break inside these invocations.
-WhitespaceSensitiveMacros: [INCLUDE_ASM, INCLUDE_ASM_NOAT]
+WhitespaceSensitiveMacros: [INCLUDE_ASM]
