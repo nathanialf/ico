@@ -387,6 +387,7 @@ padding is injected. All 30 verified byte-identical with such ends.
 | `src/lodManager` | `[0x5190E0]` | 0x6190E0..0x6190F8 | `jtbl_006190E0` (func_001D4BD0, 6) |
 | `src/motionFileManager` | `[0x519100]` | 0x619100..0x6191D0 | `jtbl_00619100` (ResetStatic2MotionManager, 52) |
 | `src/moveColTest` | `[0x519D80]` | 0x619D80..0x619D94 | `jtbl_00619D80` (MoveColTestGeo, 5) |
+| `src/spider` | `[0x520C90]` | 0x620C90..0x620CA4 | `jtbl_00620C90` (SpiderLayoutGeo, 5) |
 | `src/spider` | `[0x51A170]` | 0x61A170..0x61A184 | `jtbl_0061A170` (func_001EA5E8, 5) |
 | `src/DisplayList` | `[0x51AC40]` | 0x61AC40..0x61AC60 | `jtbl_0061AC40` (dl_GetPri, 8) |
 | `src/st04b` | `[0x51BCE0]` | 0x61BCE0..0x61BD00 | `jtbl_0061BCE0` (func_00217658, 8) |
