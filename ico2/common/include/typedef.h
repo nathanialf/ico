@@ -4,7 +4,7 @@
  * PROVENANCE.  Dev path `common/include/typedef.h`, reached from `fumi/` as
  * `../common/include/typedef.h`.  `baserom/pal/SRCFILE.TXT` attributes
  * instructions to exactly one of its lines (census:
- * decomp/pal_source_tree.md, section `fumi/../common/include/typedef.h`):
+ * docs/pal_source_tree.md, section `fumi/../common/include/typedef.h`):
  *
  *   line 74 — avoid_obstacle2 (src/way_sys, 0x0017DA50), 3 rows / 2 expansions
  *
@@ -20,7 +20,7 @@
  * avoid_obstacle2 is matched, and name it then — the helper is never emitted
  * out of line, so it has no symbol in baserom/pal/MAIN.MAP and no known name.
  *
- * SPLIT RULE (see decomp/HEADERS.md).  Nothing has been moved out of
+ * SPLIT RULE (see docs/HEADERS.md).  Nothing has been moved out of
  * include/ico/types.h into this file.  ico/types.h holds the CROSS-PROGRAMMER
  * engine object shapes (GObj, Sub15C, Obj7F0, ...) recovered mechanically
  * from load offsets and shared by every programmer's TUs; a per-programmer

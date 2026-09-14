@@ -29,7 +29,7 @@ MODERN gas (for a TU listed in the since-deleted config/use_modern_as.txt),
 reversing the dialect translation. The whole modern-gas path is gone because
 that assembler fills delay slots ee-as 2.9-991111 leaves bare, so anything
 reaching it could read as MATCHED on the assembler's scheduling rather than on
-source shape. See decomp/NOTES.md "There is NO modern-gas path any more".
+source shape. See docs/NOTES.md "There is NO modern-gas path any more".
 The `modern` plumbing below is left inert rather than ripped out so the dialect
 mapping stays documented in one place.
 """
@@ -162,7 +162,7 @@ def main():
             "  MATCHED on the assembler's scheduling instead of on source\n"
             "  shape (that produced 8 false matches, all reverted 2026-08-01).\n"
             "  A period-assembler rejection is a source defect to FIX — see\n"
-            "  decomp/NOTES.md \"There is NO modern-gas path any more\"."
+            "  docs/NOTES.md \"There is NO modern-gas path any more\"."
         )
     src, dst = args[0], args[1]
     out, syms, seen, slots = [], set(), set(), {}

@@ -1,5 +1,7 @@
 # sweep_parked: functions excluded from sweep target lists (one name per line).
-# PAL target: empty at the 2026-09-04 retarget; ntsc's list lives on the ntsc branch.
+# PAL target. Started empty at the 2026-09-04 retarget and is appended to by
+# tools/sweep_park.sh as the sweep parks a residual; the comment on each line is
+# that function's residual at park time. ntsc's list lives on the ntsc branch.
 _sysbitNext         # rc2 dsra32 not in jr delay slot (int and long-long-local shapes both rc2)
 sceDmaPutStallAddr  # rc3 volatile read rc3 (lw not in beq delay slot); non-volatile folds addr to lui/lw rc7
 VSync               # rc2 final macro sw not filled into jr delay slot

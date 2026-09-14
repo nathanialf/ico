@@ -5,7 +5,7 @@
  * PROVENANCE.  Dev path `omori/include/b200climb.h`, textually included from
  * `fumi/src/boyact.c` as `../omori/include/b200climb.h`, so the ROM emits its
  * functions into boyact's object.  `baserom/pal/SRCFILE.TXT` attributes
- * WHOLE FUNCTIONS to it (census: decomp/pal_source_tree.md, section
+ * WHOLE FUNCTIONS to it (census: docs/pal_source_tree.md, section
  * `fumi/../omori/include/b200climb.h`):
  *
  *   afterBoyHand200    header lines 6-8, 16 insns

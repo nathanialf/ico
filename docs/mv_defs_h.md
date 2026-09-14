@@ -3,12 +3,12 @@
 Status: **DONE: the header is a real file at `ito/include/mv_defs.h`.**
 This document is the recovery record: how the header's existence was proved
 from the binary, and the levers that made its inline match. Read the real
-file and `decomp/HEADERS.md` for the current form; read this for the *why*.
+file and `docs/HEADERS.md` for the current form; read this for the *why*.
 
 IP-clean: derived entirely from our own disassembly + the `__FILE__`/`__LINE__`
 literals baked into the shipped ELF, no leaked source. The PAL disc listing
 later confirmed the header independently (`mv_defs.h`, 16 host functions,
-`decomp/pal_source_tree.md`).
+`docs/pal_source_tree.md`).
 
 > **Names below are aug6-era.** The recovery ran on the Aug-6-2001 prototype
 > in 2026-06 (the quoted SHA-1 `2b4d7de4` is aug6's ROM). Every

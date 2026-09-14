@@ -4,9 +4,9 @@
  * PROVENANCE. baserom/pal/SRCFILE.TXT attributes instructions inside 16
  * functions across 6 ito/mpeg TUs to `ito/include/mv_defs.h`, plus three
  * out-of-line copies of `Free` (mv_videodec 0x001A6F80, mv_vobuf 0x001A7318,
- * mv_vibuf 0x0025A4A8). Census rows: decomp/pal_source_tree.md, section
+ * mv_vibuf 0x0025A4A8). Census rows: docs/pal_source_tree.md, section
  * `ito/../ito/include/mv_defs.h`. Earlier analysis of the same header on the
- * Aug-2001 prototype: decomp/mv_defs_h.md (that build's helper at these lines
+ * Aug-2001 prototype: docs/mv_defs_h.md (that build's helper at these lines
  * dequeued a message; the 2002 PAL build's allocates - re-derived below).
  *
  * LINE NUMBERS ARE LOAD-BEARING; DO NOT REFLOW THIS FILE. The line-42 helper

@@ -15,9 +15,9 @@ width/sign from the load mnemonic — the developer reads the catalog and writes
 the C struct.
 
 Outputs:
-  decomp/struct_shapes.json  — machine-readable: per global symbol + per
+  docs/struct_shapes.json  — machine-readable: per global symbol + per
                                (func,argN) pointer param → field table.
-  decomp/struct_shapes.md    — readable catalog, most-referenced first, with a
+  docs/struct_shapes.md    — readable catalog, most-referenced first, with a
                                suggested designated-initializer / struct typedef.
 
 Usage:
@@ -44,7 +44,7 @@ from ico_version import detect_version, asm_root  # noqa: E402
 _VERSION = detect_version(ROOT)
 _ASM = ROOT / asm_root(ROOT, _VERSION)
 ASM_DIRS = [_ASM / "matchings", _ASM / "nonmatchings"]
-# NOTE: decomp/tu_map.json on aug6 is the STALE retail map (generic func_XXXX
+# NOTE: docs/tu_map.json on aug6 is the STALE retail map (generic func_XXXX
 # names, no MAIN.MAP symbols) — do NOT use it. The aug6 .s files already encode
 # their owning TU in the path (asm/<ver>/nonmatchings/<tu>/<func>.s), so TU
 # attribution is derived from the path instead (see owning_tu_from_path).
@@ -422,7 +422,7 @@ def main():
         (ROOT / "decomp" / "struct_shapes.json").write_text(json.dumps(out_json, indent=1))
 
     (ROOT / "decomp" / "struct_shapes.md").write_text("\n".join(md) + "\n")
-    sys.stderr.write(f"wrote decomp/struct_shapes.{{json,md}} "
+    sys.stderr.write(f"wrote docs/struct_shapes.{{json,md}} "
                      f"({len(ranked)} symbols)\n")
     return 0
 

@@ -284,7 +284,7 @@ def _asm_referrer(tu, sym):
 def _gate(secname, vma, size, raw):
     """Mechanical reasons a plain C definition would NOT land where the carve
     says. Every one of these was an actual SHA-gate failure before it was a
-    check — see decomp/carve_ledger.md "Root cause"."""
+    check — see docs/carve_ledger.md "Root cause"."""
     bad = []
     if not any(raw):
         bad.append("all-zero -> ee-gcc emits .bss/.sbss, not " + secname)

@@ -138,7 +138,7 @@ for f in "${files[@]}"; do
     if grep -nE "${raw_byte_re}" "$f" >/dev/null 2>&1; then
         note "raw byte-array initializer in tracked source: $f"
         note "  ICO data sections must be typed (string literal / int / float /"
-        note "  named pointer array / struct), not raw bytes. See decomp/MATCH_DATA.md."
+        note "  named pointer array / struct), not raw bytes. See docs/MATCH_DATA.md."
         grep -nE "${raw_byte_re}" "$f" 2>&1 | head -3 >&2
     fi
 done

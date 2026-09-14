@@ -166,7 +166,7 @@ def section_for(basename: str) -> str:
     round-tripped while the first `.data`/`.bss` carve at a non-16-aligned
     boundary did not. Normalising each blob's alignment down to `align_for()`
     (a divisor of its own ROM address, so never a source of padding) removes
-    the whole failure mode. See decomp/carve_ledger.md "Root cause".
+    the whole failure mode. See docs/carve_ledger.md "Root cause".
     """
     m = _BLOB_SECT_RE.match(basename)
     if m:

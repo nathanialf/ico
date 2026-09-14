@@ -31,7 +31,7 @@ OBJCOPY="${MIPS_PREFIX}objcopy"
 # under tools/cc/ee-gcc2.96/bin/as is reachable from this script any more, and
 # neither is bound to a variable — a spare handle on another assembler is the
 # first thing a stuck matching run reaches for. THE assembler is EE_AS_OLD below:
-# the one bundled with the compiler this build uses. See decomp/NOTES.md.
+# the one bundled with the compiler this build uses. See docs/NOTES.md.
 # Period assembler whose delay-slot reorder is LESS aggressive than 2.96: it
 # does not hoist a preceding unaligned store (sdl/sdr/...) into a `j <func>`
 # tail-call delay slot, matching the original ICO toolchain (verified universal:
@@ -318,7 +318,7 @@ ASM_INPUT="${S}"
 # that was already the default, so every entry was a no-op. There is NO modern-gas
 # escape hatch: a TU that "genuinely needs modern gas" is a TU whose .s needs
 # fixing, or a match that is really the assembler's delay-slot scheduling wearing
-# a source's clothes. See decomp/NOTES.md "Assembler" section.
+# a source's clothes. See docs/NOTES.md "Assembler" section.
 SELECTED_EE_AS="${EE_AS_OLD}"
 # ONE ASSEMBLER, NO EXCEPTIONS. ee-as 2.9-991111 is the assembler BUNDLED WITH
 # the compiler this build uses (EEGCC_DIR above is ee-gcc 2.9-991111), and that
@@ -333,7 +333,7 @@ SELECTED_EE_AS="${EE_AS_OLD}"
 # gp-addressable form the PERIOD assembler accepts, so the ROM's contemporary
 # assembler (ee-as 2.9-991111) assembles mixed C+asm TUs
 # directly instead of silently falling back to modern gas (which mis-encodes
-# `la sdata` as daddiu where the ROM has addiu). See decomp/NOTES.md.
+# `la sdata` as daddiu where the ROM has addiu). See docs/NOTES.md.
 # stderr is NOT swallowed: preprocess_old_as.py is silent on success, and its
 # `.lit4_slot` diagnostics (stale slot, non-FP reference) name the actual defect
 # — hiding them leaves only the assembler's downstream "REJECTED" to go on.
@@ -369,7 +369,7 @@ else
     rm -f "${OUT}.aserr" "${OUT}"
     echo "  This is a source defect to FIX, not an assembler to swap: there is no" >&2
     echo "  modern-gas fallback (retired 2026-08-05 — it manufactured 8 false" >&2
-    echo "  delay-slot matches). See decomp/NOTES.md \"Assembler\"." >&2
+    echo "  delay-slot matches). See docs/NOTES.md \"Assembler\"." >&2
     exit 1
 fi
 
@@ -384,7 +384,7 @@ fi
 # real TU data in `.data.<sym>` / `.rodata.<sym>` (whose gcc-assigned alignment
 # IS load-bearing: it reproduces intra-TU padding), so forcing the leftover
 # standard sections to 1 is free. `.text` keeps ${ALIGN} — it reproduces the
-# ROM's inter-TU function padding. See decomp/carve_ledger.md "Root cause".
+# ROM's inter-TU function padding. See docs/carve_ledger.md "Root cause".
 "${OBJCOPY}" --set-section-alignment ".data=1" \
              --set-section-alignment ".bss=1" "${OUT}"
 

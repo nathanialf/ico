@@ -9,7 +9,7 @@ COMMIT TO GIT" banner because mechanical byte→mnemonic disassembly
 is itself extraction and is not IP-safe to commit to the
 repo.
 
-The permitted path (see decomp/MATCH_VU.md): a developer reads this
+The permitted path (see docs/MATCH_VU.md): a developer reads this
 output, understands the loop structure and register usage, then
 re-types each chunk into `src/cod/16F5E0.S` from understanding —
 with hand-chosen labels, comments, and pseudocode annotations. The
@@ -48,7 +48,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_INPUT = REPO / "assets" / "cod" / "16F5E0.textbin.bin"
-VALID_BYTES = 20704  # per decomp/NOTES.md — last 64 bytes are zero pad
+VALID_BYTES = 20704  # per docs/NOTES.md — last 64 bytes are zero pad
 
 
 # ---------------------------------------------------------------- bitfields

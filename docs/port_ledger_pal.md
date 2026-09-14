@@ -28,7 +28,7 @@ PAL-vs-USA source difference) · `jtbl`.
 | **all** | 2118 | 1676 | 440 | 2 | 0 | 0 |
 
 Data-carve phase 1 (2026-09-04) re-attempted the 32 `emits-data` reverts
-behind the PAL data carves recorded in `decomp/carve_ledger.md` §"PAL phase
+behind the PAL data carves recorded in `docs/carve_ledger.md` §"PAL phase
 1": all 32 landed, so the running totals are **1676 ported / 440 reverted**
 (wave 1 1174/120, wave 2 476/40, wave 3 26/280).  The per-function lines in
 the sections below are updated in place; see the phase-1 section at the end
@@ -2626,7 +2626,7 @@ The carve makes the TU's object own its whole pool run; porting a body then
 swaps one `ASM_LIT4_SLOT` for the body's own literal, so the object's data
 size never changes and the growth check passes untouched.  Byte-level
 evidence, run boundaries and the MAIN.MAP cross-check are in
-`decomp/carve_ledger.md` §"PAL phase 1".
+`docs/carve_ledger.md` §"PAL phase 1".
 
 Two driver notes worth keeping:
 

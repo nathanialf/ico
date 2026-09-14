@@ -16,7 +16,7 @@ Outputs one line per VMA:
     0x12345678  -- not a known symbol --
 
 Sources consulted (in order):
-    decomp/data_tu_map.json    -- migrated data symbols + their TUs
+    docs/data_tu_map.json    -- migrated data symbols + their TUs
     config/symbol_addrs.<ver>.txt -- explicit symbol overrides
     asm/**/<func>.s            -- splat-emitted glabels
 """

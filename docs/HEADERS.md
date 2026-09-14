@@ -2,7 +2,7 @@
 
 The 2002-01-16 PAL listing (`baserom/pal/SRCFILE.TXT`, an `objdump -dl` of
 the disc's `main.elf`; provenance and reading rules in
-`decomp/pal_source_tree.md`) attributes instructions inside 104 distinct functions (106 expansions) to
+`docs/pal_source_tree.md`) attributes instructions inside 104 distinct functions (106 expansions) to
 four developer **headers**, and whole functions to six more.  Instructions
 attributed to a `.h` are a header body expanded into its caller, so each
 distinct `first_line..last_line` range inside one header is a distinct
@@ -237,7 +237,7 @@ would collide with the copy `mv_videodec.c` already defines.  Write it into
 the header when its callers are C; until then the three TUs keep their own
 copies, all of which now call `phys_addr()`.
 
-Note that `decomp/mv_defs_h.md` describes the *Aug-2001 prototype's* version
+Note that `docs/mv_defs_h.md` describes the *Aug-2001 prototype's* version
 of this header, whose helper at these lines dequeued a message
 (`deq_mes_th`).  In the 2002 PAL build the helper at lines 42-45 allocates.
 Same header, different revision: the earlier document describes

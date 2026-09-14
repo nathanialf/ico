@@ -690,8 +690,10 @@ def _render_progress_table(progress: dict[str, tuple[int, int]]) -> str:
 
 def _progress_tail() -> str:
     return (
-        "\n\nPer-overlay or per-file breakdown will appear here once "
-        f"`config/ico.{VERSION}.yaml`\ndeclares boundaries.\n"
+        "\n\nPer-directory, per-TU and per-function breakdowns live on the "
+        "progress dashboard\n(`docs/index.html` + `docs/progress.json`, "
+        "written by `tools/progress_tree.py`); the\nlink is at the top of "
+        "`README.md`.\n"
     )
 
 
@@ -717,8 +719,12 @@ def _update_progress_doc(progress: dict[str, tuple[int, int]]) -> bool:
             return False
 
     tail = re.compile(
-        r"\n\nPer-overlay or per-file breakdown will appear here once "
-        r"`config/ico\.[^.]+\.yaml`\ndeclares boundaries\.\n?$"
+        r"\n\n(?:Per-overlay or per-file breakdown will appear here once "
+        r"`config/ico\.[^.]+\.yaml`\ndeclares boundaries\.|"
+        r"Per-directory, per-TU and per-function breakdowns live on the "
+        r"progress dashboard\n\(`docs/index\.html` \+ `docs/progress\.json`, "
+        r"written by `tools/progress_tree\.py`\); the\nlink is at the top of "
+        r"`README\.md`\.)\n?$"
     )
     new = tail.sub(_progress_tail(), new)
     if new == text:

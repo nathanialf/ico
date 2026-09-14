@@ -24,7 +24,7 @@ It centralises three things those tools would otherwise each reinvent:
      is the rename map that turns A's matched C into B's candidate.
 
   3. VMA / NAME / TU / STRUCT RESOLUTION over the existing data files
-     (config/symbol_addrs.<ver>.txt, decomp/{tu_map,callgraph,struct_shapes}.json)
+     (config/symbol_addrs.<ver>.txt, docs/{tu_map,callgraph,struct_shapes}.json)
      plus a best-effort callee C-signature, for the context bundle.
 
 The oracle (tools/sweep_try.sh) is always the final authority — signatures and
