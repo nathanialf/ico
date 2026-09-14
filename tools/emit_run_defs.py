@@ -181,7 +181,7 @@ def main():
     # extents — e.g. commonact's D_005588F0 inside D_005588D8's block).
     ref_re = re.compile(r"\bD_([0-9A-Fa-f]{8})\b")
     crefs = set()
-    for root in ("src", "ios", "isys", "ito", "sound", "sce"):
+    for root in ("ico2", "sce", "src"):
         top = os.path.join(ROOT, root)
         for dirpath, _dirs, files in os.walk(top):
             for f in files:

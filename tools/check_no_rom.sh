@@ -61,7 +61,7 @@ done
 # laundered ROM. The 8 MiB ceiling stays as a backstop against a runaway
 # blob.
 allow_large_re='^(tools/toolchain/|tools/ghidra/|\.git/|lib/)'
-src_large_re='^(src|ios|sound|isys|sce)/.*\.(c|h|c\.inc|inc)$'
+src_large_re='^(ico2|sce|src|include)/.*\.(c|h|c\.inc|inc)$'
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue

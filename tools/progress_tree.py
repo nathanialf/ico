@@ -269,7 +269,7 @@ def _global_index() -> dict:
         from ico_version import source_roots
         roots = list(source_roots(VERSION))
     except Exception:
-        roots = ["src", "ios", "isys", "sound", "ito"]
+        roots = ["ico2", "sce", "src"]
     files = []
     for r in roots:
         files += list((REPO_ROOT / r).rglob("*.c")) + list((REPO_ROOT / r).rglob("*.c.inc"))
@@ -312,12 +312,16 @@ def _tu_section_bytes() -> dict[str, dict[str, int]]:
 def _programmer_of(tu: str | None) -> str:
     if not tu:
         return UNASSIGNED_GROUP
-    # The leading path component is the group: on the retail trees the game
-    # TUs live under a flat src/ (the release build collapsed the
-    # per-programmer dirs) and the SCE SDK library code lives under sce/,
-    # one directory per archive.  The "vendor" group below is now only for a
-    # symbol that still carries a bare `// (vendor)` note and no path.
-    return tu.split("/", 1)[0]
+    # PAL lays the game code out the way the disc's listing records it,
+    # `ico2/<programmer>/<kind>/`, so the group is the programmer directory
+    # itself. The SCE SDK code under sce/ is its own group (each TU node
+    # carries the archive), and anything else groups on its leading path
+    # component. The "vendor" group below is now only for a symbol that
+    # still carries a bare `// (vendor)` note and no path at all.
+    parts = tu.split("/")
+    if parts[0] == "ico2" and len(parts) > 1:
+        return parts[1]
+    return parts[0]
 
 
 def _vendor_runs(syms: list[dict]) -> dict[int, str]:
@@ -376,7 +380,8 @@ def build_tree() -> dict:
             prog = (VUTEXT_GROUP if sym["section"] == ".vutext"
                     else _programmer_of(tu))
             tu_key = tu
-            tu_name = tu.split("/", 1)[-1]
+            tu_name = (tu.split("/", 2)[-1] if tu.startswith("ico2/")
+                       else tu.split("/", 1)[-1])
 
         if tu and tu not in tu_unmatched:
             tu_unmatched[tu] = _unmatched_funcs_for_tu(tu, sym["ext"])

@@ -74,7 +74,8 @@ ASM_RE = re.compile(r"^build/asm/(.+)\.o$")
 # Fixed union order (flat roots first), NOT per-version: discover_sidecar_objs
 # appends in this order and sidecar objects go on the link line in the order
 # they are appended, so reordering it would reorder the link.
-SOURCE_ROOTS = tuple(dict.fromkeys(source_roots("us") + source_roots("aug6")))
+SOURCE_ROOTS = tuple(dict.fromkeys(
+    source_roots("us") + source_roots("pal") + source_roots("aug6")))
 SRC_RE = re.compile(rf"^build/((?:{'|'.join(SOURCE_ROOTS)})/.+)\.o$")
 
 

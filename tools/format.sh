@@ -18,7 +18,8 @@ if [[ "${1:-}" == "--check" ]]; then mode=check; shift; fi
 if [[ $# -gt 0 ]]; then
     files=("$@")
 else
-    mapfile -t files < <(cd "$ROOT" && git ls-files 'src/*.c' 'ios/*.c' 'sound/*.c' 'isys/*.c' 'ito/mpeg/*.c' 'sce/*/*.c' 'sce/*.c')
+    mapfile -t files < <(cd "$ROOT" && git ls-files 'ico2/*/*/*.c' 'ico2/*/*/*.c.inc' 'sce/*.c' 'sce/*/*.c' \
+        'sce/*/*/*.c' 'sce/*/*/*/*.c' 'src/*.c')
 fi
 cd "$ROOT"
 PY="$ROOT/.venv/bin/python"

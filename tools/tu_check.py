@@ -27,9 +27,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Mirror tools/quick_diff.sh's TU -> source resolution.
-_SRC_PATTERNS = ("src/{tu}.c", "tough_nuts/{tu}/{tu}.c",
-                 "sound/{tu}.c", "ios/{tu}.c", "isys/{tu}.c",
-                 "sce/{tu}.c", "{tu}.c")
+_SRC_PATTERNS = ("{tu}.c", "tough_nuts/{tu}/{tu}.c", "sce/{tu}.c",
+                 "src/{tu}.c")
 
 # A C definition opener: `<rettype...> func_<hex>(<args>) {`. The trailing `{`
 # (not `;`) excludes prototypes/externs; INCLUDE_ASM lines have no return type.
@@ -47,6 +46,13 @@ def resolve_tu_path(tu: str) -> Path | None:
         p = ROOT / pat.format(tu=tu)
         if p.exists():
             return p
+    # Bare TU name: the PAL tree keeps the game code at
+    # ico2/<programmer>/<kind>/<tu>.c and the SDK code under sce/.
+    for pat in (f"ico2/*/*/{tu}.c", f"sce/*/{tu}.c", f"sce/*/*/{tu}.c",
+                f"sce/*/*/*/{tu}.c"):
+        hits = sorted(ROOT.glob(pat))
+        if len(hits) == 1:
+            return hits[0]
     return None
 
 
@@ -73,7 +79,17 @@ def matched_funcs(tu: str) -> list[str]:
     return out
 
 
+def tu_stem(tu: str) -> str:
+    """The repo-relative stem match_diff/quick_diff want, from a bare TU name."""
+    p = resolve_tu_path(tu)
+    if p is None:
+        return tu
+    rel = str(p.relative_to(ROOT))
+    return rel[:-6] if rel.endswith(".c.inc") else rel[:-2]
+
+
 def real_count(tu: str, func: str) -> int | None:
+    tu = tu_stem(tu)
     r = subprocess.run(
         [sys.executable, str(ROOT / "tools" / "match_diff.py"), "--count", tu, func],
         capture_output=True, text=True, cwd=str(ROOT))

@@ -1,0 +1,15 @@
+#include "common.h"
+
+extern char D_0063BD38[8];
+extern int D_007285A0[];
+
+INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/EnemyInit", enemy_Initialize);
+
+int enemy_GetPositionTable(int idx, int sub_idx)
+{
+    int factor;
+    if (idx < 0 || idx >= *(int *)D_0063BD38)
+        return 0;
+    factor = 0x6C;
+    return *(int *)((char *)D_007285A0 + idx * factor + sub_idx * 4);
+}

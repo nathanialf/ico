@@ -48,12 +48,14 @@ if [[ -f "$NAME.c" ]]; then
 elif [[ -f "tough_nuts/$NAME/$NAME.c" ]]; then
     CSRC="tough_nuts/$NAME/$NAME.c"
 else
-    for _root in src ios sound isys sce sce/libc sce/libm sce/libgcc \
-                 sce/libgraph sce/libpkt sce/libmc sce/libkernl sce/libvu0 \
-                 sce/libdma sce/libcdvd sce/libpad sce/libmpeg sce/libipu \
-                 sce/libsndn2 \
+    # Bare TU name: search the PAL tree (ico2/<programmer>/<kind>/, sce/ and
+    # its archive dirs, src/ for the VU sources) and the aug6 dev tree.
+    for _root in $(cd "$ROOT" 2>/dev/null && ls -d ico2/*/* sce sce/*/ sce/*/*/ \
+                       sce/*/*/*/ 2>/dev/null) \
+                 src ios sound isys \
                  common/src fumi/src fumi/ios fumi/sound fumi/isys \
                  sugipon/src seki/src omori/src script/src ito/src ito/mpeg; do
+        _root="${_root%/}"
         if [[ -f "$_root/$NAME.c" ]]; then CSRC="$_root/$NAME.c"; break; fi
     done
 fi
@@ -76,12 +78,14 @@ CANDIDATES=(
     "$ASM_ROOT/matchings/ios/$NAME"
     "$ASM_ROOT/matchings/isys/$NAME"
     "$ASM_ROOT/matchings/sce/$NAME"
+    "$ASM_ROOT/matchings/ico2/$NAME"
     "$ASM_ROOT/nonmatchings/$NAME"
     "$ASM_ROOT/nonmatchings/src/$NAME"
     "$ASM_ROOT/nonmatchings/sound/$NAME"
     "$ASM_ROOT/nonmatchings/ios/$NAME"
     "$ASM_ROOT/nonmatchings/isys/$NAME"
     "$ASM_ROOT/nonmatchings/sce/$NAME"
+    "$ASM_ROOT/nonmatchings/ico2/$NAME"
 )
 # When a specific func is requested, prefer the candidate dir that actually
 # CONTAINS it — a stale gitignored layout dir (e.g. asm/matchings/<TU>/ left
@@ -184,12 +188,32 @@ mkdir -p "$(dirname "$OBJ")"
 # from a CWD one level below ROOT with a *relative* -I../ito/include so the
 # baked __FILE__ literal reads "../ito/include/<h>" — exactly as compile_c.sh
 # does (opt-in per TU via config/include_ito.txt). Keeps quick_diff in sync.
-if grep -qxF "$NAME" "$ROOT/config/include_ito.txt" 2>/dev/null; then
+ICO2_PROG=""
+case "$CSRC" in
+    ico2/*/*) ICO2_PROG="${CSRC#ico2/}"; ICO2_PROG="${ICO2_PROG%%/*}" ;;
+esac
+if [[ -n "$ICO2_PROG" ]]; then
+    # Same rule as compile_c.sh: compile from inside the programmer's own
+    # directory with relative -I entries, so __FILE__ and the header spellings
+    # are the ones the original link recorded.
+    SRC_REL="${CSRC#ico2/$ICO2_PROG/}"
+    ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
+    ICO2_INCS=""
+    for _p in "$ICO2_PROG" sugipon omori common ito; do
+        [[ -d "$ROOT/ico2/$_p/include" ]] || continue
+        case " $ICO2_INCS " in *" -I../$_p/include "*) continue ;; esac
+        ICO2_INCS="$ICO2_INCS -I../$_p/include"
+    done
+    # shellcheck disable=SC2086
+    ( cd "$ROOT/ico2/$ICO2_PROG" \
+      && $CC $ICO2_INCS $CFLAGS -I"$ROOT/include" -I"$ROOT/sce/libm/common" \
+           -o "$ASM_ABS" "$SRC_REL" )
+elif grep -qxF "$NAME" "$ROOT/config/include_ito.txt" 2>/dev/null; then
     CSRC_ABS="$CSRC"; case "$CSRC_ABS" in /*) ;; *) CSRC_ABS="$ROOT/$CSRC_ABS";; esac
     ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
     ( cd "$ROOT/ito" && $CC $CFLAGS -I"$ROOT/include" -I../ito/include -o "$ASM_ABS" "$CSRC_ABS" )
 else
-    $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
+    $CC $CFLAGS -I"$ROOT/sce/libm/common" -o "$ASM_OUT" "$CSRC"
 fi
 
 # Stage 1b: run postprocesses listed in their gate files (match

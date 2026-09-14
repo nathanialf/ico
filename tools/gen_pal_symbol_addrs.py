@@ -137,7 +137,8 @@ SRC_ROOT = "/backup/ico/20020116MasterVer1.00EU/ico2/"
 # the leading per-programmer directory is dropped (`sugipon/src/box.c` ->
 # `src/box`).  The MPEG middleware keeps its namespace -- the rom's own string
 # pool carries "ito/include/mv_defs.h" -- so `ito/mpeg/*` stays `ito/mpeg/*`.
-KEEP_PREFIX = ("ito/mpeg/",)
+# Retired: retail_path now keeps the whole listing path, programmer included.
+KEEP_PREFIX = ()
 
 VENDOR = "(vendor)"
 
@@ -385,7 +386,11 @@ def relpath(p: str) -> str:
 
 
 def retail_path(listing_path: str | None) -> str | None:
-    """listing source path (`<programmer>/<subdir>/<stem>.c`) -> repo TU path."""
+    """listing source path (`<programmer>/<subdir>/<stem>.c`) -> repo TU path.
+
+    The PAL tree keeps the listing's own shape, `ico2/<programmer>/<kind>/`,
+    so the repo path is the listing path with the project root prefixed.
+    """
     if not listing_path or listing_path == VENDOR:
         return listing_path
     if not listing_path.endswith(".c") or listing_path.startswith("/"):
@@ -394,11 +399,7 @@ def retail_path(listing_path: str | None) -> str | None:
     parts = stem.split("/")
     if len(parts) < 2:
         return None
-    tail = "/".join(parts[1:])
-    for keep in KEEP_PREFIX:
-        if tail.startswith(keep.split("/", 1)[1]):
-            return parts[0] + "/" + tail
-    return tail
+    return "ico2/" + "/".join(parts)
 
 
 def mainmap_archives() -> tuple[dict[str, str], list[str]]:
@@ -1203,7 +1204,7 @@ def emit_yaml(m: Model, spans) -> int:
     return len(out)
 
 
-KNOWN_DIRS = ("src/", "ios/", "isys/", "sound/", "ito/")
+KNOWN_DIRS = ("ico2/", "sce/", "src/")
 
 
 def vendor_tag(m, i0, s, e):
@@ -1232,7 +1233,7 @@ def yaml_spans(m: Model):
     idx = {f[0]: i for i, f in enumerate(m.rfuncs)}
     for s, e, path, n in spans_from(m):
         if path and path != VENDOR:
-            name = path if path.startswith(KNOWN_DIRS) else "src/" + path
+            name = path if path.startswith(KNOWN_DIRS) else "ico2/" + path
             srcs = Counter(m.tu_src[i] for i in range(len(m.rfuncs))
                            if m.rfuncs[i][0] >= s and m.rfuncs[i][1] <= e)
             tag = ("census" if srcs.get("census") else

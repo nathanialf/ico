@@ -40,7 +40,10 @@ OBJCOPY="${MIPS_PREFIX}objcopy"
 EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
 
 INCLUDE_DIR="${ROOT}/include"
-CFLAGS="-S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}"
+# math_private.h sits where newlib keeps it, sce/libm/common/, so the libm and
+# libc members include it by its own name the way newlib's sources do; the
+# three game TUs that use the GET_FLOAT_WORD macros reach it the same way.
+CFLAGS="-S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR} -I${ROOT}/sce/libm/common"
 ASFLAGS="-EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -I${INCLUDE_DIR}"
 EE_ASFLAGS="-EL -mcpu=5900 -G 8"
 
@@ -86,7 +89,33 @@ mkdir -p "$(dirname "${OUT}")"
 # a different CWD) would change the baked rodata string. Opt-in per TU via
 # config/include_ito.txt; all paths are made absolute since CWD changes.
 INCLUDE_ITO_TXT="${ROOT}/config/include_ito.txt"
-if listed "${INCLUDE_ITO_TXT}"; then
+# ico2/<programmer>/<kind>/<file>.c : compile it the way the original build
+# did, from inside the programmer's own directory with RELATIVE -I entries to
+# the sibling programmers' include dirs. ee-gcc bakes the spelling it is given
+# into __FILE__, so both the source argument (`src/main.c`, not
+# `ico2/common/src/main.c`) and the header spelling (`../ito/include/mv_defs.h`)
+# have to match what the 2002 link recorded. The project's own headers stay at
+# the repo-root include/ and are reached by an absolute -I.
+ICO2_PROG=""
+case "${SRC}" in
+    ico2/*/*) ICO2_PROG="${SRC#ico2/}"; ICO2_PROG="${ICO2_PROG%%/*}" ;;
+esac
+if [ -n "${ICO2_PROG}" ]; then
+    SRC_REL="${SRC#ico2/${ICO2_PROG}/}"
+    S_ABS="${S}"; case "${S_ABS}" in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
+    # Search order: the programmer's own include dir first, then the
+    # cross-programmer dirs the listing shows their TUs reaching into, then
+    # (from CFLAGS) the repo's own include/ last.
+    ICO2_INCS=""
+    for _p in "${ICO2_PROG}" sugipon omori common ito; do
+        [ -d "${ROOT}/ico2/${_p}/include" ] || continue
+        case " ${ICO2_INCS} " in *" -I../${_p}/include "*) continue ;; esac
+        ICO2_INCS="${ICO2_INCS} -I../${_p}/include"
+    done
+    # shellcheck disable=SC2086
+    ( cd "${ROOT}/ico2/${ICO2_PROG}" \
+      && "${CC}" -B "${EEGCC_LIB}" ${ICO2_INCS} ${CFLAGS} -o "${S_ABS}" "${SRC_REL}" )
+elif listed "${INCLUDE_ITO_TXT}"; then
     SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
     S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # shellcheck disable=SC2086

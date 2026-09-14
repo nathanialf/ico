@@ -2,11 +2,11 @@
 """map_data_tus.py — reconstruct per-TU ownership runs inside the data blobs.
 
 For a given section family (default .rodata), inventory every symbol in the
-splat blob disassemblies (asm/data/src/cod/*.<sect>.s), map each symbol to the
+splat blob disassemblies (asm/data/cod/*.<sect>.s), map each symbol to the
 TUs that reference it (C sources + asm/nonmatchings stubs), then print the
 address-ordered stream annotated with ownership so contiguous per-TU runs and
 their boundaries become visible.  This is the evidence layer for converting
-`src/cod` blob subsegments into full per-TU dot-form carves.
+`cod` blob subsegments into full per-TU dot-form carves.
 
 Ownership classes per symbol:
   TU <name>   exactly one referencing TU  -> anchor for that TU's run
@@ -42,7 +42,7 @@ SYM_REF_RE = re.compile(r"\b(D_[0-9A-Fa-f]{8}|jtbl_[0-9A-Fa-f]{8})\b")
 CARVE_RE = re.compile(
     r"- \[0x([0-9A-Fa-f]+), \.(\w+), ([\w/\-]+)\]")
 BLOB_RE = re.compile(
-    r"- \[0x([0-9A-Fa-f]+), (\w+), src/cod/([0-9A-Fa-f]+)\]")
+    r"- \[0x([0-9A-Fa-f]+), (\w+), cod/([0-9A-Fa-f]+)\]")
 CSEG_RE = re.compile(r"- \[0x([0-9A-Fa-f]+), c, ([\w/\-]+)\]")
 
 VRAM_OFF = 0x100000  # rom -> vram for the cod data segment
@@ -56,7 +56,7 @@ def sym_vma(name):
 def inventory(sect):
     """[(vma, name)] address-ordered from blob .s files for the section."""
     out = []
-    blobdir = os.path.join(ROOT, "asm", "data", "src", "cod")
+    blobdir = os.path.join(ROOT, "asm", "data", "cod")
     for fn in sorted(os.listdir(blobdir)):
         if not fn.endswith(f".{sect}.s"):
             continue
@@ -85,7 +85,7 @@ def inventory(sect):
 def consumers():
     """sym -> set(tu) from C sources and asm/nonmatchings stubs."""
     refs = collections.defaultdict(set)
-    src_roots = ("src", "ios", "isys", "ito", "sound")
+    src_roots = ("ico2", "sce", "src")
     for root in src_roots:
         top = os.path.join(ROOT, root)
         for dirpath, _dirs, files in os.walk(top):

@@ -146,229 +146,229 @@ segments:
       # survives, so a flipped TU is not clobbered.
       - [0x0, c, sce/crt0]  # 4 funcs, vendor crt0.s (1/4 MAIN.MAP)
       - [0x110, c, sce/libkernl/libkernl_100110]  # 179 funcs, vendor libkernl.a whole run (174/179 MAIN.MAP)
-      - [0x2460, c, src/main]  # 4 funcs, listing
-      - [0x25A8, c, src/delayFreeManager]  # 3 funcs, census
-      - [0x27D8, c, src/geometryManager]  # 48 funcs, census
-      - [0x4BE0, c, src/keyInput]  # 2 funcs, listing
-      - [0x4F38, c, src/matrixDrive]  # 37 funcs, listing
-      - [0x60D8, c, src/motionManager2]  # 81 funcs, census
-      - [0xADC0, c, src/pool]  # 21 funcs, census
-      - [0xD3A8, c, src/quaternion]  # 46 funcs, listing
-      - [0xE918, c, src/tableSin]  # 6 funcs, listing
-      - [0xEC18, c, src/DisplayP2O]  # 11 funcs, listing
-      - [0xECA8, c, src/FileManager]  # 3 funcs, census
-      - [0xF650, c, src/GifPacket]  # 41 funcs, listing
-      - [0x12558, c, src/GsBase]  # 42 funcs, listing
-      - [0x16690, c, src/Light]  # 16 funcs, census
-      - [0x19018, c, src/Matrix]  # 62 funcs, census
-      - [0x1A2E0, c, src/MicroCode]  # 5 funcs, listing
-      - [0x1A7A0, c, src/Packet]  # 26 funcs, census
-      - [0x1D7F0, c, src/Primitive]  # 19 funcs, census
-      - [0x1FEF0, c, src/RegistPacket]  # 39 funcs, census
-      - [0x244D8, c, src/Shadow]  # 15 funcs, listing
-      - [0x29F50, c, src/StageAnimation]  # 26 funcs, census
-      - [0x2C8F0, c, src/Texture]  # 44 funcs, census
-      - [0x320F0, c, src/ZFog]  # 3 funcs, listing
-      - [0x33250, c, ios/cdvd]  # 37 funcs, census
-      - [0x358B0, c, ios/inflate]  # 11 funcs, census
-      - [0x37DE8, c, ios/ios]  # 3 funcs, listing
-      - [0x38158, c, ios/mblock]  # 6 funcs, census
-      - [0x38478, c, ios/mcard]  # 28 funcs, listing
-      - [0x3A778, c, ios/mcdata]  # 3 funcs, listing
-      - [0x3AA78, c, ios/memory]  # 14 funcs, census
-      - [0x3C4A8, c, ios/message]  # 9 funcs, census
-      - [0x3CAF0, c, ios/pad]  # 24 funcs, census
-      - [0x3DF68, c, ios/shockdriver]  # 39 funcs, listing
-      - [0x3F528, c, ios/thread]  # 24 funcs, census
-      - [0x40170, c, isys/gobj]  # 27 funcs, census
-      - [0x41198, c, isys/gobj_dl]  # 13 funcs, listing
-      - [0x417D0, c, isys/gobj_process]  # 18 funcs, census
-      - [0x41D80, c, isys/isys]  # 1 funcs, listing
-      - [0x41D88, c, isys/obj_manager]  # 14 funcs, listing
-      - [0x42518, c, sound/adpcm_init]  # 27 funcs, census
-      - [0x43550, c, sound/s_init]  # 46 funcs, census
-      - [0x46B68, c, sound/soundManager]  # 3 funcs, listing
-      - [0x46CC0, c, src/act-game]  # 100 funcs, census; starts with ACTGame_SaveActorInformation (act-game.c:950), the first parse-order member, which splat had left in soundManager's span
-      - [0x4E8A0, c, src/act-parallel-control]  # 5 funcs, listing
-      - [0x4EA68, c, src/act-wish]  # 1 funcs, listing
-      - [0x4FD50, c, src/boyact]  # 57 funcs, census
-      - [0x58C88, c, src/commonact]  # 97 funcs, census
-      - [0x63F98, c, src/enemy_act]  # 66 funcs, census
-      - [0x6B038, c, src/fieldCollision]  # 69 funcs, census
-      - [0x6F1E8, c, src/fuzio]  # 8 funcs, listing
-      - [0x6F600, c, src/girl_act]  # 62 funcs, listing
-      - [0x7C988, c, src/jimaku]  # 14 funcs, census
-      - [0x7D5D0, c, src/way_sys]  # 8 funcs, listing; starts with _FUNC_GetWay_begin (way_sys.c:159), its first parse-order member, which splat had left in jimaku's span
-      - [0x7F180, c, src/way_util]  # 40 funcs, census
-      - [0x81900, c, src/gflag]  # 6 funcs, listing
-      - [0x81AD0, c, src/script]  # 105 funcs, listing
-      - [0x85E60, c, src/st25a]  # 23 funcs, listing
-      - [0x87F00, c, src/warpGirl]  # 3 funcs, listing
-      - [0x88280, c, src/attackhit]  # 11 funcs, census
-      - [0x89738, c, src/brain]  # 21 funcs, listing
-      - [0x8A478, c, src/camera-editor]  # 47 funcs, census
-      - [0x8F980, c, src/camera-ico2]  # 25 funcs, census
-      - [0x931C8, c, src/camera-root]  # 42 funcs, listing
-      - [0x94F68, c, src/camera-set-manager]  # 1 funcs, listing
-      - [0x94F70, c, src/chain]  # 52 funcs, census
-      - [0x98F70, c, src/ebrain]  # 8 funcs, census
-      - [0x9A0C0, c, src/enemy-control]  # 3 funcs, listing
-      - [0x9A1B0, c, src/fightSound]  # 7 funcs, listing
-      - [0x9A4E8, c, src/generator]  # 39 funcs, census
-      - [0x9C560, c, src/gv]  # 21 funcs, listing
-      - [0x9CF48, c, src/hand-camera]  # 7 funcs, listing
-      - [0x9D628, c, src/lws_kyomi]  # 13 funcs, census
-      - [0x9DDA0, c, src/mail-add-data]  # 4 funcs, census
-      - [0x9DFC0, c, src/poly-flat]  # 8 funcs, listing
-      - [0x9E340, c, src/act_bird]  # 13 funcs, census
-      - [0xA0160, c, src/gather_effect]  # 4 funcs, listing
-      - [0xA05D0, c, src/itou_boss]  # 12 funcs, census
-      - [0xA11E8, c, src/itou_gflag]  # 3 funcs, listing
-      - [0xA1200, c, src/itou_sub]  # 5 funcs, listing
-      - [0xA1520, c, src/lightning]  # 7 funcs, listing
-      - [0xA2770, c, src/queen]  # 25 funcs, census
-      - [0xA4B68, c, src/queen_barrier_disp]  # 6 funcs, census (MakeRefractTexture at 0x1A4B68 is the TU's first, static, function; MAIN.MAP queen_barrier_disp.o starts 0x2E0 before queen_barrier_set_damage)
-      - [0xA5618, c, src/stage_orient]  # 5 funcs, listing
-      - [0xA5DB8, c, ito/mpeg/mv_main]  # 8 funcs, listing
-      - [0xA6810, c, ito/mpeg/mv_readbuf]  # 6 funcs, listing
-      - [0xA69A0, c, ito/mpeg/mv_strfile]  # 3 funcs, listing
-      - [0xA6A18, c, ito/mpeg/mv_videodec]  # 19 funcs, listing
-      - [0xA7180, c, ito/mpeg/mv_vobuf]  # 10 funcs, listing
-      - [0xA7478, c, src/DObj]  # 9 funcs, census
-      - [0xA83A0, c, src/StageManager]  # 14 funcs, listing
-      - [0xA8ED0, c, src/backStage]  # 9 funcs, listing
-      - [0xA9E60, c, src/charFileManager]  # 21 funcs, census
-      - [0xABC40, c, src/debug]  # 99 funcs, census (the 16 screen functions belong to debug_exception.o)
-      - [0xB3E20, c, src/debug_exception]  # 27 funcs: debug_exception_screen.c.inc (16, compiled here per MAIN.MAP) + debug_exception.c (11)
-      - [0xB64F0, c, src/debug_menu]  # 3 funcs, listing
-      - [0xB66A8, c, src/gamesys]  # 29 funcs, listing
-      - [0xB75E8, c, src/haveParentSimpleObj]  # 3 funcs, listing
-      - [0xB7600, c, src/icoMisc]  # 6 funcs, census
-      - [0xB8738, c, src/kanban]  # 11 funcs, census
-      - [0xB92D0, c, src/kanbanBoot]  # 4 funcs, listing
-      - [0xB9AA8, c, src/layout_action]  # 68 funcs, listing
-      - [0xBEEA8, c, src/layout_texture]  # 19 funcs, census
-      - [0xC0FA8, c, src/sceneManager]  # 13 funcs, census
-      - [0xC1F58, c, src/staffroll]  # 5 funcs, census
-      - [0xC2510, c, src/a_p_1]  # 23 funcs, census
-      - [0xC4788, c, src/act_a_p_1]  # 16 funcs, listing
-      - [0xC5780, c, src/actressLight]  # 1 funcs, listing
-      - [0xC5848, c, src/attackCheckBoundary]  # 12 funcs, census
-      - [0xC5F58, c, src/box]  # 74 funcs, census
-      - [0xCB2E0, c, src/boy]  # 14 funcs, census
-      - [0xCC740, c, src/cage]  # 10 funcs, census
-      - [0xCD4A8, c, src/cageFix]  # 3 funcs, listing
-      - [0xCD578, c, src/candle]  # 5 funcs, census
-      - [0xCD9A8, c, src/chandelier]  # 3 funcs, listing
-      - [0xCDA90, c, src/clipCollisionManager]  # 4 funcs, listing
-      - [0xCDD48, c, src/clothAnimation]  # 50 funcs, census; starts with TestDispChainAnimation (clothAnimation.c:160), its first parse-order member, which splat had left in clipCollisionManager's span
-      - [0xD4458, c, src/clothTest]  # 3 funcs, census
-      - [0xD44B8, c, src/darkVolume]  # 17 funcs, listing
-      - [0xD7088, c, src/effectTool]  # 12 funcs, listing
-      - [0xD87C0, c, src/enemy]  # 37 funcs, census
-      - [0xDA0A8, c, src/enemyParts]  # 12 funcs, census
-      - [0xDAE80, c, src/flag]  # 4 funcs, census
-      - [0xDBBE0, c, src/flyManager]  # 5 funcs, listing
-      - [0xDBDE8, c, src/frameDependSequence]  # 24 funcs, listing
-      - [0xDD128, c, src/girl]  # 11 funcs, census
-      - [0xDDD50, c, src/girlForceField]  # 3 funcs, census
-      - [0xDDF20, c, src/handManager]  # 4 funcs, listing
-      - [0xDE7E8, c, src/item]  # 28 funcs, census
-      - [0xE0840, c, src/lineManager]  # 7 funcs, listing
-      - [0xE1158, c, src/lodManager]  # 1 funcs, census
-      - [0xE1218, c, src/motionFileManager]  # 8 funcs, listing
-      - [0xE14D0, c, src/motionManager]  # 65 funcs, census
-      - [0xED758, c, src/motionOrientManager]  # 32 funcs, census
-      - [0xF17F0, c, src/motionViewer]  # 10 funcs, census
-      - [0xF3668, c, src/moveColTest]  # 3 funcs, census
-      - [0xF38B8, c, src/multiBgaManager]  # 6 funcs, census
-      - [0xF3C48, c, src/particleEffect]  # 28 funcs, census
-      - [0xF57A0, c, src/particleLayout]  # 4 funcs, census
-      - [0xF58A0, c, src/puddle]  # 12 funcs, census
-      - [0xF66E8, c, src/rope]  # 8 funcs, census
-      - [0xF7038, c, src/ropeFix]  # 3 funcs, listing
-      - [0xF70C8, c, src/rotObject]  # 18 funcs, census
-      - [0xF7A98, c, src/spider]  # 18 funcs, census
-      - [0xF8CA8, c, src/spiderGroupManager]  # 8 funcs, census
-      - [0xF9390, c, src/stageMultiBgaManager]  # 6 funcs, listing
-      - [0xF9890, c, src/staticBlur]  # 43 funcs, listing
-      - [0xFD5F8, c, src/stormTest]  # 8 funcs, census
-      - [0xFE1A0, c, src/streamMotionManager]  # 24 funcs, census
-      - [0xFF2B8, c, src/sugiTree]  # 5 funcs, census
-      - [0xFF7C0, c, src/torch]  # 16 funcs, census
-      - [0x1003A8, c, src/waterDot]  # 6 funcs, census
-      - [0x100AD0, c, src/waySystemManager]  # 4 funcs, listing
-      - [0x100BB8, c, src/weapon]  # 37 funcs, census
-      - [0x1034F0, c, src/windField]  # 13 funcs, listing
-      - [0x103FF8, c, src/windManager]  # 5 funcs, listing
-      - [0x104388, c, src/windmill]  # 3 funcs, listing
-      - [0x104500, c, src/wireLetter]  # 5 funcs, listing
-      - [0x104888, c, src/worm]  # 12 funcs, census
-      - [0x105DA8, c, src/Basic]  # 10 funcs, census
-      - [0x105FB0, c, src/BgAnimation]  # 32 funcs, census
-      - [0x10AA90, c, src/DisplayFont]  # 5 funcs, listing
-      - [0x10B458, c, src/DisplayList]  # 11 funcs, census
-      - [0x10BAD8, c, src/DmaPacket]  # 3 funcs, census
-      - [0x10BBD8, c, src/EnemyInit]  # 2 funcs, census
-      - [0x10BF58, c, isys/gobj_cam_dl]  # 12 funcs, listing
-      - [0x10C4B0, c, src/act-env]  # 8 funcs, census
-      - [0x111428, c, src/act-way]  # 8 funcs, listing
-      - [0x1129A8, c, src/act]  # 21 funcs, census
-      - [0x1149B0, c, src/act2]  # 2 funcs, listing
-      - [0x114B38, c, src/seMail]  # 3 funcs, listing
-      - [0x114D80, c, src/way_kidnap]  # 12 funcs, listing
-      - [0x115F18, c, src/way_llf]  # 25 funcs, listing
-      - [0x116790, c, src/way_tool]  # 14 funcs, census
-      - [0x117E08, c, src/deja]  # 6 funcs, listing; starts with actDejaChk, which splat had glued onto way_tool's cursor_control
-      - [0x1186D8, c, src/e3]  # 43 funcs, listing; starts with actE3WarningChk (e3.c:488), its first parse-order member, which splat had glued onto deja's actEnemySleep
-      - [0x11B8A0, c, src/end]  # 54 funcs, listing
-      - [0x11F860, c, src/op]  # 12 funcs, listing
-      - [0x121238, c, src/st00a]  # 23 funcs, listing
-      - [0x122710, c, src/st01b]  # 19 funcs, listing
-      - [0x123318, c, src/st02a]  # 34 funcs, listing
-      - [0x124EA8, c, src/st03t]  # 28 funcs, listing
-      - [0x1263D8, c, src/st04a]  # 38 funcs, listing
-      - [0x12B088, c, src/st04b]  # 14 funcs, listing
-      - [0x12BA00, c, src/st04c]  # 17 funcs, listing
-      - [0x12C4A8, c, src/st04d]  # 12 funcs, listing
-      - [0x12CFB8, c, src/st04e]  # 16 funcs, listing
-      - [0x12DB38, c, src/st04l]  # 122 funcs, listing
-      - [0x1339B8, c, src/st04r]  # 106 funcs, listing
-      - [0x138740, c, src/st05b]  # 9 funcs, listing
-      - [0x138E60, c, src/st05c]  # 18 funcs, listing
-      - [0x139B30, c, src/st05d]  # 12 funcs, listing
-      - [0x13A480, c, src/st05e]  # 7 funcs, listing
-      - [0x13AB10, c, src/st06a]  # 65 funcs, listing
-      - [0x13DDD0, c, src/st07a]  # 36 funcs, listing
-      - [0x13FE40, c, src/st08a]  # 27 funcs, listing
-      - [0x141220, c, src/st08b]  # 15 funcs, listing
-      - [0x1420D8, c, src/st09a]  # 17 funcs, listing
-      - [0x142B58, c, src/st10l]  # 36 funcs, listing
-      - [0x144620, c, src/st10r]  # 37 funcs, listing
-      - [0x146718, c, src/st13a]  # 14 funcs, listing
-      - [0x1473E8, c, src/st13b]  # 33 funcs, listing
-      - [0x149F88, c, src/st13b2]  # 1 funcs, listing
-      - [0x149FB8, c, src/st13c]  # 44 funcs, listing
-      - [0x14D3D0, c, src/st13d]  # 4 funcs, listing
-      - [0x14D658, c, src/st17a]  # 22 funcs, listing
-      - [0x14E928, c, src/st17b]  # 3 funcs, listing
-      - [0x14EA30, c, src/st18a]  # 22 funcs, listing
-      - [0x14FE38, c, src/st19a]  # 14 funcs, listing
-      - [0x150D80, c, src/st20a]  # 28 funcs, listing
-      - [0x152700, c, src/st22a]  # 2 funcs, listing
-      - [0x152AC0, c, src/st24a]  # 6 funcs, listing
-      - [0x153090, c, src/st47a]  # 38 funcs, listing
-      - [0x154D40, c, src/st99a]  # 15 funcs, listing
-      - [0x155520, c, src/stageSEProc]  # 47 funcs, listing (boundary moved from 0x1556B0: stageSEtaimatsu at 0x255520 is stageSEProc.c:192, st99a ends at actSt17aTestChk)
-      - [0x157218, c, src/access]  # 2 funcs, listing
-      - [0x157310, c, src/objact]  # 5 funcs, listing
-      - [0x157550, c, ito/mpeg/mv_audiodec]  # 11 funcs, listing
-      - [0x158090, c, ito/mpeg/mv_disp]  # 34 funcs, listing
-      - [0x159338, c, ito/mpeg/mv_sub]  # 2 funcs, listing
-      - [0x159480, c, ito/mpeg/mv_vibuf]  # 15 funcs, listing
-      - [0x15A6B8, c, src/GobjProc]  # 8 funcs, listing
-      - [0x15AB20, c, src/PObj]  # 5 funcs, census
-      - [0x15B578, c, src/vobj]  # 2 funcs, listing
+      - [0x2460, c, ico2/common/src/main]  # 4 funcs, listing
+      - [0x25A8, c, ico2/sugipon/src/delayFreeManager]  # 3 funcs, census
+      - [0x27D8, c, ico2/sugipon/src/geometryManager]  # 48 funcs, census
+      - [0x4BE0, c, ico2/sugipon/src/keyInput]  # 2 funcs, listing
+      - [0x4F38, c, ico2/sugipon/src/matrixDrive]  # 37 funcs, listing
+      - [0x60D8, c, ico2/sugipon/src/motionManager2]  # 81 funcs, census
+      - [0xADC0, c, ico2/sugipon/src/pool]  # 21 funcs, census
+      - [0xD3A8, c, ico2/sugipon/src/quaternion]  # 46 funcs, listing
+      - [0xE918, c, ico2/sugipon/src/tableSin]  # 6 funcs, listing
+      - [0xEC18, c, ico2/seki/src/DisplayP2O]  # 11 funcs, listing
+      - [0xECA8, c, ico2/seki/src/FileManager]  # 3 funcs, census
+      - [0xF650, c, ico2/seki/src/GifPacket]  # 41 funcs, listing
+      - [0x12558, c, ico2/seki/src/GsBase]  # 42 funcs, listing
+      - [0x16690, c, ico2/seki/src/Light]  # 16 funcs, census
+      - [0x19018, c, ico2/seki/src/Matrix]  # 62 funcs, census
+      - [0x1A2E0, c, ico2/seki/src/MicroCode]  # 5 funcs, listing
+      - [0x1A7A0, c, ico2/seki/src/Packet]  # 26 funcs, census
+      - [0x1D7F0, c, ico2/seki/src/Primitive]  # 19 funcs, census
+      - [0x1FEF0, c, ico2/seki/src/RegistPacket]  # 39 funcs, census
+      - [0x244D8, c, ico2/seki/src/Shadow]  # 15 funcs, listing
+      - [0x29F50, c, ico2/seki/src/StageAnimation]  # 26 funcs, census
+      - [0x2C8F0, c, ico2/seki/src/Texture]  # 44 funcs, census
+      - [0x320F0, c, ico2/seki/src/ZFog]  # 3 funcs, listing
+      - [0x33250, c, ico2/fumi/ios/cdvd]  # 37 funcs, census
+      - [0x358B0, c, ico2/fumi/ios/inflate]  # 11 funcs, census
+      - [0x37DE8, c, ico2/fumi/ios/ios]  # 3 funcs, listing
+      - [0x38158, c, ico2/fumi/ios/mblock]  # 6 funcs, census
+      - [0x38478, c, ico2/fumi/ios/mcard]  # 28 funcs, listing
+      - [0x3A778, c, ico2/fumi/ios/mcdata]  # 3 funcs, listing
+      - [0x3AA78, c, ico2/fumi/ios/memory]  # 14 funcs, census
+      - [0x3C4A8, c, ico2/fumi/ios/message]  # 9 funcs, census
+      - [0x3CAF0, c, ico2/fumi/ios/pad]  # 24 funcs, census
+      - [0x3DF68, c, ico2/fumi/ios/shockdriver]  # 39 funcs, listing
+      - [0x3F528, c, ico2/fumi/ios/thread]  # 24 funcs, census
+      - [0x40170, c, ico2/fumi/isys/gobj]  # 27 funcs, census
+      - [0x41198, c, ico2/fumi/isys/gobj_dl]  # 13 funcs, listing
+      - [0x417D0, c, ico2/fumi/isys/gobj_process]  # 18 funcs, census
+      - [0x41D80, c, ico2/fumi/isys/isys]  # 1 funcs, listing
+      - [0x41D88, c, ico2/fumi/isys/obj_manager]  # 14 funcs, listing
+      - [0x42518, c, ico2/fumi/sound/adpcm_init]  # 27 funcs, census
+      - [0x43550, c, ico2/fumi/sound/s_init]  # 46 funcs, census
+      - [0x46B68, c, ico2/fumi/sound/soundManager]  # 3 funcs, listing
+      - [0x46CC0, c, ico2/fumi/src/act-game]  # 100 funcs, census; starts with ACTGame_SaveActorInformation (act-game.c:950), the first parse-order member, which splat had left in soundManager's span
+      - [0x4E8A0, c, ico2/fumi/src/act-parallel-control]  # 5 funcs, listing
+      - [0x4EA68, c, ico2/fumi/src/act-wish]  # 1 funcs, listing
+      - [0x4FD50, c, ico2/fumi/src/boyact]  # 57 funcs, census
+      - [0x58C88, c, ico2/fumi/src/commonact]  # 97 funcs, census
+      - [0x63F98, c, ico2/fumi/src/enemy_act]  # 66 funcs, census
+      - [0x6B038, c, ico2/fumi/src/fieldCollision]  # 69 funcs, census
+      - [0x6F1E8, c, ico2/fumi/src/fuzio]  # 8 funcs, listing
+      - [0x6F600, c, ico2/fumi/src/girl_act]  # 62 funcs, listing
+      - [0x7C988, c, ico2/fumi/src/jimaku]  # 14 funcs, census
+      - [0x7D5D0, c, ico2/fumi/src/way_sys]  # 8 funcs, listing; starts with _FUNC_GetWay_begin (way_sys.c:159), its first parse-order member, which splat had left in jimaku's span
+      - [0x7F180, c, ico2/fumi/src/way_util]  # 40 funcs, census
+      - [0x81900, c, ico2/script/src/gflag]  # 6 funcs, listing
+      - [0x81AD0, c, ico2/script/src/script]  # 105 funcs, listing
+      - [0x85E60, c, ico2/script/src/st25a]  # 23 funcs, listing
+      - [0x87F00, c, ico2/script/src/warpGirl]  # 3 funcs, listing
+      - [0x88280, c, ico2/omori/src/attackhit]  # 11 funcs, census
+      - [0x89738, c, ico2/omori/src/brain]  # 21 funcs, listing
+      - [0x8A478, c, ico2/omori/src/camera-editor]  # 47 funcs, census
+      - [0x8F980, c, ico2/omori/src/camera-ico2]  # 25 funcs, census
+      - [0x931C8, c, ico2/omori/src/camera-root]  # 42 funcs, listing
+      - [0x94F68, c, ico2/omori/src/camera-set-manager]  # 1 funcs, listing
+      - [0x94F70, c, ico2/omori/src/chain]  # 52 funcs, census
+      - [0x98F70, c, ico2/omori/src/ebrain]  # 8 funcs, census
+      - [0x9A0C0, c, ico2/omori/src/enemy-control]  # 3 funcs, listing
+      - [0x9A1B0, c, ico2/omori/src/fightSound]  # 7 funcs, listing
+      - [0x9A4E8, c, ico2/omori/src/generator]  # 39 funcs, census
+      - [0x9C560, c, ico2/omori/src/gv]  # 21 funcs, listing
+      - [0x9CF48, c, ico2/omori/src/hand-camera]  # 7 funcs, listing
+      - [0x9D628, c, ico2/omori/src/lws_kyomi]  # 13 funcs, census
+      - [0x9DDA0, c, ico2/omori/src/mail-add-data]  # 4 funcs, census
+      - [0x9DFC0, c, ico2/omori/src/poly-flat]  # 8 funcs, listing
+      - [0x9E340, c, ico2/ito/src/act_bird]  # 13 funcs, census
+      - [0xA0160, c, ico2/ito/src/gather_effect]  # 4 funcs, listing
+      - [0xA05D0, c, ico2/ito/src/itou_boss]  # 12 funcs, census
+      - [0xA11E8, c, ico2/ito/src/itou_gflag]  # 3 funcs, listing
+      - [0xA1200, c, ico2/ito/src/itou_sub]  # 5 funcs, listing
+      - [0xA1520, c, ico2/ito/src/lightning]  # 7 funcs, listing
+      - [0xA2770, c, ico2/ito/src/queen]  # 25 funcs, census
+      - [0xA4B68, c, ico2/ito/src/queen_barrier_disp]  # 6 funcs, census (MakeRefractTexture at 0x1A4B68 is the TU's first, static, function; MAIN.MAP queen_barrier_disp.o starts 0x2E0 before queen_barrier_set_damage)
+      - [0xA5618, c, ico2/ito/src/stage_orient]  # 5 funcs, listing
+      - [0xA5DB8, c, ico2/ito/mpeg/mv_main]  # 8 funcs, listing
+      - [0xA6810, c, ico2/ito/mpeg/mv_readbuf]  # 6 funcs, listing
+      - [0xA69A0, c, ico2/ito/mpeg/mv_strfile]  # 3 funcs, listing
+      - [0xA6A18, c, ico2/ito/mpeg/mv_videodec]  # 19 funcs, listing
+      - [0xA7180, c, ico2/ito/mpeg/mv_vobuf]  # 10 funcs, listing
+      - [0xA7478, c, ico2/common/src/DObj]  # 9 funcs, census
+      - [0xA83A0, c, ico2/common/src/StageManager]  # 14 funcs, listing
+      - [0xA8ED0, c, ico2/common/src/backStage]  # 9 funcs, listing
+      - [0xA9E60, c, ico2/common/src/charFileManager]  # 21 funcs, census
+      - [0xABC40, c, ico2/common/src/debug]  # 99 funcs, census (the 16 screen functions belong to debug_exception.o)
+      - [0xB3E20, c, ico2/common/src/debug_exception]  # 27 funcs: debug_exception_screen.c.inc (16, compiled here per MAIN.MAP) + debug_exception.c (11)
+      - [0xB64F0, c, ico2/common/src/debug_menu]  # 3 funcs, listing
+      - [0xB66A8, c, ico2/common/src/gamesys]  # 29 funcs, listing
+      - [0xB75E8, c, ico2/common/src/haveParentSimpleObj]  # 3 funcs, listing
+      - [0xB7600, c, ico2/common/src/icoMisc]  # 6 funcs, census
+      - [0xB8738, c, ico2/common/src/kanban]  # 11 funcs, census
+      - [0xB92D0, c, ico2/common/src/kanbanBoot]  # 4 funcs, listing
+      - [0xB9AA8, c, ico2/common/src/layout_action]  # 68 funcs, listing
+      - [0xBEEA8, c, ico2/common/src/layout_texture]  # 19 funcs, census
+      - [0xC0FA8, c, ico2/common/src/sceneManager]  # 13 funcs, census
+      - [0xC1F58, c, ico2/common/src/staffroll]  # 5 funcs, census
+      - [0xC2510, c, ico2/sugipon/src/a_p_1]  # 23 funcs, census
+      - [0xC4788, c, ico2/sugipon/src/act_a_p_1]  # 16 funcs, listing
+      - [0xC5780, c, ico2/sugipon/src/actressLight]  # 1 funcs, listing
+      - [0xC5848, c, ico2/sugipon/src/attackCheckBoundary]  # 12 funcs, census
+      - [0xC5F58, c, ico2/sugipon/src/box]  # 74 funcs, census
+      - [0xCB2E0, c, ico2/sugipon/src/boy]  # 14 funcs, census
+      - [0xCC740, c, ico2/sugipon/src/cage]  # 10 funcs, census
+      - [0xCD4A8, c, ico2/sugipon/src/cageFix]  # 3 funcs, listing
+      - [0xCD578, c, ico2/sugipon/src/candle]  # 5 funcs, census
+      - [0xCD9A8, c, ico2/sugipon/src/chandelier]  # 3 funcs, listing
+      - [0xCDA90, c, ico2/sugipon/src/clipCollisionManager]  # 4 funcs, listing
+      - [0xCDD48, c, ico2/sugipon/src/clothAnimation]  # 50 funcs, census; starts with TestDispChainAnimation (clothAnimation.c:160), its first parse-order member, which splat had left in clipCollisionManager's span
+      - [0xD4458, c, ico2/sugipon/src/clothTest]  # 3 funcs, census
+      - [0xD44B8, c, ico2/sugipon/src/darkVolume]  # 17 funcs, listing
+      - [0xD7088, c, ico2/sugipon/src/effectTool]  # 12 funcs, listing
+      - [0xD87C0, c, ico2/sugipon/src/enemy]  # 37 funcs, census
+      - [0xDA0A8, c, ico2/sugipon/src/enemyParts]  # 12 funcs, census
+      - [0xDAE80, c, ico2/sugipon/src/flag]  # 4 funcs, census
+      - [0xDBBE0, c, ico2/sugipon/src/flyManager]  # 5 funcs, listing
+      - [0xDBDE8, c, ico2/sugipon/src/frameDependSequence]  # 24 funcs, listing
+      - [0xDD128, c, ico2/sugipon/src/girl]  # 11 funcs, census
+      - [0xDDD50, c, ico2/sugipon/src/girlForceField]  # 3 funcs, census
+      - [0xDDF20, c, ico2/sugipon/src/handManager]  # 4 funcs, listing
+      - [0xDE7E8, c, ico2/sugipon/src/item]  # 28 funcs, census
+      - [0xE0840, c, ico2/sugipon/src/lineManager]  # 7 funcs, listing
+      - [0xE1158, c, ico2/sugipon/src/lodManager]  # 1 funcs, census
+      - [0xE1218, c, ico2/sugipon/src/motionFileManager]  # 8 funcs, listing
+      - [0xE14D0, c, ico2/sugipon/src/motionManager]  # 65 funcs, census
+      - [0xED758, c, ico2/sugipon/src/motionOrientManager]  # 32 funcs, census
+      - [0xF17F0, c, ico2/sugipon/src/motionViewer]  # 10 funcs, census
+      - [0xF3668, c, ico2/sugipon/src/moveColTest]  # 3 funcs, census
+      - [0xF38B8, c, ico2/sugipon/src/multiBgaManager]  # 6 funcs, census
+      - [0xF3C48, c, ico2/sugipon/src/particleEffect]  # 28 funcs, census
+      - [0xF57A0, c, ico2/sugipon/src/particleLayout]  # 4 funcs, census
+      - [0xF58A0, c, ico2/sugipon/src/puddle]  # 12 funcs, census
+      - [0xF66E8, c, ico2/sugipon/src/rope]  # 8 funcs, census
+      - [0xF7038, c, ico2/sugipon/src/ropeFix]  # 3 funcs, listing
+      - [0xF70C8, c, ico2/sugipon/src/rotObject]  # 18 funcs, census
+      - [0xF7A98, c, ico2/sugipon/src/spider]  # 18 funcs, census
+      - [0xF8CA8, c, ico2/sugipon/src/spiderGroupManager]  # 8 funcs, census
+      - [0xF9390, c, ico2/sugipon/src/stageMultiBgaManager]  # 6 funcs, listing
+      - [0xF9890, c, ico2/sugipon/src/staticBlur]  # 43 funcs, listing
+      - [0xFD5F8, c, ico2/sugipon/src/stormTest]  # 8 funcs, census
+      - [0xFE1A0, c, ico2/sugipon/src/streamMotionManager]  # 24 funcs, census
+      - [0xFF2B8, c, ico2/sugipon/src/sugiTree]  # 5 funcs, census
+      - [0xFF7C0, c, ico2/sugipon/src/torch]  # 16 funcs, census
+      - [0x1003A8, c, ico2/sugipon/src/waterDot]  # 6 funcs, census
+      - [0x100AD0, c, ico2/sugipon/src/waySystemManager]  # 4 funcs, listing
+      - [0x100BB8, c, ico2/sugipon/src/weapon]  # 37 funcs, census
+      - [0x1034F0, c, ico2/sugipon/src/windField]  # 13 funcs, listing
+      - [0x103FF8, c, ico2/sugipon/src/windManager]  # 5 funcs, listing
+      - [0x104388, c, ico2/sugipon/src/windmill]  # 3 funcs, listing
+      - [0x104500, c, ico2/sugipon/src/wireLetter]  # 5 funcs, listing
+      - [0x104888, c, ico2/sugipon/src/worm]  # 12 funcs, census
+      - [0x105DA8, c, ico2/seki/src/Basic]  # 10 funcs, census
+      - [0x105FB0, c, ico2/seki/src/BgAnimation]  # 32 funcs, census
+      - [0x10AA90, c, ico2/seki/src/DisplayFont]  # 5 funcs, listing
+      - [0x10B458, c, ico2/seki/src/DisplayList]  # 11 funcs, census
+      - [0x10BAD8, c, ico2/seki/src/DmaPacket]  # 3 funcs, census
+      - [0x10BBD8, c, ico2/seki/src/EnemyInit]  # 2 funcs, census
+      - [0x10BF58, c, ico2/fumi/isys/gobj_cam_dl]  # 12 funcs, listing
+      - [0x10C4B0, c, ico2/fumi/src/act-env]  # 8 funcs, census
+      - [0x111428, c, ico2/fumi/src/act-way]  # 8 funcs, listing
+      - [0x1129A8, c, ico2/fumi/src/act]  # 21 funcs, census
+      - [0x1149B0, c, ico2/fumi/src/act2]  # 2 funcs, listing
+      - [0x114B38, c, ico2/fumi/src/seMail]  # 3 funcs, listing
+      - [0x114D80, c, ico2/fumi/src/way_kidnap]  # 12 funcs, listing
+      - [0x115F18, c, ico2/fumi/src/way_llf]  # 25 funcs, listing
+      - [0x116790, c, ico2/fumi/src/way_tool]  # 14 funcs, census
+      - [0x117E08, c, ico2/script/src/deja]  # 6 funcs, listing; starts with actDejaChk, which splat had glued onto way_tool's cursor_control
+      - [0x1186D8, c, ico2/script/src/e3]  # 43 funcs, listing; starts with actE3WarningChk (e3.c:488), its first parse-order member, which splat had glued onto deja's actEnemySleep
+      - [0x11B8A0, c, ico2/script/src/end]  # 54 funcs, listing
+      - [0x11F860, c, ico2/script/src/op]  # 12 funcs, listing
+      - [0x121238, c, ico2/script/src/st00a]  # 23 funcs, listing
+      - [0x122710, c, ico2/script/src/st01b]  # 19 funcs, listing
+      - [0x123318, c, ico2/script/src/st02a]  # 34 funcs, listing
+      - [0x124EA8, c, ico2/script/src/st03t]  # 28 funcs, listing
+      - [0x1263D8, c, ico2/script/src/st04a]  # 38 funcs, listing
+      - [0x12B088, c, ico2/script/src/st04b]  # 14 funcs, listing
+      - [0x12BA00, c, ico2/script/src/st04c]  # 17 funcs, listing
+      - [0x12C4A8, c, ico2/script/src/st04d]  # 12 funcs, listing
+      - [0x12CFB8, c, ico2/script/src/st04e]  # 16 funcs, listing
+      - [0x12DB38, c, ico2/script/src/st04l]  # 122 funcs, listing
+      - [0x1339B8, c, ico2/script/src/st04r]  # 106 funcs, listing
+      - [0x138740, c, ico2/script/src/st05b]  # 9 funcs, listing
+      - [0x138E60, c, ico2/script/src/st05c]  # 18 funcs, listing
+      - [0x139B30, c, ico2/script/src/st05d]  # 12 funcs, listing
+      - [0x13A480, c, ico2/script/src/st05e]  # 7 funcs, listing
+      - [0x13AB10, c, ico2/script/src/st06a]  # 65 funcs, listing
+      - [0x13DDD0, c, ico2/script/src/st07a]  # 36 funcs, listing
+      - [0x13FE40, c, ico2/script/src/st08a]  # 27 funcs, listing
+      - [0x141220, c, ico2/script/src/st08b]  # 15 funcs, listing
+      - [0x1420D8, c, ico2/script/src/st09a]  # 17 funcs, listing
+      - [0x142B58, c, ico2/script/src/st10l]  # 36 funcs, listing
+      - [0x144620, c, ico2/script/src/st10r]  # 37 funcs, listing
+      - [0x146718, c, ico2/script/src/st13a]  # 14 funcs, listing
+      - [0x1473E8, c, ico2/script/src/st13b]  # 33 funcs, listing
+      - [0x149F88, c, ico2/script/src/st13b2]  # 1 funcs, listing
+      - [0x149FB8, c, ico2/script/src/st13c]  # 44 funcs, listing
+      - [0x14D3D0, c, ico2/script/src/st13d]  # 4 funcs, listing
+      - [0x14D658, c, ico2/script/src/st17a]  # 22 funcs, listing
+      - [0x14E928, c, ico2/script/src/st17b]  # 3 funcs, listing
+      - [0x14EA30, c, ico2/script/src/st18a]  # 22 funcs, listing
+      - [0x14FE38, c, ico2/script/src/st19a]  # 14 funcs, listing
+      - [0x150D80, c, ico2/script/src/st20a]  # 28 funcs, listing
+      - [0x152700, c, ico2/script/src/st22a]  # 2 funcs, listing
+      - [0x152AC0, c, ico2/script/src/st24a]  # 6 funcs, listing
+      - [0x153090, c, ico2/script/src/st47a]  # 38 funcs, listing
+      - [0x154D40, c, ico2/script/src/st99a]  # 15 funcs, listing
+      - [0x155520, c, ico2/script/src/stageSEProc]  # 47 funcs, listing (boundary moved from 0x1556B0: stageSEtaimatsu at 0x255520 is stageSEProc.c:192, st99a ends at actSt17aTestChk)
+      - [0x157218, c, ico2/omori/src/access]  # 2 funcs, listing
+      - [0x157310, c, ico2/omori/src/objact]  # 5 funcs, listing
+      - [0x157550, c, ico2/ito/mpeg/mv_audiodec]  # 11 funcs, listing
+      - [0x158090, c, ico2/ito/mpeg/mv_disp]  # 34 funcs, listing
+      - [0x159338, c, ico2/ito/mpeg/mv_sub]  # 2 funcs, listing
+      - [0x159480, c, ico2/ito/mpeg/mv_vibuf]  # 15 funcs, listing
+      - [0x15A6B8, c, ico2/common/src/GobjProc]  # 8 funcs, listing
+      - [0x15AB20, c, ico2/common/src/PObj]  # 5 funcs, census
+      - [0x15B578, c, ico2/fumi/src/vobj]  # 2 funcs, listing
       - [0x15B680, c, sce/libgraph/graph001]  # 2 funcs, vendor libgraph.a member graph001.o (2/2 MAIN.MAP)
       - [0x15B7A0, c, sce/libgraph/graph002]  # 1 funcs, vendor libgraph.a member graph002.o (1/1 MAIN.MAP)
       - [0x15B808, c, sce/libgraph/graph003]  # 1 funcs, vendor libgraph.a member graph003.o (1/1 MAIN.MAP)
@@ -510,284 +510,284 @@ segments:
       - [0x18B380, hasm, src/normal_c]       # NormalCMicroProgram
       - [0x18CA60, hasm, src/normal_l]       # NormalLMicroProgram
       - [0x18E700, hasm, src/particle]       # ParticleMicroProgram
-      - [0x18ECB0, textbin, src/cod/18ECB0]  # .reginfo + pad (all zeros in rom)
-      - [0x18ED00, data, src/cod/18ED00]     # .data blob (to be carved per TU)
+      - [0x18ECB0, textbin, cod/18ECB0]  # .reginfo + pad (all zeros in rom)
+      - [0x18ED00, data, cod/18ED00]     # .data blob (to be carved per TU)
       # --- per-TU .data carves (PAL phase 2; see decomp/carve_ledger.md).
-      - [0x3E5A90, .data, src/attackCheckBoundary]  # carved D_004E5A90 (VMA 0x4E5A90..0x4E5AA0, 16 B, 1 sym), referenced only by still-asm AttackCheckBoundaryDL via %hi/%lo
-      - [0x3E5AA0, data, src/cod/3E5AA0]     # .data blob resume
-      - [0x3ED170, .data, src/waterDot]  # syms: initWaterDotWork,initWaterDot,initWaterDot2  the three static templates AllocWaterDot copies from (0x1C + pad, 0x30, 0x30), VMA 0x4ED170..0x4ED1F0
-      - [0x3ED1F0, data, src/cod/3ED1F0]     # .data blob resume
-      - [0x3EE5B0, .data, src/BgAnimation]  # carved D_004EE5B0 + D_004EE5E0 (VMA 0x4EE5B0..0x4EE5F0, 64 B, 2 syms), both referenced only by still-asm bga_InitData / bga_ApplyDObject via %hi/%lo.  This spends the TU's one .data slot; its other .data run (D_002C2DF4, 285488 B) is blocked anyway (VMA not 8-aligned).
-      - [0x3EE5F0, .data, src/DisplayFont]  # carved D_004EE5F0 (VMA 0x4EE5F0..0x4EE6F0, 256 B, 1 sym): font kerning table, referenced only by still-asm font_Print via %hi/%lo
-      - [0x3EE6F0, data, src/cod/3EE6F0]     # .data blob resume
-      - [0x3F1D60, .data, src/act-env]  # carved D_004F1D60..D_004F1E00 (VMA 0x4F1D60..0x4F1E10, 176 B, 11 float[4] tables), all referenced only by still-asm getDitchDistTbl via %hi/%lo
-      - [0x3F1E10, data, src/cod/3F1E10]     # .data blob resume
-      - [0x3F7D90, .data, src/end]  # syms: ed_demo14_mes  actEndDemo14 mail record (VMA 0x4F7D90..0x4F7DB0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F7DB0, data, src/cod/3F7DB0]     # .data blob resume
-      - [0x3F7DF0, .data, src/end]  # syms: end_mes  actEndLogoChk save hand-off mail record (VMA 0x4F7DF0..0x4F7E10, the end of end.o's .data run); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F7E10, data, src/cod/3F7E10]     # .data blob resume
-      - [0x3F7FB0, .data, src/st01b]  # syms: ene_mes,floor_mes,way_mes,way_on_mes,way_off_mes  the TU's whole .data run, five mail records (VMA 0x4F7FB0..0x4F8050, 0xA0 = MAIN.MAP st01b.o .data); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F8050, data, src/cod/3F8050]     # .data blob resume
-      - [0x3F8270, .data, src/st02a]  # syms: way_on_mail  actSt02aWayOnChk mail record (VMA 0x4F8270..0x4F8290); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F8290, data, src/cod/3F8290]     # .data blob resume
-      - [0x3F82D0, .data, src/st02a]  # syms: taki_on_mail,taki_off_mail  the two Taki mail records (VMA 0x4F82D0..0x4F8310); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F8310, data, src/cod/3F8310]     # .data blob resume
-      - [0x3F84F0, .data, src/st03t]  # syms: way_on_mes,way_off_mes  WayOn/WayOff mail records (VMA 0x4F84F0..0x4F8530); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F8530, data, src/cod/3F8530]     # .data blob resume
-      - [0x3F8770, .data, src/st04a]  # syms: model_on,model_off  ModelOn/ModelOff mail records, the tail of st04a.o's .data run (VMA 0x4F8770..0x4F87B0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F87B0, data, src/cod/3F87B0]     # .data blob resume
-      - [0x3F8930, .data, src/st04d]  # syms: door2_up_mes  actSt04dDoor2UpChk's mail record (VMA 0x4F8930..0x4F8950, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (its gcse bucket, computed from the name hash, is what wins the callee-saved pair)
-      - [0x3F8950, data, src/cod/3F8950]     # .data blob resume
-      - [0x3F9C30, .data, src/st06a]  # syms: wall_way_off  WallWayOff mail record (VMA 0x4F9C30..0x4F9C50); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F9C50, data, src/cod/3F9C50]     # .data blob resume
-      - [0x3F9E10, .data, src/st06a]  # syms: piston_ride_on  PistonRideOn mail record (VMA 0x4F9E10..0x4F9E30); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F9E30, data, src/cod/3F9E30]     # .data blob resume
-      - [0x3FA2B0, .data, src/st08b]  # syms: door_down_mes  actSt08bDoorDownChk's mail record (VMA 0x4FA2B0..0x4FA2D0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named (bucket 37 > DoorUpChk's 25)
-      - [0x3FA2D0, data, src/cod/3FA2D0]     # .data blob resume
-      - [0x3FA900, .data, src/st10r]  # syms: fence_up2_mes  FenceUpChk2 mail record (VMA 0x4FA900..0x4FA920); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3FA920, data, src/cod/3FA920]     # .data blob resume
-      - [0x3FAAA0, .data, src/st13a]  # syms: chain_ok_mes  ChainOK mail record (VMA 0x4FAAA0..0x4FAAC0); D_004FAA00 before it stays in the blob for the still-asm actSt13aElevDown; static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3FAAC0, data, src/cod/3FAAC0]     # .data blob resume
-      - [0x3FACD0, .data, src/st13b]  # syms: elev2chara_mes  actSt13bElev2Chk's mail record {{0x1AE},{0x1AD}}, VMA 0x4FACD0..0x4FACF0, 32 B
-      - [0x3FACF0, data, src/cod/3FACF0]     # .data blob resume
-      - [0x3FAFB0, .data, src/st17a]  # syms: door_mes  actSt17aDoor's mail record (VMA 0x4FAFB0..0x4FAFD0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling; the remaining st17a records stay in the blob until their owners land
-      - [0x3FAFD0, data, src/cod/3FAFD0]     # .data blob resume
-      - [0x3FB0F0, .data, src/st18a]  # syms: switch_l_mes  actSt18aSwitchLUpChk's mail record (VMA 0x4FB0F0..0x4FB110, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (the placeholder name lost a gcse-hash tie)
-      - [0x3FB110, data, src/cod/3FB110]     # .data blob resume
-      - [0x3FB1F0, .data, src/st18a]  # syms: door_mes  actSt18aDoorDownChk's mail record (VMA 0x4FB1F0..0x4FB210, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named
-      - [0x3FB210, data, src/cod/3FB210]     # .data blob resume
-      - [0x44D380, rodata, src/cod/44D380]   # .rodata blob
-      - [0x44DA30, .rodata, src/motionManager2]  # carved jtbl_0054DA30 (6 arms, 0x18): _getMotion's switch table, emitted by the compiled function; VMA 0x54DA30..0x54DA48; the TU's other rodata stays in the blob
-      - [0x44DA48, rodata, src/cod/44DA48]   # .rodata blob resume (two zero pad words then the next TU's data)
+      - [0x3E5A90, .data, ico2/sugipon/src/attackCheckBoundary]  # carved D_004E5A90 (VMA 0x4E5A90..0x4E5AA0, 16 B, 1 sym), referenced only by still-asm AttackCheckBoundaryDL via %hi/%lo
+      - [0x3E5AA0, data, cod/3E5AA0]     # .data blob resume
+      - [0x3ED170, .data, ico2/sugipon/src/waterDot]  # syms: initWaterDotWork,initWaterDot,initWaterDot2  the three static templates AllocWaterDot copies from (0x1C + pad, 0x30, 0x30), VMA 0x4ED170..0x4ED1F0
+      - [0x3ED1F0, data, cod/3ED1F0]     # .data blob resume
+      - [0x3EE5B0, .data, ico2/seki/src/BgAnimation]  # carved D_004EE5B0 + D_004EE5E0 (VMA 0x4EE5B0..0x4EE5F0, 64 B, 2 syms), both referenced only by still-asm bga_InitData / bga_ApplyDObject via %hi/%lo.  This spends the TU's one .data slot; its other .data run (D_002C2DF4, 285488 B) is blocked anyway (VMA not 8-aligned).
+      - [0x3EE5F0, .data, ico2/seki/src/DisplayFont]  # carved D_004EE5F0 (VMA 0x4EE5F0..0x4EE6F0, 256 B, 1 sym): font kerning table, referenced only by still-asm font_Print via %hi/%lo
+      - [0x3EE6F0, data, cod/3EE6F0]     # .data blob resume
+      - [0x3F1D60, .data, ico2/fumi/src/act-env]  # carved D_004F1D60..D_004F1E00 (VMA 0x4F1D60..0x4F1E10, 176 B, 11 float[4] tables), all referenced only by still-asm getDitchDistTbl via %hi/%lo
+      - [0x3F1E10, data, cod/3F1E10]     # .data blob resume
+      - [0x3F7D90, .data, ico2/script/src/end]  # syms: ed_demo14_mes  actEndDemo14 mail record (VMA 0x4F7D90..0x4F7DB0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F7DB0, data, cod/3F7DB0]     # .data blob resume
+      - [0x3F7DF0, .data, ico2/script/src/end]  # syms: end_mes  actEndLogoChk save hand-off mail record (VMA 0x4F7DF0..0x4F7E10, the end of end.o's .data run); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F7E10, data, cod/3F7E10]     # .data blob resume
+      - [0x3F7FB0, .data, ico2/script/src/st01b]  # syms: ene_mes,floor_mes,way_mes,way_on_mes,way_off_mes  the TU's whole .data run, five mail records (VMA 0x4F7FB0..0x4F8050, 0xA0 = MAIN.MAP st01b.o .data); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F8050, data, cod/3F8050]     # .data blob resume
+      - [0x3F8270, .data, ico2/script/src/st02a]  # syms: way_on_mail  actSt02aWayOnChk mail record (VMA 0x4F8270..0x4F8290); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F8290, data, cod/3F8290]     # .data blob resume
+      - [0x3F82D0, .data, ico2/script/src/st02a]  # syms: taki_on_mail,taki_off_mail  the two Taki mail records (VMA 0x4F82D0..0x4F8310); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F8310, data, cod/3F8310]     # .data blob resume
+      - [0x3F84F0, .data, ico2/script/src/st03t]  # syms: way_on_mes,way_off_mes  WayOn/WayOff mail records (VMA 0x4F84F0..0x4F8530); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F8530, data, cod/3F8530]     # .data blob resume
+      - [0x3F8770, .data, ico2/script/src/st04a]  # syms: model_on,model_off  ModelOn/ModelOff mail records, the tail of st04a.o's .data run (VMA 0x4F8770..0x4F87B0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F87B0, data, cod/3F87B0]     # .data blob resume
+      - [0x3F8930, .data, ico2/script/src/st04d]  # syms: door2_up_mes  actSt04dDoor2UpChk's mail record (VMA 0x4F8930..0x4F8950, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (its gcse bucket, computed from the name hash, is what wins the callee-saved pair)
+      - [0x3F8950, data, cod/3F8950]     # .data blob resume
+      - [0x3F9C30, .data, ico2/script/src/st06a]  # syms: wall_way_off  WallWayOff mail record (VMA 0x4F9C30..0x4F9C50); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F9C50, data, cod/3F9C50]     # .data blob resume
+      - [0x3F9E10, .data, ico2/script/src/st06a]  # syms: piston_ride_on  PistonRideOn mail record (VMA 0x4F9E10..0x4F9E30); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3F9E30, data, cod/3F9E30]     # .data blob resume
+      - [0x3FA2B0, .data, ico2/script/src/st08b]  # syms: door_down_mes  actSt08bDoorDownChk's mail record (VMA 0x4FA2B0..0x4FA2D0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named (bucket 37 > DoorUpChk's 25)
+      - [0x3FA2D0, data, cod/3FA2D0]     # .data blob resume
+      - [0x3FA900, .data, ico2/script/src/st10r]  # syms: fence_up2_mes  FenceUpChk2 mail record (VMA 0x4FA900..0x4FA920); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3FA920, data, cod/3FA920]     # .data blob resume
+      - [0x3FAAA0, .data, ico2/script/src/st13a]  # syms: chain_ok_mes  ChainOK mail record (VMA 0x4FAAA0..0x4FAAC0); D_004FAA00 before it stays in the blob for the still-asm actSt13aElevDown; static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
+      - [0x3FAAC0, data, cod/3FAAC0]     # .data blob resume
+      - [0x3FACD0, .data, ico2/script/src/st13b]  # syms: elev2chara_mes  actSt13bElev2Chk's mail record {{0x1AE},{0x1AD}}, VMA 0x4FACD0..0x4FACF0, 32 B
+      - [0x3FACF0, data, cod/3FACF0]     # .data blob resume
+      - [0x3FAFB0, .data, ico2/script/src/st17a]  # syms: door_mes  actSt17aDoor's mail record (VMA 0x4FAFB0..0x4FAFD0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling; the remaining st17a records stay in the blob until their owners land
+      - [0x3FAFD0, data, cod/3FAFD0]     # .data blob resume
+      - [0x3FB0F0, .data, ico2/script/src/st18a]  # syms: switch_l_mes  actSt18aSwitchLUpChk's mail record (VMA 0x4FB0F0..0x4FB110, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (the placeholder name lost a gcse-hash tie)
+      - [0x3FB110, data, cod/3FB110]     # .data blob resume
+      - [0x3FB1F0, .data, ico2/script/src/st18a]  # syms: door_mes  actSt18aDoorDownChk's mail record (VMA 0x4FB1F0..0x4FB210, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named
+      - [0x3FB210, data, cod/3FB210]     # .data blob resume
+      - [0x44D380, rodata, cod/44D380]   # .rodata blob
+      - [0x44DA30, .rodata, ico2/sugipon/src/motionManager2]  # carved jtbl_0054DA30 (6 arms, 0x18): _getMotion's switch table, emitted by the compiled function; VMA 0x54DA30..0x54DA48; the TU's other rodata stays in the blob
+      - [0x44DA48, rodata, cod/44DA48]   # .rodata blob resume (two zero pad words then the next TU's data)
       # --- per-TU .rodata carves (PAL phase 2; see decomp/carve_ledger.md).
-      - [0x44DAF0, .rodata, src/quaternion]  # carved jtbl_0054DAF0 (7 arms, 0x1C): GetMirrorQuaternion's switch table, emitted by the compiled function; VMA 0x54DAF0..0x54DB0C
-      - [0x44DB0C, rodata, src/cod/44DB0C]   # .rodata blob resume (the pad word before DisplayP2O's carve)
-      - [0x44DB10, .rodata, src/DisplayP2O]  # carved D_0054DB10 (VMA 0x54DB10..0x54DB30, 32 B, 1 sym): "display object = %d" + ROM zero pad; TU fully matched, no asm stub to duplicate the dlabel
-      - [0x44DB30, rodata, src/cod/44DB30]   # .rodata blob resume
-      - [0x44DFB0, .rodata, src/FileManager]  # syms: 0x0054DFB0,0x0054DFE0  carved jtbl_0054DFB0 (11 arms, 0x2C + pad word) + jtbl_0054DFE0 (52 arms, 0xD0): file_LoadCDFile's two switch tables, emitted by the compiled function, VMA 0x54DFB0..0x54E0B0
-      - [0x44E0B0, .rodata, src/GifPacket]  # carved D_0054E0B0 (VMA 0x54E0B0..0x54E170, 192 B, 1 sym): the 12 GS ALPHA blend quadruples gif_SetAlpha indexes; referenced only from matched C, so no stub emits it and the carve must define it
-      - [0x44E170, rodata, src/cod/44E170]   # .rodata blob resume
-      - [0x44F180, .rodata, src/Light]  # carved D_0054F180 template (three char * to the r:, g:, b: labels, 12 B) + 4 pad bytes + the 0x32-byte light_Tool prompt string, VMA 0x54F180..0x54F1C2, 0x42 B, emitted by the compiled function; the tail of Light.o's rodata run
-      - [0x44F1C8, rodata, src/cod/44F1C8]   # .rodata blob resume (the six zero pad bytes after the string are the carve's alignment pad)
-      - [0x44F1E0, .rodata, src/MicroCode]  # carved jtbl_0054F1E0 (5 arms, 0x14 B): mc_setBaseOffset's switch table, emitted by the compiled function, VMA 0x54F1E0..0x54F1F4
-      - [0x44F1F4, rodata, src/cod/44F1F4]   # .rodata blob resume (three zero pad words up to the 16-aligned string at 0x54F200, then the rest of the run)
-      - [0x44F230, .rodata, src/Packet]  # syms: 0x0054F230  carved jtbl_0054F230 (VMA 0x54F230..0x54F274, 68 B, 17 arms): pac_DispQW's switch table, emitted by the compiled function
-      - [0x44F274, rodata, src/cod/44F274]   # .rodata blob resume (one zero pad word, then the rest of the run)
-      - [0x44F410, .rodata, src/Packet]  # syms: 0x0054F410  carved jtbl_0054F410 (VMA 0x54F410..0x54F424, 20 B, 5 arms): pac_error's switch table, emitted by the compiled function; the pad word after it is the blob's
-      - [0x44F424, rodata, src/cod/44F424]   # .rodata blob resume
-      - [0x44F9E8, .rodata, src/Primitive]  # carved D_0054F9E8 (VMA 0x54F9E8..0x54FA48, 96 B, align 8): prim_DispWireBox's twelve cube edges as int[12][2], emitted by the compiled function
-      - [0x44FA48, rodata, src/cod/44FA48]   # .rodata blob resume (eight zero bytes before the next TU's string at 0x54FA50)
-      - [0x451430, .rodata, ios/mcard]  # carved jtbl_00551430 (VMA 0x551430..0x55146C, 60 B, 15 arms): iosMcManager's command switch table, emitted by the compiled function
-      - [0x45146C, rodata, src/cod/45146C]   # .rodata blob resume (one zero pad word, then the rest of the run)
-      - [0x452080, .rodata, isys/obj_manager]  # carved jtbl_00552080 (VMA 0x552080..0x552094, 5 arms, 20 B): iosOmExeMail's switch table, emitted by the compiled function
-      - [0x452094, rodata, src/cod/452094]   # .rodata blob resume (the zero pad word before the 8-aligned string at 0x552098 is the blob's first word: the compiled table is 0x14 B and blob sections align at most to 8)
-      - [0x452430, .rodata, src/act-game]  # syms: 0x00552430  carved jtbl_00552430 (ACTGameView_Loop's 8-arm table), VMA 0x552430..0x552450
-      - [0x452450, rodata, src/cod/452450]   # .rodata blob resume ("mode=[%d]\n" + pad; a still-asm act-game function's string)
-      - [0x452460, .rodata, src/act-game]  # syms: 0x00552460  carved jtbl_00552460 (ACTEnvGetTest's 98-arm table), VMA 0x552460..0x5525E8
-      - [0x4525E8, rodata, src/cod/4525E8]   # .rodata blob resume ("shoal mail\n", "[%d] [%d] [%d] [%d] [%d]\n" + pad, then the other act-game tables until their owners land)
-      - [0x452620, .rodata, src/act-game]  # plain-rodata syms: 0x00552620  carved jtbl_00552620 (GetTarget's 14-arm table, 0x38 B, 16-aligned: a nested function's table is emitted into the object's plain .rodata, not a selector; the two zero words before the next table are its alignment pad), VMA 0x552620..0x552660
-      - [0x452660, .rodata, src/act-game]  # syms: 0x00552660  carved jtbl_00552660 (ACTItemWatchMotion's 5-arm table, 0x14 B, 16-aligned; the three zero words up to the next table are its alignment pad), VMA 0x552660..0x552680
-      - [0x452680, .rodata, src/act-game]  # syms: 0x00552680  carved jtbl_00552680 (_ACTCharStatus_Set's 17-arm table), VMA 0x552680..0x5526C4
-      - [0x4526C4, rodata, src/cod/4526C4]   # .rodata blob resume (zero pad word, then the 8-aligned strings at 0x5526C8)
-      - [0x452710, .rodata, src/act-wish]  # plain-rodata: ACTGetWish_FromPad's "orient null" string + pad + the double 0.9 (0x18 B, 8-aligned), VMA 0x552710..0x552728
-      - [0x452728, rodata, src/cod/452728]   # .rodata blob resume (the 8 zero bytes ROM keeps after the double, then the rest of the run)
-      - [0x452B70, .rodata, src/boyact]  # plain-rodata: the four li.d doubles of actBoyWalk/actBoyRun (0.2, 0.9, 0.2, 0.7; ee-as interns them into the object's own .rodata), VMA 0x552B70..0x552B90; the TU's strings and its three jump tables stay in the blob until their owners land
-      - [0x452B90, rodata, src/cod/452B90]   # .rodata blob resume (boyact's strings)
-      - [0x453318, .rodata, src/commonact]  # carved WithMailFunc_FallDead's double 0.3 (a constant-pool operand, 8 B), VMA 0x553318..0x553320
-      - [0x453320, rodata, src/cod/453320]   # .rodata blob resume (strings)
-      - [0x4535B8, .rodata, src/enemy_act]  # plain-rodata: NakaBoss's and Battle_isCurrentStatus's doubles (1.2 x2, 360, 270) and the "not found" string, 0x30 B 8-aligned, VMA 0x5535B8..0x5535E8; the TU's four jump tables stay in the blob until their owners land
-      - [0x4535E8, rodata, src/cod/4535E8]   # .rodata blob resume ("**toboy " strings)
-      - [0x453EB0, .rodata, src/girl_act]  # carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
-      - [0x453FBC, rodata, src/cod/453FBC]   # .rodata blob resume (the zero pad word before the .align 3 D_00553FC0 is the blob's first word)
-      - [0x4547B0, .rodata, src/script]  # plain-rodata syms: 0x005547B0  carved jtbl_005547B0 (scpWoodSrh's 10-arm table, 0x28, 16-aligned) followed by its two doubles 916.0/325.0 (fptodp thresholds, unnamed .rodata, 8-aligned), VMA 0x5547B0..0x5547E8; the strings before and D_005547F0 after stay in the blob as externs
-      - [0x4547E8, rodata, src/cod/4547E8]   # .rodata blob resume (8 zero pad bytes, then D_005547F0)
-      - [0x454B10, .rodata, src/attackhit]  # carved jtbl_00554B10 (VMA 0x554B10..0x554C00, 240 B, 60 arms): AttackCheckHit's switch table, emitted by the compiled function
-      - [0x454C00, rodata, src/cod/454C00]   # .rodata blob resume
-      - [0x4555E0, .rodata, src/ebrain]  # carved jtbl_005555E0 (7 arms, 0x1C) + jtbl_00555600 (9 arms, 0x24) at 16-byte alignment: eBrainGetTarget's two switch tables, emitted by the compiled function; VMA 0x5555E0..0x555624; the TU's strings before them stay in the blob
-      - [0x455624, rodata, src/cod/455624]   # .rodata blob resume (the zero pad word after the second table is the blob's first word)
-      - [0x456890, .rodata, src/itou_sub]  # plain-rodata: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template (12 B, 8-aligned), VMA 0x556890..0x55689C
-      - [0x45689C, rodata, src/cod/45689C]   # .rodata blob resume (the zero pad word, then lightning's "lightning_test" string at 0x5568A0)
-      - [0x4568B0, .rodata, src/lightning]  # carved $LC0/$LC1 of lightning_test (VMA 0x5568B0..0x556900, 80 B): the colour quad and the four vertices, local brace initialisers in the source; the "lightning_test" string before them belongs to the still-asm DrawLightning2 and stays in the blob
-      - [0x456900, rodata, src/cod/456900]   # .rodata blob resume (queen's strings and rate tables; TU fully C, strings still in the blob)
-      - [0x456D60, .rodata, src/queen]  # carved jtbl_00556D60 (8 arms, 0x20, 16-aligned): subQueenBrainMain's switch table, emitted by the compiled function; VMA 0x556D60..0x556D80
-      - [0x456D80, rodata, src/cod/456D80]   # .rodata blob resume (the "src/queen.c" __FILE__ string and pad)
-      - [0x456DF0, .rodata, src/queen]  # plain-rodata: SetQueenBallOrient's `up` initialiser template {0,1,0,1} emitted by the compiled QueenBallDL, 0x10 B 8-aligned, VMA 0x556DF0..0x556E00 (the last words of queen.o's 0x556900..0x556E00 run)
-      - [0x456E00, rodata, src/cod/456E00]   # .rodata blob resume
-      - [0x4576A8, .rodata, ito/mpeg/mv_readbuf]  # carved D_005576A8 "../ito/include/mv_defs.h" + D_005576C8 "p != NULL" (mv_defs.h alloc_zeroed's __FILE__ and assert literals, 8-aligned), VMA 0x5576A8..0x5576D8, 48 B; the TU's own rodata run, mirror of mv_vobuf's
-      - [0x4576D8, rodata, src/cod/4576D8]   # .rodata blob resume (the next ito/mpeg TU's copy of the same two literals)
-      - [0x4577A0, .rodata, ito/mpeg/mv_vobuf]  # carved D_005577A0 "../ito/include/mv_defs.h" + D_005577C0 "p != NULL" (mv_defs.h alloc_zeroed's __FILE__ and assert literals, 8-aligned), VMA 0x5577A0..0x5577D0, 48 B; the TU's own rodata run
-      - [0x4577D0, rodata, src/cod/4577D0]   # .rodata blob resume
-      - [0x51BAE0, .rodata, src/debug]  # carved jtbl_0061BAE0 (debug_DispQW, 17 arms), VMA 0x61BAE0..0x61BB24
-      - [0x51BB24, rodata, src/cod/51BB24]   # .rodata blob resume (pad word, strings)
-      - [0x51BDC0, .rodata, src/debug]  # carved jtbl_0061BDC0 (debug_mcRetErrCheck's 17-arm table), VMA 0x61BDC0..0x61BE04; one zero pad word then the 8-aligned string run stay in the blob
-      - [0x51BE04, rodata, src/cod/51BE04]   # .rodata blob resume (pad word + D_0061BE08 strings)
-      - [0x51BE30, .rodata, src/debug]  # carved jtbl_0061BE30 (debug_selectFile, 7 arms), VMA 0x61BE30..0x61BE4C
-      - [0x51BE4C, rodata, src/cod/51BE4C]   # .rodata blob resume (pad word, strings)
-      - [0x51BEA0, .rodata, src/debug]  # carved jtbl_0061BEA0 (debug_mcSaveMainBlock, 14 arms), VMA 0x61BEA0..0x61BED8
-      - [0x51BED8, rodata, src/cod/51BED8]   # .rodata blob resume (strings)
-      - [0x51BF30, .rodata, src/debug]  # carved jtbl_0061BF30 (debug_mcLoadMainBlock, 100 arms), VMA 0x61BF30..0x61C0C0
-      - [0x51C0C0, rodata, src/cod/51C0C0]   # .rodata blob resume (strings)
-      - [0x51C0E0, .rodata, src/debug]  # carved jtbl_0061C0E0 (debug_mcDeleteFile, 5 arms), VMA 0x61C0E0..0x61C0F4
-      - [0x51C0F4, rodata, src/cod/51C0F4]   # .rodata blob resume (the pad word after mcDeleteFile's table)
-      - [0x51C0F8, .rodata, src/debug]  # plain-rodata: debug_MemoryCard's initialiser templates and strings (menu table, state captions), VMA 0x61C0F8..0x61C1A8
-      - [0x51C1A8, rodata, src/cod/51C1A8]   # .rodata blob resume (strings)
-      - [0x51CF00, .rodata, src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
-      - [0x51CF14, rodata, src/cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
-      - [0x51D6F0, .rodata, src/kanbanBoot]  # syms: 0x0061D6F0  carved jtbl_0061D6F0 (kanbanBootMcCheck's first 5-arm table, 0x14 B, 16-aligned), VMA 0x61D6F0..0x61D710
-      - [0x51D710, .rodata, src/kanbanBoot]  # syms: 0x0061D710  carved jtbl_0061D710 (kanbanBootMcCheck's second 5-arm table, 0x14 B, 16-aligned), VMA 0x61D710..0x61D730
-      - [0x51D730, .rodata, src/kanbanBoot]  # syms: 0x0061D730  carved jtbl_0061D730 (8 arms, 0x20): kanbanBootMain's switch table, emitted by the compiled function, VMA 0x61D730..0x61D750
-      - [0x51D750, rodata, src/cod/51D750]   # .rodata blob resume ("sync end\n" and the rest of the run)
-      - [0x51DD30, .rodata, src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
-      - [0x51DD44, rodata, src/cod/51DD44]   # .rodata blob resume (three pad words)
-      - [0x51DF40, .rodata, src/staffroll]  # carved jtbl_0061DF40 (VMA 0x61DF40..0x61DF5C, 28 B, 7 arms): staffRollMain's switch table on the staff-roll state word, emitted by the compiled function
-      - [0x51DF5C, rodata, src/cod/51DF5C]   # .rodata blob resume (one zero pad word, then the credits strings at 0x61DF60)
-      - [0x51F7D0, .rodata, src/frameDependSequence]  # carved jtbl_0061F7D0 (VMA 0x61F7D0..0x61F7E4, 20 B, 5 arms): playSEConditionID's switch table, emitted by the compiled function
-      - [0x51F7E4, rodata, src/cod/51F7E4]   # .rodata blob resume
-      - [0x51FA00, .rodata, src/handManager]  # carved jtbl_0061FA00 (VMA 0x61FA00..0x61FA18, 24 B, 6 arms): _handManager's switch table, emitted by the compiled function; the two zero pad words after it are the blob's first words
-      - [0x51FA18, rodata, src/cod/51FA18]   # .rodata blob resume
-      - [0x51FA90, .rodata, src/item]  # carved jtbl_0061FA90 (VMA 0x61FA90..0x61FAA4, 20 B, 5 arms): execBombGeo's switch table, emitted by the compiled function
-      - [0x51FAA4, rodata, src/cod/51FAA4]   # .rodata blob resume
-      - [0x51FBC0, .rodata, src/motionFileManager]  # carved jtbl_0061FBC0 (VMA 0x61FBC0..0x61FBD8, 24 B, 6 arms): pursueNodeList's switch table, emitted by the compiled function
-      - [0x51FBD8, rodata, src/cod/51FBD8]   # .rodata blob resume (two zero pad words)
-      - [0x520030, .rodata, src/motionManager]  # carved jtbl_00620030 (VMA 0x620030..0x620088, 88 B, 22 arms): _getGeometryOfMotion's switch table, emitted by the compiled function once matched (splat migrate_rodata_to_functions); the blob keeps every other motionManager string
-      - [0x520088, rodata, src/cod/520088]   # .rodata blob resume
-      - [0x520C90, .rodata, src/spider]  # carved jtbl_00620C90 (VMA 0x620C90..0x620CA4, 20 B, 5 arms): SpiderLayoutGeo's switch table, emitted by the compiled function
-      - [0x520CA4, rodata, src/cod/520CA4]   # .rodata blob resume
-      - [0x520F20, .rodata, src/staticBlur]  # carved jtbl_00620F20 (dispPostInfo's 10-arm table), VMA 0x620F20..0x620F48
-      - [0x520F48, rodata, src/cod/520F48]   # .rodata blob resume (the "FEED: %s" string dispFeedInfo reads as an extern, and its pad)
-      - [0x520F60, .rodata, src/staticBlur]  # syms: 0x00620F60,0x00620F80  carved jtbl_00620F60 + jtbl_00620F80 (FullScreenEffectBefore/After's 8-arm tables, 16-aligned), VMA 0x620F60..0x620FA0
-      - [0x520FA0, rodata, src/cod/520FA0]   # .rodata blob resume
-      - [0x521398, .rodata, src/waterDot]  # plain-rodata: ExecWaterDot's double 0.00078125 (a constant-pool operand, 8 B, one ROM reference), VMA 0x621398..0x6213A0
-      - [0x5213A0, rodata, src/cod/5213A0]   # .rodata blob resume
-      - [0x521930, .rodata, src/DisplayList]  # carved jtbl_00621930 (VMA 0x621930..0x621950, 32 B, 8 arms): dl_CloseDma's switch table, emitted by the compiled function; the three zero words before it are the blob's pad
-      - [0x521950, rodata, src/cod/521950]   # .rodata blob resume
-      - [0x5229B0, .rodata, src/st04a]  # carved jtbl_006229B0 (VMA 0x6229B0..0x6229D0, 32 B, 8 arms): actSt04aTorch1Chk's switch table, emitted by the compiled function
-      - [0x5229D0, rodata, src/cod/5229D0]   # .rodata blob resume
-      - [0x522E00, .rodata, src/st13b]  # plain-rodata: actSt13bConte02's and actSt13bElev2Chk's doubles 0.15 (two constant-pool operands, 16 B), VMA 0x622E00..0x622E10
-      - [0x522E10, rodata, src/cod/522E10]   # .rodata blob resume
-      - [0x523428, .rodata, ito/mpeg/mv_vibuf]  # carved D_00623428 "../ito/include/mv_defs.h" + D_00623448 "p != NULL" (mv_defs.h alloc_zeroed's literals, 8-aligned), VMA 0x623428..0x623458, 48 B; the TU's own rodata run, mirror of mv_vobuf's
-      - [0x523458, rodata, src/cod/523458]   # .rodata blob resume (viBufAddDMA's string)
-      - [0x538B00, lit4, src/cod/538B00]     # .lit4
+      - [0x44DAF0, .rodata, ico2/sugipon/src/quaternion]  # carved jtbl_0054DAF0 (7 arms, 0x1C): GetMirrorQuaternion's switch table, emitted by the compiled function; VMA 0x54DAF0..0x54DB0C
+      - [0x44DB0C, rodata, cod/44DB0C]   # .rodata blob resume (the pad word before DisplayP2O's carve)
+      - [0x44DB10, .rodata, ico2/seki/src/DisplayP2O]  # carved D_0054DB10 (VMA 0x54DB10..0x54DB30, 32 B, 1 sym): "display object = %d" + ROM zero pad; TU fully matched, no asm stub to duplicate the dlabel
+      - [0x44DB30, rodata, cod/44DB30]   # .rodata blob resume
+      - [0x44DFB0, .rodata, ico2/seki/src/FileManager]  # syms: 0x0054DFB0,0x0054DFE0  carved jtbl_0054DFB0 (11 arms, 0x2C + pad word) + jtbl_0054DFE0 (52 arms, 0xD0): file_LoadCDFile's two switch tables, emitted by the compiled function, VMA 0x54DFB0..0x54E0B0
+      - [0x44E0B0, .rodata, ico2/seki/src/GifPacket]  # carved D_0054E0B0 (VMA 0x54E0B0..0x54E170, 192 B, 1 sym): the 12 GS ALPHA blend quadruples gif_SetAlpha indexes; referenced only from matched C, so no stub emits it and the carve must define it
+      - [0x44E170, rodata, cod/44E170]   # .rodata blob resume
+      - [0x44F180, .rodata, ico2/seki/src/Light]  # carved D_0054F180 template (three char * to the r:, g:, b: labels, 12 B) + 4 pad bytes + the 0x32-byte light_Tool prompt string, VMA 0x54F180..0x54F1C2, 0x42 B, emitted by the compiled function; the tail of Light.o's rodata run
+      - [0x44F1C8, rodata, cod/44F1C8]   # .rodata blob resume (the six zero pad bytes after the string are the carve's alignment pad)
+      - [0x44F1E0, .rodata, ico2/seki/src/MicroCode]  # carved jtbl_0054F1E0 (5 arms, 0x14 B): mc_setBaseOffset's switch table, emitted by the compiled function, VMA 0x54F1E0..0x54F1F4
+      - [0x44F1F4, rodata, cod/44F1F4]   # .rodata blob resume (three zero pad words up to the 16-aligned string at 0x54F200, then the rest of the run)
+      - [0x44F230, .rodata, ico2/seki/src/Packet]  # syms: 0x0054F230  carved jtbl_0054F230 (VMA 0x54F230..0x54F274, 68 B, 17 arms): pac_DispQW's switch table, emitted by the compiled function
+      - [0x44F274, rodata, cod/44F274]   # .rodata blob resume (one zero pad word, then the rest of the run)
+      - [0x44F410, .rodata, ico2/seki/src/Packet]  # syms: 0x0054F410  carved jtbl_0054F410 (VMA 0x54F410..0x54F424, 20 B, 5 arms): pac_error's switch table, emitted by the compiled function; the pad word after it is the blob's
+      - [0x44F424, rodata, cod/44F424]   # .rodata blob resume
+      - [0x44F9E8, .rodata, ico2/seki/src/Primitive]  # carved D_0054F9E8 (VMA 0x54F9E8..0x54FA48, 96 B, align 8): prim_DispWireBox's twelve cube edges as int[12][2], emitted by the compiled function
+      - [0x44FA48, rodata, cod/44FA48]   # .rodata blob resume (eight zero bytes before the next TU's string at 0x54FA50)
+      - [0x451430, .rodata, ico2/fumi/ios/mcard]  # carved jtbl_00551430 (VMA 0x551430..0x55146C, 60 B, 15 arms): iosMcManager's command switch table, emitted by the compiled function
+      - [0x45146C, rodata, cod/45146C]   # .rodata blob resume (one zero pad word, then the rest of the run)
+      - [0x452080, .rodata, ico2/fumi/isys/obj_manager]  # carved jtbl_00552080 (VMA 0x552080..0x552094, 5 arms, 20 B): iosOmExeMail's switch table, emitted by the compiled function
+      - [0x452094, rodata, cod/452094]   # .rodata blob resume (the zero pad word before the 8-aligned string at 0x552098 is the blob's first word: the compiled table is 0x14 B and blob sections align at most to 8)
+      - [0x452430, .rodata, ico2/fumi/src/act-game]  # syms: 0x00552430  carved jtbl_00552430 (ACTGameView_Loop's 8-arm table), VMA 0x552430..0x552450
+      - [0x452450, rodata, cod/452450]   # .rodata blob resume ("mode=[%d]\n" + pad; a still-asm act-game function's string)
+      - [0x452460, .rodata, ico2/fumi/src/act-game]  # syms: 0x00552460  carved jtbl_00552460 (ACTEnvGetTest's 98-arm table), VMA 0x552460..0x5525E8
+      - [0x4525E8, rodata, cod/4525E8]   # .rodata blob resume ("shoal mail\n", "[%d] [%d] [%d] [%d] [%d]\n" + pad, then the other act-game tables until their owners land)
+      - [0x452620, .rodata, ico2/fumi/src/act-game]  # plain-rodata syms: 0x00552620  carved jtbl_00552620 (GetTarget's 14-arm table, 0x38 B, 16-aligned: a nested function's table is emitted into the object's plain .rodata, not a selector; the two zero words before the next table are its alignment pad), VMA 0x552620..0x552660
+      - [0x452660, .rodata, ico2/fumi/src/act-game]  # syms: 0x00552660  carved jtbl_00552660 (ACTItemWatchMotion's 5-arm table, 0x14 B, 16-aligned; the three zero words up to the next table are its alignment pad), VMA 0x552660..0x552680
+      - [0x452680, .rodata, ico2/fumi/src/act-game]  # syms: 0x00552680  carved jtbl_00552680 (_ACTCharStatus_Set's 17-arm table), VMA 0x552680..0x5526C4
+      - [0x4526C4, rodata, cod/4526C4]   # .rodata blob resume (zero pad word, then the 8-aligned strings at 0x5526C8)
+      - [0x452710, .rodata, ico2/fumi/src/act-wish]  # plain-rodata: ACTGetWish_FromPad's "orient null" string + pad + the double 0.9 (0x18 B, 8-aligned), VMA 0x552710..0x552728
+      - [0x452728, rodata, cod/452728]   # .rodata blob resume (the 8 zero bytes ROM keeps after the double, then the rest of the run)
+      - [0x452B70, .rodata, ico2/fumi/src/boyact]  # plain-rodata: the four li.d doubles of actBoyWalk/actBoyRun (0.2, 0.9, 0.2, 0.7; ee-as interns them into the object's own .rodata), VMA 0x552B70..0x552B90; the TU's strings and its three jump tables stay in the blob until their owners land
+      - [0x452B90, rodata, cod/452B90]   # .rodata blob resume (boyact's strings)
+      - [0x453318, .rodata, ico2/fumi/src/commonact]  # carved WithMailFunc_FallDead's double 0.3 (a constant-pool operand, 8 B), VMA 0x553318..0x553320
+      - [0x453320, rodata, cod/453320]   # .rodata blob resume (strings)
+      - [0x4535B8, .rodata, ico2/fumi/src/enemy_act]  # plain-rodata: NakaBoss's and Battle_isCurrentStatus's doubles (1.2 x2, 360, 270) and the "not found" string, 0x30 B 8-aligned, VMA 0x5535B8..0x5535E8; the TU's four jump tables stay in the blob until their owners land
+      - [0x4535E8, rodata, cod/4535E8]   # .rodata blob resume ("**toboy " strings)
+      - [0x453EB0, .rodata, ico2/fumi/src/girl_act]  # carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
+      - [0x453FBC, rodata, cod/453FBC]   # .rodata blob resume (the zero pad word before the .align 3 D_00553FC0 is the blob's first word)
+      - [0x4547B0, .rodata, ico2/script/src/script]  # plain-rodata syms: 0x005547B0  carved jtbl_005547B0 (scpWoodSrh's 10-arm table, 0x28, 16-aligned) followed by its two doubles 916.0/325.0 (fptodp thresholds, unnamed .rodata, 8-aligned), VMA 0x5547B0..0x5547E8; the strings before and D_005547F0 after stay in the blob as externs
+      - [0x4547E8, rodata, cod/4547E8]   # .rodata blob resume (8 zero pad bytes, then D_005547F0)
+      - [0x454B10, .rodata, ico2/omori/src/attackhit]  # carved jtbl_00554B10 (VMA 0x554B10..0x554C00, 240 B, 60 arms): AttackCheckHit's switch table, emitted by the compiled function
+      - [0x454C00, rodata, cod/454C00]   # .rodata blob resume
+      - [0x4555E0, .rodata, ico2/omori/src/ebrain]  # carved jtbl_005555E0 (7 arms, 0x1C) + jtbl_00555600 (9 arms, 0x24) at 16-byte alignment: eBrainGetTarget's two switch tables, emitted by the compiled function; VMA 0x5555E0..0x555624; the TU's strings before them stay in the blob
+      - [0x455624, rodata, cod/455624]   # .rodata blob resume (the zero pad word after the second table is the blob's first word)
+      - [0x456890, .rodata, ico2/ito/src/itou_sub]  # plain-rodata: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template (12 B, 8-aligned), VMA 0x556890..0x55689C
+      - [0x45689C, rodata, cod/45689C]   # .rodata blob resume (the zero pad word, then lightning's "lightning_test" string at 0x5568A0)
+      - [0x4568B0, .rodata, ico2/ito/src/lightning]  # carved $LC0/$LC1 of lightning_test (VMA 0x5568B0..0x556900, 80 B): the colour quad and the four vertices, local brace initialisers in the source; the "lightning_test" string before them belongs to the still-asm DrawLightning2 and stays in the blob
+      - [0x456900, rodata, cod/456900]   # .rodata blob resume (queen's strings and rate tables; TU fully C, strings still in the blob)
+      - [0x456D60, .rodata, ico2/ito/src/queen]  # carved jtbl_00556D60 (8 arms, 0x20, 16-aligned): subQueenBrainMain's switch table, emitted by the compiled function; VMA 0x556D60..0x556D80
+      - [0x456D80, rodata, cod/456D80]   # .rodata blob resume (the "ico2/ito/src/queen.c" __FILE__ string and pad)
+      - [0x456DF0, .rodata, ico2/ito/src/queen]  # plain-rodata: SetQueenBallOrient's `up` initialiser template {0,1,0,1} emitted by the compiled QueenBallDL, 0x10 B 8-aligned, VMA 0x556DF0..0x556E00 (the last words of queen.o's 0x556900..0x556E00 run)
+      - [0x456E00, rodata, cod/456E00]   # .rodata blob resume
+      - [0x4576A8, .rodata, ico2/ito/mpeg/mv_readbuf]  # carved D_005576A8 "../ito/include/mv_defs.h" + D_005576C8 "p != NULL" (mv_defs.h alloc_zeroed's __FILE__ and assert literals, 8-aligned), VMA 0x5576A8..0x5576D8, 48 B; the TU's own rodata run, mirror of mv_vobuf's
+      - [0x4576D8, rodata, cod/4576D8]   # .rodata blob resume (the next ito/mpeg TU's copy of the same two literals)
+      - [0x4577A0, .rodata, ico2/ito/mpeg/mv_vobuf]  # carved D_005577A0 "../ito/include/mv_defs.h" + D_005577C0 "p != NULL" (mv_defs.h alloc_zeroed's __FILE__ and assert literals, 8-aligned), VMA 0x5577A0..0x5577D0, 48 B; the TU's own rodata run
+      - [0x4577D0, rodata, cod/4577D0]   # .rodata blob resume
+      - [0x51BAE0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BAE0 (debug_DispQW, 17 arms), VMA 0x61BAE0..0x61BB24
+      - [0x51BB24, rodata, cod/51BB24]   # .rodata blob resume (pad word, strings)
+      - [0x51BDC0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BDC0 (debug_mcRetErrCheck's 17-arm table), VMA 0x61BDC0..0x61BE04; one zero pad word then the 8-aligned string run stay in the blob
+      - [0x51BE04, rodata, cod/51BE04]   # .rodata blob resume (pad word + D_0061BE08 strings)
+      - [0x51BE30, .rodata, ico2/common/src/debug]  # carved jtbl_0061BE30 (debug_selectFile, 7 arms), VMA 0x61BE30..0x61BE4C
+      - [0x51BE4C, rodata, cod/51BE4C]   # .rodata blob resume (pad word, strings)
+      - [0x51BEA0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BEA0 (debug_mcSaveMainBlock, 14 arms), VMA 0x61BEA0..0x61BED8
+      - [0x51BED8, rodata, cod/51BED8]   # .rodata blob resume (strings)
+      - [0x51BF30, .rodata, ico2/common/src/debug]  # carved jtbl_0061BF30 (debug_mcLoadMainBlock, 100 arms), VMA 0x61BF30..0x61C0C0
+      - [0x51C0C0, rodata, cod/51C0C0]   # .rodata blob resume (strings)
+      - [0x51C0E0, .rodata, ico2/common/src/debug]  # carved jtbl_0061C0E0 (debug_mcDeleteFile, 5 arms), VMA 0x61C0E0..0x61C0F4
+      - [0x51C0F4, rodata, cod/51C0F4]   # .rodata blob resume (the pad word after mcDeleteFile's table)
+      - [0x51C0F8, .rodata, ico2/common/src/debug]  # plain-rodata: debug_MemoryCard's initialiser templates and strings (menu table, state captions), VMA 0x61C0F8..0x61C1A8
+      - [0x51C1A8, rodata, cod/51C1A8]   # .rodata blob resume (strings)
+      - [0x51CF00, .rodata, ico2/common/src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
+      - [0x51CF14, rodata, cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
+      - [0x51D6F0, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D6F0  carved jtbl_0061D6F0 (kanbanBootMcCheck's first 5-arm table, 0x14 B, 16-aligned), VMA 0x61D6F0..0x61D710
+      - [0x51D710, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D710  carved jtbl_0061D710 (kanbanBootMcCheck's second 5-arm table, 0x14 B, 16-aligned), VMA 0x61D710..0x61D730
+      - [0x51D730, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D730  carved jtbl_0061D730 (8 arms, 0x20): kanbanBootMain's switch table, emitted by the compiled function, VMA 0x61D730..0x61D750
+      - [0x51D750, rodata, cod/51D750]   # .rodata blob resume ("sync end\n" and the rest of the run)
+      - [0x51DD30, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
+      - [0x51DD44, rodata, cod/51DD44]   # .rodata blob resume (three pad words)
+      - [0x51DF40, .rodata, ico2/common/src/staffroll]  # carved jtbl_0061DF40 (VMA 0x61DF40..0x61DF5C, 28 B, 7 arms): staffRollMain's switch table on the staff-roll state word, emitted by the compiled function
+      - [0x51DF5C, rodata, cod/51DF5C]   # .rodata blob resume (one zero pad word, then the credits strings at 0x61DF60)
+      - [0x51F7D0, .rodata, ico2/sugipon/src/frameDependSequence]  # carved jtbl_0061F7D0 (VMA 0x61F7D0..0x61F7E4, 20 B, 5 arms): playSEConditionID's switch table, emitted by the compiled function
+      - [0x51F7E4, rodata, cod/51F7E4]   # .rodata blob resume
+      - [0x51FA00, .rodata, ico2/sugipon/src/handManager]  # carved jtbl_0061FA00 (VMA 0x61FA00..0x61FA18, 24 B, 6 arms): _handManager's switch table, emitted by the compiled function; the two zero pad words after it are the blob's first words
+      - [0x51FA18, rodata, cod/51FA18]   # .rodata blob resume
+      - [0x51FA90, .rodata, ico2/sugipon/src/item]  # carved jtbl_0061FA90 (VMA 0x61FA90..0x61FAA4, 20 B, 5 arms): execBombGeo's switch table, emitted by the compiled function
+      - [0x51FAA4, rodata, cod/51FAA4]   # .rodata blob resume
+      - [0x51FBC0, .rodata, ico2/sugipon/src/motionFileManager]  # carved jtbl_0061FBC0 (VMA 0x61FBC0..0x61FBD8, 24 B, 6 arms): pursueNodeList's switch table, emitted by the compiled function
+      - [0x51FBD8, rodata, cod/51FBD8]   # .rodata blob resume (two zero pad words)
+      - [0x520030, .rodata, ico2/sugipon/src/motionManager]  # carved jtbl_00620030 (VMA 0x620030..0x620088, 88 B, 22 arms): _getGeometryOfMotion's switch table, emitted by the compiled function once matched (splat migrate_rodata_to_functions); the blob keeps every other motionManager string
+      - [0x520088, rodata, cod/520088]   # .rodata blob resume
+      - [0x520C90, .rodata, ico2/sugipon/src/spider]  # carved jtbl_00620C90 (VMA 0x620C90..0x620CA4, 20 B, 5 arms): SpiderLayoutGeo's switch table, emitted by the compiled function
+      - [0x520CA4, rodata, cod/520CA4]   # .rodata blob resume
+      - [0x520F20, .rodata, ico2/sugipon/src/staticBlur]  # carved jtbl_00620F20 (dispPostInfo's 10-arm table), VMA 0x620F20..0x620F48
+      - [0x520F48, rodata, cod/520F48]   # .rodata blob resume (the "FEED: %s" string dispFeedInfo reads as an extern, and its pad)
+      - [0x520F60, .rodata, ico2/sugipon/src/staticBlur]  # syms: 0x00620F60,0x00620F80  carved jtbl_00620F60 + jtbl_00620F80 (FullScreenEffectBefore/After's 8-arm tables, 16-aligned), VMA 0x620F60..0x620FA0
+      - [0x520FA0, rodata, cod/520FA0]   # .rodata blob resume
+      - [0x521398, .rodata, ico2/sugipon/src/waterDot]  # plain-rodata: ExecWaterDot's double 0.00078125 (a constant-pool operand, 8 B, one ROM reference), VMA 0x621398..0x6213A0
+      - [0x5213A0, rodata, cod/5213A0]   # .rodata blob resume
+      - [0x521930, .rodata, ico2/seki/src/DisplayList]  # carved jtbl_00621930 (VMA 0x621930..0x621950, 32 B, 8 arms): dl_CloseDma's switch table, emitted by the compiled function; the three zero words before it are the blob's pad
+      - [0x521950, rodata, cod/521950]   # .rodata blob resume
+      - [0x5229B0, .rodata, ico2/script/src/st04a]  # carved jtbl_006229B0 (VMA 0x6229B0..0x6229D0, 32 B, 8 arms): actSt04aTorch1Chk's switch table, emitted by the compiled function
+      - [0x5229D0, rodata, cod/5229D0]   # .rodata blob resume
+      - [0x522E00, .rodata, ico2/script/src/st13b]  # plain-rodata: actSt13bConte02's and actSt13bElev2Chk's doubles 0.15 (two constant-pool operands, 16 B), VMA 0x622E00..0x622E10
+      - [0x522E10, rodata, cod/522E10]   # .rodata blob resume
+      - [0x523428, .rodata, ico2/ito/mpeg/mv_vibuf]  # carved D_00623428 "../ito/include/mv_defs.h" + D_00623448 "p != NULL" (mv_defs.h alloc_zeroed's literals, 8-aligned), VMA 0x623428..0x623458, 48 B; the TU's own rodata run, mirror of mv_vobuf's
+      - [0x523458, rodata, cod/523458]   # .rodata blob resume (viBufAddDMA's string)
+      - [0x538B00, lit4, cod/538B00]     # .lit4
       # --- per-TU .lit4 constant-pool carves (see decomp/NOTES.md ".lit4 pools",
       # decomp/carve_ledger.md "PAL phase 1").  A TU that writes its float
       # constants as INLINE LITERALS makes ee-as intern them into that TU's own
       # anonymous `.lit4`; a dot-form subsegment here anchors that pool at its
       # shipped VMA.  The WHOLE carved run must be produced by the TU's object —
       # slots whose owner is still INCLUDE_ASM are emitted by ASM_LIT4_SLOT().
-      - [0x538B04, .lit4, src/geometryManager]  # carved D_00638B04..D_00638B08 (2 slots, LimitExistGeometry's -100000/100000 as literals; the TU's whole pool, = MAIN.MAP geometryManager.o .lit4 0x8; the word before is vendor_100110's), VMA 0x638B04..0x638B0C
-      - [0x538B0C, .lit4, src/matrixDrive]   # carved D_00638B0C..D_00638B38 (12 slots, all 0.01f, one per MatrixDrive_Turn*/GetTurn* fn), VMA 0x638B0C..0x638B3C, 48 B; MAIN.MAP matrixDrive.o .lit4 0x30 agrees.  USA: - [0x53090C, .lit4, src/matrixDrive]    # carved D_0063090C..D_00630940 (14 slots, MatrixDrive_PopMatrix + 13 asm), VMA 0x63090C..0x630944
-      - [0x538B3C, .lit4, src/motionManager2]# carved D_00638B3C..D_00638B80 (18 slots, GetWaterReaction..CheckFieldContact, 10 of them SlopeIKControl's), VMA 0x638B3C..0x638B84, 72 B; MAIN.MAP motionManager2.o .lit4 0x48 agrees.  USA: - [0x530944, .lit4, src/motionManager2]# carved D_00630944..D_00630980 (16 slots, SetMotionDirectionWithLimit + GetRootPosOfNextFrame + 14 asm), VMA 0x630944..0x630984
-      - [0x538B84, .lit4, src/pool]  # carved D_00638B84..D_00638BB4 (13 slots, InitPoolGeo..getWave; the TU's whole pool, = MAIN.MAP pool.o .lit4 0x34), VMA 0x638B84..0x638BB8
-      - [0x538BB8, lit4, src/cod/538BB8]     # .lit4 blob resume
-      - [0x538BC8, .lit4, src/FileManager]  # carved D_00638BC8 (1 slot: file_LoadCDFile's 10059776.0f, the CD-file size divisor, written as a literal), VMA 0x638BC8..0x638BCC
-      - [0x538BCC, lit4, src/cod/538BCC]     # .lit4 blob resume
-      - [0x538BD8, .lit4, src/Light]  # carved D_00638BD8..D_00638C3C (26 slots, light_AddLight..light_resetFlatLight; the TU's whole pool, = MAIN.MAP Light.o .lit4 0x68), VMA 0x638BD8..0x638C40
-      - [0x538C40, .lit4, src/Packet]  # carved D_00638C40..D_00638C54 (6 slots: three 0.501960814f as one literal and two slots, pac_openDmaTag's 16777215.0f and -16777215.0f, one slot for the still-asm pac_makePacket; the TU's whole pool), VMA 0x638C40..0x638C58, 24 B
-      - [0x538C58, .lit4, src/Primitive]  # carved D_00638C58..D_00638C70 (7 slots in ROM order: 6.2831855f, 10430.378f, 6.2831855f, 10430.378f, 4095.0f (slot for the still-asm prim_DispFan2D), 3.1415927f, 10430.378f; the TU's whole pool between Packet and StageAnimation), VMA 0x638C58..0x638C74, 28 B
-      - [0x538C74, .lit4, src/StageAnimation]  # carved D_00638C74..D_00638C78 (2 slots, both 1.2075409f: stage_PlayBgAnimation's own literal and one slot for the still-asm stage_PlayBgAnimationDissolve; the TU's whole pool), VMA 0x638C74..0x638C7C, 8 B
-      - [0x538C7C, lit4, src/cod/538C7C]     # .lit4 blob resume
-      - [0x538CA0, .lit4, sound/s_init]  # carved D_00638CA0..D_00638CC4 (10 slots, one per occurrence: debug_DispSEInfo x2, sound3DParamSet, _soundSeDefPlay x3, soundSeEnvPlay x2, soundSeEnvDefaultSet x2; the TU's whole pool, adjacent to act-game's), VMA 0x638CA0..0x638CC8
-      - [0x538CC8, .lit4, src/act-game]  # carved D_00638CC8..D_00638D0C (18 slots, 15 fns EXITDATA_GetNextPosition..ACTCheckViewClDetail), VMA 0x638CC8..0x638D10, 72 B; MAIN.MAP act-game.o .lit4 is 0x40 (different link; PAL ELF is authoritative).  USA: - [0x530AEC, .lit4, src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
-      - [0x538D10, .lit4, src/act-wish]  # carved D_00638D10..D_00638D2C (8 words, all 0.1f, ACTGetWish_FromPad's literals; the TU's whole pool), VMA 0x638D10..0x638D30
-      - [0x538D30, .lit4, src/boyact]  # carved D_00638D30..D_00638E38 (67 words: 65 slots beside twelve still-asm owners — 45 of them subBoyControl's — then DeleteBoyWeapon's 1e7 and GetBoyRootPositionForCamera's 40000 as literals; the TU's whole pool up to commonact's carve; MAIN.MAP's 0x108 is the debug link's), VMA 0x638D30..0x638E3C
-      - [0x538E3C, .lit4, src/commonact]  # carved D_00638E3C..D_00638EF0 (46 slots, 15 fns GetCorrectOrientOfChain..func_00163250; 13x 0.1f, 10x pi), VMA 0x638E3C..0x638EF4, 184 B; MAIN.MAP commonact.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).  USA: - [0x530C28, .lit4, src/commonact]     # carved D_00630C28..D_00630CDC (46 slots, _boxbar_set_sound + func_0015DF88 + 44 asm), VMA 0x630C28..0x630CE0
-      - [0x538EF4, .lit4, src/enemy_act]  # carved D_00638EF4..D_00638F58 (26 slots, 10 fns _MustChase..func_00169498), VMA 0x638EF4..0x638F5C, 104 B; MAIN.MAP enemy_act.o .lit4 0x68 agrees.  USA: - [0x530CE0, .lit4, src/enemy_act]     # carved D_00630CE0..D_00630D48 (27 slots, actEnemyForceSwitchToCarry + 26 asm), VMA 0x630CE0..0x630D4C
-      - [0x538F5C, .lit4, src/fieldCollision]  # carved D_00638F5C..D_00638F60 (2 words, DrawCollisionRay's 0.05/0.3 as literals; the TU's whole pool, between enemy_act's and girl_act's words), VMA 0x638F5C..0x638F64
-      - [0x538F64, .lit4, src/girl_act]  # carved D_00638F64..D_00639058 (62 slots, 22 fns girlBrainHideCheckIntercept..actGirlHand incl. the nested HandMgr_Speed; isEnterHideadv already C), VMA 0x638F64..0x63905C, 248 B
-      - [0x53905C, lit4, src/cod/53905C]     # .lit4 blob resume (way_sys avoid_obstacle2's single slot before way_util's carve)
-      - [0x539060, .lit4, src/way_util]  # carved D_00639060..D_0063908C (12 slots, all 100000.0f, one per waypoint-search fn nearest_waypoint_of_group..visible_waypoint_from_gobj), VMA 0x639060..0x639090, 48 B; MAIN.MAP way_util.o .lit4 0x30 agrees.  USA: - [0x530E3C, .lit4, src/way_util]    # carved D_00630E3C..D_00630E68 (12x 100000f, one per waypoint-search func), VMA 0x630E3C..0x630E6C
-      - [0x539090, .lit4, src/script]  # carved D_00639090..D_006390D0 (17 words: 16 slots beside the still-asm GirlHintVoiceReady x2, GirlHintVoiceTickProc x4, scpWoodSrh x3, scpSekizou x2, _SCPMoveByWay_ToChar, actSubSekizoSe x4; scpBornSpider's pi as a literal; the TU's whole pool, st25a's carve follows), VMA 0x639090..0x6390D4
-      - [0x5390D4, .lit4, src/st25a]  # carved D_006390D4..D_00639104 (13 slots, 7 fns actConte11..func_00187DF0), VMA 0x6390D4..0x639108, 52 B; MAIN.MAP st25a.o .lit4 is 0x44 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
-      - [0x539108, .lit4, src/warpGirl]  # carved D_00639108 (1 slot: warpGirlInStage's pi/180 written as a literal; = MAIN.MAP warpGirl.o .lit4 0x4), VMA 0x639108..0x63910C
-      - [0x53910C, lit4, src/cod/53910C]     # .lit4 blob resume
-      - [0x539118, .lit4, src/camera-ico2]  # carved D_00639118..D_0063912C (6 slots: monitorMonitorCamera x2 and CameraMove x2 as ASM_LIT4_SLOT, ChaseCamera and GetTargetOffset as literals; the TU's whole pool), VMA 0x639118..0x639130, 24 B; MAIN.MAP camera-ico2.o .lit4 is 0x24 (different link)
-      - [0x539130, .lit4, src/camera-root]  # carved D_00639130..D_0063913C (4 words of pi: ConvertCameraSet and CameraGetOtherObjOffset as literals, two slots for the still-asm SetCameraMatrix; the TU's whole pool = MAIN.MAP camera-root.o .lit4 0x10), VMA 0x639130..0x639140
-      - [0x539140, lit4, src/cod/539140]     # .lit4 blob resume (chain's words follow at 0x539190)
-      - [0x539190, .lit4, src/chain]  # carved D_00639190..D_006391D4 (18 slots: chain_simulate_free..TestChainUpDown still asm, then IncreasePdlChain, DecreasePdlChain, GetChainDirCorrectVal, InitPendulum x2, _GetCorrectOrientOfChain as literals; the TU's whole pool), VMA 0x639190..0x6391D8
-      - [0x5391D8, lit4, src/cod/5391D8]     # .lit4 blob resume (ebrain's words, then gv's)
-      - [0x5391E0, .lit4, src/generator]  # carved D_006391E0..D_006391E8 (3 slots, all 22500.0f: CheckGeneratorCollision's literal and two slots beside the still-asm GetGeneratorSafePosition; the TU's whole pool), VMA 0x6391E0..0x6391EC, 12 B
-      - [0x5391EC, .lit4, src/gv]  # carved D_006391EC (1 slot: GetMatrixDirectionToZ's pi as a literal; gv's other four pi words stay extern reads until the pool re-carve), VMA 0x6391EC..0x6391F0, 4 B
-      - [0x5391F0, lit4, src/cod/5391F0]     # .lit4 blob resume (gv's remaining four words)
-      - [0x539200, .lit4, src/hand-camera]  # carved D_00639200..D_00639228 (11 words: three slots for the still-asm RotateAccordingToStick_PatternThree, SetCurrentInfo's seven literals (pi x3, +/-1.4835298 x2), one slot for the still-asm HandyCamera_TargetMoveType), VMA 0x639200..0x63922C
-      - [0x53922C, lit4, src/cod/53922C]     # .lit4 blob resume (lws_kyomi's word before act_bird's run)
-      - [0x539230, .lit4, src/act_bird]  # carved D_00639230..D_00639290 (25 slots, 5 fns interp_vector_sa..vector_angle_degree; 8x 2*pi), VMA 0x639230..0x639294, 100 B; MAIN.MAP act_bird.o .lit4 0x64 agrees.  USA: - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
-      - [0x539294, lit4, src/cod/539294]     # .lit4 blob resume (lightning's words)
-      - [0x5392C0, .lit4, src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: Debug_StickControl, QueenGeo, QueenBarrierGeo and its WrapRad expansions as literals, QueenBallGeo's 5000 now compiler-emitted; TU fully C), VMA 0x6392C0..0x639324
-      - [0x539324, lit4, src/cod/539324]     # .lit4 blob resume (queen_barrier_disp's words)
-      - [0x539328, .lit4, src/stage_orient]  # carved D_00639328 (1 word, StageOrientGet2's literal; the TU is fully C), VMA 0x639328..0x63932C
-      - [0x53932C, .lit4, src/DObj]  # carved D_0063932C..D_00639330 (2 slots: initGeometryState's 0.333f and initMatrixDObj's pi; the TU's whole pool), VMA 0x63932C..0x639334, 8 B
-      - [0x539334, .lit4, src/backStage]  # carved D_00639334 (1 word, backStageProcessInStage's 10000000.0f; the TU's whole pool), VMA 0x639334..0x639338, 4 B
-      - [0x539338, .lit4, src/debug]  # carved D_00639338..D_00639350 (7 slots, 5 fns debug_Load..debug_DrawBar), VMA 0x639338..0x639354, 28 B
-      - [0x539354, .lit4, src/debug_exception]  # carved D_00639354 (1 slot: drawWin's 0.8f, debug_exception_screen.c.inc), VMA 0x639354..0x639358, 4 B
-      - [0x539358, lit4, src/cod/539358]     # .lit4 blob resume
-      - [0x539360, .lit4, src/layout_action]  # carved D_00639360..D_00639368 (3 slots, la_load_processing / la_get_next_stage_name / la_switching_stage), VMA 0x639360..0x63936C, 12 B; MAIN.MAP layout_action.o .lit4 is 0x8 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
-      - [0x53936C, lit4, src/cod/53936C]     # .lit4 blob resume
-      - [0x539374, .lit4, src/a_p_1]  # carved D_00639374..D_00639390 (8 slots, 6 fns fitToCol..attackMot in source order; 3 slots beside still-asm owners), VMA 0x639374..0x639394, 32 B
-      - [0x539394, lit4, src/cod/539394]     # .lit4 blob resume (act_a_p_1's walkAI x2 and subAP1BrainMain)
-      - [0x5393A0, .lit4, src/box]  # carved D_006393A0..D_00639408 (27 slots, 13 fns FloorLeverGeo..InitBoxGeo, in source order with switch.c.inc first), VMA 0x6393A0..0x63940C, 108 B; MAIN.MAP box.o .lit4 0x6c agrees.
-      - [0x53940C, .lit4, src/boy]  # carved D_0063940C..D_00639458 (20 slots, execClothes..LightLineGeo; the TU's whole pool, right after box's carve), VMA 0x63940C..0x63945C
-      - [0x53945C, .lit4, src/cage]  # carved D_0063945C..D_0063946C (5 slots: CageRideFunc's 0.06f, InitCageGeo's 0.995f and 10430.378f as slots beside the still-asm owner, CageGeo's 2730.0f and 10430.378f; the TU's whole pool), VMA 0x63945C..0x639470, 20 B
-      - [0x539470, .lit4, src/clipCollisionManager]  # carved D_00639470 (1 word, 0.01f, actClipCollisionCore's literal; the TU is fully C), VMA 0x639470..0x639474
-      - [0x539474, .lit4, src/clothAnimation]  # carved D_00639474..D_0063948C (7 words: SetChainExtendedWeight's 1e-6 as a literal, then slots for the still-asm GetClothAnimation x2, GetClothAnimationFix4Points, getCloth4D_preProcess, getCloth4D x2; the TU's whole pool — MAIN.MAP's 0x14 is the debug link's, darkVolume's words start at 0x639490), VMA 0x639474..0x639490
-      - [0x539490, lit4, src/cod/539490]     # .lit4 blob resume (darkVolume's words)
-      - [0x5394B0, .lit4, src/effectTool]  # carved D_006394B0..D_006394B8 (3 words: editParam's 0.01f x2, moveEffectToolGeometry's 0.001f, all literals; the TU is fully C), VMA 0x6394B0..0x6394BC
-      - [0x5394BC, lit4, src/cod/5394BC]     # .lit4 blob resume (the last words before flyManager's run)
-      - [0x5394CC, .lit4, src/enemyParts]  # carved D_006394CC..D_006394D4 (3 slots: InitEnemyEye's 1e-5f as a slot beside the still-asm owner, ExecEnemyFootPrints' 0.9f, EntryEnemyFootPrint's 0.05f; the TU's whole pool), VMA 0x6394CC..0x6394D8, 12 B
-      - [0x5394D8, .lit4, src/flyManager]  # carved D_006394D8..D_006394DC (2 slots, both 100000.0f: GetFlyLimitHeight and GetFlyLimitClearance), VMA 0x6394D8..0x6394E0, 8 B; the TU's whole pool, emitted by the compiled functions
-      - [0x5394E0, .lit4, src/frameDependSequence]  # carved D_006394E0..D_006394F8 (7 slots: playSE's 0.95f as a slot beside the still-asm owner, playSERandomID x3, playEff, execEff x2; the TU's whole pool), VMA 0x6394E0..0x6394FC, 28 B
-      - [0x5394FC, .lit4, src/girl]  # carved D_006394FC..D_00639528 (12 words: 11 slots beside the still-asm func_001DD128 and func_001DD340, GirlGeo's 0.3 as a literal; the TU's whole pool, handManager's words follow), VMA 0x6394FC..0x63952C
-      - [0x53952C, lit4, src/cod/53952C]     # .lit4 blob resume (handManager's words)
-      - [0x539530, .lit4, src/item]  # carved D_00639530..D_0063955C (12 slots, uncarriedItemGeo and its nested floatGeo; the TU's whole pool), VMA 0x639530..0x639560, 48 B
-      - [0x539560, .lit4, src/motionManager]  # carved D_00639560..D_0063961C (48 slots, 18 fns _getFinalMatrix.._getGeometryOfMotion, in source order: getFinalMatrix.c.inc, motionManager.c, rootUpdate.c.inc), VMA 0x639560..0x639620, 192 B; MAIN.MAP motionManager.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).
-      - [0x539620, lit4, src/cod/539620]     # .lit4 blob resume
-      - [0x539660, .lit4, src/particleEffect]  # carved D_00639660..D_0063966C (4 slots: 182.04445f, 4095.0f, 0.2f, 4095.0f; two slots beside the still-asm execParticleEffect; the TU's whole pool), VMA 0x639660..0x639670, 16 B
-      - [0x539670, lit4, src/cod/539670]     # .lit4 blob resume
-      - [0x539680, .lit4, src/rotObject]  # carved D_00639680..D_0063969C (8 slots: MoveRotObjectWithHoldPoint x4, GetRotObjectGlobalHoldGeometry, InitRotObjectGeo, RotObjectDL, GetRotObjectZPlusDirection — per-function copies of 10430.378f; the TU's whole pool), VMA 0x639680..0x6396A0
-      - [0x5396A0, .lit4, src/spider]  # carved D_006396A0..D_006396A4 (2 slots: InitSpiderLayoutGeo's pi still asm, CheckSpidersInsideOfReviveRange's 10000.0f as a literal; the TU's whole pool, between rotObject's and staticBlur's carves), VMA 0x6396A0..0x6396A8
-      - [0x5396A8, .lit4, src/staticBlur]  # carved D_006396A8..D_006396AC (2 slots: 0.9f eyeBlur, 1000000.0f calcSun), VMA 0x6396A8..0x6396B0, 8 B; MAIN.MAP staticBlur.o .lit4 0x8 agrees.  USA: - [0x5313D8, .lit4, src/staticBlur]    # carved D_006313D8/13DC (0.9f, 1000000f), VMA 0x6313D8..0x6313E0
-      - [0x5396B0, lit4, src/cod/5396B0]     # .lit4 blob resume
-      - [0x5396D0, .lit4, src/waterDot]  # carved D_006396D0..D_006396D4 (2 slots: 1/65535 and 0.2f, one slot beside the still-asm ExecWaterDot; the TU's whole pool), VMA 0x6396D0..0x6396D8, 8 B
-      - [0x5396D8, .lit4, src/weapon]  # carved D_006396D8..D_006396F8 (9 slots: dispLaserSword's 0.1f is the object's own literal, nine words in ROM order 182.04445f, 0.7f x2, 0.9f, 0.1f, 10430.378f, 0.4f, 0.1f, 10430.378f; slot lines stay only for the still-asm owners), VMA 0x6396D8..0x6396FC, 36 B; 0x6396FC has no weapon owner and stays in the blob
-      - [0x5396FC, lit4, src/cod/5396FC]     # .lit4 blob resume
-      - [0x53970C, .lit4, src/wireLetter]  # carved D_0063970C (1 word, 0.7f, DispWireString's literal; the TU is fully C; the earlier note assigning this slot to warpGirl was wrong), VMA 0x63970C..0x639710
-      - [0x539710, .lit4, src/worm]  # carved D_00639710..D_00639720 (5 slots: getAnimation 0.8f, disp 0.02f, WormGeo 0.05f + 8.99999f, TraceWormRoute 8.99999f), VMA 0x639710..0x639724, 20 B; the TU's whole pool
-      - [0x539724, .lit4, src/BgAnimation]  # carved D_00639724..D_006397E4 (49 slots, bga_GetMotion..bga_CheckSdfCameraFrameIn; the TU's whole pool, right after worm's), VMA 0x639724..0x6397E8
-      - [0x5397E8, lit4, src/cod/5397E8]     # .lit4 blob resume
-      - [0x539860, .lit4, src/way_kidnap]  # carved D_00639860 (1.0e10f, NearestEnemyFromGirl's initial minimum, written as a literal), the TU's whole .lit4 run, VMA 0x639860..0x639864; 0x63985C is act's, 0x639864 way_tool's
-      - [0x539864, .lit4, src/way_tool]  # carved D_00639864..D_00639868 (2 slots, both 0.116355285f: draw_way_group's own literal and one slot for the still-asm way_toolDL; the TU's whole pool), VMA 0x639864..0x63986C, 8 B
-      - [0x53986C, lit4, src/cod/53986C]     # .lit4 blob resume
-      - [0x539870, .lit4, src/e3]  # carved D_00639870..D_00639894 (10 slots, the TU's whole pool, all owners in C), VMA 0x639870..0x639898, 40 B
-      - [0x539898, .lit4, src/end]  # carved D_00639898..D_006398AC (6 words: actEndDemo14's 7046/1678 as slots while it is asm; Conte14_7, Staff3Demo, Staff3RollChk's constants as literals; the TU's whole pool, op's word follows), VMA 0x639898..0x6398B0
-      - [0x5398B0, .lit4, src/op]  # carved D_006398B0 (1 slot, 2700.0f in actSt24aConte01_2_Jimaku; = MAIN.MAP op.o .lit4 0x4), VMA 0x6398B0..0x6398B4
-      - [0x5398B4, .lit4, src/st02a]  # carved D_006398B4..D_006398C8 (6 slots: actSt02aDoorUpChk x2, DoorDownChk x2 still asm; actSt02aSekizo's 1828/1150 as literals; the TU's whole pool, bounded by op's 2700 and st03t's -913), VMA 0x6398B4..0x6398CC
-      - [0x5398CC, .lit4, src/st03t]  # carved D_006398CC..D_006398D4 (3 slots, actSt03tSekizo's -913/605/550 as literals; the TU's whole pool, bounded by st02a's and st04a's words), VMA 0x6398CC..0x6398D8
-      - [0x5398D8, .lit4, src/st04a]  # carved D_006398D8..D_00639924 (20 slots: GateChk, Conte06 x4, Conte06Jimaku, Conte09Jimaku, Conte09_2 x3, Conte09_3 x4, TorchHintChk x2 still asm; EnvSe/EnvSeWakare1/EnvSeWakare2/Conte09_3Jimaku's rates and bound as literals; the TU's whole pool, bounded by st03t's and st04b's words), VMA 0x6398D8..0x639928
-      - [0x539928, .lit4, src/st04b]  # carved st04b pool (the TU's whole pool, all owners in C after actSt04bSekizoChk landed)
-      - [0x539940, .lit4, src/st04e]  # carved D_00639940 (1 word, 0.005f, the TU's whole pool as a literal; the TU is fully C), VMA 0x639940..0x639944
-      - [0x539944, .lit4, src/st04l]  # carved D_00639944..D_00639958 (6 words, all literals: StairSub -3881/-3891, StairChk -3881/-3891, SekizoChk -1300/-1700; the TU's whole pool, one word per function pool; MAIN.MAP's 0x10 is the debug link's), VMA 0x639944..0x63995C
-      - [0x53995C, .lit4, src/st04r]  # carved D_0063995C..D_00639978 (8 words, all literals in StairSub, StairChk, SekizoChk, GondolaChk; the TU's whole pool, st05b's carve follows), VMA 0x63995C..0x63997C
-      - [0x53997C, .lit4, src/st05b]  # carved D_0063997C..D_00639990 (6 slots: actSt05bSekizoChk x4, actSt05bSekizo's camera target -10793/2122 as literals; the TU's whole pool — MAIN.MAP's 0x18 is the debug link's, 0x639994 is st05e's), VMA 0x63997C..0x639994
-      - [0x539994, lit4, src/cod/539994]     # .lit4 blob resume (st05e's words)
-      - [0x5399B0, .lit4, src/st07a]  # carved D_006399B0..D_006399BC (4 words: actSt07aSekizoChk's -3300/977/-1050/-950 as literals; the TU is fully C), VMA 0x6399B0..0x6399C0
-      - [0x5399C0, lit4, src/cod/5399C0]     # .lit4 blob resume (st08a's word D_006399C0, read as an extern by the matched actSt08aInit; data-sections pass item)
-      - [0x5399C4, .lit4, src/st08b]  # carved D_006399C4..D_006399D0 (4 words: actSt08bDoorUpChk's and DoorDownChk's -1189/-2326 as literals; the pool is per function, not deduplicated), VMA 0x6399C4..0x6399D4
-      - [0x5399D4, .lit4, src/st09a]  # carved D_006399D4..D_006399DC (3 slots, actSt09aSekizo's 1515/-1350/-1450 as literals; the TU's whole pool), VMA 0x6399D4..0x6399E0
-      - [0x5399E0, .lit4, src/st10l]  # carved D_006399E0..D_006399E4 (2 words, actSt10lFloorLeft's -705 and actSt10lSekizo's 1274 as literals; the TU's whole pool), VMA 0x6399E0..0x6399E8
-      - [0x5399E8, .lit4, src/st10r]  # carved D_006399E8..D_006399FC (6 words: a slot for the still-asm actSt10rFence's 417, then Cage/Sekizo x2/TowerResqueChk x2 as literals; the TU's whole pool, st13a's words follow), VMA 0x6399E8..0x639A00
-      - [0x539A00, .lit4, src/st13a]  # carved D_00639A00..D_00639A2C (12 slots: actSt13aElevUp, ElevDownSub x2, ElevDownChk x3, SekizoChk x3 still asm; actSt13aElev's camera target 4729/2715/-2504 as literals; the TU's whole pool — MAIN.MAP's 0x20 is the debug link's), VMA 0x639A00..0x639A30
-      - [0x539A30, .lit4, src/st13b]  # carved D_00639A30..D_00639A50 (9 slots: FloorChk, SekizoChk x2, Sekizo2Chk x2, Boss x2, ElevUpChk still asm; actSt13bConte02Jimaku's 2500.0f as a literal; the TU's whole pool), VMA 0x639A30..0x639A54
-      - [0x539A54, .lit4, src/st13c]  # carved D_00639A54..D_00639A5C (3 words, actSt13cBmg1's -5725 x2 and actSt13cHandChk's 550 as literals; the TU's whole pool, between st13b's and st17a's), VMA 0x639A54..0x639A60
-      - [0x539A60, .lit4, src/st17a]  # carved D_00639A60..D_00639A80 (9 slots: actSt17aDoorUpChk x3 and DoorDownChk x3 still asm, actSt17aSekizo's 6450/-2100/1100 as literals; the TU's whole pool, bounded by st13c and st17b), VMA 0x639A60..0x639A84
-      - [0x539A84, .lit4, src/st17b]  # carved D_00639A84..D_00639A8C (3 slots: actSt17bTest/Check's 14990/7074/-4694 as literals; MAIN.MAP st17b.o .lit4 0xC), VMA 0x639A84..0x639A90
-      - [0x539A90, .lit4, src/st18a]  # carved D_00639A90..D_00639AA4 (6 words: 3054, 1530, -3061, 1451, 1530, -3039, all literals of the now fully-C TU), VMA 0x639A90..0x639AA8
-      - [0x539AA8, .lit4, src/st19a]  # carved D_00639AA8..D_00639AB4 (4 slots: actSt19aPipeChk's 3933 still asm, actSt19aOri's 4298/-2342/1331 as literals; the TU's whole pool, bounded by st18a's and st20a's words), VMA 0x639AA8..0x639AB8
-      - [0x539AB8, lit4, src/cod/539AB8]     # .lit4 blob resume (st20a's words)
-      - [0x539AE0, .lit4, src/st22a]  # carved D_00639AE0..D_00639AE4 (2 slots: actSt22aIntroSub's -707.0f/-1112.0f; MAIN.MAP says 0x24, the retail object needs 0x8), VMA 0x639AE0..0x639AE8
-      - [0x539AE8, .lit4, src/st24a]  # carved D_00639AE8..D_00639AF8 (5 slots: actSt24aSwordChk x2, actSt24aSword's camera target 363/1307/-3297; = MAIN.MAP st24a.o .lit4 0x14), VMA 0x639AE8..0x639AFC
-      - [0x539AFC, .lit4, src/st47a]  # carved D_00639AFC..D_00639B14 (7 slots, the TU's whole pool, all owners in C; gcc 2.9 does not share a literal between functions, so -3000.0f appears twice), VMA 0x639AFC..0x639B18, 28 B
-      - [0x539B18, .lit4, src/stageSEProc]  # carved D_00639B18..D_00639C40 (75 words: 20 slots beside the still-asm stageSE04eriver/06ariver/10lstrong2/19ataki, the rest literals in the C owners), VMA 0x639B18..0x639C44, 300 B; MAIN.MAP stageSEProc.o .lit4 is 0x138 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
-      - [0x539C44, lit4, src/cod/539C44]     # .lit4 blob resume
-      - [0x539C80, sdata, src/cod/539C80]    # .sdata
+      - [0x538B04, .lit4, ico2/sugipon/src/geometryManager]  # carved D_00638B04..D_00638B08 (2 slots, LimitExistGeometry's -100000/100000 as literals; the TU's whole pool, = MAIN.MAP geometryManager.o .lit4 0x8; the word before is vendor_100110's), VMA 0x638B04..0x638B0C
+      - [0x538B0C, .lit4, ico2/sugipon/src/matrixDrive]   # carved D_00638B0C..D_00638B38 (12 slots, all 0.01f, one per MatrixDrive_Turn*/GetTurn* fn), VMA 0x638B0C..0x638B3C, 48 B; MAIN.MAP matrixDrive.o .lit4 0x30 agrees.  USA: - [0x53090C, .lit4, ico2/sugipon/src/matrixDrive]    # carved D_0063090C..D_00630940 (14 slots, MatrixDrive_PopMatrix + 13 asm), VMA 0x63090C..0x630944
+      - [0x538B3C, .lit4, ico2/sugipon/src/motionManager2]# carved D_00638B3C..D_00638B80 (18 slots, GetWaterReaction..CheckFieldContact, 10 of them SlopeIKControl's), VMA 0x638B3C..0x638B84, 72 B; MAIN.MAP motionManager2.o .lit4 0x48 agrees.  USA: - [0x530944, .lit4, ico2/sugipon/src/motionManager2]# carved D_00630944..D_00630980 (16 slots, SetMotionDirectionWithLimit + GetRootPosOfNextFrame + 14 asm), VMA 0x630944..0x630984
+      - [0x538B84, .lit4, ico2/sugipon/src/pool]  # carved D_00638B84..D_00638BB4 (13 slots, InitPoolGeo..getWave; the TU's whole pool, = MAIN.MAP pool.o .lit4 0x34), VMA 0x638B84..0x638BB8
+      - [0x538BB8, lit4, cod/538BB8]     # .lit4 blob resume
+      - [0x538BC8, .lit4, ico2/seki/src/FileManager]  # carved D_00638BC8 (1 slot: file_LoadCDFile's 10059776.0f, the CD-file size divisor, written as a literal), VMA 0x638BC8..0x638BCC
+      - [0x538BCC, lit4, cod/538BCC]     # .lit4 blob resume
+      - [0x538BD8, .lit4, ico2/seki/src/Light]  # carved D_00638BD8..D_00638C3C (26 slots, light_AddLight..light_resetFlatLight; the TU's whole pool, = MAIN.MAP Light.o .lit4 0x68), VMA 0x638BD8..0x638C40
+      - [0x538C40, .lit4, ico2/seki/src/Packet]  # carved D_00638C40..D_00638C54 (6 slots: three 0.501960814f as one literal and two slots, pac_openDmaTag's 16777215.0f and -16777215.0f, one slot for the still-asm pac_makePacket; the TU's whole pool), VMA 0x638C40..0x638C58, 24 B
+      - [0x538C58, .lit4, ico2/seki/src/Primitive]  # carved D_00638C58..D_00638C70 (7 slots in ROM order: 6.2831855f, 10430.378f, 6.2831855f, 10430.378f, 4095.0f (slot for the still-asm prim_DispFan2D), 3.1415927f, 10430.378f; the TU's whole pool between Packet and StageAnimation), VMA 0x638C58..0x638C74, 28 B
+      - [0x538C74, .lit4, ico2/seki/src/StageAnimation]  # carved D_00638C74..D_00638C78 (2 slots, both 1.2075409f: stage_PlayBgAnimation's own literal and one slot for the still-asm stage_PlayBgAnimationDissolve; the TU's whole pool), VMA 0x638C74..0x638C7C, 8 B
+      - [0x538C7C, lit4, cod/538C7C]     # .lit4 blob resume
+      - [0x538CA0, .lit4, ico2/fumi/sound/s_init]  # carved D_00638CA0..D_00638CC4 (10 slots, one per occurrence: debug_DispSEInfo x2, sound3DParamSet, _soundSeDefPlay x3, soundSeEnvPlay x2, soundSeEnvDefaultSet x2; the TU's whole pool, adjacent to act-game's), VMA 0x638CA0..0x638CC8
+      - [0x538CC8, .lit4, ico2/fumi/src/act-game]  # carved D_00638CC8..D_00638D0C (18 slots, 15 fns EXITDATA_GetNextPosition..ACTCheckViewClDetail), VMA 0x638CC8..0x638D10, 72 B; MAIN.MAP act-game.o .lit4 is 0x40 (different link; PAL ELF is authoritative).  USA: - [0x530AEC, .lit4, ico2/fumi/src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
+      - [0x538D10, .lit4, ico2/fumi/src/act-wish]  # carved D_00638D10..D_00638D2C (8 words, all 0.1f, ACTGetWish_FromPad's literals; the TU's whole pool), VMA 0x638D10..0x638D30
+      - [0x538D30, .lit4, ico2/fumi/src/boyact]  # carved D_00638D30..D_00638E38 (67 words: 65 slots beside twelve still-asm owners — 45 of them subBoyControl's — then DeleteBoyWeapon's 1e7 and GetBoyRootPositionForCamera's 40000 as literals; the TU's whole pool up to commonact's carve; MAIN.MAP's 0x108 is the debug link's), VMA 0x638D30..0x638E3C
+      - [0x538E3C, .lit4, ico2/fumi/src/commonact]  # carved D_00638E3C..D_00638EF0 (46 slots, 15 fns GetCorrectOrientOfChain..func_00163250; 13x 0.1f, 10x pi), VMA 0x638E3C..0x638EF4, 184 B; MAIN.MAP commonact.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).  USA: - [0x530C28, .lit4, ico2/fumi/src/commonact]     # carved D_00630C28..D_00630CDC (46 slots, _boxbar_set_sound + func_0015DF88 + 44 asm), VMA 0x630C28..0x630CE0
+      - [0x538EF4, .lit4, ico2/fumi/src/enemy_act]  # carved D_00638EF4..D_00638F58 (26 slots, 10 fns _MustChase..func_00169498), VMA 0x638EF4..0x638F5C, 104 B; MAIN.MAP enemy_act.o .lit4 0x68 agrees.  USA: - [0x530CE0, .lit4, ico2/fumi/src/enemy_act]     # carved D_00630CE0..D_00630D48 (27 slots, actEnemyForceSwitchToCarry + 26 asm), VMA 0x630CE0..0x630D4C
+      - [0x538F5C, .lit4, ico2/fumi/src/fieldCollision]  # carved D_00638F5C..D_00638F60 (2 words, DrawCollisionRay's 0.05/0.3 as literals; the TU's whole pool, between enemy_act's and girl_act's words), VMA 0x638F5C..0x638F64
+      - [0x538F64, .lit4, ico2/fumi/src/girl_act]  # carved D_00638F64..D_00639058 (62 slots, 22 fns girlBrainHideCheckIntercept..actGirlHand incl. the nested HandMgr_Speed; isEnterHideadv already C), VMA 0x638F64..0x63905C, 248 B
+      - [0x53905C, lit4, cod/53905C]     # .lit4 blob resume (way_sys avoid_obstacle2's single slot before way_util's carve)
+      - [0x539060, .lit4, ico2/fumi/src/way_util]  # carved D_00639060..D_0063908C (12 slots, all 100000.0f, one per waypoint-search fn nearest_waypoint_of_group..visible_waypoint_from_gobj), VMA 0x639060..0x639090, 48 B; MAIN.MAP way_util.o .lit4 0x30 agrees.  USA: - [0x530E3C, .lit4, ico2/fumi/src/way_util]    # carved D_00630E3C..D_00630E68 (12x 100000f, one per waypoint-search func), VMA 0x630E3C..0x630E6C
+      - [0x539090, .lit4, ico2/script/src/script]  # carved D_00639090..D_006390D0 (17 words: 16 slots beside the still-asm GirlHintVoiceReady x2, GirlHintVoiceTickProc x4, scpWoodSrh x3, scpSekizou x2, _SCPMoveByWay_ToChar, actSubSekizoSe x4; scpBornSpider's pi as a literal; the TU's whole pool, st25a's carve follows), VMA 0x639090..0x6390D4
+      - [0x5390D4, .lit4, ico2/script/src/st25a]  # carved D_006390D4..D_00639104 (13 slots, 7 fns actConte11..func_00187DF0), VMA 0x6390D4..0x639108, 52 B; MAIN.MAP st25a.o .lit4 is 0x44 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
+      - [0x539108, .lit4, ico2/script/src/warpGirl]  # carved D_00639108 (1 slot: warpGirlInStage's pi/180 written as a literal; = MAIN.MAP warpGirl.o .lit4 0x4), VMA 0x639108..0x63910C
+      - [0x53910C, lit4, cod/53910C]     # .lit4 blob resume
+      - [0x539118, .lit4, ico2/omori/src/camera-ico2]  # carved D_00639118..D_0063912C (6 slots: monitorMonitorCamera x2 and CameraMove x2 as ASM_LIT4_SLOT, ChaseCamera and GetTargetOffset as literals; the TU's whole pool), VMA 0x639118..0x639130, 24 B; MAIN.MAP camera-ico2.o .lit4 is 0x24 (different link)
+      - [0x539130, .lit4, ico2/omori/src/camera-root]  # carved D_00639130..D_0063913C (4 words of pi: ConvertCameraSet and CameraGetOtherObjOffset as literals, two slots for the still-asm SetCameraMatrix; the TU's whole pool = MAIN.MAP camera-root.o .lit4 0x10), VMA 0x639130..0x639140
+      - [0x539140, lit4, cod/539140]     # .lit4 blob resume (chain's words follow at 0x539190)
+      - [0x539190, .lit4, ico2/omori/src/chain]  # carved D_00639190..D_006391D4 (18 slots: chain_simulate_free..TestChainUpDown still asm, then IncreasePdlChain, DecreasePdlChain, GetChainDirCorrectVal, InitPendulum x2, _GetCorrectOrientOfChain as literals; the TU's whole pool), VMA 0x639190..0x6391D8
+      - [0x5391D8, lit4, cod/5391D8]     # .lit4 blob resume (ebrain's words, then gv's)
+      - [0x5391E0, .lit4, ico2/omori/src/generator]  # carved D_006391E0..D_006391E8 (3 slots, all 22500.0f: CheckGeneratorCollision's literal and two slots beside the still-asm GetGeneratorSafePosition; the TU's whole pool), VMA 0x6391E0..0x6391EC, 12 B
+      - [0x5391EC, .lit4, ico2/omori/src/gv]  # carved D_006391EC (1 slot: GetMatrixDirectionToZ's pi as a literal; gv's other four pi words stay extern reads until the pool re-carve), VMA 0x6391EC..0x6391F0, 4 B
+      - [0x5391F0, lit4, cod/5391F0]     # .lit4 blob resume (gv's remaining four words)
+      - [0x539200, .lit4, ico2/omori/src/hand-camera]  # carved D_00639200..D_00639228 (11 words: three slots for the still-asm RotateAccordingToStick_PatternThree, SetCurrentInfo's seven literals (pi x3, +/-1.4835298 x2), one slot for the still-asm HandyCamera_TargetMoveType), VMA 0x639200..0x63922C
+      - [0x53922C, lit4, cod/53922C]     # .lit4 blob resume (lws_kyomi's word before act_bird's run)
+      - [0x539230, .lit4, ico2/ito/src/act_bird]  # carved D_00639230..D_00639290 (25 slots, 5 fns interp_vector_sa..vector_angle_degree; 8x 2*pi), VMA 0x639230..0x639294, 100 B; MAIN.MAP act_bird.o .lit4 0x64 agrees.  USA: - [0x531038, .lit4, ico2/ito/src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
+      - [0x539294, lit4, cod/539294]     # .lit4 blob resume (lightning's words)
+      - [0x5392C0, .lit4, ico2/ito/src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: Debug_StickControl, QueenGeo, QueenBarrierGeo and its WrapRad expansions as literals, QueenBallGeo's 5000 now compiler-emitted; TU fully C), VMA 0x6392C0..0x639324
+      - [0x539324, lit4, cod/539324]     # .lit4 blob resume (queen_barrier_disp's words)
+      - [0x539328, .lit4, ico2/ito/src/stage_orient]  # carved D_00639328 (1 word, StageOrientGet2's literal; the TU is fully C), VMA 0x639328..0x63932C
+      - [0x53932C, .lit4, ico2/common/src/DObj]  # carved D_0063932C..D_00639330 (2 slots: initGeometryState's 0.333f and initMatrixDObj's pi; the TU's whole pool), VMA 0x63932C..0x639334, 8 B
+      - [0x539334, .lit4, ico2/common/src/backStage]  # carved D_00639334 (1 word, backStageProcessInStage's 10000000.0f; the TU's whole pool), VMA 0x639334..0x639338, 4 B
+      - [0x539338, .lit4, ico2/common/src/debug]  # carved D_00639338..D_00639350 (7 slots, 5 fns debug_Load..debug_DrawBar), VMA 0x639338..0x639354, 28 B
+      - [0x539354, .lit4, ico2/common/src/debug_exception]  # carved D_00639354 (1 slot: drawWin's 0.8f, debug_exception_screen.c.inc), VMA 0x639354..0x639358, 4 B
+      - [0x539358, lit4, cod/539358]     # .lit4 blob resume
+      - [0x539360, .lit4, ico2/common/src/layout_action]  # carved D_00639360..D_00639368 (3 slots, la_load_processing / la_get_next_stage_name / la_switching_stage), VMA 0x639360..0x63936C, 12 B; MAIN.MAP layout_action.o .lit4 is 0x8 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
+      - [0x53936C, lit4, cod/53936C]     # .lit4 blob resume
+      - [0x539374, .lit4, ico2/sugipon/src/a_p_1]  # carved D_00639374..D_00639390 (8 slots, 6 fns fitToCol..attackMot in source order; 3 slots beside still-asm owners), VMA 0x639374..0x639394, 32 B
+      - [0x539394, lit4, cod/539394]     # .lit4 blob resume (act_a_p_1's walkAI x2 and subAP1BrainMain)
+      - [0x5393A0, .lit4, ico2/sugipon/src/box]  # carved D_006393A0..D_00639408 (27 slots, 13 fns FloorLeverGeo..InitBoxGeo, in source order with switch.c.inc first), VMA 0x6393A0..0x63940C, 108 B; MAIN.MAP box.o .lit4 0x6c agrees.
+      - [0x53940C, .lit4, ico2/sugipon/src/boy]  # carved D_0063940C..D_00639458 (20 slots, execClothes..LightLineGeo; the TU's whole pool, right after box's carve), VMA 0x63940C..0x63945C
+      - [0x53945C, .lit4, ico2/sugipon/src/cage]  # carved D_0063945C..D_0063946C (5 slots: CageRideFunc's 0.06f, InitCageGeo's 0.995f and 10430.378f as slots beside the still-asm owner, CageGeo's 2730.0f and 10430.378f; the TU's whole pool), VMA 0x63945C..0x639470, 20 B
+      - [0x539470, .lit4, ico2/sugipon/src/clipCollisionManager]  # carved D_00639470 (1 word, 0.01f, actClipCollisionCore's literal; the TU is fully C), VMA 0x639470..0x639474
+      - [0x539474, .lit4, ico2/sugipon/src/clothAnimation]  # carved D_00639474..D_0063948C (7 words: SetChainExtendedWeight's 1e-6 as a literal, then slots for the still-asm GetClothAnimation x2, GetClothAnimationFix4Points, getCloth4D_preProcess, getCloth4D x2; the TU's whole pool — MAIN.MAP's 0x14 is the debug link's, darkVolume's words start at 0x639490), VMA 0x639474..0x639490
+      - [0x539490, lit4, cod/539490]     # .lit4 blob resume (darkVolume's words)
+      - [0x5394B0, .lit4, ico2/sugipon/src/effectTool]  # carved D_006394B0..D_006394B8 (3 words: editParam's 0.01f x2, moveEffectToolGeometry's 0.001f, all literals; the TU is fully C), VMA 0x6394B0..0x6394BC
+      - [0x5394BC, lit4, cod/5394BC]     # .lit4 blob resume (the last words before flyManager's run)
+      - [0x5394CC, .lit4, ico2/sugipon/src/enemyParts]  # carved D_006394CC..D_006394D4 (3 slots: InitEnemyEye's 1e-5f as a slot beside the still-asm owner, ExecEnemyFootPrints' 0.9f, EntryEnemyFootPrint's 0.05f; the TU's whole pool), VMA 0x6394CC..0x6394D8, 12 B
+      - [0x5394D8, .lit4, ico2/sugipon/src/flyManager]  # carved D_006394D8..D_006394DC (2 slots, both 100000.0f: GetFlyLimitHeight and GetFlyLimitClearance), VMA 0x6394D8..0x6394E0, 8 B; the TU's whole pool, emitted by the compiled functions
+      - [0x5394E0, .lit4, ico2/sugipon/src/frameDependSequence]  # carved D_006394E0..D_006394F8 (7 slots: playSE's 0.95f as a slot beside the still-asm owner, playSERandomID x3, playEff, execEff x2; the TU's whole pool), VMA 0x6394E0..0x6394FC, 28 B
+      - [0x5394FC, .lit4, ico2/sugipon/src/girl]  # carved D_006394FC..D_00639528 (12 words: 11 slots beside the still-asm func_001DD128 and func_001DD340, GirlGeo's 0.3 as a literal; the TU's whole pool, handManager's words follow), VMA 0x6394FC..0x63952C
+      - [0x53952C, lit4, cod/53952C]     # .lit4 blob resume (handManager's words)
+      - [0x539530, .lit4, ico2/sugipon/src/item]  # carved D_00639530..D_0063955C (12 slots, uncarriedItemGeo and its nested floatGeo; the TU's whole pool), VMA 0x639530..0x639560, 48 B
+      - [0x539560, .lit4, ico2/sugipon/src/motionManager]  # carved D_00639560..D_0063961C (48 slots, 18 fns _getFinalMatrix.._getGeometryOfMotion, in source order: getFinalMatrix.c.inc, motionManager.c, rootUpdate.c.inc), VMA 0x639560..0x639620, 192 B; MAIN.MAP motionManager.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).
+      - [0x539620, lit4, cod/539620]     # .lit4 blob resume
+      - [0x539660, .lit4, ico2/sugipon/src/particleEffect]  # carved D_00639660..D_0063966C (4 slots: 182.04445f, 4095.0f, 0.2f, 4095.0f; two slots beside the still-asm execParticleEffect; the TU's whole pool), VMA 0x639660..0x639670, 16 B
+      - [0x539670, lit4, cod/539670]     # .lit4 blob resume
+      - [0x539680, .lit4, ico2/sugipon/src/rotObject]  # carved D_00639680..D_0063969C (8 slots: MoveRotObjectWithHoldPoint x4, GetRotObjectGlobalHoldGeometry, InitRotObjectGeo, RotObjectDL, GetRotObjectZPlusDirection — per-function copies of 10430.378f; the TU's whole pool), VMA 0x639680..0x6396A0
+      - [0x5396A0, .lit4, ico2/sugipon/src/spider]  # carved D_006396A0..D_006396A4 (2 slots: InitSpiderLayoutGeo's pi still asm, CheckSpidersInsideOfReviveRange's 10000.0f as a literal; the TU's whole pool, between rotObject's and staticBlur's carves), VMA 0x6396A0..0x6396A8
+      - [0x5396A8, .lit4, ico2/sugipon/src/staticBlur]  # carved D_006396A8..D_006396AC (2 slots: 0.9f eyeBlur, 1000000.0f calcSun), VMA 0x6396A8..0x6396B0, 8 B; MAIN.MAP staticBlur.o .lit4 0x8 agrees.  USA: - [0x5313D8, .lit4, ico2/sugipon/src/staticBlur]    # carved D_006313D8/13DC (0.9f, 1000000f), VMA 0x6313D8..0x6313E0
+      - [0x5396B0, lit4, cod/5396B0]     # .lit4 blob resume
+      - [0x5396D0, .lit4, ico2/sugipon/src/waterDot]  # carved D_006396D0..D_006396D4 (2 slots: 1/65535 and 0.2f, one slot beside the still-asm ExecWaterDot; the TU's whole pool), VMA 0x6396D0..0x6396D8, 8 B
+      - [0x5396D8, .lit4, ico2/sugipon/src/weapon]  # carved D_006396D8..D_006396F8 (9 slots: dispLaserSword's 0.1f is the object's own literal, nine words in ROM order 182.04445f, 0.7f x2, 0.9f, 0.1f, 10430.378f, 0.4f, 0.1f, 10430.378f; slot lines stay only for the still-asm owners), VMA 0x6396D8..0x6396FC, 36 B; 0x6396FC has no weapon owner and stays in the blob
+      - [0x5396FC, lit4, cod/5396FC]     # .lit4 blob resume
+      - [0x53970C, .lit4, ico2/sugipon/src/wireLetter]  # carved D_0063970C (1 word, 0.7f, DispWireString's literal; the TU is fully C; the earlier note assigning this slot to warpGirl was wrong), VMA 0x63970C..0x639710
+      - [0x539710, .lit4, ico2/sugipon/src/worm]  # carved D_00639710..D_00639720 (5 slots: getAnimation 0.8f, disp 0.02f, WormGeo 0.05f + 8.99999f, TraceWormRoute 8.99999f), VMA 0x639710..0x639724, 20 B; the TU's whole pool
+      - [0x539724, .lit4, ico2/seki/src/BgAnimation]  # carved D_00639724..D_006397E4 (49 slots, bga_GetMotion..bga_CheckSdfCameraFrameIn; the TU's whole pool, right after worm's), VMA 0x639724..0x6397E8
+      - [0x5397E8, lit4, cod/5397E8]     # .lit4 blob resume
+      - [0x539860, .lit4, ico2/fumi/src/way_kidnap]  # carved D_00639860 (1.0e10f, NearestEnemyFromGirl's initial minimum, written as a literal), the TU's whole .lit4 run, VMA 0x639860..0x639864; 0x63985C is act's, 0x639864 way_tool's
+      - [0x539864, .lit4, ico2/fumi/src/way_tool]  # carved D_00639864..D_00639868 (2 slots, both 0.116355285f: draw_way_group's own literal and one slot for the still-asm way_toolDL; the TU's whole pool), VMA 0x639864..0x63986C, 8 B
+      - [0x53986C, lit4, cod/53986C]     # .lit4 blob resume
+      - [0x539870, .lit4, ico2/script/src/e3]  # carved D_00639870..D_00639894 (10 slots, the TU's whole pool, all owners in C), VMA 0x639870..0x639898, 40 B
+      - [0x539898, .lit4, ico2/script/src/end]  # carved D_00639898..D_006398AC (6 words: actEndDemo14's 7046/1678 as slots while it is asm; Conte14_7, Staff3Demo, Staff3RollChk's constants as literals; the TU's whole pool, op's word follows), VMA 0x639898..0x6398B0
+      - [0x5398B0, .lit4, ico2/script/src/op]  # carved D_006398B0 (1 slot, 2700.0f in actSt24aConte01_2_Jimaku; = MAIN.MAP op.o .lit4 0x4), VMA 0x6398B0..0x6398B4
+      - [0x5398B4, .lit4, ico2/script/src/st02a]  # carved D_006398B4..D_006398C8 (6 slots: actSt02aDoorUpChk x2, DoorDownChk x2 still asm; actSt02aSekizo's 1828/1150 as literals; the TU's whole pool, bounded by op's 2700 and st03t's -913), VMA 0x6398B4..0x6398CC
+      - [0x5398CC, .lit4, ico2/script/src/st03t]  # carved D_006398CC..D_006398D4 (3 slots, actSt03tSekizo's -913/605/550 as literals; the TU's whole pool, bounded by st02a's and st04a's words), VMA 0x6398CC..0x6398D8
+      - [0x5398D8, .lit4, ico2/script/src/st04a]  # carved D_006398D8..D_00639924 (20 slots: GateChk, Conte06 x4, Conte06Jimaku, Conte09Jimaku, Conte09_2 x3, Conte09_3 x4, TorchHintChk x2 still asm; EnvSe/EnvSeWakare1/EnvSeWakare2/Conte09_3Jimaku's rates and bound as literals; the TU's whole pool, bounded by st03t's and st04b's words), VMA 0x6398D8..0x639928
+      - [0x539928, .lit4, ico2/script/src/st04b]  # carved st04b pool (the TU's whole pool, all owners in C after actSt04bSekizoChk landed)
+      - [0x539940, .lit4, ico2/script/src/st04e]  # carved D_00639940 (1 word, 0.005f, the TU's whole pool as a literal; the TU is fully C), VMA 0x639940..0x639944
+      - [0x539944, .lit4, ico2/script/src/st04l]  # carved D_00639944..D_00639958 (6 words, all literals: StairSub -3881/-3891, StairChk -3881/-3891, SekizoChk -1300/-1700; the TU's whole pool, one word per function pool; MAIN.MAP's 0x10 is the debug link's), VMA 0x639944..0x63995C
+      - [0x53995C, .lit4, ico2/script/src/st04r]  # carved D_0063995C..D_00639978 (8 words, all literals in StairSub, StairChk, SekizoChk, GondolaChk; the TU's whole pool, st05b's carve follows), VMA 0x63995C..0x63997C
+      - [0x53997C, .lit4, ico2/script/src/st05b]  # carved D_0063997C..D_00639990 (6 slots: actSt05bSekizoChk x4, actSt05bSekizo's camera target -10793/2122 as literals; the TU's whole pool — MAIN.MAP's 0x18 is the debug link's, 0x639994 is st05e's), VMA 0x63997C..0x639994
+      - [0x539994, lit4, cod/539994]     # .lit4 blob resume (st05e's words)
+      - [0x5399B0, .lit4, ico2/script/src/st07a]  # carved D_006399B0..D_006399BC (4 words: actSt07aSekizoChk's -3300/977/-1050/-950 as literals; the TU is fully C), VMA 0x6399B0..0x6399C0
+      - [0x5399C0, lit4, cod/5399C0]     # .lit4 blob resume (st08a's word D_006399C0, read as an extern by the matched actSt08aInit; data-sections pass item)
+      - [0x5399C4, .lit4, ico2/script/src/st08b]  # carved D_006399C4..D_006399D0 (4 words: actSt08bDoorUpChk's and DoorDownChk's -1189/-2326 as literals; the pool is per function, not deduplicated), VMA 0x6399C4..0x6399D4
+      - [0x5399D4, .lit4, ico2/script/src/st09a]  # carved D_006399D4..D_006399DC (3 slots, actSt09aSekizo's 1515/-1350/-1450 as literals; the TU's whole pool), VMA 0x6399D4..0x6399E0
+      - [0x5399E0, .lit4, ico2/script/src/st10l]  # carved D_006399E0..D_006399E4 (2 words, actSt10lFloorLeft's -705 and actSt10lSekizo's 1274 as literals; the TU's whole pool), VMA 0x6399E0..0x6399E8
+      - [0x5399E8, .lit4, ico2/script/src/st10r]  # carved D_006399E8..D_006399FC (6 words: a slot for the still-asm actSt10rFence's 417, then Cage/Sekizo x2/TowerResqueChk x2 as literals; the TU's whole pool, st13a's words follow), VMA 0x6399E8..0x639A00
+      - [0x539A00, .lit4, ico2/script/src/st13a]  # carved D_00639A00..D_00639A2C (12 slots: actSt13aElevUp, ElevDownSub x2, ElevDownChk x3, SekizoChk x3 still asm; actSt13aElev's camera target 4729/2715/-2504 as literals; the TU's whole pool — MAIN.MAP's 0x20 is the debug link's), VMA 0x639A00..0x639A30
+      - [0x539A30, .lit4, ico2/script/src/st13b]  # carved D_00639A30..D_00639A50 (9 slots: FloorChk, SekizoChk x2, Sekizo2Chk x2, Boss x2, ElevUpChk still asm; actSt13bConte02Jimaku's 2500.0f as a literal; the TU's whole pool), VMA 0x639A30..0x639A54
+      - [0x539A54, .lit4, ico2/script/src/st13c]  # carved D_00639A54..D_00639A5C (3 words, actSt13cBmg1's -5725 x2 and actSt13cHandChk's 550 as literals; the TU's whole pool, between st13b's and st17a's), VMA 0x639A54..0x639A60
+      - [0x539A60, .lit4, ico2/script/src/st17a]  # carved D_00639A60..D_00639A80 (9 slots: actSt17aDoorUpChk x3 and DoorDownChk x3 still asm, actSt17aSekizo's 6450/-2100/1100 as literals; the TU's whole pool, bounded by st13c and st17b), VMA 0x639A60..0x639A84
+      - [0x539A84, .lit4, ico2/script/src/st17b]  # carved D_00639A84..D_00639A8C (3 slots: actSt17bTest/Check's 14990/7074/-4694 as literals; MAIN.MAP st17b.o .lit4 0xC), VMA 0x639A84..0x639A90
+      - [0x539A90, .lit4, ico2/script/src/st18a]  # carved D_00639A90..D_00639AA4 (6 words: 3054, 1530, -3061, 1451, 1530, -3039, all literals of the now fully-C TU), VMA 0x639A90..0x639AA8
+      - [0x539AA8, .lit4, ico2/script/src/st19a]  # carved D_00639AA8..D_00639AB4 (4 slots: actSt19aPipeChk's 3933 still asm, actSt19aOri's 4298/-2342/1331 as literals; the TU's whole pool, bounded by st18a's and st20a's words), VMA 0x639AA8..0x639AB8
+      - [0x539AB8, lit4, cod/539AB8]     # .lit4 blob resume (st20a's words)
+      - [0x539AE0, .lit4, ico2/script/src/st22a]  # carved D_00639AE0..D_00639AE4 (2 slots: actSt22aIntroSub's -707.0f/-1112.0f; MAIN.MAP says 0x24, the retail object needs 0x8), VMA 0x639AE0..0x639AE8
+      - [0x539AE8, .lit4, ico2/script/src/st24a]  # carved D_00639AE8..D_00639AF8 (5 slots: actSt24aSwordChk x2, actSt24aSword's camera target 363/1307/-3297; = MAIN.MAP st24a.o .lit4 0x14), VMA 0x639AE8..0x639AFC
+      - [0x539AFC, .lit4, ico2/script/src/st47a]  # carved D_00639AFC..D_00639B14 (7 slots, the TU's whole pool, all owners in C; gcc 2.9 does not share a literal between functions, so -3000.0f appears twice), VMA 0x639AFC..0x639B18, 28 B
+      - [0x539B18, .lit4, ico2/script/src/stageSEProc]  # carved D_00639B18..D_00639C40 (75 words: 20 slots beside the still-asm stageSE04eriver/06ariver/10lstrong2/19ataki, the rest literals in the C owners), VMA 0x639B18..0x639C44, 300 B; MAIN.MAP stageSEProc.o .lit4 is 0x138 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
+      - [0x539C44, lit4, cod/539C44]     # .lit4 blob resume
+      - [0x539C80, sdata, cod/539C80]    # .sdata
       # --- per-TU .sdata carves ---
       # gcc routes a <=8-byte string constant to .sdata (mips_select_section) and
       # never gp-addresses it, so the ROM reaches it with a %hi/%lo pair.  The
@@ -795,10 +795,10 @@ segments:
       # .sdata.<sym> of its own: it lands in the object's plain .sdata, which the
       # carve's (.sdata*) glob claims FIRST — hence the carve must start exactly at
       # the literal's own VMA, and holds only literals the TU's C actually emits.
-      - [0x53A738, .sdata, src/commonact]     # carved D_0063A738 ("reset\n", afterCommonBar's string literal) + ROM's 1 pad byte, VMA 0x63A738..0x63A740, 8 B.  NARROW: commonact's full .sdata run is 0x63A710..0x63A7E0 (208 B, ~17 more <=8-byte string literals whose owners are still INCLUDE_ASM); the one-run-per-(TU,section) rule means widening it later needs those bodies in C first.  MAIN.MAP commonact.o .sdata is 0x6d (a different link; the PAL ELF's own run is 0xd0).  USA: - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes); D_006322F0 is func_0015F578's "reset\n" string literal, the other 4 are sidecar objects
-      - [0x53A740, sdata, src/cod/53A740]    # .sdata blob resume
-      - [0x53B008, .sdata, src/debug]  # carved debug_MemoryCard's short menu labels ("LOAD".."MENU", -G 8 puts them in small data), VMA 0x63B008..0x63B040
-      - [0x53B040, sdata, src/cod/53B040]    # .sdata blob resume
-      - { type: sbss, vram: 0x0063C100, name: src/cod/0063C100, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
-      - { type: bss,  vram: 0x0063C600, name: src/cod/0063C600, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
+      - [0x53A738, .sdata, ico2/fumi/src/commonact]     # carved D_0063A738 ("reset\n", afterCommonBar's string literal) + ROM's 1 pad byte, VMA 0x63A738..0x63A740, 8 B.  NARROW: commonact's full .sdata run is 0x63A710..0x63A7E0 (208 B, ~17 more <=8-byte string literals whose owners are still INCLUDE_ASM); the one-run-per-(TU,section) rule means widening it later needs those bodies in C first.  MAIN.MAP commonact.o .sdata is 0x6d (a different link; the PAL ELF's own run is 0xd0).  USA: - [0x5322F0, .sdata, ico2/fumi/src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes); D_006322F0 is func_0015F578's "reset\n" string literal, the other 4 are sidecar objects
+      - [0x53A740, sdata, cod/53A740]    # .sdata blob resume
+      - [0x53B008, .sdata, ico2/common/src/debug]  # carved debug_MemoryCard's short menu labels ("LOAD".."MENU", -G 8 puts them in small data), VMA 0x63B008..0x63B040
+      - [0x53B040, sdata, cod/53B040]    # .sdata blob resume
+      - { type: sbss, vram: 0x0063C100, name: cod/0063C100, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
+      - { type: bss,  vram: 0x0063C600, name: cod/0063C600, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
   - [0x53C0F6]

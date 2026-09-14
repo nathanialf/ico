@@ -8,4 +8,4 @@
 INCLUDE_ASM("asm/nonmatchings/sce/crt0", func_00100000);
 INCLUDE_ASM("asm/nonmatchings/sce/crt0", _start);
 INCLUDE_ASM("asm/nonmatchings/sce/crt0", _exit);
-INCLUDE_ASM("asm/nonmatchings/sce/crt0", func_001000C0);
+INCLUDE_ASM("asm/nonmatchings/sce/crt0", _root);

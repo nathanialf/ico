@@ -35,7 +35,7 @@ discovers and documents each family):
   lower I:    iadd, iaddi, iand, ior, isub, iaddiu
   lower special: vwaitq, vrnext, xgkick, mfir, mtir, fmand, etc.
 
-# Source-file syntax (`.S` files in src/cod/)
+# Source-file syntax (`.S` files under the source tree)
 
 A VU0 source file is a sequence of bundles plus labels and pragmas.
 Whitespace and `;` after content are flexible — bundles look like:
@@ -89,10 +89,10 @@ if it matches end-to-end).
 
 # Invocation
 
-    tools/assemble_vu0.py src/cod/16F5E0.S
-        → emits src/cod/16F5E0.s in same dir (or --out path)
+    tools/assemble_vu0.py src/cluster.S
+        → emits src/cluster.s in same dir (or --out path)
 
-    tools/assemble_vu0.py src/cod/16F5E0.S --raw /tmp/check.bin
+    tools/assemble_vu0.py src/cluster.S --raw /tmp/check.bin
     cmp /tmp/check.bin assets/cod/16F5E0.textbin.bin
         → byte-for-byte cross-check during incremental hand-writing
 """

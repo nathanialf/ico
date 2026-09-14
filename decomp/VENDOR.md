@@ -5,11 +5,14 @@ and target-neutral: it binds on every branch.*
 
 *The NUMBERS and representation in §1, §5 and §7 were measured on the USA
 retail tree (now the `ntsc` branch) and its aug6 port. On `main` (PAL retail)
-vendor is represented natively: `config/ico.pal.yaml` carries **18
-`src/cod/vendor_<VMA>` spans**, each one an archive member run named from the
-PAL disc's own `MAIN.MAP` (e.g. `vendor_2788D8` = libm.a 21/21,
-`vendor_27E5E0` = libc.a 116/118), and `config/symbol_addrs.pal.txt` carries
-967 `// (vendor)` notes. Re-measure before quoting any figure below on this
+vendor is represented natively: `config/ico.pal.yaml` carries **133 `sce/`
+spans**, named from the PAL disc's own `MAIN.MAP`. Where a contiguous window
+of MAIN.MAP member rows tiles a run exactly and every member start is an
+8-aligned function start of the shipped ELF, the run is split one file per
+member (`sce/libm/math/sf_sin`, `sce/libc/stdio/vfprintf`); where the January
+link carried a different revision of the archive and the members do not tile,
+only the archive is proven and the run stays one file (`sce/libipu/libipu`).
+`config/symbol_addrs.pal.txt` carries 967 `// (vendor)` notes. Re-measure before quoting any figure below on this
 branch.*
 
 ---
@@ -104,8 +107,8 @@ On the USA tree the two runs were one `asm` blob each in `config/ico.us.yaml`
 emitted into `config/symbol_addrs.us.txt` by that branch's
 `gen_us_symbol_addrs.py`.
 
-On `main` the same two runs are 18 per-archive-member spans in
-`config/ico.pal.yaml` (`src/cod/vendor_<VMA>`), and the `// (vendor)` notes in
+On `main` the same two runs are the `sce/` spans of
+`config/ico.pal.yaml`, and the `// (vendor)` notes in
 `config/symbol_addrs.pal.txt` are emitted by `tools/gen_pal_symbol_addrs.py`
 from the disc's `MAIN.MAP` member list, so PAL knows which archive each
 function came from, which the USA cut could only infer by hashing.
@@ -126,8 +129,8 @@ game TU**, which is dishonest accounting.
 
 The rule that came out of it and still binds: **vendor code lives in
 vendor-named TUs, never folded into a game TU.** `main` satisfies it by
-construction: the 18 `src/cod/vendor_<VMA>` spans are named per archive
-member.
+construction: the vendor code lives in its own `sce/` root, one directory per
+archive, and the game tree under `ico2/` holds none of it.
 
 ---
 
@@ -195,7 +198,7 @@ one bulk-matchable region of the proprietary half.
 
 ## 4. Why this changes no bytes, and what it does change
 
-These bytes are **already inside the SHA-1 gate.** Both `src/cod/*` blobs
+These bytes are **already inside the SHA-1 gate.** Both vendor blobs
 are `asm` subsegments: splat emits the ROM's own instructions, the assembler
 reproduces them, and the link is byte-identical today. Matching vendor code
 adds **zero correctness**: it moves bytes from *passthrough asm* to
@@ -264,10 +267,11 @@ Related accounting rules the same script now enforces:
 
 Vendor accounting is per-branch; there is no cross-branch vendor total.
 
-- **`main` (PAL).** The two runs are carved into 18 `src/cod/vendor_<VMA>`
-  spans in `config/ico.pal.yaml`, one per archive member, each comment
-  carrying the member name and how many of its functions `MAIN.MAP` accounts
-  for (e.g. `vendor_25E188` = libdma.a 16/16, `vendor_272338` = libipu.a
+- **`main` (PAL).** The two runs are carved into the `sce/` spans of
+  `config/ico.pal.yaml`, one per archive member where the members tile and one
+  per run where they do not, each comment carrying the archive, the member
+  where one is proven, and how many of its functions `MAIN.MAP` accounts for
+  (e.g. `sce/libdma/libdma` = libdma.a 16/16, `sce/libipu/libipu` = libipu.a
   4/70). Live matched counts: the dashboard linked from `README.md`; what was
   ported in and what was reverted: `decomp/port_ledger_pal.md` and
   `decomp/port_ledger_pal_aug6.md`.

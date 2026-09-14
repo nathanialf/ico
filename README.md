@@ -89,10 +89,10 @@ For the long-form walkthrough, prerequisites, and PCSX2 sanity-check, see
    disc's own linker map and listing via `tools/gen_pal_symbol_addrs.py`;
    `sce/<archive>/<member>.c` where MAIN.MAP's member spans tile the retail
    run, one file per run named for the archive where they do not). A TU that
-   has been started is `src/<TU>.c` (or `ios/`, `isys/`, `sound/`,
-   `ito/mpeg/`, `sce/`) with
+   has been started is `ico2/<programmer>/<kind>/<TU>.c` (or `sce/` for the
+   SDK code) with
    one `INCLUDE_ASM` line per unmatched function; its splat baseline is
-   `asm/nonmatchings/src/<TU>/<func>.s`. TUs still marked `asm` in the yaml
+   `asm/nonmatchings/<TU path>/<func>.s`. TUs still marked `asm` in the yaml
    have not been started.
 2. Check the queue first: `decomp/easy_pickups.md` (near-miss ports from the
    other two targets ranked by diff, plus the smallest unmatched functions;
@@ -148,13 +148,19 @@ author→subsystem mapping.
 ```
 config/         splat yaml + linker scripts (ico.pal.{yaml,ld,d},
                 symbol_addrs.pal.txt), ELF SHA-1
-src/            all game TUs (216 real translation units: Basic, PObj, box,
-                boy, girl, st* stage scripts, act-*, motionManager …)
-                + the 5 hand-typed VU1 microprogram .S sources
-ios/  isys/  sound/  ito/mpeg/   subsystem dirs (cdvd, gobj, s_init, mv_* …)
-include/        headers: common.h, ico/types.h, r5900.h, vu0.h, math_private.h,
-                plus the developers' own (sugiCommon.h, itou_common.h, *climb.h,
-                typedef.h; ito/include/mv_defs.h), see decomp/HEADERS.md
+ico2/           the game tree the disc's listing records, one directory per
+                programmer (common, fumi, ito, omori, script, seki, sugipon)
+                and under each the kinds that programmer shipped: src/, and
+                fumi's ios/ isys/ sound/, ito's mpeg/, plus each programmer's
+                own include/ (sugiCommon.h, itou_common.h, *climb.h,
+                typedef.h, mv_defs.h), see decomp/HEADERS.md
+sce/            SCE SDK library code, one directory per archive; where
+                MAIN.MAP's member spans tile the run it is one file per
+                member, otherwise one file per run
+src/            the 5 hand-typed VU1 microprogram .S sources, which the
+                listing does not attribute to a programmer
+include/        the headers this project wrote: common.h, ico/types.h,
+                r5900.h, vu0.h, math_private.h, include_asm.h, syscall.h
 asm/            splat output (gitignored except asm/nonmatchings/)
 assets/         extracted disc data (gitignored)
 baserom/        local-only: user's disc + extracted ELF (gitignored)
@@ -174,8 +180,10 @@ tough_nuts/     parked near-misses (INDEX.md maps dir → current symbol)
 
 ### File-structure conventions
 
-- **`src/<TU>.c`** (and `ios/`, `isys/`, `sound/`, `ito/mpeg/`): tracked
-  matched C for one translation unit. Typed data defs live alongside the
+- **`ico2/<programmer>/<kind>/<TU>.c`**: tracked matched C for one
+  translation unit, at the path the listing records for it. Each TU compiles
+  from inside its own programmer directory with relative `-I../<other>/include`
+  entries, because ee-gcc bakes the spelling it is given into `__FILE__`. Typed data defs live alongside the
   functions that reference them.
 - **Typed data**: placed by **per-TU yaml carving** (dot-form `.rodata`/
   `.data`/`.sdata`, and `.sbss`/`.bss` for the uninitialised runs, subsegments
