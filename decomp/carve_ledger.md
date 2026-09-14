@@ -1277,3 +1277,6 @@ words become the blob's first words.
 - `[0x538C58, .lit4, src/Primitive]`: D_00638C58..D_00638C70, seven words in ROM order (6.2831855f, 10430.378f, 6.2831855f, 10430.378f, 4095.0f as a slot for the still-asm prim_DispFan2D, 3.1415927f, 10430.378f), VMA 0x638C58..0x638C74, 28 B; the TU's whole pool, bounded by Packet below and StageAnimation above, so the blob resume row is gone.
 - `[0x44F9E8, .rodata, src/Primitive]`: D_0054F9E8, prim_DispWireBox's twelve cube edges as `int[12][2]`, VMA 0x54F9E8..0x54FA48, 96 B, align 8, emitted by the compiled function; the blob resumes at 0x44FA48 with eight zero bytes before the next TU's string.
 - drawDisc lands as the local symbol drawDisc.N (a genuine nested function, the ROM's $2 static chain); the symbol file's drawDisc row at 0x0011F6E0 stays, as with RegistPacket's setMatrix and setLight.
+
+### 2026-09-14 chain D pass 24: staffroll switch table
+- `[0x51DF40, .rodata, src/staffroll]`: jtbl_0061DF40, staffRollMain's 7-arm switch table on the staff-roll state word D_0063C43C (range-checked `sltiu $2, $5, 7`), VMA 0x61DF40..0x61DF5C, 28 B, align 16, emitted by the compiled function; the blob resumes at 0x51DF5C with one zero pad word before the credits strings. staffroll is closed, 5 of 5.
