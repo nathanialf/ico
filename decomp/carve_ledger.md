@@ -714,6 +714,7 @@ All 32 bodies are ported.
 | `src/way_util` | `.lit4` | `[0x539060]` | 0x639060..0x639090 | 48 | 12 (all 100000f) | 0x30, agrees |
 | `src/st25a` | `.lit4` | `[0x5390D4]` | 0x6390D4..0x639108 | 52 | 13 | 0x44, differs |
 | `src/camera-ico2` | `.lit4` | `[0x539118]` | 0x639118..0x639130 | 24 | 6 (two literals, four slots beside still-asm owners) | 0x24, differs |
+| `src/generator` | `.lit4` | `[0x5391E0]` | 0x6391E0..0x6391EC | 12 | 3 (all 22500.0f; two slots beside the still-asm GetGeneratorSafePosition) | agrees |
 | `src/act_bird` | `.lit4` | `[0x539230]` | 0x639230..0x639294 | 100 | 25 | 0x64, agrees |
 | `src/backStage` | `.lit4` | `[0x539334]` | 0x639334..0x639338 | 4 | 1 (backStageProcessInStage's 10000000.0f) | agrees |
 | `src/enemyParts` | `.lit4` | `[0x5394CC]` | 0x6394CC..0x6394D8 | 12 | 3 (one slot beside the still-asm InitEnemyEye) | agrees |
