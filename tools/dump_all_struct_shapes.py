@@ -48,7 +48,7 @@ ASM_DIRS = [_ASM / "matchings", _ASM / "nonmatchings"]
 # names, no MAIN.MAP symbols) — do NOT use it. The aug6 .s files already encode
 # their owning TU in the path (asm/<ver>/nonmatchings/<tu>/<func>.s), so TU
 # attribution is derived from the path instead (see owning_tu_from_path).
-TU_MAP = ROOT / "decomp" / "tu_map.json"
+TU_MAP = ROOT / "docs" / "tu_map.json"
 
 # one disasm line: `/* off vma word */  mnem  ops`
 LINE = re.compile(r"\*/\s+(\S+)\s*(.*)$")
@@ -409,7 +409,7 @@ def main():
             md.append(suggest_struct(sym, rec))
             md.append("```")
 
-    (ROOT / "decomp" / "struct_shapes.json").write_text(json.dumps(out_json, indent=1))
+    (ROOT / "docs" / "struct_shapes.json").write_text(json.dumps(out_json, indent=1))
 
     if do_args:
         for (fn, argn), rec in sorted(arg_accesses.items(),
@@ -419,9 +419,9 @@ def main():
             out_json["arg_params"][f"{fn}:a{argn}"] = [
                 {"off": off, "width": w, "signed": s, "count": c}
                 for (off, w, s), c in sorted(rec["fields"].items())]
-        (ROOT / "decomp" / "struct_shapes.json").write_text(json.dumps(out_json, indent=1))
+        (ROOT / "docs" / "struct_shapes.json").write_text(json.dumps(out_json, indent=1))
 
-    (ROOT / "decomp" / "struct_shapes.md").write_text("\n".join(md) + "\n")
+    (ROOT / "docs" / "struct_shapes.md").write_text("\n".join(md) + "\n")
     sys.stderr.write(f"wrote docs/struct_shapes.{{json,md}} "
                      f"({len(ranked)} symbols)\n")
     return 0

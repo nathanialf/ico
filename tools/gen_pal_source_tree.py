@@ -64,8 +64,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-OUT_MD = ROOT / "decomp" / "pal_source_tree.md"
-OUT_JSON = ROOT / "decomp" / "pal_source_tree.json"
+OUT_MD = ROOT / "docs" / "pal_source_tree.md"
+OUT_JSON = ROOT / "docs" / "pal_source_tree.json"
 
 _spec = importlib.util.spec_from_file_location(
     "gen_pal_symbol_addrs", HERE / "gen_pal_symbol_addrs.py")

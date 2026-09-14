@@ -21,7 +21,7 @@ Sources (all git-tracked, no base ELF required):
     mirrors progress.py, which already folds `hasm` into the matched
     tally for `.vutext`.
   - `// (vendor)` notes : library-archive functions, emitted under the
-    `// ---- (vendor)` section headers by tools/gen_us_symbol_addrs.py.
+    `// ---- (vendor)` section headers in config/symbol_addrs.<ver>.txt.
     These are NOT ICO translation units — see docs/VENDOR.md.
 
 Bucketing rules (see docs/VENDOR.md for the policy behind them):
@@ -139,7 +139,7 @@ UNASSIGNED_NOTE = (
 
 # In link order, the vendor archives bracket the game code: crt0 + libkernl
 # in front, the libc / libgcc / SDK tail behind. Same split the symbol
-# generator documents at tools/gen_us_symbol_addrs.py (VENDOR label comment).
+# generator documents at tools/gen_pal_symbol_addrs.py (VENDOR label comment).
 VENDOR_RUN_LABELS = [
     "crt0 + libkernl prologue",
     "libc / libgcc / SCE SDK tail",

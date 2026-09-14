@@ -3,9 +3,8 @@
 tools/tag_diff.py — pattern-match a built-vs-expected asm diff against
 known cookbook anti-patterns and surface the fix hint.
 
-Shared by `tools/quick_diff.sh` (per-iteration inner loop, ~100 ms) and
-`tools/first_diff.py` (full-build SHA-fail post-mortem). Same rule list
-either way; the human/AI sees the suggested cookbook section + config
+Called by `tools/quick_diff.sh` (per-iteration inner loop, ~100 ms) and by
+`tools/match_diff.py` when it reports per-tag counts. The human/AI sees the suggested cookbook section + config
 line / C reformulation at every diff cycle instead of re-deriving it.
 
 Input shape (CLI):
@@ -331,8 +330,8 @@ def _rule_lui_addiu_late(pairs: list[DiffPair]) -> bool:
 
 # --- taxonomy expansion: codegen-shape tags for the agentic loop -----------
 # These complement the byte-pattern rules above with the structural shapes the
-# match_loop plateau policy keys on (regalloc-swap / fp-licm are "permuter
-# territory"; frame-size / far-global / branch-direction are hand-fixable).
+# stall policy keys on (regalloc-swap / fp-licm are whole-function convergence
+# territory; frame-size / far-global / branch-direction are hand-fixable).
 
 _OPRE = re.compile(r"^\s*([a-z][a-z0-9.]*)\s+(.*)$")
 _REGTOK = re.compile(r"^\$?(?:v[01]|a[0-3]|t[0-9]|s[0-7]|f[0-9]+)$")  # swappable regs

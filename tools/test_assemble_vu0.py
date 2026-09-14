@@ -3,12 +3,12 @@
 test_assemble_vu0.py — round-trip self-test for tools/assemble_vu0.py.
 
 Builds a small synthetic `.S` source using only the symbolic opcodes
-`tools/disasm_vu0.py` reliably decodes (`nop`, `pad`, branches, raw
+the decoder reliably handles (`nop`, `pad`, branches, raw
 `.word`), assembles it, and verifies the byte output matches an
 expected pattern. No disc data — the test is synthetic.
 
 A second test, gated on `--against-textbin`, replays the first 8
-bundles from `assets/cod/16F5E0.textbin.bin` through disasm → re-emit
+bundles from `assets/cod/16F5E0.textbin.bin` through decode → re-emit
 → assemble → compare. Skipped if the textbin is absent.
 
 Run:

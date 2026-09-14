@@ -227,7 +227,7 @@ reconstruction can be verified while all five of its hosts are `INCLUDE_ASM`.
 2.9 drops the unused `static` but **keeps its string literals**, so an
 unguarded definition emitted both literals into each of the four consuming
 objects and shifted the `.data` region. Thethe first full-build gate caught it
-as a data divergence over a long list of symbols (`tools/data_diff.py`).  Define the macro
+as a data divergence over a long list of symbols.  Define the macro
 before the include in whichever TU first calls the helper.
 
 `Free` stays a TODO even though its name and body are known.  It is a header

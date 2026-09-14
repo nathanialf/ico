@@ -23,7 +23,7 @@ Why real_count != raw_count:
     * `<func+0xNN>` branch targets all shift by the same delta when ONE early
       instruction is added/removed — a single root cause inflated into many
       lines. real_count collapses both so the metric tracks ROOT divergences,
-      which is what the plateau rule (tools/match_loop.py) must measure.
+      which is what the 30-iteration stall rule must measure.
 
 Usage:
     tools/match_diff.py <TU> <func>            # JSON to stdout
@@ -382,8 +382,8 @@ def detect_scheduling(nexp: list[str], nblt: list[str]):
     the SAME multiset, just reordered (incl. moved into/out of a delay slot).
     This is the signature that the residual is an ORDERING problem, not codegen
     — so the lever is source-order / live-range / -fno-schedule-insns2 (per the
-    pass that moved it), NOT a fresh C operation. Points at tools/sched_diff.py
-    to see which pass did the move."""
+    pass that moved it), NOT a fresh C operation. The gcc pass dumps say
+    which pass did the move."""
     import collections
     sm = difflib.SequenceMatcher(None, nexp, nblt, autojunk=False)
     exp_diff, blt_diff = [], []
@@ -404,9 +404,9 @@ def detect_scheduling(nexp: list[str], nblt: list[str]):
         "moved_insns": moved[:8],
         "moved_total": len(moved),
         "hint": "pure reorder (same insns, different slots) — ordering, not "
-                "codegen. Run `tools/sched_diff.py <TU> <func>` and read the "
-                "move map: moved@sched -> source-order/live-range lever; "
-                "moved@sched2 -> -fno-schedule-insns2; moved@dbr -> delay-slot "
+                "codegen. Compile the TU with -da and read the move map out "
+                "of the pass dumps: moved@sched -> source-order/live-range "
+                "lever; moved@sched2 -> scheduling; moved@dbr -> delay-slot "
                 "readiness (keep the insn's inputs live to the branch).",
     }
 

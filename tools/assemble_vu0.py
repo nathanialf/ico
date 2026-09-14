@@ -2,7 +2,7 @@
 """
 assemble_vu0.py — VU0 micromode assembler for hand-written .S chunks.
 
-The mirror of `tools/disasm_vu0.py`. Reads a hand-typed VU0 source file
+Reads a hand-typed VU0 source file
 (syntax described below) and emits a binutils-compatible `.s` file
 consisting solely of `.word` directives — which mips-linux-gnu-as can
 then assemble into a `.vutext` object. This keeps the build pipeline
@@ -14,9 +14,9 @@ headers, open-source VU disassemblers). It never reads
 `assets/cod/16F5E0.textbin.bin`. Hand-written `.S` files commit to
 git; their byte expansion is regenerated on build.
 
-# Coverage parity with disasm_vu0.py
+# Coverage
 
-This assembler starts where the disassembler ended: only the
+Only the
 opcodes the disassembler reliably decodes are emitted symbolically.
 Everything else uses `.word 0x<hex>` (or `.bundle <upper>, <lower>`
 for raw-hex bundle pairs), so the hand-writer can encode FMAC / LSU
@@ -108,7 +108,7 @@ REPO = Path(__file__).resolve().parent.parent
 
 
 # ============================================================================
-# Encoders — mirror of decode_upper / decode_lower in disasm_vu0.py.
+# Encoders — the inverse of the upper/lower bundle decode.
 #
 # Each returns a 32-bit int or raises EncodeError. New opcode families
 # should be added here with a single-line comment cross-referencing
@@ -150,14 +150,13 @@ def _int(token: str) -> int:
 def encode_upper_nop() -> int:
     """True-zero upper. Most VU0 microcode uses 0x000002FF as the
     upper-pad filler instead — the assembler exposes that form as the
-    `pad` mnemonic so the byte distinction round-trips through
-    disasm_vu0.py."""
+    `pad` mnemonic so the byte distinction survives the round trip."""
     return 0
 
 
 def encode_upper_pad() -> int:
-    """Canonical upper-pad pattern (`0x000002FF`). Disassembled as
-    `pad` by disasm_vu0.py; written as `pad ; <lower>` in source.
+    """Canonical upper-pad pattern (`0x000002FF`), written as
+    `pad ; <lower>` in source.
     Equivalent to NOP per PCSX2: FD_11 sub-op 0x0B."""
     return 0x000002FF
 
@@ -1202,9 +1201,8 @@ def resolve(bundles: list[ParsedBundle], labels: dict[str, int]) -> bytes:
                 _try_encode_lower_late(b.lower_src, b.pc, labels)
         except EncodeError as e:
             raise EncodeError(f"line {b.line_no}: lower: {e}") from e
-        # Bundle on disk: lower @+0, upper @+4, little-endian (matches
-        # disasm_vu0.read_bundles which struct.unpack_from("<II", …) as
-        # (lower, upper)).
+        # Bundle on disk: lower @+0, upper @+4, little-endian; a reader
+        # unpacks "<II" as (lower, upper).
         out.extend(int(lower).to_bytes(4, "little"))
         out.extend(int(b.upper or 0).to_bytes(4, "little"))
         expected_pc += 8

@@ -116,13 +116,13 @@ string literals).
 - **Rodata carve** `[0x457060, 0x457090)` (mv_main's file + "p != NULL") is
   proven byte-neutral as a plain blob split; with the header the strings come
   from `mv_main.o` and the blob is carved.
-- **OPEN: permuter-class regalloc swap.** A consumer (`termAll`) rewritten to
+- **OPEN: a regalloc swap.** A consumer (`termAll`) rewritten to
   call `deq_movie_mes` does NOT byte-match: ee-gcc's inliner gives the `__FILE__`
   pointer `$s1` and the struct param `$s2`, the reverse of the ROM (struct `$s1`,
   file `$s2`), costing one `move`. The swap is invariant across ~15 reshapes
   (store order ×6, caller CFG ×5, inline keyword ×3, queue-as-param). The
   hand-written `termAll` (extern `D_005570xx`) matches and is what's committed;
-  the inline form is parked pending a permuter/structural crack.
+  the inline form is parked pending a structural crack.
 
 ## RESOLVED: the inline matches (the `fp = __FILE__` lever)
 

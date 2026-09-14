@@ -55,7 +55,7 @@ not appear in the listing at all).  So:
 METHOD
 ------
 1. FUNCTION STARTS -- branch-aware boundary scan of .text on
-   baserom/pal/baseelf.rom (the algorithm in tools/correlate_funcs.py): a
+   baserom/pal/baseelf.rom (scan_text below): a
    terminator (jr/j/jalr) ends a function only if no backward-reaching branch
    target lies past it; inter-function zero padding is skipped.  Rom-native
    and reliable; the one part of the output that is not provisional.
@@ -69,9 +69,8 @@ METHOD
    address gaps.
 
 3. CORRESPONDENCE -- reloc-normalized instruction-stream SHA-1 equality
-   between listing functions and rom functions.  The normalizer is
-   docs/retail_port/correlate.py:normalize() (shared with
-   tools/gen_us_symbol_addrs.py): it masks j/jal targets, lui immediates,
+   between listing functions and rom functions.  The normalizer
+   masks j/jal targets, lui immediates,
    %lo-pair immediates and $gp-relative displacements, so a function that was
    not edited between the two links hashes identically across them.  Matching
    is order-constrained (the two link orders agree -- the whole twin set is a
@@ -133,8 +132,8 @@ BANNER = ("// ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — "
 # The 2002-01-16 EU source tree root the listing's paths are rooted at.
 SRC_ROOT = "/backup/ico/20020116MasterVer1.00EU/ico2/"
 
-# Retail source-tree layout, same convention as tools/gen_us_symbol_addrs.py:
-# the leading per-programmer directory is dropped (`sugipon/src/box.c` ->
+# Retail source-tree layout as the listing spells it: for the legacy flat
+# form the leading per-programmer directory is dropped (`sugipon/src/box.c` ->
 # `src/box`).  The MPEG middleware keeps its namespace -- the rom's own string
 # pool carries "ito/include/mv_defs.h" -- so `ito/mpeg/*` stays `ito/mpeg/*`.
 # Retired: retail_path now keeps the whole listing path, programmer included.
@@ -171,9 +170,8 @@ JR = 0x03E00008
 def scan_text(rom: bytes, text_sz: int) -> list[tuple[int, int]]:
     """Branch-aware .text function boundary scan.  Returns [(start,end), ...].
 
-    Identical to tools/gen_us_symbol_addrs.py:scan_text (which is
-    tools/correlate_funcs.py's algorithm); duplicated rather than imported so
-    the two version generators cannot drift apart silently."""
+    Each target's generator carries its own copy rather than importing a
+    shared one, so the version generators cannot drift apart silently."""
 
     def w(off):
         return struct.unpack_from("<I", rom, off)[0]
@@ -220,7 +218,7 @@ def scan_text(rom: bytes, text_sz: int) -> list[tuple[int, int]]:
 
 
 # ------------------------------------------------- reloc-normalized hashing --
-# (identical semantics to docs/retail_port/correlate.py:normalize)
+# (the normalize step described under METHOD step 2 above)
 MASK_IMM_OPS = set([0x08, 0x09, 0x0D, 0x18, 0x19, 0x1E, 0x1F]) | set(range(0x20, 0x40))
 LOAD_OPS = set([0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
                 0x30, 0x31, 0x33, 0x35, 0x36, 0x37, 0x1E])
@@ -473,8 +471,7 @@ def census(rom: bytes, funcs, pool: dict[int, str], text_sz: int,
     Only ADDRESS FORMATION counts (`lui` + `addiu` / `ori` / `daddiu`): the
     SCE assert macro passes __FILE__ as a pointer, so a load or a store that
     merely happens to land on the string's VMA is a coincidence, not a
-    reference.  Measured on the PAL rom: allowing loads/stores (the shape
-    tools/gen_us_symbol_addrs.py uses) makes `sw $zero,0x28($v0)` after an
+    reference.  Measured on the PAL rom: allowing loads/stores makes `sw $zero,0x28($v0)` after an
     unrelated `lui $v0,0x55` anchor six vendor-tail functions to
     src/StageAnimation.c, whose string sits at 0x00550028.  The hi register
     is also killed as soon as anything else redefines it, so a stale `lui`
