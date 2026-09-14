@@ -22,7 +22,52 @@ void effect_end_func(void *a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", bossCtrlBeforeFunc);
+extern float _GetRandom(void);
+extern void GetRootPosition(void *dst, int handle);
+extern char D_002907E0[];
+extern int GatherEffect_Set(int kind, void *pos, void *tmpl, void *v, void *fn, float f);
+
+void bossCtrlBeforeFunc(char *self)
+{
+    int buf[0x35];
+    float pos[4];
+    char *p;
+    char *e;
+    int idx;
+    signed char *e2;
+    int i;
+    unsigned int j;
+    int cnt;
+    int r;
+
+    p = self + 0x54;
+    for (i = 0; i < *(int *)(p + 4); i++) {
+        e = p + (i * 8 + 8);
+        if (*(int *)e == 18) {
+            if (*(int *)(e + 4) != 0) {
+                cnt = 0;
+                for (j = 0; j < 53; j++) {
+                    if (D_006E9A40[j * 0x40 + 4] == 0) {
+                        buf[cnt++] = j;
+                    }
+                }
+                if (cnt > 0) {
+                    idx = buf[(int)(_GetRandom() * cnt)];
+                    e2 = D_006E9A40 + idx * 0x40;
+                    GetRootPosition(pos, *(int *)(e + 4));
+                    r = GatherEffect_Set(12, pos, D_002907E0, e2 + 0x20, (void *)effect_end_func,
+                                         1.0f);
+                    if (r >= 0) {
+                        *(int *)(GetParticleEffectData(r) + 0x70) = idx;
+                        e2[4] = 1;
+                    }
+                }
+            }
+            ExecuteSEPackage((int)self, 100);
+        }
+    }
+    *(int *)(p + 4) = 0;
+}
 
 extern unsigned char D_006E9A30[];
 extern int stage_no;
@@ -66,6 +111,7 @@ void BossEnemyFunc(void *self)
     }
 }
 
+INCLUDE_ASM("asm/nonmatchings/src/itou_boss", func_001A08F8);
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlGeo);
 
 extern unsigned char D_006E9A30[];
@@ -128,6 +174,9 @@ extern void *isysGObjSearchFromObjKindID_begin(int id);
 extern void *isysGObjSearchFromObjKindID_next(void *o);
 extern void SetRootPosition(void *a0, float *pos);
 extern void actCreateSubThread(void *entry, int prio);
+/* func_001A08F8 is the census gene_enemy, this TU's static twin of src/queen's
+   global; the ROM passes its address as the sub-thread entry. */
+extern void func_001A08F8();
 extern void BossCtrlGeo();
 
 /* listing lines 157-162: send an enemy off-world and clear its live flag
@@ -166,7 +215,7 @@ void actBossCtrlStart(void *a0)
     }
     debug_StdPrintfDummy(D_00556850, no);
     for (i = 0; i < no; i++) {
-        actCreateSubThread(BossCtrlGeo, 0x15);
+        actCreateSubThread(func_001A08F8, 0x15);
     }
 }
 

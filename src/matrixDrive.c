@@ -189,7 +189,25 @@ INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnZAngleYX);
 ASM_LIT4_SLOT(D_00638B34, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnMinusZAngleXY);
 ASM_LIT4_SLOT(D_00638B38, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_SetTransposeMatrix);
+
+extern void sceVu0TransposeMatrix(void *dst, void *src);
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+    float w;
+} __attribute__((aligned(16))) MdVec;
+
+void MatrixDrive_SetTransposeMatrix(float *dst, float *src)
+{
+    MdVec v = {-src[12], -src[13], -src[14], 0.0f};
+
+    sceVu0TransposeMatrix(dst, src);
+    dst[3] = dst[7] = dst[11] = 0.0f;
+    sceVu0ApplyMatrix((int *)&dst[12], (char *)dst, (int)&v);
+    dst[15] = 1.0f;
+}
 
 void CopyVector(void *dst, void *src)
 {
