@@ -305,8 +305,6 @@ int eBrainGetTargetGeneratorFromLabel(int label)
     return no;
 }
 
-extern float D_006391D8;
-extern float D_006391DC;
 extern int ACTCheckViewCl(void *gop, void *target, void *pos, int deg, float dist);
 extern void *memset(void *dst, int c, int n);
 extern int eBrainGetTargetGeneratorFromLabel(int label);
@@ -444,7 +442,7 @@ EBSlot *eBrainGetTarget(void *gop)
         case 1:
             p->f04 = D_00639EA4;
             if (p->f14 >= 181) {
-                if (p->dist[1] < p->dist[0] + D_006391D8) {
+                if (p->dist[1] < p->dist[0] + 250000.0f) {
                     if (eBrainCanSeeTarget(gop, D_00639EA8)) {
                         eBrainSetStatus(p, 2);
                         changed = 1;
@@ -457,7 +455,7 @@ EBSlot *eBrainGetTarget(void *gop)
             break;
         case 5:
             p->f04 = D_00639EA8;
-            if (p->dist[0] < D_006391DC) {
+            if (p->dist[0] < 250000.0f) {
                 if (eBrainCanSeeTarget(gop, D_00639EA4)) {
                     eBrainSetStatus(p, 1);
                     changed = 1;

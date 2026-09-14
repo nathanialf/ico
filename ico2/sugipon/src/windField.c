@@ -140,6 +140,7 @@ void drawSenpuuki(float scale)
     gif_EndPacket();
 }
 
+ASM_LIT4_SLOT(D_006396FC, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/windField", ExecWindField);
 
 extern int (*D_0063BC58)(void);
@@ -159,7 +160,6 @@ int *dummyGetWindVector(int *a0)
 }
 
 extern int D_0028F4C0[];
-extern float D_00639700;
 extern float D_004ED360[];
 extern float D_004ED370[];
 extern float D_00724BE0[];
@@ -177,7 +177,7 @@ float *getParallelWindVector(float *power, void *pos)
     if (d < 0.0f)
         d = -d;
 
-    n = (int)(d * D_00639700 * ((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f));
+    n = (int)(d * 0.1f * ((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f));
     i = n < 256 ? n : 255;
     s = D_00724BF0[i] * (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
     if (power)
@@ -186,15 +186,13 @@ float *getParallelWindVector(float *power, void *pos)
     return D_00724BE0;
 }
 
-extern float D_00639704;
-
 WindCell *getRadiateWindVector(float *power, float *pos)
 {
     int x;
     int z;
 
-    z = (int)(pos[2] * D_00639704 + 10.0f);
-    x = (int)(pos[0] * D_00639704 + 10.0f);
+    z = (int)(pos[2] * 0.01f + 10.0f);
+    x = (int)(pos[0] * 0.01f + 10.0f);
     z = z < 0 ? 0 : (z < 20 ? z : 19);
     x = x < 0 ? 0 : (x < 20 ? x : 19);
     if (power)

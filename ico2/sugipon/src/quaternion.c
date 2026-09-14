@@ -266,7 +266,6 @@ extern int GetTableArcCos(float c);
 extern float GetTableSin(int x);
 extern void _InterVector(void *out, void *a, void *b, float t);
 extern void _AddVector(void *out, void *a, void *b);
-extern float D_00638BB8;
 
 void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t)
 {
@@ -286,7 +285,7 @@ void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t)
     }
     ang = GetTableArcCos(c);
     s = GetTableSin(ang);
-    if (s < D_00638BB8) {
+    if (s < 0.05f) {
         _InterVector(out, qa, tmp, t);
         return;
     }

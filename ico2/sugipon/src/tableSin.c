@@ -11,9 +11,6 @@ int GetTableArcCos(float x);
 int GetTableArcTan2(float f12, float f13);
 extern float D_00669A40[];
 extern unsigned short D_00679A50[];
-extern float D_00638BBC;
-extern float D_00638BC0;
-extern float D_00638BC4;
 extern int D_00639F40;
 extern float asinf(float);
 extern float sinf(float);
@@ -21,8 +18,8 @@ extern float sinf(float);
 static inline void makeSinTable(void)
 {
     int i;
-    float m = D_00638BBC;
-    float d = D_00638BC0;
+    float m = 1.5707964f;
+    float d = 16385.0f;
     for (i = 0; i < 0x4001; i++) {
         D_00669A40[i] = sinf((float)i * m / d);
     }
@@ -32,7 +29,7 @@ static inline void makeArcSinTable(void)
 {
     int i;
     float k = 0.000244140625f;
-    float s = D_00638BC4;
+    float s = 10430.378f;
     for (i = 0; i < 0x1001; i++) {
         D_00679A50[i] = (int)(asinf((float)i * k) * s);
     }

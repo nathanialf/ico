@@ -248,7 +248,6 @@ typedef union {
 } IntFloat;
 
 extern int D_0063B198;
-extern float D_0063952C;
 extern char D_0055FE58[];
 extern char D_005D1208[];
 extern char D_0028FF10[];
@@ -280,6 +279,6 @@ void HandManager(char *obj)
                              D_0028FF10, GetSkeltonFocusNode(obj, 3));
         }
         *(float *)(*(int *)(obj + 0x15C) + 0xF4) +=
-            (t - *(float *)(*(int *)(obj + 0x15C) + 0xF4)) * D_0063952C;
+            (t - *(float *)(*(int *)(obj + 0x15C) + 0xF4)) * 0.1f;
     }
 }
