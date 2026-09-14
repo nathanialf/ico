@@ -36,10 +36,12 @@ void MakeCollisionDependGObjList(void)
 {
     char *g;
     char *sub;
-    /* ROM frame is 0x60 with only 0x30 of register saves, so the function
-     * declares a ~0x30-byte buffer; the listing shows lines 534..579 of this
-     * function emit no code at all (a compiled-out debug block), which is
-     * where it was used.  Any size in 33..48 rounds to the same frame. */
+    /* CRUTCH: zero-code frame reservation. ROM frame is 0x60 with only 0x30 of
+     * register saves, so the function declares a ~0x30-byte buffer; the listing
+     * shows lines 534..579 of this function emit no code at all (a compiled-out
+     * debug block), which is where it was used.  Any size in 33..48 rounds to
+     * the same frame.  Deleting it changes the object. See
+     * docs/crutch_ledger.md. */
     char buf[0x30];
 
     D_0063A818 = 0;

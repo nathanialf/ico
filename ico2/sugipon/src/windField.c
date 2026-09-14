@@ -105,8 +105,8 @@ void drawSenpuukiHaneUnit(float scale)
 }
 
 extern char D_004ED380[];
-extern char D_004ED4F0__pn[] __asm__("D_004ED4F0");
-extern char D_004ED690__pn[] __asm__("D_004ED690");
+extern float D_004ED4F0[];
+extern float D_004ED690[];
 extern void DrawLineG();
 extern void MatrixDrive_TransMatrix(float f12, float f13, float f14);
 extern void drawSenpuukiHaneUnit(float f12);
@@ -120,7 +120,7 @@ void drawSenpuuki(float scale)
 
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 5, 0);
-    cur = D_004ED690__pn;
+    cur = (char *)D_004ED690;
     if (-1000.0f < *(float *)cur) {
         do {
             DrawLineG(cur, D_004ED380, cur + 0x10, D_004ED380, -1);
@@ -128,7 +128,7 @@ void drawSenpuuki(float scale)
         } while (-1000.0f < *(float *)cur);
     }
     MatrixDrive_TransMatrix(0.0f, -100.0f, 0.0f);
-    cur = D_004ED4F0__pn;
+    cur = (char *)D_004ED4F0;
     if (-1000.0f < *(float *)cur) {
         do {
             DrawLineG(cur, D_004ED380, cur + 0x10, D_004ED380, -1);
@@ -221,15 +221,14 @@ void drawLines(char *a0)
     }
 }
 
-extern float D_004ED380__pn[] __asm__("D_004ED380");
 extern float D_004ED390[];
-extern void DrawLineG__pn(void *a0, void *a1, void *a2, void *a3, int a4) __asm__("DrawLineG");
+extern void DrawLineG(void *a0, void *a1, void *a2, void *a3, int a4);
 
 void drawSenpuukiHane(void)
 {
     float *p;
     for (p = D_004ED390; -1000.0f < *p; p += 8) {
-        DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
+        DrawLineG(p, D_004ED380, p + 4, D_004ED380, -1);
     }
 }
 
@@ -239,7 +238,7 @@ void drawSenpuukiUnit(void)
 {
     float *p;
     for (p = D_004ED4F0; -1000.0f < *p; p += 8) {
-        DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
+        DrawLineG(p, D_004ED380, p + 4, D_004ED380, -1);
     }
 }
 
@@ -249,6 +248,6 @@ void drawSenpuukiBase(void)
 {
     float *p;
     for (p = D_004ED690; -1000.0f < *p; p += 8) {
-        DrawLineG__pn(p, D_004ED380__pn, p + 4, D_004ED380__pn, -1);
+        DrawLineG(p, D_004ED380, p + 4, D_004ED380, -1);
     }
 }

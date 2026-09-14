@@ -1760,7 +1760,7 @@ INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _outputFrame);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _updateRefImage);
 
 extern char D_00637188[];
-extern void sprintf__pn() __asm__("sprintf");
+extern void sprintf();
 
 int _isOutSizeOK(char *p)
 {
@@ -1774,7 +1774,7 @@ int _isOutSizeOK(char *p)
     }
     if (flag == 0) {
         char buf[0x100];
-        sprintf__pn(buf, (int)D_00637188, *(int *)(p + 0x4), *(int *)(p + 0x8));
+        sprintf(buf, (int)D_00637188, *(int *)(p + 0x4), *(int *)(p + 0x8));
         _Error(buf);
     }
     return flag;

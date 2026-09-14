@@ -6,14 +6,14 @@
 #include "math_private.h"
 #include "math_private.h"
 
-extern int sceGsPutDispEnv__pn() __asm__("sceGsPutDispEnv");
+extern int sceGsPutDispEnv();
 extern int sceGsPutDrawEnv();
 
 int sceGsSwapDBuff(void *a0, int a1)
 {
     int s0 = a1 & 1;
     int ret;
-    sceGsPutDispEnv__pn((char *)a0 + s0 * 0x28);
+    sceGsPutDispEnv((char *)a0 + s0 * 0x28);
     if (!s0)
         goto zero_path;
     ret = sceGsPutDrawEnv((char *)a0 + 0x140);

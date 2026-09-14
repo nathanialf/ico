@@ -2363,7 +2363,6 @@ void GetSkeltonPosition(float *dst, char *obj, void *a2)
 }
 
 extern float FSqrt(float a0);
-extern void GetSkeltonPosition__pn(void *a0, void *a1, int a2) __asm__("GetSkeltonPosition");
 extern void SetDirectRootPositionNoFittingWithNodePoint(void *a0, void *a1, void *a2, float a3);
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void sceVu0Normalize(void *a0, void *a1);
@@ -2376,7 +2375,7 @@ void SetDirectRootPositionWithNodePointLimit(void *a0, void *a1, void *a2, float
     float buf18[4];
     float buf16[4];
 
-    GetSkeltonPosition__pn(buf0, a0, a1);
+    GetSkeltonPosition(buf0, a0, a1);
     sceVu0SubVector(buf16, a2, buf0);
     if (farg1 < FSqrt(buf16[0] * buf16[0] + buf16[1] * buf16[1] + buf16[2] * buf16[2])) {
         sceVu0Normalize(buf16, buf16);

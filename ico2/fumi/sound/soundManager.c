@@ -4,9 +4,8 @@ extern void soundDataSegAllClose(int a0, int a1);
 extern void soundDataSegNextStageNotUseClose();
 extern void soundSeEnvNotUseClose();
 extern void soundSePlayModeStop(int arg);
-extern void
-soundDataSegNextStageNotUseClose__pn(int x, int *p) __asm__("soundDataSegNextStageNotUseClose");
-extern void soundSeEnvNotUseClose__pn(int *a, int *b) __asm__("soundSeEnvNotUseClose");
+extern void soundDataSegNextStageNotUseClose(int x, int *p);
+extern void soundSeEnvNotUseClose(int *a, int *b);
 extern unsigned char D_005F5D50[];
 extern void adpcmPauseRequest(int val);
 extern void soundReverbDepthSet(int a0);

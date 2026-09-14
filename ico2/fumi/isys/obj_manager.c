@@ -134,23 +134,19 @@ inline void iosOmBeforeFuncStandard(void) {}
 
 inline int iosOmSendMail(char *self_arg, int val5, int val6)
 {
-    register char *self = self_arg;
+    char *self = self_arg;
     int *p = (int *)(self + 0x54);
     int count = p[1];
-    register int idx;
-    register char *addr;
+    char *addr;
     if (count == 0x20)
         return -1;
-    idx = count * 8;
-    __asm__("addu %0, %1, %2" : "=r"(addr) : "r"(self), "0"(idx));
+    addr = self + count * 8;
     *(int *)(addr + 0x5C) = val5;
     {
         int c2 = p[1];
-        register int idx2;
-        register char *addr2;
+        char *addr2;
         p[1] = c2 + 1;
-        idx2 = c2 * 8;
-        __asm__("addu %0, %1, %2" : "=r"(addr2) : "r"(self), "0"(idx2));
+        addr2 = self + c2 * 8;
         *(int *)(addr2 + 0x60) = val6;
     }
     return 0;
@@ -169,19 +165,15 @@ inline int iosOmSendMailLink(int a0, int val5, int val6)
             if (count == 0x20) {
                 full = -1;
             } else {
-                register int idx;
-                register char *addr;
-                idx = count * 8;
-                __asm__("addu %0, %1, %2" : "=r"(addr) : "r"(node), "0"(idx));
+                char *addr;
+                addr = (char *)node + count * 8;
                 full = 0;
                 *(int *)(addr + 0x5C) = val5;
                 {
                     int c2 = p[1];
-                    register int idx2;
-                    register char *addr2;
+                    char *addr2;
                     p[1] = c2 + 1;
-                    idx2 = c2 * 8;
-                    __asm__("addu %0, %1, %2" : "=r"(addr2) : "r"(node), "0"(idx2));
+                    addr2 = (char *)node + c2 * 8;
                     *(int *)(addr2 + 0x60) = val6;
                 }
             }

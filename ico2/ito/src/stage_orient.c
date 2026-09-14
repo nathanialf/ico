@@ -59,11 +59,13 @@ extern void CopyMatrix(float *out, float *m);
    listing, so the listing carries no name for it. */
 static inline void MakeStageOrientMatrix(float *m, StageOrientDef *p)
 {
-    /* ROM's frame proves a second 16-byte local ahead of `v` here: every caller
-       that inlines this helper carries an unwritten 16-byte slot immediately
-       below `v` (sp+0xC0 in GetStageDifferenceMatrix, sp+0x00 in
-       StageOrientGet2) and gcc materialises that slot's address as the base
-       register for the aggregate temp. */
+    /* CRUTCH: zero-code frame-slot reservation (an unused local). ROM's frame
+       carries 240 bytes of vars where the three matrices, `v` and the aggregate
+       temp account for only 224, and the extra 16-byte slot below `v` is never
+       written; gcc materialises its address (sp+0xC0 in
+       GetStageDifferenceMatrix) as the base register for the temp's `w` store.
+       Deleting the declaration drops the frame to 224 and shifts every slot.
+       Measured alternatives and the open axes: docs/crutch_ledger.md. */
     VECTOR unused;
     VECTOR v = {p->pos[0], p->pos[1], p->pos[2], 1.0f};
 

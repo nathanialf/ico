@@ -17,6 +17,10 @@ extern char D_00729E30[];
 
 int GetDataFileName(int a0)
 {
+    /* CRUTCH: zero-code frame reservation. Nothing in the emitted body touches
+       these 256 bytes, but ROM's frame carries them; the name-building debug
+       block that used them compiled out. Deleting it changes the object. See
+       docs/crutch_ledger.md. */
     int buf[0x40];
     void *p;
     if (a0 == -1) {

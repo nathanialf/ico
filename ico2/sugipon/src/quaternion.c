@@ -107,12 +107,11 @@ void InitQuaternionDrive(void)
     SetIdentityQuaternion(D_00669640);
 }
 
-extern void CopyQuaternion__pn(void *a0, void *a1) __asm__("CopyQuaternion");
 extern int D_002907E0[];
 
 void SetIdentityQuaternion(void *a0)
 {
-    CopyQuaternion__pn(a0, D_002907E0);
+    CopyQuaternion(a0, D_002907E0);
 }
 
 extern void CopyVector();
@@ -319,20 +318,18 @@ inline int *GetLastQuaternion(void)
     return &D_00669630[D_00639F3C * 4];
 }
 
-extern void debug_StdPrintfDummy__pn() __asm__("debug_StdPrintfDummy");
-
 inline void PushQuaternionWithNoCopy(void)
 {
     int v = D_00639F3C;
     if (v < 0) {
-        debug_StdPrintfDummy__pn(D_0054DA80);
+        debug_StdPrintfDummy(D_0054DA80);
         InitQuaternionDrive();
         v = D_00639F3C;
     }
     v++;
     D_00639F3C = v;
     if (v >= 0x40) {
-        debug_StdPrintfDummy__pn(D_0054DAA8);
+        debug_StdPrintfDummy(D_0054DAA8);
         v = 0x3F;
         D_00639F3C = v;
     }
@@ -344,7 +341,7 @@ inline void PopQuaternion(void)
 {
     D_00639F3C -= 1;
     if (D_00639F3C < 0) {
-        debug_StdPrintfDummy__pn(D_0054DAC8);
+        debug_StdPrintfDummy(D_0054DAC8);
         D_00639F3C = 0;
     }
 }
@@ -377,7 +374,6 @@ inline void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, flo
 
 extern float GetTableCos(int x);
 extern float GetTableSin(int x);
-extern float _ScaleVector__pn(int *self, void *p, float arg) __asm__("_ScaleVector");
 
 inline void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x, float y, float z)
 {
@@ -389,12 +385,11 @@ inline void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x
     *(float *)(buf + 8) = z;
     *(int *)(buf + 0xC) = 0;
     f = GetTableSin(half);
-    _ScaleVector__pn(self, buf, f);
+    _ScaleVector(self, buf, f);
     *(float *)((char *)self + 0xC) = GetTableCos(half);
 }
 
 extern void _NormalizeVector(void *out, int *p);
-extern float _Sqrt__pn(float t) __asm__("_Sqrt");
 
 inline void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2)
 {
@@ -432,13 +427,14 @@ inline void MultiQuaternion(void *p0, void *p1, void *p2)
     VU0_LSV(sqc2, 13, 0x0, a0);
 }
 
-extern void MultiQuaternion__pn(int dst, int a, int b) __asm__("MultiQuaternion");
-
 inline void DivQuaternion(int self, int a1, int a2)
 {
     int buf[4];
     GetInverseQuaternion(buf, a2);
-    MultiQuaternion__pn(self, buf, a1);
+    /* ROM calls MultiQuaternion out of line here; the call goes through a
+       cast of the existing declaration because this TU's definition still
+       carries the coalescing `inline` marker. */
+    ((void (*)(int, int, int))MultiQuaternion)(self, buf, a1);
 }
 
 inline void GetMatrixFromQuaternionRotElem(char *a0, char *a1)
@@ -478,8 +474,6 @@ inline void GetMatrixFromQuaternionRotElem(char *a0, char *a1)
                          : "memory");
 }
 
-extern void CopyVector__pn(char *a0, char *a1) __asm__("CopyVector");
-
 inline void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2)
 {
     __asm__ __volatile__(".set noreorder\n"
@@ -515,11 +509,10 @@ inline void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2)
                          :
                          : "r"(D_002907F0), "r"(a0), "r"(a1)
                          : "memory");
-    CopyVector__pn(a0 + 0x30, a2);
+    CopyVector(a0 + 0x30, a2);
     *(float *)(a0 + 0x3C) = 1.0f;
 }
 
-extern void GetMatrixFromQuaternion__pn() __asm__("GetMatrixFromQuaternion");
 extern int *MatrixDrive_GetMatrix();
 extern void _MulMatrix();
 
@@ -527,7 +520,7 @@ inline void MultiMatrixByQuaternion(void *src)
 {
     int local[16];
     void *r1, *r2;
-    GetMatrixFromQuaternion__pn(local, src);
+    GetMatrixFromQuaternion(local, src);
     r1 = MatrixDrive_GetMatrix();
     r2 = MatrixDrive_GetMatrix();
     _MulMatrix(r1, r2, local);
@@ -576,7 +569,7 @@ inline void RotQuaternionX(void *self, int a1)
     char *axis = D_0028FF10;
     float f;
     f = GetTableSin(half);
-    _ScaleVector__pn((int *)buf, axis, f);
+    _ScaleVector((int *)buf, axis, f);
     *(float *)(buf + 0xC) = GetTableCos(half);
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0(%0)\n"
@@ -607,7 +600,7 @@ inline void RotQuaternionY(void *self, int a1)
     char *axis = D_0028FF20;
     float f;
     f = GetTableSin(half);
-    _ScaleVector__pn((int *)buf, axis, f);
+    _ScaleVector((int *)buf, axis, f);
     *(float *)(buf + 0xC) = GetTableCos(half);
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0(%0)\n"
@@ -638,7 +631,7 @@ inline void RotQuaternionZ(void *self, int a1)
     char *axis = D_0028FF30;
     float f;
     f = GetTableSin(half);
-    _ScaleVector__pn((int *)buf, axis, f);
+    _ScaleVector((int *)buf, axis, f);
     *(float *)(buf + 0xC) = GetTableCos(half);
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0(%0)\n"

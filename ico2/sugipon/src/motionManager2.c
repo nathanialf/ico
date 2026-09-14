@@ -1720,7 +1720,7 @@ void UnlockForceGroundParent(int gobj) {}
 
 extern void GetGlobalWallPlane(void *a0, void *a1);
 extern float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float t);
-extern void GetRootPosition__pn(void *a0, void *a1) __asm__("GetRootPosition");
+extern void GetRootPosition(void *a0, void *a1);
 extern void SetDirectRootPosition(void *a0, void *a1);
 
 void GetOutOutsideOfWall(void *obj, float threshold)
@@ -1729,7 +1729,7 @@ void GetOutOutsideOfWall(void *obj, float threshold)
     int buf1[4];
     if (*(int *)(*(char **)((char *)obj + 0x15C) + 0x188) != 0) {
         float dot;
-        GetRootPosition__pn(buf0, obj);
+        GetRootPosition(buf0, obj);
         GetGlobalWallPlane(buf1, *(char **)((char *)obj + 0x15C) + 0x180);
         /* The sugiCommon.h line-69 helper, hand-expanded: calling
          * plane_distance(buf0, buf1) costs one extra `daddu v0,s0,zero`
@@ -1763,7 +1763,7 @@ void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f)
 {
     char buf[0xC0];
     memset(buf, 0, 0xC0);
-    GetRootPosition__pn(buf, a0);
+    GetRootPosition(buf, a0);
     AdjustVerticalSidePlaneOfWall(buf + 0x10, a1, buf, f);
     ClipWall(buf);
     if (*(int *)(buf + 0x88) != 0) {

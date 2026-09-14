@@ -1087,12 +1087,11 @@ void scpDisActivateAllWithKind(void)
     }
 }
 
-extern int scpSearchGobj__pn(int a0) __asm__("scpSearchGobj");
 extern void stage_SetParentOfGObj(int a0, int *a1);
 
 void scpLinkBGAtoLayoutedTarget(int a0, int a1)
 {
-    int ret = scpSearchGobj__pn(a0);
+    int ret = scpSearchGobj(a0);
     if (ret != 0) {
         int msg[2] = {ret, 0};
         stage_SetParentOfGObj(a1, msg);
@@ -2165,7 +2164,7 @@ void ScpCallCameraTargetOff(void)
 }
 
 extern void GetRootPosition(void *a0, void *a1);
-extern void SetDirectRootPosition__pn(void *a0, void *a1) __asm__("SetDirectRootPosition");
+extern void SetDirectRootPosition(void *a0, void *a1);
 
 void scpTransGObj(void *a0, float f12, float f13, float f14)
 {
@@ -2174,26 +2173,22 @@ void scpTransGObj(void *a0, float f12, float f13, float f14)
     buf[0] = buf[0] + f12;
     buf[1] = buf[1] + f13;
     buf[2] = buf[2] + f14;
-    SetDirectRootPosition__pn(a0, buf);
+    SetDirectRootPosition(a0, buf);
 }
 
 extern void BreakItemFromOutside(void *o);
 extern int CheckItemDead(void *o);
 extern int GetItemKind(void *o);
-extern void *
-isysGObjSearchFromObjKindID_begin__pn(int id) __asm__("isysGObjSearchFromObjKindID_begin");
-extern void *
-isysGObjSearchFromObjKindID_next__pn(void *o) __asm__("isysGObjSearchFromObjKindID_next");
 
 void scpExplodeSecretItem(void)
 {
-    void *o = isysGObjSearchFromObjKindID_begin__pn(0x13);
+    void *o = (void *)isysGObjSearchFromObjKindID_begin(0x13);
     while (o) {
         if (GetItemKind(o) == 6 && CheckItemDead(o) == 0) {
             BreakItemFromOutside(o);
             return;
         }
-        o = isysGObjSearchFromObjKindID_next__pn(o);
+        o = (void *)isysGObjSearchFromObjKindID_next(o);
     }
 }
 
