@@ -29,17 +29,21 @@ extern int D_0063B208;
    the symbol instead).  src/act-game.c reads bits 13 and 14 of the same
    word. */
 typedef struct {
-    int f0;
-
     struct {
         int f0;
         int f4;
         int f8;
     } ent[6];
 
+    int f48;
+
     unsigned int _b0 : 2;
     unsigned int b2 : 1;
-    unsigned int _b3 : 29;
+    unsigned int _b3 : 7;
+    unsigned int b10 : 1;
+    unsigned int b11 : 1;
+    unsigned int b12 : 1;
+    unsigned int _b13 : 19;
 } StatusAttr;
 
 extern StatusAttr D_005577D0[];
@@ -231,8 +235,8 @@ void after_func_exec(char *self, int oldst, int newst)
 {
     char *g = *(char **)(self + 0x164);
 
-    if (D_005577D0[oldst].ent[*(int *)(g + 0x48)].f0 !=
-        D_005577D0[newst].ent[*(int *)(g + 0x48)].f0) {
+    if (D_005577D0[oldst].ent[*(int *)(g + 0x48)].f4 !=
+        D_005577D0[newst].ent[*(int *)(g + 0x48)].f4) {
         if (*(int *)(g + 0x14) != 0) {
             (*(void (**)(char *))(g + 0x14))(self);
             *(int *)(g + 0x14) = 0;
@@ -244,8 +248,8 @@ void after_func_exec(char *self, int oldst, int newst)
             *(int *)(g + 0x14) = 0;
         }
     }
-    if (D_005577D0[oldst].ent[*(int *)(g + 0x48)].f0 == 0 &&
-        D_005577D0[newst].ent[*(int *)(g + 0x48)].f0 == 0 && D_005577D0[oldst].b2 == 0 &&
+    if (D_005577D0[oldst].ent[*(int *)(g + 0x48)].f4 == 0 &&
+        D_005577D0[newst].ent[*(int *)(g + 0x48)].f4 == 0 && D_005577D0[oldst].b2 == 0 &&
         D_005577D0[newst].b2 == 0) {
         if (*(int *)(g + 0x14) != 0) {
             (*(void (**)(char *))(g + 0x14))(self);
@@ -290,7 +294,49 @@ void actInitialize_ext_charcter(char *self)
     InitMailAdditionalData(self, *(char **)(*(int *)(self + 0x164) + 0x680));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_only_charcter);
+/* The actor object: only the work pointer at +0x164 matters here. */
+typedef struct {
+    char _0[0x164];
+    int work;
+} ActSelf;
+
+typedef union {
+    float f;
+    int i;
+} ActFWord;
+
+/* The extended work block hung off the work block at +0x688; the three
+   ten-entry histories at 0x900, 0x928 and 0x950 are read back in BeforeFunc. */
+typedef struct {
+    char _0[0x900];
+    int a900[10];
+    int a928[10];
+    int a950[10];
+} ActExt;
+
+void actInitialize_only_charcter(char *self)
+{
+    char *g = (char *)*(int *)(self + 0x164);
+    char *p = (char *)iosMallocDebug(D_0063A44C, 0x980, D_00621CA0, 0x38B);
+    Vec4 *q;
+    int i;
+
+    memset(p, 0, 0x980);
+    *(int *)(g + 0x688) = (int)p;
+    q = (Vec4 *)*(char **)(*(char **)(self + 0x164) + 0x688);
+    ((Vec4 *)((char *)q + 0x320))->f[0] = *(float *)(*(int *)(self + 0x15C) + 0x45C);
+    ((Vec4 *)((char *)q + 0x320))->f[1] = *(float *)(*(int *)(self + 0x15C) + 0x464);
+    ((Vec4 *)((char *)q + 0x320))->f[2] = *(float *)(*(int *)(self + 0x15C) + 0x468);
+    ((ActFWord *)((char *)q + 0x330))->f = -1.0f;
+    ((ActFWord *)((char *)q + 0x334))->f = 1.0f;
+    ((ActFWord *)((char *)q + 0x348))->f = 3.0f;
+    *(int *)((char *)q + 0x800) = 0;
+    for (i = 0; i < 10; i++) {
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i] = 0;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[i] = 0;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i] = 0x1A2;
+    }
+}
 
 char *actInitialize(char *self)
 {
@@ -522,6 +568,31 @@ void act_check_mail(char *self, IntrMail *m)
         m++;
     }
 }
+
+typedef union {
+    float f;
+    int i;
+} ActFloat;
+
+/* Motion record table, 0x194 bytes per entry (only the flags word is used
+   here); src/act-game.c carries the full layout as MotionRec. */
+typedef struct {
+    char _0[0x18C];
+    unsigned int f18C;
+    unsigned int f190;
+} ActMotionRec;
+
+extern ActMotionRec D_0055FE58[];
+extern IntrMail D_002A7E08[];
+extern char *D_00639EA4;
+extern char D_00621CC8[];
+extern int D_0063A800;
+extern void ACTSendMailCorrect(char *self, int a1);
+extern int _ACTCorrectMsg(char *self, int msg, void *arg);
+extern void ACTRunIntrCorrect(char *self, void *a1, void *a2);
+extern void ACTAcceptMail(char *self, int kind);
+extern void ClearMailAdditionalData(char *self);
+extern void ACTGame_BeforeFunc(char *self);
 
 INCLUDE_ASM("asm/nonmatchings/src/act", BeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/act", ACTDebugMove);
