@@ -16,6 +16,33 @@ extern int isysGObjProcAddS(void *a0, void *a1, int a2, void *a3, long long a4);
 extern void isysGObjProcRemove();
 extern char D_00621C30[];
 extern char D_00621C50[];
+extern char D_00621C70[];
+extern char D_00621C80[];
+extern char D_00621C90[];
+extern int D_0063B208;
+
+/* One 0x50-byte record per act status, indexed by the actor status index; the
+   six 12-byte entries at +4 are indexed by the work block's mode at +0x48.
+   The flags word at 0x4C is a bitfield: the ROM keeps 0x4C as the load
+   displacement at every site, which only a bitfield reference produces (an
+   explicit `(x >> 2) & 1` on an `unsigned int` member folds the offset onto
+   the symbol instead).  src/act-game.c reads bits 13 and 14 of the same
+   word. */
+typedef struct {
+    int f0;
+
+    struct {
+        int f0;
+        int f4;
+        int f8;
+    } ent[6];
+
+    unsigned int _b0 : 2;
+    unsigned int b2 : 1;
+    unsigned int _b3 : 29;
+} StatusAttr;
+
+extern StatusAttr D_005577D0[];
 extern char *D_0063A61C;
 extern void iosOmSendMail(void *a0, int a1, void *a2);
 extern void iosThreadSleep(void);
@@ -89,7 +116,32 @@ void actCreateMotionThread(void *a0, void *a1, void **a2)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act", actCreateSubThread);
+int actCreateSubThread(void *a0, void *a1)
+{
+    char *e;
+    unsigned short fld;
+    char *p;
+
+    if (D_0063B208) {
+        char *lval = *(char **)(D_0063A61C + 0x164);
+        debug_StdPrintfDummy(D_00621C70, D_0063A61C);
+        debug_StdPrintfDummy(D_00621C80, *(int *)(D_0063A61C + 8));
+        debug_StdPrintfDummy(D_00621C80, *(int *)(D_0063A61C + 0xC));
+        if (lval != 0) {
+            debug_StdPrintfDummy(D_00621C90, lval);
+            debug_StdPrintfDummy(D_00621C80, *(int *)(lval + 0x34));
+        }
+    }
+    e = D_002C2DC8 + *(int *)(D_0063A61C + 8) * 0x4C;
+    fld = *(unsigned short *)(e + 0x40);
+    if (((long long)fld << 10) == 0) {
+        p = (char *)isysGObjProcAdd(D_0063A61C, a0, 0, a1);
+    } else {
+        p = (char *)isysGObjProcAddS(D_0063A61C, a0, 0, a1, (long long)fld << 10);
+    }
+    *(int *)(p + 0x64) = 1;
+    return (int)p;
+}
 
 inline void actCreateSubThreadGOppArg(int a0, int a1)
 {
@@ -112,6 +164,7 @@ inline void ConvertStickToAbsCoord(void *a0, float *a1)
 inline void _ACTRun(int n)
 {
     int i;
+    int id;
     if (n == 0) {
         for (;;) {
             iosThreadSleep();
@@ -174,13 +227,156 @@ inline void actWaitCondition(int a0, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act", after_func_exec);
+void after_func_exec(char *self, int oldst, int newst)
+{
+    char *g = *(char **)(self + 0x164);
+
+    if (D_005577D0[oldst].ent[*(int *)(g + 0x48)].f0 !=
+        D_005577D0[newst].ent[*(int *)(g + 0x48)].f0) {
+        if (*(int *)(g + 0x14) != 0) {
+            (*(void (**)(char *))(g + 0x14))(self);
+            *(int *)(g + 0x14) = 0;
+        }
+    }
+    if (D_005577D0[oldst].b2 != D_005577D0[newst].b2) {
+        if (*(int *)(g + 0x14) != 0) {
+            (*(void (**)(char *))(g + 0x14))(self);
+            *(int *)(g + 0x14) = 0;
+        }
+    }
+    if (D_005577D0[oldst].ent[*(int *)(g + 0x48)].f0 == 0 &&
+        D_005577D0[newst].ent[*(int *)(g + 0x48)].f0 == 0 && D_005577D0[oldst].b2 == 0 &&
+        D_005577D0[newst].b2 == 0) {
+        if (*(int *)(g + 0x14) != 0) {
+            (*(void (**)(char *))(g + 0x14))(self);
+            *(int *)(g + 0x14) = 0;
+        }
+    }
+}
 
 inline void actInitialize_geo(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_ext_charcter);
+typedef union {
+    unsigned long long q;
+    unsigned int w[2];
+} ActStatusWord;
+
+/* The pad configuration template copied into the work block at +0x1E8. */
+typedef struct {
+    int w[60];
+} PadConf;
+
+extern PadConf iosPadConfDefault;
+extern char D_00621CA0[];
+extern int D_0063A44C;
+extern void *D_0063A620;
+extern void *iosMallocDebug(int heap, int size, char *file, int line);
+extern void *memset(void *p, int c, int n);
+extern void InitMailAdditionalData(char *self, void *p);
+
+void actInitialize_ext_charcter(char *self)
+{
+    char *g = *(char **)(self + 0x164);
+    char *p = (char *)iosMallocDebug(D_0063A44C, 0x400, D_00621CA0, 0x375);
+
+    memset(p, 0, 0x400);
+    *(char **)(g + 0x680) = p;
+    *(float *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x58) = 1.0f;
+    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2A0) = -1;
+    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2A4) = -1;
+    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2A8) = -1;
+    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2AC) = -1;
+    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2B0) = -1;
+    InitMailAdditionalData(self, *(char **)(*(int *)(self + 0x164) + 0x680));
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_only_charcter);
-INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize);
+
+char *actInitialize(char *self)
+{
+    char *w = (char *)iosMallocDebug(D_0063A44C, 0x850, D_00621CA0, 934);
+
+    *(char **)(self + 0x164) = w;
+    memset(w, 0, 0x850);
+
+    *(void **)(w + 0x4) = D_0063A620;
+    *(int *)(w + 0x0) = 0;
+    *(int *)(w + 0x8) = 0;
+    *(int *)(w + 0xC) = 0;
+    *(int *)(w + 0x14) = 0;
+    *(int *)(w + 0x18) = 0;
+    *(int *)(w + 0x680) = 0;
+    *(int *)(w + 0x688) = 0;
+    *(int *)(w + 0x10) = 0;
+
+    ((ActStatusWord *)(w + 0x18))->q |= 1LL << 32;
+    ((ActStatusWord *)(w + 0x18))->q |= 1LL << 33;
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 39);
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 40);
+    ((ActStatusWord *)(w + 0x18))->q |= 1LL << 43;
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 44);
+    ((ActStatusWord *)(w + 0x18))->q |= 1LL << 46;
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 47);
+    ((ActStatusWord *)(w + 0x18))->q |= 1LL << 48;
+    ((ActStatusWord *)(w + 0x18))->q |= 1LL << 49;
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 51);
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 52);
+
+    *(int *)(w + 0x28) = 0;
+    *(int *)(w + 0x34) = 0;
+    *(int *)(w + 0x38) = 0;
+    *(int *)(w + 0x4C) = 0;
+    *(int *)(w + 0x350) = 0;
+    *(int *)(w + 0x38C) = 0;
+    *(int *)(w + 0x3D4) = 0;
+    *(int *)(w + 0x48) = -1;
+    *(int *)(w + 0xD0) = 0;
+    *(int *)(w + 0xD4) = 0;
+    *(int *)(w + 0x130) = 0;
+    *(int *)(w + 0x13C) = 0;
+    *(int *)(w + 0x148) = 0;
+    *(int *)(w + 0x14C) = 0;
+    *(int *)(w + 0x150) = 0;
+    *(int *)(w + 0x154) = 0;
+    *(int *)(w + 0x440) = 0;
+    *(int *)(w + 0x444) = 0;
+    *(int *)(w + 0x448) = 0;
+    *(int *)(w + 0x44C) = 0;
+    *(int *)(w + 0x54) = 0;
+
+    ((ActStatusWord *)(w + 0x20))->q |= 0x800000;
+    ((ActStatusWord *)(w + 0x20))->q &= ~0x3000000;
+    ((ActStatusWord *)(w + 0x20))->q |= 0x20000000;
+    ((ActStatusWord *)(w + 0x20))->q |= 1LL << 43;
+    ((ActStatusWord *)(w + 0x20))->q |= 1LL << 46;
+
+    *(int *)(w + 0x3A4) = 0;
+    *(int *)(w + 0x3C4) = -1;
+    {
+        /* The chase is read as `int`: the ROM issues it right after the last
+           of the preceding int stores, which only an int-typed load (and its
+           flow dependence on them) produces. ee-gcc then reverses the
+           adjacent pair of independent stores below, so the emitted order is
+           the byte store first with the word store in the alignment test's
+           delay slot. */
+        char *p = (char *)*(int *)(self + 0x164);
+        *(int *)(p + 0x1B0) = 0;
+        *(char *)(p + 0x1DA) = 0;
+    }
+    *(PadConf *)(w + 0x1E8) = iosPadConfDefault;
+
+    memset(w + 0x170, 0, 0x20);
+    memset(w + 0x134, 0, 0x8);
+    memset(w + 0x190, 0, 0x20);
+    memset(w + 0x47C, 0, 0x10);
+    memset(w + 0x48C, 0, 0x10);
+    memset(w + 0x49C, 0, 0x10);
+    memset(w + 0x4B0, 0x0, 0x1D0);
+    memset(w + 0x2D8, 0, 0x60);
+    memset(w + 0x338, 0, 0x18);
+
+    return w;
+}
 
 inline int ACTReserveTarget(char *self, void *a1, int a2)
 {
@@ -194,7 +390,138 @@ inline int ACTReserveTarget(char *self, void *a1, int a2)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act", act_check_intr_list);
-INCLUDE_ASM("asm/nonmatchings/src/act", act_check_mail);
+/* The interrupt list lives at self+0x54: a count at +4 and 8-byte entries
+   from +8. */
+typedef struct {
+    int id;
+    void *f4;
+} IntrEnt;
+
+typedef struct {
+    int f0;
+    int n;
+    IntrEnt ent[1];
+} IntrList;
+
+/* One 0x18-byte entry of the actor's mail list. */
+typedef struct {
+    void *f0;                                       /* 0x00 */
+    void *f4;                                       /* 0x04 */
+    void (*handler)(char *self, int id, void *arg); /* 0x08 */
+    void (*f0C)(char *self, int id, void *arg);     /* 0x0C */
+    unsigned short kind;                            /* 0x10 */
+    short f12;                                      /* 0x12 */
+    unsigned int f14;                               /* 0x14 */
+} IntrMail;
+
+extern char D_00621CB0[];
+
+typedef struct {
+    int w[8];
+} IntrOrient;
+
+extern int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
+extern char *SetMotionRequest(char *self, int mot, void *buf);
+extern char *GetMailAdditionalData(char *self, int mail);
+
+IntrMail *act_check_intr_list(char *self, IntrMail *m, void **out)
+{
+    IntrList *k = (IntrList *)(self + 0x54);
+    char *w = *(char **)(self + 0x164);
+    IntrOrient buf;
+    int i;
+
+    if (m != 0) {
+        while ((short)m->kind != 0x1AD) {
+            if ((m->f14 >> 18) & 1) {
+                for (i = 0; i < k->n; i++) {
+                    int mot;
+                    char *p;
+                    if (*(int *)(w + 0x13C) != 0 && *(int *)(w + 0x140) != k->ent[i].id) {
+                        continue;
+                    }
+                    if (k->ent[i].id != (short)m->kind) {
+                        continue;
+                    }
+                    mot = ACTGetOrientFromIntrK(self, k->ent[i].id, &buf, i);
+                    p = SetMotionRequest(self, mot, &buf);
+                    *(char **)(w + 0x130) = p;
+                    if (*(int *)(p + 0xC) == 0 &&
+                        (*(unsigned short *)((char *)m + 0x16) & 1) == 0 &&
+                        (*(int *)(w + 0x34) != 0 || m->f12 == 0)) {
+                        continue;
+                    }
+                    *(int *)(w + 0x3C) = mot;
+                    *(void **)(w + 0x2C) = k->ent[i].f4;
+                    *(char **)(w + 0x30) = GetMailAdditionalData(self, i);
+                    *(IntrOrient *)(*(char **)(*(int *)(self + 0x164) + 0x688) + 0x8B0) = buf;
+                    *out = &k->ent[i];
+                    return m;
+                }
+            }
+            m++;
+        }
+    }
+    return 0;
+}
+
+void act_check_mail(char *self, IntrMail *m)
+{
+    IntrList *k = (IntrList *)(self + 0x54);
+    char *w = *(char **)(self + 0x164);
+    int i;
+    int id;
+
+    if (m == 0) {
+        debug_StdPrintfDummy(D_00621CB0);
+        return;
+    }
+    for (i = 0; i < k->n; i++) {
+        id = k->ent[i].id;
+        switch (id) {
+        case 0x10D:
+            ((ActStatusWord *)(w + 0x20))->q |= 0x100;
+            break;
+        case 0x1F:
+            ((ActStatusWord *)(w + 0x20))->q |= 0x10;
+            break;
+        case 0x20:
+            ((ActStatusWord *)(w + 0x20))->q |= 0x20;
+            break;
+        case 0x3D:
+            ((ActStatusWord *)(w + 0x18))->q |= 0x8000LL << 47;
+            break;
+        case 0x1A9:
+            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x2B0) = 0;
+            break;
+        case 0xF:
+            ((ActStatusWord *)(w + 0x20))->q |= 1;
+            break;
+        case 0x10:
+            ((ActStatusWord *)(w + 0x18))->q |= 0x8000LL << 48;
+            break;
+        case 0x7:
+            ((ActStatusWord *)(w + 0x20))->q |= 0x400000;
+            break;
+        case 0x22:
+            ((ActStatusWord *)(w + 0x20))->q |= 0x40;
+            break;
+        }
+    }
+    while ((short)m->kind != 0x1AD) {
+        if ((m->f14 >> 18) & 1) {
+            for (i = 0; i < k->n; i++) {
+                id = k->ent[i].id;
+                if (id == (short)m->kind) {
+                    if (m->handler != 0) {
+                        m->handler(self, id, k->ent[i].f4);
+                    }
+                }
+            }
+        }
+        m++;
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/act", BeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/src/act", ACTDebugMove);
