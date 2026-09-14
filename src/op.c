@@ -18,6 +18,7 @@ extern void ACTSendMailCorrect(int a0, int mail);
 extern void lt_switch_layout(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void actOpDemo03Chk(int a0);
+extern ActMail D_004F7E10[];
 extern ActMail D_004F7E30[];
 extern int D_0063AA08;
 extern int D_0028F4C0[];
@@ -39,6 +40,41 @@ typedef struct PadState {
 
 extern PadState D_0028F8F0[];
 extern int actCreateSubThread(void *entry, int prio);
+extern void actOpDemo01_2Chk(int a0);
+extern void scpPlayStart(char *gobj);
+extern char *scpSearchGobj(int id);
+extern int stage_ContinueAnimation(int a0, int a1);
+extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
+extern int stage_CheckAnimationFinish(int a0);
+extern int stage_no;
+
+typedef struct {
+    unsigned char _0[0xA0];
+    short ent[0x18];
+    unsigned char _d0[0xC4];
+} StgPre;
+
+extern StgPre D_005F5D50[];
+
+typedef struct {
+    float pos[3];
+    float rot[3];
+    int f_18;
+    int f_1C;
+    int f_20;
+    int f_24;
+} ExitData;
+
+extern const ExitData D_0055C518[];
+extern void actSt13aConte01_3(int a0);
+extern int scpFadeChk(void);
+extern void scpPlayMot(char *self, int mot);
+extern void scpFadeOut(int a0, int a1, int a2, float t);
+extern void scpFadeIn(float t);
+extern int RequestStageChangeWithColor(int a0, char *a1, int a2, float a3, float a4, int r, int g,
+                                       int b);
+extern int D_0063BE64;
+extern void scpAdpcmPlayRequestFunc(int kind, int *id, int a2, int a3, int a4);
 extern void actSt24aConte01_2(int a0);
 extern int scpAdpcmPlayRequestNum(void);
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
@@ -100,9 +136,149 @@ inline void actSt26aConte01_1_newgame(volatile int a0)
     RequestStageChange(1, D_00639EA4, 0, 0.25f, 2.0f);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo01_2);
-INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo01_2Chk);
-INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo02);
+void actOpDemo01_2(volatile int a0)
+{
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+
+    scpFadeOut(0, 0, 0, 255.0f);
+
+    D_0063BE64 = 0;
+    D_0063BE60 = 0;
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+
+    scpAdpcmPlayRequestFunc(7, &D_0063BE64, 0, 0, 1);
+    while (D_0063BE64 != 0) {
+        _ACTWait(1);
+    }
+    scpFadeIn(2.0f);
+
+    actCreateSubThread(actOpDemo01_2Chk, 0x15);
+
+    D_0063C4F0 = 0;
+    while (D_0063C4F0 == 0) {
+        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    if (D_0063BE64 != 0) {
+        scpAdpcmFadeCloseFunc(&D_0063BE64, 0x80);
+    }
+
+    RequestStageChangeWithColor(1, D_00639EA4, 0, 1.0f, 4.0f, 255, 255, 255);
+}
+
+void actOpDemo01_2Chk(volatile int a0)
+{
+    stgmgrNextStagePreLoadForceStageSet(0);
+
+    scpPlayStart(D_00639EA4);
+
+    stage_SetAnimation(572, 1, 0);
+
+    stgmgrNextStagePreLoadForceStageSet(D_0055C518[(D_005F5D50 + stage_no)->ent[0]].f_24);
+
+    stage_SetAnimation(7, 1, 0);
+
+    scpPlayMot(D_00639EA4, 269);
+    scpPlayMot(scpSearchGobj(2312), 989);
+    *(int *)(scpSearchGobj(2312) + 0x16C) = 1;
+    scpPlayMot(scpSearchGobj(2313), 1011);
+    *(int *)(scpSearchGobj(2313) + 0x16C) = 1;
+    scpPlayMot(scpSearchGobj(2314), 1034);
+    *(int *)(scpSearchGobj(2314) + 0x16C) = 1;
+
+    while (stage_ContinueAnimation(572, 573) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(D_00639EA4, 270);
+    scpPlayMot(scpSearchGobj(2312), 990);
+    scpPlayMot(scpSearchGobj(2313), 1012);
+    scpPlayMot(scpSearchGobj(2314), 1035);
+
+    _ACTWait(1);
+
+    stage_SetAnimation(8, 1, 0);
+
+    while (stage_CheckAnimationFrame(573, 340, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpFadeOut(255, 255, 255, 3.0f);
+    while (scpFadeChk() != 0) {
+        _ACTWait(45);
+    }
+    stage_SetAnimation(573, -1, -2);
+    scpFadeIn(3.0f);
+
+    stage_SetAnimation(574, 1, 0);
+
+    scpAdpcmPlayRequestFunc(10, &D_0063BE60, 0, 1, 1);
+
+    stage_SetAnimation(9, 1, 0);
+
+    scpPlayMot(D_00639EA4, 271);
+    scpPlayMot(scpSearchGobj(2312), 991);
+    scpPlayMot(scpSearchGobj(2313), 1013);
+    scpPlayMot(scpSearchGobj(2314), 1036);
+
+    while (stage_ContinueAnimation(574, 575) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(D_00639EA4, 272);
+    scpPlayMot(scpSearchGobj(2312), 992);
+    scpPlayMot(scpSearchGobj(2313), 1014);
+    scpPlayMot(scpSearchGobj(2314), 1037);
+
+    _ACTWait(1);
+
+    stage_SetAnimation(10, 1, 0);
+
+    while (stage_CheckAnimationFinish(575) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    D_0063C4F0 = 1;
+}
+
+void actOpDemo02(volatile int a0)
+{
+    int x = a0;
+    Act *self = actInitialize(a0);
+    _ACTWait(1);
+
+    if (D_00639EA4 != 0) {
+        scpPlayMot(D_00639EA4, 0);
+    }
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+
+    stage_SetAnimation(0x97, 0, 0);
+
+    scpAdpcmPlayRequestFunc(8, &D_0063C4F4, 0, 1, 1);
+    while (D_0063C4F4 == 0) {
+        _ACTWait(1);
+    }
+
+    if (D_0063BE60 == 0) {
+        scpAdpcmPlayRequestFunc(10, &D_0063BE60, 0, 1, 1);
+    }
+
+    D_004F7E10[0].func = actOpDemo02Chk;
+    self->mail = D_004F7E10;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 
 inline void actOpDemo02Chk(volatile int a0)
 {
@@ -183,5 +359,43 @@ inline void actOpDemo03(volatile int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo03Chk);
+void actOpDemo03Chk(volatile int a0)
+{
+    float t = 4.0f;
+
+    gflagOn(4);
+
+    scpFadeOut(0, 0, 0, 255.0f);
+
+    scpAdpcmPlayRequestFunc(9, &D_0063BE60, 0, 1, 1);
+    while (D_0063BE60 == 0) {
+        _ACTWait(1);
+    }
+    scpFadeIn(3.0f);
+
+    actCreateSubThread(actSt13aConte01_3, 0x15);
+
+    D_0063C4F0 = 0;
+    while (D_0063C4F0 == 0) {
+        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    if (D_0063C4F0 == 0) {
+        if (D_0063BE60 != 0) {
+            scpAdpcmFadeCloseFunc(&D_0063BE60, 0x80);
+            t = 16.0f;
+        }
+    }
+
+    scpFadeOut(0, 0, 0, t);
+    while (scpFadeChk() != 0) {
+        _ACTWait(1);
+    }
+
+    RequestStageChange(4, D_00639EA4, 0, 255.0f, 2.0f);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/op", actSt13aConte01_3);
