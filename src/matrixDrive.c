@@ -37,7 +37,7 @@ void MatrixDrive_PushMatrix(void)
 extern float D_0028FF80[];
 extern float GetTableCos(short a0);
 extern float GetTableSin(short a0);
-extern void func_0025D440();
+extern void sceVu0MulMatrix();
 
 void MatrixDrive_RotMatrixX(short a0)
 {
@@ -47,7 +47,8 @@ void MatrixDrive_RotMatrixX(short a0)
     D_0028FF80[9] = -s;
     D_0028FF80[6] = s;
     D_0028FF80[5] = c;
-    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40], (int)D_0028FF80);
+    sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
+                    (int)D_0028FF80);
 }
 
 extern float D_0028FFC0[];
@@ -60,7 +61,8 @@ void MatrixDrive_RotMatrixY(short a0)
     D_0028FFC0[8] = s;
     D_0028FFC0[2] = -s;
     D_0028FFC0[0] = c;
-    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40], (int)D_0028FFC0);
+    sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
+                    (int)D_0028FFC0);
 }
 
 extern float D_00290000[];
@@ -73,7 +75,8 @@ void MatrixDrive_RotMatrixZ(short a0)
     D_00290000[4] = -s;
     D_00290000[1] = s;
     D_00290000[0] = c;
-    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40], (int)D_00290000);
+    sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
+                    (int)D_00290000);
 }
 
 extern float D_00290040[];
@@ -83,7 +86,8 @@ void MatrixDrive_ScaleMatrix(float x, float y, float z)
     D_00290040[0] = x;
     D_00290040[5] = y;
     D_00290040[10] = z;
-    func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40], (int)D_00290040);
+    sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
+                    (int)D_00290040);
 }
 
 extern float FSqrt(float a0);
@@ -103,7 +107,7 @@ void MatrixDrive_TurnViewMatrix(float x, float y, float z)
                          {0.0f, 1.0f, 0.0f, 0.0f},
                          {s, 0.0f, c, 0.0f},
                          {0.0f, 0.0f, 0.0f, 1.0f}};
-        func_0025D440(&D_00668640[D_00639F00 * 0x40], (int)m, &D_00668640[D_00639F00 * 0x40]);
+        sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], (int)m, &D_00668640[D_00639F00 * 0x40]);
     }
     {
         float len = FSqrt(v0[0] * v0[0] + v0[2] * v0[2]);
@@ -112,7 +116,7 @@ void MatrixDrive_TurnViewMatrix(float x, float y, float z)
                          {0.0f, len, t, 0.0f},
                          {0.0f, -t, len, 0.0f},
                          {0.0f, 0.0f, 0.0f, 1.0f}};
-        func_0025D440(&D_00668640[D_00639F00 * 0x40], (int)m, &D_00668640[D_00639F00 * 0x40]);
+        sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], (int)m, &D_00668640[D_00639F00 * 0x40]);
     }
 }
 

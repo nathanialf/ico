@@ -25,7 +25,7 @@ typedef struct {
 extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern void fiprintf();
-extern void func_002834F8(void);
+extern void abort(void);
 extern int _vfprintf_r(int *self, int subj, int b, void *args);
 
 __asm__(".section .text\n"

@@ -25,7 +25,7 @@ typedef struct {
 extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern void fiprintf();
-extern void func_002834F8(void);
+extern void abort(void);
 
 INCLUDE_ASM("asm/nonmatchings/sce/libc/machine/r5900/strcpy", strcpy);
 INCLUDE_ASM("asm/nonmatchings/sce/libc/machine/r5900/strcpy", strlen);

@@ -23,7 +23,7 @@ typedef struct {
 extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern void fiprintf();
-extern void func_002834F8(void);
+extern void abort(void);
 extern void _fwalk(int a0, void *a1);
 
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/fwalk", _fwalk);

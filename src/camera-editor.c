@@ -159,7 +159,7 @@ extern const BoxIdx12 D_00554EE0;
 extern const BoxCol4 D_00554F40;
 extern BoxCol D_0063AAA0[];
 extern char *matrixptr;
-extern void func_0025D440(void *dst, void *a, void *b);
+extern void sceVu0MulMatrix(void *dst, void *a, void *b);
 extern void before_DrawPolygon(void);
 extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
 extern void DrawPolygon(void *p0, void *p1, void *p2, void *p3, unsigned char *col, void *m);
@@ -199,8 +199,8 @@ void DebugDispBox(BoxVec *c, BoxVec *s)
 
     idx6 = D_00554E80;
     sceVu0UnitMatrix(m);
-    func_0025D440(m, matrixptr + 0x80, m);
-    func_0025D440(m, matrixptr + 0xC0, m);
+    sceVu0MulMatrix(m, matrixptr + 0x80, m);
+    sceVu0MulMatrix(m, matrixptr + 0xC0, m);
     before_DrawPolygon();
     for (n = 0; n < 6; n++) {
         col = D_0063AAA0[0];
@@ -277,8 +277,8 @@ void DispCameraGroup(int box, unsigned char sel)
     idx6 = D_00554E80;
     sceVu0UnitMatrix(m);
     m[0][0] = m[1][1] = m[2][2] = -1.0f;
-    func_0025D440(m, matrixptr + 0x80, m);
-    func_0025D440(m, matrixptr + 0xC0, m);
+    sceVu0MulMatrix(m, matrixptr + 0x80, m);
+    sceVu0MulMatrix(m, matrixptr + 0xC0, m);
     before_DrawPolygon();
     for (n = 0; n < 6; n++) {
         col = D_0063AAA0[0];
@@ -530,8 +530,8 @@ void dispCameraGroupType2(int box, unsigned char sel)
 
     sceVu0UnitMatrix(m);
     m[0][0] = m[1][1] = m[2][2] = -1.0f;
-    func_0025D440(m, matrixptr + 0x80, m);
-    func_0025D440(m, matrixptr + 0xC0, m);
+    sceVu0MulMatrix(m, matrixptr + 0x80, m);
+    sceVu0MulMatrix(m, matrixptr + 0xC0, m);
     before_DrawPolygon();
     gif_SetAlpha(1, 5, 0);
     gif_SetZWrite(0);
@@ -603,7 +603,7 @@ extern unsigned char D_0063AAC0[4];
 extern unsigned char D_0063AAC8[4];
 extern unsigned char D_0063AAD0[4];
 extern void sceVu0UnitMatrix(void *m);
-extern void func_0025D440(void *dst, void *a, void *b);
+extern void sceVu0MulMatrix(void *dst, void *a, void *b);
 extern void before_DrawPolygon(void);
 extern void after_DrawPolygon(void);
 extern void gif_SetAlpha(int a, int b, int c);
@@ -670,8 +670,8 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
 
         sceVu0UnitMatrix(m);
         m[0][0] = m[1][1] = m[2][2] = -1.0f;
-        func_0025D440(m, matrixptr + 0x80, m);
-        func_0025D440(m, matrixptr + 0xC0, m);
+        sceVu0MulMatrix(m, matrixptr + 0x80, m);
+        sceVu0MulMatrix(m, matrixptr + 0xC0, m);
         before_DrawPolygon();
         gif_SetAlpha(1, 5, 0);
         gif_SetZWrite(0);

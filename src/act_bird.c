@@ -257,7 +257,7 @@ extern void MatrixDrive_PopMatrix(void);
 extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
 /* libvu0 sceVu0MulMatrix; the repo carries it under its vendor placeholder. */
-extern void func_0025D440(void *dst, void *a, void *b);
+extern void sceVu0MulMatrix(void *dst, void *a, void *b);
 extern void DispWireString(char *s);
 extern void vsprintf();
 
@@ -272,7 +272,7 @@ void Debug_WireString_Bird(float *pos, char *fmt, ...)
     m[3] = m[7] = m[11] = 0.0f;
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrix(pos[0], pos[1], pos[2]);
-    func_0025D440(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
+    sceVu0MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
     MatrixDrive_PushMatrix();
     vsprintf(buf, fmt, args);
     MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);

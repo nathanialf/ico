@@ -17,7 +17,7 @@ extern void gif_MakeLine2D(int *v0, int *v1, int z0, int z1, unsigned char *col,
 extern char *matrixptr;
 extern int D_0063A064; /* screen width  */
 extern int D_0063A068; /* screen height */
-extern void func_0025D440(void *a0, void *a1, void *a2);
+extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
 extern void sceVu0UnitMatrix(void *a0);
 /* prototypes: their order is the inline tail's emission order */
 void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a4, void *a5);
@@ -102,8 +102,8 @@ inline void IsPointIsInScreen(void *a0, void *a1)
 {
     float buf[16];
     sceVu0UnitMatrix(buf);
-    func_0025D440(buf, matrixptr + 0x80, buf);
-    func_0025D440(buf, matrixptr + 0xC0, buf);
+    sceVu0MulMatrix(buf, matrixptr + 0x80, buf);
+    sceVu0MulMatrix(buf, matrixptr + 0xC0, buf);
     sceVu0RotTransPers(a0, buf, a1, 1);
     _IsInScreen2(a0);
 }

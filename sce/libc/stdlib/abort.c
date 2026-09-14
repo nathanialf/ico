@@ -23,14 +23,14 @@ typedef struct {
 extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern void fiprintf();
-extern void func_002834F8(void);
-extern void func_001000B8(int a0);
+extern void abort(void);
+extern void _exit(int a0);
 extern int raise(int a0);
 
-void func_002834F8(void)
+void abort(void)
 {
     for (;;) {
         raise(6);
-        func_001000B8(1);
+        _exit(1);
     }
 }

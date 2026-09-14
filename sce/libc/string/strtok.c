@@ -23,13 +23,13 @@ typedef struct {
 extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern void fiprintf();
-extern void func_002834F8(void);
+extern void abort(void);
 extern long long strtol(void *a0, int a1, int a2);
-extern int func_0027FE08(int a0, int a1, int a2);
+extern int strtok_r(int a0, int a1, int a2);
 
 int strtok(int a0, int a1)
 {
-    return func_0027FE08(a0, a1, D_0054CEAC[0] + 0x5C);
+    return strtok_r(a0, a1, D_0054CEAC[0] + 0x5C);
 }
 
 extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
