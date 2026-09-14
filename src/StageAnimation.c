@@ -80,6 +80,21 @@ extern void _CopyVector(void *dst, void *src);
 extern int D_0063C15C__pn __asm__("D_0063C15C");
 extern int bga_CheckAnimationFrameIn(int a0, int a1, int a2);
 extern int bga_CheckSdfCameraFrameIn(int a0, int a1, int a2);
+
+typedef struct {
+    long long w[8];
+} StageGObjInit;
+
+extern StageGObjInit D_0054FFA0;
+extern char D_0054FFE0[];
+extern char D_00550000[];
+extern char D_00550040[];
+extern void debug_Assert(char *fmt, ...);
+extern void *isysGObjAdd(int a0, int a1, int a2);
+extern void isysGObjKindTableAdd(void *a0, int a1);
+extern void isysGObjProcAdd(void *a0, int a1, int a2, int a3);
+extern void isysGObjLinkObjDL(void *a0, int a1, int a2, int a3, unsigned int a4);
+extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
 /* prototypes: their order is the inline tail's emission order */
 int stage_CheckAnimationFinish(int a0);
 int stage_CheckAnimationFrame(int a0, int a1, int a2);
@@ -95,7 +110,52 @@ extern float stage_PlayBgAnimation(int key, float t, void *a, void *b);
 extern float stage_PlayBgAnimationDissolve(int key, float t, float d, void *a, void *b);
 extern void stage_KillPlayBgAnimation(int **self);
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakeGObj);
+void stage_MakeGObj(int *dat, int no)
+{
+    StageGObjInit init = D_0054FFA0;
+    int i;
+    char *g;
+    char *d;
+    int w;
+    int kind = dat[0];
+    int aux = dat[1];
+    char *e = (char *)D_0067D098 + no * 0x290;
+
+    for (i = 0; i < ((*(int *)(e + 0x28C) << 22) >> 22); i++) {
+        if (((short *)e)[i] == kind) {
+            debug_StdPrintfDummy(D_0054FFE0, kind, kind, no);
+            return;
+        }
+    }
+    g = (char *)isysGObjAdd(0, 0, 0);
+    if (g == 0) {
+        debug_StdPrintfDummy(D_00550000, no);
+        debug_assert(D_00550028, 0x21D);
+        __assert(D_00550028, 0x21D, D_0063A1A8);
+    }
+    *(short *)(e + (((*(int *)(e + 0x28C) << 22) >> 22) << 1)) = kind;
+    *(int *)(g + 0x4) = 1;
+    *(int *)(g + 0x8) = 0;
+    isysGObjKindTableAdd(g, aux);
+    isysGObjProcAdd(g, 0, 1, 0x16);
+    isysGObjProcAdd(g, 0, 1, 0x17);
+    isysGObjProcAdd(g, 0, 1, 0x18);
+    isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
+    *(int *)(g + 0x24) = 0;
+    *(char **)(e + (((*(int *)(e + 0x28C) << 22) >> 22) << 2) + 0x80) = g;
+    d = CSVSYSTEM_InitDObj(kind, &init);
+    *(int *)(g + 0x15C) = (int)d;
+    *(int *)(d + 0x80) = 1;
+    *(int *)(e + (((*(int *)(e + 0x28C) << 22) >> 22) << 2) + 0x180) = (int)dat;
+    w = (*(int *)(e + 0x28C) & ~0x3FF) | ((((*(int *)(e + 0x28C) << 22) >> 22) + 1) & 0x3FF);
+    *(int *)(e + 0x28C) = w;
+    if (((w << 22) >> 22) >= 64) {
+        debug_Assert(D_00550040);
+        debug_assert(D_00550028, 0x232);
+        __assert(D_00550028, 0x232, D_0063A1A8);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ApplyData);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_Init);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetAnimation);
@@ -277,6 +337,7 @@ void stage_CalcAnimationParent(void)
 {
     int i;
     char *e;
+    char *entry2;
 
     if (graphics_ready != 0) {
         return;
@@ -287,8 +348,6 @@ void stage_CalcAnimationParent(void)
     bga_SetUniqAnimationFlag(1);
     e = (char *)D_0067D098;
     for (i = 0; i < D_0063C158; i++, e += 0x290) {
-        char *entry2;
-
         if ((*(int *)(e + 0x28C) >> 30) != 0) {
             continue;
         }
@@ -458,7 +517,77 @@ inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetScale);
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_PlayBgAnimation);
+
+float stage_PlayBgAnimation(int key, float t, void *v, void *q)
+{
+    int i;
+    int k;
+    int n = D_0063C158;
+    float r = t;
+    float f;
+    char *e;
+
+    if (n == 0) {
+        return 0.0f;
+    }
+    e = (char *)D_0067D098;
+    for (i = 0; i < n; i++, e += 0x290) {
+        char *entry2;
+
+        if (key != *(int *)(*(char **)(e + 0x280) + 0x58)) {
+            continue;
+        }
+        if ((*(int *)(e + 0x28C) >> 30) != 0) {
+            continue;
+        }
+        _CopyVector(*(void **)(*(char **)(e + 0x284) + 0x24), v);
+        CopyQuaternion(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x10, q);
+        bga_SetFrame(*(int *)(e + 0x284), (int)r, 1, *(int *)(*(char **)(e + 0x280) + 0x50));
+        for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
+            char *objs = e + 0x80;
+
+            *(int *)(*(int *)(*(char **)(objs + (k << 2)) + 0x15C) + 0x74) = 1;
+        }
+        if (D_0028F4C0[0x14 / 4] != 0) {
+            break;
+        }
+        f = *(float *)(*(char **)(e + 0x284) + 0x1C);
+        if (D_0028F4C0[0] != 0) {
+            r = t + f * 1.2075409f;
+        } else {
+            r = t + f;
+        }
+        if (*(float *)(*(char **)(e + 0x284) + 0x18) <= r) {
+            r = *(int *)(*(char **)(e + 0x280) + 0x50) != 0
+                    ? *(float *)(*(char **)(e + 0x284) + 0x14)
+                    : -1.0f;
+        }
+        break;
+    }
+    e = (char *)D_0067D098;
+    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+        if (key != *(int *)(*(char **)(e + 0x280) + 0x58)) {
+            continue;
+        }
+        if ((*(int *)(e + 0x28C) >> 30) != 0) {
+            continue;
+        }
+        for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
+            char *objs = e + 0x80;
+            char *d = *(char **)(*(char **)(objs + (k << 2)) + 0x15C);
+
+            reg_DispObj(d);
+            *(int *)(d + 0x74) = 0;
+        }
+        *(signed char *)(*(char **)(e + 0x284) + 0xA) = -1;
+    }
+    return r;
+}
+
+/* stage_PlayBgAnimationDissolve's .lit4 word: it is the SECOND of this TU's
+   two identical 1.2075409f pool slots (stage_PlayBgAnimation's literal is the
+   first).  The slot keeps the still-asm sibling's word in source order. */
+ASM_LIT4_SLOT(D_00638C78, 1.2075409f);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_PlayBgAnimationDissolve);
 
 int *stage_MakePlayBgAnimation(int key)

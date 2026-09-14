@@ -1255,3 +1255,7 @@ words become the blob's first words.
 - `[0x539940, .lit4, src/st04e]`: D_00639940 = 0.005f, the TU's whole pool (replaces the one-word blob; st04l's row follows).
 - `[0x522E00, .rodata, src/st13b]` plain-rodata: actSt13bConte02's double 0.15 (8 B), VMA 0x622E00..0x622E08; blob resumes at 0x522E08. st13b's 8 ASM_LIT4_SLOT lines retired (its 9-word pool row is wholly compiler-emitted).
 - Symbol seated: actSt04eHint1WakeUpChk = 0x0022DAE4 (the ROM stub `actSt04eSeChk, 0x158` covered two census functions; the object's sizes 0x104 + 0x50 prove the split).
+
+### 2026-09-14 chain E pass 20: StageAnimation and weapon pools
+- `[0x538C74, .lit4, src/StageAnimation]`: D_00638C74..D_00638C78, two words both 1.2075409f (stage_PlayBgAnimation's own literal plus one ASM_LIT4_SLOT for the still-asm stage_PlayBgAnimationDissolve), VMA 0x638C74..0x638C7C, 8 B; the blob resumes at 0x538C7C.
+- `[0x5396D8, .lit4, src/weapon]`: D_006396D8..D_006396F8, nine words reproduced byte for byte by the object (dispLaserSword's 0.1f plus eight slot lines beside their still-asm owners), VMA 0x6396D8..0x6396FC, 36 B; 0x6396FC has no weapon owner and the blob resumes there.
