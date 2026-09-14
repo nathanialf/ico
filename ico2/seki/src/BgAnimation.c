@@ -1,4 +1,5 @@
 #include "common.h"
+#include "vu0.h"
 
 /* .data — carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  D_004EE5B0 is the 0x30-byte default record
@@ -273,7 +274,158 @@ ASM_LIT4_SLOT(D_00639768, 2.66f);
 ASM_LIT4_SLOT(D_0063976C, 0.82812935f);
 ASM_LIT4_SLOT(D_00639770, 0.82812935f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_calcEnvelope);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", _RotTransCurrentMatrixYXZ);
+
+extern float GetTableCos(short a);
+extern float _Sqrt(float x);
+
+/* The rotation is applied Y, then X, then Z, with the three sines derived
+   from the cosines (sin = sign(angle) * sqrt(1 - cos^2)) instead of a second
+   table lookup.  The VU0 block is the _TransCurrentMatrix body followed by
+   the three _RotCurrentMatrix* bodies with the cos/sin pairs already in
+   $vf21..$vf26; $vf27..$vf29 hold the vmr32 chain so it is built once. */
+void _RotTransCurrentMatrixYXZ(void *t, int *rot)
+{
+    float cx, cy, cz, sx, sy, sz;
+
+    cx = GetTableCos(rot[0]);
+    cy = GetTableCos(rot[1]);
+    cz = GetTableCos(rot[2]);
+    {
+        float q = _Sqrt(1.0f - cx * cx);
+        if (rot[0] < 0.0f) {
+            sx = -q;
+        } else if (rot[0] > 0.0f) {
+            sx = q;
+        } else {
+            sx = q * 0.0f;
+        }
+    }
+    {
+        float q = _Sqrt(1.0f - cy * cy);
+        if (rot[1] < 0.0f) {
+            sy = -q;
+        } else if (rot[1] > 0.0f) {
+            sy = q;
+        } else {
+            sy = q * 0.0f;
+        }
+    }
+    {
+        float q = _Sqrt(1.0f - cz * cz);
+        if (rot[2] < 0.0f) {
+            sz = -q;
+        } else if (rot[2] > 0.0f) {
+            sz = q;
+        } else {
+            sz = q * 0.0f;
+        }
+    }
+
+    /* The rotation pairs go into $vf21..$vf26 while the vmr32 chain builds
+       the identity rows in $vf14..$vf17.  The sequence is one asm block
+       because it is hand scheduled: every mfc1 is separated from the qmtc2
+       that consumes its GPR, and the three vmr32 sit in those gaps. */
+    __asm__ __volatile__("vmove.xyzw $vf17, $vf0\n\t"
+                         "lqc2 $vf8, 0(%6)\n\t"
+                         "mfc1 $4, %0\n\t"
+                         "mfc1 $5, %1\n\t"
+                         "vmr32.xyzw $vf16, $vf17\n\t"
+                         "mfc1 $6, %2\n\t"
+                         "mfc1 $7, %3\n\t"
+                         "mfc1 $8, %4\n\t"
+                         "vmr32.xyzw $vf15, $vf16\n\t"
+                         "mfc1 $9, %5\n\t"
+                         "qmtc2.ni $4, $vf21\n\t"
+                         "qmtc2.ni $5, $vf22\n\t"
+                         "vmr32.xyzw $vf14, $vf15\n\t"
+                         "qmtc2.ni $6, $vf23\n\t"
+                         "qmtc2.ni $7, $vf24\n\t"
+                         "qmtc2.ni $8, $vf25\n\t"
+                         "qmtc2.ni $9, $vf26"
+                         :
+                         : "f"(cy), "f"(sy), "f"(cx), "f"(sx), "f"(cz), "f"(sz), "r"(t)
+                         : "$4", "$5", "$6", "$7", "$8", "$9", "memory");
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
+    VU0_V2OP(vmove.xyzw, 27, 14);
+    VU0_V2OP(vmove.xyzw, 29, 16);
+    VU0_V3OP_BC(vaddx.x, 14, 0, 21, x);
+    VU0_V3OP_BC(vaddx.x, 16, 0, 22, x);
+    VU0_V3OP_BC(vmaddw.xyzw, 7, 7, 8, w);
+    VU0_V2OP(vmove.xyzw, 28, 15);
+    VU0_V3OP_BC(vsubx.z, 14, 0, 22, x);
+    VU0_V3OP_BC(vaddx.z, 16, 0, 21, x);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 14, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 14, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 14, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 10, 7, 14, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 15, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 15, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 15, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 11, 7, 15, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 16, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 16, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 16, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 12, 7, 16, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 13, 7, 17, w);
+    VU0_V2OP(vmove.xyzw, 15, 28);
+    VU0_V2OP(vmove.xyzw, 16, 29);
+    VU0_V2OP(vmove.xyzw, 14, 27);
+    VU0_V2OP(vmove.xyzw, 17, 0);
+    VU0_V3OP_BC(vaddx.y, 15, 0, 23, x);
+    VU0_V3OP_BC(vsubx.y, 16, 0, 24, x);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 10, 14, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 11, 14, y);
+    VU0_V3OP_BC(vaddx.z, 15, 0, 24, x);
+    VU0_V3OP_BC(vaddx.z, 16, 0, 23, x);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 12, 14, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 4, 13, 14, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 10, 15, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 11, 15, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 12, 15, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 5, 13, 15, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 10, 16, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 11, 16, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 12, 16, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 6, 13, 16, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 10, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 11, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 12, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 7, 13, 17, w);
+    VU0_V2OP(vmove.xyzw, 14, 27);
+    VU0_V2OP(vmove.xyzw, 15, 28);
+    VU0_V2OP(vmove.xyzw, 16, 29);
+    VU0_V2OP(vmove.xyzw, 17, 0);
+    VU0_V3OP_BC(vaddx.x, 14, 0, 25, x);
+    VU0_V3OP_BC(vsubx.x, 15, 0, 26, x);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 16, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 16, y);
+    VU0_V3OP_BC(vaddx.y, 14, 0, 26, x);
+    VU0_V3OP_BC(vaddx.y, 15, 0, 25, x);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 16, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 12, 7, 16, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 14, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 14, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 14, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 10, 7, 14, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 15, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 15, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 15, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 11, 7, 15, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 13, 7, 17, w);
+    VU0_V2OP(vmove.xyzw, 4, 10);
+    VU0_V2OP(vmove.xyzw, 5, 11);
+    VU0_V2OP(vmove.xyzw, 6, 12);
+    VU0_V2OP(vmove.xyzw, 7, 13);
+}
+
 ASM_LIT4_SLOT(D_00639774, 0.41406468f);
 ASM_LIT4_SLOT(D_00639778, 0.82812935f);
 ASM_LIT4_SLOT(D_0063977C, 0.82812935f);
@@ -355,9 +507,127 @@ ASM_LIT4_SLOT(D_00639790, 0.82812935f);
 ASM_LIT4_SLOT(D_00639794, 0.82812935f);
 ASM_LIT4_SLOT(D_00639798, 0.82812935f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_SetFrame);
-ASM_LIT4_SLOT(D_0063979C, 0.82812935f);
-ASM_LIT4_SLOT(D_006397A0, 0.82812935f);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcAnimation);
+
+extern int D_0063C4B4;
+extern int D_0063BCBC;
+extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
+extern void _SetCurrentMatrix(void *m);
+extern void GetRootMatrix(void *m, void *gobj);
+extern void CopyVector(void *dst, void *src);
+extern void _InitCurrentMatrix(void);
+extern void _MulCurrentMatrixR(void *m);
+extern int *GetCurrentQuaternion(void);
+extern void CopyQuaternion(void *dst, void *src);
+extern void GetRootQuaternion(void *q, void *gobj);
+extern void SetIdentityQuaternion(void *q);
+extern void MultiQuaternion(void *dst, void *a, void *b);
+extern void PushQuaternion(void);
+extern void PopQuaternion(void);
+extern void _PushCurrentMatrix(void);
+extern void _PopCurrentMatrix(void);
+extern void bga_CalcObject(BgaCntNode *o, int a1, int a2, int a3, float frame, float end);
+
+typedef struct BgaAnimGeom {
+    /* 0x000 */ char pad00[0xC];
+    /* 0x00C */ float (*mtx)[4][4];
+    /* 0x010 */ float (*quat)[4];
+} BgaAnimGeom;
+
+typedef struct BgaAnimObj {
+    /* 0x000 */ char pad00[0x15C];
+    /* 0x15C */ BgaAnimGeom *geom;
+} BgaAnimObj;
+
+typedef struct BgaAnimEnt {
+    /* 0x00 */ float pos[4];
+    /* 0x10 */ float quat[4];
+    /* 0x20 */ BgaAnimObj *obj;
+    /* 0x24 */ int idx;
+    /* 0x28 */ int root;
+} BgaAnimEnt;
+
+#define BGA_ANIM_ENT(p) (*(BgaAnimEnt **)((p) + 0x24))
+
+void bga_CalcAnimation(char *p, int a1, int a2)
+{
+    float m[4][4];
+    float rm[4][4];
+    BgaCntNode *o;
+    int i;
+    int f1;
+    int f2;
+
+    if (p[0xA] == -1) {
+        return;
+    }
+
+    if (p[0xB]) {
+        D_0063C4B4 = 1;
+    }
+
+    GetMatrixFromQuaternionPos(m, BGA_ANIM_ENT(p)->quat, BGA_ANIM_ENT(p));
+    if (BGA_ANIM_ENT(p)->obj) {
+        if (BGA_ANIM_ENT(p)->root) {
+            _SetCurrentMatrix(BGA_ANIM_ENT(p)->obj->geom->mtx[BGA_ANIM_ENT(p)->idx]);
+        } else {
+            GetRootMatrix(rm, BGA_ANIM_ENT(p)->obj);
+            CopyVector(rm[3], BGA_ANIM_ENT(p)->obj->geom->mtx[BGA_ANIM_ENT(p)->idx][3]);
+            _SetCurrentMatrix(rm);
+        }
+    } else {
+        _InitCurrentMatrix();
+    }
+    _MulCurrentMatrixR(m);
+
+    if (BGA_ANIM_ENT(p)->obj) {
+        if (BGA_ANIM_ENT(p)->root) {
+            CopyQuaternion(GetCurrentQuaternion(),
+                           BGA_ANIM_ENT(p)->obj->geom->quat[BGA_ANIM_ENT(p)->idx]);
+        } else {
+            GetRootQuaternion(GetCurrentQuaternion(), BGA_ANIM_ENT(p)->obj);
+        }
+    } else {
+        SetIdentityQuaternion(GetCurrentQuaternion());
+    }
+    MultiQuaternion(GetCurrentQuaternion(), GetCurrentQuaternion(), BGA_ANIM_ENT(p)->quat);
+
+    for (i = 0;; i++) {
+        f2 = (p[0xA] == 1);
+        f1 = p[0xB] && f2;
+        o = (*(BgaCntNode ***)(p + 0x10))[i];
+        if (o == 0) {
+            break;
+        }
+        PushQuaternion();
+        _PushCurrentMatrix();
+        if (a2 == 1) {
+            bga_resetObjectCounter(o, *(float *)(p + 0x20), a1);
+        }
+        bga_CalcObject(o, f1, f2, a1, *(float *)(p + 0x1C), *(float *)(p + 0x20));
+        _PopCurrentMatrix();
+        PopQuaternion();
+    }
+
+    D_0063BCBC = (int)*(float *)(p + 0x20);
+    if (a2) {
+        return;
+    }
+
+    if (p[0xA] == 1) {
+        float end = *(float *)(p + 0x18);
+
+        *(float *)(p + 0x20) += *(float *)(p + 0x1C);
+        if (D_0028F4C0[0] ? end * 0.82812935f < *(float *)(p + 0x20) : end < *(float *)(p + 0x20)) {
+            if (a1 == 0) {
+                *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x18));
+                p[0xA] = 0;
+            } else {
+                *(float *)(p + 0x20) = 0.0f;
+            }
+        }
+    }
+}
+
 ASM_LIT4_SLOT(D_006397A4, 0.82812935f);
 ASM_LIT4_SLOT(D_006397A8, 0.82812935f);
 ASM_LIT4_SLOT(D_006397AC, 1.2075409f);
