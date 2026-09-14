@@ -109,9 +109,157 @@ void prim_SetFan2D(Fan2D *f, float *pos, unsigned int cc, unsigned int rc, float
     *q = *first;
 }
 
-ASM_LIT4_SLOT(D_00638C68, 4095.0f);
-INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispFan2D);
-INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_makePacketMesh3D);
+/* One 64-bit slot of a DMA/GIF packet, written either whole or as its two
+   32-bit halves. */
+typedef union {
+    long long d;
+    int w[2];
+} PrimPkWord;
+
+typedef struct {
+    /* 0x00 */ int cur;
+    /* 0x04 */ int *buf[2];
+    /* 0x0C */ char *dma;
+    /* 0x10 */ char *ptr;
+    /* 0x14 */ char *tail;
+    /* 0x18 */ char *gif;
+    /* 0x1C */ char *end;
+} PrimDpk;
+
+extern PrimDpk D_004EE6F0;
+extern void _FTOI4Vector(void *dst, void *src);
+extern void dl_OpenDma(int a0, int a1, int a2);
+extern void dl_CloseDma(void);
+
+void prim_DispFan2D(Fan2D *f, int mode)
+{
+    int v[4];
+    Fan2DVtx *q;
+    char *p;
+    char *pp;
+    char *n;
+    char *m;
+    char *end;
+    char *gif;
+    char *tail;
+    int i;
+    int kick = 3;
+
+    q = f->buf;
+    for (i = 0; i < f->n + 2; i++) {
+        if (q->x < 0.0f) {
+            return;
+        }
+        if (q->x > 4095.0f) {
+            return;
+        }
+        if (q->y < 0.0f) {
+            return;
+        }
+        if (q->y > 4095.0f) {
+            return;
+        }
+        if (q->z < 0.0f) {
+            return;
+        }
+        q++;
+    }
+
+    q = f->buf;
+    {
+        /* The header is written through a block-scoped handle on the packet
+           context: one address materialisation covers the whole region,
+           including the tag if/else. */
+        PrimDpk *d = &D_004EE6F0;
+
+        p = d->ptr;
+        d->dma = p;
+        d->tail = p;
+        d->gif = 0;
+        d->end = 0;
+        d->ptr = p + 8;
+        ((PrimPkWord *)(p + 8))->w[0] = 0x11000000;
+        d->gif = p + 0xC;
+        d->end = p + 0x10;
+        d->ptr = p + 0x18;
+        ((PrimPkWord *)(p + 0x18))->d = 0xE;
+        d->ptr = p + 0x20;
+        if (mode == 0) {
+            ((PrimPkWord *)(p + 0x20))->d = ((long long)f->f04 << 6) | 0x10D;
+            d->ptr = p + 0x28;
+            ((PrimPkWord *)(p + 0x28))->d = 0;
+            d->ptr = p + 0x30;
+        } else {
+            ((PrimPkWord *)(p + 0x20))->d = ((long long)f->f04 << 6) | 0x10A;
+            d->ptr = p + 0x28;
+            ((PrimPkWord *)(p + 0x28))->d = 0;
+            d->ptr = p + 0x30;
+        }
+    }
+
+    for (i = 0; i < f->n + 2; i++) {
+        _FTOI4Vector(v, &q->x);
+        pp = D_004EE6F0.ptr;
+        ((PrimPkWord *)pp)->d = ((long long)q->cr | ((long long)q->cg << 8) |
+                                 ((long long)q->cb << 16) | ((long long)q->ca << 24)) |
+                                ((long long)0x3F800000 << 32);
+        pp += 8;
+        D_004EE6F0.ptr = pp;
+        ((PrimPkWord *)pp)->d = 1;
+        D_004EE6F0.ptr = pp + 8;
+        if (q->z < 0.0f) {
+            kick = 3;
+        }
+        kick--;
+        if (kick > 0) {
+            ((PrimPkWord *)(pp + 8))->d =
+                (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
+            D_004EE6F0.ptr = pp + 0x10;
+            ((PrimPkWord *)(pp + 0x10))->d = 0xD;
+            D_004EE6F0.ptr = pp + 0x18;
+        } else {
+            ((PrimPkWord *)(pp + 8))->d =
+                (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
+            D_004EE6F0.ptr = pp + 0x10;
+            ((PrimPkWord *)(pp + 0x10))->d = 5;
+            D_004EE6F0.ptr = pp + 0x18;
+        }
+        q++;
+    }
+
+    end = D_004EE6F0.end;
+    ((PrimPkWord *)end)->d =
+        (unsigned int)(((unsigned int)(D_004EE6F0.ptr - end) >> 4) - 1) | 0x1000000000008000LL;
+    gif = D_004EE6F0.gif;
+    ((PrimPkWord *)gif)->w[0] = (((unsigned int)(D_004EE6F0.ptr - gif) >> 4) << 16) | 0x6C008000;
+
+    n = D_004EE6F0.ptr;
+    ((PrimPkWord *)n)->w[0] = 0x15000000;
+    n += 4;
+    D_004EE6F0.ptr = n;
+    ((PrimPkWord *)n)->w[0] = 0;
+    D_004EE6F0.ptr = n + 4;
+    ((PrimPkWord *)n)->w[1] = 0;
+    D_004EE6F0.ptr = n + 8;
+    ((PrimPkWord *)(n + 8))->w[0] = 0;
+    D_004EE6F0.ptr = n + 0xC;
+
+    tail = D_004EE6F0.tail;
+    ((PrimPkWord *)tail)->d =
+        (unsigned int)(((unsigned int)(D_004EE6F0.ptr - tail) >> 4) - 1) | 0x10000000;
+
+    m = D_004EE6F0.ptr;
+    D_004EE6F0.tail = m;
+    ((PrimPkWord *)m)->d = 0x60000000;
+    D_004EE6F0.ptr = m + 8;
+    ((PrimPkWord *)(m + 8))->w[0] = 0;
+    D_004EE6F0.ptr = m + 0xC;
+    ((PrimPkWord *)(m + 8))->w[1] = 0;
+    D_004EE6F0.ptr = m + 0x10;
+
+    dl_OpenDma(5, (int)D_004EE6F0.dma, 0);
+    dl_CloseDma();
+}
 
 typedef int Qw128 __attribute__((mode(TI)));
 
@@ -138,6 +286,81 @@ typedef struct {
     /* 0x7C */ void *bufs[2];
     /* 0x84 */ int f84[3];
 } Mesh3D;
+
+extern void memset(void *dst, int c, int n);
+extern void _SetCurrentMatrix(void *mtx);
+extern void _ApplyCurrentMatrix(void *dst, void *src);
+extern void debug_StdPrintfDummy(char *fmt, ...);
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+extern long long D_0054F8D0[];
+extern char D_0054F8E0[];
+extern int D_0063A150[];
+
+void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
+{
+    Prim3DVec t;
+    Prim3DVec nv = {0.0f, 0.0f, 0.0f, 1.0f};
+    Prim3DVec tv = {0.0f, 0.0f, 0.0f, 1.0f};
+    Prim3DVec c = {(float)((m->col >> 24) & 0xFF), (float)((m->col >> 16) & 0xFF),
+                   (float)((m->col >> 8) & 0xFF), (float)(m->col & 0xFF)};
+    char *p;
+    int i;
+    int k;
+
+    p = (char *)pkt;
+    if (c.w == 128.0f) {
+        c.w = 127.0f;
+    }
+    _SetCurrentMatrix(m->mtx);
+    for (i = 0; i < m->f54; i++) {
+        int w = m->f50;
+        int n = w * (m->f58 + 2) + 2;
+        long long reg = m->f60;
+
+        if (n >= 0xFD) {
+            debug_StdPrintfDummy(D_0054F8E0, w);
+            debug_assert(D_0054F8C0, 0x1D9);
+            __assert(D_0054F8C0, 0x1D9, (char *)D_0063A150);
+        }
+        *(int *)(p + 0x0) = 0;
+        *(int *)(p + 0x4) = 0;
+        *(int *)(p + 0x8) = 0;
+        *(int *)(p + 0xC) = (n << 16) | 0x6C008000;
+        *(long long *)(p + 0x10) = w | (D_0054F8D0[0] | (reg << 47));
+        *(long long *)(p + 0x18) = D_0054F8D0[1];
+        p += 0x20;
+        *(Qw128 *)p = *(Qw128 *)&c;
+        p += 0x10;
+        for (k = 0; k < m->f50; k++) {
+            *(Qw128 *)p = *(Qw128 *)&nv;
+            p += 0x10;
+            if (uv != 0) {
+                *(Qw128 *)p = *(Qw128 *)&tv;
+                p += 0x10;
+            }
+            {
+                int nx = m->nx;
+                int idx = (i + (k & 1)) * nx + (k >> 1);
+                int u = idx / nx;
+                int v = idx % nx;
+
+                t.z = 1.0f;
+                t.w = 0.0f;
+                t.x = (float)v / (float)(nx - 1);
+                t.y = (float)u / (float)(m->ny - 1);
+                _ApplyCurrentMatrix(&t, &t);
+                *(Qw128 *)p = *(Qw128 *)&t;
+                p += 0x10;
+            }
+        }
+        *(int *)(p + 0x0) = 0x17000000;
+        *(int *)(p + 0x4) = 0;
+        *(int *)(p + 0x8) = 0;
+        *(int *)(p + 0xC) = 0;
+        p += 0x10;
+    }
+}
 
 extern void _InitCurrentMatrix(void);
 extern void _RotCurrentMatrixZ(short a);
