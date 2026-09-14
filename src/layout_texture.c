@@ -15,7 +15,11 @@ typedef struct LtProperty {
     int down;  /* 0x24 */
     int left;  /* 0x28 */
     int right; /* 0x2C */
-    char pad30[0x48 - 0x30];
+    int f30;   /* 0x30 */
+    int f34;   /* 0x34 */
+    int f38;   /* 0x38 */
+    int f3C;   /* 0x3C */
+    char pad40[0x48 - 0x40];
     int f48;   /* 0x48 */
     int f4C;   /* 0x4C */
     int f50;   /* 0x50 */
@@ -162,7 +166,120 @@ static inline void lt_draw_layout(int no)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/layout_texture", default_item_select);
+extern int soundSeDefPlay(int se, unsigned int handle, float *pos, int a3);
+extern unsigned int D_0063C400;
+extern unsigned int D_0063C404;
+extern signed char D_0063C3FC;
+extern int D_0028F4C0[];
+
+/* Source lines 441-451.  lt_switch_layout is a real global at its own ROM slot
+   and the PAL listing inlines its body into default_item_select twice, so the two
+   call sites below need static inline stand-ins (INTERIM: they go away when the
+   deferred tail is closed and the public definition can be marked inline).
+   The two copies are NOT identical: the first site's else arm stores 7 to
+   D_0063B618 where the out-of-line function and the second site store 3.  That is
+   what the ROM has (0x001BF548 `addiu $3,$0,0x7` feeding `sw $3,%gp_rel(D_0063B618)`
+   against 0x001BF5EC's `sw $2` with $2 = 3), and it is also what keeps the two
+   else arms from cross-jumping: with one constant the pair of stores is the
+   ordinary adjacent-store reversal (D_0063B618 first, then D_0063C3F8) and with two
+   it stays in source order, so the tails do not match.  A single stand-in taking
+   the value as a parameter compiles one instruction short for exactly that
+   reason. */
+static inline void lt_switch_layout_7(int no)
+{
+    if ((D_0063B618 == 2 && no != D_0063B60C) || no == 62) {
+        D_0063C3F4 = no;
+        display_texture_fade_cancel_chk(D_0063B60C, no);
+        if (D_0063B61C == 1) {
+            D_0063B618 = 5;
+        } else {
+            D_0063C3F8 = 3;
+            D_0063B618 = 7;
+        }
+    }
+}
+
+static inline void lt_switch_layout_3(int no)
+{
+    if ((D_0063B618 == 2 && no != D_0063B60C) || no == 62) {
+        D_0063C3F4 = no;
+        display_texture_fade_cancel_chk(D_0063B60C, no);
+        if (D_0063B61C == 1) {
+            D_0063B618 = 5;
+        } else {
+            D_0063C3F8 = 3;
+            D_0063B618 = 3;
+        }
+    }
+}
+
+/* source lines 621-705 */
+void default_item_select(int no)
+{
+    LtProp *p = &D_00533FE8[no];
+    LtProperty *e = &D_0030CFF8[p->f2C];
+    int prev;
+
+    if (p->f2C < 0) {
+        return;
+    }
+    if (D_0063B620 != 0) {
+        return;
+    }
+    if (D_0063B618 != 2) {
+        return;
+    }
+    if (D_0063B624 == 0) {
+        lt_analog2Pad();
+        prev = p->f2C;
+        if ((D_0028F8F0.trigger & 0x50) == 0) {
+            if ((D_0028F8F0.trigger & 0x1000) && e->f3C >= 0) {
+                p->f2C = e->f3C;
+                while (!lt_property_visible(p->f2C)) {
+                    p->f2C = D_0030CFF8[p->f2C].f3C;
+                }
+            } else if ((D_0028F8F0.trigger & 0x4000) && e->f38 >= 0) {
+                p->f2C = e->f38;
+                while (!lt_property_visible(p->f2C)) {
+                    p->f2C = D_0030CFF8[p->f2C].f38;
+                }
+            } else if ((D_0028F8F0.trigger & 0x8000) && e->f34 >= 0) {
+                p->f2C = e->f34;
+            } else if ((D_0028F8F0.trigger & 0x2000) && e->f30 >= 0) {
+                p->f2C = e->f30;
+            }
+        }
+        if (p->f2C != prev) {
+            soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
+            D_0063C3FC = 1;
+            D_0063C404 = (unsigned int)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.25f);
+            D_0063C408 = frame_count;
+            D_0063C400 = 0;
+        }
+    } else {
+        p->f2C = ((int (*)(void))D_0063B624)();
+        D_0063B624 = 0;
+    }
+
+    e = &D_0030CFF8[p->f2C];
+    if (D_0028F8F0.trigger & 0x40) {
+        if (e->right >= 0) {
+            if (D_0063B618 == 2) {
+                soundSeDefPlay(412, 0xFFFFFFFE, 0, 0);
+                lt_switch_layout_7(e->right);
+                return;
+            }
+        }
+    }
+    if (D_0028F8F0.trigger & 0x10) {
+        if (e->left >= 0) {
+            if (D_0063B618 == 2) {
+                soundSeDefPlay(413, 0xFFFFFFFE, 0, 0);
+                lt_switch_layout_3(e->left);
+            }
+        }
+    }
+}
 
 static inline void lt_reset_property_chain(int no)
 {
