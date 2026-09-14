@@ -30,7 +30,47 @@ inline void init_mblock(int *a0)
     a0[1] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/mblock", new_mblock_node);
+extern int D_0063A464;
+extern char D_005510F8[];
+extern void *iosMallocDebug(int heap, int size, char *file, int line);
+
+/* listing lines 16-51 */
+MBlockNode *new_mblock_node(unsigned int size)
+{
+    MBlockNode *node;
+
+    if (size > 0x2000) {
+        node = iosMallocDebug(D_0063A464, sizeof(MBlockNode), D_005510F8, 21);
+        if (node == 0) {
+            return 0;
+        }
+        node->buf = iosMallocDebug(D_0063A464, size, D_005510F8, 23);
+        if (node->buf == 0) {
+            iosFree(node);
+            return 0;
+        }
+        node->size = size;
+    } else {
+        if (D_0063A470 == 0) {
+            node = iosMallocDebug(D_0063A464, 0x2000, D_005510F8, 32);
+            if (node == 0) {
+                return 0;
+            }
+            node->buf = iosMallocDebug(D_0063A464, 0x2000, D_005510F8, 34);
+            if (node->buf == 0) {
+                iosFree(node);
+                return 0;
+            }
+            node->size = 0x2000;
+        } else {
+            node = (MBlockNode *)D_0063A470;
+            D_0063A470 = (int)node->next;
+        }
+    }
+    node->used = 0;
+    node->next = 0;
+    return node;
+}
 
 /* listing lines 55-66 */
 static inline int enough_space(MBlock *mb, unsigned int size)

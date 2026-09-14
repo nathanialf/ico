@@ -47,9 +47,129 @@ extern void SetRotObjectArmRadius(PObjGObj *a0, float f);
 extern void SetRotObjectLockFlag(PObjGObj *a0, int a1);
 extern void FinishHint(int no);
 extern void actSt05eSolarChk(volatile int a0);
+extern int D_0028F8F4[];
+extern int D_0028F8F0[];
+extern void lt_switch_layout(int no);
+extern int actCreateSubThread(void *entry, int prio);
+extern void scpSleepEnemyAll(void);
+extern void scpWakeupEnemyAll(void);
+extern int scpAdpcmPlayRequestNum(void);
+extern void iosThreadSetPri(int th, int pri);
+extern void scpFadeOut(float f, int a1, int a2, int a3);
+extern int scpFadeChk(void);
+extern void scpFadeIn(float f);
+extern int lt_fade_status(void);
+extern void SetWayGroupActive(int group, int on);
+extern void actSt05eWaterFlagOn(volatile int a0);
+extern void actSt05eWaterStopSub(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st05e", actSt05eWaterStop);
-INCLUDE_ASM("asm/nonmatchings/src/st05e", actSt05eSolarChk);
+/* listing lines 228-270 */
+void actSt05eWaterStop(volatile int a0)
+{
+    int th;
+
+    lt_switch_layout(0x37);
+
+    D_0063C550 = 0;
+    D_0063C554 = 0;
+    actCreateSubThread(actSt05eWaterFlagOn, 0x15);
+
+    scpSleepEnemyAll();
+
+    th = actCreateSubThread(actSt05eWaterStopSub, 0x15);
+    while (D_0063C550 == 0 && (!(D_0028F8F4[0] & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+    D_0063C554 = D_0063C550 ^ 1;
+    iosThreadSetPri(th + 0x24, 0x22);
+
+    if (D_0063C550 == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(0x10B, 0, -1);
+        stage_SetAnimation(0x10A, -1, -2);
+        scpFadeIn(3.0f);
+    }
+
+    scpSearchGobj(0x613)->f16C = 1;
+    scpSearchGobj(0x612)->f16C = 0;
+
+    D_0063AA08 = 0;
+    lt_switch_layout(0x36);
+
+    scpWakeupEnemyAll();
+
+    SetWayGroupActive(5, 1);
+}
+
+extern int solar;
+extern int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2);
+extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
+extern void scpAdpcmFadeCloseFunc(int *h, short a1);
+extern void gflagOff(int a0);
+
+/* listing lines 319-389 */
+void actSt05eSolarChk(volatile int a0)
+{
+    while (scpIsRotObjectZPlusDirInclude(0x614, 0x10D, 0x10F) == 0) {
+        _ACTWait(1);
+    }
+
+    SetRotObjectLockFlag(scpSearchGobj(0x614), 1);
+
+    FinishHint(23);
+    FinishHint(25);
+    FinishHint(26);
+
+    if (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 || gflagChk(0xF5) == 0) {
+        lt_switch_layout(0x37);
+        D_0063AA08 = 1;
+
+        scpSleepEnemyAll();
+
+        scpAdpcmPlayRequestFunc(0x36, &solar, 1, 1, 1);
+
+        stage_SetAnimation(0x10C, 1, 0);
+
+        while (stage_CheckAnimationFinish(0x10C) == 0) {
+            if ((D_0028F8F0[1] & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+                scpFadeOut(16.0f, 0, 0, 0);
+                while (scpFadeChk() != 0) {
+                    _ACTWait(1);
+                }
+                while (lt_fade_status() != 2) {
+                    _ACTWait(1);
+                }
+                stage_SetAnimation(0x10C, 0, -1);
+                scpFadeIn(3.0f);
+                break;
+            }
+            _ACTWait(1);
+        }
+
+        if (solar != 0) {
+            scpAdpcmFadeCloseFunc(&solar, 80);
+        }
+
+        lt_switch_layout(0x36);
+
+        D_0063AA08 = 0;
+        scpWakeupEnemyAll();
+    }
+
+    gflagOff(0xF6);
+    gflagOff(0xF7);
+    gflagOff(0xF8);
+    gflagOff(0xF9);
+    gflagOn(0xE9);
+
+    gflagOn(0xE8);
+}
 
 void actSt05eWater(volatile int a0)
 {

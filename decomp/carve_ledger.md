@@ -1280,3 +1280,6 @@ words become the blob's first words.
 
 ### 2026-09-14 chain D pass 24: staffroll switch table
 - `[0x51DF40, .rodata, src/staffroll]`: jtbl_0061DF40, staffRollMain's 7-arm switch table on the staff-roll state word D_0063C43C (range-checked `sltiu $2, $5, 7`), VMA 0x61DF40..0x61DF5C, 28 B, align 16, emitted by the compiled function; the blob resumes at 0x51DF5C with one zero pad word before the credits strings. staffroll is closed, 5 of 5.
+
+### 2026-09-14 chain F pass 10: motionFileManager switch table
+- `[0x51FBC0, .rodata, src/motionFileManager]`: jtbl_0061FBC0, pursueNodeList's 6-arm switch table (three targets repeated twice), VMA 0x61FBC0..0x61FBD8, 24 B, align 16, emitted by the compiled function; the blob resumes at 0x51FBD8 with two zero pad words.

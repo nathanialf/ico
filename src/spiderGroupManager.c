@@ -62,6 +62,15 @@ inline int *getReviveEnemyGObj(int count)
     return p;
 }
 
+extern char D_00620CF8[];
+extern char D_00620D18[];
+extern char D_00620D38[];
+extern char D_0063BB00[];
+extern void LockEnemyGenerate(int *p);
+extern void debug_assertMessage(char *file, int line, char *mes);
+extern void __assert(char *file, int line, char *expr);
+extern void debug_StdPrintfDummy();
+
 inline void EntryRevivedSpiderGroupManager(int a0)
 {
     int idx = D_0063BAE4;
@@ -69,7 +78,32 @@ inline void EntryRevivedSpiderGroupManager(int a0)
     D_00723C98[idx] = a0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/spiderGroupManager", EntrySpiderGroupManager);
+typedef struct {
+    void *gobj; /* 0x00 */
+    int rev;    /* 0x04 */
+} SpiderGroupEnt;
+
+extern SpiderGroupEnt D_00723D98[];
+
+/* listing lines 96-103 */
+void EntrySpiderGroupManager(int gobj)
+{
+    int *p;
+
+    D_00723D98[D_0063BAE8].gobj = (void *)gobj;
+    p = getReviveEnemyGObj(D_0063BAE4);
+    if (p != 0) {
+        debug_StdPrintfDummy(D_00620CF8, p, p[2], D_0063BAE8);
+        LockEnemyGenerate(p);
+        *(int *)((char *)p + 0x16C) = 0;
+    } else {
+        debug_assertMessage(D_00620D18, 0x55, D_00620D38);
+        __assert(D_00620D18, 0x55, D_0063BB00);
+    }
+    D_00723D98[D_0063BAE8].rev = (int)p;
+    D_0063BAE8 = D_0063BAE8 + 1;
+    EntryRevivedSpiderGroupManager(gobj);
+}
 
 inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
 {

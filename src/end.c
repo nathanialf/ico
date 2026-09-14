@@ -1242,7 +1242,62 @@ void actSt27aEnd(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/end", actSt27aEndChk);
+extern int D_00639EA4;
+extern int D_0063AA08;
+extern float D_0063AA0C;
+extern int D_0063BE34;
+extern int D_0063BE38;
+extern int D_0028F4C0[];
+extern int scpTriggerFloorAttr(int gobj, int attr);
+extern int GetCharHeldItem(int gobj);
+extern void scpPlayMot(int a0, int mot);
+extern void gflagOn(int a0);
+extern void lt_switch_layout(int a0);
+extern void _ACTWait(int a0);
+extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
+extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
+extern void actCreateSubThread(void *entry, int prio);
+extern void actSt27aEndDemo(volatile int a0);
+
+/* listing lines 2614-2661 */
+void actSt27aEndChk(volatile int a0)
+{
+    float max;
+    float t;
+
+    while (scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+
+    if (GetCharHeldItem(D_00639EA4) == 3) {
+        gflagOn(0x162);
+        scpPlayMot(D_00639EA4, 0x9D);
+    }
+
+    if (D_0063BE34 != 0) {
+        scpAdpcmFadeCloseFunc(&D_0063BE34, 0x1B);
+    }
+    scpAdpcmPlayRequestFunc(0x33, &D_0063BE38, 0, 1, 1);
+    while (D_0063BE38 == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(0x163);
+
+    actCreateSubThread(actSt27aEndDemo, 0x15);
+
+    max = (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 20);
+    t = (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 20);
+    while (t > 0.0f) {
+        D_0063AA0C = t / max;
+        t -= 1.0f;
+        _ACTWait(1);
+    }
+    D_0063AA0C = 0;
+}
 
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int gflagChk(int a0);

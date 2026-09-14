@@ -37,7 +37,53 @@ inline void ResetStatic2MotionManager(int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", pursueNodeList);
+extern int D_0063B8F0;
+extern char D_0061FB60[];
+extern char D_0061FB80[];
+extern void debug_StdPrintfDummy();
+
+typedef struct {
+    int f0; /* 0x00 */
+    int f4; /* 0x04 */
+} NodeRec;
+
+/* listing rows sugipon/src/motionFileManager.c:32-86 */
+void pursueNodeList(void **node, unsigned char *type)
+{
+    int i;
+    int ofs;
+
+    i = 0;
+    while (*node != 0) {
+        ofs = (int)*node;
+        switch (type[i]) {
+        default:
+            debug_StdPrintfDummy(D_0061FB60, type[i]);
+            debug_StdPrintfDummy(D_0061FB80);
+            break;
+        case 1:
+        case 4:
+            *node = (void *)(D_0063B8F0 + ofs);
+            break;
+        case 2:
+        case 5: {
+            int *q = (int *)(D_0063B8F0 + ofs);
+            int r = D_0063B8F0 + *q;
+            *node = (void *)q;
+            *q = r;
+        } break;
+        case 3:
+        case 6: {
+            NodeRec *q = (NodeRec *)(D_0063B8F0 + ofs);
+            q->f0 = D_0063B8F0 + q->f0;
+            q->f4 = D_0063B8F0 + q->f4;
+            *node = (void *)q;
+        } break;
+        }
+        node++;
+        i++;
+    }
+}
 
 inline int CheckMotionIncludeFacialData(unsigned int *self)
 {
