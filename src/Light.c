@@ -17,8 +17,12 @@ typedef struct Light {
 } Light;
 
 typedef struct AmbientVolume {
-    char _pad0[0x80];
-    float f_80; /* 0x80 */
+    char _pad0[0x40];
+    float f_40[4]; /* 0x40 */
+    float f_50[4]; /* 0x50 */
+    float f_60[4]; /* 0x60 */
+    float f_70[4]; /* 0x70 */
+    float f_80;    /* 0x80 */
     char _pad84[0xC];
     int f_90;                   /* 0x90 */
     struct AmbientVolume *next; /* 0x94 */
@@ -194,7 +198,136 @@ Light *light_AddLight(char *self, int b, int kind)
 
 ASM_LIT4_SLOT(D_00638BDC, 0.3333f);
 INCLUDE_ASM("asm/nonmatchings/src/Light", light_getNearLight);
-INCLUDE_ASM("asm/nonmatchings/src/Light", light_getAmbientLight);
+
+extern float D_0028F780[4];
+extern float _GetNorm(void *p);
+extern void _SetCurrentMatrix(void *m);
+extern void _InverseCurrentMatrix(void);
+extern void _ScaleVector2XYZ(void *dst, void *src, void *scale);
+extern void _SubVectorXYZ(void *dst, void *x, void *y);
+extern void _AddVector(void *dst, void *x, void *y);
+extern void _ApplyCurrentMatrix(void *dst, void *src);
+extern void _ScaleVectorXYZ(void *dst, void *src, float s);
+
+/* Light.c lines 1024-1025 call _GetNorm three times per value (once for the
+   sign test, once in each arm), which is what a macro does to a call
+   argument: ABS is a macro here, not a function. */
+#define LIGHT_ABS(x) ((x) < 0.0f ? -(x) : (x))
+
+void light_getAmbientLight(char *a, int b)
+{
+    float pos[4];
+    float p[4];
+    float q[4];
+    float s0[4];
+    float s1[4];
+    AmbientVolume *v;
+    float best;
+    float scale;
+    /* mx/my carry the largest inner-ellipsoid component and its outer
+       partner in the kind-1 arm; the kind-2 arm reuses my as its own blend
+       total, a scratch reuse the ROM's register file proves (both roles are
+       $f20 there, and the two arms' other scratch values are separate). */
+    float mx;
+    float my;
+
+    scale = 1.0f;
+    if (D_0063C138 == 0) {
+        _CopyVector(*(char **)(a + 0x874) + 0xE0, D_0028F780);
+        return;
+    }
+    _CopyVector(*(char **)(a + 0x874) + 0xE0, D_0028F780);
+    best = 3.0f;
+    if (*(unsigned short *)(a + 0x84C) == 2) {
+        _CopyVector(pos, *(char **)(a + 0xC) + (b << 6) + 0x30);
+    } else {
+        _CopyVector(pos, *(char **)(a + 0xC) + 0x30);
+    }
+    for (v = (AmbientVolume *)D_0063C138; v != 0; v = v->prev) {
+        if (v->f_90 == 0) {
+            continue;
+        }
+        _SetCurrentMatrix(v);
+        _InverseCurrentMatrix();
+        _ApplyCurrentMatrix(p, pos);
+        _ApplyCurrentMatrix(q, pos);
+        _ScaleVector2XYZ(p, p, v->f_70);
+        _ScaleVector2XYZ(q, q, v->f_70);
+        _ScaleVector2XYZ(p, p, v->f_50);
+        _ScaleVector2XYZ(q, q, v->f_60);
+        switch (v->f_90) {
+        case 2: {
+            float nx;
+            float ny;
+            float rx;
+            float ry;
+
+            nx = LIGHT_ABS(_GetNorm(p));
+            ny = LIGHT_ABS(_GetNorm(q));
+            if (nx <= 1.0f) {
+                _CopyVector(*(char **)(a + 0x874) + 0xE0, v->f_40);
+                scale = v->f_80;
+                goto found;
+            }
+            if (ny <= 1.0f) {
+                rx = nx - 1.0f;
+                ry = 1.0f - ny;
+                _SubVectorXYZ(s0, D_0028F780, v->f_40);
+                _ScaleVectorXYZ(s0, s0, rx / (rx + ry));
+                _AddVector(s0, v->f_40, s0);
+                my = s0[0] + s0[1] + s0[2];
+                if (my < best) {
+                    _CopyVector(*(char **)(a + 0x874) + 0xE0, s0);
+                    best = my;
+                    scale = v->f_80 + (1.0f - v->f_80) * rx / (rx + ry);
+                }
+            }
+            break;
+        }
+        case 1: {
+            float sum;
+
+            if (LIGHT_ABS(p[0]) <= 1.0f && LIGHT_ABS(p[1]) <= 1.0f && LIGHT_ABS(p[2]) <= 1.0f) {
+                _CopyVector(*(char **)(a + 0x874) + 0xE0, v->f_40);
+                scale = v->f_80;
+                goto found;
+            }
+            if (LIGHT_ABS(q[0]) <= 1.0f && LIGHT_ABS(q[1]) <= 1.0f && LIGHT_ABS(q[2]) <= 1.0f) {
+                mx = LIGHT_ABS(p[0]);
+                my = LIGHT_ABS(q[0]);
+                if (mx < LIGHT_ABS(p[1])) {
+                    mx = LIGHT_ABS(p[1]);
+                    my = LIGHT_ABS(q[1]);
+                }
+                if (mx < LIGHT_ABS(p[2])) {
+                    mx = LIGHT_ABS(p[2]);
+                    my = LIGHT_ABS(q[2]);
+                }
+                mx = mx - 1.0f;
+                my = 1.0f - my;
+                _SubVectorXYZ(s1, D_0028F780, v->f_40);
+                _ScaleVectorXYZ(s1, s1, mx / (mx + my));
+                _AddVector(s1, v->f_40, s1);
+                sum = s1[0] + s1[1] + s1[2];
+                if (sum < best) {
+                    /* the kind-1 arm copies the volume colour here where the
+                       kind-2 arm copies its blended vector; the ROM's $s0
+                       (v + 0x40) at this call site is what it is. */
+                    _CopyVector(*(char **)(a + 0x874) + 0xE0, v->f_40);
+                    best = sum;
+                    scale = v->f_80 + (1.0f - v->f_80) * mx / (mx + my);
+                }
+            }
+            break;
+        }
+        }
+    }
+found:
+    _ScaleVectorXYZ(*(char **)(a + 0x874) + 0xB0, *(char **)(a + 0x874) + 0xB0, scale);
+    _ScaleVectorXYZ(*(char **)(a + 0x874) + 0xC0, *(char **)(a + 0x874) + 0xC0, scale);
+    _ScaleVectorXYZ(*(char **)(a + 0x874) + 0xD0, *(char **)(a + 0x874) + 0xD0, scale);
+    *(float *)(*(char **)(a + 0x874) + 0xEC) = 1.0f;
+}
 
 extern void light_getNearLight(char *a, int b);
 extern void light_getAmbientLight(char *a, int b);

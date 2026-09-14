@@ -367,6 +367,8 @@ funcEnemyAiGetGirl = 0x00169E38; // type:func  // src/enemy_act
 // motionManager2: its .sbss run starts at 0x63C10C (MAIN.MAP: main.o 0xC, then motionManager2.o 0xC; the Jan-2002
 // sampleMode.o word between them is absent from retail). splat merged 0x63C100..0x63C110 into one main.o object, so the
 // TU's first word had no label; DispSkelton stores all three words and main.o touches only +0x8.
+D_0063A098 = 0x0063A098; // type:asciz  // src/Light  // "OBJ", the light editor mode label light_DispVolume prints
+D_0063A0A0 = 0x0063A0A0; // type:asciz  // src/Light  // "FIX", the light editor mode label light_DispVolume prints
 D_0063C10C = 0x0063C10C; // size:0x4  // src/motionManager2
 
 // ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — do not hand-edit below this line ====
