@@ -706,7 +706,10 @@ void CameraEdit_DispBoxType2(int a0, int a1)
     dispCameraGroupType2(a0, a1 & 0xFF);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", func_0018CDC0);
+INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuGroupSelect);
+INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuGroupEdit);
+INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuPinSelect);
+INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuPinEdit);
 
 extern int print_y;
 extern int D_0028F94C[];
@@ -730,11 +733,11 @@ void wakeup_cameraedit(void)
 }
 
 extern void EnterMenu(void *a0, int a1, void *a2);
-extern void func_0018CDC0(void);
+extern void menuGroupSelect(void);
 
 void test_camedit(void)
 {
-    EnterMenu((void *)func_0018CDC0, 0, 0);
+    EnterMenu((void *)menuGroupSelect, 0, 0);
 }
 
 extern char D_00555038[];
