@@ -743,7 +743,8 @@ segments:
       - [0x53952C, lit4, cod/53952C]     # .lit4 blob resume (handManager's words)
       - [0x539530, .lit4, ico2/sugipon/src/item]  # carved D_00639530..D_0063955C (12 slots, uncarriedItemGeo and its nested floatGeo; the TU's whole pool), VMA 0x639530..0x639560, 48 B
       - [0x539560, .lit4, ico2/sugipon/src/motionManager]  # carved D_00639560..D_0063961C (48 slots, 18 fns _getFinalMatrix.._getGeometryOfMotion, in source order: getFinalMatrix.c.inc, motionManager.c, rootUpdate.c.inc), VMA 0x639560..0x639620, 192 B; MAIN.MAP motionManager.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).
-      - [0x539620, lit4, cod/539620]     # .lit4 blob resume
+      - [0x539620, .lit4, ico2/sugipon/src/motionOrientManager]  # carved D_00639620..D_00639654 (14 slots beside the still-asm owners, in ROM order: UpdateFrameCounter 0.1f, normalMotionShift 1e-06f, parallelMotionShift 1e-06f x2, getMotionGeometry 10430.378f 0.1f 0.2f, getShapeGeometry 0.01f 0.0001f x2, getStreamBlendShapeGeometry 0.01f 0.0001f, getStreamShapeGeometry 0.01f 0.0001f; the TU's whole pool), VMA 0x639620..0x639658, 56 B; 0x639658 and 0x63965C have no owner in this TU and stay in the blob
+      - [0x539658, lit4, cod/539658]     # .lit4 blob resume (two unowned 0.01f words before particleEffect's run)
       - [0x539660, .lit4, ico2/sugipon/src/particleEffect]  # carved D_00639660..D_0063966C (4 slots: 182.04445f, 4095.0f, 0.2f, 4095.0f; two slots beside the still-asm execParticleEffect; the TU's whole pool), VMA 0x639660..0x639670, 16 B
       - [0x539670, lit4, cod/539670]     # .lit4 blob resume
       - [0x539680, .lit4, ico2/sugipon/src/rotObject]  # carved D_00639680..D_0063969C (8 slots: MoveRotObjectWithHoldPoint x4, GetRotObjectGlobalHoldGeometry, InitRotObjectGeo, RotObjectDL, GetRotObjectZPlusDirection — per-function copies of 10430.378f; the TU's whole pool), VMA 0x639680..0x6396A0

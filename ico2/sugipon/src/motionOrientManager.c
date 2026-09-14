@@ -150,6 +150,7 @@ void execFrameTrigger(void *self)
     }
 }
 
+ASM_LIT4_SLOT(D_00639620, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", UpdateFrameCounter);
 
 inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
@@ -245,7 +246,10 @@ void ForTest_ForceShiftMotion(int a0, int a1)
     shiftMotionData(a0, a1, a1, 0);
 }
 
+ASM_LIT4_SLOT(D_00639624, 1e-06f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", normalMotionShift);
+ASM_LIT4_SLOT(D_00639628, 1e-06f);
+ASM_LIT4_SLOT(D_0063962C, 1e-06f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", parallelMotionShift);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", SetMotionRequest);
 
@@ -276,14 +280,162 @@ inline void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getNodeBlendedFloatingMotion);
+ASM_LIT4_SLOT(D_00639630, 10430.378f);
+ASM_LIT4_SLOT(D_00639634, 0.1f);
+ASM_LIT4_SLOT(D_00639638, 0.2f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getMotionGeometry);
+ASM_LIT4_SLOT(D_0063963C, 0.01f);
+ASM_LIT4_SLOT(D_00639640, 0.0001f);
+ASM_LIT4_SLOT(D_00639644, 0.0001f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getShapeGeometry);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getStreamMotionGeometry);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getStreamBlendMotionGeometry);
+
+extern int GetStreamMotion(void *dst, float *v, void *sm, int n);
+extern void _ScaleVectorXYZ(float *dst, float *src, float s);
+extern void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char *tbl,
+                                int k);
+extern void DispSkelton(void *self, void *m);
+extern char D_0028FEF0[];
+
+/* Listing lines 1640-1647: a static inline both stream-geometry functions absorb
+ * (once and twice), with no symbol and no census row, so its name is not on
+ * the disc; getStreamVec is this repo's spelling. */
+static inline int getStreamVec(void *self, void *sm, float *v, void *mot)
+{
+    float s = *(float *)(*(char **)(MOWORK(self) + 0x870) + 0x20);
+
+    if (GetStreamMotion(mot, v, sm, *(int *)(MOWORK(self) + 0x8C)) != 0) {
+        if (*(int *)(MOWORK(self) + 0x660) != 0) {
+            _ScaleVectorXYZ(v, v, s);
+        }
+        v[0] -= *(float *)(MOWORK(self) + 0x670);
+        v[1] -= *(float *)(MOWORK(self) + 0x674);
+        v[2] += *(float *)(MOWORK(self) + 0x678);
+        return 1;
+    }
+    return 0;
+}
+
+void getStreamMotionGeometry(void *self, void *sm)
+{
+    float v[4];
+    char mot[*(int *)(MOWORK(self) + 0x88) * 0x20];
+
+    if (getStreamVec(self, sm, v, mot)) {
+        GetGeometryOfMotion(self, mot, mot, v, 1.0f, D_0028FEF0, -1);
+        CopyMotion(*(void **)(MOWORK(self) + 0x7B4), mot, *(int *)(MOWORK(self) + 0x88));
+        CopyVector(MOWORK(self) + 0x7C0, v);
+        DispSkelton(self, mot);
+    }
+}
+
+extern void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0,
+                             float t, int tbl, int n);
+
+void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
+{
+    float v0[4];
+    float v1[4];
+    float v2[4];
+    int n = *(int *)(MOWORK(self) + 0x88);
+    char mot0[n * 0x20];
+
+    if (getStreamVec(self, sm0, v0, mot0)) {
+        char mot1[n * 0x20], mot2[n * 0x20];
+
+        getStreamVec(self, sm1, v1, mot1);
+        GetBlendedMotion(mot2, v2, mot1, v1, mot0, v0, t, *(int *)(MOWORK(self) + 0x820), n);
+        GetGeometryOfMotion(self, mot2, mot2, v2, 1.0f, D_0028FEF0, -1);
+        CopyMotion(*(void **)(MOWORK(self) + 0x7B4), mot2, *(int *)(MOWORK(self) + 0x88));
+        CopyVector(MOWORK(self) + 0x7C0, v2);
+        DispSkelton(self, mot2);
+    }
+}
+
+ASM_LIT4_SLOT(D_00639648, 0.01f);
+ASM_LIT4_SLOT(D_0063964C, 0.0001f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getStreamBlendShapeGeometry);
+ASM_LIT4_SLOT(D_00639650, 0.01f);
+ASM_LIT4_SLOT(D_00639654, 0.0001f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getStreamShapeGeometry);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getStreamMotion);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", ExecMotionOrient);
+
+extern int GetDataSizeOfStreamMotion(void *s);
+extern float GetStreamMotionData(void *dst, void *s);
+extern void GetStreamMotionDataNext(void *dst, void *s);
+extern void getStreamShapeGeometry(void *self, void *m);
+extern void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);
+
+void getStreamMotion(void *self)
+{
+    void *s = *(void **)(MOWORK(self) + 0x470);
+    char a[GetDataSizeOfStreamMotion(s)];
+    float t = GetStreamMotionData(a, s);
+
+    if (t <= 0.0f) {
+        getStreamMotionGeometry(self, a);
+        getStreamShapeGeometry(self, a);
+    } else {
+        char b[GetDataSizeOfStreamMotion(s)];
+
+        GetStreamMotionDataNext(b, s);
+        getStreamBlendMotionGeometry(self, a, b, t);
+        getStreamBlendShapeGeometry(self, a, b, t);
+    }
+}
+
+extern char D_00620630[];
+extern char D_0063B9D0[];
+extern int D_0063B194;
+extern void *D_00639EA4;
+extern void *D_00639EA8;
+extern int D_0063B9C4;
+extern int D_0063B160;
+extern void *isysGObjSearchFromObjKindID_begin(int id);
+extern void debug_PrintFontWindow(int col, char *mes);
+extern void orientDebug(void *self, int mode, int col);
+extern void normalMotionShift(void *self, int a1);
+extern void getMotionGeometry(void *self);
+extern void getShapeGeometry(void *self);
+
+void ExecMotionOrient(void *self)
+{
+    char *w = (char *)*(int *)((char *)self + 0x15C) + 0x470;
+
+    if (*(int *)(w + 0x18) != 0) {
+        debug_StdPrintfDummy(D_00620630, self);
+    }
+    if (*(int *)w == -1) {
+        if (*(int *)(w + 0xD0) != 0x10D) {
+            normalMotionShift(self, 0);
+        } else {
+            parallelMotionShift(self);
+        }
+        if ((D_0063B194 == 0 && self == D_00639EA4) || (D_0063B194 == 1 && self == D_00639EA8) ||
+            (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(0x20)) ||
+            (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(0x4)) ||
+            (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(0x2F))) {
+            if (*(int *)(w + 0xC) != 0) {
+                if (D_0063B9C4 != 0 && D_0063B160 != 0) {
+                    debug_PrintFontWindow(0xC0FF20, D_0063B9D0);
+                }
+                orientDebug(self, *(int *)(w + 0xD0), 0xE0FF20);
+                D_0063B9C4 = 0;
+            }
+        }
+        if (*(int *)(w + 0x58) != 0) {
+            int n = *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x834);
+            int i;
+
+            for (i = 0; i < n; i++) {
+                *(int *)(i * 4 + *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x838)) = 0;
+            }
+        }
+        getMotionGeometry(self);
+        getShapeGeometry(self);
+    } else {
+        getStreamMotion(self);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", SetNodeRotationLimitDataTable);
 
 inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)

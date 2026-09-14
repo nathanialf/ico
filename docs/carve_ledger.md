@@ -1286,3 +1286,6 @@ words become the blob's first words.
 
 ### 2026-09-14 chain F pass 12: st25a double
 - `[0x4549E0, .rodata, ico2/script/src/st25a]` plain-rodata: actSt25aElevChk's double 0.15 as an 8-byte constant-pool operand, VMA 0x5549E0..0x5549E8, emitted by the compiled function; the blob resumes at 0x4549E8. st19a is closed, 6 of 6 landed this pass.
+
+### 2026-09-14 chain E pass 30: motionOrientManager .lit4
+- `[0x539620, .lit4, ico2/sugipon/src/motionOrientManager]`: the TU's whole pool, 14 words, VMA 0x639620..0x639658, 56 B, as slot lines beside the still-asm owners (UpdateFrameCounter, normalMotionShift, parallelMotionShift, getMotionGeometry, getShapeGeometry, getStreamBlendShapeGeometry, getStreamShapeGeometry); owners read from each stub's %gp_rel relocs, values from the ROM bytes. The two 0.01f words at 0x639658 and 0x63965C have no owner in this TU and stay in the blob, which resumes at `[0x539658, lit4, cod/539658]`. Made at harvest so getStreamShapeGeometry (strict 2, both diffs its own pool words) can land next pass.
