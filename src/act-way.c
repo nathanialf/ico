@@ -26,7 +26,24 @@ inline int WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3)
 INCLUDE_ASM("asm/nonmatchings/src/act-way", ACTWayMove_BeginDetail);
 INCLUDE_ASM("asm/nonmatchings/src/act-way", ACTWayMove_NextDetail);
 INCLUDE_ASM("asm/nonmatchings/src/act-way", ACTWayExec_Position);
-INCLUDE_ASM("asm/nonmatchings/src/act-way", ACTWay_IsMustWalkFromWay);
+
+extern void *test_CURRENTROOT(void);
+extern float _DistxzSqGV(void *a, void *b);
+
+int ACTWay_IsMustWalkFromWay(char *a0)
+{
+    char *w = *(char **)(*(char **)(a0 + 0x164) + 0x380);
+    float d;
+
+    if (w == 0) {
+        return 0;
+    }
+    d = *(float *)(w + 0x2C);
+    if (d != 0.0f) {
+        return _DistxzSqGV(w + 0x10, test_CURRENTROOT()) < d * d;
+    }
+    return 0;
+}
 
 void ACTWay_SetBeginPositionIllegal(char *a0)
 {

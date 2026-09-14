@@ -61,7 +61,17 @@ inline void EntryMultiBgaManagerNoKind(BgaDisp *bga, int no, void *pos)
     entryMultiBga(bga, no, -1, pos, D_002907E0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/multiBgaManager", EntryMultiBgaManagerSensitive);
+void EntryMultiBgaManagerSensitive(BgaDisp *bga, int no, int kind, void *pos, void *rot, void *sens)
+{
+    BgaDisp *p = &bga[no];
+
+    p->obj = kind;
+    p->x44 = 0;
+    CopyVector(p->m10, pos);
+    CopyVector(p->m20, sens);
+    CopyQuaternion(p->m30, rot);
+    p->f0 = 0.0f;
+}
 
 void DispMultiBgaManager(BgaDisp *base, int n)
 {

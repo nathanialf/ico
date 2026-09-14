@@ -1,6 +1,17 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/gv", _InterGV);
+extern void debug_StdPrintfDummy(char *fmt, ...);
+extern void sceVu0InterVector(float *dst, float *a, float *b, float t);
+extern char D_0063AC10[];
+
+void _InterGV(float *dst, float *a, float *b, float ta, float tb)
+{
+    if (dst == 0 || a == 0 || b == 0) {
+        debug_StdPrintfDummy(D_0063AC10);
+    }
+    sceVu0InterVector(dst, a, b, tb / (ta + tb));
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/gv", GetMatrixDirectionToZ);
 
 extern int _RotyGV(float *a0, float *a1);

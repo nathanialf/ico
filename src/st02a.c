@@ -21,8 +21,20 @@ typedef struct PObjGObj {
 } PObjGObj;
 
 extern PObjGObj *scpSearchGobj(int a0);
+extern int gflagChk(int a0);
+extern void SetWayGroupActive(int grp, int on);
+extern void stage_SetAnimation(int no, int a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aInit);
+void actSt02aInit(void)
+{
+    if (gflagChk(0x76) == 0) {
+        SetWayGroupActive(0x1A, 0);
+        stage_SetAnimation(0x63, 0, 0);
+    } else {
+        stage_SetAnimation(0x63, 0, -1);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aDoor);
 ASM_LIT4_SLOT(D_006398B4, -1827.0f);
 ASM_LIT4_SLOT(D_006398B8, 2285.0f);

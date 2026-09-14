@@ -3,6 +3,7 @@
 extern void CopyVector(void *dst, void *src);
 extern int D_004E7470[];
 extern float D_0063B7D4;
+extern float D_006394AC;
 extern int D_004E7460[];
 extern void darkVolume(void *a0, float a1, float a2, float a3);
 extern int D_00639EA8;
@@ -92,6 +93,15 @@ void SetupDarkVolume(void *a0, float a1, float a2)
     darkVolume(a0, a1, 1.0f, a2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/darkVolume", DarkVolumeGeo);
+void DarkVolumeGeo(char *a0)
+{
+    float *p;
+
+    *(int *)(*(int *)(a0 + 0x15C) + 0x74) = 0;
+    p = *(float **)(*(int *)(a0 + 0x15C) + 0xC);
+    if (D_006394AC < *p) {
+        SetupDarkVolume((char *)p + 0x30, *p * 50.0f, 10.0f);
+    }
+}
 
 inline void DarkVolumeDL(void) {}
