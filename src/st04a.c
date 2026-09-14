@@ -1291,11 +1291,254 @@ void actSt04aGateOpen3Chk(volatile int a0)
     actCreateSubThread(actConte09_3Jimaku, 0x15);
 }
 
-ASM_LIT4_SLOT(D_00639900, 0.99f);
-ASM_LIT4_SLOT(D_00639904, 0.1f);
-ASM_LIT4_SLOT(D_00639908, 0.8f);
-ASM_LIT4_SLOT(D_0063990C, 0.45f);
-INCLUDE_ASM("asm/nonmatchings/src/st04a", actConte09_3);
+extern void scpSetStreamMotionRootOffset(char *o, float x, float y, float z);
+extern void scpTorchLightOff(int a0);
+extern int scpGameStat_BoyWeaponkind(void);
+extern void DeleteBoyWeapon(void);
+extern void shadow_SetLength(int a0, float len);
+extern void shadow_DispCancel(int a0, int a1);
+extern void SetGirlClothDispSwitch(char *a0, int a1, int a2);
+extern void actConte09_3_demoCancel(volatile int a0);
+extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
+extern int D_0063C50C;
+
+void actConte09_3(volatile int a0)
+{
+    D_0063C50C = 1;
+
+    actCreateSubThread(actConte09_3_demoCancel, 0x15);
+
+    scpSearchGobj(0x29D)->f16C = 1;
+
+    EntryStreamMotion(D_00639EA4);
+    EntryStreamMotion(D_00639EA8);
+    EntryStreamMotion((char *)scpSearchGobj(0x29D));
+
+    PlayStreamMotion();
+
+    scpSetStreamMotionRootOffset(D_00639EA4, 0.0f, 0.0f, 1.0f);
+    scpSetStreamMotionRootOffset(D_00639EA8, 0.0f, 0.0f, 1.0f);
+
+    scpTorchLightOff(0x23B);
+    scpTorchLightOff(0x23C);
+    scpTorchLightOff(0x23D);
+    scpTorchLightOff(0x23E);
+    scpTorchLightOff(0x23F);
+    scpTorchLightOff(0x240);
+    scpTorchLightOff(0x241);
+    scpTorchLightOff(0x242);
+    scpTorchLightOff(0x243);
+    scpTorchLightOff(0x244);
+
+    stage_SetAnimation(0x118, -1, -2);
+    stage_SetAnimation(0x119, -1, -2);
+    stage_SetAnimation(0x2C8, -1, -2);
+    stage_SetAnimation(0x2C9, -1, -2);
+    stage_SetAnimation(0x2CA, -1, -2);
+    stage_SetAnimation(0x2CB, -1, -2);
+    stage_SetAnimation(0x2CC, -1, -2);
+    stage_SetAnimation(0x2CD, -1, -2);
+    stage_SetAnimation(0x2CE, -1, -2);
+    stage_SetAnimation(0x2CF, -1, -2);
+    stage_SetAnimation(0x2D0, -1, -2);
+    stage_SetAnimation(0x2D1, -1, -2);
+    stage_SetAnimation(0x2D2, -1, -2);
+    stage_SetAnimation(0x2D3, -1, -2);
+    stage_SetAnimation(0x2D4, -1, -2);
+    stage_SetAnimation(0x2D8, -1, -2);
+    stage_SetAnimation(0x2D9, -1, -2);
+    stage_SetAnimation(0x2DA, -1, -2);
+    stage_SetAnimation(0x2DB, -1, -2);
+    stage_SetAnimation(0x2DC, -1, -2);
+    stage_SetAnimation(0x2DD, -1, -2);
+    stage_SetAnimation(0x2DE, -1, -2);
+    stage_SetAnimation(0x2DF, -1, -2);
+    stage_SetAnimation(0x2E0, -1, -2);
+    stage_SetAnimation(0x2E1, -1, -2);
+    stage_SetAnimation(0x2E2, -1, -2);
+    stage_SetAnimation(0x2E3, -1, -2);
+    stage_SetAnimation(0x2E4, -1, -2);
+    stage_SetAnimation(0x2E5, -1, -2);
+
+    stage_SetAnimation(0x2E6, 1, 0);
+
+    _ACTWait(1);
+
+    stage_SetAnimation(0x111, 1, 0x1F6);
+
+    while (stage_ContinueAnimation(0x2E6, 0x2E7) == 0) {
+        _ACTWait(1);
+    }
+
+    if (scpGameStat_BoyWeaponkind() == 1) {
+        stage_SetAnimation(0x114, 1, 0);
+    }
+    if (scpGameStat_BoyWeaponkind() == 4 || scpGameStat_BoyWeaponkind() == 5) {
+        stage_SetAnimation(0x115, 1, 0);
+    }
+    if (scpGameStat_BoyWeaponkind() == 6) {
+        stage_SetAnimation(0x116, 1, 0);
+    }
+    if (scpGameStat_BoyWeaponkind() == 9) {
+        stage_SetAnimation(0x117, 1, 0);
+    }
+
+    DeleteBoyWeapon();
+
+    while (stage_ContinueAnimation(0x2E7, 0x2E8) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x2E8, 0x2E9) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x114, -1, -2);
+    stage_SetAnimation(0x115, -1, -2);
+    stage_SetAnimation(0x116, -1, -2);
+    stage_SetAnimation(0x117, -1, -2);
+
+    while (stage_ContinueAnimation(0x2E9, 0x2EA) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x2EA, 0x2EB) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x2EB, 0x2EC) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x111, 1, 0x371);
+
+    while (stage_ContinueAnimation(0x2EC, 0x2ED) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x2ED, 0x2EE) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x2D5, 1, 0);
+
+    while (stage_ContinueAnimation(0x2EE, 0x2EF) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x111, 1, 0x4D9);
+
+    shadow_SetLength((int)((PObjGObj *)D_00639EA8)->f15C, 20.0f);
+
+    while (stage_ContinueAnimation(0x2EF, 0x2F0) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x111, 1, 0x835);
+    stage_SetAnimation(0x2D5, -1, -2);
+    stage_SetAnimation(0x2D6, 1, 0);
+
+    while (stage_ContinueAnimation(0x2F0, 0x2F1) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x111, 1, 0x8AD);
+
+    shadow_DispCancel(0x47, 1);
+
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x30, 0, 0x22B, 0);
+
+    stage_SetLoopFlag(0x22B, 1);
+    stage_SetAnimation(0x22B, 1, 0);
+
+    tex_SetUVScroll(D_00622910, 0.0f, 0.0f, 0.25f, 0.0625f, 0.99f, 0.99f, 1);
+    tex_SetUVScroll(D_00622920, 0.0f, 0.0f, 0.25f, 0.0625f, 0.1f, 0.1f, 1);
+
+    _ACTWait(1);
+
+    scpSearchGobj(0x289)->f16C = 0;
+
+    SetStaticBlur(0);
+
+    while (stage_CheckAnimationFrame(0x2F1, 0x96, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    tex_SetUVScroll(D_00622910, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll(D_00622920, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+
+    while (stage_ContinueAnimation(0x2F1, 0x2F2) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+
+    scpSearchGobj(0x289)->f16C = 1;
+
+    while (stage_CheckAnimationFrame(0x2F2, 0x32, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    while (stage_ContinueAnimation(0x2F2, 0x2F3) == 0) {
+        _ACTWait(1);
+    }
+
+    shadow_SetLength((int)((PObjGObj *)D_00639EA8)->f15C, 0.0f);
+
+    while (stage_ContinueAnimation(0x2F3, 0x2F4) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x2D6, -1, -2);
+    stage_SetAnimation(0x2D7, 1, 0);
+
+    SetGirlClothDispSwitch(D_00639EA8, 1, 0);
+    SetGirlClothDispSwitch(D_00639EA8, 0, 0);
+    SetGirlClothDispSwitch(D_00639EA8, 2, 0);
+
+    _ACTWait(1);
+
+    scpSearchGobj(0x36)->f16C = 0;
+    scpSearchGobj(0x289)->f16C = 0;
+
+    shadow_DispCancel(0, 1);
+    shadow_DispCancel(4, 1);
+
+    while (stage_ContinueAnimation(0x2F4, 0x2F5) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x2D7, -1, -2);
+
+    D_0063C50C = 0;
+
+    _ACTWait(1);
+
+    scpSearchGobj(0x36)->f16C = 1;
+    scpSearchGobj(0x289)->f16C = 1;
+
+    gflagOn(0x90);
+    gflagOn(0x186);
+
+    stage_SetLoopFlag(0x22B, 0);
+
+    shadow_DispCancel(0x47, 0);
+    shadow_DispCancel(0, 0);
+    shadow_DispCancel(4, 0);
+
+    SetStaticBlur(1);
+
+    while (stage_CheckAnimationFrame(0x2F5, 0x5A, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpFadeOut(3.0f, 0, 0, 0);
+
+    while (scpFadeChk() != 0) {
+        _ACTWait(0x2D);
+    }
+
+    RequestStageChange(3, D_00639EA4, 0, 16.0f, 16.0f);
+}
 
 typedef struct PadState {
     int unk00; /* 0x00 */

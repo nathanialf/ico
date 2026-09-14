@@ -180,7 +180,9 @@ extern unsigned char D_0063C588;
 extern int sekizo_13b;
 extern int sekizo_13b_vol;
 extern void actSt13bElev2CharaChk(volatile int a0);
-extern ActMail D_004FACD0[];
+
+static ActMail elev2chara_mes[2] = {{0x1AE}, {0x1AD}};
+
 extern void actSt13bMeetAgainSub(volatile int a0);
 extern int st13b_yure;
 extern unsigned char st13b_yure_vol;
@@ -1003,7 +1005,68 @@ void actSt13bDoorUp(volatile int a0)
     lt_switch_layout(0x36);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bElev2Chk);
+void actSt13bElev2Chk(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    while (scpTriggerFloorAttr(D_00639EA4, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+
+    if (gflagChk(0x10) != 0) {
+        scpAdpcmPlayRequestFunc(0x64, &sekizo_13b_vol, 1, 1, 1);
+
+        while (sekizo_13b_vol == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+        stage_SetAnimation(0x2A, 1, 0);
+
+        while (stage_CheckAnimationFrame(0x2A, 0x32, 0) == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait(1);
+        iosPadActRequest(D_00639EAC, 0x10);
+
+        while (stage_CheckAnimationFinish(0x2A) == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait(1);
+        gflagOff(0x10);
+        D_0063AA08 = 0;
+    } else {
+        scpAdpcmPlayRequestFunc(0x63, &sekizo_13b, 0, 1, 1);
+
+        while (sekizo_13b == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.15);
+        stage_SetAnimation(0x29, 1, 0);
+
+        while (stage_CheckAnimationFinish(0x29) == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait(1);
+        gflagOn(0x10);
+        RequestStageChange(2, D_00639EA4, 0, 2.0f, 8.0f);
+        D_0063AA08 = 0;
+    }
+
+    lt_switch_layout(0x36);
+
+    elev2chara_mes[0].func = actSt13bElev2CharaChk;
+    sub->mail = elev2chara_mes;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 
 void actSt13bSekizo(volatile int a0)
 {

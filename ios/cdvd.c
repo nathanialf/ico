@@ -275,10 +275,10 @@ void iosCdvdMgrLoad(char *self)
     }
 }
 
-extern int D_0063A44C;
+extern void *D_0063A44C;
 extern char D_00550DB8[];
 extern void debug_StdPrintfDummy();
-extern int iosMallocDebug(int heap, int size, const char *file, int line);
+extern int iosMallocDebug(void *heap, int size, const char *file, int line);
 extern void iosFree(void *p);
 extern void iosCdvdHandlerRead(int *self, void *buf, int n);
 
@@ -291,7 +291,138 @@ void temp_loadfunc(int *self, int name, int size, int a3, int a4, int a5, int se
     iosFree(p);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrPackLoad);
+/* One entry of a .PAK archive's directory: the four words the loader passes
+ * on and the member's name, 0x224 bytes per entry. */
+typedef struct PackEnt {
+    int f00;        /* 0x00 */
+    int f04;        /* 0x04 */
+    int f08;        /* 0x08 */
+    int size;       /* 0x0C */
+    char name[532]; /* 0x10 */
+} PackEnt;
+
+typedef void (*PackFunc)(char *self, char *name, int size, int a3, int a4, int a5, int seg);
+
+/* The extension table: 26 rows of a 0x20-byte suffix and the loader that
+ * handles it. */
+typedef struct PackKind {
+    char ext[0x20]; /* 0x00 */
+    PackFunc func;  /* 0x20 */
+} PackKind;
+
+extern PackKind D_0055F828[];
+extern int D_0028F4C0[];
+extern int D_0063A3DC;
+extern char D_00550DE0[];
+extern char D_0063A3B0[];
+extern void debug_BeginTimer(int id);
+extern float debug_GetTimerSec(void);
+extern int SgGetDmaTransferStatus(int ch);
+extern void iosCdvdBackGroundMgr(void);
+extern void debugCdvdLoadInfoSegAdd(int a0, int kind, int size);
+
+/* INTERIM: the listing expands the extension lookup (cdvd.c rows 1043-1050)
+ * inside the scan below, so the 2001 source declared it `inline`. */
+static inline PackFunc findPackKind(char *ext, int *kind)
+{
+    int i;
+
+    for (i = 0; i < 26; i++) {
+        if (strcmp(ext, D_0055F828[i].ext) == 0) {
+            *kind = i;
+            return D_0055F828[i].func;
+        }
+    }
+    *kind = -1;
+    return 0;
+}
+
+/* INTERIM: the listing expands the loader lookup (cdvd.c rows 1063-1078)
+ * inside iosCdvdMgrPackLoad, so the 2001 source declared it `inline` too. */
+static inline PackFunc getPackLoader(char *name, int *kind)
+{
+    int len;
+    char *p;
+    int i;
+
+    D_0063A3DC = 0;
+    len = strlen(name);
+    p = name + (len - 1);
+    for (i = 0; i < len; i++, p--) {
+        if (*p == '.') {
+            p++;
+            return findPackKind(p, kind);
+        }
+    }
+    return 0;
+}
+
+void iosCdvdMgrPackLoad(char *self)
+{
+    chgFileNameInlined((int)(self + 0x38));
+    *(char *)(self + 0x15C) = 0;
+    *(unsigned char *)(self + 0x15D) = D_0063A378;
+    *(char *)(self + 0x15E) = 0;
+    *(int *)(self + 0x28) = 0;
+    diskReadyBlockInlined();
+    *(int *)(self + 0xC) = 0;
+    iosCdvdMgrSearchFile(self);
+    if (*(int *)(self + 0xC) != 0) {
+        debug_StdPrintfDummy(D_00550D90, self + 0x38);
+        return;
+    }
+    *(int *)(self + 0x30) = ((unsigned int)(*(int *)(self + 0x13C) - 1) >> 11) + 1;
+    iosCdvdMgrStStart(self);
+    if (*(int *)(self + 0xC) != 0) {
+        return;
+    }
+    /* The pack pass runs in its own scope: the two inlined helpers above have
+     * released their stack buffers by here, so the header lands in the slot
+     * the sprintf buffer used. */
+    {
+        int hdr[4];
+        PackEnt *ent;
+        int *num;
+        PackEnt *pk;
+        PackFunc f;
+        int kind;
+        int seg;
+        int size;
+
+        debug_StdPrintfDummy(D_00550DE0, self + 0x38);
+        iosCdvdHandlerRead((int *)self, hdr, 16);
+        /* The entry count is the header's first word; the loop re-reads it
+         * through this view after every member call. */
+        num = hdr;
+        debug_StdPrintfDummy(D_0063A3B0, *num);
+        D_0028F4C0[7] = *num;
+        D_0028F4C0[8] = 0;
+        size = *num * sizeof(PackEnt);
+        ent = (PackEnt *)iosMallocDebug(D_0063A44C, size, D_00550C58, 1174);
+        iosCdvdHandlerRead((int *)self, ent, size);
+        pk = ent;
+        for (seg = 0; seg < *num; seg++, pk++) {
+            debug_BeginTimer(3);
+            f = getPackLoader(pk->name, &kind);
+            if (f != 0) {
+                f(self, pk->name, pk->size, pk->f00, pk->f04, pk->f08, *(int *)(self + 0x24));
+            } else {
+                temp_loadfunc((int *)self, (int)pk->name, pk->size, pk->f00, pk->f04, pk->f08,
+                              *(int *)(self + 0x24));
+            }
+            debugCdvdLoadInfoSegAdd(*(int *)(self + 0x24), kind, pk->size);
+        }
+        iosFree(ent);
+    }
+    debug_GetTimerSec();
+    SgGetDmaTransferStatus(1);
+    debug_StdPrintfDummy(D_00550DA8);
+    iosCdvdMgrStStop(self);
+    iosCdvdBackGroundMgr();
+    if (*(int *)(self + 0xC) == 0) {
+        *(int *)(self + 0xC) = 0;
+    }
+}
 
 extern char D_00550E58[];
 extern int D_0063A388;

@@ -417,6 +417,8 @@ segments:
       - [0x3FA920, data, src/cod/3FA920]     # .data blob resume
       - [0x3FAAA0, .data, src/st13a]  # syms: chain_ok_mes  ChainOK mail record (VMA 0x4FAAA0..0x4FAAC0); D_004FAA00 before it stays in the blob for the still-asm actSt13aElevDown; static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3FAAC0, data, src/cod/3FAAC0]     # .data blob resume
+      - [0x3FACD0, .data, src/st13b]  # syms: elev2chara_mes  actSt13bElev2Chk's mail record {{0x1AE},{0x1AD}}, VMA 0x4FACD0..0x4FACF0, 32 B
+      - [0x3FACF0, data, src/cod/3FACF0]     # .data blob resume
       - [0x3FAFB0, .data, src/st17a]  # syms: door_mes  actSt17aDoor's mail record (VMA 0x4FAFB0..0x4FAFD0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling; the remaining st17a records stay in the blob until their owners land
       - [0x3FAFD0, data, src/cod/3FAFD0]     # .data blob resume
       - [0x3FB0F0, .data, src/st18a]  # syms: switch_l_mes  actSt18aSwitchLUpChk's mail record (VMA 0x4FB0F0..0x4FB110, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (the placeholder name lost a gcse-hash tie)
@@ -516,8 +518,8 @@ segments:
       - [0x521950, rodata, src/cod/521950]   # .rodata blob resume
       - [0x5229B0, .rodata, src/st04a]  # carved jtbl_006229B0 (VMA 0x6229B0..0x6229D0, 32 B, 8 arms): actSt04aTorch1Chk's switch table, emitted by the compiled function
       - [0x5229D0, rodata, src/cod/5229D0]   # .rodata blob resume
-      - [0x522E00, .rodata, src/st13b]  # plain-rodata: actSt13bConte02's double 0.15 (a constant-pool operand, 8 B), VMA 0x622E00..0x622E08
-      - [0x522E08, rodata, src/cod/522E08]   # .rodata blob resume
+      - [0x522E00, .rodata, src/st13b]  # plain-rodata: actSt13bConte02's and actSt13bElev2Chk's doubles 0.15 (two constant-pool operands, 16 B), VMA 0x622E00..0x622E10
+      - [0x522E10, rodata, src/cod/522E10]   # .rodata blob resume
       - [0x523428, .rodata, ito/mpeg/mv_vibuf]  # carved D_00623428 "../ito/include/mv_defs.h" + D_00623448 "p != NULL" (mv_defs.h alloc_zeroed's literals, 8-aligned), VMA 0x623428..0x623458, 48 B; the TU's own rodata run, mirror of mv_vobuf's
       - [0x523458, rodata, src/cod/523458]   # .rodata blob resume (viBufAddDMA's string)
       - [0x538B00, lit4, src/cod/538B00]     # .lit4
