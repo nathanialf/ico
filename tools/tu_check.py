@@ -28,7 +28,8 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # Mirror tools/quick_diff.sh's TU -> source resolution.
 _SRC_PATTERNS = ("src/{tu}.c", "tough_nuts/{tu}/{tu}.c",
-                 "sound/{tu}.c", "ios/{tu}.c", "isys/{tu}.c")
+                 "sound/{tu}.c", "ios/{tu}.c", "isys/{tu}.c",
+                 "sce/{tu}.c", "{tu}.c")
 
 # A C definition opener: `<rettype...> func_<hex>(<args>) {`. The trailing `{`
 # (not `;`) excludes prototypes/externs; INCLUDE_ASM lines have no return type.

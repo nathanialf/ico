@@ -10,11 +10,16 @@
 # Re-run any time either hook body changes.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-HOOK="$ROOT/.git/hooks/pre-commit"
-PUSH_HOOK="$ROOT/.git/hooks/pre-push"
+# In a linked worktree `$ROOT/.git` is a FILE pointing at the main repo, and
+# the hooks live in the main repo's shared hook dir. Ask git for that dir so
+# running this from a worktree refreshes the hooks every checkout uses.
+GITDIR="$(cd "$ROOT" && git rev-parse --git-common-dir 2>/dev/null || true)"
+case "$GITDIR" in "") GITDIR="$ROOT/.git" ;; /*) ;; *) GITDIR="$ROOT/$GITDIR" ;; esac
+HOOK="$GITDIR/hooks/pre-commit"
+PUSH_HOOK="$GITDIR/hooks/pre-push"
 
-if [[ ! -d "$ROOT/.git" ]]; then
-    echo "install_hooks: $ROOT is not a git repo (no .git dir)" >&2
+if [[ ! -d "$GITDIR" ]]; then
+    echo "install_hooks: $ROOT is not a git repo (no git dir)" >&2
     exit 1
 fi
 
@@ -39,7 +44,7 @@ cat > "$HOOK" <<'EOF'
 #
 # Notes:
 # * Setup + ninja is invoked only when the staged changes can plausibly
-#   affect the build (src/, ios/, isys/, ito/, sound/, asm/, config/, tools/, include/, baserom/).
+#   affect the build (src/, ios/, isys/, ito/, sound/, sce/, asm/, config/, tools/, include/, baserom/).
 #   Pure docs/notes commits skip it.
 # * If `build.ninja` is absent (fresh checkout), the hook prints a hint
 #   and skips the gate rather than spending minutes mid-commit.
@@ -51,7 +56,7 @@ ROOT="$(git rev-parse --show-toplevel)"
 # Staged C must be clang-formatted (whitespace only; the byte gate below
 # proves formatting never changes the ROM). Fix with: tools/format.sh FILE
 STAGED_C=$(git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' |
-    grep -E '^(src|ios|sound|isys|ito/mpeg)/[^/]+\.c$' || true)
+    grep -E '^(src|ios|sound|isys|ito/mpeg|sce|sce/[^/]+)/[^/]+\.c$' || true)
 if [[ -n "$STAGED_C" ]]; then
     # shellcheck disable=SC2086
     "$ROOT/tools/format.sh" --check $STAGED_C
@@ -61,7 +66,7 @@ fi
 # (only docs/, README.md, .gitignore, etc.) bypass the build gate.
 BUILD_SENSITIVE=$(git diff --cached --name-only -z |
     tr '\0' '\n' |
-    grep -E '^([A-Za-z0-9_]+/src/|src/|ios/|isys/|ito/|sound/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
+    grep -E '^([A-Za-z0-9_]+/src/|src/|ios/|isys/|ito/|sound/|sce/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
     true)
 if [[ -z "$BUILD_SENSITIVE" ]]; then
     exit 0
@@ -163,7 +168,7 @@ while read local_ref local_sha remote_ref remote_sha; do
         range="$remote_sha..$local_sha"
     fi
     BUILD_SENSITIVE=$(git diff --name-only "$range" 2>/dev/null |
-        grep -E '^([A-Za-z0-9_]+/src/|src/|ios/|isys/|ito/|sound/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
+        grep -E '^([A-Za-z0-9_]+/src/|src/|ios/|isys/|ito/|sound/|sce/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
         true)
     if [[ -z "$BUILD_SENSITIVE" ]]; then
         continue

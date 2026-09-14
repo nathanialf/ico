@@ -60,8 +60,8 @@ ASM_ROOT = "asm" if VERSION in ("us", "pal") else f"asm/{VERSION}"
 # tree is split by original programmer (omori/ito/sugipon/fumi/seki/common/
 # script); retail (`us`) is a flat src/ + ios/isys/ito/sound tree.
 SRC_ROOTS = {
-    "us": ("ios", "isys", "ito", "sound", "src"),
-    "pal": ("ios", "isys", "ito", "sound", "src"),
+    "us": ("ios", "isys", "ito", "sound", "src", "sce"),
+    "pal": ("ios", "isys", "ito", "sound", "src", "sce"),
     "aug6": ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"),
 }.get(VERSION, ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"))
 

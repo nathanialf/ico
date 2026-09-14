@@ -198,10 +198,11 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
 # assembler left a nop there (verified universal: 0 ROM funcs have cvt in a jr
 # delay). Wrap such a return in .set noreorder + explicit nop. Universal
 # assembler-adaptation.
-# Compiled-code rule only: the SCE library objects under src/cod/vendor_* were not
-# produced by ee-gcc, and libvu0 (vendor_25D410) carries sqc2 IN its return slots
+# Compiled-code rule only: the SCE library objects under sce/ (and the src/cod/vendor_*
+# runs not yet moved there) were not produced by ee-gcc, and libvu0 carries sqc2 IN its
+# return slots
 # (26 sites); they keep the pre-2026-09-05 rule (FP store/convert on the literal previous line).
-case "${SRC}" in *vendor_*) JRPAD_WIDE=0 ;; *) JRPAD_WIDE=1 ;; esac
+case "${SRC}" in sce/*|*/sce/*|*vendor_*) JRPAD_WIDE=0 ;; *) JRPAD_WIDE=1 ;; esac
 awk -v wide="${JRPAD_WIDE}" '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
   if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ((ln[i-1] ~ /^[ \t]*(s\.s|swc1|cvt\.[swd]\.[swd])[ \t]/) || (wide==1 && ((ln[i-1] ~ /^[ \t]*(sqc2|lqc2|sq)[ \t]/) || (ln[i-1] ~ /^[ \t]*#NO_APP/ && i>2 && ln[i-2] !~ /^[ \t]*nop[ \t]*$/))))) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"

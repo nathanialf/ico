@@ -279,7 +279,7 @@ def _section_for_subseg(vram: int, stype: str) -> str | None:
 
 def _src_exists(name: str, stype: str) -> bool:
     # After the Phase 1 flatten, yaml subseg names are repo-root-
-    # relative (e.g. `src/DmaPacket`, `ios/cdvd`, `src/cod/0FBB48`).
+    # relative (e.g. `src/DmaPacket`, `ios/cdvd`, `src/cod/0FBB48`, `sce/libm/math/sf_sin`).
     # The earlier convention prepended `src/` here; that doubles the
     # prefix and silently makes every check fail. Resolve directly
     # against the repo root instead.

@@ -115,11 +115,27 @@ segments:
       # is a rom-native, 8-byte-aligned function start (an unaligned split
       # would make the assembler insert pad and break the SHA-1).
       #
-      # `src/cod/vendor_*` spans are library archive members, NOT ICO TUs.
-      # They are named by VMA — a file named `libc` would assert a per-file
-      # partition this tree has not verified — while the trailing comment
-      # names the archive MAIN.MAP's symbol table attributes the span's
-      # functions to.  Attribution tags: `census` = the rom's own __FILE__
+      # `sce/*` spans are SCE SDK library code, NOT ICO TUs.  A file name
+      # asserts a partition, so each name is only as fine as the evidence:
+      #
+      #   * Where MAIN.MAP's archive-member .text rows TILE the retail run
+      #     (the member window's span equals the run's, and every member
+      #     start lands on an 8-aligned function start of the shipped ELF),
+      #     the run is split one file per member, named for the member:
+      #     libpkt, libgraph, libmc, libm, libgcc, libc and libkernl's
+      #     0x2898E8 run.  libc and libm members sit under the newlib
+      #     subdirectory SRCFILE.TXT names for them.  A member whose start is
+      #     not 8-aligned cannot open its own subsegment (the assembler would
+      #     pad and move the bytes), so it stays in the file of the member
+      #     before it and the trailing comment lists it.
+      #   * Where the January link carried a different revision of the
+      #     archive and the member spans do NOT tile, only the ARCHIVE
+      #     attribution is verified: the whole run is one file named for the
+      #     archive, and the file says the member partition is unverified.
+      #
+      # The trailing comment names the archive MAIN.MAP's symbol table
+      # attributes the span's functions to, and the member where one is
+      # proven.  Attribution tags: `census` = the rom's own __FILE__
       # string proves the file; `listing` = carried over from SRCFILE.TXT by
       # reloc-normalized instruction-stream equality; `fill` = forward-filled
       # inside an already-attributed region.
@@ -128,8 +144,8 @@ segments:
       # [OFF, asm, NAME] -> [OFF, c, NAME] as that happens.  Regenerating
       # preserves the type and name of any subsegment whose start offset
       # survives, so a flipped TU is not clobbered.
-      - [0x0, c, src/cod/vendor_100000]  # 3 funcs, vendor unattributed
-      - [0x110, c, src/cod/vendor_100110]  # 177 funcs, vendor libkernl.a (164/177 MAIN.MAP)
+      - [0x0, c, sce/crt0]  # 4 funcs, vendor crt0.s (1/4 MAIN.MAP)
+      - [0x110, c, sce/libkernl/libkernl_100110]  # 179 funcs, vendor libkernl.a whole run (174/179 MAIN.MAP)
       - [0x2460, c, src/main]  # 4 funcs, listing
       - [0x25A8, c, src/delayFreeManager]  # 3 funcs, census
       - [0x27D8, c, src/geometryManager]  # 48 funcs, census
@@ -353,22 +369,137 @@ segments:
       - [0x15A6B8, c, src/GobjProc]  # 8 funcs, listing
       - [0x15AB20, c, src/PObj]  # 5 funcs, census
       - [0x15B578, c, src/vobj]  # 2 funcs, listing
-      - [0x15B680, c, src/cod/vendor_25B680]  # 22 funcs, vendor libgraph.a (22/22 MAIN.MAP)
-      - [0x15D410, c, src/cod/vendor_25D410]  # 43 funcs, vendor libvu0.a (34/43 MAIN.MAP)
-      - [0x15E188, c, src/cod/vendor_25E188]  # 16 funcs, vendor libdma.a (16/16 MAIN.MAP)
-      - [0x15EC00, c, src/cod/vendor_25EC00]  # 11 funcs, vendor libpkt.a (11/11 MAIN.MAP)
-      - [0x15EF18, c, src/cod/vendor_25EF18]  # 141 funcs, vendor libkernl.a (101/141 MAIN.MAP)
-      - [0x165B10, c, src/cod/vendor_265B10]  # 37 funcs, vendor libcdvd.a (28/37 MAIN.MAP)
-      - [0x167C00, c, src/cod/vendor_267C00]  # 29 funcs, vendor libpad.a (21/29 MAIN.MAP)
-      - [0x168E78, c, src/cod/vendor_268E78]  # 26 funcs, vendor libmc.a (21/26 MAIN.MAP)
-      - [0x16A630, c, src/cod/vendor_26A630]  # 141 funcs, vendor libmpeg.a (115/141 MAIN.MAP)
-      - [0x172338, c, src/cod/vendor_272338]  # 70 funcs, vendor libipu.a (4/70 MAIN.MAP)
-      - [0x176AD0, c, src/cod/vendor_276AD0]  # 61 funcs, vendor libsndn2.a (60/61 MAIN.MAP)
-      - [0x1788D8, c, src/cod/vendor_2788D8]  # 21 funcs, vendor libm.a (21/21 MAIN.MAP)
-      - [0x17B190, c, src/cod/vendor_27B190]  # 40 funcs, vendor libgcc.a (38/40 MAIN.MAP)
-      - [0x17E5E0, c, src/cod/vendor_27E5E0]  # 118 funcs, vendor libc.a (116/118 MAIN.MAP)
-      - [0x1898E8, c, src/cod/vendor_2898E8]  # 6 funcs, vendor libkernl.a (6/6 MAIN.MAP)
-      - [0x189B68, c, src/cod/vendor_289B68]  # 1 funcs, vendor libgcc.a (1/1 MAIN.MAP)
+      - [0x15B680, c, sce/libgraph/graph001]  # 2 funcs, vendor libgraph.a member graph001.o (2/2 MAIN.MAP)
+      - [0x15B7A0, c, sce/libgraph/graph002]  # 1 funcs, vendor libgraph.a member graph002.o (1/1 MAIN.MAP)
+      - [0x15B808, c, sce/libgraph/graph003]  # 1 funcs, vendor libgraph.a member graph003.o (1/1 MAIN.MAP)
+      - [0x15BA78, c, sce/libgraph/graph004]  # 1 funcs, vendor libgraph.a member graph004.o (1/1 MAIN.MAP)
+      - [0x15BB38, c, sce/libgraph/graph006]  # 1 funcs, vendor libgraph.a member graph006.o (1/1 MAIN.MAP)
+      - [0x15BD20, c, sce/libgraph/graph008]  # 1 funcs, vendor libgraph.a member graph008.o (1/1 MAIN.MAP)
+      - [0x15BE08, c, sce/libgraph/graph009]  # 1 funcs, vendor libgraph.a member graph009.o (1/1 MAIN.MAP)
+      - [0x15C0A0, c, sce/libgraph/graph010]  # 1 funcs, vendor libgraph.a member graph010.o (1/1 MAIN.MAP)
+      - [0x15C100, c, sce/libgraph/graph011]  # 1 funcs, vendor libgraph.a member graph011.o (1/1 MAIN.MAP)
+      - [0x15C198, c, sce/libgraph/graph012]  # 1 funcs, vendor libgraph.a member graph012.o (1/1 MAIN.MAP)
+      - [0x15C4B0, c, sce/libgraph/graph013]  # 1 funcs, vendor libgraph.a member graph013.o (1/1 MAIN.MAP)
+      - [0x15C5C0, c, sce/libgraph/graph014]  # 1 funcs, vendor libgraph.a member graph014.o (1/1 MAIN.MAP)
+      - [0x15C620, c, sce/libgraph/graph015]  # 1 funcs, vendor libgraph.a member graph015.o (1/1 MAIN.MAP)
+      - [0x15C808, c, sce/libgraph/graph016]  # 1 funcs, vendor libgraph.a member graph016.o (1/1 MAIN.MAP)
+      - [0x15C948, c, sce/libgraph/graph017]  # 1 funcs, vendor libgraph.a member graph017.o (1/1 MAIN.MAP)
+      - [0x15CAC8, c, sce/libgraph/graph018]  # 1 funcs, vendor libgraph.a member graph018.o (1/1 MAIN.MAP)
+      - [0x15D158, c, sce/libgraph/graph020]  # 1 funcs, vendor libgraph.a member graph020.o (1/1 MAIN.MAP)
+      - [0x15D198, c, sce/libgraph/graph021]  # 1 funcs, vendor libgraph.a member graph021.o (1/1 MAIN.MAP)
+      - [0x15D220, c, sce/libgraph/graph029]  # 1 funcs, vendor libgraph.a member graph029.o (1/1 MAIN.MAP)
+      - [0x15D240, c, sce/libgraph/graph005]  # 1 funcs, vendor libgraph.a member graph005.o (1/1 MAIN.MAP)
+      - [0x15D308, c, sce/libgraph/graph007]  # 1 funcs, vendor libgraph.a member graph007.o (1/1 MAIN.MAP)
+      - [0x15D410, c, sce/libvu0/libvu0]  # 46 funcs, vendor libvu0.a whole run (44/46 MAIN.MAP)
+      - [0x15E188, c, sce/libdma/libdma]  # 16 funcs, vendor libdma.a whole run (16/16 MAIN.MAP)
+      - [0x15EC00, c, sce/libpkt/vifpk025]  # 1 funcs, vendor libpkt.a member vifpk025.o (1/1 MAIN.MAP)
+      - [0x15EC10, c, sce/libpkt/vifpk026]  # 1 funcs, vendor libpkt.a member vifpk026.o (1/1 MAIN.MAP)
+      - [0x15EC20, c, sce/libpkt/vifpk027]  # 1 funcs, vendor libpkt.a member vifpk027.o (1/1 MAIN.MAP)
+      - [0x15EC78, c, sce/libpkt/vifpk030]  # 1 funcs, vendor libpkt.a member vifpk030.o (1/1 MAIN.MAP)
+      - [0x15ECD0, c, sce/libpkt/vifpk036]  # 1 funcs, vendor libpkt.a member vifpk036.o (1/1 MAIN.MAP)
+      - [0x15ED28, c, sce/libpkt/vifpk039]  # 1 funcs, vendor libpkt.a member vifpk039.o (1/1 MAIN.MAP)
+      - [0x15ED80, c, sce/libpkt/vifpk040]  # 1 funcs, vendor libpkt.a member vifpk040.o (1/1 MAIN.MAP)
+      - [0x15EDB0, c, sce/libpkt/vifpk041]  # 1 funcs, vendor libpkt.a member vifpk041.o (1/1 MAIN.MAP)
+      - [0x15EDC8, c, sce/libpkt/vifpk042]  # 1 funcs, vendor libpkt.a member vifpk042.o (1/1 MAIN.MAP)
+      - [0x15EE70, c, sce/libpkt/vifpk044]  # 1 funcs, vendor libpkt.a member vifpk044.o (1/1 MAIN.MAP)
+      - [0x15EEF0, c, sce/libpkt/vifpk053]  # 1 funcs, vendor libpkt.a member vifpk053.o (1/1 MAIN.MAP)
+      - [0x15EF18, c, sce/libkernl/libkernl_25EF18]  # 141 funcs, vendor libkernl.a whole run (135/141 MAIN.MAP)
+      - [0x165B10, c, sce/libcdvd/libcdvd]  # 37 funcs, vendor libcdvd.a whole run (36/37 MAIN.MAP)
+      - [0x167C00, c, sce/libpad/libpad]  # 29 funcs, vendor libpad.a whole run (29/29 MAIN.MAP)
+      - [0x168E78, c, sce/libmc/libmc]  # 26 funcs, vendor libmc.a member libmc.o (26/26 MAIN.MAP)
+      - [0x16A630, c, sce/libmpeg/libmpeg]  # 141 funcs, vendor libmpeg.a whole run (140/141 MAIN.MAP)
+      - [0x172338, c, sce/libipu/libipu]  # 70 funcs, vendor libipu.a whole run (69/70 MAIN.MAP)
+      - [0x176AD0, c, sce/libsndn2/sound]  # 61 funcs, vendor libsndn2.a whole run (61/61 MAIN.MAP)
+      - [0x1788D8, c, sce/libm/math/sf_sin]  # 1 funcs, vendor libm.a member sf_sin.o (1/1 MAIN.MAP)
+      - [0x1789C8, c, sce/libm/math/wf_acos]  # 1 funcs, vendor libm.a member wf_acos.o (1/1 MAIN.MAP)
+      - [0x178AC8, c, sce/libm/math/wf_asin]  # 1 funcs, vendor libm.a member wf_asin.o (1/1 MAIN.MAP)
+      - [0x178BC8, c, sce/libm/math/wf_atan2]  # 1 funcs, vendor libm.a member wf_atan2.o (1/1 MAIN.MAP)
+      - [0x178CF0, c, sce/libm/math/wf_fmod]  # 1 funcs, vendor libm.a member wf_fmod.o (1/1 MAIN.MAP)
+      - [0x178E30, c, sce/libm/math/ef_acos]  # 1 funcs, vendor libm.a member ef_acos.o (1/1 MAIN.MAP)
+      - [0x179260, c, sce/libm/math/ef_asin]  # 1 funcs, vendor libm.a member ef_asin.o (1/1 MAIN.MAP)
+      - [0x179600, c, sce/libm/math/ef_atan2]  # 1 funcs, vendor libm.a member ef_atan2.o (1/1 MAIN.MAP)
+      - [0x1798E8, c, sce/libm/math/ef_fmod]  # 1 funcs, vendor libm.a member ef_fmod.o (1/1 MAIN.MAP)
+      - [0x179B38, c, sce/libm/math/ef_rem_pio2]  # 1 funcs, vendor libm.a member ef_rem_pio2.o (1/1 MAIN.MAP)
+      - [0x179F18, c, sce/libm/math/ef_sqrt]  # 1 funcs, vendor libm.a member ef_sqrt.o (1/1 MAIN.MAP)
+      - [0x17A050, c, sce/libm/math/kf_cos]  # 1 funcs, vendor libm.a member kf_cos.o (1/1 MAIN.MAP)
+      - [0x17A1A8, c, sce/libm/math/kf_rem_pio2]  # 1 funcs, vendor libm.a member kf_rem_pio2.o (1/1 MAIN.MAP)
+      - [0x17AAF8, c, sce/libm/math/kf_sin]  # 1 funcs, vendor libm.a member kf_sin.o (1/1 MAIN.MAP)
+      - [0x17AC00, c, sce/libm/common/s_matherr]  # 1 funcs, vendor libm.a member s_matherr.o (1/1 MAIN.MAP)
+      - [0x17AC28, c, sce/libm/math/sf_atan]  # 1 funcs, vendor libm.a member sf_atan.o (1/1 MAIN.MAP)
+      - [0x17AED0, c, sce/libm/math/sf_fabs]  # 1 funcs, vendor libm.a member sf_fabs.o (1/1 MAIN.MAP)
+      - [0x17AEF0, c, sce/libm/math/sf_floor]  # 1 funcs, vendor libm.a member sf_floor.o (1/1 MAIN.MAP)
+      - [0x17AFD8, c, sce/libm/math/sf_isnan]  # 1 funcs, vendor libm.a member sf_isnan.o (1/1 MAIN.MAP)
+      - [0x17B000, c, sce/libm/common/sf_scalbn]  # 1 funcs, vendor libm.a member sf_scalbn.o (1/1 MAIN.MAP)
+      - [0x17B160, c, sce/libm/common/sf_copysign]  # 1 funcs, vendor libm.a member sf_copysign.o (1/1 MAIN.MAP)
+      - [0x17B190, c, sce/libgcc/__main]  # 3 funcs, vendor libgcc.a member __main.o (3/3 MAIN.MAP)
+      - [0x17B2B8, c, sce/libgcc/_divdi3]  # 1 funcs, vendor libgcc.a member _divdi3.o (1/1 MAIN.MAP)
+      - [0x17B9A8, c, sce/libgcc/_fixunsdfdi]  # 1 funcs, vendor libgcc.a member _fixunsdfdi.o (1/1 MAIN.MAP)
+      - [0x17BA98, c, sce/libgcc/_floatdidf]  # 1 funcs, vendor libgcc.a member _floatdidf.o (1/1 MAIN.MAP)
+      - [0x17BB30, c, sce/libgcc/_moddi3]  # 1 funcs, vendor libgcc.a member _moddi3.o (1/1 MAIN.MAP)
+      - [0x17C198, c, sce/libgcc/_muldi3]  # 1 funcs, vendor libgcc.a member _muldi3.o (1/1 MAIN.MAP)
+      - [0x17C1F8, c, sce/libgcc/_udivdi3]  # 1 funcs, vendor libgcc.a member _udivdi3.o (1/1 MAIN.MAP)
+      - [0x17C7C8, c, sce/libgcc/_umoddi3]  # 1 funcs, vendor libgcc.a member _umoddi3.o (1/1 MAIN.MAP)
+      - [0x17CD08, c, sce/libgcc/dp-bit]  # 15 funcs, vendor libgcc.a member dp-bit.o (15/15 MAIN.MAP)
+      - [0x17DA00, c, sce/libgcc/fp-bit]  # 15 funcs, vendor libgcc.a member fp-bit.o (14/15 MAIN.MAP)
+      - [0x17E5E0, c, sce/libc/stdlib/assert]  # 1 funcs, vendor libc.a member assert.o (1/1 MAIN.MAP)
+      - [0x17E618, c, sce/libc/stdlib/atoi]  # 1 funcs, vendor libc.a member atoi.o (1/1 MAIN.MAP)
+      - [0x17E640, c, sce/libc/errno/errno]  # 1 funcs, vendor libc.a member errno.o (1/1 MAIN.MAP)
+      - [0x17E650, c, sce/libc/stdio/fiprintf]  # 2 funcs, vendor libc.a member fiprintf.o + memcmp.o (2/2 MAIN.MAP)
+      - [0x17E718, c, sce/libc/machine/r5900/memcpy]  # 1 funcs, vendor libc.a member memcpy.o (1/1 MAIN.MAP)
+      - [0x17E7C8, c, sce/libc/machine/r5900/memset]  # 1 funcs, vendor libc.a member memset.o (1/1 MAIN.MAP)
+      - [0x17E888, c, sce/libc/stdio/printf]  # 2 funcs, vendor libc.a member printf.o (2/2 MAIN.MAP)
+      - [0x17E918, c, sce/libc/stdlib/qsort]  # 1 funcs, vendor libc.a member qsort.o (1/1 MAIN.MAP)
+      - [0x17F340, c, sce/libc/stdlib/rand]  # 2 funcs, vendor libc.a member rand.o (2/2 MAIN.MAP)
+      - [0x17F380, c, sce/libc/stdio/sprintf]  # 2 funcs, vendor libc.a member sprintf.o (2/2 MAIN.MAP)
+      - [0x17F458, c, sce/libc/stdio/sscanf]  # 2 funcs, vendor libc.a member sscanf.o (2/2 MAIN.MAP)
+      - [0x17F4E8, c, sce/libc/machine/r5900/strcat]  # 2 funcs, vendor libc.a member strcat.o + strcmp.o (2/2 MAIN.MAP)
+      - [0x17F758, c, sce/libc/machine/r5900/strcpy]  # 2 funcs, vendor libc.a member strcpy.o + strlen.o (2/2 MAIN.MAP)
+      - [0x17F9A8, c, sce/libc/machine/r5900/strncmp]  # 1 funcs, vendor libc.a member strncmp.o (1/1 MAIN.MAP)
+      - [0x17FB60, c, sce/libc/machine/r5900/strncpy]  # 1 funcs, vendor libc.a member strncpy.o (1/1 MAIN.MAP)
+      - [0x17FD20, c, sce/libc/string/strrchr]  # 1 funcs, vendor libc.a member strrchr.o (1/1 MAIN.MAP)
+      - [0x17FD70, c, sce/libc/string/strstr]  # 1 funcs, vendor libc.a member strstr.o (1/1 MAIN.MAP)
+      - [0x17FDE0, c, sce/libc/string/strtok]  # 1 funcs, vendor libc.a member strtok.o (1/1 MAIN.MAP)
+      - [0x17FE08, c, sce/libc/string/strtok_r]  # 1 funcs, vendor libc.a member strtok_r.o (0/1 MAIN.MAP)
+      - [0x17FEA8, c, sce/libc/stdlib/strtol]  # 1 funcs, vendor libc.a member strtol.o (1/1 MAIN.MAP)
+      - [0x180118, c, sce/libc/stdio/vfiprintf]  # 4 funcs, vendor libc.a member vfiprintf.o (4/4 MAIN.MAP)
+      - [0x180E60, c, sce/libc/stdio/vfprintf]  # 6 funcs, vendor libc.a member vfprintf.o (4/6 MAIN.MAP)
+      - [0x182780, c, sce/libc/stdio/vfscanf]  # 2 funcs, vendor libc.a member vfscanf.o (2/2 MAIN.MAP)
+      - [0x183390, c, sce/libc/stdio/vsprintf]  # 1 funcs, vendor libc.a member vsprintf.o (1/1 MAIN.MAP)
+      - [0x1833E8, c, sce/libc/stdio/wsetup]  # 1 funcs, vendor libc.a member wsetup.o (1/1 MAIN.MAP)
+      - [0x1834F8, c, sce/libc/stdlib/abort]  # 1 funcs, vendor libc.a member abort.o (0/1 MAIN.MAP)
+      - [0x183518, c, sce/libc/stdlib/atof]  # 0 funcs, vendor libc.a member atof.o (0/0 MAIN.MAP)
+      - [0x183538, c, sce/libc/stdlib/dtoa]  # 2 funcs, vendor libc.a member dtoa.o (2/2 MAIN.MAP)
+      - [0x184920, c, sce/libc/stdio/fflush]  # 1 funcs, vendor libc.a member fflush.o (1/1 MAIN.MAP)
+      - [0x184A28, c, sce/libc/stdio/findfp]  # 6 funcs, vendor libc.a member findfp.o (6/6 MAIN.MAP)
+      - [0x184C80, c, sce/libc/stdio/fread]  # 1 funcs, vendor libc.a member fread.o (1/1 MAIN.MAP)
+      - [0x184DA0, c, sce/libc/stdlib/freer]  # 2 funcs, vendor libc.a member freer.o (2/2 MAIN.MAP)
+      - [0x185230, c, sce/libc/stdio/fvwrite]  # 1 funcs, vendor libc.a member fvwrite.o (1/1 MAIN.MAP)
+      - [0x185608, c, sce/libc/stdio/fwalk]  # 1 funcs, vendor libc.a member fwalk.o (1/1 MAIN.MAP)
+      - [0x1856A0, c, sce/libc/locale/locale]  # 4 funcs, vendor libc.a member locale.o (4/4 MAIN.MAP)
+      - [0x185790, c, sce/libc/stdio/makebuf]  # 1 funcs, vendor libc.a member makebuf.o (1/1 MAIN.MAP)
+      - [0x1858E0, c, sce/libc/stdlib/mallocr]  # 2 funcs, vendor libc.a member mallocr.o (2/2 MAIN.MAP)
+      - [0x1862B0, c, sce/libc/stdlib/mbtowc_r]  # 3 funcs, vendor libc.a member mbtowc_r.o + memchr.o, memmove.o (3/3 MAIN.MAP)
+      - [0x1864D0, c, sce/libc/stdlib/mlock]  # 2 funcs, vendor libc.a member mlock.o (2/2 MAIN.MAP)
+      - [0x1864E0, c, sce/libc/stdlib/mprec]  # 17 funcs, vendor libc.a member mprec.o (17/17 MAIN.MAP)
+      - [0x187500, c, sce/libc/stdio/refill]  # 2 funcs, vendor libc.a member refill.o (2/2 MAIN.MAP)
+      - [0x187698, c, sce/libc/s_isinf]  # 1 funcs, vendor libc.a member s_isinf.o (1/1 MAIN.MAP)
+      - [0x1876E0, c, sce/libc/s_isnan]  # 1 funcs, vendor libc.a member s_isnan.o (1/1 MAIN.MAP)
+      - [0x187718, c, sce/libc/reent/sbrkr]  # 1 funcs, vendor libc.a member sbrkr.o (1/1 MAIN.MAP)
+      - [0x187778, c, sce/libc/signal/signal]  # 8 funcs, vendor libc.a member signal.o (8/8 MAIN.MAP)
+      - [0x187AC8, c, sce/libc/reent/signalr]  # 2 funcs, vendor libc.a member signalr.o (2/2 MAIN.MAP)
+      - [0x187B48, c, sce/libc/stdio/stdio]  # 4 funcs, vendor libc.a member stdio.o (4/4 MAIN.MAP)
+      - [0x187CB8, c, sce/libc/stdlib/strtod]  # 3 funcs, vendor libc.a member strtod.o (3/3 MAIN.MAP)
+      - [0x188C10, c, sce/libc/stdlib/strtoul]  # 2 funcs, vendor libc.a member strtoul.o (2/2 MAIN.MAP)
+      - [0x188E68, c, sce/libc/stdio/ungetc]  # 2 funcs, vendor libc.a member ungetc.o (2/2 MAIN.MAP)
+      - [0x1890E0, c, sce/libc/reent/writer]  # 1 funcs, vendor libc.a member writer.o (1/1 MAIN.MAP)
+      - [0x189140, c, sce/libc/stdlib/callocr]  # 1 funcs, vendor libc.a member callocr.o (1/1 MAIN.MAP)
+      - [0x189200, c, sce/libc/reent/closer]  # 1 funcs, vendor libc.a member closer.o (1/1 MAIN.MAP)
+      - [0x189258, c, sce/libc/reent/fstatr]  # 1 funcs, vendor libc.a member fstatr.o (1/1 MAIN.MAP)
+      - [0x1892B8, c, sce/libc/reent/lseekr]  # 1 funcs, vendor libc.a member lseekr.o (1/1 MAIN.MAP)
+      - [0x189318, c, sce/libc/reent/readr]  # 1 funcs, vendor libc.a member readr.o (1/1 MAIN.MAP)
+      - [0x189378, c, sce/libc/stdlib/reallocr]  # 1 funcs, vendor libc.a member reallocr.o (1/1 MAIN.MAP)
+      - [0x1898E8, c, sce/libkernl/cache]  # 6 funcs, vendor libkernl.a member cache.o (6/6 MAIN.MAP)
+      - [0x189B68, c, sce/libgcc/_fixdfdi]  # 1 funcs, vendor libgcc.a member _fixdfdi.o (1/1 MAIN.MAP)
       # .vutext — 5 VU1 microprograms, hand-typed src/*.S (assembled by
       # tools/assemble_vu0.py). The whole 0x50E0-byte section is byte-identical
       # across aug6, ntsc (USA retail) and pal, normal_l included (measured

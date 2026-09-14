@@ -1042,7 +1042,7 @@ HEADER = """
 def emit_syms(m: Model) -> tuple[int, int, int]:
     span_of = {}
     for s_, e_, sname, _n, stag in yaml_spans(m):
-        if not sname.startswith("src/cod/vendor_"):
+        if not sname.startswith(("src/cod/vendor_", "sce/")):
             continue
         for i_, f_ in enumerate(m.rfuncs):
             if s_ <= f_[0] < e_:
@@ -1077,9 +1077,12 @@ def emit_syms(m: Model) -> tuple[int, int, int]:
             lines.append(f"// ---- {cur_tu or VENDOR}")
         if start in seed_vmas:
             continue                             # hand-written seed wins
-        # Vendor functions name their owning `src/cod/vendor_<VMA>` yaml span
-        # so tools/progress_tree.py can attribute them to a TU file (and count a
-        # port into that span), then the archive MAIN.MAP assigns the span to.
+        # Vendor functions name their owning yaml span (`sce/<archive>/<member>`
+        # where MAIN.MAP's member spans tile the retail run, `sce/<archive>/...`
+        # for a whole run where they do not, and `src/cod/vendor_<VMA>` for a run
+        # with no archive attribution) so tools/progress_tree.py can attribute
+        # them to a TU file (and count a port into that span), then the archive
+        # MAIN.MAP assigns the span to.
         if m.tu[i] in (None, VENDOR):
             sp = span_of.get(i)
             tu = (f"{sp[0]}  // {VENDOR} {sp[1].removeprefix('vendor ')}"
@@ -1136,11 +1139,13 @@ YAML_TEXT_HEADER = """\
       # is a rom-native, 8-byte-aligned function start (an unaligned split
       # would make the assembler insert pad and break the SHA-1).
       #
-      # `src/cod/vendor_*` spans are library archive members, NOT ICO TUs.
-      # They are named by VMA — a file named `libc` would assert a per-file
-      # partition this tree has not verified — while the trailing comment
-      # names the archive MAIN.MAP's symbol table attributes the span's
-      # functions to.  Attribution tags: `census` = the rom's own __FILE__
+      # `sce/*` spans are SCE SDK library code, NOT ICO TUs.  A run whose
+      # MAIN.MAP member spans tile it is split one file per member; a run
+      # whose members do not tile it stays one file named for the archive,
+      # and a run with no archive attribution keeps the VMA-named
+      # `src/cod/vendor_<VMA>` fallback this generator emits.  The trailing
+      # comment names the archive MAIN.MAP's symbol table attributes the
+      # span's functions to.  Attribution tags: `census` = the rom's own __FILE__
       # string proves the file; `listing` = carried over from SRCFILE.TXT by
       # reloc-normalized instruction-stream equality; `fill` = forward-filled
       # inside an already-attributed region.
@@ -1233,6 +1238,9 @@ def yaml_spans(m: Model):
             tag = ("census" if srcs.get("census") else
                    ("listing" if srcs.get("listing") else "fill"))
         else:
+            # Fallback only: the committed tree renames these spans under
+            # sce/ once the MAIN.MAP member tiling has been checked, and a
+            # regeneration preserves the name of any span whose start survives.
             name = f"src/cod/vendor_{s:06X}"
             tag = vendor_tag(m, idx[s], s, e)
         seen[name] += 1
