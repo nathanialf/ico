@@ -405,13 +405,15 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", setLight_120);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", reg_setMMatrixPacket);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", reg_setCMatrixPacket);
 
-/* No census identity.  The retail object out-of-lines this helper and tail-calls
-   it from all six reg_disp* functions; the January listing inlines the same block
-   at every site (it cites RegistPacket.c lines 1290-1313 inside reg_dispCObj) and
-   so gives it no label, and MAIN.MAP has no global for it, so the disc maps carry
-   no name to recover.  Every other function of the TU aligns one-to-one with the
-   listing around it, between reg_setCMatrixPacket and reg_transMaterialPacket. */
-void func_00121428(char *a0, int a1, int a2)
+/* This helper has NO NAME IN THE DISC MAPS, so it keeps the placeholder on
+   purpose.  The retail object out-of-lines it and tail-calls it from all six
+   reg_disp* functions; the January listing inlines the same block at every site
+   (it cites RegistPacket.c lines 1290-1313 inside reg_dispCObj) and so gives it
+   no label, and MAIN.MAP has no global for it.  A helper the map does not export
+   is a file static, which is what it is here.  Every other function of the TU
+   aligns one-to-one with the listing around it, between reg_setCMatrixPacket and
+   reg_transMaterialPacket. */
+static void func_00121428(char *a0, int a1, int a2)
 {
     short h;
     dl_SetDLPriority(4);
@@ -531,7 +533,7 @@ static inline void regTransTexturePacket(int tex, int pri)
 extern int *tex_GetTexExtData(int idx);
 extern void shadow_RenderVolume(char *o);
 extern void reg_chooseReflectionMicroCode(int a0, int a1, int a2);
-extern void func_00121428(char *pkt, int r, int c);
+static void func_00121428(char *pkt, int r, int c);
 extern int reg_GetShinePri(int a0);
 extern char D_0054FBD0[];
 extern char D_0054FC30[];
