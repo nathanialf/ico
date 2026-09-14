@@ -75,6 +75,32 @@ programmer directory that owns it.
 | `ico2/omori/include/g50climb.h` | 0 | 3 functions |
 | `ico2/omori/include/g100climb.h` | 0 | 3 functions |
 | `ico2/omori/include/g200climb.h` | 0 | 3 functions |
+| `ico2/common/include/charFileName.h` | n/a | none |
+
+`charFileName.h` is the eleventh and the only one the listing does not name.
+It has no SRCFILE.TXT rows at all; the retail ELF names it, in the message at
+`D_00619370` (.rodata, VMA 0x00619370, rom offset 0x519370), which spells
+`commmon/include/charFileName.h` with the developers' typo and asks the reader
+to raise `MAX_CHARS`. The path is hand typed into that message rather than
+expanded from `__FILE__`, so it fixes the header's name and directory but says
+nothing about the `-I` spelling gcc saw, and no include search order had to
+change: `tools/compile_c.sh` already puts `-I../common/include` in every ico2
+TU's order. The three sites in `ico2/common/src/charFileManager.c` that print
+the message all compare against 1637, so the bound is the one recoverable
+contents, and the message's bytes still come from the uncarved blob
+`asm/data/cod/4577D0.rodata.s`.
+
+## The `.c.inc` code-includes
+
+The census records four coalescing TUs. `ico2/fumi/src/girl_act.c` pulls in
+three members, of which two are split out as of 2026-09-14,
+`girl_act_hand.c.inc` (five `HandMgr_*` bodies) and `girl_brain_attract.c.inc`
+(three), both contiguous runs of the emission order that moved verbatim. The
+third, `girl_brain_main.c.inc`, is blocked: its functions occupy three disjoint
+blocks of the emission order, 0x0016FC30 to 0x00177898, then
+`FindGirlPullupFloorBoxGObj` alone at 0x0017B858, then 0x0017C3A8 to
+0x0017C6D0, because the end-of-file inline tail splits them. The same blocker
+holds the six `*climb.h` bodies, below.
 
 `mv_defs.h`'s line-42 helper bakes `__FILE__` into `.rodata` as the literal
 `"../ito/include/mv_defs.h"` (`D_005576A8` in the ROM), which only comes out
@@ -101,9 +127,34 @@ nine helpers.  Every one is inline-only, so **all nine names are ours**.
 | 63-66 `random_signed_b` | identical body to lines 53-56 | 5 hosts (47+65) | reconstruction |
 | 69-72 `plane_distance` | `dot(plane.xyz,pos.xyz)+plane.w` on VU0 | 28 expansions | **PROVEN** |
 | 85-88 `distance_squared` | `\|a-b\|^2` (xyz) on VU0 | 22 hosts (85/87) | MATCHED 2026-09-07 (host GetChainCollision): one clobber-free asm block like plane_distance; the macro form's "memory" clobber killed gcse's MEM expressions in every host |
-| 95-98 `distance_squared_b` | identical body to lines 85-88 | 1 host (87+97) | reconstruction; OPEN 2026-09-11: subAP1BrainMain (a line-87 host per the census) matches only with this macro-split spelling, while GetChainCollision matches only with the single-block `$2`-clobber spelling (70 words move under the other). One dev body must fit both hosts; neither reconstruction is it yet |
+| 95-98 `distance_squared_b` | identical body to lines 85-88 | 1 host (87+97) | reconstruction; see the note below |
 | 100-103 `distance_squared_xz` | `dx^2+dz^2` (`vmul.xz`) | 1 host (line 102) | reconstruction |
 | 115-120 `byte_checksum` | byte sum over n bytes | 2 hosts (115/118/119) | reconstruction |
+
+### `distance_squared`: the listing settles which helper each host absorbed
+(2026-09-14)
+
+The open item of 2026-09-11 was whether `subAP1BrainMain` and
+`GetChainCollision` absorb the same helper, since each reaches rc0 only under a
+spelling the other rejects (the macro-split form and the single-block
+`$2`-clobber form respectively, about 70 words moving under the wrong one).
+The census decides it: both hosts cite the range `sugiCommon.h(87-87)` and
+nothing else, so both absorbed the line 85-88 helper, and there is one dev body
+to find, not two.
+
+The line 95-98 helper is a different question and the listing keeps it separate.
+Its only host is `GetBoxHoldPoint` (`src/box`, 0x001C9448), which cites
+`sugiCommon.h(87-97)`: it absorbs BOTH helpers, which is why the two line ranges
+cannot be collapsed. Nothing else in the listing cites line 95 or 97. The line
+100-103 helper likewise has exactly one host, `clip_wall_1` (`src/way_llf`,
+0x0016B268), citing `sugiCommon.h(102-102)`.
+
+So the divergence between `subAP1BrainMain` and `GetChainCollision` is a
+source-shape problem inside one of the two hosts, not evidence of a second
+helper. Still open: which single spelling both hosts accept. The missing
+evidence is not in the listing, which carries no source text; it has to come
+from a shape that reaches rc0 in both, and `subAP1BrainMain` is still
+`INCLUDE_ASM`.
 
 Two pairs (53-56 vs 63-66, and 85-88 vs 95-98) emit the *same* instruction
 sequence at *different* header lines.  The line ranges are the only evidence
@@ -263,15 +314,42 @@ emitted out of line, so it has no name either.
 (`after*Hand*`, `act*Hand*`, `mot*Hand*`), 18 in total, and those names are
 the developer's, from the listing's symbol table.
 
-All 18 are **TODO with no body**, and deliberately so.  `SRCFILE.TXT`
-disassembles a different link from the retail ELF we build (its `.text` runs
-to 0x0028DB34 against retail's 0x00289BC4) and these functions are
-instrumented in it: every `act*Hand*` entry point opens with a `printf` gated
-on a debug global.  None of the 18 correlates to a retail VMA (every
-`pal vma` cell in those census sections is blank), so a body derived from the
-listing could not be gated against the ROM we build.  Each header records its
-functions' header line ranges and instruction counts so the matcher can pick
-them up once their retail counterparts are identified in `boyact`/`girl_act`.
+Each defines three whole functions (`after*Hand*`, `act*Hand*`, `mot*Hand*`),
+18 in total, and those names are the developer's, from the listing's symbol
+table. The census gives each one its header line range and instruction count.
+
+**Correction 2026-09-14.** This section used to say that none of the 18
+correlates to a retail VMA and that a body derived from the listing could not
+be gated. Both halves are now false. Every one of the 18 has an address in
+`config/symbol_addrs.pal.txt`, and 16 of the 18 are matched C today: all nine
+girl functions inside `ico2/fumi/src/girl_act.c` and seven of the nine boy
+functions inside `ico2/fumi/src/boyact.c`, with only `motBoyHand100`
+(0x001507F8) and `motBoyHand200` (0x00150AA8) still `INCLUDE_ASM`. What is
+true is the narrower statement the correction started from: the census's own
+`pal vma` cells for these six sections are blank, because the listing
+instruments every `act*Hand*` entry point with a `printf` on a debug global and
+the generator's instruction-stream hashing cannot correlate an instrumented
+body. The addresses came from the positional recovery instead.
+
+The instruction counts show the instrumentation directly. `motGirlHand50` is 98
+instructions in the listing and 98 in the ROM (0x0016F6B0 to 0x0016F838), an
+uninstrumented function that matches exactly; `actGirlHand50` is 46 in the
+listing against 42 in the ROM (0x0017C0E8 to 0x0017C190) and `afterGirlHand50`
+17 against 16, the difference being the debug call the January 2002 link
+carried.
+
+**Why the bodies are still not in the headers.** Moving them is the same
+blocker that holds `girl_brain_main.c.inc`: ee-gcc 2.9 emits non-inline
+functions in parse order and inline functions at end of file in prototype
+order, and in `girl_act.o` the `mot*` third of each header lands in the parse
+run (0x0016F6B0 onward) while the `act*` and `after*` thirds land in the
+end-of-file tail (0x0017C0E8 onward). A single `#include` of `g50climb.h`
+cannot put one of its three functions in the parse run and two in the tail
+until the tail is rebuilt as `inline` definitions with a prototype order
+recovered from the ROM's tail order. `boyact.o` has the same split.
+
+Each header keeps its functions' header line ranges and instruction counts
+until then.
 
 ## Drift audit (2026-09-05)
 
@@ -314,9 +392,32 @@ Delete the affected `.o`/`.s` (or do a clean rebuild) after any header edit,
 or a header change will silently go ungated.
 
 
-## Open prototype questions (2026-09-11)
+## Open prototype questions
 
-- `WayLengthOfGObj_GObj` takes two gobjs: routeSetPos (src/backStage) reaches rc0 only with the second parameter; the one-arg prototype sits at 6 diffs. Update the shared declaration when the definition is matched.
-- `WayPointWithRangeFromPos2`'s second parameter is a pointer: backStageProcessOutStage reaches rc0 only with `void *`.
-- `gamesysObjInfoPosSetStage` is defined in src/gamesys.c as `int *(int *self, int a1, int a2, int a3)` but six TUs declare it locally with six different signatures; reconcile when gamesys is matched.
-- `LockForceGroundParent` / `UnlockForceGroundParent`: empty retail bodies, now declared with the GObj parameter every call site passes (commit 009da5cd1).
+The listing carries no source text and no types, so it cannot settle a
+signature on its own. What it does settle is where each function lives and
+whether its definition exists as C yet, which is what each item below is
+gated on.
+
+- `WayLengthOfGObj_GObj` (`fumi/src/way_kidnap.c:215`, 0x00215BC8): **answered
+  as to arity, 2026-09-14.** The definition is matched C in
+  `ico2/fumi/src/way_kidnap.c` and takes two pointers,
+  `float WayLengthOfGObj_GObj(void *obj0, void *obj1)`, which is why
+  `routeSetPos` (`src/backStage`) reaches rc0 only with a second parameter and
+  the one-argument prototype sits at 6 diffs. Still to do: `backStage.c:103`
+  declares it `(int gobj0, int gobj1)` locally, so the two spellings want
+  reconciling in one gated change across both TUs.
+- `WayPointWithRangeFromPos2` (`fumi/src/way_kidnap.c:385`, 0x00215400): open.
+  `backStageProcessOutStage` reaches rc0 only with `void *` as the second
+  parameter. The definition is still `INCLUDE_ASM` in `way_kidnap.c`, and that
+  is the missing evidence: nothing but a matched body fixes the type.
+- `gamesysObjInfoPosSetStage` (`common/src/gamesys.c:564`, 0x001B6FB8): open,
+  and the definition is matched, `int *gamesysObjInfoPosSetStage(int *self,
+  int a1, int a2, int a3)`. Three TUs declare it locally and disagree with it
+  and with each other: `fumi/src/enemy_act.c` twice as
+  `int (int, int, int, int)`, `script/src/script.c` as
+  `void (char *, int, int, int)`, `common/src/backStage.c` as
+  `void *(int, int, int, int)`. Reconciling them is a gated change in four
+  TUs, `gamesys` among them.
+- `LockForceGroundParent` / `UnlockForceGroundParent`: empty retail bodies, now
+  declared with the GObj parameter every call site passes (commit 009da5cd1).
