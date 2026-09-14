@@ -248,6 +248,64 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
     }
 }
 
+extern int D_0028F4C0[];
+
+typedef struct BgaKey {
+    /* 0x00 */ float v[6];
+    /* 0x18 */ float f18;
+    /* 0x1C */ float f1C;
+    /* 0x20 */ int f20;
+    /* 0x24 */ int time;
+} BgaKey;
+
+typedef struct BgaMotion {
+    /* 0x00 */ BgaKey *key;
+    /* 0x04 */ int n;
+    /* 0x08 */ unsigned int len;
+    /* 0x0C */ float frame;
+} BgaMotion;
+
+static inline int bga_findKey(BgaKey *k, int n, float f)
+{
+    int lo = 0;
+    int hi = n - 1;
+
+    if (f < (float)k[0].time) {
+        return 0;
+    }
+    if (hi < 2) {
+        return 0;
+    }
+    while (lo < hi) {
+        int mid = (lo + hi) >> 1;
+
+        if ((float)k[mid].time <= f && f < (float)k[mid + 1].time) {
+            return mid;
+        }
+        if ((float)k[mid + 1].time <= f) {
+            lo = mid + 1;
+        } else if (f <= (float)k[mid].time) {
+            hi = mid - 1;
+        }
+        if (lo == hi) {
+            return lo;
+        }
+    }
+    return 0;
+}
+
+static inline void bga_hermite(float t, float *h0, float *h1, float *h2, float *h3)
+{
+    float s = t * t;
+    float c = t * s;
+    float b = s * 3.0f - c - c;
+
+    *h0 = 1.0f - b;
+    *h1 = b;
+    *h3 = c - s;
+    *h2 = *h3 - s + t;
+}
+
 ASM_LIT4_SLOT(D_00639724, 1.2075409f);
 ASM_LIT4_SLOT(D_00639728, 182.04445f);
 ASM_LIT4_SLOT(D_0063972C, 182.04445f);
@@ -265,10 +323,204 @@ ASM_LIT4_SLOT(D_00639750, 182.04445f);
 ASM_LIT4_SLOT(D_00639754, 0.1f);
 ASM_LIT4_SLOT(D_00639758, 182.04445f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_GetMotionLightning);
-ASM_LIT4_SLOT(D_0063975C, 1.2075409f);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_GetExtMotion);
-ASM_LIT4_SLOT(D_00639760, 1.2075409f);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_GetGizmoMotion);
+
+typedef struct BgaExtKey {
+    /* 0x00 */ float f00;
+    /* 0x04 */ float f04;
+    /* 0x08 */ float f08;
+    /* 0x0C */ int f0C;
+    /* 0x10 */ int time;
+} BgaExtKey;
+
+typedef struct BgaExtMotion {
+    /* 0x00 */ BgaExtKey *key;
+    /* 0x04 */ int n;
+    /* 0x08 */ unsigned int len;
+    /* 0x0C */ float frame;
+} BgaExtMotion;
+
+static inline int bga_findExtKey(BgaExtKey *k, int n, float f)
+{
+    int lo = 0;
+    int hi = n - 1;
+
+    if (f < (float)k[0].time) {
+        return 0;
+    }
+    if (hi < 2) {
+        return 0;
+    }
+    while (lo < hi) {
+        int mid = (lo + hi) >> 1;
+
+        if ((float)k[mid].time <= f && f < (float)k[mid + 1].time) {
+            return mid;
+        }
+        if ((float)k[mid + 1].time <= f) {
+            lo = mid + 1;
+        } else if (f <= (float)k[mid].time) {
+            hi = mid - 1;
+        }
+        if (lo == hi) {
+            return lo;
+        }
+    }
+    return 0;
+}
+
+float bga_GetExtMotion(BgaExtMotion *m)
+{
+    BgaExtKey *k;
+    BgaExtKey *k1;
+    float f;
+    float s0;
+    float s1;
+    float u;
+    float dv;
+    float t;
+    int i;
+    int d;
+
+    f = m->frame;
+    if (D_0028F4C0[0]) {
+        f *= 1.2075409f;
+    }
+    if (m->n == 1) {
+        return m->key->f00;
+    }
+    s0 = 0.0f;
+    s1 = 0.0f;
+    k = m->key;
+    i = bga_findExtKey(k, m->n, f);
+    k = &k[i];
+    k1 = k + 1;
+    f -= (float)k->time;
+    d = k1->time - k->time;
+    u = f / (float)d;
+    dv = k1->f00 - k->f00;
+
+    if (k1->f0C == 0) {
+        float h00;
+        float h01;
+        float h10;
+        float h11;
+        float ta;
+        float tb;
+        float tc;
+        float td;
+        float m0;
+        float m1;
+
+        ta = (1.0f - k->f04) * (k->f08 + 1.0f);
+        tb = (1.0f - k->f04) * (1.0f - k->f08);
+        tc = (1.0f - k1->f04) * (1.0f - k1->f08);
+        td = (1.0f - k1->f04) * (k1->f08 + 1.0f);
+        bga_hermite(u, &h00, &h01, &h10, &h11);
+        if (k->time != 0) {
+            s0 = (float)d / (float)(k1->time - k[-1].time);
+        }
+        if (k1->time < m->len) {
+            s1 = (float)d / (float)(k1[1].time - k->time);
+        }
+        if (k->time == 0) {
+            m0 = (ta + tb) * dv;
+        } else {
+            m0 = s0 * (ta * (k->f00 - k[-1].f00) + tb * dv);
+        }
+        if (k1->time >= m->len) {
+            m1 = (tc + td) * dv;
+        } else {
+            m1 = s1 * (tc * dv + td * (k1[1].f00 - k1->f00));
+        }
+        return k->f00 * h00 + k1->f00 * h01 + m0 * h10 + m1 * h11;
+    }
+    t = u * dv;
+    return k->f00 + t;
+}
+
+void bga_GetGizmoMotion(BgaMotion *m, float *dst)
+{
+    BgaKey *k;
+    BgaKey *k1;
+    float f;
+    float u;
+    float s0;
+    float s1;
+    float dv;
+    float m0;
+    float m1;
+    int i;
+    int d;
+
+    f = m->frame;
+    if (D_0028F4C0[0]) {
+        f *= 1.2075409f;
+    }
+
+    if (m->n == 1) {
+        float *src = (float *)m->key;
+
+        for (i = 5; i >= 0; i--, src++, dst++) {
+            *dst = *src;
+        }
+        return;
+    }
+
+    k = m->key;
+    s0 = 0.0f;
+    s1 = 0.0f;
+    i = bga_findKey(k, m->n, f);
+    k = &k[i];
+    k1 = k + 1;
+    f -= (float)k->time;
+    d = k1->time - k->time;
+    u = f / (float)d;
+
+    if (k1->f20 == 0) {
+        float h00;
+        float h01;
+        float h10;
+        float h11;
+        float ta;
+        float tb;
+        float tc;
+        float td;
+
+        ta = (1.0f - k->f18) * (k->f1C + 1.0f);
+        tb = (1.0f - k->f18) * (1.0f - k->f1C);
+        tc = (1.0f - k1->f18) * (1.0f - k1->f1C);
+        td = (1.0f - k1->f18) * (k1->f1C + 1.0f);
+        bga_hermite(u, &h00, &h01, &h10, &h11);
+        if (k->time != 0) {
+            s0 = (float)d / (float)(k1->time - k[-1].time);
+        }
+        if (k1->time < m->len) {
+            s1 = (float)d / (float)(k1[1].time - k->time);
+        }
+
+        for (i = 0; i < 6; i++) {
+            dv = k1->v[i] - k->v[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->v[i] - k[-1].v[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].v[i] - k1->v[i]));
+            }
+            dst[i] = k->v[i] * h00 + k1->v[i] * h01 + m0 * h10 + m1 * h11;
+        }
+    } else {
+        for (i = 0; i < 6; i++) {
+            dv = k1->v[i] - k->v[i];
+            dst[i] = k->v[i] + u * dv;
+        }
+    }
+}
+
 ASM_LIT4_SLOT(D_00639764, 0.82812935f);
 ASM_LIT4_SLOT(D_00639768, 2.66f);
 ASM_LIT4_SLOT(D_0063976C, 0.82812935f);
