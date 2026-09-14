@@ -48,7 +48,10 @@ if [[ -f "$NAME.c" ]]; then
 elif [[ -f "tough_nuts/$NAME/$NAME.c" ]]; then
     CSRC="tough_nuts/$NAME/$NAME.c"
 else
-    for _root in src ios sound isys \
+    for _root in src ios sound isys sce sce/libc sce/libm sce/libgcc \
+                 sce/libgraph sce/libpkt sce/libmc sce/libkernl sce/libvu0 \
+                 sce/libdma sce/libcdvd sce/libpad sce/libmpeg sce/libipu \
+                 sce/libsndn2 \
                  common/src fumi/src fumi/ios fumi/sound fumi/isys \
                  sugipon/src seki/src omori/src script/src ito/src ito/mpeg; do
         if [[ -f "$_root/$NAME.c" ]]; then CSRC="$_root/$NAME.c"; break; fi
@@ -72,11 +75,13 @@ CANDIDATES=(
     "$ASM_ROOT/matchings/sound/$NAME"
     "$ASM_ROOT/matchings/ios/$NAME"
     "$ASM_ROOT/matchings/isys/$NAME"
+    "$ASM_ROOT/matchings/sce/$NAME"
     "$ASM_ROOT/nonmatchings/$NAME"
     "$ASM_ROOT/nonmatchings/src/$NAME"
     "$ASM_ROOT/nonmatchings/sound/$NAME"
     "$ASM_ROOT/nonmatchings/ios/$NAME"
     "$ASM_ROOT/nonmatchings/isys/$NAME"
+    "$ASM_ROOT/nonmatchings/sce/$NAME"
 )
 # When a specific func is requested, prefer the candidate dir that actually
 # CONTAINS it — a stale gitignored layout dir (e.g. asm/matchings/<TU>/ left
@@ -279,10 +284,11 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
 # assembler left a nop there (verified universal: 0 ROM funcs have cvt in a jr
 # delay). Wrap such a return in .set noreorder + explicit nop. Universal
 # assembler-adaptation.
-# Compiled-code rule only: the SCE library objects under src/cod/vendor_* were not
-# produced by ee-gcc, and libvu0 (vendor_25D410) carries sqc2 IN its return slots
+# Compiled-code rule only: the SCE library objects under sce/ (and the src/cod/vendor_*
+# runs not yet moved there) were not produced by ee-gcc, and libvu0 carries sqc2 IN its
+# return slots
 # (26 sites); they keep the pre-2026-09-05 rule (FP store/convert on the literal previous line).
-case "${NAME}" in *vendor_*) JRPAD_WIDE=0 ;; *) JRPAD_WIDE=1 ;; esac
+case "${NAME}" in sce/*|*/sce/*|*vendor_*) JRPAD_WIDE=0 ;; *) JRPAD_WIDE=1 ;; esac
 awk -v wide="${JRPAD_WIDE}" '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
   if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ((ln[i-1] ~ /^[ \t]*(s\.s|swc1|cvt\.[swd]\.[swd])[ \t]/) || (wide==1 && ((ln[i-1] ~ /^[ \t]*(sqc2|lqc2|sq)[ \t]/) || (ln[i-1] ~ /^[ \t]*#NO_APP/ && i>2 && ln[i-2] !~ /^[ \t]*nop[ \t]*$/))))) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"

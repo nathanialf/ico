@@ -26,7 +26,9 @@ Sources (all git-tracked, no base ELF required):
 
 Bucketing rules (see decomp/VENDOR.md for the policy behind them):
   - a `// <path>.c` / `// <path>.S` note  -> that TU, grouped by the
-    leading path component (retail's flat `src/` collapses to "src").
+    leading path component (retail's flat `src/` collapses to "src";
+    the SCE SDK library code under `sce/<archive>/...` collapses to
+    "sce", and each TU node carries the archive it came from).
   - a `// (vendor)` note                  -> the "vendor" group, split
     into one node per contiguous address run (the crt0 + libkernl head
     and the libc / libgcc / SDK tail bracket the game code).
@@ -310,14 +312,12 @@ def _tu_section_bytes() -> dict[str, dict[str, int]]:
 def _programmer_of(tu: str | None) -> str:
     if not tu:
         return UNASSIGNED_GROUP
-    head = tu.split("/", 1)[0]
-    # src/cod/* is crt0 + vendored libkernl, not a game dir. On the retail
-    # trees (us, pal) the game TUs themselves live under a flat src/ (the
-    # release build collapsed the per-programmer dirs), so plain src/<tu>
-    # groups as "src"; only the src/cod/ blob remains vendor.
-    if head == "src":
-        return VENDOR_GROUP if tu.startswith("src/cod/") else "src"
-    return head
+    # The leading path component is the group: on the retail trees the game
+    # TUs live under a flat src/ (the release build collapsed the
+    # per-programmer dirs) and the SCE SDK library code lives under sce/,
+    # one directory per archive.  The "vendor" group below is now only for a
+    # symbol that still carries a bare `// (vendor)` note and no path.
+    return tu.split("/", 1)[0]
 
 
 def _vendor_runs(syms: list[dict]) -> dict[int, str]:
@@ -395,6 +395,10 @@ def build_tree() -> dict:
         p = programmers.setdefault(prog, {"name": prog, "tus": {}})
         t = p["tus"].setdefault(
             tu_key, {"name": tu_name, "path": tu_key, "funcs": []})
+        # sce/<archive>/... : name the archive on the node so the tree can
+        # group an SDK TU under the library it was linked from.
+        if prog == "sce" and "/" in str(tu_key):
+            t["archive"] = str(tu_key).split("/")[1]
         t["funcs"].append({
             "name": sym["name"],
             "addr": f"0x{sym['addr']:08X}",
@@ -422,6 +426,7 @@ def build_tree() -> dict:
             b = sum(f["size"] for f in funcs)
             node = {
                 "name": t["name"], "path": t["path"],
+                **({"archive": t["archive"]} if "archive" in t else {}),
                 "matched_funcs": m_funcs, "total_funcs": len(funcs),
                 "matched_bytes": m_bytes, "total_bytes": b,
                 "funcs": funcs,
@@ -502,6 +507,8 @@ def build_tree() -> dict:
     text_matched, text_total = text[0], text[1]
 
     return {
+        # 2: TU nodes under the `sce` group carry an additive `archive` field.
+        "schema": 2,
         "version": VERSION,
         "totals": {
             "matched_funcs": tot_m_funcs, "total_funcs": tot_funcs,

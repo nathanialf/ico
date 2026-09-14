@@ -85,9 +85,12 @@ For the long-form walkthrough, prerequisites, and PCSX2 sanity-check, see
 ## Matching workflow
 
 1. Every `.text` TU is a subsegment of `config/ico.pal.yaml` (223 game TUs +
-   18 vendor spans, boundaries and names from the PAL disc's own linker
-   map and listing via `tools/gen_pal_symbol_addrs.py`). A TU that has been
-   started is `src/<TU>.c` (or `ios/`, `isys/`, `sound/`, `ito/mpeg/`) with
+   the SCE SDK library code under `sce/`, boundaries and names from the PAL
+   disc's own linker map and listing via `tools/gen_pal_symbol_addrs.py`;
+   `sce/<archive>/<member>.c` where MAIN.MAP's member spans tile the retail
+   run, one file per run named for the archive where they do not). A TU that
+   has been started is `src/<TU>.c` (or `ios/`, `isys/`, `sound/`,
+   `ito/mpeg/`, `sce/`) with
    one `INCLUDE_ASM` line per unmatched function; its splat baseline is
    `asm/nonmatchings/src/<TU>/<func>.s`. TUs still marked `asm` in the yaml
    have not been started.

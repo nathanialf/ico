@@ -260,7 +260,7 @@ def consumers(known):
         for s in set(IDENT_RE.findall(text)) & known:
             refs[s].add(tu)
 
-    for root in ("src", "ios", "isys", "ito", "sound"):
+    for root in ("src", "ios", "isys", "ito", "sound", "sce"):
         for p in (ROOT / root).rglob("*.c"):
             scan(p, str(p.relative_to(ROOT))[:-2])
     asm = ROOT / "asm"
@@ -547,7 +547,7 @@ def emit(placed, path):
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-IDENT_ROOTS = ("src", "ios", "isys", "ito", "sound", "include")
+IDENT_ROOTS = ("src", "ios", "isys", "ito", "sound", "sce", "include")
 
 
 def rename_sources(mapping, dry=False):
