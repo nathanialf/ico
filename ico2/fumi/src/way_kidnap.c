@@ -417,4 +417,4 @@ int func_00215C68(float *a, float *b)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_kidnap", func_00215CA0);
+INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_kidnap", CreateBridge);

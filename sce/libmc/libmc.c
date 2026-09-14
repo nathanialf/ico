@@ -159,7 +159,7 @@ done:
 INCLUDE_ASM("asm/nonmatchings/sce/libmc/libmc", mceIntrReadFixAlign);
 
 extern char D_0072FAC0[];
-extern void func_00265A38(void *addr, int len);
+extern void sceSifWriteBackDCache(void *addr, int len);
 extern int mceIntrReadFixAlign();
 
 int sceMcRead(int a0, void *buf, int len)
@@ -178,8 +178,8 @@ int sceMcRead(int a0, void *buf, int len)
     *(int *)(D_0072F640 + 0x1C) = (int)D_0072FAC0;
     *(int *)(D_0072F640 + 0x18) = (int)buf;
     *(int *)(D_0072F640 + 0xC) = len;
-    func_00265A38(buf, len);
-    func_00265A38(D_0072FAC0, 0xC0);
+    sceSifWriteBackDCache(buf, len);
+    sceSifWriteBackDCache(D_0072FAC0, 0xC0);
     r = sceSifCallRpc(dev, 5, 1, D_0072F640, 0x30, D_00730B80, 4, mceIntrReadFixAlign, D_0072FAC0);
     if (r != 0) {
         goto unlock;
@@ -265,7 +265,7 @@ void mceGetInfoApdx(int a0)
 INCLUDE_ASM("asm/nonmatchings/sce/libmc/libmc", sceMcGetInfo);
 
 extern NameReq D_0072F670;
-extern void func_00265A38(void *addr, int len);
+extern void sceSifWriteBackDCache(void *addr, int len);
 extern char *strncpy(char *dst, const char *src, int n);
 
 int sceMcGetDir(int a0, int a1, char *name, int a3, int nblk, void *buf)
@@ -298,7 +298,7 @@ ok:
     strncpy(D_0072F670.name, name, 0x3FF);
     D_0072F670.name[0x3FF] = 0;
     if (nblk >= 0) {
-        func_00265A38(buf, nblk * 64);
+        sceSifWriteBackDCache(buf, nblk * 64);
     }
     r = sceSifCallRpc(dev, 0xD, 1, &D_0072F670, 0x414, D_00730B80, 4, 0, 0);
     if (r != 0) {
