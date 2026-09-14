@@ -50,8 +50,8 @@ elif [[ -f "tough_nuts/$NAME/$NAME.c" ]]; then
 else
     # Bare TU name: search the PAL tree (ico2/<programmer>/<kind>/, sce/ and
     # its archive dirs, src/ for the VU sources) and the aug6 dev tree.
-    for _root in $(cd "$ROOT" 2>/dev/null && ls -d ico2/*/* sce sce/*/ sce/*/*/ \
-                       sce/*/*/*/ 2>/dev/null) \
+    for _root in $(cd "$ROOT" 2>/dev/null && ls -d ico2 ico2/*/* sce sce/*/ \
+                       sce/*/*/ sce/*/*/*/ 2>/dev/null) \
                  src ios sound isys \
                  common/src fumi/src fumi/ios fumi/sound fumi/isys \
                  sugipon/src seki/src omori/src script/src ito/src ito/mpeg; do

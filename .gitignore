@@ -86,14 +86,14 @@ __pycache__/
 Thumbs.db
 
 # --- VU1 microprogram hand-typed assembly intermediate ---
-# `src/<prog>.S` is tracked; `tools/assemble_vu0.py` regenerates
-# `src/<prog>.s` from it before each splat (via build.sh setup).
+# `ico2/<prog>.S` is tracked; `tools/assemble_vu0.py` regenerates
+# `ico2/<prog>.s` from it before each splat (via build.sh setup).
 # The .s is a build artifact, not source — keep it out of git.
-src/cluster.s
-src/mesh.s
-src/normal_c.s
-src/normal_l.s
-src/particle.s
+ico2/cluster.s
+ico2/mesh.s
+ico2/normal_c.s
+ico2/normal_l.s
+ico2/particle.s
 
 # --- Local config overrides ---
 .env

@@ -1,5 +1,8 @@
 ; -----------------------------------------------------------------------
-; MeshMicroProgram — VU1 microprogram (ico2000.a mesh.o), seki/GS renderer.
+; MAIN.MAP pulls this object in as ico2000.a(mesh.o); the listing has no
+; source rows for it, so the programmer directory is unrecorded and the file
+; sits at the project root.
+; MeshMicroProgram — VU1 microprogram (ico2000.a mesh.o).
 ;
 ; One of the 5 per-primitive VU1 microprograms in ICO's .vutext section
 ; (cluster/mesh/normal_c/normal_l/particle), managed by MicroCode.o

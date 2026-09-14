@@ -89,10 +89,10 @@ if it matches end-to-end).
 
 # Invocation
 
-    tools/assemble_vu0.py src/cluster.S
-        → emits src/cluster.s in same dir (or --out path)
+    tools/assemble_vu0.py ico2/cluster.S
+        → emits ico2/cluster.s in same dir (or --out path)
 
-    tools/assemble_vu0.py src/cluster.S --raw /tmp/check.bin
+    tools/assemble_vu0.py ico2/cluster.S --raw /tmp/check.bin
     cmp /tmp/check.bin assets/cod/16F5E0.textbin.bin
         → byte-for-byte cross-check during incremental hand-writing
 """

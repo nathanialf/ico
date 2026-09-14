@@ -145,7 +145,7 @@ def _load_include_asm_vmas() -> set[int]:
     a partially-coalesced TU (Basic.c-style). Tu_status should treat
     them as unmatched."""
     out: set[int] = set()
-    for root_name in ("ico2", "sce", "src"):
+    for root_name in ("ico2", "sce"):
         root_dir = REPO_ROOT / root_name
         if not root_dir.is_dir():
             continue
@@ -289,7 +289,7 @@ def _scan_typed_defs_per_tu(tu_files: dict[str, Path]) -> tuple[dict[str, dict[s
     # (a typed def in src/Basic.c counts for Basic, but also means the
     # symbol is "done" wherever data_tu_map says it lives).
     src_paths: list = []
-    for root_name in ("ico2", "sce", "src"):
+    for root_name in ("ico2", "sce"):
         root_dir = REPO_ROOT / root_name
         if root_dir.is_dir():
             src_paths += list(root_dir.rglob("*.c"))
@@ -299,7 +299,7 @@ def _scan_typed_defs_per_tu(tu_files: dict[str, Path]) -> tuple[dict[str, dict[s
         for m in TYPED_SYM_RE.finditer(src_path.read_text()):
             typed_syms.add(m.group("sym"))
     h_paths: list = []
-    for root_name in ("ico2", "sce", "src"):
+    for root_name in ("ico2", "sce"):
         root_dir = REPO_ROOT / root_name
         if root_dir.is_dir():
             h_paths += list(root_dir.rglob("*.h"))

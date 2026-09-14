@@ -61,7 +61,7 @@ ASM_ROOT = "asm" if VERSION in ("us", "pal") else f"asm/{VERSION}"
 # script); retail (`us`) is a flat src/ + ios/isys/ito/sound tree.
 SRC_ROOTS = {
     "us": ("ios", "isys", "ito", "sound", "src", "sce"),
-    "pal": ("ico2", "sce", "src"),
+    "pal": ("ico2", "sce"),
     "aug6": ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"),
 }.get(VERSION, ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"))
 
