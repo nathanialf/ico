@@ -13,7 +13,9 @@ typedef struct {
 typedef struct {
     int pad[8];
     int f20;
-    int pad2[7];
+    int f24;
+    int f28;
+    int pad2[5];
 } WPElem;
 
 typedef struct {
@@ -30,7 +32,9 @@ typedef struct {
 } WPNode;
 
 typedef struct WNODE {
-    char _p[0x20];
+    int f0;
+    int f4;
+    char _p[0x20 - 8];
     int i20;
     int i24;
 } WNODE;
@@ -319,7 +323,72 @@ extern Nd D_004F31E0[];
 extern char D_0063A9F0[];
 extern char D_00554390[];
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", wgid_next);
+/* INTERIM stand-in: waybridge_between_group is a real function of this TU whose
+   out-of-line copy sits in the tail at its ROM slot; the compiler inlines it
+   here, and moving the real definition above this caller would reorder the
+   deferred inline group the tail already matches. */
+static inline WNODE *waybridge_between_groupInline(int a0, int a1)
+{
+    WNODE *p = WayBridge_begin();
+    while (p != 0) {
+        char *eA = (char *)D_004F31E0 + p->i20 * 0x40;
+        char *eB = (char *)D_004F31E0 + p->i24 * 0x40;
+        int a = *(int *)(eA + 0x20);
+        int b = *(int *)(eB + 0x20);
+        if (a == a0 && b == a1) {
+            return p;
+        }
+        if (b == a0 && a == a1) {
+            return p;
+        }
+        p = WayBridge_next(p);
+    }
+    return 0;
+}
+
+int wgid_next(int me, int target)
+{
+    WNODE *p;
+
+    switch (D_004F1EC0[target].f18) {
+    case 0:
+        for (p = WayBridge_begin(); p != 0; p = WayBridge_next(p)) {
+            WNODE *br;
+
+            if (p->f4 == me) {
+                int g = ((WPElem *)D_004F31E0)[p->i20].f20;
+                debug_StdPrintfDummy(D_0063A9F0, g);
+                if (g == target) {
+                    return me;
+                }
+                g = ((WPElem *)D_004F31E0)[p->i24].f20;
+                debug_StdPrintfDummy(D_0063A9F0, g);
+                if (g == target) {
+                    return me;
+                }
+            }
+
+            br = waybridge_between_groupInline(me, target);
+            if (br != 0) {
+                debug_StdPrintfDummy(D_00554390);
+                return br->f4;
+            }
+        }
+        break;
+
+    case 1: {
+        WayGrp *wg = &D_004F1EC0[target];
+
+        int g = ((WPElem *)D_004F31E0)[wg->f20].f20;
+        if (g == me) {
+            return me;
+        }
+        return ((WPElem *)D_004F31E0)[wg->f24].f20;
+    }
+    }
+
+    return -1;
+}
 
 extern char D_00554300[];
 extern int D_0063A438;
@@ -358,9 +427,162 @@ void WayUtilWorkFree(int *self)
     iosFree((int)self);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path_ThreadVersion);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", GetWgAll);
+/* way_util.c:899-961.  The listing gives shortest_path (def line 968) and
+   shortest_path_ThreadVersion (def line 973) the same rows, the thread build
+   keeping the _ACTWait arms at 909, 921 and 926, so the body is one shared
+   static inline helper taking the thread flag. */
+static inline int shortest_path_sub(int from, int to, WgAll *w, int thread)
+{
+    char *visited = (char *)w->f0;
+    int *prev = (int *)w->fC;
+    int *dist = (int *)w->f14;
+    int **cost = (int **)w->f8;
+    WNODE *p;
+    int i, j;
+    int next, best;
+
+    for (i = 0; i < 94; i++) {
+        for (j = 93; j >= 0; j--) {
+            cost[i][j] = 0x7FFFFFFF;
+        }
+    }
+
+    if (thread) {
+        _ACTWait(1);
+    }
+
+    for (p = WayBridge_begin(); p != 0; p = WayBridge_next(p)) {
+        int g1 = ((WPElem *)D_004F31E0)[p->i20].f20;
+        int g2 = ((WPElem *)D_004F31E0)[p->i24].f20;
+        int b = p->f4;
+
+        cost[g1][b] = 1;
+        cost[g2][b] = 1;
+        cost[b][g1] = 1;
+        cost[b][g2] = 1;
+    }
+
+    if (thread) {
+        _ACTWait(1);
+    }
+
+    for (i = 0; i < 94; i++) {
+        visited[i] = 0;
+        dist[i] = 0x7FFFFFFF;
+    }
+
+    if (thread) {
+        _ACTWait(1);
+    }
+
+    dist[to] = 0;
+    next = to;
+    do {
+        i = next;
+        best = 0x7FFFFFFF;
+        visited[i] = 1;
+        for (j = 0; j < 94; j++) {
+            if (visited[j]) {
+                continue;
+            }
+            if (cost[i][j] < 0x7FFFFFFF && dist[i] + cost[i][j] < dist[j]) {
+                dist[j] = dist[i] + cost[i][j];
+                prev[j] = i;
+            }
+            if (dist[j] < best) {
+                best = dist[j];
+                next = j;
+            }
+        }
+    } while (best < 0x7FFFFFFF);
+
+    if (dist[from] >= 0x7FFFFFFF) {
+        i = -1;
+    } else {
+        i = from;
+        while (prev[i] != to) {
+            i = prev[i];
+        }
+    }
+    return i;
+}
+
+int shortest_path(int from, int to, WgAll *w)
+{
+    return shortest_path_sub(from, to, w, 0);
+}
+
+int shortest_path_ThreadVersion(int from, int to, WgAll *w)
+{
+    return shortest_path_sub(from, to, w, 1);
+}
+
+extern WNODE *WayBridgeAll_begin(void);
+extern WNODE *WayBridgeAll_next(WNODE *);
+
+int GetWgAll(int from, int to, WgAll *w)
+{
+    char *visited = (char *)w->f0;
+    int *prev = (int *)w->f10;
+    int *dist = (int *)w->f18;
+    int **cost = (int **)w->f8;
+    WNODE *p;
+    int i, j;
+    int next, best;
+
+    for (i = 0; i < 94; i++) {
+        for (j = 93; j >= 0; j--) {
+            cost[i][j] = 0x7FFFFFFF;
+        }
+    }
+
+    for (p = WayBridgeAll_begin(); p != 0; p = WayBridgeAll_next(p)) {
+        int g1 = ((WPElem *)D_004F31E0)[p->i20].f20;
+        int g2 = ((WPElem *)D_004F31E0)[p->i24].f20;
+        int b = p->f4;
+
+        cost[g1][b] = 1;
+        cost[g2][b] = 1;
+        cost[b][g1] = 1;
+        cost[b][g2] = 1;
+    }
+
+    for (i = 0; i < 94; i++) {
+        visited[i] = 0;
+        dist[i] = 0x7FFFFFFF;
+    }
+
+    dist[to] = 0;
+    next = to;
+    do {
+        i = next;
+        best = 0x7FFFFFFF;
+        visited[i] = 1;
+        for (j = 0; j < 94; j++) {
+            if (visited[j]) {
+                continue;
+            }
+            if (cost[i][j] < 0x7FFFFFFF && dist[i] + cost[i][j] < dist[j]) {
+                dist[j] = dist[i] + cost[i][j];
+                prev[j] = i;
+            }
+            if (dist[j] < best) {
+                best = dist[j];
+                next = j;
+            }
+        }
+    } while (best < 0x7FFFFFFF);
+
+    if (dist[from] >= 0x7FFFFFFF) {
+        i = -1;
+    } else {
+        i = from;
+        while (prev[i] != to) {
+            i = prev[i];
+        }
+    }
+    return i;
+}
 
 extern WayGrp D_004F1EC0[];
 extern Nd D_004F31E0[];
@@ -418,7 +640,114 @@ void set_check_wp(CheckWp *out, int wp, int gid)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", set_bridge);
+extern void *memset(void *dst, int c, int n);
+extern char *WayPoint_begin(void);
+extern int WayPoint_next(int a0);
+extern void sceVu0SubVector();
+extern float fzMagnitudefv(int a0);
+
+typedef struct WayDist {
+    float d0;
+    float d1;
+} WayDist;
+
+/* gcc's anonymous 8-byte constant for the two {100000.0f, 100000.0f}
+   initialisers, declared as an array so the reference is %hi/%lo and not
+   gp-relative. */
+extern WayDist D_0063A9F8[];
+
+int set_bridge(int gid)
+{
+    char *wpA[2];
+    char *wpB[2];
+    WayDist dA;
+    WayDist dB;
+    int buf[4];
+    char *wp;
+    float d;
+
+    WayGrp *g = &D_004F1EC0[gid];
+
+    memset(wpA, 0, 8);
+    memset(wpB, 0, 8);
+    dA = D_0063A9F8[0];
+    dB = D_0063A9F8[0];
+
+    if (g->f14 == 1) {
+        g->f18 = 0;
+        return 0;
+    }
+
+    for (wp = WayPoint_begin(); wp != 0; wp = (char *)WayPoint_next((int)wp)) {
+        if (*(int *)(wp + 0x20) == gid) {
+            continue;
+        }
+        if (D_004F1EC0[*(int *)(wp + 0x20)].f18 == 1) {
+            continue;
+        }
+        sceVu0SubVector(buf, wp + 0x10, g->f8 + 0x10);
+        d = fzMagnitudefv((int)buf);
+        if (d < dA.d0) {
+            dA.d1 = dA.d0;
+            wpA[1] = wpA[0];
+            dA.d0 = d;
+
+            wpA[0] = wp;
+        } else if (d < dA.d1) {
+            dA.d1 = d;
+            wpA[1] = wp;
+        }
+    }
+
+    if (wpA[0] == 0) {
+        return 0;
+    }
+
+    for (wp = WayPoint_begin(); wp != 0; wp = (char *)WayPoint_next((int)wp)) {
+        if (*(int *)(wp + 0x20) == gid) {
+            continue;
+        }
+        if (D_004F1EC0[*(int *)(wp + 0x20)].f18 == 1) {
+            continue;
+        }
+        sceVu0SubVector(buf, wp + 0x10, g->fC + 0x10);
+        d = fzMagnitudefv((int)buf);
+        if (d < dB.d0) {
+            dB.d1 = dB.d0;
+            wpB[1] = wpB[0];
+            dB.d0 = d;
+
+            wpB[0] = wp;
+        } else if (d < dB.d1) {
+            dB.d1 = d;
+            wpB[1] = wp;
+        }
+    }
+
+    if (wpA[0] == wpB[0]) {
+        if (dA.d0 < dB.d0) {
+            if (wpB[1] == 0) {
+                return 0;
+            }
+            wpB[0] = wpB[1];
+        } else {
+            if (wpA[1] == 0) {
+                return 0;
+            }
+            wpA[0] = wpA[1];
+        }
+    }
+
+    g->f20 = *(int *)(wpA[0] + 4);
+    g->f24 = *(int *)(wpB[0] + 4);
+
+    g->f18 = 1;
+
+    ((WPElem *)D_004F31E0)[g->f20].f28 = 1;
+    ((WPElem *)D_004F31E0)[g->f24].f28 = 1;
+
+    return 1;
+}
 
 extern int WayPointList_begin();
 extern int WayPointList_next();

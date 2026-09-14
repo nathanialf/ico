@@ -31,7 +31,7 @@ extern StageLabelRange D_005F5D50[];
 extern GVGeo2 D_002C2DC8[];
 extern int stage_no;
 extern int D_006E6D80[];
-extern void iosOmSendMail(void *a0, int a1, void *a2);
+extern int iosOmSendMail(void *a0, int a1, void *a2);
 extern void debug_StdPrintfDummy(char *fmt, ...);
 extern int fptodp(float f);
 extern void actEnemyRestart(char *gobj, float *pos, int a2, int a3, char *mother);
@@ -87,10 +87,162 @@ inline int SearchActiveGenerator(void)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/generator", CheckGeneratorCollision);
+extern void GetRootPosition(void *dst, void *gobj);
+extern void sceVu0ScaleVector(float *dst, float *src, float t);
+extern void sceVu0AddVector(float *dst, float *a, float *b);
+extern float _DistxzSqGV(float *a, float *b);
+
+int CheckGeneratorCollision(char *gobj, float *dir)
+{
+    float pos[4];
+    float tmp[4];
+    float p[4];
+    char *g;
+
+    g = (char *)isysGObjSearchFromObjKindID_begin(0x21);
+    GetRootPosition(pos, gobj);
+    sceVu0ScaleVector(tmp, dir, 100.0f);
+    sceVu0AddVector(pos, pos, tmp);
+
+    for (; g != 0; g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+        char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+
+        if (*(int *)(g + 0x16C) == 0) {
+            continue;
+        }
+        if (*(int *)(w + 0x50) != 1) {
+            continue;
+        }
+        GetRootPosition(p, g);
+        if (_DistxzSqGV(p, pos) < 22500.0f) {
+            float d = p[1] - 50.0f - pos[1];
+
+            if ((d < 0.0f ? -d : d) < 100.0f) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/generator", GetGeneratorSafePosition);
-INCLUDE_ASM("asm/nonmatchings/src/generator", switch_MainStatus);
-INCLUDE_ASM("asm/nonmatchings/src/generator", endfunc_BGA);
+ASM_LIT4_SLOT(D_006391E4, 22500.0f);
+ASM_LIT4_SLOT(D_006391E8, 22500.0f);
+
+extern int IsNeedGeneratorHard(void);
+extern void GetGeneratorSafePosition(float *dst, char *gobj);
+extern void SetRootPosition(char *gobj, float *pos);
+extern void gamesysObjInfoUniqDataSet(void *a0);
+extern int D_0028F4C0[];
+
+void switch_MainStatus(char *gobj, unsigned char st)
+{
+    float pos[4];
+    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+
+    if (st == *(int *)(w + 0x50)) {
+        return;
+    }
+
+    switch (*(int *)(w + 0x50)) {
+    case 0:
+        if (!IsNeedGeneratorHard()) {
+            *(int *)(w + 0x50) = 2;
+            gamesysObjInfoUniqDataSet(gobj);
+            break;
+        }
+        iosOmSendMail(gobj, 0, gobj);
+        *(int *)(w + 0x50) = 1;
+        *(int *)(w + 0x64) = ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 4;
+        GetGeneratorSafePosition(pos, gobj);
+        SetRootPosition(gobj, pos);
+        gamesysObjInfoUniqDataSet(gobj);
+        break;
+
+    case 1:
+        iosOmSendMail(gobj, 2, gobj);
+        *(int *)(w + 0x50) = 2;
+        gamesysObjInfoUniqDataSet(gobj);
+        break;
+
+    case 2:
+        break;
+    }
+}
+
+extern void *memset(void *dst, int c, int n);
+extern void EntryMultiBgaManager(int handle, int a1, int a2, void *root, float *mtx);
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+extern char D_0063AC00[];
+
+typedef struct GenBga {
+    char *p;
+    char f4;
+    char pad[3];
+} GenBga;
+
+/* generator.c:467-473 and 475-479, two static inline helpers of this TU: the
+   listing gives endfunc_BGA rows 468-478, outside its own 489-505 span. */
+static inline char *ResetCurrentBga(char *gobj)
+{
+    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+
+    if (*(int *)(w + 0x58) != -1) {
+        char *e = w + *(int *)(w + 0x58) * 8;
+        char *q;
+
+        *(char *)(e + 0x34) = 0;
+        q = w + *(int *)(w + 0x58) * 8;
+        **(float **)(q + 0x30) = -1.0f;
+    }
+    return w;
+}
+
+static inline void EntryBga(char *gobj, char *w)
+{
+    float mtx[4];
+
+    memset(mtx, 0, 16);
+    mtx[3] = 1.0f;
+    EntryMultiBgaManager(*(int *)(w + 0x38), 0, -1, (void *)test_CURRENTROOT(gobj), mtx);
+}
+
+void endfunc_BGA(char *gobj)
+{
+    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+
+    switch (*(int *)(w + 0x58)) {
+    case 0: {
+        char *cur;
+
+        *(char *)(w + 0x3C) = 1;
+        cur = ResetCurrentBga(gobj);
+        EntryBga(gobj, cur);
+        *(int *)(cur + 0x58) = 1;
+        break;
+    }
+
+    case 1:
+        **(int **)(w + 0x38) = 0;
+        break;
+
+    case 2: {
+        char *cur;
+
+        *(char *)(w + 0x2C) = 1;
+        cur = ResetCurrentBga(gobj);
+        *(int *)(cur + 0x58) = -1;
+        break;
+    }
+
+    default:
+        debug_assert(D_00555640, 504);
+        __assert(D_00555640, 504, D_0063AC00);
+        break;
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/generator", IsNeedGeneratorHard);
 
 inline int IsEnableCallEnemyByTargetGObj(void *a0)
@@ -192,7 +344,16 @@ inline void RestoreReviveCount(char *gobj)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_QuickCall);
+extern void gamesysObjInfoUniqDataSet(void *a0);
+
+void Generator_QuickCall(char *gobj)
+{
+    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+
+    *(int *)(w + 0x50) = 1;
+    gamesysObjInfoUniqDataSet(gobj);
+    iosOmSendMail(gobj, 1, gobj);
+}
 
 inline void Generator_Call(char *a0)
 {
@@ -219,11 +380,64 @@ void Generator_Delete(void *a0)
     switch_MainStatus(a0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/generator", GetMotherGenerator);
+extern void GetKidnapInfo(int *a0, int *a1);
+extern int GetStageFromLabel(int label);
+
+int GetMotherGenerator(int label)
+{
+    int info[2];
+    int x;
+    int st;
+    int i;
+    int j;
+    int best;
+    int ret;
+
+    if (label == 3757) {
+        return 3758;
+    }
+
+    GetKidnapInfo(&info[0], &info[1]);
+    if (info[0] != -1 && info[0] == label) {
+        return info[1];
+    }
+
+    x = (int)((D_002C2DC8 + label)->f48 << 27) >> 27;
+    if (x != -1) {
+        st = GetStageFromLabel(label);
+        for (i = D_005F5D50[st].labelTop; i < D_005F5D50[st].labelEnd; i++) {
+            GVGeo2 *g = &D_002C2DC8[i];
+
+            if (g->f46 == 0x21) {
+                if (((int)(g->f48 << 27) >> 27) == x) {
+                    return i;
+                }
+            }
+        }
+    }
+
+    best = 0;
+    ret = -1;
+    st = GetStageFromLabel(label);
+    for (j = D_005F5D50[st].labelTop; j < D_005F5D50[st].labelEnd; j++) {
+        GVGeo2 *g = &D_002C2DC8[j];
+
+        if (g->f46 == 0x21) {
+            int v = (g->f48 >> 17) & 1;
+
+            if (best < v) {
+                best = v;
+                ret = j;
+            }
+        }
+    }
+    return ret;
+}
 
 inline void SetMotherGenerator(int no, int label)
 {
     int i;
+    int j;
     int cnt;
 
     if (no == 0xEAD) {
@@ -246,6 +460,7 @@ inline void SetMotherGenerator(int no, int label)
 inline void Generator_Init(void)
 {
     int i;
+    int j;
 
     for (i = 0; i < 3759; i++) {
         GVGeo2 *g = &D_002C2DC8[i];
@@ -291,8 +506,52 @@ inline int GetsizeGeneratorPacket(void)
     return 11277;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/generator", ReadGeneratorPacket);
-INCLUDE_ASM("asm/nonmatchings/src/generator", MakeGeneratorPacket);
+void ReadGeneratorPacket(void)
+{
+    unsigned char *p = (unsigned char *)GetbufpGeneratorPacket();
+    int i;
+    int j;
+
+    for (i = 0; i < 3759; i++) {
+        GVGeo2 *g = &D_002C2DC8[i];
+        unsigned int b = *p++;
+        unsigned int x = (b >> 4) << 10;
+
+        g->f48 = ((int)g->f48 & ~0x3C00) | x;
+        g->f48 = (g->f48 & ~0x200000) | ((b & 1) << 21);
+    }
+
+    for (i = 0; i < 3759; i++) {
+        GVGeo2 *g = &D_002C2DC8[i];
+        char c = *(char *)p++;
+
+        g->f48 = (g->f48 & ~0x40000) | ((c & 1) << 18);
+    }
+
+    for (i = 0; i < 3759; i++) {
+        D_002C2DC8[i].f42 = (char)*p;
+        p++;
+    }
+}
+
+void MakeGeneratorPacket(void)
+{
+    char *p = (char *)GetbufpGeneratorPacket();
+    int i;
+    int j;
+
+    for (i = 0; i < 3759; i++) {
+        *p++ = (((int)(D_002C2DC8[i].f48 << 18) >> 28) << 4) | ((D_002C2DC8[i].f48 >> 21) & 1);
+    }
+
+    for (i = 0; i < 3759; i++) {
+        *p++ = (D_002C2DC8[i].f48 >> 18) & 1;
+    }
+
+    for (i = 0; i < 3759; i++) {
+        *p++ = D_002C2DC8[i].f42;
+    }
+}
 
 inline void ResetReviveCountEnemy(int a0)
 {
@@ -349,6 +608,7 @@ inline char *InitGeneratorGeo(char *gobj, char *src)
 {
     char *p = iosMallocDebug(D_0063A438, 0x70, D_00555640, 1230);
     int i;
+    int j;
 
     *(int *)(p + 0x0) = 0;
     *(int *)(p + 0x4) = 0;
@@ -387,7 +647,59 @@ inline char *InitGeneratorGeo(char *gobj, char *src)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/generator", GeneratorGeo);
-INCLUDE_ASM("asm/nonmatchings/src/generator", GeneratorDL);
+
+extern void DispMultiBgaManagerWithKind(int kind, int handle, int a2);
+extern void endfunc_BGA(char *gobj);
+
+/* generator.c:1414-1420, a static inline helper of this TU: the listing gives
+   its rows 1417-1419 to GeneratorDL, outside GeneratorDL's own line span. */
+static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl)
+{
+    float pos[3];
+    int i;
+    int j;
+
+    /* test_CURRENTROOT is unprototyped in this TU (C89 default int), as its
+       earlier call sites need; the root matrix is read through a float view. */
+    pos[0] = ((float *)test_CURRENTROOT(gobj))[0];
+    pos[1] = ((float *)test_CURRENTROOT(gobj))[1];
+    pos[2] = ((float *)test_CURRENTROOT(gobj))[2];
+
+    for (i = 0; i < 4; i++) {
+        char *p = tbl[i].p;
+
+        *(float *)(p + 0x10) = pos[0];
+        *(float *)(p + 0x14) = pos[1];
+        *(float *)(p + 0x18) = pos[2];
+    }
+}
+
+void GeneratorDL(char *gobj)
+{
+    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    GenBga *tbl = (GenBga *)(w + 0x30);
+    int idx;
+
+    SetGeneratorBgaRootPosition(gobj, tbl);
+
+    if (*(unsigned char *)(w + 0x11)) {
+        DispMultiBgaManagerWithKind(508, *(int *)(w + 0x38), 1);
+    } else {
+        DispMultiBgaManagerWithKind(507, *(int *)(w + 0x30), 1);
+        DispMultiBgaManagerWithKind(508, *(int *)(w + 0x38), 1);
+        DispMultiBgaManagerWithKind(509, *(int *)(w + 0x40), 1);
+        DispMultiBgaManagerWithKind(506, *(int *)(w + 0x48), 1);
+    }
+
+    idx = *(int *)(w + 0x58);
+    if (idx != -1) {
+        GenBga *e = &tbl[idx];
+
+        if (*(float *)e->p < 0.0f) {
+            endfunc_BGA(gobj);
+        }
+    }
+}
 
 inline int GeneratorWorkEnd(char *a0)
 {
