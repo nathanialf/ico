@@ -354,9 +354,43 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
 ASM_LIT4_SLOT(D_00639648, 0.01f);
 ASM_LIT4_SLOT(D_0063964C, 0.0001f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getStreamBlendShapeGeometry);
-ASM_LIT4_SLOT(D_00639650, 0.01f);
-ASM_LIT4_SLOT(D_00639654, 0.0001f);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getStreamShapeGeometry);
+
+extern int GetStreamShapeMotion(float *dst, void *sm);
+
+void getStreamShapeGeometry(void *self, void *sm)
+{
+    int n = *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x834);
+
+    if (n != 0) {
+        float buf[n];
+        int i;
+
+        if (GetStreamShapeMotion(buf, sm) != 0) {
+            for (i = 0; i < n; i++) {
+                float x = buf[i] * 0.01f;
+                int *p = (int *)(i * 4 + *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x838));
+
+                if (x < 0.0f) {
+                    if (0.0001f < -x) {
+                        *(float *)p = x;
+                    } else {
+                        *p = 0;
+                    }
+                } else {
+                    if (0.0001f < x) {
+                        *(float *)p = x;
+                    } else {
+                        *p = 0;
+                    }
+                }
+            }
+        } else {
+            for (i = 0; i < n; i++) {
+                *(int *)(*(int *)((char *)*(int *)((char *)self + 0x15C) + 0x838) + i * 4) = 0;
+            }
+        }
+    }
+}
 
 extern int GetDataSizeOfStreamMotion(void *s);
 extern float GetStreamMotionData(void *dst, void *s);
