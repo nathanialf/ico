@@ -47,11 +47,79 @@ ASM_LIT4_SLOT(D_00639774, 0.41406468f);
 ASM_LIT4_SLOT(D_00639778, 0.82812935f);
 ASM_LIT4_SLOT(D_0063977C, 0.82812935f);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_CalcObject);
-ASM_LIT4_SLOT(D_00639780, 0.82812935f);
-ASM_LIT4_SLOT(D_00639784, 0.82812935f);
-ASM_LIT4_SLOT(D_00639788, 0.82812935f);
-ASM_LIT4_SLOT(D_0063978C, 0.82812935f);
-INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_resetObjectCounter);
+
+extern int D_0028F4C0[];
+
+static inline float bga_palFrame(float f)
+{
+    if (D_0028F4C0[0]) {
+        f *= 0.82812935f;
+    }
+    return f;
+}
+
+typedef struct {
+    /* 0x00 */ int f00;
+    /* 0x04 */ int f04;
+    /* 0x08 */ unsigned int f08;
+    /* 0x0C */ float f0C;
+} BgaCount;
+
+typedef struct {
+    /* 0x00 */ int f00;
+    /* 0x04 */ BgaCount *obj;
+} BgaCountEnt;
+
+typedef struct BgaCntNode {
+    /* 0x00 */ char pad00[0x28];
+    /* 0x28 */ BgaCountEnt *ents;
+    /* 0x2C */ struct BgaCntNode *f2C;
+    /* 0x30 */ struct BgaCntNode *f30;
+    /* 0x34 */ BgaCount f34;
+} BgaCntNode;
+
+static inline void bga_clampCount(BgaCount *o, float f)
+{
+    if (f >= 0.0f) {
+        float c = (float)o->f08;
+        float r;
+
+        if (D_0028F4C0[0] ? c * 0.82812935f < f : c < f) {
+            float t = (float)o->f08;
+
+            r = t;
+            if (D_0028F4C0[0]) {
+                r *= 0.82812935f;
+            }
+        } else {
+            r = f;
+        }
+        o->f0C = r;
+    } else {
+        o->f0C = 0.0f;
+    }
+}
+
+void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
+{
+    BgaCountEnt *e;
+
+    e = o->ents;
+    if (e != 0) {
+        while (e->obj != 0) {
+            bga_clampCount(e->obj, f);
+            e++;
+        }
+    }
+    if (o->f2C != 0) {
+        bga_resetObjectCounter(o->f2C, f, a1);
+    }
+    if (o->f30 != 0) {
+        bga_resetObjectCounter(o->f30, f, a1);
+    }
+    bga_clampCount(&o->f34, f);
+}
+
 ASM_LIT4_SLOT(D_00639790, 0.82812935f);
 ASM_LIT4_SLOT(D_00639794, 0.82812935f);
 ASM_LIT4_SLOT(D_00639798, 0.82812935f);
@@ -111,21 +179,12 @@ char *bga_InitSdfCamera(char *a0)
     return a0;
 }
 
-extern int D_0028F4C0[];
 extern int D_0063C4B4;
 extern int D_0063BCB8;
 extern int GlobalTimer;
 extern float D_00728230[];
 extern float D_00728220[];
 extern void _CopyVector(void *dst, void *src);
-
-static inline float bga_palFrame(float f)
-{
-    if (D_0028F4C0[0]) {
-        f *= 0.82812935f;
-    }
-    return f;
-}
 
 void bga_SetCamFrame(char *p, int frame, int mode)
 {
