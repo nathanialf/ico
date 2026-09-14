@@ -1,10 +1,11 @@
 #include "common.h"
 
+/* 16-byte aligned: the template copy in InitPuddleGeo is ld/sd, not ldl/ldr. */
 typedef struct {
     float pos[4];
     float t;
     float pad[3];
-} Ripple;
+} __attribute__((aligned(16))) Ripple;
 
 typedef struct {
     int pad0;
@@ -26,7 +27,7 @@ extern char D_006209D8[];
 extern char D_002A79B8[];
 extern float D_00723910[];
 extern char D_004ECEA0[];
-extern int CSVSYSTEM_InitDObj(int a0, void *a1, int a2);
+extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
 extern float GetTableCos(short a);
 extern float GetTableSin(short a);
 extern void gif_SpriteSensitiveOrg(void *rect, int z, void *uv, void *col, int e);
@@ -91,9 +92,65 @@ extern void CopyMatrix(void *dst, void *src);
 extern void reg_RenderReflection(void *o, int pri);
 extern int D_0028F4C0[];
 extern void CopyVector(void *a0, void *a1);
+void PuddleGeo(char *a0);
+void EntryRippleToPuddle(char *a0, void *vec);
+int puddleRideFunc(char **a0, char *a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/puddle", InitPuddleGeo);
-INCLUDE_ASM("asm/nonmatchings/src/puddle", baseSetup);
+PuddleWork *InitPuddleGeo(char *a0, char *a1)
+{
+    PuddleWork *w = (PuddleWork *)iosMallocDebug(D_0063A438, 0xD0, D_006209D8, 0x45);
+    float *v;
+    int i;
+
+    *(char **)w = CSVSYSTEM_InitDObj(
+        *(int *)(D_002A79B8 + *(int *)(*(char **)(a0 + 0x15C) + 0x844) * 0x28), a1);
+
+    v = D_00723910;
+    for (i = 0; i < 9; i++) {
+        short s = i * 0x2000;
+
+        v[0] = GetTableCos(s);
+        v[2] = GetTableSin(s);
+        v[1] = 0.0f;
+        v[3] = 1.0f;
+        v += 4;
+    }
+
+    w->idx = 0;
+
+    for (i = 0; i < 6; i++) {
+        w->rip[i] = *(Ripple *)D_004ECEA0;
+    }
+
+    *(int *)(*(char **)(a0 + 0x15C) + 0x81C) = (int)puddleRideFunc;
+    return w;
+}
+
+void baseSetup(char *a0)
+{
+    gif_StartPacketPri(4);
+    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+    gif_SetAlpha(1, 5, 0x80);
+
+    {
+        PuddleRect r = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16,
+                        D_0063A068 * 16};
+
+        {
+            unsigned char col[4];
+
+            memset(col, 0, 4);
+            gif_SpriteSensitiveOrg(&r, 0, 0, col, 1);
+        }
+    }
+
+    gif_SetZTest(1);
+    gif_EndPacket();
+
+    reg_RenderReflection(*(char **)(a0 + 0x15C), 4);
+}
 
 void drawAreaSetup(void)
 {
@@ -178,9 +235,82 @@ void leveldown(int pri)
     gif_EndPacket();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/puddle", copy);
+/* gif_SpriteSensitiveOrg passes the uv rectangle straight through to
+   gif_MakeSprite, so its caller supplies UV already in GS 1/16-texel units
+   (gif_SpriteOrg is the variant that scales by 16 itself).  The conversion has
+   to be a CALL and not a constant expression: an all-constant initialiser is
+   emitted as a 16-byte .rodata blob and block-copied, and the ROM instead
+   materialises 212 and 3686 with `li` into a stack temp and block-copies that,
+   which is what expr.c does when safe_from_p rejects the target.  The exact
+   spelling of the 2001 helper is not recoverable; this one reproduces the ROM
+   word for word. */
+static inline int texUV(float texel)
+{
+    return (int)(texel * 16.0f);
+}
+
+void copy(int pri)
+{
+    gif_StartPacketPri(pri);
+    gif_SetGsReg(6, (long long)D_0063BA88 | 0x20010000 | 0x600000000LL);
+    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetGsReg(0x14, 0x60);
+    gif_SetZWrite(0);
+    gif_SetGsReg(0x47, 0x3F001);
+
+    if (stage_no == 0x22) {
+        gif_SetAlpha(1, 4, 0x60);
+    } else {
+        gif_SetAlpha(1, 0, 0x60);
+    }
+
+    {
+        int r[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16, D_0063A068 * 16};
+        int uv[4] = {texUV(13.25f), texUV(13.25f), texUV(230.375f), texUV(230.375f)};
+
+        gif_SpriteSensitiveOrg(r, 0, uv, &D_0063BAA0, 1);
+    }
+
+    gif_EndPacket();
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/puddle", drawRipple);
-INCLUDE_ASM("asm/nonmatchings/src/puddle", drawRipples);
+
+void drawRipples(char *a0, int pri)
+{
+    PuddleWork *w = (PuddleWork *)*(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    Ripple *p;
+    float *t;
+    int i;
+
+    gif_StartPacketPri(pri);
+    gif_SetGsReg(6, (long long)D_0063BA88 | 0x20010000 | 0x600000000LL);
+    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetGsReg(0x14, 0x60);
+    gif_SetGsReg(0x47, 0x3F000);
+
+    if (stage_no == 0x22) {
+        gif_SetAlpha(1, 4, 0x60);
+    } else {
+        gif_SetAlpha(1, 0, 0x60);
+    }
+
+    gif_EndPacket();
+
+    gif_StartPacketPri(pri);
+
+    p = w->rip;
+    t = &w->rip[0].t;
+    for (i = 5; i >= 0; i--) {
+        if (*t < 200.0f) {
+            drawRipple(*t, p);
+        }
+        p++;
+        t += sizeof(Ripple) / sizeof(float);
+    }
+
+    gif_EndPacket();
+}
 
 void PuddleDL(char *a0)
 {

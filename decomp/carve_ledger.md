@@ -1268,3 +1268,7 @@ words become the blob's first words.
 - `[0x44F180, .rodata, src/Light]`: the light_Tool label template (three `char *` to the r, g and b labels, 12 B, three R_MIPS_32 relocs), 4 pad bytes, then the 0x32-byte prompt string, VMA 0x54F180..0x54F1C2, 0x42 B, emitted by the compiled function; the tail of Light.o's 0x112-byte rodata run per MAIN.MAP. The blob resumes at 0x44F1C8; the six zero bytes between are the carve's alignment pad.
 - Symbols seated as asciz: D_0063A0B0, D_0063A0B8, D_0063A0C0 (the r, g, b labels), D_0063A0C8 (COL), D_0063A0D0 (the percent-s percent-11f format), D_0063A0D8 (VEC), D_0063A0E0 (AMB). A colon inside a quoted string in a symbol comment is read by splat as an attribute, so the comments name the labels without quotes.
 - Light's nine ASM_LIT4_SLOT lines for D_00638C18..D_00638C38 are gone; the object's .lit4 is the whole carved pool.
+
+### 2026-09-14 chain D pass 21: way_tool pool, camera-editor split
+- `[0x539864, .lit4, src/way_tool]`: D_00639864..D_00639868, two words both 0.116355285f (draw_way_group's own literal plus one ASM_LIT4_SLOT for the still-asm way_toolDL), VMA 0x639864..0x63986C, 8 B; the blob resumes at 0x53986C.
+- Symbols seated: the ROM stub func_0018F590 covered three census functions; menu_2 = 0x0018F590 and _CameraEdit_BOX = 0x0018F668 take their census names, and func_0018F5F8 keeps a placeholder name because its census name group_select collides with way_tool's global. MAIN.MAP places the three at the same relative offsets (0x68 and 0x70).

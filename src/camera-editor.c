@@ -650,7 +650,10 @@ void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018F590);
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", menu_2);
+/* census group_select, a file static; the name collides with way_tool's global group_select */
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_0018F5F8);
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", _CameraEdit_BOX);
 
 int _CameraEdit_PIN(int *a0, int a1, int a2)
 {

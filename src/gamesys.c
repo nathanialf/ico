@@ -46,7 +46,22 @@ static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req, int n
     return &((GamesysObjInfo *)D_004DA980)[i];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoInit);
+extern int D_004DA7D0[];
+extern void memset(char *p, int a, int n);
+extern void backStageProcessInit(void);
+
+void gamesysObjInfoInit(void)
+{
+    int i;
+
+    for (i = 0; i <= 0xB5; i++) {
+        ((GamesysObjInfo *)D_004DA980)[i].no = 0;
+        ((GamesysObjInfo *)D_004DA980)[i].stage = 0xFFFF;
+    }
+
+    memset((char *)D_004DA7D0, 0, 0x1A8);
+    backStageProcessInit();
+}
 
 extern char D_004DA980[];
 extern int D_004DA7D0[];
