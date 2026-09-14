@@ -1224,6 +1224,9 @@ int SetDebugHandler(int a0, int a1)
     return old;
 }
 
+/* census setup, a file static, takes the name as static setup once this leaf is C
+   (glabel emits a global label, which would collide with the global setup that
+   sce/libkernl/libkernl_100110 holds at 0x00100990) */
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"

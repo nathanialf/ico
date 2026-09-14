@@ -1056,6 +1056,19 @@ def emit_syms(m: Model) -> tuple[int, int, int]:
             # A static's bare name already taken by another TU: fall back to
             # gcc's own discriminator from the listing label (`setMatrix.105`
             # -> `setMatrix_105`), which is still a rom-derived name.
+            #
+            # KNOWN LIMITATION.  A file-static may legitimately carry its
+            # census name at the same time as another TU's function of that
+            # name, because `static` in C keeps the ELF symbol local and the
+            # two cannot collide.  config/symbol_addrs.pal.txt therefore holds
+            # hand-seated DUPLICATE rows (tagged `allow_duplicated:True` for
+            # splat), and this loop does not reproduce them: the second and
+            # later rows come back discriminated or as a `func_<VMA>`
+            # placeholder.  Re-seat them by hand after a regeneration, or
+            # teach `used` to be per-TU first.  The same applies to
+            # 0x00100000, which the gates treat as a function start but which
+            # the committed table carries as the data row D_00100000 (the
+            # eight zero bytes crt0.s pads `_start` with).
             a = m.corr.get(i)
             d = m.lf[a].discrim if a is not None else None
             cand = f"{name}_{d}" if d else None

@@ -36,11 +36,15 @@ typedef struct ViBuf {
     char created;    /* 0x60 */
 } ViBuf;
 
-void func_00259480(int *a0)
+static void Free();
+
+/* census free_buf, a file static, `static` keeps its ELF symbol local so it cannot
+   collide with the ico2/ito/mpeg/mv_videodec global of the same name */
+static void free_buf(int *a0)
 {
-    func_0025A4A8(a0[0]);
-    func_0025A4A8(a0[1]);
-    func_0025A4A8(a0[20]);
+    Free(a0[0]);
+    Free(a0[1]);
+    Free(a0[20]);
 }
 
 extern int CreateSema(int *param);
@@ -982,7 +986,9 @@ int viBufGetTs(ViBuf *self, ViTs *out)
 
 extern void iosFree();
 
-void func_0025A4A8(int a0)
+/* census Free, this TU's own copy of the mv_defs.h file static, `static` keeps its
+   ELF symbol local so it cannot collide with the mv_videodec global of that name */
+static void Free(int a0)
 {
     iosFree(phys_addr(a0));
 }
@@ -1035,7 +1041,7 @@ __asm__(".section .text\n"
         "    lw $4, 0x40($17)\n"
         "    sb $0, 0x60($17)\n"
         ".LufDelete0023CF20:\n"
-        "    jal func_00259480\n"
+        "    jal free_buf\n"
         "    daddu $4, $17, $0\n"
         "    ld $31, 0x20($29)\n"
         "    addiu $2, $0, 0x1\n"

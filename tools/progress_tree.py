@@ -242,6 +242,66 @@ def _unmatched_funcs_for_tu(tu: str, ext: str) -> set[str] | None:
     return set(_INCLUDE_ASM_RE.findall(text))
 
 
+_TU_INDEX: dict[str, dict] | None = None
+
+
+def _tu_source_text(tu: str, ext: str) -> str | None:
+    """The TU's own source, with any `.c.inc` it #includes appended.
+
+    A coalesced TU keeps most of its bodies in sibling `.c.inc` files, so a
+    per-TU question ("does THIS file define the name") has to read them too.
+    """
+    src = REPO_ROOT / f"{tu}.{ext}"
+    if not src.exists():
+        return None
+    try:
+        text = src.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return None
+    parts = [text]
+    for inc in re.findall(r'^\s*#\s*include\s+"([^"]+\.c\.inc)"', text, re.M):
+        cand = (src.parent / inc)
+        if not cand.exists():
+            cand = REPO_ROOT / inc
+        if cand.exists():
+            try:
+                parts.append(cand.read_text(encoding="utf-8", errors="replace"))
+            except Exception:
+                pass
+    return "\n".join(parts)
+
+
+def _tu_index(tu: str, ext: str) -> dict | None:
+    """Per-TU {'stubs', 'defined'}, the TU-scoped form of _global_index().
+
+    Needed because a file-static function may legitimately share its census
+    name with a function in another TU (`static` keeps the ELF symbol local),
+    and a global name set cannot tell the twins apart: one TU stubbing the
+    name would mark the other TU's matched copy unmatched, and one TU
+    defining it would mark the other TU's stub matched.
+    """
+    global _TU_INDEX
+    if _TU_INDEX is None:
+        _TU_INDEX = {}
+    key = f"{tu}.{ext}"
+    if key in _TU_INDEX:
+        return _TU_INDEX[key]
+    text = _tu_source_text(tu, ext)
+    if text is None:
+        _TU_INDEX[key] = None
+        return None
+    defined: set[str] = set()
+    for m in _DEF_RE.finditer(text):
+        defined.add(m.group(1))
+    for m in _ASM_LABEL_RE.finditer(text):
+        defined.add(m.group(1))
+    for m in re.finditer(r"^\s*SYSCALL_WRAPPER\s*\(\s*([A-Za-z_]\w*)", text, re.M):
+        defined.add(m.group(1))
+    idx = {"stubs": set(_INCLUDE_ASM_RE.findall(text)), "defined": defined}
+    _TU_INDEX[key] = idx
+    return idx
+
+
 _GLOBAL: dict | None = None
 # `type name(args) {` / `type name(args)\n{` / K&R `name(a, b)\nint a;\n{`
 # (K&R declaration lines may end in `;` but never contain parentheses).
@@ -366,6 +426,16 @@ def build_tree() -> dict:
     _assign_sizes(syms, bounds)
     vendor_keys = _vendor_runs(syms)
 
+    # Census names carried by more than one TU (file statics).  Rows with
+    # these names are resolved against their own TU instead of the global
+    # name index; see _tu_index().
+    _seen: set[str] = set()
+    dup_names: set[str] = set()
+    for s in syms:
+        if s["name"] in _seen:
+            dup_names.add(s["name"])
+        _seen.add(s["name"])
+
     # Cache per-TU unmatched sets so we read each source once.
     tu_unmatched: dict[str, set[str] | None] = {}
     tu_sections = _tu_section_bytes()
@@ -396,6 +466,15 @@ def build_tree() -> dict:
             # are passthrough asm in the link, so they are honestly "not
             # decompiled" even though the ELF already reproduces them.
             matched = False
+        elif sym["name"] in dup_names:
+            # A census name two TUs both carry (file statics, so the ELF
+            # symbols are local and do not collide).  The global name index
+            # cannot tell the twins apart, so ask this row's own TU.
+            t_idx = _tu_index(tu, sym["ext"])
+            matched = (sym["ext"] == "S"
+                       or (t_idx is not None
+                           and sym["name"] not in t_idx["stubs"]
+                           and sym["name"] in t_idx["defined"]))
         else:
             g = _global_index()
             matched = (sym["ext"] == "S"

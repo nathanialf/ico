@@ -155,7 +155,7 @@ found:
     return len;
 }
 
-extern int func_00215C68(float *a, float *b);
+static int wpsort_compfnc(float *a, float *b);
 extern void qsort(void *base, int n, int size, int (*cmp)());
 
 /* INTERIM: the PAL listing inlines the public NumOfWpPos into
@@ -206,7 +206,7 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
         WayRangeSearch(pos, range, &e, 0, 1);
 
         n = numOfWpPos();
-        qsort(D_007292C0, n, 8, func_00215C68);
+        qsort(D_007292C0, n, 8, wpsort_compfnc);
         for (i = 0; i < n; i++) {
             sceVu0CopyVector(D_00728AC0[i], D_007292C0[i].wp->pos);
         }
@@ -220,7 +220,7 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
         WayRangeSearch(pos, range, &e, 1, 1);
 
         n = numOfWpPos();
-        qsort(D_007292C0, n, 8, func_00215C68);
+        qsort(D_007292C0, n, 8, wpsort_compfnc);
         for (i = 0; i < n; i++) {
             sceVu0CopyVector(D_00728AC0[i], D_007292C0[i].wp->pos);
         }
@@ -408,7 +408,9 @@ int WayPointWithRangeFromGObj(void *obj, float f)
     return WayPointWithRangeFromPos(pos, 0, f);
 }
 
-int func_00215C68(float *a, float *b)
+/* census wpsort_compfnc, a file static, `static` keeps its ELF symbol local so it
+   cannot collide with the ico2/fumi/src/way_util global of the same name */
+static int wpsort_compfnc(float *a, float *b)
 {
     if (a[1] < b[1])
         return -1;

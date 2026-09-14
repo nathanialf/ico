@@ -4,13 +4,17 @@
 #include "mv_defs.h"
 #include "r5900.h"
 
-void func_001A7180(a0, a1) int *a0;
+static void Free();
+
+/* census free_buf, a file static, `static` keeps its ELF symbol local so it cannot
+   collide with the ico2/ito/mpeg/mv_videodec global of the same name */
+static void free_buf(a0, a1) int *a0;
 
 int a1;
 
 {
-    func_001A7318(a0[0]);
-    func_001A7318(a0[1]);
+    Free(a0[0]);
+    Free(a0[1]);
 }
 
 typedef struct VoBuf {
@@ -46,16 +50,18 @@ int voBufCreate(VoBuf *self)
     return 0;
 }
 
-extern void func_001A7180();
+static void free_buf();
 
 void voBufDelete(void)
 {
-    func_001A7180();
+    free_buf();
 }
 
 extern void iosFree();
 
-void func_001A7318(int a0)
+/* census Free, this TU's own copy of the mv_defs.h file static, `static` keeps its
+   ELF symbol local so it cannot collide with the mv_videodec global of that name */
+static void Free(int a0)
 {
     iosFree(phys_addr(a0));
 }
@@ -68,7 +74,7 @@ void voBufReset(volatile int *self)
 
 /* The listing expands voBufIsFull's line 52 into voBufGetData, so it is a
  * public `inline` of the deferred tail.  Until the tail's asm member (the
- * mv_defs.h file-static Free, func_001A7318) is C the copy is emitted here
+ * mv_defs.h file-static Free, this TU's own static copy) is C the copy is emitted here
  * as a plain function, which is its ROM position, and voBufGetData inlines
  * the static stand-in below; the two collapse into one `inline voBufIsFull`
  * at layout time. */

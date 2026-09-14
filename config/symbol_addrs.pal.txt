@@ -136,7 +136,7 @@ scpSekizou = 0x00182C58; // type:func  // ico2/script/src/script
 actSt25aElevCharaChk = 0x00187E78; // type:func  // ico2/script/src/st25a
 wakeup_cameraedit = 0x0018E0D0; // type:func  // ico2/omori/src/camera-editor
 Debug_WireString_Bird = 0x0019FC30; // type:func  // ico2/ito/src/act_bird
-Debug_StickControl = 0x0019FD30; // type:func  // ico2/ito/src/act_bird
+Debug_StickControl = 0x0019FD30; // type:func allow_duplicated:True  // ico2/ito/src/act_bird
 subBirdControl = 0x0019FF18; // type:func  // ico2/ito/src/act_bird
 subBirdCollision = 0x0019FF50; // type:func  // ico2/ito/src/act_bird
 actBirdStart = 0x0019FF78; // type:func  // ico2/ito/src/act_bird
@@ -248,7 +248,7 @@ sceVu0RotTransPers = 0x0025DF08; // type:func  // sce/libvu0/libvu0
 
 // func_001A27D0 and func_001A34D8 are the census statics effect_end_func and Debug_StickControl (itou_boss and act_bird hold those names); both are matched C file statics under those names in ico2/ito/src/queen.c (2026-09-07)
 subQueenBrainMain = 0x001A2D60; // type:func  // ico2/ito/src/queen
-func_001A34D8 = 0x001A34D8; // type:func  // ico2/ito/src/queen
+Debug_StickControl = 0x001A34D8; // type:func allow_duplicated:True  // ico2/ito/src/queen  // census Debug_StickControl, a file static, ico2/ito/src/act_bird holds the global of that name, and this one is `static` in C so its ELF symbol is local
 
 // girl_act: census names for the splat placeholders (ROM starts read from the prologues; listing order and MAIN.MAP agree)
 _girlBrainHide_MakeHidePoint = 0x001744A0; // type:func  // ico2/fumi/src/girl_act
@@ -416,7 +416,7 @@ D_0063C10C = 0x0063C10C; // size:0x4  // ico2/sugipon/src/motionManager2
 
 
 // ---- (vendor)
-func_00100000 = 0x00100000; // type:func  // sce/crt0  // (vendor) crt0.s (SRCFILE.TXT)  // not a function, the 8 zero bytes the listing labels _start-0x8
+D_00100000 = 0x00100000; // type:u32 size:0x8  // sce/crt0  // (vendor) crt0.s (SRCFILE.TXT)  // not a function, the 8 zero bytes the listing labels _start-0x8, emitted as data from sce/crt0.c
 _exit = 0x001000B8; // type:func  // sce/crt0  // (vendor) crt0.s (SRCFILE.TXT)
 _root = 0x001000C0; // type:func  // sce/crt0  // (vendor) crt0.s (SRCFILE.TXT)
 
@@ -568,7 +568,7 @@ iEnableIntc = 0x00100BA8; // type:func  // sce/libkernl/libkernl_100110  // (ven
 iDisableIntc = 0x00100BC8; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)  // provisional-ordinal
 iEnableDmac = 0x00100BE8; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)  // provisional-ordinal
 iDisableDmac = 0x00100C08; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)  // provisional-ordinal
-func_00100C28 = 0x00100C28; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)  // census setup by instruction stream and position, a file static twin of the setup already seated at 0x00100990, so the placeholder name stays
+func_00100C28 = 0x00100C28; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)  // census setup, a file static, waits on InitAlarm becoming C and on the global setup at 0x00100990 leaving this object, an assembled jal would bind to that global
 Copy = 0x00100C38; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 kCopy = 0x00100C48; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
 GetEntryAddress = 0x00100C80; // type:func  // sce/libkernl/libkernl_100110  // (vendor) libkernl.a (164/177 MAIN.MAP)
@@ -1469,8 +1469,8 @@ isysGObjKindTableInit = 0x00140170; // type:func  // ico2/fumi/isys/gobj
 isysGObjInit = 0x00140188; // type:func  // ico2/fumi/isys/gobj
 cut_gobj_link = 0x001401E0; // type:func  // ico2/fumi/isys/gobj
 isysGObjRemoveAll = 0x00140288; // type:func  // ico2/fumi/isys/gobj
-add_gobj_to_tail = 0x001403D8; // type:func  // ico2/fumi/isys/gobj
-add_gobj_to_head = 0x001404A8; // type:func  // ico2/fumi/isys/gobj
+add_gobj_to_tail = 0x001403D8; // type:func allow_duplicated:True  // ico2/fumi/isys/gobj
+add_gobj_to_head = 0x001404A8; // type:func allow_duplicated:True  // ico2/fumi/isys/gobj
 isysGObjMove = 0x00140578; // type:func  // ico2/fumi/isys/gobj  // provisional-ordinal
 isysGObjMoveHead = 0x001405C0; // type:func  // ico2/fumi/isys/gobj  // provisional-ordinal
 isysGObjAddAfterGObj = 0x00140608; // type:func  // ico2/fumi/isys/gobj
@@ -1496,8 +1496,8 @@ isysGObjActiveDlLink = 0x00141160; // type:func  // ico2/fumi/isys/gobj  // prov
 // ---- ico2/fumi/isys/gobj_dl
 cut_gobj_dl_link = 0x00141198; // type:func  // ico2/fumi/isys/gobj_dl
 isysGObjRemoveObjDL = 0x00141240; // type:func  // ico2/fumi/isys/gobj_dl  // provisional-ordinal
-func_00141248 = 0x00141248; // type:func  // ico2/fumi/isys/gobj_dl  // census add_gobj_to_tail, a name this TU shares with the static of the same name in ico2/fumi/isys/gobj, so the placeholder name stays
-func_001413B8 = 0x001413B8; // type:func  // ico2/fumi/isys/gobj_dl  // census add_gobj_to_head, a name this TU shares with the static of the same name in ico2/fumi/isys/gobj, so the placeholder name stays
+add_gobj_to_tail = 0x00141248; // type:func allow_duplicated:True  // ico2/fumi/isys/gobj_dl  // census add_gobj_to_tail, a name this TU shares with the static of the same name in ico2/fumi/isys/gobj, `static` in C keeps this one's ELF symbol local
+add_gobj_to_head = 0x001413B8; // type:func allow_duplicated:True  // ico2/fumi/isys/gobj_dl  // census add_gobj_to_head, a name this TU shares with the static of the same name in ico2/fumi/isys/gobj, `static` in C keeps this one's ELF symbol local
 isysGObjMoveObjDL = 0x00141488; // type:func  // ico2/fumi/isys/gobj_dl  // provisional-ordinal
 isysGObjMoveObjDLHead = 0x001414D0; // type:func  // ico2/fumi/isys/gobj_dl  // provisional-ordinal
 isysGObjLinkObjDL = 0x00141518; // type:func  // ico2/fumi/isys/gobj_dl
@@ -2145,7 +2145,7 @@ waypoint_connect_group_side_me = 0x00181730; // type:func  // ico2/fumi/src/way_
 bridge_waypoint_side_bridge = 0x00181778; // type:func  // ico2/fumi/src/way_util
 waypoint_connect_group_side_bridge = 0x00181828; // type:func  // ico2/fumi/src/way_util
 NearestWgFromTarget = 0x00181870; // type:func  // ico2/fumi/src/way_util
-wpsort_compfnc = 0x001818C8; // type:func  // ico2/fumi/src/way_util
+wpsort_compfnc = 0x001818C8; // type:func allow_duplicated:True  // ico2/fumi/src/way_util
 
 // ---- ico2/script/src/gflag
 gflagInit = 0x00181900; // type:func  // ico2/script/src/gflag
@@ -2657,7 +2657,7 @@ GatherEffect_Set = 0x001A0490; // type:func  // ico2/ito/src/gather_effect
 GatherEffect_InqEnd = 0x001A0560; // type:func  // ico2/ito/src/gather_effect
 
 // ---- ico2/ito/src/itou_boss
-effect_end_func = 0x001A05D0; // type:func  // ico2/ito/src/itou_boss
+effect_end_func = 0x001A05D0; // type:func allow_duplicated:True  // ico2/ito/src/itou_boss
 bossCtrlBeforeFunc = 0x001A0668; // type:func  // ico2/ito/src/itou_boss
 BossEnemyFunc = 0x001A07F0; // type:func  // ico2/ito/src/itou_boss
 func_001A08F8 = 0x001A08F8; // type:func  // ico2/ito/src/itou_boss  // census gene_enemy, a file static twin of the ico2/ito/src/queen global (294 insns, listing lines 153-287), the placeholder name stays until the static lands
@@ -2694,7 +2694,7 @@ cmpr = 0x001A2760; // type:func  // ico2/ito/src/lightning
 
 // ---- ico2/ito/src/queen
 scale_m34 = 0x001A2770; // type:func  // ico2/ito/src/queen
-func_001A27D0 = 0x001A27D0; // type:func  // ico2/ito/src/queen
+effect_end_func = 0x001A27D0; // type:func allow_duplicated:True  // ico2/ito/src/queen  // census effect_end_func, a file static, ico2/ito/src/itou_boss holds the global of that name, and this one is `static` in C so its ELF symbol is local
 queenBeforeFunc = 0x001A2828; // type:func  // ico2/ito/src/queen
 gene_enemy = 0x001A2A10; // type:func  // ico2/ito/src/queen
 InitQueenGeo = 0x001A35D8; // type:func  // ico2/ito/src/queen
@@ -2758,14 +2758,14 @@ strFileClose = 0x001A69D8; // type:func  // ico2/ito/mpeg/mv_strfile
 strFileRead = 0x001A69F8; // type:func  // ico2/ito/mpeg/mv_strfile
 
 // ---- ico2/ito/mpeg/mv_videodec
-free_buf = 0x001A6A18; // type:func  // ico2/ito/mpeg/mv_videodec  // provisional-ordinal
+free_buf = 0x001A6A18; // type:func allow_duplicated:True  // ico2/ito/mpeg/mv_videodec  // provisional-ordinal
 videoDecCreate = 0x001A6A20; // type:func  // ico2/ito/mpeg/mv_videodec
 videoDecBeginPut = 0x001A6B68; // type:func  // ico2/ito/mpeg/mv_videodec  // provisional-ordinal
 videoDecEndPut = 0x001A6B70; // type:func  // ico2/ito/mpeg/mv_videodec  // provisional-ordinal
 videoDecFlush = 0x001A6B78; // type:func  // ico2/ito/mpeg/mv_videodec
 videoCallback = 0x001A6C40; // type:func  // ico2/ito/mpeg/mv_videodec
 decBitStrm0 = 0x001A6D68; // type:func  // ico2/ito/mpeg/mv_videodec
-Free = 0x001A6F80; // type:func  // ico2/ito/mpeg/mv_videodec
+Free = 0x001A6F80; // type:func allow_duplicated:True  // ico2/ito/mpeg/mv_videodec
 videoDecDelete = 0x001A6F90; // type:func  // ico2/ito/mpeg/mv_videodec
 videoDecSetStream = 0x001A6FD0; // type:func  // ico2/ito/mpeg/mv_videodec
 videoDecAbort = 0x001A6FF0; // type:func  // ico2/ito/mpeg/mv_videodec
@@ -2779,10 +2779,10 @@ mpegRestartDMA = 0x001A7120; // type:func  // ico2/ito/mpeg/mv_videodec  // prov
 mpegTS = 0x001A7140; // type:func  // ico2/ito/mpeg/mv_videodec
 
 // ---- ico2/ito/mpeg/mv_vobuf
-func_001A7180 = 0x001A7180; // type:func  // ico2/ito/mpeg/mv_vobuf  // census free_buf by instruction stream, a file static twin of the free_buf already seated in ico2/ito/mpeg/mv_videodec, so the placeholder name stays
+free_buf = 0x001A7180; // type:func allow_duplicated:True  // ico2/ito/mpeg/mv_vobuf  // census free_buf by instruction stream, a file static twin of the free_buf in ico2/ito/mpeg/mv_videodec, `static` in C keeps this one's ELF symbol local
 voBufCreate = 0x001A71B0; // type:func  // ico2/ito/mpeg/mv_vobuf
 voBufDelete = 0x001A7310; // type:func  // ico2/ito/mpeg/mv_vobuf  // provisional-ordinal
-func_001A7318 = 0x001A7318; // type:func  // ico2/ito/mpeg/mv_vobuf  // census Free by instruction stream and position, the mv_defs.h static this TU has its own copy of, so the placeholder name stays
+Free = 0x001A7318; // type:func allow_duplicated:True  // ico2/ito/mpeg/mv_vobuf  // census Free by instruction stream and position, the mv_defs.h static this TU has its own copy of, `static` in C keeps this one's ELF symbol local
 voBufReset = 0x001A7328; // type:func  // ico2/ito/mpeg/mv_vobuf
 voBufIsFull = 0x001A7338; // type:func  // ico2/ito/mpeg/mv_vobuf
 voBufIncCount = 0x001A7350; // type:func  // ico2/ito/mpeg/mv_vobuf
@@ -3296,8 +3296,8 @@ moveZMinus = 0x001CB188; // type:func  // ico2/sugipon/src/box
 BoxRideFunc = 0x001CB250; // type:func  // ico2/sugipon/src/box
 
 // ---- ico2/sugipon/src/boy
-dispClothes = 0x001CB2E0; // type:func  // ico2/sugipon/src/boy
-execClothes = 0x001CB380; // type:func  // ico2/sugipon/src/boy
+dispClothes = 0x001CB2E0; // type:func allow_duplicated:True  // ico2/sugipon/src/boy
+execClothes = 0x001CB380; // type:func allow_duplicated:True  // ico2/sugipon/src/boy
 InitLightLineGeo = 0x001CB510; // type:func  // ico2/sugipon/src/boy
 LightLineDL = 0x001CB838; // type:func  // ico2/sugipon/src/boy
 InitBoyGeo = 0x001CBC28; // type:func  // ico2/sugipon/src/boy
@@ -3305,7 +3305,7 @@ synchronizeMotionOutputOriginForGirl = 0x001CBF90; // type:func  // ico2/sugipon
 actionOfWater = 0x001CC120; // type:func  // ico2/sugipon/src/boy
 BoyGeo = 0x001CC290; // type:func  // ico2/sugipon/src/boy  // provisional-ordinal
 dispSubParts = 0x001CC368; // type:func  // ico2/sugipon/src/boy
-dispCrown = 0x001CC428; // type:func  // ico2/sugipon/src/boy
+dispCrown = 0x001CC428; // type:func allow_duplicated:True  // ico2/sugipon/src/boy
 BoyDL = 0x001CC4D8; // type:func  // ico2/sugipon/src/boy  // provisional-ordinal
 SelectBoyCrown = 0x001CC620; // type:func  // ico2/sugipon/src/boy
 LightLineGeo = 0x001CC630; // type:func  // ico2/sugipon/src/boy
@@ -3344,7 +3344,7 @@ InitChandelierGeo = 0x001CDA88; // type:func  // ico2/sugipon/src/chandelier  //
 actClipCollisionCore = 0x001CDA90; // type:func  // ico2/sugipon/src/clipCollisionManager  // provisional-ordinal
 CreateClipCollisionManagerGObj = 0x001CDCB0; // type:func  // ico2/sugipon/src/clipCollisionManager
 RequestClipCollision = 0x001CDCF0; // type:func  // ico2/sugipon/src/clipCollisionManager
-func_001CDD30 = 0x001CDD30; // type:func  // ico2/sugipon/src/clipCollisionManager  // census thStart by instruction stream, a file static twin of the thStart already seated in ico2/sugipon/src/waySystemManager, so the placeholder name stays
+thStart = 0x001CDD30; // type:func allow_duplicated:True  // ico2/sugipon/src/clipCollisionManager  // census thStart by instruction stream, a file static twin of the thStart in ico2/sugipon/src/waySystemManager, `static` in C keeps this one's ELF symbol local
 
 // ---- ico2/sugipon/src/clothAnimation
 GetChainExWeightGlobalPos = 0x001CDF40; // type:func  // ico2/sugipon/src/clothAnimation
@@ -3532,9 +3532,9 @@ execWeaponLightOff = 0x001DD0D8; // type:func  // ico2/sugipon/src/frameDependSe
 // 133/63/81 insns; callee sequences identical; the listing's dispClothes -> dispCrown edge lands on
 // 0x1DD440 -> 0x1DD340). Absent from MAIN.MAP; splat rejects a duplicate global name, so the placeholder
 // rows stay and the C defines them as statics under the census names at layout (motionManager precedent).
-func_001DD128 = 0x001DD128; // type:func  // ico2/sugipon/src/girl
-func_001DD340 = 0x001DD340; // type:func  // ico2/sugipon/src/girl
-func_001DD440 = 0x001DD440; // type:func  // ico2/sugipon/src/girl
+execClothes = 0x001DD128; // type:func allow_duplicated:True  // ico2/sugipon/src/girl  // census execClothes, a file static twin of the ico2/sugipon/src/boy global of that name, `static` in C keeps this one's ELF symbol local
+dispCrown = 0x001DD340; // type:func allow_duplicated:True  // ico2/sugipon/src/girl  // census dispCrown, a file static twin of the ico2/sugipon/src/boy global of that name, `static` in C keeps this one's ELF symbol local
+dispClothes = 0x001DD440; // type:func allow_duplicated:True  // ico2/sugipon/src/girl  // census dispClothes, a file static twin of the ico2/sugipon/src/boy global of that name, `static` in C keeps this one's ELF symbol local
 InitGirlGeo = 0x001DD588; // type:func  // ico2/sugipon/src/girl
 GirlGeo = 0x001DD7A0; // type:func  // ico2/sugipon/src/girl  // provisional-ordinal
 GirlAI = 0x001DD968; // type:func  // ico2/sugipon/src/girl
@@ -3972,7 +3972,7 @@ EntryWaterDot = 0x002009E0; // type:func  // ico2/sugipon/src/waterDot
 CreateWaySystemManagerGObj = 0x00200AD0; // type:func  // ico2/sugipon/src/waySystemManager
 RequestGetWayBegin = 0x00200B10; // type:func  // ico2/sugipon/src/waySystemManager
 actWaySystemCore = 0x00200B50; // type:func  // ico2/sugipon/src/waySystemManager
-thStart = 0x00200BA0; // type:func  // ico2/sugipon/src/waySystemManager
+thStart = 0x00200BA0; // type:func allow_duplicated:True  // ico2/sugipon/src/waySystemManager
 
 // ---- ico2/sugipon/src/weapon
 torchOnOfWeaponSE = 0x00200BB8; // type:func  // ico2/sugipon/src/weapon
@@ -4139,7 +4139,7 @@ enemy_GetPositionTable = 0x0020BF18; // type:func  // ico2/seki/src/EnemyInit
 // ---- ico2/fumi/isys/gobj_cam_dl
 cut_gobj_camera_dl_link = 0x0020BF58; // type:func  // ico2/fumi/isys/gobj_cam_dl
 isysGObjRemoveCameraDL = 0x0020BFD0; // type:func  // ico2/fumi/isys/gobj_cam_dl  // provisional-ordinal
-func_0020BFD8 = 0x0020BFD8; // type:func  // ico2/fumi/isys/gobj_cam_dl  // census add_gobj_to_tail by instruction stream, a third copy of the name ico2/fumi/isys/gobj and gobj_dl also carry, so the placeholder name stays
+add_gobj_to_tail = 0x0020BFD8; // type:func allow_duplicated:True  // ico2/fumi/isys/gobj_cam_dl  // census add_gobj_to_tail by instruction stream, a third copy of the name ico2/fumi/isys/gobj and gobj_dl also carry, `static` in C keeps this one's ELF symbol local
 isysGObjMoveCameraDL = 0x0020C0F8; // type:func  // ico2/fumi/isys/gobj_cam_dl
 isysGObjLinkCameraDL = 0x0020C130; // type:func  // ico2/fumi/isys/gobj_cam_dl
 isysGObjLinkCameraDLAfterGObj = 0x0020C1B0; // type:func  // ico2/fumi/isys/gobj_cam_dl  // provisional-ordinal
@@ -4213,7 +4213,7 @@ CopyWpPos = 0x00215AB8; // type:func  // ico2/fumi/src/way_kidnap
 WayLengthOfGObj_Pos = 0x00215B78; // type:func  // ico2/fumi/src/way_kidnap
 WayLengthOfGObj_GObj = 0x00215BC8; // type:func  // ico2/fumi/src/way_kidnap
 WayPointWithRangeFromGObj = 0x00215C20; // type:func  // ico2/fumi/src/way_kidnap
-func_00215C68 = 0x00215C68; // type:func  // ico2/fumi/src/way_kidnap  // census wpsort_compfnc by instruction stream, a file static twin of the wpsort_compfnc already seated in ico2/fumi/src/way_util, so the placeholder name stays
+wpsort_compfnc = 0x00215C68; // type:func allow_duplicated:True  // ico2/fumi/src/way_kidnap  // census wpsort_compfnc by instruction stream, a file static twin of the wpsort_compfnc in ico2/fumi/src/way_util, `static` in C keeps this one's ELF symbol local
 
 // ---- ico2/fumi/src/way_llf
 CreateBridge = 0x00215CA0; // type:func  // ico2/fumi/src/way_llf  // census CreateBridge (way_llf.c 98-369) by call sequence, the only listing function whose call list matches once the compiled-out printf and assert arms are removed, and the listing emits it inside the way_llf run, the retail link at the tail of way_kidnap
@@ -5477,7 +5477,7 @@ ErrMessage = 0x00259338; // type:func  // ico2/ito/mpeg/mv_sub
 copy2area = 0x00259348; // type:func  // ico2/ito/mpeg/mv_sub
 
 // ---- ico2/ito/mpeg/mv_vibuf
-func_00259480 = 0x00259480; // type:func  // ico2/ito/mpeg/mv_vibuf  // census free_buf by instruction stream, a file static twin of the free_buf already seated in ico2/ito/mpeg/mv_videodec, so the placeholder name stays
+free_buf = 0x00259480; // type:func allow_duplicated:True  // ico2/ito/mpeg/mv_vibuf  // census free_buf by instruction stream, a file static twin of the free_buf in ico2/ito/mpeg/mv_videodec, `static` in C keeps this one's ELF symbol local
 viBufCreate = 0x002594B8; // type:func  // ico2/ito/mpeg/mv_vibuf
 viBufReset = 0x00259678; // type:func  // ico2/ito/mpeg/mv_vibuf
 viBufBeginPut = 0x00259810; // type:func  // ico2/ito/mpeg/mv_vibuf
@@ -5488,7 +5488,7 @@ viBufRestartDMA = 0x00259D70; // type:func  // ico2/ito/mpeg/mv_vibuf
 viBufFlush = 0x0025A158; // type:func  // ico2/ito/mpeg/mv_vibuf
 viBufModifyPts = 0x0025A1A8; // type:func  // ico2/ito/mpeg/mv_vibuf
 viBufGetTs = 0x0025A318; // type:func  // ico2/ito/mpeg/mv_vibuf
-func_0025A4A8 = 0x0025A4A8; // type:func  // ico2/ito/mpeg/mv_vibuf  // census Free by instruction stream and position, the mv_defs.h static this TU has its own copy of, so the placeholder name stays
+Free = 0x0025A4A8; // type:func allow_duplicated:True  // ico2/ito/mpeg/mv_vibuf  // census Free by instruction stream and position, the mv_defs.h static this TU has its own copy of, `static` in C keeps this one's ELF symbol local
 viBufDelete = 0x0025A4B8; // type:func  // ico2/ito/mpeg/mv_vibuf
 viBufCount = 0x0025A578; // type:func  // ico2/ito/mpeg/mv_vibuf
 viBufPutTs = 0x0025A5C8; // type:func  // ico2/ito/mpeg/mv_vibuf
@@ -5714,7 +5714,7 @@ kProbeTLBEntry = 0x00264CD8; // type:func  // sce/libkernl/libkernl_25EF18  // (
 kExpandScratchPad = 0x00264D28; // type:func  // sce/libkernl/libkernl_25EF18  // (vendor) libkernl.a (101/141 MAIN.MAP)
 SetTLBHandler = 0x00264E58; // type:func  // sce/libkernl/libkernl_25EF18  // (vendor) libkernl.a (101/141 MAIN.MAP)
 SetDebugHandler = 0x00264EB8; // type:func  // sce/libkernl/libkernl_25EF18  // (vendor) libkernl.a (101/141 MAIN.MAP)
-func_00264F40 = 0x00264F40; // type:func  // sce/libkernl/libkernl_25EF18  // (vendor) libkernl.a (101/141 MAIN.MAP)  // census setup by position and by InitTLBFunctions calling it, a file static twin of the setup already seated at 0x00100990, so the placeholder name stays
+func_00264F40 = 0x00264F40; // type:func  // sce/libkernl/libkernl_25EF18  // (vendor) libkernl.a (101/141 MAIN.MAP)  // census setup, a file static, waits on this whole-function asm leaf becoming C, glabel emits a global label that would collide with the global setup at 0x00100990
 InitTLBFunctions = 0x00264F50; // type:func  // sce/libkernl/libkernl_25EF18  // (vendor) libkernl.a (101/141 MAIN.MAP)
 PutTLBEntry = 0x00264FA0; // type:func  // sce/libkernl/libkernl_25EF18  // (vendor) libkernl.a (101/141 MAIN.MAP)
 iPutTLBEntry = 0x00264FB0; // type:func  // sce/libkernl/libkernl_25EF18  // (vendor) libkernl.a (101/141 MAIN.MAP)
@@ -5983,7 +5983,7 @@ setD4_CHCR = 0x002722D0; // type:func  // sce/libmpeg/libmpeg  // (vendor) libmp
 sceIpuStopDMA = 0x00272338; // type:func  // sce/libipu/libipu  // (vendor) libipu.a (4/70 MAIN.MAP)
 sceIpuRestartDMA = 0x00272420; // type:func  // sce/libipu/libipu  // (vendor) libipu.a (4/70 MAIN.MAP)
 sceIpuSync = 0x00272570; // type:func  // sce/libipu/libipu  // (vendor) libipu.a (4/70 MAIN.MAP)
-func_002725D8 = 0x002725D8; // type:func  // sce/libipu/libipu  // (vendor) libipu.a (4/70 MAIN.MAP)  // census setD4_CHCR by instruction stream and position, a file static twin of the setD4_CHCR already seated at 0x002722D0, so the placeholder name stays
+func_002725D8 = 0x002725D8; // type:func  // sce/libipu/libipu  // (vendor) libipu.a (4/70 MAIN.MAP)  // census setD4_CHCR, a file static, waits on sceIpuInit becoming C, its assembled jal would bind to the sce/libmpeg/libmpeg global at 0x002722D0
 sceIpuInit = 0x00272640; // type:func  // sce/libipu/libipu  // (vendor) libipu.a (4/70 MAIN.MAP)
 GetRomName = 0x00272878; // type:func  // sce/libipu/libipu  // (vendor) libipu.a (4/70 MAIN.MAP)
 IsT10K = 0x00272918; // type:func  // sce/libipu/libipu  // (vendor) libipu.a (4/70 MAIN.MAP)
@@ -6159,7 +6159,7 @@ __make_dp = 0x0027D978; // type:func  // sce/libgcc/dp-bit  // (vendor) libgcc.a
 dptofp = 0x0027D9A8; // type:func  // sce/libgcc/dp-bit  // (vendor) libgcc.a (38/40 MAIN.MAP)
 __pack_f = 0x0027DA00; // type:func  // sce/libgcc/fp-bit  // (vendor) libgcc.a (38/40 MAIN.MAP)
 __unpack_f = 0x0027DB10; // type:func  // sce/libgcc/fp-bit  // (vendor) libgcc.a (38/40 MAIN.MAP)
-func_0027DBA0 = 0x0027DBA0; // type:func  // sce/libgcc/fp-bit  // (vendor) libgcc.a (38/40 MAIN.MAP)  // census _fpadd_parts by instruction stream, the float build of fp-bit.c and a static twin of the dp-bit _fpadd_parts already seated at 0x0027CED8, so the placeholder name stays
+func_0027DBA0 = 0x0027DBA0; // type:func  // sce/libgcc/fp-bit  // (vendor) libgcc.a (38/40 MAIN.MAP)  // census _fpadd_parts, a file static in the float build of fp-bit.c, waits on this function becoming C, a stub assembles to a global label that would collide with the sce/libgcc/dp-bit stub at 0x0027CED8
 fpadd = 0x0027DDD8; // type:func  // sce/libgcc/fp-bit  // (vendor) libgcc.a (38/40 MAIN.MAP)
 fpsub = 0x0027DE30; // type:func  // sce/libgcc/fp-bit  // (vendor) libgcc.a (38/40 MAIN.MAP)
 fpmul = 0x0027DE98; // type:func  // sce/libgcc/fp-bit  // (vendor) libgcc.a (38/40 MAIN.MAP)
@@ -6203,8 +6203,8 @@ __sprint = 0x00280118; // type:func  // sce/libc/stdio/vfiprintf  // (vendor) li
 __sbprintf = 0x00280160; // type:func  // sce/libc/stdio/vfiprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
 vfiprintf = 0x00280218; // type:func  // sce/libc/stdio/vfiprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
 _vfiprintf_r = 0x00280290; // type:func  // sce/libc/stdio/vfiprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
-func_00280E60 = 0x00280E60; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // census __sprint by instruction stream, a file static twin of the __sprint already seated in vfiprintf, so the placeholder name stays
-func_00280EA8 = 0x00280EA8; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // census __sbprintf by instruction stream and by calling vfprintf where the vfiprintf copy calls vfiprintf, a static twin of the __sbprintf already seated in vfiprintf, so the placeholder name stays
+func_00280E60 = 0x00280E60; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // census __sprint, a file static, waits on _vfprintf_r becoming C, its assembled jal would bind to the sce/libc/stdio/vfiprintf global at 0x00280118
+func_00280EA8 = 0x00280EA8; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // census __sbprintf, a file static, waits on this function and _vfprintf_r becoming C, a stub assembles to a global label and _vfprintf_r's assembled jal would bind to the sce/libc/stdio/vfiprintf global at 0x00280160
 vfprintf = 0x00280F60; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
 _vfprintf_r = 0x00280FD8; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
 cvt = 0x002824F0; // type:func  // sce/libc/stdio/vfprintf  // (vendor) libc.a (116/118 MAIN.MAP)
