@@ -83,13 +83,295 @@ void actSt08aEnd(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEne1Chk);
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEne2Chk);
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aDoorUp);
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aHasiUpSub);
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aHasiUp);
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aTorchOnChk);
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aTorchOffChk);
+extern void scpSleepEnemyOne(int id);
+extern void scpWakeupEnemyOne(int id);
+extern void scpPlayMot(void *o, int mot);
+extern void SetCameraFlag_LwsCutBack(void);
+
+void actSt08aEne1Chk(volatile int a0)
+{
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (gflagChk(0x47) == 0 || (scpTriggerFloorAttr(D_00639EA4, 0x6000000) == 0 &&
+                                   scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0)) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    scpSleepEnemyOne(0xEAD);
+    gflagOn(0x48);
+    gflagOn(0x4A);
+    stage_SetAnimation(0x67, 1, 0);
+
+    if (scpTriggerFloorAttr(D_00639EA4, 0x6000000) == 0 &&
+        scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) {
+        SetCameraFlag_LwsCutBack();
+    }
+
+    while (stage_CheckAnimationFinish(0x67) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMot(D_00639EA4, 0);
+    D_0063AA08 = 0;
+    lt_switch_layout(0x36);
+    scpWakeupEnemyOne(0xEAD);
+}
+
+extern int D_0063A538;
+extern void gflagOff(int a0);
+extern void scpKillEnemyOne(int a0);
+extern void scpKillSpiderGroup(int a0);
+extern void Generator_Delete(PObjGObj *g);
+
+void actSt08aEne2Chk(volatile int a0)
+{
+    int save;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (gflagChk(0x48) == 0 || scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    scpSleepEnemyOne(0xEAD);
+    gflagOff(0x187);
+    gflagOn(0x49);
+    gflagOn(0x4B);
+    _ACTWait(0x3C);
+
+    save = D_0063A538;
+    D_0063A538 = 0;
+
+    scpKillEnemyOne(0x14E);
+    scpKillEnemyOne(0x14F);
+    scpKillEnemyOne(0x150);
+    scpKillSpiderGroup(0x151);
+    Generator_Delete(scpSearchGobj(0x152));
+    Generator_Delete(scpSearchGobj(0x153));
+
+    stage_SetAnimation(0x68, 1, 0);
+
+    if (scpTriggerFloorAttr(D_00639EA4, 0x5000000) == 0) {
+        SetCameraFlag_LwsCutBack();
+    }
+
+    while (stage_CheckAnimationFinish(0x68) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    D_0063A538 = save;
+    scpPlayMot(D_00639EA4, 0);
+    lt_switch_layout(0x36);
+    D_0063AA08 = 0;
+    scpWakeupEnemyOne(0xEAD);
+}
+
+extern int D_0028F8F4[];
+extern int actCreateSubThread(void *entry, int prio);
+extern void iosThreadSetPri(int th, int pri);
+extern int scpAdpcmPlayRequestNum(void);
+extern void scpSleepEnemyAll(void);
+extern void scpWakeupEnemyAll(void);
+extern void scpFadeOut(float t, int a1, int a2, int a3);
+extern void scpFadeIn(float t);
+extern int scpFadeChk(void);
+extern int lt_fade_status(void);
+extern void actSt08aDoorUpSub(volatile int a0);
+
+void actSt08aDoorUp(volatile int a0)
+{
+    int th;
+
+    lt_switch_layout(0x37);
+    gflagOn(0x47);
+    scpSleepEnemyAll();
+
+    th = actCreateSubThread(actSt08aDoorUpSub, 0x15);
+    D_0063C564 = 0;
+    D_0063C568 = 0;
+
+    while (D_0063C564 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(th + 0x24, 0x22);
+
+    if (D_0063C564 == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(0x69, 0, -1);
+        scpFadeIn(3.0f);
+        if (D_0063C568 == 0) {
+            soundSeDefPlay(0x4C6, 0, 0, 1);
+        }
+    }
+
+    SetWayGroupActive(0xB, 1);
+    scpWakeupEnemyAll();
+    D_0063AA08 = 0;
+    lt_switch_layout(0x36);
+}
+
+extern int *D_0063BF7C;
+extern int D_00639EAC;
+extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
+extern void AdpcmPlay(int a0);
+extern void iosPadActRequest(int a0, int a1);
+
+void actSt08aHasiUpSub(volatile int a0)
+{
+    _ACTWait(0x3C);
+
+    while (D_0063BF7C == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x6A, 1, 0);
+
+    while (stage_CheckAnimationFrame(0x6A, 0x1E, 0) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    AdpcmPlay(D_0063BF7C[0x2C / 4]);
+
+    while (stage_CheckAnimationFrame(0x6A, 0xB4, 0) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    iosPadActRequest(D_00639EAC, 0x11);
+
+    while (stage_CheckAnimationFinish(0x6A) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    D_0063C564 = 1;
+    _ACTWait(0);
+}
+
+extern void scpAdpcmPlayRequestFunc(int kind, int *id, int a2, int a3, int a4);
+extern int scpAdpcmFadeCloseFunc(int *h, int fade);
+extern void actSt08aHasiUpSub(volatile int a0);
+
+void actSt08aHasiUp(volatile int a0)
+{
+    int th;
+
+    lt_switch_layout(0x37);
+    gflagOn(0x4F);
+    SetWayGroupActive(0x1E, 1);
+    scpSleepEnemyAll();
+
+    D_0063C564 = 0;
+    scpAdpcmPlayRequestFunc(0x62, (int *)&D_0063BF7C, 1, 1, 0);
+
+    th = actCreateSubThread(actSt08aHasiUpSub, 0x15);
+
+    while (D_0063C564 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(th + 0x24, 0x22);
+
+    if (D_0063C564 == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (D_0063BF7C == 0) {
+            _ACTWait(1);
+        }
+        scpAdpcmFadeCloseFunc((int *)&D_0063BF7C, 0x200);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(0x6A, 0, -1);
+        scpFadeIn(3.0f);
+    }
+
+    scpWakeupEnemyAll();
+    scpSearchGobj(0x171)->f16C = 0;
+    D_0063AA08 = 0;
+    lt_switch_layout(0x36);
+}
+
+extern int scpTriggerFloorAttr(void *a0, int attr);
+extern ActMail D_004FA1B0[];
+extern ActMail D_004FA1D0[];
+extern void actSt08aTorchOnChk(volatile int a0);
+
+void actSt08aTorchOnChk(volatile int a0)
+{
+    Act *self = ((PObjGObj *)a0)->act;
+
+    while (scpTriggerFloorAttr(D_00639EA4, 0x5000000) != 0 ||
+           scpTriggerFloorAttr(D_00639EA4, 0x7000000) != 0 ||
+           scpTriggerFloorAttr(D_00639EA4, 0xA000000) != 0) {
+        _ACTWait(1);
+    }
+
+    ((unsigned int *)scpSearchGobj(0x15E))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x15F))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x160))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x161))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x162))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x163))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x164))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x165))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x166))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x167))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(0x15C))[0x50 / 4] = 0xFFFFFFFF;
+
+    D_004FA1B0[0].func = actSt08aTorchOffChk;
+    self->mail = D_004FA1B0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
+
+void actSt08aTorchOffChk(volatile int a0)
+{
+    Act *self = ((PObjGObj *)a0)->act;
+
+    while (scpTriggerFloorAttr(D_00639EA4, 0x5000000) == 0 &&
+           scpTriggerFloorAttr(D_00639EA4, 0x7000000) == 0 &&
+           scpTriggerFloorAttr(D_00639EA4, 0xA000000) == 0) {
+        _ACTWait(1);
+    }
+
+    ((int *)scpSearchGobj(0x15E))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x15F))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x160))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x161))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x162))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x163))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x164))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x165))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x166))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x167))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(0x15C))[0x50 / 4] = 0;
+
+    D_004FA1D0[0].func = actSt08aTorchOnChk;
+    self->mail = D_004FA1D0;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 
 void actSt08aDoor(volatile int a0)
 {

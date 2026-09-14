@@ -27,6 +27,7 @@ extern void *InitChains(char *a0);
 extern void *D_0063A438;
 extern void *D_0063A44C;
 extern char D_00621540[];
+extern int D_0063BC80;
 
 typedef union {
     int i;
@@ -297,9 +298,18 @@ void disp(void *act)
     }
 }
 
+/* the reduce ratio is written through a union view, so the store is a full
+   memory barrier: the ROM proves it, because the SetWormReduceRatio +
+   TraceWormRoute pair in WormGeo re-derives the work pointer from the actor
+   after the store instead of reusing the one the store just computed. */
+typedef union {
+    float f;
+    int i;
+} WormFI;
+
 inline void SetWormReduceRatio(int a0, float f12)
 {
-    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) = f12;
+    ((WormFI *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8))->f = f12;
 }
 
 void GetWormRoute(int act, WormVec *target)
@@ -364,6 +374,29 @@ inline void TraceWormRoute(int act, float t)
             r->pnt[i].pos[j].w = 1.0f;
         }
     }
+}
+
+/* census: the listing inlines this (sugipon/src/worm.c:310-321) into WormGeo
+   and nowhere else, so it is a file-static inline with no ROM symbol. */
+static inline void ResetWormRoute(int act, WormWork *w)
+{
+    WormRoute *r = w->route;
+    int i;
+    int j;
+
+    for (i = 0; i < r->nseg; i++) {
+        int num = r->seg[i].num;
+        WormVec *pos = r->pnt[i].pos;
+        WormVec *prev = r->pnt[i].prev;
+
+        for (j = 0; j < num; j++) {
+            CopyVector(&pos[j], r->seg[i].pm.p);
+            CopyVector(&prev[j], D_0028FEF0);
+        }
+    }
+
+    GetWormRoute(act, (WormVec *)r->seg[0].pm.p);
+    w->ratio = 0.0f;
 }
 
 void *InitWormGeo(int act, WormInit *ini)
@@ -462,9 +495,28 @@ void GetWormCaptureVector(void *out, void *act, void *node, float scale)
     sceVu0ScaleVector(out, out, scale);
 }
 
-ASM_LIT4_SLOT(D_00639718, 0.05f);
-ASM_LIT4_SLOT(D_0063971C, 8.99999f);
-INCLUDE_ASM("asm/nonmatchings/src/worm", WormGeo);
+void WormGeo(int act)
+{
+    WormWork *w = *(WormWork **)(*(int *)(act + 0x15C) + 0x830);
+
+    if (D_0063BC80 != 0) {
+        ResetWormRoute(act, w);
+        D_0063BC80 = 0;
+    }
+
+    outerProcess(act);
+
+    if (w->ratio < 1.0f) {
+        w->ratio = w->ratio + 0.05f;
+        if (1.0f < w->ratio) {
+            w->ratio = 1.0f;
+        }
+        SetWormReduceRatio(act, 1.0f);
+        TraceWormRoute(act, w->ratio);
+    }
+
+    getAnimation(act);
+}
 
 void WormDL(void *act)
 {

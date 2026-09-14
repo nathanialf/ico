@@ -1259,3 +1259,7 @@ words become the blob's first words.
 ### 2026-09-14 chain E pass 20: StageAnimation and weapon pools
 - `[0x538C74, .lit4, src/StageAnimation]`: D_00638C74..D_00638C78, two words both 1.2075409f (stage_PlayBgAnimation's own literal plus one ASM_LIT4_SLOT for the still-asm stage_PlayBgAnimationDissolve), VMA 0x638C74..0x638C7C, 8 B; the blob resumes at 0x538C7C.
 - `[0x5396D8, .lit4, src/weapon]`: D_006396D8..D_006396F8, nine words reproduced byte for byte by the object (dispLaserSword's 0.1f plus eight slot lines beside their still-asm owners), VMA 0x6396D8..0x6396FC, 36 B; 0x6396FC has no weapon owner and the blob resumes there.
+
+### 2026-09-14 chain D pass 20: mcard switch table
+- `[0x451430, .rodata, ios/mcard]`: jtbl_00551430, iosMcManager's command switch table (15 arms, VMA 0x551430..0x55146C, 60 B), emitted by the compiled function; the blob resumes at 0x45146C with one zero pad word. mcard is closed, 29 of 29.
+- Owed when staffRollMain lands: jtbl_0061DF40 (7 arms, 0x61DF40..0x61DF5C plus pad); its selector is D_0063C43C, the staff-roll state word, range-checked with `sltiu $2, $5, 7`.

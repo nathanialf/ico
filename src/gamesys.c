@@ -2,8 +2,75 @@
 
 typedef void (*func_001AE8F0_FnPtr)(int *buf, int a2);
 
+typedef struct {
+    int start;
+    int end;
+    int no;
+    int stage;
+} GamesysObjInfoReq;
+
+typedef struct {
+    short flag;
+    unsigned short no;
+    unsigned short stage;
+    short pad06;
+    int time;
+    int uniq;
+    float pos[3];
+    float pad1C;
+    float rot[3];
+    float pad2C;
+    int work[4];
+} GamesysObjInfo;
+
+typedef union {
+    long long flag;
+    GamesysObjInfo info;
+} GamesysObjInfoFlag;
+
+extern char D_004DA980[];
+extern int stage_no;
+
+static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req, int no)
+{
+    int i;
+
+    for (i = req->start; i < req->end; i++) {
+        if (((GamesysObjInfo *)D_004DA980)[i].no == no) {
+            break;
+        }
+    }
+    if (i == req->end) {
+        return 0;
+    }
+    return &((GamesysObjInfo *)D_004DA980)[i];
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoInit);
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoSave);
+
+extern char D_004DA980[];
+extern int D_004DA7D0[];
+extern int gamesysTimeCount;
+extern void func_001B6CA0();
+
+void gamesysObjInfoSave(void *h)
+{
+    char *p;
+    int save;
+
+    func_001B6CA0(h, &gamesysTimeCount, 4);
+
+    p = D_004DA980;
+
+    save = (int)(*(long long *)(p + 0x40) >> 1) & 1;
+    *(long long *)(p + 0x40) = *(long long *)(p + 0x40) | 2;
+
+    func_001B6CA0(h, p, 0x2D80);
+
+    *(long long *)(p + 0x40) = (*(long long *)(p + 0x40) & -3) | ((long long)save << 1);
+
+    func_001B6CA0(h, D_004DA7D0, 0x1A8);
+}
 
 extern char D_004DA980[];
 extern int D_004DA7D0[];
@@ -46,7 +113,18 @@ void func_001B6CA0(int *self, int n, int a2)
     debug_StdPrintfDummy(D_0061D328, self[1]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001B6CF8);
+extern void MakeGeneratorPacket(void);
+
+void func_001B6CF8(int *self)
+{
+    int buf;
+    int size;
+
+    MakeGeneratorPacket();
+    buf = GetbufpGeneratorPacket();
+    size = GetsizeGeneratorPacket();
+    func_001B6CA0(self, buf, size);
+}
 
 extern int *GetbufpGeneratorPacket(void);
 extern int GetsizeGeneratorPacket(void);
@@ -63,7 +141,18 @@ void gamesysGeneratorInfoLoad(int *a0)
     return ReadGeneratorPacket();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001B6DA8);
+extern void MakeHintSaveInfo(void);
+
+void func_001B6DA8(int *self)
+{
+    int buf;
+    int size;
+
+    MakeHintSaveInfo();
+    buf = GetBuffHintSaveInfo();
+    size = GetSizeHintSaveInfo();
+    func_001B6CA0(self, buf, size);
+}
 
 extern int *GetBuffHintSaveInfo(void);
 extern int GetSizeHintSaveInfo(void);
@@ -80,8 +169,33 @@ void gamesysHintInfoLoad(int *a0)
     return ReadHintSaveInfo();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001B6E58);
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysCharacterInfoLoad);
+extern void MakeCharacterPacket(void);
+
+void func_001B6E58(int *self)
+{
+    int buf;
+    int size;
+
+    MakeCharacterPacket();
+    buf = GetbufpCharacterPacket();
+    size = GetsizeCharacterPacket();
+    func_001B6CA0(self, buf, size);
+}
+
+extern int *GetbufpCharacterPacket(void);
+extern int GetsizeCharacterPacket(void);
+extern int ReadCharacterPacket();
+
+void gamesysCharacterInfoLoad(int *a0)
+{
+    int s1 = GetbufpCharacterPacket();
+    int s2 = GetsizeCharacterPacket();
+    if (s1 != 0) {
+        memcpy(s1, a0[0] + a0[1], s2);
+    }
+    a0[1] += s2;
+    return ReadCharacterPacket();
+}
 
 extern char D_004DA980[];
 
@@ -135,7 +249,6 @@ int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
 
 extern char D_002C1270[];
 extern int stage_no;
-extern int *gamesysObjInfoBaseSet__pn(int a0, int a3) __asm__("gamesysObjInfoBaseSet");
 
 int *gamesysObjInfoUniqDataSet(int a0)
 {
@@ -144,7 +257,7 @@ int *gamesysObjInfoUniqDataSet(int a0)
     char *elem;
     int idx;
 
-    p = gamesysObjInfoBaseSet__pn(a0, stage_no);
+    p = gamesysObjInfoBaseSet((int *)a0, stage_no);
     idx = *(int *)((char *)a0 + 0xC);
     elem = D_002C1270 + idx * 0x64;
     fn = *(void (**)(int *, int))(elem + 0x3C);
@@ -153,32 +266,6 @@ int *gamesysObjInfoUniqDataSet(int a0)
     }
     return p;
 }
-
-typedef struct {
-    int start;
-    int end;
-    int no;
-    int stage;
-} GamesysObjInfoReq;
-
-typedef struct {
-    short flag;
-    unsigned short no;
-    unsigned short stage;
-    short pad06;
-    int time;
-    int uniq;
-    float pos[3];
-    float pad1C;
-    float rot[3];
-    float pad2C;
-    int work[4];
-} GamesysObjInfo;
-
-typedef union {
-    long long flag;
-    GamesysObjInfo info;
-} GamesysObjInfoFlag;
 
 extern int stage_no;
 extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
@@ -232,21 +319,6 @@ GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float 
         ((GamesysObjInfoFlag *)p)->flag |= 2;
     }
     return p;
-}
-
-static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req, int no)
-{
-    int i;
-
-    for (i = req->start; i < req->end; i++) {
-        if (((GamesysObjInfo *)D_004DA980)[i].no == no) {
-            break;
-        }
-    }
-    if (i == req->end) {
-        return 0;
-    }
-    return &((GamesysObjInfo *)D_004DA980)[i];
 }
 
 GamesysObjInfo *gamesysObjInfoGet(int kind, int no)
@@ -344,13 +416,12 @@ void gamesysMemoryLoad(void **tbl, int a1, void *a2)
 
 extern int D_004DA770[];
 extern int gamesysVersionDiff;
-extern int gamesysMemoryHandlerRead__pn(void *, void *, int) __asm__("gamesysMemoryHandlerRead");
 extern int strcmp(int *p, int *buf);
 
 void gamesysVersionLoad(int *self)
 {
     int buf[8];
-    gamesysMemoryHandlerRead__pn(self, buf, 0x12);
+    gamesysMemoryHandlerRead(self, buf, 0x12);
     if (strcmp(D_004DA770, buf) != 0) {
         gamesysVersionDiff = 1;
     } else {
@@ -358,18 +429,17 @@ void gamesysVersionLoad(int *self)
     }
 }
 
-extern void func_001B6CA0__pn(int a, char *p, int n) __asm__("func_001B6CA0");
 extern void memset(char *p, int a, int n);
 
 void gamesysVersionSave(int a0)
 {
     if (gamesysVersionDiff == 0) {
-        func_001B6CA0__pn(a0, D_004DA770, 0x12);
+        func_001B6CA0((int *)a0, (int)D_004DA770, 0x12);
         return;
     }
     {
         char buf[0x20];
         memset(buf, 0, 0x12);
-        func_001B6CA0__pn(a0, buf, 0x12);
+        func_001B6CA0((int *)a0, (int)buf, 0x12);
     }
 }
