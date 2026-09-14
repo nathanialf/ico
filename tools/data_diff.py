@@ -14,11 +14,11 @@ Why it exists: `ninja` ends in a whole-file SHA-1 (tools/verify_elf.py) that
 says ONLY "the bytes diverged". When a data carve regresses, this names WHICH
 symbol diverged and at what offset — the same localization the per-function
 asm diff gives .text, extended to .data/.rodata/.lit4/.sdata. Data carves were
-previously verified by hand against decomp/carve_ledger.md; this is the
+previously verified by hand against docs/carve_ledger.md; this is the
 mechanical check. NOBITS sections (.bss/.sbss) carry no bytes and are skipped
 (their layout is already covered by the link + SHA gate).
 
-Vtable mode (--vtables): decomp/vtables.json records every function-pointer
+Vtable mode (--vtables): docs/vtables.json records every function-pointer
 table found in .data (vma range + the function VMAs it holds). For each table,
 compare built vs target bytes over the range AND decode the built entries,
 checking them against the recorded function VMAs — a wrong-but-linkable
@@ -30,7 +30,7 @@ Usage:
     tools/data_diff.py --all               # print matches too
     tools/data_diff.py D_00631AE8          # filter by substring
     tools/data_diff.py --section .rodata   # one section only
-    tools/data_diff.py --vtables           # vtable oracle (decomp/vtables.json)
+    tools/data_diff.py --vtables           # vtable oracle (docs/vtables.json)
     tools/data_diff.py --json ...          # machine-readable
 Options --built/--base override the ELF paths (defaults: build/ico.elf and
 this target's baseelf.elf).
@@ -289,7 +289,7 @@ def main() -> int:
     ap.add_argument("--all", action="store_true",
                     help="print MATCH rows too (default: problems only)")
     ap.add_argument("--vtables", action="store_true",
-                    help="compare the decomp/vtables.json function-pointer "
+                    help="compare the docs/vtables.json function-pointer "
                          "tables instead of data symbols")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--built", type=Path, default=BUILT_ELF)

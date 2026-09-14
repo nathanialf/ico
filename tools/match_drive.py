@@ -416,7 +416,7 @@ def commit_seq(func, tu, msg):
 
 
 def _warn_volatile_commit(q, func, tu):
-    """§2.7 (decomp/COOKBOOK.md): `volatile` is a do-not-ship home-spill diagnostic
+    """§2.7 (docs/COOKBOOK.md): `volatile` is a do-not-ship home-spill diagnostic
     crutch — the clean home-forcing construct is the real source. User policy is
     WARN-BUT-ALLOW: a match whose committed body contains `volatile` IS committed
     (its bytes are byte-identical), but it is flagged for review — recorded to the

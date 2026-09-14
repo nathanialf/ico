@@ -22,9 +22,9 @@ Sources (all git-tracked, no base ELF required):
     tally for `.vutext`.
   - `// (vendor)` notes : library-archive functions, emitted under the
     `// ---- (vendor)` section headers by tools/gen_us_symbol_addrs.py.
-    These are NOT ICO translation units — see decomp/VENDOR.md.
+    These are NOT ICO translation units — see docs/VENDOR.md.
 
-Bucketing rules (see decomp/VENDOR.md for the policy behind them):
+Bucketing rules (see docs/VENDOR.md for the policy behind them):
   - a `// <path>.c` / `// <path>.S` note  -> that TU, grouped by the
     leading path component (retail's flat `src/` collapses to "src";
     the SCE SDK library code under `sce/<archive>/...` collapses to
@@ -124,7 +124,7 @@ UNASSIGNED_GROUP = "(unassigned)"
 VENDOR_NOTE = (
     "Library archive members linked from pre-built .a files (crt0, SCE SDK, "
     "newlib/libgcc) — not ICO source. These bytes are already inside the "
-    "SHA-1 gate, satisfied by assembled ROM asm. See decomp/VENDOR.md."
+    "SHA-1 gate, satisfied by assembled ROM asm. See docs/VENDOR.md."
 )
 VUTEXT_NOTE = (
     "VU1 microprograms in the .vutext ELF section — hand-typed src/*.S, "

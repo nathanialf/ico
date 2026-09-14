@@ -2,7 +2,7 @@
  * include/sugiCommon.h — the `sugipon` programmer's shared header.
  *
  * PROVENANCE.  The 2002-01-16 PAL listing (`baserom/pal/SRCFILE.TXT`, an
- * `objdump -dl` of the disc's `main.elf`; see decomp/pal_source_tree.md)
+ * `objdump -dl` of the disc's `main.elf`; see docs/pal_source_tree.md)
  * records 84 expansions of `sugipon/include/sugiCommon.h` across six
  * programmer directories.  Its dev path was
  * `sugipon/include/sugiCommon.h`, reached from other programmers' dirs as
@@ -23,7 +23,7 @@
  * Only `plane_distance` is proven byte-identical (it is factored out of four
  * matched hosts and re-gated); the rest are reconstructions whose hosts are
  * all still INCLUDE_ASM, kept here so the matcher knows the helper exists
- * and does not re-invent it per TU.  See decomp/HEADERS.md.
+ * and does not re-invent it per TU.  See docs/HEADERS.md.
  */
 #ifndef SUGICOMMON_H
 #define SUGICOMMON_H
@@ -90,7 +90,7 @@ static __inline__ float random_signed_b(void)
  * GetProjectionOfPlaneWithKeepAway (src/geometryManager) and
  * checkOverThePlane (src/clothAnimation).  A fifth matched host,
  * GetOutOutsideOfWall (src/motionManager2), keeps the body hand-expanded —
- * see decomp/HEADERS.md for the inliner mechanism that costs it one
+ * see docs/HEADERS.md for the inliner mechanism that costs it one
  * instruction.  Line 69 is the helper's declaration line: hosts that show a
  * bare line-69 row (getParallelWindVector, clipCylinderCollision) have the
  * argument-address arithmetic attributed there. */

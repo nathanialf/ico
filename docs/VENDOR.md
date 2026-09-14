@@ -145,15 +145,15 @@ redistributable:
 
 - **libgcc**: GPL with the runtime exception. The matching compiler is
   settled: `ee-gcc 2.9-991111-01`, a Sony fork of GCC 2.9 dated 1999-11-11
-  (`decomp/NOTES.md` §"Compiler fingerprint (resolved)";
+  (`docs/NOTES.md` §"Compiler fingerprint (resolved)";
   `tools/compile_c.sh:19` points at `tools/cc/ee-gcc2.9-991111`). A GCC
   2.95-era base has already been fetched for other work.
 - **libm**: Sun's fdlibm, reached via newlib. Public domain. This is
-  already the sanctioned path in this repo: `decomp/COOKBOOK.md` §7.3 and
+  already the sanctioned path in this repo: `docs/COOKBOOK.md` §7.3 and
   `include/math_private.h` re-derive `GET_FLOAT_WORD` / `SET_FLOAT_WORD`
   "re-derived from the PUBLIC-DOMAIN fdlibm reference (freely published;
   treat like a public paper, NOT the proprietary PS2 SDK or any leaked
-  source)". `decomp/NOTES.md:403` records the same.
+  source)". `docs/NOTES.md:403` records the same.
 - **libc**: newlib, BSD-style licence. **Snapshot pinned 2026-09-04 to
   newlib 1.8.2** (released 2000-01) from the PAL disc's own listing
   (`baserom/pal/SRCFILE.TXT`, per-instruction `file:line` rows under
@@ -188,7 +188,7 @@ never be used as a byte oracle.** Do not try to make ps2sdk code assemble to
 the ROM's bytes; re-derive from the disassembly and let ps2sdk inform naming
 and API shape only. The existing use of it in this repo is exactly that:
 `include/syscall.h`'s `SYSCALL_WRAPPER(name, num)` is "modeled on ps2sdk's
-`ee/kernel/src/kernel.S` `SYSCALL_SPECIAL` macro" (`decomp/NOTES.md:390`).
+`ee/kernel/src/kernel.S` `SYSCALL_SPECIAL` macro" (`docs/NOTES.md:390`).
 
 **The cheap exception:** `libkernl(klib.o)`'s ~136 syscall stubs are about
 four instructions each and are already covered by that macro. They are the
@@ -273,11 +273,11 @@ Vendor accounting is per-branch; there is no cross-branch vendor total.
   where one is proven, and how many of its functions `MAIN.MAP` accounts for
   (e.g. `sce/libdma/libdma` = libdma.a 16/16, `sce/libipu/libipu` = libipu.a
   4/70). Live matched counts: the dashboard linked from `README.md`; what was
-  ported in and what was reverted: `decomp/port_ledger_pal.md` and
-  `decomp/port_ledger_pal_aug6.md`.
+  ported in and what was reverted: `docs/port_ledger_pal.md` and
+  `docs/port_ledger_pal_aug6.md`.
 - **`ntsc` / `aug6`.** Their vendor status, the aug6→retail vendor port and
   its V0–V6 queue are history now; the write-up is in
-  `decomp/ARCHIVE_retired_notes.md` (it depended on `convpass_ledger_3.md`,
+  `docs/ARCHIVE_retired_notes.md` (it depended on `convpass_ledger_3.md`,
   `port_ledger.md` and `port_from_aug6.py`, none of which exist any more).
 
 The durable results of that port, restated because they are still true:
@@ -303,7 +303,7 @@ The durable results of that port, restated because they are still true:
   1.9.0's 853). That was the prerequisite for any §3a work: the upstream
   sources are now identifiable and legitimately obtainable. (It was *not*
   answerable from the binary alone: no `.comment`, `.note`, `.mdebug`, `.pdr`
-  or `.gptab.*` section survives, see `decomp/NOTES.md` "Build-environment
+  or `.gptab.*` section survives, see `docs/NOTES.md` "Build-environment
   fingerprint".)
 - **Tail functions with no prototype twin.** On the USA tree 52 of them had
   no aug6 counterpart. Either the retail link pulled a different library

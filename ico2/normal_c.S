@@ -22,7 +22,7 @@
 ; the .vutext symbol table with the microprogram's local labels spelled
 ; `_$NAME`.  `_$` is the assembler's local-label decoration, so the source
 ; spelling here drops it (`_$SET_GSREGISTER` -> `SET_GSREGISTER`); the
-; full old->new table is in decomp/MATCH_VU.md.  Labels with no listing
+; full old->new table is in docs/MATCH_VU.md.  Labels with no listing
 ; counterpart keep their synthetic hand-typing names (offsets given
 ; because some of those numeric suffixes are legacy section-relative
 ; addresses):

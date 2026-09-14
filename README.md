@@ -29,7 +29,7 @@ All three share the toolchain, conventions, and most recovered source; the
 tools detect which target a working tree carries from its
 `config/ico.<slug>.yaml` (`tools/ico_version.py`). The PAL tree was seeded
 by porting every matched body from `ntsc` and `aug6` whose bytes survive
-here (accounting: `decomp/port_ledger_pal.md`, `decomp/port_ledger_pal_aug6.md`);
+here (accounting: `docs/port_ledger_pal.md`, `docs/port_ledger_pal_aug6.md`);
 the port drivers themselves are retired now that both passes are done.
 
 The goal is to produce original source code that, compiled with the original
@@ -94,13 +94,13 @@ For the long-form walkthrough, prerequisites, and PCSX2 sanity-check, see
    one `INCLUDE_ASM` line per unmatched function; its splat baseline is
    `asm/nonmatchings/<TU path>/<func>.s`. TUs still marked `asm` in the yaml
    have not been started.
-2. Check the queue first: `decomp/easy_pickups.md` (near-miss ports from the
+2. Check the queue first: `docs/easy_pickups.md` (near-miss ports from the
    other two targets ranked by diff, plus the smallest unmatched functions;
    regenerate with `tools/easy_pickups.py`). The port ledgers say why a
-   ported body was reverted; `decomp/pal_source_tree.md` (local, from
+   ported body was reverted; `docs/pal_source_tree.md` (local, from
    `tools/gen_pal_source_tree.py`) gives each file's functions in source
    order, the `#include`-coalesced TUs and the header-resident inline
-   helpers; `decomp/HEADERS.md` tracks the developer-named headers.
+   helpers; `docs/HEADERS.md` tracks the developer-named headers.
 3. Iterate with `tools/quick_diff.sh <TU-stem> <func>` (~100 ms / try).
    When the diff is empty, run `ninja` for the full byte-identical
    SHA-1 check. `ninja` is authoritative. `quick_diff` can false-pass on
@@ -127,22 +127,22 @@ whole function toward the ROM's codegen, *accepting diff-count regressions*
 as coloring classes snap into place in groups, via chained reason-first
 worker subagents (opus, or fable in a dedicated session) that a supervisor
 harvests and relaunches. Its recurring shape→C levers live in
-[`decomp/COOKBOOK.md`](decomp/COOKBOOK.md) §13.
+[`docs/COOKBOOK.md`](docs/COOKBOOK.md) §13.
 
 Pattern catalogs and quirk references:
-[`decomp/COOKBOOK.md`](decomp/COOKBOOK.md) (>1600-line shape→fix lookup),
-[`decomp/NOTES.md`](decomp/NOTES.md) (PS2/EE/compiler/linker quirks),
-[`decomp/MATCH_VU.md`](decomp/MATCH_VU.md) (VU0 macro matching), and
-[`decomp/PROGRAMMERS.md`](decomp/PROGRAMMERS.md) (author→subsystem map).
+[`docs/COOKBOOK.md`](docs/COOKBOOK.md) (>1600-line shape→fix lookup),
+[`docs/NOTES.md`](docs/NOTES.md) (PS2/EE/compiler/linker quirks),
+[`docs/MATCH_VU.md`](docs/MATCH_VU.md) (VU0 macro matching), and
+[`docs/PROGRAMMERS.md`](docs/PROGRAMMERS.md) (author→subsystem map).
 
 ## Layout
 
 Decompiled C is organized into the **retail build's own source tree**: the
 release build collapsed the prototype's per-programmer directories into a
 flat layout, which the PAL disc's `SRCFILE.TXT` listing spells out file by
-file (`decomp/pal_source_tree.md`, local-only). The prototype's
+file (`docs/pal_source_tree.md`, local-only). The prototype's
 per-programmer attribution survives as metadata (the progress site's
-grouping); see [`decomp/PROGRAMMERS.md`](decomp/PROGRAMMERS.md) for the
+grouping); see [`docs/PROGRAMMERS.md`](docs/PROGRAMMERS.md) for the
 author→subsystem mapping.
 
 ```
@@ -153,7 +153,7 @@ ico2/           the game tree the disc's listing records, one directory per
                 and under each the kinds that programmer shipped: src/, and
                 fumi's ios/ isys/ sound/, ito's mpeg/, plus each programmer's
                 own include/ (sugiCommon.h, itou_common.h, *climb.h,
-                typedef.h, mv_defs.h), see decomp/HEADERS.md
+                typedef.h, mv_defs.h), see docs/HEADERS.md
 sce/            SCE SDK library code, one directory per archive; where
                 MAIN.MAP's member spans tile the run it is one file per
                 member, otherwise one file per run
@@ -172,12 +172,14 @@ tools/          build orchestration + matching aids (compile_c.sh,
                 quick_diff.sh, match_diff.py, find_carves.py,
                 gen_pal_symbol_addrs.py, gen_pal_data_symbols.py,
                 gen_pal_source_tree.py, easy_pickups.py …)
-decomp/         README.md indexes every doc here and in docs/; ledgers
-                (port_ledger_pal*, carve_ledger, HEADERS.md, easy_pickups.md)
-                + shared pattern catalogs (NOTES.md, COOKBOOK.md, MATCH_VU.md
-                are gitignored and branch-shared)
-docs/           contributor docs (PROGRESS, dashboard index.html + progress.json)
-tough_nuts/     parked near-misses (INDEX.md maps dir → current symbol)
+docs/           the project's one documentation directory: README.md indexes
+                every file in it. Ledgers (port_ledger_pal*, carve_ledger,
+                HEADERS.md, easy_pickups.md), the dashboard the Pages site
+                serves (index.html + progress.json + PROGRESS.md), and the
+                branch-shared pattern catalogs (NOTES.md, COOKBOOK.md,
+                MATCH_VU.md, gitignored)
+tough_nuts/     parked near-misses, created on demand by tools/park_tu.py;
+                absent until a function is parked
 ```
 
 ### File-structure conventions
@@ -192,10 +194,11 @@ tough_nuts/     parked near-misses (INDEX.md maps dir → current symbol)
   in `config/ico.pal.yaml`), not a generated
   sidecar and never a `section` attribute in the source. Carved constants are
   written into the owning `<TU>.c` so gcc's emission replaces the asm-side
-  blob. See `decomp/carve_ledger.md` for the carve rules and known blockers.
+  blob. See `docs/carve_ledger.md` for the carve rules and known blockers.
 - **`tough_nuts/<func>/`**: parked near-misses with notes, created on demand
-  by `tools/park_tu.py` / `tools/match_drive.py`. `config/sweep_parked.txt`
-  is the sweep-side exclusion list (empty on PAL at the retarget).
+  by `tools/park_tu.py` / `tools/match_drive.py`, so the directory does not
+  exist until something is parked. `config/sweep_parked.txt` is the sweep-side
+  exclusion list, one name per line with its residual at park time.
 
 ## Build pipeline
 
@@ -257,7 +260,7 @@ technique, never copy code from):
   ICO**. Useful for compiler idioms and header / macro patterns. (Its
   per-TU `slinky` section-linking approach was tried on an ICO branch that
   no longer exists; all three live branches are raw splat round-trips.)
-  See `decomp/NOTES.md`
+  See `docs/NOTES.md`
   for specific cross-references.
 - [`zeldaret/oot`](https://github.com/zeldaret/oot): Ocarina of Time,
   N64. The decomp workflow this project structurally models on: splat-

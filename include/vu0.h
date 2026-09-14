@@ -115,7 +115,7 @@
 
 /* VU0_NOP() (an explicit `nop` before a VU0 leaf's return) was retired 2026-09-05:
    the return-slot nop after an inline-asm block is the assembler's, and
-   tools/compile_c.sh reproduces it (decomp/NOTES.md "Return-slot padding"). */
+   tools/compile_c.sh reproduces it (docs/NOTES.md "Return-slot padding"). */
 
 /* Wait-for-Q-pipeline barrier (vwaitq).  No memory effect but
  * sequences subsequent VU0 ops with prior compute. */

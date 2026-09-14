@@ -31,7 +31,7 @@
 #             (override with ASFLAGS_QD=).
 #   - target.s is wrapped with `.include "macro.inc"` + `.set noreorder`
 #     + `.set noat` so the splat per-function form assembles with the same
-#     bytes as the segment-level form (see decomp/NOTES.md "Per-function
+#     bytes as the segment-level form (see docs/NOTES.md "Per-function
 #     .s vs segment .s").
 #
 # Exit:
@@ -404,7 +404,7 @@ fi
 # permuter compares its output to a target.s that DOES go through the
 # postprocess pipeline (see target.s assembly above), so any function
 # whose Makefile path includes a postprocess only matches when the
-# permuter's compile.sh does the same. (See decomp/NOTES.md for the
+# permuter's compile.sh does the same. (See docs/NOTES.md for the
 # specific patterns each postprocess fixes.)
 #
 # We bake the FILE_OFF lookup decisions at compile.sh-generation time

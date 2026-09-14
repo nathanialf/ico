@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""tools/easy_pickups.py — build decomp/easy_pickups.md, the small-function
+"""tools/easy_pickups.py — build docs/easy_pickups.md, the small-function
 convergence queue for this target.
 
 Two sections, kept separate on purpose (user directive 2026-09-04):
@@ -7,14 +7,14 @@ Two sections, kept separate on purpose (user directive 2026-09-04):
   1. NEAR-MISS PORTS — functions whose body from another version (ntsc, aug6)
      compiled to ALMOST the right bytes here and was reverted `codegen` by the
      port driver.  Ranked by differing-instruction count, then size.  Source:
-     .port_cache/candidates*.json + decomp/port_ledger*.md (one pair per
+     .port_cache/candidates*.json + docs/port_ledger*.md (one pair per
      source version; pass extra `--scan NAME=candidates.json:ledger.md`).
   2. SMALL UNMATCHED — every still-INCLUDE_ASM function of at most
      `--max-insns` instructions (default 15), smallest first.  NOT the full
      unmatched list.
 
 Usage:  .venv/bin/python tools/easy_pickups.py [--max-insns 15]
-        [--scan ntsc=.port_cache/candidates.json:decomp/port_ledger_pal.md]
+        [--scan ntsc=.port_cache/candidates.json:docs/port_ledger_pal.md]
 """
 from __future__ import annotations
 import argparse, glob, json, re, sys
@@ -102,7 +102,7 @@ def main():
     ap.add_argument("--scan", action="append", default=[],
                     help="VER=candidates.json:ledger.md (repeatable)")
     a = ap.parse_args()
-    scans = [("ntsc", ROOT / ".port_cache/candidates.json", ROOT / "decomp/port_ledger_pal.md")]
+    scans = [("ntsc", ROOT / ".port_cache/candidates.json", ROOT / "docs/port_ledger_pal.md")]
     for s in a.scan:
         ver, rest = s.split("=", 1); c, l = rest.split(":", 1)
         scans.append((ver, ROOT / c, ROOT / l))

@@ -32,7 +32,7 @@ re-derived, never a committed table).  ADDRESSES are never copied from it.
 !! MAIN.MAP IS A DIFFERENT LINK !!  Its .text is 0x16a29c against the shipped
 ELF's 0x189bc4; its .data is 0x2db338 against 0x2be680; its .rodata 0xde418
 against 0xeb780.  Members grew and shrank between the two links (the .lit4
-carve batch measured only 6 of 13 member sizes agreeing -- decomp/carve_ledger
+carve batch measured only 6 of 13 member sizes agreeing -- docs/carve_ledger
 "PAL phase 1").  So the map supplies, per ico2000.a member:
 
   * WHICH named objects the member defines, and

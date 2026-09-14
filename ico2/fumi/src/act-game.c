@@ -3418,7 +3418,7 @@ void ACTGame_SetMotionPlaySpeedRatio_Exec(char *a0)
     }
     /* The dev's wrapper macro expanded to a do/while(0) block; the back-edge
        is what keeps this a real `jal` with a frame instead of the tail call
-       ee-gcc makes of a trailing void call (decomp/NOTES.md, "Defeating an
+       ee-gcc makes of a trailing void call (docs/NOTES.md, "Defeating an
        over-eager sibling-call"). It emits no instructions of its own. */
     do {
         SetMotionPlaySpeedRatio(a0, ratio);

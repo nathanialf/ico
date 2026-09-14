@@ -26,7 +26,7 @@ postprocess allowlists, asset decoders) has been deleted, see CLAUDE.md
 | `check_no_rom.sh` | IP guard: refuses disc data / extracted assets in the tree |
 | `self-monitor.sh` | background tick: progress tables, sweep targets |
 | `progress.py` / `progress_tree.py` | regenerate README.md / `docs/PROGRESS.md` / `docs/index.html` tables |
-| `assemble_vu0.py` / `disasm_vu0.py` | `.vutext` assembler/disassembler for the hand-typed `src/*.S` microprograms |
+| `assemble_vu0.py` / `disasm_vu0.py` | `.vutext` assembler/disassembler for the five hand-typed `ico2/*.S` microprograms |
 
 ## Matching loop (`decomp-match`, `decomp-sweep`, `decomp-convergence` skills)
 
@@ -62,7 +62,6 @@ postprocess allowlists, asset decoders) has been deleted, see CLAUDE.md
 | `map_data_tus.py` | assigns data symbols to owning TUs |
 | `emit_run_defs.py` | byte-verified C definitions for a carved run's standalone symbols |
 | `decode_sjis.py` | decodes Shift-JIS / EUC-JP byte runs so carved strings keep their comments |
-| `tu_status.py` | per-TU completion across `.text`/`.data`/`.rodata`/`.lit4`/`.sdata` |
 
 ## PAL generators (`main` only)
 
@@ -70,12 +69,12 @@ postprocess allowlists, asset decoders) has been deleted, see CLAUDE.md
 |---|---|
 | `gen_pal_symbol_addrs.py` | correlates the disc's `SRCFILE.TXT` listing to the shipped ELF → `config/symbol_addrs.pal.txt` + per-TU `.text` spans |
 | `gen_pal_data_symbols.py` | names data symbols from the disc's `MAIN.MAP` → `config/symbol_addrs.pal.data.txt` |
-| `gen_pal_source_tree.py` | writes the local-only `decomp/pal_source_tree.{md,json}` census |
-| `easy_pickups.py` | ranks the cheapest remaining unmatched functions (`decomp/easy_pickups.md`) |
+| `gen_pal_source_tree.py` | writes the local-only `docs/pal_source_tree.{md,json}` census |
+| `easy_pickups.py` | ranks the cheapest remaining unmatched functions (`docs/easy_pickups.md`) |
 
 ## Struct / type recovery
 
 | tool | what it does |
 |---|---|
-| `dump_all_struct_shapes.py` | mines every function `.s` for (offset, width, sign, stride) per symbol → `decomp/struct_shapes.{json,md}` |
+| `dump_all_struct_shapes.py` | mines every function `.s` for (offset, width, sign, stride) per symbol → `docs/struct_shapes.{json,md}` |
 | `type_entity.py` | verified bulk rewrite of `*(T*)(self + 0x15C)` idioms to `GObj`/`Sub15C` members, reverting any file that stops matching |

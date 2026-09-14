@@ -5,7 +5,7 @@
  * PROVENANCE.  Dev path `omori/include/g50climb.h`, textually included from
  * `fumi/src/girl_act.c` as `../omori/include/g50climb.h`, so the ROM emits its
  * functions into girl_act's object.  `baserom/pal/SRCFILE.TXT` attributes
- * WHOLE FUNCTIONS to it (census: decomp/pal_source_tree.md, section
+ * WHOLE FUNCTIONS to it (census: docs/pal_source_tree.md, section
  * `fumi/../omori/include/g50climb.h`):
  *
  *   afterGirlHand50    header lines 6-9, 17 insns

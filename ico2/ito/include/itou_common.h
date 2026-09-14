@@ -2,7 +2,7 @@
  * include/itou_common.h — the `ito` programmer's shared header.
  *
  * PROVENANCE.  `baserom/pal/SRCFILE.TXT` attributes instructions inside five
- * functions to `ito/include/itou_common.h` (census: decomp/pal_source_tree.md,
+ * functions to `ito/include/itou_common.h` (census: docs/pal_source_tree.md,
  * section "ito/../ito/include/itou_common.h"):
  *   line 26 — subBirdBrainMain (src/act_bird), QueenBarrierGeo (src/queen),
  *             GatherEffect_Proc (src/gather_effect), DrawLightning2

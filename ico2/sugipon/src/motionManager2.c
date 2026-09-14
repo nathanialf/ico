@@ -1736,7 +1736,7 @@ void GetOutOutsideOfWall(void *obj, float threshold)
          * because ee-gcc's inliner copies the frame-address actual `&buf1`
          * into a fresh parameter pseudo that copy-prop then fails to
          * coalesce with the s0 the preceding call already put it in.
-         * See decomp/HEADERS.md. */
+         * See docs/HEADERS.md. */
         {
             int t;
             VU0_LSV_R(lqc2, 1, 0x0, buf0);

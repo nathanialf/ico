@@ -17,7 +17,7 @@ both are stripped to compare). Lines that match between the two files
 are skipped; diverging spans are passed through each rule.
 
 Output: zero or more `[§N.M] <description>` lines on stdout, one per
-firing rule, plus a `see decomp/COOKBOOK.md#NM` link.
+firing rule, plus a `see docs/COOKBOOK.md#NM` link.
 
 Rules are catalogued at module level in RULES. Each rule has:
   - id           — cookbook section ("8.21")

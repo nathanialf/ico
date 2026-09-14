@@ -70,7 +70,7 @@ METHOD
 
 3. CORRESPONDENCE -- reloc-normalized instruction-stream SHA-1 equality
    between listing functions and rom functions.  The normalizer is
-   decomp/retail_port/correlate.py:normalize() (shared with
+   docs/retail_port/correlate.py:normalize() (shared with
    tools/gen_us_symbol_addrs.py): it masks j/jal targets, lui immediates,
    %lo-pair immediates and $gp-relative displacements, so a function that was
    not edited between the two links hashes identically across them.  Matching
@@ -220,7 +220,7 @@ def scan_text(rom: bytes, text_sz: int) -> list[tuple[int, int]]:
 
 
 # ------------------------------------------------- reloc-normalized hashing --
-# (identical semantics to decomp/retail_port/correlate.py:normalize)
+# (identical semantics to docs/retail_port/correlate.py:normalize)
 MASK_IMM_OPS = set([0x08, 0x09, 0x0D, 0x18, 0x19, 0x1E, 0x1F]) | set(range(0x20, 0x40))
 LOAD_OPS = set([0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
                 0x30, 0x31, 0x33, 0x35, 0x36, 0x37, 0x1E])

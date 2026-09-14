@@ -1,7 +1,7 @@
 # TUs compiled from CWD ${ROOT}/ito with a relative -I../ito/include, so that
 # any __FILE__ baked by ito/include/*.h resolves to the developer's spelling
 # "../ito/include/<header>.h" (tools/compile_c.sh). List a TU here whenever it
-# includes a header from ito/include/. See decomp/HEADERS.md.
+# includes a header from ito/include/. See docs/HEADERS.md.
 # Both key forms are listed per TU: compile_c.sh matches basename-or-path,
 # quick_diff.sh matches the whole line against the name it was invoked with.
 mv_disp

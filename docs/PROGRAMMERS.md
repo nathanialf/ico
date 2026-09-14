@@ -50,13 +50,13 @@ split is not legible from the retail TU layout itself.
 That no longer costs anything on `main`. The PAL disc ships its own build
 listing, so PAL's TU boundaries, file names and per-file function order are
 read directly from it (`tools/gen_pal_symbol_addrs.py`,
-`tools/gen_pal_source_tree.py` → local `decomp/pal_source_tree.md`) rather than
+`tools/gen_pal_source_tree.py` → local `docs/pal_source_tree.md`) rather than
 inferred. Use the author map below for **idioms**, not for boundaries: the
 listing supplies the boundaries.
 
 The historical strategy note ("match the prototype first, back-port to
-retail") is spent: both port passes are complete (`decomp/port_ledger_pal.md`,
-`decomp/port_ledger_pal_aug6.md`) and the port drivers are retired.
+retail") is spent: both port passes are complete (`docs/port_ledger_pal.md`,
+`docs/port_ledger_pal_aug6.md`) and the port drivers are retired.
 
 ## What this does and does NOT tell us about the build
 

@@ -1,6 +1,6 @@
 # Per-TU data carve ledger
 
-The RULES for carving noncontiguous data (`decomp/NOTES.md` §"Noncontiguous
+The RULES for carving noncontiguous data (`docs/NOTES.md` §"Noncontiguous
 data"), the blockers that produced them, and this branch's landed carves.
 
 **Scope.** The rules are target-neutral. The landed inventory here is
@@ -11,7 +11,7 @@ batches ran on the USA retail target between 2026-07 and 2026-08: a jtbl
 queue, a `src/PObj` probe, a 6-TU batch, a 30-TU jtbl sweep, and a vendor
 member-boundary re-carve; then Phase 6 replaced the whole per-jtbl treadmill
 with full-run per-TU `.rodata` carves. Their TU-by-TU tables and successor
-queues are in `decomp/ARCHIVE_retired_notes.md`; what they taught is kept
+queues are in `docs/ARCHIVE_retired_notes.md`; what they taught is kept
 here in full, the gas `2**4` alignment floor, ONE carved run per
 (TU, section), the three source-spelling traps, the addressing-mode flip a
 carve can cause in an already-compiled sibling, the two mechanisms that decide
@@ -573,7 +573,7 @@ boundaries, so the full contiguous run landed on the first attempt
 with no need for the narrower jtbl-only fallback; 9 EUC-JP strings).
 Batch conversion of the remaining jtbl-bearing TUs recorded below as
 they land. Decided runs + evidence live in the yaml carve comments and the
-per-TU sections below (`decomp/data_tu_boundaries.json` is gitignored,
+per-TU sections below (`docs/data_tu_boundaries.json` is gitignored,
 regenerable local evidence, not the record).
 
 ### Interleave zones resolved + text audit clean (2026-08-01)
@@ -697,7 +697,7 @@ func_00151868/func_001519D8 against the aliased-symbol form.
 
 Target: `main` = PAL retail SCES-507.60.  Scope: the 32 bodies in 12 TUs that
 the ntsc→pal port driver (retired) reverted with reason `emits-data`
-(`decomp/port_ledger_pal.md`).  All 13 carves below landed together and the
+(`docs/port_ledger_pal.md`).  All 13 carves below landed together and the
 tree is SHA-green from a clean rebuild (`rm -rf build .ninja_log .ninja_deps`
 + `tools/build.sh setup` + `ninja` -> `verify_elf: OK
 (a401d1e5a20b1659189a8b1026a8eb35811dc9ca)`), `check_no_rom.sh` clean.

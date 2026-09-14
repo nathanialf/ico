@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 tools/classify_asm.py — fingerprint a splat-emitted .s and suggest
-matching recipes from decomp/COOKBOOK.md. Optionally emit the recipe's
+matching recipes from docs/COOKBOOK.md. Optionally emit the recipe's
 C template as a starting-point .c file.
 
 Usage:
@@ -686,7 +686,7 @@ def print_report(signals: Signals, top: int = 3) -> None:
     if not hits:
         print("  no recipes matched.")
         return
-    print("  candidate recipes (decomp/COOKBOOK.md):")
+    print("  candidate recipes (docs/COOKBOOK.md):")
     for rule, w in hits[:top]:
         anchor = f"#{rule.section}" if rule.section else ""
         print(f"    §{rule.id:<6} {rule.name}  [w={w:.2f}]  → COOKBOOK.md{anchor}")
@@ -1155,7 +1155,7 @@ def render_bundle_md(b: dict) -> str:
     L.append(f"- TU: `{b['tu']}`   size: {b['size']:#x}   {b['insn_count']} insns")
     L.append(f"- fingerprint: {b['fingerprint']}")
     if b["recipes"]:
-        L.append("\n## Recipe hints (decomp/COOKBOOK.md)")
+        L.append("\n## Recipe hints (docs/COOKBOOK.md)")
         for r in b["recipes"]:
             anchor = f" → §{r['section']}" if r["section"] else ""
             L.append(f"- §{r['id']} {r['name']}{anchor}")

@@ -21,9 +21,15 @@
 # Layout produced:
 #   _site/index.html        version-toggle dashboard (the running branch's copy;
 #                           the branches keep this file identical)
-#   _site/pal/              `main`'s docs/  — PAL retail target
-#   _site/us/               `ntsc`'s docs/  — USA retail target
-#   _site/aug6/             `aug6`'s docs/  — Aug-6-2001 prototype target
+#   _site/pal/              `main`'s dashboard files  — PAL retail target
+#   _site/us/               `ntsc`'s dashboard files  — USA retail target
+#   _site/aug6/             `aug6`'s dashboard files  — Aug-6-2001 prototype
+#
+# Only the dashboard files listed in SITE_FILES are published, not all of
+# docs/. docs/ is also this project's working documentation directory (ledgers,
+# policy notes, the matching knowledge base), and a Pages deploy is public:
+# publishing the whole directory would put every working note online as a side
+# effect of a progress push. Add a file here to serve it.
 #   _site/progress.json     COMPAT COPY — holds the *aug6* data. A browser
 #                           holding a cached pre-toggle index.html fetches bare
 #                           `progress.json`; back when those pages were served,
@@ -32,8 +38,8 @@
 #                           is frozen for cache compatibility and deliberately
 #                           did NOT follow the aug6/main branch rename, nor the
 #                           2026-09-04 retarget of `main` to PAL.
-#   _site/PROGRESS.md        the aug6 copy too, so the URLs the old
-#   (+ any other docs/*.md)   `path: docs` upload already serves keep working.
+#   _site/PROGRESS.md       the aug6 copy too, so the URLs the old `path: docs`
+#                           upload already serves keep working.
 #
 # Usage: build_pages_site.sh [branch]   (defaults to the current branch)
 # =============================================================================
@@ -48,6 +54,10 @@ VERSION_OF_main=pal
 VERSION_OF_ntsc=us
 VERSION_OF_aug6=aug6
 BRANCHES="main ntsc aug6"
+
+# The dashboard's served file set. Everything else in docs/ is working
+# documentation and stays unpublished.
+SITE_FILES="index.html progress.json PROGRESS.md"
 
 version_of() { eval "printf '%s\n' \"\${VERSION_OF_$1-}\""; }
 
@@ -77,7 +87,9 @@ mkdir -p "_site/$SELF"
 # Deliberately the checked-out working tree rather than a remote ref: a run
 # triggered by a push must publish the numbers that push just landed, without
 # waiting for anything else to observe the new ref.
-cp -R docs/. "_site/$SELF/"
+for f in $SITE_FILES; do
+    [ -f "docs/$f" ] && cp "docs/$f" "_site/$SELF/$f"
+done
 
 # --- the other branches' versions ----------------------------------------
 # actions/checkout only configures a remote-tracking refspec for the branch it
@@ -88,15 +100,22 @@ for ob in $OTHER_BRANCHES; do
     ov="$(version_of "$ob")"
     mkdir -p "_site/$ov"
     oref="refs/remotes/origin/$ob"
+    # Extract that branch's docs/ to a scratch dir, then take only the served
+    # file set out of it, for the same reason SITE_FILES exists above.
+    otmp="$(mktemp -d)"
     if git fetch --no-tags --depth=1 origin "+refs/heads/$ob:$oref" &&
-       git archive "$oref:docs" | tar -x -C "_site/$ov"; then
+       git archive "$oref:docs" | tar -x -C "$otmp"; then
+        for f in $SITE_FILES; do
+            [ -f "$otmp/$f" ] && cp "$otmp/$f" "_site/$ov/$f"
+        done
+        rm -rf "$otmp"
         FETCHED_BRANCHES="$FETCHED_BRANCHES $ob"
     else
         # Explicit, loud fallback: drop the empty version directory so the
         # page's own per-version fetch misses and visibly falls back to the
         # root copy (it labels which version it actually rendered) instead of
         # silently showing one version's numbers under another version's tab.
-        rm -rf "_site/$ov"
+        rm -rf "$otmp" "_site/$ov"
         echo "::warning title=Pages::could not read '$ob:docs' — the '$ov' tab" \
              "will fall back to the root copy and say so."
     fi
