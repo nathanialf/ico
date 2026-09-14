@@ -6,7 +6,25 @@ extern int D_00639C80;
 extern int D_00639C94;
 extern void ExecKeyInput();
 
-INCLUDE_ASM("asm/nonmatchings/src/main", Emergency_DestroyAllThread);
+typedef struct {
+    int *th[6];
+} ThreadTbl;
+
+extern ThreadTbl D_0054D508;
+extern void iosThreadDestroy(int *th);
+
+void Emergency_DestroyAllThread(void)
+{
+    int me = GetThreadId();
+    ThreadTbl t = D_0054D508;
+    unsigned int i;
+
+    for (i = 0; i < 6; i++) {
+        if (me != t.th[i][0x30 / 4]) {
+            iosThreadDestroy(t.th[i]);
+        }
+    }
+}
 
 int movie_abort_check(void)
 {

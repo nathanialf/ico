@@ -31,8 +31,76 @@ void PlayStreamMotion(void)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", ClearStreamMotionEntry);
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", _deleteStreamMotionManager);
+extern char D_0028FEF0[];
+extern void CopyVector(void *dst, void *src);
+
+/* The 0x10 bytes of frame at sp+0 belong to a declaration that emits no code in
+ * this build: SRCFILE.TXT's rows for this function run 285, 286, 287, 288, 289
+ * and then jump straight to 308, while the census gives the function lines
+ * 285-308, so lines 290 to 307 are inside the body and carry no instructions at
+ * all (a debug arm the retail build compiles out). Without the vector the body
+ * is byte-identical except for the frame size, 0x30 against ROM's 0x40. */
+void ClearStreamMotionEntry(char *gobj)
+{
+    float v[4];
+
+    *(int *)(*(int *)(gobj + 0x15C) + 0x470) = -1;
+    *(int *)(*(int *)(gobj + 0x15C) + 0x660) = 1;
+    CopyVector((char *)*(int *)(gobj + 0x15C) + 0x670, D_0028FEF0);
+    *(int *)(*(int *)(gobj + 0x15C) + 0x550) = 1;
+}
+
+typedef struct {
+    int w[7];
+} SMotion;
+
+extern SMotion D_00724AA8[];
+extern SMotion D_004ED100;
+extern int D_0063BBF0;
+extern int D_0063BBF4;
+extern int D_0063BBF8;
+extern int D_0063BBFC;
+extern int D_0063BC00;
+extern int D_0063BC04;
+extern int D_0063BC14;
+extern int D_0063BC18;
+extern int D_0063BC20;
+extern unsigned int D_0063BC24;
+extern int D_0063BC28;
+extern int D_0063BC2C;
+extern char D_006211A8[];
+
+void _deleteStreamMotionManager(void)
+{
+    int i;
+
+    if (D_0063BBF0 != 0) {
+        for (i = 0; i < D_0063BBF0; i++) {
+            ClearStreamMotionEntry((char *)D_00724AA8[i].w[5]);
+            if (D_00724AA8[i].w[6] != 0) {
+                ((void (*)())D_00724AA8[i].w[6])(D_00724AA8[i].w[5]);
+            }
+        }
+        D_0063BBF0 = 0;
+    }
+    for (i = 0; i < 10; i++) {
+        D_00724AA8[i] = D_004ED100;
+    }
+    D_0063BBF4 = 0;
+    D_0063BBF8 = 0;
+    D_0063BC00 = 0;
+    D_0063BC04 = 0;
+    D_0063BC24 = 1;
+    D_0063BC14 = 0;
+    D_0063BC18 = 0;
+    D_0063BC20 = 0;
+    D_0063BC28 = 0;
+    D_0063BC2C = 0;
+    if (D_0063BBFC != 0) {
+        D_0063BBFC = 0;
+    }
+    debug_StdPrintfDummy(D_006211A8);
+}
 
 extern int D_006211C8[];
 extern unsigned int D_0063BC24;
@@ -43,14 +111,36 @@ void DisableStreamMotionManagerAutomaticDelete(void)
     debug_StdPrintfDummy(D_006211C8);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", getStreamMotionData);
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", getStreamMotionBlendData);
+extern int D_0063BC08;
+extern void memcpy();
 
-typedef struct {
-    int w[7];
-} SMotion;
+void getStreamMotionData(char *dst, int off, int no)
+{
+    int size = D_00724AA8[no].w[2];
+    int over = off + size - 0x28000;
 
-extern SMotion D_00724AA8[];
+    if (over > 0) {
+        int first = 0x28000 - off;
+
+        memcpy(dst, D_0063BC08 + off, first);
+        return memcpy(dst + first, D_0063BC08, over);
+    }
+    return memcpy(dst, D_0063BC08 + off, size);
+}
+
+void getStreamMotionBlendData(char *dst, int no)
+{
+    int size = D_00724AA8[no].w[2];
+    char a[size];
+    char b[size];
+    int i;
+
+    getStreamMotionData(a, D_00724AA8[no].w[3], no);
+    getStreamMotionData(b, D_00724AA8[no].w[4], no);
+    for (i = 0; i < 4; i++) {
+        dst[i] = a[i];
+    }
+}
 
 void GetStreamMotionDataNext(int a0, int a1)
 {
@@ -75,8 +165,84 @@ void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
     memcpy(dst + old_idx, src, amt);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", ExecStreamMotionManager);
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", MallocStreamMotionBuffer);
+extern int D_0063B13C;
+extern int D_0063A068;
+extern char D_0063BC40[];
+extern char D_006212A0[];
+extern char D_00621278[];
+extern int D_0063BBFC;
+extern int D_0063BC1C;
+extern void debug_Printf();
+extern int _infoUpdate(void);
+extern void iosCdvdBackGroundMgrDelete();
+
+void ExecStreamMotionManager(void)
+{
+    int i;
+    int pct;
+
+    switch (D_0063BBF4) {
+    case 0:
+        break;
+    case 1:
+        if (_infoUpdate() != 0) {
+            debug_StdPrintfDummy(D_00621278);
+            D_0063BBF4 = 0;
+            if (D_0063BC24 != 0) {
+                if (D_0063BBFC != 0) {
+                    iosCdvdBackGroundMgrDelete(D_0063BBFC);
+                } else {
+                    _deleteStreamMotionManager();
+                }
+                if (D_0063BBF0 != 0) {
+                    for (i = 0; i < D_0063BBF0; i++) {
+                        ClearStreamMotionEntry((char *)D_00724AA8[i].w[5]);
+                        if (D_00724AA8[i].w[6] != 0) {
+                            ((void (*)())D_00724AA8[i].w[6])(D_00724AA8[i].w[5]);
+                        }
+                    }
+                    D_0063BBF0 = 0;
+                }
+            }
+        }
+        break;
+    }
+    if (D_0063BBFC != 0) {
+        unsigned int wp = D_0063BC04;
+        unsigned int rp = D_0063BC00;
+
+        if (wp < rp) {
+            pct = wp + 0x28000 - rp;
+        } else {
+            pct = wp - rp;
+        }
+        pct = pct * 100 / 0x28000;
+        if (D_0063B13C & 1) {
+            debug_Printf(0, D_0063A068 / 2 - 16, 0xFF404000, D_0063BC40, pct);
+        }
+        if (D_0063B13C & 1) {
+            debug_Printf(0x3A, D_0063A068 / 2 - 16, 0x40FF4000, D_006212A0, D_0063BBF0, D_0063BC1C);
+        }
+    }
+}
+
+extern int D_0063A438;
+extern int D_0063BC08;
+extern int D_0063BC0C;
+extern int D_0063BC10;
+extern char D_006212B8[];
+extern char D_006212D8[];
+extern int iosMallocDebug(int heap, int size, char *file, int line);
+
+void MallocStreamMotionBuffer(void)
+{
+    D_0063BC08 = iosMallocDebug(D_0063A438, 0x28000, D_006212B8, 602);
+    D_0063BC10 = iosMallocDebug(D_0063A438, 0x28040, D_006212B8, 604);
+    D_0063BC0C = (D_0063BC10 + 0x3F) & 0xFFFFFFC0;
+    if (D_0063BC08 == 0 || D_0063BC0C == 0) {
+        debug_StdPrintfDummy(D_006212D8);
+    }
+}
 
 extern int D_0063BBF0;
 
@@ -88,7 +254,7 @@ inline void ClearAllStreamMotionEntry(void)
         return;
     }
     for (i = 0; i < D_0063BBF0; i++) {
-        ClearStreamMotionEntry(D_00724AA8[i].w[5]);
+        ClearStreamMotionEntry((char *)D_00724AA8[i].w[5]);
         if (D_00724AA8[i].w[6] != 0) {
             ((void (*)())D_00724AA8[i].w[6])(D_00724AA8[i].w[5]);
         }

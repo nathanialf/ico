@@ -40,11 +40,194 @@ extern int gflagChk(int a0);
 extern void Generator_Mask(int a0);
 extern void Generator_Call(int a0);
 extern void Generator_MaskOff(int a0);
+extern void SetWayGroupActive(int grp, int on);
+extern void stage_SetAnimation(int no, int a1, int a2);
+extern void FinishHint(int no);
 
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bInit);
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bEneChk);
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bFloorChkSub);
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bFloorChk);
+void actSt01bInit(void)
+{
+    if (gflagChk(0x46) == 0) {
+        SetWayGroupActive(2, 0);
+        stage_SetAnimation(0xB7, 0, 0);
+        return stage_SetAnimation(0xB4, 0, 0);
+    }
+    SetWayGroupActive(2, 1);
+    stage_SetAnimation(0xB7, 0, -1);
+    stage_SetAnimation(0xB4, 0, -1);
+    return FinishHint(9);
+}
+
+extern int D_00639EA4;
+extern int D_00639EA8;
+extern int D_0063AA08;
+extern int scpTriggerFloorAttr(int gobj, int attr);
+extern void scpSleepEnemyOne(int id);
+extern void scpWakeupEnemyOne(int id);
+extern void lt_switch_layout(int a0);
+extern void gflagOn(int a0);
+extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
+extern int stage_CheckAnimationFinish(int a0);
+
+void actSt01bEneChk(volatile int a0)
+{
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+    while (gflagChk(0x46) == 0 || scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0 ||
+           (scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0 &&
+            scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0)) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    scpSleepEnemyOne(0xEAD);
+    _ACTWait(0x1E);
+    gflagOn(0x44);
+    gflagOn(0x45);
+    stage_SetAnimation(0xB6, 1, 0);
+    while (stage_CheckAnimationFrame(0xB6, 0x5A, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    while (stage_CheckAnimationFinish(0xB6) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    lt_switch_layout(0x36);
+    D_0063AA08 = 0;
+    scpWakeupEnemyOne(0xEAD);
+}
+
+typedef struct {
+    char pad00[0x2C];
+    int f2C;
+} FloorRec;
+
+extern FloorRec *st01b_floor;
+extern unsigned int st01b_yure;
+extern unsigned char st01b_yure_vol;
+extern int D_0063C4FC;
+extern int D_0063C500;
+extern int D_00639EAC;
+extern long long D_00622700[];
+extern void AdpcmPlay(int a0);
+extern int soundSeDefPlay(int se, int a1, void *pos, int a3);
+extern void soundSeDefStop(int handle);
+extern int iosPadActRequest(int port, int id);
+extern int *iosPadActVolumeSet(int key, unsigned int val);
+
+void actSt01bFloorChkSub(volatile int a0)
+{
+    long long pos[2];
+
+    while (st01b_floor == 0) {
+        _ACTWait(1);
+    }
+    AdpcmPlay(st01b_floor->f2C);
+    stage_SetAnimation(0xB4, 1, 0);
+    stage_SetAnimation(0xB5, 1, 0);
+    pos[0] = D_00622700[0];
+    pos[1] = D_00622700[1];
+    D_0063C500 = soundSeDefPlay(0x52D, 0, pos, 1);
+    _ACTWait(0x5A);
+    soundSeDefStop(D_0063C500);
+    D_0063C500 = -1;
+    soundSeDefPlay(0x508, 0, 0, 1);
+    stage_SetAnimation(0xB7, 1, 0);
+    st01b_yure = iosPadActRequest(D_00639EAC, 9);
+    st01b_yure_vol = 0x80;
+    iosPadActVolumeSet(st01b_yure, 0x80);
+    while (stage_CheckAnimationFrame(0xB7, 0xB4, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    D_0063C4FC = 1;
+    _ACTWait(0);
+}
+
+extern int D_0028F8F4[];
+extern int scpIsHangChainOptional(int gobj, int id);
+extern void scpPlayPosSet(int gobj, float x, float y, float z);
+extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
+extern int scpAdpcmFadeCloseFunc(void *h, int fade);
+extern int scpAdpcmPlayRequestNum(void);
+extern int actCreateSubThread(void *entry, int prio);
+extern void iosThreadSetPri(int th, int pri);
+extern void scpFadeOut(float t, int a1, int a2, int a3);
+extern void scpFadeIn(float t);
+extern int scpFadeChk(void);
+extern int lt_fade_status(void);
+extern void iosPadActStop(int key);
+extern void scpSleepEnemyAll(void);
+extern void scpWakeupEnemyAll(void);
+extern void *scpSearchGobj(int id);
+extern void ChainPositionReset(void *gobj);
+extern void actSt01bFloorChkSub(volatile int a0);
+
+void actSt01bFloorChk(volatile int a0)
+{
+    int th;
+    int notdone;
+
+    while (scpIsHangChainOptional(D_00639EA4, 0x325) == 0) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(0x37);
+    D_0063AA08 = 1;
+    scpSleepEnemyAll();
+    gflagOn(0x46);
+    FinishHint(9);
+    SetWayGroupActive(2, 1);
+    if (D_00639EA8 != 0) {
+        scpPlayPosSet(D_00639EA8, -200.0f, 900.0f, -200.0f);
+    }
+    scpAdpcmPlayRequestFunc(0x51, &st01b_floor, 1, 1, 0);
+    th = actCreateSubThread(actSt01bFloorChkSub, 0x15);
+    D_0063C500 = -1;
+    st01b_yure = 0xFFFFFFFF;
+    D_0063C4FC = 0;
+    st01b_floor = 0;
+
+    while (D_0063C4FC == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    notdone = D_0063C4FC ^ 1;
+    if (notdone) {
+        while (st01b_floor == 0) {
+            _ACTWait(1);
+        }
+        scpAdpcmFadeCloseFunc(&st01b_floor, 0x100);
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+
+    iosThreadSetPri(th + 0x24, 0x22);
+
+    if (notdone) {
+        stage_SetAnimation(0xB5, 1, -1);
+        stage_SetAnimation(0xB4, 1, -1);
+        stage_SetAnimation(0xB7, 0, 0xB4);
+        if (D_0063C500 >= 0) {
+            soundSeDefStop(D_0063C500);
+            soundSeDefPlay(0x508, 0, 0, 1);
+        }
+        _ACTWait(1);
+        ChainPositionReset(scpSearchGobj(0x325));
+        _ACTWait(1);
+        scpFadeIn(3.0f);
+    }
+
+    iosPadActStop(st01b_yure);
+    scpWakeupEnemyAll();
+    D_0063AA08 = 0;
+    lt_switch_layout(0x36);
+}
 
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);

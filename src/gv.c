@@ -12,7 +12,40 @@ void _InterGV(float *dst, float *a, float *b, float ta, float tb)
     sceVu0InterVector(dst, a, b, tb / (ta + tb));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gv", GetMatrixDirectionToZ);
+extern float D_006391EC;
+extern void memset(void *dst, int c, int n);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern float *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_RotMatrixX(short a);
+extern void MatrixDrive_RotMatrixY(short a);
+extern void sceVu0UnitMatrix(float *m);
+extern void sceVu0ApplyMatrix(float *dst, float *m, float *src);
+extern void CopyMatrix(float *dst, float *src);
+extern float atan2f(float y, float x);
+
+void GetMatrixDirectionToZ(float *out, float *dir)
+{
+    float v[4];
+    float w[4];
+    float d;
+
+    memset(v, 0, 16);
+    memset(w, 0, 16);
+    d = 3.1415927f;
+    MatrixDrive_PushMatrix();
+    v[1] = -atan2f(dir[0], dir[2]);
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_RotMatrixY((short)(v[1] * 32768.0f / d));
+    dir[3] = 0.0f;
+    sceVu0ApplyMatrix(w, MatrixDrive_GetMatrix(), dir);
+    v[0] = atan2f(w[1], w[2]);
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_RotMatrixX((short)(v[0] * 32768.0f / d));
+    MatrixDrive_RotMatrixY((short)(v[1] * 32768.0f / d));
+    CopyMatrix(out, MatrixDrive_GetMatrix());
+    MatrixDrive_PopMatrix();
+}
 
 extern int _RotyGV(float *a0, float *a1);
 extern void _ApplyRyGV(float *a0, float a1);
