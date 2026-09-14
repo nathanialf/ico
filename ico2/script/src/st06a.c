@@ -228,15 +228,6 @@ void actSt06aDoor(volatile int a0)
     }
 }
 
-/* The four door-boundary X/Z corners and the exit-camera Z live in the -G8
-   gp float pool and are written by the stage's layout/script side, so the
-   compiler may not sink their loads into a jal delay slot; ROM has a nop at
-   every one of these call sites. */
-extern volatile float D_00639998;
-extern volatile float D_0063999C;
-extern volatile float D_006399A0;
-extern volatile float D_006399A4;
-extern volatile float D_006399AC;
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern void actSt06aDoorUpEffect(volatile int a0);
@@ -257,7 +248,7 @@ void actSt06aDoorUpChk(volatile int a0)
 
     actCreateSubThread(actSt06aDoorUpEffect, 0x15);
 
-    scpWakeupItemWithBoundary(D_00639998, D_0063999C, -620.0f, 100.0f);
+    scpWakeupItemWithBoundary(-1879.0f, -1047.0f, -620.0f, 100.0f);
 
     stage_SetAnimation(0x6F, 1, 0);
 
@@ -292,7 +283,7 @@ void actSt06aDoorDownChk(volatile int a0)
 
     actCreateSubThread(actSt06aDoorDownEffect, 0x15);
 
-    scpWakeupItemWithBoundary(D_006399A0, D_006399A4, -620.0f, 100.0f);
+    scpWakeupItemWithBoundary(-1879.0f, -1047.0f, -620.0f, 100.0f);
 
     stage_SetAnimation(0x70, 1, 0);
 
@@ -1087,14 +1078,13 @@ void actSt06aSuimonEffect(volatile int a0)
 }
 
 extern int D_0028F4C0[];
-extern float D_006399A8;
 extern float D_0063C088;
 
 void actSt06aSuimonFlagOn(volatile int a0)
 {
     int i = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 7.0;
 
-    D_0063C088 = D_006399A8;
+    D_0063C088 = 0.005f;
 
     while (i-- > 0) {
         if (D_0063C55C != 0) {
@@ -1272,7 +1262,7 @@ void actSt06aExitGirlChk(volatile int a0)
     buf2[1] = D_00622BD0[1];
     SetDirectRootPosition(D_00639EA8, buf2);
 
-    ScpCallCameraSetTarget(-800.0f, -500.0f, D_006399AC);
+    ScpCallCameraSetTarget(-800.0f, -500.0f, 2200.0f);
 }
 
 void actSt06aBoxSub(volatile int a0)

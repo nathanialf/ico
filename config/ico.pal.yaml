@@ -774,7 +774,8 @@ segments:
       - [0x539944, .lit4, ico2/script/src/st04l]  # carved D_00639944..D_00639958 (6 words, all literals: StairSub -3881/-3891, StairChk -3881/-3891, SekizoChk -1300/-1700; the TU's whole pool, one word per function pool; MAIN.MAP's 0x10 is the debug link's), VMA 0x639944..0x63995C
       - [0x53995C, .lit4, ico2/script/src/st04r]  # carved D_0063995C..D_00639978 (8 words, all literals in StairSub, StairChk, SekizoChk, GondolaChk; the TU's whole pool, st05b's carve follows), VMA 0x63995C..0x63997C
       - [0x53997C, .lit4, ico2/script/src/st05b]  # carved D_0063997C..D_00639990 (6 slots: actSt05bSekizoChk x4, actSt05bSekizo's camera target -10793/2122 as literals; the TU's whole pool — MAIN.MAP's 0x18 is the debug link's, 0x639994 is st05e's), VMA 0x63997C..0x639994
-      - [0x539994, lit4, cod/539994]     # .lit4 blob resume (st05e's words)
+      - [0x539994, lit4, cod/539994]     # .lit4 blob resume (st05e's word D_00639994)
+      - [0x539998, .lit4, ico2/script/src/st06a]  # carved D_00639998..D_006399AC (6 words in ROM order: actSt06aDoorUpChk's door-boundary corners -1879/-1047, actSt06aDoorDownChk's -1879/-1047, actSt06aSuimonFlagOn's 0.005f, actSt06aExitGirlChk's exit-camera Z 2200.0f; all literals, the TU is fully C), VMA 0x639998..0x6399B0, 24 B; the TU's whole pool, bounded by st05e's word and st07a's carve
       - [0x5399B0, .lit4, ico2/script/src/st07a]  # carved D_006399B0..D_006399BC (4 words: actSt07aSekizoChk's -3300/977/-1050/-950 as literals; the TU is fully C), VMA 0x6399B0..0x6399C0
       - [0x5399C0, lit4, cod/5399C0]     # .lit4 blob resume (st08a's word D_006399C0, read as an extern by the matched actSt08aInit; data-sections pass item)
       - [0x5399C4, .lit4, ico2/script/src/st08b]  # carved D_006399C4..D_006399D0 (4 words: actSt08bDoorUpChk's and DoorDownChk's -1189/-2326 as literals; the pool is per function, not deduplicated), VMA 0x6399C4..0x6399D4
