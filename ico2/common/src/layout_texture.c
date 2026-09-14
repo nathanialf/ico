@@ -306,6 +306,9 @@ extern int D_0063B620;
 extern int D_0028F4C0[];
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", texture_fading);
+/* census display_texture, a file static (MAIN.MAP carries no global of that
+   name), takes the name as static display_texture once this body is C: the stub
+   assembles a glabel that would emit a global display_texture */
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", func_001BF960);
 
 typedef struct {
@@ -450,8 +453,9 @@ void exec_layout_texture(void)
     D_0063B620 = 0;
 }
 
-/* census name: init_textures_of_specified_property (src/kanban carries a global of
-   that name, so the two cannot both keep it). */
+/* census init_textures_of_specified_property, a file static; MAIN.MAP carries no
+   global of that name, so ico2/common/src/kanban's twin is a static too and
+   `static` here keeps this one's ELF symbol local */
 extern char D_00535168[][0x34];
 extern char D_0030D014[];
 extern char D_0061DDA8[]; /* "no texture loaded.(%s)\n" */
@@ -514,7 +518,7 @@ static inline int lt_texture_no_of_property(int idx)
     return no;
 }
 
-void func_001C09A8(int first, int last)
+static void init_textures_of_specified_property(int first, int last)
 {
     int i;
     int no;
@@ -537,7 +541,7 @@ static inline void lt_init_stage_textures(int stage)
     int last = D_005F5D50[stage].last;
 
     for (; i < last; i++) {
-        func_001C09A8(D_00533FE8[i].first, D_00533FE8[i].last);
+        init_textures_of_specified_property(D_00533FE8[i].first, D_00533FE8[i].last);
     }
     D_0063B610 = D_00533FE8[D_0063B60C].f28;
 }

@@ -17,7 +17,7 @@ extern float D_0063C360;
 extern float D_0063C364;
 extern float D_0063C368;
 extern float D_0063C36C;
-extern int func_001B6CA0(void *, void *, int);
+extern int gamesysMemoryHandlerWrite(void *, void *, int);
 extern int gamesysMemoryHandlerRead(void *, void *, int);
 extern int D_0063C370;
 
@@ -467,15 +467,15 @@ void backStageProcessInStage(float arg)
 
 void backStageSave(void *a0)
 {
-    func_001B6CA0(a0, &D_0063ACF0, 4);
-    func_001B6CA0(a0, &D_0063C350, 4);
-    func_001B6CA0(a0, &D_0063C354, 4);
-    func_001B6CA0(a0, &D_0063C358, 4);
-    func_001B6CA0(a0, &D_0063C35C, 4);
-    func_001B6CA0(a0, &D_0063C360, 4);
-    func_001B6CA0(a0, &D_0063C364, 4);
-    func_001B6CA0(a0, &D_0063C368, 4);
-    func_001B6CA0(a0, &D_0063C36C, 4);
+    gamesysMemoryHandlerWrite(a0, &D_0063ACF0, 4);
+    gamesysMemoryHandlerWrite(a0, &D_0063C350, 4);
+    gamesysMemoryHandlerWrite(a0, &D_0063C354, 4);
+    gamesysMemoryHandlerWrite(a0, &D_0063C358, 4);
+    gamesysMemoryHandlerWrite(a0, &D_0063C35C, 4);
+    gamesysMemoryHandlerWrite(a0, &D_0063C360, 4);
+    gamesysMemoryHandlerWrite(a0, &D_0063C364, 4);
+    gamesysMemoryHandlerWrite(a0, &D_0063C368, 4);
+    gamesysMemoryHandlerWrite(a0, &D_0063C36C, 4);
 }
 
 void backStageLoad(void *a0)

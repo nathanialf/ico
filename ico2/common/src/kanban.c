@@ -82,8 +82,10 @@ typedef struct {
 extern LayoutTex D_0030CFF8[];
 extern char D_0030D014[];
 extern int D_0028F8F0[];
-extern void func_001B8B10(KanbanProp *pr, LayoutTex *e,
-                          Col4 *col); /* census: display_texture (name reused by src/jimaku) */
+/* census display_texture, a file static; MAIN.MAP carries no global of that
+   name, so the twins in ico2/fumi/src/jimaku and ico2/common/src/layout_texture
+   are statics too and `static` here keeps this one's ELF symbol local */
+static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col);
 extern char D_00535168[][0x34];
 extern char D_0063B4A8[];
 extern char D_0063B4B0[];
@@ -343,7 +345,7 @@ void kanbanInit(int no)
     }
 }
 
-void func_001B8B10(KanbanProp *pr, LayoutTex *e, Col4 *col)
+static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col)
 {
     int uv[4];
     int r[4];
@@ -460,7 +462,7 @@ void display_layout(Node *k)
         kanbanReqDel((int *)k);
     } else {
         for (i = pr->first; i < pr->last; i++) {
-            func_001B8B10(pr, &D_0030CFF8[i], &k->f14);
+            display_texture(pr, &D_0030CFF8[i], &k->f14);
         }
     }
 }

@@ -66,25 +66,25 @@ void gamesysObjInfoInit(void)
 extern char D_004DA980[];
 extern int D_004DA7D0[];
 extern int gamesysTimeCount;
-extern void func_001B6CA0();
+extern void gamesysMemoryHandlerWrite();
 
 void gamesysObjInfoSave(void *h)
 {
     char *p;
     int save;
 
-    func_001B6CA0(h, &gamesysTimeCount, 4);
+    gamesysMemoryHandlerWrite(h, &gamesysTimeCount, 4);
 
     p = D_004DA980;
 
     save = (int)(*(long long *)(p + 0x40) >> 1) & 1;
     *(long long *)(p + 0x40) = *(long long *)(p + 0x40) | 2;
 
-    func_001B6CA0(h, p, 0x2D80);
+    gamesysMemoryHandlerWrite(h, p, 0x2D80);
 
     *(long long *)(p + 0x40) = (*(long long *)(p + 0x40) & -3) | ((long long)save << 1);
 
-    func_001B6CA0(h, D_004DA7D0, 0x1A8);
+    gamesysMemoryHandlerWrite(h, D_004DA7D0, 0x1A8);
 }
 
 extern char D_004DA980[];
@@ -119,7 +119,7 @@ extern char D_0061D328[];
 extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void memcpy();
 
-void func_001B6CA0(int *self, int n, int a2)
+void gamesysMemoryHandlerWrite(int *self, int n, int a2)
 {
     if (n != 0) {
         memcpy(self[0] + self[1], n);
@@ -130,7 +130,7 @@ void func_001B6CA0(int *self, int n, int a2)
 
 extern void MakeGeneratorPacket(void);
 
-void func_001B6CF8(int *self)
+void gamesysGeneratorInfoSave(int *self)
 {
     int buf;
     int size;
@@ -138,7 +138,7 @@ void func_001B6CF8(int *self)
     MakeGeneratorPacket();
     buf = GetbufpGeneratorPacket();
     size = GetsizeGeneratorPacket();
-    func_001B6CA0(self, buf, size);
+    gamesysMemoryHandlerWrite(self, buf, size);
 }
 
 extern int *GetbufpGeneratorPacket(void);
@@ -158,7 +158,7 @@ void gamesysGeneratorInfoLoad(int *a0)
 
 extern void MakeHintSaveInfo(void);
 
-void func_001B6DA8(int *self)
+void gamesysHintInfoSave(int *self)
 {
     int buf;
     int size;
@@ -166,7 +166,7 @@ void func_001B6DA8(int *self)
     MakeHintSaveInfo();
     buf = GetBuffHintSaveInfo();
     size = GetSizeHintSaveInfo();
-    func_001B6CA0(self, buf, size);
+    gamesysMemoryHandlerWrite(self, buf, size);
 }
 
 extern int *GetBuffHintSaveInfo(void);
@@ -186,7 +186,7 @@ void gamesysHintInfoLoad(int *a0)
 
 extern void MakeCharacterPacket(void);
 
-void func_001B6E58(int *self)
+void gamesysCharacterInfoSave(int *self)
 {
     int buf;
     int size;
@@ -194,7 +194,7 @@ void func_001B6E58(int *self)
     MakeCharacterPacket();
     buf = GetbufpCharacterPacket();
     size = GetsizeCharacterPacket();
-    func_001B6CA0(self, buf, size);
+    gamesysMemoryHandlerWrite(self, buf, size);
 }
 
 extern int *GetbufpCharacterPacket(void);
@@ -449,12 +449,12 @@ extern void memset(char *p, int a, int n);
 void gamesysVersionSave(int a0)
 {
     if (gamesysVersionDiff == 0) {
-        func_001B6CA0((int *)a0, (int)D_004DA770, 0x12);
+        gamesysMemoryHandlerWrite((int *)a0, (int)D_004DA770, 0x12);
         return;
     }
     {
         char buf[0x20];
         memset(buf, 0, 0x12);
-        func_001B6CA0((int *)a0, (int)buf, 0x12);
+        gamesysMemoryHandlerWrite((int *)a0, (int)buf, 0x12);
     }
 }

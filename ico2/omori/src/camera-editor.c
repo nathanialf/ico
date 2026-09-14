@@ -1375,7 +1375,11 @@ void menu_2(char *m)
     }
 }
 
-/* census group_select, a file static; the name collides with way_tool's global group_select */
+/* census group_select, and MAIN.MAP puts the only global group_select in
+   camera-editor.o at base+0x5180, which is this address, so this is the global
+   and ico2/fumi/src/way_tool holds the file static.  The name waits until
+   way_tool can spell its copy `static`: nothing in the ELF references either
+   address, so gcc would drop an unreferenced static today. */
 void func_0018F5F8(char *m)
 {
     Pad *pad;

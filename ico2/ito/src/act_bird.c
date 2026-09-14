@@ -15,7 +15,7 @@ extern void Debug_StickControl(char *self);
    _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
 extern void *actInitialize(void *a0);
 extern void actCreateSubThread(void *entry, int prio);
-extern void func_0019E7F8();
+extern void subBirdBrainMain();
 extern int SetMotionRequest(void *a0, int id, void *work);
 extern char D_00555788[];
 extern void *D_0063A438;
@@ -197,7 +197,7 @@ void trans_bird(void *self, float *w)
     SetRootPosition(self, pos);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/act_bird", func_0019E7F8);
+INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/act_bird", subBirdBrainMain);
 ASM_LIT4_SLOT(D_00639238, 6.2831855f);
 ASM_LIT4_SLOT(D_0063923C, 0.08726647f);
 ASM_LIT4_SLOT(D_00639240, 6.2831855f);
@@ -243,7 +243,7 @@ inline void actBirdStart(void *a0)
 
     w = (char *)actInitialize(a0);
     _ACTWait(1);
-    actCreateSubThread(func_0019E7F8, 0x14);
+    actCreateSubThread(subBirdBrainMain, 0x14);
     actCreateSubThread(subBirdControl, 0x15);
     actCreateSubThread(subBirdCollision, 0x15);
     *(int *)(w + 0x130) = SetMotionRequest(a0, 0x10E, w + 0x620);
@@ -313,7 +313,7 @@ void Debug_StickControl(char *self)
     }
 }
 
-void func_0019FE30(int a0, int a1, int a2, int a3)
+void BirdGeo(int a0, int a1, int a2, int a3)
 {
     ExecMotionOrient(a0, a1, a2, a3);
 }
@@ -324,7 +324,7 @@ extern void lightning_test(void);
 extern int stage_no;
 
 /* census: ito/src/act_bird.c BirdDL, def line 1024 */
-void func_0019FE38(void *gobj)
+void BirdDL(void *gobj)
 {
     char *w;
 
