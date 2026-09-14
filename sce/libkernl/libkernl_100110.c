@@ -208,13 +208,13 @@ void InitSysCall(void)
 }
 
 extern void InitAlarm(void);
-extern void func_00100E40(void);
+extern void InitThread(void);
 
 void _InitSys(void)
 {
     InitSysCall();
     InitAlarm();
-    func_00100E40();
+    InitThread();
 }
 
 extern void DIntr(void);
@@ -338,8 +338,8 @@ int kCopy(int *dst, int *src, unsigned int n)
 SYSCALL_WRAPPER(GetEntryAddress, 91)
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", InitAlarm);
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", func_00100D68);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", func_00100E40);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", topThread);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", InitThread);
 
 extern int D_0028F4B0[];
 extern int D_0063CB50[];
@@ -540,5 +540,7 @@ void kputs(int a0)
     Deci2Call(0x10, args);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", func_00101C80);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", func_00102388);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", Main);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", idle);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", scheduler);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_100110", boot);

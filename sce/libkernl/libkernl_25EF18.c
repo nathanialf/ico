@@ -371,7 +371,7 @@ INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifExecRequest);
 extern void SleepThread(void);
 extern void sceSifExecRequest(int *item);
 
-void func_00260690(int *self)
+void sceSifRpcLoop(int *self)
 {
     int *item;
     for (;;) {
@@ -386,7 +386,7 @@ extern int CreateSema(int *self);
 extern int D_0054A478[];
 extern int D_0054A47C[];
 
-void func_002606D0(void)
+void _sceFsIobSemaMK(void)
 {
     extern int CreateSema(int *a0);
     int args[8];
@@ -407,7 +407,7 @@ int new_iob(void)
 {
     char *p;
     char *end;
-    func_002606D0();
+    _sceFsIobSemaMK();
     WaitSema(D_0054A478[0]);
     p = D_0072D300;
     end = p + 0x200;
@@ -426,7 +426,7 @@ int new_iob(void)
 void *get_iob(unsigned int i)
 {
     char *p;
-    func_002606D0();
+    _sceFsIobSemaMK();
     WaitSema(D_0054A478[0]);
     if (i < 0x20) {
         goto ok;
@@ -1191,18 +1191,18 @@ __asm__(".section .text\n"
 
 extern int D_0054A490[];
 extern void SetVTLBRefillHandler();
-extern void func_00265040(void);
+extern void _kTLBException(void);
 
 void *SetTLBHandler(void *a0)
 {
     D_0054A490[0] = (int)a0;
-    SetVTLBRefillHandler(1, func_00265040);
-    SetVTLBRefillHandler(2, func_00265040);
-    SetVTLBRefillHandler(3, func_00265040);
+    SetVTLBRefillHandler(1, _kTLBException);
+    SetVTLBRefillHandler(2, _kTLBException);
+    SetVTLBRefillHandler(3, _kTLBException);
     return a0;
 }
 
-extern char D_00265280[];
+extern char _kDebugException[];
 extern int D_0054A498[];
 extern void SetVCommonHandler();
 
@@ -1217,9 +1217,9 @@ int SetDebugHandler(int a0, int a1)
     old = D_0054A498[orig];
     D_0054A498[orig] = a1;
     if ((unsigned)(a0 - 1) < 3) {
-        SetVTLBRefillHandler(orig, (void *)D_00265280);
+        SetVTLBRefillHandler(orig, (void *)_kDebugException);
     } else {
-        SetVCommonHandler(orig, (void *)D_00265280);
+        SetVCommonHandler(orig, (void *)_kDebugException);
     }
     return old;
 }
@@ -1372,7 +1372,11 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", func_00265040);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _kTLBException);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _xlaunch);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _kExitTLBHandler);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _kDebugException);
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _set_sreg);
 
 void _change_addr(int *a0, int *a1)
 {
@@ -1572,10 +1576,10 @@ __asm__(".section .text\n"
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
-        ".global func_00265A38\n"
-        ".type func_00265A38, @function\n"
+        ".global sceSifWriteBackDCache\n"
+        ".type sceSifWriteBackDCache, @function\n"
         "    .align 3\n"
-        "func_00265A38:\n"
+        "sceSifWriteBackDCache:\n"
         "    lui $25, (0xFFFFFFC0 >> 16)\n"
         "    ori $25, $25, (0xFFFFFFC0 & 0xFFFF)\n"
         "    blez $5, .L00265A380024849C\n"
@@ -1623,28 +1627,21 @@ __asm__(".section .text\n"
         ".L00265A380024849C:\n"
         "    jr $31\n"
         "    nop\n"
-        ".size func_00265A38, . - func_00265A38\n"
+        "    jr $31\n"
+        ".size sceSifWriteBackDCache, . - sceSifWriteBackDCache\n"
         "    .set reorder\n"
         "    .set at\n");
 
+/* CB_DelayTh opens in the delay slot of the jr that closes the block above,
+   which is why splat had split it one word late as func_00265AEC. */
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
+        "    .global CB_DelayTh\n"
+        "    .type CB_DelayTh, @function\n"
         "    .align 2\n"
-        "glabel func_00265AE4\n"
-        "    jr         $31\n"
-        "    addiu      $29, $29, -0x10\n"
-        "endlabel func_00265AE4\n"
-        "    .set reorder\n"
-        "    .set at\n");
-
-__asm__(".section .text\n"
-        "    .set at\n"
-        "    .set noreorder\n"
-        "    .global func_00265AEC\n"
-        "    .type func_00265AEC, @function\n"
-        "    .align 2\n"
-        "func_00265AEC:\n"
+        "CB_DelayTh:\n"
+        "    addiu $29, $29, -0x10\n"
         "    sd    $31, 0x0($29)\n"
         "    jal   iSignalSema\n"
         "    daddu $4, $6, $0\n"
@@ -1653,7 +1650,7 @@ __asm__(".section .text\n"
         "    ld    $31, 0x0($29)\n"
         "    jr    $31\n"
         "    addiu $29, $29, 0x10\n"
-        "    .size func_00265AEC, . - func_00265AEC\n"
+        "    .size CB_DelayTh, . - CB_DelayTh\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");

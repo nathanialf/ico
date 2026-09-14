@@ -21,7 +21,7 @@ extern int CreateSema(int *self);
 extern int DeleteSema(int a0);
 extern int SetAlarm(int a0, void *a1, int a2);
 extern int WaitSema(int a0);
-extern void func_00265AE4(void);
+extern void CB_DelayTh(void);
 
 void sceCdDelayThread(unsigned short a0)
 {
@@ -32,7 +32,7 @@ void sceCdDelayThread(unsigned short a0)
     buf[2] = 0;
     buf[5] = 0;
     r = CreateSema(buf);
-    SetAlarm(id, (char *)func_00265AE4 + 4, r);
+    SetAlarm(id, CB_DelayTh, r);
     WaitSema(r);
     DeleteSema(r);
 }
@@ -56,7 +56,8 @@ int sceCdCallback(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", _sceCd_cd_callback);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", func_00265C70);
+INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", _Cdvd_cbLoop);
+INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdInitEeCB);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", _sceCd_cd_read_intr);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", cmd_sem_init);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", cdvd_exit);

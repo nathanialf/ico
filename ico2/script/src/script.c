@@ -601,7 +601,7 @@ extern const char D_00554790[];
 extern const char D_005547A0[];
 extern void sceVu0AddVector(float *dst, float *a, float *b);
 extern void DeleteWayGroup(void *way);
-extern void *func_00215CA0(float *a, float *b);
+extern void *CreateBridge(float *a, float *b);
 
 void scpWoodSrh(char *self, struct WoodBoxEnt *w)
 {
@@ -707,7 +707,7 @@ void scpWoodSrh(char *self, struct WoodBoxEnt *w)
                 debug_StdPrintfDummy(D_00554790);
             }
             sceVu0AddVector(dst, pos, w->ofs);
-            way = func_00215CA0(pos, dst);
+            way = CreateBridge(pos, dst);
             break;
         case 2:
             if (way != 0) {
