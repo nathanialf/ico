@@ -179,7 +179,7 @@ extern int D_0063B938__pn __asm__("D_0063B938");
 extern void func_001DDAB8_a(char *) __asm__("dispSkelton");
 extern void p2o_DispVU1();
 extern void MatrixDrive_RotMatrixX(int a0);
-extern void func_001ED110(int a0, int a1);
+static void getInitialMatrix(int a0, int a1);
 extern void sceVu0MulMatrix(int a0, int a1, int a2);
 extern int D_0063B8F8;
 extern int D_0063B8FC;
@@ -919,16 +919,21 @@ void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
     }
 }
 
+/* census dispSkeltonHierarchy, def line 1592, a file static (MAIN.MAP carries no
+   global of that name; its span of 180 insns matches the listing exactly).  It
+   takes the name as static dispSkeltonHierarchy once this body is C: the stub
+   assembles a glabel that would emit a global dispSkeltonHierarchy against
+   ico2/sugipon/src/motionManager2's stub at 0x001072E8 */
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", func_001ECE40);
 
-/* census: sugipon/src/motionManager.c getInitialMatrix, def line 1625 (1625-1647).
-   A file-static (absent from MAIN.MAP's globals; geometryManager.c has its own
-   getInitialMatrix), defined under the splat placeholder name while INCLUDE_ASM
-   siblings still call it; renamed static getInitialMatrix at layout. */
+/* census sugipon/src/motionManager.c getInitialMatrix, def line 1625 (1625-1647),
+   a file static: MAIN.MAP carries no global of that name, so the twin in
+   ico2/sugipon/src/geometryManager is a static too and `static` here keeps this
+   one's ELF symbol local.  No INCLUDE_ASM sibling in this TU calls it. */
 extern void MatrixDrive_RotMatrixY(int a0);
 extern unsigned char D_0028F8F0[];
 
-void func_001ED110(int obj, int idx)
+static void getInitialMatrix(int obj, int idx)
 {
     char *nd;
     char *mtx;
@@ -948,11 +953,11 @@ void func_001ED110(int obj, int idx)
     mtx = *(char **)(obj + 0xC) + idx * 0x40;
     CopyMatrix(mtx, (void *)MatrixDrive_GetMatrix());
     if (*(int *)(nd + 0x30) != -1) {
-        func_001ED110(obj, *(int *)(nd + 0x30));
+        getInitialMatrix(obj, *(int *)(nd + 0x30));
     }
     MatrixDrive_PopMatrix();
     if (*(int *)(nd + 0x34) != -1) {
-        func_001ED110(obj, *(int *)(nd + 0x34));
+        getInitialMatrix(obj, *(int *)(nd + 0x34));
     }
 }
 
@@ -996,7 +1001,7 @@ void SkelTestGeo(char *a0)
         int s2;
         sceVu0UnitMatrix__pn(MatrixDrive_GetMatrix());
         MatrixDrive_RotMatrixX(-0x8000);
-        func_001ED110(*(int *)(a0 + 0x15C), 0);
+        getInitialMatrix(*(int *)(a0 + 0x15C), 0);
         s2 = *(int *)(a0 + 0x15C);
         for (i = 0; i < *(int *)(s2 + 0x88); i++) {
             int e = *(int *)(s2 + 0xC) + i * 0x40;

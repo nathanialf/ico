@@ -90,7 +90,7 @@ extern int stage_ContinueAnimation(int a0, int a1);
 extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern ActMail D_004F79A8[];
 void actDejaAfterChk(volatile int a0);
-extern char *D_0063BDF0;
+extern char *deja;
 extern void CheckPoint(void);
 extern void gflagOn(int flag);
 extern void scpPlayStart(int a0);
@@ -138,8 +138,8 @@ void actDejaChk(volatile int a0)
     *(int *)(scpSearchGobj(0x9F4) + 0x16C) = 0;
     *(int *)(scpSearchGobj(0x9F5) + 0x16C) = 0;
     actCreateSubThread(actEnemySleep, 0x15);
-    scpAdpcmPlayRequestFunc(0xC, &D_0063BDF0, 0, 1, 1);
-    while (D_0063BDF0 == 0) {
+    scpAdpcmPlayRequestFunc(0xC, &deja, 0, 1, 1);
+    while (deja == 0) {
         _ACTWait(1);
     }
     scpFadeIn(6.0f);
@@ -153,10 +153,10 @@ void actDejaChk(volatile int a0)
            ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
-    if (D_0063C4DC == 0 && D_0063BDF0 != 0) {
+    if (D_0063C4DC == 0 && deja != 0) {
         shadow_DispCancel(0x4A, 0);
-        scpAdpcmFadeCloseFunc(&D_0063BDF0, 0x80);
-        D_0063BDF0 = 0;
+        scpAdpcmFadeCloseFunc(&deja, 0x80);
+        deja = 0;
     }
     RequestStageChange(1, D_00639EA4, 0, D_0063986C, 1.0f);
 }
@@ -294,9 +294,9 @@ void actDejaAfterChk(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
     _ACTWait(0x3C);
-    if (D_0063BDF0 != 0) {
-        scpAdpcmFadeCloseFunc(&D_0063BDF0, 0x50);
+    if (deja != 0) {
+        scpAdpcmFadeCloseFunc(&deja, 0x50);
     }
-    D_0063BDF0 = 0;
+    deja = 0;
     _ACTWait(0);
 }

@@ -111,6 +111,10 @@ void BossEnemyFunc(void *self)
     }
 }
 
+/* census gene_enemy, a file static (MAIN.MAP puts the only global gene_enemy in
+   queen.o), takes the name as static gene_enemy once this body is C: the stub
+   assembles a glabel that would emit a global gene_enemy binding against
+   ico2/ito/src/queen's at 0x001A2A10 */
 INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/itou_boss", func_001A08F8);
 
 extern void scpWakeupEnemyAll(void);

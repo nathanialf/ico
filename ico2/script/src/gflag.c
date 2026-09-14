@@ -9,7 +9,7 @@ extern int before_stage_no;
 extern int gamesysVersionDiff;
 extern int stage_no;
 extern void memset(void *dst, int c, int n);
-extern int func_001B6CA0(void *, void *, int);
+extern int gamesysMemoryHandlerWrite(void *, void *, int);
 extern int gamesysMemoryHandlerRead(void *, void *, int);
 extern void Boy_Init(void);
 extern void Hint_Init(void);
@@ -45,9 +45,9 @@ void gflagInit(void)
 void gflagSave(void *fp)
 {
     D_0063AA04 = stage_no;
-    func_001B6CA0(fp, &D_0063AA04, 4);
-    func_001B6CA0(fp, &D_0063AA00, 4);
-    func_001B6CA0(fp, D_002A50C0, 0x32);
+    gamesysMemoryHandlerWrite(fp, &D_0063AA04, 4);
+    gamesysMemoryHandlerWrite(fp, &D_0063AA00, 4);
+    gamesysMemoryHandlerWrite(fp, D_002A50C0, 0x32);
 }
 
 void gflagLoad(void *fp)

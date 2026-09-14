@@ -279,14 +279,32 @@ def consumers(known):
 
 
 def tu_paths():
-    """member basename -> TU path, from the recovered .text spans."""
+    """member basename -> TU path.
+
+    The yaml's `c` subsegment rows are the live layout, and they have to be:
+    consumers() keys its TU set on the source path under ico2/ or sce/, and
+    mem["tu"] has to be the SAME spelling or the whole ownership layer scores
+    zero and every member comes out ambiguous.  The generated
+    baserom/pal/text_tu_boundaries.txt is a spans file that is only rewritten
+    when gen_pal_symbol_addrs.py runs, so after the ico2/<programmer>/<kind>
+    move it still spelled the TUs src/<name> and silenced the evidence layer
+    (measured 2026-09-14: 155 placed against the yaml's 341).  It stays the
+    fallback for a tree whose yaml has not been written yet.
+    """
     out = {}
     dup = set()
-    for line in TU_BOUNDS.read_text(encoding="utf-8").splitlines():
-        if line.startswith("#") or not line.strip():
-            continue
-        parts = line.split()
-        path = parts[2]
+    rows = []
+    row = re.compile(r"^\s*-\s*\[0x[0-9A-Fa-f]+,\s*c,\s*([\w./-]+)\]")
+    for line in YAML.read_text(encoding="utf-8").splitlines():
+        m = row.match(line.split("#")[0])
+        if m:
+            rows.append(m.group(1))
+    if not rows and TU_BOUNDS.exists():
+        for line in TU_BOUNDS.read_text(encoding="utf-8").splitlines():
+            if line.startswith("#") or not line.strip():
+                continue
+            rows.append(line.split()[2])
+    for path in rows:
         if path == "(vendor)" or path.startswith("cod/"):
             continue
         base = os.path.basename(path)
@@ -524,6 +542,12 @@ HEADER = """\
 //                 agreeing with the map's member size.  Verify before use.
 //   map-ordinal — base forced by link order alone (the window held exactly one
 //                 position).  Weakest; verify before use.
+//   ... carried  — the tier a PREVIOUS run derived, which this run could not
+//                 re-derive.  The rom label stream still carries the address;
+//                 what changed is the ownership layer, which keys on bare
+//                 identifiers and loses a member's corroboration as soon as an
+//                 unrelated TU declares a local of the same name.  Carried
+//                 rather than deleted, since nothing contradicts the address.
 //
 // splat 0.40 rejects `type:data` (its type list is jtbl/label/func plus the
 // scalar spellings; anything else must start with a capital letter), so these
@@ -533,7 +557,47 @@ HEADER = """\
 """
 
 
+CARRY_RE = re.compile(r"^(\w+) = 0x([0-9A-Fa-f]+); // size:(0x[0-9A-Fa-f]+)"
+                      r"\s+// (\S+)\s+// (.*)$")
+
+
+def carried_rows(path, placed):
+    """Rows the tracked file holds that this run no longer re-derives.
+
+    A placement is an ADDRESS claim, and the rom label stream that fixed it
+    does not change when C lands.  The ownership layer does: consumers() keys
+    on bare identifiers, so an unrelated TU declaring a local of the same name
+    (`sword` in ito/src/queen, `bridge` in script/src/script) costs a member
+    its corroboration and the whole member falls back to ambiguous.  Dropping
+    those rows would delete a derivation nothing has contradicted, so they are
+    carried with their original evidence and a `carried` marker; a row whose
+    name or address this run DOES claim is dropped in favour of the new one.
+    """
+    if not path.exists():
+        return []
+    names = {p[1] for p in placed}
+    addrs = {p[0] for p in placed}
+    out = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = CARRY_RE.match(line.strip())
+        if not m:
+            continue
+        name, vma, size, tu, ev = (m.group(1), int(m.group(2), 16),
+                                   m.group(3), m.group(4), m.group(5))
+        if name in names or vma in addrs:
+            continue
+        ev = ev.split(" from ")
+        tier = ev[0] if len(ev) == 1 else ev[0]
+        mem = ev[1][:-2] if len(ev) > 1 and ev[1].endswith(".o") else "?"
+        out.append((vma, name, int(size, 16), tu,
+                    tier.split()[0], mem,
+                    (tier.split()[1] if len(tier.split()) > 1 else "") +
+                    " carried"))
+    return out
+
+
 def emit(placed, path):
+    placed = list(placed) + carried_rows(path, placed)
     lines = [HEADER, BANNER, ""]
     for vma, name, size, tu, tier, mem, ev in sorted(placed):
         # splat 0.40 has no `data` symbol type -- its type list is

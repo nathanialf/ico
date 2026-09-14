@@ -27,6 +27,12 @@
 //                 agreeing with the map's member size.  Verify before use.
 //   map-ordinal — base forced by link order alone (the window held exactly one
 //                 position).  Weakest; verify before use.
+//   ... carried  — the tier a PREVIOUS run derived, which this run could not
+//                 re-derive.  The rom label stream still carries the address;
+//                 what changed is the ownership layer, which keys on bare
+//                 identifiers and loses a member's corroboration as soon as an
+//                 unrelated TU declares a local of the same name.  Carried
+//                 rather than deleted, since nothing contradicts the address.
 //
 // splat 0.40 rejects `type:data` (its type list is jtbl/label/func plus the
 // scalar spellings; anything else must start with a capital letter), so these
@@ -280,6 +286,11 @@ fadeStatus = 0x0063BCA0; // size:0x4  // ico2/seki/src/Basic  // map-anchor 7of7
 fadeSpeed = 0x0063BCA4; // size:0x4  // ico2/seki/src/Basic  // map-anchor 7of7 from Basic.o
 fadeContinue = 0x0063BCA8; // size:0x8  // ico2/seki/src/Basic  // map-anchor 7of7 from Basic.o
 fadeColor = 0x0063BCB0; // size:0x1  // ico2/seki/src/Basic  // map-anchor 7of7 from Basic.o
+deja = 0x0063BDF0; // size:0x4  // ico2/script/src/deja  // map-size 1of1 from deja.o
+e3capsule = 0x0063BDF8; // size:0x4  // ico2/script/src/e3  // map-anchor 4of4 from e3.o
+e3gate1st = 0x0063BE00; // size:0x4  // ico2/script/src/e3  // map-anchor 4of4 from e3.o
+sekizo_e3 = 0x0063BE04; // size:0x4  // ico2/script/src/e3  // map-anchor 4of4 from e3.o
+sekizo_e3_vol = 0x0063BE08; // size:0x4  // ico2/script/src/e3  // map-anchor 4of4 from e3.o
 ed1 = 0x0063BE10; // size:0x4  // ico2/script/src/end  // map-anchor 6of8 from end.o
 ed2 = 0x0063BE14; // size:0x4  // ico2/script/src/end  // map-anchor 6of8 from end.o
 ed3 = 0x0063BE18; // size:0x4  // ico2/script/src/end  // map-anchor 6of8 from end.o
@@ -324,10 +335,10 @@ solar = 0x0063BF58; // size:0x4  // ico2/script/src/st05e  // map-size 1of1 from
 suimon = 0x0063BF5C; // size:0x4  // ico2/script/src/st06a  // map-anchor 3of3 from st06a.o
 shutter = 0x0063BF60; // size:0x4  // ico2/script/src/st06a  // map-anchor 3of3 from st06a.o
 toge = 0x0063BF64; // size:0x4  // ico2/script/src/st06a  // map-anchor 3of3 from st06a.o
-bridge = 0x0063BF68; // size:0x4  // ico2/script/src/st07a  // map-anchor 4of4 from st07a.o
-sekizo7a = 0x0063BF6C; // size:0x4  // ico2/script/src/st07a  // map-anchor 4of4 from st07a.o
-sekizo_7a = 0x0063BF70; // size:0x4  // ico2/script/src/st07a  // map-anchor 4of4 from st07a.o
-sekizo_7a_vol = 0x0063BF74; // size:0x4  // ico2/script/src/st07a  // map-anchor 4of4 from st07a.o
+bridge = 0x0063BF68; // size:0x4  // ico2/script/src/st07a  // map-anchor 4of4 carried from st07a.o
+sekizo7a = 0x0063BF6C; // size:0x4  // ico2/script/src/st07a  // map-anchor 4of4 carried from st07a.o
+sekizo_7a = 0x0063BF70; // size:0x4  // ico2/script/src/st07a  // map-anchor 4of4 carried from st07a.o
+sekizo_7a_vol = 0x0063BF74; // size:0x4  // ico2/script/src/st07a  // map-anchor 4of4 carried from st07a.o
 st09a_brg = 0x0063BF80; // size:0x4  // ico2/script/src/st09a  // map-size 1of1 from st09a.o
 floor10l = 0x0063BF84; // size:0x4  // ico2/script/src/st10l  // map-anchor 4of4 from st10l.o
 st10l_gondola_up = 0x0063BF88; // size:0x4  // ico2/script/src/st10l  // map-anchor 4of4 from st10l.o
@@ -357,7 +368,7 @@ st13b_yure = 0x0063BFEC; // size:0x4  // ico2/script/src/st13b  // map-anchor 12
 st13b_yure_vol = 0x0063BFF0; // size:0x4  // ico2/script/src/st13b  // map-anchor 12of12 from st13b.o
 bmg = 0x0063BFFC; // size:0x4  // ico2/script/src/st13c  // map-anchor 2of2 from st13c.o
 hand = 0x0063C008; // size:0x4  // ico2/script/src/st13c  // map-anchor 2of2 from st13c.o
-cam = 0x0063C018; // size:0x4  // ico2/script/src/st17a  // map-size 1of1 from st17a.o
+cam = 0x0063C018; // size:0x4  // ico2/script/src/st17a  // map-size 1of1 carried from st17a.o
 lightning2 = 0x0063C01C; // size:0x4  // ico2/script/src/st17b  // map-size 1of1 from st17b.o
 fence_up_19a = 0x0063C020; // size:0x4  // ico2/script/src/st19a  // map-anchor 4of5 from st19a.o
 fence_down_19a = 0x0063C024; // size:0x4  // ico2/script/src/st19a  // map-anchor 4of5 from st19a.o
@@ -368,12 +379,12 @@ gondola_up = 0x0063C034; // size:0x4  // ico2/script/src/st20a  // map-anchor 5o
 gondola_down = 0x0063C038; // size:0x4  // ico2/script/src/st20a  // map-anchor 5of5 from st20a.o
 st20a_yure = 0x0063C03C; // size:0x4  // ico2/script/src/st20a  // map-anchor 5of5 from st20a.o
 st20a_yure_vol = 0x0063C040; // size:0x8  // ico2/script/src/st20a  // map-anchor 5of5 from st20a.o
-sword = 0x0063C058; // size:0x4  // ico2/script/src/st24a  // map-size 1of1 from st24a.o
-sekizo47a = 0x0063C05C; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 from st47a.o
-hane1up = 0x0063C060; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 from st47a.o
-hane2up = 0x0063C064; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 from st47a.o
-hane1down = 0x0063C068; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 from st47a.o
-hane2down = 0x0063C06C; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 from st47a.o
-sekizo_47a = 0x0063C070; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 from st47a.o
-sekizo_47a_vol = 0x0063C074; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 from st47a.o
+sword = 0x0063C058; // size:0x4  // ico2/script/src/st24a  // map-size 1of1 carried from st24a.o
+sekizo47a = 0x0063C05C; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
+hane1up = 0x0063C060; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
+hane2up = 0x0063C064; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
+hane1down = 0x0063C068; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
+hane2down = 0x0063C06C; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
+sekizo_47a = 0x0063C070; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
+sekizo_47a_vol = 0x0063C074; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
 errno = 0x0063C5D8; // size:0x4  // (vendor)  // map-size 1of1 from sbrkr.o
