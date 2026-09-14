@@ -1084,6 +1084,10 @@ words become the blob's first words.
 - `[0x51FA90, .rodata, src/item]` execBombGeo's 5-arm table (20 B), resume
   `0x51FAA4` (c1ccaa792).
 
+- `[0x3FACD0, .data, src/st13b]` syms: elev2chara_mes (actSt13bElev2Chk's mail record, 32 B; VMA
+  0x4FACD0..0x4FACF0), resume `0x3FACF0`. The st13b plain-rodata row at `0x522E00` grew to 16 B
+  (two 0.15 doubles), resume `0x522E10`.
+
 - `[0x3ED170, .data, src/waterDot]` syms: initWaterDotWork, initWaterDot, initWaterDot2 (the
   three static templates AllocWaterDot copies, 0x1C + pad, 0x30, 0x30; VMA 0x4ED170..0x4ED1F0),
   resume `0x3ED1F0`.
