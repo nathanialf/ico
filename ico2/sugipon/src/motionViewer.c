@@ -390,13 +390,13 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionViewer", motOriMenuProc);
 /*SWEEP-ENDmotOriMenuProc*/
 /*SWEEPmodeMessage*/
 extern char D_006207C0[];
-extern float D_00639658;
-extern float D_0063965C;
 extern char D_0063BA40[];
 extern char D_0063BA48[];
 extern char D_0063BA50[];
 extern int scePadRead(int port, int slot, unsigned char *rdata);
 
+ASM_LIT4_SLOT(D_00639658, 0.01f);
+ASM_LIT4_SLOT(D_0063965C, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionViewer", modeMessage);
 
 /*SWEEP-ENDmodeMessage*/

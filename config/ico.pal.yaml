@@ -709,7 +709,7 @@ segments:
       - [0x539130, .lit4, ico2/omori/src/camera-root]  # carved D_00639130..D_0063913C (4 words of pi: ConvertCameraSet and CameraGetOtherObjOffset as literals, two slots for the still-asm SetCameraMatrix; the TU's whole pool = MAIN.MAP camera-root.o .lit4 0x10), VMA 0x639130..0x639140
       - [0x539140, lit4, cod/539140]     # .lit4 blob resume (chain's words follow at 0x539190)
       - [0x539190, .lit4, ico2/omori/src/chain]  # carved D_00639190..D_006391D4 (18 slots: chain_simulate_free..TestChainUpDown still asm, then IncreasePdlChain, DecreasePdlChain, GetChainDirCorrectVal, InitPendulum x2, _GetCorrectOrientOfChain as literals; the TU's whole pool), VMA 0x639190..0x6391D8
-      - [0x5391D8, lit4, cod/5391D8]     # .lit4 blob resume (ebrain's words, then gv's)
+      - [0x5391D8, .lit4, ico2/omori/src/ebrain]  # carved D_006391D8..D_006391DC (2 words, both 250000.0f: eBrainGetTarget's two chase-distance thresholds as literals; the TU's whole pool, between chain's carve and gv's words), VMA 0x6391D8..0x6391E0, 8 B
       - [0x5391E0, .lit4, ico2/omori/src/generator]  # carved D_006391E0..D_006391E8 (3 slots, all 22500.0f: CheckGeneratorCollision's literal and two slots beside the still-asm GetGeneratorSafePosition; the TU's whole pool), VMA 0x6391E0..0x6391EC, 12 B
       - [0x5391EC, .lit4, ico2/omori/src/gv]  # carved D_006391EC (1 slot: GetMatrixDirectionToZ's pi as a literal; gv's other four pi words stay extern reads until the pool re-carve), VMA 0x6391EC..0x6391F0, 4 B
       - [0x5391F0, lit4, cod/5391F0]     # .lit4 blob resume (gv's remaining four words)
@@ -728,7 +728,7 @@ segments:
       - [0x539360, .lit4, ico2/common/src/layout_action]  # carved D_00639360..D_00639368 (3 slots, la_load_processing / la_get_next_stage_name / la_switching_stage), VMA 0x639360..0x63936C, 12 B; MAIN.MAP layout_action.o .lit4 is 0x8 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
       - [0x53936C, lit4, cod/53936C]     # .lit4 blob resume
       - [0x539374, .lit4, ico2/sugipon/src/a_p_1]  # carved D_00639374..D_00639390 (8 slots, 6 fns fitToCol..attackMot in source order; 3 slots beside still-asm owners), VMA 0x639374..0x639394, 32 B
-      - [0x539394, lit4, cod/539394]     # .lit4 blob resume (act_a_p_1's walkAI x2 and subAP1BrainMain)
+      - [0x539394, .lit4, ico2/sugipon/src/act_a_p_1]  # carved D_00639394..D_0063939C (3 words: walkAI's two 10000.0f jump-range tests and subAP1BrainMain's 40000.0f smoothing threshold, all literals; the TU's whole pool, between a_p_1's and box's carves), VMA 0x639394..0x6393A0, 12 B
       - [0x5393A0, .lit4, ico2/sugipon/src/box]  # carved D_006393A0..D_00639408 (27 slots, 13 fns FloorLeverGeo..InitBoxGeo, in source order with switch.c.inc first), VMA 0x6393A0..0x63940C, 108 B; MAIN.MAP box.o .lit4 0x6c agrees.
       - [0x53940C, .lit4, ico2/sugipon/src/boy]  # carved D_0063940C..D_00639458 (20 slots, execClothes..LightLineGeo; the TU's whole pool, right after box's carve), VMA 0x63940C..0x63945C
       - [0x53945C, .lit4, ico2/sugipon/src/cage]  # carved D_0063945C..D_0063946C (5 slots: CageRideFunc's 0.06f, InitCageGeo's 0.995f and 10430.378f as slots beside the still-asm owner, CageGeo's 2730.0f and 10430.378f; the TU's whole pool), VMA 0x63945C..0x639470, 20 B
@@ -741,11 +741,11 @@ segments:
       - [0x5394D8, .lit4, ico2/sugipon/src/flyManager]  # carved D_006394D8..D_006394DC (2 slots, both 100000.0f: GetFlyLimitHeight and GetFlyLimitClearance), VMA 0x6394D8..0x6394E0, 8 B; the TU's whole pool, emitted by the compiled functions
       - [0x5394E0, .lit4, ico2/sugipon/src/frameDependSequence]  # carved D_006394E0..D_006394F8 (7 slots: playSE's 0.95f as a slot beside the still-asm owner, playSERandomID x3, playEff, execEff x2; the TU's whole pool), VMA 0x6394E0..0x6394FC, 28 B
       - [0x5394FC, .lit4, ico2/sugipon/src/girl]  # carved D_006394FC..D_00639528 (12 words: 11 slots beside the still-asm func_001DD128 and func_001DD340, GirlGeo's 0.3 as a literal; the TU's whole pool, handManager's words follow), VMA 0x6394FC..0x63952C
-      - [0x53952C, lit4, cod/53952C]     # .lit4 blob resume (handManager's words)
+      - [0x53952C, .lit4, ico2/sugipon/src/handManager]  # carved D_0063952C (1 word, 0.1f, HandManager's hand-weight lerp rate as a literal; the TU's whole pool, between girl's and item's carves), VMA 0x63952C..0x639530, 4 B
       - [0x539530, .lit4, ico2/sugipon/src/item]  # carved D_00639530..D_0063955C (12 slots, uncarriedItemGeo and its nested floatGeo; the TU's whole pool), VMA 0x639530..0x639560, 48 B
       - [0x539560, .lit4, ico2/sugipon/src/motionManager]  # carved D_00639560..D_0063961C (48 slots, 18 fns _getFinalMatrix.._getGeometryOfMotion, in source order: getFinalMatrix.c.inc, motionManager.c, rootUpdate.c.inc), VMA 0x639560..0x639620, 192 B; MAIN.MAP motionManager.o .lit4 is 0xb4 (different link; PAL ELF is authoritative).
       - [0x539620, .lit4, ico2/sugipon/src/motionOrientManager]  # carved D_00639620..D_00639654 (14 slots beside the still-asm owners, in ROM order: UpdateFrameCounter 0.1f, normalMotionShift 1e-06f, parallelMotionShift 1e-06f x2, getMotionGeometry 10430.378f 0.1f 0.2f, getShapeGeometry 0.01f 0.0001f x2, getStreamBlendShapeGeometry 0.01f 0.0001f, getStreamShapeGeometry 0.01f 0.0001f; the TU's whole pool), VMA 0x639620..0x639658, 56 B; 0x639658 and 0x63965C have no owner in this TU and stay in the blob
-      - [0x539658, lit4, cod/539658]     # .lit4 blob resume (two unowned 0.01f words before particleEffect's run)
+      - [0x539658, .lit4, ico2/sugipon/src/motionViewer]  # carved D_00639658..D_0063965C (2 words, both 0.01f, the still-asm modeMessage's two slots; the TU's whole pool, between motionOrientManager's and particleEffect's carves), VMA 0x639658..0x639660, 8 B
       - [0x539660, .lit4, ico2/sugipon/src/particleEffect]  # carved D_00639660..D_0063966C (4 slots: 182.04445f, 4095.0f, 0.2f, 4095.0f; two slots beside the still-asm execParticleEffect; the TU's whole pool), VMA 0x639660..0x639670, 16 B
       - [0x539670, lit4, cod/539670]     # .lit4 blob resume
       - [0x539680, .lit4, ico2/sugipon/src/rotObject]  # carved D_00639680..D_0063969C (8 slots: MoveRotObjectWithHoldPoint x4, GetRotObjectGlobalHoldGeometry, InitRotObjectGeo, RotObjectDL, GetRotObjectZPlusDirection — per-function copies of 10430.378f; the TU's whole pool), VMA 0x639680..0x6396A0
@@ -754,7 +754,8 @@ segments:
       - [0x5396B0, lit4, cod/5396B0]     # .lit4 blob resume
       - [0x5396D0, .lit4, ico2/sugipon/src/waterDot]  # carved D_006396D0..D_006396D4 (2 slots: 1/65535 and 0.2f, one slot beside the still-asm ExecWaterDot; the TU's whole pool), VMA 0x6396D0..0x6396D8, 8 B
       - [0x5396D8, .lit4, ico2/sugipon/src/weapon]  # carved D_006396D8..D_006396F8 (9 slots: dispLaserSword's 0.1f is the object's own literal, nine words in ROM order 182.04445f, 0.7f x2, 0.9f, 0.1f, 10430.378f, 0.4f, 0.1f, 10430.378f; slot lines stay only for the still-asm owners), VMA 0x6396D8..0x6396FC, 36 B; 0x6396FC has no weapon owner and stays in the blob
-      - [0x5396FC, lit4, cod/5396FC]     # .lit4 blob resume
+      - [0x5396FC, .lit4, ico2/sugipon/src/windField]  # carved D_006396FC..D_00639704 (3 words: one slot for the still-asm ExecWindField's 0.1f, then getParallelWindVector's 0.1f and getRadiateWindVector's 0.01f as literals; the TU's whole pool, after weapon's carve), VMA 0x6396FC..0x639708, 12 B
+      - [0x539708, .lit4, ico2/sugipon/src/windManager]  # carved D_00639708 (1 word, 0.1f, ExecWindManager's gust lerp rate as a literal; the TU's whole pool, between windField's carve and wireLetter's), VMA 0x639708..0x63970C, 4 B
       - [0x53970C, .lit4, ico2/sugipon/src/wireLetter]  # carved D_0063970C (1 word, 0.7f, DispWireString's literal; the TU is fully C; the earlier note assigning this slot to warpGirl was wrong), VMA 0x63970C..0x639710
       - [0x539710, .lit4, ico2/sugipon/src/worm]  # carved D_00639710..D_00639720 (5 slots: getAnimation 0.8f, disp 0.02f, WormGeo 0.05f + 8.99999f, TraceWormRoute 8.99999f), VMA 0x639710..0x639724, 20 B; the TU's whole pool
       - [0x539724, .lit4, ico2/seki/src/BgAnimation]  # carved D_00639724..D_006397E4 (49 slots, bga_GetMotion..bga_CheckSdfCameraFrameIn; the TU's whole pool, right after worm's), VMA 0x639724..0x6397E8

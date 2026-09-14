@@ -25,7 +25,6 @@ extern float D_0063BC70;
 extern float D_0063BC74;
 extern float D_0063BC78;
 extern int D_0063BC7C;
-extern float D_00639708;
 extern int D_0028F4C0[];
 extern void InitWindField(int a0, float *a1, float *a2, float a3);
 extern void ExecWindField(float f);
@@ -68,7 +67,7 @@ void ExecWindManager(void)
         D_0063BC7C = 0;
         D_0063BC74 = D_0063BC64 * ((r + r - 1.0f) * D_0063BC6C + 1.0f);
     }
-    D_0063BC78 = D_0063BC78 + (D_0063BC74 - D_0063BC78) * D_00639708;
+    D_0063BC78 = D_0063BC78 + (D_0063BC74 - D_0063BC78) * 0.1f;
     ExecWindField(D_0063BC78);
 }
 

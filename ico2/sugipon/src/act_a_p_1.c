@@ -68,8 +68,6 @@ int standAI(char *self)
 
 extern short D_0063C448;
 extern int D_0063C44C;
-extern float D_00639394;
-extern float D_00639398;
 extern float D_0071EC64[];
 extern float D_0071EC70[];
 extern float D_0071EC84[];
@@ -124,7 +122,7 @@ int walkAI(char *self)
     }
 
     if (D_0071EC64[0] > 100.0f) {
-        if (VectorLengthSquare(D_0071EC70) < D_00639394) {
+        if (VectorLengthSquare(D_0071EC70) < 10000.0f) {
             if (AP1JumpReq(self, 2, D_004E5A50)) {
                 *(int *)(p + 0x4C) = 0;
                 return 2;
@@ -133,7 +131,7 @@ int walkAI(char *self)
     }
 
     if (D_0071EC84[0] > 100.0f) {
-        if (VectorLengthSquare(D_0071ECB0) < D_00639398) {
+        if (VectorLengthSquare(D_0071ECB0) < 10000.0f) {
             if (AP1JumpReq(self, 2, D_004E5A50)) {
                 *(int *)(p + 0x4C) = 0;
                 return 2;
@@ -293,7 +291,6 @@ extern AP1Vec D_0071EC90;
 extern AP1Vec D_0071ECA0;
 extern AP1Vec D_0071ECC0;
 extern int D_00639EA4;
-extern float D_0063939C;
 extern int (*D_004E5A60[])(int self);
 extern char D_0061EEB8[];
 extern void CopyVector(void *dst, void *src);
@@ -355,7 +352,7 @@ void subAP1BrainMain(volatile int self)
                  * clobber list, which conflicts $2 with everything live across
                  * the block and moves this function's whole entry-block
                  * reload. See the ledger row for the measurement. */
-                if (D_0063939C < distance_squared_b(&dest, &smooth)) {
+                if (40000.0f < distance_squared_b(&dest, &smooth)) {
                     _InterVectorXYZ(&smooth, &smooth, &dest, 0.5f);
                 }
             }
