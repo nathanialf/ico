@@ -26,6 +26,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_Draw);
 
 void shadow_Render(void)
 {
+    /* CRUTCH: zero-code frame reservation. The body is one printf stub and ROM
+       still reserves 16 bytes of vars, so the vector the stub printed was a
+       local here. Deleting it changes the object. See docs/crutch_ledger.md. */
     float buf[4];
     debug_StdPrintfDummy(D_0054FD50);
 }

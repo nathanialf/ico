@@ -34,6 +34,11 @@ extern int D_0063AE84;
 
 void debug_openLog(void)
 {
+    /* CRUTCH: zero-code frame reservation. ROM's frame holds 256 bytes of vars
+       that nothing in the emitted body writes; the compiled-out log-open block
+       (an sceOpen path behind the printf stubs) is where the buffer was used.
+       Deleting the declaration shrinks the frame and changes the object. See
+       docs/crutch_ledger.md. */
     volatile char buf[256];
     D_0063AE84 = -1;
 }
