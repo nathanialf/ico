@@ -1,4 +1,5 @@
 #include "common.h"
+#include "charFileName.h"
 
 extern char *iosMallocDebug(int heap, int size, char *file, int line);
 extern void iosFree(void *p);
@@ -41,7 +42,7 @@ typedef struct {
     int state;     /* 0x14 */
 } CharFile;
 
-extern CharFile D_006FAD00[1637];
+extern CharFile D_006FAD00[MAX_CHARS];
 extern CharFile D_004D9C10;
 extern int D_0063AD00;
 extern void InitPluralCameraSet(void);
@@ -52,7 +53,7 @@ void InitCharFileManager(void)
     int i;
 
     D_0063AD00 = 0;
-    for (i = 0; i < 1637; i++) {
+    for (i = 0; i < MAX_CHARS; i++) {
         D_006FAD00[i] = D_004D9C10;
     }
     InitPluralCameraSet();
@@ -64,7 +65,7 @@ void ResetCharFileManager(void)
     int i;
 
     D_0063AD00 = 0;
-    for (i = 0; i < 1637; i++) {
+    for (i = 0; i < MAX_CHARS; i++) {
         if (D_006FAD00[i].state == 1) {
             D_006FAD00[i] = D_004D9C10;
         }
@@ -116,7 +117,7 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
         malloc_SetPartition(1);
     }
     buf = iosMallocDebug(D_0063A44C, size, D_006193B0, 190);
-    if (id >= 1637) {
+    if (id >= MAX_CHARS) {
         debug_StdPrintfDummy(D_00619430, id);
         debug_StdPrintfDummy(D_00619370);
         debug_assert(D_006193B0, 195);
@@ -153,7 +154,7 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     } else {
         malloc_SetPartition(1);
     }
-    if (id >= 1637) {
+    if (id >= MAX_CHARS) {
         debug_StdPrintfDummy(D_006194B8, id);
         debug_StdPrintfDummy(D_00619370);
         debug_assert(D_006193B0, 235);
@@ -258,7 +259,7 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
     } else {
         malloc_SetPartition(1);
     }
-    for (i = 0; i < 1637; i++) {
+    for (i = 0; i < MAX_CHARS; i++) {
         if (D_004FBA80[i].name != 0 && strcmp(D_004FBA80[i].name, name) == 0) {
             if (p == 0) {
                 if (D_006FAD00[i].pSkel != 0) {
@@ -330,7 +331,7 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
     } else {
         malloc_SetPartition(1);
     }
-    for (i = 0; i < 1637; i++) {
+    for (i = 0; i < MAX_CHARS; i++) {
         if (strcmp(D_004FBAB0[i].name, name) == 0) {
             if (D_006FAD00[i].pColl != 0) {
                 debug_StdPrintfDummy(D_00619630, name);
@@ -705,7 +706,7 @@ void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
     int n = 0;
     int sum;
 
-    if (id >= 1637) {
+    if (id >= MAX_CHARS) {
         debug_StdPrintfDummy(D_00619998);
         debug_StdPrintfDummy(D_00619370);
         debug_assert(D_006193B0, 927);
