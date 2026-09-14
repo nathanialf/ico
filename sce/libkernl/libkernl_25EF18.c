@@ -1226,24 +1226,23 @@ int SetDebugHandler(int a0, int a1)
     return old;
 }
 
-/* census setup, a file static, takes the name as static setup once this leaf is C
-   (glabel emits a global label, which would collide with the global setup that
-   sce/libkernl/libkernl_100110 holds at 0x00100990) */
+/* census setup, intr.o's file static (sce/libkernl/libkernl_100110 holds initsys.o's
+   global of the name); the hand-typed leaf takes a local label. */
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
         "    .align 3\n"
-        "glabel func_00264F40\n"
+        "glabel setup, local\n"
         "    addiu      $3, $0, 0x74\n"
         "    syscall    0\n"
         "    jr         $31\n"
         "    nop\n"
-        "endlabel func_00264F40\n"
+        "endlabel setup\n"
         "    .set reorder\n"
         "    .set at\n");
 
 extern int D_0054A4D8[];
-extern void func_00264F40(int x, int y);
+static void setup(int x, int y);
 
 void InitTLBFunctions(void)
 {
@@ -1251,7 +1250,7 @@ void InitTLBFunctions(void)
     unsigned int i = 0;
     do {
         i++;
-        func_00264F40(p[0], p[1]);
+        setup(p[0], p[1]);
         p += 2;
     } while (i < 6);
 }

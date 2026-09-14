@@ -31,10 +31,9 @@ extern int strtok_r(int a0, int a1, int a2);
 extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
 extern int __sfvwrite();
 
-/* census __sprint, a file static, takes the name as static __sprint once
-   _vfprintf_r is C (its assembled jal would bind to the global __sprint that
-   sce/libc/stdio/vfiprintf holds at 0x00280118) */
-int func_00280E60(int a0, int *a1)
+/* census __sprint, a file static (sce/libc/stdio/vfiprintf holds the global);
+   _vfprintf_r's stub calls it and the same-object definition binds first. */
+static int __sprint(int a0, int *a1)
 {
     int ret;
     if (a1[2] == 0) {
