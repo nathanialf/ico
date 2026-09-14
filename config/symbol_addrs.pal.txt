@@ -6276,3 +6276,5 @@ InvalidDCache = 0x00289AD0; // type:func  // src/cod/vendor_2898E8  // (vendor) 
 iInvalidDCache = 0x00289B50; // type:func  // src/cod/vendor_2898E8  // (vendor) libkernl.a (6/6 MAIN.MAP)
 __fixdfdi = 0x00289B68; // type:func  // src/cod/vendor_289B68  // (vendor) libgcc.a (1/1 MAIN.MAP)
 D_10008 = 0x10008; // ignore:true  // ios/inflate  // the window constant 0x10008 a lui/addiu pair carries, not an address
+
+D_00622910 = 0x00622910; // type:asciz  // src/st04a  // "face_sadow_sd", the texture name actSt04aConte06 passes to tex_SetUVScroll

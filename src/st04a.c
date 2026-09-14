@@ -15,7 +15,9 @@ typedef struct ActMail {
 typedef struct Act {
     char unk00[0x20];  /* 0x00 */
     ActStatus flags20; /* 0x20 */
-    char unk28[0xA8];  /* 0x28 */
+    char unk28[0xC];   /* 0x28 */
+    int unk34;         /* 0x34 */
+    char unk38[0x98];  /* 0x38 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
     char unkD8[0x398]; /* 0xD8 */
@@ -89,14 +91,6 @@ void actSt04aGate(volatile int a0)
     }
 }
 
-ASM_LIT4_SLOT(D_006398D8, 3000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateChk);
-ASM_LIT4_SLOT(D_006398DC, 0.99f);
-ASM_LIT4_SLOT(D_006398E0, 0.1f);
-ASM_LIT4_SLOT(D_006398E4, 0.8f);
-ASM_LIT4_SLOT(D_006398E8, 0.45f);
-INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aConte06);
-
 typedef struct JimakuSub {
     char unk00[0x2C]; /* 0x0C */
     int unk2C;        /* 0x38 */
@@ -118,6 +112,395 @@ extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 extern void jimakuBegin(int a0);
 extern void jimakuJump(int a0);
+
+typedef struct AnimList28 {
+    int v[28];
+} AnimList28;
+
+extern AnimList28 D_00622878;
+extern long long D_006228F0[];
+extern long long D_00622900[];
+extern char D_00618D80[];
+extern char D_00622840[];
+extern int D_0063BE98;
+extern int D_0063C508;
+extern int D_0063AA08;
+extern int D_0028F8F4[];
+extern int actCreateSubThread(void *entry, int prio);
+extern void iosThreadSetPri(int *th, int pri);
+extern void stgmgrNextStagePreLoadForceStageSet(int a0);
+extern void stgmgrNextStagePreLoadDistBoyMode(void);
+extern void lt_switch_layout(int a0);
+extern void scpPlayStart(char *a0);
+extern void scpPlayEnd(char *a0);
+extern void scpPlayMot(void *o, int mot);
+extern void scpPlayMotDir(void *a0, void *dir);
+extern void *test_CURRENTROOT(int a0);
+extern void sceVu0SubVector(void *out, void *a, void *b);
+extern void scpDispOffAllWithKind(int a0);
+extern void StandbyStreamMotion(char *a0);
+extern int CheckReadyStreamMotion(void);
+extern void DisableStreamMotionManagerAutomaticDelete(void);
+extern void DeleteStreamMotionManager(void);
+extern int EntryStreamMotion(char *a0);
+extern void PlayStreamMotion(void);
+extern void reg_SetScissorSw(int a0);
+extern void SetStaticBlur(int a0);
+extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
+extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
+extern int scpAdpcmPlayRequestNum(void);
+extern void scpFadeIn(float t);
+extern int scpFadeChk(void);
+extern void iosPadActStopAll(void);
+extern void SetDirectRootPosition(char *a0, void *a1);
+extern void SetCameraFlag_GamecamCutBack(void);
+extern void jimakuUndisp(JimakuArg *a0);
+extern void actSt04aEnvSe(volatile int a0);
+extern void actSt04aConte06(volatile int a0);
+extern void actSt04aConte06Jimaku(volatile int a0);
+
+void actSt04aGateChk(volatile int a0)
+{
+    int *th0;
+    int *th1;
+    int *th2;
+    int i;
+    int n;
+
+    stgmgrNextStagePreLoadForceStageSet(0);
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(a0, D_00639EA4, 3000.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    th0 = (int *)actCreateSubThread(actSt04aEnvSe, 0x15);
+
+    lt_switch_layout(0x37);
+
+    D_0063AA08 = 1;
+
+    scpPlayStart(D_00639EA4);
+
+    scpDispOffAllWithKind(0x13);
+
+    scpPlayMot(D_00639EA4, 0);
+
+    StandbyStreamMotion(D_00618D80);
+
+    i = 0;
+    while (CheckReadyStreamMotion() == 0) {
+        debug_StdPrintfDummy(D_00622840, ++i);
+        _ACTWait(1);
+    }
+
+    DisableStreamMotionManagerAutomaticDelete();
+
+    scpPlayStart(D_00639EA8);
+
+    reg_SetScissorSw(1);
+
+    SetStaticBlur(0);
+
+    scpAdpcmPlayRequestFunc(0x17, &D_0063BE98, 1, 1, 0);
+    while (D_0063BE98 == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(0x89);
+
+    _ACTWait(1);
+
+    th1 = (int *)actCreateSubThread(actSt04aConte06, 0x15);
+    th2 = (int *)actCreateSubThread(actSt04aConte06Jimaku, 0x15);
+
+    stage_SetAnimation(0x10D, 1, 0);
+
+    scpSearchGobj(0x24E)->f16C = 1;
+
+    EntryStreamMotion(D_00639EA4);
+    EntryStreamMotion(D_00639EA8);
+    EntryStreamMotion((char *)scpSearchGobj(0x24E));
+
+    PlayStreamMotion();
+
+    scpFadeIn(6.0f);
+
+    _ACTWait((int)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 2.5));
+
+    D_0063C508 = 0;
+    while (D_0063C508 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    n = D_0063C508 ^ 1;
+
+    if (n != 0) {
+        scpAdpcmFadeCloseFunc(&D_0063BE98, 0xC0);
+
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+
+    DeleteStreamMotionManager();
+
+    iosPadActStopAll();
+
+    iosThreadSetPri(th1 + 9, 0x22);
+    iosThreadSetPri(th2 + 9, 0x22);
+    iosThreadSetPri(th0 + 9, 0x22);
+
+    if (n != 0) {
+        {
+            AnimList28 anim;
+            unsigned int j;
+
+            anim = D_00622878;
+            for (j = 0; j < 28; j++) {
+                stage_SetAnimation(anim.v[j], 1, -1);
+                _ACTWait(1);
+            }
+        }
+
+        jimakuUndisp(&jimaku_msg);
+
+        stage_SetAnimation(0x10D, 0, -1);
+        stage_SetAnimation(0x2A1, 1, -1);
+        stage_SetAnimation(0x1DB, -1, -2);
+        stage_SetAnimation(0x1DD, -1, -2);
+
+        scpSearchGobj(0x24E)->f16C = 0;
+
+        stage_SetLoopFlag(0x22B, 0);
+        stage_SetAnimation(0x22B, -1, -2);
+
+        reg_SetScissorSw(0);
+
+        {
+            long long p1[2];
+            long long p2[2];
+
+            p1[0] = D_006228F0[0];
+            p1[1] = D_006228F0[1];
+            SetDirectRootPosition(D_00639EA4, p1);
+
+            p2[0] = D_00622900[0];
+            p2[1] = D_00622900[1];
+            SetDirectRootPosition(D_00639EA8, p2);
+        }
+
+        _ACTWait(1);
+
+        SetCameraFlag_GamecamCutBack();
+
+        scpFadeIn(3.0f);
+    }
+
+    {
+        float dir[4];
+
+        D_0063AA0C = 1.0f;
+
+        scpPlayMot(D_00639EA4, 0);
+        scpPlayMot(D_00639EA8, 0x214);
+
+        *(int *)(*(int *)(D_00639EA4 + 0x15C) + 0x514) =
+            (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
+        *(int *)(*(int *)(D_00639EA8 + 0x15C) + 0x514) =
+            (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
+
+        sceVu0SubVector(dir, test_CURRENTROOT((int)D_00639EA8), test_CURRENTROOT((int)D_00639EA4));
+        scpPlayMotDir(D_00639EA4, dir);
+
+        sceVu0SubVector(dir, test_CURRENTROOT((int)D_00639EA4), test_CURRENTROOT((int)D_00639EA8));
+        scpPlayMotDir(D_00639EA8, dir);
+    }
+
+    scpPlayEnd(D_00639EA4);
+    scpPlayEnd(D_00639EA8);
+
+    _ACTWait(1);
+
+    iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+
+    D_0063AA08 = 0;
+
+    lt_switch_layout(0x36);
+
+    SetStaticBlur(1);
+
+    gflagOn(0x9B);
+
+    stgmgrNextStagePreLoadDistBoyMode();
+}
+
+extern void AdpcmPlay(int a0);
+extern int stage_ContinueAnimation(int a0, int a1);
+extern void reg_SetScissorSw(int a0);
+extern void tex_SetUVScroll(char *name, float f12, float f13, float f14, float f15, float f16,
+                            float f17, int flag);
+extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
+extern void SetCameraFlag_LwsCutBack(void);
+extern int iosPadActRequest(int port, int id);
+extern int *iosPadActVolumeSet(int key, unsigned int val);
+extern void iosPadActStop(int a0);
+extern int D_00639EAC;
+extern int D_0063BE98;
+extern int D_0063BEBC;
+extern unsigned char D_0063BEC0;
+extern char D_0063BEA0[];
+extern char D_00622910[];
+extern char D_00622920[];
+extern int D_0063C508;
+
+void actSt04aConte06(volatile int a0)
+{
+    stage_SetAnimation(0x288, 1, 0);
+
+    AdpcmPlay(*(int *)(D_0063BE98 + 0x2C));
+
+    while (stage_ContinueAnimation(0x288, 0x289) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x289, 0x28A) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x28A, 0x28B) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(0xF0);
+
+    D_0063BEBC = iosPadActRequest(D_00639EAC, 9);
+    D_0063BEC0 = 0x40;
+    iosPadActVolumeSet(D_0063BEBC, 0x40);
+
+    while (stage_ContinueAnimation(0x28B, 0x28C) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x28C, 0x28D) == 0) {
+        _ACTWait(1);
+    }
+
+    reg_SetScissorSw(0);
+
+    while (stage_ContinueAnimation(0x28D, 0x28E) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x28E, 0x28F) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x28F, 0x290) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(0x1DB, 1, 0);
+
+    iosPadActRequest(D_00639EAC, 0xF);
+
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x30, 0, 0x22B, 0);
+
+    stage_SetLoopFlag(0x22B, 1);
+    stage_SetAnimation(0x22B, 1, 0);
+
+    debug_StdPrintfDummy(D_0063BEA0);
+
+    stage_SetAnimation(0x1E9, 1, 0);
+
+    tex_SetUVScroll(D_00622910, 0.0f, 0.0f, 0.25f, 0.0625f, 0.99f, 0.99f, 1);
+    tex_SetUVScroll(D_00622920, 0.0f, 0.0f, 0.25f, 0.0625f, 0.1f, 0.1f, 1);
+
+    while (stage_ContinueAnimation(0x290, 0x291) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x291, 0x292) == 0) {
+        _ACTWait(1);
+    }
+
+    iosPadActStop(D_0063BEBC);
+
+    while (stage_CheckAnimationFrame(0x292, 0x96, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    tex_SetUVScroll(D_00622910, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll(D_00622920, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+
+    while (stage_ContinueAnimation(0x292, 0x293) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x293, 0x294) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x294, 0x295) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x295, 0x296) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x296, 0x297) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x297, 0x298) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x298, 0x299) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x299, 0x29A) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x29A, 0x29B) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x29B, 0x29C) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(0x78);
+
+    stage_SetAnimation(0x1DD, 1, 0);
+
+    iosPadActRequest(D_00639EAC, 0xF);
+
+    while (stage_ContinueAnimation(0x29C, 0x29D) == 0) {
+        _ACTWait(1);
+    }
+
+    scpSearchGobj(0x24E)->f16C = 0;
+
+    stage_SetLoopFlag(0x22B, 0);
+    stage_SetAnimation(0x22B, -1, -2);
+
+    while (stage_ContinueAnimation(0x29D, 0x29E) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x29E, 0x29F) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x29F, 0x2A0) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(0x2A0, 0x2A1) == 0) {
+        _ACTWait(1);
+    }
+
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFinish(0x2A1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    D_0063C508 = 1;
+    _ACTWait(0);
+}
 
 void actSt04aConte06Jimaku(volatile int a0)
 {
@@ -259,7 +642,213 @@ void actSt04aGateOpen(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateOpenChk);
+typedef struct AnimList {
+    int v[13];
+} AnimList;
+
+extern int D_0063AA08;
+extern int D_0063C508;
+extern char D_00622840[];
+extern void lt_switch_layout(int a0);
+extern void StandbyStreamMotion(char *a0);
+extern int CheckReadyStreamMotion(void);
+extern void iosThreadSetPri(int *th, int pri);
+extern int actCreateSubThread(void *entry, int prio);
+extern AnimList D_00622938;
+extern long long D_00622970[];
+extern long long D_00622980[];
+extern long long D_00622990[];
+extern char D_00618DB0[];
+extern int D_0063BEA4;
+extern int D_0028F8F4[];
+extern void scpSleepEnemyAll(void);
+extern void scpPlayMot(void *o, int mot);
+extern void scpPlayStart(char *a0);
+extern void scpPlayEnd(char *a0);
+extern void scpPlayMotDir(void *a0, void *dir);
+extern void *test_CURRENTROOT(int a0);
+extern void sceVu0SubVector(void *out, void *a, void *b);
+extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
+extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
+extern int scpAdpcmPlayRequestNum(void);
+extern void scpFadeOut(float a0, int a1, int a2, int a3);
+extern void scpFadeIn(float t);
+extern int scpFadeChk(void);
+extern void scpKillEnemyAll(void);
+extern void scpDispOnAllWithKind(int a0);
+extern void scpDisActivateAllWithKind(int a0);
+extern void SetDirectRootPosition(char *a0, void *a1);
+extern void DeleteStreamMotionManager(void);
+extern void iosPadActStopAll(void);
+extern void jimakuUndisp(JimakuArg *a0);
+extern void SetCameraFlag_GamecamCutBack(void);
+extern void fightSoundProcessRequestPause(void);
+extern int fightSoundPlayChk(void);
+extern void actConte09(volatile int a0);
+extern void actSt04aEnvSeWakare1(volatile int a0);
+extern void actConte09Jimaku(volatile int a0);
+
+void actSt04aGateOpenChk(volatile int a0)
+{
+    int *th1;
+    int *th2;
+    int *th3;
+    int i;
+    int n;
+
+    if (D_00639EA8 == 0) {
+        _ACTWait(0);
+    }
+
+    while (1) {
+        if ((((PObjGObj *)D_00639EA8)->act->unk34 != 0x6F &&
+             scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 &&
+             scpTriggerBall(a0, D_00639EA8, 200.0f) != 0 && gflagChk(0xAE) != 0 &&
+             gflagChk(0xF3) != 0) ||
+            (((PObjGObj *)D_00639EA8)->act->unk34 != 0x6F &&
+             scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 &&
+             scpTriggerBall(a0, D_00639EA8, 200.0f) != 0)) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(0x37);
+
+    D_0063AA08 = 1;
+
+    scpPlayStart(D_00639EA8);
+
+    scpSleepEnemyAll();
+
+    fightSoundProcessRequestPause();
+    while (fightSoundPlayChk() != 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(D_00639EA8, 0x214);
+
+    StandbyStreamMotion(D_00618DB0);
+
+    i = 0;
+    while (CheckReadyStreamMotion() == 0) {
+        i++;
+        debug_StdPrintfDummy(D_00622840, i);
+        _ACTWait(1);
+    }
+
+    scpAdpcmPlayRequestFunc(0x1F, &D_0063BEA4, 1, 1, 1);
+    while (D_0063BEA4 == 0) {
+        _ACTWait(1);
+    }
+
+    scpDisActivateAllWithKind(0x13);
+
+    th1 = (int *)actCreateSubThread(actConte09, 0x15);
+    th2 = (int *)actCreateSubThread(actSt04aEnvSeWakare1, 0x15);
+    th3 = (int *)actCreateSubThread(actConte09Jimaku, 0x15);
+
+    D_0063C508 = 0;
+    while (D_0063C508 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    n = D_0063C508 ^ 1;
+
+    if (n != 0) {
+        scpAdpcmFadeCloseFunc(&D_0063BEA4, 0xC0);
+
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+
+    DeleteStreamMotionManager();
+
+    iosPadActStopAll();
+
+    iosThreadSetPri(th1 + 9, 0x22);
+    iosThreadSetPri(th3 + 9, 0x22);
+    iosThreadSetPri(th2 + 9, 0x22);
+
+    if (n != 0) {
+        {
+            AnimList anim;
+            unsigned int j;
+
+            anim = D_00622938;
+            for (j = 0; j < 13; j++) {
+                stage_SetAnimation(anim.v[j], 1, -1);
+                _ACTWait(1);
+            }
+        }
+
+        jimakuUndisp(&jimaku_msg);
+
+        stage_SetAnimation(0x2D4, 1, -1);
+        stage_SetAnimation(0x113, 0, -1);
+        stage_SetAnimation(0x110, 0, -1);
+        stage_SetAnimation(0x118, 0, -1);
+        stage_SetAnimation(0x10E, 0, -1);
+
+        scpKillEnemyAll();
+
+        scpDispOnAllWithKind(0x13);
+
+        gflagOn(0x8C);
+
+        SetGirlHairDispSwitch(D_00639EA8, 1);
+
+        {
+            long long p1[2];
+            long long p2[2];
+
+            p1[0] = D_00622970[0];
+            p1[1] = D_00622970[1];
+            SetDirectRootPosition(D_00639EA4, p1);
+
+            p2[0] = D_00622980[0];
+            p2[1] = D_00622980[1];
+            SetDirectRootPosition(D_00639EA8, p2);
+        }
+
+        _ACTWait(1);
+
+        SetCameraFlag_GamecamCutBack();
+
+        scpFadeIn(3.0f);
+    }
+
+    {
+        long long ofs[2];
+        float dir[4];
+
+        D_0063AA0C = 1.0f;
+
+        scpPlayStart(D_00639EA4);
+
+        scpPlayMot(D_00639EA4, 0);
+
+        ofs[0] = D_00622990[0];
+        ofs[1] = D_00622990[1];
+        sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)D_00639EA8));
+        scpPlayMotDir(D_00639EA8, dir);
+    }
+
+    _ACTWait(1);
+
+    scpPlayEnd(D_00639EA4);
+    scpPlayEnd(D_00639EA8);
+
+    D_0063AA08 = 0;
+
+    lt_switch_layout(0x36);
+
+    SetWayGroupActive(2, 1);
+
+    scpSearchGobj(0x288)->f16C = 0;
+}
 
 extern int EntryStreamMotion(char *a0);
 extern void SetStreamMotionFinishCallBackFunc(int a0, void *a1);

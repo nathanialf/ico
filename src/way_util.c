@@ -54,10 +54,179 @@ typedef struct {
     int f0, f4, f8, fC, f10, f14, f18;
 } WgAll;
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_gid);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_gid_ThreadVersion);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_temp);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_temp_ThreadVersion);
+typedef struct WpSortEnt {
+    char *wp;
+    float d;
+} WpSortEnt;
+
+extern char *WayPoint_begin(void);
+extern int WayPoint_next(int a0);
+extern float fzMagnitudefv(int a0);
+extern void sceVu0SubVector();
+extern void sceVu0CopyVector();
+extern void ClipWall(void *);
+extern void ClipWallField(void *);
+extern void qsort(void *base, int n, int size, int (*cmp)());
+extern int iosMallocDebug(int, int, const char *, int);
+extern void iosFree();
+extern void _ACTWait(int frames);
+extern int D_0063A438;
+extern char D_00554300[];
+
+/* way_util.c:313-356.  The listing gives both visible_waypoint_of_all_except_gid
+   (def line 360) and its _ThreadVersion (def 365) these same rows, the thread
+   build keeping the _ACTWait arms at 329/345/352, so the body is one shared
+   static inline helper taking the thread flag. */
+static inline char *visible_waypoint_of_all_except_gid_sub(int *pos, int gid, int thread)
+{
+    /* wpsort_compfnc is one of this file's deferred inline bodies and the ROM
+       emits it LAST of them; a file-scope prototype up here would make it the
+       first-declared of the group and move its out-of-line copy to the front,
+       so the declaration stays local to the only function that takes its
+       address. */
+    extern int wpsort_compfnc(int a0, int a1);
+    int buf[4];
+    ClipBox cb;
+    WpSortEnt *tbl;
+    char *wp;
+    char *ret;
+    int n;
+    int i;
+
+    tbl = (WpSortEnt *)iosMallocDebug(D_0063A438, 0x898, D_00554300, 0x139);
+
+    n = 0;
+    for (wp = WayPoint_begin(); wp != 0; wp = (char *)WayPoint_next((int)wp)) {
+        if (*(int *)(wp + 0x20) != gid) {
+            float d;
+
+            sceVu0SubVector(buf, wp + 0x10, pos);
+            d = fzMagnitudefv((int)buf);
+            tbl[n].wp = wp;
+            tbl[n].d = d;
+            n++;
+        }
+    }
+
+    qsort(tbl, n, 8, wpsort_compfnc);
+    if (thread) {
+        _ACTWait(1);
+    }
+    cb.f70 = 0.0f;
+
+    ret = 0;
+    for (i = 0; i < n; i++) {
+        wp = tbl[i].wp;
+        sceVu0CopyVector(cb.a, pos);
+        sceVu0CopyVector(cb.b, wp + 0x10);
+        cb.a[1] -= 75.0f;
+        cb.b[1] -= 75.0f;
+        ClipWall(&cb);
+        if (cb.f88 == 0) {
+            if (thread) {
+                _ACTWait(1);
+            }
+            ClipWallField(&cb);
+            if (cb.f88 == 0) {
+                ret = wp;
+                break;
+            }
+        }
+        if (thread) {
+            _ACTWait(1);
+        }
+    }
+
+    iosFree(tbl);
+    return ret;
+}
+
+char *visible_waypoint_of_all_except_gid(int *pos, int gid)
+{
+    return visible_waypoint_of_all_except_gid_sub(pos, gid, 0);
+}
+
+char *visible_waypoint_of_all_except_gid_ThreadVersion(int *pos, int gid)
+{
+    return visible_waypoint_of_all_except_gid_sub(pos, gid, 1);
+}
+
+extern WayGrp D_004F1EC0[];
+
+/* way_util.c:383-426.  Same two-wrapper shape as the pair above: the listing
+   gives visible_waypoint_of_all_except_temp (def line 430) and its
+   _ThreadVersion (def 435) the same body rows 383-425, the thread build keeping
+   the _ACTWait arms at 401, 416 and 423. */
+static inline char *visible_waypoint_of_all_except_temp_sub(int *pos, int gid, int thread)
+{
+    extern int wpsort_compfnc(int a0, int a1);
+    int buf[4];
+    ClipBox cb;
+    WpSortEnt *tbl;
+    char *wp;
+    char *ret;
+    int n;
+    int i;
+
+    tbl = (WpSortEnt *)iosMallocDebug(D_0063A438, 0x898, D_00554300, 383);
+
+    n = 0;
+    for (wp = WayPoint_begin(); wp != 0; wp = (char *)WayPoint_next((int)wp)) {
+        int g = *(int *)(wp + 0x20);
+
+        if (D_004F1EC0[g].f2C == 0 || g == gid) {
+            float d;
+
+            sceVu0SubVector(buf, wp + 0x10, pos);
+            d = fzMagnitudefv((int)buf);
+            tbl[n].wp = wp;
+            tbl[n].d = d;
+            n++;
+        }
+    }
+
+    qsort(tbl, n, 8, wpsort_compfnc);
+    if (thread) {
+        _ACTWait(1);
+    }
+    cb.f70 = 0.0f;
+
+    ret = 0;
+    for (i = 0; i < n; i++) {
+        wp = tbl[i].wp;
+        sceVu0CopyVector(cb.a, pos);
+        sceVu0CopyVector(cb.b, wp + 0x10);
+        cb.a[1] -= 75.0f;
+        cb.b[1] -= 75.0f;
+        ClipWall(&cb);
+        if (cb.f88 == 0) {
+            if (thread) {
+                _ACTWait(1);
+            }
+            ClipWallField(&cb);
+            if (cb.f88 == 0) {
+                ret = wp;
+                break;
+            }
+        }
+        if (thread) {
+            _ACTWait(1);
+        }
+    }
+
+    iosFree(tbl);
+    return ret;
+}
+
+char *visible_waypoint_of_all_except_temp(int *pos, int gid)
+{
+    return visible_waypoint_of_all_except_temp_sub(pos, gid, 0);
+}
+
+char *visible_waypoint_of_all_except_temp_ThreadVersion(int *pos, int gid)
+{
+    return visible_waypoint_of_all_except_temp_sub(pos, gid, 1);
+}
 
 void ez_line(void)
 {
@@ -69,7 +238,87 @@ void ez_circle(void)
     volatile int local[12];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", short_direction_between_wp);
+extern void *memset(void *dst, int c, int n);
+extern int WayPointList_begin();
+extern int WayPointList_next();
+extern float fzMagnitude2fv(void *a, void *b);
+extern void debug_StdPrintfDummy();
+extern char D_00554340[];
+extern char D_00554350[];
+extern char D_00554368[];
+
+int short_direction_between_wp(char *from, char *to)
+{
+    float len[2];
+    char *wp;
+    char *nxt;
+    int dir;
+
+    memset(len, 0, 8);
+    dir = -1;
+
+    for (wp = (char *)WayPointList_begin(*(int *)(to + 0x20)); wp != 0;
+         wp = (char *)WayPointList_next(wp)) {
+        if (wp == from) {
+            dir = 0;
+            break;
+        }
+        if (wp == to) {
+            dir = 1;
+            break;
+        }
+        nxt = *(char **)(wp + 0xC);
+        if (nxt != 0) {
+            len[0] += fzMagnitude2fv(wp + 0x10, nxt + 0x10);
+        }
+    }
+
+    for (; wp != 0; wp = (char *)WayPointList_next(wp)) {
+        if (dir == 1 && wp == from) {
+            break;
+        }
+        if (dir == 0 && wp == to) {
+            break;
+        }
+        nxt = *(char **)(wp + 0xC);
+        if (nxt != 0) {
+            len[1] += fzMagnitude2fv(wp + 0x10, nxt + 0x10);
+        }
+    }
+
+    if (wp == 0) {
+        debug_StdPrintfDummy(D_00554340);
+        debug_StdPrintfDummy(D_00554350, *(int *)(to + 0x20));
+        for (wp = (char *)WayPointList_begin(*(int *)(to + 0x20)); wp != 0;
+             wp = (char *)WayPointList_next(wp)) {
+            debug_StdPrintfDummy(D_00554368, wp, *(int *)(wp + 4));
+        }
+        return -2;
+    }
+
+    if (D_004F1EC0[*(int *)(wp + 0x20)].f14 == 0) {
+        return dir;
+    }
+
+    for (; wp != 0; wp = (char *)WayPointList_next(wp)) {
+        nxt = *(char **)(wp + 0xC);
+        if (nxt != 0) {
+            len[1] += fzMagnitude2fv(wp + 0x10, nxt + 0x10);
+        }
+    }
+
+    if (len[0] < len[1]) {
+        dir ^= 1;
+    }
+    return dir;
+}
+
+extern WNODE *WayBridge_begin(void);
+extern WNODE *WayBridge_next(WNODE *);
+extern Nd D_004F31E0[];
+extern char D_0063A9F0[];
+extern char D_00554390[];
+
 INCLUDE_ASM("asm/nonmatchings/src/way_util", wgid_next);
 
 extern char D_00554300[];
