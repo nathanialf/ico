@@ -610,7 +610,7 @@ segments:
       - [0x5396A8, .lit4, src/staticBlur]  # carved D_006396A8..D_006396AC (2 slots: 0.9f eyeBlur, 1000000.0f calcSun), VMA 0x6396A8..0x6396B0, 8 B; MAIN.MAP staticBlur.o .lit4 0x8 agrees.  USA: - [0x5313D8, .lit4, src/staticBlur]    # carved D_006313D8/13DC (0.9f, 1000000f), VMA 0x6313D8..0x6313E0
       - [0x5396B0, lit4, src/cod/5396B0]     # .lit4 blob resume
       - [0x5396D0, .lit4, src/waterDot]  # carved D_006396D0..D_006396D4 (2 slots: 1/65535 and 0.2f, one slot beside the still-asm ExecWaterDot; the TU's whole pool), VMA 0x6396D0..0x6396D8, 8 B
-      - [0x5396D8, .lit4, src/weapon]  # carved D_006396D8..D_006396F8 (9 slots: dispLaserSword's 0.1f is the object's own literal, eight slots beside their still-asm owners 182.04445f, 0.7f x2, 0.9f, 10430.378f, 0.4f, 0.1f, 10430.378f), VMA 0x6396D8..0x6396FC, 36 B; 0x6396FC has no weapon owner and stays in the blob
+      - [0x5396D8, .lit4, src/weapon]  # carved D_006396D8..D_006396F8 (9 slots: dispLaserSword's 0.1f is the object's own literal, nine words in ROM order 182.04445f, 0.7f x2, 0.9f, 0.1f, 10430.378f, 0.4f, 0.1f, 10430.378f; slot lines stay only for the still-asm owners), VMA 0x6396D8..0x6396FC, 36 B; 0x6396FC has no weapon owner and stays in the blob
       - [0x5396FC, lit4, src/cod/5396FC]     # .lit4 blob resume
       - [0x53970C, .lit4, src/wireLetter]  # carved D_0063970C (1 word, 0.7f, DispWireString's literal; the TU is fully C; the earlier note assigning this slot to warpGirl was wrong), VMA 0x63970C..0x639710
       - [0x539710, .lit4, src/worm]  # carved D_00639710..D_00639720 (5 slots: getAnimation 0.8f, disp 0.02f, WormGeo 0.05f + 8.99999f, TraceWormRoute 8.99999f), VMA 0x639710..0x639724, 20 B; the TU's whole pool

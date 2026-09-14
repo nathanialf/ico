@@ -399,14 +399,230 @@ void dispBlur(char *g)
     }
 }
 
-/* calcBlur is still asm: its one .lit4 word. */
-ASM_LIT4_SLOT(D_006396EC, 10430.378f);
-INCLUDE_ASM("asm/nonmatchings/src/weapon", calcBlur);
-/* WeaponGeo is still asm: its three .lit4 words, in its own order. */
-ASM_LIT4_SLOT(D_006396F0, 0.4f);
-ASM_LIT4_SLOT(D_006396F4, 0.1f);
-ASM_LIT4_SLOT(D_006396F8, 10430.378f);
-INCLUDE_ASM("asm/nonmatchings/src/weapon", WeaponGeo);
+extern void GetInverseQuaternion(void *dst, void *src);
+extern void MultiQuaternion(void *dst, void *a, void *b);
+extern void SubVectorXYZ(void *dst, void *a, void *b);
+extern void GetMatrixFromQuaternion(void *dst, void *q);
+extern void GetMatrixFromQuaternionPos(void *dst, void *q, void *pos);
+extern void _ApplyMatrix(void *dst, void *m, void *src);
+extern void _OuterProduct(void *dst, void *a, void *b);
+extern void _NormalizeVector(void *dst, void *src);
+extern float _InnerProduct(void *a, void *b);
+extern void _ScaleVectorXYZ(void *dst, void *src, float s);
+extern void _ScaleVector(void *dst, void *src, float s);
+extern void _InterVector(void *dst, void *a, void *b, float t);
+extern void _SubVector(void *dst, void *a, void *b);
+extern float acosf(float x);
+extern void SetQuaternionByAxisRotateVWithNoRegularize(void *q, short ang, void *axis);
+extern void sceVu0InterVector(void *dst, void *a, void *b, float t);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+extern void sceVu0CopyVector(void *dst, void *src);
+extern void CopyVector(void *dst, void *src);
+extern int SetParticleEffect(int id, void *pos, void *a2);
+extern char *GetParticleEffectData(int h);
+extern void ExecParticleEffect(int h);
+extern float D_0028FF30[];
+extern int D_002907E0[];
+
+void calcBlur(char *g, float t)
+{
+    float q1[4];   /* 0x00 */
+    float q2[4];   /* 0x10 */
+    float d[4];    /* 0x20 */
+    float p[4];    /* 0x30 */
+    float m[4][4]; /* 0x40 */
+    float n[4];    /* 0x80 */
+    float a[4];    /* 0x90 */
+    float b[4];    /* 0xA0 */
+    float sub[4];  /* 0xB0 */
+    float tmp[4];  /* 0xC0 */
+    char *e = *(char **)(g + 0x15C);
+    char *w = *(char **)(e + 0x830);
+    char *base;
+    char *vtx;
+    char *q;
+    char *dst1;
+    char *dst2;
+    char *pd;
+    int h;
+    int i;
+    int j;
+    int k;
+    float ang;
+    float r;
+
+    GetInverseQuaternion(q1, e + 0x150);
+    MultiQuaternion(q1, e + 0xD0, q1);
+    SubVectorXYZ(d, e + 0xA0, e + 0x130);
+    if (D_00318EB8[*(int *)w].w[3] == -1) {
+        return;
+    }
+    base = *(char **)(w + 0x58);
+    GetMatrixFromQuaternion(m, q1);
+    _ApplyMatrix(a, m, D_0028FF30);
+    GetMatrixFromQuaternion(m, e + 0xD0);
+    _ApplyMatrix(b, m, D_0028FF30);
+    _OuterProduct(n, b, a);
+    _NormalizeVector(n, n);
+    ang = acosf(_InnerProduct(a, b)) * 10430.378f;
+    _ScaleVectorXYZ(a, a, t);
+    a[3] = 1.0f;
+    for (i = 0; i < 11; i++) {
+        float rr = (float)i / 10.0f;
+
+        SetQuaternionByAxisRotateVWithNoRegularize(q2, (short)(ang * (float)i / 10.0f), n);
+        sceVu0InterVector(p, e + 0xA0, d, rr);
+        GetMatrixFromQuaternionPos(m, q2, p);
+        CopyVector(base + i * 32, (char *)m + 0x30);
+        sceVu0ApplyMatrix(base + (i * 32 + 0x10), m, a);
+    }
+    if (*(int *)w >= 10) {
+        return;
+    }
+    if (*(int *)w < 8) {
+        return;
+    }
+    if (t > 12.0f) {
+        h = SetParticleEffect(50, e + 0xA0, D_002907E0);
+        if (h != -1) {
+            pd = GetParticleEffectData(h);
+            vtx = *(char **)(pd + 0x24);
+            q = *(char **)(pd + 0x28);
+            dst1 = *(char **)(q + 0x190);
+            dst2 = *(char **)(q + 0x194);
+            ExecParticleEffect(h);
+            for (j = 0; j < *(int *)(pd + 0x30); j++) {
+                k = j * 10 / *(int *)(pd + 0x30);
+                r = random_unit();
+                _InterVector(vtx + 0x10, base + (k + 1) * 32, base + ((k + 1) * 32 + 16), r);
+                _InterVector(tmp, base + k * 32, base + (k * 32 + 16), r);
+                _SubVector(sub, vtx + 0x10, tmp);
+                _ScaleVector(
+                    vtx + 0x20, sub,
+                    *(float *)(*(char **)(pd + 0x20) + 0x10) *
+                        (*(float *)(*(char **)(pd + 0x20) + 0x14) * random_signed() + 1.0f));
+                sceVu0CopyVector(dst1, vtx + 0x10);
+                dst1 += 0x20;
+                sceVu0CopyVector(dst2, vtx + 0x10);
+                dst2 += 0x20;
+                vtx += 0x70;
+            }
+        }
+    }
+}
+
+extern void calcBlur(char *g, float t);
+extern void *D_00639EA4;
+extern int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
+extern void ExecuteDirectSE(char *g, int id);
+extern void stage_SetLoopFlag(int key, int a1);
+extern float stage_PlayBgAnimation(int key, float t, void *a, void *b);
+extern int D_002907E0[];
+extern int D_0028F4D4[];
+extern void *MatrixDrive_GetMatrix(void);
+extern void GetRootMatrix(void *m, char *g);
+extern void CopyMatrix(void *dst, void *src);
+extern void *memset(void *p, int c, int n);
+extern void sceVu0ApplyMatrix(void *out, void *m, void *in);
+extern float _Sqrt(float x);
+extern float atan2f(float y, float x);
+
+typedef struct {
+    char pad00[0x190]; /* 0x000 */
+    unsigned int f190; /* 0x190 */
+} WeaponEnemyPara;     /* 0x194 */
+
+extern WeaponEnemyPara D_0055FE58[];
+
+/* The MatrixDrive matrix, viewed as the union of float and int arrays this
+   codebase uses for VU0 data.  The union member reference is what puts the
+   0x34 store in alias set 0, which is why the following gobj-extension load
+   stays behind it instead of hoisting above the store (measured: 6 -> 3). */
+typedef union {
+    float f[4][4];
+    int i[4][4];
+} WeaponMatrix;
+
+void WeaponGeo(char *g)
+{
+    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    int kind;
+    int i;
+    int n;
+    float t;
+    float a;
+
+    getGeometry(g);
+    checkHit(g);
+
+    kind = *(int *)w;
+    *(int *)(w + 0xA4) = 0;
+    if (*(int *)w >= 10 || kind < 8) {
+        if (*(int *)(w + 0x4) == 1 ||
+            (*(char **)(w + 0x8) != 0 &&
+             ((((WeaponEnemyPara *)(*(int *)(*(char **)(*(char **)(w + 0x8) + 0x15C) + 0x4A0) *
+                                        0x194 +
+                                    (char *)D_0055FE58))
+                   ->f190 >>
+               4) &
+              1))) {
+            calcBlur(g, *(float *)((char *)D_00318EB8 + kind * 36));
+            *(int *)(w + 0xA4) = 1;
+        }
+    } else {
+        *(float *)((char *)D_00318EB8 + kind * 36) = 40.0f;
+        for (i = 0; i < 2; i++) {
+            ((float *)*(char **)(w + 0xB0))[i] = random_signed_b();
+        }
+        if (*(char **)(w + 0x8) != 0) {
+            if (*(char **)(w + 0x8) == D_00639EA4 && ACTGame_FLAG_TETSUNAGI_VISUAL()) {
+                *(float *)((char *)D_00318EB8 + *(int *)w * 36) = 270.0f;
+            }
+            if (*(float *)(w + 0xAC) >= 30.0f) {
+                *(float *)(w + 0xA8) +=
+                    (*(float *)((char *)D_00318EB8 + *(int *)w * 36) - *(float *)(w + 0xA8)) * 0.4f;
+            } else {
+                *(float *)(w + 0xAC) = *(float *)(w + 0xAC) + 1.0f;
+                if (*(float *)(w + 0xAC) == 29.0f) {
+                    ExecuteDirectSE(g, 0x101E7);
+                }
+            }
+        } else {
+            *(float *)(w + 0xA8) += (0.0f - *(float *)(w + 0xA8)) * 0.1f;
+            *(float *)(w + 0xAC) = 0.0f;
+        }
+        calcBlur(g, *(float *)(w + 0xA8));
+        *(int *)(w + 0xA4) = 1;
+        t = *(float *)(w + 0xA8);
+        stage_SetLoopFlag(473, 1);
+        if (t > 1.0f) {
+            n = (int)stage_PlayBgAnimation(473, (float)*(int *)(w + 0xBC),
+                                           *(char **)(*(char **)(g + 0x15C) + 0xC) + 0x30,
+                                           D_002907E0);
+            if (D_0028F4D4[0] == 0) {
+                *(int *)(w + 0xBC) = n;
+            }
+        } else {
+            stage_PlayBgAnimation(473, 0.0f, *(char **)(*(char **)(g + 0x15C) + 0xC) + 0x30,
+                                  D_002907E0);
+            *(int *)(w + 0xBC) = 0;
+        }
+        stage_SetLoopFlag(473, 0);
+    }
+
+    GetRootMatrix(MatrixDrive_GetMatrix(), g);
+    CopyVector(w + 0xD0, (char *)MatrixDrive_GetMatrix() + 0x30);
+    if (*(int *)(w + 0xC0) != 0) {
+        float v[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+
+        v[3] = 0.0f;
+        sceVu0ApplyMatrix(v, MatrixDrive_GetMatrix(), v);
+        a = -atan2f(v[1], _Sqrt(1.0f - v[1] * v[1]));
+        ((WeaponMatrix *)MatrixDrive_GetMatrix())->f[3][1] -=
+            GetTableSin((short)(a * 10430.378f)) * 70.0f;
+        CopyMatrix(*(char **)(*(char **)(g + 0x15C) + 0xC), MatrixDrive_GetMatrix());
+    }
+}
 
 extern void p2o_SetDefaultEnviroment(void);
 extern void p2o_DispVU1(char *g);
