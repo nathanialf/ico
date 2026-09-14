@@ -716,6 +716,7 @@ All 32 bodies are ported.
 | `src/st25a` | `.lit4` | `[0x5390D4]` | 0x6390D4..0x639108 | 52 | 13 | 0x44, differs |
 | `src/camera-ico2` | `.lit4` | `[0x539118]` | 0x639118..0x639130 | 24 | 6 (two literals, four slots beside still-asm owners) | 0x24, differs |
 | `src/generator` | `.lit4` | `[0x5391E0]` | 0x6391E0..0x6391EC | 12 | 3 (all 22500.0f; two slots beside the still-asm GetGeneratorSafePosition) | agrees |
+| `src/gv` | `.lit4` | `[0x5391EC]` | 0x6391EC..0x6391F0 | 4 | 1 (GetMatrixDirectionToZ's pi; the TU's other four pi words stay blob-owned extern reads until the pool re-carve) | interim |
 | `src/act_bird` | `.lit4` | `[0x539230]` | 0x639230..0x639294 | 100 | 25 | 0x64, agrees |
 | `src/DObj` | `.lit4` | `[0x53932C]` | 0x63932C..0x639334 | 8 | 2 (initGeometryState's 0.333f, initMatrixDObj's pi) | agrees |
 | `src/backStage` | `.lit4` | `[0x539334]` | 0x639334..0x639338 | 4 | 1 (backStageProcessInStage's 10000000.0f) | agrees |
