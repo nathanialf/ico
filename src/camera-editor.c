@@ -125,8 +125,194 @@ void gif_test(int *a0, int *a1, int *a2, unsigned char *a3)
     gif_SetGsReg(4, (long)a2[0] | ((long)a2[1] << 16) | ((long)a2[2] << 32));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DebugDispBox);
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DispCameraGroup);
+/* box corner quadword: _InterGV / DrawPolygon / do_DrawLine take 16-byte
+   aligned vectors */
+typedef struct {
+    float x, y, z, w;
+} BoxVtx __attribute__((aligned(16)));
+
+typedef struct {
+    float x, y, z;
+} BoxVec;
+
+/* the two index tables and the line colour are .rodata constructor templates
+   the compiler shares with DispCameraGroup, so they are read as objects */
+typedef struct {
+    int e[6][4];
+} BoxIdx6;
+
+typedef struct {
+    int e[12][2];
+} BoxIdx12;
+
+typedef struct {
+    unsigned char r, g, b, a;
+} BoxCol;
+
+typedef union {
+    unsigned int c[4];
+    unsigned long long w[2];
+} BoxCol4;
+
+extern const BoxIdx6 D_00554E80;
+extern const BoxIdx12 D_00554EE0;
+extern const BoxCol4 D_00554F40;
+extern BoxCol D_0063AAA0[];
+extern char *matrixptr;
+extern void func_0025D440(void *dst, void *a, void *b);
+extern void before_DrawPolygon(void);
+extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
+extern void DrawPolygon(void *p0, void *p1, void *p2, void *p3, unsigned char *col, void *m);
+extern void after_DrawPolygon(void);
+extern void before_DrawLine(void *m);
+extern void do_DrawLine(void *p0, void *p1, void *col, int f);
+extern void after_DrawLine(void);
+
+void DebugDispBox(BoxVec *c, BoxVec *s)
+{
+    int n;
+    int j;
+    int k;
+    int i;
+    BoxVtx v[8] = {{c->x - s->x, c->y - s->y, c->z - s->z, 1.0f},
+                   {c->x - s->x, c->y - s->y, c->z + s->z, 1.0f},
+                   {c->x + s->x, c->y - s->y, c->z - s->z, 1.0f},
+                   {c->x + s->x, c->y - s->y, c->z + s->z, 1.0f},
+                   {c->x - s->x, c->y + s->y, c->z - s->z, 1.0f},
+                   {c->x - s->x, c->y + s->y, c->z + s->z, 1.0f},
+                   {c->x + s->x, c->y + s->y, c->z - s->z, 1.0f},
+                   {c->x + s->x, c->y + s->y, c->z + s->z, 1.0f}};
+    BoxIdx6 idx6;
+    BoxCol col;
+    BoxCol4 col2;
+    float m[4][4];
+    float e0[4];
+    float e1[4];
+    float e2[4];
+    float e3[4];
+    float g0[4];
+    float g1[4];
+    float g2[4];
+    float g3[4];
+    BoxIdx12 idx12;
+    float m2[4][4];
+
+    idx6 = D_00554E80;
+    sceVu0UnitMatrix(m);
+    func_0025D440(m, matrixptr + 0x80, m);
+    func_0025D440(m, matrixptr + 0xC0, m);
+    before_DrawPolygon();
+    for (n = 0; n < 6; n++) {
+        col = D_0063AAA0[0];
+        col.r = 64;
+        col.g = 64;
+        col.b = 64;
+        col.a = 32;
+        for (j = 0; j < 3; j++) {
+            _InterGV(e0, &v[idx6.e[n][0]], &v[idx6.e[n][1]], (float)j, (float)(3 - j));
+            _InterGV(e1, &v[idx6.e[n][0]], &v[idx6.e[n][1]], (float)(j + 1), (float)(2 - j));
+            _InterGV(e2, &v[idx6.e[n][2]], &v[idx6.e[n][3]], (float)j, (float)(3 - j));
+            _InterGV(e3, &v[idx6.e[n][2]], &v[idx6.e[n][3]], (float)(j + 1), (float)(2 - j));
+            for (k = 0; k < 3; k++) {
+                _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
+                _InterGV(g1, e0, e2, (float)(k + 1), (float)(2 - k));
+                _InterGV(g2, e1, e3, (float)k, (float)(3 - k));
+                _InterGV(g3, e1, e3, (float)(k + 1), (float)(2 - k));
+                DrawPolygon(g0, g1, g2, g3, (unsigned char *)&col, m);
+            }
+        }
+    }
+    after_DrawPolygon();
+    idx12 = D_00554EE0;
+    col2 = D_00554F40;
+    sceVu0UnitMatrix(m2);
+    m2[0][0] = m2[1][1] = m2[2][2] = -1.0f;
+    before_DrawLine(m);
+    for (i = 0; i < 12; i++) {
+        do_DrawLine(&v[idx12.e[i][0]], &v[idx12.e[i][1]], &col2, -1);
+    }
+    after_DrawLine();
+}
+
+/* the camera box record: centre and half-size at 0x20 and 0x2C */
+typedef struct {
+    char pad00[0x20];
+    float cx, cy, cz; /* 0x20 */
+    float sx, sy, sz; /* 0x2C */
+    char pad38[0x4C - 0x38];
+} BoxRec;
+
+extern int *D_0063AA7C;
+
+void DispCameraGroup(int box, unsigned char sel)
+{
+    int n;
+    int j;
+    int k;
+    int i;
+    BoxRec *b = (BoxRec *)(D_0063AA7C[1] + box * 0x4C);
+    BoxVtx v[8] = {{b->cx - b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
+                   {b->cx - b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
+                   {b->cx + b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
+                   {b->cx + b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
+                   {b->cx - b->sx, b->cy + b->sy, b->cz - b->sz, 1.0f},
+                   {b->cx - b->sx, b->cy + b->sy, b->cz + b->sz, 1.0f},
+                   {b->cx + b->sx, b->cy + b->sy, b->cz - b->sz, 1.0f},
+                   {b->cx + b->sx, b->cy + b->sy, b->cz + b->sz, 1.0f}};
+    BoxIdx6 idx6;
+    BoxCol col;
+    BoxCol4 col2;
+    float m[4][4];
+    float e0[4];
+    float e1[4];
+    float e2[4];
+    float e3[4];
+    float g0[4];
+    float g1[4];
+    float g2[4];
+    float g3[4];
+    BoxIdx12 idx12;
+    float m2[4][4];
+
+    idx6 = D_00554E80;
+    sceVu0UnitMatrix(m);
+    m[0][0] = m[1][1] = m[2][2] = -1.0f;
+    func_0025D440(m, matrixptr + 0x80, m);
+    func_0025D440(m, matrixptr + 0xC0, m);
+    before_DrawPolygon();
+    for (n = 0; n < 6; n++) {
+        col = D_0063AAA0[0];
+        if (sel == 0) {
+            col.r = 64;
+            col.g = 64;
+            col.b = 64;
+            col.a = 32;
+        }
+        for (j = 0; j < 3; j++) {
+            _InterGV(e0, &v[idx6.e[n][0]], &v[idx6.e[n][1]], (float)j, (float)(3 - j));
+            _InterGV(e1, &v[idx6.e[n][0]], &v[idx6.e[n][1]], (float)(j + 1), (float)(2 - j));
+            _InterGV(e2, &v[idx6.e[n][2]], &v[idx6.e[n][3]], (float)j, (float)(3 - j));
+            _InterGV(e3, &v[idx6.e[n][2]], &v[idx6.e[n][3]], (float)(j + 1), (float)(2 - j));
+            for (k = 0; k < 3; k++) {
+                _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
+                _InterGV(g1, e0, e2, (float)(k + 1), (float)(2 - k));
+                _InterGV(g2, e1, e3, (float)k, (float)(3 - k));
+                _InterGV(g3, e1, e3, (float)(k + 1), (float)(2 - k));
+                DrawPolygon(g0, g1, g2, g3, (unsigned char *)&col, m);
+            }
+        }
+    }
+    after_DrawPolygon();
+    idx12 = D_00554EE0;
+    col2 = D_00554F40;
+    sceVu0UnitMatrix(m2);
+    m2[0][0] = m2[1][1] = m2[2][2] = -1.0f;
+    before_DrawLine(m);
+    for (i = 0; i < 12; i++) {
+        do_DrawLine(&v[idx12.e[i][0]], &v[idx12.e[i][1]], &col2, -1);
+    }
+    after_DrawLine();
+}
 
 /* a VU0 quadword: DrawLineG takes 16-byte aligned vectors */
 typedef struct {
@@ -228,7 +414,75 @@ void DispAxisArrow(int mask, void *col)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", dispCameraPinType2);
+extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
+extern void gif_SetZWrite(int a);
+extern void CopyIVector(void *dst, void *src);
+extern float GetPointDistance(void *a, void *b);
+extern int D_002A5AE0[];
+extern int D_002A5AF0[];
+extern int D_002A5B00[];
+extern int D_002A5B10[];
+
+void dispCameraPinType2(int box, int from, int to, int type)
+{
+    float m0[4][4];
+    int *c1;
+    int *c2;
+    int i;
+
+    c1 = type ? D_002A5AE0 : D_002A5AF0;
+    c2 = type ? D_002A5B00 : D_002A5B10;
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_ScaleMatrix(-1.0f, -1.0f, -1.0f);
+    MatrixDrive_SetTransposeMatrix(m0, matrixptr + 0x80);
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 5, 0);
+    gif_SetZWrite(1);
+    for (i = from; i < to; i++) {
+        int c1v[4];
+        int c2v[4];
+        ArrowVtx a = {((float *)CameraEdit_PIN(box, i))[0], ((float *)CameraEdit_PIN(box, i))[1],
+                      ((float *)CameraEdit_PIN(box, i))[2], 0.0f};
+        ArrowVtx b = {((float *)CameraEdit_PIN(box, i))[3], ((float *)CameraEdit_PIN(box, i))[4],
+                      ((float *)CameraEdit_PIN(box, i))[5], 0.0f};
+        float n[4];
+        float m1[4][4];
+        float t;
+
+        CopyIVector(c1v, c1);
+        CopyIVector(c2v, c2);
+        MatrixDrive_TransMatrixV(&b);
+        MatrixDrive_TurnObjectMatrix(-(b.x - a.x), b.y - a.y, b.z - a.z);
+        {
+            ArrowVtx d = {-((float *)CameraEdit_PIN(box, i))[3],
+                          -((float *)CameraEdit_PIN(box, i))[4],
+                          -((float *)CameraEdit_PIN(box, i))[5], 1.0f};
+
+            MatrixDrive_SetTransposeMatrix(m1, MatrixDrive_GetMatrix());
+            sceVu0ApplyMatrix(n, matrixptr + 0x80, &d);
+            n[3] = 0.0f;
+            sceVu0ApplyMatrix(n, m0, n);
+            sceVu0ApplyMatrix(n, m1, n);
+            sceVu0Normalize(n, n);
+            t = (n[2] < 0.0f ? n[2] + 1.0f : 1.0f - n[2]) * 1000.0f;
+            t = 1.0f < t ? 1.0f : t;
+            c1v[0] = (int)((float)c1v[0] * t);
+            c1v[1] = (int)((float)c1v[1] * t);
+            c1v[2] = (int)((float)c1v[2] * t);
+            c2v[0] = (int)((float)c2v[0] * t);
+            c2v[1] = (int)((float)c2v[1] * t);
+            c2v[2] = (int)((float)c2v[2] * t);
+            n[2] = 0.0f;
+            sceVu0Normalize(n, n);
+            MatrixDrive_RotMatrixZ((short)-GetTableArcTan2(n[0], n[1]));
+            gif_SetZTest(1);
+            drawXZArrow(c1v, 0, GetPointDistance(&a, &b));
+            gif_SetZTest(0);
+            drawXZArrow(c2v, 0, GetPointDistance(&a, &b));
+        }
+    }
+    gif_EndPacket();
+}
 
 extern void dispCameraPinType2(int a0, int a1, int a2, int a3);
 
@@ -237,7 +491,91 @@ void CameraEdit_DispPinType2(int a0, int a1, int a2)
     dispCameraPinType2(a0, a1, a1 + 1, a2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", dispCameraGroupType2);
+extern unsigned char D_0063AAA8[4];
+extern unsigned char D_0063AAB0[4];
+extern int D_002A5B20[6][4];
+extern int D_002A5B80[12][2];
+extern unsigned int D_002A5BE0[4];
+extern unsigned int D_002A5BF0[4];
+extern unsigned int D_002A5C00[4];
+extern unsigned int D_002A5C10[4];
+
+void dispCameraGroupType2(int box, unsigned char sel)
+{
+    int n;
+    int j;
+    int k;
+    int i;
+    unsigned char *col;
+    unsigned int *c0;
+    unsigned int *c1;
+    BoxRec *b = (BoxRec *)(D_0063AA7C[1] + box * 0x4C);
+    BoxVtx v[8] = {{b->cx - b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
+                   {b->cx - b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
+                   {b->cx + b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
+                   {b->cx + b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
+                   {b->cx - b->sx, b->cy + b->sy, b->cz - b->sz, 1.0f},
+                   {b->cx - b->sx, b->cy + b->sy, b->cz + b->sz, 1.0f},
+                   {b->cx + b->sx, b->cy + b->sy, b->cz - b->sz, 1.0f},
+                   {b->cx + b->sx, b->cy + b->sy, b->cz + b->sz, 1.0f}};
+    float m[4][4];
+    float e0[4];
+    float e1[4];
+    float e2[4];
+    float e3[4];
+    float g0[4];
+    float g1[4];
+    float g2[4];
+    float g3[4];
+
+    sceVu0UnitMatrix(m);
+    m[0][0] = m[1][1] = m[2][2] = -1.0f;
+    func_0025D440(m, matrixptr + 0x80, m);
+    func_0025D440(m, matrixptr + 0xC0, m);
+    before_DrawPolygon();
+    gif_SetAlpha(1, 5, 0);
+    gif_SetZWrite(0);
+    gif_SetZTest(1);
+    for (n = 0; n < 6; n++) {
+        col = sel == 0 ? D_0063AAB0 : D_0063AAA8;
+        for (j = 0; j < 3; j++) {
+            _InterGV(e0, &v[D_002A5B20[n][0]], &v[D_002A5B20[n][1]], (float)j, (float)(3 - j));
+            _InterGV(e1, &v[D_002A5B20[n][0]], &v[D_002A5B20[n][1]], (float)(j + 1),
+                     (float)(2 - j));
+            _InterGV(e2, &v[D_002A5B20[n][2]], &v[D_002A5B20[n][3]], (float)j, (float)(3 - j));
+            _InterGV(e3, &v[D_002A5B20[n][2]], &v[D_002A5B20[n][3]], (float)(j + 1),
+                     (float)(2 - j));
+            for (k = 0; k < 3; k++) {
+                _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
+                _InterGV(g1, e0, e2, (float)(k + 1), (float)(2 - k));
+                _InterGV(g2, e1, e3, (float)k, (float)(3 - k));
+                _InterGV(g3, e1, e3, (float)(k + 1), (float)(2 - k));
+                DrawPolygon(g0, g1, g2, g3, col, m);
+            }
+        }
+    }
+    after_DrawPolygon();
+    c0 = D_002A5BE0;
+    c1 = D_002A5BF0;
+    if (sel == 0) {
+        c0 = D_002A5C00;
+        c1 = D_002A5C10;
+    }
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_ScaleMatrix(-1.0f, -1.0f, -1.0f);
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 5, 0);
+    gif_SetZWrite(0);
+    gif_SetZTest(0);
+    for (i = 0; i < 12; i++) {
+        DrawLineG(&v[D_002A5B80[i][0]], c1, &v[D_002A5B80[i][1]], c1, 0);
+    }
+    gif_SetZTest(1);
+    for (i = 0; i < 12; i++) {
+        DrawLineG(&v[D_002A5B80[i][0]], c0, &v[D_002A5B80[i][1]], c0, 0);
+    }
+    gif_EndPacket();
+}
 
 /* dispBox is defined as a nested function inside
  * CameraEdit_DispBoxType2_Plane below (the listing names it dispBox.152). */
@@ -361,7 +699,7 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
     }
 }
 
-extern void dispCameraGroupType2(int a0, int a1);
+extern void dispCameraGroupType2(int a0, unsigned char a1);
 
 void CameraEdit_DispBoxType2(int a0, int a1)
 {
