@@ -11,9 +11,9 @@ extern void GetCloth4D(void *cloth, float x, float y);
 extern void GetCloth4DWithTight(void *cloth, float x, float y, float z, float w, void *a1,
                                 void *a2);
 
-/* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; the name here is
- * splat's placeholder, which is what this repo's symbol table carries). */
-void func_001DD128(char *gobj)
+/* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; `static` keeps the ELF
+ * symbol local, so it cannot collide with the sugipon/src/boy global). */
+static void execClothes(char *gobj)
 {
     int q[4];
     char *w;
@@ -72,9 +72,9 @@ extern void CopyMatrix(void *dst, void *src);
 extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
 extern void reg_DispAccessoryWithShadow(char *o, char *src);
 
-/* census: sugipon/src/girl.c:763 `dispCrown` (a TU-static; the name here is
- * splat's placeholder, which is what this repo's symbol table carries). */
-void func_001DD340(char *gobj, char *acc)
+/* census: sugipon/src/girl.c:763 `dispCrown` (a TU-static; `static` keeps the ELF
+ * symbol local, so it cannot collide with the sugipon/src/boy global). */
+static void dispCrown(char *gobj, char *acc)
 {
     char *w;
     int n;
@@ -96,11 +96,11 @@ void func_001DD340(char *gobj, char *acc)
 
 extern void DispCloth4D(void *cloth, void *a1, void *a2);
 extern void DispCloth4DWithAdd(void *cloth, void *a1, void *a2);
-extern void func_001DD340(char *gobj, char *acc);
+static void dispCrown(char *gobj, char *acc);
 
-/* census: sugipon/src/girl.c:787 `dispClothes` (a TU-static; the name here is
- * splat's placeholder). */
-void func_001DD440(char *gobj)
+/* census: sugipon/src/girl.c:787 `dispClothes` (a TU-static; `static` keeps the ELF
+ * symbol local, so it cannot collide with the sugipon/src/boy global). */
+static void dispClothes(char *gobj)
 {
     char *w;
     char *x;
@@ -110,7 +110,7 @@ void func_001DD440(char *gobj)
     x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
     y = x + 0x40;
     if (*(int *)(w + 0x24) != 0) {
-        func_001DD340(gobj, *(char **)(w + 0x24));
+        dispCrown(gobj, *(char **)(w + 0x24));
     }
     if (*(int *)(w + 0xC) != 0) {
         if (*(int *)(w + 0x28) != 0) {
@@ -202,7 +202,7 @@ void GirlGeo(char *a0)
             }
         }
     }
-    func_001DD128(a0);
+    execClothes(a0);
 }
 
 extern char D_0061F910[];
@@ -322,7 +322,7 @@ void GirlDL(int a0)
 {
     p2o_SetDefaultEnviroment(a0);
     p2o_DispVU1(a0);
-    func_001DD440((char *)a0);
+    dispClothes((char *)a0);
     return debugWireStringGirl((char *)a0);
 }
 

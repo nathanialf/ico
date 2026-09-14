@@ -20,7 +20,7 @@ extern char D_00621970[];
 extern int *D_0063A614;
 extern AdpT *D_0063A618;
 extern void debug_StdPrintfDummy();
-extern void func_0020BFD8();
+static void add_gobj_to_tail();
 extern char D_00621980[];
 extern char D_00621990[];
 extern char D_006219A0[];
@@ -115,8 +115,9 @@ void isysGObjRemoveCameraDL(void *a0)
 }
 
 /* census: fumi/isys/gobj_cam_dl.c 76-118, file-static `add_gobj_to_tail`
- * (the debug link's local symbol table names it; renaming needs config/). */
-void func_0020BFD8(int *self, unsigned int key)
+ * (the debug link's local symbol table names it; the static keeps the symbol
+ * local, so it cannot collide with the isys/gobj global of the same name). */
+static void add_gobj_to_tail(int *self, unsigned int key)
 {
     int *head;
     int *tail;
@@ -174,7 +175,7 @@ inline void isysGObjLinkCameraDLHead(int *self, int a1, int key, int a3, int a4)
 void isysGObjMoveCameraDL(int a0, int a1)
 {
     cut_gobj_camera_dl_link((EnNode *)a0);
-    return func_0020BFD8(a0, a1);
+    return add_gobj_to_tail(a0, a1);
 }
 
 inline void isysGObjMoveCameraDLHead(int a0, int a1)
@@ -217,7 +218,7 @@ void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4)
     *(int *)(a0 + 0x48) = a1;
     *(int *)(a0 + 0x4C) = a3;
     *(int *)(a0 + 0x50) = a4;
-    func_0020BFD8(a0, a2);
+    add_gobj_to_tail(a0, a2);
     debug_StdPrintfDummy(D_006219E8);
 }
 

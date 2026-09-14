@@ -22,8 +22,9 @@ extern char D_00551FB0[];
 extern char D_00551FC0[];
 extern void debug_StdPrintfDummy();
 /* prototypes: their order is the inline tail's emission order */
-/* the listing's add_gobj_to_head; every gobj list TU has its own static copy, so the
-   symbol-table name stays the placeholder (the other TU's copy owns the name) */
+/* census add_gobj_to_head, a file static, every gobj list TU has its own copy and
+   `static` keeps this one's ELF symbol local so it cannot collide with the
+   ico2/fumi/isys/gobj global of the same name */
 extern char D_00551FD0[];
 extern char D_00551FE0[];
 void isysGObjDlInit(void);
@@ -72,8 +73,8 @@ void isysGObjRemoveObjDL(int *self)
     cut_gobj_dl_link(self);
 }
 
-/* the listing's add_gobj_to_tail; the global of that name belongs to isys/gobj,
-   so this file-static copy keeps the census name only in C */
+/* census add_gobj_to_tail, a file static, the global of that name belongs to
+   ico2/fumi/isys/gobj and `static` keeps this one's ELF symbol local */
 static void add_gobj_to_tail(int a0, int a1, int a2)
 {
     DLN *self = (DLN *)a0;

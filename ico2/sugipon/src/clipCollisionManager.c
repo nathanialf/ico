@@ -96,7 +96,9 @@ inline void *RequestClipCollision(int *a0)
 }
 
 /* listing line 72: the manager thread's idle body, handed to
-   CreateGObjByFuncSet; a static inline forced out of line by its address */
+   CreateGObjByFuncSet, a static inline forced out of line by its address.
+   `static` keeps its ELF symbol local so it cannot collide with the
+   ico2/sugipon/src/waySystemManager global of the same name */
 static inline void thStart(void)
 {
     for (;;) {

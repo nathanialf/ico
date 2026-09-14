@@ -47,6 +47,9 @@ int sceIpuSync(int a0)
 extern void DIntr(int *self);
 extern void EIntr(void);
 
+/* census setD4_CHCR, a file static, takes the name as static setD4_CHCR once
+   sceIpuInit is C (its assembled jal would bind to the global setD4_CHCR that
+   sce/libmpeg/libmpeg holds at 0x002722D0) */
 void func_002725D8(int *a0)
 {
     DIntr(a0);

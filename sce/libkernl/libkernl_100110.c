@@ -322,6 +322,9 @@ void iDisableDmac(void)
     SYNC();
 }
 
+/* census setup, a file static, takes the name as static setup once InitAlarm is C
+   and the global setup at 0x00100990 leaves this object (an assembled jal would
+   bind to that global, and SYSCALL_WRAPPER emits a global definition here) */
 SYSCALL_WRAPPER(func_00100C28, 116)
 SYSCALL_WRAPPER(Copy, 90)
 

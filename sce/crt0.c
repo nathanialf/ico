@@ -5,7 +5,19 @@
  * size tiling is claimed. */
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/sce/crt0", func_00100000);
+/* The eight zero bytes the listing labels <_start-0x8>: crt0.s's pre-entry pad,
+ * not a function.  Emitted here as data so the ROM run starts at the same
+ * address and the dashboard stops counting a function that never existed. */
+__asm__(".section .text\n"
+        "    .set at\n"
+        "    .set noreorder\n"
+        "    .align 3\n"
+        ".global D_00100000\n"
+        "D_00100000:\n"
+        "    .word 0, 0\n"
+        "    .set reorder\n"
+        "    .set at\n");
+
 INCLUDE_ASM("asm/nonmatchings/sce/crt0", _start);
 INCLUDE_ASM("asm/nonmatchings/sce/crt0", _exit);
 INCLUDE_ASM("asm/nonmatchings/sce/crt0", _root);

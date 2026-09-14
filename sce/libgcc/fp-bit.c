@@ -26,6 +26,9 @@ extern void __make_fp(int a0, int a1, int a2, int a3);
 
 INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", __pack_f);
 INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", __unpack_f);
+/* census _fpadd_parts, a file static, takes the name as static _fpadd_parts once
+   this function is C (a stub assembles to a global label, which would collide
+   with the sce/libgcc/dp-bit _fpadd_parts stub at 0x0027CED8) */
 INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", func_0027DBA0);
 
 extern int __pack_f(void *s);

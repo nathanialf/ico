@@ -31,6 +31,9 @@ extern int strtok_r(int a0, int a1, int a2);
 extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
 extern int __sfvwrite();
 
+/* census __sprint, a file static, takes the name as static __sprint once
+   _vfprintf_r is C (its assembled jal would bind to the global __sprint that
+   sce/libc/stdio/vfiprintf holds at 0x00280118) */
 int func_00280E60(int a0, int *a1)
 {
     int ret;
@@ -44,6 +47,10 @@ int func_00280E60(int a0, int *a1)
     return ret;
 }
 
+/* census __sbprintf, a file static, takes the name as static __sbprintf once this
+   function and _vfprintf_r are C (a stub assembles to a global label and
+   _vfprintf_r's assembled jal would bind to the global __sbprintf that
+   sce/libc/stdio/vfiprintf holds at 0x00280160) */
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfprintf", func_00280EA8);
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfprintf", vfprintf);
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfprintf", _vfprintf_r);
