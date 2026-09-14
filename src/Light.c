@@ -25,14 +25,96 @@ typedef struct AmbientVolume {
     struct AmbientVolume *prev; /* 0x98 */
 } AmbientVolume;
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", light_killLinkLight);
-INCLUDE_ASM("asm/nonmatchings/src/Light", light_killLinkAmbient);
+extern char D_0054F0B0[];
+extern char D_0054F0C8[];
+extern char D_0054F0D8[];
+extern char D_0063A090[];
+extern int D_0063C134;
+extern int D_0063C138;
+extern void debug_StdPrintfDummy(char *fmt, ...);
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+extern void freeseki(void *p);
+
+void light_killLinkLight(char *node)
+{
+    Light *p = (Light *)node;
+
+    if (p == 0) {
+        debug_StdPrintfDummy(D_0054F0B0);
+        debug_assert(D_0054F0C8, 0x1A8);
+        __assert(D_0054F0C8, 0x1A8, D_0063A090);
+    }
+    if (p->next != 0) {
+        p->next->prev = p->prev;
+    } else {
+        D_0063C134 = (int)p->prev;
+    }
+    if (p->prev != 0) {
+        p->prev->next = p->next;
+    }
+    if (D_0063C134 != 0) {
+        ((Light *)D_0063C134)->next = 0;
+    }
+    freeseki(p);
+}
+
+void light_killLinkAmbient(AmbientVolume *p)
+{
+    if (p == 0) {
+        debug_StdPrintfDummy(D_0054F0D8);
+        debug_assert(D_0054F0C8, 0x1C3);
+        __assert(D_0054F0C8, 0x1C3, D_0063A090);
+    }
+    if (p->next != 0) {
+        p->next->prev = p->prev;
+    } else {
+        D_0063C138 = (int)p->prev;
+    }
+    if (p->prev != 0) {
+        p->prev->next = p->next;
+    }
+    if (D_0063C138 != 0) {
+        ((AmbientVolume *)D_0063C138)->next = 0;
+    }
+    freeseki(p);
+}
+
 ASM_LIT4_SLOT(D_00638BD8, 0.3333f);
 INCLUDE_ASM("asm/nonmatchings/src/Light", light_AddLight);
 ASM_LIT4_SLOT(D_00638BDC, 0.3333f);
 INCLUDE_ASM("asm/nonmatchings/src/Light", light_getNearLight);
 INCLUDE_ASM("asm/nonmatchings/src/Light", light_getAmbientLight);
-INCLUDE_ASM("asm/nonmatchings/src/Light", light_MakeLightMatrix);
+
+extern void light_getNearLight(char *a, int b);
+extern void light_getAmbientLight(char *a, int b);
+extern void _ScaleVectorXYZ(void *dst, void *src, float s);
+extern void _MakeNormalLightMatrix(void *a, void *b, void *c, void *d);
+extern void _MakeLightColorMatrix(void *a, void *b, void *c, void *d, void *e);
+
+void light_MakeLightMatrix(char *a, int b)
+{
+    int i;
+
+    if (*(int *)(*(char **)(a + 0x874) + 0xF0) == 0) {
+        return;
+    }
+    light_getNearLight(a, b);
+    light_getAmbientLight(a, b);
+    for (i = 0; i < 3; i++) {
+        _ScaleVectorXYZ(*(char **)(a + 0x874) + 0xB0 + i * 0x10,
+                        *(char **)(a + 0x874) + 0xB0 + i * 0x10,
+                        *(float *)(*(char **)(a + 0x854) + 0x34));
+    }
+    _ScaleVectorXYZ(*(char **)(a + 0x874) + 0xE0, *(char **)(a + 0x874) + 0xE0,
+                    *(float *)(*(char **)(a + 0x854) + 0x38));
+    _MakeNormalLightMatrix(*(char **)(a + 0x874), *(char **)(a + 0x874) + 0x80,
+                           *(char **)(a + 0x874) + 0x90, *(char **)(a + 0x874) + 0xA0);
+    _MakeLightColorMatrix(*(char **)(a + 0x874) + 0x40, *(char **)(a + 0x874) + 0xB0,
+                          *(char **)(a + 0x874) + 0xC0, *(char **)(a + 0x874) + 0xD0,
+                          *(char **)(a + 0x874) + 0xE0);
+}
+
 ASM_LIT4_SLOT(D_00638BE0, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/Light", light_DispVolume);
 ASM_LIT4_SLOT(D_00638BE4, 3.1415927f);

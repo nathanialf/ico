@@ -356,8 +356,122 @@ void checkWallSideState(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkWallState);
-ASM_LIT4_SLOT(D_006395B0, 1e+04f);
+extern void sceVu0ScaleVector(void *dst, void *src, float s);
+extern int GetPureVerticalPlane(void *plane0, void *plane1, float *pts, int *cfg, int flip);
+extern float GetYDistanceFromPlane(void *plane, void *pos);
+extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
+extern void ClipFloorR(void *a0);
+extern void GetOrientOfWall(void *out, void *wall, void *vec);
+
+/* The wall-hit record at ClipBuf+0x80: the object and its node, then the hit
+   count.  GetPureVerticalPlane reads it as its `int *cfg` argument (see
+   getVerticalElementOfWallNormal in src/motionManager2) and the character
+   record keeps a copy at +0xE0.  The object/node pair is its own member: the
+   ROM copies it as an eight-byte block and the count as a separate word. */
+typedef struct {
+    int obj;
+    int node;
+} WallObj;
+
+typedef struct {
+    WallObj o;
+    int n;
+} WallCfg;
+
+void checkWallState(int flag)
+{
+    ClipBuf buf;
+    char *p;
+    float wv[4];
+    ClipBuf tmp;
+    float sv[4];
+    WallCfg cfg;
+    WallCfg cfg2;
+
+    memset(&buf, 0, 0xC0);
+    p = (char *)&buf; /* after the memset: the ROM's copy of $sp is the insn
+                           the assembler pulls into PushMatrix's delay slot */
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(D_004ECA10);
+    CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    sceVu0ApplyMatrix((int *)(p + 0x10), MatrixDrive_GetMatrix(), D_004ECA20);
+    MatrixDrive_PopMatrix();
+
+    if (*(int *)(D_0063C490 + 0x320) != 0) {
+        ClipWallField(p);
+    } else {
+        ClipWall(p);
+    }
+    if (D_0063B8FC != 0) {
+        DrawCollisionRay(p);
+    }
+    if (*(int *)(p + 0x88) != 0) {
+        tmp = *(ClipBuf *)p;
+        GetWallVector((int)wv, (int)p);
+        sceVu0ScaleVector(sv, wv, -200.0f);
+        AddVectorXYZ(p + 0x10, p, sv);
+        if (*(int *)(D_0063C490 + 0x320) != 0) {
+            ClipWallField(p);
+        } else {
+            ClipWall(p);
+        }
+        if (*(int *)(p + 0x88) != 0) {
+            if (*(int *)(p + 0x88) != ((WallCfg *)((char *)&tmp + 0x80))->n ||
+                *(int *)(p + 0x80) != ((WallCfg *)((char *)&tmp + 0x80))->o.obj ||
+                *(int *)(p + 0x84) != ((WallCfg *)((char *)&tmp + 0x80))->o.node) {
+                if (distance_squared(p, p + 0x20) > distance_squared(&tmp, (char *)&tmp + 0x20)) {
+                    *(ClipBuf *)p = tmp;
+                }
+            }
+            if (D_0063B8FC != 0) {
+                DrawCollisionRay(p);
+            }
+            /* One statement, SRCFILE.TXT line 387: the record is filled a
+               member at a time (an eight-byte block move, then a word) and
+               the whole twelve bytes are then copied out as one unit. */
+            cfg = (cfg2.o = ((WallCfg *)(p + 0x80))->o, cfg2.n = ((WallCfg *)(p + 0x80))->n, cfg2);
+            if (flag & 1) {
+                float v[4];
+
+                SubVectorXYZ(v, p + 0x20, p);
+                *(float *)(D_0063C494 + 0x138) = FSqrt(sceVu0InnerProduct(v, v));
+                sceVu0ScaleVector(D_0063C494 + 0x140, v, 1.0f / *(float *)(D_0063C494 + 0x138));
+                *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 0x20;
+                *(int *)(D_0063C494 + 0x17C) = *(int *)(D_0063C494 + 0x184) = GetWallAttribute(p);
+                /* The hit count reaches GetOrientOfWall as a pointer-typed
+                   load, which is what lets it issue ahead of the two int
+                   stores above it. */
+                GetOrientOfWall(D_0063C494 + 0x150, *(void **)(p + 0x88), p + 0x80);
+                *(WallCfg *)(D_0063C490 + 0xE0) = cfg;
+                *(int *)(D_0063C490 + 0xEC) = -1;
+                if (*(int *)(D_0063C490 + 0x320) != 0 && *(int *)(D_0063C494 + 0x184) == 0x10000) {
+                    *(int *)(D_0063C494 + 0x104) = 1;
+                } else {
+                    *(int *)(D_0063C494 + 0xF4) = 1;
+                }
+            }
+            if (flag & 2) {
+                float v2[4];
+                float plane[4];
+
+                GetPureVerticalPlane(plane, 0, 0, (int *)&cfg, 0);
+                *(float *)(D_0063C494 + 0x134) = -GetYDistanceFromPlane(plane, p) + -40.0f;
+                sceVu0ScaleVector(v2, wv, -10.0f);
+                AddVectorXYZ(p, p + 0x20, v2);
+                CopyVector((void *)(p + 0x10), (void *)p);
+                *(float *)(p + 0x14) = *(float *)(p + 0x14) - 10000.0f;
+                ClipFloorR(p);
+                if (*(int *)(p + 0x94) != 0) {
+                    *(float *)(D_0063C494 + 0x130) =
+                        (*(float *)(p + 0x24) - *(float *)(p + 0x4)) + -40.0f;
+                    SetSimplePlane(D_0063C490 + 0x350, 0.0f, -1.0f, 0.0f, *(float *)(p + 0x24));
+                    *(int *)(D_0063C490 + 0x144) = *(int *)(p + 0x94);
+                }
+            }
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkCliffState);
 ASM_LIT4_SLOT(D_006395B4, 1e+04f);
 ASM_LIT4_SLOT(D_006395B8, 1e+04f);
@@ -366,6 +480,7 @@ void _checkCliffAndWall(void)
 {
     float v[4];
     float d;
+    float d2;
     float t;
 
     if (*(int *)(D_0063C494 + 0xDC) == 1 ||
