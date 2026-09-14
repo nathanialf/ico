@@ -87,6 +87,7 @@ void light_killLinkAmbient(AmbientVolume *p)
 typedef struct StageSetting {
     float flatLightDir[3][4]; /* 0x00 */
     float flatLightCol[3][4]; /* 0x30 */
+    float ambientCol[4];      /* 0x60 */
 } StageSetting;
 
 extern StageSetting D_0028F720;
@@ -361,12 +362,37 @@ void light_MakeLightMatrix(char *a, int b)
 ASM_LIT4_SLOT(D_00638BE0, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/src/Light", light_DispVolume);
 
+/* Light.c line 1388.  Declared `inline`, so ee-gcc expands it into light_Tool
+   (listing rows 1388-1406 sit inside light_Tool's span) and defers the
+   out-of-line copy to the end of the object, which is where the ROM has it
+   (0x00118F58, after light_AddAmbientObject).  light_AddLight sits above this
+   definition and so keeps its out-of-line call. */
+inline void light_resetFlatLight(void)
+{
+    int i;
+    Light *l;
+
+    for (i = 0; i < 3; i++) {
+        l = (Light *)D_002908B8[i];
+        if (l != 0) {
+            _CopyVector(l->f_20, D_0028F720.flatLightCol[i]);
+            _NormalizeVector(l->f_10, D_0028F720.flatLightDir[i]);
+            l->f_30 = 1.0f;
+            l->f_34 = 0.0f;
+            l->f_38 = 1.0f;
+            l->f_3C = (l->f_20[0] + l->f_20[1] + l->f_20[2]) * 0.3333f;
+        }
+    }
+}
+
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4; the right analog stick pair sits at 0x54 of pad 1. */
 typedef struct Pad {
     int unk00;            /* 0x00 */
     int trg;              /* 0x04 */
-    char unk08[0x4C];     /* 0x08 */
+    int unk08;            /* 0x08 */
+    int rep;              /* 0x0C */
+    char unk10[0x44];     /* 0x10 */
     unsigned char ana[4]; /* 0x54 */
 } Pad;
 
@@ -551,16 +577,245 @@ void light_DrawCursor(float *dir, int mode)
     gif_EndPacket();
 }
 
-ASM_LIT4_SLOT(D_00638C18, 0.01f);
-ASM_LIT4_SLOT(D_00638C1C, 0.01f);
-ASM_LIT4_SLOT(D_00638C20, 1.01f);
-ASM_LIT4_SLOT(D_00638C24, 0.99f);
-ASM_LIT4_SLOT(D_00638C28, 0.01f);
-ASM_LIT4_SLOT(D_00638C2C, 0.01f);
-ASM_LIT4_SLOT(D_00638C30, 1.01f);
-ASM_LIT4_SLOT(D_00638C34, 0.99f);
-ASM_LIT4_SLOT(D_00638C38, 0.3333f);
-INCLUDE_ASM("asm/nonmatchings/src/Light", light_Tool);
+/* Light.c lines 1535-1684, the flat-light editor page of the debug menu.
+   Three pages selected by D_0063A0A4 (colour, direction vector, ambient),
+   each editing light D_0063A0AC with component D_0063A0A8 (3 = all three at
+   once).  The retail build calls debug_PrintfDummy where the January-2002
+   listing calls debug_Printf; everything else is instruction for instruction
+   the same function, so the listing's per-instruction line map is the
+   source-shape oracle here.  The blink guard masks frame_count with an
+   unsigned constant: masked with a plain int 0x1F, gcc knows the value fits
+   0..31 and picks slti, while the ROM has sltiu at all six sites.
+   light_resetFlatLight is expanded at the tail (listing rows 1388-1406). */
+extern int D_002908C8[];
+extern int D_0063A0A4; /* the editor page: 0 colour, 1 vector, 2 ambient */
+extern int D_0063A0A8; /* the selected component: 0 x/r, 1 y/g, 2 z/b, 3 all */
+extern int D_0063A0AC; /* the selected flat light: 0..2 */
+extern int frame_count;
+extern char D_0063A0B0[]; /* "r:" */
+extern char D_0063A0B8[]; /* "g:" */
+extern char D_0063A0C0[]; /* "b:" */
+extern char D_0063A0C8[]; /* "COL " */
+extern char D_0063A0D0[]; /* "%s%11f" */
+extern char D_0063A0D8[]; /* "VEC " */
+extern char D_0063A0E0[]; /* "AMB " */
+extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
+extern void light_GetColorAnalog(float *col);
+extern void light_DrawCursor(float *dir, int mode);
+extern void _InitCurrentMatrix(void);
+extern void _RotCurrentMatrixX(short a);
+extern void _RotCurrentMatrixY(short a);
+extern void _RotCurrentMatrixZ(short a);
+extern void _ApplyCurrentMatrix(void *dst, void *src);
+
+int light_Tool(void)
+{
+    float dir[4];
+    float col1[4];
+    float col2[4];
+    int ret = 0;
+    int i;
+    char *name[3] = {D_0063A0B0, D_0063A0B8, D_0063A0C0};
+    unsigned int col;
+    short rot;
+    float (*c)[4];
+
+    if (D_0028F8F0[0].trg & 0x4000) {
+        if (++D_0063A0A4 == 3) {
+            D_0063A0A4 = 0;
+        }
+    }
+    if (D_0028F8F0[0].trg & 0x1000) {
+        if (--D_0063A0A4 == -1) {
+            D_0063A0A4 = 2;
+        }
+    }
+    if (D_0028F8F0[0].trg & 0x1) {
+        if (++D_0063A0AC == 3) {
+            D_0063A0AC = 0;
+        }
+    }
+    if (D_0028F8F0[0].trg & 0x100) {
+        D_002908C8[0] = D_002908C8[1] = D_002908C8[2] = 1;
+        ret = -1;
+    }
+    if (D_002908C8[1] == 0 && D_0063A0A4 == 1) {
+        light_DrawCursor(dir, 0);
+    } else {
+        light_DrawCursor(dir, 1);
+    }
+    switch (D_0063A0A4) {
+    case 0:
+        D_002908C8[1] = D_002908C8[2] = 1;
+        light_GetColorAnalog(col1);
+        if ((D_0028F8F0[0].trg & 0x400) && D_0063A0A8 == 3) {
+            D_002908C8[0] ^= 1;
+        }
+        if (D_002908C8[0] == 0 && D_0063A0A8 == 3) {
+            /* The row pointer is into flatLightDir, so the three stores keep
+               the +0x30 to flatLightCol in the store displacement off one
+               base; spelling the destination as flatLightCol[idx][n] at each
+               of the three sites folds 0x30 onto the symbol and makes gcse PRE
+               insert two reaching-register copies the ROM does not have. */
+            c = &D_0028F720.flatLightDir[D_0063A0AC];
+            c[3][0] = col1[0] / 128.0f;
+            c[3][1] = col1[1] / 128.0f;
+            c[3][2] = col1[2] / 128.0f;
+            break;
+        }
+        if (D_0028F8F0[0].trg & 0x2000) {
+            if (++D_0063A0A8 == 4) {
+                D_0063A0A8 = 0;
+            }
+        }
+        if (D_0028F8F0[0].trg & 0x8000) {
+            if (--D_0063A0A8 == -1) {
+                D_0063A0A8 = 3;
+            }
+        }
+        if (D_0063A0A8 != 3) {
+            if (D_0028F8F0[0].rep & 0x20) {
+                D_0028F720.flatLightCol[D_0063A0AC][D_0063A0A8] += 0.01f;
+            }
+            if (D_0028F8F0[0].rep & 0x40) {
+                D_0028F720.flatLightCol[D_0063A0AC][D_0063A0A8] -= 0.01f;
+            }
+            break;
+        }
+        if (D_0028F8F0[0].rep & 0x20) {
+            for (i = 0; i < 3; i++) {
+                D_0028F720.flatLightCol[D_0063A0AC][i] *= 1.01f;
+            }
+        }
+        if (D_0028F8F0[0].rep & 0x40) {
+            for (i = 0; i < 3; i++) {
+                D_0028F720.flatLightCol[D_0063A0AC][i] *= 0.99f;
+            }
+        }
+        break;
+    case 1:
+        D_002908C8[0] = D_002908C8[2] = 1;
+        if ((D_0028F8F0[0].trg & 0x400) && D_0063A0A8 == 3) {
+            D_002908C8[1] ^= 1;
+        }
+        if (D_002908C8[1] == 0 && D_0063A0A8 == 3) {
+            _CopyVector(D_0028F720.flatLightDir[D_0063A0AC], dir);
+            break;
+        }
+        if (D_0028F8F0[0].trg & 0x2000) {
+            if (++D_0063A0A8 == 4) {
+                D_0063A0A8 = 0;
+            }
+        }
+        if (D_0028F8F0[0].trg & 0x8000) {
+            if (--D_0063A0A8 == -1) {
+                D_0063A0A8 = 3;
+            }
+        }
+        if (D_0063A0A8 == 3) {
+            break;
+        }
+        if (D_0028F8F0[0].rep & 0x20) {
+            rot = 1024;
+        } else {
+            rot = (D_0028F8F0[0].rep & 0x40) ? -1024 : 0;
+        }
+        _InitCurrentMatrix();
+        switch (D_0063A0A8) {
+        case 0:
+            _RotCurrentMatrixX(rot);
+            break;
+        case 1:
+            _RotCurrentMatrixY(rot);
+            break;
+        case 2:
+            _RotCurrentMatrixZ(rot);
+            break;
+        }
+        _ApplyCurrentMatrix(D_0028F720.flatLightDir[D_0063A0AC],
+                            D_0028F720.flatLightDir[D_0063A0AC]);
+        break;
+    case 2:
+        D_002908C8[0] = D_002908C8[1] = 1;
+        light_GetColorAnalog(col2);
+        if ((D_0028F8F0[0].trg & 0x400) && D_0063A0A8 == 3) {
+            D_002908C8[2] ^= 1;
+        }
+        if (D_002908C8[2] == 0 && D_0063A0A8 == 3) {
+            D_0028F720.ambientCol[0] = col2[0] / 255.0f;
+            D_0028F720.ambientCol[1] = col2[1] / 255.0f;
+            D_0028F720.ambientCol[2] = col2[2] / 255.0f;
+            break;
+        }
+        if (D_0028F8F0[0].trg & 0x2000) {
+            if (++D_0063A0A8 == 4) {
+                D_0063A0A8 = 0;
+            }
+        }
+        if (D_0028F8F0[0].trg & 0x8000) {
+            if (--D_0063A0A8 == -1) {
+                D_0063A0A8 = 3;
+            }
+        }
+        if (D_0063A0A8 != 3) {
+            if (D_0028F8F0[0].rep & 0x20) {
+                D_0028F720.ambientCol[D_0063A0A8] += 0.01f;
+            }
+            if (D_0028F8F0[0].rep & 0x40) {
+                D_0028F720.ambientCol[D_0063A0A8] -= 0.01f;
+            }
+            break;
+        }
+        if (D_0028F8F0[0].rep & 0x20) {
+            for (i = 0; i < 3; i++) {
+                D_0028F720.ambientCol[i] *= 1.01f;
+            }
+        }
+        if (D_0028F8F0[0].rep & 0x40) {
+            for (i = 0; i < 3; i++) {
+                D_0028F720.ambientCol[i] *= 0.99f;
+            }
+        }
+        break;
+    }
+    debug_PrintfDummy(10, 46, 0xFF800000, "PUSH R2 SELECT LIGHT (%d/3) ('SELECT'RETURN MENU)",
+                      D_0063A0AC + 1);
+    col = (D_0063A0A4 == 0) ? 0xFFC0C000 : 0xFFFFFF00;
+    if (D_002908C8[0] != 0 || (frame_count & 0x1FU) < 20) {
+        debug_PrintfDummy(10, 56, col, D_0063A0C8);
+    }
+    for (i = 0; i < 3; i++) {
+        if (D_002908C8[0] == 0 || D_0063A0A4 != 0 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
+            (frame_count & 0x1FU) < 20) {
+            debug_PrintfDummy(46 + i * 168, 56, col, D_0063A0D0, name[i],
+                              D_0028F720.flatLightCol[D_0063A0AC][i] * 128.0f);
+        }
+    }
+    col = (D_0063A0A4 == 1) ? 0xFFC0C000 : 0xFFFFFF00;
+    if (D_002908C8[1] != 0 || (frame_count & 0x1FU) < 20) {
+        debug_PrintfDummy(10, 66, col, D_0063A0D8);
+    }
+    for (i = 0; i < 3; i++) {
+        if (D_002908C8[1] == 0 || D_0063A0A4 != 1 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
+            (frame_count & 0x1FU) < 20) {
+            debug_PrintfDummy(46 + i * 168, 66, col, D_0063A0D0, name[i],
+                              D_0028F720.flatLightDir[D_0063A0AC][i]);
+        }
+    }
+    col = (D_0063A0A4 == 2) ? 0xFFC0C000 : 0xFFFFFF00;
+    if (D_002908C8[2] != 0 || (frame_count & 0x1FU) < 20) {
+        debug_PrintfDummy(10, 76, col, D_0063A0E0);
+    }
+    for (i = 0; i < 3; i++) {
+        if (D_002908C8[2] == 0 || D_0063A0A4 != 2 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
+            (frame_count & 0x1FU) < 20) {
+            debug_PrintfDummy(46 + i * 168, 76, col, D_0063A0D0, name[i],
+                              D_0028F720.ambientCol[i] * 255.0f);
+        }
+    }
+    light_resetFlatLight();
+    return ret;
+}
 
 extern char D_0063A088[8];
 extern int D_0063C134;
@@ -638,22 +893,4 @@ AmbientVolume *light_AddAmbientObject(int obj)
     p->f_80 = 1.0f;
     light_setLinkAmbient(p);
     return p;
-}
-
-void light_resetFlatLight(void)
-{
-    int i;
-    Light *l;
-
-    for (i = 0; i < 3; i++) {
-        l = (Light *)D_002908B8[i];
-        if (l != 0) {
-            _CopyVector(l->f_20, D_0028F720.flatLightCol[i]);
-            _NormalizeVector(l->f_10, D_0028F720.flatLightDir[i]);
-            l->f_30 = 1.0f;
-            l->f_34 = 0.0f;
-            l->f_38 = 1.0f;
-            l->f_3C = (l->f_20[0] + l->f_20[1] + l->f_20[2]) * 0.3333f;
-        }
-    }
 }

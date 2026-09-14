@@ -369,6 +369,13 @@ funcEnemyAiGetGirl = 0x00169E38; // type:func  // src/enemy_act
 // TU's first word had no label; DispSkelton stores all three words and main.o touches only +0x8.
 D_0063A098 = 0x0063A098; // type:asciz  // src/Light  // "OBJ", the light editor mode label light_DispVolume prints
 D_0063A0A0 = 0x0063A0A0; // type:asciz  // src/Light  // "FIX", the light editor mode label light_DispVolume prints
+D_0063A0B0 = 0x0063A0B0; // type:asciz  // src/Light  // the r label light_Tool prints
+D_0063A0B8 = 0x0063A0B8; // type:asciz  // src/Light  // the g label light_Tool prints
+D_0063A0C0 = 0x0063A0C0; // type:asciz  // src/Light  // the b label light_Tool prints
+D_0063A0C8 = 0x0063A0C8; // type:asciz  // src/Light  // the COL label light_Tool prints
+D_0063A0D0 = 0x0063A0D0; // type:asciz  // src/Light  // the percent-s percent-11f format light_Tool prints
+D_0063A0D8 = 0x0063A0D8; // type:asciz  // src/Light  // the VEC label light_Tool prints
+D_0063A0E0 = 0x0063A0E0; // type:asciz  // src/Light  // the AMB label light_Tool prints
 D_0063C10C = 0x0063C10C; // size:0x4  // src/motionManager2
 
 // ==== BEGIN GENERATED — tools/gen_pal_symbol_addrs.py — do not hand-edit below this line ====

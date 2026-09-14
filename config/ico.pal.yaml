@@ -436,6 +436,8 @@ segments:
       - [0x44DFB0, .rodata, src/FileManager]  # syms: 0x0054DFB0,0x0054DFE0  carved jtbl_0054DFB0 (11 arms, 0x2C + pad word) + jtbl_0054DFE0 (52 arms, 0xD0): file_LoadCDFile's two switch tables, emitted by the compiled function, VMA 0x54DFB0..0x54E0B0
       - [0x44E0B0, .rodata, src/GifPacket]  # carved D_0054E0B0 (VMA 0x54E0B0..0x54E170, 192 B, 1 sym): the 12 GS ALPHA blend quadruples gif_SetAlpha indexes; referenced only from matched C, so no stub emits it and the carve must define it
       - [0x44E170, rodata, src/cod/44E170]   # .rodata blob resume
+      - [0x44F180, .rodata, src/Light]  # carved D_0054F180 template (three char * to the r:, g:, b: labels, 12 B) + 4 pad bytes + the 0x32-byte light_Tool prompt string, VMA 0x54F180..0x54F1C2, 0x42 B, emitted by the compiled function; the tail of Light.o's rodata run
+      - [0x44F1C8, rodata, src/cod/44F1C8]   # .rodata blob resume (the six zero pad bytes after the string are the carve's alignment pad)
       - [0x44F1E0, .rodata, src/MicroCode]  # carved jtbl_0054F1E0 (5 arms, 0x14 B): mc_setBaseOffset's switch table, emitted by the compiled function, VMA 0x54F1E0..0x54F1F4
       - [0x44F1F4, rodata, src/cod/44F1F4]   # .rodata blob resume (three zero pad words up to the 16-aligned string at 0x54F200, then the rest of the run)
       - [0x44F230, .rodata, src/Packet]  # syms: 0x0054F230  carved jtbl_0054F230 (VMA 0x54F230..0x54F274, 68 B, 17 arms): pac_DispQW's switch table, emitted by the compiled function

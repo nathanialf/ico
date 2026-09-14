@@ -1263,3 +1263,8 @@ words become the blob's first words.
 ### 2026-09-14 chain D pass 20: mcard switch table
 - `[0x451430, .rodata, ios/mcard]`: jtbl_00551430, iosMcManager's command switch table (15 arms, VMA 0x551430..0x55146C, 60 B), emitted by the compiled function; the blob resumes at 0x45146C with one zero pad word. mcard is closed, 29 of 29.
 - Owed when staffRollMain lands: jtbl_0061DF40 (7 arms, 0x61DF40..0x61DF5C plus pad); its selector is D_0063C43C, the staff-roll state word, range-checked with `sltiu $2, $5, 7`.
+
+### 2026-09-14 chain F pass 6: Light rodata tail
+- `[0x44F180, .rodata, src/Light]`: the light_Tool label template (three `char *` to the r, g and b labels, 12 B, three R_MIPS_32 relocs), 4 pad bytes, then the 0x32-byte prompt string, VMA 0x54F180..0x54F1C2, 0x42 B, emitted by the compiled function; the tail of Light.o's 0x112-byte rodata run per MAIN.MAP. The blob resumes at 0x44F1C8; the six zero bytes between are the carve's alignment pad.
+- Symbols seated as asciz: D_0063A0B0, D_0063A0B8, D_0063A0C0 (the r, g, b labels), D_0063A0C8 (COL), D_0063A0D0 (the percent-s percent-11f format), D_0063A0D8 (VEC), D_0063A0E0 (AMB). A colon inside a quoted string in a symbol comment is read by splat as an attribute, so the comments name the labels without quotes.
+- Light's nine ASM_LIT4_SLOT lines for D_00638C18..D_00638C38 are gone; the object's .lit4 is the whole carved pool.
