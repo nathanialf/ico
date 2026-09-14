@@ -118,7 +118,56 @@ void motBoyHand50(volatile int a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", motBoyHand100);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", motBoyHand200);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", handoff_heroin);
+
+extern void *D_00639EA4;
+extern void *D_00639EA8;
+extern void *D_0063A61C;
+extern char D_005577D0[];
+extern CCPResult *test_CURRENTROOT(void *a0);
+extern float _DistxzGV(void *a, void *b);
+extern float GetHeightOfFieldPlaneDifference(void *boy, void *girl);
+extern void iosOmSendMail(void *gobj, int mail, void *arg);
+extern void ACTSendMailCorrect(int a0, int mail);
+
+/* One 0x50-byte record per act status, indexed by sub->0x34. */
+typedef struct {
+    char _00[0x4C];
+    unsigned int f_4C;
+} StatusAttr;
+
+/* boyact.c:1547 and :1562 are one source line each: ABSF applied TWICE to the
+   same height difference (a 2001 copy-paste artefact), which is what produces
+   the eight re-evaluations of the pair of test_CURRENTROOT calls in each copy.
+   The :1562 copy's body is empty in retail (the January-2002 listing shows the
+   same shape), so only the calls the condition makes survive there. */
+#define BOYGIRL_DY() (test_CURRENTROOT(D_00639EA4)->f4 - test_CURRENTROOT(D_00639EA8)->f4)
+#define ABSF(x) ((x) < 0.0f ? -(x) : (x))
+
+void handoff_heroin(void)
+{
+    void *boy = D_00639EA4;
+
+    if (D_00639EA8 != 0) {
+        if (*(int *)(*(char **)((char *)D_00639EA8 + 0x15C) + 0x310) == 6) {
+            if ((((StatusAttr *)(D_005577D0 +
+                                 *(int *)(*(char **)((char *)boy + 0x164) + 0x34) * 0x50))
+                     ->f_4C >>
+                 7) &
+                1) {
+            } else {
+                iosOmSendMail(D_00639EA8, 0x3E, D_0063A61C);
+            }
+            ACTSendMailCorrect((int)boy, 0xFA);
+        } else if (_DistxzGV(test_CURRENTROOT(boy), test_CURRENTROOT(D_00639EA8)) < 100.0f &&
+                   ABSF(ABSF(BOYGIRL_DY())) < 100.0f) {
+            GetHeightOfFieldPlaneDifference(D_00639EA4, D_00639EA8);
+        }
+    }
+    if (D_00639EA8 != 0 && *(int *)(*(char **)((char *)D_00639EA8 + 0x15C) + 0x310) != 6) {
+        if (_DistxzGV(test_CURRENTROOT(D_00639EA4), test_CURRENTROOT(D_00639EA8)) < 100.0f &&
+            ABSF(ABSF(BOYGIRL_DY())) < 100.0f) {}
+    }
+}
 
 extern long long D_006C0AD0[];
 extern void *D_00639EA4;
