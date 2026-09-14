@@ -85,7 +85,7 @@ def inventory(sect):
 def consumers():
     """sym -> set(tu) from C sources and asm/nonmatchings stubs."""
     refs = collections.defaultdict(set)
-    src_roots = ("ico2", "sce", "src")
+    src_roots = ("ico2", "sce")
     for root in src_roots:
         top = os.path.join(ROOT, root)
         for dirpath, _dirs, files in os.walk(top):

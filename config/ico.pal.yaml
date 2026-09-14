@@ -78,7 +78,7 @@ options:
 
   section_order:
     - .text
-    # - .vutext (hasm — hand-typed VU1 microprograms, src/*.S via assemble_vu0.py)
+    # - .vutext (hasm — hand-typed VU1 microprograms, ico2/*.S via assemble_vu0.py)
     - .data
     - .rodata
     - .lit4
@@ -505,11 +505,11 @@ segments:
       # across aug6, ntsc (USA retail) and pal, normal_l included (measured
       # 2026-09-04). Labels follow the DVP assembler names the PAL disc's
       # listing preserves — see decomp/MATCH_VU.md.
-      - [0x189BD0, hasm, src/cluster]        # ClusterMicroProgram
-      - [0x18A990, hasm, src/mesh]           # MeshMicroProgram
-      - [0x18B380, hasm, src/normal_c]       # NormalCMicroProgram
-      - [0x18CA60, hasm, src/normal_l]       # NormalLMicroProgram
-      - [0x18E700, hasm, src/particle]       # ParticleMicroProgram
+      - [0x189BD0, hasm, ico2/cluster]        # ClusterMicroProgram
+      - [0x18A990, hasm, ico2/mesh]           # MeshMicroProgram
+      - [0x18B380, hasm, ico2/normal_c]       # NormalCMicroProgram
+      - [0x18CA60, hasm, ico2/normal_l]       # NormalLMicroProgram
+      - [0x18E700, hasm, ico2/particle]       # ParticleMicroProgram
       - [0x18ECB0, textbin, cod/18ECB0]  # .reginfo + pad (all zeros in rom)
       - [0x18ED00, data, cod/18ED00]     # .data blob (to be carved per TU)
       # --- per-TU .data carves (PAL phase 2; see decomp/carve_ledger.md).

@@ -269,7 +269,7 @@ def _global_index() -> dict:
         from ico_version import source_roots
         roots = list(source_roots(VERSION))
     except Exception:
-        roots = ["ico2", "sce", "src"]
+        roots = ["ico2", "sce"]
     files = []
     for r in roots:
         files += list((REPO_ROOT / r).rglob("*.c")) + list((REPO_ROOT / r).rglob("*.c.inc"))
@@ -319,7 +319,11 @@ def _programmer_of(tu: str | None) -> str:
     # component. The "vendor" group below is now only for a symbol that
     # still carries a bare `// (vendor)` note and no path at all.
     parts = tu.split("/")
-    if parts[0] == "ico2" and len(parts) > 1:
+    # `ico2/<programmer>/<kind>/<tu>`: the programmer is the group. A TU
+    # directly under ico2/ has no programmer component (the five VU1
+    # microprograms, which MAIN.MAP places in ico2000.a but the listing gives
+    # no source rows for); those are .vutext and group there.
+    if parts[0] == "ico2" and len(parts) > 2:
         return parts[1]
     return parts[0]
 

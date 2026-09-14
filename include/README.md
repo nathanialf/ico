@@ -13,6 +13,11 @@ attributes live there (or, for newlib's `math_private.h`, under `sce/`):
 | `itou_common.h`, `mv_defs.h` | `ico2/ito/include/` |
 | `math_private.h` | `sce/libm/common/` (newlib's own location) |
 
+The five VU1 microprogram sources sit at the `ico2/` root for the mirror
+image of that reason: MAIN.MAP pulls their objects in from `ico2000.a`, which
+proves the archive, but the listing records no source rows for them, so no
+programmer directory is recoverable.
+
 Everything still in this directory was written by this project and has no
 counterpart in the disc's maps: `common.h`, `r5900.h`, `vu0.h`,
 `include_asm.h`, `syscall.h`, `macro.inc`, `labels.inc` and `ico/`.

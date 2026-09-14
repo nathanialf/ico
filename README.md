@@ -157,8 +157,10 @@ ico2/           the game tree the disc's listing records, one directory per
 sce/            SCE SDK library code, one directory per archive; where
                 MAIN.MAP's member spans tile the run it is one file per
                 member, otherwise one file per run
-src/            the 5 hand-typed VU1 microprogram .S sources, which the
-                listing does not attribute to a programmer
+                plus the 5 hand-typed VU1 microprogram .S sources at the
+                ico2/ root itself: MAIN.MAP pulls their objects in from
+                ico2000.a, but the listing records no source rows for them,
+                so the programmer directory is unrecorded
 include/        the headers this project wrote: common.h, ico/types.h,
                 r5900.h, vu0.h, math_private.h, include_asm.h, syscall.h
 asm/            splat output (gitignored except asm/nonmatchings/)
@@ -212,7 +214,7 @@ baserom/pal/baseelf.{elf,rom}  ←──── SHA-1 oracle for every build
    ▼
 ninja
    │
-   │  ee-gcc 2.9 (src/*.c) + period ee-as 2.9-991111 (asm/*.s),
+   │  ee-gcc 2.9 (ico2/**/*.c) + period ee-as 2.9-991111 (asm/*.s),
    │    both via tools/compile_c.sh
    │  + always-on asm/ROM-encoding parity in preprocess_old_as.py /
    │    compile_c.sh (move→daddu, break 0,N, FCC + COP1-move hazard nops,

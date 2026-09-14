@@ -80,8 +80,8 @@ setup() {
     rm -rf build .ninja_log .ninja_deps
     echo "==> verifying base ROM SHA-1"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
-    echo "==> assembling hand-written VU1 microprogram .S sources (src)"
-    for vs in src/*.S; do
+    echo "==> assembling hand-written VU1 microprogram .S sources (ico2)"
+    for vs in ico2/*.S; do
         [ -f "$vs" ] || continue
         out="${vs%.S}.s"
         stem=$(basename "${vs%.S}")

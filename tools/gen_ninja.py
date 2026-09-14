@@ -314,8 +314,8 @@ def source_for(obj_path: str) -> tuple[str, str]:
 
     m = SRC_RE.match(obj_path)
     if m:
-        # `stem` already includes the source-root prefix (e.g. "src/cod/000110"
-        # or "ios/cdvd") since YAML names are repo-root-relative.
+        # `stem` already includes the source-root prefix (e.g. "cod/000110"
+        # or "ico2/fumi/ios/cdvd") since YAML names are repo-root-relative.
         stem = m.group(1)
         c_path = ROOT / f"{stem}.c"
         s_path = ROOT / f"{stem}.s"

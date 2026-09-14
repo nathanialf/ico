@@ -129,7 +129,7 @@ if [[ "$1" == "--once" ]]; then
     if [[ "$ICO_LAYOUT" == "devtree" ]]; then
         _ROOTS="common fumi sugipon seki omori script ito src ios sound isys"
     else
-        _ROOTS="ico2 sce src"
+        _ROOTS="ico2 sce"
     fi
     # Insn-count shortlists (smallest unmatched funcs / least-remaining TUs).
     if [[ -d "$_NM" ]]; then

@@ -53,7 +53,7 @@ done
 
 # --- 3. size cap outside allowlisted dirs ---
 # Non-source files keep the tight 256 KiB cap (catches stray binary/asset
-# dumps). Tracked C source (src/ios/sound/isys *.c/*.h/*.c.inc) gets a
+# dumps). Tracked C source (ico2/ and sce/ *.c/*.h/*.c.inc) gets a
 # higher 8 MiB ceiling: Phase 3e inlines per-TU data into the .c as typed
 # C (word arrays, strings, structs), which legitimately pushes some TUs
 # past 256 KiB. Their CONTENT is still gated by rule #5 below (raw
@@ -61,7 +61,7 @@ done
 # laundered ROM. The 8 MiB ceiling stays as a backstop against a runaway
 # blob.
 allow_large_re='^(tools/toolchain/|tools/ghidra/|\.git/|lib/)'
-src_large_re='^(ico2|sce|src|include)/.*\.(c|h|c\.inc|inc)$'
+src_large_re='^(ico2|sce|include)/.*\.(c|h|c\.inc|inc)$'
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue

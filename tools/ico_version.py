@@ -33,10 +33,11 @@ VERSIONS = ("pal", "us", "aug6")
 # code in sce/; the aug6 prototype mirrors the dev's per-programmer module tree
 # recovered from TRFILE.TXT.
 FLAT_SOURCE_ROOTS = ("src", "ios", "sound", "isys", "ito", "sce")
-# `src` stays on the PAL list for the five VU1 microprogram sources, which the
-# listing does not attribute to a programmer, and `include` for the headers
-# this project wrote itself.
-PAL_SOURCE_ROOTS = ("ico2", "sce", "src", "include")
+# `include` stays on the PAL list for the headers this project wrote itself.
+# The five VU1 microprogram sources sit at the ico2 root: MAIN.MAP pulls their
+# objects in from ico2000.a, but the listing records no source rows for them,
+# so the programmer directory is unrecorded.
+PAL_SOURCE_ROOTS = ("ico2", "sce", "include")
 DEVTREE_SOURCE_ROOTS = ("common", "fumi", "sugipon", "seki", "omori",
                         "script", "ito")
 LAYOUTS = {"pal": "flat", "us": "flat", "aug6": "devtree"}
