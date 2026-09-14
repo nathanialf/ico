@@ -86,7 +86,35 @@ void MatrixDrive_ScaleMatrix(float x, float y, float z)
     func_0025D440(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40], (int)D_00290040);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TurnViewMatrix);
+extern float FSqrt(float a0);
+extern void sceVu0Normalize(void *a0, void *a1);
+
+void MatrixDrive_TurnViewMatrix(float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {x, 0.0f, z, 1.0f};
+
+    sceVu0Normalize(v0, v0);
+    sceVu0Normalize(v1, v1);
+    {
+        float c = v1[2];
+        float s = v1[0];
+        float m[4][4] = {{c, 0.0f, -s, 0.0f},
+                         {0.0f, 1.0f, 0.0f, 0.0f},
+                         {s, 0.0f, c, 0.0f},
+                         {0.0f, 0.0f, 0.0f, 1.0f}};
+        func_0025D440(&D_00668640[D_00639F00 * 0x40], (int)m, &D_00668640[D_00639F00 * 0x40]);
+    }
+    {
+        float len = FSqrt(v0[0] * v0[0] + v0[2] * v0[2]);
+        float t = v0[1];
+        float m[4][4] = {{1.0f, 0.0f, 0.0f, 0.0f},
+                         {0.0f, len, t, 0.0f},
+                         {0.0f, -t, len, 0.0f},
+                         {0.0f, 0.0f, 0.0f, 1.0f}};
+        func_0025D440(&D_00668640[D_00639F00 * 0x40], (int)m, &D_00668640[D_00639F00 * 0x40]);
+    }
+}
 
 void MatrixDrive_PushMatrixWithNoCopy(void)
 {
@@ -135,22 +163,213 @@ void MatrixDrive_TransMatrix(float x, float y, float z)
     CopyVector(&D_00668640[D_00639F00 * 0x40 + 0x30], m);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TurnObjectMatrix);
-ASM_LIT4_SLOT(D_00638B0C, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TurnXObjectMatrixZY);
-ASM_LIT4_SLOT(D_00638B10, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TurnXObjectMatrixYZ);
-ASM_LIT4_SLOT(D_00638B14, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TurnYObjectMatrixXZ);
-ASM_LIT4_SLOT(D_00638B18, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TurnZObjectMatrixXY);
-ASM_LIT4_SLOT(D_00638B1C, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnXAngleZY);
-ASM_LIT4_SLOT(D_00638B20, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnXAngleYZ);
-ASM_LIT4_SLOT(D_00638B24, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnYAngleXZ);
-ASM_LIT4_SLOT(D_00638B28, 0.01f);
+extern int GetTableArcTan2(float a0, float a1);
+extern float FSqrt(float a0);
+extern void sceVu0Normalize(void *a0, void *a1);
+
+/* INTERIM stand-in: MatrixDrive_GetTurnZAngleYX is `inline` in the 2001 source, so its
+   out-of-line copy lands in the deferred inline tail BELOW this caller and gcc
+   cannot inline it from there. Same body. */
+static inline void GetTurnZAngleYX_i(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, -z, 1.0f};
+    float v1[4] = {x, 0.0f, -z, 1.0f};
+    float len;
+    float p;
+    float q;
+    float yy;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(x * x + z * z)) {
+        sceVu0Normalize(v1, v1);
+        p = v1[2];
+        q = v1[0];
+        *a0 = GetTableArcTan2(-q, -p);
+    }
+    len = FSqrt(v0[0] * v0[0] + v0[2] * v0[2]);
+    yy = v0[1];
+    *a1 = -GetTableArcTan2(yy, len);
+}
+
+void MatrixDrive_TurnObjectMatrix(float x, float y, float z)
+{
+    short ay;
+    short ax;
+
+    GetTurnZAngleYX_i(&ay, &ax, x, y, z);
+    MatrixDrive_RotMatrixY(ay);
+    MatrixDrive_RotMatrixX(ax);
+}
+
+/* INTERIM stand-in: MatrixDrive_GetTurnXAngleZY is `inline` in the 2001 source,
+   so its out-of-line copy lands in the deferred inline tail BELOW this caller and
+   gcc cannot inline it from there. This carries the same body for the callers
+   above the tail. */
+static inline void GetTurnXAngleZY_i(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {x, y, 0.0f, 1.0f};
+    float len;
+    float zz;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(x * x + y * y)) {
+        sceVu0Normalize(v1, v1);
+        *a0 = GetTableArcTan2(v1[1], v1[0]);
+    }
+    len = FSqrt(v0[0] * v0[0] + v0[1] * v0[1]);
+    zz = v0[2];
+    *a1 = -GetTableArcTan2(zz, len);
+}
+
+void MatrixDrive_TurnXObjectMatrixZY(float x, float y, float z)
+{
+    short az;
+    short ay;
+
+    GetTurnXAngleZY_i(&az, &ay, x, y, z);
+    MatrixDrive_RotMatrixZ(az);
+    MatrixDrive_RotMatrixY(ay);
+}
+
+/* INTERIM stand-in: MatrixDrive_GetTurnXAngleYZ is `inline` in the 2001 source, so its
+   out-of-line copy lands in the deferred inline tail BELOW this caller and gcc
+   cannot inline it from there. Same body. */
+static inline void GetTurnXAngleYZ_i(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {x, 0.0f, z, 1.0f};
+    float len;
+    float t;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(x * x + z * z)) {
+        sceVu0Normalize(v1, v1);
+        *a0 = -GetTableArcTan2(v1[2], v1[0]);
+    }
+    len = FSqrt(v0[0] * v0[0] + v0[2] * v0[2]);
+    t = v0[1];
+    *a1 = GetTableArcTan2(t, len);
+}
+
+void MatrixDrive_TurnXObjectMatrixYZ(float x, float y, float z)
+{
+    short ay;
+    short az;
+
+    GetTurnXAngleYZ_i(&ay, &az, x, y, z);
+    MatrixDrive_RotMatrixY(ay);
+    MatrixDrive_RotMatrixZ(az);
+}
+
+/* INTERIM stand-in: MatrixDrive_GetTurnYAngleXZ is `inline` in the 2001 source, so its
+   out-of-line copy lands in the deferred inline tail BELOW this caller and gcc
+   cannot inline it from there. Same body. */
+static inline void GetTurnYAngleXZ_i(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {0.0f, y, z, 1.0f};
+    float len;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(y * y + z * z)) {
+        sceVu0Normalize(v1, v1);
+        *a0 = -GetTableArcTan2(v1[2], v1[1]);
+    }
+    len = FSqrt(v0[1] * v0[1] + v0[2] * v0[2]);
+    *a1 = GetTableArcTan2(v0[0], len);
+}
+
+void MatrixDrive_TurnYObjectMatrixXZ(float x, float y, float z)
+{
+    short ax;
+    short az;
+
+    GetTurnYAngleXZ_i(&ax, &az, x, y, z);
+    MatrixDrive_RotMatrixX(ax);
+    MatrixDrive_RotMatrixZ(az);
+}
+
+/* INTERIM stand-in: MatrixDrive_GetTurnZAngleXY is `inline` in the 2001 source, so its
+   out-of-line copy lands in the deferred inline tail BELOW this caller and gcc
+   cannot inline it from there. Same body. */
+static inline void GetTurnZAngleXY_i(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {0.0f, y, z, 1.0f};
+    float len;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(y * y + z * z)) {
+        sceVu0Normalize(v1, v1);
+        *a0 = -GetTableArcTan2(v1[1], v1[2]);
+    }
+    len = FSqrt(v0[1] * v0[1] + v0[2] * v0[2]);
+    *a1 = GetTableArcTan2(v0[0], len);
+}
+
+void MatrixDrive_TurnZObjectMatrixXY(float x, float y, float z)
+{
+    short ax;
+    short ay;
+
+    GetTurnZAngleXY_i(&ax, &ay, x, y, z);
+    MatrixDrive_RotMatrixX(ax);
+    MatrixDrive_RotMatrixY(ay);
+}
+
+extern int GetTableArcTan2(float a0, float a1);
+extern float FSqrt(float a0);
+extern void sceVu0Normalize(void *a0, void *a1);
+
+void MatrixDrive_GetTurnXAngleZY(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {x, y, 0.0f, 1.0f};
+    float len;
+    float zz;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(x * x + y * y)) {
+        sceVu0Normalize(v1, v1);
+        *a0 = GetTableArcTan2(v1[1], v1[0]);
+    }
+    len = FSqrt(v0[0] * v0[0] + v0[1] * v0[1]);
+    zz = v0[2];
+    *a1 = -GetTableArcTan2(zz, len);
+}
+
+void MatrixDrive_GetTurnXAngleYZ(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {x, 0.0f, z, 1.0f};
+    float len;
+    float t;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(x * x + z * z)) {
+        sceVu0Normalize(v1, v1);
+        *a0 = -GetTableArcTan2(v1[2], v1[0]);
+    }
+    len = FSqrt(v0[0] * v0[0] + v0[2] * v0[2]);
+    t = v0[1];
+    *a1 = GetTableArcTan2(t, len);
+}
+
+void MatrixDrive_GetTurnYAngleXZ(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {0.0f, y, z, 1.0f};
+    float len;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(y * y + z * z)) {
+        sceVu0Normalize(v1, v1);
+        *a0 = -GetTableArcTan2(v1[2], v1[1]);
+    }
+    len = FSqrt(v0[1] * v0[1] + v0[2] * v0[2]);
+    *a1 = GetTableArcTan2(v0[0], len);
+}
 
 extern float FSqrt(float a0);
 extern void sceVu0Normalize(void *a0, void *a1);
@@ -183,12 +402,60 @@ void MatrixDrive_GetTurnYEAngleXZ(float *a0, float *a1, float x, float y, float 
     a1[1] = v0[0];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnZAngleXY);
-ASM_LIT4_SLOT(D_00638B30, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnZAngleYX);
-ASM_LIT4_SLOT(D_00638B34, 0.01f);
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnMinusZAngleXY);
-ASM_LIT4_SLOT(D_00638B38, 0.01f);
+void MatrixDrive_GetTurnZAngleXY(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {0.0f, y, z, 1.0f};
+    float len;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(y * y + z * z)) {
+        sceVu0Normalize(v1, v1);
+        *a0 = -GetTableArcTan2(v1[1], v1[2]);
+    }
+    len = FSqrt(v0[1] * v0[1] + v0[2] * v0[2]);
+    *a1 = GetTableArcTan2(v0[0], len);
+}
+
+void MatrixDrive_GetTurnZAngleYX(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, -z, 1.0f};
+    float v1[4] = {x, 0.0f, -z, 1.0f};
+    float len;
+    float p;
+    float q;
+    float yy;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(x * x + z * z)) {
+        sceVu0Normalize(v1, v1);
+        p = v1[2];
+        q = v1[0];
+        *a0 = GetTableArcTan2(-q, -p);
+    }
+    len = FSqrt(v0[0] * v0[0] + v0[2] * v0[2]);
+    yy = v0[1];
+    *a1 = -GetTableArcTan2(yy, len);
+}
+
+void MatrixDrive_GetTurnMinusZAngleXY(short *a0, short *a1, float x, float y, float z)
+{
+    float v0[4] = {x, y, z, 1.0f};
+    float v1[4] = {0.0f, y, z, 1.0f};
+    float len;
+    float p;
+    float q;
+
+    sceVu0Normalize(v0, v0);
+    if (0.01f < FSqrt(y * y + z * z)) {
+        sceVu0Normalize(v1, v1);
+        p = v1[2];
+        q = v1[1];
+        *a0 = GetTableArcTan2(-q, -p);
+    }
+    len = FSqrt(v0[1] * v0[1] + v0[2] * v0[2]);
+    *a1 = GetTableArcTan2(v0[0], len);
+}
 
 extern void sceVu0TransposeMatrix(void *dst, void *src);
 

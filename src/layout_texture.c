@@ -52,7 +52,12 @@ extern void gflagInit(void);
 typedef struct LtProp {
     int first; /* 0x00 */
     int last;  /* 0x04 */
-    char pad8[0x20 - 0x08];
+    float f8;  /* 0x08 */
+    float fC;  /* 0x0C */
+    float f10; /* 0x10 */
+    float f14; /* 0x14 */
+    float f18; /* 0x18 */
+    float f1C; /* 0x1C */
     void *f20; /* 0x20 */
     int f24;   /* 0x24 */
     int f28;   /* 0x28 */
@@ -118,11 +123,215 @@ void lt_analog2Pad(void)
     D_0063C3F0 = D_0028F8F0.button;
 }
 
+extern int frame_count;
+extern int D_0063C408;
+extern int D_0028F8F4[];
+extern int D_0063B620;
+extern int D_0063AA00;
+extern void display_primary_texture_layout(int no, int sel);
+extern void default_item_select(int no);
+/* census name: display_texture (the name is also src/jimaku's global and
+   src/kanban's file-local one). */
+extern void func_001BF960(int no, LtProperty *e);
+
+/* source lines 533-541 */
+/* source line 533-541. The second range is spelled as a conditional expression,
+   not `no < 330 && no >= 325`: as an && pair fold_range_test collapses it to
+   `addiu -325` + `sltiu 5`, where the ROM keeps both `slti` tests. */
+static inline int lt_property_visible(int no)
+{
+    int vis = 1;
+
+    if (D_0063AA00 == 0 && D_0063B60C == 58 && no >= 300 &&
+        (no < 308 || (no < 330 ? no >= 325 : 0))) {
+        vis = 0;
+    }
+    return vis;
+}
+
+/* source lines 1066-1075 */
+static inline void lt_draw_layout(int no)
+{
+    int i = D_00533FE8[no].first;
+    int last = D_00533FE8[no].last;
+
+    for (; i < last; i++) {
+        if (lt_property_visible(i)) {
+            func_001BF960(no, &D_0030CFF8[i]);
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", default_item_select);
+
+static inline void lt_reset_property_chain(int no)
+{
+    int *p = (int *)((char *)D_00533FE8 + no * 0x38);
+    int i = p[0xC];
+
+    while (i >= 0) {
+        p = (int *)((char *)D_00533FE8 + i * 0x38);
+        p[0xB] = p[0xA];
+        p[9] = 1;
+        i = p[0xC];
+    }
+}
+
+extern unsigned char D_0063B600[4];
+extern unsigned int D_0063B628;
+extern unsigned int D_0063B62C;
+extern unsigned int D_0063C400;
+extern unsigned int D_0063C404;
+extern signed char D_0063C3FC;
+extern unsigned int D_0063C40C;
+extern unsigned int D_0063C410;
+extern int D_0063B620;
+extern int D_0028F4C0[];
+
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", texture_fading);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001BF960);
-INCLUDE_ASM("asm/nonmatchings/src/layout_texture", display_primary_texture_layout);
-INCLUDE_ASM("asm/nonmatchings/src/layout_texture", exec_layout_texture);
+
+typedef struct {
+    int f[4];
+} SprRect;
+
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} SprCol;
+
+extern SprRect D_0061DD50;
+extern int D_0063B61C;
+extern int D_0063C3F4;
+extern int D_0063C3F8;
+extern void gif_StartPacketPri(int pri);
+extern void gif_SetZTest(int on);
+extern void gif_SetZWrite(int on);
+extern void gif_SetAlpha(int a, int b, int c);
+extern void gif_SpriteSensitive(void *rect, unsigned int z, void *uv, void *col, int prim);
+extern void gif_EndPacket(void);
+extern void texture_fading(LtProp *p);
+
+/* source lines 715-735 */
+static inline void lt_draw_primary_sprite(SprCol *col)
+{
+    SprRect r;
+
+    gif_StartPacketPri(11);
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+    gif_SetAlpha(1, 7, 0);
+    r = D_0061DD50;
+    gif_SpriteSensitive(&r, 0xFFFFFFFF, (void *)0, col, 1);
+    gif_SetZWrite(1);
+    gif_SetZTest(1);
+    gif_EndPacket();
+}
+
+void display_primary_texture_layout(int no, int sel)
+{
+    SprCol col;
+    LtProp *p = &D_00533FE8[no];
+    int m;
+    int flag;
+
+    col.r = (int)(p->f10 * 255.0f);
+    col.g = (int)(p->f14 * 255.0f);
+    col.b = (int)(p->f18 * 255.0f);
+    col.a = (int)(p->f1C * 127.0f);
+    lt_draw_primary_sprite(&col);
+    if (p->f20 != 0 && (D_0063B618 == 1 || D_0063B618 == 2)) {
+        if (p->f2C >= 0) {
+            int *e = (int *)((char *)D_0030CFF8 + p->f2C * 0x70);
+
+            m = e[0x1B] & 3;
+        } else {
+            m = 0;
+        }
+        sel = ((int (*)(int, int))p->f20)(D_0063B614, sel);
+        if (sel != -1) {
+            flag = 0;
+            if ((D_0028F8F4[0] & 0x40) != 0) {
+                flag = m == 1;
+            }
+            if ((D_0063B618 == 2 && sel != D_0063B60C) || sel == 62) {
+                D_0063C3F4 = sel;
+                display_texture_fade_cancel_chk(D_0063B60C, sel);
+                if (D_0063B61C == 1) {
+                    D_0063B618 = 5;
+                } else {
+                    D_0063C3F8 = 3;
+                    D_0063B618 = flag ? 7 : 3;
+                }
+            }
+        } else if ((D_0028F8F4[0] & 0x40) != 0) {
+            if (m == 2) {
+                D_0063C3F8 = m;
+                D_0063B618 = 7;
+            }
+        }
+        D_0063B614 = 0;
+    }
+    texture_fading(p);
+    lt_draw_layout(no);
+}
+
+void exec_layout_texture(void)
+{
+    int n = 0;
+    int list[16];
+    int ret = -1;
+    LtProp *p;
+    int v;
+    int j;
+    int k;
+
+    if (frame_count - D_0063C408 == 0 || frame_count - D_0063C408 == 1) {
+        D_0028F8F4[0] = 0;
+    }
+    p = &D_00533FE8[D_0063B60C];
+    for (;;) {
+        for (j = p->first; j < p->last; j++) {
+            int *e = (int *)((char *)D_0030CFF8 + j * 0x70);
+
+            e[0x1B] = (e[0x1B] & ~0x10) | (((unsigned int)e[0x1B] >> 1) & 0x10);
+        }
+        if (p->link >= 0) {
+            list[n++] = p->link;
+            p = &D_00533FE8[p->link];
+        } else {
+            break;
+        }
+    }
+    list[n] = -1;
+    for (n--; n != -1; n--) {
+        p = &D_00533FE8[list[n]];
+        v = p->f2C;
+        D_0063B610 = v;
+        if (p->f20 != 0 && (D_0063B618 == 1 || D_0063B618 == 2)) {
+            ret = ((int (*)(int, int))p->f20)(p->f24, ret);
+            p->f24 = 0;
+            v = p->f2C;
+        } else {
+            ret = -1;
+        }
+        if (v >= 0 && D_0063B620 == 0) {
+            default_item_select(list[n]);
+        }
+    }
+    p = &D_00533FE8[D_0063B60C];
+    D_0063B610 = p->f2C;
+    display_primary_texture_layout(D_0063B60C, ret);
+    if (p->f2C >= 0 && D_0063B620 == 0) {
+        default_item_select(D_0063B60C);
+    }
+    for (k = 0; list[k] >= 0; k++) {
+        lt_draw_layout(list[k]);
+    }
+    D_0063B620 = 0;
+}
 
 /* census name: init_textures_of_specified_property (src/kanban carries a global of
    that name, so the two cannot both keep it). */
@@ -203,18 +412,6 @@ void func_001C09A8(int first, int last)
 
 /* source lines 515-522: the property chain reset, inlined here and by
    texture_fading. */
-static inline void lt_reset_property_chain(int no)
-{
-    int *p = (int *)((char *)D_00533FE8 + no * 0x38);
-    int i = p[0xC];
-
-    while (i >= 0) {
-        p = (int *)((char *)D_00533FE8 + i * 0x38);
-        p[0xB] = p[0xA];
-        p[9] = 1;
-        i = p[0xC];
-    }
-}
 
 /* source lines 1322-1331 */
 static inline void lt_init_stage_textures(int stage)
