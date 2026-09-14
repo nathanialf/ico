@@ -169,4 +169,62 @@ void ExecWaterDot(WaterDotWork *w)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/waterDot", DispWaterDot);
+extern int matrixptr;
+extern int D_0063BC4C; /* the PRIM register value the splash packet draws with */
+extern void gif_StartPacketPri(int a0);
+extern void gif_SetGsReg(long long a0, long long a1);
+extern void gif_SetZTest(int a0);
+extern void gif_SetZWrite(int a0);
+extern void gif_SetAlpha(int a0, int a1, int a2);
+extern void gif_EndPacket(void);
+extern void _ApplyMatrix(void *dst, int m, void *src);
+extern void _ScaleVector(void *dst, void *src, float k);
+extern void _FTOI4Vector(void *dst, void *src);
+
+/* waterDot.c:121-126 in the PAL listing, rows inside DispWaterDot's span but
+   above its def line: a static helper with no out-of-line copy, inlined at its
+   one call site. It projects one dot into GS fixed-point screen space. */
+static inline void getWaterDotScreenPos(int *out, VECTOR *pos)
+{
+    VECTOR v;
+    float q;
+
+    _ApplyMatrix(&v, matrixptr + 0x100, pos);
+    q = v.w;
+    _ScaleVector(&v, &v, 1.0f / q);
+    _FTOI4Vector(out, &v);
+}
+
+void DispWaterDot(WaterDotWork *w)
+{
+    int ip[4];
+    WaterDot *p;
+    int i;
+
+    gif_StartPacketPri(0xB);
+
+    p = w->dot;
+    gif_SetGsReg(0, D_0063BC4C);
+    gif_SetZTest(1);
+    gif_SetZWrite(0);
+    gif_SetAlpha(1, 5, 0x80);
+
+    for (i = 0; i < w->num; i++, p++) {
+        if (p->used != 0) {
+            getWaterDotScreenPos(ip, &p->pos);
+
+            if (ip[0] >= 0x6700 && ip[0] <= 0x9900) {
+                if (ip[1] >= 0x7380 && ip[1] <= 0x8C80) {
+                    gif_SetGsReg(1, 0x80LL | (0x80LL << 8) | (0x80LL << 16) |
+                                        ((long long)p->life << 24) | (0x3F800000LL << 32));
+                    gif_SetGsReg(5, (long long)ip[0] | ((long long)ip[1] << 16) |
+                                        ((long long)ip[2] << 32));
+                }
+            }
+        }
+    }
+
+    gif_EndPacket();
+
+    for (i = 0; i < w->num2; i++) {}
+}

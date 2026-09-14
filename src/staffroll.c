@@ -45,8 +45,88 @@ void staffRollStart(float t, int alpha)
     memset(D_0071D980, 0, 0x12C0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollScroll);
-INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollNameOut);
+extern void font_Print(unsigned int attr, char *str, int size, StaffRollCol col, float x, float y);
+
+/* The scroll loop walks the 300-entry table by BYTE offset and spells the base
+   at every use site: that is what keeps the entry address a giv of the byte
+   counter with no separate index multiply, so loop.c can drop the counter
+   itself and compare the cursor against base + 0x12C0. */
+#define SROLL(off) ((StaffRollEntry *)((char *)D_0071D980 + (off)))
+
+int staffRollScroll(void)
+{
+    int count;
+    int i;
+    int a;
+    float t;
+
+    count = 0;
+
+    D_0063C424 += D_0063C420;
+    for (i = 0; i < 300 * 16; i += 16) {
+        if (SROLL(i)->str == 0) {
+            continue;
+        }
+        count++;
+
+        SROLL(i)->y -= D_0063C420;
+        t = SROLL(i)->y - 112.0f;
+        a = (int)(184.0f - (t < 0.0f ? -t : t) * 120.0f / 112.0f);
+        if (a < 0) {
+            a = 0;
+        }
+        if (a > 128) {
+            a = 128;
+        }
+        if ((float)(-(font_GetHeight() + 449)) < SROLL(i)->y) {
+            font_Print(a | 0x70707000, *SROLL(i)->str, SROLL(i)->size, SROLL(i)->col,
+                       (float)D_0063C42C, SROLL(i)->y);
+        } else {
+            SROLL(i)->str = 0;
+        }
+    }
+
+    return count;
+}
+
+extern char *D_004E4610[];
+extern char D_0061DF10[];
+extern char D_0061DF28[];
+extern char D_0063B660[];
+extern int D_0063B674;
+extern int font_GetHeight(void);
+extern int font_CheckAlign(StaffRollCol *col, char *str);
+extern void debug_StdPrintfDummy(char *fmt, ...);
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+
+int staffRollNameOut(void)
+{
+    StaffRollEntry *e;
+    char **s;
+    int i;
+
+    if (D_0063C424 / (float)(font_GetHeight() + 1) >= (float)D_0063C428) {
+        for (i = 0; i < 300; i++) {
+            if (D_0071D980[i].str == 0)
+                goto found;
+        }
+        debug_StdPrintfDummy(D_0061DF10);
+        debug_assert(D_0061DF28, 0xC0);
+        __assert(D_0061DF28, 0xC0, D_0063B660);
+    found:
+
+        e = &D_0071D980[i];
+        s = &D_004E4610[D_0063C428++];
+        if (*s != 0)
+            e->str = s;
+
+        e->y = (float)(font_GetHeight() + 449);
+        e->size = font_CheckAlign(&e->col, *e->str);
+    }
+    return D_0063C428 >= D_0063B674;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/staffroll", staffRollMain);
 
 void staffRollWide(void)

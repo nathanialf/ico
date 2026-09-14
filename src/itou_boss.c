@@ -1,8 +1,71 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", effect_end_func);
+extern signed char D_006E9A40[];
+extern void *isysGObjSearchFromObjKindID_begin(int id);
+extern char *GetParticleEffectData();
+extern void pbga_start(void *a0, int a1);
+extern void _CopyVector(void *dst, void *src);
+extern void CopyQuaternion(void *dst, void *src);
+extern void ExecuteSEPackage(int a0, int a1);
+
+void effect_end_func(void *a0)
+{
+    signed char *e;
+
+    if (isysGObjSearchFromObjKindID_begin(0x41) != 0) {
+        e = D_006E9A40 + *(int *)(GetParticleEffectData(a0) + 0x70) * 0x40;
+        pbga_start(e, 0x228);
+        _CopyVector(*(char **)e + 0x20, e + 0x20);
+        CopyQuaternion(*(char **)e + 0x30, e + 0x10);
+        e[4] = 2;
+        ExecuteSEPackage(0, 0x65);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", bossCtrlBeforeFunc);
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossEnemyFunc);
+
+extern unsigned char D_006E9A30[];
+extern int stage_no;
+extern float D_006392A0;
+extern void _ACTSetEnemyDisappearSpeed(void *a0, float speed);
+extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, int a1, float f);
+
+/* INTERIM: the January listing inlines InqCapsuleGhostBossStage into
+   BossEnemyFunc, but this TU's own out-of-line copy has to stay at its ROM
+   slot, so the caller uses this stand-in until the tail is all C. */
+static inline int InqCapsuleGhostBossStage_stand_in(void)
+{
+    int r = 0;
+    if (stage_no == 0x56 || stage_no == 3 || stage_no == 0x2E)
+        r = 1;
+    return r;
+}
+
+void BossEnemyFunc(void *self)
+{
+    if (*(signed char *)D_006E9A30 != 0 && InqCapsuleGhostBossStage_stand_in() != 0) {
+        _ACTSetEnemyDisappearSpeed(self, 6.0f);
+
+        switch (*(int *)(*(char **)((char *)self + 0x15C) + 0x4A0)) {
+        default:
+            break;
+        case 905:
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 0, 2.0f);
+            break;
+        case 955:
+        case 956:
+        case 957:
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 0, 2.0f);
+            break;
+        case 927:
+        case 928:
+        case 929:
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 0, D_006392A0);
+            break;
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlGeo);
 
 extern unsigned char D_006E9A30[];
@@ -13,7 +76,37 @@ void itou_boss_gflag_init(void)
     memset(D_006E9A30, 0, 0xD50);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlDL);
+extern int D_0063B13C;
+extern char D_00556880[];
+extern int stage_DispBgAnimation(void *a0);
+extern void debug_Printf(int x, int y, unsigned int color, char *fmt, ...);
+
+void BossCtrlDL(void)
+{
+    signed char *base;
+    signed char *e;
+    unsigned int k;
+    int n;
+
+    n = 0;
+    base = D_006E9A40;
+    for (k = 0; k < 53; k++) {
+        e = base + k * 0x40;
+        if (e[4] >= 2) {
+            if (stage_DispBgAnimation(e) != 0) {
+                pbga_start(e, 0x229);
+                _CopyVector(*(char **)e + 0x20, e + 0x20);
+                CopyQuaternion(*(char **)e + 0x30, e + 0x10);
+            }
+        }
+        if (e[4] != 0) {
+            n++;
+        }
+    }
+    if ((D_0063B13C & 1) != 0) {
+        debug_Printf(10, 60, 0xFFFFFFFF, D_00556880, n, 53);
+    }
+}
 
 extern int stage_no;
 
