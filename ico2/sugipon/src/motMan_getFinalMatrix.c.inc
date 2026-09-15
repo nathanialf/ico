@@ -27,27 +27,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", limitHPAngleAndSe
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", avoidReverseInterpOnCurrentMatrix);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", avoidReverseInterpOnCurrentMatrixWithLimit);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", _getFinalMatrix);
-ASM_LIT4_SLOT(D_00639560, 0.01f);
-ASM_LIT4_SLOT(D_00639564, 0.01f);
-ASM_LIT4_SLOT(D_00639568, 0.01f);
-ASM_LIT4_SLOT(D_0063956C, 1.2f);
-ASM_LIT4_SLOT(D_00639570, 0.01f);
-ASM_LIT4_SLOT(D_00639574, 0.01f);
-ASM_LIT4_SLOT(D_00639578, 0.01f);
-ASM_LIT4_SLOT(D_0063957C, 0.9f);
-ASM_LIT4_SLOT(D_00639580, 208.60756f);
-ASM_LIT4_SLOT(D_00639584, 0.6f);
-ASM_LIT4_SLOT(D_00639588, 0.9f);
-ASM_LIT4_SLOT(D_0063958C, 0.9f);
-ASM_LIT4_SLOT(D_00639590, 0.99f);
-ASM_LIT4_SLOT(D_00639594, 0.00016666666f);
-ASM_LIT4_SLOT(D_00639598, 0.8f);
-ASM_LIT4_SLOT(D_0063959C, 10430.378f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", EditRotEmphasys);
-ASM_LIT4_SLOT(D_006395A0, 0.01f);
-ASM_LIT4_SLOT(D_006395A4, 0.01f);
-ASM_LIT4_SLOT(D_006395A8, 0.01f);
-ASM_LIT4_SLOT(D_006395AC, 0.01f);
 
 static inline void getFinalMatrixCore(int id)
 {

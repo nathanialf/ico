@@ -24,14 +24,11 @@ void ResetGameOverEffect(void);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", draw);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", drawHT);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", renderViewCoordZSphere);
-ASM_LIT4_SLOT(D_00639490, 4095.0f);
 
 inline void ExecGameOverEffect(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", sonic);
-ASM_LIT4_SLOT(D_00639494, 0.001f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", darkVolume);
-ASM_LIT4_SLOT(D_00639498, 0.6666667f);
 
 /* listing lines 526-533: arm the game-over dark volume, shared by
    StartGameOverEffect and StartQueenAttackEffect */

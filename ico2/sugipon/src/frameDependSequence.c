@@ -21,8 +21,6 @@ extern void debug_StdPrintfDummy();
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/frameDependSequence", playSE);
-/* playSE's pool word; it keeps its slot while the function is still asm. */
-ASM_LIT4_SLOT(D_006394E0, 0.95f);
 
 typedef struct { /* 0x08 */
     int se;      /* 0x00 */

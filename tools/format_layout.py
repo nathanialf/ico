@@ -7,8 +7,7 @@ top-level items sit together. This pass normalises, at brace depth 0 only:
   * `#include` lines form one block with no blank lines inside it;
   * declarations (`extern ...;`, prototypes, `static inline` prototypes)
     form contiguous blocks with no blank lines inside;
-  * INCLUDE_ASM / ASM_LIT4_SLOT lines
-    form contiguous blocks of their own;
+  * INCLUDE_ASM lines form contiguous blocks of their own;
   * preprocessor lines (#define, #if...) form contiguous blocks;
   * every other item (function, struct/union/enum/typedef definition,
     data definition, standalone comment) is separated by exactly one blank
@@ -24,7 +23,7 @@ import re, sys
 
 INCLUDE = re.compile(r"^#\s*include\b")
 PP = re.compile(r"^#")
-ASM = re.compile(r"^(INCLUDE_ASM|ASM_LIT4_SLOT)\b")
+ASM = re.compile(r"^INCLUDE_ASM\b")
 DECL_START = re.compile(r"^(extern\b|static\s+inline\b[^{]*\)\s*;|inline\b[^{]*\)\s*;|[A-Za-z_][\w \*]*\b[A-Za-z_]\w*\s*\([^;{]*\)\s*;)")
 
 

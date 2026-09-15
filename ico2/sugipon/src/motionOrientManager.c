@@ -149,7 +149,6 @@ void execFrameTrigger(void *self)
     }
 }
 
-ASM_LIT4_SLOT(D_00639620, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", UpdateFrameCounter);
 
 inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
@@ -245,10 +244,7 @@ void ForTest_ForceShiftMotion(int a0, int a1)
     shiftMotionData(a0, a1, a1, 0);
 }
 
-ASM_LIT4_SLOT(D_00639624, 1e-06f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", normalMotionShift);
-ASM_LIT4_SLOT(D_00639628, 1e-06f);
-ASM_LIT4_SLOT(D_0063962C, 1e-06f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", parallelMotionShift);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", SetMotionRequest);
 
@@ -279,13 +275,7 @@ inline void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getNodeBlendedFloatingMotion);
-ASM_LIT4_SLOT(D_00639630, 10430.378f);
-ASM_LIT4_SLOT(D_00639634, 0.1f);
-ASM_LIT4_SLOT(D_00639638, 0.2f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getMotionGeometry);
-ASM_LIT4_SLOT(D_0063963C, 0.01f);
-ASM_LIT4_SLOT(D_00639640, 0.0001f);
-ASM_LIT4_SLOT(D_00639644, 0.0001f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getShapeGeometry);
 
 extern int GetStreamMotion(void *dst, float *v, void *sm, int n);
@@ -350,8 +340,6 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
     }
 }
 
-ASM_LIT4_SLOT(D_00639648, 0.01f);
-ASM_LIT4_SLOT(D_0063964C, 0.0001f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getStreamBlendShapeGeometry);
 
 extern int GetStreamShapeMotion(float *dst, void *sm);

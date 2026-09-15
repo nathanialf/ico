@@ -1702,9 +1702,7 @@ draw:
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-game", hand_able_connect);
-ASM_LIT4_SLOT(D_00638CE4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-game", ACTGame_CommonLoop);
-ASM_LIT4_SLOT(D_00638CE8, 160000.0f);
 
 extern char *D_00639EA4;
 extern char *D_00639EA8;

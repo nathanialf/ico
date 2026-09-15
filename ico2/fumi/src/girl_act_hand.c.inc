@@ -51,8 +51,4 @@ void HandMgr_Judge(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", HandMgr_Print);
-ASM_LIT4_SLOT(D_00639038, 0.9f);
-ASM_LIT4_SLOT(D_0063903C, 1.1f);
-ASM_LIT4_SLOT(D_00639040, 1.4f);
-ASM_LIT4_SLOT(D_00639044, 1.3f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", HandMgr_Speed);

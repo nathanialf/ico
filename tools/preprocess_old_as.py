@@ -52,41 +52,14 @@ INCLUDE = re.compile(r'^\s*\.include\s+"([^"]+)"')
 # syntax error, and the period assembler is the only assembler, so a rejection
 # stops the build.
 SYMNAME = re.compile(r"[A-Za-z_$.][A-Za-z0-9_$.]*")
-# `.lit4_slot SYM, VALUE` — emitted by ASM_LIT4_SLOT() in include/include_asm.h
-# for a `.lit4` constant-pool word whose owning function is still INCLUDE_ASM in
-# a TU whose pool has been carved (a `[..., .lit4, <TU>]` subsegment in the splat
-# yaml). See the macro's comment for the whole model; the part that lands here:
-#
-#   ee-as 2.9-991111 CANNOT assemble a named symbol that is defined in `.lit4`
-#   and referenced from the same file. `nopic_need_relax()` (tc-mips.c:11141)
-#   asserts `strcmp (segname, ".lit4") != 0` before deciding gp-addressability,
-#   because in its model `.lit4` only ever holds anonymous literals interned by
-#   the assembler itself. Defining the slot as data and letting the sibling's
-#   `%gp_rel(D_<VMA>)($28)` resolve to it aborts the assembler outright
-#   ("Internal error! Assertion failure in nopic_need_relax").
-#
-# So the sibling's load is restored to the spelling the original .s had before
-# splat symbolized the pool address: `li.s $fN, <value>`, which makes ee-as
-# intern the word itself at exactly that point in the file — same instruction,
-# same R_MIPS_LITERAL gp-relative encoding, and the pool word lands in the
-# sibling's shipped slot because ee-as appends literals in file order.
-LIT4_SLOT = re.compile(r"^\s*\.lit4_slot\s+([A-Za-z_$.][\w$.]*)\s*,\s*(\S+)\s*$")
-# The load to rewrite, before gp_rel translation. FP loads only — a slot reached
-# by anything else means the `.lit4_slot` line names the wrong symbol.
-LIT4_LOAD = re.compile(r"\b(?:lwc1|l\.s)(\s+)(\$f\d+|\$\w+),\s*%gp_rel\((\w+)\)\(\$\d+\)")
-ANY_SYM_REF = re.compile(r"%gp_rel\((\w+)\)")
 
 def symname(expr):
     m = SYMNAME.match(expr.strip())
     return m.group(0) if m else expr.strip()
 
 
-def flatten(path, out, seen, slots):
-    """Inline every `.include "….s"` sibling, and lift out `.lit4_slot` lines.
-
-    Collected untranslated: a `.lit4_slot` directive may appear either side of
-    the load it governs, so the gp_rel translation runs as a second pass.
-    """
+def flatten(path, out, seen):
+    """Inline every `.include "….s"` sibling into a single instruction stream."""
     for line in open(path):
         m = INCLUDE.match(line)
         if m:
@@ -95,35 +68,13 @@ def flatten(path, out, seen, slots):
             # alone so the assembler resolves them on its own include path.
             if inc.endswith(".s") and os.path.exists(inc) and inc not in seen:
                 seen.add(inc)
-                flatten(inc, out, seen, slots)
+                flatten(inc, out, seen)
                 continue
-            out.append(line)
-            continue
-        m = LIT4_SLOT.match(line)
-        if m:
-            # `100000.0f` is C's spelling; the assembler wants `100000.0`.
-            slots[m.group(1)] = m.group(2).rstrip("fF")
-            continue
         out.append(line)
 
 
-def translate(out, syms, slots):
-    used = set()
+def translate(out, syms):
     for i, line in enumerate(out):
-        if slots:
-            # A carved-pool slot owned by an INCLUDE_ASM sibling: restore the
-            # `li.s` the original .s had, so ee-as interns the word itself.
-            def _lit4(mm):
-                if mm.group(3) not in slots:
-                    return mm.group(0)
-                used.add(mm.group(3))
-                return "li.s%s%s, %s" % (mm.group(1), mm.group(2), slots[mm.group(3)])
-            line = LIT4_LOAD.sub(_lit4, line)
-            bad = [s for s in ANY_SYM_REF.findall(line) if s in slots]
-            if bad:
-                sys.exit("preprocess_old_as.py: %s is declared ASM_LIT4_SLOT but is "
-                         "referenced by something other than an FP load:\n  %s"
-                         % (", ".join(bad), line.strip()))
         # address-take `addiu $d,$28,%gp_rel(SYM)` -> `la $d, SYM` (GPREL16);
         # then load/store `%gp_rel(SYM)($28)` -> `SYM`; then any bare remainder.
         line = GP_REL_ADDR.sub(
@@ -131,14 +82,6 @@ def translate(out, syms, slots):
         line = GP_REL.sub(lambda mm: syms.add(symname(mm.group(1))) or mm.group(1), line)
         line = GP_REL_ANY.sub(lambda mm: syms.add(symname(mm.group(1))) or mm.group(1), line)
         out[i] = line
-    stale = sorted(set(slots) - used)
-    if stale:
-        # A slot whose owner has landed in C: the function's own literal now
-        # produces the word, so the ASM_LIT4_SLOT line must go or the pool ends
-        # up one word short and the link shifts.
-        sys.exit("preprocess_old_as.py: ASM_LIT4_SLOT declared for %s but no "
-                 "INCLUDE_ASM sibling loads it — delete the line (its owner is "
-                 "in C now?)." % ", ".join(stale))
 
 
 def main():
@@ -154,9 +97,9 @@ def main():
             "  docs/NOTES.md \"There is NO modern-gas path any more\"."
         )
     src, dst = args[0], args[1]
-    out, syms, seen, slots = [], set(), set(), {}
-    flatten(src, out, seen, slots)
-    translate(out, syms, slots)
+    out, syms, seen = [], set(), set()
+    flatten(src, out, seen)
+    translate(out, syms)
     hdr = "".join(".extern %s, 4\n" % s for s in sorted(syms))
     with open(dst, "w") as f:
         f.write(hdr)

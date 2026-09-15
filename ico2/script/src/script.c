@@ -577,10 +577,6 @@ void scpGirlHintVoicePlay(void)
     }
 }
 
-ASM_LIT4_SLOT(D_00639098, -0.0027777778f);
-ASM_LIT4_SLOT(D_0063909C, -0.01f);
-ASM_LIT4_SLOT(D_006390A0, -0.01f);
-ASM_LIT4_SLOT(D_006390A4, 16383.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/script", scpGirlHintVoiceTickProc);
 
 /* the 0x30-byte wood-bridge table entry at D_002A51F0: an object id, the

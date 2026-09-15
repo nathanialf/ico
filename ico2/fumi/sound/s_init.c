@@ -407,8 +407,6 @@ void soundDataSegAllClose(int a0, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundSeVolSet);
-ASM_LIT4_SLOT(D_00638CA0, 0.1f);
-ASM_LIT4_SLOT(D_00638CA4, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", debug_DispSEInfo);
 
 extern void SgSetSeVolDirect(int id, int l, int r);
@@ -525,9 +523,6 @@ void sound3DParamSet(SeSlot *self)
     soundSeVolSet(self);
 }
 
-ASM_LIT4_SLOT(D_00638CAC, 3000.0f);
-ASM_LIT4_SLOT(D_00638CB0, 0.1f);
-ASM_LIT4_SLOT(D_00638CB4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", _soundSeDefPlay);
 
 extern char D_006BF870[];

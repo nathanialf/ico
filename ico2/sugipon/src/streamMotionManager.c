@@ -16,7 +16,6 @@ int _closeHander(void);
 int _handler(int self);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/streamMotionManager", _infoUpdate);
-ASM_LIT4_SLOT(D_006396C8, 2997.0f);
 
 extern char D_00621150[];
 extern int D_0063BBF4;

@@ -278,7 +278,6 @@ void zAxisRotFitting(int *self, int arg2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/a_p_1", fitToCol);
-ASM_LIT4_SLOT(D_00639374, 10000.0f);
 
 extern int fitToCol(char *a0, int a1);
 extern void GetRootPosition(void *dst, void *self);
@@ -432,7 +431,6 @@ int rolling(char *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/a_p_1", calcSubMission);
-ASM_LIT4_SLOT(D_00639380, 2500.0f);
 
 extern void CopyMatrix(void *dst, void *src);
 extern void GetRootPosition(void *dst, void *self);

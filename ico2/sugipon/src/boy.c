@@ -36,13 +36,6 @@ void dispClothes(char *gobj)
     DispCloth4D(*(void **)(w + 0x30), x + 0x40, x);
 }
 
-ASM_LIT4_SLOT(D_0063940C, 0.98f);
-ASM_LIT4_SLOT(D_00639410, 0.98f);
-ASM_LIT4_SLOT(D_00639414, 0.98f);
-ASM_LIT4_SLOT(D_00639418, 0.98f);
-ASM_LIT4_SLOT(D_0063941C, 0.98f);
-ASM_LIT4_SLOT(D_00639420, 0.98f);
-ASM_LIT4_SLOT(D_00639424, 0.999f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/boy", execClothes);
 
 extern void *iosMallocDebug(void *heap, int size, char *file, int line);
@@ -101,11 +94,6 @@ inline void LightLineGeo(void)
     }
 }
 
-ASM_LIT4_SLOT(D_00639434, 0.05f);
-ASM_LIT4_SLOT(D_00639438, 0.4f);
-ASM_LIT4_SLOT(D_0063943C, 18.99998f);
-ASM_LIT4_SLOT(D_00639440, 0.05f);
-ASM_LIT4_SLOT(D_00639444, 0.4f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/boy", LightLineDL);
 
 inline void SelectBoyCrown(char *a0, int a1)

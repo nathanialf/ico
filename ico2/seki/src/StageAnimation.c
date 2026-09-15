@@ -582,10 +582,9 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
     return r;
 }
 
-/* stage_PlayBgAnimationDissolve's .lit4 word: it is the SECOND of this TU's
-   two identical 1.2075409f pool slots (stage_PlayBgAnimation's literal is the
-   first).  The slot keeps the still-asm sibling's word in source order. */
-ASM_LIT4_SLOT(D_00638C78, 1.2075409f);
+/* This TU's .lit4 holds 1.2075409f twice, one word per owner and no
+   deduplication: stage_PlayBgAnimation's literal above is the first, and
+   this stub's own load is the second. */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_PlayBgAnimationDissolve);
 
 int *stage_MakePlayBgAnimation(int key)

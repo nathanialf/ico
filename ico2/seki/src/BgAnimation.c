@@ -306,22 +306,8 @@ static inline void bga_hermite(float t, float *h0, float *h1, float *h2, float *
     *h2 = *h3 - s + t;
 }
 
-ASM_LIT4_SLOT(D_00639724, 1.2075409f);
-ASM_LIT4_SLOT(D_00639728, 182.04445f);
-ASM_LIT4_SLOT(D_0063972C, 182.04445f);
-ASM_LIT4_SLOT(D_00639730, 0.1f);
-ASM_LIT4_SLOT(D_00639734, 182.04445f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_GetMotion);
-ASM_LIT4_SLOT(D_00639738, 1.2075409f);
-ASM_LIT4_SLOT(D_0063973C, 182.04445f);
-ASM_LIT4_SLOT(D_00639740, 182.04445f);
-ASM_LIT4_SLOT(D_00639744, 182.04445f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_GetMotionParticle);
-ASM_LIT4_SLOT(D_00639748, 1.2075409f);
-ASM_LIT4_SLOT(D_0063974C, 182.04445f);
-ASM_LIT4_SLOT(D_00639750, 182.04445f);
-ASM_LIT4_SLOT(D_00639754, 0.1f);
-ASM_LIT4_SLOT(D_00639758, 182.04445f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_GetMotionLightning);
 
 typedef struct BgaExtKey {
@@ -521,10 +507,6 @@ void bga_GetGizmoMotion(BgaMotion *m, float *dst)
     }
 }
 
-ASM_LIT4_SLOT(D_00639764, 0.82812935f);
-ASM_LIT4_SLOT(D_00639768, 2.66f);
-ASM_LIT4_SLOT(D_0063976C, 0.82812935f);
-ASM_LIT4_SLOT(D_00639770, 0.82812935f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_calcEnvelope);
 
 extern float GetTableCos(short a);
@@ -678,9 +660,6 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
     VU0_V2OP(vmove.xyzw, 7, 13);
 }
 
-ASM_LIT4_SLOT(D_00639774, 0.41406468f);
-ASM_LIT4_SLOT(D_00639778, 0.82812935f);
-ASM_LIT4_SLOT(D_0063977C, 0.82812935f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcObject);
 
 extern int D_0028F4C0[];
@@ -755,9 +734,6 @@ void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
     bga_clampCount(&o->f34, f);
 }
 
-ASM_LIT4_SLOT(D_00639790, 0.82812935f);
-ASM_LIT4_SLOT(D_00639794, 0.82812935f);
-ASM_LIT4_SLOT(D_00639798, 0.82812935f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_SetFrame);
 
 extern int D_0063C4B4;
@@ -880,16 +856,8 @@ void bga_CalcAnimation(char *p, int a1, int a2)
     }
 }
 
-ASM_LIT4_SLOT(D_006397A4, 0.82812935f);
-ASM_LIT4_SLOT(D_006397A8, 0.82812935f);
-ASM_LIT4_SLOT(D_006397AC, 1.2075409f);
-ASM_LIT4_SLOT(D_006397B0, 1.2075409f);
-ASM_LIT4_SLOT(D_006397B4, 182.04445f);
-ASM_LIT4_SLOT(D_006397B8, 3.1415927f);
-ASM_LIT4_SLOT(D_006397BC, 10430.378f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcSdfCamera);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_addLightning);
-ASM_LIT4_SLOT(D_006397C0, 0.01f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_DispLightning);
 
 extern int D_0063C4B4;

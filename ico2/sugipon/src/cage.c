@@ -66,8 +66,6 @@ inline int GetCageChainPoint(char *a0, char *a1, char *a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/cage", InitCageGeo);
-ASM_LIT4_SLOT(D_00639460, 0.995f);
-ASM_LIT4_SLOT(D_00639464, 10430.378f);
 
 inline void SetCageChainHangableFlag(char *a0, int a1)
 {

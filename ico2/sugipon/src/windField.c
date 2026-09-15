@@ -140,7 +140,6 @@ void drawSenpuuki(float scale)
     gif_EndPacket();
 }
 
-ASM_LIT4_SLOT(D_006396FC, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/windField", ExecWindField);
 
 extern int (*D_0063BC58)(void);

@@ -944,7 +944,6 @@ void actCommonDown(volatile int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", actCommonDie);
-ASM_LIT4_SLOT(D_00638E5C, 0.01f);
 
 extern float _GetRandom(void);
 extern void *memset(void *dst, int c, int n);
@@ -1327,8 +1326,6 @@ void funcCommonJumpDircorrect(char *a0)
     SetMotionDirection(a0, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x350);
 }
 
-ASM_LIT4_SLOT(D_00638E60, 0.3f);
-
 void funcCommonFallDircorrect(char *a0)
 {
     SetMotionDirection(a0, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x360);
@@ -1539,9 +1536,7 @@ void debugDispSphere(void *a0, void *a1, float f)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", getLandOffset);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", completeEmergency);
-ASM_LIT4_SLOT(D_00638E6C, 7000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", emergencyCheck);
-ASM_LIT4_SLOT(D_00638E70, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", flyCoreLoop);
 
 extern int D_0063B234;
@@ -1586,15 +1581,6 @@ void actCommonFly(volatile int a0)
                  *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) == a0) ||
                     D_0063B234 != 0);
 }
-
-ASM_LIT4_SLOT(D_00638E74, 0.005f);
-ASM_LIT4_SLOT(D_00638E78, 10000.0f);
-ASM_LIT4_SLOT(D_00638E7C, 0.005f);
-ASM_LIT4_SLOT(D_00638E80, 90000.0f);
-ASM_LIT4_SLOT(D_00638E84, 0.05f);
-ASM_LIT4_SLOT(D_00638E88, 0.005f);
-ASM_LIT4_SLOT(D_00638E8C, 360000.0f);
-ASM_LIT4_SLOT(D_00638E90, 0.92f);
 
 extern float GetDifferenceFromWallUpperField(void *a0, int node);
 extern float GetDifferenceFromLastField(void *a0, int node);

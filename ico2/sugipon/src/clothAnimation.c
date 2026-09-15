@@ -420,8 +420,6 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
     return -1;
 }
 
-ASM_LIT4_SLOT(D_00639478, 0.8f);
-ASM_LIT4_SLOT(D_0063947C, 0.98f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", GetClothAnimation);
 
 extern void _ScaleVector(void *dst, void *src, float k);
@@ -979,11 +977,8 @@ void DispCloth4DWithAdd(int *a0, void *a1, void *a2)
     }
 }
 
-ASM_LIT4_SLOT(D_00639484, 2.44140625e-05f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", getCloth4D_preProcess);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", proc);
-ASM_LIT4_SLOT(D_00639488, 0.2f);
-ASM_LIT4_SLOT(D_0063948C, 0.2f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", getCloth4D);
 
 extern void CopyMatrix(void *dst, void *src);

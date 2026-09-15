@@ -468,8 +468,6 @@ void checkWallState(int flag)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", checkCliffState);
-ASM_LIT4_SLOT(D_006395B4, 1e+04f);
-ASM_LIT4_SLOT(D_006395B8, 1e+04f);
 
 void _checkCliffAndWall(void)
 {

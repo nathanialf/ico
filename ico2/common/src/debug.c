@@ -321,7 +321,6 @@ void debug_Init(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_Load);
-ASM_LIT4_SLOT(D_00639338, 10059776.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_MakeFont);
 
 /* D_00619BB0 = the 8x8 1bpp font bitmap (8 bytes per glyph);
@@ -639,8 +638,6 @@ int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_DrawBar);
-ASM_LIT4_SLOT(D_0063933C, 270000.0f);
-ASM_LIT4_SLOT(D_00639340, 0.01f);
 
 /* the profiler ring: 0x400 entries of 28 bytes, filled by debug_SetBar. */
 typedef struct {
@@ -1831,8 +1828,6 @@ int debug_SelectActGobj(int reset)
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_DispBox);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_DispBall);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_CollisionTest);
-ASM_LIT4_SLOT(D_00639348, 0.001f);
-ASM_LIT4_SLOT(D_0063934C, 0.001f);
 
 /* one debug-menu entry: the label the selector prints, the handler, and a
    "stay in the menu" flag */

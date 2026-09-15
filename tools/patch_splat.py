@@ -315,10 +315,134 @@ def patch_aug6_layout() -> None:
             print(f"patch_splat: aug6 data.py anchor not found in {dp}; skipping.", file=sys.stderr)
 
 
+# --- carved `.lit4` pool word -> `li.s` in the still-asm owner (2026-09-15) ---
+# A carved pool's words are LITERALS, and a literal belongs to the function that
+# owns it. Where that function is C, the C carries it: gcc emits `li.s` and ee-as
+# interns the word. Where it is still an INCLUDE_ASM stub, splat renders the load
+# the same way, because the period assembler cannot be handed the pool word any
+# other way: `nopic_need_relax()` (tc-mips.c:11141) asserts that no symbol it is
+# asked about lives in `.lit4`, so a named `D_<VMA>` defined there and referenced
+# from the same file aborts ee-as outright. `li.s $fN,<value>` sidesteps the
+# symbol entirely: ee-as interns the word itself and appends it to the object's
+# anonymous `.lit4` in FILE order, which is the stub's own shipped slot.
+#
+# This replaces the ASM_LIT4_SLOT macro (deleted 2026-09-15), which put the same
+# value on a `.lit4_slot` line in the C and had tools/preprocess_old_as.py
+# rewrite the load. Same bytes; the literal now lives in the function that owns
+# it instead of on a macro line beside it.
+#
+# Scope: exactly the words a `[.., .lit4, <tu>]` row assigns to this TU, read
+# from the ROM bytes at that address. `l.s` / `lwc1` are the only loads of a pool
+# word; anything else reaching one is a hard error, as is a zero, subnormal or
+# non-finite word, which `li.s` has no spelling for (ee-as rejects a hex
+# operand, and its float parser underflows a subnormal's printed decimal; the
+# raw-`.word` escape the blob path uses is not available inside an instruction).
+# The PAL ROM has none: 0 of the 1065 words in the 111 carved pools.
+LIT4_MARKER = "# ICO_PATCH: carved .lit4 literal"
+LIT4_ANCHOR = '        self.log(f"Disassembled {func_sym.filename} to {outpath}")'
+LIT4_PATCH = r"""        # ICO_PATCH: carved .lit4 literal. A pool word whose owning function is
+        # still INCLUDE_ASM carries its literal IN THE STUB, spelled the way the
+        # developers' compiler emitted it and their assembler interned it.
+        _ico_l4 = self.siblings.get(".lit4")
+        if _ico_l4 is not None and _ico_l4.vram_start is not None:
+            import re as _ico_l4_re
+            import struct as _ico_l4_st
+
+            _ico_l4_rom = getattr(CommonSegC, "_ico_l4_rom_bytes", None)
+            if _ico_l4_rom is None:
+                _ico_l4_rom = options.opts.target_path.read_bytes()
+                CommonSegC._ico_l4_rom_bytes = _ico_l4_rom
+
+            def _ico_l4_owned(_sym):
+                if not _sym.startswith("D_"):
+                    return None
+                try:
+                    _a = int(_sym[2:], 16)
+                except ValueError:
+                    return None
+                if _ico_l4.vram_start <= _a < _ico_l4.vram_end:
+                    return _a
+                return None
+
+            def _ico_l4_text(_w):
+                # The shortest decimal that round-trips through binary32, in the
+                # exponent dialect ee-gcc 2.9 itself emits (no `+`, no zero pad).
+                _f = _ico_l4_st.unpack("<f", _ico_l4_st.pack("<I", _w))[0]
+                _s = "%.9g" % _f
+                for _p in range(1, 10):
+                    _c = "%.*g" % (_p, _f)
+                    if _ico_l4_st.pack("<f", float(_c)) == _ico_l4_st.pack("<I", _w):
+                        _s = _c
+                        break
+                if "e" in _s:
+                    _m, _e = _s.split("e")
+                    if "." not in _m:
+                        _m += ".0"
+                    _s = _m + "e" + str(int(_e))
+                elif "." not in _s:
+                    _s += ".0"
+                return _s
+
+            def _ico_l4_sub(_m):
+                _a = _ico_l4_owned(_m.group("sym"))
+                if _a is None:
+                    return _m.group(0)
+                _off = _ico_l4.rom_start + (_a - _ico_l4.vram_start)
+                _w = _ico_l4_st.unpack_from("<I", _ico_l4_rom, _off)[0]
+                _exp = _w & 0x7F800000
+                if _w == 0 or (_exp == 0 and (_w & 0x007FFFFF) != 0) or _exp == 0x7F800000:
+                    log.error(
+                        f"{outpath}: carved .lit4 word {_m.group('sym')} is "
+                        f"0x{_w:08X} (zero, subnormal or non-finite) and `li.s` "
+                        "has no spelling for it, so a still-asm owner cannot "
+                        "carry it. Land the owner in C, or leave the word in the "
+                        "blob and shrink the carve."
+                    )
+                return "li.s%s%s, %s" % (_m.group("gap"), _m.group("reg"), _ico_l4_text(_w))
+
+            _ico_l4_txt = outpath.read_text(encoding="utf-8")
+            _ico_l4_new = _ico_l4_re.sub(
+                r"\b(?:lwc1|l\.s)(?P<gap>\s+)(?P<reg>\$\w+),\s*"
+                r"%gp_rel\((?P<sym>\w+)\)\(\$\d+\)",
+                _ico_l4_sub,
+                _ico_l4_txt,
+            )
+            for _ico_l4_m in _ico_l4_re.finditer(r"%gp_rel\((\w+)\)", _ico_l4_new):
+                if _ico_l4_owned(_ico_l4_m.group(1)) is not None:
+                    log.error(
+                        f"{outpath}: {_ico_l4_m.group(1)} is a word of this TU's "
+                        "carved .lit4 pool but is reached by something other than "
+                        "an `l.s`/`lwc1` load. Only a float load can carry a pool "
+                        "word; check the .lit4 row's range in the splat yaml."
+                    )
+            if _ico_l4_new != _ico_l4_txt:
+                outpath.write_text(_ico_l4_new, encoding="utf-8", newline="\n")
+
+"""
+
+
+def patch_lit4_literals() -> None:
+    """A still-asm owner of a carved `.lit4` word loads it as `li.s <value>`."""
+    c_py = find_splat_c_py()
+    if c_py is None:
+        return
+    t = c_py.read_text()
+    if LIT4_MARKER in t:
+        print(f"patch_splat: {c_py} carved-.lit4 literal already patched.")
+        return
+    if LIT4_ANCHOR not in t:
+        print(f"patch_splat: carved-.lit4 anchor not found in {c_py}; skipping.",
+              file=sys.stderr)
+        return
+    c_py.write_text(t.replace(LIT4_ANCHOR, LIT4_PATCH + LIT4_ANCHOR, 1))
+    print(f"patch_splat: carved-.lit4 literal applied to {c_py}")
+
+
 def main() -> int:
     patch_aug6_layout()
     patch_one_assembler()
     patch_subnormal_float()
+    patch_lit4_literals()
     c_py = find_splat_c_py()
     if c_py is None:
         print("patch_splat: splat not importable; nothing to patch.")

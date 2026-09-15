@@ -690,8 +690,11 @@ segments:
       # docs/carve_ledger.md "PAL phase 1").  A TU that writes its float
       # constants as INLINE LITERALS makes ee-as intern them into that TU's own
       # anonymous `.lit4`; a dot-form subsegment here anchors that pool at its
-      # shipped VMA.  The WHOLE carved run must be produced by the TU's object —
-      # slots whose owner is still INCLUDE_ASM are emitted by ASM_LIT4_SLOT().
+      # shipped VMA.  The WHOLE carved run must be produced by the TU's object.
+      # A word whose owner is still INCLUDE_ASM is carried by that stub: splat
+      # renders its pool load as `li.s $fN,<value>` (tools/patch_splat.py,
+      # "carved .lit4 literal") and ee-as interns the word at the stub's own
+      # place in the file, so source order places it either way.
       - [0x538B04, .lit4, ico2/sugipon/src/geometryManager]  # carved D_00638B04..D_00638B08 (2 slots, LimitExistGeometry's -100000/100000 as literals; the TU's whole pool, = MAIN.MAP geometryManager.o .lit4 0x8; the word before is vendor_100110's), VMA 0x638B04..0x638B0C
       - [0x538B0C, .lit4, ico2/sugipon/src/matrixDrive]   # carved D_00638B0C..D_00638B38 (12 slots, all 0.01f, one per MatrixDrive_Turn*/GetTurn* fn), VMA 0x638B0C..0x638B3C, 48 B; MAIN.MAP matrixDrive.o .lit4 0x30 agrees.  USA: - [0x53090C, .lit4, ico2/sugipon/src/matrixDrive]    # carved D_0063090C..D_00630940 (14 slots, MatrixDrive_PopMatrix + 13 asm), VMA 0x63090C..0x630944
       - [0x538B3C, .lit4, ico2/sugipon/src/motionManager2]# carved D_00638B3C..D_00638B80 (18 slots, GetWaterReaction..CheckFieldContact, 10 of them SlopeIKControl's), VMA 0x638B3C..0x638B84, 72 B; MAIN.MAP motionManager2.o .lit4 0x48 agrees.  USA: - [0x530944, .lit4, ico2/sugipon/src/motionManager2]# carved D_00630944..D_00630980 (16 slots, SetMotionDirectionWithLimit + GetRootPosOfNextFrame + 14 asm), VMA 0x630944..0x630984
@@ -720,7 +723,7 @@ segments:
       - [0x539108, .lit4, ico2/script/src/warpGirl]  # carved D_00639108 (1 slot: warpGirlInStage's pi/180 written as a literal; = MAIN.MAP warpGirl.o .lit4 0x4), VMA 0x639108..0x63910C
       - [0x53910C, .lit4, ico2/omori/src/attackhit]  # carved D_0063910C (1 word, 1/3: AttackCheckHit divides the summed triangle corners by three, written as a literal; the TU's whole pool, between warpGirl's carve and brain's words), VMA 0x63910C..0x639110, 4 B
       - [0x539110, lit4, cod/539110]     # .lit4 blob resume (brain brainLevelProcess's two words)
-      - [0x539118, .lit4, ico2/omori/src/camera-ico2]  # carved D_00639118..D_0063912C (6 slots: monitorMonitorCamera x2 and CameraMove x2 as ASM_LIT4_SLOT, ChaseCamera and GetTargetOffset as literals; the TU's whole pool), VMA 0x639118..0x639130, 24 B; MAIN.MAP camera-ico2.o .lit4 is 0x24 (different link)
+      - [0x539118, .lit4, ico2/omori/src/camera-ico2]  # carved D_00639118..D_0063912C (6 slots: monitorMonitorCamera x2 and CameraMove x2 still asm, ChaseCamera and GetTargetOffset as literals; the TU's whole pool), VMA 0x639118..0x639130, 24 B; MAIN.MAP camera-ico2.o .lit4 is 0x24 (different link)
       - [0x539130, .lit4, ico2/omori/src/camera-root]  # carved D_00639130..D_0063913C (4 words of pi: ConvertCameraSet and CameraGetOtherObjOffset as literals, two slots for the still-asm SetCameraMatrix; the TU's whole pool = MAIN.MAP camera-root.o .lit4 0x10), VMA 0x639130..0x639140
       - [0x539140, .lit4, ico2/omori/src/chain]  # carved D_00639140..D_006391D4 (38 words, the TU's whole pool: 20 slots beside the still-asm StartPendulum, chain_simulate_term_simple, _ropeturn, _loop, _swingready, _swingstart, _moveup, _free and _down, each word referenced only by its owner, then the 18 words from 0x639190 the earlier row carried), VMA 0x639140..0x6391D8, 152 B
       - [0x5391D8, .lit4, ico2/omori/src/ebrain]  # carved D_006391D8..D_006391DC (2 words, both 250000.0f: eBrainGetTarget's two chase-distance thresholds as literals; the TU's whole pool, between chain's carve and gv's words), VMA 0x6391D8..0x6391E0, 8 B
@@ -770,7 +773,7 @@ segments:
       - [0x5396B0, .lit4, ico2/sugipon/src/stormTest]  # carved D_006396B0..D_006396C4 (6 words: four slots beside the still-asm InitStormPackage, ClipStormByVolume's 1500.0f clip bound as a literal, one slot for the still-asm UpdateStormPackage; the TU's whole pool, after staticBlur's carve), VMA 0x6396B0..0x6396C8, 24 B
       - [0x5396C8, .lit4, ico2/sugipon/src/streamMotionManager]  # carved D_006396C8..D_006396CC (2 words, both 2997.0f: one slot for the still-asm _infoUpdate, GetStreamMotionData's frame-rate divisor as a literal; the TU's whole pool, between stormTest's carve and waterDot's), VMA 0x6396C8..0x6396D0, 8 B
       - [0x5396D0, .lit4, ico2/sugipon/src/waterDot]  # carved D_006396D0..D_006396D4 (2 slots: 1/65535 and 0.2f, one slot beside the still-asm ExecWaterDot; the TU's whole pool), VMA 0x6396D0..0x6396D8, 8 B
-      - [0x5396D8, .lit4, ico2/sugipon/src/weapon]  # carved D_006396D8..D_006396F8 (9 slots: dispLaserSword's 0.1f is the object's own literal, nine words in ROM order 182.04445f, 0.7f x2, 0.9f, 0.1f, 10430.378f, 0.4f, 0.1f, 10430.378f; slot lines stay only for the still-asm owners), VMA 0x6396D8..0x6396FC, 36 B; 0x6396FC has no weapon owner and stays in the blob
+      - [0x5396D8, .lit4, ico2/sugipon/src/weapon]  # carved D_006396D8..D_006396F8 (9 slots: dispLaserSword's 0.1f is the object's own literal, nine words in ROM order 182.04445f, 0.7f x2, 0.9f, 0.1f, 10430.378f, 0.4f, 0.1f, 10430.378f; the other eight words are carried by their still-asm owners), VMA 0x6396D8..0x6396FC, 36 B; 0x6396FC has no weapon owner and stays in the blob
       - [0x5396FC, .lit4, ico2/sugipon/src/windField]  # carved D_006396FC..D_00639704 (3 words: one slot for the still-asm ExecWindField's 0.1f, then getParallelWindVector's 0.1f and getRadiateWindVector's 0.01f as literals; the TU's whole pool, after weapon's carve), VMA 0x6396FC..0x639708, 12 B
       - [0x539708, .lit4, ico2/sugipon/src/windManager]  # carved D_00639708 (1 word, 0.1f, ExecWindManager's gust lerp rate as a literal; the TU's whole pool, between windField's carve and wireLetter's), VMA 0x639708..0x63970C, 4 B
       - [0x53970C, .lit4, ico2/sugipon/src/wireLetter]  # carved D_0063970C (1 word, 0.7f, DispWireString's literal; the TU is fully C; the earlier note assigning this slot to warpGirl was wrong), VMA 0x63970C..0x639710

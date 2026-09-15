@@ -109,12 +109,8 @@ int AlignBox(char *a0, float grid)
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", initWheels);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", dispWheels);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", getNearestPosition);
-ASM_LIT4_SLOT(D_006393A8, 0.707f);
-ASM_LIT4_SLOT(D_006393AC, 0.707f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPathInitialize);
-ASM_LIT4_SLOT(D_006393B0, 0.010000001f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPath);
-ASM_LIT4_SLOT(D_006393B4, 10430.378f);
 
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern float FSqrt(float f);
@@ -131,21 +127,8 @@ inline float GetDistanceOfGObj(void *a0, void *a1)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", playAnimationCore);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", MoveFloatingBox);
-ASM_LIT4_SLOT(D_006393B8, 0.2f);
-ASM_LIT4_SLOT(D_006393BC, 0.31830987f);
-ASM_LIT4_SLOT(D_006393C0, 0.31830987f);
-ASM_LIT4_SLOT(D_006393C4, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", avoidCharGObj);
-ASM_LIT4_SLOT(D_006393C8, 1.414f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFloating);
-ASM_LIT4_SLOT(D_006393CC, 70.700005f);
-ASM_LIT4_SLOT(D_006393D0, -0.1f);
-ASM_LIT4_SLOT(D_006393D4, 0.9f);
-ASM_LIT4_SLOT(D_006393D8, 0.010000001f);
-ASM_LIT4_SLOT(D_006393DC, -0.01f);
-ASM_LIT4_SLOT(D_006393E0, 0.95f);
-ASM_LIT4_SLOT(D_006393E4, 20.48f);
-ASM_LIT4_SLOT(D_006393E8, 0.1f);
 
 extern char D_002907E0[];
 extern char D_0028FEF0[];
@@ -181,7 +164,6 @@ inline int IsThisBoxTruck(char *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", action);
-ASM_LIT4_SLOT(D_006393EC, 10430.378f);
 
 extern void GetRootMatrix();
 extern void sceVu0ApplyMatrix();
@@ -474,9 +456,6 @@ static inline int checkItemHit(char *obj, float *dir)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", moveBoxAutoMatic);
-ASM_LIT4_SLOT(D_006393F0, 0.85f);
-ASM_LIT4_SLOT(D_006393F4, 0.98f);
-ASM_LIT4_SLOT(D_006393F8, 0.98f);
 
 int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
 {
@@ -643,8 +622,6 @@ void ReInitBoxGeo(char *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", InitBoxGeo);
-ASM_LIT4_SLOT(D_00639404, 0.98f);
-ASM_LIT4_SLOT(D_00639408, 0.85f);
 
 extern void action(char *a0);
 extern void gamesysObjInfoUniqDataSet(char *a0);

@@ -442,16 +442,6 @@ void DispSkelton(GObj *self, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager2", SlopeIKControl);
-ASM_LIT4_SLOT(D_00638B50, 0.2f);
-ASM_LIT4_SLOT(D_00638B54, 0.45f);
-ASM_LIT4_SLOT(D_00638B58, 1.1f);
-ASM_LIT4_SLOT(D_00638B5C, 0.3f);
-ASM_LIT4_SLOT(D_00638B60, 0.3f);
-ASM_LIT4_SLOT(D_00638B64, 0.2f);
-ASM_LIT4_SLOT(D_00638B68, 0.45f);
-ASM_LIT4_SLOT(D_00638B6C, 1.1f);
-ASM_LIT4_SLOT(D_00638B70, 0.3f);
-ASM_LIT4_SLOT(D_00638B74, 0.1f);
 
 extern void sceVu0SubVector(float *dst, float *a, float *b);
 extern void sceVu0OuterProduct(float *dst, float *a, float *b);

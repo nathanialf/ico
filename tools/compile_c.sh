@@ -215,9 +215,9 @@ SELECTED_EE_AS="${EE_AS_OLD}"
 # assembler (ee-as 2.9-991111) assembles mixed C+asm TUs
 # directly instead of silently falling back to modern gas (which mis-encodes
 # `la sdata` as daddiu where the ROM has addiu). See docs/NOTES.md.
-# stderr is NOT swallowed: preprocess_old_as.py is silent on success, and its
-# `.lit4_slot` diagnostics (stale slot, non-FP reference) name the actual defect
-# — hiding them leaves only the assembler's downstream "REJECTED" to go on.
+# stderr is NOT swallowed: preprocess_old_as.py is silent on success, so
+# anything it prints names a real defect. Hiding it would leave only the
+# assembler's downstream "REJECTED" to go on.
 if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.pp"; then
     ASM_INPUT="${S}.pp"
 fi

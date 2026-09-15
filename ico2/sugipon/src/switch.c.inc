@@ -117,7 +117,6 @@ inline void SetSwitchState(char *a0, int a1)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", FloorLeverTriStateGeo);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", FloorLeverGeo);
-ASM_LIT4_SLOT(D_006393A0, 0.2f);
 
 inline int GetFloorLeverAngle(char *a0)
 {
@@ -186,7 +185,6 @@ end:
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", WallLeverGeo);
-ASM_LIT4_SLOT(D_006393A4, 0.2f);
 
 void WallLeverDL(char *a0)
 {

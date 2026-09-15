@@ -408,8 +408,6 @@ void InitCamera(void)
     D_0063C2B8 = D_0028F720[0x190 / 4];
 }
 
-ASM_LIT4_SLOT(D_00639134, 3.14159265f);
-ASM_LIT4_SLOT(D_00639138, 3.14159265f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-root", SetCameraMatrix);
 
 void Camctrl_ExitEveRock(void)

@@ -193,10 +193,7 @@ retry:
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", dispEnemyObject);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", EnemyCheckHit);
-ASM_LIT4_SLOT(D_006394C0, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", CheckEnemyHit);
-ASM_LIT4_SLOT(D_006394C4, 2500.0f);
-ASM_LIT4_SLOT(D_006394C8, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", InitEnemyGeo);
 
 extern int GetEnemyTypeFromGObj(char *self);

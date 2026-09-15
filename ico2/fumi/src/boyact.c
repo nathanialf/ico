@@ -10,8 +10,6 @@ typedef struct {
     float f4;
 } CCPResult;
 
-ASM_LIT4_SLOT(D_00638D30, 0.8f);
-ASM_LIT4_SLOT(D_00638D34, 4.9e+03f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", findChainInJump);
 
 extern void GetRootProjectionPosOfGObj(void *out, void *obj);
@@ -425,51 +423,6 @@ int GetChainSlope(void)
     return down;
 }
 
-ASM_LIT4_SLOT(D_00638D3C, 8.5e+02f);
-ASM_LIT4_SLOT(D_00638D40, 0.1f);
-ASM_LIT4_SLOT(D_00638D44, 3.1415927f);
-ASM_LIT4_SLOT(D_00638D48, 7.5e+02f);
-ASM_LIT4_SLOT(D_00638D4C, 0.1f);
-ASM_LIT4_SLOT(D_00638D50, 0.99f);
-ASM_LIT4_SLOT(D_00638D54, 0.1f);
-ASM_LIT4_SLOT(D_00638D58, 0.99f);
-ASM_LIT4_SLOT(D_00638D5C, 0.1f);
-ASM_LIT4_SLOT(D_00638D60, 0.1f);
-ASM_LIT4_SLOT(D_00638D64, 0.1f);
-ASM_LIT4_SLOT(D_00638D68, 0.1f);
-ASM_LIT4_SLOT(D_00638D6C, 0.1f);
-ASM_LIT4_SLOT(D_00638D70, 0.1f);
-ASM_LIT4_SLOT(D_00638D74, 0.1f);
-ASM_LIT4_SLOT(D_00638D78, 0.1f);
-ASM_LIT4_SLOT(D_00638D7C, 0.1f);
-ASM_LIT4_SLOT(D_00638D80, 0.1f);
-ASM_LIT4_SLOT(D_00638D84, 0.1f);
-ASM_LIT4_SLOT(D_00638D88, 0.1f);
-ASM_LIT4_SLOT(D_00638D8C, 0.1f);
-ASM_LIT4_SLOT(D_00638D90, 0.1f);
-ASM_LIT4_SLOT(D_00638D94, 0.1f);
-ASM_LIT4_SLOT(D_00638D98, 0.1f);
-ASM_LIT4_SLOT(D_00638D9C, 0.1f);
-ASM_LIT4_SLOT(D_00638DA0, 2.5e+05f);
-ASM_LIT4_SLOT(D_00638DA4, 0.1f);
-ASM_LIT4_SLOT(D_00638DA8, 0.1f);
-ASM_LIT4_SLOT(D_00638DAC, 0.1f);
-ASM_LIT4_SLOT(D_00638DB0, 0.95f);
-ASM_LIT4_SLOT(D_00638DB4, 0.95f);
-ASM_LIT4_SLOT(D_00638DB8, 0.1f);
-ASM_LIT4_SLOT(D_00638DBC, 0.1f);
-ASM_LIT4_SLOT(D_00638DC0, 0.1f);
-ASM_LIT4_SLOT(D_00638DC4, 0.1f);
-ASM_LIT4_SLOT(D_00638DC8, 0.1f);
-ASM_LIT4_SLOT(D_00638DCC, 0.99f);
-ASM_LIT4_SLOT(D_00638DD0, 0.1f);
-ASM_LIT4_SLOT(D_00638DD4, 0.99f);
-ASM_LIT4_SLOT(D_00638DD8, 0.1f);
-ASM_LIT4_SLOT(D_00638DDC, 0.1f);
-ASM_LIT4_SLOT(D_00638DE0, 0.1f);
-ASM_LIT4_SLOT(D_00638DE4, 0.1f);
-ASM_LIT4_SLOT(D_00638DE8, 0.1f);
-ASM_LIT4_SLOT(D_00638DEC, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", subBoyControl);
 
 extern long long D_006C0AD0[];
@@ -691,10 +644,7 @@ void PrivInsCamProcess(void)
     }
 }
 
-ASM_LIT4_SLOT(D_00638DF8, 0.1f);
-ASM_LIT4_SLOT(D_00638DFC, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", subBoyCollision);
-ASM_LIT4_SLOT(D_00638E00, 4e+04f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoySwim);
 
 extern void *D_00639EA4;
@@ -999,12 +949,7 @@ int ditch_check_heroin_position(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyPullupReady);
-ASM_LIT4_SLOT(D_00638E04, 0.99f);
-ASM_LIT4_SLOT(D_00638E08, 0.1f);
-ASM_LIT4_SLOT(D_00638E0C, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyPullupGo);
-ASM_LIT4_SLOT(D_00638E10, 0.2f);
-ASM_LIT4_SLOT(D_00638E14, 2.5e+03f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyBelift);
 
 extern void *D_00639EA0;
@@ -1074,12 +1019,7 @@ void actBoyReadyMove(volatile int a0)
     }
 }
 
-ASM_LIT4_SLOT(D_00638E1C, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyRescueReady);
-ASM_LIT4_SLOT(D_00638E20, 2.5e+05f);
-ASM_LIT4_SLOT(D_00638E24, 9e+04f);
-ASM_LIT4_SLOT(D_00638E28, 1e+04f);
-ASM_LIT4_SLOT(D_00638E2C, 7.84e+04f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyDitch3mReady);
 
 extern char D_0055FFA8[];

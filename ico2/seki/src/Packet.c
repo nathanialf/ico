@@ -163,7 +163,6 @@ void pac_error(char *name, int type)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makeNormalStrip);
-ASM_LIT4_SLOT(D_00638C40, 0.99f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_getWeight);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makeClusterStrip);
 
@@ -558,7 +557,6 @@ void pac_getTextureInfo(char *m, char *info, int idx)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makeShapeTable);
-ASM_LIT4_SLOT(D_00638C54, 0.501960814f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makePacket);
 
 void pac_MakePacket(char *a0)

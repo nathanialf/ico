@@ -73,7 +73,6 @@ void ReleaseWeaponWithFumbleTargetPos(char *g, void *pos, void *quat, void *rot,
 
 /* ReleaseWeaponWithFumbleSequential is still asm: its one .lit4 word, the
    first of this TU's pool run. */
-ASM_LIT4_SLOT(D_006396D8, 182.04445f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", ReleaseWeaponWithFumbleSequential);
 
 typedef struct {
@@ -155,9 +154,6 @@ int calcDynamicPathGeometry(char *g)
 }
 
 /* calcDynamicGeometry is still asm: its three .lit4 words, in its own order. */
-ASM_LIT4_SLOT(D_006396DC, 0.7f);
-ASM_LIT4_SLOT(D_006396E0, 0.7f);
-ASM_LIT4_SLOT(D_006396E4, 0.9f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", calcDynamicGeometry);
 
 extern void CopyMatrix(void *dst, void *src);

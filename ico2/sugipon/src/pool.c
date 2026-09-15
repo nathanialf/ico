@@ -76,7 +76,6 @@ void GetPoolGlobalDrainVector(void *dst, char *a0)
     CopyVector(dst, *(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10);
 }
 
-ASM_LIT4_SLOT(D_00638B84, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", InitPoolGeo);
 
 extern int D_0028F4C0[];
@@ -542,10 +541,6 @@ void InitLimitedPoolReflactionMesh(char *a0)
     }
 }
 
-ASM_LIT4_SLOT(D_00638B98, 0.1f);
-ASM_LIT4_SLOT(D_00638B9C, 0.8f);
-ASM_LIT4_SLOT(D_00638BA0, 1.15f);
-ASM_LIT4_SLOT(D_00638BA4, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", SetLayoutedPoolReflactionMesh);
 
 extern int D_0028F4D4[];

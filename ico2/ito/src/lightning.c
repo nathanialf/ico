@@ -39,13 +39,6 @@ extern void DrawLightning2(int n, void *a, void *b, float f0, float f1, float f2
                            float f4, float f5, float f6, float f7, float f8, float f9, int c);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/lightning", set_vertex);
-ASM_LIT4_SLOT(D_006392A4, 6.2831855f);
-ASM_LIT4_SLOT(D_006392A8, 10430.378f);
-ASM_LIT4_SLOT(D_006392AC, 1.5707964f);
-ASM_LIT4_SLOT(D_006392B0, 1.5707964f);
-ASM_LIT4_SLOT(D_006392B4, 10430.378f);
-ASM_LIT4_SLOT(D_006392B8, 6.2831855f);
-ASM_LIT4_SLOT(D_006392BC, 10430.378f);
 INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/lightning", DrawLightning2);
 
 void DrawLightningN(int num, LightningNode *v, void *col, float f0, float f1, float f2, float f3,

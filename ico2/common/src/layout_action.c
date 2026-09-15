@@ -76,7 +76,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_load_confirm_no
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_load_confirm_no_data);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_load_start_check);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_load_processing);
-ASM_LIT4_SLOT(D_00639360, 0.05f);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_mc_confirm_save_file);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_save_game_memory_card_check);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", progressive_bar);
@@ -87,7 +86,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_format_confirm)
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_system_save_processing);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_save_processing);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_end_confirm);
-ASM_LIT4_SLOT(D_00639364, 0.025f);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_delete_processing);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_game_loop);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_game_over_continue);

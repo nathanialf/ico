@@ -196,7 +196,6 @@ Light *light_AddLight(char *self, int b, int kind)
     return 0;
 }
 
-ASM_LIT4_SLOT(D_00638BDC, 0.3333f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Light", light_getNearLight);
 
 extern float D_0028F780[4];
@@ -358,7 +357,6 @@ void light_MakeLightMatrix(char *a, int b)
                           *(char **)(a + 0x874) + 0xE0);
 }
 
-ASM_LIT4_SLOT(D_00638BE0, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Light", light_DispVolume);
 
 /* Light.c line 1388.  Declared `inline`, so ee-gcc expands it into light_Tool

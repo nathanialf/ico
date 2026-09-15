@@ -86,10 +86,6 @@ static __inline__ void StormProject(void *dst, void *src)
 extern StormPackage *InitStormPackage(int mode, int num, int flag);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/stormTest", InitStormPackage);
-ASM_LIT4_SLOT(D_006396B0, 0.18181819f);
-ASM_LIT4_SLOT(D_006396B4, 0.9f);
-ASM_LIT4_SLOT(D_006396B8, 0.1f);
-ASM_LIT4_SLOT(D_006396BC, 0.1f);
 
 void ClipStormByVolume(StormPackage *pkg)
 {
@@ -165,7 +161,6 @@ void ClipStormByCamera(StormPackage *pkg)
 extern void UpdateStormPackage(StormPackage *pkg);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/stormTest", UpdateStormPackage);
-ASM_LIT4_SLOT(D_006396C4, 0.1f);
 
 void DispStormPackage(StormPackage *pkg, void *color)
 {

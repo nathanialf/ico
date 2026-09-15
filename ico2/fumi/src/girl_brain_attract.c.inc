@@ -146,8 +146,4 @@ int checkWaterfallResult(float *out)
     return ret;
 }
 
-ASM_LIT4_SLOT(D_00638FA8, 90000.0f);
-ASM_LIT4_SLOT(D_00638FAC, 10000.0f);
-ASM_LIT4_SLOT(D_00638FB0, 40000.0f);
-ASM_LIT4_SLOT(D_00638FB4, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrain_Attract);

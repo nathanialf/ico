@@ -272,9 +272,6 @@ void copy(int pri)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/puddle", drawRipple);
-ASM_LIT4_SLOT(D_00639670, 0.635f);
-ASM_LIT4_SLOT(D_00639674, 0.9f);
-ASM_LIT4_SLOT(D_00639678, 10.24f);
 
 void drawRipples(char *a0, int pri)
 {

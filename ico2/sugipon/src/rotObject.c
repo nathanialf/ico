@@ -83,10 +83,6 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
 
 /* MoveRotObjectWithHoldPoint owns the first four words of this TU's .lit4 run
  * (VMA 0x639680..0x63968C); reserve them until it lands in C. */
-ASM_LIT4_SLOT(D_00639680, 10430.378f);
-ASM_LIT4_SLOT(D_00639684, 0.01f);
-ASM_LIT4_SLOT(D_00639688, 31.83098793f);
-ASM_LIT4_SLOT(D_0063968C, 10430.378f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/rotObject", MoveRotObjectWithHoldPoint);
 
 extern void moveStartSE();

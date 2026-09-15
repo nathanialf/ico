@@ -38,7 +38,7 @@ directory is recoverable.
 | file | holds | used by |
 |---|---|---|
 | `common.h` | nothing of its own; pulls in `include_asm.h` | every game and SDK TU |
-| `include_asm.h` | `INCLUDE_ASM` (a still-asm function's stub) and `ASM_LIT4_SLOT` (a pool word whose owner is still asm) | every TU with a stub; the slot lines beside still-asm owners of carved pools |
+| `include_asm.h` | `INCLUDE_ASM`, a still-asm function's stub | every TU that still has one |
 | `labels.inc` | `glabel` and friends, period-assembler spelling | every splat `.s`, `tools/assemble_vu0.py`, `tools/quick_diff.sh` |
 
 All three exist only because functions are still assembled: `include_asm.h` is

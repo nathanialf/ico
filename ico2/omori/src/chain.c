@@ -325,9 +325,6 @@ void chain_simulate_term_swingstart(int a0)
     chain_simulate_term_simple(a0);
 }
 
-ASM_LIT4_SLOT(D_00639168, -0.05f);
-ASM_LIT4_SLOT(D_0063916C, -0.15f);
-ASM_LIT4_SLOT(D_00639170, -1.5707964f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_moveup);
 
 extern char D_005552B0[];
@@ -350,10 +347,6 @@ void chain_simulate_term_free(int a0)
     chain_simulate_term_simple(a0);
 }
 
-ASM_LIT4_SLOT(D_00639180, -0.01f);
-ASM_LIT4_SLOT(D_00639184, -0.05f);
-ASM_LIT4_SLOT(D_00639188, -0.15f);
-ASM_LIT4_SLOT(D_0063918C, -1.5707964f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_down);
 
 extern char D_005552E0[];
@@ -567,7 +560,6 @@ unsigned char flag;
     }
 }
 
-ASM_LIT4_SLOT(D_0063919C, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", InitChainGeo);
 
 extern float GetTableCos(short a0);
@@ -609,10 +601,6 @@ void chain_set_charachara(char *gobj, float amp)
     *(int *)(cw + 0xC4) = *(int *)(cw + 0xC4) + 1;
 }
 
-ASM_LIT4_SLOT(D_006391A4, -0.2f);
-ASM_LIT4_SLOT(D_006391A8, 0.1f);
-ASM_LIT4_SLOT(D_006391AC, -0.2f);
-ASM_LIT4_SLOT(D_006391B0, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", ChainGeo);
 
 extern void _SubVector(void *d, void *a, void *b);
@@ -735,9 +723,6 @@ void PlumbPointUpdateChain(char *gobj, float *pos)
     ((ChainVal *)(cw + 0x3C))->f = (float)*(int *)(cw + 0x68) * 50.0f;
 }
 
-ASM_LIT4_SLOT(D_006391B4, 1.5707964f);
-ASM_LIT4_SLOT(D_006391B8, 1.5707964f);
-ASM_LIT4_SLOT(D_006391BC, 1.5707964f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", TestChainUpDown);
 
 extern void SetDirectRootPositionNoFittingWithNodePoint(char *gobj, int node, float *pos, float t);

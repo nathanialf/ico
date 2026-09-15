@@ -440,8 +440,6 @@ out:
     return mode;
 }
 
-ASM_LIT4_SLOT(D_00638F6C, 160000.0f);
-ASM_LIT4_SLOT(D_00638F70, 40000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainMain_DecideMode);
 
 extern char D_002A2E70[];
@@ -502,10 +500,6 @@ void ChangeRunMode(int mode)
     ((GirlBrainWork *)D_0029D650)->limit = lo + rand() % (hi - lo);
 }
 
-ASM_LIT4_SLOT(D_00638F74, 250000.0f);
-ASM_LIT4_SLOT(D_00638F78, 22500.0f);
-ASM_LIT4_SLOT(D_00638F7C, 160000.0f);
-ASM_LIT4_SLOT(D_00638F80, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrainMain);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrain_Pulledup);
 
@@ -764,13 +758,10 @@ void subGirlBrain_Hide(volatile int a0)
     }
 }
 
-ASM_LIT4_SLOT(D_00638FBC, 10000.0f);
 /* census CorrectList.331, the GNU nested child of girlBrainRunawaySearchPoint;
    gcc names it with the discriminator, so it has no symbol of its own and lands
    inside its parent (rc0 as a nested function in chain G pass 13). */
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", func_00174CE8);
-ASM_LIT4_SLOT(D_00638FC0, 10000.0f);
-ASM_LIT4_SLOT(D_00638FC4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainRunawaySearchPoint);
 
 extern void ClipWall(void *);
@@ -882,7 +873,6 @@ int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
     return 0;
 }
 
-ASM_LIT4_SLOT(D_00638FCC, 90000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrain_Escape);
 
 extern float _DistGV(void *a, void *b);
@@ -1098,11 +1088,9 @@ retry:
     }
 }
 
-ASM_LIT4_SLOT(D_00638FD8, 3.1415927f);
 /* census GetSafePosition.364, the GNU nested child of Danger_Gondola; it lands
    inside its parent (rc0 as a nested function in chain G pass 13). */
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", func_001762A0);
-ASM_LIT4_SLOT(D_00638FDC, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", Danger_Gondola);
 
 extern int IsThisBoxTruck(void *a0);
@@ -1601,23 +1589,6 @@ void WayTest(void)
     dispWayMarker(*(char **)(s + 0x384));
 }
 
-ASM_LIT4_SLOT(D_00638FF4, 0.001f);
-ASM_LIT4_SLOT(D_00638FF8, 0.1f);
-ASM_LIT4_SLOT(D_00638FFC, 0.1f);
-ASM_LIT4_SLOT(D_00639000, 0.99f);
-ASM_LIT4_SLOT(D_00639004, 0.1f);
-ASM_LIT4_SLOT(D_00639008, 0.99f);
-ASM_LIT4_SLOT(D_0063900C, 0.1f);
-ASM_LIT4_SLOT(D_00639010, 0.1f);
-ASM_LIT4_SLOT(D_00639014, 0.1f);
-ASM_LIT4_SLOT(D_00639018, 0.1f);
-ASM_LIT4_SLOT(D_0063901C, 0.1f);
-ASM_LIT4_SLOT(D_00639020, 0.1f);
-ASM_LIT4_SLOT(D_00639024, 0.1f);
-ASM_LIT4_SLOT(D_00639028, 0.1f);
-ASM_LIT4_SLOT(D_0063902C, 0.1f);
-ASM_LIT4_SLOT(D_00639030, 250000.0f);
-ASM_LIT4_SLOT(D_00639034, 0.3f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlControl);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlCollision);
 
@@ -1702,11 +1673,6 @@ void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
     }
 }
 
-ASM_LIT4_SLOT(D_00639048, 0.1f);
-ASM_LIT4_SLOT(D_0063904C, -1.5707964f);
-ASM_LIT4_SLOT(D_00639050, 0.1f);
-ASM_LIT4_SLOT(D_00639054, 0.7f);
-ASM_LIT4_SLOT(D_00639058, 0.6f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", actGirlHand);
 
 extern void PAIR_GetPosition_BOY(float *boy, float *dir);

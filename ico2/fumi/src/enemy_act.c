@@ -442,17 +442,6 @@ void actEnemyRestart(char *self, float *pos, float *dir, int kind, int mot)
     _BrainMode_SetDirect(self, 0, 0);
 }
 
-ASM_LIT4_SLOT(D_00638EF8, 0.001f);
-ASM_LIT4_SLOT(D_00638EFC, 0.1f);
-ASM_LIT4_SLOT(D_00638F00, 0.99f);
-ASM_LIT4_SLOT(D_00638F04, 0.1f);
-ASM_LIT4_SLOT(D_00638F08, 0.99f);
-ASM_LIT4_SLOT(D_00638F0C, 0.1f);
-ASM_LIT4_SLOT(D_00638F10, 0.99f);
-ASM_LIT4_SLOT(D_00638F14, 0.1f);
-ASM_LIT4_SLOT(D_00638F18, 0.1f);
-ASM_LIT4_SLOT(D_00638F1C, 0.1f);
-
 extern int ACTReserveTarget(void *owner, void *self, int pri);
 extern void sceVu0ScaleVector(float *dst, float *src, float k);
 extern void sceVu0AddVector(float *dst, float *a, float *b);
@@ -538,10 +527,6 @@ int actEnemyForceSwitchToCarry(void *a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapEnd);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapBegin);
-ASM_LIT4_SLOT(D_00638F20, 10000.0f);
-ASM_LIT4_SLOT(D_00638F24, 0.0001f);
-ASM_LIT4_SLOT(D_00638F28, 0.01f);
-ASM_LIT4_SLOT(D_00638F2C, 0.1f);
 
 extern void *D_00639EA4;
 extern void *test_CURRENTORIENT(int a0);
@@ -1269,7 +1254,6 @@ void NakaBoss(char *self, int flag)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", ChangeBrain_ToAttack);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToBoy);
-ASM_LIT4_SLOT(D_00638F40, 22500.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", ChangeBrain_ToKidnap);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToGirl);
 
@@ -1406,12 +1390,7 @@ end:
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", _ApproachTarget_Way);
-ASM_LIT4_SLOT(D_00638F48, 1440000.0f);
-ASM_LIT4_SLOT(D_00638F4C, 40000.0f);
-ASM_LIT4_SLOT(D_00638F50, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyStart);
-ASM_LIT4_SLOT(D_00638F54, 369.0f);
-ASM_LIT4_SLOT(D_00638F58, 0.05f);
 
 void subEnemyBrain_Attack(volatile int a0)
 {

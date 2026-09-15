@@ -59,9 +59,6 @@ void GatherEffect_SetGoal(int a0, void *a1)
     }
 }
 
-ASM_LIT4_SLOT(D_00639294, 0.98f);
-ASM_LIT4_SLOT(D_00639298, 0.5235988f);
-ASM_LIT4_SLOT(D_0063929C, 0.02f);
 INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/gather_effect", GatherEffect_Proc);
 
 inline int GatherEffect_InqEnd(int a0)
