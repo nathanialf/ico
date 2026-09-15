@@ -163,8 +163,6 @@ static inline int getTextureNo(char *name)
     return ret;
 }
 
-extern int D_0068AFE0__pn[] __asm__("D_0068AFE0");
-
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
  * tex_GetTextureData into tex_SetUVScroll, so it is a public `inline` of the
  * deferred tail; until tex_Init, which sits between the tail's members, is C,
@@ -172,17 +170,17 @@ extern int D_0068AFE0__pn[] __asm__("D_0068AFE0");
  * caller inlines the static stand-in getTextureData, which collapses at layout. */
 int *tex_GetTextureData(int idx)
 {
-    return (int *)((char *)D_0068AFE0__pn + idx * 0x2E8);
+    return (int *)((char *)D_0068AFE0 + idx * 0x2E8);
 }
 
 static inline int *getTextureData(int idx)
 {
-    return (int *)((char *)D_0068AFE0__pn + idx * 0x2E8);
+    return (int *)((char *)D_0068AFE0 + idx * 0x2E8);
 }
 
 int *tex_GetTextureName(int idx)
 {
-    return (int *)((char *)D_0068AFE0__pn + idx * 0x2E8);
+    return (int *)((char *)D_0068AFE0 + idx * 0x2E8);
 }
 
 void tex_SetSamplingType(int *a0, int a1, int a2)

@@ -98,11 +98,6 @@ extern void *ReadCameraSet(char *name, int stage);
 extern char D_002AD010[][0x20];
 extern char D_00555078[];
 extern float D_006E6500[];
-extern char D_006E6500__pn[] __asm__("D_006E6500");
-extern char D_006E6620__pn[] __asm__("D_006E6620");
-extern char D_006E6630__pn[] __asm__("D_006E6630");
-extern void func_00240038_p(void *a0, void *a1, float f) __asm__("sceVu0ScaleVector");
-extern void sceVu0ScaleVector__pn(void *a0, float f) __asm__("sceVu0ScaleVector");
 /* prototypes: their order is the inline tail's emission order */
 void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
 void SetCameraZoomOffsetRatio(float val);
@@ -154,11 +149,13 @@ void GetRootPositionForCamera(int a0, int a1)
 
 inline void SetCameraTargetPosition(void *a0, float a1)
 {
-    sceVu0ScaleVector__pn(D_006E6500__pn, -1.0f);
-    func_00240038_p(D_006E6500__pn + 0x10, a0, -1.0f);
-    func_00240038_p(D_006E6620__pn, a0, -1.0f);
-    func_00240038_p(D_006E6630__pn, a0, -1.0f);
-    *(float *)(D_006E6500__pn + 0x20) = a1;
+    /* ROM never writes $5 before the first jal: this call site passes two
+     * arguments, through a two-parameter view of the same declaration. */
+    ((void (*)(void *, float))sceVu0ScaleVector)(D_006E6500, -1.0f);
+    sceVu0ScaleVector((char *)D_006E6500 + 0x10, a0, -1.0f);
+    sceVu0ScaleVector(D_006E6620, a0, -1.0f);
+    sceVu0ScaleVector(D_006E6630, a0, -1.0f);
+    *(float *)((char *)D_006E6500 + 0x20) = a1;
 }
 
 void ico2camera_GetTargetPos(int a0)

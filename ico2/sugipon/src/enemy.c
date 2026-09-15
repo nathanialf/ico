@@ -24,7 +24,6 @@ extern void debug_StdPrintfDummy();
 extern void debug_assertMessage(char *file, int line, char *mes);
 extern void __assert(char *file, int line, char *mes);
 extern int rand(void);
-extern float D_006394BC;
 extern int D_0063A438;
 extern char D_0061F650[];
 extern char D_0061F660[];
@@ -67,8 +66,8 @@ void setEnemyParticleObject(char *self, int pid)
     EnemyPosEntry *v;
     EnemyPosEntry *q;
 
-    size = (*(float *)(p + 0x20) + *(float *)(p + 0x24) + *(float *)(p + 0x28)) * 32.0f *
-           D_006394BC * 0.5f * 10.0f;
+    size = (*(float *)(p + 0x20) + *(float *)(p + 0x24) + *(float *)(p + 0x28)) * 32.0f * 0.33333f *
+           0.5f * 10.0f;
     parts = (int *)iosMallocDebug(D_0063A438, n * 4, D_0061F650, 130);
     *(int **)(w + 0x10) = parts;
     fl = (int *)iosMallocDebug(D_0063A438, n * 4, D_0061F650, 132);
@@ -194,7 +193,10 @@ retry:
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", dispEnemyObject);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", EnemyCheckHit);
+ASM_LIT4_SLOT(D_006394C0, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", CheckEnemyHit);
+ASM_LIT4_SLOT(D_006394C4, 2500.0f);
+ASM_LIT4_SLOT(D_006394C8, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", InitEnemyGeo);
 
 extern int GetEnemyTypeFromGObj(char *self);

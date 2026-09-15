@@ -24,11 +24,6 @@ extern void sceVu0ClampVector(void *dst, void *src, float lo, float hi);
 extern void sceVu0FTOI0Vector(void *dst, void *src);
 extern void CopyIVector(void *dst, void *src);
 extern char *matrixptr;
-extern const float D_006396B0;
-extern const float D_006396B4;
-extern const float D_006396B8;
-extern const float D_006396BC;
-extern float D_006396C0;
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
 extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
@@ -91,6 +86,10 @@ static __inline__ void StormProject(void *dst, void *src)
 extern StormPackage *InitStormPackage(int mode, int num, int flag);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/stormTest", InitStormPackage);
+ASM_LIT4_SLOT(D_006396B0, 0.18181819f);
+ASM_LIT4_SLOT(D_006396B4, 0.9f);
+ASM_LIT4_SLOT(D_006396B8, 0.1f);
+ASM_LIT4_SLOT(D_006396BC, 0.1f);
 
 void ClipStormByVolume(StormPackage *pkg)
 {
@@ -109,7 +108,7 @@ void ClipStormByVolume(StormPackage *pkg)
             p[1] += 400.0f;
             clipped = 1;
         }
-        if (p[0] > D_006396C0) {
+        if (p[0] > 1500.0f) {
             p[0] -= 2000.0f;
             clipped = 1;
         }
@@ -166,6 +165,7 @@ void ClipStormByCamera(StormPackage *pkg)
 extern void UpdateStormPackage(StormPackage *pkg);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/stormTest", UpdateStormPackage);
+ASM_LIT4_SLOT(D_006396C4, 0.1f);
 
 void DispStormPackage(StormPackage *pkg, void *color)
 {

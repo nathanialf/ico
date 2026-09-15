@@ -128,7 +128,6 @@ void iosPadActInit(void)
     } while (i >= 0);
 }
 
-extern int D_006BCD58__pn[] __asm__("D_006BCD58");
 extern int ShockRequestBox_RequestCancel(int a0, int a1);
 
 void iosPadActStop(int key)
@@ -137,7 +136,7 @@ void iosPadActStop(int key)
         return;
     }
     for (;;) {
-        int *p = D_006BCD58__pn;
+        int *p = (int *)D_006BCD58;
         int *entry;
         int i = 0xF;
         while (1) {
@@ -166,7 +165,7 @@ void iosPadActStop(int key)
 
 void iosPadActStopAll(void)
 {
-    int *p = D_006BCD58__pn;
+    int *p = (int *)D_006BCD58;
     int i;
     for (i = 0xF; i != -1; i--) {
         int x = p[0];
@@ -180,7 +179,7 @@ void iosPadActStopAll(void)
 
 int *iosPadActVolumeSet(int key, unsigned int val)
 {
-    int *p = D_006BCD58__pn;
+    int *p = (int *)D_006BCD58;
     int *rv;
     int i;
     val = val & 0xFF;
@@ -205,7 +204,6 @@ end:
     return rv;
 }
 
-extern char D_0029C0B0__pn[] __asm__("padDevMgrMsgQ");
 extern int D_006BCD38[];
 extern void iosMsgQueueCreate(int *a, int *b, int c);
 extern void iosMsgRecv(int *a, void *b, int c);
@@ -214,9 +212,9 @@ extern void iosPadDevReadFunc(void);
 void iosPadDevManager(void)
 {
     int local_buf;
-    iosMsgQueueCreate(D_0029C0B0__pn, D_006BCD38, 8);
+    iosMsgQueueCreate(padDevMgrMsgQ, D_006BCD38, 8);
     while (1) {
-        iosMsgRecv(D_0029C0B0__pn, &local_buf, 1);
+        iosMsgRecv(padDevMgrMsgQ, &local_buf, 1);
         iosPadDevReadFunc();
     }
 }

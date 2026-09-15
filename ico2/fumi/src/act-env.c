@@ -50,8 +50,6 @@ extern void sceVu0ScaleVector(float *a0, float *a1, float a2);
 extern int CheckPureWallAttribute();
 extern int CheckWallAttribute();
 extern int stage_no;
-extern int CheckPureWallAttribute__pn(int a0, int a1) __asm__("CheckPureWallAttribute");
-extern int CheckWallAttribute__pn(int a0, int a1) __asm__("CheckWallAttribute");
 /* prototypes: their order is the inline tail's emission order */
 void ACTSetEnvAllmighty(char *a0);
 void GetSofaPosition(char *a0, char *a1);
@@ -315,9 +313,9 @@ inline void ACTSetEnvAllmighty(char *a0)
 inline int CheckWallAttributeEdegWall(int a0)
 {
     if (stage_no == 4) {
-        return (unsigned char)CheckPureWallAttribute__pn(a0, 0x1000);
+        return (unsigned char)CheckPureWallAttribute(a0, 0x1000);
     }
-    return (unsigned char)CheckWallAttribute__pn(a0, 0x1000);
+    return (unsigned char)CheckWallAttribute(a0, 0x1000);
 }
 
 ASM_LIT4_SLOT(D_006397F0, 4900.0f);

@@ -38,7 +38,6 @@ struct jWayGroup { /* D_006C1E80 element, stride 0x18 */
 extern void iosCdvdBackGroundMgrSeek(char *self, int val);
 extern void iosCdvdBackGroundRead();
 extern struct jWayGroup D_006C1E80[];
-extern void iosCdvdBackGroundMgrSeek__pn(void *a0, int a1) __asm__("iosCdvdBackGroundMgrSeek");
 extern void jimakuMgrNext(struct jArg *p);
 extern char D_006E5000[];
 extern char D_006E5038[];
@@ -50,8 +49,6 @@ extern int iosMsgSend(int *self, int a1, int a2);
 extern int D_0028F4E8[];
 extern int D_0028F4C0[];
 extern int D_0063A960;
-extern void iosMsgSend__pn(void *a0, void *a1, int a2) __asm__("iosMsgSend");
-extern void jimakuMgrEnd__pn() __asm__("jimakuMgrEnd");
 extern int jimakuMsgBuf[2];
 extern char D_005540F8[];
 extern void iosMsgQueueCreate(int *q, int *buf, int n);
@@ -86,7 +83,7 @@ void jimakuMgrJump(struct jArg *p)
     struct jSub *q = &p->sub;
     int m;
 
-    iosCdvdBackGroundMgrSeek__pn(q->field40, q->field2C * 0x8800);
+    iosCdvdBackGroundMgrSeek(q->field40, q->field2C * 0x8800);
     m = (q->field34 = (q->n + 1) % 4);
     while (m != q->n) {
         D_006C1E80[m].f0 = -1;
@@ -97,7 +94,10 @@ void jimakuMgrJump(struct jArg *p)
     jimakuMgrNext(p);
 }
 
-void jimakuMgrEnd(int *p)
+/* K&R definition: it declares no prototype, which is what lets jimakuEnd
+ * below tail-call this function with no argument, as ROM does. */
+void jimakuMgrEnd(p) int *p;
+
 {
     int val = p[0x4C / 4];
     if (val != 0) {
@@ -165,13 +165,13 @@ void jimakuJump(int a0)
         }
     }
     *(int *)a0 = 2;
-    iosMsgSend__pn(jimakuMsgQ, (void *)a0, 0);
+    iosMsgSend(jimakuMsgQ, a0, 0);
 }
 
 void jimakuEnd(void)
 {
     D_0028F4E8[0] = 0;
-    jimakuMgrEnd__pn();
+    jimakuMgrEnd();
 }
 
 extern char D_006E5038[];

@@ -1096,9 +1096,7 @@ void bga_ResetAnimation(void)
     } while (p != 0);
 }
 
-extern float D_0063BCC0__pn __asm__("D_0063BCC0");
-
 float bga_GetZoom(void)
 {
-    return D_0063BCC0__pn;
+    return *(float *)&D_0063BCC0;
 }

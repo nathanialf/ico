@@ -90,7 +90,6 @@ extern void FlushCache(int a0);
 extern void RestoreNormalDrawEnvironment(void *a0, int a1, int a2);
 extern void gsb_Reduction(void);
 extern void sceGsSwapDBuff(void *a0, int a1);
-extern void sceGsSyncPath__pn(int a0, int a1) __asm__("sceGsSyncPath");
 extern int sceGsSyncV(int a0);
 
 inline void OpenVif1DirectPacket(void *packet)
@@ -461,7 +460,7 @@ void baseFunc(void)
 void syncGS(void)
 {
     FlushCache(0);
-    sceGsSyncPath__pn(1, 0);
+    sceGsSyncPath(1, 0);
     odd_even = sceGsSyncV(0);
     frame_count++;
     buffer_ID = frame_count & 1;

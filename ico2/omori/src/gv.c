@@ -12,7 +12,6 @@ void _InterGV(float *dst, float *a, float *b, float ta, float tb)
     sceVu0InterVector(dst, a, b, tb / (ta + tb));
 }
 
-extern float D_006391EC;
 extern void memset(void *dst, int c, int n);
 extern void MatrixDrive_PushMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
@@ -49,8 +48,6 @@ void GetMatrixDirectionToZ(float *out, float *dir)
 
 extern int _RotyGV(float *a0, float *a1);
 extern void _ApplyRyGV(float *a0, float a1);
-extern float D_006391F0;
-extern float D_006391F4;
 
 int _InterRotGV(float *dst, float *cur, float *tgt, int step)
 {
@@ -67,12 +64,12 @@ int _InterRotGV(float *dst, float *cur, float *tgt, int step)
         buf[0] = tgt[0];
         buf[1] = tgt[1];
         buf[2] = tgt[2];
-        _ApplyRyGV(buf, -step * D_006391F0 / 180.0f);
+        _ApplyRyGV(buf, -step * 3.1415927f / 180.0f);
     } else {
         buf[0] = tgt[0];
         buf[1] = tgt[1];
         buf[2] = tgt[2];
-        _ApplyRyGV(buf, step * D_006391F4 / 180.0f);
+        _ApplyRyGV(buf, step * 3.1415927f / 180.0f);
     }
     dst[0] = buf[0];
     dst[1] = buf[1];
@@ -134,13 +131,12 @@ float _MoveGV(float *a0, float *a1, float *a2, float a3)
 }
 
 extern float atan2f(float a0, float a1);
-extern float D_006391F8;
 
 int _RotyGV(float *a0, float *a1)
 {
     float a = atan2f(a0[0], a0[2]);
     float b = atan2f(a1[0], a1[2]);
-    int d = (int)((a - b) * 180.0f / D_006391F8);
+    int d = (int)((a - b) * 180.0f / 3.1415927f);
 
     if (d > 180)
         d -= 360;
@@ -202,11 +198,9 @@ inline int _RotGV(float *a0, float *a1)
     return GetTableArcCos(sceVu0InnerProduct(buf, buf2)) * 180 / 32768;
 }
 
-extern float D_006391FC;
-
 inline float _RotGVF(float *a0, float *a1)
 {
-    return _RotGV(a0, a1) * D_006391FC / 180.0f;
+    return _RotGV(a0, a1) * 3.1415927f / 180.0f;
 }
 
 inline void _OrientXZGV(int a0)
@@ -254,14 +248,14 @@ inline void SwapGV(float *a, float *b)
     b[2] = tmp[2];
 }
 
-extern unsigned int D_006327B0_far[] __asm__("D_0063AC18");
+extern unsigned int D_0063AC18[];
 extern float GetTableCos(int x);
 
 inline float GetCorrectDistance(int a0, float a1)
 {
     float r = GetTableCos((short)((a0 << 15) / 0xB4));
     if (r == 0.0f)
-        return *(float *)D_006327B0_far;
+        return *(float *)D_0063AC18;
     return a1 / r;
 }
 

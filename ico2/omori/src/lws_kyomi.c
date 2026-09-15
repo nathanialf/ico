@@ -59,7 +59,6 @@ char *CreateKyomiGObj(int no)
 }
 
 extern float *D_0063C2E8;
-extern float D_0063922C;
 extern int stage_CheckAnimationFinish(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void brainSubLevelGop(void *gobj, float lv);
@@ -95,7 +94,7 @@ void LwsKyomiGeo(void *gobj)
             }
         }
     }
-    brainSubLevelGop(gobj, D_0063922C);
+    brainSubLevelGop(gobj, 0.1f);
 }
 
 /* lws_kyomi.c:264 and :265 are one source line each, so the clear-then-pack

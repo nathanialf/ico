@@ -427,7 +427,6 @@ extern float _ACTGame_GetParamF(int idx);
 extern float GetAttackCheckBoundaryRadius(char *gobj);
 extern void _InterGV(float *dst, float *a, float *b, float ta, float tb);
 extern float _DistSqGV(void *a, void *b);
-extern float D_0063910C;
 
 int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
 {
@@ -509,7 +508,7 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
         for (m = 0; m < 3; m++) {
             sceVu0AddVector(acc, acc, v[m]);
         }
-        sceVu0ScaleVector(acc, acc, D_0063910C);
+        sceVu0ScaleVector(acc, acc, 0.33333334f);
         rad = _DistGV(acc, v[0]);
         for (m = 0; m < 3; m++) {
             sceVu0SubVector(v[m], v[m], acc);

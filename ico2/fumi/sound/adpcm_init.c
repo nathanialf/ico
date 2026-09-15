@@ -365,7 +365,15 @@ extern int SgStAdpcmChannelVolume(long long mask, int l, int r);
 
 /* vol is in the ABI (AdpcmInterLeaveVolumeSet passes it) but the ROM never
    reads $6: the levels come back out of the record the caller just wrote. */
-void AdpcmInterStereoVolumeSet(char *a0, int ch, int vol)
+/* K&R definition: it declares no prototype, which is what lets
+ * AdpcmInterStereoVolumeSetAll below call this function with two arguments,
+ * as ROM does. */
+void AdpcmInterStereoVolumeSet(a0, ch, vol) char *a0;
+
+int ch;
+
+int vol;
+
 {
     int j = ch + 1;
     short *r = (short *)(a0 + ch * 2);
@@ -395,7 +403,7 @@ void AdpcmInterStereoVolumeSet(char *a0, int ch, int vol)
     }
 }
 
-extern void AdpcmInterStereoVolumeSet(char *a0, int a1, int a2);
+extern void AdpcmInterStereoVolumeSet();
 
 void AdpcmInterLeaveVolumeSet(int a0, int a1, int a2)
 {
@@ -566,8 +574,6 @@ inline int AdpcmFreeAreaGet(void)
     return count;
 }
 
-extern void adpcmPauseRequest__p4(short *p, int doubled_idx) __asm__("AdpcmInterStereoVolumeSet");
-
 inline void AdpcmInterStereoVolumeSetAll(void)
 {
     int i;
@@ -579,9 +585,9 @@ inline void AdpcmInterStereoVolumeSetAll(void)
                 goto call0;
             if (v != 0x40000)
                 goto skip;
-            adpcmPauseRequest__p4((short *)p, 2);
+            AdpcmInterStereoVolumeSet(p, 2);
         call0:
-            adpcmPauseRequest__p4((short *)p, 0);
+            AdpcmInterStereoVolumeSet(p, 0);
         skip:;
         }
     }

@@ -164,9 +164,10 @@ void staffRollMain(void)
             a = staffRollAlpha;
         }
     }
-    /* the fade level is written through a volatile view at this one site;
-       D_0063B66B is referenced only by this function (five sites in the ROM)
-       so no async writer is proven, see the r24 LEDGER row */
+    /* volatile: measured 2026-09-15, dropping it sinks this store into the
+       following bc1f delay slot where ROM keeps it between the two lwc1 and
+       the c.lt.s. No async writer is proven, D_0063B66B is read and written
+       only by this function (five ROM sites) and by nothing else in the ELF. */
     *(volatile unsigned char *)&D_0063B66B = a;
 
     if (staffRollCenterOffsetXDest > staffRollCenterOffsetX) {

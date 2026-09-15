@@ -60,9 +60,6 @@ extern void gif_SetGsReg(int reg, long long val);
 extern void gif_SetDrawEnviroment(int a0, int a1, int a2, int a3, int a4, int a5);
 extern int D_0063BA98;
 extern int D_0063BAA0;
-extern float D_00639670;
-extern float D_00639674;
-extern float D_00639678;
 extern float D_00723640[];
 extern float D_00723760[];
 extern float D_00723880[];
@@ -275,6 +272,9 @@ void copy(int pri)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/puddle", drawRipple);
+ASM_LIT4_SLOT(D_00639670, 0.635f);
+ASM_LIT4_SLOT(D_00639674, 0.9f);
+ASM_LIT4_SLOT(D_00639678, 10.24f);
 
 void drawRipples(char *a0, int pri)
 {

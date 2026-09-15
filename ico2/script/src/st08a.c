@@ -54,7 +54,6 @@ extern void Generator_Mask(int a0);
 extern void Generator_MaskOff(int a0);
 extern void Generator_Call(int a0);
 extern void scpSetCageVelocityFriction(int id, float f);
-extern float D_006399C0;
 extern ActMail D_004FA020[];
 extern ActMail D_004FA040[];
 extern ActMail D_004FA080[];
@@ -589,7 +588,7 @@ void actSt08aTorch(volatile int a0)
 
 void actSt08aInit(void)
 {
-    float f = D_006399C0;
+    float f = 0.95f;
 
     scpSetCageVelocityFriction(0x16D, f);
     scpSetCageVelocityFriction(0x16C, f);
