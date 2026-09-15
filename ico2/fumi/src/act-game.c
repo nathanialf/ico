@@ -3095,7 +3095,7 @@ void _ACTSetEnemyDisappearSpeed(char *a0, float f)
     *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x334) = f;
 }
 
-void ACTGame_SetMotionPlaySpeedRatio_Reserve(char *a0, unsigned int a1, float f)
+void ACTGame_SetMotionPlaySpeedRatio_Reserve(char *a0, float f, unsigned int a1)
 {
     char *p = *(char **)(*(char **)(a0 + 0x164) + 0x680);
     if (*(unsigned int *)(p + 0x54) <= a1) {

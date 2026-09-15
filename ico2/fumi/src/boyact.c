@@ -379,7 +379,7 @@ void E3_StageStartBoy(void *self)
 
 extern void GetChainPendulum(void *chain, float *a, float *b, float *c);
 extern int D_0028F4C0[];
-extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, int a1, float f);
+extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, float f, int a1);
 extern int *D_004EB758[];
 extern int D_0063B13C;
 extern char D_00552818[];
@@ -403,7 +403,7 @@ int GetChainSlope(void)
     }
     ratio = (float)*D_004EB758[*(int *)(*(char **)(g + 0x15C) + 0x4A0)] / (c * 0.5f);
     ACTGame_SetMotionPlaySpeedRatio_Reserve(
-        g, 7, ratio * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f);
+        g, ratio * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f, 7);
     if (D_0063B13C & 1) {
         debug_Printf(10, 0x8C, 0x0FFFFFFF, D_00552818, fptodp(ratio), fptodp(c));
     }
@@ -701,7 +701,7 @@ extern void *D_00639EA4;
 extern int ACTGame_FLAG_TETSUNAGI(void);
 extern void GetSkeltonPosition(float *out, void *gobj, int node);
 extern float _DistGV(CCPResult *a, CCPResult *b);
-extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, int a1, float f);
+extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, float f, int a1);
 extern int D_0028F4C0[];
 
 void actBoyWalk(volatile int a0)
@@ -723,7 +723,7 @@ void actBoyWalk(volatile int a0)
                 d = (d - 80.0f) / 10.0f;
                 d = d < 0.0f ? 0.0f : (1.0f < d ? 1.0f : d);
                 ratio = 0.9 - d * 0.2;
-                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, 2, ratio);
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, ratio, 2);
             }
         }
         _ACTWait(1);
@@ -749,7 +749,7 @@ void actBoyRun(volatile int a0)
                 d = (d - 90.0f) / 10.0f;
                 d = d < 0.0f ? 0.0f : (1.0f < d ? 1.0f : d);
                 ratio = 0.7 - d * 0.2;
-                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, 2, ratio);
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, ratio, 2);
             }
         }
         _ACTWait(1);

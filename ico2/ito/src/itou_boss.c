@@ -73,7 +73,7 @@ extern unsigned char D_006E9A30[];
 extern int stage_no;
 extern float D_006392A0;
 extern void _ACTSetEnemyDisappearSpeed(void *a0, float speed);
-extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, int a1, float f);
+extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, float f, int a1);
 
 /* INTERIM: the January listing inlines InqCapsuleGhostBossStage into
    BossEnemyFunc, but this TU's own out-of-line copy has to stay at its ROM
@@ -95,17 +95,17 @@ void BossEnemyFunc(void *self)
         default:
             break;
         case 905:
-            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 0, 2.0f);
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 2.0f, 0);
             break;
         case 955:
         case 956:
         case 957:
-            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 0, 2.0f);
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 2.0f, 0);
             break;
         case 927:
         case 928:
         case 929:
-            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 0, D_006392A0);
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, D_006392A0, 0);
             break;
         }
     }
