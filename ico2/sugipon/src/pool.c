@@ -1,6 +1,4 @@
 #include "common.h"
-#include "ico/types.h"
-#include "vu0.h"
 #include "sugiCommon.h"
 
 typedef struct {

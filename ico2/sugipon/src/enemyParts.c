@@ -1,5 +1,4 @@
 #include "common.h"
-#include "ico/types.h"
 
 /* The packed colour word.  ROM copies it with lwl/lwr + swl/swr, which is
    gcc's unaligned block move: the type is a four-byte record of chars, so

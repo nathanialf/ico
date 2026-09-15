@@ -1,5 +1,4 @@
 #include "common.h"
-#include "vu0.h"
 
 /* header prototypes (order fixes the inline tail) */
 extern char D_0054F5C0[];

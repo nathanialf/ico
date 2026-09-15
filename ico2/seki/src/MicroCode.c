@@ -1,5 +1,4 @@
 #include "common.h"
-#include "vu0.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void mc_TransMicroCode(int a0, int a1);

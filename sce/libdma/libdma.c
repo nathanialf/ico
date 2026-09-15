@@ -3,10 +3,6 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
-#include "math_private.h"
 
 extern int D_0054A320[];
 

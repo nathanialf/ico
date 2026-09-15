@@ -1,5 +1,5 @@
 #include "common.h"
-#include "ico/types.h"
+#include "typedef.h"
 
 typedef struct {
     int a, b, c;
@@ -1568,7 +1568,7 @@ void ACTSearchEnemy(void *a0, int *out_id, float *out_vec)
 extern void memset(void *a0, int a1, int a2);
 extern void SetDirectRootPositionNoFitting(void *w, float *pos);
 extern void ReleaseWeapon(void *w);
-extern int gamesysObjInfoPosSetStage(void *w, int a1, int a2, int stage);
+extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 extern int stage_no;
 extern long long D_006C0AD0[];
 extern int D_006C0B38[];
@@ -1589,7 +1589,7 @@ void DeleteBoyWeapon(void)
             memset(&buf, 0, 0x10);
             buf.f[0] = 10000000.0f;
             SetDirectRootPositionNoFitting(*(void **)(sub + 0x150), buf.f);
-            gamesysObjInfoPosSetStage(*(void **)(sub + 0x150), 0, 0, stage_no);
+            gamesysObjInfoPosSetStage(*(int **)(sub + 0x150), 0, 0, stage_no);
             *(int *)(*(char **)(sub + 0x150) + 0x16C) = 0;
         }
         D_006C0B38[0] = 0;
@@ -1754,7 +1754,7 @@ extern void PickupWeapon(void *w, void *boy, int kind);
 extern void SetWeaponOffsetMode(void *w, int mode);
 extern void ReleaseWeapon(void *w);
 extern void PutWeapon(void);
-extern int gamesysObjInfoPosSetStage(void *w, int a1, int a2, int stage);
+extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern void debug_StdPrintfDummy();
@@ -1787,7 +1787,7 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy)
     }
     ReleaseWeapon(oldW);
     PutWeapon();
-    gamesysObjInfoPosSetStage(oldW, 0, 0, stage_no);
+    gamesysObjInfoPosSetStage((int *)oldW, 0, 0, stage_no);
     debug_StdPrintfDummy(D_00552A38, *(int *)((char *)oldW + 0x8), *(int *)((char *)newW + 0x8));
     return 1;
 }

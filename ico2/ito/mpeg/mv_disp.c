@@ -1,6 +1,6 @@
 #include "common.h"
 #include "mv_defs.h"
-#include "r5900.h"
+#include "typedef.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void dispDelete(void);

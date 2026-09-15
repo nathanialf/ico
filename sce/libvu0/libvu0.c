@@ -3,10 +3,30 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
-#include "math_private.h"
+
+/* VU0 / COP2 macro-mode opcodes, one instruction per __asm__ block.  This
+   run's uses stand for a Sony-internal header this tree cannot name: MAIN.MAP
+   attests archives and their members, never a header, so the definitions are
+   kept here rather than shared with the game tree's copy in
+   ico2/common/include/typedef.h.  Operands are unprefixed register numbers;
+   the macro builds the asm text by stringify-and-paste. */
+#define VU0_MEM(insn) __asm__ __volatile__(insn : : : "memory")
+#define VU0_REG(insn) __asm__ __volatile__(insn)
+#define VU0_LSV(mnem, vf, off, base) VU0_MEM(#mnem " $vf" #vf ", " #off "($" #base ")")
+#define VU0_LSGP(mnem, gp, off, base) VU0_MEM(#mnem " $" #gp ", " #off "($" #base ")")
+#define VU0_V2OP(mnem, d, a) VU0_REG(#mnem " $vf" #d ", $vf" #a)
+#define VU0_V3OP(mnem, d, a, b) VU0_REG(#mnem " $vf" #d ", $vf" #a ", $vf" #b)
+#define VU0_V3OP_BC(mnem, d, a, b, bc) VU0_REG(#mnem " $vf" #d ", $vf" #a ", $vf" #b #bc)
+#define VU0_V3OP_ACC(mnem, a, b) VU0_REG(#mnem " ACC, $vf" #a ", $vf" #b)
+#define VU0_V3OP_ACC_BC(mnem, a, b, bc) VU0_REG(#mnem " ACC, $vf" #a ", $vf" #b #bc)
+#define VU0_MFC1(gp, fp) VU0_REG("mfc1 $" #gp ", $f" #fp)
+#define VU0_QMTC2_NI(gp, vf) VU0_REG("qmtc2.ni $" #gp ", $vf" #vf)
+/* vwaitq: no memory effect, sequences later VU0 ops with prior compute. */
+#define VU0_WAIT() __asm__ __volatile__("vwaitq")
+/* Several COP2 transfer pairs have a load-delay or Q-pipeline interlock that
+   gas's default `.set reorder` fills with a nop the ROM does not carry. */
+#define VU0_NOREORDER_BEGIN() __asm__ __volatile__(".set noreorder")
+#define VU0_NOREORDER_END() __asm__ __volatile__(".set reorder")
 
 typedef unsigned int u128 __attribute__((mode(TI)));
 

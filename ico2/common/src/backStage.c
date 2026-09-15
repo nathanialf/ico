@@ -91,7 +91,7 @@ extern char D_006191E0[];
 extern char D_00619200[];
 extern float D_006FACF0[4];
 extern int NearestEnemyFromGirl(float *dist);
-extern void *gamesysObjInfoPosSetStage(int gobj, int a1, int a2, int stage);
+extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 extern float WayLengthOfPos_Pos(float *a, float *b);
 extern void GetRootProjectionPosOfGObj(float *out, int gobj);
 extern int WayPointWithRangeFromPos2(float *pos, void *a1, float *out, int flag);
@@ -100,7 +100,7 @@ extern char D_00619260[];
 extern char D_00619270[];
 extern char D_00619290[];
 extern char D_006192A8[];
-extern float WayLengthOfGObj_GObj(int gobj0, int gobj1);
+extern float WayLengthOfGObj_GObj(void *obj0, void *obj1);
 extern void GetRootPosition(float *out, int gobj);
 extern int NumOfWpPos(void);
 extern void CopyWpPos(float *out, int i, int j);
@@ -186,10 +186,10 @@ void backStageProcessOutStage(void)
                 D_0063C368 = D_0063C360 / 160.0f;
                 D_0063C354 = (int)(D_0063C368 * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
                 m = *(ActorWorkRec **)(e + 0x164);
-                D_0063C35C =
-                    (unsigned int)((char *)gamesysObjInfoPosSetStage(e, m->objNo, 0, stage_no) -
-                                   (char *)D_004DA980) >>
-                    6;
+                D_0063C35C = (unsigned int)((char *)gamesysObjInfoPosSetStage((int *)e, m->objNo, 0,
+                                                                              stage_no) -
+                                            (char *)D_004DA980) >>
+                             6;
             }
         } else {
             D_0063C350 = 2;
@@ -329,7 +329,7 @@ void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
     int i;
     int n;
 
-    len = WayLengthOfGObj_GObj(gobj0, gobj1);
+    len = WayLengthOfGObj_GObj((void *)gobj0, (void *)gobj1);
     GetRootPosition(p0.f, gobj0);
     if (1.0f <= ratio) {
         GetRootPosition(out, gobj1);

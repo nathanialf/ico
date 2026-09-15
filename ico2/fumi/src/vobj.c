@@ -1,8 +1,4 @@
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
-#include "math_private.h"
 
 extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_TransMatrixV(int a0);

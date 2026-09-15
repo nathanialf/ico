@@ -943,7 +943,7 @@ void _SCPMoveCharactorByWay_Cancel(char *a0)
 extern char *D_00639EA8;
 extern char *D_00639EA4;
 extern int stage_no;
-extern void gamesysObjInfoPosSetStage(char *g, int no, int a2, int stage);
+extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 extern void CheckPoint(void);
 extern int gflagChk(int no);
 extern void gflagOn(int no);
@@ -954,11 +954,11 @@ void scpSekizouCheckPoint(void)
     int was;
 
     if (D_00639EA8 != 0) {
-        gamesysObjInfoPosSetStage(D_00639EA8, *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x444), 0,
-                                  stage_no);
+        gamesysObjInfoPosSetStage((int *)D_00639EA8,
+                                  *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x444), 0, stage_no);
     }
-    gamesysObjInfoPosSetStage(D_00639EA4, *(int *)(*(char **)(D_00639EA4 + 0x164) + 0x444), 0,
-                              stage_no);
+    gamesysObjInfoPosSetStage((int *)D_00639EA4, *(int *)(*(char **)(D_00639EA4 + 0x164) + 0x444),
+                              0, stage_no);
     was = gflagChk(0x17D);
     gflagOn(0x17D);
     CheckPoint();

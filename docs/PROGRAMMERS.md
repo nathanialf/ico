@@ -87,7 +87,7 @@ across the whole codebase; attribute the *subsystem* to an author, never the
 chain:
 - `a0->0x15C->0x7F0`: the DObj→geometry-object accessor, ~25 TUs across
   sugipon/omori/ito/fumi (weapon, torch, boy, rope, enemy, box, spider, chain,
-  ebrain, queen, …). Typed form: `GOBJ_SUB(o)->p_7F0->...` (`include/ico/types.h`:
+  ebrain, queen, …). Typed form: `GOBJ_SUB(o)->p_7F0->...` (`ico2/common/include/typedef.h`:
   `GObj`, `Sub15C`=DObj@0x15C, `Obj7F0`=geometry@0x7F0).
 - `a0->0x164->...`: an actor/action-state object, 20 TUs across
   sugipon/fumi/omori/script (fumi owns 12 of them but it is not fumi-only).

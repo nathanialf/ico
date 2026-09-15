@@ -6,9 +6,6 @@
  * before sound.o.  The member name is unknown, so the file takes the family's.
  * VMA 0x273228..0x276AD0. */
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
 
 extern unsigned char D_00731C00[];
 

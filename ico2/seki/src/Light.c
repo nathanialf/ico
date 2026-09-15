@@ -1,5 +1,4 @@
 #include "common.h"
-#include "vu0.h"
 
 typedef struct Light {
     char _pad0[0x10];

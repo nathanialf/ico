@@ -1,5 +1,4 @@
 #include "common.h"
-#include "ico/types.h"
 
 typedef struct {
     int w[8];

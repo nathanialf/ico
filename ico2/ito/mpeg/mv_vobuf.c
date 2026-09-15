@@ -2,7 +2,7 @@
 
 #include "common.h"
 #include "mv_defs.h"
-#include "r5900.h"
+#include "typedef.h"
 
 static void Free();
 

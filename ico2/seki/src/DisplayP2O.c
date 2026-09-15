@@ -1,6 +1,5 @@
 #include "common.h"
-#include "vu0.h"
-#include "ico/types.h"
+#include "typedef.h"
 
 /* header prototypes (order fixes the inline tail) */
 extern void pac_MakePacket(void *a0);

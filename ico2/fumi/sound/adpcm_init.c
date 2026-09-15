@@ -1,5 +1,4 @@
 #include "common.h"
-#include "ico/types.h"
 
 /* prototypes: their order is the deferred inline tail's emission order */
 void adpcmPauseRequest(int val);

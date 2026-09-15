@@ -1,5 +1,5 @@
 #include "common.h"
-#include "ico/types.h"
+#include "typedef.h"
 #include "sugiCommon.h"
 
 extern float D_0063C440;
@@ -352,6 +352,11 @@ void subAP1BrainMain(volatile int self)
                  * clobber list, which conflicts $2 with everything live across
                  * the block and moves this function's whole entry-block
                  * reload. See the ledger row for the measurement. */
+                /* PLACEHOLDER: the census puts this row on sugiCommon.h:87, so the
+                   host absorbed the line 85-88 helper, not the line 95-98 one.
+                   No spelling of that helper reaches rc0 in both this TU and
+                   clothAnimation.c; `_b` carries the multi-block body this host
+                   needs. See docs/HEADERS.md, distance_squared. */
                 if (40000.0f < distance_squared_b(&dest, &smooth)) {
                     _InterVectorXYZ(&smooth, &smooth, &dest, 0.5f);
                 }

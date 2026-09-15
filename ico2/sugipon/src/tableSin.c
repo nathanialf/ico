@@ -1,6 +1,4 @@
 #include "common.h"
-#include "vu0.h"
-#include "ico/types.h"
 
 /* tableSin.h prototypes: their order is the inline tail's emission order */
 float GetTableSin(short a0);

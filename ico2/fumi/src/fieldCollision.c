@@ -1,5 +1,5 @@
 #include "common.h"
-#include "ico/types.h"
+#include "typedef.h"
 
 typedef struct {
     char _0[0x10];

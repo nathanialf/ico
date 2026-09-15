@@ -1,5 +1,4 @@
 #include "common.h"
-#include "ico/types.h"
 
 extern void ropeGeo(void *o);
 extern void CopyVector(void *dst, void *src);

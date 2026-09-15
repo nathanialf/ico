@@ -1,5 +1,5 @@
 #include "common.h"
-#include "ico/types.h"
+#include "typedef.h"
 
 extern int p2o_DispVU1DObjMulti(int a0);
 extern int p2o_SetDefaultEnviroment(int a0);

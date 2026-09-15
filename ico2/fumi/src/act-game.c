@@ -1,5 +1,5 @@
 #include "common.h"
-#include "ico/types.h"
+#include "typedef.h"
 
 typedef struct {
     char _0[0x1C];
@@ -60,13 +60,13 @@ typedef struct {
 extern MotionRec D_0055FE58[];
 extern void gamesysObjInfoCls(int a0, int a1);
 extern int stage_no;
-extern void gamesysObjInfoPosSetStage(char *a0, int a1, int a2, int a3);
+extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 
 void ACTGame_SaveActorInformation(char *a0)
 {
     char *s = *(char **)(a0 + 0x164);
     if (((int)(*(unsigned long long *)(s + 0x18) >> 39) & 1) && *(int *)(s + 0x4C) % 30 == 0) {
-        gamesysObjInfoPosSetStage(a0, *(int *)(s + 0x444), 0, stage_no);
+        gamesysObjInfoPosSetStage((int *)a0, *(int *)(s + 0x444), 0, stage_no);
     }
 }
 

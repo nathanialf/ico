@@ -2,8 +2,6 @@
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x1010C8..0x101A40, 8 functions. */
 #include "common.h"
-#include "syscall.h"
-#include "r5900.h"
 
 int kputchar(int c)
 {

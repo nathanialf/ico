@@ -1,5 +1,5 @@
 #include "common.h"
-#include "vu0.h"
+#include "typedef.h"
 
 /* .data — carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  D_004EE5B0 is the 0x30-byte default record

@@ -161,8 +161,11 @@ sce/            SCE SDK library code, one directory per archive; where
                 ico2/ root itself: MAIN.MAP pulls their objects in from
                 ico2000.a, but the listing records no source rows for them,
                 so the programmer directory is unrecorded
-include/        the headers this project wrote: common.h, ico/types.h,
-                r5900.h, vu0.h, math_private.h, include_asm.h, syscall.h
+include/        the build scaffolding this project wrote: common.h,
+                include_asm.h and the two splat .inc files.  The five
+                headers that held recovered declarations moved into the
+                attested ico2 headers and TUs on 2026-09-15, see
+                include/README.md
 asm/            splat output (gitignored except asm/nonmatchings/)
 assets/         extracted disc data (gitignored)
 baserom/        local-only: user's disc + extracted ELF (gitignored)

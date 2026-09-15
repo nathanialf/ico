@@ -1,5 +1,5 @@
 #include "common.h"
-#include "ico/types.h"
+#include "typedef.h"
 
 /* header prototypes (order fixes the inline tail) */
 /* prototypes: their order is the inline tail's emission order */

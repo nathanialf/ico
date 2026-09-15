@@ -2,8 +2,30 @@
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x100110..0x100990, 136 functions. */
 #include "common.h"
-#include "syscall.h"
-#include "r5900.h"
+
+/* EE syscall leaf wrappers.  This member's uses stand for a Sony-internal
+   header this tree cannot name: MAIN.MAP attests archives and their members,
+   never a header, so the definitions are kept per member.  Body is the
+   four-instruction leaf `addiu $3,$zero,NUM; syscall 0; jr $31; nop`, the
+   last two supplied by gcc's epilogue. */
+#define SYSCALL_WRAPPER(name, num)                                                                 \
+    void name(void)                                                                                \
+    {                                                                                              \
+        __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0" : : : "$3", "memory");       \
+    }
+/* The same leaf issued INLINE, for the members that act on its result.
+   `dst` is bound to $v0 because that is where the kernel ABI leaves the
+   result; a plain "=r" output would let gcc pick a register the kernel
+   never writes.  Operand binding, not a scheduling pin. */
+#define SYSCALL_INLINE(num, dst)                                                                   \
+    do {                                                                                           \
+        register int __sc_ret __asm__("$2");                                                       \
+        __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0"                              \
+                             : "=r"(__sc_ret)                                                      \
+                             :                                                                     \
+                             : "$3", "memory");                                                    \
+        (dst) = __sc_ret;                                                                          \
+    } while (0)
 
 SYSCALL_WRAPPER(ResetEE, 1)
 SYSCALL_WRAPPER(SetGsCrt, 2)

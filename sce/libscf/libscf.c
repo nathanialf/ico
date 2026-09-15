@@ -6,9 +6,6 @@
  * sceScfGetLocalTimefromRTC, so the run is treated as one library.  VMA
  * 0x272878..0x273228. */
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
 
 INCLUDE_ASM("asm/nonmatchings/sce/libscf/libscf", GetRomName);
 INCLUDE_ASM("asm/nonmatchings/sce/libscf/libscf", IsT10K);
