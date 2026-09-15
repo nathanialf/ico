@@ -1,7 +1,7 @@
 #include "common.h"
 #include "charFileName.h"
 
-extern char *iosMallocDebug(int heap, int size, char *file, int line);
+extern char *iosMallocDebug(void *heap, int size, char *file, int line);
 extern void iosFree(void *p);
 extern void iosCdvdHandlerRead(void *h, void *buf, int size);
 extern void SetParticleEffectPackage(int a0, void *buf, int size);
@@ -75,7 +75,7 @@ void ResetCharFileManager(void)
 }
 
 extern int D_0028F4C0[];
-extern int D_0063A44C;
+extern void *D_0063A44C;
 extern char D_006193B0[];
 extern char D_0063AD08[];
 extern char D_0063AD10[];
@@ -88,13 +88,48 @@ extern void debug_assertMessage(char *file, int line, char *msg);
 extern void malloc_SetPartition(int part);
 extern PObj *InitPObj(void *buf, int a1, int id);
 
-/* D_00619348 / D_006193C8 / D_006193F8 / sprintf above belong to ReadModelFile,
-   still asm below; its C sits in the seed store at 3 diffs. */
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/charFileManager", ReadModelFile);
+/* D_00619348 / D_006193C8 / D_006193F8 / sprintf above belong to ReadModelFile. */
+void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
+{
+    char buf[0x100];
+    char *p;
+
+    D_0028F4C0[8]++;
+    if (size == 0) {
+        return;
+    }
+
+    if (id >= MAX_CHARS) {
+        sprintf(buf, D_00619348, id, a1);
+        debug_StdPrintfDummy(D_00619370);
+        debug_assertMessage(D_006193B0, 0x82, buf);
+        __assert(D_006193B0, 0x82, D_0063AD08);
+    }
+
+    if (D_006FAD00[id].pObj != 0) {
+        debug_StdPrintfDummy(D_006193C8, id, a1);
+        iosCdvdHandlerRead(h, 0, size);
+        return;
+    }
+
+    if (part == 0) {
+        malloc_SetPartition(0);
+    } else {
+        malloc_SetPartition(1);
+    }
+
+    D_006FAD00[id].state = part;
+    p = iosMallocDebug(D_0063A44C, size, D_006193B0, 0x91);
+    iosCdvdHandlerRead(h, p, size);
+    debug_StdPrintfDummy(D_006193F8, id, a1, p, size);
+    D_006FAD00[id].pObj = InitPObj(p, a1, id);
+    D_006FAD00[id].pObj->unk_20 = D_0063AD00++;
+    iosFree(p);
+}
 
 extern int D_0028F4C0[];
 extern void malloc_SetPartition(int part);
-extern int D_0063A44C;
+extern void *D_0063A44C;
 extern char D_006193B0[];
 extern char D_0063AD10[];
 extern char D_00619370[];
@@ -186,7 +221,7 @@ extern char D_00619570[];
 extern int tex_InitTexture(int id, void *buf);
 extern int D_0028F4C0[];
 extern void malloc_SetPartition(int part);
-extern int D_0063A44C;
+extern void *D_0063A44C;
 extern char D_006193B0[];
 
 void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
@@ -416,9 +451,9 @@ typedef struct {
 
 extern MotEnt D_0055FE58[];
 extern char *D_004EB758[];
-extern int D_0063A440;
-extern int D_0063A444;
-extern int D_0063A448;
+extern void *D_0063A440;
+extern void *D_0063A444;
+extern void *D_0063A448;
 extern char D_00619790[];
 extern char D_006197C8[];
 extern char D_006197E8[];
@@ -462,7 +497,7 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
                          (float)GetMotionMemorySize(a6) / 1024.0f / 1024.0f);
 }
 
-extern int D_0063A438;
+extern void *D_0063A438;
 extern char D_006193B0[];
 extern int D_0028F4C0[];
 
@@ -529,9 +564,9 @@ typedef struct {
 } HdInfo;
 
 extern char *D_0063AD20;
-extern int D_0063A45C;
-extern int D_0063A444;
-extern int D_0063A458;
+extern void *D_0063A45C;
+extern void *D_0063A444;
+extern void *D_0063A458;
 extern char D_006198A0[];
 extern void soundHDDataSet(void *buf, int a3, int kind, int mode, int a6);
 
@@ -592,7 +627,7 @@ extern char D_00619930[];
 extern char *ShockVoiceSetCommon;
 extern char *ShockVoiceSetStage;
 extern void Init_ShockVoiceSet(void *hdr, void *body);
-extern int D_0063A460;
+extern void *D_0063A460;
 
 void ReadShockFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
 {
@@ -625,7 +660,7 @@ void ReadShockFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
 
 extern char D_00619960[];
 extern void AddPluralCameraSet(int slot, void *buf);
-extern int D_0063A450;
+extern void *D_0063A450;
 
 void ReadCamerasetFile(void *h, int a1, int size, int a3)
 {
@@ -658,7 +693,7 @@ extern char D_0028F720[];
 extern void *memcpy(void *dst, const void *src, int n);
 extern void light_AddLight(int a, int b, int c);
 extern void tex_RemakeRegistersSampleMin(int a);
-extern int D_0063A44C;
+extern void *D_0063A44C;
 
 void ReadStageSettingFile(void *h, int a1, int size)
 {
@@ -758,8 +793,8 @@ typedef struct {
     int bank;
 } SqInfo;
 
-extern int D_0063A444;
-extern int D_0063A458;
+extern void *D_0063A444;
+extern void *D_0063A458;
 extern int D_0063A684;
 extern char D_006193B0[];
 extern char D_006198D0[];
