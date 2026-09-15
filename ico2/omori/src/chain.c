@@ -1,15 +1,35 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", UpdateRootPosition);
+ASM_LIT4_SLOT(D_00639140, -0.2f);
+ASM_LIT4_SLOT(D_00639144, 0.1f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", StartPendulum);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", collisionCheck);
+ASM_LIT4_SLOT(D_00639148, 3.1415927f);
+ASM_LIT4_SLOT(D_0063914C, 0.6f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_simple);
+ASM_LIT4_SLOT(D_00639150, -0.4f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_ropeturn);
+ASM_LIT4_SLOT(D_00639154, -0.01f);
+ASM_LIT4_SLOT(D_00639158, -0.05f);
+ASM_LIT4_SLOT(D_0063915C, -0.15f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_loop);
+ASM_LIT4_SLOT(D_00639160, -0.29999998f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_swingready);
+ASM_LIT4_SLOT(D_00639164, -0.29999998f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_swingstart);
+ASM_LIT4_SLOT(D_00639168, -0.05f);
+ASM_LIT4_SLOT(D_0063916C, -0.15f);
+ASM_LIT4_SLOT(D_00639170, -1.5707964f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_moveup);
+ASM_LIT4_SLOT(D_00639174, -0.01f);
+ASM_LIT4_SLOT(D_00639178, -0.05f);
+ASM_LIT4_SLOT(D_0063917C, -0.15f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_free);
+ASM_LIT4_SLOT(D_00639180, -0.01f);
+ASM_LIT4_SLOT(D_00639184, -0.05f);
+ASM_LIT4_SLOT(D_00639188, -0.15f);
+ASM_LIT4_SLOT(D_0063918C, -1.5707964f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_down);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_hangstart);
 
