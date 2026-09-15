@@ -267,7 +267,53 @@ typedef union SubHandle {
 
 #define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/geometryManager", LocalizeGeometry);
+extern void DivQuaternion();
+
+/* INTERIM: the January-2002 listing inlines LocalizeDirectionOrient into
+ * LocalizeGeometry (its geometryManager.c:348-352 rows sit inside
+ * LocalizeGeometry's :363-390 span).  The TU's out-of-line copy stays a plain
+ * definition further down while the deferred-inline tail still has asm members,
+ * so the body is repeated here as a static stand-in. */
+static __inline__ void LocalizeDirectionOrient_i(int *self, int *a1)
+{
+    int buf[16];
+    char *obj = (char *)a1[0];
+    char *ctx = ((GObj *)(obj))->p_15C;
+    CopyMatrix(buf, (void *)(*(int *)(ctx + 0xC) + (a1[1] << 6)));
+    MatrixDrive_SetTransposeMatrix((char *)buf, (char *)buf);
+    sceVu0ApplyMatrix((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520), (int)buf,
+                      (char *)((GObj *)((char *)self))->p_15C + 0x520);
+    sceVu0Normalize((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520),
+                    (int *)((char *)((GObj *)((char *)self))->p_15C + 0x520));
+    ((GObj *)((char *)self))->p_15C->f_52C = 0;
+}
+
+void LocalizeGeometry(char *gobj, int *dobj)
+{
+    int mtx[16];
+    char *sub;
+    char *m;
+
+    sub = SUBOF(gobj);
+
+    m = sub + 0xA0;
+    if (*(int *)sub != 0) {
+        debug_assertMessage(D_0054D750, 371, D_0054D768);
+        __assert(D_0054D750, 371, D_00639EF0);
+        debug_assert(D_0054D750, 372);
+        __assert(D_0054D750, 372, D_00639EF8);
+    }
+
+    *(float *)(m + 0xC) = 1.0f;
+    *(float *)(m + 0x4) -= *(float *)(SUBOF(gobj) + 0x160);
+    *(float *)(m + 0x154) -= *(float *)(SUBOF(gobj) + 0x160);
+    MatrixDrive_SetTransposeMatrix(mtx, *(char **)(SUBOF((char *)dobj[0]) + 0xC) + (dobj[1] << 6));
+    sceVu0ApplyMatrix(m, mtx, m);
+    sceVu0ApplyMatrix(sub + 0x1F0, mtx, sub + 0x1F0);
+    DivQuaternion(sub + 0xD0, sub + 0xD0,
+                  *(char **)(SUBOF((char *)dobj[0]) + 0x10) + (dobj[1] << 4));
+    LocalizeDirectionOrient_i((int *)gobj, dobj);
+}
 
 extern void CopyVector();
 extern void sceVu0ApplyMatrix();
