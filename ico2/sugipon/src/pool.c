@@ -1,6 +1,7 @@
 #include "common.h"
 #include "ico/types.h"
 #include "vu0.h"
+#include "sugiCommon.h"
 
 typedef struct {
     char c[16];
@@ -9,6 +10,10 @@ typedef struct {
 typedef struct {
     char c[4];
 } Blob4;
+
+typedef struct {
+    long long c[2];
+} Blob16L;
 
 extern void ExecuteSEPackage(int a0, int a1);
 
@@ -138,8 +143,106 @@ ASM_LIT4_SLOT(D_00638B9C, 0.8f);
 ASM_LIT4_SLOT(D_00638BA0, 1.15f);
 ASM_LIT4_SLOT(D_00638BA4, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", SetLayoutedPoolReflactionMesh);
-ASM_LIT4_SLOT(D_00638BA8, 0.3f);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", SetLimitedPoolReflactionMesh);
+
+extern int D_0028F4D4[];
+extern const Blob16L D_0054DA70;
+extern int D_0063A064;
+extern int D_0063A068;
+extern int buffer_ID;
+extern int matrixptr;
+extern void GetRootPosition(void *dst, char *self);
+extern float GetPointDistance(void *a, void *b);
+extern void _InterVectorXYZ(void *dst, void *p0, void *p1, float t);
+extern void _InitCurrentMatrix(void);
+extern void _SetCurrentMatrix(int m);
+extern void _ApplyCurrentMatrix(void *dst, void *src);
+extern void _ScaleVector(void *dst, void *src, float k);
+extern void _SubVector(void *dst, void *a, void *b);
+extern void prim_UpdateMesh3D(void *mesh, int a1, int a2);
+
+void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
+{
+    char *w = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
+    float pos[4];
+    float v1[4];
+    float v2[4];
+    Blob16L vec;
+    float out[4];
+    char *mesh;
+    char *tmp;
+    char *base;
+    char *q;
+    char *uv;
+    float dist;
+    float dz;
+    float sx;
+    float sy;
+    float iw;
+    float h;
+    int i;
+    int j;
+
+    if (D_0028F4D4[0] == 0) {
+        for (i = 0; i < *(int *)(a0 + 0x0); i++) {
+            for (j = 0; j < *(int *)(a0 + 0x4); j++) {
+                (*(float ***)(a0 + 0x14))[i][j] -=
+                    ((*(float ***)(a0 + 0x14))[i][j] - random_signed() * 0.3f) * 0.5f;
+            }
+        }
+    }
+    GetRootPosition(pos, a2);
+    CopyVector(v1, pos);
+    v1[1] = *(float *)(w + 4);
+    CopyVector(v2, pos);
+    v2[1] += *(float *)(*(char **)(a2 + 0x15C) + 0x270);
+
+    pos[1] = (v1[1] + v2[1]) * 0.5f;
+    _InterVectorXYZ(pos, pos, (char *)(matrixptr + 944),
+                    (v1[1] - *(float *)(matrixptr + 948)) / (pos[1] - *(float *)(matrixptr + 948)));
+
+    _InterVectorXYZ(v2, v2, (char *)(matrixptr + 944),
+                    (v1[1] - *(float *)(matrixptr + 948)) / (v2[1] - *(float *)(matrixptr + 948)));
+
+    dist = GetPointDistance(v1, v2) + 100.0f;
+
+    pos[0] -= dist * 0.5f;
+    pos[2] -= dist * 0.5f;
+
+    mesh = *(char **)(a0 + 0x10);
+    vec = D_0054DA70;
+    sx = 1.0f / (float)D_0063A064;
+    sy = 1.0f / (float)D_0063A068;
+    tmp = (char *)(matrixptr + 0x4C0);
+    base = (char *)(matrixptr + 0x440);
+
+    dz = dist / (float)*(int *)(a0 + 0x0);
+
+    CopyVector(base, &vec);
+
+    _InitCurrentMatrix();
+    _SetCurrentMatrix(matrixptr + 0x100);
+
+    for (i = 0; i < *(int *)(a0 + 0x0); i++) {
+        q = *(char **)(mesh + 0x6C) + i * *(int *)(a0 + 0x4) * 16;
+        uv = *(char **)(mesh + 0x74) + i * *(int *)(a0 + 0x4) * 16;
+        for (j = 0; j < *(int *)(a0 + 0x4); j++) {
+            h = (*(float ***)(a0 + 0x14))[i][j];
+            *(float *)(q + 0x0) = pos[0] + (float)i * dz;
+            *(float *)(q + 0x4) = pos[1];
+            *(float *)(q + 0x8) = pos[2] + (float)j * dz;
+            *(float *)(q + 0xC) = 1.0f;
+            _ApplyCurrentMatrix(out, q);
+            iw = 1.0f / out[3];
+            _ScaleVector(tmp, out, iw);
+            _SubVector(out, tmp, base);
+            *(float *)(uv + 0x0) = out[0] * sx + 0.5f + h * 50.0f * iw;
+            *(float *)(uv + 0x4) = out[1] * sy + 0.5f + h * 50.0f * iw;
+            q += 16;
+            uv += 16;
+        }
+    }
+    prim_UpdateMesh3D(mesh, 9, buffer_ID);
+}
 
 extern int D_0063A064;
 extern int D_0063A068;
