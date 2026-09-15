@@ -84,8 +84,44 @@ static __inline__ void StormProject(void *dst, void *src)
 }
 
 extern StormPackage *InitStormPackage(int mode, int num, int flag);
+extern float _GetRandom(void);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/stormTest", InitStormPackage);
+StormPackage *InitStormPackage(int mode, int num, int flag)
+{
+    StormPackage *pkg;
+    float t[4];
+    int i;
+
+    pkg = (StormPackage *)iosMallocDebug(D_0063A438, 0x1C, D_00620FA0, 0x43);
+    pkg->mode = mode;
+    pkg->num = num;
+    pkg->pos = (float (*)[4])iosMallocDebug(D_0063A438, num * 16, D_00620FA0, 0x47);
+    pkg->vel = (float (*)[4])iosMallocDebug(D_0063A438, num * 16, D_00620FA0, 0x48);
+    pkg->disp = (int (*)[4])iosMallocDebug(D_0063A438, num * 16, D_00620FA0, 0x49);
+    pkg->rate = (float *)iosMallocDebug(D_0063A438, num * 4, D_00620FA0, 0x4A);
+
+    for (i = 0; i < num; i++) {
+        CopyVector(pkg->vel[i], D_0028FEF0);
+        pkg->pos[i][0] = (_GetRandom() * 2.0f - 1.0f) * 1000.0f;
+        pkg->pos[i][1] = -(_GetRandom() * 400.0f);
+        pkg->pos[i][2] = (_GetRandom() * 2.0f - 1.0f) * 1000.0f;
+        pkg->pos[i][3] = 1.0f;
+        pkg->rate[i] = 0.18181819f;
+        sceVu0ApplyMatrix(t, matrixptr + 0x80, pkg->pos[i]);
+        StormPerspective(pkg->disp[i], t);
+    }
+
+    if (flag) {
+        for (i = 0; i < num; i++) {
+            pkg->rate[i] = 0.1f / (_GetRandom() * 0.9f + 0.1f);
+        }
+    } else {
+        for (i = 0; i < num; i++) {
+            pkg->rate[i] = 0.1f / (_GetRandom() * 0.5f + 0.5f);
+        }
+    }
+    return pkg;
+}
 
 void ClipStormByVolume(StormPackage *pkg)
 {
@@ -160,7 +196,53 @@ void ClipStormByCamera(StormPackage *pkg)
 
 extern void UpdateStormPackage(StormPackage *pkg);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/stormTest", UpdateStormPackage);
+typedef union {
+    float f[4];
+    long long ll[2];
+} Vec4;
+
+extern void *GetWindVector(int a0, void *pos);
+extern void AddVectorXYZ(void *dst, void *a, void *b);
+
+void UpdateStormPackage(StormPackage *pkg)
+{
+    Vec4 v;
+    Vec4 t;
+    Vec4 w;
+    int i;
+
+    t.f[0] = _GetRandom() * 2.0f - 1.0f;
+    t.f[1] = _GetRandom() * 2.0f - 1.0f;
+    t.f[2] = _GetRandom() * 2.0f - 1.0f;
+    t.f[3] = 0.0f;
+    v = t;
+
+    for (i = 0; i < pkg->num; i++) {
+        float rate = pkg->rate[i];
+        float *pos = pkg->pos[i];
+        float *vel = pkg->vel[i];
+        void *wind;
+
+        v.f[i & 3] = _GetRandom() * 2.0f - 1.0f;
+        wind = GetWindVector(0, pos);
+        sceVu0ScaleVectorXYZ(&w, &v, rate);
+        sceVu0ScaleVectorXYZ(&t, wind, 0.1f);
+        AddVectorXYZ(vel, vel, &t);
+        AddVectorXYZ(vel, vel, &w);
+        sceVu0ScaleVectorXYZ(vel, vel, 1.0f - rate * 0.1f);
+        AddVectorXYZ(pos, pos, vel);
+    }
+
+    switch (pkg->mode) {
+    case 0:
+    default:
+        ClipStormByVolume(pkg);
+        break;
+    case 1:
+        ClipStormByCamera(pkg);
+        break;
+    }
+}
 
 void DispStormPackage(StormPackage *pkg, void *color)
 {
