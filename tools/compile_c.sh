@@ -42,9 +42,19 @@ EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
 INCLUDE_DIR="${ROOT}/include"
 # include/ holds stub scaffolding only (the fdlibm two-word idiom now lives in the libm members that use it): the libm
 # members and the game TUs that use the GET_FLOAT_WORD macros reach it by name.
-CFLAGS="-S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}"
-ASFLAGS="-EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -I${INCLUDE_DIR}"
-EE_ASFLAGS="-EL -mcpu=5900 -G 8"
+# Small-data threshold per archive. The game and every SDK archive but libm were
+# built at -G 8. libm.a was built at -G 0 (measured 2026-09-15 on kf_sin, wf_fmod
+# and sf_atan: their li.s expands to lui/ori/mtc1 and their strings and NaNs land
+# in .rodata only at -G 0, and every already matched libm member is byte-identical
+# under it). A library's own build setting is a fact of that archive, not a
+# per-function lever.
+case "${1:-}" in
+    sce/libm/*|*/sce/libm/*) GNUM=0 ;;
+    *) GNUM=8 ;;
+esac
+CFLAGS="-S -G ${GNUM} -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}"
+ASFLAGS="-EL -march=r5900 -mabi=eabi -G ${GNUM} -no-pad-sections -I${INCLUDE_DIR}"
+EE_ASFLAGS="-EL -mcpu=5900 -G ${GNUM}"
 
 PYTHON="${ROOT}/.venv/bin/python"
 

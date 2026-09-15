@@ -170,7 +170,8 @@ fi
 # accept -fno-optimize-sibling-calls (sibling-call defeat is per-function
 # via __asm__ volatile("") barriers in src/cod/). -S because the bundled
 # 2.9-era `as` chokes on modern flags — we re-assemble with ee-as 2.10.
-CFLAGS="${CFLAGS:--S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -Iinclude}"
+case "$NAME" in sce/libm/*) GNUM=0 ;; *) GNUM=8 ;; esac  # libm.a was built at -G 0, see compile_c.sh
+CFLAGS="${CFLAGS:--S -G ${GNUM} -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -Iinclude}"
 
 # ee-gcc looks for cc1 at the path it was built against (typically
 # ${PS2DEV}/ee/gcc-lib/...). Pass -B so it finds the bundled cc1 in our tree.
@@ -238,7 +239,7 @@ python3 "$ROOT/tools/postprocess_split_jtbls.py" "$ASM_OUT" || true
 # or on delay-slot filling. There is no fallback: an ee-as rejection is a defect
 # in the .s to fix.
 EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
-EE_ASFLAGS="-EL -mcpu=5900 -G 8 -I$ROOT/include"
+EE_ASFLAGS="-EL -mcpu=5900 -G ${GNUM:-8} -I$ROOT/include"
 # There is no per-TU assembler selection: EE_AS above IS the assembler for
 # every TU, exactly as compile_c.sh does it, so quick_diff and the ninja build
 # can never disagree on delay-slot filling. config/use_old_as.txt (a per-TU
