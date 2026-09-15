@@ -4,8 +4,11 @@ typedef struct {
     int w[13];
 } WayRec;
 
+/* way_tool.o .data +0x00: the scratch world position the tool builds a point
+   at; the fourth word is the homogeneous 1.0f. */
+static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
 extern WayRec D_004F1EC0[];
-extern char D_004F76A0[];
 extern char D_00621EC0[];
 extern char D_00621ED0[];
 extern char D_00621EE0[];
@@ -49,7 +52,7 @@ int group_create(void)
     }
     f = D_00729B7C[0];
     if (f & 0x20) {
-        int p = CreateWayPoint(D_004F76A0);
+        int p = CreateWayPoint(wayWorkPos);
 
         AddWayPoint(D_0063BD78, p);
         debug_StdPrintfDummy(D_00621EE0, p);
@@ -70,15 +73,98 @@ int group_create(void)
     return 0;
 }
 
-/* one line of the way-group selector: debug_SelectCsvWindow walks D_004F76B0
+/* one line of the way-group selector: debug_SelectCsvWindow walks debugWayGroupSelect
    with stride 8 and dereferences the first word */
 typedef struct {
     char *s;
     int _4;
 } WayMenuLine;
 
+/* way_tool.o .data +0x10: the way-group selector's 64 lines.  The label text is
+   a 2001 string literal per line (" 0 ( -)  " .. "63 ( -)  ") that
+   relabel_way_groups rewrites in place; until the TU's .rodata run is carved
+   the literals are reached as the externs the blob defines. */
+extern char D_006222E8[];
+extern char D_006222D8[];
+extern char D_006222C8[];
+extern char D_006222B8[];
+extern char D_006222A8[];
+extern char D_00622298[];
+extern char D_00622288[];
+extern char D_00622278[];
+extern char D_00622268[];
+extern char D_00622258[];
+extern char D_00622248[];
+extern char D_00622238[];
+extern char D_00622228[];
+extern char D_00622218[];
+extern char D_00622208[];
+extern char D_006221F8[];
+extern char D_006221E8[];
+extern char D_006221D8[];
+extern char D_006221C8[];
+extern char D_006221B8[];
+extern char D_006221A8[];
+extern char D_00622198[];
+extern char D_00622188[];
+extern char D_00622178[];
+extern char D_00622168[];
+extern char D_00622158[];
+extern char D_00622148[];
+extern char D_00622138[];
+extern char D_00622128[];
+extern char D_00622118[];
+extern char D_00622108[];
+extern char D_006220F8[];
+extern char D_006220E8[];
+extern char D_006220D8[];
+extern char D_006220C8[];
+extern char D_006220B8[];
+extern char D_006220A8[];
+extern char D_00622098[];
+extern char D_00622088[];
+extern char D_00622078[];
+extern char D_00622068[];
+extern char D_00622058[];
+extern char D_00622048[];
+extern char D_00622038[];
+extern char D_00622028[];
+extern char D_00622018[];
+extern char D_00622008[];
+extern char D_00621FF8[];
+extern char D_00621FE8[];
+extern char D_00621FD8[];
+extern char D_00621FC8[];
+extern char D_00621FB8[];
+extern char D_00621FA8[];
+extern char D_00621F98[];
+extern char D_00621F88[];
+extern char D_00621F78[];
+extern char D_00621F68[];
+extern char D_00621F58[];
+extern char D_00621F48[];
+extern char D_00621F38[];
+extern char D_00621F28[];
+extern char D_00621F18[];
+extern char D_00621F08[];
+extern char D_00621EF8[];
+
+WayMenuLine debugWayGroupSelect[64] = {
+    {D_006222E8, 0}, {D_006222D8, 0}, {D_006222C8, 0}, {D_006222B8, 0}, {D_006222A8, 0},
+    {D_00622298, 0}, {D_00622288, 0}, {D_00622278, 0}, {D_00622268, 0}, {D_00622258, 0},
+    {D_00622248, 0}, {D_00622238, 0}, {D_00622228, 0}, {D_00622218, 0}, {D_00622208, 0},
+    {D_006221F8, 0}, {D_006221E8, 0}, {D_006221D8, 0}, {D_006221C8, 0}, {D_006221B8, 0},
+    {D_006221A8, 0}, {D_00622198, 0}, {D_00622188, 0}, {D_00622178, 0}, {D_00622168, 0},
+    {D_00622158, 0}, {D_00622148, 0}, {D_00622138, 0}, {D_00622128, 0}, {D_00622118, 0},
+    {D_00622108, 0}, {D_006220F8, 0}, {D_006220E8, 0}, {D_006220D8, 0}, {D_006220C8, 0},
+    {D_006220B8, 0}, {D_006220A8, 0}, {D_00622098, 0}, {D_00622088, 0}, {D_00622078, 0},
+    {D_00622068, 0}, {D_00622058, 0}, {D_00622048, 0}, {D_00622038, 0}, {D_00622028, 0},
+    {D_00622018, 0}, {D_00622008, 0}, {D_00621FF8, 0}, {D_00621FE8, 0}, {D_00621FD8, 0},
+    {D_00621FC8, 0}, {D_00621FB8, 0}, {D_00621FA8, 0}, {D_00621F98, 0}, {D_00621F88, 0},
+    {D_00621F78, 0}, {D_00621F68, 0}, {D_00621F58, 0}, {D_00621F48, 0}, {D_00621F38, 0},
+    {D_00621F28, 0}, {D_00621F18, 0}, {D_00621F08, 0}, {D_00621EF8, 0}};
+
 extern WayRec D_004F1EC0[];
-extern WayMenuLine D_004F76B0[];
 extern char D_006222F8[];
 extern char D_00622308[];
 extern char D_0063BD90[];
@@ -103,16 +189,20 @@ static inline void relabel_way_groups(void)
 
     for (i = 0; i < 94; i++) {
         if (D_004F1EC0[i].w[0] == 1) {
-            sprintf(D_004F76B0[n].s, D_006222F8, n, D_004F1EC0[i].w[4]);
+            sprintf(debugWayGroupSelect[n].s, D_006222F8, n, D_004F1EC0[i].w[4]);
             if (D_004F1EC0[i].w[6] == 1) {
-                strcat(D_004F76B0[n].s, D_0063BD90);
+                strcat(debugWayGroupSelect[n].s, D_0063BD90);
             }
             n++;
         }
     }
 }
 
-int group_select(void)
+/* census group_select, a file static: MAIN.MAP puts the only global
+   group_select in ico2/omori/src/camera-editor.o.  debugWayMenu below holds
+   its address, which is why this TU kept the global symbol until the table
+   became C. */
+static int group_select(void)
 {
     WayRec *e;
     int state;
@@ -140,8 +230,8 @@ int group_select(void)
             D_004F1EC0[D_0063BD78].w[6] = 0;
             relabel_way_groups();
         }
-        r = debug_SelectCsvWindow(D_00622308, 0x12, 0x36, 0xB, D_004F76B0, 8, 0, 1, D_0063BD74,
-                                  &D_0063C4D0);
+        r = debug_SelectCsvWindow(D_00622308, 0x12, 0x36, 0xB, debugWayGroupSelect, 8, 0, 1,
+                                  D_0063BD74, &D_0063C4D0);
         switch (r) {
         case 0:
             D_0063BD78 = D_0063C4D0;
@@ -162,7 +252,6 @@ int group_select(void)
 }
 
 extern WayRec D_004F1EC0[];
-extern char D_004F76A0[];
 extern char D_00622318[];
 extern char D_00622328[];
 extern int D_0063B13C;
@@ -189,7 +278,7 @@ int point_delete(void)
     }
     f = D_00729B7C[0];
     if (f & 0x20) {
-        char *res = waypoint_with_range((int *)D_004F76A0, 60.0f);
+        char *res = waypoint_with_range((int *)wayWorkPos, 60.0f);
 
         if (res == 0) {
             return 0;
@@ -215,7 +304,6 @@ int point_delete(void)
 
 extern int CreateWayPoint(void *a0);
 extern WayRec D_004F1EC0[];
-extern char D_004F76A0[];
 extern char D_00622340[];
 extern char D_00622350[];
 extern int D_0063B13C;
@@ -249,12 +337,12 @@ int point_insert(void)
         return 0;
     }
     {
-        void *res = nearest_waypoint_by_lineseg(D_004F76A0);
+        void *res = nearest_waypoint_by_lineseg(wayWorkPos);
         if (*(int *)((char *)res + 0xC) == 0) {
             return 0;
         }
         {
-            int n = CreateWayPoint(D_004F76A0);
+            int n = CreateWayPoint(wayWorkPos);
             InsertWayPointAfter(D_0063BD78, *(int *)((char *)res + 4), n);
             entry->w[4] = entry->w[4] + 1;
             debug_StdPrintfDummy(D_00622350, n);
@@ -521,10 +609,26 @@ typedef struct {
     int c[4];
 } WayCol;
 
+/* way_tool.o .data +0x210: the nine RGBA packets the tool draws with. */
+static WayCol wayColorSelected = {{0xFF, 0xFF, 0xFF, 0xFF}};
+
+static WayCol wayColorLinked = {{0xFF, 0x08, 0xFF, 0xFF}};
+
+static WayCol wayColorBlink = {{0xFF, 0xFF, 0xFF, 0xFF}};
+
+static WayCol wayColorCursor = {{0x80, 0xFF, 0x1E, 0xFF}};
+
+static WayCol wayColorOpenCurrent = {{0x20, 0xFF, 0x20, 0xFF}};
+
+static WayCol wayColorOpenOther = {{0x20, 0x80, 0x20, 0x30}};
+
+static WayCol wayColorClosedCurrent = {{0x40, 0x40, 0x00, 0xFF}};
+
+static WayCol wayColorClosedOther = {{0x40, 0x40, 0x00, 0x40}};
+
+static WayCol wayColorBridge = {{0xFF, 0x00, 0xFF, 0xFF}};
+
 extern WayRec D_004F1EC0[];
-extern WayCol D_004F78B0;
-extern WayCol D_004F78C0;
-extern WayCol D_004F78D0;
 extern int D_0063BD80;
 extern WayCol D_00729B60;
 extern unsigned int frame_count;
@@ -542,14 +646,14 @@ static inline void set_way_point_color(char *p, WayCol *col)
     WayCol *d = &D_00729B60;
 
     if (*(int *)(p + 0x28) != 0) {
-        *d = D_004F78C0;
+        *d = wayColorLinked;
     } else if (*(int *)(p + 0x4) == D_0063BD80) {
-        *d = D_004F78B0;
+        *d = wayColorSelected;
     } else {
         *d = *col;
     }
     if (*(int *)(p + 0x30) != 0 && (frame_count & 0x10)) {
-        *d = D_004F78D0;
+        *d = wayColorBlink;
     }
 }
 
@@ -583,13 +687,6 @@ void draw_way_group(int g, WayCol *col)
         p = *(char **)(p + 0xC);
     }
 }
-
-extern WayCol D_004F78E0;
-extern WayCol D_004F78F0;
-extern WayCol D_004F7900;
-extern WayCol D_004F7910;
-extern WayCol D_004F7920;
-extern WayCol D_004F7930;
 
 /* the way node position vectors: D_004F31F0 is the +0x10 member of the first
    0x40-byte node of D_004F31E0, so this view indexes the same nodes by their
@@ -626,7 +723,7 @@ void way_toolDL(int a0)
     if (load_save_flag != 0) {
         return;
     }
-    GetRootPosition(D_004F76A0, a0);
+    GetRootPosition(wayWorkPos, a0);
 
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -634,32 +731,32 @@ void way_toolDL(int a0)
     memset(&blink, 0, 16);
     blink.f[1] = (float)frame_count * 0.116355285f;
     m = blink;
-    SetVObjRT(&m, D_004F76A0);
-    DrawVObj(0, &D_004F78E0);
+    SetVObjRT(&m, wayWorkPos);
+    DrawVObj(0, &wayColorCursor);
 
     for (i = 0; i < 94; i++) {
         e = &D_004F1EC0[i];
         if (e->w[0] == 1) {
             if (e->w[10] != 0) {
                 if (i == D_0063BD78) {
-                    draw_way_group(i, &D_004F78F0);
+                    draw_way_group(i, &wayColorOpenCurrent);
                 } else {
-                    draw_way_group(i, &D_004F7900);
+                    draw_way_group(i, &wayColorOpenOther);
                 }
             } else {
                 if (i == D_0063BD78) {
-                    draw_way_group(i, &D_004F7910);
+                    draw_way_group(i, &wayColorClosedCurrent);
                 } else {
-                    draw_way_group(i, &D_004F7920);
+                    draw_way_group(i, &wayColorClosedOther);
                 }
             }
             if (e->w[6] == 1) {
                 sceVu0UnitMatrix(MatrixDrive_GetMatrix());
                 gif_StartPacketPri(11);
                 if (e->w[8] != -1) {
-                    DrawLine(*(char **)&e->w[2] + 0x10, D_004F31F0[e->w[8]].v, &D_004F7930,
+                    DrawLine(*(char **)&e->w[2] + 0x10, D_004F31F0[e->w[8]].v, &wayColorBridge,
                              0x800000);
-                    DrawLine(*(char **)&e->w[3] + 0x10, D_004F31F0[e->w[9]].v, &D_004F7930,
+                    DrawLine(*(char **)&e->w[3] + 0x10, D_004F31F0[e->w[9]].v, &wayColorBridge,
                              0x800000);
                 }
                 gif_EndPacket();
@@ -678,10 +775,34 @@ void way_toolDL(int a0)
 
 typedef struct {
     char *name;
-    int (*fn)(int);
+    int (*fn)();
 } WayMenu;
 
-extern WayMenu D_004F7940[];
+/* way_tool.o .data +0x2A0: the way-tool menu, nine {label, action} lines.
+   Line 5's label is the play/stop text the tool rewrites at runtime. */
+extern char D_00621EC0[];
+extern char D_006224B0[];
+extern char D_006224A0[];
+extern char D_00622490[];
+extern char D_00622480[];
+extern char D_0063BDE0[];
+extern char D_00622470[];
+extern char D_00622460[];
+extern char D_00622450[];
+extern int group_create(void);
+extern int point_delete(void);
+extern int point_insert(void);
+extern int point_nige(void);
+extern int play_way(void);
+extern int quick_save_wpfile(void);
+extern int quick_load_wpfile(void);
+extern int wp_print_out(void);
+
+WayMenu debugWayMenu[9] = {
+    {D_00621EC0, group_create},      {D_006224B0, group_select},      {D_006224A0, point_delete},
+    {D_00622490, point_insert},      {D_00622480, point_nige},        {D_0063BDE0, play_way},
+    {D_00622470, quick_save_wpfile}, {D_00622460, quick_load_wpfile}, {D_00622450, wp_print_out}};
+
 extern char D_006224C0[];
 extern char D_006224D0[];
 extern int D_0063A44C;
@@ -740,7 +861,8 @@ int debug_WayTool(void)
 
     state = D_0063BDE8;
     if (state == 1) {
-        r = debug_SelectCsvWindow(D_006224D0, 0x12, 0x36, 0xB, D_004F7940, 8, 0, 1, 9, &D_0063BDEC);
+        r = debug_SelectCsvWindow(D_006224D0, 0x12, 0x36, 0xB, debugWayMenu, 8, 0, 1, 9,
+                                  &D_0063BDEC);
         switch (r) {
         case 0:
             return 0;
@@ -756,7 +878,7 @@ int debug_WayTool(void)
             break;
         }
     } else if (state == 2) {
-        f = D_004F7940[D_0063BDEC].fn;
+        f = debugWayMenu[D_0063BDEC].fn;
         if (f == 0) {
             D_0063BDE8 = 1;
         } else {
@@ -818,15 +940,13 @@ int point_nige(void)
     int *p;
     int v;
 
-    extern char D_004F76A0[];
-
     if (D_0063B13C & 1) {
         unsigned int color = 0xFF000000;
         debug_Printf(0x12, 0x36, color, D_00622368);
     }
     v = D_00729B7C[0];
     if (v & 0x20) {
-        p = (int *)waypoint_with_range((int *)D_004F76A0, 60.0f);
+        p = (int *)waypoint_with_range((int *)wayWorkPos, 60.0f);
         if (p == 0) {
             return 0;
         }

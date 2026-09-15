@@ -21,19 +21,146 @@ typedef struct {
 } PCmpV2;
 
 extern void __unpack_d(void *in, void *out);
-extern void *_fpadd_parts(void *a, void *b, void *c);
 extern void __make_fp(int a0, int a1, int a2, int a3);
 
 INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", __pack_f);
 INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", __unpack_f);
-/* census _fpadd_parts, a file static, takes the name as static _fpadd_parts once
-   this function is C (a stub assembles to a global label, which would collide
-   with the sce/libgcc/dp-bit _fpadd_parts stub at 0x0027CED8) */
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", func_0027DBA0);
 
 extern int __pack_f(void *s);
 extern void __unpack_f(void *in, void *out);
-extern int func_0027DBA0();
+
+/* The single-float number in unpacked form.  FRAC_NBITS is 32, NGARDS is 7,
+   so the implicit one sits at bit 30 and the overflow bit at bit 31.  The
+   file static shares its name with the double build's global in dp-bit.o. */
+#define CLASS_SNAN 0
+#define CLASS_QNAN 1
+#define CLASS_ZERO 2
+#define CLASS_NUMBER 3
+#define CLASS_INFINITY 4
+#define IMPLICIT_1 0x40000000
+#define IMPLICIT_2 0x80000000
+
+typedef struct {
+    unsigned int class;
+    int sign;
+    int normal_exp;
+    unsigned int fraction;
+} fp_number_type;
+
+/* the quiet NaN this build hands back for inf - inf */
+extern char D_736188[];
+
+static __inline__ int isnan(fp_number_type *x)
+{
+    return x->class == CLASS_SNAN || x->class == CLASS_QNAN;
+}
+
+static __inline__ int isinf(fp_number_type *x)
+{
+    return x->class == CLASS_INFINITY;
+}
+
+static __inline__ int iszero(fp_number_type *x)
+{
+    return x->class == CLASS_ZERO;
+}
+
+static __inline__ fp_number_type *nan(void)
+{
+    return (fp_number_type *)D_736188;
+}
+
+static fp_number_type *_fpadd_parts(fp_number_type *a, fp_number_type *b, fp_number_type *tmp)
+{
+    int tfraction;
+    int a_normal_exp;
+    int b_normal_exp;
+    unsigned int a_fraction;
+    unsigned int b_fraction;
+    int diff;
+
+    if (isnan(a))
+        return a;
+    if (isnan(b))
+        return b;
+    if (isinf(a)) {
+        /* adding infinities with opposite signs yields a NaN */
+        if (isinf(b) && a->sign != b->sign)
+            return nan();
+        return a;
+    }
+    if (isinf(b))
+        return b;
+    if (iszero(b)) {
+        if (iszero(a)) {
+            *tmp = *a;
+            tmp->sign = a->sign & b->sign;
+            return tmp;
+        }
+        return a;
+    }
+    if (iszero(a))
+        return b;
+
+    a_normal_exp = a->normal_exp;
+    b_normal_exp = b->normal_exp;
+    a_fraction = a->fraction;
+    b_fraction = b->fraction;
+
+    diff = a_normal_exp - b_normal_exp;
+    if (diff < 0)
+        diff = -diff;
+    if (diff < 32) {
+        while (a_normal_exp > b_normal_exp) {
+            b_normal_exp++;
+            b_fraction = (b_fraction & 1) | (b_fraction >> 1);
+        }
+        while (b_normal_exp > a_normal_exp) {
+            a_normal_exp++;
+            a_fraction = (a_fraction & 1) | (a_fraction >> 1);
+        }
+    } else {
+        if (a_normal_exp > b_normal_exp) {
+            b_fraction = 0;
+            b_normal_exp = a_normal_exp;
+        } else {
+            a_fraction = 0;
+            a_normal_exp = b_normal_exp;
+        }
+    }
+
+    if (a->sign != b->sign) {
+        if (a->sign)
+            tfraction = -a_fraction + b_fraction;
+        else
+            tfraction = a_fraction - b_fraction;
+
+        if (tfraction >= 0) {
+            tmp->sign = 0;
+            tmp->normal_exp = a_normal_exp;
+            tmp->fraction = tfraction;
+        } else {
+            tmp->sign = 1;
+            tmp->normal_exp = a_normal_exp;
+            tmp->fraction = -tfraction;
+        }
+        while (tmp->fraction < IMPLICIT_1 && tmp->fraction) {
+            tmp->fraction <<= 1;
+            tmp->normal_exp--;
+        }
+    } else {
+        tmp->sign = a->sign;
+        tmp->normal_exp = a_normal_exp;
+        tmp->fraction = a_fraction + b_fraction;
+    }
+    tmp->class = CLASS_NUMBER;
+
+    if (tmp->fraction >= IMPLICIT_2) {
+        tmp->fraction = (tmp->fraction & 1) | (tmp->fraction >> 1);
+        tmp->normal_exp++;
+    }
+    return tmp;
+}
 
 int fpadd(float a0, float a1)
 {
@@ -43,7 +170,8 @@ int fpadd(float a0, float a1)
     *(float *)(buf + 0x34) = a1;
     __unpack_f(buf + 0x30, buf);
     __unpack_f(buf + 0x34, buf + 0x10);
-    ret = func_0027DBA0(buf, buf + 0x10, buf + 0x20);
+    ret = (int)_fpadd_parts((fp_number_type *)buf, (fp_number_type *)(buf + 0x10),
+                            (fp_number_type *)(buf + 0x20));
     return __pack_f(ret);
 }
 
@@ -56,7 +184,8 @@ int fpsub(float a0, float a1)
     __unpack_f(buf + 0x30, buf);
     __unpack_f(buf + 0x34, buf + 0x10);
     *(int *)(buf + 0x14) ^= 1;
-    ret = func_0027DBA0(buf, buf + 0x10, buf + 0x20);
+    ret = (int)_fpadd_parts((fp_number_type *)buf, (fp_number_type *)(buf + 0x10),
+                            (fp_number_type *)(buf + 0x20));
     return __pack_f(ret);
 }
 

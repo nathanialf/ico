@@ -1375,12 +1375,10 @@ void menu_2(char *m)
     }
 }
 
-/* census group_select, and MAIN.MAP puts the only global group_select in
-   camera-editor.o at base+0x5180, which is this address, so this is the global
-   and ico2/fumi/src/way_tool holds the file static.  The name waits until
-   way_tool can spell its copy `static`: nothing in the ELF references either
-   address, so gcc would drop an unreferenced static today. */
-void func_0018F5F8(char *m)
+/* group_select: MAIN.MAP puts the only global of the name in camera-editor.o at
+   base+0x5180, this address; ico2/fumi/src/way_tool holds a file static of the
+   same name, reached through its own menu table. */
+void group_select(char *m)
 {
     Pad *pad;
 

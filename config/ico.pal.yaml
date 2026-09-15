@@ -522,6 +522,8 @@ segments:
       - [0x3EE6F0, data, cod/3EE6F0]     # .data blob resume
       - [0x3F1D60, .data, ico2/fumi/src/act-env]  # carved D_004F1D60..D_004F1E00 (VMA 0x4F1D60..0x4F1E10, 176 B, 11 float[4] tables), all referenced only by still-asm getDitchDistTbl via %hi/%lo
       - [0x3F1E10, data, cod/3F1E10]     # .data blob resume
+      - [0x3F76A0, .data, ico2/fumi/src/way_tool]  # syms: wayWorkPos,debugWayGroupSelect,wayColorSelected,wayColorLinked,wayColorBlink,wayColorCursor,wayColorOpenCurrent,wayColorOpenOther,wayColorClosedCurrent,wayColorClosedOther,wayColorBridge,debugWayMenu  the whole way_tool.o .data run (MAIN.MAP 0x2E8, retail 0x2E8): the work vector, the 64 group-select menu lines, nine colour packets and the nine-entry way menu whose function pointers include this TU's static group_select, VMA 0x4F76A0..0x4F7988, 744 B
+      - [0x3F7988, data, cod/3F7988]     # .data blob resume
       - [0x3F7D90, .data, ico2/script/src/end]  # syms: ed_demo14_mes  actEndDemo14 mail record (VMA 0x4F7D90..0x4F7DB0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3F7DB0, data, cod/3F7DB0]     # .data blob resume
       - [0x3F7DF0, .data, ico2/script/src/end]  # syms: end_mes  actEndLogoChk save hand-off mail record (VMA 0x4F7DF0..0x4F7E10, the end of end.o's .data run); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling

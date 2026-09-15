@@ -46,11 +46,74 @@ static int __sprint(int a0, int *a1)
     return ret;
 }
 
-/* census __sbprintf, a file static, takes the name as static __sbprintf once this
-   function and _vfprintf_r are C (a stub assembles to a global label and
-   _vfprintf_r's assembled jal would bind to the global __sbprintf that
-   sce/libc/stdio/vfiprintf holds at 0x00280160) */
-INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfprintf", func_00280EA8);
+/* The stdio stream, as this libc lays it out: __sbprintf builds one on its own
+   stack so a line-buffered stream is written through a full-size buffer. */
+struct __sbuf {
+    unsigned char *_base; /* 0x0 */
+    int _size;            /* 0x4 */
+};
+
+typedef struct __sFILE {
+    unsigned char *_p;      /* 0x00 */
+    int _r;                 /* 0x04 */
+    int _w;                 /* 0x08 */
+    short _flags;           /* 0x0C */
+    short _file;            /* 0x0E */
+    struct __sbuf _bf;      /* 0x10 */
+    int _lbfsize;           /* 0x18 */
+    void *_cookie;          /* 0x1C */
+    int (*_read)();         /* 0x20 */
+    int (*_write)();        /* 0x24 */
+    int (*_seek)();         /* 0x28 */
+    int (*_close)();        /* 0x2C */
+    struct __sbuf _ub;      /* 0x30 */
+    unsigned char *_up;     /* 0x38 */
+    int _ur;                /* 0x3C */
+    unsigned char _ubuf[3]; /* 0x40 */
+    unsigned char _nbuf[1]; /* 0x43 */
+    struct __sbuf _lb;      /* 0x44 */
+    int _blksize;           /* 0x4C */
+    int _offset;            /* 0x50 */
+    void *_data;            /* 0x54 */
+} FILE;
+
+#define __SNBF 0x0002
+#define __SERR 0x0040
+#define BUFSIZ 1024
+#define EOF (-1)
+
+extern int fflush(FILE *fp);
+
+/* census __sbprintf, a file static (sce/libc/stdio/vfiprintf holds the global
+   at 0x00280160); _vfprintf_r's stub calls it and the same-object definition
+   binds first. */
+static int __sbprintf(FILE *fp, const char *fmt, void *ap)
+{
+    int ret;
+    FILE fake;
+    unsigned char buf[BUFSIZ];
+
+    /* copy the important variables */
+    fake._data = fp->_data;
+    fake._flags = fp->_flags & ~__SNBF;
+    fake._file = fp->_file;
+    fake._cookie = fp->_cookie;
+    fake._write = fp->_write;
+
+    /* set up the buffer */
+    fake._bf._base = fake._p = buf;
+    fake._bf._size = fake._w = sizeof(buf);
+    fake._lbfsize = 0;
+
+    /* do the work, then copy any error status */
+    ret = vfprintf(&fake, fmt, ap);
+    if (ret >= 0 && fflush(&fake))
+        ret = EOF;
+    if (fake._flags & __SERR)
+        fp->_flags |= __SERR;
+    return ret;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfprintf", vfprintf);
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfprintf", _vfprintf_r);
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfprintf", cvt);
