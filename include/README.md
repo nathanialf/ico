@@ -1,17 +1,19 @@
 # `include/` is build infrastructure, not part of the mirrored source tree
 
 The game tree under `ico2/` mirrors the paths the PAL disc's own listing
-records, one directory per programmer, and the eleven headers the disc
-attests live there:
+records, one directory per programmer, and the eleven headers the disc's
+evidence places live there (the rung that places each is named; only the
+retail ELF's own bytes are direct facts, the listing and the map are other
+links correlated to it):
 
-| header | home | what attests it |
+| header | home | evidence rung |
 |---|---|---|
 | `sugiCommon.h` | `ico2/sugipon/include/` | SRCFILE.TXT rows |
 | `typedef.h` | `ico2/common/include/` | SRCFILE.TXT rows |
 | `b50climb.h`, `b100climb.h`, `b200climb.h` | `ico2/omori/include/` | SRCFILE.TXT rows |
 | `g50climb.h`, `g100climb.h`, `g200climb.h` | `ico2/omori/include/` | SRCFILE.TXT rows |
 | `itou_common.h`, `mv_defs.h` | `ico2/ito/include/` | SRCFILE.TXT rows |
-| `charFileName.h` | `ico2/common/include/` | a string the retail ELF bakes |
+| `charFileName.h` | `ico2/common/include/` | ROM bytes, a string the ELF bakes |
 
 Ten of the eleven come from `baserom/pal/SRCFILE.TXT`, which attributes
 instructions to them. The eleventh has no rows at all: `charFileName.h` is
@@ -23,7 +25,9 @@ name and directory but not the `-I` spelling gcc saw; the three sites in
 `ico2/common/src/charFileManager.c` that print it all compare against 1637, so
 the bound is the one thing the header can be given.
 
-Nothing is placed under `ico2/` or `sce/` unless the disc's maps attest it.
+Nothing is placed under `ico2/` or `sce/` without naming the rung that places
+it: ROM bytes, then listing rows, then map rows, then neighbours and include
+pattern, then public SDK naming.
 The five VU1 microprogram sources sit at the `ico2/` root for the mirror image
 of that reason: MAIN.MAP pulls their objects in from `ico2000.a`, which proves
 the archive, but the listing records no source rows for them, so no programmer
@@ -34,7 +38,7 @@ directory is recoverable.
 | file | holds | used by |
 |---|---|---|
 | `common.h` | nothing of its own; pulls in `include_asm.h` | every game and SDK TU |
-| `include_asm.h` | `INCLUDE_ASM`, `INCLUDE_RODATA`, `INCLUDE_ASM_NOP_PAD`, `ASM_LIT4_SLOT`, `ASM_RODATA_LABEL` | 894 / 0 / 0 / 353 / 0 sites plus `tools/emit_run_defs.py` and `tools/format_layout.py` |
+| `include_asm.h` | `INCLUDE_ASM` (a still-asm function's stub) and `ASM_LIT4_SLOT` (a pool word whose owner is still asm) | every TU with a stub; the slot lines beside still-asm owners of carved pools |
 | `labels.inc` | `glabel` and friends, period-assembler spelling | every splat `.s`, `tools/assemble_vu0.py`, `tools/quick_diff.sh` |
 
 All three exist only because functions are still assembled: `include_asm.h` is
@@ -115,3 +119,8 @@ TU that needs them.
 definition anywhere under `include/` and no use anywhere under `ico2/` or
 `sce/`. `SWEEP` is not a macro at all, it survives as eight `/*SWEEP-END...*/`
 comment markers in five TUs, which the crutch pass should clear.
+
+On 2026-09-15 the three data-side macros nothing used were removed from
+`include_asm.h`: `INCLUDE_RODATA`, `ASM_RODATA_LABEL` and `INCLUDE_ASM_NOP_PAD`.
+Data a landing needs is carved as a yaml row and defined in the TU's C; a pool
+word whose owner is still asm is the one case that keeps a macro, the slot line.

@@ -56,7 +56,7 @@
 # -fdata-sections, whose section names the C-side carve defs already
 # carry).  The switch is wanted for C-TU compiles only, a blob `.s` turns it
 # off with `__blob = 1` (below), so it fires exactly for stub rodata and
-# INCLUDE_RODATA blocks.  Without it, every stub block appends to ONE plain `.rodata`
+# carved-data blocks a C TU emits.  Without it, every stub block appends to ONE plain `.rodata`
 # input section positioned at the first block's file order, so a full-run
 # per-TU carve cannot interleave stub-emitted rodata with C definitions.
 # With per-symbol sections, .o section order == source order == VMA order

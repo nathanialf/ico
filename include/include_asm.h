@@ -24,15 +24,6 @@
 
 #endif
 
-#ifndef INCLUDE_RODATA
-#define INCLUDE_RODATA(FOLDER, NAME) \
-    __asm__( \
-        ".section .rodata\n" \
-        "    .include \"" FOLDER "/" #NAME ".s\"\n" \
-        ".section .text" \
-    )
-#endif
-
 /* ASM_LIT4_SLOT(NAME, VALUE), one word of this TU's `.lit4` constant pool
  * whose owning function is still INCLUDE_ASM. Put it next to that sibling.
  *
@@ -68,51 +59,6 @@
     __asm__(".lit4_slot " #NAME ", " #VALUE)
 #endif
 
-/* ASM_RODATA_LABEL(NAME), bind a splat data symbol to a compiler-emitted
- * `.rodata` constant that a still-INCLUDE_ASM sibling references.
- *
- * When a matched function's local brace initialiser (an `$LCn` template) is
- * the first thing a TU emits into `.rodata`, and an asm sibling still loads
- * the same template through splat's `D_<VMA>` name, the carve row assigns
- * the bytes to the compiled object but nothing defines the name. This macro
- * emits ONLY a label at the current `.rodata` position, so it must sit
- * immediately before the definition that makes gcc emit the template, for a
- * `static inline` helper that is its DEFINITION (gcc 2.9 expands an inline
- * body when it saves it, and outputs its constants then): the label
- * and `$LCn` then share the address, no bytes are added, and the sibling's
- * `%hi/%lo(D_<VMA>)` resolve to the template. `.rdata` is the spelling gcc
- * itself uses (ee-as maps it to `.rodata`).
- *
- * Delete the line when the sibling lands in C. */
-#ifndef ASM_RODATA_LABEL
-#define ASM_RODATA_LABEL(NAME) \
-    __asm__(".rdata\n\t.align 3\n" #NAME ":\n\t.text")
-#endif
-
-/* INCLUDE_ASM_NOP_PAD(label), emit a single 4-byte nop in .text.
- *
- * Splat omits per-function .s files for tiny pad functions (verified
- * 4-byte nops sitting between real functions for alignment). When a
- * coalesced TU's c subseg covers a range that includes such a pad,
- * INCLUDE_ASM(... pad_func) fails with "can't open .../<pad>.s for
- * reading". This macro emits the exact 4-byte nop the original ELF
- * has at that location, functionally identical, not a fabrication.
- * The `label` argument is the func name from the original disasm
- * (e.g. func_001FA5DC); it's used as a label in the emitted asm so
- * relocations targeting it still resolve. */
-#ifndef INCLUDE_ASM_NOP_PAD
-#define INCLUDE_ASM_NOP_PAD(LABEL) \
-    __asm__( \
-        ".section .text\n" \
-        "    .align 2\n" \
-        "    .globl " #LABEL "\n" \
-        "    .type " #LABEL ", @function\n" \
-        #LABEL ":\n" \
-        "    nop\n" \
-        "    .size " #LABEL ", . - " #LABEL "\n" \
-    )
-#endif
-
 /* The label macros. There is one dialect and one assembler: include/labels.inc
  * speaks the period ee-as 2.9-991111's spelling, and that assembler builds
  * every object in the tree. The modern-gas twin (include/macro.inc, selected by
@@ -125,18 +71,9 @@ __asm__(".include \"include/labels.inc\"\n");
 #ifndef INCLUDE_ASM
 #define INCLUDE_ASM(FOLDER, NAME)
 #endif
-#ifndef INCLUDE_ASM_NOP_PAD
-#define INCLUDE_ASM_NOP_PAD(LABEL)
-#endif
-#ifndef INCLUDE_RODATA
-#define INCLUDE_RODATA(FOLDER, NAME)
-#endif
 /* Pure assembler bookkeeping, nothing for m2c/permuter to model. */
 #ifndef ASM_LIT4_SLOT
 #define ASM_LIT4_SLOT(NAME, VALUE)
-#endif
-#ifndef ASM_RODATA_LABEL
-#define ASM_RODATA_LABEL(NAME)
 #endif
 
 #endif /* !defined(M2CTX) && !defined(PERMUTER) */
