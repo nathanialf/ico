@@ -20,7 +20,7 @@ typedef struct {
 extern int D_0063C4BC;
 extern int D_0063C4C0;
 extern DlEntry D_00728310[];
-extern int D_00728518[];
+extern int D_00728518[2][13];
 extern void dpk_SwapBuffer(void);
 extern void gif_Init(void);
 extern void mc_Reset(void);
@@ -46,7 +46,26 @@ extern char D_006218B8[];
 extern char D_0063BD28[];
 void dl_Clear(void);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/DisplayList", dl_Init);
+void dl_Init(void)
+{
+    int i;
+    int j;
+    D_0063C4C0 = 0;
+    D_0063BD20 = 0;
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 13; j++) {
+            D_00728518[i][j] =
+                (int)iosMallocDebug(D_0063A43C, D_00621840[j], D_00621878, 393) | 0x30000000;
+        }
+    }
+    D_0063C4BC = 0;
+    for (i = 0; i < 13; i++) {
+        D_00728310[i].pad_20 = D_00728310[i].f_24 = D_00728518[0][i];
+        D_00728310[i].f_0 = 0;
+    }
+    dpk_Init();
+    dl_Clear();
+}
 
 inline void dl_Out(void)
 {
