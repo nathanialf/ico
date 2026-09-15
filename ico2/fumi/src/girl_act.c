@@ -765,6 +765,9 @@ void subGirlBrain_Hide(volatile int a0)
 }
 
 ASM_LIT4_SLOT(D_00638FBC, 10000.0f);
+/* census CorrectList.331, the GNU nested child of girlBrainRunawaySearchPoint;
+   gcc names it with the discriminator, so it has no symbol of its own and lands
+   inside its parent (rc0 as a nested function in chain G pass 13). */
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", func_00174CE8);
 ASM_LIT4_SLOT(D_00638FC0, 10000.0f);
 ASM_LIT4_SLOT(D_00638FC4, 10000.0f);
@@ -1096,6 +1099,8 @@ retry:
 }
 
 ASM_LIT4_SLOT(D_00638FD8, 3.1415927f);
+/* census GetSafePosition.364, the GNU nested child of Danger_Gondola; it lands
+   inside its parent (rc0 as a nested function in chain G pass 13). */
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", func_001762A0);
 ASM_LIT4_SLOT(D_00638FDC, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", Danger_Gondola);
