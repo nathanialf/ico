@@ -38,9 +38,10 @@ options:
   build_path: build
   hasm_in_src_path: True
 
-  # Lock include/{labels.inc,macro.inc} — hand-edited (`jlabel visibility=global`
-  # so cross-.o jumptable refs in coalesced TUs resolve at link time); splat's
-  # default regen would revert that.
+  # Lock include/labels.inc — hand-edited (`jlabel visibility=global` so
+  # cross-.o jumptable refs in coalesced TUs resolve at link time, and the
+  # `__blob` guard blob `.s` files set); splat's default regen would revert
+  # that, and would also write back the deleted modern-gas macro.inc.
   generate_asm_macros_files: False
 
   ld_script_path: config/ico.pal.ld

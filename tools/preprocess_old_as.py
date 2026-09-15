@@ -4,9 +4,9 @@
 siblings).
 
 Why: ee-as 2.9-991111 is the ROM's contemporary assembler — it leaves a
-jal/jr delay as `nop` where modern gas (the fallback) over-fills it with a
-preceding store. To use it on a partially-decompiled TU we must feed it the
-TU's full .s, but splat's INCLUDE_ASM siblings use the modern
+jal/jr delay as `nop` where modern gas over-fills it with a preceding store.
+To use it on a partially-decompiled TU we must feed it the TU's full .s, but
+splat's INCLUDE_ASM siblings use the modern
 `%gp_rel(SYM)($28)` relocation spelling, which 2.9-991111 rejects
 ("Bad expression"). 2.9-991111 DOES emit the identical R_MIPS_GPREL16
 encoding from a BARE small-symbol reference (`lw $5, SYM`) when SYM is
@@ -24,14 +24,13 @@ period assembler set the delay-slot bytes the ROM actually has.
 
 Usage: preprocess_old_as.py <in.s> <out.s>
 
---modern is RETIRED (2026-08-05) and now hard-errors. It used to flatten for
-MODERN gas (for a TU listed in the since-deleted config/use_modern_as.txt),
-reversing the dialect translation. The whole modern-gas path is gone because
-that assembler fills delay slots ee-as 2.9-991111 leaves bare, so anything
-reaching it could read as MATCHED on the assembler's scheduling rather than on
-source shape. See docs/NOTES.md "There is NO modern-gas path any more".
-The `modern` plumbing below is left inert rather than ripped out so the dialect
-mapping stays documented in one place.
+The modern-gas path is gone. `--modern` was retired 2026-08-05 (it flattened
+for MODERN gas, reversing the dialect translation, for a TU listed in the
+since-deleted config/use_modern_as.txt) because that assembler fills delay slots
+ee-as 2.9-991111 leaves bare, so anything reaching it could read as MATCHED on
+the assembler's scheduling rather than on source shape. Its inert plumbing came
+out 2026-09-15 with the last modern-gas objects (the data blobs and the VU1
+microprograms). See docs/NOTES.md "There is NO modern-gas path any more".
 """
 import os
 import re
@@ -50,8 +49,8 @@ GP_REL_ANY = re.compile(r"%gp_rel\(([^)]+)\)")
 INCLUDE = re.compile(r'^\s*\.include\s+"([^"]+)"')
 # A %gp_rel() operand may carry an addend (`%gp_rel(D_00633C00 + 0xC)`).  The
 # `.extern` header must name the SYMBOL only — `.extern SYM + 0xC, 4` is a
-# syntax error the period assembler rejects, which silently drops the whole TU
-# back to modern gas (and its over-filled jr/jal delay slots).
+# syntax error, and the period assembler is the only assembler, so a rejection
+# stops the build.
 SYMNAME = re.compile(r"[A-Za-z_$.][A-Za-z0-9_$.]*")
 # `.lit4_slot SYM, VALUE` — emitted by ASM_LIT4_SLOT() in include/include_asm.h
 # for a `.lit4` constant-pool word whose owning function is still INCLUDE_ASM in
@@ -76,10 +75,6 @@ LIT4_SLOT = re.compile(r"^\s*\.lit4_slot\s+([A-Za-z_$.][\w$.]*)\s*,\s*(\S+)\s*$"
 # by anything else means the `.lit4_slot` line names the wrong symbol.
 LIT4_LOAD = re.compile(r"\b(?:lwc1|l\.s)(\s+)(\$f\d+|\$\w+),\s*%gp_rel\((\w+)\)\(\$\d+\)")
 ANY_SYM_REF = re.compile(r"%gp_rel\((\w+)\)")
-# --modern: bare r5900 special VU0 registers (period dialect) -> $-form for
-# modern gas. Operand position only; `$ACC` has `$` before it, so no double-$.
-BARE_VU0_SPECIAL = re.compile(r"([\t ,])(ACC|Q|R)\b")
-
 
 def symname(expr):
     m = SYMNAME.match(expr.strip())
@@ -112,14 +107,9 @@ def flatten(path, out, seen, slots):
         out.append(line)
 
 
-def translate(out, syms, slots, modern=False):
+def translate(out, syms, slots):
     used = set()
     for i, line in enumerate(out):
-        if modern:
-            # Modern gas parses %gp_rel natively; only the VU0 special-register
-            # dialect needs translating (bare -> $-form).
-            out[i] = BARE_VU0_SPECIAL.sub(r"\1$\2", line)
-            continue
         if slots:
             # A carved-pool slot owned by an INCLUDE_ASM sibling: restore the
             # `li.s` the original .s had, so ee-as interns the word itself.
@@ -142,7 +132,7 @@ def translate(out, syms, slots, modern=False):
         line = GP_REL_ANY.sub(lambda mm: syms.add(symname(mm.group(1))) or mm.group(1), line)
         out[i] = line
     stale = sorted(set(slots) - used)
-    if stale and not modern:
+    if stale:
         # A slot whose owner has landed in C: the function's own literal now
         # produces the word, so the ASM_LIT4_SLOT line must go or the pool ends
         # up one word short and the link shifts.
@@ -153,7 +143,6 @@ def translate(out, syms, slots, modern=False):
 
 def main():
     args = sys.argv[1:]
-    modern = False
     if args and args[0] == "--modern":
         sys.exit(
             "preprocess_old_as.py: --modern is RETIRED (2026-08-05).\n"
@@ -167,8 +156,8 @@ def main():
     src, dst = args[0], args[1]
     out, syms, seen, slots = [], set(), set(), {}
     flatten(src, out, seen, slots)
-    translate(out, syms, slots, modern)
-    hdr = "" if modern else "".join(".extern %s, 4\n" % s for s in sorted(syms))
+    translate(out, syms, slots)
+    hdr = "".join(".extern %s, 4\n" % s for s in sorted(syms))
     with open(dst, "w") as f:
         f.write(hdr)
         f.writelines(out)

@@ -339,12 +339,11 @@ sed -i -E 's/\bbreak[[:space:]]+(0x[0-9a-fA-F]+|[0-9]+)[[:space:]]*$/break 0,\1/
 # does not have (after mfc1, and after a store two insns past a c.lt.s); dropped
 # 2026-09-05, whole ROM re-verified byte-identical.
 
-# Stage 2: assemble. Prefer the project's ee-as 2.10 (matches the full
-# build's src/.o pipeline so `move` pseudos expand consistently — modern
-# mips-linux-gnu-as expands `move rd,rs` to `or`, ee-as expands to
-# `daddu`, which would otherwise show up as spurious diffs). Fall back
-# to mips-linux-gnu-as if ee-as rejects the input (typically on VU0/MMI
-# ops it doesn't know).
+# Stage 2: assemble, with the period ee-as 2.9-991111 — the assembler the whole
+# build uses, for every object, so quick_diff and ninja can never disagree on
+# `move` expansion (modern gas expands `move rd,rs` to `or`, ee-as to `daddu`)
+# or on delay-slot filling. There is no fallback: an ee-as rejection is a defect
+# in the .s to fix.
 EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
 EE_ASFLAGS="-EL -mcpu=5900 -G 8 -I$ROOT/include"
 # There is no per-TU assembler selection: EE_AS above IS the assembler for
@@ -424,14 +423,14 @@ assemble "$OBJ" "$ASM_OUT"
 # splat's per-function .s files don't .include the label macros themselves, so
 # we prepend them to a temp copy.
 #
-# labels.inc, NOT macro.inc: macro.inc is the MODERN-gas spelling (`.internal`,
-# and `"\label"` argument substitution inside quotes) which ee-as 2.9-991111
-# cannot parse. Prepending it made the TARGET side fail the period assembler on
-# every macro-using .s and silently fall through to the old modern-gas fallback
-# — so the reference bytes quick_diff diffed against came from an assembler the
-# real build never uses. labels.inc is the period-assembler twin of the same
-# macros (the real build's flattened INCLUDE_ASM path uses it). Fixed 2026-08-05
-# alongside retiring the fallback that was hiding this.
+# labels.inc is the only dialect there is. Its deleted twin macro.inc carried
+# the MODERN-gas spelling (`.internal`, and `"\label"` argument substitution
+# inside quotes) which ee-as 2.9-991111 cannot parse: prepending THAT made the
+# TARGET side fail the period assembler on every macro-using .s and silently
+# fall through to the old modern-gas fallback, so the reference bytes quick_diff
+# diffed against came from an assembler the real build never uses. Fixed
+# 2026-08-05 alongside retiring the fallback that was hiding it; macro.inc
+# itself went on 2026-09-15 when the last modern-gas objects moved over.
 TARGET_OBJ="build/quick_diff/$NAME.target.o"
 TARGET_ASM_WRAPPED="build/quick_diff/$NAME.target.s"
 {

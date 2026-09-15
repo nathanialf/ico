@@ -20,7 +20,7 @@ EEGCC_DIR="${EEGCC_DIR:-${ROOT}/tools/cc/ee-gcc2.9-991111}"
 EEGCC_LIB="${EEGCC_DIR}/gcc-lib/ee/2.9-ee-991111-01/"
 CC="${EEGCC_DIR}/ee-gcc"
 
-if command -v mips64r5900el-ps2-elf-as >/dev/null 2>&1; then
+if command -v mips64r5900el-ps2-elf-objcopy >/dev/null 2>&1; then
     MIPS_PREFIX="mips64r5900el-ps2-elf-"
 else
     MIPS_PREFIX="mips-linux-gnu-"

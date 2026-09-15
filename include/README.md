@@ -52,12 +52,14 @@ disc's maps.
 | `ico/types.h` | `GObj`, `Sub15C`, `Obj7F0`, `GeoNode`, `GeoSub`, `GOBJ_SUB` | 91 / 1 / 1 sites, the last two through the first three |
 | `math_private.h` | the fdlibm two-word float idiom | `sce/libm/` |
 | `vu0.h` | inline VU0 instruction wrappers | the geometry TUs |
-| `labels.inc` | `glabel` and friends, period-assembler spelling | every splat `.s` |
-| `macro.inc` | the same macros, modern-gas spelling | `tools/assemble_vu0.py` |
+| `labels.inc` | `glabel` and friends, period-assembler spelling | every splat `.s`, `tools/assemble_vu0.py`, `tools/quick_diff.sh` |
 
-`labels.inc` and `macro.inc` are hand edited and locked by a note in
-`config/ico.pal.yaml`; they are not duplicates of each other but two
-assembler dialects, and `tools/quick_diff.sh` explains which is which.
+`labels.inc` is hand edited and locked by a note in `config/ico.pal.yaml`
+(splat's default regen would revert it). It is the only dialect left: the
+modern-gas twin `macro.inc` was deleted on 2026-09-15 when the data blobs and
+the VU1 microprograms moved onto the period assembler with everything else.
+A blob `.s` sets `__blob = 1` after including it, which keeps the file's one
+section instead of filing each `dlabel` object into its own `.rodata.<sym>`.
 
 Six definitions were removed in the 2026-09-14 trim because nothing in the
 tree, the tools or the docs referenced them: `JTEXT` (`common.h`), `SYNC_P`,

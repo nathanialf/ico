@@ -54,9 +54,9 @@
 # A dlabel block that is a splat-migrated rodata object switches into its
 # own `.rodata.<sym>` section (the rodata analog of INCLUDE_ASM_FS / gcc's
 # -fdata-sections, whose section names the C-side carve defs already
-# carry).  labels.inc is included only by C-TU compiles (blob data objects
-# use macro.inc), so this fires exactly for stub rodata and INCLUDE_RODATA
-# blocks.  Without it, every stub block appends to ONE plain `.rodata`
+# carry).  The switch is wanted for C-TU compiles only — a blob `.s` turns it
+# off with `__blob = 1` (below) — so it fires exactly for stub rodata and
+# INCLUDE_RODATA blocks.  Without it, every stub block appends to ONE plain `.rodata`
 # input section positioned at the first block's file order, so a full-run
 # per-TU carve cannot interleave stub-emitted rodata with C definitions.
 # With per-symbol sections, .o section order == source order == VMA order
@@ -75,9 +75,20 @@
 # The .align 3 mirrors what splat emits ahead of every migrated
 # block (ee-gcc pads each rodata object to 8); a block whose VMA is only
 # 4-aligned would need special handling — none exists in the current split.
+#
+# The second guard is __blob.  A splat DATA-BLOB object (asm/data/cod/*.s,
+# the raw runs no TU owns yet) is one whole section of its own — `.data`,
+# `.rodata`, `.sbss`, `.bss` — whose layout the link script globs as one
+# input section, and whose dlabel'd symbols must stay in it in file order.
+# Those files set `__blob = 1` right after including this file, which turns
+# the per-symbol switch (and its `.align 3`) off; everything else leaves it
+# at the 0 set here.  Before 2026-09-15 the blobs had their own modern-gas
+# macro file (include/macro.inc) and were the only objects not built by the
+# period assembler; the flag replaced it.
 __in_text = 0
+__blob = 0
 .macro dlabel label, visibility=global
-    .if __in_text == 0
+    .if (__in_text == 0) && (__blob == 0)
         .section .rodata.\label, "a", @progbits
         .align 3
     .endif

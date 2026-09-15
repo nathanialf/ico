@@ -4,8 +4,9 @@ assemble_vu0.py — VU0 micromode assembler for hand-written .S chunks.
 
 Reads a hand-typed VU0 source file
 (syntax described below) and emits a binutils-compatible `.s` file
-consisting solely of `.word` directives — which mips-linux-gnu-as can
-then assemble into a `.vutext` object. This keeps the build pipeline
+consisting solely of `.word` directives — which the period assembler
+(ee-as 2.9-991111, the one every other object is built with) then
+assembles into a `.vutext` object. This keeps the build pipeline
 unchanged: the existing `as_hasm` ninja rule consumes the emitted `.s`.
 
 The IP boundary: this tool encodes mnemonics to bytes from
@@ -76,7 +77,7 @@ are textually replaced by the call's argument.
 # Output
 
 Default: emits a `.s` file (one `.word` per 32-bit half) ready for
-mips-linux-gnu-as. The `.s` file uses the same `.include "macro.inc"`
+the period assembler. The `.s` file uses the same `.include "labels.inc"`
 preamble and `.section .text,"ax"` form as splat-emitted hasm so the
 build pipeline doesn't need a special case.
 
@@ -1232,7 +1233,7 @@ def emit_s_file(body: bytes, label: str, section: str) -> str:
     mirror what splat's textbin emitter produced so the rest of the
     build (ld, postprocess passes) doesn't need to change."""
     lines = [
-        '.include "macro.inc"',
+        '.include "labels.inc"',
         '',
         f'.section {section},"ax"',
         '',

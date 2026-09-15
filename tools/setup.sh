@@ -107,21 +107,22 @@ fi
 
 if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
     :
-elif command -v mips64r5900el-ps2-elf-as >/dev/null 2>&1; then
+elif command -v mips64r5900el-ps2-elf-objcopy >/dev/null 2>&1; then
     echo "==> system EE binutils detected"
-elif command -v mips-linux-gnu-as >/dev/null 2>&1; then
-    echo "==> using mips-linux-gnu-as in r5900 mode (system fallback — fine for splat asm)"
+elif command -v mips-linux-gnu-objcopy >/dev/null 2>&1; then
+    echo "==> using mips-linux-gnu binutils for the link (system fallback)"
 else
     cat <<'EOF' >&2
 
-==> No MIPS assembler/linker on PATH.
+==> No MIPS linker/objcopy on PATH.
 
 Quickest fix on Debian/Ubuntu:
 
     sudo apt-get install binutils-mips-linux-gnu
 
-That gives you mips-linux-gnu-as / -ld / -objcopy, which assemble splat's
-r5900 output cleanly and round-trip the ICO ELF. The PS2-specific
+That gives you mips-linux-gnu-ld / -objcopy, which link and round-trip the ICO
+ELF. Assembly is not their job: every object is assembled by the period
+ee-as 2.9-991111 under tools/cc/, fetched above. The PS2-specific
 'mips64r5900el-ps2-elf-' prefix is only needed if you want EE-specific
 binutils features; for matching work the generic binutils is sufficient.
 
