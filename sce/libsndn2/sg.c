@@ -246,47 +246,15 @@ void _SgProgChange(int *a0)
 
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContMod);
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContModLoop);
-
-void _SgContPolta(char *a0)
-{
-    char *p;
-    char *mgr;
-    char *ctx;
-    char *s;
-    int i;
-    int n;
-    int v;
-    int two;
-
-    p = (char *)_SgGetSlotContext(0);
-    mgr = (char *)_SgGetComContext();
-    ctx = (char *)_SgGetHeadContext();
-    two = 2;
-    n = 0xF;
-    i = 0x2F;
-    do {
-        if (*(unsigned char *)(p + 0x51) == two &&
-            *(unsigned char *)(p + 0x54) == *(unsigned short *)(a0 + 0x18)) {
-            s = *(char **)(ctx + 0x10);
-            if (*(unsigned short *)(p + 0x2C) == *(unsigned char *)(s + 0x4) &&
-                *(unsigned char *)(p + 0x4E) == *(unsigned char *)(s + 0x5) &&
-                *(unsigned char *)(p + 0x50) == *(unsigned short *)(a0 + 0x4C)) {
-                *(int *)p |= 0x20;
-                v = (*(unsigned short *)(mgr + 0x3A) * *(unsigned char *)(s + 0x2)) / n;
-                *(short *)(p + 0x4C) = (short)v;
-                if (*(unsigned char *)(s + 0x3) & 0x80) {
-                    *(float *)(p + 0x44) = (float)*(signed char *)(s + 0x3) / (float)(short)v;
-                } else {
-                    *(float *)(p + 0x44) = (float)*(unsigned char *)(s + 0x3) / (float)(short)v;
-                }
-            }
-        }
-        i -= 1;
-        p += 0x58;
-    } while (i >= 0);
-    *(int *)(a0 + 0x4) += 6;
-}
-
+/* Reverted to asm 2026-09-15: the only body in the tree that the raw
+ * toolchain cannot produce. ROM puts `cvt.s.w $f1,$f1` in the delay slot of
+ * the `b` that joins the two arms of the float divide; ee-gcc emits the cvt
+ * before the b and ee-as 2.9-991111 never swaps an instruction into a branch
+ * delay slot (probed: default, -O, -O0, -g excepted, .set bopt, every -mcpu
+ * and -mips level). It matched only through the compile_c.sh `mtc1;cvt;b`
+ * reorder rewrite, retired with the rest. Seed: tails/seeds/
+ * sg.rewrite_cop1_mtc1cvtb_SgContPolta_TU.c, ledger: docs/rewrite_ledger.md. */
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContPolta);
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContVol);
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContPan);
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContDump);
