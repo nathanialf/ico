@@ -1,34 +1,14 @@
-/* Vendor code run with NO archive attribution in the disc maps.  MAIN.MAP has no
- * member covering any of these 65 functions and the January listing carries them
- * beyond the map's .text; retail links them between libipu.a(ipuinit.o) and
- * libsndn2.a(sound.o).  The names come from the listing's own symbols.  VMA
- * 0x272878..0x276AD0. */
+/* Vendor SCE library run, attribution INFERRED: libsndn2.a.  Neither disc map names
+ * a member for these 44 functions (MAIN.MAP is an older link whose .text ends before
+ * them; SRCFILE.TXT carries them with symbols but no source paths).  The evidence
+ * is the neighbour the map does attest: libsndn2.a(sound.o) calls the _Sg family,
+ * _SgSndn2Remote carries the library's name, and retail links the block directly
+ * before sound.o.  The member name is unknown, so the file takes the family's.
+ * VMA 0x273228..0x276AD0. */
 #include "common.h"
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
-
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", GetRomName);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", IsT10K);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfGetLanguage);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfSetT10kConfig);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfGetAspect);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfGetSpdif);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfGetTimeZone);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfGetDateNotation);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfGetSummerTime);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfGetTimeNotation);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", tobcd);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", frombcd);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", convertfrombcd);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", converttobcd);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", adddate);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", subdate);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", addhour);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", subhour);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", AdjustTime);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfGetGMTfromRTC);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", sceScfGetLocalTimefromRTC);
 
 extern unsigned char D_00731C00[];
 
@@ -97,13 +77,13 @@ void *_SgGetPacketCntext(int a0, int a1)
     return (void *)(a0 * 0x1000 + (int)p);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgCalledTickProc);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgSetPkAdd);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgSeMain);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgBgmMain);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgSetRealtimeTickProc);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgSetRealtimeVolume);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgTableEnvAdd);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgCalledTickProc);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetPkAdd);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeMain);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgBgmMain);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetRealtimeTickProc);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetRealtimeVolume);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgTableEnvAdd);
 
 extern void *_SgGetComContext(void);
 
@@ -145,7 +125,7 @@ int _SgSeqKeyOnSlot(void)
     return best_idx;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgSeKeyOnSlot);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeKeyOnSlot);
 
 extern void *_SgGetHeadContext(void);
 
@@ -193,7 +173,7 @@ int _SgSeKeyOff(char *a0)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgSeqKeyOff);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeqKeyOff);
 
 int _SgIntoKeyOn(int a0, int a1, int a2)
 {
@@ -224,9 +204,9 @@ int _SgPitchTableVag(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgSeqSeVolume);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgPan);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgEndSeq);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeqSeVolume);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgPan);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgEndSeq);
 
 void _SgTempoChange(int *a0)
 {
@@ -264,8 +244,8 @@ void _SgProgChange(int *a0)
     *(a0 + 1) += 2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgContMod);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgContModLoop);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContMod);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContModLoop);
 
 void _SgContPolta(char *a0)
 {
@@ -307,11 +287,11 @@ void _SgContPolta(char *a0)
     *(int *)(a0 + 0x4) += 6;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgContVol);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgContPan);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgContDump);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgContSeLoop);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgContParam);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContVol);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContPan);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContDump);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContSeLoop);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContParam);
 
 void _SgContLoopCount(void *a0)
 {
@@ -351,8 +331,8 @@ done:
     *(int *)((char *)s0 + 0x4) = val + 3;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgContLoop);
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgBendForm);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContLoop);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgBendForm);
 
 void _SgDeltaTime(char *s)
 {
@@ -372,14 +352,14 @@ void _SgDeltaTime(char *s)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgSeqSeRrEnd);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeqSeRrEnd);
 
 int _SgfadeParam(int a0, int a1, int a2, int a3)
 {
     return ((a0 & 0xFF) + ((a1 & 0xFF) - (a0 & 0xFF)) * (a3 & 0xFF) / (a2 & 0xFF)) & 0xFF;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/run_272878", _SgInit);
+INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgInit);
 
 extern char D_00736140[];
 extern int sceSifCallRpc();

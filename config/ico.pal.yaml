@@ -416,7 +416,8 @@ segments:
       - [0x16A630, c, sce/libmpeg/libmpeg]  # 141 funcs, vendor libmpeg.a whole run (140/141 MAIN.MAP)
       - [0x172338, c, sce/libipu/libipu]  # 3 funcs, vendor libipu.a member libipu.o (spans 0xE8, 0x150, 0x68 tile the retail run)
       - [0x1725D8, c, sce/libipu/ipuinit]  # 2 funcs, vendor libipu.a member ipuinit.o (0x2A0 exactly); holds its own static setD4_CHCR
-      - [0x172878, c, sce/run_272878]  # 65 funcs, NO archive in the disc maps (MAIN.MAP has no member for them, the January listing carries them beyond its .text); retail links them between libipu.a and libsndn2.a
+      - [0x172878, c, sce/libscf/libscf]  # 21 funcs, attribution INFERRED (public SDK libscf: the sceScf family plus the ROM-name and BCD date helpers they use); no disc map names an archive, MAIN.MAP is an older link whose .text ends before them
+      - [0x173228, c, sce/libsndn2/sg]  # 44 funcs, attribution INFERRED (libsndn2.a: sound.o calls every _Sg function, _SgSndn2Remote names the library, retail links the block directly before sound.o); member name unknown, no disc map names it
       - [0x176AD0, c, sce/libsndn2/sound]  # 61 funcs, vendor libsndn2.a whole run (61/61 MAIN.MAP)
       - [0x1788D8, c, sce/libm/math/sf_sin]  # 1 funcs, vendor libm.a member sf_sin.o (1/1 MAIN.MAP)
       - [0x1789C8, c, sce/libm/math/wf_acos]  # 1 funcs, vendor libm.a member wf_acos.o (1/1 MAIN.MAP)
