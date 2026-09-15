@@ -73,8 +73,15 @@
 
 
 /*
- * Engine object shapes recovered from the binary via
- * tools/dump_all_struct_shapes.py (offsets/widths from load mnemonics).
+ * RECONSTRUCTION.  Every shape below was read back out of the binary's own
+ * memory accesses (offsets and widths from the load and store mnemonics, via
+ * tools/dump_all_struct_shapes.py); no disc artefact declares any of them.
+ * The names are this repository's, not the developers': the disc's maps name
+ * functions and objects, never a struct, a field or a typedef.  And this file
+ * is where they sit BY INCLUDE PATTERN, NOT BY LISTING ROWS: a declaration
+ * emits no instructions, so no row of SRCFILE.TXT can name its home, and
+ * ico2/common/include/typedef.h is the only attested header every one of the
+ * 37 TUs that use these shapes reaches.
  *
  * `GObj` = the game object passed as `self` to per-object functions. The
  * name is the engine's own term, re-derived from the public PAL ICO-decomp's
@@ -318,6 +325,16 @@ struct Obj7F0 {
  */
 
 /* Escape-hatch macros (raw asm string).  Use sparingly.
+ *
+ * RECONSTRUCTION, like the whole R5900 and VU0 wrapper set below and above it:
+ * the opcodes are what the ROM's instructions decode to, the wrapper around
+ * them is this repository's reconstruction of how the source reached them, and
+ * every macro name here is ours rather than the developers' — a macro leaves
+ * no symbol and the disc's maps name none of them.  They sit in this header BY
+ * INCLUDE PATTERN, NOT BY LISTING ROWS: SRCFILE.TXT attributes each expansion
+ * to the .c line that invokes it, which is consistent with any header home, so
+ * what places them here is that seki, sugipon and ito all use them and this is
+ * the one attested header all three trees reach.
  *
  * Both bodies assemble with reordering off.  The game tree's VU0 opcodes are
  * hand-scheduled against the COP2 pipeline, so the assembler must leave them
