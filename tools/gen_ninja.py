@@ -406,6 +406,14 @@ def emit_edges(out, objs: list[str]) -> None:
         src, rule = source_for(obj)
         align = align_for(Path(obj).name)
         sect = section_for(Path(obj).name)
+        if rule == "as_hasm":
+            # The VU1 microprograms are the ROM's own .vutext output section,
+            # which the shipped ELF aligns to 16 (readelf: .vutext at 0x289BD0,
+            # align 16). Our link folds them behind the last .text object, so
+            # their input section carries that alignment itself; without it the
+            # twelve bytes between .text's end (0x289BC4) and .vutext are lost as
+            # soon as the last text function is C rather than a padded stub.
+            align = 16
         if rule == "cc_src":
             out.write(f"build {obj}: cc_src {src}\n")
         else:
