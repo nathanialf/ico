@@ -147,7 +147,30 @@ ASM_LIT4_SLOT(D_006393DC, -0.01f);
 ASM_LIT4_SLOT(D_006393E0, 0.95f);
 ASM_LIT4_SLOT(D_006393E4, 20.48f);
 ASM_LIT4_SLOT(D_006393E8, 0.1f);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", initFloating);
+
+extern char D_002907E0[];
+extern char D_0028FEF0[];
+extern char D_004E62A0[];
+extern void CopyQuaternion(void *dst, void *src);
+extern void execFloating(char *a0);
+
+void initFloating(char *a0)
+{
+    char *p = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
+
+    *(int *)(*(int *)(a0 + 0x15C) + 0x70) = *(int *)(*(int *)(p + 0x160) + 0x70);
+    *(int *)(*(int *)(a0 + 0x15C) + 0x78) = 1;
+    CopyQuaternion((char *)*(int *)(a0 + 0x15C) + 0xC0, D_002907E0);
+    SetRootQuaternion(a0, D_002907E0);
+    CopyVector(p + 0xE0, D_0028FEF0);
+    CopyVector(p + 0xC0, D_0028FEF0);
+    CopyVector(p + 0xD0, D_0028FEF0);
+    GetRootPosition(p + 0x100, a0);
+    CopyVector((char *)*(int *)(a0 + 0x15C) + 0x520, D_004E62A0);
+    *(short *)(p + 0x118) = 0;
+    execFloating(a0);
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", _checkItemBreak);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", initLanding);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFallDown);
@@ -589,12 +612,55 @@ inline void ExecBoxMoveEndReaction(char *a0)
     *(int *)(q + 0x110) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", ReInitBoxGeo);
-ASM_LIT4_SLOT(D_00639400, 100000.0f);
+extern char D_0061F0A0[];
+extern char D_0061F0B0[];
+extern char D_0061F128[];
+extern char D_0061F138[];
+extern int checkFieldContact(char *a0, float d);
+
+void ReInitBoxGeo(char *a0)
+{
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+
+    debug_StdPrintfDummy(D_0061F0A0);
+    *(int *)(*(char **)(a0 + 0x15C) + 0x70) = *(int *)(p + 0x2C);
+    if (checkFieldContact(a0, 100000.0f) == 0) {
+        debug_StdPrintfDummy(D_0061F0B0);
+    } else {
+        int m = *(int *)(*(char **)(a0 + 0x15C) + 0x5F8);
+
+        if (m == 0x40 || m == 0x50) {
+            initFloating(a0);
+            *(int *)(p + 0x20) = 5;
+            debug_StdPrintfDummy(D_0061F128);
+        } else {
+            *(int *)(p + 0x20) = 0;
+            AlignBox(a0, 100.0f);
+            execNormalMove(a0, 1);
+            debug_StdPrintfDummy(D_0061F138);
+        }
+    }
+    UpdateRootMatrix(a0);
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", InitBoxGeo);
 ASM_LIT4_SLOT(D_00639404, 0.98f);
 ASM_LIT4_SLOT(D_00639408, 0.85f);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", BoxGeo);
+
+extern void action(char *a0);
+extern void gamesysObjInfoUniqDataSet(char *a0);
+
+void BoxGeo(char *a0)
+{
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+
+    action(a0);
+    UpdateRootMatrix(a0);
+    if ((*(int *)p)++ >= 0x1F) {
+        *(int *)p = 0;
+        gamesysObjInfoUniqDataSet(a0);
+    }
+}
 
 extern int p2o_SetDefaultEnviroment(int a0);
 extern void p2o_DispVU1(void *a0);

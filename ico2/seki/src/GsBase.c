@@ -6,7 +6,33 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_Init);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_Reduction);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_KeepFrameBuffer);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_fade);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetMotionBlur);
+
+extern int CurrentTargetGObjSub;
+
+typedef struct StageSetting {
+    float flatLightDir[3][4]; /* 0x000 */
+    float flatLightCol[3][4]; /* 0x030 */
+    float ambientCol[4];      /* 0x060 */
+    char pad070[0x84];        /* 0x070 */
+    int motionBlur;           /* 0x0F4 */
+    char pad0F8[0xC4];        /* 0x0F8 */
+    int subMotionBlur[5];     /* 0x1BC */
+} StageSetting;
+
+extern StageSetting D_0028F720;
+extern void SetMotionBlur(int a0);
+
+void gsb_SetMotionBlur(void)
+{
+    int i = CurrentTargetGObjSub;
+
+    if (i == 0) {
+        SetMotionBlur(D_0028F720.motionBlur);
+    } else {
+        SetMotionBlur(D_0028F720.subMotionBlur[i - 1]);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_scissorOnDemo);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_controlBrightness);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_antiAlias);
@@ -65,16 +91,153 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_MakeCommonMatrix);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetGsDefault);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_filmNoise);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_PostEffect);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_InitGSSystem);
+
+extern int D_00639FDC;
+extern int fall_death_active;
+extern int screen_offset_y;
+extern int D_0063A074;
+extern int D_0063A078;
+extern int D_00639F84;
+extern char D_0054E428[];
+extern char D_0054E438[];
+extern char D_0054E448[];
+extern char D_0054E458[];
+extern char D_0028F4F0[];
+extern void sceGsResetPath(void);
+extern void sceVpu0Reset(void);
+extern void dma_init(void);
+extern void matrix_init(void);
+extern void tex_Init(void);
+extern void sceGsSyncV(int a0);
+extern void gsb_Init(void *p);
+extern void dl_Init(void);
+extern void resetmallocseki(void);
+extern void pac_Init(void);
+extern void reg_Init(void);
+extern void shadow_Init(void);
+
+void gsb_InitGSSystem(void)
+{
+    fall_death_active = 0;
+    screen_offset_y = 0;
+    if (D_00639FDC != 0) {
+        sceGsResetPath();
+        sceVpu0Reset();
+        debug_StdPrintfDummy(D_0054E428);
+        dma_init();
+        debug_StdPrintfDummy(D_0054E438);
+        matrix_init();
+        debug_StdPrintfDummy(D_0054E448);
+        tex_Init();
+        debug_StdPrintfDummy(D_0054E458);
+        sceGsSyncV(0);
+        gsb_Init(D_0028F4F0);
+        sceGsSyncV(0);
+        dl_Init();
+        D_00639FDC = 0;
+    } else {
+        debug_StdPrintfDummy(D_0054E428);
+        dma_init();
+        debug_StdPrintfDummy(D_0054E448);
+        tex_Init();
+    }
+    resetmallocseki();
+    pac_Init();
+    reg_Init();
+    shadow_Init();
+    D_00639F84 = 1;
+    D_0063A074 = D_0063A078 = 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_UpdateGSSystem);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_ResetGSSystem);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetVSMatrixSub);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetVSMatrix);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_ClipBox);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", appendLogFile);
+
+typedef struct sceCdCLOCK {
+    unsigned char stat;
+    unsigned char second;
+    unsigned char minute;
+    unsigned char hour;
+    unsigned char pad;
+    unsigned char day;
+    unsigned char month;
+    unsigned char year;
+} sceCdCLOCK;
+
+extern void debug_StdPrintfDummy();
+extern int stage_no;
+extern char D_005F5D90[];
+extern char D_0063A000[];
+extern char D_0054E4F8[];
+extern char D_0054E518[];
+extern char D_0054E530[];
+extern char D_0067BA88[];
+extern int sceCdReadClock(sceCdCLOCK *c);
+extern int sceLseek(int fd, int off, int whence);
+extern int sceWrite(int fd, void *buf, int n);
+extern int strlen(const char *s);
+
+void appendLogFile(void)
+{
+    sceCdCLOCK clock;
+    int fd;
+
+    sceCdReadClock(&clock);
+    sprintf(D_0067BA88, D_0054E4F8);
+    fd = debugSceOpen(D_0067BA88, 0x302);
+    if (fd < 0) {
+        debug_StdPrintfDummy(D_0054E518);
+        return;
+    }
+    sprintf(D_0067BA88, D_0054E530, clock.year | 0x2000, clock.month, clock.day, clock.hour,
+            clock.minute, clock.second, D_005F5D90 + stage_no * 0x194, D_0063A000);
+    sceLseek(fd, 0, 2);
+    sceWrite(fd, D_0067BA88, strlen(D_0067BA88));
+    debugSceClose(fd);
+    debug_StdPrintfDummy(D_0067BA88);
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_FilmNoiseTool);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_StageSettingTool);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", updateOtherEditingLockFlag);
+
+extern int D_00639F78;
+extern char D_0054EF00[];
+extern char D_0054EF20[];
+extern char D_0054EF30[];
+extern char D_0063A038[];
+extern char D_0063A040[];
+extern char D_0067BB88[];
+extern char D_0067BC88[];
+extern int D_00639F7C;
+extern int sceRead(int fd, void *buf, int n);
+extern int sscanf(const char *s, const char *fmt, ...);
+extern int strcmp(const char *a, const char *b);
+
+void updateOtherEditingLockFlag(void)
+{
+    char buf[0x100];
+    int fd;
+
+    sprintf(D_0067BB88, D_0054EF00, D_005F5D90 + stage_no * 0x194);
+    D_00639F78 = 0;
+    fd = debugSceOpen(D_0067BB88, 1);
+    if (fd >= 0) {
+        sceRead(fd, buf, 0x100);
+        debugSceClose(fd);
+        sscanf(buf, D_0063A038, D_0067BC88);
+    }
+    if (fd < 0 || strcmp(D_0063A040, D_0067BC88) == 0) {
+        debug_StdPrintfDummy(D_0054EF20);
+        D_00639F7C = 0;
+    } else if (strcmp(D_0063A000, D_0067BC88) != 0) {
+        debug_StdPrintfDummy(D_0054EF30, D_0067BC88);
+        D_00639F78 = 1;
+    } else {
+        D_00639F7C = 1;
+    }
+}
 
 extern int stage_no;
 extern char D_005F5D90[];
@@ -283,7 +446,6 @@ extern char D_005F5D90[];
 extern char D_0054E488[];
 extern char D_0054E4A8[];
 extern char D_0054E4D8[];
-extern char D_0028F720[];
 
 inline int gsb_LoadStageSettings(void)
 {
@@ -295,7 +457,7 @@ inline int gsb_LoadStageSettings(void)
         debug_StdPrintfDummy(D_0054E4A8);
     } else {
         debug_StdPrintfDummy(D_0054E4D8, buf);
-        sceRead(fd, D_0028F720, 0x1D0);
+        sceRead(fd, &D_0028F720, 0x1D0);
         debugSceClose(fd);
     }
     return -1;
@@ -317,7 +479,7 @@ inline int gsb_SaveStageSettings(void)
             debug_StdPrintfDummy(D_0054E568);
             return -1;
         }
-        sceWrite(fd, D_0028F720, 0x1D0);
+        sceWrite(fd, &D_0028F720, 0x1D0);
         debug_StdPrintfDummy(D_0054E598, buf);
         debugSceClose(fd);
         appendLogFile();

@@ -44,7 +44,36 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_TransTexture);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_TransTextureDefocus);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_scrollClut);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_textureAnimation);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_SetClutAnimation);
+
+extern CdvdRec D_0068AFE0[];
+
+typedef struct TexClutEnt {
+    int f0;
+    int f4;
+    int f8;
+} TexClutEnt;
+
+extern TexClutEnt D_00290B78[];
+extern void tex_scrollClut(int a0, int a1, int a2, int a3, unsigned int a4, void *a5, int a6,
+                           void *a7);
+
+void tex_SetClutAnimation(int id, int frame)
+{
+    char *t = (char *)&D_0068AFE0[id];
+    char *c = t + 0x268;
+
+    if (*(int *)(c + 0x40) != 0) {
+        int clut = D_00290B78[*(unsigned char *)(t + 0x21A) & 0x3F].f4;
+        unsigned int n = *(unsigned int *)(t + 0x20C) >> 2;
+
+        if (frame != -1) {
+            *(short *)(c + 0x52) = frame;
+        }
+        tex_scrollClut(*(int *)(t + 0xE4) + 0x20, *(int *)(c + 0x54), *(int *)(c + 0x58), clut, n,
+                       c, frame == -1 ? 0 : *(unsigned short *)(c + 0x52), t);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_FreeTexture);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_ResetVram);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_dispClut);
