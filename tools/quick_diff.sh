@@ -304,7 +304,7 @@ assemble() {
 }
 
 # Canonicalize C-side inline-asm VU0 special registers ($ACC/$Q/$R from
-# include/vu0.h) to the period assembler's BARE spelling — UNCONDITIONALLY, as
+# the VU0 wrappers, now in ico2/common/include/typedef.h) to the period assembler's BARE spelling, UNCONDITIONALLY, as
 # compile_c.sh does. This is what keeps a VU0-using candidate assembling at all:
 # untranslated, it fails the period assembler, which now hard-errors instead of
 # silently falling back to modern gas and disagreeing with the ninja build.
@@ -406,13 +406,4 @@ if diff -q "$RIGHT" "$LEFT" >/dev/null; then
     echo "MATCH (canonical instruction stream identical)"
 else
     diff -y -W 200 "$RIGHT" "$LEFT" || true
-    # Tag the diff against known cookbook anti-patterns and surface
-    # which postprocess / C reformulation likely applies. See
-    # tools/tag_diff.py RULES list. Quiet when no rule fires.
-    HINTS=$("$ROOT/.venv/bin/python" "$ROOT/tools/tag_diff.py" "$RIGHT" "$LEFT" 2>/dev/null || true)
-    if [[ -n "$HINTS" ]]; then
-        echo
-        echo "=== tag_diff hints ==="
-        echo "$HINTS"
-    fi
 fi

@@ -1,12 +1,12 @@
 /*
- * common/include/typedef.h — the `common` programmer's shared header.
+ * common/include/typedef.h, the `common` programmer's shared header.
  *
  * PROVENANCE.  Dev path `common/include/typedef.h`, reached from `fumi/` as
  * `../common/include/typedef.h`.  `baserom/pal/SRCFILE.TXT` attributes
  * instructions to exactly one of its lines (census:
  * docs/pal_source_tree.md, section `fumi/../common/include/typedef.h`):
  *
- *   line 74 — avoid_obstacle2 (src/way_sys, 0x0017DA50), 3 rows / 2 expansions
+ *   line 74, avoid_obstacle2 (src/way_sys, 0x0017DA50), 3 rows / 2 expansions
  *
  * so the header holds at least one `static` helper besides whatever typedefs
  * its name implies.  Instructions from a MACRO expansion would be attributed
@@ -52,12 +52,12 @@
 /* ------------------------------------------------------------------ *
  * (a) line-74 helper slot.
  *
- * TODO(line 74) — a float absolute value.  Both expansions in the ROM are
+ * TODO(line 74), a float absolute value.  Both expansions in the ROM are
  * `mtc1 $zero,$fN; c.lt.s $f1,$fN; bc1tl <skip>; neg.s $f1,$f1`, i.e.
  * `x < 0.0f ? -x : x`.  It is NOT written: the rule for defining a
  * census-only helper is >= 2 HOSTS with the same sequence, and this has one
  * host (twice).  Its host is still INCLUDE_ASM; write the helper when
- * avoid_obstacle2 is matched, and name it then — the helper is never emitted
+ * avoid_obstacle2 is matched, and name it then, the helper is never emitted
  * out of line, so it has no symbol in baserom/pal/MAIN.MAP and no name.
  *
  * The line below is line 74 and is kept free for that body.  DO NOT REFLOW
@@ -85,17 +85,17 @@
  *
  * `GObj` = the game object passed as `self` to per-object functions. The
  * name is the engine's own term, re-derived from the public PAL ICO-decomp's
- * Char/GObj list API (GetCharGObjList / MakeCharGObjList) — a reference, not
+ * Char/GObj list API (GetCharGObjList / MakeCharGObjList), a reference, not
  * a verbatim copy. Sub-object struct and field names are MECHANICAL
  * (offset-derived); a field gets a meaningful name only when the binary gives
  * evidence (e.g. a debug string). Padding is explicit so every field sits at
- * its exact recovered offset — a wrong offset is caught by the SHA-1 gate.
+ * its exact recovered offset, a wrong offset is caught by the SHA-1 gate.
  *
  * Structs grow as TUs are typed; only add a field with a verified access.
  */
 
 /* The 0x15C sub-object slot is an INT handle the engine casts to a pointer at
- * use — not a clean Sub15C*. Reading it int-typed reproduces the developer's
+ * use, not a clean Sub15C*. Reading it int-typed reproduces the developer's
  * TBAA: it may-alias adjacent int writes, so the load reloads (not hoisted),
  * matching byte-for-byte WITHOUT the per-function int-typed-reload hacks
  * (COOKBOOK §8.22). Pointer-chain users still match (no aliasing trigger).
@@ -103,8 +103,8 @@
 #define GOBJ_SUB(o)  ((Sub15C *)*(int *)&((GObj *)(o))->p_15C)
 
 typedef struct GObj    GObj;
-typedef struct Sub15C  Sub15C;   /* *(GObj   + 0x15C) — per-object sub state */
-typedef struct Obj7F0  Obj7F0;   /* *(Sub15C + 0x7F0) — shared geometry/model obj (~25 TUs) */
+typedef struct Sub15C  Sub15C;   /* *(GObj   + 0x15C), per-object sub state */
+typedef struct Obj7F0  Obj7F0;   /* *(Sub15C + 0x7F0), shared geometry/model obj (~25 TUs) */
 typedef struct GeoNode GeoNode;  /* *(Obj7F0  + 0x20) */
 typedef struct GeoSub  GeoSub;   /* *(GeoNode + 0x8)  */
 
@@ -112,9 +112,9 @@ struct GObj {
     char    _pad0[0x8];
     int     f_8;              /* 0x8   */
     char    _pad_c[0x150];    /* 0xC .. 0x15B */
-    Sub15C *p_15C;            /* 0x15C — sub-object pointer */
+    Sub15C *p_15C;            /* 0x15C, sub-object pointer */
     char    _pad160[0x4];
-    void   *p_164;           /* 0x164 — actor/action-state object (engine-wide,
+    void   *p_164;           /* 0x164, actor/action-state object (engine-wide,
                                 polymorphic target; type each TU's view locally) */
     char    _pad168[0x4];
     int     f_16C;            /* 0x16C */
@@ -173,7 +173,7 @@ struct Sub15C {
     char    _pad374[0x64];
     int     f_3D8; /* 0x3D8 */
     char    _pad3DC[0xB4];
-    int     f_490; /* 0x490 — char-status index */
+    int     f_490; /* 0x490, char-status index */
     char    _pad494[0xC];
     int     f_4A0; /* 0x4A0 index */
     char    _pad4A4[0x8];
@@ -194,9 +194,9 @@ struct Sub15C {
     char    _pad544[0xC4];
     float   f_608; /* 0x608 */
     char    _pad60C[0x1E4];
-    Obj7F0 *p_7F0; /* 0x7F0 — cage-fix geometry */
+    Obj7F0 *p_7F0; /* 0x7F0, cage-fix geometry */
     char    _pad7F4[0xC];
-    void   *p_800; /* 0x800 — untyped (no consumers yet) */
+    void   *p_800; /* 0x800, untyped (no consumers yet) */
     char    _pad804[0x10];
     int     f_814; /* 0x814 */
 };
@@ -206,7 +206,7 @@ struct Sub15C {
  * this is shared-core; only cageFix.c walks the +0x20 matrix chain so far.
  * Fields grow as TUs are typed; names are offset-derived (no string evidence). */
 struct GeoSub {
-    void   *p_0;          /* 0x0 — object matrix passed to TurnObjectMatrix */
+    void   *p_0;          /* 0x0, object matrix passed to TurnObjectMatrix */
 };
 
 struct GeoNode {
@@ -215,7 +215,7 @@ struct GeoNode {
 };
 
 struct Obj7F0 {
-    void    *p_0;         /* 0x00 — model / geometry node pointer */
+    void    *p_0;         /* 0x00, model / geometry node pointer */
     int      f_4;         /* 0x04 */
     int      f_8;         /* 0x08 */
     int      f_C;         /* 0x0C */
@@ -235,7 +235,7 @@ struct Obj7F0 {
  * Each emits exactly one instruction inside a volatile inline-asm block.
  * ------------------------------------------------------------------ */
 
-/* Memory sync barrier — stalls the CPU until pending stores commit.
+/* Memory sync barrier, stalls the CPU until pending stores commit.
  * Used as a fence between a write and an external observer (GS, IPU,
  * VU0/1, DMAC).  ico2 sites: ito/mpeg/mv_disp, ito/mpeg/mv_vobuf. */
 #define SYNC()      __asm__ __volatile__("sync"   : : : "memory")
@@ -247,7 +247,7 @@ struct Obj7F0 {
 #define DI()        __asm__ __volatile__(".word 0x42000039" : : : "memory")
 #define EI()        __asm__ __volatile__(".word 0x42000038" : : : "memory")
 
-/* Quadword copy — one 128-bit lq/sq pair through a scratch GPR, with the
+/* Quadword copy, one 128-bit lq/sq pair through a scratch GPR, with the
  * trailing nop the ROM's lq+sq+nop shape carries.  The scratch register
  * differs per call site ($t0 in seki/src/Matrix, $a2 in
  * sugipon/src/matrixDrive), so it is a macro argument.  dst/src are
@@ -270,7 +270,7 @@ struct Obj7F0 {
  * ------------------------------------------------------------------ */
 
 /* ===========================================================
- *  TYPED MACROS — preferred form.  Pass operands as tokens; the
+ *  TYPED MACROS, preferred form.  Pass operands as tokens; the
  *  macro builds the asm string via stringify-and-paste.
  * ===========================================================
  *
@@ -315,10 +315,10 @@ struct Obj7F0 {
  *
  *  Escape hatches (pass full asm string)
  *  -------------------------------------
- *    VU0_MEM(insn) — caller-visible load/store; "memory" clobber.
- *    VU0_REG(insn) — register-only; no clobber.
+ *    VU0_MEM(insn), caller-visible load/store; "memory" clobber.
+ *    VU0_REG(insn), register-only; no clobber.
  *
- *  Use the escape hatches only when no typed macro fits — e.g. for
+ *  Use the escape hatches only when no typed macro fits, e.g. for
  *  `vrnext`, `vrxor`, `vrsqrt`, `vdiv`, `viaddi`, `vmulq`, or any
  *  rare opcode without a typed shape above.  When the same shape
  *  shows up in 3+ functions, lift it into a new typed macro here.
@@ -329,7 +329,7 @@ struct Obj7F0 {
  * RECONSTRUCTION, like the whole R5900 and VU0 wrapper set below and above it:
  * the opcodes are what the ROM's instructions decode to, the wrapper around
  * them is this repository's reconstruction of how the source reached them, and
- * every macro name here is ours rather than the developers' — a macro leaves
+ * every macro name here is ours rather than the developers', a macro leaves
  * no symbol and the disc's maps name none of them.  They sit in this header BY
  * INCLUDE PATTERN, NOT BY LISTING ROWS: SRCFILE.TXT attributes each expansion
  * to the .c line that invokes it, which is consistent with any header home, so

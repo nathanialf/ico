@@ -25,7 +25,7 @@
     .type \label, @function
     \label:
     /* .aent omitted: ee-as 2.10 doesn't support the pseudo and it's
-     * stabs debugger metadata only — no effect on emitted bytes. */
+     * stabs debugger metadata only, no effect on emitted bytes. */
 .endm
 
 # A label referenced by an error handler table.
@@ -40,7 +40,7 @@
 # visibility=global so jumptable target labels (e.g. `.L0010F564`) emit
 # as global symbols. ICO has one giant rodata subseg (no per-TU .rodata),
 # so when an INCLUDE_ASM'd function's rodata jumptable lands in the global
-# rodata .o, its `.word .L*` references must cross .o boundaries — only
+# rodata .o, its `.word .L*` references must cross .o boundaries, only
 # global labels resolve. Upstream default is local (parappa2/oot use
 # per-TU .rodata subsegs so the migration keeps them local within one .o).
 .macro jlabel label, visibility=global
@@ -54,8 +54,8 @@
 # A dlabel block that is a splat-migrated rodata object switches into its
 # own `.rodata.<sym>` section (the rodata analog of INCLUDE_ASM_FS / gcc's
 # -fdata-sections, whose section names the C-side carve defs already
-# carry).  The switch is wanted for C-TU compiles only — a blob `.s` turns it
-# off with `__blob = 1` (below) — so it fires exactly for stub rodata and
+# carry).  The switch is wanted for C-TU compiles only, a blob `.s` turns it
+# off with `__blob = 1` (below), so it fires exactly for stub rodata and
 # INCLUDE_RODATA blocks.  Without it, every stub block appends to ONE plain `.rodata`
 # input section positioned at the first block's file order, so a full-run
 # per-TU carve cannot interleave stub-emitted rodata with C definitions.
@@ -64,7 +64,7 @@
 #
 # The switch must NOT fire for a dlabel naming data embedded inside a
 # .text function body (vendor constant pools, e.g. vendor_252D28's
-# D_00254CE0, whose block even carries the data-form `nonmatching`) —
+# D_00254CE0, whose block even carries the data-form `nonmatching`) ,
 # yanking those into .rodata breaks the function's bytes and its
 # cross-section .size.  Discriminator: in-function data can only appear
 # between glabel and endlabel/enddlabel, so glabel arms __in_text and both
@@ -74,11 +74,11 @@
 #
 # The .align 3 mirrors what splat emits ahead of every migrated
 # block (ee-gcc pads each rodata object to 8); a block whose VMA is only
-# 4-aligned would need special handling — none exists in the current split.
+# 4-aligned would need special handling, none exists in the current split.
 #
 # The second guard is __blob.  A splat DATA-BLOB object (asm/data/cod/*.s,
-# the raw runs no TU owns yet) is one whole section of its own — `.data`,
-# `.rodata`, `.sbss`, `.bss` — whose layout the link script globs as one
+# the raw runs no TU owns yet) is one whole section of its own, `.data`,
+# `.rodata`, `.sbss`, `.bss`, whose layout the link script globs as one
 # input section, and whose dlabel'd symbols must stay in it in file order.
 # Those files set `__blob = 1` right after including this file, which turns
 # the per-symbol switch (and its `.align 3`) off; everything else leaves it
@@ -101,11 +101,11 @@ __blob = 0
 # dlabel above), where splat sizes the enclosing FUNCTION with enddlabel.
 #
 # When it closes a FUNCTION (__in_text == 1, so \label is the glabel'd
-# function name — audited: the only in-text enddlabel in the split names
+# function name, audited: the only in-text enddlabel in the split names
 # its enclosing function), it must also emit `.end` to close the glabel's
 # open `.ent`: the period assembler (ee-as 2.9-991111) hard-errors on the
 # NEXT `.ent` otherwise ("second .ent directive found before .end
-# directive" — vendor_252D28's func_00254C98 vs the C func_00254CF8 that
+# directive", vendor_252D28's func_00254C98 vs the C func_00254CF8 that
 # follows it). Pure-data closes (__in_text == 0) emit no `.end`.
 .macro enddlabel label
     .size \label, . - \label

@@ -33,20 +33,20 @@
     )
 #endif
 
-/* ASM_LIT4_SLOT(NAME, VALUE) — one word of this TU's `.lit4` constant pool
+/* ASM_LIT4_SLOT(NAME, VALUE), one word of this TU's `.lit4` constant pool
  * whose owning function is still INCLUDE_ASM. Put it next to that sibling.
  *
  * `.lit4` is built by the ASSEMBLER, not the compiler: ee-gcc emits
  * `li.s $fN,<value>` for a float constant and ee-as interns it into the
  * object's anonymous `.lit4`, appending each new literal in the order the
  * macros appear in the emitted `.s`. A TU's pool is therefore ONE output
- * section whose contents are fixed by source order — it cannot be carved per
+ * section whose contents are fixed by source order, it cannot be carved per
  * function, so a TU cannot migrate its constants to inline literals (and drop
  * the scheduling crutches the named-global carve forces) until every word of
  * its shipped pool run is produced by that TU.
  *
- * The obvious fix — define the missing words as data in `.lit4` so the
- * siblings' `%gp_rel(D_<VMA>)($28)` still resolves — is IMPOSSIBLE with the
+ * The obvious fix, define the missing words as data in `.lit4` so the
+ * siblings' `%gp_rel(D_<VMA>)($28)` still resolves, is IMPOSSIBLE with the
  * period assembler: `nopic_need_relax()` (tc-mips.c:11141) asserts that no
  * symbol it is asked about lives in `.lit4`, since in its model that section
  * only ever holds anonymous literals it interned itself. Defining a named
@@ -55,12 +55,12 @@
  *
  * So this macro emits a `.lit4_slot` directive instead, and
  * tools/preprocess_old_as.py rewrites the sibling's load back to
- * `li.s $fN, VALUE` — the spelling the original .s had before splat
+ * `li.s $fN, VALUE`, the spelling the original .s had before splat
  * symbolized the pool address. Same instruction, same gp-relative encoding,
  * and ee-as interns the word at that point in the file, i.e. in the sibling's
  * shipped slot. No `D_<VMA>` symbol is needed or created.
  *
- * Delete the line when its owner lands in C — that function's own literal
+ * Delete the line when its owner lands in C, that function's own literal
  * then produces the word, and preprocess_old_as.py errors if a stale line is
  * left behind. */
 #ifndef ASM_LIT4_SLOT
@@ -68,7 +68,7 @@
     __asm__(".lit4_slot " #NAME ", " #VALUE)
 #endif
 
-/* ASM_RODATA_LABEL(NAME) — bind a splat data symbol to a compiler-emitted
+/* ASM_RODATA_LABEL(NAME), bind a splat data symbol to a compiler-emitted
  * `.rodata` constant that a still-INCLUDE_ASM sibling references.
  *
  * When a matched function's local brace initialiser (an `$LCn` template) is
@@ -76,7 +76,7 @@
  * the same template through splat's `D_<VMA>` name, the carve row assigns
  * the bytes to the compiled object but nothing defines the name. This macro
  * emits ONLY a label at the current `.rodata` position, so it must sit
- * immediately before the definition that makes gcc emit the template — for a
+ * immediately before the definition that makes gcc emit the template, for a
  * `static inline` helper that is its DEFINITION (gcc 2.9 expands an inline
  * body when it saves it, and outputs its constants then): the label
  * and `$LCn` then share the address, no bytes are added, and the sibling's
@@ -89,14 +89,14 @@
     __asm__(".rdata\n\t.align 3\n" #NAME ":\n\t.text")
 #endif
 
-/* INCLUDE_ASM_NOP_PAD(label) — emit a single 4-byte nop in .text.
+/* INCLUDE_ASM_NOP_PAD(label), emit a single 4-byte nop in .text.
  *
  * Splat omits per-function .s files for tiny pad functions (verified
  * 4-byte nops sitting between real functions for alignment). When a
  * coalesced TU's c subseg covers a range that includes such a pad,
  * INCLUDE_ASM(... pad_func) fails with "can't open .../<pad>.s for
  * reading". This macro emits the exact 4-byte nop the original ELF
- * has at that location — functionally identical, not a fabrication.
+ * has at that location, functionally identical, not a fabrication.
  * The `label` argument is the func name from the original disasm
  * (e.g. func_001FA5DC); it's used as a label in the emitted asm so
  * relocations targeting it still resolve. */
@@ -131,7 +131,7 @@ __asm__(".include \"include/labels.inc\"\n");
 #ifndef INCLUDE_RODATA
 #define INCLUDE_RODATA(FOLDER, NAME)
 #endif
-/* Pure assembler bookkeeping — nothing for m2c/permuter to model. */
+/* Pure assembler bookkeeping, nothing for m2c/permuter to model. */
 #ifndef ASM_LIT4_SLOT
 #define ASM_LIT4_SLOT(NAME, VALUE)
 #endif

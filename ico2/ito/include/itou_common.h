@@ -1,13 +1,13 @@
 /*
- * include/itou_common.h — the `ito` programmer's shared header.
+ * include/itou_common.h, the `ito` programmer's shared header.
  *
  * PROVENANCE.  `baserom/pal/SRCFILE.TXT` attributes instructions inside five
  * functions to `ito/include/itou_common.h` (census: docs/pal_source_tree.md,
  * section "ito/../ito/include/itou_common.h"):
- *   line 26 — subBirdBrainMain (src/act_bird), QueenBarrierGeo (src/queen),
+ *   line 26, subBirdBrainMain (src/act_bird), QueenBarrierGeo (src/queen),
  *             GatherEffect_Proc (src/gather_effect), DrawLightning2
  *             (src/lightning)                                  29 rows total
- *   line 31 — vector_angle_degree (src/act_bird), subBirdBrainMain
+ *   line 31, vector_angle_degree (src/act_bird), subBirdBrainMain
  *                                                              3 rows total
  * Two distinct line ranges = two `static` helpers.  Neither is ever emitted
  * out of line, so neither has a MAIN.MAP symbol: BOTH NAMES BELOW ARE OURS,
@@ -23,7 +23,7 @@
 
 /* --- header lines ~24-27 ------------------------------------------------
  * Degrees to radians.  Census line 26: `lwc1 <2pi lit4>; mul.s; mtc1 360.0;
- * div.s` — the multiply by the .lit4 2*pi comes first, then the divide by
+ * div.s`, the multiply by the .lit4 2*pi comes first, then the divide by
  * the immediate 360.0 (0x43B40000).  RECONSTRUCTION: every host is still
  * INCLUDE_ASM, so this body is derived from the ROM's instruction sequence
  * (4 hosts, same sequence) and is not yet proven byte-identical. */
@@ -33,7 +33,7 @@ static __inline__ float degrees_to_radians(float deg)
 }
 
 /* --- header lines ~29-32 ------------------------------------------------
- * Radians to degrees — the inverse, with the operands swapped: census line
+ * Radians to degrees, the inverse, with the operands swapped: census line
  * 31 is `mtc1 360.0; mul.s; lwc1 <2pi lit4>; div.s`.
  * PROVEN in one host: src/act_bird's `vector_angle_degree` is matched and
  * its tail is exactly this helper (census row itou_common.h:31), so it now

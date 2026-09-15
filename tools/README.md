@@ -36,10 +36,10 @@ CLAUDE.md "Crutches are BANNED" before reintroducing that shape of tool.
 
 | tool | what it does |
 |---|---|
+| `strict_cmp.py` | word-for-word comparison of one function against its ROM stub after `quick_diff.sh`, the harvest gate beside `ninja` |
 | `quick_diff.sh` | ~100 ms compile+diff inner loop; agrees with the ninja build by construction |
 | `match_diff.py` | reloc-normalized diff + `real_count`, the authoritative per-function score |
 | `mask_gp_rel.py` | reloc-normalizes `$gp`-relative operands so diffs aren't noise (called by `quick_diff.sh`) |
-| `tag_diff.py` | per-tag breakdown of a diff (called by `quick_diff.sh` and `match_diff.py`) |
 | `tu_check.py` | re-diffs EVERY matched function in a TU so an edit can't silently break a sibling |
 
 The 30-iteration stall gate is kept by hand: 30 consecutive distinct

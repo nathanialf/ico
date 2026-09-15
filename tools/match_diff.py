@@ -421,7 +421,7 @@ def detect_scheduling(nexp: list[str], nblt: list[str]):
 # entire function is a coloring/allocation convergence (decomp-convergence, the
 # whole-function levers in COOKBOOK §13), not a local source-shape tie; a
 # residual that is NOT a renaming is structural and belongs in the normal
-# per-tag lever loop. tag_diff's `regalloc-swap` rule only sees a LOCAL recurring
+# per-tag lever loop. The retired tag_diff `regalloc-swap` rule only saw a LOCAL recurring
 # single-register swap; this is the global bijection test.
 _REG_TOK  = re.compile(r"^\$?((?:zero|at|v[01]|a[0-3]|t[0-9]|s[0-8]|k[01]|gp|sp|fp|ra|f[0-9]+))$")
 _MEM_OPND = re.compile(r"^(-?(?:0x)?[0-9a-fA-F]+)\((\$?\w+)\)$")
@@ -556,36 +556,6 @@ def detect_register_bijection(nexp: list[str], nblt: list[str]):
     }
 
 
-def run_tag_diff(exp: list[str], blt: list[str]):
-    """Call tools/tag_diff.py on the two streams; parse `[§N.M] name` output
-    into structured tags."""
-    with tempfile.NamedTemporaryFile("w", suffix=".exp", delete=False) as fe, \
-         tempfile.NamedTemporaryFile("w", suffix=".blt", delete=False) as fb:
-        fe.write("\n".join(exp) + "\n")
-        fb.write("\n".join(blt) + "\n")
-        ep, bp = fe.name, fb.name
-    try:
-        py = ROOT / ".venv" / "bin" / "python"
-        py = str(py) if py.exists() else sys.executable
-        proc = subprocess.run(
-            [py, str(ROOT / "tools" / "tag_diff.py"), ep, bp],
-            capture_output=True, text=True, cwd=str(ROOT),
-        )
-    finally:
-        Path(ep).unlink(missing_ok=True)
-        Path(bp).unlink(missing_ok=True)
-    tags = []
-    cur = None
-    for line in proc.stdout.splitlines():
-        m = re.match(r"\[§([0-9A-Za-z.\-/ ]+)\]\s+(.*)", line.strip())
-        if m:
-            cur = {"id": m.group(1), "name": m.group(2), "hint": "", "section": m.group(1).replace(".", "")}
-            tags.append(cur)
-        elif cur is not None and line.strip().startswith("→"):
-            cur["hint"] = line.strip()[1:].strip()
-    return tags
-
-
 def analyze(tu: str, func: str | None, pinned: bool = False) -> dict:
     out = run_quick_diff(tu, func)
     if "COMPILE-FAIL" in out or "compile" in out.lower() and "error" in out.lower() and "===" not in out:
@@ -612,7 +582,7 @@ def analyze(tu: str, func: str | None, pinned: bool = False) -> dict:
     if pinned:
         real_count = real_count_pinned
     sites = divergence_sites(nexp, nblt)
-    tags = run_tag_diff(exp, blt)
+    tags = []  # cookbook hint tagging retired with the rewrite rules (2026-09-15)
     sched = detect_scheduling(nexp, nblt)
     regmap = detect_register_bijection(nexp, nblt)
     status = "match" if real_count == 0 else "diffs"

@@ -343,7 +343,7 @@ def _global_index() -> dict:
             defined.add(m.group(1))
         for m in _ASM_LABEL_RE.finditer(text):
             defined.add(m.group(1))
-        # macro-defined leaves (include/syscall.h SYSCALL_WRAPPER(name, n))
+        # macro-defined leaves (the libkernl members' own SYSCALL_WRAPPER(name, n))
         for m in re.finditer(r"^\s*SYSCALL_WRAPPER\s*\(\s*([A-Za-z_]\w*)", text, re.M):
             defined.add(m.group(1))
     _GLOBAL = {"stubs": stubs, "defined": defined}
