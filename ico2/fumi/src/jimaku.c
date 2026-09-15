@@ -60,7 +60,77 @@ extern int jimakuOn;
 void jimakuManager(void);
 void jimakuUndisp(void);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/jimaku", display_texture);
+typedef struct JimTex {
+    char _0[0x1C];
+    int tex; /* 0x1C */
+    char _20[0x24];
+    int centre; /* 0x44 */
+    int h;      /* 0x48 */
+    int w;      /* 0x4C */
+    int y;      /* 0x50 */
+    int x;      /* 0x54 */
+    char _58[4];
+    int u;  /* 0x5C */
+    int tw; /* 0x60 */
+    int th; /* 0x64 */
+    int v;  /* 0x68 */
+} JimTex;
+
+typedef struct JimCol {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} JimCol;
+
+extern JimCol D_0063A970[];
+extern unsigned char D_0028F720[];
+extern void tex_TransTexture(int tex, int pri);
+extern void gif_StartPacketPri(int pri);
+extern void gif_SetAlpha(int a, int b, int c);
+extern void gif_SetGsReg(int reg, long long v);
+extern void gif_SetZWrite(int on);
+extern void gif_SetZTest(int on);
+extern void gif_SpriteSensitiveOffset(int *dst, unsigned int rgba, int *src, JimCol *col, int flag);
+extern void gif_EndPacket(void);
+
+void display_texture(JimTex *t)
+{
+    JimCol col;
+    int dst[4];
+    int src[4];
+
+    col = D_0063A970[0];
+    src[0] = (t->u << 4) + 8;
+    src[1] = (t->v << 4) + 8;
+    src[2] = t->th << 4;
+    src[3] = t->tw << 4;
+    dst[2] = t->w << 4;
+    dst[3] = t->h << 3;
+    if (dst[2] == 0)
+        dst[2] = src[2];
+    if (dst[3] == 0)
+        dst[3] = src[3] >> 1;
+    dst[3] = dst[3] * 2;
+    if (t->centre != 0)
+        dst[0] = (10240 - dst[2]) / 2 - 5120;
+    else
+        dst[0] = (t->x - 320) << 4;
+    dst[1] = (t->y - 112) << 4;
+    tex_TransTexture(t->tex, 11);
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 7, 0);
+    gif_SetGsReg(74, 0);
+    gif_SetZWrite(0);
+    gif_SetZTest(0);
+    col.r = ~D_0028F720[0xD0];
+    col.g = ~D_0028F720[0xD4];
+    col.b = ~D_0028F720[0xD8];
+    gif_SpriteSensitiveOffset(dst, 0xFFFFFF9B, src, &col, 1);
+    gif_SetZWrite(1);
+    gif_SetZTest(1);
+    gif_EndPacket();
+}
 
 void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
 {
@@ -191,7 +261,7 @@ extern char D_00318DD8[];
 extern char D_00318E48[];
 extern int iosSemaReferStatus(void *s);
 extern void iosSemaSignal(void *s);
-extern void display_texture(void *t);
+extern void display_texture(JimTex *t);
 
 void jimakuDisp(char *self)
 {

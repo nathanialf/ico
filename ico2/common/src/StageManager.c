@@ -85,7 +85,7 @@ extern void iosThreadCreateS(unsigned int *th, int no, void (*func)(), int arg, 
 extern void iosThreadStart(unsigned int *th);
 extern void sceGsResetPath(void);
 extern void sceVpu0Reset(void);
-extern void sceDmaReset(int a0);
+extern int sceDmaReset(int a0);
 extern void InitIcoMisc();
 extern int D_0028F4F0[];
 extern unsigned int D_006FAC80[];
@@ -155,8 +155,8 @@ extern void *D_0063A440;
 extern void *D_0063A44C;
 extern void *D_0063A450;
 extern void *D_0063A458;
-extern int D_00639EA4;
-extern int D_00639EA8;
+extern void *D_00639EA4;
+extern void *D_00639EA8;
 extern int D_0028F4C0[];
 extern int jimaku_msg[];
 extern char D_00618FF8[];
@@ -260,9 +260,50 @@ void exit_stage(int *self)
     return DeleteStreamMotionManager();
 }
 
-/*SW*/
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/StageManager", start_stage_Load_thread);
-/*SW-END*/
+/* The mpeg-restart record the stream side owns; the two fields this arm
+   clears are at +0x14 and +0x18 of it. */
+typedef struct MpegRec {
+    int _0[5];
+    int f14;
+    int f18;
+} MpegRec;
+
+void start_stage_Load_thread(int stage)
+{
+    before_stage_no = stage_no;
+    stage_no = stage;
+    gsb_SetBGColor(D_0028F4F0, 1, 1, 1);
+    sceGsSyncPath(0, 0);
+    stageManagerFreeResourceFlag = 1;
+    stop_free_resources();
+    if (mpegPlay == 0) {
+        long flags;
+
+        stage_initialize();
+        stageManagerFreeResourceFlag = 0;
+        iosThreadCancelWakeup(0);
+        gsb_SetMotionBlur();
+        D_00639ED4 = stage;
+        iosThreadCreateS(D_006FAC80, 1, InitIcoMisc, (int)&stage_no, D_0063A428, 0x18000, 27);
+        iosThreadStart(D_006FAC80);
+        flags = D_006FAC80[15];
+        debug_StdPrintfDummy(D_006190D0, (int)flags & 1);
+        game_pause = 1;
+        debug_StdPrintfDummy(D_006190E0);
+    } else {
+        isysInitialize();
+        sceGsResetPath();
+        sceVpu0Reset();
+        sceDmaReset(1);
+        mpegInitDone = 1;
+        ((MpegRec *)D_0028F4C0)->f14 = 0;
+        ((MpegRec *)D_0028F4C0)->f18 = 0;
+        D_00639EA8 = 0;
+        D_00639EA4 = 0;
+        stageManagerFreeResourceFlag = 0;
+    }
+}
+
 /*SW*/
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/StageManager", stgmgrNextStagePreLoad);
 
