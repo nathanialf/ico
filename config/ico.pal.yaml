@@ -616,6 +616,8 @@ segments:
       - [0x4549E8, rodata, cod/4549E8]   # .rodata blob resume
       - [0x454B10, .rodata, ico2/omori/src/attackhit]  # carved jtbl_00554B10 (VMA 0x554B10..0x554C00, 240 B, 60 arms): AttackCheckHit's switch table, emitted by the compiled function
       - [0x454C00, rodata, cod/454C00]   # .rodata blob resume
+      - [0x455270, .rodata, ico2/omori/src/chain]  # plain-rodata: chain_simulate_term_swingstart's doubles 0.3 and 21.5 (two 8 B constant-pool operands), VMA 0x555270..0x555280, emitted by the compiled function; the TU's whole rodata run 0x5551C0..0x5553F0 is compiler-generated in first-use order and becomes one carve only when every rodata-emitting sibling is C
+      - [0x455280, rodata, cod/455280]   # .rodata blob resume (the rest of chain.c's compiler-generated run, strings and per-function doubles still owned by asm siblings)
       - [0x4555E0, .rodata, ico2/omori/src/ebrain]  # carved jtbl_005555E0 (7 arms, 0x1C) + jtbl_00555600 (9 arms, 0x24) at 16-byte alignment: eBrainGetTarget's two switch tables, emitted by the compiled function; VMA 0x5555E0..0x555624; the TU's strings before them stay in the blob
       - [0x455624, rodata, cod/455624]   # .rodata blob resume (the zero pad word after the second table is the blob's first word)
       - [0x456890, .rodata, ico2/ito/src/itou_sub]  # plain-rodata: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template (12 B, 8-aligned), VMA 0x556890..0x55689C
