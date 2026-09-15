@@ -25,7 +25,6 @@ extern long long strtol(void *a0, int a1, int a2);
 extern int _vfprintf_r(int *self, int subj, int b, void *args);
 extern int vfprintf();
 extern int strtok_r(int a0, int a1, int a2);
-extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
 extern int __sfvwrite();
 
 /* census __sprint, a file static (sce/libc/stdio/vfiprintf holds the global);

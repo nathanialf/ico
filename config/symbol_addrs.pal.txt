@@ -6202,6 +6202,7 @@ strrchr = 0x0027FD20; // type:func  // sce/libc/string/strrchr  // (vendor) libc
 strstr = 0x0027FD70; // type:func  // sce/libc/string/strstr  // (vendor) libc.a (116/118 MAIN.MAP)
 strtok = 0x0027FDE0; // type:func  // sce/libc/string/strtok  // (vendor) libc.a (116/118 MAIN.MAP)
 strtok_r = 0x0027FE08; // type:func  // sce/libc/string/strtok_r  // (vendor) libc.a (116/118 MAIN.MAP)
+_strtol_r = 0x0027FEA8; // type:func  // sce/libc/stdlib/strtol  // (vendor) libc.a (116/118 MAIN.MAP), newlib _strtol_r, the only other function of strtol.o, the signed twin of _strtoul_r, called as (reent, nptr, endptr, base)
 strtol = 0x002800E0; // type:func  // sce/libc/stdlib/strtol  // (vendor) libc.a (116/118 MAIN.MAP)
 __sprint = 0x00280118; // type:func allow_duplicated:True  // sce/libc/stdio/vfiprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal
 __sbprintf = 0x00280160; // type:func allow_duplicated:True  // sce/libc/stdio/vfiprintf  // (vendor) libc.a (116/118 MAIN.MAP)  // provisional-ordinal

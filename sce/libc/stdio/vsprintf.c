@@ -24,7 +24,6 @@ extern void abort(void);
 extern long long strtol(void *a0, int a1, int a2);
 extern int vfprintf();
 extern int strtok_r(int a0, int a1, int a2);
-extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
 
 int vsprintf(void *out, void *a1, void *a2)
 {

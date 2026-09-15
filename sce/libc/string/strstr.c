@@ -22,4 +22,30 @@ extern char D_00637E38[];
 extern void fiprintf();
 extern void abort(void);
 
-INCLUDE_ASM("asm/nonmatchings/sce/libc/string/strstr", strstr);
+char *strstr(const char *searchee, const char *lookfor)
+{
+    if (*searchee == 0) {
+        if (*lookfor) {
+            return (char *)0;
+        }
+        return (char *)searchee;
+    }
+
+    while (*searchee) {
+        unsigned int i;
+        i = 0;
+
+        while (1) {
+            if (lookfor[i] == 0) {
+                return (char *)searchee;
+            }
+            if (lookfor[i] != searchee[i]) {
+                break;
+            }
+            i++;
+        }
+        searchee++;
+    }
+
+    return (char *)0;
+}

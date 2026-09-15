@@ -17,4 +17,25 @@ typedef struct {
     unsigned long long f10;
 } PCmpV2;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/_floatdidf", __floatdidf);
+typedef int SItype;
+
+typedef unsigned int USItype;
+
+typedef long long DItype;
+
+typedef double DFtype;
+
+#define WORD_SIZE (sizeof(SItype) * 8)
+#define HIGH_HALFWORD_COEFF (((unsigned long long)1) << (WORD_SIZE / 2))
+#define HIGH_WORD_COEFF (((unsigned long long)1) << WORD_SIZE)
+
+DFtype __floatdidf(DItype u)
+{
+    DFtype d;
+
+    d = (SItype)(u >> WORD_SIZE);
+    d *= HIGH_HALFWORD_COEFF;
+    d *= HIGH_HALFWORD_COEFF;
+    d += (USItype)(u & (HIGH_WORD_COEFF - 1));
+    return d;
+}

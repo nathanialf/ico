@@ -627,7 +627,34 @@ void sceVu0LightColorMatrix(void *a0, void *a1, void *a2, void *a3, void *a4)
     sceVu0CopyVector((char *)a0 + 0x30, a4);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libvu0/libvu0", sceVu0ViewScreenMatrix);
+void sceVu0ViewScreenMatrix(float *m, float a1, float a2, float a3, float a4, float a5, float a6,
+                            float a7, float a8, float a9)
+{
+    float t[16];
+    float p;
+    float q;
+
+    q = ((-a7) * a8 + a6 * a9) / (-a8 + a9);
+    p = ((a9 * a8) * (-a6 + a7)) / (-a8 + a9);
+
+    sceVu0UnitMatrix(m);
+    m[0] = a1;
+    m[5] = a1;
+    m[10] = 0.0f;
+    m[15] = 0.0f;
+    m[14] = 1.0f;
+    m[11] = 1.0f;
+
+    sceVu0UnitMatrix(t);
+    t[0] = a2;
+    t[5] = a3;
+    t[10] = p;
+    t[12] = a4;
+    t[13] = a5;
+    t[14] = q;
+    sceVu0MulMatrix(m, t, m);
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libvu0/libvu0", sceVu0DropShadowMatrix);
 
 void sceVu0RotTransPersN(void *a0, void *a1, void *a2, int a3, int a4)

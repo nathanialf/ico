@@ -38,11 +38,113 @@ typedef struct {
     KernEvent ent[512];
 } KernEventRing;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/thread", topThread);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/thread", InitThread);
+extern int D_0063CB50[];
+extern char D_0054D380[];
+extern int WaitSema(int id);
+extern int WakeupThread(int id);
+extern int RotateThreadReadyQueue(int id);
+extern int SuspendThread(int id);
+extern void kprintf(const char *fmt);
+
+void topThread(void *arg)
+{
+    KernEventRing *ring = (KernEventRing *)arg;
+    int i;
+
+    while (1) {
+        WaitSema(D_0063CB50[0]);
+        i = ring->f0 & 0x1FF;
+        ring->f0 = i + 1;
+        switch (ring->ent[i].code) {
+        case 0:
+            WakeupThread(ring->ent[i].id);
+            break;
+        case 1:
+            RotateThreadReadyQueue(ring->ent[i].id);
+            break;
+        case 2:
+            SuspendThread(ring->ent[i].id);
+            break;
+        default:
+            kprintf(D_0054D380);
+            break;
+        }
+    }
+}
+
+/* EE kernel thread/semaphore parameter blocks.  The field offsets are the
+   ROM's own stores; the members this function never touches are named from
+   the published EE kernel ABI. */
+typedef struct {
+    int count;        /* 0x00 */
+    int max_count;    /* 0x04 */
+    int init_count;   /* 0x08 */
+    int wait_threads; /* 0x0C */
+    unsigned attr;    /* 0x10 */
+    unsigned option;  /* 0x14 */
+} ee_sema_t;
+
+typedef struct {
+    int status;           /* 0x00 */
+    void *func;           /* 0x04 */
+    void *stack;          /* 0x08 */
+    int stack_size;       /* 0x0C */
+    void *gp_reg;         /* 0x10 */
+    int initial_priority; /* 0x14 */
+    int current_priority; /* 0x18 */
+    unsigned attr;        /* 0x1C */
+    unsigned option;      /* 0x20 */
+} ee_thread_t;
 
 extern int D_0028F4B0[];
 extern int D_0063CB50[];
+extern KernEventRing D_0063CB58;
+extern char D_0063C750[];
+extern char D_00640AF0[];
+extern void topThread(void *arg);
+extern int CreateSema(ee_sema_t *param);
+extern void DeleteSema(int id);
+extern int CreateThread(ee_thread_t *param);
+extern int StartThread(int id, void *arg);
+extern int GetThreadId(void);
+extern int ChangeThreadPriority(int id, int prio);
+
+int InitThread(void)
+{
+    ee_thread_t th;
+    ee_sema_t sm;
+    int tid;
+
+    if (D_0028F4B0[0] > 0) {
+        return -1;
+    }
+
+    sm.max_count = 0xFF;
+    sm.init_count = 0;
+    D_0063CB50[0] = CreateSema(&sm);
+    if (D_0063CB50[0] < 0) {
+        return -1;
+    }
+
+    th.func = topThread;
+    th.stack = D_0063C750;
+    th.stack_size = 0x400;
+    th.gp_reg = D_00640AF0;
+    th.initial_priority = 0;
+    tid = CreateThread(&th);
+    D_0028F4B0[0] = tid;
+    if (tid < 0) {
+        DeleteSema(D_0063CB50[0]);
+        return -1;
+    }
+
+    D_0063CB58.f0 = 0;
+    D_0063CB58.widx = 0;
+    StartThread(tid, &D_0063CB58);
+    ChangeThreadPriority(GetThreadId(), 1);
+    return D_0028F4B0[0];
+}
+
 extern KernEventRing D_0063CB58;
 extern int _iWakeupThread(void);
 extern void iSignalSema(int handle);

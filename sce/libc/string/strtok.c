@@ -29,7 +29,6 @@ int strtok(int a0, int a1)
     return strtok_r(a0, a1, D_0054CEAC[0] + 0x5C);
 }
 
-extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
 extern int __sread(void *a0, int a1, int a2);
 extern long __swrite(void *a0, int a1, int a2);
 extern long __sseek(void *a0, int a1, int a2);

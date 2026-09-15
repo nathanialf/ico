@@ -236,8 +236,23 @@ void actSt05bSekizoEvent(int x)
 extern const long long D_00622AD0[];
 extern const long long D_00622AE0[];
 extern int D_00639EA8;
-extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
+/* Returns int: st04b.c carries the same prototype, and the live $2 at the
+ * call boundary is what puts the second way record's %hi in $3. */
+extern int _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
 extern void brainUnlockGirl(void);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st05b", actSt05bGirlWay);
+void actSt05bGirlWay(volatile int a0)
+{
+    long long buf[2];
+    long long way[2];
+
+    buf[0] = D_00622AD0[0];
+    buf[1] = D_00622AD0[1];
+    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
+
+    way[0] = D_00622AE0[0];
+    way[1] = D_00622AE0[1];
+    RequestStageChangeDirect(D_00639EA8, 0x1C, (int *)way, 0xB4);
+    brainUnlockGirl();
+}

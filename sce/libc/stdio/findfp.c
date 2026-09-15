@@ -23,7 +23,6 @@ extern void fiprintf();
 extern void abort(void);
 extern long long strtol(void *a0, int a1, int a2);
 extern int strtok_r(int a0, int a1, int a2);
-extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
 extern int __sread(void *a0, int a1, int a2);
 extern long __swrite(void *a0, int a1, int a2);
 extern long __sseek(void *a0, int a1, int a2);
@@ -67,7 +66,87 @@ void *__sfmoreglue(void *a0, int a1)
     return p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/findfp", __sfp);
+struct _reent;
+
+struct __sbuf {
+    unsigned char *_base; /* 0x0 */
+    int _size;            /* 0x4 */
+};
+
+typedef struct __sFILE {
+    unsigned char *_p;    /* 0x00 */
+    int _r;               /* 0x04 */
+    int _w;               /* 0x08 */
+    short _flags;         /* 0x0C */
+    short _file;          /* 0x0E */
+    struct __sbuf _bf;    /* 0x10 */
+    int _lbfsize;         /* 0x18 */
+    char pad1C[0x14];     /* 0x1C */
+    struct __sbuf _ub;    /* 0x30 */
+    char pad38[0xC];      /* 0x38 */
+    struct __sbuf _lb;    /* 0x44 */
+    char pad4C[0x8];      /* 0x4C */
+    struct _reent *_data; /* 0x54 */
+} __FILE;
+
+struct _glue {
+    struct _glue *_next; /* 0x0 */
+    int _niobs;          /* 0x4 */
+    __FILE *_iobs;       /* 0x8 */
+};
+
+struct _reent {
+    int _errno;           /* 0x000 */
+    char pad004[0x34];    /* 0x004 */
+    int __sdidinit;       /* 0x038 */
+    char pad03C[0x19C];   /* 0x03C */
+    struct _glue __sglue; /* 0x1D8 */
+};
+
+#define ENOMEM 12
+#define NDYNAMIC 4
+
+extern void __sinit(char *a0);
+
+__FILE *__sfp(struct _reent *d)
+{
+    __FILE *fp;
+    int n;
+    struct _glue *g;
+
+    if (!d->__sdidinit) {
+        __sinit((char *)d);
+    }
+
+    for (g = &d->__sglue;; g = g->_next) {
+        for (fp = g->_iobs, n = g->_niobs; --n >= 0; fp++) {
+            if (fp->_flags == 0) {
+                goto found;
+            }
+        }
+        if (g->_next == 0 && (g->_next = (struct _glue *)__sfmoreglue(d, NDYNAMIC)) == 0) {
+            break;
+        }
+    }
+    d->_errno = ENOMEM;
+    return 0;
+
+found:
+    fp->_flags = 1;
+    fp->_file = -1;
+    fp->_data = d;
+    fp->_p = 0;
+    fp->_w = 0;
+    fp->_r = 0;
+    fp->_bf._base = 0;
+    fp->_bf._size = 0;
+    fp->_lbfsize = 0;
+    fp->_ub._base = 0;
+    fp->_ub._size = 0;
+    fp->_lb._base = 0;
+    fp->_lb._size = 0;
+    return fp;
+}
 
 extern void _fwalk(int a0, void *a1);
 extern int fflush(void);

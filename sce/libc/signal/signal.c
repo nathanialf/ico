@@ -23,7 +23,6 @@ extern void fiprintf();
 extern void abort(void);
 extern long long strtol(void *a0, int a1, int a2);
 extern int strtok_r(int a0, int a1, int a2);
-extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
 extern int raise(int a0);
 extern int __sread(void *a0, int a1, int a2);
 extern long __swrite(void *a0, int a1, int a2);
