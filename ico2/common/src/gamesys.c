@@ -99,7 +99,85 @@ void gamesysObjInfoLoad(void *h)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/gamesys", gamesysObjInfoEmptyAreaSearch);
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/gamesys", gamesysObjInfoBaseSet);
+
+extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
+extern void GetRootPosition(void *dst, int *gobj);
+extern void _GetMotionDirection(void *dst, int *gobj);
+extern float _GetDirection(void *v);
+extern void GetRootMatrix(void *dst, int *gobj);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+extern float _Sqrt(float x);
+extern float atan2f(float y, float x);
+extern char D_0061D300[];
+extern void memset(char *p, int a, int n);
+extern void debug_StdPrintfDummy(char *fmt, ...);
+extern int stage_no;
+
+int *gamesysObjInfoBaseSet(int *self, int stage)
+{
+    GamesysObjInfoReq req;
+    float dir[4];
+    float m[16];
+    float v[4];
+    GamesysObjInfo *p;
+    /* the default arm writes the range through the record pointer, every other
+       arm writes the record directly: the ROM keeps the two spellings apart as
+       `daddu $6, $29, $0` plus `sw $2, 0x4($6)` / `sw $3, 0x0($6)` against the
+       other arms' plain `sw $2, 0x0($29)` / `sw $3, 0x4($29)` */
+    GamesysObjInfoReq *r = &req;
+
+    req.no = self[2];
+    req.stage = stage;
+
+    switch (self[3]) {
+    case 1:
+        req.start = 0;
+        req.end = 1;
+        break;
+    case 2:
+        req.start = 1;
+        req.end = 2;
+        break;
+    case 4:
+        req.start = 2;
+        req.end = 22;
+        break;
+    case 15:
+        req.start = 22;
+        req.end = 42;
+        break;
+    default:
+        r->start = 42;
+        r->end = 182;
+        break;
+    }
+
+    p = gamesysObjInfoEmptyAreaSearch(&req);
+    if (p != 0 && ((int)(((GamesysObjInfoFlag *)p)->flag >> 1) & 1) == 0) {
+        GetRootPosition(p->pos, self);
+        _GetMotionDirection(dir, self);
+        p->rot[1] =
+            -((float)(int)(_GetDirection(dir) / 3.14159274f * 180.0f) * 3.14159274f / 180.0f);
+        p->rot[0] = p->rot[2] = 0.0f;
+        if (self[3] == 0x11 && stage_no == 0xB) {
+            p->rot[1] =
+                (float)(int)(_GetDirection(dir) / 3.14159274f * 180.0f) * 3.14159274f / 180.0f;
+        }
+        if (self[3] == 0xE) {
+            memset((char *)v, 0, 0x10);
+            v[2] = 1.0f;
+            GetRootMatrix(m, self);
+            v[3] = 0.0f;
+            sceVu0ApplyMatrix(v, m, v);
+            p->rot[1] =
+                (float)(int)(_GetDirection(v) / 3.14159274f * 180.0f) * 3.14159274f / 180.0f;
+            p->rot[0] = -atan2f(v[1], _Sqrt(1.0f - v[1] * v[1]));
+        }
+    } else {
+        debug_StdPrintfDummy(D_0061D300, req.start, req.end);
+    }
+    return (int *)p;
+}
 
 extern char D_004DA980[];
 extern short D_0063B418;
