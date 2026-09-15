@@ -2,4 +2,11 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/_fixdfdi", __fixdfdi);
+extern unsigned long long __fixunsdfdi(double a);
+
+long long __fixdfdi(double a)
+{
+    if (a < 0)
+        return -__fixunsdfdi(-a);
+    return __fixunsdfdi(a);
+}

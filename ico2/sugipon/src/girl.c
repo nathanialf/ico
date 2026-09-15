@@ -153,7 +153,98 @@ static void dispClothes(char *gobj)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/girl", InitGirlGeo);
+typedef struct GirlWork {
+    int f0;  /* 0x00 */
+    int f4;  /* 0x04 */
+    int f8;  /* 0x08 */
+    int fC;  /* 0x0C */
+    int f10; /* 0x10 */
+    int f14; /* 0x14 */
+    int f18; /* 0x18 */
+    int f1C; /* 0x1C */
+    int f20; /* 0x20 */
+    int f24; /* 0x24 */
+    int f28; /* 0x28 */
+    int f2C; /* 0x2C */
+    int f30; /* 0x30 */
+    int f34; /* 0x34 */
+    int f38; /* 0x38 */
+    int f3C; /* 0x3C */
+    int f40; /* 0x40 */
+} GirlWork;
+
+extern int D_0063A438;
+extern char D_0061F900[];
+extern char D_004E7AC0[];
+extern char D_004E86C0[];
+extern char D_004E8EF0[];
+extern char D_004E9100[];
+extern char D_004E9520[];
+extern char D_004E9C40[];
+extern char D_004EA470[];
+extern char D_004EA8E0[];
+extern char D_004EB180[];
+extern char D_004EB240[];
+extern char D_004EB300[];
+extern char D_004EB380[];
+extern void setGirlClothSetting(int a0);
+extern void *iosMallocDebug(int heap, int size, char *file, int line);
+extern void *InitCloth4D(char *gobj, char *a1, char *a2);
+extern void *CSVSYSTEM_InitDObj(int id, char *csv);
+extern void InitMotionOrient(char *gobj, int a1, int a2, int a3, int a4, int a5);
+extern void SetLodLevel(char *gobj, int lv);
+
+void *InitGirlGeo(char *gobj, char *csv)
+{
+    GirlWork *w;
+    int p;
+    int kind;
+
+    w = iosMallocDebug(D_0063A438, 0x44, D_0061F900, 892);
+    p = *(int *)(gobj + 0x15C);
+    w->f38 = 0;
+    w->f34 = 0;
+    w->f40 = 0;
+    w->f3C = 0;
+    w->f28 = 0;
+    *(int *)(p + 0x848) = (int)setGirlClothSetting;
+    kind = *(int *)(csv + 0x30);
+    w->f24 = 0;
+    w->f30 = 0;
+    w->f2C = 0;
+    w->f20 = 0;
+    w->f18 = 0;
+    w->f14 = 0;
+    w->f8 = 0;
+    w->f10 = 0;
+    w->f0 = kind;
+    *(int *)(*(int *)(gobj + 0x15C) + 0x830) = (int)w;
+    switch (kind) {
+    case 1:
+        w->f10 = (int)InitCloth4D(gobj, D_004E9C40, 0);
+        w->f14 = (int)InitCloth4D(gobj, D_004EA470, 0);
+        w->f20 = (int)InitCloth4D(gobj, D_004EA8E0, 0);
+        break;
+    case 2:
+        break;
+    default:
+        w->f10 = (int)InitCloth4D(gobj, D_004E86C0, D_004EB240);
+        w->f8 = (int)InitCloth4D(gobj, D_004E7AC0, D_004EB180);
+        w->f14 = (int)InitCloth4D(gobj, D_004E8EF0, D_004EB240);
+        w->f18 = (int)InitCloth4D(gobj, D_004E9100, D_004EB300);
+        w->f20 = (int)InitCloth4D(gobj, D_004E9520, D_004EB380);
+        w->f24 = (int)CSVSYSTEM_InitDObj(0xC, csv);
+        w->f2C = (int)CSVSYSTEM_InitDObj(0xD, csv);
+        w->f30 = (int)CSVSYSTEM_InitDObj(0xE, csv);
+        break;
+    }
+    *(int *)(*(int *)(*(int *)(gobj + 0x15C) + 0x830) + 0x4) = 1;
+    *(int *)(*(int *)(*(int *)(gobj + 0x15C) + 0x830) + 0xC) = 1;
+    *(int *)(*(int *)(*(int *)(gobj + 0x15C) + 0x830) + 0x1C) = 1;
+    InitMotionOrient(gobj, 0x503, 0x84A, 0xC, 0x18, 0x214);
+    SetLodLevel(gobj, 2);
+    return w;
+}
 
 extern char *D_00639EA4;
 extern void HandManager(char *gobj);

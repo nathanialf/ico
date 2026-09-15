@@ -142,12 +142,17 @@ void iDisableDmac(void)
 
 /* intr.o's own file static setup (initsys.o holds the global of the name); the
    census names it and InitAlarm calls it. */
-static void setup(void)
+static void setup(int num, int addr)
 {
     __asm__ __volatile__("addiu $3, $zero, 116\n\tsyscall 0" : : : "$3", "memory");
 }
 
-SYSCALL_WRAPPER(Copy, 90)
+/* syscall 90 is Copy(dst, src, len); the leaf ignores its arguments, the
+   kernel reads them out of $a0..$a2. */
+void Copy(char *dst, char *src, int len)
+{
+    __asm__ __volatile__("addiu $3, $zero, 90\n\tsyscall 0" : : : "$3", "memory");
+}
 
 int kCopy(int *dst, int *src, unsigned int n)
 {
@@ -159,5 +164,31 @@ int kCopy(int *dst, int *src, unsigned int n)
     return 0;
 }
 
-SYSCALL_WRAPPER(GetEntryAddress, 91)
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/intr", InitAlarm);
+/* The same leaf as SYSCALL_WRAPPER, spelled out because this one takes an
+   argument and returns the kernel's $v0: syscall 91 is GetEntryAddress(num). */
+int GetEntryAddress(int num)
+{
+    __asm__ __volatile__("addiu $3, $zero, 91\n\tsyscall 0" : : : "$3", "memory");
+}
+
+extern int D_0028F470[];
+extern char D_0028ED10[];
+extern char D_0028F450[];
+extern void FlushCache(int a0);
+
+void InitAlarm(void)
+{
+    unsigned int i;
+
+    if (*(volatile int *)0x10001810 & 0x100)
+        return;
+    setup(D_0028F470[0], D_0028F470[1]);
+    Copy((char *)0x80076000, D_0028ED10, 0x740);
+    Copy((char *)0x82000, D_0028F450, 0x20);
+    FlushCache(0);
+    FlushCache(2);
+    setup(D_0028F470[2], D_0028F470[3]);
+    for (i = 2; i < 8; i++) {
+        setup(D_0028F470[i * 2], GetEntryAddress(D_0028F470[i * 2]));
+    }
+}

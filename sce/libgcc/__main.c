@@ -17,7 +17,23 @@ typedef struct {
     unsigned long long f10;
 } PCmpV2;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/__main", __do_global_dtors);
+typedef void (*func_ptr)(void);
+/* libgcc2.c's DO_GLOBAL_DTORS_BODY: the cursor is this member's own file
+   static, initialised to __DTOR_LIST__ + 1, and it lives at 0x0054CBB8. */
+extern func_ptr *D_0054CBB8[]; /* one pointer; spelled as an array so the
+                                  reference is not gp-relative, as in the
+                                  shipped member */
+/* __CTOR_LIST__ */
+extern func_ptr D_0063C5C8[];
+
+void __do_global_dtors(void)
+{
+    while (*D_0054CBB8[0]) {
+        D_0054CBB8[0]++;
+        (*(D_0054CBB8[0] - 1))();
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libgcc/__main", __do_global_ctors);
 
 extern void __do_global_ctors();

@@ -21,6 +21,23 @@ extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern void fiprintf();
 extern void abort(void);
-extern void _fwalk(int a0, void *a1);
 
-INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/fwalk", _fwalk);
+typedef struct _glue {
+    struct _glue *next; /* 0x0 */
+    int niobs;          /* 0x4 */
+    char *iobs;         /* 0x8 */
+} Glue;
+
+int _fwalk(char *ptr, int (*function)())
+{
+    char *fp;
+    int n, ret = 0;
+    Glue *g;
+
+    for (g = (Glue *)(ptr + 0x1D8); g != 0; g = g->next)
+        for (fp = g->iobs, n = g->niobs; --n >= 0; fp += 0x58)
+            if (*(short *)(fp + 0xC) != 0)
+                ret |= function(fp);
+
+    return ret;
+}
