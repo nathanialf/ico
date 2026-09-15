@@ -131,7 +131,7 @@ float *pos;
 
 extern int D_0063B13C;
 extern int D_0063C2C0;
-extern void debug_Printf(int a, int b, int c, const char *d);
+extern void debug_Printf(int a, int b, int c, const char *d, ...);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern void sceVu0Normalize(void *a0, void *a1);
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
@@ -476,8 +476,97 @@ void correct_vector(float *out, float *v)
     MatrixDrive_PopMatrix();
 }
 
-ASM_LIT4_SLOT(D_00639198, 0.2f);
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", pendulum_Process);
+extern char D_00555348[];
+extern char D_00555358[];
+extern char D_00555368[];
+extern char D_00555378[];
+extern char D_00555388[];
+extern char D_00555398[];
+extern char D_005553A8[];
+extern float GetTableSin(short a0);
+
+/* The pendulum block the chain work carries at cw+0x20; the caller hands the
+ * block itself, so the leading 0x10 bytes are the swing orient vector. */
+typedef struct {
+    /* 0x00 */ char _0[0x10];
+    /* 0x10 */ float f10;
+    /* 0x14 */ float f14;
+    /* 0x18 */ float f18;
+    /* 0x1C */ float f1C;
+    /* 0x20 */ float f20;
+    /* 0x24 */ float f24;
+    /* 0x28 */ float f28;
+    /* 0x2C */ float f2C;
+    /* 0x30 */ unsigned char f30;
+} PdlWork;
+
+/* K&R definition: ROM zero-extends the flag on entry, which a prototyped int
+ * parameter cannot do, and the file-scope extern above (int) is compatible
+ * with the promoted unsigned char. */
+void pendulum_Process(p, flag) void *p;
+
+unsigned char flag;
+
+{
+    PdlWork *w = (PdlWork *)p;
+    int up;
+
+    up = w->f24 > 0.0f ? 1 : 0;
+
+    if (D_0063B13C & 1) {
+        debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555348, w->f18);
+        if (D_0063B13C & 1) {
+            debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555358, w->f10);
+            if (D_0063B13C & 1) {
+                debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555368, w->f14);
+                if (D_0063B13C & 1) {
+                    debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555378, w->f28);
+                    if (D_0063B13C & 1) {
+                        debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555388, w->f20);
+                        if (D_0063B13C & 1) {
+                            debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555398, w->f1C);
+                            if (D_0063B13C & 1) {
+                                debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_005553A8, up);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (w->f1C > 0.0f) {
+        w->f18 = w->f18 + 1.0f;
+        if (w->f20 <= w->f18) {
+            w->f18 = 0.0f;
+        }
+
+        w->f14 = w->f14 + w->f24;
+        w->f14 = w->f14 < 0.0f ? 0.0f : (w->f2C < w->f14 ? w->f2C : w->f14);
+        w->f24 = 0.0f;
+
+        w->f10 = -GetTableSin(((int)w->f18 << 16) / (int)w->f20) * w->f14;
+
+        if (flag) {
+            if ((w->f10 < 0.0f ? -w->f10 : w->f10) < w->f28) {
+                w->f28 = w->f10 < 0.0f ? -w->f10 : w->f10;
+            }
+        }
+
+        if (w->f28 < w->f14) {
+            w->f14 = w->f14 - 0.2f;
+        }
+
+        w->f10 = w->f10 < -w->f28 ? -w->f28 : (w->f28 < w->f10 ? w->f28 : w->f10);
+
+        if (w->f20 * 0.25 < w->f18 && w->f18 < w->f20 * 0.75) {
+            w->f30 = 1;
+        } else {
+            w->f30 = 0;
+        }
+    }
+}
+
 ASM_LIT4_SLOT(D_0063919C, 3.1415927f);
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", InitChainGeo);
 
