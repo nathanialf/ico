@@ -145,7 +145,13 @@ segments:
       # preserves the type and name of any subsegment whose start offset
       # survives, so a flipped TU is not clobbered.
       - [0x0, c, sce/crt0]  # 4 funcs, vendor crt0.s (1/4 MAIN.MAP)
-      - [0x110, c, sce/libkernl/libkernl_100110]  # 177 funcs, vendor libkernl.a whole run (174/177 MAIN.MAP)
+      - [0x110, c, sce/libkernl/klib]  # 136 funcs, vendor libkernl.a member klib.o; the seven members from here to main.c tile the run at MAIN.MAP's own addresses
+      - [0x990, c, sce/libkernl/initsys]  # 3 funcs, vendor libkernl.a member initsys.o (0x74 + pad)
+      - [0xA08, c, sce/libkernl/intr]  # 13 funcs, vendor libkernl.a member intr.o (0x35C + pad); holds its own static setup
+      - [0xD68, c, sce/libkernl/thread]  # 5 funcs, vendor libkernl.a member thread.o (0x360)
+      - [0x10C8, c, sce/libkernl/kprintf]  # 8 funcs, vendor libkernl.a member kprintf.o (0x978)
+      - [0x1A40, c, sce/libkernl/diei]  # 2 funcs, vendor libkernl.a member diei.o (0x60)
+      - [0x1AA0, c, sce/libkernl/deci2]  # 10 funcs, vendor libkernl.a member deci2.o (0x1E0)
       - [0x1C80, c, ico2/common/src/main]  # 8 funcs, listing; starts with Main (main.c:1011), which the listing puts in main.c and splat had left inside the libkernl run
       - [0x25A8, c, ico2/sugipon/src/delayFreeManager]  # 3 funcs, census
       - [0x27D8, c, ico2/sugipon/src/geometryManager]  # 48 funcs, census
@@ -408,7 +414,9 @@ segments:
       - [0x167C00, c, sce/libpad/libpad]  # 29 funcs, vendor libpad.a whole run (29/29 MAIN.MAP)
       - [0x168E78, c, sce/libmc/libmc]  # 26 funcs, vendor libmc.a member libmc.o (26/26 MAIN.MAP)
       - [0x16A630, c, sce/libmpeg/libmpeg]  # 141 funcs, vendor libmpeg.a whole run (140/141 MAIN.MAP)
-      - [0x172338, c, sce/libipu/libipu]  # 70 funcs, vendor libipu.a whole run (69/70 MAIN.MAP)
+      - [0x172338, c, sce/libipu/libipu]  # 3 funcs, vendor libipu.a member libipu.o (spans 0xE8, 0x150, 0x68 tile the retail run)
+      - [0x1725D8, c, sce/libipu/ipuinit]  # 2 funcs, vendor libipu.a member ipuinit.o (0x2A0 exactly); holds its own static setD4_CHCR
+      - [0x172878, c, sce/run_272878]  # 65 funcs, NO archive in the disc maps (MAIN.MAP has no member for them, the January listing carries them beyond its .text); retail links them between libipu.a and libsndn2.a
       - [0x176AD0, c, sce/libsndn2/sound]  # 61 funcs, vendor libsndn2.a whole run (61/61 MAIN.MAP)
       - [0x1788D8, c, sce/libm/math/sf_sin]  # 1 funcs, vendor libm.a member sf_sin.o (1/1 MAIN.MAP)
       - [0x1789C8, c, sce/libm/math/wf_acos]  # 1 funcs, vendor libm.a member wf_acos.o (1/1 MAIN.MAP)
