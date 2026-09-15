@@ -1,5 +1,4 @@
 #include "common.h"
-#include "ico/types.h"
 
 extern int D_0063A7E0;
 /* INTERIM stand-in: the 2001 source declares _BrainMode_SetDirect `inline` -- the
@@ -342,7 +341,7 @@ void actEnemyAttack(volatile int a0)
 }
 
 extern void SetDirectRootPositionNoFitting(int *self, char *spill);
-extern int gamesysObjInfoPosSetStage(int w, int a1, int a2, int stage);
+extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 extern int stage_no;
 extern void RandomizeEnemy(char *self);
 extern int GetEnemyBattleType(char *self);
@@ -385,7 +384,7 @@ void actEnemyRestart(char *self, float *pos, float *dir, int kind, int mot)
     v[2] = pos[2];
     v[1] = pos[1] - 100.0f;
     SetDirectRootPositionNoFitting((int *)self, (char *)v);
-    gamesysObjInfoPosSetStage((int)self, *(int *)(sub + 0x444), 0, stage_no);
+    gamesysObjInfoPosSetStage((int *)self, *(int *)(sub + 0x444), 0, stage_no);
     switch (kind) {
     case 0:
         pos[1] = pos[1] + *(float *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x1E0) * 100.0f;
@@ -1571,7 +1570,7 @@ extern int stage_no;
 extern void RestoreReviveCount(int self);
 extern void actChangeActBrain(char *a0, void *fn, char *a2);
 extern void subEnemyBrain_Idle(volatile int a0);
-extern int gamesysObjInfoPosSetStage(int w, int a1, int a2, int stage);
+extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 extern char D_00553500[];
 extern void SetDirectRootPositionNoFitting(int *self, char *spill);
 extern void ResetEnemyPositionInfo(int *self);
@@ -1601,7 +1600,7 @@ void actEnemyNest(volatile int a0)
     *(int *)(sub + 0x440) = 0;
     x2 = a0;
     *(int *)(sub + 0x444) = 7;
-    gamesysObjInfoPosSetStage(x2, 7, 0, stg);
+    gamesysObjInfoPosSetStage((int *)x2, 7, 0, stg);
     _ACTWait(0);
 }
 

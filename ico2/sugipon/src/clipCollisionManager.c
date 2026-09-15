@@ -1,5 +1,4 @@
 #include "common.h"
-#include "ico/types.h"
 
 /* clipCollisionManager.h prototype: the inline tail's emission order */
 void *RequestClipCollision(int *a0);

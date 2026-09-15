@@ -1,6 +1,5 @@
 #include "common.h"
-#include "ico/types.h"
-#include "vu0.h"
+#include "typedef.h"
 #include "sugiCommon.h"
 
 extern char D_0061F9E0[]; /* "...sugipon/src/girlForceField.c": this TU's __FILE__ */
@@ -16,7 +15,7 @@ typedef struct GirlForceFieldWork {
 } GirlForceFieldWork;
 
 /* The 0x15C sub-object slot is a word the engine reads either as an int handle
-   or as a pointer (see include/ico/types.h GOBJ_SUB). */
+   or as a pointer (see GOBJ_SUB in ../common/include/typedef.h). */
 typedef union GObjSubSlot {
     int handle;
     void *p;

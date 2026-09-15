@@ -151,10 +151,31 @@ cannot be collapsed. Nothing else in the listing cites line 95 or 97. The line
 
 So the divergence between `subAP1BrainMain` and `GetChainCollision` is a
 source-shape problem inside one of the two hosts, not evidence of a second
-helper. Still open: which single spelling both hosts accept. The missing
-evidence is not in the listing, which carries no source text; it has to come
-from a shape that reaches rc0 in both, and `subAP1BrainMain` is still
-`INCLUDE_ASM`.
+helper.
+
+**Measured 2026-09-15, both hosts now matched C.** `subAP1BrainMain` landed, so
+the question can be put to both objects at once. It cannot be answered yet, and
+the axis is now known: it is the NUMBER of `__asm__` blocks the helper is spelt
+in, not the clobber list and not where the `qmfc2`/`mtc1` hop is pinned. Seven
+spellings were compiled against both TUs, each gated on the object's `.text`
+bytes:
+
+| spelling | `act_a_p_1.o` | `clothAnimation.o` |
+| --- | --- | --- |
+| one block, `$2` hard-wired and clobbered (the header's current body) | diff | 0 |
+| one block, same plus a `"memory"` clobber | diff | diff |
+| one block through `qmfc2`, allocated `"=r"` temp, separate `mtc1` | diff | 0 |
+| one block through `vaddz`, separate pinned `qmfc2`/`mtc1` pair | diff | diff |
+| per-instruction blocks, `VU0_LSV_R` loads, allocated hop (the `_b` body) | 0 | diff |
+| per-instruction blocks, loads without the `"memory"` clobber | 0 | diff |
+| per-instruction blocks, pinned `qmfc2`/`mtc1` pair | 0 | diff |
+
+Every multi-block form reaches rc0 in `subAP1BrainMain` and every single-block
+form reaches rc0 in `GetChainCollision`, with no overlap. Until a spelling is
+found that does both, `subAP1BrainMain` calls `distance_squared_b`, whose body
+is the multi-block form: that call is a PLACEHOLDER for the line 85-88 helper,
+not a claim that the host absorbed the line 95-98 one. The census says line 87
+and only line 87.
 
 Two pairs (53-56 vs 63-66, and 85-88 vs 95-98) emit the *same* instruction
 sequence at *different* header lines.  The line ranges are the only evidence
@@ -190,31 +211,34 @@ Four matched hosts now call it and each still assembles byte-identically
 `register float f1 __asm__("$f1")` / `register float f0 __asm__("$f0")` and
 the dead store `bits = v0;`.  All three are in the class CLAUDE.md bans.
 
-### `GetOutOutsideOfWall`: the one host that refused
+### `GetOutOutsideOfWall`: the host that refused, and no longer does
 
 `src/motionManager2`'s `GetOutOutsideOfWall` is a fifth matched host of the
-same helper, and calling `plane_distance(buf0, buf1)` there costs **+2**:
-ee-gcc inserts a `daddu v0,s0,zero` before the pair of `lqc2`s and then loads
-`lqc2 $vf2,0(v0)` where the ROM has `0(s0)`.
+line 69-72 helper. The listing is unambiguous about it: its eight rows
+`lqc2 vf1,0($sp)` through `mtc1 $v0,$f0` are attributed to
+`sugipon/../sugipon/include/sugiCommon.h:71`, with `motionManager2.c:2119` on
+the `GetGlobalWallPlane` call before them and `motionManager2.c:2120` on the
+compare after, so the developer's source called the helper here.
 
-Mechanism, measured rather than guessed.  Hand-expanding the identical helper
-body at the call site gives 0 diffs, so the extra instruction is not the
-constraint form (`"r"` + `"memory"`), the operand order, `const`-ness, or the
-result's `float` temp: all four were tried and all four still give 2.  It is
-the **inliner's parameter copy**: `&buf1` is a frame address (`sp+16`), not a
-bare register, so `expand_inline_function` forces it into a fresh pseudo for
-the `plane` parameter, and copy-propagation then fails to coalesce that pseudo
-with the `s0` the preceding `GetGlobalWallPlane` call already put the same
-address in.  The three `geometryManager` hosts do not hit it because their
-actuals are incoming *parameters*, already in hard registers.  Two other
-constraint spellings were tried and are worse, not better: an `"m"` memory
-operand gives 16 diffs there and 0/0/0 in `geometryManager`; an `"r"`+`"m"`
-pair gives 15 there and 11/13/13 in `geometryManager`.
+The host used to keep the body hand-expanded, because calling
+`plane_distance(buf0, buf1)` cost one extra `daddu v0,s0,zero`: `&buf1` is a
+frame address, not a bare register, so `expand_inline_function` forced it into
+a fresh pseudo for the `plane` parameter and copy-propagation failed to
+coalesce that pseudo with the `s0` the preceding `GetGlobalWallPlane` call had
+already put the same address in.
 
-So `GetOutOutsideOfWall` keeps the helper body hand-expanded, with a comment
-at the site naming the mechanism.  It was still worth touching: the rewrite
-dropped its two bare register pins (`register float thr __asm__("$f20")`,
-`register float dot __asm__("$f0")`) and still gates at 0.
+**That is stale as of 2026-09-15.** Commit 25683f1fd reshaped the helper into
+one `asm volatile` block with the `qmfc2`/`mtc1` hop hard-wired to `$v0` and
+declared as a clobber, and the extra copy went with it. The site now calls
+`plane_distance(buf0, buf1)` like the other four hosts and
+`motionManager2.o` is byte-identical to what the hand-expanded body produced:
+same `.text` bytes, same relocations, same `nm -n` order. The only change in
+the object file is eight bytes of `.mdebug`, the local `int t` the expansion
+needed, and `.mdebug` is not allocated and never reaches the ROM.
+
+The rewrite that first landed the hand-expansion is still worth its note: it
+dropped two bare register pins (`register float thr __asm__("$f20")`,
+`register float dot __asm__("$f0")`), both in the class CLAUDE.md bans.
 
 `src/motionManager2.c` keeps `#include "sugiCommon.h"` even though it does not
 currently call the helper: the census shows two of its functions
@@ -399,25 +423,47 @@ signature on its own. What it does settle is where each function lives and
 whether its definition exists as C yet, which is what each item below is
 gated on.
 
-- `WayLengthOfGObj_GObj` (`fumi/src/way_kidnap.c:215`, 0x00215BC8): **answered
-  as to arity, 2026-09-14.** The definition is matched C in
-  `ico2/fumi/src/way_kidnap.c` and takes two pointers,
-  `float WayLengthOfGObj_GObj(void *obj0, void *obj1)`, which is why
-  `routeSetPos` (`src/backStage`) reaches rc0 only with a second parameter and
-  the one-argument prototype sits at 6 diffs. Still to do: `backStage.c:103`
-  declares it `(int gobj0, int gobj1)` locally, so the two spellings want
-  reconciling in one gated change across both TUs.
-- `WayPointWithRangeFromPos2` (`fumi/src/way_kidnap.c:385`, 0x00215400): open.
+- `WayLengthOfGObj_GObj` (`fumi/src/way_kidnap.c:215`, 0x00215BC8): **closed
+  2026-09-15.** The definition is matched C in `ico2/fumi/src/way_kidnap.c` and
+  takes two pointers, `float WayLengthOfGObj_GObj(void *obj0, void *obj1)`.
+  `common/src/backStage.c` used to declare it locally as `(int, int)`; that
+  declaration now matches the definition and `routeSetPos` casts its two `int`
+  parameters at the call. `backStage.o` is byte-identical across the change.
+- `WayPointWithRangeFromPos2` (`fumi/src/way_kidnap.c:385`, 0x00215400): still
+  open, and nothing landed since that could close it.
   `backStageProcessOutStage` reaches rc0 only with `void *` as the second
-  parameter. The definition is still `INCLUDE_ASM` in `way_kidnap.c`, and that
-  is the missing evidence: nothing but a matched body fixes the type.
-- `gamesysObjInfoPosSetStage` (`common/src/gamesys.c:564`, 0x001B6FB8): open,
-  and the definition is matched, `int *gamesysObjInfoPosSetStage(int *self,
-  int a1, int a2, int a3)`. Three TUs declare it locally and disagree with it
-  and with each other: `fumi/src/enemy_act.c` twice as
-  `int (int, int, int, int)`, `script/src/script.c` as
-  `void (char *, int, int, int)`, `common/src/backStage.c` as
-  `void *(int, int, int, int)`. Reconciling them is a gated change in four
-  TUs, `gamesys` among them.
+  parameter, and the definition is still `INCLUDE_ASM` in `way_kidnap.c`. Only
+  a matched body fixes the type.
+- `gamesysObjInfoPosSetStage` (`common/src/gamesys.c:564`, 0x001B6FB8):
+  **closed 2026-09-15.** The definition is matched,
+  `int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)`, and the
+  six local declarations that disagreed with it and with each other
+  (`fumi/src/enemy_act.c` twice, `fumi/src/boyact.c` twice,
+  `fumi/src/act-game.c`, `script/src/e3.c`, `script/src/script.c`,
+  `common/src/backStage.c`) now all spell the definition's signature, with a
+  cast at each call site. All six objects are byte-identical across the change.
 - `LockForceGroundParent` / `UnlockForceGroundParent`: empty retail bodies, now
   declared with the GObj parameter every call site passes (commit 009da5cd1).
+
+Per-TU prototypes stay declared in the TU: the owning header is unrecoverable
+for every one of them, since a header that only declares emits no instructions
+and therefore leaves no row the listing could attribute.
+
+## The scaffolding-header migration (2026-09-15)
+
+`include/` no longer holds `r5900.h`, `vu0.h`, `ico/types.h`, `syscall.h` or
+`math_private.h`. What each held, where it went, and on what evidence is in
+`include/README.md`. Two facts belong here as well:
+
+* The listing attributes zero rows to `/usr/local/sce/ee/include`, so no SDK
+  header inlined code into the January 2002 link and every SDK call in our C
+  is a call in the ROM too.
+* Every expansion of every `VU0_*` and R5900 macro in the tree is attributed
+  by `SRCFILE.TXT` to the `.c` line that invokes it. That is what a macro
+  expansion looks like from `objdump -dl` and it rules nothing in or out about
+  the header the macro came from; it does rule out the macros having been
+  `static` helpers in one of the ten attested headers, since those would have
+  shown their own header line the way `plane_distance` does. The only
+  macro-bearing function in the tree whose rows the listing puts in a header
+  is `GetOutOutsideOfWall`, and that is the `plane_distance` call above.
+

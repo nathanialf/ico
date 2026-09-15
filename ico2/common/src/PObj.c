@@ -1,8 +1,4 @@
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
-#include "math_private.h"
 
 extern const char D_006360D8[];
 extern void debug_StdPrintfDummy();

@@ -2,8 +2,6 @@
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x101AA0..0x101C80, 10 functions. */
 #include "common.h"
-#include "syscall.h"
-#include "r5900.h"
 
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/deci2", sceDeci2Open);
 

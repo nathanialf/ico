@@ -5,9 +5,6 @@
 /* MAIN.MAP member memmove.o starts at 0x002863CC inside this file: not 8-aligned
  * in the shipped ELF, so it cannot open its own subsegment and is kept here. */
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
 
 typedef struct PObjBlk {
     char pad0[4];

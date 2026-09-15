@@ -14,7 +14,7 @@ typedef struct {
 
 extern EnemyDef D_00624880[];
 
-#include "ico/types.h"
+#include "typedef.h"
 
 extern int iosMallocDebug(int part, int size, char *file, int line);
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);

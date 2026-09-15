@@ -1,5 +1,4 @@
 #include "common.h"
-#include "vu0.h"
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetFrame);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_Init);

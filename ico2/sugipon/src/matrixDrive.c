@@ -1,7 +1,30 @@
 #include "common.h"
-#include "ico/types.h"
-#include "vu0.h"
-#include "r5900.h"
+#include "typedef.h"
+
+/* Quadword copies this TU alone issues; the wrappers shared with other
+   programmers' trees are in ../common/include/typedef.h.  dst/src are
+   implicit in $a0/$a1: each macro is the BODY of a two-pointer wrapper. */
+
+/* 64 bytes, serial form: every lq immediately followed by its sq through one
+   scratch GPR.  Trailing nop fills the jr-ra delay slot. */
+#define QCOPY64_SERIAL(scratch)                                                                    \
+    __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");                                 \
+    __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory");                                 \
+    __asm__ __volatile__("lq " scratch ", 0x10($a1)" : : : "memory");                              \
+    __asm__ __volatile__("sq " scratch ", 0x10($a0)" : : : "memory");                              \
+    __asm__ __volatile__("lq " scratch ", 0x20($a1)" : : : "memory");                              \
+    __asm__ __volatile__("sq " scratch ", 0x20($a0)" : : : "memory");                              \
+    __asm__ __volatile__("lq " scratch ", 0x30($a1)" : : : "memory");                              \
+    __asm__ __volatile__("sq " scratch ", 0x30($a0)" : : : "memory");                              \
+    __asm__ __volatile__("nop")
+/* Map $a0 into EE scratchpad (SPR) addressing by OR-ing 0x20000000, through
+   $a3.  Prelude to QCOPY64_SERIAL in CopyMatrixUncached. */
+#define MAP_A0_TO_SPR()                                                                            \
+    __asm__ __volatile__("lui $a3, 0x2000");                                                       \
+    __asm__ __volatile__("or $a0, $a0, $a3")
+/* lq/sq of 16 bytes through $a2, with the base bound from a C pointer. */
+#define LQ16_FROM(p) __asm__ __volatile__("lq $a2, 0(%0)" : : "r"(p) : "memory")
+#define SQ16_TO(p) __asm__ __volatile__("sq $a2, 0(%0)" : : "r"(p) : "memory")
 
 typedef int Qw128 __attribute__((mode(TI)));
 

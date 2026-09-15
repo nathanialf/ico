@@ -1,9 +1,6 @@
 /* Vendor SCE library member: libipu.a(libipu.o).  MAIN.MAP's member spans tile this
  * run at retail addresses (0xE8, 0x150, 0x68), VMA 0x272338..0x2725D8, 3 functions. */
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
 
 extern void setD3_CHCR(int *a0);
 extern void setD4_CHCR(int *a0);

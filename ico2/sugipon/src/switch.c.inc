@@ -1,7 +1,6 @@
 /* switch.c -- lever / switch module; #included into box.c (one box.o, listing SRCFILE.TXT). */
 
 #include "common.h"
-#include "ico/types.h"
 
 void switchOnSE(int a0)
 {

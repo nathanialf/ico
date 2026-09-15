@@ -568,7 +568,7 @@ extern void scpPlayMotDir(int a0, void *dir);
 extern void scpPlayEnd(int a0);
 extern void scpPlayStart(int a0);
 extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
-extern int gamesysObjInfoPosSetStage(int w, int a1, int a2, int stage);
+extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 extern void CheckPoint(void);
 extern int stage_no;
 
@@ -677,7 +677,7 @@ void actE3CageFallDemo(volatile int a0)
 
     gflagOn(0x17D);
 
-    gamesysObjInfoPosSetStage(D_00639EA4, *(int *)(*(int *)(D_00639EA4 + 0x164) + 0x444), 0,
+    gamesysObjInfoPosSetStage((int *)D_00639EA4, *(int *)(*(int *)(D_00639EA4 + 0x164) + 0x444), 0,
                               stage_no);
 
     CheckPoint();

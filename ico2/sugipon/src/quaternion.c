@@ -1,6 +1,5 @@
 #include "common.h"
-#include "vu0.h"
-#include "ico/types.h"
+#include "typedef.h"
 
 /* prototypes: their order is the inline tail's emission order */
 int *GetCurrentQuaternion(void);

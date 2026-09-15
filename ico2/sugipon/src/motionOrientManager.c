@@ -1,5 +1,4 @@
 #include "common.h"
-#include "ico/types.h"
 
 extern void shiftMotionData(int a0, int a1, int a2, int a3);
 

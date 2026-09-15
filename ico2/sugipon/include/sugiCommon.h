@@ -28,7 +28,7 @@
 #ifndef SUGICOMMON_H
 #define SUGICOMMON_H
 
-#include "vu0.h"
+#include "typedef.h"
 
 /* --- header lines 45-48 -------------------------------------------------
  * A one-call wrapper around the engine RNG.  Census: the `jal _GetRandom`
@@ -148,7 +148,12 @@ static __inline__ float distance_squared(const void *a, const void *b)
  * A SECOND squared-distance helper: census line 97 emits the identical
  * 8-instruction sequence.  Its one host, GetBoxHoldPoint (src/box), shows
  * rows at BOTH 87 and 97, so the two are distinct definitions rather than
- * one range.  RECONSTRUCTION — no matched host yet. */
+ * one range.  RECONSTRUCTION — no matched host yet.
+ *
+ * subAP1BrainMain calls this one as a PLACEHOLDER: its census row is line 87,
+ * i.e. the helper above, but no single spelling of that helper reaches rc0 in
+ * both act_a_p_1.c and clothAnimation.c.  The axis is the number of __asm__
+ * blocks; seven spellings measured, table in docs/HEADERS.md. */
 static __inline__ float distance_squared_b(const void *a, const void *b)
 {
     float d;

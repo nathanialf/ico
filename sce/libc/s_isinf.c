@@ -2,9 +2,6 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 /* The listing puts this source under newlib libm/math; the archive is libc.a. */
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
 
 typedef struct PObjBlk {
     char pad0[4];

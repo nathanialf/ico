@@ -1,8 +1,4 @@
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
-#include "math_private.h"
 
 typedef struct PObjGObj {
     /*0x00*/ char pad00[0x4];

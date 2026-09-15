@@ -1,10 +1,11 @@
 /* libgraph.a member graph014.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
-#include "math_private.h"
+
+/* R5900 opcodes with no C spelling.  This member's uses stand for a
+   Sony-internal header this tree cannot name: MAIN.MAP attests archives and
+   their members, never a header, so the definition is kept per member. */
+#define SYNC() __asm__ __volatile__("sync" : : : "memory")
 
 int sceGsSetDefAlphaEnv(long long *a0, int a1)
 {

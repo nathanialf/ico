@@ -1,9 +1,6 @@
 /* libc.a member fwalk.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-#include "r5900.h"
-#include "vu0.h"
-#include "math_private.h"
 
 typedef struct PObjBlk {
     char pad0[4];

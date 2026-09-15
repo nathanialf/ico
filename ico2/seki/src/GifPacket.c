@@ -1,5 +1,5 @@
 #include "common.h"
-#include "vu0.h"
+#include "typedef.h"
 
 typedef struct {
     int a, b, c, d;

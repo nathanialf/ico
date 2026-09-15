@@ -1,6 +1,20 @@
 #include "common.h"
-#include "vu0.h"
-#include "r5900.h"
+#include "typedef.h"
+
+/* Quadword copy of 64 bytes, parallel form: four lq into four distinct
+   scratch GPRs, then four sq.  The latency-hiding shape the ROM uses in
+   _CopyMatrix.  Only this TU has it, so it is defined here rather than in
+   ../common/include/typedef.h with the wrappers other trees share. */
+#define QCOPY64_PARALLEL(s0, s1, s2, s3)                                                           \
+    __asm__ __volatile__("lq " s0 ", 0($a1)" : : : "memory");                                      \
+    __asm__ __volatile__("lq " s1 ", 0x10($a1)" : : : "memory");                                   \
+    __asm__ __volatile__("lq " s2 ", 0x20($a1)" : : : "memory");                                   \
+    __asm__ __volatile__("lq " s3 ", 0x30($a1)" : : : "memory");                                   \
+    __asm__ __volatile__("sq " s0 ", 0($a0)" : : : "memory");                                      \
+    __asm__ __volatile__("sq " s1 ", 0x10($a0)" : : : "memory");                                   \
+    __asm__ __volatile__("sq " s2 ", 0x20($a0)" : : : "memory");                                   \
+    __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory");                                   \
+    __asm__ __volatile__("nop")
 
 extern float GetTableCos(short a0);
 extern float GetTableSin(int x);
