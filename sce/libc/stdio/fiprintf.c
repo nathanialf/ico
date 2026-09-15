@@ -21,8 +21,14 @@ typedef struct {
 
 extern int D_0054CEAC[];
 extern char D_00637E38[];
-extern void fiprintf();
+extern int fiprintf(void *fp, void *fmt, ...);
 extern void abort(void);
+extern int vfiprintf(void *fp, void *fmt, void *args);
 
-INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/fiprintf", fiprintf);
+int fiprintf(void *fp, void *fmt, ...)
+{
+    void *args = (char *)__builtin_next_arg(fmt) - 0x30;
+    return vfiprintf(fp, fmt, args);
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/fiprintf", memcmp);

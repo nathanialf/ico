@@ -21,7 +21,30 @@ void sceIpuStopDMA(void *a0)
     ((int *)a0)[8] = *(volatile int *)0x10002010;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libipu/libipu", sceIpuRestartDMA);
+void sceIpuRestartDMA(void *a0)
+{
+    int *p = (int *)a0;
+    unsigned int bp = p[7];
+    int cmd = bp & 0x7F;
+    int n = ((bp >> 16) & 3) + ((bp >> 8) & 0xF);
+    int madr = p[0] - (n << 4);
+    int qwc = p[2] + n;
+
+    if (p[4] != 0 && p[5] != 0) {
+        *(volatile int *)0x1000B010 = p[4];
+        *(volatile int *)0x1000B020 = p[5];
+        setD3_CHCR((int *)(p[6] | 0x100));
+    }
+    while (*(volatile int *)0x10002010 < 0) {}
+    *(volatile int *)0x10002000 = cmd;
+    while (*(volatile int *)0x10002010 < 0) {}
+    if (madr != 0 && qwc != 0) {
+        *(volatile int *)0x1000B410 = madr;
+        *(volatile int *)0x1000B430 = p[1];
+        *(volatile int *)0x1000B420 = qwc;
+        setD4_CHCR((int *)(p[3] | 0x100));
+    }
+}
 
 int sceIpuSync(int a0)
 {

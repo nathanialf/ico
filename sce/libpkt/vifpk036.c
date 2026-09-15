@@ -10,4 +10,15 @@ typedef struct {
     int *cur;
 } Pool241748;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libpkt/vifpk036", sceVif1PkEnd);
+extern int *sceVif1PkTerminate(int **a0);
+
+void sceVif1PkEnd(int **a0, int a1)
+{
+    int *p;
+    a0[2] = sceVif1PkTerminate(a0);
+    p = a0[0];
+    *p++ = a1 | 0x70000000;
+    a0[3] = 0;
+    a0[0] = p + 1;
+    *p = 0;
+}
