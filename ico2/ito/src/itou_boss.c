@@ -71,7 +71,6 @@ void bossCtrlBeforeFunc(char *self)
 
 extern unsigned char D_006E9A30[];
 extern int stage_no;
-extern float D_006392A0;
 extern void _ACTSetEnemyDisappearSpeed(void *a0, float speed);
 extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, float f, int a1);
 
@@ -105,7 +104,7 @@ void BossEnemyFunc(void *self)
         case 927:
         case 928:
         case 929:
-            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, D_006392A0, 0);
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 1.2f, 0);
             break;
         }
     }

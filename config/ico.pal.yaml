@@ -728,7 +728,9 @@ segments:
       - [0x539200, .lit4, ico2/omori/src/hand-camera]  # carved D_00639200..D_00639228 (11 words: three slots for the still-asm RotateAccordingToStick_PatternThree, SetCurrentInfo's seven literals (pi x3, +/-1.4835298 x2), one slot for the still-asm HandyCamera_TargetMoveType), VMA 0x639200..0x63922C
       - [0x53922C, lit4, cod/53922C]     # .lit4 blob resume (lws_kyomi's word before act_bird's run)
       - [0x539230, .lit4, ico2/ito/src/act_bird]  # carved D_00639230..D_00639290 (25 slots, 5 fns interp_vector_sa..vector_angle_degree; 8x 2*pi), VMA 0x639230..0x639294, 100 B; MAIN.MAP act_bird.o .lit4 0x64 agrees.  USA: - [0x531038, .lit4, ico2/ito/src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
-      - [0x539294, lit4, cod/539294]     # .lit4 blob resume (lightning's words)
+      - [0x539294, .lit4, ico2/ito/src/gather_effect]  # carved D_00639294..D_0063929C (3 slots beside the still-asm GatherEffect_Proc: 0.98f, 0.5235988f, 0.02f; the TU's whole pool), VMA 0x639294..0x6392A0, 12 B
+      - [0x5392A0, .lit4, ico2/ito/src/itou_boss]  # carved D_006392A0 (1 word, 1.2f, the play-speed ratio actBossCtrlStart passes, written as a literal; the TU's whole pool), VMA 0x6392A0..0x6392A4, 4 B
+      - [0x5392A4, .lit4, ico2/ito/src/lightning]  # carved D_006392A4..D_006392BC (7 slots beside the still-asm DrawLightning2, one per use site in ROM order: 2pi, 10430.378f, pi/2, pi/2, 10430.378f, 2pi, 10430.378f; the TU's whole pool), VMA 0x6392A4..0x6392C0, 28 B
       - [0x5392C0, .lit4, ico2/ito/src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: Debug_StickControl, QueenGeo, QueenBarrierGeo and its WrapRad expansions as literals, QueenBallGeo's 5000 now compiler-emitted; TU fully C), VMA 0x6392C0..0x639324
       - [0x539324, lit4, cod/539324]     # .lit4 blob resume (queen_barrier_disp's words)
       - [0x539328, .lit4, ico2/ito/src/stage_orient]  # carved D_00639328 (1 word, StageOrientGet2's literal; the TU is fully C), VMA 0x639328..0x63932C
