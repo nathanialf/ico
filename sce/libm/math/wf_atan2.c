@@ -18,7 +18,6 @@ struct exception {
 };
 
 extern const int D_006379C8[]; /* _LIB_VERSION */
-extern char D_006374C0[];      /* "atan2f" */
 extern float __ieee754_atan2f(float y, float x);
 extern int isnanf(float x);
 extern int matherr(struct exception *e);
@@ -36,7 +35,7 @@ float atan2f(float y, float x)
         exc.arg1 = y;
         exc.arg2 = x;
         exc.type = 1;
-        exc.name = D_006374C0;
+        exc.name = "atan2f";
         exc.err = 0;
         exc.retval = 0.0;
         if (D_006379C8[0] == 2)

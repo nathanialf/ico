@@ -18,7 +18,6 @@ struct exception {
 };
 
 extern const int D_006379C8[]; /* _LIB_VERSION */
-extern char D_006374B0[];      /* "acosf" */
 extern float __ieee754_acosf(float x);
 extern int isnanf(float x);
 extern float fabsf(float x);
@@ -35,7 +34,7 @@ float acosf(float x)
         return z;
     if (fabsf(x) > 1.0f) {
         exc.type = 1;
-        exc.name = D_006374B0;
+        exc.name = "acosf";
         exc.err = 0;
         exc.arg1 = exc.arg2 = x;
         exc.retval = 0.0;

@@ -24,11 +24,6 @@ struct exception {
 #define EDOM 33
 
 extern const int D_006379C8[];
-/* The wrapper's name string, "asinf".  It stays a reference to the shared
-   .rodata run: written as a C literal the -G 8 compiler emits it into this
-   object's .sdata, where the ROM keeps it in .rodata at 0x006374B8, so the
-   literal cannot be carved back to its own address yet. */
-extern char D_006374B8[];
 extern float __ieee754_asinf(float x);
 extern int isnanf(float x);
 extern float fabsf(float x);
@@ -46,7 +41,7 @@ float asinf(float x)
     if (fabsf(x) > (float)1.0) {
         /* asinf(|x|>1) */
         exc.type = DOMAIN;
-        exc.name = D_006374B8;
+        exc.name = "asinf";
         exc.err = 0;
         exc.arg1 = exc.arg2 = (double)x;
         exc.retval = 0.0;

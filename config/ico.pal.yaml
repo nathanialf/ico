@@ -685,6 +685,11 @@ segments:
       - [0x522E10, rodata, cod/522E10]   # .rodata blob resume
       - [0x523428, .rodata, ico2/ito/mpeg/mv_vibuf]  # carved D_00623428 "../ito/include/mv_defs.h" + D_00623448 "p != NULL" (mv_defs.h alloc_zeroed's literals, 8-aligned), VMA 0x623428..0x623458, 48 B; the TU's own rodata run, mirror of mv_vobuf's
       - [0x523458, rodata, cod/523458]   # .rodata blob resume (viBufAddDMA's string)
+      - [0x5374B0, .rodata, sce/libm/math/wf_acos]  # the wrapper's own name string "acosf" (8 B with pad), VMA 0x6374B0..0x6374B8; the four libm wrappers' strings sit in object order acos, asin, atan2, fmod
+      - [0x5374B8, .rodata, sce/libm/math/wf_asin]  # "asinf" (8 B), VMA 0x6374B8..0x6374C0
+      - [0x5374C0, .rodata, sce/libm/math/wf_atan2]  # "atan2f" (8 B), VMA 0x6374C0..0x6374C8
+      - [0x5374C8, .rodata, sce/libm/math/wf_fmod]  # "fmodf" (8 B) then the 0.0/0.0 NaN double 0x7FF8000000000000 fmodf returns, VMA 0x6374C8..0x6374D8, 16 B
+      - [0x5374D8, rodata, cod/5374D8]   # .rodata blob resume
       - [0x538B00, lit4, cod/538B00]     # .lit4
       # --- per-TU .lit4 constant-pool carves (see docs/NOTES.md ".lit4 pools",
       # docs/carve_ledger.md "PAL phase 1").  A TU that writes its float

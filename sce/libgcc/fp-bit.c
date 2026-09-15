@@ -26,9 +26,6 @@ INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", __unpack_f);
 extern int __pack_f(void *s);
 extern void __unpack_f(void *in, void *out);
 
-/* The single-float number in unpacked form.  FRAC_NBITS is 32, NGARDS is 7,
-   so the implicit one sits at bit 30 and the overflow bit at bit 31.  The
-   file static shares its name with the double build's global in dp-bit.o. */
 #define CLASS_SNAN 0
 #define CLASS_QNAN 1
 #define CLASS_ZERO 2
@@ -43,6 +40,10 @@ typedef struct {
     int normal_exp;
     unsigned int fraction;
 } fp_number_type;
+
+/* The single-float number in unpacked form.  FRAC_NBITS is 32, NGARDS is 7,
+   so the implicit one sits at bit 30 and the overflow bit at bit 31.  The
+   file static shares its name with the double build's global in dp-bit.o. */
 
 /* the quiet NaN this build hands back for inf - inf */
 extern char D_736188[];
@@ -265,7 +266,35 @@ int fpcmp(float a0, float a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", sitofp);
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", fptosi);
+
+int fptosi(float arg_a)
+{
+    fp_number_type a;
+    float au[4];
+    int tmp;
+
+    au[0] = arg_a;
+    __unpack_f(au, &a);
+
+    if (iszero(&a)) {
+        return 0;
+    }
+    if (isnan(&a)) {
+        return 0;
+    }
+    if (isinf(&a)) {
+        return a.sign ? (-0x7FFFFFFF) - 1 : 0x7FFFFFFF;
+    }
+    if (a.normal_exp < 0) {
+        return 0;
+    }
+    if (a.normal_exp > 30) {
+        return a.sign ? (-0x7FFFFFFF) - 1 : 0x7FFFFFFF;
+    }
+    tmp = a.fraction >> (30 - a.normal_exp);
+    return a.sign ? -tmp : tmp;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", fptoui);
 
 int __negsf2(float f12)
