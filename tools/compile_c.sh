@@ -129,140 +129,34 @@ fi
 # single-jtbl TUs and on .s files with no `.rdata`/jtbl blocks.
 "${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}"
 
-# Each runs whole-TU unless its config line carries `@func_<hex>` tokens, in
-# (the per-function scoped variant was retired with the allowlists) — so a
-# postprocess added for one func in a coalesced TU can't rewrite its siblings.
-# Promote gcc's `#nop` hazard-hint comment after an FCC compare to a real `nop`
-# when the following branch sits in a `.set noreorder` block — ee-as 2.96 ignores
-# the comment, so the R5900 FCC-update hazard slot would otherwise be unfilled.
-# Universal assembler-adaptation (retired postprocess_fcc_nop.py + its allowlist),
-# same category as the move→daddu / break sed rewrites below.
-awk '
-{ ln[NR]=$0 }
-END { i=1; while (i<=NR) { print ln[i];
-  if (ln[i] ~ /^[ \t]*c\.(lt|le|eq)\.[sd]([ \t]|$)/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
-    j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
-    if (j<=NR && ln[j] ~ /^[ \t]*\.set[ \t]+noreorder([ \t]|$)/) { print "\tnop"; i+=2; continue } }
-  i++ } }' "${S}" > "${S}.fcc" && mv "${S}.fcc" "${S}"
-
-# COP1-move (mfc1 / mtc1) hazard, opposite of the FCC case above. gcc emits an
-# `mfc1 $r,$f` (move-out) OR `mtc1 $r,$f` (move-in) immediately followed by a
-# `#nop` COMMENT and then the DEPENDENT instruction it scheduled into that hazard
-# slot. The period assembler (ee-as 2.9-991111) and the ROM leave the dependent
-# insn directly after the move (the R5900 interlocks the COP1 move — verified: the
-# ROM has `mfc1;daddu` and `mtc1;c.lt.s` adjacent), but ee-as 2.96 / modern gas in
-# `.set reorder` mode FILL that slot with a real nop. The `#nop` comment is gcc's
-# marker that the slot is already filled — distinct from the cases where gcc emits
-# a REAL `nop` it couldn't fill (those stay, e.g. the 71 ROM `mfc1;nop` sites).
-# Wrap the move + its dependent use in `.set noreorder` so modern gas does NOT
-# insert the spurious nop; under the period assembler the wrap is a byte no-op.
-# Universal assembler-adaptation (same category as the FCC / jr-fp / move→daddu
-# rewrites). Fixes coalesced TUs (e.g. PObj) whose VU0 siblings force the modern-as
-# fallback so the period assembler can't be used wholesale, and FP compares whose
-# 0.0 operand is materialized via `mtc1 $0,$fN` (e.g. stage_DispAnimation).
-awk '
-{ ln[NR]=$0 }
-END { nr=0; seen=0; i=1; while (i<=NR) {
-  # Track gcc-emitted .set state + whether a real insn has appeared in the
-  # current reorder region (gas resets its pipeline model at region entry and
-  # at every label/branch target).
-  if (ln[i] ~ /\.set[ \t]+noreorder/) { nr=1; print ln[i]; i++; continue }
-  if (ln[i] ~ /\.set[ \t]+reorder/)   { nr=0; seen=0; print ln[i]; i++; continue }
-  if (ln[i] ~ /:[ \t]*$/)             { seen=0; print ln[i]; i++; continue }
-
-  # Case 1 (existing): m[ft]c1 + `#nop` marker + the dependent insn gcc
-  # scheduled into the COP1-move hazard slot.
-  if (ln[i] ~ /^[ \t]*m[ft]c1[ \t]/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
-    j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
-    if (j<=NR && ln[j] !~ /^[ \t]*\./ && ln[j] !~ /:[ \t]*$/ && ln[j] !~ /^[ \t]*[bj][a-z0-9]*[ \t]/) {
-      # Same label look-ahead as Case 2: when the dependent insn is an FCC
-      # compare and the next real line is a label, the period assembler
-      # flushes the FCC hazard at the label with a nop; wrapping would hide it.
-      m=j+1; while (m<=NR && ln[m] ~ /^[ \t]*(#|$)/) m++;
-      if (!(ln[j] ~ /^[ \t]*c\.(eq|lt|le)\.[sd][ \t]/ && m<=NR && (ln[m] ~ /:[ \t]*$/ || ln[m] ~ /^[ \t]*\./))) {
-      print "\t.set noreorder"; print ln[i]; print ln[j]; print "\t.set reorder";
-      nr=0; seen=0; i=j+1; continue } } }
-
-  # Case 2 (new): a marker-less `mtc1` that is the FIRST real insn of a reorder
-  # region (or first after a label/branch-target), immediately followed by a
-  # dependent `cvt.*` OR FCC compare `c.{eq,lt,le}.s`. gas-2.96 has no pipeline
-  # state there and inserts a spurious COP1-move hazard nop; the period assembler
-  # / ROM leave the pair adjacent (verified universal: 840 ROM `mtc1;cvt` pairs
-  # + 342 `mtc1;c.{eq,lt,le}.s` pairs, 0 carry a nop — the c.X.s case is a 0.0
-  # operand `mtc1 $0,$fN` feeding a float compare, e.g. func_0025A968).
-  # In-pipeline (seen==1) pairs are left alone — wrapping them would be a no-op
-  # but the guard keeps the rewrite minimal. Byte no-op under the period as.
-  if (nr==0 && ln[i] ~ /^[ \t]*mtc1[ \t]/) {
-    j=i+1; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
-    if (j<=NR && ln[j] ~ /^[ \t]*(cvt\.[swd]\.[swd]|c\.(eq|lt|le)\.[sd])[ \t]/) {
-      m=j+1; while (m<=NR && ln[m] ~ /^[ \t]*(#|$)/) m++;
-      if (m>NR || (ln[m] !~ /^[ \t]*(b|j|beq|bne|beql|bnel|bgez|bgtz|blez|bltz|bc1)/ && ln[m] !~ /:[ \t]*$/ && ln[m] !~ /^[ \t]*\./)) {
-      print "\t.set noreorder"; print ln[i];
-      for (k=i+1; k<j; k++) print ln[k];
-      print ln[j]; print "\t.set reorder";
-      nr=0; seen=0; i=j+1; continue }
-      else if (ln[m] ~ /^[ \t]*b[ \t]/) {
-        tgt=ln[m]; sub(/^[ \t]*b[ \t]+/,"",tgt); sub(/[ \t].*$/,"",tgt);
-        slack=0;
-        for (t=1; t<=NR; t++) { st=ln[t]; gsub(/[ \t]/,"",st);
-          if (st==(tgt ":")) {
-            u=t+1; while (u<=NR && (ln[u] ~ /^[ \t]*(#|\.|$)/ || ln[u] ~ /:[ \t]*$/)) u++;
-            if (u<=NR && ln[u] ~ /^[ \t]*nop[ \t]*$/) slack=1;
-            break } }
-        if (slack) {
-        print "\t.set noreorder"; print ln[i];
-        for (k=i+1; k<j; k++) print ln[k];
-        print ln[m]; print ln[j]; print "\t.set reorder";
-        nr=0; seen=0; i=m+1; continue } } } }
-
-  if (ln[i] !~ /^[ \t]*(#|\.|$)/) seen=1;
-  print ln[i]; i++ } }' "${S}" > "${S}.mfc1nop" && mv "${S}.mfc1nop" "${S}"
-
-# ee-as 2.96 fills a jr/j $31 delay slot with a preceding FP store (s.s/swc1),
-# FP convert (cvt.*), or a quad/COP2 memory op (sq/sqc2/lqc2 — 0 of 48 such ROM
-# returns are filled), and any return that directly follows an inline-asm block
-# (past #NO_APP: 0 of 66 such ROM returns hold a COP2/quad op; the block's own
-# trailing nop, if any, already fills it), but the R5900 FP→return hazard means the original
-# assembler left a nop there (verified universal: 0 ROM funcs have cvt in a jr
-# delay). Wrap such a return in .set noreorder + explicit nop. Universal
-# assembler-adaptation.
-# Compiled-code rule only: the SCE library objects under sce/ (and the src/cod/vendor_*
-# runs not yet moved there) were not produced by ee-gcc, and libvu0 carries sqc2 IN its
-# return slots
-# (26 sites); they keep the pre-2026-09-05 rule (FP store/convert on the literal previous line).
-case "${SRC}" in sce/*|*/sce/*|*vendor_*) JRPAD_WIDE=0 ;; *) JRPAD_WIDE=1 ;; esac
-awk -v wide="${JRPAD_WIDE}" '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
-  if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ((ln[i-1] ~ /^[ \t]*(s\.s|swc1|cvt\.[swd]\.[swd])[ \t]/) || (wide==1 && ((ln[i-1] ~ /^[ \t]*(sqc2|lqc2|sq)[ \t]/) || (ln[i-1] ~ /^[ \t]*#NO_APP/ && i>2 && ln[i-2] !~ /^[ \t]*nop[ \t]*$/))))) {
+# The ONE remaining rewrite of compiler output. Measured 2026-09-15 by removing
+# every rule and rebuilding the tree object by object (docs/rewrite_ledger.md):
+# ee-as 2.9-991111 swaps the last instruction of a gcc inline-asm block into the
+# `jr $31` return delay slot, and the ROM never does (69 sites, 6 objects, about
+# 80 functions in ito/lightning, ito/itou_sub, seki/Matrix, sugipon/matrixDrive,
+# sugipon/quaternion, sugipon/clothAnimation). No assembler option reproduces the
+# ROM: -O0 still swaps, and -g stops the swap but also stops nop removal, which
+# changes 323 objects. The source shape that does reproduce it is in the VU0 asm
+# templates themselves, either a `.set noreorder` pair around the template body or
+# a trailing `nop` in it (both probed byte-exact), and those templates live in
+# include/vu0.h. Retire this wrap by fixing them there, not by widening it.
+# The guard skips a block that already ends in a nop: that nop is the swap
+# candidate and fills the slot on its own.
+# ROM proves this is a per-TU source fact, not a global assembler fact: the SDK's
+# own sce/libvu0 carries `sqc2` IN its return delay slots at 26 sites, exactly
+# what the raw toolchain produces, while the game's ico2 TUs never do. The two
+# were built from differently spelled VU0 asm templates; our single
+# include/vu0.h spells only one of them, so the sce tree is excluded here.
+case "${SRC}" in sce/*|*/sce/*|*vendor_*) JRAPP=0 ;; *) JRAPP=1 ;; esac
+awk -v app="${JRAPP}" '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
+  if (app==1 && (ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>2 && ln[i-1] ~ /^[ \t]*#NO_APP/ && ln[i-2] !~ /^[ \t]*nop[ \t]*$/) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
-  } else print ln[i]; i++ } }' "${S}" > "${S}.jrfp" && mv "${S}.jrfp" "${S}"
+  } else print ln[i]; i++ } }' "${S}" > "${S}.jrapp" && mv "${S}.jrapp" "${S}"
 
-# A `j <func>` TAIL CALL with a preceding unaligned store (sdl/sdr/swl/swr): ee-as
-# 2.96 and modern-as both hoist that store into the j delay slot, but the original
-# assembler left it nop (verified universal: 0 of 783 ROM tail-calls carry an
-# unaligned store in the delay — see the assembler note above). Wrap the tail call in
-# .set noreorder + explicit nop so the store stays BEFORE the j and the delay is
-# nop — universally and per-FUNCTION (the `.set` pair is local), so it does NOT
-# require switching the whole TU to ee-as (which regresses modern-as-matched
-# siblings, e.g. fieldCollision). Assembler-parity, byte-correct everywhere.
-awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
-  if ((ln[i] ~ /^[ \t]*j[ \t]+[A-Za-z_.]/) && i>1 && ln[i-1] ~ /^[ \t]*(sdl|sdr|swl|swr)[ \t]/) {
-    print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
-  } else print ln[i]; i++ } }' "${S}" > "${S}.jtc" && mv "${S}.jtc" "${S}"
-
-
-# ee-gcc emits `move $r,$s` for parameter-passing moves. ee-as 2.10
-# encodes `move` as `daddu $r,$s,$0` (function code 0x2D); modern gas
-# encodes `move` as `or $r,$s,$0` (function code 0x25). Original ELF
-# uses daddu encoding. Force daddu explicitly so both assemblers agree.
-sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/daddu \1,\2,$0/g' "${S}"
-
-# ee-gcc emits a single-operand `break 7` for its integer divide-by-zero
-# trap. ee-as 2.10 puts that code in the LOW field (break 0,7 → 0x000001cd,
-# the original ELF's encoding); modern gas puts a single operand in the HIGH
-# field (0x0007000d). Rewrite to the explicit two-operand `break 0,N` so both
-# assemblers emit the low-field encoding the ROM uses. (Already-explicit
-# `break a,b` from INCLUDE_ASM'd .s has a comma and is left untouched.)
-sed -i -E 's/\bbreak[[:space:]]+(0x[0-9a-fA-F]+|[0-9]+)[[:space:]]*$/break 0,\1/' "${S}"
+# `move` and `break N` need no rewrite: ee-as 2.9-991111 already encodes `move`
+# as `daddu $r,$s,$0` and puts a single-operand `break N` code in the LOW field,
+# both the ROM's encodings. The two sed rewrites that forced them (24057 and 349
+# sites) were measured byte-dead on the whole tree and dropped 2026-09-15.
 
 # `cvt.w.s` is assembled by the period assembler itself: ee-as 2.9-991111 emits the
 # ROM's COP1 word (function 0x24, which modern objdump prints as trunc.w.s). The
