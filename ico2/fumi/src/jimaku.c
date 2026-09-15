@@ -31,8 +31,8 @@ struct jWayGroup { /* D_006C1E80 element, stride 0x18 */
     int f4;
     int f8;
     int fC;
-    struct jNode *node;
-    char _14[4];
+    struct jWayGroup *node; /* the next group in the ring */
+    char *buf;              /* 0x14 its 0x8C40 read buffer */
 };
 
 extern void iosCdvdBackGroundMgrSeek(char *self, int val);
@@ -145,7 +145,75 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/jimaku", jimakuHandler);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/jimaku", jimakuMgrBegin);
+
+extern char D_006C1F00[][0x8C40];
+extern void iosSemaCreate(void *sem, int a1, int a2, int a3);
+extern int NonLinearCameraMove;
+extern int D_0063AA00;
+extern char D_0055FBD0[][32];
+extern int iosCdvdBackGroundMgrAdd();
+extern int jimakuHandler(int self, struct jArg *p);
+
+void jimakuMgrBegin(struct jArg *p)
+{
+    struct jSub *sub = &p->sub;
+    int st = 0;
+    int i;
+    struct jWayGroup *g;
+
+    if (D_0028F4C0[10] != 0) {
+        return;
+    }
+    D_0028F4C0[10] = 1;
+    iosSemaCreate(D_006E5000, 0, 1, 0);
+    iosSemaCreate(D_006E5038, 0, 1, 0);
+    iosSemaCreate(D_006E5070, 0, 1, 0);
+    for (i = 0; i < 4; i++) {
+        g = &D_006C1E80[i];
+        g->node = &D_006C1E80[(i + 1) % 4];
+        g->buf = D_006C1F00[i];
+    }
+    sub->n = 0;
+    D_006C1E80[0].f0 = -1;
+    D_006C1E80[0].f4 = 3;
+    D_006C1E80[0].f8 = -1;
+    sub->field34 = 1;
+    switch (NonLinearCameraMove) {
+    case 2:
+        st = 0;
+        break;
+    case 3:
+        st = 2;
+        break;
+    case 4:
+        st = 4;
+        break;
+    case 5:
+        st = 6;
+        break;
+    case 6:
+        st = 8;
+        break;
+    }
+    if (D_0063AA00 != 0) {
+        st = st + 1;
+    }
+    sub->field40 = (void *)iosCdvdBackGroundMgrAdd(D_0055FBD0[st], jimakuHandler, p, 0, 0, 0, 0, 0);
+    {
+        struct jSub *q = &p->sub;
+        int m;
+
+        iosCdvdBackGroundMgrSeek(q->field40, q->field2C * 0x8800);
+        m = (q->field34 = (q->n + 1) % 4);
+        while (m != q->n) {
+            D_006C1E80[m].f0 = -1;
+            D_006C1E80[m].f4 = 3;
+            D_006C1E80[m].f8 = -1;
+            m = (m + 1) % 4;
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/jimaku", jimakuMgrNext);
 
 void jimakuMgrJump(struct jArg *p)

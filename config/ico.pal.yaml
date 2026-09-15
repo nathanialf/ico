@@ -611,6 +611,8 @@ segments:
       - [0x4535E8, rodata, cod/4535E8]   # .rodata blob resume ("**toboy " strings)
       - [0x453EB0, .rodata, ico2/fumi/src/girl_act]  # carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
       - [0x453FBC, rodata, cod/453FBC]   # .rodata blob resume (the zero pad word before the .align 3 D_00553FC0 is the blob's first word)
+      - [0x4540B0, .rodata, ico2/fumi/src/jimaku]  # carved jtbl_005540B0 (VMA 0x5540B0..0x5540C4, 20 B, 5 arms): jimakuMgrBegin's switch table, selector NonLinearCameraMove - 2, emitted by the compiled function
+      - [0x4540C4, rodata, cod/4540C4]   # .rodata blob resume (the pad word before D_005540C8)
       - [0x4547B0, .rodata, ico2/script/src/script]  # plain-rodata syms: 0x005547B0  carved jtbl_005547B0 (scpWoodSrh's 10-arm table, 0x28, 16-aligned) followed by its two doubles 916.0/325.0 (fptodp thresholds, unnamed .rodata, 8-aligned), VMA 0x5547B0..0x5547E8; the strings before and D_005547F0 after stay in the blob as externs
       - [0x4547E8, rodata, cod/4547E8]   # .rodata blob resume (8 zero pad bytes, then D_005547F0)
       - [0x4549E0, .rodata, ico2/script/src/st25a]  # plain-rodata: actSt25aElevChk's double 0.15 (8 B constant-pool operand), VMA 0x5549E0..0x5549E8, emitted by the compiled function

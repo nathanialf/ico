@@ -2,10 +2,6 @@
 
 /* The TU starts at 0x0021F060, where MAIN.MAP puts op.o: these three sit before
    the functions the listing hashes named. */
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/op", actTitleCamera2);
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/op", actOpDemo01);
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/op", actTitleShortCut);
-
 typedef struct ActMail {
     int mail;          /* 0x00 */
     void (*func)(int); /* 0x04 */
@@ -17,6 +13,117 @@ typedef struct Act {
     char unk00[0xD4]; /* 0x00 */
     ActMail *mail;    /* 0xD4 */
 } Act;
+
+/* the three functions at the head of the TU need their callees declared here,
+   above their definitions; the TU's own declaration block below repeats them */
+extern Act *actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void stage_SetAnimation(int a0, int a1, int a2);
+extern int D_0063ABA8;
+extern void *D_0063BE6C;
+extern int D_0063C4E8;
+extern void SetHandCameraLimitInDemo(int a0, int a1);
+extern void SetZoomMaxValInDemo(int a0);
+extern char *D_00639EA4;
+extern void scpPlayStart(char *gobj);
+extern char *scpSearchGobj(int id);
+extern int stage_CheckAnimationFinish(int a0);
+extern void scpFadeIn(float t);
+extern void scpAdpcmPlayRequestFunc(int kind, void *id, int a2, int a3, int a4);
+extern int enable_game_pause;
+extern int D_0063BE68;
+
+void actTitleCamera2(volatile int a0)
+{
+    int x = a0;
+
+    enable_game_pause = 1;
+
+    D_0063BE68 = 0;
+    actInitialize(a0);
+    _ACTWait(1);
+
+    while (1) {
+        switch (D_0063BE68) {
+        case 1:
+            stage_SetAnimation(0, 1, 0);
+            while (stage_CheckAnimationFinish(0) == 0) {
+                _ACTWait(1);
+            }
+            _ACTWait(1);
+            while (D_0063BE68 == 1) {
+                _ACTWait(1);
+            }
+            break;
+
+        case 2:
+            stage_SetAnimation(2, 1, 0);
+            while (stage_CheckAnimationFinish(2) == 0) {
+                _ACTWait(1);
+            }
+            _ACTWait(1);
+            while (D_0063BE68 == 2) {
+                _ACTWait(1);
+            }
+            break;
+
+        case 0:
+            stage_SetAnimation(2, 0, -1);
+            while (D_0063BE68 == 0) {
+                _ACTWait(1);
+            }
+            break;
+
+        default:
+            _ACTWait(1);
+            break;
+        }
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/ico2/script/src/op", actOpDemo01);
+
+void actTitleShortCut(volatile int a0)
+{
+    int x = a0;
+
+    D_0063ABA8 = 1;
+    actInitialize(a0);
+    _ACTWait(1);
+
+    if (D_00639EA4 != 0) {
+        scpPlayStart(D_00639EA4);
+    }
+    if (D_0063BE6C == 0) {
+        scpAdpcmPlayRequestFunc(0x38, &D_0063BE6C, 0, 0, 1);
+    }
+    stage_SetAnimation(0x23B, 1, 0x547);
+
+    SetHandCameraLimitInDemo(0, 0);
+    SetZoomMaxValInDemo(0);
+
+    *(int *)(scpSearchGobj(43) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(44) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(45) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(48) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(49) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(50) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(51) + 0x16C) = 1;
+
+    while (D_0063BE6C != 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeIn(3.0f);
+
+    while (stage_CheckAnimationFinish(0x23B) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    D_0063C4E8 = 1;
+    _ACTWait(0);
+}
 
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -42,7 +149,7 @@ extern char D_00622658[];
 extern char D_00622668[];
 extern int D_0063ABA8;
 extern int D_0063BE68;
-extern int D_0063BE6C;
+extern void *D_0063BE6C;
 extern int D_0063C4E8;
 extern int D_0063C4EC;
 extern void ResetHandCameraLimitInDemo(void);
@@ -106,7 +213,7 @@ extern void scpFadeIn(float t);
 extern int RequestStageChangeWithColor(int a0, char *a1, int a2, float a3, float a4, int r, int g,
                                        int b);
 extern int D_0063BE64;
-extern void scpAdpcmPlayRequestFunc(int kind, int *id, int a2, int a3, int a4);
+extern void scpAdpcmPlayRequestFunc(int kind, void *id, int a2, int a3, int a4);
 extern void actSt24aConte01_2(int a0);
 extern int scpAdpcmPlayRequestNum(void);
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
