@@ -75,11 +75,18 @@
 # The .align 3 mirrors what splat emits ahead of every migrated
 # block (ee-gcc pads each rodata object to 8); a block whose VMA is only
 # 4-aligned would need special handling — none exists in the current split.
+# A blob data object (splat writes `__blob = 1` under its `.include`) is one
+# whole splat-emitted section already, placed by the linker script's own
+# `(.sdata*)` / `(.data*)` / `(.rodata*)` glob for that object.  Switching its
+# dlabels into per-symbol sections would leave every one of them unmatched by
+# that glob, so guard on the marker: in a blob file dlabel only labels.
 __in_text = 0
 .macro dlabel label, visibility=global
     .if __in_text == 0
+      .ifndef __blob
         .section .rodata.\label, "a", @progbits
         .align 3
+      .endif
     .endif
     .\visibility \label
     .type \label, @object
