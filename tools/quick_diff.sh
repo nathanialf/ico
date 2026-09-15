@@ -216,29 +216,15 @@ else
     $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
 fi
 
-# Stage 1b: the only postprocesses left are the jtbl section split (placement,
-# not an instruction rewrite) and the inline-asm return wrap below. The
-# per-file gate helper qd_listed went with the rules it gated, 2026-09-15.
+# Stage 1b: the only postprocess left is the jtbl section split, which is
+# placement, not an instruction rewrite. Every rule that rewrote what ee-gcc or
+# ee-as emitted was measured byte-dead against the whole tree under the period
+# assembler and removed on 2026-09-15, the inline-asm return wrap last: its fix
+# lives in the VU0 asm template in ico2/common/include/typedef.h and in the four
+# hand-written blocks of ico2/seki/src/Matrix.c, which spell `.set noreorder` /
+# `.set reorder` around the body. Keep this file and compile_c.sh identical or
+# quick_diff lies.
 python3 "$ROOT/tools/postprocess_split_jtbls.py" "$ASM_OUT" || true
-# The ONE remaining rewrite of compiler output, mirroring tools/compile_c.sh.
-# ee-as 2.9-991111 swaps the last instruction of a gcc inline-asm block into the
-# `jr $31` return delay slot and the ROM never does; no assembler option
-# reproduces the ROM (measured 2026-09-15, docs/rewrite_ledger.md). Every other
-# pre- and post-processing rule that stood here (the FCC `#nop` promotion, the
-# COP1-move `.set noreorder` wraps, the FP-store and quad/COP2 return wraps, the
-# `j <func>` tail-call wrap, `move` to `daddu`, `break N` to `break 0,N`) was
-# measured byte-dead against the whole tree under the period assembler and is
-# gone. Keep this file and compile_c.sh identical or quick_diff lies.
-# ROM proves this is a per-TU source fact, not a global assembler fact: the SDK's
-# own sce/libvu0 carries `sqc2` IN its return delay slots at 26 sites, exactly
-# what the raw toolchain produces, while the game's ico2 TUs never do. The two
-# were built from differently spelled VU0 asm templates; our single
-# include/vu0.h spells only one of them, so the sce tree is excluded here.
-case "${NAME}" in sce/*|*/sce/*|*vendor_*) JRAPP=0 ;; *) JRAPP=1 ;; esac
-awk -v app="${JRAPP}" '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
-  if (app==1 && (ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>2 && ln[i-1] ~ /^[ \t]*#NO_APP/ && ln[i-2] !~ /^[ \t]*nop[ \t]*$/) {
-    print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
-  } else print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.jrapp" && mv "$ASM_OUT.jrapp" "$ASM_OUT"
 # `cvt.w.s` is assembled by the period assembler itself: ee-as 2.9-991111 emits the
 # ROM's COP1 word (function 0x24, which modern objdump prints as trunc.w.s). The
 # former `.word` rewrite (a modern-gas parity shim, retired with that fallback)

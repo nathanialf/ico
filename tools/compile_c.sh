@@ -129,29 +129,17 @@ fi
 # single-jtbl TUs and on .s files with no `.rdata`/jtbl blocks.
 "${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}"
 
-# The ONE remaining rewrite of compiler output. Measured 2026-09-15 by removing
-# every rule and rebuilding the tree object by object (docs/rewrite_ledger.md):
-# ee-as 2.9-991111 swaps the last instruction of a gcc inline-asm block into the
-# `jr $31` return delay slot, and the ROM never does (69 sites, 6 objects, about
-# 80 functions in ito/lightning, ito/itou_sub, seki/Matrix, sugipon/matrixDrive,
-# sugipon/quaternion, sugipon/clothAnimation). No assembler option reproduces the
-# ROM: -O0 still swaps, and -g stops the swap but also stops nop removal, which
-# changes 323 objects. The source shape that does reproduce it is in the VU0 asm
-# templates themselves, either a `.set noreorder` pair around the template body or
-# a trailing `nop` in it (both probed byte-exact), and those templates live in
-# include/vu0.h. Retire this wrap by fixing them there, not by widening it.
-# The guard skips a block that already ends in a nop: that nop is the swap
-# candidate and fills the slot on its own.
-# ROM proves this is a per-TU source fact, not a global assembler fact: the SDK's
-# own sce/libvu0 carries `sqc2` IN its return delay slots at 26 sites, exactly
-# what the raw toolchain produces, while the game's ico2 TUs never do. The two
-# were built from differently spelled VU0 asm templates; our single
-# include/vu0.h spells only one of them, so the sce tree is excluded here.
-case "${SRC}" in sce/*|*/sce/*|*vendor_*) JRAPP=0 ;; *) JRAPP=1 ;; esac
-awk -v app="${JRAPP}" '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
-  if (app==1 && (ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>2 && ln[i-1] ~ /^[ \t]*#NO_APP/ && ln[i-2] !~ /^[ \t]*nop[ \t]*$/) {
-    print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
-  } else print ln[i]; i++ } }' "${S}" > "${S}.jrapp" && mv "${S}.jrapp" "${S}"
+# No rewrite of compiler output is left. The last one was the inline-asm return
+# wrap: ee-as 2.9-991111 swaps the final instruction of a gcc inline-asm block
+# into the following `jr $31` delay slot, and the ROM has a `nop` there in all
+# 69 ico2 sites. That is a source fact, not an assembler fact, and the ROM says
+# so: sce/libvu0 carries `sqc2` in 26 of its own return slots, the raw
+# toolchain's output, so the SDK and the game were built from differently
+# spelled VU0 asm templates. The game side's template now spells `.set
+# noreorder` / `.set reorder` around its body, in ico2/common/include/typedef.h
+# and in the four hand-written blocks of ico2/seki/src/Matrix.c, which
+# reproduces all six objects byte-identical with no rewrite at all. libvu0's
+# own copy of the macros stays raw.
 
 # `move` and `break N` need no rewrite: ee-as 2.9-991111 already encodes `move`
 # as `daddu $r,$s,$0` and puts a single-operand `break N` code in the LOW field,

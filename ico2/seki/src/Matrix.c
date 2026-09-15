@@ -555,7 +555,8 @@ void _PopVu0Registers(void)
 
 inline void _NormalizeVector(void *p0, void *p1, void *p2)
 {
-    __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
+    __asm__ __volatile__(".set noreorder\n\t"
+                         "lqc2 $vf1, 0x0(%1)\n\t"
                          "vmul.xyz $vf3, $vf1, $vf1\n\t"
                          "vmulax.w ACC, $vf0, $vf3x\n\t"
                          "vmadday.w ACC, $vf0, $vf3y\n\t"
@@ -564,6 +565,7 @@ inline void _NormalizeVector(void *p0, void *p1, void *p2)
                          "vwaitq\n\t"
                          "vmulq.xyz $vf1, $vf1, Q\n\t"
                          "sqc2 $vf1, 0x0(%0)"
+                         "\n\t.set reorder"
                          :
                          : "r"(p0), "r"(p1)
                          : "memory");
@@ -584,12 +586,14 @@ inline void _InnerProduct(void *p0, void *p1, void *p2)
 
 inline void _OuterProduct(void *p0, void *p1, void *p2, void *p3)
 {
-    __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
+    __asm__ __volatile__(".set noreorder\n\t"
+                         "lqc2 $vf1, 0x0(%1)\n\t"
                          "lqc2 $vf2, 0x0(%2)\n\t"
                          "vopmula.xyz ACC, $vf1, $vf2\n\t"
                          "vopmsub.xyz $vf3, $vf2, $vf1\n\t"
                          "vsub.w $vf3, $vf3, $vf3\n\t"
                          "sqc2 $vf3, 0x0(%0)"
+                         "\n\t.set reorder"
                          :
                          : "r"(p0), "r"(p1), "r"(p2)
                          : "memory");
@@ -839,7 +843,8 @@ inline void _ApplyMatrix(void *p0, void *p1, void *p2, void *p3)
 
 inline void _UnitMatrix(void *p0)
 {
-    __asm__ __volatile__("vmove.xyzw $vf17, $vf0\n\t"
+    __asm__ __volatile__(".set noreorder\n\t"
+                         "vmove.xyzw $vf17, $vf0\n\t"
                          "vmr32.xyzw $vf16, $vf17\n\t"
                          "vmr32.xyzw $vf15, $vf16\n\t"
                          "vmr32.xyzw $vf14, $vf15\n\t"
@@ -847,6 +852,7 @@ inline void _UnitMatrix(void *p0)
                          "sqc2 $vf15, 0x10(%0)\n\t"
                          "sqc2 $vf16, 0x20(%0)\n\t"
                          "sqc2 $vf17, 0x30(%0)"
+                         "\n\t.set reorder"
                          :
                          : "r"(p0)
                          : "memory");
@@ -895,7 +901,8 @@ inline void _TransposeMatrix(void *dst, void *src)
 
 inline void _InversMatrix(void *dst, void *src)
 {
-    __asm__ __volatile__("lq $t0, 0x0(%1)\n\t"
+    __asm__ __volatile__(".set noreorder\n\t"
+                         "lq $t0, 0x0(%1)\n\t"
                          "lq $t1, 0x10(%1)\n\t"
                          "lq $t2, 0x20(%1)\n\t"
                          "lqc2 $vf4, 0x30(%1)\n\t"
@@ -921,6 +928,7 @@ inline void _InversMatrix(void *dst, void *src)
                          "sq $t1, 0x10(%0)\n\t"
                          "sq $t2, 0x20(%0)\n\t"
                          "sqc2 $vf4, 0x30(%0)"
+                         "\n\t.set reorder"
                          :
                          : "r"(dst), "r"(src)
                          : "$8", "$9", "$10", "$11", "$12", "$13", "$14", "$15", "memory");

@@ -317,9 +317,18 @@ struct Obj7F0 {
  *  shows up in 3+ functions, lift it into a new typed macro here.
  */
 
-/* Escape-hatch macros (raw asm string).  Use sparingly. */
-#define VU0_MEM(insn)   __asm__ __volatile__(insn : : : "memory")
-#define VU0_REG(insn)   __asm__ __volatile__(insn)
+/* Escape-hatch macros (raw asm string).  Use sparingly.
+ *
+ * Both bodies assemble with reordering off.  The game tree's VU0 opcodes are
+ * hand-scheduled against the COP2 pipeline, so the assembler must leave them
+ * where they are written; the visible consequence is the return of a VU0 leaf,
+ * where ee-as would otherwise swap the closing `sqc2` into the `jr $31` delay
+ * slot and the ROM has a `nop` there instead (69 sites in six objects).  The
+ * SDK's own copy of these macros in sce/libvu0/libvu0.c is deliberately not
+ * spelled this way: the ROM carries `sqc2` in 26 of that archive's return
+ * slots, so the two trees were built from differently spelled templates. */
+#define VU0_MEM(insn)   __asm__ __volatile__(".set noreorder\n\t" insn "\n\t.set reorder" : : : "memory")
+#define VU0_REG(insn)   __asm__ __volatile__(".set noreorder\n\t" insn "\n\t.set reorder")
 
 /* Memory load/store: typed forms. */
 #define VU0_LSV(mnem, vf, off, base)        VU0_MEM(#mnem " $vf" #vf ", " #off "($" #base ")")
