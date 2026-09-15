@@ -7,8 +7,8 @@ order; <ver> is the branch's target slug — `main`=pal, `ntsc`=us,
 `aug6`=aug6, resolved by tools/ico_version.py) and writes a `build.ninja`
 covering:
 
-    asm/%.s          → build/asm/%.o     via mips-as + objcopy
-    src/%.s          → build/src/%.o     via mips-as + objcopy
+    asm/%.s          → build/asm/%.o     via ee-as + objcopy
+    src/%.s          → build/src/%.o     via ee-as + objcopy
     src/%.c          → build/src/%.o     via tools/compile_c.sh
     $(ALL_OBJS) +ld  → build/ico.elf     via ld -T
     build/ico.elf    → build/ico.rom     via objcopy -O binary
@@ -80,7 +80,9 @@ SRC_RE = re.compile(rf"^build/((?:{'|'.join(SOURCE_ROOTS)})/.+)\.o$")
 
 
 def mips_prefix() -> str:
-    if shutil.which("mips64r5900el-ps2-elf-as"):
+    # Probes objcopy, not as: modern binutils supply only the link and the
+    # objcopy passes here. Every object is assembled by the period ee-as.
+    if shutil.which("mips64r5900el-ps2-elf-objcopy"):
         return "mips64r5900el-ps2-elf-"
     return "mips-linux-gnu-"
 
@@ -337,12 +339,19 @@ def emit_header(out, prefix: str) -> None:
     out.write("ninja_required_version = 1.10\n\n")
     out.write("root = .\n")
     out.write("builddir = build\n\n")
-    out.write(f"mips_as = {prefix}as\n")
     out.write(f"mips_ld = {prefix}ld\n")
-    out.write(f"mips_objcopy = {prefix}objcopy\n\n")
-    out.write(
-        "asflags = -EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -Iinclude\n\n"
-    )
+    out.write(f"mips_objcopy = {prefix}objcopy\n")
+    # ONE ASSEMBLER. The period ee-as 2.9-991111 bundled with the compiler this
+    # build uses assembles every object: the C TUs through tools/compile_c.sh,
+    # and (since 2026-09-15) the splat data blobs and the hand-written VU1
+    # microprogram `.s` too. Modern gas assembled those two classes until then,
+    # which meant the build carried a second assembler with its own delay-slot
+    # and encoding behaviour for no reason the ROM attests. Only `ld` and
+    # `objcopy` stay on modern binutils: the period toolchain ships no linker.
+    # Flags mirror compile_c.sh's EE_ASFLAGS; ee-as 2.9 has no -march/-mabi/
+    # -no-pad-sections, it takes -mcpu and pads nothing on its own.
+    out.write("ee_as = tools/cc/ee-gcc2.9-991111/bin/as\n")
+    out.write("asflags = -EL -mcpu=5900 -G 8 -Iinclude\n\n")
 
 
 def emit_rules(out) -> None:
@@ -357,14 +366,14 @@ def emit_rules(out) -> None:
 
     out.write("rule as_asm\n")
     out.write(
-        "  command = $mips_as $asflags -o $out $in && "
+        "  command = $ee_as $asflags -o $out $in && "
         "$mips_objcopy $alignflags $out\n"
     )
     out.write("  description = AS $out\n\n")
 
     out.write("rule as_hasm\n")
     out.write(
-        "  command = $mips_as $asflags -o $out $in && "
+        "  command = $ee_as $asflags -o $out $in && "
         "$mips_objcopy $alignflags $out\n"
     )
     out.write("  description = AS $out\n\n")

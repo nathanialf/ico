@@ -113,11 +113,12 @@
     )
 #endif
 
-#if INCLUDE_ASM_USE_MACRO_INC
-__asm__(".include \"include/macro.inc\"\n");
-#else
+/* The label macros. There is one dialect and one assembler: include/labels.inc
+ * speaks the period ee-as 2.9-991111's spelling, and that assembler builds
+ * every object in the tree. The modern-gas twin (include/macro.inc, selected by
+ * an INCLUDE_ASM_USE_MACRO_INC toggle) went with the last modern-gas objects on
+ * 2026-09-15. */
 __asm__(".include \"include/labels.inc\"\n");
-#endif
 
 #else
 

@@ -35,15 +35,17 @@ directory is recoverable.
 |---|---|---|
 | `common.h` | nothing of its own; pulls in `include_asm.h` | every game and SDK TU |
 | `include_asm.h` | `INCLUDE_ASM`, `INCLUDE_RODATA`, `INCLUDE_ASM_NOP_PAD`, `ASM_LIT4_SLOT`, `ASM_RODATA_LABEL` | 894 / 0 / 0 / 353 / 0 sites plus `tools/emit_run_defs.py` and `tools/format_layout.py` |
-| `labels.inc` | `glabel` and friends, period-assembler spelling | every splat `.s` |
-| `macro.inc` | the same macros, modern-gas spelling | `tools/assemble_vu0.py` |
+| `labels.inc` | `glabel` and friends, period-assembler spelling | every splat `.s`, `tools/assemble_vu0.py`, `tools/quick_diff.sh` |
 
-All four exist only because functions are still assembled: `include_asm.h` is
-the stub vehicle, `common.h` is how every TU reaches it, and the two `.inc`
-files are what the `.s` files assemble against. `labels.inc` and `macro.inc`
-are hand edited and locked by a note in `config/ico.pal.yaml`; they are not
-duplicates of each other but two assembler dialects, and `tools/quick_diff.sh`
-explains which is which.
+All three exist only because functions are still assembled: `include_asm.h` is
+the stub vehicle, `common.h` is how every TU reaches it, and `labels.inc` is
+what the `.s` files assemble against. It is hand edited and locked by a note
+in `config/ico.pal.yaml`, since splat's default regen would revert it, and it
+is the only dialect left: the modern-gas twin `macro.inc` was deleted on
+2026-09-15, when the data blobs and the VU1 microprograms moved onto the
+period assembler with every other object. A blob `.s` sets `__blob = 1` after
+including it, which keeps the file's one section instead of filing each
+`dlabel` object into its own `.rodata.<sym>`.
 
 ## The 2026-09-15 migration: five scaffolding headers moved out
 

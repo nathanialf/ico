@@ -176,6 +176,121 @@ def _splat_file(rel: str) -> Path | None:
     return cand if cand.exists() else None
 
 
+# --- one-assembler patches (2026-09-15) ---
+# The period assembler ee-as 2.9-991111 now builds EVERY object, blobs
+# included, so splat must stop emitting the modern-gas dialect:
+#
+#   * the header line. splat hard-codes `.include "macro.inc"` at the top of
+#     each standalone blob `.s` (codesubsegment's whole-file header, plus the
+#     three *bin emitters). macro.inc was the modern-gas spelling of the label
+#     macros and is deleted; the period-assembler twin is include/labels.inc.
+#     A blob is one whole section that the link script globs as one input
+#     section, so it also sets labels.inc's `__blob = 1`, which turns off the
+#     per-symbol `.rodata.<sym>` switch dlabel does for C-TU stub rodata.
+#   * `.incbin`. ee-as 2.9-991111 has no such pseudo-op (it is a later binutils
+#     addition), so the textbin emitter writes the bytes it just extracted as
+#     `.word` directives. Same bytes, no external file read at assembly time,
+#     and no cwd-relative path to resolve.
+BLOB_MARKER = "# ICO_PATCH: one assembler"
+BLOB_OLD_HEADER = "        ret.append('.include \"macro.inc\"')\n"
+BLOB_NEW_HEADER = (
+    "        ret.append('.include \"labels.inc\"')  # ICO_PATCH: one assembler\n"
+    "        ret.append('__blob = 1')\n"
+)
+BLOB_OLD_WRITE = "f.write('.include \"macro.inc\"\\n\\n')\n"
+BLOB_NEW_WRITE = (
+    "f.write('.include \"labels.inc\"\\n__blob = 1\\n\\n')  # ICO_PATCH: one assembler\n"
+)
+INCBIN_OLD = "        f.write(f'.incbin \"{binpath.as_posix()}\"\\n')\n"
+INCBIN_NEW = (
+    "        # ICO_PATCH: one assembler — ee-as 2.9-991111 has no .incbin, so the\n"
+    "        # extracted bytes go out as .word (little-endian) directives instead.\n"
+    "        _ico_blob = binpath.read_bytes()\n"
+    "        _ico_tail = len(_ico_blob) % 4\n"
+    "        for _ico_i in range(0, len(_ico_blob) - _ico_tail, 4):\n"
+    "            _ico_w = int.from_bytes(_ico_blob[_ico_i:_ico_i + 4], 'little')\n"
+    "            f.write(f'.word 0x{_ico_w:08X}\\n')\n"
+    "        for _ico_b in _ico_blob[len(_ico_blob) - _ico_tail:]:\n"
+    "            f.write(f'.byte 0x{_ico_b:02X}\\n')\n"
+)
+
+
+def patch_one_assembler() -> None:
+    """Blob `.s` files speak the period assembler's dialect (labels.inc, no .incbin)."""
+    for rel in ("segtypes/common/codesubsegment.py",
+                "segtypes/common/textbin.py",
+                "segtypes/common/databin.py",
+                "segtypes/common/rodatabin.py"):
+        f = _splat_file(rel)
+        if f is None:
+            continue
+        t = f.read_text()
+        if BLOB_MARKER in t:
+            print(f"patch_splat: {f} one-assembler already patched.")
+            continue
+        n = t
+        if BLOB_OLD_HEADER in n:
+            n = n.replace(BLOB_OLD_HEADER, BLOB_NEW_HEADER, 1)
+        if BLOB_OLD_WRITE in n:
+            n = n.replace(BLOB_OLD_WRITE, BLOB_NEW_WRITE)
+        if INCBIN_OLD in n:
+            n = n.replace(INCBIN_OLD, INCBIN_NEW, 1)
+        if n == t:
+            print(f"patch_splat: one-assembler anchors not found in {f}; skipping.",
+                  file=sys.stderr)
+            continue
+        f.write_text(n)
+        print(f"patch_splat: one-assembler dialect applied to {f}")
+
+
+# spimdisasm's `.float` line for a SUBNORMAL word. `%.10g` of the smallest
+# subnormal (0x00000001) prints as `1.401298464e-45`, and the period
+# assembler's float parser underflows that decimal to zero where modern gas
+# rounds it back up — six ROM words came out zero the first time the data blobs
+# were assembled with ee-as 2.9-991111. Every other subnormal in the split
+# happens to round-trip, but what decides it is the printed decimal rather than
+# the value, so the whole subnormal (and non-finite) class emits as a raw
+# `.word`: same bytes, no float parser in the loop. Normal floats keep
+# `.float`, which every C TU already assembles under this assembler.
+FLOAT_MARKER = "# ICO_PATCH: subnormal float"
+FLOAT_OLD = (
+    '        dotType = ".float"\n'
+    "        floatValue = common.Utils.wordToFloat(w)\n"
+    '        value = f"{floatValue:.10g}"\n'
+)
+FLOAT_NEW = FLOAT_OLD + (
+    "        # ICO_PATCH: subnormal float — the period assembler underflows the\n"
+    "        # printed decimal of a subnormal; emit the raw word instead.\n"
+    "        _ico_exp = w & 0x7F800000\n"
+    "        if (_ico_exp == 0 and (w & 0x007FFFFF) != 0) or _ico_exp == 0x7F800000:\n"
+    '            dotType = ".word"\n'
+    '            value = f"0x{w:08X}"\n'
+)
+
+
+def patch_subnormal_float() -> None:
+    """spimdisasm emits a subnormal / non-finite float word as a raw `.word`."""
+    try:
+        import spimdisasm
+    except ImportError:
+        print("patch_splat: spimdisasm not importable; skipping float patch.")
+        return
+    f = Path(spimdisasm.__file__).parent / "mips" / "symbols" / "MipsSymbolBase.py"
+    if not f.exists():
+        print(f"patch_splat: {f} missing; skipping float patch.", file=sys.stderr)
+        return
+    t = f.read_text()
+    if FLOAT_MARKER in t:
+        print(f"patch_splat: {f} subnormal-float already patched.")
+        return
+    if FLOAT_OLD not in t:
+        print(f"patch_splat: subnormal-float anchor not found in {f}; skipping.",
+              file=sys.stderr)
+        return
+    f.write_text(t.replace(FLOAT_OLD, FLOAT_NEW, 1))
+    print(f"patch_splat: subnormal-float raw word applied to {f}")
+
+
 def patch_aug6_layout() -> None:
     """aug6 byte-perfect linker layout + sub-word data tail (gated align>=0x40)."""
     le = _splat_file("segtypes/linker_entry.py")
@@ -202,6 +317,8 @@ def patch_aug6_layout() -> None:
 
 def main() -> int:
     patch_aug6_layout()
+    patch_one_assembler()
+    patch_subnormal_float()
     c_py = find_splat_c_py()
     if c_py is None:
         print("patch_splat: splat not importable; nothing to patch.")
