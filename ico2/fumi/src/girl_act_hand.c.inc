@@ -12,6 +12,15 @@ extern int _RotyGV(void *buf, void *vec);
 
 void HandMgr_Judge(void)
 {
+    /* CRUTCH: the `home = uninit` pair below is a stand-in, not source.  The
+       census labels this body HandMgr_Judge.441 -- a GNU NESTED FUNCTION of
+       actGirlHand -- and ROM homes the incoming static chain with
+       `sw $2,0($sp)`.  Measured 2026-09-14: with the whole family written as
+       nested functions inside actGirlHand this body is byte-identical (90/90
+       words) and needs no stand-in; so are HandMgr_GetDistHand (68/68),
+       HandMgr_Update (61/61), HandMgr_Print (66/66) and GetBoyMode (92/92).
+       The unit is indivisible and actGirlHand itself does not yet match, so
+       the stand-in stays.  Seed: seeds/girl_act.pass12_actGirlHandUnit.5of7_rc0.TU.c */
     volatile int home;
     int uninit;
     float one = 1.0f;

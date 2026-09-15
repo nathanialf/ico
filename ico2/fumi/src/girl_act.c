@@ -219,6 +219,56 @@ void SetTurnSpeedInEscape(char *a0)
     }
 }
 
+/* The hide/others/listB/listD object lists.  Layout derived from the ROM:
+   0x30 per entry, 100 entries per list, and the four lists sit exactly 0x12D0
+   apart inside GirlBrainWork (others 0xC90, listB 0x1F60, hide 0x3230,
+   listD 0x4500).  The `long long` at 0x08 is the alignment carrier that makes
+   the record copy come out as six ld/sd pairs rather than ldl/ldr. */
+typedef struct {
+    void *obj; /* 0x00 */
+    int _04;
+    long long _08;
+    float pos[4]; /* 0x10 */
+    float dist;   /* 0x20 */
+    int flags;    /* 0x24 */
+    int _28[2];
+} GirlListEnt;
+
+typedef struct {
+    int num; /* 0x00 */
+    char _04[0x0C];
+    GirlListEnt ent[100]; /* 0x10 */
+} GirlList;
+
+typedef struct {
+    unsigned char f_0; /* 0x00 */
+    unsigned char f_1; /* 0x01 */
+    char _2[0xC8E];
+    GirlList others; /* 0x0C90 */
+    GirlList listB;  /* 0x1F60 */
+    GirlList hide;   /* 0x3230 */
+    GirlList listD;  /* 0x4500 */
+    char _57D0[0x30];
+    float f_5800[4]; /* 0x5800 last accepted hide point    */
+    char _5810[0x10];
+    float f_5820[4]; /* 0x5820 */
+    float f_5830[4]; /* 0x5830 the girl's own position     */
+    float f_5840[4]; /* 0x5840 */
+    float f_5850[4]; /* 0x5850 */
+    char _5860[0x90];
+    unsigned char f_58F0; /* 0x58F0 */
+    char _58F1[0x07];
+    int runMode; /* 0x58F8 */
+    int wait;
+    int timer;
+    int limit;
+    char _5908[0x08];
+    int f_5910; /* 0x5910 */
+    int f_5914; /* 0x5914 */
+} GirlBrainWork;
+
+extern char D_0029D650[];
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", sort_list);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainMain_MakeOthersList);
 
@@ -272,8 +322,124 @@ int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
     return 0;
 }
 
-ASM_LIT4_SLOT(D_00638F68, 90000.0f);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainMain_CheckWarningMode);
+extern int stage_no;
+extern void *D_00639EA8;
+extern int *D_00639EA4;
+extern int ACTGameView_Check(void *self, void *target);
+extern void _girlBrainHide_MakeHidePoint(float *p, float dist);
+extern int GetWay_begin(void *pt, void *way, void *goal);
+extern void DeleteGuideWay(void *way);
+extern int ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, void *a4);
+extern float _DistSqGV(void *a, void *b);
+extern void sceVu0ScaleVector(float *dst, float *src, float scale);
+extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
+extern int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n);
+
+/* girl_brain_main.c.inc:313-317 (rows outside WayTest's span => static inline) */
+static inline void dispWayMarker(char *p)
+{
+    float buf[4];
+    sceVu0ScaleVector(buf, (float *)(p + 0x10), -1.0f);
+    debug_Marker(buf, 0xFF, 0, 0, 70.0f, 0.0f);
+}
+
+/* girl_brain_main.c.inc:325-338 (rows outside every caller's span => static
+   inline; the listing inlines it at two sites).  True when the candidate hide
+   point sits above the girl's floor by more than 100 units. */
+static inline unsigned char isHidePointTooHigh(float *p)
+{
+    GirlBrainWork *b;
+    float y;
+
+    if (stage_no == 8 || stage_no == 22) {
+        b = (GirlBrainWork *)D_0029D650;
+        y = b->f_5830[1] + 100.0f;
+        if (y < p[1] || y < b->f_5850[1]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The 0x80-byte way-parameter block the boy's sub-object carries at +0x360; ROM
+   copies it with gcc's 4x ld/sd block-move loop, i.e. a struct assignment whose
+   member type is 8 bytes wide. */
+typedef struct {
+    long long d[16];
+} GirlWayParam;
+
+/* girl_brain_main.c.inc:620-656, one call site.  `r = 0;` is a STATEMENT after the
+   struct copy, not an initialiser. */
+static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal, float *hit)
+{
+    float start[4];
+    int r = 0;
+    void *girl = D_00639EA4;
+    void *self = D_00639EA8;
+    char *sub = *(char **)((char *)self + 0x164);
+
+    *(GirlWayParam *)way = *(GirlWayParam *)(sub + 0x360);
+    if (GetWay_begin(pt, way, goal)) {
+        r = 1;
+        start[0] = pt[0];
+        start[1] = pt[1];
+        start[2] = pt[2];
+        start[1] -= 50.0f;
+        goal[1] = goal[1] - 30.0f;
+        *(int *)(way + 0x44) = 0;
+        if (ACTCheckCollis_WAY(goal, start, 10.0f, girl, hit) == 0) {
+            *(int *)(way + 0x44) = 1;
+            DeleteGuideWay(way);
+            r = 3;
+        } else if (*(int *)(way + 0x3C) == 0) {
+            r = 2;
+        }
+    }
+    return r;
+}
+
+int girlBrainMain_CheckWarningMode(unsigned char check)
+{
+    float hit[4];
+    int mode;
+    char *w = D_0029D650;
+
+    w[0x58F1] = 1;
+    if (((unsigned char *)w)[0] != 0) {
+        mode = 2;
+    } else {
+        mode = ((unsigned char *)w)[1] != 0 ? 4 : 0;
+    }
+    {
+        char *g = D_0029D650;
+
+        if (*(int *)(g + 0x3230) == 0 ||
+            (check != 0 && ACTGameView_Check(D_00639EA8, D_00639EA4) == 0)) {
+            goto out;
+        }
+        _girlBrainHide_MakeHidePoint((float *)(g + 0x5800), 200.0f);
+        dispWayMarker(g + 0x57F0);
+        if (girlBrainHide_TryWay((float *)(g + 0x5800), g + 0x5870, (float *)(g + 0x5830), hit) !=
+            3) {
+            goto out;
+        }
+    }
+    if (!isHidePointTooHigh((float *)(D_0029D650 + 0x5800)) &&
+        !girlBrainHideCheckIntercept((float *)(D_0029D650 + 0x5830), (float *)(D_0029D650 + 0x5800),
+                                     D_0029D650 + 0x3240, *(int *)(D_0029D650 + 0x3230))) {
+        mode = 3;
+    } else {
+        char *v = D_0029D650;
+
+        if (*(int *)(v + 0x1F60) != 0 && _DistSqGV(v + 0x5820, v + 0x1F80) < 90000.0f) {
+            goto out;
+        }
+        mode = 4;
+    }
+out:
+    return mode;
+}
+
 ASM_LIT4_SLOT(D_00638F6C, 160000.0f);
 ASM_LIT4_SLOT(D_00638F70, 40000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainMain_DecideMode);
@@ -292,39 +458,12 @@ void girlBrainMain_PositionUpdate(void)
     GetRootProjectionPosOfGObj(D_002A2E70 + 0x30, D_00639EA4);
 }
 
-extern char D_0029D650[];
 extern void *memset(void *dst, int c, int n);
 
 void girlBrainMain_Init(void)
 {
     memset(D_0029D650, 0, 0x5920);
 }
-
-typedef struct {
-    char _0[0xC90];
-    int f_C90; /* 0xC90 */
-    char _C94[0x0C];
-    int f_CA0; /* 0xCA0 */
-    char _CA4[0x258C];
-    int f_3230; /* 0x3230 hide-object count           */
-    char _3234[0x0C];
-    char f_3240[0x25C0]; /* 0x3240 hide-object list, 0x30/entry */
-    float f_5800[4];     /* 0x5800 last accepted hide point    */
-    char _5810[0x10];
-    float f_5820[4]; /* 0x5820 */
-    float f_5830[4]; /* 0x5830 the girl's own position     */
-    char _5840[0x10];
-    float f_5850[4]; /* 0x5850 */
-    char _5860[0x90];
-    unsigned char f_58F0; /* 0x58F0 */
-    char _58F1[0x07];
-    int runMode; /* 0x58F8 */
-    int wait;
-    int timer;
-    int limit;
-    char _5908[0x0C];
-    int f_5914; /* 0x5914 */
-} GirlBrainWork;
 
 extern float D_002A5594[];
 extern char D_0029D4A0[];
@@ -333,6 +472,16 @@ extern int rand(void);
 
 void ChangeRunMode(int mode)
 {
+    /* CRUTCH: the next three lines are a stand-in, not source.  The census
+       labels this body ChangeRunMode.252 -- make_function_rtl's rename for a
+       GNU NESTED FUNCTION -- and ROM's prologue homes the incoming static
+       chain with `sw $2,0($sp)`.  The crutch-free form is a real nested
+       definition inside its parent subGirlBrainMain (0x00171188), which is
+       still INCLUDE_ASM, so the parent must land first.  Measured 2026-09-14:
+       with the stand-in this function is rc0 (60/60 words); the stand-in's
+       `uninit` pseudo has one reference, so QTY_CMP_PRI is 0 and it loses $2
+       to any multi-ref pseudo -- that is why the stand-in closes this body but
+       not HandMgr_Print's or sort_list's. */
     volatile int home;
     int uninit;
     int n;
@@ -362,7 +511,85 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrain_Pulledup);
 
 #include "girl_brain_attract.c.inc"
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", _girlBrainHide_MakeHidePoint);
+typedef struct {
+    float a[4];   /* 0x00 start point   */
+    float b[4];   /* 0x10 end point     */
+    float pos[4]; /* 0x20 clipped point */
+    char _30[0x40];
+    float f_70; /* 0x70 radius/height */
+    char _74[0x14];
+    int f_88; /* 0x88 wall hit      */
+    char _8c[0x08];
+    int f_94; /* 0x94 floor hit     */
+    char _98[0x28];
+} ClipWork;
+
+extern void ClipWall(void *w);
+extern void ClipFloor(void *w);
+extern char D_00553A88[];
+extern char D_0063A8A0[];
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern void sceVu0Normalize(void *dst, void *src);
+extern void sceVu0ScaleVector(float *dst, float *src, float scale);
+extern void sceVu0AddVector(float *dst, float *a, float *b);
+extern void sceVu0CopyVector(void *dst, void *src);
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+
+void _girlBrainHide_MakeHidePoint(float *p, float dist)
+{
+    float v[4];
+    ClipWork work;
+    int i;
+    float total;
+    float w;
+
+    if (*(int *)(D_0029D650 + 0x3230) == 0) {
+        return;
+    }
+    p[0] = 0.0f;
+    p[1] = 0.0f;
+    p[2] = 0.0f;
+    total = p[0];
+    for (i = 0; i < *(int *)(D_0029D650 + 0x3230); i++) {
+        sceVu0SubVector(v, ((GirlBrainWork *)D_0029D650)->f_5850,
+                        ((GirlBrainWork *)D_0029D650)->hide.ent[i].pos);
+        v[1] = 0.0f;
+        sceVu0Normalize(v, v);
+        w = ((GirlBrainWork *)D_0029D650)->hide.ent[i].dist;
+        if (w < 1.0f) {
+            w = 1.0f;
+        }
+        w = 1.0f / w;
+        total += w;
+        sceVu0ScaleVector(v, v, w);
+        sceVu0AddVector(p, p, v);
+    }
+    if (total != 0.0f) {
+        sceVu0ScaleVector(p, p, dist / total);
+    } else {
+        debug_assert(D_00553A88, 1981);
+        __assert(D_00553A88, 1981, D_0063A8A0);
+    }
+    sceVu0Normalize(p, p);
+    sceVu0ScaleVector(p, p, dist);
+    sceVu0AddVector(p, ((GirlBrainWork *)D_0029D650)->f_5850, p);
+    p[1] = ((GirlBrainWork *)D_0029D650)->f_5840[1];
+    work.f_70 = 50.0f;
+    sceVu0CopyVector(work.a, ((GirlBrainWork *)D_0029D650)->f_5820);
+    sceVu0CopyVector(work.b, p);
+    ClipWall(&work);
+    work.a[0] = work.pos[0];
+    work.a[2] = work.pos[2];
+    work.b[0] = work.pos[0];
+    work.b[2] = work.pos[2];
+    work.a[1] = work.pos[1] - 200.0f;
+    work.b[1] = work.pos[1] + 200.0f;
+    ClipFloor(&work);
+    p[0] = work.pos[0];
+    p[2] = work.pos[2];
+    p[1] = work.pos[1] - 10.0f;
+}
 
 extern void GetRootMotionOrient(float *out, void *obj);
 extern int _RotyGV(void *buf, void *vec);
@@ -413,7 +640,7 @@ extern float _DistxzGV(void *a, void *b);
 extern void _OrientXZGV(void *out, void *a, void *b);
 extern void _ACTCharStatus_Set(void *obj, int id, float v, int flag);
 extern void _girlBrainHide_MakeHidePoint(float *out, float radius);
-extern int girlBrainMain_CheckWarningMode(int a0);
+extern int girlBrainMain_CheckWarningMode(unsigned char check);
 /* one object: [0] is the entry count, +0x20 the 0x30-byte hide-point records
    (ROM re-reads the count as -0x20 off the record base). */
 extern int D_0029F5B0[];
@@ -421,24 +648,6 @@ extern int D_0029F5B0[];
    D_002A2E70 + 0x10: the girl's projected ground position, with her root
    position 0x20 further on. */
 extern char D_002A2E80[];
-
-/* girl_brain_main.c.inc:325-338 (rows outside every caller's span => static
-   inline; the listing inlines it at two sites).  True when the candidate hide
-   point sits above the girl's floor by more than 100 units. */
-static inline unsigned char isHidePointTooHigh(float *p)
-{
-    GirlBrainWork *b;
-    float y;
-
-    if (stage_no == 8 || stage_no == 22) {
-        b = (GirlBrainWork *)D_0029D650;
-        y = b->f_5830[1] + 100.0f;
-        if (y < p[1] || y < b->f_5850[1]) {
-            return 1;
-        }
-    }
-    return 0;
-}
 
 /* girl_brain_main.c.inc:~381-387 (rows outside every caller's span => static
    inline; the listing tags the two loads 382/383, the ratio store 384 and the
@@ -527,8 +736,8 @@ void subGirlBrain_Hide(volatile int a0)
         }
         if (isHidePointTooHigh(cand) ||
             girlBrainHideCheckIntercept(((GirlBrainWork *)D_0029D650)->f_5830, cand,
-                                        ((GirlBrainWork *)D_0029D650)->f_3240,
-                                        ((GirlBrainWork *)D_0029D650)->f_3230)) {
+                                        (char *)((GirlBrainWork *)D_0029D650)->hide.ent,
+                                        ((GirlBrainWork *)D_0029D650)->hide.num)) {
             ((GirlBrainWork *)D_0029D650)->f_58F0 = 1;
         }
         near = _DistxzSqGV(cand, D_002A2E80) < 3600.0f;
@@ -560,19 +769,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", func_00174CE8);
 ASM_LIT4_SLOT(D_00638FC0, 10000.0f);
 ASM_LIT4_SLOT(D_00638FC4, 10000.0f);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainRunawaySearchPoint);
-
-typedef struct {
-    float a[4];   /* 0x00 start point   */
-    float b[4];   /* 0x10 end point     */
-    float pos[4]; /* 0x20 clipped point */
-    char _30[0x40];
-    float f_70; /* 0x70 radius/height */
-    char _74[0x14];
-    int f_88; /* 0x88 wall hit      */
-    char _8c[0x08];
-    int f_94; /* 0x94 floor hit     */
-    char _98[0x28];
-} ClipWork;
 
 extern void ClipWall(void *);
 extern void ClipWallField(void *);
@@ -1259,13 +1455,51 @@ void subGirlBrain_HideAdvance(volatile int a0)
     }
 }
 
-ASM_LIT4_SLOT(D_00638FE8, 1500.0f);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", isEnterHideadv_EnemyLocation);
+extern void *test_CURRENTROOT(void *a0);
+extern void _OrientXZGV(void *out, void *a, void *b);
+extern float _DistGV(void *a, void *b);
+extern float _DistSqGV(void *a, void *b);
+extern int _AbsRotyGV(void *a, void *b);
+
+int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
+{
+    float o1[4];
+    float o2[4];
+    int i;
+    float d;
+
+    bpos[0] = ((float *)test_CURRENTROOT(D_00639EA4))[0];
+    bpos[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+    bpos[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+    gpos[0] = ((float *)test_CURRENTROOT(D_00639EA8))[0];
+    gpos[1] = ((float *)test_CURRENTROOT(D_00639EA8))[1];
+    gpos[2] = ((float *)test_CURRENTROOT(D_00639EA8))[2];
+    _OrientXZGV(o1, bpos, gpos);
+    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->hide.num; i++) {
+        if (*(int *)((char *)((GirlBrainWork *)D_0029D650)->hide.ent[i].obj + 0xC) == 4) {
+            d = _DistGV(gpos, ((GirlBrainWork *)D_0029D650)->hide.ent[i].pos);
+            if (!(1500.0f < d)) {
+                if (_DistSqGV(bpos, ((GirlBrainWork *)D_0029D650)->hide.ent[i].pos) <
+                    (d + 100.0f) * (d + 100.0f)) {
+                    return 0;
+                }
+                if (d < 150.0f) {
+                    return 0;
+                }
+                _OrientXZGV(o2, ((GirlBrainWork *)D_0029D650)->hide.ent[i].pos, gpos);
+                if (_AbsRotyGV(o1, o2) < 45) {
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
+}
 
 extern int D_00639EA4__pn __asm__("D_00639EA4");
 extern void *D_00629DE4, *D_00639EA8__pn __asm__("D_00639EA8");
 extern float _DistxzSqGV(void *, void *);
-extern int isEnterHideadv_EnemyLocation(void *, void *);
+extern int isEnterHideadv_EnemyLocation(float *bpos, float *gpos);
 
 int isEnterHideadv(void)
 {
@@ -1317,14 +1551,6 @@ extern void debug_StdPrintfDummy();
 extern void sceVu0ScaleVector(float *dst, float *src, float scale);
 extern int _RotyGV(void *buf, void *vec);
 extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
-
-/* girl_brain_main.c.inc:313-317 (rows outside WayTest's span => static inline) */
-static inline void dispWayMarker(char *p)
-{
-    float buf[4];
-    sceVu0ScaleVector(buf, (float *)(p + 0x10), -1.0f);
-    debug_Marker(buf, 0xFF, 0, 0, 70.0f, 0.0f);
-}
 
 void WayTest(void)
 {
@@ -1397,11 +1623,15 @@ extern char D_0055FE58[];
 
 void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
 {
-    /* Static-chain home: GetBoyMode is a gcc nested function of
-       actGirlHand (caller sets $2 = its $sp before the jal), so the
-       prologue stores the incoming chain register into frame slot 0.
-       Same stand-in as the matched sibling HandMgr_Judge above; it is
-       replaced by a real nested definition once actGirlHand is C.  */
+    /* CRUTCH: the `home = uninit` pair below is a stand-in, not source.
+       The census labels this body GetBoyMode.453 (a GNU NESTED FUNCTION of
+       actGirlHand, girl_act.c:2956 against actGirlHand's 2953) and ROM homes
+       the incoming static chain with `sw $2,0($sp)`.  Measured 2026-09-14:
+       written as a real nested function inside actGirlHand, with the five
+       HandMgr_* bodies of girl_act_hand.c.inc nested alongside it, this body
+       is byte-identical (92/92 words) with no stand-in at all -- see the seed
+       seeds/girl_act.pass12_actGirlHandUnit.5of7_rc0.TU.c.  The unit is
+       indivisible and the parent does not yet match, so the stand-in stays. */
     volatile int home;
     int uninit;
     char *rec;
@@ -2492,8 +2722,8 @@ void subGirlBrain_Busy(volatile int a0)
 
     *(int *)(sub + 0x34C) = 0;
     while (1) {
-        if (w->f_C90) {
-            _ACTCharStatus_Set((void *)a0, 2, -1.0f, w->f_CA0);
+        if (w->others.num) {
+            _ACTCharStatus_Set((void *)a0, 2, -1.0f, w->others.ent[0].obj);
         }
         if (((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] < i &&
              ACTGameView_Check((void *)a0, D_00639EA4)) ||
