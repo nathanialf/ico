@@ -648,7 +648,6 @@ void actSt02aDoorEvent(int x)
 
 extern long long D_00622720[];
 extern long long D_00622730[];
-extern void scpEffectStart__pn(int *buf, int a1) __asm__("scpEffectStart");
 
 void actSt02aDoorUpEffect(volatile int a0)
 {
@@ -662,12 +661,12 @@ void actSt02aDoorUpEffect(volatile int a0)
         case 0:
             b1[0] = v0a;
             b1[1] = D_00622720[1];
-            scpEffectStart__pn((int *)b1, 0);
+            scpEffectStart(b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
             b2[1] = D_00622730[1];
-            scpEffectStart__pn((int *)b2, 0);
+            scpEffectStart(b2, 0);
             break;
         }
         _ACTWait(1);
@@ -686,12 +685,12 @@ void actSt02aDoorDownEffect(volatile int a0)
         case 0:
             b1[0] = v0a;
             b1[1] = D_00622730[1];
-            scpEffectStart__pn((int *)b1, 0);
+            scpEffectStart(b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
             b2[1] = D_00622720[1];
-            scpEffectStart__pn((int *)b2, 0);
+            scpEffectStart(b2, 0);
             break;
         }
         _ACTWait(1);

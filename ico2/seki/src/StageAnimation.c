@@ -77,7 +77,6 @@ extern void reg_DispObj(char *o);
 extern void bga_DispLightning(void);
 extern void CopyQuaternion();
 extern void _CopyVector(void *dst, void *src);
-extern int D_0063C15C__pn __asm__("D_0063C15C");
 extern int bga_CheckAnimationFrameIn(int a0, int a1, int a2);
 extern int bga_CheckSdfCameraFrameIn(int a0, int a1, int a2);
 
@@ -668,7 +667,7 @@ void stage_KillPlayBgAnimation(int **self)
 
 inline void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1)
 {
-    AnimNode *p = (AnimNode *)D_0063C15C__pn;
+    AnimNode *p = (AnimNode *)D_0063C15C;
     int count = 0;
     while (p != 0) {
         long v = p->field0;

@@ -43,12 +43,12 @@ void GetEyeDirection(char *dir, char *obj)
 
 extern void ACTGame_DisconnectHand(void);
 extern char D_00553990[];
-extern void debug_StdPrintfDummy__pn(void *a0) __asm__("debug_StdPrintfDummy");
+extern void debug_StdPrintfDummy();
 
 void funcGirlHandDisconnect(void)
 {
     ACTGame_DisconnectHand();
-    debug_StdPrintfDummy__pn(D_00553990);
+    debug_StdPrintfDummy(D_00553990);
 }
 
 extern void debug_StdPrintfDummy();
@@ -1501,8 +1501,7 @@ int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
     return 1;
 }
 
-extern int D_00639EA4__pn __asm__("D_00639EA4");
-extern void *D_00629DE4, *D_00639EA8__pn __asm__("D_00639EA8");
+extern void *D_00629DE4;
 extern float _DistxzSqGV(void *, void *);
 extern int isEnterHideadv_EnemyLocation(float *bpos, float *gpos);
 
@@ -1511,14 +1510,14 @@ int isEnterHideadv(void)
     char buf[0x20];
     int rv = 0;
     float diff;
-    if (D_00639EA4__pn == 0) {
+    if (D_00639EA4 == 0) {
         goto ret0;
     }
-    if (D_00639EA8__pn == 0) {
+    if (D_00639EA8 == 0) {
         return 0;
     }
-    GetRootProjectionPosOfGObj(buf, D_00639EA4__pn);
-    GetRootProjectionPosOfGObj(buf + 0x10, D_00639EA8__pn);
+    GetRootProjectionPosOfGObj(buf, D_00639EA4);
+    GetRootProjectionPosOfGObj(buf + 0x10, D_00639EA8);
     diff = *(float *)(buf + 0x4) - *(float *)(buf + 0x14);
     if (diff < 0.0f) {
         if (-diff > 200.0f) {

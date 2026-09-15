@@ -16,6 +16,7 @@ int _closeHander(void);
 int _handler(int self);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/streamMotionManager", _infoUpdate);
+ASM_LIT4_SLOT(D_006396C8, 2997.0f);
 
 extern char D_00621150[];
 extern int D_0063BBF4;
@@ -324,7 +325,6 @@ inline int GetDataSizeOfStreamMotion(int no)
 extern char D_00621228[];
 extern char D_00621230[];
 extern int D_0063BC28;
-extern float D_006396CC;
 extern void getStreamMotionData();
 
 typedef struct {
@@ -339,7 +339,7 @@ inline float GetStreamMotionData(char *dst, int no)
         return -1.0f;
     }
     getStreamMotionData(dst, D_00724AA8[no].w[3], no);
-    return (float)D_0063BC28 / D_006396CC;
+    return (float)D_0063BC28 / 2997.0f;
 }
 
 extern int D_0063BC08;

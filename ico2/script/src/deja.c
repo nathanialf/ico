@@ -48,7 +48,6 @@ typedef struct PadState {
 
 extern PadState D_0028F8F0[];
 extern int D_0063C4DC;
-extern float D_0063986C;
 extern int scpSearchGobj(int id);
 extern void actCreateSubThread(void *entry, int prio);
 extern void scpAdpcmPlayRequestFunc(int kind, char **id, int a2, int a3, int a4);
@@ -158,7 +157,7 @@ void actDejaChk(volatile int a0)
         scpAdpcmFadeCloseFunc(&deja, 0x80);
         deja = 0;
     }
-    RequestStageChange(1, D_00639EA4, 0, D_0063986C, 1.0f);
+    RequestStageChange(1, D_00639EA4, 0, 0.025f, 1.0f);
 }
 
 void actDejaDemo(volatile int a0)

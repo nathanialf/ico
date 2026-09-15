@@ -4,7 +4,6 @@
 extern void CopyVector(void *dst, void *src);
 extern int D_004E7470[];
 extern float D_0063B7D4;
-extern float D_006394AC;
 extern int D_004E7460[];
 extern void darkVolume(void *a0, float a1, float a2, float a3);
 extern int D_00639EA8;
@@ -25,11 +24,14 @@ void ResetGameOverEffect(void);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", draw);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", drawHT);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", renderViewCoordZSphere);
+ASM_LIT4_SLOT(D_00639490, 4095.0f);
 
 inline void ExecGameOverEffect(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", sonic);
+ASM_LIT4_SLOT(D_00639494, 0.001f);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", darkVolume);
+ASM_LIT4_SLOT(D_00639498, 0.6666667f);
 
 /* listing lines 526-533: arm the game-over dark volume, shared by
    StartGameOverEffect and StartQueenAttackEffect */
@@ -74,10 +76,6 @@ void SetDarkVolumeEffect(int a0, float a1)
     CopyVector(D_004E7470, (void *)a0);
 }
 
-extern float D_0063949C;
-extern float D_006394A0;
-extern float D_006394A4;
-extern float D_006394A8;
 extern float D_0063B7D0;
 extern int D_0028F4D4[];
 extern int D_00639EA4;
@@ -121,18 +119,18 @@ void DispGameOverEffect(void)
                 sendGameOverMail(g, r2);
             }
         }
-        if (D_0063B7C0 < D_0063949C && D_0028F4D4[0] == 0) {
+        if (D_0063B7C0 < 50000.0f && D_0028F4D4[0] == 0) {
             D_0063B7C0 = D_0063B7C0 + D_0063B7CC;
         }
     } else {
-        if (D_0063B7D4 < D_006394A0 && D_0063B7D0 < 1.0f) {
+        if (D_0063B7D4 < 0.001f && D_0063B7D0 < 1.0f) {
             return;
         }
-        darkVolume(D_004E7470, D_0063B7D0, D_006394A4, 0.0f);
+        darkVolume(D_004E7470, D_0063B7D0, 0.96f, 0.0f);
         if (D_0028F4D4[0] != 0) {
             return;
         }
-        D_0063B7D0 = D_0063B7D0 + (D_0063B7D4 - D_0063B7D0) * D_006394A8;
+        D_0063B7D0 = D_0063B7D0 + (D_0063B7D4 - D_0063B7D0) * 0.3f;
         D_0063B7D4 = 0.0f;
     }
 }
@@ -161,7 +159,7 @@ void DarkVolumeGeo(char *a0)
 
     *(int *)(*(int *)(a0 + 0x15C) + 0x74) = 0;
     p = *(float **)(*(int *)(a0 + 0x15C) + 0xC);
-    if (D_006394AC < *p) {
+    if (1e-05f < *p) {
         SetupDarkVolume((char *)p + 0x30, *p * 50.0f, 10.0f);
     }
 }

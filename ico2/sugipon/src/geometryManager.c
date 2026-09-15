@@ -59,14 +59,13 @@ void SetRootBaseQuaternion(int a0)
     CopyQuaternion((int)((GObj *)(a0))->p_15C + 0xC0);
 }
 
-extern void CopyQuaternion__pn(void *a0, void *a1) __asm__("CopyQuaternion");
 extern void DivQuaternion(void *a0, void *a1, int a2);
 
 void SetRootQuaternion(char *a0, void *a1)
 {
     char *q = *(char **)(a0 + 0x15C) + 0xD0;
     char *p;
-    CopyQuaternion__pn(q, a1);
+    CopyQuaternion(q, a1);
     p = *(char **)(a0 + 0x15C);
     if (*(int *)p != 0) {
         char *m = *(char **)(*(int *)p + 0x15C);
@@ -754,17 +753,13 @@ void GetRootPosition(void *a0, char *outer)
 }
 
 extern char D_0028FF30[];
-extern void GetMatrixFromQuaternionPos__pn(void *a0, void *a1,
-                                           void *a2) __asm__("GetMatrixFromQuaternionPos");
-extern void sceVu0ApplyMatrix__pn(int *buf, char *p, int x) __asm__("sceVu0ApplyMatrix");
-extern void sceVu0Normalize__pn(char *a0, char *a1) __asm__("sceVu0Normalize");
 
 void GetRootOrient(char *a0, char *a1)
 {
     char buf[0x40];
     char *sub = *(char **)(a1 + 0x15C);
     char *p = sub + 0xA0;
-    GetMatrixFromQuaternionPos__pn(buf, sub + 0xD0, p);
+    GetMatrixFromQuaternionPos(buf, sub + 0xD0, p);
     {
         char *q = *(char **)sub;
         if (q != 0) {
@@ -774,9 +769,9 @@ void GetRootOrient(char *a0, char *a1)
         }
     }
     *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + *(float *)(p + 0xC0);
-    sceVu0ApplyMatrix__pn((int *)a0, buf, (int)D_0028FF30);
+    sceVu0ApplyMatrix((int *)a0, buf, (int)D_0028FF30);
     *(int *)(a0 + 4) = 0;
-    sceVu0Normalize__pn(a0, a0);
+    sceVu0Normalize(a0, a0);
 }
 
 int LimitExistGeometry(float *pos, int *exist)
@@ -798,14 +793,12 @@ int LimitExistGeometry(float *pos, int *exist)
     return ret;
 }
 
-extern void CopyVector__pn(void *dst, void *src) __asm__("CopyVector");
-
 void GetRootMatrixTransOffsetByDObj(char *dst, char *src)
 {
     char tmp[0x40];
     MatrixDrive_SetTransposeMatrix(tmp, src + 0x20);
     sceVu0MulMatrix(tmp, tmp, *(int *)(src + 0xC));
-    CopyVector__pn((int)dst, (int)(tmp + 0x30));
+    CopyVector((int)dst, (int)(tmp + 0x30));
 }
 
 void GetRootMatrixTransOffset(char *dst, char *src)
@@ -814,7 +807,7 @@ void GetRootMatrixTransOffset(char *dst, char *src)
     char *p = *(char **)(src + 0x15C);
     MatrixDrive_SetTransposeMatrix(tmp, p + 0x20);
     sceVu0MulMatrix(tmp, tmp, *(int *)(p + 0xC));
-    CopyVector__pn((int)dst, (int)(tmp + 0x30));
+    CopyVector((int)dst, (int)(tmp + 0x30));
 }
 
 extern void GetMatrixFromQuaternion(int dst, int src);
@@ -826,7 +819,7 @@ void GetRootMotionOrient(char *a0, char *a1)
     char *b = buf;
     char *sub = *(char **)(a1 + 0x15C);
     char *p = sub + 0xA0;
-    GetMatrixFromQuaternionPos__pn(b, sub + 0xD0, p);
+    GetMatrixFromQuaternionPos(b, sub + 0xD0, p);
     {
         char *q = *(char **)sub;
         if (q != 0) {
@@ -838,7 +831,7 @@ void GetRootMotionOrient(char *a0, char *a1)
     *(float *)(b + 0x34) = *(float *)(b + 0x34) + *(float *)(p + 0xC0);
     GetMatrixFromQuaternion((int)m, (int)(*(char **)(a1 + 0x15C) + 0xE0));
     sceVu0MulMatrix(m, b, (int)m);
-    sceVu0ApplyMatrix__pn((int *)a0, m, (int)D_0028FF30);
+    sceVu0ApplyMatrix((int *)a0, m, (int)D_0028FF30);
 }
 
 void GetRootMotionMatrix(char *a0, char *a1)
@@ -846,7 +839,7 @@ void GetRootMotionMatrix(char *a0, char *a1)
     char buf[0x40];
     char *sub = *(char **)(a1 + 0x15C);
     char *p = sub + 0xA0;
-    GetMatrixFromQuaternionPos__pn(buf, sub + 0xD0, p);
+    GetMatrixFromQuaternionPos(buf, sub + 0xD0, p);
     {
         char *q = *(char **)sub;
         if (q != 0) {

@@ -39,7 +39,6 @@ typedef struct PObjGObj {
 extern PObjGObj *scpSearchGobj(int a0);
 extern void actSt05eWaterMain(volatile int a0);
 extern int D_0028F4C0[];
-extern float D_00639994;
 extern float D_0063C088;
 extern int D_0063C554;
 extern void gflagOn(int a0);
@@ -240,7 +239,7 @@ void actSt05eWaterFlagOn(volatile int a0)
 {
     int i = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 6.0;
 
-    D_0063C088 = D_00639994;
+    D_0063C088 = 0.005f;
 
     while (i-- > 0) {
         if (D_0063C554 != 0) {

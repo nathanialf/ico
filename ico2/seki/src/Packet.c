@@ -4,7 +4,6 @@
 /* header prototypes (order fixes the inline tail) */
 extern char D_0054F5C0[];
 extern char D_0067C010[];
-extern void debug_StdPrintfDummy__pn(const char *fmt, ...) __asm__("debug_StdPrintfDummy");
 extern char D_0054F5D0[];
 extern void debug_StdPrintfDummy();
 extern void pac_makePacket(void *a0, int a1, int a2);
@@ -185,7 +184,7 @@ void pac_openDmaTag(int a0)
     *(float *)(ctx + 0x58) = f1;
     *(float *)(ctx + 0x54) = f1;
     *(float *)(ctx + 0x50) = f1;
-    debug_StdPrintfDummy__pn(D_0054F5C0, a0 & mask);
+    debug_StdPrintfDummy(D_0054F5C0, a0 & mask);
 }
 
 void pac_setVifCode(int a0)

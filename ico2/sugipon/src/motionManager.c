@@ -173,10 +173,7 @@ extern float sceVu0InnerProduct(void *a, void *b);
 extern float FSqrt(float x);
 extern void MatrixDrive_ScaleMatrix(float, float, float);
 extern const float D_0063B91C[];
-extern int sceVu0UnitMatrix__pn(int) __asm__("sceVu0UnitMatrix");
 extern int D_0063B148;
-extern int D_0063B938__pn __asm__("D_0063B938");
-extern void func_001DDAB8_a(char *) __asm__("dispSkelton");
 extern void p2o_DispVU1();
 extern void MatrixDrive_RotMatrixX(int a0);
 static void getInitialMatrix(int a0, int a1);
@@ -185,7 +182,6 @@ extern int D_0063B8F8;
 extern int D_0063B8FC;
 extern char D_002907E0[];
 extern void ClipFloor();
-extern char *D_0063B93C__pn __asm__("D_0063B93C");
 /* motionManager.h prototypes: their order is the inline tail's emission order */
 void SetHitCollisionDisplay(int a, int b);
 int ResetMotionProgramInterpInfo(char *a0, int a1);
@@ -749,9 +745,9 @@ inline void getGeometryOfMotion(void)
     ShiftBlk buf;
     int x, y;
     char *p;
-    buf = *(ShiftBlk *)(*(char **)(D_0063B93C__pn + 0x15C) + 0x180);
+    buf = *(ShiftBlk *)(*(char **)((char *)D_0063B93C + 0x15C) + 0x180);
     _getGeometryOfMotion((MotShift *)x, y);
-    p = *(char **)(D_0063B93C__pn + 0x15C);
+    p = *(char **)((char *)D_0063B93C + 0x15C);
     if (*(int *)(p + 0x634) != 0) {
         *(ShiftBlk *)(p + 0x180) = buf;
     }
@@ -961,14 +957,16 @@ static void getInitialMatrix(int obj, int idx)
     }
 }
 
-void dispSkelton(void)
+/* K&R definition: it declares no prototype, which is what lets SkelTest and
+ * SkelTestGeo below call this function with one argument, as ROM does. */
+void dispSkelton()
 {
     int v;
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 5, 0x80);
     MatrixDrive_PushMatrix();
     v = MatrixDrive_GetMatrix();
-    sceVu0UnitMatrix__pn(v);
+    sceVu0UnitMatrix(v);
     func_001ECE40(0);
     MatrixDrive_PopMatrix();
     gif_EndPacket();
@@ -980,11 +978,11 @@ void SkelTest(char *a0)
     int v;
     D_0063B93C = (int)a0;
     v = *(int *)(sub + 0x8C);
-    D_0063B938__pn = v;
+    D_0063B938 = (char *)v;
     if (v != 0) {
         p2o_DispVU1();
         if (D_0063B148 != 0) {
-            func_001DDAB8_a(a0);
+            dispSkelton(a0);
         }
     }
 }
@@ -996,10 +994,10 @@ void SkelTestGeo(char *a0)
     int i;
     D_0063B93C = (int)a0;
     v = *(int *)(sub + 0x8C);
-    D_0063B938__pn = v;
+    D_0063B938 = (char *)v;
     if (v != 0) {
         int s2;
-        sceVu0UnitMatrix__pn(MatrixDrive_GetMatrix());
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_RotMatrixX(-0x8000);
         getInitialMatrix(*(int *)(a0 + 0x15C), 0);
         s2 = *(int *)(a0 + 0x15C);
@@ -1009,7 +1007,7 @@ void SkelTestGeo(char *a0)
             s2 = *(int *)(a0 + 0x15C);
         }
         if (D_0063B148 != 0) {
-            func_001DDAB8_a(a0);
+            dispSkelton(a0);
         }
     }
 }
