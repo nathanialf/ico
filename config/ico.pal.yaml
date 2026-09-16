@@ -704,7 +704,8 @@ segments:
       - [0x455640, .rodata, ico2/omori/src/generator]  # the TU's whole .rodata run as source (data pass 2): five string literals in first-use order, __FILE__ and decimal line arguments; VMA 0x555640..0x5556A6 + 2 B link pad
       - [0x4556A8, rodata, cod/4556A8]     # rodata blob resume (ico2/omori/src/lws_kyomi's __FILE__)
       - [0x4556B8, .rodata, ico2/omori/src/mail-add-data]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x5556B8..0x556890, 4568 B
-      - [0x455710, rodata, cod/455710]     # rodata blob resume
+      - [0x455710, .rodata, ico2/ito/src/act_bird]  # syms: 0x00555760  the TU's whole .rodata: subBirdBrainMain's constants (0x44 B) then its 9-arm jump table at 16-alignment; VMA 0x555710..0x555784
+      - [0x455784, rodata, cod/455784]   # .rodata blob resume
       - [0x456890, .rodata, ico2/ito/src/itou_sub]  # plain-rodata: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template (12 B, 8-aligned), VMA 0x556890..0x55689C
       - [0x45689C, rodata, cod/45689C]   # .rodata blob resume (the zero pad word, then lightning's "lightning_test" string at 0x5568A0)
       - [0x4568B0, .rodata, ico2/ito/src/lightning]  # carved $LC0/$LC1 of lightning_test (VMA 0x5568B0..0x556900, 80 B): the colour quad and the four vertices, local brace initialisers in the source; the "lightning_test" string before them belongs to the still-asm DrawLightning2 and stays in the blob
@@ -1031,6 +1032,8 @@ segments:
       # the literal's own VMA, and holds only literals the TU's C actually emits.
       - [0x53A738, .sdata, ico2/fumi/src/commonact]     # carved D_0063A738 ("reset\n", afterCommonBar's string literal) + ROM's 1 pad byte, VMA 0x63A738..0x63A740, 8 B.  NARROW: commonact's full .sdata run is 0x63A710..0x63A7E0 (208 B, ~17 more <=8-byte string literals whose owners are still INCLUDE_ASM); the one-run-per-(TU,section) rule means widening it later needs those bodies in C first.  MAIN.MAP commonact.o .sdata is 0x6d (a different link; the PAL ELF's own run is 0xd0).  USA: - [0x5322F0, .sdata, ico2/fumi/src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes); D_006322F0 is func_0015F578's "reset\n" string literal, the other 4 are sidecar objects
       - [0x53A740, sdata, cod/53A740]    # .sdata blob resume
+      - [0x53AC20, .sdata, ico2/ito/src/act_bird]  # the TU's .sdata: subBirdBrainMain's seven short state-name strings, which -G 8 routes to .sdata (55 B); VMA 0x63AC20..0x63AC57, one zero pad byte to the blob
+      - [0x53AC58, sdata, cod/53AC58]     # .sdata blob resume
       - [0x53B008, .sdata, ico2/common/src/debug]  # carved debug_MemoryCard's short menu labels ("LOAD".."MENU", -G 8 puts them in small data), VMA 0x63B008..0x63B040
       - [0x53B040, sdata, cod/53B040]    # .sdata blob resume
       - { type: sbss, vram: 0x0063C100, name: cod/0063C100, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10

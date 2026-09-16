@@ -18,7 +18,9 @@ int AdjustMotionHeightToNearestField(char *self);
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f);
 void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t);
 int CheckFieldContact(char *info, char *self, float *pos, float lim);
-int CheckFloorAttribute(char *self);
+/* ROM: two arguments, the GObj and the attribute mask (act_bird.c:806 passes
+   0x40 and 0x50 in $5, boyact/script/a_p_1/frameDependSequence do the same). */
+int CheckFloorAttribute(char *self, int attr);
 int CheckPureWallAttribute(char *self);
 int CheckWallAttribute(char *self);
 void ClearMotionBlendlessNode(char *a0);
