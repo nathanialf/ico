@@ -871,10 +871,14 @@ segments:
       - [0x537E68, rodata, cod/537E68]     # rodata blob resume
       - [0x537F80, .rodata, sce/libc/stdio/vfiprintf]  # syms: blanks zeroes 0x00638000  the member's whole .rodata (= MAIN.MAP vfiprintf.o 0x1E4): newlib's PADSIZE blanks and zeroes, the two digit strings, (null), the bad-base message, then _vfiprintf_r's 89-arm jump table; VMA 0x637F80..0x638164
       - [0x538164, rodata, cod/538164]   # .rodata blob resume
+      - [0x538170, .rodata, sce/libc/stdio/vfprintf]  # syms: blanks zeroes 0x00638210  the member's whole .rodata: newlib's PADSIZE blanks and zeroes, eight strings, then _vfprintf_r's 89-arm jump table; VMA 0x638170..0x638374
+      - [0x538374, rodata, cod/538374]   # .rodata blob resume (pad words to vfscanf's run)
       - [0x538380, .rodata, sce/libc/stdio/vfscanf]  # syms: basefix 0x006383B0 0x006385A0 0x006385C0 0x00638700  the member's whole .rodata: newlib's basefix[17] shorts then __svfscanf's four jump tables (121, 5, 78 and 59 arms), each 16-aligned; VMA 0x638380..0x6387EC
       - [0x5387EC, rodata, cod/5387EC]   # .rodata blob resume (strtod's strings follow at 0x6387F0)
       - [0x538848, .rodata, sce/libc/locale/locale]  # the member's whole .rodata (data pass 5; = MAIN.MAP locale.o .rodata 0x42), VMA 0x638848..0x63888A, 66 B
       - [0x53888A, rodata, cod/53888A]     # rodata blob resume
+      - [0x5389C0, .rodata, sce/libc/stdlib/strtod]  # syms: 0x006389C0  _strtod_r's 46-arm jump table then its three rounding doubles; VMA 0x6389C0..0x638A90
+      - [0x538A90, rodata, cod/538A90]   # .rodata blob resume
       - [0x538B00, lit4, cod/538B00]     # .lit4
       # --- per-TU .lit4 constant-pool carves (see docs/NOTES.md ".lit4 pools",
       # docs/carve_ledger.md "PAL phase 1").  A TU that writes its float

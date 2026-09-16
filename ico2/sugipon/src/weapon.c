@@ -76,7 +76,7 @@ void ReleaseWeaponWithFumbleTargetPos(char *g, void *pos, void *quat, void *rot,
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", ReleaseWeaponWithFumbleSequential);
 
 typedef struct {
-    int kind;  /* 0x00 */
+    float f00; /* 0x00 */
     float f04; /* 0x04 */
     int w[7];  /* 0x08 */
 } WeaponDef;
@@ -280,7 +280,60 @@ void checkHit(char *g)
     CopyVector(w + 0x40, p + 0xA0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", initializeQueenzSword);
+/* The parent-link record CreateLayoutedGObj's caller hands to LinkParentOfDObj:
+   two words, 4-aligned (ROM copies it with an ldl/ldr, sdl/sdr pair). */
+typedef struct {
+    int gobj;  /* 0x0 */
+    int index; /* 0x4 */
+} QSwordLink;
+
+/* The 64-byte layout record InitDemoQueensSword passes through; only the
+   word at 0x30 is ever named here. */
+typedef struct {
+    char pad00[0x30];
+    int kind; /* 0x30 */
+    char pad34[0xC];
+} __attribute__((aligned(8))) QSwordLayout;
+
+extern void *D_0063A438;
+extern const char D_006214E0[];
+extern float D_004ED310[];
+extern void *iosMallocDebug(void *heap, int size, const char *file, int line);
+extern void *CreateLayoutedGObj(int a0, int a1, int a2, int a3, void *lay, int a5, int a6, int a7);
+extern void LinkParentOfDObj(void *gobj, void *link);
+extern void CopyVector(void *dst, void *src);
+
+void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
+{
+    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    QSwordLink lnk = {(int)g, index};
+    QSwordLayout r;
+    QSwordLayout r2;
+    int i;
+    char *o;
+    char *o2;
+
+    r = *lay;
+    r.kind = (lay->kind & 0xFF00) ? 5 : 4;
+
+    *(int *)(w + 0x50) = 1;
+    *(int **)(w + 0x54) = iosMallocDebug(D_0063A438, 1 * 4, D_006214E0, 759);
+
+    for (i = 0; i < 1; i++) {
+        D_004ED310[2] = D_00318EB8[*(int *)w].f00 * (float)i / 0.0f;
+        o = CreateLayoutedGObj(10, 75, -1, i == 0, &r, -1, 7, 0);
+        LinkParentOfDObj(o, &lnk);
+        CopyVector(*(char **)(o + 0x15C) + 0xA0, D_004ED310);
+        (*(int **)(w + 0x54))[i] = (int)o;
+    }
+
+    r2 = *lay;
+    r2.kind = 13;
+    o2 = CreateLayoutedGObj(46, 11, -1, 0, &r2, -1, 7, 0);
+    *(QSwordLink *)*(char **)(o2 + 0x15C) = lnk;
+    *(char **)(w + 0x5C) = o2;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", InitWeaponGeo);
 
 extern void CopyMatrix(void *dst, void *src);
@@ -834,11 +887,11 @@ typedef struct {
     double d[28];
 } DemoQueenSwordWork;
 
-extern int D_0063A438;
+extern void *D_0063A438;
 extern const char D_006214E0[];
 extern DemoQueenSwordWork D_004ED1F0;
-extern void *iosMallocDebug(int heap, int size, const char *file, int line);
-extern void initializeQueenzSword(char *gobj, int index, void *a2);
+extern void *iosMallocDebug(void *heap, int size, const char *file, int line);
+extern void initializeQueenzSword(char *gobj, int index, QSwordLayout *a2);
 
 void *InitDemoQueensSword(char *a0, void *a1)
 {
