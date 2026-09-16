@@ -38,8 +38,82 @@ int __sprint(int a0, int *a1)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfiprintf", __sbprintf);
-INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfiprintf", vfiprintf);
+/* newlib's struct __sFILE for this build; the tail padding is what puts
+   __sbprintf's 0x400-byte buffer at sp+0x60 behind the fake FILE at sp+0. */
+typedef struct {
+    char *_p;               /* 0x0 */
+    int _r;                 /* 0x4 */
+    int _w;                 /* 0x8 */
+    short _flags;           /* 0xC */
+    short _file;            /* 0xE */
+    char *_bf_base;         /* 0x10 */
+    int _bf_size;           /* 0x14 */
+    int _lbfsize;           /* 0x18 */
+    void *_cookie;          /* 0x1C */
+    int _read;              /* 0x20 */
+    int _write;             /* 0x24 */
+    int _seek;              /* 0x28 */
+    int _close;             /* 0x2C */
+    char *_ub_base;         /* 0x30 */
+    int _ub_size;           /* 0x34 */
+    char *_up;              /* 0x38 */
+    int _ur;                /* 0x3C */
+    unsigned char _ubuf[3]; /* 0x40 */
+    unsigned char _nbuf[1]; /* 0x43 */
+    char *_lb_base;         /* 0x44 */
+    int _lb_size;           /* 0x48 */
+    int _blksize;           /* 0x4C */
+    int _offset;            /* 0x50 */
+    void *_data;            /* 0x54 */
+} FileS;
+
+extern int fflush();
+extern int vfiprintf(char *fp, char *fmt, void *ap);
+
+int __sbprintf(FileS *fp, char *fmt, void *ap)
+{
+    FileS fake;
+    unsigned char buf[0x400];
+    int ret;
+
+    /* copy the important variables */
+    fake._data = fp->_data;
+    fake._flags = fp->_flags & ~2;
+    fake._file = fp->_file;
+    fake._cookie = fp->_cookie;
+    fake._write = fp->_write;
+
+    /* set up the buffer */
+    fake._bf_base = fake._p = (char *)buf;
+    fake._bf_size = fake._w = sizeof(buf);
+    fake._lbfsize = 0;
+
+    /* do the work, then copy any error status */
+    ret = vfiprintf((char *)&fake, fmt, ap);
+    if (ret >= 0 && fflush(&fake)) {
+        ret = -1;
+    }
+    if (fake._flags & 0x40) {
+        fp->_flags |= 0x40;
+    }
+    return ret;
+}
+
+extern void __sinit(void *r);
+extern int _vfiprintf_r(void *r, char *fp, char *fmt, void *ap);
+
+int vfiprintf(char *fp, char *fmt0, void *ap)
+{
+    /* newlib's CHECK_INIT(fp), a do-while-zero macro wrapper */
+    do {
+        if (*(char **)(fp + 0x54) == 0)
+            *(char **)(fp + 0x54) = (char *)D_0054CEAC[0];
+        if (*(int *)(*(char **)(fp + 0x54) + 0x38) == 0)
+            __sinit(*(char **)(fp + 0x54));
+    } while (0);
+    return _vfiprintf_r(*(char **)(fp + 0x54), fp, fmt0, ap);
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfiprintf", _vfiprintf_r);
 
 extern int __sread(void *a0, int a1, int a2);

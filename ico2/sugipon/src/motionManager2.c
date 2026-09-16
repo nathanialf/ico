@@ -95,7 +95,125 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager2", dispPlane);
+/* 8-aligned float quad: ROM copies the {0,1,0,1} and plane templates with one
+   ld/sd pair, which a plain float[4] (alignment 4) cannot emit. */
+typedef union {
+    float f[4];
+
+    struct {
+        long long _0, _8;
+    } q;
+} Vec4;
+
+/* 8-aligned RGBA quad, for the same reason; the components are signed (the
+   colour scaling in dispPlane is cvt.s.w). */
+typedef union {
+    int c[4];
+    unsigned long long w[2];
+} Col4;
+
+extern void CopyIVector(void *dst, void *src);
+extern void DrawLineG(void *a0, void *a1, void *a2, void *a3, int a4);
+extern float GetYProjectionOfPlane(void *plane, float *p);
+extern void gif_StartPacketPri(int pri);
+extern void gif_SetAlpha(int a, int b, int c);
+extern void gif_EndPacket(void);
+extern void MatrixDrive_PushMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void sceVu0UnitMatrix(void *m);
+extern void memset(void *a0, int a1, int a2);
+
+#define ABSF(x) ((x) < 0.0f ? -(x) : (x))
+
+/* dev line 427: a one-line by-value wrapper, so each of the six call sites
+   copies the plane into its own frame slot and passes that address. */
+static inline float getPlaneY(Vec4 pl, float *p)
+{
+    return GetYProjectionOfPlane(&pl, p);
+}
+
+/* dev lines 431 to 500.  The loop counts 0..10 and offsets by 5: the ROM's
+   $s7 (-5, +1 each turn) is loop.c's giv for `i - 5`, and its down counter in
+   the 0x1A0 spill slot is check_dbra_loop reversing the original biv once the
+   giv took every use of i.  Writing the loop as `for (i = -5; i <= 5; i++)`
+   instead makes gcse PRE fold the three `(float)i` conversions into one,
+   because all three then share one pseudo; with `i - 5` each conversion has
+   its own operand pseudo and PRE (MAX_PASSES 1) only commons the subtraction.
+   `plane` is retargeted at the local copy, so the six by-value argument
+   copies and the CopyVector read through one pointer register the way the ROM
+   does.  buf is twelve quads because only that size puts the line-451
+   CopyVector destination at sp+0xE0 and sets the ROM's 640-byte frame. */
+void dispPlane(Vec4 *plane, float *pos)
+{
+    Vec4 pl = *plane;
+    Col4 tmpl = {{0x00, 0x80, 0xFF, 0x80}};
+    Col4 col;
+    Col4 black;
+    Vec4 buf[12];
+    float p0[4];
+    float p1[4];
+    float p2[4];
+    float grid[4];
+    int i;
+
+    plane = &pl;
+    memset(&black, 0, sizeof(black));
+    black.c[3] = 0x80;
+    CopyVector(grid, pos);
+    grid[0] = (float)(int)(pos[0] / 50.0f) * 50.0f;
+    grid[2] = (float)(int)(pos[2] / 50.0f) * 50.0f;
+    gif_StartPacketPri(11);
+    MatrixDrive_PushMatrix();
+    gif_SetAlpha(1, 5, 128);
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    for (i = 0; i < 11; i++) {
+        float ax = 1.0f - ABSF(pos[0] - (grid[0] + (float)(i - 5) * 50.0f)) / 250.0f;
+        float az = 1.0f - ABSF(pos[2] - (grid[2] + (float)(i - 5) * 50.0f)) / 250.0f;
+
+        ax = (ax < 0.0f) ? 0.0f : ax;
+        az = (az < 0.0f) ? 0.0f : az;
+        CopyVector(&buf[10], plane);
+        CopyIVector(col.c, tmpl.c);
+        col.c[0] = (int)((float)col.c[0] * ax);
+        col.c[1] = (int)((float)col.c[1] * ax);
+        col.c[2] = (int)((float)col.c[2] * ax);
+        CopyVector(p0, grid);
+        p0[0] = p0[0] + (float)(i - 5) * 50.0f;
+        p0[2] = pos[2] - 250.0f;
+        p0[1] = getPlaneY(*plane, p0);
+        CopyVector(p1, grid);
+        p1[0] = p1[0] + (float)(i - 5) * 50.0f;
+        p1[2] = pos[2] + 250.0f;
+        p1[1] = getPlaneY(*plane, p1);
+        CopyVector(p2, grid);
+        p2[0] = p2[0] + (float)(i - 5) * 50.0f;
+        p2[2] = pos[2];
+        p2[1] = getPlaneY(*plane, p2);
+        DrawLineG(p0, &black, p2, &col, 0);
+        DrawLineG(p1, &black, p2, &col, 0);
+        CopyIVector(col.c, tmpl.c);
+        col.c[0] = (int)((float)col.c[0] * az);
+        col.c[1] = (int)((float)col.c[1] * az);
+        col.c[2] = (int)((float)col.c[2] * az);
+        CopyVector(p0, grid);
+        p0[0] = pos[0] - 250.0f;
+        p0[2] = p0[2] + (float)(i - 5) * 50.0f;
+        p0[1] = getPlaneY(*plane, p0);
+        CopyVector(p1, grid);
+        p1[0] = pos[0] + 250.0f;
+        p1[2] = p1[2] + (float)(i - 5) * 50.0f;
+        p1[1] = getPlaneY(*plane, p1);
+        CopyVector(p2, grid);
+        p2[0] = pos[0];
+        p2[2] = p2[2] + (float)(i - 5) * 50.0f;
+        p2[1] = getPlaneY(*plane, p2);
+        DrawLineG(p0, &black, p2, &col, 0);
+        DrawLineG(p1, &black, p2, &col, 0);
+    }
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+}
 
 extern void CopyVector();
 
@@ -192,7 +310,6 @@ void GetRootPosOfNextFrame(int a0, int *a1)
     SubVectorXYZ(a0, a0, (int)new_var);
 }
 
-extern int D_0054D860[];
 extern float GetYProjectionOfPlane();
 extern void debug_StdPrintfDummy();
 
@@ -201,7 +318,7 @@ void AdjustMotionHeightToField(int *a0)
     char *o = (char *)a0[0x57];
     char *sub = o + 0xA0;
     *(float *)(sub + 0x1B4) = GetYProjectionOfPlane(o + 0x1D0, o + 0x250);
-    debug_StdPrintfDummy(D_0054D860);
+    debug_StdPrintfDummy("Adjust Motion Height To Field. --------------\n");
 }
 
 extern void ClipFloor();
@@ -404,7 +521,54 @@ void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry
     CopyVector((int)(self + 0x1B0), (int)self);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager2", dispSkeltonHierarchy);
+extern void *D_0063C10C;
+extern void *D_0063C114;
+extern void MatrixDrive_PushMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void CopyMatrix(void *dst, void *src);
+extern void DrawLineG(void *a0, void *a1, void *a2, void *a3, int a4);
+
+/* census file static; ico2/sugipon/src/motionManager holds the other static of
+   that name, still the placeholder func_001ECE40. */
+static void dispSkeltonHierarchy(int node)
+{
+    if (*(int *)((char *)D_0063C114 + node * 64 + 0x38) != -1) {
+        float o[3] = {0.0f, 0.0f, 0.0f};
+        float p[3] = {*(float *)((char *)D_0063C114 + node * 64 + 0x10),
+                      *(float *)((char *)D_0063C114 + node * 64 + 0x14),
+                      *(float *)((char *)D_0063C114 + node * 64 + 0x18)};
+        float ax[3] = {0.0f, 5.0f, 0.0f};
+        float ay[3] = {0.0f, 0.0f, 5.0f};
+        float az[3] = {5.0f, 0.0f, 0.0f};
+        Col4 c0 = {{0x40, 0x40, 0x40, 0x80}};
+        Col4 c1 = {{0x00, 0xFF, 0x00, 0x80}};
+        Col4 c2 = {{0x00, 0x80, 0xFF, 0x80}};
+        Col4 c3 = {{0xFF, 0x00, 0x00, 0x80}};
+
+        DrawLineG(o, &c0, p, &c0, -1);
+        DrawLineG(o, &c0, ax, &c1, -1);
+        DrawLineG(o, &c0, ay, &c2, -1);
+        DrawLineG(o, &c0, az, &c3, -1);
+    }
+    MatrixDrive_PushMatrix();
+    CopyMatrix(MatrixDrive_GetMatrix(),
+               *(char **)((char *)*(void **)((char *)D_0063C10C + 0x15C) + 0xC) + node * 64);
+    if (*(int *)((char *)D_0063C114 + node * 64 + 0x30) == -1) {
+        float o2[3] = {0.0f, 0.0f, 0.0f};
+        float e[3] = {10.0f, 0.0f, 0.0f};
+        Col4 c = {{0xFF, 0xFF, 0xFF, 0x80}};
+
+        DrawLineG(o2, &c, e, &c, -1);
+    }
+    if (*(int *)((char *)D_0063C114 + node * 64 + 0x30) != -1) {
+        dispSkeltonHierarchy(*(int *)((char *)D_0063C114 + node * 64 + 0x30));
+    }
+    MatrixDrive_PopMatrix();
+    if (*(int *)((char *)D_0063C114 + node * 64 + 0x34) != -1) {
+        dispSkeltonHierarchy(*(int *)((char *)D_0063C114 + node * 64 + 0x34));
+    }
+}
 
 extern int D_00639F08;
 /* motionManager2.o's own .sbss run (MAIN.MAP: 0xC after main.o's).  Only
@@ -422,7 +586,6 @@ extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
 extern void gif_EndPacket(void);
-extern void dispSkeltonHierarchy(int node);
 
 void DispSkelton(GObj *self, int a1)
 {
@@ -441,7 +604,101 @@ void DispSkelton(GObj *self, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager2", SlopeIKControl);
+extern void GetRootMatrix(void *m, GObj *self);
+extern void CopyVector();
+extern float GetYProjectionOfPlane();
+
+/* the motion record table SlopeIKControl indexes by the IK block's 0x30 word;
+   the two slope rates are the only fields this TU reaches. */
+typedef struct {
+    char pad0[0x160];
+    float rate0; /* 0x160 */
+    char pad164[0x168 - 0x164];
+    float rate1; /* 0x168 */
+    char pad16C[0x194 - 0x16C];
+} SlopeRec;
+
+extern SlopeRec D_0055FE58[];
+
+/* dev lines 1175-1196 and 1201-1218: two helpers with no out-of-line copy in
+   the listing, so the names here are ours. */
+static inline float getSlopeDifference(GObj *self, char *arg, char *p)
+{
+    char *q = arg + 0x10;
+    float v[4];
+    Vec4 up = {{0.0f, 1.0f, 0.0f, 1.0f}};
+    float y0;
+    float y1;
+
+    GetRootMatrix(MatrixDrive_GetMatrix(), self);
+    MultiMatrixByQuaternion(q);
+    CopyVector(v, (char *)MatrixDrive_GetMatrix() + 0x30);
+    MatrixDrive_TransMatrixV(&up);
+    y0 = GetYProjectionOfPlane(p + 0x1D0, v);
+    y1 = GetYProjectionOfPlane(p + 0x1D0, (char *)MatrixDrive_GetMatrix() + 0x30);
+    return y1 - y0;
+}
+
+static inline float getSlopeRatio(float d, float rate)
+{
+    float t = d * rate;
+    float r = 1.0f;
+
+    if (t > 0.0f) {
+        if (t < 0.5f) {
+            r = r + t * 0.2f;
+        } else {
+            r = 1.1f - (t - 0.5f) * 0.45f;
+        }
+    } else {
+        r = r + t * 0.3f;
+    }
+    return (r > 0.3f) ? r : 0.3f;
+}
+
+void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
+{
+    char *ik;
+    char *sub;
+    int n0;
+    int n1;
+    int rec;
+    float d;
+    float r0 = 1.0f;
+    float r1 = 1.0f;
+
+    ik = (char *)GOBJ_SUB(self) + 0x470;
+    sub = (char *)GOBJ_SUB(self) + 0xA0;
+    if (*(int *)(ik + 0x68) < 3) {
+        if (*(int *)(ik + 0x68) > 0) {
+            if (*(int *)(sub + 0x310) != 0) {
+                n0 = *(signed char *)(*(int *)((char *)GOBJ_SUB(self) + 0x840) + 0x31);
+                n1 = *(signed char *)(*(int *)((char *)GOBJ_SUB(self) + 0x840) + 0x2D);
+                if (n0 != -1 && n1 != -1) {
+                    char *skel = *(char **)((char *)GOBJ_SUB(self) + 0x8C);
+
+                    calcFootIK(skel, arg, n0,
+                               *(float *)(*(int *)((char *)GOBJ_SUB(self) + 0x870) + 0x20),
+                               *(float *)(sub + 0x3B8));
+                    calcFootIK(skel, arg, n1,
+                               *(float *)(*(int *)((char *)GOBJ_SUB(self) + 0x870) + 0x20),
+                               *(float *)(sub + 0x3B8));
+                    vel->f[0] = vel->f[0] * *(float *)(sub + 0x3B8);
+                    vel->f[2] = vel->f[2] * *(float *)(sub + 0x3B8);
+                }
+                d = getSlopeDifference(self, arg, (char *)GOBJ_SUB(self));
+                rec = *(int *)(ik + 0x30);
+                r1 = getSlopeRatio(d, D_0055FE58[rec].rate0);
+                r0 = getSlopeRatio(d, D_0055FE58[rec].rate1);
+            }
+        }
+    }
+    *(float *)(sub + 0x3B8) =
+        *(float *)(sub + 0x3B8) +
+        (r1 - *(float *)(sub + 0x3B8)) *
+            (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.1f);
+    *(float *)(ik + 0x4C) = (r0 > 1.0f) ? 1.0f : r0;
+}
 
 extern void sceVu0SubVector(float *dst, float *a, float *b);
 extern void sceVu0OuterProduct(float *dst, float *a, float *b);
