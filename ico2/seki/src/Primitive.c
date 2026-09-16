@@ -460,13 +460,12 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", setMatrix);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", setLight);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", clearUVOffset);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", prim_DispMesh3D);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", prim_InitParticleByPartition);
 
 typedef struct {
-    /* 0x00 */ char head[0x10];
+    /* 0x00 */ int head[4];
     /* 0x10 */ float mtx[4][4];
     /* 0x50 */ float lmtx[4][4];
-    /* 0x90 */ char tail[0x10];
+    /* 0x90 */ int tail[4];
 } PrimParticleBuf;
 
 typedef struct {
@@ -474,7 +473,10 @@ typedef struct {
     /* 0x140 */ int f140;
     /* 0x144 */ int f144;
     /* 0x148 */ int num;
-    /* 0x14C */ char pad14C[0x10];
+    /* 0x14C */ float x;
+    /* 0x150 */ float y;
+    /* 0x154 */ float z;
+    /* 0x158 */ int f158;
     /* 0x15C */ char name[0x20];
     /* 0x17C */ int tex;
     /* 0x180 */ int cur;
@@ -502,6 +504,114 @@ extern void mc_TransMicroCode(int a0, int a1);
 extern void dl_OpenDma(int a0, int a1, int a2);
 extern void dl_CloseDma(void);
 extern void mc_SetMicroCode();
+
+/* One 16-byte constant packet template, copied to the stack. */
+typedef struct {
+    long long d[2];
+} PrimQw;
+
+extern const PrimQw D_0054F900;
+extern const Prim3DVec D_0054F910;
+extern const Prim3DVec D_0054F920;
+extern char D_0054F930[];
+extern char D_0054F978[];
+extern char D_0063A158[];
+extern void *iosMallocDebugNoAssert(void *heap, int size, char *file, int line);
+extern void iosFree(void *p);
+extern void _UnitMatrix(void *m);
+extern void malloc_MemCpy(void *dst, void *src, int n);
+extern void sprintf(char *s, char *fmt, ...);
+extern int tex_GetTextureNo(char *name);
+extern void _CopyVector(void *dst, void *src);
+
+PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
+                                           int a3, void *heap)
+{
+    PrimQw hd = D_0054F900;
+    Prim3DVec cl0 = D_0054F910;
+    Prim3DVec cl1 = D_0054F920;
+    PrimParticle *p;
+    char *q;
+    char *r;
+    /* the GIF tag's PRIM field: sprite, TME, ABE, AA1 */
+    long long prim = 214;
+
+    if (num > 80) {
+        debug_StdPrintfDummy(D_0054F930, num, 80);
+        return 0;
+    }
+    p = (PrimParticle *)iosMallocDebugNoAssert(heap, 0x1A0, D_0054F8C0, 911);
+    if (p == 0) {
+        return 0;
+    }
+    p->buf[0].head[0] = 0;
+    p->buf[0].head[1] = 0;
+    p->buf[0].head[2] = 0;
+    p->buf[0].head[3] = 0x6C088000;
+    _UnitMatrix(p->buf[0].mtx);
+    _UnitMatrix(p->buf[0].lmtx);
+    p->buf[0].tail[0] = 0x15000010;
+    p->buf[0].tail[1] = 0;
+    p->buf[0].tail[2] = 0;
+    p->buf[0].tail[3] = 0;
+    p->f140 = 10;
+    malloc_MemCpy(&p->buf[1], &p->buf[0], 160);
+    p->f144 = 0;
+    p->num = num;
+    p->x = x;
+    p->y = y;
+    p->z = z;
+    p->f158 = a1;
+    sprintf(p->name, D_0063A158, name);
+    p->tex = tex_GetTextureNo(p->name);
+    if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
+        debug_StdPrintfDummy(D_0054F978, p->name, p->tex);
+        debug_assert(D_0054F8C0, 0x3AA);
+        __assert(D_0054F8C0, 0x3AA, (char *)D_0063A160);
+    }
+    p->f184 = num * 32 + 128;
+    p->objs[0] = (char *)iosMallocDebugNoAssert(heap, p->f184, D_0054F8C0, 944);
+    if (p->objs[0] == 0) {
+        iosFree(p);
+        return 0;
+    }
+    p->objs[1] = (char *)iosMallocDebugNoAssert(heap, p->f184, D_0054F8C0, 949);
+    if (p->objs[1] == 0) {
+        iosFree(p->objs[0]);
+        iosFree(p);
+        return 0;
+    }
+    q = p->objs[0];
+    p->f184 = p->f184 >> 4;
+    *(int *)(q + 0x0) = 0;
+    *(int *)(q + 0x4) = 0;
+    *(int *)(q + 0x8) = 0;
+    *(int *)(q + 0xC) = ((p->f184 - 2) << 16) | 0x6C008000;
+    *(int *)(q + 0x10) = num;
+    *(int *)(q + 0x14) = 0;
+    *(int *)(q + 0x18) = 0;
+    *(int *)(q + 0x1C) = 0;
+    *(long long *)(q + 0x20) = hd.d[0] | (prim << 47) | 1;
+    *(long long *)(q + 0x28) = hd.d[1];
+    *(long long *)(q + 0x30) = hd.d[0] | (prim << 47) | 0x8001;
+    *(long long *)(q + 0x38) = hd.d[1];
+    _CopyVector(q + 0x40, &cl0);
+    _CopyVector(q + 0x50, &cl1);
+    r = q + (num * 32 + 0x70);
+    *(int *)(r + 0x0) = 0x13000000;
+    *(int *)(r + 0x4) = 0x17000000;
+    *(int *)(r + 0x8) = 0;
+    *(int *)(r + 0xC) = 0;
+    *(float *)(q + 0x60) = x;
+    *(float *)(q + 0x64) = y;
+    *(float *)(q + 0x68) = z;
+    *(float *)(q + 0x6C) = 0.0f;
+    malloc_MemCpy(p->objs[1], p->objs[0], p->f184 * 16);
+    p->cur = 0;
+    p->f190 = (int)(p->objs[0] + 0x70);
+    p->f194 = (int)(p->objs[1] + 0x70);
+    return p;
+}
 
 void prim_DispParticle(PrimParticle *p, void *mtx)
 {
@@ -632,10 +742,9 @@ void prim_DispWireBox(float *sz, void *col)
     }
 }
 
-extern int D_0063A450;
-extern int prim_InitParticleByPartition();
+extern void *D_0063A450;
 
-int prim_InitParticle(int a0, int a1, int a2, int a3)
+PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3)
 {
-    return prim_InitParticleByPartition(a0, a1, a2, a3, D_0063A450);
+    return prim_InitParticleByPartition(num, x, y, z, a1, name, a3, D_0063A450);
 }
