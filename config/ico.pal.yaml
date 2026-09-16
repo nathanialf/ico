@@ -817,6 +817,8 @@ segments:
       - [0x537D38, .rodata, sce/libgcc/_umoddi3]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637D38..0x638B00, 3528 B
       - [0x537E38, .rodata, sce/libc/stdlib/assert]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637E38..0x638B00, 3272 B
       - [0x537E68, rodata, cod/537E68]     # rodata blob resume
+      - [0x537F80, .rodata, sce/libc/stdio/vfiprintf]  # syms: blanks zeroes 0x00638000  the member's whole .rodata (= MAIN.MAP vfiprintf.o 0x1E4): newlib's PADSIZE blanks and zeroes, the two digit strings, (null), the bad-base message, then _vfiprintf_r's 89-arm jump table; VMA 0x637F80..0x638164
+      - [0x538164, rodata, cod/538164]   # .rodata blob resume
       - [0x538380, .rodata, sce/libc/stdio/vfscanf]  # syms: basefix 0x006383B0 0x006385A0 0x006385C0 0x00638700  the member's whole .rodata: newlib's basefix[17] shorts then __svfscanf's four jump tables (121, 5, 78 and 59 arms), each 16-aligned; VMA 0x638380..0x6387EC
       - [0x5387EC, rodata, cod/5387EC]   # .rodata blob resume (strtod's strings follow at 0x6387F0)
       - [0x538B00, lit4, cod/538B00]     # .lit4
