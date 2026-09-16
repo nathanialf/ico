@@ -5,7 +5,20 @@ extern void WakeUpAP1(void *ap1);
 extern void SetAP1VisualState(void *ap1, int state);
 extern void ExecuteSEPackage(char *self, int id);
 extern void *D_0063A438;
-extern char D_00620B60[];
+
+/* spider.o's whole .rodata run starts here.  These three are named objects,
+   not literals at their use sites: the two group-wake messages are used near
+   the end of the file and the ROM has them second and third in the run. */
+static const char spiderFile[] = __FILE__;
+
+/* tried to wake a spider group that already has a parent; this is invalid */
+static const char spiderWakeHasParentMsg[] =
+    "親のいる蜘蛛グループを起こそうとしました。これは無効です\n";
+
+/* tried to wake a spider group with no parent written in the table; invalid */
+static const char spiderWakeNoParentMsg[] =
+    "蜘蛛グループを起こそうとしましたが、表に親が書かれていません。これは無効です\n";
+
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 extern void *MakeAP1GObj(void *lay);
 
@@ -30,14 +43,14 @@ char *InitSpiderLayoutGeo(char *self, char *lay)
     int i;
     int k;
 
-    w = (char *)iosMallocDebug((int)D_0063A438, 64, D_00620B60, 43);
+    w = (char *)iosMallocDebug((int)D_0063A438, 64, spiderFile, 43);
     l = *(SpiderLay *)lay;
 
     k = *(int *)(lay + 0x30);
     n = D_0062B588[k].n;
     *(int *)(w + 0x20) = n;
     *(int *)(w + 0x34) = k;
-    *(char **)(w + 0x24) = (char *)iosMallocDebug((int)D_0063A438, n * 4, D_00620B60, 47);
+    *(char **)(w + 0x24) = (char *)iosMallocDebug((int)D_0063A438, n * 4, spiderFile, 47);
     *(int *)(w + 0x28) = 0;
     *(int *)(w + 0x00) = -1;
     *(int *)(w + 0x2C) = 0;
@@ -155,9 +168,6 @@ int CallSpidersToReviveEnemy(char *self)
 
 extern int D_0063BAC0;
 extern int iosOmSendMail(void *gop, int msg, void *sender);
-extern char D_00620C00[];
-extern char D_00620C60[];
-extern char D_00620C70[];
 extern void debug_StdPrintfDummy();
 extern void EntrySpiderGroupManager(char *self);
 extern void EntryRevivedSpiderGroupManager(char *self);
@@ -196,17 +206,19 @@ void SpiderLayoutGeo(char *self)
             callSpidersToGirl(self);
             if (D_0062B588[*(int *)(w + 0x34)].f14 == 1) {
                 if (callSpidersToBoy(self) == 0) {
-                    debug_StdPrintfDummy(D_00620C00);
+                    /* an order came to target the heroine, but this stage has no heroine */
+                    debug_StdPrintfDummy(
+                        "蜘蛛のターゲットをヒロインにせよと言う命令がありましたが\nこのステージにヒロインはいません。\n");
                 }
             }
         }
         if ((*(unsigned int *)(w + 0x2C))++ >= 11) {
             if (*(int *)(w + 0x3C) == 0) {
-                debug_StdPrintfDummy(D_00620C60, D_0063BAC0++);
+                debug_StdPrintfDummy("entry %d\n", D_0063BAC0++);
                 EntrySpiderGroupManager(self);
                 *(int *)w = 0;
             } else {
-                debug_StdPrintfDummy(D_00620C70, D_0063BAC0++);
+                debug_StdPrintfDummy("entry revived %d\n", D_0063BAC0++);
                 EntryRevivedSpiderGroupManager(self);
                 *(int *)w = 0;
             }
@@ -259,8 +271,10 @@ void SpiderLayoutGeo(char *self)
 
 extern int D_0063BAC4;
 extern int D_0063BADC;
-extern char D_00620CA8[];
-extern int D_004ECFA0[];
+
+/* spider.o's whole .data run: the white the debug wire sphere is drawn in. */
+static int spiderWireColor[4] = {0xFF, 0xFF, 0xFF, 0xFF};
+
 extern void GetRootPosition(void *out, void *obj);
 extern void *MatrixDrive_GetMatrix(void);
 extern void _UnitMatrix(void *m);
@@ -283,6 +297,18 @@ typedef struct {
     void **members;
 } SpiderGrp;
 
+/* The rest of spider.o's .rodata run: the compiler puts SpiderLayoutGeo's
+   switch table ahead of these, so they are named objects declared after it. */
+static const char spiderStatusFmt[] = "%c SE:%s AI:%s";
+
+static const char spiderRestoreFmt[] = "restore: %p\n";
+
+static const char spiderWakeFmt[] = "     WAKE: %s\n";
+
+static const char spiderAliveFmt[] = "    ALIVE: %d\n";
+
+static const char spiderReviveFmt[] = "   REVIVE: %d\n";
+
 void DispAllMemberOfSpider(char *self, int *col)
 {
     SpiderGrp *g;
@@ -303,14 +329,14 @@ void DispAllMemberOfSpider(char *self, int *col)
             prim_DispWireSphere(col, 4, 4, 50.0f);
             gif_EndPacket();
             debug_PrintfDummy(400, D_0063BADC * 10 + 50,
-                              (col[0] << 24) | (col[1] << 16) | (col[2] << 8) | 0xFF, D_00620CA8,
-                              D_0063BADC == D_0063BAC4 ? 62 : 32, GetAP1Mode(g->members[i]),
-                              GetAP1AIMode(g->members[i]));
+                              (col[0] << 24) | (col[1] << 16) | (col[2] << 8) | 0xFF,
+                              spiderStatusFmt, D_0063BADC == D_0063BAC4 ? 62 : 32,
+                              GetAP1Mode(g->members[i]), GetAP1AIMode(g->members[i]));
             if (D_0063BADC == D_0063BAC4) {
                 gif_StartPacketPri(11);
                 gif_SetZTest(1);
                 gif_SetAlpha(1, 5, 128);
-                prim_DispWireSphere(D_004ECFA0, 4, 4, 100.0f);
+                prim_DispWireSphere(spiderWireColor, 4, 4, 100.0f);
                 gif_EndPacket();
             }
             D_0063BADC++;
@@ -470,12 +496,8 @@ int RestoreSpiderLayoutGeo(void)
     return 1;
 }
 
-extern char D_00620CB8[];
-extern char D_00620CC8[];
 extern char D_0063BAD0[];
 extern char D_0063BAD8[];
-extern char D_00620CD8[];
-extern char D_00620CE8[];
 
 int RestoreSpiderLayoutExtGeo(char *a0, char *a1)
 {
@@ -488,10 +510,10 @@ int RestoreSpiderLayoutExtGeo(char *a0, char *a1)
     if (ex[2]) {
         *(int *)(p + 0x3C) = 1;
     }
-    debug_StdPrintfDummy(D_00620CB8, a0);
-    debug_StdPrintfDummy(D_00620CC8, *(int *)(a1 + 0x30) ? D_0063BAD0 : D_0063BAD8);
-    debug_StdPrintfDummy(D_00620CD8, ex[1]);
-    debug_StdPrintfDummy(D_00620CE8, ex[2]);
+    debug_StdPrintfDummy(spiderRestoreFmt, a0);
+    debug_StdPrintfDummy(spiderWakeFmt, *(int *)(a1 + 0x30) ? D_0063BAD0 : D_0063BAD8);
+    debug_StdPrintfDummy(spiderAliveFmt, ex[1]);
+    debug_StdPrintfDummy(spiderReviveFmt, ex[2]);
     return 1;
 }
 
@@ -510,8 +532,6 @@ int MemorySpiderLayout(char *dst, char *gp)
     return 1;
 }
 
-extern char D_00620B70[];
-extern char D_00620BB0[];
 extern void GetGeneratorSafePosition(void *pos, void *gen);
 extern void SetDirectRootPosition(void *obj, void *pos);
 extern void WakeUpLayoutedSpiders(void *gp);
@@ -535,11 +555,11 @@ void WakeUpSpidersFromGenerator(char *gp)
 
     if (gen != 0) {
         if (*(int *)(gen + 0xC) != 0x21) {
-            debug_StdPrintfDummy(D_00620B70);
+            debug_StdPrintfDummy(spiderWakeHasParentMsg);
             return;
         }
     } else {
-        debug_StdPrintfDummy(D_00620BB0);
+        debug_StdPrintfDummy(spiderWakeNoParentMsg);
         return;
     }
     GetGeneratorSafePosition(pos, gen);

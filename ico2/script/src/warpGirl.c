@@ -44,13 +44,12 @@ typedef union Vec16 {
 } Vec16;
 
 extern StageRec D_004DA980[];
-extern WarpRec D_0055EE50[];
+extern WarpRec girlWarpList[];
 extern int stage_no;
 extern int D_0063C258;
 extern int D_00639EA8;
 extern char D_0063AA58[];
 extern char D_0063AA60[];
-extern char D_005549E8[];
 extern int gflagChk(int flag);
 extern void *memset(void *p, int c, int n);
 extern void GetRootPosition(float *out, int gobj);
@@ -86,7 +85,9 @@ void warpGirlOutStage(int stage, int noSet)
 
         debug_StdPrintfDummy(D_0063AA58);
         while (n-- != 0) {
-            debug_StdPrintfDummy(D_005549E8);
+            /* warpGirl.c: odd to come through here outside DEBUG STAGE SELECT */
+            debug_StdPrintfDummy(
+                "warpGirl.c:もしDEBUG STAGE SELECTでなくてここを通ったら おかしい！");
         }
         debug_StdPrintfDummy(D_0063AA60);
         return;
@@ -103,7 +104,7 @@ void warpGirlOutStage(int stage, int noSet)
     }
     D_0063C258 = 0;
     for (i = 1; i < 25 && D_0063C258 == 0; i++) {
-        WarpRec *w = &D_0055EE50[i];
+        WarpRec *w = &girlWarpList[i];
 
         if (w->from != stage) {
             continue;
@@ -142,7 +143,6 @@ void warpGirlOutStage(int stage, int noSet)
 }
 
 extern int warpGirlInStageSet;
-extern char D_00554A30[];
 extern int IsGirlEscortedInNextStage(void);
 extern void sceVu0ScaleVector(float *dst, float *src, float s);
 extern void debug_StdPrintfDummy();
@@ -153,7 +153,7 @@ void warpGirlInStage(int stageNo)
     float pos[4];
     float rot[4];
     float ry;
-    WarpRec *w = &D_0055EE50[warpGirlId];
+    WarpRec *w = &girlWarpList[warpGirlId];
 
     warpGirlInStageSet = 0;
     if (IsGirlEscortedInNextStage() != 0) {
@@ -183,6 +183,6 @@ void warpGirlInStage(int stageNo)
     rot[1] = ry;
     rot[2] = 0.0f;
     sceVu0ScaleVector(rot, rot, 0.017453292f);
-    debug_StdPrintfDummy(D_00554A30, D_00639EA8);
+    debug_StdPrintfDummy("girl %p\n", D_00639EA8);
     gamesysObjInfoPosNewStageSet(0x94, 2, stageNo, pos, rot);
 }

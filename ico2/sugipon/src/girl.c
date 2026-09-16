@@ -135,7 +135,7 @@ static void dispClothes(char *gobj)
     if (*(int *)(w + 0x4) != 0) {
         /* Two separate tests, not `>= 642 || < 639`: gcc's fold_range_test
          * merges a disjunction over one operand into `(unsigned)(v - 639) < 3`,
-         * which ROM does not have — ROM keeps both `slti`s. */
+         * which ROM does not have, ROM keeps both `slti`s. */
         if (*(int *)(*(char **)(gobj + 0x15C) + 0x4A0) < 642) {
             if (*(int *)(*(char **)(gobj + 0x15C) + 0x4A0) >= 639) {
                 goto skip;
@@ -174,7 +174,6 @@ typedef struct GirlWork {
 } GirlWork;
 
 extern int D_0063A438;
-extern char D_0061F900[];
 extern char D_004E7AC0[];
 extern char D_004E86C0[];
 extern char D_004E8EF0[];
@@ -187,12 +186,75 @@ extern char D_004EB180[];
 extern char D_004EB240[];
 extern char D_004EB300[];
 extern char D_004EB380[];
-extern void setGirlClothSetting(int a0);
+/* prototypes: their order is the inline tail's emission order */
+void SetGirlClothDispSwitch(char *a0, int a1, int a2);
+void SetGirlHairDispSwitch(char *a0, int a1);
+void setGirlClothSetting(int a0);
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 extern void *InitCloth4D(char *gobj, char *a1, char *a2);
 extern void *CSVSYSTEM_InitDObj(int id, char *csv);
 extern void InitMotionOrient(char *gobj, int a1, int a2, int a3, int a4, int a5);
 extern void SetLodLevel(char *gobj, int lv);
+
+/* The three cloth and hair setters sit here, at their census source lines
+   (834, 852 and 878, against InitGirlGeo's 891).  They are plain `inline`,
+   which is why gcc emits their bodies at the END of the object, where the
+   ROM has them, while their string constants stay at this point of the run. */
+inline void SetGirlClothDispSwitch(char *a0, int a1, int a2)
+{
+    char *cloth = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
+    switch (a1) {
+    case 0:
+        *(int *)(cloth + 0x4) = a2;
+        break;
+    case 1:
+        *(int *)(cloth + 0xC) = a2;
+        break;
+    case 2:
+        *(int *)(cloth + 0x1C) = a2;
+        break;
+    }
+}
+
+inline void SetGirlHairDispSwitch(char *a0, int a1)
+{
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x28) = a1;
+}
+
+typedef struct {
+    int unk0;
+    int unk4;
+    int unk8;
+    int unkC;
+} GirlClothSetting;
+
+extern GirlClothSetting D_004EB400;
+extern GirlClothSetting D_004EB410;
+extern int D_0063B250;
+extern int D_0063B254;
+extern int D_0063B258;
+extern int D_0063B25C;
+
+/* static helper the listing places at girl.c line(s) 864-868; never emitted out
+ * of line, so it has no MAIN.MAP symbol and this name is ours. */
+static inline void setGirlClothParam(GirlClothSetting *p)
+{
+    D_0063B250 = p->unk0;
+    D_0063B254 = p->unk4;
+    D_0063B258 = p->unk8;
+    D_0063B25C = p->unkC;
+}
+
+inline void setGirlClothSetting(int a0)
+{
+    if (a0 == 0) {
+        debug_StdPrintfDummy("set cloth demo mode\n");
+        setGirlClothParam(&D_004EB400);
+    } else {
+        debug_StdPrintfDummy("set cloth game mode\n");
+        setGirlClothParam(&D_004EB410);
+    }
+}
 
 void *InitGirlGeo(char *gobj, char *csv)
 {
@@ -200,7 +262,7 @@ void *InitGirlGeo(char *gobj, char *csv)
     int p;
     int kind;
 
-    w = iosMallocDebug(D_0063A438, 0x44, D_0061F900, 892);
+    w = iosMallocDebug(D_0063A438, 0x44, __FILE__, 892);
     p = *(int *)(gobj + 0x15C);
     w->f38 = 0;
     w->f34 = 0;
@@ -296,14 +358,6 @@ void GirlGeo(char *a0)
     execClothes(a0);
 }
 
-extern char D_0061F910[];
-extern char D_0061F930[];
-extern char D_0061F948[];
-extern char D_0061F960[];
-extern char D_0061F980[];
-extern char D_0061F998[];
-extern char D_0061F9B0[];
-extern char D_0061F9C8[];
 extern void debug_StdPrintfDummy(char *p);
 extern void scpGirlHintVoiceReady(int no);
 extern void scpGirlHintVoicePlay(void);
@@ -319,40 +373,40 @@ void GirlAI(char *a0)
     if (mode == 0x297) {
         if (hint != 0) {
             if (*(int *)(cloth + 0x38) != 0) {
-                debug_StdPrintfDummy(D_0061F910);
+                debug_StdPrintfDummy("reset hint2 voice ready\n");
                 scpGirlHintVoiceCancel();
             }
             scpGirlHintVoiceReady(0x65);
             *(int *)(cloth + 0x34) = 1;
-            debug_StdPrintfDummy(D_0061F930);
+            debug_StdPrintfDummy("hint1 voice ready\n");
         }
         if (*(int *)(cloth + 0x34) != 0 && *(int *)(cloth + 0x3C) == 0 &&
             47.0f < *(float *)(*(char **)(a0 + 0x15C) + 0x4AC)) {
             scpGirlHintVoicePlay();
             *(int *)(cloth + 0x3C) = 1;
-            debug_StdPrintfDummy(D_0061F948);
+            debug_StdPrintfDummy("hint1 voice play\n");
         }
     }
     if (mode == 0x29A) {
         if (hint != 0) {
             if (*(int *)(cloth + 0x34) != 0) {
-                debug_StdPrintfDummy(D_0061F960);
+                debug_StdPrintfDummy("reset hint1 voice ready\n");
                 scpGirlHintVoiceCancel();
             }
             scpGirlHintVoiceReady(0x67);
             *(int *)(cloth + 0x38) = 1;
-            debug_StdPrintfDummy(D_0061F980);
+            debug_StdPrintfDummy("hint2 voice ready\n");
         }
         if (*(int *)(cloth + 0x38) != 0 && *(int *)(cloth + 0x40) == 0 &&
             107.0f < *(float *)(*(char **)(a0 + 0x15C) + 0x4AC)) {
             scpGirlHintVoicePlay();
             *(int *)(cloth + 0x40) = 1;
-            debug_StdPrintfDummy(D_0061F998);
+            debug_StdPrintfDummy("hint2 voice play\n");
         }
     }
     if (*(int *)(cloth + 0x34) != 0) {
         if (mode != 0x297 && mode != 0x298) {
-            debug_StdPrintfDummy(D_0061F9B0);
+            debug_StdPrintfDummy("hint1 voice reset\n");
             *(int *)(cloth + 0x34) = 0;
             *(int *)(cloth + 0x3C) = 0;
             scpGirlHintVoiceCancel();
@@ -360,7 +414,7 @@ void GirlAI(char *a0)
     }
     if (*(int *)(cloth + 0x38) != 0) {
         if (mode != 0x29A && mode != 0x29B) {
-            debug_StdPrintfDummy(D_0061F9C8);
+            debug_StdPrintfDummy("hint2 voice reset\n");
             *(int *)(cloth + 0x38) = 0;
             *(int *)(cloth + 0x40) = 0;
             scpGirlHintVoiceCancel();
@@ -415,63 +469,4 @@ void GirlDL(int a0)
     p2o_DispVU1(a0);
     dispClothes((char *)a0);
     return debugWireStringGirl((char *)a0);
-}
-
-void SetGirlClothDispSwitch(char *a0, int a1, int a2)
-{
-    char *cloth = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
-    switch (a1) {
-    case 0:
-        *(int *)(cloth + 0x4) = a2;
-        break;
-    case 1:
-        *(int *)(cloth + 0xC) = a2;
-        break;
-    case 2:
-        *(int *)(cloth + 0x1C) = a2;
-        break;
-    }
-}
-
-void SetGirlHairDispSwitch(char *a0, int a1)
-{
-    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x28) = a1;
-}
-
-extern char D_0061F8D0[];
-extern char D_0061F8E8[];
-
-typedef struct {
-    int unk0;
-    int unk4;
-    int unk8;
-    int unkC;
-} GirlClothSetting;
-
-extern GirlClothSetting D_004EB400;
-extern GirlClothSetting D_004EB410;
-extern int D_0063B250;
-extern int D_0063B254;
-extern int D_0063B258;
-extern int D_0063B25C;
-
-/* static helper the listing places at girl.c line(s) 864-868; never emitted out
- * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline void setGirlClothParam(GirlClothSetting *p)
-{
-    D_0063B250 = p->unk0;
-    D_0063B254 = p->unk4;
-    D_0063B258 = p->unk8;
-    D_0063B25C = p->unkC;
-}
-
-void setGirlClothSetting(int a0)
-{
-    if (a0 == 0) {
-        debug_StdPrintfDummy(D_0061F8D0);
-        setGirlClothParam(&D_004EB400);
-    } else {
-        debug_StdPrintfDummy(D_0061F8E8);
-        setGirlClothParam(&D_004EB410);
-    }
 }

@@ -196,8 +196,6 @@ void SleepAP1(int *a0)
     AP1MotReqForce(a0, 7);
 }
 
-extern char D_0061EE98[];
-
 void WakeUpAP1(int *a0)
 {
     typedef union {
@@ -208,7 +206,8 @@ void WakeUpAP1(int *a0)
     int s = ((U *)((char *)a0 + 0x164))->i;
 
     if (*(int *)(s + 0x34) == 4) {
-        debug_StdPrintfDummy(D_0061EE98);
+        /* already dead, so it is not woken */
+        debug_StdPrintfDummy("既に死んでいるので起こしません\n");
         return;
     }
     *(int *)(s + 0x34) = 2;
@@ -292,7 +291,6 @@ extern AP1Vec D_0071ECA0;
 extern AP1Vec D_0071ECC0;
 extern int D_00639EA4;
 extern int (*D_004E5A60[])(int self);
-extern char D_0061EEB8[];
 extern void CopyVector(void *dst, void *src);
 extern void _NormalizeVector(void *dst, void *src);
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
@@ -389,7 +387,8 @@ void subAP1BrainMain(volatile int self)
 
         if (CheckFloorAttribute((int)self, 0x800) || CheckFloorAttribute((int)self, 0x900)) {
             iosOmSendMail((int)self, 0xDF, (int)self);
-            debug_StdPrintfDummy(D_0061EEB8);
+            /* forced death */
+            debug_StdPrintfDummy("強制死亡\n");
         }
         *(int *)(p + 0x4C) = *(int *)(p + 0x4C) + 1;
         _ACTWait(1);

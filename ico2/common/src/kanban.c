@@ -17,14 +17,24 @@ typedef struct Node {
     struct Node *f1C;
 } Node;
 
-typedef struct {
+typedef union {
+    int i[4];
     char b[16];
 } Pkt16;
 
 extern int *D_0063C398;
 extern int D_0063C39C;
 extern int D_0071CB10[];
-extern Pkt16 D_0061D698;
+
+/* kanban.o's whole .rodata run opens with these two named objects: the
+   overflow message is printed far down the file and the sprite packet is
+   read further down still, but the ROM has them first. */
+/* kanban quest box over */
+static const char kanbanOverMsg[] = "かんばんクエストボックスオーバー\n";
+
+/* The sprite the kanban is drawn as, {x, y, width, height} centred on the
+   origin, the same rectangle src/staffroll.c uses for the roll. */
+static const Pkt16 kanbanSprite = {{-5120, -1792, 10240, 3584}};
 
 typedef struct {
     unsigned char pad0[0x130];
@@ -52,7 +62,6 @@ extern KanbanStage D_005F5D50[];
 extern KanbanProp D_00533FE8[];
 extern int kanbanCommonRead;
 extern Col4 D_0063B4A0;
-extern char D_0061D670[];
 extern int D_0028F4C0[];
 extern void debug_StdPrintfDummy();
 
@@ -89,10 +98,6 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col);
 extern char D_00535168[][0x34];
 extern char D_0063B4A8[];
 extern char D_0063B4B0[];
-extern char D_0061D6A8[];
-extern char D_0061D6B8[];
-extern char D_0061D6D0[];
-extern char D_0061D6E0[];
 extern char *strcpy(char *dst, const char *src);
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
@@ -159,10 +164,10 @@ static inline int get_texture_no_of_property(int idx)
     no = tex_GetTextureNo(name);
 
     if (no < 0) {
-        debug_StdPrintfDummy(D_0061D6A8, n);
-        debug_StdPrintfDummy(D_0061D6B8, src);
-        debug_assert(D_0061D6D0, 0x110);
-        __assert(D_0061D6D0, 0x110, D_0063B4B0);
+        debug_StdPrintfDummy("tex_id %d\n", n);
+        debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
+        debug_assert(__FILE__, 0x110);
+        __assert(__FILE__, 0x110, D_0063B4B0);
     }
     return no;
 }
@@ -231,7 +236,7 @@ Node *kanbanReqAdd(int no, int pri)
         if (p->f0 == 0)
             goto found;
     }
-    debug_StdPrintfDummy(D_0061D670);
+    debug_StdPrintfDummy(kanbanOverMsg);
     return 0;
 
 found:
@@ -326,7 +331,7 @@ void init_textures_of_specified_property(int first, int last)
     int no;
 
     for (i = first; i < last; i++) {
-        debug_StdPrintfDummy(D_0061D6E0, i);
+        debug_StdPrintfDummy("propertyId %d\n", i);
         no = get_texture_no_of_property(i);
         *(int *)(D_0030D014 + i * 0x70) = no;
         *(void **)(D_0030D014 + i * 0x70 - 4) = tex_GetTextureData(no);
@@ -483,7 +488,7 @@ inline void kanbanExec(void)
         gif_SetZTest(0);
         gif_SetZWrite(0);
         gif_SetAlpha(1, 7, 0);
-        pkt = D_0061D698;
+        pkt = kanbanSprite;
         gif_SpriteSensitive(&pkt, 0xFFFFFFFFu, 0, col, 1);
         gif_SetZWrite(1);
         gif_SetZTest(1);

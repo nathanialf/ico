@@ -2300,7 +2300,7 @@ extern void stage_SetLoopFlag(int key, int a1);
 extern void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov,
                             int flag);
 extern void actSt25aQueenAppearChk(volatile int a0);
-extern struct ScpMail D_002A5460[];
+extern struct ScpMail queen_appear_mes[];
 extern char D_005548F0[];
 extern char D_00554900[];
 
@@ -2314,8 +2314,8 @@ void actSubSekizoSe(volatile int a0)
         ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
         *(int *)(scpSearchGobj(0x865) + 0x16C) = 0;
         stage_SetLoopFlag(0x22B, 0);
-        D_002A5460[0].func = actSt25aQueenAppearChk;
-        act->mail = D_002A5460;
+        queen_appear_mes[0].func = actSt25aQueenAppearChk;
+        act->mail = queen_appear_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
         return;

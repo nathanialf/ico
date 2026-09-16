@@ -20,7 +20,6 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
-extern char D_005549D0[];
 extern void tex_SetUVScroll(void *a0, float f12, float f13, float f14, float f15, float f16,
                             float f17, int a1);
 extern void Generator_Mask(char *self);
@@ -59,21 +58,63 @@ extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern int dead;
 extern char D_00618ED0[];
-extern char D_00554930[];
 extern int InqQueenBarrierExist(void);
 extern int gflagChk(int a0);
 extern void StandbyStreamMotion(int self);
 extern int CheckReadyStreamMotion(void);
 extern void debug_StdPrintfDummy(char *fmt, ...);
-extern char D_005549C0[];
-extern ActMail D_002A5440[];
-extern ActMail D_002A5480[];
-extern ActMail D_002A54A0[];
-extern ActMail D_002A54C0[];
-extern ActMail D_002A54E0[];
-extern ActMail D_002A5500[];
-extern ActMail D_002A5520[];
-extern ActMail D_002A5560[];
+
+/* st25a.o's whole .rodata run, in the order the object emits it; the 0.15
+   double that closes the run is actSt25aElevChk's own constant-pool operand. */
+typedef union Vec4 {
+    float f[4];
+    long long d[2];
+} Vec4;
+
+typedef struct AnimSet18 {
+    int anim[18]; /* 0x00 */
+} AnimSet18;
+
+/* The offset the sekika boy is dropped by. */
+static const Vec4 sekikaOfs = {{2000.0f, 0.0f, 0.0f, 1.0f}};
+
+static const char streamWaitFmt[] = "Now waiting for standby stream motion system... %d\n";
+
+/* The eighteen stage animations the cancelled ending restores. */
+static const AnimSet18 cancelAnimSet = {
+    {784, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 801}};
+
+/* Where the boy is put back when the ending is cancelled. */
+static const Vec4 cancelBoyPos = {{-1472.7711f, 928.20026f, -18.074427f, 0.0f}};
+
+static const char queenBallScrTexture[] = "queen_ball_scr";
+
+static const char sekikaBoyTexture[] = "sekika_boy";
+
+/* st25a.o's whole .data run: ten actor mail records, in ROM order.  Each is
+   the usual pair, the 430 entry whose handler the sender fills in and the 429
+   terminator.  queen_appear_mes is the only one another TU sends, so it is the
+   only global of the ten. */
+static ActMail queen_before_mes[2] = {{430}, {429}};
+
+ActMail queen_appear_mes[2] = {{430}, {429}};
+
+static ActMail queen_talk_mes[2] = {{430}, {429}};
+
+static ActMail queen_dead_ready_mes[2] = {{430}, {429}};
+
+static ActMail queen_dead_mes[2] = {{430}, {429}};
+
+static ActMail queen_attack_mes[2] = {{430}, {429}};
+
+static ActMail elev_up_mes[2] = {{430}, {429}};
+
+static ActMail elev_down_mes[2] = {{430}, {429}};
+
+static ActMail elev_chara_mes[2] = {{430}, {429}};
+
+static ActMail elev_end_mes[2] = {{430}, {429}};
+
 extern PObjGObj *scpSearchGobj(int a0);
 extern int ForMotionViewer_GetCurrentMotion(char *self);
 extern void ACTSendMailCorrect(int a0, int mail);
@@ -109,14 +150,8 @@ void actSt25aQueenAppearChk(volatile int a0)
     actCreateSubThread(actConte11, 0x15);
 }
 
-typedef union Vec4 {
-    float f[4];
-    long long d[2];
-} Vec4;
-
 extern char D_005548F0[];
 extern char D_00554900[];
-extern Vec4 D_00554920;
 extern void lt_switch_layout(int a0);
 extern void scpPlayStart(int a0);
 extern void scpPlayMot(int a0, int mot);
@@ -171,7 +206,7 @@ void actConte11(volatile int a0)
     scpPlayMot((int)scpSearchGobj(0x865), 0x451);
 
     scpPlayMot(D_00639EA4, 0);
-    ofs = D_00554920;
+    ofs = sekikaOfs;
     sceVu0SubVector(dir, &ofs, test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
 
@@ -193,17 +228,11 @@ void actConte11(volatile int a0)
     enable_game_pause = 1;
 }
 
-typedef struct AnimSet18 {
-    int anim[18]; /* 0x00 */
-} AnimSet18;
-
 typedef union QueenWork {
     AnimSet18 a;
     Vec4 v[3];
 } QueenWork;
 
-extern AnimSet18 D_00554968;
-extern Vec4 D_005549B0;
 extern char D_00618E70[];
 extern int D_0028F8F4[];
 extern int conte12;
@@ -259,7 +288,7 @@ void actSt25aQueenTalkChk(volatile int a0)
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
         i++;
-        debug_StdPrintfDummy(D_00554930, i);
+        debug_StdPrintfDummy(streamWaitFmt, i);
         _ACTWait(1);
     }
 
@@ -297,7 +326,7 @@ void actSt25aQueenTalkChk(volatile int a0)
     iosThreadSetPri((int *)(th2 + 0x24), 0x22);
 
     if (cancel != 0) {
-        w.a = D_00554968;
+        w.a = cancelAnimSet;
         for (n = 0; n < 18; n++) {
             stage_SetAnimation(w.a.anim[n], 1, -1);
             _ACTWait(1);
@@ -318,7 +347,7 @@ void actSt25aQueenTalkChk(volatile int a0)
         stage_SetAnimation(0x321, 1, -1);
         jimakuUndisp((int)&jimaku_msg);
 
-        w.v[0] = D_005549B0;
+        w.v[0] = cancelBoyPos;
         SetDirectRootPosition(D_00639EA4, &w.v[0]);
 
         if (D_0063C254 == 0) {
@@ -757,10 +786,9 @@ void actConte13Jimaku(volatile int a0)
 
 void BoySekikaTexScroll(void)
 {
-    tex_SetUVScroll(D_005549D0, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
+    tex_SetUVScroll(sekikaBoyTexture, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
 }
 
-extern ActMail D_002A5540[];
 extern int D_0063AA44;
 extern int D_0063AA48;
 extern int D_00639EAC;
@@ -814,8 +842,8 @@ void actSt25aElevChk(volatile int a0)
     }
     D_0063AA08 = 0;
     lt_switch_layout(54);
-    D_002A5540[0].func = actSt25aElevCharaChk;
-    sub->mail = D_002A5540;
+    elev_chara_mes[0].func = actSt25aElevCharaChk;
+    sub->mail = elev_chara_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -835,8 +863,8 @@ void actSt25aQueenBefore(volatile int a0)
     MallocStreamMotionBuffer();
 
     if (gflagChk(0x14B) == 0) {
-        D_002A5440[0].func = actSt25aQueenBeforeChk;
-        sub->mail = D_002A5440;
+        queen_before_mes[0].func = actSt25aQueenBeforeChk;
+        sub->mail = queen_before_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -853,8 +881,8 @@ void actSt25aQueenTalk(volatile int a0)
 
     if (gflagChk(0x14D) == 0) {
         scpSearchGobj(0x86E)->f16C = 0;
-        D_002A5480[0].func = actSt25aQueenTalkChk;
-        sub->mail = D_002A5480;
+        queen_talk_mes[0].func = actSt25aQueenTalkChk;
+        sub->mail = queen_talk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -867,8 +895,8 @@ void actSt25aQueenDeadReady(volatile int a0)
 
     _ACTWait(1);
 
-    D_002A54A0[0].func = actSt25aQueenDeadReadyChk;
-    sub->mail = D_002A54A0;
+    queen_dead_ready_mes[0].func = actSt25aQueenDeadReadyChk;
+    sub->mail = queen_dead_ready_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -880,8 +908,8 @@ void actSt25aQueenDead(volatile int a0)
 
     _ACTWait(1);
 
-    D_002A54C0[0].func = actSt25aQueenDeadChk;
-    sub->mail = D_002A54C0;
+    queen_dead_mes[0].func = actSt25aQueenDeadChk;
+    sub->mail = queen_dead_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -893,8 +921,8 @@ void actItouQueenAttack(volatile int a0)
 
     _ACTWait(1);
 
-    D_002A54E0[0].func = actItouQueenAttackChk;
-    sub->mail = D_002A54E0;
+    queen_attack_mes[0].func = actItouQueenAttackChk;
+    sub->mail = queen_attack_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -908,14 +936,14 @@ void actSt25aElev(volatile int a0)
 
     if (gflagChk(0x151) != 0) {
         stage_SetAnimation(0xA2, 0, 0);
-        D_002A5500[0].func = actSt25aElevChk;
-        sub->mail = D_002A5500;
+        elev_up_mes[0].func = actSt25aElevChk;
+        sub->mail = elev_up_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xA1, 0, 0);
-        D_002A5520[0].func = actSt25aElevChk;
-        sub->mail = D_002A5520;
+        elev_down_mes[0].func = actSt25aElevChk;
+        sub->mail = elev_down_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -998,7 +1026,7 @@ void actSt25aQueenDeadReadyChk(volatile int a0)
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
         i++;
-        debug_StdPrintfDummy(D_00554930, i);
+        debug_StdPrintfDummy(streamWaitFmt, i);
         _ACTWait(1);
     }
     scpAdpcmPlayRequestFunc(0x2A, &dead, 0, 1, 0);
@@ -1015,7 +1043,7 @@ void actItouQueenAttackChk(volatile int a0)
         while (ForMotionViewer_GetCurrentMotion((char *)scpSearchGobj(0xDC6)) != 0x436) {
             _ACTWait(1);
         }
-        tex_SetUVScroll(D_005549C0, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 1);
+        tex_SetUVScroll(queenBallScrTexture, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 1);
         _ACTWait(1);
     }
 }
@@ -1028,8 +1056,8 @@ void actSt25aElevCharaChk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_002A5560[0].func = actSt25aElevChk;
-    sub->mail = D_002A5560;
+    elev_end_mes[0].func = actSt25aElevChk;
+    sub->mail = elev_end_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

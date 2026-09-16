@@ -26,14 +26,13 @@ typedef struct ClipColWork {
 } ClipColWork;
 
 extern int D_0028F4C0[];
-extern char D_0061F1D0[];
 extern void debug_StdPrintfDummy();
 extern float GetPointDistance(void *a0, void *a1);
 extern void CopyVector(void *dst, void *src);
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
 /* `self` is volatile because the actor entry's argument has an addressable
-   home on the stack (ROM: `sw $a0, 0($sp)` then `lw $v0, 0($sp)`) — the thread
+   home on the stack (ROM: `sw $a0, 0($sp)` then `lw $v0, 0($sp)`), the thread
    this runs on is resumed by _ACTWait below, so the entry argument is re-read
    from its home rather than kept in a register across the yield. */
 void actClipCollisionCore(volatile unsigned int self)
@@ -52,7 +51,10 @@ void actClipCollisionCore(volatile unsigned int self)
     w->hitFloor = 0;
     w->hitWall = 0;
     if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5 < n) {
-        debug_StdPrintfDummy(D_0061F1D0);
+        /* an enemy in flight cast a RAY that costs too many frames, so it was
+           dropped */
+        debug_StdPrintfDummy(
+            "飛び中の敵があまりにフレーム数のかかるRAYを飛ばしたので無効にしました.\n");
         w->result = 1;
         return;
     }

@@ -1,6 +1,10 @@
 #include "common.h"
 
-extern int D_004E4600[];
+/* staffroll.o's whole .data run: the roll's display area, centred on the
+   origin, {x, y, width, height}.  Only the first word is read here, as the
+   running scroll position. */
+static int staffRollArea[4] = {-5120, -1792, 10240, 3584};
+
 extern int staffRollAlpha;
 extern int D_0063C42C;
 extern float D_0063C430;
@@ -41,7 +45,7 @@ void staffRollStart(float t, int alpha)
     D_0063C42C = 0;
     D_0063C438 = 0;
     staffRollCenterOffsetX = staffRollCenterOffsetXDest = D_0063C424;
-    D_004E4600[0] = 0x500;
+    staffRollArea[0] = 0x500;
     memset(D_0071D980, 0, 0x12C0);
 }
 
@@ -89,9 +93,7 @@ int staffRollScroll(void)
     return count;
 }
 
-extern char *D_004E4610[];
-extern char D_0061DF10[];
-extern char D_0061DF28[];
+extern char *staffRollNameData[];
 extern char D_0063B660[];
 extern int D_0063B674;
 extern int font_GetHeight(void);
@@ -111,13 +113,14 @@ int staffRollNameOut(void)
             if (D_0071D980[i].str == 0)
                 goto found;
         }
-        debug_StdPrintfDummy(D_0061DF10);
-        debug_assert(D_0061DF28, 0xC0);
-        __assert(D_0061DF28, 0xC0, D_0063B660);
+        /* staff roll: out of area */
+        debug_StdPrintfDummy("staff roll 領域不足\n");
+        debug_assert(__FILE__, 0xC0);
+        __assert(__FILE__, 0xC0, D_0063B660);
     found:
 
         e = &D_0071D980[i];
-        s = &D_004E4610[D_0063C428++];
+        s = &staffRollNameData[D_0063C428++];
         if (*s != 0)
             e->str = s;
 
@@ -137,9 +140,9 @@ void staffRollMain(void)
 
     if (D_0063C438 != 0) {
         n = 0;
-        D_004E4600[0] = (int)((float)D_004E4600[0] - D_0063C430);
-        if (D_004E4600[0] < -0x1400) {
-            D_004E4600[0] = -0x1400;
+        staffRollArea[0] = (int)((float)staffRollArea[0] - D_0063C430);
+        if (staffRollArea[0] < -0x1400) {
+            staffRollArea[0] = -0x1400;
             n = 1;
         }
         D_0063C42C = (int)((float)D_0063C42C - D_0063C434);
@@ -226,7 +229,7 @@ void staffRollMain(void)
 void staffRollWide(void)
 {
     D_0063C438 = 1;
-    D_0063C430 = (float)((D_004E4600[0] + 0x1400) / 30);
+    D_0063C430 = (float)((staffRollArea[0] + 0x1400) / 30);
     D_0063C434 = (float)((D_0063C42C - 0x280) / 30);
     staffRollAlpha = 0xFF;
 }

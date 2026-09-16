@@ -123,7 +123,7 @@ typedef struct {
     unsigned int brest : 27;
 } AttackKindEntry;
 
-extern const AttackKindEntry D_0055B790[];
+extern const AttackKindEntry attackData[];
 
 typedef struct {
     /* 0x00 */ float f00;
@@ -161,7 +161,7 @@ static inline int GetAttackKindIndex(char *p)
     int m;
 
     for (i = 0; i < 20; i++) {
-        if (id == D_0055B790[i].f10) {
+        if (id == attackData[i].f10) {
             return i;
         }
     }
@@ -199,7 +199,7 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
     }
     pack->group = k;
     pack->group2 = *(int *)(ext + 0x450) | (k << 16);
-    switch (D_0055B790[k].b0) {
+    switch (attackData[k].b0) {
     case 1:
         if (weapon == 0) {
             return;
@@ -208,7 +208,7 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
         WeaponCurPos(weapon, pack->center, pack->from, pack->to);
         pack->radius0 = (D_00318EB8 + wk)->f00;
         pack->radius1 = 20.0f;
-        ((union PackPowerWord *)&pack->power)->f = D_0055B790[k].f1C * D_00318EB8[wk].f08;
+        ((union PackPowerWord *)&pack->power)->f = attackData[k].f1C * D_00318EB8[wk].f08;
         pack->active = 1;
         pack->f60 = ((D_00318EB8 + wk)->f20 >> 1) & 1;
         if (pack->f60 == 0) {
@@ -223,14 +223,14 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
         break;
 
     case 0:
-        GetFocusNodePos(gobj, D_0055B790[k].f14, v0);
+        GetFocusNodePos(gobj, attackData[k].f14, v0);
         pack->center[0] = v0[0];
         pack->center[1] = v0[1];
         pack->center[2] = v0[2];
         pack->from[0] = v0[0];
         pack->from[1] = v0[1];
         pack->from[2] = v0[2];
-        if (D_0055B790[k].b4 != 0) {
+        if (attackData[k].b4 != 0) {
             pack->to[0] = test_CURRENTROOT(gobj)[0];
             pack->to[1] = test_CURRENTROOT(gobj)[1];
             pack->to[2] = test_CURRENTROOT(gobj)[2];
@@ -239,10 +239,10 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
             pack->to[0] = v0[0];
             pack->to[1] = v0[1];
             pack->to[2] = v0[2];
-            pack->radius0 = D_0055B790[k].f18;
+            pack->radius0 = attackData[k].f18;
         }
-        pack->radius1 = D_0055B790[k].f18;
-        pack->power = D_0055B790[k].f1C;
+        pack->radius1 = attackData[k].f18;
+        pack->power = attackData[k].f1C;
         pack->active = 1;
         if (*(int *)(gobj + 0xC) == 4) {
             if (actEnemy_isLargeEnemy(gobj) != 0) {
@@ -380,10 +380,10 @@ void AttackMail(char *self, AttackPack *pack)
     if (group < 0) {
         power = 10.0f;
     } else if (weapon == 0) {
-        power = D_0055B790[group].f1C;
+        power = attackData[group].f1C;
     } else {
         kind = CheckWeaponKind(weapon);
-        power = D_0055B790[group].f1C * D_00318EB8[kind].f08;
+        power = attackData[group].f1C * D_00318EB8[kind].f08;
         hard = (D_00318EB8 + kind)->f20 & 1;
     }
     iosOmSendMail(self, 13, attacker);
@@ -403,9 +403,9 @@ void AttackMail(char *self, AttackPack *pack)
         *(char **)(e + 0x1B0) = attacker;
         *(int *)(e + 0x1D0) = (int)power;
         *(int *)(*(int *)(self + 0x164) + 0x1D4) = pack->group2;
-        *(char *)(*(int *)(self + 0x164) + 0x1D8) = D_0055B790[group].b1 || pack->f01;
-        *(char *)(*(int *)(self + 0x164) + 0x1DB) = D_0055B790[group].b2 || hard;
-        *(char *)(*(int *)(self + 0x164) + 0x1D9) = D_0055B790[group].b3;
+        *(char *)(*(int *)(self + 0x164) + 0x1D8) = attackData[group].b1 || pack->f01;
+        *(char *)(*(int *)(self + 0x164) + 0x1DB) = attackData[group].b2 || hard;
+        *(char *)(*(int *)(self + 0x164) + 0x1D9) = attackData[group].b3;
         if (attacker == D_00639EA4) {
             *(unsigned long long *)(aext + 0x20) &= ~0x100000000ULL;
         }

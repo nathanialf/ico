@@ -37,9 +37,6 @@ typedef struct QueenMailQueue {
 extern int D_0063A438;
 extern int stage_no;
 extern int D_0063B13C;
-extern int D_00556DA8[];
-extern int D_00556DB0[];
-extern char D_00556DB8[];
 extern int debug_Printf(int x, int y, unsigned int col, char *s, ...);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 extern void GetRootMatrix(void *m, char *g);
@@ -53,10 +50,7 @@ extern int D_006EA7F0[];
 extern int D_002A60B0[];
 extern int D_002A7740[];
 extern int D_002A6BB0[];
-extern const char D_00556D90[];
 extern void sceVu0CopyVector(void *dst, void *src);
-extern const char D_00556DC8[];
-extern const char D_00556DD8[];
 extern int scpGameStat_BoyWeaponkind(void);
 extern int iosOmSendMail(char *gop, int msg, void *sender);
 extern void debug_StdPrintfDummy();
@@ -75,7 +69,6 @@ extern void ACTDispLwsBoyStonize_InQueenStage(char *g);
 extern void p2o_SetDefaultEnviroment(void);
 extern void p2o_DispVU1(char *g);
 extern void DispCloth4D(void *cloth, void *a1, void *a2);
-extern const char D_00556D80[];
 extern void *iosMallocDebug(int heap, int size, const char *file, int line);
 extern void *memset(void *p, int c, int n);
 extern void GetRootPosition(void *work, char *g);
@@ -141,8 +134,60 @@ typedef struct {
     float f[8];
 } QMotBlock;
 
-extern const char D_00556CA0[];
-extern const char D_00556CB0[];
+/* queen.o's .rodata run, in the order the object emits it.  The ten rate
+   tables come in two parallel sets of five, the first used when stage_no is
+   0x25 (the queen's own stage, st25a) and the second everywhere else; each is
+   indexed by the ball's phase counter at ballw+0x18, which runs 0 to 10. */
+typedef struct QueenUVScroll {
+    float v[6];
+} QueenUVScroll;
+
+static const float genWaitRateSt25[11] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+                                          1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+
+static const float ballWaitRateSt25[11] = {7.0f, 6.0f, 6.0f, 5.0f, 5.0f, 4.0f,
+                                           4.0f, 4.0f, 4.0f, 4.0f, 4.0f};
+
+static const float ballHoldRateSt25[11] = {5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f,
+                                           5.0f, 5.0f, 5.0f, 5.0f, 5.0f};
+
+static const float ballSpeedRateSt25[11] = {0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f,
+                                            0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
+
+static const QueenUVScroll ballUVScrollSt25[11] = {
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+};
+
+static const float genWaitRateDefault[11] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+                                             1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+
+static const float ballWaitRateDefault[11] = {3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+                                              1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+
+static const float ballHoldRateDefault[11] = {4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f,
+                                              4.0f, 4.0f, 4.0f, 4.0f, 4.0f};
+
+static const float ballSpeedRateDefault[11] = {0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f,
+                                               0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
+
+static const QueenUVScroll ballUVScrollDefault[11] = {
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+    {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
+};
+
+static const char queenAttackedMsg[] = "queen attacked\n";
+
+static const char enemyDeadMsg[] = "enemy dead %p\n";
+
 extern char IdentityQuaternion[];
 extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int),
                             float speed);
@@ -170,7 +215,7 @@ void queenBeforeFunc(char *g)
             if (scpGameStat_BoyWeaponkind() == 5) {
                 char *o;
 
-                debug_StdPrintfDummy(D_00556CA0);
+                debug_StdPrintfDummy(queenAttackedMsg);
                 *(char *)(w + 2) = 1;
                 o = isysGObjSearchFromObjKindID_begin(0x35);
                 if (o != 0) {
@@ -181,7 +226,7 @@ void queenBeforeFunc(char *g)
         case 0x12: {
             char *boy = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
 
-            debug_StdPrintfDummy(D_00556CB0, boy);
+            debug_StdPrintfDummy(enemyDeadMsg, boy);
             if (e->data != 0 && boy != 0) {
                 GetRootPosition(&pos, e->data);
                 GetRootPosition(&target, boy);
@@ -199,14 +244,22 @@ void queenBeforeFunc(char *g)
 /* PAL listing: queen.c lines 300-385 (the disc's objdump -dl line map). */
 typedef struct QueenGenTable {
     /* 0x0 */ int n;
-    /* 0x4 */ int *list;
+    /* 0x4 */ const int *list;
 } QueenGenTable;
 
-extern QueenGenTable D_00556CF0[];
-extern char D_00556D00[];
+/* The layout ids gene_enemy picks a spawn point from, one list per stage set. */
+static const int genEnemyLayoutSt25[6] = {2152, 2153, 2154, 2155, 2156, 2157};
+
+static const int genEnemyLayoutDefault[6] = {3535, 3536, 3537, 3538, 3539, 3540};
+
+static const QueenGenTable genEnemyTable[2] = {
+    {6, genEnemyLayoutSt25},
+    {6, genEnemyLayoutDefault},
+};
+
+static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d";
+
 extern int D_0028F4C0[];
-extern float D_00556910[];
-extern float D_00556AD8[];
 extern float D_002A78C0[];
 extern float _GetRandom(void);
 extern int isEnemyHyde(char *g);
@@ -223,7 +276,7 @@ void gene_enemy(volatile int g)
     } pos;
 
     char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
-    QueenGenTable *tbl;
+    const QueenGenTable *tbl;
     char *o;
     char *c;
     char *e;
@@ -237,7 +290,7 @@ void gene_enemy(volatile int g)
 
     o = isysGObjSearchFromObjKindID_begin(0x36);
     num = (o != 0) ? *(int *)(*(char **)(*(char **)(o + 0x15C) + 0x830) + 0x18) : 0;
-    tbl = (stage_no == 0x25) ? &D_00556CF0[0] : &D_00556CF0[1];
+    tbl = (stage_no == 0x25) ? &genEnemyTable[0] : &genEnemyTable[1];
 
     timer = 0;
     total = 0;
@@ -256,10 +309,10 @@ void gene_enemy(volatile int g)
                 e = isysGObjSearchFromObjKindID_next(e);
             }
             if (D_0063B13C & 1) {
-                debug_Printf(10, 0x5A, -1, D_00556D00, total, alive, timer);
+                debug_Printf(10, 0x5A, -1, genEnemyStatFmt, total, alive, timer);
             }
             if (alive < total) {
-                if (timer > ((stage_no == 0x25) ? D_00556910 : D_00556AD8)[num] *
+                if (timer > ((stage_no == 0x25) ? genWaitRateSt25 : genWaitRateDefault)[num] *
                                 ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) {
                     if (stage_no == 0x25) {
                         obj = (char *)isysGObjSearchFromObjLayoutID(
@@ -305,21 +358,15 @@ extern void tex_SetUVScroll(void *p, int a1, float a2, float a3, float a4, float
 extern void ParticleEffects_SetAllGoal(void *pos);
 extern int InqQueenBarrierExist(void);
 extern void _GetMotionDirection(void *dir, char *g);
-extern QVec D_00556D30;
+
+/* The position the queen is dropped at outside her own stage. */
+static const QVec queenStartPos __attribute__((aligned(16))) = {{0.0f, 800.0f, 0.0f, 1.0f}};
+
+static const char queenDeadMsg[] = "queen dead\n";
+
+static const char queenBallScrTexture[] = "queen_ball_scr";
+
 extern char D_0063AC58[];
-extern char D_00556D40[];
-extern float D_00556940[];
-extern float D_00556B08[];
-extern float D_00556970[];
-extern float D_00556B38[];
-extern int D_00556D50[];
-
-typedef struct QueenUVScroll {
-    float v[6];
-} QueenUVScroll;
-
-extern QueenUVScroll D_005569D0[];
-extern QueenUVScroll D_00556B98[];
 
 /* The queen's per-frame motion-status record, refreshed from the actor
  * extension at gobj->x15C every tick. */
@@ -444,7 +491,7 @@ void subQueenBrainMain(volatile int g)
 
     _ACTWait(1);
     if (stage_no != 0x25) {
-        pos = D_00556D30;
+        pos = queenStartPos;
         SetDirectRootPosition(D_00639EA4, &pos);
         QueenStartAttack_inl(first);
     }
@@ -468,7 +515,7 @@ void subQueenBrainMain(volatile int g)
 
             if (*(signed char *)(qw + 2) != 0 && *(signed char *)(ballw + 0x12) == 0) {
                 *(char *)(qw + 3) = 1;
-                debug_StdPrintfDummy(D_00556D40);
+                debug_StdPrintfDummy(queenDeadMsg);
             }
 
             if (*(signed char *)(ballw + 0x11) != 0) {
@@ -504,8 +551,9 @@ void subQueenBrainMain(volatile int g)
                          SetMotionRequest((char *)g, 0x144, ext + 0x620)) != 0) {
                     if (first) {
                         startFrame = D_0063C300;
-                        wait = (int)(*((stage_no == 0x25) ? &D_00556940[*(int *)(ballw + 0x18)]
-                                                          : &D_00556B08[*(int *)(ballw + 0x18)]) *
+                        wait = (int)(*((stage_no == 0x25)
+                                           ? &ballWaitRateSt25[*(int *)(ballw + 0x18)]
+                                           : &ballWaitRateDefault[*(int *)(ballw + 0x18)]) *
                                      ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
                     }
                     first = 0;
@@ -524,8 +572,8 @@ void subQueenBrainMain(volatile int g)
                 ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
                 if (*(float *)(*(char **)(g + 0x15C) + 0x4AC) > 15.0f &&
                     *(signed char *)(barw + 0x10) == 0 && motionOk != 0) {
-                    uv = (stage_no == 0x25) ? &D_005569D0[*(int *)(ballw + 0x18)]
-                                            : &D_00556B98[*(int *)(ballw + 0x18)];
+                    uv = (stage_no == 0x25) ? &ballUVScrollSt25[*(int *)(ballw + 0x18)]
+                                            : &ballUVScrollDefault[*(int *)(ballw + 0x18)];
 
                     motionOk = 0;
                     sceVu0ScaleVectorXYZ(&target, &dir, 100.0f);
@@ -536,18 +584,19 @@ void subQueenBrainMain(volatile int g)
                     *(int *)(barw + 0x14) = 0;
                     *(char *)(barw + 0x19) = 0;
                     startFrame = D_0063C300;
-                    wait = (int)(*((stage_no == 0x25) ? &D_00556940[*(int *)(ballw + 0x18)]
-                                                      : &D_00556B08[*(int *)(ballw + 0x18)]) *
-                                 ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-                    tex_SetUVScroll(D_00556D50, 1, uv->v[0], uv->v[1], uv->v[2], uv->v[3], uv->v[4],
-                                    uv->v[5]);
+                    wait =
+                        (int)(*((stage_no == 0x25) ? &ballWaitRateSt25[*(int *)(ballw + 0x18)]
+                                                   : &ballWaitRateDefault[*(int *)(ballw + 0x18)]) *
+                              ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                    tex_SetUVScroll(queenBallScrTexture, 1, uv->v[0], uv->v[1], uv->v[2], uv->v[3],
+                                    uv->v[4], uv->v[5]);
                 }
                 break;
 
             case 0x437:
                 startFrame = D_0063C300;
-                wait = (int)(*((stage_no == 0x25) ? &D_00556970[*(int *)(ballw + 0x18)]
-                                                  : &D_00556B38[*(int *)(ballw + 0x18)]) *
+                wait = (int)(*((stage_no == 0x25) ? &ballHoldRateSt25[*(int *)(ballw + 0x18)]
+                                                  : &ballHoldRateDefault[*(int *)(ballw + 0x18)]) *
                              ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
                 ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
                 break;
@@ -574,6 +623,25 @@ extern void ConvertStickToAbsCoord(void *out, void *stick);
 
 /* census: static Debug_StickControl; ito/src/act_bird.c holds the public symbol
    of that name, so this copy is a file-static. */
+/* The rest of queen.o's .rodata run: it follows subQueenBrainMain's switch
+   table, which the compiler emits after that function's body. */
+static const char queenFile[] = __FILE__;
+
+static const char queenBarrierAttackedMsg[] = "queen barrier attacked\n";
+
+/* The barrier's own spawn layout id, one per stage set.  The bound is left
+   unspecified: under -G 8 a sized 4-byte const array is small enough for
+   .sdata, and the ROM has both in .rodata. */
+static const int barrierLayoutSt25[] = {2150};
+
+static const int barrierLayoutDefault[] = {3527};
+
+static const char damageFmt[] = "damage:%d";
+
+static const char mailFmt[] = "mail %d\n";
+
+static const char queenBallAttackedMsg[] = "queen ball attacked\n";
+
 static void Debug_StickControl(char *self)
 {
     QVec dir;
@@ -604,7 +672,7 @@ void *InitQueenGeo(char *g)
     char *w;
     int i;
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x18, D_00556D80, 732);
+    w = (char *)iosMallocDebug(D_0063A438, 0x18, queenFile, 732);
     memset(w, 0, 0x18);
     for (i = 3; i >= 0; i--) {
         D_006EA7F0[i] = 0;
@@ -680,7 +748,7 @@ void QueenBarrierGeo(char *g)
     char *w;
     char *queen;
     char *qw;
-    int *tbl;
+    const int *tbl;
     unsigned int i;
     unsigned int found;
     unsigned int mine;
@@ -691,13 +759,13 @@ void QueenBarrierGeo(char *g)
     queen = isysGObjSearchFromObjKindID_begin(0x2F);
     qw = *(char **)(*(char **)(queen + 0x15C) + 0x830);
     if (stage_no == 0x25) {
-        tbl = D_00556DA8;
+        tbl = barrierLayoutSt25;
     } else {
-        tbl = D_00556DB0;
+        tbl = barrierLayoutDefault;
     }
     mine = 0;
     if (D_0063B13C & 1) {
-        debug_Printf(0xA, 0x46, 0xFFFFFFFF, D_00556DB8, *(int *)(w + 0x18));
+        debug_Printf(0xA, 0x46, 0xFFFFFFFF, damageFmt, *(int *)(w + 0x18));
     }
     for (i = 0; i < 1; i++) {
         char *o = (char *)isysGObjSearchFromObjLayoutID(tbl[i]);
@@ -793,8 +861,6 @@ extern void _CopyVector(void *dst, void *src);
 extern void CopyQuaternion(void *dst, void *src);
 extern int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
 extern char IdentityQuaternion[];
-extern float D_005569A0[];
-extern float D_00556B68[];
 
 /* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL
  * each expand inline. */
@@ -978,9 +1044,9 @@ void QueenBallGeo(char *g)
             float *rate;
 
             if (stage_no == 0x25) {
-                rate = &D_005569A0[num];
+                rate = &ballSpeedRateSt25[num];
             } else {
-                rate = &D_00556B68[num];
+                rate = &ballSpeedRateDefault[num];
             }
             *(float *)(w + 0x14) += *rate;
         }
@@ -1109,7 +1175,7 @@ void queenBarrierBeforeFunc(char *g)
         QueenMailEntry *e = &q->e[i];
 
         if (e->mail == 0xD) {
-            debug_StdPrintfDummy(D_00556D90);
+            debug_StdPrintfDummy(queenBarrierAttackedMsg);
             *(char *)(w + 0x10) = 1;
             *(char *)(w + 0x11) = 1;
             other = isysGObjSearchFromObjKindID_begin(0x35);
@@ -1140,7 +1206,7 @@ void *InitQueenBarrierGeo(char *g)
 
     char *ext = *(char **)(g + 0x15C);
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x30, D_00556D80, 991);
+    w = (char *)iosMallocDebug(D_0063A438, 0x30, queenFile, 991);
     memset(w, 0, 0x30);
     *(char **)(ext + 0x830) = w;
     *(float *)(w + 0x14) = 300.0f;
@@ -1171,9 +1237,9 @@ void queenBallBeforeFunc(char *g)
         QueenMailEntry *e = &q->e[i];
 
         if (e->mail != 0xD) {
-            debug_StdPrintfDummy(D_00556DC8, e->mail);
+            debug_StdPrintfDummy(mailFmt, e->mail);
         } else if (scpGameStat_BoyWeaponkind() == 5) {
-            debug_StdPrintfDummy(D_00556DD8);
+            debug_StdPrintfDummy(queenBallAttackedMsg);
             *(char *)(w + 0x18) = 1;
             iosOmSendMail(D_00639EA4, 0x1A9, g);
         }
@@ -1187,7 +1253,7 @@ void *InitQueenBallGeo(char *g)
 
     char *ext = *(char **)(g + 0x15C);
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x20, D_00556D80, 1284);
+    w = (char *)iosMallocDebug(D_0063A438, 0x20, queenFile, 1284);
     *(char **)(ext + 0x830) = w;
     memset(w, 0, 0x20);
     *(float *)(w + 0x14) = 0.0f;

@@ -31,30 +31,54 @@ extern void _fwalk(int a0, void *a1);
 extern int memcpy(char *a0, char *a1, int a2);
 extern long long __muldi3(long long a0, long long a1);
 extern long long __udivdi3(long long a0, long long a1);
-extern int D_00638878[];
-extern const unsigned int D_00638888[];
-extern int strcmp(int *p, int *buf);
 
-int _setlocale_r(void *a0, int a1, int a2)
+/* newlib's C locale.  CHAR_MAX in every numeric field is newlib's "not
+   available" marker; the three strings are the only ones the member owns. */
+struct lconv {
+    char *decimal_point;
+    char *thousands_sep;
+    char *grouping;
+    char *int_curr_symbol;
+    char *currency_symbol;
+    char *mon_decimal_point;
+    char *mon_thousands_sep;
+    char *mon_grouping;
+    char *positive_sign;
+    char *negative_sign;
+    char int_frac_digits;
+    char frac_digits;
+    char p_cs_precedes;
+    char p_sep_by_space;
+    char n_cs_precedes;
+    char n_sep_by_space;
+    char p_sign_posn;
+    char n_sign_posn;
+};
+
+static const struct lconv lconv = {
+    ".", "", "", "", "", "", "", "", "", "", 127, 127, 127, 127, 127, 127, 127, 127,
+};
+
+extern int strcmp(const char *p, const char *buf);
+
+int _setlocale_r(void *a0, int a1, const char *a2)
 {
     if (a2 == 0)
         goto no_check;
-    if (strcmp(a2, D_00638888) == 0)
+    if (strcmp(a2, "C") == 0)
         goto found;
-    if (strcmp(a2, D_00638878) != 0)
+    if (strcmp(a2, "") != 0)
         return 0;
 found:
     *(int *)((char *)a0 + 0x30) = a1;
-    *(int *)((char *)a0 + 0x34) = a2;
+    *(int *)((char *)a0 + 0x34) = (int)a2;
 no_check:
-    return (int)D_00638888;
+    return (int)"C";
 }
-
-extern const unsigned int D_00638848[];
 
 void *_localeconv_r(int a0)
 {
-    return D_00638848;
+    return (void *)&lconv;
 }
 
 int setlocale(int a0, int a1)

@@ -132,7 +132,7 @@ typedef struct SafePosOffset {
     int kind;
 } SafePosOffset;
 
-extern SafePosOffset D_0055EDE0[];
+extern SafePosOffset generatorSubPosition[];
 
 static inline unsigned char IsGeneratorSafePosition(float *pos)
 {
@@ -174,7 +174,7 @@ void GetGeneratorSafePosition(float *dst, char *gobj)
         float probe[4];
 
         for (i = 0; i < 7; i++) {
-            SafePosOffset *e = &D_0055EDE0[i];
+            SafePosOffset *e = &generatorSubPosition[i];
 
             if (e->kind != *(int *)(gobj + 8)) {
                 continue;

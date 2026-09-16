@@ -31,7 +31,8 @@ typedef struct {
     char pad2[0x20];
 } DObjGObj;
 
-typedef struct {
+typedef union {
+    int i[8];
     long long w[4];
 } DObjBlk20;
 
@@ -47,7 +48,8 @@ typedef union {
     long long w[2];
 } DObjVec;
 
-typedef struct {
+typedef union {
+    float q[4][4];
     long long w[8];
 } DObjBlk40;
 
@@ -57,10 +59,60 @@ typedef struct {
 
 extern char ZeroVector[];
 extern char ZeroPoint[];
-extern DObjBlk40 D_003198A0;
-extern DObjBlk20 D_003198E0;
-extern DObjBlkC0 D_00319900;
-extern DObjBlk40 D_003199C0;
+
+/* The four DObj templates, in the order the object emits them.  Their
+   contents are ROM-direct; the names are a reconstruction, since the
+   January map lists no symbol for DObj.o's .data member (map line 5917,
+   size 0x9a0 against the retail run's 0x9e0, which is one 64-byte block
+   more).  The record type below is a reconstruction too: only the size,
+   0x880, is proven, by the malloc CSVSYSTEM_InitDObj makes right above
+   the copy, and only the slot table pointer at 0x840 and the character
+   file id at 0x84 have a proven role.  The long long pads are what give
+   the record the 8-byte alignment its copy loop uses. */
+typedef struct {
+    int f00;
+    int f04;
+    long long pad08[13];
+    int f70;
+    int f74;
+    int f78;
+    int f7C;
+    int f80;
+    int charFileId;
+    long long pad88[247];
+    char *slotTable;
+    int f844;
+    long long pad848[7];
+} DObjRecord;
+
+static DObjRecord emptyDObj = {
+    0, -1, {0}, 0, 1, 1, 1, 0, 1552, {0}, 0, -1, {0},
+};
+
+/* One entry of the rotation element array at 0x80c: a zero vector then
+   three identity quaternions. */
+static DObjBlk40 initialRotElem = {{
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+}};
+
+/* The 32-byte record at 0x660 that closes initGeometryState. */
+static DObjBlk20 initialGeoState = {{1, 0, 0, 0, 0, 0, 0, 0}};
+
+/* The 192-byte record at 0x680, cleared before the motion buffers. */
+static DObjBlkC0 initialGeoWork = {{0}};
+
+/* One entry of the blend rotation array at 0x818: four identity
+   quaternions. */
+static DObjBlk40 initialBlendRot = {{
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+}};
+
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 extern void InitMotionGeoInfo(void *p, float a, float b, float c, float d, float e, float f);
 extern void InitMotionStateInfo(void *p);
@@ -100,7 +152,7 @@ void initGeometryState(char *self, float *lay)
     InitMotionGeoInfo(self + 0xA0, lay[0], lay[1], lay[2], lay[4], lay[5], lay[6]);
     InitMotionStateInfo(p->data.p + 0x470);
     InitFrameDependSequence(p->data.p + 0x740);
-    *(DObjBlkC0 *)(p->data.p + 0x680) = D_00319900;
+    *(DObjBlkC0 *)(p->data.p + 0x680) = initialGeoWork;
 
     if (*(char **)(p->data.p + 0x8C) != 0) {
         *(float *)(p->data.p + 0x1DC) =
@@ -120,7 +172,7 @@ void initGeometryState(char *self, float *lay)
         *(void **)(p->data.p + 0x80C) =
             iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, __FILE__, 137);
         for (i = 0; i < *(int *)(p->data.p + 0x88); i++) {
-            *(DObjBlk40 *)(*(char **)(p->data.p + 0x80C) + i * 64) = D_003198A0;
+            *(DObjBlk40 *)(*(char **)(p->data.p + 0x80C) + i * 64) = initialRotElem;
         }
         *(void **)(p->data.p + 0x810) =
             iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 2, __FILE__, 145);
@@ -135,7 +187,7 @@ void initGeometryState(char *self, float *lay)
         *(void **)(p->data.p + 0x818) =
             iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, __FILE__, 161);
         for (m = 0; m < *(int *)(p->data.p + 0x88); m++) {
-            *(DObjBlk40 *)(*(char **)(p->data.p + 0x818) + m * 64) = D_003199C0;
+            *(DObjBlk40 *)(*(char **)(p->data.p + 0x818) + m * 64) = initialBlendRot;
         }
         *(void **)(p->data.p + 0x820) =
             iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88), __FILE__, 169);
@@ -157,7 +209,7 @@ void initGeometryState(char *self, float *lay)
         *(void **)(p->data.p + 0x820) = 0;
     }
     *(void **)(p->data.p + 0x81C) = 0;
-    *(DObjBlk20 *)(p->data.p + 0x660) = D_003198E0;
+    *(DObjBlk20 *)(p->data.p + 0x660) = initialGeoState;
     initGeometryScaleRatio(p->data.p);
 }
 
@@ -404,11 +456,6 @@ void initPolygonState(char *d, float *lay)
 
 inline void FreeDObj(void) {}
 
-typedef struct {
-    long long w[272];
-} DObjBlk880;
-
-extern DObjBlk880 D_00319020;
 extern void *D_0063A44C;
 extern void CSVSYSTEM_ReadCharFiles(char *d, int id);
 extern void debug_StdPrintfDummy();
@@ -446,8 +493,8 @@ char *CSVSYSTEM_InitDObj(int id, float *lay)
 {
     char *d;
 
-    d = iosMallocDebug((int)D_0063A44C, 0x880, __FILE__, 463);
-    *(DObjBlk880 *)d = D_00319020;
+    d = iosMallocDebug((int)D_0063A44C, sizeof(DObjRecord), __FILE__, 463);
+    *(DObjRecord *)d = emptyDObj;
     if (id != 0x610) {
         CSVSYSTEM_ReadCharFiles(d, id);
     }

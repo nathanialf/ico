@@ -35,8 +35,6 @@ extern void SetRootQuaternion(void *gobj, void *q);
 extern void GetRootQuaternion(void *dst, void *gobj);
 extern void GetInverseQuaternion(void *dst, void *src);
 extern void MultiQuaternion(void *dst, void *a, void *b);
-extern char D_0061FA20[];
-extern const char D_0061FA48[];
 extern char D_0063B8E0[];
 extern float IdentityQuaternion[4];
 
@@ -47,9 +45,10 @@ void HoldItem(char *gobj, char *holder)
     char *p;
 
     if (gobj == 0) {
-        debug_StdPrintfDummy(D_0061FA20);
-        debug_assert(D_0061FA48, 0x164);
-        __assert(D_0061FA48, 0x164, D_0063B8E0);
+        /* lost sight of the small barrel but is still trying to grab it */
+        debug_StdPrintfDummy("小樽を見失ったのにつかもうとしてます。\n");
+        debug_assert(__FILE__, 0x164);
+        __assert(__FILE__, 0x164, D_0063B8E0);
     }
     p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
     *(int *)(p + 8) = 0;
@@ -82,8 +81,43 @@ static inline void setItemDead(char *gobj)
     *(int *)(gobj + 0x16C) = 0;
 }
 
+typedef struct {
+    long long pad00[5];
+    int pad28;
+    float f2C;
+    long long pad30[2];
+    int pad40;
+    int f44;
+    long long pad48[11];
+} ItemWorkImage;
+
+/* item.o's whole .data run, in the order the object emits it. */
+static ItemWorkImage emptyItemWork = {{0}, 0, 1.0f, {0}, 0, 300, {0}};
+
+/* The velocity a released item starts from. */
+static float zeroVelocity[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+/* The offset a dropped item is placed at, below the holder's hand. */
+static float itemDropOfs[4] = {0.0f, -50.0f, 0.0f, 1.0f};
+
+/* The shared item scratch buffer.  avoidInsideOfWall builds the wall-push
+   layout in its first three vectors; the 20.0f at offset 0x70 is the only
+   other initialised word of the 192, and nothing in the tree reads it, so the
+   buffer's internal shape past the first three vectors is not recovered. */
+static float itemWork[12][4] = {
+    {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f}, {20.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
+};
+
+/* Where a carried item sits relative to the focus node, the boy's hand and
+   every other carrier's. */
+static float carryOfsPlayer[4] = {-3.3333335f, -27.777779f, 0.0f, 1.0f};
+
+static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f};
+
 extern void ClipWall(int arg);
-extern float D_004EB500[48];
 extern void GetRootPosition(void *a0, char *outer);
 extern void SetDirectRootPositionNoFitting();
 
@@ -92,7 +126,7 @@ void avoidInsideOfWall(void *self, int arg)
     char *p;
     if (arg == 0)
         return;
-    p = (char *)D_004EB500;
+    p = (char *)itemWork;
     GetRootPosition(p, arg);
     GetRootPosition(p + 0x10, (int)self);
     ClipWall((int)p);
@@ -103,7 +137,6 @@ void avoidInsideOfWall(void *self, int arg)
 
 extern void CopyVector(void *dst, void *src);
 extern void SetIdentityQuaternion(void *q);
-extern float D_004EB4E0[4];
 
 void ReleaseItem(char *gobj)
 {
@@ -114,7 +147,7 @@ void ReleaseItem(char *gobj)
     *(int *)(p + 0x14) = 0;
     *(int *)(p + 0x10) = 0;
     *(int *)(*(int *)(gobj + 0x15C) + 0x74) = 1;
-    CopyVector((char *)*(int *)(gobj + 0x15C) + 0x130, D_004EB4E0);
+    CopyVector((char *)*(int *)(gobj + 0x15C) + 0x130, zeroVelocity);
     SetIdentityQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
 }
 
@@ -139,7 +172,6 @@ extern char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *a4, int a5
 extern void SetTorchChainReactionFlag(char *gobj, int flag);
 extern void LinkParentOfDObj(void *gobj, void *link);
 extern void gamesysObjInfoCls(int kind, int no);
-extern float D_004EB4F0[4];
 
 typedef union {
     float f[4];
@@ -153,9 +185,6 @@ typedef union {
 
 /* 0xA0: the item record's .data initialiser, copied over the fresh
    allocation.  The listing attributes the block move to line 262. */
-typedef struct {
-    ItemVec v[10];
-} ItemWorkImage;
 
 typedef struct {
     ItemVec pos;   /* 0x00 */
@@ -174,17 +203,15 @@ typedef struct {
     int f_C;
 } ItemParentLink;
 
-extern ItemWorkImage D_004EB440;
-
 char *InitItemGeo(char *gobj, ItemLayout *layout)
 {
     ItemParentLink link;
     ItemLayout lay;
     char *w = (char *)*(int *)(gobj + 0x15C);
-    char *p = (char *)iosMallocDebug(D_0063A438, 0xA0, D_0061FA48, 446);
+    char *p = (char *)iosMallocDebug(D_0063A438, 0xA0, __FILE__, 446);
 
     *(char **)((char *)*(int *)(gobj + 0x15C) + 0x830) = p;
-    *(ItemWorkImage *)p = D_004EB440;
+    *(ItemWorkImage *)p = emptyItemWork;
     *(int *)(p + 4) = layout->f_30;
     *(int *)(w + 0x78) = 0;
     if (*(int *)(p + 4) == 1) {
@@ -198,7 +225,7 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
         g = CreateLayoutedGObj(10, 0x4B, -1, 1, &lay, -1, 7, 0);
         SetTorchChainReactionFlag(g, 1);
         LinkParentOfDObj(g, &link);
-        CopyVector((char *)*(int *)(g + 0x15C) + 0xA0, D_004EB4F0);
+        CopyVector((char *)*(int *)(g + 0x15C) + 0xA0, itemDropOfs);
         *(char **)(rec + 0x40) = g;
         *(int *)(rec + 0x44) =
             (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 300.0f);
@@ -228,8 +255,6 @@ extern void RotQuaternionX(void *q, short ang);
 extern void RotQuaternionY(void *q, short ang);
 extern void CopyQuaternion(void *dst, void *src);
 extern char *D_00639EA8;
-extern float D_004EB5C0[4];
-extern float D_004EB5D0[4];
 
 /* The holder's 0x15C sub-handle is read through the SubHandle union at every
    site in this function: the ROM keeps the three-load chain of line 511 below
@@ -257,13 +282,13 @@ void carriedItemGeo(char *gobj)
                 &pos,
                 (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0xC) +
                     GetSkeltonFocusNode(*(char **)(rec + 0x14), node) * 0x40,
-                D_004EB5C0);
+                carryOfsPlayer);
         } else {
             _ApplyMatrix(
                 &pos,
                 (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0xC) +
                     GetSkeltonFocusNode(*(char **)(rec + 0x14), node) * 0x40,
-                D_004EB5D0);
+                carryOfsOther);
         }
         CopyQuaternion(
             q, (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0x10) +
@@ -327,7 +352,7 @@ typedef struct ItemBreakRec {
     int f_1C;
 } ItemBreakRec;
 
-extern ItemBreakRec D_004FB970[];
+extern ItemBreakRec itemKind[];
 
 /* src/item.c:184-215 in the January-2002 listing: a static helper with no
    out-of-line copy, inlined into BreakItemFromOutside (rows 185-193, 214) and
@@ -353,7 +378,7 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
 
 /* 0x60..0x120 of uncarriedItemGeo's frame and the whole of floatGeo's: the
    192-byte workspace ClipWall / ClipFloor / ClipWallWaveForce / CheckFieldContact
-   fill in.  It is the same record avoidInsideOfWall drives through D_004EB500,
+   fill in.  It is the same record avoidInsideOfWall drives through itemWork,
    whose +0x88 hit flag and +0x20 result position that function already names. */
 /* The per-frame step this TU derives from the frame-rate pair at D_0028F4C0;
    ThrowItem and InitItemGeo spell the same integer quotient out. */
@@ -416,9 +441,6 @@ extern void SetParticleEffect(int kind, void *pos, void *rot);
 extern void ExecuteSEPackageWithVolumeRate(int gobj, int id, float rate);
 extern int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
 extern float GetTableSin(short a);
-extern char D_0061FA58[];
-extern char D_0061FA70[];
-extern char D_0061FA80[];
 
 /* src/item.c:135-178 in the January-2002 listing: a static helper with no
    out-of-line copy, inlined only into uncarriedItemGeo's wall-hit arm.
@@ -431,7 +453,7 @@ static inline int breakItemOnWallHit(char *gobj, float len, float *pos, float *v
     char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
 
     if (5.0f < len) {
-        int id = D_004FB970[*(int *)(p + 4)].f_0;
+        int id = itemKind[*(int *)(p + 4)].f_0;
 
         if (id != 0x3CC) {
             memset(&rot, 0, 16);
@@ -442,10 +464,10 @@ static inline int breakItemOnWallHit(char *gobj, float len, float *pos, float *v
             RotQuaternionY(&rot, GetTableArcTan2(d[0], d[2]));
             _ScaleVectorXYZ(sv, vel, 0.3f);
             EntryStageMultiBgaManagerSensitiveWithStay(id, pos, &rot, sv,
-                                                       D_004FB970[*(int *)(p + 4)].f_4);
+                                                       itemKind[*(int *)(p + 4)].f_4);
             SetParticleEffect(10, pos, &rot);
         }
-        if ((D_004FB970 + *(int *)(p + 4))->f_1C & 1) {
+        if ((itemKind + *(int *)(p + 4))->f_1C & 1) {
             ExecuteSEPackage((int)gobj, 0x27);
             return 1;
         }
@@ -462,9 +484,9 @@ static inline int breakItemOnFloorHit(char *gobj, float len, float *pos, float *
     char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
 
     if (10.0f < len) {
-        entryBreakBgAnimation(D_004FB970[*(int *)(p + 4)].f_8, pos, vel,
-                              D_004FB970[*(int *)(p + 4)].f_C);
-        if ((D_004FB970 + *(int *)(p + 4))->f_1C & 1) {
+        entryBreakBgAnimation(itemKind[*(int *)(p + 4)].f_8, pos, vel,
+                              itemKind[*(int *)(p + 4)].f_C);
+        if ((itemKind + *(int *)(p + 4))->f_1C & 1) {
             ExecuteSEPackage((int)gobj, 0x2B);
             return 1;
         }
@@ -639,7 +661,8 @@ void uncarriedItemGeo(char *gobj)
     if (len0 + (grav + grav) < spd) {
         CopyVector(npos, pos);
         *(int *)(p + 8) = 0;
-        debug_StdPrintfDummy(D_0061FA58, spd, len0);
+        /* emergency stop 2 */
+        debug_StdPrintfDummy("緊急停止2(%f←%f)\n", spd, len0);
         *(int *)(p + 0x14) = 0;
         *(int *)(p + 0x74) = 0;
     }
@@ -647,7 +670,8 @@ void uncarriedItemGeo(char *gobj)
         *(int *)(p + 8) = 0;
         *(int *)(p + 0x14) = 0;
         *(int *)(p + 0x74) = 0;
-        debug_StdPrintfDummy(D_0061FA70);
+        /* emergency stop 3 */
+        debug_StdPrintfDummy("緊急停止3\n");
     }
     npos[3] = 1.0f;
     SetDirectRootPosition(gobj, npos);
@@ -668,7 +692,8 @@ void uncarriedItemGeo(char *gobj)
             if (n >= 6) {
                 *(int *)(p + 0x34) = 0;
                 *(int *)(p + 8) = 0;
-                debug_StdPrintfDummy(D_0061FA80);
+                /* vibration sleep */
+                debug_StdPrintfDummy("振動睡眠\n");
             }
             *(float *)(p + 0x30) = spd;
         } else {
@@ -717,8 +742,8 @@ void execBombGeo(char *gobj)
         }
         break;
     case 1:
-        CopyVector(v, D_004EB4F0);
-        v[1] = D_004EB4F0[1] *
+        CopyVector(v, itemDropOfs);
+        v[1] = itemDropOfs[1] *
                (((float)*(int *)(q + 4) *
                      (1.0f /
                       ((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 300.0f)) +
@@ -865,7 +890,7 @@ int BreakItemFromOutside(char *gobj)
         *(int *)(p + 0x48) = 2;
     } else {
         GetRootPosition(pos, gobj);
-        entryBreakBgAnimation(D_004FB970[*(int *)(p + 4)].f_10, pos, ZeroVector, 0);
+        entryBreakBgAnimation(itemKind[*(int *)(p + 4)].f_10, pos, ZeroVector, 0);
         ExecuteSEPackage((int)gobj, 0x2B);
         if (GetItemKindInline(gobj) == 6) {
             _AttackCenter(gobj, 0x11, pos, 0, 200.0f, 0);
@@ -1017,7 +1042,11 @@ int CheckItemDead(char *a0)
 }
 
 extern void debug_StdPrintfDummy(char *fmt, ...);
-extern char D_0061FAA8[];
+
+/* explosion animation stop handling planned.  It is a named object, not a
+   literal at the use site: the compiler emits it after execBombGeo's switch
+   table, which is where the ROM has it. */
+static const char bombAnimStopMsg[] = "爆発アニメーション停止処理予定\n";
 
 void StopItemExplodeAnimationAll(void)
 {
@@ -1028,7 +1057,7 @@ void StopItemExplodeAnimationAll(void)
         if (IsItemKindBomb(g)) {
             if (*(int *)(p + 0x48) == 3) {
                 if (stage_DispBgAnimation(p + 0x60) == 0) {
-                    debug_StdPrintfDummy(D_0061FAA8);
+                    debug_StdPrintfDummy(bombAnimStopMsg);
                 }
             }
         }
@@ -1042,8 +1071,8 @@ int BreakItemWithAttackHit(char *gobj, float *dir)
 
     if (!IsItemKindBomb(gobj)) {
         GetRootPosition(pos, gobj);
-        if (entryBreakBgAnimation(D_004FB970[*(int *)(p + 4)].f_14, pos, dir,
-                                  D_004FB970[*(int *)(p + 4)].f_18)) {
+        if (entryBreakBgAnimation(itemKind[*(int *)(p + 4)].f_14, pos, dir,
+                                  itemKind[*(int *)(p + 4)].f_18)) {
             ExecuteSEPackage((int)gobj, 0x2B);
             setItemDead(gobj);
         }

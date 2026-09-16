@@ -709,7 +709,23 @@ extern float GetYDistanceFromPlane();
 extern void GetWallGlobalInfo();
 extern void debug_assertMessage(char *file, int line, char *msg);
 extern void __assert(char *file, int line, char *expr);
-extern char D_0054D920[];
+
+/* The tail of motionManager2.o's .rodata run: four named objects, in the
+   order the ROM has them, which is not the order their use sites come in. */
+static const char motMan2File[] = __FILE__;
+
+/* AdjustRootPositionToVerticalSidePlaneOfWall was about to push into the
+   wall, so the position was clipped */
+static const char adjustRootClippedMsg[] =
+    "AdjustRootPositionToVerticalSidePlaneOfWallが壁の中に突入させようとしたのでクリップしました\n";
+
+/* AdjustVerticalSidePlaneOfWall: the vertical walls are close together, so
+   the corrected position was set to their midpoint */
+static const char adjustWallMidpointMsg[] =
+    "AdjustVerticalSidePlaneOfWall:垂直壁が近接しているので補正位置をその中点としました\n";
+
+static const char illegalCompressMsg[] = "Illegal compress formatID(%d) appeard... ignore.\n";
+
 extern char D_00639F10[];
 extern char D_00639F18[];
 extern float D_00639F1C[];
@@ -773,8 +789,8 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
         }
     }
     if (bestIdx == -1) {
-        debug_assertMessage(D_0054D920, 1360, D_00639F10);
-        __assert(D_0054D920, 1360, D_00639F18);
+        debug_assertMessage(motMan2File, 1360, D_00639F10);
+        __assert(motMan2File, 1360, D_00639F18);
     }
     if (plane0 != 0) {
         SetSimplePlane(plane0, best[0], best[1], best[2],
@@ -809,7 +825,6 @@ extern float _InnerProduct(float *a, float *b);
 extern void _InterVectorXYZ(float *dst, float *a, float *b, float t);
 extern void GetProjectionOfPlane(float *dst, float *plane, float *pos);
 extern float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float t);
-extern char D_0054D998[];
 extern float D_00290690[];
 extern float YUnitVector[];
 
@@ -864,7 +879,7 @@ void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t)
         GetProjectionOfPlane(p0, pa, pos);
         GetProjectionOfPlane(p1, pb, pos);
         _InterVectorXYZ(out, p0, p1, 0.5f);
-        debug_StdPrintfDummy(D_0054D998);
+        debug_StdPrintfDummy(adjustWallMidpointMsg);
     } else if (d0 < t) {
         GetProjectionOfPlaneWithKeepAway(out, pa, pos, t);
     } else if (d1 < t) {
@@ -1032,7 +1047,6 @@ typedef struct {
 
 extern void SetIdentityQuaternion(void *q);
 extern float FSqrt(float x);
-extern char D_0054D9F0[];
 extern void _getS16MotRotElem(void *dst, void *src);
 
 /* INTERIM (see the getSkeltonFocusNode note below): the listing inlines
@@ -1068,7 +1082,7 @@ void _getMotion(void *dst, void *m, int node, int frame)
     type = ((unsigned char *)*(int *)(mm + 8))[node];
     switch (type) {
     default:
-        debug_StdPrintfDummy(D_0054D9F0, type);
+        debug_StdPrintfDummy(illegalCompressMsg, type);
         SetIdentityQuaternion((char *)dst + 0x10);
         break;
     case 1: {
@@ -1989,7 +2003,6 @@ void GetOutOutsideOfWall(void *obj, float threshold)
 }
 
 extern void ClipWall(void *a0);
-extern char D_0054D938[];
 extern void memset(void *a0, int a1, int a2);
 
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f)
@@ -2001,7 +2014,7 @@ void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f)
     ClipWall(buf);
     if (*(int *)(buf + 0x88) != 0) {
         SetDirectRootPosition(a0, buf + 0x20);
-        debug_StdPrintfDummy(D_0054D938);
+        debug_StdPrintfDummy(adjustRootClippedMsg);
     } else {
         SetDirectRootPosition(a0, buf + 0x10);
     }

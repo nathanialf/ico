@@ -493,8 +493,8 @@ typedef struct {
 } __attribute__((aligned(8))) WayPos;
 
 extern WayStgRec D_005F5D50[];
-extern WaySrcGrp D_0062B648[];
-extern WaySrcPt D_00536070[];
+extern WaySrcGrp wayGroupSheet[];
+extern WaySrcPt wayPointSheet[];
 extern WayNode D_004F31E0[];
 extern WayRec D_004F1EC0[];
 extern int D_0063BD74;
@@ -526,14 +526,14 @@ void ExtractWayData(int stage_no)
     end = D_005F5D50[stage_no].wayGroupEnd;
 
     for (i = start; i < end; i++) {
-        e = &D_0062B648[i];
+        e = &wayGroupSheet[i];
         g = CreateWayGroup();
         D_004F1EC0[g].w[6] = e->f2C;
         D_004F1EC0[g].w[8] = e->f30;
         D_004F1EC0[g].w[9] = e->f34;
         D_004F1EC0[g].w[10] = e->f38;
         for (j = e->firstPoint; j < e->lastPoint; j++) {
-            q = &D_00536070[j];
+            q = &wayPointSheet[j];
             {
                 WayPos t;
 

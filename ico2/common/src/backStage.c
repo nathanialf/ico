@@ -73,7 +73,6 @@ extern int gamesysAnotherStageTsuresari;
 extern int D_0063B60C;
 extern int stage_no;
 extern int D_0063C374;
-extern char D_00619238[];
 extern int gflagChk(int flag);
 extern void sceVu0CopyVector(void *dst, void *src);
 extern void *memset(void *p, int c, int n);
@@ -86,9 +85,6 @@ extern void SetStatusBoy_OtherStageGirlPinch(void);
 extern int eBrainGetTargetGeneratorFromLabel(int label);
 extern void RequestStageChangeKidnapEnd(int stage, int gen);
 extern void debug_StdPrintfDummy(char *fmt, ...);
-extern char D_006191D0[];
-extern char D_006191E0[];
-extern char D_00619200[];
 extern float D_006FACF0[4];
 extern int NearestEnemyFromGirl(float *dist);
 extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
@@ -96,10 +92,6 @@ extern float WayLengthOfPos_Pos(float *a, float *b);
 extern void GetRootProjectionPosOfGObj(float *out, int gobj);
 extern int WayPointWithRangeFromPos2(float *pos, void *a1, float *out, int flag);
 extern void gamesysObjInfoCls(int kind, int no);
-extern char D_00619260[];
-extern char D_00619270[];
-extern char D_00619290[];
-extern char D_006192A8[];
 extern float WayLengthOfGObj_GObj(void *obj0, void *obj1);
 extern void GetRootPosition(float *out, int gobj);
 extern int NumOfWpPos(void);
@@ -113,10 +105,6 @@ extern unsigned int gamesysTimeCount;
 extern int D_00639EA8;
 extern int warpGirlInStageSet;
 extern char D_0063ACF8[];
-extern char D_006192B8[];
-extern char D_006192E8[];
-extern char D_00619300[];
-extern char D_00619330[];
 extern int IsGirlEscortedInCurrentStage(void);
 extern void WayPointWithRangeFromPos(float *pos, float range, int flag);
 extern int rand(void);
@@ -157,7 +145,7 @@ void backStageProcessOutStage(void)
         done = 1;
     }
     if (D_004DA980[1].stage == stage_no && done == 0) {
-        debug_StdPrintfDummy(D_006191D0);
+        debug_StdPrintfDummy("girl nokori");
         D_0063C370 = 0;
         D_0063C35C = -1;
         for (i = 2; i < 22; i++) {
@@ -213,10 +201,12 @@ void backStageProcessOutStage(void)
             D_0063C354 = (int)(D_0063C368 * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
             if (WayPointWithRangeFromPos2(a.f, *(char **)(D_00639EA8 + 0x164) + 0x360, D_006FACF0,
                                           1) == 0) {
-                debug_StdPrintfDummy(D_006191E0);
+                /* no ACTIVE connection was found */
+                debug_StdPrintfDummy("繋がりACTIVEでみつからなかった");
                 if (WayPointWithRangeFromPos2(a.f, *(char **)(D_00639EA8 + 0x164) + 0x360,
                                               D_006FACF0, 0) == 0) {
-                    debug_StdPrintfDummy(D_00619200);
+                    /* no connection was found, so the nest is placed at the heroine */
+                    debug_StdPrintfDummy("繋がりみつからなかったのでヒロインの位置に巣を配置");
                     sceVu0CopyVector(D_006FACF0, a.f);
                 }
             }
@@ -292,7 +282,7 @@ void backStageProcessMain(void)
                 if (g1 != 0 && g2 != 0) {
                     g1->work[0] = 4;
                 } else {
-                    debug_StdPrintfDummy(D_00619238);
+                    debug_StdPrintfDummy("backstage timeLimit gamesys area error\n");
                     D_0063C350 = 1;
                 }
             }
@@ -338,7 +328,7 @@ void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
         sum = 0.0f;
         memset(&prev, 0, sizeof(prev));
         target = len * ratio;
-        debug_StdPrintfDummy(D_00619260, n);
+        debug_StdPrintfDummy("way num %d\n", n);
         for (i = 0; i < n; i++) {
             CopyWpPos(cur.f, i, i);
             if (i == 0) {
@@ -347,7 +337,7 @@ void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
                 sceVu0SubVector(d.f, prev.f, cur.f);
                 sum += FSqrt(_InnerProduct(d.f, d.f));
             }
-            debug_StdPrintfDummy(D_00619270, i, n, target, sum);
+            debug_StdPrintfDummy("%d %d:dist %f calcdist %f\n", i, n, target, sum);
             if (target < sum) {
                 break;
             }
@@ -358,9 +348,10 @@ void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
         }
         CopyWpPos(cur.f, i, i);
         sceVu0CopyVector(out, cur.f);
-        debug_StdPrintfDummy(D_00619290, out[0], out[1], out[2]);
+        debug_StdPrintfDummy("set pos_table %f %f %f\n", out[0], out[1], out[2]);
     } else {
-        debug_StdPrintfDummy(D_006192A8);
+        /* no WAY candidate */
+        debug_StdPrintfDummy("WAY候補無し");
         sceVu0CopyVector(out, p0.f);
     }
 }
@@ -413,7 +404,8 @@ void backStageProcessInStage(float arg)
     }
     if (D_0063ACF0 == 0 && IsGirlEscortedInCurrentStage() == 0 && gflagChk(0x18A) == 0 &&
         D_004DA980[1].stage == stage_no && warpGirlInStageSet == 0) {
-        debug_StdPrintfDummy(D_006192B8);
+        /* the heroine is not held, so the position is changed at random */
+        debug_StdPrintfDummy("ヒロイン捕まっていないのでランダムで位置変更");
         if (gflagChk(0x187) == 0) {
             kidnapWarpToWaypoint(D_00639EA8, range);
         }
@@ -422,7 +414,8 @@ void backStageProcessInStage(float arg)
     while (gobj != 0) {
         if (isEnemyKidnapEnable(gobj) != 0) {
             if (D_0063ACF0 != gobj) {
-                debug_StdPrintfDummy(D_006192E8);
+                /* the heroine is not held */
+                debug_StdPrintfDummy("ヒロイン捕まってない");
                 if (gflagChk(0x187) == 0 && InqCapsuleGhostBossStage() == 0) {
                     kidnapWarpToWaypoint(gobj, range);
                 }
@@ -449,10 +442,11 @@ void backStageProcessInStage(float arg)
                     if (0.0f < D_0063C364) {
                         routeSetPos(D_0063ACF0, t, pos.f, rest / D_0063C364);
                     } else {
-                        debug_StdPrintfDummy(D_00619300);
+                        /* no route to the nest was found, so it is placed at the nest directly */
+                        debug_StdPrintfDummy("巣までの経路がみつからないので直接巣に配置");
                         routeSetPos(D_0063ACF0, t, pos.f, 1.0f);
                     }
-                    debug_StdPrintfDummy(D_00619330, pos.f[0], pos.f[1], pos.f[2]);
+                    debug_StdPrintfDummy("set pos %f %f %f\n", pos.f[0], pos.f[1], pos.f[2]);
                     pos.f[1] =
                         pos.f[1] - *(float *)(*(int *)(*(int *)(D_0063ACF0 + 0x15C) + 0x8C) + 0x14);
                     SetDirectRootPosition(D_0063ACF0, pos.f);

@@ -535,16 +535,27 @@ segments:
       - [0x190920, data, cod/190920]     # data blob resume
       - [0x1A50C0, .data, ico2/script/src/gflag]  # the story flag bitmap (data pass 3), VMA 0x2A50C0..0x2A50F2, 50 B; the 14 zero bytes to 0x2A5100 are the next input's alignment pad
       - [0x1A5100, data, cod/1A5100]     # data blob resume
+      - [0x1A5440, .data, ico2/script/src/st25a]  # the TU's whole .data run as source (data pass 5), VMA 0x2A5440..0x2A5580, 320 B
+      - [0x1A5580, data, cod/1A5580]     # data blob resume
+      - [0x219020, .data, ico2/common/src/DObj]  # the TU's whole .data run as source (data pass 5), VMA 0x319020..0x319A00, 2528 B
+      - [0x219A00, data, cod/219A00]     # data blob resume
+      - [0x3E4600, .data, ico2/common/src/staffroll]  # the TU's .data (data pass 5; = MAIN.MAP staffroll.o .data 0x10), VMA 0x4E4600..0x4E4610, 16 B
+      - [0x3E4610, data, cod/3E4610]     # data blob resume
       - [0x3E5A90, .data, ico2/sugipon/src/attackCheckBoundary]  # carved D_004E5A90 (VMA 0x4E5A90..0x4E5AA0, 16 B, 1 sym), referenced only by still-asm AttackCheckBoundaryDL via %hi/%lo
       - [0x3E5AA0, data, cod/3E5AA0]     # .data blob resume
       - [0x3E7060, .data, ico2/sugipon/src/clothTest]  # the TU's whole .data run as source (data pass 3): twenty anchors and the two cloth configurations, VMA 0x4E7060..0x4E7458, 1016 B
       - [0x3E7458, data, cod/3E7458]     # data blob resume
       - [0x3E78E0, .data, ico2/sugipon/src/enemyParts]  # the TU's whole .data run as source (data pass 3): eight part templates, VMA 0x4E78E0..0x4E7A20, 320 B
       - [0x3E7A20, data, cod/3E7A20]     # data blob resume
+      - [0x3EB440, .data, ico2/sugipon/src/item]  # the TU's whole .data run as source (data pass 5), abutting lodManager's, VMA 0x4EB440..0x4EB5E0, 416 B
+      - [0x3EB5E0, .data, ico2/sugipon/src/lodManager]  # the TU's whole .data run as source (data pass 5; = MAIN.MAP lodManager.o .data 0x178), VMA 0x4EB5E0..0x4EB758, 376 B
+      - [0x3EB758, data, cod/3EB758]     # data blob resume
+      - [0x3ECFA0, .data, ico2/sugipon/src/spider]  # the TU's .data (data pass 5), abutting spiderGroupManager's run, VMA 0x4ECFA0..0x4ECFB0, 16 B
       - [0x3ECFB0, .data, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .data run as source (data pass 3): seven RGBA tints, VMA 0x4ECFB0..0x4ED020, 112 B
       - [0x3ED020, data, cod/3ED020]     # data blob resume
       - [0x3ED0F0, .data, ico2/sugipon/src/stormTest]  # the TU's whole .data run as source (data pass 3): the clip plane, VMA 0x4ED0F0..0x4ED100, 16 B
       - [0x3ED100, data, cod/3ED100]     # data blob resume
+      - [0x3ED120, .data, ico2/sugipon/src/torch]  # the TU's whole .data run as source (data pass 5), VMA 0x4ED120..0x4ED170, 80 B
       - [0x3ED170, .data, ico2/sugipon/src/waterDot]  # syms: initWaterDotWork,initWaterDot,initWaterDot2  the three static templates AllocWaterDot copies from (0x1C + pad, 0x30, 0x30), VMA 0x4ED170..0x4ED1F0
       - [0x3ED1F0, data, cod/3ED1F0]     # .data blob resume
       - [0x3ED760, .data, ico2/sugipon/src/wireLetter]  # the TU's whole .data run as source (data pass 3): the debug vector font, VMA 0x4ED760..0x4EE5B0, 3664 B, ending exactly at BgAnimation's row
@@ -614,11 +625,9 @@ segments:
       - [0x44D6F8, .rodata, ico2/sugipon/src/delayFreeManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D6F8..0x54D850, 344 B
       - [0x44D750, rodata, cod/44D750]     # rodata blob resume
       - [0x44D7F8, .rodata, ico2/sugipon/src/keyInput]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D7F8..0x54D850, 88 B
-      - [0x44D850, .rodata, ico2/sugipon/src/motionManager2]  # the TU's .rodata constant run (0xD0 B) in first-use order: dispPlane's colour template, AdjustMotionHeightToField's debug string (46 chars + NUL, padded to 48), dispSkeltonHierarchy's eight 16-byte templates, SlopeIKControl's {0,1,0,1}; VMA 0x54D850..0x54D920 (the switch table at 0x54DA30 is the TU's other row, a named jtbl section)
-      - [0x44D920, rodata, cod/44D920]   # .rodata blob resume
-      - [0x44DA30, .rodata, ico2/sugipon/src/motionManager2]  # carved jtbl_0054DA30 (6 arms, 0x18): _getMotion's switch table, emitted by the compiled function; VMA 0x54DA30..0x54DA48; the TU's other rodata stays in the blob
-      - [0x44DA48, rodata, cod/44DA48]   # .rodata blob resume (two zero pad words then the next TU's data)
       # --- per-TU .rodata carves (PAL phase 2; see docs/carve_ledger.md).
+      - [0x44D850, .rodata, ico2/sugipon/src/motionManager2]  # the TU's whole .rodata run as source (data pass 5): the constant run, the EUC-JP strings and the switch table in one row, VMA 0x54D850..0x54DA48, VMA 0x54D850..0x54DA48, 504 B
+      - [0x44DA48, rodata, cod/44DA48]     # rodata blob resume
       - [0x44DA80, .rodata, ico2/sugipon/src/quaternion]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54DA80..0x54DB10, 144 B
       - [0x44DB0C, rodata, cod/44DB0C]     # rodata blob resume
       - [0x44DB10, .rodata, ico2/seki/src/DisplayP2O]  # syms: dispObjFormat  the member's one string, `static const char dispObjFormat[32]` = "display object = %d" (data pass 2), VMA 0x54DB10..0x54DB30, 32 B
@@ -648,6 +657,8 @@ segments:
       - [0x451FF0, .rodata, ico2/fumi/isys/gobj_process]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551FF0..0x552080, 144 B
       - [0x452080, .rodata, ico2/fumi/isys/obj_manager]  # carved jtbl_00552080 (VMA 0x552080..0x552094, 5 arms, 20 B): iosOmExeMail's switch table, emitted by the compiled function
       - [0x452094, rodata, cod/452094]   # .rodata blob resume (the zero pad word before the 8-aligned string at 0x552098 is the blob's first word: the compiled table is 0x14 B and blob sections align at most to 8)
+      - [0x452098, .rodata, ico2/fumi/sound/adpcm_init]  # the TU's whole .rodata run as source (data pass 5), EUC-JP strings with glosses, VMA 0x552098..0x552164, 204 B
+      - [0x452164, rodata, cod/452164]     # rodata blob resume
       - [0x4523A8, .rodata, ico2/fumi/sound/soundManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x5523A8..0x552430, 136 B
       - [0x4523F0, rodata, cod/4523F0]     # rodata blob resume
       - [0x452430, .rodata, ico2/fumi/src/act-game]  # syms: 0x00552430  carved jtbl_00552430 (ACTGameView_Loop's 8-arm table), VMA 0x552430..0x552450
@@ -672,8 +683,9 @@ segments:
       - [0x4540C4, rodata, cod/4540C4]   # .rodata blob resume (the pad word before D_005540C8)
       - [0x4547B0, .rodata, ico2/script/src/script]  # plain-rodata syms: 0x005547B0  carved jtbl_005547B0 (scpWoodSrh's 10-arm table, 0x28, 16-aligned) followed by its two doubles 916.0/325.0 (fptodp thresholds, unnamed .rodata, 8-aligned), VMA 0x5547B0..0x5547E8; the strings before and D_005547F0 after stay in the blob as externs
       - [0x4547E8, rodata, cod/4547E8]   # .rodata blob resume (8 zero pad bytes, then D_005547F0)
-      - [0x4549E0, .rodata, ico2/script/src/st25a]  # plain-rodata: actSt25aElevChk's double 0.15 (8 B constant-pool operand), VMA 0x5549E0..0x5549E8, emitted by the compiled function
-      - [0x4549E8, rodata, cod/4549E8]   # .rodata blob resume
+      - [0x454920, .rodata, ico2/script/src/st25a]  # the TU's whole .rodata run as source (data pass 5), replacing the plain row, VMA 0x554920..0x5549E8, 200 B
+      - [0x4549E8, .rodata, ico2/script/src/warpGirl]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP warpGirl.o .rodata 0x51), VMA 0x5549E8..0x554A39, 81 B
+      - [0x454A39, rodata, cod/454A39]     # rodata blob resume
       - [0x454A40, .rodata, ico2/omori/src/attackhit]  # the TU's whole .rodata run as source (data pass 3), widening the jump-table row: the tables and the strings, VMA 0x554A40..0x554C82, 578 B; the 6 zero bytes to 0x554C88 are the next input's alignment pad
       - [0x454C88, rodata, cod/454C88]     # rodata blob resume
       - [0x455270, .rodata, ico2/omori/src/chain]  # plain-rodata: chain_simulate_term_swingstart's doubles 0.3 and 21.5 (two 8 B constant-pool operands), VMA 0x555270..0x555280, emitted by the compiled function; the TU's whole rodata run 0x5551C0..0x5553F0 is compiler-generated in first-use order and becomes one carve only when every rodata-emitting sibling is C
@@ -688,10 +700,8 @@ segments:
       - [0x45689C, rodata, cod/45689C]   # .rodata blob resume (the zero pad word, then lightning's "lightning_test" string at 0x5568A0)
       - [0x4568B0, .rodata, ico2/ito/src/lightning]  # carved $LC0/$LC1 of lightning_test (VMA 0x5568B0..0x556900, 80 B): the colour quad and the four vertices, local brace initialisers in the source; the "lightning_test" string before them belongs to the still-asm DrawLightning2 and stays in the blob
       - [0x456900, rodata, cod/456900]   # .rodata blob resume (queen's strings and rate tables; TU fully C, strings still in the blob)
-      - [0x456D60, .rodata, ico2/ito/src/queen]  # carved jtbl_00556D60 (8 arms, 0x20, 16-aligned): subQueenBrainMain's switch table, emitted by the compiled function; VMA 0x556D60..0x556D80
-      - [0x456D80, rodata, cod/456D80]   # .rodata blob resume (the "ico2/ito/src/queen.c" __FILE__ string and pad)
-      - [0x456DF0, .rodata, ico2/ito/src/queen]  # plain-rodata: SetQueenBallOrient's `up` initialiser template {0,1,0,1} emitted by the compiled QueenBallDL, 0x10 B 8-aligned, VMA 0x556DF0..0x556E00 (the last words of queen.o's 0x556900..0x556E00 run)
-      - [0x456E00, rodata, cod/456E00]   # .rodata blob resume
+      - [0x456910, .rodata, ico2/ito/src/queen]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP queen.o .rodata 0x4F0), the tables, strings and the switch table in one row, VMA 0x556910..0x556E00, 1264 B
+      - [0x456E00, rodata, cod/456E00]     # rodata blob resume
       - [0x456E50, .rodata, ico2/ito/src/stage_orient]  # the TU's whole .rodata run as source (data pass 3): the 41-entry orientation table, VMA 0x556E50..0x55755C, 1804 B
       - [0x457560, rodata, cod/457560]     # rodata blob resume
       - [0x457590, .rodata, ico2/ito/mpeg/mv_main]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x557590..0x5576A8, 280 B
@@ -704,6 +714,10 @@ segments:
       - [0x4D3CE8, rodata, cod/4D3CE8]     # rodata blob resume
       - [0x518F30, .rodata, ico2/common/src/DObj]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x618F30..0x61BAE0, 11184 B
       - [0x518FF8, rodata, cod/518FF8]     # rodata blob resume
+      - [0x5191D0, .rodata, ico2/common/src/backStage]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP backStage.o .rodata 0x172), EUC-JP strings with glosses, VMA 0x6191D0..0x619342, 370 B
+      - [0x519342, rodata, cod/519342]     # rodata blob resume
+      - [0x519348, .rodata, ico2/common/src/charFileManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP charFileManager.o .rodata 0x861), in census function order with the deferred inline setters, VMA 0x619348..0x619BA9, 2145 B
+      - [0x519BA9, rodata, cod/519BA9]     # rodata blob resume
       - [0x51BAE0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BAE0 (debug_DispQW, 17 arms), VMA 0x61BAE0..0x61BB24
       - [0x51BB24, rodata, cod/51BB24]   # .rodata blob resume (pad word, strings)
       - [0x51BDC0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BDC0 (debug_mcRetErrCheck's 17-arm table), VMA 0x61BDC0..0x61BE04; one zero pad word then the 8-aligned string run stay in the blob
@@ -722,25 +736,33 @@ segments:
       - [0x51CF14, rodata, cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x51D2B0, .rodata, ico2/common/src/debug_menu]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61D2B0..0x61D6F0, 1088 B
       - [0x51D2D0, rodata, cod/51D2D0]     # rodata blob resume
+      - [0x51D670, .rodata, ico2/common/src/kanban]  # the TU's whole .rodata run as source (data pass 5), abutting kanbanBoot's switch table, VMA 0x61D670..0x61D6EF, 127 B
       - [0x51D6F0, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D6F0  carved jtbl_0061D6F0 (kanbanBootMcCheck's first 5-arm table, 0x14 B, 16-aligned), VMA 0x61D6F0..0x61D710
       - [0x51D710, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D710  carved jtbl_0061D710 (kanbanBootMcCheck's second 5-arm table, 0x14 B, 16-aligned), VMA 0x61D710..0x61D730
       - [0x51D730, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D730  carved jtbl_0061D730 (8 arms, 0x20): kanbanBootMain's switch table, emitted by the compiled function, VMA 0x61D730..0x61D750
       - [0x51D750, rodata, cod/51D750]   # .rodata blob resume ("sync end\n" and the rest of the run)
       - [0x51DD30, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
       - [0x51DD44, rodata, cod/51DD44]   # .rodata blob resume (three pad words)
-      - [0x51DF40, .rodata, ico2/common/src/staffroll]  # carved jtbl_0061DF40 (VMA 0x61DF40..0x61DF5C, 28 B, 7 arms): staffRollMain's switch table on the staff-roll state word, emitted by the compiled function
-      - [0x51DF5C, rodata, cod/51DF5C]   # .rodata blob resume (one zero pad word, then the credits strings at 0x61DF60)
+      - [0x51DF10, .rodata, ico2/common/src/staffroll]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP staffroll.o .rodata 0x4C), the switch table included, VMA 0x61DF10..0x61DF5C, 76 B
+      - [0x51DF5C, rodata, cod/51DF5C]     # rodata blob resume
+      - [0x51EE98, .rodata, ico2/sugipon/src/act_a_p_1]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP act_a_p_1.o .rodata 0x2A), VMA 0x61EE98..0x61EEC2, 42 B
+      - [0x51EEC2, rodata, cod/51EEC2]     # rodata blob resume
+      - [0x51F1D0, .rodata, ico2/sugipon/src/clipCollisionManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP clipCollisionManager.o .rodata 0x48), VMA 0x61F1D0..0x61F218, 72 B
+      - [0x51F218, rodata, cod/51F218]     # rodata blob resume
       - [0x51F2A0, .rodata, ico2/sugipon/src/clothTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F2A0..0x61F7D0, 1328 B
       - [0x51F2B0, rodata, cod/51F2B0]     # rodata blob resume
       - [0x51F710, .rodata, ico2/sugipon/src/enemyParts]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F710..0x61F7D0, 192 B
       - [0x51F728, rodata, cod/51F728]     # rodata blob resume
       - [0x51F7D0, .rodata, ico2/sugipon/src/frameDependSequence]  # carved jtbl_0061F7D0 (VMA 0x61F7D0..0x61F7E4, 20 B, 5 arms): playSEConditionID's switch table, emitted by the compiled function
       - [0x51F7E4, rodata, cod/51F7E4]   # .rodata blob resume
+      - [0x51F8D0, .rodata, ico2/sugipon/src/girl]  # the TU's whole .rodata run as source (data pass 5), in census function order with the deferred inline setters, VMA 0x61F8D0..0x61F9DB, 267 B
+      - [0x51F9DB, rodata, cod/51F9DB]     # rodata blob resume
       - [0x51F9E0, .rodata, ico2/sugipon/src/girlForceField]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F9E0..0x61FA00, 32 B
       - [0x51FA00, .rodata, ico2/sugipon/src/handManager]  # carved jtbl_0061FA00 (VMA 0x61FA00..0x61FA18, 24 B, 6 arms): _handManager's switch table, emitted by the compiled function; the two zero pad words after it are the blob's first words
       - [0x51FA18, rodata, cod/51FA18]   # .rodata blob resume
-      - [0x51FA90, .rodata, ico2/sugipon/src/item]  # carved jtbl_0061FA90 (VMA 0x61FA90..0x61FAA4, 20 B, 5 arms): execBombGeo's switch table, emitted by the compiled function
-      - [0x51FAA4, rodata, cod/51FAA4]   # .rodata blob resume
+      - [0x51FA20, .rodata, ico2/sugipon/src/item]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP item.o .rodata 0xA8), the switch table included, VMA 0x61FA20..0x61FAC8, 168 B
+      - [0x51FAC8, .rodata, ico2/sugipon/src/lodManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP lodManager.o .rodata 0x89), VMA 0x61FAC8..0x61FB51, 137 B
+      - [0x51FB51, rodata, cod/51FB51]     # rodata blob resume
       - [0x51FBC0, .rodata, ico2/sugipon/src/motionFileManager]  # carved jtbl_0061FBC0 (VMA 0x61FBC0..0x61FBD8, 24 B, 6 arms): pursueNodeList's switch table, emitted by the compiled function
       - [0x51FBD8, rodata, cod/51FBD8]   # .rodata blob resume (two zero pad words)
       - [0x520030, .rodata, ico2/sugipon/src/motionManager]  # carved jtbl_00620030 (VMA 0x620030..0x620088, 88 B, 22 arms): _getGeometryOfMotion's switch table, emitted by the compiled function once matched (splat migrate_rodata_to_functions); the blob keeps every other motionManager string
@@ -750,8 +772,7 @@ segments:
       - [0x5208E0, rodata, cod/5208E0]     # rodata blob resume
       - [0x5209C0, .rodata, ico2/sugipon/src/particleLayout]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6209C0..0x620C90, 720 B
       - [0x5209D8, rodata, cod/5209D8]     # rodata blob resume
-      - [0x520C90, .rodata, ico2/sugipon/src/spider]  # carved jtbl_00620C90 (VMA 0x620C90..0x620CA4, 20 B, 5 arms): SpiderLayoutGeo's switch table, emitted by the compiled function
-      - [0x520CA4, rodata, cod/520CA4]   # .rodata blob resume
+      - [0x520B60, .rodata, ico2/sugipon/src/spider]  # the TU's whole .rodata run as source (data pass 5), the switch table included, abutting spiderGroupManager's row, VMA 0x620B60..0x620CF7, 407 B
       - [0x520CF8, .rodata, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620CF8..0x620F20, 552 B
       - [0x520DE0, rodata, cod/520DE0]     # rodata blob resume
       - [0x520F20, .rodata, ico2/sugipon/src/staticBlur]  # carved jtbl_00620F20 (dispPostInfo's 10-arm table), VMA 0x620F20..0x620F48
@@ -760,7 +781,8 @@ segments:
       - [0x520FA0, .rodata, ico2/sugipon/src/stormTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620FA0..0x621680, 1760 B
       - [0x520FB0, rodata, cod/520FB0]     # rodata blob resume
       - [0x521328, .rodata, ico2/sugipon/src/sugiTree]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621328..0x621680, 856 B
-      - [0x521338, rodata, cod/521338]     # rodata blob resume
+      - [0x521338, .rodata, ico2/sugipon/src/torch]  # the TU's whole .rodata run as source (data pass 5), VMA 0x621338..0x621384, 76 B
+      - [0x521384, rodata, cod/521384]     # rodata blob resume
       - [0x521388, .rodata, ico2/sugipon/src/waterDot]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621388..0x621680, 760 B
       - [0x5213A0, rodata, cod/5213A0]     # rodata blob resume
       - [0x521520, .rodata, ico2/sugipon/src/worm]  # the TU's whole .rodata run as source (data pass 2): tipLineTo, the Color16 tipLineColor {0x80, 0x80, 0x80, 0x80}, then __FILE__; VMA 0x621520..0x62154B + 5 B link pad
@@ -851,6 +873,8 @@ segments:
       - [0x538164, rodata, cod/538164]   # .rodata blob resume
       - [0x538380, .rodata, sce/libc/stdio/vfscanf]  # syms: basefix 0x006383B0 0x006385A0 0x006385C0 0x00638700  the member's whole .rodata: newlib's basefix[17] shorts then __svfscanf's four jump tables (121, 5, 78 and 59 arms), each 16-aligned; VMA 0x638380..0x6387EC
       - [0x5387EC, rodata, cod/5387EC]   # .rodata blob resume (strtod's strings follow at 0x6387F0)
+      - [0x538848, .rodata, sce/libc/locale/locale]  # the member's whole .rodata (data pass 5; = MAIN.MAP locale.o .rodata 0x42), VMA 0x638848..0x63888A, 66 B
+      - [0x53888A, rodata, cod/53888A]     # rodata blob resume
       - [0x538B00, lit4, cod/538B00]     # .lit4
       # --- per-TU .lit4 constant-pool carves (see docs/NOTES.md ".lit4 pools",
       # docs/carve_ledger.md "PAL phase 1").  A TU that writes its float

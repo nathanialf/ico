@@ -35,3 +35,5 @@ SeparateDefinitionBlocks: Always
 # INCLUDE_ASM paths under ico2/<programmer>/<kind>/ can exceed the column limit; splat only
 # recognises the macro on one line, so never break inside these invocations.
 WhitespaceSensitiveMacros: [INCLUDE_ASM, assert]
+# never split a string literal: the literals reproduce ROM bytes, some in EUC-JP
+BreakStringLiterals: false

@@ -25,8 +25,13 @@ typedef struct TorchGeoWork {
 } __attribute__((aligned(16))) TorchGeoWork;
 
 extern int D_0063A438;
-extern const char D_00621338[];
-extern TorchGeoWork D_004ED120;
+
+/* torch.o's whole .data run: the torch work record InitTorchGeo starts every
+   torch from.  The 0x50 malloc right above the copy proves the size. */
+static TorchGeoWork emptyTorchWork = {
+    0, 0, 0, 0, {0.0f, 0.0f, 0.0f, 1.0f}, 0, 0, 65536, 65536, 0, -1, -1, -1, -1, -1, 0, 0,
+};
+
 extern void GetRootPosition(void *a0, void *a1);
 extern void *iosMallocDebug(int heap, int size, const char *file, int line);
 extern void sceVu0UnitMatrix(void *m);
@@ -219,8 +224,8 @@ inline void SetTorchLife(char *a0, int a1, int a2)
 
 inline char *InitTorchGeo(char *a0, char *a1)
 {
-    TorchGeoWork *p = (TorchGeoWork *)iosMallocDebug(D_0063A438, 0x50, D_00621338, 0xE8);
-    *p = D_004ED120;
+    TorchGeoWork *p = (TorchGeoWork *)iosMallocDebug(D_0063A438, 0x50, __FILE__, 232);
+    *p = emptyTorchWork;
     sceVu0UnitMatrix((char *)*(void **)(a0 + 0x15C) + 0x20);
     *(void **)((char *)*(void **)(a0 + 0x15C) + 0x830) = p;
     if (*(int *)(a1 + 0x30) & 1) {
@@ -309,8 +314,6 @@ inline void UpdateRealTimeGeometryValue(char *a0)
 
 extern char *D_00639EA4;
 extern char *D_00639EA8;
-extern char D_00621348[];
-extern char D_00621370[];
 extern unsigned char ACTGame_NoWeapon(char *a0);
 extern void debug_StdPrintfDummy();
 
@@ -328,7 +331,8 @@ static inline int chainReactionBlocked(char *gobj, char *other)
     if (D_00639EA8 != 0) {
         q = *(char **)(D_00639EA8 + 0x164);
         if (b != 0 && b == *(int *)(q + 0x154)) {
-            debug_StdPrintfDummy(D_00621348);
+            /* tried to light the heroine's bomb */
+            debug_StdPrintfDummy("ヒロインの爆弾に点火しようとした\n");
             return 1;
         }
     }
@@ -336,7 +340,8 @@ static inline int chainReactionBlocked(char *gobj, char *other)
         p = *(char **)(D_00639EA4 + 0x164);
         if (ACTGame_NoWeapon(D_00639EA4) == 0 && a == *(int *)(p + 0x150) &&
             b == *(int *)(p + 0x154)) {
-            debug_StdPrintfDummy(D_00621370);
+            /* an exception came up while lighting */
+            debug_StdPrintfDummy("点火の例外処理発生\n");
             return 1;
         }
     }
