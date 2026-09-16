@@ -200,7 +200,7 @@ if [[ -n "$ICO2_PROG" ]]; then
     SRC_REL="${CSRC#ico2/$ICO2_PROG/}"
     ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
     ICO2_INCS=""
-    for _p in "$ICO2_PROG" sugipon omori common ito; do
+    for _p in "$ICO2_PROG" sugipon omori common ito fumi seki script; do
         [[ -d "$ROOT/ico2/$_p/include" ]] || continue
         case " $ICO2_INCS " in *" -I../$_p/include "*) continue ;; esac
         ICO2_INCS="$ICO2_INCS -I../$_p/include"
