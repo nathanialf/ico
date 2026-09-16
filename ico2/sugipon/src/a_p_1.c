@@ -19,7 +19,7 @@ typedef struct {
 
 typedef struct {
     float m[4];
-} Vec4;
+} __attribute__((aligned(16))) Vec4;
 
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(int a, int b, int c);
@@ -439,7 +439,173 @@ int rolling(char *a0)
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/a_p_1", calcSubMission);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void MatrixDrive_RotMatrixX(int ang);
+extern void MatrixDrive_RotMatrixY(int ang);
+extern void MatrixDrive_RotMatrixZ(int ang);
+extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
+extern void MatrixDrive_TurnXObjectMatrixYZ(float x, float y, float z);
+extern void CopyMatrix(void *dst, void *src);
+extern void _MulMatrix(void *dst, void *a, void *b);
+extern void _SubVector(void *dst, void *a, void *b);
+extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+extern float _GetLength(void *a, void *b);
+extern void ExecuteSEPackage(void *self, int id);
+extern void _AttackCenter(void *self, int a1, void *v, int a3, float r, int a5);
+extern char D_004E55E0[];
+extern char D_004E5860[];
+extern char D_004E58A0[];
+extern const Vec4 D_0061EE60;
+
+/* static helper the listing places at a_p_1.c lines 628-631, above
+ * calcSubMission's def line 637, so the name is ours: the law of cosines for
+ * the two arm segments, one named local per listing line. */
+static inline short armCosine(float a, float b, float c)
+{
+    float aa = a * a;
+    float bb = b * b;
+    float cc = c * c;
+
+    return (short)(int)GetTableArcCos((aa + bb - cc) / (2.0f * a * b));
+}
+
+void calcSubMission(char *self)
+{
+    char *p = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    Vec4 base;
+    Vec4 axis;
+    Vec4 rq;
+    Mtx44 tm;
+    Vec4 q;
+    Vec4 w;
+    Vec4 dir;
+    Vec4 v;
+    Vec4 v2;
+    Mtx44 rm;
+    Vec4 lv;
+    Vec4 save;
+    Vec4 save2;
+    Vec4 atk;
+    int i;
+    int ang;
+
+    CopyMatrix(MatrixDrive_GetMatrix(), p + 0x1F0);
+    MatrixDrive_RotMatrixZ(0x4000);
+    MatrixDrive_RotMatrixX(0x4000);
+    CopyVector(&base, (char *)MatrixDrive_GetMatrix() + 0x30);
+    GetRootQuaternion((int)&rq, (int *)self);
+    _ApplyMatrix((int)&axis, (int)MatrixDrive_GetMatrix(), (int)D_004E55E0);
+    MatrixDrive_SetTransposeMatrix(&tm, MatrixDrive_GetMatrix());
+
+    for (i = 0; i < 4; i++) {
+        char *part = p + 0x10 + i * 0x50;
+        float len;
+
+        switch (*(int *)part) {
+        case 1: {
+            float t = (float)*(int *)(part + 4) / 10.0f;
+
+            CopyVector(&w, part + 0x20);
+            w.m[1] -= (t < 0.5f) ? t * 2.0f * 20.0f : (1.0f - t) * 2.0f * 20.0f;
+            _ApplyMatrix((int)&q, (int)(p + 0x230), (int)&w);
+            _InterVectorXYZ(part + 0x10, &q, part + 0x10, t);
+            if ((*(int *)(part + 4) += 1) >= 10) {
+                *(int *)part = 0;
+            }
+            break;
+        }
+        case 2: {
+            float t = (float)*(int *)(part + 4) / 10.0f;
+
+            MatrixDrive_PushMatrix();
+            _UnitMatrix(MatrixDrive_GetMatrix());
+            {
+                float f = t * 49152.0f + -32768.0f;
+
+                MatrixDrive_RotMatrixY((short)(i == 0 ? -f : f));
+            }
+            _ApplyMatrix((int)&v, (int)MatrixDrive_GetMatrix(), (int)(part + 0x20));
+            v.m[3] = 1.0f;
+            _ApplyMatrix((int)&dir, (int)(p + 0x230), (int)&v);
+            _InterVectorXYZ(part + 0x10, &dir, part + 0x10, t);
+            MatrixDrive_PopMatrix();
+            if ((*(int *)(part + 4) += 1) >= 10) {
+                ExecuteSEPackage(self, 0x68);
+                CopyVector(part + 0x20, D_004E5670 + i * 0x10);
+                *(int *)part = 1;
+                *(int *)(part + 4) = 0;
+            }
+            break;
+        }
+        }
+
+        MatrixDrive_PushMatrix();
+
+        len = _GetLength(&base, part + 0x10);
+        ang = armCosine(len, 50.0f, 50.0f);
+        _SubVector(&dir, part + 0x10, &base);
+        _NormalizeVector((int)&dir, (int)&dir);
+
+        if (*(int *)part == 2) {
+            _OuterProduct((int)&w, (int)&dir, (int)&axis);
+        } else {
+            _OuterProduct((int)&w, (int)&dir, (int)&axis);
+        }
+        _ApplyMatrix((int)&lv, (int)&tm, (int)&dir);
+        MatrixDrive_TurnXObjectMatrixYZ(lv.m[0], lv.m[1], lv.m[2]);
+
+        _ScaleVector(&v, &dir, 50.0f);
+        SetQuaternionByAxisRotateV((int)&q, (short)-ang, (int)&w);
+        GetMatrixFromQuaternion((int)&rm, (int)&q);
+        _ApplyMatrix((int)&v, (int)&rm, (int)&v);
+        _AddVectorXYZ(part + 0x30, &base, &v);
+
+        CopyVector(&save, (char *)MatrixDrive_GetMatrix() + 0x30);
+        _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
+        CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, &save);
+
+        if (*(int *)(p + 4) != 0) {
+            _MulMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC) +
+                           (*(int *)(p + 0x174 + i * 8) << 6),
+                       MatrixDrive_GetMatrix(), D_004E5860);
+        } else {
+            _MulMatrix(*(char **)(*(char **)(p + 0x194) + 0xC) + (i << 6), MatrixDrive_GetMatrix(),
+                       D_004E5860);
+        }
+
+        _ScaleVector(&v2, &dir, 50.0f);
+        SetQuaternionByAxisRotateV((int)&q, (short)ang, (int)&w);
+        GetMatrixFromQuaternion((int)&rm, (int)&q);
+        _ApplyMatrix((int)&v2, (int)&rm, (int)&v2);
+        _AddVectorXYZ(part + 0x40, part + 0x30, &v2);
+
+        _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), D_004E58A0);
+
+        CopyVector(&save2, (char *)MatrixDrive_GetMatrix() + 0x30);
+        _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
+        _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
+        CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, &save2);
+
+        if (*(int *)part == 2) {
+            atk = D_0061EE60;
+            _ApplyMatrix((int)&atk, (int)MatrixDrive_GetMatrix(), (int)&atk);
+            _AttackCenter(self, -1, &atk, 0, 30.0f, 0);
+        }
+
+        if (*(int *)(p + 4) != 0) {
+            _MulMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC) +
+                           (*(int *)(p + 0x178 + i * 8) << 6),
+                       MatrixDrive_GetMatrix(), D_004E5860);
+        } else {
+            _MulMatrix(*(char **)(*(char **)(p + 0x198) + 0xC) + (i << 6), MatrixDrive_GetMatrix(),
+                       D_004E5860);
+        }
+
+        MatrixDrive_PopMatrix();
+    }
+}
 
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);

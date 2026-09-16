@@ -169,7 +169,47 @@ void stage_MakeGObj(int *dat, int no)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_ApplyData);
+void stage_ApplyData(char *name, char *data)
+{
+    char *tbl[2] = {D_005F5E70 + stage_no * 0x194, D_005F5E70 + 8 + stage_no * 0x194};
+    char buf[0x400];
+    int m;
+    int i;
+    int j;
+    int n;
+    int id;
+    char *rec;
+    char *ent;
+    char *obj;
+
+    for (m = 0; m < 2; m++) {
+        for (i = ((int *)tbl[m])[0]; i < ((int *)tbl[m])[1]; i++) {
+            rec = D_002C2DC8 + i * 0x4C;
+            n = *(int *)(rec + 0x34);
+            if (n != 0) {
+                ent = D_002BC6E0 + n * 0x14;
+                for (j = 0; j < 2; j++) {
+                    id = ((int *)ent)[j];
+                    obj = D_00602FA0 + id * 0x5C;
+                    if (id != 0x3CC) {
+                        if (strcmp(name, obj) == 0) {
+                            if (strncmp(data, D_0063A1B0, 3) == 0) {
+                                *(int *)(obj + 0x54) = bga_InitData(data);
+                            } else {
+                                *(int *)(obj + 0x54) = (int)data;
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    sprintf(buf, D_00550068, name);
+    debug_assertMessage(D_00550028, 0x269, buf);
+    __assert(D_00550028, 0x269, D_0063A1B8);
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_Init);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_SetAnimation);
 
