@@ -693,6 +693,8 @@ segments:
       - [0x523458, rodata, cod/523458]   # .rodata blob resume (viBufAddDMA's string)
       - [0x536610, .rodata, sce/libdma/libdma]  # the wait loops' one string literal "libdma: sync timeout\n" (0x16 B, = MAIN.MAP libdma.o .rodata 0x16), VMA 0x636610..0x636626, padded to 0x636628 where tty.o's strings begin
       - [0x536628, rodata, cod/536628]   # .rodata blob resume
+      - [0x537298, .rodata, sce/libscf/libscf]  # syms: month_days  adddate/subdate's twelve month lengths (12 B, align 8), VMA 0x637298..0x6372A4, then 4 B of pad to the blob; the member's assert strings before and after it stay in the blob until the whole run is carved
+      - [0x5372A8, rodata, cod/5372A8]   # .rodata blob resume
       - [0x5374B0, .rodata, sce/libm/math/wf_acos]  # the wrapper's own name string "acosf" (8 B with pad), VMA 0x6374B0..0x6374B8; the four libm wrappers' strings sit in object order acos, asin, atan2, fmod
       - [0x5374B8, .rodata, sce/libm/math/wf_asin]  # "asinf" (8 B), VMA 0x6374B8..0x6374C0
       - [0x5374C0, .rodata, sce/libm/math/wf_atan2]  # "atan2f" (8 B), VMA 0x6374C0..0x6374C8
