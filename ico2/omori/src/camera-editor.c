@@ -897,7 +897,149 @@ void menuGroupEdit(char *m)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuPinSelect);
+extern int CameraEdit_PIN(int a0, int a1);
+
+typedef union {
+    unsigned int c[4];
+    unsigned long long w[2];
+} CamColor;
+
+extern CamColor D_00554E70;
+extern void *MatrixDrive_GetMatrix(void);
+extern void sceVu0UnitMatrix(void *m);
+extern void gif_StartPacketPri(int prio);
+extern void gif_EndPacket(void);
+extern void DrawLine(float *from, float *to, CamColor *color, int z);
+
+static inline void dispPinRange(int box, int from, int to)
+{
+    CamColor col = D_00554E70;
+    int i;
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    ((float (*)[4])MatrixDrive_GetMatrix())[0][0] = ((float (*)[4])MatrixDrive_GetMatrix())[1][1] =
+        ((float (*)[4])MatrixDrive_GetMatrix())[2][2] = -1.0f;
+    gif_StartPacketPri(11);
+    for (i = from; i < to; i++) {
+        float a[3] = {((float *)CameraEdit_PIN(box, i))[0], ((float *)CameraEdit_PIN(box, i))[1],
+                      ((float *)CameraEdit_PIN(box, i))[2]};
+        float b[3] = {((float *)CameraEdit_PIN(box, i))[3], ((float *)CameraEdit_PIN(box, i))[4],
+                      ((float *)CameraEdit_PIN(box, i))[5]};
+        DrawLine(a, b, &col, -1);
+    }
+    gif_EndPacket();
+}
+
+/* the camera work SetWSMatrix converts: eye at 0x00, look-at at 0x10 and the
+   field of view at 0x20, the same record camera-ico2.c hands it */
+typedef union Mat4 {
+    float f[4];
+    long long q[2];
+} Mat4;
+
+typedef struct CamWork {
+    Mat4 eye;  /* 0x00 */
+    Mat4 at;   /* 0x10 */
+    float fov; /* 0x20 */
+} __attribute__((aligned(16))) CamWork;
+
+/* the group record CameraEdit_BOX hands back, as the pin menus read it: the
+   first and the last pin index of the group */
+typedef struct BoxPins {
+    char pad00[0x38];
+    int first; /* 0x38 */
+    int last;  /* 0x3C */
+} BoxPins;
+
+/* INTERIM: camera-editor.c:325 debug_Marker is an inline whose retail body is
+   compiled away (0x0018EAF8 is a bare jr ra) and the January-2002 listing
+   expands it here over rows 322-357; the plain definition further down keeps
+   the out-of-line copy the other TUs call, this stand-in expands the
+   CameraEdit_PIN calls in its argument list in place */
+static inline void debug_MarkerInline(int pin, int r, int g, int b, float size, float ang) {}
+
+extern char D_0063AB08[];
+extern char D_0063AB10[];
+extern char D_0063AB18[];
+extern char D_0063AB20[];
+extern int D_0063C25C;
+extern void memset(void *p, int c, int n);
+extern void sceVu0ScaleVector(int *buf, int *p, float t);
+extern void SetWSMatrix(void *cam);
+extern void iosThreadDestroy(void *th);
+extern void menuPinEdit(char *m);
+
+void menuPinSelect(char *m)
+{
+    int no = *(int *)(m + 0x74);
+    int cur = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->first;
+    int min;
+    int max;
+    int i;
+    int n;
+    int start;
+    int end;
+
+    iosThreadSleep(m);
+
+    while (1) {
+        min = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->first;
+        max = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->last;
+        if (D_0028F8F0[1].trg & 0x1000) {
+            cur--;
+        }
+        if (D_0028F8F0[1].trg & 0x4000) {
+            cur++;
+        }
+        cur = (cur < min) ? max - 1 : ((cur < max) ? cur : min);
+
+        dispPinRange(no, min, max);
+
+        n = cur - 5;
+        start = (n < min) ? min : ((max < n) ? max : n);
+        n = start + 10;
+        end = (n < min) ? min : ((max < n) ? max : n);
+        for (i = start; i < end; i++) {
+            int k = i - min;
+
+            if (i == cur) {
+                if (D_0063B13C & 1) {
+                    debug_Printf(40, print_y += 10, 0xFFFFFF00, D_0063AB08,
+                                 *(int *)(CameraEdit_PIN(no, cur) + 0x24) ? D_0063AB10 : D_0063AB18,
+                                 k);
+                }
+            } else {
+                if (D_0063B13C & 1) {
+                    debug_Printf(40, print_y += 10, 0xFFFFFF00, D_0063AB20,
+                                 *(int *)(CameraEdit_PIN(no, i) + 0x24) ? D_0063AB10 : D_0063AB18,
+                                 k);
+                }
+            }
+        }
+        if (*(float *)(CameraEdit_PIN(no, cur) + 0x30) != 0.0f) {
+            debug_MarkerInline(CameraEdit_PIN(no, cur), 0, 0, 255,
+                               *(float *)(CameraEdit_PIN(no, cur) + 0x30), 0.0f);
+        } else {
+            debug_MarkerInline(CameraEdit_PIN(no, cur), 255, 0, 0, 100.0f, 0.0f);
+        }
+        {
+            float *p = (float *)CameraEdit_PIN(no, cur);
+            CamWork cw = {{p[0], p[1], p[2]}, {p[3], p[4], p[5]}, p[10]};
+
+            sceVu0ScaleVector(&cw, &cw, -1.0f);
+            sceVu0ScaleVector(cw.at.f, cw.at.f, -1.0f);
+            SetWSMatrix(&cw);
+        }
+        if (D_0028F8F0[1].trg & 0x10) {
+            curmenu = *(int *)(m + 0x70);
+            iosThreadDestroy(m);
+        } else if (D_0028F8F0[1].trg & 0x20) {
+            D_0063C25C = no;
+            EnterMenu(menuPinEdit, cur, m);
+        }
+        iosThreadSleep(m);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuPinEdit);
 
 extern int print_y;
@@ -1224,36 +1366,6 @@ int CameraEdit_BOX(int a0)
 int CameraEdit_PIN(int a0, int a1)
 {
     return *(int *)(D_0063AA7C[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
-}
-
-typedef union {
-    unsigned int c[4];
-    unsigned long long w[2];
-} CamColor;
-
-extern CamColor D_00554E70;
-extern void *MatrixDrive_GetMatrix(void);
-extern void sceVu0UnitMatrix(void *m);
-extern void gif_StartPacketPri(int prio);
-extern void gif_EndPacket(void);
-extern void DrawLine(float *from, float *to, CamColor *color, int z);
-
-static inline void dispPinRange(int box, int from, int to)
-{
-    CamColor col = D_00554E70;
-    int i;
-    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    ((float (*)[4])MatrixDrive_GetMatrix())[0][0] = ((float (*)[4])MatrixDrive_GetMatrix())[1][1] =
-        ((float (*)[4])MatrixDrive_GetMatrix())[2][2] = -1.0f;
-    gif_StartPacketPri(11);
-    for (i = from; i < to; i++) {
-        float a[3] = {((float *)CameraEdit_PIN(box, i))[0], ((float *)CameraEdit_PIN(box, i))[1],
-                      ((float *)CameraEdit_PIN(box, i))[2]};
-        float b[3] = {((float *)CameraEdit_PIN(box, i))[3], ((float *)CameraEdit_PIN(box, i))[4],
-                      ((float *)CameraEdit_PIN(box, i))[5]};
-        DrawLine(a, b, &col, -1);
-    }
-    gif_EndPacket();
 }
 
 void CameraEdit_DispPin(int box, int pin)
