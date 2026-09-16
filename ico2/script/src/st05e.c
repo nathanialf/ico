@@ -181,7 +181,7 @@ void actSt05eWater(volatile int a0)
 
         D_004F98C0[0].func = actSt05eWaterMain;
         self->mail = D_004F98C0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpSearchGobj(0x612)->f16C = 0;
@@ -201,7 +201,7 @@ void actSt05eSolar(volatile int a0)
     if (gflagChk(0xE8) == 0) {
         D_004F9900[0].func = actSt05eSolarChk;
         self->mail = D_004F9900;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         SetRotObjectLockFlag(scpSearchGobj(0x614), 1);
@@ -231,7 +231,7 @@ void actSt05eWaterSwitch(volatile int a0)
     sub->mainMail = 0;
     D_004F98E0[0].func = actSt05eWaterStop;
     sub->mail = D_004F98E0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

@@ -643,7 +643,7 @@ void actSt07aEne(volatile int a0)
 
         D_004F9FE0[0].func = actSt07aEneChk;
         self->mail = D_004F9FE0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -766,7 +766,7 @@ void actSt07aChan(volatile int a0)
         scpTorchLightOff(0x1B0);
         D_004F9F60[0].func = actSt07aChanChk;
         self->mail = D_004F9F60;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -784,7 +784,7 @@ void actSt07aChanReady(volatile int a0)
     if (gflagChk(0x7E) == 0) {
         D_004F9F20[0].func = actSt07aChanReadyChk;
         self->mail = D_004F9F20;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -802,7 +802,7 @@ void actSt07aChanChain(volatile int a0)
     if (gflagChk(0x7F) == 0) {
         D_004F9F40[0].func = actSt07aChanChainChk;
         self->mail = D_004F9F40;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpSearchGobj(0x1C6)->f16C = 0;
@@ -822,7 +822,7 @@ void actSt07aTsuro(volatile int a0)
     if (gflagChk(0x80) == 0) {
         D_004F9F80[0].func = actSt07aTsuroChk;
         self->mail = D_004F9F80;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         gflagOn(0x85);
@@ -842,7 +842,7 @@ void actSt07aIntro(volatile int a0)
     if (gflagChk(0x81) == 0) {
         D_004F9FA0[0].func = actSt07aIntroChk;
         self->mail = D_004F9FA0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -861,7 +861,7 @@ void actSt07aSekizo(volatile int a0)
         stage_SetAnimation(0x16A, 0, 0);
         D_004F9FC0[0].func = actSt07aSekizoChk;
         self->mail = D_004F9FC0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x16A, 0, -1);
@@ -929,7 +929,7 @@ void actSt07aEne2(volatile int a0)
     if (gflagChk(0x86) == 0) {
         D_004FA000[0].func = actSt07aEne2Chk;
         self->mail = D_004FA000;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

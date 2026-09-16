@@ -395,7 +395,7 @@ void turnBall(int a0, int a1, int a2, int a3, int a4)
 
     D_004F8B20[0].func = actSt04lBallTurnCommon;
     sub->mail = D_004F8B20;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -417,7 +417,7 @@ void actSt04lCrest02(volatile int a0)
 
         D_004F8C60[0].func = actSt04lCrest2Main;
         self->mail = D_004F8C60;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         if (D_00639ED4 == 0x13) {
@@ -1234,7 +1234,7 @@ void actSt04lGondolaChk(volatile int a0)
 
     D_004F8EA0[0].func = actSt04lGondolaCharaChk;
     sub->mail = D_004F8EA0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1737,7 +1737,7 @@ void actSt04lOri2(volatile int a0)
 
         D_004F9020[0].func = actSt04lOri2Chk;
         self->mail = D_004F9020;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xF3, -1, -2);
@@ -1851,7 +1851,7 @@ void actSt04lCrest01(volatile int a0)
 
         D_004F8C40[0].func = actSt04lCrestMain;
         self->mail = D_004F8C40;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xC7, 0, -1);
@@ -1874,7 +1874,7 @@ void actSt04lCrest03(volatile int a0)
 
         D_004F8C80[0].func = actSt04lCrest3Main;
         self->mail = D_004F8C80;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xCB, 0, -1);
@@ -1898,7 +1898,7 @@ void actSt04lC1Ball(volatile int a0)
 
         D_004F8AC0[0].func = actSt04lC1BallMain;
         self->mail = D_004F8AC0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xCF, 0, -1);
@@ -1922,7 +1922,7 @@ void actSt04lC2Ball(volatile int a0)
 
         D_004F8B60[0].func = actSt04lC2BallMain;
         self->mail = D_004F8B60;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xD0, 0, -1);
@@ -1946,7 +1946,7 @@ void actSt04lC3Ball(volatile int a0)
 
         D_004F8BE0[0].func = actSt04lC3BallMain;
         self->mail = D_004F8BE0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xD1, 0, -1);
@@ -1966,7 +1966,7 @@ void actSt04lStair(volatile int a0)
         if (D_00639EA8 != 0) {
             D_004F8CC0[0].func = actSt04lStairChk;
             self->mail = D_004F8CC0;
-            ACTSendMailCorrect(a0, 0x1AE);
+            ACTSendMailCorrect(a0, 430);
             _ACTWait(0);
         }
     } else {
@@ -1988,7 +1988,7 @@ void actSt04lBrg1(volatile int a0)
     if (gflagChk(0xB6) == 0) {
         D_004F8D20[0].func = actSt04lBrg1Chk;
         self->mail = D_004F8D20;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2007,7 +2007,7 @@ void actSt04lBrg2(volatile int a0)
 
         D_004F8DA0[0].func = actSt04lBrg2Chk;
         self->mail = D_004F8DA0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2024,7 +2024,7 @@ void actSt04lBrg1Way(volatile int a0)
     if (gflagChk(0xB6) == 0) {
         D_004F8DE0[0].func = actSt04lBrg1WayChk;
         self->mail = D_004F8DE0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2041,7 +2041,7 @@ void actSt04lBrg2Way(volatile int a0)
     if (gflagChk(0xB7) == 0) {
         D_004F8E00[0].func = actSt04lBrg2WayChk;
         self->mail = D_004F8E00;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2060,7 +2060,7 @@ void actSt04lRope1(volatile int a0)
 
         D_004F8CE0[0].func = actSt04lRope1Chk;
         self->mail = D_004F8CE0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xD8, 0, -1);
@@ -2083,7 +2083,7 @@ void actSt04lRope2(volatile int a0)
 
         D_004F8D00[0].func = actSt04lRope2Chk;
         self->mail = D_004F8D00;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xD9, 0, -1);
@@ -2106,7 +2106,7 @@ void actSt04lRope3(volatile int a0)
 
         D_004F8D60[0].func = actSt04lRope3Chk;
         self->mail = D_004F8D60;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xDA, 0, -1);
@@ -2129,7 +2129,7 @@ void actSt04lRope4(volatile int a0)
 
         D_004F8D80[0].func = actSt04lRope4Chk;
         self->mail = D_004F8D80;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xDB, 0, -1);
@@ -2152,7 +2152,7 @@ void actSt04lSekizo(volatile int a0)
 
         D_004F8E20[0].func = actSt04lSekizoChk;
         self->mail = D_004F8E20;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xE2, 0, -1);
@@ -2174,7 +2174,7 @@ void actSt04lTuri(volatile int a0)
         if (D_00639EA8 != 0) {
             D_004F8E40[0].func = actSt04lTuriChk;
             self->mail = D_004F8E40;
-            ACTSendMailCorrect(a0, 0x1AE);
+            ACTSendMailCorrect(a0, 430);
             _ACTWait(0);
         }
     } else {
@@ -2198,7 +2198,7 @@ void actSt04lOri(volatile int a0)
 
         D_004F8FC0[0].func = actSt04lOriChk;
         self->mail = D_004F8FC0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2215,7 +2215,7 @@ void actSt04lOriRopeCutR(volatile int a0)
     if (gflagChk(0xC9) == 0) {
         D_004F8FE0[0].func = actSt04lOriRopeCutRChk;
         self->mail = D_004F8FE0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2232,7 +2232,7 @@ void actSt04lOriRopeCutL(volatile int a0)
     if (gflagChk(0xCA) == 0) {
         D_004F9000[0].func = actSt04lOriRopeCutLChk;
         self->mail = D_004F9000;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2249,7 +2249,7 @@ void actSt04lSword(volatile int a0)
     if (gflagChk(0xAF) == 0) {
         D_004F9040[0].func = actSt04lSwordChk;
         self->mail = D_004F9040;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2269,14 +2269,14 @@ void actSt04lGondola(volatile int a0)
 
         D_004F8E60[0].func = actSt04lGondolaChk;
         self->mail = D_004F8E60;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xE4, 0, 0);
 
         D_004F8E80[0].func = actSt04lGondolaChk;
         self->mail = D_004F8E80;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2295,7 +2295,7 @@ void actSt04lMonyou01(volatile int a0)
 
         D_004F8EE0[0].func = actSt04lMonyou01Chk;
         self->mail = D_004F8EE0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xEA, 0, -1);
@@ -2317,7 +2317,7 @@ void actSt04lMonyou02(volatile int a0)
 
         D_004F8F00[0].func = actSt04lMonyou02Chk;
         self->mail = D_004F8F00;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xEB, 0, -1);
@@ -2338,7 +2338,7 @@ void actSt04lMonyou03(volatile int a0)
 
         D_004F8F20[0].func = actSt04lMonyou03Chk;
         self->mail = D_004F8F20;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xEC, 0, -1);
@@ -2359,7 +2359,7 @@ void actSt04lMonyou04(volatile int a0)
 
         D_004F8F40[0].func = actSt04lMonyou04Chk;
         self->mail = D_004F8F40;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xED, 0, -1);
@@ -2380,7 +2380,7 @@ void actSt04lMonyou05(volatile int a0)
 
         D_004F8F60[0].func = actSt04lMonyou05Chk;
         self->mail = D_004F8F60;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xEE, 0, -1);
@@ -2401,7 +2401,7 @@ void actSt04lMonyou06(volatile int a0)
 
         D_004F8F80[0].func = actSt04lMonyou06Chk;
         self->mail = D_004F8F80;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xEF, 0, -1);
@@ -2422,7 +2422,7 @@ void actSt04lMonyou07(volatile int a0)
 
         D_004F8FA0[0].func = actSt04lMonyou07Chk;
         self->mail = D_004F8FA0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xF0, 0, -1);
@@ -2517,7 +2517,7 @@ void actSt04lTorch1_1(volatile int a0)
     if (gflagChk(0xCC) == 0) {
         D_004F9060[0].func = actSt04lTorch1_1Chk;
         self->mail = D_004F9060;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpTorchLightOn(0x45A);
@@ -2537,7 +2537,7 @@ void actSt04lTorch1_2(volatile int a0)
     if (gflagChk(0xCD) == 0) {
         D_004F9080[0].func = actSt04lTorch1_2Chk;
         self->mail = D_004F9080;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpTorchLightOn(0x45B);
@@ -2560,7 +2560,7 @@ void actSt04lTorch2_1(volatile int a0)
     } else {
         D_004F90A0[0].func = actSt04lTorch2_1Chk;
         self->mail = D_004F90A0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2580,7 +2580,7 @@ void actSt04lTorch2_2(volatile int a0)
     } else {
         D_004F90C0[0].func = actSt04lTorch2_2Chk;
         self->mail = D_004F90C0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2597,7 +2597,7 @@ void actSt04lTorch3_1(volatile int a0)
     if (gflagChk(0xD2) == 0) {
         D_004F90E0[0].func = actSt04lTorch3_1Chk;
         self->mail = D_004F90E0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpTorchLightOn(0x4B4);
@@ -2617,7 +2617,7 @@ void actSt04lTorch3_2(volatile int a0)
     if (gflagChk(0xD3) == 0) {
         D_004F9100[0].func = actSt04lTorch3_2Chk;
         self->mail = D_004F9100;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpTorchLightOn(0x4B5);
@@ -2640,7 +2640,7 @@ void actSt04lTorch2_1XL(volatile int a0)
     } else {
         D_004F9120[0].func = actSt04lTorch2_1XLChk;
         self->mail = D_004F9120;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2660,7 +2660,7 @@ void actSt04lTorch2_2XL(volatile int a0)
     } else {
         D_004F9140[0].func = actSt04lTorch2_2XLChk;
         self->mail = D_004F9140;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2781,7 +2781,7 @@ void actSt04eSolarBeam(volatile int a0)
 
         D_004F8CA0[0].func = actSt04eSolarBeamChk;
         self->mail = D_004F8CA0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2811,7 +2811,7 @@ void actSt04lC1BallSwitch(volatile int a0)
 
     D_004F8AE0[0].func = actSt04lC1BallTurn;
     sub->mail = D_004F8AE0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2830,7 +2830,7 @@ void actSt04lC1BallTurn(volatile int a0)
 
     D_004F8B00[0].func = actSt04lBallTurnCommon;
     self->mail = D_004F8B00;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2859,7 +2859,7 @@ void actSt04lC2BallSwitch(volatile int a0)
 
     D_004F8B80[0].func = actSt04lC2BallTurn;
     sub->mail = D_004F8B80;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2878,7 +2878,7 @@ void actSt04lC2BallTurn(volatile int a0)
 
     D_004F8BA0[0].func = actSt04lBallTurnCommon;
     self->mail = D_004F8BA0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2907,7 +2907,7 @@ void actSt04lC3BallSwitch(volatile int a0)
 
     D_004F8C00[0].func = actSt04lC3BallTurn;
     sub->mail = D_004F8C00;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2926,7 +2926,7 @@ void actSt04lC3BallTurn(volatile int a0)
 
     D_004F8C20[0].func = actSt04lBallTurnCommon;
     self->mail = D_004F8C20;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2977,7 +2977,7 @@ void actSt04lBrg1Chk(volatile int a0)
 
     D_004F8D40[0].func = actSt04rBrgCommon;
     sub->mail = D_004F8D40;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -3016,7 +3016,7 @@ void actSt04lBrg2Chk(volatile int a0)
 
     D_004F8DC0[0].func = actSt04rBrgCommon;
     sub->mail = D_004F8DC0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -3071,7 +3071,7 @@ extern void actSt04lGondolaChk(volatile int a0);
 
 /* This actor's mail record.  Role-named for the actor that owns and posts it,
    the convention every carved stage record in this tree follows. */
-static ActMail gondola_chara[2] = {{0x1AE}, {0x1AD}};
+static ActMail gondola_chara[2] = {{430}, {429}};
 
 void actSt04lGondolaCharaChk(volatile int a0)
 {
@@ -3086,7 +3086,7 @@ void actSt04lGondolaCharaChk(volatile int a0)
 
     gondola_chara[0].func = actSt04lGondolaChk;
     sub->mail = gondola_chara;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

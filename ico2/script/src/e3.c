@@ -122,7 +122,7 @@ void actE3Title(volatile int a0)
 
     D_004F79D0[0].func = actE3TitleChk;
     sub->mail = D_004F79D0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -350,7 +350,7 @@ void actE3Capsule(volatile int a0)
 
         D_004F7A10[0].func = actE3CapsuleChk;
         sub->mail = D_004F7A10;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x20, 0, -1);
@@ -498,7 +498,7 @@ void actE3CageFall(volatile int a0)
 
         D_004F7AE0[0].func = actE3CageFallChk;
         sub->mail = D_004F7AE0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x4C, 0, 0);
@@ -796,7 +796,7 @@ void actE3St09aSekizo(volatile int a0)
 
         D_004F7B30[0].func = actE3St09aSekizoChk;
         sub->mail = D_004F7B30;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         ScpCallCameraSetTarget(1421.0f, 97.0f, -1885.0f);
@@ -1213,7 +1213,7 @@ void actE3Inst1(volatile int a0)
 
     D_004F79F0[0].func = actE3Inst1Chk;
     sub->mail = D_004F79F0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1232,7 +1232,7 @@ void actE3Door(volatile int a0)
 
         D_004F7A50[0].func = actE3DoorMain;
         sub->mail = D_004F7A50;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x3B9, 0, -1);
@@ -1252,7 +1252,7 @@ void actE3CageFallReady(volatile int a0)
     if (gflagChk(0x168) == 0) {
         D_004F7AC0[0].func = actE3CageFallReadyChk;
         sub->mail = D_004F7AC0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -1270,7 +1270,7 @@ void actE3St13cIntro(volatile int a0)
     if (gflagChk(0x16B) == 0) {
         D_004F7AA0[0].func = actE3St13cIntroChk;
         sub->mail = D_004F7AA0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -1335,7 +1335,7 @@ void actE3St01bEne(volatile int a0)
     if (gflagChk(0x16A) == 0) {
         D_004F7B00[0].func = actE3St01bEneChk;
         sub->mail = D_004F7B00;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -1413,7 +1413,7 @@ void actE3St09aBrg(volatile int a0)
 
         D_004F7B90[0].func = actE3St09aBrgMain;
         sub->mail = D_004F7B90;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x17A, 0, -1);
@@ -1448,7 +1448,7 @@ void actE3Gate(volatile int a0)
 
     D_004F7B50[0].func = actE3GateChk;
     sub->mail = D_004F7B50;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1545,7 +1545,7 @@ void actE3DoorSwitch(volatile int a0)
 
     D_004F7A70[0].func = actE3DoorUp;
     sub->mail = D_004F7A70;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1698,6 +1698,6 @@ void actE3St09aBrgSwitch(volatile int a0)
 
     D_004F7BB0[0].func = actE3St09aBrgDown;
     sub->mail = D_004F7BB0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

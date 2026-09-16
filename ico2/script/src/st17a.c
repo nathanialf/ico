@@ -39,7 +39,7 @@ void actSt17aDoor(volatile int a0)
 
         D_004FAF30[0].func = actSt17aDoorUpChk;
         self->mail = D_004FAF30;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else if (scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 ||
                (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
@@ -49,13 +49,13 @@ void actSt17aDoor(volatile int a0)
         _ACTWait(0x3C);
         D_004FAF50[0].func = actSt17aDoorDownChk;
         self->mail = D_004FAF50;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x81, 0, 0);
         D_004FAF70[0].func = actSt17aDoorUpChk;
         self->mail = D_004FAF70;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -115,7 +115,7 @@ void actSt17aDoorUpChk(volatile int a0)
 
     D_004FAF90[0].func = actSt17aDoorDownChk;
     sub->mail = D_004FAF90;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -123,7 +123,7 @@ void actSt17aDoorUpChk(volatile int a0)
    table actSt17aDoorDownChk hands to the door actor. Role-named file static per
    the 2026-09-07 ruling, same shape as st13a's chain_ok_mes / st10r's
    fence_up2_mes. Needs the carve row [0x3FAFB0, .data, src/st17a]. */
-static ActMail door_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail door_mes[2] = {{430}, {429}};
 
 void actSt17aDoorDownChk(volatile int a0)
 {
@@ -163,7 +163,7 @@ void actSt17aDoorDownChk(volatile int a0)
 
     door_mes[0].func = actSt17aDoorUpChk;
     sub->mail = door_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -330,7 +330,7 @@ void actLinkTest(volatile int a0)
 
     D_004FAF10[0].func = actLinkTestChk;
     self->mail = D_004FAF10;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -364,7 +364,7 @@ void actSt17aHasi(volatile int a0)
         SetWayGroupActive(3, 1);
         D_004FAFD0[0].func = actSt17aHasiChk;
         self->mail = D_004FAFD0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         *(int *)(scpSearchGobj(0xF3) + 0x16C) = 0;
@@ -384,7 +384,7 @@ void actSt17aIntro(volatile int a0)
     if (gflagChk(0x22) == 0) {
         D_004FAFF0[0].func = actSt17aIntroChk;
         self->mail = D_004FAFF0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -401,7 +401,7 @@ void actSt17aHint1(volatile int a0)
     if (gflagChk(0x23) == 0) {
         D_004FB010[0].func = actSt17aHint1Chk;
         self->mail = D_004FB010;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         FinishHint(0);
@@ -420,7 +420,7 @@ void actSt17aFall(volatile int a0)
     if (gflagChk(0x21) == 0) {
         D_004FB030[0].func = actSt17aFallChk;
         self->mail = D_004FB030;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

@@ -101,10 +101,10 @@ extern ActMail D_004FAA80[];
 
 /* The chain-OK watcher's mail record: it installs actSt13aChainNG here and
    posts it to hand the chain back to the NG (hang-disabled) watcher. Word 0
-   of each entry is the mail id the entry answers (0x1AE the actor post,
-   0x1AD the trailing entry); .func is filled in at run time. Named for the
+   of each entry is the mail id the entry answers (430 the actor post,
+   429 the trailing entry); .func is filled in at run time. Named for the
    thread that owns and posts it. */
-static ActMail chain_ok_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail chain_ok_mes[2] = {{430}, {429}};
 
 extern ActMail D_004FAAC0[];
 
@@ -201,7 +201,7 @@ void actSt13aElevDown(volatile int a0)
 
         D_004FAA00[0].func = actSt13aElevDownChk;
         self->mail = D_004FAA00;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -349,7 +349,7 @@ void actSt13aElev(volatile int a0)
 
         D_004FA9C0[0].func = actSt13aElevMain;
         self->mail = D_004FA9C0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -366,7 +366,7 @@ void actSt13aSekizo(volatile int a0)
 
         D_004FAA20[0].func = actSt13aSekizoChk;
         self->mail = D_004FAA20;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xB0, 0, -1);
@@ -383,7 +383,7 @@ void actSt13aCheck(volatile int a0)
     if (gflagChk(0x147) == 0) {
         D_004FAA40[0].func = actSt13aCheckChk;
         self->mail = D_004FAA40;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -398,12 +398,12 @@ void actSt13aChain(volatile int a0)
     if (gflagChk(0x148) == 0) {
         D_004FAA60[0].func = actSt13aChainNG;
         self->mail = D_004FAA60;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         D_004FAA80[0].func = actSt13aChainOK;
         self->mail = D_004FAA80;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -428,7 +428,7 @@ void actSt13aElevSwitch(volatile int a0)
 
     D_004FA9E0[0].func = actSt13aElevUp;
     sub->mail = D_004FA9E0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -453,7 +453,7 @@ void actSt13aChainOK(volatile int a0)
 
     chain_ok_mes[0].func = actSt13aChainNG;
     sub->mail = chain_ok_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -470,6 +470,6 @@ void actSt13aChainNG(volatile int a0)
 
     D_004FAAC0[0].func = actSt13aChainOK;
     sub->mail = D_004FAAC0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

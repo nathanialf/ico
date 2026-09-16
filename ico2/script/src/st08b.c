@@ -114,7 +114,7 @@ inline void actSt08bKuren(volatile int a0)
 
     D_004FA210[0].func = actSt08bKurenMain;
     self->mail = D_004FA210;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -232,7 +232,7 @@ void actSt08bKurenSwitch(volatile int a0)
 
     D_004FA230[0].func = actSt08bKurenMain;
     sub->mail = D_004FA230;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -323,13 +323,13 @@ void actSt08bDoor(volatile int a0)
         _ACTWait(0x3C);
         D_004FA250[0].func = actSt08bDoorDownChk;
         self->mail = D_004FA250;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x173, 0, 0);
         D_004FA270[0].func = actSt08bDoorUpChk;
         self->mail = D_004FA270;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -365,7 +365,7 @@ void actSt08bDoorUpChk(volatile int a0)
 
     D_004FA290[0].func = actSt08bDoorDownChk;
     sub->mail = D_004FA290;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -419,7 +419,7 @@ inline void actSt08bDoorDownEffect(volatile int a0)
 
 /* TU-owned mail record: role-named file static per the 2026-09-07 ruling,
    same shape as st17a's door_mes / st18a's switch_l_mes. */
-static ActMail door_down_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail door_down_mes[2] = {{430}, {429}};
 
 void actSt08bDoorDownChk(volatile int a0)
 {
@@ -452,7 +452,7 @@ void actSt08bDoorDownChk(volatile int a0)
 
     door_down_mes[0].func = actSt08bDoorUpChk;
     sub->mail = door_down_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -465,7 +465,7 @@ inline void actSt08bEne(volatile int a0)
     if (gflagChk(0x51) == 0) {
         D_004FA2D0[0].func = actSt08bEneChk;
         self->mail = D_004FA2D0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

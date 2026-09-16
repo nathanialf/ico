@@ -44,7 +44,7 @@ void actSt03tSwitchL(volatile int a0)
 
         D_004F8330[0].func = actSt03tSwitchLChk;
         self->mail = D_004F8330;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x16C, 0, 0x2D);
@@ -52,7 +52,7 @@ void actSt03tSwitchL(volatile int a0)
 
         D_004F8350[0].func = actSt03tSwitchLUpChk;
         self->mail = D_004F8350;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -125,7 +125,7 @@ void actSt03tSwitchLChk(volatile int a0)
 
     D_004F8370[0].func = actSt03tSwitchLUpChk;
     self->mail = D_004F8370;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -185,7 +185,7 @@ void actSt03tSwitchLUpChk(volatile int a0)
 
     D_004F8390[0].func = actSt03tSwitchLChk;
     self->mail = D_004F8390;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -211,7 +211,7 @@ void actSt03tSwitchR(volatile int a0)
 
         D_004F83B0[0].func = actSt03tSwitchRChk;
         self->mail = D_004F83B0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x16D, 0, 0x2D);
@@ -219,7 +219,7 @@ void actSt03tSwitchR(volatile int a0)
 
         D_004F83D0[0].func = actSt03tSwitchRUpChk;
         self->mail = D_004F83D0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -270,7 +270,7 @@ void actSt03tSwitchRChk(volatile int a0)
 
     D_004F83F0[0].func = actSt03tSwitchRUpChk;
     self->mail = D_004F83F0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -313,7 +313,7 @@ void actSt03tSwitchRUpChk(volatile int a0)
 
     D_004F8410[0].func = actSt03tSwitchRChk;
     self->mail = D_004F8410;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -431,7 +431,7 @@ void actSt03tGirlUp(volatile int a0)
     if (gflagChk(0x5D) == 0) {
         D_004F8550[0].func = actSt03tGirlUpChk;
         self->mail = D_004F8550;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         FinishHint(0xC);
@@ -452,7 +452,7 @@ void actSt03tGirlCam(volatile int a0)
 
     D_004F8430[0].func = actSt03tGirlCamStartChk;
     self->mail = D_004F8430;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -488,12 +488,12 @@ void actSt03tWay(volatile int a0)
     if (gflagChk(0x64) == 0) {
         D_004F84B0[0].func = actSt03tWayOnChk;
         self->mail = D_004F84B0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         D_004F84D0[0].func = actSt03tWayOffChk;
         self->mail = D_004F84D0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -514,7 +514,7 @@ void actSt03tEne(volatile int a0)
     if (gflagChk(0x68) == 0) {
         D_004F8490[0].func = actSt03tEneChk;
         self->mail = D_004F8490;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -538,7 +538,7 @@ void actSt03tGirlPos(volatile int a0)
 
         D_004F8530[0].func = actSt03tGirlPosChk;
         self->mail = D_004F8530;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -557,7 +557,7 @@ void actSt03tHint1Sleep(volatile int a0)
 
     D_004F8570[0].func = actSt03tHint1OffChk;
     self->mail = D_004F8570;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -594,7 +594,7 @@ void actSt03tGirlCamStartChk(volatile int a0)
 
     D_004F8450[0].func = actSt03tGirlCamEndChk;
     sub->mail = D_004F8450;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -625,7 +625,7 @@ void actSt03tGirlCamEndChk(volatile int a0)
 
     D_004F8470[0].func = actSt03tGirlCamStartChk;
     sub->mail = D_004F8470;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -681,10 +681,10 @@ extern void gflagOn(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 
 /* The way-on watcher's mail record: it installs actSt03tWayOffChk here and
-   posts it. Word 0 of each entry is the mail id the entry answers (0x1AE the
-   actor post, 0x1AD the trailing entry); .func is filled in at run time.
+   posts it. Word 0 of each entry is the mail id the entry answers (430 the
+   actor post, 429 the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
-static ActMail way_on_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail way_on_mes[2] = {{430}, {429}};
 
 extern void actSt03tWayOffChk(volatile int a0);
 
@@ -704,7 +704,7 @@ void actSt03tWayOnChk(volatile int a0)
 
     way_on_mes[0].func = actSt03tWayOffChk;
     sub->mail = way_on_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -717,7 +717,7 @@ extern void gflagOff(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 
 /* The way-off watcher's own mail record (installs actSt03tWayOnChk). */
-static ActMail way_off_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail way_off_mes[2] = {{430}, {429}};
 
 extern void actSt03tWayOnChk(volatile int a0);
 
@@ -737,7 +737,7 @@ void actSt03tWayOffChk(volatile int a0)
 
     way_off_mes[0].func = actSt03tWayOnChk;
     sub->mail = way_off_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -788,7 +788,7 @@ void actSt03tHint1OnChk(volatile int a0)
 
     D_004F85B0[0].func = actSt03tHint1OffChk;
     sub->mail = D_004F85B0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -813,6 +813,6 @@ void actSt03tHint1OffChk(volatile int a0)
 
     D_004F8590[0].func = actSt03tHint1OnChk;
     sub->mail = D_004F8590;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

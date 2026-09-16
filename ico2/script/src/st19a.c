@@ -136,7 +136,7 @@ void actSt19aHaguruma(volatile int a0)
         stage_SetAnimation(0x8C, -1, -2);
         D_004FB2D0[0].func = actSt19aHagurumaChk;
         sub->mail = D_004FB2D0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         soundSeDefPlay(0x546, 0, D_004FB2C0, 1);
@@ -347,7 +347,7 @@ void actSt19aOri(volatile int a0)
 
         D_004FB270[0].func = actSt19aOriMain;
         self->mail = D_004FB270;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x8E, 0, 0x59);
@@ -379,7 +379,7 @@ void actSt19aPipe(volatile int a0)
 
         D_004FB2F0[0].func = actSt19aPipeChk;
         self->mail = D_004FB2F0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
 
     } else {
@@ -416,7 +416,7 @@ void actSt19aChain(volatile int a0)
 
         D_004FB330[0].func = actSt19aChainMain;
         self->mail = D_004FB330;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -443,7 +443,7 @@ void actSt19aOriSwitch(volatile int a0)
     sub->mainMail = 0;
     D_004FB290[0].func = actSt19aOriUp;
     sub->mail = D_004FB290;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -471,7 +471,7 @@ void actSt19aChainSwitch(volatile int a0)
     if (gflagChk(0x139) == 0) {
         D_004FB350[0].func = actSt19aChainDown;
         sub->mail = D_004FB350;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

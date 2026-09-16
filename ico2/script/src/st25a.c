@@ -816,7 +816,7 @@ void actSt25aElevChk(volatile int a0)
     lt_switch_layout(54);
     D_002A5540[0].func = actSt25aElevCharaChk;
     sub->mail = D_002A5540;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -837,7 +837,7 @@ void actSt25aQueenBefore(volatile int a0)
     if (gflagChk(0x14B) == 0) {
         D_002A5440[0].func = actSt25aQueenBeforeChk;
         sub->mail = D_002A5440;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -855,7 +855,7 @@ void actSt25aQueenTalk(volatile int a0)
         scpSearchGobj(0x86E)->f16C = 0;
         D_002A5480[0].func = actSt25aQueenTalkChk;
         sub->mail = D_002A5480;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -869,7 +869,7 @@ void actSt25aQueenDeadReady(volatile int a0)
 
     D_002A54A0[0].func = actSt25aQueenDeadReadyChk;
     sub->mail = D_002A54A0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -882,7 +882,7 @@ void actSt25aQueenDead(volatile int a0)
 
     D_002A54C0[0].func = actSt25aQueenDeadChk;
     sub->mail = D_002A54C0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -895,7 +895,7 @@ void actItouQueenAttack(volatile int a0)
 
     D_002A54E0[0].func = actItouQueenAttackChk;
     sub->mail = D_002A54E0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -910,13 +910,13 @@ void actSt25aElev(volatile int a0)
         stage_SetAnimation(0xA2, 0, 0);
         D_002A5500[0].func = actSt25aElevChk;
         sub->mail = D_002A5500;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xA1, 0, 0);
         D_002A5520[0].func = actSt25aElevChk;
         sub->mail = D_002A5520;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -1030,6 +1030,6 @@ void actSt25aElevCharaChk(volatile int a0)
 
     D_002A5560[0].func = actSt25aElevChk;
     sub->mail = D_002A5560;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

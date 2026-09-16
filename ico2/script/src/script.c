@@ -371,7 +371,7 @@ void scpDoorTypeUpDown(volatile int a0)
     Camctrl_ExitEveRock();
     D_002A51B0[0].func = scpDoorTypeUpMain;
     ((struct ScpAct *)act)->mail = D_002A51B0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -398,7 +398,7 @@ void scpDoorTypeUpUp(volatile int a0)
     Camctrl_ExitEveRock();
     D_002A51D0[0].func = scpDoorTypeUpMain;
     ((struct ScpAct *)act)->mail = D_002A51D0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1180,7 +1180,7 @@ void scpDoorTypeUp(volatile int a0)
     }
     D_002A5150[0].func = scpDoorTypeUpMain;
     ((struct ScpAct *)act)->mail = D_002A5150;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1197,12 +1197,12 @@ void scpDoorTypeUpSwitch(volatile int a0)
     if (gflagChk(*(int *)((char *)act + 0x454)) != 0) {
         D_002A5170[0].func = scpDoorTypeUpDown;
         act->mail = D_002A5170;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
     D_002A5190[0].func = scpDoorTypeUpUp;
     act->mail = D_002A5190;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2316,7 +2316,7 @@ void actSubSekizoSe(volatile int a0)
         stage_SetLoopFlag(0x22B, 0);
         D_002A5460[0].func = actSt25aQueenAppearChk;
         act->mail = D_002A5460;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
         return;
     }

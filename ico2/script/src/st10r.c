@@ -82,10 +82,10 @@ extern void actSt10rFenceDownChk(volatile int a0);
 
 /* The second fence-up watcher's mail record: it installs
    actSt10rFenceDownChk2 here and posts it. Word 0 of each entry is the mail
-   id the entry answers (0x1AE the actor post, 0x1AD the trailing entry);
+   id the entry answers (430 the actor post, 429 the trailing entry);
    .func is filled in at run time. Named for the thread that owns and posts
    it. */
-static ActMail fence_up2_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail fence_up2_mes[2] = {{430}, {429}};
 
 extern void actSt10rFenceDownChk2(volatile int a0);
 extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
@@ -517,7 +517,7 @@ void actSt10rFence(volatile int a0)
 
         D_004FA860[0].func = actSt10rFenceUpChk;
         self->mail = D_004FA860;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpSearchGobj(0x661)->f16C = 0;
@@ -539,7 +539,7 @@ void actSt10rFence(volatile int a0)
 
         D_004FA880[0].func = actSt10rFenceDownChk2;
         self->mail = D_004FA880;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -581,7 +581,7 @@ void actSt10rFenceDownChk(volatile int a0)
 
     D_004FA8A0[0].func = actSt10rFenceUpChk;
     sub->mail = D_004FA8A0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -621,7 +621,7 @@ void actSt10rFenceUpChk(volatile int a0)
 
     D_004FA8C0[0].func = actSt10rFenceDownChk;
     sub->mail = D_004FA8C0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -663,7 +663,7 @@ void actSt10rFenceDownChk2(volatile int a0)
 
     D_004FA8E0[0].func = actSt10rFenceUpChk2;
     sub->mail = D_004FA8E0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -701,7 +701,7 @@ void actSt10rFenceUpChk2(volatile int a0)
 
     fence_up2_mes[0].func = actSt10rFenceDownChk2;
     sub->mail = fence_up2_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -716,7 +716,7 @@ void actSt10rFloor(volatile int a0)
 
         D_004FA740[0].func = actSt10rFloorChk;
         self->mail = D_004FA740;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -730,7 +730,7 @@ void actSt10rFloorHit(volatile int a0)
     if (gflagChk(0x12C) == 0) {
         D_004FA760[0].func = actSt10rFloorHitChk;
         self->mail = D_004FA760;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -746,7 +746,7 @@ void actSt10rCage(volatile int a0)
     if (gflagChk(0x12D) == 0) {
         D_004FA780[0].func = actSt10rCageMain;
         self->mail = D_004FA780;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         SetRotObjectLockFlag(scpSearchGobj(0x645), 1);
@@ -762,7 +762,7 @@ void actSt10rTower(volatile int a0)
     if (gflagChk(0x12E) == 0) {
         D_004FA7A0[0].func = actSt10rTowerChk;
         self->mail = D_004FA7A0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -776,7 +776,7 @@ void actSt10rTowerResque(volatile int a0)
     if (gflagChk(0x12E) == 0) {
         D_004FA980[0].func = actSt10rTowerResqueChk;
         self->mail = D_004FA980;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -789,7 +789,7 @@ void actSt10rExit(volatile int a0)
 
     D_004FA7C0[0].func = actSt10rExitChk;
     self->mail = D_004FA7C0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -805,7 +805,7 @@ void actSt10rChain(volatile int a0)
 
         D_004FA800[0].func = actSt10rChainMain;
         self->mail = D_004FA800;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x183, 0, -1);
@@ -834,7 +834,7 @@ void actSt10rEne(volatile int a0)
     if (gflagChk(0x132) == 0) {
         D_004FA840[0].func = actSt10rEneChk;
         self->mail = D_004FA840;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -916,7 +916,7 @@ void actSt10rWay(volatile int a0)
 
     D_004FA920[0].func = actSt10rWayOnChk;
     self->mail = D_004FA920;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1012,7 +1012,7 @@ void actSt10rChainSwitch(volatile int a0)
     self->mainMail = 0;
     D_004FA820[0].func = actSt10rChainMove;
     self->mail = D_004FA820;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1076,7 +1076,7 @@ void actSt10rWayOnChk(volatile int a0)
 
     D_004FA940[0].func = actSt10rWayOffChk;
     sub->mail = D_004FA940;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1095,7 +1095,7 @@ void actSt10rWayOffChk(volatile int a0)
 
     D_004FA960[0].func = actSt10rWayOnChk;
     sub->mail = D_004FA960;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

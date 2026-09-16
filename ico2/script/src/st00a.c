@@ -206,13 +206,13 @@ void actSt00aDoor2(volatile int a0)
         _ACTWait(0x3C);
         D_004F7EB0[0].func = actSt00aDoor2DownChk;
         self->mail = D_004F7EB0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x5D, 0, 0);
         D_004F7ED0[0].func = actSt00aDoor2UpChk;
         self->mail = D_004F7ED0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -262,7 +262,7 @@ void actSt00aDoor2UpChk(volatile int a0)
 
     D_004F7EF0[0].func = actSt00aDoor2DownChk;
     sub->mail = D_004F7EF0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -287,13 +287,13 @@ void actSt00aDoor1(volatile int a0)
         _ACTWait(0x3C);
         D_004F7F30[0].func = actSt00aDoor1DownChk;
         self->mail = D_004F7F30;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x5B, 0, 0);
         D_004F7F50[0].func = actSt00aDoor1UpChk;
         self->mail = D_004F7F50;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -340,7 +340,7 @@ void actSt00aDoor1DownChk(volatile int a0)
 
     D_004F7F90[0].func = actSt00aDoor1UpChk;
     sub->mail = D_004F7F90;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -356,7 +356,7 @@ void actSt00aEne(volatile int a0)
     if (gflagChk(0x2A) == 0) {
         D_004F7E70[0].func = actSt00aEneChk;
         self->mail = D_004F7E70;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -413,7 +413,7 @@ void actSt00aStair(volatile int a0)
         scpSearchGobj(0x110)->f16C = 0;
         D_004F7E90[0].func = actSt00aStairChk;
         self->mail = D_004F7E90;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpSearchGobj(0x111)->f16C = 0;
@@ -432,7 +432,7 @@ void actSt00aAtr2(volatile int a0)
     if (gflagChk(0x2A) == 0) {
         D_004F7E50[0].func = actSt00aAtr2Chk;
         self->mail = D_004F7E50;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

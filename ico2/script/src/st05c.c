@@ -261,7 +261,7 @@ void actSt04rDoor(volatile int a0)
         stage_SetAnimation(0x14C, 0, 0);
         D_004F9780[0].func = actSt04rDoorChk;
         self->mail = D_004F9780;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x14C, 0, -1);
@@ -279,7 +279,7 @@ void actSt04rDoor2(volatile int a0)
         stage_SetAnimation(0x14D, 0, 0);
         D_004F97A0[0].func = actSt04rDoor2Chk;
         self->mail = D_004F97A0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x14D, 0, -1);
@@ -295,7 +295,7 @@ void actSt05cDoorDown(volatile int a0)
     if (gflagChk(0xA5) == 0) {
         D_004F9740[0].func = actSt05cDoorDownChk;
         self->mail = D_004F9740;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -309,7 +309,7 @@ void actSt05cEne(volatile int a0)
     if (gflagChk(0xA7) == 0) {
         D_004F9760[0].func = actSt05cEneChk;
         self->mail = D_004F9760;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -365,7 +365,7 @@ void actSt05cCrestHint(volatile int a0)
         SleepHint(0x17);
         D_004F97C0[0].func = actSt05cCrestHintChk;
         self->mail = D_004F97C0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

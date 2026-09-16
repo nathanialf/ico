@@ -126,7 +126,7 @@ inline void actDeja(volatile int a0)
         stage_SetAnimation(0x48, 0, 0);
         D_004F7988[0].func = actDejaChk;
         self->mail = D_004F7988;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -257,7 +257,7 @@ void actDejaAfter(volatile int a0)
         stage_SetAnimation(0x26, 0, 0);
         D_004F79A8[0].func = actDejaAfterChk;
         self->mail = D_004F79A8;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x20, 0, -1);

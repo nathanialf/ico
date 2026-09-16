@@ -28,7 +28,7 @@ void actExplode(volatile int a0)
 
     D_004FB890[0].func = actExplodeChk;
     self->mail = D_004FB890;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -43,7 +43,7 @@ void actSplash1(volatile int a0)
 
     D_004FB8B0[0].func = actSplash1Chk;
     self->mail = D_004FB8B0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -58,7 +58,7 @@ void actSplash2(volatile int a0)
 
     D_004FB8D0[0].func = actSplash2Chk;
     self->mail = D_004FB8D0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -73,7 +73,7 @@ void actWave(volatile int a0)
 
     D_004FB8F0[0].func = actWaveChk;
     self->mail = D_004FB8F0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -93,7 +93,7 @@ void actSpider(volatile int a0)
 
     D_004FB930[0].func = actSpiderChk;
     self->mail = D_004FB930;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -130,7 +130,7 @@ void actSt17aTest(volatile int a0)
 
     D_004FB950[0].func = actSt17aTestChk;
     self->mail = D_004FB950;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -142,7 +142,7 @@ void actSt27aWave(volatile int a0)
 
     D_004FB910[0].func = actSt27aWaveChk;
     self->mail = D_004FB910;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

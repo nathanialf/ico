@@ -58,13 +58,13 @@ void actSt02aDoor(volatile int a0)
         _ACTWait(0x3C);
         D_004F8050[0].func = actSt02aDoorDownChk;
         self->mail = D_004F8050;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x61, 0, 0);
         D_004F8070[0].func = actSt02aDoorUpChk;
         self->mail = D_004F8070;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -106,7 +106,7 @@ void actSt02aDoorUpChk(volatile int a0)
     _ACTWait(1);
     D_004F8090[0].func = actSt02aDoorDownChk;
     sub->mail = D_004F8090;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -140,7 +140,7 @@ void actSt02aDoorDownChk(volatile int a0)
     _ACTWait(1);
     D_004F80B0[0].func = actSt02aDoorUpChk;
     sub->mail = D_004F80B0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -315,7 +315,7 @@ void actSt02aGondolaUp(volatile int a0)
 
     D_004F81D0[0].func = actSt02aGondolaMain;
     sub->mail = D_004F81D0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -359,7 +359,7 @@ void actSt02aGondolaDown(volatile int a0)
 
     D_004F81F0[0].func = actSt02aGondolaMain;
     sub->mail = D_004F81F0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -411,7 +411,7 @@ void actSt02aGondola(volatile int a0)
 
     D_004F8170[0].func = actSt02aGondolaMain;
     self->mail = D_004F8170;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -431,7 +431,7 @@ void actSt02aFence(volatile int a0)
     if (gflagChk(0x76) == 0) {
         D_004F80F0[0].func = actSt02aFenceMain;
         self->mail = D_004F80F0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -454,7 +454,7 @@ void actSt02aWaterFall(volatile int a0)
     if (gflagChk(0x6A) != 0) {
         D_004F8130[0].func = actSt02aWaterFallChk;
         self->mail = D_004F8130;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 
@@ -496,7 +496,7 @@ void actSt02aEne(volatile int a0)
     if (gflagChk(0x79) == 0) {
         D_004F8210[0].func = actSt02aEneChk;
         self->mail = D_004F8210;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -589,12 +589,12 @@ void actSt02aWay(volatile int a0)
     if (gflagChk(0x7C) == 0) {
         D_004F8230[0].func = actSt02aWayOffChk;
         self->mail = D_004F8230;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         D_004F8250[0].func = actSt02aWayOnChk;
         self->mail = D_004F8250;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -615,7 +615,7 @@ void actSt02aTakiWay(volatile int a0)
     if (gflagChk(0x6A) != 0) {
         D_004F82B0[0].func = actSt02aTakiWayOnChk;
         self->mail = D_004F82B0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -636,7 +636,7 @@ void actSt02aSecretItem(volatile int a0)
     if (gflagChk(0x72) == 0) {
         D_004F8310[0].func = actSt02aSecretItemChk;
         self->mail = D_004F8310;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -725,7 +725,7 @@ void actSt02aFenceSwitch(volatile int a0)
 
     D_004F8110[0].func = actSt02aFenceOpen;
     sub->mail = D_004F8110;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -779,13 +779,13 @@ void actSt02aGondolaSwitch(volatile int a0)
     if (gflagChk(0x77) != 0) {
         D_004F8190[0].func = actSt02aGondolaDown;
         sub->mail = D_004F8190;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 
     D_004F81B0[0].func = actSt02aGondolaUp;
     sub->mail = D_004F81B0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -817,10 +817,10 @@ extern void SetWayGroupActive(int a0, int a1);
 extern void gflagOff(int a0);
 
 /* The way-on watcher's mail record: it installs actSt02aWayOffChk here and
-   posts it. Word 0 of each entry is the mail id the entry answers (0x1AE the
-   actor post, 0x1AD the trailing entry); .func is filled in at run time.
+   posts it. Word 0 of each entry is the mail id the entry answers (430 the
+   actor post, 429 the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
-static ActMail way_on_mail[2] = {{0x1AE}, {0x1AD}};
+static ActMail way_on_mail[2] = {{430}, {429}};
 
 extern void actSt02aWayOffChk(volatile int a0);
 
@@ -843,7 +843,7 @@ void actSt02aWayOnChk(volatile int a0)
 
     way_on_mail[0].func = actSt02aWayOffChk;
     sub->mail = way_on_mail;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -871,13 +871,13 @@ void actSt02aWayOffChk(volatile int a0)
 
     D_004F8290[0].func = actSt02aWayOnChk;
     sub->mail = D_004F8290;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 /* The waterfall way-on watcher's own mail record (installs
    actSt02aTakiWayOffChk). */
-static ActMail taki_on_mail[2] = {{0x1AE}, {0x1AD}};
+static ActMail taki_on_mail[2] = {{430}, {429}};
 
 extern void actSt02aTakiWayOffChk(volatile int a0);
 
@@ -897,13 +897,13 @@ void actSt02aTakiWayOnChk(volatile int a0)
 
     taki_on_mail[0].func = actSt02aTakiWayOffChk;
     sub->mail = taki_on_mail;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 /* The waterfall way-off watcher's own mail record (installs
    actSt02aTakiWayOnChk). */
-static ActMail taki_off_mail[2] = {{0x1AE}, {0x1AD}};
+static ActMail taki_off_mail[2] = {{430}, {429}};
 
 extern void actSt02aTakiWayOnChk(volatile int a0);
 
@@ -923,7 +923,7 @@ void actSt02aTakiWayOffChk(volatile int a0)
 
     taki_off_mail[0].func = actSt02aTakiWayOnChk;
     sub->mail = taki_off_mail;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

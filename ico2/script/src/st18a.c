@@ -140,7 +140,7 @@ void actSt18aSwitchLChk(volatile int a0)
 
     D_004FB0D0[0].func = actSt18aSwitchLUpChk;
     sub->mail = D_004FB0D0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -154,7 +154,7 @@ extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
 extern void actSt18aSwitchLChk(volatile int a0);
 
 /* TU-owned .data record (VMA 0x004FB0F0..0x004FB10F, ROM 0x3FB0F0). */
-static ActMail switch_l_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail switch_l_mes[2] = {{430}, {429}};
 
 void actSt18aSwitchLUpChk(volatile int a0)
 {
@@ -184,7 +184,7 @@ void actSt18aSwitchLUpChk(volatile int a0)
 
     switch_l_mes[0].func = actSt18aSwitchLChk;
     sub->mail = switch_l_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -238,7 +238,7 @@ void actSt18aSwitchRChk(volatile int a0)
 
     D_004FB150[0].func = actSt18aSwitchRUpChk;
     sub->mail = D_004FB150;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -280,7 +280,7 @@ void actSt18aSwitchRUpChk(volatile int a0)
 
     D_004FB170[0].func = actSt18aSwitchRChk;
     sub->mail = D_004FB170;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -356,7 +356,7 @@ void actSt18aDoorChk(volatile int a0)
     D_004FB1D0[0].func = actSt18aDoorDownChk;
     sub->mail = D_004FB1D0;
     D_0063AA08 = 0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -370,7 +370,7 @@ extern void actSt18aDoorChk(volatile int a0);
 /* TU-owned .data record (VMA 0x004FB1F0..0x004FB20F, ROM 0x3FB1F0): the mail
    table actSt18aDoorDownChk hands back to the door actor. Role-named file
    static per the 2026-09-07 ruling, same shape as st17a's door_mes. */
-static ActMail door_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail door_mes[2] = {{430}, {429}};
 
 void actSt18aDoorDownChk(volatile int a0)
 {
@@ -395,7 +395,7 @@ void actSt18aDoorDownChk(volatile int a0)
 
     door_mes[0].func = actSt18aDoorChk;
     sub->mail = door_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -485,7 +485,7 @@ void actSt18aIntro(volatile int a0)
     if (gflagChk(0x37) == 0) {
         D_004FB070[0].func = actSt18aIntroChk;
         self->mail = D_004FB070;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -511,14 +511,14 @@ void actSt18aDoor(volatile int a0)
 
         D_004FB190[0].func = actSt18aDoorChk;
         self->mail = D_004FB190;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x7B, 0, -1);
 
         D_004FB1B0[0].func = actSt18aDoorDownChk;
         self->mail = D_004FB1B0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -544,14 +544,14 @@ void actSt18aSwitchL(volatile int a0)
 
         D_004FB090[0].func = actSt18aSwitchLChk;
         self->mail = D_004FB090;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x79, 0, 0x2D);
 
         D_004FB0B0[0].func = actSt18aSwitchLUpChk;
         self->mail = D_004FB0B0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -577,14 +577,14 @@ void actSt18aSwitchR(volatile int a0)
 
         D_004FB110[0].func = actSt18aSwitchRChk;
         self->mail = D_004FB110;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x7A, 0, 0x2D);
 
         D_004FB130[0].func = actSt18aSwitchRUpChk;
         self->mail = D_004FB130;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -605,7 +605,7 @@ void actSt18aEne(volatile int a0)
     if (gflagChk(0x3D) == 0) {
         D_004FB210[0].func = actSt18aEneChk;
         self->mail = D_004FB210;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -657,7 +657,7 @@ void actSt18aEne2(volatile int a0)
     if (gflagChk(0x3F) == 0) {
         D_004FB230[0].func = actSt18aEne2Chk;
         self->mail = D_004FB230;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

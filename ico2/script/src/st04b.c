@@ -269,7 +269,7 @@ void actSt04bSekizo(volatile int a0)
         stage_SetAnimation(0xBF, 0, 0);
         D_004F87B0[0].func = actSt04bSekizoChk;
         self->mail = D_004F87B0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xBF, 0, -1);
@@ -288,7 +288,7 @@ void actSt04bEne1(volatile int a0)
     if (gflagChk(0x9D) == 0) {
         D_004F87D0[0].func = actSt04bEne1Chk;
         self->mail = D_004F87D0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

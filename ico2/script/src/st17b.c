@@ -44,7 +44,7 @@ void actSt17bCheck(volatile int a0)
     if (gflagChk(0x24) == 0) {
         D_004FB050[0].func = actSt17bCheckChk;
         self->mail = D_004FB050;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

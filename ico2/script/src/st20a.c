@@ -31,48 +31,48 @@ extern void actSt20aBridgeSwitch(volatile int a0);
 extern void actSt20aGondolaSwitch(volatile int a0);
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
-   entry answers (0x1AE = the actor's own wake-up post, 0x1AD = the trailing
+   entry answers (430 = the actor's own wake-up post, 429 = the trailing
    entry); the handler in .func is installed at run time just before the
    record is posted. The two main-thread records answer their own ids and
    carry their switch handler from the start. Each record is named for the
    actor thread that owns and posts it. */
-static ActMail bridgeMain_mes[2] = {{0x196, actSt20aBridgeSwitch}, {0x1AD}};
+static ActMail bridgeMain_mes[2] = {{406, actSt20aBridgeSwitch}, {429}};
 
-static ActMail bridge_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail bridge_mes[2] = {{430}, {429}};
 
-static ActMail bridgeSwitch_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail bridgeSwitch_mes[2] = {{430}, {429}};
 
-static ActMail gondolaMain_mes[2] = {{0x197, actSt20aGondolaSwitch}, {0x1AD}};
+static ActMail gondolaMain_mes[2] = {{407, actSt20aGondolaSwitch}, {429}};
 
-static ActMail gondola_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail gondola_mes[2] = {{430}, {429}};
 
-static ActMail gondolaSwitchUp_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail gondolaSwitchUp_mes[2] = {{430}, {429}};
 
-static ActMail gondolaSwitchDown_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail gondolaSwitchDown_mes[2] = {{430}, {429}};
 
-static ActMail gondolaDown_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail gondolaDown_mes[2] = {{430}, {429}};
 
-static ActMail gondolaUp_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail gondolaUp_mes[2] = {{430}, {429}};
 
-static ActMail exit_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail exit_mes[2] = {{430}, {429}};
 
-static ActMail ene_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail ene_mes[2] = {{430}, {429}};
 
-static ActMail fence_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail fence_mes[2] = {{430}, {429}};
 
-static ActMail fence2_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail fence2_mes[2] = {{430}, {429}};
 
-static ActMail fenceDownChk_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail fenceDownChk_mes[2] = {{430}, {429}};
 
-static ActMail fenceUpChk_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail fenceUpChk_mes[2] = {{430}, {429}};
 
-static ActMail fenceDownChk2_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail fenceDownChk2_mes[2] = {{430}, {429}};
 
-static ActMail fenceUpChk2_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail fenceUpChk2_mes[2] = {{430}, {429}};
 
-static ActMail girlPos_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail girlPos_mes[2] = {{430}, {429}};
 
-static ActMail hint1_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail hint1_mes[2] = {{430}, {429}};
 
 extern int gflagChk(int id);
 extern void gflagOn(int id);
@@ -211,7 +211,7 @@ void actSt20aGondolaDown(volatile int a0)
     ClearGirlDangerGObj();
     gondolaDown_mes[0].func = actSt20aGondolaMain;
     sub->mail = gondolaDown_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -243,7 +243,7 @@ void actSt20aGondolaUp(volatile int a0)
     }
     gondolaUp_mes[0].func = actSt20aGondolaMain;
     sub->mail = gondolaUp_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -279,7 +279,7 @@ void actSt20aFence(volatile int a0)
 
         fence_mes[0].func = actSt20aFenceUpChk;
         sub->mail = fence_mes;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         SetWayGroupActive(0x13, 0);
@@ -303,7 +303,7 @@ void actSt20aFence(volatile int a0)
 
         fence2_mes[0].func = actSt20aFenceDownChk2;
         sub->mail = fence2_mes;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -337,7 +337,7 @@ void actSt20aFenceDownChk(volatile int a0)
     gflagOff(0x140);
     fenceDownChk_mes[0].func = actSt20aFenceUpChk;
     sub->mail = fenceDownChk_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -368,7 +368,7 @@ void actSt20aFenceUpChk(volatile int a0)
     gflagOn(0x140);
     fenceUpChk_mes[0].func = actSt20aFenceDownChk;
     sub->mail = fenceUpChk_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -399,7 +399,7 @@ void actSt20aFenceDownChk2(volatile int a0)
     gflagOff(0x140);
     fenceDownChk2_mes[0].func = actSt20aFenceUpChk2;
     sub->mail = fenceDownChk2_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -430,7 +430,7 @@ void actSt20aFenceUpChk2(volatile int a0)
     gflagOn(0x140);
     fenceUpChk2_mes[0].func = actSt20aFenceDownChk2;
     sub->mail = fenceUpChk2_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -445,7 +445,7 @@ void actSt20aBridge(volatile int a0)
     if (gflagChk(0x13B) == 0) {
         bridge_mes[0].func = actSt20aBridgeMain;
         sub->mail = bridge_mes;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -467,7 +467,7 @@ void actSt20aGondola(volatile int a0)
     }
     gondola_mes[0].func = actSt20aGondolaMain;
     sub->mail = gondola_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -481,7 +481,7 @@ void actSt20aExit(volatile int a0)
     _ACTWait(1);
     exit_mes[0].func = actSt20aExitChk;
     sub->mail = exit_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -512,7 +512,7 @@ void actSt20aEne(volatile int a0)
     if (gflagChk(0x13E) == 0) {
         ene_mes[0].func = actSt20aEneChk;
         sub->mail = ene_mes;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -580,7 +580,7 @@ void actSt20aHint1(volatile int a0)
     if (gflagChk(0x141) == 0) {
         hint1_mes[0].func = actSt20aHint1Chk;
         sub->mail = hint1_mes;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         FinishHint(0x14);
@@ -599,7 +599,7 @@ void actSt20aGirlPos(volatile int a0)
         SleepHint(0x14);
         girlPos_mes[0].func = actSt20aGirlPosChk;
         sub->mail = girlPos_mes;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -624,7 +624,7 @@ void actSt20aBridgeSwitch(volatile int a0)
     bridgeSwitch_mes[0].func = actSt20aBridgeDown;
     sub->mainMail = 0;
     sub->mail = bridgeSwitch_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -688,12 +688,12 @@ void actSt20aGondolaSwitch(volatile int a0)
     if (gflagChk(0x13C) != 0) {
         gondolaSwitchUp_mes[0].func = actSt20aGondolaUp;
         sub->mail = gondolaSwitchUp_mes;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
     gondolaSwitchDown_mes[0].func = actSt20aGondolaDown;
     sub->mail = gondolaSwitchDown_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

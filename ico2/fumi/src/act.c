@@ -478,7 +478,7 @@ IntrMail *act_check_intr_list(char *self, IntrMail *m, void **out)
     int i;
 
     if (m != 0) {
-        while ((short)m->kind != 0x1AD) {
+        while ((short)m->kind != 429) {
             if ((m->f14 >> 18) & 1) {
                 for (i = 0; i < k->n; i++) {
                     int mot;
@@ -554,7 +554,7 @@ void act_check_mail(char *self, IntrMail *m)
             break;
         }
     }
-    while ((short)m->kind != 0x1AD) {
+    while ((short)m->kind != 429) {
         if ((m->f14 >> 18) & 1) {
             for (i = 0; i < k->n; i++) {
                 id = k->ent[i].id;

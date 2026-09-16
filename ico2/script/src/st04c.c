@@ -229,7 +229,7 @@ void actSt04lDoor(volatile int a0)
         stage_SetAnimation(0xE7, 0, 0);
         D_004F8850[0].func = actSt04lDoorChk;
         self->mail = D_004F8850;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xE7, 0, -1);
@@ -250,7 +250,7 @@ void actSt04cIntro(volatile int a0)
     if (gflagChk(0xA1) == 0) {
         D_004F8830[0].func = actSt04cIntroChk;
         self->mail = D_004F8830;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -266,7 +266,7 @@ void actSt04cDoorDown(volatile int a0)
     if (gflagChk(0xA2) == 0) {
         D_004F87F0[0].func = actSt04cDoorDownChk;
         self->mail = D_004F87F0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -283,7 +283,7 @@ void actSt04cEne(volatile int a0)
     if (gflagChk(0xA3) == 0) {
         D_004F8810[0].func = actSt04cEneChk;
         self->mail = D_004F8810;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

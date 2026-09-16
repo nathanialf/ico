@@ -168,7 +168,7 @@ void actSt24aSword(volatile int a0)
     if (gflagChk(0x149) == 0) {
         D_004FB5F0[0].func = actSt24aSwordChk;
         self->mail = D_004FB5F0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -191,7 +191,7 @@ void actSt24aDemoCam(volatile int a0)
     if (gflagChk(0x14A) == 0) {
         D_004FB610[0].func = actSt24aDemoCamChk;
         self->mail = D_004FB610;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }

@@ -123,7 +123,7 @@ void actSt09aElvDown(volatile int a0)
 
     D_004FA370[0].func = actSt09aElvMain;
     self->mail = D_004FA370;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -186,7 +186,7 @@ void actSt09aElv(volatile int a0)
 
     D_004FA310[0].func = actSt09aElvMain;
     self->mail = D_004FA310;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -214,7 +214,7 @@ void actSt09aIntro(volatile int a0)
     if (gflagChk(0x55) == 0) {
         D_004FA3C0[0].func = actSt09aIntroChk;
         self->mail = D_004FA3C0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -229,7 +229,7 @@ void actSt09aBrg(volatile int a0)
     if (gflagChk(0x56) == 0) {
         D_004FA400[0].func = actSt09aBrgMain;
         self->mail = D_004FA400;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -244,7 +244,7 @@ void actSt09aHint1(volatile int a0)
     if (gflagChk(0x57) == 0) {
         D_004FA440[0].func = actSt09aHint1Chk;
         self->mail = D_004FA440;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         FinishHint(0xA);
@@ -261,7 +261,7 @@ void actSt09aHint2(volatile int a0)
     if (gflagChk(0x58) == 0) {
         D_004FA460[0].func = actSt09aHint2Chk;
         self->mail = D_004FA460;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         FinishHint(0xB);
@@ -292,13 +292,13 @@ void actSt09aElvSwitch(volatile int a0)
     if (gflagChk(0x53) != 0) {
         D_004FA330[0].func = actSt09aElvUp;
         sub->mail = D_004FA330;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 
     D_004FA350[0].func = actSt09aElvDown;
     sub->mail = D_004FA350;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -328,7 +328,7 @@ void actSt09aElvUp(volatile int a0)
 
     D_004FA390[0].func = actSt09aElvMain;
     self->mail = D_004FA390;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -378,7 +378,7 @@ void actSt09aBrgSwitch(volatile int a0)
 
     D_004FA420[0].func = actSt09aBrgDown;
     sub->mail = D_004FA420;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

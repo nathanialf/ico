@@ -135,7 +135,7 @@ void actSt04eHint1(volatile int a0)
     if (gflagChk(0xE1) == 0) {
         D_004F89D0[0].func = actSt04eHint1Chk;
         self->mail = D_004F89D0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         FinishHint(0x12);
@@ -152,7 +152,7 @@ void actSt04eHint1WakeUp(volatile int a0)
         SleepHint(0x12);
         D_004F8A80[0].func = actSt04eHint1WakeUpChk;
         self->mail = D_004F8A80;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -167,7 +167,7 @@ void actSt04eFuchi1(volatile int a0)
         stage_SetAnimation(0x107, 0, 0);
         D_004F89F0[0].func = actSt04eFuchi1Chk;
         self->mail = D_004F89F0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x107, 0, -1);
@@ -184,7 +184,7 @@ void actSt04eFuchi2(volatile int a0)
         stage_SetAnimation(0x108, 0, 0);
         D_004F8A10[0].func = actSt04eFuchi2Chk;
         self->mail = D_004F8A10;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x108, 0, -1);
@@ -201,7 +201,7 @@ void actSt04eFuchi3(volatile int a0)
         stage_SetAnimation(0x109, 0, 0);
         D_004F8A30[0].func = actSt04eFuchi3Chk;
         self->mail = D_004F8A30;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x109, 0, -1);
@@ -216,7 +216,7 @@ void actSt04eSe(volatile int a0)
 
     D_004F8A50[0].func = actSt04eSeChk;
     self->mail = D_004F8A50;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -232,7 +232,7 @@ void actSt04eWater(volatile int a0)
         scpSearchGobj(0x4F9)->f16C = 0;
         D_004F8990[0].func = actSt04eWaterMain;
         self->mail = D_004F8990;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpSearchGobj(0x4F8)->f16C = 0;
@@ -260,7 +260,7 @@ void actSt04eWaterSwitch(volatile int a0)
 
     D_004F89B0[0].func = actSt04eWaterStop;
     sub->mail = D_004F89B0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

@@ -191,7 +191,7 @@ void actSt05bSekizo(volatile int a0)
         stage_SetAnimation(0xC0, 0, 0);
         D_004F9720[0].func = actSt05bSekizoChk;
         self->mail = D_004F9720;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xC0, 0, -1);

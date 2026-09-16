@@ -604,7 +604,7 @@ void actOpDemo02(volatile int a0)
 
     D_004F7E10[0].func = actOpDemo02Chk;
     self->mail = D_004F7E10;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -770,7 +770,7 @@ inline void actOpDemo03(volatile int a0)
 
     D_004F7E30[0].func = actOpDemo03Chk;
     self->mail = D_004F7E30;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

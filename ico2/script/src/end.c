@@ -71,7 +71,7 @@ void actEndDemo01(volatile int a0)
         stage_SetAnimation(0x26, 0, 0);
         D_004F7BD0[0].func = actEndDemo01Chk;
         self->mail = D_004F7BD0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -205,7 +205,7 @@ void actEndDemo02(volatile int a0)
     SelectBoyCrown(D_00639EA4, 2);
     D_004F7BF0[0].func = actEndDemo02Chk;
     self->mail = D_004F7BF0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -333,7 +333,7 @@ void actEndDemo06(volatile int a0)
         SelectBoyCrown(D_00639EA4, 2);
         D_004F7C70[0].func = actEndDemo06Chk;
         self->mail = D_004F7C70;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -418,7 +418,7 @@ void actEndDemo07(volatile int a0)
         SelectBoyCrown(D_00639EA4, 2);
         D_004F7C90[0].func = actEndDemo07Chk;
         self->mail = D_004F7C90;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -517,7 +517,7 @@ void actEndDemo10(volatile int a0)
     stage_SetAnimation(0x352, 0, 0);
     D_004F7CB0[0].func = actEndDemo10Chk;
     self->mail = D_004F7CB0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -711,7 +711,7 @@ void actStaff1(volatile int a0)
     stage_SetAnimation(0x23, 0, 0);
     D_004F7D30[0].func = actStaff1Chk;
     self->mail = D_004F7D30;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1070,11 +1070,11 @@ extern void SetGirlClothDispSwitch(PObjGObj *gobj, int a1, int a2);
 extern void ACTSendMailCorrect(int a0, int mail);
 
 /* Demo 14's mail record: the actor installs actEndDemo14Chk in it and posts
-   it. Word 0 of each entry is the mail id the entry answers (0x1AE the actor
-   post, 0x1AD the trailing entry); .func is filled in at run time. Named in
+   it. Word 0 of each entry is the mail id the entry answers (430 the actor
+   post, 429 the trailing entry); .func is filled in at run time. Named in
    this TU's own terse snake_case house style (its MAIN.MAP globals are
    ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
-static ActMail ed_demo14_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail ed_demo14_mes[2] = {{430}, {429}};
 
 extern int D_0063A054;
 extern int D_0063AA08;
@@ -1111,7 +1111,7 @@ void actEndDemo14(volatile int a0)
     SetGirlClothDispSwitch(scpSearchGobj(0x8CD), 1, 2);
     ed_demo14_mes[0].func = actEndDemo14Chk;
     self->mail = ed_demo14_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1237,7 +1237,7 @@ void actSt27aEnd(volatile int a0)
     if (gflagChk(0x163) == 0) {
         D_004F7DB0[0].func = actSt27aEndChk;
         self->mail = D_004F7DB0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -1441,12 +1441,12 @@ extern void ACTSendMailCorrect(int a0, int mail);
 
 /* The ending's save hand-off mail record: the logo watcher installs
    actEndingSave in it and posts it. Word 0 of each entry is the mail id the
-   entry answers (0x1AE the actor post, 0x1AD the trailing entry); .func is
+   entry answers (430 the actor post, 429 the trailing entry); .func is
    filled in at run time. Named in this TU's own terse snake_case house style
    (its MAIN.MAP globals are ed1..ed6, sea, happy_end) for the sequence it
    belongs to; among the role-plausible spellings this is one that also puts
    the record ahead of the handler in gcc's expression-hash order. */
-static ActMail end_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail end_mes[2] = {{430}, {429}};
 
 extern int D_0063AA08;
 extern int NonLinearCameraMove;
@@ -1504,7 +1504,7 @@ void actEndLogoChk(volatile int a0)
 
     end_mes[0].func = actEndingSave;
     self->mail = end_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1539,7 +1539,7 @@ void actEndDemo03(volatile int a0)
     stage_SetAnimation(0x4D, 0, -1);
     D_004F7C10[0].func = actEndDemo03Chk;
     self->mail = D_004F7C10;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1570,7 +1570,7 @@ void actEndDemo04(volatile int a0)
     scpFadeOut(255.0f, 0, 0, 0);
     D_004F7C30[0].func = actEndDemo04Chk;
     self->mail = D_004F7C30;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1593,7 +1593,7 @@ void actEndDemo05(volatile int a0)
     D_0063AA08 = 1;
     D_004F7C50[0].func = actEndDemo05Chk;
     self->mail = D_004F7C50;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1619,7 +1619,7 @@ void actEndDemo11(volatile int a0)
     SelectBoyCrown(D_00639EA4, 2);
     D_004F7CD0[0].func = actEndDemo11Chk;
     self->mail = D_004F7CD0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1644,7 +1644,7 @@ void actEndDemo12(volatile int a0)
     stage_SetAnimation(0x50, 0, -1);
     D_004F7CF0[0].func = actEndDemo12Chk;
     self->mail = D_004F7CF0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1672,7 +1672,7 @@ void actEndDemo13(volatile int a0)
     SelectBoyCrown(D_00639EA4, 2);
     D_004F7D10[0].func = actEndDemo13Chk;
     self->mail = D_004F7D10;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1702,7 +1702,7 @@ void actStaff2(volatile int a0)
     stage_SetAnimation(0x10D, 0, 0);
     D_004F7D50[0].func = actStaff2Chk;
     self->mail = D_004F7D50;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1732,7 +1732,7 @@ void actStaff3(volatile int a0)
     stage_SetAnimation(0x4D, 0, 0);
     D_004F7D70[0].func = actStaff3Chk;
     self->mail = D_004F7D70;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -1751,7 +1751,7 @@ void actEndLogo(volatile int a0)
 
     D_004F7DD0[0].func = actEndLogoChk;
     self->mail = D_004F7DD0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 

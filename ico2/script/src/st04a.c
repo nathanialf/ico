@@ -81,7 +81,7 @@ void actSt04aGate(volatile int a0)
 
         D_004F85D0[0].func = actSt04aGateChk;
         self->mail = D_004F85D0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetLoopFlag(0x22B, 0);
@@ -627,7 +627,7 @@ void actSt04aGateOpen(volatile int a0)
 
         D_004F85F0[0].func = actSt04aGateOpenChk;
         self->mail = D_004F85F0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         SetWayGroupActive(2, 1);
@@ -1234,7 +1234,7 @@ void actSt04aGateOpen3(volatile int a0)
 
         D_004F8690[0].func = actSt04aGateOpen3Chk;
         self->mail = D_004F8690;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetLoopFlag(0x22B, 0);
@@ -1756,7 +1756,7 @@ void actSt04aTorch1(volatile int a0)
 
         D_004F86F0[0].func = actSt04aTorch1Chk;
         self->mail = D_004F86F0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         scpSearchGobj(0x233)->f16C = 0;
@@ -1928,7 +1928,7 @@ void actSt04aGateL(volatile int a0)
 
         D_004F86B0[0].func = actSt04aGateLChk;
         self->mail = D_004F86B0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -1951,7 +1951,7 @@ void actSt04aGateR(volatile int a0)
 
         D_004F86D0[0].func = actSt04aGateRChk;
         self->mail = D_004F86D0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2004,7 +2004,7 @@ void actSt04aGateOpen2(volatile int a0)
 
         D_004F8670[0].func = actSt04aGateOpen2Chk;
         self->mail = D_004F8670;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2020,7 +2020,7 @@ void actSt04aGateOpen2Ready(volatile int a0)
 
     D_004F8650[0].func = actSt04aGateOpen2ReadyChk;
     self->mail = D_004F8650;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2035,7 +2035,7 @@ void actSt04aGirlSit(volatile int a0)
 
     D_004F8710[0].func = actSt04aGirlSitChk;
     self->mail = D_004F8710;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2051,7 +2051,7 @@ void actSt04aTorchHint(volatile int a0)
     if (gflagChk(0x99) == 0) {
         D_004F8730[0].func = actSt04aTorchHintChk;
         self->mail = D_004F8730;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -2069,7 +2069,7 @@ void actSt04aModel(volatile int a0)
 
     D_004F8750[0].func = actSt04aModelOnChk;
     self->mail = D_004F8750;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -2298,10 +2298,10 @@ void actSt04aGirlSitChk(volatile int a0)
 }
 
 /* The model-on watcher's mail record: it installs actSt04aModelOffChk here
-   and posts it. Word 0 of each entry is the mail id the entry answers (0x1AE
-   the actor post, 0x1AD the trailing entry); .func is filled in at run time.
+   and posts it. Word 0 of each entry is the mail id the entry answers (430
+   the actor post, 429 the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
-static ActMail model_on[2] = {{0x1AE}, {0x1AD}};
+static ActMail model_on[2] = {{430}, {429}};
 
 extern void actSt04aModelOffChk(volatile int a0);
 
@@ -2317,12 +2317,12 @@ void actSt04aModelOnChk(volatile int a0)
 
     model_on[0].func = actSt04aModelOffChk;
     sub->mail = model_on;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 /* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
-static ActMail model_off[2] = {{0x1AE}, {0x1AD}};
+static ActMail model_off[2] = {{430}, {429}};
 
 extern void actSt04aModelOnChk(volatile int a0);
 
@@ -2338,6 +2338,6 @@ void actSt04aModelOffChk(volatile int a0)
 
     model_off[0].func = actSt04aModelOnChk;
     sub->mail = model_off;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

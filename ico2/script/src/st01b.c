@@ -19,19 +19,19 @@ typedef struct PObjGObj {
 } PObjGObj;
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
-   entry answers (0x1AE = the actor's own wake-up post, 0x1AD = the trailing
+   entry answers (430 = the actor's own wake-up post, 429 = the trailing
    entry); the handler in .func is installed at run time just before the
    record is posted. Each record is named for the actor thread that owns
    and posts it. */
-static ActMail ene_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail ene_mes[2] = {{430}, {429}};
 
-static ActMail floor_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail floor_mes[2] = {{430}, {429}};
 
-static ActMail way_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail way_mes[2] = {{430}, {429}};
 
-static ActMail way_on_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail way_on_mes[2] = {{430}, {429}};
 
-static ActMail way_off_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail way_off_mes[2] = {{430}, {429}};
 
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -254,7 +254,7 @@ void actSt01bEne(volatile int a0)
     if (gflagChk(0x44) == 0) {
         ene_mes[0].func = actSt01bEneChk;
         self->mail = ene_mes;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -382,7 +382,7 @@ void actSt01bFloor(volatile int a0)
     if (gflagChk(0x46) == 0) {
         floor_mes[0].func = actSt01bFloorChk;
         self->mail = floor_mes;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -398,7 +398,7 @@ void actSt01bWay(volatile int a0)
 
     way_mes[0].func = actSt01bWayOnChk;
     self->mail = way_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -434,7 +434,7 @@ void actSt01bWayOnChk(volatile int a0)
 
     way_on_mes[0].func = actSt01bWayOffChk;
     sub->mail = way_on_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -453,6 +453,6 @@ void actSt01bWayOffChk(volatile int a0)
 
     way_off_mes[0].func = actSt01bWayOnChk;
     sub->mail = way_off_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

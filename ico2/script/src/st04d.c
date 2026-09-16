@@ -59,13 +59,13 @@ void actSt04dDoor1(volatile int a0)
         _ACTWait(0x3C);
         D_004F8870[0].func = actSt04dDoor1DownChk;
         self->mail = D_004F8870;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0xFE, 0, 0);
         D_004F8890[0].func = actSt04dDoor1UpChk;
         self->mail = D_004F8890;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -103,7 +103,7 @@ void actSt04dDoor1UpChk(volatile int a0)
 
     D_004F88B0[0].func = actSt04dDoor1DownChk;
     sub->mail = D_004F88B0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -186,7 +186,7 @@ void actSt04dDoor1DownChk(volatile int a0)
 
     D_004F88D0[0].func = actSt04dDoor1UpChk;
     sub->mail = D_004F88D0;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -213,13 +213,13 @@ void actSt04dDoor2(volatile int a0)
         _ACTWait(0x3C);
         D_004F88F0[0].func = actSt04dDoor2DownChk;
         self->mail = D_004F88F0;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x100, 0, 0);
         D_004F8910[0].func = actSt04dDoor2UpChk;
         self->mail = D_004F8910;
-        ACTSendMailCorrect(a0, 0x1AE);
+        ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
@@ -229,7 +229,7 @@ extern long long D_00622A60[];
 
 /* TU-owned mail record: role-named file static per the 2026-09-07 ruling,
    same shape as st17a's door_mes / st18a's switch_l_mes. */
-static ActMail door2_up_mes[2] = {{0x1AE}, {0x1AD}};
+static ActMail door2_up_mes[2] = {{430}, {429}};
 
 void actSt04dDoor2UpChk(volatile int a0)
 {
@@ -260,7 +260,7 @@ void actSt04dDoor2UpChk(volatile int a0)
 
     door2_up_mes[0].func = actSt04dDoor2DownChk;
     sub->mail = door2_up_mes;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
@@ -343,6 +343,6 @@ void actSt04dDoor2DownChk(volatile int a0)
 
     D_004F8950[0].func = actSt04dDoor2UpChk;
     sub->mail = D_004F8950;
-    ACTSendMailCorrect(a0, 0x1AE);
+    ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

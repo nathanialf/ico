@@ -8,7 +8,7 @@ extern void actCreateSubThread(void *entry, int prio);
 extern void actCreateMotionThread(void *a0, void *a1, void **a2);
 
 /* One mail-table row: the message id the actor listens for and the three
-   entry points it starts. 429 (0x1AD) terminates a table. */
+   entry points it starts. 429 terminates a table. */
 typedef struct MailRec {
     unsigned short id; /* 0x00 */
     char _p2[0x2];
