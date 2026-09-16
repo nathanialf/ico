@@ -23,4 +23,55 @@ extern void fiprintf();
 extern void abort(void);
 
 INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfscanf", __svfscanf);
-INCLUDE_ASM("asm/nonmatchings/sce/libc/stdio/vfscanf", __sccl);
+
+char *__sccl(char *tab, char *fmt)
+{
+    int c;
+    int n;
+    int v;
+
+    c = *fmt++;
+    if (c == '^') {
+        v = 1;
+        c = *fmt++;
+    } else {
+        v = 0;
+    }
+
+    for (n = 0; n < 256; n++) {
+        tab[n] = v;
+    }
+    if (c == 0) {
+        return fmt - 1;
+    }
+
+    v = 1 - v;
+    for (;;) {
+        tab[c] = v;
+    doswitch:
+        n = *fmt++;
+        switch (n) {
+        case 0:
+            return fmt - 1;
+
+        case '-':
+            n = *fmt;
+            if (n == ']' || n < c) {
+                c = '-';
+                break;
+            }
+            fmt++;
+            do {
+                tab[++c] = v;
+            } while (c < n);
+            goto doswitch;
+
+        case ']':
+            return fmt;
+
+        default:
+            c = n;
+            break;
+        }
+    }
+}

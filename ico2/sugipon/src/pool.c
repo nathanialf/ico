@@ -541,7 +541,66 @@ void InitLimitedPoolReflactionMesh(char *a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", SetLayoutedPoolReflactionMesh);
+void SetLayoutedPoolReflactionMesh(char *a0)
+{
+    Blob16L vec;
+    float out[4];
+    char *mesh;
+    char *tmp;
+    char *base;
+    char *q;
+    char *uv;
+    float sx;
+    float sy;
+    float iw;
+    float h;
+    float t;
+    int i;
+    int j;
+
+    if (D_0028F4D4[0] == 0) {
+        for (i = 0; i < *(int *)(a0 + 0x0); i++) {
+            (*(float ***)(a0 + 0x14))[i][0] -=
+                ((*(float ***)(a0 + 0x14))[i][0] - random_signed() * 0.1f) * 0.8f;
+            for (j = *(int *)(a0 + 0x4) - 1; j > 0; j--) {
+                (*(float ***)(a0 + 0x14))[i][j] -= ((*(float ***)(a0 + 0x14))[i][j] -
+                                                    (*(float ***)(a0 + 0x14))[i][j - 1] * 1.15f) *
+                                                   0.8f;
+            }
+        }
+    }
+
+    mesh = *(char **)(a0 + 0x10);
+    vec = D_0054DA70;
+    sx = 1.0f / (float)D_0063A064;
+    sy = 1.0f / (float)D_0063A068;
+    tmp = (char *)(matrixptr + 0x4C0);
+    base = (char *)(matrixptr + 0x440);
+
+    CopyVector(base, &vec);
+
+    _InitCurrentMatrix();
+    _SetCurrentMatrix(matrixptr + 0x100);
+
+    for (i = 0; i < *(int *)(a0 + 0x0); i++) {
+        q = *(char **)(mesh + 0x6C) + i * *(int *)(a0 + 0x4) * 16;
+        uv = *(char **)(mesh + 0x74) + i * *(int *)(a0 + 0x4) * 16;
+        for (j = 0; j < *(int *)(a0 + 0x4); j++) {
+            h = (*(float ***)(a0 + 0x14))[i][j];
+            _ApplyCurrentMatrix(out, q);
+            iw = 1.0f / out[3];
+            _ScaleVector(tmp, out, iw);
+            _SubVector(out, tmp, base);
+            t = out[0] * sx + 0.5f + h * 50.0f * iw;
+            *(float *)(uv + 0x0) = t < 0.0f ? 0.0f : t;
+            t = out[1] * sy + 0.5f + h * 50.0f * iw;
+            *(float *)(uv + 0x4) = 1.0f < t ? 1.0f : t;
+            q += 16;
+            uv += 16;
+        }
+    }
+    prim_UpdateMesh3D(mesh, 9, buffer_ID);
+}
 
 extern int D_0028F4D4[];
 extern const Blob16L D_0054DA70;

@@ -753,7 +753,8 @@ segments:
       - [0x5392A0, .lit4, ico2/ito/src/itou_boss]  # carved D_006392A0 (1 word, 1.2f, the play-speed ratio actBossCtrlStart passes, written as a literal; the TU's whole pool), VMA 0x6392A0..0x6392A4, 4 B
       - [0x5392A4, .lit4, ico2/ito/src/lightning]  # carved D_006392A4..D_006392BC (7 slots beside the still-asm DrawLightning2, one per use site in ROM order: 2pi, 10430.378f, pi/2, pi/2, 10430.378f, 2pi, 10430.378f; the TU's whole pool), VMA 0x6392A4..0x6392C0, 28 B
       - [0x5392C0, .lit4, ico2/ito/src/queen]  # carved D_006392C0..D_00639320 (25 words = MAIN.MAP queen.o .lit4 0x64: Debug_StickControl, QueenGeo, QueenBarrierGeo and its WrapRad expansions as literals, QueenBallGeo's 5000 now compiler-emitted; TU fully C), VMA 0x6392C0..0x639324
-      - [0x539324, lit4, cod/539324]     # .lit4 blob resume (queen_barrier_disp's words)
+      - [0x539324, .lit4, ico2/ito/src/queen_barrier_disp]  # carved D_00639324 (1 word, 32768.0f/14.0f = 2340.5715f, queen_barrier_disp_init's literal; = MAIN.MAP queen_barrier_disp.o .lit4 0x4, the TU's whole pool), VMA 0x639324..0x639328
+      - [0x539328, lit4, cod/539328]     # .lit4 blob resume
       - [0x539328, .lit4, ico2/ito/src/stage_orient]  # carved D_00639328 (1 word, StageOrientGet2's literal; the TU is fully C), VMA 0x639328..0x63932C
       - [0x53932C, .lit4, ico2/common/src/DObj]  # carved D_0063932C..D_00639330 (2 slots: initGeometryState's 0.333f and initMatrixDObj's pi; the TU's whole pool), VMA 0x63932C..0x639334, 8 B
       - [0x539334, .lit4, ico2/common/src/backStage]  # carved D_00639334 (1 word, backStageProcessInStage's 10000000.0f; the TU's whole pool), VMA 0x639334..0x639338, 4 B
