@@ -568,6 +568,8 @@ segments:
       - [0x3FB110, data, cod/3FB110]     # .data blob resume
       - [0x3FB1F0, .data, ico2/script/src/st18a]  # syms: door_mes  actSt18aDoorDownChk's mail record (VMA 0x4FB1F0..0x4FB210, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named
       - [0x3FB210, data, cod/3FB210]     # .data blob resume
+      - [0x3FB370, .data, ico2/script/src/st20a]  # syms: bridgeMain_mes bridge_mes bridgeSwitch_mes gondolaMain_mes gondola_mes gondolaSwitchUp_mes gondolaSwitchDown_mes gondolaDown_mes gondolaUp_mes exit_mes ene_mes fence_mes fence2_mes fenceDownChk_mes fenceUpChk_mes fenceDownChk2_mes fenceUpChk2_mes girlPos_mes hint1_mes  the TU's whole .data run (VMA 0x4FB370..0x4FB5D0, nineteen ActMail[2] records of 0x20); ROM bytes: the first and fourth carry their own ids 0x196/0x197 with the switch handlers, the rest {{0x1AE},{0x1AD}}; role-named per the 2026-09-07 ruling, order fixed by the ROM run
+      - [0x3FB5D0, data, cod/3FB5D0]     # .data blob resume
       - [0x44D380, rodata, cod/44D380]   # .rodata blob
       - [0x44DA30, .rodata, ico2/sugipon/src/motionManager2]  # carved jtbl_0054DA30 (6 arms, 0x18): _getMotion's switch table, emitted by the compiled function; VMA 0x54DA30..0x54DA48; the TU's other rodata stays in the blob
       - [0x44DA48, rodata, cod/44DA48]   # .rodata blob resume (two zero pad words then the next TU's data)
