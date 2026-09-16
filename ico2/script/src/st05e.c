@@ -19,10 +19,16 @@ extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 /* st05e.o's own .data run 0x4F98A0..0x4F9920 (0x80, no MAIN.MAP symbols):
    four 0x20-byte actor mail packets, one per thread hand-off. */
-extern ActMail D_004F98A0[];
-extern ActMail D_004F98C0[];
-extern ActMail D_004F98E0[];
-extern ActMail D_004F9900[];
+extern void actSt05eWaterSwitch(volatile int a0);
+
+static ActMail waterMain_mes[2] = {{406, actSt05eWaterSwitch}, {429}};
+
+static ActMail water_mes[2] = {{430}, {429}};
+
+static ActMail waterSwitch_mes[2] = {{430}, {429}};
+
+static ActMail solar_mes[2] = {{430}, {429}};
+
 extern void actSt05eWaterStop(volatile int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
@@ -179,8 +185,8 @@ void actSt05eWater(volatile int a0)
     if (gflagChk(0xE7) == 0) {
         scpSearchGobj(0x613)->f16C = 0;
 
-        D_004F98C0[0].func = actSt05eWaterMain;
-        self->mail = D_004F98C0;
+        water_mes[0].func = actSt05eWaterMain;
+        self->mail = water_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -199,8 +205,8 @@ void actSt05eSolar(volatile int a0)
     SetRotObjectArmRadius(scpSearchGobj(0x614), 200.0f);
 
     if (gflagChk(0xE8) == 0) {
-        D_004F9900[0].func = actSt05eSolarChk;
-        self->mail = D_004F9900;
+        solar_mes[0].func = actSt05eSolarChk;
+        self->mail = solar_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -216,7 +222,7 @@ void actSt05eWaterMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004F98A0;
+    sub->mainMail = waterMain_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -229,8 +235,8 @@ void actSt05eWaterSwitch(volatile int a0)
     D_0063AA08 = 1;
 
     sub->mainMail = 0;
-    D_004F98E0[0].func = actSt05eWaterStop;
-    sub->mail = D_004F98E0;
+    waterSwitch_mes[0].func = actSt05eWaterStop;
+    sub->mail = waterSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

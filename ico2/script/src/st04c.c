@@ -33,7 +33,22 @@ typedef union StVec {
     long long ll[2];
 } StVec;
 
-extern StVec D_006229F0;
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads, which is what makes gcc
+   emit the ld/sd pair the ROM has. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+static const StVec doorDownChkPos = {{0.0f, 84.0f, -1359.0f, 0.0f}};
+
+static const ConstVec doorDownEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}};
+
+static const ConstVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}};
+
+static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
+
 extern int D_00639EA4;
 extern int scpTriggerBall(int a0, int gobj, float r);
 extern int actCreateSubThread(void *entry, int prio);
@@ -56,7 +71,7 @@ void actSt04cDoorDownChk(volatile int a0)
 
     stage_SetAnimation(0xFD, 1, 0);
 
-    pos = D_006229F0;
+    pos = doorDownChkPos;
 
     _ACTWait(30);
     soundSeDefPlay(0x4C5, 0, &pos, 1);
@@ -214,7 +229,14 @@ void actSt04cSolarXL(volatile int a0)
     }
 }
 
-extern ActMail D_004F8850[];
+static ActMail doorDown_mes[2] = {{430}, {429}};
+
+static ActMail ene_mes[2] = {{430}, {429}};
+
+static ActMail intro_mes[2] = {{430}, {429}};
+
+static ActMail st04lDoor_mes[2] = {{430}, {429}};
+
 extern void actSt04lDoorChk(int a0);
 extern int scpSearchGobj(int a0);
 extern void FinishHint(int a0);
@@ -227,8 +249,8 @@ void actSt04lDoor(volatile int a0)
 
     if (gflagChk(0xC7) == 0) {
         stage_SetAnimation(0xE7, 0, 0);
-        D_004F8850[0].func = actSt04lDoorChk;
-        self->mail = D_004F8850;
+        st04lDoor_mes[0].func = actSt04lDoorChk;
+        self->mail = st04lDoor_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -238,7 +260,6 @@ void actSt04lDoor(volatile int a0)
     }
 }
 
-extern ActMail D_004F8830[];
 extern void actSt04cIntroChk(int a0);
 
 void actSt04cIntro(volatile int a0)
@@ -248,14 +269,13 @@ void actSt04cIntro(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0xA1) == 0) {
-        D_004F8830[0].func = actSt04cIntroChk;
-        self->mail = D_004F8830;
+        intro_mes[0].func = actSt04cIntroChk;
+        self->mail = intro_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
 
-extern ActMail D_004F87F0[];
 extern void actSt04cDoorDownChk(int a0);
 
 void actSt04cDoorDown(volatile int a0)
@@ -264,14 +284,13 @@ void actSt04cDoorDown(volatile int a0)
     Act *self = actInitialize(a0);
 
     if (gflagChk(0xA2) == 0) {
-        D_004F87F0[0].func = actSt04cDoorDownChk;
-        self->mail = D_004F87F0;
+        doorDown_mes[0].func = actSt04cDoorDownChk;
+        self->mail = doorDown_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
 
-extern ActMail D_004F8810[];
 extern void actSt04cEneChk(int a0);
 
 void actSt04cEne(volatile int a0)
@@ -281,8 +300,8 @@ void actSt04cEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0xA3) == 0) {
-        D_004F8810[0].func = actSt04cEneChk;
-        self->mail = D_004F8810;
+        ene_mes[0].func = actSt04cEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -350,32 +369,29 @@ void actSt04cDoorDownEvent(int x)
 /* Effect-parameter triples in .rodata; the `const` is the data model and is
    load-bearing: RTX_UNCHANGING_P is what keeps sched2 from ordering each
    b[0] store behind the b[1] load in the two remat'd-address switch arms. */
-extern const long long D_00622A00[];
-extern const long long D_00622A10[];
-extern const long long D_00622A20[];
 
 void actSt04cDoorDownEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
     long long b3[2];
-    long long v0a = D_00622A00[0];
-    long long v0b = D_00622A10[0];
-    long long v0c = D_00622A20[0];
+    long long v0a = doorDownEffectPos.d[0];
+    long long v0b = doorDownEffect2Pos.d[0];
+    long long v0c = doorDownEffect3Pos.d[0];
     int i;
     for (i = 0; i < 0x32; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_00622A00[1];
+            b1[1] = doorDownEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_00622A10[1];
+            b2[1] = doorDownEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
             b3[0] = v0c;
-            b3[1] = D_00622A20[1];
+            b3[1] = doorDownEffect3Pos.d[1];
             scpEffectStart((int *)b3, 0);
             break;
         }

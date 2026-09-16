@@ -304,6 +304,59 @@ def check_ld_carve_globs(ld_path: Path) -> None:
     ld_path.write_text("\n".join(out) + "\n")
 
 
+def align_data_rows(ld_path: Path) -> None:
+    """Give every data-kind input the alignment its own ROM address proves.
+
+    The period assembler puts no 16-byte floor on `.data` or `.rdata`: an
+    object's section carries the largest alignment of its members (16 for a
+    jump table or an aligned vector, 8 for a double or a record, 1 for a
+    string), and ld pads the previous input up to it. Our objects only know
+    their own members, and the split-out jump tables and per-object `.data.*`
+    sections lose the alignment the original single section had, so a carved
+    object followed by a 16-aligned neighbour comes up short by the pad. The
+    ROM address of every row is a fact: aligning each data-kind input to the
+    largest power of two (capped at 16) that divides its own address pads a
+    short predecessor exactly as the original neighbour did and can never
+    pad past the input's own address. Text keeps its natural placement so a
+    function's missing trailing words stay visible.
+    """
+    if not ld_path.exists():
+        return
+    yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
+    rows: dict[tuple[str, str], list[int]] = {}
+    for line in yaml_path.read_text().splitlines():
+        m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.?(data|rodata|lit4|sdata|sbss|bss),\s*(\S+?)\]", line)
+        if m:
+            rows.setdefault((m.group(3), m.group(2)), []).append(int(m.group(1), 16))
+    for k in rows:
+        rows[k].sort()
+    seen: dict[tuple[str, str], int] = {}
+    out = []
+    for line in ld_path.read_text().splitlines():
+        m = re.match(r"(\s*)build/(\S+?)\.o\((\.[a-z0-9]+)", line)
+        if m:
+            indent, obj, sect = m.group(1), m.group(2), m.group(3)
+            kind = sect.lstrip(".")
+            if kind in ("data", "rodata", "lit4", "sdata", "sbss", "bss"):
+                bm = re.match(r"asm/data/(cod/[0-9A-Fa-f]+)\.(\w+)$", obj)
+                if bm:
+                    off = int(bm.group(1).split("/")[1], 16)
+                else:
+                    key = (obj, kind)
+                    k = seen.get(key, 0)
+                    seen[key] = k + 1
+                    offs = rows.get(key, [])
+                    off = offs[k] if k < len(offs) else None
+                if off:
+                    align = 16
+                    while align > 4 and off % align:
+                        align //= 2
+                    if align > 4:
+                        out.append(f"{indent}. = ALIGN({align});")
+        out.append(line)
+    ld_path.write_text("\n".join(out) + "\n")
+
+
 def source_for(obj_path: str) -> tuple[str, str]:
     """Map `build/<sub>/<stem>.o` to its source `.c` or `.s` and the rule name.
 
@@ -475,6 +528,7 @@ def main() -> int:
         return 1
 
     check_ld_carve_globs(LDSCRIPT)
+    align_data_rows(LDSCRIPT)
 
     splat_objs = parse_objs(DEPS_FILE)
     if not splat_objs:

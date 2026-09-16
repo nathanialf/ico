@@ -72,8 +72,6 @@ void RotCurrentQuaternionZ(short a0)
     RotQuaternionZ(&D_00669640[D_00639F3C * 4], a0);
 }
 
-extern char D_0054DA80[];
-extern char D_0054DAA8[];
 extern void InitQuaternionDrive(void);
 extern void debug_StdPrintfDummy(char *p);
 
@@ -81,14 +79,14 @@ void PushQuaternion(void)
 {
     int v = D_00639F3C;
     if (v < 0) {
-        debug_StdPrintfDummy(D_0054DA80);
+        debug_StdPrintfDummy("Quaternion stack not initialized.\n");
         InitQuaternionDrive();
         v = D_00639F3C;
     }
     v++;
     D_00639F3C = v;
     if (v >= 0x40) {
-        debug_StdPrintfDummy(D_0054DAA8);
+        debug_StdPrintfDummy("Quaternion stack overflow!!\n");
         v = 0x3F;
         D_00639F3C = v;
     }
@@ -320,26 +318,24 @@ inline void PushQuaternionWithNoCopy(void)
 {
     int v = D_00639F3C;
     if (v < 0) {
-        debug_StdPrintfDummy(D_0054DA80);
+        debug_StdPrintfDummy("Quaternion stack not initialized.\n");
         InitQuaternionDrive();
         v = D_00639F3C;
     }
     v++;
     D_00639F3C = v;
     if (v >= 0x40) {
-        debug_StdPrintfDummy(D_0054DAA8);
+        debug_StdPrintfDummy("Quaternion stack overflow!!\n");
         v = 0x3F;
         D_00639F3C = v;
     }
 }
 
-extern int D_0054DAC8[];
-
 inline void PopQuaternion(void)
 {
     D_00639F3C -= 1;
     if (D_00639F3C < 0) {
-        debug_StdPrintfDummy(D_0054DAC8);
+        debug_StdPrintfDummy("Quaternion stack underflow!!\n");
         D_00639F3C = 0;
     }
 }

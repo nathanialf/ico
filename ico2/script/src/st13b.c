@@ -35,19 +35,14 @@ extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
 extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
 extern int D_0063C58C;
-extern float D_004FAC80[];
 extern int D_00639EA4;
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern int scpTriggerBall(int a0, int gobj, float r);
 extern void actSt13bElev2Chk(volatile int a0);
-extern ActMail D_004FACF0[];
-extern ActMail D_004FAB00[];
 extern Act *actInitialize(int a0);
 extern int gflagChk(int a0);
 extern void actSt13bSekizoChk(volatile int a0);
 extern void actSt13bSekizo2Chk(volatile int a0);
-extern ActMail D_004FAB20[];
-extern ActMail D_004FAB80[];
 extern void actSt13bBossAfterChk(volatile int a0);
 extern int D_00639ED4;
 extern PObjGObj *scpSearchGobj(int a0);
@@ -76,18 +71,10 @@ extern void jimakuBegin(int a0);
 extern void jimakuJump(int a0);
 extern int D_0028F4C0[];
 extern void SetCameraFlag_LwsCutBack(void);
-extern ActMail D_004FABC0[];
-extern ActMail D_004FAC90[];
-extern ActMail D_004FACB0[];
 extern void actSt13bElevMain(volatile int a0);
 extern void actSt13bElevDown(volatile int a0);
 extern void actSt13bDoorUp(volatile int a0);
 /* st13b.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-extern ActMail D_004FABA0[];
-extern ActMail D_004FABE0[];
-extern ActMail D_004FAC20[];
-extern ActMail D_004FAC60[];
-extern ActMail D_004FAC40[];
 extern void actSt13bDoorMain(volatile int a0);
 extern void gflagOn(int a0);
 extern void lt_switch_layout(int a0);
@@ -104,8 +91,6 @@ extern void actSt13bConte02(volatile int a0);
 extern void actSt13bConte02Jimaku(volatile int a0);
 extern void actSt13bElevUpChk(volatile int a0);
 extern void actSt13bBossChk(volatile int a0);
-extern ActMail D_004FAC00[];
-extern ActMail D_004FAB60[];
 extern int D_0063C580;
 extern int D_0063BFC0;
 extern int boss;
@@ -125,8 +110,6 @@ extern void scpFadeIn(float f);
 extern int lt_fade_status(void);
 extern void actSt13bDoorUpSub(volatile int a0);
 extern void actSt13bMeetAgainChk(volatile int a0);
-extern ActMail D_004FAB40[];
-extern ActMail D_004FAAE0[];
 extern void actSt13bFloorChk(volatile int a0);
 extern void actSt13bElevDownSub(volatile int a0);
 extern void preload(int a0);
@@ -180,8 +163,44 @@ extern unsigned char D_0063C588;
 extern int sekizo_13b;
 extern int sekizo_13b_vol;
 extern void actSt13bElev2CharaChk(volatile int a0);
+extern void actSt13bDoorSwitch(volatile int a0);
+extern void actSt13bElevSwitch(volatile int a0);
+
+static ActMail floor_mes[2] = {{430}, {429}};
+
+static ActMail sekizo_mes[2] = {{430}, {429}};
+
+static ActMail sekizo2_mes[2] = {{430}, {429}};
+
+static ActMail meetAgain_mes[2] = {{430}, {429}};
+
+static ActMail boss_mes[2] = {{430}, {429}};
+
+static ActMail bossAfter_mes[2] = {{430}, {429}};
+
+static ActMail elevMain_mes[2] = {{406, actSt13bElevSwitch}, {429}};
+
+static ActMail elev_mes[2] = {{430}, {429}};
+
+static ActMail elevSwitch_mes[2] = {{430}, {429}};
+
+static ActMail elevUp_mes[2] = {{430}, {429}};
+
+static ActMail doorMain_mes[2] = {{407, actSt13bDoorSwitch}, {429}};
+
+static ActMail door_mes[2] = {{430}, {429}};
+
+static ActMail doorSwitch_mes[2] = {{430}, {429}};
+
+static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f};
+
+static ActMail elev2Chk_mes[2] = {{430}, {429}};
+
+static ActMail elev2Chk2_mes[2] = {{430}, {429}};
 
 static ActMail elev2chara_mes[2] = {{430}, {429}};
+
+static ActMail elev2CharaChk_mes[2] = {{430}, {429}};
 
 extern void actSt13bMeetAgainSub(volatile int a0);
 extern int st13b_yure;
@@ -208,8 +227,8 @@ void actSt13bFloor(volatile int a0)
         stage_SetAnimation(0x2B, 0, 0);
         stage_SetAnimation(0x23, 0, 0);
 
-        D_004FAAE0[0].func = actSt13bFloorChk;
-        self->mail = D_004FAAE0;
+        floor_mes[0].func = actSt13bFloorChk;
+        self->mail = floor_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -607,8 +626,8 @@ void actSt13bMeetAgain(volatile int a0)
         stage_SetAnimation(0x24, 0, 0);
         stage_SetAnimation(0x26, 0, 0);
 
-        D_004FAB40[0].func = actSt13bMeetAgainChk;
-        self->mail = D_004FAB40;
+        meetAgain_mes[0].func = actSt13bMeetAgainChk;
+        self->mail = meetAgain_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -719,8 +738,8 @@ void actSt13bBoss(volatile int a0)
 
     if (gflagChk(0xD) == 0) {
         scpSearchGobj(0x9A6)->f16C = 0;
-        D_004FAB60[0].func = actSt13bBossChk;
-        self->mail = D_004FAB60;
+        boss_mes[0].func = actSt13bBossChk;
+        self->mail = boss_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else if (gflagChk(0xE) == 0) {
@@ -906,8 +925,8 @@ void actSt13bElevUp(volatile int a0)
         _ACTWait(0xA);
         D_0063AA08 = 1;
         stage_SetAnimation(0x28, 0, 0);
-        D_004FAC00[0].func = actSt13bElevUpChk;
-        self->mail = D_004FAC00;
+        elevUp_mes[0].func = actSt13bElevUpChk;
+        self->mail = elevUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1078,8 +1097,8 @@ void actSt13bSekizo(volatile int a0)
     if (gflagChk(0xA) == 0) {
         stage_SetAnimation(0x21, 0, 0);
 
-        D_004FAB00[0].func = actSt13bSekizoChk;
-        self->mail = D_004FAB00;
+        sekizo_mes[0].func = actSt13bSekizoChk;
+        self->mail = sekizo_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1097,8 +1116,8 @@ void actSt13bSekizo2(volatile int a0)
     if (gflagChk(0xB) == 0) {
         stage_SetAnimation(0x22, 0, 0);
 
-        D_004FAB20[0].func = actSt13bSekizo2Chk;
-        self->mail = D_004FAB20;
+        sekizo2_mes[0].func = actSt13bSekizo2Chk;
+        self->mail = sekizo2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1116,8 +1135,8 @@ void actSt13bBossAfter(volatile int a0)
     if (gflagChk(0xE) == 0) {
         stage_SetAnimation(0x23, 0, 0);
 
-        D_004FAB80[0].func = actSt13bBossAfterChk;
-        self->mail = D_004FAB80;
+        bossAfter_mes[0].func = actSt13bBossAfterChk;
+        self->mail = bossAfter_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1145,8 +1164,8 @@ void actSt13bElev(volatile int a0)
 
     _ACTWait(1);
 
-    D_004FABC0[0].func = actSt13bElevMain;
-    self->mail = D_004FABC0;
+    elev_mes[0].func = actSt13bElevMain;
+    self->mail = elev_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1161,15 +1180,15 @@ void actSt13bElev2(volatile int a0)
     if (gflagChk(0x10) != 0) {
         stage_SetAnimation(0x2A, 0, 0);
 
-        D_004FAC90[0].func = actSt13bElev2Chk;
-        self->mail = D_004FAC90;
+        elev2Chk_mes[0].func = actSt13bElev2Chk;
+        self->mail = elev2Chk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x29, 0, 0);
 
-        D_004FACB0[0].func = actSt13bElev2Chk;
-        self->mail = D_004FACB0;
+        elev2Chk2_mes[0].func = actSt13bElev2Chk;
+        self->mail = elev2Chk2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1185,8 +1204,8 @@ void actSt13bDoor(volatile int a0)
     if (gflagChk(0x11) == 0) {
         stage_SetAnimation(0x2B, 0, 0);
 
-        D_004FAC40[0].func = actSt13bDoorMain;
-        self->mail = D_004FAC40;
+        door_mes[0].func = actSt13bDoorMain;
+        self->mail = door_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1270,7 +1289,7 @@ void actSt13bElevMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004FABA0;
+    sub->mainMail = elevMain_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -1283,8 +1302,8 @@ void actSt13bElevSwitch(volatile int a0)
     sub->mainMail = 0;
     D_0063AA08 = 1;
 
-    D_004FABE0[0].func = actSt13bElevDown;
-    sub->mail = D_004FABE0;
+    elevSwitch_mes[0].func = actSt13bElevDown;
+    sub->mail = elevSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1313,7 +1332,7 @@ void actSt13bDoorMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004FAC20;
+    sub->mainMail = doorMain_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -1326,8 +1345,8 @@ void actSt13bDoorSwitch(volatile int a0)
     sub->mainMail = 0;
     D_0063AA08 = 1;
 
-    D_004FAC60[0].func = actSt13bDoorUp;
-    sub->mail = D_004FAC60;
+    doorSwitch_mes[0].func = actSt13bDoorUp;
+    sub->mail = doorSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1340,12 +1359,12 @@ void actSt13bDoorUpSub(volatile int a0)
 
     _ACTWait(0x78);
 
-    soundSeDefPlay(0x4C5, 0, D_004FAC80, 1);
+    soundSeDefPlay(0x4C5, 0, doorUpSubPos, 1);
 
     _ACTWait(0x1E);
 
     D_0063C58C = 1;
-    soundSeDefPlay(0x4C6, 0, D_004FAC80, 1);
+    soundSeDefPlay(0x4C6, 0, doorUpSubPos, 1);
 
     while (stage_CheckAnimationFinish(0x2B) == 0) {
         _ACTWait(1);
@@ -1364,8 +1383,8 @@ void actSt13bElev2CharaChk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_004FACF0[0].func = actSt13bElev2Chk;
-    sub->mail = D_004FACF0;
+    elev2CharaChk_mes[0].func = actSt13bElev2Chk;
+    sub->mail = elev2CharaChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

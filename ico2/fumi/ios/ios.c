@@ -1,6 +1,5 @@
 #include "common.h"
 
-extern char D_00551058[];
 extern int D_0063A3E0;
 extern int sceSifAllocIopHeap(int size);
 extern void debug_StdPrintfDummy(char *fmt, ...);
@@ -12,7 +11,7 @@ inline int iosSifAllocIopHeapDebug(int size, char *file, int line)
     int p = sceSifAllocIopHeap(size);
 
     if (p == 0) {
-        debug_StdPrintfDummy(D_00551058, file, line);
+        debug_StdPrintfDummy("iosSifAllocIopHeapDebug: %s %d not alloc\n", file, line);
         if (D_0063A3E0 != 0) {
             while (sceSifAllocIopHeap(size - D_0063A3E0) == 0) {
                 D_0063A3E0++;
@@ -45,8 +44,6 @@ extern int IosStgMgrLock;
 extern int D_00639ED8;
 extern int screen_offset_y;
 extern int fall_death_active;
-extern char D_00551088[];
-extern char D_005510A0[];
 extern int CreateSema(SemaParam *p);
 extern void InitKeyInput();
 extern void SgSndn2RemoteInit(void);
@@ -74,19 +71,16 @@ void ios_init_plus(void)
     IosStgMgrLock = CreateSema(&D_006BC8A8);
     D_00639ED8 = 0;
     InitKeyInput(0);
-    debug_StdPrintfDummy(D_00551088);
+    debug_StdPrintfDummy("SgSndn2RemoteInit()\n");
     SgSndn2RemoteInit();
     sceSifInitIopHeap();
-    debug_StdPrintfDummy(D_005510A0);
+    debug_StdPrintfDummy("allocate IOP heap memory - \n");
     soundAllocIopHeap();
     soundInit();
     screen_offset_y = 0;
     fall_death_active = 0;
 }
 
-extern char D_005510C0[];
-extern char D_005510D8[];
-extern char D_005510E8[];
 extern char D_0063A3E8[];
 extern char D_0063A3F0[];
 extern char D_0063A3F8[];
@@ -119,7 +113,7 @@ extern void ios_init_plus(void);
 
 void iosInitialize(void)
 {
-    debug_StdPrintfDummy(D_005510C0);
+    debug_StdPrintfDummy("iosInitialize()\n");
     iosThreadInit();
     D_0063A428 = iosMallocInitPartition(0x760000, 0x1FEFFF0);
     D_0063A43C = iosMallocSetPartition(D_0063A428, 0x408000, 0x10);
@@ -136,8 +130,8 @@ void iosInitialize(void)
     D_0063A430 = D_0063A44C = D_0063A438 = D_0063A440 =
         iosMallocSetPartition(D_0063A428, 0xF18000, 0x10);
     iosMallocSetPartitionName(D_0063A430, D_0063A3E8);
-    iosMallocSetPartitionName(D_0063A444, D_005510D8);
-    iosMallocSetPartitionName(D_0063A448, D_005510E8);
+    iosMallocSetPartitionName(D_0063A444, "stat mot");
+    iosMallocSetPartitionName(D_0063A448, "demo mot");
     iosMallocSetPartitionName(D_0063A42C, D_0063A3F0);
     iosMallocSetPartitionName(D_0063A434, D_0063A3F8);
     iosMallocSetPartitionName(D_0063A450, D_0063A400);

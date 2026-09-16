@@ -15,7 +15,6 @@ extern int eBrainGirlChaseCount;
 extern void *D_0063C2CC;
 extern int D_0063C2D0;
 extern int D_006E6750[];
-extern char D_00555580[];
 extern void debug_StdPrintfDummy(const char *);
 
 typedef struct StageLabelRange {
@@ -26,8 +25,6 @@ typedef struct StageLabelRange {
 } StageLabelRange;
 
 extern StageLabelRange D_005F5D50[];
-extern char D_005555A8[];
-extern char D_005555B8[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -39,7 +36,6 @@ typedef struct GenGeo {
 } GenGeo;
 
 extern GenGeo D_002C2DC8[];
-extern char D_005555C8[];
 extern int GetMotherGenerator(int label);
 /* prototypes: their order is the inline tail's emission order */
 void eBrainInit(void);
@@ -119,7 +115,7 @@ inline int eBrainStatusSet(void *a0, int a1)
     else
         slot = 0;
     if (slot == 0) {
-        debug_StdPrintfDummy(D_00555580);
+        debug_StdPrintfDummy("eBrainStatusSet: ebrain area over\n");
         return 0;
     }
     slot->f18 = a0;
@@ -222,8 +218,8 @@ inline int GetStageFromLabel(int label)
         }
     }
     if (!(stage > 0)) {
-        debug_assert(D_005555A8, 0x1D8);
-        __assert(D_005555A8, 0x1D8, D_005555B8);
+        debug_assert("src/ebrain.c", 472);
+        __assert("src/ebrain.c", 472, "UseStageNo>0");
     }
     return stage;
 }
@@ -254,8 +250,8 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
         }
     }
     if (!(no > 0)) {
-        debug_assert(D_005555A8, 0x1FA);
-        __assert(D_005555A8, 0x1FA, D_005555C8);
+        debug_assert("src/ebrain.c", 506);
+        __assert("src/ebrain.c", 506, "GeneratorLabel>0");
     }
     return no;
 }
@@ -282,8 +278,8 @@ int eBrainGetTargetGeneratorFromLabel(int label)
         }
     }
     if (!(stage > 0)) {
-        debug_assert(D_005555A8, 0x1D8);
-        __assert(D_005555A8, 0x1D8, D_005555B8);
+        debug_assert("src/ebrain.c", 472);
+        __assert("src/ebrain.c", 472, "UseStageNo>0");
     }
 
     st = stage;
@@ -299,8 +295,8 @@ int eBrainGetTargetGeneratorFromLabel(int label)
         }
     }
     if (!(no > 0)) {
-        debug_assert(D_005555A8, 0x21E);
-        __assert(D_005555A8, 0x21E, D_005555C8);
+        debug_assert("src/ebrain.c", 542);
+        __assert("src/ebrain.c", 542, "GeneratorLabel>0");
     }
     return no;
 }

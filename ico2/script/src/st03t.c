@@ -26,8 +26,49 @@ extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern void stage_SetAnimation(int a0, int a1, int a2);
-extern ActMail D_004F8330[];
-extern ActMail D_004F8350[];
+
+static ActMail switchLChk_mes[2] = {{430}, {429}};
+
+static ActMail switchLUpchk_mes[2] = {{430}, {429}};
+
+static ActMail switchLChk2_mes[2] = {{430}, {429}};
+
+static ActMail switchLUpChk_mes[2] = {{430}, {429}};
+
+static ActMail switchRChk_mes[2] = {{430}, {429}};
+
+static ActMail switchRUpchk_mes[2] = {{430}, {429}};
+
+static ActMail switchRChk2_mes[2] = {{430}, {429}};
+
+static ActMail switchRUpChk_mes[2] = {{430}, {429}};
+
+static ActMail girlCam_mes[2] = {{430}, {429}};
+
+static ActMail girlCamStartChk_mes[2] = {{430}, {429}};
+
+static ActMail girlCamEndChk_mes[2] = {{430}, {429}};
+
+static ActMail ene_mes[2] = {{430}, {429}};
+
+static ActMail wayOnchk_mes[2] = {{430}, {429}};
+
+static ActMail wayOffchk_mes[2] = {{430}, {429}};
+
+static ActMail way_on_mes[2] = {{430}, {429}};
+
+static ActMail way_off_mes[2] = {{430}, {429}};
+
+static ActMail girlPos_mes[2] = {{430}, {429}};
+
+static ActMail girlUp_mes[2] = {{430}, {429}};
+
+static ActMail hint1Sleep_mes[2] = {{430}, {429}};
+
+static ActMail hint1OffChk_mes[2] = {{430}, {429}};
+
+static ActMail hint1OnChk_mes[2] = {{430}, {429}};
+
 extern void actSt03tSwitchLChk(volatile int a0);
 extern void actSt03tSwitchLUpChk(volatile int a0);
 
@@ -42,16 +83,16 @@ void actSt03tSwitchL(volatile int a0)
         stage_SetAnimation(0x16C, 0, 0);
         stage_SetAnimation(0x16E, 0, 0);
 
-        D_004F8330[0].func = actSt03tSwitchLChk;
-        self->mail = D_004F8330;
+        switchLChk_mes[0].func = actSt03tSwitchLChk;
+        self->mail = switchLChk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x16C, 0, 0x2D);
         stage_SetAnimation(0x16E, 0, -1);
 
-        D_004F8350[0].func = actSt03tSwitchLUpChk;
-        self->mail = D_004F8350;
+        switchLUpchk_mes[0].func = actSt03tSwitchLUpChk;
+        self->mail = switchLUpchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -66,7 +107,6 @@ extern int scpTriggerFloorAttrTargetMan(int a0, int a1);
 extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
 extern void SetCameraFlag_LwsCutBack(void);
 extern int D_0028F4C0[];
-extern ActMail D_004F8370[];
 extern void actSt03tSwitchLUpChk(volatile int a0);
 
 void actSt03tSwitchLChk(volatile int a0)
@@ -123,8 +163,8 @@ void actSt03tSwitchLChk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_004F8370[0].func = actSt03tSwitchLUpChk;
-    self->mail = D_004F8370;
+    switchLChk2_mes[0].func = actSt03tSwitchLUpChk;
+    self->mail = switchLChk2_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -138,7 +178,6 @@ extern void scpCheckDisconnectWallEnd(char *a0);
 extern void SetCameraFlag_LwsCutBack(void);
 extern void SetWayGroupActive(int a0, int a1);
 extern int D_00639EA8;
-extern ActMail D_004F8390[];
 
 void actSt03tSwitchLUpChk(volatile int a0)
 {
@@ -183,8 +222,8 @@ void actSt03tSwitchLUpChk(volatile int a0)
         scpCheckDisconnectWallEnd((char *)D_00639EA8);
     }
 
-    D_004F8390[0].func = actSt03tSwitchLChk;
-    self->mail = D_004F8390;
+    switchLUpChk_mes[0].func = actSt03tSwitchLChk;
+    self->mail = switchLUpChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -193,8 +232,6 @@ extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern void stage_SetAnimation(int a0, int a1, int a2);
-extern ActMail D_004F83B0[];
-extern ActMail D_004F83D0[];
 extern void actSt03tSwitchRChk(volatile int a0);
 extern void actSt03tSwitchRUpChk(volatile int a0);
 
@@ -209,22 +246,20 @@ void actSt03tSwitchR(volatile int a0)
         stage_SetAnimation(0x16D, 0, 0);
         stage_SetAnimation(0x170, 0, 0);
 
-        D_004F83B0[0].func = actSt03tSwitchRChk;
-        self->mail = D_004F83B0;
+        switchRChk_mes[0].func = actSt03tSwitchRChk;
+        self->mail = switchRChk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x16D, 0, 0x2D);
         stage_SetAnimation(0x170, 0, -1);
 
-        D_004F83D0[0].func = actSt03tSwitchRUpChk;
-        self->mail = D_004F83D0;
+        switchRUpchk_mes[0].func = actSt03tSwitchRUpChk;
+        self->mail = switchRUpchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
-
-extern ActMail D_004F83F0[];
 
 void actSt03tSwitchRChk(volatile int a0)
 {
@@ -268,15 +303,14 @@ void actSt03tSwitchRChk(volatile int a0)
 
     gflagOn(0x5A);
 
-    D_004F83F0[0].func = actSt03tSwitchRUpChk;
-    self->mail = D_004F83F0;
+    switchRChk2_mes[0].func = actSt03tSwitchRUpChk;
+    self->mail = switchRChk2_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 extern int stage_CheckAnimationFinish(int a0);
 extern int D_0028F4C0[];
-extern ActMail D_004F8410[];
 
 void actSt03tSwitchRUpChk(volatile int a0)
 {
@@ -311,8 +345,8 @@ void actSt03tSwitchRUpChk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_004F8410[0].func = actSt03tSwitchRChk;
-    self->mail = D_004F8410;
+    switchRUpChk_mes[0].func = actSt03tSwitchRChk;
+    self->mail = switchRUpChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -418,7 +452,6 @@ extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern void FinishHint(int a0);
-extern ActMail D_004F8550[];
 extern void actSt03tGirlUpChk(volatile int a0);
 
 void actSt03tGirlUp(volatile int a0)
@@ -429,8 +462,8 @@ void actSt03tGirlUp(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x5D) == 0) {
-        D_004F8550[0].func = actSt03tGirlUpChk;
-        self->mail = D_004F8550;
+        girlUp_mes[0].func = actSt03tGirlUpChk;
+        self->mail = girlUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -440,7 +473,6 @@ void actSt03tGirlUp(volatile int a0)
 
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F8430[];
 extern void actSt03tGirlCamStartChk(volatile int a0);
 
 void actSt03tGirlCam(volatile int a0)
@@ -450,8 +482,8 @@ void actSt03tGirlCam(volatile int a0)
 
     _ACTWait(1);
 
-    D_004F8430[0].func = actSt03tGirlCamStartChk;
-    self->mail = D_004F8430;
+    girlCam_mes[0].func = actSt03tGirlCamStartChk;
+    self->mail = girlCam_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -473,8 +505,6 @@ void actSt03tSekizo(volatile int a0)
 extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F84B0[];
-extern ActMail D_004F84D0[];
 extern void actSt03tWayOnChk(volatile int a0);
 extern void actSt03tWayOffChk(volatile int a0);
 
@@ -486,13 +516,13 @@ void actSt03tWay(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x64) == 0) {
-        D_004F84B0[0].func = actSt03tWayOnChk;
-        self->mail = D_004F84B0;
+        wayOnchk_mes[0].func = actSt03tWayOnChk;
+        self->mail = wayOnchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        D_004F84D0[0].func = actSt03tWayOffChk;
-        self->mail = D_004F84D0;
+        wayOffchk_mes[0].func = actSt03tWayOffChk;
+        self->mail = wayOffchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -501,7 +531,6 @@ void actSt03tWay(volatile int a0)
 extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F8490[];
 extern void actSt03tEneChk(volatile int a0);
 
 void actSt03tEne(volatile int a0)
@@ -512,8 +541,8 @@ void actSt03tEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x68) == 0) {
-        D_004F8490[0].func = actSt03tEneChk;
-        self->mail = D_004F8490;
+        ene_mes[0].func = actSt03tEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -523,7 +552,6 @@ extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
 extern void SleepHint(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F8530[];
 extern void actSt03tGirlPosChk(volatile int a0);
 
 void actSt03tGirlPos(volatile int a0)
@@ -536,8 +564,8 @@ void actSt03tGirlPos(volatile int a0)
     if (gflagChk(0x65) == 0) {
         SleepHint(0xC);
 
-        D_004F8530[0].func = actSt03tGirlPosChk;
-        self->mail = D_004F8530;
+        girlPos_mes[0].func = actSt03tGirlPosChk;
+        self->mail = girlPos_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -545,7 +573,6 @@ void actSt03tGirlPos(volatile int a0)
 
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F8570[];
 extern void actSt03tHint1OffChk(volatile int a0);
 
 void actSt03tHint1Sleep(volatile int a0)
@@ -555,8 +582,8 @@ void actSt03tHint1Sleep(volatile int a0)
 
     _ACTWait(1);
 
-    D_004F8570[0].func = actSt03tHint1OffChk;
-    self->mail = D_004F8570;
+    hint1Sleep_mes[0].func = actSt03tHint1OffChk;
+    self->mail = hint1Sleep_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -575,7 +602,6 @@ extern int CameraGetTarget(void);
 extern void Camctrl_SetTarget(int a0, int a1, int a2);
 extern void CameraSetCameraSet(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F8450[];
 extern void actSt03tGirlCamEndChk(volatile int a0);
 
 void actSt03tGirlCamStartChk(volatile int a0)
@@ -592,8 +618,8 @@ void actSt03tGirlCamStartChk(volatile int a0)
     _ACTWait(0xF);
     CameraSetCameraSet(0x30);
 
-    D_004F8450[0].func = actSt03tGirlCamEndChk;
-    sub->mail = D_004F8450;
+    girlCamStartChk_mes[0].func = actSt03tGirlCamEndChk;
+    sub->mail = girlCamStartChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -606,7 +632,6 @@ extern int CameraGetTarget(void);
 extern void CameraSetCameraSet_Default(void);
 extern void Camctrl_ExitEveRock(void);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F8470[];
 extern void actSt03tGirlCamStartChk(volatile int a0);
 
 void actSt03tGirlCamEndChk(volatile int a0)
@@ -623,8 +648,8 @@ void actSt03tGirlCamEndChk(volatile int a0)
     CameraSetCameraSet_Default();
     Camctrl_ExitEveRock();
 
-    D_004F8470[0].func = actSt03tGirlCamStartChk;
-    sub->mail = D_004F8470;
+    girlCamEndChk_mes[0].func = actSt03tGirlCamStartChk;
+    sub->mail = girlCamEndChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -684,7 +709,6 @@ extern void ACTSendMailCorrect(int a0, int mail);
    posts it. Word 0 of each entry is the mail id the entry answers (430 the
    actor post, 429 the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
-static ActMail way_on_mes[2] = {{430}, {429}};
 
 extern void actSt03tWayOffChk(volatile int a0);
 
@@ -717,7 +741,6 @@ extern void gflagOff(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 
 /* The way-off watcher's own mail record (installs actSt03tWayOnChk). */
-static ActMail way_off_mes[2] = {{430}, {429}};
 
 extern void actSt03tWayOnChk(volatile int a0);
 
@@ -757,7 +780,6 @@ void actSt03tGirlPosChk(volatile int a0)
     WakeupHint(0xC);
 }
 
-extern char D_00622820[];
 extern void debug_StdPrintfDummy();
 extern void FinishHint(int a0);
 
@@ -767,7 +789,7 @@ void actSt03tGirlUpChk(volatile int a0)
         _ACTWait(1);
     }
 
-    debug_StdPrintfDummy(D_00622820);
+    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
     gflagOn(0x5D);
     FinishHint(0xC);
 }
@@ -776,7 +798,6 @@ extern int D_0028F4C0[];
 extern void _ACTWait(int a0);
 extern void WakeupHint(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F85B0[];
 extern void actSt03tHint1OffChk(volatile int a0);
 
 void actSt03tHint1OnChk(volatile int a0)
@@ -786,8 +807,8 @@ void actSt03tHint1OnChk(volatile int a0)
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x3C);
     WakeupHint(0xC);
 
-    D_004F85B0[0].func = actSt03tHint1OffChk;
-    sub->mail = D_004F85B0;
+    hint1OnChk_mes[0].func = actSt03tHint1OffChk;
+    sub->mail = hint1OnChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -797,7 +818,6 @@ extern int gflagChk(int a0);
 extern void SleepHint(int a0);
 extern void gflagOff(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F8590[];
 extern void actSt03tHint1OnChk(volatile int a0);
 
 void actSt03tHint1OffChk(volatile int a0)
@@ -811,8 +831,8 @@ void actSt03tHint1OffChk(volatile int a0)
     SleepHint(0xC);
     gflagOff(0x66);
 
-    D_004F8590[0].func = actSt03tHint1OnChk;
-    sub->mail = D_004F8590;
+    hint1OffChk_mes[0].func = actSt03tHint1OnChk;
+    sub->mail = hint1OffChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

@@ -16,7 +16,6 @@ typedef struct {
 } MultiBga;
 
 extern MultiBga D_004ECCA0;
-extern char D_006208C8[];
 extern int D_0063A438;
 extern int D_0028F4C0[];
 extern void _AddVector(void *a0, void *a1, void *a2);
@@ -43,7 +42,7 @@ static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void
 
 void *InitMultiBgaManager(int n)
 {
-    MultiBga *base = (MultiBga *)iosMallocDebug(D_0063A438, n * 0x50, D_006208C8, 0xB);
+    MultiBga *base = (MultiBga *)iosMallocDebug(D_0063A438, n * 0x50, "src/multiBgaManager.c", 11);
     int i;
     for (i = 0; i < n; i++) {
         base[i] = D_004ECCA0;

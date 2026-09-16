@@ -11,16 +11,15 @@ typedef struct {
 } DpkCtl;
 
 extern DpkCtl D_004EE6F0;
-extern char D_00621950[];
 extern int D_0063A43C;
 
 void dpk_Init(void)
 {
     D_004EE6F0.cur = 0;
     D_004EE6F0.buf[0] =
-        (int *)((int)iosMallocDebug(D_0063A43C, 0x80000, D_00621950, 0x86) | 0x30000000);
+        (int *)((int)iosMallocDebug(D_0063A43C, 0x80000, "src/DmaPacket.c", 134) | 0x30000000);
     D_004EE6F0.buf[1] =
-        (int *)((int)iosMallocDebug(D_0063A43C, 0x80000, D_00621950, 0x87) | 0x30000000);
+        (int *)((int)iosMallocDebug(D_0063A43C, 0x80000, "src/DmaPacket.c", 135) | 0x30000000);
     D_004EE6F0.ptr = D_004EE6F0.buf[D_004EE6F0.cur];
 }
 

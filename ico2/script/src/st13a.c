@@ -86,27 +86,38 @@ extern unsigned int st13a_yure;
 extern unsigned char st13a_yure_vol;
 extern int sekizo_13a;
 extern unsigned char sekizo_13a_vol;
-extern ActMail D_004FAA00[];
 void actSt13aElevUpSub(volatile int a0);
 void actSt13aElevDownSub(volatile int a0);
 void actSt13aElevDownChk(volatile int a0);
+
 /* st13a.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-extern ActMail D_004FA9A0[];
-extern ActMail D_004FA9C0[];
-extern ActMail D_004FA9E0[];
-extern ActMail D_004FAA20[];
-extern ActMail D_004FAA40[];
-extern ActMail D_004FAA60[];
-extern ActMail D_004FAA80[];
 
 /* The chain-OK watcher's mail record: it installs actSt13aChainNG here and
    posts it to hand the chain back to the NG (hang-disabled) watcher. Word 0
    of each entry is the mail id the entry answers (430 the actor post,
    429 the trailing entry); .func is filled in at run time. Named for the
    thread that owns and posts it. */
+extern void actSt13aElevSwitch(volatile int a0);
+
+static ActMail elevMain_mes[2] = {{406, actSt13aElevSwitch}, {429}};
+
+static ActMail elev_mes[2] = {{430}, {429}};
+
+static ActMail elevSwitch_mes[2] = {{430}, {429}};
+
+static ActMail elevDown_mes[2] = {{430}, {429}};
+
+static ActMail sekizo_mes[2] = {{430}, {429}};
+
+static ActMail check_mes[2] = {{430}, {429}};
+
+static ActMail chainNg_mes[2] = {{430}, {429}};
+
+static ActMail chainOk_mes[2] = {{430}, {429}};
+
 static ActMail chain_ok_mes[2] = {{430}, {429}};
 
-extern ActMail D_004FAAC0[];
+static ActMail chainNG_mes[2] = {{430}, {429}};
 
 void actSt13aElevUpSub(volatile int a0)
 {
@@ -199,8 +210,8 @@ void actSt13aElevDown(volatile int a0)
         _ACTWait(0xA);
         stage_SetAnimation(0xAD, 0, 0x1C3);
 
-        D_004FAA00[0].func = actSt13aElevDownChk;
-        self->mail = D_004FAA00;
+        elevDown_mes[0].func = actSt13aElevDownChk;
+        self->mail = elevDown_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -347,8 +358,8 @@ void actSt13aElev(volatile int a0)
     if (gflagChk(0x145) == 0) {
         stage_SetAnimation(0xAD, 0, 0);
 
-        D_004FA9C0[0].func = actSt13aElevMain;
-        self->mail = D_004FA9C0;
+        elev_mes[0].func = actSt13aElevMain;
+        self->mail = elev_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -364,8 +375,8 @@ void actSt13aSekizo(volatile int a0)
     if (gflagChk(0x146) == 0) {
         stage_SetAnimation(0xB0, 0, 0);
 
-        D_004FAA20[0].func = actSt13aSekizoChk;
-        self->mail = D_004FAA20;
+        sekizo_mes[0].func = actSt13aSekizoChk;
+        self->mail = sekizo_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -381,8 +392,8 @@ void actSt13aCheck(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x147) == 0) {
-        D_004FAA40[0].func = actSt13aCheckChk;
-        self->mail = D_004FAA40;
+        check_mes[0].func = actSt13aCheckChk;
+        self->mail = check_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -396,13 +407,13 @@ void actSt13aChain(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x148) == 0) {
-        D_004FAA60[0].func = actSt13aChainNG;
-        self->mail = D_004FAA60;
+        chainNg_mes[0].func = actSt13aChainNG;
+        self->mail = chainNg_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        D_004FAA80[0].func = actSt13aChainOK;
-        self->mail = D_004FAA80;
+        chainOk_mes[0].func = actSt13aChainOK;
+        self->mail = chainOk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -412,7 +423,7 @@ void actSt13aElevMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004FA9A0;
+    sub->mainMail = elevMain_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -426,8 +437,8 @@ void actSt13aElevSwitch(volatile int a0)
     lt_switch_layout(0x37);
     D_0063AA08 = 1;
 
-    D_004FA9E0[0].func = actSt13aElevUp;
-    sub->mail = D_004FA9E0;
+    elevSwitch_mes[0].func = actSt13aElevUp;
+    sub->mail = elevSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -468,8 +479,8 @@ void actSt13aChainNG(volatile int a0)
     UnableChainHang((char *)scpSearchGobj(0x817));
     gflagOn(0x148);
 
-    D_004FAAC0[0].func = actSt13aChainOK;
-    sub->mail = D_004FAAC0;
+    chainNG_mes[0].func = actSt13aChainOK;
+    sub->mail = chainNG_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

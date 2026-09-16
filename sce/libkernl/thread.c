@@ -39,7 +39,6 @@ typedef struct {
 } KernEventRing;
 
 extern int D_0063CB50[];
-extern char D_0054D380[];
 extern int WaitSema(int id);
 extern int WakeupThread(int id);
 extern int RotateThreadReadyQueue(int id);
@@ -66,7 +65,7 @@ void topThread(void *arg)
             SuspendThread(ring->ent[i].id);
             break;
         default:
-            kprintf(D_0054D380);
+            kprintf("## internel error in libkernl.a!\n");
             break;
         }
     }

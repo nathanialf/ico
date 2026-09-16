@@ -2,7 +2,6 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
 
-extern char D_00636120[];
 extern void printf(char *fmt);
 
 int sceGsPutDrawEnv(void *a0)
@@ -13,7 +12,7 @@ int sceGsPutDrawEnv(void *a0)
     count = 0;
     while (*(volatile int *)0x1000A000 & 0x100) {
         if (count++ > 0x1000000) {
-            printf(D_00636120);
+            printf("sceGsPutDrawEnv: DMA Ch.2 does not terminate\r\n");
             return -1;
         }
     }

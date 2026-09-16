@@ -19,7 +19,11 @@ extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern int gflagChk(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
-extern ActMail D_004FB610[];
+
+static ActMail sword_mes[2] = {{430}, {429}};
+
+static ActMail demoCam_mes[2] = {{430}, {429}};
+
 extern void actSt24aDemoCamChk(int a0);
 
 typedef struct EditPad {
@@ -55,7 +59,9 @@ typedef struct SwordObj {
 
 extern SwordObj *sword;
 extern int D_0063C5B0;
-extern Vec16 D_006230A0;
+
+static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}};
+
 extern int D_0028F8F4[];
 extern void actSt24aSwordSub(int a0);
 extern int actCreateSubThread(void *fn, int pri);
@@ -109,7 +115,7 @@ void actSt24aSwordChk(volatile int self)
         }
         stage_SetAnimation(0x99, 0, -1);
         scpPlayPosSet(D_00639EA4, 1685.0f, -1080.0f, -550.0f);
-        *(Vec16 *)v = D_006230A0;
+        *(Vec16 *)v = swordChkPos;
         sceVu0SubVector(dir, v, test_CURRENTROOT(D_00639EA4));
         scpPlayMotDir(D_00639EA4, dir);
         SetCameraFlag_LwsCutBack();
@@ -153,7 +159,6 @@ void actSt24aDemoCamChk(volatile int a0)
     D_0063AA08 = 0;
 }
 
-extern ActMail D_004FB5F0[];
 extern void actSt24aSwordChk(int a0);
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 
@@ -166,8 +171,8 @@ void actSt24aSword(volatile int a0)
     ScpCallCameraSetTarget(363.0f, 1307.0f, -3297.0f);
 
     if (gflagChk(0x149) == 0) {
-        D_004FB5F0[0].func = actSt24aSwordChk;
-        self->mail = D_004FB5F0;
+        sword_mes[0].func = actSt24aSwordChk;
+        self->mail = sword_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -189,8 +194,8 @@ void actSt24aDemoCam(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x14A) == 0) {
-        D_004FB610[0].func = actSt24aDemoCamChk;
-        self->mail = D_004FB610;
+        demoCam_mes[0].func = actSt24aDemoCamChk;
+        self->mail = demoCam_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }

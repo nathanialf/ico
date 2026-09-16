@@ -1,6 +1,5 @@
 #include "common.h"
 
-extern char D_006209C0[];
 extern int D_0063A438;
 extern void DeleteParticleEffect(int a0);
 extern void SetParticleEffectPauseFlag(int a0, int a1);
@@ -12,7 +11,7 @@ void DeleteParticleLayout(char *a0);
 inline int *InitParticleLayoutGeo(char *self, int *other)
 {
     int *r;
-    r = iosMallocDebug(D_0063A438, 4, D_006209C0, 0xC);
+    r = iosMallocDebug(D_0063A438, 4, "src/particleLayout.c", 12);
     *r = SetParticleEffect(other[0x30 / 4], other, *(char **)(self + 0x15C) + 0x60);
     return r;
 }

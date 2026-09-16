@@ -1,6 +1,5 @@
 #include "common.h"
 
-extern const char D_00621328[];
 extern int D_0063A438;
 extern short *iosMallocDebug(int handle, int size, void *file, int line);
 extern int rand(void);
@@ -16,7 +15,7 @@ short *InitSugiLeafGeo2(void *gobj);
 
 inline short *InitSugiLeafGeo(void)
 {
-    short *h = iosMallocDebug(D_0063A438, 2, (void *)D_00621328, 0xC);
+    short *h = iosMallocDebug(D_0063A438, 2, (void *)"src/sugiTree.c", 12);
     int r = rand();
     *h = r % 0x10000;
     return h;
@@ -38,7 +37,7 @@ inline short *InitSugiLeafGeo2(void *gobj)
 {
     char *p = *(char **)((char *)gobj + 0x15C);
     int n = *(signed char *)(*(char **)(p + 0x854) + 0x2E);
-    short *buf = iosMallocDebug(D_0063A438, n * 2, (void *)D_00621328, 0x23);
+    short *buf = iosMallocDebug(D_0063A438, n * 2, (void *)"src/sugiTree.c", 35);
     int i;
 
     for (i = 0; i < n; i++) {

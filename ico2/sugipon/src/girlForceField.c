@@ -2,8 +2,7 @@
 #include "typedef.h"
 #include "sugiCommon.h"
 
-extern char D_0061F9E0[]; /* "...sugipon/src/girlForceField.c": this TU's __FILE__ */
-extern int D_0063A438;    /* game heap handle */
+extern int D_0063A438; /* game heap handle */
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 
 /* Per-object force-field state, hung off the actor's sub-object by the caller
@@ -27,7 +26,8 @@ void GirlForceFieldGeo(void);
 
 inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
 {
-    GirlForceFieldWork *w = (GirlForceFieldWork *)iosMallocDebug(D_0063A438, 12, D_0061F9E0, 0x17);
+    GirlForceFieldWork *w =
+        (GirlForceFieldWork *)iosMallocDebug(D_0063A438, 12, "src/girlForceField.c", 23);
     float *c;
     w->radius = *(float *)(param + 0x28);
     w->invRadius = 1.0f / w->radius;

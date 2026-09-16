@@ -2,7 +2,6 @@
 #include "sugiCommon.h"
 
 /* header prototypes (order fixes the inline tail) */
-extern char D_00620FA0[];
 extern int D_0063A438;
 /* prototypes: their order is the inline tail's emission order */
 int *InitStormTestGeo(int a0, int *a1);
@@ -92,13 +91,13 @@ StormPackage *InitStormPackage(int mode, int num, int flag)
     float t[4];
     int i;
 
-    pkg = (StormPackage *)iosMallocDebug(D_0063A438, 0x1C, D_00620FA0, 0x43);
+    pkg = (StormPackage *)iosMallocDebug(D_0063A438, 0x1C, "src/stormTest.c", 67);
     pkg->mode = mode;
     pkg->num = num;
-    pkg->pos = (float (*)[4])iosMallocDebug(D_0063A438, num * 16, D_00620FA0, 0x47);
-    pkg->vel = (float (*)[4])iosMallocDebug(D_0063A438, num * 16, D_00620FA0, 0x48);
-    pkg->disp = (int (*)[4])iosMallocDebug(D_0063A438, num * 16, D_00620FA0, 0x49);
-    pkg->rate = (float *)iosMallocDebug(D_0063A438, num * 4, D_00620FA0, 0x4A);
+    pkg->pos = (float (*)[4])iosMallocDebug(D_0063A438, num * 16, "src/stormTest.c", 71);
+    pkg->vel = (float (*)[4])iosMallocDebug(D_0063A438, num * 16, "src/stormTest.c", 72);
+    pkg->disp = (int (*)[4])iosMallocDebug(D_0063A438, num * 16, "src/stormTest.c", 73);
+    pkg->rate = (float *)iosMallocDebug(D_0063A438, num * 4, "src/stormTest.c", 74);
 
     for (i = 0; i < num; i++) {
         CopyVector(pkg->vel[i], D_0028FEF0);
@@ -292,7 +291,7 @@ void DispStormPackage(StormPackage *pkg, void *color)
 
 inline int *InitStormTestGeo(int a0, int *a1)
 {
-    int *obj = (int *)iosMallocDebug(D_0063A438, 0x30, D_00620FA0, 0x11B);
+    int *obj = (int *)iosMallocDebug(D_0063A438, 0x30, "src/stormTest.c", 283);
     register int v = *(int *)((char *)a1 + 0x30);
     register int flag = 1;
     *obj = v;

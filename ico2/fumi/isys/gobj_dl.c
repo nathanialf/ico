@@ -15,18 +15,11 @@ typedef struct DLN {
 extern void cut_gobj_dl_link(int *self);
 extern int D_0029C530[];
 extern int D_0029C550[];
-extern char D_00551F78[];
-extern char D_00551F88[];
-extern char D_00551FA0[];
-extern char D_00551FB0[];
-extern char D_00551FC0[];
 extern void debug_StdPrintfDummy();
 /* prototypes: their order is the inline tail's emission order */
 /* census add_gobj_to_head, a file static, every gobj list TU has its own copy and
    `static` keeps this one's ELF symbol local so it cannot collide with the
    ico2/fumi/isys/gobj global of the same name */
-extern char D_00551FD0[];
-extern char D_00551FE0[];
 void isysGObjDlInit(void);
 void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
 void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
@@ -45,7 +38,7 @@ void cut_gobj_dl_link(int *self)
     DLN *p = (DLN *)self;
 
     if (p == 0) {
-        debug_StdPrintfDummy(D_00551F78);
+        debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
 
@@ -83,7 +76,7 @@ static void add_gobj_to_tail(int a0, int a1, int a2)
     DLN *tail;
     DLN *cur;
 
-    debug_StdPrintfDummy(D_00551F88);
+    debug_StdPrintfDummy("gobj dl added to tail\n");
     self->id = idx;
     self->key = a2;
     head = ((DLN **)D_0029C530)[idx];
@@ -92,7 +85,7 @@ static void add_gobj_to_tail(int a0, int a1, int a2)
         self->prev = 0;
         self->next = 0;
         ((DLN **)D_0029C550)[idx] = self;
-        debug_StdPrintfDummy(D_00551FA0, self->next);
+        debug_StdPrintfDummy("no_entry %p\n", self->next);
         return;
     }
     if ((unsigned int)a2 < (unsigned int)head->key) {
@@ -100,7 +93,7 @@ static void add_gobj_to_tail(int a0, int a1, int a2)
         self->next = head;
         head->prev = self;
         ((DLN **)D_0029C530)[idx] = self;
-        debug_StdPrintfDummy(D_00551FB0, self->next);
+        debug_StdPrintfDummy("add to head %p\n", self->next);
         return;
     }
     tail = ((DLN **)D_0029C550)[idx];
@@ -109,7 +102,7 @@ static void add_gobj_to_tail(int a0, int a1, int a2)
         self->next = 0;
         tail->next = self;
         ((DLN **)D_0029C550)[idx] = self;
-        debug_StdPrintfDummy(D_00551FC0, self->next);
+        debug_StdPrintfDummy("add to tail %p\n", self->next);
         return;
     }
     cur = head;
@@ -210,12 +203,12 @@ inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj)
 
 void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
 {
-    debug_StdPrintfDummy(D_00551FD0);
+    debug_StdPrintfDummy("GObjLinkDL in\n");
     if (a1 != 0) {
         *(void **)((char *)a0 + 0x48) = a1;
         *(void **)((char *)a0 + 0x50) = a4;
         add_gobj_to_tail(a0, a2, a3);
-        debug_StdPrintfDummy(D_00551FE0);
+        debug_StdPrintfDummy("GObjLinkDL out\n");
     }
 }
 
@@ -236,7 +229,7 @@ void isysGObjLinkObjDLAfterGObj(int *self, int *a1, int a2, int *a3)
         return;
     t0 = self;
     if (a3 == 0) {
-        debug_StdPrintfDummy(D_00551F78);
+        debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
     t0[0x14] = a2;
@@ -261,7 +254,7 @@ void isysGObjLinkObjDLBeforeGObj(int *self, int *a1, int a2, int *a3)
         return;
     t0 = self;
     if (a3 == 0) {
-        debug_StdPrintfDummy(D_00551F78);
+        debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
     t0[0x14] = a2;

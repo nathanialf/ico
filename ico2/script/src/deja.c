@@ -5,7 +5,7 @@
  *
  * actDejaChk is this TU's own first function (the PAL listing names it
  * actDejaChk, deja.c:196); actDeja installs it as the actor's next mail
- * handler.  D_004F7988 is the 2-entry mail table that lives in the shared
+ * handler.  _mes is the 2-entry mail table that lives in the shared
  * src/cod .data carve, so it stays extern here. */
 extern void _ACTWait(int a0);
 extern int gflagChk(int a0);
@@ -27,7 +27,10 @@ typedef struct Act {
     ActMail *mail;    /* 0xD4 */
 } Act;
 
-extern ActMail D_004F7988[];
+static ActMail _mes[2] = {{430}, {429}};
+
+static ActMail after_mes[2] = {{430}, {429}};
+
 extern Act *actInitialize(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern void scpSleepEnemyAll(void);
@@ -87,7 +90,6 @@ extern const StgEntry D_0055C518[];
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
 extern int stage_ContinueAnimation(int a0, int a1);
 extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern ActMail D_004F79A8[];
 void actDejaAfterChk(volatile int a0);
 extern char *deja;
 extern void CheckPoint(void);
@@ -100,7 +102,9 @@ extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern void scpPlayMotDir(char *self, float *dir);
 extern void scpPlayEnd(int a0);
 extern int scpAdpcmFadeCloseFunc(char **h, short fade);
-extern Vec16 D_006224E0;
+
+static const Vec16 afterChkPos = {{-1000.0f, 0.0f, -2200.0f, 1.0f}};
+
 /* prototypes: their order is the inline tail's emission order */
 void actDeja(volatile int a0);
 void actEnemySleep(volatile int a0);
@@ -124,8 +128,8 @@ inline void actDeja(volatile int a0)
         D_0063AA08 = 1;
         scpFadeOut(255.0f, 0, 0, 0);
         stage_SetAnimation(0x48, 0, 0);
-        D_004F7988[0].func = actDejaChk;
-        self->mail = D_004F7988;
+        _mes[0].func = actDejaChk;
+        self->mail = _mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -255,8 +259,8 @@ void actDejaAfter(volatile int a0)
         stage_SetAnimation(0x21, 0, 0);
         stage_SetAnimation(0x24, 0, 0);
         stage_SetAnimation(0x26, 0, 0);
-        D_004F79A8[0].func = actDejaAfterChk;
-        self->mail = D_004F79A8;
+        after_mes[0].func = actDejaAfterChk;
+        self->mail = after_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -286,7 +290,7 @@ void actDejaAfterChk(volatile int a0)
     }
     _ACTWait(1);
     scpPlayMot(D_00639EA4, 0);
-    target = D_006224E0;
+    target = afterChkPos;
     sceVu0SubVector(dir.f, target.f, test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir.f);
     scpPlayEnd((int)D_00639EA4);

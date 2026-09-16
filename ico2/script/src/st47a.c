@@ -233,7 +233,47 @@ extern void lt_switch_layout(int a0);
 extern void scpWakeupEnemyAll(void);
 extern int stage_CheckAnimationFinish(int a0);
 extern int D_0063AA08;
-extern ActMail D_004FB6D0[];
+extern void actSt47aHane1Switch(volatile int a0);
+extern void actSt47aHane2Switch(volatile int a0);
+
+static ActMail sekizo1_mes[2] = {{430}, {429}};
+
+static ActMail hane1Main_mes[2] = {{406, actSt47aHane1Switch}, {429}};
+
+static ActMail hane1_mes[2] = {{430}, {429}};
+
+static ActMail hane1SwitchUp_mes[2] = {{430}, {429}};
+
+static ActMail hane1SwitchDown_mes[2] = {{430}, {429}};
+
+static ActMail hane1Down_mes[2] = {{430}, {429}};
+
+static ActMail hane1Up_mes[2] = {{430}, {429}};
+
+static ActMail hane2Main_mes[2] = {{407, actSt47aHane2Switch}, {429}};
+
+static ActMail hane2_mes[2] = {{430}, {429}};
+
+static ActMail hane2SwitchUp_mes[2] = {{430}, {429}};
+
+static ActMail hane2SwitchDown_mes[2] = {{430}, {429}};
+
+static ActMail hane2Down_mes[2] = {{430}, {429}};
+
+static ActMail hane2Up_mes[2] = {{430}, {429}};
+
+static ActMail rope_mes[2] = {{430}, {429}};
+
+static ActMail barricade_mes[2] = {{430}, {429}};
+
+static ActMail exit_mes[2] = {{430}, {429}};
+
+static ActMail exit2_mes[2] = {{430}, {429}};
+
+static ActMail ene_mes[2] = {{430}, {429}};
+
+static ActMail hint2On_mes[2] = {{430}, {429}};
+
 extern void actSt47aHane1Main(volatile int a0);
 
 void actSt47aHane1Down(volatile int a0)
@@ -280,8 +320,8 @@ void actSt47aHane1Down(volatile int a0)
 
     SetWayGroupActive(0x21, 1);
 
-    D_004FB6D0[0].func = actSt47aHane1Main;
-    self->mail = D_004FB6D0;
+    hane1Down_mes[0].func = actSt47aHane1Main;
+    self->mail = hane1Down_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -289,7 +329,6 @@ void actSt47aHane1Down(volatile int a0)
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern int actCreateSubThread(void *entry, int prio);
 extern int hane1up;
-extern ActMail D_004FB6F0[];
 extern void actSt47aHane1_1Girl(volatile int a0);
 extern void actSt47aHane1_2Girl(volatile int a0);
 
@@ -346,14 +385,13 @@ void actSt47aHane1Up(volatile int a0)
 
     SetWayGroupActive(0x21, 0);
 
-    D_004FB6F0[0].func = actSt47aHane1Main;
-    self->mail = D_004FB6F0;
+    hane1Up_mes[0].func = actSt47aHane1Main;
+    self->mail = hane1Up_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 extern int hane2down;
-extern ActMail D_004FB790[];
 extern void actSt47aHane2Main(volatile int a0);
 
 void actSt47aHane2Down(volatile int a0)
@@ -400,14 +438,13 @@ void actSt47aHane2Down(volatile int a0)
 
     SetWayGroupActive(0x22, 1);
 
-    D_004FB790[0].func = actSt47aHane2Main;
-    self->mail = D_004FB790;
+    hane2Down_mes[0].func = actSt47aHane2Main;
+    self->mail = hane2Down_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 extern int hane2up;
-extern ActMail D_004FB7B0[];
 extern void actSt47aHane2Girl(volatile int a0);
 
 void actSt47aHane2Up(volatile int a0)
@@ -458,14 +495,13 @@ void actSt47aHane2Up(volatile int a0)
 
     SetWayGroupActive(0x22, 0);
 
-    D_004FB7B0[0].func = actSt47aHane2Main;
-    self->mail = D_004FB7B0;
+    hane2Up_mes[0].func = actSt47aHane2Main;
+    self->mail = hane2Up_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 extern void FinishHint(int a0);
-extern ActMail D_004FB7D0[];
 extern void actSt47aRopeChk(volatile int a0);
 
 void actSt47aRope(volatile int a0)
@@ -478,8 +514,8 @@ void actSt47aRope(volatile int a0)
     if (gflagChk(0x31) == 0) {
         stage_SetAnimation(0xA9, 0, 0);
         scpSearchGobj(0x1F7)->f16C = 0;
-        D_004FB7D0[0].func = actSt47aRopeChk;
-        self->mail = D_004FB7D0;
+        rope_mes[0].func = actSt47aRopeChk;
+        self->mail = rope_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -666,7 +702,6 @@ void actSt47aTorch(volatile int a0)
 extern Act *actInitialize(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern ActMail D_004FB630[];
 extern void actSt47aSekizo1Chk(volatile int a0);
 
 void actSt47aSekizo1(volatile int a0)
@@ -678,8 +713,8 @@ void actSt47aSekizo1(volatile int a0)
 
     if (gflagChk(0x2B) == 0) {
         stage_SetAnimation(0xA3, 0, 0);
-        D_004FB630[0].func = actSt47aSekizo1Chk;
-        self->mail = D_004FB630;
+        sekizo1_mes[0].func = actSt47aSekizo1Chk;
+        self->mail = sekizo1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -703,7 +738,6 @@ void actSt47aSekizo2(volatile int a0)
     scpSekizou(a0, 0x2C, 0xA4, 0, 0x12, -2450.0f, -1372.0f, -1150.0f, -2450.0f, -1372.0f, -1250.0f);
 }
 
-extern ActMail D_004FB670[];
 extern void actSt47aHane1Main(volatile int a0);
 
 void actSt47aHane1(volatile int a0)
@@ -715,13 +749,12 @@ void actSt47aHane1(volatile int a0)
 
     gflagChk(0x2F);
 
-    D_004FB670[0].func = actSt47aHane1Main;
-    self->mail = D_004FB670;
+    hane1_mes[0].func = actSt47aHane1Main;
+    self->mail = hane1_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
-extern ActMail D_004FB730[];
 extern void actSt47aHane2Main(volatile int a0);
 
 void actSt47aHane2(volatile int a0)
@@ -731,14 +764,13 @@ void actSt47aHane2(volatile int a0)
 
     _ACTWait(1);
 
-    D_004FB730[0].func = actSt47aHane2Main;
-    self->mail = D_004FB730;
+    hane2_mes[0].func = actSt47aHane2Main;
+    self->mail = hane2_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 extern void FinishHint(int a0);
-extern ActMail D_004FB7F0[];
 extern void actSt47aBarricadeChk(volatile int a0);
 
 void actSt47aBarricade(volatile int a0)
@@ -750,8 +782,8 @@ void actSt47aBarricade(volatile int a0)
 
     if (gflagChk(0x32) == 0) {
         stage_SetAnimation(0xAB, 0, 0);
-        D_004FB7F0[0].func = actSt47aBarricadeChk;
-        self->mail = D_004FB7F0;
+        barricade_mes[0].func = actSt47aBarricadeChk;
+        self->mail = barricade_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -761,7 +793,6 @@ void actSt47aBarricade(volatile int a0)
     }
 }
 
-extern ActMail D_004FB810[];
 extern void actSt47aExitChk(volatile int a0);
 
 void actSt47aExit(volatile int a0)
@@ -771,13 +802,12 @@ void actSt47aExit(volatile int a0)
 
     _ACTWait(1);
 
-    D_004FB810[0].func = actSt47aExitChk;
-    self->mail = D_004FB810;
+    exit_mes[0].func = actSt47aExitChk;
+    self->mail = exit_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
-extern ActMail D_004FB830[];
 extern void actSt47aExit2Chk(volatile int a0);
 
 void actSt47aExit2(volatile int a0)
@@ -788,14 +818,13 @@ void actSt47aExit2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x90) != 0) {
-        D_004FB830[0].func = actSt47aExit2Chk;
-        self->mail = D_004FB830;
+        exit2_mes[0].func = actSt47aExit2Chk;
+        self->mail = exit2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
 
-extern ActMail D_004FB850[];
 extern void actSt47aEneChk(volatile int a0);
 
 void actSt47aEne(volatile int a0)
@@ -806,8 +835,8 @@ void actSt47aEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x34) == 0) {
-        D_004FB850[0].func = actSt47aEneChk;
-        self->mail = D_004FB850;
+        ene_mes[0].func = actSt47aEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -878,7 +907,6 @@ void actSt47aEnemy4(volatile int a0)
 }
 
 extern void SleepHint(int a0);
-extern ActMail D_004FB870[];
 extern void actSt47aHint2OnChk(volatile int a0);
 
 void actSt47aHint2On(volatile int a0)
@@ -891,8 +919,8 @@ void actSt47aHint2On(volatile int a0)
     if (gflagChk(0x36) == 0) {
         SleepHint(5);
 
-        D_004FB870[0].func = actSt47aHint2OnChk;
-        self->mail = D_004FB870;
+        hint2On_mes[0].func = actSt47aHint2OnChk;
+        self->mail = hint2On_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -903,7 +931,22 @@ void actSt47aSekizo1Event(int x)
     volatile int local = x;
 }
 
-extern long long D_006230B0[];
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads, which is what makes gcc
+   emit the ld/sd pair the ROM has. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+static const ConstVec girlWayPos = {{2266.0f, -272.0f, 0.0f, 0.0f}};
+
+static const ConstVec hane1_1GirlPos = {{-1076.0f, -1972.0f, 755.0f, 0.0f}};
+
+static const ConstVec hane1_2GirlPos = {{1028.0f, -1972.0f, 744.0f, 0.0f}};
+
+static const ConstVec hane2GirlPos = {{-1031.0f, -1972.0f, -747.0f, 0.0f}};
+
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
 extern void brainUnlockGirl(void);
@@ -914,8 +957,8 @@ void actSt47aGirlWay(volatile int a0)
     long long buf[2];
     long long way[2];
 
-    buf[0] = D_006230B0[0];
-    buf[1] = D_006230B0[1];
+    buf[0] = girlWayPos.d[0];
+    buf[1] = girlWayPos.d[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
 
     memset(way, 0, 0x10);
@@ -928,13 +971,11 @@ void actSt47aSekizo2Event(int x)
     volatile int local = x;
 }
 
-extern ActMail D_004FB650[];
-
 void actSt47aHane1Main(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004FB650;
+    sub->mainMail = hane1Main_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -943,8 +984,6 @@ void actSt47aHane1Main(volatile int a0)
 extern void lt_switch_layout(int a0);
 extern void scpSleepEnemyAll(void);
 extern int D_0063AA08;
-extern ActMail D_004FB690[];
-extern ActMail D_004FB6B0[];
 extern void actSt47aHane1Up(volatile int a0);
 extern void actSt47aHane1Down(volatile int a0);
 
@@ -958,54 +997,47 @@ void actSt47aHane1Switch(volatile int a0)
     scpSleepEnemyAll();
 
     if (gflagChk(0x2F) != 0) {
-        D_004FB690[0].func = actSt47aHane1Up;
-        sub->mail = D_004FB690;
+        hane1SwitchUp_mes[0].func = actSt47aHane1Up;
+        sub->mail = hane1SwitchUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 
-    D_004FB6B0[0].func = actSt47aHane1Down;
-    sub->mail = D_004FB6B0;
+    hane1SwitchDown_mes[0].func = actSt47aHane1Down;
+    sub->mail = hane1SwitchDown_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
-extern long long D_006230C0[];
 extern int D_00639EA8;
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 
 void actSt47aHane1_1Girl(volatile int a0)
 {
     long long buf[2];
-    buf[0] = D_006230C0[0];
-    buf[1] = D_006230C0[1];
+    buf[0] = hane1_1GirlPos.d[0];
+    buf[1] = hane1_1GirlPos.d[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
 }
-
-extern long long D_006230D0[];
 
 void actSt47aHane1_2Girl(volatile int a0)
 {
     long long buf[2];
-    buf[0] = D_006230D0[0];
-    buf[1] = D_006230D0[1];
+    buf[0] = hane1_2GirlPos.d[0];
+    buf[1] = hane1_2GirlPos.d[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
 }
-
-extern ActMail D_004FB710[];
 
 void actSt47aHane2Main(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004FB710;
+    sub->mainMail = hane2Main_mes;
     while (1) {
         _ACTWait(1);
     }
 }
 
-extern ActMail D_004FB750[];
-extern ActMail D_004FB770[];
 extern void actSt47aHane2Up(volatile int a0);
 extern void actSt47aHane2Down(volatile int a0);
 
@@ -1019,25 +1051,23 @@ void actSt47aHane2Switch(volatile int a0)
     scpSleepEnemyAll();
 
     if (gflagChk(0x30) != 0) {
-        D_004FB750[0].func = actSt47aHane2Up;
-        sub->mail = D_004FB750;
+        hane2SwitchUp_mes[0].func = actSt47aHane2Up;
+        sub->mail = hane2SwitchUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 
-    D_004FB770[0].func = actSt47aHane2Down;
-    sub->mail = D_004FB770;
+    hane2SwitchDown_mes[0].func = actSt47aHane2Down;
+    sub->mail = hane2SwitchDown_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
-extern long long D_006230E0[];
-
 void actSt47aHane2Girl(volatile int a0)
 {
     long long buf[2];
-    buf[0] = D_006230E0[0];
-    buf[1] = D_006230E0[1];
+    buf[0] = hane2GirlPos.d[0];
+    buf[1] = hane2GirlPos.d[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
 }
 

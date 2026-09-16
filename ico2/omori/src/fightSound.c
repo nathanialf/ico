@@ -83,7 +83,6 @@ void fightSoundProcessMain(void)
     }
 }
 
-extern char D_00555628[];
 extern char D_0063ABF8[];
 extern int *soundDataOpenSync(void *name);
 extern void AdpcmPlay(int a0);
@@ -117,8 +116,8 @@ void fightSoundProcess(void)
         D_0063ABEC = 0;
         break;
     default:
-        debug_assert(D_00555628, 0xFF);
-        __assert(D_00555628, 0xFF, D_0063ABF8);
+        debug_assert("src/fightSound.c", 255);
+        __assert("src/fightSound.c", 255, D_0063ABF8);
     }
 }
 

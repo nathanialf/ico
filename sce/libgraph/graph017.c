@@ -2,7 +2,6 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
 
-extern char D_00636400[];
 extern void printf(void *a0, ...);
 
 int sceGsExecLoadImage(void *pkt, void *img)
@@ -11,7 +10,7 @@ int sceGsExecLoadImage(void *pkt, void *img)
 
     while (*(volatile int *)0x1000A000 & 0x100) {
         if (i++ > 0x1000000) {
-            printf(D_00636400);
+            printf("sceGsExecLoadImage: DMA Ch.2 does not terminate\r\n");
             return -1;
         }
     }
@@ -24,7 +23,7 @@ int sceGsExecLoadImage(void *pkt, void *img)
     *(volatile int *)0x1000A000 = 0x101;
     while (*(volatile int *)0x1000A000 & 0x100) {
         if (i++ > 0x1000000) {
-            printf(D_00636400);
+            printf("sceGsExecLoadImage: DMA Ch.2 does not terminate\r\n");
             return -1;
         }
     }

@@ -1,16 +1,5 @@
 #include "common.h"
 
-extern char D_0054DB30[];
-extern char D_0054DB60[];
-extern char D_0054DB78[];
-extern char D_0054DB90[];
-extern char D_0054DBA8[];
-extern char D_0054DBC0[];
-extern char D_0054DBD8[];
-extern char D_0054DBF0[];
-extern char D_0054DC08[];
-extern char D_0054DC20[];
-extern char D_0054DC38[];
 extern char D_00639F48[];
 extern int D_0063A370;
 extern void debug_StdPrintfDummy(const char *fmt, ...);
@@ -49,30 +38,6 @@ typedef struct IosPartition {
 extern unsigned char D_00637E69[];
 extern char D_00639F50[];
 extern char D_00639F58[];
-extern char D_0054DC50[];
-extern char D_0054DC90[];
-extern char D_0054DCC0[];
-extern char D_0054DCD8[];
-extern char D_0054DCF8[];
-extern char D_0054DD20[];
-extern char D_0054DD50[];
-extern char D_0054DD80[];
-extern char D_0054DDA0[];
-extern char D_0054DDC0[];
-extern char D_0054DDD8[];
-extern char D_0054DDF0[];
-extern char D_0054DE08[];
-extern char D_0054DE30[];
-extern char D_0054DE58[];
-extern char D_0054DE78[];
-extern char D_0054DE98[];
-extern char D_0054DEC8[];
-extern char D_0054DEF8[];
-extern char D_0054DF18[];
-extern char D_0054DF38[];
-extern char D_0054DF60[];
-extern char D_0054DF78[];
-extern char D_0054DF98[];
 extern IosPartition *D_0063A434;
 extern IosPartition *D_0063A438;
 extern IosPartition *D_0063A440;
@@ -103,16 +68,16 @@ static inline void file_WaitDisc(void)
 
 void file_Init(void)
 {
-    debug_StdPrintfDummy(D_0054DB30);
-    debug_StdPrintfDummy(D_0054DB60);
+    debug_StdPrintfDummy("-------------------------------- read from CD\n");
+    debug_StdPrintfDummy("initialize CD device.\n");
     sceSifInitRpc(0);
     sceCdInit(0);
     sceCdMmode(D_0063A370);
     debug_StdPrintfDummy(D_00639F48);
-    debug_StdPrintfDummy(D_0054DB78);
+    debug_StdPrintfDummy("load default module.\n");
     do
         file_WaitDisc();
-    while (sceSifRebootIop(D_0054DB90) == 0);
+    while (sceSifRebootIop("cdrom0:\\IOPRP224.IMG;1") == 0);
     while (sceSifSyncIop() == 0)
         ;
     sceSifInitRpc(0);
@@ -121,25 +86,25 @@ void file_Init(void)
     sceCdInit(0);
     sceCdMmode(D_0063A370);
     debug_StdPrintfDummy(D_00639F48);
-    debug_StdPrintfDummy(D_0054DBA8);
+    debug_StdPrintfDummy("loading iop modules.\n");
     do
         file_WaitDisc();
-    while (sceSifLoadModule(D_0054DBC0, 0, 0) < 0);
+    while (sceSifLoadModule("cdrom0:\\SIO2MAN.IRX;1", 0, 0) < 0);
     do
         file_WaitDisc();
-    while (sceSifLoadModule(D_0054DBD8, 0, 0) < 0);
+    while (sceSifLoadModule("cdrom0:\\PADMAN.IRX;1", 0, 0) < 0);
     do
         file_WaitDisc();
-    while (sceSifLoadModule(D_0054DBF0, 0, 0) < 0);
+    while (sceSifLoadModule("cdrom0:\\MCMAN.IRX;1", 0, 0) < 0);
     do
         file_WaitDisc();
-    while (sceSifLoadModule(D_0054DC08, 0, 0) < 0);
+    while (sceSifLoadModule("cdrom0:\\MCSERV.IRX;1", 0, 0) < 0);
     do
         file_WaitDisc();
-    while (sceSifLoadModule(D_0054DC20, 0, 0) < 0);
+    while (sceSifLoadModule("cdrom0:\\LIBSD.IRX;1", 0, 0) < 0);
     do
         file_WaitDisc();
-    while (sceSifLoadModule(D_0054DC38, 0, 0) < 0);
+    while (sceSifLoadModule("cdrom0:\\SNDN2DRV.IRX;1", 0, 0) < 0);
     debug_StdPrintfDummy(D_00639F48);
 }
 
@@ -167,7 +132,9 @@ int file_LoadCDFile(void **adr, char *fname, int area)
        is what forces all three into their stack homes. */
     inline void PrintLoad(void)
     {
-        debug_StdPrintfDummy(D_0054DC50, fname, *adr, size);
+        debug_StdPrintfDummy(
+            "loading:\"\033[33m%s\033[m\" (address:\033[35m%p\033[m/size:\033[35m%d\033[m)", fname,
+            *adr, size);
     }
 
     path[0] = '\\';
@@ -191,8 +158,8 @@ int file_LoadCDFile(void **adr, char *fname, int area)
     while (sceCdDiskReady(0) == 6)
         ;
     if (sceCdSearchFile(&fp, path) == 0) {
-        debug_StdPrintfDummy(D_0054DC90, fname);
-        debug_StdPrintfDummy(D_0054DC90, path);
+        debug_StdPrintfDummy("file_LoadCDFile:file is not exists? (%s)\n", fname);
+        debug_StdPrintfDummy("file_LoadCDFile:file is not exists? (%s)\n", path);
         return -1;
     }
 
@@ -204,54 +171,57 @@ int file_LoadCDFile(void **adr, char *fname, int area)
     case 0:
     case 2:
     case 4:
-        *adr = iosMallocDebug(D_0063A44C, asize, D_0054DCC0, 349);
+        *adr = iosMallocDebug(D_0063A44C, asize, "src/FileManager.c", 349);
         PrintLoad();
-        debug_StdPrintfDummy(D_0054DCD8,
+        debug_StdPrintfDummy(" to seki area.(%2.1f%%)\n",
                              ((int)*adr + asize - (int)D_0063A44C->base) * 100.0f / 10059776.0f);
         break;
     case 1:
-        *adr = iosMallocDebug(D_0063A438, asize, D_0054DCC0, 357);
+        *adr = iosMallocDebug(D_0063A438, asize, "src/FileManager.c", 357);
         PrintLoad();
-        debug_StdPrintfDummy(D_0054DCF8, asize * 100.0f / 524288.0f,
+        debug_StdPrintfDummy(" to sugi area.(%2.1f%%/%2.1f%%)\n", asize * 100.0f / 524288.0f,
                              ((int)*adr + asize - (int)D_0063A438->base) * 100.0f / 524288.0f);
         break;
     case 3:
-        *adr = iosMallocDebug(D_0063A444, asize, D_0054DCC0, 366);
+        *adr = iosMallocDebug(D_0063A444, asize, "src/FileManager.c", 366);
         PrintLoad();
-        debug_StdPrintfDummy(D_0054DD20, asize * 100.0f / 1179648.0f,
+        debug_StdPrintfDummy(" to static motion area.(%2.1f%%/%2.1f%%)\n",
+                             asize * 100.0f / 1179648.0f,
                              ((int)*adr + asize - (int)D_0063A444->base) * 100.0f / 1179648.0f);
         break;
     case 5:
-        *adr = iosMallocDebug(D_0063A440, asize, D_0054DCC0, 375);
+        *adr = iosMallocDebug(D_0063A440, asize, "src/FileManager.c", 375);
         PrintLoad();
-        debug_StdPrintfDummy(D_0054DD50, asize * 100.0f / 3670016.0f,
+        debug_StdPrintfDummy(" to dynamic motion area.(%2.1f%%/%2.1f%%)\n",
+                             asize * 100.0f / 3670016.0f,
                              ((int)*adr + asize - (int)D_0063A440->base) * 100.0f / 3670016.0f);
         break;
     case 6:
-        *adr = iosMallocDebug(D_0063A434, asize, D_0054DCC0, 384);
+        *adr = iosMallocDebug(D_0063A434, asize, "src/FileManager.c", 384);
         PrintLoad();
-        debug_StdPrintfDummy(D_0054DD80, ((int)*adr + asize - (int)D_0063A434->base) * 100.0f);
+        debug_StdPrintfDummy(" to hara-area.(%2.1f%%)\n",
+                             ((int)*adr + asize - (int)D_0063A434->base) * 100.0f);
         break;
     case 7:
-        *adr = iosMallocDebug(D_0063A450, asize, D_0054DCC0, 392);
+        *adr = iosMallocDebug(D_0063A450, asize, "src/FileManager.c", 392);
         PrintLoad();
-        debug_StdPrintfDummy(D_0054DDA0,
+        debug_StdPrintfDummy(" to oomori area.(%2.1f%%)\n",
                              ((int)*adr + asize - (int)D_0063A450->base) * 100.0f / 327680.0f);
         break;
     case 8:
-        *adr = iosMallocDebug(D_0063A454, asize, D_0054DCC0, 400);
+        *adr = iosMallocDebug(D_0063A454, asize, "src/FileManager.c", 400);
         PrintLoad();
-        debug_StdPrintfDummy(D_0054DDC0);
+        debug_StdPrintfDummy(" to horagai-area.\n");
         break;
     case 9:
-        *adr = iosMallocDebug(D_0063A458, asize, D_0054DCC0, 405);
+        *adr = iosMallocDebug(D_0063A458, asize, "src/FileManager.c", 405);
         PrintLoad();
-        debug_StdPrintfDummy(D_0054DDD8);
+        debug_StdPrintfDummy(" to sound-area.\n");
         break;
     case 10:
-        *adr = iosMallocDebug(D_0063A45C, asize, D_0054DCC0, 410);
+        *adr = iosMallocDebug(D_0063A45C, asize, "src/FileManager.c", 410);
         PrintLoad();
-        debug_StdPrintfDummy(D_0054DDF0);
+        debug_StdPrintfDummy(" to sound_semi-area.\n");
         break;
     }
 
@@ -270,44 +240,44 @@ int file_LoadCDFile(void **adr, char *fname, int area)
     err = sceCdGetError();
     switch (err) {
     case 0x32:
-        debug_StdPrintfDummy(D_0054DE08);
+        debug_StdPrintfDummy("file_LoadCDFile:Reach to CD end.\n");
         break;
     case 0x31:
-        debug_StdPrintfDummy(D_0054DE30);
+        debug_StdPrintfDummy("file_LoadCDFile:Open tray at reading.\n");
         break;
     case 0x30:
-        debug_StdPrintfDummy(D_0054DE58);
+        debug_StdPrintfDummy("file_LoadCDFile:Read error.\n");
         break;
     case 0x14:
-        debug_StdPrintfDummy(D_0054DE78);
+        debug_StdPrintfDummy("file_LoadCDFile:Invalid Disc.\n");
         break;
     case 0x21:
-        debug_StdPrintfDummy(D_0054DE98);
+        debug_StdPrintfDummy("file_LoadCDFile:Invalid transfer length.\n");
         break;
     case 0x20:
-        debug_StdPrintfDummy(D_0054DEC8);
+        debug_StdPrintfDummy("file_LoadCDFile:Invalid transfer address.\n");
         break;
     case 0x13:
-        debug_StdPrintfDummy(D_0054DEF8);
+        debug_StdPrintfDummy("file_LoadCDFile:Not ready.\n");
         break;
     case 0x12:
-        debug_StdPrintfDummy(D_0054DF18);
+        debug_StdPrintfDummy("file_LoadCDFile:No Disc.\n");
         break;
     case 0x11:
-        debug_StdPrintfDummy(D_0054DF38);
+        debug_StdPrintfDummy("file_LoadCDFile:Tray is opened.\n");
         break;
     case 0x10:
-        debug_StdPrintfDummy(D_0054DF60);
+        debug_StdPrintfDummy("Undefined command.\n");
     case 0x01:
-        debug_StdPrintfDummy(D_0054DF78);
+        debug_StdPrintfDummy("file_LoadCDFile:Aborted.\n");
         break;
     case -1:
-        debug_StdPrintfDummy(D_0054DF98);
+        debug_StdPrintfDummy("file_LoadCDFile:Fail\n");
     }
 
     if (err != 0) {
-        debug_assert(D_0054DCC0, 440);
-        __assert(D_0054DCC0, 440, D_00639F58);
+        debug_assert("src/FileManager.c", 440);
+        __assert("src/FileManager.c", 440, D_00639F58);
     }
     return size;
 }

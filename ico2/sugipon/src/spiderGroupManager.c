@@ -62,9 +62,6 @@ inline int *getReviveEnemyGObj(int count)
     return p;
 }
 
-extern char D_00620CF8[];
-extern char D_00620D18[];
-extern char D_00620D38[];
 extern char D_0063BB00[];
 extern void LockEnemyGenerate(int *p);
 extern void debug_assertMessage(char *file, int line, char *mes);
@@ -93,12 +90,14 @@ void EntrySpiderGroupManager(int gobj)
     D_00723D98[D_0063BAE8].gobj = (void *)gobj;
     p = getReviveEnemyGObj(D_0063BAE4);
     if (p != 0) {
-        debug_StdPrintfDummy(D_00620CF8, p, p[2], D_0063BAE8);
+        debug_StdPrintfDummy("LOCK %p for LABEL %d, ID:%d\n", p, p[2], D_0063BAE8);
         LockEnemyGenerate(p);
         *(int *)((char *)p + 0x16C) = 0;
     } else {
-        debug_assertMessage(D_00620D18, 0x55, D_00620D38);
-        __assert(D_00620D18, 0x55, D_0063BB00);
+        debug_assertMessage(
+            "src/spiderGroupManager.c", 85,
+            "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n");
+        __assert("src/spiderGroupManager.c", 85, D_0063BB00);
     }
     D_00723D98[D_0063BAE8].rev = (int)p;
     D_0063BAE8 = D_0063BAE8 + 1;
@@ -122,7 +121,6 @@ inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
 
 extern int D_0063BAF4;
 extern int D_00723AE0[];
-extern char D_00620D90[];
 extern int D_0028FF30[];
 extern void GetRootPosition(float *pos, int gobj);
 extern int CheckSpidersInsideOfReviveRange(int *out, int group, float *pos);
@@ -166,7 +164,7 @@ int tryToRevive(void)
 
                             p = D_00723D98[D_0063BAE0].rev;
                             UnlockEnemyGenerate(p);
-                            debug_StdPrintfDummy(D_00620D90, p, D_0063BAE0);
+                            debug_StdPrintfDummy("UNLOCK %p: (id:%d)\n", p, D_0063BAE0);
                             *(int *)((char *)p + 0x16C) = 1;
                             if (DirectCallEnemy(p, 0, pos, D_0028FF30, 0) == 0) {
                                 return 0;
@@ -190,9 +188,6 @@ int tryToRevive(void)
 
 extern int D_0063B138;
 extern int D_0028F4C0[];
-extern char D_00620DA8[];
-extern char D_00620DB8[];
-extern char D_00620DC8[];
 extern int tryToRevive(void);
 extern int GetAliveSpiders(int gobj);
 extern void DeadAllSpiders(int gobj);
@@ -222,7 +217,7 @@ void ExecSpiderGroupManager(void)
         if (groups != 0 && total > 0 && total < 5) {
             D_0063BAF8 = D_0063BAF8 + 1;
             if (D_0063B138 != 0) {
-                debug_PrintfDummy(400, 120, 0xFFFFFFFF, D_00620DA8, D_0063BAF8,
+                debug_PrintfDummy(400, 120, 0xFFFFFFFF, "COUNTER %d/%d", D_0063BAF8,
                                   (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 45);
             }
         }
@@ -238,9 +233,9 @@ void ExecSpiderGroupManager(void)
 
         if (D_0063B138 != 0) {
             if (groups != 0) {
-                debug_PrintfDummy(400, 110, 0xFFFFFFFF, D_00620DB8, total);
+                debug_PrintfDummy(400, 110, 0xFFFFFFFF, "REMAIN %d", total);
             } else {
-                debug_PrintfDummy(400, 110, 0xFFFFFFFF, D_00620DC8);
+                debug_PrintfDummy(400, 110, 0xFFFFFFFF, "NO GROUP WAKEUPED");
             }
         }
     }

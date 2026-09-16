@@ -41,14 +41,29 @@ extern void actSt19aChainDown(volatile int a0);
 extern void actSt19aChainMain(volatile int a0);
 extern void actSt19aOriMain(volatile int a0);
 /* st19a.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-extern ActMail D_004FB250[];
-extern ActMail D_004FB270[];
-extern ActMail D_004FB290[];
-extern float D_004FB2B0[];
-extern ActMail D_004FB2F0[];
-extern ActMail D_004FB310[];
-extern ActMail D_004FB330[];
-extern ActMail D_004FB350[];
+extern void actSt19aChainSwitch(volatile int a0);
+extern void actSt19aOriSwitch(volatile int a0);
+
+static ActMail oriMain_mes[2] = {{407, actSt19aOriSwitch}, {429}};
+
+static ActMail ori_mes[2] = {{430}, {429}};
+
+static ActMail oriSwitch_mes[2] = {{430}, {429}};
+
+static float oriXLPos[4] = {-642.0f, 2132.0f, -2861.0f, 0.0f};
+
+static float haguruma2Pos[4] = {486.0f, 2386.0f, -2917.0f, 0.0f};
+
+static ActMail hagurumaChk_mes[2] = {{430}, {429}};
+
+static ActMail pipe_mes[2] = {{430}, {429}};
+
+static ActMail chainMain_mes[2] = {{406, actSt19aChainSwitch}, {429}};
+
+static ActMail chain_mes[2] = {{430}, {429}};
+
+static ActMail chainSwitch_mes[2] = {{430}, {429}};
+
 extern int scpTriggerBall(int a0, int a1, float r);
 
 typedef struct PadState {
@@ -113,9 +128,16 @@ void actSt19aOriUp(volatile int a0)
     lt_switch_layout(54);
 }
 
-extern long long D_00623060[];
-extern float D_004FB2C0[];
-extern ActMail D_004FB2D0[];
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads, which is what makes gcc
+   emit the ld/sd pair the ROM has. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}};
+
 extern void actSt19aHagurumaChk(volatile int a0);
 extern void stage_SetLoopFlag(int a0, int a1);
 
@@ -127,21 +149,21 @@ void actSt19aHaguruma(volatile int a0)
 
     sub = actInitialize(a0);
     _ACTWait(1);
-    pos[0] = D_00623060[0];
-    pos[1] = D_00623060[1];
+    pos[0] = hagurumaPos.d[0];
+    pos[1] = hagurumaPos.d[1];
     soundSeDefPlay(0x545, 0, (float *)pos, 1);
     if (gflagChk(0x137) == 0) {
         scpSearchGobj(0x7A8)->f16C = 0;
         stage_SetAnimation(0x8B, 0, 0);
         stage_SetAnimation(0x8C, -1, -2);
-        D_004FB2D0[0].func = actSt19aHagurumaChk;
-        sub->mail = D_004FB2D0;
+        hagurumaChk_mes[0].func = actSt19aHagurumaChk;
+        sub->mail = hagurumaChk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        soundSeDefPlay(0x546, 0, D_004FB2C0, 1);
-        soundSeDefPlay(0x547, 0, D_004FB2C0, 1);
-        soundSeDefPlay(0x548, 0, D_004FB2C0, 1);
+        soundSeDefPlay(0x546, 0, haguruma2Pos, 1);
+        soundSeDefPlay(0x547, 0, haguruma2Pos, 1);
+        soundSeDefPlay(0x548, 0, haguruma2Pos, 1);
         scpSearchGobj(0x7A9)->f16C = 0;
         stage_SetAnimation(0x8B, 1, 0);
         stage_SetLoopFlag(0x8B, 1);
@@ -184,9 +206,9 @@ void actSt19aHagurumaChk(volatile int a0)
     scpSearchGobj(0x7A8)->f16C = 1;
     stage_SetLoopFlag(0x8B, 1);
     stage_SetLoopFlag(0x8C, 1);
-    soundSeDefPlay(0x546, 0, D_004FB2C0, 1);
-    soundSeDefPlay(0x547, 0, D_004FB2C0, 1);
-    soundSeDefPlay(0x548, 0, D_004FB2C0, 1);
+    soundSeDefPlay(0x546, 0, haguruma2Pos, 1);
+    soundSeDefPlay(0x547, 0, haguruma2Pos, 1);
+    soundSeDefPlay(0x548, 0, haguruma2Pos, 1);
     while (stage_CheckAnimationFinish(0x8D) == 0) {
         if (((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) || skip != 0) {
             scpFadeOut(16.0f, 0, 0, 0);
@@ -345,8 +367,8 @@ void actSt19aOri(volatile int a0)
     if (gflagChk(0x136) == 0) {
         stage_SetAnimation(0x8E, 0, 0);
 
-        D_004FB270[0].func = actSt19aOriMain;
-        self->mail = D_004FB270;
+        ori_mes[0].func = actSt19aOriMain;
+        self->mail = ori_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -361,7 +383,7 @@ void actSt19aOriXL(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    soundSeDefPlay(0x545, 0, D_004FB2B0, 1);
+    soundSeDefPlay(0x545, 0, oriXLPos, 1);
 
     stage_SetAnimation(0x8E, 0, 0);
 }
@@ -377,8 +399,8 @@ void actSt19aPipe(volatile int a0)
         scpSearchGobj(0x7A7)->f16C = 0;
         stage_SetAnimation(0x8F, 0, 0);
 
-        D_004FB2F0[0].func = actSt19aPipeChk;
-        self->mail = D_004FB2F0;
+        pipe_mes[0].func = actSt19aPipeChk;
+        self->mail = pipe_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
 
@@ -414,8 +436,8 @@ void actSt19aChain(volatile int a0)
 
         stage_SetAnimation(0x90, 0, 0);
 
-        D_004FB330[0].func = actSt19aChainMain;
-        self->mail = D_004FB330;
+        chain_mes[0].func = actSt19aChainMain;
+        self->mail = chain_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -427,7 +449,7 @@ void actSt19aOriMain(volatile int a0)
 
     D_0063AA08 = 0;
 
-    sub->mainMail = D_004FB250;
+    sub->mainMail = oriMain_mes;
 
     while (1) {
         _ACTWait(1);
@@ -441,8 +463,8 @@ void actSt19aOriSwitch(volatile int a0)
     D_0063AA08 = 1;
 
     sub->mainMail = 0;
-    D_004FB290[0].func = actSt19aOriUp;
-    sub->mail = D_004FB290;
+    oriSwitch_mes[0].func = actSt19aOriUp;
+    sub->mail = oriSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -453,7 +475,7 @@ void actSt19aChainMain(volatile int a0)
 
     D_0063AA08 = 0;
 
-    sub->mainMail = D_004FB310;
+    sub->mainMail = chainMain_mes;
 
     while (1) {
         _ACTWait(1);
@@ -469,8 +491,8 @@ void actSt19aChainSwitch(volatile int a0)
     sub->mainMail = 0;
 
     if (gflagChk(0x139) == 0) {
-        D_004FB350[0].func = actSt19aChainDown;
-        sub->mail = D_004FB350;
+        chainSwitch_mes[0].func = actSt19aChainDown;
+        sub->mail = chainSwitch_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }

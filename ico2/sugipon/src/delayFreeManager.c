@@ -4,8 +4,6 @@ extern void *D_00667340[3][384];
 extern int D_00639EE0;
 extern int D_00639EE4;
 extern int iosFree();
-extern char D_0054D6F8[];
-extern char D_0054D738[];
 extern char D_00639EE8[];
 extern void debug_StdPrintfDummy();
 extern void debug_assert(char *file, int line);
@@ -55,8 +53,8 @@ void EntryDelayFree(void *p)
 {
     D_00667340[D_00639EE0][D_00639EE4++] = p;
     if (D_00639EE4 >= 384) {
-        debug_StdPrintfDummy(D_0054D6F8);
-        debug_assert(D_0054D738, 0x33);
-        __assert(D_0054D738, 0x33, D_00639EE8);
+        debug_StdPrintfDummy("[33mERROR!!! TOO MANY DELAY FREE LIST ENTRY!!! EXIT...[m\n");
+        debug_assert("src/delayFreeManager.c", 51);
+        __assert("src/delayFreeManager.c", 51, D_00639EE8);
     }
 }

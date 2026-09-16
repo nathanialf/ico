@@ -44,15 +44,10 @@ extern int D_002A7920[];
 extern int D_002A7940[];
 extern int D_0063C338;
 extern long long D_0063C340;
-extern char D_00557648[];
-extern char D_00557698[];
 extern void sceGsSyncPath(int a0, int a1);
 extern int ReferThreadStatus(int id, int *st);
 extern int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7);
 extern int D_0063AC70;
-extern char D_00557660[];
-extern char D_00557670[];
-extern char D_00557680[];
 void movie_end(void);
 extern int sceCdStStat(void);
 extern void startDisplay(int on);
@@ -74,7 +69,6 @@ extern int strFileRead(char *self, void *buf, int n, int *eof);
 extern int sceMpegDemuxPssRing(int *dec, void *p, int n, int a3, int p4);
 extern int voBufIsFull(char *self);
 extern void gsb_ClearFrameBuffer(void);
-extern char D_00557590[];
 extern int D_0063AC74;
 extern void dispCreate(int *self, int a1, int a2, int a3, int a4);
 extern int strFileOpen(char *self, int name);
@@ -122,14 +116,6 @@ extern int D_0063C310;
 extern int D_0063C314;
 extern int D_0063C318;
 extern int D_0063C31C;
-extern char D_005575A0[];
-extern char D_005575B0[];
-extern char D_005575C8[];
-extern char D_005575E8[];
-extern char D_005575F8[];
-extern char D_00557608[];
-extern char D_00557620[];
-extern char D_00557630[];
 
 void switchThread(void)
 {
@@ -165,7 +151,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
 
     while (D_0063AC74 != 0 || (left >= 5 && videoDecGetState(dec) != 3)) {
         if (sceCdStStat() < 0x20 && D_0063AC74 == 0) {
-            debug_StdPrintfDummy(D_00557590);
+            debug_StdPrintfDummy("movie pause\n");
             D_0063AC74 = 30;
         }
         if (dec[2] >= 11) {
@@ -244,11 +230,11 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     dispClear(D_002A7978, p7);
 
     D_0063C334 = *(volatile int *)0x1000E000;
-    debug_StdPrintfDummy(D_005575A0, *(volatile int *)0x1000E000);
+    debug_StdPrintfDummy("D_CTRL %x\n", *(volatile int *)0x1000E000);
     *(volatile int *)0x1000E000 |= 3;
     *(volatile int *)0x1000E010 = 4;
 
-    debug_StdPrintfDummy(D_005575B0, a0);
+    debug_StdPrintfDummy("open movie file %s\n", a0);
     if (strFileOpen(D_006EA900, a0) == 0) {
         return -1;
     }
@@ -277,7 +263,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     if (voBufCreate(voBuf) != 0) {
         return -1;
     }
-    debug_StdPrintfDummy(D_005575C8);
+    debug_StdPrintfDummy("create video decode thread\n");
 
     th.entry = (void *)videoDecMain;
     th.stack = (void *)D_006F2C40;
@@ -286,7 +272,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     th.gpReg = &_gp;
     th.option = 0;
     D_0063C324 = CreateThread(&th);
-    debug_StdPrintfDummy(D_005575E8);
+    debug_StdPrintfDummy("start thread\n");
 
     D_006F2C00.dec = D_006F2AD0;
     D_006F2C00.disp = D_002A7978;
@@ -295,17 +281,17 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     D_0063C328 = 1;
 
     DIntr();
-    debug_StdPrintfDummy(D_005575F8);
+    debug_StdPrintfDummy("add intc\n");
     D_006F2AD0[0xC4 / 4] = AddIntcHandler(2, vblankHandler, 0);
     if (D_006F2AD0[0xC4 / 4] < 0) {
-        debug_StdPrintfDummy(D_00557608);
+        debug_StdPrintfDummy("add intc failed\n");
         ret = -1;
     } else {
         D_0063C32C = EnableIntc(2);
-        debug_StdPrintfDummy(D_00557620);
+        debug_StdPrintfDummy("add dmac\n");
         D_006F2AD0[0xC0 / 4] = AddDmacHandler(2, handler_endimage, 0);
         if (D_006F2AD0[0xC0 / 4] < 0) {
-            debug_StdPrintfDummy(D_00557630);
+            debug_StdPrintfDummy("add dmac failed\n");
             ret = -1;
         } else {
             D_0063C330 = EnableDmac(2);
@@ -367,22 +353,22 @@ int movie_init(int a0, int a1, int a2, int a3, int p4, int p5, int p6)
     D_0063C338 = st[0x18 / 4];
     D_0063C320 = st[0x18 / 4];
     D_0063C340 = sceGsGetIMR();
-    debug_StdPrintfDummy(D_00557648, sceGsGetIMR());
+    debug_StdPrintfDummy("sceGsGetIMR() %lx\n", sceGsGetIMR());
 
     DIntr();
     for (i = 0; i < 7; i++) {
         D_006FAC40[i] = DisableDmac(D_002A7920[i]);
-        debug_StdPrintfDummy(D_00557660, D_002A7920[i], D_006FAC40[i]);
+        debug_StdPrintfDummy("dmac %d %d\n", D_002A7920[i], D_006FAC40[i]);
     }
     for (j = 0; j < 7; j++) {
         D_006FAC60[j] = DisableIntc(D_002A7940[j]);
-        debug_StdPrintfDummy(D_00557670, D_002A7940[j], D_006FAC60[j]);
+        debug_StdPrintfDummy("intc %d %d\n", D_002A7940[j], D_006FAC60[j]);
     }
     EIntr();
 
     D_0063AC70 = 1;
     if (initAll(a0, a1, a2, a3, p4, p5, 0x3FFF, p6) != 0) {
-        debug_StdPrintfDummy(D_00557680);
+        debug_StdPrintfDummy("movie init failed\n");
         movie_end();
         return -1;
     }
@@ -397,7 +383,7 @@ void movie_end(void)
     dispClear(D_002A7978, 0x80000000);
     termAll();
     DIntr();
-    debug_StdPrintfDummy(D_00557648, sceGsGetIMR());
+    debug_StdPrintfDummy("sceGsGetIMR() %lx\n", sceGsGetIMR());
     sceGsPutIMR(D_0063C340);
     for (i = 0; i < 7; i++) {
         if (D_006FAC40[i] != 0) {
@@ -411,7 +397,7 @@ void movie_end(void)
     }
     ChangeThreadPriority(GetThreadId(), D_0063C338);
     EIntr();
-    debug_StdPrintfDummy(D_00557698);
+    debug_StdPrintfDummy("movie end\n");
 }
 
 int movie_proc(int (*poll)(void))

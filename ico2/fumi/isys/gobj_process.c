@@ -12,7 +12,6 @@ typedef struct GProc {
 extern void cut_gobj_process_link(GProc *p);
 /* header prototypes (order fixes the inline tail) */
 extern int iosThreadDestroy(int a0);
-extern char D_00551FF0[];
 extern int D_0063A430;
 extern char *D_0063C1B0;
 extern int D_0063C1B4;
@@ -42,7 +41,7 @@ void isysGObjProcessInit(unsigned int a0)
 
 inline void isysGObjProcessAlloc(unsigned int a0)
 {
-    int ret = iosMallocDebug(D_0063A430, a0 * 0x94, D_00551FF0, 0x49);
+    int ret = iosMallocDebug(D_0063A430, a0 * 0x94, "isys/gobj_process.c", 73);
     unsigned int i;
     D_0063C1B4 = a0;
     D_0063C1B0 = (char *)ret;
@@ -52,9 +51,6 @@ inline void isysGObjProcessAlloc(unsigned int a0)
 }
 
 extern void debug_StdPrintfDummy();
-extern char D_00552008[];
-extern char D_00552030[];
-extern char D_00552040[];
 extern int iosThreadCreateS(void *th, int a1, int a2, int a3, int a4, int a5, int a6);
 extern void iosThreadStart(void *th);
 
@@ -69,10 +65,10 @@ static inline GProc *alloc_gobj_process(void)
         }
     }
     if (i == D_0063C1B4) {
-        debug_StdPrintfDummy(D_00552008);
-        debug_StdPrintfDummy(D_00552008);
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         for (j = 0; j < D_0063C1B4; j++) {
-            debug_StdPrintfDummy(D_00552030, *(int *)(D_0063C1B0 + j * 0x94),
+            debug_StdPrintfDummy("id %d %x %x \n", *(int *)(D_0063C1B0 + j * 0x94),
                                  *(int *)(D_0063C1B0 + j * 0x94 + 0x1C),
                                  *(int *)(D_0063C1B0 + j * 0x94 + 0x5C));
         }
@@ -92,7 +88,7 @@ int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5)
     }
     p = alloc_gobj_process();
     if (p == 0) {
-        debug_StdPrintfDummy(D_00552040);
+        debug_StdPrintfDummy("isys:not enough memory for GObjProcess\n");
         return 0;
     }
     *(GProc **)p = p;
@@ -215,13 +211,12 @@ inline void free_gobj_process_resource(char *self)
     *(int *)(self + 0x0) = 0;
 }
 
-extern char D_00552068[];
 extern void debug_StdPrintfDummy();
 
 void cut_gobj_process_link(GProc *p)
 {
     if (p == 0) {
-        debug_StdPrintfDummy(D_00552068);
+        debug_StdPrintfDummy("isys:null GObjProcess\n");
         return;
     }
     if (p->next == 0 && p->prev == 0) {

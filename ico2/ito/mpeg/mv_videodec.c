@@ -13,8 +13,6 @@ extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, const char *expr);
 extern void *memset(void *p, int c, int n);
 extern int D_0063A468;
-extern char D_00557708[];
-extern char D_00557728[];
 extern int sceMpegCreate(void *self, void *buf, int size);
 extern int sceMpegAddCallback(void *self, int id, void *fn, void *arg);
 extern int viBufCreate(void *self);
@@ -28,10 +26,10 @@ int videoDecCreate(int self)
 {
     int p;
 
-    p = iosMallocAlignDebug(D_0063A468, 0x1C8200, 0x40, D_00557708, 0x2B);
+    p = iosMallocAlignDebug(D_0063A468, 0x1C8200, 0x40, "../ito/include/mv_defs.h", 0x2B);
     if (p == 0) {
-        debug_assert(D_00557708, 0x2C);
-        __assert(D_00557708, 0x2C, D_00557728);
+        debug_assert("../ito/include/mv_defs.h", 0x2C);
+        __assert("../ito/include/mv_defs.h", 0x2C, "p != NULL");
     }
     memset((void *)p, 0, 0x1C8200);
     *(int *)(self + 0x48) = p;
@@ -101,7 +99,6 @@ typedef struct ViTs {
 
 extern int viBufPutTs(void *self, ViTs *ts);
 extern void ErrMessage(char *msg);
-extern char D_00557738[];
 
 int videoCallback(int a0, char *pkt, int *a2)
 {
@@ -132,7 +129,7 @@ int videoCallback(int a0, char *pkt, int *a2)
         ts.pos = (int)p0 - *(int *)(dec + 0x50);
         ts.len = n;
         if (viBufPutTs((void *)(dec + 0x50), &ts) == 0) {
-            ErrMessage(D_00557738);
+            ErrMessage("pts buffer overflow\n");
         }
     }
     videoDecEndPut(dec, n);
@@ -148,9 +145,6 @@ extern void voBufIncCount(int *vo);
 extern void sceMpegReset(int *dec);
 extern void dispSetTags(int *disp, int a1, int a2, int a3, int p4, int p5, int p6, int p7, int p8,
                         int p9);
-extern char D_00557750[];
-extern char D_00557768[];
-extern char D_00557790[];
 
 int decBitStrm0(int *dec, int *disp, int *vo)
 {
@@ -169,19 +163,19 @@ int decBitStrm0(int *dec, int *disp, int *vo)
            one-line body is written out here (INTERIM: the dev's file had it above) */
         if (dec[0xB8 / 4] == 1) {
             ret = -1;
-            debug_StdPrintfDummy(D_00557750);
+            debug_StdPrintfDummy("decode thread: aborted\n");
             break;
         }
         while ((p = voBufGetData(vo)) == 0) {
             switchThread();
         }
         if (sceMpegGetPicture(dec, p, 0x654) < 0) {
-            ErrMessage(D_00557768);
+            ErrMessage("sceMpegGetPicture() decode error");
             ret = -1;
             break;
         }
         if (dec[2] == 0) {
-            debug_StdPrintfDummy(D_00557790, dec[0], dec[1]);
+            debug_StdPrintfDummy("movie %d x %d\n", dec[0], dec[1]);
             w = dec[0];
             ox = (disp[0x38 / 4] - w) >> 1;
             h = dec[1];

@@ -2,7 +2,15 @@
 
 extern int D_006C0928[];
 extern char D_003089C0[];
-extern int D_005D3B58[];
+
+static const int actPara_MakeTblTbl[100] = {
+    3,    5,   6,    1147, 554,  555,  556,  1147, 563,  564,  1147, 576,  1147, 580, 581,
+    1147, 563, 564,  555,  1147, 563,  564,  554,  555,  1147, 563,  564,  554,  555, 556,
+    1147, 563, 564,  554,  555,  556,  1147, 841,  842,  1147, 843,  844,  845,  846, 1147,
+    927,  928, 1147, 927,  928,  929,  930,  931,  932,  1147, 927,  928,  929,  930, 931,
+    932,  933, 934,  935,  936,  1147, 927,  933,  934,  935,  936,  1147, 897,  898, 1147,
+    899,  900, 1147, 901,  902,  1147, 903,  904,  1147, 906,  907,  1147, 909,  910, 1147,
+    848,  849, 850,  851,  1147, 955,  956,  957,  1147, 0};
 
 /* listing lines 23-80.  The helper's rows (28-55) sit INSIDE this function's
    own line span and below its head, so it is a GNU nested function of the
@@ -21,18 +29,18 @@ void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n)
             int m = idx;
             int k = 0;
 
-            if (D_005D3B58[m] != 0x47B) {
+            if (actPara_MakeTblTbl[m] != 0x47B) {
                 do {
                     m++;
                     k++;
-                } while (D_005D3B58[m] != 0x47B);
+                } while (actPara_MakeTblTbl[m] != 0x47B);
             }
             if (k == 0) {
                 v = 0x47B;
             } else {
                 int e = idx + n % k;
 
-                v = D_005D3B58[e];
+                v = actPara_MakeTblTbl[e];
             }
         }
         return v;

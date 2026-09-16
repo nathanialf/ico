@@ -39,8 +39,6 @@ extern void soundSeDefStop(int handle);
 extern void iosPadActRequest(int a0, int a1);
 /* st09a.o's own .rodata run 0x00622DA0..0x00622DE0 (no MAIN.MAP symbols):
    the two hint-finished debug strings. */
-extern char D_00622DA0[];
-extern char D_00622DC0[];
 extern int gflagChk(int a0);
 extern int D_0063AA08;
 extern Act *actInitialize(int a0);
@@ -55,21 +53,37 @@ extern void actSt09aHint1Chk(volatile int a0);
 extern void actSt09aHint2Chk(volatile int a0);
 /* st09a.o's own .data run 0x004FA2F0..0x004FA480 (no MAIN.MAP symbols):
    actor mail packets. */
-extern ActMail D_004FA310[];
-extern ActMail D_004FA390[];
-extern float D_004FA3B0[]; /* the sekizou SE position, (1548, -412, -608) */
-extern ActMail D_004FA3C0[];
-extern ActMail D_004FA3E0[];
-extern ActMail D_004FA2F0[];
-extern ActMail D_004FA330[];
-extern ActMail D_004FA350[];
+extern void actSt09aBrgSwitch(volatile int a0);
+extern void actSt09aElvSwitch(volatile int a0);
+
+static ActMail elvMain_mes[2] = {{406, actSt09aElvSwitch}, {429}};
+
+static ActMail elv_mes[2] = {{430}, {429}};
+
+static ActMail elvSwitchUp_mes[2] = {{430}, {429}};
+
+static ActMail elvSwitchDown_mes[2] = {{430}, {429}};
+
+static ActMail elvDown_mes[2] = {{430}, {429}};
+
+static ActMail elvUp_mes[2] = {{430}, {429}};
+
+static float sekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f};
+
+static ActMail intro_mes[2] = {{430}, {429}};
+
+static ActMail brgMain_mes[2] = {{407, actSt09aBrgSwitch}, {429}};
+
+static ActMail brg_mes[2] = {{430}, {429}};
+
+static ActMail brgSwitch_mes[2] = {{430}, {429}};
+
+static ActMail hint1_mes[2] = {{430}, {429}};
+
+static ActMail hint2_mes[2] = {{430}, {429}};
+
 extern void actSt09aElvUp(volatile int a0);
 extern void actSt09aElvDown(volatile int a0);
-extern ActMail D_004FA400[];
-extern ActMail D_004FA420[];
-extern ActMail D_004FA440[];
-extern ActMail D_004FA460[];
-extern ActMail D_004FA370[];
 extern int st09a_brg;
 extern int D_0028F8F4[];
 extern void actSt09aBrgDownSub(volatile int a0);
@@ -121,8 +135,8 @@ void actSt09aElvDown(volatile int a0)
 
     lt_switch_layout(0x36);
 
-    D_004FA370[0].func = actSt09aElvMain;
-    self->mail = D_004FA370;
+    elvDown_mes[0].func = actSt09aElvMain;
+    self->mail = elvDown_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -184,8 +198,8 @@ void actSt09aElv(volatile int a0)
         stage_SetAnimation(0x177, 0, 0);
     }
 
-    D_004FA310[0].func = actSt09aElvMain;
-    self->mail = D_004FA310;
+    elv_mes[0].func = actSt09aElvMain;
+    self->mail = elv_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -197,9 +211,9 @@ void actSt09aSekizo(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    soundSeDefPlay(0x542, 0, D_004FA3B0, 1);
-    soundSeDefPlay(0x543, 0, D_004FA3B0, 1);
-    soundSeDefPlay(0x544, 0, D_004FA3B0, 1);
+    soundSeDefPlay(0x542, 0, sekizoPos, 1);
+    soundSeDefPlay(0x543, 0, sekizoPos, 1);
+    soundSeDefPlay(0x544, 0, sekizoPos, 1);
 
     scpSekizou(a0, 0x54, 0x178, 0, 0x12, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
 }
@@ -212,8 +226,8 @@ void actSt09aIntro(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x55) == 0) {
-        D_004FA3C0[0].func = actSt09aIntroChk;
-        self->mail = D_004FA3C0;
+        intro_mes[0].func = actSt09aIntroChk;
+        self->mail = intro_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -227,8 +241,8 @@ void actSt09aBrg(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x56) == 0) {
-        D_004FA400[0].func = actSt09aBrgMain;
-        self->mail = D_004FA400;
+        brg_mes[0].func = actSt09aBrgMain;
+        self->mail = brg_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -242,8 +256,8 @@ void actSt09aHint1(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x57) == 0) {
-        D_004FA440[0].func = actSt09aHint1Chk;
-        self->mail = D_004FA440;
+        hint1_mes[0].func = actSt09aHint1Chk;
+        self->mail = hint1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -259,8 +273,8 @@ void actSt09aHint2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x58) == 0) {
-        D_004FA460[0].func = actSt09aHint2Chk;
-        self->mail = D_004FA460;
+        hint2_mes[0].func = actSt09aHint2Chk;
+        self->mail = hint2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -274,7 +288,7 @@ void actSt09aElvMain(volatile int a0)
 
     D_0063AA08 = 0;
 
-    sub->mainMail = D_004FA2F0;
+    sub->mainMail = elvMain_mes;
 
     while (1) {
         _ACTWait(1);
@@ -290,14 +304,14 @@ void actSt09aElvSwitch(volatile int a0)
     sub->mainMail = 0;
 
     if (gflagChk(0x53) != 0) {
-        D_004FA330[0].func = actSt09aElvUp;
-        sub->mail = D_004FA330;
+        elvSwitchUp_mes[0].func = actSt09aElvUp;
+        sub->mail = elvSwitchUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 
-    D_004FA350[0].func = actSt09aElvDown;
-    sub->mail = D_004FA350;
+    elvSwitchDown_mes[0].func = actSt09aElvDown;
+    sub->mail = elvSwitchDown_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -326,8 +340,8 @@ void actSt09aElvUp(volatile int a0)
 
     lt_switch_layout(0x36);
 
-    D_004FA390[0].func = actSt09aElvMain;
-    self->mail = D_004FA390;
+    elvUp_mes[0].func = actSt09aElvMain;
+    self->mail = elvUp_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -361,7 +375,7 @@ void actSt09aBrgMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004FA3E0;
+    sub->mainMail = brgMain_mes;
 
     while (1) {
         _ACTWait(1);
@@ -376,8 +390,8 @@ void actSt09aBrgSwitch(volatile int a0)
 
     sub->mainMail = 0;
 
-    D_004FA420[0].func = actSt09aBrgDown;
-    sub->mail = D_004FA420;
+    brgSwitch_mes[0].func = actSt09aBrgDown;
+    sub->mail = brgSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -415,7 +429,7 @@ void actSt09aHint1Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    debug_StdPrintfDummy(D_00622DA0);
+    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
 
     gflagOn(0x57);
     FinishHint(0xA);
@@ -427,7 +441,7 @@ void actSt09aHint2Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    debug_StdPrintfDummy(D_00622DC0);
+    debug_StdPrintfDummy("HINT2_FINISH!!!!!!!!!!!!!!!\n");
 
     gflagOn(0x58);
     FinishHint(0xB);

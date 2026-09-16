@@ -119,7 +119,48 @@ extern void actSt07aChanMot(volatile int a0);
 extern void actSt07aChanFall(volatile int a0);
 extern void AdpcmPlay(int handle);
 extern void scpTorchLightOn(int a0);
-extern long long D_00622C60[];
+
+/* A 16-byte constant vector: the float view carries the values, the long
+   long view is the one the whole-object copy reads. */
+typedef union EffectArg {
+    float f[4];
+    long long lo[2];
+} EffectArg;
+
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads, which is what makes gcc
+   emit the ld/sd pair the ROM has. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+static const ConstVec chanChkPos = {{10000.0f, 0.0f, 0.0f, 1.0f}};
+
+static const ConstVec chanWay1Pos = {{-875.0f, 77.0f, -958.0f, 0.0f}};
+
+static const ConstVec chanWay2Pos = {{-264.0f, 1277.0f, -292.0f, 0.0f}};
+
+static const ConstVec tsuroChkPos = {{-123.0f, -72.0f, -945.0f, 0.0f}};
+
+static const EffectArg tsuroEffectPos = {{-1793.0f, 132.0f, -942.0f, 1.0f}};
+
+static const EffectArg tsuroEffect2Pos = {{-2406.0f, 182.0f, -975.0f, 1.0f}};
+
+static const EffectArg tsuroEffect3Pos = {{-1005.0f, 1349.0f, -493.0f, 1.0f}};
+
+static const EffectArg tsuroEffect4Pos = {{-1320.0f, 1346.0f, -806.0f, 1.0f}};
+
+static const EffectArg tsuroEffect5Pos = {{-1885.0f, 1360.0f, -842.0f, 1.0f}};
+
+static const EffectArg tsuroEffect6Pos = {{-1864.0f, 1360.0f, -1106.0f, 1.0f}};
+
+static const EffectArg tsuroEffect7Pos = {{-1327.0f, 1327.0f, -1141.0f, 1.0f}};
+
+static const EffectArg tsuroEffect8Pos = {{-1223.0f, 1325.0f, -1101.0f, 1.0f}};
+
+static const EffectArg tsuroEffect9Pos = {{-1273.0f, 1325.0f, -873.0f, 1.0f}};
+
 extern int bridge;
 
 void actSt07aChanChk(volatile int a0)
@@ -214,8 +255,8 @@ void actSt07aChanChk(volatile int a0)
         iosThreadSetPri(hFall + 0x24, 0x22);
     }
 
-    buf[0] = D_00622C60[0];
-    buf[1] = D_00622C60[1];
+    buf[0] = chanChkPos.d[0];
+    buf[1] = chanChkPos.d[1];
     sceVu0SubVector(dir, buf, test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
 
@@ -303,7 +344,6 @@ extern int ReviveAllCarryableItemsWithRandomVelocity(float a0, float a1);
 extern int sekizo7a;
 extern int D_0063C560;
 extern int D_0063AA08;
-extern long long D_00622C90[];
 
 void actSt07aTsuroChk(volatile int a0)
 {
@@ -372,8 +412,8 @@ void actSt07aTsuroChk(volatile int a0)
         _ACTWait(2);
 
         if (hGirl != 0) {
-            buf[0] = D_00622C90[0];
-            buf[1] = D_00622C90[1];
+            buf[0] = tsuroChkPos.d[0];
+            buf[1] = tsuroChkPos.d[1];
             SetDirectRootPosition(D_00639EA8, buf);
         }
 
@@ -403,20 +443,6 @@ void actSt07aTsuroChk(volatile int a0)
     scpTorchLightOff(0x1B0);
 }
 
-typedef struct EffectArg {
-    long long lo; /* 0x00 */
-    long long hi; /* 0x08 */
-} EffectArg;
-
-extern const EffectArg D_00622CA0;
-extern const EffectArg D_00622CB0;
-extern const EffectArg D_00622CC0;
-extern const EffectArg D_00622CD0;
-extern const EffectArg D_00622CE0;
-extern const EffectArg D_00622CF0;
-extern const EffectArg D_00622D00;
-extern const EffectArg D_00622D10;
-extern const EffectArg D_00622D20;
 extern int D_0028F4C0[];
 extern int scpEffectStart(void *a0, int a1);
 extern int iosPadActRequest(int port, int id);
@@ -443,13 +469,13 @@ void actSt07aTsuroEffect(volatile int a0)
     do {
         switch ((int)t) {
         case 212:
-            b1 = D_00622CA0;
+            b1 = tsuroEffectPos;
             scpEffectStart(&b1, 13);
-            b2 = D_00622CA0;
+            b2 = tsuroEffectPos;
             scpEffectStart(&b2, 15);
             break;
         case 438:
-            b3 = D_00622CB0;
+            b3 = tsuroEffect2Pos;
             scpEffectStart(&b3, 13);
             break;
         case 465:
@@ -462,24 +488,24 @@ void actSt07aTsuroEffect(volatile int a0)
             break;
         case 505:
             ReviveAllCarryableItemsWithRandomVelocity(-5.0f, 0.0f);
-            b4 = D_00622CC0;
+            b4 = tsuroEffect3Pos;
             scpEffectStart(&b4, 15);
             iosPadActRequest(D_00639EAC, 15);
             break;
         case 510:
-            b5 = D_00622CD0;
+            b5 = tsuroEffect4Pos;
             scpEffectStart(&b5, 11);
-            b6 = D_00622CE0;
+            b6 = tsuroEffect5Pos;
             scpEffectStart(&b6, 15);
-            b7 = D_00622CF0;
+            b7 = tsuroEffect6Pos;
             scpEffectStart(&b7, 15);
-            b8 = D_00622D00;
+            b8 = tsuroEffect7Pos;
             scpEffectStart(&b8, 11);
             break;
         case 560:
-            b9 = D_00622D10;
+            b9 = tsuroEffect8Pos;
             scpEffectStart(&b9, 15);
-            b10 = D_00622D20;
+            b10 = tsuroEffect9Pos;
             scpEffectStart(&b10, 15);
             break;
         }
@@ -619,7 +645,22 @@ void actSt07aSekizoChk(volatile int a0)
 }
 
 extern void actSt07aEneChk(volatile int a0);
-extern ActMail D_004F9FE0[];
+
+static ActMail chanReady_mes[2] = {{430}, {429}};
+
+static ActMail chanChain_mes[2] = {{430}, {429}};
+
+static ActMail chan_mes[2] = {{430}, {429}};
+
+static ActMail tsuro_mes[2] = {{430}, {429}};
+
+static ActMail intro_mes[2] = {{430}, {429}};
+
+static ActMail sekizo_mes[2] = {{430}, {429}};
+
+static ActMail ene_mes[2] = {{430}, {429}};
+
+static ActMail ene2_mes[2] = {{430}, {429}};
 
 void actSt07aEne(volatile int a0)
 {
@@ -641,8 +682,8 @@ void actSt07aEne(volatile int a0)
         scpSearchGobj(0x19F)->f16C = 0;
         scpSearchGobj(0x1A0)->f16C = 0;
 
-        D_004F9FE0[0].func = actSt07aEneChk;
-        self->mail = D_004F9FE0;
+        ene_mes[0].func = actSt07aEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -746,7 +787,6 @@ void actSt07aGene1(volatile int a0)
 }
 
 extern void actSt07aChanChk(volatile int a0);
-extern ActMail D_004F9F60[];
 
 void actSt07aChan(volatile int a0)
 {
@@ -764,15 +804,14 @@ void actSt07aChan(volatile int a0)
     } else {
         scpTorchLightOff(0x1AF);
         scpTorchLightOff(0x1B0);
-        D_004F9F60[0].func = actSt07aChanChk;
-        self->mail = D_004F9F60;
+        chan_mes[0].func = actSt07aChanChk;
+        self->mail = chan_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
 
 extern void actSt07aChanReadyChk(volatile int a0);
-extern ActMail D_004F9F20[];
 
 void actSt07aChanReady(volatile int a0)
 {
@@ -782,15 +821,14 @@ void actSt07aChanReady(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x7E) == 0) {
-        D_004F9F20[0].func = actSt07aChanReadyChk;
-        self->mail = D_004F9F20;
+        chanReady_mes[0].func = actSt07aChanReadyChk;
+        self->mail = chanReady_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
 
 extern void actSt07aChanChainChk(volatile int a0);
-extern ActMail D_004F9F40[];
 
 void actSt07aChanChain(volatile int a0)
 {
@@ -800,8 +838,8 @@ void actSt07aChanChain(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x7F) == 0) {
-        D_004F9F40[0].func = actSt07aChanChainChk;
-        self->mail = D_004F9F40;
+        chanChain_mes[0].func = actSt07aChanChainChk;
+        self->mail = chanChain_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -810,7 +848,6 @@ void actSt07aChanChain(volatile int a0)
 }
 
 extern void actSt07aTsuroChk(volatile int a0);
-extern ActMail D_004F9F80[];
 
 void actSt07aTsuro(volatile int a0)
 {
@@ -820,8 +857,8 @@ void actSt07aTsuro(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x80) == 0) {
-        D_004F9F80[0].func = actSt07aTsuroChk;
-        self->mail = D_004F9F80;
+        tsuro_mes[0].func = actSt07aTsuroChk;
+        self->mail = tsuro_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -830,7 +867,6 @@ void actSt07aTsuro(volatile int a0)
 }
 
 extern void actSt07aIntroChk(volatile int a0);
-extern ActMail D_004F9FA0[];
 
 void actSt07aIntro(volatile int a0)
 {
@@ -840,15 +876,14 @@ void actSt07aIntro(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x81) == 0) {
-        D_004F9FA0[0].func = actSt07aIntroChk;
-        self->mail = D_004F9FA0;
+        intro_mes[0].func = actSt07aIntroChk;
+        self->mail = intro_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
 
 extern void actSt07aSekizoChk(volatile int a0);
-extern ActMail D_004F9FC0[];
 
 void actSt07aSekizo(volatile int a0)
 {
@@ -859,8 +894,8 @@ void actSt07aSekizo(volatile int a0)
 
     if (gflagChk(0x82) == 0) {
         stage_SetAnimation(0x16A, 0, 0);
-        D_004F9FC0[0].func = actSt07aSekizoChk;
-        self->mail = D_004F9FC0;
+        sekizo_mes[0].func = actSt07aSekizoChk;
+        self->mail = sekizo_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -917,7 +952,6 @@ void actSt07aGene3(volatile int a0)
 }
 
 extern void actSt07aEne2Chk(volatile int a0);
-extern ActMail D_004FA000[];
 
 void actSt07aEne2(volatile int a0)
 {
@@ -927,8 +961,8 @@ void actSt07aEne2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x86) == 0) {
-        D_004FA000[0].func = actSt07aEne2Chk;
-        self->mail = D_004FA000;
+        ene2_mes[0].func = actSt07aEne2Chk;
+        self->mail = ene2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1075,26 +1109,23 @@ void actSt07aChanMot(volatile int a0)
     _ACTWait(0);
 }
 
-extern long long D_00622C70[];
 extern int D_00639EA8;
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 
 void actSt07aChanWay1(volatile unsigned int a0)
 {
     long long buf[2];
-    buf[0] = D_00622C70[0];
-    buf[1] = D_00622C70[1];
+    buf[0] = chanWay1Pos.d[0];
+    buf[1] = chanWay1Pos.d[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
 
-extern long long D_00622C80[];
-
 void actSt07aChanWay2(volatile unsigned int a0)
 {
     long long buf[2];
-    buf[0] = D_00622C80[0];
-    buf[1] = D_00622C80[1];
+    buf[0] = chanWay2Pos.d[0];
+    buf[1] = chanWay2Pos.d[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
@@ -1123,13 +1154,11 @@ void actSt07aTsuroConte(volatile int a0)
     _ACTWait(0);
 }
 
-extern long long D_00622C90[];
-
 void actSt07aGirlWay(volatile unsigned int a0)
 {
     long long buf[2];
-    buf[0] = D_00622C90[0];
-    buf[1] = D_00622C90[1];
+    buf[0] = tsuroChkPos.d[0];
+    buf[1] = tsuroChkPos.d[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }

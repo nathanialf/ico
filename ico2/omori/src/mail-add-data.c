@@ -9,9 +9,6 @@
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern int iosOmSendMail(char *gop, int msg, void *sender);
-extern char D_005556B8[];
-extern char D_005556D0[];
-extern char D_005556E0[];
 
 typedef struct MailAddEntry {
     /* 0x0 */ int mail;
@@ -34,8 +31,8 @@ static inline int sendMailAndGetIndex(char *gop, int msg, void *sender)
 static inline MailAdditionalData *getMailAdditionalDataTable(char *gop)
 {
     if (*(int *)(gop + 0x164) == 0) {
-        debug_assert(D_005556B8, 71);
-        __assert(D_005556B8, 71, D_005556D0);
+        debug_assert("src/mail-add-data.c", 71);
+        __assert("src/mail-add-data.c", 71, "GOBJ_VAL(gop)");
     }
     return *(MailAdditionalData **)(*(char **)(gop + 0x164) + 0x684);
 }
@@ -56,8 +53,8 @@ inline int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void
     }
     p = getMailAdditionalDataTable(gop);
     if (p->num >= 10) {
-        debug_assert(D_005556B8, 95);
-        __assert(D_005556B8, 95, D_005556E0);
+        debug_assert("src/mail-add-data.c", 95);
+        __assert("src/mail-add-data.c", 95, "mad_all->current_count<MAIL_ADDITIONAL_DATA_MAX");
     }
     p->e[p->num].mail = idx;
     p->e[p->num].data = data;

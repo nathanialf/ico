@@ -1,6 +1,5 @@
 #include "common.h"
 
-extern char D_00621D40[];
 extern void debug_StdPrintfDummy();
 extern void debug_StdPrintfDummy(void *a0);
 extern void GetRootPosition(void *out, void *obj);
@@ -11,7 +10,7 @@ void setMailTarget(int a0, int *a1, int *a2)
 {
     int v = *a2;
     if (v >= 0x10) {
-        debug_StdPrintfDummy(D_00621D40);
+        debug_StdPrintfDummy("seMail: gobj buff over\n");
         return;
     }
     *a2 = v + 1;

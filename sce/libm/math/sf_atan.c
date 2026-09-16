@@ -28,9 +28,26 @@ extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
 extern float fabsf(float x);
-extern const float D_006379D0[]; /* atanhi[4] */
-extern const float D_006379E0[]; /* atanlo[4] */
-extern const float D_006379F0[]; /* aT[11]   */
+
+static const float atanhi[] = {
+    0.46364760398864746f,
+    0.7853981256484985f,
+    0.9827936887741089f,
+    1.570796251296997f,
+};
+
+static const float atanlo[] = {
+    5.01215824399992e-09f,
+    3.774894707930798e-08f,
+    3.447321716976148e-08f,
+    7.549789415861596e-08f,
+};
+
+static const float aT[] = {
+    0.3333333432674408f,   -0.20000000298023224f, 0.1428571492433548f,   -0.1111111044883728f,
+    0.09090887010097504f,  -0.07691875845193863f, 0.06661073118448257f,  -0.05833570286631584f,
+    0.049768779426813126f, -0.03653157129883766f, 0.016285819932818413f,
+};
 
 float atanf(float x)
 {
@@ -44,9 +61,9 @@ float atanf(float x)
             return x + x;
         }
         if (hx > 0) {
-            return D_006379D0[3] + D_006379E0[3];
+            return atanhi[3] + atanlo[3];
         } else {
-            return -D_006379D0[3] - D_006379E0[3];
+            return -atanhi[3] - atanlo[3];
         }
     }
     if (ix < 0x3ee00000) {
@@ -78,15 +95,11 @@ float atanf(float x)
     }
     z = x * x;
     w = z * z;
-    s1 = z * (D_006379F0[0] +
-              w * (D_006379F0[2] +
-                   w * (D_006379F0[4] +
-                        w * (D_006379F0[6] + w * (D_006379F0[8] + w * D_006379F0[10])))));
-    s2 = w * (D_006379F0[1] +
-              w * (D_006379F0[3] + w * (D_006379F0[5] + w * (D_006379F0[7] + w * D_006379F0[9]))));
+    s1 = z * (aT[0] + w * (aT[2] + w * (aT[4] + w * (aT[6] + w * (aT[8] + w * aT[10])))));
+    s2 = w * (aT[1] + w * (aT[3] + w * (aT[5] + w * (aT[7] + w * aT[9]))));
     if (id < 0) {
         return x - x * (s1 + s2);
     }
-    z = D_006379D0[id] - ((x * (s1 + s2) - D_006379E0[id]) - x);
+    z = atanhi[id] - ((x * (s1 + s2) - atanlo[id]) - x);
     return (hx < 0) ? -z : z;
 }

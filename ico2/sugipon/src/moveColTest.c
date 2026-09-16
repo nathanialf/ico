@@ -3,14 +3,13 @@
 /* prototypes: their order is the inline tail's emission order */
 short *InitMoveColTestGeo(int a0, int *self);
 extern void p2o_DispVU1();
-extern char D_00620898[];
 extern int D_0063A438;
 extern short *iosMallocDebug(int handle, int size, char *file, int line);
 extern int rand(void);
 
 inline short *InitMoveColTestGeo(int a0, int *self)
 {
-    short *r = iosMallocDebug(D_0063A438, 12, (char *)D_00620898, 0x1C);
+    short *r = iosMallocDebug(D_0063A438, 12, "src/moveColTest.c", 28);
     *(int *)r = self[0x30 / 4];
     r[2] = (short)rand();
     r[3] = (short)rand();
@@ -41,7 +40,6 @@ extern EditPad D_0028F8F0;
 extern unsigned char D_0063BA78;
 extern int D_0063BA7C;
 extern char D_0063BA80[];
-extern char D_006208B0[];
 extern int D_00639EA4;
 extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_RotMatrixZ(int a0);
@@ -81,7 +79,7 @@ void MoveColTestGeo(char *self)
         }
     }
     if ((D_0063BA78++ >> 5) & 1) {
-        debug_PrintfDummy(0xA, 0x3C, 0x4080FF00, D_006208B0);
+        debug_PrintfDummy(0xA, 0x3C, 0x4080FF00, "PUSH R3 TO BORN SPIDER.");
     }
 
     GetRootPosition(pos, D_00639EA4);

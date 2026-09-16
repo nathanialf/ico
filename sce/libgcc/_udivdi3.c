@@ -41,7 +41,19 @@ typedef union {
 #define __ll_highpart(t) ((USItype)(t) / __ll_B)
 
 /* the leading-zero byte table libgcc2 shares between the division members */
-extern const unsigned char D_00637C38[];
+/* longlong.h's count-leading-zeros table.  Each 64-bit division member carries
+   its own copy: the file is compiled from libgcc2.c once per entry point, so the
+   table lands in every one of the four objects. */
+static const unsigned char __clz_tab[256] = {
+    0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+};
 
 /* count_leading_zeros is longlong.h's generic C form, kept whole: the dead
  * `else` branch for word sizes above 32 never emits code, but its loop notes
@@ -63,7 +75,7 @@ extern const unsigned char D_00637C38[];
                     break;                                                                         \
         }                                                                                          \
                                                                                                    \
-        (count) = SI_TYPE_SIZE - (D_00637C38[__xr >> __a] + __a);                                  \
+        (count) = SI_TYPE_SIZE - (__clz_tab[__xr >> __a] + __a);                                   \
     } while (0)
 #define umul_ppmm(w1, w0, u, v)                                                                    \
     __asm__("multu %2,%3"                                                                          \

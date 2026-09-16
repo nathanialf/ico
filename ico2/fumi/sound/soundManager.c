@@ -10,9 +10,6 @@ extern unsigned char D_005F5D50[];
 extern void adpcmPauseRequest(int val);
 extern void soundReverbDepthSet(int a0);
 extern void soundSeKindBuild(int idx);
-extern char D_005523A8[];
-extern char D_005523C0[];
-extern char D_005523D0[];
 extern int IosStgMgrLock;
 extern int mpegPlay;
 extern void debug_StdPrintfDummy();
@@ -33,9 +30,9 @@ inline void sndManager(void)
     int mode;
 
     mode = -1;
-    debug_StdPrintfDummy(D_005523A8);
-    debug_StdPrintfDummy(D_005523C0, IosStgMgrLock);
-    debug_StdPrintfDummy(D_005523D0);
+    debug_StdPrintfDummy("sound manager in\n");
+    debug_StdPrintfDummy("IosSndLock %d\n", IosStgMgrLock);
+    debug_StdPrintfDummy("SOUND MANAGER START\n");
     while (1) {
         iosThreadCancelWakeup(0);
         iosThreadSleep();

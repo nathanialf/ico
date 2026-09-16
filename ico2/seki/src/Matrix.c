@@ -464,7 +464,6 @@ inline void _InverseCurrentMatrix(void)
 }
 
 extern int D_0063A0E8;
-extern char D_0054F1C8[];
 extern char D_0063A0F0[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
@@ -506,8 +505,8 @@ void _PushVu0Registers(void)
     EI();
 
     if (++D_0063A0E8 >= 6) {
-        debug_assert(D_0054F1C8, 0x427);
-        __assert(D_0054F1C8, 0x427, D_0063A0F0);
+        debug_assert("src/Matrix.c", 1063);
+        __assert("src/Matrix.c", 1063, D_0063A0F0);
     }
 }
 
@@ -548,8 +547,8 @@ void _PopVu0Registers(void)
     EI();
 
     if (--D_0063A0E8 < 0) {
-        debug_assert(D_0054F1C8, 0x45F);
-        __assert(D_0054F1C8, 0x45F, D_0063A0F0);
+        debug_assert("src/Matrix.c", 1119);
+        __assert("src/Matrix.c", 1119, D_0063A0F0);
     }
 }
 

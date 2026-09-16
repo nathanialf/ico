@@ -110,8 +110,6 @@ extern float FSqrt(float x);
 extern int D_0028F4C0[];
 extern int D_004DA7D0[];
 extern unsigned int gamesysTimeCount;
-extern long long D_004DA9C0;
-extern unsigned short D_004DA9C4;
 extern int D_00639EA8;
 extern int warpGirlInStageSet;
 extern char D_0063ACF8[];

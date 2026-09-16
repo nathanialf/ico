@@ -58,13 +58,6 @@ extern int signal_handler(int a0);
 extern int D_0063A42C;
 extern int *D_0063A530;
 extern int D_006BC938[];
-extern char D_00551A60[];
-extern char D_00551A70[];
-extern char D_00551A80[];
-extern char D_00551A98[];
-extern char D_00551AA8[];
-extern char D_00551AC0[];
-extern char D_00551AD0[];
 extern char D_0063A510[];
 extern char D_0063A518[];
 extern char D_0063A520[];
@@ -95,19 +88,19 @@ void iosMsgQueueCreate(IosMsgQueue *q, int *buf, int size)
     q->sem.attr = 1;
     q->sema = CreateSema(&q->sem);
     if (q->sema < 0) {
-        debug_assert(D_00551A60, 0x78);
-        __assert(D_00551A60, 0x78, D_0063A510);
+        debug_assert("ios/message.c", 120);
+        __assert("ios/message.c", 120, D_0063A510);
     }
     ((IosMsgQueue **)D_006BC938)[q->sema] = q;
-    debug_StdPrintfDummy(D_00551A70, q->sema, q);
+    debug_StdPrintfDummy("sema[%d] = %p\n", q->sema, q);
 }
 
 void iosMsgQueueDestroy(IosMsgQueue *q)
 {
     debug_StdPrintfDummy(D_0063A518, q);
     if (q->sema < 0) {
-        debug_assert(D_00551A60, 0x88);
-        __assert(D_00551A60, 0x88, D_0063A510);
+        debug_assert("ios/message.c", 136);
+        __assert("ios/message.c", 136, D_0063A510);
     }
     ((IosMsgQueue **)D_006BC938)[q->sema] = 0;
     DeleteSema(q->sema);
@@ -122,14 +115,14 @@ static inline int msgSend(IosMsgQueue *q, int val, int mode)
     int st[8];
 
     if (q == 0) {
-        debug_StdPrintfDummy(D_00551A80);
-        debug_assert(D_00551A60, 0x125);
-        __assert(D_00551A60, 0x125, D_0063A510);
+        debug_StdPrintfDummy("msg:null message queue\n");
+        debug_assert("ios/message.c", 293);
+        __assert("ios/message.c", 293, D_0063A510);
     }
     ReferSemaStatus(q->sema, st);
     if (q->num == st[1]) {
         if (mode != 1) {
-            debug_StdPrintfDummy(D_00551A98);
+            debug_StdPrintfDummy("MSG NO SEND\n");
             return -1;
         }
         WaitSema(q->sema);
@@ -162,19 +155,19 @@ void iosMsgSetEvent(int intc, IosMsgQueue *q, int val)
     int ret;
 
     if (q == 0) {
-        debug_StdPrintfDummy(D_00551AA8);
+        debug_StdPrintfDummy("evt:null message queue\n");
     }
-    th = iosMallocDebug(D_0063A42C, 0x40C0, D_00551A60, 0x1C5);
+    th = iosMallocDebug(D_0063A42C, 0x40C0, "ios/message.c", 453);
     iosThreadCreate(th, 4, send_signal_message, (int)th, (char *)th + 0x70, 0x4000, 0xB);
     th->queue = q;
     th->val = val;
     th->intc = intc;
     iosThreadStart((int)th);
-    debug_StdPrintfDummy(D_00551AC0);
+    debug_StdPrintfDummy("where is here\n");
     AddIntcHandler(intc, signal_handler, -1);
     ret = EnableIntc(intc);
     debug_StdPrintfDummy(D_0063A528, ret);
-    debug_StdPrintfDummy(D_00551AD0);
+    debug_StdPrintfDummy("evt:signal added\n");
 }
 
 extern int D_006BC938[];
@@ -190,23 +183,20 @@ void iosMsgInit(void)
     }
 }
 
-extern char D_00551A80[];
-extern char D_00551A60[];
 extern char D_0063A510[];
-extern char D_00551A98[];
 
 int iosMsgSend(char *q, int val, int mode)
 {
     int st[8];
     if (q == 0) {
-        debug_StdPrintfDummy(D_00551A80);
-        debug_assert(D_00551A60, 0x125);
-        __assert(D_00551A60, 0x125, D_0063A510);
+        debug_StdPrintfDummy("msg:null message queue\n");
+        debug_assert("ios/message.c", 293);
+        __assert("ios/message.c", 293, D_0063A510);
     }
     ReferSemaStatus(*(int *)(q + 0x2C), st);
     if (*(int *)(q + 8) == st[1]) {
         if (mode != 1) {
-            debug_StdPrintfDummy(D_00551A98);
+            debug_StdPrintfDummy("MSG NO SEND\n");
             return -1;
         }
         WaitSema(*(int *)(q + 0x2C));
@@ -219,17 +209,15 @@ int iosMsgSend(char *q, int val, int mode)
     return 0;
 }
 
-extern char D_00551A80[];
-extern char D_00551A60[];
 extern char D_0063A510[];
 
 int iosMsgRecv(char *q, int *out, int mode)
 {
     int st[8];
     if (q == 0) {
-        debug_StdPrintfDummy(D_00551A80);
-        debug_assert(D_00551A60, 0x149);
-        __assert(D_00551A60, 0x149, D_0063A510);
+        debug_StdPrintfDummy("msg:null message queue\n");
+        debug_assert("ios/message.c", 329);
+        __assert("ios/message.c", 329, D_0063A510);
     }
     ReferSemaStatus(*(int *)(q + 0x2C), st);
     if (*(int *)(q + 8) == 0) {

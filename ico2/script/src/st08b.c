@@ -16,21 +16,53 @@ typedef struct Act {
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004FA210[];
+extern void actSt08bKurenSwitch(volatile int a0);
+
+static ActMail kurenMain_mes[2] = {{406, actSt08bKurenSwitch}, {429}};
+
+static ActMail kuren_mes[2] = {{430}, {429}};
+
+static ActMail kurenSwitch_mes[2] = {{430}, {429}};
+
+static ActMail doorDownchk_mes[2] = {{430}, {429}};
+
+static ActMail doorUpchk_mes[2] = {{430}, {429}};
+
+static ActMail doorUpChk_mes[2] = {{430}, {429}};
+
+static ActMail door_down_mes[2] = {{430}, {429}};
+
+static ActMail ene_mes[2] = {{430}, {429}};
+
 extern int gflagChk(int a0);
-extern ActMail D_004FA2D0[];
 extern void Generator_Mask(int a0);
 extern void Generator_MaskOff(int a0);
 extern void Generator_Call(int a0);
 extern int D_00639EA8;
 extern int D_0063AA08;
-extern int D_004FA1F0[];
 extern void scpPlayEnd(int a0);
 extern void scpPlayStart(int a0);
 extern void scpPlayMot(int a0, int mot);
 extern void scpPlayWaitMotEnd(int a0);
-extern long long D_00622D80[];
-extern long long D_00622D90[];
+
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads, which is what makes gcc
+   emit the ld/sd pair the ROM has. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+static const ConstVec kurenSwitchPos = {{248.0f, -2626.0f, 705.0f, 1.0f}};
+
+static const ConstVec kurenSwitch2Pos = {{280.0f, -3748.0f, 2416.0f, 1.0f}};
+
+static const ConstVec doorUpChkPos = {{-1319.0f, -2429.0f, -405.0f, 0.0f}};
+
+static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
+
+static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
+
 extern void scpEffectStart(int *buf, int a1);
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern void gflagOn(int a0);
@@ -64,20 +96,13 @@ typedef struct PadState {
 } PadState;
 
 extern PadState D_0028F8F0[];
-extern long long D_00622D50[];
-extern long long D_00622D60[];
-extern ActMail D_004FA230[];
 void actSt08bKurenLeft(volatile int a0);
 void actSt08bKurenRight(volatile int a0);
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern int D_00639EA4;
-extern long long D_00622D70[];
 /* The door-boundary X/Z corners live in the -G8 gp float pool and are written
    by the stage's layout/script side, so their loads may not sink into the jal
    delay slot; ROM has a nop at both call sites. */
-extern ActMail D_004FA250[];
-extern ActMail D_004FA270[];
-extern ActMail D_004FA290[];
 void actSt08bDoorUpChk(volatile int a0);
 void actSt08bDoorDownChk(volatile int a0);
 
@@ -112,8 +137,8 @@ inline void actSt08bKuren(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    D_004FA210[0].func = actSt08bKurenMain;
-    self->mail = D_004FA210;
+    kuren_mes[0].func = actSt08bKurenMain;
+    self->mail = kuren_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -126,7 +151,7 @@ inline void actSt08bKurenMain(volatile int a0)
     if (D_00639EA8 != 0) {
         scpPlayEnd(D_00639EA8);
     }
-    *(int *)(sub + 0xD0) = (int)D_004FA1F0;
+    *(int *)(sub + 0xD0) = (int)kurenMain_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -196,12 +221,12 @@ void actSt08bKurenSwitch(volatile int a0)
         if (th != 0) {
             scpPlayMot(D_00639EA8, 0x214);
             if (gflagChk(0x50) != 0) {
-                p1.ll[0] = D_00622D50[0];
-                p1.ll[1] = D_00622D50[1];
+                p1.ll[0] = kurenSwitchPos.d[0];
+                p1.ll[1] = kurenSwitchPos.d[1];
                 SetDirectRootPosition(D_00639EA8, &p1);
             } else {
-                p2.ll[0] = D_00622D60[0];
-                p2.ll[1] = D_00622D60[1];
+                p2.ll[0] = kurenSwitch2Pos.d[0];
+                p2.ll[1] = kurenSwitch2Pos.d[1];
                 p2.f[1] += *(float *)(*(int *)(*(int *)(D_00639EA8 + 0x15C) + 0x8C) + 0x14);
                 SetDirectRootPosition(D_00639EA8, &p2);
             }
@@ -230,8 +255,8 @@ void actSt08bKurenSwitch(volatile int a0)
         gflagOn(0x50);
     }
 
-    D_004FA230[0].func = actSt08bKurenMain;
-    sub->mail = D_004FA230;
+    kurenSwitch_mes[0].func = actSt08bKurenMain;
+    sub->mail = kurenSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -321,14 +346,14 @@ void actSt08bDoor(volatile int a0)
         (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
         stage_SetAnimation(0x174, 0, 0);
         _ACTWait(0x3C);
-        D_004FA250[0].func = actSt08bDoorDownChk;
-        self->mail = D_004FA250;
+        doorDownchk_mes[0].func = actSt08bDoorDownChk;
+        self->mail = doorDownchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x173, 0, 0);
-        D_004FA270[0].func = actSt08bDoorUpChk;
-        self->mail = D_004FA270;
+        doorUpchk_mes[0].func = actSt08bDoorUpChk;
+        self->mail = doorUpchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -350,8 +375,8 @@ void actSt08bDoorUpChk(volatile int a0)
 
     stage_SetAnimation(0x173, 1, 0);
 
-    buf[0] = D_00622D70[0];
-    buf[1] = D_00622D70[1];
+    buf[0] = doorUpChkPos.d[0];
+    buf[1] = doorUpChkPos.d[1];
     soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
     _ACTWait(0x1E);
     soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
@@ -363,8 +388,8 @@ void actSt08bDoorUpChk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_004FA290[0].func = actSt08bDoorDownChk;
-    sub->mail = D_004FA290;
+    doorUpChk_mes[0].func = actSt08bDoorDownChk;
+    sub->mail = doorUpChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -373,19 +398,19 @@ inline void actSt08bDoorUpEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_00622D80[0];
-    long long v0b = D_00622D90[0];
+    long long v0a = doorUpEffectPos.d[0];
+    long long v0b = doorUpEffect2Pos.d[0];
     int i;
     for (i = 0; i < 0x32; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_00622D80[1];
+            b1[1] = doorUpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_00622D90[1];
+            b2[1] = doorUpEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
             break;
         }
@@ -397,19 +422,19 @@ inline void actSt08bDoorDownEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_00622D90[0];
-    long long v0b = D_00622D80[0];
+    long long v0a = doorUpEffect2Pos.d[0];
+    long long v0b = doorUpEffectPos.d[0];
     int i;
     for (i = 0; i < 0x32; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_00622D90[1];
+            b1[1] = doorUpEffect2Pos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_00622D80[1];
+            b2[1] = doorUpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
             break;
         }
@@ -419,7 +444,6 @@ inline void actSt08bDoorDownEffect(volatile int a0)
 
 /* TU-owned mail record: role-named file static per the 2026-09-07 ruling,
    same shape as st17a's door_mes / st18a's switch_l_mes. */
-static ActMail door_down_mes[2] = {{430}, {429}};
 
 void actSt08bDoorDownChk(volatile int a0)
 {
@@ -437,8 +461,8 @@ void actSt08bDoorDownChk(volatile int a0)
 
     stage_SetAnimation(0x174, 1, 0);
 
-    buf[0] = D_00622D70[0];
-    buf[1] = D_00622D70[1];
+    buf[0] = doorUpChkPos.d[0];
+    buf[1] = doorUpChkPos.d[1];
     soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
     _ACTWait(0x1E);
     soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
@@ -463,8 +487,8 @@ inline void actSt08bEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x51) == 0) {
-        D_004FA2D0[0].func = actSt08bEneChk;
-        self->mail = D_004FA2D0;
+        ene_mes[0].func = actSt08bEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }

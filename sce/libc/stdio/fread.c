@@ -17,8 +17,6 @@ typedef struct {
     int len;   /* 0x4 */
 } StreamBuf;
 
-extern int D_0054CEAC[];
-extern char D_00637E38[];
 extern void fiprintf();
 extern void abort(void);
 extern int __srefill(StreamBuf *s);

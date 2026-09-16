@@ -49,7 +49,6 @@ extern void scpFadeIn(float f);
 extern int lt_fade_status(void);
 extern void lt_switch_layout(int a0);
 extern void debug_StdPrintfDummy();
-extern char D_00622A90[];
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];
 extern int D_00639EA4;
@@ -57,7 +56,28 @@ extern int D_0063AA08;
 extern float D_0063C088;
 extern int D_0063C514;
 extern int D_0063C518;
-extern float D_004F8A70[];
+extern void actSt04eWaterSwitch(volatile int a0);
+
+static ActMail waterMain_mes[2] = {{406, actSt04eWaterSwitch}, {429}};
+
+static ActMail water_mes[2] = {{430}, {429}};
+
+static ActMail waterSwitch_mes[2] = {{430}, {429}};
+
+static ActMail hint1_mes[2] = {{430}, {429}};
+
+static ActMail fuchi1_mes[2] = {{430}, {429}};
+
+static ActMail fuchi2_mes[2] = {{430}, {429}};
+
+static ActMail fuchi3_mes[2] = {{430}, {429}};
+
+static ActMail se_mes[2] = {{430}, {429}};
+
+static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f};
+
+static ActMail hint1WakeUp_mes[2] = {{430}, {429}};
+
 extern void actSt04eWaterStop(volatile int a0);
 extern void actSt04eWaterStopSub(volatile int a0);
 extern void actSt04eWaterFlagOn(volatile int a0);
@@ -68,15 +88,6 @@ extern void actSt04eFuchi1Chk(volatile int a0);
 extern void actSt04eFuchi2Chk(volatile int a0);
 extern void actSt04eFuchi3Chk(volatile int a0);
 extern void actSt04eSeChk(volatile int a0);
-extern ActMail D_004F8970[];
-extern ActMail D_004F8990[];
-extern ActMail D_004F89B0[];
-extern ActMail D_004F89D0[];
-extern ActMail D_004F89F0[];
-extern ActMail D_004F8A10[];
-extern ActMail D_004F8A30[];
-extern ActMail D_004F8A50[];
-extern ActMail D_004F8A80[];
 
 void actSt04eWaterStop(volatile int a0)
 {
@@ -133,8 +144,8 @@ void actSt04eHint1(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0xE1) == 0) {
-        D_004F89D0[0].func = actSt04eHint1Chk;
-        self->mail = D_004F89D0;
+        hint1_mes[0].func = actSt04eHint1Chk;
+        self->mail = hint1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -150,8 +161,8 @@ void actSt04eHint1WakeUp(volatile int a0)
 
     if (gflagChk(0xE2) == 0) {
         SleepHint(0x12);
-        D_004F8A80[0].func = actSt04eHint1WakeUpChk;
-        self->mail = D_004F8A80;
+        hint1WakeUp_mes[0].func = actSt04eHint1WakeUpChk;
+        self->mail = hint1WakeUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -165,8 +176,8 @@ void actSt04eFuchi1(volatile int a0)
 
     if (gflagChk(0xE3) == 0) {
         stage_SetAnimation(0x107, 0, 0);
-        D_004F89F0[0].func = actSt04eFuchi1Chk;
-        self->mail = D_004F89F0;
+        fuchi1_mes[0].func = actSt04eFuchi1Chk;
+        self->mail = fuchi1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -182,8 +193,8 @@ void actSt04eFuchi2(volatile int a0)
 
     if (gflagChk(0xE4) == 0) {
         stage_SetAnimation(0x108, 0, 0);
-        D_004F8A10[0].func = actSt04eFuchi2Chk;
-        self->mail = D_004F8A10;
+        fuchi2_mes[0].func = actSt04eFuchi2Chk;
+        self->mail = fuchi2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -199,8 +210,8 @@ void actSt04eFuchi3(volatile int a0)
 
     if (gflagChk(0xE5) == 0) {
         stage_SetAnimation(0x109, 0, 0);
-        D_004F8A30[0].func = actSt04eFuchi3Chk;
-        self->mail = D_004F8A30;
+        fuchi3_mes[0].func = actSt04eFuchi3Chk;
+        self->mail = fuchi3_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -214,8 +225,8 @@ void actSt04eSe(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    D_004F8A50[0].func = actSt04eSeChk;
-    self->mail = D_004F8A50;
+    se_mes[0].func = actSt04eSeChk;
+    self->mail = se_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -230,8 +241,8 @@ void actSt04eWater(volatile int a0)
 
     if (gflagChk(0xE6) == 0) {
         scpSearchGobj(0x4F9)->f16C = 0;
-        D_004F8990[0].func = actSt04eWaterMain;
-        self->mail = D_004F8990;
+        water_mes[0].func = actSt04eWaterMain;
+        self->mail = water_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -244,7 +255,7 @@ void actSt04eWaterMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004F8970;
+    sub->mainMail = waterMain_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -258,8 +269,8 @@ void actSt04eWaterSwitch(volatile int a0)
 
     sub->mainMail = 0;
 
-    D_004F89B0[0].func = actSt04eWaterStop;
-    sub->mail = D_004F89B0;
+    waterSwitch_mes[0].func = actSt04eWaterStop;
+    sub->mail = waterSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -304,7 +315,7 @@ void actSt04eHint1Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    debug_StdPrintfDummy(D_00622A90);
+    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
     gflagOn(0xE1);
     FinishHint(0x12);
 }
@@ -373,11 +384,11 @@ void actSt04eSeChk(volatile int a0)
             _ACTWait(1);
         }
 
-        h = soundSeDefPlay(0x53C, 0, D_004F8A70, 1);
+        h = soundSeDefPlay(0x53C, 0, seChkPos, 1);
         _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.5);
         soundSeDefStop(h);
 
-        soundSeDefPlay(0x53D, 0, D_004F8A70, 1);
+        soundSeDefPlay(0x53D, 0, seChkPos, 1);
 
         _ACTWait(1);
     }

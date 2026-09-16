@@ -41,13 +41,38 @@ extern void Generator_MaskOff(int a0);
 extern void Generator_Call(int a0);
 extern void *D_00639EA4;
 extern char *D_00639EA8;
-extern long long D_00622B30[];
+
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads, which is what makes gcc
+   emit the ld/sd pair the ROM has. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+static const ConstVec door2UpChkPos = {{-702.0f, -1886.0f, -5680.0f, 0.0f}};
+
+static const ConstVec door2UpEffectPos = {{-704.0f, -1700.0f, -5679.0f, 1.0f}};
+
+static const ConstVec door2UpEffect2Pos = {{-704.0f, -1955.0f, -5679.0f, 1.0f}};
+
 void actSt05dDoor2UpEffect(volatile int a0);
 void actSt05dDoor2DownEffect(volatile int a0);
 void actSt05dEneChk(volatile int a0);
 void actSt05dCrestHintChk(volatile int a0);
-extern ActMail D_004F97E0[];
-extern ActMail D_004F9800[];
+
+static ActMail door2Downchk_mes[2] = {{430}, {429}};
+
+static ActMail door2Upchk_mes[2] = {{430}, {429}};
+
+static ActMail door2UpChk_mes[2] = {{430}, {429}};
+
+static ActMail door2DownChk_mes[2] = {{430}, {429}};
+
+static ActMail ene_mes[2] = {{430}, {429}};
+
+static ActMail crestHint_mes[2] = {{430}, {429}};
+
 void actSt05dDoor2DownChk(volatile int a0);
 void actSt05dDoor2UpChk(volatile int a0);
 
@@ -62,20 +87,18 @@ void actSt05dDoor2(volatile int a0)
         (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
         stage_SetAnimation(0x15D, 0, 0);
         _ACTWait(0x3C);
-        D_004F97E0[0].func = actSt05dDoor2DownChk;
-        self->mail = D_004F97E0;
+        door2Downchk_mes[0].func = actSt05dDoor2DownChk;
+        self->mail = door2Downchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x15C, 0, 0);
-        D_004F9800[0].func = actSt05dDoor2UpChk;
-        self->mail = D_004F9800;
+        door2Upchk_mes[0].func = actSt05dDoor2UpChk;
+        self->mail = door2Upchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
-
-extern ActMail D_004F9820[];
 
 void actSt05dDoor2UpChk(volatile int a0)
 {
@@ -93,8 +116,8 @@ void actSt05dDoor2UpChk(volatile int a0)
 
     stage_SetAnimation(0x15C, 1, 0);
 
-    buf[0] = D_00622B30[0];
-    buf[1] = D_00622B30[1];
+    buf[0] = door2UpChkPos.d[0];
+    buf[1] = door2UpChkPos.d[1];
     soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
     _ACTWait(0x1E);
     soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
@@ -106,13 +129,11 @@ void actSt05dDoor2UpChk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_004F9820[0].func = actSt05dDoor2DownChk;
-    sub->mail = D_004F9820;
+    door2UpChk_mes[0].func = actSt05dDoor2DownChk;
+    sub->mail = door2UpChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern ActMail D_004F9840[];
 
 void actSt05dDoor2DownChk(volatile int a0)
 {
@@ -130,8 +151,8 @@ void actSt05dDoor2DownChk(volatile int a0)
 
     stage_SetAnimation(0x15D, 1, 0);
 
-    buf[0] = D_00622B30[0];
-    buf[1] = D_00622B30[1];
+    buf[0] = door2UpChkPos.d[0];
+    buf[1] = door2UpChkPos.d[1];
     soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
     _ACTWait(0x1E);
     soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
@@ -143,13 +164,11 @@ void actSt05dDoor2DownChk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_004F9840[0].func = actSt05dDoor2UpChk;
-    sub->mail = D_004F9840;
+    door2DownChk_mes[0].func = actSt05dDoor2UpChk;
+    sub->mail = door2DownChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern ActMail D_004F9860[];
 
 void actSt05dEne(volatile int a0)
 {
@@ -169,8 +188,8 @@ void actSt05dEne(volatile int a0)
     UpdateRootMatrix(g);
 
     if (gflagChk(0xAB) == 0) {
-        D_004F9860[0].func = actSt05dEneChk;
-        self->mail = D_004F9860;
+        ene_mes[0].func = actSt05dEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -213,8 +232,6 @@ void actSt05dEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-extern ActMail D_004F9880[];
-
 void actSt05dCrestHint(volatile int a0)
 {
     int x = a0;
@@ -224,8 +241,8 @@ void actSt05dCrestHint(volatile int a0)
 
     if (gflagChk(0xAD) == 0) {
         SleepHint(0x19);
-        D_004F9880[0].func = actSt05dCrestHintChk;
-        self->mail = D_004F9880;
+        crestHint_mes[0].func = actSt05dCrestHintChk;
+        self->mail = crestHint_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -236,8 +253,6 @@ void actSt05dDoor2Event(int x)
     volatile int local = x;
 }
 
-extern long long D_00622B40[];
-extern long long D_00622B50[];
 extern void _ACTWait(int a0);
 extern void scpEffectStart(int *buf, int a1);
 
@@ -245,19 +260,19 @@ void actSt05dDoor2UpEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_00622B40[0];
-    long long v0b = D_00622B50[0];
+    long long v0a = door2UpEffectPos.d[0];
+    long long v0b = door2UpEffect2Pos.d[0];
     int i;
     for (i = 0; i < 0x32; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_00622B40[1];
+            b1[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_00622B50[1];
+            b2[1] = door2UpEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
             break;
         }
@@ -269,19 +284,19 @@ void actSt05dDoor2DownEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_00622B50[0];
-    long long v0b = D_00622B40[0];
+    long long v0a = door2UpEffect2Pos.d[0];
+    long long v0b = door2UpEffectPos.d[0];
     int i;
     for (i = 0; i < 0x32; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_00622B50[1];
+            b1[1] = door2UpEffect2Pos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_00622B40[1];
+            b2[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
             break;
         }

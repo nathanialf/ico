@@ -75,7 +75,43 @@ extern void gflagOff(int a0);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void scpFadeIn(float t);
 extern void actE3TitleChk(volatile int a0);
-extern ActMail D_004F79D0[];
+extern void actE3DoorSwitch(volatile int a0);
+extern void actE3St09aBrgSwitch(volatile int a0);
+
+static ActMail title_mes[2] = {{430}, {429}};
+
+static ActMail inst1_mes[2] = {{430}, {429}};
+
+static ActMail capsule_mes[2] = {{430}, {429}};
+
+static ActMail doorMain_mes[2] = {{406, actE3DoorSwitch}, {429}};
+
+static ActMail door_mes[2] = {{430}, {429}};
+
+static ActMail doorSwitch_mes[2] = {{430}, {429}};
+
+static float doorUpPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f};
+
+static ActMail st13cIntro_mes[2] = {{430}, {429}};
+
+static ActMail cageFallReady_mes[2] = {{430}, {429}};
+
+static ActMail cageFall_mes[2] = {{430}, {429}};
+
+static ActMail st01bEne_mes[2] = {{430}, {429}};
+
+static float st09aSekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f};
+
+static ActMail st09aSekizoChk_mes[2] = {{430}, {429}};
+
+static ActMail gate_mes[2] = {{430}, {429}};
+
+static ActMail st09aBrgMain_mes[2] = {{407, actE3St09aBrgSwitch}, {429}};
+
+static ActMail st09aBrg_mes[2] = {{430}, {429}};
+
+static ActMail st09aBrgSwitch_mes[2] = {{430}, {429}};
+
 extern int D_0063B4D0;
 extern int D_0063BDF4;
 
@@ -120,8 +156,8 @@ void actE3Title(volatile int a0)
     stage_SetAnimation(0x26, 0, 0);
     stage_SetAnimation(0x2B, 0, 0);
 
-    D_004F79D0[0].func = actE3TitleChk;
-    sub->mail = D_004F79D0;
+    title_mes[0].func = actE3TitleChk;
+    sub->mail = title_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -319,7 +355,6 @@ void actE3Inst1Chk(volatile int a0)
 extern void ScpCallCameraOff(void);
 extern void scpFadeOut(float t, int a1, int a2, int a3);
 extern void actE3CapsuleChk(volatile int a0);
-extern ActMail D_004F7A10[];
 
 void actE3Capsule(volatile int a0)
 {
@@ -348,8 +383,8 @@ void actE3Capsule(volatile int a0)
         stage_SetAnimation(0x24, 0, 0);
         stage_SetAnimation(0x26, 0, 0);
 
-        D_004F7A10[0].func = actE3CapsuleChk;
-        sub->mail = D_004F7A10;
+        capsule_mes[0].func = actE3CapsuleChk;
+        sub->mail = capsule_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -477,7 +512,6 @@ void actE3St13cInit(void)
 
 extern void scpPlayPosSet(int a0, float x, float y, float z);
 extern void actE3CageFallChk(volatile int a0);
-extern ActMail D_004F7AE0[];
 
 void actE3CageFall(volatile int a0)
 {
@@ -496,8 +530,8 @@ void actE3CageFall(volatile int a0)
 
         scpPlayPosSet(D_00639EA8, -30.0f, -436.0f, -1.0f);
 
-        D_004F7AE0[0].func = actE3CageFallChk;
-        sub->mail = D_004F7AE0;
+        cageFall_mes[0].func = actE3CageFallChk;
+        sub->mail = cageFall_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -776,9 +810,8 @@ void actE3CageFallEffect(volatile int a0)
 
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 extern void actE3St09aSekizoChk(volatile int a0);
+
 /* e3.o's own .data run (no MAIN.MAP symbol): the sekizou's SE position. */
-extern float D_004F7B20[];
-extern ActMail D_004F7B30[];
 
 void actE3St09aSekizo(volatile int a0)
 {
@@ -787,15 +820,15 @@ void actE3St09aSekizo(volatile int a0)
 
     _ACTWait(1);
 
-    soundSeDefPlay(0x542, 0, D_004F7B20, 1);
-    soundSeDefPlay(0x543, 0, D_004F7B20, 1);
-    soundSeDefPlay(0x544, 0, D_004F7B20, 1);
+    soundSeDefPlay(0x542, 0, st09aSekizoPos, 1);
+    soundSeDefPlay(0x543, 0, st09aSekizoPos, 1);
+    soundSeDefPlay(0x544, 0, st09aSekizoPos, 1);
 
     if (gflagChk(0x16E) == 0) {
         stage_SetAnimation(0x178, 0, 0);
 
-        D_004F7B30[0].func = actE3St09aSekizoChk;
-        sub->mail = D_004F7B30;
+        st09aSekizoChk_mes[0].func = actE3St09aSekizoChk;
+        sub->mail = st09aSekizoChk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1193,7 +1226,6 @@ typedef struct {
 extern StgPre D_005F5D50[];
 extern int D_0055C518[][10];
 extern void actE3Inst1Chk(volatile int a0);
-extern ActMail D_004F79F0[];
 
 void actE3Inst1(volatile int a0)
 {
@@ -1211,14 +1243,13 @@ void actE3Inst1(volatile int a0)
     pre = &D_005F5D50[stage_no];
     stgmgrNextStagePreLoadForceStageSet(D_0055C518[pre->ent[0]][9]);
 
-    D_004F79F0[0].func = actE3Inst1Chk;
-    sub->mail = D_004F79F0;
+    inst1_mes[0].func = actE3Inst1Chk;
+    sub->mail = inst1_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 extern void actE3DoorMain(volatile int a0);
-extern ActMail D_004F7A50[];
 
 void actE3Door(volatile int a0)
 {
@@ -1230,8 +1261,8 @@ void actE3Door(volatile int a0)
     if (gflagChk(0x167) == 0) {
         stage_SetAnimation(0x3B9, 0, 0);
 
-        D_004F7A50[0].func = actE3DoorMain;
-        sub->mail = D_004F7A50;
+        door_mes[0].func = actE3DoorMain;
+        sub->mail = door_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1240,7 +1271,6 @@ void actE3Door(volatile int a0)
 }
 
 extern void actE3CageFallReadyChk(volatile int a0);
-extern ActMail D_004F7AC0[];
 
 void actE3CageFallReady(volatile int a0)
 {
@@ -1250,15 +1280,14 @@ void actE3CageFallReady(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x168) == 0) {
-        D_004F7AC0[0].func = actE3CageFallReadyChk;
-        sub->mail = D_004F7AC0;
+        cageFallReady_mes[0].func = actE3CageFallReadyChk;
+        sub->mail = cageFallReady_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
 
 extern void actE3St13cIntroChk(volatile int a0);
-extern ActMail D_004F7AA0[];
 
 void actE3St13cIntro(volatile int a0)
 {
@@ -1268,8 +1297,8 @@ void actE3St13cIntro(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x16B) == 0) {
-        D_004F7AA0[0].func = actE3St13cIntroChk;
-        sub->mail = D_004F7AA0;
+        st13cIntro_mes[0].func = actE3St13cIntroChk;
+        sub->mail = st13cIntro_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1323,7 +1352,6 @@ void actE3Floor(volatile int a0)
 }
 
 extern void actE3St01bEneChk(volatile int a0);
-extern ActMail D_004F7B00[];
 
 void actE3St01bEne(volatile int a0)
 {
@@ -1333,8 +1361,8 @@ void actE3St01bEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x16A) == 0) {
-        D_004F7B00[0].func = actE3St01bEneChk;
-        sub->mail = D_004F7B00;
+        st01bEne_mes[0].func = actE3St01bEneChk;
+        sub->mail = st01bEne_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1399,7 +1427,6 @@ void actE3St01bGene3(volatile int a0)
 }
 
 extern void actE3St09aBrgMain(volatile int a0);
-extern ActMail D_004F7B90[];
 
 void actE3St09aBrg(volatile int a0)
 {
@@ -1411,8 +1438,8 @@ void actE3St09aBrg(volatile int a0)
     if (gflagChk(0x56) == 0) {
         stage_SetAnimation(0x17A, 0, 0);
 
-        D_004F7B90[0].func = actE3St09aBrgMain;
-        sub->mail = D_004F7B90;
+        st09aBrg_mes[0].func = actE3St09aBrgMain;
+        sub->mail = st09aBrg_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1424,7 +1451,6 @@ extern void MallocStreamMotionBuffer(void);
 extern PObjGObj *scpSearchGobj(int id);
 extern void scpPlayStart(int a0);
 extern void actE3GateChk(volatile int a0);
-extern ActMail D_004F7B50[];
 
 void actE3Gate(volatile int a0)
 {
@@ -1446,8 +1472,8 @@ void actE3Gate(volatile int a0)
     stage_SetAnimation(0x10D, 0, 0);
     stage_SetAnimation(0x110, 0, 0);
 
-    D_004F7B50[0].func = actE3GateChk;
-    sub->mail = D_004F7B50;
+    gate_mes[0].func = actE3GateChk;
+    sub->mail = gate_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1515,8 +1541,8 @@ void actE3CapsuleDemoEnd(volatile int a0)
 }
 
 extern int D_0063AA08;
+
 /* e3.o's own .data run (no MAIN.MAP symbol): actor mail packets. */
-extern ActMail D_004F7A30[];
 
 void actE3DoorMain(volatile int a0)
 {
@@ -1524,7 +1550,7 @@ void actE3DoorMain(volatile int a0)
 
     D_0063AA08 = 0;
 
-    sub->mainMail = D_004F7A30;
+    sub->mainMail = doorMain_mes;
 
     while (1) {
         _ACTWait(1);
@@ -1533,7 +1559,6 @@ void actE3DoorMain(volatile int a0)
 
 extern void ACTSendMailCorrect(int a0, int mail);
 extern void actE3DoorUp(volatile int a0);
-extern ActMail D_004F7A70[];
 
 void actE3DoorSwitch(volatile int a0)
 {
@@ -1543,14 +1568,13 @@ void actE3DoorSwitch(volatile int a0)
 
     sub->mainMail = 0;
 
-    D_004F7A70[0].func = actE3DoorUp;
-    sub->mail = D_004F7A70;
+    doorSwitch_mes[0].func = actE3DoorUp;
+    sub->mail = doorSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 /* e3.o's own .data run (no MAIN.MAP symbol): the door's SE position. */
-extern float D_004F7A90[];
 
 void actE3DoorUp(volatile int a0)
 {
@@ -1561,11 +1585,11 @@ void actE3DoorUp(volatile int a0)
 
     stage_SetAnimation(0x3B9, 1, 0);
 
-    soundSeDefPlay(0x4C5, 0, D_004F7A90, 1);
+    soundSeDefPlay(0x4C5, 0, doorUpPos, 1);
 
     _ACTWait(0x1E);
 
-    soundSeDefPlay(0x4C6, 0, D_004F7A90, 1);
+    soundSeDefPlay(0x4C6, 0, doorUpPos, 1);
 
     while (stage_CheckAnimationFinish(0x3B9) == 0) {
         _ACTWait(1);
@@ -1672,13 +1696,11 @@ void actE3St09aGirlWay(volatile int a0)
     brainUnlockGirl();
 }
 
-extern ActMail D_004F7B70[];
-
 void actE3St09aBrgMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004F7B70;
+    sub->mainMail = st09aBrgMain_mes;
 
     while (1) {
         _ACTWait(1);
@@ -1686,7 +1708,6 @@ void actE3St09aBrgMain(volatile int a0)
 }
 
 extern void actE3St09aBrgDown(volatile int a0);
-extern ActMail D_004F7BB0[];
 
 void actE3St09aBrgSwitch(volatile int a0)
 {
@@ -1696,8 +1717,8 @@ void actE3St09aBrgSwitch(volatile int a0)
 
     sub->mainMail = 0;
 
-    D_004F7BB0[0].func = actE3St09aBrgDown;
-    sub->mail = D_004F7BB0;
+    st09aBrgSwitch_mes[0].func = actE3St09aBrgDown;
+    sub->mail = st09aBrgSwitch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

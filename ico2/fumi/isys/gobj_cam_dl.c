@@ -16,17 +16,10 @@ typedef struct {
     int f44;
 } AdpT;
 
-extern char D_00621970[];
 extern int *D_0063A614;
 extern AdpT *D_0063A618;
 extern void debug_StdPrintfDummy();
 static void add_gobj_to_tail();
-extern char D_00621980[];
-extern char D_00621990[];
-extern char D_006219A0[];
-extern char D_006219B8[];
-extern char D_006219D0[];
-extern char D_006219E8[];
 /* listing lines 130-165: sorted insert by key, inlined into
    isysGObjMoveCameraDLHead and isysGObjLinkCameraDLHead */
 /* prototypes: their order is the inline tail's emission order */
@@ -88,7 +81,7 @@ inline void isysGObjCameraDlInit(void)
 void cut_gobj_camera_dl_link(EnNode *gobj)
 {
     if (gobj == 0) {
-        debug_StdPrintfDummy(D_00621970);
+        debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
     if (gobj->prev == 0) {
@@ -123,7 +116,7 @@ static void add_gobj_to_tail(int *self, unsigned int key)
     int *tail;
     int *cur;
 
-    debug_StdPrintfDummy(D_00621980, self);
+    debug_StdPrintfDummy("camera gop:%x\n", self);
 
     self[0x11] = key;
     head = D_0063A614;
@@ -132,7 +125,7 @@ static void add_gobj_to_tail(int *self, unsigned int key)
         self[0xD] = 0;
         D_0063A614 = self;
         D_0063A618 = (AdpT *)self;
-        debug_StdPrintfDummy(D_00621990);
+        debug_StdPrintfDummy("first entry\n");
         return;
     }
     if (key < (unsigned int)head[0x11]) {
@@ -140,7 +133,7 @@ static void add_gobj_to_tail(int *self, unsigned int key)
         self[0xD] = (int)head;
         head[0xE] = (int)self;
         D_0063A614 = self;
-        debug_StdPrintfDummy(D_006219A0);
+        debug_StdPrintfDummy("entry into head\n");
         return;
     }
     tail = (int *)D_0063A618;
@@ -149,7 +142,7 @@ static void add_gobj_to_tail(int *self, unsigned int key)
         self[0xD] = 0;
         tail[0xD] = (int)self;
         D_0063A618 = (AdpT *)self;
-        debug_StdPrintfDummy(D_006219B8);
+        debug_StdPrintfDummy("entry into tail\n");
         return;
     }
 
@@ -214,12 +207,12 @@ inline void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1)
 
 void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4)
 {
-    debug_StdPrintfDummy(D_006219D0);
+    debug_StdPrintfDummy("LinkCameraDL in\n");
     *(int *)(a0 + 0x48) = a1;
     *(int *)(a0 + 0x4C) = a3;
     *(int *)(a0 + 0x50) = a4;
     add_gobj_to_tail(a0, a2);
-    debug_StdPrintfDummy(D_006219E8);
+    debug_StdPrintfDummy("LinkCameraDL out\n");
 }
 
 void isysGObjLinkCameraDLAfterGObj(int *self, int a1, int a2, int a3, int *t0)
@@ -227,7 +220,7 @@ void isysGObjLinkCameraDLAfterGObj(int *self, int a1, int a2, int a3, int *t0)
     register int *t1 = self;
     int v34, v44;
     if (t0 == 0) {
-        debug_StdPrintfDummy(D_00621970);
+        debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
 
@@ -251,7 +244,7 @@ void isysGObjLinkCameraDLBeforeGObj(int *self, int a1, int a2, int a3, int *t0)
     register int *t1 = self;
     int v34, v44;
     if (t0 == 0) {
-        debug_StdPrintfDummy(D_00621970);
+        debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
 

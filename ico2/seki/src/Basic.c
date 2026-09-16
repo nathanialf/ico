@@ -10,8 +10,6 @@ extern int matrixptr;
 extern void _UnitMatrix(void *p0);
 extern void memcpy();
 extern int D_0063BC88;
-extern char D_00621550[];
-extern const char D_00621568[];
 extern char D_0063BC90[];
 extern int D_0063BC8C;
 extern int D_0063A43C;
@@ -73,18 +71,18 @@ inline int mallocseki(int size)
     int ptr = 0;
 
     if (D_0063BC88 == -1) {
-        debug_StdPrintfDummy(D_00621550);
-        debug_assert(D_00621568, 0x174);
-        __assert(D_00621568, 0x174, D_0063BC90);
+        debug_StdPrintfDummy("set partition first!\n");
+        debug_assert("src/Basic.c", 372);
+        __assert("src/Basic.c", 372, D_0063BC90);
     }
 
     switch (D_0063BC88) {
     case 0:
         D_0063BC8C += size + 0x30;
-        ptr = iosMallocDebug(D_0063A43C, size, D_00621568, 0x17B);
+        ptr = iosMallocDebug(D_0063A43C, size, "src/Basic.c", 379);
         break;
     case 1:
-        ptr = iosMallocDebug(D_0063A44C, size, D_00621568, 0x17E);
+        ptr = iosMallocDebug(D_0063A44C, size, "src/Basic.c", 382);
         break;
     }
     return ptr;
@@ -103,7 +101,7 @@ inline int mallocsekistage(int size)
 
 inline int reallocseki(int size, int align)
 {
-    return iosReallocDebug(size, align, D_00621568, 0x1A8);
+    return iosReallocDebug(size, align, "src/Basic.c", 424);
 }
 
 inline int freeseki(void *a0)

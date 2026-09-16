@@ -739,15 +739,13 @@ void actSt20aGirlPosChk(volatile int a0)
     WakeupHint(0x14);
 }
 
-extern char D_00623070[];
-
 void actSt20aHint1Chk(volatile int a0)
 {
     while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0 &&
            scpTriggerFloorAttr(D_00639EA4, 0x4000000) == 0) {
         _ACTWait(1);
     }
-    debug_StdPrintfDummy(D_00623070);
+    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
     gflagOn(0x141);
     FinishHint(0x14);
 }

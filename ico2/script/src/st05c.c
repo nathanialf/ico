@@ -68,15 +68,25 @@ extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_0063AA08;
 extern int D_0063C54C;
-extern StVec D_00622AF0;
-extern const StVec D_00622B00;
-extern const StVec D_00622B10;
-extern const StVec D_00622B20;
-extern ActMail D_004F9740[];
-extern ActMail D_004F9760[];
-extern ActMail D_004F9780[];
-extern ActMail D_004F97A0[];
-extern ActMail D_004F97C0[];
+
+static const StVec doorDownChkPos = {{0.0f, 84.0f, -1359.0f, 0.0f}};
+
+static const StVec doorDownEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}};
+
+static const StVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}};
+
+static const StVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
+
+static ActMail doorDown_mes[2] = {{430}, {429}};
+
+static ActMail ene_mes[2] = {{430}, {429}};
+
+static ActMail st04rDoor_mes[2] = {{430}, {429}};
+
+static ActMail st04rDoor2_mes[2] = {{430}, {429}};
+
+static ActMail crestHint_mes[2] = {{430}, {429}};
+
 extern void actSt05cDoorDownChk(volatile int a0);
 extern void actSt05cDoorDownEffect(volatile int a0);
 extern void actSt05cEneChk(volatile int a0);
@@ -98,7 +108,7 @@ void actSt05cDoorDownChk(volatile int a0)
     actCreateSubThread(actSt05cDoorDownEffect, 0x15);
     stage_SetAnimation(0x15B, 1, 0);
 
-    pos = D_00622AF0;
+    pos = doorDownChkPos;
     _ACTWait(0x1E);
     soundSeDefPlay(0x4C5, 0, &pos, 1);
     _ACTWait(0x1E);
@@ -259,8 +269,8 @@ void actSt04rDoor(volatile int a0)
 
     if (gflagChk(0xFF) == 0) {
         stage_SetAnimation(0x14C, 0, 0);
-        D_004F9780[0].func = actSt04rDoorChk;
-        self->mail = D_004F9780;
+        st04rDoor_mes[0].func = actSt04rDoorChk;
+        self->mail = st04rDoor_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -277,8 +287,8 @@ void actSt04rDoor2(volatile int a0)
 
     if (gflagChk(0x100) == 0) {
         stage_SetAnimation(0x14D, 0, 0);
-        D_004F97A0[0].func = actSt04rDoor2Chk;
-        self->mail = D_004F97A0;
+        st04rDoor2_mes[0].func = actSt04rDoor2Chk;
+        self->mail = st04rDoor2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -293,8 +303,8 @@ void actSt05cDoorDown(volatile int a0)
     Act *self = actInitialize(a0);
 
     if (gflagChk(0xA5) == 0) {
-        D_004F9740[0].func = actSt05cDoorDownChk;
-        self->mail = D_004F9740;
+        doorDown_mes[0].func = actSt05cDoorDownChk;
+        self->mail = doorDown_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -307,8 +317,8 @@ void actSt05cEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0xA7) == 0) {
-        D_004F9760[0].func = actSt05cEneChk;
-        self->mail = D_004F9760;
+        ene_mes[0].func = actSt05cEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -363,8 +373,8 @@ void actSt05cCrestHint(volatile int a0)
 
     if (gflagChk(0xA9) == 0) {
         SleepHint(0x17);
-        D_004F97C0[0].func = actSt05cCrestHintChk;
-        self->mail = D_004F97C0;
+        crestHint_mes[0].func = actSt05cCrestHintChk;
+        self->mail = crestHint_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -385,13 +395,13 @@ void actSt05cDoorDownEffect(volatile int a0)
     for (i = 0; i < 0x32; i++) {
         switch (i) {
         case 0:
-            a = D_00622B00;
+            a = doorDownEffectPos;
             scpEffectStart(&a, 0);
             break;
         case 0x1E:
-            b = D_00622B10;
+            b = doorDownEffect2Pos;
             scpEffectStart(&b, 0);
-            c = D_00622B20;
+            c = doorDownEffect3Pos;
             scpEffectStart(&c, 0);
             break;
         }

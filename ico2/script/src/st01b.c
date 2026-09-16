@@ -109,7 +109,17 @@ extern unsigned char st01b_yure_vol;
 extern int D_0063C4FC;
 extern int D_0063C500;
 extern int D_00639EAC;
-extern long long D_00622700[];
+
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads, which is what makes gcc
+   emit the ld/sd pair the ROM has. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+static const ConstVec floorChkSubPos = {{-101.0f, -381.0f, -398.0f, 0.0f}};
+
 extern void AdpcmPlay(int a0);
 extern int soundSeDefPlay(int se, int a1, void *pos, int a3);
 extern void soundSeDefStop(int handle);
@@ -126,8 +136,8 @@ void actSt01bFloorChkSub(volatile int a0)
     AdpcmPlay(st01b_floor->f2C);
     stage_SetAnimation(0xB4, 1, 0);
     stage_SetAnimation(0xB5, 1, 0);
-    pos[0] = D_00622700[0];
-    pos[1] = D_00622700[1];
+    pos[0] = floorChkSubPos.d[0];
+    pos[1] = floorChkSubPos.d[1];
     D_0063C500 = soundSeDefPlay(0x52D, 0, pos, 1);
     _ACTWait(0x5A);
     soundSeDefStop(D_0063C500);

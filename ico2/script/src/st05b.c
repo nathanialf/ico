@@ -14,7 +14,9 @@ typedef struct Act {
 
 extern Act *actInitialize(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F9720[];
+
+static ActMail sekizo_mes[2] = {{430}, {429}};
+
 extern void actSt05bSekizoChk(int a0);
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 extern void _ACTWait(int a0);
@@ -189,8 +191,8 @@ void actSt05bSekizo(volatile int a0)
 
     if (gflagChk(0xA0) == 0) {
         stage_SetAnimation(0xC0, 0, 0);
-        D_004F9720[0].func = actSt05bSekizoChk;
-        self->mail = D_004F9720;
+        sekizo_mes[0].func = actSt05bSekizoChk;
+        self->mail = sekizo_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -233,8 +235,18 @@ void actSt05bSekizoEvent(int x)
     volatile int local = x;
 }
 
-extern const long long D_00622AD0[];
-extern const long long D_00622AE0[];
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads, which is what makes gcc
+   emit the ld/sd pair the ROM has. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+static const ConstVec girlWayPos = {{10750.0f, -2122.0f, 0.0f, 0.0f}};
+
+static const ConstVec girlWay2Pos = {{139.0f, -177.0f, 1670.0f, 0.0f}};
+
 extern int D_00639EA8;
 /* Returns int: st04b.c carries the same prototype, and the live $2 at the
  * call boundary is what puts the second way record's %hi in $3. */
@@ -247,12 +259,12 @@ void actSt05bGirlWay(volatile int a0)
     long long buf[2];
     long long way[2];
 
-    buf[0] = D_00622AD0[0];
-    buf[1] = D_00622AD0[1];
+    buf[0] = girlWayPos.d[0];
+    buf[1] = girlWayPos.d[1];
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
 
-    way[0] = D_00622AE0[0];
-    way[1] = D_00622AE0[1];
+    way[0] = girlWay2Pos.d[0];
+    way[1] = girlWay2Pos.d[1];
     RequestStageChangeDirect(D_00639EA8, 0x1C, (int *)way, 0xB4);
     brainUnlockGirl();
 }

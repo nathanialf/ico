@@ -18,7 +18,6 @@ typedef struct {
 } StreamBuf;
 
 extern int D_0054CEAC[];
-extern char D_00637E38[];
 extern void fiprintf();
 extern void abort(void);
 extern void *_malloc_r(void *r, int n);

@@ -31,7 +31,6 @@ inline void init_mblock(int *a0)
 }
 
 extern int D_0063A464;
-extern char D_005510F8[];
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 
 /* listing lines 16-51 */
@@ -40,11 +39,11 @@ MBlockNode *new_mblock_node(unsigned int size)
     MBlockNode *node;
 
     if (size > 0x2000) {
-        node = iosMallocDebug(D_0063A464, sizeof(MBlockNode), D_005510F8, 21);
+        node = iosMallocDebug(D_0063A464, sizeof(MBlockNode), "ios/mblock.c", 21);
         if (node == 0) {
             return 0;
         }
-        node->buf = iosMallocDebug(D_0063A464, size, D_005510F8, 23);
+        node->buf = iosMallocDebug(D_0063A464, size, "ios/mblock.c", 23);
         if (node->buf == 0) {
             iosFree(node);
             return 0;
@@ -52,11 +51,11 @@ MBlockNode *new_mblock_node(unsigned int size)
         node->size = size;
     } else {
         if (D_0063A470 == 0) {
-            node = iosMallocDebug(D_0063A464, 0x2000, D_005510F8, 32);
+            node = iosMallocDebug(D_0063A464, 0x2000, "ios/mblock.c", 32);
             if (node == 0) {
                 return 0;
             }
-            node->buf = iosMallocDebug(D_0063A464, 0x2000, D_005510F8, 34);
+            node->buf = iosMallocDebug(D_0063A464, 0x2000, "ios/mblock.c", 34);
             if (node->buf == 0) {
                 iosFree(node);
                 return 0;

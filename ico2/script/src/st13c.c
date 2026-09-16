@@ -201,22 +201,40 @@ extern int D_0028F8F4[];
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 /* st13c.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-extern ActMail D_004FAD50[];
-extern ActMail D_004FAD10[];
-extern ActMail D_004FAD30[];
-extern ActMail D_004FAD70[];
-extern ActMail D_004FADB0[];
-extern ActMail D_004FADD0[];
-extern ActMail D_004FADF0[];
-extern ActMail D_004FAD90[];
-extern ActMail D_004FAE10[];
-extern ActMail D_004FAE30[];
-extern ActMail D_004FAE50[];
-extern ActMail D_004FAE70[];
-extern ActMail D_004FAE90[];
-extern ActMail D_004FAEB0[];
-extern ActMail D_004FAED0[];
-extern ActMail D_004FAEF0[];
+extern void actSt13cCageDownSwitch(volatile int a0);
+
+static ActMail bmg1_mes[2] = {{430}, {429}};
+
+static ActMail sleep_mes[2] = {{430}, {429}};
+
+static ActMail cageDownMain_mes[2] = {{406, actSt13cCageDownSwitch}, {429}};
+
+static ActMail cageDown_mes[2] = {{430}, {429}};
+
+static ActMail cageDownSwitch_mes[2] = {{430}, {429}};
+
+static ActMail cageFallReady_mes[2] = {{430}, {429}};
+
+static ActMail cageFallChk_mes[2] = {{430}, {429}};
+
+static ActMail cageFallChk2_mes[2] = {{430}, {429}};
+
+static ActMail sekizoJimaku_mes[2] = {{430}, {429}};
+
+static ActMail sekizo_mes[2] = {{430}, {429}};
+
+static ActMail girlCarry_mes[2] = {{430}, {429}};
+
+static ActMail girlCarryChk_mes[2] = {{430}, {429}};
+
+static ActMail girlCarryAgainChk_mes[2] = {{430}, {429}};
+
+static ActMail hand_mes[2] = {{430}, {429}};
+
+static ActMail rescue_mes[2] = {{430}, {429}};
+
+static ActMail buki_mes[2] = {{430}, {429}};
+
 extern int D_0063AA08;
 extern int bmg;
 extern int hand;
@@ -268,8 +286,8 @@ void actSt13cBmg1(volatile int a0)
         ScpCallCameraOff();
         scpPlayPosSet(D_00639EA8, -7.0f, -5725.0f, 18.0f);
 
-        D_004FAD10[0].func = actSt13cBmg1Chk;
-        self->mail = D_004FAD10;
+        bmg1_mes[0].func = actSt13cBmg1Chk;
+        self->mail = bmg1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -542,8 +560,8 @@ void actSt13cCageFall(volatile int a0)
         ((PObjGObj *)scpSearchGobj(0x80))->unk16C = 0;
         SetWeaponTorchChainReactionFlagAll(1);
 
-        D_004FADD0[0].func = actSt13cCageFallChk;
-        self->mail = D_004FADD0;
+        cageFallChk_mes[0].func = actSt13cCageFallChk;
+        self->mail = cageFallChk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -554,8 +572,8 @@ void actSt13cCageFall(volatile int a0)
             stage_SetAnimation(0x48, 0, -1);
             stage_SetAnimation(0x4C, 0, 0);
 
-            D_004FADF0[0].func = actSt13cCageFallChk;
-            self->mail = D_004FADF0;
+            cageFallChk2_mes[0].func = actSt13cCageFallChk;
+            self->mail = cageFallChk2_mes;
             ACTSendMailCorrect(a0, 430);
             _ACTWait(0);
         }
@@ -1102,8 +1120,8 @@ void actSt13cGirlCarryChk(volatile int a0)
 
     gflagOn(0x1A);
 
-    D_004FAE70[0].func = actSt13cGirlCarryAgainChk;
-    self->mail = D_004FAE70;
+    girlCarryChk_mes[0].func = actSt13cGirlCarryAgainChk;
+    self->mail = girlCarryChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 
@@ -1282,8 +1300,8 @@ void actSt13cSleep(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x13) == 0) {
-        D_004FAD30[0].func = actSt13cSleepChk;
-        self->mail = D_004FAD30;
+        sleep_mes[0].func = actSt13cSleepChk;
+        self->mail = sleep_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1300,8 +1318,8 @@ void actSt13cCageDown(volatile int a0)
         stage_SetAnimation(0x48, 0, 0);
         stage_SetAnimation(0x4C, 0, 0);
 
-        D_004FAD70[0].func = actSt13cCageDownMain;
-        self->mail = D_004FAD70;
+        cageDown_mes[0].func = actSt13cCageDownMain;
+        self->mail = cageDown_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1319,8 +1337,8 @@ void actSt13cCageFallReady(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x16) == 0) {
-        D_004FADB0[0].func = actSt13cCageFallReadyChk;
-        self->mail = D_004FADB0;
+        cageFallReady_mes[0].func = actSt13cCageFallReadyChk;
+        self->mail = cageFallReady_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1377,8 +1395,8 @@ void actSt13cSekizo(volatile int a0)
         stage_SetAnimation(0x4D, 0, 0);
         SetWayGroupActive(2, 0);
 
-        D_004FAE30[0].func = actSt13cSekizoChk;
-        self->mail = D_004FAE30;
+        sekizo_mes[0].func = actSt13cSekizoChk;
+        self->mail = sekizo_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1395,8 +1413,8 @@ void actSt13cSekizoJimaku(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x1F) == 0) {
-        D_004FAE10[0].func = actSt13cSekizoJimakuChk;
-        self->mail = D_004FAE10;
+        sekizoJimaku_mes[0].func = actSt13cSekizoJimakuChk;
+        self->mail = sekizoJimaku_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1410,8 +1428,8 @@ void actSt13cHand(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x1B) == 0) {
-        D_004FAEB0[0].func = actSt13cHandChk;
-        self->mail = D_004FAEB0;
+        hand_mes[0].func = actSt13cHandChk;
+        self->mail = hand_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1425,8 +1443,8 @@ void actSt13cGirlCarry(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x1B) == 0) {
-        D_004FAE50[0].func = actSt13cGirlCarryChk;
-        self->mail = D_004FAE50;
+        girlCarry_mes[0].func = actSt13cGirlCarryChk;
+        self->mail = girlCarry_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1440,8 +1458,8 @@ void actSt13cRescue(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x1E) == 0 && gflagChk(0x1B) == 0) {
-        D_004FAED0[0].func = actSt13cRescueChk;
-        self->mail = D_004FAED0;
+        rescue_mes[0].func = actSt13cRescueChk;
+        self->mail = rescue_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1454,8 +1472,8 @@ void actSt13cBuki(volatile int a0)
 
     _ACTWait(1);
 
-    D_004FAEF0[0].func = actSt13cBukiChk;
-    self->mail = D_004FAEF0;
+    buki_mes[0].func = actSt13cBukiChk;
+    self->mail = buki_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1517,7 +1535,7 @@ void actSt13cCageDownMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004FAD50;
+    sub->mainMail = cageDownMain_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -1531,8 +1549,8 @@ void actSt13cCageDownSwitch(volatile int a0)
     D_0063AA08 = 1;
 
     if (gflagChk(0x14) == 0) {
-        D_004FAD90[0].func = actSt13cCage1stDown;
-        sub->mail = D_004FAD90;
+        cageDownSwitch_mes[0].func = actSt13cCage1stDown;
+        sub->mail = cageDownSwitch_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1634,8 +1652,8 @@ void actSt13cGirlCarryAgainChk(volatile int a0)
 
     gflagOff(0x1A);
 
-    D_004FAE90[0].func = actSt13cGirlCarryChk;
-    self->mail = D_004FAE90;
+    girlCarryAgainChk_mes[0].func = actSt13cGirlCarryChk;
+    self->mail = girlCarryAgainChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 

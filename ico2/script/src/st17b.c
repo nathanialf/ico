@@ -16,7 +16,8 @@ typedef struct Act {
     ActMail *mail;    /* 0xD4 */
 } Act;
 
-extern ActMail D_004FB050[];
+static ActMail check_mes[2] = {{430}, {429}};
+
 extern int lightning2;
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
@@ -42,8 +43,8 @@ void actSt17bCheck(volatile int a0)
     scpAdpcmPlayRequestFunc(0x5E, &lightning2, 1, 0, 1);
 
     if (gflagChk(0x24) == 0) {
-        D_004FB050[0].func = actSt17bCheckChk;
-        self->mail = D_004FB050;
+        check_mes[0].func = actSt17bCheckChk;
+        self->mail = check_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }

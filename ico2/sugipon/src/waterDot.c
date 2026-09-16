@@ -46,8 +46,7 @@ inline void InitializeWaterDot(void)
 }
 
 extern void *iosMallocDebug(void *heap, int size, char *file, int line);
-extern void *D_0063A438;  /* the heap partition every waterDot record comes from */
-extern char D_00621388[]; /* "src/waterDot.c", the __FILE__ the malloc tag carries */
+extern void *D_0063A438; /* the heap partition every waterDot record comes from */
 
 /* The three .data templates AllocWaterDot block-copies, in ROM order at
    0x4ED170, 0x4ED190 and 0x4ED1C0. Each is an explicit initialiser, which is
@@ -66,16 +65,16 @@ WaterDotWork *AllocWaterDot(int gobj, int num, int num2)
     WaterDotWork *w;
     int i;
 
-    w = iosMallocDebug(D_0063A438, sizeof(WaterDotWork), D_00621388, 29);
+    w = iosMallocDebug(D_0063A438, sizeof(WaterDotWork), "src/waterDot.c", 29);
     *w = initWaterDotWork;
 
     w->num = num;
-    w->dot = iosMallocDebug(D_0063A438, num * sizeof(WaterDot), D_00621388, 33);
+    w->dot = iosMallocDebug(D_0063A438, num * sizeof(WaterDot), "src/waterDot.c", 33);
     for (i = 0; i < num; i++)
         w->dot[i] = initWaterDot;
 
     w->num2 = num2;
-    w->dot2 = iosMallocDebug(D_0063A438, num2 * sizeof(WaterDot), D_00621388, 38);
+    w->dot2 = iosMallocDebug(D_0063A438, num2 * sizeof(WaterDot), "src/waterDot.c", 38);
     for (i = 0; i < num2; i++)
         w->dot2[i] = initWaterDot2;
 

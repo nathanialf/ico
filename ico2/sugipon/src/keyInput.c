@@ -16,10 +16,6 @@ typedef struct Pad {
 
 extern Pad D_0028F8F0[];
 extern char D_0028FED0[];
-extern char D_0054D7F8[];
-extern char D_0054D810[];
-extern char D_0054D820[];
-extern char D_0054D838[];
 extern int IosCdLock;
 extern void debug_StdPrintfDummy();
 extern void iosPadDevInit(void *a0);
@@ -30,8 +26,8 @@ void InitKeyInput(void)
     int i;
     int j;
 
-    debug_StdPrintfDummy(D_0054D7F8);
-    debug_StdPrintfDummy(D_0054D810);
+    debug_StdPrintfDummy("InitKeyInput2() in\n");
+    debug_StdPrintfDummy("PadInit\n");
     iosPadDevInit(D_0028FED0);
     for (i = 0; i < 2; i++) {
         D_0028F8F0[i].old = 0;
@@ -42,8 +38,8 @@ void InitKeyInput(void)
             D_0028F8F0[i].hist[j] = 0;
         }
     }
-    debug_StdPrintfDummy(D_0054D820);
-    debug_StdPrintfDummy(D_0054D838);
+    debug_StdPrintfDummy("InitKeyInput2() out\n");
+    debug_StdPrintfDummy("signal to main\n");
     SignalSema(IosCdLock);
 }
 

@@ -46,7 +46,43 @@ extern void lt_switch_layout(int a0);
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7BD0[];
+
+static ActMail demo01_mes[2] = {{430}, {429}};
+
+static ActMail demo02_mes[2] = {{430}, {429}};
+
+static ActMail demo03_mes[2] = {{430}, {429}};
+
+static ActMail demo04_mes[2] = {{430}, {429}};
+
+static ActMail demo05_mes[2] = {{430}, {429}};
+
+static ActMail demo06_mes[2] = {{430}, {429}};
+
+static ActMail demo07_mes[2] = {{430}, {429}};
+
+static ActMail demo10_mes[2] = {{430}, {429}};
+
+static ActMail demo11_mes[2] = {{430}, {429}};
+
+static ActMail demo12_mes[2] = {{430}, {429}};
+
+static ActMail demo13_mes[2] = {{430}, {429}};
+
+static ActMail staff1_mes[2] = {{430}, {429}};
+
+static ActMail staff2_mes[2] = {{430}, {429}};
+
+static ActMail staff3_mes[2] = {{430}, {429}};
+
+static ActMail ed_demo14_mes[2] = {{430}, {429}};
+
+static ActMail st27aEnd_mes[2] = {{430}, {429}};
+
+static ActMail logo_mes[2] = {{430}, {429}};
+
+static ActMail end_mes[2] = {{430}, {429}};
+
 extern int D_0063AA08;
 extern void actEndDemo01Chk(volatile int a0);
 
@@ -69,8 +105,8 @@ void actEndDemo01(volatile int a0)
         stage_SetAnimation(0x22, 0, -1);
         stage_SetAnimation(0x24, 0, 0);
         stage_SetAnimation(0x26, 0, 0);
-        D_004F7BD0[0].func = actEndDemo01Chk;
-        self->mail = D_004F7BD0;
+        demo01_mes[0].func = actEndDemo01Chk;
+        self->mail = demo01_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -174,7 +210,6 @@ extern void stage_SetLoopFlag(int key, int a1);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void SelectBoyCrown(int a0, int a1);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7BF0[];
 extern int D_0063AA08;
 extern int D_00639EA4;
 extern void actEndDemo02Chk(volatile int a0);
@@ -203,8 +238,8 @@ void actEndDemo02(volatile int a0)
     stage_SetAnimation(0x230, 0, -1);
     stage_SetAnimation(0x231, 0, -1);
     SelectBoyCrown(D_00639EA4, 2);
-    D_004F7BF0[0].func = actEndDemo02Chk;
-    self->mail = D_004F7BF0;
+    demo02_mes[0].func = actEndDemo02Chk;
+    self->mail = demo02_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -303,7 +338,6 @@ extern void stage_SetLoopFlag(int key, int a1);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void SelectBoyCrown(int a0, int a1);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7C70[];
 extern int D_0063AA08;
 extern int D_00639EA4;
 extern void actEndDemo06Chk(volatile int a0);
@@ -331,8 +365,8 @@ void actEndDemo06(volatile int a0)
         stage_SetAnimation(0x24, 0, 0);
         stage_SetAnimation(0x26, 0, 0);
         SelectBoyCrown(D_00639EA4, 2);
-        D_004F7C70[0].func = actEndDemo06Chk;
-        self->mail = D_004F7C70;
+        demo06_mes[0].func = actEndDemo06Chk;
+        self->mail = demo06_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -394,7 +428,6 @@ extern void stage_SetLoopFlag(int key, int a1);
 extern int gflagChk(int a0);
 extern void SelectBoyCrown(int a0, int a1);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7C90[];
 extern int D_0063AA08;
 extern int D_00639EA4;
 extern void actEndDemo07Chk(volatile int a0);
@@ -416,8 +449,8 @@ void actEndDemo07(volatile int a0)
 
     if (gflagChk(0x159) == 0) {
         SelectBoyCrown(D_00639EA4, 2);
-        D_004F7C90[0].func = actEndDemo07Chk;
-        self->mail = D_004F7C90;
+        demo07_mes[0].func = actEndDemo07Chk;
+        self->mail = demo07_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -436,7 +469,21 @@ extern void scpPlayMotNode(int a0, int mot, int node, int a3);
 extern void scpPlayMot(int a0, int mot);
 extern int stage_CheckAnimationFinish(int a0);
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
-extern const long long D_00622600[];
+
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads, which is what makes gcc
+   emit the ld/sd pair the ROM has. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+static const ConstVec conte14_7Pos = {{-4743.0f, -661.0f, 2503.0f, 1.0f}};
+
+static const ConstVec staff3DemoPos = {{-800.0f, 0.0f, -1000.0f, 1.0f}};
+
+static const ConstVec conte14_14Pos = {{16975.0f, 71.0f, -4332.0f, 1.0f}};
+
 extern int D_00639EA4;
 extern int D_00639EA8;
 
@@ -461,13 +508,13 @@ void actConte14_7(volatile int a0)
 
     _ACTWait(1);
 
-    ofs[0] = D_00622600[0];
-    ofs[1] = D_00622600[1];
+    ofs[0] = conte14_7Pos.d[0];
+    ofs[1] = conte14_7Pos.d[1];
     sceVu0SubVector(dir, ofs, test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
 
-    ofs[0] = D_00622600[0];
-    ofs[1] = D_00622600[1];
+    ofs[0] = conte14_7Pos.d[0];
+    ofs[1] = conte14_7Pos.d[1];
     sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)scpSearchGobj(0x954)));
     scpPlayMotDir((int)scpSearchGobj(0x954), dir);
 
@@ -494,7 +541,6 @@ extern void stage_SetLoopFlag(int key, int a1);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void SelectBoyCrown(int a0, int a1);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7CB0[];
 extern int D_0063AA08;
 extern int D_00639EA4;
 extern void actEndDemo10Chk(volatile int a0);
@@ -515,8 +561,8 @@ void actEndDemo10(volatile int a0)
     stage_SetAnimation(0x22A, 1, 0);
     SelectBoyCrown(D_00639EA4, 2);
     stage_SetAnimation(0x352, 0, 0);
-    D_004F7CB0[0].func = actEndDemo10Chk;
-    self->mail = D_004F7CB0;
+    demo10_mes[0].func = actEndDemo10Chk;
+    self->mail = demo10_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -689,7 +735,6 @@ extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7D30[];
 extern int D_0063AA08;
 extern void actStaff1Chk(volatile int a0);
 
@@ -709,8 +754,8 @@ void actStaff1(volatile int a0)
     stage_SetAnimation(0x24, 0, 0);
     stage_SetAnimation(0x26, 0, 0);
     stage_SetAnimation(0x23, 0, 0);
-    D_004F7D30[0].func = actStaff1Chk;
-    self->mail = D_004F7D30;
+    staff1_mes[0].func = actStaff1Chk;
+    self->mail = staff1_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -966,7 +1011,6 @@ extern int stage_ContinueAnimation(int a0, int a1);
 extern void _ACTWait(int a0);
 extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-extern const long long D_00622610[];
 extern int D_00639EA4;
 
 void actStaff3Demo(volatile int a0)
@@ -978,8 +1022,8 @@ void actStaff3Demo(volatile int a0)
 
     scpPlayPosSet((int)scpSearchGobj(0xB19), -7.0f, -5725.0f, 18.0f);
 
-    ofs[0] = D_00622610[0];
-    ofs[1] = D_00622610[1];
+    ofs[0] = staff3DemoPos.d[0];
+    ofs[1] = staff3DemoPos.d[1];
     sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)scpSearchGobj(0xB19)));
     scpPlayMotDir((int)scpSearchGobj(0xB19), dir);
 
@@ -1074,7 +1118,6 @@ extern void ACTSendMailCorrect(int a0, int mail);
    post, 429 the trailing entry); .func is filled in at run time. Named in
    this TU's own terse snake_case house style (its MAIN.MAP globals are
    ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
-static ActMail ed_demo14_mes[2] = {{430}, {429}};
 
 extern int D_0063A054;
 extern int D_0063AA08;
@@ -1129,7 +1172,6 @@ extern void scpPlayMotDir(int a0, void *dir);
 extern void scpPlayEnd(int a0);
 extern void lt_switch_layout(int a0);
 extern void gflagOff(int a0);
-extern const long long D_00622620[];
 extern int D_00639EA4;
 extern int D_0063AA08;
 
@@ -1193,8 +1235,8 @@ void actConte14_14(volatile int a0)
 
     scpPlayMot(D_00639EA4, 0);
 
-    ofs[0] = D_00622620[0];
-    ofs[1] = D_00622620[1];
+    ofs[0] = conte14_14Pos.d[0];
+    ofs[1] = conte14_14Pos.d[1];
     sceVu0SubVector(dir, ofs, test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
 
@@ -1212,7 +1254,6 @@ extern void _ACTWait(int a0);
 extern PObjGObj *scpSearchGobj(int a0);
 extern int gflagChk(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7DB0[];
 extern int D_0063AA00;
 extern void actSt27aEndChk(volatile int a0);
 
@@ -1235,8 +1276,8 @@ void actSt27aEnd(volatile int a0)
     }
 
     if (gflagChk(0x163) == 0) {
-        D_004F7DB0[0].func = actSt27aEndChk;
-        self->mail = D_004F7DB0;
+        st27aEnd_mes[0].func = actSt27aEndChk;
+        self->mail = st27aEnd_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1446,7 +1487,6 @@ extern void ACTSendMailCorrect(int a0, int mail);
    (its MAIN.MAP globals are ed1..ed6, sea, happy_end) for the sequence it
    belongs to; among the role-plausible spellings this is one that also puts
    the record ahead of the handler in gcc's expression-hash order. */
-static ActMail end_mes[2] = {{430}, {429}};
 
 extern int D_0063AA08;
 extern int NonLinearCameraMove;
@@ -1515,7 +1555,6 @@ extern void lt_switch_layout(int a0);
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7C10[];
 extern int D_0063AA08;
 extern int D_00639EA4;
 extern void actEndDemo03Chk(volatile int a0);
@@ -1537,8 +1576,8 @@ void actEndDemo03(volatile int a0)
     stage_SetAnimation(0x4A, 0, -1);
     stage_SetAnimation(0x4B, 0, -1);
     stage_SetAnimation(0x4D, 0, -1);
-    D_004F7C10[0].func = actEndDemo03Chk;
-    self->mail = D_004F7C10;
+    demo03_mes[0].func = actEndDemo03Chk;
+    self->mail = demo03_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1549,7 +1588,6 @@ extern void scpPlayMot(int a0, int mot);
 extern void lt_switch_layout(int a0);
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7C30[];
 extern int D_0063AA08;
 extern int D_00639EA4;
 extern void actEndDemo04Chk(volatile int a0);
@@ -1568,8 +1606,8 @@ void actEndDemo04(volatile int a0)
     lt_switch_layout(0x37);
     D_0063AA08 = 1;
     scpFadeOut(255.0f, 0, 0, 0);
-    D_004F7C30[0].func = actEndDemo04Chk;
-    self->mail = D_004F7C30;
+    demo04_mes[0].func = actEndDemo04Chk;
+    self->mail = demo04_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1578,7 +1616,6 @@ extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7C50[];
 extern int D_0063AA08;
 extern void actEndDemo05Chk(volatile int a0);
 
@@ -1591,8 +1628,8 @@ void actEndDemo05(volatile int a0)
 
     lt_switch_layout(0x37);
     D_0063AA08 = 1;
-    D_004F7C50[0].func = actEndDemo05Chk;
-    self->mail = D_004F7C50;
+    demo05_mes[0].func = actEndDemo05Chk;
+    self->mail = demo05_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1602,7 +1639,6 @@ extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
 extern void SelectBoyCrown(int a0, int a1);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7CD0[];
 extern int D_0063AA08;
 extern int D_00639EA4;
 extern void actEndDemo11Chk(volatile int a0);
@@ -1617,8 +1653,8 @@ void actEndDemo11(volatile int a0)
     lt_switch_layout(0x37);
     D_0063AA08 = 1;
     SelectBoyCrown(D_00639EA4, 2);
-    D_004F7CD0[0].func = actEndDemo11Chk;
-    self->mail = D_004F7CD0;
+    demo11_mes[0].func = actEndDemo11Chk;
+    self->mail = demo11_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1628,7 +1664,6 @@ extern void _ACTWait(int a0);
 extern void lt_switch_layout(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7CF0[];
 extern int D_0063AA08;
 extern void actEndDemo12Chk(volatile int a0);
 
@@ -1642,8 +1677,8 @@ void actEndDemo12(volatile int a0)
     lt_switch_layout(0x37);
     D_0063AA08 = 1;
     stage_SetAnimation(0x50, 0, -1);
-    D_004F7CF0[0].func = actEndDemo12Chk;
-    self->mail = D_004F7CF0;
+    demo12_mes[0].func = actEndDemo12Chk;
+    self->mail = demo12_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1654,7 +1689,6 @@ extern void lt_switch_layout(int a0);
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern void SelectBoyCrown(int a0, int a1);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7D10[];
 extern int D_0063AA08;
 extern int D_00639EA4;
 extern void actEndDemo13Chk(volatile int a0);
@@ -1670,8 +1704,8 @@ void actEndDemo13(volatile int a0)
     D_0063AA08 = 1;
     scpFadeOut(255.0f, 0xFF, 0xFF, 0xFF);
     SelectBoyCrown(D_00639EA4, 2);
-    D_004F7D10[0].func = actEndDemo13Chk;
-    self->mail = D_004F7D10;
+    demo13_mes[0].func = actEndDemo13Chk;
+    self->mail = demo13_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1683,7 +1717,6 @@ extern PObjGObj *scpSearchGobj(int a0);
 extern void scpSetBoyWeaponGObj(PObjGObj *gobj);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7D50[];
 extern int D_0063AA08;
 extern void actStaff2Chk(volatile int a0);
 
@@ -1700,8 +1733,8 @@ void actStaff2(volatile int a0)
     *(int *)(scpSearchGobj(0xAE9)->f15C + 0x658) = 1;
     *(int *)(scpSearchGobj(0xAEA)->f15C + 0x658) = 1;
     stage_SetAnimation(0x10D, 0, 0);
-    D_004F7D50[0].func = actStaff2Chk;
-    self->mail = D_004F7D50;
+    staff2_mes[0].func = actStaff2Chk;
+    self->mail = staff2_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1713,7 +1746,6 @@ extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern void DeleteBoyWeapon(void);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7D70[];
 extern int D_0063AA08;
 extern void actStaff3Chk(volatile int a0);
 
@@ -1730,8 +1762,8 @@ void actStaff3(volatile int a0)
     DeleteBoyWeapon();
     stage_SetAnimation(0x48, 0, 0);
     stage_SetAnimation(0x4D, 0, 0);
-    D_004F7D70[0].func = actStaff3Chk;
-    self->mail = D_004F7D70;
+    staff3_mes[0].func = actStaff3Chk;
+    self->mail = staff3_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1739,7 +1771,6 @@ void actStaff3(volatile int a0)
 extern Act *actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
-extern ActMail D_004F7DD0[];
 extern void actEndLogoChk(volatile int a0);
 
 void actEndLogo(volatile int a0)
@@ -1749,8 +1780,8 @@ void actEndLogo(volatile int a0)
 
     _ACTWait(1);
 
-    D_004F7DD0[0].func = actEndLogoChk;
-    self->mail = D_004F7DD0;
+    logo_mes[0].func = actEndLogoChk;
+    self->mail = logo_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

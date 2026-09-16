@@ -5,11 +5,30 @@
 extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
+
 /* The member's own static tables.  They live in the shipped data blob, so the
-   member reaches them by name rather than re-emitting them: D_00637960 is
-   fdlibm's `init_jk` (three ints) and D_00637970 its `PIo2` (eleven floats). */
-extern const int D_00637960[];
-extern const float D_00637970[];
+   member reaches them by name rather than re-emitting them: init_jk is
+   fdlibm's `init_jk` (three ints) and PIo2 its `PIo2` (eleven floats). */
+static const int init_jk[] = {
+    4,
+    7,
+    9,
+};
+
+static const float PIo2[] = {
+    1.5703125f,
+    0.000457763671875f,
+    2.5987625122070312e-05f,
+    7.543712854385376e-08f,
+    6.002665031701326e-11f,
+    7.389644451905042e-13f,
+    5.384581669432009e-15f,
+    5.637851296924623e-18f,
+    8.300922883092143e-20f,
+    3.2756352257099896e-22f,
+    6.333101564859118e-25f,
+};
+
 extern float scalbnf(float x, int n);
 extern float floorf(float x);
 
@@ -19,7 +38,7 @@ int __kernel_rem_pio2f(float *x, float *y, int e0, int nx, int prec, const int *
     float z, fw, f[20], fq[20], q[20];
 
     /* initialize jk*/
-    jk = D_00637960[prec];
+    jk = init_jk[prec];
     jp = jk;
 
     /* determine jx,jv,q0, note that 3>q0 */
@@ -147,7 +166,7 @@ recompute:
     /* compute PIo2[0,...,jp]*q[jz,...,0] */
     for (i = jz; i >= 0; i--) {
         for (fw = 0.0f, k = 0; k <= jp && k <= jz - i; k++)
-            fw += D_00637970[k] * q[i + k];
+            fw += PIo2[k] * q[i + k];
         fq[jz - i] = fw;
     }
 

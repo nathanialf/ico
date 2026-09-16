@@ -10,7 +10,6 @@ typedef struct {
     unsigned char hi;
 } DObjBlk8;
 
-extern char D_00618F30[];
 extern int D_0063A438;
 extern void LocalizeGeometry();
 extern DObjBlk8 D_0063A810;
@@ -40,6 +39,14 @@ typedef struct {
     long long w[2];
 } DObjBlk10;
 
+/* The unit +Z direction the motion state starts from.  The long long view is
+   what gives the local its 8-byte alignment, which is why the ROM copies the
+   template with a pair of ld/sd rather than the unaligned ldl/ldr sequence. */
+typedef union {
+    float f[4];
+    long long w[2];
+} DObjVec;
+
 typedef struct {
     long long w[8];
 } DObjBlk40;
@@ -54,7 +61,6 @@ extern DObjBlk40 D_003198A0;
 extern DObjBlk20 D_003198E0;
 extern DObjBlkC0 D_00319900;
 extern DObjBlk40 D_003199C0;
-extern DObjBlk10 D_00618F40;
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 extern void InitMotionGeoInfo(void *p, float a, float b, float c, float d, float e, float f);
 extern void InitMotionStateInfo(void *p);
@@ -83,7 +89,6 @@ void initGeometryState(char *self, float *lay)
 {
     DObjGObj g;
     DObjGObj *p;
-    float dir[4];
     int i;
     int j;
     int k;
@@ -102,9 +107,9 @@ void initGeometryState(char *self, float *lay)
             *(float *)(p->data.p + 0x1DC) + *(float *)(*(char **)(p->data.p + 0x8C) + 0x14) *
                                                 *(float *)(*(char **)(self + 0x870) + 0x20);
         *(void **)(p->data.p + 0x7D0) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 5, D_00618F30, 125);
+            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 5, __FILE__, 125);
         *(void **)(p->data.p + 0x7B4) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 5, D_00618F30, 127);
+            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 5, __FILE__, 127);
         InitMotionRotElem(*(void **)(p->data.p + 0x7D0), *(int *)(p->data.p + 0x88));
         InitMotionRotElem(*(void **)(p->data.p + 0x7B4), *(int *)(p->data.p + 0x88));
         CopyVector(p->data.p + 0x7E0, D_0028FF00);
@@ -113,34 +118,36 @@ void initGeometryState(char *self, float *lay)
         *(int *)(p->data.p + 0x808) = 0;
         *(DObjBlk8 *)(p->data.p + 0x800) = D_0063A810;
         *(void **)(p->data.p + 0x80C) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, D_00618F30, 137);
+            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, __FILE__, 137);
         for (i = 0; i < *(int *)(p->data.p + 0x88); i++) {
             *(DObjBlk40 *)(*(char **)(p->data.p + 0x80C) + i * 64) = D_003198A0;
         }
         *(void **)(p->data.p + 0x810) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 2, D_00618F30, 145);
+            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 2, __FILE__, 145);
         for (j = 0; j < *(int *)(p->data.p + 0x88); j++) {
             *(int *)(*(char **)(p->data.p + 0x810) + j * 4) = 0;
         }
         *(void **)(p->data.p + 0x814) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 4, D_00618F30, 153);
+            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 4, __FILE__, 153);
         for (k = 0; k < *(int *)(p->data.p + 0x88); k++) {
             CopyVector(*(char **)(p->data.p + 0x814) + k * 16, D_0028FEF0);
         }
         *(void **)(p->data.p + 0x818) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, D_00618F30, 161);
+            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, __FILE__, 161);
         for (m = 0; m < *(int *)(p->data.p + 0x88); m++) {
             *(DObjBlk40 *)(*(char **)(p->data.p + 0x818) + m * 64) = D_003199C0;
         }
         *(void **)(p->data.p + 0x820) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88), D_00618F30, 169);
+            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88), __FILE__, 169);
         for (n = 0; n < *(int *)(p->data.p + 0x88); n++) {
             *(char *)(*(char **)(p->data.p + 0x820) + n) = 0;
         }
 
-        *(DObjBlk10 *)dir = D_00618F40;
-        _ApplyRyGV(dir, -lay[5]);
-        SetMotionDirection(p, dir);
+        {
+            DObjVec dir = {{0.0f, 0.0f, 1.0f, 1.0f}};
+            _ApplyRyGV(&dir, -lay[5]);
+            SetMotionDirection(p, &dir);
+        }
     } else {
         *(void **)(p->data.p + 0x7D0) = 0;
         *(void **)(p->data.p + 0x80C) = 0;
@@ -209,7 +216,7 @@ void allocObjectData(char *self, char *lay, int n)
     int k;
 
     *(DObjNode **)(self + 0x870) =
-        (DObjNode *)iosMallocDebug((int)D_0063A44C, n * 80, D_00618F30, 299);
+        (DObjNode *)iosMallocDebug((int)D_0063A44C, n * 80, __FILE__, 299);
     for (i = 0; i < n; i++) {
         {
             char *e = (char *)(i * 80 + (int)*(DObjNode **)(self + 0x870));
@@ -269,7 +276,7 @@ void allocObjectData(char *self, char *lay, int n)
 
 void initInitialInverseMatrix(char *a0)
 {
-    char *m = iosMallocDebug(D_0063A438, *(int *)(a0 + 0x88) << 6, D_00618F30, 0x14D);
+    char *m = iosMallocDebug(D_0063A438, *(int *)(a0 + 0x88) << 6, __FILE__, 0x14D);
     *(char **)(a0 + 0x90) = m;
     GetInitialInverseMatrixByDObj(m, a0);
 }
@@ -293,7 +300,7 @@ static inline void initPolyHead(char *d)
 
     h = *(char **)(d + 0x854);
     q = *(char **)(h + 0x28);
-    *(char **)(d + 0x874) = iosMallocDebug((int)D_0063A44C, 0x100, D_00618F30, 238);
+    *(char **)(d + 0x874) = iosMallocDebug((int)D_0063A44C, 0x100, __FILE__, 238);
     *(int *)(*(char **)(d + 0x874) + 0xF0) = *(int *)(*(char **)(q + 0x874) + 0xF0);
     if (*(int *)(*(char **)(d + 0x874) + 0xF0) == 4) {
         ((PolyFlags *)(h + 0x30))->kind = 3;
@@ -310,8 +317,8 @@ static inline void allocMatrixArrays(char *d, int n)
 {
     int i;
 
-    *(char **)(d + 0xC) = iosMallocDebug((int)D_0063A44C, n * 64, D_00618F30, 259);
-    *(char **)(d + 0x10) = iosMallocDebug((int)D_0063A44C, n * 16, D_00618F30, 259);
+    *(char **)(d + 0xC) = iosMallocDebug((int)D_0063A44C, n * 64, __FILE__, 259);
+    *(char **)(d + 0x10) = iosMallocDebug((int)D_0063A44C, n * 16, __FILE__, 259);
     *(int *)(d + 0x8) = n;
     for (i = 0; i < n; i++) {
         _CopyMatrix(*(char **)(d + 0xC) + i * 64, d + 0x20);
@@ -335,7 +342,7 @@ static inline void allocIntTable(char *d, int n)
 {
     int i;
 
-    *(char **)(d + 0x838) = iosMallocDebug((int)D_0063A44C, n * 4, D_00618F30, 283);
+    *(char **)(d + 0x838) = iosMallocDebug((int)D_0063A44C, n * 4, __FILE__, 283);
     for (i = 0; i < n; i++) {
         *(int *)(*(char **)(d + 0x838) + i * 4) = 0;
     }
@@ -402,11 +409,6 @@ typedef struct {
 } DObjBlk880;
 
 extern DObjBlk880 D_00319020;
-extern char D_00618F50[];
-extern char D_00618F68[];
-extern char D_00618F98[];
-extern char D_00618FB8[];
-extern char D_00618FD8[];
 extern void *D_0063A44C;
 extern void CSVSYSTEM_ReadCharFiles(char *d, int id);
 extern void debug_StdPrintfDummy();
@@ -434,7 +436,7 @@ static inline void makeSlotTable(char *d)
 {
     int i;
 
-    *(char **)(d + 0x840) = iosMallocDebug(D_0063A438, 53, D_00618F30, 440);
+    *(char **)(d + 0x840) = iosMallocDebug(D_0063A438, 53, __FILE__, 440);
     for (i = 0; i < 53; i++) {
         (*(char **)(d + 0x840))[i] = findSlot(d, i);
     }
@@ -444,24 +446,25 @@ char *CSVSYSTEM_InitDObj(int id, float *lay)
 {
     char *d;
 
-    d = iosMallocDebug((int)D_0063A44C, 0x880, D_00618F30, 463);
+    d = iosMallocDebug((int)D_0063A44C, 0x880, __FILE__, 463);
     *(DObjBlk880 *)d = D_00319020;
     if (id != 0x610) {
         CSVSYSTEM_ReadCharFiles(d, id);
     }
-    debug_StdPrintfDummy(D_00618F50);
+    debug_StdPrintfDummy("\x1b[35mALLOCED DOBJ\x1b[m\n");
     if (*(int *)(d + 0x854) != 0 || *(int *)(d + 0x8C) != 0) {
         initPolygonState(d, lay);
     }
-    debug_StdPrintfDummy(D_00618F68, d, *(int *)(d + 0x854));
-    debug_StdPrintfDummy(D_00618F98);
+    debug_StdPrintfDummy(" ------------------ allocate DOBJ %p: POBJ: %p\n", d,
+                         *(int *)(d + 0x854));
+    debug_StdPrintfDummy("\x1b[35mINITED POLYGONSTATE\x1b[m\n");
     initGeometryState(d, lay);
-    debug_StdPrintfDummy(D_00618FB8);
+    debug_StdPrintfDummy("\x1b[35mINITED GEOMETRYSTATE\x1b[m\n");
     if (*(int *)(d + 0x8C) != 0) {
         initInitialInverseMatrix(d);
         makeSlotTable(d);
     }
-    debug_StdPrintfDummy(D_00618FD8);
+    debug_StdPrintfDummy("\x1b[35mEND OF INIT DOBJ\x1b[m\n");
     return d;
 }
 
