@@ -1,9 +1,11 @@
 #include "common.h"
+#include "lineManager.h"
+#include "GifPacket.h"
 
 extern int D_0063B8E8;
-extern void gif_SetGsReg(int a0, long long a1);
+/* kept local: this TU's uses of _FTOI4Vector do not fit the prototype in Matrix.h */
 extern void _FTOI4Vector();
-extern int _getLine();
+/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix();
 extern int D_0063B8E4;
 

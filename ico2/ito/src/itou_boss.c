@@ -1,12 +1,25 @@
 #include "common.h"
+#include "itou_boss.h"
+#include "debug.h"
+#include "memory.h"
+#include "gobj.h"
+#include "act-game.h"
+#include "act.h"
+#include "enemy_act.h"
+#include "script.h"
+#include "Matrix.h"
+#include "StageAnimation.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "quaternion.h"
 
 extern signed char D_006E9A40[];
-extern void *isysGObjSearchFromObjKindID_begin(int id);
+/* kept local: this TU's uses of GetParticleEffectData do not fit the prototype in particleEffect.h */
 extern char *GetParticleEffectData();
+/* kept local: this TU's uses of pbga_start do not fit the prototype in itou_sub.h */
 extern void pbga_start(void *a0, int a1);
-extern void _CopyVector(void *dst, void *src);
+/* kept local: the declaration in quaternion.h changes this TU codegen */
 extern void CopyQuaternion(void *dst, void *src);
-extern void ExecuteSEPackage(int a0, int a1);
 
 void effect_end_func(void *a0)
 {
@@ -23,8 +36,7 @@ void effect_end_func(void *a0)
 }
 
 extern float _GetRandom(void);
-extern void GetRootPosition(void *dst, int handle);
-extern char IdentityQuaternion[];
+/* kept local: this TU's uses of GatherEffect_Set do not fit the prototype in gather_effect.h */
 extern int GatherEffect_Set(int kind, void *pos, void *tmpl, void *v, void *fn, float f);
 
 void bossCtrlBeforeFunc(char *self)
@@ -71,8 +83,6 @@ void bossCtrlBeforeFunc(char *self)
 
 extern unsigned char D_006E9A30[];
 extern int stage_no;
-extern void _ACTSetEnemyDisappearSpeed(void *a0, float speed);
-extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, float f, int a1);
 
 /* INTERIM: the January listing inlines InqCapsuleGhostBossStage into
    BossEnemyFunc, but this TU's own out-of-line copy has to stay at its ROM
@@ -116,9 +126,6 @@ void BossEnemyFunc(void *self)
    ico2/ito/src/queen's at 0x001A2A10 */
 INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/itou_boss", func_001A08F8);
 
-extern void scpWakeupEnemyAll(void);
-extern void scpSleepEnemyAll(void);
-
 void BossCtrlGeo(void *self)
 {
     if (*(signed char *)D_006E9A30 != 0)
@@ -137,8 +144,6 @@ void itou_boss_gflag_init(void)
 
 extern int D_0063B13C;
 extern char D_00556880[];
-extern int stage_DispBgAnimation(void *a0);
-extern void debug_Printf(int x, int y, unsigned int color, char *fmt, ...);
 
 void BossCtrlDL(void)
 {
@@ -180,17 +185,9 @@ int InqCapsuleGhostBossStage(void)
 extern char D_00556850[];
 extern int D_0063C2EC;
 extern int D_0063C2F0;
-extern void actInitialize();
-extern void debug_StdPrintfDummy(char *msg, int n);
-extern void _ACTWait(int a0);
-extern void *isysGObjSearchFromObjKindID_begin(int id);
-extern void *isysGObjSearchFromObjKindID_next(void *o);
-extern void SetRootPosition(void *a0, float *pos);
-extern void actCreateSubThread(void *entry, int prio);
+
 /* func_001A08F8 is the census gene_enemy, this TU's static twin of src/queen's
    global; the ROM passes its address as the sub-thread entry. */
-extern void func_001A08F8();
-extern void BossCtrlGeo();
 
 /* listing lines 157-162: send an enemy off-world and clear its live flag
    (also inlined into the census gene_enemy at func_001A08F8) */
@@ -238,11 +235,8 @@ extern char D_00556860[];
 extern char D_00556870[];
 extern void *D_0063A438;
 extern signed char D_006E9A40[];
-extern void actInitialize();
-extern void actInitialize_ext_charcter(void *a0);
-extern void debug_StdPrintfDummy(char *msg, int n);
+/* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
 extern void ico_m33_to_quat(void *a0, void *a1);
-extern int iosMallocDebug(void *ptr, int a1, char *file, int line);
 extern void sceVu0CopyVector(void *a0, void *a1);
 
 int InitBossCtrlGeo(void *a0)
@@ -289,8 +283,6 @@ void CapsuleGhostBossStart(void)
     D_006E9A30[0] = 1;
 }
 
-extern int isEnemyHyde(void *o);
-
 int InqCapsuleGhostBossEnd(void)
 {
     int no = 0;
@@ -317,6 +309,7 @@ int InqCapsuleGhostBossEnd(void)
     return cnt >= 0x35 && no == 0;
 }
 
+/* kept local: this TU's uses of GetParticleEffectData do not fit the prototype in particleEffect.h */
 extern char *GetParticleEffectData(void);
 
 void gene_eff_end_func(void)

@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "DisplayFont.h"
 
 /* staffroll.o's whole .data run: the roll's display area, centred on the
    origin, {x, y, width, height}.  Only the first word is read here, as the
@@ -96,9 +98,6 @@ int staffRollScroll(void)
 extern char *staffRollNameData[];
 extern char D_0063B660[];
 extern int D_0063B674;
-extern int font_GetHeight(void);
-extern int font_CheckAlign(StaffRollCol *col, char *str);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -131,7 +130,6 @@ int staffRollNameOut(void)
 }
 
 extern unsigned char D_0063B66B;
-extern void font_Init(void);
 
 void staffRollMain(void)
 {

@@ -1,4 +1,20 @@
 #include "common.h"
+#include "st02a.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "way_llf.h"
+#include "camera-root.h"
+#include "generator.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "box.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "particleLayout.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -20,10 +36,8 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int gflagChk(int a0);
-extern void SetWayGroupActive(int grp, int on);
-extern void stage_SetAnimation(int no, int a1, int a2);
 
 void actSt02aInit(void)
 {
@@ -35,16 +49,12 @@ void actSt02aInit(void)
     }
 }
 
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
 extern char *D_00639EA4;
 extern int D_00639EA8;
 extern ActMail D_004F8050[];
 extern ActMail D_004F8070[];
-extern void actSt02aDoorUpChk(volatile int a0);
-extern void actSt02aDoorDownChk(volatile int a0);
-extern Act *actInitialize(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void _ACTWait(int a0);
 
 void actSt02aDoor(volatile int a0)
 {
@@ -71,13 +81,10 @@ void actSt02aDoor(volatile int a0)
 
 extern long long D_00622710[];
 extern ActMail D_004F8090[];
-extern void actSt02aDoorUpEffect(volatile int a0);
+/* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-extern int actCreateSubThread(void *entry, int prio);
+/* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
 extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
-extern int soundSeDefPlay(int se, int a1, void *pos, int a3);
-extern void soundSeDefStop(int handle);
-extern int stage_CheckAnimationFinish(int a0);
 
 void actSt02aDoorUpChk(volatile int a0)
 {
@@ -111,7 +118,6 @@ void actSt02aDoorUpChk(volatile int a0)
 }
 
 extern ActMail D_004F80B0[];
-extern void actSt02aDoorDownEffect(volatile int a0);
 
 void actSt02aDoorDownChk(volatile int a0)
 {
@@ -148,17 +154,18 @@ extern int D_0028F8F4[];
 extern int D_0063AA08;
 extern int st02a_fence;
 extern int D_0063C504;
-extern void actSt02aFenceOpenSub(volatile int a0);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern int scpAdpcmFadeCloseFunc(int *h, int fade);
-extern void iosThreadSetPri(int th, int pri);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
-extern int lt_fade_status(void);
-extern void SetCameraFlag_GamecamCutBack(void);
-extern void SetWayGroupActive(int grp, int on);
 
 void actSt02aFenceOpen(volatile int a0)
 {
@@ -202,12 +209,11 @@ void actSt02aFenceOpen(volatile int a0)
     scpWakeupEnemyAll();
 }
 
-extern void CopyVector(void *a0, float *a1);
 extern long long D_00622740[];
 extern char *D_00639EA4;
-extern int GetSkeltonFocusNode(void *obj, int kind);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern void scpEffectStart(void *buf, int kind);
+/* kept local: this TU's uses of scpTriggerPosBall do not fit the prototype in script.h */
 extern int scpTriggerPosBall(void *a, void *b, float f);
 
 void actSt02WaterFallBoySplashCheck(volatile int a0)
@@ -239,9 +245,8 @@ void actSt02WaterFallBoySplashCheck(volatile int a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st02a", actSt02aWaterFallReflactionEffect);
 
-extern void DeleteParticleLayout(PObjGObj *a0);
+/* kept local: this TU's uses of scpTransGObj do not fit the prototype in script.h */
 extern void scpTransGObj(void *a0, float x, float y, float z);
-extern void ReInitBoxGeo(PObjGObj *a0);
 
 void actSt02aWaterFallChk(volatile int a0)
 {
@@ -269,13 +274,11 @@ extern int gondola;
 extern int D_00639EAC;
 extern int D_0063AA08;
 extern ActMail D_004F81D0[];
-extern void actSt02aGondolaMain(volatile int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmCloseFunc(int *a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int iosPadActRequest(int port, int id);
-extern void gflagOn(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
 
 void actSt02aGondolaUp(volatile int a0)
@@ -321,7 +324,6 @@ void actSt02aGondolaUp(volatile int a0)
 
 extern int gondola_test;
 extern ActMail D_004F81F0[];
-extern void gflagOff(int a0);
 
 void actSt02aGondolaDown(volatile int a0)
 {
@@ -389,10 +391,7 @@ void actSt02aBox(volatile int a0)
     }
 }
 
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
 extern ActMail D_004F8170[];
-extern void actSt02aGondolaMain(volatile int a0);
 
 void actSt02aGondola(volatile int a0)
 {
@@ -415,11 +414,7 @@ void actSt02aGondola(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern ActMail D_004F80F0[];
-extern void actSt02aFenceMain(volatile int a0);
 
 void actSt02aFence(volatile int a0)
 {
@@ -436,13 +431,7 @@ void actSt02aFence(volatile int a0)
     }
 }
 
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int actCreateSubThread(void *entry, int prio);
 extern ActMail D_004F8130[];
-extern void actSt02aWaterFallChk(volatile int a0);
-extern void actSt02aWaterFallReflactionEffect(volatile int a0);
 
 void actSt02aWaterFall(volatile int a0)
 {
@@ -464,9 +453,6 @@ void actSt02aWaterFall(volatile int a0)
     actCreateSubThread(actSt02aWaterFallReflactionEffect, 0x15);
 }
 
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-
 void actSt02aBoxEvent2(volatile int a0)
 {
     int x = a0;
@@ -480,11 +466,7 @@ void actSt02aBoxEvent2(volatile int a0)
     }
 }
 
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern ActMail D_004F8210[];
-extern void actSt02aEneChk(volatile int a0);
 
 void actSt02aEne(volatile int a0)
 {
@@ -500,12 +482,6 @@ void actSt02aEne(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
 
 void actSt02aEnemy1(volatile int a0)
 {
@@ -527,12 +503,6 @@ void actSt02aEnemy1(volatile int a0)
     _ACTWait(0x3C);
     Generator_Call(a0);
 }
-
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
 
 void actSt02aEnemy2(volatile int a0)
 {
@@ -557,7 +527,7 @@ void actSt02aEnemy2(volatile int a0)
     Generator_Call((int)scpSearchGobj(0x6A7));
 }
 
-extern Act *actInitialize(int a0);
+/* kept local: this TU's uses of scpSekizou do not fit the prototype in script.h */
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
@@ -571,13 +541,8 @@ void actSt02aSekizo(volatile int a0)
     scpSekizou(a0, 0x7B, 0x66, 0, 0x12, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
 }
 
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern ActMail D_004F8230[];
 extern ActMail D_004F8250[];
-extern void actSt02aWayOffChk(volatile int a0);
-extern void actSt02aWayOnChk(volatile int a0);
 
 void actSt02aWay(volatile int a0)
 {
@@ -599,11 +564,7 @@ void actSt02aWay(volatile int a0)
     }
 }
 
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern ActMail D_004F82B0[];
-extern void actSt02aTakiWayOnChk(volatile int a0);
 
 void actSt02aTakiWay(volatile int a0)
 {
@@ -620,11 +581,7 @@ void actSt02aTakiWay(volatile int a0)
     }
 }
 
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern ActMail D_004F8310[];
-extern void actSt02aSecretItemChk(volatile int a0);
 
 void actSt02aSecretItem(volatile int a0)
 {
@@ -709,11 +666,8 @@ void actSt02aFenceMain(volatile int a0)
     }
 }
 
-extern void lt_switch_layout(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 extern ActMail D_004F8110[];
-extern void actSt02aFenceOpen(volatile int a0);
 
 void actSt02aFenceSwitch(volatile int a0)
 {
@@ -729,8 +683,6 @@ void actSt02aFenceSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
 extern int st02a_fence;
 extern int D_0063C504;
 
@@ -750,12 +702,11 @@ void actSt02aFenceOpenSub(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
 extern ActMail D_004F8150[];
 extern ActMail D_004F8190[];
 extern ActMail D_004F81B0[];
-extern void actSt02aGondolaUp(volatile int a0);
-extern void actSt02aGondolaDown(volatile int a0);
 
 void actSt02aGondolaMain(volatile int a0)
 {
@@ -790,8 +741,8 @@ void actSt02aGondolaSwitch(volatile int a0)
 }
 
 extern int D_00639EA8;
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern void gflagOn(int a0);
 
 void actSt02aEneChk(volatile int a0)
 {
@@ -812,17 +763,14 @@ void actSt02aSekizoEvent(int x)
     volatile int local = x;
 }
 
+/* kept local: this TU's uses of scpCheckExistAliveEnemy do not fit the prototype in script.h */
 extern int scpCheckExistAliveEnemy(void);
-extern void SetWayGroupActive(int a0, int a1);
-extern void gflagOff(int a0);
 
 /* The way-on watcher's mail record: it installs actSt02aWayOffChk here and
    posts it. Word 0 of each entry is the mail id the entry answers (430 the
    actor post, 429 the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
 static ActMail way_on_mail[2] = {{430}, {429}};
-
-extern void actSt02aWayOffChk(volatile int a0);
 
 void actSt02aWayOnChk(volatile int a0)
 {
@@ -847,10 +795,9 @@ void actSt02aWayOnChk(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpCheckExistAliveEnemy do not fit the prototype in script.h */
 extern int scpCheckExistAliveEnemy(void);
-extern void SetWayGroupActive(int a0, int a1);
 extern ActMail D_004F8290[];
-extern void actSt02aWayOnChk(volatile int a0);
 
 void actSt02aWayOffChk(volatile int a0)
 {
@@ -879,8 +826,6 @@ void actSt02aWayOffChk(volatile int a0)
    actSt02aTakiWayOffChk). */
 static ActMail taki_on_mail[2] = {{430}, {429}};
 
-extern void actSt02aTakiWayOffChk(volatile int a0);
-
 void actSt02aTakiWayOnChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -905,8 +850,6 @@ void actSt02aTakiWayOnChk(volatile int a0)
    actSt02aTakiWayOnChk). */
 static ActMail taki_off_mail[2] = {{430}, {429}};
 
-extern void actSt02aTakiWayOnChk(volatile int a0);
-
 void actSt02aTakiWayOffChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -927,6 +870,7 @@ void actSt02aTakiWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpExplodeSecretItem do not fit the prototype in script.h */
 extern void scpExplodeSecretItem(void);
 
 void actSt02aSecretItemChk(volatile int a0)

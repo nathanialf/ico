@@ -1,8 +1,9 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
 
 extern char D_00639F48[];
 extern int D_0063A370;
-extern void debug_StdPrintfDummy(const char *fmt, ...);
 extern int sceSifInitRpc(int mode);
 extern int sceCdInit(int mode);
 extern int sceCdMmode(int media);
@@ -53,7 +54,6 @@ extern int sceCdRead(unsigned int lsn, unsigned int sectors, void *buf, sceCdRMo
 extern int sceCdSync(int mode);
 extern int sceCdGetError(void);
 extern void FlushCache(int mode);
-extern void *iosMallocDebug(IosPartition *part, int size, char *file, int line);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 

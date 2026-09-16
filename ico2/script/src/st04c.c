@@ -1,4 +1,13 @@
 #include "common.h"
+#include "st04c.h"
+#include "layout_texture.h"
+#include "thread.h"
+#include "s_init.h"
+#include "commonact.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "attackCheckBoundary.h"
 
 typedef struct ActMail {
     int mail;          /* 0x00 */
@@ -12,11 +21,10 @@ typedef struct Act {
     ActMail *mail;    /* 0xD4 */
 } Act;
 
+/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
 extern Act *actInitialize(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
-extern int stage_CheckAnimationFinish(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
 extern char *D_00639EA8;
 
 void actSt04cEnd(void)
@@ -50,11 +58,10 @@ static const ConstVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}};
 static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
 
 extern int D_00639EA4;
+/* kept local: the declaration in script.h changes this TU codegen */
 extern int scpTriggerBall(int a0, int gobj, float r);
+/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
 extern int actCreateSubThread(void *entry, int prio);
-extern void actSt04cDoorDownEffect(volatile int a0);
-extern int soundSeDefPlay(int se, int a1, void *pos, int a3);
-extern void gflagOn(int a0);
 
 /* listing lines 326-357 */
 void actSt04cDoorDownChk(volatile int a0)
@@ -88,15 +95,14 @@ void actSt04cDoorDownChk(volatile int a0)
 extern int D_0063AA08;
 extern int D_0063C510;
 extern int D_0028F8F4[];
-extern void lt_switch_layout(int a0);
-extern void gflagOff(int a0);
-extern void iosThreadSetPri(int th, int pri);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float f, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern int lt_fade_status(void);
-extern void actSt04cIntroChkSub(volatile int a0);
 
 /* listing lines 592-637 */
 void actSt04cIntroChk(volatile int a0)
@@ -142,12 +148,12 @@ void actSt04cIntroChk(volatile int a0)
 }
 
 extern int D_0028F8F0[];
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj(int a0);
-extern int GetAttackCheckBoundaryManagerStatus(int g);
-extern void FinishHint(int no);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
-extern void soundSeDefStop(int h);
 
 /* listing lines 705-753 */
 void actSt04lDoorChk(volatile int a0)
@@ -237,9 +243,8 @@ static ActMail intro_mes[2] = {{430}, {429}};
 
 static ActMail st04lDoor_mes[2] = {{430}, {429}};
 
-extern void actSt04lDoorChk(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj(int a0);
-extern void FinishHint(int a0);
 
 void actSt04lDoor(volatile int a0)
 {
@@ -260,8 +265,6 @@ void actSt04lDoor(volatile int a0)
     }
 }
 
-extern void actSt04cIntroChk(int a0);
-
 void actSt04cIntro(volatile int a0)
 {
     int x = a0;
@@ -276,8 +279,6 @@ void actSt04cIntro(volatile int a0)
     }
 }
 
-extern void actSt04cDoorDownChk(int a0);
-
 void actSt04cDoorDown(volatile int a0)
 {
     int x = a0;
@@ -290,8 +291,6 @@ void actSt04cDoorDown(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt04cEneChk(int a0);
 
 void actSt04cEne(volatile int a0)
 {
@@ -307,8 +306,11 @@ void actSt04cEne(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of Generator_Mask do not fit the prototype in generator.h */
 extern void Generator_Mask(int a0);
+/* kept local: this TU's uses of Generator_MaskOff do not fit the prototype in generator.h */
 extern void Generator_MaskOff(int a0);
+/* kept local: this TU's uses of Generator_Call do not fit the prototype in generator.h */
 extern void Generator_Call(int a0);
 
 void actSt04cEnemy1(volatile int a0)

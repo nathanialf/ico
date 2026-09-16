@@ -1,6 +1,7 @@
 #include "common.h"
 #include "mv_defs.h"
 #include "typedef.h"
+#include "mv_vobuf.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void dispDelete(void);
@@ -41,7 +42,6 @@ extern int D_0072A040[];
 extern int sceGsPutDispEnv();
 extern char voBuf[];
 extern int D_0063C0BC;
-extern void voBufDecCount(int *p);
 extern int D_0063C0B4;
 extern int D_0063C0B8;
 extern int D_0063C5C4;
@@ -260,7 +260,6 @@ void dispSwitch(int *a0, int flag)
 
 extern int D_002A7978[];
 extern int D_0063C5C4;
-extern int *voBufGetTag(char *vo);
 
 int vblankHandler(void)
 {

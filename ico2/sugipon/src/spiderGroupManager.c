@@ -1,4 +1,12 @@
 #include "common.h"
+#include "debug.h"
+#include "debug_exception.h"
+#include "gobj.h"
+#include "generator.h"
+#include "act_a_p_1.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
 
 /* header prototypes (order fixes the inline tail) */
 /* prototypes: their order is the inline tail's emission order */
@@ -31,10 +39,9 @@ static int spiderGroupColors[7][4] = {{0x7F, 0x00, 0x00, 0x80}, {0x40, 0x7F, 0x0
 
 extern int D_0063BAC4;
 extern int D_0063BADC;
+/* kept local: this TU's uses of DispAllMemberOfSpider do not fit the prototype in spider.h */
 extern void DispAllMemberOfSpider();
 extern int D_00723F98[];
-extern int isysGObjSearchFromObjKindID_begin();
-extern int isysGObjSearchFromObjKindID_next();
 
 inline void InitSpiderGroupManager(void)
 {
@@ -69,10 +76,7 @@ inline int *getReviveEnemyGObj(int count)
 }
 
 extern char D_0063BB00[];
-extern void LockEnemyGenerate(int *p);
-extern void debug_assertMessage(char *file, int line, char *mes);
 extern void __assert(char *file, int line, char *expr);
-extern void debug_StdPrintfDummy();
 
 inline void EntryRevivedSpiderGroupManager(int a0)
 {
@@ -127,14 +131,11 @@ inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
 
 extern int D_0063BAF4;
 extern int D_00723AE0[];
-extern int ZUnitVector[];
-extern void GetRootPosition(float *pos, int gobj);
+/* kept local: this TU's uses of CheckSpidersInsideOfReviveRange do not fit the prototype in spider.h */
 extern int CheckSpidersInsideOfReviveRange(int *out, int group, float *pos);
-extern void UnlockEnemyGenerate(void *p);
-extern int DirectCallEnemy(void *p, int a1, float *pos, int *tbl, int a4);
-extern void ExecuteSEPackage(void *p, int id);
+/* kept local: this TU's uses of DeleteSpiderFromLayoutGroup do not fit the prototype in spider.h */
 extern int DeleteSpiderFromLayoutGroup(int a, int b);
-extern void SetAP1DeadStatus(int x);
+/* kept local: this TU's uses of SetSpiderGroupReviveStatus do not fit the prototype in spider.h */
 extern void SetSpiderGroupReviveStatus(void *gobj);
 
 typedef struct {
@@ -194,10 +195,12 @@ int tryToRevive(void)
 
 extern int D_0063B138;
 extern int D_0028F4C0[];
+/* kept local: the declaration in spiderGroupManager.h changes this TU codegen */
 extern int tryToRevive(void);
+/* kept local: this TU's uses of GetAliveSpiders do not fit the prototype in spider.h */
 extern int GetAliveSpiders(int gobj);
+/* kept local: this TU's uses of DeadAllSpiders do not fit the prototype in spider.h */
 extern void DeadAllSpiders(int gobj);
-extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
 void ExecSpiderGroupManager(void)
 {

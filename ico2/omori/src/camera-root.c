@@ -1,4 +1,12 @@
 #include "common.h"
+#include "camera-root.h"
+#include "gobj.h"
+#include "boyact.h"
+#include "camera-editor.h"
+#include "GsBase.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "tableSin.h"
 
 union PendCopy {
     float f[8];
@@ -36,7 +44,6 @@ union CameraSetIn {
     long long q[6];
 };
 
-extern float FSqrt(float v);
 extern float atan2f(float y, float x);
 extern void memset(void *p, int c, int n);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
@@ -59,14 +66,6 @@ void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src)
     dst->rotZ = 0;
 }
 
-extern void CopyMatrix(void *dst, void *src);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_RotMatrixX(int a0);
-extern void MatrixDrive_RotMatrixY(short a0);
-extern void MatrixDrive_RotMatrixZ(int a0);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
 extern void sceVu0TransposeMatrix(void *dst, void *src);
 extern void sceVu0UnitMatrix(void *a0);
 
@@ -83,10 +82,6 @@ void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
     MatrixDrive_PopMatrix();
 }
 
-extern float GetTableCos(short a0);
-extern float GetTableSin(short a0);
-extern void gsb_MakeCommonMatrix(void);
-extern void gsb_SetVSMatrix(int w, int h, float d);
 extern void sceVu0CopyMatrix(void *dst, void *src);
 extern char *matrixptr;
 extern int D_0063A064;
@@ -226,9 +221,7 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     MatrixDrive_PopMatrix();
 }
 
-extern void CameraEditManual();
 extern int D_006E66C0[];
-extern void MakeCameraMatrix();
 
 void DebugCameraManual(void)
 {
@@ -239,7 +232,7 @@ void DebugCameraManual(void)
 extern void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src);
 extern int D_0063C290;
 extern int D_006E66E0[];
-extern void GetRootPosition(void *buf, int obj);
+/* kept local: this TU's uses of _MoveGV do not fit the prototype in gv.h */
 extern float _MoveGV(int *a0, int *a1, int *a2, float t);
 
 void DebugCameraSemiAuto(void)
@@ -261,11 +254,12 @@ void DebugCameraSemiAuto(void)
     MakeCameraMatrix(D_006E66C0);
 }
 
-extern void CopyVector(void *, void *);
 extern char *matrixptr;
 extern int D_0063AB9C;
 extern float D_0063C2A8;
+/* kept local: this TU's uses of SetCameraTargetPosition do not fit the prototype in camera-ico2.h */
 extern void SetCameraTargetPosition(void *, void *, float);
+/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *, void *);
 extern void memset(void *, int, int);
 extern void sceVu0AddVector(void *, void *, void *);
@@ -293,7 +287,6 @@ void BackToGameCamera(void)
     SetCameraTargetPosition(buf, buf + 0x10, D_0063C2A8);
 }
 
-extern void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle);
 extern int D_0063B1B0;
 extern float D_006E66D4[];
 
@@ -322,8 +315,6 @@ typedef struct InsertCameraWork {
 
 extern InsertCameraWork D_006E6710;
 extern int *D_00639EA4;
-extern int GetEfStageCameraTargetID(void);
-extern int isysGObjSearchFromObjLayoutID();
 
 static inline int getCameraDefaultTargetGObj(void)
 {
@@ -369,7 +360,7 @@ static inline void InsertCamera_Clear(void)
     *(InsCamImage *)&D_006E6710 = D_002A5E90;
 }
 
-extern void InitCameraEditor(void);
+/* kept local: this TU's uses of InitIco2Camera do not fit the prototype in camera-ico2.h */
 extern void InitIco2Camera(void);
 extern int D_0028F720[];
 extern int D_0063AB98;
@@ -499,6 +490,7 @@ int CameraGetMode(void)
     return D_0063C2A0;
 }
 
+/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(void *v);
 extern void sceVu0Normalize(void *dst, void *src);
 
@@ -519,8 +511,6 @@ void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle)
     }
     *outAngle = ang;
 }
-
-extern int InsertCamera_isEnable(void);
 
 void InsertCamera_Set(float *pos, float *tgt, int gobj)
 {

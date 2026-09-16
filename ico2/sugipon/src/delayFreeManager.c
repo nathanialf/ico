@@ -1,11 +1,11 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
 
 extern void *D_00667340[3][384];
 extern int D_00639EE0;
 extern int D_00639EE4;
-extern int iosFree();
 extern char D_00639EE8[];
-extern void debug_StdPrintfDummy();
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 /* prototypes: their order is the inline tail's emission order */

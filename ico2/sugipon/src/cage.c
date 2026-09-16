@@ -1,9 +1,13 @@
 #include "common.h"
+#include "cage.h"
+#include "gobj.h"
+#include "DisplayP2O.h"
+#include "clothAnimation.h"
+#include "quaternion.h"
+#include "tableSin.h"
 
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-extern void *isysGObjSearchFromObjKindID_next(void *gobj);
-extern void HotInitCageGeo(char *gobj);
 /* prototypes: their order is the inline tail's emission order */
 int GetCageChainPoint(char *a0, char *a1, char *a2);
 void SetCageVelocityFriction(char *a0, float a1);
@@ -13,7 +17,9 @@ extern void sceVu0Normalize(void *dst, void *src);
 extern void sceVu0ScaleVector(void *dst, void *src, float k);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float x);
+/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
 extern float VectorLength(void *v);
 
 int CageRideFunc(char **self, char *rider)
@@ -72,6 +78,7 @@ inline void SetCageChainHangableFlag(char *a0, int a1)
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x40) = a1;
 }
 
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 
 void HotInitCageGeo(char *self)
@@ -122,11 +129,13 @@ inline void SetCageVelocityFriction(char *a0, float a1)
     *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x3C) = a1;
 }
 
+/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(int kind, void *pos);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *dst, void *a, void *b);
 extern void sceVu0OuterProduct(void *dst, void *a, void *b);
-extern void SetQuaternionByAxisRotateV(void *q, int angle, void *axis);
 extern float atan2f(float y, float x);
 extern char D_004E6EC0[];
 
@@ -154,19 +163,19 @@ static inline void AddCageWindForce(char *n, float k)
     _AddVector(n + 0x30, n + 0x30, v);
 }
 
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
-extern void GetChainAnimation(void *chain, int a, void *m);
-extern int GetTableArcTan2(float y, float x);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float k);
-extern void RotQuaternionY(void *q, int angle);
-extern void MultiQuaternion(void *dst, void *a, void *b);
-extern void RegularizeQuaternion(void *q);
-extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
+/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PopMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixX(int angle);
 
 void CageGeo(char *self)
@@ -252,9 +261,6 @@ void CageGeo(char *self)
         MatrixDrive_TransMatrix(0.0f, -*(float *)(w + 0x30), 0.0f);
     }
 }
-
-extern void p2o_DispVU1(void *a0);
-extern void p2o_DispVU1DObjMulti(void *a0);
 
 void CageDL(char *self)
 {

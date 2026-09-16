@@ -1,4 +1,17 @@
 #include "common.h"
+#include "st04e.h"
+#include "debug.h"
+#include "layout_texture.h"
+#include "thread.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "way_llf.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "motionManager2.h"
+#include "rotObject.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -20,35 +33,24 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern Act *actInitialize(int a0);
-extern int actCreateSubThread(void *entry, int prio);
-extern void iosThreadSetPri(int a0, int a1);
-extern int gflagChk(int a0);
-extern void gflagOn(int a0);
-extern void FinishHint(int a0);
-extern void SleepHint(int a0);
-extern void WakeupHint(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void SetRotObjectLockFlag(PObjGObj *a0, int a1);
-extern void SetWayGroupActive(int a0, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern int ForMotionViewer_GetCurrentMotion(int a0);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern void soundSeDefStop(int handle);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float f, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern int lt_fade_status(void);
-extern void lt_switch_layout(int a0);
-extern void debug_StdPrintfDummy();
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];
 extern int D_00639EA4;
@@ -56,7 +58,6 @@ extern int D_0063AA08;
 extern float D_0063C088;
 extern int D_0063C514;
 extern int D_0063C518;
-extern void actSt04eWaterSwitch(volatile int a0);
 
 static ActMail waterMain_mes[2] = {{406, actSt04eWaterSwitch}, {429}};
 
@@ -77,17 +78,6 @@ static ActMail se_mes[2] = {{430}, {429}};
 static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f};
 
 static ActMail hint1WakeUp_mes[2] = {{430}, {429}};
-
-extern void actSt04eWaterStop(volatile int a0);
-extern void actSt04eWaterStopSub(volatile int a0);
-extern void actSt04eWaterFlagOn(volatile int a0);
-extern void actSt04eWaterMain(volatile int a0);
-extern void actSt04eHint1Chk(volatile int a0);
-extern void actSt04eHint1WakeUpChk(volatile int a0);
-extern void actSt04eFuchi1Chk(volatile int a0);
-extern void actSt04eFuchi2Chk(volatile int a0);
-extern void actSt04eFuchi3Chk(volatile int a0);
-extern void actSt04eSeChk(volatile int a0);
 
 void actSt04eWaterStop(volatile int a0)
 {

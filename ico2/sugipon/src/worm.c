@@ -1,4 +1,9 @@
 #include "common.h"
+#include "memory.h"
+#include "clothAnimation.h"
+#include "geometryManager.h"
+#include "lineManager.h"
+#include "motionManager2.h"
 
 typedef struct PadState {
     int unk00;        /* 0x00 */
@@ -8,22 +13,20 @@ typedef struct PadState {
 
 extern PadState D_0028F8F0[];
 extern int D_00639EA4;
-extern void GetRootPosition(void *a0, int a1);
-extern int GetSkeltonFocusNode(int a0, int a1);
 void GetWormCaptureVector(void *out, void *act, void *node, float scale);
-extern void SetDirectRootPosition(int a0, void *a1);
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void sceVu0Normalize(void *a0, void *a1);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(void *v);
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
+/* kept local: this TU's uses of _GetLength do not fit the prototype in Matrix.h */
 extern float _GetLength(void *a, void *b);
+/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
 extern float VectorLength(void *v);
 extern float _GetRandom(void);
-extern char *iosMallocDebug(void *heap, int size, char *file, int line);
-extern void iosFree(int p);
-extern void *InitChains(char *a0);
 extern void *D_0063A438;
 extern void *D_0063A44C;
 extern int D_0063BC80;
@@ -33,26 +36,41 @@ typedef union {
     long long ll;
 } WormFlag;
 
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 void disp(void *act);
+/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
 extern void p2o_SetDefaultEnviroment(void *a0);
+/* kept local: this TU's uses of p2o_DispVU1DObjMulti do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1DObjMulti(void *a0);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern float *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(float *m);
+/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
+/* kept local: this TU's uses of MatrixDrive_GetTurnYAngleXZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y,
                                         float z);
+/* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixX(short a0);
+/* kept local: this TU's uses of MatrixDrive_RotMatrixY do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixY(short a0);
+/* kept local: this TU's uses of MatrixDrive_RotMatrixZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixZ(short a0);
+/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PopMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_ScaleMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-extern void DrawLine(float *from, float *to, float *color, int z);
 extern void *memset(void *dst, int c, int n);
 
 typedef union {
@@ -121,6 +139,7 @@ typedef struct {
     float ratio;
 } WormWork;
 
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 void simulate(WormVec *v, int n, float len);
 void GetWormRoute(int act, WormVec *target);

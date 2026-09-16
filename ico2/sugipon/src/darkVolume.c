@@ -1,13 +1,16 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "darkVolume.h"
+#include "gobj.h"
+#include "obj_manager.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
 
-extern void CopyVector(void *dst, void *src);
 extern int D_004E7470[];
 extern float D_0063B7D4;
 extern int D_004E7460[];
-extern void darkVolume(void *a0, float a1, float a2, float a3);
 extern int D_00639EA8;
-extern void ExecuteSEPackage(int a0, int a1);
 extern int D_0063B7BC;
 extern float D_0063B7C0;
 extern int D_0063B7C4;
@@ -76,11 +79,6 @@ void SetDarkVolumeEffect(int a0, float a1)
 extern float D_0063B7D0;
 extern int D_0028F4D4[];
 extern int D_00639EA4;
-extern void GetRootPosition(void *out, void *gobj);
-extern void iosOmSendMail(void *to, int msg, void *from);
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-extern void *isysGObjSearchFromObjKindID_next(void *gobj);
-extern void sonic(void *pos, float t);
 
 /* listing lines 566-568: the per-object hit test, inlined at all three sites */
 static inline void sendGameOverMail(void *gobj, float r2)

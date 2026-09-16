@@ -1,22 +1,40 @@
 #include "common.h"
+#include "handManager.h"
+#include "fieldCollision.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "motionManager2.h"
+#include "tableSin.h"
 
 /* getBone is defined as a nested function inside connectToTarget below. */
+/* kept local: this TU's uses of YUnitVector do not fit the prototype in matrixDrive.h */
 extern char YUnitVector[];
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
 extern float VectorLength(void *v);
+/* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(void *v);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
+/* kept local: this TU's uses of SetQuaternionByAxisRotateV do not fit the prototype in quaternion.h */
 extern void SetQuaternionByAxisRotateV(void *dst, int ang, void *axis);
+/* kept local: this TU's uses of GetMatrixFromQuaternion do not fit the prototype in quaternion.h */
 extern void GetMatrixFromQuaternion(void *dst, void *q);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
+/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
 extern void _OuterProduct(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
-extern int GetTableArcCos(float x);
-extern int GetSkeltonFocusNode(char *obj, int kind);
 
 void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
 {
@@ -128,21 +146,24 @@ typedef union {
     long long ll[2];
 } Vec4;
 
-extern void GetGlobalWallPlane(void *a0, void *a1);
-extern float GetProjectionOfPlane(void *a0, void *a1, void *a2);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *a0, void *a1);
+/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(void *a0, void *a1);
-extern int GetTableArcCos(float a0);
+/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
 extern void _OuterProduct(void *a0, void *a1, void *a2);
+/* kept local: this TU's uses of SetQuaternionByAxisRotateVWithNoRegularize do not fit the prototype in quaternion.h */
 extern void SetQuaternionByAxisRotateVWithNoRegularize(void *a0, int a1, void *a2);
+/* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
 extern void SetIdentityQuaternion(void *a0);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float a0, float a1, float a2);
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-extern void ExecuteSEPackage(int a0, int a1);
-extern int GetSkeltonFocusNode(char *obj, int kind);
-extern void connectToTarget(char *obj, char *hw, int node, int n0, int n1);
 
 static inline void SetHandQuaternion(char *hw, char *vec, char *ref)
 {
@@ -250,9 +271,8 @@ typedef union {
 extern int D_0063B198;
 extern char D_0055FE58[];
 extern char D_005D1208[];
+/* kept local: this TU's uses of XUnitVector do not fit the prototype in matrixDrive.h */
 extern char XUnitVector[];
-extern int GetSkeltonFocusNode(char *obj, int kind);
-extern float _handManager(char *obj, char *hand, char *bone, char *axis, int node);
 
 static inline void ResetHandTarget(char *obj, int off)
 {

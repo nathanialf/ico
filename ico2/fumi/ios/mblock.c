@@ -1,7 +1,7 @@
 #include "common.h"
+#include "memory.h"
 
 extern int D_0063A470;
-extern void iosFree();
 
 typedef struct MBlockNode {
     char *buf;
@@ -31,7 +31,6 @@ inline void init_mblock(int *a0)
 }
 
 extern int D_0063A464;
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
 
 /* listing lines 16-51 */
 MBlockNode *new_mblock_node(unsigned int size)

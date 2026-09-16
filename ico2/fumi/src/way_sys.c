@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "way_llf.h"
 
 typedef struct {
     int pad[8];
@@ -18,11 +20,10 @@ typedef struct Nd {
     char pad2[0x40 - 16];
 } Nd;
 
+/* kept local: this TU's uses of _FUNC_GetWay_begin do not fit the prototype in way_sys.h */
 extern int _FUNC_GetWay_begin(void *a0, int a1, int a2, int a3);
 extern Nd D_004F31E0[];
 extern char D_00554220[];
-extern int DeleteWayGroup(int a0);
-extern extern void debug_StdPrintfDummy();
 /* prototypes: their order is the inline tail's emission order */
 int GetWay_begin(void *a0, int a1, int a2);
 void BridgeBox(void);
@@ -74,8 +75,6 @@ extern float GetTableSin(int ang);
 extern void ClipWall(void *cc);
 extern void ClipFloorR(void *cc);
 extern int CreateWayGroup(void);
-extern int CreateWayPoint(void *pos);
-extern void AddWayPoint(int group, int point);
 extern void set_bridge(int group);
 
 void create_box_bridge(char *g)

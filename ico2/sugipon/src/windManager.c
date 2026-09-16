@@ -26,8 +26,11 @@ extern float D_0063BC74;
 extern float D_0063BC78;
 extern int D_0063BC7C;
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of InitWindField do not fit the prototype in windField.h */
 extern void InitWindField(int a0, float *a1, float *a2, float a3);
+/* kept local: this TU's uses of ExecWindField do not fit the prototype in windField.h */
 extern void ExecWindField(float f);
+/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern int GetWindVector(float *power, void *pos);
 /* prototypes: their order is the inline tail's emission order */
 void ReinitWindManager(void);

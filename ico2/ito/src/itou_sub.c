@@ -1,5 +1,6 @@
 #include "common.h"
 #include "typedef.h"
+#include "StageAnimation.h"
 
 /* header prototypes (order fixes the inline tail) */
 /* prototypes: their order is the inline tail's emission order */
@@ -11,10 +12,9 @@ void lw_pos_to_ico_pos(float *dst, float *src);
 void apply_matrix_w1(void *a0, void *a1, void *a2);
 int ico_m33_to_quat(int a0);
 void pbga_start(int *self, int *q);
+/* kept local: the declaration in itou_sub.h changes this TU codegen */
 extern int m33_to_quat();
 extern void sceVu0TransposeMatrix();
-extern void stage_KillPlayBgAnimation(int **self);
-extern int stage_MakePlayBgAnimation();
 
 inline void lw_pos_to_ico_pos(float *dst, float *src)
 {
@@ -38,6 +38,7 @@ inline void apply_matrix_w1(void *a0, void *a1, void *a2)
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
 
 int m33_to_quat(float *q, float (*m)[4])

@@ -1,4 +1,26 @@
 #include "common.h"
+#include "st25a.h"
+#include "StageManager.h"
+#include "debug.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "adpcm_init.h"
+#include "act.h"
+#include "boyact.h"
+#include "commonact.h"
+#include "queen.h"
+#include "camera-ico2.h"
+#include "camera-root.h"
+#include "fightSound.h"
+#include "generator.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "Texture.h"
+#include "boy.h"
+#include "geometryManager.h"
+#include "motionManager2.h"
+#include "streamMotionManager.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -20,13 +42,10 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
-extern void tex_SetUVScroll(void *a0, float f12, float f13, float f14, float f15, float f16,
-                            float f17, int a1);
-extern void Generator_Mask(char *self);
-extern Act *actInitialize(int a0);
+/* kept local: this TU's uses of scpGameStat_BoyWeaponkind do not fit the prototype in script.h */
 extern int scpGameStat_BoyWeaponkind(void);
+/* kept local: this TU's uses of scpLinkBGAtoLayoutedTarget do not fit the prototype in script.h */
 extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int D_0063AA30;
 extern int D_00639EA4;
 
@@ -49,20 +68,17 @@ typedef struct JimakuArg {
 
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
+/* kept local: this TU's uses of jimakuJump do not fit the prototype in jimaku.h */
 extern void jimakuJump(int a0);
 extern int D_0028F4C0[];
-extern void _ACTWait(int a0);
-extern void gflagOn(int a0);
+/* kept local: this TU's uses of jimakuBegin do not fit the prototype in jimaku.h */
 extern void jimakuBegin(int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern int dead;
 extern char D_00618ED0[];
-extern int InqQueenBarrierExist(void);
-extern int gflagChk(int a0);
-extern void StandbyStreamMotion(int self);
-extern int CheckReadyStreamMotion(void);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 
 /* st25a.o's whole .rodata run, in the order the object emits it; the 0.15
    double that closes the run is actSt25aElevChk's own constant-pool operand. */
@@ -115,21 +131,13 @@ static ActMail elev_chara_mes[2] = {{430}, {429}};
 
 static ActMail elev_end_mes[2] = {{430}, {429}};
 
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int ForMotionViewer_GetCurrentMotion(char *self);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void actSt25aElevChk(volatile int a0);
-extern void MallocStreamMotionBuffer(void);
-extern void fightSoundProcessRequestPause(void);
-extern void actSt25aQueenTalkChk(volatile int a0);
-extern void actSt25aQueenDeadChk(volatile int a0);
 void actSt25aQueenBeforeChk(volatile int a0);
 void actSt25aQueenDeadReadyChk(volatile int a0);
 void actItouQueenAttackChk(volatile int a0);
 extern int enable_game_pause;
 extern int D_0063AA08;
-extern void AdpcmPlay(int handle);
-extern int actCreateSubThread(void *entry, int prio);
 void actConte11(volatile int a0);
 void actConte11Jimaku(volatile int a0);
 
@@ -152,19 +160,18 @@ void actSt25aQueenAppearChk(volatile int a0)
 
 extern char D_005548F0[];
 extern char D_00554900[];
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
+/* kept local: this TU's uses of scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
 extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-extern void stage_SetLoopFlag(int a0, int a1);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
-extern void SetCameraFlag_LwsCutBack(void);
-extern float *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
 
 void actConte11(volatile int a0)
@@ -239,28 +246,25 @@ extern int conte12;
 extern int sd2;
 extern int D_0063C250;
 extern int D_0063C254;
-extern void iosPadActStopAll(void);
+/* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
 extern void scpPlayMotReq(int a0, int mot);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
-extern void iosThreadSetPri(int *a0, int a1);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *a0, int a1);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
-extern void DeleteStreamMotionManager(void);
+/* kept local: this TU's uses of ScpCallCameraTargetOff do not fit the prototype in script.h */
 extern void ScpCallCameraTargetOff(void);
-extern void DeleteBoyWeapon(void);
-extern void SelectBoyCrown(int a0, int a1);
+/* kept local: this TU's uses of jimakuUndisp do not fit the prototype in jimaku.h */
 extern void jimakuUndisp(int a0);
-extern void SetDirectRootPosition(int a0, void *pos);
-extern void QueenStartAttack(void);
-extern void SetCameraFlag_GamecamCutBack(void);
-extern void CameraSetCameraSet(int a0);
-extern int fightSoundPlayChk(void);
 extern void memset(void *a0, int a1, int a2);
-extern void actConte12(volatile int a0);
-extern void actConte12Jimaku(volatile int a0);
 
 void actSt25aQueenTalkChk(volatile int a0)
 {
@@ -393,9 +397,6 @@ void actSt25aQueenTalkChk(volatile int a0)
 
 extern int D_00639EAC;
 extern int D_0063AA3C;
-extern void EntryStreamMotion(int a0);
-extern void PlayStreamMotion(void);
-extern int iosPadActRequest(int port, int id);
 
 void actConte12(volatile int a0)
 {
@@ -624,11 +625,9 @@ typedef struct ExitData {
 extern const StgPre D_005F5D50[];
 extern const ExitData D_0055C518[];
 extern int stage_no;
-extern void actConte13Jimaku(volatile int a0);
-extern int QueenInqDead(void);
+/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
 extern void scpKillEnemyAll(void);
-extern void stgmgrNextStagePreLoadForceStageSet(int a0);
-extern void stgmgrNextStagePreLoadForceNoCancel(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern void RequestStageChange(int a0, int gobj, float f12, float f13, int a2);
 
 void actSt25aQueenDeadChk(volatile int a0)
@@ -792,13 +791,8 @@ void BoySekikaTexScroll(void)
 extern int D_0063AA44;
 extern int D_0063AA48;
 extern int D_00639EAC;
-extern void gflagOff(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern void RequestStageChange(int a0, int gobj, float f12, float f13, int a2);
-extern void actSt25aElevCharaChk(volatile int a0);
-extern int iosPadActRequest(int port, int id);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern void lt_switch_layout(int a0);
 
 void actSt25aElevChk(volatile int a0)
 {

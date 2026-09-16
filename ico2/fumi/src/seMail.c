@@ -1,8 +1,9 @@
 #include "common.h"
+#include "debug.h"
+#include "gobj.h"
+#include "act-game.h"
+#include "geometryManager.h"
 
-extern void debug_StdPrintfDummy();
-extern void debug_StdPrintfDummy(void *a0);
-extern void GetRootPosition(void *out, void *obj);
 extern float sceVu0InnerProduct(void *a, void *b);
 extern void sceVu0SubVector(void *out, void *a, void *b);
 
@@ -32,9 +33,6 @@ typedef struct SeRec {
 extern SeRec D_005D6DB0[];
 extern int D_00639EA4;
 extern int D_00639EA8;
-extern int isysGObjSearchFromObjKindID_begin(int id);
-extern int isysGObjSearchFromObjKindID_next(int o);
-extern void ACTGame_SendSoundMail(char *a0, int mail, int a2, int a3, int a4);
 void setMailTarget(int a0, int *a1, int *a2);
 
 void seMail(int self, int id)

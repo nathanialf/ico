@@ -1,4 +1,11 @@
 #include "common.h"
+#include "effectTool.h"
+#include "pad.h"
+#include "camera-root.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
+#include "particleEffect.h"
+#include "tableSin.h"
 
 /* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
  * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
@@ -24,6 +31,7 @@ extern char D_0063B840[]; /* "%s" */
 extern char D_0063B848[]; /* "%s%s" */
 extern double fptodp(float v);
 extern int sprintf();
+/* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
 void _dispParam(int *pkg, int idx, int x, int y, int col)
@@ -85,7 +93,6 @@ typedef union {
 
 extern int D_0063B850;
 extern int D_00720070[];
-extern int *GetParticleEffectPackage(int id);
 
 int editParam(int id, int sel)
 {
@@ -217,9 +224,6 @@ extern EffCol D_004E7860; /* {0, 0xC0, 0xFF, 0x1C} */
 extern EffCol D_004E7870; /* {0, 0x20, 0xFF, 0x1C} */
 extern EffCol D_004E7880;
 extern EffCol D_004E7890;
-extern float GetTableSin(short a);
-extern float GetTableCos(short a);
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
 extern void *memset(void *d, int c, int n);
 
 /* a static helper the PAL listing places at effectTool.c lines 286-289 and
@@ -280,8 +284,11 @@ void dispCircle2(float rad, short elev, int step)
 
 extern short D_0063B858;
 extern short D_0063B85A;
+/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(int *self, short y);
+/* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
 extern void RotQuaternionY(int *self, short y);
+/* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
 extern void SetIdentityQuaternion(int *self);
 
 void setQ(int *self)
@@ -300,20 +307,19 @@ extern char D_0061F510[];
 extern float D_00720170[];
 extern short D_0063B858;
 extern short D_0063B85A;
-extern int *GetParticleEffectPackage(int id);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int on);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
 extern void sceVu0UnitMatrix(void *m);
+/* kept local: this TU's uses of MultiMatrixByQuaternion do not fit the prototype in quaternion.h */
 extern void MultiMatrixByQuaternion(int *q);
-extern void dispXZYZCircle(float rad, int a, int b, int step);
-extern void dispCircle2(float rad, short elev, int step);
 extern double fptodp(float v);
+/* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
 void dispEffectToolField(int idx)
@@ -353,11 +359,6 @@ extern float D_00720170[];
 extern int D_0063B854;
 extern int D_0063B85C;
 extern int D_0063B864;
-extern int *GetParticleEffectPackage(int id);
-extern void ResetParticleEffectPackages(int *pkg);
-extern void DeleteParticleEffect(int id);
-extern int SetParticleEffect(int id, void *pos, void *quat);
-extern int editParam(int id, int sel);
 
 /* two static helpers the PAL listing places at effectTool.c lines 260 and
  * 266-275 and inlines into EditTarget; neither is emitted out of line, so
@@ -430,12 +431,16 @@ extern char D_0061F5D8[];
 /* particleEffect.c's effect table is 0x50 bytes per entry: char name[0x20]
    then char file[0x30].  D_0062A298 is &tbl[0].file (D_0062A278 = &tbl[0].name). */
 extern char D_0062A298[];
-extern int *GetParticleEffectPackage(int id);
+/* kept local: this TU's uses of debug_closeLog do not fit the prototype in debug.h */
 extern void debug_closeLog(void);
+/* kept local: this TU's uses of debug_openLog do not fit the prototype in debug.h */
 extern void debug_openLog(void);
+/* kept local: this TU's uses of debugSceOpen do not fit the prototype in debug.h */
 extern int debugSceOpen(void *name, int flags);
+/* kept local: this TU's uses of debugSceClose do not fit the prototype in debug.h */
 extern int debugSceClose(int fd);
 extern int sceWrite(int fd, void *buf, int size);
+/* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
 int saveEffectData(int id)
@@ -473,13 +478,6 @@ typedef struct {
     float mag;     /* 0x14 */
     char unk18[8]; /* 0x18 */
 } EffToolStick;
-
-extern int iosPadConnect(void *pad, int slot, int port, void *conf);
-extern void iosPadRead(void *pad);
-extern int iosPadGetStick(void *pad, EffToolStick *out, int a2, int a3, int a4, int a5);
-extern void iosPadStickCameraCoord(void *out, float *stick);
-extern int *GetParticleEffectPackage(int id);
-extern void SetParticleEffectGeometry(int id, void *pos, void *quat);
 
 void moveEffectToolGeometry(int idx)
 {
@@ -529,14 +527,9 @@ extern int D_0063B85C;
 extern int D_0063B860;
 extern int D_0063B864;
 extern int D_0063B868;
+/* kept local: this TU's uses of debug_SelectCsvWindow do not fit the prototype in debug.h */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
-extern void DeleteParticleEffect(int id);
-extern int SetParticleEffect(int id, void *pos, void *quat);
-extern int EditTarget(int idx);
-extern void moveEffectToolGeometry(int idx);
-extern void dispEffectToolField(int idx);
-extern int saveEffectData(int idx);
 
 int execEffectTool(void)
 {
@@ -598,12 +591,11 @@ int execEffectTool(void)
     return r;
 }
 
-extern void Camctrl_SetTarget(int x, int y, int z);
 extern int D_0063AA08;
 extern int D_0063B854;
 extern int D_0063B86C;
 extern char D_0063B878[];
-extern void DeleteParticleEffect(int x);
+/* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
 void exitEffectTool(void)
@@ -622,11 +614,10 @@ extern int D_0063B880;
 extern int D_0063B868;
 extern int D_0063B860;
 extern int D_0063B864;
-extern int CameraGetTarget(void);
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *dst, int gobj);
+/* kept local: this TU's uses of GetRootQuaternion do not fit the prototype in geometryManager.h */
 extern void GetRootQuaternion(void *dst, int gobj);
-extern void CameraSetMode(int mode);
-extern int execEffectTool(void);
 
 /* static helper the PAL listing places at effectTool.c lines 403-415 and
  * inlines at the head of EffectTool; never emitted out of line, so it has no

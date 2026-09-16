@@ -1,11 +1,16 @@
 #include "common.h"
 #include "typedef.h"
+#include "debug.h"
+#include "memory.h"
+#include "gobj.h"
+#include "matrixDrive.h"
+#include "particleEffect.h"
+#include "quaternion.h"
 
+/* kept local: this TU's uses of p2o_DispVU1DObjMulti do not fit the prototype in DisplayP2O.h */
 extern int p2o_DispVU1DObjMulti(int a0);
+/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
 extern int p2o_SetDefaultEnviroment(int a0);
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-extern void *isysGObjSearchFromObjKindID_next(void *gobj);
-extern void DeleteParticleEffect(int id);
 
 typedef struct CandleFlame {
     int effect; /* 0x0 */
@@ -30,14 +35,6 @@ void _deleteLayoutedCandleParticleEffect(void *gobj);
 extern int D_0063A438;
 extern char D_0061F198[];
 extern char D_0061F1A8[];
-extern char IdentityQuaternion[];
-extern int iosMallocDebug(int heap, int size, const char *file, int line);
-extern void debug_StdPrintfDummy();
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-extern void CopyMatrix(void *dst, void *src);
-extern int SetParticleEffect(int id, void *pos, void *quat);
-extern void SetParticleEffectGeometry(int id, void *pos, void *quat);
 
 int InitCandleGeo(void *self, void *mtx)
 {

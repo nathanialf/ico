@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "motionManager2.h"
 
 /* The layout-name table src/sceneManager.c and src/gamesys.c also index with
    0x64-byte records. */
@@ -23,9 +25,6 @@ static int lodNodesLow0[] = {
 static int *lodNodeTable[4] = {lodNodesGame, &lodNodesGame[2], &lodNodesGame[2], lodNodesLow0};
 
 static char *lodNameTable[4] = {"DEMO MODE", "GAMEMODE HIGH", "GAMEMODE LOW", "GAMEMODE LOW0"};
-
-extern void debug_StdPrintfDummy();
-extern void SetMotionBlendlessNode(char *self, int *node);
 
 void SetLodLevel(char *self, int lv)
 {

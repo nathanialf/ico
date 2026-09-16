@@ -1,6 +1,9 @@
 #include "common.h"
+#include "inflate.h"
+#include "debug.h"
+#include "mblock.h"
+#include "memory.h"
 
-extern void iosFree();
 int huft_free(char *p);
 
 struct huft {
@@ -67,15 +70,11 @@ extern unsigned short D_0029B430[]; /* cplens */
 extern unsigned short D_0029B470[]; /* cplext */
 extern unsigned short D_0029B4B0[]; /* cpdist */
 extern unsigned short D_0029B4F0[]; /* cpdext */
-extern long long inflate_stored(void *w, unsigned char *out, long long outlen);
-extern long long inflate_fixed(void *w, unsigned char *out, long long outlen);
 
 #define BMAX 16
 #define N_MAX 288
 
 extern void *memset(void *s, int c, int n);
-extern void *new_segment(void *mb, int size);
-extern int iosMallocDebug(int a0, int a1, const char *file, int line);
 extern int D_0063A464;
 extern char D_00550FF0[];
 
@@ -293,8 +292,6 @@ long long inflate_fixed(void *w, unsigned char *out, long long outlen)
 extern int D_0029B530[]; /* border: order of the bit length code lengths */
 extern char D_00551000[];
 extern char D_00551020[];
-extern void reuse_mblock(void *p);
-extern void debug_StdPrintfDummy();
 
 #define IMB(w) ((void *)((char *)(w) + 0x18098))
 
@@ -439,8 +436,6 @@ int inflate_dynamic(void *w, unsigned char *out, long long outlen)
     return i;
 }
 
-extern void init_mblock(int *self);
-
 void inflate_start(void *a0)
 {
     int *w = (int *)((char *)a0 + 0x18000);
@@ -460,8 +455,6 @@ void inflate_start(void *a0)
 }
 
 extern int D_0063A464;
-extern void iosMallocResetPartition(int a0);
-extern void reuse_mblock(void *p);
 
 void close_inflate_handler(void *a0)
 {
@@ -498,8 +491,6 @@ void close_inflate_handler(void *a0)
     iosFree(a0);
     iosMallocResetPartition(D_0063A464);
 }
-
-extern int inflate_dynamic(void *w, unsigned char *out, long long outlen);
 
 long long inflate(void *w, unsigned char *out, long long outlen)
 {
@@ -606,7 +597,6 @@ extern char D_00550FF0[];
 extern char D_00551040[];
 extern int D_0063A450;
 extern int D_0063A470;
-extern void debug_StdPrintfDummy();
 
 int open_inflate_handler(int a0, int a1)
 {

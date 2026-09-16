@@ -1,7 +1,5 @@
 #include "common.h"
-
-extern void Generator_Mask(int a0);
-extern void Generator_ResetCount(int a0);
+#include "generator.h"
 
 void actSt13b2Generator(volatile int a0)
 {

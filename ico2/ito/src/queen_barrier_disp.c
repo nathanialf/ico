@@ -1,9 +1,11 @@
 #include "common.h"
+#include "debug.h"
+#include "Primitive.h"
+#include "tableSin.h"
 
 /* header prototypes (order fixes the inline tail) */
 extern int D_00556E10[];
 extern int D_0063C308;
-extern void debug_StdPrintfDummy();
 extern unsigned short D_0063AC64;
 extern int D_0063C30C;
 /* prototypes: their order is the inline tail's emission order */
@@ -28,11 +30,9 @@ typedef struct Mesh3D {
 } Mesh3D;
 
 extern Mesh3D *D_0063C304;
-extern Mesh3D *prim_InitMesh3D(int w, int h, int a2, int a3, unsigned int a4, int a5);
-extern void prim_UpdateMesh3D(Mesh3D *m, int a1, int a2);
-extern float GetTableSin(short a);
-extern float GetTableCos(short a);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(QVec *dst, QVec *src, float k);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(QVec *dst, QVec *src);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/queen_barrier_disp", MakeRefractTexture);
@@ -58,8 +58,11 @@ extern int D_0063A064;
 extern int D_0063A068;
 extern void *memset(void *p, int c, int n);
 extern void sceVu0CopyVector(QVec *dst, QVec *src);
+/* kept local: this TU's uses of _GetNorm do not fit the prototype in Matrix.h */
 extern float _GetNorm(QVec *v);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(QVec *dst, QVec *a, QVec *b);
+/* kept local: this TU's uses of _RotTransPersCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _RotTransPersCurrentMatrix(QVec *dst, QVec *src);
 
 void makeRefractST(float k)

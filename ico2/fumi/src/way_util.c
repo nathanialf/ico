@@ -1,4 +1,8 @@
 #include "common.h"
+#include "debug.h"
+#include "act.h"
+#include "way_llf.h"
+#include "geometryManager.h"
 
 typedef struct {
     float a[4];
@@ -63,17 +67,19 @@ typedef struct WpSortEnt {
     float d;
 } WpSortEnt;
 
-extern char *WayPoint_begin(void);
-extern int WayPoint_next(int a0);
+/* kept local: this TU's uses of fzMagnitudefv do not fit the prototype in fuzio.h */
 extern float fzMagnitudefv(int a0);
 extern void sceVu0SubVector();
 extern void sceVu0CopyVector();
+/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *);
+/* kept local: this TU's uses of ClipWallField do not fit the prototype in fieldCollision.h */
 extern void ClipWallField(void *);
 extern void qsort(void *base, int n, int size, int (*cmp)());
+/* kept local: this TU's uses of iosMallocDebug do not fit the prototype in memory.h */
 extern int iosMallocDebug(int, int, const char *, int);
+/* kept local: this TU's uses of iosFree do not fit the prototype in memory.h */
 extern void iosFree();
-extern void _ACTWait(int frames);
 extern int D_0063A438;
 extern char D_00554300[];
 
@@ -243,10 +249,8 @@ void ez_circle(void)
 }
 
 extern void *memset(void *dst, int c, int n);
-extern int WayPointList_begin();
-extern int WayPointList_next();
+/* kept local: this TU's uses of fzMagnitude2fv do not fit the prototype in fuzio.h */
 extern float fzMagnitude2fv(void *a, void *b);
-extern void debug_StdPrintfDummy();
 extern char D_00554340[];
 extern char D_00554350[];
 extern char D_00554368[];
@@ -392,6 +396,7 @@ int wgid_next(int me, int target)
 
 extern char D_00554300[];
 extern int D_0063A438;
+/* kept local: this TU's uses of iosMallocDebug do not fit the prototype in memory.h */
 extern int iosMallocDebug(int, int, const char *, int);
 
 void *WayUtilWorkAlloc(void)
@@ -413,6 +418,7 @@ void *WayUtilWorkAlloc(void)
     return p;
 }
 
+/* kept local: this TU's uses of iosFree do not fit the prototype in memory.h */
 extern void iosFree();
 
 void WayUtilWorkFree(int *self)
@@ -587,7 +593,6 @@ int GetWgAll(int from, int to, WgAll *w)
 extern WayGrp D_004F1EC0[];
 extern Nd D_004F31E0[];
 extern char D_005543A8[];
-extern void debug_StdPrintfDummy();
 
 /* INTERIM stand-ins: waypoint_connect_group_side_me and
    waypoint_connect_group_side_bridge are real TU functions whose out-of-line
@@ -641,9 +646,8 @@ void set_check_wp(CheckWp *out, int wp, int gid)
 }
 
 extern void *memset(void *dst, int c, int n);
-extern char *WayPoint_begin(void);
-extern int WayPoint_next(int a0);
 extern void sceVu0SubVector();
+/* kept local: this TU's uses of fzMagnitudefv do not fit the prototype in fuzio.h */
 extern float fzMagnitudefv(int a0);
 
 typedef struct WayDist {
@@ -749,8 +753,7 @@ int set_bridge(int gid)
     return 1;
 }
 
-extern int WayPointList_begin();
-extern int WayPointList_next();
+/* kept local: this TU's uses of fzMagnitudefv do not fit the prototype in fuzio.h */
 extern float fzMagnitudefv(int a0);
 extern void sceVu0SubVector();
 
@@ -784,8 +787,6 @@ inline char *nearest_waypoint(int *a0)
     return nearest_waypoint_of_group(a0, D_0063BD78);
 }
 
-extern void GetRootPosition(void *a0, void *a1);
-
 inline char *nearest_waypoint_from_gobj(void *dobj)
 {
     int mtx[4];
@@ -794,6 +795,7 @@ inline char *nearest_waypoint_from_gobj(void *dobj)
 }
 
 extern WayGrp D_004F1EC0[];
+/* kept local: this TU's uses of fzMagnitudeByLineSeg do not fit the prototype in fuzio.h */
 extern float fzMagnitudeByLineSeg(void *a0, void *a1, void *a2);
 
 inline char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid)
@@ -851,8 +853,6 @@ inline char *nearest_waypoint_by_lineseg(void *arg0)
 out:
     return best;
 }
-
-extern void GetRootPosition(void *a0, void *a1);
 
 inline char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid)
 {
@@ -924,8 +924,7 @@ inline char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
 }
 
 extern int D_0063BD78;
-extern int WayPointList_begin();
-extern int WayPointList_next();
+/* kept local: this TU's uses of fzMagnitudefv do not fit the prototype in fuzio.h */
 extern float fzMagnitudefv(int a0);
 extern void sceVu0SubVector();
 
@@ -945,9 +944,6 @@ inline char *waypoint_with_range(int *arg0, float thresh)
 ret0:
     return 0;
 }
-
-extern char *WayPoint_begin(void);
-extern int WayPoint_next(int a0);
 
 inline char *nearest_waypoint_of_all_except_group(int *arg0, int a1)
 {
@@ -1028,14 +1024,13 @@ inline char *nearest_waypoint_of_all(int *a0)
     return best;
 }
 
+/* kept local: the declaration in way_util.h changes this TU codegen */
 extern char *visible_waypoint_of_all_except_gid(int *arg0, int gid);
 
 inline int visible_waypoint_of_all(void *a0)
 {
     return visible_waypoint_of_all_except_gid(a0, -1);
 }
-
-extern void GetRootPosition(void *a0, void *a1);
 
 inline void visible_waypoint_of_all_from_gobj(void *a0)
 {
@@ -1044,6 +1039,7 @@ inline void visible_waypoint_of_all_from_gobj(void *a0)
     visible_waypoint_of_all_except_gid(buf, -1);
 }
 
+/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *);
 extern void sceVu0CopyVector(void *buf, int x);
 
@@ -1160,7 +1156,6 @@ inline int get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
 extern char D_00554378[];
 extern char D_0063A9E8[];
 extern void __assert(void *a0, int a1, void *a2);
-extern extern void debug_StdPrintfDummy();
 extern void debug_assert(void *a0, int a1);
 
 inline int direction_across_bridge(void *a0, int a1)

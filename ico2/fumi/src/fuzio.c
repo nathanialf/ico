@@ -1,11 +1,11 @@
 #include "common.h"
+#include "debug.h"
+#include "matrixDrive.h"
 
 extern char D_0063A868[];
 extern char D_0063A870[];
-extern void debug_StdPrintfDummy(void *msg, ...);
 extern int fptodp(float f);
 extern char D_0063A878[];
-extern float FSqrt(float a0);
 extern float sceVu0InnerProduct(int a0, int a1);
 
 void fzShowV(float *p)

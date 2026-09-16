@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
 
 /* one process node: 0x4 owner GObj, 0x8 prev, 0xC next; the owner keeps the
    list head at +0x2C and the tail at +0x30 */
@@ -11,12 +13,14 @@ typedef struct GProc {
 
 extern void cut_gobj_process_link(GProc *p);
 /* header prototypes (order fixes the inline tail) */
+/* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern int iosThreadDestroy(int a0);
 extern int D_0063A430;
 extern char *D_0063C1B0;
 extern int D_0063C1B4;
-extern int iosMallocDebug(int a0, int a1, const char *fmt, int line);
+/* kept local: the declaration in gobj_process.h changes this TU codegen */
 extern int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5);
+/* kept local: this TU's uses of iosThreadStop do not fit the prototype in thread.h */
 extern void iosThreadStop(int a0);
 /* prototypes: their order is the inline tail's emission order */
 void isysGObjProcessAlloc(unsigned int a0);
@@ -50,8 +54,9 @@ inline void isysGObjProcessAlloc(unsigned int a0)
     }
 }
 
-extern void debug_StdPrintfDummy();
+/* kept local: this TU's uses of iosThreadCreateS do not fit the prototype in thread.h */
 extern int iosThreadCreateS(void *th, int a1, int a2, int a3, int a4, int a5, int a6);
+/* kept local: this TU's uses of iosThreadStart do not fit the prototype in thread.h */
 extern void iosThreadStart(void *th);
 
 static inline GProc *alloc_gobj_process(void)
@@ -210,8 +215,6 @@ inline void free_gobj_process_resource(char *self)
 {
     *(int *)(self + 0x0) = 0;
 }
-
-extern void debug_StdPrintfDummy();
 
 void cut_gobj_process_link(GProc *p)
 {

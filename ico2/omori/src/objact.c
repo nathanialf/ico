@@ -1,14 +1,14 @@
 #include "common.h"
+#include "gobj.h"
+#include "obj_manager.h"
 
 /* objact.h prototypes: their order is the inline tail's emission order */
 void ObjAction_CorrectGeo(int a0, int a1);
 void ObjAction_Mail(void *a0, int a1);
 void ObjAction_MailCenter(void *a0, int a1);
 void ObjAction_Init(void);
+/* kept local: this TU's uses of BeforeFunc2 do not fit the prototype in act2.h */
 extern void BeforeFunc2();
-extern void iosOmSendMail(void *a0, int a1, void *a2);
-extern void *isysGObjGetExist_begin(void);
-extern void *isysGObjGetExist_next(void *a0);
 
 typedef struct {
     char pad[0x34];

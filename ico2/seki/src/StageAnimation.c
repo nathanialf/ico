@@ -1,4 +1,16 @@
 #include "common.h"
+#include "DObj.h"
+#include "debug.h"
+#include "debug_exception.h"
+#include "memory.h"
+#include "gobj.h"
+#include "gobj_dl.h"
+#include "gobj_process.h"
+#include "Basic.h"
+#include "Light.h"
+#include "Matrix.h"
+#include "RegistPacket.h"
+#include "quaternion.h"
 
 typedef union {
     int i;
@@ -25,10 +37,10 @@ typedef struct AnimNode {
 } AnimNode;
 
 extern int D_0028F4D4[];
+/* kept local: this TU's uses of bga_ResetAnimation do not fit the prototype in BgAnimation.h */
 extern void bga_ResetAnimation();
-extern void light_KillAllFixLight(void);
 extern int *D_0063C15C;
-extern int freeseki(void *a0);
+/* kept local: this TU's uses of bga_SetCameraForceOff do not fit the prototype in BgAnimation.h */
 extern void bga_SetCameraForceOff();
 extern int D_0063C158;
 extern char D_0067D098[];
@@ -36,17 +48,20 @@ extern char D_005501A8[];
 extern char D_005501E0[];
 extern char D_00550028[];
 extern char D_0063A1A8[];
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
+/* kept local: this TU's uses of bga_CheckAnimationFinish do not fit the prototype in BgAnimation.h */
 extern int bga_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of bga_CheckSdfCameraFinish do not fit the prototype in BgAnimation.h */
 extern int bga_CheckSdfCameraFinish(int a0);
+/* kept local: this TU's uses of bga_CheckAnimationFrame do not fit the prototype in BgAnimation.h */
 extern int bga_CheckAnimationFrame(int a0, int a1, int a2);
+/* kept local: this TU's uses of bga_CheckSdfCameraFrame do not fit the prototype in BgAnimation.h */
 extern int bga_CheckSdfCameraFrame(int a0, int a1, int a2);
 extern char D_00550210[];
 extern int D_0063B13C;
 extern int D_0063A068;
-extern void debug_Printf(int x, int y, unsigned int color, char *fmt, ...);
+/* kept local: this TU's uses of bga_CalcSdfCamera do not fit the prototype in BgAnimation.h */
 extern void bga_CalcSdfCamera(char *p, int a1);
 extern char D_005F5E70[];
 extern char D_002C2DC8[];
@@ -59,24 +74,26 @@ extern int stage_no;
 extern int strcmp(const char *a, const char *b);
 extern int strncmp(const char *a, const char *b, int n);
 extern int sprintf(char *buf, const char *fmt, ...);
+/* kept local: this TU's uses of bga_InitData do not fit the prototype in BgAnimation.h */
 extern int bga_InitData(char *data);
-extern void debug_assertMessage(char *file, int line, char *msg);
+/* kept local: this TU's uses of bga_SetFrame do not fit the prototype in BgAnimation.h */
 extern void bga_SetFrame();
+/* kept local: this TU's uses of bga_SetCamFrame do not fit the prototype in BgAnimation.h */
 extern void bga_SetCamFrame();
 extern int graphics_ready;
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of bga_SetUniqAnimationFlag do not fit the prototype in BgAnimation.h */
 extern void bga_SetUniqAnimationFlag(int val);
-extern void _InitCurrentMatrix(void);
+/* kept local: this TU's uses of bga_CalcAnimation do not fit the prototype in BgAnimation.h */
 extern void bga_CalcAnimation(void *a0, int a1, int a2);
 extern char D_00550230[];
 extern char D_00550278[];
 extern int D_0063A44C;
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
-extern void reg_DispObj(char *o);
+/* kept local: this TU's uses of bga_DispLightning do not fit the prototype in BgAnimation.h */
 extern void bga_DispLightning(void);
-extern void CopyQuaternion();
-extern void _CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of bga_CheckAnimationFrameIn do not fit the prototype in BgAnimation.h */
 extern int bga_CheckAnimationFrameIn(int a0, int a1, int a2);
+/* kept local: this TU's uses of bga_CheckSdfCameraFrameIn do not fit the prototype in BgAnimation.h */
 extern int bga_CheckSdfCameraFrameIn(int a0, int a1, int a2);
 
 typedef struct {
@@ -87,12 +104,6 @@ extern StageGObjInit D_0054FFA0;
 extern char D_0054FFE0[];
 extern char D_00550000[];
 extern char D_00550040[];
-extern void debug_Assert(char *fmt, ...);
-extern void *isysGObjAdd(int a0, int a1, int a2);
-extern void isysGObjKindTableAdd(void *a0, int a1);
-extern void isysGObjProcAdd(void *a0, int a1, int a2, int a3);
-extern void isysGObjLinkObjDL(void *a0, int a1, int a2, int a3, unsigned int a4);
-extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
 /* prototypes: their order is the inline tail's emission order */
 int stage_CheckAnimationFinish(int a0);
 int stage_CheckAnimationFrame(int a0, int a1, int a2);
@@ -103,9 +114,13 @@ void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
 void stage_SetLocalizeGeometry(int key, int arg1, int arg2);
 void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1);
 int stage_CheckAnimationFrameIn(int a0, int a1, int a2);
+/* kept local: the declaration in StageAnimation.h changes this TU codegen */
 extern void stage_SetScale(int key, float scale);
+/* kept local: the declaration in StageAnimation.h changes this TU codegen */
 extern float stage_PlayBgAnimation(int key, float t, void *a, void *b);
+/* kept local: the declaration in StageAnimation.h changes this TU codegen */
 extern float stage_PlayBgAnimationDissolve(int key, float t, float d, void *a, void *b);
+/* kept local: the declaration in StageAnimation.h changes this TU codegen */
 extern void stage_KillPlayBgAnimation(int **self);
 
 void stage_MakeGObj(int *dat, int no)

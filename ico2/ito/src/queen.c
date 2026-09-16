@@ -1,5 +1,28 @@
 #include "common.h"
 #include "typedef.h"
+#include "queen.h"
+#include "debug.h"
+#include "memory.h"
+#include "pad.h"
+#include "gobj.h"
+#include "obj_manager.h"
+#include "act.h"
+#include "enemy_act.h"
+#include "queen_barrier_disp.h"
+#include "attackhit.h"
+#include "generator.h"
+#include "script.h"
+#include "StageAnimation.h"
+#include "actressLight.h"
+#include "clothAnimation.h"
+#include "darkVolume.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "lodManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "particleEffect.h"
+#include "quaternion.h"
 
 typedef struct {
     float v[4];
@@ -37,53 +60,32 @@ typedef struct QueenMailQueue {
 extern int D_0063A438;
 extern int stage_no;
 extern int D_0063B13C;
-extern int debug_Printf(int x, int y, unsigned int col, char *s, ...);
-extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void GetRootMatrix(void *m, char *g);
-extern void CopyMatrix(void *dst, void *src);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern float fmodf(float a, float b);
+/* kept local: this TU's uses of LightTorchOffOfWeapon do not fit the prototype in weapon.h */
 extern void LightTorchOffOfWeapon(void *o);
-extern void ExecuteSEPackage(int a0, int a1);
 extern int D_006EA7F0[];
 extern int D_002A60B0[];
 extern int D_002A7740[];
 extern int D_002A6BB0[];
 extern void sceVu0CopyVector(void *dst, void *src);
-extern int scpGameStat_BoyWeaponkind(void);
-extern int iosOmSendMail(char *gop, int msg, void *sender);
-extern void debug_StdPrintfDummy();
-extern void queen_barrier_set_damage(void);
-extern int InitCloth4D(char *g, void *a1, void *a2);
+/* kept local: this TU's uses of InitMotionOrient do not fit the prototype in motionOrientManager.h */
 extern void InitMotionOrient(char *g, int a1, int a2, int a3, int a4, int a5);
-extern void SetLodLevel(char *g, int lod);
 extern int D_0028F4D4[];
 extern int D_0063C300;
 extern char *D_00639EA4;
+/* kept local: this TU's uses of ExecMotionOrient do not fit the prototype in motionOrientManager.h */
 extern void ExecMotionOrient(char *g);
-extern void SetActressLight(char *g, int a1, int a2, int a3);
-extern void GetCloth4D(void *cloth, float x, float y);
-extern int CylinderCollision(char *self, int group, float r, float h, float s);
+/* kept local: this TU's uses of ACTDispLwsBoyStonize_InQueenStage do not fit the prototype in boyact.h */
 extern void ACTDispLwsBoyStonize_InQueenStage(char *g);
+/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
 extern void p2o_SetDefaultEnviroment(void);
+/* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1(char *g);
-extern void DispCloth4D(void *cloth, void *a1, void *a2);
-extern void *iosMallocDebug(int heap, int size, const char *file, int line);
 extern void *memset(void *p, int c, int n);
-extern void GetRootPosition(void *work, char *g);
-extern char *actInitialize(char *g);
-extern void actInitialize_ext_charcter(char *g);
-extern void _ACTWait(int n);
-extern void actCreateSubThread(void (*func)(), int prio);
+/* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
 extern int SetMotionRequest(char *g, int motion, void *p);
-extern void queen_barrier_disp_init(void);
-extern void queen_barrier_anim(void);
-extern void subQueenBrainMain();
-extern void subQueenControl();
-extern void gene_enemy();
-extern char *isysGObjSearchFromObjKindID_begin(int kind);
-extern char *isysGObjSearchFromObjKindID_next(char *g);
 extern void sceVu0CopyMatrix(void *a0, void *a1);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
@@ -115,6 +117,7 @@ void scale_m34(LVec *a0, void *a1, float f)
 
 /* census: static effect_end_func (ito/src/itou_boss.c holds the public symbol
    of the same name, so this copy stays file-static). */
+/* kept local: this TU's uses of LightTorchOnOfWeapon do not fit the prototype in weapon.h */
 extern void LightTorchOnOfWeapon(void *o);
 
 static void effect_end_func(int no)
@@ -188,7 +191,7 @@ static const char queenAttackedMsg[] = "queen attacked\n";
 
 static const char enemyDeadMsg[] = "enemy dead %p\n";
 
-extern char IdentityQuaternion[];
+/* kept local: this TU's uses of GatherEffect_Set do not fit the prototype in gather_effect.h */
 extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int),
                             float speed);
 
@@ -262,11 +265,8 @@ static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d";
 extern int D_0028F4C0[];
 extern float D_002A78C0[];
 extern float _GetRandom(void);
-extern int isEnemyHyde(char *g);
+/* kept local: this TU's uses of lw_pos_to_ico_pos do not fit the prototype in itou_sub.h */
 extern void lw_pos_to_ico_pos(float *dst, float *src);
-extern void SetRootPosition(char *g, float *p);
-extern void Generator_Call(char *g);
-extern int stage_CheckAnimationFinish(int a0);
 
 void gene_enemy(volatile int g)
 {
@@ -351,13 +351,10 @@ void gene_enemy(volatile int g)
 /* r5 seed (478/478 insns, 7 diff sites / 20 non-reloc rows) at
  * scratchpad/seeds/subQueenBrainMain.r5.rc220_7sites.c (whole-TU snapshot) and
  * .r5.body.c (this block only).  Residual: one scheduling cluster, see LEDGER r5. */
-extern void SetDirectRootPosition(char *g, void *pos);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
+/* kept local: the declaration in Texture.h changes this TU codegen */
 extern void tex_SetUVScroll(void *p, int a1, float a2, float a3, float a4, float a5, float a6,
                             float a7);
-extern void ParticleEffects_SetAllGoal(void *pos);
-extern int InqQueenBarrierExist(void);
-extern void _GetMotionDirection(void *dir, char *g);
 
 /* The position the queen is dropped at outside her own stage. */
 static const QVec queenStartPos __attribute__((aligned(16))) = {{0.0f, 800.0f, 0.0f, 1.0f}};
@@ -614,12 +611,8 @@ void subQueenBrainMain(volatile int g)
 
 extern char *D_00639EC0;
 extern char *D_00639ED0;
-extern int iosPadConnect(void *pad, int slot, int port, void *conf);
-extern void iosPadRead(void *pad);
-extern int iosPadGetStick(void *pad, void *out, int a2, int a3, int a4, int a5);
-extern void _GetMotionDirection(void *dir, char *g);
+/* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
 extern int CorrectStickInfo(void *dir, void *stick);
-extern void ConvertStickToAbsCoord(void *out, void *stick);
 
 /* census: static Debug_StickControl; ito/src/act_bird.c holds the public symbol
    of that name, so this copy is a file-static. */
@@ -834,8 +827,6 @@ void QueenBarrierGeo(char *g)
     queen_barrier_anim();
 }
 
-extern void queen_barrier_disp_proc(float);
-
 void QueenBarrierDL(char *g)
 {
     char *b = *(char **)(*(char **)(g + 0x15C) + 0x830);
@@ -844,23 +835,25 @@ void QueenBarrierDL(char *g)
     }
 }
 
-extern void SetupDarkVolume(void *pos, float r, float h);
+/* kept local: this TU's uses of p2o_DispVU1Default do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1Default(char *g);
 /* ROM 0x0012B6F0 never reads $a1: the callee takes (id, scale) only. */
-extern void stage_SetScale(int id, float s);
-extern int stage_DispBgAnimation(void *p);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern void sceVu0Normalize(void *dst, void *src);
 extern void sceVu0OuterProduct(void *dst, void *a, void *b);
 extern void sceVu0InversMatrix(void *dst, void *src);
+/* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
 extern void ico_m33_to_quat(void *dst, void *m);
+/* kept local: this TU's uses of pbga_start do not fit the prototype in itou_sub.h */
 extern void pbga_start(int *bga, int id);
+/* kept local: this TU's uses of _GetLength do not fit the prototype in Matrix.h */
 extern float _GetLength(QVec *a, QVec *b);
+/* kept local: this TU's uses of apply_matrix_w1 do not fit the prototype in itou_sub.h */
 extern void apply_matrix_w1(QVec *dst, QMat33 *m, QVec *src);
+/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
+/* kept local: the declaration in quaternion.h changes this TU codegen */
 extern void CopyQuaternion(void *dst, void *src);
-extern int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
-extern char IdentityQuaternion[];
 
 /* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL
  * each expand inline. */

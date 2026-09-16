@@ -1,4 +1,14 @@
 #include "common.h"
+#include "debug.h"
+#include "gobj.h"
+#include "obj_manager.h"
+#include "enemy_act.h"
+#include "queen.h"
+#include "attackCheckBoundary.h"
+#include "geometryManager.h"
+#include "item.h"
+#include "motionManager2.h"
+#include "weapon.h"
 
 typedef struct AttackPack {
     /* 0x00 */ unsigned char active;
@@ -33,7 +43,6 @@ static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1};
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern void sceVu0SubVector(void *out, void *a, void *b);
-extern float GetQueenBallThickness(void);
 /* prototypes: their order is the inline tail's emission order */
 void CommonAttackCenter(char *a0);
 int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
@@ -41,6 +50,7 @@ void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float ra
 extern float sceVu0InnerProduct(void *a, void *b);
 extern void sceVu0OuterProduct(void *out, void *a, void *b);
 extern void sceVu0Normalize(void *out, void *a);
+/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *a, void *b);
 
 /* listing lines 174-185 */
@@ -134,8 +144,9 @@ typedef struct {
 } WeaponKindEntry;
 
 extern WeaponKindEntry D_00318EB8[];
-extern int CheckWeaponKind(void *w);
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(void *gobj);
+/* kept local: this TU's uses of _OrientGV do not fit the prototype in gv.h */
 extern void _OrientGV(float *dst, float *a, float *b);
 extern void sceVu0ScaleVector(void *dst, void *src, float s);
 
@@ -147,11 +158,7 @@ union PackPowerWord {
     int m;
 };
 
-extern int GetMotionFrameFlag1(char *gobj);
-extern void WeaponCurPos(void *w, float *a, float *b, float *c);
-extern int GetSkeltonFocusNode(char *gobj, int node);
 extern void sceVu0AddVector(void *d, void *a, void *b);
-extern int actEnemy_isLargeEnemy(char *gobj);
 
 /* listing lines 296-308 */
 static inline int GetAttackKindIndex(char *p)
@@ -346,12 +353,10 @@ int AttackCheckSameGroup(char *self, char *other, char *third)
 }
 
 extern char *D_00639EA4;
-extern int CheckWeaponKind(void *w);
-extern int iosOmSendMail(void *gobj, int mail, void *arg);
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(void *gobj);
+/* kept local: this TU's uses of _OrientGV do not fit the prototype in gv.h */
 extern void _OrientGV(float *dst, float *a, float *b);
-extern int BreakItemWithAttackHit(char *gobj, float *dir);
-extern void GetRootPosition(void *dst, void *self);
 extern void sceVu0ScaleVector(void *dst, void *src, float s);
 
 void AttackMail(char *self, AttackPack *pack)
@@ -422,12 +427,11 @@ void AttackMail(char *self, AttackPack *pack)
     }
 }
 
-extern float QueenBallRadius(char *gobj);
-extern int QueenBarrierInqBreakable(void);
-extern float QueenBarrierRadius(char *gobj);
+/* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
 extern float _ACTGame_GetParamF(int idx);
-extern float GetAttackCheckBoundaryRadius(char *gobj);
+/* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(float *dst, float *a, float *b, float ta, float tb);
+/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
 int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
@@ -557,11 +561,11 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
 
 extern char *D_00639EA8;
 extern int D_0063B23C;
-extern void debug_StdPrintfDummy(char *fmt, ...);
-extern char *isysGObjGetExist_begin(void);
-extern char *isysGObjGetExist_next(char *gobj);
+/* kept local: this TU's uses of ACTChkAttackIgnore_BOY do not fit the prototype in act-game.h */
 extern int ACTChkAttackIgnore_BOY(char *gobj, void *actor);
+/* kept local: this TU's uses of ACTChkAttackIgnore_GIRL do not fit the prototype in act-game.h */
 extern int ACTChkAttackIgnore_GIRL(char *gobj, void *actor);
+/* kept local: this TU's uses of ACTChkAttackIgnore_ENEMY do not fit the prototype in act-game.h */
 extern int ACTChkAttackIgnore_ENEMY(char *gobj, void *actor);
 extern int AttackCheckHit(AttackPack *pack, char *gobj, short *out);
 

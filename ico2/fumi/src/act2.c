@@ -1,11 +1,7 @@
 #include "common.h"
+#include "act.h"
 
-extern void _ACTWait(int a0);
-extern int actInitialize(int a0);
 extern void *D_0063A61C;
-extern void actChangeActMain(void *a0, void *a1, void **a2);
-extern void actCreateSubThread(void *entry, int prio);
-extern void actCreateMotionThread(void *a0, void *a1, void **a2);
 
 /* One mail-table row: the message id the actor listens for and the three
    entry points it starts. 429 terminates a table. */

@@ -8,7 +8,9 @@
  * translation unit, not by the included file. */
 
 extern int D_006C1E20[];
+/* kept local: this TU's uses of GetSkeltonOrient do not fit the prototype in act-game.h */
 extern void GetSkeltonOrient(float *out, void *obj, int node);
+/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
 extern int _RotyGV(void *buf, void *vec);
 
 static inline void ATGoalTurnSet(int prio, int dir, float *v)
@@ -65,6 +67,7 @@ int ATGoalTurnMail(void *actor, float *dir, int node)
     return ret;
 }
 
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern void *test_CURRENTROOT(void *a0);
 
 int checkWaterfallResult(float *out)

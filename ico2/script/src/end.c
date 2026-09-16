@@ -1,4 +1,19 @@
 #include "common.h"
+#include "end.h"
+#include "layout_texture.h"
+#include "adpcm_init.h"
+#include "act.h"
+#include "boyact.h"
+#include "commonact.h"
+#include "jimaku.h"
+#include "camera-root.h"
+#include "gflag.h"
+#include "RegistPacket.h"
+#include "StageAnimation.h"
+#include "boy.h"
+#include "girl.h"
+#include "item.h"
+#include "staticBlur.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -39,13 +54,8 @@ typedef struct JimakuArg {
     JimakuSub sub; /* 0x0C */
 } JimakuArg;
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern int gflagChk(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void ACTSendMailCorrect(int a0, int mail);
 
 static ActMail demo01_mes[2] = {{430}, {429}};
 
@@ -84,7 +94,6 @@ static ActMail logo_mes[2] = {{430}, {429}};
 static ActMail end_mes[2] = {{430}, {429}};
 
 extern int D_0063AA08;
-extern void actEndDemo01Chk(volatile int a0);
 
 void actEndDemo01(volatile int a0)
 {
@@ -112,15 +121,15 @@ void actEndDemo01(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
 extern void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-extern void stage_SetLoopFlag(int key, int a1);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 
@@ -200,19 +209,14 @@ void actConte14_1(volatile int a0)
     RequestStageChange(2, D_00639EA4, 0, 1.0f, 8.0f);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
 extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-extern void stage_SetLoopFlag(int key, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void SelectBoyCrown(int a0, int a1);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 extern int D_00639EA4;
-extern void actEndDemo02Chk(volatile int a0);
 
 void actEndDemo02(volatile int a0)
 {
@@ -244,15 +248,15 @@ void actEndDemo02(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 
@@ -328,19 +332,12 @@ void actConte14_2(volatile int a0)
     RequestStageChange(3, D_00639EA4, 0, 1.0f, 8.0f);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern int gflagChk(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
 extern void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-extern void stage_SetLoopFlag(int key, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void SelectBoyCrown(int a0, int a1);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 extern int D_00639EA4;
-extern void actEndDemo06Chk(volatile int a0);
 
 void actEndDemo06(volatile int a0)
 {
@@ -372,14 +369,15 @@ void actEndDemo06(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void _ACTWait(int a0);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -418,19 +416,12 @@ void actConte14_6(volatile int a0)
     RequestStageChange(3, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
 extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void stage_SetLoopFlag(int key, int a1);
-extern int gflagChk(int a0);
-extern void SelectBoyCrown(int a0, int a1);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 extern int D_00639EA4;
-extern void actEndDemo07Chk(volatile int a0);
 
 void actEndDemo07(volatile int a0)
 {
@@ -456,18 +447,22 @@ void actEndDemo07(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
+/* kept local: this TU's uses of scpPlayMotNode do not fit the prototype in script.h */
 extern void scpPlayMotNode(int a0, int mot, int node, int a3);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 
 /* A 16-byte constant vector template: the float view carries the values,
@@ -532,18 +527,12 @@ void actConte14_7(volatile int a0)
     RequestStageChange(6, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
 extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-extern void stage_SetLoopFlag(int key, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void SelectBoyCrown(int a0, int a1);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 extern int D_00639EA4;
-extern void actEndDemo10Chk(volatile int a0);
 
 void actEndDemo10(volatile int a0)
 {
@@ -567,15 +556,15 @@ void actEndDemo10(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void _ACTWait(int a0);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void AdpcmPlay(int a0);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int ed6;
 extern int D_00639EA4;
@@ -685,15 +674,17 @@ void actConte14_10(volatile int a0)
     RequestStageChange(3, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
 
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void _ACTWait(int a0);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -730,13 +721,7 @@ void actConte14_13(volatile int a0)
     RequestStageChange(6, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
-extern void actStaff1Chk(volatile int a0);
 
 void actStaff1(volatile int a0)
 {
@@ -760,15 +745,17 @@ void actStaff1(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: the declaration in staffroll.h changes this TU codegen */
 extern void staffRollStart(int a0, float a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -871,17 +858,17 @@ void actStaff1Demo(volatile int a0)
     RequestStageChange(1, D_00639EA4, D_00639EA8, 0.0f, 8.0f);
 }
 
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void _ACTWait(int a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern void reg_SetScissorSw(int val);
-extern void SetStaticBlur(int x);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -1000,16 +987,16 @@ void actStaff2Demo(volatile int a0)
     RequestStageChange(1, D_00639EA4, D_00639EA8, 0.0f, 8.0f);
 }
 
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
-extern void *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void _ACTWait(int a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern int D_00639EA4;
 
@@ -1101,17 +1088,16 @@ void actStaff3Demo(volatile int a0)
     scpFadeOut(6.0f, 0, 0, 0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void SelectBoyCrown(int a0, int a1);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void SetGirlClothDispSwitch(PObjGObj *gobj, int a1, int a2);
-extern void ACTSendMailCorrect(int a0, int mail);
 
 /* Demo 14's mail record: the actor installs actEndDemo14Chk in it and posts
    it. Word 0 of each entry is the mail id the entry answers (430 the actor
@@ -1123,7 +1109,6 @@ extern int D_0063A054;
 extern int D_0063AA08;
 extern int D_0063BE34;
 extern int D_00639EA4;
-extern void actEndDemo14Chk(volatile int a0);
 
 void actEndDemo14(volatile int a0)
 {
@@ -1158,20 +1143,19 @@ void actEndDemo14(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int stage_CheckAnimationFinish(int a0);
-extern void *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
-extern void lt_switch_layout(int a0);
-extern void gflagOff(int a0);
 extern int D_00639EA4;
 extern int D_0063AA08;
 
@@ -1249,13 +1233,9 @@ void actConte14_14(volatile int a0)
     gflagOff(0x152);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int gflagChk(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA00;
-extern void actSt27aEndChk(volatile int a0);
 
 void actSt27aEnd(volatile int a0)
 {
@@ -1289,16 +1269,14 @@ extern float D_0063AA0C;
 extern int D_0063BE34;
 extern int D_0063BE38;
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int gobj, int attr);
-extern int GetCharHeldItem(int gobj);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern void gflagOn(int a0);
-extern void lt_switch_layout(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
-extern void actCreateSubThread(void *entry, int prio);
-extern void actSt27aEndDemo(volatile int a0);
 
 /* listing lines 2614-2661 */
 void actSt27aEndChk(volatile int a0)
@@ -1340,23 +1318,21 @@ void actSt27aEndChk(volatile int a0)
     D_0063AA0C = 0;
 }
 
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int gflagChk(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void _ACTWait(int a0);
-extern void SetHandCameraLimitInDemo(int a0, int a1);
-extern void SetZoomMaxValInDemo(int a0);
-extern int stage_CheckAnimationFinish(int a0);
-extern void ResetHandCameraLimitInDemo(void);
-extern void ResetZoomMaxValInDemo(void);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpDisActivateAllWithKind do not fit the prototype in script.h */
 extern void scpDisActivateAllWithKind(int a0);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -1468,17 +1444,14 @@ void actSt27aEndDemo(volatile int a0)
     }
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void stage_SetLoopFlag(int key, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void SetHandCameraLimitInDemo(int a0, int a1);
-extern void SetZoomMaxValInDemo(int a0);
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void ACTSendMailCorrect(int a0, int mail);
 
 /* The ending's save hand-off mail record: the logo watcher installs
    actEndingSave in it and posts it. Word 0 of each entry is the mail id the
@@ -1492,7 +1465,6 @@ extern int D_0063AA08;
 extern int NonLinearCameraMove;
 extern int enable_game_pause;
 extern int D_0028F4C0[];
-extern void actEndingSave(volatile int a0);
 
 void actEndLogoChk(volatile int a0)
 {
@@ -1548,16 +1520,12 @@ void actEndLogoChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 extern int D_00639EA4;
-extern void actEndDemo03Chk(volatile int a0);
 
 void actEndDemo03(volatile int a0)
 {
@@ -1582,15 +1550,12 @@ void actEndDemo03(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 extern int D_00639EA4;
-extern void actEndDemo04Chk(volatile int a0);
 
 void actEndDemo04(volatile int a0)
 {
@@ -1612,12 +1577,7 @@ void actEndDemo04(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
-extern void actEndDemo05Chk(volatile int a0);
 
 void actEndDemo05(volatile int a0)
 {
@@ -1634,14 +1594,8 @@ void actEndDemo05(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
-extern void SelectBoyCrown(int a0, int a1);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 extern int D_00639EA4;
-extern void actEndDemo11Chk(volatile int a0);
 
 void actEndDemo11(volatile int a0)
 {
@@ -1659,13 +1613,7 @@ void actEndDemo11(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
-extern void actEndDemo12Chk(volatile int a0);
 
 void actEndDemo12(volatile int a0)
 {
@@ -1683,15 +1631,10 @@ void actEndDemo12(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-extern void SelectBoyCrown(int a0, int a1);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
 extern int D_00639EA4;
-extern void actEndDemo13Chk(volatile int a0);
 
 void actEndDemo13(volatile int a0)
 {
@@ -1710,15 +1653,11 @@ void actEndDemo13(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
+/* kept local: this TU's uses of scpSetBoyWeaponGObj do not fit the prototype in script.h */
 extern void scpSetBoyWeaponGObj(PObjGObj *gobj);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
-extern void actStaff2Chk(volatile int a0);
 
 void actStaff2(volatile int a0)
 {
@@ -1739,15 +1678,9 @@ void actStaff2(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-extern void DeleteBoyWeapon(void);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
-extern void actStaff3Chk(volatile int a0);
 
 void actStaff3(volatile int a0)
 {
@@ -1768,11 +1701,6 @@ void actStaff3(volatile int a0)
     _ACTWait(0);
 }
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void actEndLogoChk(volatile int a0);
-
 void actEndLogo(volatile int a0)
 {
     int x = a0;
@@ -1786,14 +1714,13 @@ void actEndLogo(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
 extern int ed1;
-extern void actConte14_1(volatile int a0);
 
 void actEndDemo01Chk(volatile int a0)
 {
@@ -1818,14 +1745,13 @@ void actEndDemo01Chk(volatile int a0)
     actCreateSubThread(actConte14_1, 0x15);
 }
 
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
 extern int ed2;
-extern void actConte14_2(volatile int a0);
 
 void actEndDemo02Chk(volatile int a0)
 {
@@ -1844,14 +1770,13 @@ void actEndDemo02Chk(volatile int a0)
     actCreateSubThread(actConte14_2, 0x15);
 }
 
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
 extern int ed3;
-extern void actConte14_3(volatile int a0);
 
 void actEndDemo03Chk(volatile int a0)
 {
@@ -1870,9 +1795,7 @@ void actEndDemo03Chk(volatile int a0)
     actCreateSubThread(actConte14_3, 0x15);
 }
 
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 
@@ -1888,14 +1811,13 @@ void actConte14_3(volatile int a0)
     RequestStageChange(2, D_00639EA4, 0, 1.0f, 8.0f);
 }
 
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
 extern int ed4;
-extern void actConte14_4(volatile int a0);
 
 void actEndDemo04Chk(volatile int a0)
 {
@@ -1914,9 +1836,7 @@ void actEndDemo04Chk(volatile int a0)
     actCreateSubThread(actConte14_4, 0x15);
 }
 
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -1933,10 +1853,6 @@ void actConte14_4(volatile int a0)
     RequestStageChange(5, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
 
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
-extern void actConte14_5(volatile int a0);
-
 void actEndDemo05Chk(volatile int a0)
 {
     gflagOn(0x157);
@@ -1944,10 +1860,9 @@ void actEndDemo05Chk(volatile int a0)
     actCreateSubThread(actConte14_5, 0x15);
 }
 
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -1966,13 +1881,11 @@ void actConte14_5(volatile int a0)
     RequestStageChange(6, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
 
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void gflagOff(int a0);
-extern void actCreateSubThread(void *entry, int prio);
 extern int sea;
-extern void actConte14_6(volatile int a0);
 
 void actEndDemo06Chk(volatile int a0)
 {
@@ -1991,11 +1904,8 @@ void actEndDemo06Chk(volatile int a0)
     actCreateSubThread(actConte14_6, 0x15);
 }
 
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
-extern void actConte14_7(volatile int a0);
 
 void actEndDemo07Chk(volatile int a0)
 {
@@ -2008,14 +1918,11 @@ void actEndDemo07Chk(volatile int a0)
     actCreateSubThread(actConte14_7, 0x15);
 }
 
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
 extern int ed6;
-extern void actConte14_10(volatile int a0);
-extern void actConte14_10_Jimaku(volatile int a0);
 
 void actEndDemo10Chk(volatile int a0)
 {
@@ -2036,9 +1943,6 @@ void actEndDemo10Chk(volatile int a0)
 
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
-extern void jimakuBegin(int a0);
-extern void jimakuJump(int a0);
-extern void _ACTWait(int a0);
 extern int D_0028F4C0[];
 
 void actConte14_10_Jimaku(volatile int a0)
@@ -2072,10 +1976,6 @@ void actConte14_10_Jimaku(volatile int a0)
     } while (t < 1800.0f);
 }
 
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
-extern void actConte14_11(volatile int a0);
-
 void actEndDemo11Chk(volatile int a0)
 {
     gflagOn(0x15D);
@@ -2083,11 +1983,11 @@ void actEndDemo11Chk(volatile int a0)
     actCreateSubThread(actConte14_11, 0x15);
 }
 
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -2108,10 +2008,6 @@ void actConte14_11(volatile int a0)
     RequestStageChange(2, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
 
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
-extern void actConte14_12(volatile int a0);
-
 void actEndDemo12Chk(volatile int a0)
 {
     gflagOn(0x15E);
@@ -2119,10 +2015,9 @@ void actEndDemo12Chk(volatile int a0)
     actCreateSubThread(actConte14_12, 0x15);
 }
 
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
-extern int stage_CheckAnimationFinish(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of RequestStageChangeWithColor do not fit the prototype in script.h */
 extern int RequestStageChangeWithColor(int a0, int a1, int a2, float a3, float a4, int r, int g,
                                        int b);
 extern int D_00639EA4;
@@ -2142,10 +2037,6 @@ void actConte14_12(volatile int a0)
     RequestStageChangeWithColor(4, D_00639EA4, D_00639EA8, 16.0f, 16.0f, 0xFF, 0xFF, 0xFF);
 }
 
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
-extern void actConte14_13(volatile int a0);
-
 void actEndDemo13Chk(volatile int a0)
 {
     gflagOn(0x15F);
@@ -2153,18 +2044,10 @@ void actEndDemo13Chk(volatile int a0)
     actCreateSubThread(actConte14_13, 0x15);
 }
 
-extern void actCreateSubThread(void *entry, int prio);
-extern void actStaff1Demo(volatile int a0);
-
 void actStaff1Chk(volatile int a0)
 {
     actCreateSubThread(actStaff1Demo, 0x15);
 }
-
-extern void reg_SetScissorSw(int val);
-extern void SetStaticBlur(int x);
-extern void actCreateSubThread(void *entry, int prio);
-extern void actStaff2Demo(volatile int a0);
 
 void actStaff2Chk(volatile int a0)
 {
@@ -2175,13 +2058,11 @@ void actStaff2Chk(volatile int a0)
     actCreateSubThread(actStaff2Demo, 0x15);
 }
 
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void actCreateSubThread(void *entry, int prio);
 extern int D_0063BE30;
-extern void actStaff3Demo(volatile int a0);
-extern void actStaff3RollChk(volatile int a0);
 
 void actStaff3Chk(volatile int a0)
 {
@@ -2198,9 +2079,11 @@ void actStaff3Chk(volatile int a0)
     actCreateSubThread(actStaff3RollChk, 0x15);
 }
 
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 extern int staffRollStartFlag;
@@ -2221,10 +2104,6 @@ void actStaff3RollChk(volatile int a0)
     RequestStageChange(1, D_00639EA4, 0, 16.0f, 0.001f);
 }
 
-extern void gflagOn(int a0);
-extern void actCreateSubThread(void *entry, int prio);
-extern void actConte14_14(volatile int a0);
-
 void actEndDemo14Chk(volatile int a0)
 {
     gflagOn(0x160);
@@ -2232,12 +2111,11 @@ void actEndDemo14Chk(volatile int a0)
     actCreateSubThread(actConte14_14, 0x15);
 }
 
-extern void gflagInit(void);
-extern void gflagOn(int a0);
-extern void lt_switch_layout(int a0);
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_0029B9D0[];
 extern int D_0063AA00;

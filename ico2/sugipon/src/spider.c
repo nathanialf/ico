@@ -1,9 +1,20 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "spider.h"
+#include "debug.h"
+#include "gamesys.h"
+#include "memory.h"
+#include "obj_manager.h"
+#include "generator.h"
+#include "Matrix.h"
+#include "Primitive.h"
+#include "a_p_1.h"
+#include "act_a_p_1.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "spiderGroupManager.h"
 
-extern void WakeUpAP1(void *ap1);
-extern void SetAP1VisualState(void *ap1, int state);
-extern void ExecuteSEPackage(char *self, int id);
 extern void *D_0063A438;
 
 /* spider.o's whole .rodata run starts here.  These three are named objects,
@@ -18,9 +29,6 @@ static const char spiderWakeHasParentMsg[] =
 /* tried to wake a spider group with no parent written in the table; invalid */
 static const char spiderWakeNoParentMsg[] =
     "蜘蛛グループを起こそうとしましたが、表に親が書かれていません。これは無効です\n";
-
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
-extern void *MakeAP1GObj(void *lay);
 
 typedef struct {
     char pad[0x10];
@@ -91,9 +99,6 @@ void WakeUpLayoutedSpiders(void *self)
 
 extern void *D_00639EA4;
 extern void *D_00639EA8;
-extern void SetAP1HostGObj(void *ap1, void *host);
-extern void SetAP1PriorLevel(void *ap1, int level);
-extern void EntryToSpiderGroupManagerForReviveMaster(char *self, void *host);
 
 /* listing lines 324-331 */
 static inline void setSpiderGroupHost(char *self, void *host)
@@ -167,13 +172,6 @@ int CallSpidersToReviveEnemy(char *self)
 }
 
 extern int D_0063BAC0;
-extern int iosOmSendMail(void *gop, int msg, void *sender);
-extern void debug_StdPrintfDummy();
-extern void EntrySpiderGroupManager(char *self);
-extern void EntryRevivedSpiderGroupManager(char *self);
-extern void GetGeneratorSafePosition(void *pos, void *gen);
-extern void SetDirectRootPosition(void *obj, void *pos);
-extern void gamesysObjInfoUniqDataSet(char *self);
 
 /* listing lines 69-76 */
 static inline void setAllSpiderPositions(char *self, float *pos)
@@ -275,21 +273,15 @@ extern int D_0063BADC;
 /* spider.o's whole .data run: the white the debug wire sphere is drawn in. */
 static int spiderWireColor[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 
-extern void GetRootPosition(void *out, void *obj);
-extern void *MatrixDrive_GetMatrix(void);
-extern void _UnitMatrix(void *m);
-extern void MatrixDrive_RotMatrixX(short a);
-extern void MatrixDrive_RotMatrixY(short a);
-extern void MatrixDrive_RotMatrixZ(short a);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int on);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-extern void prim_DispWireSphere(void *col, int a1, int a2, float r);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern int GetAP1Mode(void *ap1);
-extern int GetAP1AIMode(void *ap1);
 extern int rand(void);
-extern void debug_PrintfDummy(int x, int y, unsigned int color, char *fmt, ...);
 
 typedef struct {
     char pad[0x20];
@@ -368,8 +360,6 @@ void SetSpiderGroupReviveStatus(char *a0)
     debug_StdPrintfDummy(D_0063BAC8, *(int *)(a0 + 8));
 }
 
-extern int iosOmSendMail(void *gop, int msg, void *sender);
-
 int DeadAllSpiders(char *gp)
 {
     char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
@@ -382,8 +372,6 @@ int DeadAllSpiders(char *gp)
     }
     return 0;
 }
-
-extern int IsActCharDead(void *gop);
 
 /* Unnamed in MAIN.MAP: a static-inline helper (listing rows 148-151) shared by
    GetAliveSpiders and MemorySpiderLayout; it has no out-of-line copy. */
@@ -466,8 +454,6 @@ int GetNearestOfLayoutSpiders(float *dist, char *gp, void *center)
     return nearest;
 }
 
-extern void GetRootPosition(void *out, void *obj);
-
 int CheckSpidersInsideOfReviveRange(int *out, char *gp, void *center)
 {
     float pos[4];
@@ -532,10 +518,6 @@ int MemorySpiderLayout(char *dst, char *gp)
     return 1;
 }
 
-extern void GetGeneratorSafePosition(void *pos, void *gen);
-extern void SetDirectRootPosition(void *obj, void *pos);
-extern void WakeUpLayoutedSpiders(void *gp);
-
 /* Unnamed in MAIN.MAP: a static-inline helper (listing rows 71-74) shared by
    WakeUpSpidersFromGenerator and SpiderLayoutGeo; it has no out-of-line copy. */
 static inline void SetLayoutedSpidersRootPosition(char *gp, void *pos)
@@ -567,8 +549,6 @@ void WakeUpSpidersFromGenerator(char *gp)
     WakeUpLayoutedSpiders(gp);
 }
 
-extern void SetAP1DeadStatus(void *gop);
-
 /* INTERIM: stand-in for the TU's own DeleteSpiderFromLayoutGroup, which ROM
    inlines here (listing rows 257-259 inside this function).  The plain
    definition above stays until the TU's inline tail is laid out. */
@@ -593,8 +573,6 @@ void DeleteAllSpidersOfLayoutGroup(char *gp)
     }
     *(int *)(sg + 0x20) = 0;
 }
-
-extern int iosOmSendMail(void *gop, int msg, void *sender);
 
 void SleepSpiderGroup(char *gp)
 {

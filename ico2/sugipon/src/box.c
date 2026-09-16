@@ -31,8 +31,15 @@ FloorLeverGeo *InitWallLeverGeo(char *a0, char *a1);
 int GetWallLeverAngle(char *a0);
 
 #include "switch.c.inc"
-
-extern void ExecuteSEPackage(int a0, int a1);
+#include "box.h"
+#include "DObj.h"
+#include "debug.h"
+#include "gamesys.h"
+#include "generator.h"
+#include "frameDependSequence.h"
+#include "item.h"
+#include "motionManager2.h"
+#include "motionOrientManager.h"
 
 void landingSE(int a0)
 {
@@ -86,8 +93,11 @@ static inline void alignPosition(char *self, float *dst, float *src, float grid)
     CopyVector(dst, npos);
 }
 
+/* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in quaternion.h */
 extern void GetInverseQuaternion(void *dst, void *src);
+/* kept local: this TU's uses of SetRootQuaternion do not fit the prototype in geometryManager.h */
 extern void SetRootQuaternion(void *obj, void *q);
+/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition(void *obj, void *pos);
 
 int AlignBox(char *a0, float grid)
@@ -113,6 +123,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPathInitialize);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPath);
 
 extern float sceVu0InnerProduct(void *a0, void *a1);
+/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float f);
 
 inline float GetDistanceOfGObj(void *a0, void *a1)
@@ -130,11 +141,13 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", MoveFloatingBox);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", avoidCharGObj);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFloating);
 
+/* kept local: this TU's uses of IdentityQuaternion do not fit the prototype in quaternion.h */
 extern char IdentityQuaternion[];
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 extern char D_004E62A0[];
+/* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
 extern void CopyQuaternion(void *dst, void *src);
-extern void execFloating(char *a0);
 
 void initFloating(char *a0)
 {
@@ -165,6 +178,7 @@ inline int IsThisBoxTruck(char *a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", action);
 
+/* kept local: this TU's uses of GetRootMatrix do not fit the prototype in geometryManager.h */
 extern void GetRootMatrix();
 extern void sceVu0ApplyMatrix();
 
@@ -184,30 +198,37 @@ inline int CanHoldBox(char *a0)
 
 extern void sceVu0Normalize(void *dst, void *src);
 extern void sceVu0ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+/* kept local: this TU's uses of SetSimplePlane do not fit the prototype in fieldCollision.h */
 extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
+/* kept local: this TU's uses of GetDistanceFromPlane do not fit the prototype in fieldCollision.h */
 extern float GetDistanceFromPlane(void *plane, void *pos);
+/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
+/* kept local: this TU's uses of GetCharGObjList do not fit the prototype in geometryManager.h */
 extern char **GetCharGObjList(void);
 extern void memset(void *dst, int c, int n);
+/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *a0);
+/* kept local: this TU's uses of ClipWallBoxStop do not fit the prototype in fieldCollision.h */
 extern void ClipWallBoxStop(void *a0);
-extern int _checkItemCollision(void *a0);
-extern int CheckGeneratorCollision(char *a0, void *a1);
-extern int GetNbMotionFrames(int a0);
-extern void ReviveCarryableItemsWithBoundary(void *pos, float r);
+/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
 extern void UpdateRootMatrix(void *a0);
-extern int execNormalMove(char *a0, int a1);
-extern int onPath(char *a0);
 extern int moveXPlus(float *a0, float f12, float f13, float f14);
 extern int moveXMinus(float *a0, float f12, float f13, float f14);
 extern int moveZPlus(float *a0, float f12, float f13, float f14);
 extern int moveZMinus(float *a0, float f12, float f13, float f14);
 extern int stage_no;
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 extern int D_0028F4C0[];
 extern char D_0061F080[];
@@ -594,7 +615,6 @@ extern char D_0061F0A0[];
 extern char D_0061F0B0[];
 extern char D_0061F128[];
 extern char D_0061F138[];
-extern int checkFieldContact(char *a0, float d);
 
 void ReInitBoxGeo(char *a0)
 {
@@ -623,9 +643,6 @@ void ReInitBoxGeo(char *a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", InitBoxGeo);
 
-extern void action(char *a0);
-extern void gamesysObjInfoUniqDataSet(char *a0);
-
 void BoxGeo(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -638,10 +655,10 @@ void BoxGeo(char *a0)
     }
 }
 
+/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
 extern int p2o_SetDefaultEnviroment(int a0);
+/* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1(void *a0);
-extern void StopSEPackageWithGroupVariation(int a0, int a1);
-extern void dispWheels(char *a0);
 extern int D_0028F4D4[];
 
 inline void BoxDL(char *a0)
@@ -659,7 +676,6 @@ inline void BoxDL(char *a0)
 }
 
 extern char D_0061F148[];
-extern void debug_StdPrintfDummy(char *fmt, ...);
 
 inline int BoxGeoRestore(float *a0, float *a1)
 {

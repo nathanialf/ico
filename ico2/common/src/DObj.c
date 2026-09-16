@@ -1,4 +1,14 @@
 #include "common.h"
+#include "charFileManager.h"
+#include "debug.h"
+#include "memory.h"
+#include "gv.h"
+#include "Matrix.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "quaternion.h"
 
 typedef struct {
     long long x;
@@ -11,9 +21,7 @@ typedef struct {
 } DObjBlk8;
 
 extern int D_0063A438;
-extern void LocalizeGeometry();
 extern DObjBlk8 D_0063A810;
-extern void GlobalizeGeometry(void *a0);
 /* prototypes: their order is the inline tail's emission order */
 void FreeDObj(void);
 void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1);
@@ -56,9 +64,6 @@ typedef union {
 typedef struct {
     long long w[24];
 } DObjBlkC0;
-
-extern char ZeroVector[];
-extern char ZeroPoint[];
 
 /* The four DObj templates, in the order the object emits them.  Their
    contents are ROM-direct; the names are a reconstruction, since the
@@ -112,15 +117,6 @@ static DObjBlk40 initialBlendRot = {{
     {0.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
 }};
-
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
-extern void InitMotionGeoInfo(void *p, float a, float b, float c, float d, float e, float f);
-extern void InitMotionStateInfo(void *p);
-extern void InitFrameDependSequence(void *p);
-extern void InitMotionRotElem(void *p, int n);
-extern void CopyVector(void *dst, void *src);
-extern void _ApplyRyGV(void *v, float ry);
-extern void SetMotionDirection(void *gobj, void *v);
 
 static inline void initGeometryScaleRatio(char *d)
 {
@@ -213,21 +209,6 @@ void initGeometryState(char *self, float *lay)
     initGeometryScaleRatio(p->data.p);
 }
 
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrixV(void *v);
-extern void MatrixDrive_RotMatrixX(short a);
-extern void MatrixDrive_RotMatrixY(short a);
-extern void MatrixDrive_RotMatrixZ(short a);
-extern void _UnitMatrix(void *m);
-extern void CopyVector(void *dst, void *src);
-extern void CopyMatrix(void *dst, void *src);
-extern void SetIdentityQuaternion(void *q);
-extern void RotQuaternionX(void *q, short a);
-extern void RotQuaternionY(void *q, short a);
-extern void RotQuaternionZ(void *q, short a);
-
 void initMatrixDObj(char *self, float *lay)
 {
     float v[4];
@@ -259,7 +240,6 @@ typedef union {
 } DObjFlags;
 
 extern void *D_0063A44C;
-extern void _CopyVector(void *dst, void *src);
 
 void allocObjectData(char *self, char *lay, int n)
 {
@@ -339,10 +319,6 @@ typedef struct {
 } PolyFlags;
 
 extern void *D_0063A44C;
-extern void _CopyMatrix(void *dst, void *src);
-extern void CopyQuaternion(void *dst, void *src);
-extern void _MulMatrix(void *dst, void *a, void *b);
-extern void GetInitialSkeltonMatrixByDObj(char *d);
 
 /* listing lines 232-246 */
 static inline void initPolyHead(char *d)
@@ -457,8 +433,7 @@ void initPolygonState(char *d, float *lay)
 inline void FreeDObj(void) {}
 
 extern void *D_0063A44C;
-extern void CSVSYSTEM_ReadCharFiles(char *d, int id);
-extern void debug_StdPrintfDummy();
+/* kept local: this TU's uses of initPolygonState do not fit the prototype in DObj.h */
 extern void initPolygonState(char *d, float *lay);
 
 /* listing lines 423-432: the slot index of the entry tagged id, or -1 */

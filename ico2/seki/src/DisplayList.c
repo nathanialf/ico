@@ -1,4 +1,9 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
+#include "DmaPacket.h"
+#include "GifPacket.h"
+#include "MicroCode.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void dl_Out(void);
@@ -21,19 +26,13 @@ extern int D_0063C4BC;
 extern int D_0063C4C0;
 extern DlEntry D_00728310[];
 extern int D_00728518[2][13];
-extern void dpk_SwapBuffer(void);
-extern void gif_Init(void);
-extern void mc_Reset(void);
 extern int D_0063A054;
 extern int dmaVif;
 extern void FlushCache(int a0);
+/* kept local: the declaration in DisplayList.h changes this TU codegen */
 extern void dl_CloseDma(void);
 extern void sceDmaSend(int a0, int a1);
 extern int D_006218E0[];
-extern void debug_StdPrintfDummy(char *fmt, ...);
-extern void iosFree(int a0);
-extern void dpk_Init(void);
-extern void *iosMallocDebug(int handle, int size, char *file, int line);
 extern int D_00621840[];
 extern int D_0063A43C;
 extern void debug_assert(char *file, int line);

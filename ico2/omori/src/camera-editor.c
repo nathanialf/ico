@@ -1,4 +1,13 @@
 #include "common.h"
+#include "camera-editor.h"
+#include "debug.h"
+#include "memory.h"
+#include "camera-ico2.h"
+#include "camera-root.h"
+#include "gv.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
+#include "tableSin.h"
 
 typedef struct {
     int w[23];
@@ -56,16 +65,9 @@ extern char D_00554D60[];
 extern char D_00554D90[];
 extern char D_00554CE0[];
 extern int GetSizeOfCameraSetBinary(S4C *p, int n);
-extern int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1);
 extern void MakeCameraSetBinary(S4C *src, int count, S4C *dst);
-extern void debug_closeLog(void);
-extern void debug_openLog(void);
-extern void debug_StdPrintfDummy();
 extern void sprintf();
-extern int debugSceOpen(void *path, int mode);
-extern int debugSceClose(int fd);
 extern void sceWrite(int fd, void *buf, int len);
-extern void iosFree(void *p);
 
 /* SRCFILE.TXT rows 369-388: saveEditedDataBinary inlines this, which is why
    the ROM folds the path buffer's frame address straight into $a0 at both the
@@ -114,6 +116,7 @@ void saveEditedDataBinary(int no, int a1, int a2)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", saveEditedData);
 
+/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int code, long data);
 
 void gif_test(int *a0, int *a1, int *a2, unsigned char *a3)
@@ -160,12 +163,17 @@ extern const BoxCol4 D_00554F40;
 extern BoxCol D_0063AAA0[];
 extern char *matrixptr;
 extern void sceVu0MulMatrix(void *dst, void *a, void *b);
+/* kept local: this TU's uses of before_DrawPolygon do not fit the prototype in poly-flat.h */
 extern void before_DrawPolygon(void);
-extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
+/* kept local: this TU's uses of DrawPolygon do not fit the prototype in poly-flat.h */
 extern void DrawPolygon(void *p0, void *p1, void *p2, void *p3, unsigned char *col, void *m);
+/* kept local: this TU's uses of after_DrawPolygon do not fit the prototype in poly-flat.h */
 extern void after_DrawPolygon(void);
+/* kept local: this TU's uses of before_DrawLine do not fit the prototype in poly-flat.h */
 extern void before_DrawLine(void *m);
+/* kept local: this TU's uses of do_DrawLine do not fit the prototype in poly-flat.h */
 extern void do_DrawLine(void *p0, void *p1, void *col, int f);
+/* kept local: this TU's uses of after_DrawLine do not fit the prototype in poly-flat.h */
 extern void after_DrawLine(void);
 
 void DebugDispBox(BoxVec *c, BoxVec *s)
@@ -319,7 +327,6 @@ typedef struct {
     float x, y, z, w;
 } ArrowVtx __attribute__((aligned(16)));
 
-extern ArrowVtx ZeroVector;
 extern ArrowVtx D_002A5A10;
 extern ArrowVtx D_002A5A20;
 extern ArrowVtx D_002A5A30;
@@ -350,15 +357,11 @@ typedef struct {
 extern AxisPair D_002A5A80[];
 extern ArrowVtx D_002A5A70;
 extern char *matrixptr;
-extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
-extern void MatrixDrive_TransMatrixV(void *v);
-extern void MatrixDrive_TurnObjectMatrix(float x, float y, float z);
-extern void MatrixDrive_RotMatrixZ(short a);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 extern void sceVu0Normalize(void *dst, void *src);
-extern int GetTableArcTan2(float y, float x);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a);
 
 void DispAxisArrow(int mask, void *col)
@@ -414,10 +417,8 @@ void DispAxisArrow(int mask, void *col)
     }
 }
 
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a);
-extern void CopyIVector(void *dst, void *src);
-extern float GetPointDistance(void *a, void *b);
 extern int D_002A5AE0[];
 extern int D_002A5AF0[];
 extern int D_002A5B00[];
@@ -483,8 +484,6 @@ void dispCameraPinType2(int box, int from, int to, int type)
     }
     gif_EndPacket();
 }
-
-extern void dispCameraPinType2(int a0, int a1, int a2, int a3);
 
 void CameraEdit_DispPinType2(int a0, int a1, int a2)
 {
@@ -604,18 +603,22 @@ extern unsigned char D_0063AAC8[4];
 extern unsigned char D_0063AAD0[4];
 extern void sceVu0UnitMatrix(void *m);
 extern void sceVu0MulMatrix(void *dst, void *a, void *b);
+/* kept local: this TU's uses of before_DrawPolygon do not fit the prototype in poly-flat.h */
 extern void before_DrawPolygon(void);
+/* kept local: this TU's uses of after_DrawPolygon do not fit the prototype in poly-flat.h */
 extern void after_DrawPolygon(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a);
-extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
+/* kept local: this TU's uses of DrawPolygon do not fit the prototype in poly-flat.h */
 extern void DrawPolygon(void *p0, void *p1, void *p2, void *p3, unsigned char *col, void *m);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int prio);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
 
 void CameraEdit_DispBoxType2_Plane(int box, int sel)
 {
@@ -699,8 +702,6 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
     }
 }
 
-extern void dispCameraGroupType2(int a0, unsigned char a1);
-
 void CameraEdit_DispBoxType2(int a0, int a1)
 {
     dispCameraGroupType2(a0, a1 & 0xFF);
@@ -724,13 +725,8 @@ extern int D_0063B13C;
 extern int print_y;
 extern unsigned char exit_f;
 extern int *D_0063AA7C;
-extern int CameraEdit_BOX_NUMBER(void);
-extern void DispCameraGroup(int box, unsigned char sel);
-extern void debug_Printf(int x, int y, unsigned int col, char *fmt, ...);
+/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void *th);
-extern void EnterMenu(void *a0, int a1, void *a2);
-extern void menuGroupEdit(char *m);
-extern void menuPinSelect(char *m);
 
 void menuGroupSelect(char *m)
 {
@@ -814,6 +810,7 @@ extern char D_0063AAF0[];
 extern char D_0063AAF8[];
 extern char D_0063AB00[];
 extern int curmenu;
+/* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern void iosThreadDestroy(void *th);
 
 void menuGroupEdit(char *m)
@@ -897,19 +894,17 @@ void menuGroupEdit(char *m)
     }
 }
 
-extern int CameraEdit_PIN(int a0, int a1);
-
 typedef union {
     unsigned int c[4];
     unsigned long long w[2];
 } CamColor;
 
 extern CamColor D_00554E70;
-extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int prio);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void DrawLine(float *from, float *to, CamColor *color, int z);
 
 static inline void dispPinRange(int box, int from, int to)
 {
@@ -964,9 +959,8 @@ extern char D_0063AB20[];
 extern int D_0063C25C;
 extern void memset(void *p, int c, int n);
 extern void sceVu0ScaleVector(int *buf, int *p, float t);
-extern void SetWSMatrix(void *cam);
+/* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern void iosThreadDestroy(void *th);
-extern void menuPinEdit(char *m);
 
 void menuPinSelect(char *m)
 {
@@ -1048,8 +1042,8 @@ extern char D_002AD010[];
 extern StageParam D_005F5D50[];
 extern int stage_no;
 extern int *D_0063AA7C;
+/* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
 extern void iosThreadWakeup(void *thread);
-extern void saveEditedDataBinary(int a0, int a1, int a2);
 
 void wakeup_cameraedit(void)
 {
@@ -1063,16 +1057,12 @@ void wakeup_cameraedit(void)
     }
 }
 
-extern void EnterMenu(void *a0, int a1, void *a2);
-extern void menuGroupSelect(char *m);
-
 void test_camedit(void)
 {
     EnterMenu((void *)menuGroupSelect, 0, 0);
 }
 
 extern char D_00555038[];
-extern void debug_StdPrintfDummy();
 
 static inline void _CameraEdit_free_box_pool(CamMgr *mgr, int idx)
 {
@@ -1214,14 +1204,10 @@ void CameraEdit_del_pin(int a0, int a1)
     _CameraEdit_del_pin((CamMgr *)D_0063AA7C, a0, a1);
 }
 
-extern void DispCameraGroup(int a0, unsigned char a1);
-
 void CameraEdit_DispBox(int a0, unsigned char a1)
 {
     DispCameraGroup(a0, a1);
 }
-
-extern void ReflectCameraSetBinary(int a0, int a1);
 
 void CameraEdit_Reflect(void)
 {
@@ -1229,15 +1215,12 @@ void CameraEdit_Reflect(void)
     ReflectCameraSetBinary(p[1], p[0]);
 }
 
-extern void saveEditedDataBinary(int a0, int a1, int a2);
-
 void CameraEdit_Save(int a0)
 {
     int *p = D_0063AA78;
     saveEditedDataBinary(a0, p[1], p[0]);
 }
 
-extern void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13);
 extern void sceVu0ScaleVector(int *buf, int *p, float t);
 
 void debug_NMarker(int *self, int a1, int a2, int a3, float t)
@@ -1260,11 +1243,8 @@ void InitCameraEditor(void)
     exit_f = 0;
 }
 
-extern void CameraSetMode(int a0);
 extern unsigned char exit_f;
 extern int D_0063B13C;
-extern void wakeup_cameraedit(void);
-extern void test_camedit(void);
 
 int debug_CameraEditor(void)
 {
@@ -1281,9 +1261,6 @@ int debug_CameraEditor(void)
     CameraEdit_Reflect();
     return -1;
 }
-
-extern int CameraEdit_BOX(int a0);
-extern void CameraEdit_reset_pin(int a0, int a1);
 
 void CameraEdit_reset_box(int a0)
 {
@@ -1311,8 +1288,6 @@ void CameraEdit_reset_pin(int a0, int a1)
     S5C *src = (S5C *)(*(int *)(D_0063AA78[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
     *dst = *src;
 }
-
-extern void CameraEdit_reflect_pin(int a0, int a1);
 
 void CameraEdit_reflect_box(int a0)
 {
@@ -1374,7 +1349,6 @@ void CameraEdit_DispPin(int box, int pin)
 }
 
 extern int CameraEdit_add_box(S4C *a0);
-extern int CameraEdit_add_pin(int a0, char *a1);
 extern float D_002A5D68[];
 extern StageParam D_005F5D50[];
 extern int stage_no;
@@ -1414,10 +1388,6 @@ void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
     }
 }
 
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_RotMatrixY(int a0);
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 extern void sceVu0Normalize(void *a0, void *a1);
 extern void sceVu0UnitMatrix(void *a0);
@@ -1466,9 +1436,10 @@ extern Pad D_0028F8F0[];
 extern char D_00555000[];
 extern char D_00555010[];
 extern int curmenu;
+/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void *th);
+/* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern void iosThreadDestroy(void *th);
-extern void debug_StdPrintfDummy();
 
 void menu_2(char *m)
 {
@@ -1518,6 +1489,5 @@ int _CameraEdit_PIN(int *a0, int a1, int a2)
 }
 
 extern char D_00555020[];
-extern void debug_StdPrintfDummy();
 
 inline void CameraEdit_Enter(void) {}

@@ -1,4 +1,14 @@
 #include "common.h"
+#include "gobj.h"
+#include "s_init.h"
+#include "boyact.h"
+#include "camera-ico2.h"
+#include "gflag.h"
+#include "script.h"
+#include "geometryManager.h"
+#include "torch.h"
+#include "weapon.h"
+#include "windManager.h"
 
 typedef struct {
     float f0;
@@ -36,14 +46,8 @@ typedef struct {
 
 extern float D_0063C080[]; /* .sdata FLT_MAX; %hi/%lo, so the declaration withheld its size */
 extern int D_00639EA4;
-extern int gflagChk(int a0);
+/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
 extern int *GetCameraPos();
-extern int *isysGObjSearchFromObjKindID_begin(int kind);
-extern int *isysGObjSearchFromObjKindID_next(int *g);
-extern int *GetBoyWeaponGObj(void);
-extern int *GetTorchGObjOfWeapon(int *w);
-extern int IsTorchLightOn(int *g);
-extern void GetRootPosition(void *dst, int *g);
 extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern void sceVu0CopyVector(void *a0, void *a1);
@@ -107,8 +111,8 @@ int stageSEtaimatsu(SEObj *self)
     return rv;
 }
 
+/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
 extern int *GetCameraPos();
-extern int gflagChk(int a0);
 extern int stage_no;
 extern float D_0063C5B8;
 extern float D_0063C5BC;
@@ -206,9 +210,8 @@ int stageSE06ariver(SEObj *a0)
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
+/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
 extern int *GetCameraPos();
-extern float GetRegularizedWindSpeed(void *a0);
-extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
 extern Blk16 D_00623130;
 extern Blk16 D_00623140;
 
@@ -258,8 +261,8 @@ typedef struct {
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
+/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
 extern int *GetCameraPos();
-extern float GetRegularizedWindSpeed(void *a0);
 extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern void sceVu0CopyVector(void *a0, void *a1);
@@ -333,8 +336,6 @@ int stageSE02astrong(char *a0)
     return 1;
 }
 
-extern int gflagChk(int a0);
-
 int stageSE02ataki(char *self)
 {
     float *p = *(float **)(self + 0x34);
@@ -360,8 +361,6 @@ int stageSE02atakib(char *self)
     return 1;
 }
 
-extern int GetCameraGroupCurrent(void);
-
 int stageSE03tsuiro(void)
 {
     int r = GetCameraGroupCurrent();
@@ -384,8 +383,8 @@ int stageSE03tnotSuiro(void)
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
+/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
 extern int *GetCameraPos();
-extern float GetRegularizedWindSpeed(void *a0);
 
 int stageSE04agate(char *a0)
 {
@@ -416,7 +415,6 @@ int stageSE04agate(char *a0)
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
-extern float GetRegularizedWindSpeed(void *a0);
 
 int stageSE04bstrong(void *a0)
 {
@@ -447,6 +445,7 @@ int stageSE04ewind(char *a0)
     return -1;
 }
 
+/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
 extern int *GetCameraPos();
 extern int stage_no;
 
@@ -503,6 +502,7 @@ int stageSE06astrong(char *a0)
     }
 }
 
+/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
 extern int *GetCameraPos();
 
 int stageSE06abirdIn(int *self)
@@ -550,7 +550,6 @@ int stageSE06ataimatsu(int *self)
 
 extern Blk16 D_00623110;
 extern Blk16 D_00623120;
-extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
 
 int stageSE08astrong(char *a0)
 {
@@ -581,7 +580,6 @@ int stageSE08astrong(char *a0)
 
 extern Blk16 D_00623110;
 extern Blk16 D_00623120;
-extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
 
 int stageSE08astrong2(char *a0)
 {
@@ -614,7 +612,6 @@ int stageSE08astrong2(char *a0)
 
 extern Blk16 D_00623110;
 extern Blk16 D_00623120;
-extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
 
 int stageSE08anoise3(int self)
 {
@@ -633,7 +630,6 @@ int stageSE08anoise3(int self)
 
 extern Blk16 D_00623110;
 extern Blk16 D_00623120;
-extern int scpTriggerPosBox(int a, Blk16 *b, Blk16 *c);
 
 int stageSE08ataimatsu(int a0)
 {
@@ -803,8 +799,6 @@ static inline int stageSE13dterrace_(void)
         return 0;
     return -1;
 }
-
-extern void soundReverbDepthSet(int a0);
 
 int stageSE13dstrong(char *a0)
 {
@@ -979,7 +973,6 @@ int stageSE20astrong2(void *a0)
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
-extern float GetRegularizedWindSpeed(void *a0);
 
 int stageSE22astrong(void *a0)
 {

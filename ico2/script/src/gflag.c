@@ -1,4 +1,10 @@
 #include "common.h"
+#include "gamesys.h"
+#include "boyact.h"
+#include "stage_orient.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "warpGirl.h"
 
 /* the story flag bitmap, one bit per event flag; saved and restored whole */
 static unsigned char gflags[50] = {0};
@@ -11,14 +17,7 @@ extern int before_stage_no;
 extern int gamesysVersionDiff;
 extern int stage_no;
 extern void memset(void *dst, int c, int n);
-extern int gamesysMemoryHandlerWrite(void *, void *, int);
-extern int gamesysMemoryHandlerRead(void *, void *, int);
-extern void Boy_Init(void);
-extern void Hint_Init(void);
-extern void StageOrientInit(void);
-extern void gamesysObjInfoInit(void);
-extern void Generator_Init(void);
-extern void warpGirlInit(void);
+/* kept local: this TU's uses of itouGFlagInit do not fit the prototype in itou_gflag.h */
 extern void itouGFlagInit();
 int gflagChk(int bit_idx);
 void gflagOn(int bit_idx);

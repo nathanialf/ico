@@ -8,10 +8,12 @@ void debug_assertMessage(char *file, int line, char *mes);
 void debug_assert(char *file, int line);
 
 #include "debug_exception_screen.c.inc"
+#include "debug_exception.h"
+#include "debug.h"
+#include "GsBase.h"
 
 extern int sceCdSync(int mode);
 extern void sceFsReset(void);
-extern int debugSceOpen(char *name, int flag);
 extern void scePrintf();
 extern int sceLseek(int fd, int offset, int whence);
 extern int sceRead(int fd, void *buf, int size);
@@ -86,7 +88,6 @@ extern DebugExcEntry D_004D9F70[11];
  * src/debug's .sdata run, hence the gp-relative store. */
 extern void *D_0063B268;
 extern char D_0063B3F8[]; /* "num %d\n" -- this TU's own .sdata, uncarved */
-extern void debugEEExceptionMain();
 extern int SetDebugHandler();
 extern void scePrintf();
 
@@ -134,7 +135,6 @@ extern char D_0061D248[]; /* a rule of dashes */
 extern char D_0061D278[]; /* the same rule, then the ANSI colour reset */
 extern char D_0063B3B8[]; /* "%s\n" -- this TU's own .sdata, uncarved */
 extern char *strcpy(char *dst, const char *src);
-extern void debug_StdPrintfDummy();
 
 void debug_SetExceptionMessage(char *mes)
 {

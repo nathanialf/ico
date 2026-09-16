@@ -1,4 +1,17 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
+#include "fieldCollision.h"
+#include "Light.h"
+#include "StageAnimation.h"
+#include "darkVolume.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
+#include "motionManager.h"
+#include "motionManager2.h"
+#include "particleEffect.h"
+#include "spiderGroupManager.h"
+#include "stageMultiBgaManager.h"
 
 /* header prototypes (order fixes the inline tail) */
 /* prototypes: their order is the inline tail's emission order */
@@ -8,8 +21,6 @@ extern char D_0061D3E0[];
 extern char D_0061D418[];
 extern void *D_0063A428;
 extern char D_0071CA90[];
-extern void debug_PrintfDummy(int a0, int a1, unsigned int a2, void *a3);
-extern void iosMallocCheckLeak(void *a0);
 extern void sprintf();
 
 inline void ExitIcoMisc(void) {}
@@ -58,26 +69,20 @@ extern int D_0063B148;
 extern int D_0063B150;
 extern int D_0063B164;
 extern char D_004E3B20[];
-extern void stage_DispAnimation(void);
-extern void DispStageMultiBgaManager(void);
-extern void DispParticleEffects(void);
-extern void DispGameOverEffect(void);
-extern void SetSkeltonDispSwitch(int a0);
-extern void SetHitCollisionDisplay(int a0, int a1);
-extern void DrawCollision(int a0);
-extern void DispAllSpiderGroups(void);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void *MatrixDrive_GetMatrix(void);
+/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(int a0, void *pos);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
-extern void DrawLineG(void *a, void *ca, void *b, void *cb, int z);
-extern void light_DispVolume(void);
 
 void DispIcoMisc(void)
 {

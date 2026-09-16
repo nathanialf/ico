@@ -1,4 +1,5 @@
 #include "common.h"
+#include "debug.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void ResetDynamicMotionManager(void);
@@ -40,7 +41,6 @@ inline void ResetStatic2MotionManager(int a0)
 extern int D_0063B8F0;
 extern char D_0061FB60[];
 extern char D_0061FB80[];
-extern void debug_StdPrintfDummy();
 
 typedef struct {
     int f0; /* 0x00 */

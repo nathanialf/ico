@@ -1,12 +1,17 @@
 #include "common.h"
+#include "DisplayP2O.h"
+#include "Light.h"
+#include "Primitive.h"
+#include "clothAnimation.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "quaternion.h"
 
 extern float D_004E7A20[];
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_RotMatrixZ(short ang);
+/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
-extern void RotQuaternionZ(void *q, short ang);
-extern void prim_UpdateMesh3D(void *mesh, int a1, int a2);
 
 /* The January listing puts these rows at flag.c:28-37, inside
    SetFlag4PointFixID's own span and below its def line, with no out-of-line
@@ -67,12 +72,6 @@ typedef struct {
     float m[4];
 } Vec4;
 
-extern void *MatrixDrive_GetMatrix(void);
-extern void GetRootMatrix(void *m, void *gobj);
-extern void GetClothAnimation(void *a0, void *a1, int a2, void *m, int a4, int a5, void *a6,
-                              int a7);
-extern void GetClothAnimationFix4Points(void *a0, void *a1, int a2, void *m);
-
 void FlagGeo(char *self)
 {
     char *gd;
@@ -108,15 +107,10 @@ void FlagGeo(char *self)
 }
 
 extern void memset(void *dst, int c, int n);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
-extern void GetDifferencialQuaternionWithNoRegularize(void *dst, void *a, void *b);
-extern void MultiQuaternion(void *dst, void *a, void *b);
-extern void CopyVector(void *dst, void *src);
-extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
-extern void p2o_DispVU1Multi(void *self);
-extern void light_MakeLightMatrix(void *o, int idx);
-extern void DispClothMesh(void *a0, void *a1, void *a2);
 
 void FlagDL(char *self)
 {

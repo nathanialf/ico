@@ -1,4 +1,8 @@
 #include "common.h"
+#include "debug.h"
+#include "commonact.h"
+#include "gv.h"
+#include "item.h"
 
 /* The wish/flag words the pad handler ORs into the actor's sub-record are a
    64-bit word that the engine also reads a word at a time; declaring them as
@@ -22,17 +26,14 @@ typedef union {
    pointer alias set, gcc CSEs the three loads into one and hoists it into the
    line-586 branch delay slot -- two instructions short of ROM. */
 
-extern void *test_CURRENTROOT(char *a0);
 extern void sceVu0ScaleVector(float *dst, float *src, float k);
-extern int _RotyGV(void *a0, void *a1);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern char *D_00639EA4;
 extern char *D_00639EA8;
 extern void *D_00639EA0;
 extern int CurrentTargetGObj;
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of ACTSearchGObj do not fit the prototype in boyact.h */
 extern void ACTSearchGObj(char *a0, float a1, int a2, int a3, char **a4, float *a5);
-extern int CheckCarryableItem(char *a0);
 
 static inline unsigned char chkOrient(char *s, float *dir, float *w, float deg)
 {

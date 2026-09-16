@@ -1,4 +1,21 @@
 #include "common.h"
+#include "st47a.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "way_llf.h"
+#include "brain.h"
+#include "camera-root.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "attackCheckBoundary.h"
+#include "item.h"
+#include "motionManager2.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -20,15 +37,8 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int gflagChk(int a0);
-extern void gflagOn(int a0);
-extern void gflagOff(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern Act *actInitialize(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void SetWayGroupActive(int a0, int a1);
 
 void actSt47aInit(void)
 {
@@ -70,36 +80,35 @@ typedef union Vec16 {
 extern int D_00639EA4;
 extern char *D_00639EAC;
 extern int D_0063AA08;
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-extern int ForMotionViewer_GetCurrentMotion(int a0);
-extern void lt_switch_layout(int a0);
-extern void brainLockGirl(void);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
+/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
 extern void scpKillEnemyAll(void);
+/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
 extern void scpMaskGeneratorAll(void);
+/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
-extern int stage_CheckAnimationFinish(int anim);
-extern void ReviveAllCarryableItemsWithNonSleepFrame(int frames);
-extern int iosPadActRequest(char *g, int no);
-extern void iosPadActVolumeSet(int h, int vol);
-extern void iosPadActStop(int h);
-extern int soundSeDefPlay(int no, int a1, void *pos, int a3);
-extern void soundSeDefStop(int h);
-extern float *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, float *dir);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
+/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(int a0);
+/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern int actCreateSubThread(void *entry, int prio);
-extern void actSt47aGirlWay(volatile int a0);
 /* file-static sound / pad handles, .sbss 0x0063C05C..0x0063C078 */
 extern int sekizo47a;
 extern int sekizo_47a;
@@ -209,14 +218,18 @@ void actSt47aSekizo1Chk(volatile int a0)
     lt_switch_layout(0x36);
 }
 
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern int scpAdpcmFadeCloseFunc(int *a0, int a1);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
-extern int lt_fade_status(void);
-extern void SetCameraFlag_LwsCutBack(void);
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
@@ -229,12 +242,9 @@ typedef struct Pad {
 extern Pad D_0028F8F0[];
 /* file-static sound handles, .sbss 0x0063C05C..0x0063C078 */
 extern int hane1down;
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
-extern int stage_CheckAnimationFinish(int a0);
 extern int D_0063AA08;
-extern void actSt47aHane1Switch(volatile int a0);
-extern void actSt47aHane2Switch(volatile int a0);
 
 static ActMail sekizo1_mes[2] = {{430}, {429}};
 
@@ -273,8 +283,6 @@ static ActMail exit2_mes[2] = {{430}, {429}};
 static ActMail ene_mes[2] = {{430}, {429}};
 
 static ActMail hint2On_mes[2] = {{430}, {429}};
-
-extern void actSt47aHane1Main(volatile int a0);
 
 void actSt47aHane1Down(volatile int a0)
 {
@@ -326,11 +334,9 @@ void actSt47aHane1Down(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern int actCreateSubThread(void *entry, int prio);
 extern int hane1up;
-extern void actSt47aHane1_1Girl(volatile int a0);
-extern void actSt47aHane1_2Girl(volatile int a0);
 
 void actSt47aHane1Up(volatile int a0)
 {
@@ -392,7 +398,6 @@ void actSt47aHane1Up(volatile int a0)
 }
 
 extern int hane2down;
-extern void actSt47aHane2Main(volatile int a0);
 
 void actSt47aHane2Down(volatile int a0)
 {
@@ -445,7 +450,6 @@ void actSt47aHane2Down(volatile int a0)
 }
 
 extern int hane2up;
-extern void actSt47aHane2Girl(volatile int a0);
 
 void actSt47aHane2Up(volatile int a0)
 {
@@ -501,9 +505,6 @@ void actSt47aHane2Up(volatile int a0)
     _ACTWait(0);
 }
 
-extern void FinishHint(int a0);
-extern void actSt47aRopeChk(volatile int a0);
-
 void actSt47aRope(volatile int a0)
 {
     int x = a0;
@@ -526,11 +527,9 @@ void actSt47aRope(volatile int a0)
     }
 }
 
-extern int GetAttackCheckBoundaryManagerStatus(PObjGObj *gobj);
-extern void iosThreadSetPri(int th, int pri);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
 extern int D_0063C5B4;
-extern void actSt47aRopeSub(volatile int a0);
 
 void actSt47aRopeChk(volatile int a0)
 {
@@ -594,12 +593,14 @@ void actSt47aRopeChk(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of scpIsBombExplode do not fit the prototype in script.h */
 extern int scpIsBombExplode(int a0);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
-extern int stage_CheckAnimationFinish(int a0);
 extern int D_0028F4C0[];
 extern int D_0063AA08;
 
@@ -640,10 +641,6 @@ void actSt47aBarricadeChk(volatile int a0)
     scpWakeupEnemyAll();
 }
 
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
-
 void actSt47aEnemy1(volatile int a0)
 {
     int x = a0;
@@ -672,6 +669,7 @@ void actSt47aEnemy1(volatile int a0)
     Generator_Call((int)scpSearchGobj(0x201));
 }
 
+/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
 extern void scpTorchLightOn(int a0);
 
 void actSt47aTorch(volatile int a0)
@@ -699,10 +697,8 @@ void actSt47aTorch(volatile int a0)
     }
 }
 
-extern Act *actInitialize(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern void actSt47aSekizo1Chk(volatile int a0);
 
 void actSt47aSekizo1(volatile int a0)
 {
@@ -725,6 +721,7 @@ void actSt47aSekizo1(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of scpSekizou do not fit the prototype in script.h */
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
@@ -737,8 +734,6 @@ void actSt47aSekizo2(volatile int a0)
 
     scpSekizou(a0, 0x2C, 0xA4, 0, 0x12, -2450.0f, -1372.0f, -1150.0f, -2450.0f, -1372.0f, -1250.0f);
 }
-
-extern void actSt47aHane1Main(volatile int a0);
 
 void actSt47aHane1(volatile int a0)
 {
@@ -755,8 +750,6 @@ void actSt47aHane1(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt47aHane2Main(volatile int a0);
-
 void actSt47aHane2(volatile int a0)
 {
     int x = a0;
@@ -769,9 +762,6 @@ void actSt47aHane2(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void FinishHint(int a0);
-extern void actSt47aBarricadeChk(volatile int a0);
 
 void actSt47aBarricade(volatile int a0)
 {
@@ -793,8 +783,6 @@ void actSt47aBarricade(volatile int a0)
     }
 }
 
-extern void actSt47aExitChk(volatile int a0);
-
 void actSt47aExit(volatile int a0)
 {
     int x = a0;
@@ -807,8 +795,6 @@ void actSt47aExit(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt47aExit2Chk(volatile int a0);
 
 void actSt47aExit2(volatile int a0)
 {
@@ -825,8 +811,6 @@ void actSt47aExit2(volatile int a0)
     }
 }
 
-extern void actSt47aEneChk(volatile int a0);
-
 void actSt47aEne(volatile int a0)
 {
     int x = a0;
@@ -841,10 +825,6 @@ void actSt47aEne(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
 
 void actSt47aEnemy2(volatile int a0)
 {
@@ -906,9 +886,6 @@ void actSt47aEnemy4(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-extern void SleepHint(int a0);
-extern void actSt47aHint2OnChk(volatile int a0);
-
 void actSt47aHint2On(volatile int a0)
 {
     int x = a0;
@@ -947,9 +924,10 @@ static const ConstVec hane1_2GirlPos = {{1028.0f, -1972.0f, 744.0f, 0.0f}};
 
 static const ConstVec hane2GirlPos = {{-1031.0f, -1972.0f, -747.0f, 0.0f}};
 
+/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
+/* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
 extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
-extern void brainUnlockGirl(void);
 extern void memset(void *dst, int c, int n);
 
 void actSt47aGirlWay(volatile int a0)
@@ -981,11 +959,9 @@ void actSt47aHane1Main(volatile int a0)
     }
 }
 
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
 extern int D_0063AA08;
-extern void actSt47aHane1Up(volatile int a0);
-extern void actSt47aHane1Down(volatile int a0);
 
 void actSt47aHane1Switch(volatile int a0)
 {
@@ -1010,6 +986,7 @@ void actSt47aHane1Switch(volatile int a0)
 }
 
 extern int D_00639EA8;
+/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 
 void actSt47aHane1_1Girl(volatile int a0)
@@ -1037,9 +1014,6 @@ void actSt47aHane2Main(volatile int a0)
         _ACTWait(1);
     }
 }
-
-extern void actSt47aHane2Up(volatile int a0);
-extern void actSt47aHane2Down(volatile int a0);
 
 void actSt47aHane2Switch(volatile int a0)
 {
@@ -1071,8 +1045,6 @@ void actSt47aHane2Girl(volatile int a0)
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
 }
 
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
 extern int D_0063C5B4;
 
 void actSt47aRopeSub(volatile int a0)
@@ -1121,6 +1093,7 @@ void actSt47aExit2Chk(volatile int a0)
     scpSearchGobj(0x1E1)->f16C = 0;
 }
 
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 
 void actSt47aEneChk(volatile int a0)
@@ -1138,8 +1111,6 @@ void actSt47aEneChk(volatile int a0)
     gflagOn(0x34);
     gflagOn(0x35);
 }
-
-extern void WakeupHint(int a0);
 
 void actSt47aHint2OnChk(volatile int a0)
 {

@@ -1,4 +1,12 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
+#include "DisplayList.h"
+#include "MicroCode.h"
+#include "Texture.h"
+#include "delayFreeManager.h"
+#include "lineManager.h"
+#include "tableSin.h"
 
 typedef struct {
     /* 0x00 */ int cr;
@@ -23,9 +31,6 @@ extern float D_0063A05C;
 extern float D_0063A060;
 extern int D_0063A064;
 extern int D_0063A068;
-extern void *iosMallocDebug(void *heap, int size, char *file, int line);
-extern float GetTableCos(short a);
-extern float GetTableSin(short a);
 
 Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float r)
 {
@@ -127,9 +132,8 @@ typedef struct {
 } PrimDpk;
 
 extern PrimDpk D_004EE6F0;
+/* kept local: this TU's uses of _FTOI4Vector do not fit the prototype in Matrix.h */
 extern void _FTOI4Vector(void *dst, void *src);
-extern void dl_OpenDma(int a0, int a1, int a2);
-extern void dl_CloseDma(void);
 
 void prim_DispFan2D(Fan2D *f, int mode)
 {
@@ -288,9 +292,10 @@ typedef struct {
 } Mesh3D;
 
 extern void memset(void *dst, int c, int n);
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *mtx);
+/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyCurrentMatrix(void *dst, void *src);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern long long D_0054F8D0[];
@@ -362,8 +367,11 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
     }
 }
 
+/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
+/* kept local: this TU's uses of _RotCurrentMatrixZ do not fit the prototype in Matrix.h */
 extern void _RotCurrentMatrixZ(short a);
+/* kept local: this TU's uses of _GetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _GetCurrentMatrix(void *dst);
 extern void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int n);
 
@@ -493,17 +501,10 @@ extern int D_0028F4D4[];
 extern int D_0063A160[];
 extern int D_0063B124;
 extern int D_0063B200;
-extern int dl_GetPri(void);
-extern int tex_GetTextureNum(void);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern int tex_TransTexture(int no, int pri);
+/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
 extern void _CopyMatrix(void *dst, void *src);
-extern void mc_TransMicroCode(int a0, int a1);
-extern void dl_OpenDma(int a0, int a1, int a2);
-extern void dl_CloseDma(void);
-extern void mc_SetMicroCode();
 
 /* One 16-byte constant packet template, copied to the stack. */
 typedef struct {
@@ -516,8 +517,6 @@ extern const Prim3DVec D_0054F920;
 extern char D_0054F930[];
 extern char D_0054F978[];
 extern char D_0063A158[];
-extern void *iosMallocDebugNoAssert(void *heap, int size, char *file, int line);
-extern void iosFree(void *p);
 extern void _UnitMatrix(void *m);
 extern void malloc_MemCpy(void *dst, void *src, int n);
 extern void sprintf(char *s, char *fmt, ...);
@@ -643,16 +642,12 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
     }
 }
 
-extern void EntryDelayFree(int a0);
-
 void prim_DeleteParticle(int a0)
 {
     EntryDelayFree(*(int *)(a0 + 0x18C));
     EntryDelayFree(*(int *)(a0 + 0x188));
     EntryDelayFree(a0);
 }
-
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
 
 void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float y1)
 {
@@ -688,9 +683,11 @@ void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float
     drawSide(r, y0, y1);
 }
 
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float s);
 
 void prim_DispWireSphere(void *col, int nu, int nv, float r)
+/* kept local: this TU's uses of prim_InitParticleByPartition do not fit the prototype in Primitive.h */
 {
     float us = 65536.0f / (float)nu;
     float vs = 32768.0f / (float)nv;

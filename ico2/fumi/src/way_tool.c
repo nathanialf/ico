@@ -1,4 +1,15 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
+#include "pad.h"
+#include "gobj.h"
+#include "gobj_dl.h"
+#include "gobj_process.h"
+#include "act.h"
+#include "camera-root.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
 
 typedef struct {
     int w[13];
@@ -16,14 +27,16 @@ extern int D_0063BD84;
 extern char D_0063BD88[];
 extern WayRec *D_0063C4CC;
 extern int D_00729B7C[];
+/* kept local: this TU's uses of AddWayPoint do not fit the prototype in way_llf.h */
 extern int AddWayPoint(int g, int p);
+/* kept local: this TU's uses of CloseWayGroup do not fit the prototype in way_llf.h */
 extern int CloseWayGroup(int g);
+/* kept local: this TU's uses of CreateWayGroup do not fit the prototype in way_llf.h */
 extern int CreateWayGroup(void);
+/* kept local: this TU's uses of CreateWayPoint do not fit the prototype in way_llf.h */
 extern int CreateWayPoint(void *a0);
+/* kept local: this TU's uses of DeleteWayGroup do not fit the prototype in way_llf.h */
 extern int DeleteWayGroup(int g);
-extern void debug_Printf();
-extern void debug_StdPrintfDummy(char *fmt, ...);
-extern void *isysGObjSearchFromObjKindID_begin(int id);
 /* Deferred-`inline` tail members: a plain `inline` function's out-of-line copy
    is emitted at the END of the object in PROTOTYPE order, while its string
    literals are emitted where it is DEFINED. */
@@ -113,9 +126,8 @@ extern int D_0063BD94;
 extern int D_0063C4D0;
 extern int sprintf();
 extern char *strcat(char *d, char *s);
+/* kept local: this TU's uses of set_bridge do not fit the prototype in way_util.h */
 extern int set_bridge(int gid);
-extern int debug_SelectCsvWindow(char *a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7,
-                                 int a8, int *a9);
 
 /* relabels the way-group selector; the 2001 source has it as a helper between
    group_create and group_select (SRCFILE.TXT rows 299-311) and group_select
@@ -195,10 +207,11 @@ extern int D_0063BD78;
 extern int D_0063BD80;
 extern char D_0063BD88[];
 extern int D_00729B7C[];
-extern void debug_Printf();
-extern void debug_StdPrintfDummy(char *fmt, ...);
+/* kept local: this TU's uses of waypoint_with_range do not fit the prototype in way_util.h */
 extern char *waypoint_with_range(int *, float);
+/* kept local: this TU's uses of DeleteWayPoint do not fit the prototype in way_llf.h */
 extern int DeleteWayPoint(int n);
+/* kept local: this TU's uses of DeleteWayGroup do not fit the prototype in way_llf.h */
 extern int DeleteWayGroup(int g);
 
 int point_delete(void)
@@ -238,6 +251,7 @@ int point_delete(void)
     return 0;
 }
 
+/* kept local: this TU's uses of CreateWayPoint do not fit the prototype in way_llf.h */
 extern int CreateWayPoint(void *a0);
 extern WayRec D_004F1EC0[];
 extern int D_0063B13C;
@@ -245,9 +259,9 @@ extern int D_0063BD78;
 extern char D_0063BD88[];
 extern int D_0063BD98;
 extern int D_00729B7C[];
+/* kept local: this TU's uses of InsertWayPointAfter do not fit the prototype in way_llf.h */
 extern int InsertWayPointAfter(int a0, int a1, int a2);
-extern void debug_Printf();
-extern void debug_StdPrintfDummy(char *fmt, ...);
+/* kept local: this TU's uses of nearest_waypoint_by_lineseg do not fit the prototype in way_util.h */
 extern void *nearest_waypoint_by_lineseg(void *a0);
 
 int point_insert(void)
@@ -287,8 +301,6 @@ int point_insert(void)
 
 extern char D_0063BDA0[];
 extern int D_0063BD9C;
-extern void *isysGObjSearchFromObjKindID_begin(int id);
-extern void *isysGObjSearchFromObjKindID_next(void *o);
 
 inline int play_way(void)
 {
@@ -323,7 +335,7 @@ inline int play_way(void)
 }
 
 extern int D_0063BD80;
-extern void debug_Printf(int x, int y, int col, void *fmt);
+/* kept local: this TU's uses of waypoint_with_range do not fit the prototype in way_util.h */
 extern char *waypoint_with_range(int *, float);
 
 inline int point_nige(void)
@@ -355,9 +367,6 @@ extern int load_save_flag;
 extern char D_0063BDA8[];
 extern char D_0063BDB0[];
 extern unsigned char D_00729BF0[];
-extern int debugSceClose(int a0);
-extern int debugSceOpen(void *a0, int a1);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void sceWrite(int a0, void *a1, int a2);
 extern int sprintf();
 
@@ -396,9 +405,6 @@ extern char D_0063BDC0[];
 extern char D_0063BDC8[];
 extern unsigned char D_00729BF0[];
 extern char D_00729BFF[];
-extern int debugSceClose(int a0);
-extern int debugSceOpen(void *a0, int a1);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void sceRead(int a0, void *a1, int a2);
 extern int sprintf();
 extern void FlushCache(int a0);
@@ -499,11 +505,16 @@ extern WayNode D_004F31E0[];
 extern WayRec D_004F1EC0[];
 extern int D_0063BD74;
 extern int D_0063BD78;
+/* kept local: this TU's uses of AddWayPoint do not fit the prototype in way_llf.h */
 extern int AddWayPoint(int g, int p);
+/* kept local: this TU's uses of CloseWayGroup do not fit the prototype in way_llf.h */
 extern int CloseWayGroup(int g);
+/* kept local: this TU's uses of CreateWayGroup do not fit the prototype in way_llf.h */
 extern int CreateWayGroup(void);
+/* kept local: this TU's uses of CreateWayPoint do not fit the prototype in way_llf.h */
 extern int CreateWayPoint(void *a0);
 extern void memset(void *p, int a, int n);
+/* kept local: this TU's uses of set_bridge do not fit the prototype in way_util.h */
 extern int set_bridge(int gid);
 extern WayBridge *WayBridgeAll_begin(void);
 extern WayBridge *WayBridgeAll_next(WayBridge *p);
@@ -572,15 +583,14 @@ typedef struct {
 extern WpName D_0063BDD0[];
 extern char D_0063BDD8[];
 extern int load_save_flag;
-extern int debugSceOpen(void *a0, int a1);
-extern int debugSceClose(int a0);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern int sprintf();
 extern int strlen(char *s);
 extern void sceWrite(int fd, void *buf, int n);
 extern WayRec *WayGroup_begin(void);
 extern WayRec *WayGroup_next(WayRec *p);
+/* kept local: this TU's uses of WayPointList_begin do not fit the prototype in way_llf.h */
 extern WayNode *WayPointList_begin(int g);
+/* kept local: this TU's uses of WayPointList_next do not fit the prototype in way_llf.h */
 extern WayNode *WayPointList_next(WayNode *p);
 
 int wp_print_out(void)
@@ -664,12 +674,14 @@ extern int D_0063BD80;
 extern WayCol D_00729B60;
 extern unsigned int frame_count;
 extern void memset(void *p, int a, int n);
+/* kept local: this TU's uses of SetVObjRT do not fit the prototype in vobj.h */
 extern void SetVObjRT(void *m, void *pos);
+/* kept local: this TU's uses of DrawVObj do not fit the prototype in vobj.h */
 extern void DrawVObj(int a0, void *v);
-extern void DrawLine(void *a, void *b, void *col, int flags);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
 
 static inline void set_way_point_color(char *p, WayCol *col)
@@ -732,11 +744,11 @@ extern int D_0063B168;
 extern int load_save_flag;
 extern int D_00639EA4;
 extern int D_0063BD78;
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *dst, int self);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void GetRootProjectionPosOfGObj(void *dst, int gobj);
+/* kept local: this TU's uses of visible_waypoint_of_all do not fit the prototype in way_util.h */
 extern char *visible_waypoint_of_all(void *pos);
+/* kept local: this TU's uses of ez_circle do not fit the prototype in way_util.h */
 extern void ez_circle(void *pos, void *base, unsigned int col, float r);
 
 void way_toolDL(int a0)
@@ -812,13 +824,21 @@ typedef struct {
 /* way_tool.o .data +0x2A0: the way-tool menu, nine {label, action} lines.
    Line 5's label is the play/stop text the tool rewrites at runtime. */
 extern char D_0063BDE0[];
+/* kept local: the declaration in way_tool.h changes this TU codegen */
 extern int group_create(void);
+/* kept local: the declaration in way_tool.h changes this TU codegen */
 extern int point_delete(void);
+/* kept local: the declaration in way_tool.h changes this TU codegen */
 extern int point_insert(void);
+/* kept local: the declaration in way_tool.h changes this TU codegen */
 extern int point_nige(void);
+/* kept local: the declaration in way_tool.h changes this TU codegen */
 extern int play_way(void);
+/* kept local: the declaration in way_tool.h changes this TU codegen */
 extern int quick_save_wpfile(void);
+/* kept local: the declaration in way_tool.h changes this TU codegen */
 extern int quick_load_wpfile(void);
+/* kept local: the declaration in way_tool.h changes this TU codegen */
 extern int wp_print_out(void);
 
 WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select", group_select},
@@ -837,19 +857,12 @@ extern char *D_0063C4D8;
 extern char D_00729B70[];
 extern char D_00729BD0[];
 extern char iosPadConfDefault[];
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
-extern void *isysGObjSearchFromObjLayoutID(int id);
-extern void isysGObjProcAdd(void *a0, void *a1, int a2, int a3);
-extern void isysGObjLinkObjDL(void *a0, void *a1, int a2, int a3, unsigned int a4);
+/* kept local: the declaration in way_tool.h changes this TU codegen */
 extern void cursor_control(volatile int a0);
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *dst, int self);
+/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition(void *obj, void *pos);
-extern void Camctrl_SetTarget(int target, int a1, int a2);
-extern int iosPadConnect(void *a0, int a1, int a2, void *a3);
-extern void iosPadRead(void *a0);
-extern int iosPadGetStick(void *a0, void *a1, int a2, int a3, int a4, int a5);
-extern int debug_SelectCsvWindow(char *a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7,
-                                 int a8, int *a9);
 
 int debug_WayTool(void)
 {
@@ -917,10 +930,6 @@ int debug_WayTool(void)
 
 extern char iosPadConfDefault[];
 extern int D_00639EC0;
-extern void ACTDebugMove(int a0, int a1);
-extern void _ACTWait(int a0);
-extern int iosPadConnect(void *a0, int a1, int a2, void *a3);
-extern void iosPadRead(void *a0);
 
 inline void cursor_control(volatile int a0)
 {

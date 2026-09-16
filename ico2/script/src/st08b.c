@@ -1,4 +1,17 @@
 #include "common.h"
+#include "st08b.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "generator.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "cage.h"
+#include "geometryManager.h"
+#include "item.h"
 
 typedef struct ActMail {
     int mail;          /* 0x00 */
@@ -12,11 +25,6 @@ typedef struct Act {
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } Act;
-
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void actSt08bKurenSwitch(volatile int a0);
 
 static ActMail kurenMain_mes[2] = {{406, actSt08bKurenSwitch}, {429}};
 
@@ -34,15 +42,15 @@ static ActMail door_down_mes[2] = {{430}, {429}};
 
 static ActMail ene_mes[2] = {{430}, {429}};
 
-extern int gflagChk(int a0);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
 extern int D_00639EA8;
 extern int D_0063AA08;
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(int a0);
 
 /* A 16-byte constant vector template: the float view carries the values,
@@ -63,26 +71,26 @@ static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
 
 static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
 
+/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern void scpEffectStart(int *buf, int a1);
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern void gflagOn(int a0);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float radius);
+/* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern int actCreateSubThread(void *entry, int prio);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *h, int a1);
-extern void iosThreadSetPri(int th, int pri);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float a0);
-extern void HotInitCageGeo(void *g);
-extern void SetDirectRootPosition(int obj, void *pos);
-extern void GetRootPosition(void *dst, int obj);
 
 typedef union Pos {
     long long ll[2];
@@ -98,6 +106,7 @@ typedef struct PadState {
 extern PadState D_0028F8F0[];
 void actSt08bKurenLeft(volatile int a0);
 void actSt08bKurenRight(volatile int a0);
+/* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern int D_00639EA4;
 /* The door-boundary X/Z corners live in the -G8 gp float pool and are written
@@ -113,10 +122,8 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void ReviveAllCarryableItemsWithNonSleepFrame(int a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int iosPadActRequest(int a0, int a1);
 extern int D_00639EAC;
 extern int D_0063C56C;
 /* prototypes: their order is the inline tail's emission order */

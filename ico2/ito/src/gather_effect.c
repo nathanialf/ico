@@ -1,4 +1,5 @@
 #include "common.h"
+#include "particleEffect.h"
 
 struct GEl {
     int f0;
@@ -19,9 +20,6 @@ struct GGeo {
 };
 
 extern void sceVu0CopyVector(void *dst, void *src);
-extern int SetParticleEffect(int no, void *a1, int a2);
-extern void *GetParticleEffectData(void *a0);
-extern void DisableParticleEffectGeometryControl(int no);
 extern int GatherEffect_Proc(struct GGeo *geo);
 /* prototypes: their order is the inline tail's emission order */
 int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int), float speed);

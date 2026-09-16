@@ -1,4 +1,14 @@
 #include "common.h"
+#include "debug.h"
+#include "gamesys.h"
+#include "memory.h"
+#include "obj_manager.h"
+#include "act-game.h"
+#include "boyact.h"
+#include "enemy_act.h"
+#include "ebrain.h"
+#include "geometryManager.h"
+#include "multiBgaManager.h"
 
 typedef union {
     unsigned long ll;
@@ -15,9 +25,8 @@ typedef struct {
 } GVGeo2;
 
 extern int D_0063A438;
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
+/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float a1);
-extern int InitMultiBgaManager(int a0);
 
 typedef struct StageLabelRange {
     char pad0[0x128];
@@ -31,11 +40,7 @@ extern StageLabelRange D_005F5D50[];
 extern GVGeo2 D_002C2DC8[];
 extern int stage_no;
 extern int D_006E6D80[];
-extern int iosOmSendMail(void *a0, int a1, void *a2);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern int fptodp(float f);
-extern void actEnemyRestart(char *gobj, float *pos, float *dir, int a3, char *mother);
-extern void ACTGame_SaveActorInformation(char *gobj);
 extern char D_0063AC08[];
 extern char D_00308924[];
 /* prototypes: their order is the inline tail's emission order */
@@ -83,9 +88,9 @@ inline int SearchActiveGenerator(void)
     return 0;
 }
 
-extern void GetRootPosition(void *dst, void *gobj);
 extern void sceVu0ScaleVector(float *dst, float *src, float t);
 extern void sceVu0AddVector(float *dst, float *a, float *b);
+/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
 extern float _DistxzSqGV(float *a, float *b);
 
 int CheckGeneratorCollision(char *gobj, float *dir)
@@ -196,10 +201,10 @@ void GetGeneratorSafePosition(float *dst, char *gobj)
     }
 }
 
+/* kept local: this TU's uses of IsNeedGeneratorHard do not fit the prototype in generator.h */
 extern char *IsNeedGeneratorHard();
+/* kept local: this TU's uses of GetGeneratorSafePosition do not fit the prototype in generator.h */
 extern void GetGeneratorSafePosition(float *dst, char *gobj);
-extern void SetRootPosition(char *gobj, float *pos);
-extern void gamesysObjInfoUniqDataSet(void *a0);
 extern int D_0028F4C0[];
 
 void switch_MainStatus(char *gobj, unsigned char st)
@@ -238,7 +243,6 @@ void switch_MainStatus(char *gobj, unsigned char st)
 }
 
 extern void *memset(void *dst, int c, int n);
-extern void EntryMultiBgaManager(int handle, int a1, int a2, void *root, float *mtx);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern char D_0063AC00[];
@@ -309,10 +313,6 @@ void endfunc_BGA(char *gobj)
         break;
     }
 }
-
-extern int isEnemyActive(char *g);
-extern int GetMotherGeneratorLabelAskEnemy(char *g);
-extern char *GetMotherGeneratorGObjAskEnemy(char *g);
 
 char *IsNeedGeneratorHard(char *mother)
 {
@@ -515,8 +515,6 @@ inline void RestoreReviveCount(char *gobj)
     }
 }
 
-extern void gamesysObjInfoUniqDataSet(void *a0);
-
 void Generator_QuickCall(char *gobj)
 {
     char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
@@ -550,9 +548,6 @@ void Generator_Delete(void *a0)
 {
     switch_MainStatus(a0, 0);
 }
-
-extern void GetKidnapInfo(int *a0, int *a1);
-extern int GetStageFromLabel(int label);
 
 int GetMotherGenerator(int label)
 {
@@ -865,9 +860,8 @@ inline char *InitGeneratorGeo(char *gobj, char *src)
     return p;
 }
 
-extern void UpdateRootMatrix(char *gobj);
-extern void GetRootMatrix(void *dst, char *gobj);
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
+/* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 extern char *D_00639EA8;
 
@@ -1053,7 +1047,7 @@ void GeneratorGeo(char *gobj)
     *(int *)(w + 0) = *(int *)(w + 0) + 1;
 }
 
-extern void DispMultiBgaManagerWithKind(int kind, int handle, int a2);
+/* kept local: this TU's uses of endfunc_BGA do not fit the prototype in generator.h */
 extern void endfunc_BGA(char *gobj);
 
 /* generator.c:1414-1420, a static inline helper of this TU: the listing gives

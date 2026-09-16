@@ -1,4 +1,14 @@
 #include "common.h"
+#include "deja.h"
+#include "StageManager.h"
+#include "layout_texture.h"
+#include "act.h"
+#include "commonact.h"
+#include "fightSound.h"
+#include "gflag.h"
+#include "script.h"
+#include "Shadow.h"
+#include "StageAnimation.h"
 
 /* PAL listing rows: every instruction of actDeja is attributed to
  * script/src/deja.c lines 170-189 -- no inlined helper bodies.
@@ -7,12 +17,6 @@
  * actDejaChk, deja.c:196); actDeja installs it as the actor's next mail
  * handler.  _mes is the 2-entry mail table that lives in the shared
  * src/cod .data carve, so it stays extern here. */
-extern void _ACTWait(int a0);
-extern int gflagChk(int a0);
-extern void lt_switch_layout(int a0);
-extern void scpFadeOut(float a0, int a1, int a2, int a3);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void actDejaChk(int a0);
 extern int D_0063AA08;
 
 typedef struct ActMail {
@@ -31,10 +35,6 @@ static ActMail _mes[2] = {{430}, {429}};
 
 static ActMail after_mes[2] = {{430}, {429}};
 
-extern Act *actInitialize(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void scpSleepEnemyAll(void);
-
 /* --- su-b sweep decls --- */
 typedef union {
     float f[4];
@@ -42,7 +42,6 @@ typedef union {
 } Vec16;
 
 extern char *D_00639EA4;
-extern void ScpCallCameraOff(void);
 
 typedef struct PadState {
     int unk00; /* 0x00 */
@@ -51,15 +50,6 @@ typedef struct PadState {
 
 extern PadState D_0028F8F0[];
 extern int D_0063C4DC;
-extern int scpSearchGobj(int id);
-extern void actCreateSubThread(void *entry, int prio);
-extern void scpAdpcmPlayRequestFunc(int kind, char **id, int a2, int a3, int a4);
-extern void scpFadeIn(float f);
-extern void fightSoundProcessRequestPause(void);
-extern int fightSoundPlayChk(void);
-extern int scpAdpcmPlayRequestNum(void);
-extern void shadow_DispCancel(int a0, int a1);
-extern int RequestStageChange(int no, char *g, int flag, float speed, float wait);
 void actDejaDemo(volatile int a0);
 extern int stage_no;
 
@@ -87,21 +77,9 @@ typedef struct {
    dependence, which is what lets the home store issue two slots later. */
 extern const StageRec D_005F5D50[];
 extern const StgEntry D_0055C518[];
-extern void stgmgrNextStagePreLoadForceStageSet(int val);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 void actDejaAfterChk(volatile int a0);
 extern char *deja;
-extern void CheckPoint(void);
-extern void gflagOn(int flag);
-extern void scpPlayStart(int a0);
-extern int stage_CheckAnimationFinish(int anim);
-extern void scpPlayMot(char *self, int mot);
-extern void *test_CURRENTROOT(void *self);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern void scpPlayMotDir(char *self, float *dir);
-extern void scpPlayEnd(int a0);
-extern int scpAdpcmFadeCloseFunc(char **h, short fade);
 
 static const Vec16 afterChkPos = {{-1000.0f, 0.0f, -2200.0f, 1.0f}};
 

@@ -1,8 +1,18 @@
 #include "common.h"
+#include "debug.h"
+#include "sceneManager.h"
+#include "memory.h"
+#include "act.h"
+#include "boyact.h"
+#include "mail-add-data.h"
+#include "Matrix.h"
+#include "Primitive.h"
+#include "frameDependSequence.h"
+#include "matrixDrive.h"
+#include "weapon.h"
 
 extern char D_0061EEC8[];
 extern int D_0063A438;
-extern int iosMallocDebug(int handle, int size, char *file, int line);
 
 /* .data — carved VMA 0x4E5A90..0x4E5AA0; bytes verified against baserom/pal/baseelf.rom */
 unsigned int D_004E5A90[4] = {
@@ -13,17 +23,14 @@ unsigned int D_004E5A90[4] = {
 };
 
 extern int D_0063B148;
-extern void CopyVector(void *dst, void *src);
-extern void *MatrixDrive_GetMatrix(void);
-extern void _UnitMatrix(void *a0);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
-extern void prim_DispWireSphere(void *a0, int a1, int a2, float a3);
-extern void _ACTWait();
-extern int actInitialize();
-extern void actInitialize_ext_charcter();
 
 typedef union {
     float f[4];
@@ -39,7 +46,6 @@ typedef struct {
 } AcbLayout;
 
 extern AcbLayout D_004E45C0;
-extern char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
 /* prototypes: their order is the inline tail's emission order */
 int InitAttackCheckBoundaryGeo(int unused, void *obj);
 void AttackCheckBoundaryGeo(void *a0);
@@ -149,13 +155,9 @@ inline void actAttackCheckBoundaryStart(int *self)
 extern char *D_00639EA4;
 extern char D_0061EEE8[];
 extern char D_0061EF00[];
-extern void *GetBoyWeaponGObj(void);
-extern int CheckWeaponKind(void *w);
-extern void ExecuteSEPackage(void *a0, int a1);
+
 /* mail-add-data.c defines this returning int; declaring it void costs the
    $v1 allocation of the reloaded state pointer in the mail block below. */
-extern int ActSendMail_WithAdditionalData(char *to, int mail, char *from, void *data);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 
 void AttackCheckBoundaryBeforeFunc(char *self)
 {

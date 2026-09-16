@@ -1,18 +1,17 @@
 #include "common.h"
+#include "fightSound.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "act-game.h"
 
 extern int D_0063ABE8;
 extern int D_006E6D60[];
-extern void soundDataClose();
 extern int D_0063ABEC;
 extern int D_0028F4C0[];
 extern int D_0063ABF0;
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int gamesysAnotherStageTsuresari;
-extern int soundDataAreaSearch(void *req);
-extern void soundDataOpen(void *a0, int a1, int a2, int a3, int a4);
-extern void AdpcmVolumeSet(int handle, int vol);
-extern int _ACTCharStatus_Check(int gobj, int status);
 
 void fightSoundProcessMain(void)
 {
@@ -84,11 +83,8 @@ void fightSoundProcessMain(void)
 }
 
 extern char D_0063ABF8[];
-extern int *soundDataOpenSync(void *name);
-extern void AdpcmPlay(int a0);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern void fightSoundProcessMain(void);
 
 void fightSoundProcess(void)
 {

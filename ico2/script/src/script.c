@@ -1,5 +1,26 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "backStage.h"
+#include "debug.h"
+#include "gamesys.h"
+#include "layout_texture.h"
+#include "obj_manager.h"
+#include "act-way.h"
+#include "enemy_act.h"
+#include "way_llf.h"
+#include "camera-root.h"
+#include "fightSound.h"
+#include "generator.h"
+#include "gv.h"
+#include "gflag.h"
+#include "st25a.h"
+#include "Primitive.h"
+#include "StageAnimation.h"
+#include "Texture.h"
+#include "a_p_1.h"
+#include "cage.h"
+#include "particleEffect.h"
+#include "spider.h"
 
 struct DQW {
     float f0, f4, f8, fc, f10, f14;
@@ -37,6 +58,7 @@ typedef union Vec16 {
 
 /* MUST be above the TU's first call site: with the implicit `int` return the
    call SETs $2 and global-alloc picks different scratch registers. */
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
 
 /* ACT+0x20 / ACT+0x18 are the 64-bit actor status words.  The dev header
@@ -81,7 +103,9 @@ struct S {
     int b;
 };
 
+/* kept local: this TU's uses of LightTorchOn do not fit the prototype in torch.h */
 extern void LightTorchOn(void *a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj();
 
 void scpTorchLightOn(void)
@@ -92,7 +116,9 @@ void scpTorchLightOn(void)
     }
 }
 
+/* kept local: this TU's uses of LightTorchOff do not fit the prototype in torch.h */
 extern void LightTorchOff();
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj();
 
 void scpTorchLightOff(void)
@@ -104,8 +130,7 @@ void scpTorchLightOff(void)
 }
 
 extern const char D_005543C0[];
-extern void SetCageVelocityFriction(char *self, float val);
-extern void debug_StdPrintfDummy();
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj();
 
 void scpSetCageVelocityFriction(float f12)
@@ -117,6 +142,7 @@ void scpSetCageVelocityFriction(float f12)
     debug_StdPrintfDummy(D_005543C0);
 }
 
+/* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
 extern void SetMotionDirection(char *self, float *dir);
 /* SCE VU0 library: sceVu0Normalize(dst, src) -- normalised in place here, so
    the second argument is already in $a1 and cse drops the redundant copy. */
@@ -128,6 +154,7 @@ void scpPlayMotDir(char *self, float *dir)
     SetMotionDirection(self, dir);
 }
 
+/* kept local: this TU's uses of SetMotionDirectionSmooze do not fit the prototype in commonact.h */
 extern void SetMotionDirectionSmooze(char *self, float *dir, float ang);
 
 extern struct MotTblRec {
@@ -148,9 +175,13 @@ void scpPlayMotDirSmz(char *self, float *dir)
 
 extern char *D_00639EA4;
 extern char *D_00639EA8;
+/* kept local: this TU's uses of isysGObjSearchFromObjLayoutID do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjLayoutID();
+/* kept local: this TU's uses of InitMotionOrient do not fit the prototype in motionOrientManager.h */
 extern void InitMotionOrient(char *self, int a1, int a2, int a3, int a4, int mot);
+/* kept local: this TU's uses of ControlMotionOrient do not fit the prototype in commonact.h */
 extern void ControlMotionOrient(int id, int mot);
+/* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
 extern int SetMotionRequest(char *self, int a1, char *a2);
 
 void scpPlayMot(char *self, int mot)
@@ -183,9 +214,10 @@ void scpPlayJump(char *a0, int a1)
     iosOmSendMail(a0, 0x2D, a0);
 }
 
+/* kept local: this TU's uses of ACTItemForceDrop do not fit the prototype in act-game.h */
 extern void ACTItemForceDrop(int a0);
+/* kept local: this TU's uses of SetLodLevel do not fit the prototype in lodManager.h */
 extern int SetLodLevel();
-extern int iosOmSendMail(char *self_arg, int val5, int val6);
 
 void scpPlayStart(int a0)
 {
@@ -202,6 +234,7 @@ void scpPlayEnd(int a0)
     SetLodLevel(a0, 2);
 }
 
+/* kept local: this TU's uses of SetRootMatrixWithTransOffset do not fit the prototype in geometryManager.h */
 extern void SetRootMatrixWithTransOffset(void *a0, float x, float y, float z);
 
 void scpTrans(void *a0, float *rot)
@@ -214,14 +247,20 @@ extern int D_0063B150;
 extern char D_00554550[];
 extern void sceVu0SubVector(float *d, float *a, float *b);
 extern float sceVu0InnerProduct(float *a, float *b);
+/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PopMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
+/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(float *v);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void prim_DispWireSphere(void *col, int a1, int a2, float r);
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *dst, void *obj);
 
 /* INTERIM stand-in: scpTriggerPosBall is a real TU function with its own ROM
@@ -290,11 +329,11 @@ int scpTriggerBallTargetMan(char *obj, float r)
 }
 
 extern const char D_00554590[];
-extern void Camctrl_SetTarget(int target, int a1, int a2);
-extern void Camctrl_ExitEveRock(void);
-extern void gflagOff(int no);
+/* kept local: this TU's uses of GetRootMatrixTransOffset do not fit the prototype in geometryManager.h */
 extern void GetRootMatrixTransOffset(float *dst, void *obj);
+/* kept local: this TU's uses of scpDoorTypeUpMain do not fit the prototype in script.h */
 extern void scpDoorTypeUpMain(volatile int a0);
+/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
 extern void ACTSendMailCorrect(int a0, int mail);
 
 /* the 0x20-byte door "mail" records in .data; the slot at +4 is the actor
@@ -376,7 +415,6 @@ void scpDoorTypeUpDown(volatile int a0)
 }
 
 extern const char D_005545A8[];
-extern void gflagOn(int no);
 extern struct ScpMail D_002A51D0[];
 
 void scpDoorTypeUpUp(volatile int a0)
@@ -406,14 +444,19 @@ extern const char D_005545C0[];
 extern const char D_005545E0[];
 extern const char D_00554628[];
 extern const char D_00554680[];
+/* kept local: this TU's uses of AdpcmFreeAreaGet do not fit the prototype in adpcm_init.h */
 extern int AdpcmFreeAreaGet(void);
+/* kept local: this TU's uses of AdpcmNotUseIopAreaFree do not fit the prototype in adpcm_init.h */
 extern int AdpcmNotUseIopAreaFree(void);
-extern int fightSoundPlayChk(void);
-extern void fightSoundProcessRequestPause(void);
+/* kept local: this TU's uses of AdpcmFadeCloseAll do not fit the prototype in adpcm_init.h */
 extern void AdpcmFadeCloseAll(int a0);
+/* kept local: this TU's uses of soundDataOpen do not fit the prototype in s_init.h */
 extern void soundDataOpen(void *work, int mode, int kind, int a3, int a4);
+/* kept local: this TU's uses of soundDataOpenSync do not fit the prototype in s_init.h */
 extern char *soundDataOpenSync(void *work);
+/* kept local: this TU's uses of AdpcmPlay do not fit the prototype in adpcm_init.h */
 extern void AdpcmPlay(int a0);
+/* kept local: this TU's uses of soundDataClose do not fit the prototype in s_init.h */
 extern void soundDataClose(char *h);
 
 void scpSubAdpcmPlay(volatile int a0)
@@ -496,8 +539,11 @@ extern const char D_00554720[];
 extern char *D_0063AA10;
 extern float D_0063AA14;
 extern float D_0063AA18;
+/* kept local: this TU's uses of AdpcmFreeAreaGet do not fit the prototype in adpcm_init.h */
 extern int AdpcmFreeAreaGet(void);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
+/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
 
 /* INTERIM stand-in.  scpAdpcmPlayRequestFunc is a real TU function with its own
@@ -596,8 +642,6 @@ struct WoodBoxEnt {
 extern const char D_00554790[];
 extern const char D_005547A0[];
 extern void sceVu0AddVector(float *dst, float *a, float *b);
-extern void DeleteWayGroup(void *way);
-extern void *CreateBridge(float *a, float *b);
 
 void scpWoodSrh(char *self, struct WoodBoxEnt *w)
 {
@@ -717,33 +761,45 @@ void scpWoodSrh(char *self, struct WoodBoxEnt *w)
     }
 }
 
-extern void stage_SetAnimation(int anim, int a1, int a2);
-extern void lt_switch_layout(int no);
+/* kept local: this TU's uses of stgmgrNextStagePreLoadDistBoyMode do not fit the prototype in StageManager.h */
 extern void stgmgrNextStagePreLoadDistBoyMode(void);
+/* kept local: this TU's uses of ReviveAllCarryableItemsWithNonSleepFrame do not fit the prototype in item.h */
 extern void ReviveAllCarryableItemsWithNonSleepFrame(int frames);
+/* kept local: this TU's uses of iosPadActRequest do not fit the prototype in pad.h */
 extern int iosPadActRequest(char *g, int no);
+/* kept local: this TU's uses of iosPadActVolumeSet do not fit the prototype in pad.h */
 extern void iosPadActVolumeSet(int h, int vol);
+/* kept local: this TU's uses of iosPadActStop do not fit the prototype in pad.h */
 extern void iosPadActStop(int h);
+/* kept local: this TU's uses of soundSeDefPlay do not fit the prototype in s_init.h */
 extern int soundSeDefPlay(int no, int a1, void *pos, int a3);
+/* kept local: this TU's uses of soundSeDefStop do not fit the prototype in s_init.h */
 extern void soundSeDefStop(int h);
-extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
-extern int stage_CheckAnimationFinish(int anim);
 extern char *D_00639EAC;
 extern int D_0063AA08;
 extern char *D_0063AA1C;
 extern int D_0063AA28;
 extern unsigned char D_0063AA2C;
 extern char D_005547F0[];
-extern int gflagChk(int no);
+/* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
+/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
+/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
 extern void scpKillEnemyAll(void);
+/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
 extern void scpMaskGeneratorAll(void);
+/* kept local: this TU's uses of scpActStatusDeathFall do not fit the prototype in script.h */
 extern int scpActStatusDeathFall(char *self);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(char *target);
+/* kept local: this TU's uses of ClearMotionGeometryInfo do not fit the prototype in motionManager2.h */
 extern void ClearMotionGeometryInfo(void *a0);
+/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition();
 
 /* INTERIM stand-ins: scpPlayPosSet, scpPlayWaitMotEnd and
@@ -859,6 +915,7 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, f
 }
 
 extern const char D_005544E0[];
+/* kept local: the declaration in fieldCollision.h changes this TU codegen */
 extern void ClipWall(void *w);
 
 /* the wall-collision result the ClipWall work area hands back at +0x80 */
@@ -939,11 +996,8 @@ void _SCPMoveCharactorByWay_Cancel(char *a0)
 extern char *D_00639EA8;
 extern char *D_00639EA4;
 extern int stage_no;
-extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
+/* kept local: this TU's uses of CheckPoint do not fit the prototype in StageManager.h */
 extern void CheckPoint(void);
-extern int gflagChk(int no);
-extern void gflagOn(int no);
-extern void gflagOff(int no);
 
 void scpSekizouCheckPoint(void)
 {
@@ -963,6 +1017,7 @@ void scpSekizouCheckPoint(void)
     }
 }
 
+/* kept local: this TU's uses of isysGObjSearchFromObjLayoutID do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjLayoutID();
 
 void scpWakeupEnemyOne(void)
@@ -981,8 +1036,6 @@ void scpSleepEnemyOne(void)
     }
 }
 
-extern void SleepSpiderGroup();
-
 void scpSleepSpiderGroupOne(void)
 {
     int v = isysGObjSearchFromObjLayoutID();
@@ -991,8 +1044,6 @@ void scpSleepSpiderGroupOne(void)
     }
 }
 
-extern void WakeupSpiderGroup();
-
 void scpWakeupSpiderGroupOne(void)
 {
     int v = isysGObjSearchFromObjLayoutID();
@@ -1000,8 +1051,6 @@ void scpWakeupSpiderGroupOne(void)
         WakeupSpiderGroup(v);
     }
 }
-
-extern void DeleteAllSpidersOfLayoutGroup();
 
 void scpKillSpiderGroup(void)
 {
@@ -1023,7 +1072,9 @@ struct StgRow {
 extern struct StgEnt D_0055C518[];
 extern struct StgRow D_005F5D50[];
 extern int stage_no;
+/* kept local: this TU's uses of stgmgrNextStagePreLoadForceNoCancel do not fit the prototype in StageManager.h */
 extern void stgmgrNextStagePreLoadForceNoCancel(int val);
+/* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
 
 void preload(int idx)
@@ -1035,6 +1086,7 @@ void preload(int idx)
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
 
+/* kept local: this TU's uses of SetBoyWeaponGObj do not fit the prototype in boyact.h */
 extern void SetBoyWeaponGObj();
 
 void scpSetBoyWeaponGObj(int a0, int a1, int a2, int a3)
@@ -1042,7 +1094,9 @@ void scpSetBoyWeaponGObj(int a0, int a1, int a2, int a3)
     SetBoyWeaponGObj(a0, a1, a2, a3);
 }
 
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjKindID_begin();
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjKindID_next();
 
 void scpDispOffAllWithKind(void)
@@ -1083,8 +1137,6 @@ void scpDisActivateAllWithKind(void)
     }
 }
 
-extern void stage_SetParentOfGObj(int a0, int *a1);
-
 void scpLinkBGAtoLayoutedTarget(int a0, int a1)
 {
     int ret = scpSearchGobj(a0);
@@ -1095,8 +1147,8 @@ void scpLinkBGAtoLayoutedTarget(int a0, int a1)
 }
 
 extern char D_00554498[];
+/* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(int a0, int a1);
-extern void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
 
 void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2)
 {
@@ -1186,7 +1238,9 @@ void scpDoorTypeUp(volatile int a0)
 
 extern struct ScpMail D_002A5170[];
 extern struct ScpMail D_002A5190[];
+/* kept local: this TU's uses of scpDoorTypeUpDown do not fit the prototype in script.h */
 extern void scpDoorTypeUpDown(volatile int a0);
+/* kept local: this TU's uses of scpDoorTypeUpUp do not fit the prototype in script.h */
 extern void scpDoorTypeUpUp(volatile int a0);
 
 void scpDoorTypeUpSwitch(volatile int a0)
@@ -1275,10 +1329,10 @@ extern char D_005546E0[];
 extern char *D_0063AA10;
 extern float D_0063AA0C;
 extern int startStagePauseDisableTimer;
+/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
 extern void actCreateSubThread(void (*func)(volatile int), int a1);
+/* kept local: this TU's uses of scpSubAdpcmPlay do not fit the prototype in script.h */
 extern void scpSubAdpcmPlay(volatile int a0);
-extern void StabilizeAllLayoutedCage(void);
-extern void backStageProcessInStage(float f);
 
 void scpDeamon(volatile int a0)
 {
@@ -1320,6 +1374,7 @@ static inline int scpAdpcmCloseChkFuncInline(char **h)
     return no < scpAdpcmRequestSlot(h);
 }
 
+/* kept local: this TU's uses of scpAdpcmCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmCloseFunc(char **h);
 
 void scpGirlHintVoiceCancel(void)
@@ -1330,6 +1385,7 @@ void scpGirlHintVoiceCancel(void)
     }
 }
 
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
 extern struct WoodBoxEnt D_002A51F0[11];
 
@@ -1351,6 +1407,7 @@ found:
     scpWoodSrh(a0, p);
 }
 
+/* kept local: this TU's uses of IsTorchLightOn do not fit the prototype in torch.h */
 extern int IsTorchLightOn(int a0);
 
 int scpIsTorchLightOn(int a0)
@@ -1361,6 +1418,7 @@ int scpIsTorchLightOn(int a0)
     return IsTorchLightOn(ret1);
 }
 
+/* kept local: this TU's uses of IsBombExplode do not fit the prototype in item.h */
 extern int IsBombExplode(char *self);
 
 int *scpIsBombExplode(int x)
@@ -1378,6 +1436,7 @@ int *scpIsBombExplode(int x)
 }
 
 extern int D_00554408[];
+/* kept local: this TU's uses of GetRotObjectRotCount do not fit the prototype in rotObject.h */
 extern float GetRotObjectRotCount(int a0);
 
 float scpGetRotObjectRotCount(void)
@@ -1391,6 +1450,7 @@ float scpGetRotObjectRotCount(void)
 }
 
 extern char D_00554450[];
+/* kept local: this TU's uses of GetRotObjectZPlusDirection do not fit the prototype in rotObject.h */
 extern int GetRotObjectZPlusDirection(int a0);
 
 int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2)
@@ -1426,10 +1486,15 @@ void scpTransLinear(void *obj, int axis, float target, float step)
     }
 }
 
+/* kept local: this TU's uses of GetRootMatrixRotOffset do not fit the prototype in geometryManager.h */
 extern void GetRootMatrixRotOffset(float *q, void *obj);
+/* kept local: this TU's uses of SetRootMatrixRotOffset do not fit the prototype in geometryManager.h */
 extern void SetRootMatrixRotOffset(void *obj, float *q);
+/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(float *q, int step);
+/* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
 extern void RotQuaternionY(float *q, int step);
+/* kept local: this TU's uses of RotQuaternionZ do not fit the prototype in quaternion.h */
 extern void RotQuaternionZ(float *q, int step);
 
 void scpRotateLinear(void *obj, int deg, short step, int axis)
@@ -1472,14 +1537,19 @@ extern int D_0063B150;
 extern char D_00554550[];
 extern void sceVu0SubVector(float *d, float *a, float *b);
 extern float sceVu0InnerProduct(float *a, float *b);
+/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PopMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
+/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(float *v);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void prim_DispWireSphere(void *col, int a1, int a2, float r);
 
 int scpTriggerPosBall(float *pos, float *target, float r)
 {
@@ -1522,6 +1592,7 @@ int scpTriggerBall(char *obj, char *target, float r)
 }
 
 extern int D_00554570[];
+/* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
 extern float _ACTGame_GetParamF(int idx);
 
 /* INTERIM stand-in for scpTriggerIgnore (matched at its own ROM slot below);
@@ -1544,6 +1615,7 @@ static inline int scpTriggerIgnoreInline(char *self)
     return 0;
 }
 
+/* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
 extern int CheckFloorAttribute(char *self, int attr);
 
 int scpTriggerFloorAttr(char *self, int attr)
@@ -1554,6 +1626,7 @@ int scpTriggerFloorAttr(char *self, int attr)
     return CheckFloorAttribute(self, attr);
 }
 
+/* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
 extern int CheckWallAttribute(char *self, int attr);
 
 int scpTriggerWallAttr(char *self, int attr)
@@ -1598,7 +1671,6 @@ int scpTriggerFloorAttrTargetMan(char *self, int attr)
 /* the 16-byte wire-box colour packet; declared as the full 4-word record so
    gcc addresses it with a %hi/%lo pair rather than gp-relative (-G 8). */
 extern int D_002A5100[4];
-extern void prim_DispWireBox(float *size, int *col);
 
 int scpTriggerPosBox(float *p, float *pos, float *size)
 {
@@ -1625,8 +1697,8 @@ int scpTriggerPosBox(float *p, float *pos, float *size)
     return hit;
 }
 
+/* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
 extern void SetIdentityQuaternion(int a0);
-extern int SetParticleEffect(int a0, int a1, int a2);
 
 void scpEffectStart(int a0, int a1)
 {
@@ -1683,8 +1755,6 @@ void scpKillEnemyAll(void)
     }
 }
 
-extern void Generator_Mask(char *self);
-
 void scpMaskGeneratorAll(void)
 {
     int *p = isysGObjSearchFromObjKindID_begin(0x21);
@@ -1707,11 +1777,12 @@ void scpKillEnemyOne(void)
     }
 }
 
+/* kept local: this TU's uses of ACTCharctrl_Lock do not fit the prototype in act-game.h */
 extern void ACTCharctrl_Lock(char *self);
+
 /* declared int: the call's result register is live-out of the call in ROM's
    allocation (the same C89 default-int prototype the TU's other way/thread
    callees carry) */
-extern int ACTWayExec_Position(char *self, int a1, int a2, float speed, int a3);
 
 int _SCPMoveCharactorByWay(char *self, int a1, int a2, float speed, int a3)
 {
@@ -1726,9 +1797,10 @@ int _SCPMoveCharactorByWay(char *self, int a1, int a2, float speed, int a3)
     return 0;
 }
 
+/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
 extern float *test_CURRENTORIENT(char *target);
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(char *target);
-extern void _ApplyRyGV(float *v, float ang);
 extern void sceVu0ScaleVector(float *dst, float *src, float scale);
 extern void sceVu0AddVector(float *dst, float *a, float *b);
 
@@ -1777,9 +1849,11 @@ int scpSearchGobj(int id)
     return isysGObjSearchFromObjLayoutID(id);
 }
 
+/* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, void *a4, float f12,
                                           float f13, float f14, float f15);
 extern void memset(void *a0, int a1, int a2);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(char *a0, int a1);
 
 void scpPlayMotNode(void *a0, int a1, void *a2, int a3)
@@ -1797,7 +1871,9 @@ void scpPlayMotReq(char *a0, int a1)
     *(int *)(p + 0x130) = SetMotionRequest(a0, a1, p + 0x620);
 }
 
+/* kept local: this TU's uses of ClearMotionGeometryInfo do not fit the prototype in motionManager2.h */
 extern void ClearMotionGeometryInfo(void *a0);
+/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition();
 
 void scpPlayPosSet(void *a0, float f12, float f13, float f14)
@@ -1833,6 +1909,7 @@ void InitStageChange(void)
    colour components are `unsigned char`: the disc listing attributes their
    three `andi 0xff` masks to the function's declarator line, so they are
    parameter promotions and not statements in the body. */
+/* kept local: this TU's uses of RequestStageChangeWithColor do not fit the prototype in script.h */
 extern int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wait,
                                        unsigned char r, unsigned char gr, unsigned char b);
 
@@ -1843,8 +1920,11 @@ int RequestStageChange(int no, char *g, int flag, float speed, float wait)
 
 extern int D_00639EB4;
 extern char *D_00639EA8;
+/* kept local: this TU's uses of ACTGame_StageChangeGObj do not fit the prototype in act-game.h */
 extern void ACTGame_StageChangeGObj(char *g, int no);
+/* kept local: this TU's uses of BoyInfoUpdate_StageChange do not fit the prototype in boyact.h */
 extern void BoyInfoUpdate_StageChange(void);
+/* kept local: this TU's uses of stgmgrForceSwitchWithFadeColor do not fit the prototype in StageManager.h */
 extern void stgmgrForceSwitchWithFadeColor(int id, float speed, float wait, int r, int gr, int b);
 
 int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wait, unsigned char r,
@@ -1880,6 +1960,7 @@ int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wa
 
 extern int D_00639EB4;
 extern int D_0063C24C;
+/* kept local: this TU's uses of stgmgrForceSwitchWithFadeColor do not fit the prototype in StageManager.h */
 extern void stgmgrForceSwitchWithFadeColor();
 
 int RequestStageChangeSimple(int a0, int a1, int a2, int a3)
@@ -1898,7 +1979,9 @@ int RequestStageChangeSimple(int a0, int a1, int a2, int a3)
     return ret;
 }
 
+/* kept local: this TU's uses of ACTCharctrl_Lock do not fit the prototype in act-game.h */
 extern void ACTCharctrl_Lock(char *a0);
+/* kept local: this TU's uses of ACTGame_StageChangeGObjDirect do not fit the prototype in act-game.h */
 extern void ACTGame_StageChangeGObjDirect();
 extern long long D_00554800[];
 
@@ -1960,6 +2043,7 @@ int scpGameStat_BoyWeaponkind(void)
     return CheckWeaponKind(w);
 }
 
+/* kept local: this TU's uses of IsWallLeverStatus do not fit the prototype in box.h */
 extern int IsWallLeverStatus(void);
 
 int scpIsWallLever2On(void)
@@ -1967,6 +2051,8 @@ int scpIsWallLever2On(void)
     return IsWallLeverStatus();
 }
 
+/* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
+/* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
 extern int ACTGame_isHangChain();
 
 int scpIsHangChain(void)
@@ -1992,8 +2078,9 @@ out:
 }
 
 extern struct DQW D_002A5400;
-extern int MakeAP1GObj(void *p);
+/* kept local: this TU's uses of WakeUpAP1 do not fit the prototype in act_a_p_1.h */
 extern void WakeUpAP1(int a0);
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
 extern int rand(void);
 
@@ -2017,6 +2104,7 @@ void scpBornSpider(int n, float a, float b, float c, float d)
     }
 }
 
+/* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
 extern float _ACTGame_GetParamF(int idx);
 
 int scpActStatusDeathFall(char *self)
@@ -2052,6 +2140,7 @@ int scpActStatusDeathFall(char *self)
     return 1;
 }
 
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(int a0, void *a1);
 
 void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
@@ -2066,15 +2155,21 @@ void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
 
 extern char D_00554810[];
 extern int D_0063B150;
+/* kept local: this TU's uses of ReviveCarryableItemsWithBoundary do not fit the prototype in item.h */
 extern int ReviveCarryableItemsWithBoundary(float *pos, float r);
+/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PopMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
+/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(float *v);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void prim_DispWireSphere(void *col, int a1, int a2, float r);
 
 void scpWakeupItemWithBoundary(float x, float y, float z, float r)
 {
@@ -2098,6 +2193,7 @@ void scpWakeupItemWithBoundary(float x, float y, float z, float r)
     }
 }
 
+/* kept local: this TU's uses of CheckReadyAllSwitches do not fit the prototype in box.h */
 extern int CheckReadyAllSwitches();
 
 int scpCheckReadyAllObjects(void)
@@ -2159,7 +2255,9 @@ void ScpCallCameraTargetOff(void)
     }
 }
 
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *a0, void *a1);
+/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition(void *a0, void *a1);
 
 void scpTransGObj(void *a0, float f12, float f13, float f14)
@@ -2172,8 +2270,11 @@ void scpTransGObj(void *a0, float f12, float f13, float f14)
     SetDirectRootPosition(a0, buf);
 }
 
+/* kept local: this TU's uses of BreakItemFromOutside do not fit the prototype in item.h */
 extern void BreakItemFromOutside(void *o);
+/* kept local: this TU's uses of CheckItemDead do not fit the prototype in item.h */
 extern int CheckItemDead(void *o);
+/* kept local: this TU's uses of GetItemKind do not fit the prototype in item.h */
 extern int GetItemKind(void *o);
 
 void scpExplodeSecretItem(void)
@@ -2190,7 +2291,6 @@ void scpExplodeSecretItem(void)
 
 extern char D_00554820[];
 extern char D_00554850[];
-extern int actEnemyFlagCheckDead(char *g);
 
 int scpCheckExistAliveEnemy(void)
 {
@@ -2208,6 +2308,7 @@ int scpCheckExistAliveEnemy(void)
 
 extern char D_00554888[];
 extern char D_005548B8[];
+/* kept local: this TU's uses of IsActCharDead do not fit the prototype in act_a_p_1.h */
 extern int IsActCharDead(char *g);
 
 int scpCheckExistAliveSpider(void)
@@ -2235,7 +2336,7 @@ void scpUnLockMaxRotate(char *a0)
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) &= ~(1ULL << 33);
 }
 
-extern char *gamesysObjInfoGet(int kind, int no);
+/* kept local: this TU's uses of GetRotObjectGameSysObjInfoExtData do not fit the prototype in rotObject.h */
 extern void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2);
 
 int scpGetRotObjectCurrentRot(int no)
@@ -2261,6 +2362,7 @@ void scpCheckDisconnectWallEnd(char *a0)
 }
 
 extern int D_00554570[];
+/* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
 extern float _ACTGame_GetParamF(int idx);
 
 int scpTriggerIgnore(char *self)
@@ -2291,15 +2393,12 @@ void scpDoorTypeUpMain(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
 extern int actInitialize(volatile int a0);
-extern void stage_SetLoopFlag(int key, int a1);
 /* the flag is the LAST parameter: the EE ABI hands ints and floats separate
    argument registers, so ($a0 name, $a1 flag, $f12..$f17 the six scroll
    values) is the same register assignment either way, but ROM emits the flag
    move after every float move -- i.e. it is declared last. */
-extern void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov,
-                            int flag);
-extern void actSt25aQueenAppearChk(volatile int a0);
 extern struct ScpMail queen_appear_mes[];
 extern char D_005548F0[];
 extern char D_00554900[];

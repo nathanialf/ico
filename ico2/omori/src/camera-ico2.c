@@ -1,4 +1,13 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
+#include "pad.h"
+#include "act-game.h"
+#include "commonact.h"
+#include "camera-editor.h"
+#include "hand-camera.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
 
 typedef struct {
     int w[23];
@@ -35,12 +44,14 @@ typedef struct CamSetHdr {
 
 extern void *D_0063ABB0;
 extern int D_0063ABB4;
+/* kept local: this TU's uses of ReflectCameraSetBinary do not fit the prototype in camera-ico2.h */
 extern void ReflectCameraSetBinary(S4C *src, int count);
 extern StageParam D_005F5D50[];
 extern int stage_no;
 extern int *D_00639EA4;
+/* kept local: this TU's uses of GetBoyRootPositionForCamera do not fit the prototype in boyact.h */
 extern void GetBoyRootPositionForCamera();
-extern void GetRootPosition(void *a0, char *outer);
+/* kept local: this TU's uses of CameraGetTargets do not fit the prototype in camera-root.h */
 extern void CameraGetTargets(int *a0, int *a1);
 extern float D_006E6560[3];
 extern float D_006E6570[3];
@@ -54,17 +65,19 @@ extern char *D_0063C264;
 extern int D_0063C26C;
 extern void memset(float *a0, int a1, int a2);
 extern char D_006E64F4[];
+/* kept local: this TU's uses of SetMonitorCameraInitializeFlag do not fit the prototype in camera-root.h */
 extern void SetMonitorCameraInitializeFlag();
 extern Mat4 D_00555050;
 extern int D_0063AB9C;
-extern float FSqrt(float v);
+/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float v);
+/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(void *a0);
+/* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(void *a0, void *a1, void *a2, float f12, float f13);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern void sceVu0Normalize(void *a0, void *a1);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern void *test_CURRENTORIENT(int a0);
 
 typedef struct IosPadStick {
     int x; /* 0x00 */
@@ -75,9 +88,6 @@ typedef struct IosPadStick {
 } IosPadStick;
 
 extern char iosPadConfDefault[];
-extern int iosPadConnect(void *pad, int slot, int port, void *conf);
-extern void iosPadRead(void *pad);
-extern int iosPadGetStick(void *pad, IosPadStick *out, int a2, int a3, int a4, int a5);
 extern float D_0063AB48;
 extern int D_0063C274;
 
@@ -91,9 +101,9 @@ extern char D_00555060[];
 extern char D_00555090[];
 extern char D_0063AB58[];
 extern int D_0063C284;
-extern void debug_StdPrintfDummy();
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
+/* kept local: this TU's uses of ReadCameraSet do not fit the prototype in camera-ico2.h */
 extern void *ReadCameraSet(char *name, int stage);
 extern char D_002AD010[][0x20];
 extern char D_00555078[];
@@ -318,6 +328,7 @@ extern int D_0063C270;
 extern float D_0063C278;
 extern float D_0063C27C;
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *a0, void *a1);
 
 /* The retail build compiles out this function's debug arms (listing lines
@@ -512,7 +523,6 @@ extern float D_0063C278;
 extern float D_0063C27C;
 extern int D_0028F4C0[];
 extern int D_0063B178;
-extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
 
 /* Static helper at camera-ico2.c lines 149-158 of the listing, hosted by both
  * InitIco2Camera and CameraMove, so the name is ours: it scales the two
@@ -558,7 +568,6 @@ typedef struct CamSetGroup { /* 0x4C */
 extern float D_006E6320[];
 extern float D_006E6190[];
 extern int D_0063AB50;
-extern void SetLimitHandCameraCorrect(float a, float b);
 
 /* camera-ico2.c lines 362-380 of the listing: the mean and the standard
  * deviation of the first `n` weights, written back through two pointers. */
@@ -788,8 +797,6 @@ inline void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
 extern char *D_0063C260;
 extern char *D_0063C268;
 extern int D_0063A450;
-extern void iosFree(void *p);
-extern char *iosMallocDebug(int heap, int size, char *file, int line);
 
 void ReflectCameraSetBinary(S4C *src, int count)
 {
@@ -809,7 +816,6 @@ extern float D_0063C278;
 extern float D_0063C27C;
 extern unsigned char D_0063C280;
 extern int D_0028F4C0[];
-extern void InitHandCameraCorrect(void);
 
 void InitIco2Camera(void)
 {
@@ -824,7 +830,6 @@ void InitIco2Camera(void)
 }
 
 extern float D_002A5E60[3];
-extern int ACTNotNeedCameraOffset(char *a0);
 
 void GetTargetOffset(char *gobj, float *v, unsigned char flag)
 {
@@ -886,13 +891,14 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
 
 extern int D_0063ABA4;
 extern int D_0063B178;
+/* kept local: this TU's uses of CameraMove do not fit the prototype in camera-ico2.h */
 extern void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
+/* kept local: this TU's uses of InsertCamera_Exec do not fit the prototype in camera-root.h */
 extern void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
+/* kept local: this TU's uses of SetWSMatrix do not fit the prototype in camera-root.h */
 extern void SetWSMatrix(void *cam);
-extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
+/* kept local: this TU's uses of IsAbleBoyControl do not fit the prototype in boyact.h */
 extern unsigned char IsAbleBoyControl(void);
-extern void ClearHandCameraCorrect(void);
-extern void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14);
 
 /* The camera-group search the listing places at camera-ico2.c lines 921-946:
  * a static helper shared by GetCameraGroupFromGObj, GetCameraGroupFromPosition

@@ -1,14 +1,23 @@
 #include "common.h"
 #include "charFileName.h"
+#include "debug.h"
+#include "debug_exception.h"
+#include "cdvd.h"
+#include "memory.h"
+#include "shockdriver.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "camera-ico2.h"
+#include "camera-set-manager.h"
+#include "Basic.h"
+#include "Light.h"
+#include "StageAnimation.h"
+#include "motionFileManager.h"
+#include "particleEffect.h"
+#include "tableSin.h"
 
-extern char *iosMallocDebug(void *heap, int size, char *file, int line);
-extern void iosFree(void *p);
-extern void iosCdvdHandlerRead(void *h, void *buf, int size);
-extern void SetParticleEffectPackage(int a0, void *buf, int size);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern void soundSQDataSet(void *buf, int a3, int kind, int mode, int a6);
 
 typedef struct {
     char _0[0x20];
@@ -45,8 +54,6 @@ typedef struct {
 extern CharFile D_006FAD00[MAX_CHARS];
 extern CharFile D_004D9C10;
 extern int D_0063AD00;
-extern void InitPluralCameraSet(void);
-extern void InitCameraSetManager(void);
 /* prototypes: their order is the inline tail's emission order */
 void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6);
 void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6);
@@ -88,8 +95,6 @@ extern void *D_0063A44C;
 extern char D_0063AD08[];
 extern char D_0063AD10[];
 extern int sprintf(char *buf, char *fmt, ...);
-extern void debug_assertMessage(char *file, int line, char *msg);
-extern void malloc_SetPartition(int part);
 extern PObj *InitPObj(void *buf, int a1, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */
@@ -133,7 +138,6 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
 }
 
 extern int D_0028F4C0[];
-extern void malloc_SetPartition(int part);
 extern void *D_0063A44C;
 extern char D_0063AD10[];
 extern PObj *InitPObj(void *buf, int a1, int id);
@@ -215,9 +219,9 @@ typedef struct {
 
 extern TexRec D_00535168[];
 extern int NonLinearCameraMove;
+/* kept local: this TU's uses of tex_InitTexture do not fit the prototype in Texture.h */
 extern int tex_InitTexture(int id, void *buf);
 extern int D_0028F4C0[];
-extern void malloc_SetPartition(int part);
 extern void *D_0063A44C;
 
 void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
@@ -258,7 +262,6 @@ typedef struct {
 extern SkelEnt D_004FBA80[];
 extern char D_0063AD18[];
 extern int strcmp(const char *a, const char *b);
-extern char *mallocseki(int size);
 
 /* sugipon/include/sugiCommon.h: byte checksum helper, inlined at its call site */
 static inline int SumBytes(unsigned char *p, int n)
@@ -327,8 +330,6 @@ typedef struct {
 } CollEnt; /* 0x8C */
 
 extern CollEnt D_004FBAB0[];
-extern float GetTableSin(short a);
-extern float GetTableCos(short a);
 
 void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, int a6)
 {
@@ -400,8 +401,6 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
     __assert(__FILE__, 466, D_0063AD18);
 }
 
-extern void stage_ApplyData(int id, void *buf);
-extern char *mallocseki(int size);
 extern char D_0063AD10[];
 
 void ReadStageAnimationFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
@@ -436,9 +435,6 @@ extern char *D_004EB758[];
 extern void *D_0063A440;
 extern void *D_0063A444;
 extern void *D_0063A448;
-extern void InitMotionFile(void *buf, int a1);
-extern void AddMotionMemorySize(int size, int a6);
-extern int GetMotionMemorySize(int a6);
 
 void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
 {
@@ -494,8 +490,6 @@ typedef struct {
 } SeRec;                     /* 0x64 */
 
 extern SeRec D_005EBBE8[];
-extern int soundSeSemiCommonLoadChk(void);
-extern void soundBDDataSet(void *buf, int a3, int kind, int mode, int a6, int size);
 extern int D_0063A684;
 
 void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
@@ -544,7 +538,6 @@ extern char *D_0063AD20;
 extern void *D_0063A45C;
 extern void *D_0063A444;
 extern void *D_0063A458;
-extern void soundHDDataSet(void *buf, int a3, int kind, int mode, int a6);
 
 void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
 {
@@ -601,7 +594,6 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
 
 extern char *ShockVoiceSetCommon;
 extern char *ShockVoiceSetStage;
-extern void Init_ShockVoiceSet(void *hdr, void *body);
 extern void *D_0063A460;
 
 typedef struct {
@@ -659,11 +651,6 @@ inline void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5,
     debug_StdPrintfDummy("ReadSoundSqFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
 }
 
-extern void *soundDataAreaSearch(int *key);
-extern void *AdpcmIopBuffAlloc(void);
-extern char *adpcmDataSet(char *buf, int a3, int bank, int a6, int size, void *iop, int zero);
-extern void AdpcmPlay(int handle);
-
 inline void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
 {
     int key;
@@ -717,7 +704,6 @@ void ReadShockFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
     debug_StdPrintfDummy("ReadShockData:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
 }
 
-extern void AddPluralCameraSet(int slot, void *buf);
 extern void *D_0063A450;
 
 void ReadCamerasetFile(void *h, int a1, int size, int a3)
@@ -749,7 +735,7 @@ void ReadEndCheckFile(void *h, int a1, int size)
 
 extern char D_0028F720[];
 extern void *memcpy(void *dst, const void *src, int n);
-extern void light_AddLight(int a, int b, int c);
+/* kept local: this TU's uses of tex_RemakeRegistersSampleMin do not fit the prototype in Texture.h */
 extern void tex_RemakeRegistersSampleMin(int a);
 extern void *D_0063A44C;
 

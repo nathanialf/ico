@@ -1,13 +1,15 @@
 #include "common.h"
 #include "typedef.h"
+#include "gobj.h"
+#include "chain.h"
 
 /* header prototypes (order fixes the inline tail) */
 /* prototypes: their order is the inline tail's emission order */
 int InitRopeFixGeo(void);
 int InitRopeFixGeo(void);
-extern void SetChainParentGObj(char *self, int val);
-extern int isysGObjSearchFromObjKindID_begin();
+/* kept local: this TU's uses of p2o_DispVU1DObjMulti do not fit the prototype in DisplayP2O.h */
 extern int p2o_DispVU1DObjMulti(int a0);
+/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
 extern int p2o_SetDefaultEnviroment(int a0);
 
 inline int InitRopeFixGeo(void)

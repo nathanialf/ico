@@ -1,8 +1,13 @@
 #include "common.h"
 #include "sugiCommon.h"
-
-extern void StopSEPackage(int a0);
-extern void ExecuteSEPackage(int a0, int a1);
+#include "debug.h"
+#include "memory.h"
+#include "gobj.h"
+#include "act-game.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "quaternion.h"
 
 typedef struct TorchGeoWork {
     /* 0x00 */ int flags;
@@ -32,13 +37,9 @@ static TorchGeoWork emptyTorchWork = {
     0, 0, 0, 0, {0.0f, 0.0f, 0.0f, 1.0f}, 0, 0, 65536, 65536, 0, -1, -1, -1, -1, -1, 0, 0,
 };
 
-extern void GetRootPosition(void *a0, void *a1);
-extern void *iosMallocDebug(int heap, int size, const char *file, int line);
 extern void sceVu0UnitMatrix(void *m);
+/* kept local: the declaration in torch.h changes this TU codegen */
 extern void LightTorchOn(char *gobj);
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-extern void *isysGObjSearchFromObjKindID_next(void *gobj);
-extern void CopyVector(void *a0, void *a1);
 extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 /* prototypes: their order is the inline tail's emission order */
 char *InitTorchGeo(char *a0, char *a1);
@@ -60,8 +61,8 @@ void torchOffSE(int a0)
     ExecuteSEPackage(a0, 0x43);
 }
 
-extern char IdentityQuaternion[];
 extern int D_0063A44C;
+/* kept local: this TU's uses of SetParticleEffectByPartition do not fit the prototype in particleEffect.h */
 extern int SetParticleEffectByPartition(int id, float *pos, void *geo, int part);
 
 void LightTorchOn(char *gobj)
@@ -110,6 +111,7 @@ void LightTorchOn(char *gobj)
     *(int *)(*(int *)(gobj + 0x15C) + 0x83C) = 1;
 }
 
+/* kept local: this TU's uses of DeleteParticleEffect do not fit the prototype in particleEffect.h */
 extern void DeleteParticleEffect(int a0);
 
 void LightTorchOff(char *gobj)
@@ -140,6 +142,7 @@ void LightTorchOff(char *gobj)
     }
 }
 
+/* kept local: this TU's uses of SetParticleEffectDrainLevel do not fit the prototype in particleEffect.h */
 extern void SetParticleEffectDrainLevel(int a0, float level);
 
 void torchDrainControl(char *gobj, float level)
@@ -163,7 +166,7 @@ void torchDrainControl(char *gobj, float level)
     }
 }
 
-extern char IdentityQuaternion[];
+/* kept local: this TU's uses of SetParticleEffectGeometry do not fit the prototype in particleEffect.h */
 extern void SetParticleEffectGeometry(int a0, void *a1, void *a2);
 
 void moveTorch(char *gobj, void *mtx)
@@ -187,6 +190,7 @@ void moveTorch(char *gobj, void *mtx)
     }
 }
 
+/* kept local: this TU's uses of SetParticleEffectPauseFlag do not fit the prototype in particleEffect.h */
 extern void SetParticleEffectPauseFlag(int a0, int a1);
 
 void setPauseFlag(char *gobj, int flag)
@@ -314,8 +318,6 @@ inline void UpdateRealTimeGeometryValue(char *a0)
 
 extern char *D_00639EA4;
 extern char *D_00639EA8;
-extern unsigned char ACTGame_NoWeapon(char *a0);
-extern void debug_StdPrintfDummy();
 
 /* static helper the listing places at torch.c lines 347-374; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
@@ -363,7 +365,9 @@ void procChainReaction(char *gobj)
     }
 }
 
+/* kept local: this TU's uses of SetParticleEffectActiveSensing do not fit the prototype in particleEffect.h */
 extern int SetParticleEffectActiveSensing(int no, float *pos, void *quat);
+/* kept local: this TU's uses of ExecParticleEffect do not fit the prototype in particleEffect.h */
 extern void ExecParticleEffect(int no);
 
 void TorchGeo(char *gobj)

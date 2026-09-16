@@ -1,4 +1,11 @@
 #include "common.h"
+#include "cdvd.h"
+#include "debug.h"
+#include "debug_exception.h"
+#include "inflate.h"
+#include "memory.h"
+#include "message.h"
+#include "pad.h"
 
 union U001325D8 {
     long long ll;
@@ -50,7 +57,6 @@ extern unsigned int strlen(const char *s);
 extern int strcmp(const char *a, const char *b);
 extern char *strncpy(char *d, const char *s, int n);
 extern int sceCdSearchFile(CdlFILE *fp, const char *name);
-extern void debug_StdPrintfDummy();
 
 void iosCdvdMgrSearchFile(char *self)
 {
@@ -94,9 +100,6 @@ extern int stagePreLoadLsn;
 extern int D_0063C178;
 extern char stagePreLoadBuff[];
 extern char D_006BC830[];
-extern int iosMsgSend(void *a0, void *a1, int a2);
-extern long long inflate_cd_read_func(void *buf, long long size, int *self);
-extern int open_inflate_handler(void *readfunc, void *arg);
 
 void iosCdvdMgrStStart(char *self)
 {
@@ -137,14 +140,13 @@ extern char D_0029B3E0[];
 extern char D_00550C58[];
 extern char D_00550D68[];
 extern char D_0063A390[];
+/* kept local: this TU's uses of iosThreadGetPri do not fit the prototype in thread.h */
 extern int iosThreadGetPri(int tid);
+/* kept local: this TU's uses of iosThreadSetPri do not fit the prototype in thread.h */
 extern void iosThreadSetPri(int tid, int pri);
 extern int sceCdBreak(void);
-extern int iosMsgRecv(void *q, void *buf, int mode);
 extern void sprintf();
-extern void debug_assertMessage(const char *file, int line, const char *msg);
 extern void __assert(const char *file, int line, char *expr);
-extern int close_inflate_handler(int handle);
 
 void iosCdvdMgrStStop(char *self)
 {
@@ -173,7 +175,6 @@ void iosCdvdMgrStStop(char *self)
 extern char D_00637E69[];
 extern char D_0063A3A0[];
 extern int strcpy();
-extern int iosCdvdChgFileName(int a0);
 
 /* INTERIM: the January-2002 listing expands iosCdvdChgFileName (cdvd.c rows
  * 958-967) inside unifile_read_func, so the 2001 source declared it `inline`
@@ -218,10 +219,6 @@ extern int D_0063A374;
 extern int sceCdDiskReady(int mode);
 extern int sceCdGetDiskType(void);
 extern int sceCdSearchFile(CdlFILE *fp, const char *name);
-extern void debug_StdPrintfDummy();
-extern void iosCdvdMgrSearchFile(char *self);
-extern void iosCdvdMgrStStart(char *self);
-extern void iosCdvdMgrStStop(char *self);
 
 /* INTERIM: the listing expands iosCdvdDiskReadyBlock (cdvd.c rows 701-720)
  * here too, so the 2001 source declared it `inline` as well.  Same treatment
@@ -277,10 +274,6 @@ void iosCdvdMgrLoad(char *self)
 
 extern void *D_0063A44C;
 extern char D_00550DB8[];
-extern void debug_StdPrintfDummy();
-extern int iosMallocDebug(void *heap, int size, const char *file, int line);
-extern void iosFree(void *p);
-extern void iosCdvdHandlerRead(int *self, void *buf, int n);
 
 void temp_loadfunc(int *self, int name, int size, int a3, int a4, int a5, int seg)
 {
@@ -315,11 +308,7 @@ extern int D_0028F4C0[];
 extern int D_0063A3DC;
 extern char D_00550DE0[];
 extern char D_0063A3B0[];
-extern void debug_BeginTimer(int id);
-extern float debug_GetTimerSec(void);
 extern int SgGetDmaTransferStatus(int ch);
-extern void iosCdvdBackGroundMgr(void);
-extern void debugCdvdLoadInfoSegAdd(int a0, int kind, int size);
 
 /* INTERIM: the listing expands the extension lookup (cdvd.c rows 1043-1050)
  * inside the scan below, so the 2001 source declared it `inline`. */
@@ -483,8 +472,6 @@ int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/cdvd", iosCdvdHandlerReadNoInflate);
 
 extern char D_00550EC0[];
-extern void debug_StdPrintfDummy();
-extern long long inflate(void *state, void *buf, int n);
 
 void iosCdvdHandlerReadInflate(int *self, void *buf, int n)
 {
@@ -502,8 +489,6 @@ void iosCdvdHandlerReadInflate(int *self, void *buf, int n)
 }
 
 extern unsigned char D_006B83B8[];
-extern void iosCdvdHandlerReadInflate(int *a0, void *buf, int n);
-extern void iosCdvdHandlerReadNoInflate(int *a0, void *buf, int n);
 
 void iosCdvdHandlerRead(int *a0, void *a1, int a2)
 {
@@ -571,7 +556,6 @@ void iosCdvdUnifileInfoGet(void)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/cdvd", iosCdvdManager);
 
 extern unsigned char CdvdMsgQ[];
-extern int iosMsgSend(void *a0, void *a1, int a2);
 
 void iosCdvdDiskReady(int a0)
 {
@@ -677,9 +661,8 @@ extern int D_0063A368;
 extern int D_0063A384;
 extern int D_0063A3C8;
 extern int D_0063A3CC;
+/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
-extern void iosPadDisable(void);
-extern void iosPadEnable(void);
 extern int sceCdStatus(void);
 typedef void (*BgReadyFunc)(char *self, int arg, int flag);
 typedef void (*BgResumeFunc)(char *self, int arg);
@@ -749,7 +732,6 @@ extern int D_0063A370;
 extern int D_0063A380;
 extern int D_0063A3D0;
 extern int D_0063A3D4;
-extern void cdWait(int *flag);
 extern int sceCdStatus(void);
 extern int sceCdSync(int mode);
 extern int sceCdGetError(void);
@@ -899,7 +881,6 @@ found:
 }
 
 extern int CdvdMsgQ_LoadEnd[];
-extern int iosMsgRecv(void *q, void *buf, int mode);
 
 int iosCdvdSync(int a0)
 {
@@ -986,7 +967,6 @@ int iosCdvdBackGroundMgrGetRunning(void)
 }
 
 extern char D_00550FD8[];
-extern void debug_StdPrintfDummy();
 extern int sceCdStRead(int a0, int a1, int a2, void *a3);
 
 int iosCdvdDirectStRead(int a0, int a1, int a2, int *a3)

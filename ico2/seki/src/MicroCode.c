@@ -7,9 +7,13 @@ void mc_Init(void);
 extern int D_00290B20[];
 extern int D_0063C140;
 extern int D_0067BFD0[];
+/* kept local: this TU's uses of dl_CloseDma do not fit the prototype in DisplayList.h */
 extern int dl_CloseDma(void);
+/* kept local: this TU's uses of dl_OpenDma do not fit the prototype in DisplayList.h */
 extern void dl_OpenDma(int a0, int a1, int a2);
+/* kept local: this TU's uses of dl_SetDLPriority do not fit the prototype in DisplayList.h */
 extern int dl_SetDLPriority(int a0);
+/* kept local: the declaration in MicroCode.h changes this TU codegen */
 extern void mc_setBaseOffset(int base, int pri);
 
 /* The display-list packet builder state and one 64-bit packet slot; same

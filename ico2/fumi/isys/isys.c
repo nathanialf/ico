@@ -1,6 +1,5 @@
 #include "common.h"
-
-extern void iosOmInit(void);
+#include "obj_manager.h"
 
 void isysInitialize(void)
 {

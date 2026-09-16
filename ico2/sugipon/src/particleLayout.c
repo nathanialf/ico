@@ -1,8 +1,7 @@
 #include "common.h"
+#include "particleEffect.h"
 
 extern int D_0063A438;
-extern void DeleteParticleEffect(int a0);
-extern void SetParticleEffectPauseFlag(int a0, int a1);
 /* prototypes: their order is the inline tail's emission order */
 int *InitParticleLayoutGeo(char *self, int *other);
 void ParticleLayoutDL(void);

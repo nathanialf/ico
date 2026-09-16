@@ -1,4 +1,8 @@
 #include "common.h"
+#include "act.h"
+#include "gflag.h"
+#include "script.h"
+#include "geometryManager.h"
 
 /* header prototypes (order fixes the inline tail) */
 /* prototypes: their order is the inline tail's emission order */
@@ -17,13 +21,6 @@ typedef union PosBox {
 typedef struct Act Act;
 
 extern void *D_00639EA4;
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern int gflagChk(int a0);
-extern void ScpCallCameraOff(void);
-extern void GetRootPosition(void *dst, void *obj);
-extern int scpTriggerPosBox(float *p, float *pos, float *size);
-extern int RequestStageChange(int a0, void *a1, int a2, float a3, float a4);
 
 static const PosBox exitPos = {{854.0f, -156.0f, 0.0f, 0.0f}};
 

@@ -1,4 +1,7 @@
 #include "common.h"
+#include "StageAnimation.h"
+#include "multiBgaManager.h"
+#include "quaternion.h"
 
 typedef struct {
     long long w[8]; /* 0x00 */
@@ -11,13 +14,10 @@ extern MultiBga D_004ECCA0;
 extern MultiBga D_007240A0[];
 extern char *D_00724A00[];
 extern int D_0063BB04;
-extern char *stage_MakePlayBgAnimation(int kind);
+/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
-extern void CopyQuaternion(void *dst, void *src);
-extern void EntryMultiBgaManager(MultiBga *bga, int no, int kind, void *pos, void *rot);
 extern int D_0028F4C0[];
-extern int stage_DispBgAnimation(char **slot);
-extern void stage_DispBgAnimationNoFinish(char **slot);
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *dst, void *a, void *b);
 extern void EntryMultiBgaManagerSensitive(MultiBga *bga, int no, int kind, void *pos, void *rot,
                                           int sensitive);

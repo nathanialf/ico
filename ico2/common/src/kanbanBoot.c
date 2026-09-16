@@ -1,4 +1,7 @@
 #include "common.h"
+#include "StageManager.h"
+#include "layout_texture.h"
+#include "gobj.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void kanbanBootInit(void);
@@ -65,17 +68,20 @@ extern int D_0063C3A8;
 extern int D_0063C3AC;
 extern int D_0063C3B0;
 extern int NonLinearCameraMove;
+/* kept local: this TU's uses of iosMcChdirProduct do not fit the prototype in mcard.h */
 extern void iosMcChdirProduct(McReq *mc);
+/* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
 extern int iosMcSync(McReq *mc);
+/* kept local: this TU's uses of iosMcLoadProductBlock do not fit the prototype in mcard.h */
 extern void iosMcLoadProductBlock(McReq *mc);
+/* kept local: this TU's uses of gsResetFunc do not fit the prototype in debug.h */
 extern void gsResetFunc(int a0);
 extern int sceScfGetLanguage(void);
 extern KanbanReq *kanbanReqAdd(int a0, int a1);
+/* kept local: this TU's uses of kanbanReqDel do not fit the prototype in kanban.h */
 extern void kanbanReqDel(KanbanReq *r);
+/* kept local: this TU's uses of kanbanReqDelFade do not fit the prototype in kanban.h */
 extern void kanbanReqDelFade(KanbanReq *r);
-extern void isysGObjActiveLink(int a0, int a1);
-extern void stgmgrForceSwitchWithFade(int a0, float a1, float a2);
-extern void lt_switch_layout(int a0);
 
 int kanbanBootMcCheck(void)
 {
@@ -317,6 +323,7 @@ int kanbanBootMcCheck(void)
 extern int D_0028F4D4[];
 extern KanbanReq *D_0063C3B4;
 extern int D_0063C3B8;
+/* kept local: this TU's uses of kanbanReqAllDelFade do not fit the prototype in kanban.h */
 extern void kanbanReqAllDelFade(void);
 
 void kanbanBootMain(void)

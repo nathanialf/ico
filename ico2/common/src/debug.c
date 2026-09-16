@@ -1,4 +1,18 @@
 #include "common.h"
+#include "debug.h"
+#include "StageManager.h"
+#include "backStage.h"
+#include "kanban.h"
+#include "gobj.h"
+#include "s_init.h"
+#include "act-game.h"
+#include "commonact.h"
+#include "fieldCollision.h"
+#include "brain.h"
+#include "camera-root.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "GsBase.h"
 
 /* debug_exception_screen.c.inc (compiled into debug_exception.o) */
 
@@ -58,8 +72,6 @@ void debug_LogPrintf(const char *fmt, ...)
     sceWrite(D_0063AE84, buf, info);
 }
 
-extern void debug_StdPrintfDummy(char *fmt, ...);
-
 /* the debug-option table: 76 records of 0x1C bytes */
 typedef struct {
     char *name;
@@ -77,8 +89,6 @@ extern char D_0061B570[];
 extern char D_0063AE98[];
 extern char D_0063AEA0[];
 extern int sprintf();
-extern int debugSceOpen(int a0, int a1);
-extern int debugSceClose(int a0);
 
 void debug_SaveDebugOptionFile(void)
 {
@@ -109,7 +119,6 @@ extern int AddDmacHandler();
 extern unsigned int D_0063AE8C;
 extern void EnableDmac();
 extern void RemoveDmacHandler();
-extern int debug_CallbackGsFinish();
 
 void debug_SetDmaCallback(void)
 {
@@ -198,7 +207,6 @@ extern int D_0063B25C;
 extern int D_0063B260;
 extern int game_pause;
 extern int D_00639EA0;
-extern void ChangeFieldCollisionDebugMode(int mode);
 
 /* INTERIM: ChangeGirlControlMode (census function, own ROM slot later in this
    TU) is inlined here per the listing (rows src/debug.c:1188-1189 inside
@@ -302,8 +310,6 @@ extern int D_0063B11C;
 extern int D_0063B120;
 extern int D_0063B124;
 extern int D_0063B1C4;
-extern void debug_ClearFontWindow(void);
-extern void debug_makeBackImage(void);
 
 void debug_Init(void)
 {
@@ -329,7 +335,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_MakeFont);
 extern unsigned char D_00619BB0[];
 extern unsigned short D_00704AD0[];
 extern unsigned short D_00706AD0[];
-extern void debug_MakeFont(void);
 
 void debug_makeBackImage(void)
 {
@@ -365,13 +370,19 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_PrintCharacter);
 
 extern int D_0063AEB0;
 extern int D_0063B13C;
-extern void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz);
+/* kept local: this TU's uses of gif_CheckOpen do not fit the prototype in GifPacket.h */
 extern int gif_CheckOpen(void);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a0);
+/* kept local: this TU's uses of gif_Sprite do not fit the prototype in GifPacket.h */
 extern void gif_Sprite(void *a0, unsigned int a1, int a2, void *a3, int a4);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
 
 void debug_PrintFont(int a0, int a1, int a2, char *a3)
@@ -407,8 +418,6 @@ void debug_PrintFont(int a0, int a1, int a2, char *a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_FlushFontWindow);
-
-extern void debug_FlushFontWindow(void);
 
 void debug_FlushFont(void)
 {
@@ -467,7 +476,7 @@ typedef struct {
 
 extern Brain D_002A5580[];
 extern float brainGetLevel(Brain *b, BrainTarget *t);
-extern int brainCheckView(Brain *b, BrainTarget *t);
+/* kept local: this TU's uses of gif_Line do not fit the prototype in GifPacket.h */
 extern void gif_Line(void *v0, void *v1, unsigned int z0, unsigned int z1, void *col, int prim);
 
 /* The four corners of a marker box, shared by draw_batsu and draw_shikaku
@@ -597,7 +606,6 @@ extern char D_00704680[];
 extern char D_0063AE90[];
 extern int D_0063B13C;
 extern void strcat(char *dst, char *src);
-extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
 
 int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
 {
@@ -656,9 +664,6 @@ extern int D_0028F4C0[];
 extern int frame_count;
 extern char D_0061BA18[];
 extern char D_0061BA28[];
-extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
-extern void debug_brainBar(void);
-extern void debug_DrawBar(void);
 
 void debug_DispBar(void)
 {
@@ -793,8 +798,6 @@ void debug_DispQW(void *p, int size)
     debug_StdPrintfDummy(D_0063AF50);
 }
 
-extern void debug_PrintFont();
-
 void debug_Printf(int a, int b, unsigned int c, int x, ...)
 {
     char buf[0x100];
@@ -829,7 +832,6 @@ extern char D_0063AF60[];
 extern char D_0061BB28[];
 extern float dptofp(double v);
 extern double fptodp(float v);
-extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
 
 void debug_PrintFontf(int x, int y, char *p, ...)
 {
@@ -887,7 +889,6 @@ void debug_PrintFontf(int x, int y, char *p, ...)
 }
 
 extern const char D_0061BB40[];
-extern void debug_StdPrintfDummy();
 extern double fptodp(float);
 
 void debug_PrintMatrix(float *arg)
@@ -950,8 +951,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_Mode);
 extern char D_0061BC38[];
 extern char D_0063AF70[];
 extern char D_0063AF78[];
-extern int debug_SelectCsvWindow(char *a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7,
-                                 int a8, int *a9);
 extern int sprintf();
 
 int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int),
@@ -1099,8 +1098,6 @@ static inline int _debug_SelectCsvWindow_inl(char *title, int x, int y, int rows
     return 0;
 }
 
-extern void getBuffer();
-
 int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *base, int stride, int off,
                           int deref, int n, int *psel)
 {
@@ -1123,12 +1120,6 @@ extern int enable_game_pause;
 extern int D_0063A650;
 extern int D_0063AA08;
 extern char *strstr(const char *s, const char *sub);
-extern void soundDataSegAllClose(int a0, int a1);
-extern void kanbanInit(int a0);
-extern void gflagOn(int a0);
-extern void gflagOff(int a0);
-extern void stgmgrForceSwitch(int stage);
-extern void ACTGame_SetActors_Debug(int stage, int a1);
 
 int debug_SelectStageMain(int ret, int stage)
 {
@@ -1287,8 +1278,11 @@ extern char D_0063AFC0[];
 extern int D_0063AFB8;
 extern char D_0061BE08[];
 extern char D_0061BE18[];
+/* kept local: this TU's uses of iosMcChdirProduct do not fit the prototype in mcard.h */
 extern void iosMcChdirProduct(McReq *mc);
+/* kept local: this TU's uses of iosMcGetDir do not fit the prototype in mcard.h */
 extern void iosMcGetDir(McReq *mc);
+/* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
 extern int iosMcSync();
 
 int debug_selectFile(McReq *mc)
@@ -1354,12 +1348,16 @@ extern char D_0061BE90[];
 extern char D_0063AFE0[];
 extern char D_004DA788[];
 extern char D_004DD700[];
+/* kept local: this TU's uses of iosMcGetBlockSaveInfo do not fit the prototype in mcard.h */
 extern void iosMcGetBlockSaveInfo(McReq *mc);
+/* kept local: this TU's uses of iosMcSaveIconBlock do not fit the prototype in mcard.h */
 extern void iosMcSaveIconBlock(McReq *mc);
+/* kept local: this TU's uses of iosMcSaveProductBlock do not fit the prototype in mcard.h */
 extern void iosMcSaveProductBlock(McReq *mc);
+/* kept local: this TU's uses of iosMcSaveGameBlock do not fit the prototype in mcard.h */
 extern void iosMcSaveGameBlock(McReq *mc, void *buf);
+/* kept local: this TU's uses of gamesysMemorySave do not fit the prototype in gamesys.h */
 extern void gamesysMemorySave(void *a0, void *a1, int a2);
-extern void *debug_saveNumFunc(int a0, void *a1);
 extern int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
                                     int (*fn)(int, int), int a7);
 
@@ -1441,8 +1439,11 @@ extern int D_0063AA08;
 extern char D_0061BED8[];
 extern char D_0063AFF0[];
 extern char D_0061BF18[];
+/* kept local: this TU's uses of iosMcLoadProductBlock do not fit the prototype in mcard.h */
 extern void iosMcLoadProductBlock(McReq *mc);
+/* kept local: this TU's uses of iosMcLoadGameBlock do not fit the prototype in mcard.h */
 extern void iosMcLoadGameBlock(McReq *mc, void *buf);
+/* kept local: this TU's uses of gamesysMemoryLoad do not fit the prototype in gamesys.h */
 extern void gamesysMemoryLoad(void *a0, void *a1, int a2);
 
 int debug_mcLoadMainBlock(McReq *mc)
@@ -1525,6 +1526,7 @@ extern char D_0061C0C0[];
 extern char D_0061C0D0[];
 extern int D_0063AFF8;
 extern int debug_selectFile(McReq *mc);
+/* kept local: this TU's uses of iosMcDelete do not fit the prototype in mcard.h */
 extern void iosMcDelete(McReq *mc);
 extern char *strcpy(char *dst, const char *src);
 
@@ -1596,10 +1598,8 @@ typedef struct {
 extern McReq mc;
 extern int D_0063B000;
 extern int D_0063AFFC;
+/* kept local: this TU's uses of iosMcGetInfo do not fit the prototype in mcard.h */
 extern void iosMcGetInfo(McReq *mc);
-extern int debug_mcFormat();
-extern int debug_mcUnformat();
-extern int debug_mcTest();
 
 int debug_MemoryCard(void)
 {
@@ -1681,9 +1681,6 @@ extern int D_0063B040;
 extern int D_0063B044;
 extern char D_0063B048[];
 extern GsysObjInfo D_005D6DB0[];
-extern int debug_SETest_color(int idx);
-extern int soundSeDefPlay(int no, int a1, int a2, int a3);
-extern void soundSeGroupStop(int grp);
 
 int debug_SETest(int reset)
 {
@@ -1782,8 +1779,6 @@ typedef struct {
     void *obj;
 } DbgGobjEnt;
 
-extern void *isysGObjGetExist_begin(void);
-extern void *isysGObjGetExist_next(void *gobj);
 extern char D_002C1270[];
 
 static inline int debug_ListActGobj(DbgGobjEnt *list)
@@ -1807,7 +1802,6 @@ static inline int debug_ListActGobj(DbgGobjEnt *list)
 
 extern char D_0061C210[];
 extern int D_0063B080;
-extern void _ACTDebugPrint(void *gobj);
 
 int debug_SelectActGobj(int reset)
 {
@@ -2104,8 +2098,6 @@ void debug_DispVu1SReg(int no)
     }
 }
 
-extern void debug_DispQW();
-
 void debug_DispMatrix(int *a0)
 {
     int *p = a0;
@@ -2117,8 +2109,6 @@ void debug_DispMatrix(int *a0)
 }
 
 void debug_SetBarDummy(void) {}
-
-extern void getLineBuffer();
 
 int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *base, int stride,
                                   int off, int deref, int n, int *psel)
@@ -2198,7 +2188,6 @@ void debugCdvdLoadInfoSegCls(int page, int idx)
 }
 
 extern int D_0028F4F0[];
-extern void gsb_Init();
 
 int gsResetFunc(void)
 {
@@ -2351,7 +2340,9 @@ extern int D_0063AFA0;
 extern int D_0063AFA4;
 extern char D_0063AFA8[];
 extern char D_0061BCA8[];
+/* kept local: this TU's uses of iosMcFormat do not fit the prototype in mcard.h */
 extern void iosMcFormat(int port);
+/* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
 extern int iosMcSync(int port);
 
 int debug_mcFormat(int port)
@@ -2385,6 +2376,7 @@ extern int D_0063AFB0;
 extern int D_0063AFB4;
 extern char D_0061BCB8[];
 extern char D_0061BCC8[];
+/* kept local: this TU's uses of iosMcUnformat do not fit the prototype in mcard.h */
 extern void iosMcUnformat(int port);
 
 int debug_mcUnformat(int port)
@@ -2425,6 +2417,7 @@ void *debug_saveNumFunc(int a0, void *a1)
     return D_0063AFD0;
 }
 
+/* kept local: this TU's uses of iosMcTest do not fit the prototype in mcard.h */
 extern void iosMcTest(void);
 
 int debug_mcTest(void)
@@ -2433,6 +2426,7 @@ int debug_mcTest(void)
     return 1;
 }
 
+/* kept local: the declaration in staffroll.h changes this TU codegen */
 extern void staffRollStart(int a0, float a1);
 
 int debug_STAFFROLLTest(void)
@@ -2457,8 +2451,6 @@ int debug_SETest_color(int idx)
     return v0;
 }
 
-extern int soundReverbDepthGet(void);
-extern void soundReverbDepthSet(int depth);
 /* pad state block: +0x4 held buttons, +0xC newly-pressed (trigger) buttons */
 extern char D_0061C1A8[];
 
@@ -2551,26 +2543,17 @@ int debug_EndingDemo(void)
     return -1;
 }
 
-extern void backStageProcessInStage(float a0);
-
 int debug_BackStageTest(void)
 {
     backStageProcessInStage(10000000.0f);
     return 1;
 }
 
-extern void backStageDebugTimeZero(void);
-
 int debug_tsuresariTimeZero(void)
 {
     backStageDebugTimeZero();
     return 1;
 }
-
-extern void *isysGObjGetExist_begin(void);
-extern void *isysGObjGetExist_next(void *gobj);
-extern int IsTopHint(void *gobj);
-extern void DebugHintStart(void *gobj);
 
 int debug_hintStart(void)
 {
@@ -2622,7 +2605,6 @@ int debug_SelectPad2ControlGobj(int reset)
     return (r == -1) ? -1 : 0;
 }
 
-extern void CameraSetMode(int x);
 extern int D_0028F8F4[];
 
 int debug_FreeCamera(int a0)

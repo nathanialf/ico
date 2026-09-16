@@ -1,5 +1,6 @@
 #include "common.h"
 #include "typedef.h"
+#include "tableSin.h"
 
 /* Quadword copy of 64 bytes, parallel form: four lq into four distinct
    scratch GPRs, then four sq.  The latency-hiding shape the ROM uses in
@@ -15,9 +16,6 @@
     __asm__ __volatile__("sq " s2 ", 0x20($a0)" : : : "memory");                                   \
     __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory");                                   \
     __asm__ __volatile__("nop")
-
-extern float GetTableCos(short a0);
-extern float GetTableSin(int x);
 
 /* the scratch matrix _ScaleMatrixV fills in and multiplies through */
 static float scaleWorkMatrix[4][4] = {{1.0f, 0.0f, 0.0f, 0.0f},

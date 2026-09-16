@@ -1,12 +1,16 @@
 #include "common.h"
+#include "clipCollisionManager.h"
+#include "GobjProc.h"
+#include "debug.h"
+#include "matrixDrive.h"
 
 /* clipCollisionManager.h prototype: the inline tail's emission order */
 void *RequestClipCollision(int *a0);
 extern int D_0063B754;
-extern void actClipCollisionCore(volatile unsigned int self);
+/* kept local: this TU's uses of actCreateSubThreadGOppArg do not fit the prototype in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
-extern int CreateGObjByFuncSet();
 
 typedef struct ClipColWork {
     int result; /* 0x00 */
@@ -26,9 +30,7 @@ typedef struct ClipColWork {
 } ClipColWork;
 
 extern int D_0028F4C0[];
-extern void debug_StdPrintfDummy();
-extern float GetPointDistance(void *a0, void *a1);
-extern void CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
 /* `self` is volatile because the actor entry's argument has an addressable

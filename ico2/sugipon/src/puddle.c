@@ -1,4 +1,13 @@
 #include "common.h"
+#include "puddle.h"
+#include "DObj.h"
+#include "memory.h"
+#include "GsBase.h"
+#include "Matrix.h"
+#include "RegistPacket.h"
+#include "Texture.h"
+#include "matrixDrive.h"
+#include "tableSin.h"
 
 /* 16-byte aligned: the template copy in InitPuddleGeo is ld/sd, not ldl/ldr. */
 typedef struct {
@@ -21,25 +30,18 @@ typedef struct {
     int y1;
 } PuddleRect;
 
-extern char *iosMallocDebug(void *heap, int size, char *file, int line);
 extern void *D_0063A438;
 extern char D_006209D8[];
 extern char D_002A79B8[];
 extern float D_00723910[];
 extern char D_004ECEA0[];
-extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
-extern float GetTableCos(short a);
-extern float GetTableSin(short a);
+/* kept local: this TU's uses of gif_SpriteSensitiveOrg do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(void *rect, int z, void *uv, void *col, int e);
 extern void memset(void *p, int c, int n);
 extern int D_0063BA8C;
 extern int D_0063BA90;
 extern int D_00639F94;
 extern char D_006209E8[];
-extern void tex_ResetVramPri(int pri);
-extern int tex_AllocVramAuto(int a0, int a1);
-extern void gsb_SetVSMatrix(int a0, int a1, float f);
-extern void _MulMatrix(void *dst, void *a, void *b);
 extern char *matrixptr;
 extern int D_0063A064; /* screen width  */
 extern int D_0063A068; /* screen height */
@@ -51,12 +53,19 @@ extern char D_007239E0[];
 extern char D_00723A20[];
 extern char D_00723A60[];
 extern char D_00723AA0[];
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int on);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int on);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int reg, long long val);
+/* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
 extern void gif_SetDrawEnviroment(int a0, int a1, int a2, int a3, int a4, int a5);
 extern int D_0063BA98;
 extern int D_0063BAA0;
@@ -65,30 +74,10 @@ extern float D_00723760[];
 extern float D_00723880[];
 extern char D_004ECEC0[];
 extern char D_004ECED0[];
-extern void MatrixDrive_RotMatrixY(short a);
-extern void _ApplyMatrix(void *dst, void *m, void *src);
-extern void _SetCurrentMatrix(void *m);
-extern void _ApplyCurrentMatrix(void *dst, void *src);
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
-extern void _ScaleVector(void *dst, void *src, float k);
-extern void _SubVector(void *dst, void *a, void *b);
-extern void _AddVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of gif_DrawStripFST do not fit the prototype in GifPacket.h */
 extern void gif_DrawStripFST(void *a, void *b, unsigned long long col, int n, int e);
 extern int stage_no;
-extern void drawRipple(float t, void *pos);
-extern void baseSetup(char *a0);
-extern void drawAreaSetup(void);
-extern void drawAreaRestore(void);
-extern void leveldown(int pri);
-extern void copy(int pri);
-extern void drawRipples(char *a0, int pri);
-extern void *MatrixDrive_GetMatrix(void);
-extern void _UnitMatrix(void *m);
-extern void CopyMatrix(void *dst, void *src);
-extern void reg_RenderReflection(void *o, int pri);
 extern int D_0028F4C0[];
-extern void CopyVector(void *a0, void *a1);
 void PuddleGeo(char *a0);
 void EntryRippleToPuddle(char *a0, void *vec);
 int puddleRideFunc(char **a0, char *a1);

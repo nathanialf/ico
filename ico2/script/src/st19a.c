@@ -1,4 +1,15 @@
 #include "common.h"
+#include "st19a.h"
+#include "layout_texture.h"
+#include "thread.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "camera-root.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "motionManager2.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -20,29 +31,15 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int gflagChk(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
+/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern void gflagOn(int a0);
-extern void AdpcmPlay(int a0);
-extern void SetCameraFlag_LwsCutBack(void);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern int D_0063AA08;
 extern char *pipe19a;
 extern int D_0063C5A4;
-extern void actSt19aOriUp(volatile int a0);
-extern void actSt19aPipeChk(volatile int a0);
-extern void actSt19aChainDown(volatile int a0);
-extern void actSt19aChainMain(volatile int a0);
-extern void actSt19aOriMain(volatile int a0);
+
 /* st19a.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-extern void actSt19aChainSwitch(volatile int a0);
-extern void actSt19aOriSwitch(volatile int a0);
 
 static ActMail oriMain_mes[2] = {{407, actSt19aOriSwitch}, {429}};
 
@@ -64,6 +61,7 @@ static ActMail chain_mes[2] = {{430}, {429}};
 
 static ActMail chainSwitch_mes[2] = {{430}, {429}};
 
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float r);
 
 typedef struct PadState {
@@ -74,16 +72,20 @@ typedef struct PadState {
 
 extern PadState D_0028F8F0[];
 extern int D_00639EA4;
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern void lt_switch_layout(int a0);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
-extern int lt_fade_status(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
 extern char *fence_up_19a;
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, char **a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(char **a0, int a1);
 
 void actSt19aOriUp(volatile int a0)
@@ -137,9 +139,6 @@ typedef union {
 } ConstVec;
 
 static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}};
-
-extern void actSt19aHagurumaChk(volatile int a0);
-extern void stage_SetLoopFlag(int a0, int a1);
 
 void actSt19aHaguruma(volatile int a0)
 {
@@ -232,11 +231,14 @@ done:
 }
 
 extern char *hgrm_19a;
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
-extern void FeedbackWallWorkInfoToBrainSystem(int a0);
 
 void actSt19aPipeChk(volatile int a0)
 {
@@ -281,10 +283,6 @@ void actSt19aPipeChk(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(54);
 }
-
-extern int *actCreateSubThread(void *entry, int prio);
-extern void actSt19aChainDownSub(volatile int a0);
-extern void iosThreadSetPri(int *th, int pri);
 
 void actSt19aChainDown(volatile int a0)
 {

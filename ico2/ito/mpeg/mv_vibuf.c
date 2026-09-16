@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "mv_defs.h"
+#include "memory.h"
 
 /* One entry of the timestamp ring: the PTS/DTS pair the demuxer read out of a
    pack header, and the run of ring bytes it applies to. */
@@ -48,6 +49,7 @@ static void free_buf(int *a0)
 }
 
 extern int CreateSema(int *param);
+/* kept local: this TU's uses of viBufReset do not fit the prototype in mv_vibuf.h */
 extern void viBufReset(ViBuf *self);
 
 int viBufCreate(ViBuf *self)
@@ -987,8 +989,6 @@ int viBufGetTs(ViBuf *self, ViTs *out)
 
     return 1;
 }
-
-extern void iosFree();
 
 /* census Free, this TU's own copy of the mv_defs.h file static, `static` keeps its
    ELF symbol local so it cannot collide with the mv_videodec global of that name */

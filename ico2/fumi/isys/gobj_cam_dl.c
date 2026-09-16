@@ -1,4 +1,5 @@
 #include "common.h"
+#include "debug.h"
 
 typedef struct EnNode {
     char pad[0x34];
@@ -18,7 +19,6 @@ typedef struct {
 
 extern int *D_0063A614;
 extern AdpT *D_0063A618;
-extern void debug_StdPrintfDummy();
 static void add_gobj_to_tail();
 /* listing lines 130-165: sorted insert by key, inlined into
    isysGObjMoveCameraDLHead and isysGObjLinkCameraDLHead */

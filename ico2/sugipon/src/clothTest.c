@@ -1,4 +1,6 @@
 #include "common.h"
+#include "memory.h"
+#include "clothAnimation.h"
 
 /* clothTest.o's whole .data run: the twenty anchor records of the test
    cloth, then the InitClothes config array, which is a list of 0x1C-byte
@@ -48,8 +50,6 @@ static ClothTestAnchor clothTestAnchors[20] = {
 static ClothCfg clothTestCfg[2] = {{20, 20.0f, 15, 1, clothTestAnchors, 0, 3.0f}, {-1}};
 
 extern int D_0063A438;
-extern int InitClothes(char *p);
-extern int *iosMallocDebug(int handle, int size, char *file, int line);
 
 int *InitClothTestGeo(void)
 {

@@ -1,4 +1,13 @@
 #include "common.h"
+#include "way_kidnap.h"
+#include "debug.h"
+#include "gobj.h"
+#include "enemy_act.h"
+#include "fuzio.h"
+#include "way_llf.h"
+#include "way_sys.h"
+#include "way_util.h"
+#include "geometryManager.h"
 
 extern int D_0063BD64;
 extern int D_0063BD60;
@@ -25,8 +34,6 @@ typedef struct WpPosEntry {
 
 extern WpPosEntry D_007292C0[];
 extern float D_00728AC0[][4];
-extern void debug_StdPrintfDummy(char *fmt, ...);
-extern void fzShowV(float *v);
 extern void sceVu0CopyVector(float *dst, float *src);
 
 void add_wp_pos(WayPoint *wp, float *pos, float len)
@@ -67,11 +74,7 @@ typedef struct WayWork {
     char unk74[0xC];
 } WayWork;
 
-extern WayPoint *visible_waypoint_of_all(float *pos);
-extern WayPoint *WayPoint_begin(void);
-extern WayPoint *WayPoint_next(WayPoint *wp);
-extern WayPoint *GetWay_begin(float *dst, WayWork *w, float *cur);
-extern WayPoint *GetWay_next(WayWork *w, float *cur);
+/* kept local: this TU's uses of _GetLength do not fit the prototype in Matrix.h */
 extern float _GetLength(float *a, float *b);
 
 float WayLengthOfPos_Pos(float *pos0, float *pos1)
@@ -246,7 +249,9 @@ extern char D_00621DB8[];
 extern char D_00621DD8[];
 extern char D_00621DF0[];
 extern char D_00621E48[];
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
+/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
 
 static inline WpNode *SearchOpenNode(WpNode *start)
@@ -292,12 +297,6 @@ static inline WpNode *SearchOpenNode(WpNode *start)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_kidnap", WayPointWithRangeFromPos2);
 
 extern char D_00621D58[];
-extern void GetRootPosition(void *buf, void *obj);
-extern float WayLengthOfPos_Pos(float *p0, float *p1);
-extern int WayPointWithRangeFromPos(float *pos, int zero, float f);
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-extern void *isysGObjSearchFromObjKindID_next(void *gobj);
-extern int isEnemyKidnapEnable(void *gobj);
 extern void *D_00639EA8;
 
 static inline float wayLengthOfGObj_Pos(void *obj, float *pos)

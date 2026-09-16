@@ -1,4 +1,8 @@
 #include "common.h"
+#include "debug.h"
+#include "cdvd.h"
+#include "memory.h"
+#include "matrixDrive.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void StandbyStreamMotion(int self);
@@ -20,7 +24,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/streamMotionManager", _infoUpdate
 extern char D_00621150[];
 extern int D_0063BBF4;
 extern int D_0063BBFC;
-extern void debug_StdPrintfDummy();
 
 void PlayStreamMotion(void)
 {
@@ -30,9 +33,6 @@ void PlayStreamMotion(void)
     D_0063BBF4 = 1;
     return 1;
 }
-
-extern char ZeroVector[];
-extern void CopyVector(void *dst, void *src);
 
 /* The 0x10 bytes of frame at sp+0 belong to a declaration that emits no code in
  * this build: SRCFILE.TXT's rows for this function run 285, 286, 287, 288, 289
@@ -172,9 +172,8 @@ extern char D_006212A0[];
 extern char D_00621278[];
 extern int D_0063BBFC;
 extern int D_0063BC1C;
-extern void debug_Printf();
+/* kept local: the declaration in streamMotionManager.h changes this TU codegen */
 extern int _infoUpdate(void);
-extern void iosCdvdBackGroundMgrDelete();
 
 void ExecStreamMotionManager(void)
 {
@@ -232,7 +231,6 @@ extern int D_0063BC0C;
 extern int D_0063BC10;
 extern char D_006212B8[];
 extern char D_006212D8[];
-extern int iosMallocDebug(int heap, int size, char *file, int line);
 
 void MallocStreamMotionBuffer(void)
 {
@@ -263,7 +261,6 @@ inline void ClearAllStreamMotionEntry(void)
 }
 
 extern int D_0063BBFC;
-extern void iosCdvdBackGroundMgrDelete();
 
 inline void DeleteStreamMotionManager(void)
 {
@@ -275,7 +272,7 @@ inline void DeleteStreamMotionManager(void)
     ClearAllStreamMotionEntry();
 }
 
-extern int iosCdvdBackGroundMgrAdd();
+/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
 extern char D_00621310[];
 extern int D_0063BC1C;
@@ -324,6 +321,7 @@ inline int GetDataSizeOfStreamMotion(int no)
 extern char D_00621228[];
 extern char D_00621230[];
 extern int D_0063BC28;
+/* kept local: the declaration in streamMotionManager.h changes this TU codegen */
 extern void getStreamMotionData();
 
 typedef struct {
@@ -377,7 +375,6 @@ inline void SetStreamMotionFinishCallBackFunc(int a0, int a1)
 extern int D_0063BC08;
 extern int D_0063BC0C;
 extern int D_0063BC10;
-extern void iosFree();
 
 inline void FreeStreamMotionBuffer(void)
 {
@@ -390,6 +387,7 @@ inline void FreeStreamMotionBuffer(void)
     }
 }
 
+/* kept local: the declaration in streamMotionManager.h changes this TU codegen */
 extern void _deleteStreamMotionManager();
 
 inline int _closeHander(void)
@@ -399,7 +397,6 @@ inline int _closeHander(void)
 }
 
 extern int D_0063BBF8;
-extern void iosCdvdBackGroundRead();
 
 inline int _handler(int self)
 {

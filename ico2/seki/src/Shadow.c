@@ -1,4 +1,5 @@
 #include "common.h"
+#include "debug.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void shadow_KillShadow(int val);
@@ -6,16 +7,24 @@ void shadow_DispCancel(int a0, int a1);
 void shadow_SetLength(char *a0, float f);
 void shadow_Init(void);
 extern char D_0054FD50[];
-extern void debug_StdPrintfDummy();
 extern char *matrixptr;
+/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *a0, void *a1);
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *a0);
+/* kept local: this TU's uses of _ClearTransCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ClearTransCurrentMatrix(void);
+/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyCurrentMatrix(void *a0, void *a1);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *a0, void *a1);
+/* kept local: this TU's uses of _PopCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _PopCurrentMatrix(void);
+/* kept local: this TU's uses of _PushCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _PushCurrentMatrix(void *a0);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *a0, void *a1, float a2);
+/* kept local: this TU's uses of _TransposeCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _TransposeCurrentMatrix(void);
 extern int D_0063A17C;
 extern int D_0063A178;

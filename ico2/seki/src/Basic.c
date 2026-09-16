@@ -1,24 +1,26 @@
 #include "common.h"
+#include "debug.h"
+#include "Matrix.h"
 
 extern int *dmaVif;
 extern int *dmaGif;
 extern int *dmaFSp;
-extern void debug_SetDmaCallback(void);
 extern int *sceDmaGetChan(int a0);
 extern void sceDmaReset(int a0);
 extern int matrixptr;
-extern void _UnitMatrix(void *p0);
 extern void memcpy();
 extern int D_0063BC88;
 extern char D_0063BC90[];
 extern int D_0063BC8C;
 extern int D_0063A43C;
 extern int D_0063A44C;
-extern void debug_StdPrintfDummy();
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, char *expr);
+/* kept local: this TU's uses of iosMallocDebug do not fit the prototype in memory.h */
 extern int iosMallocDebug(int heap, int size, const char *file, int line);
+/* kept local: this TU's uses of iosFree do not fit the prototype in memory.h */
 extern int iosFree();
+/* kept local: this TU's uses of iosReallocDebug do not fit the prototype in memory.h */
 extern int iosReallocDebug(int size, int align, const char *file, int line);
 /* prototypes: their order is the inline tail's emission order */
 void malloc_SetPartition(int val);

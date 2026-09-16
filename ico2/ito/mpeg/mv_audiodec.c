@@ -2,9 +2,10 @@
 
 #include "common.h"
 #include "mv_defs.h"
+#include "debug.h"
+#include "mv_sub.h"
 
 extern int sceSifFreeIopHeap(int a0);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern int SgStPcmClose(unsigned int a0);
 extern void SgStPcmQuit(void);
 extern int SgStPcmStop(unsigned long long a0);
@@ -315,8 +316,6 @@ inline void audioDecResume(int *self)
 {
     audioDecStart(self);
 }
-
-extern int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
 
 int pcmCallback(int a0, int *pkt, int *ctx)
 {

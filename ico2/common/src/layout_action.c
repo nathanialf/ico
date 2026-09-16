@@ -1,4 +1,12 @@
 #include "common.h"
+#include "layout_action.h"
+#include "debug.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "gobj.h"
+#include "adpcm_init.h"
+#include "fightSound.h"
+#include "gflag.h"
 
 struct S40 {
     char b[0x40];
@@ -52,7 +60,6 @@ zero:
 }
 
 extern int D_0061D750[];
-extern void debug_StdPrintfDummy();
 
 void la_TESTFUNCTION(void)
 {
@@ -97,7 +104,6 @@ extern int D_0063B4D0;
 extern int D_0028F4EC[];
 extern int layout_boot_flag;
 extern int D_0063B4F4;
-extern void lt_set_item_select_func(int a0);
 
 int la_boot_memory_card_check(void)
 {
@@ -112,7 +118,6 @@ int la_boot_memory_card_check(void)
 }
 
 extern int D_0061D948[];
-extern void debug_StdPrintfDummy();
 
 int la_boot_no_memory_card(int a0, int a1)
 {
@@ -129,7 +134,6 @@ int la_boot_no_free_area(int a0, int a1)
 }
 
 extern int D_0028F8F4[];
-extern int lt_link_layout();
 
 int la_boot_confirm_memory_card(void)
 {
@@ -143,10 +147,8 @@ extern int D_0028F4D4[];
 extern int lock_execIcoMisc;
 extern int D_0063C3CC;
 extern int layout_boot_flag;
+/* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
-extern void iosPadEnable(void);
-extern void isysGObjActiveLink(int bit, int set);
-extern void gflagOff(int a0);
 
 int la_scei_logo(int a0)
 {
@@ -171,7 +173,6 @@ int la_title_demo(void)
 
 extern int D_0063B4E4;
 extern int D_0063B4F0;
-extern void _la_set_preview_info();
 
 int la_mc_preview_info(void)
 {
@@ -198,9 +199,6 @@ extern R8 *D_0063B4D8;
 extern int D_0063B4DC;
 extern int D_0063B4E0;
 extern int D_0063B4F4;
-extern void _la_mask_preview_info(void);
-extern int lt_current_property_item(void);
-extern void lt_set_item_select_func(int a0);
 
 int la_mc_load_current_slot_select(void)
 {
@@ -228,8 +226,6 @@ extern R8 *D_0063B4D8;
 extern int D_0063B4DC;
 extern int D_0063B4E0;
 extern int D_0063B4F4;
-extern int lt_current_property_item(void);
-extern void lt_set_item_select_func(int a0);
 
 int la_mc_save_current_slot_select(void)
 {
@@ -251,8 +247,6 @@ int la_mc_save_current_slot_select(void)
     return -1;
 }
 
-extern int lt_current_property_item(void);
-
 int la_general_mc_confirm(void)
 {
     if (D_0028F8F4[0] & 0x40) {
@@ -265,8 +259,6 @@ extern int mc[];
 extern int D_0063B4F4;
 extern int D_0063B528;
 extern R8 *D_0063B4D8;
-extern int _la_set_current_port_lock_2(void *p, int a1);
-extern void lt_set_item_select_func(int a0);
 
 int la_save_confirm_no_memory_card(int a0)
 {
@@ -302,8 +294,6 @@ extern int mc[];
 extern int D_0063B4F4;
 extern int D_0063B528;
 extern R8 *D_0063B4D8;
-extern int _la_set_current_port_lock_2(void *p, int a1);
-extern void lt_set_item_select_func(int a0);
 
 int la_save_confirm_no_free_area(int a0)
 {
@@ -339,10 +329,10 @@ extern int D_0063B5C8;
 extern int D_0063B4E0;
 extern int D_0063B4F4;
 extern int mc[];
+/* kept local: the declaration in mcard.h changes this TU codegen */
 extern void iosMcFormat(void *a0);
+/* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
 extern int iosMcSync(unsigned long *a0);
-extern int _la_mcard_error_check(void *a0);
-extern void lt_set_item_select_func(int a0);
 
 int la_format_processing(int a0)
 {
@@ -393,9 +383,6 @@ extern int D_0063B4F0;
 extern int D_0063B4E4;
 extern int D_0063B4EC;
 extern int D_0063B4F4;
-extern void _la_set_preview_info(void);
-extern void debug_StdPrintfDummy();
-extern void lt_set_item_select_func(int a0);
 
 int la_save_confirm_complete(int a0, int a1)
 {
@@ -437,8 +424,6 @@ extern int mc[];
 extern int D_0063B4F4;
 extern int D_0063B4E8;
 extern R8 *D_0063B4D8;
-extern int _la_set_current_port_2(void *p, int a1);
-extern void lt_set_item_select_func(int a0);
 
 int la_delete_start_check(int a0)
 {
@@ -480,7 +465,6 @@ int la_delete_confirm(int a0, int a1)
 }
 
 extern int D_0063B4F4;
-extern void lt_set_item_select_func(int a0);
 
 int la_delete_confirm_complete(void)
 {
@@ -529,12 +513,8 @@ extern int D_0063B4EC;
 extern int D_0063B4F4;
 extern int D_0028F8F4[];
 extern int D_0061DC68[];
-extern void iosPadDisable(void);
-extern int gflagChk(int a0);
-extern void gflagOff(int a0);
-extern void debug_StdPrintfDummy();
+/* kept local: the declaration in StageManager.h changes this TU codegen */
 extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
-extern void lt_set_item_select_func(int a0);
 
 int la_game_demo(int a0)
 {
@@ -579,11 +559,6 @@ extern int D_0028F4D4[];
 extern int D_00534CC0[];
 extern R58 D_0028F8F0[];
 extern int D_0063B4F4;
-extern void iosPadActStopAll(void);
-extern int lt_fade_status(void);
-extern int lt_current_property_item(void);
-extern void adpcmPauseRequest(int a0);
-extern void lt_set_item_select_func(int a0);
 
 int la_game_pause(int a0)
 {
@@ -607,7 +582,7 @@ int la_game_pause(int a0)
 }
 
 extern int D_0063B4EC;
-extern int fightSoundPlayChk(void);
+/* kept local: the declaration in StageManager.h changes this TU codegen */
 extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
 
 int la_switching_stage(void)
@@ -661,7 +636,6 @@ typedef struct {
 
 extern R1F0 D_0029B5F0[];
 extern int D_0063B550;
-extern void lt_analog2Pad(void);
 
 int la_mc_saved_file_select(int a0)
 {

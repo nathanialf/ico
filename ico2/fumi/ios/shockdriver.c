@@ -1,4 +1,5 @@
 #include "common.h"
+#include "shockdriver.h"
 
 typedef struct {
     int count;
@@ -359,8 +360,6 @@ void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigne
     p[0x24] = 0;
 }
 
-extern int dumyAllocFunc();
-
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
  * Init_ShockRequestBox into Init_Player, so it is a public `inline` of the deferred
  * tail; until the tail's asm member (Init_Shock) is C the copy is emitted in
@@ -462,7 +461,6 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
 
 extern int Vibration_WaveDecode(SHOCKREQUEST *p, int level);
 extern int Vibration_ShotDecode(SHOCKREQUEST *p, int level);
-extern int *ShockRequestBox_EndRequestFree(int **a0);
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
  * ShockRequestBox_DecodeRequest into Shock_Decode, so it is a public `inline` of the deferred

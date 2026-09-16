@@ -1,14 +1,25 @@
 #include "common.h"
 #include "sugiCommon.h"
-
-extern void ExecuteSEPackage(int a0, int a1);
+#include "weapon.h"
+#include "memory.h"
+#include "gobj.h"
+#include "act-game.h"
+#include "DisplayP2O.h"
+#include "StageAnimation.h"
+#include "enemy.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "lineManager.h"
+#include "motionManager2.h"
+#include "particleEffect.h"
+#include "quaternion.h"
+#include "tableSin.h"
+#include "torch.h"
 
 void torchOnOfWeaponSE(int a0)
 {
     ExecuteSEPackage(a0, 0x42);
 }
-
-extern void StopSEPackage(int a0);
 
 void torchOffOfWeaponSE(int a0)
 {
@@ -16,14 +27,10 @@ void torchOffOfWeaponSE(int a0)
     ExecuteSEPackage(a0, 0x43);
 }
 
-extern void ExecuteSEPackage(int a0, int a1);
-
 void weaponHitReactionSE(int a0, int a1, int a2, int a3)
 {
     ExecuteSEPackage(a0, 0x44);
 }
-
-extern void ExecuteSEPackage(int a0, int a1);
 
 void weaponFumbleSE(int a0)
 {
@@ -36,9 +43,8 @@ void weaponStickSE(int a0)
 }
 
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-extern void CopyQuaternion(void *dst, void *src);
-extern void GetRootPosition(void *out, void *obj);
 
 /* INTERIM NAME, chosen and not recovered: the PAL listing carries this
    file-static helper at weapon.c:262-265 and inlines it here, so it has no
@@ -84,15 +90,16 @@ typedef struct {
 extern WeaponDef D_00318EB8[];
 extern float D_004ED2D0[];
 extern float D_004ED2E0[];
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
-extern void GetMatrixFromQuaternion(void *dst, void *q);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
-extern void MultiQuaternion(void *dst, void *a, void *b);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-extern void CopyQuaternion(void *dst, void *src);
-extern void UpdateRootMatrix(char *g);
 
 /* INTERIM NAMES, chosen and not recovered: the PAL listing carries these two
    file-static helpers at weapon.c:362-373 and 375-385 and inlines them here,
@@ -156,16 +163,15 @@ int calcDynamicPathGeometry(char *g)
 /* calcDynamicGeometry is still asm: its three .lit4 words, in its own order. */
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", calcDynamicGeometry);
 
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-extern void CopyQuaternion(void *dst, void *src);
-extern void RotQuaternionY(void *q, int ang);
 extern void sceVu0SubVector(void *out, void *a, void *b);
-extern void DivQuaternion(void *out, void *a, void *b);
-extern void UpdateRootMatrix(char *g);
-extern void calcDynamicGeometry(char *g);
 
 /* INTERIM: a stand-in for SetWeaponOffsetMode, which the PAL listing inlines
    here (its rows at weapon.c:197 appear inside getGeometry) while keeping its
@@ -227,15 +233,11 @@ void WeaponCurPos(char *a0, void *a1, void *a2, void *a3)
     CopyVector(a3, p + 0x40);
 }
 
-extern void CheckEnemyHit(void *a0, void *a1, void *a2, void *a3);
-
 void WeaponHitEffect(char *a0, void *a1)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     CheckEnemyHit(a1, p + 0x20, p + 0x30, p + 0x40);
 }
-
-extern void weaponHitReactionSE();
 
 void ExecWeaponHitReaction(int a0, int a1, int a2, int a3)
 {
@@ -243,13 +245,15 @@ void ExecWeaponHitReaction(int a0, int a1, int a2, int a3)
 }
 
 extern char D_004ED300[];
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PopMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(char *v);
-extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
-extern void GetInverseQuaternion(void *dst, void *src);
-extern void MultiQuaternion(void *dst, void *a, void *b);
+/* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void SubVectorXYZ(void *dst, void *a, void *b);
 
 void checkHit(char *g)
@@ -298,7 +302,6 @@ typedef struct {
 extern void *D_0063A438;
 extern const char D_006214E0[];
 extern float D_004ED310[];
-extern void *iosMallocDebug(void *heap, int size, const char *file, int line);
 extern void *CreateLayoutedGObj(int a0, int a1, int a2, int a3, void *lay, int a5, int a6, int a7);
 extern void LinkParentOfDObj(void *gobj, void *link);
 extern void CopyVector(void *dst, void *src);
@@ -336,11 +339,12 @@ void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", InitWeaponGeo);
 
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
+/* kept local: this TU's uses of MatrixDrive_ScaleMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
-extern void p2o_DispVU1DObj(void *d);
-extern void p2o_DispVU1(char *g);
 
 void dispLaserSword(char *g, float t)
 {
@@ -363,9 +367,6 @@ void dispLaserSword(char *g, float t)
 extern char D_004ED320[];
 extern char D_004ED330[];
 extern char D_004ED340[];
-extern float GetTableCos(short a);
-extern float GetTableSin(short a);
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
 
 typedef struct {
     float f[4];
@@ -393,12 +394,19 @@ void dispInsectNet(char *g)
 }
 
 extern char *matrixptr;
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *p);
+/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a0);
 
 typedef struct {
@@ -448,30 +456,32 @@ void dispBlur(char *g)
     }
 }
 
-extern void GetInverseQuaternion(void *dst, void *src);
-extern void MultiQuaternion(void *dst, void *a, void *b);
+/* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void SubVectorXYZ(void *dst, void *a, void *b);
-extern void GetMatrixFromQuaternion(void *dst, void *q);
-extern void GetMatrixFromQuaternionPos(void *dst, void *q, void *pos);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
 extern void _OuterProduct(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
+/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(void *a, void *b);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float s);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float s);
+/* kept local: this TU's uses of _InterVector do not fit the prototype in Matrix.h */
 extern void _InterVector(void *dst, void *a, void *b, float t);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
 extern float acosf(float x);
-extern void SetQuaternionByAxisRotateVWithNoRegularize(void *q, short ang, void *axis);
 extern void sceVu0InterVector(void *dst, void *a, void *b, float t);
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
 extern void sceVu0CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-extern int SetParticleEffect(int id, void *pos, void *a2);
-extern char *GetParticleEffectData(int h);
-extern void ExecParticleEffect(int h);
+/* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
 extern float ZUnitVector[];
-extern int IdentityQuaternion[];
 
 void calcBlur(char *g, float t)
 {
@@ -560,19 +570,15 @@ void calcBlur(char *g, float t)
     }
 }
 
-extern void calcBlur(char *g, float t);
 extern void *D_00639EA4;
-extern int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
-extern void ExecuteDirectSE(char *g, int id);
-extern void stage_SetLoopFlag(int key, int a1);
-extern float stage_PlayBgAnimation(int key, float t, void *a, void *b);
-extern int IdentityQuaternion[];
 extern int D_0028F4D4[];
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
-extern void GetRootMatrix(void *m, char *g);
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
 extern void *memset(void *p, int c, int n);
 extern void sceVu0ApplyMatrix(void *out, void *m, void *in);
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
 extern float atan2f(float y, float x);
 
@@ -673,12 +679,6 @@ void WeaponGeo(char *g)
     }
 }
 
-extern void p2o_SetDefaultEnviroment(void);
-extern void p2o_DispVU1(char *g);
-extern void dispInsectNet(char *g);
-extern void dispLaserSword(char *g, float f);
-extern void dispBlur(char *g);
-
 void WeaponDL(char *g)
 {
     char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
@@ -703,8 +703,6 @@ void WeaponDL(char *g)
     }
 }
 
-extern int GetSkeltonFocusNode(char *obj, int kind);
-
 void PickupWeapon(char *a0, char *a1, int a2)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -715,9 +713,6 @@ void PickupWeapon(char *a0, char *a1, int a2)
 }
 
 extern int stage_no;
-extern void GetRootPosition(void *out, void *obj);
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 
 char *CheckSwapableWeapon(char *a0, float dist)
 {
@@ -775,8 +770,6 @@ int CheckWeaponKind(char *a0)
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830));
 }
 
-extern void LightTorchOn(int torch);
-
 void LightTorchOnOfWeapon(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -803,8 +796,6 @@ void LightTorchOnOfWeaponWithNoSE(char *a0)
     }
 }
 
-extern void LightTorchOff(char *torch);
-
 void LightTorchOffOfWeapon(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -823,8 +814,6 @@ int GetTorchGObjOfWeapon(char *a0)
     }
     return 0;
 }
-
-extern void CopyQuaternion(void *dst, void *src);
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
  * ReleaseWeapon's lines 262-265 here, so ReleaseWeapon is a public `inline` of
@@ -863,10 +852,6 @@ float GetWeaponWeight(char *a0)
     return (float)D_00318EB8[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830))].w[1];
 }
 
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-extern void *isysGObjSearchFromObjKindID_next(void *gobj);
-extern void SetTorchChainReactionFlag(char *gobj, int flag);
-
 void SetWeaponTorchChainReactionFlagAll(int a0)
 {
     char *g;
@@ -890,7 +875,6 @@ typedef struct {
 extern void *D_0063A438;
 extern const char D_006214E0[];
 extern DemoQueenSwordWork D_004ED1F0;
-extern void *iosMallocDebug(void *heap, int size, const char *file, int line);
 extern void initializeQueenzSword(char *gobj, int index, QSwordLayout *a2);
 
 void *InitDemoQueensSword(char *a0, void *a1)

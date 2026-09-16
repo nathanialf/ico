@@ -1,4 +1,27 @@
 #include "common.h"
+#include "st04l.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "obj_manager.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "act-game.h"
+#include "act.h"
+#include "boyact.h"
+#include "commonact.h"
+#include "girl_act.h"
+#include "way_llf.h"
+#include "camera-root.h"
+#include "fightSound.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "st04r.h"
+#include "StageAnimation.h"
+#include "attackCheckBoundary.h"
+#include "motionManager2.h"
+#include "weapon.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -20,16 +43,12 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void gflagOn(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void SetWayGroupActive(int a0, int a1);
+/* kept local: this TU's uses of scpIsTorchLightOn do not fit the prototype in script.h */
 extern int scpIsTorchLightOn(int a0);
+/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
 extern void scpTorchLightOn(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int D_0063AA08;
 
 typedef struct Pad {
@@ -43,21 +62,21 @@ extern int crest2;
 extern int crest1;
 extern int ball2_4l;
 extern int ball3_4l;
-extern void fightSoundProcessRequestPause(void);
-extern int fightSoundPlayChk(void);
-extern void SetCameraFlag_LwsCutBack(void);
+/* kept local: this TU's uses of scpGameStat_BoyWeaponkind do not fit the prototype in script.h */
 extern int scpGameStat_BoyWeaponkind(void);
-extern int ForMotionViewer_GetCurrentMotion(void *a0);
-extern void gflagOff(int a0);
-extern int actCreateSubThread(void *entry, int prio);
-extern void iosThreadSetPri(int a0, int a1);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern int scpAdpcmFadeCloseFunc(void *a0, int a1);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern int lt_fade_status(void);
+/* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, void *a1, int a2, float a3, float a4);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
 
 typedef struct AdpcmReq {
@@ -73,51 +92,36 @@ extern unsigned int oriup4c;
 extern int D_0063C530;
 extern unsigned int ball1_4l;
 extern int D_0028F4C0[];
-extern int iosPadActRequest(int port, int id);
-extern int *iosPadActVolumeSet(int key, unsigned int val);
-extern void iosPadActStop(int key);
-extern void AdpcmPlay(int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
 extern float D_0063AA0C;
 extern int D_00639ED4;
 extern int sekizo_4r;
-extern void actSt04rBrgCommon(volatile int a0);
-extern void lt_switch_layout(int a0);
-extern void WakeupHint(int a0);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(void *a0, int mot);
-extern void SetGirlDangerGObj(void *a0);
-extern void ClearGirlDangerGObj(void);
-extern int ACTGame_NoWeapon(void *a0);
-extern void *GetBoyWeaponGObj(void);
-extern void LightTorchOffOfWeapon(void *o);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-extern int GetAttackCheckBoundaryManagerStatus(PObjGObj *a0);
 extern void *D_00639EA4;
 extern void *D_00639EA8;
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(void *obj, int attr);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(void *a0);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(void *a0);
+/* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
 extern void scpPlayMotReq(void *a0, int mot);
-extern void iosOmSendMail(void *gobj, int mail, void *src);
-extern int soundSeDefPlay(int se, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
-extern int ACTGame_FLAG_TETSUNAGI(void);
-extern void ACTGame_ConnectHand(void);
-extern void FinishHint(int a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 extern int D_0063C52C;
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
-extern void SleepHint(int a0);
-extern int stage_CheckAnimationFinish(int a0);
 extern int D_0063C51C;
 extern int D_0063C520;
 extern int D_0063C524;
 extern int D_0063C528;
-extern void actSt04lBallTurnCommon(volatile int a0);
 extern AdpcmReq *crest3;
 extern AdpcmReq *stair4d;
 
@@ -134,15 +138,22 @@ static const ConstVec stairSubPos = {{0.0f, 0.0f, -5000.0f, 1.0f}};
 extern int D_0063C534;
 extern unsigned int st04l_yure;
 extern unsigned char st04l_yure_vol;
+/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
 extern void scpKillEnemyAll(void);
+/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
 extern void scpMaskGeneratorAll(void);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(void *a0, float x, float y, float z);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(void *a0, float *dir);
 extern void sceVu0SubVector(float *d, const void *a, const void *b);
-extern void *test_CURRENTROOT(void *a0);
+/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
+/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(void *a0);
+/* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
 extern void scpSleepEnemyOne(int a0);
+/* kept local: this TU's uses of scpWakeupEnemyOne do not fit the prototype in script.h */
 extern void scpWakeupEnemyOne(int a0);
 
 void actSt04cInit(void)
@@ -336,8 +347,6 @@ void actSt04lBallTurnCommonSub(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt04lBallTurnCommonSub(volatile int a0);
-
 void actSt04lBallTurnCommon(volatile int a0)
 {
     int h;
@@ -389,10 +398,6 @@ void actSt04lBallTurnCommon(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
 }
-
-extern void actSt04lC1BallSwitch(volatile int a0);
-extern void actSt04lC2BallSwitch(volatile int a0);
-extern void actSt04lC3BallSwitch(volatile int a0);
 
 static ActMail c1BallMain_mes[2] = {{406, actSt04lC1BallSwitch}, {429}};
 
@@ -519,8 +524,6 @@ void turnBall(int a0, int a1, int a2, int a3, int a4)
     _ACTWait(0);
 }
 
-extern void actSt04lCrest2Main(volatile int a0);
-
 void actSt04lCrest02(volatile int a0)
 {
     int x = a0;
@@ -577,8 +580,6 @@ void actSt04lCrestSub(volatile int a0)
     D_0063C52C = 1;
     _ACTWait(0);
 }
-
-extern void actSt04lCrestSub(volatile int a0);
 
 void actSt04lCrestMain(volatile int a0)
 {
@@ -676,8 +677,6 @@ void actSt04lCrest2Sub(volatile int a0)
     D_0063C52C = 1;
     _ACTWait(0);
 }
-
-extern void actSt04lCrest2Sub(volatile int a0);
 
 void actSt04lCrest2Main(volatile int a0)
 {
@@ -780,8 +779,6 @@ void actSt04lCrest3Sub(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt04lCrest3Sub(volatile int a0);
-
 void actSt04lCrest3Main(volatile int a0)
 {
     int h;
@@ -835,8 +832,6 @@ void actSt04lCrest3Main(volatile int a0)
     D_0063AA08 = 0;
     scpWakeupEnemyAll();
 }
-
-extern void actSt04eSolarBeamChkSub(volatile int a0);
 
 void actSt04eSolarBeamChk(volatile int a0)
 {
@@ -948,8 +943,6 @@ void actSt04lStairSub(volatile int a0)
     D_0063C52C = 1;
     _ACTWait(0);
 }
-
-extern void actSt04lStairSub(volatile int a0);
 
 void actSt04lStairChk(volatile int a0)
 {
@@ -1264,8 +1257,6 @@ void actSt04lSekizoChk(volatile int a0)
     lt_switch_layout(0x36);
     D_0063AA08 = 0;
 }
-
-extern void actSt04lGondolaCharaChk(volatile int a0);
 
 void actSt04lGondolaChk(volatile int a0)
 {
@@ -1699,8 +1690,6 @@ void actSt04lOriSub(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt04lOriSub(volatile int a0);
-
 void actSt04lOriChk(volatile int a0)
 {
     int h;
@@ -1841,8 +1830,6 @@ void actSt04lOriRopeCutLChk(volatile int a0)
     _ACTWait(1);
 }
 
-extern void actSt04lOri2Chk(volatile int a0);
-
 void actSt04lOri2(volatile int a0)
 {
     int x = a0;
@@ -1899,8 +1886,6 @@ void actSt04lOri2Sub(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt04lOri2Sub(volatile int a0);
-
 void actSt04lOri2Chk(volatile int a0)
 {
     int h;
@@ -1954,8 +1939,6 @@ void actSt04lOri2Chk(volatile int a0)
     lt_switch_layout(0x36);
 }
 
-extern void actSt04lCrestMain(volatile int a0);
-
 void actSt04lCrest01(volatile int a0)
 {
     int x = a0;
@@ -1976,8 +1959,6 @@ void actSt04lCrest01(volatile int a0)
     }
 }
 
-extern void actSt04lCrest3Main(volatile int a0);
-
 void actSt04lCrest03(volatile int a0)
 {
     int x = a0;
@@ -1995,8 +1976,6 @@ void actSt04lCrest03(volatile int a0)
         stage_SetAnimation(0xCB, 0, -1);
     }
 }
-
-extern void actSt04lC1BallMain(volatile int a0);
 
 void actSt04lC1Ball(volatile int a0)
 {
@@ -2019,8 +1998,6 @@ void actSt04lC1Ball(volatile int a0)
     }
 }
 
-extern void actSt04lC2BallMain(volatile int a0);
-
 void actSt04lC2Ball(volatile int a0)
 {
     int x = a0;
@@ -2041,8 +2018,6 @@ void actSt04lC2Ball(volatile int a0)
         stage_SetAnimation(0xD0, 0, -1);
     }
 }
-
-extern void actSt04lC3BallMain(volatile int a0);
 
 void actSt04lC3Ball(volatile int a0)
 {
@@ -2065,8 +2040,6 @@ void actSt04lC3Ball(volatile int a0)
     }
 }
 
-extern void actSt04lStairChk(volatile int a0);
-
 void actSt04lStair(volatile int a0)
 {
     int x = a0;
@@ -2087,8 +2060,6 @@ void actSt04lStair(volatile int a0)
     }
 }
 
-extern void actSt04lBrg1Chk(volatile int a0);
-
 void actSt04lBrg1(volatile int a0)
 {
     int x = a0;
@@ -2102,8 +2073,6 @@ void actSt04lBrg1(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt04lBrg2Chk(volatile int a0);
 
 void actSt04lBrg2(volatile int a0)
 {
@@ -2121,8 +2090,6 @@ void actSt04lBrg2(volatile int a0)
     }
 }
 
-extern void actSt04lBrg1WayChk(volatile int a0);
-
 void actSt04lBrg1Way(volatile int a0)
 {
     int x = a0;
@@ -2137,8 +2104,6 @@ void actSt04lBrg1Way(volatile int a0)
     }
 }
 
-extern void actSt04lBrg2WayChk(volatile int a0);
-
 void actSt04lBrg2Way(volatile int a0)
 {
     int x = a0;
@@ -2152,8 +2117,6 @@ void actSt04lBrg2Way(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt04lRope1Chk(volatile int a0);
 
 void actSt04lRope1(volatile int a0)
 {
@@ -2175,8 +2138,6 @@ void actSt04lRope1(volatile int a0)
     }
 }
 
-extern void actSt04lRope2Chk(volatile int a0);
-
 void actSt04lRope2(volatile int a0)
 {
     int x = a0;
@@ -2196,8 +2157,6 @@ void actSt04lRope2(volatile int a0)
         scpSearchGobj(0x4A0)->f16C = 0;
     }
 }
-
-extern void actSt04lRope3Chk(volatile int a0);
 
 void actSt04lRope3(volatile int a0)
 {
@@ -2219,8 +2178,6 @@ void actSt04lRope3(volatile int a0)
     }
 }
 
-extern void actSt04lRope4Chk(volatile int a0);
-
 void actSt04lRope4(volatile int a0)
 {
     int x = a0;
@@ -2241,8 +2198,6 @@ void actSt04lRope4(volatile int a0)
     }
 }
 
-extern void actSt04lSekizoChk(volatile int a0);
-
 void actSt04lSekizo(volatile int a0)
 {
     int x = a0;
@@ -2260,8 +2215,6 @@ void actSt04lSekizo(volatile int a0)
         stage_SetAnimation(0xE2, 0, -1);
     }
 }
-
-extern void actSt04lTuriChk(volatile int a0);
 
 void actSt04lTuri(volatile int a0)
 {
@@ -2283,8 +2236,6 @@ void actSt04lTuri(volatile int a0)
     }
 }
 
-extern void actSt04lOriChk(volatile int a0);
-
 void actSt04lOri(volatile int a0)
 {
     int x = a0;
@@ -2303,8 +2254,6 @@ void actSt04lOri(volatile int a0)
     }
 }
 
-extern void actSt04lOriRopeCutRChk(volatile int a0);
-
 void actSt04lOriRopeCutR(volatile int a0)
 {
     int x = a0;
@@ -2318,8 +2267,6 @@ void actSt04lOriRopeCutR(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt04lOriRopeCutLChk(volatile int a0);
 
 void actSt04lOriRopeCutL(volatile int a0)
 {
@@ -2335,8 +2282,6 @@ void actSt04lOriRopeCutL(volatile int a0)
     }
 }
 
-extern void actSt04lSwordChk(volatile int a0);
-
 void actSt04lSword(volatile int a0)
 {
     int x = a0;
@@ -2350,8 +2295,6 @@ void actSt04lSword(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt04lGondolaChk(volatile int a0);
 
 void actSt04lGondola(volatile int a0)
 {
@@ -2376,8 +2319,6 @@ void actSt04lGondola(volatile int a0)
     }
 }
 
-extern void actSt04lMonyou01Chk(volatile int a0);
-
 void actSt04lMonyou01(volatile int a0)
 {
     int x = a0;
@@ -2397,8 +2338,6 @@ void actSt04lMonyou01(volatile int a0)
     }
 }
 
-extern void actSt04lMonyou02Chk(volatile int a0);
-
 void actSt04lMonyou02(volatile int a0)
 {
     int x = a0;
@@ -2416,8 +2355,6 @@ void actSt04lMonyou02(volatile int a0)
         stage_SetAnimation(0xEB, 0, -1);
     }
 }
-
-extern void actSt04lMonyou03Chk(volatile int a0);
 
 void actSt04lMonyou03(volatile int a0)
 {
@@ -2437,8 +2374,6 @@ void actSt04lMonyou03(volatile int a0)
     }
 }
 
-extern void actSt04lMonyou04Chk(volatile int a0);
-
 void actSt04lMonyou04(volatile int a0)
 {
     int x = a0;
@@ -2456,8 +2391,6 @@ void actSt04lMonyou04(volatile int a0)
         stage_SetAnimation(0xED, 0, -1);
     }
 }
-
-extern void actSt04lMonyou05Chk(volatile int a0);
 
 void actSt04lMonyou05(volatile int a0)
 {
@@ -2477,8 +2410,6 @@ void actSt04lMonyou05(volatile int a0)
     }
 }
 
-extern void actSt04lMonyou06Chk(volatile int a0);
-
 void actSt04lMonyou06(volatile int a0)
 {
     int x = a0;
@@ -2496,8 +2427,6 @@ void actSt04lMonyou06(volatile int a0)
         stage_SetAnimation(0xEF, 0, -1);
     }
 }
-
-extern void actSt04lMonyou07Chk(volatile int a0);
 
 void actSt04lMonyou07(volatile int a0)
 {
@@ -2593,8 +2522,6 @@ void actSt04lC3BallXL(volatile int a0)
     }
 }
 
-extern void actSt04lTorch1_1Chk(volatile int a0);
-
 void actSt04lTorch1_1(volatile int a0)
 {
     int x = a0;
@@ -2611,8 +2538,6 @@ void actSt04lTorch1_1(volatile int a0)
         stage_SetAnimation(0xD2, 0, -1);
     }
 }
-
-extern void actSt04lTorch1_2Chk(volatile int a0);
 
 void actSt04lTorch1_2(volatile int a0)
 {
@@ -2631,8 +2556,6 @@ void actSt04lTorch1_2(volatile int a0)
     }
 }
 
-extern void actSt04lTorch2_1Chk(volatile int a0);
-
 void actSt04lTorch2_1(volatile int a0)
 {
     int x = a0;
@@ -2649,8 +2572,6 @@ void actSt04lTorch2_1(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt04lTorch2_2Chk(volatile int a0);
 
 void actSt04lTorch2_2(volatile int a0)
 {
@@ -2669,8 +2590,6 @@ void actSt04lTorch2_2(volatile int a0)
     }
 }
 
-extern void actSt04lTorch3_1Chk(volatile int a0);
-
 void actSt04lTorch3_1(volatile int a0)
 {
     int x = a0;
@@ -2687,8 +2606,6 @@ void actSt04lTorch3_1(volatile int a0)
         stage_SetAnimation(0xD6, 0, -1);
     }
 }
-
-extern void actSt04lTorch3_2Chk(volatile int a0);
 
 void actSt04lTorch3_2(volatile int a0)
 {
@@ -2707,8 +2624,6 @@ void actSt04lTorch3_2(volatile int a0)
     }
 }
 
-extern void actSt04lTorch2_1XLChk(volatile int a0);
-
 void actSt04lTorch2_1XL(volatile int a0)
 {
     int x = a0;
@@ -2725,8 +2640,6 @@ void actSt04lTorch2_1XL(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt04lTorch2_2XLChk(volatile int a0);
 
 void actSt04lTorch2_2XL(volatile int a0)
 {
@@ -2836,8 +2749,6 @@ void actSt04dEnemy3(volatile int a0)
     Generator_Call(a0);
 }
 
-extern void actSt04eSolarBeamChk(volatile int a0);
-
 void actSt04eSolarBeam(volatile int a0)
 {
     int x = a0;
@@ -2874,8 +2785,6 @@ void actSt04lC1BallMain(volatile int a0)
         _ACTWait(1);
     }
 }
-
-extern void actSt04lC1BallTurn(volatile int a0);
 
 void actSt04lC1BallSwitch(volatile int a0)
 {
@@ -2918,8 +2827,6 @@ void actSt04lC2BallMain(volatile int a0)
     }
 }
 
-extern void actSt04lC2BallTurn(volatile int a0);
-
 void actSt04lC2BallSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -2960,8 +2867,6 @@ void actSt04lC3BallMain(volatile int a0)
         _ACTWait(1);
     }
 }
-
-extern void actSt04lC3BallTurn(volatile int a0);
 
 void actSt04lC3BallSwitch(volatile int a0)
 {
@@ -3126,8 +3031,6 @@ void actSt04lTuriChk(volatile int a0)
     _ACTWait(1);
     lt_switch_layout(0x36);
 }
-
-extern void actSt04lGondolaChk(volatile int a0);
 
 /* This actor's mail record.  Role-named for the actor that owns and posts it,
    the convention every carved stage record in this tree follows. */

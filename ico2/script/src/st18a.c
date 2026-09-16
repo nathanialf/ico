@@ -1,4 +1,16 @@
 #include "common.h"
+#include "st18a.h"
+#include "layout_texture.h"
+#include "thread.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "camera-root.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "script.h"
+#include "StageAnimation.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -43,7 +55,6 @@ static ActMail ene_mes[2] = {{430}, {429}};
 static ActMail ene2_mes[2] = {{430}, {429}};
 
 extern char *D_00639EA8;
-extern void gflagOn(int a0);
 
 void actSt18aEnd(void)
 {
@@ -61,17 +72,6 @@ typedef struct PadState {
     char unk08[0x50]; /* 0x08 */
 } PadState;
 
-extern void _ACTWait(int a0);
-extern int scpTriggerBall(int a0, int a1, float radius);
-extern void lt_switch_layout(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern int scpAdpcmPlayRequestNum(void);
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-extern int scpFadeChk(void);
-extern int lt_fade_status(void);
-extern void SetCameraFlag_LwsCutBack(void);
-extern void scpFadeIn(float f);
 extern PadState D_0028F8F0[];
 extern int D_00639EA4;
 extern int D_0063AA08;
@@ -120,15 +120,6 @@ typedef struct PObjGObj {
     int act;           /* 0x164 */
 } PObjGObj;
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int scpSearchGobj(int a0);
-extern int scpTriggerFloorAttr(int a0, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
-extern int soundSeDefPlay(int se, int a1, int a2, int a3);
-extern void FinishHint(int a0);
-extern void actSt18aSwitchLUpChk(volatile int a0);
 extern int D_0028F4C0[];
 extern int D_00639EA4;
 
@@ -173,15 +164,6 @@ void actSt18aSwitchLChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
-extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-extern int soundSeDefPlay(int se, int a1, int a2, int a3);
-extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
-extern void actSt18aSwitchLChk(volatile int a0);
-
 /* TU-owned .data record (VMA 0x004FB0F0..0x004FB10F, ROM 0x3FB0F0). */
 
 void actSt18aSwitchLUpChk(volatile int a0)
@@ -216,15 +198,6 @@ void actSt18aSwitchLUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int scpSearchGobj(int a0);
-extern int scpTriggerFloorAttr(int a0, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
-extern int soundSeDefPlay(int se, int a1, int a2, int a3);
-extern void FinishHint(int a0);
-extern void actSt18aSwitchRUpChk(volatile int a0);
 extern int D_0028F4C0[];
 extern int D_00639EA4;
 
@@ -269,15 +242,6 @@ void actSt18aSwitchRChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
-extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-extern int soundSeDefPlay(int se, int a1, int a2, int a3);
-extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
-extern void actSt18aSwitchRChk(volatile int a0);
-
 void actSt18aSwitchRUpChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -310,22 +274,6 @@ void actSt18aSwitchRUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void lt_switch_layout(int a0);
-extern void scpSleepEnemyAll(void);
-extern void scpWakeupEnemyAll(void);
-extern int actCreateSubThread(void *entry, int prio);
-extern void iosThreadSetPri(int th, int pri);
-extern int scpAdpcmPlayRequestNum(void);
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-extern int scpFadeChk(void);
-extern int lt_fade_status(void);
-extern void scpFadeIn(float f);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int soundSeDefPlay(int se, int a1, int a2, int a3);
-extern void actSt18aDoorChkSub(volatile int a0);
-extern void actSt18aDoorDownChk(volatile int a0);
 extern PadState D_0028F8F0[];
 extern int D_0063AA08;
 extern int D_0063C59C;
@@ -385,13 +333,6 @@ void actSt18aDoorChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern int soundSeDefPlay(int se, int a1, int a2, int a3);
-extern void actSt18aDoorChk(volatile int a0);
-
 /* TU-owned .data record (VMA 0x004FB1F0..0x004FB20F, ROM 0x3FB1F0): the mail
    table actSt18aDoorDownChk hands back to the door actor. Role-named file
    static per the 2026-09-07 ruling, same shape as st17a's doorDownChk_mes. */
@@ -423,13 +364,6 @@ void actSt18aDoorDownChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void _ACTWait(int a0);
-extern Act *actInitialize(int a0);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
-extern int scpSearchGobj(int a0);
-
 void actSt18aEnemy1_1(volatile int a0)
 {
     int x = a0;
@@ -460,13 +394,6 @@ void actSt18aEnemy1_1(volatile int a0)
     Generator_Call(scpSearchGobj(0x2FE));
 }
 
-extern void _ACTWait(int a0);
-extern Act *actInitialize(int a0);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
-extern int scpSearchGobj(int a0);
-
 void actSt18aEnemy2_1(volatile int a0)
 {
     int x = a0;
@@ -493,11 +420,6 @@ void actSt18aEnemy2_1(volatile int a0)
     Generator_Call(scpSearchGobj(0x2FE));
 }
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern Act *actInitialize(int a0);
-extern void actSt18aIntroChk(volatile int a0);
-
 void actSt18aIntro(volatile int a0)
 {
     int x = a0;
@@ -512,13 +434,6 @@ void actSt18aIntro(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern Act *actInitialize(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void actSt18aDoorChk(volatile int a0);
-extern void actSt18aDoorDownChk(volatile int a0);
 
 void actSt18aDoor(volatile int a0)
 {
@@ -544,13 +459,6 @@ void actSt18aDoor(volatile int a0)
     }
 }
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern Act *actInitialize(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void actSt18aSwitchLChk(volatile int a0);
-extern void actSt18aSwitchLUpChk(volatile int a0);
-
 void actSt18aSwitchL(volatile int a0)
 {
     int x = a0;
@@ -574,13 +482,6 @@ void actSt18aSwitchL(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern Act *actInitialize(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void actSt18aSwitchRChk(volatile int a0);
-extern void actSt18aSwitchRUpChk(volatile int a0);
 
 void actSt18aSwitchR(volatile int a0)
 {
@@ -606,11 +507,6 @@ void actSt18aSwitchR(volatile int a0)
     }
 }
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern Act *actInitialize(int a0);
-extern void actSt18aEneChk(volatile int a0);
-
 void actSt18aEne(volatile int a0)
 {
     int x = a0;
@@ -625,12 +521,6 @@ void actSt18aEne(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void _ACTWait(int a0);
-extern Act *actInitialize(int a0);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
 
 void actSt18aEnemy1_2(volatile int a0)
 {
@@ -657,11 +547,6 @@ void actSt18aEnemy1_2(volatile int a0)
     Generator_Call(a0);
 }
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern Act *actInitialize(int a0);
-extern void actSt18aEne2Chk(volatile int a0);
-
 void actSt18aEne2(volatile int a0)
 {
     int x = a0;
@@ -676,12 +561,6 @@ void actSt18aEne2(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void _ACTWait(int a0);
-extern Act *actInitialize(int a0);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
 
 void actSt18aEnemy2_2(volatile int a0)
 {
@@ -713,12 +592,6 @@ void actSt18aCamera(int x)
     volatile int local = x;
 }
 
-extern void _ACTWait(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern int scpTriggerFloorAttr(int a0, int a1);
-extern void SetCameraFlag_LwsCutBack(void);
-extern int soundSeDefPlay(int se, int a1, int a2, int a3);
 extern int D_00639EA4;
 extern int D_0063C59C;
 extern int D_0063C5A0;
@@ -745,9 +618,6 @@ void actSt18aDoorChkSub(volatile int a0)
     _ACTWait(0);
 }
 
-extern void _ACTWait(int a0);
-extern int scpTriggerFloorAttr(int a0, int a1);
-
 void actSt18aEneChk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -761,11 +631,6 @@ void actSt18aEneChk(volatile int a0)
     gflagOn(0x3D);
     gflagOn(0x3E);
 }
-
-extern void _ACTWait(int a0);
-extern int scpTriggerFloorAttr(int a0, int a1);
-extern int scpSearchGobj(int a0);
-extern void FinishHint(int a0);
 
 void actSt18aEne2Chk(volatile int a0)
 {

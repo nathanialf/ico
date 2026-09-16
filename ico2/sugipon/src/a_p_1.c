@@ -1,4 +1,17 @@
 #include "common.h"
+#include "a_p_1.h"
+#include "DObj.h"
+#include "debug.h"
+#include "debug_exception.h"
+#include "sceneManager.h"
+#include "memory.h"
+#include "obj_manager.h"
+#include "fieldCollision.h"
+#include "DisplayP2O.h"
+#include "enemyParts.h"
+#include "geometryManager.h"
+#include "pool.h"
+#include "tableSin.h"
 
 typedef struct {
     float m[16];
@@ -8,7 +21,7 @@ typedef struct {
     float m[4];
 } Vec4;
 
-extern void GetRootMatrix(void *dst, void *gobj);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(int a, int b, int c);
 extern char D_004E5670[];
 
@@ -28,18 +41,14 @@ static inline void applyPartOrients(char *g)
     }
 }
 
-extern char *iosMallocDebug(void *heap, int size, char *file, int line);
-extern void iosFree(int p);
 extern int rand(void);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
-extern void GetRootQuaternion(int p, int *self);
-extern void GetRootPosition(void *dst, void *self);
-extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
+/* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(void *self, int id);
-extern void debug_assertMessage(char *file, int line, char *msg);
 extern void __assert(char *file, int line, char *expr);
-extern int InitEnemyEye(int a, int b, int c);
 extern void *D_0063A438;
 extern void *D_0063A44C;
 extern char D_0061EE30[];
@@ -216,15 +225,19 @@ char *InitAP1(char *self, char *arg)
 }
 
 extern char D_004E55D0[];
+/* kept local: this TU's uses of GetMatrixFromQuaternion do not fit the prototype in quaternion.h */
 extern void GetMatrixFromQuaternion(int dst, int src);
-extern void GetRootQuaternion(int p, int *self);
-extern int *GetTableArcCos(float f);
+/* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
 extern void MultiQuaternion(int dst, int a, int b);
+/* kept local: this TU's uses of SetQuaternionByAxisRotateV do not fit the prototype in quaternion.h */
 extern void SetQuaternionByAxisRotateV(int dst, int p, int src);
-extern void SetRootQuaternion(int self, int src);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(int a, int b, int c);
+/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(int dst, int v);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(int dst, int src);
+/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
 extern void _OuterProduct(int dst, int v, int src);
 
 void yAxisRotFitting(int *self, int arg2)
@@ -251,6 +264,7 @@ void yAxisRotFitting(int *self, int arg2)
     }
 }
 
+/* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
 extern char ZUnitVector[];
 
 void zAxisRotFitting(int *self, int arg2)
@@ -279,13 +293,13 @@ void zAxisRotFitting(int *self, int arg2)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/a_p_1", fitToCol);
 
-extern int fitToCol(char *a0, int a1);
-extern void GetRootPosition(void *dst, void *self);
-extern void SetRootPosition(void *self, void *src);
-extern void GetRootMatrix(void *dst, void *self);
+/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float s);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
 extern float VectorLength(void *v);
 
 typedef union {
@@ -330,21 +344,16 @@ int walkMot(char *a0)
     return 1;
 }
 
-extern void UnlinkParentOfDObj(void *gobj);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
-extern void ClipCollision(void *col);
-extern void ClipFloor(void *col);
-extern void LinkParentOfDObj(void *gobj, void *info);
-extern void UpdateRootMatrix(char *g);
-extern int GetWallAttribute(void *col);
+/* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
 extern int CheckWallAttribute(void *gobj, int mask);
-extern int GetFloorAttribute(void *col);
+/* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
 extern int CheckFloorAttribute(void *gobj, int mask);
-extern float GetPoolGlobalHeight(int pool);
+/* kept local: this TU's uses of CheckFieldContact do not fit the prototype in motionManager2.h */
 extern int CheckFieldContact(void *col, void *gobj, void *pos, float r);
-extern void iosOmSendMail(void *gobj, int mail, void *arg);
-extern void yAxisRotFitting(int *self, int arg2);
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 extern char D_004E57A0[];
 extern char D_004E57C0[];
@@ -432,13 +441,19 @@ int rolling(char *a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/a_p_1", calcSubMission);
 
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
-extern void GetRootPosition(void *dst, void *self);
+/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(void *q, short ang);
+/* kept local: this TU's uses of RotQuaternionZ do not fit the prototype in quaternion.h */
 extern void RotQuaternionZ(void *q, short ang);
+/* kept local: this TU's uses of GetMatrixFromQuaternionPos do not fit the prototype in quaternion.h */
 extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
+/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+/* kept local: this TU's uses of GetSlerpQuaternion do not fit the prototype in quaternion.h */
 extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
+/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
 extern void _MulMatrix(void *dst, void *a, void *b);
 extern float D_004E58E0[];
 extern float D_004E58F0[];
@@ -482,16 +497,17 @@ void resetPositionInfo(char *a0)
     ResetEnemyEye(*(int *)(p + 0x19C));
 }
 
-extern void calcSubMission(char *a0);
-extern void updateMatrix(char *a0);
 extern int (*motFuncList[][2])(char *);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
+/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
 extern void _MulMatrix(void *dst, void *a, void *b);
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of MatrixDrive_RotMatrixZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixZ(int ang);
+/* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixX(int ang);
-extern int UpdateEnemyEye(int eye, void *m, float s);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern char D_004E5970[];
 extern char D_004E59F0[];
 extern char D_0061EE70[];
@@ -557,11 +573,6 @@ void AP1Geo(char *a0)
     }
 }
 
-extern void p2o_SetDefaultEnviroment(void);
-extern void p2o_DispVU1(void *gobj);
-extern void p2o_DispVU1DObjMulti(int obj);
-extern void DispEnemyEye(int eye);
-
 void AP1DL(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -589,9 +600,10 @@ void SetAP1VisualState(char *a0, int a1)
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x278) = a1;
 }
 
+/* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
 extern void RotQuaternionY(int q, int ang);
+/* kept local: this TU's uses of RegularizeQuaternion do not fit the prototype in quaternion.h */
 extern void RegularizeQuaternion(int q);
-extern void updateMatrix(char *a0);
 
 int AP1Turn(char *a0, short a1)
 {
@@ -658,8 +670,6 @@ check:
     return 0;
 }
 
-extern char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
-
 char *MakeAP1GObj(char *a0)
 {
     return CreateLayoutedGObj(0x3E, D_0062B588[*(int *)(a0 + 0x30)].unkC, -1, 0, a0, 0, 7, 1);
@@ -672,8 +682,6 @@ int GetAP1Mode(char *a0)
     return D_004E5520[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)];
 }
 
-extern int fitToCol(char *a0, int a1);
-
 int standMot(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -685,8 +693,6 @@ int standMot(char *a0)
     *(int *)(p + 0x1C8) = 0;
     return 0;
 }
-
-extern int rolling(char *a0);
 
 int rollingMot(char *a0)
 {
@@ -701,7 +707,7 @@ int rollingMot(char *a0)
 }
 
 extern int D_00639EA4;
-extern void GetRootPosition(void *dst, void *self);
+/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 
 typedef struct {

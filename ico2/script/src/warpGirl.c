@@ -1,4 +1,10 @@
 #include "common.h"
+#include "debug.h"
+#include "gamesys.h"
+#include "boyact.h"
+#include "gflag.h"
+#include "script.h"
+#include "geometryManager.h"
 
 /* header prototypes (order fixes the inline tail) */
 /* prototypes: their order is the inline tail's emission order */
@@ -50,11 +56,7 @@ extern int D_0063C258;
 extern int D_00639EA8;
 extern char D_0063AA58[];
 extern char D_0063AA60[];
-extern int gflagChk(int flag);
 extern void *memset(void *p, int c, int n);
-extern void GetRootPosition(float *out, int gobj);
-extern int scpTriggerPosBox(float *pos, float *box0, float *box1);
-extern void debug_StdPrintfDummy();
 
 /* warpGirl.c:75-81 in the listing: the "this record wins" setter.  No MAIN.MAP
    symbol (the listing inlines it), so the name is ours. */
@@ -143,10 +145,7 @@ void warpGirlOutStage(int stage, int noSet)
 }
 
 extern int warpGirlInStageSet;
-extern int IsGirlEscortedInNextStage(void);
 extern void sceVu0ScaleVector(float *dst, float *src, float s);
-extern void debug_StdPrintfDummy();
-extern void gamesysObjInfoPosNewStageSet(int a0, int a1, int stage, float *pos, float *rot);
 
 void warpGirlInStage(int stageNo)
 {

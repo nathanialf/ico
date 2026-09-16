@@ -1,5 +1,8 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "memory.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
 
 typedef struct {
     float x, y, z, w;
@@ -29,6 +32,7 @@ typedef struct WaterDotWork {
 
 extern WaterDotWork *D_00724BC0[]; /* the registered emitters */
 extern int D_0063BC48;             /* how many are registered */
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(VECTOR *dst, VECTOR *a, VECTOR *b);
 extern void setWaterDot(WaterDot *dot, VECTOR *pos, VECTOR *vel);
 /* prototypes: their order is the inline tail's emission order */
@@ -45,7 +49,6 @@ inline void InitializeWaterDot(void)
     }
 }
 
-extern void *iosMallocDebug(void *heap, int size, char *file, int line);
 extern void *D_0063A438; /* the heap partition every waterDot record comes from */
 
 /* The three .data templates AllocWaterDot block-copies, in ROM order at
@@ -86,8 +89,6 @@ WaterDotWork *AllocWaterDot(int gobj, int num, int num2)
     return w;
 }
 
-extern void CopyVector(void *dst, void *src);
-
 void setWaterDot(WaterDot *dot, VECTOR *pos, VECTOR *vel)
 {
     int n;
@@ -113,8 +114,9 @@ inline void EntryWaterDot(WaterDotWork *w, VECTOR *pos, VECTOR *vel, float range
 }
 
 extern int D_0028F4C0[];
-extern void GetRootPosition(void *out, int gobj);
+/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(int a0, void *pos);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
 
 /* waterDot.c:71-78 in the PAL listing, rows inside ExecWaterDot's span but
@@ -170,14 +172,23 @@ void ExecWaterDot(WaterDotWork *w)
 
 extern int matrixptr;
 extern int D_0063BC4C; /* the PRIM register value the splash packet draws with */
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
+/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(long long a0, long long a1);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a0);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, int m, void *src);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of _FTOI4Vector do not fit the prototype in Matrix.h */
 extern void _FTOI4Vector(void *dst, void *src);
 
 /* waterDot.c:121-126 in the PAL listing, rows inside DispWaterDot's span but

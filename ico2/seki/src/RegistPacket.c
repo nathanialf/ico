@@ -1,13 +1,24 @@
 #include "common.h"
+#include "RegistPacket.h"
+#include "debug.h"
+#include "DisplayList.h"
+#include "GsBase.h"
+#include "Light.h"
+#include "Shadow.h"
+#include "Texture.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
 
 extern char D_0054FA50[];
 extern char D_0054FA80[];
 extern char D_0054FA98[];
 extern char D_0063A170[];
+/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
-extern void debug_StdPrintfDummy();
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -146,13 +157,16 @@ typedef struct {
 extern RegColor D_0054FAD0;
 extern RegBoxLines D_0054FAE0;
 extern char *matrixptr;
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *mtx);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void *MatrixDrive_GetMatrix(void);
+/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
 extern void _CopyMatrix(void *dst, void *src);
-extern void DrawLine(void *a, void *b, RegColor *col, int flag);
 
 void reg_dispBoxLine(char *pk)
 {
@@ -178,9 +192,8 @@ void reg_dispBoxLine(char *pk)
 extern char *matrixptr;
 extern int D_0063B184;
 extern char D_0054FB40[];
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *mtx);
-extern int gsb_ClipBox(void *pk);
-extern void reg_dispBoxLine(char *pk);
 
 int reg_clipPacketBoundingBox(char *pk)
 {
@@ -221,6 +234,7 @@ int reg_clipPacketBoundingBox(char *pk)
     return ret;
 }
 
+/* kept local: this TU's uses of mc_TransMicroCode do not fit the prototype in MicroCode.h */
 extern void
 mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in reg_DispAccessoryWithShadow */
 
@@ -237,6 +251,7 @@ void reg_transMicroCode(char *a0, int mask)
     mc_TransMicroCode(2);
 }
 
+/* kept local: this TU's uses of mc_SetMicroCode do not fit the prototype in MicroCode.h */
 extern void mc_SetMicroCode();
 
 void reg_chooseMicroCode(char *self, int b, int c)
@@ -258,10 +273,6 @@ void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
 
 extern char D_0054FB80[];
 extern int D_0063B124;
-extern void dl_CloseDma();
-extern void dl_OpenDma();
-extern void dl_SetDLPriority(int a0);
-extern int tex_TransTexture(int a0, int a1);
 
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMAtag, GIFtag, A+D data) or as its two 32-bit halves. */
@@ -281,13 +292,18 @@ typedef struct {
 } RegDpk;
 
 extern RegDpk D_004EE6F0;
+/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
+/* kept local: this TU's uses of _GetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _GetCurrentMatrix(void *dst);
+/* kept local: this TU's uses of _ScaleCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ScaleCurrentMatrix(float x, float y, float z);
+/* kept local: this TU's uses of _ClearTransCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ClearTransCurrentMatrix(void);
+/* kept local: this TU's uses of _MulCurrentMatrixL do not fit the prototype in Matrix.h */
 extern void _MulCurrentMatrixL(void *m);
+/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
 extern void _MulMatrix(void *dst, void *a, void *b);
-extern void light_MakeLightMatrix(char *o, int idx);
 
 char *reg_setNMatrixPacket(char *o, int idx)
 {
@@ -530,20 +546,11 @@ static inline void regTransTexturePacket(int tex, int pri)
 
 /* ===== su-a sweep begin ===== */
 
-extern int *tex_GetTexExtData(int idx);
-extern void shadow_RenderVolume(char *o);
-extern void reg_chooseReflectionMicroCode(int a0, int a1, int a2);
 static void func_00121428(char *pkt, int r, int c);
-extern int reg_GetShinePri(int a0);
 extern char D_0054FBD0[];
 extern char D_0054FC30[];
 extern int buffer_ID;
 extern int D_0063B1AC;
-extern int reg_setDissolve(float a, int pri);
-extern void reg_resetDissolve(int pri);
-extern char *reg_setMMatrixPacket(char *o, int idx);
-extern void reg_setCMatrixPacket(char *o, float alpha, int prilist);
-extern void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat);
 
 /* INTERIM, same rule as regTransTexturePacket above: reg_GetShinePri
    (listing line 705) is `inline` in the dev's TU -- its body is inlined into
@@ -668,8 +675,6 @@ void reg_dispNObj(char *o)
     }
 }
 
-extern void shadow_RenderVolumeMulti(char *o, int idx);
-
 void reg_dispMObj(char *o)
 {
     char *mdl;
@@ -780,8 +785,6 @@ void reg_dispMObj(char *o)
         }
     }
 }
-
-extern char *reg_setMMatrixPacket(char *o, int idx);
 
 void reg_dispSObj(char *o, int idx)
 {
@@ -903,9 +906,8 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", reg_dispLine);
 
 extern int D_0063A06C;
 extern int GlobalTimer;
+/* kept local: this TU's uses of _MulCurrentMatrixL do not fit the prototype in Matrix.h */
 extern void _MulCurrentMatrixL(void *m);
-extern void reg_dispPoint(char *node, float alpha, int idx, int flag);
-extern void reg_dispLine(char *node, float alpha);
 
 void reg_dispPointLineObj(char *o)
 {
@@ -1151,8 +1153,6 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
 
 /* ===== su-a sweep end ===== */
 
-extern char *reg_setNMatrixPacket(char *o, int flag);
-
 void reg_RenderReflection(char *o, int pri)
 {
     char *mdl;
@@ -1298,11 +1298,6 @@ void reg_DispMultiPri(char *o, int pri)
 }
 
 /* ===== su-a sweep end (tail) ===== */
-
-extern void reg_dispNObj(char *o);
-extern void reg_dispCObj(char *o);
-extern void reg_dispMObj(char *o);
-extern void reg_dispPointLineObj(char *o);
 
 void reg_DispObj(char *o)
 {

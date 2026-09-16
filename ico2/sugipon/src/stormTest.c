@@ -1,35 +1,46 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "memory.h"
+#include "fieldCollision.h"
+#include "lineManager.h"
 
 /* header prototypes (order fixes the inline tail) */
 extern int D_0063A438;
 /* prototypes: their order is the inline tail's emission order */
 int *InitStormTestGeo(int a0, int *a1);
-extern int iosMallocDebug(int t, int sz, const char *file, int line);
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 
 /* the clip plane normal StormTestDL transforms into view space */
 static float stormClipPlane[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
 extern void *memset(void *s, int c, int n);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int on);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int on);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void Draw2DLineSeg_Start(void);
-extern void Draw2DLineSeg_Loop(void *a, void *b, void *c);
-extern float GetDistanceFromPlane(void *plane, void *pos);
 extern float sceVu0InnerProduct(void *a, void *b);
+/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float x);
 extern void sceVu0ClampVector(void *dst, void *src, float lo, float hi);
 extern void sceVu0FTOI0Vector(void *dst, void *src);
+/* kept local: this TU's uses of CopyIVector do not fit the prototype in matrixDrive.h */
 extern void CopyIVector(void *dst, void *src);
 extern char *matrixptr;
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
+/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float f12, float f13, float f14);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
@@ -203,7 +214,9 @@ typedef union {
     long long ll[2];
 } Vec4;
 
+/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(int a0, void *pos);
+/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 
 void UpdateStormPackage(StormPackage *pkg)

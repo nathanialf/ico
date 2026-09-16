@@ -1,4 +1,14 @@
 #include "common.h"
+#include "st24a.h"
+#include "layout_texture.h"
+#include "thread.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "camera-root.h"
+#include "gflag.h"
+#include "StageAnimation.h"
 
 /* The actor mail table entries this TU installs live in the shared
  * src/cod .data carve, so they stay extern here. */
@@ -14,17 +24,9 @@ typedef struct Act {
     ActMail *mail;    /* 0xD4 */
 } Act;
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int gflagChk(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-
 static ActMail sword_mes[2] = {{430}, {429}};
 
 static ActMail demoCam_mes[2] = {{430}, {429}};
-
-extern void actSt24aDemoCamChk(int a0);
 
 typedef struct EditPad {
     char _p0[0x4];
@@ -35,16 +37,16 @@ typedef struct EditPad {
 extern void *D_00639EA4;
 extern EditPad D_0028F8F0;
 extern int D_0063AA08;
-extern void gflagOn(int flag);
-extern void lt_switch_layout(int n);
-extern int lt_fade_status(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int self, void *target, float r);
-extern int stage_CheckAnimationFinish(int a0);
-extern void SetCameraFlag_LwsCutBack(void);
 
 /* the 16-byte vector this file copies whole */
 typedef union Vec16 {
@@ -63,20 +65,24 @@ extern int D_0063C5B0;
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}};
 
 extern int D_0028F8F4[];
-extern void actSt24aSwordSub(int a0);
-extern int actCreateSubThread(void *fn, int pri);
-extern void iosThreadSetPri(char *th, int pri);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, SwordObj **h, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(SwordObj **h, int a1);
-extern void soundSeDefPlay(int a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(void *a0);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(void *a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(void *a0, int a1);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(void *a0, float *dir);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(void *a0, float x, float y, float z);
-extern void *test_CURRENTROOT(void *gobj);
 extern void sceVu0SubVector(float *dst, float *a, void *b);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj(int a0);
+/* kept local: this TU's uses of scpSetBoyWeaponGObj do not fit the prototype in script.h */
 extern void scpSetBoyWeaponGObj(int a0);
 
 void actSt24aSwordChk(volatile int self)
@@ -159,7 +165,7 @@ void actSt24aDemoCamChk(volatile int a0)
     D_0063AA08 = 0;
 }
 
-extern void actSt24aSwordChk(int a0);
+/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 
 void actSt24aSword(volatile int a0)
@@ -200,9 +206,6 @@ void actSt24aDemoCam(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void AdpcmPlay(void *a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
 
 void actSt24aSwordSub(volatile int a0)
 {

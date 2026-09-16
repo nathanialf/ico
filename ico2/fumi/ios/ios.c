@@ -1,8 +1,13 @@
 #include "common.h"
+#include "ios.h"
+#include "debug.h"
+#include "memory.h"
+#include "message.h"
+#include "thread.h"
+#include "s_init.h"
 
 extern int D_0063A3E0;
 extern int sceSifAllocIopHeap(int size);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 /* prototypes: their order is the inline tail's emission order */
 int iosSifAllocIopHeapDebug(int size, char *file, int line);
 
@@ -45,11 +50,10 @@ extern int D_00639ED8;
 extern int screen_offset_y;
 extern int fall_death_active;
 extern int CreateSema(SemaParam *p);
+/* kept local: this TU's uses of InitKeyInput do not fit the prototype in keyInput.h */
 extern void InitKeyInput();
 extern void SgSndn2RemoteInit(void);
 extern void sceSifInitIopHeap(void);
-extern void soundAllocIopHeap(void);
-extern void soundInit(void);
 
 void ios_init_plus(void)
 {
@@ -104,12 +108,6 @@ extern int D_0063A454;
 extern int D_0063A458;
 extern int D_0063A45C;
 extern int D_0063A460;
-extern void iosThreadInit(void);
-extern int iosMallocInitPartition(int base, int size);
-extern int iosMallocSetPartition(int part, int size, int align);
-extern void iosMallocSetPartitionName(int part, char *name);
-extern void iosMsgInit(void);
-extern void ios_init_plus(void);
 
 void iosInitialize(void)
 {

@@ -1,4 +1,7 @@
 #include "common.h"
+#include "sceneManager.h"
+#include "memory.h"
+#include "StageAnimation.h"
 
 struct HintInfo {
     int _0;
@@ -26,8 +29,7 @@ extern int D_0063A438;
 extern char D_005556A8[];
 extern int D_002A5580[];
 extern void memset(void *a0, int a1, int a2);
-extern char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
-extern int iosMallocDebug(int heap, int size, const char *file, int line);
+/* kept local: this TU's uses of brainStatusDefaultSet do not fit the prototype in brain.h */
 extern void brainStatusDefaultSet(void *b, int gobj, int idx);
 extern int stage_no;
 
@@ -59,8 +61,7 @@ char *CreateKyomiGObj(int no)
 }
 
 extern float *D_0063C2E8;
-extern int stage_CheckAnimationFinish(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of brainSubLevelGop do not fit the prototype in brain.h */
 extern void brainSubLevelGop(void *gobj, float lv);
 
 void LwsKyomiGeo(void *gobj)
@@ -122,9 +123,13 @@ void MakeHintSaveInfo(void)
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/lws_kyomi", ReadHintSaveInfo);
 
 extern int D_0063B238;
+/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition(void *gobj);
+/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
 extern void UpdateRootMatrix(void *gobj);
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *out, void *gobj);
+/* kept local: the declaration in brain.h changes this TU codegen */
 extern void brainSetLevelGop(void *gobj, float lv, int a1, int a2);
 
 void SetParamKyomiGObj(void *gobj, int a1, float *param)

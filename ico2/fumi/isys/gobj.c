@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
 
 struct GObj__p4 {
     int unk0;
@@ -44,6 +46,7 @@ extern char D_0029C4F0[];
 extern char *D_0029C510[];
 extern int D_0063A60C;
 extern unsigned int D_0063A610;
+/* kept local: this TU's uses of isysGObjAlloc do not fit the prototype in gobj.h */
 extern void isysGObjAlloc(int n);
 
 void isysGObjInit(int n)
@@ -63,7 +66,6 @@ void isysGObjInit(int n)
 extern struct GObj__pn *D_0063C1A8;
 extern unsigned int D_0063C1AC;
 extern int D_0063A430;
-extern void *iosMallocDebug(int heap, int size, const char *file, int line);
 
 inline void isysGObjAlloc(int n)
 {
@@ -89,8 +91,6 @@ typedef struct GLNode {
     char _p1[0x3];
     int key;
 } GLNode;
-
-extern void debug_StdPrintfDummy(char *p);
 
 void cut_gobj_link(int a0)
 {
@@ -256,7 +256,9 @@ void add_gobj_to_head(char *g, int a1, int a2)
     *(char **)(*(char **)(g + 0x10) + 0x14) = g;
 }
 
+/* kept local: this TU's uses of add_gobj_to_tail do not fit the prototype in gobj.h */
 extern void add_gobj_to_tail(int a0, int a1, int a2);
+/* kept local: this TU's uses of cut_gobj_link do not fit the prototype in gobj.h */
 extern void cut_gobj_link(int a0);
 
 void isysGObjMove(int a0, int a1, int a2)
@@ -268,6 +270,7 @@ void isysGObjMove(int a0, int a1, int a2)
     return add_gobj_to_tail(a0, s1, new_var);
 }
 
+/* kept local: this TU's uses of add_gobj_to_head do not fit the prototype in gobj.h */
 extern void add_gobj_to_head(char *a0, int a1, int a2);
 
 void isysGObjMoveHead(int a0, int a1, int a2)
@@ -281,7 +284,6 @@ void isysGObjMoveHead(int a0, int a1, int a2)
 
 extern struct GObj__pn *D_0063C1A8;
 extern unsigned int D_0063C1AC;
-extern void debug_StdPrintfDummy(char *p);
 
 /* static helper the listing places at gobj.c lines 360-369; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
@@ -422,8 +424,11 @@ inline void isysGObjRemove(char *g)
 }
 
 extern int D_0063A600;
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
 extern void *isysGObjSearchFromObjKindID_next(char *g);
+/* kept local: this TU's uses of isysGObjKindTableRemove do not fit the prototype in gobj.h */
 extern void isysGObjKindTableRemove(char *g);
 
 inline void isysGObjKindTableAdd(char *g, int kind)
@@ -482,6 +487,7 @@ inline void isysGObjKindTableRemove(char *g)
     }
 }
 
+/* kept local: this TU's uses of cut_gobj_link do not fit the prototype in gobj.h */
 extern void cut_gobj_link(int a0);
 
 inline void isysGObjMoveAfterGObj(char *self, char *other)
@@ -498,6 +504,7 @@ inline void isysGObjMoveAfterGObj(char *self, char *other)
 }
 
 extern char D_0029C4F0[];
+/* kept local: this TU's uses of cut_gobj_link do not fit the prototype in gobj.h */
 extern void cut_gobj_link(int a0);
 
 inline void isysGObjMoveBeforeGObj(int self, int other)

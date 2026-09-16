@@ -1,5 +1,10 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "debug.h"
+#include "pad.h"
+#include "particleEffect.h"
+#include "stageMultiBgaManager.h"
+#include "weapon.h"
 
 typedef struct {
     int se[2];
@@ -17,7 +22,7 @@ extern GsysObjInfo D_005D6DB0[];
 extern int D_0063B14C;
 extern char D_0061F878[];
 extern char D_0061F798[];
-extern void debug_StdPrintfDummy();
+/* kept local: the declaration in s_init.h changes this TU codegen */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/frameDependSequence", playSE);
@@ -28,6 +33,7 @@ typedef struct { /* 0x08 */
 } SERandEntry;
 
 extern SERandEntry D_00627910[];
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int execSE(int a0, void *a1);
 
 int playSERandomID(int no, void *entry)
@@ -76,13 +82,19 @@ typedef struct SECondEntry { /* 0x0C */
 
 extern SECondEntry D_00626F28[];
 extern char *D_0063B8AC;
+/* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
 extern int CheckFloorAttribute(void *self, int id);
+/* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
 extern int CheckWallAttribute(void *self, int id);
 /* Declared before the three predicates: gcc 2.9 emits deferred inline bodies
    in first-declaration order, and the ROM has execSE before them. */
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int execSE(int a0, void *a1);
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int checkWaterDepth(void *a0, int a1);
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int checkModelDataID(void *a0, int a1);
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int checkWeaponType(void *a0, int a1);
 
 int playSEConditionID(int no, void *entry)
@@ -137,18 +149,26 @@ typedef struct EffEntry { /* 0x24 */
 extern EffEntry D_00626278[];
 extern int stage_no;
 extern char D_0061F810[];
+/* kept local: this TU's uses of GetRootQuaternion do not fit the prototype in geometryManager.h */
 extern void GetRootQuaternion(float *q, void *gobj);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern char *MatrixDrive_GetMatrix(void);
+/* kept local: this TU's uses of GetRootMatrix do not fit the prototype in geometryManager.h */
 extern void GetRootMatrix(char *m, void *gobj);
+/* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(void *gobj, int node);
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(char *dst, char *src);
+/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(float *dst, float *src);
+/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(float *q, short a);
+/* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
 extern void RotQuaternionY(float *q, short a);
+/* kept local: this TU's uses of RotQuaternionZ do not fit the prototype in quaternion.h */
 extern void RotQuaternionZ(float *q, short a);
-extern void EntryStageMultiBgaManager(int eff, float *pos, float *q);
-extern void SetParticleEffect(int eff, float *pos, float *q);
 
 void playEff(int no)
 {
@@ -270,9 +290,8 @@ extern void *D_00639EA0;
 extern int D_00639EB0;
 extern char D_0061F858[];
 extern void *D_0063B89C;
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern void StopFDSVibration(void *a0);
-extern int iosPadActRequest(int port, int id);
-extern void debug_StdPrintfDummy();
 
 void execVibCondition(int no, int *entry)
 {
@@ -315,7 +334,9 @@ extern float D_0063B8B0;
 extern void *D_0063B8A0;
 extern void *D_0063B8A4;
 extern void *D_0063B8A8;
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int execVib(int a0, void *a1);
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int execWeaponLightOff(void);
 
 /* static helper the listing places at frameDependSequence.c lines 414-421; never
@@ -389,7 +410,9 @@ static inline int *findSEPackage(int no, int id)
     return D_005339C0[no].se;
 }
 
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int playSE(int no);
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int playSERandomID(int no, void *entry);
 
 inline int execSE(int a0, void *a1)
@@ -470,6 +493,7 @@ void executeSEPackageWithNoGObj(int no)
 }
 
 extern float D_0063B8B0;
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern void executeSEPackageWithNoGObj(int a0);
 
 void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
@@ -482,6 +506,7 @@ void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
     }
 }
 
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2);
 
 void ExecuteSEPackage(int a0, int a1)
@@ -490,6 +515,7 @@ void ExecuteSEPackage(int a0, int a1)
 }
 
 extern float D_0063B8B0;
+/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern void executeSEPackageByGObj();
 
 void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f)
@@ -498,6 +524,7 @@ void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f)
     executeSEPackageByGObj(a0, a1, 0);
 }
 
+/* kept local: this TU's uses of soundSeGroupStop do not fit the prototype in s_init.h */
 extern void soundSeGroupStop(int a0);
 
 void StopSEPackageWithGroupVariation(int a0, int a1)
@@ -547,8 +574,6 @@ int ExecuteDirectSE(void *gobj, int id)
     return execSE(id, 0);
 }
 
-extern void iosPadActStop(int key);
-
 void StopFDSVibration(void *a0)
 {
     int *p = (int *)((char *)a0 + 0x6C);
@@ -574,8 +599,6 @@ inline int checkModelDataID(void *a0, int a1)
     return p[0x21] == a1;
 }
 
-extern int CheckWeaponKind(char *self);
-
 inline int checkWeaponType(void *a0, int a1)
 {
     int *p = *(int **)((char *)a0 + 0x15C);
@@ -587,7 +610,6 @@ inline int checkWeaponType(void *a0, int a1)
 }
 
 extern int D_00639EAC;
-extern int iosPadActRequest(int port, int id);
 
 inline int execVib(int a0, void *a1)
 {
@@ -600,9 +622,6 @@ inline int execVib(int a0, void *a1)
     }
     return 1;
 }
-
-extern int CheckWeaponKind(char *self);
-extern void LightTorchOffOfWeapon(int *self);
 
 inline int execWeaponLightOff(void)
 {

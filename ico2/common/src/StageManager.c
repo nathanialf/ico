@@ -1,4 +1,32 @@
 #include "common.h"
+#include "backStage.h"
+#include "debug.h"
+#include "debug_menu.h"
+#include "gamesys.h"
+#include "icoMisc.h"
+#include "layout_texture.h"
+#include "cdvd.h"
+#include "memory.h"
+#include "message.h"
+#include "thread.h"
+#include "gobj.h"
+#include "isys.h"
+#include "s_init.h"
+#include "soundManager.h"
+#include "fieldCollision.h"
+#include "access.h"
+#include "fightSound.h"
+#include "warpGirl.h"
+#include "DisplayP2O.h"
+#include "GsBase.h"
+#include "Matrix.h"
+#include "darkVolume.h"
+#include "delayFreeManager.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "motionFileManager.h"
+#include "streamMotionManager.h"
+#include "tableSin.h"
 
 /* header prototypes (order fixes the inline tail) */
 typedef struct {
@@ -30,12 +58,6 @@ typedef struct {
 } StgSlot;
 
 extern int stage_no;
-extern int DeleteStreamMotionManager();
-extern void backStageProcessOutStage();
-extern void gamesysStageExitTimeSet(int idx);
-extern void sndBgmReadyNextStage(int *a, int *b);
-extern void warpGirlInStage();
-extern void warpGirlOutStage();
 extern StgSlot stageExitData[];
 extern StgFile D_0055C53C[];
 extern StgPre D_005F5D50[];
@@ -49,10 +71,8 @@ extern int D_0063ACD0;
 extern int stagePreLoadLsn;
 extern int stagePreLoadSectorCnt;
 extern int stageExitDataCnt;
-extern int PositionOfExit();
-extern int iosCdvdBackGroundMgrAdd();
-extern int iosCdvdBackGroundMgrNotDiskReadyPauseSet();
 extern int stgmgrNextStagePreLoad(CdvdBgReq *bg);
+/* kept local: the declaration in StageManager.h changes this TU codegen */
 extern void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r,
                                            unsigned char g, unsigned char b);
 extern int D_0063ACCC;
@@ -60,7 +80,6 @@ extern int D_0063C34C;
 extern int D_0028F4C0[];
 extern int D_004DA788[];
 extern int D_004DD700[];
-extern void gamesysMemorySave(int *self, int a1, int a2);
 
 typedef struct {
     int cmd;
@@ -77,16 +96,9 @@ extern StgMgrMsg D_0028FE70;
 extern int stageMgrMsgQ[];
 extern int graphics_ready;
 extern unsigned int mpegPlayInitColor;
-extern void iosMsgSend(int *q, StgMgrMsg *m, int flag);
-extern void gsb_SetBGColor(void *cfg, int r, int g, int b);
-extern void gsb_SetMotionBlur(void);
-extern void iosThreadCreateS(unsigned int *th, int no, void (*func)(), int arg, void *heap,
-                             long stackSize, int pri);
-extern void iosThreadStart(unsigned int *th);
 extern void sceGsResetPath(void);
 extern void sceVpu0Reset(void);
 extern int sceDmaReset(int a0);
-extern void InitIcoMisc();
 extern int D_0028F4F0[];
 extern unsigned int D_006FAC80[];
 extern void *D_0063A428;
@@ -96,29 +108,13 @@ extern int mpegInitDone;
 extern int stageManagerFreeResourceFlag;
 extern char D_006190D0[];
 extern char D_006190E0[];
-extern int iosCdvdBackGroundMgrEntryNum(void);
-extern void GetRootPosition(void *dst, int gobj);
-extern void _SubVector(void *dst, void *a, void *b);
-extern float _InnerProduct(void *a, void *b);
-extern char *GetDataFileName();
 extern char *strcpy(char *dst, const char *src);
-extern void iosCdvdChgFileName(CdvdBgReq *self);
-extern int iosCdvdGetFileLsn(CdvdBgReq *self, int *size);
-extern void iosCdvdBackGroundRead(CdvdBgReq *self, void *buf, int size);
 extern char stagePreLoadBuff[];
 extern char D_00619100[];
 extern char D_0063ACE0[];
-extern void iosMsgQueueCreate(int *q, void *buf, int n);
-extern void iosMsgRecv(int *q, void *pmsg, int flag);
 extern void WaitSema(int s);
 extern void DeleteSema(int s);
 extern void SignalSema(int s);
-extern void fightSoundClose(void);
-extern void soundDataSegAllClose(int a, int b);
-extern void iosCdvdBackGroundMgrDelete(int h);
-extern int iosCdvdBackGroundMgrDeleteRequestGet(void);
-extern void lt_switch_layout(int n);
-extern void iosThreadSleep(void);
 extern int IosSndLock;
 extern int systemFault;
 extern int D_0063C348;
@@ -138,14 +134,9 @@ extern char D_00619158[];
 extern char D_00619168[];
 extern char D_00619180[];
 extern char D_00619198[];
-extern void isysGObjActiveLink(int idx, int flag);
-extern void iosThreadCancelWakeup(int th);
-extern void isysGObjRemoveAll(void);
 extern void sceGsSyncPath(int a, int b);
-extern void InitDelayFree(void);
+/* kept local: this TU's uses of jimakuEnd do not fit the prototype in jimaku.h */
 extern void jimakuEnd();
-extern void iosMallocResetPartition(void *part);
-extern void ResetDynamicMotionManager(void);
 extern int game_pause;
 extern int before_stage_no;
 extern int D_0063A684;
@@ -163,15 +154,6 @@ extern char D_00618FF8[];
 extern char D_00619010[];
 extern char D_00619028[];
 extern char D_0063ACB0[];
-extern void isysInitialize(void);
-extern void debug_StdPrintfDummy(char *fmt, ...);
-extern void InitTableSin(void);
-extern void InitMatrixDrive(void);
-extern void InitGameOverEffect(void);
-extern void gsb_InitGSSystem(void);
-extern void p2o_TransMicroProgram(void);
-extern void debug_Init(void);
-extern void init_debug_menu(void);
 extern void EnableIntc(int ch);
 extern char D_00619048[];
 extern char D_00619058[];

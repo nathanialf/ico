@@ -1,10 +1,10 @@
 #include "common.h"
+#include "motionManager2.h"
+#include "quaternion.h"
 
-extern void CopyQuaternion(void *a0, int a1);
-extern int GetSkeltonFocusNode(void *a0, int code);
-extern void RotQuaternionX(void *a0, int a1);
-extern void RotQuaternionZ(void *a0, int a1);
+/* kept local: this TU's uses of stage_PlayBgAnimation do not fit the prototype in StageAnimation.h */
 extern void stage_PlayBgAnimation(void *a0, int a1, void *a2, float a3);
+/* kept local: this TU's uses of stage_SetLoopFlag do not fit the prototype in StageAnimation.h */
 extern void stage_SetLoopFlag(void *a0, int a1);
 
 void SetActressLight(void *a0, int a1, int a2, void *a3)

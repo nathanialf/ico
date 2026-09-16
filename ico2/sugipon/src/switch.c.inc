@@ -26,6 +26,7 @@ inline void SwitchGeo(void) {}
 
 inline void SwitchDL(void) {}
 
+/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
 
 void GetFloorLeverGlobalHoldPoint(void *dst, char *a1)
@@ -37,10 +38,13 @@ void GetFloorLeverGlobalHoldPoint(void *dst, char *a1)
     CopyVector(dst, MatrixDrive_GetMatrix() + 0x30);
 }
 
-extern int GetSkeltonFocusNode(char *a0, int a1);
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *dst, void *obj);
+/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
+/* kept local: this TU's uses of MatrixDrive_GetTurnYAngleXZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_GetTurnYAngleXZ(void *a0, void *a1, float x, float y, float z);
+/* kept local: this TU's uses of MatrixDrive_GetTurnXAngleYZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_GetTurnXAngleYZ(void *a0, void *a1, float x, float y, float z);
 
 inline void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2)
@@ -65,8 +69,8 @@ inline int CanFloorLeverPull(char *a0)
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
 }
 
+/* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
 extern void ClipFloor(void *a0);
-extern void LinkParentOfDObj(void *a0, void *a1);
 
 inline void initParentize(char *a0)
 {

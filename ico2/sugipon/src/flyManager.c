@@ -1,11 +1,10 @@
 #include "common.h"
+#include "fieldCollision.h"
+#include "matrixDrive.h"
 
 extern int D_0063B234;
 extern int D_0063B898;
-extern int DrawGObjFloorCollision();
 extern void memset(void *a0, int a1, int a2);
-extern void CopyVector(void *dst, void *src);
-extern void ClipFloorByGObj(void *work, int gobj);
 extern int stage_no;
 
 typedef struct {

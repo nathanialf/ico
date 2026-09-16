@@ -1,4 +1,6 @@
 #include "common.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void ChangeColorWireString(int a0, int a1, int a2);
@@ -267,8 +269,9 @@ static int wireStringColorDefault[4] = {0x80, 0xC8, 0xFF, 0x80};
 
 static int wireStringColor[4] = {0x80, 0xC8, 0xFF, 0x80};
 
-extern void DrawLineG(void *a0, void *a1, void *a2, void *a3, int a4);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
 
 inline void Draw2DBox(float x0, float y0, float x1, float y1)
@@ -287,10 +290,7 @@ inline void Draw2DBox(float x0, float y0, float x1, float y1)
 
 extern int D_0063B188;
 extern int strlen();
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
 void DispWireLetter(int c);
 

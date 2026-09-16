@@ -1,11 +1,12 @@
 #include "common.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
 
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrixV(int a0);
 extern void sceVu0UnitMatrix(void *a0);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void DrawLine(float *from, float *to, int color, int flag);
 
 /* one 4-float vertex per entry; [3] is the run flag: 0 = keep drawing,
  * 2 = break the run and skip a vertex, anything else = end of list. */

@@ -1,5 +1,20 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "pool.h"
+#include "memory.h"
+#include "DisplayP2O.h"
+#include "GsBase.h"
+#include "Primitive.h"
+#include "RegistPacket.h"
+#include "clothAnimation.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "multiBgaManager.h"
+#include "particleEffect.h"
+#include "quaternion.h"
+#include "tableSin.h"
 
 typedef struct {
     char c[16];
@@ -13,8 +28,6 @@ typedef struct {
     long long c[2];
 } Blob16L;
 
-extern void ExecuteSEPackage(int a0, int a1);
-
 void falldownSE(int a0)
 {
     ExecuteSEPackage(a0, 0x56);
@@ -26,12 +39,19 @@ extern char D_0054DA50[];
 extern int D_00639F28;
 extern int D_00639F2C;
 extern char D_00639F38[];
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
 extern void gif_SetDrawEnviroment(int a0, int a1, int a2, int a3, int a4, int a5);
+/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int a0, long long a1);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
+/* kept local: this TU's uses of gif_SpriteSensitiveOrg do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(void *a0, int a1, void *a2, void *a3, int a4);
+/* kept local: this TU's uses of tex_AllocVramAuto do not fit the prototype in Texture.h */
 extern int tex_AllocVramAuto(int a0, int a1);
+/* kept local: this TU's uses of tex_ResetVramPri do not fit the prototype in Texture.h */
 extern void tex_ResetVramPri(void);
 
 void flushWork(int pri)
@@ -51,11 +71,6 @@ void flushWork(int pri)
     gif_SetZTest(1);
 }
 
-extern char IdentityQuaternion[];
-extern int GetSkeltonFocusNode(char *a0, int a1);
-extern int SetParticleEffectActiveSensing(int a0, int a1, int a2);
-extern void SetParticleEffectUpperLimit(int a0, float f);
-
 void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float f)
 {
     int ret = GetSkeltonFocusNode(a1, a2);
@@ -69,8 +84,6 @@ void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", SetFallDownSplash);
 
-extern void CopyVector(void *a0, void *a1);
-
 void GetPoolGlobalDrainVector(void *dst, char *a0)
 {
     CopyVector(dst, *(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10);
@@ -79,8 +92,6 @@ void GetPoolGlobalDrainVector(void *dst, char *a0)
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", InitPoolGeo);
 
 extern int D_0028F4C0[];
-extern float GetTableCos(short a);
-extern float GetTableSin(short a);
 
 static inline void decayRipple(char *c)
 {
@@ -177,26 +188,32 @@ static inline void makeWaveGrid(char *w, float **grid, int ang)
     }
 }
 
-extern char ZeroVector[];
 extern const Blob16L D_0054DA70;
 extern int D_0063A064;
 extern int D_0063A068;
 extern int buffer_ID;
 extern int matrixptr;
+/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(void *a, void *b);
-extern void CopyVector(void *dst, void *src);
-extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyCurrentMatrix(void *dst, void *src);
+/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(int m);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
 extern void memset(void *dst, int c, int n);
-extern void prim_UpdateMesh3D(void *mesh, int a1, int a2);
 
 void updatePoolGeo(char *self)
 {
@@ -358,20 +375,18 @@ extern int D_0063A080;
 extern int D_0063B148;
 extern int matrixptr;
 extern int stage_no;
-extern void CopyMatrix(void *dst, void *src);
-extern void DispMeshWire(int *rows, int nx, int ny);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_RotMatrixZ(short a);
+/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
 extern void _MulMatrix(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(int m);
+/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
-extern void copyToWork(int pri);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a0);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
-extern void gsb_SetVSMatrix(int a0, int a1, float f);
-extern void prim_DispMesh3D(int a0, void *a1, void *a2, int a3);
-extern void reg_RenderReflection(void *a0, int a1);
 
 void dispPool(char *self)
 {
@@ -491,10 +506,6 @@ void dispPool(char *self)
 }
 
 extern int D_0028F4C0[];
-extern void DispMultiBgaManagerWithKind(int kind, int a1, int a2);
-extern void updatePoolGeo(char *self);
-extern void dispPool(char *self);
-extern void p2o_DispVU1(char *self);
 
 void PoolDL(char *self)
 {
@@ -515,8 +526,6 @@ void PoolDL(char *self)
     }
 }
 
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
-extern char *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int f58);
 extern char D_0054DA60[];
 extern int D_0063A438;
 
@@ -608,15 +617,18 @@ extern int D_0063A064;
 extern int D_0063A068;
 extern int buffer_ID;
 extern int matrixptr;
-extern void GetRootPosition(void *dst, char *self);
-extern float GetPointDistance(void *a, void *b);
+/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *p0, void *p1, float t);
+/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(int m);
+/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyCurrentMatrix(void *dst, void *src);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
-extern void prim_UpdateMesh3D(void *mesh, int a1, int a2);
 
 void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
 {
@@ -708,13 +720,14 @@ extern int D_0063B148;
 extern char D_002906E0[];
 extern char D_00290720[];
 extern int matrixptr;
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
-extern void copyToWork(int a0);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a0);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(int m);
-extern void prim_DispMesh3D(int a0, void *a1, void *a2, int a3);
-extern void DispMeshWire(int *rows, int nx, int ny);
 
 void DispLimitedPoolReflactionMesh(int *a0)
 {
@@ -765,7 +778,7 @@ int CheckPoolHasGridMesh(char *a0)
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x30) != 0;
 }
 
-extern void InitLimitedPoolReflactionMesh(char *a0);
+/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *p0, void *p1, void *p2, float t);
 
 void InitLayoutedPoolReflactionMesh(char *a0, char *a1)

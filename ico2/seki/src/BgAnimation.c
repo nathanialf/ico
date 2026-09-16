@@ -1,5 +1,16 @@
 #include "common.h"
 #include "typedef.h"
+#include "debug.h"
+#include "debug_exception.h"
+#include "memory.h"
+#include "lws_kyomi.h"
+#include "Basic.h"
+#include "Light.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "particleEffect.h"
+#include "quaternion.h"
+#include "tableSin.h"
 
 /* .data — carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  D_004EE5B0 is the 0x30-byte default record
@@ -73,16 +84,8 @@ extern char D_00621638[];
 extern char D_00621658[];
 extern char D_0063BCF0[];
 extern char D_0063BCE8[];
-extern int IdentityQuaternion[];
-extern int GetParticleIDWithName(char *name);
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
-extern int GetParticleLoopFlag(int id);
-extern int SetParticleEffectActiveSensing(int id, float *pos, int *quat);
 extern int sprintf(char *buf, char *fmt, ...);
-extern void debug_assertMessage(char *file, int line, char *mes);
 extern int strcmp(const char *a, const char *b);
-extern void *light_AddAmbientObject(int obj);
-extern char *CreateKyomiGObj(int no);
 
 typedef struct BgaEnvEnt {
     /* 0x00 */ unsigned short type;
@@ -106,7 +109,6 @@ typedef struct BgaLightEnv {
 
 extern char D_006215F8[];
 extern char D_00621618[];
-extern void debug_Assert(char *fmt, ...);
 
 void bga_initLightEnvelope(BgaDObjEnt *p)
 {
@@ -509,7 +511,7 @@ void bga_GetGizmoMotion(BgaMotion *m, float *dst)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_calcEnvelope);
 
-extern float GetTableCos(short a);
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
 
 /* The rotation is applied Y, then X, then Z, with the three sines derived
@@ -738,20 +740,15 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_SetFrame);
 
 extern int D_0063C4B4;
 extern int D_0063BCBC;
-extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *m);
-extern void GetRootMatrix(void *m, void *gobj);
-extern void CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
+/* kept local: this TU's uses of _MulCurrentMatrixR do not fit the prototype in Matrix.h */
 extern void _MulCurrentMatrixR(void *m);
-extern int *GetCurrentQuaternion(void);
-extern void CopyQuaternion(void *dst, void *src);
-extern void GetRootQuaternion(void *q, void *gobj);
-extern void SetIdentityQuaternion(void *q);
-extern void MultiQuaternion(void *dst, void *a, void *b);
-extern void PushQuaternion(void);
-extern void PopQuaternion(void);
+/* kept local: this TU's uses of _PushCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _PushCurrentMatrix(void);
+/* kept local: this TU's uses of _PopCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _PopCurrentMatrix(void);
 extern void bga_CalcObject(BgaCntNode *o, int a1, int a2, int a3, float frame, float end);
 
@@ -871,6 +868,7 @@ extern int D_0063BCC0;
 extern int D_0063BCC8;
 extern int D_0063C4B4;
 extern int D_007281F0[];
+/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
 extern void _CopyMatrix(void *dst, void *src);
 
 int bga_GetCameraMatrix(void *p)
@@ -905,6 +903,7 @@ extern int D_0063BCB8;
 extern int GlobalTimer;
 extern float D_00728230[];
 extern float D_00728220[];
+/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
 
 void bga_SetCamFrame(char *p, int frame, int mode)
@@ -1043,7 +1042,6 @@ void bga_SetUniqAnimationFlag(int val)
 }
 
 extern int D_0028F4D4[];
-extern void freeseki(void *p);
 
 void bga_ResetAnimation(void)
 {

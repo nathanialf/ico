@@ -1,8 +1,12 @@
 #include "common.h"
 #include "typedef.h"
+#include "DisplayP2O.h"
+#include "debug.h"
+#include "Packet.h"
+#include "RegistPacket.h"
 
 /* header prototypes (order fixes the inline tail) */
-extern void pac_MakePacket(void *a0);
+/* kept local: this TU's uses of shadow_Render do not fit the prototype in Shadow.h */
 extern void shadow_Render();
 
 /* The TU's whole .rodata run, VMA 0x54DB10..0x54DB30: debug_PrintFontWindow's
@@ -12,11 +16,6 @@ static const char dispObjFormat[32] = "display object = %d";
 
 extern int D_00639F44;
 extern int D_0063B160;
-extern void debug_PrintFontWindow();
-extern void reg_DispObj(void *req);
-extern void p2o_DispVU1DObjMulti();
-extern void p2o_DispVU1DObj();
-extern void p2o_DispVU1();
 extern int D_00290B24[];
 extern int dmaVif;
 extern void sceDmaSend();

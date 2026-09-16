@@ -1,4 +1,8 @@
 #include "common.h"
+#include "debug.h"
+#include "act-game.h"
+#include "commonact.h"
+#include "ebrain.h"
 
 typedef struct {
     int gobj;
@@ -68,8 +72,6 @@ void brainAddLevelGirl(float lv)
     }
 }
 
-extern void eBrainInit(void);
-
 void brainInit(void)
 {
     Brain *b = (Brain *)D_002A5580;
@@ -89,7 +91,6 @@ void brainInit(void)
     eBrainInit();
 }
 
-extern void debug_StdPrintfDummy(const char *fmt);
 extern char D_00554C88[];
 
 void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC)
@@ -160,7 +161,7 @@ void brainStatusDefaultSet(Brain *b, int gobj, int idx)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/brain", brainLevelProcess);
 
-extern void *test_CURRENTROOT(void *g);
+/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
 extern char *D_00639EA8;
 
@@ -297,8 +298,6 @@ void brainClsTargetLevel(Brain *b)
     *(int *)&t->b18 &= ~0x10000;
     brainSetTargetTimer(t);
 }
-
-extern void ACTGameView_Add(void *a0, int a1);
 
 void brainInitGirlSet(void *a0, int a1)
 {

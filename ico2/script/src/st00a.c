@@ -1,4 +1,17 @@
 #include "common.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "way_llf.h"
+#include "fightSound.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "item.h"
 
 typedef struct ActMail {
     int mail;          /* 0x00 */
@@ -18,15 +31,6 @@ typedef struct PObjGObj {
     /*0x168*/ char pad168[0x4];
     /*0x16C*/ int f16C;
 } PObjGObj;
-
-extern Act *actInitialize(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int gflagChk(int a0);
-extern void _ACTWait(int a0);
-extern int gflagChk(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void SetWayGroupActive(int a0, int a1);
-extern void FinishHint(int a0);
 
 void actSt00aInit(void)
 {
@@ -62,12 +66,13 @@ void actSt00aEnd(void)
 
 extern int D_0028F4C0[];
 extern int D_0063AA08;
-extern void lt_switch_layout(int a0);
-extern void gflagOn(int a0);
-extern void gflagOff(int a0);
+/* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
 extern void scpSleepEnemyOne(int a0);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpWakeupEnemyOne do not fit the prototype in script.h */
 extern void scpWakeupEnemyOne(int a0);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
 
 void actSt00aEneChk(volatile int a0)
@@ -101,24 +106,26 @@ void actSt00aEneChk(volatile int a0)
     gflagOff(0x27);
 }
 
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float f);
 extern int D_0063BE70;
 extern unsigned int D_0063BE74;
 extern int D_0063C4F8;
 extern int D_0028F8F4[];
-extern void fightSoundProcessRequestPause(void);
-extern int fightSoundPlayChk(void);
-extern void fightSoundProcessRequestStart(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern int scpAdpcmFadeCloseFunc(int *h, short fade);
-extern int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float f, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern void iosThreadSetPri(int th, int pri);
-extern void iosPadActStop(int a0);
 void actSt00aStairChkSub(volatile int a0);
 
 void actSt00aStairChk(volatile int a0)
@@ -190,6 +197,7 @@ extern int D_00639EA4;
 extern ActMail D_004F7F10[];
 extern ActMail D_004F7EB0[];
 extern ActMail D_004F7ED0[];
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float f);
 void actSt00aDoor2DownChk(int a0);
 void actSt00aDoor2UpChk(int a0);
@@ -219,12 +227,10 @@ void actSt00aDoor2(volatile int a0)
 
 extern long long D_006226A0[];
 extern ActMail D_004F7EF0[];
+/* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-extern int actCreateSubThread(void *func, int a1);
+/* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
 extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern void soundSeDefStop(int h);
-extern int stage_CheckAnimationFinish(int a0);
 void actSt00aDoor2UpEffect(volatile int a0);
 
 void actSt00aDoor2UpChk(volatile int a0)
@@ -361,10 +367,6 @@ void actSt00aEne(volatile int a0)
     }
 }
 
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
-
 void actSt00aEnemy1(volatile int a0)
 {
     int x = a0;
@@ -399,6 +401,7 @@ void actSt00aEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
 extern ActMail D_004F7E90[];
 void actSt00aStairChk(int a0);
@@ -437,6 +440,7 @@ void actSt00aAtr2(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 
 void actSt00aAtr2Chk(volatile int a0)
@@ -454,10 +458,6 @@ extern int D_00639EAC;
 extern unsigned int D_0063BE74;
 extern unsigned char D_0063BE78;
 extern int D_0063C4F8;
-extern int iosPadActRequest(int port, int id);
-extern int *iosPadActVolumeSet(int key, unsigned int val);
-extern int stage_CheckAnimationFinish(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
 
 void actSt00aStairChkSub(volatile int a0)
 {
@@ -484,7 +484,7 @@ void actSt00aDoor2Event(int x)
 
 extern long long D_006226B0[];
 extern long long D_006226C0[];
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern void scpEffectStart(int *buf, int a1);
 
 void actSt00aDoor2UpEffect(volatile int a0)

@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "act-game.h"
 
 union ENVIF {
     int i;
@@ -32,8 +34,6 @@ float D_004F1DF0[4] = {749.0f, -3775.0f, 2650.0f, 1.0f};
 
 float D_004F1E00[4] = {559.0f, -3775.0f, 2503.0f, 1.0f};
 
-extern int ACTGame_FLAG_TETSUNAGI(void);
-
 typedef struct {
     float x, y, z, w;
 } Vec4 __attribute__((aligned(16)));
@@ -46,7 +46,9 @@ extern char *D_00639EA4;
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 extern void sceVu0AddVector(float *a0, float *a1, float *a2);
 extern void sceVu0ScaleVector(float *a0, float *a1, float a2);
+/* kept local: this TU's uses of CheckPureWallAttribute do not fit the prototype in motionManager2.h */
 extern int CheckPureWallAttribute();
+/* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
 extern int CheckWallAttribute();
 extern int stage_no;
 /* prototypes: their order is the inline tail's emission order */
@@ -71,10 +73,14 @@ inline void GetSofaPosition(char *a0, char *a1)
 
 extern char *D_00639EA8;
 extern Vec4 D_00621A10;
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(void *a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
+/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(void *orient);
+/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *v, float ry);
+/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
 extern void _OrientXZGV(void *out, void *a, void *b);
 
 static inline int getDitchCarryMode(void)
@@ -178,6 +184,7 @@ typedef struct {
     char _98[0x28];
 } ClipWork;
 
+/* kept local: the declaration in fieldCollision.h changes this TU codegen */
 extern void ClipFloor(void *a0);
 
 int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
@@ -249,7 +256,6 @@ extern char D_00621B00[];
 extern char D_0063BD40[];
 extern char D_0063BD48[];
 extern int D_0063B13C;
-extern void debug_Printf(int x, int y, unsigned int color, char *fmt, ...);
 
 typedef struct {
     int on;

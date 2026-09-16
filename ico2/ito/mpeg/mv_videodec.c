@@ -1,7 +1,12 @@
 #include "common.h"
 #include "mv_defs.h"
-
-extern void Free(int a0);
+#include "mv_videodec.h"
+#include "debug.h"
+#include "memory.h"
+#include "mv_disp.h"
+#include "mv_sub.h"
+#include "mv_vibuf.h"
+#include "mv_vobuf.h"
 
 void free_buf(int a0)
 {
@@ -15,7 +20,6 @@ extern void *memset(void *p, int c, int n);
 extern int D_0063A468;
 extern int sceMpegCreate(void *self, void *buf, int size);
 extern int sceMpegAddCallback(void *self, int id, void *fn, void *arg);
-extern int viBufCreate(void *self);
 int mpegError(int a0, int *self);
 int mpegNodata(int a0, int a1, int a2);
 int mpegStopDMA(int a0_unused, int a1_unused, char *p);
@@ -46,14 +50,10 @@ int videoDecCreate(int self)
     return viBufCreate((void *)(self + 0x50)) == 0 ? 0 : -1;
 }
 
-extern void viBufBeginPut(void *self, void **addr1, int *size1, void **addr2, int *size2);
-
 void videoDecBeginPut(int a0, void **addr1, int *size1, void **addr2, int *size2)
 {
     viBufBeginPut((void *)(a0 + 0x50), addr1, size1, addr2, size2);
 }
-
-extern void viBufEndPut(int *self, int a1);
 
 void videoDecEndPut(int a0, int a1)
 {
@@ -65,8 +65,6 @@ typedef struct Code4 {
 } Code4;
 
 extern Code4 D_0063AC90[];
-extern int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
-extern void viBufFlush(int *self);
 
 int videoDecFlush(int a0)
 {
@@ -98,7 +96,6 @@ typedef struct ViTs {
 } ViTs;
 
 extern int viBufPutTs(void *self, ViTs *ts);
-extern void ErrMessage(char *msg);
 
 int videoCallback(int a0, char *pkt, int *a2)
 {
@@ -136,15 +133,11 @@ int videoCallback(int a0, char *pkt, int *a2)
     return 0 < n;
 }
 
-extern void debug_StdPrintfDummy();
+/* kept local: this TU's uses of switchThread do not fit the prototype in mv_main.h */
 extern void switchThread();
 extern int sceMpegIsEnd(int *dec);
-extern void *voBufGetData(int *vo);
 extern int sceMpegGetPicture(int *dec, void *p, int size);
-extern void voBufIncCount(int *vo);
 extern void sceMpegReset(int *dec);
-extern void dispSetTags(int *disp, int a1, int a2, int a3, int p4, int p5, int p6, int p7, int p8,
-                        int p9);
 
 int decBitStrm0(int *dec, int *disp, int *vo)
 {
@@ -195,15 +188,12 @@ int decBitStrm0(int *dec, int *disp, int *vo)
     return ret;
 }
 
-extern void iosFree();
-
 void Free(int a0)
 {
     iosFree(phys_addr(a0));
 }
 
 extern int sceMpegDelete();
-extern void viBufDelete();
 
 int videoDecDelete(int a0)
 {
@@ -232,7 +222,6 @@ int videoDecGetState(int a0)
 }
 
 extern int sceMpegIsRefBuffEmpty(char *self);
-extern int viBufCount(int *self);
 
 int videoDecIsFlushed(int *self)
 {
@@ -243,9 +232,6 @@ int videoDecIsFlushed(int *self)
     return ret;
 }
 
-extern void viBufReset();
-extern void voBufReset();
-
 void videoDecMain(int *self)
 {
     viBufReset(self[0] + 0x50);
@@ -255,7 +241,6 @@ void videoDecMain(int *self)
 }
 
 extern const char D_0063AC88[];
-extern void debug_StdPrintfDummy(const char *fmt, int arg);
 
 int mpegError(int a0, int *self)
 {
@@ -263,8 +248,8 @@ int mpegError(int a0, int *self)
     return 1;
 }
 
+/* kept local: this TU's uses of switchThread do not fit the prototype in mv_main.h */
 extern void switchThread();
-extern void viBufAddDMA();
 
 int mpegNodata(int a0, int a1, int a2)
 {
@@ -273,23 +258,17 @@ int mpegNodata(int a0, int a1, int a2)
     return 1;
 }
 
-extern void viBufStopDMA();
-
 int mpegStopDMA(int a0_unused, int a1_unused, char *p)
 {
     viBufStopDMA((int)(p + 0x50));
     return 1;
 }
 
-extern void viBufRestartDMA();
-
 int mpegRestartDMA(int a0_unused, int a1_unused, char *p)
 {
     viBufRestartDMA((int)(p + 0x50));
     return 1;
 }
-
-extern void viBufGetTs();
 
 int mpegTS(int a0_unused, int *a1, char *a2)
 {

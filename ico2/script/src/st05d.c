@@ -1,4 +1,15 @@
 #include "common.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "script.h"
+#include "StageAnimation.h"
+#include "geometryManager.h"
+#include "item.h"
+#include "quaternion.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -17,28 +28,6 @@ typedef struct PObjGObj {
     int act;           /* 0x164 */
 } PObjGObj;
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int gflagChk(int a0);
-extern void SleepHint(int a0);
-extern int scpTriggerBall(int a0, void *a1, float radius);
-extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern int actCreateSubThread(void *entry, int prio);
-extern void ReviveAllCarryableItemsWithNonSleepFrame(int a0);
-extern int scpSearchGobj(int a0);
-extern int scpGetRotObjectCurrentRot(int a0);
-extern void *GetCurrentQuaternion(void);
-extern void GetRootQuaternion(void *dst, int gobj);
-extern void RotQuaternionY(void *q, int ang);
-extern void SetRootQuaternion(int obj, void *q);
-extern void UpdateRootMatrix(int obj);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
 extern void *D_00639EA4;
 extern char *D_00639EA8;
 
@@ -252,9 +241,6 @@ void actSt05dDoor2Event(int x)
 {
     volatile int local = x;
 }
-
-extern void _ACTWait(int a0);
-extern void scpEffectStart(int *buf, int a1);
 
 void actSt05dDoor2UpEffect(volatile int a0)
 {

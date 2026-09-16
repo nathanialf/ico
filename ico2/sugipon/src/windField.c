@@ -1,15 +1,15 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "windField.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
 
 extern int D_0063BC54;
 extern float D_004ED350[];
 extern float D_004ED360[];
 extern float D_004ED370[];
-extern char ZeroVector[];
-extern void CopyVector(void *dst, void *src);
 extern void sceVu0Normalize(void *dst, void *src);
 extern float sceVu0InnerProduct(void *a, void *b);
-extern float *getParallelWindVector(float *power, void *pos);
 
 typedef struct {
     float v[4];
@@ -18,7 +18,6 @@ typedef struct {
 } WindCell;
 
 extern WindCell D_00724FF0[20][20];
-extern int *dummyGetWindVector(int *a0);
 extern WindCell *getRadiateWindVector(float *power, float *pos);
 extern int (*D_0063BC58)(void);
 extern float D_00724BF0[];
@@ -58,11 +57,6 @@ extern short D_0063BC5C;
 extern float D_004ED390[];
 extern float D_004ED430[];
 extern char D_004ED380[];
-extern void DrawLineG();
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void MatrixDrive_RotMatrixZ(short rot);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
 
 /* INTERIM: `drawLines` is a real function at its own ROM slot further down this
    TU and the listing inlines it here; while the tail still carries asm members
@@ -107,11 +101,11 @@ void drawSenpuukiHaneUnit(float scale)
 extern char D_004ED380[];
 extern float D_004ED4F0[];
 extern float D_004ED690[];
-extern void DrawLineG();
-extern void MatrixDrive_TransMatrix(float f12, float f13, float f14);
-extern void drawSenpuukiHaneUnit(float f12);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
 
 void drawSenpuuki(float scale)
@@ -148,8 +142,6 @@ int GetWindVector(void)
 {
     return D_0063BC58();
 }
-
-extern char ZeroVector[];
 
 int *dummyGetWindVector(int *a0)
 {
@@ -205,7 +197,6 @@ void StopWindField(void)
 }
 
 extern char D_004ED380[];
-extern void DrawLineG();
 
 void drawLines(char *a0)
 {
@@ -219,7 +210,6 @@ void drawLines(char *a0)
 }
 
 extern float D_004ED390[];
-extern void DrawLineG(void *a0, void *a1, void *a2, void *a3, int a4);
 
 void drawSenpuukiHane(void)
 {

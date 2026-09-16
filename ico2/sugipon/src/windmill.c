@@ -1,7 +1,8 @@
 #include "common.h"
+#include "sceneManager.h"
 
 extern int stage_no;
-extern char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
+/* kept local: the declaration in flag.h changes this TU codegen */
 extern int SetFlag4PointFixID(void *gobj, int idx, int a2);
 
 /* The 0x40-byte layout record CreateLayoutedGObj takes: three 16-byte vectors

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "debug.h"
 
 /* one 0x58-byte pad record; the engine keeps two of them */
 typedef struct Pad {
@@ -20,7 +21,7 @@ extern Pad D_0028F8F0[];
 static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0};
 
 extern int IosCdLock;
-extern void debug_StdPrintfDummy();
+/* kept local: this TU's uses of iosPadDevInit do not fit the prototype in pad.h */
 extern void iosPadDevInit(void *a0);
 extern void SignalSema(int sema);
 
@@ -56,9 +57,13 @@ typedef struct PadBuf {
 
 extern int D_0028F4C0[];
 extern char iosPadConfDefault[];
+/* kept local: this TU's uses of iosPadDevRead do not fit the prototype in pad.h */
 extern void iosPadDevRead(void);
+/* kept local: this TU's uses of iosPadConnect do not fit the prototype in pad.h */
 extern void iosPadConnect(void *buf, int a1, int port, void *conf);
+/* kept local: this TU's uses of iosPadRead do not fit the prototype in pad.h */
 extern int iosPadRead(void *buf);
+/* kept local: this TU's uses of iosPadGetStick do not fit the prototype in pad.h */
 extern int iosPadGetStick(void *buf, void *dst, int which, int cx, int cy, int a5);
 
 void ExecKeyInput(void)

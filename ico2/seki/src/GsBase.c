@@ -1,4 +1,12 @@
 #include "common.h"
+#include "debug.h"
+#include "Basic.h"
+#include "Packet.h"
+#include "RegistPacket.h"
+#include "Shadow.h"
+#include "StageAnimation.h"
+#include "Texture.h"
+#include "staticBlur.h"
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetFrame);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_Init);
@@ -19,7 +27,6 @@ typedef struct StageSetting {
 } StageSetting;
 
 extern StageSetting D_0028F720;
-extern void SetMotionBlur(int a0);
 
 void gsb_SetMotionBlur(void)
 {
@@ -36,10 +43,15 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_scissorOnDemo);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_controlBrightness);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_antiAlias);
 
+/* kept local: this TU's uses of dl_GetPri do not fit the prototype in DisplayList.h */
 extern int dl_GetPri(void);
+/* kept local: this TU's uses of dl_SetDLPriority do not fit the prototype in DisplayList.h */
 extern void dl_SetDLPriority();
+/* kept local: this TU's uses of gif_EndPacketPath1 do not fit the prototype in GifPacket.h */
 extern void gif_EndPacketPath1(void);
+/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int a0, long long a1);
+/* kept local: this TU's uses of gif_StartPacketPriPath1 do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPriPath1(int a0);
 
 void gsb_setNormalReg(void)
@@ -104,16 +116,11 @@ extern char D_0054E458[];
 extern char D_0028F4F0[];
 extern void sceGsResetPath(void);
 extern void sceVpu0Reset(void);
-extern void dma_init(void);
-extern void matrix_init(void);
-extern void tex_Init(void);
 extern void sceGsSyncV(int a0);
+/* kept local: the declaration in GsBase.h changes this TU codegen */
 extern void gsb_Init(void *p);
+/* kept local: this TU's uses of dl_Init do not fit the prototype in DisplayList.h */
 extern void dl_Init(void);
-extern void resetmallocseki(void);
-extern void pac_Init(void);
-extern void reg_Init(void);
-extern void shadow_Init(void);
 
 void gsb_InitGSSystem(void)
 {
@@ -165,7 +172,6 @@ typedef struct sceCdCLOCK {
     unsigned char year;
 } sceCdCLOCK;
 
-extern void debug_StdPrintfDummy();
 extern int stage_no;
 extern char D_005F5D90[];
 extern char D_0063A000[];
@@ -297,8 +303,6 @@ int removeLockFile(void)
     return 1;
 }
 
-extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt, ...);
-
 typedef struct {
     int _0;
     int trg; /* 0x4 */
@@ -387,7 +391,6 @@ inline void gsb_GetBGColor(unsigned char *a0)
     a0[3] = D_0067BCD0[0xC];
 }
 
-extern void stage_SetLoopFlag(int key, int a1);
 extern int CurrentTargetGObjSub;
 extern int D_0054E3C0[];
 extern char D_0054E3D8[];
@@ -419,7 +422,9 @@ inline void gsb_SetZoom(float a, float b)
 }
 
 extern int sceGsSyncPath(int mode, int timeout);
+/* kept local: the declaration in GsBase.h changes this TU codegen */
 extern void gsb_ResetGSSystem(void);
+/* kept local: the declaration in GsBase.h changes this TU codegen */
 extern void gsb_PostEffect(void);
 extern char D_0054E468[];
 extern int D_00639FF8;
@@ -465,6 +470,7 @@ inline int gsb_LoadStageSettings(void)
 extern int D_00639F78;
 extern char D_0054E568[];
 extern char D_0054E598[];
+/* kept local: the declaration in GsBase.h changes this TU codegen */
 extern void appendLogFile(void);
 
 inline int gsb_SaveStageSettings(void)
@@ -495,6 +501,7 @@ inline void gsb_ResetSnap(void) {}
 
 inline void gsb_TakeSnap(void) {}
 
+/* kept local: the declaration in GsBase.h changes this TU codegen */
 extern void updateOtherEditingLockFlag(void);
 
 inline int lockOtherEditing(void)

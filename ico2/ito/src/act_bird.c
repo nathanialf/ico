@@ -1,38 +1,45 @@
 #include "common.h"
 #include "itou_common.h"
 #include "sugiCommon.h"
+#include "act_bird.h"
+#include "memory.h"
+#include "pad.h"
+#include "gobj.h"
+#include "act.h"
+#include "lightning.h"
+#include "DisplayP2O.h"
+#include "StageAnimation.h"
+#include "geometryManager.h"
+#include "lodManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "tableSin.h"
+#include "wireLetter.h"
 
+/* kept local: this TU's uses of ExecMotionOrient do not fit the prototype in motionOrientManager.h */
 extern void ExecMotionOrient();
+/* kept local: this TU's uses of iosOmSendMail do not fit the prototype in obj_manager.h */
 extern void iosOmSendMail(void *a0);
 extern float acosf(float a0);
 extern float sceVu0InnerProduct(void *a0, void *a1);
 extern void sceVu0Normalize(void *dst, void *src);
-extern void _ACTWait(int a0);
-extern void Debug_StickControl(char *self);
 /* Actor sub-thread body: the actor scheduler resumes this frame after every
    _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
 /* Actor sub-thread body: the actor scheduler resumes this frame after every
    _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
-extern void *actInitialize(void *a0);
-extern void actCreateSubThread(void *entry, int prio);
-extern void subBirdBrainMain();
+/* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
 extern int SetMotionRequest(void *a0, int id, void *work);
 extern char D_00555788[];
 extern void *D_0063A438;
-extern char *iosMallocDebug(void *heap, int size, char *file, int line);
 extern void memset(void *dst, int c, int n);
-extern void CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of InitMotionOrient do not fit the prototype in motionOrientManager.h */
 extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
-extern void SetLodLevel(void *o, int lod);
 
 typedef union {
     int i;
     float f;
 } IntFloat;
 
-extern void _ACTSendMailToBird();
-extern void *isysGObjSearchFromObjKindID_begin(int id);
-extern void *isysGObjSearchFromObjKindID_next(void *o);
 /* prototypes: their order is the inline tail's emission order */
 float vector_angle_degree(void *a0, void *a1);
 void subBirdControl(void *volatile gobj);
@@ -55,7 +62,6 @@ extern void sceVu0CopyVector(void *dst, void *src);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern void sceVu0DivVector(void *dst, void *src, float s);
-extern float GetTableSin(short a0);
 
 void interp_vector_sa(float *dst, float *a, float *b, float sa)
 {
@@ -85,9 +91,7 @@ void interp_vector_sa(float *dst, float *a, float *b, float sa)
     sceVu0DivVector(dst, sum, GetTableSin((short)(ang * 10430.378f)));
 }
 
-extern void GetRootPosition(void *dst, void *self);
-extern void SetRootPosition(void *self, void *src);
-extern void _GetMotionDirection(void *dst, void *self);
+/* kept local: this TU's uses of _GetLengthXZ do not fit the prototype in Matrix.h */
 extern float _GetLengthXZ(void *a, void *b);
 
 typedef struct BirdMailEntry {
@@ -231,13 +235,8 @@ inline void actBirdStart(void *a0)
 extern int matrixptr;
 extern void sceVu0TransposeMatrix(void *dst, void *src);
 extern void sceVu0UnitMatrix(void *m);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
 /* libvu0 sceVu0MulMatrix; the repo carries it under its vendor placeholder. */
 extern void sceVu0MulMatrix(void *dst, void *a, void *b);
-extern void DispWireString(char *s);
 extern void vsprintf();
 
 void Debug_WireString_Bird(float *pos, char *fmt, ...)
@@ -262,11 +261,8 @@ void Debug_WireString_Bird(float *pos, char *fmt, ...)
 
 extern char *D_00639EC0;
 extern char *D_00639ED0;
-extern int iosPadConnect(void *pad, int slot, int port, void *conf);
-extern void iosPadRead(void *pad);
-extern int iosPadGetStick(void *pad, void *out, int a2, int a3, int a4, int a5);
+/* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
 extern int CorrectStickInfo(void *dir, void *stick);
-extern void ConvertStickToAbsCoord(void *out, void *stick);
 
 void Debug_StickControl(char *self)
 {
@@ -297,9 +293,6 @@ void BirdGeo(int a0, int a1, int a2, int a3)
     ExecMotionOrient(a0, a1, a2, a3);
 }
 
-extern void p2o_DispVU1Default(void *gobj);
-extern int stage_DispBgAnimation(void *p);
-extern void lightning_test(void);
 extern int stage_no;
 
 /* census: ito/src/act_bird.c BirdDL, def line 1024 */

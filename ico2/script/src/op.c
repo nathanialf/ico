@@ -1,4 +1,13 @@
 #include "common.h"
+#include "op.h"
+#include "StageManager.h"
+#include "debug.h"
+#include "layout_texture.h"
+#include "commonact.h"
+#include "jimaku.h"
+#include "camera-root.h"
+#include "gflag.h"
+#include "StageAnimation.h"
 
 /* The TU starts at 0x0021F060, where MAIN.MAP puts op.o: these three sit before
    the functions the listing hashes named. */
@@ -16,19 +25,21 @@ typedef struct Act {
 
 /* the three functions at the head of the TU need their callees declared here,
    above their definitions; the TU's own declaration block below repeats them */
+/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
 extern Act *actInitialize(int a0);
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int D_0063ABA8;
 extern void *D_0063BE6C;
 extern int D_0063C4E8;
-extern void SetHandCameraLimitInDemo(int a0, int a1);
-extern void SetZoomMaxValInDemo(int a0);
 extern char *D_00639EA4;
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(char *gobj);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern char *scpSearchGobj(int id);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int kind, void *id, int a2, int a3, int a4);
 extern int enable_game_pause;
 extern int D_0063BE68;
@@ -125,23 +136,16 @@ void actTitleShortCut(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
 extern Act *actInitialize(int a0);
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void lt_switch_layout(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void actOpDemo03Chk(int a0);
 extern ActMail D_004F7E10[];
 extern ActMail D_004F7E30[];
 extern int D_0063AA08;
 extern int D_0028F4C0[];
-extern void stgmgrNextStagePreLoadForceNoCancel(int a0);
-extern void stgmgrNextStagePreLoadForceStageSet(int a0);
-extern int gflagChk(int a0);
-extern void gflagOn(int a0);
 /* the retail build's printf stub; the 2001 declaration was unprototyped, which
    is why the extra arguments still travel in $a1/$a2 rather than on the stack */
-extern void debug_StdPrintfDummy();
 extern int frame_count;
 extern char D_00622630[];
 extern char D_00622648[];
@@ -152,10 +156,7 @@ extern int D_0063BE68;
 extern void *D_0063BE6C;
 extern int D_0063C4E8;
 extern int D_0063C4EC;
-extern void ResetHandCameraLimitInDemo(void);
-extern void ResetZoomMaxValInDemo(void);
-extern void SetHandCameraLimitInDemo(int a0, int a1);
-extern void SetZoomMaxValInDemo(int a0);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
 extern char *D_00639EA4;
 extern char D_00622680[];
@@ -168,13 +169,12 @@ typedef struct PadState {
 } PadState;
 
 extern PadState D_0028F8F0[];
+/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
 extern int actCreateSubThread(void *entry, int prio);
-extern void actOpDemo01_2Chk(int a0);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(char *gobj);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern char *scpSearchGobj(int id);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
 extern int stage_no;
 
 /* the 0x194-byte per-stage record; the cutscene entries read their exit index
@@ -205,17 +205,23 @@ typedef struct {
 } ExitData;
 
 extern const ExitData D_0055C518[];
-extern void actSt13aConte01_3(int a0);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(char *self, int mot);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(int a0, int a1, int a2, float t);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
+/* kept local: this TU's uses of RequestStageChangeWithColor do not fit the prototype in script.h */
 extern int RequestStageChangeWithColor(int a0, char *a1, int a2, float a3, float a4, int r, int g,
                                        int b);
 extern int D_0063BE64;
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int kind, void *id, int a2, int a3, int a4);
-extern void actSt24aConte01_2(int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
 extern int D_0063C4F0;
 extern int D_0063C4F4;
@@ -240,8 +246,6 @@ typedef struct JimakuArg {
 
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
-extern void jimakuBegin(int a0);
-extern void jimakuJump(int a0);
 /* prototypes: their order is the inline tail's emission order */
 void actOpDemo03(volatile int a0);
 void actSubMpegReturnPreload(volatile int a0);

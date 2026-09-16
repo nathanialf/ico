@@ -1,4 +1,8 @@
 #include "common.h"
+#include "debug.h"
+#include "DisplayList.h"
+#include "Primitive.h"
+#include "quaternion.h"
 
 typedef struct PEGeo PEGeo; /* the allocated per-effect geometry object */
 
@@ -26,7 +30,7 @@ typedef struct {
     long long q[20];
 } PE160;
 
-extern void CopyQuaternion();
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector();
 
 void setParticleEffectGeometry(int a0, int a1, int a2)
@@ -66,10 +70,15 @@ typedef struct {
 extern PEPartRec D_004ECCF0;
 extern float D_004ECE90[4];
 extern float _GetRandom(void);
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of CopyIVector do not fit the prototype in matrixDrive.h */
 extern void CopyIVector(void *dst, void *src);
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixX(int angle);
+/* kept local: this TU's uses of MatrixDrive_RotMatrixY do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixY(int angle);
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
 
@@ -134,8 +143,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/particleEffect", setParticleEffec
 extern char *matrixptr;
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float k);
-extern void GetMatrixFromQuaternionPos(void *m, void *q, void *p);
+/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
+/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PopMatrix(void);
 
 /* particleEffect.c:358-367 in the PAL listing, rows outside dispParticleEffect's
@@ -170,10 +180,13 @@ static inline void peSetVtx(char *dst, char *pt)
 
 /* the blank particle template, the 0x70-byte record that follows D_004ECCF0 */
 extern char D_004ECD60[];
+/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(int a0, void *v);
 extern void sceVu0ScaleVector(void *dst, void *src, float k);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
 
 /* the EE scratchpad holds the particle being updated */
@@ -313,10 +326,6 @@ extern GifDpk D_004EE6F0;
 extern char *matrixptr;
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float k);
-extern void dl_SetDLPriority(int pri);
-extern void dl_OpenDma(int chan, void *dma, int flag);
-extern void dl_CloseDma(void);
-extern void prim_DispParticle(int prim, void *m);
 
 /* INTERIM (the same construct src/GifPacket.c uses for its own gif_SetGsReg):
    the listing inlines the GS-register writer at every site in this TU, so it is
@@ -400,9 +409,11 @@ extern char D_006208E0[];
 extern char D_00620920[];
 extern char D_00620908[];
 extern int D_00721020[];
-extern void debug_StdPrintfDummy();
+/* kept local: this TU's uses of iosMallocDebugNoAssert do not fit the prototype in memory.h */
 extern int iosMallocDebugNoAssert(int heap, int size, char *file, int line);
+/* kept local: this TU's uses of iosFree do not fit the prototype in memory.h */
 extern void *iosFree(void *ptr);
+/* kept local: this TU's uses of setParticleEffect do not fit the prototype in particleEffect.h */
 extern int setParticleEffect(int geo, int *pkg, int part);
 
 /* the listing's lines 129-137: a static free-slot search with no out-of-line
@@ -455,7 +466,7 @@ int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int 
 }
 
 extern char D_00620940[];
-extern void prim_DeleteParticle(int a0);
+/* kept local: this TU's uses of iosFree do not fit the prototype in memory.h */
 extern void *iosFree(void *ptr);
 
 /* INTERIM: the listing's lines 430-435 (a static helper with no out-of-line
@@ -480,6 +491,7 @@ void SetParticleEffectGeometry(int a0, int a1, int a2)
     }
 }
 
+/* kept local: this TU's uses of execParticleEffect do not fit the prototype in particleEffect.h */
 extern int execParticleEffect(void *a0);
 
 void SetParticleEffectUpperLimit(int no, float f)
@@ -557,7 +569,9 @@ void ExecParticleEffect(int no)
 
 extern int D_0063A450;
 extern char D_00620908[];
+/* kept local: this TU's uses of iosMallocDebugNoAssert do not fit the prototype in memory.h */
 extern int iosMallocDebugNoAssert(int heap, int size, char *file, int line);
+/* kept local: this TU's uses of setParticleEffect do not fit the prototype in particleEffect.h */
 extern int setParticleEffect(int geo, int *pkg, int part);
 
 void ResetParticleEffectPackages(int *pkg)
@@ -584,7 +598,6 @@ void ResetParticleEffectPackages(int *pkg)
 extern PE160 D_004ECDF0;
 extern char D_00620980[];
 extern int D_00721020[];
-extern void debug_StdPrintfDummy();
 extern void memcpy(void *dst, int *a1, int a2);
 
 void SetParticleEffectPackage(int a0, int *a1, int a2)
@@ -642,6 +655,7 @@ void SetParticleEffectPauseFlag(int a0, int a1)
 }
 
 extern int D_0063A450;
+/* kept local: this TU's uses of SetParticleEffectByPartition do not fit the prototype in particleEffect.h */
 extern int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int part);
 
 int SetParticleEffect(int no, PEVector *pos, PEQuaternion *quat)

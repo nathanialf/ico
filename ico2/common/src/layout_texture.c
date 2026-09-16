@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "gflag.h"
 
 extern int D_0063B60C;
 extern unsigned int D_0063B610;
@@ -44,13 +46,13 @@ typedef struct LtStageRange {
 } LtStageRange;
 
 extern LtStageRange D_005F5D50[];
+/* kept local: the declaration in layout_texture.h changes this TU codegen */
 extern void display_texture_fade_cancel_chk(int from, int to);
 extern int D_0063B5F0;
 extern int D_0063B614;
 extern int layout_boot_flag;
 extern int mpegPlayReturnStage;
 extern int title_demo_mode;
-extern void gflagInit(void);
 
 /* The 0x38-byte layout property records this TU shares with src/kanban. */
 typedef struct LtProp {
@@ -132,7 +134,9 @@ extern int D_0063C408;
 extern int D_0028F8F4[];
 extern int D_0063B620;
 extern int D_0063AA00;
+/* kept local: the declaration in layout_texture.h changes this TU codegen */
 extern void display_primary_texture_layout(int no, int sel);
+/* kept local: the declaration in layout_texture.h changes this TU codegen */
 extern void default_item_select(int no);
 /* census name: display_texture (the name is also src/jimaku's global and
    src/kanban's file-local one). */
@@ -166,6 +170,7 @@ static inline void lt_draw_layout(int no)
     }
 }
 
+/* kept local: the declaration in s_init.h changes this TU codegen */
 extern int soundSeDefPlay(int se, unsigned int handle, float *pos, int a3);
 extern unsigned int D_0063C400;
 extern unsigned int D_0063C404;
@@ -326,11 +331,17 @@ extern SprRect D_0061DD50;
 extern int D_0063B61C;
 extern int D_0063C3F4;
 extern int D_0063C3F8;
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int on);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int on);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_SpriteSensitive do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitive(void *rect, unsigned int z, void *uv, void *col, int prim);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 extern void texture_fading(LtProp *p);
 
@@ -465,10 +476,12 @@ extern char D_0063B638[]; /* "0" */
 extern char *strcpy(char *dst, const char *src);
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
+/* kept local: this TU's uses of tex_GetTextureNo do not fit the prototype in Texture.h */
 extern int tex_GetTextureNo(char *name);
+/* kept local: this TU's uses of tex_GetTextureData do not fit the prototype in Texture.h */
 extern void *tex_GetTextureData(int no);
+/* kept local: this TU's uses of tex_SetSamplingType do not fit the prototype in Texture.h */
 extern void tex_SetSamplingType(void *td, int a1, int a2);
-extern void debug_StdPrintfDummy();
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 

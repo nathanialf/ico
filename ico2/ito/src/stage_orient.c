@@ -1,4 +1,6 @@
 #include "common.h"
+#include "Matrix.h"
+#include "matrixDrive.h"
 
 typedef struct {
     char name[16];
@@ -87,16 +89,6 @@ inline void StageOrientInit(void)
         }
     }
 }
-
-extern void _UnitMatrix(float *m);
-extern void _MulMatrix(float *out, float *a, float *b);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern float *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrixV(VECTOR *v);
-extern void MatrixDrive_RotMatrixY(short rot);
-extern void MatrixDrive_SetTransposeMatrix(float *out, float *m);
-extern void CopyMatrix(float *out, float *m);
 
 /* census: the rows 52-63 that appear twice inside GetStageDifferenceMatrix and
    again in StageOrientGet2 are a static inline with no standalone copy in the

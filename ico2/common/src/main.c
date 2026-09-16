@@ -1,9 +1,19 @@
 #include "common.h"
+#include "StageManager.h"
+#include "debug.h"
+#include "layout_action.h"
+#include "cdvd.h"
+#include "ios.h"
+#include "message.h"
+#include "gflag.h"
+#include "FileManager.h"
+#include "GsBase.h"
+#include "Matrix.h"
+#include "keyInput.h"
 
 extern int D_0028F8F4[];
 extern int D_00639C80;
 extern int D_00639C94;
-extern void ExecKeyInput();
 
 typedef struct {
     int *th[6];
@@ -21,14 +31,12 @@ extern char D_006450F0[];
 extern char D_00645160[];
 extern int D_0028F4C8[];
 extern int stage_no;
-extern void debug_StdPrintfDummy();
-extern void file_Init(void);
-extern void iosInitialize(void);
-extern void gflagInit(void);
-extern void CheckPoint(void);
+/* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h */
 extern void iosThreadCreate(void *th, int a1, void (*entry)(void), int a3, void *stack, int size,
                             int pri);
+/* kept local: this TU's uses of iosThreadStart do not fit the prototype in thread.h */
 extern void iosThreadStart(void *th);
+/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
 void idle(void);
 void scheduler(void);
@@ -53,18 +61,11 @@ extern int D_0063A368;
 extern int D_0063A3B8;
 extern int D_0063A47C;
 extern void sceGsSyncV(int mode);
-extern void iosMsgQueueCreate(void *q, void *buf, int n);
-extern void iosMsgSetEvent(int ev, void *q, int msg);
-extern void iosMsgRecv(void *q, void *msg, int block);
-extern int gsb_SyncGSSystem(void);
-extern void _PushVu0Registers(void);
-extern void gsb_UpdateGSSystem(int a0);
-extern void _PopVu0Registers(void);
-extern int iosCdvdDiskStatusGet(void);
+/* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
 extern int iosThreadCancelWakeup(void *th);
+/* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
 extern int iosThreadWakeup(void *th);
 extern void SignalSema(int sema);
-extern void la_playtime_count(void);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/main", Main);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/main", idle);
@@ -148,8 +149,10 @@ void boot(void)
 }
 
 extern ThreadTbl D_0054D508;
+/* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern void iosThreadDestroy(int *th);
 extern ThreadTbl D_0054D508;
+/* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern void iosThreadDestroy(int *th);
 
 void Emergency_DestroyAllThread(void)

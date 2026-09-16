@@ -1,15 +1,19 @@
 #include "common.h"
+#include "debug.h"
+#include "Basic.h"
+#include "Texture.h"
 
 /* header prototypes (order fixes the inline tail) */
 extern char D_0054F5C0[];
 extern char D_0067C010[];
 extern char D_0054F5D0[];
-extern void debug_StdPrintfDummy();
+/* kept local: the declaration in Packet.h changes this TU codegen */
 extern void pac_makePacket(void *a0, int a1, int a2);
 /* prototypes: their order is the inline tail's emission order */
 void pac_Dump(int *a0, int size);
 void pac_Init(void);
 void pac_DispVu1Memory(int idx, int n, int size);
+/* kept local: the declaration in Packet.h changes this TU codegen */
 extern void pac_DispQW(void *p, int size);
 extern int D_0063C154;
 extern char D_0054F200[];
@@ -135,7 +139,6 @@ extern char D_0054F3A0[];
 extern char D_0054F3D8[];
 extern char D_0054F400[];
 extern char D_0063A120[];
-extern void debug_Assert(char *fmt, ...);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -429,7 +432,6 @@ typedef struct MatObj {
     unsigned int f_D4;
 } MatObj;
 
-extern int mallocseki(int size);
 extern void pac_setMaterialPacket(MatEnt *ent);
 
 typedef struct MatTab {
@@ -515,8 +517,6 @@ extern char D_0063A138[];
 extern char D_0063A140[];
 extern char D_0063A148[];
 extern int sprintf(char *buf, const char *fmt, ...);
-extern int tex_GetTextureNo(void *name);
-extern int *tex_GetTextureData(int idx);
 
 void pac_getTextureInfo(char *m, char *info, int idx)
 {

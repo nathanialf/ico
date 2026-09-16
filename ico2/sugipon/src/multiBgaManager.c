@@ -1,4 +1,6 @@
 #include "common.h"
+#include "matrixDrive.h"
+#include "quaternion.h"
 
 typedef struct {
     float f0;        /* 0x00 */
@@ -18,12 +20,10 @@ typedef struct {
 extern MultiBga D_004ECCA0;
 extern int D_0063A438;
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *a0, void *a1, void *a2);
+/* kept local: this TU's uses of stage_PlayBgAnimation do not fit the prototype in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
-extern void CopyVector(void *dst, void *src);
-extern void CopyQuaternion(void *dst, void *src);
-extern char ZeroVector[];
-extern char IdentityQuaternion[];
 /* prototypes: their order is the inline tail's emission order */
 void EntryMultiBgaManagerNoKind(BgaDisp *bga, int no, void *pos);
 void DispMultiBgaManagerWithKind(int kind, BgaDisp *base, int n);

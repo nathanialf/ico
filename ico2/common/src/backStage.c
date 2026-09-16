@@ -1,4 +1,12 @@
 #include "common.h"
+#include "debug.h"
+#include "enemy_act.h"
+#include "itou_boss.h"
+#include "camera-root.h"
+#include "ebrain.h"
+#include "gflag.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
 
 /* header prototypes (order fixes the inline tail) */
 /* prototypes: their order is the inline tail's emission order */
@@ -17,7 +25,9 @@ extern float D_0063C360;
 extern float D_0063C364;
 extern float D_0063C368;
 extern float D_0063C36C;
+/* kept local: this TU's uses of gamesysMemoryHandlerWrite do not fit the prototype in gamesys.h */
 extern int gamesysMemoryHandlerWrite(void *, void *, int);
+/* kept local: this TU's uses of gamesysMemoryHandlerRead do not fit the prototype in gamesys.h */
 extern int gamesysMemoryHandlerRead(void *, void *, int);
 extern int D_0063C370;
 
@@ -73,47 +83,61 @@ extern int gamesysAnotherStageTsuresari;
 extern int D_0063B60C;
 extern int stage_no;
 extern int D_0063C374;
-extern int gflagChk(int flag);
 extern void sceVu0CopyVector(void *dst, void *src);
 extern void *memset(void *p, int c, int n);
+/* kept local: this TU's uses of gamesysObjInfoPosNewStageSet do not fit the prototype in gamesys.h */
 extern GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float *pos,
                                                     float *rot);
+/* kept local: this TU's uses of SetInfoSpKidnapGenerator do not fit the prototype in generator.h */
 extern void SetInfoSpKidnapGenerator(int *work);
+/* kept local: this TU's uses of SetInfoSpKidnapEnemy do not fit the prototype in generator.h */
 extern void SetInfoSpKidnapEnemy(int *work);
-extern int CameraGetMode(void);
+/* kept local: this TU's uses of SetStatusBoy_OtherStageGirlPinch do not fit the prototype in boyact.h */
 extern void SetStatusBoy_OtherStageGirlPinch(void);
-extern int eBrainGetTargetGeneratorFromLabel(int label);
+/* kept local: this TU's uses of RequestStageChangeKidnapEnd do not fit the prototype in boyact.h */
 extern void RequestStageChangeKidnapEnd(int stage, int gen);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern float D_006FACF0[4];
+/* kept local: this TU's uses of NearestEnemyFromGirl do not fit the prototype in way_kidnap.h */
 extern int NearestEnemyFromGirl(float *dist);
+/* kept local: this TU's uses of gamesysObjInfoPosSetStage do not fit the prototype in gamesys.h */
 extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
+/* kept local: this TU's uses of WayLengthOfPos_Pos do not fit the prototype in way_kidnap.h */
 extern float WayLengthOfPos_Pos(float *a, float *b);
-extern void GetRootProjectionPosOfGObj(float *out, int gobj);
+/* kept local: this TU's uses of WayPointWithRangeFromPos2 do not fit the prototype in way_kidnap.h */
 extern int WayPointWithRangeFromPos2(float *pos, void *a1, float *out, int flag);
+/* kept local: this TU's uses of gamesysObjInfoCls do not fit the prototype in gamesys.h */
 extern void gamesysObjInfoCls(int kind, int no);
+/* kept local: this TU's uses of WayLengthOfGObj_GObj do not fit the prototype in way_kidnap.h */
 extern float WayLengthOfGObj_GObj(void *obj0, void *obj1);
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(float *out, int gobj);
+/* kept local: this TU's uses of NumOfWpPos do not fit the prototype in way_kidnap.h */
 extern int NumOfWpPos(void);
+/* kept local: this TU's uses of CopyWpPos do not fit the prototype in way_kidnap.h */
 extern void CopyWpPos(float *out, int i, int j);
 extern void sceVu0SubVector(float *dst, float *a, float *b);
+/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
-extern float FSqrt(float x);
 extern int D_0028F4C0[];
 extern int D_004DA7D0[];
 extern unsigned int gamesysTimeCount;
 extern int D_00639EA8;
 extern int warpGirlInStageSet;
 extern char D_0063ACF8[];
+/* kept local: this TU's uses of IsGirlEscortedInCurrentStage do not fit the prototype in boyact.h */
 extern int IsGirlEscortedInCurrentStage(void);
+/* kept local: this TU's uses of WayPointWithRangeFromPos do not fit the prototype in way_kidnap.h */
 extern void WayPointWithRangeFromPos(float *pos, float range, int flag);
 extern int rand(void);
+/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition(int gobj, float *pos);
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjKindID_begin(int kind);
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjKindID_next(int gobj);
-extern int isEnemyKidnapEnable(int gobj);
-extern int InqCapsuleGhostBossStage(void);
+/* kept local: this TU's uses of isysGObjSearchFromObjLayoutID do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjLayoutID(int id);
+/* kept local: the declaration in backStage.h changes this TU codegen */
 extern void routeSetPos(int gobj0, int gobj1, float *out, float ratio);
 
 inline void backStageProcessInit(void)

@@ -1,16 +1,28 @@
 #include "common.h"
+#include "DObj.h"
+#include "GobjProc.h"
+#include "debug.h"
+#include "gamesys.h"
+#include "obj_manager.h"
+#include "act-game.h"
+#include "fieldCollision.h"
+#include "way_tool.h"
+#include "brain.h"
+#include "camera-root.h"
+#include "fightSound.h"
+#include "GsBase.h"
+#include "Light.h"
+#include "clipCollisionManager.h"
+#include "waySystemManager.h"
 
-extern void ExtractWayData();
 extern char D_002C1270[];
-extern void iosOmSendMail(int *a0, int a1, int *a2);
+/* kept local: this TU's uses of isysGObjGetExist_begin do not fit the prototype in gobj.h */
 extern int *isysGObjGetExist_begin(int a0);
+/* kept local: this TU's uses of isysGObjGetExist_next do not fit the prototype in gobj.h */
 extern int *isysGObjGetExist_next(int *a0);
 extern int D_0063C414;
 extern int D_0063C418;
 extern int D_0063C41C;
-extern char *CreateGObj(char *layout, int id, int a2, int a3, int a4);
-extern int CSVSYSTEM_InitDObj(int modelId, int arg);
-extern void light_AddLight(char *gobj, int a1, int a2);
 extern char D_0063B640;
 extern int D_0063B644;
 extern float D_0071D960[];
@@ -182,9 +194,9 @@ typedef struct StageSetting {
 extern StageSetting D_0028F720;
 extern int D_0028F4F0[];
 extern char D_0061DDD8[];
-extern void debug_StdPrintfDummy(char *fmt, ...);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(float *dst, float *src);
-extern void gsb_SetBGColor(int *a0, int r, int g, int b);
+/* kept local: this TU's uses of tex_RemakeRegistersSampleMin do not fit the prototype in Texture.h */
 extern void tex_RemakeRegistersSampleMin(int a);
 
 void InitStageLight(int stage)
@@ -352,9 +364,13 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", initParentLink);
    and no census row, so the names below are descriptive. */
 
 extern GamesysObjInfoFlag D_004DA980[];
+/* kept local: the declaration in sceneManager.h changes this TU codegen */
 extern void initSceneGObj(int stage, int id);
+/* kept local: the declaration in sceneManager.h changes this TU codegen */
 extern void initParentLink(int id);
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
 extern int *isysGObjSearchFromObjKindID_begin(int kind);
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
 extern int *isysGObjSearchFromObjKindID_next(int *gobj);
 
 static inline void initSceneGObjRange(int stage, int first, int last)
@@ -399,7 +415,6 @@ void initWayData(int stage)
     ExtractWayData(stage);
 }
 
-extern void ResetGObjProc(void);
 extern void *D_00639EA4;
 extern void *D_00639EA8;
 extern void *D_00639EAC;
@@ -408,18 +423,8 @@ extern void *D_00639EB4;
 extern void *D_00639EB8;
 extern void *D_00639EBC;
 extern char D_0061DEF0[];
-extern void debug_StdPrintfDummy(char *fmt, ...);
-extern void gsb_SetZoom(float near, float far);
-extern void brainInit(void);
-extern void ACTGameView_Init(void);
-extern void gamesysObjInfoStageInitFlagCls(void);
-extern void fightSoundProcessRequestStart(void);
-extern void CreateClipCollisionManagerGObj(void);
-extern void CreateWaySystemManagerGObj(void);
-extern int *InitCameraGObjs(int stage, int a1, int a2);
+/* kept local: this TU's uses of isysGObjMoveAfterGObj do not fit the prototype in gobj.h */
 extern void isysGObjMoveAfterGObj(void *gobj, int *after);
-extern void InitCamera(void);
-extern void MakeExitAttributeIndex(void);
 
 void InitSceneObjects(int stage)
 {

@@ -6,7 +6,6 @@
 extern int strlen();
 extern void vsprintf();
 extern int D_0028F4F0[];
-extern void gsb_Init();
 extern void sceVif1PkCloseDirectCode();
 extern void sceVif1PkCloseGifTag();
 extern void sceVif1PkEnd();
@@ -71,8 +70,6 @@ extern DbgChar D_0063B388;
 extern int D_0063B394;
 extern int D_0063B398;
 extern int D_0063B390;
-extern void SetDrawEnvironment(int a0);
-extern void drawSprite(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
 
 typedef struct {
     int _0;
@@ -87,8 +84,6 @@ extern int buffer_ID;
 extern int odd_even;
 extern int frame_count;
 extern void FlushCache(int a0);
-extern void RestoreNormalDrawEnvironment(void *a0, int a1, int a2);
-extern void gsb_Reduction(void);
 extern void sceGsSwapDBuff(void *a0, int a1);
 extern int sceGsSyncV(int a0);
 

@@ -1,13 +1,13 @@
 #include "common.h"
+#include "debug.h"
+#include "camera-root.h"
 
+/* kept local: this TU's uses of GetMaxGObj do not fit the prototype in GobjProc.h */
 extern int GetMaxGObj(void);
+/* kept local: this TU's uses of GetGObjP do not fit the prototype in GobjProc.h */
 extern int GetGObjP(); /* unprototyped: C89 default int return, a GObj handle */
-extern int CameraGetTarget(void);
+/* kept local: this TU's uses of GetGObjId do not fit the prototype in GobjProc.h */
 extern int GetGObjId(int gobj);
-extern void CameraSetMode(int mode);
-extern void CameraChangeTargetParallel(int a0, int a1);
-extern void Camctrl_SetTarget(int target, int a1, int a2);
-extern void debug_PrintfDummy(int x, int y, unsigned int color, void *fmt, int a4);
 extern int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
                                     int (*fn)(int, int), int a7);
 extern int D_0063B404;
@@ -69,6 +69,7 @@ void init_debug_menu(void)
 }
 
 extern int D_002C1270[];
+/* kept local: this TU's uses of GetGObjP do not fit the prototype in GobjProc.h */
 extern int GetGObjP();
 
 char *debug_TargetGObj_Func(void)

@@ -1,4 +1,9 @@
 #include "common.h"
+#include "hand-camera.h"
+#include "act-game.h"
+#include "gv.h"
+#include "matrixDrive.h"
+#include "quaternion.h"
 
 /* prototypes: their order is the inline tail's emission order */
 void ClearHandCameraCorrect(void);
@@ -8,11 +13,8 @@ extern int D_0028F4C0[];
 extern float D_0063C2E0;
 extern float D_006E9990[];
 extern unsigned char D_0063C2E4;
-extern float FSqrt(float a0);
 extern float atan2f(float y, float x);
 extern void *memset(void *dst, int c, int n);
-extern void _ApplyRyGV(float *v, float ang);
-extern float _ACTGame_GetParamF(int idx);
 
 void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
 {
@@ -65,7 +67,6 @@ void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
 }
 
 extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern float _RotGVF(float *a0, float *a1);
 
 void SetCurrentInfo(void *a0, void *a1)
 {
@@ -102,10 +103,6 @@ void SetCurrentInfo(void *a0, void *a1)
     }
 }
 
-extern void SetIdentityQuaternion(void *q);
-extern void SetQuaternionByAxisRotate(void *q, short ang, float x, float y, float z);
-extern void MultiQuaternion(void *dst, void *a, void *b);
-extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
 extern void sceVu0OuterProduct(void *dst, void *a, void *b);
 extern void sceVu0Normalize(void *dst, void *src);
 extern void sceVu0ScaleVector(void *dst, void *src, float s);
@@ -187,10 +184,6 @@ inline void SetLimitHandCameraCorrect(float a0, float a1)
     D_006E9990[5] = a0;
     D_006E9990[6] = a1;
 }
-
-extern void SetCurrentInfo(void *a0, void *a1);
-extern void RotateAccordingToStick_PatternThree(float *a, float *b, float rot, float y);
-extern void HandyCamera_TargetMoveType(void *a0, void *a1);
 
 void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14)
 {

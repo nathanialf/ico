@@ -1,8 +1,9 @@
 #include "common.h"
-
-extern void _ACTWait();
-extern int actInitialize(int a0);
-extern void _ACTWait(int a0);
+#include "st17b.h"
+#include "act.h"
+#include "commonact.h"
+#include "gflag.h"
+#include "script.h"
 
 typedef struct ActMail {
     int mail;          /* 0x00 */
@@ -19,11 +20,6 @@ typedef struct Act {
 static ActMail check_mes[2] = {{430}, {429}};
 
 extern int lightning2;
-extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern int gflagChk(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void actSt17bCheckChk(volatile int a0);
 
 void actSt17bTest(volatile int a0)
 {

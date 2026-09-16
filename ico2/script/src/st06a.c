@@ -1,4 +1,23 @@
 #include "common.h"
+#include "st06a.h"
+#include "debug.h"
+#include "layout_texture.h"
+#include "thread.h"
+#include "obj_manager.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "way_llf.h"
+#include "camera-root.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "box.h"
+#include "geometryManager.h"
+#include "item.h"
+#include "motionManager2.h"
+#include "rotObject.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -19,9 +38,6 @@ typedef struct PObjGObj {
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
 } PObjGObj;
-
-extern void actSt06aShutterSwitch(volatile int a0);
-extern void actSt06aJumpSwitch(volatile int a0);
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copies read. */
@@ -156,26 +172,14 @@ static ActMail sound2_mes[2] = {{430}, {429}};
 
 static float sound2_chk_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f};
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void gflagOn(int a0);
-extern void gflagOff(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern void soundSeDefStop(int handle);
-extern void SetWayGroupActive(int a0, int a1);
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(void *obj, int attr);
-extern void FinishHint(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void stage_SetLoopFlag(int a0, int a1);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
 extern int D_0063C558;
-extern void debug_StdPrintfDummy(char *fmt);
 extern void *D_00639EA4;
 extern void *D_00639EA8;
 
@@ -196,10 +200,6 @@ void actSt06aInit(void)
         SetWayGroupActive(0xC, 1);
     }
 }
-
-extern void SetRotObjectLockFlag(PObjGObj *a0, int a1);
-extern void ReInitBoxGeo(PObjGObj *a0);
-extern void actSt06aSuimonChk(volatile int a0);
 
 void actSt06aSuimon(volatile int a0)
 {
@@ -234,29 +234,27 @@ typedef struct Pad {
 } Pad;
 
 extern Pad D_0028F8F0[];
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
-extern void WakeupHint(int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
 extern char *shutter;
-extern void actSt06aShutterOpenSub(volatile int a0);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
-extern int actCreateSubThread(void *entry, int prio);
-extern void actSt06aJumpSub(volatile int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
-extern void iosThreadSetPri(int a0, int a1);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
-extern int lt_fade_status(void);
-extern void SetCameraFlag_LwsCutBack(void);
 extern int suimon;
 extern int D_0063C55C;
+/* kept local: this TU's uses of scpGetRotObjectRotCount do not fit the prototype in script.h */
 extern float scpGetRotObjectRotCount(int a0);
-extern void actSt06aSuimonFlagOn(volatile int a0);
-extern void actSt06aSuimonEffect(volatile int a0);
-extern void actSt06aSuimonSub(volatile int a0);
 
 void actSt06aSuimonChk(volatile int a0)
 {
@@ -333,9 +331,6 @@ void actSt06aSuimonChk(volatile int a0)
     SetWayGroupActive(0xA, 1);
 }
 
-extern void actSt06aDoorDownChk(volatile int a0);
-extern void actSt06aDoorUpChk(volatile int a0);
-
 void actSt06aDoor(volatile int a0)
 {
     int x = a0;
@@ -360,10 +355,10 @@ void actSt06aDoor(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
+/* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
-extern void actSt06aDoorUpEffect(volatile int a0);
-extern void actSt06aDoorDownEffect(volatile int a0);
 
 void actSt06aDoorUpChk(volatile int a0)
 {
@@ -485,9 +480,6 @@ void actSt06aShutterOpen(volatile int a0)
     SetWayGroupActive(0xC, 1);
 }
 
-extern void SetCameraFlag_GamecamCutBack(void);
-extern void actSt06aBoxSub(volatile int a0);
-
 void actSt06aBoxChk(volatile int a0)
 {
     int h;
@@ -535,8 +527,6 @@ void actSt06aBoxChk(volatile int a0)
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
 }
-
-extern void ReviveAllCarryableItemsWithRandomVelocity(float a0, float a1);
 
 void actSt06aStatueChk(volatile int a0)
 {
@@ -593,7 +583,7 @@ void actSt06aStatueChk(volatile int a0)
 
 extern int toge;
 extern int D_0063AA00;
-extern int GetCharHeldItem(void *a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(void *a0, int a1);
 
 void actSt06aHeadChk(volatile int a0)
@@ -730,9 +720,6 @@ void actSt06aJumpMove(volatile int a0)
     lt_switch_layout(0x36);
 }
 
-extern void iosOmSendMail(void *a0, int a1, void *a2);
-extern void actSt06aPistonRideOnChk(volatile int a0);
-
 inline void actSt06aPistonRideOffChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -779,9 +766,6 @@ void actSt06aPistonFlagOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void SleepHint(int a0);
-extern void actSt06aShutterMain(volatile int a0);
-
 void actSt06aShutter(volatile int a0)
 {
     int x = a0;
@@ -803,8 +787,6 @@ void actSt06aShutter(volatile int a0)
     }
 }
 
-extern void actSt06aExitChk(volatile int a0);
-
 void actSt06aExit(volatile int a0)
 {
     int x = a0;
@@ -818,8 +800,6 @@ void actSt06aExit(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt06aExitGirlChk(volatile int a0);
-
 void actSt06aExitGirl(volatile int a0)
 {
     int x = a0;
@@ -832,8 +812,6 @@ void actSt06aExitGirl(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt06aBoxChk(volatile int a0);
 
 void actSt06aBox(volatile int a0)
 {
@@ -852,8 +830,6 @@ void actSt06aBox(volatile int a0)
     }
 }
 
-extern void actSt06aBox2Chk(volatile int a0);
-
 void actSt06aBox2(volatile int a0)
 {
     int x = a0;
@@ -869,8 +845,6 @@ void actSt06aBox2(volatile int a0)
     }
 }
 
-extern void actSt06aBox3Chk(volatile int a0);
-
 void actSt06aBox3(volatile int a0)
 {
     int x = a0;
@@ -885,9 +859,6 @@ void actSt06aBox3(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt06aBoxEvent2InChk(volatile int a0);
-extern void actSt06aBoxEvent2OutChk(volatile int a0);
 
 void actSt06aBoxEvent2(volatile int a0)
 {
@@ -909,8 +880,6 @@ void actSt06aBoxEvent2(volatile int a0)
     }
 }
 
-extern void actSt06aWayOnChk(volatile int a0);
-
 void actSt06aWay(volatile int a0)
 {
     int x = a0;
@@ -923,9 +892,6 @@ void actSt06aWay(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt06aWallWayOnChk(volatile int a0);
-extern void actSt06aWallWayOffChk(volatile int a0);
 
 void actSt06aWallWay(volatile int a0)
 {
@@ -949,9 +915,6 @@ void actSt06aWallWay(volatile int a0)
     }
 }
 
-extern void actSt06aWallWay2OnChk(volatile int a0);
-extern void actSt06aWallWay2OffChk(volatile int a0);
-
 void actSt06aWallWay2(volatile int a0)
 {
     int x = a0;
@@ -974,8 +937,6 @@ void actSt06aWallWay2(volatile int a0)
     }
 }
 
-extern void actSt06aStatueChk(volatile int a0);
-
 void actSt06aStatue(volatile int a0)
 {
     int x = a0;
@@ -995,8 +956,6 @@ void actSt06aStatue(volatile int a0)
         stage_SetAnimation(0x103, -1, -2);
     }
 }
-
-extern void actSt06aHeadChk(volatile int a0);
 
 void actSt06aHead(volatile int a0)
 {
@@ -1022,8 +981,6 @@ void actSt06aHead(volatile int a0)
     }
 }
 
-extern void actSt06aTreeChk(volatile int a0);
-
 void actSt06aTree(volatile int a0)
 {
     int x = a0;
@@ -1042,8 +999,6 @@ void actSt06aTree(volatile int a0)
     }
 }
 
-extern void actSt06aBallDeleteChk(volatile int a0);
-
 void actSt06aBallDelete(volatile int a0)
 {
     int x = a0;
@@ -1057,8 +1012,6 @@ void actSt06aBallDelete(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt06aKyomiOffChk(volatile int a0);
-
 void actSt06aKyomi(volatile int a0)
 {
     int x = a0;
@@ -1071,8 +1024,6 @@ void actSt06aKyomi(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt06aJumpMain(volatile int a0);
 
 void actSt06aJump(volatile int a0)
 {
@@ -1095,8 +1046,6 @@ void actSt06aJump(volatile int a0)
     }
 }
 
-extern void actSt06aPistonRideOnChk(volatile int a0);
-
 void actSt06aPiston(volatile int a0)
 {
     int x = a0;
@@ -1109,8 +1058,6 @@ void actSt06aPiston(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt06aPistonFlagOnChk(volatile int a0);
 
 void actSt06aPistonFlag(volatile int a0)
 {
@@ -1160,6 +1107,7 @@ void actSt06aSuimonEvent(int x)
     volatile int local = x;
 }
 
+/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern int scpEffectStart(int *buf, int a1);
 
 void actSt06aSuimonEffect(volatile int a0)
@@ -1230,7 +1178,7 @@ void actSt06aDoorEvent(int x)
     volatile int local = x;
 }
 
-extern void _ACTWait(int a0);
+/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern int scpEffectStart(int *buf, int a1);
 
 void actSt06aDoorUpEffect(volatile int a0)
@@ -1294,8 +1242,6 @@ void actSt06aShutterMain(volatile int a0)
     }
 }
 
-extern void actSt06aShutterOpen(volatile int a0);
-
 void actSt06aShutterSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -1309,8 +1255,6 @@ void actSt06aShutterSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void AdpcmPlay(int a0);
 
 void actSt06aShutterOpenSub(volatile int a0)
 {
@@ -1333,6 +1277,7 @@ void actSt06aShutterOpenSub(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, void *a1, int a2, float a3, float a4);
 
 void actSt06aExitChk(volatile int a0)
@@ -1345,8 +1290,9 @@ void actSt06aExitChk(volatile int a0)
     RequestStageChange(3, D_00639EA4, 0, 16.0f, 16.0f);
 }
 
+/* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
 extern void RequestStageChangeDirect(void *a0, int a1, void *buf, int a3);
-extern void SetDirectRootPosition(void *a0, void *a1);
+/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 
 void actSt06aExitGirlChk(volatile int a0)
@@ -1418,8 +1364,6 @@ void actSt06aBallDeleteChk(volatile int a0)
     scpSearchGobj(0x6EA)->f16C = 0;
 }
 
-extern void actSt06aBoxEvent2OutChk(volatile int a0);
-
 void actSt06aBoxEvent2InChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -1435,8 +1379,6 @@ void actSt06aBoxEvent2InChk(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt06aBoxEvent2InChk(volatile int a0);
 
 void actSt06aBoxEvent2OutChk(volatile int a0)
 {
@@ -1454,8 +1396,8 @@ void actSt06aBoxEvent2OutChk(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpCheckExistAliveEnemy do not fit the prototype in script.h */
 extern int scpCheckExistAliveEnemy(void);
-extern void actSt06aWayOffChk(volatile int a0);
 
 void actSt06aWayOnChk(volatile int a0)
 {
@@ -1477,8 +1419,6 @@ void actSt06aWayOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt06aWayOnChk(volatile int a0);
-
 void actSt06aWayOffChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -1499,8 +1439,8 @@ void actSt06aWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpIsRotObjectZPlusDirInclude do not fit the prototype in script.h */
 extern int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2);
-extern void actSt06aWallWayOffChk(volatile int a0);
 
 void actSt06aWallWayOnChk(volatile int a0)
 {
@@ -1519,8 +1459,6 @@ void actSt06aWallWayOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt06aWallWayOnChk(volatile int a0);
 
 /* The wall-way-off watcher's mail record: it installs actSt06aWallWayOnChk
    here and posts it. Word 0 of each entry is the mail id the entry answers
@@ -1545,8 +1483,6 @@ void actSt06aWallWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt06aWallWay2OffChk(volatile int a0);
-
 void actSt06aWallWay2OnChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -1564,8 +1500,6 @@ void actSt06aWallWay2OnChk(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt06aWallWay2OnChk(volatile int a0);
 
 void actSt06aWallWay2OffChk(volatile int a0)
 {
@@ -1585,9 +1519,6 @@ void actSt06aWallWay2OffChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern int ForMotionViewer_GetCurrentMotion(void *a0);
-extern void ReviveAllCarryableItems(void);
-
 void actSt06aTreeChk(volatile int a0)
 {
     while (scpTriggerBall(a0, D_00639EA4, 150.0f) == 0 ||
@@ -1601,8 +1532,6 @@ void actSt06aTreeChk(volatile int a0)
     scpSearchGobj(0x6EA)->f16C = 1;
     ReviveAllCarryableItems();
 }
-
-extern void actSt06aKyomiOffChk(volatile int a0);
 
 void actSt06aKyomiOnChk(volatile int a0)
 {
@@ -1627,8 +1556,6 @@ void actSt06aKyomiOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt06aKyomiOnChk(volatile int a0);
 
 void actSt06aKyomiOffChk(volatile int a0)
 {
@@ -1667,8 +1594,6 @@ void actSt06aJumpMain(volatile int a0)
     }
 }
 
-extern void actSt06aJumpMove(volatile int a0);
-
 void actSt06aJumpSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -1682,8 +1607,6 @@ void actSt06aJumpSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void SetCameraFlag_LwsCutBack(void);
 
 void actSt06aJumpSub(volatile int a0)
 {
@@ -1708,6 +1631,7 @@ void actSt06aJumpSub(volatile int a0)
     _ACTWait(1);
 }
 
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(void *a0, int a1);
 
 /* The piston-ride-on watcher's own mail record (installs

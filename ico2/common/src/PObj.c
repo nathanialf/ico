@@ -1,7 +1,9 @@
 #include "common.h"
+#include "debug.h"
+#include "Basic.h"
+#include "DisplayP2O.h"
 
 extern const char D_006360D8[];
-extern void debug_StdPrintfDummy();
 
 typedef float Vec[4];
 
@@ -102,8 +104,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/PObj", MakeBoundingBox);
 
 extern PObjMdl D_004FBA80[];
 extern char D_00635FC0[];
-extern char *mallocseki(int size);
-extern void p2o_MakePacket(PObjPkt *q);
 
 void MakePacket(PObj *p, int n)
 {
@@ -294,6 +294,7 @@ PObj *AllocPObj(ObjHdr *h, char *name, int n)
     return p;
 }
 
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(Vec d, Vec a, Vec b);
 
 PObj *InitPObj(int a0, int a1, int n)

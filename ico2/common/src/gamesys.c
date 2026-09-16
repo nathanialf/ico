@@ -1,4 +1,14 @@
 #include "common.h"
+#include "backStage.h"
+#include "debug.h"
+#include "boyact.h"
+#include "generator.h"
+#include "gv.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
 
 typedef void (*func_001AE8F0_FnPtr)(int *buf, int a2);
 
@@ -48,7 +58,6 @@ static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req, int n
 
 extern int D_004DA7D0[];
 extern void memset(char *p, int a, int n);
-extern void backStageProcessInit(void);
 
 void gamesysObjInfoInit(void)
 {
@@ -66,6 +75,7 @@ void gamesysObjInfoInit(void)
 extern char D_004DA980[];
 extern int D_004DA7D0[];
 extern int gamesysTimeCount;
+/* kept local: this TU's uses of gamesysMemoryHandlerWrite do not fit the prototype in gamesys.h */
 extern void gamesysMemoryHandlerWrite();
 
 void gamesysObjInfoSave(void *h)
@@ -101,16 +111,12 @@ void gamesysObjInfoLoad(void *h)
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/gamesys", gamesysObjInfoEmptyAreaSearch);
 
 extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
-extern void GetRootPosition(void *dst, int *gobj);
-extern void _GetMotionDirection(void *dst, int *gobj);
-extern float _GetDirection(void *v);
-extern void GetRootMatrix(void *dst, int *gobj);
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
 extern float atan2f(float y, float x);
 extern char D_0061D300[];
 extern void memset(char *p, int a, int n);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern int stage_no;
 
 int *gamesysObjInfoBaseSet(int *self, int stage)
@@ -194,7 +200,6 @@ void gamesysBackStageProcess(void)
 }
 
 extern char D_0061D328[];
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void memcpy();
 
 void gamesysMemoryHandlerWrite(int *self, int n, int a2)
@@ -205,8 +210,6 @@ void gamesysMemoryHandlerWrite(int *self, int n, int a2)
     self[1] += a2;
     debug_StdPrintfDummy(D_0061D328, self[1]);
 }
-
-extern void MakeGeneratorPacket(void);
 
 void gamesysGeneratorInfoSave(int *self)
 {
@@ -219,10 +222,6 @@ void gamesysGeneratorInfoSave(int *self)
     gamesysMemoryHandlerWrite(self, buf, size);
 }
 
-extern int *GetbufpGeneratorPacket(void);
-extern int GetsizeGeneratorPacket(void);
-extern int ReadGeneratorPacket();
-
 void gamesysGeneratorInfoLoad(int *a0)
 {
     int s1 = GetbufpGeneratorPacket();
@@ -233,8 +232,6 @@ void gamesysGeneratorInfoLoad(int *a0)
     a0[1] += s2;
     return ReadGeneratorPacket();
 }
-
-extern void MakeHintSaveInfo(void);
 
 void gamesysHintInfoSave(int *self)
 {
@@ -247,10 +244,6 @@ void gamesysHintInfoSave(int *self)
     gamesysMemoryHandlerWrite(self, buf, size);
 }
 
-extern int *GetBuffHintSaveInfo(void);
-extern int GetSizeHintSaveInfo(void);
-extern int ReadHintSaveInfo();
-
 void gamesysHintInfoLoad(int *a0)
 {
     int s1 = GetBuffHintSaveInfo();
@@ -262,8 +255,6 @@ void gamesysHintInfoLoad(int *a0)
     return ReadHintSaveInfo();
 }
 
-extern void MakeCharacterPacket(void);
-
 void gamesysCharacterInfoSave(int *self)
 {
     int buf;
@@ -274,10 +265,6 @@ void gamesysCharacterInfoSave(int *self)
     size = GetsizeCharacterPacket();
     gamesysMemoryHandlerWrite(self, buf, size);
 }
-
-extern int *GetbufpCharacterPacket(void);
-extern int GetsizeCharacterPacket(void);
-extern int ReadCharacterPacket();
 
 void gamesysCharacterInfoLoad(int *a0)
 {
@@ -330,6 +317,7 @@ void gamesysObjInfoStageInitPosSaveUnlock(void)
     } while (i >= 0);
 }
 
+/* kept local: this TU's uses of gamesysObjInfoBaseSet do not fit the prototype in gamesys.h */
 extern int *gamesysObjInfoBaseSet(int *self, int a1);
 
 int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
@@ -443,9 +431,6 @@ int gamesysGirlStageGet(void)
     return 4;
 }
 
-extern void CopyVector(void *dst, void *src);
-extern int ZeroPoint[4];
-
 int gamesysGetGirlStageIDAndPosition(int a0)
 {
     if (D_004DA9C0[1] != 0) {
@@ -492,8 +477,6 @@ void gamesysMemorySave(int *self, int a1, int a2)
         } while (new_var2);
     }
 }
-
-extern void gflagOn(int a0);
 
 void gamesysMemoryLoad(void **tbl, int a1, void *a2)
 {

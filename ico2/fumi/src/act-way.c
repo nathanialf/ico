@@ -1,5 +1,6 @@
 #include "common.h"
 
+/* kept local: this TU's uses of ACTCheckCollis_WAY do not fit the prototype in act-game.h */
 extern int ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, void *a4);
 /* prototypes: their order is the inline tail's emission order */
 int WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3);
@@ -27,7 +28,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-way", ACTWayMove_BeginDetail);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-way", ACTWayMove_NextDetail);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-way", ACTWayExec_Position);
 
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern void *test_CURRENTROOT(void);
+/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
 
 int ACTWay_IsMustWalkFromWay(char *a0)

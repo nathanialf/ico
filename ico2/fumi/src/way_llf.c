@@ -1,4 +1,5 @@
 #include "common.h"
+#include "debug.h"
 
 typedef struct WayGroup {
     int f0;
@@ -515,7 +516,6 @@ inline int WayPointList_next(int *a0)
 }
 
 extern char D_00621EB0[];
-extern void debug_StdPrintfDummy(char *fmt, ...);
 
 inline int waypoint_bidirectional_list(int *self, int which)
 {

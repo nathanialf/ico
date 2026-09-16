@@ -1,4 +1,21 @@
 #include "common.h"
+#include "st20a.h"
+#include "gamesys.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "act.h"
+#include "boyact.h"
+#include "commonact.h"
+#include "girl_act.h"
+#include "way_llf.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "script.h"
+#include "StageAnimation.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -26,9 +43,6 @@ typedef struct PObjGObj {
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
 } PObjGObj;
-
-extern void actSt20aBridgeSwitch(volatile int a0);
-extern void actSt20aGondolaSwitch(volatile int a0);
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (430 = the actor's own wake-up post, 429 = the trailing
@@ -74,26 +88,9 @@ static ActMail girlPos_mes[2] = {{430}, {429}};
 
 static ActMail hint1_mes[2] = {{430}, {429}};
 
-extern int gflagChk(int id);
-extern void gflagOn(int id);
-extern void gflagOff(int id);
-extern int actInitialize(int a0);
-extern void _ACTWait(int n);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void SleepHint(int id);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern int scpSearchGobj(int id);
-extern void FinishHint(int id);
-extern void Generator_Call(int a0);
-extern void gamesysObjInfoCls(int a, int b);
 extern int D_00639EA8;
 extern int D_00639EA4;
-extern int scpTriggerBall(int a0, int obj, float r);
-extern int scpTriggerFloorAttr(int obj, int attr);
 extern int D_0063AA08;
-extern void stage_SetAnimation(int a, int b, int c);
-extern void SetWayGroupActive(int g, int on);
 
 void actSt20aInit(void)
 {
@@ -122,26 +119,6 @@ extern unsigned int st20a_yure;
 extern int D_00639EAC;
 extern int D_0063C5A8;
 extern int D_0028F8F4[];
-extern void lt_switch_layout(int id);
-extern void scpSleepEnemyAll(void);
-extern void scpWakeupEnemyAll(void);
-extern void SetGirlDangerGObj(int a0);
-extern void ClearGirlDangerGObj(void);
-extern void scpAdpcmPlayRequestFunc(int no, int *h, int a2, int a3, int a4);
-extern void scpAdpcmFadeCloseFunc(int *h, short rate);
-extern int scpAdpcmCloseChkFunc(int *h);
-extern int scpAdpcmPlayRequestNum(void);
-extern int actCreateSubThread(void *entry, int prio);
-extern void iosThreadSetPri(int th, int pri);
-extern void scpFadeOut(float f, int a1, int a2, int a3);
-extern void scpFadeIn(float f);
-extern int scpFadeChk(void);
-extern int lt_fade_status(void);
-extern void iosPadActStop(int key);
-extern int stage_CheckAnimationFrame(int a, int b, int c);
-extern int iosPadActRequest(int a0, int a1);
-extern void actSt20aBridgeDownSub(volatile int a0);
-extern void actSt20aGondolaMain(volatile int a0);
 
 void actSt20aBridgeDown(volatile int a0)
 {
@@ -247,11 +224,6 @@ void actSt20aGondolaUp(volatile int a0)
     _ACTWait(0);
 }
 
-extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
-extern void scpPlayPosSet(int gobj, float x, float y, float z);
-extern void actSt20aFenceUpChk(volatile int a0);
-extern void actSt20aFenceDownChk2(volatile int a0);
-
 void actSt20aFence(volatile int a0)
 {
     int x = a0;
@@ -308,10 +280,6 @@ void actSt20aFence(volatile int a0)
     }
 }
 
-extern void actSt20aFenceUpChk(volatile int a0);
-extern int stage_CheckAnimationFrame(int a, int b, int c);
-extern int soundSeDefPlay(int se, int a1, int a2, int a3);
-
 void actSt20aFenceDownChk(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
@@ -340,8 +308,6 @@ void actSt20aFenceDownChk(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt20aFenceDownChk(volatile int a0);
 
 void actSt20aFenceUpChk(volatile int a0)
 {
@@ -372,8 +338,6 @@ void actSt20aFenceUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt20aFenceUpChk2(volatile int a0);
-
 void actSt20aFenceDownChk2(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
@@ -402,8 +366,6 @@ void actSt20aFenceDownChk2(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt20aFenceDownChk2(volatile int a0);
 
 void actSt20aFenceUpChk2(volatile int a0)
 {
@@ -434,8 +396,6 @@ void actSt20aFenceUpChk2(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSt20aBridgeMain(volatile int a0);
-
 void actSt20aBridge(volatile int a0)
 {
     int x = a0;
@@ -449,8 +409,6 @@ void actSt20aBridge(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt20aGondolaMain(volatile int a0);
 
 void actSt20aGondola(volatile int a0)
 {
@@ -470,8 +428,6 @@ void actSt20aGondola(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSt20aExitChk(volatile int a0);
 
 void actSt20aExit(volatile int a0)
 {
@@ -500,8 +456,6 @@ void actSt20aElv(volatile int a0)
         *(int *)(scpSearchGobj(0x7E9) + 0x16C) = 0;
     }
 }
-
-extern void actSt20aEneChk(volatile int a0);
 
 void actSt20aEne(volatile int a0)
 {
@@ -569,8 +523,6 @@ void actSt20aEnemy3(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-extern void actSt20aHint1Chk(volatile int a0);
-
 void actSt20aHint1(volatile int a0)
 {
     int x = a0;
@@ -586,8 +538,6 @@ void actSt20aHint1(volatile int a0)
         FinishHint(0x14);
     }
 }
-
-extern void actSt20aGirlPosChk(volatile int a0);
 
 void actSt20aGirlPos(volatile int a0)
 {
@@ -614,8 +564,6 @@ void actSt20aBridgeMain(volatile int a0)
     }
 }
 
-extern void actSt20aBridgeDown(volatile int a0);
-
 void actSt20aBridgeSwitch(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
@@ -633,10 +581,6 @@ extern unsigned int st20a_yure;
 extern unsigned char st20a_yure_vol;
 extern int D_00639EAC;
 extern int D_0063C5A8;
-extern void AdpcmPlay(int a0);
-extern int iosPadActRequest(int a0, int a1);
-extern void iosPadActVolumeSet(int h, int v);
-extern int stage_CheckAnimationFinish(int a0);
 
 void actSt20aBridgeDownSub(volatile int a0)
 {
@@ -657,9 +601,6 @@ void actSt20aBridgeDownSub(volatile int a0)
     _ACTWait(0);
 }
 
-extern void lt_switch_layout(int id);
-extern void scpWakeupEnemyAll(void);
-
 void actSt20aGondolaMain(volatile int a0)
 {
     char *p = *(char **)(a0 + 0x164);
@@ -672,10 +613,6 @@ void actSt20aGondolaMain(volatile int a0)
         _ACTWait(1);
     }
 }
-
-extern void actSt20aGondolaUp(volatile int a0);
-extern void actSt20aGondolaDown(volatile int a0);
-extern void scpSleepEnemyAll(void);
 
 void actSt20aGondolaSwitch(volatile int a0)
 {
@@ -696,9 +633,6 @@ void actSt20aGondolaSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void OnGirlEscortFlag();
-extern void RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 
 void actSt20aExitChk(volatile int a0)
 {
@@ -727,8 +661,6 @@ void actSt20aEneChk(volatile int a0)
     gflagOn(0x13E);
     gflagOn(0x13F);
 }
-
-extern void WakeupHint(int id);
 
 void actSt20aGirlPosChk(volatile int a0)
 {

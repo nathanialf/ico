@@ -3,6 +3,7 @@
 #include "common.h"
 #include "mv_defs.h"
 #include "typedef.h"
+#include "memory.h"
 
 static void Free();
 
@@ -56,8 +57,6 @@ void voBufDelete(void)
 {
     free_buf();
 }
-
-extern void iosFree();
 
 /* census Free, this TU's own copy of the mv_defs.h file static, `static` keeps its
    ELF symbol local so it cannot collide with the mv_videodec global of that name */

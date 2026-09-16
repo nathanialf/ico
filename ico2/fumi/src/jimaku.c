@@ -1,4 +1,8 @@
 #include "common.h"
+#include "cdvd.h"
+#include "message.h"
+#include "thread.h"
+#include "Texture.h"
 
 struct jSub { /* sub-object at offset 0xC of the argument */
     char _0[0x2C];
@@ -35,24 +39,17 @@ struct jWayGroup { /* D_006C1E80 element, stride 0x18 */
     char *buf;              /* 0x14 its 0x8C40 read buffer */
 };
 
-extern void iosCdvdBackGroundMgrSeek(char *self, int val);
-extern void iosCdvdBackGroundRead();
 extern struct jWayGroup D_006C1E80[];
 extern void jimakuMgrNext(struct jArg *p);
 extern char D_006E5000[];
 extern char D_006E5038[];
 extern char D_006E5070[];
-extern void iosCdvdBackGroundMgrDelete(char *self);
-extern int iosSemaDelete(int *self);
 extern int jimakuMsgQ[];
-extern int iosMsgSend(int *self, int a1, int a2);
 extern int D_0028F4E8[];
 extern int D_0028F4C0[];
 extern int D_0063A960;
 extern int jimakuMsgBuf[2];
 extern char D_005540F8[];
-extern void iosMsgQueueCreate(int *q, int *buf, int n);
-extern int iosMsgRecv(int *q, void *out, int mode);
 extern void jimakuMgrBegin(struct jArg *p);
 extern int D_0063A964;
 extern int jimakuOn;
@@ -85,13 +82,19 @@ typedef struct JimCol {
 
 extern JimCol D_0063A970[];
 extern unsigned char D_0028F720[];
-extern void tex_TransTexture(int tex, int pri);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int reg, long long v);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int on);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int on);
+/* kept local: this TU's uses of gif_SpriteSensitiveOffset do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *dst, unsigned int rgba, int *src, JimCol *col, int flag);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 
 void display_texture(JimTex *t)
@@ -147,11 +150,9 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/jimaku", jimakuHandler);
 
 extern char D_006C1F00[][0x8C40];
-extern void iosSemaCreate(void *sem, int a1, int a2, int a3);
 extern int NonLinearCameraMove;
 extern int D_0063AA00;
 extern char D_0055FBD0[][32];
-extern int iosCdvdBackGroundMgrAdd();
 extern int jimakuHandler(int self, struct jArg *p);
 
 void jimakuMgrBegin(struct jArg *p)
@@ -327,8 +328,6 @@ typedef struct {
 extern JimakuLayout D_0030CFF8[];
 extern char D_00318DD8[];
 extern char D_00318E48[];
-extern int iosSemaReferStatus(void *s);
-extern void iosSemaSignal(void *s);
 extern void display_texture(JimTex *t);
 
 void jimakuDisp(char *self)

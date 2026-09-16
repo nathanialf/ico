@@ -1,4 +1,9 @@
 #include "common.h"
+#include "st99a.h"
+#include "act.h"
+#include "commonact.h"
+#include "script.h"
+#include "StageAnimation.h"
 
 typedef struct ActMail {
     int mail;          /* 0x00 */
@@ -11,10 +16,6 @@ typedef struct Act {
     char unk00[0xD4]; /* 0x00 */
     ActMail *mail;    /* 0xD4 */
 } Act;
-
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 
 static ActMail explode_mes[2] = {{430}, {429}};
 
@@ -30,9 +31,6 @@ static ActMail spider_mes[2] = {{430}, {429}};
 
 static ActMail st17aTest_mes[2] = {{430}, {429}};
 
-extern void actSt27aWaveChk(int a0);
-extern void actExplodeChk(int a0);
-
 void actExplode(volatile int a0)
 {
     int x = a0;
@@ -44,8 +42,6 @@ void actExplode(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void actSplash1Chk(int a0);
 
 void actSplash1(volatile int a0)
 {
@@ -59,8 +55,6 @@ void actSplash1(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actSplash2Chk(int a0);
-
 void actSplash2(volatile int a0)
 {
     int x = a0;
@@ -73,8 +67,6 @@ void actSplash2(volatile int a0)
     _ACTWait(0);
 }
 
-extern void actWaveChk(int a0);
-
 void actWave(volatile int a0)
 {
     int x = a0;
@@ -86,10 +78,6 @@ void actWave(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void stage_SetLoopFlag(int key, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void actSpiderChk(int a0);
 
 void actSpider(volatile int a0)
 {
@@ -105,8 +93,6 @@ void actSpider(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
 
 void actDevilLightning(volatile int a0)
 {
@@ -125,8 +111,6 @@ void actQueenLightning(volatile int a0)
 
     scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0xDB8, 0, 0x22B, 0);
 }
-
-extern void actSt17aTestChk(int a0);
 
 void actSt17aTest(volatile int a0)
 {
@@ -153,12 +137,6 @@ void actSt27aWave(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern int scpSearchGobj(int a0);
-extern void scpGetWallCollision(float a0, float a1, float a2, float a3, float a4, float a5);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
-extern int stage_CheckAnimationFinish(int a0);
 
 void actExplodeChk(volatile int a0)
 {
@@ -202,9 +180,6 @@ void actSplash2Chk(volatile int a0)
     _ACTWait(1);
 }
 
-extern int actCreateSubThread(void *entry, int prio);
-extern void actWave1(int a0);
-
 void actWaveChk(volatile int a0)
 {
     actCreateSubThread(actWave1, 0x15);
@@ -225,8 +200,6 @@ void actWave1(volatile int a0)
         _ACTWait(0xB3);
     }
 }
-
-extern void actSt27aWave1(int a0);
 
 void actSt27aWaveChk(volatile int a0)
 {
@@ -250,7 +223,6 @@ void actSt27aWave1(volatile int a0)
 }
 
 extern int D_00639EA4;
-extern void scpBornSpider(int n, float a, float b, float c, float d);
 
 void actSpiderChk(volatile int a0)
 {

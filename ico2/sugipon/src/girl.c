@@ -1,15 +1,29 @@
 #include "common.h"
+#include "girl.h"
+#include "DObj.h"
+#include "debug.h"
+#include "memory.h"
+#include "obj_manager.h"
+#include "act-game.h"
+#include "girl_act.h"
+#include "script.h"
+#include "Matrix.h"
+#include "RegistPacket.h"
+#include "actressLight.h"
+#include "clothAnimation.h"
+#include "geometryManager.h"
+#include "handManager.h"
+#include "lodManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "motionOrientManager.h"
+#include "quaternion.h"
+#include "wireLetter.h"
 
 extern int D_0063B250;
 extern int D_0063B254;
 extern int D_0063B258;
 extern int D_0063B25C;
-extern char ZUnitVector[];
-extern int GetSkeltonFocusNode(char *obj, int kind);
-extern void SetQuaternionByAxisRotateV(void *self, short ang, void *axis);
-extern void GetCloth4D(void *cloth, float x, float y);
-extern void GetCloth4DWithTight(void *cloth, float x, float y, float z, float w, void *a1,
-                                void *a2);
 
 /* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; `static` keeps the ELF
  * symbol local, so it cannot collide with the sugipon/src/boy global). */
@@ -66,12 +80,6 @@ static void execClothes(char *gobj)
     }
 }
 
-extern int GetSkeltonFocusNode(char *obj, int kind);
-extern void *MatrixDrive_GetMatrix(void);
-extern void CopyMatrix(void *dst, void *src);
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
-extern void reg_DispAccessoryWithShadow(char *o, char *src);
-
 /* census: sugipon/src/girl.c:763 `dispCrown` (a TU-static; `static` keeps the ELF
  * symbol local, so it cannot collide with the sugipon/src/boy global). */
 static void dispCrown(char *gobj, char *acc)
@@ -94,8 +102,6 @@ static void dispCrown(char *gobj, char *acc)
     }
 }
 
-extern void DispCloth4D(void *cloth, void *a1, void *a2);
-extern void DispCloth4DWithAdd(void *cloth, void *a1, void *a2);
 static void dispCrown(char *gobj, char *acc);
 
 /* census: sugipon/src/girl.c:787 `dispClothes` (a TU-static; `static` keeps the ELF
@@ -190,11 +196,6 @@ extern char D_004EB380[];
 void SetGirlClothDispSwitch(char *a0, int a1, int a2);
 void SetGirlHairDispSwitch(char *a0, int a1);
 void setGirlClothSetting(int a0);
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
-extern void *InitCloth4D(char *gobj, char *a1, char *a2);
-extern void *CSVSYSTEM_InitDObj(int id, char *csv);
-extern void InitMotionOrient(char *gobj, int a1, int a2, int a3, int a4, int a5);
-extern void SetLodLevel(char *gobj, int lv);
 
 /* The three cloth and hair setters sit here, at their census source lines
    (834, 852 and 878, against InitGirlGeo's 891).  They are plain `inline`,
@@ -309,18 +310,8 @@ void *InitGirlGeo(char *gobj, char *csv)
 }
 
 extern char *D_00639EA4;
-extern void HandManager(char *gobj);
-extern void ExecMotionOrient(char *gobj);
-extern void SetActressLight(char *gobj, int a1, int a2, int a3);
-extern int CylinderCollision(char *gobj, int no, float r, float h, float y);
-extern void iosOmSendMail(void *a0, int a1, void *a2);
-extern int ACTGame_FLAG_TETSUNAGI(void);
-extern void GirlAct_BoyAndMeCollisionMail(char *gobj);
-extern int GetSkeltonFocusNode(char *obj, int kind);
 extern void sceVu0SubVector(void *out, void *a, void *b);
 extern float sceVu0InnerProduct(void *a0, void *a1);
-extern float FSqrt(float a0);
-extern void SetMotionPlaySpeedRatio(char *gobj, float ratio);
 
 void GirlGeo(char *a0)
 {
@@ -357,11 +348,6 @@ void GirlGeo(char *a0)
     }
     execClothes(a0);
 }
-
-extern void debug_StdPrintfDummy(char *p);
-extern void scpGirlHintVoiceReady(int no);
-extern void scpGirlHintVoicePlay(void);
-extern void scpGirlHintVoiceCancel(void);
 
 void GirlAI(char *a0)
 {
@@ -423,16 +409,7 @@ void GirlAI(char *a0)
 }
 
 extern int matrixptr;
-extern void GetRootPosition(void *dst, void *self);
 extern void sceVu0TransposeMatrix(void *dst, void *src);
-extern void *MatrixDrive_GetMatrix(void);
-extern void _UnitMatrix(void *m);
-extern void MatrixDrive_TransMatrixV(void *v);
-extern void _MulMatrix(void *dst, void *a, void *b);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-extern void DispWireString(char *s);
 extern char *D_004EB420[];
 
 /* static helper the listing places at girl.c line(s) 1082; never emitted out
@@ -460,7 +437,9 @@ void debugWireStringGirl(char *a0)
     MatrixDrive_PopMatrix();
 }
 
+/* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1(int a0);
+/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
 extern void p2o_SetDefaultEnviroment(int a0);
 
 void GirlDL(int a0)

@@ -1,13 +1,11 @@
 #include "common.h"
+#include "memory.h"
+#include "DisplayP2O.h"
+#include "matrixDrive.h"
+#include "tableSin.h"
 
 extern int D_0063A438;
-extern short *iosMallocDebug(int handle, int size, void *file, int line);
 extern int rand(void);
-extern void CopyMatrix(void *dst, void *src);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_RotMatrixX(short a0);
-extern void MatrixDrive_RotMatrixY(short a0);
-extern float GetTableSin(short a0);
 /* prototypes: their order is the inline tail's emission order */
 short *InitSugiLeafGeo(void);
 void SugiLeafGeo(void *gobj);
@@ -46,7 +44,6 @@ inline short *InitSugiLeafGeo2(void *gobj)
     return buf;
 }
 
-extern float GetTableCos(short a0);
 extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
 
 void SugiLeafGeo2(void *gobj)
@@ -76,10 +73,7 @@ void SugiLeafGeo2(void *gobj)
     }
 }
 
-extern void p2o_DispVU1Default(void *gobj);
 extern void sceVu0UnitMatrix(void *m);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
 
 void SugiLeafDL2(void *gobj)
 {

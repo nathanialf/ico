@@ -1,18 +1,25 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "memory.h"
+#include "gobj.h"
+#include "enemy_act.h"
+#include "camera-root.h"
+#include "geometryManager.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "motionOrientManager.h"
+#include "tableSin.h"
 
 struct MvObj;
 
 extern struct MvObj *D_0063BA08;
 extern int D_0063BA10;
-extern void SetRootUpdateMode(void *self, int val);
 
 void setRootUpdateMode(void)
 {
     SetRootUpdateMode(D_0063BA08, D_0063BA10);
 }
-
-extern void SetMotionPlaySpeedRatio(void *obj, float ratio);
 
 void setMotionSpeed(float ratio)
 {
@@ -47,12 +54,17 @@ extern BarCol D_0063BA18[];
 extern BarCol D_0063BA20[];
 extern int D_0063A064;
 extern int D_0063A068;
-extern int GetNbMotionFrames(int obj);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int on);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int on);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_SpriteSensitiveOrg do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(void *rect, int a1, int a2, void *col, int a4);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 
 void dispMotFrameProgress(int obj, float cur)
@@ -164,14 +176,9 @@ extern int D_0063B9FC;
 extern float D_0063BA14;
 extern int D_0063BA24;
 extern char *D_0063BA28;
-extern void Camctrl_SetTarget(MvObj *gobj, int a1, int a2);
-extern void CameraSetMode(int mode);
+/* kept local: this TU's uses of debug_SelectCsvWindow do not fit the prototype in debug.h */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
-extern int isEnemyActive(MvObj *gobj);
-extern MvObj *isysGObjSearchFromObjKindID_begin(int kind);
-extern MvObj *isysGObjSearchFromObjKindID_next(MvObj *gobj);
-extern void SetParallelMotionTableWithNoRequest(MvObj *gobj, int a1, int a2);
 
 int objMenuProc(void)
 {
@@ -268,20 +275,13 @@ extern int D_0063BA0C;
 extern float D_0063BA14;
 extern int D_0063BA2C;
 extern int D_0063C4AC;
-extern void DisableChangeRootUpdateMode(MvObj *gobj);
-extern void DisableMotionOrientUpdate(MvObj *gobj);
-extern void EnableChangeRootUpdateMode(MvObj *gobj);
-extern void EnableMotionOrientUpdate(MvObj *gobj);
-extern float ForMotionViewer_GetCurrentAnimationFrame(MvObj *gobj);
-extern int ForMotionViewer_GetCurrentMotion(MvObj *gobj);
 extern MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind);
-extern float GetMotionPlaySpeedRatio(int motion);
-extern void InitMotionOrient(MvObj *gobj, int a1, int a2, int a3, int a4, int a5);
+/* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt, ...);
+/* kept local: this TU's uses of debug_SelectCsvWindowWithLine do not fit the prototype in debug.h */
 extern int debug_SelectCsvWindowWithLine(char *title, int a1, int a2, int a3, void *tbl, int stride,
                                          int a6, int a7, int count, int *cur, int a10);
 extern int fptodp(float f);
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
 
 static inline int countMotionKinds(int id, int from, int to)
 {
@@ -381,8 +381,6 @@ extern char D_006207A8[];
 extern char D_006207D0[];
 extern char D_0063BA38[];
 extern int D_0063BA30;
-extern void SetMotionRequest(MvObj *gobj, int motion, void *a2);
-extern void iosFree();
 extern void sprintf();
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionViewer", motOriMenuProc);
@@ -407,18 +405,6 @@ typedef struct MvCol {
     int r, g, b, a;
 } __attribute__((aligned(16))) MvCol;
 
-extern float ZeroPoint[];
-extern void CopyVector(void *dst, void *src);
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
-extern void GetRootPosition(void *dst, MvObj *gobj);
-extern float GetTableCos(short a);
-extern float GetTableSin(short a);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_RotMatrixX(short a);
-extern void MatrixDrive_RotMatrixY(short a);
-extern void MatrixDrive_RotMatrixZ(short a);
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
-extern void MatrixDrive_TransMatrixV(void *v);
 extern void sceVu0UnitMatrix(void *m);
 
 void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, short ang)
@@ -517,9 +503,6 @@ extern int D_0063BA6C;
 extern int D_0063BA70;
 extern float D_0063BA74;
 extern char *matrixptr;
-extern float FSqrt(float x);
-extern int GetSkeltonFocusNode(MvObj *gobj, int node);
-extern void SetMotionDirection(MvObj *gobj, MvVec *dir);
 extern void dispPlane(MvVec *plane, MvVec *pos);
 extern void *memset(void *dst, int c, int n);
 extern void sceVu0ApplyMatrix(MvVec *dst, void *m, MvVec *src);

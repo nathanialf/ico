@@ -1,14 +1,25 @@
 #include "common.h"
 #include "typedef.h"
 #include "sugiCommon.h"
+#include "act_a_p_1.h"
+#include "debug.h"
+#include "pad.h"
+#include "obj_manager.h"
+#include "act-game.h"
+#include "act.h"
+#include "boyact.h"
+#include "a_p_1.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "particleEffect.h"
+#include "quaternion.h"
+#include "tableSin.h"
 
 extern float D_0063C440;
 extern short D_0063C444;
 extern short D_0063C446;
 extern float D_0063C450;
 extern short D_0063C454;
-extern int AP1MotReq(char *self, int mot);
-extern int AP1Turn(char *self, int rot);
 
 int standAI(char *self)
 {
@@ -73,7 +84,7 @@ extern float D_0071EC70[];
 extern float D_0071EC84[];
 extern float D_0071ECB0[];
 extern char D_004E5A50[];
-extern int AP1JumpReq(char *self, int kind, void *dst);
+/* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(void *v);
 
 int walkAI(char *self)
@@ -173,14 +184,11 @@ int walkAI(char *self)
 }
 
 extern char *D_004E5A78[];
-extern void debug_StdPrintfDummy(char *a0);
 
 void hehehe(char *a0)
 {
     debug_StdPrintfDummy(D_004E5A78[*(int *)(*(char **)(a0 + 0x164) + 0x34)]);
 }
-
-extern int AP1MotReqForce(int *self, int a1);
 
 void SleepAP1(int *a0)
 {
@@ -223,17 +231,17 @@ void WakeUpAP1(int *a0)
 /* Three static helpers the January-2002 listing places at act_a_p_1.c lines
  * 320-331, 335-344 and 346-352, expanded into subAP1BrainMain; never emitted
  * out of line, so none has a MAIN.MAP symbol and these three names are ours. */
-extern void GetRootPosition(void *dst, char *gobj);
-extern void GetRootQuaternion(void *dst, char *gobj);
-extern void GetInverseQuaternion(void *dst, void *src);
-extern void GetMatrixFromQuaternion(void *dst, void *q);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
-extern int GetTableArcTan2(float y, float x);
+/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
 extern float VectorLength(void *v);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float s);
-extern void GetRootMatrix(void *dst, char *self);
+/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 
 typedef struct AP1Vec {
@@ -291,13 +299,14 @@ extern AP1Vec D_0071ECA0;
 extern AP1Vec D_0071ECC0;
 extern int D_00639EA4;
 extern int (*D_004E5A60[])(int self);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
+/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
-extern int IsBoyStatus_NotDanger(void);
-extern int iosOmSendMail(int dst, int mail, int src);
+/* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
 extern int CheckFloorAttribute(int self, int attr);
-extern void _ACTWait(int frames);
 
 /* `self` is volatile because this is an actor sub-thread entry: _ACTWait
  * yields to the scheduler inside the loop, so the GObj handle is re-read at
@@ -399,8 +408,6 @@ void subAP1BrainMain(volatile int self)
     }
 }
 
-extern int AP1MotReqForce(int *self, int a1);
-
 void hitProc(int a0)
 {
     AP1MotReqForce(a0, 5);
@@ -420,11 +427,6 @@ void SetAP1DeadStatus(int *a0)
     AP1MotReqForce((int)a0, 5);
 }
 
-extern void GetRootPosition(void *dst, char *gobj);
-extern void GetRootQuaternion(void *dst, char *gobj);
-extern void SetParticleEffect(int id, void *pos, void *quat);
-extern int iosPadActRequest(int port, int id);
-extern void ExecuteSEPackage(char *self, int id);
 extern int D_00639EAC;
 
 typedef struct AP1MailEntry {
@@ -574,14 +576,8 @@ typedef struct AP1Spec {
 
 extern AP1Spec D_0062B588[];
 extern void *D_00639EA8;
-extern char *actInitialize(char *g);
-extern void actInitialize_ext_charcter(char *g);
-extern void ACTGameView_Add(void *view, char *g);
-extern void _ACTWait(int frames);
-extern int GetAP1SpecType(char *g);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-extern void actCreateSubThread(void *entry, int pri);
-extern void subAP1BrainMain(int x);
 void subAP1Control(int x);
 
 void actAP1Start(char *g)
@@ -647,8 +643,6 @@ char *GetAP1AIMode(char *self)
     }
     return D_004E5A30[*(int *)(p + 0x34)];
 }
-
-extern int AP1MotReq();
 
 int jumpAI(int a0)
 {

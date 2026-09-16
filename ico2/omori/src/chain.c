@@ -1,7 +1,15 @@
 #include "common.h"
+#include "debug.h"
+#include "DisplayP2O.h"
+#include "matrixDrive.h"
+#include "quaternion.h"
+#include "tableSin.h"
 
+/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition(char *self, void *v);
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *a0, void *a1);
+/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
 typedef struct {
@@ -51,6 +59,7 @@ int UpdateRootPosition(char *gobj)
 }
 
 extern void sceVu0SubVector(void *a0, void *a1, void *a2);
+/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
 extern void *test_CURRENTORIENT(void *a0);
 extern char D_005551C0[];
 extern char D_005551D0[];
@@ -59,7 +68,6 @@ extern void __assert(char *file, int line, char *expr);
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir);
 extern int D_0063B214;
 extern float D_0063ABC0[];
-extern float FSqrt(float a0);
 
 /* INTERIM (same shape as GetChainDirCorrectVal below): the listing inlines
  * InitPendulum's lines 517-538 into StartPendulum, so InitPendulum is a public
@@ -131,11 +139,12 @@ float *pos;
 
 extern int D_0063B13C;
 extern int D_0063C2C0;
-extern void debug_Printf(int a, int b, int c, const char *d, ...);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern void sceVu0Normalize(void *a0, void *a1);
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+/* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
+/* kept local: the declaration in fieldCollision.h changes this TU codegen */
 extern void ClipWall(void *w);
 extern char D_005551E0[];
 
@@ -188,9 +197,13 @@ extern void sceVu0UnitMatrix(void *m);
 extern void sceVu0RotMatrixX(void *d, void *s, float a);
 extern void sceVu0RotMatrixY(void *d, void *s, float a);
 extern void sceVu0ApplyMatrix(void *d, void *m, void *v);
+/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(float *a0);
+/* kept local: this TU's uses of collisionCheck do not fit the prototype in chain.h */
 extern int collisionCheck(char *gobj);
+/* kept local: this TU's uses of pendulum_Process do not fit the prototype in chain.h */
 extern void pendulum_Process(void *a0, int a1);
+/* kept local: this TU's uses of chain_sub_pendulum do not fit the prototype in chain.h */
 extern void chain_sub_pendulum(char *base, int n, void *a2);
 /* The sixth integer parameter is passed by both ROM call sites (always 0) and
  * never read by the body; it keeps $9 in the argument sequence. */
@@ -231,6 +244,7 @@ void chain_simulate_term_simple(int a0)
 }
 
 extern char D_005551F0[];
+/* kept local: this TU's uses of chain_simulate_term_simple do not fit the prototype in chain.h */
 extern void chain_simulate_term_simple(int a0);
 
 void chain_simulate_term_ropeturn(int a0)
@@ -428,12 +442,6 @@ void chain_simulate_free(int a0)
 
 extern void memset(void *a0, int a1, int a2);
 extern float atan2f(float y, float x);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_RotMatrixX(short a0);
-extern void MatrixDrive_RotMatrixY(short a0);
-extern void MatrixDrive_SetTransposeMatrix(void *d, void *s);
 
 void correct_vector(float *out, float *v)
 {
@@ -476,7 +484,6 @@ extern char D_00555378[];
 extern char D_00555388[];
 extern char D_00555398[];
 extern char D_005553A8[];
-extern float GetTableSin(short a0);
 
 /* The pendulum block the chain work carries at cw+0x20; the caller hands the
  * block itself, so the leading 0x10 bytes are the swing orient vector. */
@@ -562,8 +569,7 @@ unsigned char flag;
 
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", InitChainGeo);
 
-extern float GetTableCos(short a0);
-extern float GetTableSin(short a0);
+/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float a1);
 
 void chain_set_charachara(char *gobj, float amp)
@@ -603,13 +609,10 @@ void chain_set_charachara(char *gobj, float amp)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", ChainGeo);
 
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *d, void *a, void *b);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *d, void *s);
-extern void GetDifferencialQuaternionWithNoRegularize(void *d, void *a, void *b);
-extern void MultiQuaternion(void *d, void *a, void *b);
-extern void CopyVector(void *d, void *s);
-extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
-extern void p2o_DispVU1DObjMulti(void *ext);
 
 void ChainDL(char *gobj)
 {
@@ -641,6 +644,7 @@ void ChainDL(char *gobj)
     p2o_DispVU1DObjMulti(ext);
 }
 
+/* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(void *elem, void *base, void *v, float a, float b);
 
 static inline void ChainNodeSpan(char *cw, float *pos, int *i0, int *i1)
@@ -725,6 +729,7 @@ void PlumbPointUpdateChain(char *gobj, float *pos)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", TestChainUpDown);
 
+/* kept local: this TU's uses of SetDirectRootPositionNoFittingWithNodePoint do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPositionNoFittingWithNodePoint(char *gobj, int node, float *pos, float t);
 
 void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
@@ -843,6 +848,7 @@ static inline int getChainDirCorrectVal(char *a0, int *a1)
     return *(unsigned char *)(p + 0x6C);
 }
 
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(void *a0);
 
 void GetRootPositionHandExtra(void *a0, float *a1)
@@ -854,7 +860,6 @@ void GetRootPositionHandExtra(void *a0, float *a1)
 }
 
 extern int D_0063B214;
-extern float FSqrt(float a0);
 
 void InitPendulum(char *a0)
 {
@@ -911,7 +916,9 @@ int IsAbleChainHang(char *a0)
     return *(unsigned char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD);
 }
 
+/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
 extern void UpdateRootMatrix(void *a0);
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *a0, void *a1);
 
 void ChainPositionReset(char *a0)
@@ -924,9 +931,13 @@ void ChainPositionReset(char *a0)
     ResetChainNodes(cw, pos);
 }
 
+/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(float *a0);
+/* kept local: this TU's uses of RoundDegGV do not fit the prototype in gv.h */
 extern int RoundDegGV(int a0);
+/* kept local: this TU's uses of AlignDegGV do not fit the prototype in gv.h */
 extern int AlignDegGV(int a0);
+/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float a1);
 
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir)
@@ -954,8 +965,6 @@ void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir)
         out[2] = dir[2];
     }
 }
-
-extern float FSqrt(float a0);
 
 void chain_sub_simulate(int a0, ChainNode *nd, int from, int to, unsigned char flag, int flag2,
                         float grav, float len, float damp)
@@ -1012,6 +1021,7 @@ void chain_sub_pendulum(char *base, int n, void *a2)
     } while (i <= n);
 }
 
+/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
 extern float D_0063ABD8[];
 

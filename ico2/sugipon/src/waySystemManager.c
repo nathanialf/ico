@@ -1,9 +1,11 @@
 #include "common.h"
+#include "GobjProc.h"
+#include "way_sys.h"
 
-extern int CreateGObjByFuncSet();
 extern int D_0063BC50;
+/* kept local: this TU's uses of actCreateSubThreadGOppArg do not fit the prototype in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
-extern int _FUNC_GetWay_begin();
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
 /* prototypes: their order is the inline tail's emission order */
 void *RequestGetWayBegin(int *a0);

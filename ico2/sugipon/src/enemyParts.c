@@ -1,4 +1,9 @@
 #include "common.h"
+#include "DObj.h"
+#include "memory.h"
+#include "DisplayP2O.h"
+#include "RegistPacket.h"
+#include "quaternion.h"
 
 /* The packed colour word.  ROM copies it with lwl/lwr + swl/swr, which is
    gcc's unaligned block move: the type is a four-byte record of chars, so
@@ -25,19 +30,32 @@ typedef struct PointBlur {
 extern int D_0063A06C;
 extern int GlobalTimer;
 extern char *matrixptr;
+/* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
 extern char ZUnitVector[];
 extern void moveDataElements(PointBlur *p);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *m);
+/* kept local: this TU's uses of _RotTransPersCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _RotTransPersCurrentMatrix(void *dst, void *src);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *d, void *a, void *b);
+/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
 extern void _OuterProduct(void *d, void *a, void *b);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *d, void *s);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *d, void *s, float k);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *d, void *a, void *b);
+/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
 extern void _SubVectorXYZ(void *d, void *a, void *b);
+/* kept local: this TU's uses of _FTOI4Vector do not fit the prototype in Matrix.h */
 extern void _FTOI4Vector(void *d, void *s);
+/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of _CopyIVector do not fit the prototype in Matrix.h */
 extern void _CopyIVector(void *d, void *s);
 
 typedef struct IVec {
@@ -104,9 +122,6 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
 
 extern void *D_0063A438;
 extern void *D_0063A44C;
-extern void *iosMallocDebug(void *heap, int size, const char *file, int line);
-extern void iosFree(int p);
-extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
 extern char D_004E45C0[];
 
 /* enemyParts.o's whole .data run, in ROM order: the templates the loops and
@@ -292,10 +307,9 @@ char *InitEnemyFootPrint(int num)
     return p;
 }
 
+/* kept local: this TU's uses of YUnitVector do not fit the prototype in matrixDrive.h */
 extern char YUnitVector[];
 extern int rand(void);
-extern void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short ang, void *axis);
-extern void GetMatrixFromQuaternionPos(char *m, char *q, char *pos);
 
 int ExecEnemyFootPrints(char *self)
 {
@@ -340,6 +354,7 @@ int ExecEnemyFootPrints(char *self)
     return 1;
 }
 
+/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
 
 int EntryEnemyFootPrint(char *self, void *pos)
@@ -362,8 +377,6 @@ int EntryEnemyFootPrint(char *self, void *pos)
     }
     return 0;
 }
-
-extern void p2o_DispVU1DObj();
 
 int DispEnemyFootPrints(int *a0)
 {
@@ -389,9 +402,13 @@ PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
     return p;
 }
 
+/* kept local: this TU's uses of gif_Draw2DStripG do not fit the prototype in GifPacket.h */
 extern void gif_Draw2DStripG();
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket();
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha();
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri();
 
 int DispPointBlur(int *self)
@@ -403,6 +420,7 @@ int DispPointBlur(int *self)
     return 1;
 }
 
+/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
 extern void _MulMatrix(void *a0, int a1, void *a2);
 
 int UpdateEnemyEye(char *a0, int a1, float f)
@@ -414,8 +432,8 @@ int UpdateEnemyEye(char *a0, int a1, float f)
     return 1;
 }
 
+/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
 extern void _CopyMatrix();
-extern void reg_DispMultiPri();
 
 int DispEnemyEye(char *a0)
 {
@@ -438,6 +456,7 @@ int ResetEnemyEye(char *self)
     return 1;
 }
 
+/* kept local: this TU's uses of _CopyIVector do not fit the prototype in Matrix.h */
 extern void _CopyIVector(void *dst, void *src);
 
 /* Two strip vertices per footprint: fC holds the IVec positions (2 x 0x10),

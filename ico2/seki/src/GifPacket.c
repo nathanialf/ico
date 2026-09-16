@@ -1,5 +1,6 @@
 #include "common.h"
 #include "typedef.h"
+#include "GifPacket.h"
 
 typedef struct {
     int a, b, c, d;
@@ -92,7 +93,9 @@ void gif_StartPacket(void)
 }
 
 extern int D_00639F60;
+/* kept local: this TU's uses of dl_OpenDma do not fit the prototype in DisplayList.h */
 extern void dl_OpenDma(int chan, void *dma, int flag);
+/* kept local: this TU's uses of dl_CloseDma do not fit the prototype in DisplayList.h */
 extern void dl_CloseDma(void);
 
 void gif_EndPacket(void)
@@ -567,8 +570,8 @@ void gif_Init(void)
     D_00639F60 = 0;
 }
 
+/* kept local: this TU's uses of dl_SetDLPriority do not fit the prototype in DisplayList.h */
 extern void dl_SetDLPriority();
-extern void gif_StartPacket();
 
 void gif_StartPacketPri(void)
 {
@@ -576,8 +579,6 @@ void gif_StartPacketPri(void)
     gif_StartPacket();
     D_00639F60 = 1;
 }
-
-extern void gif_StartPacketPath1(void);
 
 void gif_StartPacketPriPath1(void)
 {

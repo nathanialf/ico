@@ -1,5 +1,7 @@
 #include "common.h"
 #include "typedef.h"
+#include "quaternion.h"
+#include "tableSin.h"
 
 /* Quadword copies this TU alone issues; the wrappers shared with other
    programmers' trees are in ../common/include/typedef.h.  dst/src are
@@ -35,8 +37,6 @@ typedef struct {
 
 extern int D_00639F00;
 extern char D_00668640[];
-extern void InitQuaternionDrive(void);
-extern void InitTableSin(void);
 extern void sceVu0UnitMatrix(void *a0);
 
 void InitMatrixDrive(void)
@@ -47,6 +47,7 @@ void InitMatrixDrive(void)
     InitQuaternionDrive();
 }
 
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
 extern int D_00639F00;
 extern char D_00668640[];
@@ -79,8 +80,6 @@ float InitialMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 static float rotXWorkMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
                                    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-extern float GetTableCos(short a0);
-extern float GetTableSin(short a0);
 extern void sceVu0MulMatrix();
 
 void MatrixDrive_RotMatrixX(short a0)
@@ -140,6 +139,7 @@ void MatrixDrive_ScaleMatrix(float x, float y, float z)
                     (int)scaleWorkMatrix);
 }
 
+/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float a0);
 extern void sceVu0Normalize(void *a0, void *a1);
 
@@ -192,6 +192,7 @@ void *MatrixDrive_GetLastMatrix(void)
     return &D_00668600[D_00639F00 * 0x40];
 }
 
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 extern void sceVu0ApplyMatrix(int *buf, char *p, int x);
 
@@ -217,7 +218,7 @@ void MatrixDrive_TransMatrix(float x, float y, float z)
     CopyVector(&D_00668640[D_00639F00 * 0x40 + 0x30], m);
 }
 
-extern int GetTableArcTan2(float a0, float a1);
+/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float a0);
 extern void sceVu0Normalize(void *a0, void *a1);
 
@@ -372,7 +373,7 @@ void MatrixDrive_TurnZObjectMatrixXY(float x, float y, float z)
     MatrixDrive_RotMatrixY(ay);
 }
 
-extern int GetTableArcTan2(float a0, float a1);
+/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float a0);
 extern void sceVu0Normalize(void *a0, void *a1);
 
@@ -425,6 +426,7 @@ void MatrixDrive_GetTurnYAngleXZ(short *a0, short *a1, float x, float y, float z
     *a1 = GetTableArcTan2(v0[0], len);
 }
 
+/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float a0);
 extern void sceVu0Normalize(void *a0, void *a1);
 

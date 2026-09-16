@@ -1,4 +1,8 @@
 #include "common.h"
+#include "staticBlur.h"
+#include "debug.h"
+#include "Primitive.h"
+#include "Texture.h"
 
 struct D275 {
     char pad[0xE8];
@@ -17,13 +21,21 @@ struct D275 {
 };
 
 extern int D_004ED020[];
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
 extern void gif_SetDrawEnviroment(int fb, int b, int w, int h, int e, int f);
+/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int reg, long long val);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int on);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int on);
+/* kept local: this TU's uses of gif_SpriteSensitiveOrg do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(void *rect, unsigned int z, void *uv, void *col, int e);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 
 typedef struct {
@@ -88,6 +100,7 @@ extern SprCol D_0063C4B0;
 extern unsigned char D_0063C4B3;
 extern float D_0063BB30;
 extern int matrixptr;
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *a0, int a1, void *a2);
 
 void auraInspireAfter(int mode)
@@ -356,8 +369,6 @@ extern int D_0063BB48;
 extern SprCol D_0063BB50;
 extern SprUV D_00620E20;
 extern void memset(void *dst, int c, int n);
-extern void prim_DispFan2D(int handle, int a);
-extern void prim_SetFan2D(int handle, float radius, void *pos, unsigned int c0, unsigned int c1);
 extern void sceVu0ITOF0Vector(void *dst, void *src);
 
 void makeFullScreenFlareBefore(int mode)
@@ -495,7 +506,6 @@ extern SprUV D_00620E40;
 extern SprCol D_0063BB58;
 extern SprCol D_0063BB60;
 extern int D_0063BB74;
-extern void blur(int n, void *col);
 
 void makeFullScreenFlareAfter(int mode)
 {
@@ -733,6 +743,7 @@ extern int D_0063BB78;
 extern int D_0063BB80;
 extern int D_0063BB88;
 extern int D_0063BB90;
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *a0, int a1, void *a2);
 
 /* One blend pass of the depth-of-field chain: shrink the work buffer named by
@@ -871,6 +882,7 @@ void depthField(float depth, float alpha, float rate)
 }
 
 extern int D_004ED050[];
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector();
 
 void GetSunWorldPos(int a0)
@@ -884,10 +896,15 @@ extern int D_004ED030[];
 extern int D_004ED040[];
 extern int D_004ED060[];
 extern int matrixptr;
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *a0, int a1, void *a2);
+/* kept local: this TU's uses of _FTOI0Vector do not fit the prototype in Matrix.h */
 extern void _FTOI0Vector(void *a0, void *a1);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *a0, void *a1, float f);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *a0, void *a1, float f);
 
 void calcSun(void)
@@ -904,7 +921,6 @@ void calcSun(void)
 }
 
 extern int D_0063B13C;
-extern void debug_Printf();
 extern int sprintf();
 extern int D_0028F954[];
 extern int D_0063BB98;
@@ -1087,7 +1103,6 @@ extern int D_0063BB10;
 extern int D_0063BB18;
 extern struct D275 D_0028F720;
 extern char D_0063BBE8[];
-extern void tex_LockHeadTBP(int tbp, int n);
 
 void FullScreenEffectBefore(void)
 {
@@ -1163,7 +1178,6 @@ void FullScreenEffectBefore(void)
 
 extern float D_0063BB28;
 extern float D_0063BB2C;
-extern void tex_UnlockHeadTBP(int slot);
 
 void FullScreenEffectAfter(void)
 {
@@ -1235,12 +1249,13 @@ void FullScreenEffectAfter(void)
     tex_UnlockHeadTBP(8);
 }
 
+/* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern int ZeroPoint[];
 extern int D_0063BB1C;
 extern int D_0063BB20;
 extern int D_0063BB24;
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector();
-extern int prim_InitFan2D(int a, float e, int *b, unsigned int c, int d);
 
 /* INTERIM (same pattern as GetSkeltonFocusNode in src/motionManager2.c): the
    listing inlines _initStaticBlur (staticBlur.c:1310-1311) into InitStaticBlur,

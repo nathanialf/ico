@@ -1,4 +1,11 @@
 #include "common.h"
+#include "s_init.h"
+#include "debug.h"
+#include "ios.h"
+#include "memory.h"
+#include "pad.h"
+#include "adpcm_init.h"
+#include "camera-root.h"
 
 typedef struct SqEntry {
     unsigned short num;  /* 0x0 */
@@ -119,7 +126,6 @@ extern int D_0063A370;
 extern int D_0063A650;
 extern long long D_0063C1E0;
 extern long long D_0063C1E8;
-extern void debug_StdPrintfDummy();
 extern void SgInit(void);
 extern void SgSetDigitalOutputMode(int a0);
 extern void SgSetTickMode(int a0);
@@ -127,7 +133,6 @@ extern void SgSetReverbEndAddr(int a0, int a1);
 extern void SgSetReverbType(int a0, int a1);
 extern void SgSetReverbDepth(int a0, int a1, int a2);
 extern void SgSetMasterVol(int a0, int a1, int a2);
-extern void AdpcmStreamInit(void);
 
 int soundInit(void)
 {
@@ -195,8 +200,6 @@ extern char D_005521E8[];
 extern char D_005521F8[];
 extern char D_00552210[];
 extern int D_0063A680;
-extern void debug_StdPrintfDummy();
-extern int iosSifAllocIopHeapDebug(int a, void *b, int c);
 
 void soundAllocIopHeap(void)
 {
@@ -336,8 +339,6 @@ void soundBufSegFree(int a0, int a1)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundBDDataSet);
 
-extern void AdpcmOpen(int *self, int a1, int a2, int a3);
-
 void soundDataOpen(int *work, int mode, int a2, int a3, int a4)
 {
     work[0] = mode;
@@ -358,8 +359,6 @@ void soundDataOpen(int *work, int mode, int a2, int a3, int a4)
         __assert(D_005521E8, 0x26F, D_0063A660);
     }
 }
-
-extern int *AdpcmOpenSync(int *self);
 
 int *soundDataOpenSync(int *work)
 {
@@ -384,8 +383,6 @@ int *soundDataOpenSync(int *work)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundDataClose);
 
 extern char D_006BF570[];
-extern void soundBufSegFree(int a0, int a1);
-extern void soundDataClose(char *p);
 
 void soundDataSegAllClose(int a0, int a1)
 {
@@ -410,9 +407,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundSeVolSet);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", debug_DispSEInfo);
 
 extern void SgSetSeVolDirect(int id, int l, int r);
-extern float *GetCameraPos(void);
 extern void sceVu0CopyVector(float *dst, float *src);
-extern void CameraGetOtherObjOffset(float *pos, float *dist, int *ang);
 extern void soundSeVolSet(SeSlot *self);
 
 void sound3DParamSet(SeSlot *self)
@@ -528,7 +523,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", _soundSeDefPlay);
 extern char D_006BF870[];
 extern long long D_0063C1E8;
 extern void SgSeStop(int a0);
-extern void iosPadActStop(int a0);
 
 typedef struct SeInfo {
     short unk0; /* 0x0 */
@@ -578,8 +572,6 @@ void _soundSeDefStop(int a0, int a1)
     }
 }
 
-extern void _soundSeDefStop(int a0, int a1);
-
 void soundSeDefStop(int a0)
 {
     _soundSeDefStop(a0, 0);
@@ -623,7 +615,6 @@ extern int D_0063A458;
 extern int stage_no;
 extern int _soundSeDefPlay(int kind, unsigned int a1, int a2, int a3, float vol, SeEnvDef *env,
                            SeSlot **out);
-extern int iosMallocDebug(int heap, int size, char *file, int line);
 
 /* INTERIM stand-in for soundSeEnvDefaultSet, whose ROM-slot definition sits in
    this TU's inline tail: the tail still carries asm members, so that definition
@@ -788,7 +779,6 @@ extern char D_006BF570[];
 extern void __assert(char *file, int line, char *msg);
 extern void debug_assert(char *file, int line);
 extern int memset(void *dst, int val, int size);
-extern void soundDataOpenChk(char *e);
 
 char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4)
 {
@@ -889,8 +879,6 @@ void soundSeDefVolumeRateSet(int a0, float f)
     }
 }
 
-extern void soundSeDefStop(int a0);
-
 void soundSeGroupStop(int arg)
 {
     char *p = D_006BF870;
@@ -920,8 +908,6 @@ int soundSeGroupGet(void)
     D_0063A67C = next;
     return next;
 }
-
-extern void soundSeDefStopNoRelease(int a0);
 
 void soundSePlayModeStop(int arg)
 {
@@ -970,8 +956,6 @@ void soundReqTickProc(void)
         p += 0x40;
     } while (i < 0x30);
 }
-
-extern void adpcmTickProc2();
 
 void soundVBlank(void)
 {

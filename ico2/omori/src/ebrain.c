@@ -1,4 +1,10 @@
 #include "common.h"
+#include "debug.h"
+#include "gobj.h"
+#include "act-game.h"
+#include "boyact.h"
+#include "generator.h"
+#include "geometryManager.h"
 
 typedef struct EBSlot {
     unsigned short f0; /* 0x00 status */
@@ -15,7 +21,6 @@ extern int eBrainGirlChaseCount;
 extern void *D_0063C2CC;
 extern int D_0063C2D0;
 extern int D_006E6750[];
-extern void debug_StdPrintfDummy(const char *);
 
 typedef struct StageLabelRange {
     char pad0[0x128];
@@ -36,7 +41,6 @@ typedef struct GenGeo {
 } GenGeo;
 
 extern GenGeo D_002C2DC8[];
-extern int GetMotherGenerator(int label);
 /* prototypes: their order is the inline tail's emission order */
 void eBrainInit(void);
 int eBrainStatusSet(void *a0, int a1);
@@ -130,8 +134,6 @@ extern int D_0063C2C4;
 extern int D_0063C2C8;
 extern EBSlot *D_006E6AD0[];
 extern EBSlot *D_006E6B50[];
-extern void GetRootPosition(void *out, void *gobj);
-extern int IsBoyStatus_EnemyMustWait(void);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern float sceVu0InnerProduct(void *a0, void *a1);
 
@@ -301,10 +303,9 @@ int eBrainGetTargetGeneratorFromLabel(int label)
     return no;
 }
 
-extern int ACTCheckViewCl(void *gop, void *target, void *pos, int deg, float dist);
 extern void *memset(void *dst, int c, int n);
+/* kept local: this TU's uses of eBrainGetTargetGeneratorFromLabel do not fit the prototype in ebrain.h */
 extern int eBrainGetTargetGeneratorFromLabel(int label);
-extern void *isysGObjSearchFromObjLayoutID(int id);
 
 static inline int eBrainCanSeeTarget(void *gop, void *target)
 {

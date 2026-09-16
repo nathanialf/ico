@@ -1,5 +1,12 @@
 #include "common.h"
 #include "typedef.h"
+#include "fieldCollision.h"
+#include "debug.h"
+#include "debug_exception.h"
+#include "FileManager.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
+#include "tableSin.h"
 
 typedef struct {
     char _0[0x10];
@@ -22,9 +29,10 @@ typedef union {
 } FcColor;
 
 typedef int (*FcFunc)(void *a0, int a1);
+/* kept local: this TU's uses of isysGObjGetExist_begin do not fit the prototype in gobj.h */
 extern void *isysGObjGetExist_begin(void);
+/* kept local: this TU's uses of isysGObjGetExist_next do not fit the prototype in gobj.h */
 extern void *isysGObjGetExist_next(void);
-extern void debug_assertMessage(char *file, int line, char *mes);
 extern void __assert(char *file, int line, char *expr);
 extern char D_00553750[];
 extern char D_00553768[];
@@ -59,9 +67,6 @@ void MakeCollisionDependGObjList(void)
     }
 }
 
-extern void CopyVector(void *a0, void *a1);
-extern float GetDistanceFromPlane(void *a0, void *a1);
-extern float GetPointDistance(void *a0, void *a1);
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
@@ -209,7 +214,6 @@ extern char D_005537C0[];
 extern char D_005537D0[];
 extern char D_006C0BC0[];
 extern int sprintf(char *buf, char *fmt, ...);
-extern int debug_Printf(int x, int y, unsigned int col, char *s, ...);
 
 void DispCollisionPC(void)
 {
@@ -239,7 +243,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", makeCollisionBlockT
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", _Clip);
 
 extern FcBlk8 D_0063A810;
-extern void _Clip(char *a0, int a1);
 
 void __ClipWall(char *a0, int a1)
 {
@@ -257,16 +260,13 @@ void __ClipFloor(void *a0, int a1)
     _Clip(a0, a1);
 }
 
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
-extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
-extern void CopyMatrix(void *dst, void *src);
-extern void UnitRotation(void *m);
 extern int D_0063A848;
 extern const FcColor D_0029D360;
 extern const FcColor D_0029D370;
@@ -358,16 +358,13 @@ void DrawGObjWallCollision(char *gobj, int col)
     gif_EndPacket();
 }
 
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
-extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
-extern void CopyMatrix(void *dst, void *src);
-extern void UnitRotation(void *m);
 extern const FcColor D_00553820;
 
 void DrawGObjFloorCollision(char *gobj, int col)
@@ -412,7 +409,6 @@ void DrawGObjFloorCollision(char *gobj, int col)
 }
 
 extern char D_00553830[];
-extern void debug_StdPrintfDummy();
 extern int fptodp(float f);
 
 void DBG_VECTOR(float *vec)
@@ -424,12 +420,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", GetEdgeOfFloor);
 
 extern void memset(void *p, int c, int n);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern void MatrixDrive_TransMatrixV(void *v);
-extern void MatrixDrive_TurnYObjectMatrixXZ(float x, float y, float z);
-extern float FSqrt(float x);
 extern float sceVu0InnerProduct(int a0, int a1);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
 extern const FcColor D_00553940;
 extern const FcColor D_00553950;
 
@@ -632,9 +625,6 @@ void ClipCollision(int *self)
     sceVu0CopyVector(p10, buf);
 }
 
-extern void __ClipWallWithDrawRay();
-extern void __ClipFloorWithDrawRay();
-
 int ChangeFieldCollisionDebugMode(int a0)
 {
     D_0063A840 = (int (*)(void *, int))__ClipWall;
@@ -645,8 +635,6 @@ int ChangeFieldCollisionDebugMode(int a0)
     }
     return 0;
 }
-
-extern int file_LoadFile(int a0, int a1, int a2);
 
 void LoadCollision(int *self, int a1)
 {
@@ -659,10 +647,11 @@ void LoadCollision(int *self, int a1)
     p[0x14 / 4] = (int)(((char *)p) + p[new_var]);
 }
 
-extern void DrawGObjWallCollision(char *a0, int a1);
-extern void DrawGObjFloorCollision(char *a0, int a1);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 
 void DrawCollision(int a0)
@@ -724,8 +713,6 @@ int ClipPlane(int a0)
 
 extern char D_005538C8[];
 extern char D_005538F8[];
-extern float GetTableCos(short a0);
-extern float GetTableSin(short a0);
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *buf);
 
 void GetOrientOfWall(void *a0, void *a1, int *a2)
@@ -915,7 +902,6 @@ void GetGlobalWallPlane(float *plane, int *r)
 extern int D_0063C234;
 extern FuzioCtx *D_0063C238;
 extern short D_006C10C0[];
-extern int clip_wall_1(void *a0, int a1, int a2, int a3);
 
 int _clipWDebug(void *arg0, int arg1, int arg2)
 {
@@ -943,7 +929,6 @@ int _clipWDebug(void *arg0, int arg1, int arg2)
 extern int D_0063C234;
 extern FuzioCtx *D_0063C238;
 extern short D_006C10C0[];
-extern int clip_wall_1(void *a0, int a1, int a2, int a3);
 
 int _clipW(void *arg0, int arg1, int arg2)
 {
@@ -1190,8 +1175,6 @@ int _clipWAdjustPos(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-extern int clip_floor_1(void *a0, int a1, int a2);
-
 int _clipF(void *arg0, int arg1, int arg2)
 {
     int ret = 0;
@@ -1293,15 +1276,15 @@ int _clipFR(void *arg0, int arg1, int arg2)
     return ret;
 }
 
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
-extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
 extern const FcColor D_005537E0;
 extern const FcColor D_005537F0;
 

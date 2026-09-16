@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "s_init.h"
 
 typedef union {
     long long ll;
@@ -44,7 +46,6 @@ extern int CreateSema(int *param);
 extern int WaitSema(int sema);
 extern int DeleteSema(int sema);
 extern int sceMcSync(int mode, int *cmd, int *result);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 
 inline void iosMcMgrSync(void *mp)
 {
@@ -73,6 +74,7 @@ inline int iosMcSync(unsigned long *a0)
 }
 
 extern char D_0029B9E8[];
+/* kept local: this TU's uses of iosMsgSend do not fit the prototype in message.h */
 extern int iosMsgSend(void *a0, void *a1, int a2);
 
 inline int iosMcGetInfo(void *a0)
@@ -191,7 +193,9 @@ typedef struct {
 
 /* defined below, at their ROM slots; the 2001 source called them from here
    without a prototype, so they keep the non-prototype form. */
+/* kept local: the declaration in mcard.h changes this TU codegen */
 extern int iosMcHandlerWrite();
+/* kept local: the declaration in mcard.h changes this TU codegen */
 extern int iosMcHandlerRead();
 extern McSaveRec D_0029B5F0[];
 extern char D_0029BC00[];
@@ -199,7 +203,6 @@ extern int D_0063A538;
 extern int CurrentTargetGObj;
 extern int D_0028F4C0[];
 extern int NonLinearCameraMove;
-extern int soundOutputModeGet(void);
 
 inline int product_write(int *self)
 {
@@ -233,7 +236,6 @@ inline int gameblock_write(int self, void *buf)
 }
 
 extern int D_0028F4EC[];
-extern void soundOutputModeSet(int mode);
 
 inline int gameblock_read(int *self, void *buf)
 {
@@ -864,7 +866,9 @@ extern char D_0063A4C8[];
 extern char D_0063A4D0[];
 extern int D_006BC8D8[];
 extern void sceMcInit(void);
+/* kept local: this TU's uses of iosMsgQueueCreate do not fit the prototype in message.h */
 extern void iosMsgQueueCreate(void *q, void *buf, int n);
+/* kept local: this TU's uses of iosMsgRecv do not fit the prototype in message.h */
 extern void iosMsgRecv(void *q, void *msg, int n);
 extern int sprintf(char *dst, char *fmt, int a);
 

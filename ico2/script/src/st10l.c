@@ -1,4 +1,17 @@
 #include "common.h"
+#include "st10l.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "girl_act.h"
+#include "way_llf.h"
+#include "camera-root.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "StageAnimation.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -31,12 +44,9 @@ typedef struct Pad {
 } Pad;
 
 extern Pad D_0028F8F0[];
-extern void _ACTWait(int a0);
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void gflagOn(int a0);
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern int D_0063A538;
 extern int floor10l;
@@ -48,61 +58,52 @@ extern int enable_game_pause;
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_00639EAC;
-extern void SetWayGroupActive(int a0, int a1);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float radius);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern void FinishHint(int a0);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpKillEnemyOne do not fit the prototype in script.h */
 extern void scpKillEnemyOne(int a0);
+/* kept local: this TU's uses of scpKillSpiderGroup do not fit the prototype in script.h */
 extern void scpKillSpiderGroup(int a0);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
-extern void gflagOff(int a0);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 extern int D_0028F4C0[];
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern void iosPadActRequest(int a0, int a1);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
+/* kept local: this TU's uses of scpAdpcmCloseChkFunc do not fit the prototype in script.h */
 extern int scpAdpcmCloseChkFunc(int *handle);
-extern void SetGirlDangerGObj(int a0);
-extern void ClearGirlDangerGObj(void);
+/* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
 extern void scpSleepEnemyOne(int a0);
+/* kept local: this TU's uses of scpWakeupEnemyOne do not fit the prototype in script.h */
 extern void scpWakeupEnemyOne(int a0);
+/* kept local: this TU's uses of scpSleepSpiderGroupOne do not fit the prototype in script.h */
 extern void scpSleepSpiderGroupOne(int a0);
+/* kept local: this TU's uses of scpWakeupSpiderGroupOne do not fit the prototype in script.h */
 extern void scpWakeupSpiderGroupOne(int a0);
-extern void SetCameraFlag_LwsCutBack(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
-extern int lt_fade_status(void);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float f12, float f13, float f14);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
+/* kept local: this TU's uses of scpSekizou do not fit the prototype in script.h */
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
-extern void actSt10lChainMain(volatile int a0);
-extern void actSt10lChainMove(volatile int a0);
-extern void actSt10lGondolaMain(volatile int a0);
-extern void actSt10lFloorMain(volatile int a0);
-extern void actSt10lFloorLeft(volatile int a0);
-extern void actSt10lFloorRight(volatile int a0);
-extern void actSt10lGondolaUp(volatile int a0);
-extern void actSt10lGondolaDown(volatile int a0);
-extern void actSt10lBoxChk(volatile int a0);
-extern void actSt10lEneCam1Chk(volatile int a0);
-extern void actSt10lEneCam2Chk(volatile int a0);
-extern void actSt10lEneCam3Chk(volatile int a0);
-extern void actSt10lBoxAChk(volatile int a0);
-extern void actSt10lBoxBChk(volatile int a0);
-extern void actSt10lEneKillChk(volatile int a0);
 
 /* st10l.o's own .rodata run 0x00622DE0..0x00622DF0 (no MAIN.MAP symbol):
    the girl's way-point packet for actSt10lEneCam3Chk. */
@@ -117,9 +118,6 @@ typedef union {
 static const ConstVec eneCam3ChkPos = {{-33.0f, -72.0f, 470.0f, 0.0f}};
 
 /* st10l.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-extern void actSt10lChainSwitch(volatile int a0);
-extern void actSt10lFloorSwitch(volatile int a0);
-extern void actSt10lGondolaSwitch(volatile int a0);
 
 static ActMail floorMain_mes[2] = {{406, actSt10lFloorSwitch}, {429}};
 

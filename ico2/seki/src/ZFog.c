@@ -1,4 +1,5 @@
 #include "common.h"
+#include "debug.h"
 
 /* The fog CLUT upload packet: a VIF code quad (nop, nop, FLUSHA, DIRECT 65),
  * a GIFtag (EOP, NLOOP=64, FLG=IMAGE), the 256-entry 32-bit CLUT itself and a
@@ -108,8 +109,6 @@ extern char D_00550C30[];         /* "Fog %s => %d\n" */
 extern int D_0063A354;            /* highlighted row */
 extern char D_0063A358[];         /* "%s : %s" */
 extern char D_0063A360[];         /* "%s : %d" */
-extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 
 int fog_FogTool(void)
 {

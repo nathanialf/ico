@@ -1,4 +1,5 @@
 #include "common.h"
+#include "obj_manager.h"
 
 /* PAL listing (omori/src/mail-add-data.c): two static inline helpers,
  * lines 48-57 (send the mail, return its index or -1) and lines 68-74
@@ -8,7 +9,6 @@
  * line because that body is defined after it. */
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern int iosOmSendMail(char *gop, int msg, void *sender);
 
 typedef struct MailAddEntry {
     /* 0x0 */ int mail;

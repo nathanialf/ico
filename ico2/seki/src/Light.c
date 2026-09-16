@@ -1,4 +1,11 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
+#include "camera-root.h"
+#include "Basic.h"
+#include "geometryManager.h"
+#include "lineManager.h"
+#include "matrixDrive.h"
 
 typedef struct Light {
     char _pad0[0x10];
@@ -34,10 +41,8 @@ extern char D_0054F0D8[];
 extern char D_0063A090[];
 extern int D_0063C134;
 extern int D_0063C138;
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern void freeseki(void *p);
 
 void light_killLinkLight(char *node)
 {
@@ -91,13 +96,15 @@ typedef struct StageSetting {
 
 extern StageSetting D_0028F720;
 extern int D_002908B8[];
+/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
 extern char D_0063A088[8];
 extern char D_0054F0F8[];
 extern char D_0054F118[];
 extern int D_0063A44C;
-extern void *iosMallocDebug(int part, int size, char *file, int line);
+/* kept local: this TU's uses of light_resetFlatLight do not fit the prototype in Light.h */
 extern void light_resetFlatLight(void);
 extern Light D_0067BCE0[];
 extern float D_005D3DC8[][4];
@@ -199,13 +206,21 @@ Light *light_AddLight(char *self, int b, int kind)
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Light", light_getNearLight);
 
 extern float D_0028F780[4];
+/* kept local: this TU's uses of _GetNorm do not fit the prototype in Matrix.h */
 extern float _GetNorm(void *p);
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *m);
+/* kept local: this TU's uses of _InverseCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InverseCurrentMatrix(void);
+/* kept local: this TU's uses of _ScaleVector2XYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVector2XYZ(void *dst, void *src, void *scale);
+/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
 extern void _SubVectorXYZ(void *dst, void *x, void *y);
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *dst, void *x, void *y);
+/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyCurrentMatrix(void *dst, void *src);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float s);
 
 /* Light.c lines 1024-1025 call _GetNorm three times per value (once for the
@@ -328,10 +343,15 @@ found:
     *(float *)(*(char **)(a + 0x874) + 0xEC) = 1.0f;
 }
 
+/* kept local: this TU's uses of light_getNearLight do not fit the prototype in Light.h */
 extern void light_getNearLight(char *a, int b);
+/* kept local: this TU's uses of light_getAmbientLight do not fit the prototype in Light.h */
 extern void light_getAmbientLight(char *a, int b);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float s);
+/* kept local: this TU's uses of _MakeNormalLightMatrix do not fit the prototype in Matrix.h */
 extern void _MakeNormalLightMatrix(void *a, void *b, void *c, void *d);
+/* kept local: this TU's uses of _MakeLightColorMatrix do not fit the prototype in Matrix.h */
 extern void _MakeLightColorMatrix(void *a, void *b, void *c, void *d, void *e);
 
 void light_MakeLightMatrix(char *a, int b)
@@ -395,6 +415,7 @@ typedef struct Pad {
 
 extern Pad D_0028F8F0[];
 extern float atan2f(float y, float x);
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float v);
 
 void light_GetColorAnalog(float *col)
@@ -488,23 +509,29 @@ extern const LtVec D_0054F170;
 extern int D_0063C12C;
 extern int D_0063C130;
 extern void *memset(void *p, int c, int n);
-extern int CameraGetTarget(void);
-extern void GetRootMatrix(void *dst, int gobj);
+/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
+/* kept local: this TU's uses of _TransCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _TransCurrentMatrix(void *p);
+/* kept local: this TU's uses of _RotCurrentMatrixX do not fit the prototype in Matrix.h */
 extern void _RotCurrentMatrixX(short a);
+/* kept local: this TU's uses of _RotCurrentMatrixY do not fit the prototype in Matrix.h */
 extern void _RotCurrentMatrixY(short a);
+/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyCurrentMatrix(void *dst, void *src);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float s);
+/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
-extern void MatrixDrive_PushMatrix(void);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void DrawLine(void *from, void *to, void *col, int flag);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 
 void light_DrawCursor(float *dir, int mode)
@@ -596,13 +623,19 @@ extern char D_0063A0C8[]; /* "COL " */
 extern char D_0063A0D0[]; /* "%s%11f" */
 extern char D_0063A0D8[]; /* "VEC " */
 extern char D_0063A0E0[]; /* "AMB " */
-extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
+/* kept local: this TU's uses of light_GetColorAnalog do not fit the prototype in Light.h */
 extern void light_GetColorAnalog(float *col);
+/* kept local: this TU's uses of light_DrawCursor do not fit the prototype in Light.h */
 extern void light_DrawCursor(float *dir, int mode);
+/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
+/* kept local: this TU's uses of _RotCurrentMatrixX do not fit the prototype in Matrix.h */
 extern void _RotCurrentMatrixX(short a);
+/* kept local: this TU's uses of _RotCurrentMatrixY do not fit the prototype in Matrix.h */
 extern void _RotCurrentMatrixY(short a);
+/* kept local: this TU's uses of _RotCurrentMatrixZ do not fit the prototype in Matrix.h */
 extern void _RotCurrentMatrixZ(short a);
+/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyCurrentMatrix(void *dst, void *src);
 
 int light_Tool(void)
@@ -828,6 +861,7 @@ void light_InitLight(void)
 void light_ResetLight(void) {}
 
 extern int D_0063C13C;
+/* kept local: this TU's uses of light_killLinkLight do not fit the prototype in Light.h */
 extern void light_killLinkLight(char *node);
 
 void light_KillAllFixLight(void)
@@ -849,6 +883,7 @@ void light_KillAllFixLight(void)
 }
 
 extern int D_0063C138;
+/* kept local: this TU's uses of light_killLinkAmbient do not fit the prototype in Light.h */
 extern void light_killLinkAmbient();
 
 void light_KillAllAmbient(void)
@@ -870,7 +905,6 @@ void light_KillAllAmbient(void)
 
 extern char D_0054F0C8[];
 extern int D_0063A44C;
-extern void *iosMallocDebug(int part, int size, char *file, int line);
 
 static inline void light_setLinkAmbient(AmbientVolume *p)
 {

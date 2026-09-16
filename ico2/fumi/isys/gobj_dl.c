@@ -1,4 +1,6 @@
 #include "common.h"
+#include "gobj_dl.h"
+#include "debug.h"
 
 static void add_gobj_to_head(int a0, int a1, int a2);
 
@@ -12,10 +14,8 @@ typedef struct DLN {
     int key;
 } DLN;
 
-extern void cut_gobj_dl_link(int *self);
 extern int D_0029C530[];
 extern int D_0029C550[];
-extern void debug_StdPrintfDummy();
 /* prototypes: their order is the inline tail's emission order */
 /* census add_gobj_to_head, a file static, every gobj list TU has its own copy and
    `static` keeps this one's ELF symbol local so it cannot collide with the

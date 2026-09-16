@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
 
 typedef struct IosMsg {
     char pad0[0x44];
@@ -42,18 +44,21 @@ extern int CreateSema(EeSema *p);
 extern int DeleteSema(int sema);
 extern int ReferSemaStatus(int sema, int *st);
 extern int WaitSema(int sema);
-extern void debug_StdPrintfDummy();
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern int GetThreadId();
+/* kept local: this TU's uses of iosGetIOSThreadFromId do not fit the prototype in thread.h */
 extern int iosGetIOSThreadFromId(unsigned int a0);
+/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
+/* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h */
 extern void iosThreadCreate(void *th, int no, void (*func)(), int arg, void *stack, long stackSize,
                             int pri);
+/* kept local: this TU's uses of iosThreadStart do not fit the prototype in thread.h */
 extern void iosThreadStart(int a0);
 extern int AddIntcHandler(int ch, void *fn, int a2);
 extern int EnableIntc(int ch);
-extern void *iosMallocDebug(int handle, int size, char *file, int line);
+/* kept local: this TU's uses of signal_handler do not fit the prototype in message.h */
 extern int signal_handler(int a0);
 extern int D_0063A42C;
 extern int *D_0063A530;

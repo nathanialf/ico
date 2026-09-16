@@ -1,9 +1,11 @@
 #include "common.h"
 #include "typedef.h"
 #include "sugiCommon.h"
+#include "memory.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
 
 extern int D_0063A438; /* game heap handle */
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
 
 /* Per-object force-field state, hung off the actor's sub-object by the caller
    (GirlForceFieldDL reads it back at sub+0x830). */
@@ -60,10 +62,7 @@ typedef struct OaRecB {
 
 extern OaRecA D_002C2DC8[];
 extern OaRecB D_002BC6E0[];
-extern void UpdateRootMatrix(void *gobj);
-extern void GetRootPosition(void *dst, void *gobj);
-extern void GetRootQuaternion(void *dst, void *gobj);
-extern float FSqrt(float x);
+/* kept local: this TU's uses of stage_PlayBgAnimationDissolve do not fit the prototype in StageAnimation.h */
 extern float stage_PlayBgAnimationDissolve(void *anim, float *pos, float *quat, float frame,
                                            float ratio);
 

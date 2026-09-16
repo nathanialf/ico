@@ -1,4 +1,14 @@
 #include "common.h"
+#include "st05e.h"
+#include "layout_texture.h"
+#include "thread.h"
+#include "act.h"
+#include "commonact.h"
+#include "way_llf.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "rotObject.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -13,13 +23,10 @@ typedef struct Act {
     ActMail *mail;     /* 0xD4 */
 } Act;
 
-extern Act *actInitialize(int a0);
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
+
 /* st05e.o's own .data run 0x4F98A0..0x4F9920 (0x80, no MAIN.MAP symbols):
    four 0x20-byte actor mail packets, one per thread hand-off. */
-extern void actSt05eWaterSwitch(volatile int a0);
 
 static ActMail waterMain_mes[2] = {{406, actSt05eWaterSwitch}, {429}};
 
@@ -29,11 +36,7 @@ static ActMail waterSwitch_mes[2] = {{430}, {429}};
 
 static ActMail solar_mes[2] = {{430}, {429}};
 
-extern void actSt05eWaterStop(volatile int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
 extern int D_0063C550;
-extern int gflagChk(int a0);
 
 typedef struct PObjGObj {
     /*0x00*/ char pad00[0x164];
@@ -42,31 +45,25 @@ typedef struct PObjGObj {
     /*0x16C*/ int f16C;
 } PObjGObj;
 
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void actSt05eWaterMain(volatile int a0);
 extern int D_0028F4C0[];
 extern float D_0063C088;
 extern int D_0063C554;
-extern void gflagOn(int a0);
-extern void SetRotObjectArmRadius(PObjGObj *a0, float f);
-extern void SetRotObjectLockFlag(PObjGObj *a0, int a1);
-extern void FinishHint(int no);
-extern void actSt05eSolarChk(volatile int a0);
 extern int D_0028F8F4[];
 extern int D_0028F8F0[];
-extern void lt_switch_layout(int no);
-extern int actCreateSubThread(void *entry, int prio);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
-extern void iosThreadSetPri(int th, int pri);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float f, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern int lt_fade_status(void);
-extern void SetWayGroupActive(int group, int on);
-extern void actSt05eWaterFlagOn(volatile int a0);
-extern void actSt05eWaterStopSub(volatile int a0);
 
 /* listing lines 228-270 */
 void actSt05eWaterStop(volatile int a0)
@@ -113,10 +110,12 @@ void actSt05eWaterStop(volatile int a0)
 }
 
 extern int solar;
+/* kept local: this TU's uses of scpIsRotObjectZPlusDirInclude do not fit the prototype in script.h */
 extern int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *h, short a1);
-extern void gflagOff(int a0);
 
 /* listing lines 319-389 */
 void actSt05eSolarChk(volatile int a0)

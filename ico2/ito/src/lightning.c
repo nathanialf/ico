@@ -35,6 +35,7 @@ void lightning_test(void);
 inline int cmpr(int *self, int *other);
 extern void qsort(void *base, int nmemb, int size, int (*compar)(int *, int *));
 extern void sceVu0CopyVector(void *dst, void *src);
+/* kept local: the declaration in lightning.h changes this TU codegen */
 extern void DrawLightning2(int n, void *a, void *b, float f0, float f1, float f2, float f3,
                            float f4, float f5, float f6, float f7, float f8, float f9, int c);
 

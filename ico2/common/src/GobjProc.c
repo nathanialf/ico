@@ -1,4 +1,8 @@
 #include "common.h"
+#include "debug.h"
+#include "icoMisc.h"
+#include "gobj_dl.h"
+#include "camera-root.h"
 
 typedef struct PObjGObj {
     /*0x00*/ char pad00[0x4];
@@ -23,14 +27,15 @@ typedef struct PObjGObj {
 extern int D_0063C0C8;
 extern int D_0072A2C0[];
 extern char D_0063C0D0[];
-extern void debug_StdPrintfDummy();
+/* kept local: this TU's uses of isysGObjAdd do not fit the prototype in gobj.h */
 extern PObjGObj *isysGObjAdd(int a0, int a1, int a2);
+/* kept local: this TU's uses of isysGObjKindTableAdd do not fit the prototype in gobj.h */
 extern void isysGObjKindTableAdd(void *a0, int a1);
-extern void isysGObjLinkObjDL(void *a0, int a1, int a2, int a3, unsigned int a4);
+/* kept local: this TU's uses of isysGObjProcAdd do not fit the prototype in gobj_process.h */
 extern int isysGObjProcAdd(void *a0, int a1, int a2, int a3);
+/* kept local: the declaration in gobj_cam_dl.h changes this TU codegen */
 extern void isysGObjLinkCameraDL(void *a0, int a1, int a2, int a3, unsigned int a4);
-extern void SetCameraMatrix(void);
-extern void DispIcoMisc(void);
+/* kept local: this TU's uses of isysGObjProcAddS do not fit the prototype in gobj_process.h */
 extern void isysGObjProcAddS(void *a0, int a1, int a2, int a3, int a4);
 /* prototypes: their order is the inline tail's emission order */
 PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6);

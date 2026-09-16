@@ -1,4 +1,27 @@
 #include "common.h"
+#include "st13c.h"
+#include "StageManager.h"
+#include "debug.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "obj_manager.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "act-game.h"
+#include "act.h"
+#include "commonact.h"
+#include "enemy_act.h"
+#include "way_llf.h"
+#include "camera-ico2.h"
+#include "camera-root.h"
+#include "fightSound.h"
+#include "generator.h"
+#include "gflag.h"
+#include "GsBase.h"
+#include "StageAnimation.h"
+#include "motionManager2.h"
+#include "weapon.h"
 
 typedef union ActStatus {
     unsigned long long ll;
@@ -81,119 +104,85 @@ typedef struct PObjGObj {
     int unk16C;        /* 0x16C */
 } PObjGObj;
 
-extern void _ACTWait(int a0);
-extern void SetWayGroupActive(int a0, int a1);
-extern void debug_StdPrintfDummy(char *fmt);
-extern void gflagOn(int a0);
-extern void CameraSetCameraSet(int a0);
-extern void Generator_Call(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj(int a0);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(int a0);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern int ForMotionViewer_GetCurrentMotion(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern Act *actInitialize(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int gflagChk(int a0);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void gflagOff(int a0);
-extern int actCreateSubThread(void *entry, int prio);
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-extern void *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
+/* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
 extern void scpPlayMotReq(int a0, int mot);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
+/* kept local: this TU's uses of ScpCallCameraOff do not fit the prototype in script.h */
 extern void ScpCallCameraOff(void);
+/* kept local: this TU's uses of jimakuBegin do not fit the prototype in jimaku.h */
 extern void jimakuBegin(int a0);
-extern void iosThreadSetPri(int *a0, int a1);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
-extern int lt_fade_status(void);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
 extern void memset(void *a0, int a1, int a2);
+/* kept local: this TU's uses of ScpCallCameraOn do not fit the prototype in script.h */
 extern void ScpCallCameraOn(void);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *a0, int a1);
+/* kept local: this TU's uses of jimakuUndisp do not fit the prototype in jimaku.h */
 extern void jimakuUndisp(int a0);
 /* no prototype in the dev's TU: the C89 implicit-int return is what makes
    ee-gcc treat $v0 as clobbered at every call site (it is why ROM alternates
    $2/$3 across the nine calls below). The definition in src/script.c is void. */
+/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern int scpEffectStart(void *a0, int a1);
+/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
 extern void scpKillEnemyAll(void);
-extern void SetHandCameraLimitInDemo(int a0, int a1);
-extern void ResetHandCameraLimitInDemo(void);
+/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
 extern void scpTorchLightOn(int a0);
-extern void fightSoundProcessRequestStart(void);
-extern void fightSoundProcessRequestPause(void);
-extern int fightSoundPlayChk(void);
+/* kept local: this TU's uses of scpActStatusDeathFall do not fit the prototype in script.h */
 extern int scpActStatusDeathFall(int a0);
-extern int actEnemyFlagCheckDead(int a0);
-extern void gsb_SetZoom(float a0, float a1);
+/* kept local: this TU's uses of scpLockMaxRotate do not fit the prototype in script.h */
 extern void scpLockMaxRotate(int a0, float a1);
+/* kept local: this TU's uses of scpUnLockMaxRotate do not fit the prototype in script.h */
 extern void scpUnLockMaxRotate(int a0);
+/* kept local: this TU's uses of _SCPMoveByWay_ToChar do not fit the prototype in script.h */
 extern void _SCPMoveByWay_ToChar(int a0, int a1, int a2, int a3, float f0, float f1);
-extern void ACTGame_ConnectHand(void);
-extern void iosOmSendMail(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
-extern void CheckPoint(void);
-extern void AdpcmPlay(int a0);
-extern void Generator_QuickCall(int a0);
-extern int isEnemyActive(int a0);
-extern void DirectCallEnemy(int a0, int a1, void *a2, void *a3, int a4);
-extern void SetCameraFlag_LwsCutBack(void);
+/* kept local: this TU's uses of scpTorchLightOff do not fit the prototype in script.h */
 extern void scpTorchLightOff(int a0);
-extern void ACTEnemyForceSwitchToCarry(int a0);
+/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
 extern void scpMaskGeneratorAll(void);
+/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
-extern int iosPadActRequest(int port, int id);
-extern int *iosPadActVolumeSet(int key, unsigned int val);
-extern void iosPadActStop(int key);
+/* kept local: this TU's uses of jimakuJump do not fit the prototype in jimaku.h */
 extern void jimakuJump(int a0);
-extern void SetWeaponTorchChainReactionFlagAll(int a0);
-extern void lt_switch_layout(int a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern void soundSeDefStop(int handle);
-extern void actSt13cBukiChk(volatile int a0);
-extern void actSt13cSleepChk(volatile int a0);
-extern void actSt13cBmg1Chk(volatile int a0);
-extern void actSt13cCageFallChk(volatile int a0);
-extern void actSt13cCage1stDownDemoCancel(volatile int a0);
-extern void actSt13cCage1stDownDemo(volatile int a0);
-extern void actSt13cConte04(volatile int a0);
-extern void actSt13cConte04Jimaku(volatile int a0);
-extern void actSt13cHandJimaku(volatile int a0);
-extern void actSt13cHandSub(volatile int a0);
-extern void actSt13cConte05(volatile int a0);
-extern void actSt13cConte05Jimaku(volatile int a0);
-extern void actSt13cCageFallEffect(volatile int a0);
-extern void actSt13cGirlCarryAgainChk(volatile int a0);
-extern void actSt13cCage1stDown(volatile int a0);
-extern void actSt13cSekizoJimakuChk(volatile int a0);
-extern void actSt13cSekizoJimakuEff(volatile int a0);
-extern void actSt13cHandChk(volatile int a0);
-extern void actSt13cGirlCarryChk(volatile int a0);
-extern void actSt13cCageFallReadyChk(volatile int a0);
-extern void actSt13cRescueChk(volatile int a0);
-extern void actSt13cSekizoChk(volatile int a0);
-extern void actSt13cCageDownMain(volatile int a0);
 extern int D_00639EA4;
 extern int D_0063C590;
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
+
 /* st13c.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-extern void actSt13cCageDownSwitch(volatile int a0);
 
 static ActMail bmg1_mes[2] = {{430}, {429}};
 
@@ -1506,6 +1495,7 @@ void actSt13cBuki(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpSekizou do not fit the prototype in script.h */
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 

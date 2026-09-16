@@ -1,4 +1,24 @@
 #include "common.h"
+#include "StageManager.h"
+#include "debug.h"
+#include "gamesys.h"
+#include "layout_texture.h"
+#include "sceneManager.h"
+#include "pad.h"
+#include "thread.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "jimaku.h"
+#include "way_llf.h"
+#include "brain.h"
+#include "camera-root.h"
+#include "fightSound.h"
+#include "gflag.h"
+#include "RegistPacket.h"
+#include "StageAnimation.h"
+#include "motionManager2.h"
+#include "staticBlur.h"
+#include "windManager.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -27,23 +47,22 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
-extern void lt_switch_layout(int a0);
-extern void gflagOn(int a0);
-extern int gflagChk(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
+/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
 extern int actInitialize(int a0);
+/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
 extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_0063AA08;
 extern int enable_game_pause;
 extern int D_0028F4C0[];
-extern void stgmgrNextStagePreLoadForceStageSet(int val);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 
 void actE3WarningChk(volatile int a0)
@@ -71,9 +90,11 @@ void actE3WarningChk(volatile int a0)
     RequestStageChange(1, D_00639EA4, 0, 255.0f, 0.0f);
 }
 
-extern void gflagOff(int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3TitleChk(volatile int a0);
 /* prototypes: their order is the inline tail's emission order */
 void actE3CapsuleDemoEnd(volatile int a0);
@@ -86,7 +107,9 @@ void actE3St01bEneChk(volatile int a0);
 void actE3St09aGirlWay(volatile int a0);
 void actE3St09aBrgMain(volatile int a0);
 void actE3St09aBrgSwitch(volatile int a0);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3DoorSwitch(volatile int a0);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3St09aBrgSwitch(volatile int a0);
 
 static ActMail title_mes[2] = {{430}, {429}};
@@ -180,13 +203,15 @@ typedef struct PadState {
 
 extern PadState D_0028F8F0[];
 extern int D_0063BDF4;
-extern void gflagOn(int a0);
+/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
 extern int actCreateSubThread(void *entry, int prio);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3TitleFrameChk(volatile int a0);
-extern void debug_StdPrintfDummy();
-extern void AdpcmPlay(int handle);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 
 void actE3TitleChk(volatile int a0)
@@ -215,10 +240,8 @@ void actE3TitleChk(volatile int a0)
 }
 
 extern int NonLinearCameraMove;
-extern void stage_SetLoopFlag(int key, int a1);
-extern int stage_ContinueAnimation(int a0, int a1);
+/* kept local: this TU's uses of scpAdpcmCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmCloseFunc(int *h);
-extern void stgmgrForceSwitchWithFade(int a0, float a1, float a2);
 extern int D_0063B5F0;
 extern int mpegPlayReturnStage;
 
@@ -315,7 +338,6 @@ void actE3TitleFrameChk(volatile int a0)
 }
 
 extern int NonLinearCameraMove;
-extern void stage_SetLoopFlag(int key, int a1);
 
 void actE3Inst1Chk(volatile int a0)
 {
@@ -361,8 +383,11 @@ void actE3Inst1Chk(volatile int a0)
     RequestStageChange(1, D_00639EA4, 0, 255.0f, 16.0f);
 }
 
+/* kept local: this TU's uses of ScpCallCameraOff do not fit the prototype in script.h */
 extern void ScpCallCameraOff(void);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3CapsuleChk(volatile int a0);
 
 void actE3Capsule(volatile int a0)
@@ -406,9 +431,11 @@ void actE3Capsule(volatile int a0)
     }
 }
 
-extern void iosThreadSetPri(int th, int pri);
+/* kept local: this TU's uses of scpAdpcmCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmCloseFunc(int *h);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3CapsuleDemoEnd(volatile int a0);
 extern int D_0063C4E0;
 extern int D_0063C4E4;
@@ -446,8 +473,8 @@ void actE3CapsuleDemoCancel(volatile int a0)
     actCreateSubThread(actE3CapsuleDemoEnd, 0x15);
 }
 
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
-extern int stage_ContinueAnimation(int a0, int a1);
 
 void actE3CapsuleDemo(volatile int a0)
 {
@@ -508,8 +535,6 @@ void actE3CapsuleDemo(volatile int a0)
     actCreateSubThread(actE3CapsuleDemoEnd, 0x15);
 }
 
-extern void SetWayGroupActive(int a0, int a1);
-
 void actE3St13cInit(void)
 {
     SetWayGroupActive(7, 0);
@@ -519,7 +544,9 @@ void actE3St13cInit(void)
     }
 }
 
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3CageFallChk(volatile int a0);
 
 void actE3CageFall(volatile int a0)
@@ -550,14 +577,15 @@ void actE3CageFall(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-extern void fightSoundProcessRequestPause(void);
-extern int fightSoundPlayChk(void);
-extern void AdpcmPlay(int handle);
+/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
 extern int actCreateSubThread(void *entry, int prio);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3CageFallDemo(volatile int a0);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3CageFallEffect(volatile int a0);
-extern void SetWayGroupActive(int a0, int a1);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int id);
 extern int D_0063BDFC;
 
@@ -602,17 +630,15 @@ void actE3CageFallChk(volatile int a0)
     SetWayGroupActive(9, 0);
 }
 
-extern void SetHandCameraLimitInDemo(int a0, int a1);
-extern void ResetHandCameraLimitInDemo(void);
-extern void fightSoundProcessRequestStart(void);
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern void *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
-extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
-extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
-extern void CheckPoint(void);
 extern int stage_no;
 
 void actE3CageFallDemo(volatile int a0)
@@ -740,12 +766,16 @@ typedef union EffectArg {
 /* no prototype in the dev's TU: the C89 implicit-int return is what makes
    ee-gcc treat $v0 as clobbered at every call site. The definition in
    src/script.c is void. */
+/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern int scpEffectStart(void *a0, int a1);
-extern int iosPadActRequest(int port, int id);
 extern int D_00639EAC;
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern void *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
 extern int D_00639EA4;
@@ -852,7 +882,9 @@ void actE3CageFallEffect(volatile int a0)
     } while (t < 400.0f);
 }
 
+/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3St09aSekizoChk(volatile int a0);
 
 /* e3.o's own .data run (no MAIN.MAP symbol): the sekizou's SE position. */
@@ -881,27 +913,30 @@ void actE3St09aSekizo(volatile int a0)
     }
 }
 
-extern int ForMotionViewer_GetCurrentMotion(int a0);
+/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
+/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
 extern void scpKillEnemyAll(void);
+/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
 extern void scpMaskGeneratorAll(void);
-extern void brainLockGirl(void);
-extern int iosPadActRequest(int port, int id);
-extern int *iosPadActVolumeSet(int key, unsigned int val);
-extern void iosPadActStop(int a0);
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern void *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
+/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(int a0);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
-extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3St09aGirlWay(volatile int a0);
 extern int D_00639EAC;
 extern int sekizo_e3_vol;
 extern unsigned char D_0063BE0C;
+/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
+/* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
 extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
-extern void brainUnlockGirl(void);
 extern void memset(void *dst, int c, int n);
 
 inline void actE3St09aGirlWay(volatile int a0)
@@ -999,14 +1034,17 @@ void actE3St09aSekizoChk(volatile int a0)
 }
 
 extern char D_00618F00[];
+/* kept local: this TU's uses of StandbyStreamMotion do not fit the prototype in streamMotionManager.h */
 extern void StandbyStreamMotion(char *a0);
+/* kept local: this TU's uses of CheckReadyStreamMotion do not fit the prototype in streamMotionManager.h */
 extern int CheckReadyStreamMotion(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void SetWindManager(float a, float b, float c, float d, float e, float f, float g, float h);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
-extern void reg_SetScissorSw(int val);
-extern void SetStaticBlur(int x);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3GateDemo(volatile int a0);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3GateJimaku(volatile int a0);
 extern int e3gate1st;
 
@@ -1054,12 +1092,12 @@ void actE3GateChk(volatile int a0)
     stage_SetAnimation(0x10D, 1, 0);
 }
 
+/* kept local: this TU's uses of EntryStreamMotion do not fit the prototype in streamMotionManager.h */
 extern int EntryStreamMotion(int a0);
+/* kept local: this TU's uses of PlayStreamMotion do not fit the prototype in streamMotionManager.h */
 extern void PlayStreamMotion(void);
-extern void SetAuraInspireParam(float a0);
-extern void ReinitWindManager(void);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-extern void stgmgrForceSwitchWithFadeColor(int id, float speed, float wait, int r, int gr, int b);
 extern float D_0063AA0C;
 
 void actE3GateDemo(volatile int a0)
@@ -1169,8 +1207,6 @@ typedef struct JimakuArg {
 
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
-extern void jimakuBegin(int a0);
-extern void jimakuJump(int a0);
 
 void actE3GateJimaku(volatile int a0)
 {
@@ -1214,8 +1250,7 @@ void actE3St01bInit(void)
     stage_SetAnimation(0xB7, 0, -1);
 }
 
-extern int stage_CheckAnimationFrame(int anim, int frame, int a2);
-extern int iosPadActRequest(int port, int id);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern int sekizo_e3;
 extern int D_00639EAC;
@@ -1256,8 +1291,9 @@ void actE3St09aBrgDown(volatile int a0)
     lt_switch_layout(0x36);
 }
 
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-extern void InitStageLight(int stage);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int stage_no;
 
@@ -1278,8 +1314,6 @@ void actE3Warning(volatile int a0)
     RequestStageChange(1, D_00639EA4, 0, 255.0f, 0.0f);
 }
 
-extern void stgmgrNextStagePreLoadForceStageSet(int val);
-
 typedef struct {
     unsigned char _0[0xA0];
     short ent[0x18];
@@ -1288,6 +1322,7 @@ typedef struct {
 
 extern StgPre D_005F5D50[];
 extern int D_0055C518[][10];
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3Inst1Chk(volatile int a0);
 
 void actE3Inst1(volatile int a0)
@@ -1312,6 +1347,7 @@ void actE3Inst1(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3DoorMain(volatile int a0);
 
 void actE3Door(volatile int a0)
@@ -1333,6 +1369,7 @@ void actE3Door(volatile int a0)
     }
 }
 
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3CageFallReadyChk(volatile int a0);
 
 void actE3CageFallReady(volatile int a0)
@@ -1350,6 +1387,7 @@ void actE3CageFallReady(volatile int a0)
     }
 }
 
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3St13cIntroChk(volatile int a0);
 
 void actE3St13cIntro(volatile int a0)
@@ -1404,7 +1442,9 @@ void actE3St13cGene2(volatile int a0)
     Generator_MaskOff(a0);
 }
 
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
+/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
 extern int actInitialize(int a0);
 
 void actE3Floor(volatile int a0)
@@ -1414,6 +1454,7 @@ void actE3Floor(volatile int a0)
     _ACTWait(1);
 }
 
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3St01bEneChk(volatile int a0);
 
 void actE3St01bEne(volatile int a0)
@@ -1489,6 +1530,7 @@ void actE3St01bGene3(volatile int a0)
     Generator_MaskOff(a0);
 }
 
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3St09aBrgMain(volatile int a0);
 
 void actE3St09aBrg(volatile int a0)
@@ -1510,9 +1552,13 @@ void actE3St09aBrg(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of MallocStreamMotionBuffer do not fit the prototype in streamMotionManager.h */
 extern void MallocStreamMotionBuffer(void);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int id);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3GateChk(volatile int a0);
 
 void actE3Gate(volatile int a0)
@@ -1541,10 +1587,15 @@ void actE3Gate(volatile int a0)
     _ACTWait(0);
 }
 
+/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
+/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
 extern int actCreateSubThread(void *entry, int prio);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3CapsuleDemo(volatile int a0);
 extern int e3capsule;
 extern int D_0063C4E0;
@@ -1582,7 +1633,9 @@ inline void actE3DoorMain(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
 extern void ACTSendMailCorrect(int a0, int mail);
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3DoorUp(volatile int a0);
 
 inline void actE3DoorSwitch(volatile int a0)
@@ -1648,9 +1701,13 @@ inline void actE3St13cIntroChk(volatile int a0)
 
 extern int D_00639EA4;
 extern int D_0063BDFC;
+/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
+/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
 extern int actInitialize(int a0);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 
 inline void actE3CageFallReadyChk(volatile int a0)
@@ -1707,6 +1764,7 @@ inline void actE3St09aBrgMain(volatile int a0)
     }
 }
 
+/* kept local: the declaration in e3.h changes this TU codegen */
 extern void actE3St09aBrgDown(volatile int a0);
 
 inline void actE3St09aBrgSwitch(volatile int a0)

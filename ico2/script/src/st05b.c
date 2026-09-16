@@ -1,4 +1,14 @@
 #include "common.h"
+#include "st05b.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "brain.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "item.h"
 
 typedef struct ActMail {
     int mail;          /* 0x00 */
@@ -12,16 +22,11 @@ typedef struct Act {
     ActMail *mail;    /* 0xD4 */
 } Act;
 
-extern Act *actInitialize(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-
 static ActMail sekizo_mes[2] = {{430}, {429}};
 
-extern void actSt05bSekizoChk(int a0);
+/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern void _ACTWait(int a0);
-extern int gflagChk(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
 extern void scpTorchLightOn(int id);
 
 void actSt05bCrest01XL(volatile int a0)
@@ -60,33 +65,31 @@ extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_00639EAC;
 extern int D_0063AA08;
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-extern void brainLockGirl(void);
+/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
 extern void scpKillEnemyAll(void);
+/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
 extern void scpMaskGeneratorAll(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void gflagOn(int a0);
-extern void ReviveAllCarryableItemsWithNonSleepFrame(int frames);
-extern int iosPadActRequest(int port, int id);
-extern int *iosPadActVolumeSet(int key, unsigned int val);
-extern void iosPadActStop(int key);
-extern int soundSeDefPlay(int se, int a1, void *pos, int a3);
-extern void soundSeDefStop(int handle);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int gobj);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int gobj, int mot);
+/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(int gobj);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int gobj);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int gobj, float x, float y, float z);
+/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int gobj, float *dir);
+/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
-extern void *test_CURRENTROOT(int gobj);
 extern void sceVu0SubVector(float *dst, void *a, void *b);
+/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern int actCreateSubThread(void *entry, int prio);
-extern void lt_switch_layout(int a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern void actSt05bGirlWay(volatile int a0);
 
 void actSt05bSekizoChk(volatile int a0)
 {
@@ -250,9 +253,10 @@ static const ConstVec girlWay2Pos = {{139.0f, -177.0f, 1670.0f, 0.0f}};
 extern int D_00639EA8;
 /* Returns int: st04b.c carries the same prototype, and the live $2 at the
  * call boundary is what puts the second way record's %hi in $3. */
+/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern int _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
+/* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
 extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
-extern void brainUnlockGirl(void);
 
 void actSt05bGirlWay(volatile int a0)
 {

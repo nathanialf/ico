@@ -1,4 +1,15 @@
 #include "common.h"
+#include "st05c.h"
+#include "layout_texture.h"
+#include "thread.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "StageAnimation.h"
+#include "attackCheckBoundary.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -25,35 +36,22 @@ typedef union StVec {
     long long ll[2];
 } StVec;
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void gflagOn(int a0);
-extern void gflagOff(int a0);
-extern void SleepHint(int a0);
-extern void WakeupHint(int a0);
-extern void FinishHint(int a0);
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-extern int soundSeDefPlay(int se, int a1, void *pos, int a3);
-extern void soundSeDefStop(int handle);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void Generator_Call(int a0);
-extern int actCreateSubThread(void *entry, int prio);
-extern void iosThreadSetPri(int th, int pri);
-extern int GetAttackCheckBoundaryManagerStatus(PObjGObj *gobj);
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float f, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern int lt_fade_status(void);
 
 typedef struct Pad {
     int on;  /* 0x00 */
@@ -61,8 +59,7 @@ typedef struct Pad {
 } Pad;
 
 extern Pad D_0028F8F0[];
-extern void actSt04rDoorSub(volatile int a0);
-extern void actSt04rDoor2Sub(volatile int a0);
+/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern int scpEffectStart(StVec *a0, int a1);
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -86,13 +83,6 @@ static ActMail st04rDoor_mes[2] = {{430}, {429}};
 static ActMail st04rDoor2_mes[2] = {{430}, {429}};
 
 static ActMail crestHint_mes[2] = {{430}, {429}};
-
-extern void actSt05cDoorDownChk(volatile int a0);
-extern void actSt05cDoorDownEffect(volatile int a0);
-extern void actSt05cEneChk(volatile int a0);
-extern void actSt05cCrestHintChk(volatile int a0);
-extern void actSt04rDoorChk(volatile int a0);
-extern void actSt04rDoor2Chk(volatile int a0);
 
 void actSt05cDoorDownChk(volatile int a0)
 {

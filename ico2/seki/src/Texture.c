@@ -1,4 +1,6 @@
 #include "common.h"
+#include "Texture.h"
+#include "DisplayList.h"
 
 typedef struct CdvdRec {
     char pad0[0x78];
@@ -20,9 +22,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_loadImage);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_setTexReg);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_transVramClutTex);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_transVramDirectTex);
-
-extern void dl_CloseDma();
-extern void dl_OpenDma();
 
 void tex_transRegister(int a0)
 {
@@ -54,8 +53,6 @@ typedef struct TexClutEnt {
 } TexClutEnt;
 
 extern TexClutEnt D_00290B78[];
-extern void tex_scrollClut(int a0, int a1, int a2, int a3, unsigned int a4, void *a5, int a6,
-                           void *a7);
 
 void tex_SetClutAnimation(int id, int frame)
 {
@@ -94,14 +91,10 @@ int tex_GetTWTH(int a0)
     return ret;
 }
 
-extern int tex_initTextureSub();
-
 int tex_InitTexture(void)
 {
     return tex_initTextureSub();
 }
-
-extern int tex_LoadTexturePart(void *a0, int a1);
 
 int tex_LoadTexture(void *a0)
 {
@@ -237,7 +230,6 @@ void tex_UpdateMipMapLevel(void)
     }
 }
 
-extern void dl_SetDLPriority(int pri);
 extern int D_006AF518[];
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines

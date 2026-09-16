@@ -1,8 +1,10 @@
 #include "common.h"
+#include "rope.h"
+#include "debug.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
 
-extern void ropeGeo(void *o);
-extern void CopyVector(void *dst, void *src);
-extern void GetRootPosition(void *dst, void *src);
+/* kept local: this TU's uses of GetChainCollision do not fit the prototype in clothAnimation.h */
 extern float GetChainCollision(void *a0, void *a1, float w);
 extern void *D_00639EA4;
 
@@ -28,11 +30,12 @@ typedef union {
     int *i;
 } Sub15CRef;
 
+/* kept local: this TU's uses of GetChainNodeID do not fit the prototype in clothAnimation.h */
 extern float GetChainNodeID(void *n);
+/* kept local: this TU's uses of SetChainExtendedWeight do not fit the prototype in clothAnimation.h */
 extern int SetChainExtendedWeight(void *a0, int a1, float f12, float f13);
 extern char D_004ECEE0[];
 extern char D_00620AD8[];
-extern void debug_StdPrintfDummy(char *p);
 
 void HoldRope(void *a0, void *a1)
 {
@@ -63,9 +66,9 @@ void HoldRope(void *a0, void *a1)
 
 inline void ReleaseRope(void) {}
 
-extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
 extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
+/* kept local: this TU's uses of GetChainAnimation do not fit the prototype in clothAnimation.h */
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
 void ropeGeo(void *a0)
@@ -111,15 +114,11 @@ inline void RopeGeo(void *a0)
     ropeChainCollision(a0);
 }
 
+/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
 extern void p2o_SetDefaultEnviroment(void *a0);
+/* kept local: this TU's uses of p2o_DispVU1DObjMulti do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1DObjMulti(void *a0);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y,
-                                        float z);
-extern void MatrixDrive_RotMatrixX(short a0);
-extern void MatrixDrive_RotMatrixZ(short a0);
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
-extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of TestDispChainAnimation do not fit the prototype in clothAnimation.h */
 extern void TestDispChainAnimation(void *a0);
 extern int D_0063B148;
 

@@ -1,10 +1,10 @@
 #include "common.h"
+#include "debug.h"
 
 /* header prototypes (order fixes the inline tail) */
 /* prototypes: their order is the inline tail's emission order */
 int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
 int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
-extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void memcpy(void *dst, void *src, int count);
 
 inline int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7)

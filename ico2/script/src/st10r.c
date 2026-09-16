@@ -1,4 +1,24 @@
 #include "common.h"
+#include "st10r.h"
+#include "gamesys.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "act.h"
+#include "boyact.h"
+#include "commonact.h"
+#include "way_llf.h"
+#include "camera-root.h"
+#include "generator.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "RegistPacket.h"
+#include "StageAnimation.h"
+#include "cage.h"
+#include "motionManager2.h"
+#include "rotObject.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -24,10 +44,6 @@ typedef struct PObjGObj {
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
 } PObjGObj;
-
-extern void _ACTWait(int a0);
-extern Act *actInitialize(int a0);
-extern void actSt10rChainSwitch(volatile int a0);
 
 static ActMail floor_mes[2] = {{430}, {429}};
 
@@ -67,34 +83,13 @@ static ActMail way_offchk_mes[2] = {{430}, {429}};
 
 static ActMail tower_resque_mes[2] = {{430}, {429}};
 
+/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int gflagChk(int a0);
-extern void gflagOn(int a0);
-extern void gamesysObjInfoCls(int kind, int no);
-extern void actSt10rFloorChk(volatile int a0);
-extern void SleepHint(int a0);
-extern void actSt10rFloorHitChk(volatile int a0);
-extern void actSt10rCageMain(volatile int a0);
+/* kept local: this TU's uses of scpSetCageVelocityFriction do not fit the prototype in script.h */
 extern void scpSetCageVelocityFriction(int id, float f);
-extern void SetRotObjectLockFlag(PObjGObj *a0, int a1);
-extern void actSt10rTowerChk(volatile int a0);
-extern void actSt10rTowerResqueChk(volatile int a0);
-extern void actSt10rExitChk(volatile int a0);
-extern void actSt10rChainMain(volatile int a0);
-extern void actSt10rEneChk(volatile int a0);
-extern void Generator_Call(int a0);
-extern void Generator_Mask(int a0);
-extern void Generator_MaskOff(int a0);
-extern void gflagOff(int a0);
-extern void actSt10rWayOnChk(volatile int a0);
 extern char *cage10r;
 extern int D_00639EAC;
 extern int D_0063C574;
-extern void AdpcmPlay(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern int iosPadActRequest(int port, int id);
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
@@ -107,16 +102,13 @@ typedef union {
 static const ConstVec girlWayPos = {{-296.0f, 327.0f, 2125.0f, 0.0f}};
 
 extern int D_00639EA8;
+/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 extern int D_0063AA08;
-extern void actSt10rChainMove(volatile int a0);
 extern char *chain10r;
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern void soundSeDefStop(int handle);
 extern int D_00639EA4;
+/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern void FinishHint(int a0);
-extern void actSt10rFenceDownChk(volatile int a0);
 
 /* The second fence-up watcher's mail record: it installs
    actSt10rFenceDownChk2 here and posts it. Word 0 of each entry is the mail
@@ -124,18 +116,19 @@ extern void actSt10rFenceDownChk(volatile int a0);
    .func is filled in at run time. Named for the thread that owns and posts
    it. */
 
-extern void actSt10rFenceDownChk2(volatile int a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
+/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float radius);
-extern void OnGirlEscortFlag(void);
+/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
-extern void actSt10rWayOffChk(volatile int a0);
+/* kept local: this TU's uses of scpCheckExistAliveEnemy do not fit the prototype in script.h */
 extern int scpCheckExistAliveEnemy(void);
-extern void SetWayGroupActive(int a0, int a1);
-extern int ForMotionViewer_GetCurrentMotion(int a0);
+/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
+/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float f12, float f13, float f14);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
+/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
 
 void actSt10rInit(void)
@@ -170,23 +163,24 @@ void actSt10rEnd(void)
     gamesysObjInfoCls(scpSearchGobj(0x660)->f0C, scpSearchGobj(0x660)->f08);
 }
 
-extern void lt_switch_layout(int a0);
+/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
+/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
+/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
+/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(void *a0, int a1);
-extern int actCreateSubThread(void *entry, int prio);
-extern void iosThreadSetPri(int *a0, int a1);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
+/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
-extern int lt_fade_status(void);
 extern int D_0028F8F4[];
-extern void actSt10rChainMoveSub(volatile int a0);
-extern void WakeupHint(int a0);
 extern int st10r_floor;
-extern void actSt10rFloorSub(volatile int a0);
 
 void actSt10rFloorChk(volatile int a0)
 {
@@ -237,9 +231,8 @@ void actSt10rFloorChk(volatile int a0)
     lt_switch_layout(0x36);
 }
 
+/* kept local: this TU's uses of scpGetRotObjectRotCount do not fit the prototype in script.h */
 extern float scpGetRotObjectRotCount(int a0);
-extern void HotInitCageGeo(PObjGObj *a0);
-extern void actSt10rCageSub(volatile int a0);
 
 void actSt10rFloorHitChk(volatile int a0)
 {
@@ -330,13 +323,10 @@ void actSt10rCageMain(volatile int a0)
 }
 
 extern char *D_0063BF9C;
+/* kept local: this TU's uses of scpIsBombExplode do not fit the prototype in script.h */
 extern int scpIsBombExplode(int a0);
-extern void reg_SetScissorSw(int a0);
-extern void iosPadActStopAll(void);
-extern void SetCameraFlag_GamecamCutBack(void);
+/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
-extern void actSt10rGirlWay(volatile unsigned int a0);
-extern void actSt10rTowerConte(volatile int a0);
 
 void actSt10rTowerChk(volatile int a0)
 {
@@ -519,7 +509,7 @@ void actSt10rChainMove(volatile int a0)
     lt_switch_layout(0x36);
 }
 
-extern void actSt10rFenceUpChk(volatile int a0);
+/* kept local: this TU's uses of scpLinkBGAtoLayoutedTarget do not fit the prototype in script.h */
 extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 
 void actSt10rFence(volatile int a0)
@@ -576,8 +566,6 @@ void actSt10rFence(volatile int a0)
         _ACTWait(0);
     }
 }
-
-extern void actSt10rFenceUpChk(volatile int a0);
 
 void actSt10rFenceDownChk(volatile int a0)
 {
@@ -658,7 +646,6 @@ void actSt10rFenceUpChk(volatile int a0)
 }
 
 /*SWEEP-ENDactSt10rFenceUpChk*/
-extern void actSt10rFenceUpChk2(volatile int a0);
 
 void actSt10rFenceDownChk2(volatile int a0)
 {
@@ -843,6 +830,7 @@ void actSt10rChain(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of scpSekizou do not fit the prototype in script.h */
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 

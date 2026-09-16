@@ -1,5 +1,22 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "DObj.h"
+#include "memory.h"
+#include "obj_manager.h"
+#include "act-game.h"
+#include "DisplayP2O.h"
+#include "RegistPacket.h"
+#include "actressLight.h"
+#include "clothAnimation.h"
+#include "geometryManager.h"
+#include "handManager.h"
+#include "lodManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "motionOrientManager.h"
+#include "pool.h"
+#include "quaternion.h"
+#include "waterDot.h"
 
 typedef struct { /* 0x10 */
     float x, y, z, w;
@@ -12,12 +29,10 @@ typedef struct {
 } LightLineExt;
 
 extern LightLineExt *llExtGeo;
-extern void AdjustMotionHeightToNearestField(void *a0);
 /* prototypes: their order is the inline tail's emission order */
 void SelectBoyCrown(char *a0, int a1);
 void LightLineGeo(void);
 void SetBoyStonizedVisual(char *a0);
-extern void DispCloth4D(void *cloth, void *a1, void *a2);
 
 void dispClothes(char *gobj)
 {
@@ -38,11 +53,9 @@ void dispClothes(char *gobj)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/boy", execClothes);
 
-extern void *iosMallocDebug(void *heap, int size, char *file, int line);
 extern char D_0061F178[];
 extern void *D_0063A438;
 extern char D_004E6E10[];
-extern void CopyVector(void *dst, void *src);
 
 LightLineExt *InitLightLineGeo(char *gobj, float *pos)
 {
@@ -110,13 +123,6 @@ typedef union DlFlag {
 } DlFlag;
 
 extern void *D_0063A44C;
-extern void iosFree(int p);
-extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
-extern char *InitCloth4D(char *gobj, void *cfg, void *tbl);
-extern void InitMotionOrient(char *self, int a1, int a2, int a3, int a4, int a5);
-extern void SetLodLevel(char *self, int lod);
-extern void InitLimitedPoolReflactionMesh(char *a0);
-extern char *AllocWaterDot(char *gobj, int num, int a2);
 extern void sceVu0UnitMatrix(void *a0);
 extern char D_004E62B0[];
 extern char D_004E65B0[];
@@ -209,17 +215,21 @@ extern char *D_00639EA8;
 extern int D_0063B154;
 extern char D_004E6DF0[];
 extern char D_004E6E00[];
+/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
-extern void GetRootPosition(void *dst, char *gobj);
-extern void SetDirectRootPositionNoFitting(char *self, void *v);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *p);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrixV(char *a0);
+/* kept local: this TU's uses of prim_DispWireSphere do not fit the prototype in Primitive.h */
 extern void prim_DispWireSphere(float r, void *a0, int a1, int a2);
 
 void synchronizeMotionOutputOriginForGirl(char *gobj)
@@ -265,12 +275,6 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
     }
 }
 
-extern char ZeroVector[];
-extern int ExecWaterDot(int work);
-extern void EntryWaterDot(int work, void *pos, char *kind, float range);
-extern void CopyVector(void *dst, void *src);
-extern int GetSkeltonFocusNode(char *gobj, int node);
-
 void actionOfWater(char *gobj)
 {
     float pos[4];
@@ -301,13 +305,6 @@ void actionOfWater(char *gobj)
     }
 }
 
-extern void HandManager(char *gobj);
-extern void ExecMotionOrient(char *gobj);
-extern void ExecuteSlipProc(char *gobj);
-extern void SetActressLight(char *gobj, int a1, int a2, int a3);
-extern int CylinderCollision(char *self, int group, float r, float h, float s);
-extern void iosOmSendMail(char *gobj, int mail, char *a2);
-extern int ACTGame_FLAG_TETSUNAGI(void);
 void synchronizeMotionOutputOriginForGirl(char *gobj);
 void execClothes(char *gobj);
 void actionOfWater(char *gobj);
@@ -326,11 +323,6 @@ void BoyGeo(char *gobj)
     CylinderCollision(gobj, 2, ACTGame_FLAG_TETSUNAGI() != 0 ? 15.0f : 30.0f, 50.0f, 0.7f);
     actionOfWater(gobj);
 }
-
-extern void p2o_DispVU1DObj(void *a0);
-extern void p2o_DispVU1DObjMulti(void *a0);
-extern void CopyMatrix(void *dst, void *src);
-extern int GetSkeltonFocusNode(char *gobj, int node);
 
 void dispSubParts(char *gobj)
 {
@@ -351,12 +343,6 @@ void dispSubParts(char *gobj)
     CopyMatrix(c, *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6));
     p2o_DispVU1DObjMulti(*(char **)(w + 0x8));
 }
-
-extern void reg_DispAccessoryWithShadow(void *a0, void *a1);
-extern void MatrixDrive_RotMatrixX(int a0);
-extern void *MatrixDrive_GetMatrix(void);
-extern void CopyMatrix(void *dst, void *src);
-extern int GetSkeltonFocusNode(char *gobj, int node);
 
 void dispCrown(char *gobj)
 {
@@ -392,17 +378,8 @@ inline void SetBoyStonizedVisual(char *a0)
 
 extern int stage_no;
 extern int D_0028F4D4[];
-extern int ExecutePauseSlipProc(char *gobj);
-extern void GetRootPosition(void *dst, char *gobj);
-extern void GetRootQuaternion(void *dst, char *gobj);
-extern void RotQuaternionY(void *q, int ang);
+/* kept local: this TU's uses of stage_PlayBgAnimation do not fit the prototype in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
-extern void p2o_SetDefaultEnviroment(void);
-extern void p2o_DispVU1(char *gobj);
-extern int CheckPoolHasGridMesh(char *a0);
-extern void SetLimitedPoolReflactionMesh(void *a0, int a1, char *a2);
-extern void DispLimitedPoolReflactionMesh(void *a0);
-extern void DispWaterDot(int a0);
 void dispSubParts(char *gobj);
 
 void BoyDL(char *gobj)

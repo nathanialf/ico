@@ -1,4 +1,14 @@
 #include "common.h"
+#include "st22a.h"
+#include "layout_texture.h"
+#include "thread.h"
+#include "act.h"
+#include "commonact.h"
+#include "camera-root.h"
+#include "gflag.h"
+#include "script.h"
+#include "StageAnimation.h"
+#include "cage.h"
 
 /* The TU starts at 0x00252418, where MAIN.MAP puts st22a.o. */
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st22a", actSt22aLightningVolime);
@@ -13,15 +23,7 @@ typedef union StVec {
 } StVec;
 
 extern StVec D_00623090;
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern int stage_CheckAnimationFinish(int a0);
-extern void scpPlayMot(int gobj, int mot);
-extern void scpPlayMotDir(int gobj, void *dir);
-extern void scpPlayPosSet(int gobj, float x, float y, float z);
-extern void *test_CURRENTROOT(int gobj);
 extern void sceVu0SubVector(void *out, void *a, void *b);
-extern void _ACTWait(int n);
 extern int D_0063AA08;
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];
@@ -31,20 +33,6 @@ typedef struct St22Anims {
 } St22Anims;
 
 extern int D_0063C050[];
-extern void gflagOn(int flag);
-extern void scpSekizouCheckPoint(void);
-extern void lt_switch_layout(int n);
-extern void scpPlayStart(int gobj);
-extern void scpPlayEnd(int gobj);
-extern void scpFadeIn(float t);
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-extern int scpFadeChk(void);
-extern int scpAdpcmPlayRequestNum(void);
-extern int actCreateSubThread(void *entry, int prio);
-extern void iosThreadSetPri(int th, int pri);
-extern void StabilizeAllLayoutedCage(void);
-extern void SetCameraFlag_GamecamCutBack(void);
-extern void actSt22aIntroSub(volatile int a0);
 
 void actSt22aIntroChk(volatile int a0)
 {

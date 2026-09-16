@@ -1,0 +1,18 @@
+/*
+ * ico2/common/include/icoMisc.h
+ *
+ * The disc records no file of this name: SRCFILE.TXT attributes no
+ * instruction to it, and a header that only declares leaves no rows in the
+ * listing at all, so this file is ours and not the developers' own record.
+ * It collects the declarations of what icoMisc.c defines, in the form its
+ * users need them; every type here is read from the ROM's calling convention
+ * at the call sites and from the spellings the using TUs already carried.
+ */
+
+#ifndef ICOMISC_H
+#define ICOMISC_H
+
+extern void DispIcoMisc(void);
+extern void InitIcoMisc();
+
+#endif /* ICOMISC_H */

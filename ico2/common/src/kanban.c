@@ -1,4 +1,6 @@
 #include "common.h"
+#include "debug.h"
+#include "Texture.h"
 
 typedef struct {
     unsigned char b[4];
@@ -63,7 +65,6 @@ extern KanbanProp D_00533FE8[];
 extern int kanbanCommonRead;
 extern Col4 D_0063B4A0;
 extern int D_0028F4C0[];
-extern void debug_StdPrintfDummy();
 
 typedef struct {
     unsigned char pad00[0x18];
@@ -101,24 +102,29 @@ extern char D_0063B4B0[];
 extern char *strcpy(char *dst, const char *src);
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
-extern int tex_GetTextureNo(char *name);
-extern void *tex_GetTextureData(int no);
-extern void tex_SetSamplingType(void *td, int a1, int a2);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
+/* kept local: the declaration in kanban.h changes this TU codegen */
 extern void init_textures_of_specified_property(int first, int last);
 extern void display_layout(Node *a0);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a0);
+/* kept local: this TU's uses of gif_SpriteSensitive do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitive(void *a0, unsigned int a1, int a2, void *a3, int a4);
+/* kept local: this TU's uses of gif_SpriteSensitiveOffset do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
+/* kept local: this TU's uses of gif_PointOffset do not fit the prototype in GifPacket.h */
 extern void gif_PointOffset(int *v, unsigned int z, unsigned char *col, int prim);
-extern int tex_TransTexture(int no, int pri);
 extern int rand(void);
 extern Col4 D_0063B4B8[];
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
 /* prototypes: their order is the inline tail's emission order */
 void kanbanReqDel(int *self);

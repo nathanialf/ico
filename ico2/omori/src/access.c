@@ -6,6 +6,7 @@ typedef struct {
 
 extern DispBuf D_005F5DD0[];
 extern char D_0063C090[];
+/* kept local: this TU's uses of GetDataFileName2 do not fit the prototype in access.h */
 extern char *GetDataFileName2();
 extern int sprintf(char *buf, char *fmt, ...);
 extern char D_0063C098[]; /* "DFDATAS" */

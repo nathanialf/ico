@@ -1,7 +1,10 @@
 #include "common.h"
-
-extern void _ACTWait(int a0);
-extern void scpEffectStart(int *buf, int a1);
+#include "st04d.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "script.h"
+#include "StageAnimation.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -20,14 +23,6 @@ typedef struct PObjGObj {
     int act;           /* 0x164 */
 } PObjGObj;
 
-extern Act *actInitialize(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern int scpTriggerBall(int a0, void *a1, float radius);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern int actCreateSubThread(void *entry, int prio);
 extern void *D_00639EA4;
 extern void *D_00639EA8;
 
@@ -44,9 +39,6 @@ inline void actSt04dDoor1Event(int x)
 {
     volatile int local = x;
 }
-
-extern void actSt04dDoor1DownChk(volatile int a0);
-extern void actSt04dDoor1UpChk(volatile int a0);
 
 static ActMail door1_down_mes[2] = {{430}, {429}};
 
@@ -206,9 +198,6 @@ inline void actSt04dDoor2Event(int x)
 {
     volatile int local = x;
 }
-
-extern void actSt04dDoor2DownChk(volatile int a0);
-extern void actSt04dDoor2UpChk(volatile int a0);
 
 static ActMail door2_down_mes[2] = {{430}, {429}};
 

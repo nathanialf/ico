@@ -1,27 +1,37 @@
 #include "common.h"
+#include "debug.h"
+#include "adpcm_init.h"
+#include "Matrix.h"
 
+/* kept local: this TU's uses of soundDataSegAllClose do not fit the prototype in s_init.h */
 extern void soundDataSegAllClose(int a0, int a1);
+/* kept local: this TU's uses of soundDataSegNextStageNotUseClose do not fit the prototype in s_init.h */
 extern void soundDataSegNextStageNotUseClose();
+/* kept local: this TU's uses of soundSeEnvNotUseClose do not fit the prototype in s_init.h */
 extern void soundSeEnvNotUseClose();
+/* kept local: this TU's uses of soundSePlayModeStop do not fit the prototype in s_init.h */
 extern void soundSePlayModeStop(int arg);
+/* kept local: this TU's uses of soundDataSegNextStageNotUseClose do not fit the prototype in s_init.h */
 extern void soundDataSegNextStageNotUseClose(int x, int *p);
+/* kept local: this TU's uses of soundSeEnvNotUseClose do not fit the prototype in s_init.h */
 extern void soundSeEnvNotUseClose(int *a, int *b);
 extern unsigned char D_005F5D50[];
-extern void adpcmPauseRequest(int val);
+/* kept local: this TU's uses of soundReverbDepthSet do not fit the prototype in s_init.h */
 extern void soundReverbDepthSet(int a0);
+/* kept local: this TU's uses of soundSeKindBuild do not fit the prototype in s_init.h */
 extern void soundSeKindBuild(int idx);
 extern int IosStgMgrLock;
 extern int mpegPlay;
-extern void debug_StdPrintfDummy();
+/* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
 extern void iosThreadCancelWakeup(int mode);
+/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep();
 extern int SgSndn2RemoteSync();
-extern void _PushVu0Registers();
 extern void SgCalledTickProc();
+/* kept local: this TU's uses of soundVBlank do not fit the prototype in s_init.h */
 extern void soundVBlank();
+/* kept local: this TU's uses of soundOutputModeGet do not fit the prototype in s_init.h */
 extern int soundOutputModeGet();
-extern void AdpcmInterStereoVolumeSetAll();
-extern void _PopVu0Registers();
 /* prototypes: their order is the inline tail's emission order */
 void sndManager(void);
 

@@ -15,13 +15,27 @@ typedef struct {
 extern EnemyDef D_00624880[];
 
 #include "typedef.h"
+#include "enemy.h"
+#include "charFileManager.h"
+#include "debug.h"
+#include "debug_exception.h"
+#include "memory.h"
+#include "gobj.h"
+#include "enemy_act.h"
+#include "EnemyInit.h"
+#include "Matrix.h"
+#include "RegistPacket.h"
+#include "enemyParts.h"
+#include "geometryManager.h"
+#include "lodManager.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "motionOrientManager.h"
+#include "particleEffect.h"
+#include "quaternion.h"
 
-extern int iosMallocDebug(int part, int size, char *file, int line);
+/* kept local: this TU's uses of prim_InitParticle do not fit the prototype in Primitive.h */
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
-extern int enemy_GetPositionTable(int idx, int sub_idx);
-extern void _CopyVector(void *dst, void *src);
-extern void debug_StdPrintfDummy();
-extern void debug_assertMessage(char *file, int line, char *mes);
 extern void __assert(char *file, int line, char *mes);
 extern int rand(void);
 extern int D_0063A438;
@@ -135,7 +149,6 @@ extern int D_00625018[];
 extern char D_0061F6C8[];
 extern char D_0061F6F0[];
 extern char D_0063B890[];
-extern int GetPObjAddress(int obj);
 
 /* static helper the listing places at enemy.c lines 223-233, expanded only into
  * setEnemyObject; never emitted out of line, so it has no MAIN.MAP symbol and
@@ -205,10 +218,6 @@ typedef union SubHandle {
 
 #define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
 
-extern void *InitEnemyEye(int a0, int a1, int a2);
-extern void *InitEnemyFootPrint(int a0);
-extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
-extern void SetLodLevel(void *o, int lod);
 extern int D_0063B894;
 
 /* static helper the listing places at enemy.c lines 281-290, expanded only into
@@ -268,18 +277,6 @@ void *InitEnemyGeo(char *self, char *param)
     return w;
 }
 
-extern int GetEnemyTypeFromGObj(char *self);
-extern void ExecMotionOrient();
-extern void CylinderCollisionWithControlDynamics(char *self, int a1, int a2, float f12, float f13,
-                                                 float f14);
-extern int isEnemyActive(int *self);
-extern void GetProjectionOfPlane(float *dst, float *plane, float *pos);
-extern void EntryEnemyFootPrint(int *fp, float *v);
-extern void ExecEnemyFootPrints(int *fp);
-extern void *MatrixDrive_GetMatrix(void);
-extern int GetSkeltonFocusNode(char *self, int kind);
-extern void _MulMatrix(void *d, void *a, void *b);
-extern void UpdateEnemyEye(char *eye, void *m, float ratio);
 extern char D_004E78A0[];
 
 void EnemyGeo(char *self)
@@ -342,11 +339,6 @@ void EnemyGeo(char *self)
     UpdateEnemyEye(*(char **)(w + 0x20), MatrixDrive_GetMatrix(), ratio);
 }
 
-extern void reg_DispEnemy(void *sub);
-extern int DispEnemyEye(char *node);
-extern int DispEnemyFootPrints(int *fp);
-extern void dispEnemyObject(void *self);
-
 void DisplayEnemy(char *self)
 {
     char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
@@ -364,8 +356,8 @@ void DisplayEnemy(char *self)
     }
 }
 
+/* kept local: this TU's uses of IsActCharDead do not fit the prototype in act_a_p_1.h */
 extern int IsActCharDead();
-extern int isEnemyHyde(int *a0);
 
 void EnemyDL(int *self)
 {
@@ -378,8 +370,6 @@ void EnemyDL(int *self)
         return;
     DisplayEnemy((char *)self);
 }
-
-extern void ExecMotionOrient();
 
 void DemoMotionGeo(int *self)
 {
@@ -405,9 +395,6 @@ void SetEnemyFlyXZAccel(char *a0, float f)
 {
     *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x50) = f;
 }
-
-extern char *isysGObjSearchFromObjKindID_begin(int kind);
-extern char *isysGObjSearchFromObjKindID_next(char *g);
 
 void SetEnemyFlyXZAccelAll(float accel)
 {
@@ -447,12 +434,6 @@ void EnemySetfDisappearAll(char *self)
     for (i = 0; i < n; i++)
         ((int *)*(int *)(*(int *)(*(int *)(self + 0x15C) + 0x830) + 0x14))[i] = 1;
 }
-
-extern void MatrixDrive_GetTurnZAngleXY(void *a0, void *a1, float f12, float f13, float f14);
-extern void RotQuaternionX(void *a0, int a1);
-extern void RotQuaternionY(void *a0, int a1);
-extern void SetIdentityQuaternion(void *a0);
-extern void SetParticleEffect(int a0, void *a1, void *a2);
 
 /* static helper the listing places at enemy.c lines 382-392, expanded into
  * enemySetParticleDie, EnemySetfDisappear and EnemyDeleteParticle; never emitted
@@ -525,9 +506,6 @@ void SetEnemyHitGeometryAction(char *a0, int a1)
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x38) = a1;
 }
 
-extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
-extern void SetLodLevel(void *o, int lod);
-
 int InitDemoMotionGeo(char *self)
 {
     InitMotionOrient(self, 0x84A, 0x967, -1, -1, 0x3D7);
@@ -589,7 +567,6 @@ float GetEnemyDefParaIndex(char *a0)
 }
 
 extern int D_0028F4C0[];
-extern int ResetEnemyEye(char *self);
 
 void ResetEnemyPositionInfo(char *self)
 {
@@ -600,9 +577,6 @@ void ResetEnemyPositionInfo(char *self)
     *(int *)(*(char **)(self + 0x15C) + 0x514) =
         (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
 }
-
-extern void GetRootPosition(void *dst, int *src);
-extern void GetRootQuaternion(void *dst, int *src);
 
 void SetEnemyStonizedVisual(int *self)
 {

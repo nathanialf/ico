@@ -1,22 +1,24 @@
 #include "common.h"
-
-extern void ExecuteSEPackage(int a0, int a1);
+#include "rotObject.h"
+#include "gamesys.h"
+#include "memory.h"
+#include "fieldCollision.h"
+#include "DisplayP2O.h"
+#include "frameDependSequence.h"
+#include "geometryManager.h"
+#include "motionManager2.h"
+#include "tableSin.h"
 
 void moveStartSE(int a0, int a1, int a2, int a3)
 {
     ExecuteSEPackage(a0, 0x35);
 }
 
-extern void StopSEPackage(int a0);
-extern void ExecuteSEPackage(int a0, int a1);
-
 void moveEndSE(int a0, int a1, int a2, int a3)
 {
     StopSEPackage(a0);
     ExecuteSEPackage(a0, 0x3A);
 }
-
-extern void gamesysObjInfoUniqDataSet(void *a0);
 
 void RotObjectGeo(char *a0)
 {
@@ -27,15 +29,20 @@ void RotObjectGeo(char *a0)
     }
 }
 
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
-extern void GetRootMatrix(void *m, void *gobj);
+/* kept local: this TU's uses of MatrixDrive_RotMatrixY do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixY(short a0);
+/* kept local: this TU's uses of UnitRotation do not fit the prototype in matrixDrive.h */
 extern void UnitRotation(void *m);
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
-extern void p2o_DispVU1(void *gobj);
 extern float atan2f(float y, float x);
+/* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
 extern char ZUnitVector[];
 
 static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
@@ -54,10 +61,7 @@ static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
     CopyMatrix(dst, MatrixDrive_GetMatrix());
 }
 
-extern void AdjustVerticalSidePlaneOfWall(void *a0, void *a1, void *a2, float a3);
-extern void GetGlobalWallPlane(void *a0, void *a1);
-extern void GetProjectionPosOfPlane(void *a0, void *a1, void *a2);
-extern void GetRootPosition(void *a0, void *a1);
+/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *a0, int a1);
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 extern void sceVu0Normalize(void *a0, void *a1);
@@ -85,14 +89,10 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
  * (VMA 0x639680..0x63968C); reserve them until it lands in C. */
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/rotObject", MoveRotObjectWithHoldPoint);
 
-extern void moveStartSE();
-
 void ExecRotObjectMoveStartReaction(int a0, int a1, int a2, int a3)
 {
     moveStartSE(a0, a1, a2, a3);
 }
-
-extern void moveEndSE();
 
 void ExecRotObjectMoveEndReaction(int a0, int a1, int a2, int a3)
 {
@@ -113,11 +113,12 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posM
     sceVu0ApplyMatrix(dir, m, dirMtx);
 }
 
-extern void *iosMallocDebug(int handle, int size, void *file, int line);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 extern int D_0063A438;
 extern const char D_00620AE8[];
 extern unsigned char D_0063BAB0;
+/* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
 
 /* A GObj slot read as an int but written elsewhere as a float: reading it
@@ -176,7 +177,6 @@ float GetRotObjectRotCount(char *a0)
 
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
 extern void sceVu0Normalize(void *dst, void *src);
-extern int GetTableArcTan2(float f12, float f13);
 extern char D_004ECF90[];
 
 int GetRotObjectZPlusDirection(void *gobj)

@@ -1,4 +1,7 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
+#include "message.h"
 
 /* ---------------------------------------------------------------------------
  * EMISSION ORDER / INLINE MODEL of this TU, proven from baserom/pal/SRCFILE.TXT
@@ -77,21 +80,32 @@ typedef struct IOSThread {
     char name[16];       /* 0x50 */
 } IOSThread;
 
+/* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h */
 extern void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack,
                             long stackSize, int pri);
+/* kept local: this TU's uses of iosThreadGetPri do not fit the prototype in thread.h */
 extern int iosThreadGetPri(int *a0);
+/* kept local: this TU's uses of iosGetIOSThreadFromId do not fit the prototype in thread.h */
 extern int iosGetIOSThreadFromId(unsigned int a0);
+/* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
 extern int iosThreadWakeup(int *self);
+/* kept local: this TU's uses of iosThreadJoin do not fit the prototype in thread.h */
 extern int iosThreadJoin(void *a0);
+/* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
 extern int iosThreadCancelWakeup(int *self);
+/* kept local: this TU's uses of iosSemaCreate do not fit the prototype in thread.h */
 extern int iosSemaCreate(int *self, int a1, int a2, int a3);
+/* kept local: this TU's uses of iosSemaDelete do not fit the prototype in thread.h */
 extern int iosSemaDelete(int *self);
+/* kept local: this TU's uses of iosSemaWait do not fit the prototype in thread.h */
 extern int iosSemaWait(int *self);
+/* kept local: this TU's uses of iosSemaSignal do not fit the prototype in thread.h */
 extern int iosSemaSignal(int *self);
+/* kept local: this TU's uses of iosSemaReferStatus do not fit the prototype in thread.h */
 extern int iosSemaReferStatus(int *self);
-extern void debug_StdPrintfDummy();
 extern int D_006BCEE0[];
 extern int GetThreadId();
+/* kept local: this TU's uses of iosThreadSetPri do not fit the prototype in thread.h */
 extern void iosThreadSetPri(int *a0, int a1);
 
 void iosThreadMain(int a0)
@@ -168,8 +182,6 @@ inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void
     th->hasQueue = 0;
 }
 
-extern void *iosMallocDebug(void *a, int n, void *c, int d);
-
 /* thread.c:171 - iosThreadCreateS: iosThreadCreate over a malloc'd stack.
  * flags bit 0 marks "this stack came from the heap"; iosThreadDestroyMgr
  * reads it back and frees the stack. */
@@ -222,15 +234,11 @@ inline int iosThreadWakeup(int *self)
 
 extern int D_006BCEE0[];
 extern char D_006BD2E0[];
-extern void iosMsgQueueCreate(void *a, void *b, int c);
-extern int iosMsgRecv(void *a, void *b, int c);
 extern void TerminateThread();
 /* thread.c:299 - the destroy-manager thread body.  iosThreadInit creates a
  * thread running this; iosThreadDestroy posts the dying IOSThread to its
  * message queue and this loop does the actual teardown.  Never returns. */
 extern int D_0063C1A0[2]; /* the manager queue's 2-slot message ring */
-extern void iosFree(void *p);
-extern void iosMsgQueueDestroy(void *q);
 extern void DeleteThread(int id);
 
 inline void iosThreadDestroyMgr(void)
@@ -263,7 +271,6 @@ inline void iosThreadDestroyMgr(void)
 extern int D_006BCEE0[];
 extern char D_006BD2E0[];
 extern int GetThreadId();
-extern int iosMsgSend(int *self, int a1, int a2);
 
 void iosThreadDestroy(int a0)
 {
@@ -316,8 +323,6 @@ out:
 }
 
 extern void *D_0063A428;
-extern void *iosMallocDebug(void *a, int n, void *c, int d);
-extern void iosMsgQueueCreate(void *a, void *b, int c);
 
 void iosThreadMessage(int a0)
 {
@@ -333,8 +338,6 @@ void iosThreadMessage(int a0)
     q = iosMsgSend((char *)*(void **)((char *)obj + 0x4C), a0, 0);
     debug_StdPrintfDummy("th:msg %d\n", q);
 }
-
-extern int iosMsgRecv(void *a, void *b, int c);
 
 inline int iosThreadJoin(void *a0)
 {

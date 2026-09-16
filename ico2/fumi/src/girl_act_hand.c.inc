@@ -8,6 +8,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", HandMgr_GetDistHand);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", HandMgr_Update);
 
 extern GirlStand D_002A2F70;
+/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
 extern int _RotyGV(void *buf, void *vec);
 
 void HandMgr_Judge(void)

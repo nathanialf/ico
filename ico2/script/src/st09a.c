@@ -1,4 +1,17 @@
 #include "common.h"
+#include "st09a.h"
+#include "debug.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "s_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "lws_kyomi.h"
+#include "gflag.h"
+#include "script.h"
+#include "StageAnimation.h"
+#include "motionManager2.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -20,41 +33,15 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void FinishHint(int a0);
-extern void gflagOn(int a0);
-extern void debug_StdPrintfDummy(char *fmt, ...);
-extern int scpTriggerFloorAttr(int a0, int a1);
-extern int scpTriggerBall(int a0, int a1, float radius);
 extern int D_00639EA4;
 extern int D_00639EAC;
 extern int D_0063C570;
-extern void lt_switch_layout(int a0);
-extern void gflagOff(int a0);
-extern int stage_CheckAnimationFinish(int a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern void soundSeDefStop(int handle);
-extern void iosPadActRequest(int a0, int a1);
 /* st09a.o's own .rodata run 0x00622DA0..0x00622DE0 (no MAIN.MAP symbols):
    the two hint-finished debug strings. */
-extern int gflagChk(int a0);
 extern int D_0063AA08;
-extern Act *actInitialize(int a0);
-extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
-                       float x2, float y2, float z2);
-extern void actSt09aBrgDown(volatile int a0);
-extern void actSt09aBrgMain(volatile int a0);
-extern void actSt09aElvMain(volatile int a0);
-extern void actSt09aIntroChk(volatile int a0);
-extern void actSt09aHint1Chk(volatile int a0);
-extern void actSt09aHint2Chk(volatile int a0);
+
 /* st09a.o's own .data run 0x004FA2F0..0x004FA480 (no MAIN.MAP symbols):
    actor mail packets. */
-extern void actSt09aBrgSwitch(volatile int a0);
-extern void actSt09aElvSwitch(volatile int a0);
 
 static ActMail elvMain_mes[2] = {{406, actSt09aElvSwitch}, {429}};
 
@@ -82,22 +69,8 @@ static ActMail hint1_mes[2] = {{430}, {429}};
 
 static ActMail hint2_mes[2] = {{430}, {429}};
 
-extern void actSt09aElvUp(volatile int a0);
-extern void actSt09aElvDown(volatile int a0);
 extern int st09a_brg;
 extern int D_0028F8F4[];
-extern void actSt09aBrgDownSub(volatile int a0);
-extern void LockForceGroundParent(int a0);
-extern void UnlockForceGroundParent(int a0);
-extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
-extern int scpAdpcmPlayRequestNum(void);
-extern void scpAdpcmFadeCloseFunc(int *h, short a1);
-extern int actCreateSubThread(void *entry, int prio);
-extern void iosThreadSetPri(int th, int pri);
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-extern void scpFadeIn(float t);
-extern int scpFadeChk(void);
-extern int lt_fade_status(void);
 
 void actSt09aInit(void)
 {

@@ -1,4 +1,8 @@
 #include "common.h"
+#include "pad.h"
+#include "message.h"
+#include "shockdriver.h"
+#include "Matrix.h"
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/pad", controler_stable_check);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/pad", iosPadDevInit);
@@ -9,7 +13,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/pad", iosPadGetStick_func);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/pad", iosPadActRequest);
 
 extern unsigned char padDevMgrMsgQ[];
-extern int iosMsgSend(void *a0, int a1, int a2);
 
 int iosPadDevRead(void)
 {
@@ -53,10 +56,6 @@ int iosPadConnect(void *a0, int a1, int a2, int a3)
     p[0] = (int)&iosPadDev[a2 * 0x200];
     return 0;
 }
-
-extern void _PushVu0Registers();
-extern void _PopVu0Registers();
-extern int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5);
 
 int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5)
 {
@@ -103,10 +102,6 @@ int iosPadEnableGet(void)
 
 extern int ShockVoiceSetCommon;
 extern unsigned char D_006BCD58[];
-extern void Init_Controler(void *a0);
-extern void Init_Player(void *a0);
-extern void Init_Shock();
-extern int Shock_SetShockVoiceSet(int a0, int a1);
 extern void memset(void *a0, int a1, int a2);
 
 void iosPadActInit(void)
@@ -127,8 +122,6 @@ void iosPadActInit(void)
         p += 0x200;
     } while (i >= 0);
 }
-
-extern int ShockRequestBox_RequestCancel(int a0, int a1);
 
 void iosPadActStop(int key)
 {
@@ -205,9 +198,6 @@ end:
 }
 
 extern int D_006BCD38[];
-extern void iosMsgQueueCreate(int *a, int *b, int c);
-extern void iosMsgRecv(int *a, void *b, int c);
-extern void iosPadDevReadFunc(void);
 
 void iosPadDevManager(void)
 {
@@ -243,7 +233,6 @@ typedef struct ShockRequest {
     struct ShockRequest *org; /* 0x3C */
 } ShockRequest;
 
-extern ShockRequest *ShockRequestBox_GetRequest(int box, int key);
 extern int Shock_Request(int box, int player, ShockPrm prm, int key, int a4);
 
 static inline void setRequestVolume(ShockRequest *req, unsigned int volume)

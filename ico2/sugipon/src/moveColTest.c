@@ -1,10 +1,16 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
+#include "script.h"
+#include "geometryManager.h"
+#include "matrixDrive.h"
+#include "quaternion.h"
 
 /* prototypes: their order is the inline tail's emission order */
 short *InitMoveColTestGeo(int a0, int *self);
+/* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1();
 extern int D_0063A438;
-extern short *iosMallocDebug(int handle, int size, char *file, int line);
 extern int rand(void);
 
 inline short *InitMoveColTestGeo(int a0, int *self)
@@ -41,16 +47,6 @@ extern unsigned char D_0063BA78;
 extern int D_0063BA7C;
 extern char D_0063BA80[];
 extern int D_00639EA4;
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_RotMatrixZ(int a0);
-extern void CopyMatrix(void *dst, void *src);
-extern void CopyQuaternion(void *dst, void *src);
-extern void RotQuaternionZ(void *dst, int a1);
-extern void UpdateRootMatrix(void *gobj);
-extern void GetRootPosition(void *dst, int gobj);
-extern void scpBornSpider(int n, float x, float y, float z, float r);
-extern void debug_PrintfDummy(int x, int y, unsigned int color, void *fmt);
-extern void debug_StdPrintfDummy(void *fmt, int a1);
 
 void MoveColTestGeo(char *self)
 {

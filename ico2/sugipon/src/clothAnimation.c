@@ -1,6 +1,15 @@
 #include "common.h"
 #include "typedef.h"
 #include "sugiCommon.h"
+#include "debug.h"
+#include "memory.h"
+#include "DisplayList.h"
+#include "DisplayP2O.h"
+#include "Primitive.h"
+#include "Texture.h"
+#include "lineManager.h"
+#include "motionManager2.h"
+#include "quaternion.h"
 
 typedef struct {
     float v[4];
@@ -8,6 +17,7 @@ typedef struct {
     unsigned short b;
 } ClothBuf;
 
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 
 typedef struct {
@@ -20,12 +30,15 @@ typedef struct {
    parameter home store where ROM has it. */
 extern const VECTOR D_0061F220;
 extern const VECTOR D_0061F230;
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
-extern void DrawLine(void *a, void *b, void *color, int z);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 
 void TestDispChainAnimation(int *a0)
@@ -90,7 +103,9 @@ typedef struct {
 } ChainSet;
 
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void SubVectorXYZ(void *dst, void *a, void *b);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
@@ -98,9 +113,10 @@ extern void sceVu0InterVector(void *dst, void *a, void *b, float t);
 extern void sceVu0ScaleVector(void *dst, void *src, float k);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float k);
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(void *v);
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
-extern int GetSkeltonFocusNode(int a0, int a1);
 
 /* Compiled-out debug hook: the Jan-2002 listing emits nothing for the dev's
    clothAnimation.c:573-574 (calc2's next-to-last statement), which is what an
@@ -387,9 +403,9 @@ void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
     sys->f3 = sys->f3 == 0;
 }
 
-extern void debug_StdPrintfDummy();
 extern char D_0061F240[];
 extern char D_0061F258[];
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 
 int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
@@ -422,11 +438,17 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", GetClothAnimation);
 
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(void *out, void *pos);
 extern int rand(void);
 
@@ -568,6 +590,7 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, voi
     }
 }
 
+/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 extern void sceVu0Normalize(void *dst, void *src);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
@@ -665,9 +688,9 @@ int clipCylinderCollision(char *p)
     return -1;
 }
 
-extern char *iosMallocDebug(int heap, int size, char *file, int line);
 extern int D_0063A438;
 extern char D_0061F270[];
+/* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
 
 ChainSet *InitChains(char *a0)
@@ -722,10 +745,6 @@ typedef struct {
     int **rec;
 } ClothSet;
 
-extern char *iosMallocDebug(int heap, int size, char *file, int line);
-extern char *prim_InitMesh3D(int a0, int a1, int a2, int a3, unsigned int a4, int a5);
-extern int tex_GetTextureNo(void *a0);
-extern void *tex_GetTextureData(int a0);
 extern void *memset(void *a0, int a1, int a2);
 extern int D_0063A438;
 extern char D_0061F270[];
@@ -851,16 +870,16 @@ ClothSet *InitClothesNoShade(int cfg)
 
 extern int buffer_ID;
 extern int matrixptr;
+/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(int a0);
-extern void dl_SetDLPriority(int a0);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int a0, int a1);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
-extern void p2o_SetDefaultEnviroment(void);
-extern void prim_DispMesh3D(int a0, void *a1, void *a2, int a3);
-extern void prim_UpdateMesh3D(int a0, int a1, int a2);
-extern int tex_GetTextureNo(void *a0);
 
 void DispClothMesh(int *a0, void *a1, void *a2)
 {
@@ -881,10 +900,12 @@ void DispClothMesh(int *a0, void *a1, void *a2)
     prim_DispMesh3D(a0[0], a1, a2, t);
 }
 
+/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
+/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a0);
 extern char D_004E6F10[];
 extern char D_004E6F20[];
@@ -981,7 +1002,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", getCloth4D_prePr
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", proc);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", getCloth4D);
 
+/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
+/* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void SubVectorXYZ(void *a0, void *a1, void *a2);
 extern void *memset(void *a0, int a1, int a2);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
@@ -1027,11 +1050,15 @@ void getCloth4D_postProcess(int *a0, int **a1)
     }
 }
 
+/* kept local: this TU's uses of getCloth4D_preProcess do not fit the prototype in clothAnimation.h */
 extern void getCloth4D_preProcess(void *a0, int tight, void *a6, void *a7, float x, float y,
                                   float z, float w);
+/* kept local: this TU's uses of getCloth4D do not fit the prototype in clothAnimation.h */
 extern void getCloth4D(void *a0, int **rows);
 extern char D_0055FE58[];
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
 
 void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a6, void *a7)
@@ -1082,8 +1109,6 @@ void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a
     }
     getCloth4D_postProcess(a0, rows);
 }
-
-extern char IdentityQuaternion[];
 
 void GetCloth4D(void *a0, float x, float y)
 {
@@ -1147,11 +1172,11 @@ typedef struct {
     char *p24;
 } Cloth4DCfg;
 
-extern void prim_UpdateMesh3D(int a0, int a1, int a2);
 extern int buffer_ID;
 extern void sceVu0UnitMatrix(void *m);
-extern int GetSkeltonFocusNode(int a0, int a1);
+/* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 
 Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
@@ -1220,11 +1245,10 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
     return r;
 }
 
+/* kept local: this TU's uses of MatrixDrive_GetTurnYAngleXZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y,
                                         float z);
-extern void RotQuaternionX(void *a0, int a1);
-extern void RotQuaternionZ(void *a0, int a1);
-extern void SetIdentityQuaternion(void *a0);
+/* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void SubVectorXYZ(void *a0, void *a1, void *a2);
 
 void GetChainNodeGlobalQuaternion(void *a0, int *a1, int count)
@@ -1246,6 +1270,7 @@ void MoveChainExtendedWeight(int a0, int a1, float f)
     *(float *)(a0 + a1 * 0x50 + 0x10) = f;
 }
 
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 
 void InitChainVelocity(int *a0)
@@ -1278,7 +1303,9 @@ float GetChainNodeID(int a0, float f)
     return f / *(float *)(a0 + 0x14);
 }
 
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *a0, void *a1);
+/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 
 void ResetClothAnimation(int *a0, int *a1, int *a2)
@@ -1483,6 +1510,7 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
     }
 }
 
+/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
@@ -1528,7 +1556,9 @@ void LockZAnimation(int *a0)
     }
 }
 
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
 
 void getCloth4D_planeClip(int *a0, void *plane)

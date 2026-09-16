@@ -1,4 +1,16 @@
 #include "common.h"
+#include "st13a.h"
+#include "StageManager.h"
+#include "layout_texture.h"
+#include "pad.h"
+#include "thread.h"
+#include "adpcm_init.h"
+#include "act.h"
+#include "commonact.h"
+#include "chain.h"
+#include "gflag.h"
+#include "script.h"
+#include "StageAnimation.h"
 
 typedef struct ActMail {
     int mail;                   /* 0x00 */
@@ -18,55 +30,8 @@ typedef struct PObjGObj {
     Act *act;          /* 0x164 */
 } PObjGObj;
 
-extern void _ACTWait(int a0);
-extern void ACTSendMailCorrect(int a0, int mail);
-extern void CheckPoint(void);
-extern void gflagOn(int a0);
-extern void gflagOff(int a0);
-extern int scpSearchGobj(int a0);
-extern int scpTriggerBall(int a0, int gobj, float r);
-extern void EnableChainHang(char *a0);
-extern void UnableChainHang(char *a0);
-extern void lt_switch_layout(int a0);
 extern int D_0063AA08;
-extern Act *actInitialize(int a0);
-extern int gflagChk(int a0);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern void actSt13aElevMain(volatile int a0);
-extern void actSt13aElevUp(volatile int a0);
-extern void actSt13aCheckChk(volatile int a0);
-extern void actSt13aSekizoChk(volatile int a0);
-extern void actSt13aChainOK(volatile int a0);
-extern void actSt13aChainNG(volatile int a0);
-extern void AdpcmPlay(int a0);
-extern int iosPadActRequest(int a0, int a1);
-extern void iosPadActVolumeSet(int h, int vol);
-extern void iosPadActStop(int h);
-extern void iosThreadSetPri(int th, int pri);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int stage_CheckAnimationFinish(int a0);
-extern int actCreateSubThread(void *entry, int prio);
-extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
-extern int scpAdpcmPlayRequestNum(void);
-extern void scpAdpcmFadeCloseFunc(int *h, int a1);
-extern void scpFadeOut(float a0, int a1, int a2, int a3);
-extern void scpFadeIn(float a0);
-extern int scpFadeChk(void);
-extern int lt_fade_status(void);
-extern void preload(int a0);
-extern void scpPlayStart(int a0);
-extern void scpPlayEnd(int a0);
-extern void scpPlayMot(int a0, int mot);
-extern void scpPlayWaitMotEnd(int a0);
-extern void scpPlayPosSet(int a0, float x, float y, float z);
-extern void scpPlayMotDir(int a0, float *dir);
-extern int scpGameStat_BoyWeaponkind(void);
-extern int scpActStatusDeathFall(int a0);
-extern void scpSekizouCheckPoint(void);
-extern void *test_CURRENTROOT(int a0);
 extern void sceVu0SubVector(float *d, void *a, void *b);
-extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
 extern int D_00639EAC;
 extern int D_0063C578;
@@ -97,7 +62,6 @@ void actSt13aElevDownChk(volatile int a0);
    of each entry is the mail id the entry answers (430 the actor post,
    429 the trailing entry); .func is filled in at run time. Named for the
    thread that owns and posts it. */
-extern void actSt13aElevSwitch(volatile int a0);
 
 static ActMail elevMain_mes[2] = {{406, actSt13aElevSwitch}, {429}};
 

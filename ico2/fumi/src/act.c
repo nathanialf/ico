@@ -1,4 +1,11 @@
 #include "common.h"
+#include "debug.h"
+#include "memory.h"
+#include "obj_manager.h"
+#include "act-game.h"
+#include "commonact.h"
+#include "mail-add-data.h"
+#include "motionOrientManager.h"
 
 typedef union {
     float f[4];
@@ -10,9 +17,11 @@ extern char D_00621BD0[];
 extern char D_002C2DC8[];
 extern char D_00621BF0[];
 extern char D_00621C10[];
-extern void debug_StdPrintfDummy();
+/* kept local: this TU's uses of isysGObjProcAdd do not fit the prototype in gobj_process.h */
 extern int isysGObjProcAdd(void *a0, void *a1, int a2, void *a3);
+/* kept local: this TU's uses of isysGObjProcAddS do not fit the prototype in gobj_process.h */
 extern int isysGObjProcAddS(void *a0, void *a1, int a2, void *a3, long long a4);
+/* kept local: this TU's uses of isysGObjProcRemove do not fit the prototype in gobj_process.h */
 extern void isysGObjProcRemove();
 extern char D_00621C30[];
 extern char D_00621C50[];
@@ -48,9 +57,10 @@ typedef struct {
 
 extern StatusAttr D_005577D0[];
 extern char *D_0063A61C;
-extern void iosOmSendMail(void *a0, int a1, void *a2);
+/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
 extern int D_0028F4C0[];
+/* kept local: this TU's uses of isysGObjProcAddGOppArg do not fit the prototype in gobj_process.h */
 extern int isysGObjProcAddGOppArg();
 extern int matrixptr;
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
@@ -274,9 +284,7 @@ extern PadConf iosPadConfDefault;
 extern char D_00621CA0[];
 extern int D_0063A44C;
 extern void *D_0063A620;
-extern void *iosMallocDebug(int heap, int size, char *file, int line);
 extern void *memset(void *p, int c, int n);
-extern void InitMailAdditionalData(char *self, void *p);
 
 void actInitialize_ext_charcter(char *self)
 {
@@ -466,10 +474,6 @@ typedef struct {
     int w[8];
 } IntrOrient;
 
-extern int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
-extern char *SetMotionRequest(char *self, int mot, void *buf);
-extern char *GetMailAdditionalData(char *self, int mail);
-
 IntrMail *act_check_intr_list(char *self, IntrMail *m, void **out)
 {
     IntrList *k = (IntrList *)(self + 0x54);
@@ -587,12 +591,6 @@ extern IntrMail D_002A7E08[];
 extern char *D_00639EA4;
 extern char D_00621CC8[];
 extern int D_0063A800;
-extern void ACTSendMailCorrect(char *self, int a1);
-extern int _ACTCorrectMsg(char *self, int msg, void *arg);
-extern void ACTRunIntrCorrect(char *self, void *a1, void *a2);
-extern void ACTAcceptMail(char *self, int kind);
-extern void ClearMailAdditionalData(char *self);
-extern void ACTGame_BeforeFunc(char *self);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act", BeforeFunc);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act", ACTDebugMove);
