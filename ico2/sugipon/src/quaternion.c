@@ -112,7 +112,7 @@ void SetIdentityQuaternion(void *a0)
 }
 
 extern void CopyVector();
-extern char D_0028FF00[];
+extern char ZeroPoint[];
 extern char D_002907F0[];
 
 void GetMatrixFromQuaternion(char *a0, char *a1)
@@ -150,7 +150,7 @@ void GetMatrixFromQuaternion(char *a0, char *a1)
                          :
                          : "r"(D_002907F0)
                          : "memory");
-    CopyVector(a0 + 0x30, D_0028FF00);
+    CopyVector(a0 + 0x30, ZeroPoint);
 }
 
 extern void _TransposeMatrix(void *a0, void *a1);
@@ -554,13 +554,13 @@ inline void GetMirrorQuaternion(float *dst, float *src, int mode)
     }
 }
 
-extern char D_0028FF10[];
+extern char XUnitVector[];
 
 inline void RotQuaternionX(void *self, int a1)
 {
     char buf[0x10];
     int half = (-(a1 << 16)) >> 17;
-    char *axis = D_0028FF10;
+    char *axis = XUnitVector;
     float f;
     f = GetTableSin(half);
     _ScaleVector((int *)buf, axis, f);
@@ -585,13 +585,13 @@ inline void RotQuaternionX(void *self, int a1)
                          : "memory");
 }
 
-extern char D_0028FF20[];
+extern char YUnitVector[];
 
 inline void RotQuaternionY(void *self, int a1)
 {
     char buf[0x10];
     int half = (-(a1 << 16)) >> 17;
-    char *axis = D_0028FF20;
+    char *axis = YUnitVector;
     float f;
     f = GetTableSin(half);
     _ScaleVector((int *)buf, axis, f);
@@ -616,13 +616,13 @@ inline void RotQuaternionY(void *self, int a1)
                          : "memory");
 }
 
-extern char D_0028FF30[];
+extern char ZUnitVector[];
 
 inline void RotQuaternionZ(void *self, int a1)
 {
     char buf[0x10];
     int half = (-(a1 << 16)) >> 17;
-    char *axis = D_0028FF30;
+    char *axis = ZUnitVector;
     float f;
     f = GetTableSin(half);
     _ScaleVector((int *)buf, axis, f);

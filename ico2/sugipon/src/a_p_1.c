@@ -251,7 +251,7 @@ void yAxisRotFitting(int *self, int arg2)
     }
 }
 
-extern char D_0028FF30[];
+extern char ZUnitVector[];
 
 void zAxisRotFitting(int *self, int arg2)
 {
@@ -265,7 +265,7 @@ void zAxisRotFitting(int *self, int arg2)
 
     GetRootQuaternion((int)&l70, self);
     GetMatrixFromQuaternion((int)&m20, (int)&l70);
-    _ApplyMatrix((int)&l0, (int)&m20, (int)D_0028FF30);
+    _ApplyMatrix((int)&l0, (int)&m20, (int)ZUnitVector);
     f = _InnerProduct((int)&l0, arg2);
     r = GetTableArcCos(f);
     if (r != 0) {
@@ -345,7 +345,7 @@ extern int CheckFieldContact(void *col, void *gobj, void *pos, float r);
 extern void iosOmSendMail(void *gobj, int mail, void *arg);
 extern void yAxisRotFitting(int *self, int arg2);
 extern int D_0028F4C0[];
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern char D_004E57A0[];
 extern char D_004E57C0[];
 
@@ -386,7 +386,7 @@ int rolling(char *a0)
         *(float *)(col + 4) -= 50.0f;
         if (clipAndTakeHit(&info, col)) {
             CopyVector(*(char **)(a0 + 0x15C) + 0xA0, D_004E57C0);
-            CopyVector(*(char **)(a0 + 0x15C) + 0x130, D_0028FEF0);
+            CopyVector(*(char **)(a0 + 0x15C) + 0x130, ZeroVector);
             yAxisRotFitting((int *)a0, (int)(D_004E57C0 + 0x80));
             LinkParentOfDObj(a0, &info);
             UpdateRootMatrix(a0);
@@ -423,7 +423,7 @@ int rolling(char *a0)
         *(float *)(col + 0x14) += 500.0f;
         ClipFloor(col);
         if (CheckFieldContact(col, a0, *(char **)(a0 + 0x15C) + 0xA0, 50.0f) == 2) {
-            CopyVector(*(char **)(a0 + 0x15C) + 0x130, D_0028FEF0);
+            CopyVector(*(char **)(a0 + 0x15C) + 0x130, ZeroVector);
             iosOmSendMail(a0, 0x1A, a0);
         }
     }

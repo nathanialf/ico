@@ -5,7 +5,7 @@ extern int D_0063BC54;
 extern float D_004ED350[];
 extern float D_004ED360[];
 extern float D_004ED370[];
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern void CopyVector(void *dst, void *src);
 extern void sceVu0Normalize(void *dst, void *src);
 extern float sceVu0InnerProduct(void *a, void *b);
@@ -38,7 +38,7 @@ void InitWindField(int mode, float str, void *center, void *dir)
     if (mode == 0) {
         for (i = 0; i < 20; i++) {
             for (j = 0; j < 20; j++) {
-                CopyVector(D_00724FF0[i][j].v, D_0028FEF0);
+                CopyVector(D_00724FF0[i][j].v, ZeroVector);
                 D_00724FF0[i][j].str = 0.0f;
             }
         }
@@ -149,13 +149,13 @@ int GetWindVector(void)
     return D_0063BC58();
 }
 
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 int *dummyGetWindVector(int *a0)
 {
     if (a0)
         *a0 = 0;
-    return D_0028FEF0;
+    return ZeroVector;
 }
 
 extern int D_0028F4C0[];

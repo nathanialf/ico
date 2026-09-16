@@ -53,7 +53,7 @@ void getFinalMatrix(int id)
     char v[0x10];
 
     MatrixDrive_PushMatrix();
-    _ApplyMatrix(v, MatrixDrive_GetMatrix(), D_0028FF30);
+    _ApplyMatrix(v, MatrixDrive_GetMatrix(), ZUnitVector);
     SetQuaternionByAxisRotateV(D_004EC9E0, *(short *)(D_0063C490 + 0x50), v);
     SetQuaternionByAxisRotateV(
         D_004EC9F0, *(short *)(D_0063C490 + 0x50) * (*(float *)(D_0063C490 + 0x54) - 1.0f - 0.5f),

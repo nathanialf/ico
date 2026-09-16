@@ -84,7 +84,7 @@ typedef struct {
 extern WeaponDef D_00318EB8[];
 extern float D_004ED2D0[];
 extern float D_004ED2E0[];
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern void GetMatrixFromQuaternion(void *dst, void *q);
 extern void _ApplyMatrix(void *dst, void *m, void *src);
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
@@ -143,7 +143,7 @@ int calcDynamicPathGeometry(char *g)
     if (*(int *)(w + 0x64) >= *(int *)(w + 0x60)) {
         *(int *)(w + 0x4) = 0;
         CopyVector(rp, w + 128);
-        CopyVector(p + 0x130, D_0028FEF0);
+        CopyVector(p + 0x130, ZeroVector);
         CopyQuaternion(p + 0xD0, w + 144);
         UpdateRootMatrix(g);
         weaponStickSE((int)g);
@@ -417,7 +417,7 @@ extern void CopyVector(void *dst, void *src);
 extern int SetParticleEffect(int id, void *pos, void *a2);
 extern char *GetParticleEffectData(int h);
 extern void ExecParticleEffect(int h);
-extern float D_0028FF30[];
+extern float ZUnitVector[];
 extern int D_002907E0[];
 
 void calcBlur(char *g, float t)
@@ -455,9 +455,9 @@ void calcBlur(char *g, float t)
     }
     base = *(char **)(w + 0x58);
     GetMatrixFromQuaternion(m, q1);
-    _ApplyMatrix(a, m, D_0028FF30);
+    _ApplyMatrix(a, m, ZUnitVector);
     GetMatrixFromQuaternion(m, e + 0xD0);
-    _ApplyMatrix(b, m, D_0028FF30);
+    _ApplyMatrix(b, m, ZUnitVector);
     _OuterProduct(n, b, a);
     _NormalizeVector(n, n);
     ang = acosf(_InnerProduct(a, b)) * 10430.378f;

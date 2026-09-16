@@ -4,7 +4,7 @@ extern int D_0063B250;
 extern int D_0063B254;
 extern int D_0063B258;
 extern int D_0063B25C;
-extern char D_0028FF30[];
+extern char ZUnitVector[];
 extern int GetSkeltonFocusNode(char *obj, int kind);
 extern void SetQuaternionByAxisRotateV(void *self, short ang, void *axis);
 extern void GetCloth4D(void *cloth, float x, float y);
@@ -21,7 +21,7 @@ static void execClothes(char *gobj)
 
     n = GetSkeltonFocusNode(gobj, 35);
     w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
-    SetQuaternionByAxisRotateV(q, -D_0063B258 * 16, D_0028FF30);
+    SetQuaternionByAxisRotateV(q, -D_0063B258 * 16, ZUnitVector);
     if (*(void **)(w + 0x18) != 0) {
         *(int *)(*(char **)(w + 0x18) + 0x2F8) = D_0063B25C;
     }

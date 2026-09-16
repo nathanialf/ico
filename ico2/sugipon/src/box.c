@@ -131,7 +131,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", avoidCharGObj);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFloating);
 
 extern char D_002907E0[];
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern char D_004E62A0[];
 extern void CopyQuaternion(void *dst, void *src);
 extern void execFloating(char *a0);
@@ -144,9 +144,9 @@ void initFloating(char *a0)
     *(int *)(*(int *)(a0 + 0x15C) + 0x78) = 1;
     CopyQuaternion((char *)*(int *)(a0 + 0x15C) + 0xC0, D_002907E0);
     SetRootQuaternion(a0, D_002907E0);
-    CopyVector(p + 0xE0, D_0028FEF0);
-    CopyVector(p + 0xC0, D_0028FEF0);
-    CopyVector(p + 0xD0, D_0028FEF0);
+    CopyVector(p + 0xE0, ZeroVector);
+    CopyVector(p + 0xC0, ZeroVector);
+    CopyVector(p + 0xD0, ZeroVector);
     GetRootPosition(p + 0x100, a0);
     CopyVector((char *)*(int *)(a0 + 0x15C) + 0x520, D_004E62A0);
     *(short *)(p + 0x118) = 0;
@@ -208,7 +208,7 @@ extern int moveXMinus(float *a0, float f12, float f13, float f14);
 extern int moveZPlus(float *a0, float f12, float f13, float f14);
 extern int moveZMinus(float *a0, float f12, float f13, float f14);
 extern int stage_no;
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern int D_0028F4C0[];
 extern char D_0061F080[];
 
@@ -493,7 +493,7 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
         sceVu0ApplyMatrix(mv, m, mv);
         AddVectorXYZ(q + 0x40, q + 0x40, mv);
         if (onPath(a0) != 0) {
-            CopyVector(q + 0x40, D_0028FEF0);
+            CopyVector(q + 0x40, ZeroVector);
         }
         if (stage_no == 8) {
             if (*(int *)q == 0 && *(int *)(q + 0x114) == 0) {

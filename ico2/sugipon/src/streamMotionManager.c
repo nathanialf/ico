@@ -31,7 +31,7 @@ void PlayStreamMotion(void)
     return 1;
 }
 
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern void CopyVector(void *dst, void *src);
 
 /* The 0x10 bytes of frame at sp+0 belong to a declaration that emits no code in
@@ -46,7 +46,7 @@ void ClearStreamMotionEntry(char *gobj)
 
     *(int *)(*(int *)(gobj + 0x15C) + 0x470) = -1;
     *(int *)(*(int *)(gobj + 0x15C) + 0x660) = 1;
-    CopyVector((char *)*(int *)(gobj + 0x15C) + 0x670, D_0028FEF0);
+    CopyVector((char *)*(int *)(gobj + 0x15C) + 0x670, ZeroVector);
     *(int *)(*(int *)(gobj + 0x15C) + 0x550) = 1;
 }
 

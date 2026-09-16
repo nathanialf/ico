@@ -55,8 +55,8 @@ typedef struct {
     long long w[24];
 } DObjBlkC0;
 
-extern char D_0028FEF0[];
-extern char D_0028FF00[];
+extern char ZeroVector[];
+extern char ZeroPoint[];
 extern DObjBlk40 D_003198A0;
 extern DObjBlk20 D_003198E0;
 extern DObjBlkC0 D_00319900;
@@ -112,9 +112,9 @@ void initGeometryState(char *self, float *lay)
             iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 5, __FILE__, 127);
         InitMotionRotElem(*(void **)(p->data.p + 0x7D0), *(int *)(p->data.p + 0x88));
         InitMotionRotElem(*(void **)(p->data.p + 0x7B4), *(int *)(p->data.p + 0x88));
-        CopyVector(p->data.p + 0x7E0, D_0028FF00);
-        CopyVector(p->data.p + 0x7E0, D_0028FF00);
-        CopyVector(p->data.p + 0x7F0, D_0028FEF0);
+        CopyVector(p->data.p + 0x7E0, ZeroPoint);
+        CopyVector(p->data.p + 0x7E0, ZeroPoint);
+        CopyVector(p->data.p + 0x7F0, ZeroVector);
         *(int *)(p->data.p + 0x808) = 0;
         *(DObjBlk8 *)(p->data.p + 0x800) = D_0063A810;
         *(void **)(p->data.p + 0x80C) =
@@ -130,7 +130,7 @@ void initGeometryState(char *self, float *lay)
         *(void **)(p->data.p + 0x814) =
             iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 4, __FILE__, 153);
         for (k = 0; k < *(int *)(p->data.p + 0x88); k++) {
-            CopyVector(*(char **)(p->data.p + 0x814) + k * 16, D_0028FEF0);
+            CopyVector(*(char **)(p->data.p + 0x814) + k * 16, ZeroVector);
         }
         *(void **)(p->data.p + 0x818) =
             iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, __FILE__, 161);

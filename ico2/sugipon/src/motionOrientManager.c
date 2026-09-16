@@ -283,7 +283,7 @@ extern void _ScaleVectorXYZ(float *dst, float *src, float s);
 extern void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char *tbl,
                                 int k);
 extern void DispSkelton(void *self, void *m);
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 /* Listing lines 1640-1647: a static inline both stream-geometry functions absorb
  * (once and twice), with no symbol and no census row, so its name is not on
@@ -310,7 +310,7 @@ void getStreamMotionGeometry(void *self, void *sm)
     char mot[*(int *)(MOWORK(self) + 0x88) * 0x20];
 
     if (getStreamVec(self, sm, v, mot)) {
-        GetGeometryOfMotion(self, mot, mot, v, 1.0f, D_0028FEF0, -1);
+        GetGeometryOfMotion(self, mot, mot, v, 1.0f, ZeroVector, -1);
         CopyMotion(*(void **)(MOWORK(self) + 0x7B4), mot, *(int *)(MOWORK(self) + 0x88));
         CopyVector(MOWORK(self) + 0x7C0, v);
         DispSkelton(self, mot);
@@ -333,7 +333,7 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
 
         getStreamVec(self, sm1, v1, mot1);
         GetBlendedMotion(mot2, v2, mot1, v1, mot0, v0, t, *(int *)(MOWORK(self) + 0x820), n);
-        GetGeometryOfMotion(self, mot2, mot2, v2, 1.0f, D_0028FEF0, -1);
+        GetGeometryOfMotion(self, mot2, mot2, v2, 1.0f, ZeroVector, -1);
         CopyMotion(*(void **)(MOWORK(self) + 0x7B4), mot2, *(int *)(MOWORK(self) + 0x88));
         CopyVector(MOWORK(self) + 0x7C0, v2);
         DispSkelton(self, mot2);

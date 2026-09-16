@@ -1,7 +1,7 @@
 #include "common.h"
 
 /* getBone is defined as a nested function inside connectToTarget below. */
-extern char D_0028FF20[];
+extern char YUnitVector[];
 extern void _SubVector(void *dst, void *a, void *b);
 extern void _AddVector(void *dst, void *a, void *b);
 extern float VectorLength(void *v);
@@ -84,7 +84,7 @@ void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
     CopyVector(n, d);
     n[1] = 0.0f;
     _NormalizeVector(n, n);
-    _OuterProduct(ax, n, D_0028FF20);
+    _OuterProduct(ax, n, YUnitVector);
     if (sa + sb < len) {
         _SubVector(u, (char *)*(int *)(*(int *)(tgt + 0x15C) + 0xC) + (nb << 6) + 0x30,
                    (char *)*(int *)(*(int *)(obj + 0x15C) + 0xC) + (na << 6) + 0x30);
@@ -250,7 +250,7 @@ typedef union {
 extern int D_0063B198;
 extern char D_0055FE58[];
 extern char D_005D1208[];
-extern char D_0028FF10[];
+extern char XUnitVector[];
 extern int GetSkeltonFocusNode(char *obj, int kind);
 extern float _handManager(char *obj, char *hand, char *bone, char *axis, int node);
 
@@ -272,11 +272,11 @@ void HandManager(char *obj)
         if (*(int *)(*(int *)(obj + 0x15C) + 0x400) != 0) {
             char *rec = D_0055FE58 + *(int *)(*(int *)(obj + 0x15C) + 0x4A0) * 0x194;
             _handManager(obj, (char *)*(int *)(obj + 0x15C) + 0x310,
-                         D_005D1208 + ((*(unsigned int *)(rec + 0x188) >> 8) & 0xF0), D_0028FF10,
+                         D_005D1208 + ((*(unsigned int *)(rec + 0x188) >> 8) & 0xF0), XUnitVector,
                          GetSkeltonFocusNode(obj, 0x13));
             t = _handManager(obj, (char *)*(int *)(obj + 0x15C) + 0x2B0,
                              D_005D1208 + ((*(unsigned int *)(rec + 0x188) >> 4) & 0xF0),
-                             D_0028FF10, GetSkeltonFocusNode(obj, 3));
+                             XUnitVector, GetSkeltonFocusNode(obj, 3));
         }
         *(float *)(*(int *)(obj + 0x15C) + 0xF4) +=
             (t - *(float *)(*(int *)(obj + 0x15C) + 0xF4)) * 0.1f;

@@ -2133,7 +2133,7 @@ typedef struct {
 
 extern void _ApplyMatrix(int dst, int m, int src);
 extern void _NormalizeVector(int dst, int src);
-extern char D_0028FF20[];
+extern char YUnitVector[];
 extern Mtx44 D_004F8610;
 
 void finishCallBackFunc(int a0)
@@ -2141,7 +2141,7 @@ void finishCallBackFunc(int a0)
     Vec4 v;
     int i;
 
-    _ApplyMatrix((int)&v, *(int *)(*(int *)(a0 + 0x15C) + 0xC), (int)D_0028FF20);
+    _ApplyMatrix((int)&v, *(int *)(*(int *)(a0 + 0x15C) + 0xC), (int)YUnitVector);
     v.m[1] = 0.0f;
     _NormalizeVector(*(int *)(a0 + 0x15C) + 0x520, (int)&v);
 

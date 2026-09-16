@@ -407,7 +407,7 @@ typedef struct MvCol {
     int r, g, b, a;
 } __attribute__((aligned(16))) MvCol;
 
-extern float D_0028FF00[];
+extern float ZeroPoint[];
 extern void CopyVector(void *dst, void *src);
 extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int f);
 extern void GetRootPosition(void *dst, MvObj *gobj);
@@ -464,14 +464,14 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, s
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrixV(pos);
 
-    CopyVector(p0, D_0028FF00);
-    CopyVector(p1, D_0028FF00);
+    CopyVector(p0, ZeroPoint);
+    CopyVector(p1, ZeroPoint);
     p1[0] -= sx;
     p1[2] -= cx;
     DrawLineG(p0, colAxis, p1, colAxis, 0);
 
-    CopyVector(p0, D_0028FF00);
-    CopyVector(p1, D_0028FF00);
+    CopyVector(p0, ZeroPoint);
+    CopyVector(p1, ZeroPoint);
     p1[1] -= fdy;
     DrawLineG(p0, colAxis, p1, colAxis, 0);
 
@@ -486,8 +486,8 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, s
     MatrixDrive_ScaleMatrix(random_unit() * 3.0f + 1.0f, random_unit() * 3.0f + 1.0f,
                             random_unit() * 3.0f + 1.0f);
     for (a = 0; a < 3; a++) {
-        CopyVector(p0, D_0028FF00);
-        CopyVector(p1, D_0028FF00);
+        CopyVector(p0, ZeroPoint);
+        CopyVector(p1, ZeroPoint);
         p0[a] -= 10.0f;
         p1[a] += 10.0f;
         DrawLineG(p0, colAxis, p1, colAxis, 0);

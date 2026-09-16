@@ -1235,7 +1235,7 @@ void FullScreenEffectAfter(void)
     tex_UnlockHeadTBP(8);
 }
 
-extern int D_0028FF00[];
+extern int ZeroPoint[];
 extern int D_0063BB1C;
 extern int D_0063BB20;
 extern int D_0063BB24;
@@ -1250,8 +1250,8 @@ extern int prim_InitFan2D(int a, float e, int *b, unsigned int c, int d);
    serves the C caller.  Collapses to one `inline` definition at layout. */
 static inline void initStaticBlur(void)
 {
-    D_0063BB1C = prim_InitFan2D(0x10, 80.0f, D_0028FF00, 0xFFFFFF80u, 0);
-    D_0063BB20 = prim_InitFan2D(0x10, 80.0f, D_0028FF00, 0xFFFFFF80u, 0);
+    D_0063BB1C = prim_InitFan2D(0x10, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
+    D_0063BB20 = prim_InitFan2D(0x10, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
 }
 
 int InitStaticBlur(void)
@@ -1304,8 +1304,8 @@ void InitializeStaticBlur(void)
 
 void _initStaticBlur(void)
 {
-    D_0063BB1C = prim_InitFan2D(0x10, 80.0f, D_0028FF00, 0xFFFFFF80u, 0);
-    D_0063BB20 = prim_InitFan2D(0x10, 80.0f, D_0028FF00, 0xFFFFFF80u, 0);
+    D_0063BB1C = prim_InitFan2D(0x10, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
+    D_0063BB20 = prim_InitFan2D(0x10, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
 }
 
 void SetAuraEffect(void) {}

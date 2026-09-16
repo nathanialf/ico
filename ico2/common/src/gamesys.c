@@ -444,7 +444,7 @@ int gamesysGirlStageGet(void)
 }
 
 extern void CopyVector(void *dst, void *src);
-extern int D_0028FF00[4];
+extern int ZeroPoint[4];
 
 int gamesysGetGirlStageIDAndPosition(int a0)
 {
@@ -452,7 +452,7 @@ int gamesysGetGirlStageIDAndPosition(int a0)
         CopyVector(a0, (int *)((char *)D_004DA9C0 + 0x10));
         return D_004DA9C0[2];
     }
-    CopyVector(a0, (int *)D_0028FF00);
+    CopyVector(a0, (int *)ZeroPoint);
     return 4;
 }
 

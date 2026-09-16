@@ -265,7 +265,7 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
     }
 }
 
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern int ExecWaterDot(int work);
 extern void EntryWaterDot(int work, void *pos, char *kind, float range);
 extern void CopyVector(void *dst, void *src);
@@ -289,13 +289,13 @@ void actionOfWater(char *gobj)
         if (1.0f < *(float *)(w + 0x60)) {
             node = GetSkeltonFocusNode(gobj, 0x16);
             CopyVector(pos, *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6) + 0x30);
-            EntryWaterDot(*(int *)(w + 0x54), pos, D_0028FEF0, 8.0f);
+            EntryWaterDot(*(int *)(w + 0x54), pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x6);
             CopyVector(pos, *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6) + 0x30);
-            EntryWaterDot(*(int *)(w + 0x54), pos, D_0028FEF0, 8.0f);
+            EntryWaterDot(*(int *)(w + 0x54), pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x2C);
             CopyVector(pos, *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6) + 0x30);
-            EntryWaterDot(*(int *)(w + 0x54), pos, D_0028FEF0, 10.0f);
+            EntryWaterDot(*(int *)(w + 0x54), pos, ZeroVector, 10.0f);
             *(float *)(w + 0x60) = 0.0f;
         }
     }

@@ -22,7 +22,7 @@ extern void _AddVector(void *a0, void *a1, void *a2);
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
 extern void CopyVector(void *dst, void *src);
 extern void CopyQuaternion(void *dst, void *src);
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern char D_002907E0[];
 /* prototypes: their order is the inline tail's emission order */
 void EntryMultiBgaManagerNoKind(BgaDisp *bga, int no, void *pos);
@@ -35,7 +35,7 @@ static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void
     p->obj = kind;
     p->x44 = 0;
     CopyVector(p->m10, pos);
-    CopyVector(p->m20, D_0028FEF0);
+    CopyVector(p->m20, ZeroVector);
     CopyQuaternion(p->m30, rot);
     p->f0 = 0.0f;
 }

@@ -36,7 +36,7 @@ extern void _ApplyMatrix(void *dst, void *m, void *src);
 extern void _NormalizeVector(void *dst, void *src);
 extern void p2o_DispVU1(void *gobj);
 extern float atan2f(float y, float x);
-extern char D_0028FF30[];
+extern char ZUnitVector[];
 
 static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
 {
@@ -46,7 +46,7 @@ static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
 
     GetRootMatrix(MatrixDrive_GetMatrix(), gobj);
     MatrixDrive_RotMatrixY(*(short *)(w + 0x20));
-    _ApplyMatrix(v, MatrixDrive_GetMatrix(), D_0028FF30);
+    _ApplyMatrix(v, MatrixDrive_GetMatrix(), ZUnitVector);
     v[1] = 0.0f;
     _NormalizeVector(v, v);
     UnitRotation(MatrixDrive_GetMatrix());
@@ -118,7 +118,7 @@ extern void CopyVector(void *dst, void *src);
 extern int D_0063A438;
 extern const char D_00620AE8[];
 extern unsigned char D_0063BAB0;
-extern char D_0028FF00[];
+extern char ZeroPoint[];
 
 /* A GObj slot read as an int but written elsewhere as a float: reading it
  * through the union keeps both views in one alias set, so the reload of
@@ -148,7 +148,7 @@ char *InitRotObjectGeo(char *gobj, char *src)
     if (*(int *)p == 3) {
         *(float *)(p + 0x28) = *(float *)(src + 0x28);
         *(float *)(p + 0x2C) = *(float *)(src + 0x20);
-        CopyVector((char *)((RotObjWord *)(gobj + 0x15C))->i + 0xA0, D_0028FF00);
+        CopyVector((char *)((RotObjWord *)(gobj + 0x15C))->i + 0xA0, ZeroPoint);
     }
     {
         char *q = *(char **)(*(char **)(gobj + 0x15C) + 0x870);

@@ -177,7 +177,7 @@ static inline void makeWaveGrid(char *w, float **grid, int ang)
     }
 }
 
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern const Blob16L D_0054DA70;
 extern int D_0063A064;
 extern int D_0063A068;
@@ -248,7 +248,7 @@ void updatePoolGeo(char *self)
 
     CopyVector(pa, w);
     CopyVector(pb, &org);
-    CopyVector(pd, D_0028FEF0);
+    CopyVector(pd, ZeroVector);
 
     _InitCurrentMatrix();
     _SetCurrentMatrix(matrixptr + 0x100);

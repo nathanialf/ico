@@ -390,7 +390,7 @@ void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
 extern void debug_StdPrintfDummy();
 extern char D_0061F240[];
 extern char D_0061F258[];
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
 {
@@ -407,7 +407,7 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
             *(float *)((char *)a0 + i * 0x50 + 0x50) = w0;
             *(float *)((char *)a0 + i * 0x50 + 0x54) = w1;
             ex = (char *)a0 + 0x10 + i * 0x50;
-            CopyVector(ex + 0x30, D_0028FEF0);
+            CopyVector(ex + 0x30, ZeroVector);
             CopyVector(ex + 0x10, (char *)a0[0] + idx * 16);
             CopyVector(ex + 0x20, (char *)a0[0] + idx * 16);
             *(float *)((char *)a0 + i * 0x50 + 0x34) =
@@ -668,7 +668,7 @@ int clipCylinderCollision(char *p)
 extern char *iosMallocDebug(int heap, int size, char *file, int line);
 extern int D_0063A438;
 extern char D_0061F270[];
-extern char D_0028FF00[];
+extern char ZeroPoint[];
 
 ChainSet *InitChains(char *a0)
 {
@@ -695,13 +695,13 @@ ChainSet *InitChains(char *a0)
         r->nodes[i].fC = 0;
         for (j = 0; j < 5; j++) {
             r->nodes[i].ex[j].w = -1.0f;
-            CopyVector(&r->nodes[i].ex[j].v0, D_0028FF00);
-            CopyVector(&r->nodes[i].ex[j].v1, D_0028FF00);
-            CopyVector(&r->nodes[i].ex[j].v2, D_0028FEF0);
+            CopyVector(&r->nodes[i].ex[j].v0, ZeroPoint);
+            CopyVector(&r->nodes[i].ex[j].v1, ZeroPoint);
+            CopyVector(&r->nodes[i].ex[j].v2, ZeroVector);
         }
         for (j = 0; j < *(int *)(i * 0x50 + (int)r->cfg); j++) {
             CopyVector(r->nodes[i].p0 + j * 16, a0 + i * 0x50 + 0x20);
-            CopyVector(r->nodes[i].p4 + j * 16, D_0028FEF0);
+            CopyVector(r->nodes[i].p4 + j * 16, ZeroVector);
             step = *(float *)(a0 + i * 0x50 + 0x14);
             *(float *)(j * 4 + (int)r->nodes[i].p8) = step;
             if (j != 0) {
@@ -1004,7 +1004,7 @@ void getCloth4D_postProcess(int *a0, int **a1)
                 SubVectorXYZ((char *)rowsC[i] + j * 16, (char *)rowsB[i] + j * 16,
                              (char *)rowsC[i] + j * 16);
             } else {
-                CopyVector((char *)rowsC[i] + j * 16, D_0028FEF0);
+                CopyVector((char *)rowsC[i] + j * 16, ZeroVector);
             }
         }
     }
@@ -1151,8 +1151,8 @@ extern void prim_UpdateMesh3D(int a0, int a1, int a2);
 extern int buffer_ID;
 extern void sceVu0UnitMatrix(void *m);
 extern int GetSkeltonFocusNode(int a0, int a1);
-extern char D_0028FF00[];
-extern char D_0028FEF0[];
+extern char ZeroPoint[];
+extern char ZeroVector[];
 
 Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
 {
@@ -1179,8 +1179,8 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
         *(char **)(i * 4 + (int)r->pC) = iosMallocDebug(D_0063A438, cfg->ny * 16, D_0061F270, 2224);
         *(char **)(i * 4 + (int)r->p10) = (char *)((int)r->mesh->p70 + i * cfg->ny * 16);
         for (j = 0; j < cfg->ny; j++) {
-            CopyVector(*(char **)(i * 4 + (int)r->p8) + j * 16, D_0028FF00);
-            CopyVector(*(char **)(i * 4 + (int)r->pC) + j * 16, D_0028FEF0);
+            CopyVector(*(char **)(i * 4 + (int)r->p8) + j * 16, ZeroPoint);
+            CopyVector(*(char **)(i * 4 + (int)r->pC) + j * 16, ZeroVector);
             *(float *)((i * cfg->ny + j) * 16 + (int)r->mesh->p74) =
                 *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->p24 + 0x40));
             *(float *)((i * cfg->ny + j) * 16 + (int)r->mesh->p74 + 4) =
@@ -1246,7 +1246,7 @@ void MoveChainExtendedWeight(int a0, int a1, float f)
     *(float *)(a0 + a1 * 0x50 + 0x10) = f;
 }
 
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 void InitChainVelocity(int *a0)
 {
@@ -1257,11 +1257,11 @@ void InitChainVelocity(int *a0)
     for (i = 0; i < a0[1]; i++) {
         int cnt = *(int *)((char *)a0[0] + i * 0x50);
         for (j = 0; j < cnt; j++) {
-            CopyVector(*(char **)((char *)a0[2] + i * 0x1A0 + 4) + j * 16, D_0028FEF0);
+            CopyVector(*(char **)((char *)a0[2] + i * 0x1A0 + 4) + j * 16, ZeroVector);
         }
         for (k = 0; k < 5; k++) {
             char *w = (char *)a0[2] + i * 0x1A0 + 0x10 + k * 0x50;
-            CopyVector(w + 0x30, D_0028FEF0);
+            CopyVector(w + 0x30, ZeroVector);
         }
     }
 }
@@ -1279,7 +1279,7 @@ float GetChainNodeID(int a0, float f)
 }
 
 extern void CopyVector(void *a0, void *a1);
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 void ResetClothAnimation(int *a0, int *a1, int *a2)
 {
@@ -1293,7 +1293,7 @@ void ResetClothAnimation(int *a0, int *a1, int *a2)
             for (j = 1; j < inner; j++) {
                 char *p = (char *)a0[i];
                 CopyVector(p + j * 16, p);
-                CopyVector((char *)a1[i] + j * 16, D_0028FEF0);
+                CopyVector((char *)a1[i] + j * 16, ZeroVector);
             }
             i++;
         } while (i < outer);

@@ -33,7 +33,7 @@ typedef union {
     long long ll;
 } WormFlag;
 
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 void disp(void *act);
 extern void p2o_SetDefaultEnviroment(void *a0);
 extern void p2o_DispVU1DObjMulti(void *a0);
@@ -176,7 +176,7 @@ void simulate(WormVec *v, int n, float len)
             c = 1;
             sceVu0ScaleVector(acc, d, 1.0f - len / _Sqrt(l));
         } else {
-            CopyVector(acc, D_0028FEF0);
+            CopyVector(acc, ZeroVector);
         }
         sceVu0SubVector(d, &v[i + 1], &v[i]);
         l = VectorLengthSquare(d);
@@ -200,7 +200,7 @@ void simulate(WormVec *v, int n, float len)
             c = 1;
             sceVu0ScaleVector(acc, d, 1.0f - len / _Sqrt(l));
         } else {
-            CopyVector(acc, D_0028FEF0);
+            CopyVector(acc, ZeroVector);
         }
         sceVu0SubVector(d, &v[i + 1], &v[i]);
         l = VectorLengthSquare(d);
@@ -400,7 +400,7 @@ static inline void ResetWormRoute(int act, WormWork *w)
 
         for (j = 0; j < num; j++) {
             CopyVector(&pos[j], r->seg[i].pm.p);
-            CopyVector(&prev[j], D_0028FEF0);
+            CopyVector(&prev[j], ZeroVector);
         }
     }
 

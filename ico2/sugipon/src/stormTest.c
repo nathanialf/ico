@@ -6,7 +6,7 @@ extern int D_0063A438;
 /* prototypes: their order is the inline tail's emission order */
 int *InitStormTestGeo(int a0, int *a1);
 extern int iosMallocDebug(int t, int sz, const char *file, int line);
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 /* the clip plane normal StormTestDL transforms into view space */
 static float stormClipPlane[4] = {0.0f, 0.0f, 1.0f, 0.0f};
@@ -103,7 +103,7 @@ StormPackage *InitStormPackage(int mode, int num, int flag)
     pkg->rate = (float *)iosMallocDebug(D_0063A438, num * 4, "src/stormTest.c", 74);
 
     for (i = 0; i < num; i++) {
-        CopyVector(pkg->vel[i], D_0028FEF0);
+        CopyVector(pkg->vel[i], ZeroVector);
         pkg->pos[i][0] = (_GetRandom() * 2.0f - 1.0f) * 1000.0f;
         pkg->pos[i][1] = -(_GetRandom() * 400.0f);
         pkg->pos[i][2] = (_GetRandom() * 2.0f - 1.0f) * 1000.0f;

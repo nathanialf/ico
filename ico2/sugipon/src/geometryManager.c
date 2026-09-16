@@ -136,7 +136,7 @@ extern void sceVu0ScaleVector(void *dst, void *src, float s);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
 extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
 extern int GetSkeltonFocusNode(char *gobj, int node);
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 /* INTERIM stand-ins: the ROM inlines GetRootPosition (listing lines 55-64 and
  * 85) and SetDirectRootPositionNoFitting (lines 255-274) into the two
@@ -202,8 +202,8 @@ static __inline__ void SetDirectRootPositionNoFitting_i(char *self, void *v)
     CopyVector(sub + 0x110, p);
     *(int *)(*(char **)(self + 0x15C) + 0x4EC) = 0;
     CopyVector(sub + 0x200, v);
-    CopyVector(sub + 0x130, D_0028FEF0);
-    CopyVector(sub + 0x170, D_0028FEF0);
+    CopyVector(sub + 0x130, ZeroVector);
+    CopyVector(sub + 0x170, ZeroVector);
 }
 
 void SetDirectRootPositionNoFittingWithNodePoint(char *gobj, int node, float *pos, float t)
@@ -689,7 +689,7 @@ void GetRootPositionByDObj(void *a0, char *src)
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
 
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 /* INTERIM: ROM inlines SetRootPosition into this function and into
  * SetDirectRootPositionNoFitting; the TU's out-of-line copy stays a plain
@@ -731,8 +731,8 @@ void SetDirectRootPosition(char *self, void *v)
     CopyVector(sub + 0x110, p);
     *(int *)(*(char **)(self + 0x15C) + 0x4EC) = 0;
     CopyVector(sub + 0x200, v);
-    CopyVector(sub + 0x130, D_0028FEF0);
-    CopyVector(sub + 0x170, D_0028FEF0);
+    CopyVector(sub + 0x130, ZeroVector);
+    CopyVector(sub + 0x170, ZeroVector);
     AdjustMotionHeightToNearestField(self);
 }
 
@@ -750,8 +750,8 @@ void SetDirectRootPositionNoFitting(char *self, void *v)
     CopyVector(sub + 0x110, p);
     *(int *)(*(char **)(self + 0x15C) + 0x4EC) = 0;
     CopyVector(sub + 0x200, v);
-    CopyVector(sub + 0x130, D_0028FEF0);
-    CopyVector(sub + 0x170, D_0028FEF0);
+    CopyVector(sub + 0x130, ZeroVector);
+    CopyVector(sub + 0x170, ZeroVector);
 }
 
 /* The root position at sub+0xA0 is a 4-lane vector the engine also moves as
@@ -797,7 +797,7 @@ void GetRootPosition(void *a0, char *outer)
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
 
-extern char D_0028FF30[];
+extern char ZUnitVector[];
 
 void GetRootOrient(char *a0, char *a1)
 {
@@ -814,7 +814,7 @@ void GetRootOrient(char *a0, char *a1)
         }
     }
     *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + *(float *)(p + 0xC0);
-    sceVu0ApplyMatrix((int *)a0, buf, (int)D_0028FF30);
+    sceVu0ApplyMatrix((int *)a0, buf, (int)ZUnitVector);
     *(int *)(a0 + 4) = 0;
     sceVu0Normalize(a0, a0);
 }
@@ -876,7 +876,7 @@ void GetRootMotionOrient(char *a0, char *a1)
     *(float *)(b + 0x34) = *(float *)(b + 0x34) + *(float *)(p + 0xC0);
     GetMatrixFromQuaternion((int)m, (int)(*(char **)(a1 + 0x15C) + 0xE0));
     sceVu0MulMatrix(m, b, (int)m);
-    sceVu0ApplyMatrix((int *)a0, m, (int)D_0028FF30);
+    sceVu0ApplyMatrix((int *)a0, m, (int)ZUnitVector);
 }
 
 void GetRootMotionMatrix(char *a0, char *a1)

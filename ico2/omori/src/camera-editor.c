@@ -319,7 +319,7 @@ typedef struct {
     float x, y, z, w;
 } ArrowVtx __attribute__((aligned(16)));
 
-extern ArrowVtx D_0028FEF0;
+extern ArrowVtx ZeroVector;
 extern ArrowVtx D_002A5A10;
 extern ArrowVtx D_002A5A20;
 extern ArrowVtx D_002A5A30;
@@ -332,8 +332,8 @@ void drawXZArrow(void *col, int f, float z)
     ArrowVtx v0 = {-25.0f, 0.0f, -z, 1.0f};
     ArrowVtx v1 = {25.0f, 0.0f, -z, 1.0f};
 
-    DrawLineG(&D_0028FEF0, col, &D_002A5A40, col, f);
-    DrawLineG(&D_0028FEF0, col, &D_002A5A10, col, f);
+    DrawLineG(&ZeroVector, col, &D_002A5A40, col, f);
+    DrawLineG(&ZeroVector, col, &D_002A5A10, col, f);
     DrawLineG(&D_002A5A50, col, &D_002A5A40, col, f);
     DrawLineG(&D_002A5A20, col, &D_002A5A10, col, f);
     DrawLineG(&D_002A5A30, col, &v0, col, f);

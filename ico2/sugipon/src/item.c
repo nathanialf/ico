@@ -846,7 +846,7 @@ void ItemDL(char *gobj)
     p2o_DispVU1(gobj);
 }
 
-extern float D_0028FEF0[4];
+extern float ZeroVector[4];
 
 /* INTERIM stand-in: GetItemKind is a real TU function with its own ROM slot
    (matched below), but the compiler inlines it into BreakItemFromOutside.
@@ -865,7 +865,7 @@ int BreakItemFromOutside(char *gobj)
         *(int *)(p + 0x48) = 2;
     } else {
         GetRootPosition(pos, gobj);
-        entryBreakBgAnimation(D_004FB970[*(int *)(p + 4)].f_10, pos, D_0028FEF0, 0);
+        entryBreakBgAnimation(D_004FB970[*(int *)(p + 4)].f_10, pos, ZeroVector, 0);
         ExecuteSEPackage((int)gobj, 0x2B);
         if (GetItemKindInline(gobj) == 6) {
             _AttackCenter(gobj, 0x11, pos, 0, 200.0f, 0);

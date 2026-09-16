@@ -127,7 +127,7 @@ inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
 
 extern int D_0063BAF4;
 extern int D_00723AE0[];
-extern int D_0028FF30[];
+extern int ZUnitVector[];
 extern void GetRootPosition(float *pos, int gobj);
 extern int CheckSpidersInsideOfReviveRange(int *out, int group, float *pos);
 extern void UnlockEnemyGenerate(void *p);
@@ -172,7 +172,7 @@ int tryToRevive(void)
                             UnlockEnemyGenerate(p);
                             debug_StdPrintfDummy("UNLOCK %p: (id:%d)\n", p, D_0063BAE0);
                             *(int *)((char *)p + 0x16C) = 1;
-                            if (DirectCallEnemy(p, 0, pos, D_0028FF30, 0) == 0) {
+                            if (DirectCallEnemy(p, 0, pos, ZUnitVector, 0) == 0) {
                                 return 0;
                             }
                             ExecuteSEPackage(p, 107);

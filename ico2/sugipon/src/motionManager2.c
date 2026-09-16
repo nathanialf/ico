@@ -38,7 +38,7 @@ extern void sceVu0AddVector(float *dst, float *a, float *b);
 extern void AddVectorXYZ(float *dst, float *a, float *b);
 extern void CopyVector();
 extern int D_0028F4C0[];
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *vel, float h0,
                      float h1, float h2, float scaleIn, float amp)
@@ -79,7 +79,7 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
                                       0.5f *
                                       (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
                 scale = 1.0f;
-                CopyVector(drain, D_0028FEF0);
+                CopyVector(drain, ZeroVector);
             }
             vel[0] = vel[0] * scale;
             vel[1] = vel[1] * scale;
@@ -264,7 +264,7 @@ extern void GetMatrixFromQuaternion(float *m, float *q);
 extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
 extern void RotQuaternionY(void *q, short ang);
 extern float atan2f(float y, float x);
-extern float D_0028FF30[];
+extern float ZUnitVector[];
 
 void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1)
 {
@@ -295,7 +295,7 @@ void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1)
         RotQuaternionY(q, lim0 * 32768.0f / 180.0f);
     }
     GetMatrixFromQuaternion(m, q);
-    sceVu0ApplyMatrix(v, m, D_0028FF30);
+    sceVu0ApplyMatrix(v, m, ZUnitVector);
     SetMotionDirection(self, v);
 }
 
@@ -811,7 +811,7 @@ extern void GetProjectionOfPlane(float *dst, float *plane, float *pos);
 extern float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float t);
 extern char D_0054D998[];
 extern float D_00290690[];
-extern float D_0028FF20[];
+extern float YUnitVector[];
 
 void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t)
 {
@@ -853,9 +853,9 @@ void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t)
             minIdx = i;
         }
     }
-    _OuterProduct(pa, D_0028FF20, nrm);
+    _OuterProduct(pa, YUnitVector, nrm);
     pa[3] = -_InnerProduct(pa, pts[minIdx]);
-    _OuterProduct(pb, nrm, D_0028FF20);
+    _OuterProduct(pb, nrm, YUnitVector);
     pb[3] = -_InnerProduct(pb, pts[maxIdx]);
     d0 = plane_distance(pos, pa);
     d1 = plane_distance(pos, pb);
@@ -1119,7 +1119,7 @@ extern void CopyQuaternion();
 extern void RotQuaternionX(void *q, short ang);
 extern void _getS16MotRotElem(void *dst, void *src);
 extern void MultiQuaternion(void *a0, void *a1, void *a2);
-extern float D_0028FF00[];
+extern float ZeroPoint[];
 
 /* dev lines 1552-1558: the shared root-position helper GetMotionRootPos (1564)
    and GetStreamMotion (1815) both expand.  INTERIM stand-in, see
@@ -1160,7 +1160,7 @@ int GetStreamMotion(char *dst, float *out, char *node, char *info)
         return 1;
     }
     for (i = 0; i < n; i++) {
-        CopyVector(out, D_0028FF00);
+        CopyVector(out, ZeroPoint);
         *(int *)(dst + i * 0x20) = 0;
         CopyQuaternion(dst + i * 0x20 + 0x10, quat);
     }
@@ -1821,7 +1821,7 @@ void SetMotionPlaySpeedRatio(char *self, float val)
     *(float *)(*(char **)(self + 0x15C) + 0x4B8) = val;
 }
 
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 extern void sceVu0AddVector();
 
 void ClearMotionGeometryInfo(int *self)
@@ -1830,7 +1830,7 @@ void ClearMotionGeometryInfo(int *self)
     int *p1 = (int *)(((char *)p) + 0x230);
     int *p2 = (int *)(((char *)p) + 0xA0);
     int ret;
-    CopyVector(p1, D_0028FEF0);
+    CopyVector(p1, ZeroVector);
     sceVu0AddVector((int *)(((char *)p) + 0x250), p2, p1);
     ret = -1;
     *((int *)(((char *)p2) + 0x180)) = ret;

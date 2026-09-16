@@ -26,7 +26,7 @@ extern void *GetCurrentQuaternion(void);
 extern void MatrixDrive_PushMatrixWithNoCopy(void);
 extern void PushQuaternionWithNoCopy(void);
 extern void _getFinalMatrix(int id);
-extern char D_0028FF30[];
+extern char ZUnitVector[];
 extern char D_004EC9E0[];
 extern char D_004EC9F0[];
 extern char D_004ECA00[];

@@ -25,7 +25,7 @@ typedef struct PointBlur {
 extern int D_0063A06C;
 extern int GlobalTimer;
 extern char *matrixptr;
-extern char D_0028FF30[];
+extern char ZUnitVector[];
 extern void moveDataElements(PointBlur *p);
 extern void _ApplyMatrix(void *dst, void *m, void *src);
 extern void _SetCurrentMatrix(void *m);
@@ -84,7 +84,7 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
     scale = b[0] - *(float *)p->f8;
     _SubVector(c, (char *)p->f8 + 0x10, p->f8);
     c[2] = 0.0f;
-    _OuterProduct(c, c, D_0028FF30);
+    _OuterProduct(c, c, ZUnitVector);
     _NormalizeVector(c, c);
     _ScaleVector(c, c, scale);
     c[2] = 0.0f;
@@ -292,7 +292,7 @@ char *InitEnemyFootPrint(int num)
     return p;
 }
 
-extern char D_0028FF20[];
+extern char YUnitVector[];
 extern int rand(void);
 extern void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short ang, void *axis);
 extern void GetMatrixFromQuaternionPos(char *m, char *q, char *pos);
@@ -328,7 +328,7 @@ int ExecEnemyFootPrints(char *self)
         *(float *)(fp + 0x4) = *(float *)(fp + 0x4) * 0.9f;
         *(float *)(dl + 0x24) = *(float *)(dl + 0x28) = *(float *)(dl + 0x20);
         dead = -1;
-        SetQuaternionByAxisRotateVWithNoRegularize(q, rand(), D_0028FF20);
+        SetQuaternionByAxisRotateVWithNoRegularize(q, rand(), YUnitVector);
         GetMatrixFromQuaternionPos((char *)(*(int *)(*(char **)(self + 0x4) + 0xC) + i * 0x40),
                                    (char *)q, fp + 0x10);
         *(int *)fp = *(int *)fp + 1;

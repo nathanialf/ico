@@ -72,16 +72,16 @@ inline void SetCageChainHangableFlag(char *a0, int a1)
     *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x40) = a1;
 }
 
-extern char D_0028FEF0[];
+extern char ZeroVector[];
 
 void HotInitCageGeo(char *self)
 {
     char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
 
     CopyVector((void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-               D_0028FEF0);
+               ZeroVector);
     CopyVector((void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-               D_0028FEF0);
+               ZeroVector);
 
     CopyVector((void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30),
                *(char **)(*(char **)(w + 0x20)) + 0x20);
