@@ -22,13 +22,42 @@ typedef struct PObjGObj {
     int f16C;          /* 0x16C */
 } PObjGObj;
 
+extern void actSt08aDoorSwitch(volatile int a0);
+extern void actSt08aHasiSwitch(volatile int a0);
+
+static ActMail ene1_mes[2] = {{430}, {429}};
+
+static ActMail ene2_mes[2] = {{430}, {429}};
+
+static ActMail door_main_mes[2] = {{407, actSt08aDoorSwitch}, {429}};
+
+static ActMail door_mes[2] = {{430}, {429}};
+
+static ActMail door_switch_mes[2] = {{430}, {429}};
+
+static float door_up_sound_pos[4] = {-3092.0f, -2727.0f, 3711.0f, 0.0f};
+
+static ActMail intro_mes[2] = {{430}, {429}};
+
+static ActMail girl_pos_mes[2] = {{430}, {429}};
+
+static ActMail hint1_mes[2] = {{430}, {429}};
+
+static ActMail hasi_main_mes[2] = {{408, actSt08aHasiSwitch}, {429}};
+
+static ActMail hasi_mes[2] = {{430}, {429}};
+
+static ActMail hasi_switch_mes[2] = {{430}, {429}};
+
+static ActMail torch_mes[2] = {{430}, {429}};
+
+static ActMail torch_on_mes[2] = {{430}, {429}};
+
+static ActMail torch_off_mes[2] = {{430}, {429}};
+
 extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern int D_0063AA08;
-extern ActMail D_004FA060[];
-extern ActMail D_004FA0A0[];
-extern ActMail D_004FA130[];
-extern ActMail D_004FA170[];
 extern int scpTriggerBall(int a0, void *a1, float radius);
 extern void *D_00639EA4;
 extern void *D_00639EA8;
@@ -36,13 +65,11 @@ extern void WakeupHint(int a0);
 extern void FinishHint(int a0);
 extern int gflagChk(int a0);
 extern void debug_StdPrintfDummy(char *fmt);
-extern char D_00622D30[];
 extern void lt_switch_layout(int a0);
 extern void gflagOn(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern int stage_CheckAnimationFinish(int a0);
 extern int soundSeDefPlay(int se, int a1, float *pos, int a3);
-extern float D_004FA0C0[];
 extern int D_0063C568;
 extern int D_0063C564;
 extern Act *actInitialize(int a0);
@@ -54,14 +81,6 @@ extern void Generator_Mask(int a0);
 extern void Generator_MaskOff(int a0);
 extern void Generator_Call(int a0);
 extern void scpSetCageVelocityFriction(int id, float f);
-extern ActMail D_004FA020[];
-extern ActMail D_004FA040[];
-extern ActMail D_004FA080[];
-extern ActMail D_004FA0D0[];
-extern ActMail D_004FA0F0[];
-extern ActMail D_004FA110[];
-extern ActMail D_004FA150[];
-extern ActMail D_004FA190[];
 extern void actSt08aDoorUp(volatile int a0);
 extern void actSt08aHasiUp(volatile int a0);
 extern void actSt08aEne1Chk(volatile int a0);
@@ -312,8 +331,6 @@ void actSt08aHasiUp(volatile int a0)
 }
 
 extern int scpTriggerFloorAttr(void *a0, int attr);
-extern ActMail D_004FA1B0[];
-extern ActMail D_004FA1D0[];
 extern void actSt08aTorchOnChk(volatile int a0);
 
 void actSt08aTorchOnChk(volatile int a0)
@@ -338,8 +355,8 @@ void actSt08aTorchOnChk(volatile int a0)
     ((unsigned int *)scpSearchGobj(0x167))[0x50 / 4] = 0xFFFFFFFF;
     ((unsigned int *)scpSearchGobj(0x15C))[0x50 / 4] = 0xFFFFFFFF;
 
-    D_004FA1B0[0].func = actSt08aTorchOffChk;
-    self->mail = D_004FA1B0;
+    torch_on_mes[0].func = actSt08aTorchOffChk;
+    self->mail = torch_on_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -366,8 +383,8 @@ void actSt08aTorchOffChk(volatile int a0)
     ((int *)scpSearchGobj(0x167))[0x50 / 4] = 0;
     ((int *)scpSearchGobj(0x15C))[0x50 / 4] = 0;
 
-    D_004FA1D0[0].func = actSt08aTorchOnChk;
-    self->mail = D_004FA1D0;
+    torch_off_mes[0].func = actSt08aTorchOnChk;
+    self->mail = torch_off_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -380,8 +397,8 @@ void actSt08aDoor(volatile int a0)
 
     if (gflagChk(0x47) == 0) {
         stage_SetAnimation(0x69, 0, 0);
-        D_004FA080[0].func = actSt08aDoorMain;
-        self->mail = D_004FA080;
+        door_mes[0].func = actSt08aDoorMain;
+        self->mail = door_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -401,8 +418,8 @@ void actSt08aEne1(volatile int a0)
     shadow_SetLength(scpSearchGobj(0x170)->f15C, 100.0f);
 
     if (gflagChk(0x48) == 0) {
-        D_004FA020[0].func = actSt08aEne1Chk;
-        self->mail = D_004FA020;
+        ene1_mes[0].func = actSt08aEne1Chk;
+        self->mail = ene1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -415,8 +432,8 @@ void actSt08aEne2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x49) == 0) {
-        D_004FA040[0].func = actSt08aEne2Chk;
-        self->mail = D_004FA040;
+        ene2_mes[0].func = actSt08aEne2Chk;
+        self->mail = ene2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -517,8 +534,8 @@ void actSt08aIntro(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x4C) == 0) {
-        D_004FA0D0[0].func = actSt08aIntroChk;
-        self->mail = D_004FA0D0;
+        intro_mes[0].func = actSt08aIntroChk;
+        self->mail = intro_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -531,8 +548,8 @@ void actSt08aHint1(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x4D) == 0) {
-        D_004FA110[0].func = actSt08aHint1Chk;
-        self->mail = D_004FA110;
+        hint1_mes[0].func = actSt08aHint1Chk;
+        self->mail = hint1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -548,8 +565,8 @@ void actSt08aGirlPos(volatile int a0)
 
     if (gflagChk(0x4E) == 0) {
         SleepHint(2);
-        D_004FA0F0[0].func = actSt08aGirlPosChk;
-        self->mail = D_004FA0F0;
+        girl_pos_mes[0].func = actSt08aGirlPosChk;
+        self->mail = girl_pos_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -563,8 +580,8 @@ void actSt08aHasi(volatile int a0)
 
     if (gflagChk(0x4F) == 0) {
         stage_SetAnimation(0x6A, 0, 0);
-        D_004FA150[0].func = actSt08aHasiMain;
-        self->mail = D_004FA150;
+        hasi_mes[0].func = actSt08aHasiMain;
+        self->mail = hasi_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -580,8 +597,8 @@ void actSt08aTorch(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    D_004FA190[0].func = actSt08aTorchOffChk;
-    self->mail = D_004FA190;
+    torch_mes[0].func = actSt08aTorchOffChk;
+    self->mail = torch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -608,7 +625,7 @@ void actSt08aDoorMain(volatile int a0)
 
     D_0063AA08 = 0;
 
-    *(int *)(sub + 0xD0) = (int)D_004FA060;
+    *(int *)(sub + 0xD0) = (int)door_main_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -621,8 +638,8 @@ void actSt08aDoorSwitch(volatile int a0)
     sub->mainMail = 0;
     D_0063AA08 = 1;
 
-    D_004FA0A0[0].func = actSt08aDoorUp;
-    sub->mail = D_004FA0A0;
+    door_switch_mes[0].func = actSt08aDoorUp;
+    sub->mail = door_switch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -633,10 +650,10 @@ void actSt08aDoorUpSub(volatile int a0)
 
     stage_SetAnimation(0x69, 1, 0);
 
-    soundSeDefPlay(0x4C5, 0, D_004FA0C0, 1);
+    soundSeDefPlay(0x4C5, 0, door_up_sound_pos, 1);
     _ACTWait(0x1E);
     D_0063C568 = 1;
-    soundSeDefPlay(0x4C6, 0, D_004FA0C0, 1);
+    soundSeDefPlay(0x4C6, 0, door_up_sound_pos, 1);
 
     while (stage_CheckAnimationFinish(0x69) == 0) {
         _ACTWait(1);
@@ -684,7 +701,7 @@ void actSt08aHint1Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    debug_StdPrintfDummy(D_00622D30);
+    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
 
     gflagOn(0x4D);
     FinishHint(2);
@@ -696,7 +713,7 @@ void actSt08aHasiMain(volatile int a0)
 
     D_0063AA08 = 0;
 
-    *(int *)(sub + 0xD0) = (int)D_004FA130;
+    *(int *)(sub + 0xD0) = (int)hasi_main_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -709,8 +726,8 @@ void actSt08aHasiSwitch(volatile int a0)
     sub->mainMail = 0;
     D_0063AA08 = 1;
 
-    D_004FA170[0].func = actSt08aHasiUp;
-    sub->mail = D_004FA170;
+    hasi_switch_mes[0].func = actSt08aHasiUp;
+    sub->mail = hasi_switch_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

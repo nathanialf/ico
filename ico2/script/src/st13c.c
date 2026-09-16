@@ -29,9 +29,15 @@ typedef struct JimakuArg {
     JimakuSub sub; /* 0x0C */
 } JimakuArg;
 
-typedef struct EffectArg {
-    long long lo; /* 0x00 */
-    long long hi; /* 0x08 */
+/* scpEffectStart's argument block: a 16-byte spawn position, copied as a
+   pair of doublewords and written as four floats. */
+typedef union EffectArg {
+    float f[4];
+
+    struct {
+        long long lo; /* 0x00 */
+        long long hi; /* 0x08 */
+    } d;
 } EffectArg;
 
 typedef struct AnimSet {
@@ -182,20 +188,6 @@ extern void actSt13cSekizoChk(volatile int a0);
 extern void actSt13cCageDownMain(volatile int a0);
 extern int D_00639EA4;
 extern int D_0063C590;
-extern char D_00622E10[];
-/* st13c.o's own .rodata: the sleeping-girl wake-up offset vector. */
-extern AnimSet D_00622E20;
-extern AnimSet16 D_00622E50;
-extern const EffectArg D_00622E90;
-extern const EffectArg D_00622EA0;
-extern const EffectArg D_00622EB0;
-extern const EffectArg D_00622EC0;
-extern const EffectArg D_00622ED0;
-extern const EffectArg D_00622EE0;
-extern const EffectArg D_00622EF0;
-extern const EffectArg D_00622F00;
-extern const EffectArg D_00622F10;
-extern const long long D_00622E40[];
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];
 extern JimakuArg jimaku_msg;
@@ -257,10 +249,46 @@ void actSt13cInit(void)
 void actSt13cEnd(void)
 {
     if (gflagChk(0x1F) == 0) {
-        debug_StdPrintfDummy(D_00622E10);
+        debug_StdPrintfDummy("BackStageOff\n");
         gflagOn(0x186);
     }
 }
+
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads. */
+typedef union {
+    float f[4];
+    long long d[2];
+} __attribute__((aligned(16))) ConstVec;
+
+/* The animations actSt13cConte04 steps through. */
+static const AnimSet conte04Anims = {{625, 626, 627, 628, 629}};
+
+/* Where actSt13cSleepChk turns the sleeping girl to face. */
+static const ConstVec sleepFacePos = {{-800.0f, 0.0f, -1000.0f, 1.0f}};
+
+/* The animations actSt13cConte05 steps through. */
+static const AnimSet16 conte05Anims = {
+    {630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645}};
+
+/* actSt13cCageFallEffect's nine effect spawns, in the frame order it fires them. */
+static const EffectArg cageFallEffect1 = {{-88.0f, -50.0f, -1.0f, 1.0f}};
+
+static const EffectArg cageFallEffect2 = {{-96.0f, -45.0f, 34.0f, 1.0f}};
+
+static const EffectArg cageFallEffect3 = {{72.0f, -50.0f, 8.0f, 1.0f}};
+
+static const EffectArg cageFallEffect4 = {{80.0f, -50.0f, 2.0f, 1.0f}};
+
+static const EffectArg cageFallEffect5 = {{-27.0f, -50.0f, 100.0f, 1.0f}};
+
+static const EffectArg cageFallEffect6 = {{-56.0f, -50.0f, 66.0f, 1.0f}};
+
+static const EffectArg cageFallEffect7 = {{-5.0f, -50.0f, 42.0f, 1.0f}};
+
+static const EffectArg cageFallEffect8 = {{-10.0f, 0.0f, 466.0f, 1.0f}};
+
+static const EffectArg cageFallEffect9 = {{-25.0f, 0.0f, 450.0f, 1.0f}};
 
 void actSt13cBmg1(volatile int a0)
 {
@@ -343,7 +371,7 @@ void actSt13cBmg1Chk(volatile int a0)
         iosThreadSetPri((int *)(th1 + 0x24), 0x22);
         iosThreadSetPri((int *)(th2 + 0x24), 0x22);
 
-        w = D_00622E20;
+        w = conte04Anims;
         for (i = 0; i < 5; i++) {
             stage_SetAnimation(w.anim[i], 1, -1);
             _ACTWait(1);
@@ -656,7 +684,7 @@ void actSt13cCageFallChk(volatile int a0)
     iosThreadSetPri((int *)(th3 + 0x24), 0x22);
 
     if (cancel) {
-        w = D_00622E50;
+        w = conte05Anims;
         for (i = 0; i < 16; i++) {
             stage_SetAnimation(w.anim[i], 1, -1);
             _ACTWait(1);
@@ -970,32 +998,32 @@ void actSt13cCageFallEffect(volatile int a0)
             break;
         case 0x40:
             iosPadActRequest(D_00639EAC, 0x11);
-            b1 = D_00622E90;
+            b1 = cageFallEffect1;
             scpEffectStart(&b1, 0);
-            b2 = D_00622EA0;
+            b2 = cageFallEffect2;
             scpEffectStart(&b2, 0);
             break;
         case 0x44:
-            b3 = D_00622EB0;
+            b3 = cageFallEffect3;
             scpEffectStart(&b3, 0);
-            b4 = D_00622EC0;
+            b4 = cageFallEffect4;
             scpEffectStart(&b4, 0);
             break;
         case 0x60:
-            b5 = D_00622ED0;
+            b5 = cageFallEffect5;
             scpEffectStart(&b5, 0);
-            b6 = D_00622EE0;
+            b6 = cageFallEffect6;
             scpEffectStart(&b6, 0);
-            b7 = D_00622EF0;
+            b7 = cageFallEffect7;
             scpEffectStart(&b7, 0);
             break;
         case 0xB4:
             iosPadActRequest(D_00639EAC, 0xF);
             break;
         case 0x12C:
-            b8 = D_00622F00;
+            b8 = cageFallEffect8;
             scpEffectStart(&b8, 0);
-            b9 = D_00622F10;
+            b9 = cageFallEffect9;
             scpEffectStart(&b9, 0);
             break;
         case 0x17C:
@@ -1523,8 +1551,8 @@ void actSt13cSleepChk(volatile int a0)
     scpPlayStart(D_00639EA8);
     _ACTWait(1);
 
-    ofs[0] = D_00622E40[0];
-    ofs[1] = D_00622E40[1];
+    ofs[0] = sleepFacePos.d[0];
+    ofs[1] = sleepFacePos.d[1];
     sceVu0SubVector(dir, ofs, test_CURRENTROOT(D_00639EA8));
     scpPlayMotDir(D_00639EA8, dir);
 

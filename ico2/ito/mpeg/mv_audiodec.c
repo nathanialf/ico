@@ -1,11 +1,12 @@
+#define MV_DEFS_WANT_ALLOC
+
 #include "common.h"
+#include "mv_defs.h"
 
 extern int sceSifFreeIopHeap(int a0);
 extern void debug_StdPrintfDummy(char *fmt, ...);
 extern int SgStPcmClose(unsigned int a0);
 extern void SgStPcmQuit(void);
-extern char D_006231D0[];
-extern char D_006231F0[];
 extern int SgStPcmStop(unsigned long long a0);
 extern void SgStPcmVolume(unsigned long long a0, unsigned int a1, int a2);
 extern int SgStPcmLseek(unsigned int a0, unsigned int a1);
@@ -17,15 +18,6 @@ int audioDecIsPreset(int *self);
 void audioDecStart(int *self);
 int audioDecPause(int a0);
 void audioDecResume(int *self);
-extern int iosMallocAlignDebug(int heap, int size, int align, const char *file, int line);
-extern void debug_assert(const char *file, int line);
-extern void __assert(const char *file, int line, const char *expr);
-extern void *memset(void *p, int c, int n);
-extern int D_0063A468;
-extern char D_00623160[];
-extern char D_00623180[];
-extern char D_00623190[];
-extern char D_006231B0[];
 extern int sceSifAllocIopHeap(int size);
 extern void SgStPcmInit(void);
 extern int SgStPcmOpen(int *param);
@@ -43,12 +35,7 @@ int audioDecCreate(int *self, int a1, int a2)
     *(char *)((char *)self + 0x62) = 0;
     *(char *)((char *)self + 0x61) = 0;
 
-    p = iosMallocAlignDebug(D_0063A468, bufsize, 0x40, D_00623160, 0x2B);
-    if (p == 0) {
-        debug_assert(D_00623160, 0x2C);
-        __assert(D_00623160, 0x2C, D_00623180);
-    }
-    memset((void *)p, 0, bufsize);
+    p = alloc_zeroed(bufsize, 0x40);
     if (p == 0) {
         return -1;
     }
@@ -67,10 +54,10 @@ int audioDecCreate(int *self, int a1, int a2)
 
     self[0x44 / 4] = sceSifAllocIopHeap(size);
     if (self[0x44 / 4] == 0) {
-        debug_StdPrintfDummy(D_00623190);
+        debug_StdPrintfDummy("Cannot allocate IOP memory\n");
         return 0;
     }
-    debug_StdPrintfDummy(D_006231B0, self[0x44 / 4]);
+    debug_StdPrintfDummy("Allocate IOP memory 0x%08x\n", self[0x44 / 4]);
 
     *(char *)((char *)self + 0x58) = a1;
     self[0x5C / 4] = a2;
@@ -101,9 +88,9 @@ inline int audioDecDelete(int *self)
 {
     if (self[0x44 / 4]) {
         if (sceSifFreeIopHeap(self[0x44 / 4]) < 0) {
-            debug_StdPrintfDummy(D_006231D0, self[0x44 / 4]);
+            debug_StdPrintfDummy("iop heap free failed 0x%08x\n", self[0x44 / 4]);
         }
-        debug_StdPrintfDummy(D_006231F0, self[0x44 / 4]);
+        debug_StdPrintfDummy("free iop heap 0x%08x\n", self[0x44 / 4]);
         self[0x44 / 4] = 0;
     }
     if (*(signed char *)((char *)self + 0x61)) {
@@ -132,10 +119,6 @@ inline void audioDecReset(int *self)
     *(volatile int *)((char *)self + 0x4C) = 0;
 }
 
-extern char D_00623208[];
-extern char D_00623240[];
-extern char D_00623380[];
-
 void audioDecEndPut(int *self, int n)
 {
     unsigned int k;
@@ -150,13 +133,19 @@ void audioDecEndPut(int *self, int n)
         self[0x2C / 4] = cnt;
         if (cnt >= 40) {
             self[0] = 1;
-            debug_StdPrintfDummy(D_00623208);
+            debug_StdPrintfDummy("-------- audio information --------------------\n");
             debug_StdPrintfDummy(
-                D_00623240, *(signed char *)((char *)self + 4), *(signed char *)((char *)self + 5),
+                "[%c%c%c%c]\nheader size:                            %d\ntype(0:PCM big, 1:PCM "
+                "little, 2:ADPCM): %d\nsampling rate:                          %dHz\nchannels:     "
+                "                          %d\ninterleave size:                        "
+                "%d\ninterleave start block address:         %d\ninterleave end block address:     "
+                "      %d\n",
+                *(signed char *)((char *)self + 4), *(signed char *)((char *)self + 5),
                 *(signed char *)((char *)self + 6), *(signed char *)((char *)self + 7), self[8 / 4],
                 self[0xC / 4], self[0x10 / 4], self[0x14 / 4], self[0x18 / 4], self[0x1C / 4],
                 self[0x20 / 4]);
-            debug_StdPrintfDummy(D_00623380, *(signed char *)((char *)self + 0x24),
+            debug_StdPrintfDummy("[%c%c%c%c]\ndata size:                              %d\n",
+                                 *(signed char *)((char *)self + 0x24),
                                  *(signed char *)((char *)self + 0x25),
                                  *(signed char *)((char *)self + 0x26),
                                  *(signed char *)((char *)self + 0x27), self[0x28 / 4]);

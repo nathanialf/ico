@@ -12,6 +12,36 @@ typedef struct Act {
     ActMail *mail;    /* 0xD4 */
 } Act;
 
+static ActMail intro_mes[2] = {{430}, {429}};
+
+static ActMail switchL_mes[2] = {{430}, {429}};
+
+static ActMail switchLUp_mes[2] = {{430}, {429}};
+
+static ActMail switchLChk_mes[2] = {{430}, {429}};
+
+static ActMail switchLUpChk_mes[2] = {{430}, {429}};
+
+static ActMail switchR_mes[2] = {{430}, {429}};
+
+static ActMail switchRUp_mes[2] = {{430}, {429}};
+
+static ActMail switchRChk_mes[2] = {{430}, {429}};
+
+static ActMail switchRUpChk_mes[2] = {{430}, {429}};
+
+static ActMail door_mes[2] = {{430}, {429}};
+
+static ActMail doorDown_mes[2] = {{430}, {429}};
+
+static ActMail doorChk_mes[2] = {{430}, {429}};
+
+static ActMail doorDownChk_mes[2] = {{430}, {429}};
+
+static ActMail ene_mes[2] = {{430}, {429}};
+
+static ActMail ene2_mes[2] = {{430}, {429}};
+
 extern char *D_00639EA8;
 extern void gflagOn(int a0);
 
@@ -101,7 +131,6 @@ extern void FinishHint(int a0);
 extern void actSt18aSwitchLUpChk(volatile int a0);
 extern int D_0028F4C0[];
 extern int D_00639EA4;
-extern ActMail D_004FB0D0[];
 
 void actSt18aSwitchLChk(volatile int a0)
 {
@@ -138,8 +167,8 @@ void actSt18aSwitchLChk(volatile int a0)
         FinishHint(7);
     }
 
-    D_004FB0D0[0].func = actSt18aSwitchLUpChk;
-    sub->mail = D_004FB0D0;
+    switchLChk_mes[0].func = actSt18aSwitchLUpChk;
+    sub->mail = switchLChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -154,7 +183,6 @@ extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
 extern void actSt18aSwitchLChk(volatile int a0);
 
 /* TU-owned .data record (VMA 0x004FB0F0..0x004FB10F, ROM 0x3FB0F0). */
-static ActMail switch_l_mes[2] = {{430}, {429}};
 
 void actSt18aSwitchLUpChk(volatile int a0)
 {
@@ -182,8 +210,8 @@ void actSt18aSwitchLUpChk(volatile int a0)
     }
     _ACTWait(1);
 
-    switch_l_mes[0].func = actSt18aSwitchLChk;
-    sub->mail = switch_l_mes;
+    switchLUpChk_mes[0].func = actSt18aSwitchLChk;
+    sub->mail = switchLUpChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -199,7 +227,6 @@ extern void FinishHint(int a0);
 extern void actSt18aSwitchRUpChk(volatile int a0);
 extern int D_0028F4C0[];
 extern int D_00639EA4;
-extern ActMail D_004FB150[];
 
 void actSt18aSwitchRChk(volatile int a0)
 {
@@ -236,8 +263,8 @@ void actSt18aSwitchRChk(volatile int a0)
         FinishHint(7);
     }
 
-    D_004FB150[0].func = actSt18aSwitchRUpChk;
-    sub->mail = D_004FB150;
+    switchRChk_mes[0].func = actSt18aSwitchRUpChk;
+    sub->mail = switchRChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -250,7 +277,6 @@ extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
 extern int soundSeDefPlay(int se, int a1, int a2, int a3);
 extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
 extern void actSt18aSwitchRChk(volatile int a0);
-extern ActMail D_004FB170[];
 
 void actSt18aSwitchRUpChk(volatile int a0)
 {
@@ -278,8 +304,8 @@ void actSt18aSwitchRUpChk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_004FB170[0].func = actSt18aSwitchRChk;
-    sub->mail = D_004FB170;
+    switchRUpChk_mes[0].func = actSt18aSwitchRChk;
+    sub->mail = switchRUpChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -304,7 +330,6 @@ extern PadState D_0028F8F0[];
 extern int D_0063AA08;
 extern int D_0063C59C;
 extern int D_0063C5A0;
-extern ActMail D_004FB1D0[];
 
 void actSt18aDoorChk(volatile int a0)
 {
@@ -353,8 +378,8 @@ void actSt18aDoorChk(volatile int a0)
     scpWakeupEnemyAll();
     lt_switch_layout(0x36);
 
-    D_004FB1D0[0].func = actSt18aDoorDownChk;
-    sub->mail = D_004FB1D0;
+    doorChk_mes[0].func = actSt18aDoorDownChk;
+    sub->mail = doorChk_mes;
     D_0063AA08 = 0;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
@@ -369,8 +394,7 @@ extern void actSt18aDoorChk(volatile int a0);
 
 /* TU-owned .data record (VMA 0x004FB1F0..0x004FB20F, ROM 0x3FB1F0): the mail
    table actSt18aDoorDownChk hands back to the door actor. Role-named file
-   static per the 2026-09-07 ruling, same shape as st17a's door_mes. */
-static ActMail door_mes[2] = {{430}, {429}};
+   static per the 2026-09-07 ruling, same shape as st17a's doorDownChk_mes. */
 
 void actSt18aDoorDownChk(volatile int a0)
 {
@@ -393,8 +417,8 @@ void actSt18aDoorDownChk(volatile int a0)
     }
     _ACTWait(1);
 
-    door_mes[0].func = actSt18aDoorChk;
-    sub->mail = door_mes;
+    doorDownChk_mes[0].func = actSt18aDoorChk;
+    sub->mail = doorDownChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -473,7 +497,6 @@ extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern Act *actInitialize(int a0);
 extern void actSt18aIntroChk(volatile int a0);
-extern ActMail D_004FB070[];
 
 void actSt18aIntro(volatile int a0)
 {
@@ -483,8 +506,8 @@ void actSt18aIntro(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x37) == 0) {
-        D_004FB070[0].func = actSt18aIntroChk;
-        self->mail = D_004FB070;
+        intro_mes[0].func = actSt18aIntroChk;
+        self->mail = intro_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -496,8 +519,6 @@ extern Act *actInitialize(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void actSt18aDoorChk(volatile int a0);
 extern void actSt18aDoorDownChk(volatile int a0);
-extern ActMail D_004FB190[];
-extern ActMail D_004FB1B0[];
 
 void actSt18aDoor(volatile int a0)
 {
@@ -509,15 +530,15 @@ void actSt18aDoor(volatile int a0)
     if (gflagChk(0x3C) == 0) {
         stage_SetAnimation(0x7B, 0, 0);
 
-        D_004FB190[0].func = actSt18aDoorChk;
-        self->mail = D_004FB190;
+        door_mes[0].func = actSt18aDoorChk;
+        self->mail = door_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x7B, 0, -1);
 
-        D_004FB1B0[0].func = actSt18aDoorDownChk;
-        self->mail = D_004FB1B0;
+        doorDown_mes[0].func = actSt18aDoorDownChk;
+        self->mail = doorDown_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -529,8 +550,6 @@ extern Act *actInitialize(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void actSt18aSwitchLChk(volatile int a0);
 extern void actSt18aSwitchLUpChk(volatile int a0);
-extern ActMail D_004FB090[];
-extern ActMail D_004FB0B0[];
 
 void actSt18aSwitchL(volatile int a0)
 {
@@ -542,15 +561,15 @@ void actSt18aSwitchL(volatile int a0)
     if (gflagChk(0x3A) == 0) {
         stage_SetAnimation(0x79, 0, 0);
 
-        D_004FB090[0].func = actSt18aSwitchLChk;
-        self->mail = D_004FB090;
+        switchL_mes[0].func = actSt18aSwitchLChk;
+        self->mail = switchL_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x79, 0, 0x2D);
 
-        D_004FB0B0[0].func = actSt18aSwitchLUpChk;
-        self->mail = D_004FB0B0;
+        switchLUp_mes[0].func = actSt18aSwitchLUpChk;
+        self->mail = switchLUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -562,8 +581,6 @@ extern Act *actInitialize(int a0);
 extern void stage_SetAnimation(int a0, int a1, int a2);
 extern void actSt18aSwitchRChk(volatile int a0);
 extern void actSt18aSwitchRUpChk(volatile int a0);
-extern ActMail D_004FB110[];
-extern ActMail D_004FB130[];
 
 void actSt18aSwitchR(volatile int a0)
 {
@@ -575,15 +592,15 @@ void actSt18aSwitchR(volatile int a0)
     if (gflagChk(0x3B) == 0) {
         stage_SetAnimation(0x7A, 0, 0);
 
-        D_004FB110[0].func = actSt18aSwitchRChk;
-        self->mail = D_004FB110;
+        switchR_mes[0].func = actSt18aSwitchRChk;
+        self->mail = switchR_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(0x7A, 0, 0x2D);
 
-        D_004FB130[0].func = actSt18aSwitchRUpChk;
-        self->mail = D_004FB130;
+        switchRUp_mes[0].func = actSt18aSwitchRUpChk;
+        self->mail = switchRUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -593,7 +610,6 @@ extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern Act *actInitialize(int a0);
 extern void actSt18aEneChk(volatile int a0);
-extern ActMail D_004FB210[];
 
 void actSt18aEne(volatile int a0)
 {
@@ -603,8 +619,8 @@ void actSt18aEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x3D) == 0) {
-        D_004FB210[0].func = actSt18aEneChk;
-        self->mail = D_004FB210;
+        ene_mes[0].func = actSt18aEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -645,7 +661,6 @@ extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern Act *actInitialize(int a0);
 extern void actSt18aEne2Chk(volatile int a0);
-extern ActMail D_004FB230[];
 
 void actSt18aEne2(volatile int a0)
 {
@@ -655,8 +670,8 @@ void actSt18aEne2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x3F) == 0) {
-        D_004FB230[0].func = actSt18aEne2Chk;
-        self->mail = D_004FB230;
+        ene2_mes[0].func = actSt18aEne2Chk;
+        self->mail = ene2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }

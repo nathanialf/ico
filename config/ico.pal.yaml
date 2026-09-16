@@ -548,29 +548,21 @@ segments:
       - [0x3F8770, .data, ico2/script/src/st04a]  # syms: model_on,model_off  ModelOn/ModelOff mail records, the tail of st04a.o's .data run (VMA 0x4F8770..0x4F87B0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3F87B0, .data, ico2/script/src/st04b]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F87B0..0x4F8930, 384 B
       - [0x3F87F0, .data, ico2/script/src/st04c]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F87F0..0x4F8930, 320 B
-      - [0x3F8870, data, cod/3F8870]     # data blob resume
-      - [0x3F8930, .data, ico2/script/src/st04d]  # syms: door2_up_mes  actSt04dDoor2UpChk's mail record (VMA 0x4F8930..0x4F8950, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (its gcse bucket, computed from the name hash, is what wins the callee-saved pair)
-      - [0x3F8950, data, cod/3F8950]     # .data blob resume
+      - [0x3F8870, .data, ico2/script/src/st04d]  # the TU's whole .data run as source (data pass 2), VMA 0x4F8870..0x4F8970, 256 B: eight ActMail[2] records {{430}, {429}} in ROM order, owner-named
       - [0x3F8970, .data, ico2/script/src/st04e]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F8970..0x4F9C30, 4800 B
       - [0x3F8AA0, .data, ico2/script/src/st04l]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F8AA0..0x4F9C30, 4496 B
-      - [0x3F9160, data, cod/3F9160]     # data blob resume
+      - [0x3F9160, .data, ico2/script/src/st04r]  # the TU's whole .data run as source (data pass 2), VMA 0x4F9160..0x4F9720, 1472 B: 46 ActMail[2] records, three carrying their own id and handler
       - [0x3F9720, .data, ico2/script/src/st05b]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F9720..0x4F9C30, 1296 B
       - [0x3F9740, .data, ico2/script/src/st05c]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F9740..0x4F9C30, 1264 B
       - [0x3F97E0, .data, ico2/script/src/st05d]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F97E0..0x4F9C30, 1104 B
       - [0x3F98A0, .data, ico2/script/src/st05e]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F98A0..0x4F9C30, 912 B
-      - [0x3F9920, data, cod/3F9920]     # data blob resume
-      - [0x3F9C30, .data, ico2/script/src/st06a]  # syms: wall_way_off  WallWayOff mail record (VMA 0x4F9C30..0x4F9C50); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F9C50, data, cod/3F9C50]     # .data blob resume
-      - [0x3F9E10, .data, ico2/script/src/st06a]  # syms: piston_ride_on  PistonRideOn mail record (VMA 0x4F9E10..0x4F9E30); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F9E30, data, cod/3F9E30]     # .data blob resume
+      - [0x3F9920, .data, ico2/script/src/st06a]  # the TU's whole .data run as source (data pass 2), VMA 0x4F9920..0x4F9F20, 1536 B: 46 ActMail[2] records plus four 16-byte float sound positions
       - [0x3F9F20, .data, ico2/script/src/st07a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F9F20..0x4FA900, 2528 B
-      - [0x3FA020, data, cod/3FA020]     # data blob resume
+      - [0x3FA020, .data, ico2/script/src/st08a]  # the TU's whole .data run as source (data pass 2), VMA 0x4FA020..0x4FA1F0, 464 B: 14 ActMail[2] records plus door_up_sound_pos
       - [0x3FA1F0, .data, ico2/script/src/st08b]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FA1F0..0x4FA900, 1808 B
       - [0x3FA2F0, .data, ico2/script/src/st09a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FA2F0..0x4FA900, 1552 B
       - [0x3FA480, .data, ico2/script/src/st10l]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FA480..0x4FA900, 1152 B
-      - [0x3FA740, data, cod/3FA740]     # data blob resume
-      - [0x3FA900, .data, ico2/script/src/st10r]  # syms: fence_up2_mes  FenceUpChk2 mail record (VMA 0x4FA900..0x4FA920); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3FA920, data, cod/3FA920]     # .data blob resume
+      - [0x3FA740, .data, ico2/script/src/st10r]  # the TU's whole .data run as source (data pass 2), VMA 0x4FA740..0x4FA9A0, 608 B: 19 ActMail[2] records, chain_main_mes carrying id 408 and actSt10rChainSwitch
       - [0x3FA9A0, .data, ico2/script/src/st13a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FA9A0..0x4FAFB0, 1552 B
       - [0x3FAAE0, .data, ico2/script/src/st13b]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FAAE0..0x4FAFB0, 1232 B
       - [0x3FAD10, .data, ico2/script/src/st13c]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FAD10..0x4FAFB0, 672 B
@@ -578,11 +570,7 @@ segments:
       - [0x3FAFB0, .data, ico2/script/src/st17a]  # syms: door_mes  actSt17aDoor's mail record (VMA 0x4FAFB0..0x4FAFD0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling; the remaining st17a records stay in the blob until their owners land
       - [0x3FAFD0, data, cod/3FAFD0]     # .data blob resume
       - [0x3FB050, .data, ico2/script/src/st17b]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FB050..0x4FB0F0, 160 B
-      - [0x3FB070, data, cod/3FB070]     # data blob resume
-      - [0x3FB0F0, .data, ico2/script/src/st18a]  # syms: switch_l_mes  actSt18aSwitchLUpChk's mail record (VMA 0x4FB0F0..0x4FB110, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (the placeholder name lost a gcse-hash tie)
-      - [0x3FB110, data, cod/3FB110]     # .data blob resume
-      - [0x3FB1F0, .data, ico2/script/src/st18a]  # syms: door_mes  actSt18aDoorDownChk's mail record (VMA 0x4FB1F0..0x4FB210, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named
-      - [0x3FB210, data, cod/3FB210]     # .data blob resume
+      - [0x3FB070, .data, ico2/script/src/st18a]  # the TU's whole .data run as source (data pass 2), VMA 0x4FB070..0x4FB250, 480 B: 15 ActMail[2] records {{430}, {429}} in ROM order, owner-named
       - [0x3FB250, .data, ico2/script/src/st19a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FB250..0x4FB370, 288 B
       - [0x3FB370, .data, ico2/script/src/st20a]  # syms: bridgeMain_mes bridge_mes bridgeSwitch_mes gondolaMain_mes gondola_mes gondolaSwitchUp_mes gondolaSwitchDown_mes gondolaDown_mes gondolaUp_mes exit_mes ene_mes fence_mes fence2_mes fenceDownChk_mes fenceUpChk_mes fenceDownChk2_mes fenceUpChk2_mes girlPos_mes hint1_mes  the TU's whole .data run (VMA 0x4FB370..0x4FB5D0, nineteen ActMail[2] records of 0x20); ROM bytes: the first and fourth carry their own ids 0x196/0x197 with the switch handlers, the rest {{0x1AE},{0x1AD}}; role-named per the 2026-09-07 ruling, order fixed by the ROM run
       - [0x3FB5D0, data, cod/3FB5D0]     # .data blob resume
@@ -602,7 +590,7 @@ segments:
       # --- per-TU .rodata carves (PAL phase 2; see docs/carve_ledger.md).
       - [0x44DA80, .rodata, ico2/sugipon/src/quaternion]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54DA80..0x54DB10, 144 B
       - [0x44DB0C, rodata, cod/44DB0C]     # rodata blob resume
-      - [0x44DB10, .rodata, ico2/seki/src/DisplayP2O]  # carved D_0054DB10 (VMA 0x54DB10..0x54DB30, 32 B, 1 sym): "display object = %d" + ROM zero pad; TU fully matched, no asm stub to duplicate the dlabel
+      - [0x44DB10, .rodata, ico2/seki/src/DisplayP2O]  # syms: dispObjFormat  the member's one string, `static const char dispObjFormat[32]` = "display object = %d" (data pass 2), VMA 0x54DB10..0x54DB30, 32 B
       - [0x44DB30, .rodata, ico2/seki/src/FileManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54DB30..0x54E0B0, 1408 B
       - [0x44E0B0, .rodata, ico2/seki/src/GifPacket]  # carved D_0054E0B0 (VMA 0x54E0B0..0x54E170, 192 B, 1 sym): the 12 GS ALPHA blend quadruples gif_SetAlpha indexes; referenced only from matched C, so no stub emits it and the carve must define it
       - [0x44E170, rodata, cod/44E170]   # .rodata blob resume
@@ -623,6 +611,8 @@ segments:
       - [0x45146C, rodata, cod/45146C]   # .rodata blob resume (one zero pad word, then the rest of the run)
       - [0x451A60, .rodata, ico2/fumi/ios/message]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551A60..0x552080, 1568 B
       - [0x451AF0, rodata, cod/451AF0]     # rodata blob resume
+      - [0x451DB0, .rodata, ico2/fumi/ios/thread]  # the TU's whole .rodata run as source (data pass 2): seventeen string literals at their use sites, __FILE__ for "ios/thread.c", assert/malloc line arguments in decimal; VMA 0x551DB0..0x551F2E + 2 B link pad
+      - [0x451F30, .rodata, ico2/fumi/isys/gobj]  # the TU's whole .rodata run as source (data pass 2): __FILE__ plus the two isys messages; VMA 0x551F30..0x551F71 + 7 B link pad
       - [0x451F78, .rodata, ico2/fumi/isys/gobj_dl]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551F78..0x552080, 264 B
       - [0x451FF0, .rodata, ico2/fumi/isys/gobj_process]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551FF0..0x552080, 144 B
       - [0x452080, .rodata, ico2/fumi/isys/obj_manager]  # carved jtbl_00552080 (VMA 0x552080..0x552094, 5 arms, 20 B): iosOmExeMail's switch table, emitted by the compiled function
@@ -659,7 +649,8 @@ segments:
       - [0x455280, rodata, cod/455280]   # .rodata blob resume (the rest of chain.c's compiler-generated run, strings and per-function doubles still owned by asm siblings)
       - [0x455580, .rodata, ico2/omori/src/ebrain]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x555580..0x556890, 4880 B
       - [0x455628, .rodata, ico2/omori/src/fightSound]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x555628..0x556890, 4712 B
-      - [0x455640, rodata, cod/455640]     # rodata blob resume
+      - [0x455640, .rodata, ico2/omori/src/generator]  # the TU's whole .rodata run as source (data pass 2): five string literals in first-use order, __FILE__ and decimal line arguments; VMA 0x555640..0x5556A6 + 2 B link pad
+      - [0x4556A8, rodata, cod/4556A8]     # rodata blob resume (ico2/omori/src/lws_kyomi's __FILE__)
       - [0x4556B8, .rodata, ico2/omori/src/mail-add-data]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x5556B8..0x556890, 4568 B
       - [0x455710, rodata, cod/455710]     # rodata blob resume
       - [0x456890, .rodata, ico2/ito/src/itou_sub]  # plain-rodata: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template (12 B, 8-aligned), VMA 0x556890..0x55689C
@@ -739,6 +730,7 @@ segments:
       - [0x521338, rodata, cod/521338]     # rodata blob resume
       - [0x521388, .rodata, ico2/sugipon/src/waterDot]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621388..0x621680, 760 B
       - [0x5213A0, rodata, cod/5213A0]     # rodata blob resume
+      - [0x521520, .rodata, ico2/sugipon/src/worm]  # the TU's whole .rodata run as source (data pass 2): tipLineTo, the Color16 tipLineColor {0x80, 0x80, 0x80, 0x80}, then __FILE__; VMA 0x621520..0x62154B + 5 B link pad
       - [0x521550, .rodata, ico2/seki/src/Basic]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621550..0x621680, 304 B
       - [0x521580, rodata, cod/521580]     # rodata blob resume
       - [0x521680, .rodata, ico2/seki/src/BgAnimation]  # carved jtbl_00621680 (VMA 0x621680..0x6216B8, 56 B, 14 arms): bga_ApplyDObject's switch table, emitted by the compiled function
@@ -750,6 +742,7 @@ segments:
       - [0x521A00, rodata, cod/521A00]     # rodata blob resume
       - [0x521D40, .rodata, ico2/fumi/src/seMail]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621D40..0x6229B0, 3184 B
       - [0x521D58, rodata, cod/521D58]     # rodata blob resume
+      - [0x521EC0, .rodata, ico2/fumi/src/way_tool]  # the TU's whole .rodata run as source (data pass 2): 92 string literals, including the 64 way-group selector lines that gcc flushes LIFO out of debugWayGroupSelect's initialiser; VMA 0x621EC0..0x6224D9 + 7 B link pad
       - [0x5224E0, .rodata, ico2/script/src/deja]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6224E0..0x6229B0, 1232 B
       - [0x5224F0, rodata, cod/5224F0]     # rodata blob resume
       - [0x522600, .rodata, ico2/script/src/end]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622600..0x6229B0, 944 B
@@ -761,22 +754,22 @@ segments:
       - [0x5229B0, .rodata, ico2/script/src/st04a]  # carved jtbl_006229B0 (VMA 0x6229B0..0x6229D0, 32 B, 8 arms): actSt04aTorch1Chk's switch table, emitted by the compiled function
       - [0x5229D0, .rodata, ico2/script/src/st04b]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6229D0..0x622E00, 1072 B
       - [0x5229F0, .rodata, ico2/script/src/st04c]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6229F0..0x622E00, 1040 B
-      - [0x522A30, rodata, cod/522A30]     # rodata blob resume
+      - [0x522A30, .rodata, ico2/script/src/st04d]  # the TU's whole .rodata run as source (data pass 2): six 16-byte ConstVec templates as float literals; VMA 0x622A30..0x622A90, 96 B
       - [0x522A90, .rodata, ico2/script/src/st04e]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622A90..0x622E00, 880 B
       - [0x522AB0, .rodata, ico2/script/src/st04l]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622AB0..0x622E00, 848 B
-      - [0x522AC0, rodata, cod/522AC0]     # rodata blob resume
+      - [0x522AC0, .rodata, ico2/script/src/st04r]  # the TU's whole .rodata run as source (data pass 2): one ConstVec crestFacePos; VMA 0x622AC0..0x622AD0, 16 B
       - [0x522AD0, .rodata, ico2/script/src/st05b]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622AD0..0x622E00, 816 B
       - [0x522AF0, .rodata, ico2/script/src/st05c]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622AF0..0x622E00, 784 B
       - [0x522B30, .rodata, ico2/script/src/st05d]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622B30..0x622E00, 720 B
-      - [0x522B60, rodata, cod/522B60]     # rodata blob resume
+      - [0x522B60, .rodata, ico2/script/src/st06a]  # the TU's whole .rodata run as source (data pass 2): eight 16-byte vector templates then four debug strings, the order fixed by the deferred-`inline` tail; VMA 0x622B60..0x622C54 + 12 B link pad
       - [0x522C60, .rodata, ico2/script/src/st07a]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622C60..0x622E00, 416 B
-      - [0x522D30, rodata, cod/522D30]     # rodata blob resume
+      - [0x522D30, .rodata, ico2/script/src/st08a]  # the TU's whole .rodata run as source (data pass 2): the one debug string at its use site; VMA 0x622D30..0x622D4D + 3 B link pad
       - [0x522D50, .rodata, ico2/script/src/st08b]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622D50..0x622E00, 176 B
       - [0x522DA0, .rodata, ico2/script/src/st09a]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622DA0..0x622E00, 96 B
       - [0x522DE0, .rodata, ico2/script/src/st10l]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622DE0..0x622E00, 32 B
-      - [0x522DF0, rodata, cod/522DF0]     # rodata blob resume
+      - [0x522DF0, .rodata, ico2/script/src/st10r]  # the TU's whole .rodata run as source (data pass 2): one ConstVec girlWayPos; VMA 0x622DF0..0x622E00, 16 B
       - [0x522E00, .rodata, ico2/script/src/st13b]  # plain-rodata: actSt13bConte02's and actSt13bElev2Chk's doubles 0.15 (two constant-pool operands, 16 B), VMA 0x622E00..0x622E10
-      - [0x522E10, rodata, cod/522E10]   # .rodata blob resume
+      - [0x522E10, .rodata, ico2/script/src/st13c]  # the TU's whole .rodata run as source (data pass 2): "BackStageOff\n", two animation-id tables, the sleep face vector and nine cage-fall effect positions; VMA 0x622E10..0x622F20, 272 B, no pad
       - [0x522F20, .rodata, ico2/script/src/st13d]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622F20..0x623428, 1288 B
       - [0x522F60, rodata, cod/522F60]     # rodata blob resume
       - [0x523060, .rodata, ico2/script/src/st19a]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x623060..0x623428, 968 B
@@ -786,7 +779,8 @@ segments:
       - [0x5230B0, .rodata, ico2/script/src/st47a]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6230B0..0x623428, 888 B
       - [0x5230F0, rodata, cod/5230F0]     # rodata blob resume
       - [0x523150, .rodata, ico2/omori/src/access]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x623150..0x623428, 728 B
-      - [0x523160, rodata, cod/523160]     # rodata blob resume
+      - [0x523160, .rodata, ico2/ito/mpeg/mv_audiodec]  # the TU's whole .rodata run as source (data pass 2): mv_defs.h's alloc_zeroed literals (the TU now spells MV_DEFS_WANT_ALLOC + #include "mv_defs.h") then seven debug formats; VMA 0x623160..0x6233B7 + 1 B link pad
+      - [0x5233B8, rodata, cod/5233B8]   # .rodata blob resume (the other two mpeg TUs' copies of mv_defs.h's two literals)
       - [0x523418, .rodata, ico2/ito/mpeg/mv_sub]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x623418..0x623428, 16 B
       - [0x523428, .rodata, ico2/ito/mpeg/mv_vibuf]  # carved D_00623428 "../ito/include/mv_defs.h" + D_00623448 "p != NULL" (mv_defs.h alloc_zeroed's literals, 8-aligned), VMA 0x623428..0x623458, 48 B; the TU's own rodata run, mirror of mv_vobuf's
       - [0x523458, rodata, cod/523458]   # .rodata blob resume (viBufAddDMA's string)

@@ -15,7 +15,6 @@ typedef struct {
 } GVGeo2;
 
 extern int D_0063A438;
-extern char D_00555640[];
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 extern void _ApplyRyGV(void *a0, float a1);
 extern int InitMultiBgaManager(int a0);
@@ -37,11 +36,7 @@ extern void debug_StdPrintfDummy(char *fmt, ...);
 extern int fptodp(float f);
 extern void actEnemyRestart(char *gobj, float *pos, float *dir, int a3, char *mother);
 extern void ACTGame_SaveActorInformation(char *gobj);
-extern char D_00555650[];
-extern char D_00555670[];
 extern char D_0063AC08[];
-extern char D_00555688[];
-extern char D_00555698[];
 extern char D_00308924[];
 /* prototypes: their order is the inline tail's emission order */
 char *InitGeneratorGeo(char *gobj, char *src);
@@ -309,8 +304,8 @@ void endfunc_BGA(char *gobj)
     }
 
     default:
-        debug_assert(D_00555640, 504);
-        __assert(D_00555640, 504, D_0063AC00);
+        debug_assert(__FILE__, 504);
+        __assert(__FILE__, 504, D_0063AC00);
         break;
     }
 }
@@ -464,10 +459,10 @@ inline char *DirectCallEnemy(char *gobj, char *mother, float *pos, float *dir, i
 
     gg->f48 = (gg->f48 | 0x200000) & 0xFFFBFFFF;
 
-    debug_StdPrintfDummy(D_00555650, *(int *)(gobj + 8), mother,
+    debug_StdPrintfDummy("call enemy! = %d (%p : %d)\n", *(int *)(gobj + 8), mother,
                          (mother != 0) ? *(int *)(mother + 8) : -1);
-    debug_StdPrintfDummy(D_00555670, D_0063AC08, fptodp(pos[0]), fptodp(pos[1]), fptodp(pos[2]),
-                         fptodp(pos[3]));
+    debug_StdPrintfDummy("[%8s] %8f %8f %8f %8f\n", D_0063AC08, fptodp(pos[0]), fptodp(pos[1]),
+                         fptodp(pos[2]), fptodp(pos[3]));
     if (mother != 0) {
         SetMotherGenerator(*(int *)(gobj + 8), *(int *)(mother + 8));
     }
@@ -493,7 +488,7 @@ inline void LockEnemyGenerate(int *self)
 {
     int *p;
     p = (int *)self[0x164 / 4];
-    debug_StdPrintfDummy(D_00555688, self[0x8 / 4]);
+    debug_StdPrintfDummy("lock! = %d\n", self[0x8 / 4]);
     *(long long *)((char *)p + 0x18) = *(long long *)((char *)p + 0x18) | 0x400000000LL;
 }
 
@@ -501,7 +496,7 @@ inline void UnlockEnemyGenerate(void *a0)
 {
     void *p = *(void **)((char *)a0 + 0x164);
     GVGeo2 *g = &D_002C2DC8[*(int *)((char *)a0 + 0x8)];
-    debug_StdPrintfDummy(D_00555698, *(int *)((char *)a0 + 0x8));
+    debug_StdPrintfDummy("unlock! = %d\n", *(int *)((char *)a0 + 0x8));
     ((GVBits *)((char *)p + 0x18))->ll &= ~((unsigned long)0x8000 << 19);
     g->f48 = (g->f48 | 0x200000) & 0xFFFBFFFF;
 }
@@ -830,7 +825,7 @@ void generatorBeforeFunc(char *gobj)
 
 inline char *InitGeneratorGeo(char *gobj, char *src)
 {
-    char *p = iosMallocDebug(D_0063A438, 0x70, D_00555640, 1230);
+    char *p = iosMallocDebug(D_0063A438, 0x70, __FILE__, 1230);
     int i;
     int j;
 
@@ -1007,8 +1002,8 @@ void GeneratorGeo(char *gobj)
             break;
 
         default:
-            debug_assert(D_00555640, 1371);
-            __assert(D_00555640, 1371, D_0063AC00);
+            debug_assert(__FILE__, 1371);
+            __assert(__FILE__, 1371, D_0063AC00);
             break;
         }
 

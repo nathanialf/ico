@@ -11,6 +11,30 @@ struct GObj__p4 {
 
 extern char *D_006BF380[];
 
+/* Deferred-`inline` tail: ee-gcc 2.9 emits a plain-`inline` function's
+   out-of-line copy at the END of the object in PROTOTYPE order while its
+   string literals are emitted where it is DEFINED.  That is what puts the
+   __FILE__ string, first used by isysGObjAlloc, at the head of this TU's
+   .rodata run even though its code sits in the object's tail. */
+struct GObj__p4;
+
+inline void isysGObjAlloc(int n);
+inline void isysGObjRemove(char *g);
+inline void isysGObjKindTableAdd(char *g, int kind);
+inline void isysGObjKindTableRemove(char *g);
+inline void isysGObjMoveAfterGObj(char *self, char *other);
+inline void isysGObjMoveBeforeGObj(int self, int other);
+inline char *isysGObjAdd(char *owner, int a1, int a2);
+inline char *isysGObjAddHead(char *owner, int a1, int a2);
+inline void *isysGObjSearchFromObjLayoutID(int a0);
+inline void *isysGObjSearchFromObjKindID_begin(int kind);
+inline void *isysGObjSearchFromObjKindID_next(char *g);
+inline void *isysGObjSearchFromLabelTypeID(int a0);
+inline struct GObj__p4 *isysGObjGetExist_begin(void);
+inline struct GObj__p4 *isysGObjGetExist_next(struct GObj__p4 *start);
+inline void isysGObjActiveLink(int bit, int set);
+inline void isysGObjActiveDlLink(int a0, int a1);
+
 void isysGObjKindTableInit(void)
 {
     memset(D_006BF380, 0, 0x118);
@@ -36,6 +60,27 @@ void isysGObjInit(int n)
     isysGObjKindTableInit();
 }
 
+extern struct GObj__pn *D_0063C1A8;
+extern unsigned int D_0063C1AC;
+extern int D_0063A430;
+extern void *iosMallocDebug(int heap, int size, const char *file, int line);
+
+inline void isysGObjAlloc(int n)
+{
+    struct GObj__p4 *tbl;
+    unsigned int i;
+
+    D_0063C1A8 = iosMallocDebug(D_0063A430, n * sizeof(struct GObj__p4), __FILE__, 174);
+    D_0063C1AC = n;
+    tbl = (struct GObj__p4 *)D_0063C1A8;
+    for (i = 0; i < n; i++) {
+        tbl[i].unk0 = 0;
+        tbl[i].unk15C = 0;
+        tbl[i].unk8 = -1;
+        tbl[i].unk4 = -1;
+    }
+}
+
 typedef struct GLNode {
     char _p0[0x10];
     struct GLNode *next;
@@ -45,7 +90,6 @@ typedef struct GLNode {
     int key;
 } GLNode;
 
-extern char D_00551F40[];
 extern void debug_StdPrintfDummy(char *p);
 
 void cut_gobj_link(int a0)
@@ -53,7 +97,7 @@ void cut_gobj_link(int a0)
     GLNode *p = (GLNode *)a0;
 
     if (p == 0) {
-        debug_StdPrintfDummy(D_00551F40);
+        debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
 
@@ -78,7 +122,6 @@ void cut_gobj_link(int a0)
 
 extern struct GObj__pn *D_0063C1A8;
 extern unsigned int D_0063C1AC;
-extern char D_00551F30[];
 extern char D_0063A608[];
 
 /* INTERIM: the listing inlines isysGObjRemove here (its own lines 225-231 and,
@@ -98,8 +141,8 @@ static __inline__ void removeGObjEntry(char *g)
         } else if (p != 0) {
             while (*(char **)(p + 0x3C) != g) {
                 if (p == 0) {
-                    debug_assert(D_00551F30, 0x92);
-                    __assert(D_00551F30, 0x92, D_0063A608);
+                    debug_assert(__FILE__, 0x92);
+                    __assert(__FILE__, 0x92, D_0063A608);
                 }
                 p = *(char **)(p + 0x3C);
             }
@@ -238,7 +281,6 @@ void isysGObjMoveHead(int a0, int a1, int a2)
 
 extern struct GObj__pn *D_0063C1A8;
 extern unsigned int D_0063C1AC;
-extern char D_00551F50[];
 extern void debug_StdPrintfDummy(char *p);
 
 /* static helper the listing places at gobj.c lines 360-369; never emitted out
@@ -268,7 +310,7 @@ static __inline__ char *allocGObjEntry(void)
         }
     }
     if (i == D_0063C1AC) {
-        debug_StdPrintfDummy(D_00551F50);
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
     g = (char *)(i * 0x174 + (int)D_0063C1A8);
@@ -277,18 +319,16 @@ static __inline__ char *allocGObjEntry(void)
     return g;
 }
 
-extern char D_00551F40[];
-
 char *isysGObjAddAfterGObj(char *owner, char *other)
 {
     char *g = allocGObjEntry();
 
     if (g == 0) {
-        debug_StdPrintfDummy(D_00551F50);
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
     if (other == 0) {
-        debug_StdPrintfDummy(D_00551F40);
+        debug_StdPrintfDummy("isys:null GObj\n");
         return 0;
     }
     *(int *)g = (int)g;
@@ -303,8 +343,6 @@ char *isysGObjAddAfterGObj(char *owner, char *other)
     return g;
 }
 
-extern char D_00551F40[];
-
 char *isysGObjAddBeforeGObj(char *owner, char *other)
 {
     unsigned char t;
@@ -312,11 +350,11 @@ char *isysGObjAddBeforeGObj(char *owner, char *other)
     char *g = allocGObjEntry();
 
     if (g == 0) {
-        debug_StdPrintfDummy(D_00551F50);
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
     if (other == 0) {
-        debug_StdPrintfDummy(D_00551F40);
+        debug_StdPrintfDummy("isys:null GObj\n");
         return 0;
     }
     *(int *)g = (int)g;
@@ -352,31 +390,10 @@ int isysGetNbAllocedGObjs(void)
     return result;
 }
 
-extern int D_0063A430;
-extern char D_00551F30[];
-extern void *iosMallocDebug(int heap, int size, const char *file, int line);
-
-void isysGObjAlloc(int n)
-{
-    struct GObj__p4 *tbl;
-    unsigned int i;
-
-    D_0063C1A8 = iosMallocDebug(D_0063A430, n * sizeof(struct GObj__p4), D_00551F30, 174);
-    D_0063C1AC = n;
-    tbl = (struct GObj__p4 *)D_0063C1A8;
-    for (i = 0; i < n; i++) {
-        tbl[i].unk0 = 0;
-        tbl[i].unk15C = 0;
-        tbl[i].unk8 = -1;
-        tbl[i].unk4 = -1;
-    }
-}
-
 extern char *D_006BF380[];
-extern char D_00551F30[];
 extern char D_0063A608[];
 
-void isysGObjRemove(char *g)
+inline void isysGObjRemove(char *g)
 {
     int kind = *(int *)(g + 0xC);
     char *proc = *(char **)(g + 0x2C);
@@ -388,8 +405,8 @@ void isysGObjRemove(char *g)
         } else if (p != 0) {
             while (*(char **)(p + 0x3C) != g) {
                 if (p == 0) {
-                    debug_assert(D_00551F30, 0x92);
-                    __assert(D_00551F30, 0x92, D_0063A608);
+                    debug_assert(__FILE__, 0x92);
+                    __assert(__FILE__, 0x92, D_0063A608);
                 }
                 p = *(char **)(p + 0x3C);
             }
@@ -409,7 +426,7 @@ extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(char *g);
 extern void isysGObjKindTableRemove(char *g);
 
-void isysGObjKindTableAdd(char *g, int kind)
+inline void isysGObjKindTableAdd(char *g, int kind)
 {
     char *p;
 
@@ -440,10 +457,9 @@ void isysGObjKindTableAdd(char *g, int kind)
 }
 
 extern char *D_006BF380[];
-extern char D_00551F30[];
 extern char D_0063A608[];
 
-void isysGObjKindTableRemove(char *g)
+inline void isysGObjKindTableRemove(char *g)
 {
     int kind = *(int *)(g + 0xC);
     char *p;
@@ -457,8 +473,8 @@ void isysGObjKindTableRemove(char *g)
             return;
         while (*(char **)(p + 0x3C) != g) {
             if (p == 0) {
-                debug_assert(D_00551F30, 0x92);
-                __assert(D_00551F30, 0x92, D_0063A608);
+                debug_assert(__FILE__, 0x92);
+                __assert(__FILE__, 0x92, D_0063A608);
             }
             p = *(char **)(p + 0x3C);
         }
@@ -468,7 +484,7 @@ void isysGObjKindTableRemove(char *g)
 
 extern void cut_gobj_link(int a0);
 
-void isysGObjMoveAfterGObj(char *self, char *other)
+inline void isysGObjMoveAfterGObj(char *self, char *other)
 {
     cut_gobj_link((int)self);
     *(unsigned char *)(self + 0x18) = *(unsigned char *)(other + 0x18);
@@ -484,7 +500,7 @@ void isysGObjMoveAfterGObj(char *self, char *other)
 extern char D_0029C4F0[];
 extern void cut_gobj_link(int a0);
 
-void isysGObjMoveBeforeGObj(int self, int other)
+inline void isysGObjMoveBeforeGObj(int self, int other)
 {
     unsigned char t;
     int u;
@@ -501,14 +517,14 @@ void isysGObjMoveBeforeGObj(int self, int other)
     }
 }
 
-char *isysGObjAdd(char *owner, int a1, int a2)
+inline char *isysGObjAdd(char *owner, int a1, int a2)
 {
     int kind = a1 & 0xFF;
     int prio = a2;
     char *g = allocGObjEntry();
 
     if (g == 0) {
-        debug_StdPrintfDummy(D_00551F50);
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
     *(char **)(g + 0x28) = owner;
@@ -524,14 +540,14 @@ char *isysGObjAdd(char *owner, int a1, int a2)
     return g;
 }
 
-char *isysGObjAddHead(char *owner, int a1, int a2)
+inline char *isysGObjAddHead(char *owner, int a1, int a2)
 {
     int kind = a1 & 0xFF;
     int prio = a2;
     char *g = allocGObjEntry();
 
     if (g == 0) {
-        debug_StdPrintfDummy(D_00551F50);
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
     *(char **)(g + 0x28) = owner;
@@ -546,7 +562,7 @@ char *isysGObjAddHead(char *owner, int a1, int a2)
     return g;
 }
 
-void *isysGObjSearchFromObjLayoutID(int a0)
+inline void *isysGObjSearchFromObjLayoutID(int a0)
 {
     unsigned int i;
     for (i = 0; i < D_0063C1AC; i++) {
@@ -571,7 +587,7 @@ static __inline__ void *searchGObjOfObjKind(char *p, int kind)
     return 0;
 }
 
-void *isysGObjSearchFromObjKindID_begin(int kind)
+inline void *isysGObjSearchFromObjKindID_begin(int kind)
 {
     if (D_0063A600 != 0) {
         return searchGObjOfObjKind((char *)D_0063C1A8 - 0x174, kind);
@@ -582,7 +598,7 @@ void *isysGObjSearchFromObjKindID_begin(int kind)
     return 0;
 }
 
-void *isysGObjSearchFromObjKindID_next(char *g)
+inline void *isysGObjSearchFromObjKindID_next(char *g)
 {
     if (D_0063A600 != 0) {
         return searchGObjOfObjKind(g, *(int *)(g + 0xC));
@@ -590,7 +606,7 @@ void *isysGObjSearchFromObjKindID_next(char *g)
     return *(char **)(g + 0x3C);
 }
 
-void *isysGObjSearchFromLabelTypeID(int a0)
+inline void *isysGObjSearchFromLabelTypeID(int a0)
 {
     unsigned int i;
     for (i = 0; i < D_0063C1AC; i++) {
@@ -601,7 +617,7 @@ void *isysGObjSearchFromLabelTypeID(int a0)
     return 0;
 }
 
-struct GObj__p4 *isysGObjGetExist_begin(void)
+inline struct GObj__p4 *isysGObjGetExist_begin(void)
 {
     struct GObj__p4 *start = (struct GObj__p4 *)D_0063C1A8 - 1;
     struct GObj__p4 *end = (struct GObj__p4 *)((char *)D_0063C1A8 + (D_0063C1AC * 0x174 - 0x174));
@@ -614,7 +630,7 @@ struct GObj__p4 *isysGObjGetExist_begin(void)
     return 0;
 }
 
-struct GObj__p4 *isysGObjGetExist_next(struct GObj__p4 *start)
+inline struct GObj__p4 *isysGObjGetExist_next(struct GObj__p4 *start)
 {
     struct GObj__p4 *end = (struct GObj__p4 *)((char *)D_0063C1A8 + (D_0063C1AC * 0x174 - 0x174));
     while (start != end) {
@@ -628,7 +644,7 @@ struct GObj__p4 *isysGObjGetExist_next(struct GObj__p4 *start)
 
 extern int D_0063A60C;
 
-void isysGObjActiveLink(int bit, int set)
+inline void isysGObjActiveLink(int bit, int set)
 {
     if (set != 0)
         goto set_path;
@@ -640,7 +656,7 @@ set_path:
 
 extern unsigned int D_0063A610;
 
-void isysGObjActiveDlLink(int a0, int a1)
+inline void isysGObjActiveDlLink(int a0, int a1)
 {
     if (a1 == 0) {
         D_0063A610 &= ~(1 << a0);

@@ -26,7 +26,6 @@ extern void iosFree(int p);
 extern void *InitChains(char *a0);
 extern void *D_0063A438;
 extern void *D_0063A44C;
-extern char D_00621540[];
 extern int D_0063BC80;
 
 typedef union {
@@ -61,8 +60,18 @@ typedef union {
     long long d[2];
 } Vec16;
 
-extern const Vec16 D_00621520;
-extern const Vec16 D_00621530;
+/* A 16-byte GS colour: four 8-bit RGBA components, one per word, handed to
+   DrawLine through the float view the call expects. */
+typedef union {
+    int rgba[4];
+    float f[4];
+    long long d[2];
+} Color16;
+
+/* The worm tip highlight: the line's far endpoint and its colour. */
+static const Vec16 tipLineTo = {{0.0f, 10.0f, 0.0f, 1.0f}};
+
+static const Color16 tipLineColor = {{0x80, 0x80, 0x80, 0x80}};
 
 typedef struct {
     float x, y, z, w;
@@ -274,13 +283,13 @@ void disp(void *act)
             if (j == num - 1) {
                 float col[4];
                 Vec16 c1;
-                Vec16 c2;
+                Color16 c2;
 
                 gif_StartPacketPri(2);
                 memset(col, 0, 16);
                 col[3] = 1.0f;
-                c1 = D_00621520;
-                c2 = D_00621530;
+                c1 = tipLineTo;
+                c2 = tipLineColor;
                 MatrixDrive_TransMatrix(0.0f, len[num - 2] * 0.02f, 0.0f);
                 for (k = 0; k <= 0xFFFF; k += 0x4000) {
                     MatrixDrive_PushMatrix();
@@ -408,8 +417,8 @@ void *InitWormGeo(int act, WormInit *ini)
     int num;
     int i;
 
-    w = (WormWork *)iosMallocDebug(D_0063A438, 16, D_00621540, 328);
-    seg = (WormSeg *)iosMallocDebug(D_0063A438, 880, D_00621540, 329);
+    w = (WormWork *)iosMallocDebug(D_0063A438, 16, __FILE__, 328);
+    seg = (WormSeg *)iosMallocDebug(D_0063A438, 880, __FILE__, 329);
 
     nseg = (int)ini->nseg;
     if (nseg == 0) {
@@ -420,7 +429,7 @@ void *InitWormGeo(int act, WormInit *ini)
         num = 20;
     }
 
-    w->src = (WormVec **)iosMallocDebug(D_0063A438, nseg * 4, D_00621540, 334);
+    w->src = (WormVec **)iosMallocDebug(D_0063A438, nseg * 4, __FILE__, 334);
 
     for (i = 0; i < nseg; i++) {
         WormVec pos = {ini->pos[0] + (_GetRandom() * 2.0f - 1.0f) * 50.0f,
@@ -433,7 +442,7 @@ void *InitWormGeo(int act, WormInit *ini)
         seg[i].pm.rate = (int)ini->rate != 0 ? ini->rate : 20.0f;
         seg[i].pm.f30 = 10.0f;
 
-        w->src[i] = (WormVec *)iosMallocDebug(D_0063A438, 160, D_00621540, 350);
+        w->src[i] = (WormVec *)iosMallocDebug(D_0063A438, 160, __FILE__, 350);
     }
 
     seg[nseg].num = -1;
@@ -457,13 +466,13 @@ void *InitWormGeo(int act, WormInit *ini)
     }
     *(int *)(d + 0xC) = 0;
     *(int *)(d + 0x10) = 0;
-    *(int *)(d + 0xC) = (int)iosMallocDebug(D_0063A44C, num * 0x40, D_00621540, 367);
-    *(int *)(d + 0x10) = (int)iosMallocDebug(D_0063A44C, num * 0x10, D_00621540, 367);
+    *(int *)(d + 0xC) = (int)iosMallocDebug(D_0063A44C, num * 0x40, __FILE__, 367);
+    *(int *)(d + 0x10) = (int)iosMallocDebug(D_0063A44C, num * 0x10, __FILE__, 367);
     *(int *)(d + 0x8) = num;
     if (*(int *)(d + 0x870) != 0) {
         iosFree(*(int *)(d + 0x870) & 0xFFFFFFF);
     }
-    *(int *)(d + 0x870) = (int)iosMallocDebug(D_0063A44C, num * 0x50, D_00621540, 367);
+    *(int *)(d + 0x870) = (int)iosMallocDebug(D_0063A44C, num * 0x50, __FILE__, 367);
     {
         int n;
 

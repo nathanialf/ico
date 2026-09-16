@@ -9,9 +9,6 @@ typedef struct {
 static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 extern WayRec D_004F1EC0[];
-extern char D_00621EC0[];
-extern char D_00621ED0[];
-extern char D_00621EE0[];
 extern int D_00639EA4;
 extern int D_0063B13C;
 extern int D_0063BD78;
@@ -27,13 +24,20 @@ extern int DeleteWayGroup(int g);
 extern void debug_Printf();
 extern void debug_StdPrintfDummy(char *fmt, ...);
 extern void *isysGObjSearchFromObjKindID_begin(int id);
+/* Deferred-`inline` tail members: a plain `inline` function's out-of-line copy
+   is emitted at the END of the object in PROTOTYPE order, while its string
+   literals are emitted where it is DEFINED. */
+inline int play_way(void);
+inline int point_nige(void);
+inline int quick_save_wpfile(void);
+inline void cursor_control(volatile int a0);
 
 int group_create(void)
 {
     int f;
 
     if (D_0063B13C & 1) {
-        debug_Printf(0x12, 0x36, 0xFF000000, D_00621EC0);
+        debug_Printf(0x12, 0x36, 0xFF000000, "group + create");
     }
     if (D_0063BD84 == 0) {
         int g = CreateWayGroup();
@@ -41,7 +45,7 @@ int group_create(void)
         D_0063BD84 = 1;
         D_0063BD78 = g;
         D_0063C4CC = &D_004F1EC0[g];
-        debug_StdPrintfDummy(D_00621ED0, isysGObjSearchFromObjKindID_begin(0), D_00639EA4);
+        debug_StdPrintfDummy("search:%p %p\n", isysGObjSearchFromObjKindID_begin(0), D_00639EA4);
         return 0;
     }
     if (D_0063BD84 != 1) {
@@ -55,7 +59,7 @@ int group_create(void)
         int p = CreateWayPoint(wayWorkPos);
 
         AddWayPoint(D_0063BD78, p);
-        debug_StdPrintfDummy(D_00621EE0, p);
+        debug_StdPrintfDummy("create waypoint %d\n", p);
         return 0;
     }
     if (f & 0x40) {
@@ -84,89 +88,23 @@ typedef struct {
    a 2001 string literal per line (" 0 ( -)  " .. "63 ( -)  ") that
    relabel_way_groups rewrites in place; until the TU's .rodata run is carved
    the literals are reached as the externs the blob defines. */
-extern char D_006222E8[];
-extern char D_006222D8[];
-extern char D_006222C8[];
-extern char D_006222B8[];
-extern char D_006222A8[];
-extern char D_00622298[];
-extern char D_00622288[];
-extern char D_00622278[];
-extern char D_00622268[];
-extern char D_00622258[];
-extern char D_00622248[];
-extern char D_00622238[];
-extern char D_00622228[];
-extern char D_00622218[];
-extern char D_00622208[];
-extern char D_006221F8[];
-extern char D_006221E8[];
-extern char D_006221D8[];
-extern char D_006221C8[];
-extern char D_006221B8[];
-extern char D_006221A8[];
-extern char D_00622198[];
-extern char D_00622188[];
-extern char D_00622178[];
-extern char D_00622168[];
-extern char D_00622158[];
-extern char D_00622148[];
-extern char D_00622138[];
-extern char D_00622128[];
-extern char D_00622118[];
-extern char D_00622108[];
-extern char D_006220F8[];
-extern char D_006220E8[];
-extern char D_006220D8[];
-extern char D_006220C8[];
-extern char D_006220B8[];
-extern char D_006220A8[];
-extern char D_00622098[];
-extern char D_00622088[];
-extern char D_00622078[];
-extern char D_00622068[];
-extern char D_00622058[];
-extern char D_00622048[];
-extern char D_00622038[];
-extern char D_00622028[];
-extern char D_00622018[];
-extern char D_00622008[];
-extern char D_00621FF8[];
-extern char D_00621FE8[];
-extern char D_00621FD8[];
-extern char D_00621FC8[];
-extern char D_00621FB8[];
-extern char D_00621FA8[];
-extern char D_00621F98[];
-extern char D_00621F88[];
-extern char D_00621F78[];
-extern char D_00621F68[];
-extern char D_00621F58[];
-extern char D_00621F48[];
-extern char D_00621F38[];
-extern char D_00621F28[];
-extern char D_00621F18[];
-extern char D_00621F08[];
-extern char D_00621EF8[];
 
 WayMenuLine debugWayGroupSelect[64] = {
-    {D_006222E8, 0}, {D_006222D8, 0}, {D_006222C8, 0}, {D_006222B8, 0}, {D_006222A8, 0},
-    {D_00622298, 0}, {D_00622288, 0}, {D_00622278, 0}, {D_00622268, 0}, {D_00622258, 0},
-    {D_00622248, 0}, {D_00622238, 0}, {D_00622228, 0}, {D_00622218, 0}, {D_00622208, 0},
-    {D_006221F8, 0}, {D_006221E8, 0}, {D_006221D8, 0}, {D_006221C8, 0}, {D_006221B8, 0},
-    {D_006221A8, 0}, {D_00622198, 0}, {D_00622188, 0}, {D_00622178, 0}, {D_00622168, 0},
-    {D_00622158, 0}, {D_00622148, 0}, {D_00622138, 0}, {D_00622128, 0}, {D_00622118, 0},
-    {D_00622108, 0}, {D_006220F8, 0}, {D_006220E8, 0}, {D_006220D8, 0}, {D_006220C8, 0},
-    {D_006220B8, 0}, {D_006220A8, 0}, {D_00622098, 0}, {D_00622088, 0}, {D_00622078, 0},
-    {D_00622068, 0}, {D_00622058, 0}, {D_00622048, 0}, {D_00622038, 0}, {D_00622028, 0},
-    {D_00622018, 0}, {D_00622008, 0}, {D_00621FF8, 0}, {D_00621FE8, 0}, {D_00621FD8, 0},
-    {D_00621FC8, 0}, {D_00621FB8, 0}, {D_00621FA8, 0}, {D_00621F98, 0}, {D_00621F88, 0},
-    {D_00621F78, 0}, {D_00621F68, 0}, {D_00621F58, 0}, {D_00621F48, 0}, {D_00621F38, 0},
-    {D_00621F28, 0}, {D_00621F18, 0}, {D_00621F08, 0}, {D_00621EF8, 0}};
+    {" 0 ( -)  ", 0}, {" 1 ( -)  ", 0}, {" 2 ( -)  ", 0}, {" 3 ( -)  ", 0}, {" 4 ( -)  ", 0},
+    {" 5 ( -)  ", 0}, {" 6 ( -)  ", 0}, {" 7 ( -)  ", 0}, {" 8 ( -)  ", 0}, {" 9 ( -)  ", 0},
+    {"10 ( -)  ", 0}, {"11 ( -)  ", 0}, {"12 ( -)  ", 0}, {"13 ( -)  ", 0}, {"14 ( -)  ", 0},
+    {"15 ( -)  ", 0}, {"16 ( -)  ", 0}, {"17 ( -)  ", 0}, {"18 ( -)  ", 0}, {"19 ( -)  ", 0},
+    {"20 ( -)  ", 0}, {"21 ( -)  ", 0}, {"22 ( -)  ", 0}, {"23 ( -)  ", 0}, {"24 ( -)  ", 0},
+    {"25 ( -)  ", 0}, {"26 ( -)  ", 0}, {"27 ( -)  ", 0}, {"28 ( -)  ", 0}, {"29 ( -)  ", 0},
+    {"30 ( -)  ", 0}, {"31 ( -)  ", 0}, {"32 ( -)  ", 0}, {"33 ( -)  ", 0}, {"34 ( -)  ", 0},
+    {"35 ( -)  ", 0}, {"36 ( -)  ", 0}, {"37 ( -)  ", 0}, {"38 ( -)  ", 0}, {"39 ( -)  ", 0},
+    {"40 ( -)  ", 0}, {"41 ( -)  ", 0}, {"42 ( -)  ", 0}, {"43 ( -)  ", 0}, {"44 ( -)  ", 0},
+    {"45 ( -)  ", 0}, {"46 ( -)  ", 0}, {"47 ( -)  ", 0}, {"48 ( -)  ", 0}, {"49 ( -)  ", 0},
+    {"50 ( -)  ", 0}, {"51 ( -)  ", 0}, {"52 ( -)  ", 0}, {"53 ( -)  ", 0}, {"54 ( -)  ", 0},
+    {"55 ( -)  ", 0}, {"56 ( -)  ", 0}, {"57 ( -)  ", 0}, {"58 ( -)  ", 0}, {"59 ( -)  ", 0},
+    {"60 ( -)  ", 0}, {"61 ( -)  ", 0}, {"62 ( -)  ", 0}, {"63 ( -)  ", 0}};
 
 extern WayRec D_004F1EC0[];
-extern char D_006222F8[];
-extern char D_00622308[];
 extern char D_0063BD90[];
 extern int D_00729B7C[];
 extern int D_0063BD74;
@@ -189,7 +127,7 @@ static inline void relabel_way_groups(void)
 
     for (i = 0; i < 94; i++) {
         if (D_004F1EC0[i].w[0] == 1) {
-            sprintf(debugWayGroupSelect[n].s, D_006222F8, n, D_004F1EC0[i].w[4]);
+            sprintf(debugWayGroupSelect[n].s, "% 2d (% 2d) ", n, D_004F1EC0[i].w[4]);
             if (D_004F1EC0[i].w[6] == 1) {
                 strcat(debugWayGroupSelect[n].s, D_0063BD90);
             }
@@ -230,7 +168,7 @@ static int group_select(void)
             D_004F1EC0[D_0063BD78].w[6] = 0;
             relabel_way_groups();
         }
-        r = debug_SelectCsvWindow(D_00622308, 0x12, 0x36, 0xB, debugWayGroupSelect, 8, 0, 1,
+        r = debug_SelectCsvWindow("group + select", 0x12, 0x36, 0xB, debugWayGroupSelect, 8, 0, 1,
                                   D_0063BD74, &D_0063C4D0);
         switch (r) {
         case 0:
@@ -252,8 +190,6 @@ static int group_select(void)
 }
 
 extern WayRec D_004F1EC0[];
-extern char D_00622318[];
-extern char D_00622328[];
 extern int D_0063B13C;
 extern int D_0063BD78;
 extern int D_0063BD80;
@@ -271,7 +207,7 @@ int point_delete(void)
     int f;
 
     if (D_0063B13C & 1) {
-        debug_Printf(0x12, 0x36, 0xFF000000, D_00622318);
+        debug_Printf(0x12, 0x36, 0xFF000000, "point + delete\n");
         if (D_0063B13C & 1) {
             debug_Printf(0x1A, 0x42, 0xFF808000, D_0063BD88, entry->w[4]);
         }
@@ -292,7 +228,7 @@ int point_delete(void)
                 if (entry->w[4] == 0) {
                     DeleteWayGroup(D_0063BD78);
                 }
-                debug_StdPrintfDummy(D_00622328, D_0063BD80);
+                debug_StdPrintfDummy("delete waypoint %d\n", D_0063BD80);
                 return 0;
             }
         }
@@ -304,8 +240,6 @@ int point_delete(void)
 
 extern int CreateWayPoint(void *a0);
 extern WayRec D_004F1EC0[];
-extern char D_00622340[];
-extern char D_00622350[];
 extern int D_0063B13C;
 extern int D_0063BD78;
 extern char D_0063BD88[];
@@ -322,7 +256,7 @@ int point_insert(void)
     int f;
 
     if (D_0063B13C & 1) {
-        debug_Printf(0x12, 0x36, 0xFF000000, D_00622340);
+        debug_Printf(0x12, 0x36, 0xFF000000, "point + insert\n");
         if (D_0063B13C & 1) {
             debug_Printf(0x1A, 0x42, 0xFF808000, D_0063BD88, entry->w[4]);
         }
@@ -345,14 +279,117 @@ int point_insert(void)
             int n = CreateWayPoint(wayWorkPos);
             InsertWayPointAfter(D_0063BD78, *(int *)((char *)res + 4), n);
             entry->w[4] = entry->w[4] + 1;
-            debug_StdPrintfDummy(D_00622350, n);
+            debug_StdPrintfDummy("insert waypoint %d\n", n);
         }
     }
     return 0;
 }
 
+extern char D_0063BDA0[];
+extern int D_0063BD9C;
+extern void *isysGObjSearchFromObjKindID_begin(int id);
+extern void *isysGObjSearchFromObjKindID_next(void *o);
+
+inline int play_way(void)
+{
+    char *g;
+    int f;
+
+    if (D_0063B13C & 1) {
+        debug_Printf(0x12, 0x36, 0xFF000000, D_0063BDA0);
+    }
+    f = D_00729B7C[0];
+    if (f & 0x20) {
+        g = isysGObjSearchFromObjKindID_begin(2);
+        switch (D_0063BD9C) {
+        case 0:
+            while (g != 0) {
+                *(int *)(*(char **)(g + 0x164) + 0x350) = 1;
+                g = isysGObjSearchFromObjKindID_next(g);
+            }
+            break;
+        case 1:
+            while (g != 0) {
+                *(int *)(*(char **)(g + 0x164) + 0x350) = 0;
+                g = isysGObjSearchFromObjKindID_next(g);
+            }
+            break;
+        }
+        D_0063BD9C ^= 1;
+    } else if (f & 0x40) {
+        return -1;
+    }
+    return 0;
+}
+
+extern int D_0063BD80;
+extern void debug_Printf(int x, int y, int col, void *fmt);
+extern char *waypoint_with_range(int *, float);
+
+inline int point_nige(void)
+{
+    int *p;
+    int v;
+
+    if (D_0063B13C & 1) {
+        unsigned int color = 0xFF000000;
+        debug_Printf(0x12, 0x36, color, "point + nige\n");
+    }
+    v = D_00729B7C[0];
+    if (v & 0x20) {
+        p = (int *)waypoint_with_range((int *)wayWorkPos, 60.0f);
+        if (p == 0) {
+            return 0;
+        }
+        D_0063BD80 = p[1];
+        if (p[1] >= 0) {
+            p[10] ^= 1;
+        }
+    } else if (v & 0x40) {
+        return -1;
+    }
+    return 0;
+}
+
 extern int load_save_flag;
-extern char D_00622390[];
+extern char D_0063BDA8[];
+extern char D_0063BDB0[];
+extern unsigned char D_00729BF0[];
+extern int debugSceClose(int a0);
+extern int debugSceOpen(void *a0, int a1);
+extern void debug_StdPrintfDummy(char *fmt, ...);
+extern void sceWrite(int a0, void *a1, int a2);
+extern int sprintf();
+
+inline int quick_save_wpfile(void)
+{
+    char buf[0x70];
+    int s0;
+    int i;
+    unsigned char *p;
+    load_save_flag = 1;
+    sprintf(buf, D_0063BDA8);
+    s0 = debugSceOpen(buf, 0x202);
+    if (s0 < 0) {
+        debug_StdPrintfDummy("cannot save wp file");
+        load_save_flag = 0;
+        return 0;
+    }
+    i = 0xF;
+    p = &D_00729BF0[i];
+    do {
+        *p = i;
+        p--;
+        i--;
+    } while (i >= 0);
+    sceWrite(s0, D_00729BF0, 0x10);
+    debugSceClose(s0);
+    debug_StdPrintfDummy(D_0063BDB0);
+    load_save_flag = 0;
+    return 1;
+}
+
+extern int load_save_flag;
 extern char D_0063BDA8[];
 extern char D_0063BDB8[];
 extern char D_0063BDC0[];
@@ -377,7 +414,7 @@ int quick_load_wpfile(void)
     sprintf(buf, D_0063BDA8);
     s0 = debugSceOpen(buf, 1);
     if (s0 < 0) {
-        debug_StdPrintfDummy(D_00622390);
+        debug_StdPrintfDummy("cannot load wp file\n");
         load_save_flag = 0;
         return 0;
     }
@@ -534,13 +571,6 @@ typedef struct {
 
 extern WpName D_0063BDD0[];
 extern char D_0063BDD8[];
-extern char D_006223A8[];
-extern char D_006223C0[];
-extern char D_006223D0[];
-extern char D_00622400[];
-extern char D_00622410[];
-extern char D_00622428[];
-extern char D_00622440[];
 extern int load_save_flag;
 extern int debugSceOpen(void *a0, int a1);
 extern int debugSceClose(int a0);
@@ -567,31 +597,32 @@ int wp_print_out(void)
     sprintf(fname, D_0063BDD8, name.s);
     fd = debugSceOpen(fname, 0x602);
     if (fd < 0) {
-        debug_StdPrintfDummy(D_006223A8);
+        debug_StdPrintfDummy("cannot open file");
         load_save_flag = 0;
         return 0;
     }
-    sprintf(line, D_006223C0, name.s);
+    sprintf(line, "equn\t\t%s_start\n", name.s);
     sceWrite(fd, line, strlen(line));
     for (n = 0, g = WayGroup_begin(); g != 0; g = WayGroup_next(g)) {
         if (g->w[7] != 1) {
-            sprintf(line, D_006223D0, n, n, name.s, n, name.s, n, g->w[5], g->w[6], -1, -1);
+            sprintf(line, "\t%d\t%d\t%s_%d_start\t%s_%d_end\t%d\t%d\t%d\t%d\n", n, n, name.s, n,
+                    name.s, n, g->w[5], g->w[6], -1, -1);
             sceWrite(fd, line, strlen(line));
             n++;
         }
     }
-    sprintf(line, D_00622400, name.s);
+    sprintf(line, "equn\t\t%s_end\n", name.s);
     sceWrite(fd, line, strlen(line));
     for (n = 0, g = WayGroup_begin(); g != 0; g = WayGroup_next(g)) {
         if (g->w[7] != 1) {
-            sprintf(line, D_00622410, name.s, n);
+            sprintf(line, "equn\t%s_%d_start\n", name.s, n);
             sceWrite(fd, line, strlen(line));
             for (p = WayPointList_begin(g->w[1]); p != 0; p = WayPointList_next(p)) {
-                sprintf(line, D_00622428, (int)-p->pos[0], (int)-p->pos[1], (int)-p->pos[2],
-                        (int)p->f24, p->f28);
+                sprintf(line, "\t\t\t%d\t%d\t%d\t\t%d\t%d\n", (int)-p->pos[0], (int)-p->pos[1],
+                        (int)-p->pos[2], (int)p->f24, p->f28);
                 sceWrite(fd, line, strlen(line));
             }
-            sprintf(line, D_00622440, name.s, n);
+            sprintf(line, "equn\t%s_%d_end\n", name.s, n);
             sceWrite(fd, line, strlen(line));
             n++;
         }
@@ -780,15 +811,7 @@ typedef struct {
 
 /* way_tool.o .data +0x2A0: the way-tool menu, nine {label, action} lines.
    Line 5's label is the play/stop text the tool rewrites at runtime. */
-extern char D_00621EC0[];
-extern char D_006224B0[];
-extern char D_006224A0[];
-extern char D_00622490[];
-extern char D_00622480[];
 extern char D_0063BDE0[];
-extern char D_00622470[];
-extern char D_00622460[];
-extern char D_00622450[];
 extern int group_create(void);
 extern int point_delete(void);
 extern int point_insert(void);
@@ -798,13 +821,12 @@ extern int quick_save_wpfile(void);
 extern int quick_load_wpfile(void);
 extern int wp_print_out(void);
 
-WayMenu debugWayMenu[9] = {
-    {D_00621EC0, group_create},      {D_006224B0, group_select},      {D_006224A0, point_delete},
-    {D_00622490, point_insert},      {D_00622480, point_nige},        {D_0063BDE0, play_way},
-    {D_00622470, quick_save_wpfile}, {D_00622460, quick_load_wpfile}, {D_00622450, wp_print_out}};
+WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select", group_select},
+                           {"point + delete", point_delete},  {"      + insert", point_insert},
+                           {"      + nige", point_nige},      {D_0063BDE0, play_way},
+                           {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
+                           {"save text", wp_print_out}};
 
-extern char D_006224C0[];
-extern char D_006224D0[];
 extern int D_0063A44C;
 extern int D_00639EC0;
 extern int D_0063BD70;
@@ -839,7 +861,7 @@ int debug_WayTool(void)
     D_0063C4D8 = isysGObjSearchFromObjLayoutID(2);
     if (D_0063C4D8 != 0) {
         if (D_0063BD70 == 0) {
-            *(void **)(D_0063C4D8 + 0x164) = iosMallocDebug(D_0063A44C, 0x850, D_006224C0, 0x4AA);
+            *(void **)(D_0063C4D8 + 0x164) = iosMallocDebug(D_0063A44C, 0x850, __FILE__, 0x4AA);
             isysGObjProcAdd(D_0063C4D8, cursor_control, 0, 0x13);
             isysGObjLinkObjDL(D_0063C4D8, way_toolDL, 0, 0, 0xFFFFFFFF);
             D_0063BD70 = 1;
@@ -861,7 +883,7 @@ int debug_WayTool(void)
 
     state = D_0063BDE8;
     if (state == 1) {
-        r = debug_SelectCsvWindow(D_006224D0, 0x12, 0x36, 0xB, debugWayMenu, 8, 0, 1, 9,
+        r = debug_SelectCsvWindow("Way Tool", 0x12, 0x36, 0xB, debugWayMenu, 8, 0, 1, 9,
                                   &D_0063BDEC);
         switch (r) {
         case 0:
@@ -893,112 +915,6 @@ int debug_WayTool(void)
     return 0;
 }
 
-extern char D_0063BDA0[];
-extern int D_0063BD9C;
-extern void *isysGObjSearchFromObjKindID_begin(int id);
-extern void *isysGObjSearchFromObjKindID_next(void *o);
-
-int play_way(void)
-{
-    char *g;
-    int f;
-
-    if (D_0063B13C & 1) {
-        debug_Printf(0x12, 0x36, 0xFF000000, D_0063BDA0);
-    }
-    f = D_00729B7C[0];
-    if (f & 0x20) {
-        g = isysGObjSearchFromObjKindID_begin(2);
-        switch (D_0063BD9C) {
-        case 0:
-            while (g != 0) {
-                *(int *)(*(char **)(g + 0x164) + 0x350) = 1;
-                g = isysGObjSearchFromObjKindID_next(g);
-            }
-            break;
-        case 1:
-            while (g != 0) {
-                *(int *)(*(char **)(g + 0x164) + 0x350) = 0;
-                g = isysGObjSearchFromObjKindID_next(g);
-            }
-            break;
-        }
-        D_0063BD9C ^= 1;
-    } else if (f & 0x40) {
-        return -1;
-    }
-    return 0;
-}
-
-extern unsigned char D_00622368[];
-extern int D_0063BD80;
-extern void debug_Printf(int x, int y, int col, void *fmt);
-extern char *waypoint_with_range(int *, float);
-
-int point_nige(void)
-{
-    int *p;
-    int v;
-
-    if (D_0063B13C & 1) {
-        unsigned int color = 0xFF000000;
-        debug_Printf(0x12, 0x36, color, D_00622368);
-    }
-    v = D_00729B7C[0];
-    if (v & 0x20) {
-        p = (int *)waypoint_with_range((int *)wayWorkPos, 60.0f);
-        if (p == 0) {
-            return 0;
-        }
-        D_0063BD80 = p[1];
-        if (p[1] >= 0) {
-            p[10] ^= 1;
-        }
-    } else if (v & 0x40) {
-        return -1;
-    }
-    return 0;
-}
-
-extern char D_00622378[];
-extern int load_save_flag;
-extern char D_0063BDA8[];
-extern char D_0063BDB0[];
-extern unsigned char D_00729BF0[];
-extern int debugSceClose(int a0);
-extern int debugSceOpen(void *a0, int a1);
-extern void debug_StdPrintfDummy(char *fmt, ...);
-extern void sceWrite(int a0, void *a1, int a2);
-extern int sprintf();
-
-int quick_save_wpfile(void)
-{
-    char buf[0x70];
-    int s0;
-    int i;
-    unsigned char *p;
-    load_save_flag = 1;
-    sprintf(buf, D_0063BDA8);
-    s0 = debugSceOpen(buf, 0x202);
-    if (s0 < 0) {
-        debug_StdPrintfDummy(D_00622378);
-        load_save_flag = 0;
-        return 0;
-    }
-    i = 0xF;
-    p = &D_00729BF0[i];
-    do {
-        *p = i;
-        p--;
-        i--;
-    } while (i >= 0);
-    sceWrite(s0, D_00729BF0, 0x10);
-    debugSceClose(s0);
-    debug_StdPrintfDummy(D_0063BDB0);
-    load_save_flag = 0;
-    return 1;
-}
-
 extern char iosPadConfDefault[];
 extern int D_00639EC0;
 extern void ACTDebugMove(int a0, int a1);
@@ -1006,7 +922,7 @@ extern void _ACTWait(int a0);
 extern int iosPadConnect(void *a0, int a1, int a2, void *a3);
 extern void iosPadRead(void *a0);
 
-void cursor_control(volatile int a0)
+inline void cursor_control(volatile int a0)
 {
     char *w = *(char **)(a0 + 0x164);
 

@@ -30,9 +30,15 @@
  * ORDER: it is what places every deferred copy at its ROM address, and the whole
  * object's function offsets are checked against the ROM by nm.
  *
- * The dev's file was in SOURCE order; this one is in EMISSION order, so the 13
- * deferred members sit after iosThreadInit instead of interleaved.  The source
- * order the listing gives, for reference, is:
+ * This file is now in the dev's SOURCE order, the deferred members interleaved
+ * where the listing puts them.  That order is not cosmetic: a string literal is
+ * emitted into `.rodata` where the function that first uses it is DEFINED, not
+ * where a deferred `inline` copy is finally written out, so the source order is
+ * what fixes the order of this TU's seventeen strings.  Measured: with the
+ * deferred members parked at the end the run comes out with "th:msg %d\n" ahead
+ * of "thr:id out of range\n" and iosThreadDestroyMgr's two strings at the end;
+ * in the order below it is byte-identical to the ROM run at 0x551DB0.  The
+ * source order the listing gives is:
  *
  *   85 Main | 111 Create | 171 CreateS | 199 Start | 215 Stop | 244 Sleep
  *   | 272 Wakeup | 299 DestroyMgr | 332 Destroy | 397 GetPri | 416 SetPri
@@ -105,18 +111,12 @@ typedef struct {
     char c[16];
 } IosStackMark;
 
-extern IOSThread D_006BD310;      /* the main (boot) IOS thread */
-extern char D_006BD380[];         /* its 8 KB stack */
-extern int _gp;                   /* linker-defined global pointer */
-extern int D_0063A5F0;            /* number of live IOS threads */
-extern const char D_00551DB0[16]; /* "<THREAD_SP>...."  */
-extern const char D_00551DC0[16]; /* "<THREAD_SP_END>"  */
-extern char D_00551DD0[];
-extern char D_00551E00[];
-extern char D_00551E20[];
+extern IOSThread D_006BD310;       /* the main (boot) IOS thread */
+extern char D_006BD380[];          /* its 8 KB stack */
+extern int _gp;                    /* linker-defined global pointer */
+extern int D_0063A5F0;             /* number of live IOS threads */
 inline void iosThreadDestroyMgr(); /* deferred-tail member; see the emission-order note */
 extern int CreateThread(IOSThread *param);
-extern const char D_00551DF0[];
 extern char D_0063A5F8[];
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, const char *expr);
@@ -137,8 +137,8 @@ inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void
     th->func = func;
 
     th->stack = stack;
-    *(IosStackMark *)stack = *(const IosStackMark *)D_00551DB0;
-    *(IosStackMark *)((char *)stack + stackSize - 16) = *(const IosStackMark *)D_00551DC0;
+    *(IosStackMark *)stack = *(const IosStackMark *)"<THREAD_SP>....";
+    *(IosStackMark *)((char *)stack + stackSize - 16) = *(const IosStackMark *)"<THREAD_SP_END>";
 
     th->stackSize = stackSize - 16;
     th->gpReg = &_gp;
@@ -150,25 +150,24 @@ inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void
     th->arg = arg;
 
     if (th->id >= 0x100) {
-        debug_StdPrintfDummy(D_00551DD0);
-        debug_assert(D_00551DF0, 0x8D);
-        __assert(D_00551DF0, 0x8D, D_0063A5F8);
+        debug_StdPrintfDummy("thr:thread table over flow\n");
+        debug_assert(__FILE__, 141);
+        __assert(__FILE__, 141, D_0063A5F8);
     } else if (th->id <= 0) {
-        debug_StdPrintfDummy(D_00551E00);
-        debug_assert(D_00551DF0, 0x91);
-        __assert(D_00551DF0, 0x91, D_0063A5F8);
+        debug_StdPrintfDummy("thr:can't create thread\n");
+        debug_assert(__FILE__, 145);
+        __assert(__FILE__, 145, D_0063A5F8);
     } else {
         D_006BCEE0[th->id] = (int)th;
     }
 
     D_0063A5F0++;
-    debug_StdPrintfDummy(D_00551E20, D_0063A5F0);
+    debug_StdPrintfDummy("n_thread %d\n", D_0063A5F0);
     th->flags &= ~1;
 
     th->hasQueue = 0;
 }
 
-extern char D_00551E30[];
 extern void *iosMallocDebug(void *a, int n, void *c, int d);
 
 /* thread.c:171 - iosThreadCreateS: iosThreadCreate over a malloc'd stack.
@@ -179,9 +178,9 @@ void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap
 {
     void *stack;
 
-    stack = iosMallocDebug(heap, stackSize, (void *)D_00551DF0, 0xAD);
+    stack = iosMallocDebug(heap, stackSize, __FILE__, 173);
     if (stack == 0) {
-        debug_StdPrintfDummy(D_00551E30);
+        debug_StdPrintfDummy("thr:can't create stack\n");
         return;
     }
     iosThreadCreate(th, no, func, arg, stack, stackSize, pri);
@@ -214,6 +213,53 @@ void iosThreadSleep(int a0, int a1, int a2, int a3)
     SleepThread(a0, a1, a2, a3);
 }
 
+extern int WakeupThread();
+
+inline int iosThreadWakeup(int *self)
+{
+    return WakeupThread(self[0x30 / 4]);
+}
+
+extern int D_006BCEE0[];
+extern char D_006BD2E0[];
+extern void iosMsgQueueCreate(void *a, void *b, int c);
+extern int iosMsgRecv(void *a, void *b, int c);
+extern void TerminateThread();
+/* thread.c:299 - the destroy-manager thread body.  iosThreadInit creates a
+ * thread running this; iosThreadDestroy posts the dying IOSThread to its
+ * message queue and this loop does the actual teardown.  Never returns. */
+extern int D_0063C1A0[2]; /* the manager queue's 2-slot message ring */
+extern void iosFree(void *p);
+extern void iosMsgQueueDestroy(void *q);
+extern void DeleteThread(int id);
+
+inline void iosThreadDestroyMgr(void)
+{
+    IOSThread *th;
+    int id;
+
+    debug_StdPrintfDummy("iosThreadDestroyMgr() in\n");
+
+    iosMsgQueueCreate(D_006BD2E0, D_0063C1A0, 2);
+    while (1) {
+        iosMsgRecv(D_006BD2E0, &th, 1);
+
+        id = th->id;
+        D_0063A5F0--;
+        debug_StdPrintfDummy("1:n_thread %d\n", D_0063A5F0);
+        TerminateThread(id);
+        DeleteThread(id);
+        if ((th->flags & 1) == (unsigned)1)
+            iosFree(((IOSThread *)D_006BCEE0[id])->stack);
+
+        if (th->hasQueue) {
+            iosMsgQueueDestroy(th->queue);
+            iosFree(th->queue);
+        }
+        D_006BCEE0[id] = 0;
+    }
+}
+
 extern int D_006BCEE0[];
 extern char D_006BD2E0[];
 extern int GetThreadId();
@@ -226,6 +272,18 @@ void iosThreadDestroy(int a0)
         a1 = D_006BCEE0[GetThreadId()];
     }
     iosMsgSend(D_006BD2E0, a1, 0);
+}
+
+inline int iosThreadGetPri(int *a0)
+{
+    int **base;
+    if (a0 == 0) {
+        int idx;
+        base = D_006BCEE0;
+        idx = GetThreadId();
+        a0 = base[idx];
+    }
+    return a0[0x18 / 4];
 }
 
 extern void ChangeThreadPriority();
@@ -243,8 +301,20 @@ void iosThreadSetPri(int *a0, int a1)
     ChangeThreadPriority(v[0x30 / 4], a1);
 }
 
-extern const char D_00551DF0[];
-extern char D_00551E90[];
+inline int iosGetIOSThreadFromId(unsigned int a0)
+{
+    int ret;
+    if (a0 < 0x101)
+        goto valid;
+    debug_StdPrintfDummy("thr:id out of range\n");
+    ret = 0;
+    goto out;
+valid:
+    ret = D_006BCEE0[a0];
+out:
+    return ret;
+}
+
 extern void *D_0063A428;
 extern void *iosMallocDebug(void *a, int n, void *c, int d);
 extern void iosMsgQueueCreate(void *a, void *b, int c);
@@ -256,12 +326,29 @@ void iosThreadMessage(int a0)
     if (*(int *)((char *)obj + 0x48) == 0) {
         void *r;
         *(int *)((char *)obj + 0x48) = 1;
-        r = iosMallocDebug(D_0063A428, 0x50, (void *)D_00551DF0, 0x1DE);
+        r = iosMallocDebug(D_0063A428, 0x50, __FILE__, 478);
         *(void **)((char *)obj + 0x4C) = r;
         iosMsgQueueCreate(r, (char *)r + 0x30, 8);
     }
     q = iosMsgSend((char *)*(void **)((char *)obj + 0x4C), a0, 0);
-    debug_StdPrintfDummy(D_00551E90, q);
+    debug_StdPrintfDummy("th:msg %d\n", q);
+}
+
+extern int iosMsgRecv(void *a, void *b, int c);
+
+inline int iosThreadJoin(void *a0)
+{
+    int buf[4];
+    if (*(int *)((char *)a0 + 0x48) == 0) {
+        void *r;
+        *(int *)((char *)a0 + 0x48) = 1;
+        r = iosMallocDebug(D_0063A428, 0x50, __FILE__, 506);
+        *(void **)((char *)a0 + 0x4C) = r;
+        iosMsgQueueCreate(r, (char *)r + 0x30, 8);
+    }
+    iosMsgRecv(*(void **)((char *)a0 + 0x4C), buf, 1);
+    debug_StdPrintfDummy("th:thread joined\n");
+    return buf[0];
 }
 
 extern void strcpy();
@@ -285,65 +372,6 @@ void iosThreadResume(int a0)
     ResumeThread(*(int *)(a0 + 0x30));
 }
 
-void iosThreadInit(void)
-{
-    iosThreadCreate(&D_006BD310, 0, iosThreadDestroyMgr, 0, D_006BD380, 0x2000, 13);
-    iosThreadStart((int)&D_006BD310);
-}
-
-inline int iosThreadGetPri(int *a0)
-{
-    int **base;
-    if (a0 == 0) {
-        int idx;
-        base = D_006BCEE0;
-        idx = GetThreadId();
-        a0 = base[idx];
-    }
-    return a0[0x18 / 4];
-}
-
-extern char D_00551E78[];
-
-inline int iosGetIOSThreadFromId(unsigned int a0)
-{
-    int ret;
-    if (a0 < 0x101)
-        goto valid;
-    debug_StdPrintfDummy(D_00551E78);
-    ret = 0;
-    goto out;
-valid:
-    ret = D_006BCEE0[a0];
-out:
-    return ret;
-}
-
-extern int WakeupThread();
-
-inline int iosThreadWakeup(int *self)
-{
-    return WakeupThread(self[0x30 / 4]);
-}
-
-extern char D_00551EA0[];
-extern int iosMsgRecv(void *a, void *b, int c);
-
-inline int iosThreadJoin(void *a0)
-{
-    int buf[4];
-    if (*(int *)((char *)a0 + 0x48) == 0) {
-        void *r;
-        *(int *)((char *)a0 + 0x48) = 1;
-        r = iosMallocDebug(D_0063A428, 0x50, (void *)D_00551DF0, 0x1FA);
-        *(void **)((char *)a0 + 0x4C) = r;
-        iosMsgQueueCreate(r, (char *)r + 0x30, 8);
-    }
-    iosMsgRecv(*(void **)((char *)a0 + 0x4C), buf, 1);
-    debug_StdPrintfDummy(D_00551EA0);
-    return buf[0];
-}
-
 extern int CancelWakeupThread();
 
 inline int iosThreadCancelWakeup(int *self)
@@ -358,7 +386,6 @@ inline int iosThreadCancelWakeup(int *self)
 }
 
 extern int CreateSema(int *self);
-extern char D_00551EB8[];
 extern char D_0063A5F8[];
 extern void __assert(const char *file, int line, const char *expr);
 extern void debug_assert(const char *file, int line);
@@ -372,30 +399,28 @@ inline int iosSemaCreate(int *self, int a1, int a2, int a3)
     rv = CreateSema(self);
     self[0x30 / 4] = rv;
     if (rv < 0) {
-        debug_StdPrintfDummy(D_00551EB8, rv);
-        debug_assert(D_00551DF0, 0x25C);
-        __assert(D_00551DF0, 0x25C, D_0063A5F8);
+        debug_StdPrintfDummy("sem: can't create %d\n", rv);
+        debug_assert(__FILE__, 604);
+        __assert(__FILE__, 604, D_0063A5F8);
         return self[0x30 / 4];
     }
     return 0;
 }
 
-extern char D_00551ED0[];
 extern int DeleteSema(int sem);
 
 inline int iosSemaDelete(int *self)
 {
     int rv = DeleteSema(self[0x30 / 4]);
     if (rv < 0) {
-        debug_StdPrintfDummy(D_00551ED0, self[0x30 / 4]);
-        debug_assert(D_00551DF0, 0x270);
-        __assert(D_00551DF0, 0x270, D_0063A5F8);
+        debug_StdPrintfDummy("sem: can't delete %d\n", self[0x30 / 4]);
+        debug_assert(__FILE__, 624);
+        __assert(__FILE__, 624, D_0063A5F8);
         return rv;
     }
     return 0;
 }
 
-extern char D_00551EE8[];
 extern int ReferSemaStatus(int sem, int *self);
 extern int WaitSema(int sem);
 
@@ -403,14 +428,13 @@ inline int iosSemaWait(int *self)
 {
     int rv = ReferSemaStatus(self[0x30 / 4], self);
     if (rv < 0) {
-        debug_StdPrintfDummy(D_00551EE8, self[0x30 / 4]);
+        debug_StdPrintfDummy("sem: wait error? %d\n", self[0x30 / 4]);
         return rv;
     }
     WaitSema(self[0x30 / 4]);
     return 0;
 }
 
-extern char D_00551F00[];
 extern int SignalSema(int x);
 
 inline int iosSemaSignal(int *self)
@@ -420,64 +444,31 @@ inline int iosSemaSignal(int *self)
     v = SignalSema(self[0x30 / 4]);
     rv = 0;
     if (v < 0) {
-        debug_StdPrintfDummy(D_00551F00, self[0x30 / 4]);
+        debug_StdPrintfDummy("sem: signal error? %d\n", self[0x30 / 4]);
         rv = v;
     }
     return rv;
 }
 
-extern char D_00551F18[];
-
 inline int iosSemaReferStatus(int *self)
 {
     int rv = ReferSemaStatus(self[0x30 / 4], self + 0x18 / 4);
     if (rv < 0) {
-        debug_StdPrintfDummy(D_00551F18, self[0x30 / 4]);
-        debug_assert(D_00551DF0, 0x2B0);
-        __assert(D_00551DF0, 0x2B0, D_0063A5F8);
+        debug_StdPrintfDummy("sem: refer error? %d\n", self[0x30 / 4]);
+        debug_assert(__FILE__, 688);
+        __assert(__FILE__, 688, D_0063A5F8);
         return rv;
     }
     return 0;
 }
 
-/* thread.c:299 - the destroy-manager thread body.  iosThreadInit creates a
- * thread running this; iosThreadDestroy posts the dying IOSThread to its
- * message queue and this loop does the actual teardown.  Never returns. */
-extern char D_00551E48[]; /* "iosThreadDestroyMgr() in\n" */
-extern char D_00551E68[]; /* "1:n_thread %d\n"           */
-extern int D_0063C1A0[2]; /* the manager queue's 2-slot message ring */
-extern void iosFree(void *p);
-extern void iosMsgQueueDestroy(void *q);
-extern void DeleteThread(int id);
-
-inline void iosThreadDestroyMgr(void)
+void iosThreadInit(void)
 {
-    IOSThread *th;
-    int id;
-
-    debug_StdPrintfDummy(D_00551E48);
-
-    iosMsgQueueCreate(D_006BD2E0, D_0063C1A0, 2);
-    while (1) {
-        iosMsgRecv(D_006BD2E0, &th, 1);
-
-        id = th->id;
-        D_0063A5F0--;
-        debug_StdPrintfDummy(D_00551E68, D_0063A5F0);
-        TerminateThread(id);
-        DeleteThread(id);
-        if ((th->flags & 1) == (unsigned)1)
-            iosFree(((IOSThread *)D_006BCEE0[id])->stack);
-
-        if (th->hasQueue) {
-            iosMsgQueueDestroy(th->queue);
-            iosFree(th->queue);
-        }
-        D_006BCEE0[id] = 0;
-    }
+    iosThreadCreate(&D_006BD310, 0, iosThreadDestroyMgr, 0, D_006BD380, 0x2000, 13);
+    iosThreadStart((int)&D_006BD310);
 }
 
-/* thread.c:723 — the last function of the TU.  Never called anywhere in the
+/* thread.c:723, the last function of the TU.  Never called anywhere in the
  * retail ELF; the PAL listing puts it last in the object's deferred-`inline`
  * tail, and a plain definition in this file position emits the same bytes. */
 inline void iosThreadAllQuit(int self)
