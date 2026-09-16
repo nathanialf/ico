@@ -30,7 +30,7 @@ void _deleteLayoutedCandleParticleEffect(void *gobj);
 extern int D_0063A438;
 extern char D_0061F198[];
 extern char D_0061F1A8[];
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 extern int iosMallocDebug(int heap, int size, const char *file, int line);
 extern void debug_StdPrintfDummy();
 extern void *MatrixDrive_GetMatrix(void);
@@ -51,12 +51,12 @@ int InitCandleGeo(void *self, void *mtx)
             CopyMatrix(MatrixDrive_GetMatrix(), w->mtx + i * 0x40);
             MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
             flame[i].effect =
-                SetParticleEffect(4, (char *)MatrixDrive_GetMatrix() + 0x30, D_002907E0);
+                SetParticleEffect(4, (char *)MatrixDrive_GetMatrix() + 0x30, IdentityQuaternion);
             flame[i].off = 0;
         }
     } else {
         flame = (CandleFlame *)iosMallocDebug(D_0063A438, 8, D_0061F198, 0x23);
-        flame->effect = SetParticleEffect(4, mtx, D_002907E0);
+        flame->effect = SetParticleEffect(4, mtx, IdentityQuaternion);
         flame->off = 0;
     }
     debug_StdPrintfDummy(D_0061F1A8);

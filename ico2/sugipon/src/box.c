@@ -130,7 +130,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", MoveFloatingBox);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", avoidCharGObj);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFloating);
 
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 extern char ZeroVector[];
 extern char D_004E62A0[];
 extern void CopyQuaternion(void *dst, void *src);
@@ -142,8 +142,8 @@ void initFloating(char *a0)
 
     *(int *)(*(int *)(a0 + 0x15C) + 0x70) = *(int *)(*(int *)(p + 0x160) + 0x70);
     *(int *)(*(int *)(a0 + 0x15C) + 0x78) = 1;
-    CopyQuaternion((char *)*(int *)(a0 + 0x15C) + 0xC0, D_002907E0);
-    SetRootQuaternion(a0, D_002907E0);
+    CopyQuaternion((char *)*(int *)(a0 + 0x15C) + 0xC0, IdentityQuaternion);
+    SetRootQuaternion(a0, IdentityQuaternion);
     CopyVector(p + 0xE0, ZeroVector);
     CopyVector(p + 0xC0, ZeroVector);
     CopyVector(p + 0xD0, ZeroVector);

@@ -24,7 +24,7 @@ void effect_end_func(void *a0)
 
 extern float _GetRandom(void);
 extern void GetRootPosition(void *dst, int handle);
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 extern int GatherEffect_Set(int kind, void *pos, void *tmpl, void *v, void *fn, float f);
 
 void bossCtrlBeforeFunc(char *self)
@@ -55,8 +55,8 @@ void bossCtrlBeforeFunc(char *self)
                     idx = buf[(int)(_GetRandom() * cnt)];
                     e2 = D_006E9A40 + idx * 0x40;
                     GetRootPosition(pos, *(int *)(e + 4));
-                    r = GatherEffect_Set(12, pos, D_002907E0, e2 + 0x20, (void *)effect_end_func,
-                                         1.0f);
+                    r = GatherEffect_Set(12, pos, IdentityQuaternion, e2 + 0x20,
+                                         (void *)effect_end_func, 1.0f);
                     if (r >= 0) {
                         *(int *)(GetParticleEffectData(r) + 0x70) = idx;
                         e2[4] = 1;

@@ -51,7 +51,7 @@ void flushWork(int pri)
     gif_SetZTest(1);
 }
 
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 extern int GetSkeltonFocusNode(char *a0, int a1);
 extern int SetParticleEffectActiveSensing(int a0, int a1, int a2);
 extern void SetParticleEffectUpperLimit(int a0, float f);
@@ -62,7 +62,7 @@ void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float
     if (ret != -1) {
         char *p = *(char **)(a1 + 0x15C);
         int r = SetParticleEffectActiveSensing((int)a0, *(int *)(p + 0xC) + ret * 0x40 + 0x30,
-                                               (int)D_002907E0);
+                                               (int)IdentityQuaternion);
         SetParticleEffectUpperLimit(r, f);
     }
 }

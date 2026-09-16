@@ -527,6 +527,10 @@ segments:
       - [0x18F4B4, data, cod/18F4B4]     # data blob resume
       - [0x18FED0, .data, ico2/sugipon/src/keyInput]  # the TU's whole .data run as source (data pass 3): the pad device descriptor, VMA 0x28FED0..0x28FEE8, 24 B
       - [0x18FEE8, data, cod/18FEE8]     # data blob resume
+      - [0x18FEF0, .data, ico2/sugipon/src/matrixDrive]  # syms: ZeroVector ZeroPoint XUnitVector YUnitVector ZUnitVector InitialMatrix rotXWorkMatrix rotYWorkMatrix rotZWorkMatrix scaleWorkMatrix  the TU's whole .data run as source (data pass 4; = MAIN.MAP matrixDrive.o .data 0x190), the six map-named vectors then four work-matrix templates, VMA 0x28FEF0..0x290080, 400 B
+      - [0x190080, data, cod/190080]     # data blob resume
+      - [0x1907E0, .data, ico2/sugipon/src/quaternion]  # syms: IdentityQuaternion quatToMatrixScale nxt  the TU's whole .data run as source (data pass 4; = MAIN.MAP quaternion.o .data 0x2C), VMA 0x2907E0..0x29080C, 44 B
+      - [0x19080C, data, cod/19080C]     # data blob resume
       - [0x1908E0, .data, ico2/seki/src/Matrix]  # syms: scaleWorkMatrix  the unit matrix the scale routines work in (data pass 3), VMA 0x2908E0..0x290920, 64 B
       - [0x190920, data, cod/190920]     # data blob resume
       - [0x1A50C0, .data, ico2/script/src/gflag]  # the story flag bitmap (data pass 3), VMA 0x2A50C0..0x2A50F2, 50 B; the 14 zero bytes to 0x2A5100 are the next input's alignment pad
@@ -603,6 +607,8 @@ segments:
       - [0x44A320, data, cod/44A320]     # data blob resume
       - [0x44CAD0, .data, sce/libipu/ipuinit]  # the member's .data (data pass 3): the version stamp and the quantiser and colour tables, VMA 0x54CAD0..0x54CB50, 128 B
       - [0x44CB50, data, cod/44CB50]     # data blob resume
+      - [0x44CEC8, .data, sce/libc/stdlib/mallocr]  # syms: __malloc_av_ __malloc_trim_threshold __malloc_top_pad __malloc_sbrk_base __malloc_max_sbrked_mem __malloc_max_total_mem __malloc_current_mallinfo  the member's whole .data (data pass 4; = MAIN.MAP mallocr.o .data 0x458, names from map lines 6258 to 6264), VMA 0x54CEC8..0x54D320, 1112 B
+      - [0x44D320, data, cod/44D320]     # data blob resume
       - [0x44D380, .rodata, sce/libkernl/thread]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D380..0x54D850, 1232 B
       - [0x44D3B0, rodata, cod/44D3B0]     # rodata blob resume
       - [0x44D6F8, .rodata, ico2/sugipon/src/delayFreeManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D6F8..0x54D850, 344 B
@@ -812,6 +818,8 @@ segments:
       - [0x523418, .rodata, ico2/ito/mpeg/mv_sub]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x623418..0x623428, 16 B
       - [0x523428, .rodata, ico2/ito/mpeg/mv_vibuf]  # the TU's whole .rodata run as source (data pass 3), widened to the member's full 68 B: the constant its asm block reaches by name is defined in the C, VMA 0x623428..0x62346C
       - [0x52346C, rodata, cod/52346C]     # rodata blob resume
+      - [0x529D08, .rodata, ico2/omori/src/objact]  # syms: objActMailId objActMailTable  the TU's whole .rodata run as source (data pass 4; evidence ROM bytes and exclusive reference, the January map has no objact.o .rodata line), VMA 0x629D08..0x629E40, 312 B
+      - [0x529E40, rodata, cod/529E40]     # rodata blob resume
       - [0x536120, .rodata, sce/libgraph/graph008]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636120..0x636610, 1264 B
       - [0x536150, rodata, cod/536150]     # rodata blob resume
       - [0x536400, .rodata, sce/libgraph/graph017]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636400..0x636610, 528 B

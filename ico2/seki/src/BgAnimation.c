@@ -73,7 +73,7 @@ extern char D_00621638[];
 extern char D_00621658[];
 extern char D_0063BCF0[];
 extern char D_0063BCE8[];
-extern int D_002907E0[];
+extern int IdentityQuaternion[];
 extern int GetParticleIDWithName(char *name);
 extern void *iosMallocDebug(int heap, int size, char *file, int line);
 extern int GetParticleLoopFlag(int id);
@@ -196,7 +196,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
                 GetParticleLoopFlag(((BgaParticleEnt *)p->u.obj)->u.b.id);
             if (((BgaParticleEnt *)p->u.obj)->u.b.loop) {
                 ((BgaParticleEnt *)p->u.obj)->u.b.eff = SetParticleEffectActiveSensing(
-                    ((BgaParticleEnt *)p->u.obj)->u.b.id, D_004EE5E0, D_002907E0);
+                    ((BgaParticleEnt *)p->u.obj)->u.b.id, D_004EE5E0, IdentityQuaternion);
             } else {
                 ((BgaParticleEnt *)p->u.obj)->u.b.eff = -1;
             }

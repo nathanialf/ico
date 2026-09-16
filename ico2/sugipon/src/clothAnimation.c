@@ -1083,16 +1083,16 @@ void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a
     getCloth4D_postProcess(a0, rows);
 }
 
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 
 void GetCloth4D(void *a0, float x, float y)
 {
-    _getCloth4D(a0, x, y, 1.0f, 1.0f, 0, D_002907E0, D_002907E0);
+    _getCloth4D(a0, x, y, 1.0f, 1.0f, 0, IdentityQuaternion, IdentityQuaternion);
 }
 
 void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w)
 {
-    _getCloth4D(a0, x, y, z, w, 0, D_002907E0, D_002907E0);
+    _getCloth4D(a0, x, y, z, w, 0, IdentityQuaternion, IdentityQuaternion);
 }
 
 /* Parameter ORDER corrected 2026-09-09: the two pointers follow the four

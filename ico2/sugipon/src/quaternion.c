@@ -104,16 +104,21 @@ void InitQuaternionDrive(void)
     SetIdentityQuaternion(D_00669640);
 }
 
-extern int D_002907E0[];
+/* quaternion.o's whole .data run, in source order.  MAIN.MAP names the
+   first object IdentityQuaternion (map line 5797, quaternion.o .data at
+   member offset 0); the two that follow are this file's own constants. */
+float IdentityQuaternion[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 void SetIdentityQuaternion(void *a0)
 {
-    CopyQuaternion(a0, D_002907E0);
+    CopyQuaternion(a0, IdentityQuaternion);
 }
 
 extern void CopyVector();
 extern char ZeroPoint[];
-extern char D_002907F0[];
+
+/* the {1, 1, 1, sqrt(2)} multiplier GetMatrixFromQuaternion feeds $vf12 */
+static float quatToMatrixScale[4] = {1.0f, 1.0f, 1.0f, 1.41421356f};
 
 void GetMatrixFromQuaternion(char *a0, char *a1)
 {
@@ -148,15 +153,16 @@ void GetMatrixFromQuaternion(char *a0, char *a1)
                          "sqc2 $vf16, 0x20($4)\n"
                          ".set reorder\n"
                          :
-                         : "r"(D_002907F0)
+                         : "r"(quatToMatrixScale)
                          : "memory");
     CopyVector(a0 + 0x30, ZeroPoint);
 }
 
 extern void _TransposeMatrix(void *a0, void *a1);
 extern float _Sqrt(float);
-/* the file's `nxt` permutation table {1,2,0} (TU-owned .data) */
-extern int D_00290800[];
+
+/* the file's `nxt` permutation table */
+static int nxt[3] = {1, 2, 0};
 
 void GetQuaternionFromMatrix(void *a0, void *a1)
 {
@@ -188,8 +194,8 @@ void GetQuaternionFromMatrix(void *a0, void *a1)
             if (m[2][2] > m[i][i]) {
                 i = 2;
             }
-            j = D_00290800[i];
-            k = D_00290800[j];
+            j = nxt[i];
+            k = nxt[j];
             s = _Sqrt(m[i][i] - (m[j][j] + m[k][k]) + 1.0f);
             q[i] = s * 0.5f;
             t = (s != 0.0f) ? 0.5f / s : 0.0f;
@@ -464,7 +470,7 @@ inline void GetMatrixFromQuaternionRotElem(char *a0, char *a1)
                          "sqc2 $vf16, 0x20($4)\n"
                          ".set reorder\n"
                          :
-                         : "r"(D_002907F0)
+                         : "r"(quatToMatrixScale)
                          : "memory");
 }
 
@@ -501,7 +507,7 @@ inline void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2)
                          "sqc2 $vf16, 0x20(%1)\n"
                          ".set reorder\n"
                          :
-                         : "r"(D_002907F0), "r"(a0), "r"(a1)
+                         : "r"(quatToMatrixScale), "r"(a0), "r"(a1)
                          : "memory");
     CopyVector(a0 + 0x30, a2);
     *(float *)(a0 + 0x3C) = 1.0f;

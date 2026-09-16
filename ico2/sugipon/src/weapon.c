@@ -418,7 +418,7 @@ extern int SetParticleEffect(int id, void *pos, void *a2);
 extern char *GetParticleEffectData(int h);
 extern void ExecParticleEffect(int h);
 extern float ZUnitVector[];
-extern int D_002907E0[];
+extern int IdentityQuaternion[];
 
 void calcBlur(char *g, float t)
 {
@@ -479,7 +479,7 @@ void calcBlur(char *g, float t)
         return;
     }
     if (t > 12.0f) {
-        h = SetParticleEffect(50, e + 0xA0, D_002907E0);
+        h = SetParticleEffect(50, e + 0xA0, IdentityQuaternion);
         if (h != -1) {
             pd = GetParticleEffectData(h);
             vtx = *(char **)(pd + 0x24);
@@ -513,7 +513,7 @@ extern int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
 extern void ExecuteDirectSE(char *g, int id);
 extern void stage_SetLoopFlag(int key, int a1);
 extern float stage_PlayBgAnimation(int key, float t, void *a, void *b);
-extern int D_002907E0[];
+extern int IdentityQuaternion[];
 extern int D_0028F4D4[];
 extern void *MatrixDrive_GetMatrix(void);
 extern void GetRootMatrix(void *m, char *g);
@@ -594,13 +594,13 @@ void WeaponGeo(char *g)
         if (t > 1.0f) {
             n = (int)stage_PlayBgAnimation(473, (float)*(int *)(w + 0xBC),
                                            *(char **)(*(char **)(g + 0x15C) + 0xC) + 0x30,
-                                           D_002907E0);
+                                           IdentityQuaternion);
             if (D_0028F4D4[0] == 0) {
                 *(int *)(w + 0xBC) = n;
             }
         } else {
             stage_PlayBgAnimation(473, 0.0f, *(char **)(*(char **)(g + 0x15C) + 0xC) + 0x30,
-                                  D_002907E0);
+                                  IdentityQuaternion);
             *(int *)(w + 0xBC) = 0;
         }
         stage_SetLoopFlag(473, 0);

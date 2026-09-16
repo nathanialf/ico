@@ -87,8 +87,16 @@ typedef struct {
     int idx;
 } ObjActMailEnt;
 
-extern ObjActMailEnt D_00629D38[];
-extern int D_00629D08[];
+/* objact.o's whole .rodata run, in definition order: the mail ids
+   ObjAction_MailCenter sends, and the object-id to index table it walks. */
+static const int objActMailId[12] = {-1, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 0};
+
+static const ObjActMailEnt objActMailTable[33] = {
+    {2074, 1}, {2482, 1}, {117, 2},  {145, 1},  {1711, 1}, {1712, 2}, {1797, 1},
+    {1798, 2}, {366, 1},  {367, 2},  {368, 3},  {937, 2},  {3347, 2}, {3634, 2},
+    {1979, 1}, {1980, 2}, {2037, 1}, {2038, 2}, {524, 1},  {525, 2},  {981, 1},
+    {982, 2},  {983, 3},  {1625, 3}, {1292, 1}, {1571, 1}, {1126, 1}, {1207, 1},
+    {1208, 2}, {1410, 1}, {1491, 1}, {1492, 2}, {3173, 1}};
 
 inline void ObjAction_MailCenter(void *a0, int a1)
 {
@@ -97,7 +105,7 @@ inline void ObjAction_MailCenter(void *a0, int a1)
     int n;
 
     for (i = 0; i < 33; i++) {
-        e = &D_00629D38[i];
+        e = &objActMailTable[i];
         if (((int *)a0)[2] != e->id)
             continue;
         n = e->idx;
@@ -106,7 +114,7 @@ inline void ObjAction_MailCenter(void *a0, int a1)
                 continue;
             n += a1;
         }
-        ObjAction_Mail(a0, D_00629D08[n]);
+        ObjAction_Mail(a0, objActMailId[n]);
     }
 }
 

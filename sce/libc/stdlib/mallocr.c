@@ -54,13 +54,33 @@ typedef struct malloc_chunk *mbinptr;
 #define set_head_size(p, s) ((p)->size = (((p)->size & PREV_INUSE) | (s)))
 #define set_head(p, s) ((p)->size = (s))
 #define set_foot(p, s) (((mchunkptr)((char *)(p) + (s)))->prev_size = (s))
-
-/* The bin array of the shipped allocator. */
-extern mchunkptr D_0054CEC8[];
-
-#define av_ D_0054CEC8
 #define NAV 128
+#define av_ __malloc_av_
 #define bin_at(i) ((mbinptr)((char *)&(av_[2 * (i) + 2]) - 2 * SIZE_SZ))
+/* The bin array of the shipped allocator, and the six allocator statics that
+   follow it: mallocr.o's whole .data run, in definition order.  MAIN.MAP names
+   all seven (map lines 6258 to 6264, mallocr.o .data member offsets 0x0, 0x408,
+   0x410, 0x418, 0x420, 0x428, 0x430).  Each bin starts empty, pointing at
+   itself. */
+#define IAV(i) bin_at(i), bin_at(i)
+
+mchunkptr __malloc_av_[NAV * 2 + 2] = {
+    0,        0,        IAV(0),   IAV(1),   IAV(2),   IAV(3),   IAV(4),   IAV(5),   IAV(6),
+    IAV(7),   IAV(8),   IAV(9),   IAV(10),  IAV(11),  IAV(12),  IAV(13),  IAV(14),  IAV(15),
+    IAV(16),  IAV(17),  IAV(18),  IAV(19),  IAV(20),  IAV(21),  IAV(22),  IAV(23),  IAV(24),
+    IAV(25),  IAV(26),  IAV(27),  IAV(28),  IAV(29),  IAV(30),  IAV(31),  IAV(32),  IAV(33),
+    IAV(34),  IAV(35),  IAV(36),  IAV(37),  IAV(38),  IAV(39),  IAV(40),  IAV(41),  IAV(42),
+    IAV(43),  IAV(44),  IAV(45),  IAV(46),  IAV(47),  IAV(48),  IAV(49),  IAV(50),  IAV(51),
+    IAV(52),  IAV(53),  IAV(54),  IAV(55),  IAV(56),  IAV(57),  IAV(58),  IAV(59),  IAV(60),
+    IAV(61),  IAV(62),  IAV(63),  IAV(64),  IAV(65),  IAV(66),  IAV(67),  IAV(68),  IAV(69),
+    IAV(70),  IAV(71),  IAV(72),  IAV(73),  IAV(74),  IAV(75),  IAV(76),  IAV(77),  IAV(78),
+    IAV(79),  IAV(80),  IAV(81),  IAV(82),  IAV(83),  IAV(84),  IAV(85),  IAV(86),  IAV(87),
+    IAV(88),  IAV(89),  IAV(90),  IAV(91),  IAV(92),  IAV(93),  IAV(94),  IAV(95),  IAV(96),
+    IAV(97),  IAV(98),  IAV(99),  IAV(100), IAV(101), IAV(102), IAV(103), IAV(104), IAV(105),
+    IAV(106), IAV(107), IAV(108), IAV(109), IAV(110), IAV(111), IAV(112), IAV(113), IAV(114),
+    IAV(115), IAV(116), IAV(117), IAV(118), IAV(119), IAV(120), IAV(121), IAV(122), IAV(123),
+    IAV(124), IAV(125), IAV(126), IAV(127)};
+
 #define next_bin(b) ((mbinptr)((char *)(b) + 2 * sizeof(mbinptr)))
 #define prev_bin(b) ((mbinptr)((char *)(b) - 2 * sizeof(mbinptr)))
 #define top (bin_at(0)->fd)
@@ -129,21 +149,40 @@ extern mchunkptr D_0054CEC8[];
    member uses mallocr.c's guarded form, which the ROM's branchy sequence
    (sltu, subu both ways, zero-extend, dsubu) shows verbatim. */
 #define long_sub_size_t(x, y) ((x < y) ? -((long)(y - x)) : (x - y));
+/* The allocator's own file statics. */
+#define DEFAULT_TRIM_THRESHOLD (128 * 1024)
+#define DEFAULT_TOP_PAD 0
 
-/* The allocator's own file statics, which live in the shipped data blob. */
-/* Spelled as arrays so the references are not gp-relative, as in the shipped
-   member: at -G 8 a plain 8-byte extern would be small-data addressed. */
-extern unsigned long D_0054D2D8[]; /* top_pad */
-extern char *D_0054D2E0[];         /* sbrk_base */
-extern unsigned long D_0054D2E8[]; /* max_sbrked_mem */
-extern unsigned long D_0054D2F0[]; /* max_total_mem */
-extern int D_0054D2F8[]; /* current_mallinfo.arena, i.e. sbrked_mem (struct mallinfo is ints) */
+struct mallinfo {
+    int arena;
+    int ordblks;
+    int smblks;
+    int hblks;
+    int hblkhd;
+    int usmblks;
+    int fsmblks;
+    int uordblks;
+    int fordblks;
+    int keepcost;
+};
 
-#define top_pad D_0054D2D8[0]
-#define sbrk_base D_0054D2E0[0]
-#define max_sbrked_mem D_0054D2E8[0]
-#define max_total_mem D_0054D2F0[0]
-#define sbrked_mem D_0054D2F8[0]
+unsigned long __malloc_trim_threshold = DEFAULT_TRIM_THRESHOLD;
+
+unsigned long __malloc_top_pad = DEFAULT_TOP_PAD;
+
+char *__malloc_sbrk_base = (char *)-1;
+
+unsigned long __malloc_max_sbrked_mem = 0;
+
+unsigned long __malloc_max_total_mem = 0;
+
+struct mallinfo __malloc_current_mallinfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+#define top_pad __malloc_top_pad
+#define sbrk_base __malloc_sbrk_base
+#define max_sbrked_mem __malloc_max_sbrked_mem
+#define max_total_mem __malloc_max_total_mem
+#define sbrked_mem __malloc_current_mallinfo.arena
 #define malloc_getpagesize (4096)
 #define POINTER_UINT unsigned int
 #define MORECORE(size) _sbrk_r(reent_ptr, (size))

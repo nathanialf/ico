@@ -143,7 +143,7 @@ typedef struct {
 
 extern const char D_00556CA0[];
 extern const char D_00556CB0[];
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int),
                             float speed);
 
@@ -185,7 +185,8 @@ void queenBeforeFunc(char *g)
             if (e->data != 0 && boy != 0) {
                 GetRootPosition(&pos, e->data);
                 GetRootPosition(&target, boy);
-                GatherEffect_Set(0xC, &pos, (int)D_002907E0, &target, effect_end_func, 2.5f);
+                GatherEffect_Set(0xC, &pos, (int)IdentityQuaternion, &target, effect_end_func,
+                                 2.5f);
             }
             break;
         }
@@ -791,7 +792,7 @@ extern void apply_matrix_w1(QVec *dst, QMat33 *m, QVec *src);
 extern void _CopyVector(void *dst, void *src);
 extern void CopyQuaternion(void *dst, void *src);
 extern int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 extern float D_005569A0[];
 extern float D_00556B68[];
 
@@ -945,7 +946,7 @@ void QueenBallGeo(char *g)
         *(char *)(w + 0x11) = 0;
         pbga_start((int *)(w + 0x1C), 0x1DF);
         _CopyVector(*(char **)(w + 0x1C) + 0x20, m[3]);
-        CopyQuaternion(*(char **)(w + 0x1C) + 0x30, D_002907E0);
+        CopyQuaternion(*(char **)(w + 0x1C) + 0x30, IdentityQuaternion);
         ExecuteSEPackage((int)g, 0x5E);
     }
     if (*(signed char *)(w + 0x1A) != 0) {

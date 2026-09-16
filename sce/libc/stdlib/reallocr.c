@@ -58,9 +58,9 @@ typedef struct malloc_chunk *mchunkptr;
 #define set_head(p, s) ((p)->size = (s))
 
 /* The bin array of the shipped allocator. */
-extern mchunkptr D_0054CEC8[];
+extern mchunkptr __malloc_av_[];
 
-#define bin_at(i) ((mchunkptr)((char *)&(D_0054CEC8[2 * (i) + 2]) - 2 * SIZE_SZ))
+#define bin_at(i) ((mchunkptr)((char *)&(__malloc_av_[2 * (i) + 2]) - 2 * SIZE_SZ))
 #define top (bin_at(0)->fd)
 #define unlink(P, BK, FD)                                                                          \
     {                                                                                              \

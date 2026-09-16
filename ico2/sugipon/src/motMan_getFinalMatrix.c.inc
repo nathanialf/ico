@@ -6,8 +6,8 @@ inline int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f)
     if (n < 0)
         return 0;
     *(float *)e = f;
-    CopyQuaternion(e + 0x20, D_002907E0);
-    CopyQuaternion(e + 0x30, D_002907E0);
+    CopyQuaternion(e + 0x20, IdentityQuaternion);
+    CopyQuaternion(e + 0x30, IdentityQuaternion);
     return 1;
 }
 
@@ -18,8 +18,8 @@ inline int ResetMotionProgramInterpInfo(char *a0, int a1)
     if (n < 0)
         return 0;
     *(int *)e = 0;
-    CopyQuaternion(e + 0x20, D_002907E0);
-    CopyQuaternion(e + 0x30, D_002907E0);
+    CopyQuaternion(e + 0x20, IdentityQuaternion);
+    CopyQuaternion(e + 0x30, IdentityQuaternion);
     return 1;
 }
 

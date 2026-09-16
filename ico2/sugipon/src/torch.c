@@ -55,7 +55,7 @@ void torchOffSE(int a0)
     ExecuteSEPackage(a0, 0x43);
 }
 
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 extern int D_0063A44C;
 extern int SetParticleEffectByPartition(int id, float *pos, void *geo, int part);
 
@@ -87,17 +87,17 @@ void LightTorchOn(char *gobj)
         if (n > 0) {
             return;
         }
-        w->unk38 = SetParticleEffectByPartition(0x15, pos, D_002907E0, D_0063A44C);
-        w->unk44 = SetParticleEffectByPartition(0x13, pos, D_002907E0, D_0063A44C);
+        w->unk38 = SetParticleEffectByPartition(0x15, pos, IdentityQuaternion, D_0063A44C);
+        w->unk44 = SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, D_0063A44C);
         break;
     case 4:
-        w->unk34 = SetParticleEffectByPartition(0x17, pos, D_002907E0, D_0063A44C);
+        w->unk34 = SetParticleEffectByPartition(0x17, pos, IdentityQuaternion, D_0063A44C);
         break;
     default:
-        w->unk40 = SetParticleEffectByPartition(7, pos, D_002907E0, D_0063A44C);
-        w->unk34 = SetParticleEffectByPartition(5, pos, D_002907E0, D_0063A44C);
-        w->unk38 = SetParticleEffectByPartition(9, pos, D_002907E0, D_0063A44C);
-        w->unk44 = SetParticleEffectByPartition(0x13, pos, D_002907E0, D_0063A44C);
+        w->unk40 = SetParticleEffectByPartition(7, pos, IdentityQuaternion, D_0063A44C);
+        w->unk34 = SetParticleEffectByPartition(5, pos, IdentityQuaternion, D_0063A44C);
+        w->unk38 = SetParticleEffectByPartition(9, pos, IdentityQuaternion, D_0063A44C);
+        w->unk44 = SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, D_0063A44C);
         break;
     }
     w->unk24 = 0;
@@ -158,7 +158,7 @@ void torchDrainControl(char *gobj, float level)
     }
 }
 
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 extern void SetParticleEffectGeometry(int a0, void *a1, void *a2);
 
 void moveTorch(char *gobj, void *mtx)
@@ -166,19 +166,19 @@ void moveTorch(char *gobj, void *mtx)
     TorchGeoWork *w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
 
     if (w->unk40 != -1) {
-        SetParticleEffectGeometry(w->unk40, mtx, D_002907E0);
+        SetParticleEffectGeometry(w->unk40, mtx, IdentityQuaternion);
     }
     if (w->unk3C != -1) {
-        SetParticleEffectGeometry(w->unk3C, mtx, D_002907E0);
+        SetParticleEffectGeometry(w->unk3C, mtx, IdentityQuaternion);
     }
     if (w->unk34 != -1) {
-        SetParticleEffectGeometry(w->unk34, mtx, D_002907E0);
+        SetParticleEffectGeometry(w->unk34, mtx, IdentityQuaternion);
     }
     if (w->unk38 != -1) {
-        SetParticleEffectGeometry(w->unk38, mtx, D_002907E0);
+        SetParticleEffectGeometry(w->unk38, mtx, IdentityQuaternion);
     }
     if (w->unk44 != -1) {
-        SetParticleEffectGeometry(w->unk44, mtx, D_002907E0);
+        SetParticleEffectGeometry(w->unk44, mtx, IdentityQuaternion);
     }
 }
 
@@ -404,7 +404,7 @@ void TorchGeo(char *gobj)
         drain = (float)(w->unk24 - w->lifeMax) / (float)(w->life - w->lifeMax);
         torchDrainControl(gobj, 1.0f - drain);
         if (w->unk24 == w->life - 1) {
-            id = SetParticleEffectActiveSensing(0x36, w->pos, D_002907E0);
+            id = SetParticleEffectActiveSensing(0x36, w->pos, IdentityQuaternion);
             if (id != -1) {
                 ExecParticleEffect(id);
             }

@@ -5306,6 +5306,7 @@ XUnitVector = 0x0028FF10; // size:0x10  // ico2/sugipon/src/matrixDrive  // MAIN
 YUnitVector = 0x0028FF20; // size:0x10  // ico2/sugipon/src/matrixDrive  // MAIN.MAP matrixDrive.o .data at member offset 0x30 (map line 5787), ROM bytes agree
 ZUnitVector = 0x0028FF30; // size:0x10  // ico2/sugipon/src/matrixDrive  // MAIN.MAP matrixDrive.o .data at member offset 0x40 (map line 5787), ROM bytes agree
 InitialMatrix = 0x0028FF40; // size:0x40  // ico2/sugipon/src/matrixDrive  // MAIN.MAP matrixDrive.o .data at member offset 0x50 (map line 5787), ROM bytes agree
+IdentityQuaternion = 0x002907E0; // size:0x10  // ico2/sugipon/src/quaternion  // MAIN.MAP quaternion.o .data at member offset 0 (map line 5797), ROM bytes {0,0,0,1}
 actSt20aExitChk = 0x002521F0; // type:func  // ico2/script/src/st20a
 actSt20aEneChk = 0x002522C0; // type:func  // ico2/script/src/st20a
 actSt20aGirlPosChk = 0x00252338; // type:func  // ico2/script/src/st20a

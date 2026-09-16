@@ -179,7 +179,7 @@ static void getInitialMatrix(int a0, int a1);
 extern void sceVu0MulMatrix(int a0, int a1, int a2);
 extern int D_0063B8F8;
 extern int D_0063B8FC;
-extern char D_002907E0[];
+extern char IdentityQuaternion[];
 extern void ClipFloor();
 /* motionManager.h prototypes: their order is the inline tail's emission order */
 void SetHitCollisionDisplay(int a, int b);

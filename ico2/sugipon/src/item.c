@@ -38,7 +38,7 @@ extern void MultiQuaternion(void *dst, void *a, void *b);
 extern char D_0061FA20[];
 extern const char D_0061FA48[];
 extern char D_0063B8E0[];
-extern float D_002907E0[4];
+extern float IdentityQuaternion[4];
 
 void HoldItem(char *gobj, char *holder)
 {
@@ -58,7 +58,7 @@ void HoldItem(char *gobj, char *holder)
     *(int *)(*(int *)(gobj + 0x15C) + 0x74) = 0;
     SetIdentityQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
     if (IsItemKindBomb(gobj)) {
-        SetRootQuaternion(gobj, D_002907E0);
+        SetRootQuaternion(gobj, IdentityQuaternion);
     }
     GetRootQuaternion(q, gobj);
     GetRootQuaternion(hq, holder);
@@ -495,7 +495,7 @@ void uncarriedItemGeo(char *gobj)
         _ScaleVector(vel, vel, t);
         _AddVectorXYZ(vel, vel, p + 0x80);
         GetSlerpQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150,
-                           (char *)*(int *)(gobj + 0x15C) + 0x150, D_002907E0, t);
+                           (char *)*(int *)(gobj + 0x15C) + 0x150, IdentityQuaternion, t);
         RegularizeQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
         CopyVector(w.from, pos);
         CopyVector(w.to, w.from);
@@ -541,7 +541,7 @@ void uncarriedItemGeo(char *gobj)
             if (*(short *)(p + 0x90) == 0) {
                 CopyVector(q, pos);
                 q[1] = *(float *)((char *)*(int *)(gobj + 0x15C) + 0x640);
-                EntryStageMultiBgaManager(0x1EC, q, D_002907E0);
+                EntryStageMultiBgaManager(0x1EC, q, IdentityQuaternion);
             }
         } else if (0.0f < d) {
             vel[1] -= ITEM_DT * 0.5f * ITEM_DT * 1.2f;
@@ -745,7 +745,7 @@ void execBombGeo(char *gobj)
         *(char **)(q + 0x20) = stage_MakePlayBgAnimation(0x1FF);
         *(float *)(*(char **)(q + 0x20) + 4) = 1.0f;
         _CopyVector(*(char **)(q + 0x20) + 0x20, q + 0x10);
-        CopyQuaternion(*(char **)(q + 0x20) + 0x30, D_002907E0);
+        CopyQuaternion(*(char **)(q + 0x20) + 0x30, IdentityQuaternion);
         *(int *)(q + 8) = 3;
         *(int *)(*(int *)(gobj + 0x15C) + 0x74) = 0;
         break;

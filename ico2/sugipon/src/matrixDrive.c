@@ -57,7 +57,28 @@ void MatrixDrive_PushMatrix(void)
     CopyMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40 - 0x40]);
 }
 
-extern float D_0028FF80[];
+/* matrixDrive.o's .data run, in source order.  The six leading objects are
+   the engine-wide constant vectors and the identity matrix; MAIN.MAP names
+   them and other objects reach them by name.  The four matrices that follow
+   are this file's own scratch templates: each rotate/scale entry point writes
+   its varying terms into one of them and multiplies it through. */
+float ZeroVector[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+float ZeroPoint[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+float XUnitVector[4] = {1.0f, 0.0f, 0.0f, 0.0f};
+
+float YUnitVector[4] = {0.0f, 1.0f, 0.0f, 0.0f};
+
+float ZUnitVector[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+
+float InitialMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                           0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
+/* the scratch matrix MatrixDrive_RotMatrixX fills in and multiplies through */
+static float rotXWorkMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                                   0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
 extern float GetTableCos(short a0);
 extern float GetTableSin(short a0);
 extern void sceVu0MulMatrix();
@@ -66,51 +87,57 @@ void MatrixDrive_RotMatrixX(short a0)
 {
     float c = GetTableCos(a0);
     float s = GetTableSin(a0);
-    D_0028FF80[10] = c;
-    D_0028FF80[9] = -s;
-    D_0028FF80[6] = s;
-    D_0028FF80[5] = c;
+    rotXWorkMatrix[10] = c;
+    rotXWorkMatrix[9] = -s;
+    rotXWorkMatrix[6] = s;
+    rotXWorkMatrix[5] = c;
     sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
-                    (int)D_0028FF80);
+                    (int)rotXWorkMatrix);
 }
 
-extern float D_0028FFC0[];
+/* the scratch matrix MatrixDrive_RotMatrixY fills in and multiplies through */
+static float rotYWorkMatrix[16] = {1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                                   1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
 void MatrixDrive_RotMatrixY(short a0)
 {
     float c = GetTableCos(a0);
     float s = GetTableSin(a0);
-    D_0028FFC0[10] = c;
-    D_0028FFC0[8] = s;
-    D_0028FFC0[2] = -s;
-    D_0028FFC0[0] = c;
+    rotYWorkMatrix[10] = c;
+    rotYWorkMatrix[8] = s;
+    rotYWorkMatrix[2] = -s;
+    rotYWorkMatrix[0] = c;
     sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
-                    (int)D_0028FFC0);
+                    (int)rotYWorkMatrix);
 }
 
-extern float D_00290000[];
+/* the scratch matrix MatrixDrive_RotMatrixZ fills in and multiplies through */
+static float rotZWorkMatrix[16] = {1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+                                   0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
 void MatrixDrive_RotMatrixZ(short a0)
 {
     float c = GetTableCos(a0);
     float s = GetTableSin(a0);
-    D_00290000[5] = c;
-    D_00290000[4] = -s;
-    D_00290000[1] = s;
-    D_00290000[0] = c;
+    rotZWorkMatrix[5] = c;
+    rotZWorkMatrix[4] = -s;
+    rotZWorkMatrix[1] = s;
+    rotZWorkMatrix[0] = c;
     sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
-                    (int)D_00290000);
+                    (int)rotZWorkMatrix);
 }
 
-extern float D_00290040[];
+/* the scratch matrix MatrixDrive_ScaleMatrix fills in and multiplies through */
+static float scaleWorkMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                                    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
 void MatrixDrive_ScaleMatrix(float x, float y, float z)
 {
-    D_00290040[0] = x;
-    D_00290040[5] = y;
-    D_00290040[10] = z;
+    scaleWorkMatrix[0] = x;
+    scaleWorkMatrix[5] = y;
+    scaleWorkMatrix[10] = z;
     sceVu0MulMatrix(&D_00668640[D_00639F00 * 0x40], &D_00668640[D_00639F00 * 0x40],
-                    (int)D_00290040);
+                    (int)scaleWorkMatrix);
 }
 
 extern float FSqrt(float a0);

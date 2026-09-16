@@ -53,10 +53,11 @@ typedef struct malloc_chunk *mchunkptr;
 #define chunk_at_offset(p, s) ((mchunkptr)(((char *)(p)) + (s)))
 #define inuse_bit_at_offset(p, s) (((mchunkptr)((char *)(p) + (s)))->size & PREV_INUSE)
 
-/* The bin array of the shipped allocator. */
-extern mchunkptr D_0054CEC8[];
+/* The bin array of the shipped allocator (mallocr.o owns it; MAIN.MAP map
+   line 6262 names it __malloc_av_). */
+extern mchunkptr __malloc_av_[];
 
-#define bin_at(i) ((mchunkptr)((char *)&(D_0054CEC8[2 * (i) + 2]) - 2 * SIZE_SZ))
+#define bin_at(i) ((mchunkptr)((char *)&(__malloc_av_[2 * (i) + 2]) - 2 * SIZE_SZ))
 #define top (bin_at(0)->fd)
 #define last_remainder (bin_at(1))
 #define binblocks (bin_at(0)->size)
@@ -110,10 +111,8 @@ extern mchunkptr D_0054CEC8[];
         }                                                                                          \
     }
 
-/* trim_threshold */
-extern unsigned long D_0054D2D0[];
-/* top_pad */
-extern unsigned int D_0054D2D8[];
+extern unsigned long __malloc_trim_threshold;
+extern unsigned int __malloc_top_pad;
 extern void __malloc_lock(void);
 extern void __malloc_unlock();
 extern int _malloc_trim_r(int *self, unsigned int pad);
@@ -155,8 +154,8 @@ void _free_r(int *self, void *mem)
 
         set_head(p, sz | PREV_INUSE);
         top = p;
-        if ((unsigned long)(sz) >= (unsigned long)D_0054D2D0[0]) {
-            _malloc_trim_r(self, D_0054D2D8[0]);
+        if ((unsigned long)(sz) >= (unsigned long)__malloc_trim_threshold) {
+            _malloc_trim_r(self, __malloc_top_pad);
         }
         __malloc_unlock(self);
         return;
@@ -198,8 +197,10 @@ void _free_r(int *self, void *mem)
     __malloc_unlock(self);
 }
 
-extern int D_0054D2E0[];
-extern int D_0054D2F8[];
+/* kept in the array spelling the matched code needs: a plain scalar makes
+   gcc address them differently */
+extern int __malloc_sbrk_base[];
+extern int __malloc_current_mallinfo[];
 extern long long __muldi3(long long a0, long long a1);
 extern long long __udivdi3(long long a0, long long a1);
 extern int _sbrk_r(int *self, int a1);
@@ -227,7 +228,7 @@ int _malloc_trim_r(int *self, unsigned int a1)
     r4 = _sbrk_r(self, 0);
     A = r4 - (int)top;
     if (A >= 0x10) {
-        D_0054D2F8[0] = r4 - D_0054D2E0[0];
+        __malloc_current_mallinfo[0] = r4 - __malloc_sbrk_base[0];
         top->size = A | 1;
     }
 fail:
@@ -235,7 +236,7 @@ fail:
     return 0;
 adjust:
     top->size = (A - newlen) | 1;
-    D_0054D2F8[0] -= (int)newlen;
+    __malloc_current_mallinfo[0] -= (int)newlen;
     __malloc_unlock(self);
     return 1;
 }
