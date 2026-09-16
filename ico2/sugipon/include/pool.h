@@ -12,16 +12,16 @@
 #ifndef POOL_H
 #define POOL_H
 
-extern int CheckPoolHasGridMesh(char *a0);
-extern void DispLimitedPoolReflactionMesh(int *a0);
-extern void GetPoolGlobalDrainVector(void *dst, char *a0);
-extern float GetPoolGlobalHeight(char *a0);
-extern float GetPoolGlobalHeightDetail(char *a0, float *pos);
-extern void InitLimitedPoolReflactionMesh(char *a0);
-extern void SetFallDownSplash(int pool, void *self);
-extern void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2);
-extern void copyToWork(int pri);
-extern void dispPool(char *self);
-extern void updatePoolGeo(char *self);
+int CheckPoolHasGridMesh(char *a0);
+void DispLimitedPoolReflactionMesh(int *a0);
+void GetPoolGlobalDrainVector(void *dst, char *a0);
+float GetPoolGlobalHeight(char *a0);
+float GetPoolGlobalHeightDetail(char *a0, float *pos);
+void InitLimitedPoolReflactionMesh(char *a0);
+void SetFallDownSplash(int pool, void *self);
+void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2);
+void copyToWork(int pri);
+void dispPool(char *self);
+void updatePoolGeo(char *self);
 
 #endif /* POOL_H */

@@ -35,7 +35,7 @@
  * of 39 hosts is attributed to line 47 (ACTParaStatus_Exec, actCommonCling,
  * EnemyCtrlBeforeFunc, GetFlyPosition, InitBirdGeo, LightLineGeo, ...).
  * RECONSTRUCTION, no matched host yet. */
-extern float _GetRandom(void);
+float _GetRandom(void);
 
 static __inline__ float random_unit(void)
 {
@@ -60,7 +60,7 @@ static __inline__ float random_signed(void)
  * a .lit4 float.  That float is 0x37800080 in the ROM we build against
  * (retail PAL D_006394E4, read out of baserom/pal/baseelf.elf) = 1/65535.
  * RECONSTRUCTION, no matched host yet. */
-extern int rand(void);
+int rand(void);
 
 static __inline__ float crt_random_unit(void)
 {

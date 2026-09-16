@@ -12,23 +12,23 @@
 #ifndef ST02A_H
 #define ST02A_H
 
-extern void actSt02aDoorDownChk(volatile int a0);
-extern void actSt02aDoorDownEffect(volatile int a0);
-extern void actSt02aDoorUpChk(volatile int a0);
-extern void actSt02aDoorUpEffect(volatile int a0);
-extern void actSt02aEneChk(volatile int a0);
-extern void actSt02aFenceMain(volatile int a0);
-extern void actSt02aFenceOpen(volatile int a0);
-extern void actSt02aFenceOpenSub(volatile int a0);
-extern void actSt02aGondolaDown(volatile int a0);
-extern void actSt02aGondolaMain(volatile int a0);
-extern void actSt02aGondolaUp(volatile int a0);
-extern void actSt02aSecretItemChk(volatile int a0);
-extern void actSt02aTakiWayOffChk(volatile int a0);
-extern void actSt02aTakiWayOnChk(volatile int a0);
-extern void actSt02aWaterFallChk(volatile int a0);
-extern void actSt02aWaterFallReflactionEffect(volatile int a0);
-extern void actSt02aWayOffChk(volatile int a0);
-extern void actSt02aWayOnChk(volatile int a0);
+void actSt02aDoorDownChk(volatile int a0);
+void actSt02aDoorDownEffect(volatile int a0);
+void actSt02aDoorUpChk(volatile int a0);
+void actSt02aDoorUpEffect(volatile int a0);
+void actSt02aEneChk(volatile int a0);
+void actSt02aFenceMain(volatile int a0);
+void actSt02aFenceOpen(volatile int a0);
+void actSt02aFenceOpenSub(volatile int a0);
+void actSt02aGondolaDown(volatile int a0);
+void actSt02aGondolaMain(volatile int a0);
+void actSt02aGondolaUp(volatile int a0);
+void actSt02aSecretItemChk(volatile int a0);
+void actSt02aTakiWayOffChk(volatile int a0);
+void actSt02aTakiWayOnChk(volatile int a0);
+void actSt02aWaterFallChk(volatile int a0);
+void actSt02aWaterFallReflactionEffect(volatile int a0);
+void actSt02aWayOffChk(volatile int a0);
+void actSt02aWayOnChk(volatile int a0);
 
 #endif /* ST02A_H */

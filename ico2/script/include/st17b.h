@@ -12,6 +12,6 @@
 #ifndef ST17B_H
 #define ST17B_H
 
-extern void actSt17bCheckChk(volatile int a0);
+void actSt17bCheckChk(volatile int a0);
 
 #endif /* ST17B_H */

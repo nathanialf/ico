@@ -12,6 +12,6 @@
 #ifndef ACT_WISH_H
 #define ACT_WISH_H
 
-extern void ACTGetWish_FromPad(char *a0, float *a1);
+void ACTGetWish_FromPad(char *a0, float *a1);
 
 #endif /* ACT_WISH_H */

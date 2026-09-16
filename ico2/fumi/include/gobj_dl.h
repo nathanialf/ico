@@ -12,8 +12,8 @@
 #ifndef GOBJ_DL_H
 #define GOBJ_DL_H
 
-extern void cut_gobj_dl_link(int *self);
-extern void isysGObjDlInit(void);
-extern void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4);
+void cut_gobj_dl_link(int *self);
+void isysGObjDlInit(void);
+void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4);
 
 #endif /* GOBJ_DL_H */

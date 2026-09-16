@@ -12,10 +12,10 @@
 #ifndef FIGHTSOUND_H
 #define FIGHTSOUND_H
 
-extern void fightSoundClose(void);
-extern int fightSoundPlayChk(void);
-extern void fightSoundProcessMain(void);
-extern void fightSoundProcessRequestPause(void);
-extern void fightSoundProcessRequestStart(void);
+void fightSoundClose(void);
+int fightSoundPlayChk(void);
+void fightSoundProcessMain(void);
+void fightSoundProcessRequestPause(void);
+void fightSoundProcessRequestStart(void);
 
 #endif /* FIGHTSOUND_H */

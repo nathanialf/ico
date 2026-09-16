@@ -12,15 +12,15 @@
 #ifndef WAY_TOOL_H
 #define WAY_TOOL_H
 
-extern void ExtractWayData(int stage_no);
-extern void cursor_control(volatile int a0);
-extern int group_create(void);
-extern int play_way(void);
-extern int point_delete(void);
-extern int point_insert(void);
-extern int point_nige(void);
-extern int quick_load_wpfile(void);
-extern int quick_save_wpfile(void);
-extern int wp_print_out(void);
+void ExtractWayData(int stage_no);
+void cursor_control(volatile int a0);
+int group_create(void);
+int play_way(void);
+int point_delete(void);
+int point_insert(void);
+int point_nige(void);
+int quick_load_wpfile(void);
+int quick_save_wpfile(void);
+int wp_print_out(void);
 
 #endif /* WAY_TOOL_H */

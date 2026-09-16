@@ -12,8 +12,8 @@
 #ifndef ACT_BIRD_H
 #define ACT_BIRD_H
 
-extern void Debug_StickControl(char *self);
-extern void _ACTSendMailToBird(void *a0, void *a1, void *a2);
-extern void subBirdBrainMain();
+void Debug_StickControl(char *self);
+void _ACTSendMailToBird(void *a0, void *a1, void *a2);
+void subBirdBrainMain();
 
 #endif /* ACT_BIRD_H */

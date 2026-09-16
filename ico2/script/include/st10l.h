@@ -12,23 +12,23 @@
 #ifndef ST10L_H
 #define ST10L_H
 
-extern void actSt10lBoxAChk(volatile int a0);
-extern void actSt10lBoxBChk(volatile int a0);
-extern void actSt10lBoxChk(volatile int a0);
-extern void actSt10lChainMain(volatile int a0);
-extern void actSt10lChainMove(volatile int a0);
-extern void actSt10lChainSwitch(volatile int a0);
-extern void actSt10lEneCam1Chk(volatile int a0);
-extern void actSt10lEneCam2Chk(volatile int a0);
-extern void actSt10lEneCam3Chk(volatile int a0);
-extern void actSt10lEneKillChk(volatile int a0);
-extern void actSt10lFloorLeft(volatile int a0);
-extern void actSt10lFloorMain(volatile int a0);
-extern void actSt10lFloorRight(volatile int a0);
-extern void actSt10lFloorSwitch(volatile int a0);
-extern void actSt10lGondolaDown(volatile int a0);
-extern void actSt10lGondolaMain(volatile int a0);
-extern void actSt10lGondolaSwitch(volatile int a0);
-extern void actSt10lGondolaUp(volatile int a0);
+void actSt10lBoxAChk(volatile int a0);
+void actSt10lBoxBChk(volatile int a0);
+void actSt10lBoxChk(volatile int a0);
+void actSt10lChainMain(volatile int a0);
+void actSt10lChainMove(volatile int a0);
+void actSt10lChainSwitch(volatile int a0);
+void actSt10lEneCam1Chk(volatile int a0);
+void actSt10lEneCam2Chk(volatile int a0);
+void actSt10lEneCam3Chk(volatile int a0);
+void actSt10lEneKillChk(volatile int a0);
+void actSt10lFloorLeft(volatile int a0);
+void actSt10lFloorMain(volatile int a0);
+void actSt10lFloorRight(volatile int a0);
+void actSt10lFloorSwitch(volatile int a0);
+void actSt10lGondolaDown(volatile int a0);
+void actSt10lGondolaMain(volatile int a0);
+void actSt10lGondolaSwitch(volatile int a0);
+void actSt10lGondolaUp(volatile int a0);
 
 #endif /* ST10L_H */

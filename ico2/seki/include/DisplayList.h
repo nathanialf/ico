@@ -12,10 +12,10 @@
 #ifndef DISPLAYLIST_H
 #define DISPLAYLIST_H
 
-extern void dl_CloseDma(void);
-extern int dl_GetPri(void);
-extern void dl_Init(void);
-extern void dl_OpenDma(int a0, int a1, int a2);
-extern void dl_SetDLPriority(int a0);
+void dl_CloseDma(void);
+int dl_GetPri(void);
+void dl_Init(void);
+void dl_OpenDma(int a0, int a1, int a2);
+void dl_SetDLPriority(int a0);
 
 #endif /* DISPLAYLIST_H */

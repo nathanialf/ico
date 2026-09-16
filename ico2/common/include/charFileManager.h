@@ -12,7 +12,7 @@
 #ifndef CHARFILEMANAGER_H
 #define CHARFILEMANAGER_H
 
-extern void CSVSYSTEM_ReadCharFiles(char *d, int id);
-extern int GetPObjAddress(int obj);
+void CSVSYSTEM_ReadCharFiles(char *d, int id);
+int GetPObjAddress(int obj);
 
 #endif /* CHARFILEMANAGER_H */

@@ -12,11 +12,11 @@
 #ifndef SHADOW_H
 #define SHADOW_H
 
-extern void shadow_DispCancel(int a0, int a1);
-extern void shadow_Init(void);
-extern void shadow_Render(void);
-extern void shadow_RenderVolume(char *o);
-extern void shadow_RenderVolumeMulti(char *o, int idx);
-extern void shadow_SetLength(char *a0, float f);
+void shadow_DispCancel(int a0, int a1);
+void shadow_Init(void);
+void shadow_Render(void);
+void shadow_RenderVolume(char *o);
+void shadow_RenderVolumeMulti(char *o, int idx);
+void shadow_SetLength(char *a0, float f);
 
 #endif /* SHADOW_H */

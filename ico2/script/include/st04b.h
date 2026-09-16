@@ -12,8 +12,8 @@
 #ifndef ST04B_H
 #define ST04B_H
 
-extern void actSt04bEne1Chk(volatile int a0);
-extern void actSt04bGirlWay(volatile int a0);
-extern void actSt04bSekizoChk(volatile int a0);
+void actSt04bEne1Chk(volatile int a0);
+void actSt04bGirlWay(volatile int a0);
+void actSt04bSekizoChk(volatile int a0);
 
 #endif /* ST04B_H */

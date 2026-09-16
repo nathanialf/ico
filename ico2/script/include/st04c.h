@@ -12,11 +12,11 @@
 #ifndef ST04C_H
 #define ST04C_H
 
-extern void actSt04cDoorDownChk(volatile int a0);
-extern void actSt04cDoorDownEffect(volatile int a0);
-extern void actSt04cEneChk(volatile int a0);
-extern void actSt04cIntroChk(volatile int a0);
-extern void actSt04cIntroChkSub(volatile int a0);
-extern void actSt04lDoorChk(volatile int a0);
+void actSt04cDoorDownChk(volatile int a0);
+void actSt04cDoorDownEffect(volatile int a0);
+void actSt04cEneChk(volatile int a0);
+void actSt04cIntroChk(volatile int a0);
+void actSt04cIntroChkSub(volatile int a0);
+void actSt04lDoorChk(volatile int a0);
 
 #endif /* ST04C_H */

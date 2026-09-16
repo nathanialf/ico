@@ -12,10 +12,10 @@
 #ifndef EBRAIN_H
 #define EBRAIN_H
 
-extern int GetStageFromLabel(int label);
-extern void *eBrainGetTarget(char *self);
-extern int eBrainGetTargetGeneratorFromLabel(int label);
-extern void eBrainInit(void);
-extern void eBrainSendMes(void *gop, int mes);
+int GetStageFromLabel(int label);
+void *eBrainGetTarget(char *self);
+int eBrainGetTargetGeneratorFromLabel(int label);
+void eBrainInit(void);
+void eBrainSendMes(void *gop, int mes);
 
 #endif /* EBRAIN_H */

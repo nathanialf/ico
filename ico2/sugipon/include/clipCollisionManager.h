@@ -12,8 +12,8 @@
 #ifndef CLIPCOLLISIONMANAGER_H
 #define CLIPCOLLISIONMANAGER_H
 
-extern int CreateClipCollisionManagerGObj(void);
-extern void *RequestClipCollision(int *a0);
-extern void actClipCollisionCore(volatile unsigned int self);
+int CreateClipCollisionManagerGObj(void);
+void *RequestClipCollision(int *a0);
+void actClipCollisionCore(volatile unsigned int self);
 
 #endif /* CLIPCOLLISIONMANAGER_H */

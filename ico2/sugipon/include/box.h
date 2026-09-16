@@ -12,22 +12,22 @@
 #ifndef BOX_H
 #define BOX_H
 
-extern int CheckReadyAllSwitches();
-extern int GetBoxMode(char *a0);
-extern void GetFloorLeverGlobalHoldPoint(void *dst, char *a1);
-extern void GetWallLeverGlobalHoldPoint(void *out, void *lev);
-extern int IsThisBoxTruck(char *a0);
-extern int IsWallLeverStatus(char *a0);
-extern void ReInitBoxGeo(char *a0);
-extern void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2);
-extern void SetSwitchState(char *a0, int a1);
-extern void SetWallLeverWithNodePoint(char *a0, char *a1, int a2);
-extern int _checkItemCollision(void *a0);
-extern void action(char *a0);
-extern int checkFieldContact(char *a0, float d);
-extern void dispWheels(char *a0);
-extern void execFloating(char *a0);
-extern int execNormalMove(char *a0, int a1);
-extern int onPath(char *a0);
+int CheckReadyAllSwitches();
+int GetBoxMode(char *a0);
+void GetFloorLeverGlobalHoldPoint(void *dst, char *a1);
+void GetWallLeverGlobalHoldPoint(void *out, void *lev);
+int IsThisBoxTruck(char *a0);
+int IsWallLeverStatus(char *a0);
+void ReInitBoxGeo(char *a0);
+void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2);
+void SetSwitchState(char *a0, int a1);
+void SetWallLeverWithNodePoint(char *a0, char *a1, int a2);
+int _checkItemCollision(void *a0);
+void action(char *a0);
+int checkFieldContact(char *a0, float d);
+void dispWheels(char *a0);
+void execFloating(char *a0);
+int execNormalMove(char *a0, int a1);
+int onPath(char *a0);
 
 #endif /* BOX_H */

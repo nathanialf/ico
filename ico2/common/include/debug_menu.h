@@ -12,6 +12,6 @@
 #ifndef DEBUG_MENU_H
 #define DEBUG_MENU_H
 
-extern void init_debug_menu(void);
+void init_debug_menu(void);
 
 #endif /* DEBUG_MENU_H */

@@ -12,11 +12,11 @@
 #ifndef WAY_UTIL_H
 #define WAY_UTIL_H
 
-extern void ez_circle(void);
-extern char *nearest_waypoint_by_lineseg(void *arg0);
-extern int set_bridge(int gid);
-extern int visible_waypoint_of_all(void *a0);
-extern char *visible_waypoint_of_all_except_gid(int *pos, int gid);
-extern char *waypoint_with_range(int *arg0, float thresh);
+void ez_circle(void);
+char *nearest_waypoint_by_lineseg(void *arg0);
+int set_bridge(int gid);
+int visible_waypoint_of_all(void *a0);
+char *visible_waypoint_of_all_except_gid(int *pos, int gid);
+char *waypoint_with_range(int *arg0, float thresh);
 
 #endif /* WAY_UTIL_H */

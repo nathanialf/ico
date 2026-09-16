@@ -12,7 +12,7 @@
 #ifndef STAGE_ORIENT_H
 #define STAGE_ORIENT_H
 
-extern void OtherStagePositionGet(float *dst, int stage, int id, int *buf);
-extern void StageOrientInit(void);
+void OtherStagePositionGet(float *dst, int stage, int id, int *buf);
+void StageOrientInit(void);
 
 #endif /* STAGE_ORIENT_H */

@@ -12,20 +12,20 @@
 #ifndef STREAMMOTIONMANAGER_H
 #define STREAMMOTIONMANAGER_H
 
-extern int CheckReadyStreamMotion(void);
-extern void ClearStreamMotionEntry(char *gobj);
-extern void DeleteStreamMotionManager(void);
-extern void DisableStreamMotionManagerAutomaticDelete(void);
-extern int EntryStreamMotion(char *a0);
-extern int GetDataSizeOfStreamMotion(int no);
-extern float GetStreamMotionData(char *dst, int no);
-extern void GetStreamMotionDataNext(int a0, int a1);
-extern void MallocStreamMotionBuffer(void);
-extern void PlayStreamMotion(void);
-extern void SetStreamMotionFinishCallBackFunc(int a0, int a1);
-extern void StandbyStreamMotion(int self);
-extern void _deleteStreamMotionManager(void);
-extern int _infoUpdate(void);
-extern void getStreamMotionData(char *dst, int off, int no);
+int CheckReadyStreamMotion(void);
+void ClearStreamMotionEntry(char *gobj);
+void DeleteStreamMotionManager(void);
+void DisableStreamMotionManagerAutomaticDelete(void);
+int EntryStreamMotion(char *a0);
+int GetDataSizeOfStreamMotion(int no);
+float GetStreamMotionData(char *dst, int no);
+void GetStreamMotionDataNext(int a0, int a1);
+void MallocStreamMotionBuffer(void);
+void PlayStreamMotion(void);
+void SetStreamMotionFinishCallBackFunc(int a0, int a1);
+void StandbyStreamMotion(int self);
+void _deleteStreamMotionManager(void);
+int _infoUpdate(void);
+void getStreamMotionData(char *dst, int off, int no);
 
 #endif /* STREAMMOTIONMANAGER_H */

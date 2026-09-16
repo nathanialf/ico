@@ -12,9 +12,9 @@
 #ifndef STATICBLUR_H
 #define STATICBLUR_H
 
-extern void SetAuraInspireParam(float a0);
-extern void SetMotionBlur(int val);
-extern void SetStaticBlur(int x);
-extern void blur(int n, void *col);
+void SetAuraInspireParam(float a0);
+void SetMotionBlur(int val);
+void SetStaticBlur(int x);
+void blur(int n, void *col);
 
 #endif /* STATICBLUR_H */

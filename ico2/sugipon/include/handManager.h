@@ -12,8 +12,8 @@
 #ifndef HANDMANAGER_H
 #define HANDMANAGER_H
 
-extern void HandManager(char *obj);
-extern float _handManager(char *obj, char *hw, char *vec, char *ref, int node);
-extern void connectToTarget(char *obj, char *hw, int na, int nb, int nc);
+void HandManager(char *obj);
+float _handManager(char *obj, char *hw, char *vec, char *ref, int node);
+void connectToTarget(char *obj, char *hw, int na, int nb, int nc);
 
 #endif /* HANDMANAGER_H */

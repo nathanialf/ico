@@ -12,22 +12,22 @@
 #ifndef MCARD_H
 #define MCARD_H
 
-extern int iosMcChdirProduct(void *a0);
-extern int iosMcDelete(void *a0);
-extern int iosMcFormat(void *a0);
-extern int iosMcGetBlockSaveInfo(void *a0);
-extern int iosMcGetDir(void *a0);
-extern int iosMcGetInfo(void *a0);
-extern int iosMcHandlerRead();
-extern int iosMcHandlerWrite();
-extern int iosMcLoadGameBlock(void *a0, int a1);
-extern int iosMcLoadProductBlock(void *a0);
-extern void iosMcMgrSync(void *mp);
-extern int iosMcSaveGameBlock(void *a0, int a1);
-extern int iosMcSaveIconBlock(void *a0);
-extern int iosMcSaveProductBlock(void *a0);
-extern int iosMcSync(unsigned long *a0);
-extern void iosMcTest(void);
-extern int iosMcUnformat(void *a0);
+int iosMcChdirProduct(void *a0);
+int iosMcDelete(void *a0);
+int iosMcFormat(void *a0);
+int iosMcGetBlockSaveInfo(void *a0);
+int iosMcGetDir(void *a0);
+int iosMcGetInfo(void *a0);
+int iosMcHandlerRead();
+int iosMcHandlerWrite();
+int iosMcLoadGameBlock(void *a0, int a1);
+int iosMcLoadProductBlock(void *a0);
+void iosMcMgrSync(void *mp);
+int iosMcSaveGameBlock(void *a0, int a1);
+int iosMcSaveIconBlock(void *a0);
+int iosMcSaveProductBlock(void *a0);
+int iosMcSync(unsigned long *a0);
+void iosMcTest(void);
+int iosMcUnformat(void *a0);
 
 #endif /* MCARD_H */

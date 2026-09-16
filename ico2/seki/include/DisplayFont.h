@@ -12,8 +12,8 @@
 #ifndef DISPLAYFONT_H
 #define DISPLAYFONT_H
 
-extern int font_CheckAlign(unsigned char *col, unsigned char *str);
-extern int font_GetHeight(void);
-extern void font_Init(void);
+int font_CheckAlign(unsigned char *col, unsigned char *str);
+int font_GetHeight(void);
+void font_Init(void);
 
 #endif /* DISPLAYFONT_H */

@@ -12,7 +12,7 @@
 #ifndef BOY_H
 #define BOY_H
 
-extern void SelectBoyCrown(char *a0, int a1);
-extern void SetBoyStonizedVisual(char *a0);
+void SelectBoyCrown(char *a0, int a1);
+void SetBoyStonizedVisual(char *a0);
 
 #endif /* BOY_H */

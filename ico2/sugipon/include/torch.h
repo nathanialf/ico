@@ -12,9 +12,9 @@
 #ifndef TORCH_H
 #define TORCH_H
 
-extern int IsTorchLightOn(char *a0);
-extern void LightTorchOff(char *gobj);
-extern void LightTorchOn(char *gobj);
-extern void SetTorchChainReactionFlag(char *a0, int a1);
+int IsTorchLightOn(char *a0);
+void LightTorchOff(char *gobj);
+void LightTorchOn(char *gobj);
+void SetTorchChainReactionFlag(char *a0, int a1);
 
 #endif /* TORCH_H */

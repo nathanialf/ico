@@ -12,12 +12,12 @@
 #ifndef ST13A_H
 #define ST13A_H
 
-extern void actSt13aChainNG(volatile int a0);
-extern void actSt13aChainOK(volatile int a0);
-extern void actSt13aCheckChk(volatile int a0);
-extern void actSt13aElevMain(volatile int a0);
-extern void actSt13aElevSwitch(volatile int a0);
-extern void actSt13aElevUp(volatile int a0);
-extern void actSt13aSekizoChk(volatile int a0);
+void actSt13aChainNG(volatile int a0);
+void actSt13aChainOK(volatile int a0);
+void actSt13aCheckChk(volatile int a0);
+void actSt13aElevMain(volatile int a0);
+void actSt13aElevSwitch(volatile int a0);
+void actSt13aElevUp(volatile int a0);
+void actSt13aSekizoChk(volatile int a0);
 
 #endif /* ST13A_H */

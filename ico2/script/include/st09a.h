@@ -12,16 +12,16 @@
 #ifndef ST09A_H
 #define ST09A_H
 
-extern void actSt09aBrgDown(volatile int a0);
-extern void actSt09aBrgDownSub(volatile int a0);
-extern void actSt09aBrgMain(volatile int a0);
-extern void actSt09aBrgSwitch(volatile int a0);
-extern void actSt09aElvDown(volatile int a0);
-extern void actSt09aElvMain(volatile int a0);
-extern void actSt09aElvSwitch(volatile int a0);
-extern void actSt09aElvUp(volatile int a0);
-extern void actSt09aHint1Chk(volatile int a0);
-extern void actSt09aHint2Chk(volatile int a0);
-extern void actSt09aIntroChk(volatile int a0);
+void actSt09aBrgDown(volatile int a0);
+void actSt09aBrgDownSub(volatile int a0);
+void actSt09aBrgMain(volatile int a0);
+void actSt09aBrgSwitch(volatile int a0);
+void actSt09aElvDown(volatile int a0);
+void actSt09aElvMain(volatile int a0);
+void actSt09aElvSwitch(volatile int a0);
+void actSt09aElvUp(volatile int a0);
+void actSt09aHint1Chk(volatile int a0);
+void actSt09aHint2Chk(volatile int a0);
+void actSt09aIntroChk(volatile int a0);
 
 #endif /* ST09A_H */

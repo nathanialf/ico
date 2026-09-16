@@ -12,10 +12,10 @@
 #ifndef BACKSTAGE_H
 #define BACKSTAGE_H
 
-extern void backStageDebugTimeZero(void);
-extern void backStageProcessInStage(float arg);
-extern void backStageProcessInit(void);
-extern void backStageProcessOutStage(void);
-extern void routeSetPos(int gobj0, int gobj1, float *out, float ratio);
+void backStageDebugTimeZero(void);
+void backStageProcessInStage(float arg);
+void backStageProcessInit(void);
+void backStageProcessOutStage(void);
+void routeSetPos(int gobj0, int gobj1, float *out, float ratio);
 
 #endif /* BACKSTAGE_H */

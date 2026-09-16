@@ -12,23 +12,23 @@
 #ifndef FRAMEDEPENDSEQUENCE_H
 #define FRAMEDEPENDSEQUENCE_H
 
-extern int ExecuteDirectSE(void *gobj, int id);
-extern void ExecuteSEPackage(int a0, int a1);
-extern void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2);
-extern void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f);
-extern void InitFrameDependSequence(void *a0);
-extern void StopFDSVibration(void *a0);
-extern void StopSEPackage(int a0);
-extern void StopSEPackageWithGroupVariation(int a0, int a1);
-extern int checkModelDataID(void *a0, int a1);
-extern int checkWaterDepth(void *a0, int a1);
-extern int checkWeaponType(void *a0, int a1);
-extern int execSE(int a0, void *a1);
-extern int execVib(int a0, void *a1);
-extern int execWeaponLightOff(void);
-extern void executeSEPackageByGObj(void *gobj, int no, int grp);
-extern void executeSEPackageWithNoGObj(int no);
-extern int playSE(int no);
-extern int playSERandomID(int no, void *entry);
+int ExecuteDirectSE(void *gobj, int id);
+void ExecuteSEPackage(int a0, int a1);
+void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2);
+void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f);
+void InitFrameDependSequence(void *a0);
+void StopFDSVibration(void *a0);
+void StopSEPackage(int a0);
+void StopSEPackageWithGroupVariation(int a0, int a1);
+int checkModelDataID(void *a0, int a1);
+int checkWaterDepth(void *a0, int a1);
+int checkWeaponType(void *a0, int a1);
+int execSE(int a0, void *a1);
+int execVib(int a0, void *a1);
+int execWeaponLightOff(void);
+void executeSEPackageByGObj(void *gobj, int no, int grp);
+void executeSEPackageWithNoGObj(int no);
+int playSE(int no);
+int playSERandomID(int no, void *entry);
 
 #endif /* FRAMEDEPENDSEQUENCE_H */

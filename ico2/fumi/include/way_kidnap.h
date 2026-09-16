@@ -12,12 +12,12 @@
 #ifndef WAY_KIDNAP_H
 #define WAY_KIDNAP_H
 
-extern int CopyWpPos(float dst[][4], int from, int to);
-extern void *NearestEnemyFromGirl(float *len);
-extern int NumOfWpPos(void);
-extern float WayLengthOfGObj_GObj(void *obj0, void *obj1);
-extern float WayLengthOfPos_Pos(float *pos0, float *pos1);
-extern int WayPointWithRangeFromPos(float *pos, int mode, float range);
-extern int WayPointWithRangeFromPos2(float *pos, void *a1, float *out, int flag);
+int CopyWpPos(float dst[][4], int from, int to);
+void *NearestEnemyFromGirl(float *len);
+int NumOfWpPos(void);
+float WayLengthOfGObj_GObj(void *obj0, void *obj1);
+float WayLengthOfPos_Pos(float *pos0, float *pos1);
+int WayPointWithRangeFromPos(float *pos, int mode, float range);
+int WayPointWithRangeFromPos2(float *pos, void *a1, float *out, int flag);
 
 #endif /* WAY_KIDNAP_H */

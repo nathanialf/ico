@@ -12,31 +12,31 @@
 #ifndef CAMERA_ROOT_H
 #define CAMERA_ROOT_H
 
-extern void Camctrl_ExitEveRock(void);
-extern void Camctrl_SetTarget(int a0, int a1, int a2);
-extern void CameraChangeTargetParallel(int a0, int a1);
-extern void CameraEditManual();
-extern int CameraGetMode(void);
-extern void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle);
-extern int CameraGetTarget(void);
-extern void CameraGetTargets(int *a0, int *a1);
-extern void CameraSetMode(int x);
-extern void *GetCameraPos(void);
-extern int *GetCurrentCameraSet2(void);
-extern void InitCamera(void);
-extern void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
-extern void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38, float blend);
-extern void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType);
-extern int InsertCamera_isEnable(void);
-extern void MakeCameraMatrix();
-extern void ResetHandCameraLimitInDemo(void);
-extern void ResetZoomMaxValInDemo(void);
-extern void SetCameraFlag_GamecamCutBack(void);
-extern void SetCameraFlag_LwsCutBack(void);
-extern void SetCameraMatrix(void);
-extern void SetHandCameraLimitInDemo(int a0, int a1);
-extern void SetMonitorCameraInitializeFlag(void);
-extern void SetWSMatrix(void *a0);
-extern void SetZoomMaxValInDemo(int a0);
+void Camctrl_ExitEveRock(void);
+void Camctrl_SetTarget(int a0, int a1, int a2);
+void CameraChangeTargetParallel(int a0, int a1);
+void CameraEditManual();
+int CameraGetMode(void);
+void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle);
+int CameraGetTarget(void);
+void CameraGetTargets(int *a0, int *a1);
+void CameraSetMode(int x);
+void *GetCameraPos(void);
+int *GetCurrentCameraSet2(void);
+void InitCamera(void);
+void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
+void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38, float blend);
+void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType);
+int InsertCamera_isEnable(void);
+void MakeCameraMatrix();
+void ResetHandCameraLimitInDemo(void);
+void ResetZoomMaxValInDemo(void);
+void SetCameraFlag_GamecamCutBack(void);
+void SetCameraFlag_LwsCutBack(void);
+void SetCameraMatrix(void);
+void SetHandCameraLimitInDemo(int a0, int a1);
+void SetMonitorCameraInitializeFlag(void);
+void SetWSMatrix(void *a0);
+void SetZoomMaxValInDemo(int a0);
 
 #endif /* CAMERA_ROOT_H */

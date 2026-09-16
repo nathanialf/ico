@@ -12,11 +12,11 @@
 #ifndef BASIC_H
 #define BASIC_H
 
-extern void dma_init(void);
-extern int freeseki(void *a0);
-extern void malloc_SetPartition(int val);
-extern int mallocseki(int size);
-extern void matrix_init(void);
-extern void resetmallocseki(void);
+void dma_init(void);
+int freeseki(void *a0);
+void malloc_SetPartition(int val);
+int mallocseki(int size);
+void matrix_init(void);
+void resetmallocseki(void);
 
 #endif /* BASIC_H */

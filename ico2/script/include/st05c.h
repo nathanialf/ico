@@ -12,13 +12,13 @@
 #ifndef ST05C_H
 #define ST05C_H
 
-extern void actSt04rDoor2Chk(volatile int a0);
-extern void actSt04rDoor2Sub(volatile int a0);
-extern void actSt04rDoorChk(volatile int a0);
-extern void actSt04rDoorSub(volatile int a0);
-extern void actSt05cCrestHintChk(volatile int a0);
-extern void actSt05cDoorDownChk(volatile int a0);
-extern void actSt05cDoorDownEffect(volatile int a0);
-extern void actSt05cEneChk(volatile int a0);
+void actSt04rDoor2Chk(volatile int a0);
+void actSt04rDoor2Sub(volatile int a0);
+void actSt04rDoorChk(volatile int a0);
+void actSt04rDoorSub(volatile int a0);
+void actSt05cCrestHintChk(volatile int a0);
+void actSt05cDoorDownChk(volatile int a0);
+void actSt05cDoorDownEffect(volatile int a0);
+void actSt05cEneChk(volatile int a0);
 
 #endif /* ST05C_H */

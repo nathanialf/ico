@@ -35,9 +35,9 @@ static __inline__ int phys_addr(int p)
 static __inline__ int uncached_accel_addr(int p)
 { return (p & 0x0FFFFFFF) | 0x20000000; }
 extern int D_0063A468;   /* movie heap handle; gp-relative in the ROM */
-extern int iosMallocAlignDebug(int heap, int size, int align, const char *file, int line);
-extern void debug_assert(const char *file, int line);   /* assert reporter */
-extern void __assert(const char *file, int line, const char *expr);  extern void *memset(void *p, int c, int n);
+int iosMallocAlignDebug(int heap, int size, int align, const char *file, int line);
+void debug_assert(const char *file, int line);   /* assert reporter */
+void __assert(const char *file, int line, const char *expr);  extern void *memset(void *p, int c, int n);
 #ifdef MV_DEFS_WANT_ALLOC   /* opt-in: see the note below line 46 */
 static __inline__ int alloc_zeroed(int size, int align)  /* RECONSTRUCTION; 5 census hosts; align = 0x40 at four sites, 4 at viBufCreate's third */
 { int p = iosMallocAlignDebug(D_0063A468, size, align, __FILE__, __LINE__);

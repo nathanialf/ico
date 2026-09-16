@@ -12,16 +12,16 @@
 #ifndef ST04E_H
 #define ST04E_H
 
-extern void actSt04eFuchi1Chk(volatile int a0);
-extern void actSt04eFuchi2Chk(volatile int a0);
-extern void actSt04eFuchi3Chk(volatile int a0);
-extern void actSt04eHint1Chk(volatile int a0);
-extern void actSt04eHint1WakeUpChk(volatile int a0);
-extern void actSt04eSeChk(volatile int a0);
-extern void actSt04eWaterFlagOn(volatile int a0);
-extern void actSt04eWaterMain(volatile int a0);
-extern void actSt04eWaterStop(volatile int a0);
-extern void actSt04eWaterStopSub(volatile int a0);
-extern void actSt04eWaterSwitch(volatile int a0);
+void actSt04eFuchi1Chk(volatile int a0);
+void actSt04eFuchi2Chk(volatile int a0);
+void actSt04eFuchi3Chk(volatile int a0);
+void actSt04eHint1Chk(volatile int a0);
+void actSt04eHint1WakeUpChk(volatile int a0);
+void actSt04eSeChk(volatile int a0);
+void actSt04eWaterFlagOn(volatile int a0);
+void actSt04eWaterMain(volatile int a0);
+void actSt04eWaterStop(volatile int a0);
+void actSt04eWaterStopSub(volatile int a0);
+void actSt04eWaterSwitch(volatile int a0);
 
 #endif /* ST04E_H */

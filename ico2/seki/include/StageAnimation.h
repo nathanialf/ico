@@ -12,23 +12,23 @@
 #ifndef STAGEANIMATION_H
 #define STAGEANIMATION_H
 
-extern void stage_ApplyData(int id, void *buf);
-extern int stage_CheckAnimationFinish(int a0);
-extern int stage_CheckAnimationFrame(int a0, int a1, int a2);
-extern int stage_ContinueAnimation(int a0, int a1);
-extern void stage_DispAnimation(void);
-extern int stage_DispBgAnimation(void *p);
-extern void stage_DispBgAnimationNoFinish(char **slot);
-extern void stage_KillPlayBgAnimation(int **self);
-extern void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1);
-extern int *stage_MakePlayBgAnimation(int key);
-extern float stage_PlayBgAnimation(int key, float t, void *v, void *q);
-extern float stage_PlayBgAnimationDissolve(int key, float t, float d, void *a, void *b);
-extern void stage_SetAnimation(int a0, int a1, int a2);
-extern void stage_SetFrameStep(int target, int val);
-extern void stage_SetLoopFlag(int key, int a1);
-extern void stage_SetParentOfGObj(int a0, void *a1);
-extern void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
-extern void stage_SetScale(int id, float s);
+void stage_ApplyData(int id, void *buf);
+int stage_CheckAnimationFinish(int a0);
+int stage_CheckAnimationFrame(int a0, int a1, int a2);
+int stage_ContinueAnimation(int a0, int a1);
+void stage_DispAnimation(void);
+int stage_DispBgAnimation(void *p);
+void stage_DispBgAnimationNoFinish(char **slot);
+void stage_KillPlayBgAnimation(int **self);
+void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1);
+int *stage_MakePlayBgAnimation(int key);
+float stage_PlayBgAnimation(int key, float t, void *v, void *q);
+float stage_PlayBgAnimationDissolve(int key, float t, float d, void *a, void *b);
+void stage_SetAnimation(int a0, int a1, int a2);
+void stage_SetFrameStep(int target, int val);
+void stage_SetLoopFlag(int key, int a1);
+void stage_SetParentOfGObj(int a0, void *a1);
+void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
+void stage_SetScale(int id, float s);
 
 #endif /* STAGEANIMATION_H */

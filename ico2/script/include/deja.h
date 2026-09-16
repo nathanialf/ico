@@ -12,6 +12,6 @@
 #ifndef DEJA_H
 #define DEJA_H
 
-extern void actDejaChk(volatile int a0);
+void actDejaChk(volatile int a0);
 
 #endif /* DEJA_H */

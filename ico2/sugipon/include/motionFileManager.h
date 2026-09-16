@@ -12,9 +12,9 @@
 #ifndef MOTIONFILEMANAGER_H
 #define MOTIONFILEMANAGER_H
 
-extern int AddMotionMemorySize(int a0, int a1);
-extern int GetMotionMemorySize(int a0);
-extern void InitMotionFile(void *buf, int a1);
-extern void ResetDynamicMotionManager(void);
+int AddMotionMemorySize(int a0, int a1);
+int GetMotionMemorySize(int a0);
+void InitMotionFile(void *buf, int a1);
+void ResetDynamicMotionManager(void);
 
 #endif /* MOTIONFILEMANAGER_H */

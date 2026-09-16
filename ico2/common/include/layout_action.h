@@ -12,11 +12,11 @@
 #ifndef LAYOUT_ACTION_H
 #define LAYOUT_ACTION_H
 
-extern void _la_mask_preview_info(void);
-extern int _la_mcard_error_check(void *a0);
-extern int _la_set_current_port_2(void *p, int a1);
-extern int _la_set_current_port_lock_2(void *p, int a1);
-extern void _la_set_preview_info();
-extern void la_playtime_count(void);
+void _la_mask_preview_info(void);
+int _la_mcard_error_check(void *a0);
+int _la_set_current_port_2(void *p, int a1);
+int _la_set_current_port_lock_2(void *p, int a1);
+void _la_set_preview_info();
+void la_playtime_count(void);
 
 #endif /* LAYOUT_ACTION_H */

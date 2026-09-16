@@ -12,15 +12,15 @@
 #ifndef SPIDER_H
 #define SPIDER_H
 
-extern int CheckSpidersInsideOfReviveRange(int *out, char *gp, void *center);
-extern int DeadAllSpiders(char *gp);
-extern void DeleteAllSpidersOfLayoutGroup(char *gp);
-extern char *DeleteSpiderFromLayoutGroup(char *a0, int a1);
-extern void DispAllMemberOfSpider(char *self, int *col);
-extern int GetAliveSpiders(char *gp);
-extern void SetSpiderGroupReviveStatus(char *a0);
-extern void SleepSpiderGroup(char *gp);
-extern void WakeUpLayoutedSpiders(void *self);
-extern void WakeupSpiderGroup(char *gp);
+int CheckSpidersInsideOfReviveRange(int *out, char *gp, void *center);
+int DeadAllSpiders(char *gp);
+void DeleteAllSpidersOfLayoutGroup(char *gp);
+char *DeleteSpiderFromLayoutGroup(char *a0, int a1);
+void DispAllMemberOfSpider(char *self, int *col);
+int GetAliveSpiders(char *gp);
+void SetSpiderGroupReviveStatus(char *a0);
+void SleepSpiderGroup(char *gp);
+void WakeUpLayoutedSpiders(void *self);
+void WakeupSpiderGroup(char *gp);
 
 #endif /* SPIDER_H */

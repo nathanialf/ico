@@ -12,19 +12,19 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-extern int CanThisEnemyFly(char *a0);
-extern void CheckEnemyHit(void *a0, void *a1, void *a2, void *a3);
-extern void EnemyDeleteParticle(void *a0, void *a1, void *a2);
-extern void EnemySetfAppearAll(char *self);
-extern int GetEnemyBattleType(char *a0);
-extern float GetEnemyDefDodgeRange(char *a0);
-extern float GetEnemyDefLife(char *a0);
-extern int RandomizeEnemy(char *self);
-extern void ResetEnemyPositionInfo(char *self);
-extern void ReviveEnemyParticle(char *a0, int a1);
-extern void SetEnemyDissolve(char *self, float ratio);
-extern void SetEnemyFootPrintSwitch(char *a0, int a1);
-extern void dispEnemyObject(void *self);
-extern int isExistEnemyParticle(char *a0, int a1);
+int CanThisEnemyFly(char *a0);
+void CheckEnemyHit(void *a0, void *a1, void *a2, void *a3);
+void EnemyDeleteParticle(void *a0, void *a1, void *a2);
+void EnemySetfAppearAll(char *self);
+int GetEnemyBattleType(char *a0);
+float GetEnemyDefDodgeRange(char *a0);
+float GetEnemyDefLife(char *a0);
+int RandomizeEnemy(char *self);
+void ResetEnemyPositionInfo(char *self);
+void ReviveEnemyParticle(char *a0, int a1);
+void SetEnemyDissolve(char *self, float ratio);
+void SetEnemyFootPrintSwitch(char *a0, int a1);
+void dispEnemyObject(void *self);
+int isExistEnemyParticle(char *a0, int a1);
 
 #endif /* ENEMY_H */

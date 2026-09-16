@@ -12,9 +12,9 @@
 #ifndef STAGEMULTIBGAMANAGER_H
 #define STAGEMULTIBGAMANAGER_H
 
-extern void DispStageMultiBgaManager(void);
-extern void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
-extern void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, int sensitive, int stay);
-extern void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay);
+void DispStageMultiBgaManager(void);
+void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
+void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, int sensitive, int stay);
+void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay);
 
 #endif /* STAGEMULTIBGAMANAGER_H */

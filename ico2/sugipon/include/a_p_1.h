@@ -12,18 +12,18 @@
 #ifndef A_P_1_H
 #define A_P_1_H
 
-extern int AP1JumpReq(char *a0, int a1, void *a2);
-extern int AP1MotReq(char *a0, int a1);
-extern int AP1MotReqForce(char *a0, int a1);
-extern int AP1Turn(char *a0, short a1);
-extern int GetAP1Mode(char *a0);
-extern int GetAP1SpecType(char *a0);
-extern char *MakeAP1GObj(char *a0);
-extern void SetAP1VisualState(char *a0, int a1);
-extern void calcSubMission(char *a0);
-extern int fitToCol(char *a0, int a1);
-extern int rolling(char *a0);
-extern void updateMatrix(char *a0);
-extern void yAxisRotFitting(int *self, int arg2);
+int AP1JumpReq(char *a0, int a1, void *a2);
+int AP1MotReq(char *a0, int a1);
+int AP1MotReqForce(char *a0, int a1);
+int AP1Turn(char *a0, short a1);
+int GetAP1Mode(char *a0);
+int GetAP1SpecType(char *a0);
+char *MakeAP1GObj(char *a0);
+void SetAP1VisualState(char *a0, int a1);
+void calcSubMission(char *a0);
+int fitToCol(char *a0, int a1);
+int rolling(char *a0);
+void updateMatrix(char *a0);
+void yAxisRotFitting(int *self, int arg2);
 
 #endif /* A_P_1_H */

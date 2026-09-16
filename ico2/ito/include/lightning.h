@@ -12,7 +12,7 @@
 #ifndef LIGHTNING_H
 #define LIGHTNING_H
 
-extern void DrawLightning2(int n, void *a, void *b, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, int c);
-extern void lightning_test(void);
+void DrawLightning2(int n, void *a, void *b, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, int c);
+void lightning_test(void);
 
 #endif /* LIGHTNING_H */

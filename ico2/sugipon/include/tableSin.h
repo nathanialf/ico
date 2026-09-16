@@ -12,11 +12,11 @@
 #ifndef TABLESIN_H
 #define TABLESIN_H
 
-extern int GetTableArcCos(float x);
-extern int GetTableArcSin(float x);
-extern int GetTableArcTan2(float f12, float f13);
-extern float GetTableCos(short a0);
-extern float GetTableSin(short a0);
-extern void InitTableSin(void);
+int GetTableArcCos(float x);
+int GetTableArcSin(float x);
+int GetTableArcTan2(float f12, float f13);
+float GetTableCos(short a0);
+float GetTableSin(short a0);
+void InitTableSin(void);
 
 #endif /* TABLESIN_H */

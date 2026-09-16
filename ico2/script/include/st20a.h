@@ -12,21 +12,21 @@
 #ifndef ST20A_H
 #define ST20A_H
 
-extern void actSt20aBridgeDown(volatile int a0);
-extern void actSt20aBridgeDownSub(volatile int a0);
-extern void actSt20aBridgeMain(volatile int a0);
-extern void actSt20aBridgeSwitch(volatile int a0);
-extern void actSt20aEneChk(volatile int a0);
-extern void actSt20aExitChk(volatile int a0);
-extern void actSt20aFenceDownChk(volatile int a0);
-extern void actSt20aFenceDownChk2(volatile int a0);
-extern void actSt20aFenceUpChk(volatile int a0);
-extern void actSt20aFenceUpChk2(volatile int a0);
-extern void actSt20aGirlPosChk(volatile int a0);
-extern void actSt20aGondolaDown(volatile int a0);
-extern void actSt20aGondolaMain(volatile int a0);
-extern void actSt20aGondolaSwitch(volatile int a0);
-extern void actSt20aGondolaUp(volatile int a0);
-extern void actSt20aHint1Chk(volatile int a0);
+void actSt20aBridgeDown(volatile int a0);
+void actSt20aBridgeDownSub(volatile int a0);
+void actSt20aBridgeMain(volatile int a0);
+void actSt20aBridgeSwitch(volatile int a0);
+void actSt20aEneChk(volatile int a0);
+void actSt20aExitChk(volatile int a0);
+void actSt20aFenceDownChk(volatile int a0);
+void actSt20aFenceDownChk2(volatile int a0);
+void actSt20aFenceUpChk(volatile int a0);
+void actSt20aFenceUpChk2(volatile int a0);
+void actSt20aGirlPosChk(volatile int a0);
+void actSt20aGondolaDown(volatile int a0);
+void actSt20aGondolaMain(volatile int a0);
+void actSt20aGondolaSwitch(volatile int a0);
+void actSt20aGondolaUp(volatile int a0);
+void actSt20aHint1Chk(volatile int a0);
 
 #endif /* ST20A_H */

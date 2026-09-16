@@ -12,10 +12,10 @@
 #ifndef DEBUG_EXCEPTION_H
 #define DEBUG_EXCEPTION_H
 
-extern void RestoreNormalDrawEnvironment(void *a0, int a1, int a2);
-extern void SetDrawEnvironment(int mode);
-extern void debugEEExceptionMain();
-extern void debug_assertMessage(char *file, int line, char *mes);
-extern void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int tex);
+void RestoreNormalDrawEnvironment(void *a0, int a1, int a2);
+void SetDrawEnvironment(int mode);
+void debugEEExceptionMain();
+void debug_assertMessage(char *file, int line, char *mes);
+void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int tex);
 
 #endif /* DEBUG_EXCEPTION_H */

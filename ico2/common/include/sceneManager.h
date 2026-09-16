@@ -12,11 +12,11 @@
 #ifndef SCENEMANAGER_H
 #define SCENEMANAGER_H
 
-extern char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, int a6, int a7);
-extern int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r);
-extern void InitStageLight(int stage);
-extern void initParentLink(int id);
-extern void initSceneGObj(int stage, int id);
-extern void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
+char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, int a6, int a7);
+int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r);
+void InitStageLight(int stage);
+void initParentLink(int id);
+void initSceneGObj(int stage, int id);
+void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
 
 #endif /* SCENEMANAGER_H */

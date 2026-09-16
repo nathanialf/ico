@@ -12,9 +12,9 @@
 #ifndef OP_H
 #define OP_H
 
-extern void actOpDemo01_2Chk(volatile int a0);
-extern void actOpDemo03Chk(volatile int a0);
-extern void actSt13aConte01_3(volatile int a0);
-extern void actSt24aConte01_2(volatile int a0);
+void actOpDemo01_2Chk(volatile int a0);
+void actOpDemo03Chk(volatile int a0);
+void actSt13aConte01_3(volatile int a0);
+void actSt24aConte01_2(volatile int a0);
 
 #endif /* OP_H */

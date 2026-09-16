@@ -12,6 +12,6 @@
 #ifndef ENEMYINIT_H
 #define ENEMYINIT_H
 
-extern int enemy_GetPositionTable(int idx, int sub_idx);
+int enemy_GetPositionTable(int idx, int sub_idx);
 
 #endif /* ENEMYINIT_H */

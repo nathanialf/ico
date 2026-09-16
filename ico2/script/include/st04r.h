@@ -12,34 +12,34 @@
 #ifndef ST04R_H
 #define ST04R_H
 
-extern void actSt04rBrg1Chk(volatile int a0);
-extern void actSt04rBrg1Sub(volatile int a0);
-extern void actSt04rBrg1WayChk(volatile int a0);
-extern void actSt04rBrg2Chk(volatile int a0);
-extern void actSt04rBrg2WayChk(volatile int a0);
-extern void actSt04rBrgCommon(volatile int a0);
-extern void actSt04rC1BallMain(volatile int a0);
-extern void actSt04rC1BallSwitch(volatile int a0);
-extern void actSt04rC1BallTurn(volatile int a0);
-extern void actSt04rC2BallMain(volatile int a0);
-extern void actSt04rC2BallSwitch(volatile int a0);
-extern void actSt04rC2BallTurn(volatile int a0);
-extern void actSt04rC3BallMain(volatile int a0);
-extern void actSt04rC3BallSwitch(volatile int a0);
-extern void actSt04rC3BallTurn(volatile int a0);
-extern void actSt04rCrest2Main(volatile int a0);
-extern void actSt04rCrestMain(volatile int a0);
-extern void actSt04rGondolaCharaChk(volatile int a0);
-extern void actSt04rSolarBeamChk(volatile int a0);
-extern void actSt04rSolarStageChangeChk(volatile int a0);
-extern void actSt04rTorch1_1Chk(volatile int a0);
-extern void actSt04rTorch1_2Chk(volatile int a0);
-extern void actSt04rTorch2_1Chk(volatile int a0);
-extern void actSt04rTorch2_1XLChk(volatile int a0);
-extern void actSt04rTorch2_2Chk(volatile int a0);
-extern void actSt04rTorch2_2XLChk(volatile int a0);
-extern void actSt04rTorch3_1Chk(volatile int a0);
-extern void actSt04rTorch3_2Chk(volatile int a0);
-extern void openGate(int a0);
+void actSt04rBrg1Chk(volatile int a0);
+void actSt04rBrg1Sub(volatile int a0);
+void actSt04rBrg1WayChk(volatile int a0);
+void actSt04rBrg2Chk(volatile int a0);
+void actSt04rBrg2WayChk(volatile int a0);
+void actSt04rBrgCommon(volatile int a0);
+void actSt04rC1BallMain(volatile int a0);
+void actSt04rC1BallSwitch(volatile int a0);
+void actSt04rC1BallTurn(volatile int a0);
+void actSt04rC2BallMain(volatile int a0);
+void actSt04rC2BallSwitch(volatile int a0);
+void actSt04rC2BallTurn(volatile int a0);
+void actSt04rC3BallMain(volatile int a0);
+void actSt04rC3BallSwitch(volatile int a0);
+void actSt04rC3BallTurn(volatile int a0);
+void actSt04rCrest2Main(volatile int a0);
+void actSt04rCrestMain(volatile int a0);
+void actSt04rGondolaCharaChk(volatile int a0);
+void actSt04rSolarBeamChk(volatile int a0);
+void actSt04rSolarStageChangeChk(volatile int a0);
+void actSt04rTorch1_1Chk(volatile int a0);
+void actSt04rTorch1_2Chk(volatile int a0);
+void actSt04rTorch2_1Chk(volatile int a0);
+void actSt04rTorch2_1XLChk(volatile int a0);
+void actSt04rTorch2_2Chk(volatile int a0);
+void actSt04rTorch2_2XLChk(volatile int a0);
+void actSt04rTorch3_1Chk(volatile int a0);
+void actSt04rTorch3_2Chk(volatile int a0);
+void openGate(int a0);
 
 #endif /* ST04R_H */

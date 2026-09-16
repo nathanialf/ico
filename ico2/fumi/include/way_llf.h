@@ -12,18 +12,18 @@
 #ifndef WAY_LLF_H
 #define WAY_LLF_H
 
-extern int AddWayPoint(int gno, int pno);
-extern void CloseWayGroup(int idx);
-extern void *CreateBridge(float *a, float *b);
-extern int CreateWayGroup(void);
-extern int CreateWayPoint(int a0);
-extern int DeleteWayGroup(int gno);
-extern int DeleteWayPoint(int pno);
-extern int InsertWayPointAfter(int dummy, int idx1, int idx2);
-extern void SetWayGroupActive(int a0, int a1);
-extern int WayPointList_begin(int a0);
-extern int WayPointList_next(int *a0);
-extern void *WayPoint_begin(void);
-extern int WayPoint_next(int a0);
+int AddWayPoint(int gno, int pno);
+void CloseWayGroup(int idx);
+void *CreateBridge(float *a, float *b);
+int CreateWayGroup(void);
+int CreateWayPoint(int a0);
+int DeleteWayGroup(int gno);
+int DeleteWayPoint(int pno);
+int InsertWayPointAfter(int dummy, int idx1, int idx2);
+void SetWayGroupActive(int a0, int a1);
+int WayPointList_begin(int a0);
+int WayPointList_next(int *a0);
+void *WayPoint_begin(void);
+int WayPoint_next(int a0);
 
 #endif /* WAY_LLF_H */

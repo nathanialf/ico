@@ -12,9 +12,9 @@
 #ifndef CAGE_H
 #define CAGE_H
 
-extern int GetCageChainPoint(char *a0, char *a1, char *a2);
-extern void HotInitCageGeo(char *self);
-extern void SetCageVelocityFriction(char *a0, float a1);
-extern void StabilizeAllLayoutedCage(void);
+int GetCageChainPoint(char *a0, char *a1, char *a2);
+void HotInitCageGeo(char *self);
+void SetCageVelocityFriction(char *a0, float a1);
+void StabilizeAllLayoutedCage(void);
 
 #endif /* CAGE_H */

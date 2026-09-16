@@ -12,8 +12,8 @@
 #ifndef ACT_PARALLEL_CONTROL_H
 #define ACT_PARALLEL_CONTROL_H
 
-extern int *ActPara_GetDefTbl(void);
-extern void ActPara_InitSystem(void);
-extern void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n);
+int *ActPara_GetDefTbl(void);
+void ActPara_InitSystem(void);
+void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n);
 
 #endif /* ACT_PARALLEL_CONTROL_H */

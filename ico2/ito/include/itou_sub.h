@@ -12,10 +12,10 @@
 #ifndef ITOU_SUB_H
 #define ITOU_SUB_H
 
-extern void apply_matrix_w1(void *a0, void *a1, void *a2);
-extern int ico_m33_to_quat(int a0);
-extern void lw_pos_to_ico_pos(float *dst, float *src);
-extern int m33_to_quat(float *q, float (*m)[4]);
-extern void pbga_start(int *self, int *q);
+void apply_matrix_w1(void *a0, void *a1, void *a2);
+int ico_m33_to_quat(int a0);
+void lw_pos_to_ico_pos(float *dst, float *src);
+int m33_to_quat(float *q, float (*m)[4]);
+void pbga_start(int *self, int *q);
 
 #endif /* ITOU_SUB_H */

@@ -12,9 +12,9 @@
 #ifndef FUZIO_H
 #define FUZIO_H
 
-extern float fzMagnitude2fv(float *p0, float *p1);
-extern float fzMagnitudeByLineSeg(float *p0, float *p1, float *p2);
-extern float fzMagnitudefv(int v);
-extern void fzShowV(float *p);
+float fzMagnitude2fv(float *p0, float *p1);
+float fzMagnitudeByLineSeg(float *p0, float *p1, float *p2);
+float fzMagnitudefv(int v);
+void fzShowV(float *p);
 
 #endif /* FUZIO_H */

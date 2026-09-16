@@ -12,9 +12,9 @@
 #ifndef GFLAG_H
 #define GFLAG_H
 
-extern int gflagChk(int bit_idx);
-extern void gflagInit(void);
-extern void gflagOff(int bit_idx);
-extern void gflagOn(int bit_idx);
+int gflagChk(int bit_idx);
+void gflagInit(void);
+void gflagOff(int bit_idx);
+void gflagOn(int bit_idx);
 
 #endif /* GFLAG_H */

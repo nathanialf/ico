@@ -12,7 +12,7 @@
 #ifndef KEYINPUT_H
 #define KEYINPUT_H
 
-extern void ExecKeyInput(void);
-extern void InitKeyInput(void);
+void ExecKeyInput(void);
+void InitKeyInput(void);
 
 #endif /* KEYINPUT_H */

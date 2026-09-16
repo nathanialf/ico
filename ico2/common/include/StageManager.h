@@ -12,12 +12,12 @@
 #ifndef STAGEMANAGER_H
 #define STAGEMANAGER_H
 
-extern void CheckPoint(void);
-extern void stgmgrForceSwitch(int stage);
-extern void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut);
-extern void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r, unsigned char g, unsigned char b);
-extern void stgmgrNextStagePreLoadDistBoyMode(void);
-extern void stgmgrNextStagePreLoadForceNoCancel(int val);
-extern void stgmgrNextStagePreLoadForceStageSet(int val);
+void CheckPoint(void);
+void stgmgrForceSwitch(int stage);
+void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut);
+void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r, unsigned char g, unsigned char b);
+void stgmgrNextStagePreLoadDistBoyMode(void);
+void stgmgrNextStagePreLoadForceNoCancel(int val);
+void stgmgrNextStagePreLoadForceStageSet(int val);
 
 #endif /* STAGEMANAGER_H */

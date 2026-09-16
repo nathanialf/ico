@@ -12,8 +12,8 @@
 #ifndef GIRL_H
 #define GIRL_H
 
-extern void SetGirlClothDispSwitch(char *a0, int a1, int a2);
-extern void SetGirlHairDispSwitch(char *a0, int a1);
-extern void setGirlClothSetting(int a0);
+void SetGirlClothDispSwitch(char *a0, int a1, int a2);
+void SetGirlHairDispSwitch(char *a0, int a1);
+void setGirlClothSetting(int a0);
 
 #endif /* GIRL_H */

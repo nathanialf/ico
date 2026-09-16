@@ -12,13 +12,13 @@
 #ifndef EFFECTTOOL_H
 #define EFFECTTOOL_H
 
-extern int EditTarget(int id);
-extern void dispCircle2(float rad, short elev, int step);
-extern void dispEffectToolField(int idx);
-extern void dispXZYZCircle(float rad, int from, int to, int step);
-extern int editParam(int id, int sel);
-extern int execEffectTool(void);
-extern void moveEffectToolGeometry(int idx);
-extern int saveEffectData(int id);
+int EditTarget(int id);
+void dispCircle2(float rad, short elev, int step);
+void dispEffectToolField(int idx);
+void dispXZYZCircle(float rad, int from, int to, int step);
+int editParam(int id, int sel);
+int execEffectTool(void);
+void moveEffectToolGeometry(int idx);
+int saveEffectData(int id);
 
 #endif /* EFFECTTOOL_H */

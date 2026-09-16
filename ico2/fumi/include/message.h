@@ -12,12 +12,12 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-extern void iosMsgInit(void);
-extern void iosMsgQueueCreate(void *q, void *buf, int n);
-extern void iosMsgQueueDestroy(void *q);
-extern int iosMsgRecv(char *q, int *out, int mode);
-extern int iosMsgSend(char *q, int val, int mode);
-extern void iosMsgSetEvent(int ev, void *q, int msg);
-extern int signal_handler(int a0);
+void iosMsgInit(void);
+void iosMsgQueueCreate(void *q, void *buf, int n);
+void iosMsgQueueDestroy(void *q);
+int iosMsgRecv(char *q, int *out, int mode);
+int iosMsgSend(char *q, int val, int mode);
+void iosMsgSetEvent(int ev, void *q, int msg);
+int signal_handler(int a0);
 
 #endif /* MESSAGE_H */

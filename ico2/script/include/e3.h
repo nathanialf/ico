@@ -12,28 +12,28 @@
 #ifndef E3_H
 #define E3_H
 
-extern void actE3CageFallChk(volatile int a0);
-extern void actE3CageFallDemo(volatile int a0);
-extern void actE3CageFallEffect(volatile int a0);
-extern void actE3CageFallReadyChk(volatile int a0);
-extern void actE3CapsuleChk(volatile int a0);
-extern void actE3CapsuleDemo(volatile int a0);
-extern void actE3CapsuleDemoEnd(volatile int a0);
-extern void actE3DoorMain(volatile int a0);
-extern void actE3DoorSwitch(volatile int a0);
-extern void actE3DoorUp(volatile int a0);
-extern void actE3GateChk(volatile int a0);
-extern void actE3GateDemo(volatile int a0);
-extern void actE3GateJimaku(volatile int a0);
-extern void actE3Inst1Chk(volatile int a0);
-extern void actE3St01bEneChk(volatile int a0);
-extern void actE3St09aBrgDown(volatile int a0);
-extern void actE3St09aBrgMain(volatile int a0);
-extern void actE3St09aBrgSwitch(volatile int a0);
-extern void actE3St09aGirlWay(volatile int a0);
-extern void actE3St09aSekizoChk(volatile int a0);
-extern void actE3St13cIntroChk(volatile int a0);
-extern void actE3TitleChk(volatile int a0);
-extern void actE3TitleFrameChk(volatile int a0);
+void actE3CageFallChk(volatile int a0);
+void actE3CageFallDemo(volatile int a0);
+void actE3CageFallEffect(volatile int a0);
+void actE3CageFallReadyChk(volatile int a0);
+void actE3CapsuleChk(volatile int a0);
+void actE3CapsuleDemo(volatile int a0);
+void actE3CapsuleDemoEnd(volatile int a0);
+void actE3DoorMain(volatile int a0);
+void actE3DoorSwitch(volatile int a0);
+void actE3DoorUp(volatile int a0);
+void actE3GateChk(volatile int a0);
+void actE3GateDemo(volatile int a0);
+void actE3GateJimaku(volatile int a0);
+void actE3Inst1Chk(volatile int a0);
+void actE3St01bEneChk(volatile int a0);
+void actE3St09aBrgDown(volatile int a0);
+void actE3St09aBrgMain(volatile int a0);
+void actE3St09aBrgSwitch(volatile int a0);
+void actE3St09aGirlWay(volatile int a0);
+void actE3St09aSekizoChk(volatile int a0);
+void actE3St13cIntroChk(volatile int a0);
+void actE3TitleChk(volatile int a0);
+void actE3TitleFrameChk(volatile int a0);
 
 #endif /* E3_H */

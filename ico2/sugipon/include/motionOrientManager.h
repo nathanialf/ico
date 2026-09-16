@@ -12,23 +12,23 @@
 #ifndef MOTIONORIENTMANAGER_H
 #define MOTIONORIENTMANAGER_H
 
-extern void ExecMotionOrient(void *self);
-extern int ExecutePauseSlipProc(char *a0);
-extern int ExecuteSlipProc(char *a0);
-extern float GetMotionPlaySpeedRatio(int id);
-extern int GetNbMotionFrames(int id);
-extern void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5);
-extern char *SetMotionRequest(int self, int mot, char *work);
-extern void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
-extern void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4);
-extern void SetParallelMotionTableWithNoRequest(void *self, int a1, int a2);
-extern void getMotionGeometry(void *self);
-extern void getShapeGeometry(void *self);
-extern void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);
-extern void getStreamShapeGeometry(void *self, void *sm);
-extern void normalMotionShift(void *self, int a1);
-extern void orientDebug(void *self, int mode, int col);
-extern int parallelMotionShift(void *self);
-extern void shiftMotionData(int a0, int a1, int a2, int a3);
+void ExecMotionOrient(void *self);
+int ExecutePauseSlipProc(char *a0);
+int ExecuteSlipProc(char *a0);
+float GetMotionPlaySpeedRatio(int id);
+int GetNbMotionFrames(int id);
+void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5);
+char *SetMotionRequest(int self, int mot, char *work);
+void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
+void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4);
+void SetParallelMotionTableWithNoRequest(void *self, int a1, int a2);
+void getMotionGeometry(void *self);
+void getShapeGeometry(void *self);
+void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);
+void getStreamShapeGeometry(void *self, void *sm);
+void normalMotionShift(void *self, int a1);
+void orientDebug(void *self, int mode, int col);
+int parallelMotionShift(void *self);
+void shiftMotionData(int a0, int a1, int a2, int a3);
 
 #endif /* MOTIONORIENTMANAGER_H */

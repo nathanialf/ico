@@ -12,9 +12,9 @@
 #ifndef DOBJ_H
 #define DOBJ_H
 
-extern char *CSVSYSTEM_InitDObj(int id, float *lay);
-extern void LinkParentOfDObj(void *gobj, void *info);
-extern void UnlinkParentOfDObj(void *a0);
-extern void initPolygonState(char *d, float *lay);
+char *CSVSYSTEM_InitDObj(int id, float *lay);
+void LinkParentOfDObj(void *gobj, void *info);
+void UnlinkParentOfDObj(void *a0);
+void initPolygonState(char *d, float *lay);
 
 #endif /* DOBJ_H */

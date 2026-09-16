@@ -12,14 +12,14 @@
 #ifndef MV_AUDIODEC_H
 #define MV_AUDIODEC_H
 
-extern int audioDecCreate(int *self, int a1, int a2);
-extern int audioDecDelete(int *self);
-extern int audioDecIsPreset(int *self);
-extern int audioDecPause(int a0);
-extern void audioDecReset(int *self);
-extern void audioDecResume(int *self);
-extern int audioDecSendToIOP(int *self);
-extern void audioDecStart(int *self);
-extern int pcmCallback(int a0, int *pkt, int *ctx);
+int audioDecCreate(int *self, int a1, int a2);
+int audioDecDelete(int *self);
+int audioDecIsPreset(int *self);
+int audioDecPause(int a0);
+void audioDecReset(int *self);
+void audioDecResume(int *self);
+int audioDecSendToIOP(int *self);
+void audioDecStart(int *self);
+int pcmCallback(int a0, int *pkt, int *ctx);
 
 #endif /* MV_AUDIODEC_H */

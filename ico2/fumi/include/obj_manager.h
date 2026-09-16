@@ -12,8 +12,8 @@
 #ifndef OBJ_MANAGER_H
 #define OBJ_MANAGER_H
 
-extern void _iosOmMain(int a0, int a1, int a2, int a3);
-extern void iosOmInit(void);
-extern int iosOmSendMail(char *self_arg, int val5, int val6);
+void _iosOmMain(int a0, int a1, int a2, int a3);
+void iosOmInit(void);
+int iosOmSendMail(char *self_arg, int val5, int val6);
 
 #endif /* OBJ_MANAGER_H */

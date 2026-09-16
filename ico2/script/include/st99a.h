@@ -12,14 +12,14 @@
 #ifndef ST99A_H
 #define ST99A_H
 
-extern void actExplodeChk(volatile int a0);
-extern void actSpiderChk(volatile int a0);
-extern void actSplash1Chk(volatile int a0);
-extern void actSplash2Chk(volatile int a0);
-extern void actSt17aTestChk(volatile int a0);
-extern void actSt27aWave1(volatile int a0);
-extern void actSt27aWaveChk(volatile int a0);
-extern void actWave1(volatile int a0);
-extern void actWaveChk(volatile int a0);
+void actExplodeChk(volatile int a0);
+void actSpiderChk(volatile int a0);
+void actSplash1Chk(volatile int a0);
+void actSplash2Chk(volatile int a0);
+void actSt17aTestChk(volatile int a0);
+void actSt27aWave1(volatile int a0);
+void actSt27aWaveChk(volatile int a0);
+void actWave1(volatile int a0);
+void actWaveChk(volatile int a0);
 
 #endif /* ST99A_H */

@@ -12,6 +12,6 @@
 #ifndef ST22A_H
 #define ST22A_H
 
-extern void actSt22aIntroSub(volatile int a0);
+void actSt22aIntroSub(volatile int a0);
 
 #endif /* ST22A_H */

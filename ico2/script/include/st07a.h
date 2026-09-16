@@ -12,21 +12,21 @@
 #ifndef ST07A_H
 #define ST07A_H
 
-extern void actSt07aChanChainChk(volatile int a0);
-extern void actSt07aChanChk(volatile int a0);
-extern void actSt07aChanEffect(volatile int a0);
-extern void actSt07aChanFall(volatile int a0);
-extern void actSt07aChanMot(volatile int a0);
-extern void actSt07aChanReadyChk(volatile int a0);
-extern void actSt07aChanWay1(volatile unsigned int a0);
-extern void actSt07aChanWay2(volatile unsigned int a0);
-extern void actSt07aEne2Chk(volatile int a0);
-extern void actSt07aEneChk(volatile int a0);
-extern void actSt07aGirlWay(volatile unsigned int a0);
-extern void actSt07aIntroChk(volatile int a0);
-extern void actSt07aSekizoChk(volatile int a0);
-extern void actSt07aTsuroChk(volatile int a0);
-extern void actSt07aTsuroConte(volatile int a0);
-extern void actSt07aTsuroEffect(volatile int a0);
+void actSt07aChanChainChk(volatile int a0);
+void actSt07aChanChk(volatile int a0);
+void actSt07aChanEffect(volatile int a0);
+void actSt07aChanFall(volatile int a0);
+void actSt07aChanMot(volatile int a0);
+void actSt07aChanReadyChk(volatile int a0);
+void actSt07aChanWay1(volatile unsigned int a0);
+void actSt07aChanWay2(volatile unsigned int a0);
+void actSt07aEne2Chk(volatile int a0);
+void actSt07aEneChk(volatile int a0);
+void actSt07aGirlWay(volatile unsigned int a0);
+void actSt07aIntroChk(volatile int a0);
+void actSt07aSekizoChk(volatile int a0);
+void actSt07aTsuroChk(volatile int a0);
+void actSt07aTsuroConte(volatile int a0);
+void actSt07aTsuroEffect(volatile int a0);
 
 #endif /* ST07A_H */

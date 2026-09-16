@@ -12,7 +12,7 @@
 #ifndef ATTACKHIT_H
 #define ATTACKHIT_H
 
-extern void EnemyAttackCenter(void);
-extern int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
+void EnemyAttackCenter(void);
+int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
 
 #endif /* ATTACKHIT_H */

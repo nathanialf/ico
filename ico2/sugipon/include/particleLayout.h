@@ -12,6 +12,6 @@
 #ifndef PARTICLELAYOUT_H
 #define PARTICLELAYOUT_H
 
-extern void DeleteParticleLayout(char *a0);
+void DeleteParticleLayout(char *a0);
 
 #endif /* PARTICLELAYOUT_H */

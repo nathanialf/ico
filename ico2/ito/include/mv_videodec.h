@@ -12,15 +12,15 @@
 #ifndef MV_VIDEODEC_H
 #define MV_VIDEODEC_H
 
-extern void Free(int a0);
-extern int videoCallback(int a0, char *pkt, int *a2);
-extern void videoDecAbort(int a0);
-extern int videoDecCreate(int self);
-extern int videoDecDelete(int a0);
-extern int videoDecFlush(int a0);
-extern int videoDecGetState(int a0);
-extern int videoDecIsFlushed(int *self);
-extern void videoDecMain(int *self);
-extern int videoDecSetStream(void);
+void Free(int a0);
+int videoCallback(int a0, char *pkt, int *a2);
+void videoDecAbort(int a0);
+int videoDecCreate(int self);
+int videoDecDelete(int a0);
+int videoDecFlush(int a0);
+int videoDecGetState(int a0);
+int videoDecIsFlushed(int *self);
+void videoDecMain(int *self);
+int videoDecSetStream(void);
 
 #endif /* MV_VIDEODEC_H */

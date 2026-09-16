@@ -12,12 +12,12 @@
 #ifndef GOBJPROC_H
 #define GOBJPROC_H
 
-extern char *CreateGObj(char *layout, int id, int a2, int a3, int a4);
-extern int CreateGObjByFuncSet();
-extern int GetGObjId(int a0);
-extern int GetGObjP(int idx);
-extern int GetMaxGObj(void);
-extern int *InitCameraGObjs(int stage, int a1, int a2);
-extern void ResetGObjProc(void);
+char *CreateGObj(char *layout, int id, int a2, int a3, int a4);
+int CreateGObjByFuncSet();
+int GetGObjId(int a0);
+int GetGObjP(int idx);
+int GetMaxGObj(void);
+int *InitCameraGObjs(int stage, int a1, int a2);
+void ResetGObjProc(void);
 
 #endif /* GOBJPROC_H */

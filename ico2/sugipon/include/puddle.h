@@ -12,12 +12,12 @@
 #ifndef PUDDLE_H
 #define PUDDLE_H
 
-extern void baseSetup(char *a0);
-extern void copy(int pri);
-extern void drawAreaRestore(void);
-extern void drawAreaSetup(void);
-extern void drawRipple(float t, void *pos);
-extern void drawRipples(char *a0, int pri);
-extern void leveldown(int pri);
+void baseSetup(char *a0);
+void copy(int pri);
+void drawAreaRestore(void);
+void drawAreaSetup(void);
+void drawRipple(float t, void *pos);
+void drawRipples(char *a0, int pri);
+void leveldown(int pri);
 
 #endif /* PUDDLE_H */

@@ -12,22 +12,22 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-extern int BreakItemFromOutside(char *gobj);
-extern int BreakItemWithAttackHit(char *gobj, float *dir);
-extern int CheckCarryableItem(char *a0);
-extern int CheckItemDead(char *a0);
-extern int GetCharHeldItem(char *a0);
-extern int GetItemKind(char *a0);
-extern void HoldItem(char *gobj, char *holder);
-extern int IsBombExplode(char *a0);
-extern void ReleaseItem(char *gobj);
-extern int ReviveAllCarryableItems(void);
-extern int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame);
-extern int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz);
-extern int ReviveCarryableItemsWithBoundary(void *center, float radius);
-extern void ThrowItem(char *gobj, void *vel);
-extern void carriedItemGeo(char *gobj);
-extern void execBombGeo(char *gobj);
-extern void uncarriedItemGeo(char *gobj);
+int BreakItemFromOutside(char *gobj);
+int BreakItemWithAttackHit(char *gobj, float *dir);
+int CheckCarryableItem(char *a0);
+int CheckItemDead(char *a0);
+int GetCharHeldItem(char *a0);
+int GetItemKind(char *a0);
+void HoldItem(char *gobj, char *holder);
+int IsBombExplode(char *a0);
+void ReleaseItem(char *gobj);
+int ReviveAllCarryableItems(void);
+int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame);
+int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz);
+int ReviveCarryableItemsWithBoundary(void *center, float radius);
+void ThrowItem(char *gobj, void *vel);
+void carriedItemGeo(char *gobj);
+void execBombGeo(char *gobj);
+void uncarriedItemGeo(char *gobj);
 
 #endif /* ITEM_H */

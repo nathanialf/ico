@@ -12,28 +12,28 @@
 #ifndef CHAIN_H
 #define CHAIN_H
 
-extern void ChainGeo(int a0);
-extern void ChainPositionReset(char *a0);
-extern int CheckChainClimbablePos(char *a0);
-extern void EnableChainHang(char *a0);
-extern void GetChainClimbCollision(void *out, int chain);
-extern void GetChainClimbOrient(float *dst, char *a0);
-extern int GetChainDirCorrectVal(char *a0, int *a1);
-extern float GetChainHangRange(char *a0);
-extern float GetChainLength(char *a0);
-extern void GetChainPendulum(char *a0, float *a, float *b, float *c);
-extern void GetRootPositionHandExtra(void *a0, float *a1);
-extern void HoldChain(char *a0);
-extern void LockChainGeo(char *a0);
-extern void PlumbOrientUpdateChain(char *a0, float *src);
-extern void ReleaseChain(char *a0);
-extern void SetChainParentGObj(char *a0, void *a1);
-extern void SetChainRootUpdateMode(char *gobj, int mode, float *pos);
-extern void UnLockChainGeo(char *a0);
-extern void UnableChainHang(char *a0);
-extern void chain_simulate_term_simple(int a0);
-extern void chain_sub_pendulum(char *base, int n, void *a2);
-extern int collisionCheck(char *gobj);
-extern void pendulum_Process(void *a0, int a1);
+void ChainGeo(int a0);
+void ChainPositionReset(char *a0);
+int CheckChainClimbablePos(char *a0);
+void EnableChainHang(char *a0);
+void GetChainClimbCollision(void *out, int chain);
+void GetChainClimbOrient(float *dst, char *a0);
+int GetChainDirCorrectVal(char *a0, int *a1);
+float GetChainHangRange(char *a0);
+float GetChainLength(char *a0);
+void GetChainPendulum(char *a0, float *a, float *b, float *c);
+void GetRootPositionHandExtra(void *a0, float *a1);
+void HoldChain(char *a0);
+void LockChainGeo(char *a0);
+void PlumbOrientUpdateChain(char *a0, float *src);
+void ReleaseChain(char *a0);
+void SetChainParentGObj(char *a0, void *a1);
+void SetChainRootUpdateMode(char *gobj, int mode, float *pos);
+void UnLockChainGeo(char *a0);
+void UnableChainHang(char *a0);
+void chain_simulate_term_simple(int a0);
+void chain_sub_pendulum(char *base, int n, void *a2);
+int collisionCheck(char *gobj);
+void pendulum_Process(void *a0, int a1);
 
 #endif /* CHAIN_H */

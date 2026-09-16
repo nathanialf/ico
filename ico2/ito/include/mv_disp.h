@@ -12,13 +12,13 @@
 #ifndef MV_DISP_H
 #define MV_DISP_H
 
-extern void dispClear(int *self, unsigned int col);
-extern void dispCreate(int *self, int a1, int a2, int a3, int a4);
-extern void dispDelete(void);
-extern void dispSetTags(int *self, int src, int a2, int a3, int p4, int p5, int p6, int p7, int p8, int p9);
-extern void endDisplay(void);
-extern int handler_endimage(void);
-extern void startDisplay(int a0);
-extern int vblankHandler(void);
+void dispClear(int *self, unsigned int col);
+void dispCreate(int *self, int a1, int a2, int a3, int a4);
+void dispDelete(void);
+void dispSetTags(int *self, int src, int a2, int a3, int p4, int p5, int p6, int p7, int p8, int p9);
+void endDisplay(void);
+int handler_endimage(void);
+void startDisplay(int a0);
+int vblankHandler(void);
 
 #endif /* MV_DISP_H */

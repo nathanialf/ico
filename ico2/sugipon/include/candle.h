@@ -12,6 +12,6 @@
 #ifndef CANDLE_H
 #define CANDLE_H
 
-extern void DeleteLayoutedCandleParticleEffect(void);
+void DeleteLayoutedCandleParticleEffect(void);
 
 #endif /* CANDLE_H */

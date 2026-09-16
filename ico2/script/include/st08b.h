@@ -12,6 +12,6 @@
 #ifndef ST08B_H
 #define ST08B_H
 
-extern void actSt08bKurenSwitch(volatile int a0);
+void actSt08bKurenSwitch(volatile int a0);
 
 #endif /* ST08B_H */

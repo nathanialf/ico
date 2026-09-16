@@ -12,17 +12,17 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-extern void *light_AddAmbientObject(int obj);
-extern void light_AddLight(int a, int b, int c);
-extern void light_DispVolume(void);
-extern void light_DrawCursor(float *dir, int mode);
-extern void light_GetColorAnalog(float *col);
-extern void light_KillAllFixLight(void);
-extern void light_MakeLightMatrix(char *a, int b);
-extern void light_getAmbientLight(char *a, int b);
-extern void light_getNearLight(char *a, int b);
-extern void light_killLinkAmbient();
-extern void light_killLinkLight(char *node);
-extern void light_resetFlatLight(void);
+void *light_AddAmbientObject(int obj);
+void light_AddLight(int a, int b, int c);
+void light_DispVolume(void);
+void light_DrawCursor(float *dir, int mode);
+void light_GetColorAnalog(float *col);
+void light_KillAllFixLight(void);
+void light_MakeLightMatrix(char *a, int b);
+void light_getAmbientLight(char *a, int b);
+void light_getNearLight(char *a, int b);
+void light_killLinkAmbient();
+void light_killLinkLight(char *node);
+void light_resetFlatLight(void);
 
 #endif /* LIGHT_H */

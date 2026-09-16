@@ -12,29 +12,29 @@
 #ifndef ST13C_H
 #define ST13C_H
 
-extern void actSt13cBmg1Chk(volatile int a0);
-extern void actSt13cBukiChk(volatile int a0);
-extern void actSt13cCage1stDown(volatile int a0);
-extern void actSt13cCage1stDownDemo(volatile int a0);
-extern void actSt13cCage1stDownDemoCancel(volatile int a0);
-extern void actSt13cCageDownMain(volatile int a0);
-extern void actSt13cCageDownSwitch(volatile int a0);
-extern void actSt13cCageFallChk(volatile int a0);
-extern void actSt13cCageFallEffect(volatile int a0);
-extern void actSt13cCageFallReadyChk(volatile int a0);
-extern void actSt13cConte04(volatile int a0);
-extern void actSt13cConte04Jimaku(volatile int a0);
-extern void actSt13cConte05(volatile int a0);
-extern void actSt13cConte05Jimaku(volatile int a0);
-extern void actSt13cGirlCarryAgainChk(volatile int a0);
-extern void actSt13cGirlCarryChk(volatile int a0);
-extern void actSt13cHandChk(volatile int a0);
-extern void actSt13cHandJimaku(volatile int a0);
-extern void actSt13cHandSub(volatile int a0);
-extern void actSt13cRescueChk(volatile int a0);
-extern void actSt13cSekizoChk(volatile int a0);
-extern void actSt13cSekizoJimakuChk(volatile int a0);
-extern void actSt13cSekizoJimakuEff(volatile int a0);
-extern void actSt13cSleepChk(volatile int a0);
+void actSt13cBmg1Chk(volatile int a0);
+void actSt13cBukiChk(volatile int a0);
+void actSt13cCage1stDown(volatile int a0);
+void actSt13cCage1stDownDemo(volatile int a0);
+void actSt13cCage1stDownDemoCancel(volatile int a0);
+void actSt13cCageDownMain(volatile int a0);
+void actSt13cCageDownSwitch(volatile int a0);
+void actSt13cCageFallChk(volatile int a0);
+void actSt13cCageFallEffect(volatile int a0);
+void actSt13cCageFallReadyChk(volatile int a0);
+void actSt13cConte04(volatile int a0);
+void actSt13cConte04Jimaku(volatile int a0);
+void actSt13cConte05(volatile int a0);
+void actSt13cConte05Jimaku(volatile int a0);
+void actSt13cGirlCarryAgainChk(volatile int a0);
+void actSt13cGirlCarryChk(volatile int a0);
+void actSt13cHandChk(volatile int a0);
+void actSt13cHandJimaku(volatile int a0);
+void actSt13cHandSub(volatile int a0);
+void actSt13cRescueChk(volatile int a0);
+void actSt13cSekizoChk(volatile int a0);
+void actSt13cSekizoJimakuChk(volatile int a0);
+void actSt13cSekizoJimakuEff(volatile int a0);
+void actSt13cSleepChk(volatile int a0);
 
 #endif /* ST13C_H */

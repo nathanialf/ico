@@ -12,25 +12,25 @@
 #ifndef ST47A_H
 #define ST47A_H
 
-extern void actSt47aBarricadeChk(volatile int a0);
-extern void actSt47aEneChk(volatile int a0);
-extern void actSt47aExit2Chk(volatile int a0);
-extern void actSt47aExitChk(volatile int a0);
-extern void actSt47aGirlWay(volatile int a0);
-extern void actSt47aHane1Down(volatile int a0);
-extern void actSt47aHane1Main(volatile int a0);
-extern void actSt47aHane1Switch(volatile int a0);
-extern void actSt47aHane1Up(volatile int a0);
-extern void actSt47aHane1_1Girl(volatile int a0);
-extern void actSt47aHane1_2Girl(volatile int a0);
-extern void actSt47aHane2Down(volatile int a0);
-extern void actSt47aHane2Girl(volatile int a0);
-extern void actSt47aHane2Main(volatile int a0);
-extern void actSt47aHane2Switch(volatile int a0);
-extern void actSt47aHane2Up(volatile int a0);
-extern void actSt47aHint2OnChk(volatile int a0);
-extern void actSt47aRopeChk(volatile int a0);
-extern void actSt47aRopeSub(volatile int a0);
-extern void actSt47aSekizo1Chk(volatile int a0);
+void actSt47aBarricadeChk(volatile int a0);
+void actSt47aEneChk(volatile int a0);
+void actSt47aExit2Chk(volatile int a0);
+void actSt47aExitChk(volatile int a0);
+void actSt47aGirlWay(volatile int a0);
+void actSt47aHane1Down(volatile int a0);
+void actSt47aHane1Main(volatile int a0);
+void actSt47aHane1Switch(volatile int a0);
+void actSt47aHane1Up(volatile int a0);
+void actSt47aHane1_1Girl(volatile int a0);
+void actSt47aHane1_2Girl(volatile int a0);
+void actSt47aHane2Down(volatile int a0);
+void actSt47aHane2Girl(volatile int a0);
+void actSt47aHane2Main(volatile int a0);
+void actSt47aHane2Switch(volatile int a0);
+void actSt47aHane2Up(volatile int a0);
+void actSt47aHint2OnChk(volatile int a0);
+void actSt47aRopeChk(volatile int a0);
+void actSt47aRopeSub(volatile int a0);
+void actSt47aSekizo1Chk(volatile int a0);
 
 #endif /* ST47A_H */

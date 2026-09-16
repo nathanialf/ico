@@ -12,10 +12,10 @@
 #ifndef ST01B_H
 #define ST01B_H
 
-extern void actSt01bEneChk(volatile int a0);
-extern void actSt01bFloorChk(volatile int a0);
-extern void actSt01bFloorChkSub(volatile int a0);
-extern void actSt01bWayOffChk(volatile int a0);
-extern void actSt01bWayOnChk(volatile int a0);
+void actSt01bEneChk(volatile int a0);
+void actSt01bFloorChk(volatile int a0);
+void actSt01bFloorChkSub(volatile int a0);
+void actSt01bWayOffChk(volatile int a0);
+void actSt01bWayOnChk(volatile int a0);
 
 #endif /* ST01B_H */

@@ -12,11 +12,11 @@
 #ifndef WINDFIELD_H
 #define WINDFIELD_H
 
-extern void ExecWindField(float f);
-extern int GetWindVector(void);
-extern void InitWindField(int mode, float str, void *center, void *dir);
-extern void drawSenpuukiHaneUnit(float scale);
-extern int *dummyGetWindVector(int *a0);
-extern float *getParallelWindVector(float *power, void *pos);
+void ExecWindField(float f);
+int GetWindVector(void);
+void InitWindField(int mode, float str, void *center, void *dir);
+void drawSenpuukiHaneUnit(float scale);
+int *dummyGetWindVector(int *a0);
+float *getParallelWindVector(float *power, void *pos);
 
 #endif /* WINDFIELD_H */

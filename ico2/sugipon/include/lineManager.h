@@ -12,10 +12,10 @@
 #ifndef LINEMANAGER_H
 #define LINEMANAGER_H
 
-extern void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2);
-extern void Draw2DLineSeg_Start(void);
-extern void DrawLine(int *p1, int *p2, int a2, int a3);
-extern void DrawLineG(int *a0, int *a1, int *a2, int *a3, int a4);
-extern int _getLine();
+void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2);
+void Draw2DLineSeg_Start(void);
+void DrawLine(int *p1, int *p2, int a2, int a3);
+void DrawLineG(int *a0, int *a1, int *a2, int *a3, int a4);
+int _getLine();
 
 #endif /* LINEMANAGER_H */

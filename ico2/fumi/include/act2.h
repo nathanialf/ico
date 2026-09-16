@@ -12,6 +12,6 @@
 #ifndef ACT2_H
 #define ACT2_H
 
-extern void BeforeFunc2(char *self);
+void BeforeFunc2(char *self);
 
 #endif /* ACT2_H */

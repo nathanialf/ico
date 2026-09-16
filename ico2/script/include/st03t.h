@@ -12,18 +12,18 @@
 #ifndef ST03T_H
 #define ST03T_H
 
-extern void actSt03tEneChk(volatile int a0);
-extern void actSt03tGirlCamEndChk(volatile int a0);
-extern void actSt03tGirlCamStartChk(volatile int a0);
-extern void actSt03tGirlPosChk(volatile int a0);
-extern void actSt03tGirlUpChk(volatile int a0);
-extern void actSt03tHint1OffChk(volatile int a0);
-extern void actSt03tHint1OnChk(volatile int a0);
-extern void actSt03tSwitchLChk(volatile int a0);
-extern void actSt03tSwitchLUpChk(volatile int a0);
-extern void actSt03tSwitchRChk(volatile int a0);
-extern void actSt03tSwitchRUpChk(volatile int a0);
-extern void actSt03tWayOffChk(volatile int a0);
-extern void actSt03tWayOnChk(volatile int a0);
+void actSt03tEneChk(volatile int a0);
+void actSt03tGirlCamEndChk(volatile int a0);
+void actSt03tGirlCamStartChk(volatile int a0);
+void actSt03tGirlPosChk(volatile int a0);
+void actSt03tGirlUpChk(volatile int a0);
+void actSt03tHint1OffChk(volatile int a0);
+void actSt03tHint1OnChk(volatile int a0);
+void actSt03tSwitchLChk(volatile int a0);
+void actSt03tSwitchLUpChk(volatile int a0);
+void actSt03tSwitchRChk(volatile int a0);
+void actSt03tSwitchRUpChk(volatile int a0);
+void actSt03tWayOffChk(volatile int a0);
+void actSt03tWayOnChk(volatile int a0);
 
 #endif /* ST03T_H */

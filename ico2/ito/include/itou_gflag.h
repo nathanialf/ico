@@ -12,6 +12,6 @@
 #ifndef ITOU_GFLAG_H
 #define ITOU_GFLAG_H
 
-extern void itouGFlagInit(int a0, int a1, int a2, int a3);
+void itouGFlagInit(int a0, int a1, int a2, int a3);
 
 #endif /* ITOU_GFLAG_H */

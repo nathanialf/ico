@@ -12,22 +12,22 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-extern int tex_AllocVramAuto(int a0, int a1);
-extern int *tex_GetTexExtData(int idx);
-extern int *tex_GetTextureData(int idx);
-extern int tex_GetTextureNo(char *name);
-extern int tex_GetTextureNum(void);
-extern void tex_Init(void);
-extern int tex_InitTexture(void);
-extern int tex_LoadTexturePart(void *a0, int a1);
-extern void tex_LockHeadTBP(int tbp, int pri);
-extern int tex_RemakeRegistersSampleMin(void);
-extern void tex_ResetVramPri(int pri);
-extern void tex_SetSamplingType(int *a0, int a1, int a2);
-extern void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov, int a1);
-extern int tex_TransTexture(int no, int pri);
-extern void tex_UnlockHeadTBP(int pri);
-extern int tex_initTextureSub();
-extern void tex_scrollClut(int a0, int a1, int a2, int a3, unsigned int a4, void *a5, int a6, void *a7);
+int tex_AllocVramAuto(int a0, int a1);
+int *tex_GetTexExtData(int idx);
+int *tex_GetTextureData(int idx);
+int tex_GetTextureNo(char *name);
+int tex_GetTextureNum(void);
+void tex_Init(void);
+int tex_InitTexture(void);
+int tex_LoadTexturePart(void *a0, int a1);
+void tex_LockHeadTBP(int tbp, int pri);
+int tex_RemakeRegistersSampleMin(void);
+void tex_ResetVramPri(int pri);
+void tex_SetSamplingType(int *a0, int a1, int a2);
+void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov, int a1);
+int tex_TransTexture(int no, int pri);
+void tex_UnlockHeadTBP(int pri);
+int tex_initTextureSub();
+void tex_scrollClut(int a0, int a1, int a2, int a3, unsigned int a4, void *a5, int a6, void *a7);
 
 #endif /* TEXTURE_H */

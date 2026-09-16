@@ -12,16 +12,16 @@
 #ifndef ST17A_H
 #define ST17A_H
 
-extern void actLinkTestChk(volatile int a0);
-extern void actSt17aDoorDownChk(volatile int a0);
-extern void actSt17aDoorDownEffect(volatile int a0);
-extern void actSt17aDoorUpChk(volatile int a0);
-extern void actSt17aDoorUpEffect(volatile int a0);
-extern void actSt17aFallChk(volatile int a0);
-extern void actSt17aHasiChk(volatile int a0);
-extern void actSt17aHasiEffect(volatile int a0);
-extern void actSt17aHint1Chk(volatile int a0);
-extern void actSt17aIntroCancel(volatile int a0);
-extern void actSt17aIntroChk(volatile int a0);
+void actLinkTestChk(volatile int a0);
+void actSt17aDoorDownChk(volatile int a0);
+void actSt17aDoorDownEffect(volatile int a0);
+void actSt17aDoorUpChk(volatile int a0);
+void actSt17aDoorUpEffect(volatile int a0);
+void actSt17aFallChk(volatile int a0);
+void actSt17aHasiChk(volatile int a0);
+void actSt17aHasiEffect(volatile int a0);
+void actSt17aHint1Chk(volatile int a0);
+void actSt17aIntroCancel(volatile int a0);
+void actSt17aIntroChk(volatile int a0);
 
 #endif /* ST17A_H */

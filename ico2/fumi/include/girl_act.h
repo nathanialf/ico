@@ -12,26 +12,26 @@
 #ifndef GIRL_ACT_H
 #define GIRL_ACT_H
 
-extern void ACTGame_GirlBeforeFunc(void *self);
-extern void ClearGirlDangerGObj(void);
-extern void Danger_Gondola(void *self);
-extern void GirlAct_BoyAndMeCollisionMail(void *a0);
-extern int IsGirlStatusEscortEnable(int a0, int a1);
-extern void SetGirlDangerGObj(int a0);
-extern void _girlBrainHide_MakeHidePoint(float *p, float dist);
-extern void afterGirlHand(unsigned int a0);
-extern void afterGirlHand100(volatile int a0);
-extern void afterGirlHand200(volatile int a0);
-extern void afterGirlHand50(volatile int a0);
-extern void afterGirlHintPoint(volatile int a0);
-extern void afterGirlPulledGo(void *a0);
-extern void afterGirlSupportBGBegin(unsigned int a0);
-extern int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n);
-extern int girlBrainMain_CheckWarningMode(unsigned char check);
-extern int isEnterHideadv_EnemyLocation(float *bpos, float *gpos);
-extern int isMustCheckCylinder(void *a, void *b);
-extern void subGirlBrainMain(void);
-extern void subGirlCollision(void);
-extern void subGirlControl(void);
+void ACTGame_GirlBeforeFunc(void *self);
+void ClearGirlDangerGObj(void);
+void Danger_Gondola(void *self);
+void GirlAct_BoyAndMeCollisionMail(void *a0);
+int IsGirlStatusEscortEnable(int a0, int a1);
+void SetGirlDangerGObj(int a0);
+void _girlBrainHide_MakeHidePoint(float *p, float dist);
+void afterGirlHand(unsigned int a0);
+void afterGirlHand100(volatile int a0);
+void afterGirlHand200(volatile int a0);
+void afterGirlHand50(volatile int a0);
+void afterGirlHintPoint(volatile int a0);
+void afterGirlPulledGo(void *a0);
+void afterGirlSupportBGBegin(unsigned int a0);
+int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n);
+int girlBrainMain_CheckWarningMode(unsigned char check);
+int isEnterHideadv_EnemyLocation(float *bpos, float *gpos);
+int isMustCheckCylinder(void *a, void *b);
+void subGirlBrainMain(void);
+void subGirlCollision(void);
+void subGirlControl(void);
 
 #endif /* GIRL_ACT_H */

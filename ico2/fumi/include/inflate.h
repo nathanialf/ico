@@ -12,11 +12,11 @@
 #ifndef INFLATE_H
 #define INFLATE_H
 
-extern void close_inflate_handler(void *a0);
-extern long long inflate(void *w, unsigned char *out, long long outlen);
-extern int inflate_dynamic(void *w, unsigned char *out, long long outlen);
-extern long long inflate_fixed(void *w, unsigned char *out, long long outlen);
-extern long long inflate_stored(void *w, unsigned char *out, long long outlen);
-extern int open_inflate_handler(int a0, int a1);
+void close_inflate_handler(void *a0);
+long long inflate(void *w, unsigned char *out, long long outlen);
+int inflate_dynamic(void *w, unsigned char *out, long long outlen);
+long long inflate_fixed(void *w, unsigned char *out, long long outlen);
+long long inflate_stored(void *w, unsigned char *out, long long outlen);
+int open_inflate_handler(int a0, int a1);
 
 #endif /* INFLATE_H */

@@ -12,15 +12,15 @@
 #ifndef ST18A_H
 #define ST18A_H
 
-extern void actSt18aDoorChk(volatile int a0);
-extern void actSt18aDoorChkSub(volatile int a0);
-extern void actSt18aDoorDownChk(volatile int a0);
-extern void actSt18aEne2Chk(volatile int a0);
-extern void actSt18aEneChk(volatile int a0);
-extern void actSt18aIntroChk(volatile int a0);
-extern void actSt18aSwitchLChk(volatile int a0);
-extern void actSt18aSwitchLUpChk(volatile int a0);
-extern void actSt18aSwitchRChk(volatile int a0);
-extern void actSt18aSwitchRUpChk(volatile int a0);
+void actSt18aDoorChk(volatile int a0);
+void actSt18aDoorChkSub(volatile int a0);
+void actSt18aDoorDownChk(volatile int a0);
+void actSt18aEne2Chk(volatile int a0);
+void actSt18aEneChk(volatile int a0);
+void actSt18aIntroChk(volatile int a0);
+void actSt18aSwitchLChk(volatile int a0);
+void actSt18aSwitchLUpChk(volatile int a0);
+void actSt18aSwitchRChk(volatile int a0);
+void actSt18aSwitchRUpChk(volatile int a0);
 
 #endif /* ST18A_H */

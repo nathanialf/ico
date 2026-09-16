@@ -12,25 +12,25 @@
 #ifndef PARTICLEEFFECT_H
 #define PARTICLEEFFECT_H
 
-extern void DeleteParticleEffect(int no);
-extern void DisableParticleEffectGeometryControl(int a0);
-extern void DispParticleEffects(void);
-extern void ExecParticleEffect(int no);
-extern int GetParticleEffectData(int a0);
-extern int *GetParticleEffectPackage(int idx);
-extern int GetParticleIDWithName(char *name);
-extern int GetParticleLoopFlag(int a0);
-extern void ParticleEffects_SetAllGoal(void *goal);
-extern void ResetParticleEffectPackages(int *pkg);
-extern int SetParticleEffect(int id, void *pos, void *quat);
-extern int SetParticleEffectActiveSensing(int id, float *pos, int *quat);
-extern int SetParticleEffectByPartition(int id, float *pos, void *geo, int part);
-extern void SetParticleEffectDrainLevel(int a0, float f);
-extern void SetParticleEffectGeometry(int a0, int a1, int a2);
-extern void SetParticleEffectPackage(int a0, int *a1, int a2);
-extern void SetParticleEffectPauseFlag(int a0, int a1);
-extern void SetParticleEffectUpperLimit(int no, float f);
-extern int execParticleEffect(void *a0);
-extern int setParticleEffect(int geo, int *pkg, int part);
+void DeleteParticleEffect(int no);
+void DisableParticleEffectGeometryControl(int a0);
+void DispParticleEffects(void);
+void ExecParticleEffect(int no);
+int GetParticleEffectData(int a0);
+int *GetParticleEffectPackage(int idx);
+int GetParticleIDWithName(char *name);
+int GetParticleLoopFlag(int a0);
+void ParticleEffects_SetAllGoal(void *goal);
+void ResetParticleEffectPackages(int *pkg);
+int SetParticleEffect(int id, void *pos, void *quat);
+int SetParticleEffectActiveSensing(int id, float *pos, int *quat);
+int SetParticleEffectByPartition(int id, float *pos, void *geo, int part);
+void SetParticleEffectDrainLevel(int a0, float f);
+void SetParticleEffectGeometry(int a0, int a1, int a2);
+void SetParticleEffectPackage(int a0, int *a1, int a2);
+void SetParticleEffectPauseFlag(int a0, int a1);
+void SetParticleEffectUpperLimit(int no, float f);
+int execParticleEffect(void *a0);
+int setParticleEffect(int geo, int *pkg, int part);
 
 #endif /* PARTICLEEFFECT_H */

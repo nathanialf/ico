@@ -12,7 +12,7 @@
 #ifndef ICOMISC_H
 #define ICOMISC_H
 
-extern void DispIcoMisc(void);
-extern void InitIcoMisc();
+void DispIcoMisc(void);
+void InitIcoMisc();
 
 #endif /* ICOMISC_H */

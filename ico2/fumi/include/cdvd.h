@@ -12,27 +12,27 @@
 #ifndef CDVD_H
 #define CDVD_H
 
-extern void cdWait(int *busy);
-extern long long inflate_cd_read_func(void *buf, long long size, int *self);
-extern void iosCdvdBackGroundMgr(void);
-extern char *iosCdvdBackGroundMgrAdd(char *name, void *readFunc, int readArg, void *readyFunc, void *resumeFunc, int cbArg, void *closeFunc, int closeArg);
-extern void iosCdvdBackGroundMgrDelete(char *self);
-extern int iosCdvdBackGroundMgrDeleteRequestGet(void);
-extern int iosCdvdBackGroundMgrEntryNum(void);
-extern int iosCdvdBackGroundMgrNotDiskReadyPauseSet(void *a0, int a1);
-extern void iosCdvdBackGroundMgrSeek(char *self, int val);
-extern int iosCdvdBackGroundRead(char *self, void *buf, int size);
-extern int iosCdvdBackGroundReadIOPm(char *self, void *buf, int size);
-extern int iosCdvdChgFileName(int a0);
-extern void iosCdvdDirectStClose(int *self);
-extern int iosCdvdDirectStRead(int a0, int a1, int a2, int *a3);
-extern int iosCdvdDiskStatusGet(void);
-extern int iosCdvdGetFileLsn(char *name, int *size);
-extern void iosCdvdHandlerRead(int *a0, void *a1, int a2);
-extern void iosCdvdHandlerReadInflate(int *self, void *buf, int n);
-extern void iosCdvdHandlerReadNoInflate(int *a0, void *buf, int n);
-extern void iosCdvdMgrSearchFile(char *self);
-extern void iosCdvdMgrStStart(char *self);
-extern void iosCdvdMgrStStop(char *self);
+void cdWait(int *busy);
+long long inflate_cd_read_func(void *buf, long long size, int *self);
+void iosCdvdBackGroundMgr(void);
+char *iosCdvdBackGroundMgrAdd(char *name, void *readFunc, int readArg, void *readyFunc, void *resumeFunc, int cbArg, void *closeFunc, int closeArg);
+void iosCdvdBackGroundMgrDelete(char *self);
+int iosCdvdBackGroundMgrDeleteRequestGet(void);
+int iosCdvdBackGroundMgrEntryNum(void);
+int iosCdvdBackGroundMgrNotDiskReadyPauseSet(void *a0, int a1);
+void iosCdvdBackGroundMgrSeek(char *self, int val);
+int iosCdvdBackGroundRead(char *self, void *buf, int size);
+int iosCdvdBackGroundReadIOPm(char *self, void *buf, int size);
+int iosCdvdChgFileName(int a0);
+void iosCdvdDirectStClose(int *self);
+int iosCdvdDirectStRead(int a0, int a1, int a2, int *a3);
+int iosCdvdDiskStatusGet(void);
+int iosCdvdGetFileLsn(char *name, int *size);
+void iosCdvdHandlerRead(int *a0, void *a1, int a2);
+void iosCdvdHandlerReadInflate(int *self, void *buf, int n);
+void iosCdvdHandlerReadNoInflate(int *a0, void *buf, int n);
+void iosCdvdMgrSearchFile(char *self);
+void iosCdvdMgrStStart(char *self);
+void iosCdvdMgrStStop(char *self);
 
 #endif /* CDVD_H */

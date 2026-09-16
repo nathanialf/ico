@@ -12,15 +12,15 @@
 #ifndef CAMERA_ICO2_H
 #define CAMERA_ICO2_H
 
-extern void AddPluralCameraSet(int id, char *name);
-extern void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
-extern void CameraSetCameraSet(int id);
-extern void CameraSetCameraSet_Default(void);
-extern int GetCameraGroupCurrent(void);
-extern void InitIco2Camera(void);
-extern void InitPluralCameraSet(void);
-extern void *ReadCameraSet(char *name, int stage);
-extern void ReflectCameraSetBinary(int a0, int a1);
-extern void SetCameraTargetPosition(void *a0, float a1);
+void AddPluralCameraSet(int id, char *name);
+void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
+void CameraSetCameraSet(int id);
+void CameraSetCameraSet_Default(void);
+int GetCameraGroupCurrent(void);
+void InitIco2Camera(void);
+void InitPluralCameraSet(void);
+void *ReadCameraSet(char *name, int stage);
+void ReflectCameraSetBinary(int a0, int a1);
+void SetCameraTargetPosition(void *a0, float a1);
 
 #endif /* CAMERA_ICO2_H */

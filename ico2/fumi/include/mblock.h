@@ -12,8 +12,8 @@
 #ifndef MBLOCK_H
 #define MBLOCK_H
 
-extern void init_mblock(int *a0);
-extern void *new_segment(void *mb, int size);
-extern void reuse_mblock(int *a0);
+void init_mblock(int *a0);
+void *new_segment(void *mb, int size);
+void reuse_mblock(int *a0);
 
 #endif /* MBLOCK_H */

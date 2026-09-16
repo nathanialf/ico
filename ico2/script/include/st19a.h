@@ -12,14 +12,14 @@
 #ifndef ST19A_H
 #define ST19A_H
 
-extern void actSt19aChainDown(volatile int a0);
-extern void actSt19aChainDownSub(volatile int a0);
-extern void actSt19aChainMain(volatile int a0);
-extern void actSt19aChainSwitch(volatile int a0);
-extern void actSt19aHagurumaChk(volatile int a0);
-extern void actSt19aOriMain(volatile int a0);
-extern void actSt19aOriSwitch(volatile int a0);
-extern void actSt19aOriUp(volatile int a0);
-extern void actSt19aPipeChk(volatile int a0);
+void actSt19aChainDown(volatile int a0);
+void actSt19aChainDownSub(volatile int a0);
+void actSt19aChainMain(volatile int a0);
+void actSt19aChainSwitch(volatile int a0);
+void actSt19aHagurumaChk(volatile int a0);
+void actSt19aOriMain(volatile int a0);
+void actSt19aOriSwitch(volatile int a0);
+void actSt19aOriUp(volatile int a0);
+void actSt19aPipeChk(volatile int a0);
 
 #endif /* ST19A_H */

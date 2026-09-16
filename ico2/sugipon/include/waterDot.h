@@ -12,9 +12,9 @@
 #ifndef WATERDOT_H
 #define WATERDOT_H
 
-extern char *AllocWaterDot(char *gobj, int num, int a2);
-extern void DispWaterDot(int a0);
-extern void EntryWaterDot(int work, void *pos, char *kind, float range);
-extern int ExecWaterDot(int work);
+char *AllocWaterDot(char *gobj, int num, int a2);
+void DispWaterDot(int a0);
+void EntryWaterDot(int work, void *pos, char *kind, float range);
+int ExecWaterDot(int work);
 
 #endif /* WATERDOT_H */

@@ -12,9 +12,9 @@
 #ifndef QUEEN_BARRIER_DISP_H
 #define QUEEN_BARRIER_DISP_H
 
-extern void queen_barrier_anim(void);
-extern void queen_barrier_disp_init(void);
-extern void queen_barrier_disp_proc(float);
-extern void queen_barrier_set_damage(void);
+void queen_barrier_anim(void);
+void queen_barrier_disp_init(void);
+void queen_barrier_disp_proc(float);
+void queen_barrier_set_damage(void);
 
 #endif /* QUEEN_BARRIER_DISP_H */

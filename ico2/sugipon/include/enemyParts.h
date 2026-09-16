@@ -12,13 +12,13 @@
 #ifndef ENEMYPARTS_H
 #define ENEMYPARTS_H
 
-extern int DispEnemyEye(char *a0);
-extern int DispEnemyFootPrints(int *a0);
-extern int EntryEnemyFootPrint(char *self, void *pos);
-extern int ExecEnemyFootPrints(char *self);
-extern char *InitEnemyEye(int num, int a1, int a2);
-extern char *InitEnemyFootPrint(int num);
-extern int ResetEnemyEye(char *self);
-extern int UpdateEnemyEye(char *a0, int a1, float f);
+int DispEnemyEye(char *a0);
+int DispEnemyFootPrints(int *a0);
+int EntryEnemyFootPrint(char *self, void *pos);
+int ExecEnemyFootPrints(char *self);
+char *InitEnemyEye(int num, int a1, int a2);
+char *InitEnemyFootPrint(int num);
+int ResetEnemyEye(char *self);
+int UpdateEnemyEye(char *a0, int a1, float f);
 
 #endif /* ENEMYPARTS_H */

@@ -12,9 +12,9 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-extern void pac_DispQW(void *p, int size);
-extern void pac_Init(void);
-extern void pac_MakePacket(char *a0);
-extern void pac_makePacket(void *a0, int a1, int a2);
+void pac_DispQW(void *p, int size);
+void pac_Init(void);
+void pac_MakePacket(char *a0);
+void pac_makePacket(void *a0, int a1, int a2);
 
 #endif /* PACKET_H */

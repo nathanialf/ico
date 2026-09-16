@@ -12,8 +12,8 @@
 #ifndef WINDMANAGER_H
 #define WINDMANAGER_H
 
-extern float GetRegularizedWindSpeed(void *pos);
-extern void ReinitWindManager(void);
-extern void SetWindManager(float a, float b, float c, float d, float e, float f, float g, float h);
+float GetRegularizedWindSpeed(void *pos);
+void ReinitWindManager(void);
+void SetWindManager(float a, float b, float c, float d, float e, float f, float g, float h);
 
 #endif /* WINDMANAGER_H */

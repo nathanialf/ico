@@ -12,19 +12,19 @@
 #ifndef GAMESYS_H
 #define GAMESYS_H
 
-extern int gamesysGetGirlStageIDAndPosition(int a0);
-extern void gamesysMemoryHandlerRead(int *self, int a1, int a2);
-extern void gamesysMemoryHandlerWrite(int *self, int n, int a2);
-extern void gamesysMemoryLoad(void **tbl, int a1, void *a2);
-extern void gamesysMemorySave(int *self, int a1, int a2);
-extern int *gamesysObjInfoBaseSet(int *self, int stage);
-extern void gamesysObjInfoCls(int kind, int no);
-extern void *gamesysObjInfoGet(int a0, int a1);
-extern void gamesysObjInfoInit(void);
-extern void gamesysObjInfoPosNewStageSet(char *self, char *other, int v, float *tmp_a, float *tmp_b);
-extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
-extern void gamesysObjInfoStageInitFlagCls(void);
-extern int *gamesysObjInfoUniqDataSet(int a0);
-extern void gamesysStageExitTimeSet(int a0);
+int gamesysGetGirlStageIDAndPosition(int a0);
+void gamesysMemoryHandlerRead(int *self, int a1, int a2);
+void gamesysMemoryHandlerWrite(int *self, int n, int a2);
+void gamesysMemoryLoad(void **tbl, int a1, void *a2);
+void gamesysMemorySave(int *self, int a1, int a2);
+int *gamesysObjInfoBaseSet(int *self, int stage);
+void gamesysObjInfoCls(int kind, int no);
+void *gamesysObjInfoGet(int a0, int a1);
+void gamesysObjInfoInit(void);
+void gamesysObjInfoPosNewStageSet(char *self, char *other, int v, float *tmp_a, float *tmp_b);
+int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
+void gamesysObjInfoStageInitFlagCls(void);
+int *gamesysObjInfoUniqDataSet(int a0);
+void gamesysStageExitTimeSet(int a0);
 
 #endif /* GAMESYS_H */

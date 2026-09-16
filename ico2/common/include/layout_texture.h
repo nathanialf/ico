@@ -12,14 +12,14 @@
 #ifndef LAYOUT_TEXTURE_H
 #define LAYOUT_TEXTURE_H
 
-extern void default_item_select(int no);
-extern void display_primary_texture_layout(int no, int sel);
-extern void display_texture_fade_cancel_chk(int from, int to);
-extern void lt_analog2Pad(void);
-extern int lt_current_property_item(void);
-extern int lt_fade_status(void);
-extern int lt_link_layout(int dir);
-extern void lt_set_item_select_func(int val);
-extern void lt_switch_layout(int no);
+void default_item_select(int no);
+void display_primary_texture_layout(int no, int sel);
+void display_texture_fade_cancel_chk(int from, int to);
+void lt_analog2Pad(void);
+int lt_current_property_item(void);
+int lt_fade_status(void);
+int lt_link_layout(int dir);
+void lt_set_item_select_func(int val);
+void lt_switch_layout(int no);
 
 #endif /* LAYOUT_TEXTURE_H */

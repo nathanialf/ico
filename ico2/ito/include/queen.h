@@ -12,15 +12,15 @@
 #ifndef QUEEN_H
 #define QUEEN_H
 
-extern float GetQueenBallThickness(void);
-extern int InqQueenBarrierExist(void);
-extern float QueenBallRadius(char *a0);
-extern int QueenBarrierInqBreakable(void);
-extern float QueenBarrierRadius(char *a0);
-extern int QueenInqDead(void);
-extern void QueenStartAttack(void);
-extern void gene_enemy(volatile int g);
-extern void subQueenBrainMain(volatile int g);
-extern void subQueenControl(volatile int g);
+float GetQueenBallThickness(void);
+int InqQueenBarrierExist(void);
+float QueenBallRadius(char *a0);
+int QueenBarrierInqBreakable(void);
+float QueenBarrierRadius(char *a0);
+int QueenInqDead(void);
+void QueenStartAttack(void);
+void gene_enemy(volatile int g);
+void subQueenBrainMain(volatile int g);
+void subQueenControl(volatile int g);
 
 #endif /* QUEEN_H */

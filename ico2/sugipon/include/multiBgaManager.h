@@ -12,8 +12,8 @@
 #ifndef MULTIBGAMANAGER_H
 #define MULTIBGAMANAGER_H
 
-extern void DispMultiBgaManagerWithKind(int a0, int a1, int a2);
-extern void EntryMultiBgaManager(int id, int a1, int a2, int *root, void *q);
-extern void *InitMultiBgaManager(int n);
+void DispMultiBgaManagerWithKind(int a0, int a1, int a2);
+void EntryMultiBgaManager(int id, int a1, int a2, int *root, void *q);
+void *InitMultiBgaManager(int n);
 
 #endif /* MULTIBGAMANAGER_H */

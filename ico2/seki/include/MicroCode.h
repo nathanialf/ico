@@ -12,9 +12,9 @@
 #ifndef MICROCODE_H
 #define MICROCODE_H
 
-extern void mc_Reset(void);
-extern void mc_SetMicroCode();
-extern void mc_TransMicroCode(int a0, int a1);
-extern void mc_setBaseOffset(int base, int pri);
+void mc_Reset(void);
+void mc_SetMicroCode();
+void mc_TransMicroCode(int a0, int a1);
+void mc_setBaseOffset(int base, int pri);
 
 #endif /* MICROCODE_H */

@@ -12,22 +12,22 @@
 #ifndef GV_H
 #define GV_H
 
-extern int AlignDegGV(int a0);
-extern void GetMatrixDirectionToZ(float *out, float *dir);
-extern int RoundDegGV(int a0);
-extern void SwapGV(float *a, float *b);
-extern int _AbsRotyGV(void *a0, void *a1);
-extern void _ApplyRyGV(float *a0, float a1);
-extern void _DistGV(void *a0, void *a1);
-extern void _DistSqGV(void *a0, void *a1);
-extern void _DistxzGV(void *a0, void *a1);
-extern void _DistxzSqGV(void *a0, void *a1);
-extern float _GetDirection(float *a0);
-extern void _InterGV(float *dst, float *a, float *b, float ta, float tb);
-extern float _MoveGV(float *a0, float *a1, float *a2, float a3);
-extern void _OrientGV(int a0);
-extern void _OrientXZGV(int a0);
-extern float _RotGVF(float *a0, float *a1);
-extern int _RotyGV(float *a0, float *a1);
+int AlignDegGV(int a0);
+void GetMatrixDirectionToZ(float *out, float *dir);
+int RoundDegGV(int a0);
+void SwapGV(float *a, float *b);
+int _AbsRotyGV(void *a0, void *a1);
+void _ApplyRyGV(float *a0, float a1);
+void _DistGV(void *a0, void *a1);
+void _DistSqGV(void *a0, void *a1);
+void _DistxzGV(void *a0, void *a1);
+void _DistxzSqGV(void *a0, void *a1);
+float _GetDirection(float *a0);
+void _InterGV(float *dst, float *a, float *b, float ta, float tb);
+float _MoveGV(float *a0, float *a1, float *a2, float a3);
+void _OrientGV(int a0);
+void _OrientXZGV(int a0);
+float _RotGVF(float *a0, float *a1);
+int _RotyGV(float *a0, float *a1);
 
 #endif /* GV_H */

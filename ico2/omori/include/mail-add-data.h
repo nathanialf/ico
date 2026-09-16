@@ -12,9 +12,9 @@
 #ifndef MAIL_ADD_DATA_H
 #define MAIL_ADD_DATA_H
 
-extern int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void *data);
-extern void ClearMailAdditionalData(char *gop);
-extern void *GetMailAdditionalData(char *gop, int mail);
-extern void InitMailAdditionalData(char *a0, int a1);
+int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void *data);
+void ClearMailAdditionalData(char *gop);
+void *GetMailAdditionalData(char *gop, int mail);
+void InitMailAdditionalData(char *a0, int a1);
 
 #endif /* MAIL_ADD_DATA_H */

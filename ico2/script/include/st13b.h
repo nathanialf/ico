@@ -12,27 +12,27 @@
 #ifndef ST13B_H
 #define ST13B_H
 
-extern void actConte10c(volatile int a0);
-extern void actSt13bBossAfterChk(volatile int a0);
-extern void actSt13bBossChk(volatile int a0);
-extern void actSt13bConte02(volatile int a0);
-extern void actSt13bConte02Jimaku(volatile int a0);
-extern void actSt13bDoorMain(volatile int a0);
-extern void actSt13bDoorSwitch(volatile int a0);
-extern void actSt13bDoorUp(volatile int a0);
-extern void actSt13bDoorUpSub(volatile int a0);
-extern void actSt13bElev2CharaChk(volatile int a0);
-extern void actSt13bElev2Chk(volatile int a0);
-extern void actSt13bElevDown(volatile int a0);
-extern void actSt13bElevDownSub(volatile int a0);
-extern void actSt13bElevMain(volatile int a0);
-extern void actSt13bElevSwitch(volatile int a0);
-extern void actSt13bElevUpChk(volatile int a0);
-extern void actSt13bElevUpSub(volatile int a0);
-extern void actSt13bFloorChk(volatile int a0);
-extern void actSt13bMeetAgainChk(volatile int a0);
-extern void actSt13bMeetAgainSub(volatile int a0);
-extern void actSt13bSekizo2Chk(volatile int a0);
-extern void actSt13bSekizoChk(volatile int a0);
+void actConte10c(volatile int a0);
+void actSt13bBossAfterChk(volatile int a0);
+void actSt13bBossChk(volatile int a0);
+void actSt13bConte02(volatile int a0);
+void actSt13bConte02Jimaku(volatile int a0);
+void actSt13bDoorMain(volatile int a0);
+void actSt13bDoorSwitch(volatile int a0);
+void actSt13bDoorUp(volatile int a0);
+void actSt13bDoorUpSub(volatile int a0);
+void actSt13bElev2CharaChk(volatile int a0);
+void actSt13bElev2Chk(volatile int a0);
+void actSt13bElevDown(volatile int a0);
+void actSt13bElevDownSub(volatile int a0);
+void actSt13bElevMain(volatile int a0);
+void actSt13bElevSwitch(volatile int a0);
+void actSt13bElevUpChk(volatile int a0);
+void actSt13bElevUpSub(volatile int a0);
+void actSt13bFloorChk(volatile int a0);
+void actSt13bMeetAgainChk(volatile int a0);
+void actSt13bMeetAgainSub(volatile int a0);
+void actSt13bSekizo2Chk(volatile int a0);
+void actSt13bSekizoChk(volatile int a0);
 
 #endif /* ST13B_H */

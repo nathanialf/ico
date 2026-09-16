@@ -12,6 +12,6 @@
 #ifndef WIRELETTER_H
 #define WIRELETTER_H
 
-extern void DispWireString(char *s);
+void DispWireString(char *s);
 
 #endif /* WIRELETTER_H */

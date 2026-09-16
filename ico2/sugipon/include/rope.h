@@ -12,7 +12,7 @@
 #ifndef ROPE_H
 #define ROPE_H
 
-extern void SetRopeFixPoint(char *a0, void *a1);
-extern void ropeGeo(void *a0);
+void SetRopeFixPoint(char *a0, void *a1);
+void ropeGeo(void *a0);
 
 #endif /* ROPE_H */

@@ -12,7 +12,7 @@
 #ifndef GOBJ_CAM_DL_H
 #define GOBJ_CAM_DL_H
 
-extern void isysGObjCameraDlInit(void);
-extern void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4);
+void isysGObjCameraDlInit(void);
+void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4);
 
 #endif /* GOBJ_CAM_DL_H */

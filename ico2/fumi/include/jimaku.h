@@ -12,9 +12,9 @@
 #ifndef JIMAKU_H
 #define JIMAKU_H
 
-extern void jimakuBegin(int a0);
-extern void jimakuEnd(void);
-extern void jimakuJump(int a0);
-extern void jimakuUndisp(void);
+void jimakuBegin(int a0);
+void jimakuEnd(void);
+void jimakuJump(int a0);
+void jimakuUndisp(void);
 
 #endif /* JIMAKU_H */

@@ -12,27 +12,27 @@
 #ifndef REGISTPACKET_H
 #define REGISTPACKET_H
 
-extern void reg_DispAccessoryWithShadow(char *o, char *src);
-extern void reg_DispEnemy(void *sub);
-extern void reg_DispMultiPri(char *o, int pri);
-extern void reg_DispObj(char *o);
-extern int reg_GetShinePri(int a0);
-extern void reg_Init(void);
-extern void reg_RenderReflection(char *o, int pri);
-extern void reg_SetScissorSw(int val);
-extern void reg_chooseReflectionMicroCode(int a0, int a1, int a2);
-extern void reg_dispBoxLine(char *pk);
-extern void reg_dispCObj(char *o);
-extern void reg_dispLine(char *node, float alpha);
-extern void reg_dispMObj(char *o);
-extern void reg_dispNObj(char *o);
-extern void reg_dispPoint(char *node, float alpha, int idx, int flag);
-extern void reg_dispPointLineObj(char *o);
-extern void reg_resetDissolve(int a0);
-extern void reg_setCMatrixPacket(char *o, float alpha, int prilist);
-extern int reg_setDissolve(float a, int pri);
-extern char *reg_setMMatrixPacket(char *o, int idx);
-extern char *reg_setNMatrixPacket(char *o, int idx);
-extern void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat);
+void reg_DispAccessoryWithShadow(char *o, char *src);
+void reg_DispEnemy(void *sub);
+void reg_DispMultiPri(char *o, int pri);
+void reg_DispObj(char *o);
+int reg_GetShinePri(int a0);
+void reg_Init(void);
+void reg_RenderReflection(char *o, int pri);
+void reg_SetScissorSw(int val);
+void reg_chooseReflectionMicroCode(int a0, int a1, int a2);
+void reg_dispBoxLine(char *pk);
+void reg_dispCObj(char *o);
+void reg_dispLine(char *node, float alpha);
+void reg_dispMObj(char *o);
+void reg_dispNObj(char *o);
+void reg_dispPoint(char *node, float alpha, int idx, int flag);
+void reg_dispPointLineObj(char *o);
+void reg_resetDissolve(int a0);
+void reg_setCMatrixPacket(char *o, float alpha, int prilist);
+int reg_setDissolve(float a, int pri);
+char *reg_setMMatrixPacket(char *o, int idx);
+char *reg_setNMatrixPacket(char *o, int idx);
+void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat);
 
 #endif /* REGISTPACKET_H */

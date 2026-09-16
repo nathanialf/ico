@@ -12,9 +12,9 @@
 #ifndef ST04D_H
 #define ST04D_H
 
-extern void actSt04dDoor1DownChk(volatile int a0);
-extern void actSt04dDoor1UpChk(volatile int a0);
-extern void actSt04dDoor2DownChk(volatile int a0);
-extern void actSt04dDoor2UpChk(volatile int a0);
+void actSt04dDoor1DownChk(volatile int a0);
+void actSt04dDoor1UpChk(volatile int a0);
+void actSt04dDoor2DownChk(volatile int a0);
+void actSt04dDoor2UpChk(volatile int a0);
 
 #endif /* ST04D_H */

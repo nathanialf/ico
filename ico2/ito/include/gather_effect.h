@@ -12,7 +12,7 @@
 #ifndef GATHER_EFFECT_H
 #define GATHER_EFFECT_H
 
-extern int GatherEffect_Set(int kind, char *a, float *b, char *c, float f, void *fn);
-extern void GatherEffect_SetGoal(int a0, void *a1);
+int GatherEffect_Set(int kind, char *a, float *b, char *c, float f, void *fn);
+void GatherEffect_SetGoal(int a0, void *a1);
 
 #endif /* GATHER_EFFECT_H */

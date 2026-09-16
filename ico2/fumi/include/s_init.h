@@ -12,36 +12,36 @@
 #ifndef S_INIT_H
 #define S_INIT_H
 
-extern int Ee2Iop(int a0, int a1, int a2);
-extern void _soundSeDefStop(int a0, int a1);
-extern void soundAllocIopHeap(void);
-extern void soundBDDataSet(void *buf, int a3, int kind, int mode, int a6, int size);
-extern void soundBufAdpcmFree(char *self);
-extern void soundBufSegFree(int a0, int a1);
-extern char *soundDataAreaGet(int a0, int a1, int a2, int a3);
-extern char *soundDataAreaSearch(int *a0);
-extern void soundDataClose(int *obj);
-extern void soundDataOpen(int *work, int mode, int a2, int a3, int a4);
-extern void soundDataOpenChk(char *e);
-extern int *soundDataOpenSync(int *work);
-extern void soundDataSegAllClose(int a0, int a1);
-extern void soundDataSegNextStageNotUseClose();
-extern char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4);
-extern int soundInit(void);
-extern int soundOutputModeGet(void);
-extern void soundOutputModeSet(int a0);
-extern int soundReverbDepthGet(void);
-extern void soundReverbDepthSet(int a0);
-extern char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4);
-extern int soundSeDefPlay(int a0, int a1, int a2, int a3);
-extern void soundSeDefStop(int a0);
-extern void soundSeDefStopNoRelease(int a0);
-extern void soundSeEnvNotUseClose();
-extern int soundSeGroupGet(void);
-extern void soundSeGroupStop(int arg);
-extern void soundSeKindBuild(void);
-extern void soundSePlayModeStop(int arg);
-extern int soundSeSemiCommonLoadChk(void);
-extern void soundVBlank(void);
+int Ee2Iop(int a0, int a1, int a2);
+void _soundSeDefStop(int a0, int a1);
+void soundAllocIopHeap(void);
+void soundBDDataSet(void *buf, int a3, int kind, int mode, int a6, int size);
+void soundBufAdpcmFree(char *self);
+void soundBufSegFree(int a0, int a1);
+char *soundDataAreaGet(int a0, int a1, int a2, int a3);
+char *soundDataAreaSearch(int *a0);
+void soundDataClose(int *obj);
+void soundDataOpen(int *work, int mode, int a2, int a3, int a4);
+void soundDataOpenChk(char *e);
+int *soundDataOpenSync(int *work);
+void soundDataSegAllClose(int a0, int a1);
+void soundDataSegNextStageNotUseClose();
+char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4);
+int soundInit(void);
+int soundOutputModeGet(void);
+void soundOutputModeSet(int a0);
+int soundReverbDepthGet(void);
+void soundReverbDepthSet(int a0);
+char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4);
+int soundSeDefPlay(int a0, int a1, int a2, int a3);
+void soundSeDefStop(int a0);
+void soundSeDefStopNoRelease(int a0);
+void soundSeEnvNotUseClose();
+int soundSeGroupGet(void);
+void soundSeGroupStop(int arg);
+void soundSeKindBuild(void);
+void soundSePlayModeStop(int arg);
+int soundSeSemiCommonLoadChk(void);
+void soundVBlank(void);
 
 #endif /* S_INIT_H */

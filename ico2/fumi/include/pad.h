@@ -12,19 +12,19 @@
 #ifndef PAD_H
 #define PAD_H
 
-extern int iosPadActRequest(int port, int id);
-extern void iosPadActStop(int key);
-extern void iosPadActStopAll(void);
-extern int *iosPadActVolumeSet(int key, unsigned int val);
-extern int iosPadConnect(void *a0, int a1, int a2, int a3);
-extern void iosPadDevInit(void *a0);
-extern int iosPadDevRead(void);
-extern void iosPadDevReadFunc(void);
-extern void iosPadDisable(void);
-extern void iosPadEnable(void);
-extern int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
-extern int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5);
-extern void iosPadRead(void *pad);
-extern void iosPadStickCameraCoord(void *a0, float *a1);
+int iosPadActRequest(int port, int id);
+void iosPadActStop(int key);
+void iosPadActStopAll(void);
+int *iosPadActVolumeSet(int key, unsigned int val);
+int iosPadConnect(void *a0, int a1, int a2, int a3);
+void iosPadDevInit(void *a0);
+int iosPadDevRead(void);
+void iosPadDevReadFunc(void);
+void iosPadDisable(void);
+void iosPadEnable(void);
+int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
+int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5);
+void iosPadRead(void *pad);
+void iosPadStickCameraCoord(void *a0, float *a1);
 
 #endif /* PAD_H */

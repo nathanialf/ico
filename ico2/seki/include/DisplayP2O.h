@@ -14,13 +14,13 @@
 
 #include "typedef.h"
 
-extern void p2o_DispVU1(GObj *self);
-extern void p2o_DispVU1DObj(void *req);
-extern void p2o_DispVU1DObjMulti(void *req);
-extern void p2o_DispVU1Default(GObj *self);
-extern void p2o_DispVU1Multi(GObj *self);
-extern void p2o_MakePacket(char *a0);
-extern void p2o_SetDefaultEnviroment(void);
-extern void p2o_TransMicroProgram(void);
+void p2o_DispVU1(GObj *self);
+void p2o_DispVU1DObj(void *req);
+void p2o_DispVU1DObjMulti(void *req);
+void p2o_DispVU1Default(GObj *self);
+void p2o_DispVU1Multi(GObj *self);
+void p2o_MakePacket(char *a0);
+void p2o_SetDefaultEnviroment(void);
+void p2o_TransMicroProgram(void);
 
 #endif /* DISPLAYP2O_H */

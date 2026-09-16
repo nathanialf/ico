@@ -12,11 +12,11 @@
 #ifndef DARKVOLUME_H
 #define DARKVOLUME_H
 
-extern void DispGameOverEffect(void);
-extern void GetGameOverEffectCenterPosition(int a0);
-extern void InitGameOverEffect(void);
-extern void SetupDarkVolume(void *a0, float a1, float a2);
-extern void darkVolume(void *a0, float a1, float a2, float a3);
-extern void sonic(void *pos, float t);
+void DispGameOverEffect(void);
+void GetGameOverEffectCenterPosition(int a0);
+void InitGameOverEffect(void);
+void SetupDarkVolume(void *a0, float a1, float a2);
+void darkVolume(void *a0, float a1, float a2, float a3);
+void sonic(void *pos, float t);
 
 #endif /* DARKVOLUME_H */

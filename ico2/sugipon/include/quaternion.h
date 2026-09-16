@@ -12,31 +12,31 @@
 #ifndef QUATERNION_H
 #define QUATERNION_H
 
-extern void CopyQuaternion(void *a0, void *a1);
-extern void DivQuaternion(int self, int a1, int a2);
-extern int *GetCurrentQuaternion(void);
-extern void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *b);
-extern void GetInverseQuaternion(int a0, int a1);
-extern void GetMatrixFromQuaternion(char *a0, char *a1);
-extern void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2);
-extern void GetMirrorQuaternion(float *dst, float *src, int mode);
-extern void GetSlerpQuaternion(int a0);
-extern void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t);
+void CopyQuaternion(void *a0, void *a1);
+void DivQuaternion(int self, int a1, int a2);
+int *GetCurrentQuaternion(void);
+void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *b);
+void GetInverseQuaternion(int a0, int a1);
+void GetMatrixFromQuaternion(char *a0, char *a1);
+void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2);
+void GetMirrorQuaternion(float *dst, float *src, int mode);
+void GetSlerpQuaternion(int a0);
+void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t);
 extern float IdentityQuaternion[4];
-extern void InitQuaternionDrive(void);
-extern void MultiMatrixByQuaternion(void *src);
-extern void MultiQuaternion(void *p0, void *p1, void *p2);
-extern void PopQuaternion(void);
-extern void PushQuaternion(void);
-extern void PushQuaternionWithNoCopy(void);
-extern void RegularizeQuaternion(void *a0);
-extern void RotQuaternionX(void *self, int a1);
-extern void RotQuaternionY(void *self, int a1);
-extern void RotQuaternionZ(void *self, int a1);
-extern void SetCurrentQuaternion(int a0);
-extern void SetIdentityQuaternion(void *a0);
-extern void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, float z);
-extern void SetQuaternionByAxisRotateV(int *self, short a1, int *src);
-extern void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short a1, void *src);
+void InitQuaternionDrive(void);
+void MultiMatrixByQuaternion(void *src);
+void MultiQuaternion(void *p0, void *p1, void *p2);
+void PopQuaternion(void);
+void PushQuaternion(void);
+void PushQuaternionWithNoCopy(void);
+void RegularizeQuaternion(void *a0);
+void RotQuaternionX(void *self, int a1);
+void RotQuaternionY(void *self, int a1);
+void RotQuaternionZ(void *self, int a1);
+void SetCurrentQuaternion(int a0);
+void SetIdentityQuaternion(void *a0);
+void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, float z);
+void SetQuaternionByAxisRotateV(int *self, short a1, int *src);
+void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short a1, void *src);
 
 #endif /* QUATERNION_H */

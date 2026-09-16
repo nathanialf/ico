@@ -12,12 +12,12 @@
 #ifndef HAND_CAMERA_H
 #define HAND_CAMERA_H
 
-extern void ClearHandCameraCorrect(void);
-extern void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14);
-extern void HandyCamera_TargetMoveType(void *a0, void *a1);
-extern void InitHandCameraCorrect(void);
-extern void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y);
-extern void SetCurrentInfo(void *a0, void *a1);
-extern void SetLimitHandCameraCorrect(float a0, float a1);
+void ClearHandCameraCorrect(void);
+void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14);
+void HandyCamera_TargetMoveType(void *a0, void *a1);
+void InitHandCameraCorrect(void);
+void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y);
+void SetCurrentInfo(void *a0, void *a1);
+void SetLimitHandCameraCorrect(float a0, float a1);
 
 #endif /* HAND_CAMERA_H */

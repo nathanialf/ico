@@ -12,23 +12,23 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-extern int iosGetIOSThreadFromId(unsigned int a0);
-extern int iosSemaCreate(int *self, int a1, int a2, int a3);
-extern int iosSemaDelete(int *self);
-extern int iosSemaReferStatus(int *self);
-extern int iosSemaSignal(int *self);
-extern int iosSemaWait(int *self);
-extern int iosThreadCancelWakeup(int *self);
-extern void iosThreadCreate(void *th, int no, void (*func)(), int arg, void *stack, long stackSize, int pri);
-extern void iosThreadCreateS(unsigned int *th, int no, void (*func)(), int arg, void *heap, long stackSize, int pri);
-extern void iosThreadDestroy(int a0);
-extern int iosThreadGetPri(int *a0);
-extern void iosThreadInit(void);
-extern int iosThreadJoin(void *a0);
-extern void iosThreadSetPri(int *a0, int a1);
-extern void iosThreadSleep(int a0, int a1, int a2, int a3);
-extern void iosThreadStart(int a0);
-extern void iosThreadStop(int a0);
-extern int iosThreadWakeup(int *self);
+int iosGetIOSThreadFromId(unsigned int a0);
+int iosSemaCreate(int *self, int a1, int a2, int a3);
+int iosSemaDelete(int *self);
+int iosSemaReferStatus(int *self);
+int iosSemaSignal(int *self);
+int iosSemaWait(int *self);
+int iosThreadCancelWakeup(int *self);
+void iosThreadCreate(void *th, int no, void (*func)(), int arg, void *stack, long stackSize, int pri);
+void iosThreadCreateS(unsigned int *th, int no, void (*func)(), int arg, void *heap, long stackSize, int pri);
+void iosThreadDestroy(int a0);
+int iosThreadGetPri(int *a0);
+void iosThreadInit(void);
+int iosThreadJoin(void *a0);
+void iosThreadSetPri(int *a0, int a1);
+void iosThreadSleep(int a0, int a1, int a2, int a3);
+void iosThreadStart(int a0);
+void iosThreadStop(int a0);
+int iosThreadWakeup(int *self);
 
 #endif /* THREAD_H */

@@ -12,6 +12,6 @@
 #ifndef ISYS_H
 #define ISYS_H
 
-extern void isysInitialize(void);
+void isysInitialize(void);
 
 #endif /* ISYS_H */

@@ -12,21 +12,21 @@
 #ifndef GSBASE_H
 #define GSBASE_H
 
-extern void appendLogFile(void);
-extern void gsb_ClearFrameBuffer(void);
-extern int gsb_ClipBox(void *pk);
-extern void gsb_Init();
-extern void gsb_InitGSSystem(void);
-extern void gsb_MakeCommonMatrix(void);
-extern void gsb_PostEffect(void);
-extern void gsb_Reduction(void);
-extern void gsb_ResetGSSystem(void);
-extern void gsb_SetBGColor(void *a0, int r, int g, int b);
-extern void gsb_SetMotionBlur(void);
-extern void gsb_SetVSMatrix(int a0, int a1, float f);
-extern void gsb_SetZoom(float a, float b);
-extern int gsb_SyncGSSystem(void);
-extern void gsb_UpdateGSSystem(int a0);
-extern void updateOtherEditingLockFlag(void);
+void appendLogFile(void);
+void gsb_ClearFrameBuffer(void);
+int gsb_ClipBox(void *pk);
+void gsb_Init();
+void gsb_InitGSSystem(void);
+void gsb_MakeCommonMatrix(void);
+void gsb_PostEffect(void);
+void gsb_Reduction(void);
+void gsb_ResetGSSystem(void);
+void gsb_SetBGColor(void *a0, int r, int g, int b);
+void gsb_SetMotionBlur(void);
+void gsb_SetVSMatrix(int a0, int a1, float f);
+void gsb_SetZoom(float a, float b);
+int gsb_SyncGSSystem(void);
+void gsb_UpdateGSSystem(int a0);
+void updateOtherEditingLockFlag(void);
 
 #endif /* GSBASE_H */

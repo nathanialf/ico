@@ -12,10 +12,10 @@
 #ifndef SPIDERGROUPMANAGER_H
 #define SPIDERGROUPMANAGER_H
 
-extern void DispAllSpiderGroups(void);
-extern void EntryRevivedSpiderGroupManager(int a0);
-extern void EntrySpiderGroupManager(int gobj);
-extern void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1);
-extern int tryToRevive(void);
+void DispAllSpiderGroups(void);
+void EntryRevivedSpiderGroupManager(int a0);
+void EntrySpiderGroupManager(int gobj);
+void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1);
+int tryToRevive(void);
 
 #endif /* SPIDERGROUPMANAGER_H */

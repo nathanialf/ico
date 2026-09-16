@@ -12,8 +12,8 @@
 #ifndef WARPGIRL_H
 #define WARPGIRL_H
 
-extern void warpGirlInStage(int stageNo);
-extern void warpGirlInit(void);
-extern void warpGirlOutStage(int stage, int noSet);
+void warpGirlInStage(int stageNo);
+void warpGirlInit(void);
+void warpGirlOutStage(int stage, int noSet);
 
 #endif /* WARPGIRL_H */

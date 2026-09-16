@@ -12,7 +12,7 @@
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 
-extern void file_Init(void);
-extern int file_LoadFile(void **adr, char *fname, int area);
+void file_Init(void);
+int file_LoadFile(void **adr, char *fname, int area);
 
 #endif /* FILEMANAGER_H */

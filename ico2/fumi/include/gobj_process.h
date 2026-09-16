@@ -12,13 +12,13 @@
 #ifndef GOBJ_PROCESS_H
 #define GOBJ_PROCESS_H
 
-extern void isysGObjProcActiveAll(void *a0);
-extern int isysGObjProcAdd(int a0, int a1, int a2, int a3);
-extern int isysGObjProcAddGOppArg(int a0, int a1, int a2, int a3);
-extern int isysGObjProcAddS(int a0, int a1, int a2, int a3, int a4);
-extern int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5);
-extern void isysGObjProcPauseAll(int *p);
-extern void isysGObjProcRemove(int *a0);
-extern void isysGObjProcessInit(unsigned int a0);
+void isysGObjProcActiveAll(void *a0);
+int isysGObjProcAdd(int a0, int a1, int a2, int a3);
+int isysGObjProcAddGOppArg(int a0, int a1, int a2, int a3);
+int isysGObjProcAddS(int a0, int a1, int a2, int a3, int a4);
+int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5);
+void isysGObjProcPauseAll(int *p);
+void isysGObjProcRemove(int *a0);
+void isysGObjProcessInit(unsigned int a0);
 
 #endif /* GOBJ_PROCESS_H */

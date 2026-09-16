@@ -12,6 +12,6 @@
 #ifndef FLAG_H
 #define FLAG_H
 
-extern void SetFlag4PointFixID(char *self, int a1, int id);
+void SetFlag4PointFixID(char *self, int a1, int id);
 
 #endif /* FLAG_H */

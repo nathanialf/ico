@@ -12,7 +12,7 @@
 #ifndef DMAPACKET_H
 #define DMAPACKET_H
 
-extern void dpk_Init(void);
-extern void dpk_SwapBuffer(void);
+void dpk_Init(void);
+void dpk_SwapBuffer(void);
 
 #endif /* DMAPACKET_H */

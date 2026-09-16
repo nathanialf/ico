@@ -12,17 +12,17 @@
 #ifndef BRAIN_H
 #define BRAIN_H
 
-extern void OverrideBrainStatusByGObj(int *b, void *gobj, float f8, float f10, float fC);
-extern void brainAddLevelGirl(float lv);
-extern int brainCheckView(int *a0, int *a1);
-extern void brainClsTargetLevel();
-extern void brainInit(void);
-extern void brainInitGirlSet(void *a0, int a1);
-extern void brainLockGirl(void);
-extern void brainSetLevelGop(int gobj, int a1, int a2, float lv);
-extern void brainSetSpMode(void);
-extern void brainStatusDefaultSet(void *b, int gobj, int idx);
-extern void brainSubLevelGop(void *gobj, float lv);
-extern void brainUnlockGirl(void);
+void OverrideBrainStatusByGObj(int *b, void *gobj, float f8, float f10, float fC);
+void brainAddLevelGirl(float lv);
+int brainCheckView(int *a0, int *a1);
+void brainClsTargetLevel();
+void brainInit(void);
+void brainInitGirlSet(void *a0, int a1);
+void brainLockGirl(void);
+void brainSetLevelGop(int gobj, int a1, int a2, float lv);
+void brainSetSpMode(void);
+void brainStatusDefaultSet(void *b, int gobj, int idx);
+void brainSubLevelGop(void *gobj, float lv);
+void brainUnlockGirl(void);
 
 #endif /* BRAIN_H */

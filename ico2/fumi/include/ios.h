@@ -12,8 +12,8 @@
 #ifndef IOS_H
 #define IOS_H
 
-extern void iosInitialize(void);
-extern int iosSifAllocIopHeapDebug(int size, char *file, int line);
-extern void ios_init_plus(void);
+void iosInitialize(void);
+int iosSifAllocIopHeapDebug(int size, char *file, int line);
+void ios_init_plus(void);
 
 #endif /* IOS_H */

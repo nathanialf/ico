@@ -12,7 +12,7 @@
 #ifndef VOBJ_H
 #define VOBJ_H
 
-extern void DrawVObj(int no, int color);
-extern void SetVObjRT(int a0, void *a1);
+void DrawVObj(int no, int color);
+void SetVObjRT(int a0, void *a1);
 
 #endif /* VOBJ_H */

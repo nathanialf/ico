@@ -12,11 +12,11 @@
 #ifndef MV_READBUF_H
 #define MV_READBUF_H
 
-extern int readBufBeginGet(int *a0, int *out);
-extern int readBufBeginPut(int *a0, int *a1);
-extern int readBufCreate(int *self);
-extern void readBufDelete(void);
-extern int readBufEndGet(int a0, int a1);
-extern void readBufEndPut(int *a0, int a1);
+int readBufBeginGet(int *a0, int *out);
+int readBufBeginPut(int *a0, int *a1);
+int readBufCreate(int *self);
+void readBufDelete(void);
+int readBufEndGet(int a0, int a1);
+void readBufEndPut(int *a0, int a1);
 
 #endif /* MV_READBUF_H */

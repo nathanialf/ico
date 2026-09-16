@@ -12,6 +12,6 @@
 #ifndef WAYSYSTEMMANAGER_H
 #define WAYSYSTEMMANAGER_H
 
-extern int CreateWaySystemManagerGObj(void);
+int CreateWaySystemManagerGObj(void);
 
 #endif /* WAYSYSTEMMANAGER_H */

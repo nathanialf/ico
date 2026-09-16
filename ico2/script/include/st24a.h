@@ -12,8 +12,8 @@
 #ifndef ST24A_H
 #define ST24A_H
 
-extern void actSt24aDemoCamChk(volatile int a0);
-extern void actSt24aSwordChk(volatile int self);
-extern void actSt24aSwordSub(volatile int a0);
+void actSt24aDemoCamChk(volatile int a0);
+void actSt24aSwordChk(volatile int self);
+void actSt24aSwordSub(volatile int a0);
 
 #endif /* ST24A_H */

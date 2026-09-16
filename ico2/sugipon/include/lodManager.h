@@ -12,6 +12,6 @@
 #ifndef LODMANAGER_H
 #define LODMANAGER_H
 
-extern void SetLodLevel(char *self, int lv);
+void SetLodLevel(char *self, int lv);
 
 #endif /* LODMANAGER_H */

@@ -12,10 +12,10 @@
 #ifndef KANBAN_H
 #define KANBAN_H
 
-extern void init_textures_of_specified_property(int first, int last);
-extern void kanbanInit(int no);
-extern void kanbanReqAllDelFade(void);
-extern void kanbanReqDel(int *self);
-extern void kanbanReqDelFade(int a0);
+void init_textures_of_specified_property(int first, int last);
+void kanbanInit(int no);
+void kanbanReqAllDelFade(void);
+void kanbanReqDel(int *self);
+void kanbanReqDelFade(int a0);
 
 #endif /* KANBAN_H */

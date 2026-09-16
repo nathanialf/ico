@@ -12,8 +12,8 @@
 #ifndef MV_STRFILE_H
 #define MV_STRFILE_H
 
-extern int strFileClose(void);
-extern int strFileOpen(char *a0, char *name);
-extern int strFileRead(void);
+int strFileClose(void);
+int strFileOpen(char *a0, char *name);
+int strFileRead(void);
 
 #endif /* MV_STRFILE_H */

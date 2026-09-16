@@ -12,6 +12,6 @@
 #ifndef STAFFROLL_H
 #define STAFFROLL_H
 
-extern void staffRollStart(float t, int alpha);
+void staffRollStart(float t, int alpha);
 
 #endif /* STAFFROLL_H */

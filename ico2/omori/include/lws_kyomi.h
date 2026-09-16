@@ -12,16 +12,16 @@
 #ifndef LWS_KYOMI_H
 #define LWS_KYOMI_H
 
-extern char *CreateKyomiGObj(int no);
-extern void DebugHintStart(void *gobj);
-extern void FinishHint(int no);
-extern char *GetBuffHintSaveInfo(void);
-extern int GetSizeHintSaveInfo(void);
-extern void Hint_Init(void);
-extern int IsTopHint(void *gobj);
-extern void MakeHintSaveInfo(void);
-extern int ReadHintSaveInfo();
-extern void SleepHint(int no);
-extern void WakeupHint(int no);
+char *CreateKyomiGObj(int no);
+void DebugHintStart(void *gobj);
+void FinishHint(int no);
+char *GetBuffHintSaveInfo(void);
+int GetSizeHintSaveInfo(void);
+void Hint_Init(void);
+int IsTopHint(void *gobj);
+void MakeHintSaveInfo(void);
+int ReadHintSaveInfo();
+void SleepHint(int no);
+void WakeupHint(int no);
 
 #endif /* LWS_KYOMI_H */

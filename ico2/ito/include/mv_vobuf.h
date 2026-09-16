@@ -12,13 +12,13 @@
 #ifndef MV_VOBUF_H
 #define MV_VOBUF_H
 
-extern int voBufCreate(char *self);
-extern void voBufDecCount(int *p);
-extern void voBufDelete(void);
-extern void *voBufGetData(int *self);
-extern void *voBufGetTag(int *self);
-extern void voBufIncCount(int *self);
-extern int voBufIsFull(int *self);
-extern void voBufReset(volatile int *self);
+int voBufCreate(char *self);
+void voBufDecCount(int *p);
+void voBufDelete(void);
+void *voBufGetData(int *self);
+void *voBufGetTag(int *self);
+void voBufIncCount(int *self);
+int voBufIsFull(int *self);
+void voBufReset(volatile int *self);
 
 #endif /* MV_VOBUF_H */

@@ -12,7 +12,7 @@
 #ifndef ACCESS_H
 #define ACCESS_H
 
-extern int GetDataFileName(int a0);
-extern char *GetDataFileName2(char *name, int isDF);
+int GetDataFileName(int a0);
+char *GetDataFileName2(char *name, int isDF);
 
 #endif /* ACCESS_H */

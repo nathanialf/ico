@@ -12,6 +12,6 @@
 #ifndef SOUNDMANAGER_H
 #define SOUNDMANAGER_H
 
-extern void sndBgmReadyNextStage(int *a, int *b);
+void sndBgmReadyNextStage(int *a, int *b);
 
 #endif /* SOUNDMANAGER_H */

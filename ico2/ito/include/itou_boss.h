@@ -12,11 +12,11 @@
 #ifndef ITOU_BOSS_H
 #define ITOU_BOSS_H
 
-extern void BossCtrlGeo(void *self);
-extern void CapsuleGhostBossStart(void);
-extern int InqCapsuleGhostBossEnd(void);
-extern int InqCapsuleGhostBossStage(void);
-extern void func_001A08F8();
-extern void itou_boss_gflag_init(void);
+void BossCtrlGeo(void *self);
+void CapsuleGhostBossStart(void);
+int InqCapsuleGhostBossEnd(void);
+int InqCapsuleGhostBossStage(void);
+void func_001A08F8();
+void itou_boss_gflag_init(void);
 
 #endif /* ITOU_BOSS_H */

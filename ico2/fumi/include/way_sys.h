@@ -12,9 +12,9 @@
 #ifndef WAY_SYS_H
 #define WAY_SYS_H
 
-extern void DeleteGuideWay(void *way);
-extern int GetWay_begin(void *a0, int a1, int a2);
-extern int GetWay_next(void *way, float *cur);
-extern int _FUNC_GetWay_begin(void *a0, int a1, int a2, int a3);
+void DeleteGuideWay(void *way);
+int GetWay_begin(void *a0, int a1, int a2);
+int GetWay_next(void *way, float *cur);
+int _FUNC_GetWay_begin(void *a0, int a1, int a2, int a3);
 
 #endif /* WAY_SYS_H */

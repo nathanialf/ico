@@ -12,10 +12,10 @@
 #ifndef ACT_WAY_H
 #define ACT_WAY_H
 
-extern int ACTWayExec_Position(char *self, int a1, int a2, float speed, int a3);
-extern int ACTWayMove_BeginDetail(void *obj, float *b, float *a, void *tgt, int e, int f);
-extern int ACTWayMove_NextDetail(void *obj, char *w, float *a, int d, int e);
-extern int ACTWay_IsMustWalkFromWay(char *a0);
-extern void ACTWay_SetBeginPositionIllegal(char *a0);
+int ACTWayExec_Position(char *self, int a1, int a2, float speed, int a3);
+int ACTWayMove_BeginDetail(void *obj, float *b, float *a, void *tgt, int e, int f);
+int ACTWayMove_NextDetail(void *obj, char *w, float *a, int d, int e);
+int ACTWay_IsMustWalkFromWay(char *a0);
+void ACTWay_SetBeginPositionIllegal(char *a0);
 
 #endif /* ACT_WAY_H */

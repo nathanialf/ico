@@ -12,7 +12,7 @@
 #ifndef ST05B_H
 #define ST05B_H
 
-extern void actSt05bGirlWay(volatile int a0);
-extern void actSt05bSekizoChk(volatile int a0);
+void actSt05bGirlWay(volatile int a0);
+void actSt05bSekizoChk(volatile int a0);
 
 #endif /* ST05B_H */

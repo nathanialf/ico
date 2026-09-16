@@ -12,6 +12,6 @@
 #ifndef CAMERA_SET_MANAGER_H
 #define CAMERA_SET_MANAGER_H
 
-extern void InitCameraSetManager(void);
+void InitCameraSetManager(void);
 
 #endif /* CAMERA_SET_MANAGER_H */

@@ -12,7 +12,7 @@
 #ifndef ATTACKCHECKBOUNDARY_H
 #define ATTACKCHECKBOUNDARY_H
 
-extern int GetAttackCheckBoundaryManagerStatus(char *a0);
-extern float GetAttackCheckBoundaryRadius(char *a0);
+int GetAttackCheckBoundaryManagerStatus(char *a0);
+float GetAttackCheckBoundaryRadius(char *a0);
 
 #endif /* ATTACKCHECKBOUNDARY_H */

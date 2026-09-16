@@ -12,7 +12,7 @@
 #ifndef MV_SUB_H
 #define MV_SUB_H
 
-extern void ErrMessage(int a0);
-extern int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
+void ErrMessage(int a0);
+int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
 
 #endif /* MV_SUB_H */

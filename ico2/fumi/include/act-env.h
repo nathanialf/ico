@@ -12,9 +12,9 @@
 #ifndef ACT_ENV_H
 #define ACT_ENV_H
 
-extern void ACTGetEnvironment(char *self, void *a1, float *orient, void *a3, void *a4);
-extern void ACTSetEnvAllmighty(char *a0);
-extern int CheckWallAttributeEdegWall(int a0);
-extern void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2);
+void ACTGetEnvironment(char *self, void *a1, float *orient, void *a3, void *a4);
+void ACTSetEnvAllmighty(char *a0);
+int CheckWallAttributeEdegWall(int a0);
+void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2);
 
 #endif /* ACT_ENV_H */

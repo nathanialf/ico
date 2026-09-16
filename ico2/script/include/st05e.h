@@ -12,11 +12,11 @@
 #ifndef ST05E_H
 #define ST05E_H
 
-extern void actSt05eSolarChk(volatile int a0);
-extern void actSt05eWaterFlagOn(volatile int a0);
-extern void actSt05eWaterMain(volatile int a0);
-extern void actSt05eWaterStop(volatile int a0);
-extern void actSt05eWaterStopSub(volatile int a0);
-extern void actSt05eWaterSwitch(volatile int a0);
+void actSt05eSolarChk(volatile int a0);
+void actSt05eWaterFlagOn(volatile int a0);
+void actSt05eWaterMain(volatile int a0);
+void actSt05eWaterStop(volatile int a0);
+void actSt05eWaterStopSub(volatile int a0);
+void actSt05eWaterSwitch(volatile int a0);
 
 #endif /* ST05E_H */

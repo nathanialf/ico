@@ -12,7 +12,7 @@
 #ifndef DELAYFREEMANAGER_H
 #define DELAYFREEMANAGER_H
 
-extern void EntryDelayFree(void *p);
-extern void InitDelayFree(void);
+void EntryDelayFree(void *p);
+void InitDelayFree(void);
 
 #endif /* DELAYFREEMANAGER_H */
