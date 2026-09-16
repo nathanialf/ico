@@ -12,7 +12,13 @@ extern void gif_SetAlpha(int a0, int a1, int a2);
 extern void gif_StartPacketPri(int a0);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket();
-extern int drawline_ws_matrix[];
+
+/* the TU's whole .data run, VMA 0x2A6030..0x2A6070 (0x40, = MAIN.MAP
+   poly-flat.o .data 0x40, which names this object at offset 0): the
+   world-space matrix before_DrawLine copies the caller's into and every
+   line transform reads back. */
+float drawline_ws_matrix[16] = {0};
+
 /* kept local: this TU's uses of gif_DrawPolyF4 do not fit the prototype in GifPacket.h */
 extern void gif_DrawPolyF4(void *a0, void *a1, void *a2, void *a3, int b0, int b1, int b2, int b3,
                            int last);

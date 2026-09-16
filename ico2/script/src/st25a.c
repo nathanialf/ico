@@ -85,11 +85,16 @@ extern char D_00618ED0[];
 typedef union Vec4 {
     float f[4];
     long long d[2];
-} Vec4;
+} __attribute__((aligned(16))) Vec4;
 
 typedef struct AnimSet18 {
     int anim[18]; /* 0x00 */
 } AnimSet18;
+
+/* the two face-shadow textures ConteQueenDead scrolls the UVs of. */
+const char faceShadowTex[] = "face_sadow_sd"; /* script.c scrolls it too */
+
+const char faceShadowTex00[] = "face_sadow_sd_00";
 
 /* The offset the sekika boy is dropped by. */
 static const Vec4 sekikaOfs = {{2000.0f, 0.0f, 0.0f, 1.0f}};
@@ -158,8 +163,6 @@ void actSt25aQueenAppearChk(volatile int a0)
     actCreateSubThread(actConte11, 0x15);
 }
 
-extern char D_005548F0[];
-extern char D_00554900[];
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
@@ -196,8 +199,8 @@ void actConte11(volatile int a0)
     stage_SetLoopFlag(0x22B, 1);
     stage_SetAnimation(0x22B, 1, 0);
 
-    tex_SetUVScroll(D_005548F0, 0.0f, 0.0f, 0.25f, 0.0625f, 0.99f, 0.99f, 1);
-    tex_SetUVScroll(D_00554900, 0.0f, 0.0f, 0.25f, 0.0625f, 0.1f, 0.1f, 1);
+    tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.99f, 0.99f, 1);
+    tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.1f, 0.1f, 1);
 
     while (stage_ContinueAnimation(0x2FC, 0x2FD) == 0) {
         _ACTWait(1);
@@ -207,8 +210,8 @@ void actConte11(volatile int a0)
     }
     _ACTWait(1);
 
-    tex_SetUVScroll(D_005548F0, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
-    tex_SetUVScroll(D_00554900, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+    tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
 
     scpPlayMot((int)scpSearchGobj(0x865), 0x451);
 

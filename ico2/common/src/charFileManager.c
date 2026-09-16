@@ -52,7 +52,12 @@ typedef struct {
 } CharFile;
 
 extern CharFile D_006FAD00[MAX_CHARS];
-extern CharFile D_004D9C10;
+
+/* the TU's whole .data run, VMA 0x4D9C10..0x4D9C28 (0x18, = MAIN.MAP
+   charFileManager.o .data 0x18): the empty entry both initialisers copy over
+   every slot of the table. */
+static CharFile charFileEmpty = {0, 0, 0, 0, 0, 1};
+
 extern int D_0063AD00;
 /* prototypes: their order is the inline tail's emission order */
 void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6);
@@ -70,7 +75,7 @@ void InitCharFileManager(void)
 
     D_0063AD00 = 0;
     for (i = 0; i < MAX_CHARS; i++) {
-        D_006FAD00[i] = D_004D9C10;
+        D_006FAD00[i] = charFileEmpty;
     }
     InitPluralCameraSet();
     InitCameraSetManager();
@@ -83,7 +88,7 @@ void ResetCharFileManager(void)
     D_0063AD00 = 0;
     for (i = 0; i < MAX_CHARS; i++) {
         if (D_006FAD00[i].state == 1) {
-            D_006FAD00[i] = D_004D9C10;
+            D_006FAD00[i] = charFileEmpty;
         }
     }
     InitPluralCameraSet();

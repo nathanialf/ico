@@ -537,14 +537,23 @@ segments:
       - [0x1A5100, data, cod/1A5100]     # data blob resume
       - [0x1A5440, .data, ico2/script/src/st25a]  # the TU's whole .data run as source (data pass 5), VMA 0x2A5440..0x2A5580, 320 B
       - [0x1A5580, data, cod/1A5580]     # data blob resume
+      - [0x1A6030, .data, ico2/omori/src/poly-flat]  # the TU's whole .data run as source (data pass 6), VMA 0x2A6030..0x2A6070, 64 B
+      - [0x1A6070, data, cod/1A6070]     # data blob resume
+      - [0x1A7920, .data, ico2/ito/mpeg/mv_main]  # the TU's whole .data run as source (data pass 6; = MAIN.MAP mv_main.o .data 0x98 with voBuf at 0x40 and display at 0x58), VMA 0x2A7920..0x2A79B8, 152 B
+      - [0x1A79B8, data, cod/1A79B8]     # data blob resume
       - [0x219020, .data, ico2/common/src/DObj]  # the TU's whole .data run as source (data pass 5), VMA 0x319020..0x319A00, 2528 B
       - [0x219A00, data, cod/219A00]     # data blob resume
+      - [0x3D9C10, .data, ico2/common/src/charFileManager]  # the TU's .data (data pass 6), VMA 0x4D9C10..0x4D9C28, 24 B
+      - [0x3D9C28, data, cod/3D9C28]     # data blob resume
       - [0x3E4600, .data, ico2/common/src/staffroll]  # the TU's .data (data pass 5; = MAIN.MAP staffroll.o .data 0x10), VMA 0x4E4600..0x4E4610, 16 B
       - [0x3E4610, data, cod/3E4610]     # data blob resume
+      - [0x3E5A30, .data, ico2/sugipon/src/act_a_p_1]  # the TU's whole .data run as source (data pass 6), abutting attackCheckBoundary's row, VMA 0x4E5A30..0x4E5A90, 96 B
       - [0x3E5A90, .data, ico2/sugipon/src/attackCheckBoundary]  # carved D_004E5A90 (VMA 0x4E5A90..0x4E5AA0, 16 B, 1 sym), referenced only by still-asm AttackCheckBoundaryDL via %hi/%lo
       - [0x3E5AA0, data, cod/3E5AA0]     # .data blob resume
       - [0x3E7060, .data, ico2/sugipon/src/clothTest]  # the TU's whole .data run as source (data pass 3): twenty anchors and the two cloth configurations, VMA 0x4E7060..0x4E7458, 1016 B
       - [0x3E7458, data, cod/3E7458]     # data blob resume
+      - [0x3E7480, .data, ico2/sugipon/src/effectTool]  # the TU's whole .data run as source (data pass 6): the parameter table its rodata names are reached through, VMA 0x4E7480..0x4E78A0, 1056 B
+      - [0x3E78A0, data, cod/3E78A0]     # data blob resume
       - [0x3E78E0, .data, ico2/sugipon/src/enemyParts]  # the TU's whole .data run as source (data pass 3): eight part templates, VMA 0x4E78E0..0x4E7A20, 320 B
       - [0x3E7A20, data, cod/3E7A20]     # data blob resume
       - [0x3EB440, .data, ico2/sugipon/src/item]  # the TU's whole .data run as source (data pass 5), abutting lodManager's, VMA 0x4EB440..0x4EB5E0, 416 B
@@ -683,7 +692,7 @@ segments:
       - [0x4540C4, rodata, cod/4540C4]   # .rodata blob resume (the pad word before D_005540C8)
       - [0x4547B0, .rodata, ico2/script/src/script]  # plain-rodata syms: 0x005547B0  carved jtbl_005547B0 (scpWoodSrh's 10-arm table, 0x28, 16-aligned) followed by its two doubles 916.0/325.0 (fptodp thresholds, unnamed .rodata, 8-aligned), VMA 0x5547B0..0x5547E8; the strings before and D_005547F0 after stay in the blob as externs
       - [0x4547E8, rodata, cod/4547E8]   # .rodata blob resume (8 zero pad bytes, then D_005547F0)
-      - [0x454920, .rodata, ico2/script/src/st25a]  # the TU's whole .rodata run as source (data pass 5), replacing the plain row, VMA 0x554920..0x5549E8, 200 B
+      - [0x4548F0, .rodata, ico2/script/src/st25a]  # the TU's whole .rodata run as source (data pass 6), widened to its head, VMA 0x5548F0..0x5549E8, 248 B
       - [0x4549E8, .rodata, ico2/script/src/warpGirl]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP warpGirl.o .rodata 0x51), VMA 0x5549E8..0x554A39, 81 B
       - [0x454A39, rodata, cod/454A39]     # rodata blob resume
       - [0x454A40, .rodata, ico2/omori/src/attackhit]  # the TU's whole .rodata run as source (data pass 3), widening the jump-table row: the tables and the strings, VMA 0x554A40..0x554C82, 578 B; the 6 zero bytes to 0x554C88 are the next input's alignment pad
@@ -750,7 +759,8 @@ segments:
       - [0x51F1D0, .rodata, ico2/sugipon/src/clipCollisionManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP clipCollisionManager.o .rodata 0x48), VMA 0x61F1D0..0x61F218, 72 B
       - [0x51F218, rodata, cod/51F218]     # rodata blob resume
       - [0x51F2A0, .rodata, ico2/sugipon/src/clothTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F2A0..0x61F7D0, 1328 B
-      - [0x51F2B0, rodata, cod/51F2B0]     # rodata blob resume
+      - [0x51F2B0, .rodata, ico2/sugipon/src/effectTool]  # the TU's whole .rodata run as source (data pass 6); the last string carries one byte 0x82 that is not EUC-JP, written as an octal escape, VMA 0x61F2B0..0x61F650, 928 B
+      - [0x51F650, rodata, cod/51F650]     # rodata blob resume
       - [0x51F710, .rodata, ico2/sugipon/src/enemyParts]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F710..0x61F7D0, 192 B
       - [0x51F728, rodata, cod/51F728]     # rodata blob resume
       - [0x51F7D0, .rodata, ico2/sugipon/src/frameDependSequence]  # carved jtbl_0061F7D0 (VMA 0x61F7D0..0x61F7E4, 20 B, 5 arms): playSEConditionID's switch table, emitted by the compiled function

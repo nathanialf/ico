@@ -2400,8 +2400,6 @@ extern int actInitialize(volatile int a0);
    values) is the same register assignment either way, but ROM emits the flag
    move after every float move -- i.e. it is declared last. */
 extern struct ScpMail queen_appear_mes[];
-extern char D_005548F0[];
-extern char D_00554900[];
 
 void actSubSekizoSe(volatile int a0)
 {
@@ -2422,8 +2420,8 @@ void actSubSekizoSe(volatile int a0)
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x2F, 0, 0x22B, 0);
     *(int *)(scpSearchGobj(0x865) + 0x16C) = 1;
     scpPlayMot((char *)scpSearchGobj(0x865), 0x450);
-    tex_SetUVScroll(D_005548F0, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
-    tex_SetUVScroll(D_00554900, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+    tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
     ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
     stage_SetAnimation(0x9C, 0, -1);
     stage_SetAnimation(0x9F, 1, 0);

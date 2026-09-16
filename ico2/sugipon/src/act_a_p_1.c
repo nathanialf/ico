@@ -15,6 +15,50 @@
 #include "quaternion.h"
 #include "tableSin.h"
 
+typedef struct AP1Vec {
+    float x;
+    float y;
+    float z;
+    float w;
+} __attribute__((aligned(16))) AP1Vec;
+
+/* --- the TU's whole .data run, VMA 0x4E5A30..0x4E5A90 (0x60), in emission
+   order.  The six AI mode names are eight bytes or fewer, so the compiler
+   puts them in .sdata, which this pass does not carve: they stay extern into
+   the .sdata blob.  The modes are stand, walk, jump, attack, dead, sleep. */
+extern char D_0063B6C8[]; /* "SL" */
+extern char D_0063B6D0[]; /* "DE" */
+extern char D_0063B6D8[]; /* "AT" */
+extern char D_0063B6E0[]; /* "JM" */
+extern char D_0063B6E8[]; /* "WA" */
+extern char D_0063B6F0[]; /* "ST" */
+extern char D_0063B700[]; /* "SLEEP" */
+extern char D_0063B708[]; /* "DEAD" */
+extern char D_0063B710[]; /* "ATTACK" */
+extern char D_0063B718[]; /* "JUMP" */
+extern char D_0063B720[]; /* "WALK" */
+extern char D_0063B728[]; /* "STAND" */
+
+/* the two-letter tag GetAP1AIMode hands the debug display. */
+static char *ap1ModeTag[] = {D_0063B6F0, D_0063B6E8, D_0063B6E0,
+                             D_0063B6D8, D_0063B6D0, D_0063B6C8};
+
+/* the fixed hop walkAI asks for when it is boxed in: straight down and
+   two units forward. */
+static AP1Vec ap1BoxedInJump = {0.0f, -20.0f, 2.0f, 0.0f};
+
+int standAI(char *self);
+int walkAI(char *self);
+int jumpAI();
+int attackAI();
+
+/* one entry per mode; dead and sleep run no AI of their own. */
+static int (*ap1ModeAI[])() = {standAI, walkAI, jumpAI, attackAI, 0, 0};
+
+/* the spelled-out mode name hehehe() prints. */
+static char *ap1ModeName[] = {D_0063B728, D_0063B720, D_0063B718,
+                              D_0063B710, D_0063B708, D_0063B700};
+
 extern float D_0063C440;
 extern short D_0063C444;
 extern short D_0063C446;
@@ -83,7 +127,6 @@ extern float D_0071EC64[];
 extern float D_0071EC70[];
 extern float D_0071EC84[];
 extern float D_0071ECB0[];
-extern char D_004E5A50[];
 /* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(void *v);
 
@@ -134,7 +177,7 @@ int walkAI(char *self)
 
     if (D_0071EC64[0] > 100.0f) {
         if (VectorLengthSquare(D_0071EC70) < 10000.0f) {
-            if (AP1JumpReq(self, 2, D_004E5A50)) {
+            if (AP1JumpReq(self, 2, &ap1BoxedInJump)) {
                 *(int *)(p + 0x4C) = 0;
                 return 2;
             }
@@ -143,7 +186,7 @@ int walkAI(char *self)
 
     if (D_0071EC84[0] > 100.0f) {
         if (VectorLengthSquare(D_0071ECB0) < 10000.0f) {
-            if (AP1JumpReq(self, 2, D_004E5A50)) {
+            if (AP1JumpReq(self, 2, &ap1BoxedInJump)) {
                 *(int *)(p + 0x4C) = 0;
                 return 2;
             }
@@ -183,11 +226,9 @@ int walkAI(char *self)
     return AP1MotReq(self, 1) ? 1 : -1;
 }
 
-extern char *D_004E5A78[];
-
 void hehehe(char *a0)
 {
-    debug_StdPrintfDummy(D_004E5A78[*(int *)(*(char **)(a0 + 0x164) + 0x34)]);
+    debug_StdPrintfDummy(ap1ModeName[*(int *)(*(char **)(a0 + 0x164) + 0x34)]);
 }
 
 void SleepAP1(int *a0)
@@ -244,13 +285,6 @@ extern void _ScaleVectorXYZ(void *dst, void *src, float s);
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 
-typedef struct AP1Vec {
-    float x;
-    float y;
-    float z;
-    float w;
-} __attribute__((aligned(16))) AP1Vec;
-
 typedef struct AP1Mtx {
     float m[16];
 } __attribute__((aligned(16))) AP1Mtx;
@@ -298,7 +332,6 @@ extern AP1Vec D_0071EC90;
 extern AP1Vec D_0071ECA0;
 extern AP1Vec D_0071ECC0;
 extern int D_00639EA4;
-extern int (*D_004E5A60[])(int self);
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
@@ -384,8 +417,8 @@ void subAP1BrainMain(volatile int self)
         CopyVector(D_0071ECB0, &D_0071EC80);
         D_0071ECB0[1] = 0.0f;
 
-        if (D_004E5A60[*(int *)(p + 0x34)] != 0) {
-            r = D_004E5A60[*(int *)(p + 0x34)]((int)self);
+        if (ap1ModeAI[*(int *)(p + 0x34)] != 0) {
+            r = ap1ModeAI[*(int *)(p + 0x34)]((int)self);
             if (r != -1) {
                 *(int *)(p + 0x34) = r;
             }
@@ -631,7 +664,6 @@ void SetAP1PriorLevel(char *self, int val)
     *(int *)(*(char **)(self + 0x164) + 0xAC) = val;
 }
 
-extern char *D_004E5A30[];
 extern char D_0063B6F8[];
 
 char *GetAP1AIMode(char *self)
@@ -641,7 +673,7 @@ char *GetAP1AIMode(char *self)
     if (p == 0 || *(unsigned int *)(p + 0x34) >= 6) {
         return D_0063B6F8;
     }
-    return D_004E5A30[*(int *)(p + 0x34)];
+    return ap1ModeTag[*(int *)(p + 0x34)];
 }
 
 int jumpAI(int a0)

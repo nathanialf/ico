@@ -12,13 +12,16 @@
 #ifndef ST25A_H
 #define ST25A_H
 
-extern void actConte12(volatile int a0);
-extern void actConte12Jimaku(volatile int a0);
-extern void actConte13Jimaku(volatile int a0);
-extern void actSt25aElevCharaChk(volatile int a0);
-extern void actSt25aElevChk(volatile int a0);
-extern void actSt25aQueenAppearChk(volatile int a0);
-extern void actSt25aQueenDeadChk(volatile int a0);
-extern void actSt25aQueenTalkChk(volatile int a0);
+void actConte12(volatile int a0);
+void actConte12Jimaku(volatile int a0);
+void actConte13Jimaku(volatile int a0);
+void actSt25aElevCharaChk(volatile int a0);
+void actSt25aElevChk(volatile int a0);
+void actSt25aQueenAppearChk(volatile int a0);
+void actSt25aQueenDeadChk(volatile int a0);
+void actSt25aQueenTalkChk(volatile int a0);
+
+extern const char faceShadowTex[];
+extern const char faceShadowTex00[];
 
 #endif /* ST25A_H */

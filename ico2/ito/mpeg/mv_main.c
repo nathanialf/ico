@@ -3,6 +3,51 @@
 #include "debug.h"
 #include "GsBase.h"
 
+/* --- the TU's whole .data run, VMA 0x2A7920..0x2A79B8 (0x98, = MAIN.MAP
+   mv_main.o .data 0x98).  MAIN.MAP names the last two objects of the run,
+   voBuf at member offset 0x40 and `display` at 0x58; the two channel lists
+   ahead of them carry no map symbol, so those names are ours. */
+
+/* the DMA and interrupt channels the player takes over for the length of the
+   stream and hands back one by one in movie_end. */
+static int movieDmacChannel[] = {0, 1, 2, 3, 4, 8, 9};
+
+static int movieIntcChannel[] = {0, 1, 2, 4, 5, 6, 7};
+
+/* the video-out ring the decoder fills and mv_disp drains: the five fields
+   mv_vobuf.c spells as VoBuf (data, tag, idx, count, max).  RECONSTRUCTION:
+   the ROM shows only zeroes here, the field list comes from mv_vobuf.c. */
+typedef struct {
+    void *data;         /* 0x00 */
+    void *tag;          /* 0x04 */
+    volatile int idx;   /* 0x08 */
+    volatile int count; /* 0x0C */
+    int max;            /* 0x10 */
+} MvVoBuf;
+
+MvVoBuf voBuf = {0};
+
+/* the movie's display environment: the five GS privileged registers
+   sceGsSetDefDispEnv fills (sce/libgraph/graph009.c's sceGsDispEnv) and the
+   six words mv_disp.c's setDispEnv keeps after them.  MAIN.MAP calls this
+   object `display`; the name has to wait, because ico2/common/src/debug_
+   exception's still-asm `display` stub emits a global of that name. */
+typedef struct {
+    long long pmode;   /* 0x00 */
+    long long smode2;  /* 0x08 */
+    long long dispfb;  /* 0x10 */
+    long long display; /* 0x18 */
+    long long bgcolor; /* 0x20 */
+    int f28;           /* 0x28 */
+    int f2C;           /* 0x2C */
+    int width;         /* 0x30 */
+    int height;        /* 0x34 */
+    int f38;           /* 0x38 */
+    int f3C;           /* 0x3C */
+} MvDispEnv;
+
+MvDispEnv D_002A7978 = {0};
+
 extern int D_0063C320;
 extern void RotateThreadReadyQueue();
 extern int D_006F2B98[];
@@ -13,8 +58,6 @@ extern char D_0063AC80[];
 extern int D_006F2AD0[];
 extern int D_006F2AC0[];
 extern char D_006EA900[];
-extern char voBuf[];
-extern int D_002A7978[];
 extern int D_0063C324;
 extern int D_0063C328;
 extern int D_0063C32C;
@@ -33,15 +76,15 @@ extern void DeleteThread(int id);
 /* kept local: this TU's uses of readBufDelete do not fit the prototype in mv_readbuf.h */
 extern void readBufDelete(int *self);
 /* kept local: this TU's uses of voBufDelete do not fit the prototype in mv_vobuf.h */
-extern void voBufDelete(char *self);
+extern void voBufDelete(MvVoBuf *self);
 /* kept local: this TU's uses of videoDecDelete do not fit the prototype in mv_videodec.h */
 extern int videoDecDelete(int *self);
 /* kept local: this TU's uses of audioDecDelete do not fit the prototype in mv_audiodec.h */
 extern void audioDecDelete(int *self);
 /* kept local: this TU's uses of dispDelete do not fit the prototype in mv_disp.h */
-extern void dispDelete(int *self);
+extern void dispDelete(MvDispEnv *self);
 /* kept local: this TU's uses of dispClear do not fit the prototype in mv_disp.h */
-extern void dispClear(int *self, unsigned int col);
+extern void dispClear(MvDispEnv *self, unsigned int col);
 extern int sceGsGetIMR(void);
 extern void sceGsPutIMR(long long imr);
 extern int EnableDmac(int ch);
@@ -50,8 +93,6 @@ extern int GetThreadId(void);
 extern void ChangeThreadPriority(int id, int prio);
 extern int D_006FAC40[];
 extern int D_006FAC60[];
-extern int D_002A7920[];
-extern int D_002A7940[];
 extern int D_0063C338;
 extern long long D_0063C340;
 extern void sceGsSyncPath(int a0, int a1);
@@ -93,10 +134,10 @@ extern int readBufEndGet(int *self, int n);
 extern int strFileRead(char *self, void *buf, int n, int *eof);
 extern int sceMpegDemuxPssRing(int *dec, void *p, int n, int a3, int p4);
 /* kept local: this TU's uses of voBufIsFull do not fit the prototype in mv_vobuf.h */
-extern int voBufIsFull(char *self);
+extern int voBufIsFull(MvVoBuf *self);
 extern int D_0063AC74;
 /* kept local: this TU's uses of dispCreate do not fit the prototype in mv_disp.h */
-extern void dispCreate(int *self, int a1, int a2, int a3, int a4);
+extern void dispCreate(MvDispEnv *self, int a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of strFileOpen do not fit the prototype in mv_strfile.h */
 extern int strFileOpen(char *self, int name);
 /* kept local: this TU's uses of readBufCreate do not fit the prototype in mv_readbuf.h */
@@ -109,7 +150,7 @@ extern int audioDecCreate(int *self, int a1, int a2);
 /* kept local: this TU's uses of videoDecSetStream do not fit the prototype in mv_videodec.h */
 extern int videoDecSetStream(int *self, int id, int a2, void *fn, void *arg);
 /* kept local: this TU's uses of voBufCreate do not fit the prototype in mv_vobuf.h */
-extern int voBufCreate(char *self);
+extern int voBufCreate(MvVoBuf *self);
 
 typedef struct {
     int status;
@@ -141,9 +182,9 @@ extern int vblankHandler();
 /* Argument block handed to the videoDecMain thread; it reads the three
    members back as self[0], self[1] and self[2]. */
 typedef struct {
-    int *dec;   /* D_006F2AD0, the videoDec object   */
-    void *disp; /* D_002A7978, the display env       */
-    char *vo;   /* voBuf, the video-out ring         */
+    int *dec;        /* D_006F2AD0, the videoDec object   */
+    MvDispEnv *disp; /* the display env, MAIN.MAP `display` */
+    MvVoBuf *vo;     /* voBuf, the video-out ring          */
 } MvThreadArg;
 
 extern MvThreadArg D_006F2C00;
@@ -228,7 +269,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
             readBufEndGet(rb, len);
         }
         proceedAudio();
-        if (started == 0 && voBufIsFull(voBuf) && audioIsPreset()) {
+        if (started == 0 && voBufIsFull(&voBuf) && audioIsPreset()) {
             startDisplay(1);
             if (D_0063AC70 != 0) {
                 audioDecStart(D_006F2B98);
@@ -263,8 +304,8 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     D_006F2AD0[0xC0 / 4] = -1;
     D_0063C328 = 0;
 
-    dispCreate(D_002A7978, a1, a2, a3, p4);
-    dispClear(D_002A7978, p7);
+    dispCreate(&D_002A7978, a1, a2, a3, p4);
+    dispClear(&D_002A7978, p7);
 
     D_0063C334 = *(volatile int *)0x1000E000;
     debug_StdPrintfDummy("D_CTRL %x\n", *(volatile int *)0x1000E000);
@@ -297,7 +338,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
         videoDecSetStream(D_006F2AD0, 2, 0, pcmCallback, &D_0063C318);
     }
 
-    if (voBufCreate(voBuf) != 0) {
+    if (voBufCreate(&voBuf) != 0) {
         return -1;
     }
     debug_StdPrintfDummy("create video decode thread\n");
@@ -312,8 +353,8 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     debug_StdPrintfDummy("start thread\n");
 
     D_006F2C00.dec = D_006F2AD0;
-    D_006F2C00.disp = D_002A7978;
-    D_006F2C00.vo = voBuf;
+    D_006F2C00.disp = &D_002A7978;
+    D_006F2C00.vo = &voBuf;
     StartThread(D_0063C324, &D_006F2C00);
     D_0063C328 = 1;
 
@@ -362,10 +403,10 @@ void termAll(void)
         DeleteThread(D_0063C324);
     }
     readBufDelete(D_006F2AC0);
-    voBufDelete(voBuf);
+    voBufDelete(&voBuf);
     videoDecDelete(D_006F2AD0);
     audioDecDelete(D_006F2B98);
-    dispDelete(D_002A7978);
+    dispDelete(&D_002A7978);
     *(volatile unsigned int *)0x1000E000 = D_0063C334;
 }
 
@@ -394,12 +435,12 @@ int movie_init(int a0, int a1, int a2, int a3, int p4, int p5, int p6)
 
     DIntr();
     for (i = 0; i < 7; i++) {
-        D_006FAC40[i] = DisableDmac(D_002A7920[i]);
-        debug_StdPrintfDummy("dmac %d %d\n", D_002A7920[i], D_006FAC40[i]);
+        D_006FAC40[i] = DisableDmac(movieDmacChannel[i]);
+        debug_StdPrintfDummy("dmac %d %d\n", movieDmacChannel[i], D_006FAC40[i]);
     }
     for (j = 0; j < 7; j++) {
-        D_006FAC60[j] = DisableIntc(D_002A7940[j]);
-        debug_StdPrintfDummy("intc %d %d\n", D_002A7940[j], D_006FAC60[j]);
+        D_006FAC60[j] = DisableIntc(movieIntcChannel[j]);
+        debug_StdPrintfDummy("intc %d %d\n", movieIntcChannel[j], D_006FAC60[j]);
     }
     EIntr();
 
@@ -417,19 +458,19 @@ void movie_end(void)
     unsigned int i;
     unsigned int j;
 
-    dispClear(D_002A7978, 0x80000000);
+    dispClear(&D_002A7978, 0x80000000);
     termAll();
     DIntr();
     debug_StdPrintfDummy("sceGsGetIMR() %lx\n", sceGsGetIMR());
     sceGsPutIMR(D_0063C340);
     for (i = 0; i < 7; i++) {
         if (D_006FAC40[i] != 0) {
-            EnableDmac(D_002A7920[i]);
+            EnableDmac(movieDmacChannel[i]);
         }
     }
     for (j = 0; j < 7; j++) {
         if (D_006FAC60[j] != 0) {
-            EnableIntc(D_002A7940[j]);
+            EnableIntc(movieIntcChannel[j]);
         }
     }
     ChangeThreadPriority(GetThreadId(), D_0063C338);

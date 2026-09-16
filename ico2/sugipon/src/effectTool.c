@@ -21,9 +21,63 @@ typedef struct {
     int max;           /* 0x18 */
 } EffParamDef;
 
-extern EffParamDef D_004E74A0[];
-extern char D_0061F490[]; /* "Unknown Data Type \"%s\"\n" */
-extern char D_0061F4A8[]; /* "%-20s:%s" */
+/* the three enum name tables the type-0 fields print through; the names
+   themselves are seven bytes or fewer, so the compiler puts them in .sdata,
+   which this pass does not carve: they stay extern into the .sdata blob. */
+extern char D_0063B7D8[]; /* "LOOP" */
+extern char D_0063B7E0[]; /* "RELEASE" */
+extern char D_0063B7E8[]; /* "SUB" */
+extern char D_0063B7F0[]; /* "ADD" */
+extern char D_0063B7F8[]; /* "BLEND" */
+extern char D_0063B800[]; /* "ON" */
+extern char D_0063B808[]; /* "OFF" */
+extern char D_0063B810[]; /* "COLOR B" */
+extern char D_0063B818[]; /* "COLOR G" */
+extern char D_0063B820[]; /* "COLOR R" */
+
+static char *drainTypeName[] = {D_0063B7E0, D_0063B7D8};
+
+static char *alphaTypeName[] = {D_0063B7F8, D_0063B7F0, D_0063B7E8};
+
+static char *upperLimitName[] = {D_0063B808, D_0063B800};
+
+static EffParamDef effParam[] = {
+    {"U OFFSET", 0x80, 0, 0, 0, 0, 3},
+    {"V OFFSET", 0x84, 0, 0, 0, 0, 3},
+    {"DRAIN TYPE", 4, drainTypeName, 0, 1, 0, 1},
+    {"ALPHA TYPE", 8, alphaTypeName, 0, 0, 0, 2},
+    {"CONE ANGLE", 12, 0, 3, 0, 0, 360},
+    {"WIND EFFECT", 0x90, 0, 1, 0, 0, 10},
+    {"VELOCITY", 16, 0, 1, 0, 0, 100},
+    {"VEL RND RATIO", 20, 0, 1, 0, 0, 1},
+    {"VEL ACCEL    ", 24, 0, 1, 0, 0, 2},
+    {"GRAVITY ACC", 28, 0, 1, 0, -10, 10},
+    {"ROT BASE", 0x88, 0, 2, 0, -180, 180},
+    {"ROT BASE RND", 0x8C, 0, 1, 0, 0, 1},
+    {"ROT GROW", 32, 0, 2, 0, -180, 180},
+    {"ROT GROW RND", 36, 0, 1, 0, 0, 1},
+    {"ROT GROW ACC", 40, 0, 1, 0, 0, 2},
+    {"SIZE BASE", 44, 0, 1, 0, 0, 50},
+    {"SIZE BASE RND", 48, 0, 1, 0, 0, 1},
+    {"SIZE GROW", 52, 0, 1, 0, -50, 50},
+    {"SIZE GROW RND", 56, 0, 1, 0, 0, 1},
+    {"SIZE GROW ACC", 60, 0, 1, 0, 0, 1},
+    {"NB POLYGONS", 64, 0, 0, 1, 1, 80},
+    {"LIFE SPAN", 68, 0, 0, 0, 0, 1000},
+    {"LIFE SPAN RND", 72, 0, 1, 0, 0, 1},
+    {"BIRTH RATE", 76, 0, 1, 0, 0, 100},
+    {"FADE BASE", 80, 0, 1, 0, 0, 1},
+    {"FADE BASE RND", 84, 0, 1, 0, 0, 1},
+    {"FADE OUT", 88, 0, 0, 0, 0, 1000},
+    {"FADE OUT RND", 92, 0, 1, 0, 0, 1},
+    {D_0063B820, 0x70, 0, 0, 0, 0, 255},
+    {D_0063B818, 0x74, 0, 0, 0, 0, 255},
+    {D_0063B810, 0x78, 0, 0, 0, 0, 255},
+    {"UPPER LIMIT", 0x94, upperLimitName, 0, 0, 0, 1},
+    {"LIMIT HEIGHT", 0x98, 0, 0, 0, -100000, 100000},
+    {0},
+};
+
 extern char D_0063B828[]; /* "%4.3f" */
 extern char D_0063B830[]; /* "(%d,%d)" */
 extern char D_0063B838[]; /* "%d" */
@@ -39,8 +93,8 @@ void _dispParam(int *pkg, int idx, int x, int y, int col)
     char lbl[256];
     char val[256];
     char rng[256];
-    char *p = (char *)pkg + D_004E74A0[idx].off;
-    EffParamDef *e = &D_004E74A0[idx];
+    char *p = (char *)pkg + effParam[idx].off;
+    EffParamDef *e = &effParam[idx];
 
     switch (e->type) {
     case 1:
@@ -65,11 +119,11 @@ void _dispParam(int *pkg, int idx, int x, int y, int col)
         sprintf(rng, D_0063B830, e->min, e->max);
         break;
     default:
-        sprintf(val, D_0061F490, e->name);
+        sprintf(val, "Unknown Data Type \"%s\"\n", e->name);
         break;
     }
     sprintf(lbl, D_0063B848, e->name, rng);
-    debug_PrintfDummy(x, y, col, D_0061F4A8, lbl, val);
+    debug_PrintfDummy(x, y, col, "%-20s:%s", lbl, val);
 }
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
@@ -96,9 +150,9 @@ extern int D_00720070[];
 
 int editParam(int id, int sel)
 {
-    EffParamDef *e = &D_004E74A0[sel];
+    EffParamDef *e = &effParam[sel];
     int *pkg = GetParticleEffectPackage(id);
-    EffVal *p = (EffVal *)((char *)pkg + D_004E74A0[sel].off);
+    EffVal *p = (EffVal *)((char *)pkg + effParam[sel].off);
     int changed = 0;
     float step;
     int v;
@@ -220,10 +274,17 @@ typedef struct {
     float w;
 } __attribute__((aligned(16))) EffVec;
 
-extern EffCol D_004E7860; /* {0, 0xC0, 0xFF, 0x1C} */
-extern EffCol D_004E7870; /* {0, 0x20, 0xFF, 0x1C} */
-extern EffCol D_004E7880;
-extern EffCol D_004E7890;
+/* the effect tool's own line colour and the three axis-circle colours the
+   XZ/YZ/XY passes draw with; drawEdge draws each once solid and once at a
+   sixteenth over the top. */
+static EffCol effectToolColor = {0x00, 0xC0, 0xFF, 0x1C};
+
+static EffCol circleColorXZ = {0x00, 0x20, 0xFF, 0x1C};
+
+static EffCol circleColorYZ = {0xFF, 0x00, 0x20, 0x1C};
+
+static EffCol circleColorXY = {0x00, 0xFF, 0x20, 0x1C};
+
 extern void *memset(void *d, int c, int n);
 
 /* a static helper the PAL listing places at effectTool.c lines 286-289 and
@@ -247,19 +308,19 @@ void dispXZYZCircle(float rad, int from, int to, int step)
         EffVec a = {rad * GetTableSin(i), 0.0f, rad * GetTableCos(i), 1.0f};
         EffVec b = {rad * GetTableSin(i + step), 0.0f, rad * GetTableCos(i + step), 1.0f};
 
-        drawEdge(&a, &b, &D_004E7870);
+        drawEdge(&a, &b, &circleColorXZ);
     }
     for (i = from; i < to; i += step) {
         EffVec a = {0.0f, rad * GetTableSin(i), rad * GetTableCos(i), 1.0f};
         EffVec b = {0.0f, rad * GetTableSin(i + step), rad * GetTableCos(i + step), 1.0f};
 
-        drawEdge(&a, &b, &D_004E7880);
+        drawEdge(&a, &b, &circleColorYZ);
     }
     for (i = from; i < to; i += step) {
         EffVec a = {rad * GetTableSin(i), rad * GetTableCos(i), 0.0f, 1.0f};
         EffVec b = {rad * GetTableSin(i + step), rad * GetTableCos(i + step), 0.0f, 1.0f};
 
-        drawEdge(&a, &b, &D_004E7890);
+        drawEdge(&a, &b, &circleColorXY);
     }
 }
 
@@ -277,8 +338,8 @@ void dispCircle2(float rad, short elev, int step)
         EffVec b = {r * GetTableSin((short)(i + step)), r * GetTableCos((short)(i + step)),
                     rad * GetTableCos(elev), 1.0f};
 
-        drawEdge(&a, &b, &D_004E7860);
-        drawEdge(&o, &a, &D_004E7860);
+        drawEdge(&a, &b, &effectToolColor);
+        drawEdge(&o, &a, &effectToolColor);
     }
 }
 
@@ -298,12 +359,6 @@ void setQ(int *self)
     RotQuaternionX(self, -D_0063B85A);
 }
 
-extern const EffVec D_0061F4C0; /* .rodata: { 0.0f, 0.0f, 100.0f, 1.0f } */
-extern char D_0061F4D0[];       /* "POS-X:%4.3f" */
-extern char D_0061F4E0[];       /* "POS-Y:%4.3f" */
-extern char D_0061F4F0[];       /* "POS-Z:%4.3f" */
-extern char D_0061F500[];
-extern char D_0061F510[];
 extern float D_00720170[];
 extern short D_0063B858;
 extern short D_0063B85A;
@@ -326,7 +381,6 @@ void dispEffectToolField(int idx)
 {
     int q[4];
     EffVec o;
-    EffVec e;
     int *pkg = GetParticleEffectPackage(idx);
 
     setQ(q);
@@ -343,16 +397,24 @@ void dispEffectToolField(int idx)
 
     memset(&o, 0, sizeof(o));
     o.w = 1.0f;
-    e = D_0061F4C0;
-    drawEdge(&o, &e, &D_004E7860);
+    /* the 100-unit +Z spoke drawn out of the origin.  The ROM copies its
+       16-byte template out of .rodata here, at the call, not at function
+       entry, and the template sits between this file's string constants
+       rather than in a section of its own; an initialised local in its own
+       scope is the form that reproduces both. */
+    {
+        EffVec e = {0.0f, 0.0f, 100.0f, 1.0f};
+
+        drawEdge(&o, &e, &effectToolColor);
+    }
 
     MatrixDrive_PopMatrix();
     gif_EndPacket();
-    debug_PrintfDummy(450, 58, 0xFFFFFF00, D_0061F4D0, fptodp(-D_00720170[0]));
-    debug_PrintfDummy(450, 66, 0xFFFFFF00, D_0061F4E0, fptodp(-D_00720170[1]));
-    debug_PrintfDummy(450, 74, 0xFFFFFF00, D_0061F4F0, fptodp(-D_00720170[2]));
-    debug_PrintfDummy(450, 88, 0xFFFFFF00, D_0061F500, fptodp(D_0063B858 * -180.0f / 32768.0f));
-    debug_PrintfDummy(450, 96, 0xFFFFFF00, D_0061F510, fptodp(D_0063B85A * -180.0f / 32768.0f));
+    debug_PrintfDummy(450, 58, 0xFFFFFF00, "POS-X:%4.3f", fptodp(-D_00720170[0]));
+    debug_PrintfDummy(450, 66, 0xFFFFFF00, "POS-Y:%4.3f", fptodp(-D_00720170[1]));
+    debug_PrintfDummy(450, 74, 0xFFFFFF00, "POS-Z:%4.3f", fptodp(-D_00720170[2]));
+    debug_PrintfDummy(450, 88, 0xFFFFFF00, "ROT-Y:%4.3f", fptodp(D_0063B858 * -180.0f / 32768.0f));
+    debug_PrintfDummy(450, 96, 0xFFFFFF00, "ROT-X:%4.3f", fptodp(D_0063B85A * -180.0f / 32768.0f));
 }
 
 extern float D_00720170[];
@@ -366,10 +428,10 @@ extern int D_0063B864;
 static inline int countEffectParams(void)
 {
     int n = 0;
-    if (D_004E74A0[0].name != 0) {
+    if (effParam[0].name != 0) {
         do {
             n++;
-        } while (D_004E74A0[n].name != 0);
+        } while (effParam[n].name != 0);
     }
     return n;
 }
@@ -423,11 +485,38 @@ int EditTarget(int id)
     return 0;
 }
 
-extern char D_0061F530[];
-extern char D_0061F570[];
-extern char D_0061F598[];
-extern char D_0061F5C8[];
-extern char D_0061F5D8[];
+extern int D_0063AA08;
+extern int D_0063B86C;
+extern float D_00720170[];
+extern int D_00720070[];
+/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
+extern void GetRootPosition(void *dst, int gobj);
+/* kept local: this TU's uses of GetRootQuaternion do not fit the prototype in geometryManager.h */
+extern void GetRootQuaternion(void *dst, int gobj);
+/* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
+extern void debug_StdPrintfDummy(char *fmt, ...);
+
+/* static helper the PAL listing places at effectTool.c lines 403-415 and
+ * inlines at the head of EffectTool; never emitted out of line, so it has no
+ * MAIN.MAP symbol and this name is ours. */
+static inline void initEffectTool(void)
+{
+    int q[4];
+    int i;
+
+    setQ(q);
+    D_0063B86C = CameraGetTarget();
+    GetRootPosition(D_00720170, D_0063B86C);
+    D_00720170[3] = 1.0f;
+    GetRootQuaternion(q, D_0063B86C);
+    CameraSetMode(1);
+    D_0063AA08 = 1;
+    debug_StdPrintfDummy("initialize\n");
+    for (i = 0x3C; i >= 0; i--) {
+        D_00720070[i] = 0;
+    }
+}
+
 /* particleEffect.c's effect table is 0x50 bytes per entry: char name[0x20]
    then char file[0x30].  D_0062A298 is &tbl[0].file (D_0062A278 = &tbl[0].name). */
 extern char D_0062A298[];
@@ -449,16 +538,16 @@ int saveEffectData(int id)
 
     pkg = GetParticleEffectPackage(id);
     debug_closeLog();
-    debug_StdPrintfDummy(D_0061F530);
+    debug_StdPrintfDummy("==== Save effect ============================================\n");
     if (debugSceOpen(D_0062A298 + id * 0x50, 0x602) < 0) {
-        debug_StdPrintfDummy(D_0061F570);
+        debug_StdPrintfDummy("saveEffectData: host file open error.\n");
     } else {
-        debug_StdPrintfDummy(D_0061F598, D_0062A298 + id * 0x50, D_0062A298 + id * 0x50 - 0x20,
-                             0xA0);
-        debug_StdPrintfDummy(D_0061F5C8, sceWrite(0, pkg, 0xA0));
+        debug_StdPrintfDummy("Save effect file [\033[36m%s\033[m](%s:%dbytes) \n",
+                             D_0062A298 + id * 0x50, D_0062A298 + id * 0x50 - 0x20, 0xA0);
+        debug_StdPrintfDummy("%d bytes wrote\n", sceWrite(0, pkg, 0xA0));
         debugSceClose(0);
     }
-    debug_StdPrintfDummy(D_0061F5D8);
+    debug_StdPrintfDummy("=============================================================\n");
     debug_openLog();
     return 0;
 }
@@ -518,7 +607,6 @@ void moveEffectToolGeometry(int idx)
     }
 }
 
-extern char D_0061F618[];
 extern char D_0062A278[];
 extern float D_00720170[];
 extern int targetMemo;
@@ -539,8 +627,8 @@ int execEffectTool(void)
     switch (targetMemo) {
     default:
     case 0:
-        r = debug_SelectCsvWindow(D_0061F618, 10, 0x32, 0xB, D_0062A278, 0x50, 0, 0, 0x3D,
-                                  &D_0063B85C);
+        r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
+                                  0xB, D_0062A278, 0x50, 0, 0, 0x3D, &D_0063B85C);
         if (D_0063B85C != D_0063B860) {
             setQ(q);
             if (D_0063B854 != -1) {
@@ -607,38 +695,10 @@ void exitEffectTool(void)
     debug_StdPrintfDummy(D_0063B878);
 }
 
-extern char D_0061F520[];
-extern float D_00720170[];
-extern int D_00720070[];
 extern int D_0063B880;
 extern int D_0063B868;
 extern int D_0063B860;
 extern int D_0063B864;
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition(void *dst, int gobj);
-/* kept local: this TU's uses of GetRootQuaternion do not fit the prototype in geometryManager.h */
-extern void GetRootQuaternion(void *dst, int gobj);
-
-/* static helper the PAL listing places at effectTool.c lines 403-415 and
- * inlines at the head of EffectTool; never emitted out of line, so it has no
- * MAIN.MAP symbol and this name is ours. */
-static inline void initEffectTool(void)
-{
-    int q[4];
-    int i;
-
-    setQ(q);
-    D_0063B86C = CameraGetTarget();
-    GetRootPosition(D_00720170, D_0063B86C);
-    D_00720170[3] = 1.0f;
-    GetRootQuaternion(q, D_0063B86C);
-    CameraSetMode(1);
-    D_0063AA08 = 1;
-    debug_StdPrintfDummy(D_0061F520);
-    for (i = 0x3C; i >= 0; i--) {
-        D_00720070[i] = 0;
-    }
-}
 
 int EffectTool(void)
 {
