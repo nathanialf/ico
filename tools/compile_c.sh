@@ -42,17 +42,15 @@ EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
 INCLUDE_DIR="${ROOT}/include"
 # include/ holds stub scaffolding only (the fdlibm two-word idiom now lives in the libm members that use it): the libm
 # members and the game TUs that use the GET_FLOAT_WORD macros reach it by name.
-# Small-data threshold per archive. The game and every SDK archive but libm were
-# built at -G 8. libm.a was built at -G 0 (measured 2026-09-15 on kf_sin, wf_fmod
-# and sf_atan: their li.s expands to lui/ori/mtc1 and their strings and NaNs land
-# in .rodata only at -G 0, and every already matched libm member is byte-identical
-# under it). A library's own build setting is a fact of that archive, not a
-# per-function lever.
-# libscf.a too (measured 2026-09-16 on libscf.o: its 7-byte assert string
-# "c <=99" sits in .rodata, which mips_select_section only does below -G 7, and
-# -G 0 moves no instruction word in the member).
+# Small-data threshold. The game (ico2/) was built at -G 8. Every SDK archive
+# under sce/ was built at -G 0: no SDK function in the ROM makes a gp-relative
+# access (0 of 208 stubs across twelve archives), the libm and libscf members
+# only match at -G 0 (li.s expands to lui/ori/mtc1, short strings and NaNs land
+# in .rodata rather than .sdata), and the whole tree is byte-identical with
+# every sce/ member at -G 0 (measured 2026-09-16). A library's own build
+# setting is a fact of that archive, not a per-function lever.
 case "${1:-}" in
-    sce/libm/*|*/sce/libm/*|sce/libscf/*|*/sce/libscf/*) GNUM=0 ;;
+    sce/*|*/sce/*) GNUM=0 ;;
     *) GNUM=8 ;;
 esac
 CFLAGS="-S -G ${GNUM} -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}"

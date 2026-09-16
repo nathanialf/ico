@@ -170,7 +170,7 @@ fi
 # accept -fno-optimize-sibling-calls (sibling-call defeat is per-function
 # via __asm__ volatile("") barriers in src/cod/). -S because the bundled
 # 2.9-era `as` chokes on modern flags — we re-assemble with ee-as 2.10.
-case "$NAME" in sce/libm/*|sce/libscf/*) GNUM=0 ;; *) GNUM=8 ;; esac  # libm.a and libscf.a were built at -G 0, see compile_c.sh
+case "$NAME" in sce/*) GNUM=0 ;; *) GNUM=8 ;; esac  # every SDK archive was built at -G 0, see compile_c.sh
 CFLAGS="${CFLAGS:--S -G ${GNUM} -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -Iinclude}"
 
 # ee-gcc looks for cc1 at the path it was built against (typically
