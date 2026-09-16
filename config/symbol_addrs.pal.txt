@@ -6221,6 +6221,7 @@ __sccl = 0x00283288; // type:func  // sce/libc/stdio/vfscanf  // (vendor) libc.a
 vsprintf = 0x00283390; // type:func  // sce/libc/stdio/vsprintf  // (vendor) libc.a (116/118 MAIN.MAP)
 __swsetup = 0x002833E8; // type:func  // sce/libc/stdio/wsetup  // (vendor) libc.a (116/118 MAIN.MAP)
 abort = 0x002834F8; // type:func  // sce/libc/stdlib/abort  // (vendor) libc.a (116/118 MAIN.MAP)
+atof = 0x00283518; // type:func  // sce/libc/stdlib/atof  // (vendor) libc.a member atof.o, no ELF symbol, newlib atof (strtod with a null end pointer), called from __svfscanf, was inside the abort row span
 quorem = 0x00283538; // type:func  // sce/libc/stdlib/dtoa  // (vendor) libc.a (116/118 MAIN.MAP)
 _dtoa_r = 0x00283750; // type:func  // sce/libc/stdlib/dtoa  // (vendor) libc.a (116/118 MAIN.MAP)
 fflush = 0x00284920; // type:func  // sce/libc/stdio/fflush  // (vendor) libc.a (116/118 MAIN.MAP)

@@ -11,7 +11,32 @@ typedef struct {
     char _52[6];
 } P16Ent;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgSndn2RemoteInit);
+extern char D_00736140[];
+extern void FlushCache(int mode);
+extern int sceSifInitRpc(int mode);
+extern int sceSifBindRpc(void *cd, unsigned int sid, int mode);
+
+int SgSndn2RemoteInit(void)
+{
+    /* the IOP module writes the bind result into the client-data block, so the
+       poll of its +0x24 word is volatile */
+    volatile int *cd = (volatile int *)D_00736140;
+    int i;
+
+    FlushCache(0);
+    sceSifInitRpc(0);
+    do {
+        if (sceSifBindRpc(D_00736140, 0x736E646E, 0) < 0) {
+            return -1;
+        }
+        i = 10000;
+        do {
+            i--;
+            __asm__("nop");
+        } while (i > 0);
+    } while (cd[0x24 / 4] == 0);
+    return 0;
+}
 
 extern char D_00736140[];
 extern void *_SgGetComContext(void);
@@ -82,8 +107,45 @@ int SgDmaRead(void *a0, int a1, void *a2)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", _SgDmaCommon);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgGetDmaTransferStatus);
+extern void _SgSetPkAdd(int a0, int a1, int a2, int a3);
+
+void _SgDmaCommon(int cmd, int a1, void *a2, void *a3)
+{
+    /* the transfer counter at +0x48 is shared with the IOP side */
+    volatile int *com = (volatile int *)_SgGetComContext();
+    unsigned int w1;
+    unsigned int w2;
+    unsigned int w3;
+
+    com[0x48 / 4] = com[0x48 / 4] + 1;
+    w3 = ((unsigned int)a2 << 24) | ((unsigned int)a3 & 0xFFFFFF);
+    w2 = (a1 << 16) | (((unsigned int)a2 >> 8) & 0xFFFF);
+    w1 = (com[0x48 / 4] << 8) | (((unsigned int)a1 >> 16) & 0xFF);
+    _SgSetPkAdd(cmd, w1, w2, w3);
+}
+
+extern int _SgGetIop2EeContext(void);
+
+int SgGetDmaTransferStatus(int mode)
+{
+    int ret = -1;
+    /* both words are the EE and IOP ends of the same transfer counter; the
+       spin below only terminates because the IOP updates +0x1C0 */
+    volatile int *com = (volatile int *)_SgGetComContext();
+    volatile int *i2e = (volatile int *)_SgGetIop2EeContext();
+
+    if (mode != 0) {
+        if (mode == 1) {
+            while (i2e[0x1C0 / 4] != com[0x48 / 4]) {
+                ;
+            }
+            ret = 1;
+        }
+    } else {
+        ret = (i2e[0x1C0 / 4] == com[0x48 / 4]);
+    }
+    return ret;
+}
 
 extern int SgVabOpenFakeBody(int *a0, int a1);
 
@@ -97,7 +159,39 @@ int SgVabOpen(int a0, int *a1, int a2)
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgVabOpenFakeBody);
+extern void *_SgGetVabContext(int a0);
+
+int SgVabOpenFakeBody(int *a0, int a1)
+{
+    char *v;
+    int ret = -1;
+    int i;
+
+    v = (char *)_SgGetVabContext(1);
+    if (a0[0xC / 4] != 0x64685353) {
+        return -1;
+    }
+    for (i = 1; i < 0x80; i++, v += 0xC) {
+        if (*(int *)(v + 8) == 0) {
+            if (*(unsigned int *)((char *)a0 + 0x7C) == 0xFFFFFFFF) {
+                *(int *)(v + 8) = 3;
+                *(int *)(v + 4) = (unsigned int)a1 >> 3;
+            } else {
+                *(int *)(v + 8) = 4;
+                *(int *)(v + 4) = (unsigned int)a1 >> 4;
+            }
+            *(int *)v = (int)a0;
+            ret = i;
+            a0[0x30 / 4] = a0[0x10 / 4] + (int)a0;
+            a0[0x38 / 4] = a0[0x18 / 4] + (int)a0;
+            a0[0x3C / 4] = a0[0x1C / 4] + (int)a0;
+            a0[0x40 / 4] = a0[0x20 / 4] + (int)a0;
+            a0[0x44 / 4] = a0[0x24 / 4] + (int)a0;
+            break;
+        }
+    }
+    return ret;
+}
 
 extern void *_SgGetSeqContext(int a0);
 extern void *_SgGetSlotContext(int a0);
