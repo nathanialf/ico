@@ -14,11 +14,79 @@ typedef struct {
     int f8;
     int fC;
     int f10;
-    char pad14[0x8];
+    int f14;
+    int f18;
 } PObjA8B8Ent;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libpad/libpad", scePadInit);
-INCLUDE_ASM("asm/nonmatchings/sce/libpad/libpad", scePadInit2);
+extern int D_0054BFC8[];
+extern int D_0054BFCC[];
+extern int D_0072F200[];
+extern int sceSifBindRpc(void *cd, unsigned int sid, int mode);
+extern int scePadGetModVersion(void);
+extern void printf();
+extern char D_00636B80[];
+extern char D_00636BA8[];
+extern int scePadInit2(int a0);
+
+int scePadInit(int a0)
+{
+    int ver;
+    int major;
+    int i;
+
+    D_0054BFC8[0] = 1;
+    while (1) {
+        sceSifBindRpc(D_0072F200, 0x80000100, 0);
+        if (D_0072F200[9] != 0) {
+            break;
+        }
+        for (i = 0x10000; i != -1; i--) {}
+    }
+    while (1) {
+        sceSifBindRpc(&D_0072F200[10], 0x80000101, 0);
+        if (D_0072F200[19] != 0) {
+            break;
+        }
+        for (i = 0x10000; i != -1; i--) {}
+    }
+    ver = scePadGetModVersion();
+    major = ver >> 8;
+    if (major != 4) {
+        if (D_0054BFCC[0] != 0) {
+            printf(D_00636B80);
+            printf(D_00636BA8, 4, 0, major, ver & 0xFF);
+        }
+        return 0;
+    }
+    return scePadInit2(a0);
+}
+
+extern PObjA8B8Ent D_0072F250[][4];
+extern int D_0072F200[];
+extern int D_0072F540[];
+extern int sceSifCallRpc();
+
+int scePadInit2(int a0)
+{
+    int ret;
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        D_0072F250[0][i].f10 = 0;
+        D_0072F250[0][i].f18 = 0;
+        D_0072F250[0][i].f14 = 0;
+        D_0072F250[1][i].f10 = 0;
+        D_0072F250[1][i].f18 = 0;
+        D_0072F250[1][i].f14 = 0;
+    }
+    D_0072F540[0] = 0x10;
+    D_0072F540[4] = 0;
+    ret = sceSifCallRpc(D_0072F200, 1, 0, D_0072F540, 0x80, D_0072F540, 0x80, 0, 0);
+    if (ret < 0) {
+        return 0;
+    }
+    return D_0072F540[3];
+}
 
 extern int D_0054BFC8[];
 extern int D_0072F200[];
@@ -42,7 +110,25 @@ int scePadEnd(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libpad/libpad", scePadPortOpen);
-INCLUDE_ASM("asm/nonmatchings/sce/libpad/libpad", scePadPortClose);
+
+int scePadPortClose(int a0, int a1)
+{
+    int ret;
+
+    if (D_0072F250[a0][a1].f10 == 0) {
+        return 0;
+    }
+    D_0072F540[0] = 0xE;
+    D_0072F540[1] = a0;
+    D_0072F540[2] = a1;
+    D_0072F540[4] = 1;
+    ret = sceSifCallRpc(D_0072F200, 1, 0, D_0072F540, 0x80, D_0072F540, 0x80, 0, 0);
+    if (ret < 0) {
+        return 0;
+    }
+    D_0072F250[a0][a1].f10 = 0;
+    return D_0072F540[3];
+}
 
 extern PObjA8B8Ent D_0072F250[][4];
 extern void SyncDCache(void *a0, void *a1);
@@ -222,7 +308,27 @@ int scePadSetMainMode(int a0, int a1, int a2, int a3)
     return s;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libpad/libpad", scePadSetActDirect);
+extern void _send_to_iop(int a0, int a1);
+
+int scePadSetActDirect(int a0, int a1, unsigned char *a2)
+{
+    int *p;
+    unsigned char *q;
+    int i;
+
+    if (((unsigned char *)scePadGetDmaStr(a0, a1))[0x72] != 1) {
+        return 0;
+    }
+    p = D_0072F250[a0][a1].f4;
+    q = (unsigned char *)p + 0xC;
+    for (i = 0; i < 6; i++) {
+        q[i] = a2[i];
+    }
+    p[2] = 6;
+    p[1] = 1;
+    _send_to_iop(a0, a1);
+    return 1;
+}
 
 int scePadSetActAlign(int a0, int a1, char *a2)
 {
@@ -252,7 +358,26 @@ int scePadSetActAlign(int a0, int a1, char *a2)
     return val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libpad/libpad", scePadGetButtonMask);
+int scePadGetButtonMask(int a0, int a1)
+{
+    unsigned char *p;
+
+    if (D_0072F250[a0][a1].f10 == 0) {
+        return 0;
+    }
+    p = (unsigned char *)scePadGetDmaStr(a0, a1);
+    if (p[0x72] != 1) {
+        return 0;
+    }
+    if (p[0x64] < 2) {
+        return 0;
+    }
+    if (p[0x66] < 2) {
+        return 0;
+    }
+    return (long long)p[0x79] + ((long long)p[0x7A] << 8) + ((long long)p[0x7B] << 16) +
+           ((long long)p[0x7C] << 24);
+}
 
 int scePadSetButtonInfo(int a0, int a1, int a2)
 {

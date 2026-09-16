@@ -17,13 +17,212 @@ typedef struct {
     unsigned long long f10;
 } PCmpV2;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/dp-bit", __pack_d);
+#define CLASS_SNAN 0
+#define CLASS_QNAN 1
+#define CLASS_ZERO 2
+#define CLASS_NUMBER 3
+#define CLASS_INFINITY 4
+
+/* The double number in unpacked form.  FRAC_NBITS is 64 and NGARDS is 8, so the
+   implicit one sits at bit 60 and the fraction is a 64-bit field at 0x10. */
+typedef struct {
+    unsigned int class;
+    int sign;
+    int normal_exp;
+    int pad;
+    unsigned long long fraction;
+} fp_number_type_d;
+
+static __inline__ int isnan_d(fp_number_type_d *x)
+{
+    return x->class == CLASS_SNAN || x->class == CLASS_QNAN;
+}
+
+static __inline__ int isinf_d(fp_number_type_d *x)
+{
+    return x->class == CLASS_INFINITY;
+}
+
+static __inline__ int iszero_d(fp_number_type_d *x)
+{
+    return x->class == CLASS_ZERO;
+}
+
+/* the quiet NaN this build hands back for inf - inf */
+extern char D_736170[];
+
+static __inline__ fp_number_type_d *nan_d(void)
+{
+    return (fp_number_type_d *)D_736170;
+}
+
+typedef union {
+    struct {
+        unsigned long long fraction : 52;
+        unsigned long long exp : 11;
+        unsigned long long sign : 1;
+    } bits;
+
+    long long value;
+} FLO_union_type_d;
+
+long long __pack_d(void *s)
+{
+    fp_number_type_d *src = s;
+    FLO_union_type_d dst;
+    unsigned long long fraction = src->fraction;
+    int sign = src->sign;
+    int exp = 0;
+
+    if (isnan_d(src)) {
+        exp = 0x7FF;
+        fraction |= 0x8000000000000ULL;
+    } else if (isinf_d(src)) {
+        exp = 0x7FF;
+        fraction = 0;
+    } else if (iszero_d(src)) {
+        exp = 0;
+        fraction = 0;
+    } else if (fraction == 0) {
+        exp = 0;
+    } else {
+        if (src->normal_exp < -1022) {
+            /* the exponent is too low for a normal number: the integer part
+               goes to zero and the fraction keeps what bits survive */
+            int shift = -1022 - src->normal_exp;
+            if (shift > 56) {
+                exp = 0;
+                fraction = 0;
+            } else {
+                exp = 0;
+                fraction >>= shift;
+            }
+            fraction >>= 8;
+        } else if (src->normal_exp > 1023) {
+            exp = 0x7FF;
+            fraction = 0;
+        } else {
+            exp = src->normal_exp + 1023;
+            /* halfway between two numbers: round to the one whose low bit
+               is zero, otherwise add a one to the guards to round up */
+            if ((fraction & 0xFF) == 0x80) {
+                if (fraction & 0x100) {
+                    fraction += 0x80;
+                }
+            } else {
+                fraction += 0x7F;
+            }
+            if (fraction >= 0x2000000000000000ULL) {
+                fraction >>= 1;
+                exp += 1;
+            }
+            fraction >>= 8;
+        }
+    }
+    dst.bits.fraction = fraction;
+    dst.bits.exp = exp;
+    dst.bits.sign = sign;
+    return dst.value;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libgcc/dp-bit", __unpack_d);
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/dp-bit", _fpadd_parts);
+
+fp_number_type_d *_fpadd_parts(fp_number_type_d *a, fp_number_type_d *b, fp_number_type_d *tmp)
+{
+    long long tfraction;
+    int a_normal_exp;
+    int b_normal_exp;
+    unsigned long long a_fraction;
+    unsigned long long b_fraction;
+    int diff;
+
+    if (isnan_d(a))
+        return a;
+    if (isnan_d(b))
+        return b;
+    if (isinf_d(a)) {
+        /* adding infinities with opposite signs yields a NaN */
+        if (isinf_d(b) && a->sign != b->sign)
+            return nan_d();
+        return a;
+    }
+    if (isinf_d(b))
+        return b;
+    if (iszero_d(b)) {
+        if (iszero_d(a)) {
+            *tmp = *a;
+            tmp->sign = a->sign & b->sign;
+            return tmp;
+        }
+        return a;
+    }
+    if (iszero_d(a))
+        return b;
+
+    a_normal_exp = a->normal_exp;
+    b_normal_exp = b->normal_exp;
+    a_fraction = a->fraction;
+    b_fraction = b->fraction;
+
+    diff = a_normal_exp - b_normal_exp;
+    if (diff < 0)
+        diff = -diff;
+    if (diff < 64) {
+        while (a_normal_exp > b_normal_exp) {
+            b_normal_exp++;
+            b_fraction = (b_fraction & 1) | (b_fraction >> 1);
+        }
+        while (b_normal_exp > a_normal_exp) {
+            a_normal_exp++;
+            a_fraction = (a_fraction & 1) | (a_fraction >> 1);
+        }
+    } else {
+        if (a_normal_exp > b_normal_exp) {
+            b_fraction = 0;
+            b_normal_exp = a_normal_exp;
+        } else {
+            a_fraction = 0;
+            a_normal_exp = b_normal_exp;
+        }
+    }
+
+    if (a->sign != b->sign) {
+        if (a->sign)
+            tfraction = -a_fraction + b_fraction;
+        else
+            tfraction = a_fraction - b_fraction;
+
+        if (tfraction >= 0) {
+            tmp->sign = 0;
+            tmp->normal_exp = a_normal_exp;
+            tmp->fraction = tfraction;
+        } else {
+            tmp->sign = 1;
+            tmp->normal_exp = a_normal_exp;
+            tmp->fraction = -tfraction;
+        }
+        while (tmp->fraction < 0x1000000000000000ULL && tmp->fraction) {
+            tmp->fraction <<= 1;
+            tmp->normal_exp--;
+        }
+    } else {
+        tmp->sign = a->sign;
+        tmp->normal_exp = a_normal_exp;
+        tmp->fraction = a_fraction + b_fraction;
+    }
+    tmp->class = CLASS_NUMBER;
+
+    if (tmp->fraction >= 0x2000000000000000ULL) {
+        tmp->fraction = (tmp->fraction & 1) | (tmp->fraction >> 1);
+        tmp->normal_exp++;
+    }
+    return tmp;
+}
 
 extern long long __pack_d(void *s);
 extern void __unpack_d(void *in, void *out);
-extern void *_fpadd_parts(void *a, void *b, void *c);
+extern fp_number_type_d *_fpadd_parts(fp_number_type_d *a, fp_number_type_d *b,
+                                      fp_number_type_d *tmp);
 
 void dpadd(long a0, long a1)
 {
@@ -211,9 +410,91 @@ int dpcmp(long a0, long a1)
     return __fpcmp_parts_d(&x, &y);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/dp-bit", litodp);
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/dp-bit", dptoli);
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/dp-bit", dptoul);
+extern long long __pack_d(void *s);
+
+long long litodp(int arg_a)
+{
+    fp_number_type_d in;
+
+    in.class = CLASS_NUMBER;
+    in.sign = arg_a < 0;
+    if (!arg_a) {
+        in.class = CLASS_ZERO;
+    } else {
+        in.normal_exp = 60;
+        if (in.sign) {
+            /* there is no positive representation of the most negative int;
+               the literal is the IEEE-754 double -2147483648.0 */
+            if (arg_a == (-0x7FFFFFFF) - 1) {
+                return 0xC1E0000000000000LL;
+            }
+            in.fraction = -arg_a;
+        } else {
+            in.fraction = arg_a;
+        }
+        while (in.fraction < 0x1000000000000000ULL) {
+            in.fraction <<= 1;
+            in.normal_exp--;
+        }
+    }
+    return __pack_d(&in);
+}
+
+int dptoli(long a0)
+{
+    fp_number_type_d a;
+    int tmp;
+
+    __unpack_d(&a0, &a);
+
+    if (iszero_d(&a)) {
+        return 0;
+    }
+    if (isnan_d(&a)) {
+        return 0;
+    }
+    if (isinf_d(&a)) {
+        return a.sign ? (-0x7FFFFFFF) - 1 : 0x7FFFFFFF;
+    }
+    if (a.normal_exp < 0) {
+        return 0;
+    }
+    if (a.normal_exp > 30) {
+        return a.sign ? (-0x7FFFFFFF) - 1 : 0x7FFFFFFF;
+    }
+    tmp = a.fraction >> (60 - a.normal_exp);
+    return a.sign ? -tmp : tmp;
+}
+
+unsigned int dptoul(long a0)
+{
+    fp_number_type_d a;
+
+    __unpack_d(&a0, &a);
+
+    if (iszero_d(&a)) {
+        return 0;
+    }
+    if (isnan_d(&a)) {
+        return 0;
+    }
+    if (a.sign) {
+        return 0;
+    }
+    if (isinf_d(&a)) {
+        return 0xFFFFFFFF;
+    }
+    if (a.normal_exp < 0) {
+        return 0;
+    }
+    if (a.normal_exp > 31) {
+        return 0xFFFFFFFF;
+    }
+    if (a.normal_exp > 60) {
+        return a.fraction << (a.normal_exp - 60);
+    }
+    return a.fraction >> (60 - a.normal_exp);
+}
 
 void __negdf2(long long a0)
 {

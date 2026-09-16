@@ -655,7 +655,55 @@ void sceVu0ViewScreenMatrix(float *m, float a1, float a2, float a3, float a4, fl
     sceVu0MulMatrix(m, t, m);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libvu0/libvu0", sceVu0DropShadowMatrix);
+void sceVu0DropShadowMatrix(float *m, float *p, int para, float lx, float ly, float lz)
+{
+    if (para != 0) {
+        float p0 = p[0];
+        float p1 = p[1];
+        float p2 = p[2];
+        float d;
+
+        d = 1.0f - (lx * p0 + ly * p1 + lz * p2);
+        m[0] = lx * p0 + d;
+        m[4] = ly * p0;
+        m[8] = lz * p0;
+        m[12] = -p0;
+        m[1] = lx * p1;
+        m[5] = ly * p1 + d;
+        m[9] = lz * p1;
+        m[13] = -p1;
+        m[2] = lx * p2;
+        m[6] = ly * p2;
+        m[10] = lz * p2 + d;
+        m[14] = -p2;
+        m[3] = lx;
+        m[7] = ly;
+        m[11] = lz;
+        m[15] = d - 1.0f;
+    } else {
+        float p0 = p[0];
+        float p1 = p[1];
+        float p2 = p[2];
+        float d = lx * p0 + ly * p1 + lz * p2;
+        float k = -1.0f / d;
+        m[0] = k * (lx * p0 - d);
+        m[4] = k * (ly * p0);
+        m[8] = k * (lz * p0);
+        m[12] = k * (-p0);
+        m[1] = k * (lx * p1);
+        m[5] = k * (ly * p1 - d);
+        m[9] = k * (lz * p1);
+        m[13] = k * (-p1);
+        m[2] = k * (lx * p2);
+        m[6] = k * (ly * p2);
+        m[10] = k * (lz * p2 - d);
+        m[14] = k * (-p2);
+        m[3] = 0.0f;
+        m[7] = 0.0f;
+        m[11] = 0.0f;
+        m[15] = k * (-d);
+    }
+}
 
 void sceVu0RotTransPersN(void *a0, void *a1, void *a2, int a3, int a4)
 {

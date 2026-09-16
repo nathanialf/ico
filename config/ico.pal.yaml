@@ -550,6 +550,8 @@ segments:
       - [0x3F87B0, data, cod/3F87B0]     # .data blob resume
       - [0x3F8930, .data, ico2/script/src/st04d]  # syms: door2_up_mes  actSt04dDoor2UpChk's mail record (VMA 0x4F8930..0x4F8950, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (its gcse bucket, computed from the name hash, is what wins the callee-saved pair)
       - [0x3F8950, data, cod/3F8950]     # .data blob resume
+      - [0x3F8EC0, .data, ico2/script/src/st04l]  # syms: gondola_chara  actSt04lGondolaCharaChk's mail record (VMA 0x4F8EC0..0x4F8EE0, 0x20); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling (the name's gcse bucket wins ROM's callee-saved pair)
+      - [0x3F8EE0, data, cod/3F8EE0]     # .data blob resume
       - [0x3F9C30, .data, ico2/script/src/st06a]  # syms: wall_way_off  WallWayOff mail record (VMA 0x4F9C30..0x4F9C50); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3F9C50, data, cod/3F9C50]     # .data blob resume
       - [0x3F9E10, .data, ico2/script/src/st06a]  # syms: piston_ride_on  PistonRideOn mail record (VMA 0x4F9E10..0x4F9E30); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
@@ -694,6 +696,8 @@ segments:
       - [0x5374C0, .rodata, sce/libm/math/wf_atan2]  # "atan2f" (8 B), VMA 0x6374C0..0x6374C8
       - [0x5374C8, .rodata, sce/libm/math/wf_fmod]  # "fmodf" (8 B) then the 0.0/0.0 NaN double 0x7FF8000000000000 fmodf returns, VMA 0x6374C8..0x6374D8, 16 B
       - [0x5374D8, rodata, cod/5374D8]   # .rodata blob resume
+      - [0x53754C, .rodata, sce/libm/math/ef_atan2]  # syms: tiny zero pi_o_4 pi_o_2 pi pi_lo  fdlibm's six float constants of __ieee754_atan2f plus the compiler's -0.0f literal (libm compiles at -G 0, so its literals go to .rodata, not .lit4), seven words in object order, VMA 0x63754C..0x637568
+      - [0x537568, rodata, cod/537568]   # .rodata blob resume
       - [0x538B00, lit4, cod/538B00]     # .lit4
       # --- per-TU .lit4 constant-pool carves (see docs/NOTES.md ".lit4 pools",
       # docs/carve_ledger.md "PAL phase 1").  A TU that writes its float
@@ -819,7 +823,8 @@ segments:
       - [0x539A84, .lit4, ico2/script/src/st17b]  # carved D_00639A84..D_00639A8C (3 slots: actSt17bTest/Check's 14990/7074/-4694 as literals; MAIN.MAP st17b.o .lit4 0xC), VMA 0x639A84..0x639A90
       - [0x539A90, .lit4, ico2/script/src/st18a]  # carved D_00639A90..D_00639AA4 (6 words: 3054, 1530, -3061, 1451, 1530, -3039, all literals of the now fully-C TU), VMA 0x639A90..0x639AA8
       - [0x539AA8, .lit4, ico2/script/src/st19a]  # carved D_00639AA8..D_00639AB4 (4 slots: actSt19aPipeChk's 3933 still asm, actSt19aOri's 4298/-2342/1331 as literals; the TU's whole pool, bounded by st18a's and st20a's words), VMA 0x639AA8..0x639AB8
-      - [0x539AB8, lit4, cod/539AB8]     # .lit4 blob resume (st20a's words)
+      - [0x539AB8, .lit4, ico2/script/src/st20a]  # carved D_00639AB8..D_00639AC0 (3 words: actSt20aFence's 3973.0f, -1100.0f, -1169.0f; the TU's whole pool, bounded by st19a's words and the blob), VMA 0x639AB8..0x639AC4
+      - [0x539AC4, lit4, cod/539AC4]     # .lit4 blob resume
       - [0x539AE0, .lit4, ico2/script/src/st22a]  # carved D_00639AE0..D_00639AE4 (2 slots: actSt22aIntroSub's -707.0f/-1112.0f; MAIN.MAP says 0x24, the retail object needs 0x8), VMA 0x639AE0..0x639AE8
       - [0x539AE8, .lit4, ico2/script/src/st24a]  # carved D_00639AE8..D_00639AF8 (5 slots: actSt24aSwordChk x2, actSt24aSword's camera target 363/1307/-3297; = MAIN.MAP st24a.o .lit4 0x14), VMA 0x639AE8..0x639AFC
       - [0x539AFC, .lit4, ico2/script/src/st47a]  # carved D_00639AFC..D_00639B14 (7 slots, the TU's whole pool, all owners in C; gcc 2.9 does not share a literal between functions, so -3000.0f appears twice), VMA 0x639AFC..0x639B18, 28 B

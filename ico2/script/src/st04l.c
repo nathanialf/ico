@@ -3069,7 +3069,26 @@ void actSt04lTuriChk(volatile int a0)
 
 extern void actSt04lGondolaChk(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st04l", actSt04lGondolaCharaChk);
+/* This actor's mail record.  Role-named for the actor that owns and posts it,
+   the convention every carved stage record in this tree follows. */
+static ActMail gondola_chara[2] = {{0x1AE}, {0x1AD}};
+
+void actSt04lGondolaCharaChk(volatile int a0)
+{
+    Act *sub = ((PObjGObj *)a0)->act;
+
+    while (scpTriggerFloorAttr(D_00639EA4, 0xA000000)) {
+        if (gflagChk(0xC2) && scpTriggerFloorAttr(D_00639EA8, 0xA000000)) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    gondola_chara[0].func = actSt04lGondolaChk;
+    sub->mail = gondola_chara;
+    ACTSendMailCorrect(a0, 0x1AE);
+    _ACTWait(0);
+}
 
 void actSt04lMonyou01Event(int x)
 {

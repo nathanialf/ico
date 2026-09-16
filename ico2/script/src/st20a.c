@@ -247,7 +247,66 @@ void actSt20aGondolaUp(volatile int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st20a", actSt20aFence);
+extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
+extern void scpPlayPosSet(int gobj, float x, float y, float z);
+extern void actSt20aFenceUpChk(volatile int a0);
+extern void actSt20aFenceDownChk2(volatile int a0);
+
+void actSt20aFence(volatile int a0)
+{
+    int x = a0;
+    Act *sub = (Act *)actInitialize(a0);
+
+    _ACTWait(1);
+    if (gflagChk(0x135) == 0) {
+        SetWayGroupActive(0x13, 1);
+
+        *(int *)(scpSearchGobj(0x7E8) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7E9) + 0x16C) = 0;
+
+        *(int *)(scpSearchGobj(0x7EE) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7EF) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7F0) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7F1) + 0x16C) = 0;
+
+        *(int *)(scpSearchGobj(0x7EA) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7EB) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7EC) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7ED) + 0x16C) = 0;
+
+        scpLinkBGAtoLayoutedTarget(0x7E6, 0x95);
+        stage_SetAnimation(0x95, 0, 0x1E);
+
+        fence_mes[0].func = actSt20aFenceUpChk;
+        sub->mail = fence_mes;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    } else {
+        SetWayGroupActive(0x13, 0);
+
+        *(int *)(scpSearchGobj(0x7E6) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7E7) + 0x16C) = 0;
+
+        *(int *)(scpSearchGobj(0x7EA) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7EB) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7EC) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(0x7ED) + 0x16C) = 0;
+
+        gflagOff(0x135);
+
+        scpLinkBGAtoLayoutedTarget(0x7E8, 0x95);
+        stage_SetAnimation(0x95, 0, 0);
+
+        if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0) {
+            scpPlayPosSet(D_00639EA8, 3973.0f, -1100.0f, -1169.0f);
+        }
+
+        fence2_mes[0].func = actSt20aFenceDownChk2;
+        sub->mail = fence2_mes;
+        ACTSendMailCorrect(a0, 0x1AE);
+        _ACTWait(0);
+    }
+}
 
 extern void actSt20aFenceUpChk(volatile int a0);
 extern int stage_CheckAnimationFrame(int a, int b, int c);
