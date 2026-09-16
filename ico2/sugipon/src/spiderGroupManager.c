@@ -22,7 +22,13 @@ extern int D_0063BAF8;
 extern int D_0063BAFC;
 extern int D_00723C98[];
 extern int D_0028F8F4[];
-extern unsigned char D_004ECFB0[];
+
+/* one RGBA tint per spider group, alpha 0x80 throughout */
+static int spiderGroupColors[7][4] = {{0x7F, 0x00, 0x00, 0x80}, {0x40, 0x7F, 0x00, 0x80},
+                                      {0x00, 0x40, 0x7F, 0x80}, {0x00, 0x7F, 0x00, 0x80},
+                                      {0x40, 0x00, 0x7F, 0x80}, {0x7F, 0x40, 0x00, 0x80},
+                                      {0x40, 0x40, 0x40, 0x80}};
+
 extern int D_0063BAC4;
 extern int D_0063BADC;
 extern void DispAllMemberOfSpider();
@@ -256,7 +262,7 @@ inline void DispAllSpiderGroups(void)
     {
         int i;
         for (i = 0; i < D_0063BAE4; i++) {
-            DispAllMemberOfSpider(D_00723C98[i], &D_004ECFB0[i * 0x10]);
+            DispAllMemberOfSpider(D_00723C98[i], spiderGroupColors[i]);
         }
     }
 }

@@ -523,10 +523,27 @@ segments:
       - [0x18ECB0, textbin, cod/18ECB0]  # .reginfo + pad (all zeros in rom)
       - [0x18ED00, data, cod/18ED00]     # .data blob (to be carved per TU)
       # --- per-TU .data carves (PAL phase 2; see docs/carve_ledger.md).
+      - [0x18F4B0, .data, sce/libkernl/thread]  # syms: kernEventThreadId  the member's one .data word (data pass 3), VMA 0x28F4B0..0x28F4B4, 4 B
+      - [0x18F4B4, data, cod/18F4B4]     # data blob resume
+      - [0x18FED0, .data, ico2/sugipon/src/keyInput]  # the TU's whole .data run as source (data pass 3): the pad device descriptor, VMA 0x28FED0..0x28FEE8, 24 B
+      - [0x18FEE8, data, cod/18FEE8]     # data blob resume
+      - [0x1908E0, .data, ico2/seki/src/Matrix]  # syms: scaleWorkMatrix  the unit matrix the scale routines work in (data pass 3), VMA 0x2908E0..0x290920, 64 B
+      - [0x190920, data, cod/190920]     # data blob resume
+      - [0x1A50C0, .data, ico2/script/src/gflag]  # the story flag bitmap (data pass 3), VMA 0x2A50C0..0x2A50F2, 50 B; the 14 zero bytes to 0x2A5100 are the next input's alignment pad
+      - [0x1A5100, data, cod/1A5100]     # data blob resume
       - [0x3E5A90, .data, ico2/sugipon/src/attackCheckBoundary]  # carved D_004E5A90 (VMA 0x4E5A90..0x4E5AA0, 16 B, 1 sym), referenced only by still-asm AttackCheckBoundaryDL via %hi/%lo
       - [0x3E5AA0, data, cod/3E5AA0]     # .data blob resume
+      - [0x3E7060, .data, ico2/sugipon/src/clothTest]  # the TU's whole .data run as source (data pass 3): twenty anchors and the two cloth configurations, VMA 0x4E7060..0x4E7458, 1016 B
+      - [0x3E7458, data, cod/3E7458]     # data blob resume
+      - [0x3E78E0, .data, ico2/sugipon/src/enemyParts]  # the TU's whole .data run as source (data pass 3): eight part templates, VMA 0x4E78E0..0x4E7A20, 320 B
+      - [0x3E7A20, data, cod/3E7A20]     # data blob resume
+      - [0x3ECFB0, .data, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .data run as source (data pass 3): seven RGBA tints, VMA 0x4ECFB0..0x4ED020, 112 B
+      - [0x3ED020, data, cod/3ED020]     # data blob resume
+      - [0x3ED0F0, .data, ico2/sugipon/src/stormTest]  # the TU's whole .data run as source (data pass 3): the clip plane, VMA 0x4ED0F0..0x4ED100, 16 B
+      - [0x3ED100, data, cod/3ED100]     # data blob resume
       - [0x3ED170, .data, ico2/sugipon/src/waterDot]  # syms: initWaterDotWork,initWaterDot,initWaterDot2  the three static templates AllocWaterDot copies from (0x1C + pad, 0x30, 0x30), VMA 0x4ED170..0x4ED1F0
       - [0x3ED1F0, data, cod/3ED1F0]     # .data blob resume
+      - [0x3ED760, .data, ico2/sugipon/src/wireLetter]  # the TU's whole .data run as source (data pass 3): the debug vector font, VMA 0x4ED760..0x4EE5B0, 3664 B, ending exactly at BgAnimation's row
       - [0x3EE5B0, .data, ico2/seki/src/BgAnimation]  # carved D_004EE5B0 + D_004EE5E0 (VMA 0x4EE5B0..0x4EE5F0, 64 B, 2 syms), both referenced only by still-asm bga_InitData / bga_ApplyDObject via %hi/%lo.  This spends the TU's one .data slot; its other .data run (D_002C2DF4, 285488 B) is blocked anyway (VMA not 8-aligned).
       - [0x3EE5F0, .data, ico2/seki/src/DisplayFont]  # carved D_004EE5F0 (VMA 0x4EE5F0..0x4EE6F0, 256 B, 1 sym): font kerning table, referenced only by still-asm font_Print via %hi/%lo
       - [0x3EE6F0, data, cod/3EE6F0]     # .data blob resume
@@ -578,6 +595,14 @@ segments:
       - [0x3FB630, .data, ico2/script/src/st47a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FB630..0x54D850, 336416 B
       - [0x3FB890, .data, ico2/script/src/st99a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FB890..0x54D850, 335808 B
       - [0x3FB970, data, cod/3FB970]     # data blob resume
+      - [0x44A240, .data, ico2/fumi/src/vobj]  # the TU's whole .data run as source (data pass 3): the wireframe and its table (= MAIN.MAP vobj.o .data 0x54), VMA 0x54A240..0x54A294, 84 B
+      - [0x44A294, data, cod/44A294]     # data blob resume
+      - [0x44A2C0, .data, sce/libgraph/graph002]  # the member's .data (data pass 3): the VIF1 reset packet, VMA 0x54A2C0..0x54A2E0, 32 B
+      - [0x44A2E0, data, cod/44A2E0]     # data blob resume
+      - [0x44A2F0, .data, sce/libvu0/libvu0]  # the member's .data (data pass 3): the sine coefficients and the packet, VMA 0x54A2F0..0x54A320, 48 B
+      - [0x44A320, data, cod/44A320]     # data blob resume
+      - [0x44CAD0, .data, sce/libipu/ipuinit]  # the member's .data (data pass 3): the version stamp and the quantiser and colour tables, VMA 0x54CAD0..0x54CB50, 128 B
+      - [0x44CB50, data, cod/44CB50]     # data blob resume
       - [0x44D380, .rodata, sce/libkernl/thread]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D380..0x54D850, 1232 B
       - [0x44D3B0, rodata, cod/44D3B0]     # rodata blob resume
       - [0x44D6F8, .rodata, ico2/sugipon/src/delayFreeManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D6F8..0x54D850, 344 B
@@ -643,8 +668,8 @@ segments:
       - [0x4547E8, rodata, cod/4547E8]   # .rodata blob resume (8 zero pad bytes, then D_005547F0)
       - [0x4549E0, .rodata, ico2/script/src/st25a]  # plain-rodata: actSt25aElevChk's double 0.15 (8 B constant-pool operand), VMA 0x5549E0..0x5549E8, emitted by the compiled function
       - [0x4549E8, rodata, cod/4549E8]   # .rodata blob resume
-      - [0x454B10, .rodata, ico2/omori/src/attackhit]  # carved jtbl_00554B10 (VMA 0x554B10..0x554C00, 240 B, 60 arms): AttackCheckHit's switch table, emitted by the compiled function
-      - [0x454C00, rodata, cod/454C00]   # .rodata blob resume
+      - [0x454A40, .rodata, ico2/omori/src/attackhit]  # the TU's whole .rodata run as source (data pass 3), widening the jump-table row: the tables and the strings, VMA 0x554A40..0x554C82, 578 B; the 6 zero bytes to 0x554C88 are the next input's alignment pad
+      - [0x454C88, rodata, cod/454C88]     # rodata blob resume
       - [0x455270, .rodata, ico2/omori/src/chain]  # plain-rodata: chain_simulate_term_swingstart's doubles 0.3 and 21.5 (two 8 B constant-pool operands), VMA 0x555270..0x555280, emitted by the compiled function; the TU's whole rodata run 0x5551C0..0x5553F0 is compiler-generated in first-use order and becomes one carve only when every rodata-emitting sibling is C
       - [0x455280, rodata, cod/455280]   # .rodata blob resume (the rest of chain.c's compiler-generated run, strings and per-function doubles still owned by asm siblings)
       - [0x455580, .rodata, ico2/omori/src/ebrain]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x555580..0x556890, 4880 B
@@ -661,6 +686,8 @@ segments:
       - [0x456D80, rodata, cod/456D80]   # .rodata blob resume (the "ico2/ito/src/queen.c" __FILE__ string and pad)
       - [0x456DF0, .rodata, ico2/ito/src/queen]  # plain-rodata: SetQueenBallOrient's `up` initialiser template {0,1,0,1} emitted by the compiled QueenBallDL, 0x10 B 8-aligned, VMA 0x556DF0..0x556E00 (the last words of queen.o's 0x556900..0x556E00 run)
       - [0x456E00, rodata, cod/456E00]   # .rodata blob resume
+      - [0x456E50, .rodata, ico2/ito/src/stage_orient]  # the TU's whole .rodata run as source (data pass 3): the 41-entry orientation table, VMA 0x556E50..0x55755C, 1804 B
+      - [0x457560, rodata, cod/457560]     # rodata blob resume
       - [0x457590, .rodata, ico2/ito/mpeg/mv_main]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x557590..0x5576A8, 280 B
       - [0x4576A8, .rodata, ico2/ito/mpeg/mv_readbuf]  # carved D_005576A8 "../ito/include/mv_defs.h" + D_005576C8 "p != NULL" (mv_defs.h alloc_zeroed's __FILE__ and assert literals, 8-aligned), VMA 0x5576A8..0x5576D8, 48 B; the TU's own rodata run, mirror of mv_vobuf's
       - [0x4576D8, rodata, cod/4576D8]   # .rodata blob resume (the next ito/mpeg TU's copy of the same two literals)
@@ -744,7 +771,8 @@ segments:
       - [0x521D58, rodata, cod/521D58]     # rodata blob resume
       - [0x521EC0, .rodata, ico2/fumi/src/way_tool]  # the TU's whole .rodata run as source (data pass 2): 92 string literals, including the 64 way-group selector lines that gcc flushes LIFO out of debugWayGroupSelect's initialiser; VMA 0x621EC0..0x6224D9 + 7 B link pad
       - [0x5224E0, .rodata, ico2/script/src/deja]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6224E0..0x6229B0, 1232 B
-      - [0x5224F0, rodata, cod/5224F0]     # rodata blob resume
+      - [0x5224F0, .rodata, ico2/script/src/e3]  # the TU's whole .rodata run as source (data pass 3), in definition order, VMA 0x6224F0..0x6225F4, 260 B
+      - [0x5225F4, rodata, cod/5225F4]     # rodata blob resume
       - [0x522600, .rodata, ico2/script/src/end]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622600..0x6229B0, 944 B
       - [0x522630, rodata, cod/522630]     # rodata blob resume
       - [0x522700, .rodata, ico2/script/src/st01b]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622700..0x6229B0, 688 B
@@ -782,8 +810,8 @@ segments:
       - [0x523160, .rodata, ico2/ito/mpeg/mv_audiodec]  # the TU's whole .rodata run as source (data pass 2): mv_defs.h's alloc_zeroed literals (the TU now spells MV_DEFS_WANT_ALLOC + #include "mv_defs.h") then seven debug formats; VMA 0x623160..0x6233B7 + 1 B link pad
       - [0x5233B8, rodata, cod/5233B8]   # .rodata blob resume (the other two mpeg TUs' copies of mv_defs.h's two literals)
       - [0x523418, .rodata, ico2/ito/mpeg/mv_sub]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x623418..0x623428, 16 B
-      - [0x523428, .rodata, ico2/ito/mpeg/mv_vibuf]  # carved D_00623428 "../ito/include/mv_defs.h" + D_00623448 "p != NULL" (mv_defs.h alloc_zeroed's literals, 8-aligned), VMA 0x623428..0x623458, 48 B; the TU's own rodata run, mirror of mv_vobuf's
-      - [0x523458, rodata, cod/523458]   # .rodata blob resume (viBufAddDMA's string)
+      - [0x523428, .rodata, ico2/ito/mpeg/mv_vibuf]  # the TU's whole .rodata run as source (data pass 3), widened to the member's full 68 B: the constant its asm block reaches by name is defined in the C, VMA 0x623428..0x62346C
+      - [0x52346C, rodata, cod/52346C]     # rodata blob resume
       - [0x536120, .rodata, sce/libgraph/graph008]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636120..0x636610, 1264 B
       - [0x536150, rodata, cod/536150]     # rodata blob resume
       - [0x536400, .rodata, sce/libgraph/graph017]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636400..0x636610, 528 B

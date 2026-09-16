@@ -345,6 +345,11 @@ void sceVu0UnitMatrix(void *a0)
                          : "memory");
 }
 
+/* _sceVu0ecossin's polynomial: the odd Taylor coefficients 1/9!, -1/7!,
+   1/5! and -1/3!, loaded whole with lqc2, so the array is 16-aligned. */
+static float sceVu0SinCoeff[4]
+    __attribute__((aligned(16))) = {2.601887e-06f, -0.00019807414f, 0.0083330255f, -0.16666657f};
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -352,8 +357,8 @@ __asm__(".section .text\n"
         "    .type _sceVu0ecossin, @function\n"
         "    .align 3\n"
         "_sceVu0ecossin:\n"
-        "    lui   $8, %hi(D_0054A2F0)\n"
-        "    addiu $8, $8, %lo(D_0054A2F0)\n"
+        "    lui   $8, %hi(sceVu0SinCoeff)\n"
+        "    addiu $8, $8, %lo(sceVu0SinCoeff)\n"
         "    lqc2  $vf5, 0x0($8)\n"
         "    vmr32.w $vf6, $vf6\n"
         "    vaddx.x $vf4, $vf0, $vf6x\n"
@@ -892,7 +897,11 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-extern int D_0054A300[];
+/* the VIF0 reset packet sceVpu0Reset writes to the PATH2 FIFO at
+   0x10004000: STCYCL cl=4 wl=4, STMASK 0, NOP, STMOD 0, then ITOP 0 and
+   three NOPs.  VIF codes are register fields, so they are spelled in hex. */
+static unsigned int sceVpu0ResetPacket[8] __attribute__((aligned(16))) = {
+    0x01000404, 0x20000000, 0x00000000, 0x05000000, 0x04000000, 0x00000000, 0x00000000, 0x00000000};
 
 void sceVpu0Reset(void)
 {
@@ -912,7 +921,7 @@ void sceVpu0Reset(void)
 
     {
         u128 *fifo = (u128 *)0x10004000;
-        u128 *pkt = (u128 *)D_0054A300;
+        u128 *pkt = (u128 *)sceVpu0ResetPacket;
 
         *(volatile u128 *)fifo = pkt[0];
         *fifo = pkt[1];

@@ -268,6 +268,11 @@ void viBufEndPut(int *self, int a1)
     SignalSema(self[0x40 / 4]);
 }
 
+/* viBufAddDMA is still hand-written asm; its ErrMessage literal is the last
+ * constant in this object's .rodata run, so it is defined here, where the
+ * compiled source would have emitted it. */
+static const char viBufAddDmaErr[] = "DMA ADD not active\n";
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -286,9 +291,9 @@ __asm__(".section .text\n"
         "    lw $4, 0x40($17)\n"
         "    lw $3, 0x44($17)\n"
         "    bnez $3, .LufAddDMA0023C350\n"
-        "    lui $4, %hi(D_00623458)\n"
+        "    lui $4, %hi(viBufAddDmaErr)\n"
         "    jal ErrMessage\n"
-        "    addiu $4, $4, %lo(D_00623458)\n"
+        "    addiu $4, $4, %lo(viBufAddDmaErr)\n"
         "    b .LufAddDMA0023C598\n"
         "    daddu $2, $0, $0\n"
         ".LufAddDMA0023C350:\n"

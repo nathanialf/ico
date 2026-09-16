@@ -27,9 +27,9 @@ typedef struct AttackPack {
     /* 0x70 */ float dir[4];
 } __attribute__((aligned(16))) AttackPack;
 
-extern AttackPack D_00554A40;
-extern char D_00554C68[];
-extern char D_00554C78[];
+/* the zeroed template every pack starts from; group and group2 start at -1 */
+static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1};
+
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern void sceVu0SubVector(void *out, void *a, void *b);
@@ -189,7 +189,7 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
 
     ext = *(char **)(gobj + 0x164);
     k = GetAttackKindIndex(*(char **)(gobj + 0x15C));
-    *pack = D_00554A40;
+    *pack = attackPackInit;
     pack->actor = gobj;
     if (k == 0) {
         return;
@@ -263,7 +263,7 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
 static inline void SetupAttackPack(AttackPack *pack, char *gop, int group, float *pos, float *ofs,
                                    float radius)
 {
-    *pack = D_00554A40;
+    *pack = attackPackInit;
 
     pack->active = 1;
     pack->actor = gop;
@@ -306,11 +306,13 @@ typedef struct {
     AttackGroupPair p[10];
 } AttackGroupTable;
 
-extern AttackGroupTable D_00554AC0;
+/* GObj kind -> attack class, terminated by kind -1 */
+static const AttackGroupTable attackGroupTable = {
+    {{1, 0}, {4, 1}, {47, 1}, {54, 1}, {53, 1}, {53, 1}, {62, 1}, {2, 3}, {63, 1}, {-1, 0}}};
 
 int AttackCheckSameGroup(char *self, char *other, char *third)
 {
-    AttackGroupTable tbl = D_00554AC0;
+    AttackGroupTable tbl = attackGroupTable;
     unsigned int g0 = 2;
     unsigned int g1 = 2;
     int i;
@@ -553,12 +555,6 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
     return j;
 }
 
-extern char D_00554C00[];
-extern char D_00554C10[];
-extern char D_00554C20[];
-extern char D_00554C30[];
-extern char D_00554C40[];
-extern char D_00554C50[];
 extern char *D_00639EA8;
 extern int D_0063B23C;
 extern void debug_StdPrintfDummy(char *fmt, ...);
@@ -581,7 +577,7 @@ int AttackGenerate(AttackPack *pack)
     if (pack->active == 0) {
         return 0;
     }
-    debug_StdPrintfDummy(D_00554C00);
+    debug_StdPrintfDummy("flag ok\n");
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next(g)) {
         if (*(int *)(g + 0x16C) == 0) {
             continue;
@@ -589,7 +585,7 @@ int AttackGenerate(AttackPack *pack)
         if (AttackCheckSameGroup(pack->actor, g, (char *)pack->f08) != 0) {
             continue;
         }
-        debug_StdPrintfDummy(D_00554C10);
+        debug_StdPrintfDummy("group ok\n");
         if (!((EXT(g) != 0 && EXT(g) + 0x1B0 != 0 && *(int *)(EXT(g) + 0x680) != 0) ||
               *(int *)(g + 0xC) == 19)) {
             continue;
@@ -598,7 +594,7 @@ int AttackGenerate(AttackPack *pack)
             *(char *)(EXT(g) + 0x1DA) != 0) {
             continue;
         }
-        debug_StdPrintfDummy(D_00554C20);
+        debug_StdPrintfDummy("invincible ok\n");
         if (g == D_00639EA4 && ACTChkAttackIgnore_BOY(g, pack->actor) != 0) {
             continue;
         }
@@ -617,10 +613,10 @@ int AttackGenerate(AttackPack *pack)
         if (AttackCheckHit(pack, g, (short *)arg) == 0) {
             continue;
         }
-        debug_StdPrintfDummy(D_00554C30);
+        debug_StdPrintfDummy("geometry ok\n");
         if (EXT(g) != 0 && *(int *)(EXT(g) + 0x1B0) != 0 &&
             *(int *)(EXT(g) + 0x1D4) == pack->group2) {
-            debug_StdPrintfDummy(D_00554C40);
+            debug_StdPrintfDummy("id equal error\n");
             continue;
         }
         if (D_0063B23C != 0 && pack->actor == D_00639EA4 && *(int *)(g + 0xC) == 4 &&
@@ -629,7 +625,7 @@ int AttackGenerate(AttackPack *pack)
         }
         AttackMail(g, pack);
         hit = g;
-        debug_StdPrintfDummy(D_00554C50, pack->group2);
+        debug_StdPrintfDummy("mail send ok [%d]\n", pack->group2);
         if (EXT(hit) != 0 && *(int *)(EXT(hit) + 0x1B0) != 0 && *(int *)(hit + 0xC) == 4) {
             _OrientGV((float *)(*(int *)(EXT(hit) + 0x680) + 0xE0), pack->center, pack->from);
         }
@@ -649,8 +645,8 @@ inline int _AttackCenter(char *gop, int group, float *pos, float *ofs, float rad
     AttackPack pack;
 
     if (gop == 0) {
-        debug_assert(D_00554C68, 0x3A3);
-        __assert(D_00554C68, 0x3A3, D_00554C78);
+        debug_assert(__FILE__, 931);
+        __assert(__FILE__, 931, "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, ofs, radius);
     pack.f08 = kind;
@@ -662,8 +658,8 @@ inline void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, f
     AttackPack pack;
 
     if (gop == 0) {
-        debug_assert(D_00554C68, 0x3B7);
-        __assert(D_00554C68, 0x3B7, D_00554C78);
+        debug_assert(__FILE__, 951);
+        __assert(__FILE__, 951, "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, dir, radius);
     if (dir != 0) {

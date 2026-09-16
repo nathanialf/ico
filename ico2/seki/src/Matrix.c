@@ -18,7 +18,13 @@
 
 extern float GetTableCos(short a0);
 extern float GetTableSin(int x);
-extern float D_002908E0[4][4];
+
+/* the scratch matrix _ScaleMatrixV fills in and multiplies through */
+static float scaleWorkMatrix[4][4] = {{1.0f, 0.0f, 0.0f, 0.0f},
+                                      {0.0f, 1.0f, 0.0f, 0.0f},
+                                      {0.0f, 0.0f, 1.0f, 0.0f},
+                                      {0.0f, 0.0f, 0.0f, 1.0f}};
+
 /* prototypes: their order is the inline tail's emission order */
 void _Sqrt(void *p0, void *p1, void *p2, void *p3, void *p4, void *p5);
 void _InitCurrentMatrix(void);
@@ -870,7 +876,7 @@ inline void _UnitRotation(void *p0)
 
 inline void _ScaleMatrixV(void *dst, void *src, void *v)
 {
-    float *m = &D_002908E0[0][0];
+    float *m = &scaleWorkMatrix[0][0];
 
     m[0] = ((float *)v)[0];
     m[5] = ((float *)v)[1];

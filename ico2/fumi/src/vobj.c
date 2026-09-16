@@ -6,9 +6,15 @@ extern void sceVu0UnitMatrix(void *a0);
 extern void gif_StartPacketPri(int a0);
 extern void gif_EndPacket(void);
 extern void DrawLine(float *from, float *to, int color, int flag);
+
 /* one 4-float vertex per entry; [3] is the run flag: 0 = keep drawing,
  * 2 = break the run and skip a vertex, anything else = end of list. */
-extern float *D_0054A290[];
+static float vobjArrow[5][4] = {
+    {-10.0f, -75.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {10.0f, -75.0f, 0.0f, 0.0f},
+    {-10.0f, -75.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
+};
+
+static float *vobjList[] = {&vobjArrow[0][0]};
 
 void DrawVObj(int no, int color)
 {
@@ -17,7 +23,7 @@ void DrawVObj(int no, int color)
 
     gif_StartPacketPri(0xB);
 
-    from = D_0054A290[no];
+    from = vobjList[no];
     to = from + 4;
 
     for (;;) {

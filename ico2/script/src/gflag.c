@@ -1,6 +1,8 @@
 #include "common.h"
 
-extern unsigned char D_002A50C0[];
+/* the story flag bitmap, one bit per event flag; saved and restored whole */
+static unsigned char gflags[50] = {0};
+
 extern int D_0028F4CC[];
 extern int D_0029B9D0[];
 extern int D_0063AA00;
@@ -25,7 +27,7 @@ void gflagInit(void)
 {
     int keep = gflagChk(0x17B);
 
-    memset(D_002A50C0, 0, 0x32);
+    memset(gflags, 0, sizeof(gflags));
     before_stage_no = 0;
     if (keep != 0) {
         gflagOn(0x17B);
@@ -47,27 +49,27 @@ void gflagSave(void *fp)
     D_0063AA04 = stage_no;
     gamesysMemoryHandlerWrite(fp, &D_0063AA04, 4);
     gamesysMemoryHandlerWrite(fp, &D_0063AA00, 4);
-    gamesysMemoryHandlerWrite(fp, D_002A50C0, 0x32);
+    gamesysMemoryHandlerWrite(fp, gflags, sizeof(gflags));
 }
 
 void gflagLoad(void *fp)
 {
     gamesysMemoryHandlerRead(fp, &D_0063AA04, 4);
     gamesysMemoryHandlerRead(fp, &D_0063AA00, 4);
-    gamesysMemoryHandlerRead(fp, D_002A50C0, 0x32);
+    gamesysMemoryHandlerRead(fp, gflags, sizeof(gflags));
 }
 
 int gflagChk(int bit_idx)
 {
-    return (D_002A50C0[bit_idx >> 3] >> (bit_idx & 7)) & 1;
+    return (gflags[bit_idx >> 3] >> (bit_idx & 7)) & 1;
 }
 
 void gflagOn(int bit_idx)
 {
-    D_002A50C0[bit_idx >> 3] |= 1 << (bit_idx & 7);
+    gflags[bit_idx >> 3] |= 1 << (bit_idx & 7);
 }
 
 void gflagOff(int bit_idx)
 {
-    D_002A50C0[bit_idx >> 3] &= ~(1 << (bit_idx & 7));
+    gflags[bit_idx >> 3] &= ~(1 << (bit_idx & 7));
 }

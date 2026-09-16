@@ -2,12 +2,12 @@
 
 /* one 0x58-byte pad record; the engine keeps two of them */
 typedef struct Pad {
-    int now;               /* 0x00 — buttons this frame */
+    int now;               /* 0x00  buttons this frame */
     int f04;               /* 0x04 */
     int f08;               /* 0x08 */
-    int trg;               /* 0x0C — repeat/edge mask built below */
-    int old;               /* 0x10 — buttons last frame */
-    unsigned int hist[16]; /* 0x14 — per-button held-frame counter */
+    int trg;               /* 0x0C  repeat/edge mask built below */
+    int old;               /* 0x10  buttons last frame */
+    unsigned int hist[16]; /* 0x14  per-button held-frame counter */
     unsigned char lx;      /* 0x54 */
     unsigned char ly;      /* 0x55 */
     unsigned char rx;      /* 0x56 */
@@ -15,7 +15,10 @@ typedef struct Pad {
 } Pad;
 
 extern Pad D_0028F8F0[];
-extern char D_0028FED0[];
+
+/* the pad device descriptor InitKeyInput hands to iosPadDevInit */
+static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0};
+
 extern int IosCdLock;
 extern void debug_StdPrintfDummy();
 extern void iosPadDevInit(void *a0);
@@ -28,7 +31,7 @@ void InitKeyInput(void)
 
     debug_StdPrintfDummy("InitKeyInput2() in\n");
     debug_StdPrintfDummy("PadInit\n");
-    iosPadDevInit(D_0028FED0);
+    iosPadDevInit(keyInputPadDev);
     for (i = 0; i < 2; i++) {
         D_0028F8F0[i].old = 0;
         D_0028F8F0[i].f04 = 0;

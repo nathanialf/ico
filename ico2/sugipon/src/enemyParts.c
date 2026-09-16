@@ -18,7 +18,8 @@ typedef struct PointBlur {
                                      0x40-byte template copy is ld/sd, not lw/sw */
     /* 0x20 */ float pos[4];
     /* 0x30 */ int dirty;
-    /* 0x34 */ char _pad34[0xC];
+    /* 0x34 */ int f34;
+    /* 0x38 */ char _pad38[8];
 } PointBlur;
 
 extern int D_0063A06C;
@@ -107,9 +108,58 @@ extern void *iosMallocDebug(void *heap, int size, const char *file, int line);
 extern void iosFree(int p);
 extern char *CSVSYSTEM_InitDObj(int kind, void *arg);
 extern char D_004E45C0[];
-extern PointBlur D_004E78E0;
-extern int D_004E7980[];
-extern float D_004E7990[];
+
+/* enemyParts.o's whole .data run, in ROM order: the templates the loops and
+   struct assignments copy out of. */
+
+/* The 0x60-byte eye record's initialiser.  ROM copies it with the MIPS
+   back end's block-move LOOP (four ld / four sd per turn, 0x20 at a time),
+   which is what a 0x60-byte 8-aligned struct assignment expands to. */
+typedef struct EnemyEyeTmpl {
+    long long d[12];
+} EnemyEyeTmpl;
+
+typedef struct EnemyFootPrintHead {
+    int num;    /* 0x00 */
+    char *dobj; /* 0x04 */
+    int idx;    /* 0x08 */
+    char *buf;  /* 0x0C */
+} EnemyFootPrintHead;
+
+/* 0x20 bytes at 8-byte alignment, so ROM copies it with plain ld/sd; the
+   long long view is what carries that alignment, the struct view carries
+   the values. */
+typedef union DlVtxTemplate {
+    struct {
+        int tag;     /* 0x00 */
+        float w;     /* 0x04 */
+        int rest[6]; /* 0x08 */
+    } v;
+
+    long long d[4];
+} DlVtxTemplate;
+
+static PointBlur pointBlurTemplate = {2, 1, 0, 0, 0, {0, 0, 0, 0}, 0, {1.0f, 1.0f, 1.0f, 1.0f},
+                                      1, 5};
+
+static EnemyEyeTmpl enemyEyeTemplate = {{0}};
+
+static int enemyEyeBlurColor[4] = {0x32, 0x62, 0x80, 0x80};
+
+static float enemyEyeBlurRate[4] = {0.3f, 0.7f, 1.0f, 0.0f};
+
+static float enemyEyeScaleMatrix[4][4] = {{3.0f, 0.0f, 0.0f, 0.0f},
+                                          {0.0f, 3.0f, 0.0f, 0.0f},
+                                          {0.0f, 0.0f, 3.0f, 0.0f},
+                                          {0.0f, 0.0f, 0.0f, 1.0f}};
+
+static int enemyEyeBlurTint[4] = {0x00, 0x80, 0xFF, 0x80};
+
+/* 0x10 bytes of zero at 4-byte alignment: ROM copies it with ldl/ldr plus
+   sdl/sdr, gcc's unaligned block move. */
+static EnemyFootPrintHead footPrintHeadTemplate = {0, 0, 0, 0};
+
+static DlVtxTemplate footPrintVtxTemplate = {{-1, 1.0f, {0, 0, 0, 0, 0, 0}}};
 
 /* The display row's flag word is 64 bits wide: ROM sets and clears single
    bits in it with ld/or/sd and ld/and/sd, and reaches the 16-bit field two
@@ -119,15 +169,6 @@ typedef union DlFlag {
     long long ll;
 } DlFlag;
 
-/* The 0x60-byte eye record's initialiser.  ROM copies it with the MIPS
-   back end's block-move LOOP (four ld / four sd per turn, 0x20 at a time),
-   which is what a 0x60-byte 8-aligned struct assignment expands to. */
-typedef struct EnemyEyeTmpl {
-    long long d[12];
-} EnemyEyeTmpl;
-
-extern EnemyEyeTmpl D_004E7920;
-
 /* InitPointBlur is a public member of this TU with its own out-of-line body
    further down at its ROM slot; the January listing shows its rows (15-28)
    inlined whole into InitEnemyEye.  INTERIM: while the out-of-line copy has
@@ -136,7 +177,7 @@ extern EnemyEyeTmpl D_004E7920;
 static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos)
 {
     PointBlur *p = (PointBlur *)iosMallocDebug(D_0063A438, 0x40, "src/enemyParts.c", 16);
-    *p = D_004E78E0;
+    *p = pointBlurTemplate;
 
     p->f0 = a1;
     p->fC = iosMallocDebug(D_0063A438, num << 5, "src/enemyParts.c", 20);
@@ -156,7 +197,7 @@ char *InitEnemyEye(int num, int a1, int a2)
     char *p;
 
     p = (char *)iosMallocDebug(D_0063A438, 0x60, "src/enemyParts.c", 137);
-    *(EnemyEyeTmpl *)p = D_004E7920;
+    *(EnemyEyeTmpl *)p = enemyEyeTemplate;
 
     *(char **)(p + 0x50) = CSVSYSTEM_InitDObj(0x52A, D_004E45C0);
     ((DlFlag *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x38))->ll |= 1;
@@ -187,29 +228,10 @@ char *InitEnemyEye(int num, int a1, int a2)
 
     if (num != 0) {
         *(int *)p = 1;
-        *(PointBlur **)(p + 0x4) = initPointBlurAt(num, a2, D_004E7980, D_004E7990);
+        *(PointBlur **)(p + 0x4) = initPointBlurAt(num, a2, enemyEyeBlurColor, enemyEyeBlurRate);
     }
     return p;
 }
-
-/* The two templates the loops copy out of.  D_004E79F0 is 0x10 bytes of
-   zero at 4-byte alignment (ROM copies it with ldl/ldr + sdl/sdr, gcc's
-   unaligned block move); D_004E7A00 is 0x20 bytes at 8-byte alignment
-   (plain ld/sd).  Both live in the shared data blob and are reached by
-   %hi/%lo, so they stay blob-owned. */
-typedef struct EnemyFootPrintHead {
-    int num;    /* 0x00 */
-    char *dobj; /* 0x04 */
-    int idx;    /* 0x08 */
-    char *buf;  /* 0x0C */
-} EnemyFootPrintHead;
-
-typedef struct DlVtxTemplate {
-    long long d[4];
-} DlVtxTemplate;
-
-extern EnemyFootPrintHead D_004E79F0;
-extern DlVtxTemplate D_004E7A00;
 
 char *InitEnemyFootPrint(int num)
 {
@@ -219,7 +241,7 @@ char *InitEnemyFootPrint(int num)
     int j;
 
     p = (char *)iosMallocDebug(D_0063A438, 0x10, "src/enemyParts.c", 226);
-    *(EnemyFootPrintHead *)p = D_004E79F0;
+    *(EnemyFootPrintHead *)p = footPrintHeadTemplate;
     *(int *)p = num;
     *(int *)(p + 0xC) = (int)iosMallocDebug(D_0063A438, num << 5, "src/enemyParts.c", 229);
     d = CSVSYSTEM_InitDObj(0x50F, D_004E45C0);
@@ -259,7 +281,7 @@ char *InitEnemyFootPrint(int num)
     }
     *(short *)(*(char **)(p + 0x4) + 0x84C) = 2;
     for (j = 0; j < num; j++) {
-        *(DlVtxTemplate *)(j * 0x20 + *(int *)(p + 0xC)) = D_004E7A00;
+        *(DlVtxTemplate *)(j * 0x20 + *(int *)(p + 0xC)) = footPrintVtxTemplate;
         ((DlFlag *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll |= 1;
         *(float *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x30) = 1.0f;
         ((DlFlag *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~4;
@@ -349,12 +371,10 @@ int DispEnemyFootPrints(int *a0)
     return 1;
 }
 
-extern PointBlur D_004E78E0;
-
 PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
 {
     PointBlur *p = (PointBlur *)iosMallocDebug(D_0063A438, 0x40, "src/enemyParts.c", 16);
-    *p = D_004E78E0;
+    *p = pointBlurTemplate;
 
     p->f0 = a1;
     p->fC = iosMallocDebug(D_0063A438, num << 5, "src/enemyParts.c", 20);
@@ -383,15 +403,13 @@ int DispPointBlur(int *self)
     return 1;
 }
 
-extern char D_004E79A0[];
-extern char D_004E79E0[];
 extern void _MulMatrix(void *a0, int a1, void *a2);
 
 int UpdateEnemyEye(char *a0, int a1, float f)
 {
-    _MulMatrix(a0 + 0x10, a1, D_004E79A0);
+    _MulMatrix(a0 + 0x10, a1, enemyEyeScaleMatrix);
     if (*(int *)a0 != 0) {
-        UpdatePointBlur(*(PointBlur **)(a0 + 0x4), a0 + 0x40, D_004E79E0, f * 3.0f);
+        UpdatePointBlur(*(PointBlur **)(a0 + 0x4), a0 + 0x40, enemyEyeBlurTint, f * 3.0f);
     }
     return 1;
 }

@@ -7,7 +7,10 @@ extern int D_0063A438;
 int *InitStormTestGeo(int a0, int *a1);
 extern int iosMallocDebug(int t, int sz, const char *file, int line);
 extern char D_0028FEF0[];
-extern char D_004ED0F0[];
+
+/* the clip plane normal StormTestDL transforms into view space */
+static float stormClipPlane[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+
 extern void *memset(void *s, int c, int n);
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetZTest(int on);
@@ -252,7 +255,7 @@ void DispStormPackage(StormPackage *pkg, void *color)
     int i;
 
     MatrixDrive_SetTransposeMatrix(MatrixDrive_GetMatrix(), matrixptr + 0x80);
-    sceVu0ApplyMatrix(plane, MatrixDrive_GetMatrix(), D_004ED0F0);
+    sceVu0ApplyMatrix(plane, MatrixDrive_GetMatrix(), stormClipPlane);
     plane[3] = -sceVu0InnerProduct(plane, (char *)MatrixDrive_GetMatrix() + 0x30);
     gif_StartPacketPri(11);
     gif_SetZTest(1);

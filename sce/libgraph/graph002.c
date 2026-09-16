@@ -2,6 +2,14 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
 
+/* The VIF1 reset packet sceGsResetPath writes to the PATH2 FIFO at
+   0x10005000: STCYCL cl=4 wl=4, STMASK 0, NOP, STMOD 0, then MSKPATH3 0,
+   BASE 0, OFFSET 0, ITOP 0.  VIF codes are register fields, so they are
+   spelled in hex.  16-aligned because the shipped code moves the two
+   quadwords with lq/sq. */
+static unsigned int sceGsResetPathPacket[8] __attribute__((aligned(16))) = {
+    0x01000404, 0x20000000, 0x00000000, 0x05000000, 0x06000000, 0x03000000, 0x02000000, 0x04000000};
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -23,9 +31,9 @@ __asm__(".section .text\n"
         "    ori   $4, $4, 0x200\n"
         "    ctc2.ni $4, $vi28\n"
         "    sync.p\n"
-        "    lui   $5, %hi(D_0054A2C0)\n"
+        "    lui   $5, %hi(sceGsResetPathPacket)\n"
         "    lui   $6, 0x1000\n"
-        "    addiu $5, $5, %lo(D_0054A2C0)\n"
+        "    addiu $5, $5, %lo(sceGsResetPathPacket)\n"
         "    ori   $6, $6, 0x5000\n"
         "    lq    $4, 0x0($5)\n"
         "    lui   $3, 0x1000\n"

@@ -75,6 +75,17 @@ extern void gflagOff(int a0);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern void scpFadeIn(float t);
 extern void actE3TitleChk(volatile int a0);
+/* prototypes: their order is the inline tail's emission order */
+void actE3CapsuleDemoEnd(volatile int a0);
+void actE3DoorMain(volatile int a0);
+void actE3DoorSwitch(volatile int a0);
+void actE3DoorUp(volatile int a0);
+void actE3St13cIntroChk(volatile int a0);
+void actE3CageFallReadyChk(volatile int a0);
+void actE3St01bEneChk(volatile int a0);
+void actE3St09aGirlWay(volatile int a0);
+void actE3St09aBrgMain(volatile int a0);
+void actE3St09aBrgSwitch(volatile int a0);
 extern void actE3DoorSwitch(volatile int a0);
 extern void actE3St09aBrgSwitch(volatile int a0);
 
@@ -168,7 +179,6 @@ typedef struct PadState {
 } PadState;
 
 extern PadState D_0028F8F0[];
-extern char D_006224F0[];
 extern int D_0063BDF4;
 extern void gflagOn(int a0);
 extern int actCreateSubThread(void *entry, int prio);
@@ -192,7 +202,7 @@ void actE3TitleChk(volatile int a0)
     }
 
     gflagOn(0x165);
-    debug_StdPrintfDummy(D_006224F0);
+    debug_StdPrintfDummy("game_start\n");
 
     AdpcmPlay(*(int *)(D_0063BDF4 + 0x2C));
 
@@ -209,7 +219,6 @@ extern void stage_SetLoopFlag(int key, int a1);
 extern int stage_ContinueAnimation(int a0, int a1);
 extern void scpAdpcmCloseFunc(int *h);
 extern void stgmgrForceSwitchWithFade(int a0, float a1, float a2);
-extern char D_00622500[];
 extern int D_0063B5F0;
 extern int mpegPlayReturnStage;
 
@@ -290,7 +299,7 @@ void actE3TitleFrameChk(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(0x165) == 0) {
-        debug_StdPrintfDummy(D_00622500);
+        debug_StdPrintfDummy("mpeg_start\n");
 
         gflagOn(0x164);
 
@@ -719,39 +728,59 @@ void actE3CageFallDemo(volatile int a0)
     gflagOff(0x17D);
 }
 
-typedef struct EffectArg {
-    long long lo; /* 0x00 */
-    long long hi; /* 0x08 */
+typedef union EffectArg {
+    float f[4];
+
+    struct {
+        long long lo; /* 0x00 */
+        long long hi; /* 0x08 */
+    } d;
 } EffectArg;
 
-/* e3.o's own .rodata: the cage-fall effect templates, one per scpEffectStart. */
-extern const EffectArg D_00622520;
-extern const EffectArg D_00622530;
-extern const EffectArg D_00622540;
-extern const EffectArg D_00622550;
-extern const EffectArg D_00622560;
-extern const EffectArg D_00622570;
-extern const EffectArg D_00622580;
-extern const EffectArg D_00622590;
-extern const EffectArg D_006225A0;
 /* no prototype in the dev's TU: the C89 implicit-int return is what makes
    ee-gcc treat $v0 as clobbered at every call site. The definition in
    src/script.c is void. */
 extern int scpEffectStart(void *a0, int a1);
 extern int iosPadActRequest(int port, int id);
 extern int D_00639EAC;
+extern void scpPlayMot(int a0, int mot);
+extern void scpPlayMotDir(int a0, void *dir);
+extern void scpPlayEnd(int a0);
+extern void *test_CURRENTROOT(int a0);
+extern void sceVu0SubVector(void *out, void *a, void *b);
+extern int D_00639EA4;
+extern int enable_game_pause;
+
+inline void actE3CapsuleDemoEnd(volatile int a0)
+{
+    scpPlayMot(D_00639EA4, 0x133);
+
+    while (stage_CheckAnimationFinish(0x270) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMot(D_00639EA4, 0);
+
+    {
+        EffectArg ofs = {{-1000.0f, 0.0f, -2200.0f, 1.0f}};
+        float dir[4];
+
+        sceVu0SubVector(dir, &ofs, test_CURRENTROOT(D_00639EA4));
+        scpPlayMotDir(D_00639EA4, dir);
+    }
+
+    scpPlayEnd(D_00639EA4);
+
+    D_0063AA08 = 0;
+
+    lt_switch_layout(0x36);
+
+    enable_game_pause = 1;
+}
 
 void actE3CageFallEffect(volatile int a0)
 {
-    EffectArg b1;
-    EffectArg b2;
-    EffectArg b3;
-    EffectArg b4;
-    EffectArg b5;
-    EffectArg b6;
-    EffectArg b7;
-    EffectArg b8;
-    EffectArg b9;
     float t;
     float tn;
     int n;
@@ -764,33 +793,48 @@ void actE3CageFallEffect(volatile int a0)
             break;
         case 0x40:
             iosPadActRequest(D_00639EAC, 0x11);
-            b1 = D_00622520;
-            scpEffectStart(&b1, 0);
-            b2 = D_00622530;
-            scpEffectStart(&b2, 0);
+            {
+                EffectArg b1 = {{-88.0f, -50.0f, -1.0f, 1.0f}};
+                scpEffectStart(&b1, 0);
+            }
+            {
+                EffectArg b2 = {{-96.0f, -45.0f, 34.0f, 1.0f}};
+                scpEffectStart(&b2, 0);
+            }
             break;
-        case 0x44:
-            b3 = D_00622540;
+        case 0x44: {
+            EffectArg b3 = {{72.0f, -50.0f, 8.0f, 1.0f}};
             scpEffectStart(&b3, 0);
-            b4 = D_00622550;
-            scpEffectStart(&b4, 0);
+        }
+            {
+                EffectArg b4 = {{80.0f, -50.0f, 2.0f, 1.0f}};
+                scpEffectStart(&b4, 0);
+            }
             break;
-        case 0x60:
-            b5 = D_00622560;
+        case 0x60: {
+            EffectArg b5 = {{-27.0f, -50.0f, 100.0f, 1.0f}};
             scpEffectStart(&b5, 0);
-            b6 = D_00622570;
-            scpEffectStart(&b6, 0);
-            b7 = D_00622580;
-            scpEffectStart(&b7, 0);
+        }
+            {
+                EffectArg b6 = {{-56.0f, -50.0f, 66.0f, 1.0f}};
+                scpEffectStart(&b6, 0);
+            }
+            {
+                EffectArg b7 = {{-5.0f, -50.0f, 42.0f, 1.0f}};
+                scpEffectStart(&b7, 0);
+            }
             break;
         case 0xB4:
             iosPadActRequest(D_00639EAC, 0xF);
             break;
-        case 0x12C:
-            b8 = D_00622590;
+        case 0x12C: {
+            EffectArg b8 = {{-10.0f, 0.0f, 466.0f, 1.0f}};
             scpEffectStart(&b8, 0);
-            b9 = D_006225A0;
-            scpEffectStart(&b9, 0);
+        }
+            {
+                EffectArg b9 = {{-25.0f, 0.0f, 450.0f, 1.0f}};
+                scpEffectStart(&b9, 0);
+            }
             break;
         case 0x17C:
             iosPadActRequest(D_00639EAC, 0x10);
@@ -855,6 +899,26 @@ extern void actE3St09aGirlWay(volatile int a0);
 extern int D_00639EAC;
 extern int sekizo_e3_vol;
 extern unsigned char D_0063BE0C;
+extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
+extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
+extern void brainUnlockGirl(void);
+extern void memset(void *dst, int c, int n);
+
+inline void actE3St09aGirlWay(volatile int a0)
+{
+    EffectArg buf = {{-1410.0f, -100.0f, 1950.0f, 0.0f}};
+    long long way[2];
+
+    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)&buf, 0, 100.0f);
+
+    memset(way, 0, 0x10);
+    RequestStageChangeDirect(D_00639EA8, 0x66, (int *)way, 0xB4);
+
+    lt_switch_layout(0x36);
+
+    D_0063AA08 = 0;
+    brainUnlockGirl();
+}
 
 void actE3St09aSekizoChk(volatile int a0)
 {
@@ -935,7 +999,6 @@ void actE3St09aSekizoChk(volatile int a0)
 }
 
 extern char D_00618F00[];
-extern char D_006225C0[];
 extern void StandbyStreamMotion(char *a0);
 extern int CheckReadyStreamMotion(void);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
@@ -964,7 +1027,7 @@ void actE3GateChk(volatile int a0)
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
         i++;
-        debug_StdPrintfDummy(D_006225C0, i);
+        debug_StdPrintfDummy("Now waiting for standby stream motion system... %d\n", i);
         _ACTWait(1);
     }
 
@@ -1502,49 +1565,11 @@ void actE3CapsuleChk(volatile int a0)
     D_0063C4E0 = actCreateSubThread(actE3CapsuleDemo, 0x15);
 }
 
-extern void scpPlayMot(int a0, int mot);
-extern void scpPlayMotDir(int a0, void *dir);
-extern void scpPlayEnd(int a0);
-extern void *test_CURRENTROOT(int a0);
-extern void sceVu0SubVector(void *out, void *a, void *b);
-extern int D_00639EA4;
-extern int enable_game_pause;
-/* e3.o's own .rodata: the capsule demo's exit direction vector. */
-extern long long D_00622510[];
-
-void actE3CapsuleDemoEnd(volatile int a0)
-{
-    long long ofs[2];
-    float dir[4];
-
-    scpPlayMot(D_00639EA4, 0x133);
-
-    while (stage_CheckAnimationFinish(0x270) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpPlayMot(D_00639EA4, 0);
-
-    ofs[0] = D_00622510[0];
-    ofs[1] = D_00622510[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT(D_00639EA4));
-    scpPlayMotDir(D_00639EA4, dir);
-
-    scpPlayEnd(D_00639EA4);
-
-    D_0063AA08 = 0;
-
-    lt_switch_layout(0x36);
-
-    enable_game_pause = 1;
-}
-
 extern int D_0063AA08;
 
 /* e3.o's own .data run (no MAIN.MAP symbol): actor mail packets. */
 
-void actE3DoorMain(volatile int a0)
+inline void actE3DoorMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
@@ -1560,7 +1585,7 @@ void actE3DoorMain(volatile int a0)
 extern void ACTSendMailCorrect(int a0, int mail);
 extern void actE3DoorUp(volatile int a0);
 
-void actE3DoorSwitch(volatile int a0)
+inline void actE3DoorSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
@@ -1576,7 +1601,7 @@ void actE3DoorSwitch(volatile int a0)
 
 /* e3.o's own .data run (no MAIN.MAP symbol): the door's SE position. */
 
-void actE3DoorUp(volatile int a0)
+inline void actE3DoorUp(volatile int a0)
 {
     lt_switch_layout(0x37);
     gflagOn(0x167);
@@ -1601,7 +1626,7 @@ void actE3DoorUp(volatile int a0)
     lt_switch_layout(0x36);
 }
 
-void actE3St13cIntroChk(volatile int a0)
+inline void actE3St13cIntroChk(volatile int a0)
 {
     lt_switch_layout(0x37);
     gflagOn(0x16B);
@@ -1628,7 +1653,7 @@ extern int actInitialize(int a0);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 extern int scpTriggerFloorAttr(int a0, int a1);
 
-void actE3CageFallReadyChk(volatile int a0)
+inline void actE3CageFallReadyChk(volatile int a0)
 {
     int x = a0;
     actInitialize(a0);
@@ -1642,7 +1667,7 @@ void actE3CageFallReadyChk(volatile int a0)
 
 extern int D_00639EA8;
 
-void actE3St01bEneChk(volatile int a0)
+inline void actE3St01bEneChk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
         _ACTWait(0);
@@ -1671,32 +1696,7 @@ void actE3St01bEneChk(volatile int a0)
     D_0063AA08 = 0;
 }
 
-/* e3.o's own .rodata: the girl's way-point vector. */
-extern long long D_006225B0[];
-extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
-extern void brainUnlockGirl(void);
-extern void memset(void *dst, int c, int n);
-
-void actE3St09aGirlWay(volatile int a0)
-{
-    long long buf[2];
-    long long way[2];
-
-    buf[0] = D_006225B0[0];
-    buf[1] = D_006225B0[1];
-    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
-
-    memset(way, 0, 0x10);
-    RequestStageChangeDirect(D_00639EA8, 0x66, (int *)way, 0xB4);
-
-    lt_switch_layout(0x36);
-
-    D_0063AA08 = 0;
-    brainUnlockGirl();
-}
-
-void actE3St09aBrgMain(volatile int a0)
+inline void actE3St09aBrgMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
@@ -1709,7 +1709,7 @@ void actE3St09aBrgMain(volatile int a0)
 
 extern void actE3St09aBrgDown(volatile int a0);
 
-void actE3St09aBrgSwitch(volatile int a0)
+inline void actE3St09aBrgSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 

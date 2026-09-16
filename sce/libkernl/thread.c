@@ -95,7 +95,9 @@ typedef struct {
     unsigned option;      /* 0x20 */
 } ee_thread_t;
 
-extern int D_0028F4B0[];
+/* the kernel event thread's id, zero until InitKernEvent creates it */
+static int kernEventThreadId = 0;
+
 extern int D_0063CB50[];
 extern KernEventRing D_0063CB58;
 extern char D_0063C750[];
@@ -114,7 +116,7 @@ int InitThread(void)
     ee_sema_t sm;
     int tid;
 
-    if (D_0028F4B0[0] > 0) {
+    if (kernEventThreadId > 0) {
         return -1;
     }
 
@@ -131,7 +133,7 @@ int InitThread(void)
     th.gp_reg = D_00640AF0;
     th.initial_priority = 0;
     tid = CreateThread(&th);
-    D_0028F4B0[0] = tid;
+    kernEventThreadId = tid;
     if (tid < 0) {
         DeleteSema(D_0063CB50[0]);
         return -1;
@@ -141,7 +143,7 @@ int InitThread(void)
     D_0063CB58.widx = 0;
     StartThread(tid, &D_0063CB58);
     ChangeThreadPriority(GetThreadId(), 1);
-    return D_0028F4B0[0];
+    return kernEventThreadId;
 }
 
 extern KernEventRing D_0063CB58;
@@ -159,7 +161,7 @@ int iWakeupThread(int id)
     if ((unsigned int)r >= 0x100) {
         goto fail;
     }
-    if (D_0028F4B0[0] != 0) {
+    if (kernEventThreadId != 0) {
         goto post;
     }
 fail:
@@ -179,7 +181,7 @@ int iRotateThreadReadyQueue(int id)
     if ((unsigned int)id >= 0x80) {
         goto fail;
     }
-    if (D_0028F4B0[0] != 0) {
+    if (kernEventThreadId != 0) {
         goto post;
     }
 fail:
@@ -206,7 +208,7 @@ int iSuspendThread(int id)
     if ((unsigned int)r >= 0x100) {
         goto fail;
     }
-    if (D_0028F4B0[0] != 0) {
+    if (kernEventThreadId != 0) {
         goto post;
     }
 fail:
