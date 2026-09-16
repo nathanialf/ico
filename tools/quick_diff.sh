@@ -170,7 +170,7 @@ fi
 # accept -fno-optimize-sibling-calls (sibling-call defeat is per-function
 # via __asm__ volatile("") barriers in src/cod/). -S because the bundled
 # 2.9-era `as` chokes on modern flags — we re-assemble with ee-as 2.10.
-case "$NAME" in sce/libm/*) GNUM=0 ;; *) GNUM=8 ;; esac  # libm.a was built at -G 0, see compile_c.sh
+case "$NAME" in sce/libm/*|sce/libscf/*) GNUM=0 ;; *) GNUM=8 ;; esac  # libm.a and libscf.a were built at -G 0, see compile_c.sh
 CFLAGS="${CFLAGS:--S -G ${GNUM} -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -Iinclude}"
 
 # ee-gcc looks for cc1 at the path it was built against (typically
@@ -214,7 +214,10 @@ elif grep -qxF "$NAME" "$ROOT/config/include_ito.txt" 2>/dev/null; then
     ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
     ( cd "$ROOT/ito" && $CC $CFLAGS -I"$ROOT/include" -I../ito/include -o "$ASM_ABS" "$CSRC_ABS" )
 else
-    $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
+    # sce members compile from their own directory by bare name (__FILE__), see compile_c.sh
+    CSRC_ABS="$CSRC"; case "$CSRC_ABS" in /*) ;; *) CSRC_ABS="$ROOT/$CSRC_ABS";; esac
+    ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
+    ( cd "$(dirname "$CSRC_ABS")" && $CC $CFLAGS -I"$ROOT/include" -o "$ASM_ABS" "$(basename "$CSRC_ABS")" )
 fi
 
 # Stage 1b: the only postprocess left is the jtbl section split, which is

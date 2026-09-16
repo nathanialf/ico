@@ -48,8 +48,11 @@ INCLUDE_DIR="${ROOT}/include"
 # in .rodata only at -G 0, and every already matched libm member is byte-identical
 # under it). A library's own build setting is a fact of that archive, not a
 # per-function lever.
+# libscf.a too (measured 2026-09-16 on libscf.o: its 7-byte assert string
+# "c <=99" sits in .rodata, which mips_select_section only does below -G 7, and
+# -G 0 moves no instruction word in the member).
 case "${1:-}" in
-    sce/libm/*|*/sce/libm/*) GNUM=0 ;;
+    sce/libm/*|*/sce/libm/*|sce/libscf/*|*/sce/libscf/*) GNUM=0 ;;
     *) GNUM=8 ;;
 esac
 CFLAGS="-S -G ${GNUM} -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}"
@@ -130,8 +133,13 @@ elif listed "${INCLUDE_ITO_TXT}"; then
     # shellcheck disable=SC2086
     ( cd "${ROOT}/ito" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -I../ito/include -o "${S_ABS}" "${SRC_ABS}" )
 else
+    # sce/<archive>/<member>.c : the vendor archives were built member by member
+    # from inside the member's own directory, so __FILE__ is the bare name
+    # (measured 2026-09-16: libscf.o's assert strings carry "libscf.c").
+    SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
+    S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # shellcheck disable=SC2086
-    "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -o "${S}" "${SRC}"
+    ( cd "$(dirname "${SRC_ABS}")" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -o "${S_ABS}" "$(basename "${SRC_ABS}")" )
 fi
 
 # Split each gcc-emitted switch jtbl onto its own .rodata.0x<VMA>

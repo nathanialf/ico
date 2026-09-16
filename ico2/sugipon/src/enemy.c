@@ -4,7 +4,7 @@ typedef struct {
     int a;
     int b;
     float life;
-    int c;
+    float c;
     float d;
     float dodge;
     int paraIndex : 8;
@@ -194,7 +194,79 @@ retry:
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", dispEnemyObject);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", EnemyCheckHit);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", CheckEnemyHit);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", InitEnemyGeo);
+
+/* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
+ * reads it back as a pointer, so every read of it is a union view, the same
+ * spelling ico2/sugipon/src/geometryManager.c uses for the same slot. */
+typedef union SubHandle {
+    int i;
+    char *p;
+} SubHandle;
+
+#define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
+
+extern void *InitEnemyEye(int a0, int a1, int a2);
+extern void *InitEnemyFootPrint(int a0);
+extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
+extern void SetLodLevel(void *o, int lod);
+extern int D_0063B894;
+
+/* static helper the listing places at enemy.c lines 281-290, expanded only into
+ * InitEnemyGeo; never emitted out of line, so it has no MAIN.MAP symbol and this
+ * name is ours.  Its own body inlines the lines 99-100 clear loop. */
+static inline int enemyInitPartsList(char *self, char *param)
+{
+    int kind = *(int *)(param + 0x30);
+    char *w;
+    int n;
+    int *parts;
+
+    n = *(int *)(SUBOF(self) + 0x88);
+    /* The work-record entry is chased as an int and cast: the ROM orders every
+     * store of InitEnemyGeo's setup group ahead of this load, which only an int
+     * view of the slot produces (evidence rung: ROM bytes). */
+    w = (char *)*(int *)(SUBOF(self) + 0x830);
+
+    parts = (int *)iosMallocDebug(D_0063A438, n * 4, D_0061F650, 285);
+    *(int **)(w + 0x14) = parts;
+    clearEnemyParticleFlags(parts, n);
+    *(int *)(w + 0x0) = kind;
+    *(int *)(w + 0x4) = 0;
+    return setEnemyObject(self, kind, (int *)(w + 0x4));
+}
+
+void *InitEnemyGeo(char *self, char *param)
+{
+    char *w;
+    int kind;
+    int no;
+
+    w = (char *)iosMallocDebug(D_0063A438, 0x54, D_0061F650, 641);
+    *(char **)(SUBOF(self) + 0x830) = w;
+    *(int *)(w + 0x1C) = 0;
+    *(void **)(w + 0x18) = InitEnemyEye(10, 0, 10);
+    *(int *)(w + 0x24) = 0;
+    *(void **)(w + 0x20) = InitEnemyEye(10, 0, 10);
+    *(void **)(w + 0x28) = InitEnemyFootPrint(6);
+    *(int *)(w + 0x2C) = 1;
+    *(int **)(w + 0x10) = 0;
+    *(int *)(w + 0x38) = 0;
+    *(float *)(w + 0x3C) = 0.0f;
+    *(short *)(w + 0x40) = 0;
+    *(float *)(w + 0x44) = 0.0f;
+    *(int *)(w + 0x4C) = 0;
+    *(float *)(w + 0x50) = 1.0f;
+    kind = enemyInitPartsList(self, param);
+    *(int *)(w + 0x8) = kind;
+    *(float *)(w + 0x50) = D_00624880[kind].c;
+    InitMotionOrient(self, 0x84A, 0x967, 0x18, 0x24, 0x342);
+    no = D_0063B894;
+    *(int *)(SUBOF(self) + 0x558) = no;
+    D_0063B894 = (no + 2) % 10;
+    *(int *)(SUBOF(self) + 0x550) = 0;
+    SetLodLevel(self, 2);
+    return w;
+}
 
 extern int GetEnemyTypeFromGObj(char *self);
 extern void ExecMotionOrient();

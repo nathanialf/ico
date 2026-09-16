@@ -55,35 +55,38 @@ typedef struct {
     unsigned char dateNotation : 2; /* bits 6-7 sceScfGetDateNotation */
 } ConfigParam2;
 
-/* The rom0:ROMVER record and the assert strings this member keeps in the blob
- * .rodata run at 0x637260..0x6372C5; the TU reaches them by their splat names,
- * as sce/libgraph/graph008.c does for its own format string.
- *   0x6371D0  rom0:ROMVER
- *   0x6371E0  Can't open rom0:ROMVER\n
- *   0x6371F8  Can't read rom error\n
- *   0x637210  Timezone=%d\n
- *   0x637220  DateNotation=%d\n
- *   0x637238  SummerTime=%d\n
- *   0x637248  TimeNotation=%d\n
- *   0x637260  libscf.c
- *   0x637270  c <=99
- *   0x637278  c <= 0x99
- *   0x637288  prtc != NULL
- *   0x637298  the twelve month lengths adddate and subdate copy to the stack
- *   0x6372A8  -60*24<=diff && diff <= 60*24
- */
-extern char D_006371D0[];
-extern char D_006371E0[];
-extern char D_006371F8[];
-extern char D_00637210[];
-extern char D_00637220[];
-extern char D_00637238[];
-extern char D_00637248[];
-extern char D_00637260[];
-extern char D_00637270[];
-extern char D_00637278[];
-extern char D_00637288[];
-extern char D_006372A8[];
+/* The strings this member emits.  The developer wrote them as literals at the
+ * use sites; the compiler interns each one on first use, which is what fixes
+ * the ROM's .rodata order (the month-length template lands between the two
+ * assert groups because adddate precedes AdjustTime).  ROM VMA 0x6371D0:
+ *   0x6371D0  rom0:ROMVER                     GetRomName
+ *   0x6371E0  Can't open rom0:ROMVER          GetRomName
+ *   0x6371F8  Can't read rom error            GetRomName
+ *   0x637210  Timezone=%d                     sceScfGetTimeZone
+ *   0x637220  DateNotation=%d                 sceScfGetDateNotation
+ *   0x637238  SummerTime=%d                   sceScfGetSummerTime
+ *   0x637248  TimeNotation=%d                 sceScfGetTimeNotation
+ *   0x637260  libscf.c                        __FILE__, first used by tobcd
+ *   0x637270  c <=99                          tobcd
+ *   0x637278  c <= 0x99                       frombcd
+ *   0x637288  prtc != NULL                    convertfrombcd
+ *   0x637298  the twelve month lengths        adddate, shared with subdate
+ *   0x6372A8  -60*24<=diff && diff <= 60*24   AdjustTime
+ * (the five printf strings and the two rom0 diagnostics each end in a newline
+ * escape, dropped from the table above so the table stays one line per entry).
+ * libscf.c is __FILE__, so the member is compiled from inside its own
+ * directory by its bare name, and every assert string is the stringified
+ * expression, so the three-argument calls are the newlib assert macro and
+ * their line arguments (0x119 for the first, 0x1C7 for the last) fix this
+ * file's line layout.  Evidence rung: ROM bytes. */
+
+/* newlib <assert.h> and <stddef.h>, reconstructed here because the repo's
+ * include/ carries stub scaffolding only.  NDEBUG is not defined in this
+ * archive: the calls are in the shipped code.  The layout pass keeps the
+ * two defines together. */
+#define assert(e) ((e) ? (void)0 : __assert(__FILE__, __LINE__, #e))
+/* <stddef.h> */
+#define NULL 0
 
 /* The RTC record libcdvd hands out: eight packed BCD bytes. */
 typedef struct {
@@ -123,12 +126,12 @@ char *GetRomName(void)
     int fd;
 
     if (D_0054CB68[0] == 0) {
-        fd = sceOpen(D_006371D0, 1);
+        fd = sceOpen("rom0:ROMVER", 1);
         if (fd == -1) {
-            printf(D_006371E0);
+            printf("Can't open rom0:ROMVER\n");
         }
         if (sceRead(fd, D_0054CB68, 14) == -1) {
-            printf(D_006371F8);
+            printf("Can't read rom error\n");
         }
         sceClose(fd);
     }
@@ -199,7 +202,7 @@ int sceScfGetTimeZone(void)
         GetOsdConfigParam(&param);
         if (param.version != 0) {
             tz = param.timezone;
-            printf(D_00637210, tz);
+            printf("Timezone=%d\n", tz);
         }
     }
     return tz;
@@ -220,7 +223,7 @@ int sceScfGetDateNotation(void)
         } else {
             GetOsdConfigParam2(&param2, 1, 1);
             v = param2.dateNotation;
-            printf(D_00637220, v);
+            printf("DateNotation=%d\n", v);
         }
     }
     return v;
@@ -241,7 +244,7 @@ int sceScfGetSummerTime(void)
         } else {
             GetOsdConfigParam2(&param2, 1, 1);
             v = param2.summerTime;
-            printf(D_00637238, v);
+            printf("SummerTime=%d\n", v);
         }
     }
     return v;
@@ -262,40 +265,45 @@ int sceScfGetTimeNotation(void)
         } else {
             GetOsdConfigParam2(&param2, 1, 1);
             v = param2.timeNotation;
-            printf(D_00637248, v);
+            printf("TimeNotation=%d\n", v);
         }
     }
     return v;
 }
 
+/* #e stringifies the expression exactly as it is spelled, so the spacing of
+ * this file's first assert and of AdjustTime's range assert is load-bearing
+ * (assert is a whitespace-sensitive macro for the formatter), and the ROM's
+ * __LINE__ arguments pin every assert to its line the comment blocks keep. */
+
 unsigned char tobcd(unsigned char c)
 {
-    if (!(c <= 99)) {
-        __assert(D_00637260, 0x119, D_00637270);
-    }
+    assert(c <=99);
     return (c / 10) * 6 + c;
 }
 
+/* frombcd, the inverse, lands on the ROM's next assert line. */
+/* The correction term is its own byte-wide local: with the product written
+ * straight into the subtraction the r5900 three-operand mult3 takes it, and
+ * the ROM has the two-operand mult with a separate mflo (tobcd takes mult3,
+ * its product feeding an addu).  Evidence rung: ROM bytes. */
 unsigned char frombcd(unsigned char c)
 {
-    /* The correction term is its own byte-wide local: with the product written
-     * straight into the subtraction the r5900 three-operand mult3 takes it, and
-     * the ROM has the two-operand mult with a separate mflo (evidence rung: ROM
-     * bytes; tobcd, whose product feeds an addu, does take mult3). */
     unsigned char t;
 
-    if (!(c <= 0x99)) {
-        __assert(D_00637260, 0x126, D_00637278);
-    }
+    assert(c <= 0x99);
     t = (c >> 4) * 6;
     return c - t;
 }
 
+/* The six packed-BCD fields libcdvd fills in a sceCdCLOCK record, widened to
+ * plain binary in place.  The stat and pad bytes are left alone.  The order
+ * of the six is the ROM's, year first and second last (evidence rung: ROM
+ * bytes); the walk is written out rather than looped because the members are
+ * named, which is what the ROM's six calls show. */
 void convertfrombcd(sceCdCLOCK *prtc)
 {
-    if (prtc == 0) {
-        __assert(D_00637260, 0x132, D_00637288);
-    }
+    assert(prtc != NULL);
     prtc->year = frombcd(prtc->year);
     prtc->month = frombcd(prtc->month);
     prtc->day = frombcd(prtc->day);
@@ -304,11 +312,13 @@ void convertfrombcd(sceCdCLOCK *prtc)
     prtc->second = frombcd(prtc->second);
 }
 
+/* The inverse, over the same six fields in the same order: the record goes
+ * back to the packed form the RTC hardware and libcdvd use, which is the
+ * form AdjustTime hands out and the form sceScfGetGMTfromRTC's caller was
+ * given it in. */
 void converttobcd(sceCdCLOCK *prtc)
 {
-    if (prtc == 0) {
-        __assert(D_00637260, 0x141, D_00637288);
-    }
+    assert(prtc != NULL);
     prtc->year = tobcd(prtc->year);
     prtc->month = tobcd(prtc->month);
     prtc->day = tobcd(prtc->day);
@@ -317,16 +327,13 @@ void converttobcd(sceCdCLOCK *prtc)
     prtc->second = tobcd(prtc->second);
 }
 
-/* adddate and subdate each copy the month-length template onto the stack so the
- * February entry can be patched for a leap year.  The template is the TU's only
- * emitted data: 12 bytes of .rodata, ROM VMA 0x637298..0x6372A4. */
+/* adddate and subdate each copy the month-length template onto the stack so
+ * the February entry can be patched for a leap year. */
 void adddate(sceCdCLOCK *prtc)
 {
     char mtab[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    if (prtc == 0) {
-        __assert(D_00637260, 0x150, D_00637288);
-    }
+    assert(prtc != NULL);
     prtc->day++;
     if ((prtc->year % 4) == 0) {
         mtab[1] = 29;
@@ -344,13 +351,13 @@ void adddate(sceCdCLOCK *prtc)
     }
 }
 
+/* The two-digit year wraps at 99 in both directions: the record carries no
+ * century field. */
 void subdate(sceCdCLOCK *prtc)
 {
     char mtab[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    if (prtc == 0) {
-        __assert(D_00637260, 0x168, D_00637288);
-    }
+    assert(prtc != NULL);
     prtc->day--;
     if ((prtc->year % 4) == 0) {
         mtab[1] = 29;
@@ -368,22 +375,27 @@ void subdate(sceCdCLOCK *prtc)
     }
 }
 
+/* The hour carry.  addhour and subhour are the only callers of adddate and
+ * subdate, and AdjustTime is the only caller of these two: the minute offset
+ * a time zone or a summer-time shift asks for is applied by repeated
+ * one-hour steps rather than by a calendar computation, which is why that
+ * function asserts its argument range. */
 void addhour(sceCdCLOCK *prtc)
 {
-    if (prtc == 0) {
-        __assert(D_00637260, 0x181, D_00637288);
-    }
+    assert(prtc != NULL);
     if (++prtc->hour == 24) {
         prtc->hour = 0;
         adddate(prtc);
     }
 }
 
+/* The hour borrow.  The zero test comes first so the decrement never runs
+ * on an hour of zero, which would wrap the unsigned field to 255 before
+ * subdate could pull the day back; the else arm is therefore the ordinary
+ * case and the day walk the exception. */
 void subhour(sceCdCLOCK *prtc)
 {
-    if (prtc == 0) {
-        __assert(D_00637260, 0x18E, D_00637288);
-    }
+    assert(prtc != NULL);
     if (prtc->hour == 0) {
         prtc->hour = 23;
         subdate(prtc);
@@ -392,16 +404,17 @@ void subhour(sceCdCLOCK *prtc)
     }
 }
 
+/* Shift a packed-BCD RTC record by diff minutes: widen it to binary, give
+ * the minute field the whole offset, carry the overflow out an hour at a
+ * time, pack it again.  The bound asserted is the sixty hours either side a
+ * time zone plus a summer-time hour can reach. */
+/* AdjustTime's range assert sits on line 0x1A1, the ROM's argument. */
 void AdjustTime(sceCdCLOCK *prtc, int diff)
 {
     int min;
 
-    if (prtc == 0) {
-        __assert(D_00637260, 0x1A0, D_00637288);
-    }
-    if (!(-60 * 24 <= diff && diff <= 60 * 24)) {
-        __assert(D_00637260, 0x1A1, D_006372A8);
-    }
+    assert(prtc != NULL);
+    assert(-60*24<=diff && diff <= 60*24);
     convertfrombcd(prtc);
     min = prtc->minute + diff;
     if (min >= 0) {
@@ -419,24 +432,26 @@ void AdjustTime(sceCdCLOCK *prtc, int diff)
     converttobcd(prtc);
 }
 
+/* The two public entry points follow. */
+/* The two public entry points.  The RTC the CD-ROM drive keeps runs on Japan
+ * Standard Time whatever the console's region, so GMT is nine hours behind it
+ * and the local time is the OSD's time zone plus its summer-time flag away
+ * from GMT.  540 is those nine hours in minutes, spelled out at both sites
+ * rather than shared, which is what the ROM's two immediates show (evidence
+ * rung: ROM bytes); the local entry reaches the OSD by this file's getters. */
 void sceScfGetGMTfromRTC(sceCdCLOCK *prtc)
 {
-    if (prtc == 0) {
-        __assert(D_00637260, 0x1BC, D_00637288);
-    }
+    assert(prtc != NULL);
     AdjustTime(prtc, -540);
 }
 
 void sceScfGetLocalTimefromRTC(sceCdCLOCK *prtc)
 {
-    int diff;
-    int adj;
+    int diff, adj;
 
     diff = sceScfGetTimeZone();
     adj = sceScfGetSummerTime() * 60 - 540;
     diff += adj;
-    if (prtc == 0) {
-        __assert(D_00637260, 0x1C7, D_00637288);
-    }
+    assert(prtc != NULL);
     AdjustTime(prtc, diff);
 }
