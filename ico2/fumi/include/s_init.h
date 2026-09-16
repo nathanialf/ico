@@ -15,7 +15,7 @@
 int Ee2Iop(int a0, int a1, int a2);
 void _soundSeDefStop(int a0, int a1);
 void soundAllocIopHeap(void);
-void soundBDDataSet(void *buf, int a3, int kind, int mode, int a6, int size);
+char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5);
 void soundBufAdpcmFree(char *self);
 void soundBufSegFree(int a0, int a1);
 char *soundDataAreaGet(int a0, int a1, int a2, int a3);

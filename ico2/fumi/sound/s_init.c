@@ -219,7 +219,116 @@ void soundAllocIopFree(void)
     sceSifFreeIopHeap(D_0063A680);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundDataOpenChk);
+extern char D_005521E8[];
+extern char D_00552238[];
+extern char D_00552248[];
+extern char D_00552260[];
+extern char D_00552270[];
+extern char D_0063A660[];
+extern char D_006BF870[];
+extern long long D_0063C1E8;
+extern void __assert(char *file, int line, char *msg);
+extern void debug_assert(char *file, int line);
+extern int SgVabOpenFakeBody(int a0, int a1);
+extern void SgSetSeMasterVol(int vab, int vol);
+extern int SgBgmOpen(int vab, int a1);
+extern void SgSetBgmVol(int h, int vol, int pan);
+extern void SgBgmPlay(int h);
+
+void soundDataOpenChk(char *self)
+{
+    int ok = 0;
+    int vab;
+    int ch;
+    int i;
+    int off;
+    char *slot;
+    char *sl;
+    char **rp;
+    SeReqRec *req;
+    short h;
+    int hr;
+    long long one;
+    long long bit;
+
+    switch (*(unsigned short *)(self + 4)) {
+    case 0:
+        if (*(int *)(self + 8) != 0) {
+            ok = (*(int *)(self + 0xC) != 0);
+        }
+        break;
+    case 1:
+        if (*(int *)(self + 8) != 0 && *(int *)(self + 0xC) != 0) {
+            ok = (*(int *)(self + 0x10) != 0) ? *(unsigned short *)(self + 4) : 0;
+        }
+        break;
+    default:
+        debug_assert(D_005521E8, 358);
+        __assert(D_005521E8, 358, D_0063A660);
+        break;
+    }
+    if (ok == 0) {
+        return;
+    }
+    vab = SgVabOpenFakeBody(*(int *)(self + 0xC), *(int *)(self + 0x18));
+    *(int *)(self + 0x28) = vab;
+    switch (*(unsigned short *)(self + 4)) {
+    case 0:
+        SgSetSeMasterVol(vab, 127);
+        debug_StdPrintfDummy(D_00552238);
+        return;
+    case 1:
+        one = 1;
+        for (i = 0; i < 48; i++) {
+            bit = one << i;
+            if ((D_0063C1E8 & bit) == 0) {
+                goto found;
+            }
+        }
+        ch = -1;
+        goto chk;
+    found:
+        D_0063C1E8 |= bit;
+        ((SqEntry *)self)->seMask |= bit;
+        sl = &D_006BF870[i * 64];
+        ((SeSlot *)sl)->flag.all &= 0xFDFFFFFF;
+        ch = i;
+    chk:
+        if (ch < 0) {
+            debug_StdPrintfDummy(D_00552248);
+            return;
+        }
+        off = ch * 64;
+        hr = SgBgmOpen(*(int *)(self + 0x28), *(int *)(self + 0x10));
+        slot = &D_006BF870[off];
+        *(short *)(slot + 0x10) = hr;
+        h = hr;
+        if (h < 0) {
+            rp = (char **)&D_006BF870[off + 0x30];
+            req = *(SeReqRec **)rp;
+            if (req != 0) {
+                long long b2 = (long long)1 << ch;
+                long long m = req->chMask;
+                if ((m & b2) != 0) {
+                    req->chMask = m & ~b2;
+                    D_0063C1E8 &= ~b2;
+                    *(unsigned short *)slot = *(unsigned short *)slot + 1;
+                    *rp = 0;
+                }
+            }
+            debug_StdPrintfDummy(D_00552260);
+            return;
+        }
+        SgSetBgmVol(h, 64, 0xFFFF);
+        SgBgmPlay(h);
+        *(char **)&D_006BF870[off + 0x30] = self;
+        *(int *)&D_006BF870[off + 8] = 0;
+        debug_StdPrintfDummy(D_00552270);
+        return;
+    default:
+        return;
+    }
+}
 
 extern char D_005521E8[];
 extern char D_0063A660[];
@@ -337,7 +446,80 @@ void soundBufSegFree(int a0, int a1)
     __assert(D_005521E8, 0x1E7, D_0063A660);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundBDDataSet);
+extern char D_00552170[];
+extern char D_00552188[];
+extern char D_005521A0[];
+extern void FlushCache(int a);
+extern int sceSifDmaStat(int h);
+extern int sceSifSetDma(int p, int a);
+extern int memset(void *dst, int val, int size);
+extern void SgDmaWrite(int heap, int addr, int size);
+extern void SgGetDmaTransferStatus(int a0);
+
+char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5)
+{
+    SqEntry *e;
+    int buf[4];
+    int off;
+    int chunk;
+    int src;
+    int heap;
+    int h;
+    int hi;
+    int key;
+
+    off = 0;
+    hi = a2 << 0x10;
+    key = (a1 & 0xFFFF) | hi;
+    e = hd_search(&key);
+    if (e == 0) {
+        key = 0;
+        e = hd_search(&key);
+        if (e == 0) {
+            debug_assert(D_005521E8, 0x14E);
+            __assert(D_005521E8, 0x14E, D_0063A660);
+        }
+        memset(e, 0, 0x30);
+        e->num = a1;
+        e->bank = a2;
+        e->unk6 = a4;
+        e->unk4 = a3;
+        e->unk28 = -1;
+    }
+    e->unk8 = a0;
+    a5 = (((a5 - 1) / 64) + 1) * 64;
+    soundBufAlloc((SoundBufReq *)e, a5);
+    while (a5 > 0) {
+        chunk = (a5 > 0x78000) ? 0x78000 : a5;
+        src = a0 + off;
+        SgGetDmaTransferStatus(1);
+        heap = D_0063A680;
+        debug_StdPrintfDummy(D_00552170);
+        debug_StdPrintfDummy(D_00552188, src, heap, chunk);
+        buf[0] = src;
+        buf[1] = heap;
+        buf[2] = chunk;
+        buf[3] = 0;
+        FlushCache(0);
+        h = sceSifSetDma((int)buf, 1);
+        while (sceSifDmaStat(h) >= 0)
+            ;
+        debug_StdPrintfDummy(D_005521A0);
+        FlushCache(0);
+        if (chunk >= 65) {
+            SgDmaWrite(D_0063A680, ((SoundBufReq *)e)->addr + off, chunk);
+        } else {
+            SgDmaWrite(D_0063A680, ((SoundBufReq *)e)->addr + off, 0x50);
+        }
+        if (e->unk4 == 1) {
+            SgGetDmaTransferStatus(1);
+        }
+        a5 = a5 - chunk;
+        off = off + chunk;
+    }
+    soundDataOpenChk((char *)e);
+    return (char *)e;
+}
 
 void soundDataOpen(int *work, int mode, int a2, int a3, int a4)
 {
@@ -403,7 +585,60 @@ void soundDataSegAllClose(int a0, int a1)
     soundBufSegFree(a0, a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundSeVolSet);
+extern float D_0063A64C;
+extern void SgSetSeVolDirect(int id, int l, int r);
+
+void soundSeVolSet(SeSlot *self)
+{
+    int l;
+    int r;
+    int cur;
+    int d;
+    int vol;
+
+    if (self->flag.all & 0x20000000) {
+        r = 0;
+        l = 0;
+    } else {
+        l = (int)((float)self->unk12 * self->unk18);
+        r = (int)((float)self->unk14 * self->unk18);
+    }
+    if (self->unk8 == 0xFFFFFFFF && self->unk3C != 0) {
+        l = (int)((float)l * D_0063A64C);
+        r = (int)((float)r * D_0063A64C);
+    }
+    if (l < 0) {
+        l = 0;
+    } else {
+        l = (l < 4097) ? l : 4096;
+    }
+    if (r < 0) {
+        r = 0;
+    } else {
+        r = (r < 4097) ? r : 4096;
+    }
+    cur = *(unsigned short *)&self->unk2;
+    d = (short)(l - cur);
+    if (((d < 0) ? -d : d) < 256 || (short)cur == -1) {
+        self->unk2 = l;
+    } else {
+        self->unk2 = (d > 0) ? cur + 256 : cur - 256;
+    }
+    cur = *(unsigned short *)&self->flag;
+    d = (short)(r - cur);
+    if (((d < 0) ? -d : d) < 256 || (short)cur == -1) {
+        *(short *)&self->flag = r;
+    } else {
+        *(short *)&self->flag = (d > 0) ? cur + 256 : cur - 256;
+    }
+    SgSetSeVolDirect(self->unk10, self->unk2, *(short *)&self->flag);
+    if (self->unkC != 0) {
+        vol = (r < l) ? l : r;
+        vol = (int)((float)vol * (1.0f / 4096.0f) * 255.0f);
+        iosPadActVolumeSet(self->unkC, vol & 0xFF);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", debug_DispSEInfo);
 
 extern void SgSetSeVolDirect(int id, int l, int r);
@@ -1042,6 +1277,7 @@ void soundSeEnvDefaultSet(SeSlot *self)
 
 extern const char D_00552398[];
 extern char D_005D6DB0[];
+extern SeSrcDef D_005DCEF4[];
 
 int debug_req(void)
 {
