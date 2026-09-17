@@ -151,7 +151,8 @@ typedef struct {
     /* 0x10 */ float to[4];
     /* 0x20 */ char _20[0x50];
     /* 0x70 */ float radius;
-    /* 0x74 */ char _74[0x14];
+    /* 0x74 */ char _74[0xC];
+    /* 0x80 */ float f80[2];
     /* 0x88 */ int hit;
     /* 0x8C */ char _8c[0x34];
 } ChainClipWork;
@@ -624,7 +625,235 @@ unsigned char flag;
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", InitChainGeo);
+/* kept local: this TU does not include fieldCollision.h, whose third parameter
+ * type is not the float pair the chain hands over */
+extern void GetOrientOfWall(void *out, int wall, float *pos);
+/* kept local: this TU does not include memory.h, whose first parameter type is
+ * not the plain partition word the chain code hands over */
+extern void *iosMallocDebug(void *part, int size, char *file, int line);
+extern void *iosFree(void *p);
+/* the two carved chain records the new geometry starts from: 224 bytes over the
+ * head of the record and 64 bytes over the pendulum block at 0x20 */
+extern char D_002A5ED0[];
+extern char D_002A5F10[];
+extern char D_005553B8[];
+extern char D_00555410[];
+extern char D_0063ABC8[];
+extern void *D_0063A438;
+extern void *D_0063A44C;
+
+/* The geometry request the caller fills in: the anchor position, the probe
+ * direction at 0x10 and 0x14, the hang height at 0x18, the start angle at 0x20,
+ * the chain length at 0x24 and the swing limit at 0x28. */
+typedef struct {
+    /* 0x00 */ float pos[4];
+    /* 0x10 */ float f10;
+    /* 0x14 */ float f14;
+    /* 0x18 */ float f18;
+    /* 0x1C */ float f1C;
+    /* 0x20 */ float f20;
+    /* 0x24 */ float f24;
+    /* 0x28 */ float f28;
+} ChainGeoReq;
+
+/* the copy shapes the record templates and the probe endpoints are moved
+ * through: doubleword-aligned so the copies come out as ld/sd runs */
+typedef struct {
+    long long w[28];
+} ChainRecTemplate;
+
+typedef struct {
+    long long w[8];
+} ChainPendTemplate;
+
+typedef struct {
+    long long w[2];
+} ChainProbeVec;
+
+/* The two wall-probe endpoints, (0, 0, -100, 1) and (0, 0, 25, 1): read-only
+ * data, and const is also what gives ROM's load order in the second copy, since
+ * an unchanging read carries no anti-dependence on the frame stores of the
+ * first one. */
+extern const ChainProbeVec D_005553F0;
+extern const ChainProbeVec D_00555400;
+
+/* the wall hit point, written into a word-aligned slot of the record */
+typedef struct {
+    float w[2];
+} ChainHitPos;
+
+/* the gobj extension pointer, read as a union member: every store through the
+ * extension has to force the reload the ROM does */
+typedef union {
+    char *p;
+    int i;
+} ChainExtPtr;
+
+/* the DObj entry flag word, the same union DObj.c's allocObjectData uses */
+typedef union {
+    long long ll;
+    int i[2];
+} ChainDObjFlags;
+
+char *InitChainGeo(char *gobj, ChainGeoReq *req)
+{
+    ChainProbeVec p0;
+    ChainProbeVec p1;
+    ChainClipWork w;
+    char *cw;
+    int n;
+    int i;
+
+    n = (int)(req->f24 / 50.0f + 0.5f);
+
+    if (n < 2) {
+        debug_StdPrintfDummy(D_005553B8);
+        debug_assert(D_005551C0, 1178);
+        __assert(D_005551C0, 1178, D_0063ABC8);
+    }
+
+    cw = (char *)iosMallocDebug((void *)D_0063A438, (n << 5) + 0xE0, D_005551C0, 1181);
+
+    *(ChainRecTemplate *)cw = *(ChainRecTemplate *)D_002A5F10;
+
+    *(int *)(cw + 0x74) = n;
+    *(char **)(cw + 0xD0) = cw + 0xE0;
+    *(int *)(cw + 0x68) = -1;
+    if (req->f20 != -1.0f) {
+        *(float *)(cw + 0xC8) = req->f20;
+    }
+
+    *(ChainPendTemplate *)(cw + 0x20) = *(ChainPendTemplate *)D_002A5ED0;
+
+    *(float *)(cw + 0x4C) = req->f28;
+    *(float *)(cw + 0x4C) = *(float *)(cw + 0x4C) < 5.0f
+                                ? 5.0f
+                                : (90.0f < *(float *)(cw + 0x4C) ? 90.0f : *(float *)(cw + 0x4C));
+
+    ResetChainNodes(cw, (float *)req);
+
+    if (req->f10 != 0.0f) {
+        p0 = D_005553F0;
+        p1 = D_00555400;
+
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrix(req->pos[0], req->pos[1] + 10.0f, req->pos[2]);
+        MatrixDrive_RotMatrixY((short)(req->f14 * 32768.0f / 3.1415927f));
+        sceVu0ApplyMatrix(w.from, MatrixDrive_GetMatrix(), &p0);
+        sceVu0ApplyMatrix(w.to, MatrixDrive_GetMatrix(), &p1);
+        ClipWall(&w);
+        if (w.hit == 0) {
+            debug_StdPrintfDummy(D_00555410);
+        } else {
+            *(ChainHitPos *)(cw + 0xA4) = *(ChainHitPos *)w.f80;
+            *(char **)(cw + 0xAC) = (char *)w.hit;
+            GetOrientOfWall(cw + 0xB0, w.hit, w.f80);
+            cw[0xA0] = 1;
+        }
+    } else {
+        *(int *)(cw + 0xA4) = 0;
+        *(int *)(cw + 0xA8) = 0;
+        *(char **)(cw + 0xAC) = 0;
+        cw[0xA0] = 0;
+    }
+
+    if (req->f18 < 0.0f) {
+        cw[0x6C] = 0;
+    } else {
+        cw[0x6C] = 1;
+        *(float *)(cw + 0x70) = req->f18;
+    }
+
+    if (*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) != 0) {
+        iosFree((void *)((int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) & 0x0FFFFFFF));
+    }
+    if (*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) != 0) {
+        iosFree((void *)((int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) & 0x0FFFFFFF));
+    }
+    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) = 0;
+    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) = 0;
+    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) = (char *)iosMallocDebug(
+        (void *)D_0063A44C, (*(int *)(cw + 0x74) - 1) << 6, D_005551C0, 1245);
+    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) = (char *)iosMallocDebug(
+        (void *)D_0063A44C, (*(int *)(cw + 0x74) - 1) << 4, D_005551C0, 1245);
+    *(int *)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x8) = *(int *)(cw + 0x74) - 1;
+    if (*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) != 0) {
+        iosFree((void *)((int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) & 0x0FFFFFFF));
+    }
+    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) = (char *)iosMallocDebug(
+        (void *)D_0063A44C, (*(int *)(cw + 0x74) - 1) * 80, D_005551C0, 1245);
+
+    for (i = 0; i < *(int *)(cw + 0x74) - 1; i++) {
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            ((ChainDObjFlags *)(e + 0x38))->ll &= ~1;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            ((ChainDObjFlags *)(e + 0x38))->ll &= ~2;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(float *)(e + 0x40) = 0.0f;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(float *)(e + 0x44) = 0.0f;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(float *)(e + 0x48) = 0.0f;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(float *)(e + 0x4C) = 1.0f;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            ((ChainDObjFlags *)(e + 0x38))->ll &= ~4;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(int *)(e + 0x30) = 0;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(float *)(e + 0x34) = 1.0f;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(short *)(e + 0x3A) = 0;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(float *)(e + 0x20) = 1.0f;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(float *)(e + 0x24) = 1.0f;
+        }
+        {
+            char *e =
+                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            *(float *)(e + 0x28) = 1.0f;
+        }
+    }
+    *(short *)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x84C) = 2;
+
+    return cw;
+}
 
 void chain_set_charachara(char *gobj, float amp)
 {
