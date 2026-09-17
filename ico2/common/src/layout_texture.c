@@ -12,7 +12,10 @@ extern int D_0063C3F8;
 
 /* The 0x70-byte layout-property records. */
 typedef struct LtProperty {
-    char pad0[0x20];
+    char pad0[0x10];
+    int f10; /* 0x10 */
+    char pad14[0x1C - 0x14];
+    int f1C;   /* 0x1C */
     int up;    /* 0x20 */
     int down;  /* 0x24 */
     int left;  /* 0x28 */
@@ -21,7 +24,8 @@ typedef struct LtProperty {
     int f34;   /* 0x34 */
     int f38;   /* 0x38 */
     int f3C;   /* 0x3C */
-    char pad40[0x48 - 0x40];
+    int f40;   /* 0x40 */
+    int f44;   /* 0x44 */
     int f48;   /* 0x48 */
     int f4C;   /* 0x4C */
     int f50;   /* 0x50 */
@@ -31,7 +35,18 @@ typedef struct LtProperty {
     int f60;   /* 0x60 */
     int f64;   /* 0x64 */
     int f68;   /* 0x68 */
-    int flags; /* 0x6C */
+    /* 0x6C: the flag word, declared as bits.  The ROM's instruction order is
+       the evidence (rung: ROM bytes): gcc 2.9 gives a bitfield reference alias
+       set 0, and only with set 0 does the record's flag load come after the
+       short store in the two chase loops of display_texture_fade_cancel_chk,
+       and the `.last` load before it.  Only bit 2 is touched in this TU; the
+       names of the other bits are unknown, so they stay numbered. */
+    unsigned int f6C_b0 : 1;
+    unsigned int f6C_b1 : 1;
+    unsigned int fade_cancel : 1;
+    unsigned int f6C_b3 : 1;
+    unsigned int f6C_b4 : 1;
+    unsigned int f6C_b5 : 27;
 } LtProperty;
 
 extern LtProperty D_0030CFF8[];
@@ -76,7 +91,47 @@ extern LtProp D_00533FE8[];
 #include <string.h>
 #include "Texture.h"
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", display_texture_fade_cancel_chk);
+/* source lines 342-390 */
+void display_texture_fade_cancel_chk(int from, int to)
+{
+    short list1[256];
+    short list2[256];
+    int i, j;
+    int k, l;
+    int n1 = 0;
+    int n2 = 0;
+
+    for (i = from; i >= 0; i = D_00533FE8[i].link) {
+        for (j = D_00533FE8[i].first; j < D_00533FE8[i].last; j++) {
+            LtProperty *pr = &D_0030CFF8[j];
+
+            pr->fade_cancel = 0;
+            list1[n1++] = j;
+        }
+    }
+    for (i = to; i >= 0; i = D_00533FE8[i].link) {
+        for (j = D_00533FE8[i].first; j < D_00533FE8[i].last; j++) {
+            LtProperty *pr = &D_0030CFF8[j];
+
+            pr->fade_cancel = 0;
+            list2[n2++] = j;
+        }
+    }
+    for (k = 0; k < n1; k++) {
+        LtProperty *p = &D_0030CFF8[list1[k]];
+
+        for (l = 0; l < n2; l++) {
+            LtProperty *q = &D_0030CFF8[list2[l]];
+
+            if (p->f58 == q->f58 && p->f5C == q->f5C && p->f68 == q->f68 && p->f64 == q->f64 &&
+                p->f60 == q->f60 && p->f54 == q->f54 && p->f50 == q->f50 && p->f4C == q->f4C &&
+                p->f48 == q->f48) {
+                q->fade_cancel = 1;
+                p->fade_cancel = 1;
+            }
+        }
+    }
+}
 
 /* The pad record at D_0028F8F0: the button word at +0 and the trigger word at
    +4, with the two analog-stick axes as unsigned bytes at +0x56 and +0x57. */
@@ -293,23 +348,7 @@ extern unsigned int D_0063C40C;
 extern unsigned int D_0063C410;
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", texture_fading);
-/* census display_texture, a file static (MAIN.MAP carries no global of that
-   name), takes the name as static display_texture once this body is C: the stub
-   assembles a glabel that would emit a global display_texture */
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", func_001BF960);
 
-typedef struct {
-    int f[4];
-} SprRect;
-
-typedef struct {
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-    unsigned char a;
-} SprCol;
-
-extern SprRect D_0061DD50;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
@@ -323,6 +362,39 @@ extern void gif_SpriteSensitive(void *rect, unsigned int z, void *uv, void *col,
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 extern void texture_fading(LtProp *p);
+
+/* The sprite rectangle the gif helpers take: origin and size, in 1/16 pixels. */
+typedef struct {
+    int x;
+    int y;
+    int w;
+    int h;
+} SprRect;
+
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} SprCol;
+
+extern SprRect D_0061DD50;
+/* The census display_texture body (still INCLUDE_ASM below) reads these:
+   D_0063B608 is the second highlight colour, D_0028F720 the system record whose
+   bytes at 0xD0/0xD4/0xD8 it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
+   gif_PointOffset/gif_SetGsReg/rand are its callees. */
+extern SprCol D_0063B608;
+extern unsigned char D_0028F720[];
+extern float GetTableSin(int a);
+extern void gif_SpriteSensitiveOffset(void *rect, unsigned int z, void *ofs, void *col, int prim);
+extern void gif_PointOffset(void *pt, unsigned int z, void *col, int prim);
+extern void gif_SetGsReg(int reg, int val);
+extern int rand(void);
+
+/* census display_texture, a file static (MAIN.MAP carries no global of that
+   name), takes the name as static display_texture once this body is C: the stub
+   assembles a glabel that would emit a global display_texture */
+INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", func_001BF960);
 
 /* source lines 715-735 */
 static inline void lt_draw_primary_sprite(SprCol *col)
