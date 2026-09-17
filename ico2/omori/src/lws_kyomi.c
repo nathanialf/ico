@@ -123,7 +123,41 @@ void MakeHintSaveInfo(void)
     MAKE_HINT_SAVE_BITS(D_006E99B4, 4, 1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/lws_kyomi", ReadHintSaveInfo);
+/* lws_kyomi.c:305 and :306 are one source line each: the inverse of
+ * MAKE_HINT_SAVE_BITS, unpacking one 4-byte half back into the flag bit. */
+#define READ_HINT_SAVE_BITS(buf, bit)                                                              \
+    end = 0;                                                                                       \
+    for (k = 0; k < 28; k++) {                                                                     \
+        (D_002ADBA0 + k)->flags &= ~(1 << (bit));                                                  \
+    }                                                                                              \
+    n = 0;                                                                                         \
+    for (k = 0; k < 4; k++) {                                                                      \
+        for (j = 0; j < 8; j++) {                                                                  \
+            if ((((unsigned char *)(buf))[k] >> j) & 1) {                                          \
+                (D_002ADBA0 + n)->flags |= 1 << (bit);                                             \
+            }                                                                                      \
+            n++;                                                                                   \
+            if (n < 28) {                                                                          \
+                continue;                                                                          \
+            }                                                                                      \
+            end = 1;                                                                               \
+            break;                                                                                 \
+        }                                                                                          \
+        if (end) {                                                                                 \
+            break;                                                                                 \
+        }                                                                                          \
+    }
+
+void ReadHintSaveInfo(void)
+{
+    int j;
+    int k;
+    int n;
+    int end;
+
+    READ_HINT_SAVE_BITS(D_006E99B0, 0);
+    READ_HINT_SAVE_BITS(D_006E99B4, 1);
+}
 
 extern int D_0063B238;
 /* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */

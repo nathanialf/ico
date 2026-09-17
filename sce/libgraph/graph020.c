@@ -3,11 +3,11 @@
 #include "common.h"
 
 extern int GsGetIMR(void);
-extern void GsPutIMR(void *a0);
+extern int GsPutIMR(int a0);
 
 int sceGsPutIMR(void *a0)
 {
     int r = GsGetIMR();
-    GsPutIMR(a0);
+    GsPutIMR((int)a0);
     return r;
 }

@@ -6334,4 +6334,4 @@ D_006F6C70 = 0x006F6C70; // ignore:true  // ico2/common/src/charFileManager  // 
 D_0070006F = 0x0070006F; // ignore:true  // ico2/common/src/charFileManager  // packed bytes 6F 00 70 00 (o.p.) at ROM 0x4F78C8 in a data blob, not an address into the CharFile table
 D_006F6365 = 0x006F6365; // ignore:true  // ico2/common/src/charFileManager  // packed bytes 65 63 6F 00 (eco.) at ROM 0x51A405 in a data blob, not an address into the CharFile table
 D_006F726F = 0x006F726F; // ignore:true  // ico2/common/src/charFileManager  // packed bytes 6F 72 6F 00 (oro.) at ROM 0x51F16E in a data blob, not an address into the CharFile table
-fogRowColor = 0x00550C08; // type:u32 size:0x8  // ico2/seki/src/ZFog  // the two debug row colours (0xFFFFFF00 and 0xFF000000 words) that -G 8 keeps out of the carved .rodata run, so the blob after 0x550C07 defines the label
+D_0063BDE0 = 0x0063BDE0; // type:asciz size:0x8  // ico2/fumi/src/way_tool  // the menu label "play" (8 B of -G 8 small data) that way_tool reads by name, defined by the blob after girl's .sdata carve

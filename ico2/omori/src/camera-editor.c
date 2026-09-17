@@ -312,24 +312,33 @@ typedef struct {
     float x, y, z, w;
 } ArrowVtx __attribute__((aligned(16)));
 
-extern ArrowVtx D_002A5A10;
-extern ArrowVtx D_002A5A20;
-extern ArrowVtx D_002A5A30;
-extern ArrowVtx D_002A5A40;
-extern ArrowVtx D_002A5A50;
-extern ArrowVtx D_002A5A60;
+/* The head, barb and shaft ends of the arrow drawXZArrow draws, in the ROM's
+   run order: the head runs from the origin out to +-50, the barbs join +-25 to
+   the head, and the shaft runs from +-25 back to the caller's length.  MAIN.MAP
+   names none of camera-editor.o's .data, so these names are ours. */
+static ArrowVtx arrowHeadLeft = {-50.0f, 0.0f, -50.0f, 1.0f};
+
+static ArrowVtx arrowBarbLeft = {-25.0f, 0.0f, -50.0f, 1.0f};
+
+static ArrowVtx arrowShaftLeft = {-25.0f, 0.0f, -50.0f, 1.0f};
+
+static ArrowVtx arrowHeadRight = {50.0f, 0.0f, -50.0f, 1.0f};
+
+static ArrowVtx arrowBarbRight = {25.0f, 0.0f, -50.0f, 1.0f};
+
+static ArrowVtx arrowShaftRight = {25.0f, 0.0f, -50.0f, 1.0f};
 
 void drawXZArrow(void *col, int f, float z)
 {
     ArrowVtx v0 = {-25.0f, 0.0f, -z, 1.0f};
     ArrowVtx v1 = {25.0f, 0.0f, -z, 1.0f};
 
-    DrawLineG(&ZeroVector, col, &D_002A5A40, col, f);
-    DrawLineG(&ZeroVector, col, &D_002A5A10, col, f);
-    DrawLineG(&D_002A5A50, col, &D_002A5A40, col, f);
-    DrawLineG(&D_002A5A20, col, &D_002A5A10, col, f);
-    DrawLineG(&D_002A5A30, col, &v0, col, f);
-    DrawLineG(&D_002A5A60, col, &v1, col, f);
+    DrawLineG(&ZeroVector, col, &arrowHeadRight, col, f);
+    DrawLineG(&ZeroVector, col, &arrowHeadLeft, col, f);
+    DrawLineG(&arrowBarbRight, col, &arrowHeadRight, col, f);
+    DrawLineG(&arrowBarbLeft, col, &arrowHeadLeft, col, f);
+    DrawLineG(&arrowShaftLeft, col, &v0, col, f);
+    DrawLineG(&arrowShaftRight, col, &v1, col, f);
     DrawLineG(&v0, col, &v1, col, f);
 }
 
@@ -339,8 +348,16 @@ typedef struct {
     float tail[4];
 } AxisPair;
 
-extern AxisPair D_002A5A80[];
-extern ArrowVtx D_002A5A70;
+/* the point the axis widget is drawn at, 2000 units down the view axis */
+static ArrowVtx axisArrowOrigin = {0.0f, 0.0f, 2000.0f, 1.0f};
+
+/* the three axis arrows, each from -200 to +200 along one axis */
+static AxisPair axisArrows[3] = {
+    {{-200.0f, 0.0f, 0.0f, 1.0f}, {200.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, -200.0f, 0.0f, 1.0f}, {0.0f, 200.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, -200.0f, 1.0f}, {0.0f, 0.0f, 200.0f, 1.0f}},
+};
+
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 extern void sceVu0Normalize(void *dst, void *src);
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
@@ -370,13 +387,13 @@ void DispAxisArrow(int mask, void *col)
     }
     {
         MatrixDrive_SetTransposeMatrix(m0, matrixptr + 0x80);
-        sceVu0ApplyMatrix(v, m0, &D_002A5A70);
+        sceVu0ApplyMatrix(v, m0, &axisArrowOrigin);
 
         gif_StartPacketPri(11);
         gif_SetAlpha(1, 5, 0);
         gif_SetZTest(0);
 
-        ax = D_002A5A80;
+        ax = axisArrows;
         for (i = 0; i < 3; i++) {
             if ((mask >> i) & 1) {
                 sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -403,10 +420,17 @@ void DispAxisArrow(int mask, void *col)
 
 /* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a);
-extern int D_002A5AE0[];
-extern int D_002A5AF0[];
-extern int D_002A5B00[];
-extern int D_002A5B10[];
+
+/* the pin arrow colours: the first pair is drawn depth-tested (the part in
+   front of the level), the second pair through it, and each pair has a colour
+   for a typed pin and one for a plain one */
+static int pinArrowColorTyped[4] = {255, 128, 128, 128};
+
+static int pinArrowColorPlain[4] = {64, 64, 64, 128};
+
+static int pinArrowHiddenColorTyped[4] = {64, 32, 32, 128};
+
+static int pinArrowHiddenColorPlain[4] = {16, 16, 16, 128};
 
 void dispCameraPinType2(int box, int from, int to, int type)
 {
@@ -415,8 +439,8 @@ void dispCameraPinType2(int box, int from, int to, int type)
     int *c2;
     int i;
 
-    c1 = type ? D_002A5AE0 : D_002A5AF0;
-    c2 = type ? D_002A5B00 : D_002A5B10;
+    c1 = type ? pinArrowColorTyped : pinArrowColorPlain;
+    c2 = type ? pinArrowHiddenColorTyped : pinArrowHiddenColorPlain;
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_ScaleMatrix(-1.0f, -1.0f, -1.0f);
     MatrixDrive_SetTransposeMatrix(m0, matrixptr + 0x80);
@@ -476,12 +500,27 @@ void CameraEdit_DispPinType2(int a0, int a1, int a2)
 
 extern unsigned char D_0063AAA8[4];
 extern unsigned char D_0063AAB0[4];
-extern int D_002A5B20[6][4];
-extern int D_002A5B80[12][2];
-extern unsigned int D_002A5BE0[4];
-extern unsigned int D_002A5BF0[4];
-extern unsigned int D_002A5C00[4];
-extern unsigned int D_002A5C10[4];
+
+/* the eight box corners in face order: each row is the two corner pairs the
+   face is interpolated between */
+static int boxFaceCorner[6][4] = {
+    {0, 1, 2, 3}, {1, 3, 5, 7}, {2, 3, 6, 7}, {0, 2, 4, 6}, {5, 4, 7, 6}, {1, 0, 5, 4},
+};
+
+/* the twelve box edges as corner pairs */
+static int boxEdgeCorner[12][2] = {
+    {0, 1}, {1, 3}, {3, 2}, {2, 0}, {0, 4}, {1, 5}, {2, 6}, {3, 7}, {4, 5}, {5, 7}, {7, 6}, {6, 4},
+};
+
+/* the camera box edge colours, bright pair while the box is selected and dim
+   pair while it is not; the second of each pair is the part behind geometry */
+static unsigned int boxEdgeColorSel[4] = {224, 224, 224, 128};
+
+static unsigned int boxHiddenEdgeColorSel[4] = {32, 32, 32, 128};
+
+static unsigned int boxEdgeColor[4] = {64, 64, 64, 128};
+
+static unsigned int boxHiddenEdgeColor[4] = {16, 16, 16, 128};
 
 void dispCameraGroupType2(int box, unsigned char sel)
 {
@@ -522,11 +561,13 @@ void dispCameraGroupType2(int box, unsigned char sel)
     for (n = 0; n < 6; n++) {
         col = sel == 0 ? D_0063AAB0 : D_0063AAA8;
         for (j = 0; j < 3; j++) {
-            _InterGV(e0, &v[D_002A5B20[n][0]], &v[D_002A5B20[n][1]], (float)j, (float)(3 - j));
-            _InterGV(e1, &v[D_002A5B20[n][0]], &v[D_002A5B20[n][1]], (float)(j + 1),
+            _InterGV(e0, &v[boxFaceCorner[n][0]], &v[boxFaceCorner[n][1]], (float)j,
+                     (float)(3 - j));
+            _InterGV(e1, &v[boxFaceCorner[n][0]], &v[boxFaceCorner[n][1]], (float)(j + 1),
                      (float)(2 - j));
-            _InterGV(e2, &v[D_002A5B20[n][2]], &v[D_002A5B20[n][3]], (float)j, (float)(3 - j));
-            _InterGV(e3, &v[D_002A5B20[n][2]], &v[D_002A5B20[n][3]], (float)(j + 1),
+            _InterGV(e2, &v[boxFaceCorner[n][2]], &v[boxFaceCorner[n][3]], (float)j,
+                     (float)(3 - j));
+            _InterGV(e3, &v[boxFaceCorner[n][2]], &v[boxFaceCorner[n][3]], (float)(j + 1),
                      (float)(2 - j));
             for (k = 0; k < 3; k++) {
                 _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
@@ -538,11 +579,11 @@ void dispCameraGroupType2(int box, unsigned char sel)
         }
     }
     after_DrawPolygon();
-    c0 = D_002A5BE0;
-    c1 = D_002A5BF0;
+    c0 = boxEdgeColorSel;
+    c1 = boxHiddenEdgeColorSel;
     if (sel == 0) {
-        c0 = D_002A5C00;
-        c1 = D_002A5C10;
+        c0 = boxEdgeColor;
+        c1 = boxHiddenEdgeColor;
     }
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_ScaleMatrix(-1.0f, -1.0f, -1.0f);
@@ -551,11 +592,11 @@ void dispCameraGroupType2(int box, unsigned char sel)
     gif_SetZWrite(0);
     gif_SetZTest(0);
     for (i = 0; i < 12; i++) {
-        DrawLineG(&v[D_002A5B80[i][0]], c1, &v[D_002A5B80[i][1]], c1, 0);
+        DrawLineG(&v[boxEdgeCorner[i][0]], c1, &v[boxEdgeCorner[i][1]], c1, 0);
     }
     gif_SetZTest(1);
     for (i = 0; i < 12; i++) {
-        DrawLineG(&v[D_002A5B80[i][0]], c0, &v[D_002A5B80[i][1]], c0, 0);
+        DrawLineG(&v[boxEdgeCorner[i][0]], c0, &v[boxEdgeCorner[i][1]], c0, 0);
     }
     gif_EndPacket();
 }
@@ -575,10 +616,27 @@ typedef struct {
     char pad38[0x4C - 0x38];
 } CamBoxF;
 
-extern int D_002A5C20[6][4];
-extern int D_002A5C80[12][2];
-extern unsigned int D_002A5CE0[4];
-extern unsigned int D_002A5CF0[4];
+/* the plane editor's own copy of the face and edge tables; the faces are in a
+   different order from boxFaceCorner above */
+static int planeFaceCorner[6][4] = {
+    {2, 3, 6, 7}, {1, 0, 5, 4}, {1, 3, 5, 7}, {0, 2, 4, 6}, {5, 4, 7, 6}, {0, 1, 2, 3},
+};
+
+static int planeEdgeCorner[12][2] = {
+    {0, 1}, {1, 3}, {3, 2}, {2, 0}, {0, 4}, {1, 5}, {2, 6}, {3, 7}, {4, 5}, {5, 7}, {7, 6}, {6, 4},
+};
+
+/* the plane editor's edge colours.  It always draws the bright pair, so the dim
+   pair after it is reached by no instruction in the ROM; it is the same pair as
+   boxEdgeColor / boxHiddenEdgeColor above and is named for that. */
+static unsigned int planeEdgeColorSel[4] = {224, 224, 224, 128};
+
+static unsigned int planeHiddenEdgeColorSel[4] = {32, 32, 32, 128};
+
+static unsigned int planeEdgeColor[4] = {64, 64, 64, 128};
+
+static unsigned int planeHiddenEdgeColor[4] = {16, 16, 16, 128};
+
 extern unsigned char D_0063AAB8[4];
 extern unsigned char D_0063AAC0[4];
 extern unsigned char D_0063AAC8[4];
@@ -621,14 +679,14 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
             for (n = 0; n < 6; n++) {
                 col = (n != sel) ? cb : ca;
                 for (j = 0; j < 3; j++) {
-                    _InterGV(e0, &v[D_002A5C20[n][0]], &v[D_002A5C20[n][1]], (float)j,
+                    _InterGV(e0, &v[planeFaceCorner[n][0]], &v[planeFaceCorner[n][1]], (float)j,
                              (float)(3 - j));
-                    _InterGV(e1, &v[D_002A5C20[n][0]], &v[D_002A5C20[n][1]], (float)(j + 1),
-                             (float)(2 - j));
-                    _InterGV(e2, &v[D_002A5C20[n][2]], &v[D_002A5C20[n][3]], (float)j,
+                    _InterGV(e1, &v[planeFaceCorner[n][0]], &v[planeFaceCorner[n][1]],
+                             (float)(j + 1), (float)(2 - j));
+                    _InterGV(e2, &v[planeFaceCorner[n][2]], &v[planeFaceCorner[n][3]], (float)j,
                              (float)(3 - j));
-                    _InterGV(e3, &v[D_002A5C20[n][2]], &v[D_002A5C20[n][3]], (float)(j + 1),
-                             (float)(2 - j));
+                    _InterGV(e3, &v[planeFaceCorner[n][2]], &v[planeFaceCorner[n][3]],
+                             (float)(j + 1), (float)(2 - j));
                     for (k = 0; k < 3; k++) {
                         _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
                         _InterGV(g1, e0, e2, (float)(k + 1), (float)(2 - k));
@@ -652,8 +710,8 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
         gif_SetZTest(0);
         dispBox(D_0063AAC0, D_0063AAD0);
         after_DrawPolygon();
-        c0 = D_002A5CE0;
-        c1 = D_002A5CF0;
+        c0 = planeEdgeColorSel;
+        c1 = planeHiddenEdgeColorSel;
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_ScaleMatrix(-1.0f, -1.0f, -1.0f);
         gif_StartPacketPri(11);
@@ -661,11 +719,11 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
         gif_SetZWrite(0);
         gif_SetZTest(0);
         for (i = 0; i < 12; i++) {
-            DrawLineG(&v[D_002A5C80[i][0]], c1, &v[D_002A5C80[i][1]], c1, 0);
+            DrawLineG(&v[planeEdgeCorner[i][0]], c1, &v[planeEdgeCorner[i][1]], c1, 0);
         }
         gif_SetZTest(1);
         for (i = 0; i < 12; i++) {
-            DrawLineG(&v[D_002A5C80[i][0]], c0, &v[D_002A5C80[i][1]], c0, 0);
+            DrawLineG(&v[planeEdgeCorner[i][0]], c0, &v[planeEdgeCorner[i][1]], c0, 0);
         }
         gif_EndPacket();
     }

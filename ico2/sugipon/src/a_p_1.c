@@ -48,8 +48,13 @@ extern int GetSkeltonFocusNode(void *self, int id);
 extern void __assert(char *file, int line, char *expr);
 extern void *D_0063A438;
 extern void *D_0063A44C;
-extern char D_0061EE30[];
-extern char D_0061EE40[];
+
+/* the name every iosMallocDebug and assert in this file reports itself under */
+static const char a_p_1File[] = "src/a_p_1.c";
+
+/* the banner the failed-node assert prints above its message */
+static const char warningBanner[] = "--- WARNING!! ----\n";
+
 extern char D_0063B6C0[];
 
 typedef struct {
@@ -93,7 +98,7 @@ char *InitAP1(char *self, char *arg)
     char *d;
     int i;
 
-    p = iosMallocDebug(D_0063A438, 0x280, D_0061EE30, 0xE4);
+    p = iosMallocDebug(D_0063A438, 0x280, a_p_1File, 0xE4);
     *(char **)((int)GOBJ_SUB(self) + 0x830) = p;
     *(int *)p = *(int *)(arg + 0x30);
     *(int *)(p + 0x4) = 1;
@@ -131,15 +136,15 @@ char *InitAP1(char *self, char *arg)
         *(int *)(*(char **)(p + 0x194) + 0xC) = 0;
         *(int *)(*(char **)(p + 0x194) + 0x10) = 0;
         *(int *)(*(char **)(p + 0x194) + 0xC) =
-            (int)iosMallocDebug(D_0063A44C, 0x100, D_0061EE30, 0x105);
+            (int)iosMallocDebug(D_0063A44C, 0x100, a_p_1File, 0x105);
         *(int *)(*(char **)(p + 0x194) + 0x10) =
-            (int)iosMallocDebug(D_0063A44C, 0x40, D_0061EE30, 0x105);
+            (int)iosMallocDebug(D_0063A44C, 0x40, a_p_1File, 0x105);
         *(int *)(*(char **)(p + 0x194) + 0x8) = 4;
         if (*(int *)(*(char **)(p + 0x194) + 0x870) != 0) {
             iosFree(*(int *)(*(char **)(p + 0x194) + 0x870) & 0xFFFFFFF);
         }
         *(int *)(*(char **)(p + 0x194) + 0x870) =
-            (int)iosMallocDebug(D_0063A44C, 0x140, D_0061EE30, 0x105);
+            (int)iosMallocDebug(D_0063A44C, 0x140, a_p_1File, 0x105);
         {
             int n;
 
@@ -174,15 +179,15 @@ char *InitAP1(char *self, char *arg)
         *(int *)(*(char **)(p + 0x198) + 0xC) = 0;
         *(int *)(*(char **)(p + 0x198) + 0x10) = 0;
         *(int *)(*(char **)(p + 0x198) + 0xC) =
-            (int)iosMallocDebug(D_0063A44C, 0x100, D_0061EE30, 0x108);
+            (int)iosMallocDebug(D_0063A44C, 0x100, a_p_1File, 0x108);
         *(int *)(*(char **)(p + 0x198) + 0x10) =
-            (int)iosMallocDebug(D_0063A44C, 0x40, D_0061EE30, 0x108);
+            (int)iosMallocDebug(D_0063A44C, 0x40, a_p_1File, 0x108);
         *(int *)(*(char **)(p + 0x198) + 0x8) = 4;
         if (*(int *)(*(char **)(p + 0x198) + 0x870) != 0) {
             iosFree(*(int *)(*(char **)(p + 0x198) + 0x870) & 0xFFFFFFF);
         }
         *(int *)(*(char **)(p + 0x198) + 0x870) =
-            (int)iosMallocDebug(D_0063A44C, 0x140, D_0061EE30, 0x108);
+            (int)iosMallocDebug(D_0063A44C, 0x140, a_p_1File, 0x108);
         {
             int n;
 
@@ -210,8 +215,8 @@ char *InitAP1(char *self, char *arg)
         for (i = 0; i < 9; i++) {
             *(int *)(p + 0x170 + i * 4) = GetSkeltonFocusNode(self, *(int *)(D_004E55A0 + i * 4));
             if (*(int *)(p + 0x170 + i * 4) == -1) {
-                debug_assertMessage(D_0061EE30, 0x10D, D_0061EE40);
-                __assert(D_0061EE30, 0x10D, D_0063B6C0);
+                debug_assertMessage(a_p_1File, 0x10D, warningBanner);
+                __assert(a_p_1File, 0x10D, D_0063B6C0);
             }
         }
         *(int *)(p + 0x198) = 0;
@@ -448,7 +453,9 @@ extern void _AttackCenter(void *self, int a1, void *v, int a3, float r, int a5);
 extern char D_004E55E0[];
 extern char D_004E5860[];
 extern char D_004E58A0[];
-extern const Vec4A_P_1 D_0061EE60;
+
+/* the point the spider's bite attack is centred on, 50 units down its own arm */
+static const Vec4A_P_1 attackCenterOffset = {50.0f, 0.0f, 0.0f, 1.0f};
 
 /* static helper the listing places at a_p_1.c lines 628-631, above
  * calcSubMission's def line 637, so the name is ours: the law of cosines for
@@ -580,7 +587,7 @@ void calcSubMission(char *self)
         CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, &save2);
 
         if (*(int *)part == 2) {
-            atk = D_0061EE60;
+            atk = attackCenterOffset;
             _ApplyMatrix((int)&atk, (int)MatrixDrive_GetMatrix(), (int)&atk);
             _AttackCenter(self, -1, &atk, 0, 30.0f, 0);
         }
@@ -651,7 +658,6 @@ void resetPositionInfo(char *a0)
 extern int (*motFuncList[][2])(char *);
 extern char D_004E5970[];
 extern char D_004E59F0[];
-extern char D_0061EE70[];
 
 /* static helper the listing places at a_p_1.c lines 889-891, expanded only
  * into AP1Geo, so this name is ours. */
@@ -709,7 +715,8 @@ void AP1Geo(char *a0)
     d = GOBJ_SUB(a0)->f_54 - *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0xC) + 0x34);
     if ((d < 0.0f) ? ((d = -d) > 10000.0f) : (d > 10000.0f)) {
         GOBJ_SUB(a0)->f_5F8 = 0x800;
-        debug_StdPrintfDummy(D_0061EE70);
+        /* EUC-JP: "fall-death request from the spider slipping free" */
+        debug_StdPrintfDummy("蜘蛛の抜けによる落下死リクエスト\n");
     }
 }
 

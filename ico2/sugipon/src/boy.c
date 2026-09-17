@@ -123,8 +123,20 @@ extern char D_004E65B0[];
 extern char D_004E68B0[];
 extern char D_004E69F0[];
 extern char D_004E6B30[];
-extern char D_004E6C70[];
-extern char D_004E6D30[];
+
+/* The two points the boy's mantle hangs from, once for each cloth.  MAIN.MAP
+   names no symbol in boy.o's .data, so these names are ours. */
+static ClothHangCfg mantleHang[3] = {
+    {1, -5.0f, 30.0f, 20.0f, 1, {0}, 0.0f, -10.0f, {0}, 1.0f, -1.0f, {0}},
+    {1, -15.0f, 15.0f, 20.0f, 0, {0}, 0.0f, -10.0f, {0}, 1.0f, -1.0f, {0}},
+    {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
+};
+
+static ClothHangCfg tapeHang[3] = {
+    {1, -5.0f, 30.0f, 20.0f, 1, {0}, 0.0f, 13.0f, {0}, 1.0f, -1.0f, {0}},
+    {1, -15.0f, 15.0f, 20.0f, 0, {0}, 0.0f, 13.0f, {0}, 1.0f, -1.0f, {0}},
+    {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
+};
 
 char *InitBoyGeo(char *gobj, void *csv)
 {
@@ -135,8 +147,8 @@ char *InitBoyGeo(char *gobj, void *csv)
     w = (char *)iosMallocDebug(D_0063A438, 0x68, D_0061F178, 0x118);
     *(char **)(*(char **)(gobj + 0x15C) + 0x830) = w;
     p = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
-    *(char **)(p + 0x20) = InitCloth4D(gobj, D_004E62B0, D_004E6C70);
-    *(char **)(p + 0x24) = InitCloth4D(gobj, D_004E65B0, D_004E6D30);
+    *(char **)(p + 0x20) = InitCloth4D(gobj, D_004E62B0, mantleHang);
+    *(char **)(p + 0x24) = InitCloth4D(gobj, D_004E65B0, tapeHang);
     *(char **)(p + 0x2C) = InitCloth4D(gobj, D_004E68B0, 0);
     *(char **)(p + 0x28) = InitCloth4D(gobj, D_004E69F0, 0);
     *(char **)(p + 0x30) = InitCloth4D(gobj, D_004E6B30, 0);
@@ -207,8 +219,13 @@ typedef struct MotSyncPair { /* 0x08 */
 extern MotSyncPair D_00533FC0[];
 extern char *D_00639EA8;
 extern int D_0063B154;
-extern char D_004E6DF0[];
-extern char D_004E6E00[];
+
+/* the two wire spheres the girl-to-boy position sync draws when the debug flag
+   is on: blue for the girl, orange for the boy */
+static int girlSyncMarkerColor[4] = {64, 96, 128, 128};
+
+static int boySyncMarkerColor[4] = {255, 96, 64, 128};
+
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 /* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
@@ -259,10 +276,10 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
                 gif_SetAlpha(1, 5, 0x80);
                 _UnitMatrix(MatrixDrive_GetMatrix());
                 MatrixDrive_TransMatrixV((char *)GOBJ_SUB(D_00639EA8) + 0x100);
-                prim_DispWireSphere(10.0f, D_004E6DF0, 0x10, 8);
+                prim_DispWireSphere(10.0f, girlSyncMarkerColor, 0x10, 8);
                 _UnitMatrix(MatrixDrive_GetMatrix());
                 MatrixDrive_TransMatrixV((char *)GOBJ_SUB(gobj) + 0x100);
-                prim_DispWireSphere(10.0f, D_004E6E00, 0x10, 8);
+                prim_DispWireSphere(10.0f, boySyncMarkerColor, 0x10, 8);
                 gif_EndPacket();
             }
         }

@@ -76,7 +76,19 @@ extern void ClipWall(void *);
 /* kept local: this TU's uses of ClipWallField do not fit the prototype in fieldCollision.h */
 extern void ClipWallField(void *);
 extern int D_0063A438;
-extern char D_00554300[];
+
+/* the name every iosMallocDebug and assert in this file reports itself under */
+static const char wayUtilFile[] = "src/way_util.c";
+
+/* the red, green and blue the waypoint debug draw uses for the three axes.
+   No instruction in the retail ELF reaches the table; it sits between the file
+   name above and this file's format strings, which is how its extent is known.
+   MAIN.MAP names no symbol in way_util.o's .rodata, so the name is ours. */
+static const int axisColor[3][4] = {
+    {128, 0, 0, 128},
+    {0, 128, 0, 128},
+    {0, 0, 128, 128},
+};
 
 /* way_util.c:313-356.  The listing gives both visible_waypoint_of_all_except_gid
    (def line 360) and its _ThreadVersion (def 365) these same rows, the thread
@@ -98,7 +110,7 @@ static inline char *visible_waypoint_of_all_except_gid_sub(int *pos, int gid, in
     int n;
     int i;
 
-    tbl = (WpSortEnt *)iosMallocDebug(D_0063A438, 0x898, D_00554300, 0x139);
+    tbl = (WpSortEnt *)iosMallocDebug(D_0063A438, 0x898, wayUtilFile, 0x139);
 
     n = 0;
     for (wp = WayPoint_begin(); wp != 0; wp = (char *)WayPoint_next((int)wp)) {
@@ -173,7 +185,7 @@ static inline char *visible_waypoint_of_all_except_temp_sub(int *pos, int gid, i
     int n;
     int i;
 
-    tbl = (WpSortEnt *)iosMallocDebug(D_0063A438, 0x898, D_00554300, 383);
+    tbl = (WpSortEnt *)iosMallocDebug(D_0063A438, 0x898, wayUtilFile, 383);
 
     n = 0;
     for (wp = WayPoint_begin(); wp != 0; wp = (char *)WayPoint_next((int)wp)) {
@@ -244,9 +256,6 @@ void ez_circle(void)
 }
 
 extern void *memset(void *dst, int c, int n);
-extern char D_00554340[];
-extern char D_00554350[];
-extern char D_00554368[];
 
 int short_direction_between_wp(char *from, char *to)
 {
@@ -288,11 +297,11 @@ int short_direction_between_wp(char *from, char *to)
     }
 
     if (wp == 0) {
-        debug_StdPrintfDummy(D_00554340);
-        debug_StdPrintfDummy(D_00554350, *(int *)(to + 0x20));
+        debug_StdPrintfDummy("not same group\n");
+        debug_StdPrintfDummy("not same grp, %d\n", *(int *)(to + 0x20));
         for (wp = (char *)WayPointList_begin(*(int *)(to + 0x20)); wp != 0;
              wp = (char *)WayPointList_next(wp)) {
-            debug_StdPrintfDummy(D_00554368, wp, *(int *)(wp + 4));
+            debug_StdPrintfDummy("wp:%p %d\n", wp, *(int *)(wp + 4));
         }
         return -2;
     }
@@ -387,21 +396,20 @@ int wgid_next(int me, int target)
     return -1;
 }
 
-extern char D_00554300[];
 extern int D_0063A438;
 
 void *WayUtilWorkAlloc(void)
 {
-    WgAll *p = (WgAll *)iosMallocDebug(D_0063A438, 0x1C, D_00554300, 0x359);
+    WgAll *p = (WgAll *)iosMallocDebug(D_0063A438, 0x1C, wayUtilFile, 0x359);
     int *q;
     int i;
-    p->f0 = iosMallocDebug(D_0063A438, 0x5F, D_00554300, 0x35B);
-    p->f4 = iosMallocDebug(D_0063A438, 0x8A10, D_00554300, 0x35C);
-    p->fC = iosMallocDebug(D_0063A438, 0x17C, D_00554300, 0x35D);
-    p->f10 = iosMallocDebug(D_0063A438, 0x17C, D_00554300, 0x35E);
-    p->f14 = iosMallocDebug(D_0063A438, 0x17C, D_00554300, 0x35F);
-    p->f18 = iosMallocDebug(D_0063A438, 0x17C, D_00554300, 0x360);
-    q = (int *)iosMallocDebug(D_0063A438, 0x178, D_00554300, 0x362);
+    p->f0 = iosMallocDebug(D_0063A438, 0x5F, wayUtilFile, 0x35B);
+    p->f4 = iosMallocDebug(D_0063A438, 0x8A10, wayUtilFile, 0x35C);
+    p->fC = iosMallocDebug(D_0063A438, 0x17C, wayUtilFile, 0x35D);
+    p->f10 = iosMallocDebug(D_0063A438, 0x17C, wayUtilFile, 0x35E);
+    p->f14 = iosMallocDebug(D_0063A438, 0x17C, wayUtilFile, 0x35F);
+    p->f18 = iosMallocDebug(D_0063A438, 0x17C, wayUtilFile, 0x360);
+    q = (int *)iosMallocDebug(D_0063A438, 0x178, wayUtilFile, 0x362);
     p->f8 = (int)q;
     for (i = 0; i < 94; i++) {
         q[i] = p->f4 + i * 0x178;
@@ -1143,8 +1151,8 @@ inline int direction_across_bridge(void *a0, int a1)
     e2 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x24) * 0x40;
     if (*(int *)(e2 + 0x20) != a1) {
         debug_StdPrintfDummy(D_00554378);
-        debug_assert(D_00554300, 0x2C2);
-        __assert(D_00554300, 0x2C2, D_0063A9E8);
+        debug_assert(wayUtilFile, 0x2C2);
+        __assert(wayUtilFile, 0x2C2, D_0063A9E8);
     }
     return 0;
 }

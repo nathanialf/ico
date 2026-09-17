@@ -114,7 +114,24 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posM
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 extern int D_0063A438;
-extern const char D_00620AE8[];
+
+/* the name every iosMallocDebug in this file reports itself under */
+static const char rotObjectFile[] = "src/rotObject.c";
+
+/* The four strings after it in rotObject.o's .rodata run: the name of a
+   function and the vector format under it, for the three hold-point routines.
+   No instruction in the retail ELF reaches any of them, so the calls that
+   printed them are not in the shipped build and their sites are not
+   recoverable; the strings themselves are, and the run's order is the ROM's.
+   MAIN.MAP names no symbol in the run, so these four names are ours. */
+static const char getHoldPointTrace[] = "GetRotObjectHoldPoint";
+
+static const char vectorTraceFmt[] = "\t%f, %f, %f\n";
+
+static const char moveWithHoldPointTrace[] = "MoveRotObjectWithHoldPoint";
+
+static const char getGlobalHoldGeometryTrace[] = "GetRotObjectGlobalHoldGeometry";
+
 extern unsigned char D_0063BAB0;
 /* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
@@ -129,7 +146,7 @@ typedef union RotObjWord {
 
 char *InitRotObjectGeo(char *gobj, char *src)
 {
-    char *p = iosMallocDebug(D_0063A438, 0x40, (void *)D_00620AE8, 57);
+    char *p = iosMallocDebug(D_0063A438, 0x40, (void *)rotObjectFile, 57);
 
     *(int *)(p + 0x30) = D_0063BAB0;
     D_0063BAB0 = (D_0063BAB0 + 1) % 30;

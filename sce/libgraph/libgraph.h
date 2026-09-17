@@ -22,7 +22,7 @@ void sceGsGetIMR(void);                                                /* defini
 void sceGsPutDispEnv(void *a0);                                        /* definition in sce/ */
 int sceGsPutDrawEnv(void *a0);                                         /* definition in sce/ */
 int sceGsPutIMR(void *a0);                                             /* definition in sce/ */
-void sceGsResetGraph(int a0, int a1, int a2, int a3);                  /* dominant spelling at 1 sites */
+void sceGsResetGraph(short mode, short inter, short omode, short ffmd); /* definition in sce/; the ROM sign-extends all four with sll/sra */
 void sceGsResetPath(void);                                             /* dominant spelling at 4 sites */
 int sceGsSetDefAlphaEnv(long long *a0, int a1);                        /* definition in sce/ */
 void sceGsSetDefDispEnv(int *env, int psm, short w, short h, short dx, short dy); /* dominant spelling at 2 sites */

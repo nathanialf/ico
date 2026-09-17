@@ -422,7 +422,30 @@ int SgGetBgmStatus(int a0)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgGetBgmChStatus);
+int SgGetBgmChStatus(unsigned int a0, int a1, int a2)
+{
+    int ret = -1;
+    volatile int *p;
+    char *ch;
+    int v;
+
+    if (a0 < 0x30 && a1 >= 0 && a1 < 0x10) {
+        p = (volatile int *)_SgGetSeqContext(a0);
+        p[0] |= 0x2000;
+        if (p[0] & 1) {
+            ch = *(char **)((char *)p + 8);
+            if (a2 == 0) {
+                v = *(unsigned char *)(ch + (a1 << 4) + 0x12);
+                if (v != 0xFF) {
+                    ret = v;
+                }
+            }
+        }
+        p[0] &= 0xFFFFDFFF;
+    }
+    return ret;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgSetBgmPanpot);
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgSePlay);
 

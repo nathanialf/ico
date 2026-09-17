@@ -16,9 +16,13 @@ union PendCopy {
     long long q[4];
 };
 
+/* the camera position and the point it looks at, the pair InitCamera seeds
+   both camera work areas with; the halves are named after the same pair in
+   InsertCameraWork below */
 typedef struct {
-    unsigned long _0, _8, _10, _18;
-} CamTgt;
+    float pos[4];
+    float tgt[4];
+} CamTgt __attribute__((aligned(16)));
 
 extern int D_006E66C0[];
 
@@ -297,7 +301,10 @@ typedef struct InsertCameraWork {
     unsigned char cutType; /* 0x36 */
     unsigned char b37;     /* 0x37 */
     unsigned char b38;     /* 0x38 */
-} InsertCameraWork;
+    char pad39[0x40 - 0x39];
+    /* a VU0 quadword record: pos and tgt are quadword vectors and the ROM's own
+       copy of it moves 8 bytes at a time */
+} InsertCameraWork __attribute__((aligned(16)));
 
 extern InsertCameraWork D_006E6710;
 extern int *D_00639EA4;
@@ -332,18 +339,20 @@ static inline void Camctrl_Init(int gobj)
     Camctrl_ForceTarget(gobj);
 }
 
-typedef struct {
-    unsigned long _0, _8, _10, _18, _20, _28, _30, _38;
-} InsCamImage;
+/* the pair InitCamera starts every stage from: the camera one metre up,
+   looking at a point just over half a metre up.  MAIN.MAP names no symbol in
+   camera-root.o's .data, so both names here are ours. */
+static CamTgt cameraTargetDefault = {{0.0f, 100.0f, 0.0f, 0.0f}, {0.0f, 52.0f, 0.0f, 0.0f}};
 
-extern CamTgt D_002A5E70;
-extern InsCamImage D_002A5E90;
+/* the cleared insert-camera request: no target, no blend, one cut pending */
+static InsertCameraWork insertCameraClear = {
+    0, 0, {0}, {0.0f, 0.0f, 0.0f}, {0}, {0.0f, 0.0f, 0.0f}, {0}, -1.0f, 0, 1, 0, 0, 1, {0}};
 
 /* camera-root.c:443 in the listing, inlined into InitCamera; it has no symbol
    in baserom/pal/MAIN.MAP, so this name is ours. */
 static inline void InsertCamera_Clear(void)
 {
-    *(InsCamImage *)&D_006E6710 = D_002A5E90;
+    D_006E6710 = insertCameraClear;
 }
 
 /* kept local: this TU's uses of InitIco2Camera do not fit the prototype in camera-ico2.h */
@@ -367,7 +376,7 @@ void InitCamera(void)
     InsertCamera_Clear();
     D_0063AB9C = gobj;
     D_0063C2A0 = 3;
-    *(CamTgt *)D_006E66E0 = *(CamTgt *)D_006E66C0 = D_002A5E70;
+    *(CamTgt *)D_006E66E0 = *(CamTgt *)D_006E66C0 = cameraTargetDefault;
     Camctrl_Init(gobj);
     InitIco2Camera();
     InitCameraEditor();

@@ -66,8 +66,27 @@ extern int D_0063B13C;
 static int queenBga[4];
 
 extern int D_002A60B0[];
-extern int D_002A7740[];
 extern int D_002A6BB0[];
+
+/* the five points the queen's cape hangs from.  MAIN.MAP names no symbol in
+   queen.o's .data, so this name is ours. */
+static ClothHangCfg queenClothHang[6] = {
+    {1, -5.0f, 45.0f, 10.0f, 49, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
+    {1, -5.0f, 60.0f, 10.0f, 50, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
+    {1, -5.0f, 45.0f, 10.0f, 45, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
+    {1, -5.0f, 60.0f, 10.0f, 46, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
+    {1, -20.0f, 45.0f, 10.0f, 44, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
+    {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
+};
+
+/* the six places an enemy is dropped back into the last stage when it is
+   called again; LW coordinates, converted by lw_pos_to_ico_pos at the site */
+static float queenSpawnPos[6][4] = {
+    {1200.0f, -1000.0f, 300.0f, 0.0f}, {1200.0f, -1000.0f, -100.0f, 0.0f},
+    {1100.0f, -1000.0f, 100.0f, 0.0f}, {800.0f, -920.0f, 200.0f, 0.0f},
+    {600.0f, -900.0f, -200.0f, 0.0f},  {400.0f, -900.0f, 100.0f, 0.0f},
+};
+
 extern int D_0028F4D4[];
 
 /* .sbss, owned by queen.o (MAIN.MAP names no symbol in the run): the queen's own frame counter, the
@@ -251,7 +270,6 @@ static const QueenGenTable genEnemyTable[2] = {
 static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d";
 
 extern int D_0028F4C0[];
-extern float D_002A78C0[];
 extern float _GetRandom(void);
 /* kept local: this TU's uses of lw_pos_to_ico_pos do not fit the prototype in itou_sub.h */
 extern void lw_pos_to_ico_pos(float *dst, float *src);
@@ -306,7 +324,7 @@ void gene_enemy(volatile int g)
                         obj = (char *)isysGObjSearchFromObjLayoutID(
                             tbl->list[(int)(_GetRandom() * tbl->n)]);
                         if (obj != 0) {
-                            lw_pos_to_ico_pos(pos.f, &D_002A78C0[(int)(_GetRandom() * 6.0f) * 4]);
+                            lw_pos_to_ico_pos(pos.f, queenSpawnPos[(int)(_GetRandom() * 6.0f)]);
                             SetRootPosition(obj, pos.f);
                             wait = (int)(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f);
                             for (k = 0; k <= wait; k++) {
@@ -658,7 +676,7 @@ void *InitQueenGeo(char *g)
         queenBga[i] = 0;
     }
     *(int *)(w + 0xC) = 1;
-    *(int *)(w + 0x10) = InitCloth4D(g, D_002A60B0, D_002A7740);
+    *(int *)(w + 0x10) = InitCloth4D(g, D_002A60B0, queenClothHang);
     *(int *)(w + 0x14) = InitCloth4D(g, D_002A6BB0, 0);
     *(char **)((char *)ext + 0x830) = w;
     InitMotionOrient(g, 0x967, 0x975, 0xC, 0x18, 0x430);

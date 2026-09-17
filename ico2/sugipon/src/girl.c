@@ -189,10 +189,31 @@ extern char D_004E9520[];
 extern char D_004E9C40[];
 extern char D_004EA470[];
 extern char D_004EA8E0[];
-extern char D_004EB180[];
-extern char D_004EB240[];
-extern char D_004EB300[];
-extern char D_004EB380[];
+
+/* The hang tables the girl's five cloths are built from, named after the work
+   slot each one fills in InitGirlGeo.  MAIN.MAP names no symbol in girl.o's
+   .data, so these names are ours. */
+static ClothHangCfg clothHangF8[3] = {
+    {1, -10.0f, 65.0f, 10.0f, 49, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
+    {1, -10.0f, 65.0f, 10.0f, 45, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
+    {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
+};
+
+static ClothHangCfg clothHangF10[3] = {
+    {1, -3.0f, 15.0f, 10.0f, 35, {0}, 0.0f, 4.0f, {0}, 1.0f, -1.0f, {0}},
+    {1, -5.0f, 8.0f, 5.0f, 34, {0}, 0.0f, 0.0f, {0}, 1.0f, -1.0f, {0}},
+    {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
+};
+
+static ClothHangCfg clothHangF18[2] = {
+    {1, 0.0f, 10.0f, 8.0f, 35, {0}, 5.0f, 3.5f, {0}, 1.0f, -1.0f, {0}},
+    {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
+};
+
+static ClothHangCfg clothHangF20[2] = {
+    {1, -15.0f, 30.0f, 20.0f, 1, {0}, 0.0f, 13.0f, {0}, 1.0f, -1.0f, {0}},
+    {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
+};
 
 /* The three cloth and hair setters sit here, at their census source lines
    (834, 852 and 878, against InitGirlGeo's 891).  They are plain `inline`,
@@ -226,8 +247,10 @@ typedef struct {
     int unkC;
 } GirlClothSetting;
 
-extern GirlClothSetting D_004EB400;
-extern GirlClothSetting D_004EB410;
+/* the two cloth parameter sets setGirlClothSetting switches between */
+static GirlClothSetting girlClothDemoParam = {20, 0, 256, 1};
+
+static GirlClothSetting girlClothGameParam = {20, 0, 256, 0};
 
 /* static helper the listing places at girl.c line(s) 864-868; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
@@ -243,10 +266,10 @@ inline void setGirlClothSetting(int a0)
 {
     if (a0 == 0) {
         debug_StdPrintfDummy("set cloth demo mode\n");
-        setGirlClothParam(&D_004EB400);
+        setGirlClothParam(&girlClothDemoParam);
     } else {
         debug_StdPrintfDummy("set cloth game mode\n");
-        setGirlClothParam(&D_004EB410);
+        setGirlClothParam(&girlClothGameParam);
     }
 }
 
@@ -284,11 +307,11 @@ void *InitGirlGeo(char *gobj, char *csv)
     case 2:
         break;
     default:
-        w->f10 = (int)InitCloth4D(gobj, D_004E86C0, D_004EB240);
-        w->f8 = (int)InitCloth4D(gobj, D_004E7AC0, D_004EB180);
-        w->f14 = (int)InitCloth4D(gobj, D_004E8EF0, D_004EB240);
-        w->f18 = (int)InitCloth4D(gobj, D_004E9100, D_004EB300);
-        w->f20 = (int)InitCloth4D(gobj, D_004E9520, D_004EB380);
+        w->f10 = (int)InitCloth4D(gobj, D_004E86C0, clothHangF10);
+        w->f8 = (int)InitCloth4D(gobj, D_004E7AC0, clothHangF8);
+        w->f14 = (int)InitCloth4D(gobj, D_004E8EF0, clothHangF10);
+        w->f18 = (int)InitCloth4D(gobj, D_004E9100, clothHangF18);
+        w->f20 = (int)InitCloth4D(gobj, D_004E9520, clothHangF20);
         w->f24 = (int)CSVSYSTEM_InitDObj(0xC, csv);
         w->f2C = (int)CSVSYSTEM_InitDObj(0xD, csv);
         w->f30 = (int)CSVSYSTEM_InitDObj(0xE, csv);
@@ -400,7 +423,9 @@ void GirlAI(char *a0)
 }
 
 extern int matrixptr;
-extern char *D_004EB420[];
+
+/* the name the cloth debug display prints for each girl kind */
+static char *girlClothName[4] = {"", "DEVIL", "STONE", 0};
 
 /* static helper the listing places at girl.c line(s) 1082; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
@@ -423,7 +448,7 @@ void debugWireStringGirl(char *a0)
     _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
-    DispWireString(D_004EB420[cloth[0]]);
+    DispWireString(girlClothName[cloth[0]]);
     MatrixDrive_PopMatrix();
 }
 

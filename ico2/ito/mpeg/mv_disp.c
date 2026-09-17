@@ -158,7 +158,6 @@ void sendDispEnv(void *a0)
 extern int D_0063C0C0;
 extern int D_0063C0C4;
 extern int D_0028F4C0[];
-extern void sceGsResetGraph(int a0, int a1, int a2, int a3);
 extern void sceGsResetPath(void);
 
 void dispCreate(int *self, int a1, int a2, int a3, int a4)

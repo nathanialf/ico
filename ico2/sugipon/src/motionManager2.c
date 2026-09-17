@@ -727,7 +727,29 @@ static const char illegalCompressMsg[] = "Illegal compress formatID(%d) appeard.
 extern char D_00639F10[];
 extern char D_00639F18[];
 extern float D_00639F1C[];
-extern int D_00290670[];
+
+/* The five small objects at the tail of motionManager2.o's .data run, declared
+   as one block in the ROM's run order.  MAIN.MAP names none of them, so the
+   names are ours and read off what the code does with them. */
+
+/* the four wall corners in edge order, closed back onto corner 0, so a walk of
+   i = 0..3 takes the pair (corner[i], corner[i+1]) */
+static int wallLineCorner[8] = {0, 1, 3, 2, 0, 0, 0, 0};
+
+/* the colour DebugDisp1Collision draws a wall outline in: white, half alpha */
+static int wallLineColor[4] = {255, 255, 255, 128};
+
+/* the same closed corner walk, used to pick the wall edge a position sits on */
+static int wallEdgeCorner[8] = {0, 1, 3, 2, 0, 0, 0, 0};
+
+/* the matrix that turns a wall into the XY plane: the identity with the wall
+   normal's X and Z written into the four rotation slots before every use */
+static float wallAlignMatrix[16] = {
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+/* the half turn about Z every motion node's quaternion is multiplied by */
+static float nodeFlipQuaternion[4] = {0.0f, 0.0f, -1.0f, 0.0f};
 
 int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, int *cfg,
                                           int flip, float *pos)
@@ -750,7 +772,7 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     int *p15c;
     int v_c;
 
-    tbl = D_00290670;
+    tbl = wallEdgeCorner;
     pts = (ptsIn != 0) ? ptsIn : (float *)local;
     bestIdx = -1;
 
@@ -826,7 +848,6 @@ extern void _OuterProduct(float *dst, float *a, float *b);
 extern float _InnerProduct(float *a, float *b);
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(float *dst, float *a, float *b, float t);
-extern float D_00290690[];
 /* kept local: this TU's uses of YUnitVector do not fit the prototype in matrixDrive.h */
 extern float YUnitVector[];
 
@@ -853,10 +874,10 @@ void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t)
     minIdx = 0;
     maxIdx = 0;
     getVerticalElementOfWallNormal((int *)pts, (int *)nrm, cfg);
-    D_00290690[0] = D_00290690[10] = nrm[2];
-    D_00290690[2] = nrm[0];
-    D_00290690[8] = -nrm[0];
-    _SetCurrentMatrix(D_00290690);
+    wallAlignMatrix[0] = wallAlignMatrix[10] = nrm[2];
+    wallAlignMatrix[2] = nrm[0];
+    wallAlignMatrix[8] = -nrm[0];
+    _SetCurrentMatrix(wallAlignMatrix);
     _ApplyCurrentMatrix(v, pts);
     maxV = minV = v[0];
     for (i = 1; i < 4; i++) {
@@ -905,7 +926,7 @@ int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, int *cfg, int
     int *t;
     int *tbl;
 
-    tbl = D_00290670;
+    tbl = wallEdgeCorner;
     pts = (ptsIn != 0) ? ptsIn : (float *)local;
     bestIdx = 0;
     getVerticalElementOfWallNormal((int *)pts, (int *)up, cfg);
@@ -1225,7 +1246,6 @@ static inline void getBlendedMotionRootPos(float *dst, float *a, float *b, float
     dst[2] = a[2] * t + b[2] * u;
 }
 
-extern int D_002906D0[];
 /* kept local: this TU's uses of GetSlerpQuaternionNoRegularize do not fit the prototype in quaternion.h */
 extern void GetSlerpQuaternionNoRegularize(float *dst, float *a, float *b, float t);
 
@@ -1255,12 +1275,12 @@ static inline void getMotion(char *dst, float *root, void *motion, int idx, unsi
     if (hrc != 0) {
         i = 0;
         do {
-            MultiQuaternion(dst + i * 0x20 + 0x10, D_002906D0, dst + i * 0x20 + 0x10);
+            MultiQuaternion(dst + i * 0x20 + 0x10, nodeFlipQuaternion, dst + i * 0x20 + 0x10);
             i = *(int *)(hrc + i * 0x40 + 0x34);
         } while (i != -1);
     } else {
         for (i = 0; i < count; i++) {
-            MultiQuaternion(dst + i * 0x20 + 0x10, D_002906D0, dst + i * 0x20 + 0x10);
+            MultiQuaternion(dst + i * 0x20 + 0x10, nodeFlipQuaternion, dst + i * 0x20 + 0x10);
         }
     }
     if (root != 0) {
@@ -1468,9 +1488,6 @@ int CheckFieldContact(char *info, char *self, float *pos, float lim)
     return 0;
 }
 
-extern int D_00290640[];
-extern int D_00290660[];
-
 /* INTERIM (same reason as getSkeltonFocusNode above): the listing inlines
    DebugDisp1CollisionWithColor (its body carries DebugDisp1Collision's rows)
    so it is `inline` in the dev's TU; while this tail still has asm members a
@@ -1493,7 +1510,7 @@ static inline void debugDisp1CollisionWithColor(int *cfg, void *color)
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     for (i = 0; i < 4; i++) {
-        DrawLineG(pts[D_00290640[i]], color, pts[D_00290640[i + 1]], color, -1);
+        DrawLineG(pts[wallLineCorner[i]], color, pts[wallLineCorner[i + 1]], color, -1);
     }
     MatrixDrive_PopMatrix();
     gif_EndPacket();
@@ -1501,7 +1518,7 @@ static inline void debugDisp1CollisionWithColor(int *cfg, void *color)
 
 void DebugDisp1Collision(int *cfg)
 {
-    debugDisp1CollisionWithColor(cfg, D_00290660);
+    debugDisp1CollisionWithColor(cfg, wallLineColor);
 }
 
 void DebugDisp1CollisionWithColor(int *cfg, void *color)
@@ -1519,7 +1536,7 @@ void DebugDisp1CollisionWithColor(int *cfg, void *color)
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     for (i = 0; i < 4; i++) {
-        DrawLineG(pts[D_00290640[i]], color, pts[D_00290640[i + 1]], color, -1);
+        DrawLineG(pts[wallLineCorner[i]], color, pts[wallLineCorner[i + 1]], color, -1);
     }
     MatrixDrive_PopMatrix();
     gif_EndPacket();
@@ -1877,12 +1894,12 @@ void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mas
     if (hrc != 0) {
         i = 0;
         do {
-            MultiQuaternion(dst + i * 0x20 + 0x10, D_002906D0, dst + i * 0x20 + 0x10);
+            MultiQuaternion(dst + i * 0x20 + 0x10, nodeFlipQuaternion, dst + i * 0x20 + 0x10);
             i = *(int *)(hrc + i * 0x40 + 0x34);
         } while (i != -1);
     } else {
         for (i = 0; i < count; i++) {
-            MultiQuaternion(dst + i * 0x20 + 0x10, D_002906D0, dst + i * 0x20 + 0x10);
+            MultiQuaternion(dst + i * 0x20 + 0x10, nodeFlipQuaternion, dst + i * 0x20 + 0x10);
         }
     }
     if (root != 0) {

@@ -95,7 +95,11 @@ typedef struct FogToolItem {
 } FogToolItem;
 
 extern GsbPad D_0028F8F0[];
-extern char *D_00290C08[]; /* "Off" / "On" */
+
+/* the two labels the 0/1 row prints; the unspecified bound keeps the 8-byte
+   pointer array out of small data under -G 8, which is where the ROM has it */
+static char *fogOnOffText[] = {"Off", "On"};
+
 /* .rodata, the head of ZFog.o's run, VMA 0x550AE8..0x550C08: the
    fog tool's nine rows and their names.  Each row names the stage
    setting word it edits; the first row is the only 0/1 one, which is what the
@@ -116,12 +120,14 @@ static const FogToolItem fogToolItems[9] = {
     {" Fog Strength ", &D_0028F720[0x120 / 4], 0, 255},
 };
 
-extern unsigned int fogRowColor[]; /* unselected / selected row colour, 8 B at
-                                      VMA 0x550C08: an 8-byte object compiles to
-                                      .sdata under -G 8, so it stays in the blob */
-extern int D_0063A354;             /* highlighted row */
-extern char D_0063A358[];          /* "%s : %s" */
-extern char D_0063A360[];          /* "%s : %d" */
+/* the colour a row is drawn in: white when the cursor is elsewhere, black when
+   it is on this row.  The unspecified bound keeps the 8-byte object out of
+   small data under -G 8, which is where the ROM has it. */
+static const unsigned int fogRowColor[] = {0xFFFFFF00, 0xFF000000};
+
+extern int D_0063A354;    /* highlighted row */
+extern char D_0063A358[]; /* "%s : %s" */
+extern char D_0063A360[]; /* "%s : %d" */
 
 int fog_FogTool(void)
 {
@@ -135,7 +141,7 @@ int fog_FogTool(void)
     for (i = 0; i < 9; i++) {
         if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
             debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(D_0063A354 == i) ? 1 : 0],
-                              D_0063A358, fogToolItems[i].name, D_00290C08[*fogToolItems[i].val]);
+                              D_0063A358, fogToolItems[i].name, fogOnOffText[*fogToolItems[i].val]);
         } else {
             debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(D_0063A354 == i) ? 1 : 0],
                               D_0063A360, fogToolItems[i].name, *fogToolItems[i].val);
@@ -170,7 +176,7 @@ int fog_FogTool(void)
         for (i = 0; i < 9; i++) {
             if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
                 debug_StdPrintfDummy(D_00550C20, fogToolItems[i].name,
-                                     D_00290C08[*fogToolItems[i].val]);
+                                     fogOnOffText[*fogToolItems[i].val]);
             } else {
                 debug_StdPrintfDummy(D_00550C30, fogToolItems[i].name, *fogToolItems[i].val);
             }
