@@ -15,7 +15,7 @@
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order act.c's inline tail has. */
-void actInitialize_geo(void);
+void actInitialize_geo(void *self);
 int ACTReserveTarget(char *self, void *a1, int a2);
 void _ACTRun(int n);
 void _ACTWait(int a0);

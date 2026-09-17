@@ -1080,13 +1080,16 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyStart);
 /* kept local: this TU's uses of ConvertStickToAbsCoord do not fit the prototype in act.h */
 extern void ConvertStickToAbsCoord();
 /* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
-extern void _RotyGV();
+extern int _RotyGV();
 
-void CorrectStickInfo(int a0)
+/* `stick` is never named in the body: the ROM leaves $a1 untouched and
+   ConvertStickToAbsCoord reads it straight out of the incoming register, so the
+   stick record reaches it through the argument register alone. */
+int CorrectStickInfo(void *dir, void *stick)
 {
     int buf[4];
     ConvertStickToAbsCoord(buf);
-    _RotyGV(buf, a0);
+    return _RotyGV(buf, dir);
 }
 
 void *GetBoyWeaponGObj(void)

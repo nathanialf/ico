@@ -18,7 +18,7 @@ void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float 
 void BoyBgaManager(void *self, int id, void *dst);
 void BoyInfoUpdate_StageChange(void);
 void Boy_Init(void);
-void CorrectStickInfo(int a0);
+int CorrectStickInfo(void *dir, void *stick);
 void DeleteBoyWeapon(void);
 void GetBoyRootPositionForCamera(float *out);
 void *GetBoyWeaponGObj(void);

@@ -19,6 +19,7 @@ void EnemySetfAppearAll(char *self);
 int GetEnemyBattleType(char *a0);
 float GetEnemyDefDodgeRange(char *a0);
 float GetEnemyDefLife(char *a0);
+int GetEnemyHitNodeFlag(char *a0);
 int RandomizeEnemy(char *self);
 void ResetEnemyPositionInfo(char *self);
 void ReviveEnemyParticle(char *a0, int a1);

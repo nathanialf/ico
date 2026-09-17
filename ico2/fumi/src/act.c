@@ -256,7 +256,7 @@ void after_func_exec(char *self, int oldst, int newst)
     }
 }
 
-inline void actInitialize_geo(void) {}
+inline void actInitialize_geo(void *self) {}
 
 /* The pad configuration template copied into the work block at +0x1E8. */
 typedef struct {
