@@ -825,15 +825,22 @@ typedef struct GsbToolItem {
 extern const GsbToolItem D_0054E5B8[4][7];
 /* .rodata, VMA 0x0054E9E0: the unselected and selected row colours. */
 extern unsigned int D_0054E9E0[];
-extern char D_0054E9E8[];  /* "Film Noise Pattern %d" */
-extern char D_0054EA00[];  /* "StageSetting %s => %s\n" */
-extern char D_0054EA18[];  /* "StageSetting %s => %d\n" */
-extern char D_0054EA30[];  /* "StageSetting %s => %f\n" */
-extern char D_0063A018[];  /* "%s : %s" */
-extern char D_0063A020[];  /* "%s : %d" */
-extern char D_0063A028[];  /* "%s : %f" */
-extern char *D_00290810[]; /* "Off" and "On" */
-extern int D_0063A014;     /* the highlighted row */
+extern char D_0054E9E8[]; /* "Film Noise Pattern %d" */
+extern char D_0054EA00[]; /* "StageSetting %s => %s\n" */
+extern char D_0054EA18[]; /* "StageSetting %s => %d\n" */
+extern char D_0054EA30[]; /* "StageSetting %s => %f\n" */
+extern char D_0063A018[]; /* "%s : %s" */
+extern char D_0063A020[]; /* "%s : %d" */
+extern char D_0063A028[]; /* "%s : %f" */
+extern char D_0063A008[]; /* "On" */
+extern char D_0063A010[]; /* "Off" */
+
+/* .data, VMA 0x00290810: the word a boolean row prints. The two strings stay
+   blob owned until the TU's .sdata run lands, so they are named by address
+   here; MAIN.MAP names no symbol in this run and the array name is ours. */
+static char *filmNoiseOnOffText[] = {D_0063A010, D_0063A008};
+
+extern int D_0063A014; /* the highlighted row */
 extern GsbPad D_0028F8F0[];
 extern double fptodp(float v);
 
@@ -854,7 +861,7 @@ int gsb_FilmNoiseTool(int target)
             D_0054E5B8[target][i].isFloat == 0) {
             debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054E9E0[(D_0063A014 == i) ? 1 : 0],
                               D_0063A018, D_0054E5B8[target][i].name,
-                              D_00290810[*(int *)D_0054E5B8[target][i].val]);
+                              filmNoiseOnOffText[*(int *)D_0054E5B8[target][i].val]);
         } else if (D_0054E5B8[target][i].isFloat == 0) {
             debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054E9E0[(D_0063A014 == i) ? 1 : 0],
                               D_0063A020, D_0054E5B8[target][i].name,
@@ -932,7 +939,7 @@ int gsb_FilmNoiseTool(int target)
             if (D_0054E5B8[page][i].min == 0.0f && D_0054E5B8[page][i].max == 1.0f &&
                 D_0054E5B8[page][i].isFloat == 0) {
                 debug_StdPrintfDummy(D_0054EA00, D_0054E5B8[page][i].name,
-                                     D_00290810[*(int *)D_0054E5B8[page][i].val]);
+                                     filmNoiseOnOffText[*(int *)D_0054E5B8[page][i].val]);
             } else if (D_0054E5B8[page][i].isFloat == 0) {
                 debug_StdPrintfDummy(D_0054EA18, D_0054E5B8[page][i].name,
                                      *(int *)D_0054E5B8[page][i].val);
@@ -967,9 +974,13 @@ int gsb_FilmNoiseTool(int target)
 extern const GsbToolItem D_0054EA48[21];
 /* .rodata, VMA 0x0054EEE0: the unselected and selected row colours. */
 extern unsigned int D_0054EEE0[];
-extern char D_0054EEE8[];  /* "StageSetting" */
-extern char *D_00290818[]; /* "Off" and "On" */
-extern int D_0063A030;     /* the highlighted row */
+extern char D_0054EEE8[]; /* "StageSetting" */
+
+/* .data, VMA 0x00290818: the stage setting page's own copy of the same pair.
+   MAIN.MAP names no symbol in this run; the name is ours. */
+static char *stageSettingOnOffText[] = {D_0063A010, D_0063A008};
+
+extern int D_0063A030; /* the highlighted row */
 
 /* The stage setting page of the debug menu: twenty one editable words of the
  * stage record, the pad keys that walk and change them, and the key that dumps
@@ -985,7 +996,7 @@ int gsb_StageSettingTool(void)
         if (D_0054EA48[i].min == 0.0f && D_0054EA48[i].max == 1.0f && D_0054EA48[i].isFloat == 0) {
             debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054EEE0[(D_0063A030 == i) ? 1 : 0],
                               D_0063A018, D_0054EA48[i].name,
-                              D_00290818[*(int *)D_0054EA48[i].val]);
+                              stageSettingOnOffText[*(int *)D_0054EA48[i].val]);
         } else if (D_0054EA48[i].isFloat == 0) {
             debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054EEE0[(D_0063A030 == i) ? 1 : 0],
                               D_0063A020, D_0054EA48[i].name, *(int *)D_0054EA48[i].val);
@@ -1057,7 +1068,7 @@ int gsb_StageSettingTool(void)
             if (D_0054EA48[i].min == 0.0f && D_0054EA48[i].max == 1.0f &&
                 D_0054EA48[i].isFloat == 0) {
                 debug_StdPrintfDummy(D_0054EA00, D_0054EA48[i].name,
-                                     D_00290818[*(int *)D_0054EA48[i].val]);
+                                     stageSettingOnOffText[*(int *)D_0054EA48[i].val]);
             } else if (D_0054EA48[i].isFloat == 0) {
                 debug_StdPrintfDummy(D_0054EA18, D_0054EA48[i].name, *(int *)D_0054EA48[i].val);
             } else {
@@ -1167,8 +1178,32 @@ typedef struct {
     int arg;     /* 0x8 */
 } GsbMenuItem;
 
-extern GsbMenuItem D_00290820[];
-extern GsbMenuItem D_00290830[];
+/* The four pages another TU owns, and the four this one defines below. */
+extern int light_Tool(void);
+extern int shadow_Tool(void);
+extern int fog_FogTool(void);
+extern char D_0054EFB0[]; /* "LOCK OTHER EDITING" */
+extern char D_0054EFC8[]; /* "UnLock Quit" */
+extern char D_0054EFD8[]; /* "Save Settings" */
+extern char D_0054EFE8[]; /* "Load Settings" */
+extern char D_0054EFF8[]; /* "Other Settings" */
+extern char D_0054F008[]; /* "Film Noise 4" */
+extern char D_0054F018[]; /* "Film Noise 3" */
+extern char D_0054F028[]; /* "Film Noise 2" */
+extern char D_0054F038[]; /* "Film Noise 1" */
+extern char D_0054F048[]; /* "Fog Tool" */
+extern char D_0054F058[]; /* "Shadow Tool" */
+extern char D_0054F068[]; /* "Light Tool" */
+
+/* .data, VMA 0x00290820 and 0x00290830: the one row the menu shows while
+   another machine holds the lock, and the eleven rows it shows otherwise.
+   The row names are still blob owned (the TU's .rodata run is behind three
+   assembled functions), so they are named by address; MAIN.MAP names no
+   symbol in this run and both table names are ours. */
+static GsbMenuItem lockedMenu[];
+
+static GsbMenuItem stageSettingMenu[];
+
 extern int D_0054F078[];
 extern int D_0054F07C[];
 extern char D_0054F080[];
@@ -1181,8 +1216,8 @@ int gsb_StageSetting(void)
     int i;
     D_00639F7C = 1;
     if (D_0063A04C >= 0) {
-        if (D_00290830[D_0063A04C].fn != 0) {
-            int r = D_00290830[D_0063A04C].fn(D_00290830[D_0063A04C].arg);
+        if (stageSettingMenu[D_0063A04C].fn != 0) {
+            int r = stageSettingMenu[D_0063A04C].fn(stageSettingMenu[D_0063A04C].arg);
             if (r == -1) {
                 D_0063A04C = r;
             }
@@ -1192,7 +1227,7 @@ int gsb_StageSetting(void)
     if (D_00639F7C) {
         for (i = 0; i < 11; i++) {
             debug_PrintfDummy(18, (i + 1) * 8 + 0x1E, D_0054F078[(D_0063A048 == i) ? 1 : 0],
-                              D_0063A050, D_00290830[i].name);
+                              D_0063A050, stageSettingMenu[i].name);
         }
         if (D_0028F8F0[0].rep & 0x4000) {
             D_0063A048++;
@@ -1209,9 +1244,9 @@ int gsb_StageSetting(void)
         }
     } else {
         debug_PrintfDummy(26, 22, 0xFFFFFFFF, D_0054F080);
-        debug_PrintfDummy(18, 38, D_0054F07C[0], D_0063A050, D_00290820[0].name);
+        debug_PrintfDummy(18, 38, D_0054F07C[0], D_0063A050, lockedMenu[0].name);
         if (D_0028F8F0[0].trg & 0x20) {
-            D_00290820[0].fn(1);
+            lockedMenu[0].fn(1);
         }
     }
     return (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
@@ -1369,3 +1404,21 @@ inline int unlockOtherEditing(void)
     removeLockFile();
     return -1;
 }
+
+static GsbMenuItem lockedMenu[] = {
+    {D_0054EFB0, lockOtherEditing, 0},
+};
+
+static GsbMenuItem stageSettingMenu[] = {
+    {D_0054F068, light_Tool, 0},
+    {D_0054F058, shadow_Tool, 0},
+    {D_0054F048, fog_FogTool, 0},
+    {D_0054F038, gsb_FilmNoiseTool, 0},
+    {D_0054F028, gsb_FilmNoiseTool, 1},
+    {D_0054F018, gsb_FilmNoiseTool, 2},
+    {D_0054F008, gsb_FilmNoiseTool, 3},
+    {D_0054EFF8, gsb_StageSettingTool, 0},
+    {D_0054EFE8, gsb_LoadStageSettings, 0},
+    {D_0054EFD8, gsb_SaveStageSettings, 0},
+    {D_0054EFC8, unlockOtherEditing, 0},
+};

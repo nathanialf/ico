@@ -535,6 +535,7 @@ segments:
       - [0x1906E0, .data, ico2/sugipon/src/pool]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2906E0..0x2907E0, 256 B emitted
       - [0x1907E0, .data, ico2/sugipon/src/quaternion]  # syms: IdentityQuaternion quatToMatrixScale nxt  the TU's whole .data run as source (data pass 4; = MAIN.MAP quaternion.o .data 0x2C), VMA 0x2907E0..0x29080C, 44 B
       - [0x19080C, data, cod/19080C]     # data blob resume
+      - [0x190810, .data, ico2/seki/src/GsBase]  # the TU's whole .data run as source (completeness pass 8): the debug menu's Off/On pointer pairs and its two menu tables, 164 B, VMA 0x290810..0x2908B4, tail pad to Light
       - [0x1908B8, .data, ico2/seki/src/Light]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2908B8..0x2908E0, 28 B emitted
       - [0x1908E0, .data, ico2/seki/src/Matrix]  # syms: scaleWorkMatrix  the unit matrix the scale routines work in (data pass 3), VMA 0x2908E0..0x290920, 64 B
       - [0x190920, data, cod/190920]     # data blob resume
@@ -886,7 +887,7 @@ segments:
       - [0x523090, rodata, cod/523090]     # rodata blob resume
       - [0x5230A0, .rodata, ico2/script/src/st24a]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6230A0..0x623428, 904 B
       - [0x5230B0, .rodata, ico2/script/src/st47a]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6230B0..0x623428, 888 B
-      - [0x5230F0, rodata, cod/5230F0]     # rodata blob resume
+      - [0x5230F0, .rodata, ico2/script/src/stageSEProc]  # the TU's whole .rodata run as source (completeness pass 8): the five 16-byte box constants as static const float unions in ROM order, copied by two small per-box-pair routines inlined at six sites (the listing's line map settled it), 96 B, VMA 0x6230F0..0x623150
       - [0x523150, .rodata, ico2/omori/src/access]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x623150..0x623428, 728 B
       - [0x523160, .rodata, ico2/ito/mpeg/mv_audiodec]  # the TU's whole .rodata run as source (data pass 2): mv_defs.h's alloc_zeroed literals (the TU now spells MV_DEFS_WANT_ALLOC + #include "mv_defs.h") then seven debug formats; VMA 0x623160..0x6233B7 + 1 B link pad
       - [0x5233B8, rodata, cod/5233B8]   # .rodata blob resume (the other two mpeg TUs' copies of mv_defs.h's two literals)

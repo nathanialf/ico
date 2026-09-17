@@ -24,10 +24,55 @@ typedef struct {
     float f8;
 } LoadImg;
 
-typedef struct {
-    long long a;
-    long long b;
+typedef union {
+    float f[4];
+
+    struct {
+        long long a;
+        long long b;
+    } q;
 } Blk16;
+
+typedef struct {
+    Blk16 a;
+    Blk16 b;
+} Blk32;
+
+/* .rodata, VMA 0x006230F0..0x00623150: the two points stageSE02astrong measures
+   the camera against, and the centre and half size of the two trigger boxes
+   stageSE08astrong and stageSE10lstrong hand scpTriggerPosBox. MAIN.MAP names
+   no symbol in this run; the names are ours. */
+static const Blk32 se02aPoints = {{{-1137.0f, -659.0f, 432.0f, 0.0f}},
+                                  {{-1822.0f, -1071.0f, 2165.0f, 0.0f}}};
+
+static const Blk16 se08aBoxCenter = {{-2050.0f, -2005.0f, 3529.0f, 0.0f}};
+
+static const Blk16 se08aBoxSize = {{1400.0f, 1400.0f, 2400.0f, 0.0f}};
+
+static const Blk16 se10lBoxCenter = {{141.0f, 1328.0f, -122.0f, 0.0f}};
+
+static const Blk16 se10lBoxSize = {{600.0f, 700.0f, 1000.0f, 0.0f}};
+
+/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
+extern int *GetCameraPos();
+
+/* SRCFILE.TXT rows 579 to 583 and 696 to 698: the two box tests are each their
+   own routine, inlined at every site, and each names its own pair. */
+static inline int se08aInStrongBox(void)
+{
+    float *pos = (float *)GetCameraPos();
+    Blk16 center = se08aBoxCenter;
+    Blk16 size = se08aBoxSize;
+
+    return scpTriggerPosBox(pos, (float *)&center, (float *)&size);
+}
+
+static inline int se10lInStrongBox(float *pos)
+{
+    Blk16 center = se10lBoxCenter;
+    Blk16 size = se10lBoxSize;
+    return scpTriggerPosBox(pos, (float *)&center, (float *)&size);
+}
 
 typedef union {
     int i;
@@ -48,8 +93,6 @@ typedef struct {
 
 extern float D_0063C080[]; /* .sdata FLT_MAX; %hi/%lo, so the declaration withheld its size */
 extern int D_00639EA4;
-/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
-extern int *GetCameraPos();
 
 int stageSEtaimatsu(SEObj *self)
 {
@@ -214,13 +257,9 @@ int stageSE06ariver(SEObj *a0)
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
-extern Blk16 D_00623130;
-extern Blk16 D_00623140;
 
 int stageSE10lstrong2(char *a0)
 {
-    Blk16 b1;
-    Blk16 b2;
     float *p = (float *)GetCameraPos();
     float f;
     float w;
@@ -247,20 +286,12 @@ int stageSE10lstrong2(char *a0)
         w = e;
     }
     *(float *)(a0 + 0x18) = *(float *)(a0 + 0x18) * w;
-    b1 = D_00623130;
-    b2 = D_00623140;
-    if (scpTriggerPosBox((int)p, &b1, &b2) != 0) {
+    if (se10lInStrongBox(p) != 0) {
         *(float *)(a0 + 0x18) = *(float *)(a0 + 0x18) * 0.5f;
     }
     return -1;
 }
 
-typedef struct {
-    Blk16 a;
-    Blk16 b;
-} Blk32;
-
-extern Blk32 D_006230F0;
 extern float D_0063C08C[];
 
 static inline Blk16 *SENearestPoint(Blk16 *list, int n, float *limit)
@@ -315,7 +346,7 @@ int stageSE02astrong(char *a0)
     Blk32 v;
     float w;
 
-    v = D_006230F0;
+    v = se02aPoints;
     sceVu0CopyVector(*(void **)(a0 + 0x34), SENearestPoint((Blk16 *)&v, 2, D_0063C08C));
     if (D_0063C07C == frame_count) {
         w = D_0063C078;
@@ -524,15 +555,9 @@ int stageSE06ataimatsu(int *self)
     return 0;
 }
 
-extern Blk16 D_00623110;
-extern Blk16 D_00623120;
-
 int stageSE08astrong(char *a0)
 {
-    Blk16 b1;
-    Blk16 b2;
     float f;
-    int ret;
     if (D_0063C07C == frame_count) {
         f = D_0063C078;
     } else {
@@ -543,10 +568,7 @@ int stageSE08astrong(char *a0)
         D_0063C078 = e;
         f = e;
     }
-    ret = (int)GetCameraPos();
-    b1 = D_00623110;
-    b2 = D_00623120;
-    if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
+    if (se08aInStrongBox() == 0) {
         *(float *)(a0 + 0x18) = f;
     } else {
         *(float *)(a0 + 0x18) = f * 0.05f;
@@ -556,11 +578,8 @@ int stageSE08astrong(char *a0)
 
 int stageSE08astrong2(char *a0)
 {
-    Blk16 b1;
-    Blk16 b2;
     float f;
     float w;
-    int ret;
     if (D_0063C07C == frame_count) {
         w = D_0063C078;
     } else {
@@ -572,10 +591,7 @@ int stageSE08astrong2(char *a0)
         w = e;
     }
     f = 1.0f - w;
-    ret = (int)GetCameraPos();
-    b1 = D_00623110;
-    b2 = D_00623120;
-    if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
+    if (se08aInStrongBox() == 0) {
         *(float *)(a0 + 0x18) = f;
     } else {
         *(float *)(a0 + 0x18) = f * 0.05f;
@@ -585,12 +601,7 @@ int stageSE08astrong2(char *a0)
 
 int stageSE08anoise3(int self)
 {
-    Blk16 b1;
-    Blk16 b2;
-    int ret = GetCameraPos(self);
-    b1 = D_00623110;
-    b2 = D_00623120;
-    if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
+    if (se08aInStrongBox() == 0) {
         *(float *)(self + 0x18) = 1.0f;
     } else {
         *(float *)(self + 0x18) = 0.2f;
@@ -600,12 +611,7 @@ int stageSE08anoise3(int self)
 
 int stageSE08ataimatsu(int a0)
 {
-    Blk16 b1;
-    Blk16 b2;
-    int ret = GetCameraPos(a0);
-    b1 = D_00623110;
-    b2 = D_00623120;
-    if (scpTriggerPosBox(ret, &b1, &b2) == 0) {
+    if (se08aInStrongBox() == 0) {
         return 0;
     }
     return stageSEtaimatsu((SEObj *)a0);
@@ -661,8 +667,6 @@ int stageSE09asea(char *a0)
 
 int stageSE10lstrong(char *a0)
 {
-    Blk16 b1;
-    Blk16 b2;
     float *p = (float *)GetCameraPos();
     float f;
     float w;
@@ -684,9 +688,7 @@ int stageSE10lstrong(char *a0)
         w = e;
     }
     *(float *)(a0 + 0x18) = (1.0f - f) * w;
-    b1 = D_00623130;
-    b2 = D_00623140;
-    if (scpTriggerPosBox((int)p, &b1, &b2) != 0) {
+    if (se10lInStrongBox(p) != 0) {
         *(float *)(a0 + 0x18) = *(float *)(a0 + 0x18) * 0.5f;
     }
     return -1;
