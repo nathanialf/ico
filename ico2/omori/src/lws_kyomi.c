@@ -211,7 +211,17 @@ void WakeupHint(int no)
     (D_002ADBA0 + no)->flags &= ~2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/lws_kyomi", IsTopHint);
+int IsTopHint(void *gobj)
+{
+    if (*(int *)((char *)gobj + 0xC) == 61) {
+        struct HintInfo *hint = *(struct HintInfo **)(*(char **)((char *)gobj + 0x15C) + 0x830);
+
+        if (hint->flags & 1) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 void DebugHintStart(void *gobj)
 {

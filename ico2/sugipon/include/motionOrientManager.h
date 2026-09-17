@@ -15,7 +15,8 @@
 typedef struct {
     int id;
     int kind;
-    int pad[4];
+    int nextId; /* 0x08, the motion this row chains to */
+    int pad[3];
 } MotionOrientEntry;
 
 /* Reconstruction: the 32-byte orient record an actor hands to

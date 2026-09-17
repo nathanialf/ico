@@ -139,8 +139,9 @@ typedef struct MvSub {
     short rot; /* 0x0F0 */
     char padF2[2];
     float speed; /* 0x0F4 */
-    char padF8[0x2D0 - 0xF8];
-    int lookMode; /* 0x2D0 */
+    char padF8[0x180 - 0xF8];
+    char motionRequest[0x2D0 - 0x180]; /* 0x180, SetMotionRequest work area */
+    int lookMode;                      /* 0x2D0 */
     char pad2D4[0x2E0 - 0x2D4];
     float lookAt[4]; /* 0x2E0 */
     char pad2F0[0x330 - 0x2F0];
@@ -378,7 +379,77 @@ extern char D_006207D0[];
 extern char D_0063BA38[];
 extern int D_0063BA30;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionViewer", motOriMenuProc);
+int motOriMenuProc(void)
+{
+    MvMenuEnt *ent = &objMenu[D_0063B9F8];
+    int cur = D_0063B9FC + ent->motFirst;
+    int mot = ForMotionViewer_GetCurrentMotion(D_0063BA08);
+    char buf[256];
+    int ret;
+    int now;
+    int m;
+    int i;
+    MotionOrientEntry *ori;
+
+    /* the listing places this at motionViewer.c lines 382-385, INSIDE
+     * motOriMenuProc's own span and expanded at both of its call sites:
+     * a nested function, always inlined (it has no ROM slot of its own). */
+    inline void initOrient(void)
+    {
+        DisableMotionOrientUpdate(D_0063BA08);
+        InitMotionOrient(D_0063BA08, D_0063B9FC + ent->oriFrom, D_0063B9FC + ent->oriTo, -1, -1,
+                         D_0063B9FC + ent->motFirst);
+    }
+
+    dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08));
+    if (D_0063C4AC != 0) {
+        sprintf(buf, D_00620778, &D_0055FF18[cur * 404],
+                fptodp(ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08)),
+                GetNbMotionFrames(mot));
+        ret = debug_SelectCsvWindow(buf, 10, 50, 11, D_0063BA00.rows, 8, 0, 1, D_0063C4AC,
+                                    &D_0063BA00.sel);
+        if (D_0063BA00.sel != D_0063BA30) {
+            initOrient();
+        }
+        D_0063BA30 = D_0063BA00.sel;
+        m = cur;
+        now = ForMotionViewer_GetCurrentMotion(D_0063BA08);
+        for (i = 0; i < 10; i++) {
+            ori =
+                GetMotionOrient(ent->oriFrom, ent->oriTo, m, D_0063BA00.rows[D_0063BA00.sel].kind);
+            debug_PrintfDummy(430, i * 8 + 90, (i == 0 || m == 1145) ? 0x00FFFF00 : 0xFFFFFF00,
+                              D_0063BA38, m == now ? 62 : 32, &D_0055FF18[m * 404]);
+            if (m == 1145) {
+                break;
+            }
+            if (ori == 0) {
+                i++;
+                if (((D_0063BA0C >> 4) & 3) != 0) {
+                    debug_PrintfDummy(430, i * 8 + 90, 0xFF000000, D_00620798);
+                }
+                break;
+            }
+            m = ori->nextId;
+        }
+    } else {
+        debug_PrintfDummy(10, 50, 0xFF000000, D_006207A8, &D_0055FF18[cur * 404]);
+        ret = (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
+    }
+    if (D_0028F8F0[0].trg & 0x10) {
+        initOrient();
+    }
+    if (ret == 1) {
+        EnableMotionOrientUpdate(D_0063BA08);
+        SetMotionRequest(D_0063BA08, D_0063BA00.rows[D_0063BA00.sel].kind,
+                         *(MotOriReq *)D_0063BA08->sub->motionRequest);
+    }
+    if (ret == -1) {
+        if (D_0063BA00.rows != 0) {
+            iosFree(D_0063BA00.rows);
+        }
+    }
+    return ret;
+}
 
 /*SWEEP-ENDmotOriMenuProc*/
 /*SWEEPmodeMessage*/
