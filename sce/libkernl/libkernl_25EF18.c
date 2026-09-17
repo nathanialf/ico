@@ -240,6 +240,11 @@ void QueuePeekReadDone(RingBuf_241C80 *a0)
 
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyHandler);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyWrite);
+
+extern int D_0072A710[];
+/* the DECI2 receive flag the tty handler sets from interrupt level */
+extern volatile int *D_0072A728;
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyRead);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyInit);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifInitRpc);
@@ -252,7 +257,37 @@ void sceSifExitRpc(void)
     D_0054A3E8[0] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceRpcGetPacket);
+extern void DIntr();
+extern void EIntr(void);
+
+int *_sceRpcGetPacket(int *q)
+{
+    int *p;
+    int i;
+    int sid;
+
+    DIntr();
+    p = (int *)q[1];
+    for (i = 0; i < q[2]; i++) {
+        if ((p[4] & 1) == 0) {
+            p[4] = (i << 16) | 5;
+            ++q[0];
+            if (q[0] == 1) {
+                ++q[0];
+                sid = 1;
+            } else {
+                sid = q[0];
+            }
+            p[5] = (int)p;
+            p[6] = sid;
+            EIntr();
+            return p;
+        }
+        p += 16;
+    }
+    EIntr();
+    return 0;
+}
 
 void _sceRpcFreePacket(void *a0)
 {
@@ -283,7 +318,41 @@ elem:
     return a0[7] + a1 * 64;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _request_end);
+extern void iSignalSema(int a0);
+
+void _request_end(int *pkt)
+{
+    int *c;
+    void (*fn)(int);
+
+    /* unsigned: the ROM's range test is sltu, not slt */
+    switch ((unsigned int)pkt[8]) {
+    case 0x8000000A:
+        c = *(int **)&pkt[7];
+        fn = (void (*)(int))c[7];
+        if (fn != 0) {
+            fn(c[8]);
+        }
+        break;
+    case 0x80000009:
+        c = *(int **)&pkt[7];
+        c[9] = pkt[9];
+        c[5] = pkt[10];
+        c[6] = pkt[11];
+        break;
+    /* nothing to finish for an RDATA reply, but the case is present: the ROM
+       dispatches with the balanced beq/sltu tree gcc only builds for more than
+       two cases. */
+    case 0x8000000C:
+        break;
+    }
+    c = *(int **)&pkt[7];
+    if (c[2] >= 0) {
+        iSignalSema(c[2]);
+    }
+    _sceRpcFreePacket((void *)c[0]);
+    c[0] = 0;
+}
 
 extern int isceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);
 
@@ -313,7 +382,28 @@ void *_search_svdata(int a0, void *a1)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _request_bind);
+void _request_bind(int *req, int *q)
+{
+    int *pkt = (int *)_sceRpcGetFPacket(q);
+    int f14 = req[5], f1c = req[7];
+    int *sv;
+
+    pkt[7] = f1c;
+    pkt[5] = f14;
+    pkt[8] = 0x80000009;
+    sv = (int *)_search_svdata(req[8], q);
+    if (sv == 0) {
+        pkt[9] = 0;
+        pkt[10] = 0;
+        pkt[11] = 0;
+    } else {
+        pkt[9] = (int)sv;
+        pkt[10] = sv[2];
+        pkt[11] = sv[5];
+    }
+    isceSifSendCmd(0x80000008, (int)pkt, 0x40, 0, 0, 0);
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifBindRpc);
 
 extern void iWakeupThread(int a0);
@@ -431,18 +521,18 @@ void sceSifRpcLoop(int *self)
 }
 
 extern int CreateSema(int *self);
-extern int D_0054A478[];
+extern int D_0054A478;
 extern int D_0054A47C[];
 
 void _sceFsIobSemaMK(void)
 {
     extern int CreateSema(int *a0);
     int args[8];
-    if (D_0054A478[0] == -1) {
+    if (D_0054A478 == -1) {
         args[5] = 0;
         args[2] = 1;
         args[1] = 1;
-        D_0054A478[0] = CreateSema(args);
+        D_0054A478 = CreateSema(args);
         D_0054A47C[0] = CreateSema(args);
     }
 }
@@ -456,18 +546,18 @@ int new_iob(void)
     char *p;
     char *end;
     _sceFsIobSemaMK();
-    WaitSema(D_0054A478[0]);
+    WaitSema(D_0054A478);
     p = D_0072D300;
     end = p + 0x200;
     while (p < end) {
         if (*(int *)(p + 4) == 0) {
             *(int *)(p + 4) = 0x10000000;
-            SignalSema(D_0054A478[0]);
+            SignalSema(D_0054A478);
             return (int)p;
         }
         p += 0x10;
     }
-    SignalSema(D_0054A478[0]);
+    SignalSema(D_0054A478);
     return 0;
 }
 
@@ -475,15 +565,15 @@ void *get_iob(unsigned int i)
 {
     char *p;
     _sceFsIobSemaMK();
-    WaitSema(D_0054A478[0]);
+    WaitSema(D_0054A478);
     if (i < 0x20) {
         goto ok;
     }
-    SignalSema(D_0054A478[0]);
+    SignalSema(D_0054A478);
     return 0;
 ok:
     p = &D_0072D300[i * 16];
-    SignalSema(D_0054A478[0]);
+    SignalSema(D_0054A478);
     return p;
 }
 
@@ -580,7 +670,37 @@ int sceDelDrv(void *a0)
     return _sceCallCode(a0, 0x10);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceDopen);
+/* Reconstruction: the 16-byte file-descriptor record new_iob() hands out of
+   the D_0072D300 table; field 0 is the driver handle _sceCallCode returns and
+   field 4 the in-use flag new_iob() sets to 0x10000000. */
+typedef struct {
+    int fd;
+    int inuse;
+    int _8[2];
+} SceIob;
+
+int sceDopen(void *name)
+{
+    SceIob *iob;
+    int rc;
+
+    iob = (SceIob *)new_iob();
+    if (iob == 0) {
+        return -19;
+    }
+    rc = _sceCallCode(name, 9);
+    if (rc < 0) {
+        WaitSema(D_0054A478);
+        iob->inuse = 0;
+        SignalSema(D_0054A478);
+        return rc;
+    }
+    WaitSema(D_0054A478);
+    iob->fd = rc;
+    rc = iob - (SceIob *)D_0072D300;
+    SignalSema(D_0054A478);
+    return rc;
+}
 
 extern int D_0072C240[];
 extern int D_0072CE80[];
@@ -767,6 +887,8 @@ int sceSifFreeIopHeap(int a0)
     return D_0072D5C0[0];
 }
 
+extern char D_0072D680[];
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifLoadIopHeap);
 
 extern int D_0054A488[];
@@ -859,7 +981,35 @@ void sceSifLoadStartModule(void *a0, int a1, int a2, int a3)
     } while (0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceSifLoadElfPart);
+extern char D_0072D788[];
+
+int _sceSifLoadElfPart(void *name, int sec, int out, int rpcno)
+{
+    char *buf;
+    int r;
+
+    if (_lf_bind() < 0) {
+        return 0xFFFF0000;
+    }
+    if (_lf_version() != 0) {
+        return 0xFFFEFFFC;
+    }
+    strncpy(D_0072D788, (char *)name, 252);
+    buf = D_0072D788 - 8;
+    buf[0x103] = 0;
+    strncpy(D_0072D788 + 252, (char *)sec, 252);
+    buf[0x1FF] = 0;
+    if (sceSifCallRpc(D_0072D980, rpcno, 0, buf, 0x200, buf, 0x10, 0, 0) < 0) {
+        return 0xFFFEFFFF;
+    }
+    r = *(int *)buf;
+    if (r == 0) {
+        return 0xFFFEFFFD;
+    }
+    ((int *)out)[0] = r;
+    ((int *)out)[1] = *(int *)(buf + 4);
+    return 0;
+}
 
 int sceSifLoadElfPart(void *a0, int a1, int a2)
 {
@@ -900,7 +1050,28 @@ int sceSifGetIopAddr(int a0, void *a1, int a2)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifSetIopAddr);
+int sceSifSetIopAddr(int a0, void *a1, int a2)
+{
+    if (_lf_bind() < 0) {
+        return 0xFFFF0000;
+    }
+    *(int *)(D_0072D780 + 0) = a0;
+    *(int *)(D_0072D780 + 4) = a2;
+    if (a2 == 0) {
+        *(unsigned char *)(D_0072D780 + 8) = *(unsigned char *)a1;
+    } else if (a2 == 1) {
+        *(unsigned short *)(D_0072D780 + 8) = *(unsigned short *)a1;
+    } else if (a2 == 2) {
+        *(int *)(D_0072D780 + 8) = *(int *)a1;
+    } else {
+        return 0xFFFEFFFE;
+    }
+    if (sceSifCallRpc(D_0072D980, 2, 0, D_0072D780, 0x20, D_0072D780, 0x10, 0, 0) < 0) {
+        return 0xFFFEFFFF;
+    }
+    return 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifResetIop);
 
 int sceSifIsAliveIop(void)
@@ -920,6 +1091,11 @@ int sceSifSyncIop(void)
     }
     return 0;
 }
+
+extern char D_00636720[]; /* "rom0:UDNL " */
+extern char D_00636730[]; /* "too long parameter '%s'\n" */
+extern int printf(const char *fmt, ...);
+extern int sceSifResetIop(char *arg, int mode);
 
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifRebootIop);
 
@@ -1412,10 +1588,270 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _kTLBException);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _xlaunch);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _kExitTLBHandler);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _kDebugException);
+/* tlbtrap.s:24: the TLB refill / invalid exception entry, hand-written assembly in the SDK (the January listing
+   attributes every instruction to tlbtrap.s, not to a C file). */
+__asm__(".section .text\n"
+        "    .set at\n"
+        "    .set noreorder\n"
+        "    .align 3\n"
+        "glabel _kTLBException\n"
+        "    lui        $26, %hi(D_0072EA40)\n"
+        "    addiu      $26, $26, %lo(D_0072EA40)\n"
+        "    sq         $1, 0x10($26)\n"
+        "    sq         $2, 0x20($26)\n"
+        "    sq         $3, 0x30($26)\n"
+        "    sq         $4, 0x40($26)\n"
+        "    sq         $5, 0x50($26)\n"
+        "    sq         $6, 0x60($26)\n"
+        "    sq         $7, 0x70($26)\n"
+        "    sq         $8, 0x80($26)\n"
+        "    sq         $9, 0x90($26)\n"
+        "    sq         $10, 0xA0($26)\n"
+        "    sq         $11, 0xB0($26)\n"
+        "    sq         $12, 0xC0($26)\n"
+        "    sq         $13, 0xD0($26)\n"
+        "    sq         $14, 0xE0($26)\n"
+        "    sq         $15, 0xF0($26)\n"
+        "    sq         $16, 0x100($26)\n"
+        "    sq         $17, 0x110($26)\n"
+        "    sq         $18, 0x120($26)\n"
+        "    sq         $19, 0x130($26)\n"
+        "    sq         $20, 0x140($26)\n"
+        "    sq         $21, 0x150($26)\n"
+        "    sq         $22, 0x160($26)\n"
+        "    sq         $23, 0x170($26)\n"
+        "    sq         $24, 0x180($26)\n"
+        "    sq         $25, 0x190($26)\n"
+        "    sq         $28, 0x1C0($26)\n"
+        "    sq         $29, 0x1D0($26)\n"
+        "    sq         $30, 0x1E0($26)\n"
+        "    sq         $31, 0x1F0($26)\n"
+        "    mfhi       $2\n"
+        "    lui        $1, %hi(D_0072EC40)\n"
+        "    sd         $2, %lo(D_0072EC40)($1)\n"
+        "    mfhi1      $2\n"
+        "    lui        $1, %hi(D_0072EC48)\n"
+        "    sd         $2, %lo(D_0072EC48)($1)\n"
+        "    mflo       $2\n"
+        "    lui        $1, %hi(D_0072EC50)\n"
+        "    sd         $2, %lo(D_0072EC50)($1)\n"
+        "    mflo1      $2\n"
+        "    lui        $1, %hi(D_0072EC58)\n"
+        "    sd         $2, %lo(D_0072EC58)($1)\n"
+        "    mfsa       $2\n"
+        "    lui        $1, %hi(D_0072EC60)\n"
+        "    sd         $2, %lo(D_0072EC60)($1)\n"
+        "    mfc0       $4, $12\n"
+        "    mfc0       $5, $13\n"
+        "    mfc0       $6, $14\n"
+        "    mfc0       $7, $8\n"
+        "    lui        $8, %hi(D_0072EA40)\n"
+        "    addiu      $8, $8, %lo(D_0072EA40)\n"
+        "    lui        $1, %hi(D_0072EC68)\n"
+        "    sw         $6, %lo(D_0072EC68)($1)\n"
+        "    lui        $1, %hi(_xlaunch)\n"
+        "    addiu      $1, $1, %lo(_xlaunch)\n"
+        "    mtc0       $1, $14\n"
+        "    sync.p\n"
+        "    mfc0       $1, $12\n"
+        "    addiu      $2, $0, -0x2\n"
+        "    and        $1, $1, $2\n"
+        "    mtc0       $1, $12\n"
+        "    sync.p\n"
+        "    eret\n"
+        "endlabel _kTLBException\n"
+        "    .set reorder\n"
+        "    .set at\n");
+
+/* tlbtrap.s: the launcher the TLB trap path enters with its own stack,
+   hand-written assembly in the SDK. */
+__asm__(".section .text\n"
+        "    .set at\n"
+        "    .set noreorder\n"
+        "    .align 3\n"
+        "glabel _xlaunch\n"
+        "    lui        $1, %hi(D_0054A490)\n"
+        "    lw         $1, %lo(D_0054A490)($1)\n"
+        "    lui        $29, %hi(D_0072EA40)\n"
+        "    jalr       $1\n"
+        "    addiu     $29, $29, %lo(D_0072EA40)\n"
+        "    addiu      $3, $0, -0x54\n"
+        "    syscall    0\n"
+        "endlabel _xlaunch\n"
+        "    nop\n"
+        "    nop\n"
+        "    nop\n"
+        "    nop\n"
+        "    nop\n"
+        "    nop\n"
+        "    nop\n"
+        "    nop\n"
+        "    nop\n"
+        "    .set reorder\n"
+        "    .set at\n");
+
+/* tlbtrap.s:103: the TLB trap handler's return path, hand-written
+   assembly in the SDK (the January listing attributes every instruction to
+   tlbtrap.s, not to a C file); transcribed the way this file already
+   carries its syscall leaves. */
+__asm__(".section .text\n"
+        "    .set at\n"
+        "    .set noreorder\n"
+        "    .align 3\n"
+        "glabel _kExitTLBHandler\n"
+        "    mfc0       $1, $12\n"
+        "    addiu      $26, $0, -0x1C\n"
+        "    and        $1, $1, $26\n"
+        "    mtc0       $1, $12\n"
+        "    sync.p\n"
+        "    lui        $2, %hi(D_0072EC68)\n"
+        "    lw         $2, %lo(D_0072EC68)($2)\n"
+        "    mtc0       $2, $14\n"
+        "    sync.p\n"
+        "    lui        $2, %hi(D_0072EC40)\n"
+        "    ld         $2, %lo(D_0072EC40)($2)\n"
+        "    mthi       $2\n"
+        "    lui        $2, %hi(D_0072EC48)\n"
+        "    ld         $2, %lo(D_0072EC48)($2)\n"
+        "    mthi1      $2\n"
+        "    lui        $2, %hi(D_0072EC50)\n"
+        "    ld         $2, %lo(D_0072EC50)($2)\n"
+        "    mtlo       $2\n"
+        "    lui        $2, %hi(D_0072EC58)\n"
+        "    ld         $2, %lo(D_0072EC58)($2)\n"
+        "    mtlo1      $2\n"
+        "    lui        $2, %hi(D_0072EC60)\n"
+        "    ld         $2, %lo(D_0072EC60)($2)\n"
+        "    mtsa       $2\n"
+        "    sync.p\n"
+        "    lui        $26, %hi(D_0072EA40)\n"
+        "    addiu      $26, $26, %lo(D_0072EA40)\n"
+        "    lq         $1, 0x10($26)\n"
+        "    lq         $2, 0x20($26)\n"
+        "    lq         $3, 0x30($26)\n"
+        "    lq         $4, 0x40($26)\n"
+        "    lq         $5, 0x50($26)\n"
+        "    lq         $6, 0x60($26)\n"
+        "    lq         $7, 0x70($26)\n"
+        "    lq         $8, 0x80($26)\n"
+        "    lq         $9, 0x90($26)\n"
+        "    lq         $10, 0xA0($26)\n"
+        "    lq         $11, 0xB0($26)\n"
+        "    lq         $12, 0xC0($26)\n"
+        "    lq         $13, 0xD0($26)\n"
+        "    lq         $14, 0xE0($26)\n"
+        "    lq         $15, 0xF0($26)\n"
+        "    lq         $16, 0x100($26)\n"
+        "    lq         $17, 0x110($26)\n"
+        "    lq         $18, 0x120($26)\n"
+        "    lq         $19, 0x130($26)\n"
+        "    lq         $20, 0x140($26)\n"
+        "    lq         $21, 0x150($26)\n"
+        "    lq         $22, 0x160($26)\n"
+        "    lq         $23, 0x170($26)\n"
+        "    lq         $24, 0x180($26)\n"
+        "    lq         $25, 0x190($26)\n"
+        "    lq         $28, 0x1C0($26)\n"
+        "    lq         $29, 0x1D0($26)\n"
+        "    lq         $30, 0x1E0($26)\n"
+        "    lq         $31, 0x1F0($26)\n"
+        "    mfc0       $26, $12\n"
+        "    ori        $26, $26, 0x13\n"
+        "    mtc0       $26, $12\n"
+        "    sync.p\n"
+        "    eret\n"
+        "endlabel _kExitTLBHandler\n"
+        "    nop\n"
+        "    nop\n"
+        "    nop\n"
+        "    .set reorder\n"
+        "    .set at\n");
+
+/* tlbtrap.s:162: the debug exception entry, hand-written assembly in the
+   SDK (the January listing attributes every instruction to tlbtrap.s, not
+   to a C file); D_0026537C is the handler's own local label. */
+__asm__(".section .text\n"
+        "    .set at\n"
+        "    .set noreorder\n"
+        "    .align 3\n"
+        "glabel _kDebugException\n"
+        "    lui        $26, %hi(D_0072EA40)\n"
+        "    addiu      $26, $26, %lo(D_0072EA40)\n"
+        "    sq         $1, 0x10($26)\n"
+        "    sq         $2, 0x20($26)\n"
+        "    sq         $3, 0x30($26)\n"
+        "    sq         $4, 0x40($26)\n"
+        "    sq         $5, 0x50($26)\n"
+        "    sq         $6, 0x60($26)\n"
+        "    sq         $7, 0x70($26)\n"
+        "    sq         $8, 0x80($26)\n"
+        "    sq         $9, 0x90($26)\n"
+        "    sq         $10, 0xA0($26)\n"
+        "    sq         $11, 0xB0($26)\n"
+        "    sq         $12, 0xC0($26)\n"
+        "    sq         $13, 0xD0($26)\n"
+        "    sq         $14, 0xE0($26)\n"
+        "    sq         $15, 0xF0($26)\n"
+        "    sq         $16, 0x100($26)\n"
+        "    sq         $17, 0x110($26)\n"
+        "    sq         $18, 0x120($26)\n"
+        "    sq         $19, 0x130($26)\n"
+        "    sq         $20, 0x140($26)\n"
+        "    sq         $21, 0x150($26)\n"
+        "    sq         $22, 0x160($26)\n"
+        "    sq         $23, 0x170($26)\n"
+        "    sq         $24, 0x180($26)\n"
+        "    sq         $25, 0x190($26)\n"
+        "    sq         $28, 0x1C0($26)\n"
+        "    sq         $29, 0x1D0($26)\n"
+        "    sq         $30, 0x1E0($26)\n"
+        "    sq         $31, 0x1F0($26)\n"
+        "    mfhi       $2\n"
+        "    lui        $1, %hi(D_0072EC40)\n"
+        "    sd         $2, %lo(D_0072EC40)($1)\n"
+        "    mfhi1      $2\n"
+        "    lui        $1, %hi(D_0072EC48)\n"
+        "    sd         $2, %lo(D_0072EC48)($1)\n"
+        "    mflo       $2\n"
+        "    lui        $1, %hi(D_0072EC50)\n"
+        "    sd         $2, %lo(D_0072EC50)($1)\n"
+        "    mflo1      $2\n"
+        "    lui        $1, %hi(D_0072EC58)\n"
+        "    sd         $2, %lo(D_0072EC58)($1)\n"
+        "    mfsa       $2\n"
+        "    lui        $1, %hi(D_0072EC60)\n"
+        "    sd         $2, %lo(D_0072EC60)($1)\n"
+        "    mfc0       $4, $12\n"
+        "    mfc0       $5, $13\n"
+        "    mfc0       $6, $14\n"
+        "    mfc0       $7, $8\n"
+        "    mfc0       $8, $23\n"
+        "    lui        $9, %hi(D_0072EA40)\n"
+        "    addiu      $9, $9, %lo(D_0072EA40)\n"
+        "    lui        $1, %hi(D_0026537C)\n"
+        "    addiu      $1, $1, %lo(D_0026537C)\n"
+        "    mtc0       $1, $14\n"
+        "    sync.p\n"
+        "    mfc0       $1, $12\n"
+        "    addiu      $2, $0, -0x2\n"
+        "    and        $1, $1, $2\n"
+        "    mtc0       $1, $12\n"
+        "    sync.p\n"
+        "    eret\n"
+        ".align 2\n"
+        "alabel D_0026537C\n"
+        "    andi       $2, $5, 0x7C\n"
+        "    lui        $1, %hi(D_0054A498)\n"
+        "    addu       $1, $1, $2\n"
+        "    lw         $1, %lo(D_0054A498)($1)\n"
+        "    lui        $29, %hi(D_0072EA40)\n"
+        "    jalr       $1\n"
+        "    addiu     $29, $29, %lo(D_0072EA40)\n"
+        "    break      1023, 1023\n"
+        "endlabel _kDebugException\n"
+        "    nop\n"
+        "    .set reorder\n"
+        "    .set at\n");
 
 void _set_sreg(int *a0, int *a1)
 {
