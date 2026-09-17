@@ -34,10 +34,11 @@ void falldownSE(int a0)
     ExecuteSEPackage(a0, 0x56);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", copyToWork);
-
 extern char D_0054DA50[];
 extern int D_00639F28;
+extern char D_00639F30[];
+extern int D_0063A064;
+extern int D_0063A068;
 extern int D_00639F2C;
 extern char D_00639F38[];
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
@@ -48,12 +49,46 @@ extern void gif_SetDrawEnviroment(int a0, int a1, int a2, int a3, int a4, int a5
 extern void gif_SetGsReg(int a0, long long a1);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
+/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
+extern void gif_SetZWrite(int a0);
 /* kept local: this TU's uses of gif_SpriteSensitiveOrg do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(void *a0, int a1, void *a2, void *a3, int a4);
 /* kept local: this TU's uses of tex_AllocVramAuto do not fit the prototype in Texture.h */
 extern int tex_AllocVramAuto(int a0, int a1);
 /* kept local: this TU's uses of tex_ResetVramPri do not fit the prototype in Texture.h */
 extern void tex_ResetVramPri(void);
+
+void copyToWork(int pri)
+{
+    int rect[4];
+
+    tex_ResetVramPri();
+    D_00639F28 = tex_AllocVramAuto(0, 0x400);
+    gif_SetGsReg(6, ((long long)(D_0063A064 / 64) << 14) | 0x664000800LL);
+    gif_SetDrawEnviroment(D_00639F28, 0, 0x100, 0x100, 0, 0);
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+    gif_SetAlpha(0, 4, 0);
+    gif_SetGsReg(0x47, 0x30000);
+    gif_SetGsReg(0x14, 0x60);
+    *(Blob16 *)rect = *(Blob16 *)D_0054DA50;
+    /* The inner block is what the frame proves.  uv's initialiser is built in
+       a 16-byte stack temp and block-copied into uv (safe_from_p rejects the
+       array as the constructor target once its address is live), and col is
+       declared after that statement so assign_temp hands it the freed temp
+       slot.  That is why the ROM writes 8, 8, w and h at sp+0x20, copies them
+       to sp+0x10, then overwrites sp+0x20 with the four colour bytes and
+       passes sp+0x20 as the colour pointer, all inside a 0x40 frame. */
+    {
+        int uv[4] = {8, 8, D_0063A064 * 16, D_0063A068 * 16};
+        Blob4 col = *(Blob4 *)D_00639F30;
+
+        gif_SpriteSensitiveOrg(rect, 0, uv, &col, 0);
+    }
+    gif_SetZWrite(1);
+    gif_SetZTest(1);
+    gif_SetGsReg(0x47, 0x5000D);
+}
 
 void flushWork(int pri)
 {
@@ -190,8 +225,6 @@ static inline void makeWaveGrid(char *w, float **grid, int ang)
 }
 
 extern const Blob16L D_0054DA70;
-extern int D_0063A064;
-extern int D_0063A068;
 extern int buffer_ID;
 extern int matrixptr;
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
@@ -408,8 +441,6 @@ extern void _MulMatrix(void *dst, void *a, void *b);
 extern void _UnitMatrix(void *m);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
-extern void gif_SetZWrite(int a0);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 
