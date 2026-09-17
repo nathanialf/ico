@@ -88,7 +88,8 @@ void motGirlHand50(volatile int a0)
         _ACTWait(1);
     }
     while (GOBJ_SUB(a0)->f_4A0 < 0x214 || !(GOBJ_SUB(a0)->f_4A0 < 0x21B)) {
-        *(void **)((char *)sub + 0x130) = SetMotionRequest((void *)a0, 1, (char *)sub + 0x620);
+        *(void **)((char *)sub + 0x130) =
+            SetMotionRequest((void *)a0, 1, *(MotOriReq *)((char *)sub + 0x620));
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -103,7 +104,8 @@ void motGirlHand50(volatile int a0)
         ACTSendMailCorrect((void *)a0, 7);
     }
     iosOmSendMail(D_00639EA4, 0x5E, D_0063A61C);
-    *(void **)((char *)sub + 0x130) = SetMotionRequest((void *)a0, 0x5E, (char *)sub + 0x620);
+    *(void **)((char *)sub + 0x130) =
+        SetMotionRequest((void *)a0, 0x5E, *(MotOriReq *)((char *)sub + 0x620));
     while ((*(int *)(*(char **)((char *)sub + 0x130) + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
@@ -128,7 +130,8 @@ void motGirlHand100(volatile int a0)
         _ACTWait(1);
     }
     while (GOBJ_SUB(a0)->f_4A0 < 0x214 || !(GOBJ_SUB(a0)->f_4A0 < 0x21B)) {
-        *(void **)((char *)sub + 0x130) = SetMotionRequest((void *)a0, 1, (char *)sub + 0x620);
+        *(void **)((char *)sub + 0x130) =
+            SetMotionRequest((void *)a0, 1, *(MotOriReq *)((char *)sub + 0x620));
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -139,9 +142,11 @@ void motGirlHand100(volatile int a0)
         _ACTWait(1);
     }
     iosOmSendMail(D_00639EA4, 0x63, D_0063A61C);
-    *(void **)((char *)sub + 0x130) = SetMotionRequest((void *)a0, 0x65, (char *)sub + 0x620);
+    *(void **)((char *)sub + 0x130) =
+        SetMotionRequest((void *)a0, 0x65, *(MotOriReq *)((char *)sub + 0x620));
     while (GOBJ_SUB(a0)->f_4A0 < 0x214 || !(GOBJ_SUB(a0)->f_4A0 < 0x21B)) {
-        *(void **)((char *)sub + 0x130) = SetMotionRequest((void *)a0, 1, (char *)sub + 0x620);
+        *(void **)((char *)sub + 0x130) =
+            SetMotionRequest((void *)a0, 1, *(MotOriReq *)((char *)sub + 0x620));
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -186,7 +191,8 @@ expired:
     debug_StdPrintfDummy(D_00553A60, (void *)a0 == (void *)D_00639EA4 ? D_0063A880 : D_0063A888);
 held:
     while (GOBJ_SUB(a0)->f_4A0 < 0x214 || !(GOBJ_SUB(a0)->f_4A0 < 0x21B)) {
-        *(void **)((char *)sub + 0x130) = SetMotionRequest((void *)a0, 1, (char *)sub + 0x620);
+        *(void **)((char *)sub + 0x130) =
+            SetMotionRequest((void *)a0, 1, *(MotOriReq *)((char *)sub + 0x620));
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -197,7 +203,8 @@ held:
         _ACTWait(1);
     }
     iosOmSendMail(D_00639EA4, 0x68, D_0063A61C);
-    *(void **)((char *)sub + 0x130) = SetMotionRequest((void *)a0, 0x66, (char *)sub + 0x620);
+    *(void **)((char *)sub + 0x130) =
+        SetMotionRequest((void *)a0, 0x66, *(MotOriReq *)((char *)sub + 0x620));
     while ((*(int *)(*(char **)((char *)sub + 0x130) + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }

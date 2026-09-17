@@ -1236,7 +1236,7 @@ void subQueenBrainMain(volatile int g)
 
             if (*(signed char *)(ballw + 0x11) != 0) {
                 if ((((QueenVal *)(ext + 0x130))->i =
-                         SetMotionRequest((char *)g, 0x146, ext + 0x620)) != 0) {
+                         SetMotionRequest((char *)g, 0x146, *(MotOriReq *)(ext + 0x620))) != 0) {
                     *(char *)(ballw + 0x11) = 0;
                 }
             }
@@ -1258,13 +1258,14 @@ void subQueenBrainMain(volatile int g)
             case 0x433:
             case 0x434:
             default:
-                ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
+                ((QueenVal *)(ext + 0x130))->i =
+                    SetMotionRequest((char *)g, 1, *(MotOriReq *)(ext + 0x620));
                 break;
 
             case 0x430:
                 motionOk = 1;
                 if ((((QueenVal *)(ext + 0x130))->i =
-                         SetMotionRequest((char *)g, 0x144, ext + 0x620)) != 0) {
+                         SetMotionRequest((char *)g, 0x144, *(MotOriReq *)(ext + 0x620))) != 0) {
                     if (first) {
                         startFrame = queenFrame;
                         wait = (int)(*((stage_no == 0x25)
@@ -1280,12 +1281,13 @@ void subQueenBrainMain(volatile int g)
                 if (*(signed char *)(barw + 0x10) == 0 && motionOk != 0 &&
                     queenFrame - startFrame >= wait) {
                     ((QueenVal *)(ext + 0x130))->i =
-                        SetMotionRequest((char *)g, 0x145, ext + 0x620);
+                        SetMotionRequest((char *)g, 0x145, *(MotOriReq *)(ext + 0x620));
                 }
                 break;
 
             case 0x436:
-                ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
+                ((QueenVal *)(ext + 0x130))->i =
+                    SetMotionRequest((char *)g, 1, *(MotOriReq *)(ext + 0x620));
                 if (GOBJ_SUB(g)->f_4AC > 15.0f && *(signed char *)(barw + 0x10) == 0 &&
                     motionOk != 0) {
                     uv = (stage_no == 0x25) ? &ballUVScrollSt25[*(int *)(ballw + 0x18)]
@@ -1314,7 +1316,8 @@ void subQueenBrainMain(volatile int g)
                 wait = (int)(*((stage_no == 0x25) ? &ballHoldRateSt25[*(int *)(ballw + 0x18)]
                                                   : &ballHoldRateDefault[*(int *)(ballw + 0x18)]) *
                              ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-                ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
+                ((QueenVal *)(ext + 0x130))->i =
+                    SetMotionRequest((char *)g, 1, *(MotOriReq *)(ext + 0x620));
                 break;
             }
         }
@@ -1821,7 +1824,7 @@ void actQueenStart(char *g)
     actCreateSubThread(subQueenBrainMain, 20);
     actCreateSubThread(subQueenControl, 21);
     actCreateSubThread(gene_enemy, 21);
-    *(int *)(sub + 0x130) = SetMotionRequest(g, 0x10E, sub + 0x620);
+    *(int *)(sub + 0x130) = SetMotionRequest(g, 0x10E, *(MotOriReq *)(sub + 0x620));
     GOBJ_SUB(g)->f_7C = 1;
 }
 

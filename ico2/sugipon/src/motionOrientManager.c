@@ -10,6 +10,9 @@
 #include "motionOrientManager.h"
 #include <stdio.h>
 #include "streamMotionManager.h"
+#include "tableSin.h"
+#include "typedef.h"
+#include <libvu0.h>
 
 extern MotionOrientEntry D_002ADD60[];
 extern MotionOrientEntry D_002BC4A8;
@@ -28,16 +31,38 @@ struct MotOriFloat {
 
 typedef struct MotOriTrigEnt {
     /* 0x000 */ char pad000[0xC0];
-    /* 0x0C0 */ char name[0x70];
+    /* 0x0C0 */ char name[0x30];
+    /* 0x0F0 */ char pad0F0[0x14];
+    /* 0x104 */ int f104;
+    /* 0x108 */ int f108;
+    /* 0x10C */ int f10C;
+    /* 0x110 */ int f110;
+    /* 0x114 */ int f114;
+    /* 0x118 */ int f118;
+    /* 0x11C */ char pad11C[0x14];
     /* 0x130 */ int f130;
-    /* 0x134 */ char pad134[0x10];
+    /* 0x134 */ char pad134[0x8];
+    /* 0x13C */ int f13C;
+    /* 0x140 */ int f140;
     /* 0x144 */ int f144;
     /* 0x148 */ int f148;
     /* 0x14C */ int f14C;
-    /* 0x150 */ char pad150[0x24];
+    /* 0x150 */ int f150;
+    /* 0x154 */ int f154;
+    /* 0x158 */ char pad158[0x4];
+    /* 0x15C */ float f15C;
+    /* 0x160 */ char pad160[0x4];
+    /* 0x164 */ float f164;
+    /* 0x168 */ char pad168[0x4];
+    /* 0x16C */ int f16C;
+    /* 0x170 */ int f170;
     /* 0x174 */ float f174;
     /* 0x178 */ int f178;
-    /* 0x17C */ char pad17C[0x18];
+    /* 0x17C */ int f17C;
+    /* 0x180 */ char pad180[0x8];
+    /* 0x188 */ unsigned int f188;
+    /* 0x18C */ unsigned int f18C;
+    /* 0x190 */ unsigned int f190;
 } MotOriTrigEnt;
 
 extern MotOriTrigEnt D_0055FE58[];
@@ -133,6 +158,17 @@ void execFrameTrigger(void *self)
     }
 }
 
+/* No symbol and no census row: the listing gives it lines 230 to 237, between
+ * GetMotionPlaySpeedRatio (219 to 229) and execFrameTrigger (241), and inlines
+ * it here and in UpdateFrameCounter. The store order is the source's own. */
+static __inline__ void clearFrameTriggerState(void *self)
+{
+    *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x608) = 0;
+    *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x610) = 0;
+    *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x60C) = 0;
+    *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x614) = 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", UpdateFrameCounter);
 
 inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
@@ -165,7 +201,107 @@ inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
     return p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", sendStateMail);
+extern int D_0063B188;
+extern char D_0063B968[];
+extern char D_0063B990[];
+extern char D_0063B998[];
+extern char D_0063B9A0[];
+extern char D_0063B9A8[];
+extern char D_0063B9B0[];
+extern char D_006202F0[];
+extern char *matrixptr;
+
+void sendStateMail(void *self)
+{
+    float m[4][4];
+    float pos[4];
+    char *w = MOWORK(self) + 0x470;
+
+    if (D_0063B188 != 0) {
+        MatrixDrive_PushMatrix();
+        sceVu0TransposeMatrix(m, matrixptr + 0x80);
+        m[0][3] = m[1][3] = m[2][3] = 0.0f;
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        GetRootPosition(pos, self);
+        MatrixDrive_TransMatrixV((char *)pos);
+        sceVu0MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
+    }
+    if (*(int *)(w + 0x14) & 0x2) {
+        if (D_0063B188 != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, 80.0f, 0.0f);
+            DispWireString(D_0063B990);
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (*(int *)(w + 0x14) & 0x4) {
+        iosOmSendMail(self, 7, self);
+        if (D_0063B188 != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(-50.0f, 0.0f, 0.0f);
+            DispWireString(D_0063B998);
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (*(int *)(w + 0x14) & 0x10) {
+        iosOmSendMail(self, 8, self);
+        if (D_0063B188 != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(50.0f, 40.0f, 0.0f);
+            DispWireString(D_0063B9A0);
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (*(int *)(w + 0x14) & 0x20) {
+        iosOmSendMail(self, 9, self);
+        if (D_0063B188 != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(50.0f, 0.0f, 0.0f);
+            DispWireString(D_0063B9A8);
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (*(int *)(w + 0x14) & 0x1000) {
+        iosOmSendMail(self, 33, self);
+        if (D_0063B188 != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(50.0f, 0.0f, 0.0f);
+            DispWireString(D_006202F0);
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (*(int *)(w + 0x14) & 0x8) {
+        iosOmSendMail(self, 10, self);
+        if (D_0063B188 != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, -80.0f, 0.0f);
+            DispWireString(D_0063B9B0);
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (*(int *)(w + 0x14) & 0x400) {
+        iosOmSendMail(self, 26, self);
+        if (D_0063B188 != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, -80.0f, 0.0f);
+            DispWireString(D_0063B968);
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (*(int *)(w + 0x14) & 0x800) {
+        iosOmSendMail(self, 27, self);
+    }
+    if (*(int *)(w + 0x14) & 0x100) {
+        iosOmSendMail(self, 15, self);
+    }
+    if (*(int *)(w + 0x14) & 0x200) {
+        iosOmSendMail(self, 16, self);
+    }
+    if (D_0063B188 != 0) {
+        MatrixDrive_PopMatrix();
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", shiftMotionData);
 
 extern char D_00620300[];
@@ -221,7 +357,70 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", shiftMotionOrientBeginFunc);
+/* The motion-name row the debug line prints: 32 bytes the ROM copies with
+ * ldl/ldr, so a 4-aligned record and not an 8-aligned one. */
+typedef struct MotOriName {
+    char s[0x20];
+} MotOriName;
+
+extern MotOriName D_005D1278[];
+extern char D_0063B9C0[];
+extern char D_00620348[];
+extern char D_00620390[];
+extern char D_006203B8[];
+extern char D_006203D8[];
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+extern void _NormalizeVector(void *dst, void *src);
+/* kept local: GetOutOutsideOfWall is defined in src/motionManager2 and no header of
+ * this tree declares it */
+extern void GetOutOutsideOfWall(void *self, float d);
+
+void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
+{
+    Vec16 v;
+    char *m = MOWORK(self);
+    char *w = m + 0x470;
+    char *p = m + 0xA0;
+    short ang;
+
+    debug_StdPrintfDummy(D_00620348, D_005D1278[*(int *)(w + 0xD0)].s, *(int *)(w + 0xD0),
+                         D_0055FE58[*(int *)(w + 0x30)].name, *(int *)(w + 0x30), D_0063B9C0);
+    shiftMotionData((int)self, a1, a2, a3);
+    if (*(int *)(w + 0x6C) != 0) {
+        GetOutOutsideOfWall(self, *(float *)(p + 0x338));
+    }
+    memset(&v, 0, 16);
+    ang = 0;
+    v.f[2] = 1.0f;
+    if (*(int *)(w + 0x68) != 0 && *(int *)(w + 0x68) != 6) {
+        int kind = D_0055FE58[*(int *)(w + 0x94)].f108;
+
+        if (((unsigned int)D_0055FE58[*(int *)(w + 0x30)].f18C >> 27) & 1 || kind != 0) {
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            if (kind != 0 && kind != 1) {
+                ang = (short)(kind * 32768 / 180);
+                debug_StdPrintfDummy(D_00620390, ang, (float)ang * 180.0f / 32768.0f);
+            } else {
+                float mtx[4][4];
+
+                GetMatrixFromQuaternion((char *)mtx, m + 0xE0);
+                sceVu0ApplyMatrix(&v, mtx, &v);
+                v.f[1] = 0.0f;
+                _NormalizeVector(&v, &v);
+                ang = GetTableArcTan2(v.f[0], v.f[2]);
+                debug_StdPrintfDummy(D_006203B8, ang, (float)ang * 180.0f / 32768.0f);
+            }
+            MatrixDrive_RotMatrixY(ang);
+            sceVu0ApplyMatrix(w + 0xB0, MatrixDrive_GetMatrix(), w + 0xB0);
+        } else {
+            debug_StdPrintfDummy(D_006203D8, 0, (float)ang);
+        }
+    }
+    CopyBlendMotionDataSource(self, ang);
+    StopFDSVibration(MOWORK(self) + 0x740);
+    InitFrameDependSequence(MOWORK(self) + 0x740);
+    clearFrameTriggerState(self);
+}
 
 void ForTest_ForceShiftMotion(int a0, int a1)
 {
@@ -230,7 +429,85 @@ void ForTest_ForceShiftMotion(int a0, int a1)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", normalMotionShift);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", parallelMotionShift);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", SetMotionRequest);
+
+extern char D_0063B9D0[];
+extern int D_0063B194;
+extern void *D_00639EA4;
+extern void *D_00639EA8;
+extern int D_0063B9C4;
+extern int D_0063B160;
+extern char D_006203F0[];
+extern char D_00620438[];
+extern int D_0028F8F0[];
+extern int D_0063B9C8;
+extern int frame_count;
+
+/* The four one-character spinners the debug line cycles with the frame count. */
+typedef struct MotOriSpin {
+    char *s[4];
+} MotOriSpin;
+
+extern MotOriSpin D_00620428;
+
+char *SetMotionRequest(void *self, int mot, MotOriReq req)
+{
+    char *w = (char *)*(int *)((char *)self + 0x15C) + 0x470;
+    int old = *(int *)(w + 0xD0);
+
+    *(int *)(w + 0xD0) = mot;
+    if (normalMotionShift(self, 1) != 0) {
+        *(int *)(w + 0x44) = 0;
+        switch (*(int *)(w + 0x68)) {
+        case 3:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 13:
+        case 15:
+        case 16:
+            *(MotOriReq *)((char *)*(int *)((char *)self + 0x15C) + 0x180) = req;
+            debug_StdPrintfDummy(D_006203F0);
+            break;
+        }
+        if ((D_0063B194 == 0 && self == D_00639EA4) || (D_0063B194 == 1 && self == D_00639EA8) ||
+            (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+            (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+            (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+            if (D_0063B9C4 != 0 && D_0063B160 != 0) {
+                debug_PrintFontWindow(0xC0FF20, D_0063B9D0);
+            }
+            orientDebug(self, mot, 0xFFFFFF80);
+            D_0063B9C4 = 0;
+        }
+    } else {
+        *(int *)(w + 0xD0) = old;
+        if (D_0028F8F0[0] & 0x2) {
+            if ((D_0063B194 == 0 && self == D_00639EA4) ||
+                (D_0063B194 == 1 && self == D_00639EA8) ||
+                (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+                (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+                (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+                MotOriSpin spin = D_00620428;
+
+                if (D_0063B9C8 != mot && D_0063B9C4 != 0) {
+                    D_0063B9C4 = 0;
+                    if (D_0063B160 != 0) {
+                        debug_PrintFontWindow(0xC0FF20, D_0063B9D0);
+                    }
+                }
+                if (D_0063B160 != 0) {
+                    MotOriName name = D_005D1278[mot];
+
+                    debug_PrintFontWindow(0x3080FF20, D_00620438, spin.s[frame_count & 3], name.s,
+                                          D_0055FE58[*(int *)(w + 0x30)].name, ++D_0063B9C4);
+                }
+                D_0063B9C8 = mot;
+            }
+        }
+    }
+    return w;
+}
 
 inline void SetParallelMotionTableWithNoRequest(void *self, int a1, int a2)
 {
@@ -384,12 +661,6 @@ void getStreamMotion(void *self)
 }
 
 extern char D_00620630[];
-extern char D_0063B9D0[];
-extern int D_0063B194;
-extern void *D_00639EA4;
-extern void *D_00639EA8;
-extern int D_0063B9C4;
-extern int D_0063B160;
 
 void ExecMotionOrient(void *self)
 {

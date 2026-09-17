@@ -201,7 +201,8 @@ void scpPlayMot(char *self, int mot)
         return;
     }
     ControlMotionOrient(id, mot);
-    *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x10C, (char *)act + 0x620);
+    *(int *)((char *)act + 0x130) =
+        SetMotionRequest(self, 0x10C, *(MotOriReq *)((char *)act + 0x620));
 }
 
 void scpPlayJump(char *a0, int a1)
@@ -1813,7 +1814,7 @@ void scpPlayMotNode(void *a0, int a1, void *a2, int a3)
 void scpPlayMotReq(char *a0, int a1)
 {
     Act *p = GOBJ_ACT(a0);
-    *(int *)((char *)p + 0x130) = SetMotionRequest(a0, a1, (char *)p + 0x620);
+    *(int *)((char *)p + 0x130) = SetMotionRequest(a0, a1, *(MotOriReq *)((char *)p + 0x620));
 }
 
 void scpPlayPosSet(void *a0, float f12, float f13, float f14)

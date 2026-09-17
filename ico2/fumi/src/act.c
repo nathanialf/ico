@@ -477,7 +477,7 @@ IntrMail *act_check_intr_list(char *self, IntrMail *m, void **out)
                         continue;
                     }
                     mot = ACTGetOrientFromIntrK(self, k->ent[i].id, &buf, i);
-                    p = SetMotionRequest(self, mot, &buf);
+                    p = SetMotionRequest(self, mot, *(MotOriReq *)&buf);
                     *(char **)((char *)w + 0x130) = p;
                     if (*(int *)(p + 0xC) == 0 &&
                         (*(unsigned short *)((char *)m + 0x16) & 1) == 0 &&

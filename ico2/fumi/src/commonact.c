@@ -2826,7 +2826,8 @@ void actCommonTurnWarn(volatile int a0)
         if (*(int *)((char *)s + 0x40) != 0x10D) {
             prev = *(int *)((char *)s + 0x40);
         } else {
-            *(int *)((char *)s + 0x130) = SetMotionRequest((void *)a0, prev, (char *)s + 0x620);
+            *(int *)((char *)s + 0x130) =
+                SetMotionRequest((void *)a0, prev, *(MotOriReq *)((char *)s + 0x620));
         }
         GetRootMotionOrient(q, a0);
         d = _RotyGV(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x3F0, q);
@@ -3180,7 +3181,7 @@ void funcCommonSofaWakeup(char *a0)
 int _ACTMotReqResult(char *a0, int a1)
 {
     Act *s = GOBJ_ACT(a0);
-    char *r = SetMotionRequest(a0, a1, (char *)s + 0x620);
+    char *r = SetMotionRequest(a0, a1, *(MotOriReq *)((char *)s + 0x620));
     *(char **)((char *)s + 0x130) = r;
     return *(int *)(r + 0xC) != 0;
 }

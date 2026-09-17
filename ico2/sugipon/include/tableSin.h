@@ -20,7 +20,7 @@ float GetTableCos(short a0);
 void InitTableSin(void);
 int GetTableArcSin(float x);
 int GetTableArcCos(float x);
-int GetTableArcTan2(float f12, float f13);
+short GetTableArcTan2(float f12, float f13);
 
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in

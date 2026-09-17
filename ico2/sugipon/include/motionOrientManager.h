@@ -18,6 +18,15 @@ typedef struct {
     int pad[4];
 } MotionOrientEntry;
 
+/* Reconstruction: the 32-byte orient record an actor hands to
+ * SetMotionRequest by value (the EE ABI passes it by reference and the callee
+ * copies it into its frame, which is what the ROM's prologue does). The same
+ * record is reconstructed in ico2/fumi/src/act.c as IntrOrient, whose matched
+ * uses fix the member spelling. */
+typedef struct {
+    int w[8];
+} MotOriReq;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order motionOrientManager.c's inline tail has. */
@@ -34,13 +43,13 @@ int ExecutePauseSlipProc(char *a0);
 void ExecMotionOrient(void *self);
 float GetMotionPlaySpeedRatio(int id);
 int GetNbMotionFrames(int id);
-char *SetMotionRequest(int self, int mot, char *work);
+char *SetMotionRequest(void *self, int mot, MotOriReq req);
 void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
 void getMotionGeometry(void *self);
 void getShapeGeometry(void *self);
 void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);
 void getStreamShapeGeometry(void *self, void *sm);
-void normalMotionShift(void *self, int a1);
+int normalMotionShift(void *self, int a1);
 void orientDebug(void *self, int mode, int col);
 int parallelMotionShift(void *self);
 void shiftMotionData(int a0, int a1, int a2, int a3);

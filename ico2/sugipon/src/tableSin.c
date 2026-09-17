@@ -1,6 +1,19 @@
 #include "common.h"
 #include <math.h>
-#include "tableSin.h"
+
+/* tableSin.h is not included here: it declares GetTableArcTan2 as returning
+   short, which is what every caller's bytes need, while this definition returns
+   int, which is what this TU's own bytes need; the 2001 source can only have
+   carried both if the definition never saw that prototype. The declarations
+   below repeat the header's order, which is load-bearing: gcc 2.9 emits the
+   deferred out-of-line copies of plain-inline functions in first-declaration
+   order. */
+float GetTableSin(short a0);
+float GetTableCos(short a0);
+void InitTableSin(void);
+int GetTableArcSin(float x);
+int GetTableArcCos(float x);
+int GetTableArcTan2(float f12, float f13);
 
 /* .bss, owned by tableSin.o and reached only from this file (MAIN.MAP names no
    symbol in the run; its tableSin.o .bss size 0x12012 is exactly these two

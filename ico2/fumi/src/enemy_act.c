@@ -2253,7 +2253,7 @@ void motEnemyStand(volatile int a0)
 {
     char *sub = *(char **)(a0 + 0x164);
     debug_StdPrintfDummy(D_00553450);
-    *(char **)(sub + 0x130) = SetMotionRequest(a0, 1, sub + 0x620);
+    *(char **)(sub + 0x130) = SetMotionRequest(a0, 1, *(MotOriReq *)(sub + 0x620));
     while (1) {
         _ACTWait(1);
     }
@@ -2266,7 +2266,7 @@ void motEnemyWalk(volatile int a0)
     char *sub = *(char **)(a0 + 0x164);
     char *mot;
     debug_StdPrintfDummy(D_00553480);
-    mot = SetMotionRequest(a0, 8, sub + 0x620);
+    mot = SetMotionRequest(a0, 8, *(MotOriReq *)(sub + 0x620));
     *(char **)(sub + 0x130) = mot;
     *(int *)(mot + 0x114) = 0;
     _ACTWait(0);
@@ -2279,7 +2279,7 @@ void motEnemyRun(volatile int a0)
     char *sub = *(char **)(a0 + 0x164);
     char *mot;
     debug_StdPrintfDummy(D_005534B0);
-    mot = SetMotionRequest(a0, 0xD, sub + 0x620);
+    mot = SetMotionRequest(a0, 0xD, *(MotOriReq *)(sub + 0x620));
     *(char **)(sub + 0x130) = mot;
     *(int *)(mot + 0x114) = 0;
     _ACTWait(0);
