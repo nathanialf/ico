@@ -7,6 +7,7 @@
  * VMA 0x273228..0x276AD0. */
 #include "common.h"
 #include <sifrpc.h>
+#include <string.h>
 
 extern unsigned char D_00731C00[];
 
@@ -76,11 +77,99 @@ void *_SgGetPacketCntext(int a0, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgCalledTickProc);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetPkAdd);
+
+/* The EE to IOP packet ring in the common context: c[0xF] is the page the ring
+ * lives in and c[0x10] the write index _SgGetPacketCntext resolves to a slot.
+ * The index is read and bumped through a volatile view because the IOP side
+ * polls it while the EE fills the ring; the ROM proves it, reloading the count
+ * after storing it. */
+int _SgSetPkAdd(int a0, int a1, int a2, int a3)
+{
+    int *c = _SgGetComContext();
+    volatile int *n = (volatile int *)&c[0x10];
+    int *p = _SgGetPacketCntext(c[0xF], c[0x10]);
+
+    if ((unsigned int)*n >= 0xFF) {
+        return -1;
+    }
+    p[0] = a0;
+    p[1] = a1;
+    p[2] = a2;
+    p[3] = a3;
+    *n = *n + 1;
+    return *n;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeMain);
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgBgmMain);
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetRealtimeTickProc);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetRealtimeVolume);
+
+/* Realtime volume: mode 1 takes the SE volume table's value for the vab and
+ * writes it at the head of the vab's 0x40 block, mode 2 takes the sequence's
+ * own 0x34 level and paints it over every channel the 0x38 mask selects.  The
+ * status word is read through a volatile view at each test, as elsewhere in
+ * this file. Every matching voice then gets its 0x1E level and, for a keyed
+ * voice, its 0x16 channel level, and is re-levelled through _SgSeqSeVolume. */
+int _SgSetRealtimeVolume(int *a0)
+{
+    unsigned char *base;
+    unsigned char *s;
+    int mode = 0;
+    int i;
+    int k;
+
+    if ((*(volatile int *)a0 & 5) == 4) {
+        int v = _SgGetSeVolValue(*(unsigned short *)((char *)a0 + 0x18));
+
+        if (v & 0x80) {
+            *(int *)((char *)a0 + 0x30) = 0xFFFF;
+            mode = 1;
+            *(int *)((char *)a0 + 0x34) = v & 0x7F;
+        }
+    } else if ((*(volatile int *)a0 & 5) == 1) {
+        if (*(volatile int *)a0 & 0x200) {
+            mode = 2;
+            a0[0] = *(volatile int *)a0 & 0xFFFFFDFF;
+        }
+    }
+    switch (mode) {
+    case 1:
+        base = (unsigned char *)*(
+            int *)(*(int *)_SgGetVabContext(*(unsigned short *)((char *)a0 + 0x18)) + 0x40);
+        *base = *((unsigned char *)a0 + 0x34);
+        break;
+    case 2:
+        base = (unsigned char *)a0[2];
+        if (*(int *)((char *)a0 + 0x30) == 0xFFFF) {
+            *base = *((unsigned char *)a0 + 0x34);
+        }
+        if (*(int *)((char *)a0 + 0x38) != 0) {
+            for (i = 0; i < 0x10; i++) {
+                if ((*(int *)((char *)a0 + 0x38) >> i) & 1) {
+                    *(char *)(base + (i << 4) + 0x1E) = *((unsigned char *)a0 + 0x3C);
+                }
+            }
+        }
+        break;
+    default:
+        return -1;
+    }
+    s = _SgGetSlotContext(0);
+    for (i = 0; i < 0x30; i++, s += 0x58) {
+        k = s[0x51];
+        if (k != 0 && k != 3 && s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+            *(short *)(s + 0x1E) = *base;
+            if (k == 1) {
+                unsigned char *vp = base + 0x1E;
+
+                *(short *)(s + 0x16) = vp[s[0x4F] << 4];
+            }
+            _SgSeqSeVolume(i, a0);
+        }
+    }
+    return 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgTableEnvAdd);
 
 extern void *_SgGetComContext(void);
@@ -171,7 +260,42 @@ int _SgSeKeyOff(char *a0)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeqKeyOff);
+/* Key off every voice the sequence owns: the 48 slots are matched on the
+ * program byte e[1], the sequence's own 0x4E and 0x4C ids, an active 0x51 and
+ * the 0x18 channel, and each match sets the sequence's bit in the common
+ * context's 64-bit key-off mask at 0x28.  The slot status word is read through
+ * a volatile view at every test because the tick proc updates it while the
+ * sequence runs; the write-back is plain. */
+int _SgSeqKeyOff(int *a0)
+{
+    unsigned char *s = _SgGetSlotContext(0);
+    char *com = _SgGetComContext();
+    int *head = _SgGetHeadContext();
+    unsigned char *e = (unsigned char *)head[4];
+    int i;
+
+    for (i = 0; i < 0x30; i++, s += 0x58) {
+        if (s[0x4E] == e[1]) {
+            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E)) {
+                if (s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+                    if (s[0x51] == 1) {
+                        if (s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
+                            if ((*(volatile int *)s & 4) == 0) {
+                                *(int *)s = *(volatile int *)s & 0xFFFFFFF7;
+                            } else if ((*(volatile int *)s & 8) != 0) {
+                                *(int *)s = *(volatile int *)s & 0xFFFFFFF7;
+                            }
+                            *(long long *)(com + 0x28) =
+                                *(long long *)(com + 0x28) | ((long long)1 << i);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    a0[1] += 3;
+    return 0;
+}
 
 int _SgIntoKeyOn(int a0, int a1, int a2)
 {
@@ -194,17 +318,100 @@ int _SgIntoKeyOn(int a0, int a1, int a2)
     return a0;
 }
 
-extern void _SgSetPkAdd(int a0, int a1, int a2, int a3);
-
 int _SgPitchTableVag(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
 {
     _SgSetPkAdd(4, a0, (a1 << 24) | (a2 << 16) | ((a3 & 0xFF) << 8) | a4, (a5 << 24) | a6);
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeqSeVolume);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgPan);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgEndSeq);
+/* Fold the slot's six 16-bit envelope and volume terms into one 64-bit product
+ * and scale it by the two channel volumes at 0x44 and 0x48, giving the left and
+ * right levels the IOP packet carries.  With the common context's 0x38 flag set
+ * both sides take the larger magnitude, and a non-zero 0x2E folds the slot's
+ * own attenuation into the top byte. */
+int _SgSeqSeVolume(int a0, int *a1)
+{
+    unsigned char *slot = _SgGetSlotContext(a0);
+    int *com = _SgGetComContext();
+    long long m;
+    short l;
+    short r;
+
+    m = (long long)*(unsigned short *)(slot + 0x16) * *(unsigned short *)(slot + 0x22);
+    m = m * ((long long)*(unsigned short *)(slot + 0x1C) * *(unsigned short *)(slot + 0x1A));
+    m = m * ((long long)*(unsigned short *)(slot + 0x18) * *(unsigned short *)(slot + 0x1E));
+    l = (m * (*(unsigned short *)(slot + 0x20) >> 8) * a1[0x11]) >> 46;
+    r = (m * (*(unsigned short *)(slot + 0x20) & 0xFF) * a1[0x12]) >> 46;
+    if (*(unsigned short *)((char *)com + 0x38) == 1) {
+        l = (l < 0) ? -l : l;
+        r = (r < 0) ? -r : r;
+        if (r < l) {
+            r = l;
+        } else {
+            l = r;
+        }
+    }
+    l = (l & 0xFFFF) >> 1;
+    r = (r & 0xFFFF) >> 1;
+    if (*(unsigned short *)(slot + 0x2E) != 0) {
+        l = (*(unsigned short *)(slot + 0x2E) << 8) | (l >> 7);
+        r = (*(unsigned short *)(slot + 0x2E) << 8) | (r >> 7);
+    }
+    _SgSetPkAdd(1, a0, l, r);
+    return 0;
+}
+
+/* The head context's three tables: h[0] the common block, h[1] the slot table
+ * and h[2] the sequence table, both indexed by a 16-byte record.  The slot
+ * pointer is advanced over the record for the read and put back afterwards. */
+int _SgPan(int a0, int a1)
+{
+    int *h = _SgGetHeadContext();
+    unsigned char *seq = (unsigned char *)(h[2] + a1 * 16);
+    int v;
+
+    h[1] += a0 * 16;
+    v = seq[0x14] + *(unsigned char *)(h[1] + 0xC) - 0x80;
+    v += *(unsigned char *)(h[0] + 2);
+    h[1] -= a0 * 16;
+    if (v >= 0x80) {
+        v = 0x7F;
+    }
+    if (v < 0) {
+        v = 0;
+    }
+    return v;
+}
+
+/* End of sequence: a0 is the sequence context, a0[0] its status word, a0[1] the
+ * event cursor, a0[5] the repeat state and 0x4C the sequence id the voices carry
+ * at slot offset 0x50.  Every status word here is READ through a volatile view
+ * and written back plainly: the ROM reloads the word at each update (the tick
+ * proc and the IOP both touch these while the sequence runs) but keeps the
+ * write-back movable, and it is the store that fills the branch delay slot. */
+void _SgEndSeq(int *a0)
+{
+    unsigned char *s = _SgGetSlotContext(0);
+    int i;
+
+    if (*(volatile int *)a0 & 4) {
+        a0[5] = 0;
+        a0[0] = *(volatile int *)a0 & 0xFFFFEFF7;
+    } else {
+        a0[1] = 0x110;
+        a0[0] = *(volatile int *)a0 & 0xFFFFFFFD;
+    }
+    a0[0] = *(volatile int *)a0 | 0x40;
+    for (i = 0; i < 48; i++, s += 0x58) {
+        if (s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+            if (s[0x51] == 1) {
+                *(int *)s = *(volatile int *)s & 0xFFFFFFEF;
+                *(short *)(s + 0x26) = 0x40;
+            }
+        }
+    }
+    *((char *)a0 + 0x51) = *((unsigned char *)a0 + 0x50);
+}
 
 void _SgTempoChange(int *a0)
 {
@@ -242,8 +449,86 @@ void _SgProgChange(int *a0)
     *(a0 + 1) += 2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContMod);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContModLoop);
+/* Modulation controller: with bit 8 of the status word set the event carries
+ * its own slot key (0x2C against the event byte 3 and 0x4E against byte 4)
+ * and the cursor advances 5, otherwise the value lands in the program record
+ * at 0x19 and the sequence keys the slots itself for a 3 byte event.  Both
+ * loops read AND write the slot status word through a volatile view. */
+void _SgContMod(int *a0)
+{
+    unsigned char *s = _SgGetSlotContext(0);
+    int *head = _SgGetHeadContext();
+    int i;
+
+    if (a0[0] & 8) {
+        for (i = 0; i < 48; i++, s += 0x58) {
+            if (s[0x51] == 2) {
+                if (*(unsigned short *)(s + 0x2C) == *(unsigned char *)(head[4] + 3)) {
+                    if (s[0x4E] == *(unsigned char *)(head[4] + 4)) {
+                        if (s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
+                            if (s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+                                *(short *)(s + 0x12) = *(unsigned char *)(head[4] + 2);
+                                *(volatile int *)s = *(volatile int *)s | 0x10;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        a0[1] += 5;
+    } else {
+        *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x19) =
+            *(unsigned char *)(head[4] + 2);
+        for (i = 0; i < 48; i++, s += 0x58) {
+            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E)) {
+                if (s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
+                    if (s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+                        if (s[0x51] == 1) {
+                            *(short *)(s + 0x12) = *(unsigned char *)(head[4] + 2);
+                            *(volatile int *)s = *(volatile int *)s | 0x10;
+                        }
+                    }
+                }
+            }
+        }
+        a0[1] += 3;
+    }
+}
+
+/* Modulation loop-rate controller: the event byte maps to a tick period,
+ * 240 / (60 - value * 58 / 127), which is stored as the slot's 0x14 rate and,
+ * on the sequence-keyed path, into the program record at 0x1C. */
+void _SgContModLoop(int *a0)
+{
+    unsigned char *s = _SgGetSlotContext(0);
+    int *head = _SgGetHeadContext();
+    int v = 240 / (60 - *(unsigned char *)(head[4] + 2) * 58 / 127);
+    int i;
+
+    if (a0[0] & 8) {
+        for (i = 0; i < 48; i++, s += 0x58) {
+            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
+                *(unsigned short *)(s + 0x2C) == *(unsigned char *)(head[4] + 3) &&
+                s[0x4E] == *(unsigned char *)(head[4] + 4) &&
+                s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
+                s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) && s[0x51] == 2) {
+                *(short *)(s + 0x14) = v;
+            }
+        }
+        a0[1] += 5;
+    } else {
+        *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1C) = v;
+        for (i = 0; i < 48; i++, s += 0x58) {
+            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
+                s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
+                s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) && s[0x51] == 1) {
+                *(short *)(s + 0x14) = v;
+            }
+        }
+        a0[1] += 3;
+    }
+}
+
 /* Reverted to asm 2026-09-15: the only body in the tree that the raw
  * toolchain cannot produce. ROM puts `cvt.s.w $f1,$f1` in the delay slot of
  * the `b` that joins the two arms of the float divide; ee-gcc emits the cvt
@@ -253,10 +538,123 @@ INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContModLoop);
  * reorder rewrite, retired with the rest. Seed: tails/seeds/
  * sg.rewrite_cop1_mtc1cvtb_SgContPolta_TU.c, ledger: docs/rewrite_ledger.md. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContPolta);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContVol);
+
+/* Volume controller: with bit 8 of the status word set the event keys the
+ * voices itself and their 0x34 target, 0x36 current and 0x38/0x3A step are
+ * refreshed from the event and the common tempo; otherwise the value lands in
+ * the program record at 0x13 and each matching voice is re-levelled through
+ * _SgSeqSeVolume. */
+void _SgContVol(int *a0)
+{
+    unsigned char *s = _SgGetSlotContext(0);
+    char *com = _SgGetComContext();
+    int *head = _SgGetHeadContext();
+    int i;
+
+    if (a0[0] & 8) {
+        for (i = 0; i < 48; i++, s += 0x58) {
+            if (s[0x51] == 2 && s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
+                unsigned char *e = (unsigned char *)head[4];
+
+                if (*(unsigned short *)(s + 0x2C) == e[4] && s[0x4E] == e[5] &&
+                    s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+                    int v;
+
+                    *(int *)s |= 0x40;
+                    *(short *)(s + 0x34) = e[3];
+                    *(short *)(s + 0x36) = *(unsigned short *)(s + 0x1A);
+                    v = (e[2] << 2) * *(unsigned short *)(com + 0x3A) / 60;
+                    *(short *)(s + 0x38) = v;
+                    *(short *)(s + 0x3A) = v;
+                }
+            }
+        }
+        a0[1] += 6;
+    } else {
+        *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x13) =
+            *(unsigned char *)(head[4] + 2);
+        for (i = 0; i < 48; i++, s += 0x58) {
+            if (s[0x51] == 1 && s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
+                s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
+                s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+                *(short *)(s + 0x22) = *(unsigned char *)(head[4] + 2);
+                _SgSeqSeVolume(i, a0);
+            }
+        }
+        a0[1] += 3;
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContPan);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContDump);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContSeLoop);
+
+/* Dump (damper) controller: the program record's 0x1B byte takes the event's
+ * value, and when it goes to zero every voice the sequence holds either gets
+ * its bit set in the common context's 64-bit key-off mask or, if the damper is
+ * still down, is marked 8.  The slot status word is read through a volatile
+ * view at both sites: the ROM reloads it for the mark. */
+void _SgContDump(int *a0)
+{
+    unsigned char *s = _SgGetSlotContext(0);
+    char *com = _SgGetComContext();
+    int *head = _SgGetHeadContext();
+    int i;
+
+    *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1B) =
+        *(unsigned char *)(head[4] + 1);
+    if (*(unsigned char *)(head[4] + 1) == 0) {
+        for (i = 0; i < 0x30; i++, s += 0x58) {
+            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
+                s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
+                s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) &&
+                (*(volatile int *)s & 4) != 0) {
+                if (*(unsigned char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) +
+                                       0x1B) == 0) {
+                    *(long long *)(com + 0x28) = *(long long *)(com + 0x28) | ((long long)1 << i);
+                } else {
+                    *(int *)s = *(volatile int *)s | 8;
+                }
+            }
+        }
+    }
+    a0[1] += 3;
+}
+
+/* The SE loop event: a0[0] carries the voice flags, a0[1] the event cursor,
+ * a0[2] the sequence data base and a0[3] the loop target offset.  The event
+ * bytes are e[2] and e[3] (the 16-bit loop target) and e[4] the repeat count;
+ * the running count lives at 0x22 and the byte the loop jumps to at 0x24.
+ * The flag word is read and written through a volatile view because the tick
+ * proc that runs the voice updates it: the ROM reloads it in the arm that
+ * clears the loop flag. */
+void _SgContSeLoop(int *a0)
+{
+    int *p = _SgGetHeadContext();
+    unsigned char *e = (unsigned char *)*(int *)((char *)p + 0x10);
+    char *tbl = (char *)a0[2];
+
+    *(volatile int *)a0 |= 0x80;
+    if (e[4] != 0) {
+        if (*(unsigned short *)((char *)a0 + 0x22) == e[4]) {
+            *(short *)((char *)a0 + 0x22) = 0;
+            *(volatile int *)a0 &= 0xFFFFFF7F;
+        } else {
+            int v;
+
+            a0[3] = (e[3] << 8) + e[2];
+            v = *(unsigned char *)(tbl + a0[3]);
+            *(unsigned short *)((char *)a0 + 0x22) = *(unsigned short *)((char *)a0 + 0x22) + 1;
+            *(short *)((char *)a0 + 0x24) = v;
+        }
+    } else {
+        int w;
+
+        a0[3] = (e[3] << 8) + e[2];
+        w = *(unsigned char *)(tbl + a0[3]);
+        *(short *)((char *)a0 + 0x24) = w;
+    }
+    a0[1] += 5;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContParam);
 
 void _SgContLoopCount(void *a0)
@@ -297,8 +695,75 @@ done:
     *(int *)((char *)s0 + 0x4) = val + 3;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContLoop);
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgBendForm);
+/* Loop controller dispatch on the event byte: controller numbers 0 to 15 park
+ * the value at 0x2C, 0x10 arms the loop, 0x14 latches the cursor into 0xC,
+ * 0x1E steps the repeat count against its limit at 0x26 and 0x7F resets.  The
+ * status word is read through a volatile view at every update, as elsewhere in
+ * this file. */
+void _SgContLoop(int *a0)
+{
+    int *head = _SgGetHeadContext();
+    unsigned char *e = (unsigned char *)head[4];
+
+    switch (e[2]) {
+    case 0 ... 0xF:
+        *(short *)((char *)a0 + 0x2C) = e[2];
+        *(short *)((char *)a0 + 0x28) = 2;
+        break;
+    case 0x14:
+        *(short *)((char *)a0 + 0x24) = *(unsigned char *)((char *)a0 + 0x50);
+        *(int *)((char *)a0 + 0xC) = a0[1];
+        *(short *)((char *)a0 + 0x28) = 0;
+        *(short *)((char *)a0 + 0x2A) = 0;
+        break;
+    case 0x1E:
+        if (*(unsigned short *)((char *)a0 + 0x26) == 0x7F) {
+            a0[0] = *(volatile int *)a0 | 0x80;
+        } else {
+            if (*(unsigned short *)((char *)a0 + 0x22) >= *(unsigned short *)((char *)a0 + 0x26)) {
+                *(int *)((char *)a0 + 0xC) = 0;
+                a0[0] = *(volatile int *)a0 & 0xFFFFFF7F;
+                *(short *)((char *)a0 + 0x22) = 0;
+                *(short *)((char *)a0 + 0x28) = 0;
+                break;
+            }
+            *(short *)((char *)a0 + 0x22) = *(unsigned short *)((char *)a0 + 0x22) + 1;
+            a0[0] = *(volatile int *)a0 | 0x80;
+        }
+        *(short *)((char *)a0 + 0x28) = 0;
+        break;
+    case 0x10:
+        *(short *)((char *)a0 + 0x28) = 1;
+        break;
+    case 0x7F:
+        *(short *)((char *)a0 + 0x28) = 2;
+        *(short *)((char *)a0 + 0x2C) = 0xFF;
+        break;
+    }
+    a0[1] += 3;
+}
+
+void _SgBendForm(int *a0)
+{
+    unsigned char *s = _SgGetSlotContext(0);
+    int *head = _SgGetHeadContext();
+    int i;
+
+    *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A) =
+        *(unsigned char *)(head[4] + 1);
+    for (i = 0; i < 0x30; i++, s += 0x58) {
+        if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
+            s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
+            s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) && s[0x51] == 1) {
+            *(short *)(s + 0x26) = *(unsigned char *)(head[4] + 1);
+            _SgPitchTableVag(
+                i, *(unsigned short *)(s + 0x2A), s[0x4E], *(short *)(s + 0x24),
+                *(unsigned char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A),
+                *(unsigned short *)(s + 0x28), 0x1000);
+        }
+    }
+    a0[1] += 2;
+}
 
 void _SgDeltaTime(char *s)
 {
@@ -325,7 +790,47 @@ int _SgfadeParam(int a0, int a1, int a2, int a3)
     return ((a0 & 0xFF) + ((a1 & 0xFF) - (a0 & 0xFF)) * (a3 & 0xFF) / (a2 & 0xFF)) & 0xFF;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgInit);
+extern unsigned char D_00735CC0[];
+
+/* Bring the driver up: hand the IOP side the uncached-accelerated address of
+ * the EE to IOP mailbox, clear every context block, mark all 48 slots free and
+ * set the common context's default tempo. */
+void _SgInit(int a0)
+{
+    int buf[16];
+    void *se = _SgSetSeContext();
+    void *pk = _SgGetPacketCntext(0, 0);
+    unsigned char *slot = _SgGetSlotContext(0);
+    void *vab = _SgGetVabContext(0);
+    char *com = _SgGetComContext();
+    void *seq = _SgGetSeqContext(0);
+    int i;
+
+    D_00735EC0[0] = (int)D_00735CC0 | 0x20000000;
+    buf[0] = 0x1E;
+    buf[1] = a0;
+    buf[4] = 0;
+    _SgSndn2Remote(0x65, 0, (int)buf, (int)buf, 0x40, 0x40);
+    memset(slot, 0, 0x1080);
+    memset(vab, 0, 0x600);
+    memset(seq, 0, 0xFC0);
+    memset(com, 0, 0x50);
+    memset(pk, 0, 0x1000);
+    memset((void *)D_00735EC0[0], 0, 0x200);
+    memset(se, 0, 0x200);
+    for (i = 0; i < 48; i++, slot += 0x58) {
+        slot[0x50] = 0xFF;
+        slot[0x56] = 0xFF;
+        slot[0x55] = 0xFF;
+        slot[0x54] = 0xFF;
+    }
+    /* the common context is what the IOP side polls, so these four go out in
+       the order they are written */
+    *(volatile int *)(com + 0x48) = 0;
+    *(volatile int *)(com + 0x44) = 1;
+    *(volatile short *)(com + 0x3A) = 0x3C;
+    *(volatile int *)(com + 0x40) = 0;
+}
 
 extern char D_00736140[];
 
