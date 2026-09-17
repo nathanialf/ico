@@ -530,8 +530,7 @@ segments:
       - [0x18FED0, .data, ico2/sugipon/src/keyInput]  # the TU's whole .data run as source (data pass 3): the pad device descriptor, VMA 0x28FED0..0x28FEE8, 24 B
       - [0x18FEE8, data, cod/18FEE8]     # data blob resume
       - [0x18FEF0, .data, ico2/sugipon/src/matrixDrive]  # syms: ZeroVector ZeroPoint XUnitVector YUnitVector ZUnitVector InitialMatrix rotXWorkMatrix rotYWorkMatrix rotZWorkMatrix scaleWorkMatrix  the TU's whole .data run as source (data pass 4; = MAIN.MAP matrixDrive.o .data 0x190), the six map-named vectors then four work-matrix templates, VMA 0x28FEF0..0x290080, 400 B
-      - [0x190080, data, cod/190080]     # data blob resume
-      - [0x190640, .data, ico2/sugipon/src/motionManager2]  # the TU's whole .data run as source (completeness pass 6), VMA 0x290640..0x2906E0, 160 B emitted
+      - [0x190080, .data, ico2/sugipon/src/motionManager2]  # the TU's whole .data run as source (completeness pass 9): the MotionGeoInfo and MotionStateInfo templates (typed from the TU's own accessors, 8-aligned by their Vec4 members) then the earlier tables, 1632 B, VMA 0x290080..0x2906E0
       - [0x1906E0, .data, ico2/sugipon/src/pool]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2906E0..0x2907E0, 256 B emitted
       - [0x1907E0, .data, ico2/sugipon/src/quaternion]  # syms: IdentityQuaternion quatToMatrixScale nxt  the TU's whole .data run as source (data pass 4; = MAIN.MAP quaternion.o .data 0x2C), VMA 0x2907E0..0x29080C, 44 B
       - [0x19080C, data, cod/19080C]     # data blob resume
@@ -1071,6 +1070,8 @@ segments:
       - [0x539B18, .lit4, ico2/script/src/stageSEProc]  # carved D_00639B18..D_00639C40 (75 words: 20 slots beside the still-asm stageSE04eriver/06ariver/10lstrong2/19ataki, the rest literals in the C owners), VMA 0x639B18..0x639C44, 300 B; MAIN.MAP stageSEProc.o .lit4 is 0x138 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
       - [0x539C44, lit4, cod/539C44]     # .lit4 blob resume
       - [0x539C80, sdata, cod/539C80]    # .sdata
+      - [0x539F10, .sdata, ico2/sugipon/src/motionManager2]  # the TU's two anonymous assert literals (10 B), VMA 0x639F10..0x639F1A; named small objects stay blocked by -fdata-sections
+      - [0x539F1C, sdata, cod/539F1C]     # .sdata blob resume
       - [0x53A348, .sdata, ico2/seki/src/ZFog]  # the TU's whole .sdata run as source (completeness pass 6), VMA 0x63A348..0x63A354, 12 B emitted
       - [0x53A354, sdata, cod/53A354]     # .sdata blob resume
       # --- per-TU .sdata carves ---

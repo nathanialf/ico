@@ -23,10 +23,6 @@ typedef struct {
 } FloorAttr;
 
 typedef struct {
-    long long w[62];
-} _0x1F0;
-
-typedef struct {
     long long d[2];
     float q[4];
 } StreamElem;
@@ -504,11 +500,436 @@ int calcFootIK(char *skel, char *arg, int node, float scale, float ratio)
     return ang;
 }
 
+/* RECONSTRUCTION: the motion geometry record the actor sub-object carries at
+   its own +0xA0, and the default every actor starts from.  Rungs: ROM bytes
+   for every offset, width and value; this TU's own code for the roles it
+   names (InitMotionGeoInfo writes the position at 0x0 and the root
+   quaternion at 0x30, SetSimplePlane builds the field plane at 0x130,
+   GetRootPosOfNextFrame reads the next-frame position at 0x90 and
+   AdjustMotionHeightToField projects the field position at 0x1B0 onto that
+   plane); the offsets with no reader keep offset names.  MAIN.MAP names no
+   symbol in the member, so both names here are ours. */
 typedef struct {
-    long long d[122];
-} _0x3D0;
+    int f_0;  /* 0x0 */
+    int node; /* 0x4, skeleton node index, -1 when the slot has none */
+} MotionGeoNode;
 
-extern _0x3D0 D_00290080;
+typedef struct {
+    int f_0;     /* 0x0 */
+    int f_4;     /* 0x4 */
+    int node;    /* 0x8, skeleton node index, -1 when the limb has none */
+    int f_C;     /* 0xC */
+    Vec4 f_10;   /* 0x10 */
+    Vec4 f_20;   /* 0x20 */
+    Vec4 f_30;   /* 0x30 */
+    Vec4 f_40;   /* 0x40 */
+    float ratio; /* 0x50 */
+    float f_54;  /* 0x54 */
+    float f_58;  /* 0x58 */
+    float f_5C;  /* 0x5C */
+} MotionGeoLimb;
+
+typedef struct {
+    Vec4 pos; /* 0x0, the position InitMotionGeoInfo is handed */
+    Vec4 f_10;
+    Vec4 f_20;
+    Vec4 rot; /* 0x30, the root quaternion */
+    Vec4 f_40;
+    Vec4 f_50;
+    Vec4 f_60;
+    Vec4 f_70; /* takes a copy of the initial position */
+    int f_80;
+    int f_84;
+    int f_88;
+    int f_8C;
+    Vec4 nextPos; /* 0x90, the root position of the next frame */
+    Vec4 f_A0;
+    Vec4 f_B0;
+    Vec4 f_C0;
+    Vec4 f_D0;
+    MotionGeoNode nodes[9]; /* 0xE0 */
+    int f_128;
+    int f_12C;
+    Vec4 plane; /* 0x130, the field plane under the actor */
+    Vec4 f_140;
+    Vec4 f_150; /* takes a copy of the initial position */
+    Vec4 f_160; /* takes a copy of the initial position */
+    Vec4 f_170;
+    int f_180;
+    int f_184;
+    int f_188;
+    int f_18C;
+    Vec4 f_190;
+    Vec4 f_1A0;
+    Vec4 fieldPos; /* 0x1B0, the position projected onto the field plane */
+    Vec4 f_1C0;
+    Vec4 f_1D0;
+    Vec4 f_1E0;
+    Vec4 f_1F0;
+    int f_200;
+    int f_204;
+    int f_208;
+    int f_20C;
+    MotionGeoLimb limbs[2]; /* 0x210 and 0x270 */
+    Vec4 f_2D0;
+    Vec4 f_2E0;
+    Vec4 f_2F0;
+    Vec4 f_300;
+    Vec4 f_310;
+    Vec4 f_320;
+    Vec4 f_330;
+    Vec4 f_340;
+    Vec4 f_350;
+    int f_360;
+    int f_364;
+    int f_368;
+    int f_36C;
+    Vec4 f_370;
+    Vec4 f_380;
+    Vec4 f_390;
+    Vec4 f_3A0;
+    float f_3B0;
+    float f_3B4;
+    float f_3B8;
+    float f_3BC;
+    float f_3C0;
+    float f_3C4;
+    float f_3C8;
+    float f_3CC;
+} MotionGeoInfo;
+
+/* .data, owned by motionManager2.o: the record InitMotionGeoInfo copies over
+   every new actor's geometry state.  It is defined here, ahead of the wall
+   tables below, because the ROM emits it first in the member's .data. */
+static MotionGeoInfo motionGeoInfoTemplate = {
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 1.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    0,
+    -1,
+    0,
+    0,
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}},
+    0,
+    0,
+    {{0.0f, -1.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    -1,
+    0,
+    0,
+    0,
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, -1.0f, 0.0f, 0.0f}},
+    {{0.0f, -1.0f, 0.0f, 0.0f}},
+    1,
+    0,
+    0,
+    0,
+    {{0,
+      0,
+      -1,
+      0,
+      {{0.0f, 0.0f, 0.0f, 1.0f}},
+      {{0.0f, 0.0f, 0.0f, 0.0f}},
+      {{0.0f, 0.0f, 0.0f, 1.0f}},
+      {{0.0f, 0.0f, 0.0f, 1.0f}},
+      0.5f,
+      0.0f,
+      0.0f,
+      0.0f},
+     {0,
+      0,
+      -1,
+      0,
+      {{0.0f, 0.0f, 0.0f, 1.0f}},
+      {{0.0f, 0.0f, 0.0f, 0.0f}},
+      {{0.0f, 0.0f, 0.0f, 1.0f}},
+      {{0.0f, 0.0f, 0.0f, 1.0f}},
+      0.5f,
+      0.0f,
+      0.0f,
+      0.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, -1.0f, 0.0f, 0.0f}},
+    1,
+    0,
+    0,
+    0,
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    0.0f,
+    0.0f,
+    1.0f,
+    0.09f,
+    0.15f,
+    0.1f,
+    0.1f,
+    0.0f,
+};
+
+/* RECONSTRUCTION: the motion state record the actor sub-object carries at its
+   own +0x470, and the default every actor starts from.  Rungs: ROM bytes for
+   every offset, width and value; this TU's own accessors for the roles
+   (SetMotionDirection writes the direction at 0xB0, SetMotionPlaySpeedRatio
+   the ratio at 0x48, ForMotionViewer_GetCurrentMotion and
+   ForMotionViewer_GetCurrentAnimationFrame the motion at 0x30 and the frame
+   at 0x3C, CheckPureWallAttribute, CheckPureCliffAttribute,
+   CheckWallAttribute and CheckFloorAttribute the four attributes at 0x17C to
+   0x188, GetHeightOfCliffFromGObj and GetOrientOfCliffOfGObj the cliff pair
+   at 0x110 and 0x120, GetHeightOfWallFromGObj and GetOrientOfWallOfGObj the
+   wall pair at 0x130 and 0x150, GetMotionFrameFlag1 and GetMotionFrameFlag2
+   the flags at 0x190 and 0x194, GetRopeHangablePos the height at 0x1A8 and
+   InitMotionStateInfo itself the two sound groups at 0x1AC and 0x1B0); the
+   offsets with no reader keep offset names.  MAIN.MAP names no symbol in the
+   member, so both names here are ours. */
+typedef struct {
+    int f_0;
+    int f_4;
+    int f_8;
+    int f_C;
+    int f_10;
+    int f_14;
+    int f_18;
+    int f_1C;
+    int f_20;
+    int f_24;
+    int f_28;
+    int f_2C;
+    int currentMotion; /* 0x30 */
+    int f_34;
+    int f_38;
+    float currentFrame; /* 0x3C */
+    float f_40;
+    float f_44;
+    float playSpeedRatio; /* 0x48 */
+    float f_4C;
+    int f_50;
+    int f_54;
+    int f_58;
+    int f_5C;
+    int rootUpdateFixed; /* 0x60, set by DisableChangeRootUpdateMode */
+    int f_64;
+    int f_68;
+    int f_6C;
+    int f_70;
+    int orientUpdateFixed; /* 0x74, set by DisableMotionOrientUpdate */
+    int f_78;
+    int f_7C;
+    int f_80;
+    int f_84;
+    int f_88;
+    int f_8C;
+    int f_90;
+    int f_94;
+    int f_98;
+    int f_9C;
+    int f_A0;
+    int f_A4;
+    int f_A8;
+    int f_AC;
+    Vec4 direction; /* 0xB0, the motion direction */
+    Vec4 f_C0;
+    int f_D0;
+    int f_D4;
+    int f_D8;
+    int f_DC;
+    int f_E0;
+    int f_E4;
+    int f_E8;
+    int f_EC;
+    int f_F0;
+    int f_F4;
+    int f_F8;
+    int f_FC;
+    int f_100;
+    int f_104;
+    int f_108;
+    int f_10C;
+    float cliffHeight; /* 0x110 */
+    float f_114;
+    float f_118;
+    float f_11C;
+    Vec4 cliffOrient; /* 0x120 */
+    float wallHeight; /* 0x130 */
+    float f_134;
+    float f_138;
+    float f_13C;
+    Vec4 f_140;
+    Vec4 wallOrient; /* 0x150 */
+    Vec4 f_160;
+    int f_170;
+    int f_174;
+    int f_178;
+    int pureWallAttr;  /* 0x17C */
+    int pureCliffAttr; /* 0x180 */
+    int wallAttr;      /* 0x184 */
+    int floorAttr;     /* 0x188 */
+    int f_18C;
+    int motionFrameFlag1; /* 0x190 */
+    int motionFrameFlag2; /* 0x194 */
+    int f_198;
+    int f_19C;
+    int f_1A0;
+    int f_1A4;
+    float ropeHangablePos; /* 0x1A8 */
+    int seGroup0;          /* 0x1AC */
+    int seGroup1;          /* 0x1B0 */
+    int f_1B4;
+    int f_1B8;
+    int f_1BC;
+    int f_1C0;
+    int f_1C4;
+    int f_1C8;
+    int f_1CC;
+    int f_1D0;
+    int f_1D4;
+    int f_1D8;
+    int f_1DC;
+    int f_1E0;
+    int f_1E4;
+    int f_1E8;
+    int f_1EC;
+} MotionStateInfo;
+
+/* .data, owned by motionManager2.o: the record InitMotionStateInfo copies over
+   every new actor's motion state.  Like the geometry template above it is
+   defined ahead of the wall tables below, which is the order the ROM emits
+   the member's .data in. */
+static MotionStateInfo motionStateInfoTemplate = {
+    -1,
+    -1,
+    -1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.0f,
+    0.0f,
+    0.0f,
+    1.0f,
+    1.0f,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    {{0.0f, 0.0f, 1.0f, 0.0f}},
+    {{0.0f, 0.0f, 1.0f, 0.0f}},
+    0,
+    1,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    150.0f,
+    0.0f,
+    0.0f,
+    0.0f,
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    0.0f,
+    0.0f,
+    700.0f,
+    0.0f,
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    100.0f,
+    -1,
+    -1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+
 /* kept local: this TU's uses of RegularizeQuaternion do not fit the prototype in quaternion.h */
 extern void RegularizeQuaternion(void *q);
 /* kept local: this TU's uses of SetSimplePlane do not fit the prototype in fieldCollision.h */
@@ -516,7 +937,7 @@ extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
 
 void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz)
 {
-    *(_0x3D0 *)self = D_00290080;
+    *(MotionGeoInfo *)self = motionGeoInfoTemplate;
     *(float *)(self + 0x0) = x;
     *(float *)(self + 0x4) = y;
     *(float *)(self + 0x8) = z;
@@ -724,8 +1145,6 @@ static const char adjustWallMidpointMsg[] =
 
 static const char illegalCompressMsg[] = "Illegal compress formatID(%d) appeard... ignore.\n";
 
-extern char D_00639F10[];
-extern char D_00639F18[];
 extern float D_00639F1C[];
 
 /* The five small objects at the tail of motionManager2.o's .data run, declared
@@ -809,8 +1228,8 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
         }
     }
     if (bestIdx == -1) {
-        debug_assertMessage(motMan2File, 1360, D_00639F10);
-        __assert(motMan2File, 1360, D_00639F18);
+        debug_assertMessage(motMan2File, 1360, "!!");
+        __assert(motMan2File, 1360, "e");
     }
     if (plane0 != 0) {
         SetSimplePlane(plane0, best[0], best[1], best[2],
@@ -1584,13 +2003,11 @@ void ClearMotionBlendlessNode(char *a0)
     }
 }
 
-extern _0x1F0 D_00290450;
-
-void InitMotionStateInfo(_0x1F0 *self)
+void InitMotionStateInfo(MotionStateInfo *self)
 {
-    *self = D_00290450;
-    *(int *)((char *)self + 0x1AC) = soundSeGroupGet();
-    *(int *)((char *)self + 0x1B0) = soundSeGroupGet();
+    *self = motionStateInfoTemplate;
+    self->seGroup0 = soundSeGroupGet();
+    self->seGroup1 = soundSeGroupGet();
 }
 
 int GetSkeltonFocusNode(char *a0, int a1)
