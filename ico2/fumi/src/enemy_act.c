@@ -1380,7 +1380,10 @@ int GetFlyPosition(float *out, float *me, float *tgt)
     return ret;
 }
 
-void NakaBoss(char *self, int flag)
+/* An _ApproachTarget callback: the ROM's two call sites (0x0016837C and
+   0x0016876C) set $f12 as well as $a0/$a1, and _ApproachTarget_Way calls its
+   `fn` through (void (*)(char *, void *, float)).  `dist` is unused here. */
+void NakaBoss(char *self, void *tgt, float dist)
 {
     float bpos[4];
     float mpos[4];
@@ -1393,7 +1396,7 @@ void NakaBoss(char *self, int flag)
     char *sub;
 
     if (stage_no != 86 && stage_no != 3 && stage_no != 46) {
-        if (flag != 0) {
+        if (tgt != 0) {
             enemy_dodge_to_boy(self);
         }
         return;
