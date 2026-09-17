@@ -20,31 +20,222 @@
    (0,0,0,1.0f) vectors then four words); D_004EE5E0 is the (0,0,0,1.0f)
    position vector bga_ApplyDObject hands to
    SetParticleEffectActiveSensing. */
-unsigned int D_004EE5B0[12] = {
-    0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000,
-    0x00000000, 0x3F800000, 0x00000000, 0xFFFFFFFF, 0x00000001, 0x00000000,
+typedef struct BgaAnimDefault {
+    /* 0x00 */ VECTOR pos;
+    /* 0x10 */ VECTOR quat;
+    /* 0x20 */ int obj;
+    /* 0x24 */ int idx;
+    /* 0x28 */ int root;
+    /* 0x2C */ int f2C;
+} BgaAnimDefault;
+
+BgaAnimDefault D_004EE5B0 = {
+    {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 0, -1, 1, 0,
 };
 
 float D_004EE5E0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_InitData);
-
-struct BgaEnvEnt;
-
 struct BgaLightEnv;
+
+typedef struct BgaEnvEnt {
+    /* 0x00 */ unsigned short type;
+    /* 0x02 */ short f02;
+    /* 0x04 */ unsigned char *data;
+} BgaEnvEnt;
 
 typedef struct BgaDObjEnt {
     /* 0x00 */ unsigned short type;
-    /* 0x02 */ short num;
+    /* 0x02 */ unsigned short num;
     /* 0x04 */ char name[0x20];
     /* 0x24 */ union {
         void *obj;                 /* particle record, geometry, Kyomi object */
         struct BgaLightEnv *light; /* ambient-light record */
+        int next;                  /* the file's flat list, consumed by bga_InitData */
     } u;
-    /* 0x28 */ struct BgaEnvEnt *env;
+    /* 0x28 */ int env;
     /* 0x2C */ struct BgaDObjEnt *f2C;
     /* 0x30 */ struct BgaDObjEnt *f30;
+    /* 0x34 */ int f34;
+    /* 0x38 */ char pad38[0xC];
+    /* 0x44 */ short parent;
+    /* 0x46 */ short f46;
 } BgaDObjEnt;
+
+typedef struct BgaKey {
+    /* 0x00 */ float v[6];
+    /* 0x18 */ float f18;
+    /* 0x1C */ float f1C;
+    /* 0x20 */ int f20;
+    /* 0x24 */ int time;
+} BgaKey;
+
+typedef struct BgaMotion {
+    /* 0x00 */ BgaKey *key;
+    /* 0x04 */ int n;
+    /* 0x08 */ unsigned int len;
+    /* 0x0C */ float frame;
+} BgaMotion;
+
+extern char D_00621580[];
+extern char D_00621598[];
+extern char D_0063BCD0[];
+extern char D_0063BCD8[];
+
+/* Listing rows 806-890 of BgAnimation.c: four static helpers the January
+   link inlines whole into bga_InitData and that carry no symbol of their
+   own.  Their names are ours. */
+
+static inline void bga_addSiblingTail(BgaDObjEnt *c, BgaDObjEnt *d)
+{
+    while (c->f30 != 0) {
+        c = c->f30;
+    }
+    c->f30 = d;
+}
+
+static inline void bga_linkToParent(BgaDObjEnt *q, BgaDObjEnt *d, int no)
+{
+    do {
+        if (q->num == no) {
+            if (q->f2C == 0) {
+                q->f2C = d;
+            } else {
+                bga_addSiblingTail(q->f2C, d);
+            }
+        }
+        if (q->u.next == 0) {
+            break;
+        }
+        q = (BgaDObjEnt *)q->u.next;
+    } while (1);
+}
+
+static inline void bga_linkTree(char *p)
+{
+    BgaDObjEnt *d;
+    int no;
+
+    d = (BgaDObjEnt *)*(int *)(p + 0xC);
+    do {
+        no = d->parent;
+        if (no != -1) {
+            bga_linkToParent((BgaDObjEnt *)*(int *)(p + 0xC), d, no);
+        }
+        if (d->u.next == 0) {
+            break;
+        }
+        d = (BgaDObjEnt *)d->u.next;
+    } while (1);
+}
+
+static inline void bga_makeRootList(char *p)
+{
+    BgaDObjEnt *d;
+    int n;
+
+    d = (BgaDObjEnt *)*(int *)(p + 0xC);
+    n = 0;
+    do {
+        if (d->parent == -1) {
+            n++;
+        }
+    } while ((d = (BgaDObjEnt *)d->u.next) != 0);
+
+    *(int *)(p + 0x10) = mallocseki((n + 1) * 4);
+    ((int *)*(int *)(p + 0x10))[n] = 0;
+    d = (BgaDObjEnt *)*(int *)(p + 0xC);
+    n = 0;
+    do {
+        if (d->parent == -1) {
+            ((int *)*(int *)(p + 0x10))[n] = (int)d;
+            n++;
+        }
+        if (d->u.next == 0) {
+            break;
+        }
+        d = (BgaDObjEnt *)d->u.next;
+    } while (1);
+}
+
+char *bga_InitData(char *p)
+{
+    BgaDObjEnt *d;
+    int i;
+    unsigned int j;
+    int k;
+
+    if (strncmp(p, D_0063BCD0, 3) != 0) {
+        debug_StdPrintfDummy(D_00621580);
+        debug_assert(D_00621598, 952);
+        __assert(D_00621598, 952, D_0063BCD8);
+    }
+    *(int *)(p + 0xC) += (int)p;
+    p[0xA] = -1;
+    *(BgaAnimDefault **)(p + 0x24) = (BgaAnimDefault *)mallocseki(sizeof(BgaAnimDefault));
+    **(BgaAnimDefault **)(p + 0x24) = D_004EE5B0;
+    d = (BgaDObjEnt *)*(int *)(p + 0xC);
+    while (1) {
+        d->f34 += (int)p;
+        if (d->env != 0) {
+            i = 0;
+            d->env += (int)p;
+            while (((BgaEnvEnt *)d->env)[i].data != 0) {
+                ((BgaEnvEnt *)d->env)[i].data += (int)p;
+                switch (((BgaEnvEnt *)d->env)[i].type) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                    *(int *)((BgaEnvEnt *)d->env)[i].data += (int)p;
+                    break;
+                case 6:
+                    *(int *)((BgaEnvEnt *)d->env)[i].data += (int)p;
+                    for (j = 0; j < ((BgaMotion *)((BgaEnvEnt *)d->env)[i].data)->n; j++) {
+                        float sum = 0.0f;
+                        float scale = 1.0f;
+                        float *v = ((BgaMotion *)((BgaEnvEnt *)d->env)[i].data)->key[j].v;
+
+                        for (k = 0; k < 6; k++) {
+                            if (v[k] < 0.0f) {
+                                sum -= v[k];
+                            } else {
+                                sum += v[k];
+                            }
+                        }
+                        if (sum != 0.0f) {
+                            scale = 1.0f / sum;
+                        }
+                        for (k = 0; k < 6; k++) {
+                            float t = v[k] * scale;
+
+                            if (t < 0.0f) {
+                                v[k] = v[k] * -t;
+                            } else {
+                                v[k] = v[k] * t;
+                            }
+                        }
+                    }
+                    break;
+                case 4:
+                case 5:
+                case 7:
+                case 8:
+                case 9:
+                    break;
+                }
+                i++;
+            }
+        }
+        if (d->u.next == 0) {
+            break;
+        }
+        d->u.next += (int)p;
+        d = (BgaDObjEnt *)d->u.next;
+    }
+    bga_makeRootList(p);
+    bga_linkTree(p);
+    return p;
+}
 
 typedef struct BgaGeom {
     /* 0x000 */ int f00;
@@ -81,17 +272,10 @@ typedef struct BgaParticleEnt {
 } BgaParticleEnt;
 
 extern int D_0063A44C;
-extern char D_00621598[];
 extern char D_00621638[];
 extern char D_00621658[];
 extern char D_0063BCF0[];
 extern char D_0063BCE8[];
-
-typedef struct BgaEnvEnt {
-    /* 0x00 */ unsigned short type;
-    /* 0x02 */ short f02;
-    /* 0x04 */ unsigned char *data;
-} BgaEnvEnt;
 
 typedef struct BgaLightEnv {
     /* 0x00 */ char pad00[0x20];
@@ -115,7 +299,7 @@ void bga_initLightEnvelope(BgaDObjEnt *p)
     BgaEnvEnt *e;
     unsigned char *d;
 
-    e = p->env;
+    e = (BgaEnvEnt *)p->env;
     if (e == 0) {
         return;
     }
@@ -251,21 +435,6 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
 }
 
 extern int D_0028F4C0[];
-
-typedef struct BgaKey {
-    /* 0x00 */ float v[6];
-    /* 0x18 */ float f18;
-    /* 0x1C */ float f1C;
-    /* 0x20 */ int f20;
-    /* 0x24 */ int time;
-} BgaKey;
-
-typedef struct BgaMotion {
-    /* 0x00 */ BgaKey *key;
-    /* 0x04 */ int n;
-    /* 0x08 */ unsigned int len;
-    /* 0x0C */ float frame;
-} BgaMotion;
 
 static inline int bga_findKey(BgaKey *k, int n, float f)
 {
@@ -880,7 +1049,6 @@ int bga_GetCameraMatrix(void *p)
 
 extern char D_0063BCE0[];
 extern char D_006215D8[];
-extern char D_0063BCD8[];
 
 char *bga_InitSdfCamera(char *a0)
 {

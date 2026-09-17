@@ -852,6 +852,8 @@ segments:
       - [0x521520, .rodata, ico2/sugipon/src/worm]  # the TU's whole .rodata run as source (data pass 2): tipLineTo, the Color16 tipLineColor {0x80, 0x80, 0x80, 0x80}, then __FILE__; VMA 0x621520..0x62154B + 5 B link pad
       - [0x521550, .rodata, ico2/seki/src/Basic]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621550..0x621680, 304 B
       - [0x521580, rodata, cod/521580]     # rodata blob resume
+      - [0x5215B0, .rodata, ico2/seki/src/BgAnimation]  # carved jtbl_006215B0 (bga_InitData, 10 arms over the envelope type, section .rodata.0x006215B0), VMA 0x6215B0..0x6215D8
+      - [0x5215D8, rodata, cod/5215D8]     # .rodata blob resume
       - [0x521680, .rodata, ico2/seki/src/BgAnimation]  # carved jtbl_00621680 (VMA 0x621680..0x6216B8, 56 B, 14 arms): bga_ApplyDObject's switch table, emitted by the compiled function
       - [0x5216B8, rodata, cod/5216B8]   # .rodata blob resume (the strings after the table)
       - [0x521930, .rodata, ico2/seki/src/DisplayList]  # carved jtbl_00621930 (VMA 0x621930..0x621950, 32 B, 8 arms): dl_CloseDma's switch table, emitted by the compiled function; the three zero words before it are the blob's pad
