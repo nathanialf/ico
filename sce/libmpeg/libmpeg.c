@@ -377,7 +377,61 @@ int _alalcRest(int *a0)
     return a0[0] + a0[1] - a0[2];
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _getpic);
+extern int _isOutputPicture[];
+extern int _picture_structure[];
+extern int _isMpeg2[];
+extern int D_00636D78[];
+extern void _Error1(int a0, int a1);
+extern int _decodeOrSkip(int a0, int a1, int a2);
+extern int _nextHeader(void);
+extern int _sceMpegFlush(int *self);
+
+int _getpic(int a0)
+{
+    int code = 1;
+    int ret = 0;
+    int *self = (int *)a0;
+    int *p = (int *)self[0x40 / 4];
+    int v = p[0xD8 / 4];
+
+    p[0] = 0;
+    if ((v & 0x3F) != 0) {
+        _Error1((int)D_00636D78, v);
+        return -1;
+    }
+    _isOutputPicture[0] = 0;
+    do {
+        if (ret != -1) {
+            do {
+                code = _nextHeader();
+            } while (code != 0 && _picture_structure[0] != p[0xD4 / 4] && _isMpeg2[0] != 0);
+        }
+        switch (code) {
+        case 0:
+            _sceMpegFlush(self);
+            p[0] = 1;
+            break;
+        case 1:
+            p[0xA8 / 4] = 0;
+            p[0xA4 / 4] = 0;
+            p[0xA0 / 4] = 0;
+            ret = _decodeOrSkip(a0, 0, p[0x94 / 4]);
+            p[0xA0 / 4] = p[0xA0 / 4] + 1;
+            break;
+        case 2:
+            ret = _decodeOrSkip(a0, p[0xA4 / 4], p[0x98 / 4]);
+            p[0xA4 / 4] = p[0xA4 / 4] + 1;
+            break;
+        case 3:
+        case 4:
+            ret = _decodeOrSkip(a0, p[0xA8 / 4], p[0x9C / 4]);
+            p[0xA8 / 4] = p[0xA8 / 4] + 1;
+            break;
+        }
+    } while (_isOutputPicture[0] == 0);
+    return 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _decodeOrSkipFrame);
 
 extern int _picture_structure[];
@@ -392,7 +446,70 @@ int _decodeOrSkip(int a0, int a1, int a2)
     return _decodeOrSkipFrame(a0, a1, a2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _decodeOrSkipField);
+extern int _isSecondField[];
+extern int _updateRefImage(int a0);
+extern int _decPicture(int a0, int a1);
+extern int _nextHeader(void);
+extern int _sceMpegFlush(int *self);
+extern void _outputFrame(int a0, int a1);
+
+int _decodeOrSkipField(int a0, int a1, int a2)
+{
+    int dec = 0;
+    int ret;
+    int t;
+    int want;
+    int ok;
+    int base;
+    int *self = (int *)a0;
+    int *p = (int *)self[0x40 / 4];
+
+    _isSecondField[0] = 0;
+    if (a2 == -1 || a1 < a2) {
+        dec = 1;
+    }
+    if (p[2] == 0) {
+        self[2] = 0;
+        p[2] = 1;
+    }
+    if (_updateRefImage(0) != 0 && dec != 0) {
+        _decPicture(_totalFrames[0], p[1]);
+    }
+    _isSecondField[0] = 1;
+    if (_nextHeader() == 0) {
+        _sceMpegFlush(self);
+        p[0] = 1;
+        return 0;
+    }
+    want = 2;
+    if (p[0xD4 / 4] != 1) {
+        want = 1;
+    }
+    if (_picture_structure[0] != want) {
+        return -1;
+    }
+    ret = 0;
+    ok = 0;
+    if (_updateRefImage(1) != 0) {
+        ok = 1;
+    }
+    if (ok != 0 && dec != 0) {
+        if (_decPicture(_totalFrames[0], p[1]) != 0) {
+            ret = 1;
+        }
+    }
+    _outputFrame(_totalFrames[0], p[1]);
+    t = _totalFrames[0];
+    base = p[0xAC / 4];
+    _isSecondField[0] = 0;
+    self[2] = t - base;
+    _totalFrames[0] = t + 1;
+    p[1] = p[1] + 1;
+    if (dec == 0) {
+        _dispatchMpegCbNodata(self);
+    }
+    return ret;
+}
 
 extern void _lastFrame(int a0);
 
@@ -1747,7 +1864,37 @@ int _dmVector(void)
     return _ipuVdec(3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _dualPrimeVector);
+extern int _top_field_first;
+
+void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy)
+{
+    int vec;
+    int ps;
+
+    if (_picture_structure[0] == 3) {
+        if (_top_field_first != 0) {
+            DMV[0] = ((mvx + (mvx > 0)) >> 1) + dmvector[0];
+            DMV[1] = ((mvy + (mvy > 0)) >> 1) + dmvector[1] - 1;
+            DMV[2] = ((3 * mvx + (mvx > 0)) >> 1) + dmvector[0];
+            DMV[3] = ((3 * mvy + (mvy > 0)) >> 1) + dmvector[1] + 1;
+        } else {
+            DMV[0] = ((3 * mvx + (mvx > 0)) >> 1) + dmvector[0];
+            DMV[1] = ((3 * mvy + (mvy > 0)) >> 1) + dmvector[1] - 1;
+            DMV[2] = ((mvx + (mvx > 0)) >> 1) + dmvector[0];
+            DMV[3] = ((mvy + (mvy > 0)) >> 1) + dmvector[1] + 1;
+        }
+    } else {
+        DMV[0] = ((mvx + (mvx > 0)) >> 1) + dmvector[0];
+        vec = ((mvy + (mvy > 0)) >> 1) + dmvector[1];
+        ps = _picture_structure[0];
+        DMV[1] = vec;
+        if (ps == 1) {
+            DMV[1] = vec - 1;
+        } else {
+            DMV[1] = vec + 1;
+        }
+    }
+}
 
 extern int _isError[];
 extern int D_00636FE0[];
@@ -1919,7 +2066,26 @@ void _decode_motion_vector(int *pred, int r_size, int motion_code, int motion_r,
     *pred = full_pel ? vec * 2 : vec;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _motionVectors);
+extern unsigned int _nextBit(int a0);
+extern void _motionVector();
+
+void _motionVectors(int PMV[2][2][2], int *dmvector, int mv_field_sel[2][2], int s, int mv_count,
+                    int mv_format, int h_r_size, int v_r_size, int dmv, int mvscale)
+{
+    if (mv_count == 1) {
+        if (mv_format == 0 && dmv == 0) {
+            mv_field_sel[1][s] = mv_field_sel[0][s] = _nextBit(1);
+        }
+        _motionVector(PMV[0][s], dmvector, h_r_size, v_r_size, dmv, mvscale, 0);
+        PMV[1][s][0] = PMV[0][s][0];
+        PMV[1][s][1] = PMV[0][s][1];
+    } else {
+        mv_field_sel[0][s] = _nextBit(1);
+        _motionVector(PMV[0][s], dmvector, h_r_size, v_r_size, dmv, mvscale, 0);
+        mv_field_sel[1][s] = _nextBit(1);
+        _motionVector(PMV[1][s], dmvector, h_r_size, v_r_size, dmv, mvscale, 0);
+    }
+}
 
 extern void _decode_motion_vector();
 extern unsigned int _nextBit(int a0);

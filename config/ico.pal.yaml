@@ -925,6 +925,8 @@ segments:
       - [0x536440, rodata, cod/536440]     # rodata blob resume
       - [0x536610, .rodata, sce/libdma/libdma]  # the wait loops' one string literal "libdma: sync timeout\n" (0x16 B, = MAIN.MAP libdma.o .rodata 0x16), VMA 0x636610..0x636626, padded to 0x636628 where tty.o's strings begin
       - [0x536628, rodata, cod/536628]   # .rodata blob resume
+      - [0x536DC0, .rodata, sce/libmpeg/libmpeg]  # _getpic's jump table jtbl_00636DC0 (5 words, section .rodata.0x00636DC0), VMA 0x636DC0..0x636DD4; cases 3 and 4 share a block
+      - [0x536DD4, rodata, cod/536DD4]   # .rodata blob resume
       - [0x5371D0, .rodata, sce/libscf/libscf]  # the member's whole .rodata run (0xF6 B + 2 B link pad): its twelve string literals in order of first use (rom0:ROMVER, the two ROM errors, the four OSD printf formats, libscf.c from __FILE__, the assert texts) with the month table between the assert groups because adddate precedes AdjustTime, VMA 0x6371D0..0x6372C8; libscf builds at -G 0 so its 7-byte string stays out of .sdata
       - [0x5372C8, rodata, cod/5372C8]   # .rodata blob resume
       - [0x537460, .rodata, sce/libsndn2/sg]  # _SgContParam's jump table jtbl_00637460 (20 words, section .rodata.0x00637460), VMA 0x637460..0x6374B0, abutting wf_acos; _SgCalledTickProc's 99-word table at 0x6372D0 stays in the blob until it lands
