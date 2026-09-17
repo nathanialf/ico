@@ -21,8 +21,52 @@ extern char D_0061F878[];
 extern char D_0061F798[];
 /* kept local: the declaration in s_init.h changes this TU codegen */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
+extern char *D_0063B8AC;
+extern void *D_0063B8A4;
+extern float D_0063B8B0;
+extern int D_0063B8B4;
+extern char D_0061F740[];
+extern char D_0061F770[];
+extern int soundSeDefPlayWithVolumeRate(int se, unsigned int a1, int a2, int a3, float rate);
+/* kept local: seMail has no header; this matches its definition in
+ * ico2/fumi/src/seMail.c, one prototype per symbol. */
+extern void seMail(int self, int id);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/frameDependSequence", playSE);
+int playSE(int no)
+{
+    int ret;
+
+    if (no != 0) {
+        if (((GObj *)D_0063B8AC)->f50 != 0) {
+            if (D_0063B8A4 != 0 && ((int *)D_0063B8A4)[0x1E8 / 4] != 0) {
+                debug_StdPrintfDummy(D_0061F740, D_0063B8AC);
+                return 1;
+            }
+
+            if (D_0063B8B0 > 0.95f) {
+                ret = soundSeDefPlay(no, D_0063B8B4, GOBJ_SUB(D_0063B8AC)->f_C + 0x30, 1);
+            } else {
+                ret = soundSeDefPlayWithVolumeRate(no, D_0063B8B4, GOBJ_SUB(D_0063B8AC)->f_C + 0x30,
+                                                   1, D_0063B8B0);
+            }
+
+            seMail((int)D_0063B8AC, no);
+            if (ret == -2) {
+                if (D_0063B14C != 0) {
+                    debug_StdPrintfDummy(D_0061F770, &D_005D6DB0[no]);
+                }
+                return 0;
+            }
+            if (ret < 0) {
+                return 1;
+            }
+            if (D_0063B14C != 0) {
+                debug_StdPrintfDummy(D_0061F798, &D_005D6DB0[no], D_0063B8B4);
+            }
+        }
+    }
+    return 1;
+}
 
 typedef struct { /* 0x08 */
     int se;      /* 0x00 */
@@ -78,7 +122,6 @@ typedef struct SECondEntry { /* 0x0C */
 } SECondEntry;
 
 extern SECondEntry D_00626F28[];
-extern char *D_0063B8AC;
 /* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
 extern int CheckFloorAttribute(void *self, int id);
 /* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
@@ -313,9 +356,7 @@ typedef struct FDSFlags { /* 0x74 */
 } FDSFlags;
 
 extern char D_0055FE58[];
-extern float D_0063B8B0;
 extern void *D_0063B8A0;
-extern void *D_0063B8A4;
 extern void *D_0063B8A8;
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int execVib(int a0, void *a1);
@@ -408,8 +449,6 @@ inline int execSE(int a0, void *a1)
         return playSEConditionID(a0 - 0x20000, a1);
     }
 }
-
-extern int D_0063B8B4;
 
 /* static helper the listing places at frameDependSequence.c lines 549-564; never
  * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */

@@ -1137,6 +1137,7 @@ segments:
       - { type: sbss, vram: 0x0063C456, name: cod/0063C456 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C46C, name: ico2/sugipon/src/motionFileManager }  # the TU's own .sbss, 0x8 B, VMA 0x63C46C..0x63C474; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C474, name: cod/0063C474 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C4AC, name: ico2/sugipon/src/motionViewer }  # the TU's own .sbss, 0x4 B, VMA 0x63C4AC..0x63C4B0 (the motion-kind row count, a file static); static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C4B0, name: ico2/sugipon/src/staticBlur }  # the TU's own .sbss, 0x4 B, VMA 0x63C4B0..0x63C4B4; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C4B4, name: cod/0063C4B4 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C4BC, name: ico2/seki/src/DisplayList }  # the TU's own .sbss, 0x8 B, VMA 0x63C4BC..0x63C4C4; static definitions in ROM run order (completeness pass)

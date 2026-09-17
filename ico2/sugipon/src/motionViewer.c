@@ -272,7 +272,13 @@ typedef struct OriCsv {
 extern OriCsv D_0063BA00;
 extern int D_0063BA0C;
 extern int D_0063BA2C;
-extern int D_0063C4AC;
+
+/* MAIN.MAP line 7628 gives motionViewer.o a 4-byte .sbss and names no symbol in it,
+ * so this object is a file static and the role name is ours: it is the number of
+ * motion-kind rows makeMotionKindList built, and the row count motOriMenuProc hands
+ * to debug_SelectCsvWindow. Evidence rung: ROM bytes plus the MAIN.MAP member row. */
+static int motionKindCount;
+
 /* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt, ...);
 /* kept local: this TU's uses of debug_SelectCsvWindowWithLine do not fit the prototype in debug.h */
@@ -357,7 +363,7 @@ int motKindMenuProc(void)
                          base + ent->motFirst);
     }
     if (ret == 1) {
-        D_0063C4AC = makeMotionKindList(ent, base);
+        motionKindCount = makeMotionKindList(ent, base);
         D_0063BA00.sel = 0;
     }
     if (ret == -1) {
@@ -402,11 +408,11 @@ int motOriMenuProc(void)
     }
 
     dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08));
-    if (D_0063C4AC != 0) {
+    if (motionKindCount != 0) {
         sprintf(buf, D_00620778, &D_0055FF18[cur * 404],
                 fptodp(ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08)),
                 GetNbMotionFrames(mot));
-        ret = debug_SelectCsvWindow(buf, 10, 50, 11, D_0063BA00.rows, 8, 0, 1, D_0063C4AC,
+        ret = debug_SelectCsvWindow(buf, 10, 50, 11, D_0063BA00.rows, 8, 0, 1, motionKindCount,
                                     &D_0063BA00.sel);
         if (D_0063BA00.sel != D_0063BA30) {
             initOrient();
