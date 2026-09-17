@@ -29,7 +29,8 @@ int sceSifDmaStat(int h);                                              /* domina
 void sceSifExecRequest(int *item);                                     /* dominant spelling at 1 sites */
 void sceSifExitCmd(void);                                              /* definition in sce/ */
 int sceSifFreeIopHeap(int a0);                                         /* definition in sce/ */
-int sceSifGetReg(int a0);                                              /* dominant spelling at 1 sites */
+unsigned int sceSifGetReg(unsigned int a0);                             /* dominant spelling at 1 sites; the argument's
+                                                                          unsignedness is ROM-proven, see sceSifResetIop */
 int sceSifInitIopHeap(void);                                           /* definition in sce/ */
 int sceSifInitRpc(int mode);                                           /* dominant spelling at 2 sites */
 int sceSifLoadFileReset(void);                                         /* definition in sce/ */
