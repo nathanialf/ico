@@ -330,7 +330,26 @@ void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou,
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_Init);
+extern int D_0063A22C;
+extern void tex_ResetVram(void);
+
+void tex_Init(void)
+{
+    int i;
+
+    tex_ResetVram();
+    D_0063C164 = 0;
+    if (D_0063A22C == 0) {
+        for (i = 199; i >= 0; i--) {
+            D_0068AFD8[i].x2E0 = 1;
+        }
+        D_0063A22C = 1;
+    } else {
+        while (D_0068AFD8[D_0063C164].x2E0 == 0) {
+            D_0063C164++;
+        }
+    }
+}
 
 extern int D_0028F720[];
 
