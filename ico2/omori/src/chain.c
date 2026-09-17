@@ -4,11 +4,11 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 #include "tableSin.h"
+#include <libvu0.h>
+#include <string.h>
+#include <math.h>
+#include "geometryManager.h"
 
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
-extern void SetDirectRootPosition(char *self, void *v);
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition(void *a0, void *a1);
 /* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
@@ -58,7 +58,6 @@ int UpdateRootPosition(char *gobj)
     return moved;
 }
 
-extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 /* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
 extern void *test_CURRENTORIENT(void *a0);
 extern char D_005551C0[];
@@ -139,9 +138,6 @@ float *pos;
 
 extern int D_0063B13C;
 extern int D_0063C2C0;
-extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
-extern void sceVu0Normalize(void *a0, void *a1);
-extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 /* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 /* kept local: the declaration in fieldCollision.h changes this TU codegen */
@@ -193,10 +189,6 @@ int collisionCheck(char *gobj)
     return 0;
 }
 
-extern void sceVu0UnitMatrix(void *m);
-extern void sceVu0RotMatrixX(void *d, void *s, float a);
-extern void sceVu0RotMatrixY(void *d, void *s, float a);
-extern void sceVu0ApplyMatrix(void *d, void *m, void *v);
 /* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(float *a0);
 /* kept local: this TU's uses of collisionCheck do not fit the prototype in chain.h */
@@ -439,9 +431,6 @@ void chain_simulate_free(int a0)
         }
     }
 }
-
-extern void memset(void *a0, int a1, int a2);
-extern float atan2f(float y, float x);
 
 void correct_vector(float *out, float *v)
 {
@@ -729,9 +718,6 @@ void PlumbPointUpdateChain(char *gobj, float *pos)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", TestChainUpDown);
 
-/* kept local: this TU's uses of SetDirectRootPositionNoFittingWithNodePoint do not fit the prototype in geometryManager.h */
-extern void SetDirectRootPositionNoFittingWithNodePoint(char *gobj, int node, float *pos, float t);
-
 void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
 {
     *(int *)(*(int *)(gobj + 0x15C) + 0x420) = mode;
@@ -915,11 +901,6 @@ int IsAbleChainHang(char *a0)
 {
     return *(unsigned char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD);
 }
-
-/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
-extern void UpdateRootMatrix(void *a0);
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition(void *a0, void *a1);
 
 void ChainPositionReset(char *a0)
 {

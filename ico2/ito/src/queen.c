@@ -23,15 +23,15 @@
 #include "motionManager2.h"
 #include "particleEffect.h"
 #include "quaternion.h"
+#include <libvu0.h>
+#include <math.h>
+#include "weapon.h"
+#include "motionOrientManager.h"
+#include "DisplayP2O.h"
 
 typedef struct {
     float v[4];
 } LVec;
-
-typedef union {
-    float f[4];
-    long long ll[2];
-} QVec;
 
 typedef struct {
     QVec x;
@@ -60,34 +60,16 @@ typedef struct QueenMailQueue {
 extern int D_0063A438;
 extern int stage_no;
 extern int D_0063B13C;
-extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
-extern void sceVu0AddVector(void *a0, void *a1, void *a2);
-extern float fmodf(float a, float b);
-/* kept local: this TU's uses of LightTorchOffOfWeapon do not fit the prototype in weapon.h */
-extern void LightTorchOffOfWeapon(void *o);
 extern int D_006EA7F0[];
 extern int D_002A60B0[];
 extern int D_002A7740[];
 extern int D_002A6BB0[];
-extern void sceVu0CopyVector(void *dst, void *src);
-/* kept local: this TU's uses of InitMotionOrient do not fit the prototype in motionOrientManager.h */
-extern void InitMotionOrient(char *g, int a1, int a2, int a3, int a4, int a5);
 extern int D_0028F4D4[];
 extern int D_0063C300;
 extern char *D_00639EA4;
-/* kept local: this TU's uses of ExecMotionOrient do not fit the prototype in motionOrientManager.h */
-extern void ExecMotionOrient(char *g);
 /* kept local: this TU's uses of ACTDispLwsBoyStonize_InQueenStage do not fit the prototype in boyact.h */
 extern void ACTDispLwsBoyStonize_InQueenStage(char *g);
-/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
-extern void p2o_SetDefaultEnviroment(void);
-/* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
-extern void p2o_DispVU1(char *g);
 extern void *memset(void *p, int c, int n);
-/* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
-extern int SetMotionRequest(char *g, int motion, void *p);
-extern void sceVu0CopyMatrix(void *a0, void *a1);
-extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 
 /* PAL listing rows 87-90: a static identity-3x3 helper, expanded into
  * QueenBarrierGeo (and QueenBallGeo). */
@@ -117,8 +99,6 @@ void scale_m34(LVec *a0, void *a1, float f)
 
 /* census: static effect_end_func (ito/src/itou_boss.c holds the public symbol
    of the same name, so this copy stays file-static). */
-/* kept local: this TU's uses of LightTorchOnOfWeapon do not fit the prototype in weapon.h */
-extern void LightTorchOnOfWeapon(void *o);
 
 static void effect_end_func(int no)
 {
@@ -351,7 +331,6 @@ void gene_enemy(volatile int g)
 /* r5 seed (478/478 insns, 7 diff sites / 20 non-reloc rows) at
  * scratchpad/seeds/subQueenBrainMain.r5.rc220_7sites.c (whole-TU snapshot) and
  * .r5.body.c (this block only).  Residual: one scheduling cluster, see LEDGER r5. */
-extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
 /* kept local: the declaration in Texture.h changes this TU codegen */
 extern void tex_SetUVScroll(void *p, int a1, float a2, float a3, float a4, float a5, float a6,
                             float a7);
@@ -835,13 +814,7 @@ void QueenBarrierDL(char *g)
     }
 }
 
-/* kept local: this TU's uses of p2o_DispVU1Default do not fit the prototype in DisplayP2O.h */
-extern void p2o_DispVU1Default(char *g);
 /* ROM 0x0012B6F0 never reads $a1: the callee takes (id, scale) only. */
-extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern void sceVu0Normalize(void *dst, void *src);
-extern void sceVu0OuterProduct(void *dst, void *a, void *b);
-extern void sceVu0InversMatrix(void *dst, void *src);
 /* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
 extern void ico_m33_to_quat(void *dst, void *m);
 /* kept local: this TU's uses of pbga_start do not fit the prototype in itou_sub.h */
@@ -852,8 +825,6 @@ extern float _GetLength(QVec *a, QVec *b);
 extern void apply_matrix_w1(QVec *dst, QMat33 *m, QVec *src);
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
-/* kept local: the declaration in quaternion.h changes this TU codegen */
-extern void CopyQuaternion(void *dst, void *src);
 
 /* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL
  * each expand inline. */

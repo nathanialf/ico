@@ -1,37 +1,8 @@
 #include "common.h"
 #include "typedef.h"
 #include "debug.h"
+#include "quaternion.h"
 
-/* prototypes: their order is the inline tail's emission order */
-int *GetCurrentQuaternion(void);
-int *GetLastQuaternion(void);
-void PushQuaternionWithNoCopy(void);
-void PopQuaternion(void);
-void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, float z);
-void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x, float y, float z);
-void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, float y, float z);
-void SetQuaternionByAxisRotateV(int *self, short a1, int *src);
-void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short a1, void *src);
-void MultiQuaternion(void *p0, void *p1, void *p2);
-void DivQuaternion(int self, int a1, int a2);
-void GetMatrixFromQuaternionRotElem(char *a0, char *a1);
-void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2);
-void MultiMatrixByQuaternion(void *src);
-void GetMirrorQuaternion(float *dst, float *src, int mode);
-void RotQuaternionX(void *self, int a1);
-void RotQuaternionY(void *self, int a1);
-void RotQuaternionZ(void *self, int a1);
-void RotQuaternionEAX(void *self, float *in);
-void RotQuaternionEAZ(void *self, float *in);
-void GetXUnitVectorOfQuaternion(float *out, float *q);
-void GetYUnitVectorOfQuaternion(float *out, float *q);
-void GetZUnitVectorOfQuaternion(float *out, float *q);
-void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *b);
-float GetQuaternionMagnitude(void *a0);
-void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *a0, void *a1, float angle);
-void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle);
-void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2);
-float GetQuaternionCosRadian(void *p0, void *p1);
 extern int D_00639F3C;
 extern int D_00669640[];
 
@@ -43,17 +14,12 @@ void MultiCurrentQuaternion(void *a0)
 
 extern int D_00639F3C;
 extern int D_00669640[];
-/* kept local: the declaration in quaternion.h changes this TU codegen */
-extern void GetInverseQuaternion();
 
 void InvertCurrentQuaternion(void)
 {
     int *p = &D_00669640[D_00639F3C * 4];
     GetInverseQuaternion(p, p);
 }
-
-/* kept local: the declaration in quaternion.h changes this TU codegen */
-extern void CopyQuaternion();
 
 void SetCurrentQuaternion(int a0)
 {
@@ -75,9 +41,6 @@ void RotCurrentQuaternionZ(short a0)
     RotQuaternionZ(&D_00669640[D_00639F3C * 4], a0);
 }
 
-/* kept local: the declaration in quaternion.h changes this TU codegen */
-extern void InitQuaternionDrive(void);
-
 void PushQuaternion(void)
 {
     int v = D_00639F3C;
@@ -98,9 +61,6 @@ void PushQuaternion(void)
         CopyQuaternion(&D_00669640[idx * 4], &D_00669640[idx * 4 - 4]);
     }
 }
-
-/* kept local: the declaration in quaternion.h changes this TU codegen */
-extern void SetIdentityQuaternion(void *a0);
 
 void InitQuaternionDrive(void)
 {
@@ -274,8 +234,6 @@ inline float GetQuaternionCosRadian(void *p0, void *p1)
     return r;
 }
 
-/* kept local: the declaration in quaternion.h changes this TU codegen */
-extern void CopyQuaternion(void *a0, void *a1);
 /* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *a, void *b, float c);
 /* kept local: this TU's uses of GetTableArcCos do not fit the prototype in tableSin.h */

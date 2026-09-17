@@ -1,21 +1,7 @@
 #include "common.h"
 #include "matrixDrive.h"
 #include "quaternion.h"
-
-typedef struct {
-    float f0;        /* 0x00 */
-    char pad04[0xC]; /* 0x04 */
-    char m10[0x10];  /* 0x10 */
-    char m20[0x10];  /* 0x20 */
-    char m30[0x10];  /* 0x30 */
-    int obj;         /* 0x40 */
-    int x44;         /* 0x44 */
-    char pad48[0x8]; /* 0x48 */
-} BgaDisp;
-
-typedef struct {
-    long long w[10];
-} MultiBga;
+#include "multiBgaManager.h"
 
 extern MultiBga D_004ECCA0;
 extern int D_0063A438;
@@ -24,9 +10,6 @@ extern int D_0028F4C0[];
 extern void _AddVector(void *a0, void *a1, void *a2);
 /* kept local: this TU's uses of stage_PlayBgAnimation do not fit the prototype in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
-/* prototypes: their order is the inline tail's emission order */
-void EntryMultiBgaManagerNoKind(BgaDisp *bga, int no, void *pos);
-void DispMultiBgaManagerWithKind(int kind, BgaDisp *base, int n);
 
 static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void *rot)
 {

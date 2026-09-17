@@ -32,11 +32,8 @@ extern void InitWindField(int a0, float *a1, float *a2, float a3);
 extern void ExecWindField(float f);
 /* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern int GetWindVector(float *power, void *pos);
-/* prototypes: their order is the inline tail's emission order */
-void ReinitWindManager(void);
-void SetWindManager(float a, float b, float c, float d, float e, float f, float g, float h);
-void InitWindManager(int no);
-float GetRegularizedWindSpeed(void *pos);
+
+#include "windManager.h"
 
 inline void SetWindManager(float a, float b, float c, float d, float e, float f, float g, float h)
 {

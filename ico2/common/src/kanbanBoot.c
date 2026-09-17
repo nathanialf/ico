@@ -2,10 +2,10 @@
 #include "StageManager.h"
 #include "layout_texture.h"
 #include "gobj.h"
+#include "kanbanBoot.h"
+#include <libscf.h>
+#include "kanban.h"
 
-/* prototypes: their order is the inline tail's emission order */
-void kanbanBootInit(void);
-void kanbanBootStart(void);
 extern int D_0028F4EC[];
 extern int D_0063B4BC;
 extern int D_0063B4C4;
@@ -76,12 +76,7 @@ extern int iosMcSync(McReq *mc);
 extern void iosMcLoadProductBlock(McReq *mc);
 /* kept local: this TU's uses of gsResetFunc do not fit the prototype in debug.h */
 extern void gsResetFunc(int a0);
-extern int sceScfGetLanguage(void);
 extern KanbanReq *kanbanReqAdd(int a0, int a1);
-/* kept local: this TU's uses of kanbanReqDel do not fit the prototype in kanban.h */
-extern void kanbanReqDel(KanbanReq *r);
-/* kept local: this TU's uses of kanbanReqDelFade do not fit the prototype in kanban.h */
-extern void kanbanReqDelFade(KanbanReq *r);
 
 int kanbanBootMcCheck(void)
 {
@@ -323,8 +318,6 @@ int kanbanBootMcCheck(void)
 extern int D_0028F4D4[];
 extern KanbanReq *D_0063C3B4;
 extern int D_0063C3B8;
-/* kept local: this TU's uses of kanbanReqAllDelFade do not fit the prototype in kanban.h */
-extern void kanbanReqAllDelFade(void);
 
 void kanbanBootMain(void)
 {

@@ -22,26 +22,8 @@
 #include "attackCheckBoundary.h"
 #include "motionManager2.h"
 #include "weapon.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    Act *act;          /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
+#include <libvu0.h>
+#include "typedef.h"
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
@@ -50,12 +32,6 @@ extern int scpIsTorchLightOn(int a0);
 /* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
 extern void scpTorchLightOn(int a0);
 extern int D_0063AA08;
-
-typedef struct Pad {
-    int on;  /* 0x00 */
-    int trg; /* 0x04 */
-} Pad;
-
 extern Pad D_0028F8F0[];
 extern int D_0028F8F4[];
 extern int crest2;
@@ -128,10 +104,6 @@ extern AdpcmReq *stair4d;
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec stairSubPos = {{0.0f, 0.0f, -5000.0f, 1.0f}};
 
@@ -146,7 +118,6 @@ extern void scpMaskGeneratorAll(void);
 extern void scpPlayPosSet(void *a0, float x, float y, float z);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(void *a0, float *dir);
-extern void sceVu0SubVector(float *d, const void *a, const void *b);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
 /* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */

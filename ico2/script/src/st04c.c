@@ -8,23 +8,10 @@
 #include "gflag.h"
 #include "StageAnimation.h"
 #include "attackCheckBoundary.h"
+#include "act.h"
+#include "typedef.h"
+#include "generator.h"
 
-typedef struct ActMail {
-    int mail;          /* 0x00 */
-    void (*func)(int); /* 0x04 */
-    int unk08;         /* 0x08 */
-    int unk0C;         /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD4]; /* 0x00 */
-    ActMail *mail;    /* 0xD4 */
-} Act;
-
-/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
-extern Act *actInitialize(int a0);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
 extern char *D_00639EA8;
 
 void actSt04cEnd(void)
@@ -36,18 +23,9 @@ void actSt04cEnd(void)
     }
 }
 
-typedef union StVec {
-    float f[4];
-    long long ll[2];
-} StVec;
-
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const StVec doorDownChkPos = {{0.0f, 84.0f, -1359.0f, 0.0f}};
 
@@ -60,8 +38,6 @@ static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
 extern int D_00639EA4;
 /* kept local: the declaration in script.h changes this TU codegen */
 extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
-extern int actCreateSubThread(void *entry, int prio);
 
 /* listing lines 326-357 */
 void actSt04cDoorDownChk(volatile int a0)
@@ -305,13 +281,6 @@ void actSt04cEne(volatile int a0)
         _ACTWait(0);
     }
 }
-
-/* kept local: this TU's uses of Generator_Mask do not fit the prototype in generator.h */
-extern void Generator_Mask(int a0);
-/* kept local: this TU's uses of Generator_MaskOff do not fit the prototype in generator.h */
-extern void Generator_MaskOff(int a0);
-/* kept local: this TU's uses of Generator_Call do not fit the prototype in generator.h */
-extern void Generator_Call(int a0);
 
 void actSt04cEnemy1(volatile int a0)
 {

@@ -34,6 +34,7 @@ float D_004F1DF0[4] = {749.0f, -3775.0f, 2650.0f, 1.0f};
 
 float D_004F1E00[4] = {559.0f, -3775.0f, 2503.0f, 1.0f};
 
+/* kept local: this TU's bytes only come out with its own view of Vec4. */
 typedef struct {
     float x, y, z, w;
 } Vec4 __attribute__((aligned(16)));
@@ -51,11 +52,8 @@ extern int CheckPureWallAttribute();
 /* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
 extern int CheckWallAttribute();
 extern int stage_no;
-/* prototypes: their order is the inline tail's emission order */
-void ACTSetEnvAllmighty(char *a0);
-void GetSofaPosition(char *a0, char *a1);
-void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2);
-int CheckWallAttributeEdegWall(int a0);
+
+#include "act-env.h"
 
 inline void GetSofaPosition(char *a0, char *a1)
 {
@@ -171,6 +169,7 @@ void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj
     }
 }
 
+/* kept local: this TU's bytes only come out with its own view of ClipWork. */
 typedef struct {
     float a[4];   /* 0x00 start point   */
     float b[4];   /* 0x10 end point     */

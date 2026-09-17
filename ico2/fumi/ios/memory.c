@@ -1,6 +1,14 @@
 #include "common.h"
 #include "debug.h"
 #include "debug_exception.h"
+#include "memory.h"
+#include <eekernel.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+/* kept local: memory.c defines iosMallocDebugNoAssert with no parameters, and the
+   TUs that call it pass four, so the owner's own prototype cannot serve them. */
+void *iosMallocDebugNoAssert(void);
 
 typedef struct IosMemTag {
     char c[16];
@@ -21,30 +29,12 @@ typedef struct IosMemNode {
     struct IosMemNode *head;      /* 0x44 (partition header view: free-list head) */
 } IosMemNode;
 
-typedef struct IosMemPart {
-    char tag[16];              /* 0x00 */
-    char name[16];             /* 0x10 */
-    struct IosMemPart *prev;   /* 0x20 */
-    struct IosMemPart *next;   /* 0x24 */
-    struct IosMemPart *parent; /* 0x28 */
-    int nused;                 /* 0x2C */
-    char *top;                 /* 0x30 */
-    int free;                  /* 0x34 */
-    char *start;               /* 0x38 */
-    char *end;                 /* 0x3C */
-    int total;                 /* 0x40 */
-    struct IosMemNode *head;   /* 0x44 */
-} IosMemPart;
-
 extern char D_00551490[];
 extern char D_005514D8[];
 extern char D_005514F8[];
 extern int strcmp(int *a0, const char *a1);
 extern void strcpy(unsigned char *ptr, int value);
 extern char D_005517D8[];
-extern int FlushCache(int a0);
-/* kept local: this TU's uses of iosFree do not fit the prototype in memory.h */
-extern void *iosFree(void *a0);
 extern char D_005514A0[];
 extern char D_00551600[];
 extern char D_00551740[];
@@ -61,8 +51,6 @@ extern char D_005518E8[];
 extern char D_0063A4E0[];
 extern char D_0063A4F0[];
 extern void __assert(char *file, int line, char *expr);
-extern int atoi(void *a0);
-extern void sprintf();
 extern int strncmp(void *a0, void *a1, int a2);
 extern char D_00551580[];
 extern char D_00551978[];
@@ -80,12 +68,6 @@ extern char D_00551788[];
 extern char D_0063A4E8[];
 extern void debug_assert(char *file, int line);
 extern int fptodp(float f);
-/* kept local: this TU's uses of _iosMallocDebug do not fit the prototype in memory.h */
-extern void *_iosMallocDebug();
-/* prototypes: their order is the inline tail's emission order */
-IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end);
-void *iosMallocDebug(IosMemPart *part, int size, char *file, int line);
-void *iosMallocDebugNoAssert(void);
 
 inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
 {

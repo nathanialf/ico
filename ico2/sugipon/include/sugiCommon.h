@@ -203,4 +203,10 @@ static __inline__ int byte_checksum(const unsigned char *p, int n)
     return sum;
 }
 
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef union DlFlag {
+    int i;
+    long long ll;
+} DlFlag;
+
 #endif /* SUGICOMMON_H */

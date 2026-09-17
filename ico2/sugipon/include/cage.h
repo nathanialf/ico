@@ -12,9 +12,14 @@
 #ifndef CAGE_H
 #define CAGE_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order cage.c's inline tail has. */
 int GetCageChainPoint(char *a0, char *a1, char *a2);
-void HotInitCageGeo(char *self);
 void SetCageVelocityFriction(char *a0, float a1);
 void StabilizeAllLayoutedCage(void);
+void SetCageChainHangableFlag(char *a0, int a1);
+
+void HotInitCageGeo(char *self);
 
 #endif /* CAGE_H */

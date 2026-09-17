@@ -12,14 +12,18 @@
 #ifndef MV_AUDIODEC_H
 #define MV_AUDIODEC_H
 
-int audioDecCreate(int *self, int a1, int a2);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order mv_audiodec.c's inline tail has. */
 int audioDecDelete(int *self);
-int audioDecIsPreset(int *self);
-int audioDecPause(int a0);
 void audioDecReset(int *self);
-void audioDecResume(int *self);
-int audioDecSendToIOP(int *self);
+int audioDecIsPreset(int *self);
 void audioDecStart(int *self);
+int audioDecPause(int a0);
+void audioDecResume(int *self);
+
+int audioDecCreate(int *self, int a1, int a2);
+int audioDecSendToIOP(int *self);
 int pcmCallback(int a0, int *pkt, int *ctx);
 
 #endif /* MV_AUDIODEC_H */

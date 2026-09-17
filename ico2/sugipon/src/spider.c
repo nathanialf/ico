@@ -14,6 +14,7 @@
 #include "geometryManager.h"
 #include "matrixDrive.h"
 #include "spiderGroupManager.h"
+#include <stdlib.h>
 
 extern void *D_0063A438;
 
@@ -281,7 +282,6 @@ extern void gif_SetZTest(int on);
 extern void gif_SetAlpha(int a, int b, int c);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern int rand(void);
 
 typedef struct {
     char pad[0x20];

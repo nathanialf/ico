@@ -7,6 +7,8 @@
 #include "lineManager.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
+#include <stdio.h>
+#include <string.h>
 
 typedef struct {
     char _0[0x10];
@@ -213,7 +215,6 @@ extern char D_005537B0[];
 extern char D_005537C0[];
 extern char D_005537D0[];
 extern char D_006C0BC0[];
-extern int sprintf(char *buf, char *fmt, ...);
 
 void DispCollisionPC(void)
 {
@@ -418,7 +419,6 @@ void DBG_VECTOR(float *vec)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", GetEdgeOfFloor);
 
-extern void memset(void *p, int c, int n);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern float sceVu0InnerProduct(int a0, int a1);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */

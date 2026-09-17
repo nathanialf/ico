@@ -12,19 +12,32 @@
 #ifndef ADPCM_INIT_H
 #define ADPCM_INIT_H
 
-void AdpcmFadeCloseAll(short a0);
-int AdpcmFreeAreaGet(void);
-void AdpcmInterStereoVolumeSet();
-void AdpcmInterStereoVolumeSetAll(void);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order adpcm_init.c's inline tail has. */
+void adpcmPauseRequest(int val);
+void AdpcmStreamHeap(void);
+void AdpcmStreamInit(void);
 int AdpcmIopBuffAlloc(void);
 int AdpcmNotUseIopAreaFree(void);
-void AdpcmOpen(int *self, int no, int a2, int a3);
 int *AdpcmOpenSync(int *self);
+void AdpcmFadeCloseAll(short a0);
+int AdpcmUseAreaGet(void);
+int AdpcmFreeAreaGet(void);
+void AdpcmInterStereoVolumeSetAll(void);
+short AdpcmInterLeaveVolumeGet(char *self, int idx);
+short AdpcmVolumeGet(char *self);
+int adpcmTickProc(int self, int obj);
+void adpcmDiskNotReady(void);
+void adpcmDiskReturnReady(void);
+int adpcmOpenProc(int a0, int a1);
+void adpcmOpenDiskNotReady(void);
+
+void AdpcmInterStereoVolumeSet();
+void AdpcmOpen(int *self, int no, int a2, int a3);
 void AdpcmPlay(void *a0);
-void AdpcmStreamInit(void);
 void AdpcmVolumeSet(int a0, int a1);
 int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6);
-void adpcmPauseRequest(int val);
 void adpcmTickProc2(int *a0);
 
 #endif /* ADPCM_INIT_H */

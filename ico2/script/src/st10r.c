@@ -19,21 +19,11 @@
 #include "cage.h"
 #include "motionManager2.h"
 #include "rotObject.h"
+#include "typedef.h"
 
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
+/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct PObjGObjSt10R {
     char pad00[0x8];   /* 0x000 */
     int f08;           /* 0x008 */
     int f0C;           /* 0x00C */
@@ -43,7 +33,7 @@ typedef struct PObjGObj {
     Act *act;          /* 0x164 */
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
-} PObjGObj;
+} PObjGObjSt10R;
 
 static ActMail floor_mes[2] = {{430}, {429}};
 
@@ -84,7 +74,7 @@ static ActMail way_offchk_mes[2] = {{430}, {429}};
 static ActMail tower_resque_mes[2] = {{430}, {429}};
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjSt10R *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpSetCageVelocityFriction do not fit the prototype in script.h */
 extern void scpSetCageVelocityFriction(int id, float f);
 extern char *cage10r;
@@ -94,10 +84,6 @@ extern int D_0063C574;
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec girlWayPos = {{-296.0f, 327.0f, 2125.0f, 0.0f}};
 
@@ -569,7 +555,7 @@ void actSt10rFence(volatile int a0)
 
 void actSt10rFenceDownChk(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = ((PObjGObjSt10R *)a0)->act;
 
     while (scpTriggerBall(a0, (int)scpSearchGobj(0x661), 5.0f) == 0) {
         _ACTWait(1);
@@ -609,7 +595,7 @@ void actSt10rFenceDownChk(volatile int a0)
 
 void actSt10rFenceUpChk(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = ((PObjGObjSt10R *)a0)->act;
 
     while (scpTriggerBall(a0, (int)scpSearchGobj(0x661), 5.0f) != 0) {
         _ACTWait(1);
@@ -649,7 +635,7 @@ void actSt10rFenceUpChk(volatile int a0)
 
 void actSt10rFenceDownChk2(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = ((PObjGObjSt10R *)a0)->act;
 
     while (scpTriggerBall(a0, (int)scpSearchGobj(0x65F), 5.0f) == 0) {
         _ACTWait(1);
@@ -687,7 +673,7 @@ void actSt10rFenceDownChk2(volatile int a0)
 
 void actSt10rFenceUpChk2(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = ((PObjGObjSt10R *)a0)->act;
 
     while (scpTriggerBall(a0, (int)scpSearchGobj(0x65F), 5.0f) != 0) {
         _ACTWait(1);
@@ -1025,7 +1011,7 @@ void actSt10rChainMain(volatile int a0)
 
 void actSt10rChainSwitch(volatile int a0)
 {
-    Act *self = ((PObjGObj *)a0)->act;
+    Act *self = ((PObjGObjSt10R *)a0)->act;
 
     D_0063AA08 = 1;
     self->mainMail = 0;
@@ -1082,7 +1068,7 @@ void actSt10rEneChk(volatile int a0)
 
 void actSt10rWayOnChk(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = ((PObjGObjSt10R *)a0)->act;
 
     if (D_00639EA8 == 0) {
         _ACTWait(0);
@@ -1101,7 +1087,7 @@ void actSt10rWayOnChk(volatile int a0)
 
 void actSt10rWayOffChk(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = ((PObjGObjSt10R *)a0)->act;
 
     if (D_00639EA8 == 0) {
         _ACTWait(0);

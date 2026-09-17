@@ -7,6 +7,11 @@
 #include "StageAnimation.h"
 #include "Texture.h"
 #include "staticBlur.h"
+#include <libvu0.h>
+#include <sifdev.h>
+#include <stdio.h>
+#include <string.h>
+#include "typedef.h"
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetFrame);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_Init);
@@ -15,17 +20,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_KeepFrameBuffer);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_fade);
 
 extern int CurrentTargetGObjSub;
-
-typedef struct StageSetting {
-    float flatLightDir[3][4]; /* 0x000 */
-    float flatLightCol[3][4]; /* 0x030 */
-    float ambientCol[4];      /* 0x060 */
-    char pad070[0x84];        /* 0x070 */
-    int motionBlur;           /* 0x0F4 */
-    char pad0F8[0xC4];        /* 0x0F8 */
-    int subMotionBlur[5];     /* 0x1BC */
-} StageSetting;
-
 extern StageSetting D_0028F720;
 
 void gsb_SetMotionBlur(void)
@@ -115,7 +109,6 @@ extern char D_0054E448[];
 extern char D_0054E458[];
 extern char D_0028F4F0[];
 extern void sceGsResetPath(void);
-extern void sceVpu0Reset(void);
 extern void sceGsSyncV(int a0);
 /* kept local: the declaration in GsBase.h changes this TU codegen */
 extern void gsb_Init(void *p);
@@ -180,9 +173,6 @@ extern char D_0054E518[];
 extern char D_0054E530[];
 extern char D_0067BA88[];
 extern int sceCdReadClock(sceCdCLOCK *c);
-extern int sceLseek(int fd, int off, int whence);
-extern int sceWrite(int fd, void *buf, int n);
-extern int strlen(const char *s);
 
 void appendLogFile(void)
 {
@@ -216,9 +206,6 @@ extern char D_0063A040[];
 extern char D_0067BB88[];
 extern char D_0067BC88[];
 extern int D_00639F7C;
-extern int sceRead(int fd, void *buf, int n);
-extern int sscanf(const char *s, const char *fmt, ...);
-extern int strcmp(const char *a, const char *b);
 
 void updateOtherEditingLockFlag(void)
 {
@@ -302,13 +289,6 @@ int removeLockFile(void)
     D_00639F7C = 0;
     return 1;
 }
-
-typedef struct {
-    int _0;
-    int trg; /* 0x4 */
-    int _8;
-    int rep; /* 0xC */
-} GsbPad;
 
 typedef struct {
     char *name;  /* 0x0 */

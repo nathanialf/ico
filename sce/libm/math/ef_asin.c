@@ -1,15 +1,13 @@
 /* libm.a member ef_asin.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
+#include <math.h>
+#include <math_private.h>
 
 /* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm),
    re-derived, not copied from any SDK.  This member's use stands for a
    Sony/newlib-internal math_private.h this tree cannot name: the listing
    attributes no row to such a header, so the definition is kept per member. */
-typedef union {
-    float value;
-    unsigned int word;
-} ieee_float_shape_type;
 
 #define GET_FLOAT_WORD(i, d)                                                                       \
     do {                                                                                           \
@@ -45,7 +43,6 @@ extern float __kernel_sinf(float x, float y, int iy);
 #define qS3 -6.8828397989e-01f /* 0xBF303361 */
 #define qS4 7.7038154006e-02f  /* 0x3D9DC62E */
 
-extern float fabsf(float x);
 extern float __ieee754_sqrtf(float x);
 
 float __ieee754_asinf(float x)

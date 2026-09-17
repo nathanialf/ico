@@ -1,17 +1,10 @@
 #include "common.h"
+#include <math.h>
+#include "tableSin.h"
 
-/* tableSin.h prototypes: their order is the inline tail's emission order */
-float GetTableSin(short a0);
-float GetTableCos(short a0);
-void InitTableSin(void);
-int GetTableArcSin(float x);
-int GetTableArcCos(float x);
-int GetTableArcTan2(float f12, float f13);
 extern float D_00669A40[];
 extern unsigned short D_00679A50[];
 extern int D_00639F40;
-extern float asinf(float);
-extern float sinf(float);
 
 static inline void makeSinTable(void)
 {

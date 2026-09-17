@@ -8,32 +8,13 @@
 #include "hand-camera.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
-
-typedef struct {
-    int w[23];
-} S5C;
-
-typedef union Mat4 {
-    float f[4];
-    long long q[2];
-} Mat4;
-
-typedef struct StageParam {
-    char pad0[0x118];
-    int camSetId; /* 0x118 */
-    char pad11c[0x184 - 0x11C];
-    float rate; /* 0x184 */
-    char pad188[0x194 - 0x188];
-} StageParam;
+#include <libvu0.h>
+#include <string.h>
 
 typedef struct CamSetItem {
     char pad[0x48];
     void *end;
 } CamSetItem;
-
-typedef struct {
-    int w[19];
-} S4C;
 
 typedef struct CamSetHdr {
     char pad0[8];
@@ -59,11 +40,9 @@ extern float D_006E6580[3];
 extern float D_006E6590[3];
 extern float D_006E6620[3];
 extern float D_006E6630[3];
-extern void sceVu0ScaleVector(void *a, void *b, float s);
 extern float D_0063AB4C[];
 extern char *D_0063C264;
 extern int D_0063C26C;
-extern void memset(float *a0, int a1, int a2);
 extern char D_006E64F4[];
 /* kept local: this TU's uses of SetMonitorCameraInitializeFlag do not fit the prototype in camera-root.h */
 extern void SetMonitorCameraInitializeFlag();
@@ -75,9 +54,6 @@ extern void _ApplyRyGV(void *a0, float v);
 extern float _GetDirection(void *a0);
 /* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(void *a0, void *a1, void *a2, float f12, float f13);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
-extern void sceVu0Normalize(void *a0, void *a1);
-extern void sceVu0SubVector(void *dst, void *a, void *b);
 
 typedef struct IosPadStick {
     int x; /* 0x00 */

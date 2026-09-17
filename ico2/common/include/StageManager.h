@@ -12,12 +12,16 @@
 #ifndef STAGEMANAGER_H
 #define STAGEMANAGER_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order StageManager.c's inline tail has. */
+void stgmgrNextStagePreLoadForceStageSet(int val);
+void stgmgrNextStagePreLoadDistBoyMode(void);
+void stgmgrNextStagePreLoadForceNoCancel(int val);
 void CheckPoint(void);
+
 void stgmgrForceSwitch(int stage);
 void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut);
 void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r, unsigned char g, unsigned char b);
-void stgmgrNextStagePreLoadDistBoyMode(void);
-void stgmgrNextStagePreLoadForceNoCancel(int val);
-void stgmgrNextStagePreLoadForceStageSet(int val);
 
 #endif /* STAGEMANAGER_H */

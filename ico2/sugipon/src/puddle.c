@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
+#include <string.h>
 
 /* 16-byte aligned: the template copy in InitPuddleGeo is ld/sd, not ldl/ldr. */
 typedef struct {
@@ -37,7 +38,6 @@ extern float D_00723910[];
 extern char D_004ECEA0[];
 /* kept local: this TU's uses of gif_SpriteSensitiveOrg do not fit the prototype in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(void *rect, int z, void *uv, void *col, int e);
-extern void memset(void *p, int c, int n);
 extern int D_0063BA8C;
 extern int D_0063BA90;
 extern int D_00639F94;

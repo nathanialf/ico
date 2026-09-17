@@ -11,6 +11,8 @@
 #include "particleEffect.h"
 #include "quaternion.h"
 #include "tableSin.h"
+#include <stdio.h>
+#include <string.h>
 
 /* .data — carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  D_004EE5B0 is the 0x30-byte default record
@@ -84,8 +86,6 @@ extern char D_00621638[];
 extern char D_00621658[];
 extern char D_0063BCF0[];
 extern char D_0063BCE8[];
-extern int sprintf(char *buf, char *fmt, ...);
-extern int strcmp(const char *a, const char *b);
 
 typedef struct BgaEnvEnt {
     /* 0x00 */ unsigned short type;

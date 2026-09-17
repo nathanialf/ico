@@ -1,37 +1,6 @@
 #include "common.h"
-
-typedef struct {
-    int w[8];
-} FloorLeverGeo;
-
-/* box.h */
-int CanHoldBox(char *a0);
-void BoxDL(char *a0);
-void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2);
-int IsThisBoxTruck(char *a0);
-void ExecBoxMoveStartReaction(char *a0, int a1);
-void ExecBoxMoveEndReaction(char *a0);
-int BoxGeoRestore(float *a0, float *a1);
-int BoxExtGeoRestore(void);
-int BoxMemoryFunc(void);
-/* switch.h */
-int InitSwitchGeo(void);
-void SwitchGeo(void);
-void SwitchDL(void);
-void SetSwitchTriggerFunc(char *a0, void *a1);
-void SetSwitchState(char *a0, int a1);
-void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2);
-int CanFloorLeverPull(char *a0);
-FloorLeverGeo *InitFloorLeverGeo(char *a0, char *a1);
-int GetFloorLeverAngle(char *a0);
-void SetWallLeverWithNodePoint(char *a0, char *a1, int a2);
-int CanWallLeverPull(char *a0);
-int IsWallLeverStatus(char *a0);
-FloorLeverGeo *InitWallLeverGeo(char *a0, char *a1);
-int GetWallLeverAngle(char *a0);
-
-#include "switch.c.inc"
 #include "box.h"
+#include "switch.c.inc"
 #include "DObj.h"
 #include "debug.h"
 #include "gamesys.h"
@@ -40,6 +9,8 @@ int GetWallLeverAngle(char *a0);
 #include "item.h"
 #include "motionManager2.h"
 #include "motionOrientManager.h"
+#include <libvu0.h>
+#include <string.h>
 
 void landingSE(int a0)
 {
@@ -122,7 +93,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", getNearestPosition);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPathInitialize);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPath);
 
-extern float sceVu0InnerProduct(void *a0, void *a1);
 /* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float f);
 
@@ -180,7 +150,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", action);
 
 /* kept local: this TU's uses of GetRootMatrix do not fit the prototype in geometryManager.h */
 extern void GetRootMatrix();
-extern void sceVu0ApplyMatrix();
 
 inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
 {
@@ -196,8 +165,6 @@ inline int CanHoldBox(char *a0)
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20) == 0;
 }
 
-extern void sceVu0Normalize(void *dst, void *src);
-extern void sceVu0ScaleVector(void *dst, void *src, float k);
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
@@ -216,7 +183,6 @@ extern float GetDistanceFromPlane(void *plane, void *pos);
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 /* kept local: this TU's uses of GetCharGObjList do not fit the prototype in geometryManager.h */
 extern char **GetCharGObjList(void);
-extern void memset(void *dst, int c, int n);
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *a0);
 /* kept local: this TU's uses of ClipWallBoxStop do not fit the prototype in fieldCollision.h */

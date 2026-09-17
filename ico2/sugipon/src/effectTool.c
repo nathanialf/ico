@@ -6,6 +6,10 @@
 #include "matrixDrive.h"
 #include "particleEffect.h"
 #include "tableSin.h"
+#include <stdio.h>
+#include <libvu0.h>
+#include <sifdev.h>
+#include "geometryManager.h"
 
 /* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
  * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
@@ -84,7 +88,6 @@ extern char D_0063B838[]; /* "%d" */
 extern char D_0063B840[]; /* "%s" */
 extern char D_0063B848[]; /* "%s%s" */
 extern double fptodp(float v);
-extern int sprintf();
 /* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
@@ -370,7 +373,6 @@ extern void gif_SetAlpha(int a, int b, int c);
 extern void gif_SetZTest(int on);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-extern void sceVu0UnitMatrix(void *m);
 /* kept local: this TU's uses of MultiMatrixByQuaternion do not fit the prototype in quaternion.h */
 extern void MultiMatrixByQuaternion(int *q);
 extern double fptodp(float v);
@@ -489,10 +491,6 @@ extern int D_0063AA08;
 extern int D_0063B86C;
 extern float D_00720170[];
 extern int D_00720070[];
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition(void *dst, int gobj);
-/* kept local: this TU's uses of GetRootQuaternion do not fit the prototype in geometryManager.h */
-extern void GetRootQuaternion(void *dst, int gobj);
 /* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
@@ -528,7 +526,6 @@ extern void debug_openLog(void);
 extern int debugSceOpen(void *name, int flags);
 /* kept local: this TU's uses of debugSceClose do not fit the prototype in debug.h */
 extern int debugSceClose(int fd);
-extern int sceWrite(int fd, void *buf, int size);
 /* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
 extern void debug_StdPrintfDummy(char *fmt, ...);
 

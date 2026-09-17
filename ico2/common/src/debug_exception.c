@@ -1,23 +1,14 @@
 #include "common.h"
-
-/* debug_exception.h prototypes: their order is the inline tail's emission order;
-   they precede the screen include so its three inline helpers follow them. */
-void debugExceptionInit(void *workBuf);
-void debugIOPExceptionInit(void);
-void debug_assertMessage(char *file, int line, char *mes);
-void debug_assert(char *file, int line);
-
-#include "debug_exception_screen.c.inc"
 #include "debug_exception.h"
+#include "debug_exception_screen.c.inc"
 #include "debug.h"
 #include "GsBase.h"
+#include <eekernel.h>
+#include <sifdev.h>
+#include <string.h>
 
 extern int sceCdSync(int mode);
 extern void sceFsReset(void);
-extern void scePrintf();
-extern int sceLseek(int fd, int offset, int whence);
-extern int sceRead(int fd, void *buf, int size);
-extern int sceClose(int fd);
 extern char D_0061CF40[]; /* "TRTABLE.BIN" */
 extern char D_0061CF50[]; /* the EUC-JP "cannot open the trace table" message */
 extern char D_0061CF98[]; /* "No information.(\"%s\" can't read.)\n" */
@@ -89,7 +80,6 @@ extern DebugExcEntry D_004D9F70[11];
 extern void *D_0063B268;
 extern char D_0063B3F8[]; /* "num %d\n" -- this TU's own .sdata, uncarved */
 extern int SetDebugHandler();
-extern void scePrintf();
 
 inline void debugExceptionInit(void *workBuf)
 {
@@ -134,7 +124,6 @@ extern char D_0061D210[]; /* the coloured EUC-JP banner */
 extern char D_0061D248[]; /* a rule of dashes */
 extern char D_0061D278[]; /* the same rule, then the ANSI colour reset */
 extern char D_0063B3B8[]; /* "%s\n" -- this TU's own .sdata, uncarved */
-extern char *strcpy(char *dst, const char *src);
 
 void debug_SetExceptionMessage(char *mes)
 {

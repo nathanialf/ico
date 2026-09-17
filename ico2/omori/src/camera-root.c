@@ -7,6 +7,9 @@
 #include "geometryManager.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
+#include <math.h>
+#include <string.h>
+#include <libvu0.h>
 
 union PendCopy {
     float f[8];
@@ -44,10 +47,6 @@ union CameraSetIn {
     long long q[6];
 };
 
-extern float atan2f(float y, float x);
-extern void memset(void *p, int c, int n);
-extern void sceVu0SubVector(void *dst, void *a, void *b);
-
 void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src)
 {
     union CameraSetIn in;
@@ -66,9 +65,6 @@ void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src)
     dst->rotZ = 0;
 }
 
-extern void sceVu0TransposeMatrix(void *dst, void *src);
-extern void sceVu0UnitMatrix(void *a0);
-
 void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
 {
     MatrixDrive_PushMatrix();
@@ -82,7 +78,6 @@ void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
     MatrixDrive_PopMatrix();
 }
 
-extern void sceVu0CopyMatrix(void *dst, void *src);
 extern char *matrixptr;
 extern int D_0063A064;
 extern int D_0063A068;
@@ -112,7 +107,6 @@ typedef struct EditPad {
 
 extern EditPad D_0028F8F0;
 extern int D_0063AB68;
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 
 void CameraEditManual(CameraSet2 *set, int noLock)
 {
@@ -261,11 +255,6 @@ extern float D_0063C2A8;
 extern void SetCameraTargetPosition(void *, void *, float);
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *, void *);
-extern void memset(void *, int, int);
-extern void sceVu0AddVector(void *, void *, void *);
-extern void sceVu0ApplyMatrix(void *, void *, void *);
-extern void sceVu0ScaleVector(void *, void *, float);
-extern void sceVu0TransposeMatrix(void *, void *);
 
 void BackToGameCamera(void)
 {
@@ -444,8 +433,6 @@ void CameraSetTargetGObj(int a, int b)
     D_0063C294 = b;
 }
 
-extern void sceVu0SubVector(void *, void *, void *);
-
 void CameraChangeTargetParallel(int a0, int a1)
 {
     char buf[0x30];
@@ -492,7 +479,6 @@ int CameraGetMode(void)
 
 /* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(void *v);
-extern void sceVu0Normalize(void *dst, void *src);
 
 void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle)
 {

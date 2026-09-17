@@ -12,16 +12,13 @@
 #include "particleEffect.h"
 #include "spiderGroupManager.h"
 #include "stageMultiBgaManager.h"
+#include "icoMisc.h"
+#include <stdio.h>
 
-/* header prototypes (order fixes the inline tail) */
-/* prototypes: their order is the inline tail's emission order */
-void ExitIcoMisc(void);
-void ExitIcoMisc(void);
 extern char D_0061D3E0[];
 extern char D_0061D418[];
 extern void *D_0063A428;
 extern char D_0071CA90[];
-extern void sprintf();
 
 inline void ExitIcoMisc(void) {}
 
@@ -62,17 +59,6 @@ void disp_memory_partition(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/icoMisc", ExecIcoMisc);
-
-/* stage-preset record: this TU reads the name at 0x20, the motion-set id at
-   0x14C and the per-stage init hook at 0x154. */
-typedef struct {
-    char _0[0x20];
-    char name[0x14C - 0x20]; /* 0x20 */
-    int mot;                 /* 0x14C */
-    char _150[0x4];
-    void (*initproc)(void); /* 0x154 */
-    char _158[0x194 - 0x158];
-} StgPre;
 
 /* per-scene preset: twelve (time, effect id) pairs then the scene label at 0xC0 */
 typedef struct {

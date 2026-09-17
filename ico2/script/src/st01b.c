@@ -13,24 +13,7 @@
 #include "lws_kyomi.h"
 #include "gflag.h"
 #include "StageAnimation.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    int act;           /* 0x164 */
-} PObjGObj;
+#include "typedef.h"
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (430 = the actor's own wake-up post, 429 = the trailing
@@ -115,10 +98,6 @@ extern int D_00639EAC;
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec floorChkSubPos = {{-101.0f, -381.0f, -398.0f, 0.0f}};
 

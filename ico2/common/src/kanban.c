@@ -99,13 +99,10 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col);
 extern char D_00535168[][0x34];
 extern char D_0063B4A8[];
 extern char D_0063B4B0[];
-extern char *strcpy(char *dst, const char *src);
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-/* kept local: the declaration in kanban.h changes this TU codegen */
-extern void init_textures_of_specified_property(int first, int last);
 extern void display_layout(Node *a0);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
@@ -122,16 +119,13 @@ extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned 
                                       int prim);
 /* kept local: this TU's uses of gif_PointOffset do not fit the prototype in GifPacket.h */
 extern void gif_PointOffset(int *v, unsigned int z, unsigned char *col, int prim);
-extern int rand(void);
 extern Col4 D_0063B4B8[];
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
-/* prototypes: their order is the inline tail's emission order */
-void kanbanReqDel(int *self);
-void kanbanReqDelFade(int a0);
-void kanbanReqAllDel(void);
-void kanbanReqAllDelFade(void);
-void kanbanExec(void);
+
+#include "kanban.h"
+#include <string.h>
+#include <stdlib.h>
 
 static inline char *get_texture_base_name(char *src)
 {

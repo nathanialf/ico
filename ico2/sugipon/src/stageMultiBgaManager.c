@@ -3,13 +3,6 @@
 #include "multiBgaManager.h"
 #include "quaternion.h"
 
-typedef struct {
-    long long w[8]; /* 0x00 */
-    int obj;        /* 0x40 */
-    int stay;       /* 0x44 */
-    long long w48;  /* 0x48 */
-} MultiBga;
-
 extern MultiBga D_004ECCA0;
 extern MultiBga D_007240A0[];
 extern char *D_00724A00[];
@@ -21,11 +14,8 @@ extern int D_0028F4C0[];
 extern void _AddVector(void *dst, void *a, void *b);
 extern void EntryMultiBgaManagerSensitive(MultiBga *bga, int no, int kind, void *pos, void *rot,
                                           int sensitive);
-/* prototypes: their order is the inline tail's emission order */
-void InitStageMultiBgaManager(void);
-void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
-void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, int sensitive);
-void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay);
+
+#include "stageMultiBgaManager.h"
 
 void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, int sensitive,
                                                 int stay);

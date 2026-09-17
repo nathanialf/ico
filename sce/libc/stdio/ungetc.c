@@ -1,28 +1,19 @@
 /* libc.a member ungetc.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-
-typedef struct PObjBlk {
-    char pad0[4];
-    unsigned int size; /* 0x4 */
-} PObjBlk;
+#include <string.h>
+#include <reent.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
 
-typedef struct {
-    char *pos; /* 0x0 */
-    int len;   /* 0x4 */
-} StreamBuf;
-
 extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 extern void *_malloc_r(void *r, int n);
 extern void *_realloc_r(void *r, void *p, int n);
-extern void *memcpy(void *d, const void *s, unsigned int n);
 
 /* newlib's struct __sbuf / struct __sFILE, reconstructed from the ROM's own
    field offsets in this member (evidence rung: ROM bytes; the newlib member
@@ -30,30 +21,6 @@ extern void *memcpy(void *d, const void *s, unsigned int n);
    below copies fp->ubuf[i] and gcc hoists the address only when the field is a
    real array member of a struct type, which is what puts ROM's preheader copy
    of _ub._base in place of a load. */
-typedef struct {
-    unsigned char *base; /* 0x0 */
-    int size;            /* 0x4 */
-} Sbuf;
-
-typedef struct Fil {
-    unsigned char *p;      /* 0x00 */
-    int r;                 /* 0x04 */
-    int w;                 /* 0x08 */
-    short flags;           /* 0x0C */
-    short file;            /* 0x0E */
-    Sbuf bf;               /* 0x10 */
-    int lbfsize;           /* 0x18 */
-    char pad1C[0x14];      /* 0x1C */
-    Sbuf ub;               /* 0x30 */
-    unsigned char *up;     /* 0x38 */
-    int ur;                /* 0x3C */
-    unsigned char ubuf[3]; /* 0x40 */
-    unsigned char nbuf[1]; /* 0x43 */
-    Sbuf lb;               /* 0x44 */
-    int blksize;           /* 0x4C */
-    int offset;            /* 0x50 */
-    void *data;            /* 0x54 */
-} Fil;
 
 int __submore(char *fp0)
 {

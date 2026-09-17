@@ -6,6 +6,7 @@
 #include "gobj.h"
 #include "girl_act.h"
 #include "motionManager2.h"
+#include <libvu0.h>
 
 void GetRootQuaternionByDObj(int a0, int *a1)
 {
@@ -25,7 +26,6 @@ null_path:
 
 /* kept local: this TU's uses of GetMatrixFromQuaternionPos do not fit the prototype in quaternion.h */
 extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
-extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
 
 void UpdateRootMatrixByDObj(char *a0)
 {
@@ -143,10 +143,6 @@ void SetRootMatrixRotOffset(int a0, void *a1)
 
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector();
-extern void sceVu0ApplyMatrix();
-extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
@@ -265,18 +261,12 @@ extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
-extern void sceVu0ApplyMatrix();
-extern void sceVu0Normalize();
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix();
 
 /* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
  * reads it back as a pointer, so every read of it is a union view and any store
  * in between forces the reload the ROM performs. */
-typedef union SubHandle {
-    int i;
-    char *p;
-} SubHandle;
 
 #define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
 
@@ -331,8 +321,6 @@ void LocalizeGeometry(char *gobj, int *dobj)
 
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector();
-extern void sceVu0ApplyMatrix();
-extern void sceVu0Normalize();
 
 void GetGlobalDirectionOrient(int *self, int *other, char *p)
 {
@@ -383,7 +371,6 @@ void GetRootVelocity(int a0, int a1)
     CopyVector(a0, (int)((GObj *)(a1))->p_15C + 0x130);
 }
 
-extern void sceVu0UnitMatrix(void *a0);
 /* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(void *a0);
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
@@ -650,7 +637,6 @@ int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float 
 
 /* kept local: this TU's uses of GetMatrixFromQuaternionPos do not fit the prototype in quaternion.h */
 extern void GetMatrixFromQuaternionPos();
-extern void sceVu0MulMatrix();
 
 void GetRootMatrixByDObj(void *a0, char *src)
 {
@@ -770,10 +756,6 @@ void SetDirectRootPositionNoFitting(char *self, void *v)
 
 /* The root position at sub+0xA0 is a 4-lane vector the engine also moves as
  * two quadwords (CopyVector); the union is the TU's view of it. */
-typedef union {
-    float f[4];
-    long long ll[2];
-} Vec4;
 
 void SetRootPosition(char *a0, void *a1)
 {

@@ -15,6 +15,9 @@
 #include "quaternion.h"
 #include "tableSin.h"
 #include "torch.h"
+#include <libvu0.h>
+#include <math.h>
+#include <string.h>
 
 void torchOnOfWeaponSE(int a0)
 {
@@ -171,7 +174,6 @@ extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 
 /* INTERIM: a stand-in for SetWeaponOffsetMode, which the PAL listing inlines
    here (its rows at weapon.c:197 appear inside getGeometry) while keeping its
@@ -474,10 +476,6 @@ extern void _ScaleVector(void *dst, void *src, float s);
 extern void _InterVector(void *dst, void *a, void *b, float t);
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
-extern float acosf(float x);
-extern void sceVu0InterVector(void *dst, void *a, void *b, float t);
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
-extern void sceVu0CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
@@ -576,11 +574,8 @@ extern int D_0028F4D4[];
 extern void *MatrixDrive_GetMatrix(void);
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
-extern void *memset(void *p, int c, int n);
-extern void sceVu0ApplyMatrix(void *out, void *m, void *in);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
-extern float atan2f(float y, float x);
 
 typedef struct {
     char pad00[0x190]; /* 0x000 */

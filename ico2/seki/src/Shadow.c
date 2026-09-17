@@ -1,11 +1,7 @@
 #include "common.h"
 #include "debug.h"
+#include "Shadow.h"
 
-/* prototypes: their order is the inline tail's emission order */
-void shadow_KillShadow(int val);
-void shadow_DispCancel(int a0, int a1);
-void shadow_SetLength(char *a0, float f);
-void shadow_Init(void);
 extern char D_0054FD50[];
 extern char *matrixptr;
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */

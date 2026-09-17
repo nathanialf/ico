@@ -4,7 +4,6 @@
 
 extern int D_0063B234;
 extern int D_0063B898;
-extern void memset(void *a0, int a1, int a2);
 extern int stage_no;
 
 typedef struct {
@@ -14,11 +13,8 @@ typedef struct {
     int flags;
 } FlyLimitInfo;
 
-/* prototypes: their order is the inline tail's emission order */
-int InitFlyInfo(int *self);
-void InitFlyManager(void);
-int GetFlyLimitHeight(FlyLimitInfo *info, void *pos);
-int GetFlyLimitClearance(void *pos);
+#include "flyManager.h"
+#include <string.h>
 
 static inline int getFloorLimitValue(int attr)
 {

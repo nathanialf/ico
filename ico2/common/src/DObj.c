@@ -11,10 +11,6 @@
 #include "quaternion.h"
 
 typedef struct {
-    long long x;
-} __attribute__((packed, aligned(4))) PackedLL_19CAF0;
-
-typedef struct {
     unsigned int lo;
     unsigned char m[3];
     unsigned char hi;
@@ -22,10 +18,8 @@ typedef struct {
 
 extern int D_0063A438;
 extern DObjBlk8 D_0063A810;
-/* prototypes: their order is the inline tail's emission order */
-void FreeDObj(void);
-void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1);
-void UnlinkParentOfDObj(void *a0);
+
+#include "DObj.h"
 
 typedef union {
     char *p;
@@ -433,8 +427,6 @@ void initPolygonState(char *d, float *lay)
 inline void FreeDObj(void) {}
 
 extern void *D_0063A44C;
-/* kept local: this TU's uses of initPolygonState do not fit the prototype in DObj.h */
-extern void initPolygonState(char *d, float *lay);
 
 /* listing lines 423-432: the slot index of the entry tagged id, or -1 */
 static inline int findSlot(char *d, int id)

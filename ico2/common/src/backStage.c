@@ -7,15 +7,13 @@
 #include "gflag.h"
 #include "matrixDrive.h"
 #include "motionManager2.h"
-
 /* header prototypes (order fixes the inline tail) */
-/* prototypes: their order is the inline tail's emission order */
-void backStageProcessInit(void);
-void backStageDebugTimeZero(void);
-void backStageTsuresariReturn(void);
-void backStageProcessInit(void);
-void backStageDebugTimeZero(void);
-void backStageTsuresariReturn(void);
+#include "backStage.h"
+#include <libvu0.h>
+#include <stdlib.h>
+#include "boyact.h"
+#include "geometryManager.h"
+
 extern int D_0063ACF0;
 extern int D_0063C350;
 extern int D_0063C354;
@@ -32,12 +30,8 @@ extern int gamesysMemoryHandlerRead(void *, void *, int);
 extern int D_0063C370;
 
 /* --- su-b sweep decls --- */
-typedef union {
-    float f[4];
-    long long q[2];
-} Vec16;
 
-/* the 0x40-byte gamesys object-info record (src/gamesys.c GamesysObjInfo) */
+/* the 0x40-byte gamesys object-info record (src/gamesys.c GamesysObjInfoBackstage) */
 typedef struct {
     short flag;           /* 0x00 */
     unsigned short no;    /* 0x02 */
@@ -48,7 +42,7 @@ typedef struct {
     Vec16 pos;            /* 0x10 */
     Vec16 rot;            /* 0x20 */
     int work[4];          /* 0x30 */
-} GamesysObjInfo;
+} GamesysObjInfoBackstage;
 
 /* the 0x194-byte per-stage record D_005F5D50; wayBits is a 9-bit field in the
    bitfield word at 0x18C, which is why it is read with an lhu at 0x18E */
@@ -76,26 +70,21 @@ typedef struct {
     char pad18[0x4C - 0x18];
 } GenGeoRec;
 
-extern GamesysObjInfo D_004DA980[];
+extern GamesysObjInfoBackstage D_004DA980[];
 extern GenGeoRec D_002C2DC8[];
 extern float D_006FACF0[4];
 extern int gamesysAnotherStageTsuresari;
 extern int D_0063B60C;
 extern int stage_no;
 extern int D_0063C374;
-extern void sceVu0CopyVector(void *dst, void *src);
 extern void *memset(void *p, int c, int n);
 /* kept local: this TU's uses of gamesysObjInfoPosNewStageSet do not fit the prototype in gamesys.h */
-extern GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float *pos,
-                                                    float *rot);
+extern GamesysObjInfoBackstage *gamesysObjInfoPosNewStageSet(int no, int kind, int stage,
+                                                             float *pos, float *rot);
 /* kept local: this TU's uses of SetInfoSpKidnapGenerator do not fit the prototype in generator.h */
 extern void SetInfoSpKidnapGenerator(int *work);
 /* kept local: this TU's uses of SetInfoSpKidnapEnemy do not fit the prototype in generator.h */
 extern void SetInfoSpKidnapEnemy(int *work);
-/* kept local: this TU's uses of SetStatusBoy_OtherStageGirlPinch do not fit the prototype in boyact.h */
-extern void SetStatusBoy_OtherStageGirlPinch(void);
-/* kept local: this TU's uses of RequestStageChangeKidnapEnd do not fit the prototype in boyact.h */
-extern void RequestStageChangeKidnapEnd(int stage, int gen);
 extern float D_006FACF0[4];
 /* kept local: this TU's uses of NearestEnemyFromGirl do not fit the prototype in way_kidnap.h */
 extern int NearestEnemyFromGirl(float *dist);
@@ -109,13 +98,10 @@ extern int WayPointWithRangeFromPos2(float *pos, void *a1, float *out, int flag)
 extern void gamesysObjInfoCls(int kind, int no);
 /* kept local: this TU's uses of WayLengthOfGObj_GObj do not fit the prototype in way_kidnap.h */
 extern float WayLengthOfGObj_GObj(void *obj0, void *obj1);
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition(float *out, int gobj);
 /* kept local: this TU's uses of NumOfWpPos do not fit the prototype in way_kidnap.h */
 extern int NumOfWpPos(void);
 /* kept local: this TU's uses of CopyWpPos do not fit the prototype in way_kidnap.h */
 extern void CopyWpPos(float *out, int i, int j);
-extern void sceVu0SubVector(float *dst, float *a, float *b);
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
 extern int D_0028F4C0[];
@@ -124,21 +110,14 @@ extern unsigned int gamesysTimeCount;
 extern int D_00639EA8;
 extern int warpGirlInStageSet;
 extern char D_0063ACF8[];
-/* kept local: this TU's uses of IsGirlEscortedInCurrentStage do not fit the prototype in boyact.h */
-extern int IsGirlEscortedInCurrentStage(void);
 /* kept local: this TU's uses of WayPointWithRangeFromPos do not fit the prototype in way_kidnap.h */
 extern void WayPointWithRangeFromPos(float *pos, float range, int flag);
-extern int rand(void);
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
-extern void SetDirectRootPosition(int gobj, float *pos);
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjKindID_begin(int kind);
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjKindID_next(int gobj);
 /* kept local: this TU's uses of isysGObjSearchFromObjLayoutID do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjLayoutID(int id);
-/* kept local: the declaration in backStage.h changes this TU codegen */
-extern void routeSetPos(int gobj0, int gobj1, float *out, float ratio);
 
 inline void backStageProcessInit(void)
 {
@@ -267,8 +246,8 @@ void backStageProcessMain(void)
     Vec16 pos;
     Vec16 rot;
     Vec16 tmp;
-    GamesysObjInfo *g1;
-    GamesysObjInfo *g2;
+    GamesysObjInfoBackstage *g1;
+    GamesysObjInfoBackstage *g2;
 
     gamesysAnotherStageTsuresari = 0;
     if (gflagChk(0x186) != 0) {
@@ -285,7 +264,7 @@ void backStageProcessMain(void)
         if (D_0063C354-- < 0) {
             D_0063C350 = 2;
             if (D_0063C374 == 0) {
-                GamesysObjInfo *s = &D_004DA980[D_0063C35C];
+                GamesysObjInfoBackstage *s = &D_004DA980[D_0063C35C];
                 sceVu0CopyVector(&s->pos, &D_004DA980[1].pos);
                 s->work[0] = 4;
             } else {

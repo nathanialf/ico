@@ -12,19 +12,7 @@
 #include "cage.h"
 #include "geometryManager.h"
 #include "item.h"
-
-typedef struct ActMail {
-    int mail;          /* 0x00 */
-    void (*func)(int); /* 0x04 */
-    int unk08;         /* 0x08 */
-    int unk0C;         /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
+#include "typedef.h"
 
 static ActMail kurenMain_mes[2] = {{406, actSt08bKurenSwitch}, {429}};
 
@@ -56,10 +44,6 @@ extern void scpPlayWaitMotEnd(int a0);
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec kurenSwitchPos = {{248.0f, -2626.0f, 705.0f, 1.0f}};
 
@@ -97,12 +81,6 @@ typedef union Pos {
     float f[4];
 } Pos;
 
-typedef struct PadState {
-    int unk00;        /* 0x00 */
-    int flags;        /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} PadState;
-
 extern PadState D_0028F8F0[];
 void actSt08bKurenLeft(volatile int a0);
 void actSt08bKurenRight(volatile int a0);
@@ -114,29 +92,10 @@ extern int D_00639EA4;
    delay slot; ROM has a nop at both call sites. */
 void actSt08bDoorUpChk(volatile int a0);
 void actSt08bDoorDownChk(volatile int a0);
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    int act;           /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
-
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
 extern int D_00639EAC;
 extern int D_0063C56C;
-/* prototypes: their order is the inline tail's emission order */
-void actSt08bKuren(volatile int a0);
-void actSt08bEne(volatile int a0);
-void actSt08bEnemy1(volatile int a0);
-void actSt08bEnemy2(volatile int a0);
-void actSt08bKurenMain(volatile int a0);
-void actSt08aGirlYoro(volatile int a0);
-void actSt08bDoorEvent(int x);
-void actSt08bDoorUpEffect(volatile int a0);
-void actSt08bDoorDownEffect(volatile int a0);
-void actSt08bEneChk(volatile int a0);
 
 inline void actSt08bKuren(volatile int a0)
 {

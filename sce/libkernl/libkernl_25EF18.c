@@ -3,6 +3,8 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include "common.h"
+#include <sifrpc.h>
+#include <string.h>
 
 typedef struct {
     int f0;
@@ -214,7 +216,6 @@ INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyInit);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifInitRpc);
 
 extern int D_0054A3E8[];
-extern void sceSifExitCmd(void);
 
 void sceSifExitRpc(void)
 {
@@ -365,7 +366,6 @@ after:
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifExecRequest);
 
 extern void SleepThread(void);
-extern void sceSifExecRequest(int *item);
 
 void sceSifRpcLoop(int *self)
 {
@@ -489,7 +489,6 @@ done:
 
 extern int D_0054A470[];
 extern char D_0072D528[];
-extern void memset(void *a0, int a1, int a2);
 
 int sceFsReset(void)
 {
@@ -537,7 +536,6 @@ extern int D_0072D500[];
 extern int DeleteSema(int a0);
 extern void _sceFsSigSema(void);
 extern void *get_iob(unsigned int a0);
-extern int sceSifCallRpc();
 
 int sceDclose(unsigned int a0)
 {
@@ -664,7 +662,6 @@ INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceReadlink);
 extern int D_0054A484[];
 extern int D_0072D580[];
 extern char D_FFFFF[];
-extern int sceSifBindRpc();
 
 int sceSifInitIopHeap(void)
 {
@@ -784,8 +781,6 @@ int sceSifLoadFileReset(void)
 
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceSifLoadModuleBuffer);
 
-extern int _sceSifLoadModuleBuffer(void *a0, int a1, int a2, void *a3);
-
 void sceSifLoadModuleBuffer(void *a0, int a1, int a2)
 {
     int local[4];
@@ -798,8 +793,6 @@ int sceSifLoadStartModuleBuffer(void *a0, int a1, int a2, void *a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceSifLoadModule);
-
-extern void _sceSifLoadModule(void *a0, int a1, int a2, int a3, int a4);
 
 void sceSifLoadModule(void *a0, int a1, int a2)
 {
@@ -815,8 +808,6 @@ void sceSifLoadStartModule(void *a0, int a1, int a2, int a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceSifLoadElfPart);
-
-extern int _sceSifLoadElfPart(void *a0, int a1, int a2, int a3);
 
 int sceSifLoadElfPart(void *a0, int a1, int a2)
 {
@@ -860,8 +851,6 @@ int sceSifGetIopAddr(int a0, void *a1, int a2)
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifSetIopAddr);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifResetIop);
 
-extern int sceSifGetReg(int a0);
-
 int sceSifIsAliveIop(void)
 {
     int t = sceSifGetReg(4) & 0x10000;
@@ -869,7 +858,6 @@ int sceSifIsAliveIop(void)
 }
 
 extern void sceResetttyinit();
-extern void sceSifSetReg(int a0, int a1);
 
 int sceSifSyncIop(void)
 {
@@ -1470,8 +1458,6 @@ void sceSifRemoveCmdHandler(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceSifSendCmd);
-
-extern int _sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1, int t2);
 
 int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1)
 {

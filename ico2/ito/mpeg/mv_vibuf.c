@@ -3,15 +3,11 @@
 #include "common.h"
 #include "mv_defs.h"
 #include "memory.h"
+#include <eekernel.h>
+#include "typedef.h"
 
 /* One entry of the timestamp ring: the PTS/DTS pair the demuxer read out of a
    pack header, and the run of ring bytes it applies to. */
-typedef struct ViTs {
-    long long pts; /* 0x00 -1 when the pack carried none */
-    long long dts; /* 0x08 */
-    int pos;       /* 0x10 byte position in the data ring */
-    int len;       /* 0x14 bytes the pair covers, 0 when the slot is free */
-} ViTs;
 
 /* The video-input ring: a run of 2048-byte sectors that the CD DMA fills and
    the MPEG demuxer drains.  Byte counts are (sector << 11) + a partial
@@ -48,7 +44,6 @@ static void free_buf(int *a0)
     Free(a0[20]);
 }
 
-extern int CreateSema(int *param);
 /* kept local: this TU's uses of viBufReset do not fit the prototype in mv_vibuf.h */
 extern void viBufReset(ViBuf *self);
 
@@ -221,9 +216,6 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-extern int WaitSema();
-extern void SignalSema();
-
 /* Hand out the region the caller may write next, as up to two runs: the one
    that ends at the top of the ring and, if it wraps, the one that starts at
    the bottom.  Two sectors are held back so the writer never overruns the
@@ -258,8 +250,6 @@ void viBufBeginPut(ViBuf *self, void **addr1, int *size1, void **addr2, int *siz
     }
     SignalSema(self->sema);
 }
-
-extern void SignalSema(int x);
 
 void viBufEndPut(int *self, int a1)
 {
@@ -1056,9 +1046,6 @@ __asm__(".section .text\n"
         ".size viBufDelete, . - viBufDelete\n"
         "    .set reorder\n"
         "    .set at\n");
-
-extern void SignalSema();
-extern int WaitSema();
 
 int viBufCount(int *self)
 {

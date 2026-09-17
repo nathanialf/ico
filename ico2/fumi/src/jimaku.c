@@ -53,9 +53,8 @@ extern char D_005540F8[];
 extern void jimakuMgrBegin(struct jArg *p);
 extern int D_0063A964;
 extern int jimakuOn;
-/* prototypes: their order is the inline tail's emission order */
-void jimakuManager(void);
-void jimakuUndisp(void);
+
+#include "jimaku.h"
 
 typedef struct JimTex {
     char _0[0x1C];

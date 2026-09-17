@@ -18,34 +18,18 @@ typedef union {
     } w;
 } McTestVal;
 
-/* prototypes: their order is the inline tail's emission order */
-void iosMcMgrSync(void *mp);
-void iosMcTest(void);
-int iosMcSync(unsigned long *a0);
-int iosMcGetInfo(void *a0);
-int iosMcFormat(void *a0);
-int iosMcUnformat(void *a0);
-int iosMcGetDir(void *a0);
-int iosMcDelete(void *a0);
-int iosMcSaveIconBlock(void *a0);
-int iosMcSaveProductBlock(void *a0);
-int iosMcLoadProductBlock(void *a0);
-int iosMcSaveGameBlock(void *a0, int a1);
-int iosMcLoadGameBlock(void *a0, int a1);
-int iosMcChdirProduct(void *a0);
-int iosMcGetBlockSaveInfo(void *a0);
-int product_write(int *self);
-int product_read(int *self);
-int gameblock_write(int self, void *buf);
-int gameblock_read(int *self, void *buf);
+#include "mcard.h"
+#include <eekernel.h>
+#include <libmc.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "message.h"
+#include "typedef.h"
+
 extern int D_006BC8C0[];
 extern char D_0063A490[];
 extern int D_0063A47C;
 extern int D_0063A488;
-extern int CreateSema(int *param);
-extern int WaitSema(int sema);
-extern int DeleteSema(int sema);
-extern int sceMcSync(int mode, int *cmd, int *result);
 
 inline void iosMcMgrSync(void *mp)
 {
@@ -74,8 +58,6 @@ inline int iosMcSync(unsigned long *a0)
 }
 
 extern char D_0029B9E8[];
-/* kept local: this TU's uses of iosMsgSend do not fit the prototype in message.h */
-extern int iosMsgSend(void *a0, void *a1, int a2);
 
 inline int iosMcGetInfo(void *a0)
 {
@@ -193,10 +175,6 @@ typedef struct {
 
 /* defined below, at their ROM slots; the 2001 source called them from here
    without a prototype, so they keep the non-prototype form. */
-/* kept local: the declaration in mcard.h changes this TU codegen */
-extern int iosMcHandlerWrite();
-/* kept local: the declaration in mcard.h changes this TU codegen */
-extern int iosMcHandlerRead();
 extern McSaveRec D_0029B5F0[];
 extern char D_0029BC00[];
 extern int D_0063A538;
@@ -250,16 +228,8 @@ inline int gameblock_read(int *self, void *buf)
     return self[4];
 }
 
-extern int sceMcGetInfo(int port, int slot, int *type, int *free, int *format);
-
 /* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
    (the same record src/debug.c spells as McDirEnt). */
-typedef struct {
-    char _0[0x10];
-    int size; /* 0x10 */
-    char _14[0xC];
-    char name[0x20]; /* 0x20 */
-} McDirEnt;
 
 typedef struct {
     long long f0;             /* 0x00 -- the iosMc command/flag word, 64-bit */
@@ -302,16 +272,9 @@ extern char D_00551268[];
 extern char D_00551288[];
 extern char D_005512C8[];
 extern char D_00551328[];
-extern int sceMcChdir(int port, int slot, char *name, char *pwd);
-extern int sceMcGetDir(int port, int slot, char *name, int first, int nent, void *buf);
-extern int sceMcMkdir(int port, int slot, char *name);
-extern int sceMcRead(int fd, void *buf, int len);
 extern char D_005511C8[];
 extern char D_00551208[];
 extern char D_00551228[];
-extern int sceMcWrite(int fd, void *buf, int len);
-extern int sceMcOpen(int port, int slot, char *name, int mode);
-extern int sceMcClose(int fd);
 
 /* ios/mcard.c:427-431, 494-495, 512-519, 537-538 and 571-578 in the
    January-2002 listing: the file-static card helpers the manager entry points
@@ -364,9 +327,6 @@ static inline void iosMcMgrClose(McMgr *mp)
 extern char D_00551188[];
 extern char D_005511A8[];
 extern char D_005512A8[];
-extern int sceMcFormat(int port, int slot);
-extern int sceMcUnformat(int port, int slot);
-extern int sceMcDelete(int port, int slot, char *name);
 
 static inline void iosMcMgrFormat(McMgr *mp)
 {
@@ -467,7 +427,6 @@ void iosMcMgrGetInfo(McMgr *mp)
 }
 
 extern void *memcpy(void *dst, void *src, int n);
-extern int sceMcFlush(int fd);
 
 int iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
 {
@@ -647,7 +606,6 @@ extern char D_00551368[];
 extern char *D_0029B590[];
 extern void strcpy(char *dst, char *src);
 extern void strcat(char *dst, char *src);
-extern int sceMcSeek(int fd, int off, int whence);
 
 /* the per-slot segment table: one record per loadable block */
 typedef struct {
@@ -814,7 +772,6 @@ void iosMcMgrLoadProductBlock(void *a0)
 
 extern char D_0063A4A0[];
 extern int strlen(char *s);
-extern int atoi(char *s);
 
 void iosMcMgrGetBlockSaveInfo(McMgr *mp)
 {
@@ -865,12 +822,6 @@ extern char D_0063A4C0[];
 extern char D_0063A4C8[];
 extern char D_0063A4D0[];
 extern int D_006BC8D8[];
-extern void sceMcInit(void);
-/* kept local: this TU's uses of iosMsgQueueCreate do not fit the prototype in message.h */
-extern void iosMsgQueueCreate(void *q, void *buf, int n);
-/* kept local: this TU's uses of iosMsgRecv do not fit the prototype in message.h */
-extern void iosMsgRecv(void *q, void *msg, int n);
-extern int sprintf(char *dst, char *fmt, int a);
 
 /* ios/mcard.c:1042-1053, 1109-1115 and 1127-1133: the three file-static block
    helpers the manager dispatch inlines. None has a ROM symbol of its own. */

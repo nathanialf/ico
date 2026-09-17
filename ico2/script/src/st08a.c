@@ -15,28 +15,18 @@
 #include "gflag.h"
 #include "Shadow.h"
 #include "StageAnimation.h"
+#include "typedef.h"
 
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
+/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct PObjGObjSt08A {
     char pad00[0x15C]; /* 0x000 */
     char *f15C;        /* 0x15C */
     char pad160[0x4];  /* 0x160 */
     Act *act;          /* 0x164 */
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
-} PObjGObj;
+} PObjGObjSt08A;
 
 static ActMail ene1_mes[2] = {{430}, {429}};
 
@@ -76,7 +66,7 @@ extern void *D_00639EA8;
 extern int D_0063C568;
 extern int D_0063C564;
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjSt08A *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpSetCageVelocityFriction do not fit the prototype in script.h */
 extern void scpSetCageVelocityFriction(int id, float f);
 
@@ -325,7 +315,7 @@ extern int scpTriggerFloorAttr(void *a0, int attr);
 
 void actSt08aTorchOnChk(volatile int a0)
 {
-    Act *self = ((PObjGObj *)a0)->act;
+    Act *self = ((PObjGObjSt08A *)a0)->act;
 
     while (scpTriggerFloorAttr(D_00639EA4, 0x5000000) != 0 ||
            scpTriggerFloorAttr(D_00639EA4, 0x7000000) != 0 ||
@@ -353,7 +343,7 @@ void actSt08aTorchOnChk(volatile int a0)
 
 void actSt08aTorchOffChk(volatile int a0)
 {
-    Act *self = ((PObjGObj *)a0)->act;
+    Act *self = ((PObjGObjSt08A *)a0)->act;
 
     while (scpTriggerFloorAttr(D_00639EA4, 0x5000000) == 0 &&
            scpTriggerFloorAttr(D_00639EA4, 0x7000000) == 0 &&
@@ -623,7 +613,7 @@ void actSt08aDoorMain(volatile int a0)
 
 void actSt08aDoorSwitch(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = ((PObjGObjSt08A *)a0)->act;
 
     sub->mainMail = 0;
     D_0063AA08 = 1;
@@ -711,7 +701,7 @@ void actSt08aHasiMain(volatile int a0)
 
 void actSt08aHasiSwitch(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = ((PObjGObjSt08A *)a0)->act;
 
     sub->mainMail = 0;
     D_0063AA08 = 1;

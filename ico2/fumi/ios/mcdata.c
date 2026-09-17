@@ -1,4 +1,5 @@
 #include "common.h"
+#include "cdvd.h"
 
 int iosMcIconWriteIconsys(int self, int *p);
 int iosMcIconWriteIcon(int self, int *p);
@@ -9,16 +10,10 @@ struct McIconWork {
     void *buf;
 };
 
-/* kept local: this TU's uses of iosCdvdBackGroundRead do not fit the prototype in cdvd.h */
-extern int iosCdvdBackGroundRead(int self, void *buf, int size);
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
 extern int D_0063A368;
 extern int D_0063C18C;
-/* kept local: this TU's uses of iosCdvdBackGroundMgrAdd do not fit the prototype in cdvd.h */
-extern int iosCdvdBackGroundMgrAdd();
-/* kept local: this TU's uses of iosCdvdBackGroundMgrDelete do not fit the prototype in cdvd.h */
-extern void iosCdvdBackGroundMgrDelete(int self);
 /* kept local: this TU's uses of iosMcMgrSync do not fit the prototype in mcard.h */
 extern void iosMcMgrSync(int self);
 /* kept local: this TU's uses of iosMcHandlerWrite do not fit the prototype in mcard.h */

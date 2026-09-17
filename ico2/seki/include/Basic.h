@@ -12,11 +12,18 @@
 #ifndef BASIC_H
 #define BASIC_H
 
-void dma_init(void);
-int freeseki(void *a0);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order Basic.c's inline tail has. */
 void malloc_SetPartition(int val);
+int malloc_GetPartition(void);
 int mallocseki(int size);
-void matrix_init(void);
+int freeseki(void *a0);
 void resetmallocseki(void);
+int mallocsekistage(int size);
+int reallocseki(int size, int align);
+
+void dma_init(void);
+void matrix_init(void);
 
 #endif /* BASIC_H */

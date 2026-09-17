@@ -1,5 +1,6 @@
 #include "common.h"
 #include "debug.h"
+#include "gobj_cam_dl.h"
 
 typedef struct EnNode {
     char pad[0x34];
@@ -7,27 +8,12 @@ typedef struct EnNode {
     struct EnNode *prev;
 } EnNode;
 
-typedef struct {
-    char p[0x34];
-    void *f34;
-    void *f38;
-    char p2[4];
-    unsigned char f40;
-    char p3[3];
-    int f44;
-} AdpT;
-
 extern int *D_0063A614;
 extern AdpT *D_0063A618;
 static void add_gobj_to_tail();
+
 /* listing lines 130-165: sorted insert by key, inlined into
    isysGObjMoveCameraDLHead and isysGObjLinkCameraDLHead */
-/* prototypes: their order is the inline tail's emission order */
-void isysGObjCameraDlInit(void);
-void isysGObjMoveCameraDLHead(int a0, int a1);
-void isysGObjLinkCameraDLHead(int *self, int a1, int key, int a3, int a4);
-void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1);
-void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1);
 
 static inline void insert_camera_dl_by_key(int *self, int key)
 {

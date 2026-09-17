@@ -47,4 +47,10 @@ int cylinderCollisionCheck(void *a0, void *a1, int a2, float f0, float f1, float
 void getInitialInverseMatrix(char *mat, char *mdl, int no);
 void getInitialMatrix(char *mdl, int no);
 
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef union SubHandle {
+    int i;
+    char *p;
+} SubHandle;
+
 #endif /* GEOMETRYMANAGER_H */

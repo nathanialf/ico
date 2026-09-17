@@ -9,20 +9,11 @@
 #include "camera-root.h"
 #include "gflag.h"
 #include "StageAnimation.h"
+#include <libvu0.h>
+#include "typedef.h"
 
 /* The actor mail table entries this TU installs live in the shared
  * src/cod .data carve, so they stay extern here. */
-typedef struct ActMail {
-    int mail;          /* 0x00 */
-    void (*func)(int); /* 0x04 */
-    int unk08;         /* 0x08 */
-    int unk0C;         /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD4]; /* 0x00 */
-    ActMail *mail;    /* 0xD4 */
-} Act;
 
 static ActMail sword_mes[2] = {{430}, {429}};
 
@@ -49,10 +40,6 @@ extern int scpAdpcmPlayRequestNum(void);
 extern int scpTriggerBall(int self, void *target, float r);
 
 /* the 16-byte vector this file copies whole */
-typedef union Vec16 {
-    float f[4];
-    long long q[2];
-} Vec16;
 
 typedef struct SwordObj {
     char unk00[0x2C]; /* 0x00 */
@@ -79,7 +66,6 @@ extern void scpPlayMot(void *a0, int a1);
 extern void scpPlayMotDir(void *a0, float *dir);
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(void *a0, float x, float y, float z);
-extern void sceVu0SubVector(float *dst, float *a, void *b);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpSetBoyWeaponGObj do not fit the prototype in script.h */

@@ -46,15 +46,8 @@ typedef struct {
 } AcbLayout;
 
 extern AcbLayout D_004E45C0;
-/* prototypes: their order is the inline tail's emission order */
-int InitAttackCheckBoundaryGeo(int unused, void *obj);
-void AttackCheckBoundaryGeo(void *a0);
-void AttackCheckBoundaryDL(char *obj);
-void actAttackCheckBoundaryStart(int *self);
-float GetAttackCheckBoundaryRadius(char *a0);
-char *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r);
-int GetAttackCheckBoundaryManagerStatus(char *a0);
-void SetAttackCheckBoundaryAttribute(char *a0, int a1);
+
+#include "attackCheckBoundary.h"
 
 static inline char *createAttackCheckBoundaryGObj(AcbLayout *lay)
 {

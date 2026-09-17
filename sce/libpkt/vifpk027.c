@@ -1,6 +1,7 @@
 /* libpkt.a member vifpk027.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
+#include <libpkt.h>
 
 typedef unsigned int u128_241778 __attribute__((mode(TI)));
 
@@ -26,5 +27,3 @@ int *sceVif1PkTerminate(int **a0)
     a0[2] = 0;
     return p;
 }
-
-extern void sceVif1PkAlign(void *a0, int a1, int a2);

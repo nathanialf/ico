@@ -12,6 +12,11 @@
 #ifndef DISPLAYP2O_H
 #define DISPLAYP2O_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order DisplayP2O.c's inline tail has. */
+void p2o_SetDefaultEnviroment(void);
+
 #include "typedef.h"
 
 void p2o_DispVU1(GObj *self);
@@ -20,7 +25,6 @@ void p2o_DispVU1DObjMulti(void *req);
 void p2o_DispVU1Default(GObj *self);
 void p2o_DispVU1Multi(GObj *self);
 void p2o_MakePacket(char *a0);
-void p2o_SetDefaultEnviroment(void);
 void p2o_TransMicroProgram(void);
 
 #endif /* DISPLAYP2O_H */

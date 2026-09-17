@@ -53,7 +53,13 @@ case "${1:-}" in
     sce/*|*/sce/*) GNUM=0 ;;
     *) GNUM=8 ;;
 esac
-CFLAGS="-S -G ${GNUM} -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}"
+# The SDK's and newlib's own public headers, reconstructed under sce/<archive>/
+# by public naming (the members and the game TUs include them as <libdma.h>).
+SCE_INCS=""
+for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd; do
+    SCE_INCS="${SCE_INCS} -I${ROOT}/sce/${_a}"
+done
+CFLAGS="-S -G ${GNUM} -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}${SCE_INCS}"
 ASFLAGS="-EL -march=r5900 -mabi=eabi -G ${GNUM} -no-pad-sections -I${INCLUDE_DIR}"
 EE_ASFLAGS="-EL -mcpu=5900 -G ${GNUM}"
 

@@ -9,6 +9,8 @@
 #include "torch.h"
 #include "weapon.h"
 #include "windManager.h"
+#include <libvu0.h>
+#include <string.h>
 
 typedef struct {
     float f0;
@@ -48,9 +50,6 @@ extern float D_0063C080[]; /* .sdata FLT_MAX; %hi/%lo, so the declaration withhe
 extern int D_00639EA4;
 /* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
 extern int *GetCameraPos();
-extern void sceVu0SubVector(void *a0, void *a1, void *a2);
-extern float sceVu0InnerProduct(void *a0, void *a1);
-extern void sceVu0CopyVector(void *a0, void *a1);
 
 int stageSEtaimatsu(SEObj *self)
 {
@@ -263,9 +262,6 @@ extern float D_0063C078;
 extern int D_0063C07C;
 /* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
 extern int *GetCameraPos();
-extern void sceVu0SubVector(void *a0, void *a1, void *a2);
-extern float sceVu0InnerProduct(void *a0, void *a1);
-extern void sceVu0CopyVector(void *a0, void *a1);
 extern Blk32 D_006230F0;
 extern float D_0063C08C[];
 
@@ -301,7 +297,6 @@ typedef struct {
 } __attribute__((aligned(16))) SEVec;
 
 extern float D_0063C084[];
-extern void *memset(void *d, int c, int n);
 
 int stageSE19ataki(SEObj *self)
 {

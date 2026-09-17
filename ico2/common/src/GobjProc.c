@@ -3,42 +3,15 @@
 #include "icoMisc.h"
 #include "gobj_dl.h"
 #include "camera-root.h"
-
-typedef struct PObjGObj {
-    /*0x00*/ char pad00[0x4];
-    /*0x04*/ int f04;
-    /*0x08*/ int f08;
-    /*0x0C*/ int f0C;
-    /*0x10*/ char pad10[0x30];
-    /*0x40*/ int f40;
-    /*0x44*/ char pad44[0x4];
-    /*0x48*/ int f48;
-    /*0x4C*/ int f4C;
-    /*0x50*/ int f50;
-    /*0x54*/ char pad54[0x8];
-    /*0x5C*/ int f5C;
-    /*0x60*/ int f60;
-    /*0x64*/ char pad64[0x100];
-    /*0x164*/ int f164;
-    /*0x168*/ char pad168[0x4];
-    /*0x16C*/ int f16C;
-} PObjGObj;
+#include "GobjProc.h"
+#include "gobj.h"
+#include "gobj_process.h"
 
 extern int D_0063C0C8;
 extern int D_0072A2C0[];
 extern char D_0063C0D0[];
-/* kept local: this TU's uses of isysGObjAdd do not fit the prototype in gobj.h */
-extern PObjGObj *isysGObjAdd(int a0, int a1, int a2);
-/* kept local: this TU's uses of isysGObjKindTableAdd do not fit the prototype in gobj.h */
-extern void isysGObjKindTableAdd(void *a0, int a1);
-/* kept local: this TU's uses of isysGObjProcAdd do not fit the prototype in gobj_process.h */
-extern int isysGObjProcAdd(void *a0, int a1, int a2, int a3);
 /* kept local: the declaration in gobj_cam_dl.h changes this TU codegen */
 extern void isysGObjLinkCameraDL(void *a0, int a1, int a2, int a3, unsigned int a4);
-/* kept local: this TU's uses of isysGObjProcAddS do not fit the prototype in gobj_process.h */
-extern void isysGObjProcAddS(void *a0, int a1, int a2, int a3, int a4);
-/* prototypes: their order is the inline tail's emission order */
-PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
 
 void ResetGObjProc(void)
 {
@@ -84,7 +57,7 @@ PObjGObj *InitCameraGObjs(int a0, int from, int to)
 
     for (i = from; i < to; i++) {
         g = isysGObjAdd((int)SetCameraMatrix, 0, 0);
-        g->f164 = 0;
+        g->act = 0;
         g->f04 = 0;
         g->f08 = -1;
         g->f0C = -1;
@@ -93,7 +66,7 @@ PObjGObj *InitCameraGObjs(int a0, int from, int to)
     }
 
     cam = isysGObjAdd(0, 0, 0);
-    cam->f164 = 0;
+    cam->act = 0;
     isysGObjLinkCameraDL(cam, 0, 0, 1, 0xFFFFFFFF);
 
     return g;
@@ -104,7 +77,7 @@ inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int
     PObjGObj *g;
 
     g = isysGObjAdd(a0, 0, 0);
-    g->f164 = 0;
+    g->act = 0;
     g->f04 = 1;
     g->f08 = -1;
     g->f0C = -1;

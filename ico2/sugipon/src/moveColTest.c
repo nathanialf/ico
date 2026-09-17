@@ -5,13 +5,12 @@
 #include "geometryManager.h"
 #include "matrixDrive.h"
 #include "quaternion.h"
+#include "moveColTest.h"
+#include <stdlib.h>
 
-/* prototypes: their order is the inline tail's emission order */
-short *InitMoveColTestGeo(int a0, int *self);
 /* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1();
 extern int D_0063A438;
-extern int rand(void);
 
 inline short *InitMoveColTestGeo(int a0, int *self)
 {

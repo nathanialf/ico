@@ -12,10 +12,14 @@
 #ifndef ITOU_SUB_H
 #define ITOU_SUB_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order itou_sub.c's inline tail has. */
+void lw_pos_to_ico_pos(float *dst, float *src);
 void apply_matrix_w1(void *a0, void *a1, void *a2);
 int ico_m33_to_quat(int a0);
-void lw_pos_to_ico_pos(float *dst, float *src);
-int m33_to_quat(float *q, float (*m)[4]);
 void pbga_start(int *self, int *q);
+
+int m33_to_quat(float *q, float (*m)[4]);
 
 #endif /* ITOU_SUB_H */

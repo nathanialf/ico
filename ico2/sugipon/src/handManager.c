@@ -5,6 +5,7 @@
 #include "geometryManager.h"
 #include "motionManager2.h"
 #include "tableSin.h"
+#include "typedef.h"
 
 /* getBone is defined as a nested function inside connectToTarget below. */
 /* kept local: this TU's uses of YUnitVector do not fit the prototype in matrixDrive.h */
@@ -141,11 +142,6 @@ void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
     }
 }
 
-typedef union {
-    float f[4];
-    long long ll[2];
-} Vec4;
-
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *a0, void *a1);
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
@@ -262,11 +258,6 @@ float _handManager(char *obj, char *hw, char *vec, char *ref, int node)
     }
     return 1.0f;
 }
-
-typedef union {
-    int i;
-    float f;
-} IntFloat;
 
 extern int D_0063B198;
 extern char D_0055FE58[];

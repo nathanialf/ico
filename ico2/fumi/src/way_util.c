@@ -3,6 +3,10 @@
 #include "act.h"
 #include "way_llf.h"
 #include "geometryManager.h"
+#include <stdlib.h>
+#include <libvu0.h>
+#include "fuzio.h"
+#include "memory.h"
 
 typedef struct {
     float a[4];
@@ -67,19 +71,10 @@ typedef struct WpSortEnt {
     float d;
 } WpSortEnt;
 
-/* kept local: this TU's uses of fzMagnitudefv do not fit the prototype in fuzio.h */
-extern float fzMagnitudefv(int a0);
-extern void sceVu0SubVector();
-extern void sceVu0CopyVector();
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *);
 /* kept local: this TU's uses of ClipWallField do not fit the prototype in fieldCollision.h */
 extern void ClipWallField(void *);
-extern void qsort(void *base, int n, int size, int (*cmp)());
-/* kept local: this TU's uses of iosMallocDebug do not fit the prototype in memory.h */
-extern int iosMallocDebug(int, int, const char *, int);
-/* kept local: this TU's uses of iosFree do not fit the prototype in memory.h */
-extern void iosFree();
 extern int D_0063A438;
 extern char D_00554300[];
 
@@ -249,8 +244,6 @@ void ez_circle(void)
 }
 
 extern void *memset(void *dst, int c, int n);
-/* kept local: this TU's uses of fzMagnitude2fv do not fit the prototype in fuzio.h */
-extern float fzMagnitude2fv(void *a, void *b);
 extern char D_00554340[];
 extern char D_00554350[];
 extern char D_00554368[];
@@ -396,8 +389,6 @@ int wgid_next(int me, int target)
 
 extern char D_00554300[];
 extern int D_0063A438;
-/* kept local: this TU's uses of iosMallocDebug do not fit the prototype in memory.h */
-extern int iosMallocDebug(int, int, const char *, int);
 
 void *WayUtilWorkAlloc(void)
 {
@@ -417,9 +408,6 @@ void *WayUtilWorkAlloc(void)
     }
     return p;
 }
-
-/* kept local: this TU's uses of iosFree do not fit the prototype in memory.h */
-extern void iosFree();
 
 void WayUtilWorkFree(int *self)
 {
@@ -646,9 +634,6 @@ void set_check_wp(CheckWp *out, int wp, int gid)
 }
 
 extern void *memset(void *dst, int c, int n);
-extern void sceVu0SubVector();
-/* kept local: this TU's uses of fzMagnitudefv do not fit the prototype in fuzio.h */
-extern float fzMagnitudefv(int a0);
 
 typedef struct WayDist {
     float d0;
@@ -753,10 +738,6 @@ int set_bridge(int gid)
     return 1;
 }
 
-/* kept local: this TU's uses of fzMagnitudefv do not fit the prototype in fuzio.h */
-extern float fzMagnitudefv(int a0);
-extern void sceVu0SubVector();
-
 inline char *nearest_waypoint_of_group(int *arg0, int handle)
 {
     int buf[4];
@@ -795,8 +776,6 @@ inline char *nearest_waypoint_from_gobj(void *dobj)
 }
 
 extern WayGrp D_004F1EC0[];
-/* kept local: this TU's uses of fzMagnitudeByLineSeg do not fit the prototype in fuzio.h */
-extern float fzMagnitudeByLineSeg(void *a0, void *a1, void *a2);
 
 inline char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid)
 {
@@ -924,9 +903,6 @@ inline char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
 }
 
 extern int D_0063BD78;
-/* kept local: this TU's uses of fzMagnitudefv do not fit the prototype in fuzio.h */
-extern float fzMagnitudefv(int a0);
-extern void sceVu0SubVector();
 
 inline char *waypoint_with_range(int *arg0, float thresh)
 {
@@ -1041,7 +1017,6 @@ inline void visible_waypoint_of_all_from_gobj(void *a0)
 
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *);
-extern void sceVu0CopyVector(void *buf, int x);
 
 inline char *visible_waypoint(int *arg0, int handle)
 {

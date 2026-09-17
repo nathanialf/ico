@@ -35,8 +35,6 @@ extern void *GetCurrentQuaternion(void);
 extern void MatrixDrive_PushMatrixWithNoCopy(void);
 /* kept local: this TU's uses of PushQuaternionWithNoCopy do not fit the prototype in quaternion.h */
 extern void PushQuaternionWithNoCopy(void);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern void _getFinalMatrix(int id);
 /* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
 extern char ZUnitVector[];
 extern char D_004EC9E0[];
@@ -74,7 +72,6 @@ extern char *D_0063C494;
 extern float GetPointDistance(void *a0, void *a1);
 /* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(void *a0);
-extern void memset(void *a0, int a1, int a2);
 extern void sceVu0ApplyMatrix(int *a0, int a1, char *a2);
 /* kept local: this TU's uses of GetYProjectionOfPlane do not fit the prototype in fieldCollision.h */
 extern float GetYProjectionOfPlane(int a0, int a1);
@@ -84,10 +81,6 @@ extern void MatrixDrive_TransMatrix(float, float, float);
 extern void MultiMatrixByQuaternion(char *p);
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(int a0);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern void _checkCliffAndWall(void);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern void checkWallSideState(void);
 /* kept local: this TU's uses of ClipWallFuchiHangWalkStop do not fit the prototype in fieldCollision.h */
 extern void ClipWallFuchiHangWalkStop(void *a0);
 extern char D_004ECA80[];
@@ -95,8 +88,6 @@ extern char D_004ECA80[];
 extern int GetWallAttribute(void *a0);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(int a0, int a1, void *a2);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern int adjustSideWall(int a0, int a1, int a2);
 extern float D_007201F4[];
 extern void sceVu0UnitMatrix(int);
 extern char *D_0063C4A0;
@@ -130,14 +121,6 @@ extern void SetCurrentQuaternion(void *q);
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *a0, int a1);
 extern void sceVu0Normalize(void *dst, void *src);
-extern float atan2f(float y, float x);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern void clearCollisionStatus(void);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern int findActPoint(int *list);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern int checkActPointWithHeight(int a0, float h);
-extern int sprintf(char *buf, char *fmt, ...);
 extern void __assert(char *file, int line, char *expr);
 extern MotShift rootUpdateDirectPlayForStream(void);
 extern MotShift rootUpdateXZ(int a0, int a1);
@@ -146,25 +129,17 @@ extern MotShift rootUpdateStepSolution(int a0);
 extern MotShift rootUpdateHang(int a0, int a1, int a2);
 extern MotShift rootUpdateSwim(void);
 extern MotShift rootUpdateNodeFix(void);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern void rootUpdateY_Rope(int a0);
 extern MotShift rootUpdateY(void);
 extern MotShift rootUpdateTrueMotion(int a0);
 extern MotShift rootUpdateDirectPlay(int a0);
 extern MotShift rootUpdateFly(void);
 extern MotShift rootUpdateEnemyFly(void);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern void func_001ECE40();
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket();
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha();
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri();
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern void checkCliffState(int a0);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern void checkWallState(int a0);
 /* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
@@ -196,8 +171,6 @@ extern char D_004ECBC0[];
 extern char D_004ECBD0[];
 /* kept local: this TU's uses of MatrixDrive_RotMatrixZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixZ(int a0);
-/* kept local: the declaration in motionManager.h changes this TU codegen */
-extern void getFinalMatrixWithNaturalGeometry(int id);
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
@@ -250,10 +223,11 @@ extern int D_0063B8FC;
 extern char IdentityQuaternion[];
 /* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
 extern void ClipFloor();
-/* motionManager.h prototypes: their order is the inline tail's emission order */
-void SetHitCollisionDisplay(int a, int b);
-int ResetMotionProgramInterpInfo(char *a0, int a1);
-int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f);
+
+#include "motionManager.h"
+#include <string.h>
+#include <math.h>
+#include <stdio.h>
 
 static inline void dispSquare(int alpha)
 {

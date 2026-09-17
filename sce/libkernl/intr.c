@@ -2,6 +2,7 @@
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x100A08..0x100D68, 13 functions. */
 #include "common.h"
+#include <eekernel.h>
 
 /* EE syscall leaf wrappers.  This member's uses stand for a Sony-internal
    header this tree cannot name: MAIN.MAP attests archives and their members,
@@ -108,15 +109,11 @@ int EnableDmac(int a0)
     return rv;
 }
 
-extern void _iEnableIntc();
-
 void iEnableIntc(void)
 {
     _iEnableIntc();
     SYNC();
 }
-
-extern void _iDisableIntc();
 
 void iDisableIntc(void)
 {
@@ -124,15 +121,11 @@ void iDisableIntc(void)
     SYNC();
 }
 
-extern void _iEnableDmac();
-
 void iEnableDmac(void)
 {
     _iEnableDmac();
     SYNC();
 }
-
-extern void _iDisableDmac();
 
 void iDisableDmac(void)
 {
@@ -174,7 +167,6 @@ int GetEntryAddress(int num)
 extern int D_0028F470[];
 extern char D_0028ED10[];
 extern char D_0028F450[];
-extern void FlushCache(int a0);
 
 void InitAlarm(void)
 {

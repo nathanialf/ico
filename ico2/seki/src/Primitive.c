@@ -7,6 +7,8 @@
 #include "delayFreeManager.h"
 #include "lineManager.h"
 #include "tableSin.h"
+#include <string.h>
+#include <stdio.h>
 
 typedef struct {
     /* 0x00 */ int cr;
@@ -291,7 +293,6 @@ typedef struct {
     /* 0x84 */ int f84[3];
 } Mesh3D;
 
-extern void memset(void *dst, int c, int n);
 /* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *mtx);
 /* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
@@ -519,7 +520,6 @@ extern char D_0054F978[];
 extern char D_0063A158[];
 extern void _UnitMatrix(void *m);
 extern void malloc_MemCpy(void *dst, void *src, int n);
-extern void sprintf(char *s, char *fmt, ...);
 extern int tex_GetTextureNo(char *name);
 extern void _CopyVector(void *dst, void *src);
 

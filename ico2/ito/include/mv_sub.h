@@ -12,7 +12,11 @@
 #ifndef MV_SUB_H
 #define MV_SUB_H
 
-void ErrMessage(int a0);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order mv_sub.c's inline tail has. */
 int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
+
+void ErrMessage(int a0);
 
 #endif /* MV_SUB_H */

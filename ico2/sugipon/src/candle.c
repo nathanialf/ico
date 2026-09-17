@@ -29,9 +29,8 @@ typedef struct CandleWork {
 
 #define CANDLE_WORK(o) ((CandleWork *)*(int *)((char *)(o) + 0x15C))
 
-/* prototypes: their order is the inline tail's emission order */
-void DeleteLayoutedCandleParticleEffect(void);
-void _deleteLayoutedCandleParticleEffect(void *gobj);
+#include "candle.h"
+
 extern int D_0063A438;
 extern char D_0061F198[];
 extern char D_0061F1A8[];

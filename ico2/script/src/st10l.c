@@ -12,40 +12,34 @@
 #include "lws_kyomi.h"
 #include "gflag.h"
 #include "StageAnimation.h"
+#include "typedef.h"
 
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
+/* kept local: this TU's bytes only come out with its own view of ActSt10L. */
+/* kept local: this TU's bytes only come out with its own view of Act, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct ActSt10L {
     char unk00[0x34];  /* 0x00 */
     int f34;           /* 0x34 */
     char unk38[0x98];  /* 0x38 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
-} Act;
+} ActSt10L;
 
-typedef struct PObjGObj {
+/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct PObjGObjSt10L {
     char pad00[0x164]; /* 0x000 */
-    Act *act;          /* 0x164 */
+    ActSt10L *act;     /* 0x164 */
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
-} PObjGObj;
+} PObjGObjSt10L;
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
-typedef struct Pad {
-    int unk00;        /* 0x00 */
-    int trg;          /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} Pad;
 
 extern Pad D_0028F8F0[];
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjSt10L *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 extern int D_0063A538;
@@ -110,10 +104,6 @@ extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec eneCam3ChkPos = {{-33.0f, -72.0f, 470.0f, 0.0f}};
 
@@ -179,7 +169,7 @@ void actSt10lInit(void)
 /*SWEEPactSt10lFloorLeft*/
 void actSt10lFloorLeft(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     if (gflagChk(0x122) == 0 && D_00639EA8 != 0 &&
         scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
@@ -243,7 +233,7 @@ void actSt10lFloorLeft(volatile int a0)
 /*SWEEP-ENDactSt10lFloorLeft*/
 void actSt10lFloorRight(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     if (gflagChk(0x122) != 0 && D_00639EA8 != 0 &&
         scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
@@ -290,7 +280,7 @@ void actSt10lFloorRight(volatile int a0)
 
 void actSt10lGondolaUp(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     scpAdpcmPlayRequestFunc(0x58, &st10l_gondola_up, 1, 1, 1);
 
@@ -334,7 +324,7 @@ void actSt10lGondolaUp(volatile int a0)
 
 void actSt10lGondolaDown(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     SetGirlDangerGObj(D_00639EA4);
 
@@ -385,7 +375,7 @@ void actSt10lEneCam2Chk(volatile int a0)
     int save;
 
     while (D_00639EA8 == 0 || scpTriggerFloorAttr(D_00639EA4, 0x4000000) == 0 ||
-           gflagChk(0x11F) == 0 || ((PObjGObj *)D_00639EA8)->act->f34 == 0x6F) {
+           gflagChk(0x11F) == 0 || ((PObjGObjSt10L *)D_00639EA8)->act->f34 == 0x6F) {
         _ACTWait(1);
     }
 
@@ -513,7 +503,7 @@ void actSt10lChainMove(volatile int a0)
 void actSt10lChain(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -535,7 +525,7 @@ void actSt10lChain(volatile int a0)
 void actSt10lFloor(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -548,7 +538,7 @@ void actSt10lFloor(volatile int a0)
 void actSt10lGondola(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -579,7 +569,7 @@ void actSt10lSekizo(volatile int a0)
 void actSt10lBox(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -727,7 +717,7 @@ void actSt10lEnemy3_2(volatile int a0)
 void actSt10lEneCam1(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -742,7 +732,7 @@ void actSt10lEneCam1(volatile int a0)
 void actSt10lEneCam2(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -757,7 +747,7 @@ void actSt10lEneCam2(volatile int a0)
 void actSt10lEneCam3(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -774,7 +764,7 @@ void actSt10lEneCam3(volatile int a0)
 void actSt10lEneKill(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -789,7 +779,7 @@ void actSt10lEneKill(volatile int a0)
 void actSt10lBoxA(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -806,7 +796,7 @@ void actSt10lBoxA(volatile int a0)
 void actSt10lBoxB(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt10L *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -836,7 +826,7 @@ void actSt10lGateXL(volatile int a0)
 
 void actSt10lFloorMain(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     sub->mainMail = floorMain_mes;
     while (1) {
@@ -846,7 +836,7 @@ void actSt10lFloorMain(volatile int a0)
 
 void actSt10lFloorSwitch(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     sub->mainMail = 0;
     lt_switch_layout(0x37);
@@ -868,7 +858,7 @@ void actSt10lFloorSwitch(volatile int a0)
 
 void actSt10lGondolaMain(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     sub->mainMail = gondolaMain_mes;
     while (1) {
@@ -878,7 +868,7 @@ void actSt10lGondolaMain(volatile int a0)
 
 void actSt10lGondolaSwitch(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     sub->mainMail = 0;
     lt_switch_layout(0x37);
@@ -957,7 +947,7 @@ void actSt10lBoxBChk(volatile int a0)
 
 void actSt10lChainMain(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     sub->mainMail = chainMain_mes;
     while (1) {
@@ -967,7 +957,7 @@ void actSt10lChainMain(volatile int a0)
 
 void actSt10lChainSwitch(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     sub->mainMail = 0;
     D_0063AA08 = 1;

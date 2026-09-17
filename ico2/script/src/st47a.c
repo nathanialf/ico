@@ -16,26 +16,9 @@
 #include "attackCheckBoundary.h"
 #include "item.h"
 #include "motionManager2.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    Act *act;          /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
+#include <libvu0.h>
+#include <string.h>
+#include "typedef.h"
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
@@ -72,10 +55,6 @@ void actSt47aEnd(void)
 
 /* the 16-byte work vector the stone-statue cutscene reuses for both motion
    directions (src/script.c's scpSekizou uses the same union) */
-typedef union Vec16 {
-    float f[4];
-    long long ll[2];
-} Vec16;
 
 extern int D_00639EA4;
 extern char *D_00639EAC;
@@ -94,7 +73,6 @@ extern void scpMaskGeneratorAll(void);
 extern void scpSekizouCheckPoint(void);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
@@ -233,11 +211,6 @@ extern int scpFadeChk(void);
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
-typedef struct Pad {
-    int unk00;        /* 0x00 */
-    int trg;          /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} Pad;
 
 extern Pad D_0028F8F0[];
 /* file-static sound handles, .sbss 0x0063C05C..0x0063C078 */
@@ -911,10 +884,6 @@ void actSt47aSekizo1Event(int x)
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec girlWayPos = {{2266.0f, -272.0f, 0.0f, 0.0f}};
 
@@ -928,7 +897,6 @@ static const ConstVec hane2GirlPos = {{-1031.0f, -1972.0f, -747.0f, 0.0f}};
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 /* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
 extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
-extern void memset(void *dst, int c, int n);
 
 void actSt47aGirlWay(volatile int a0)
 {

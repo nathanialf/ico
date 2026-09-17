@@ -22,9 +22,7 @@ typedef union GObjSubSlot {
     void *p;
 } GObjSubSlot;
 
-/* prototypes: their order is the inline tail's emission order */
-GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param);
-void GirlForceFieldGeo(void);
+#include "girlForceField.h"
 
 inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
 {
@@ -46,19 +44,6 @@ extern void *D_00639EA8;
 
 /* The per-object-kind action record table (0x4C bytes/entry, indexed by the
    GObj's kind id at +8) and the animation-record table it selects into. */
-typedef struct OaRecA {
-    char pad[0x34];
-    int x34;
-    char pad2[0x4C - 0x38];
-} OaRecA;
-
-typedef struct OaRecB {
-    void *x0;
-    int x4;
-    int x8;
-    int xC;
-    int x10;
-} OaRecB;
 
 extern OaRecA D_002C2DC8[];
 extern OaRecB D_002BC6E0[];

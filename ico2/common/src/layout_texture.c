@@ -46,8 +46,6 @@ typedef struct LtStageRange {
 } LtStageRange;
 
 extern LtStageRange D_005F5D50[];
-/* kept local: the declaration in layout_texture.h changes this TU codegen */
-extern void display_texture_fade_cancel_chk(int from, int to);
 extern int D_0063B5F0;
 extern int D_0063B614;
 extern int layout_boot_flag;
@@ -73,17 +71,10 @@ typedef struct LtProp {
 } LtProp;
 
 extern LtProp D_00533FE8[];
-/* prototypes: their order is the inline tail's emission order */
-void lt_switch_layout(int no);
-int lt_current_property_item(void);
-int lt_link_layout(int dir);
-int lt_prev_layout(int stage);
-int lt_next_layout(int stage);
-void lt_mask_property(int idx, int flag);
-void lt_default_mask_property(int idx, int flag);
-int lt_fade_status(void);
-void lt_set_item_select_func(int val);
-void lt_set_fade_mode(int val);
+
+#include "layout_texture.h"
+#include <string.h>
+#include "Texture.h"
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", display_texture_fade_cancel_chk);
 
@@ -134,10 +125,6 @@ extern int D_0063C408;
 extern int D_0028F8F4[];
 extern int D_0063B620;
 extern int D_0063AA00;
-/* kept local: the declaration in layout_texture.h changes this TU codegen */
-extern void display_primary_texture_layout(int no, int sel);
-/* kept local: the declaration in layout_texture.h changes this TU codegen */
-extern void default_item_select(int no);
 /* census name: display_texture (the name is also src/jimaku's global and
    src/kanban's file-local one). */
 extern void func_001BF960(int no, LtProperty *e);
@@ -473,15 +460,8 @@ extern char D_0061DDA8[]; /* "no texture loaded.(%s)\n" */
 extern char D_0061DDC0[]; /* "src/layout_texture.c" */
 extern char D_0063B630[]; /* "/" */
 extern char D_0063B638[]; /* "0" */
-extern char *strcpy(char *dst, const char *src);
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
-/* kept local: this TU's uses of tex_GetTextureNo do not fit the prototype in Texture.h */
-extern int tex_GetTextureNo(char *name);
-/* kept local: this TU's uses of tex_GetTextureData do not fit the prototype in Texture.h */
-extern void *tex_GetTextureData(int no);
-/* kept local: this TU's uses of tex_SetSamplingType do not fit the prototype in Texture.h */
-extern void tex_SetSamplingType(void *td, int a1, int a2);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 

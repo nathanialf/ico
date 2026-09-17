@@ -12,9 +12,14 @@
 #ifndef MICROCODE_H
 #define MICROCODE_H
 
-void mc_Reset(void);
-void mc_SetMicroCode();
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order MicroCode.c's inline tail has. */
 void mc_TransMicroCode(int a0, int a1);
+void mc_Reset(void);
+void mc_Init(void);
+
+void mc_SetMicroCode();
 void mc_setBaseOffset(int base, int pri);
 
 #endif /* MICROCODE_H */

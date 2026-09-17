@@ -11,18 +11,8 @@
 #include "gflag.h"
 #include "StageAnimation.h"
 #include "item.h"
-
-typedef struct ActMail {
-    int mail;          /* 0x00 */
-    void (*func)(int); /* 0x04 */
-    int unk08;         /* 0x08 */
-    int unk0C;         /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD4]; /* 0x00 */
-    ActMail *mail;    /* 0xD4 */
-} Act;
+#include <libvu0.h>
+#include "typedef.h"
 
 static ActMail sekizo_mes[2] = {{430}, {429}};
 
@@ -41,10 +31,6 @@ extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec girlWayPos = {{-10750.0f, -2122.0f, 0.0f, 0.0f}};
 
@@ -81,7 +67,6 @@ extern void scpPlayStart(int a0);
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */

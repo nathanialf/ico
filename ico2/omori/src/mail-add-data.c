@@ -37,10 +37,7 @@ static inline MailAdditionalData *getMailAdditionalDataTable(char *gop)
     return *(MailAdditionalData **)(*(char **)(gop + 0x164) + 0x684);
 }
 
-/* prototypes: their order is the inline tail's emission order */
-int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void *data);
-void *GetMailAdditionalData(char *gop, int mail);
-void ClearMailAdditionalData(char *gop);
+#include "mail-add-data.h"
 
 inline int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void *data)
 {

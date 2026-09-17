@@ -2,6 +2,9 @@
 #include "mv_main.h"
 #include "debug.h"
 #include "GsBase.h"
+#include <eekernel.h>
+#include <libmpeg.h>
+#include "mv_audiodec.h"
 
 /* --- the TU's whole .data run, VMA 0x2A7920..0x2A79B8 (0x98, = MAIN.MAP
    mv_main.o .data 0x98).  MAIN.MAP names the last two objects of the run,
@@ -49,10 +52,7 @@ typedef struct {
 MvDispEnv D_002A7978 = {0};
 
 extern int D_0063C320;
-extern void RotateThreadReadyQueue();
 extern int D_006F2B98[];
-/* kept local: this TU's uses of audioDecSendToIOP do not fit the prototype in mv_audiodec.h */
-extern void audioDecSendToIOP();
 extern int D_0063AC78;
 extern char D_0063AC80[];
 extern int D_006F2AD0[];
@@ -67,36 +67,23 @@ extern int D_0063C334;
 extern void strFileClose(char *self);
 extern int DIntr(void);
 extern int EIntr(void);
-extern int DisableDmac(int ch);
-extern void RemoveDmacHandler(int ch, int id);
-extern int DisableIntc(int ch);
-extern void RemoveIntcHandler(int ch, int id);
-extern void TerminateThread(int id);
-extern void DeleteThread(int id);
 /* kept local: this TU's uses of readBufDelete do not fit the prototype in mv_readbuf.h */
 extern void readBufDelete(int *self);
 /* kept local: this TU's uses of voBufDelete do not fit the prototype in mv_vobuf.h */
 extern void voBufDelete(MvVoBuf *self);
 /* kept local: this TU's uses of videoDecDelete do not fit the prototype in mv_videodec.h */
 extern int videoDecDelete(int *self);
-/* kept local: this TU's uses of audioDecDelete do not fit the prototype in mv_audiodec.h */
-extern void audioDecDelete(int *self);
 /* kept local: this TU's uses of dispDelete do not fit the prototype in mv_disp.h */
 extern void dispDelete(MvDispEnv *self);
 /* kept local: this TU's uses of dispClear do not fit the prototype in mv_disp.h */
 extern void dispClear(MvDispEnv *self, unsigned int col);
 extern int sceGsGetIMR(void);
 extern void sceGsPutIMR(long long imr);
-extern int EnableDmac(int ch);
-extern int EnableIntc(int ch);
-extern int GetThreadId(void);
-extern void ChangeThreadPriority(int id, int prio);
 extern int D_006FAC40[];
 extern int D_006FAC60[];
 extern int D_0063C338;
 extern long long D_0063C340;
 extern void sceGsSyncPath(int a0, int a1);
-extern int ReferThreadStatus(int id, int *st);
 extern int D_0063AC70;
 void movie_end(void);
 extern int sceCdStStat(void);
@@ -104,16 +91,6 @@ extern int sceCdStStat(void);
 extern void startDisplay(int on);
 /* kept local: this TU's uses of endDisplay do not fit the prototype in mv_disp.h */
 extern void endDisplay(void);
-/* kept local: this TU's uses of audioDecResume do not fit the prototype in mv_audiodec.h */
-extern void audioDecResume(int *self);
-/* kept local: this TU's uses of audioDecPause do not fit the prototype in mv_audiodec.h */
-extern int audioDecPause(int *self);
-/* kept local: this TU's uses of audioDecIsPreset do not fit the prototype in mv_audiodec.h */
-extern int audioDecIsPreset(int *self);
-/* kept local: this TU's uses of audioDecStart do not fit the prototype in mv_audiodec.h */
-extern void audioDecStart(int *self);
-/* kept local: this TU's uses of audioDecReset do not fit the prototype in mv_audiodec.h */
-extern void audioDecReset(int *self);
 /* kept local: this TU's uses of videoDecAbort do not fit the prototype in mv_videodec.h */
 extern void videoDecAbort(int *self);
 /* kept local: this TU's uses of videoDecGetState do not fit the prototype in mv_videodec.h */
@@ -132,7 +109,6 @@ extern int readBufBeginGet(int *self, void **p);
 extern int readBufEndGet(int *self, int n);
 /* kept local: this TU's uses of strFileRead do not fit the prototype in mv_strfile.h */
 extern int strFileRead(char *self, void *buf, int n, int *eof);
-extern int sceMpegDemuxPssRing(int *dec, void *p, int n, int a3, int p4);
 /* kept local: this TU's uses of voBufIsFull do not fit the prototype in mv_vobuf.h */
 extern int voBufIsFull(MvVoBuf *self);
 extern int D_0063AC74;
@@ -142,11 +118,8 @@ extern void dispCreate(MvDispEnv *self, int a1, int a2, int a3, int a4);
 extern int strFileOpen(char *self, int name);
 /* kept local: this TU's uses of readBufCreate do not fit the prototype in mv_readbuf.h */
 extern int readBufCreate(int *self);
-extern void sceMpegInit(void);
 /* kept local: this TU's uses of videoDecCreate do not fit the prototype in mv_videodec.h */
 extern int videoDecCreate(int *self);
-/* kept local: this TU's uses of audioDecCreate do not fit the prototype in mv_audiodec.h */
-extern int audioDecCreate(int *self, int a1, int a2);
 /* kept local: this TU's uses of videoDecSetStream do not fit the prototype in mv_videodec.h */
 extern int videoDecSetStream(int *self, int id, int a2, void *fn, void *arg);
 /* kept local: this TU's uses of voBufCreate do not fit the prototype in mv_vobuf.h */
@@ -165,13 +138,8 @@ typedef struct {
 } ThreadParam;
 
 extern int CreateThread(ThreadParam *th);
-extern int StartThread(int id, void *arg);
-extern int AddIntcHandler(int ch, void *fn, int a2);
-extern int AddDmacHandler(int ch, void *fn, int a2);
 /* kept local: this TU's uses of videoCallback do not fit the prototype in mv_videodec.h */
 extern int videoCallback();
-/* kept local: this TU's uses of pcmCallback do not fit the prototype in mv_audiodec.h */
-extern int pcmCallback();
 /* kept local: this TU's uses of videoDecMain do not fit the prototype in mv_videodec.h */
 extern void videoDecMain();
 /* kept local: this TU's uses of handler_endimage do not fit the prototype in mv_disp.h */

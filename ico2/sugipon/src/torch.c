@@ -37,18 +37,9 @@ static TorchGeoWork emptyTorchWork = {
     0, 0, 0, 0, {0.0f, 0.0f, 0.0f, 1.0f}, 0, 0, 65536, 65536, 0, -1, -1, -1, -1, -1, 0, 0,
 };
 
-extern void sceVu0UnitMatrix(void *m);
-/* kept local: the declaration in torch.h changes this TU codegen */
-extern void LightTorchOn(char *gobj);
-extern void sceVu0SubVector(void *a0, void *a1, void *a2);
-/* prototypes: their order is the inline tail's emission order */
-char *InitTorchGeo(char *a0, char *a1);
-void TorchDL(void);
-int IsTorchLightOn(char *a0);
-char *CheckTorchChainReaction(char *a0, float dist);
-void SetTorchLife(char *a0, int a1, int a2);
-void SetTorchChainReactionFlag(char *a0, int a1);
-void UpdateRealTimeGeometryValue(char *a0);
+#include "torch.h"
+#include <libvu0.h>
+#include "particleEffect.h"
 
 inline void SetTorchChainReactionFlag(char *a0, int a1)
 {
@@ -62,8 +53,6 @@ void torchOffSE(int a0)
 }
 
 extern int D_0063A44C;
-/* kept local: this TU's uses of SetParticleEffectByPartition do not fit the prototype in particleEffect.h */
-extern int SetParticleEffectByPartition(int id, float *pos, void *geo, int part);
 
 void LightTorchOn(char *gobj)
 {
@@ -111,9 +100,6 @@ void LightTorchOn(char *gobj)
     *(int *)(*(int *)(gobj + 0x15C) + 0x83C) = 1;
 }
 
-/* kept local: this TU's uses of DeleteParticleEffect do not fit the prototype in particleEffect.h */
-extern void DeleteParticleEffect(int a0);
-
 void LightTorchOff(char *gobj)
 {
     TorchGeoWork *w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
@@ -142,9 +128,6 @@ void LightTorchOff(char *gobj)
     }
 }
 
-/* kept local: this TU's uses of SetParticleEffectDrainLevel do not fit the prototype in particleEffect.h */
-extern void SetParticleEffectDrainLevel(int a0, float level);
-
 void torchDrainControl(char *gobj, float level)
 {
     TorchGeoWork *w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
@@ -166,9 +149,6 @@ void torchDrainControl(char *gobj, float level)
     }
 }
 
-/* kept local: this TU's uses of SetParticleEffectGeometry do not fit the prototype in particleEffect.h */
-extern void SetParticleEffectGeometry(int a0, void *a1, void *a2);
-
 void moveTorch(char *gobj, void *mtx)
 {
     TorchGeoWork *w = *(TorchGeoWork **)(*(char **)(gobj + 0x15C) + 0x830);
@@ -189,9 +169,6 @@ void moveTorch(char *gobj, void *mtx)
         SetParticleEffectGeometry(w->unk44, mtx, IdentityQuaternion);
     }
 }
-
-/* kept local: this TU's uses of SetParticleEffectPauseFlag do not fit the prototype in particleEffect.h */
-extern void SetParticleEffectPauseFlag(int a0, int a1);
 
 void setPauseFlag(char *gobj, int flag)
 {
@@ -364,11 +341,6 @@ void procChainReaction(char *gobj)
         LightTorchOn(gobj);
     }
 }
-
-/* kept local: this TU's uses of SetParticleEffectActiveSensing do not fit the prototype in particleEffect.h */
-extern int SetParticleEffectActiveSensing(int no, float *pos, void *quat);
-/* kept local: this TU's uses of ExecParticleEffect do not fit the prototype in particleEffect.h */
-extern void ExecParticleEffect(int no);
 
 void TorchGeo(char *gobj)
 {

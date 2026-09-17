@@ -1,9 +1,7 @@
 /* libgraph.a member graph010.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-
-extern int sceGsPutDispEnv();
-extern int sceGsPutDrawEnv();
+#include <libgraph.h>
 
 int sceGsSwapDBuff(void *a0, int a1)
 {

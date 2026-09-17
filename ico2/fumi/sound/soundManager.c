@@ -32,8 +32,8 @@ extern void SgCalledTickProc();
 extern void soundVBlank();
 /* kept local: this TU's uses of soundOutputModeGet do not fit the prototype in s_init.h */
 extern int soundOutputModeGet();
-/* prototypes: their order is the inline tail's emission order */
-void sndManager(void);
+
+#include "soundManager.h"
 
 inline void sndManager(void)
 {

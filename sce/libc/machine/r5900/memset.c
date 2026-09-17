@@ -1,21 +1,13 @@
 /* libc.a member memset.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-
-typedef struct PObjBlk {
-    char pad0[4];
-    unsigned int size; /* 0x4 */
-} PObjBlk;
+#include <string.h>
+#include <reent.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-typedef struct {
-    char *pos; /* 0x0 */
-    int len;   /* 0x4 */
-} StreamBuf;
 
 extern void fiprintf();
 extern void abort(void);
@@ -92,4 +84,3 @@ __asm__(".section .text\n"
         "    .set at\n");
 
 extern int _vfprintf_r(int *self, int subj, int b, void *args);
-extern void memset(void *a0, int a1, int a2);

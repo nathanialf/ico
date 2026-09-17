@@ -17,6 +17,7 @@
 #include "pool.h"
 #include "quaternion.h"
 #include "waterDot.h"
+#include <libvu0.h>
 
 typedef struct { /* 0x10 */
     float x, y, z, w;
@@ -29,10 +30,8 @@ typedef struct {
 } LightLineExt;
 
 extern LightLineExt *llExtGeo;
-/* prototypes: their order is the inline tail's emission order */
-void SelectBoyCrown(char *a0, int a1);
-void LightLineGeo(void);
-void SetBoyStonizedVisual(char *a0);
+
+#include "boy.h"
 
 void dispClothes(char *gobj)
 {
@@ -117,13 +116,8 @@ inline void SelectBoyCrown(char *a0, int a1)
 /* The display-list record's 0x38 word carries single bits set and cleared with
    ld/or/sd and ld/and/sd, and a 16-bit field two bytes into the same
    container reached with a plain sh; the same union src/enemyParts.c uses. */
-typedef union DlFlag {
-    int i;
-    long long ll;
-} DlFlag;
 
 extern void *D_0063A44C;
-extern void sceVu0UnitMatrix(void *a0);
 extern char D_004E62B0[];
 extern char D_004E65B0[];
 extern char D_004E68B0[];

@@ -10,31 +10,8 @@
 #include "gflag.h"
 #include "StageAnimation.h"
 #include "attackCheckBoundary.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    Act *act;          /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
-
-typedef union StVec {
-    float f[4];
-    long long ll[2];
-} StVec;
+#include "st04c.h"
+#include "typedef.h"
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
@@ -52,12 +29,6 @@ extern void scpFadeOut(float f, int a1, int a2, int a3);
 extern int scpFadeChk(void);
 /* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-
-typedef struct Pad {
-    int on;  /* 0x00 */
-    int trg; /* 0x04 */
-} Pad;
-
 extern Pad D_0028F8F0[];
 /* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern int scpEffectStart(StVec *a0, int a1);

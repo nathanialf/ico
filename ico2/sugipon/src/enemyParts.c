@@ -4,6 +4,8 @@
 #include "DisplayP2O.h"
 #include "RegistPacket.h"
 #include "quaternion.h"
+#include <stdlib.h>
+#include "sugiCommon.h"
 
 /* The packed colour word.  ROM copies it with lwl/lwr + swl/swr, which is
    gcc's unaligned block move: the type is a four-byte record of chars, so
@@ -179,10 +181,6 @@ static DlVtxTemplate footPrintVtxTemplate = {{-1, 1.0f, {0, 0, 0, 0, 0, 0}}};
 /* The display row's flag word is 64 bits wide: ROM sets and clears single
    bits in it with ld/or/sd and ld/and/sd, and reaches the 16-bit field two
    bytes into the same container with a plain sh. */
-typedef union DlFlag {
-    int i;
-    long long ll;
-} DlFlag;
 
 /* InitPointBlur is a public member of this TU with its own out-of-line body
    further down at its ROM slot; the January listing shows its rows (15-28)
@@ -309,7 +307,6 @@ char *InitEnemyFootPrint(int num)
 
 /* kept local: this TU's uses of YUnitVector do not fit the prototype in matrixDrive.h */
 extern char YUnitVector[];
-extern int rand(void);
 
 int ExecEnemyFootPrints(char *self)
 {

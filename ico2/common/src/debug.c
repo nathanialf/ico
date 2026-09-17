@@ -13,6 +13,11 @@
 #include "lws_kyomi.h"
 #include "gflag.h"
 #include "GsBase.h"
+#include <string.h>
+#include <stdio.h>
+#include <eekernel.h>
+#include "gamesys.h"
+#include "typedef.h"
 
 /* debug_exception_screen.c.inc (compiled into debug_exception.o) */
 
@@ -23,12 +28,6 @@ typedef struct {
 typedef struct {
     int x, y, w, h;
 } FR;
-
-typedef struct {
-    char _0[0x20];
-    int f_20;
-    char _24[0x18];
-} GsysObjInfo;
 
 extern char D_0061B440[];
 extern char D_0063AE78[];
@@ -60,8 +59,6 @@ void debug_openLog(void)
 /* sceWrite returns the byte count (SCE sifdev); the unused return value is
    what makes $v0 live-and-dying at each call site. */
 extern int sceWrite();
-extern int strlen();
-extern void vsprintf();
 
 void debug_LogPrintf(const char *fmt, ...)
 {
@@ -88,7 +85,6 @@ extern char D_0061B640[];
 extern char D_0061B570[];
 extern char D_0063AE98[];
 extern char D_0063AEA0[];
-extern int sprintf();
 
 void debug_SaveDebugOptionFile(void)
 {
@@ -115,10 +111,7 @@ void debug_SaveDebugOptionFile(void)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_GetDebugOption);
 
-extern int AddDmacHandler();
 extern unsigned int D_0063AE8C;
-extern void EnableDmac();
-extern void RemoveDmacHandler();
 
 void debug_SetDmaCallback(void)
 {
@@ -445,35 +438,6 @@ typedef struct {
     int x, y, z, w;
 } DbgVtx;
 
-typedef struct {
-    int gobj;
-    float level;
-    float f8;
-    float fC;
-    float f10;
-    int timer;
-    unsigned char b18;
-    unsigned char b19;
-    unsigned char b1A;
-    unsigned char b1B;
-} BrainTarget;
-
-typedef struct {
-    int girl;
-    BrainTarget *cur;
-    int w8;
-    int wC;
-    int w10;
-    float f14;
-    float f18;
-    short h1C;
-    short _1E;
-    float f20;
-    short idx;
-    short _26;
-    BrainTarget tgt[0x28];
-} Brain;
-
 extern Brain D_002A5580[];
 extern float brainGetLevel(Brain *b, BrainTarget *t);
 /* kept local: this TU's uses of gif_Line do not fit the prototype in GifPacket.h */
@@ -605,7 +569,6 @@ void debug_brainBar(void)
 extern char D_00704680[];
 extern char D_0063AE90[];
 extern int D_0063B13C;
-extern void strcat(char *dst, char *src);
 
 int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
 {
@@ -951,7 +914,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_Mode);
 extern char D_0061BC38[];
 extern char D_0063AF70[];
 extern char D_0063AF78[];
-extern int sprintf();
 
 int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int),
                              int a7)
@@ -974,7 +936,6 @@ int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, 
 }
 
 extern int D_0063AF90[];
-extern int sprintf();
 
 void getLineBuffer(int a0, int a1, int a2)
 {
@@ -1119,7 +1080,6 @@ extern int mpegPlayReturnStage;
 extern int enable_game_pause;
 extern int D_0063A650;
 extern int D_0063AA08;
-extern char *strstr(const char *s, const char *sub);
 
 int debug_SelectStageMain(int ret, int stage)
 {
@@ -1153,12 +1113,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_SelectStage);
 /* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
    (debug_selectFile forms the table base as mc+0x4C0 and the name as
    mc + i*0x40 + 0x4E0). */
-typedef struct {
-    char _0[0x10];
-    int size; /* 0x10 */
-    char _14[0xC];
-    char name[0x20]; /* 0x20 */
-} McDirEnt;
 
 typedef struct {
     long long f0; /* 0x00 -- iosMc flag word, 64-bit */
@@ -1356,8 +1310,6 @@ extern void iosMcSaveIconBlock(McReq *mc);
 extern void iosMcSaveProductBlock(McReq *mc);
 /* kept local: this TU's uses of iosMcSaveGameBlock do not fit the prototype in mcard.h */
 extern void iosMcSaveGameBlock(McReq *mc, void *buf);
-/* kept local: this TU's uses of gamesysMemorySave do not fit the prototype in gamesys.h */
-extern void gamesysMemorySave(void *a0, void *a1, int a2);
 extern int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
                                     int (*fn)(int, int), int a7);
 
@@ -1443,8 +1395,6 @@ extern char D_0061BF18[];
 extern void iosMcLoadProductBlock(McReq *mc);
 /* kept local: this TU's uses of iosMcLoadGameBlock do not fit the prototype in mcard.h */
 extern void iosMcLoadGameBlock(McReq *mc, void *buf);
-/* kept local: this TU's uses of gamesysMemoryLoad do not fit the prototype in gamesys.h */
-extern void gamesysMemoryLoad(void *a0, void *a1, int a2);
 
 int debug_mcLoadMainBlock(McReq *mc)
 {
@@ -1528,7 +1478,6 @@ extern int D_0063AFF8;
 extern int debug_selectFile(McReq *mc);
 /* kept local: this TU's uses of iosMcDelete do not fit the prototype in mcard.h */
 extern void iosMcDelete(McReq *mc);
-extern char *strcpy(char *dst, const char *src);
 
 int debug_mcDeleteFile(McReq *mc)
 {
@@ -1702,8 +1651,6 @@ int debug_SETest(int reset)
     return r;
 }
 
-extern void memset();
-extern void strcat();
 extern int SgGetSlotStatus(int a0, int slot);
 extern char D_0063B050[];
 extern char D_0063B058[];

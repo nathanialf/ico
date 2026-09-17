@@ -3,6 +3,9 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include "common.h"
+#include <eekernel.h>
+#include <sifrpc.h>
+#include <string.h>
 
 typedef struct {
     char _0[0x50];
@@ -12,9 +15,6 @@ typedef struct {
 } P16Ent;
 
 extern char D_00736140[];
-extern void FlushCache(int mode);
-extern int sceSifInitRpc(int mode);
-extern int sceSifBindRpc(void *cd, unsigned int sid, int mode);
 
 int SgSndn2RemoteInit(void)
 {
@@ -40,7 +40,6 @@ int SgSndn2RemoteInit(void)
 
 extern char D_00736140[];
 extern void *_SgGetComContext(void);
-extern int sceSifCheckStatRpc(char *a0);
 
 int SgSndn2RemoteSync(void)
 {
@@ -196,7 +195,6 @@ int SgVabOpenFakeBody(int *a0, int a1)
 extern void *_SgGetSeqContext(int a0);
 extern void *_SgGetSlotContext(int a0);
 extern void *_SgGetVabContext(int a0);
-extern void memset(void *a0, int a1, int a2);
 
 int SgVabClose(int a0)
 {

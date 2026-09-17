@@ -12,6 +12,17 @@
 #ifndef ACT_BIRD_H
 #define ACT_BIRD_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order act_bird.c's inline tail has. */
+float vector_angle_degree(void *a0, void *a1);
+void subBirdControl(void *volatile gobj);
+void subBirdCollision(void *volatile gobj);
+void actBirdStart(void *a0);
+char *InitBirdGeo(char *a0, void *a1);
+void BirdAI(void);
+void _ACTSendMailToBirdAll(void *a0, void *a1);
+
 void Debug_StickControl(char *self);
 void _ACTSendMailToBird(void *a0, void *a1, void *a2);
 void subBirdBrainMain();

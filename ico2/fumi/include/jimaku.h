@@ -12,9 +12,14 @@
 #ifndef JIMAKU_H
 #define JIMAKU_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order jimaku.c's inline tail has. */
+void jimakuManager(void);
+void jimakuUndisp(void);
+
 void jimakuBegin(int a0);
 void jimakuEnd(void);
 void jimakuJump(int a0);
-void jimakuUndisp(void);
 
 #endif /* JIMAKU_H */

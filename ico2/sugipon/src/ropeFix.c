@@ -2,11 +2,8 @@
 #include "typedef.h"
 #include "gobj.h"
 #include "chain.h"
+#include "ropeFix.h"
 
-/* header prototypes (order fixes the inline tail) */
-/* prototypes: their order is the inline tail's emission order */
-int InitRopeFixGeo(void);
-int InitRopeFixGeo(void);
 /* kept local: this TU's uses of p2o_DispVU1DObjMulti do not fit the prototype in DisplayP2O.h */
 extern int p2o_DispVU1DObjMulti(int a0);
 /* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */

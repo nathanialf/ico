@@ -10,24 +10,11 @@ typedef struct {
    `tail`, `gif` and `end` are the back-pointers into the packet that
    gif_EndPacket patches once the packet's size is known (DMA tag, source
    chain tail, VIF DIRECT code and GIF tag respectively). */
-typedef struct {
-    int cur;
-    int *buf[2];
-    char *dma;
-    unsigned long long *ptr;
-    char *tail;
-    char *gif;
-    char *end;
-} GifDpk;
 
 extern GifDpk D_004EE6F0;
 
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMA tag, GIF tag, A+D data) or as one of its two 32-bit halves. */
-typedef union {
-    long long d;
-    int w[2];
-} GifPkWord;
 
 /* INTERIM (same construct as getSkeltonFocusNode in src/motionManager2.c):
    the listing inlines gif_SetGsReg (body line 233, parameter line 224) into

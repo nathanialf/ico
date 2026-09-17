@@ -12,12 +12,16 @@
 #ifndef HAND_CAMERA_H
 #define HAND_CAMERA_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order hand-camera.c's inline tail has. */
 void ClearHandCameraCorrect(void);
+void InitHandCameraCorrect(void);
+void SetLimitHandCameraCorrect(float a0, float a1);
+
 void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14);
 void HandyCamera_TargetMoveType(void *a0, void *a1);
-void InitHandCameraCorrect(void);
 void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y);
 void SetCurrentInfo(void *a0, void *a1);
-void SetLimitHandCameraCorrect(float a0, float a1);
 
 #endif /* HAND_CAMERA_H */

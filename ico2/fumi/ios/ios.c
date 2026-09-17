@@ -5,11 +5,10 @@
 #include "message.h"
 #include "thread.h"
 #include "s_init.h"
+#include <eekernel.h>
+#include <sifrpc.h>
 
 extern int D_0063A3E0;
-extern int sceSifAllocIopHeap(int size);
-/* prototypes: their order is the inline tail's emission order */
-int iosSifAllocIopHeapDebug(int size, char *file, int line);
 
 inline int iosSifAllocIopHeapDebug(int size, char *file, int line)
 {
@@ -49,11 +48,9 @@ extern int IosStgMgrLock;
 extern int D_00639ED8;
 extern int screen_offset_y;
 extern int fall_death_active;
-extern int CreateSema(SemaParam *p);
 /* kept local: this TU's uses of InitKeyInput do not fit the prototype in keyInput.h */
 extern void InitKeyInput();
 extern void SgSndn2RemoteInit(void);
-extern void sceSifInitIopHeap(void);
 
 void ios_init_plus(void)
 {

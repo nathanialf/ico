@@ -12,8 +12,12 @@
 #ifndef IOS_H
 #define IOS_H
 
-void iosInitialize(void);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order ios.c's inline tail has. */
 int iosSifAllocIopHeapDebug(int size, char *file, int line);
+
+void iosInitialize(void);
 void ios_init_plus(void);
 
 #endif /* IOS_H */

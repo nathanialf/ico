@@ -15,37 +15,24 @@
 #include "motionManager2.h"
 #include "tableSin.h"
 #include "wireLetter.h"
+#include <math.h>
+#include <libvu0.h>
+#include <string.h>
+#include <stdio.h>
+#include "typedef.h"
 
 /* kept local: this TU's uses of ExecMotionOrient do not fit the prototype in motionOrientManager.h */
 extern void ExecMotionOrient();
 /* kept local: this TU's uses of iosOmSendMail do not fit the prototype in obj_manager.h */
 extern void iosOmSendMail(void *a0);
-extern float acosf(float a0);
-extern float sceVu0InnerProduct(void *a0, void *a1);
-extern void sceVu0Normalize(void *dst, void *src);
 /* Actor sub-thread body: the actor scheduler resumes this frame after every
    _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
 /* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
 extern int SetMotionRequest(void *a0, int id, void *work);
 extern char D_00555788[];
 extern void *D_0063A438;
-extern void memset(void *dst, int c, int n);
 /* kept local: this TU's uses of InitMotionOrient do not fit the prototype in motionOrientManager.h */
 extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
-
-typedef union {
-    int i;
-    float f;
-} IntFloat;
-
-/* prototypes: their order is the inline tail's emission order */
-float vector_angle_degree(void *a0, void *a1);
-void subBirdControl(void *volatile gobj);
-void subBirdCollision(void *volatile gobj);
-void actBirdStart(void *a0);
-char *InitBirdGeo(char *a0, void *a1);
-void BirdAI(void);
-void _ACTSendMailToBirdAll(void *a0, void *a1);
 
 inline float vector_angle_degree(void *a0, void *a1)
 {
@@ -55,11 +42,6 @@ inline float vector_angle_degree(void *a0, void *a1)
     sceVu0Normalize(v1, a1);
     return radians_to_degrees(acosf(sceVu0InnerProduct(v0, v1)));
 }
-
-extern void sceVu0CopyVector(void *dst, void *src);
-extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
-extern void sceVu0DivVector(void *dst, void *src, float s);
 
 void interp_vector_sa(float *dst, float *a, float *b, float sa)
 {
@@ -286,7 +268,6 @@ extern void _CopyVector(void *dst, void *src);
 extern void CopyQuaternion(void *dst, void *src);
 extern void sceVu0CopyVector(void *dst, void *src);
 extern float _GetLength(void *a, void *b);
-extern int sprintf(char *buf, const char *fmt, ...);
 extern void debug_StdPrintfDummy(const char *fmt, ...);
 extern int IdentityQuaternion[];
 extern int D_0028F4C0[];
@@ -882,11 +863,8 @@ inline void actBirdStart(void *a0)
 }
 
 extern int matrixptr;
-extern void sceVu0TransposeMatrix(void *dst, void *src);
-extern void sceVu0UnitMatrix(void *m);
+
 /* libvu0 sceVu0MulMatrix; the repo carries it under its vendor placeholder. */
-extern void sceVu0MulMatrix(void *dst, void *a, void *b);
-extern void vsprintf();
 
 void Debug_WireString_Bird(float *pos, char *fmt, ...)
 {

@@ -9,23 +9,9 @@
 #include "camera-root.h"
 #include "gflag.h"
 #include "StageAnimation.h"
+#include "act.h"
+#include "typedef.h"
 
-typedef struct ActMail {
-    int mail;          /* 0x00 */
-    void (*func)(int); /* 0x04 */
-    int unk08;         /* 0x08 */
-    int unk0C;         /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD4]; /* 0x00 */
-    ActMail *mail;    /* 0xD4 */
-} Act;
-
-/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
-extern Act *actInitialize(int a0);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
 extern ActMail D_004FAF30[];
 extern ActMail D_004FAF50[];
 extern ActMail D_004FAF70[];
@@ -67,16 +53,9 @@ void actSt17aDoor(volatile int a0)
     }
 }
 
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    int act;           /* 0x164 */
-} PObjGObj;
-
 extern long long D_00622F60[];
 /* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
-extern int actCreateSubThread(void *entry, int prio);
 /* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern ActMail D_004FAF90[];
@@ -274,12 +253,6 @@ void actSt17aHasiChk(volatile int a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st17a", actSt17aHasiEffect);
 
-typedef struct PadState {
-    int unk00;        /* 0x00 */
-    int flags;        /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} PadState;
-
 extern PadState D_0028F8F0[];
 /* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
@@ -433,8 +406,6 @@ void actSt17aSekizoEvent(int x)
 }
 
 extern int *D_00639EA4;
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait();
 /* kept local: this TU's uses of scpGetWallCollision do not fit the prototype in script.h */
 extern void scpGetWallCollision(float a0, float a1, float a2, float a3, float a4, float a5);
 

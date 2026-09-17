@@ -229,6 +229,17 @@ struct Obj7F0 {
     int      f_40;        /* 0x40 */
 };
 
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN.  The 16-byte aligned float
+ * quadword the VU0 entry points take and return.  Three TUs (ito/src/stage_orient,
+ * sugipon/src/clothAnimation, sugipon/src/waterDot) carried character-for-character
+ * the same local definition, which is what makes it one type rather than three;
+ * the alignment is the ROM's, whose copies of these values are lq/sq quadword
+ * moves.  The name is this repository's: no disc artefact names a type.
+ */
+typedef struct {
+    float x, y, z, w;
+} __attribute__((aligned(16))) VECTOR;
+
 /* ------------------------------------------------------------------ *
  * (c) R5900 opcodes with no C spelling.
  *
@@ -409,5 +420,281 @@ struct Obj7F0 {
 #define VU0_NOREORDER_BEGIN()  __asm__ __volatile__(".set noreorder")
 #define VU0_NOREORDER_END()    __asm__ __volatile__(".set reorder")
 
+
+
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 3 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct StageSetting {
+    float flatLightDir[3][4]; /* 0x000 */
+    float flatLightCol[3][4]; /* 0x030 */
+    float ambientCol[4];      /* 0x060 */
+    char pad070[0x84];        /* 0x070 */
+    int motionBlur;           /* 0x0F4 */
+    char pad0F8[0xC4];        /* 0x0F8 */
+    int subMotionBlur[5];     /* 0x1BC */
+} StageSetting;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 3 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef union {
+    int c[4];
+    long long ll[2];
+} Col4;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef struct {
+    int gobj;
+    float level;
+    float f8;
+    float fC;
+    float f10;
+    int timer;
+    unsigned char b18;
+    unsigned char b19;
+    unsigned char b1A;
+    unsigned char b1B;
+} BrainTarget;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 3 TUs. */
+typedef struct {
+    int cur;
+    int *buf[2];
+    char *dma;
+    unsigned long long *ptr;
+    char *tail;
+    char *gif;
+    char *end;
+} GifDpk;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 3 TUs. */
+typedef union {
+    long long d;
+    int w[2];
+} GifPkWord;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef struct {
+    char _0[0x20];
+    int f_20;
+    char _24[0x18];
+} GsysObjInfo;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 3 TUs. */
+typedef union {
+    int i;
+    float f;
+} IntFloat;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef struct {
+    char _0[0x10];
+    int size; /* 0x10 */
+    char _14[0xC];
+    char name[0x20]; /* 0x20 */
+} McDirEnt;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef union {
+    float f[4];
+    int i[4];
+} Vec4u;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 12 TUs that carried 3 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct PadState {
+    int unk00;        /* 0x00 */
+    int flags;        /* 0x04 */
+    char unk08[0x50]; /* 0x08 */
+} PadState;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 8 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef union Vec16 {
+    float f[4];
+    long long ll[2];
+} Vec16;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 6 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    unsigned char _0[0x20];
+    char name[0x80];         /* 0x20, the stage name icoMisc prints */
+    short ent[0x18];         /* 0xA0 */
+    unsigned char _d0[0x7C];
+    int mot;                 /* 0x14C, the motion-set id */
+    void (*endproc)(void);   /* 0x150 */
+    void (*initproc)(void);  /* 0x154, the per-stage init hook */
+    unsigned char _158[0x34];
+    unsigned int attr;       /* 0x18C */
+    unsigned char _190[0x4];
+} StgPre;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 12 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef union {
+    float f[4];
+    long long ll[2];
+} Vec4;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 5 TUs that carried 4 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    float a[4];   /* 0x00 start point   */
+    float b[4];   /* 0x10 end point     */
+    float pos[4]; /* 0x20 clipped point */
+    char _30[0x40];
+    float f_70;
+    char _74[0x14];
+    int f_88;
+    char _8c[0x08];
+    int f_94;
+    char _98[0x28];
+} ClipWork;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef struct {
+    int girl;
+    BrainTarget *cur;
+    int w8;
+    int wC;
+    int w10;
+    float f14;
+    float f18;
+    short h1C;
+    short _1E;
+    float f20;
+    short idx;
+    short _26;
+    BrainTarget tgt[0x28];
+} Brain;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 5 TUs. */
+typedef union ActStatus {
+    unsigned long long ll;
+    int i[2];
+} ActStatus;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef struct ViTs {
+    long long pts; /* 0x00 -1 when the pack carried none */
+    long long dts; /* 0x08 */
+    int pos;       /* 0x10 byte position in the data ring */
+    int len;       /* 0x14 bytes the pair covers, 0 when the slot is free */
+} ViTs;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef struct {
+    int w[13];
+} WayRec;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 10 TUs that carried 4 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct Pad {
+    int unk00;        /* 0x00 */
+    int trg;          /* 0x04 */
+    char unk08[0x50]; /* 0x08 */
+} Pad;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 4 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    float pos[3];
+    float rot[3];
+    int f_18;
+    int f_1C;
+    int f_20;
+    int f_24;
+} ExitData;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct ActMail {
+    int mail;                   /* 0x00 */
+    void (*func)(volatile int); /* 0x04 */
+    int unk08;                  /* 0x08 */
+    int unk0C;                  /* 0x0C */
+} ActMail;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 17 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef union {
+    float f[4];
+    long long d[2];
+} ConstVec;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 30 TUs that carried 8 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct PObjGObj {
+    char pad00[0x4]; /* 0x000 */
+    int f04;         /* 0x004 */
+    int f08;         /* 0x008 */
+    int f0C;         /* 0x00C */
+    char pad10[0x30];
+    int f40; /* 0x040 */
+    char pad44[0x4];
+    int f48; /* 0x048 */
+    int f4C; /* 0x04C */
+    int f50; /* 0x050 */
+    char pad54[0x8];
+    int f5C; /* 0x05C */
+    int f60; /* 0x060 */
+    char pad64[0x100];
+    int act; /* 0x164, the actor/action-state object */
+    char pad168[0x4];
+    int f16C; /* 0x16C */
+} PObjGObj;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct Act {
+    char unk00[0x20];  /* 0x00 */
+    ActStatus flags20; /* 0x20 */
+    char unk28[0xC];   /* 0x28 */
+    int unk34;         /* 0x34 */
+    char unk38[0x68];  /* 0x38 */
+    long long flags;   /* 0xA0 */
+    char unkA8[0x28];  /* 0xA8 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
+    char unkD8[0x20C]; /* 0xD8 */
+    int unk2E4;        /* 0x2E4 */
+} Act;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    float scale[3];        /* 0x00 */
+    float rot[3];          /* 0x0C */
+    float pos[3];          /* 0x18 */
+    int f24;               /* 0x24 */
+    int *f28;              /* 0x28 */
+    int mdl;               /* 0x2C */
+    int f30;               /* 0x30 */
+    char _34[4];           /* 0x34 */
+    int f38;               /* 0x38 */
+    char _3C[4];           /* 0x3C */
+    unsigned short f40;    /* 0x40 */
+    unsigned short f44;    /* 0x42 */
+    unsigned short parent; /* 0x44 */
+    unsigned char kind;    /* 0x46 */
+    unsigned char f47;     /* 0x47 */
+    unsigned int f48;      /* 0x48 */
+} GenGeo;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    char pad[0x34];
+    int x34;
+    char pad2[0x4C - 0x38];
+} OaRecA;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    int x0;
+    int x4;
+    int x8;
+    int xC;
+    int x10;
+} OaRecB;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    float m[16];
+} Mtx44 __attribute__((aligned(16)));
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    int _0;
+    int trg; /* 0x4 */
+    int _8;
+    int rep; /* 0xC */
+} GsbPad;
 
 #endif /* TYPEDEF_H */

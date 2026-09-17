@@ -1,21 +1,7 @@
 /* libgcc.a member __main.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-
-typedef struct {
-    unsigned int type;
-    int f4;
-    int f8;
-    int fC;
-} PCmpV;
-
-typedef struct {
-    unsigned int type;
-    int f4;
-    int f8;
-    int fC;
-    unsigned long long f10;
-} PCmpV2;
+#include "libgcc2.h"
 
 typedef void (*func_ptr)(void);
 /* libgcc2.c's DO_GLOBAL_DTORS_BODY: the cursor is this member's own file

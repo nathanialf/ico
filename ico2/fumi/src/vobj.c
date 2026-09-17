@@ -1,8 +1,8 @@
 #include "common.h"
 #include "lineManager.h"
 #include "matrixDrive.h"
+#include <libvu0.h>
 
-extern void sceVu0UnitMatrix(void *a0);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */

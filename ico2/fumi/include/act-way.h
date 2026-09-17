@@ -12,6 +12,11 @@
 #ifndef ACT_WAY_H
 #define ACT_WAY_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order act-way.c's inline tail has. */
+int WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3);
+
 int ACTWayExec_Position(char *self, int a1, int a2, float speed, int a3);
 int ACTWayMove_BeginDetail(void *obj, float *b, float *a, void *tgt, int e, int f);
 int ACTWayMove_NextDetail(void *obj, char *w, float *a, int d, int e);

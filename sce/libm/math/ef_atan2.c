@@ -1,6 +1,8 @@
 /* libm.a member ef_atan2.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
+#include <math.h>
+#include <math_private.h>
 
 extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
@@ -10,10 +12,6 @@ extern float __kernel_sinf(float x, float y, int iy);
    re-derived, not copied from any SDK.  This member's use stands for a
    Sony/newlib-internal math_private.h this tree cannot name: the listing
    attributes no row to such a header, so the definition is kept per member. */
-typedef union {
-    float value;
-    unsigned int word;
-} ieee_float_shape_type;
 
 #define GET_FLOAT_WORD(i, d)                                                                       \
     do {                                                                                           \
@@ -27,9 +25,6 @@ typedef union {
         sf_u.word = (i);                                                                           \
         (d) = sf_u.value;                                                                          \
     } while (0)
-
-extern float atanf(float x);
-extern float fabsf(float x);
 
 static const float tiny = 1.0e-30;
 

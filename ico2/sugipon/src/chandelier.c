@@ -2,13 +2,8 @@
 #include "typedef.h"
 #include "gobj.h"
 #include "matrixDrive.h"
+#include "chandelier.h"
 
-/* header prototypes (order fixes the inline tail) */
-/* prototypes: their order is the inline tail's emission order */
-int InitChandelierGeo(void);
-int InitChandelierGeo(void);
-/* kept local: the declaration in matrixDrive.h changes this TU codegen */
-extern void CopyMatrix();
 /* kept local: this TU's uses of SetRopeFixPoint do not fit the prototype in rope.h */
 extern void SetRopeFixPoint();
 /* kept local: this TU's uses of p2o_DispVU1DObjMulti do not fit the prototype in DisplayP2O.h */

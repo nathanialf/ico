@@ -9,6 +9,8 @@
 #include "geometryManager.h"
 #include "matrixDrive.h"
 #include "motionManager2.h"
+#include <libvu0.h>
+#include <math.h>
 
 typedef void (*func_001AE8F0_FnPtr)(int *buf, int a2);
 
@@ -18,20 +20,6 @@ typedef struct {
     int no;
     int stage;
 } GamesysObjInfoReq;
-
-typedef struct {
-    short flag;
-    unsigned short no;
-    unsigned short stage;
-    short pad06;
-    int time;
-    int uniq;
-    float pos[3];
-    float pad1C;
-    float rot[3];
-    float pad2C;
-    int work[4];
-} GamesysObjInfo;
 
 typedef union {
     long long flag;
@@ -111,10 +99,8 @@ void gamesysObjInfoLoad(void *h)
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/gamesys", gamesysObjInfoEmptyAreaSearch);
 
 extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
-extern float atan2f(float y, float x);
 extern char D_0061D300[];
 extern void memset(char *p, int a, int n);
 extern int stage_no;

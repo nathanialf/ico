@@ -10,6 +10,9 @@
 #include "motionManager2.h"
 #include "motionOrientManager.h"
 #include "tableSin.h"
+#include <stdio.h>
+#include <libpad.h>
+#include <string.h>
 
 struct MvObj;
 
@@ -243,11 +246,6 @@ typedef struct MvPad {
 } MvPad;
 
 /* motionOrientManager's table row (same object as src/motionOrientManager.c) */
-typedef struct MotionOrientEntry {
-    int id;
-    int kind;
-    int pad[4];
-} MotionOrientEntry;
 
 /* one row of the orient csv the viewer browses: name + the kind it selects */
 typedef struct OriRow {
@@ -275,7 +273,6 @@ extern int D_0063BA0C;
 extern float D_0063BA14;
 extern int D_0063BA2C;
 extern int D_0063C4AC;
-extern MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind);
 /* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt, ...);
 /* kept local: this TU's uses of debug_SelectCsvWindowWithLine do not fit the prototype in debug.h */
@@ -381,7 +378,6 @@ extern char D_006207A8[];
 extern char D_006207D0[];
 extern char D_0063BA38[];
 extern int D_0063BA30;
-extern void sprintf();
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionViewer", motOriMenuProc);
 
@@ -391,7 +387,6 @@ extern char D_006207C0[];
 extern char D_0063BA40[];
 extern char D_0063BA48[];
 extern char D_0063BA50[];
-extern int scePadRead(int port, int slot, unsigned char *rdata);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionViewer", modeMessage);
 
@@ -504,7 +499,6 @@ extern int D_0063BA70;
 extern float D_0063BA74;
 extern char *matrixptr;
 extern void dispPlane(MvVec *plane, MvVec *pos);
-extern void *memset(void *dst, int c, int n);
 extern void sceVu0ApplyMatrix(MvVec *dst, void *m, MvVec *src);
 extern float sceVu0InnerProduct(MvVec *a, MvVec *b);
 extern void sceVu0TransposeMatrix(void *dst, void *src);

@@ -12,8 +12,12 @@
 #ifndef WINDMANAGER_H
 #define WINDMANAGER_H
 
-float GetRegularizedWindSpeed(void *pos);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order windManager.c's inline tail has. */
 void ReinitWindManager(void);
 void SetWindManager(float a, float b, float c, float d, float e, float f, float g, float h);
+void InitWindManager(int no);
+float GetRegularizedWindSpeed(void *pos);
 
 #endif /* WINDMANAGER_H */

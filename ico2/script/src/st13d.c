@@ -3,11 +3,7 @@
 #include "gflag.h"
 #include "script.h"
 #include "geometryManager.h"
-
-/* header prototypes (order fixes the inline tail) */
-/* prototypes: their order is the inline tail's emission order */
-void actSt13dInit(void);
-void actSt13dInit(void);
+#include "st13d.h"
 
 inline void actSt13dInit(void) {}
 

@@ -7,15 +7,9 @@
 #include "matrixDrive.h"
 #include "motionManager.h"
 #include "quaternion.h"
-
-/* kept local: the declaration in motionOrientManager.h changes this TU codegen */
-extern void shiftMotionData(int a0, int a1, int a2, int a3);
-
-typedef struct {
-    int id;
-    int kind;
-    int pad[4];
-} MotionOrientEntry;
+#include "motionOrientManager.h"
+#include <stdio.h>
+#include "streamMotionManager.h"
 
 extern MotionOrientEntry D_002ADD60[];
 extern MotionOrientEntry D_002BC4A8;
@@ -31,11 +25,6 @@ struct MotOriFloat {
 };
 
 #define MOWORK(self) (*(char **)((char *)(self) + 0x15C))
-
-/* kept local: the declaration in motionOrientManager.h changes this TU codegen */
-extern int parallelMotionShift(void *self);
-/* kept local: the declaration in motionOrientManager.h changes this TU codegen */
-extern void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
 
 typedef struct MotOriTrigEnt {
     /* 0x000 */ char pad000[0xC0];
@@ -53,16 +42,6 @@ typedef struct MotOriTrigEnt {
 
 extern MotOriTrigEnt D_0055FE58[];
 extern int D_0028F4D4[];
-/* prototypes: their order is the inline tail's emission order */
-MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind);
-MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind);
-void CopyBlendMotionDataSource(void *self, short ang);
-void SetParallelMotionTableWithNoRequest(void *self, int a1, int a2);
-void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4);
-void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5);
-unsigned int GetCurrentMotionDirectionAdjustFlag(char *a0);
-int ExecuteSlipProc(char *a0);
-int ExecutePauseSlipProc(char *a0);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", orientDebug);
 
@@ -79,7 +58,6 @@ typedef struct MotOriSub {
 } MotOriSub;
 
 extern MotOriSub D_00623470[];
-extern int sprintf(char *buf, char *fmt, ...);
 
 static inline void checkMotionKind(int i, int j)
 {
@@ -388,17 +366,6 @@ void getStreamShapeGeometry(void *self, void *sm)
     }
 }
 
-/* kept local: this TU's uses of GetDataSizeOfStreamMotion do not fit the prototype in streamMotionManager.h */
-extern int GetDataSizeOfStreamMotion(void *s);
-/* kept local: this TU's uses of GetStreamMotionData do not fit the prototype in streamMotionManager.h */
-extern float GetStreamMotionData(void *dst, void *s);
-/* kept local: this TU's uses of GetStreamMotionDataNext do not fit the prototype in streamMotionManager.h */
-extern void GetStreamMotionDataNext(void *dst, void *s);
-/* kept local: the declaration in motionOrientManager.h changes this TU codegen */
-extern void getStreamShapeGeometry(void *self, void *m);
-/* kept local: the declaration in motionOrientManager.h changes this TU codegen */
-extern void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);
-
 void getStreamMotion(void *self)
 {
     void *s = *(void **)(MOWORK(self) + 0x470);
@@ -424,14 +391,6 @@ extern void *D_00639EA4;
 extern void *D_00639EA8;
 extern int D_0063B9C4;
 extern int D_0063B160;
-/* kept local: the declaration in motionOrientManager.h changes this TU codegen */
-extern void orientDebug(void *self, int mode, int col);
-/* kept local: the declaration in motionOrientManager.h changes this TU codegen */
-extern void normalMotionShift(void *self, int a1);
-/* kept local: the declaration in motionOrientManager.h changes this TU codegen */
-extern void getMotionGeometry(void *self);
-/* kept local: the declaration in motionOrientManager.h changes this TU codegen */
-extern void getShapeGeometry(void *self);
 
 void ExecMotionOrient(void *self)
 {

@@ -21,26 +21,10 @@
 #include "geometryManager.h"
 #include "motionManager2.h"
 #include "streamMotionManager.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    Act *act;          /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
+#include <libvu0.h>
+#include <string.h>
+#include "e3.h"
+#include "typedef.h"
 
 /* kept local: this TU's uses of scpGameStat_BoyWeaponkind do not fit the prototype in script.h */
 extern int scpGameStat_BoyWeaponkind(void);
@@ -48,24 +32,6 @@ extern int scpGameStat_BoyWeaponkind(void);
 extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 extern int D_0063AA30;
 extern int D_00639EA4;
-
-typedef struct JimakuSub {
-    char unk00[0x2C]; /* 0x0C */
-    int unk2C;        /* 0x38 */
-    int n;            /* 0x3C */
-    int unk34;        /* 0x40 */
-    int unk38;        /* 0x44 */
-    void *unk3C;      /* 0x48 */
-    void *unk40;      /* 0x4C */
-} JimakuSub;
-
-typedef struct JimakuArg {
-    int cmd;       /* 0x00 */
-    int unk04;     /* 0x04 */
-    int done;      /* 0x08 */
-    JimakuSub sub; /* 0x0C */
-} JimakuArg;
-
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 /* kept local: this TU's uses of jimakuJump do not fit the prototype in jimaku.h */
@@ -82,10 +48,12 @@ extern char D_00618ED0[];
 
 /* st25a.o's whole .rodata run, in the order the object emits it; the 0.15
    double that closes the run is actSt25aElevChk's own constant-pool operand. */
-typedef union Vec4 {
+/* kept local: this TU's bytes only come out with its own view of Vec4, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef union Vec4St25A {
     float f[4];
     long long d[2];
-} __attribute__((aligned(16))) Vec4;
+} __attribute__((aligned(16))) Vec4St25A;
 
 typedef struct AnimSet18 {
     int anim[18]; /* 0x00 */
@@ -97,7 +65,7 @@ const char faceShadowTex[] = "face_sadow_sd"; /* script.c scrolls it too */
 const char faceShadowTex00[] = "face_sadow_sd_00";
 
 /* The offset the sekika boy is dropped by. */
-static const Vec4 sekikaOfs = {{2000.0f, 0.0f, 0.0f, 1.0f}};
+static const Vec4St25A sekikaOfs = {{2000.0f, 0.0f, 0.0f, 1.0f}};
 
 static const char streamWaitFmt[] = "Now waiting for standby stream motion system... %d\n";
 
@@ -106,7 +74,7 @@ static const AnimSet18 cancelAnimSet = {
     {784, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 801}};
 
 /* Where the boy is put back when the ending is cancelled. */
-static const Vec4 cancelBoyPos = {{-1472.7711f, 928.20026f, -18.074427f, 0.0f}};
+static const Vec4St25A cancelBoyPos = {{-1472.7711f, 928.20026f, -18.074427f, 0.0f}};
 
 static const char queenBallScrTexture[] = "queen_ball_scr";
 
@@ -175,11 +143,10 @@ extern void scpPlayEnd(int a0);
 extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 
 void actConte11(volatile int a0)
 {
-    Vec4 ofs;
+    Vec4St25A ofs;
     float dir[4];
 
     lt_switch_layout(0x37);
@@ -240,7 +207,7 @@ void actConte11(volatile int a0)
 
 typedef union QueenWork {
     AnimSet18 a;
-    Vec4 v[3];
+    Vec4St25A v[3];
 } QueenWork;
 
 extern char D_00618E70[];
@@ -267,7 +234,6 @@ extern int scpFadeChk(void);
 extern void ScpCallCameraTargetOff(void);
 /* kept local: this TU's uses of jimakuUndisp do not fit the prototype in jimaku.h */
 extern void jimakuUndisp(int a0);
-extern void memset(void *a0, int a1, int a2);
 
 void actSt25aQueenTalkChk(volatile int a0)
 {
@@ -606,7 +572,10 @@ void actConte12Jimaku(volatile int a0)
     _ACTWait(0);
 }
 
-typedef struct StgPre {
+/* kept local: st25a's bytes only come out with its own view of the stage
+   preload record, so it keeps one under its own name; the shared view lives in
+   ico2/common/include/typedef.h as StgPre. */
+typedef struct StgPreSt25a {
     unsigned char _0[0xA0];   /* 0x000 */
     short ent[0x18];          /* 0x0A0 */
     unsigned char _d0[0x80];  /* 0x0D0 */
@@ -614,18 +583,9 @@ typedef struct StgPre {
     unsigned char _154[0x38]; /* 0x154 */
     unsigned int attr;        /* 0x18C */
     unsigned char _190[0x4];  /* 0x190 */
-} StgPre;
+} StgPreSt25a;
 
-typedef struct ExitData {
-    float pos[3]; /* 0x00 */
-    float rot[3]; /* 0x0C */
-    int f_18;     /* 0x18 */
-    int f_1C;     /* 0x1C */
-    int f_20;     /* 0x20 */
-    int f_24;     /* 0x24 */
-} ExitData;
-
-extern const StgPre D_005F5D50[];
+extern const StgPreSt25a D_005F5D50[];
 extern const ExitData D_0055C518[];
 extern int stage_no;
 /* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */

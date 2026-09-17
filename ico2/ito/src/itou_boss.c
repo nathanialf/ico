@@ -12,14 +12,14 @@
 #include "frameDependSequence.h"
 #include "geometryManager.h"
 #include "quaternion.h"
+#include <string.h>
+#include <libvu0.h>
 
 extern signed char D_006E9A40[];
 /* kept local: this TU's uses of GetParticleEffectData do not fit the prototype in particleEffect.h */
 extern char *GetParticleEffectData();
 /* kept local: this TU's uses of pbga_start do not fit the prototype in itou_sub.h */
 extern void pbga_start(void *a0, int a1);
-/* kept local: the declaration in quaternion.h changes this TU codegen */
-extern void CopyQuaternion(void *dst, void *src);
 
 void effect_end_func(void *a0)
 {
@@ -135,7 +135,6 @@ void BossCtrlGeo(void *self)
 }
 
 extern unsigned char D_006E9A30[];
-extern void memset(void *a0, int a1, int a2);
 
 void itou_boss_gflag_init(void)
 {
@@ -237,7 +236,6 @@ extern void *D_0063A438;
 extern signed char D_006E9A40[];
 /* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
 extern void ico_m33_to_quat(void *a0, void *a1);
-extern void sceVu0CopyVector(void *a0, void *a1);
 
 int InitBossCtrlGeo(void *a0)
 {

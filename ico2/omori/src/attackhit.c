@@ -42,14 +42,10 @@ static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1};
 
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern void sceVu0SubVector(void *out, void *a, void *b);
-/* prototypes: their order is the inline tail's emission order */
-void CommonAttackCenter(char *a0);
-int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
-void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float radius);
-extern float sceVu0InnerProduct(void *a, void *b);
-extern void sceVu0OuterProduct(void *out, void *a, void *b);
-extern void sceVu0Normalize(void *out, void *a);
+
+#include "attackhit.h"
+#include <libvu0.h>
+
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *a, void *b);
 
@@ -148,7 +144,6 @@ extern WeaponKindEntry D_00318EB8[];
 extern float *test_CURRENTROOT(void *gobj);
 /* kept local: this TU's uses of _OrientGV do not fit the prototype in gv.h */
 extern void _OrientGV(float *dst, float *a, float *b);
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
 
 /* the 0x5C word is written through a union view at this one site: the ROM pins the
    weapon-table flag load behind this store, which only an alias-set-0 store does */
@@ -157,8 +152,6 @@ union PackPowerWord {
     int i;
     int m;
 };
-
-extern void sceVu0AddVector(void *d, void *a, void *b);
 
 /* listing lines 296-308 */
 static inline int GetAttackKindIndex(char *p)
@@ -357,7 +350,6 @@ extern char *D_00639EA4;
 extern float *test_CURRENTROOT(void *gobj);
 /* kept local: this TU's uses of _OrientGV do not fit the prototype in gv.h */
 extern void _OrientGV(float *dst, float *a, float *b);
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
 
 void AttackMail(char *self, AttackPack *pack)
 {

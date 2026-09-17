@@ -8,27 +8,15 @@
 #include "camera-root.h"
 #include "gflag.h"
 #include "StageAnimation.h"
+#include "act.h"
+#include "e3.h"
+#include "typedef.h"
 
 /* The TU starts at 0x0021F060, where MAIN.MAP puts op.o: these three sit before
    the functions the listing hashes named. */
-typedef struct ActMail {
-    int mail;          /* 0x00 */
-    void (*func)(int); /* 0x04 */
-    int unk08;         /* 0x08 */
-    int unk0C;         /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD4]; /* 0x00 */
-    ActMail *mail;    /* 0xD4 */
-} Act;
 
 /* the three functions at the head of the TU need their callees declared here,
    above their definitions; the TU's own declaration block below repeats them */
-/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
-extern Act *actInitialize(int a0);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
 extern int D_0063ABA8;
 extern void *D_0063BE6C;
 extern int D_0063C4E8;
@@ -136,10 +124,6 @@ void actTitleShortCut(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
-extern Act *actInitialize(int a0);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
 extern ActMail D_004F7E10[];
 extern ActMail D_004F7E30[];
 extern int D_0063AA08;
@@ -161,16 +145,7 @@ extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
 extern char *D_00639EA4;
 extern char D_00622680[];
 extern char D_00622690[];
-
-typedef struct PadState {
-    int unk00;        /* 0x00 */
-    int flags;        /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} PadState;
-
 extern PadState D_0028F8F0[];
-/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
-extern int actCreateSubThread(void *entry, int prio);
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(char *gobj);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
@@ -182,11 +157,6 @@ extern int stage_no;
    aligned: at 2-byte alignment gcc folds the member offset into the array base
    before the index add, which swaps which of the two values ends up in $a1 and
    which in $a2. */
-typedef struct {
-    int _0[0x28];
-    short ent[0x18];
-    char _d0[0xC4];
-} StgPre;
 
 /* Both tables live in the ELF's .rodata run, so `const` is what they are, and
    on D_005F5D50 it is load-bearing: only a reference rooted at a const object
@@ -194,16 +164,6 @@ typedef struct {
    `volatile int a0` parameter home's memory dependence, which is what lets the
    home store issue three slots later. */
 extern const StgPre D_005F5D50[];
-
-typedef struct {
-    float pos[3];
-    float rot[3];
-    int f_18;
-    int f_1C;
-    int f_20;
-    int f_24;
-} ExitData;
-
 extern const ExitData D_0055C518[];
 /* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
@@ -226,32 +186,8 @@ extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
 extern int D_0063C4F0;
 extern int D_0063C4F4;
 extern int D_0063BE60;
-
-typedef struct JimakuSub {
-    char unk00[0x2C]; /* 0x0C */
-    int unk2C;        /* 0x38 */
-    int n;            /* 0x3C */
-    int unk34;        /* 0x40 */
-    int unk38;        /* 0x44 */
-    void *unk3C;      /* 0x48 */
-    void *unk40;      /* 0x4C */
-} JimakuSub;
-
-typedef struct JimakuArg {
-    int cmd;       /* 0x00 */
-    int unk04;     /* 0x04 */
-    int done;      /* 0x08 */
-    JimakuSub sub; /* 0x0C */
-} JimakuArg;
-
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
-/* prototypes: their order is the inline tail's emission order */
-void actOpDemo03(volatile int a0);
-void actSubMpegReturnPreload(volatile int a0);
-void actSt26aConte01_1_newgame(volatile int a0);
-void actOpDemo02Chk(volatile int a0);
-void actSt24aConte01_2_Jimaku(volatile int a0);
 
 inline void actSubMpegReturnPreload(volatile int a0)
 {

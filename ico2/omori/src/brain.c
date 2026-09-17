@@ -3,35 +3,7 @@
 #include "act-game.h"
 #include "commonact.h"
 #include "ebrain.h"
-
-typedef struct {
-    int gobj;
-    float level;
-    float f8;
-    float fC;
-    float f10;
-    int timer;
-    unsigned char b18;
-    unsigned char b19;
-    unsigned char b1A;
-    unsigned char b1B;
-} BrainTarget;
-
-typedef struct {
-    int girl;
-    BrainTarget *cur;
-    int w8;
-    int wC;
-    int w10;
-    float f14;
-    float f18;
-    short h1C;
-    short _1E;
-    float f20;
-    short idx;
-    short _26;
-    BrainTarget tgt[0x28];
-} Brain;
+#include "typedef.h"
 
 typedef struct {
     char _0[0x24];

@@ -27,15 +27,6 @@ typedef struct {
 extern int D_0063A438;
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float a1);
-
-typedef struct StageLabelRange {
-    char pad0[0x128];
-    int labelTop; /* 0x128 */
-    int labelEnd; /* 0x12C */
-    char pad130[0x190 - 0x130];
-    unsigned int f190; /* 0x190 */
-} StageLabelRange;
-
 extern StageLabelRange D_005F5D50[];
 extern GVGeo2 D_002C2DC8[];
 extern int stage_no;
@@ -43,32 +34,9 @@ extern int D_006E6D80[];
 extern int fptodp(float f);
 extern char D_0063AC08[];
 extern char D_00308924[];
-/* prototypes: their order is the inline tail's emission order */
-char *InitGeneratorGeo(char *gobj, char *src);
-void Generator_Call(char *a0);
-void Generator_ResetCount(char *a0);
-void Generator_Mask(char *a0);
-void Generator_MaskOff(char *a0);
-void SetMotherGenerator(int no, int label);
-void Generator_Init(void);
-int *GetbufpGeneratorPacket(void);
-int GetsizeGeneratorPacket(void);
-int RestoreGeneratorGeo(float *dst, float *src);
-int RestoreGeneratorExtGeo(char *a0, short *a1);
-int MemoryGenerator(short *a0, char *a1);
-void *IsEnableCallEnemy(char *self);
-char *DirectCallEnemy(char *gobj, char *mother, float *pos, float *dir, int a4);
-void LockEnemyGenerate(int *self);
-void UnlockEnemyGenerate(void *a0);
-void RestoreReviveCount(char *gobj);
-void ReturnEnemyToGenerator(int a0);
-int GeneratorWorkEnd(char *a0);
-int SearchActiveGenerator(void);
-void ResetReviveCountEnemy(int a0);
-void SetInfoSpKidnapGenerator(short *a0);
-void SetInfoSpKidnapEnemy(void);
-int IsOpenGenerator(char *gobj);
-int IsEnableCallEnemyByTargetGObj(void *a0);
+
+#include "generator.h"
+#include <string.h>
 
 inline int SearchActiveGenerator(void)
 {
@@ -201,10 +169,6 @@ void GetGeneratorSafePosition(float *dst, char *gobj)
     }
 }
 
-/* kept local: this TU's uses of IsNeedGeneratorHard do not fit the prototype in generator.h */
-extern char *IsNeedGeneratorHard();
-/* kept local: this TU's uses of GetGeneratorSafePosition do not fit the prototype in generator.h */
-extern void GetGeneratorSafePosition(float *dst, char *gobj);
 extern int D_0028F4C0[];
 
 void switch_MainStatus(char *gobj, unsigned char st)
@@ -242,7 +206,6 @@ void switch_MainStatus(char *gobj, unsigned char st)
     }
 }
 
-extern void *memset(void *dst, int c, int n);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern char D_0063AC00[];
@@ -1046,9 +1009,6 @@ void GeneratorGeo(char *gobj)
     }
     *(int *)(w + 0) = *(int *)(w + 0) + 1;
 }
-
-/* kept local: this TU's uses of endfunc_BGA do not fit the prototype in generator.h */
-extern void endfunc_BGA(char *gobj);
 
 /* generator.c:1414-1420, a static inline helper of this TU: the listing gives
    its rows 1417-1419 to GeneratorDL, outside GeneratorDL's own line span. */

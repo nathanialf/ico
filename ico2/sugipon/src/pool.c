@@ -15,6 +15,7 @@
 #include "particleEffect.h"
 #include "quaternion.h"
 #include "tableSin.h"
+#include <string.h>
 
 typedef struct {
     char c[16];
@@ -213,7 +214,6 @@ extern void _ScaleVectorXYZ(void *dst, void *src, float k);
 extern void _SetCurrentMatrix(int m);
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
-extern void memset(void *dst, int c, int n);
 
 void updatePoolGeo(char *self)
 {

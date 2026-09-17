@@ -3,6 +3,7 @@
 #include "commonact.h"
 #include "gv.h"
 #include "item.h"
+#include <libvu0.h>
 
 /* The wish/flag words the pad handler ORs into the actor's sub-record are a
    64-bit word that the engine also reads a word at a time; declaring them as
@@ -26,7 +27,6 @@ typedef union {
    pointer alias set, gcc CSEs the three loads into one and hoists it into the
    line-586 branch delay slot -- two instructions short of ROM. */
 
-extern void sceVu0ScaleVector(float *dst, float *src, float k);
 extern char *D_00639EA4;
 extern char *D_00639EA8;
 extern void *D_00639EA0;

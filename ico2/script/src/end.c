@@ -14,45 +14,20 @@
 #include "girl.h"
 #include "item.h"
 #include "staticBlur.h"
+#include <libvu0.h>
+#include "e3.h"
+#include "typedef.h"
 
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
+/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct PObjGObjEnd {
     char pad00[0x15C]; /* 0x000 */
     char *f15C;        /* 0x15C */
     char pad160[0x4];  /* 0x160 */
     Act *act;          /* 0x164 */
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
-} PObjGObj;
-
-typedef struct JimakuSub {
-    char unk00[0x2C]; /* 0x0C */
-    int unk2C;        /* 0x38 */
-    int n;            /* 0x3C */
-    int unk34;        /* 0x40 */
-    int unk38;        /* 0x44 */
-    void *unk3C;      /* 0x48 */
-    void *unk40;      /* 0x4C */
-} JimakuSub;
-
-typedef struct JimakuArg {
-    int cmd;       /* 0x00 */
-    int unk04;     /* 0x04 */
-    int done;      /* 0x08 */
-    JimakuSub sub; /* 0x0C */
-} JimakuArg;
+} PObjGObjEnd;
 
 /* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
@@ -126,7 +101,7 @@ extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
 extern void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
@@ -253,7 +228,7 @@ extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
@@ -376,7 +351,7 @@ extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int D_00639EA4;
@@ -454,8 +429,7 @@ extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-extern void sceVu0SubVector(void *out, void *a, void *b);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
 /* kept local: this TU's uses of scpPlayMotNode do not fit the prototype in script.h */
@@ -468,10 +442,6 @@ extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec conte14_7Pos = {{-4743.0f, -661.0f, 2503.0f, 1.0f}};
 
@@ -563,7 +533,7 @@ extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern int ed6;
@@ -863,7 +833,7 @@ extern void preload(int idx);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
 /* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
@@ -988,10 +958,9 @@ void actStaff2Demo(volatile int a0)
 }
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
@@ -1097,7 +1066,7 @@ extern void ScpCallCameraSetTarget(float x, float y, float z);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 
 /* Demo 14's mail record: the actor installs actEndDemo14Chk in it and posts
    it. Word 0 of each entry is the mail id the entry answers (430 the actor
@@ -1150,8 +1119,7 @@ extern void scpFadeIn(float f);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-extern void sceVu0SubVector(void *out, void *a, void *b);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
 /* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
@@ -1234,7 +1202,7 @@ void actConte14_14(volatile int a0)
 }
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 extern int D_0063AA00;
 
 void actSt27aEnd(volatile int a0)
@@ -1321,7 +1289,7 @@ void actSt27aEndChk(volatile int a0)
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
@@ -1654,9 +1622,9 @@ void actEndDemo13(volatile int a0)
 }
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjEnd *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpSetBoyWeaponGObj do not fit the prototype in script.h */
-extern void scpSetBoyWeaponGObj(PObjGObj *gobj);
+extern void scpSetBoyWeaponGObj(PObjGObjEnd *gobj);
 extern int D_0063AA08;
 
 void actStaff2(volatile int a0)

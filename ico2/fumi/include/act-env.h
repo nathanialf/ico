@@ -12,9 +12,14 @@
 #ifndef ACT_ENV_H
 #define ACT_ENV_H
 
-void ACTGetEnvironment(char *self, void *a1, float *orient, void *a3, void *a4);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order act-env.c's inline tail has. */
 void ACTSetEnvAllmighty(char *a0);
-int CheckWallAttributeEdegWall(int a0);
+void GetSofaPosition(char *a0, char *a1);
 void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2);
+int CheckWallAttributeEdegWall(int a0);
+
+void ACTGetEnvironment(char *self, void *a1, float *orient, void *a3, void *a4);
 
 #endif /* ACT_ENV_H */

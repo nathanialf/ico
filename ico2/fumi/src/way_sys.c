@@ -1,17 +1,14 @@
 #include "common.h"
 #include "debug.h"
 #include "way_llf.h"
+#include "way_sys.h"
+#include <libvu0.h>
 
 typedef struct {
     int pad[8];
     int f20;
     int pad2[7];
 } WVTElem;
-
-typedef struct {
-    char pad[0x64];
-    int w64;
-} WVTObj;
 
 typedef struct Nd {
     int pad[2];
@@ -20,14 +17,8 @@ typedef struct Nd {
     char pad2[0x40 - 16];
 } Nd;
 
-/* kept local: this TU's uses of _FUNC_GetWay_begin do not fit the prototype in way_sys.h */
-extern int _FUNC_GetWay_begin(void *a0, int a1, int a2, int a3);
 extern Nd D_004F31E0[];
 extern char D_00554220[];
-/* prototypes: their order is the inline tail's emission order */
-int GetWay_begin(void *a0, int a1, int a2);
-void BridgeBox(void);
-void DeleteGuideWay(WVTObj *o);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_sys", _FUNC_GetWay_begin);
 
@@ -39,6 +30,7 @@ inline int GetWay_begin(void *a0, int a1, int a2)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_sys", avoid_obstacle2);
 
 /* The collision query ClipWall / ClipFloorR fill in: 192 bytes, 16-aligned. */
+/* kept local: this TU's bytes only come out with its own view of ClipWork. */
 typedef struct {
     float p0[4];      /* 0x00 segment start */
     float p1[4];      /* 0x10 segment end */
@@ -67,9 +59,6 @@ typedef struct {
 
 extern WayGroup D_004F1EC0[];
 extern void GetRootPosition(void *out, void *gobj);
-extern void sceVu0CopyVector(void *dst, void *src);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
-extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern float GetTableCos(int ang);
 extern float GetTableSin(int ang);
 extern void ClipWall(void *cc);

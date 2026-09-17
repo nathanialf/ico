@@ -19,4 +19,10 @@ void actSt04cIntroChk(volatile int a0);
 void actSt04cIntroChkSub(volatile int a0);
 void actSt04lDoorChk(volatile int a0);
 
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 3 TUs. */
+typedef union StVec {
+    float f[4];
+    long long ll[2];
+} StVec;
+
 #endif /* ST04C_H */

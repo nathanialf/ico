@@ -12,22 +12,30 @@
 #ifndef MCARD_H
 #define MCARD_H
 
-int iosMcChdirProduct(void *a0);
-int iosMcDelete(void *a0);
-int iosMcFormat(void *a0);
-int iosMcGetBlockSaveInfo(void *a0);
-int iosMcGetDir(void *a0);
-int iosMcGetInfo(void *a0);
-int iosMcHandlerRead();
-int iosMcHandlerWrite();
-int iosMcLoadGameBlock(void *a0, int a1);
-int iosMcLoadProductBlock(void *a0);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order mcard.c's inline tail has. */
 void iosMcMgrSync(void *mp);
-int iosMcSaveGameBlock(void *a0, int a1);
+void iosMcTest(void);
+int iosMcSync(unsigned long *a0);
+int iosMcGetInfo(void *a0);
+int iosMcFormat(void *a0);
+int iosMcUnformat(void *a0);
+int iosMcGetDir(void *a0);
+int iosMcDelete(void *a0);
 int iosMcSaveIconBlock(void *a0);
 int iosMcSaveProductBlock(void *a0);
-int iosMcSync(unsigned long *a0);
-void iosMcTest(void);
-int iosMcUnformat(void *a0);
+int iosMcLoadProductBlock(void *a0);
+int iosMcSaveGameBlock(void *a0, int a1);
+int iosMcLoadGameBlock(void *a0, int a1);
+int iosMcChdirProduct(void *a0);
+int iosMcGetBlockSaveInfo(void *a0);
+int product_write(int *self);
+int product_read(int *self);
+int gameblock_write(int self, void *buf);
+int gameblock_read(int *self, void *buf);
+
+int iosMcHandlerRead();
+int iosMcHandlerWrite();
 
 #endif /* MCARD_H */

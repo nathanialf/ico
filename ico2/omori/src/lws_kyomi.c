@@ -2,6 +2,7 @@
 #include "sceneManager.h"
 #include "memory.h"
 #include "StageAnimation.h"
+#include <string.h>
 
 struct HintInfo {
     int _0;
@@ -28,7 +29,6 @@ extern int D_0028F4C0[];
 extern int D_0063A438;
 extern char D_005556A8[];
 extern int D_002A5580[];
-extern void memset(void *a0, int a1, int a2);
 /* kept local: this TU's uses of brainStatusDefaultSet do not fit the prototype in brain.h */
 extern void brainStatusDefaultSet(void *b, int gobj, int idx);
 extern int stage_no;

@@ -1,27 +1,11 @@
 #include "common.h"
 #include "debug.h"
 #include "ios.h"
+#include "adpcm_init.h"
+#include <sifrpc.h>
+#include "s_init.h"
 
-/* prototypes: their order is the deferred inline tail's emission order */
-void adpcmPauseRequest(int val);
-void AdpcmStreamHeap(void);
-void AdpcmStreamInit(void);
-int AdpcmIopBuffAlloc(void);
-int AdpcmNotUseIopAreaFree(void);
-int *AdpcmOpenSync(int *self);
-void AdpcmFadeCloseAll(short a0);
-int AdpcmUseAreaGet(void);
-int AdpcmFreeAreaGet(void);
-void AdpcmInterStereoVolumeSetAll(void);
-short AdpcmInterLeaveVolumeGet(char *self, int idx);
-short AdpcmVolumeGet(char *self);
-int adpcmTickProc(int self, int obj);
-void adpcmDiskNotReady(void);
-void adpcmDiskReturnReady(void);
-int adpcmOpenProc(int a0, int a1);
-void adpcmOpenDiskNotReady(void);
 extern int D_0063C1CC;
-extern void sceSifFreeIopHeap();
 
 void AdpcmStreamFree(void)
 {
@@ -42,10 +26,6 @@ extern int D_0063C1C8;
 extern const AdpcmDataRec D_00559D50[];
 extern int SgStAdpcmChannelPitch(long long mask, int pitch);
 extern int SgStAdpcmIopReadAddr(int addr);
-/* kept local: this TU's uses of soundDataClose do not fit the prototype in s_init.h */
-extern void soundDataClose(int *obj);
-/* kept local: the declaration in adpcm_init.h changes this TU codegen */
-extern void AdpcmVolumeSet(int obj, int vol);
 
 void adpcmTickProc2(int *a0)
 {
@@ -162,13 +142,9 @@ static const char adpcmFreeIopMsg[] =
 extern char D_0063A630[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-/* kept local: this TU's uses of soundDataAreaGet do not fit the prototype in s_init.h */
-extern AdpcmObj *soundDataAreaGet(int a0, int a1, int a2, int a3);
 extern int soundBufAdpcmChAlloc(AdpcmObj *self, int *chp);
 extern int SgStAdpcmOpen(AdpcmChReq *req);
 extern int SgStAdpcmChannelVolume(long long mask, int l, int r);
-/* kept local: this TU's uses of Ee2Iop do not fit the prototype in s_init.h */
-extern int Ee2Iop(int a0, int a1, int a2);
 /* kept local: this TU's uses of iosCdvdBackGroundMgrAdd do not fit the prototype in cdvd.h */
 extern int iosCdvdBackGroundMgrAdd(char *name, void *proc, void *self, void *notready, int a4,
                                    void *a5, int a6, int a7);
@@ -295,8 +271,6 @@ found:
 }
 
 extern char D_0063A638[];
-/* kept local: this TU's uses of soundDataAreaSearch do not fit the prototype in s_init.h */
-extern int soundDataAreaSearch(int *req);
 /* kept local: this TU's uses of iosCdvdBackGroundMgrAdd do not fit the prototype in cdvd.h */
 extern int iosCdvdBackGroundMgrAdd(char *name, void *proc, void *self, void *notready, int a4,
                                    void *a5, int a6, int a7);
@@ -331,8 +305,6 @@ extern void __assert(char *file, int line, char *expr);
 /* kept local: this TU's uses of iosCdvdBackGroundMgrDelete do not fit the prototype in cdvd.h */
 extern void iosCdvdBackGroundMgrDelete(int handle);
 extern int SgStAdpcmClose(int ch);
-/* kept local: this TU's uses of soundBufAdpcmFree do not fit the prototype in s_init.h */
-extern void soundBufAdpcmFree(int *obj);
 
 static inline void AdpcmIopBuffFree(int *self)
 {
@@ -378,8 +350,6 @@ void AdpcmClose(int *a0)
 }
 
 extern int D_0063A628;
-/* kept local: this TU's uses of soundOutputModeGet do not fit the prototype in s_init.h */
-extern int soundOutputModeGet(void);
 extern int SgStAdpcmChannelVolume(long long mask, int l, int r);
 
 /* vol is in the ABI (AdpcmInterLeaveVolumeSet passes it) but the ROM never
@@ -421,9 +391,6 @@ int vol;
         SgStAdpcmChannelVolume(1LL << *p, lv, rv);
     }
 }
-
-/* kept local: the declaration in adpcm_init.h changes this TU codegen */
-extern void AdpcmInterStereoVolumeSet();
 
 void AdpcmInterLeaveVolumeSet(int a0, int a1, int a2)
 {
@@ -521,8 +488,6 @@ inline int AdpcmNotUseIopAreaFree(void)
     return cnt;
 }
 
-/* kept local: the declaration in adpcm_init.h changes this TU codegen */
-extern int *adpcmDataSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
 /* kept local: this TU's uses of iosCdvdBackGroundMgrDelete do not fit the prototype in cdvd.h */
 extern void iosCdvdBackGroundMgrDelete(int x);
 /* kept local: this TU's uses of iosCdvdBackGroundMgrSeek do not fit the prototype in cdvd.h */

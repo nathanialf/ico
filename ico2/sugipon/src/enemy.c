@@ -33,11 +33,11 @@ extern EnemyDef D_00624880[];
 #include "motionOrientManager.h"
 #include "particleEffect.h"
 #include "quaternion.h"
+#include <stdlib.h>
 
 /* kept local: this TU's uses of prim_InitParticle do not fit the prototype in Primitive.h */
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
 extern void __assert(char *file, int line, char *mes);
-extern int rand(void);
 extern int D_0063A438;
 extern char D_0061F650[];
 extern char D_0061F660[];
@@ -211,10 +211,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", CheckEnemyHit);
 /* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
  * reads it back as a pointer, so every read of it is a union view, the same
  * spelling ico2/sugipon/src/geometryManager.c uses for the same slot. */
-typedef union SubHandle {
-    int i;
-    char *p;
-} SubHandle;
 
 #define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
 

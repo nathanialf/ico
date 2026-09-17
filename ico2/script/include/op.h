@@ -12,6 +12,15 @@
 #ifndef OP_H
 #define OP_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order op.c's inline tail has. */
+void actOpDemo03(volatile int a0);
+void actSubMpegReturnPreload(volatile int a0);
+void actSt26aConte01_1_newgame(volatile int a0);
+void actOpDemo02Chk(volatile int a0);
+void actSt24aConte01_2_Jimaku(volatile int a0);
+
 void actOpDemo01_2Chk(volatile int a0);
 void actOpDemo03Chk(volatile int a0);
 void actSt13aConte01_3(volatile int a0);

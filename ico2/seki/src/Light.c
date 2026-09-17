@@ -6,6 +6,8 @@
 #include "geometryManager.h"
 #include "lineManager.h"
 #include "matrixDrive.h"
+#include <math.h>
+#include <string.h>
 
 typedef struct Light {
     char _pad0[0x10];
@@ -88,6 +90,7 @@ void light_killLinkAmbient(AmbientVolume *p)
     freeseki(p);
 }
 
+/* kept local: this TU's bytes only come out with its own view of StageSetting. */
 typedef struct StageSetting {
     float flatLightDir[3][4]; /* 0x00 */
     float flatLightCol[3][4]; /* 0x30 */
@@ -404,6 +407,7 @@ inline void light_resetFlatLight(void)
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4; the right analog stick pair sits at 0x54 of pad 1. */
+/* kept local: this TU's bytes only come out with its own view of Pad. */
 typedef struct Pad {
     int unk00;            /* 0x00 */
     int trg;              /* 0x04 */
@@ -414,7 +418,6 @@ typedef struct Pad {
 } Pad;
 
 extern Pad D_0028F8F0[];
-extern float atan2f(float y, float x);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float v);
 
@@ -508,7 +511,6 @@ extern const LtVec D_0054F160;
 extern const LtVec D_0054F170;
 extern int D_0063C12C;
 extern int D_0063C130;
-extern void *memset(void *p, int c, int n);
 /* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
 /* kept local: this TU's uses of _TransCurrentMatrix do not fit the prototype in Matrix.h */

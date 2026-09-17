@@ -1,6 +1,8 @@
 #include "common.h"
 #include "debug.h"
 #include "memory.h"
+#include <string.h>
+#include <eekernel.h>
 
 extern char D_00639F48[];
 extern int D_0063A370;
@@ -48,12 +50,10 @@ extern IosPartition *D_0063A450;
 extern IosPartition *D_0063A454;
 extern IosPartition *D_0063A458;
 extern IosPartition *D_0063A45C;
-extern char *strcat(char *dst, const char *src);
 extern int sceCdSearchFile(sceCdlFILE *fp, const char *name);
 extern int sceCdRead(unsigned int lsn, unsigned int sectors, void *buf, sceCdRMode *mode);
 extern int sceCdSync(int mode);
 extern int sceCdGetError(void);
-extern void FlushCache(int mode);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 

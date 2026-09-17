@@ -6,6 +6,7 @@
 #include "geometryManager.h"
 #include "matrixDrive.h"
 #include "quaternion.h"
+#include <string.h>
 
 extern float D_004E7A20[];
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
@@ -70,7 +71,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/flag", InitFlagGeo);
 
 typedef struct {
     float m[4];
-} Vec4;
+} Vec4Flag;
 
 void FlagGeo(char *self)
 {
@@ -106,7 +107,6 @@ void FlagGeo(char *self)
     }
 }
 
-extern void memset(void *dst, int c, int n);
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
@@ -114,11 +114,11 @@ extern void _NormalizeVector(void *dst, void *src);
 
 void FlagDL(char *self)
 {
-    Vec4 l0;
-    Vec4 l10;
-    Vec4 l20;
-    Vec4 l30;
-    Vec4 l40;
+    Vec4Flag l0;
+    Vec4Flag l10;
+    Vec4Flag l20;
+    Vec4Flag l30;
+    Vec4Flag l40;
     char *gd;
     char *o;
     char *base;

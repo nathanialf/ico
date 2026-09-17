@@ -1,7 +1,9 @@
 #include "common.h"
 #include "debug.h"
+#include <eekernel.h>
 
 /* one 0x58-byte pad record; the engine keeps two of them */
+/* kept local: this TU's bytes only come out with its own view of Pad. */
 typedef struct Pad {
     int now;               /* 0x00  buttons this frame */
     int f04;               /* 0x04 */
@@ -23,7 +25,6 @@ static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0};
 extern int IosCdLock;
 /* kept local: this TU's uses of iosPadDevInit do not fit the prototype in pad.h */
 extern void iosPadDevInit(void *a0);
-extern void SignalSema(int sema);
 
 void InitKeyInput(void)
 {

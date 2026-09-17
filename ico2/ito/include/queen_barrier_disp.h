@@ -12,9 +12,23 @@
 #ifndef QUEEN_BARRIER_DISP_H
 #define QUEEN_BARRIER_DISP_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order queen_barrier_disp.c's inline tail has. */
 void queen_barrier_anim(void);
+
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order queen_barrier_disp.c's inline tail has. */
+
 void queen_barrier_disp_init(void);
 void queen_barrier_disp_proc(float);
 void queen_barrier_set_damage(void);
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef union {
+    float f[4];
+    long long ll[2];
+} QVec;
 
 #endif /* QUEEN_BARRIER_DISP_H */

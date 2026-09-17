@@ -1,10 +1,8 @@
 #include "common.h"
 #include "lineManager.h"
 #include "matrixDrive.h"
-
-/* prototypes: their order is the inline tail's emission order */
-void ChangeColorWireString(int a0, int a1, int a2);
-void Draw2DBox(float x0, float y0, float x1, float y1);
+#include "wireLetter.h"
+#include <string.h>
 
 typedef struct {
     float x;
@@ -289,7 +287,6 @@ inline void Draw2DBox(float x0, float y0, float x1, float y1)
 }
 
 extern int D_0063B188;
-extern int strlen();
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
 void DispWireLetter(int c);

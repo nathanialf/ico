@@ -12,10 +12,15 @@
 #ifndef DISPLAYLIST_H
 #define DISPLAYLIST_H
 
-void dl_CloseDma(void);
-int dl_GetPri(void);
-void dl_Init(void);
-void dl_OpenDma(int a0, int a1, int a2);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order DisplayList.c's inline tail has. */
+void dl_Out(void);
 void dl_SetDLPriority(int a0);
+void dl_OpenDma(int a0, int a1, int a2);
+int dl_GetPri(void);
+
+void dl_CloseDma(void);
+void dl_Init(void);
 
 #endif /* DISPLAYLIST_H */

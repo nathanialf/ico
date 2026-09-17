@@ -18,26 +18,8 @@
 #include "StageAnimation.h"
 #include "attackCheckBoundary.h"
 #include "item.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    Act *act;          /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
+#include <libvu0.h>
+#include "typedef.h"
 
 static ActMail c1_ball_main_mes[2] = {{406, actSt04rC1BallSwitch}, {429}};
 
@@ -186,7 +168,6 @@ extern void scpPlayMot(int a0, int mot);
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int a0);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
@@ -199,10 +180,6 @@ extern int D_0063C548;
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 /* The look-at point both characters face in the crest cutscene. */
 static const ConstVec crestFacePos = {{0.0f, 0.0f, -5000.0f, 1.0f}};
@@ -221,11 +198,6 @@ extern unsigned char st04r_yure_vol;
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
-typedef struct Pad {
-    int unk00;        /* 0x00 */
-    int trg;          /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} Pad;
 
 extern Pad D_0028F8F0[];
 /* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */

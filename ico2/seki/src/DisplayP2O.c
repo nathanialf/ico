@@ -4,8 +4,8 @@
 #include "debug.h"
 #include "Packet.h"
 #include "RegistPacket.h"
+#include <libdma.h>
 
-/* header prototypes (order fixes the inline tail) */
 /* kept local: this TU's uses of shadow_Render do not fit the prototype in Shadow.h */
 extern void shadow_Render();
 
@@ -18,9 +18,6 @@ extern int D_00639F44;
 extern int D_0063B160;
 extern int D_00290B24[];
 extern int dmaVif;
-extern void sceDmaSend();
-/* prototypes: their order is the inline tail's emission order */
-void p2o_SetDefaultEnviroment(void);
 
 void p2o_MakePacket(char *a0)
 {

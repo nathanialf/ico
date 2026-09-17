@@ -2,10 +2,8 @@
 #include "particleEffect.h"
 
 extern int D_0063A438;
-/* prototypes: their order is the inline tail's emission order */
-int *InitParticleLayoutGeo(char *self, int *other);
-void ParticleLayoutDL(void);
-void DeleteParticleLayout(char *a0);
+
+#include "particleLayout.h"
 
 inline int *InitParticleLayoutGeo(char *self, int *other)
 {

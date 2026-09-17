@@ -12,6 +12,16 @@
 #ifndef DARKVOLUME_H
 #define DARKVOLUME_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order darkVolume.c's inline tail has. */
+int InitDarkVolumeGeo(char *a0);
+void DarkVolumeDL(void);
+void ExecGameOverEffect(void);
+void StartGameOverEffect(int a0, float t);
+void StartQueenAttackEffect(int a0, float t);
+void ResetGameOverEffect(void);
+
 void DispGameOverEffect(void);
 void GetGameOverEffectCenterPosition(int a0);
 void InitGameOverEffect(void);

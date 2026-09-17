@@ -12,7 +12,13 @@
 #ifndef ATTACKHIT_H
 #define ATTACKHIT_H
 
-void EnemyAttackCenter(void);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order attackhit.c's inline tail has. */
+void CommonAttackCenter(char *a0);
 int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
+void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float radius);
+
+void EnemyAttackCenter(void);
 
 #endif /* ATTACKHIT_H */

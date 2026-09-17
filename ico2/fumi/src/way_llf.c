@@ -1,5 +1,7 @@
 #include "common.h"
 #include "debug.h"
+#include <libvu0.h>
+#include "typedef.h"
 
 typedef struct WayGroup {
     int f0;
@@ -9,10 +11,6 @@ typedef struct WayGroup {
     int f28;
     char _2c[0x8];
 } WayGroup;
-
-typedef struct {
-    int w[13];
-} WayRec;
 
 typedef struct {
     int w[16];
@@ -211,7 +209,6 @@ inline void CloseWayGroup(int idx)
 }
 
 extern Nd D_004F31E0[];
-extern void sceVu0CopyVector(int *, int);
 
 inline int CreateWayPoint(int a0)
 {

@@ -9,6 +9,8 @@
 #include "script.h"
 #include "StageAnimation.h"
 #include "cage.h"
+#include <libvu0.h>
+#include "st04c.h"
 
 /* The TU starts at 0x00252418, where MAIN.MAP puts st22a.o. */
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st22a", actSt22aLightningVolime);
@@ -16,14 +18,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st22a", actSt22aIntro);
 
 extern int D_00639EA4;
 extern int D_0063C5AC;
-
-typedef union StVec {
-    float f[4];
-    long long ll[2];
-} StVec;
-
 extern StVec D_00623090;
-extern void sceVu0SubVector(void *out, void *a, void *b);
 extern int D_0063AA08;
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];

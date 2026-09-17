@@ -2,8 +2,8 @@
 
 /* kept local: this TU's uses of ACTCheckCollis_WAY do not fit the prototype in act-game.h */
 extern int ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, void *a4);
-/* prototypes: their order is the inline tail's emission order */
-int WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3);
+
+#include "act-way.h"
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-way", DetourCheck);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-way", checkPositionIllegal);

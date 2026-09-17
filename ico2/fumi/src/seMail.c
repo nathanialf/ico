@@ -3,9 +3,7 @@
 #include "gobj.h"
 #include "act-game.h"
 #include "geometryManager.h"
-
-extern float sceVu0InnerProduct(void *a, void *b);
-extern void sceVu0SubVector(void *out, void *a, void *b);
+#include <libvu0.h>
 
 void setMailTarget(int a0, int *a1, int *a2)
 {

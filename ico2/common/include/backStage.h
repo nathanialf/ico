@@ -12,10 +12,30 @@
 #ifndef BACKSTAGE_H
 #define BACKSTAGE_H
 
-void backStageDebugTimeZero(void);
-void backStageProcessInStage(float arg);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order backStage.c's inline tail has. */
 void backStageProcessInit(void);
+void backStageDebugTimeZero(void);
+void backStageTsuresariReturn(void);
+
+void backStageProcessInStage(float arg);
 void backStageProcessOutStage(void);
 void routeSetPos(int gobj0, int gobj1, float *out, float ratio);
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    short flag;
+    unsigned short no;
+    unsigned short stage;
+    short pad06;
+    int time;
+    int uniq;
+    float pos[3];
+    float pad1C;
+    float rot[3];
+    float pad2C;
+    int work[4];
+} GamesysObjInfo;
 
 #endif /* BACKSTAGE_H */

@@ -24,18 +24,14 @@ extern void gif_DrawPolyF4(void *a0, void *a1, void *a2, void *a3, int b0, int b
                            int last);
 /* kept local: this TU's uses of _IsInScreen do not fit the prototype in GifPacket.h */
 extern int _IsInScreen(int *p);
-extern void sceVu0RotTransPers(void *a0, void *a1, void *a2, int a3);
 /* kept local: this TU's uses of gif_MakeLine2D do not fit the prototype in GifPacket.h */
 extern void gif_MakeLine2D(int *v0, int *v1, int z0, int z1, unsigned char *col, int n);
 extern char *matrixptr;
 extern int D_0063A064; /* screen width  */
 extern int D_0063A068; /* screen height */
-extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
-extern void sceVu0UnitMatrix(void *a0);
-/* prototypes: their order is the inline tail's emission order */
-void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a4, void *a5);
-void do_DrawLine(void *p0, void *p1, int *c);
-void IsPointIsInScreen(void *a0, void *a1);
+
+#include "poly-flat.h"
+#include <libvu0.h>
 
 static inline unsigned char DrawLineTrans(int *dst, void *src)
 {

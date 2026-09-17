@@ -1,6 +1,9 @@
 #include "common.h"
 #include "debug.h"
 #include "tableSin.h"
+#include <string.h>
+#include <math.h>
+#include "matrixDrive.h"
 
 extern void sceVu0InterVector(float *dst, float *a, float *b, float t);
 extern char D_0063AC10[];
@@ -13,22 +16,8 @@ void _InterGV(float *dst, float *a, float *b, float ta, float tb)
     sceVu0InterVector(dst, a, b, tb / (ta + tb));
 }
 
-extern void memset(void *dst, int c, int n);
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern float *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_RotMatrixX(short a);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixY do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_RotMatrixY(short a);
 extern void sceVu0UnitMatrix(float *m);
 extern void sceVu0ApplyMatrix(float *dst, float *m, float *src);
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
-extern void CopyMatrix(float *dst, float *src);
-extern float atan2f(float y, float x);
 
 void GetMatrixDirectionToZ(float *out, float *dir)
 {
@@ -104,9 +93,6 @@ void _DistSqGV(void *a0, void *a1)
     sceVu0InnerProduct(buf, buf);
 }
 
-/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
-extern float FSqrt(float a0);
-
 void _DistGV(void *a0, void *a1)
 {
     char buf[0x10];
@@ -140,8 +126,6 @@ float _MoveGV(float *a0, float *a1, float *a2, float a3)
     }
     return ang;
 }
-
-extern float atan2f(float a0, float a1);
 
 int _RotyGV(float *a0, float *a1)
 {

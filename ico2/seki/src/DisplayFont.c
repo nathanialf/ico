@@ -1,10 +1,7 @@
 #include "common.h"
-
 /* .data — carved VMA 0x4EE5F0..0x4EE6F0 (1 symbols), bytes verified against the target ELF */
-/* prototypes: their order is the inline tail's emission order */
-int font_GetWidth(void);
-int font_GetHeight(void);
-void font_Init(void);
+#include "DisplayFont.h"
+#include <string.h>
 
 unsigned int D_004EE5F0[64] = {
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -42,8 +39,6 @@ inline void font_Init(void)
     D_0063BD08 = 0x80;
     D_0063BD04 = 0x80;
 }
-
-extern int strlen(const char *s);
 
 /* SRCFILE places this helper's rows (seki/src/DisplayFont.c:99-103) INSIDE
    font_CheckAlign's own span (def line 95, body 110-143), i.e. it was a

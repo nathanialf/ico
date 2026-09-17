@@ -4,8 +4,6 @@
 #include "debug.h"
 #include "matrixDrive.h"
 
-/* clipCollisionManager.h prototype: the inline tail's emission order */
-void *RequestClipCollision(int *a0);
 extern int D_0063B754;
 /* kept local: this TU's uses of actCreateSubThreadGOppArg do not fit the prototype in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);

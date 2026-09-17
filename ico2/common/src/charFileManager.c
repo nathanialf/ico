@@ -59,9 +59,12 @@ extern CharFile D_006FAD00[MAX_CHARS];
 static CharFile charFileEmpty = {0, 0, 0, 0, 0, 1};
 
 extern int D_0063AD00;
-/* prototypes: their order is the inline tail's emission order */
-void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6);
-void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6);
+
+#include "charFileManager.h"
+#include <stdio.h>
+
+/* kept local: the prototype names PObj, a record only this TU defines, so it
+   cannot travel to the header until that record has a home of its own. */
 PObj *GetPObjAddress(int a0);
 
 inline PObj *GetPObjAddress(int a0)
@@ -99,7 +102,6 @@ extern int D_0028F4C0[];
 extern void *D_0063A44C;
 extern char D_0063AD08[];
 extern char D_0063AD10[];
-extern int sprintf(char *buf, char *fmt, ...);
 extern PObj *InitPObj(void *buf, int a1, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */

@@ -5,11 +5,10 @@
 #include "tableSin.h"
 
 extern int D_0063A438;
-extern int rand(void);
-/* prototypes: their order is the inline tail's emission order */
-short *InitSugiLeafGeo(void);
-void SugiLeafGeo(void *gobj);
-short *InitSugiLeafGeo2(void *gobj);
+
+#include "sugiTree.h"
+#include <stdlib.h>
+#include <libvu0.h>
 
 inline short *InitSugiLeafGeo(void)
 {
@@ -44,8 +43,6 @@ inline short *InitSugiLeafGeo2(void *gobj)
     return buf;
 }
 
-extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
-
 void SugiLeafGeo2(void *gobj)
 {
     char *p = *(char **)((char *)gobj + 0x15C);
@@ -72,8 +69,6 @@ void SugiLeafGeo2(void *gobj)
         }
     }
 }
-
-extern void sceVu0UnitMatrix(void *m);
 
 void SugiLeafDL2(void *gobj)
 {

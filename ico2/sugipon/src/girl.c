@@ -19,6 +19,7 @@
 #include "motionOrientManager.h"
 #include "quaternion.h"
 #include "wireLetter.h"
+#include <libvu0.h>
 
 extern int D_0063B250;
 extern int D_0063B254;
@@ -192,10 +193,6 @@ extern char D_004EB180[];
 extern char D_004EB240[];
 extern char D_004EB300[];
 extern char D_004EB380[];
-/* prototypes: their order is the inline tail's emission order */
-void SetGirlClothDispSwitch(char *a0, int a1, int a2);
-void SetGirlHairDispSwitch(char *a0, int a1);
-void setGirlClothSetting(int a0);
 
 /* The three cloth and hair setters sit here, at their census source lines
    (834, 852 and 878, against InitGirlGeo's 891).  They are plain `inline`,
@@ -310,8 +307,6 @@ void *InitGirlGeo(char *gobj, char *csv)
 }
 
 extern char *D_00639EA4;
-extern void sceVu0SubVector(void *out, void *a, void *b);
-extern float sceVu0InnerProduct(void *a0, void *a1);
 
 void GirlGeo(char *a0)
 {
@@ -409,7 +404,6 @@ void GirlAI(char *a0)
 }
 
 extern int matrixptr;
-extern void sceVu0TransposeMatrix(void *dst, void *src);
 extern char *D_004EB420[];
 
 /* static helper the listing places at girl.c line(s) 1082; never emitted out

@@ -16,13 +16,6 @@ extern float D_0063B7C0;
 extern int D_0063B7C4;
 extern int D_0063B7C8;
 extern float D_0063B7CC;
-/* prototypes: their order is the inline tail's emission order */
-int InitDarkVolumeGeo(char *a0);
-void DarkVolumeDL(void);
-void ExecGameOverEffect(void);
-void StartGameOverEffect(int a0, float t);
-void StartQueenAttackEffect(int a0, float t);
-void ResetGameOverEffect(void);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", draw);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", drawHT);

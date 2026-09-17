@@ -27,20 +27,13 @@
 #include "matrixDrive.h"
 #include "staticBlur.h"
 #include "streamMotionManager.h"
+#include <libvu0.h>
+#include "e3.h"
+#include "typedef.h"
 
-typedef union ActStatus {
-    unsigned long long ll;
-    int i[2];
-} ActStatus;
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
+/* kept local: this TU's bytes only come out with its own view of Act, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct ActSt04A {
     char unk00[0x20];  /* 0x00 */
     ActStatus flags20; /* 0x20 */
     char unk28[0xC];   /* 0x28 */
@@ -52,19 +45,21 @@ typedef struct Act {
     int unk470;        /* 0x470 */
     void *unk474;      /* 0x474 */
     int unk478;        /* 0x478 */
-} Act;
+} ActSt04A;
 
-typedef struct PObjGObj {
+/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct PObjGObjSt04A {
     char pad00[0x15C]; /* 0x000 */
     char *f15C;        /* 0x15C */
     char pad160[0x4];  /* 0x160 */
-    Act *act;          /* 0x164 */
+    ActSt04A *act;     /* 0x164 */
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
-} PObjGObj;
+} PObjGObjSt04A;
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+extern PObjGObjSt04A *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
@@ -80,7 +75,7 @@ extern ActMail D_004F85D0[];
 void actSt04aGate(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     MallocStreamMotionBuffer();
@@ -108,23 +103,6 @@ void actSt04aGate(volatile int a0)
         stage_SetAnimation(0x110, 0, 0);
     }
 }
-
-typedef struct JimakuSub {
-    char unk00[0x2C]; /* 0x0C */
-    int unk2C;        /* 0x38 */
-    int n;            /* 0x3C */
-    int unk34;        /* 0x40 */
-    int unk38;        /* 0x44 */
-    void *unk3C;      /* 0x48 */
-    void *unk40;      /* 0x4C */
-} JimakuSub;
-
-typedef struct JimakuArg {
-    int cmd;       /* 0x00 */
-    int unk04;     /* 0x04 */
-    int done;      /* 0x08 */
-    JimakuSub sub; /* 0x0C */
-} JimakuArg;
 
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
@@ -154,7 +132,6 @@ extern void scpPlayEnd(char *a0);
 extern void scpPlayMot(void *o, int mot);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(void *a0, void *dir);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 /* kept local: this TU's uses of scpDispOffAllWithKind do not fit the prototype in script.h */
 extern void scpDispOffAllWithKind(int a0);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
@@ -614,7 +591,7 @@ extern ActMail D_004F85F0[];
 void actSt04aGateOpen(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     MallocStreamMotionBuffer();
@@ -665,7 +642,6 @@ extern void scpPlayStart(char *a0);
 extern void scpPlayEnd(char *a0);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(void *a0, void *dir);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
@@ -700,11 +676,11 @@ void actSt04aGateOpenChk(volatile int a0)
     }
 
     while (1) {
-        if ((((PObjGObj *)D_00639EA8)->act->unk34 != 0x6F &&
+        if ((((PObjGObjSt04A *)D_00639EA8)->act->unk34 != 0x6F &&
              scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 &&
              scpTriggerBall(a0, D_00639EA8, 200.0f) != 0 && gflagChk(0xAE) != 0 &&
              gflagChk(0xF3) != 0) ||
-            (((PObjGObj *)D_00639EA8)->act->unk34 != 0x6F &&
+            (((PObjGObjSt04A *)D_00639EA8)->act->unk34 != 0x6F &&
              scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 &&
              scpTriggerBall(a0, D_00639EA8, 200.0f) != 0)) {
             break;
@@ -1027,7 +1003,6 @@ extern int D_0063BEA8;
 extern void scpPlayMotReq(void *a0, int mot);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(void *o, int mot);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(void *a0, void *dir);
 /* kept local: this TU's uses of scpDisActivateAllWithKind do not fit the prototype in script.h */
@@ -1048,7 +1023,7 @@ void actSt04aGateOpen2Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    ((PObjGObj *)D_00639EA8)->act->flags20.ll &= ~0x10000;
+    ((PObjGObjSt04A *)D_00639EA8)->act->flags20.ll &= ~0x10000;
     scpPlayMotReq(D_00639EA8, 0x13B);
 
     scpPlayMot(D_00639EA4, 0);
@@ -1212,7 +1187,7 @@ extern ActMail D_004F8690[];
 void actSt04aGateOpen3(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(0x8E) == 0) {
@@ -1410,7 +1385,7 @@ void actConte09_3(volatile int a0)
 
     stage_SetAnimation(0x111, 1, 0x4D9);
 
-    shadow_SetLength((int)((PObjGObj *)D_00639EA8)->f15C, 20.0f);
+    shadow_SetLength((int)((PObjGObjSt04A *)D_00639EA8)->f15C, 20.0f);
 
     while (stage_ContinueAnimation(0x2EF, 0x2F0) == 0) {
         _ACTWait(1);
@@ -1467,7 +1442,7 @@ void actConte09_3(volatile int a0)
         _ACTWait(1);
     }
 
-    shadow_SetLength((int)((PObjGObj *)D_00639EA8)->f15C, 0.0f);
+    shadow_SetLength((int)((PObjGObjSt04A *)D_00639EA8)->f15C, 0.0f);
 
     while (stage_ContinueAnimation(0x2F3, 0x2F4) == 0) {
         _ACTWait(1);
@@ -1525,11 +1500,6 @@ void actConte09_3(volatile int a0)
 
     RequestStageChange(3, D_00639EA4, 0, 16.0f, 16.0f);
 }
-
-typedef struct PadState {
-    int unk00; /* 0x00 */
-    int flags; /* 0x04 */
-} PadState;
 
 extern PadState D_0028F8F0[];
 /* kept local: this TU's uses of preload do not fit the prototype in script.h */
@@ -1692,7 +1662,7 @@ extern ActMail D_004F86F0[];
 void actSt04aTorch1(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(0x99) == 0) {
@@ -1778,7 +1748,7 @@ void actSt04aTorch1(volatile int a0)
 void actSt04aTorch1Chk(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     switch (*(int *)(a0 + 8)) {
@@ -1829,7 +1799,7 @@ void actSt04aTorch1Chk(volatile int a0)
         if (scpTriggerBall(a0, self->unk474, 5.0f) != 0) {
             D_0063AA08 = 1;
 
-            ((PObjGObj *)self->unk474)->f16C = 0;
+            ((PObjGObjSt04A *)self->unk474)->f16C = 0;
 
             stage_SetAnimation(self->unk470, 1, 0);
 
@@ -1896,7 +1866,7 @@ extern ActMail D_004F86B0[];
 void actSt04aGateL(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(0x8A) == 0) {
@@ -1918,7 +1888,7 @@ extern ActMail D_004F86D0[];
 void actSt04aGateR(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(0x8B) == 0) {
@@ -1974,7 +1944,7 @@ extern ActMail D_004F8670[];
 void actSt04aGateOpen2(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(0x8D) == 0) {
@@ -1992,7 +1962,7 @@ extern ActMail D_004F8650[];
 void actSt04aGateOpen2Ready(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     D_004F8650[0].func = actSt04aGateOpen2ReadyChk;
@@ -2006,7 +1976,7 @@ extern ActMail D_004F8710[];
 void actSt04aGirlSit(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     D_004F8710[0].func = actSt04aGirlSitChk;
@@ -2020,7 +1990,7 @@ extern ActMail D_004F8730[];
 void actSt04aTorchHint(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(0x99) == 0) {
@@ -2036,7 +2006,7 @@ extern ActMail D_004F8750[];
 void actSt04aModel(volatile int a0)
 {
     int x = a0;
-    Act *self = actInitialize(a0);
+    ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
     scpSearchGobj(0x288)->f16C = 0;
@@ -2098,12 +2068,8 @@ void actSt04aEnvSeWakare1(volatile int a0)
 }
 
 typedef struct {
-    float m[16];
-} Mtx44 __attribute__((aligned(16)));
-
-typedef struct {
     float m[4];
-} Vec4;
+} Vec4St04A;
 
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(int dst, int m, int src);
@@ -2113,7 +2079,7 @@ extern Mtx44 D_004F8610;
 
 void finishCallBackFunc(int a0)
 {
-    Vec4 v;
+    Vec4St04A v;
     int i;
 
     _ApplyMatrix((int)&v, *(int *)(*(int *)(a0 + 0x15C) + 0xC), (int)YUnitVector);
@@ -2278,7 +2244,7 @@ static ActMail model_on[2] = {{430}, {429}};
 
 void actSt04aModelOnChk(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt04A *sub = ((PObjGObjSt04A *)a0)->act;
 
     while (scpTriggerFloorAttr(D_00639EA4, 0x3000000) != 0) {
         _ACTWait(1);
@@ -2297,7 +2263,7 @@ static ActMail model_off[2] = {{430}, {429}};
 
 void actSt04aModelOffChk(volatile int a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    ActSt04A *sub = ((PObjGObjSt04A *)a0)->act;
 
     while (scpTriggerFloorAttr(D_00639EA4, 0x3000000) == 0) {
         _ACTWait(1);

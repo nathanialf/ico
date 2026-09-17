@@ -15,26 +15,9 @@
 #include "gflag.h"
 #include "StageAnimation.h"
 #include "motionManager2.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    Act *act;          /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
+#include <libvu0.h>
+#include "e3.h"
+#include "typedef.h"
 
 extern int D_0063AA08;
 extern int D_00639EAC;
@@ -52,24 +35,6 @@ extern int D_00639ED4;
 extern PObjGObj *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(void *a0, int mot);
-
-typedef struct JimakuSub {
-    char unk00[0x2C]; /* 0x0C */
-    int unk2C;        /* 0x38 */
-    int n;            /* 0x3C */
-    int unk34;        /* 0x40 */
-    int unk38;        /* 0x44 */
-    void *unk3C;      /* 0x48 */
-    void *unk40;      /* 0x4C */
-} JimakuSub;
-
-typedef struct JimakuArg {
-    int cmd;       /* 0x00 */
-    int unk04;     /* 0x04 */
-    int done;      /* 0x08 */
-    JimakuSub sub; /* 0x0C */
-} JimakuArg;
-
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 extern int D_0028F4C0[];
@@ -90,12 +55,6 @@ extern int D_0063C580;
 extern int D_0063BFC0;
 extern int boss;
 extern float D_0063AA0C;
-
-typedef struct PadState {
-    int unk00; /* 0x00 */
-    int flags; /* 0x04 */
-} PadState;
-
 extern PadState D_0028F8F0[];
 extern int D_0028F8F4[];
 /* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
@@ -121,29 +80,12 @@ extern void scpPlayWaitMotEnd(int a0);
 extern void scpPlayMotDir(int a0, float *dir);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
-extern void sceVu0SubVector(float *d, void *a, void *b);
 /* kept local: this TU's uses of scpGameStat_BoyWeaponkind do not fit the prototype in script.h */
 extern int scpGameStat_BoyWeaponkind(void);
 extern int boss_dead;
 extern int sekizo13b;
 extern int sekizo13b2;
 extern int meets_again;
-
-typedef struct StgPre {
-    unsigned char _0[0xA0];
-    short ent[0x18];
-    unsigned char _d0[0xC4];
-} StgPre;
-
-typedef struct ExitData {
-    float pos[3];
-    float rot[3];
-    int f_18;
-    int f_1C;
-    int f_20;
-    int f_24;
-} ExitData;
-
 extern StgPre D_005F5D50[];
 extern const ExitData D_0055C518[];
 extern int stage_no;

@@ -11,37 +11,13 @@
 #include "gflag.h"
 #include "script.h"
 #include "StageAnimation.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    Act *act;          /* 0x164 */
-} PObjGObj;
+#include <libvu0.h>
+#include "typedef.h"
 
 extern int D_0063AA08;
-extern void sceVu0SubVector(float *d, void *a, void *b);
 extern int D_00639EA4;
 extern int D_00639EAC;
 extern int D_0063C578;
-
-typedef struct PadState {
-    int unk00;        /* 0x00 */
-    int flags;        /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} PadState;
-
 extern PadState D_0028F8F0[];
 /* st13a.o's own .sdata run; MAIN.MAP names all seven. */
 extern int st13a_up;

@@ -5,6 +5,7 @@
 #include "generator.h"
 #include "lws_kyomi.h"
 #include "warpGirl.h"
+#include <string.h>
 
 /* the story flag bitmap, one bit per event flag; saved and restored whole */
 static unsigned char gflags[50] = {0};
@@ -16,7 +17,6 @@ extern int D_0063AA04;
 extern int before_stage_no;
 extern int gamesysVersionDiff;
 extern int stage_no;
-extern void memset(void *dst, int c, int n);
 /* kept local: this TU's uses of itouGFlagInit do not fit the prototype in itou_gflag.h */
 extern void itouGFlagInit();
 int gflagChk(int bit_idx);

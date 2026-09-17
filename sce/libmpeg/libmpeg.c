@@ -3,6 +3,8 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include "common.h"
+#include <libmpeg.h>
+#include <libipu.h>
 
 typedef struct {
     int unk0, unk4, unk8, unkC;
@@ -11,8 +13,6 @@ typedef struct {
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _type2id);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _id2type);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", sceMpegDemuxPssRing);
-
-extern void sceMpegDemuxPssRing(void *a0, int a1, int a2, int a3, int a4);
 
 void sceMpegDemuxPss(void *a0, int a1, int a2)
 {
@@ -499,8 +499,6 @@ void _pictureTemporalScalableExtension(void)
 {
     _Error(D_00636EE8);
 }
-
-extern void sceIpuStopDMA(void *a0);
 
 void _defStopDMA(int **a0)
 {

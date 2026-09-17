@@ -1,4 +1,5 @@
 #include "common.h"
+#include <stdio.h>
 
 typedef struct {
     char pad[0x194];
@@ -8,7 +9,6 @@ extern DispBuf D_005F5DD0[];
 extern char D_0063C090[];
 /* kept local: this TU's uses of GetDataFileName2 do not fit the prototype in access.h */
 extern char *GetDataFileName2();
-extern int sprintf(char *buf, char *fmt, ...);
 extern char D_0063C098[]; /* "DFDATAS" */
 extern char D_0063C0A0[]; /* "DF" */
 extern char D_0063C0A8[]; /* "DATAS" */

@@ -3,21 +3,7 @@
 #include "cdvd.h"
 #include "memory.h"
 #include "matrixDrive.h"
-
-/* prototypes: their order is the inline tail's emission order */
-void StandbyStreamMotion(int self);
-void StopStreamMotion(void);
-void DeleteStreamMotionManager(void);
-int EntryStreamMotion(char *a0);
-int GetDataSizeOfStreamMotion(int no);
-float GetStreamMotionData(char *dst, int no);
-void InitStreamMotionManager(void);
-int CheckReadyStreamMotion(void);
-void SetStreamMotionFinishCallBackFunc(int a0, int a1);
-void FreeStreamMotionBuffer(void);
-void ClearAllStreamMotionEntry(void);
-int _closeHander(void);
-int _handler(int self);
+#include "streamMotionManager.h"
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/streamMotionManager", _infoUpdate);
 
@@ -172,8 +158,6 @@ extern char D_006212A0[];
 extern char D_00621278[];
 extern int D_0063BBFC;
 extern int D_0063BC1C;
-/* kept local: the declaration in streamMotionManager.h changes this TU codegen */
-extern int _infoUpdate(void);
 
 void ExecStreamMotionManager(void)
 {
@@ -321,8 +305,6 @@ inline int GetDataSizeOfStreamMotion(int no)
 extern char D_00621228[];
 extern char D_00621230[];
 extern int D_0063BC28;
-/* kept local: the declaration in streamMotionManager.h changes this TU codegen */
-extern void getStreamMotionData();
 
 typedef struct {
     char c[4];
@@ -386,9 +368,6 @@ inline void FreeStreamMotionBuffer(void)
         D_0063BC0C = 0;
     }
 }
-
-/* kept local: the declaration in streamMotionManager.h changes this TU codegen */
-extern void _deleteStreamMotionManager();
 
 inline int _closeHander(void)
 {

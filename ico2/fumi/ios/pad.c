@@ -3,6 +3,9 @@
 #include "message.h"
 #include "shockdriver.h"
 #include "Matrix.h"
+#include <libvu0.h>
+#include <string.h>
+#include "typedef.h"
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/pad", controler_stable_check);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/pad", iosPadDevInit);
@@ -66,14 +69,7 @@ int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5)
     return rv;
 }
 
-typedef union {
-    float f[4];
-    long long ll[2];
-} Vec4;
-
 extern int matrixptr;
-extern void sceVu0TransposeMatrix(void *a0, void *a1);
-extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 
 void iosPadStickCameraCoord(void *a0, float *a1)
 {
@@ -102,7 +98,6 @@ int iosPadEnableGet(void)
 
 extern int ShockVoiceSetCommon;
 extern unsigned char D_006BCD58[];
-extern void memset(void *a0, int a1, int a2);
 
 void iosPadActInit(void)
 {

@@ -12,9 +12,20 @@
 #ifndef DOBJ_H
 #define DOBJ_H
 
-char *CSVSYSTEM_InitDObj(int id, float *lay);
-void LinkParentOfDObj(void *gobj, void *info);
+/* The parent-link word LinkParentOfDObj copies: one long long the ROM moves with
+ * an ld/sd pair off a 4-byte-aligned address, so the struct is packed. */
+typedef struct {
+    long long x;
+} __attribute__((packed, aligned(4))) PackedLL_19CAF0;
+
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order DObj.c's inline tail has. */
+void FreeDObj(void);
+void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1);
 void UnlinkParentOfDObj(void *a0);
+
+char *CSVSYSTEM_InitDObj(int id, float *lay);
 void initPolygonState(char *d, float *lay);
 
 #endif /* DOBJ_H */

@@ -12,6 +12,12 @@
 #ifndef DEJA_H
 #define DEJA_H
 
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order deja.c's inline tail has. */
+void actDeja(volatile int a0);
+void actEnemySleep(volatile int a0);
+
 void actDejaChk(volatile int a0);
 
 #endif /* DEJA_H */

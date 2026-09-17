@@ -12,7 +12,11 @@
 #ifndef CHARFILEMANAGER_H
 #define CHARFILEMANAGER_H
 
-void CSVSYSTEM_ReadCharFiles(char *d, int id);
-int GetPObjAddress(int obj);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order charFileManager.c's inline tail has. */
+void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6);
+void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6);
+
 
 #endif /* CHARFILEMANAGER_H */

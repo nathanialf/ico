@@ -18,33 +18,10 @@
 #include "item.h"
 #include "motionManager2.h"
 #include "rotObject.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    int act;           /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
+#include "typedef.h"
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copies read. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec doorUpEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}};
 
@@ -226,12 +203,6 @@ void actSt06aSuimon(volatile int a0)
         ReInitBoxGeo(scpSearchGobj(0x6ED));
     }
 }
-
-typedef struct Pad {
-    int unk00;        /* 0x00 */
-    int trg;          /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} Pad;
 
 extern Pad D_0028F8F0[];
 /* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */

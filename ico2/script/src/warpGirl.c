@@ -5,11 +5,11 @@
 #include "gflag.h"
 #include "script.h"
 #include "geometryManager.h"
-
 /* header prototypes (order fixes the inline tail) */
-/* prototypes: their order is the inline tail's emission order */
-void warpGirlInit(void);
-void warpGirlInit(void);
+#include "warpGirl.h"
+#include <string.h>
+#include <libvu0.h>
+
 extern int warpGirlId;
 
 inline void warpGirlInit(void)
@@ -56,7 +56,6 @@ extern int D_0063C258;
 extern int D_00639EA8;
 extern char D_0063AA58[];
 extern char D_0063AA60[];
-extern void *memset(void *p, int c, int n);
 
 /* warpGirl.c:75-81 in the listing: the "this record wins" setter.  No MAIN.MAP
    symbol (the listing inlines it), so the name is ours. */
@@ -145,7 +144,6 @@ void warpGirlOutStage(int stage, int noSet)
 }
 
 extern int warpGirlInStageSet;
-extern void sceVu0ScaleVector(float *dst, float *src, float s);
 
 void warpGirlInStage(int stageNo)
 {

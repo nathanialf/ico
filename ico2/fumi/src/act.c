@@ -7,11 +7,6 @@
 #include "mail-add-data.h"
 #include "motionOrientManager.h"
 
-typedef union {
-    float f[4];
-    long long ll[2];
-} Vec4;
-
 extern char D_00621BB0[];
 extern char D_00621BD0[];
 extern char D_002C2DC8[];
@@ -53,9 +48,9 @@ typedef struct {
     unsigned int b11 : 1;
     unsigned int b12 : 1;
     unsigned int _b13 : 19;
-} StatusAttr;
+} StatusAttrAct;
 
-extern StatusAttr D_005577D0[];
+extern StatusAttrAct D_005577D0[];
 extern char *D_0063A61C;
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
@@ -63,18 +58,11 @@ extern int D_0028F4C0[];
 /* kept local: this TU's uses of isysGObjProcAddGOppArg do not fit the prototype in gobj_process.h */
 extern int isysGObjProcAddGOppArg();
 extern int matrixptr;
-extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
-extern void sceVu0TransposeMatrix(void *a0, void *a1);
-/* prototypes: their order is the inline tail's emission order */
-void actInitialize_geo(void);
-int ACTReserveTarget(char *self, void *a1, int a2);
-void _ACTRun(int n);
-void _ACTWait(int a0);
-void actCreateSubThreadGOppArg(int a0, int a1);
-void actSetInterrupt(char *self, int val);
-void ConvertStickToAbsCoord(void *a0, float *a1);
-void ActSetStartBrainStatus(char *self, int status);
-void actWaitCondition(int a0, int a1);
+
+#include "act.h"
+#include <libvu0.h>
+#include <string.h>
+#include "typedef.h"
 
 inline void ActSetStartBrainStatus(char *self, int status)
 {
@@ -270,11 +258,6 @@ void after_func_exec(char *self, int oldst, int newst)
 
 inline void actInitialize_geo(void) {}
 
-typedef union {
-    unsigned long long q;
-    unsigned int w[2];
-} ActStatusWord;
-
 /* The pad configuration template copied into the work block at +0x1E8. */
 typedef struct {
     int w[60];
@@ -284,7 +267,6 @@ extern PadConf iosPadConfDefault;
 extern char D_00621CA0[];
 extern int D_0063A44C;
 extern void *D_0063A620;
-extern void *memset(void *p, int c, int n);
 
 void actInitialize_ext_charcter(char *self)
 {

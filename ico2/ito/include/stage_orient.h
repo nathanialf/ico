@@ -12,7 +12,14 @@
 #ifndef STAGE_ORIENT_H
 #define STAGE_ORIENT_H
 
-void OtherStagePositionGet(float *dst, int stage, int id, int *buf);
+#include "typedef.h"   /* VECTOR */
+
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order stage_orient.c's inline tail has. */
 void StageOrientInit(void);
+int StageOrientGet(VECTOR *ret, int stA, int stB);
+
+int OtherStagePositionGet(VECTOR *ret, int stA, int stB, VECTOR *pos);
 
 #endif /* STAGE_ORIENT_H */

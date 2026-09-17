@@ -12,10 +12,16 @@
 #ifndef KANBAN_H
 #define KANBAN_H
 
-void init_textures_of_specified_property(int first, int last);
-void kanbanInit(int no);
-void kanbanReqAllDelFade(void);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order kanban.c's inline tail has. */
 void kanbanReqDel(int *self);
 void kanbanReqDelFade(int a0);
+void kanbanReqAllDel(void);
+void kanbanReqAllDelFade(void);
+void kanbanExec(void);
+
+void init_textures_of_specified_property(int first, int last);
+void kanbanInit(int no);
 
 #endif /* KANBAN_H */

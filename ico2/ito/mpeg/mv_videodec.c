@@ -7,6 +7,7 @@
 #include "mv_sub.h"
 #include "mv_vibuf.h"
 #include "mv_vobuf.h"
+#include "typedef.h"
 
 void free_buf(int a0)
 {
@@ -87,13 +88,6 @@ int videoDecFlush(int a0)
     }
     return 1;
 }
-
-typedef struct ViTs {
-    long long pts;
-    long long dts;
-    int pos;
-    int len;
-} ViTs;
 
 extern int viBufPutTs(void *self, ViTs *ts);
 

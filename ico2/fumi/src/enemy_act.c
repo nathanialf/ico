@@ -15,6 +15,8 @@
 #include "geometryManager.h"
 #include "motionOrientManager.h"
 #include "quaternion.h"
+#include <string.h>
+#include "commonact.h"
 
 extern int D_0063A7E0;
 /* INTERIM stand-in: the 2001 source declares _BrainMode_SetDirect `inline` -- the
@@ -115,7 +117,6 @@ void setBattleStatus(EnemyBattleGObj *self)
     }
 }
 
-extern void *memset(void *dst, int c, int n);
 extern void sceVu0CopyVector(float *dst, float *src);
 extern int D_0028F4C0[];
 
@@ -252,8 +253,6 @@ void _DoAwaitGirl(char *self)
 extern void *D_00639EA4;
 /* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
 extern float _DistxzSqGV(float *a0, float *a1);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern void *test_CURRENTROOT(int a0);
 
 int _MustChase(int a0)
 {
@@ -300,8 +299,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyCollision);
 extern void _OrientXZGV(float *dst, float *a, float *b);
 /* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
 extern void SetMotionDirection(void *self, float *dir);
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(void *a0, int a1);
 /* kept local: this TU's uses of GetMotionFrameFlag2 do not fit the prototype in motionManager2.h */
 extern int GetMotionFrameFlag2(void *self);
 /* kept local: this TU's uses of SetMotionDirectionWithLimit do not fit the prototype in motionManager2.h */
@@ -529,8 +526,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapEnd);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapBegin);
 
 extern void *D_00639EA4;
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
-extern void *test_CURRENTORIENT(int a0);
 /* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
 /* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
@@ -597,8 +592,6 @@ extern float _DistSqGV(float *a, float *b);
 extern int GetMotionFrameFlag1(void *self);
 /* kept local: this TU's uses of GetMotionFrameFlag2 do not fit the prototype in motionManager2.h */
 extern int GetMotionFrameFlag2(void *self);
-/* kept local: this TU's uses of _ACTMotDirSmzDirect do not fit the prototype in commonact.h */
-extern void _ACTMotDirSmzDirect(void *self, float *dir);
 extern float D_0029D100[];
 
 /* listing rows 2655-2657: a `static inline` outside this function's span. */
@@ -692,18 +685,12 @@ void actEnemyBodylift(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern void *test_CURRENTROOT(int a0);
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
-extern void *test_CURRENTORIENT(int a0);
 /* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
 extern void _OrientXZGV(float *dst, float *a, float *b);
 /* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
 extern void SetMotionDirection(void *self, float *dir);
 /* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
 extern int _RotyGV(float *a0, void *a1);
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(void *a0, int a1);
 
 /* Static inline of the 2001 source (listing lines 2889-2892 sit inside
    actEnemyPickupBegin's ROM range but above its own body lines).  ROM's frame
@@ -1256,9 +1243,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToBoy);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", ChangeBrain_ToKidnap);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToGirl);
 
-/* kept local: this TU's uses of SetMotionDirectionSmooze do not fit the prototype in commonact.h */
-extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
-
 /* static inline of the 2001 source: the disc listing attributes rows
    1643-1660 -- which lie outside every function's own line span -- to the
    bodies of EnemyUtil_TurnToBoy, _ApproachTarget_Boss and subEnemyCollision
@@ -1508,9 +1492,6 @@ void actEnemyCarry(volatile int a0)
     __assert(D_00553370, 0xB75, D_0063A7E8);
 }
 
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(void *a0, int a1);
-
 void actEnemyBodyslam(volatile int a0)
 {
     iosOmSendMail((int)D_00639EA4, *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x200), a0);
@@ -1519,9 +1500,6 @@ void actEnemyBodyslam(volatile int a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(void *a0, int a1);
 
 void actEnemyBodyslamFail(volatile int a0)
 {
@@ -1641,9 +1619,6 @@ zero:
 one:
     return 1;
 }
-
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(void *a0, int a1);
 
 int ACTEnemyForceSwitchToCarry(char *a0)
 {
@@ -1865,9 +1840,6 @@ void subEnemyBrain_Shoulder(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(void *a0, int a1);
-
 void subEnemyBrain_Pickup(volatile int a0)
 {
     ACTSendMailCorrect((void *)a0, 0x16C);
@@ -1876,9 +1848,6 @@ void subEnemyBrain_Pickup(volatile int a0)
         _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
     }
 }
-
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(void *a0, int a1);
 
 void subEnemyBrain_Bodyslam(volatile int a0)
 {
@@ -1943,9 +1912,6 @@ void _BrainMode_SetDirect(char *a0, int a1, int *a2)
         *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x214) = D_0063A7E0;
     }
 }
-
-/* kept local: this TU's uses of SetMotionDirectionSmooze do not fit the prototype in commonact.h */
-extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
 
 void EnemyUtil_TurnToBoy(char *self, int tgt, int smooze)
 {

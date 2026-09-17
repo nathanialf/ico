@@ -8,6 +8,9 @@
  * __assert file string is "libscf.c" at 0x637260 (evidence rung: ROM bytes);
  * only the archive it was linked from stays an inference. */
 #include "common.h"
+#include <stdio.h>
+#include <libscf.h>
+#include <sifdev.h>
 
 /* The T10K (DTL-T10000 development kit) OSD configuration shadow the
  * sceScfSet/Get pair reads.  In the 2001 source this is the file's own static;
@@ -101,7 +104,6 @@ typedef struct {
 } sceCdCLOCK;
 
 extern void __assert(char *file, int line, char *expr);
-extern void printf(char *fmt, ...);
 extern void AdjustTime(sceCdCLOCK *prtc, int diff);
 extern void convertfrombcd(sceCdCLOCK *prtc);
 extern void converttobcd(sceCdCLOCK *prtc);
@@ -111,9 +113,7 @@ extern void addhour(sceCdCLOCK *prtc);
 extern void subhour(sceCdCLOCK *prtc);
 extern unsigned char tobcd(unsigned char c);
 extern unsigned char frombcd(unsigned char c);
-extern int sceScfGetTimeZone(void);
 extern int sceScfGetSummerTime(void);
-extern int sceOpen(char *name, int flags);
 extern int sceRead(int fd, void *buf, int size);
 extern int sceClose(int fd);
 extern char *GetRomName(void);

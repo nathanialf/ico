@@ -7,19 +7,9 @@
 #include "frameDependSequence.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
+#include "spiderGroupManager.h"
+#include "spider.h"
 
-/* header prototypes (order fixes the inline tail) */
-/* prototypes: their order is the inline tail's emission order */
-void InitSpiderGroupManager(void);
-void EntryRevivedSpiderGroupManager(int a0);
-void DispAllSpiderGroups(void);
-void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1);
-int *getReviveEnemyGObj(int count);
-void InitSpiderGroupManager(void);
-void EntryRevivedSpiderGroupManager(int a0);
-void DispAllSpiderGroups(void);
-void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1);
-int *getReviveEnemyGObj(int count);
 extern int D_0063BAE0;
 extern int D_0063BAE4;
 extern int D_0063BAE8;
@@ -39,8 +29,6 @@ static int spiderGroupColors[7][4] = {{0x7F, 0x00, 0x00, 0x80}, {0x40, 0x7F, 0x0
 
 extern int D_0063BAC4;
 extern int D_0063BADC;
-/* kept local: this TU's uses of DispAllMemberOfSpider do not fit the prototype in spider.h */
-extern void DispAllMemberOfSpider();
 extern int D_00723F98[];
 
 inline void InitSpiderGroupManager(void)
@@ -131,12 +119,6 @@ inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
 
 extern int D_0063BAF4;
 extern int D_00723AE0[];
-/* kept local: this TU's uses of CheckSpidersInsideOfReviveRange do not fit the prototype in spider.h */
-extern int CheckSpidersInsideOfReviveRange(int *out, int group, float *pos);
-/* kept local: this TU's uses of DeleteSpiderFromLayoutGroup do not fit the prototype in spider.h */
-extern int DeleteSpiderFromLayoutGroup(int a, int b);
-/* kept local: this TU's uses of SetSpiderGroupReviveStatus do not fit the prototype in spider.h */
-extern void SetSpiderGroupReviveStatus(void *gobj);
 
 typedef struct {
     int group;    /* 0x00 */
@@ -195,12 +177,6 @@ int tryToRevive(void)
 
 extern int D_0063B138;
 extern int D_0028F4C0[];
-/* kept local: the declaration in spiderGroupManager.h changes this TU codegen */
-extern int tryToRevive(void);
-/* kept local: this TU's uses of GetAliveSpiders do not fit the prototype in spider.h */
-extern int GetAliveSpiders(int gobj);
-/* kept local: this TU's uses of DeadAllSpiders do not fit the prototype in spider.h */
-extern void DeadAllSpiders(int gobj);
 
 void ExecSpiderGroupManager(void)
 {

@@ -22,46 +22,13 @@
 #include "StageAnimation.h"
 #include "motionManager2.h"
 #include "weapon.h"
-
-typedef union ActStatus {
-    unsigned long long ll;
-    int i[2];
-} ActStatus;
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct JimakuSub {
-    char unk00[0x2C]; /* 0x0C */
-    int unk2C;        /* 0x38 */
-    int n;            /* 0x3C */
-    int unk34;        /* 0x40 */
-    int unk38;        /* 0x44 */
-    void *unk3C;      /* 0x48 */
-    void *unk40;      /* 0x4C */
-} JimakuSub;
-
-typedef struct JimakuArg {
-    int cmd;       /* 0x00 */
-    int unk04;     /* 0x04 */
-    int done;      /* 0x08 */
-    JimakuSub sub; /* 0x0C */
-} JimakuArg;
+#include <libvu0.h>
+#include <string.h>
+#include "e3.h"
+#include "typedef.h"
 
 /* scpEffectStart's argument block: a 16-byte spawn position, copied as a
    pair of doublewords and written as four floats. */
-typedef union EffectArg {
-    float f[4];
-
-    struct {
-        long long lo; /* 0x00 */
-        long long hi; /* 0x08 */
-    } d;
-} EffectArg;
 
 typedef struct AnimSet {
     int anim[5]; /* 0x00 */
@@ -81,28 +48,17 @@ typedef struct MotObj {
     int unk514;        /* 0x514 */
 } MotObj;
 
-typedef struct Act {
-    char unk00[0x20];  /* 0x00 */
-    ActStatus flags20; /* 0x20 */
-    char unk28[0xC];   /* 0x28 */
-    int unk34;         /* 0x34 */
-    char unk38[0x68];  /* 0x38 */
-    long long flags;   /* 0xA0 */
-    char unkA8[0x28];  /* 0xA8 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-    char unkD8[0x20C]; /* 0xD8 */
-    int unk2E4;        /* 0x2E4 */
-} Act;
-
-typedef struct PObjGObj {
+/* kept local: this TU's bytes only come out with its own view of PObjGObjSt13c. */
+/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct PObjGObjSt13c {
     char pad00[0x15C]; /* 0x000 */
     int unk15C;        /* 0x15C */
     int unk160;        /* 0x160 */
     int act;           /* 0x164 (Act * handle) */
     int unk168;        /* 0x168 */
     int unk16C;        /* 0x16C */
-} PObjGObj;
+} PObjGObjSt13c;
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj(int a0);
@@ -120,7 +76,6 @@ extern int scpTriggerFloorAttr(int a0, int a1);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
 /* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
@@ -141,7 +96,6 @@ extern void scpFadeIn(float f);
 extern int scpFadeChk(void);
 /* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
-extern void memset(void *a0, int a1, int a2);
 /* kept local: this TU's uses of ScpCallCameraOn do not fit the prototype in script.h */
 extern void ScpCallCameraOn(void);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
@@ -245,16 +199,17 @@ void actSt13cEnd(void)
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
+/* kept local: this TU's bytes only come out with its own view of ConstVecSt13c. */
 typedef union {
     float f[4];
     long long d[2];
-} __attribute__((aligned(16))) ConstVec;
+} __attribute__((aligned(16))) ConstVecSt13c;
 
 /* The animations actSt13cConte04 steps through. */
 static const AnimSet conte04Anims = {{625, 626, 627, 628, 629}};
 
 /* Where actSt13cSleepChk turns the sleeping girl to face. */
-static const ConstVec sleepFacePos = {{-800.0f, 0.0f, -1000.0f, 1.0f}};
+static const ConstVecSt13c sleepFacePos = {{-800.0f, 0.0f, -1000.0f, 1.0f}};
 
 /* The animations actSt13cConte05 steps through. */
 static const AnimSet16 conte05Anims = {
@@ -293,7 +248,7 @@ void actSt13cBmg1(volatile int a0)
         return;
     }
 
-    ((Act *)((PObjGObj *)D_00639EA4)->act)->flags |= 0x100000;
+    ((Act *)((PObjGObjSt13c *)D_00639EA4)->act)->flags |= 0x100000;
 
     if (gflagChk(0x14) != 0) {
         scpPlayPosSet(D_00639EA8, -30.0f, -436.0f, -1.0f);
@@ -574,7 +529,7 @@ void actSt13cCageFall(volatile int a0)
     if (gflagChk(0x14) == 0) {
         stage_SetAnimation(0x48, -1, -2);
 
-        ((PObjGObj *)scpSearchGobj(0x80))->unk16C = 0;
+        ((PObjGObjSt13c *)scpSearchGobj(0x80))->unk16C = 0;
         SetWeaponTorchChainReactionFlagAll(1);
 
         cageFallChk_mes[0].func = actSt13cCageFallChk;
@@ -583,7 +538,7 @@ void actSt13cCageFall(volatile int a0)
         _ACTWait(0);
     } else {
         if (gflagChk(0x16) == 0) {
-            ((PObjGObj *)scpSearchGobj(0x80))->unk16C = 0;
+            ((PObjGObjSt13c *)scpSearchGobj(0x80))->unk16C = 0;
             SetWeaponTorchChainReactionFlagAll(1);
 
             stage_SetAnimation(0x48, 0, -1);
@@ -595,7 +550,7 @@ void actSt13cCageFall(volatile int a0)
             _ACTWait(0);
         }
 
-        ((PObjGObj *)scpSearchGobj(0x90))->unk16C = 0;
+        ((PObjGObjSt13c *)scpSearchGobj(0x90))->unk16C = 0;
 
         stage_SetAnimation(0x4C, 0, -1);
         stage_SetAnimation(0x4A, 0, -1);
@@ -681,10 +636,10 @@ void actSt13cCageFallChk(volatile int a0)
 
         jimakuUndisp((int)&jimaku_msg);
 
-        ((PObjGObj *)scpSearchGobj(0x80))->unk16C = 1;
-        ((PObjGObj *)scpSearchGobj(0x81))->unk16C = 1;
-        ((PObjGObj *)scpSearchGobj(0x82))->unk16C = 1;
-        ((PObjGObj *)scpSearchGobj(0x36))->unk16C = 1;
+        ((PObjGObjSt13c *)scpSearchGobj(0x80))->unk16C = 1;
+        ((PObjGObjSt13c *)scpSearchGobj(0x81))->unk16C = 1;
+        ((PObjGObjSt13c *)scpSearchGobj(0x82))->unk16C = 1;
+        ((PObjGObjSt13c *)scpSearchGobj(0x36))->unk16C = 1;
 
         scpTorchLightOn(0x90);
         ResetHandCameraLimitInDemo();
@@ -749,12 +704,12 @@ void actSt13cCageFallChk(volatile int a0)
     ACTEnemyForceSwitchToCarry(scpSearchGobj(0x96));
     scpTorchLightOff(0x90);
 
-    ((PObjGObj *)scpSearchGobj(0x90))->unk16C = 0;
+    ((PObjGObjSt13c *)scpSearchGobj(0x90))->unk16C = 0;
 
     scpPlayEnd(D_00639EA4);
     scpPlayEnd(D_00639EA8);
 
-    ((Act *)((PObjGObj *)scpSearchGobj(0x96))->act)->flags20.ll |= 0x20000;
+    ((Act *)((PObjGObjSt13c *)scpSearchGobj(0x96))->act)->flags20.ll |= 0x20000;
 
     D_0063AA08 = 0;
     lt_switch_layout(0x36);
@@ -763,7 +718,7 @@ void actSt13cCageFallChk(volatile int a0)
     gflagOn(0x19);
     SetWeaponTorchChainReactionFlagAll(0);
 
-    ((Act *)((PObjGObj *)D_00639EA4)->act)->flags &= ~0x100000;
+    ((Act *)((PObjGObjSt13c *)D_00639EA4)->act)->flags &= ~0x100000;
 }
 
 void actSt13cConte05(volatile int a0)
@@ -818,10 +773,10 @@ void actSt13cConte05(volatile int a0)
     scpPlayMot(D_00639EA8, 0x2D8);
     _ACTWait(1);
 
-    ((PObjGObj *)scpSearchGobj(0x80))->unk16C = 1;
-    ((PObjGObj *)scpSearchGobj(0x81))->unk16C = 0;
-    ((PObjGObj *)scpSearchGobj(0x82))->unk16C = 0;
-    ((PObjGObj *)scpSearchGobj(0x36))->unk16C = 0;
+    ((PObjGObjSt13c *)scpSearchGobj(0x80))->unk16C = 1;
+    ((PObjGObjSt13c *)scpSearchGobj(0x81))->unk16C = 0;
+    ((PObjGObjSt13c *)scpSearchGobj(0x82))->unk16C = 0;
+    ((PObjGObjSt13c *)scpSearchGobj(0x36))->unk16C = 0;
 
     scpTorchLightOn(0x90);
 
@@ -837,7 +792,7 @@ void actSt13cConte05(volatile int a0)
 
     SetHandCameraLimitInDemo(5, 5);
 
-    ((PObjGObj *)scpSearchGobj(0x36))->unk16C = 1;
+    ((PObjGObjSt13c *)scpSearchGobj(0x36))->unk16C = 1;
 
     scpPlayMot(D_00639EA4, 0x13E);
     scpPlayMot(D_00639EA8, 0x2DA);
@@ -851,8 +806,8 @@ void actSt13cConte05(volatile int a0)
     scpPlayMot(D_00639EA4, 0x13F);
     scpPlayMot(D_00639EA8, 0x2DB);
 
-    ((PObjGObj *)scpSearchGobj(0x81))->unk16C = 1;
-    ((PObjGObj *)scpSearchGobj(0x82))->unk16C = 1;
+    ((PObjGObjSt13c *)scpSearchGobj(0x81))->unk16C = 1;
+    ((PObjGObjSt13c *)scpSearchGobj(0x82))->unk16C = 1;
 
     _ACTWait(0x12C);
     gflagOn(0x17);
@@ -1114,14 +1069,14 @@ void actSt13cSekizoChk(volatile int a0)
 
 void actSt13cGirlCarryChk(volatile int a0)
 {
-    Act *self = (Act *)((PObjGObj *)a0)->act;
+    Act *self = (Act *)((PObjGObjSt13c *)a0)->act;
 
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
 
-    while (gflagChk(0x19) == 0 || ((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 == 0x6F ||
-           ((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 == 0x6E || gflagChk(0x1D) != 0) {
+    while (gflagChk(0x19) == 0 || ((Act *)((PObjGObjSt13c *)D_00639EA8)->act)->unk34 == 0x6F ||
+           ((Act *)((PObjGObjSt13c *)D_00639EA8)->act)->unk34 == 0x6E || gflagChk(0x1D) != 0) {
         _ACTWait(1);
     }
 
@@ -1132,7 +1087,7 @@ void actSt13cGirlCarryChk(volatile int a0)
     scpPlayWaitMotEnd(D_00639EA8);
     scpPlayMot(D_00639EA8, 0x254);
 
-    ((MotObj *)((PObjGObj *)D_00639EA8)->unk15C)->unk514 =
+    ((MotObj *)((PObjGObjSt13c *)D_00639EA8)->unk15C)->unk514 =
         (int)((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f * 30.0f);
 
     gflagOn(0x1A);
@@ -1162,8 +1117,8 @@ void actSt13cHandChk(volatile int a0)
             scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0 &&
             scpTriggerFloorAttr(D_00639EA4, 0x3000000) != 0 && gflagChk(0x1A) != 0 &&
             scpTriggerBall(D_00639EA8, D_00639EA4, 550.0f) != 0 &&
-            (((Act *)((PObjGObj *)D_00639EA4)->act)->unk2E4 & 8) != 0 &&
-            ((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 != 0x6E) {
+            (((Act *)((PObjGObjSt13c *)D_00639EA4)->act)->unk2E4 & 8) != 0 &&
+            ((Act *)((PObjGObjSt13c *)D_00639EA8)->act)->unk34 != 0x6E) {
             break;
         }
         if (gflagChk(0x1E) != 0) {
@@ -1176,7 +1131,7 @@ void actSt13cHandChk(volatile int a0)
     D_0063AA08 = 1;
     scpSleepEnemyAll();
 
-    ((Act *)((PObjGObj *)scpSearchGobj(0x96))->act)->flags20.ll &= ~0x20000;
+    ((Act *)((PObjGObjSt13c *)scpSearchGobj(0x96))->act)->flags20.ll &= ~0x20000;
 
     fightSoundProcessRequestPause();
 
@@ -1253,7 +1208,7 @@ void actSt13cHandChk(volatile int a0)
     scpPlayEnd(D_00639EA4);
     scpPlayEnd(D_00639EA8);
 
-    ((MotObj *)((PObjGObj *)D_00639EA4)->unk15C)->unk514 =
+    ((MotObj *)((PObjGObjSt13c *)D_00639EA4)->unk15C)->unk514 =
         (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 30.0f);
 
     _ACTWait(1);
@@ -1551,7 +1506,7 @@ void actSt13cSleepChk(volatile int a0)
 
 void actSt13cCageDownMain(volatile int a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = (Act *)((PObjGObjSt13c *)a0)->act;
 
     sub->mainMail = cageDownMain_mes;
     while (1) {
@@ -1561,7 +1516,7 @@ void actSt13cCageDownMain(volatile int a0)
 
 void actSt13cCageDownSwitch(volatile int a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = (Act *)((PObjGObjSt13c *)a0)->act;
 
     sub->mainMail = 0;
     D_0063AA08 = 1;
@@ -1658,13 +1613,13 @@ void actSt13cSekizoJimakuEff(volatile int a0)
 
 void actSt13cGirlCarryAgainChk(volatile int a0)
 {
-    Act *self = (Act *)((PObjGObj *)a0)->act;
+    Act *self = (Act *)((PObjGObjSt13c *)a0)->act;
 
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
 
-    while (((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 != 0x6F) {
+    while (((Act *)((PObjGObjSt13c *)D_00639EA8)->act)->unk34 != 0x6F) {
         _ACTWait(1);
     }
 
@@ -1692,7 +1647,7 @@ void actSt13cRescueChk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (((Act *)((PObjGObj *)D_00639EA8)->act)->unk34 != 0x6E) {
+    while (((Act *)((PObjGObjSt13c *)D_00639EA8)->act)->unk34 != 0x6E) {
         _ACTWait(1);
     }
 

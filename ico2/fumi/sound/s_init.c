@@ -6,6 +6,9 @@
 #include "pad.h"
 #include "adpcm_init.h"
 #include "camera-root.h"
+#include <sifrpc.h>
+#include <libvu0.h>
+#include <eekernel.h>
 
 typedef struct SqEntry {
     unsigned short num;  /* 0x0 */
@@ -211,8 +214,6 @@ void soundAllocIopHeap(void)
         debug_StdPrintfDummy(D_00552210, r, 0x78000);
     }
 }
-
-extern void sceSifFreeIopHeap();
 
 void soundAllocIopFree(void)
 {
@@ -642,7 +643,6 @@ void soundSeVolSet(SeSlot *self)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", debug_DispSEInfo);
 
 extern void SgSetSeVolDirect(int id, int l, int r);
-extern void sceVu0CopyVector(float *dst, float *src);
 extern void soundSeVolSet(SeSlot *self);
 
 void sound3DParamSet(SeSlot *self)
@@ -908,9 +908,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundDataSegNextStageNotU
 extern char D_00552170[];
 extern char D_00552188[];
 extern char D_005521A0[];
-extern void FlushCache(int a);
-extern int sceSifDmaStat(int h);
-extern int sceSifSetDma(int p, int a);
 
 int Ee2Iop(int a0, int a1, int a2)
 {

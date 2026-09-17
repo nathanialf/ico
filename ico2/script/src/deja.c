@@ -9,6 +9,8 @@
 #include "script.h"
 #include "Shadow.h"
 #include "StageAnimation.h"
+#include <libvu0.h>
+#include "typedef.h"
 
 /* PAL listing rows: every instruction of actDeja is attributed to
  * script/src/deja.c lines 170-189 -- no inlined helper bodies.
@@ -19,35 +21,13 @@
  * src/cod .data carve, so it stays extern here. */
 extern int D_0063AA08;
 
-typedef struct ActMail {
-    int mail;          /* 0x00 */
-    void (*func)(int); /* 0x04 */
-    int unk08;         /* 0x08 */
-    int unk0C;         /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD4]; /* 0x00 */
-    ActMail *mail;    /* 0xD4 */
-} Act;
-
 static ActMail _mes[2] = {{430}, {429}};
 
 static ActMail after_mes[2] = {{430}, {429}};
 
 /* --- su-b sweep decls --- */
-typedef union {
-    float f[4];
-    long long w[2];
-} Vec16;
 
 extern char *D_00639EA4;
-
-typedef struct PadState {
-    int unk00; /* 0x00 */
-    int flags; /* 0x04 */
-} PadState;
-
 extern PadState D_0028F8F0[];
 extern int D_0063C4DC;
 void actDejaDemo(volatile int a0);
@@ -79,13 +59,8 @@ extern const StageRec D_005F5D50[];
 extern const StgEntry D_0055C518[];
 void actDejaAfterChk(volatile int a0);
 extern char *deja;
-extern void sceVu0SubVector(void *dst, void *a, void *b);
 
 static const Vec16 afterChkPos = {{-1000.0f, 0.0f, -2200.0f, 1.0f}};
-
-/* prototypes: their order is the inline tail's emission order */
-void actDeja(volatile int a0);
-void actEnemySleep(volatile int a0);
 
 inline void actEnemySleep(volatile int a0)
 {

@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "mblock.h"
 #include "memory.h"
+#include <string.h>
 
 int huft_free(char *p);
 
@@ -74,7 +75,6 @@ extern unsigned short D_0029B4F0[]; /* cpdext */
 #define BMAX 16
 #define N_MAX 288
 
-extern void *memset(void *s, int c, int n);
 extern int D_0063A464;
 extern char D_00550FF0[];
 

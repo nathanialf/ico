@@ -1,6 +1,7 @@
 #include "common.h"
 #include "debug.h"
 #include "DisplayFont.h"
+#include <string.h>
 
 /* staffroll.o's whole .data run: the roll's display area, centred on the
    origin, {x, y, width, height}.  Only the first word is read here, as the
@@ -34,7 +35,6 @@ extern int D_0063C428;
 extern int D_0063C43C;
 extern float staffRollCenterOffsetX;
 extern float staffRollCenterOffsetXDest;
-extern void memset(void *dst, int c, int n);
 
 void staffRollStart(float t, int alpha)
 {

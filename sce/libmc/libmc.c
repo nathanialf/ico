@@ -1,6 +1,9 @@
 /* libmc.a member libmc.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
+#include <sifrpc.h>
+#include <libmc.h>
+#include <string.h>
 
 /* R5900 opcodes with no C spelling.  This member's uses stand for a
    Sony-internal header this tree cannot name: MAIN.MAP attests archives and
@@ -40,7 +43,6 @@ void *_lmcGetClientPtr(int *a0, int *a1)
 extern char D_0072F640[];
 extern int PollSema(int sema);
 extern void SignalSema(int sema);
-extern int sceSifCallRpc();
 
 int sceMcChangeThreadPriority(int arg)
 {
@@ -94,8 +96,6 @@ int sceMcGetSlotMax(int arg)
 }
 
 extern NameReq D_0072F670;
-extern void sceSifWriteBackDCache(void *addr, int len);
-extern char *strncpy(char *dst, const char *src, int n);
 
 int sceMcOpen(int a0, int a1, char *name, int flags)
 {
@@ -135,8 +135,6 @@ unlock:
 done:
     return r;
 }
-
-extern int sceMcOpen(int a0, int a1, char *name, int a3);
 
 int sceMcMkdir(int a0, int a1, char *name)
 {
@@ -230,7 +228,6 @@ void mceIntrReadFixAlign(void *arg)
 }
 
 extern char D_0072FAC0[];
-extern void sceSifWriteBackDCache(void *addr, int len);
 extern void mceIntrReadFixAlign();
 
 int sceMcRead(int a0, void *buf, int len)
@@ -286,7 +283,6 @@ void mcDelayThread(int a0)
 
 extern void SignalSema(int sema);
 extern void mcDelayThread(int a0);
-extern int sceSifCheckStatRpc(char *a0);
 
 int sceMcSync(int a0, int *a1, int *a2)
 {
@@ -380,8 +376,6 @@ done:
 }
 
 extern char D_0072FB80[];
-extern int memcpy(char *a0, char *a1, int a2);
-extern int strlen(char *a0);
 
 void mceStorePwd(char *a0)
 {

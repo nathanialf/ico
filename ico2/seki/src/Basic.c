@@ -22,14 +22,8 @@ extern int iosMallocDebug(int heap, int size, const char *file, int line);
 extern int iosFree();
 /* kept local: this TU's uses of iosReallocDebug do not fit the prototype in memory.h */
 extern int iosReallocDebug(int size, int align, const char *file, int line);
-/* prototypes: their order is the inline tail's emission order */
-void malloc_SetPartition(int val);
-int malloc_GetPartition(void);
-int mallocseki(int size);
-int freeseki(void *a0);
-void resetmallocseki(void);
-int mallocsekistage(int size);
-int reallocseki(int size, int align);
+
+#include "Basic.h"
 
 void dma_init(void)
 {

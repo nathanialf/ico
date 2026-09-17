@@ -28,13 +28,10 @@ extern int D_0063B644;
 extern float D_0071D960[];
 extern float D_0071D970[];
 extern int exit_no;
-/* prototypes: their order is the inline tail's emission order */
-void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0);
-char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, int a6, int a7);
-void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5);
-void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
-int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r);
-void MoveNextStage_Clear(void);
+
+#include "sceneManager.h"
+#include "backStage.h"
+#include "typedef.h"
 
 inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5)
 {
@@ -103,6 +100,7 @@ inline void MoveNextStage_Clear(void)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", GetRealModelId);
 
+/* kept local: this TU's bytes only come out with its own view of StgPreScenemanager. */
 typedef struct {
     char _0[0x60];
     float f060[8]; /* 0x060 */
@@ -120,15 +118,18 @@ typedef struct {
     unsigned int attr0 : 1; /* 0x190 */
     unsigned int attr1 : 1;
     unsigned int attr2 : 30;
-} StgPre;
+} StgPreScenemanager;
 
-extern const StgPre D_005F5D50[];
+extern const StgPreScenemanager D_005F5D50[];
 
-/* sceneManager.c:213-313.  D_0028F720 is the StageSetting record ico2/seki/src/GsBase.c
+/* sceneManager.c:213-313.  D_0028F720 is the StageSettingScenemanager record ico2/seki/src/GsBase.c
    already names; the fields this TU touches beyond that file's four are spelled by
    offset.  The stage-preset record is read through the D_005F5D50[stage] subscript on
    every line, which is what the listing's per-line pointer copies show. */
-typedef struct StageSetting {
+/* kept local: this TU's bytes only come out with its own view of StageSettingScenemanager. */
+/* kept local: this TU's bytes only come out with its own view of StageSetting, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct StageSettingScenemanager {
     float flatLightDir[3][4]; /* 0x000 */
     float flatLightCol[3][4]; /* 0x030 */
     float ambientCol[4];      /* 0x060 */
@@ -189,9 +190,9 @@ typedef struct StageSetting {
     } f19C[4]; /* 0x19C */
 
     int subMotionBlur[4]; /* 0x1BC */
-} StageSetting;
+} StageSettingScenemanager;
 
-extern StageSetting D_0028F720;
+extern StageSettingScenemanager D_0028F720;
 extern int D_0028F4F0[];
 extern char D_0061DDD8[];
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
@@ -315,39 +316,6 @@ inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, 
     return gobj;
 }
 
-typedef struct {
-    float scale[3];        /* 0x00 */
-    float rot[3];          /* 0x0C */
-    float pos[3];          /* 0x18 */
-    int f24;               /* 0x24 */
-    int *f28;              /* 0x28 */
-    int mdl;               /* 0x2C */
-    int f30;               /* 0x30 */
-    char _34[4];           /* 0x34 */
-    int f38;               /* 0x38 */
-    char _3C[4];           /* 0x3C */
-    unsigned short f40;    /* 0x40 */
-    unsigned short f44;    /* 0x42 */
-    unsigned short parent; /* 0x44 */
-    unsigned char kind;    /* 0x46 */
-    unsigned char f47;     /* 0x47 */
-    unsigned int f48;      /* 0x48 */
-} GenGeo;
-
-typedef struct {
-    short flag;
-    unsigned short no;
-    unsigned short stage;
-    short pad06;
-    int time;
-    int uniq;
-    float pos[3];
-    float pad1C;
-    float rot[3];
-    float pad2C;
-    int work[4];
-} GamesysObjInfo;
-
 typedef union {
     long long flag;
     GamesysObjInfo info;
@@ -364,10 +332,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", initParentLink);
    and no census row, so the names below are descriptive. */
 
 extern GamesysObjInfoFlag D_004DA980[];
-/* kept local: the declaration in sceneManager.h changes this TU codegen */
-extern void initSceneGObj(int stage, int id);
-/* kept local: the declaration in sceneManager.h changes this TU codegen */
-extern void initParentLink(int id);
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
 extern int *isysGObjSearchFromObjKindID_begin(int kind);
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */

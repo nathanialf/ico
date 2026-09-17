@@ -4,20 +4,12 @@
 
 /* kept local: this TU's uses of isysGObjInit do not fit the prototype in gobj.h */
 extern void isysGObjInit();
-/* kept local: this TU's uses of isysGObjProcessInit do not fit the prototype in gobj_process.h */
-extern void isysGObjProcessInit();
-/* kept local: the declaration in obj_manager.h changes this TU codegen */
-extern void _iosOmMain();
 extern int *D_0029C4F0[];
 /* kept local: this TU's uses of isysGetNbAllocedGObjs do not fit the prototype in gobj.h */
 extern int isysGetNbAllocedGObjs();
 extern char *D_0063A61C;
 /* kept local: this TU's uses of isysGObjRemove do not fit the prototype in gobj.h */
 extern void isysGObjRemove(char *g);
-/* kept local: this TU's uses of isysGObjProcPauseAll do not fit the prototype in gobj_process.h */
-extern void isysGObjProcPauseAll(char *g);
-/* kept local: this TU's uses of isysGObjProcActiveAll do not fit the prototype in gobj_process.h */
-extern void isysGObjProcActiveAll(char *g);
 
 typedef struct {
     int type;
@@ -30,17 +22,9 @@ typedef struct {
     IosMail mail[32];
 } IosMailBox;
 
-/* prototypes: their order is the inline tail's emission order */
-void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg);
-void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg);
-int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int flag);
-void iosOmGetGObjStatus(int a0, int a1);
-int *iosOmSearchGObjId(int idx, int target);
-int *iosOmSearchGObjIdAll(int a0);
-void iosOmBeforeFuncStandard(void);
-int iosOmSendMail(char *self_arg, int val5, int val6);
-int iosOmSendMailLink(int a0, int val5, int val6);
-int iosOmExeMail(void (*func)(IosMail));
+#include "obj_manager.h"
+#include "gobj_process.h"
+#include "thread.h"
 
 void iosOmInit(void)
 {
@@ -245,12 +229,6 @@ typedef struct OmGObj {
 extern int D_0028F4C0[];
 extern int D_0063A60C;
 extern OmProc *D_0063A620;
-/* kept local: this TU's uses of iosThreadGetPri do not fit the prototype in thread.h */
-extern int iosThreadGetPri(void *thread);
-/* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
-extern void iosThreadWakeup(void *thread);
-/* kept local: this TU's uses of isysGObjProcRemove do not fit the prototype in gobj_process.h */
-extern void isysGObjProcRemove(OmProc *p);
 
 void _iosOmMain(int a0, int a1, int a2, int a3)
 {

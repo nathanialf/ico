@@ -3,13 +3,12 @@
 #include "windField.h"
 #include "lineManager.h"
 #include "matrixDrive.h"
+#include <libvu0.h>
 
 extern int D_0063BC54;
 extern float D_004ED350[];
 extern float D_004ED360[];
 extern float D_004ED370[];
-extern void sceVu0Normalize(void *dst, void *src);
-extern float sceVu0InnerProduct(void *a, void *b);
 
 typedef struct {
     float v[4];
@@ -155,7 +154,6 @@ extern float D_004ED360[];
 extern float D_004ED370[];
 extern float D_00724BE0[];
 extern float D_00724BF0[];
-extern void sceVu0ScaleVector(void *dst, void *src, float k);
 
 float *getParallelWindVector(float *power, void *pos)
 {

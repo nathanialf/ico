@@ -5,17 +5,14 @@
 #include "particleEffect.h"
 #include "stageMultiBgaManager.h"
 #include "weapon.h"
+#include "geometryManager.h"
+#include "typedef.h"
+#include "matrixDrive.h"
 
 typedef struct {
     int se[2];
     int id;
 } SePackage;
-
-typedef struct {
-    char _0[0x20];
-    int f_20;
-    char _24[0x18];
-} GsysObjInfo;
 
 extern SePackage D_005339C0[];
 extern GsysObjInfo D_005D6DB0[];
@@ -149,20 +146,8 @@ typedef struct EffEntry { /* 0x24 */
 extern EffEntry D_00626278[];
 extern int stage_no;
 extern char D_0061F810[];
-/* kept local: this TU's uses of GetRootQuaternion do not fit the prototype in geometryManager.h */
-extern void GetRootQuaternion(float *q, void *gobj);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern char *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of GetRootMatrix do not fit the prototype in geometryManager.h */
-extern void GetRootMatrix(char *m, void *gobj);
 /* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(void *gobj, int node);
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
-extern void CopyMatrix(char *dst, char *src);
-/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector(float *dst, float *src);
 /* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(float *q, short a);
 /* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */

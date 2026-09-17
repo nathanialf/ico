@@ -20,28 +20,9 @@
 #include "geometryManager.h"
 #include "item.h"
 #include "staticBlur.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x50];         /* 0x000 */
-    int f50;                  /* 0x050 */
-    char pad54[0x164 - 0x54]; /* 0x054 */
-    int act;                  /* 0x164 */
-    char pad168[0x4];         /* 0x168 */
-    int f16C;                 /* 0x16C */
-} PObjGObj;
+#include <libvu0.h>
+#include "typedef.h"
+#include "e3.h"
 
 /* kept local: this TU's uses of scpTorchLightOff do not fit the prototype in script.h */
 extern void scpTorchLightOff(int a0);
@@ -93,12 +74,6 @@ void actSt07aEnd(void)
     }
 }
 
-typedef struct Pad {
-    int unk00;        /* 0x00 */
-    int trg;          /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} Pad;
-
 extern Pad D_0028F8F0[];
 extern int D_00639EA4;
 extern int D_0063AA08;
@@ -127,7 +102,6 @@ extern void scpPlayEnd(int a0);
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 extern int D_00639EAC;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
@@ -135,18 +109,10 @@ extern void scpTorchLightOn(int a0);
 
 /* A 16-byte constant vector: the float view carries the values, the long
    long view is the one the whole-object copy reads. */
-typedef union EffectArg {
-    float f[4];
-    long long lo[2];
-} EffectArg;
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec chanChkPos = {{10000.0f, 0.0f, 0.0f, 1.0f}};
 
@@ -551,7 +517,6 @@ extern void scpPlayStart(int a0);
 extern void scpPlayEnd(int a0);
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
-extern void sceVu0SubVector(void *out, void *a, void *b);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */

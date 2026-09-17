@@ -1,5 +1,7 @@
 #include "common.h"
 #include "debug.h"
+#include <eekernel.h>
+#include "typedef.h"
 
 /* The fog CLUT upload packet: a VIF code quad (nop, nop, FLUSHA, DIRECT 65),
  * a GIFtag (EOP, NLOOP=64, FLG=IMAGE), the 256-entry 32-bit CLUT itself and a
@@ -14,7 +16,6 @@ typedef struct FogClutPacket {
 
 extern FogClutPacket D_006AF590;
 extern int D_0028F720[]; /* stage settings; fog fields at 0x90..0xA8 */
-extern void FlushCache(int a0);
 
 void fog_MakeFogClut(void)
 {
@@ -84,12 +85,6 @@ void fog_MakeFogClut(void)
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/ZFog", fog_DrawFog);
 
 /* the shared pad-state array (GsBase.c's GsbPad): trg at 0x4, rep at 0xC */
-typedef struct GsbPad {
-    int _0;
-    int trg; /* 0x4 */
-    int _8;
-    int rep; /* 0xC */
-} GsbPad;
 
 /* one row of the fog debug menu: a label, the int it edits and its range */
 typedef struct FogToolItem {

@@ -1,6 +1,7 @@
 #include "common.h"
 #include "Texture.h"
 #include "DisplayList.h"
+#include <string.h>
 
 typedef struct CdvdRec {
     char pad0[0x78];
@@ -115,7 +116,6 @@ typedef struct TexEntry {
     char pad2E2[0x2E8 - 0x2E2];
 } TexEntry;
 
-extern int strcmp(const char *, const char *);
 extern int D_0063C164;
 extern TexEntry D_0068AFD8[];
 

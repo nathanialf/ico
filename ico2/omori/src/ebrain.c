@@ -5,48 +5,20 @@
 #include "boyact.h"
 #include "generator.h"
 #include "geometryManager.h"
-
-typedef struct EBSlot {
-    unsigned short f0; /* 0x00 status */
-    char pad2[2];
-    void *f04;     /* 0x04 target GObj */
-    float dist[2]; /* 0x08 [0]=to boy, 0x0C [1]=to girl */
-    int f10;       /* 0x10 message */
-    int f14;       /* 0x14 */
-    void *f18;     /* 0x18 owner GObj */
-} EBSlot;
+#include "ebrain.h"
+#include <libvu0.h>
+#include <string.h>
+#include "typedef.h"
 
 extern int eBrainBoyChaseCount;
 extern int eBrainGirlChaseCount;
 extern void *D_0063C2CC;
 extern int D_0063C2D0;
 extern int D_006E6750[];
-
-typedef struct StageLabelRange {
-    char pad0[0x128];
-    int labelTop; /* 0x128 */
-    int labelEnd; /* 0x12C */
-    char pad130[0x194 - 0x130];
-} StageLabelRange;
-
 extern StageLabelRange D_005F5D50[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-
-typedef struct GenGeo {
-    char pad0[0x46];
-    unsigned char kind; /* 0x46 */
-    char pad47[1];
-    unsigned int f48; /* 0x48 */
-} GenGeo;
-
 extern GenGeo D_002C2DC8[];
-/* prototypes: their order is the inline tail's emission order */
-void eBrainInit(void);
-int eBrainStatusSet(void *a0, int a1);
-void eBrainSendMes(void *gop, int mes);
-int GetStageFromLabel(int label);
-int eBrainGetTargetGeneratorFromLabelStage(int label, int stage);
 
 static inline void eBrainSetStatus(EBSlot *p, int newst)
 {
@@ -134,8 +106,6 @@ extern int D_0063C2C4;
 extern int D_0063C2C8;
 extern EBSlot *D_006E6AD0[];
 extern EBSlot *D_006E6B50[];
-extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern float sceVu0InnerProduct(void *a0, void *a1);
 
 static inline void eBrainRegistTarget(EBSlot **list, int n, EBSlot *e, int w)
 {
@@ -302,10 +272,6 @@ int eBrainGetTargetGeneratorFromLabel(int label)
     }
     return no;
 }
-
-extern void *memset(void *dst, int c, int n);
-/* kept local: this TU's uses of eBrainGetTargetGeneratorFromLabel do not fit the prototype in ebrain.h */
-extern int eBrainGetTargetGeneratorFromLabel(int label);
 
 static inline int eBrainCanSeeTarget(void *gop, void *target)
 {

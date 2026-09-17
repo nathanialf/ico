@@ -1,8 +1,8 @@
 /* libgraph.a member graph008.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-
-extern void printf(char *fmt);
+#include <stdio.h>
+#include <libgraph.h>
 
 int sceGsPutDrawEnv(void *a0)
 {
@@ -25,5 +25,3 @@ int sceGsPutDrawEnv(void *a0)
     *(volatile int *)0x1000A000 = 0x101;
     return 0;
 }
-
-extern int sceGsPutDrawEnv();

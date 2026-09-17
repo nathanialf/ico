@@ -5,21 +5,17 @@
 #include "debug.h"
 #include "mv_sub.h"
 
-extern int sceSifFreeIopHeap(int a0);
 extern int SgStPcmClose(unsigned int a0);
 extern void SgStPcmQuit(void);
 extern int SgStPcmStop(unsigned long long a0);
 extern void SgStPcmVolume(unsigned long long a0, unsigned int a1, int a2);
 extern int SgStPcmLseek(unsigned int a0, unsigned int a1);
 extern int SgStPcmPlay(unsigned long long a0);
-/* prototypes: their order is the inline tail's emission order */
-int audioDecDelete(int *self);
-void audioDecReset(int *self);
-int audioDecIsPreset(int *self);
-void audioDecStart(int *self);
-int audioDecPause(int a0);
-void audioDecResume(int *self);
-extern int sceSifAllocIopHeap(int size);
+
+#include "mv_audiodec.h"
+#include <eekernel.h>
+#include <sifrpc.h>
+
 extern void SgStPcmInit(void);
 extern int SgStPcmOpen(int *param);
 extern void SgStPcmSetEffect(int a0);
@@ -177,10 +173,6 @@ inline void audioDecStart(int *self)
     SgStPcmPlay(3);
     self[0] = 2;
 }
-
-extern void FlushCache(int a0);
-extern int sceSifSetDma(int *dma, int n);
-extern int sceSifDmaStat(int id);
 
 /* mv_audiodec.c:375-392 */
 static inline void sendToIOP(char *src, char *dst, int n)

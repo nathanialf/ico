@@ -17,6 +17,9 @@
 #include "pool.h"
 #include "stageMultiBgaManager.h"
 #include "torch.h"
+#include <libvu0.h>
+#include "geometryManager.h"
+#include "typedef.h"
 
 void bombSparkStartSE(int a0)
 {
@@ -46,10 +49,6 @@ extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, char *expr);
 /* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
 extern void SetIdentityQuaternion(void *q);
-/* kept local: this TU's uses of SetRootQuaternion do not fit the prototype in geometryManager.h */
-extern void SetRootQuaternion(void *gobj, void *q);
-/* kept local: this TU's uses of GetRootQuaternion do not fit the prototype in geometryManager.h */
-extern void GetRootQuaternion(void *dst, void *gobj);
 /* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in quaternion.h */
 extern void GetInverseQuaternion(void *dst, void *src);
 /* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
@@ -137,10 +136,6 @@ static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f};
 
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(int arg);
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition(void *a0, char *outer);
-/* kept local: this TU's uses of SetDirectRootPositionNoFitting do not fit the prototype in geometryManager.h */
-extern void SetDirectRootPositionNoFitting();
 
 void avoidInsideOfWall(void *self, int arg)
 {
@@ -196,11 +191,6 @@ typedef union {
     float f[4];
     long long ll[2];
 } ItemVec;
-
-typedef union {
-    int i;
-    char *p;
-} SubHandle;
 
 /* 0xA0: the item record's .data initialiser, copied over the fresh
    allocation.  The listing attributes the block move to line 262. */
@@ -258,23 +248,14 @@ extern void *memset(void *p, int c, int n);
 extern void RotQuaternionY(void *q, short ang);
 /* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
 extern void CopyQuaternion(void *dst, void *src);
-
-typedef union {
-    float f[4];
-    long long ll[2];
-} __attribute__((aligned(16))) Vec16;
-
 extern void *memset(void *p, int c, int n);
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *m);
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: this TU's uses of MatrixDrive_GetTurnZAngleYX do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_GetTurnZAngleYX(unsigned short *y, unsigned short *x, float vx, float vy,
                                         float vz);
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
-extern void SetDirectRootPosition(char *gobj, void *pos);
 /* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(void *q, short ang);
 /* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
@@ -417,7 +398,9 @@ typedef struct DObjLink {
     int f_4;
 } DObjLink;
 
-typedef struct ClipWork {
+/* kept local: this TU's bytes only come out with its own view of ClipWork, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct ClipWorkItem {
     float from[4]; /* 0x00 */
     float to[4];   /* 0x10 */
     float pos[4];  /* 0x20 */
@@ -438,7 +421,7 @@ typedef struct ClipWork {
     int f_9C;
     float plane[4]; /* 0xA0 */
     float f_B0[4];  /* 0xB0 */
-} ClipWork;
+} ClipWorkItem;
 
 /* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
@@ -466,11 +449,6 @@ extern int GetWallAttribute(void *w);
 extern int GetFloorAttribute(void *w);
 /* kept local: this TU's uses of GetReflectionElement do not fit the prototype in fieldCollision.h */
 extern void GetReflectionElement(void *w, float a, float b);
-/* kept local: this TU's uses of LimitExistGeometry do not fit the prototype in geometryManager.h */
-extern int LimitExistGeometry(void *pos, void *vel);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
-extern void sceVu0ScaleVector(void *dst, void *src, float k);
-extern void sceVu0OuterProduct(void *dst, void *a, void *b);
 /* kept local: this TU's uses of SetQuaternionByAxisRotate do not fit the prototype in quaternion.h */
 extern void SetQuaternionByAxisRotate(void *q, short ang, float x, float y, float z);
 /* kept local: this TU's uses of GetTableSin do not fit the prototype in tableSin.h */
@@ -546,7 +524,7 @@ void uncarriedItemGeo(char *gobj)
 
     void floatGeo(float t)
     {
-        ClipWork w;
+        ClipWorkItem w;
 
         _ScaleVector(vel, vel, t);
         _AddVectorXYZ(vel, vel, p + 0x80);
@@ -570,8 +548,8 @@ void uncarriedItemGeo(char *gobj)
         }
     }
 
-    float q[4];  /* 0x50 */
-    ClipWork cw; /* 0x60 */
+    float q[4];      /* 0x50 */
+    ClipWorkItem cw; /* 0x60 */
     int linked = 0;
     float len0;
     float len;
@@ -809,9 +787,6 @@ void execBombGeo(char *gobj)
         break;
     }
 }
-
-/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
-extern void UpdateRootMatrix(void *gobj);
 
 void ItemGeo(char *gobj)
 {

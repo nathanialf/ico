@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
+#include <libvu0.h>
 
 /* kept local: this TU's uses of GetChainCollision do not fit the prototype in clothAnimation.h */
 extern float GetChainCollision(void *a0, void *a1, float w);
@@ -66,8 +67,6 @@ void HoldRope(void *a0, void *a1)
 
 inline void ReleaseRope(void) {}
 
-extern void sceVu0UnitMatrix(void *m);
-extern void sceVu0MulMatrix(void *a0, void *a1, void *a2);
 /* kept local: this TU's uses of GetChainAnimation do not fit the prototype in clothAnimation.h */
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
@@ -87,10 +86,6 @@ void ropeGeo(void *a0)
 
 /* The listing inlines rope.c:215-221 into RopeGeo: the chain-length update
    is a static helper defined above it (its name is not recoverable). */
-/* prototypes: their order is the inline tail's emission order */
-int CheckRopeUpperWallClimbable(int a0, char *a1);
-void ReleaseRope(void);
-void RopeGeo(void *a0);
 
 static inline void ropeChainCollision(void *a0)
 {

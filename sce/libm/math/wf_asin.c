@@ -1,6 +1,7 @@
 /* libm.a member wf_asin.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
+#include <math.h>
 
 extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
@@ -26,7 +27,6 @@ struct exception {
 extern const int D_006379C8[];
 extern float __ieee754_asinf(float x);
 extern int isnanf(float x);
-extern float fabsf(float x);
 extern int matherr(void *a0);
 extern int *__errno(void);
 

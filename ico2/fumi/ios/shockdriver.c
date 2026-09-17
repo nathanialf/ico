@@ -1,5 +1,6 @@
 #include "common.h"
 #include "shockdriver.h"
+#include <libpad.h>
 
 typedef struct {
     int count;
@@ -253,8 +254,6 @@ int Vibration_WaveDecode(SHOCKREQUEST *p, int level)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/shockdriver", Shock_Request);
-
-extern void scePadSetActDirect(int a0, int a1, void *box);
 
 void Shock_SetMotor(int a0, int a1, ShockReq *box, int a3, int a4)
 {

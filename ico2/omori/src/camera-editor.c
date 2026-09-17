@@ -8,10 +8,10 @@
 #include "lineManager.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
-
-typedef struct {
-    int w[23];
-} S5C;
+#include <stdio.h>
+#include <sifdev.h>
+#include <string.h>
+#include "typedef.h"
 
 typedef struct CamMgr {
     int count;        /* 0x00 */
@@ -19,18 +19,6 @@ typedef struct CamMgr {
     char *pool;       /* 0x08 */
     char flags[0x64]; /* 0x0C */
 } CamMgr;
-
-typedef struct StageParam {
-    char pad0[0x118];
-    int camSetId; /* 0x118 */
-    char pad11c[0x184 - 0x11C];
-    float rate; /* 0x184 */
-    char pad188[0x194 - 0x188];
-} StageParam;
-
-typedef struct {
-    int w[19];
-} S4C;
 
 extern char D_00554CE0[];
 extern int D_0063A450;
@@ -66,8 +54,6 @@ extern char D_00554D90[];
 extern char D_00554CE0[];
 extern int GetSizeOfCameraSetBinary(S4C *p, int n);
 extern void MakeCameraSetBinary(S4C *src, int count, S4C *dst);
-extern void sprintf();
-extern void sceWrite(int fd, void *buf, int len);
 
 /* SRCFILE.TXT rows 369-388: saveEditedDataBinary inlines this, which is why
    the ROM folds the path buffer's frame address straight into $a0 at both the
@@ -709,14 +695,6 @@ void CameraEdit_DispBoxType2(int a0, int a1)
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4 */
-typedef struct Pad {
-    int unk00;
-    int trg;
-    int unk08;
-    int rep;
-    char unk10[0x44];
-    unsigned char ana[4];
-} Pad;
 
 extern Pad D_0028F8F0[];
 extern char D_0063AAD8[];
@@ -926,10 +904,6 @@ static inline void dispPinRange(int box, int from, int to)
 
 /* the camera work SetWSMatrix converts: eye at 0x00, look-at at 0x10 and the
    field of view at 0x20, the same record camera-ico2.c hands it */
-typedef union Mat4 {
-    float f[4];
-    long long q[2];
-} Mat4;
 
 typedef struct CamWork {
     Mat4 eye;  /* 0x00 */
@@ -957,7 +931,6 @@ extern char D_0063AB10[];
 extern char D_0063AB18[];
 extern char D_0063AB20[];
 extern int D_0063C25C;
-extern void memset(void *p, int c, int n);
 extern void sceVu0ScaleVector(int *buf, int *p, float t);
 /* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern void iosThreadDestroy(void *th);

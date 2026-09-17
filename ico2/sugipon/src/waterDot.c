@@ -1,43 +1,23 @@
 #include "common.h"
+#include "typedef.h"
 #include "sugiCommon.h"
 #include "memory.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
-
-typedef struct {
-    float x, y, z, w;
-} __attribute__((aligned(16))) VECTOR;
+#include "waterDot.h"
 
 /* One dot of the splash: 0x30 bytes, sized by AllocWaterDot's `mult ,0x30`. */
-typedef struct WaterDot {
-    /* 0x00 */ int used;
-    /* 0x04 */ int frame;
-    /* 0x08 */ int life;
-    /* 0x0C */ float scale;
-    /* 0x10 */ VECTOR pos;
-    /* 0x20 */ VECTOR vel;
-} WaterDot; /* 0x30 */
+/* 0x30 */
 
 /* The per-emitter work AllocWaterDot mallocs (0x1C bytes) and registers in
  * D_00724BC0[D_0063BC48++]. */
-typedef struct WaterDotWork {
-    /* 0x00 */ int num;        /* ring size (AllocWaterDot's 2nd argument) */
-    /* 0x04 */ int cur;        /* next ring slot */
-    /* 0x08 */ WaterDot *dot;  /* num entries */
-    /* 0x0C */ int num2;       /* the second ring's size */
-    /* 0x10 */ int cur2;       /* the second ring's slot */
-    /* 0x14 */ WaterDot *dot2; /* num2 entries */
-    /* 0x18 */ int gobj;       /* the emitter the splash follows */
-} WaterDotWork;                /* 0x1C */
+/* 0x1C */
 
 extern WaterDotWork *D_00724BC0[]; /* the registered emitters */
 extern int D_0063BC48;             /* how many are registered */
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(VECTOR *dst, VECTOR *a, VECTOR *b);
 extern void setWaterDot(WaterDot *dot, VECTOR *pos, VECTOR *vel);
-/* prototypes: their order is the inline tail's emission order */
-void InitializeWaterDot(void);
-void EntryWaterDot(WaterDotWork *w, VECTOR *pos, VECTOR *vel, float range);
 
 inline void InitializeWaterDot(void)
 {

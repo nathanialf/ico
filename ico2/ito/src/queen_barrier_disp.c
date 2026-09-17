@@ -8,13 +8,10 @@ extern int D_00556E10[];
 extern int D_0063C308;
 extern unsigned short D_0063AC64;
 extern int D_0063C30C;
-/* prototypes: their order is the inline tail's emission order */
-void queen_barrier_anim(void);
 
-typedef union {
-    float f[4];
-    long long ll[2];
-} QVec;
+#include "queen_barrier_disp.h"
+#include <string.h>
+#include <libvu0.h>
 
 typedef struct MeshST { /* the 0x10 stride texture coordinate record */
     float s;            /* 0x0 */
@@ -56,8 +53,6 @@ inline void queen_barrier_anim(void)
 
 extern int D_0063A064;
 extern int D_0063A068;
-extern void *memset(void *p, int c, int n);
-extern void sceVu0CopyVector(QVec *dst, QVec *src);
 /* kept local: this TU's uses of _GetNorm do not fit the prototype in Matrix.h */
 extern float _GetNorm(QVec *v);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */

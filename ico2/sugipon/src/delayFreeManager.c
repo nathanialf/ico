@@ -8,9 +8,8 @@ extern int D_00639EE4;
 extern char D_00639EE8[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-/* prototypes: their order is the inline tail's emission order */
-void InitDelayFree(void);
-void ExecDelayFree(void);
+
+#include "delayFreeManager.h"
 
 static inline void ClearDelayFreeBuffer(int no)
 {

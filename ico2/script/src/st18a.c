@@ -11,18 +11,8 @@
 #include "gflag.h"
 #include "script.h"
 #include "StageAnimation.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD4]; /* 0x00 */
-    ActMail *mail;    /* 0xD4 */
-} Act;
+#include "st04r.h"
+#include "typedef.h"
 
 static ActMail intro_mes[2] = {{430}, {429}};
 
@@ -65,14 +55,17 @@ void actSt18aEnd(void)
     }
 }
 
-/* the shared pad-state array (op.c's PadState): 0x58 per pad, trg at 0x4 */
-typedef struct PadState {
+/* the shared pad-state array (op.c's PadStateSt18A): 0x58 per pad, trg at 0x4 */
+/* kept local: this TU's bytes only come out with its own view of PadStateSt18A. */
+/* kept local: this TU's bytes only come out with its own view of PadState, so it
+   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
+typedef struct PadStateSt18A {
     int unk00;        /* 0x00 */
     int trg;          /* 0x04 */
     char unk08[0x50]; /* 0x08 */
-} PadState;
+} PadStateSt18A;
 
-extern PadState D_0028F8F0[];
+extern PadStateSt18A D_0028F8F0[];
 extern int D_00639EA4;
 extern int D_0063AA08;
 
@@ -114,11 +107,6 @@ void actSt18aIntroChk(volatile int a0)
     lt_switch_layout(0x36);
     D_0063AA08 = 0;
 }
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    int act;           /* 0x164 */
-} PObjGObj;
 
 extern int D_0028F4C0[];
 extern int D_00639EA4;
@@ -274,7 +262,7 @@ void actSt18aSwitchRUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern PadState D_0028F8F0[];
+extern PadStateSt18A D_0028F8F0[];
 extern int D_0063AA08;
 extern int D_0063C59C;
 extern int D_0063C5A0;

@@ -12,8 +12,24 @@
 #ifndef GOBJ_DL_H
 #define GOBJ_DL_H
 
-void cut_gobj_dl_link(int *self);
+typedef struct DLN {
+    char _p0[0x34];
+    struct DLN *next;
+    struct DLN *prev;
+    char _p1[0x4];
+    unsigned char id;
+    char _p2[0x3];
+    int key;
+} DLN;
+
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order gobj_dl.c's inline tail has. */
 void isysGObjDlInit(void);
+void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
+void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
+
+void cut_gobj_dl_link(int *self);
 void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4);
 
 #endif /* GOBJ_DL_H */

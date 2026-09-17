@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "Basic.h"
 #include "DisplayP2O.h"
+#include <stdio.h>
 
 extern const char D_006360D8[];
 
@@ -70,7 +71,6 @@ typedef struct PObj {
 } PObj;
 
 extern char D_0063C0D8[]; /* the %s format, .sdata */
-extern int sprintf(char *buf, const char *fmt, ...);
 
 /* The file's own name tidier: rows 26 to 39 sit inside AllocPObj's span and the
    census lists no out-of-line copy, so it is defined here and inlined once. */

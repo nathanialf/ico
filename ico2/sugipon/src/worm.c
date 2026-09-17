@@ -5,19 +5,9 @@
 #include "lineManager.h"
 #include "motionManager2.h"
 
-typedef struct PadState {
-    int unk00;        /* 0x00 */
-    int flags;        /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} PadState;
-
 extern PadState D_0028F8F0[];
 extern int D_00639EA4;
 void GetWormCaptureVector(void *out, void *act, void *node, float scale);
-extern void sceVu0AddVector(void *a0, void *a1, void *a2);
-extern void sceVu0Normalize(void *a0, void *a1);
-extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
-extern void sceVu0SubVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(void *v);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
@@ -45,7 +35,6 @@ extern void p2o_SetDefaultEnviroment(void *a0);
 extern void p2o_DispVU1DObjMulti(void *a0);
 /* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern float *MatrixDrive_GetMatrix(void);
-extern void sceVu0UnitMatrix(float *m);
 /* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
 /* kept local: this TU's uses of MatrixDrive_GetTurnYAngleXZ do not fit the prototype in matrixDrive.h */
@@ -71,12 +60,6 @@ extern void gif_StartPacketPri(int a0);
 extern void gif_EndPacket(void);
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-extern void *memset(void *dst, int c, int n);
-
-typedef union {
-    float f[4];
-    long long d[2];
-} Vec16;
 
 /* A 16-byte GS colour: four 8-bit RGBA components, one per word, handed to
    DrawLine through the float view the call expects. */
@@ -143,11 +126,11 @@ typedef struct {
 extern void CopyVector(void *dst, void *src);
 void simulate(WormVec *v, int n, float len);
 void GetWormRoute(int act, WormVec *target);
-extern void sceVu0InterVectorXYZ(void *v0, void *v1, void *v2, float t);
-/* prototypes: their order is the inline tail's emission order */
-void SetDirectWormTargetPos(int act, void *pos);
-void SetWormReduceRatio(int a0, float f12);
-void TraceWormRoute(int act, float t);
+
+#include "worm.h"
+#include <libvu0.h>
+#include <string.h>
+#include "typedef.h"
 
 void outerProcess(int act)
 {

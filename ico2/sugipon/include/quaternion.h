@@ -12,31 +12,49 @@
 #ifndef QUATERNION_H
 #define QUATERNION_H
 
-void CopyQuaternion(void *a0, void *a1);
-void DivQuaternion(int self, int a1, int a2);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order quaternion.c's inline tail has. */
 int *GetCurrentQuaternion(void);
+int *GetLastQuaternion(void);
+void PushQuaternionWithNoCopy(void);
+void PopQuaternion(void);
+void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, float z);
+void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x, float y, float z);
+void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, float y, float z);
+void SetQuaternionByAxisRotateV(int *self, short a1, int *src);
+void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short a1, void *src);
+void MultiQuaternion(void *p0, void *p1, void *p2);
+void DivQuaternion(int self, int a1, int a2);
+void GetMatrixFromQuaternionRotElem(char *a0, char *a1);
+void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2);
+void MultiMatrixByQuaternion(void *src);
+void GetMirrorQuaternion(float *dst, float *src, int mode);
+void RotQuaternionX(void *self, int a1);
+void RotQuaternionY(void *self, int a1);
+void RotQuaternionZ(void *self, int a1);
+void RotQuaternionEAX(void *self, float *in);
+void RotQuaternionEAZ(void *self, float *in);
+void GetXUnitVectorOfQuaternion(float *out, float *q);
+void GetYUnitVectorOfQuaternion(float *out, float *q);
+void GetZUnitVectorOfQuaternion(float *out, float *q);
 void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *b);
+float GetQuaternionMagnitude(void *a0);
+void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *a0, void *a1, float angle);
+void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle);
+void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2);
+float GetQuaternionCosRadian(void *p0, void *p1);
+
+void CopyQuaternion(void *a0, void *a1);
 void GetInverseQuaternion(int a0, int a1);
 void GetMatrixFromQuaternion(char *a0, char *a1);
-void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2);
-void GetMirrorQuaternion(float *dst, float *src, int mode);
 void GetSlerpQuaternion(int a0);
 void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t);
 extern float IdentityQuaternion[4];
 void InitQuaternionDrive(void);
-void MultiMatrixByQuaternion(void *src);
-void MultiQuaternion(void *p0, void *p1, void *p2);
-void PopQuaternion(void);
 void PushQuaternion(void);
-void PushQuaternionWithNoCopy(void);
 void RegularizeQuaternion(void *a0);
-void RotQuaternionX(void *self, int a1);
-void RotQuaternionY(void *self, int a1);
-void RotQuaternionZ(void *self, int a1);
 void SetCurrentQuaternion(int a0);
 void SetIdentityQuaternion(void *a0);
-void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, float z);
-void SetQuaternionByAxisRotateV(int *self, short a1, int *src);
-void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short a1, void *src);
 
 #endif /* QUATERNION_H */

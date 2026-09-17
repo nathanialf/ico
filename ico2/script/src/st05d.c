@@ -10,23 +10,7 @@
 #include "geometryManager.h"
 #include "item.h"
 #include "quaternion.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD4]; /* 0x00 */
-    ActMail *mail;    /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    int act;           /* 0x164 */
-} PObjGObj;
+#include "typedef.h"
 
 extern void *D_00639EA4;
 extern char *D_00639EA8;
@@ -34,10 +18,6 @@ extern char *D_00639EA8;
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec door2UpChkPos = {{-702.0f, -1886.0f, -5680.0f, 0.0f}};
 

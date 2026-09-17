@@ -3,18 +3,13 @@
 #include "Basic.h"
 #include "Texture.h"
 
-/* header prototypes (order fixes the inline tail) */
 extern char D_0054F5C0[];
 extern char D_0067C010[];
 extern char D_0054F5D0[];
-/* kept local: the declaration in Packet.h changes this TU codegen */
-extern void pac_makePacket(void *a0, int a1, int a2);
-/* prototypes: their order is the inline tail's emission order */
-void pac_Dump(int *a0, int size);
-void pac_Init(void);
-void pac_DispVu1Memory(int idx, int n, int size);
-/* kept local: the declaration in Packet.h changes this TU codegen */
-extern void pac_DispQW(void *p, int size);
+
+#include "Packet.h"
+#include <stdio.h>
+
 extern int D_0063C154;
 extern char D_0054F200[];
 extern char D_0054F218[];
@@ -516,7 +511,6 @@ extern char D_0054F820[];
 extern char D_0063A138[];
 extern char D_0063A140[];
 extern char D_0063A148[];
-extern int sprintf(char *buf, const char *fmt, ...);
 
 void pac_getTextureInfo(char *m, char *info, int idx)
 {

@@ -5,18 +5,11 @@
 #include "clothAnimation.h"
 #include "quaternion.h"
 #include "tableSin.h"
+#include <libvu0.h>
+#include <math.h>
 
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-/* prototypes: their order is the inline tail's emission order */
-int GetCageChainPoint(char *a0, char *a1, char *a2);
-void SetCageVelocityFriction(char *a0, float a1);
-void StabilizeAllLayoutedCage(void);
-void SetCageChainHangableFlag(char *a0, int a1);
-extern void sceVu0Normalize(void *dst, void *src);
-extern void sceVu0ScaleVector(void *dst, void *src, float k);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
-extern void sceVu0SubVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float x);
 /* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
@@ -135,8 +128,6 @@ extern void *GetWindVector(int kind, void *pos);
 extern void _ScaleVector(void *dst, void *src, float k);
 /* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *dst, void *a, void *b);
-extern void sceVu0OuterProduct(void *dst, void *a, void *b);
-extern float atan2f(float y, float x);
 extern char D_004E6EC0[];
 
 static inline void SetCageChainQuaternion(void *q, void *a, void *b)
@@ -165,8 +156,6 @@ static inline void AddCageWindForce(char *n, float k)
 
 /* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
-extern void sceVu0UnitMatrix(void *m);
-extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float k);
 /* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */

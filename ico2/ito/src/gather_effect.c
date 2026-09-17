@@ -1,5 +1,6 @@
 #include "common.h"
 #include "particleEffect.h"
+#include <libvu0.h>
 
 struct GEl {
     int f0;
@@ -19,7 +20,6 @@ struct GGeo {
     int f6C;
 };
 
-extern void sceVu0CopyVector(void *dst, void *src);
 extern int GatherEffect_Proc(struct GGeo *geo);
 /* prototypes: their order is the inline tail's emission order */
 int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int), float speed);

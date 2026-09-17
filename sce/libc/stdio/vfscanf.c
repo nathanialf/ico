@@ -1,21 +1,12 @@
 /* libc.a member vfscanf.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-
-typedef struct PObjBlk {
-    char pad0[4];
-    unsigned int size; /* 0x4 */
-} PObjBlk;
+#include <reent.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-typedef struct {
-    char *pos; /* 0x0 */
-    int len;   /* 0x4 */
-} StreamBuf;
 
 extern int D_0054CEAC[];
 extern char D_00637E38[];
@@ -25,22 +16,6 @@ extern void abort(void);
 /* newlib's struct __sbuf / struct __sFILE, reconstructed from the ROM's own
    field offsets in this member (evidence rung: ROM bytes; the newlib member
    layout gives the names). */
-typedef struct {
-    unsigned char *base; /* 0x0 */
-    int size;            /* 0x4 */
-} Sbuf;
-
-typedef struct Fil {
-    unsigned char *p; /* 0x00 */
-    int r;            /* 0x04 */
-    int w;            /* 0x08 */
-    short flags;      /* 0x0C */
-    short file;       /* 0x0E */
-    Sbuf bf;          /* 0x10 */
-    int lbfsize;      /* 0x18 */
-    char pad1C[0x14]; /* 0x1C */
-    Sbuf ub;          /* 0x30 */
-} Fil;
 
 /* newlib's _ctype_ table, reached one byte in (the EOF slot sits at -1). */
 extern unsigned char D_00637E69[];

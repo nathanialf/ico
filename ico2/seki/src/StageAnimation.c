@@ -73,7 +73,6 @@ extern char D_00550068[];
 extern int stage_no;
 extern int strcmp(const char *a, const char *b);
 extern int strncmp(const char *a, const char *b, int n);
-extern int sprintf(char *buf, const char *fmt, ...);
 /* kept local: this TU's uses of bga_InitData do not fit the prototype in BgAnimation.h */
 extern int bga_InitData(char *data);
 /* kept local: this TU's uses of bga_SetFrame do not fit the prototype in BgAnimation.h */
@@ -104,24 +103,9 @@ extern StageGObjInit D_0054FFA0;
 extern char D_0054FFE0[];
 extern char D_00550000[];
 extern char D_00550040[];
-/* prototypes: their order is the inline tail's emission order */
-int stage_CheckAnimationFinish(int a0);
-int stage_CheckAnimationFrame(int a0, int a1, int a2);
-void stage_SetLoopFlag(int key, int a1);
-void stage_SetFrameStep(int target, int val);
-void stage_SetParentOfGObj(int a0, void *a1);
-void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
-void stage_SetLocalizeGeometry(int key, int arg1, int arg2);
-void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1);
-int stage_CheckAnimationFrameIn(int a0, int a1, int a2);
-/* kept local: the declaration in StageAnimation.h changes this TU codegen */
-extern void stage_SetScale(int key, float scale);
-/* kept local: the declaration in StageAnimation.h changes this TU codegen */
-extern float stage_PlayBgAnimation(int key, float t, void *a, void *b);
-/* kept local: the declaration in StageAnimation.h changes this TU codegen */
-extern float stage_PlayBgAnimationDissolve(int key, float t, float d, void *a, void *b);
-/* kept local: the declaration in StageAnimation.h changes this TU codegen */
-extern void stage_KillPlayBgAnimation(int **self);
+
+#include "StageAnimation.h"
+#include <stdio.h>
 
 void stage_MakeGObj(int *dat, int no)
 {

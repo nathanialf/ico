@@ -12,16 +12,30 @@
 #ifndef MOTIONORIENTMANAGER_H
 #define MOTIONORIENTMANAGER_H
 
-void ExecMotionOrient(void *self);
-int ExecutePauseSlipProc(char *a0);
+typedef struct {
+    int id;
+    int kind;
+    int pad[4];
+} MotionOrientEntry;
+
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order motionOrientManager.c's inline tail has. */
+MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind);
+MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind);
+void CopyBlendMotionDataSource(void *self, short ang);
+void SetParallelMotionTableWithNoRequest(void *self, int a1, int a2);
+void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4);
+void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5);
+unsigned int GetCurrentMotionDirectionAdjustFlag(char *a0);
 int ExecuteSlipProc(char *a0);
+int ExecutePauseSlipProc(char *a0);
+
+void ExecMotionOrient(void *self);
 float GetMotionPlaySpeedRatio(int id);
 int GetNbMotionFrames(int id);
-void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5);
 char *SetMotionRequest(int self, int mot, char *work);
 void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
-void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4);
-void SetParallelMotionTableWithNoRequest(void *self, int a1, int a2);
 void getMotionGeometry(void *self);
 void getShapeGeometry(void *self);
 void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);

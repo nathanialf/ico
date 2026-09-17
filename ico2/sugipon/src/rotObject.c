@@ -8,6 +8,8 @@
 #include "geometryManager.h"
 #include "motionManager2.h"
 #include "tableSin.h"
+#include <math.h>
+#include <libvu0.h>
 
 void moveStartSE(int a0, int a1, int a2, int a3)
 {
@@ -41,7 +43,6 @@ extern void CopyMatrix(void *dst, void *src);
 extern void _ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
-extern float atan2f(float y, float x);
 /* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
 extern char ZUnitVector[];
 
@@ -63,9 +64,6 @@ static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
 
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *a0, int a1);
-extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
-extern void sceVu0Normalize(void *a0, void *a1);
-extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
 
 void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
 {
@@ -175,8 +173,6 @@ float GetRotObjectRotCount(char *a0)
     return (float)*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x24) * (1.0f / 65536.0f);
 }
 
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
-extern void sceVu0Normalize(void *dst, void *src);
 extern char D_004ECF90[];
 
 int GetRotObjectZPlusDirection(void *gobj)

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "Matrix.h"
 #include "matrixDrive.h"
 
@@ -57,21 +58,15 @@ static const StageOrientDef stageOrientDefs[41] = {
 
 extern short D_006EA800[];
 extern char D_0063AC68[];
-extern int sscanf(const char *, const char *, ...);
-extern int strcmp(const char *, const char *);
-
-typedef struct {
-    float x, y, z, w;
-} __attribute__((aligned(16))) VECTOR;
-
 extern void sceVu0Normalize(VECTOR *out, VECTOR *in);
 extern void sceVu0UnitMatrix(float *m);
 extern void sceVu0RotMatrixY(float *m0, float *m1, float rot); /* sceVu0RotMatrixY */
 extern void sceVu0InversMatrix(float *m0, float *m1);
 extern void sceVu0ApplyMatrix(VECTOR *out, float *m, VECTOR *in);
-/* prototypes: their order is the inline tail's emission order */
-void StageOrientInit(void);
-int StageOrientGet(VECTOR *ret, int stA, int stB);
+
+#include "stage_orient.h"
+#include <stdio.h>
+#include <string.h>
 
 inline void StageOrientInit(void)
 {

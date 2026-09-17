@@ -12,8 +12,13 @@
 #ifndef DISPLAYFONT_H
 #define DISPLAYFONT_H
 
-int font_CheckAlign(unsigned char *col, unsigned char *str);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order DisplayFont.c's inline tail has. */
+int font_GetWidth(void);
 int font_GetHeight(void);
 void font_Init(void);
+
+int font_CheckAlign(unsigned char *col, unsigned char *str);
 
 #endif /* DISPLAYFONT_H */

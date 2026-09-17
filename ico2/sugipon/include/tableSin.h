@@ -12,11 +12,18 @@
 #ifndef TABLESIN_H
 #define TABLESIN_H
 
-int GetTableArcCos(float x);
-int GetTableArcSin(float x);
-int GetTableArcTan2(float f12, float f13);
-float GetTableCos(short a0);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order tableSin.c's inline tail has. */
 float GetTableSin(short a0);
+float GetTableCos(short a0);
 void InitTableSin(void);
+int GetTableArcSin(float x);
+int GetTableArcCos(float x);
+int GetTableArcTan2(float f12, float f13);
+
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order tableSin.c's inline tail has. */
 
 #endif /* TABLESIN_H */

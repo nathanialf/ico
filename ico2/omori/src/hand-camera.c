@@ -4,17 +4,14 @@
 #include "gv.h"
 #include "matrixDrive.h"
 #include "quaternion.h"
+#include <math.h>
+#include <string.h>
+#include <libvu0.h>
 
-/* prototypes: their order is the inline tail's emission order */
-void ClearHandCameraCorrect(void);
-void InitHandCameraCorrect(void);
-void SetLimitHandCameraCorrect(float a0, float a1);
 extern int D_0028F4C0[];
 extern float D_0063C2E0;
 extern float D_006E9990[];
 extern unsigned char D_0063C2E4;
-extern float atan2f(float y, float x);
-extern void *memset(void *dst, int c, int n);
 
 void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
 {
@@ -66,8 +63,6 @@ void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
     *b += db;
 }
 
-extern void sceVu0SubVector(void *dst, void *a, void *b);
-
 void SetCurrentInfo(void *a0, void *a1)
 {
     float *p = D_006E9990;
@@ -102,12 +97,6 @@ void SetCurrentInfo(void *a0, void *a1)
         p[3] = mn - p[4];
     }
 }
-
-extern void sceVu0OuterProduct(void *dst, void *a, void *b);
-extern void sceVu0Normalize(void *dst, void *src);
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
 
 void HandyCamera_TargetMoveType(void *a0, void *a1)
 {

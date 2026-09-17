@@ -69,4 +69,16 @@ int _ACTLookTarget_Set(char *a0, int a1, float *a2, int a3, int a4);
 void _ACTParaStatus_Set(char *a0, int bit);
 void _ACTSetEnemyDisappearSpeed(char *a0, float f);
 
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+typedef union {
+    unsigned long long q;
+    unsigned int w[2];
+} ActStatusWord;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+typedef struct {
+    char _00[0x4C];
+    unsigned int f_4C;
+} StatusAttr;
+
 #endif /* ACT_GAME_H */

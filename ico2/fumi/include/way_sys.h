@@ -12,8 +12,18 @@
 #ifndef WAY_SYS_H
 #define WAY_SYS_H
 
-void DeleteGuideWay(void *way);
+typedef struct {
+    char pad[0x64];
+    int w64;
+} WVTObj;
+
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order way_sys.c's inline tail has. */
 int GetWay_begin(void *a0, int a1, int a2);
+void BridgeBox(void);
+void DeleteGuideWay(WVTObj *o);
+
 int GetWay_next(void *way, float *cur);
 int _FUNC_GetWay_begin(void *a0, int a1, int a2, int a3);
 

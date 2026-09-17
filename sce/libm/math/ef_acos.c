@@ -1,11 +1,7 @@
 /* libm.a member ef_acos.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-
-typedef union {
-    float value;
-    unsigned int word;
-} ieee_float_shape_type;
+#include <math_private.h>
 
 #define GET_FLOAT_WORD(i, d)                                                                       \
     do {                                                                                           \

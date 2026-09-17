@@ -1,10 +1,7 @@
 #include "common.h"
 #include "debug.h"
+#include "motionFileManager.h"
 
-/* prototypes: their order is the inline tail's emission order */
-void ResetDynamicMotionManager(void);
-void ResetStatic2MotionManager(int a0);
-int CheckMotionIncludeFacialData(unsigned int *self);
 extern int D_0063C46C;
 extern int D_0063C470;
 

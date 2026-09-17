@@ -4,12 +4,9 @@
 #include "DmaPacket.h"
 #include "GifPacket.h"
 #include "MicroCode.h"
-
-/* prototypes: their order is the inline tail's emission order */
-void dl_Out(void);
-void dl_SetDLPriority(int a0);
-void dl_OpenDma(int a0, int a1, int a2);
-int dl_GetPri(void);
+#include "DisplayList.h"
+#include <eekernel.h>
+#include <libdma.h>
 
 typedef struct {
     int f_0;                 /* 0x00 */
@@ -28,10 +25,6 @@ extern DlEntry D_00728310[];
 extern int D_00728518[2][13];
 extern int D_0063A054;
 extern int dmaVif;
-extern void FlushCache(int a0);
-/* kept local: the declaration in DisplayList.h changes this TU codegen */
-extern void dl_CloseDma(void);
-extern void sceDmaSend(int a0, int a1);
 extern int D_006218E0[];
 extern int D_00621840[];
 extern int D_0063A43C;

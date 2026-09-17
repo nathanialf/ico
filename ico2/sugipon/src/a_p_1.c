@@ -12,14 +12,12 @@
 #include "geometryManager.h"
 #include "pool.h"
 #include "tableSin.h"
-
-typedef struct {
-    float m[16];
-} Mtx44;
+#include <stdlib.h>
+#include "typedef.h"
 
 typedef struct {
     float m[4];
-} __attribute__((aligned(16))) Vec4;
+} __attribute__((aligned(16))) Vec4A_P_1;
 
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(int a, int b, int c);
@@ -41,7 +39,6 @@ static inline void applyPartOrients(char *g)
     }
 }
 
-extern int rand(void);
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
@@ -242,11 +239,11 @@ extern void _OuterProduct(int dst, int v, int src);
 
 void yAxisRotFitting(int *self, int arg2)
 {
-    Vec4 l0;
-    Vec4 l10;
+    Vec4A_P_1 l0;
+    Vec4A_P_1 l10;
     Mtx44 m20;
-    Vec4 l60;
-    Vec4 l70;
+    Vec4A_P_1 l60;
+    Vec4A_P_1 l70;
     int *r;
     float f;
 
@@ -269,11 +266,11 @@ extern char ZUnitVector[];
 
 void zAxisRotFitting(int *self, int arg2)
 {
-    Vec4 l0;
-    Vec4 l10;
+    Vec4A_P_1 l0;
+    Vec4A_P_1 l10;
     Mtx44 m20;
-    Vec4 l60;
-    Vec4 l70;
+    Vec4A_P_1 l60;
+    Vec4A_P_1 l70;
     int *r;
     float f;
 
@@ -309,11 +306,11 @@ typedef union {
 
 int walkMot(char *a0)
 {
-    Vec4 pos;
-    Vec4 v;
+    Vec4A_P_1 pos;
+    Vec4A_P_1 v;
     Mtx44 m;
     Mtx44 tm;
-    Vec4 out;
+    Vec4A_P_1 out;
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     int ret = fitToCol(a0, 1);
     int i;
@@ -457,7 +454,7 @@ extern void _AttackCenter(void *self, int a1, void *v, int a3, float r, int a5);
 extern char D_004E55E0[];
 extern char D_004E5860[];
 extern char D_004E58A0[];
-extern const Vec4 D_0061EE60;
+extern const Vec4A_P_1 D_0061EE60;
 
 /* static helper the listing places at a_p_1.c lines 628-631, above
  * calcSubMission's def line 637, so the name is ours: the law of cosines for
@@ -474,20 +471,20 @@ static inline short armCosine(float a, float b, float c)
 void calcSubMission(char *self)
 {
     char *p = *(char **)(*(char **)(self + 0x15C) + 0x830);
-    Vec4 base;
-    Vec4 axis;
-    Vec4 rq;
+    Vec4A_P_1 base;
+    Vec4A_P_1 axis;
+    Vec4A_P_1 rq;
     Mtx44 tm;
-    Vec4 q;
-    Vec4 w;
-    Vec4 dir;
-    Vec4 v;
-    Vec4 v2;
+    Vec4A_P_1 q;
+    Vec4A_P_1 w;
+    Vec4A_P_1 dir;
+    Vec4A_P_1 v;
+    Vec4A_P_1 v2;
     Mtx44 rm;
-    Vec4 lv;
-    Vec4 save;
-    Vec4 save2;
-    Vec4 atk;
+    Vec4A_P_1 lv;
+    Vec4A_P_1 save;
+    Vec4A_P_1 save2;
+    Vec4A_P_1 atk;
     int i;
     int ang;
 
@@ -773,7 +770,7 @@ extern void RegularizeQuaternion(int q);
 
 int AP1Turn(char *a0, short a1)
 {
-    Vec4 q;
+    Vec4A_P_1 q;
     int s = *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8);
     if (s < 6) {
         if (s >= 2)
@@ -877,10 +874,10 @@ extern int D_00639EA4;
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 
 typedef struct {
-    int state;   /* 0x00 */
-    float frame; /* 0x04 */
-    int unk8[6]; /* 0x08 */
-    Vec4 vec;    /* 0x20 */
+    int state;     /* 0x00 */
+    float frame;   /* 0x04 */
+    int unk8[6];   /* 0x08 */
+    Vec4A_P_1 vec; /* 0x20 */
 } AP1MotCtrl;
 
 /* Two static helpers the listing places at a_p_1.c lines 384-393 (the census
@@ -892,7 +889,7 @@ static inline void setAP1MotCtrlState(AP1MotCtrl *m, int state)
     m->frame = 0.0f;
 }
 
-static inline void setAP1MotCtrlVector(AP1MotCtrl *m, Vec4 *v)
+static inline void setAP1MotCtrlVector(AP1MotCtrl *m, Vec4A_P_1 *v)
 {
     CopyVector(&m->vec, v);
     setAP1MotCtrlState(m, 0);
@@ -900,9 +897,9 @@ static inline void setAP1MotCtrlVector(AP1MotCtrl *m, Vec4 *v)
 
 void attackMotInit(char *a0)
 {
-    Vec4 pos;
+    Vec4A_P_1 pos;
     Mtx44 mtx;
-    Vec4 dir;
+    Vec4A_P_1 dir;
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
 
     GetRootPosition(&pos, (void *)D_00639EA4);

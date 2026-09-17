@@ -3,6 +3,9 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include "common.h"
+#include <eekernel.h>
+#include <stdio.h>
+#include <sifrpc.h>
 
 typedef struct {
     int f0;
@@ -13,10 +16,6 @@ typedef struct {
     char pad14[0x8];
 } PObjA8B8Ent;
 
-extern int CreateSema(int *self);
-extern int DeleteSema(int a0);
-extern int SetAlarm(int a0, void *a1, int a2);
-extern int WaitSema(int a0);
 extern void CB_DelayTh(void);
 
 void sceCdDelayThread(unsigned short a0)
@@ -93,7 +92,6 @@ INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", _sceCd_ncmd_prechk);
 extern int _sceCd_ncmd_semid[];
 extern int _sceCd_ncmdrdata[];
 extern int _sceCd_cd_ncmd[];
-extern void SignalSema(int sema);
 extern int _sceCd_ncmd_prechk(int a0);
 extern int sceSifCallRpc();
 
@@ -119,7 +117,6 @@ INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdSync);
 extern int SCE_CD_debug[];
 extern char _sceCd_cd_scmd[];
 extern char D_006368C8[];
-extern void scePrintf();
 extern int sceSifCheckStatRpc(char *a0);
 
 int sceCdSyncS(int a0)
@@ -218,10 +215,7 @@ INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdStream);
 extern int D_0054BFCC[];
 extern char D_00636B38[];
 extern PObjA8B8Ent D_0072F250[][4];
-extern void SyncDCache(void *a0, void *a1);
-extern void printf();
 extern int sceSifDmaStat(int a0);
-extern int sceSifSetDma(void *a0, int a1);
 
 void _send_to_iop(int a0, int a1)
 {

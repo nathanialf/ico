@@ -1,9 +1,7 @@
 #include "common.h"
 #include "sugiCommon.h"
+#include "enemy-control.h"
 
-/* prototypes: their order is the inline tail's emission order */
-int InitEnemyCtrlGeo(void);
-int IsSelectID_EnemyCtrl(int a0);
 extern int D_0063C2D4;
 extern int D_0063C2D8;
 extern int D_0063C2DC;

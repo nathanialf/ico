@@ -28,22 +28,11 @@
 #include "streamMotionManager.h"
 #include "tableSin.h"
 
-/* header prototypes (order fixes the inline tail) */
 typedef struct {
     char name[0x110];
     int f110;
     int lsn;
 } CdvdBgReq;
-
-typedef struct {
-    unsigned char _0[0xA0];
-    short ent[0x18];
-    unsigned char _d0[0x80];
-    void (*endproc)(void);
-    unsigned char _154[0x38];
-    unsigned int attr;
-    unsigned char _190[0x4];
-} StgPre;
 
 typedef struct {
     int f0;
@@ -96,9 +85,6 @@ extern StgMgrMsg D_0028FE70;
 extern int stageMgrMsgQ[];
 extern int graphics_ready;
 extern unsigned int mpegPlayInitColor;
-extern void sceGsResetPath(void);
-extern void sceVpu0Reset(void);
-extern int sceDmaReset(int a0);
 extern int D_0028F4F0[];
 extern unsigned int D_006FAC80[];
 extern void *D_0063A428;
@@ -108,7 +94,6 @@ extern int mpegInitDone;
 extern int stageManagerFreeResourceFlag;
 extern char D_006190D0[];
 extern char D_006190E0[];
-extern char *strcpy(char *dst, const char *src);
 extern char stagePreLoadBuff[];
 extern char D_00619100[];
 extern char D_0063ACE0[];
@@ -134,7 +119,6 @@ extern char D_00619158[];
 extern char D_00619168[];
 extern char D_00619180[];
 extern char D_00619198[];
-extern void sceGsSyncPath(int a, int b);
 /* kept local: this TU's uses of jimakuEnd do not fit the prototype in jimaku.h */
 extern void jimakuEnd();
 extern int game_pause;
@@ -162,11 +146,14 @@ extern char D_00619080[];
 extern char D_00619098[];
 extern char D_006190A8[];
 extern char D_006190C0[];
-/* prototypes: their order is the inline tail's emission order */
-void stgmgrNextStagePreLoadForceStageSet(int val);
-void stgmgrNextStagePreLoadDistBoyMode(void);
-void stgmgrNextStagePreLoadForceNoCancel(int val);
-void CheckPoint(void);
+
+#include "StageManager.h"
+#include <libgraph.h>
+#include <libvu0.h>
+#include <libdma.h>
+#include <string.h>
+#include "typedef.h"
+
 static void stgmgrNextStagePreLoadDiskNotReady(void);
 
 /*SW*/

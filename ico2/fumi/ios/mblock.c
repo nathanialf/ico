@@ -1,28 +1,10 @@
 #include "common.h"
 #include "memory.h"
+#include "mblock.h"
+#include <string.h>
 
 extern int D_0063A470;
-
-typedef struct MBlockNode {
-    char *buf;
-    unsigned int size;
-    unsigned int used;
-    struct MBlockNode *next;
-} MBlockNode;
-
-typedef struct MBlock {
-    MBlockNode *head;
-    unsigned int total;
-} MBlock;
-
 extern MBlockNode *new_mblock_node(unsigned int size);
-extern int strlen(const char *s);
-extern void memcpy(void *dst, const void *src, unsigned int n);
-/* prototypes: their order is the inline tail's emission order */
-void init_mblock(int *a0);
-void *new_segment(MBlock *mb, unsigned int len);
-void reuse_mblock(int *a0);
-char *strdup_mblock(MBlock *mb, const char *str);
 
 inline void init_mblock(int *a0)
 {

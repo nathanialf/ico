@@ -6,6 +6,7 @@
  * before sound.o.  The member name is unknown, so the file takes the family's.
  * VMA 0x273228..0x276AD0. */
 #include "common.h"
+#include <sifrpc.h>
 
 extern unsigned char D_00731C00[];
 
@@ -327,7 +328,6 @@ int _SgfadeParam(int a0, int a1, int a2, int a3)
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgInit);
 
 extern char D_00736140[];
-extern int sceSifCallRpc();
 
 int _SgSndn2Remote(int a0, int a1, int a2, int a3, int a4, int a5)
 {

@@ -10,6 +10,7 @@
 #include "GsBase.h"
 #include "Matrix.h"
 #include "keyInput.h"
+#include <eekernel.h>
 
 extern int D_0028F8F4[];
 extern int D_00639C80;
@@ -65,7 +66,6 @@ extern void sceGsSyncV(int mode);
 extern int iosThreadCancelWakeup(void *th);
 /* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
 extern int iosThreadWakeup(void *th);
-extern void SignalSema(int sema);
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/main", Main);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/main", idle);

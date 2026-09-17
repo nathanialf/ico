@@ -1,6 +1,7 @@
 /* libgraph.a member graph005.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
+#include <libgraph.h>
 
 typedef struct {
     unsigned short f0;     /* 0x0 */
@@ -9,8 +10,6 @@ typedef struct {
     unsigned short f6;     /* 0x6 */
     unsigned long long f8; /* 0x8 */
 } GParam;
-
-extern void *sceGsGetGParam(void);
 
 short sceGszbufaddr(short a0, short a1, short a2)
 {

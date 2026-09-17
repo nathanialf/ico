@@ -12,6 +12,9 @@
 #include "matrixDrive.h"
 #include "motionOrientManager.h"
 #include "quaternion.h"
+#include <stdlib.h>
+#include "geometryManager.h"
+#include "typedef.h"
 
 typedef struct {
     char _0[0x20];
@@ -458,8 +461,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainMain_DecideMode)
 extern char D_002A2E70[];
 extern int *D_00639EA4;
 extern void *D_00639EA8;
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition(void *out, void *obj);
 /* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(void *out, void *obj);
 
@@ -481,7 +482,6 @@ void girlBrainMain_Init(void)
 extern float D_002A5594[];
 extern char D_0029D4A0[];
 extern char D_005D3EF0[];
-extern int rand(void);
 
 void ChangeRunMode(int mode)
 {
@@ -519,19 +519,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrainMain);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrain_Pulledup);
 
 #include "girl_brain_attract.c.inc"
-
-typedef struct {
-    float a[4];   /* 0x00 start point   */
-    float b[4];   /* 0x10 end point     */
-    float pos[4]; /* 0x20 clipped point */
-    char _30[0x40];
-    float f_70; /* 0x70 radius/height */
-    char _74[0x14];
-    int f_88; /* 0x88 wall hit      */
-    char _8c[0x08];
-    int f_94; /* 0x94 floor hit     */
-    char _98[0x28];
-} ClipWork;
 
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *w);
@@ -602,8 +589,6 @@ void _girlBrainHide_MakeHidePoint(float *p, float dist)
     p[1] = work.pos[1] - 10.0f;
 }
 
-/* kept local: this TU's uses of GetRootMotionOrient do not fit the prototype in geometryManager.h */
-extern void GetRootMotionOrient(float *out, void *obj);
 /* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
 extern int _RotyGV(void *buf, void *vec);
 /* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
@@ -793,8 +778,6 @@ extern void ClipWallField(void *);
 extern void ClipFloor(void *);
 extern void sceVu0CopyVector(void *dst, void *src);
 extern void sceVu0Normalize(void *dst, void *src);
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition(void *out, void *obj);
 /* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(void *out, void *obj);
 /* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
@@ -2172,16 +2155,6 @@ int IsGirlStatusEscortEnable(int a0, int a1)
     return 0;
 }
 
-typedef union {
-    float f[4];
-    long long ll[2];
-} Vec4;
-
-typedef union {
-    int c[4];
-    long long ll[2];
-} Col4;
-
 extern Vec4 D_005540A0; /* { FLT_MAX, 0, 0, 1 } : "no girl" position */
 extern Col4 D_00554090; /* { 0, 0x10, 0x20, 0x80 } : wire sphere colour */
 extern int D_0063B228;  /* debug display switch */
@@ -2352,8 +2325,6 @@ void *FindGirlPullupFloorBoxGObj(void)
 
 /* kept local: this TU's uses of _MoveGV do not fit the prototype in gv.h */
 extern float _MoveGV(float *dst, float *from, float *to, float t);
-/* kept local: this TU's uses of SetDirectRootPositionNoFitting do not fit the prototype in geometryManager.h */
-extern void SetDirectRootPositionNoFitting(void *self, float *pos);
 
 void actGirlSupportGBBegin(volatile int a0)
 {
@@ -2421,8 +2392,6 @@ void actGirlHangG3M(volatile int a0)
 
 /* kept local: this TU's uses of ACTGame_ConnectHand do not fit the prototype in act-game.h */
 extern void ACTGame_ConnectHand(void);
-/* kept local: this TU's uses of SetRootPosition do not fit the prototype in geometryManager.h */
-extern void SetRootPosition(void *self, float *pos);
 /* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(float *dst, float *a, float *b, float t0, float t1);
 extern char D_00553FD0[];

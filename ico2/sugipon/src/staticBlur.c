@@ -3,6 +3,9 @@
 #include "debug.h"
 #include "Primitive.h"
 #include "Texture.h"
+#include <string.h>
+#include <libvu0.h>
+#include <stdio.h>
 
 struct D275 {
     char pad[0xE8];
@@ -368,8 +371,6 @@ extern int D_0063BB40;
 extern int D_0063BB48;
 extern SprCol D_0063BB50;
 extern SprUV D_00620E20;
-extern void memset(void *dst, int c, int n);
-extern void sceVu0ITOF0Vector(void *dst, void *src);
 
 void makeFullScreenFlareBefore(int mode)
 {
@@ -921,7 +922,6 @@ void calcSun(void)
 }
 
 extern int D_0063B13C;
-extern int sprintf();
 extern int D_0028F954[];
 extern int D_0063BB98;
 extern char D_00620E80[];

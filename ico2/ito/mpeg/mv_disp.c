@@ -2,18 +2,7 @@
 #include "mv_defs.h"
 #include "typedef.h"
 #include "mv_vobuf.h"
-
-/* prototypes: their order is the inline tail's emission order */
-void dispDelete(void);
-void loadImage(int a0);
-int handler_endimage(void);
-void startDisplay(int a0);
-void endDisplay(void);
-void *setDMAscTag(void *a0, int a1, unsigned int a2, int a3, int p4, int p5, int p6);
-void *setGIFtag(int *a0, long long a1, int a2, int a3, int p4, int p5, int p6, int p7);
-void *setGIFad(int *a0, int a1, long long a2);
-char *setTEXFLUSH(char *p);
-void *setTEX1_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7);
+#include "mv_disp.h"
 
 void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8,
                 unsigned int p9, unsigned int p10, unsigned int p11, unsigned int p12);

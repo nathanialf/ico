@@ -7,8 +7,9 @@ extern int D_0063BC50;
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
 /* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait(int a0);
-/* prototypes: their order is the inline tail's emission order */
-void *RequestGetWayBegin(int *a0);
+
+#include "waySystemManager.h"
+
 static void actWaySystemCore(volatile unsigned int self);
 static void thStart(void);
 

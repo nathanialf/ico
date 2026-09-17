@@ -12,8 +12,24 @@
 #ifndef MBLOCK_H
 #define MBLOCK_H
 
+typedef struct MBlockNode {
+    char *buf;
+    unsigned int size;
+    unsigned int used;
+    struct MBlockNode *next;
+} MBlockNode;
+
+typedef struct MBlock {
+    MBlockNode *head;
+    unsigned int total;
+} MBlock;
+
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order mblock.c's inline tail has. */
 void init_mblock(int *a0);
-void *new_segment(void *mb, int size);
+void *new_segment(MBlock *mb, unsigned int len);
 void reuse_mblock(int *a0);
+char *strdup_mblock(MBlock *mb, const char *str);
 
 #endif /* MBLOCK_H */

@@ -12,8 +12,14 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-void pac_DispQW(void *p, int size);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order Packet.c's inline tail has. */
+void pac_Dump(int *a0, int size);
 void pac_Init(void);
+void pac_DispVu1Memory(int idx, int n, int size);
+
+void pac_DispQW(void *p, int size);
 void pac_MakePacket(char *a0);
 void pac_makePacket(void *a0, int a1, int a2);
 

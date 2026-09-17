@@ -1,37 +1,14 @@
 #include "common.h"
+#include "MicroCode.h"
+#include "DisplayList.h"
+#include "typedef.h"
 
-/* prototypes: their order is the inline tail's emission order */
-void mc_TransMicroCode(int a0, int a1);
-void mc_Reset(void);
-void mc_Init(void);
 extern int D_00290B20[];
 extern int D_0063C140;
 extern int D_0067BFD0[];
-/* kept local: this TU's uses of dl_CloseDma do not fit the prototype in DisplayList.h */
-extern int dl_CloseDma(void);
-/* kept local: this TU's uses of dl_OpenDma do not fit the prototype in DisplayList.h */
-extern void dl_OpenDma(int a0, int a1, int a2);
-/* kept local: this TU's uses of dl_SetDLPriority do not fit the prototype in DisplayList.h */
-extern int dl_SetDLPriority(int a0);
-/* kept local: the declaration in MicroCode.h changes this TU codegen */
-extern void mc_setBaseOffset(int base, int pri);
 
 /* The display-list packet builder state and one 64-bit packet slot; same
    objects src/GifPacket.c builds its packets in. */
-typedef struct {
-    int cur;
-    int *buf[2];
-    char *dma;
-    unsigned long long *ptr;
-    char *tail;
-    char *gif;
-    char *end;
-} GifDpk;
-
-typedef union {
-    long long d;
-    int w[2];
-} GifPkWord;
 
 extern GifDpk D_004EE6F0;
 

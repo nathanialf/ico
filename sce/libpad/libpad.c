@@ -3,6 +3,11 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include "common.h"
+#include <sifrpc.h>
+#include <libpad.h>
+#include <stdio.h>
+#include <eekernel.h>
+#include <string.h>
 
 struct S12 {
     char b[12];
@@ -21,12 +26,8 @@ typedef struct {
 extern int D_0054BFC8[];
 extern int D_0054BFCC[];
 extern int D_0072F200[];
-extern int sceSifBindRpc(void *cd, unsigned int sid, int mode);
-extern int scePadGetModVersion(void);
-extern void printf();
 extern char D_00636B80[];
 extern char D_00636BA8[];
-extern int scePadInit2(int a0);
 
 int scePadInit(int a0)
 {
@@ -64,7 +65,6 @@ int scePadInit(int a0)
 extern PObjA8B8Ent D_0072F250[][4];
 extern int D_0072F200[];
 extern int D_0072F540[];
-extern int sceSifCallRpc();
 
 int scePadInit2(int a0)
 {
@@ -91,7 +91,6 @@ int scePadInit2(int a0)
 extern int D_0054BFC8[];
 extern int D_0072F200[];
 extern int D_0072F540[];
-extern int sceSifCallRpc();
 
 int scePadEnd(void)
 {
@@ -131,7 +130,6 @@ int scePadPortClose(int a0, int a1)
 }
 
 extern PObjA8B8Ent D_0072F250[][4];
-extern void SyncDCache(void *a0, void *a1);
 
 int scePadGetDmaStr(int a0, int a1)
 {
@@ -153,8 +151,6 @@ int scePadGetFrameCount(int a0, int a1)
     }
     return *(int *)(scePadGetDmaStr(a0, a1) + 0x58);
 }
-
-extern int memcpy(char *a0, char *a1, int a2);
 
 int scePadRead(int a0, int a1, int a2)
 {
@@ -396,8 +392,6 @@ int scePadSetButtonInfo(int a0, int a1, int a2)
     }
     return ret;
 }
-
-extern int scePadGetButtonMask(int a0, int a1);
 
 int scePadInfoPressMode(int a0, int a1)
 {

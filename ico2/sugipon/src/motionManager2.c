@@ -6,6 +6,10 @@
 #include "s_init.h"
 #include "lineManager.h"
 #include "tableSin.h"
+#include <string.h>
+#include <math.h>
+#include "pool.h"
+#include "geometryManager.h"
 
 struct Pack32 {
     long long a, b, c, d;
@@ -38,10 +42,6 @@ typedef struct {
 extern int GetFloorAttribute();
 /* kept local: this TU's uses of CompareAttribute do not fit the prototype in fieldCollision.h */
 extern int CompareAttribute();
-/* kept local: this TU's uses of GetPoolGlobalHeightDetail do not fit the prototype in pool.h */
-extern float GetPoolGlobalHeightDetail(int pool, float *pos);
-/* kept local: this TU's uses of GetPoolGlobalDrainVector do not fit the prototype in pool.h */
-extern void GetPoolGlobalDrainVector(float *dst, int pool);
 /* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(float *v);
 extern void sceVu0AddVector(float *dst, float *a, float *b);
@@ -110,20 +110,9 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
 
 /* 8-aligned float quad: ROM copies the {0,1,0,1} and plane templates with one
    ld/sd pair, which a plain float[4] (alignment 4) cannot emit. */
-typedef union {
-    float f[4];
-
-    struct {
-        long long _0, _8;
-    } q;
-} Vec4;
 
 /* 8-aligned RGBA quad, for the same reason; the components are signed (the
    colour scaling in dispPlane is cvt.s.w). */
-typedef union {
-    int c[4];
-    unsigned long long w[2];
-} Col4;
 
 /* kept local: this TU's uses of CopyIVector do not fit the prototype in matrixDrive.h */
 extern void CopyIVector(void *dst, void *src);
@@ -142,7 +131,6 @@ extern void *MatrixDrive_GetMatrix(void);
 /* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PopMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
-extern void memset(void *a0, int a1, int a2);
 
 #define ABSF(x) ((x) < 0.0f ? -(x) : (x))
 
@@ -248,8 +236,6 @@ void GetOrientOfCliffOfGObj(int a0, int a1)
     CopyVector(a0, (int)((GObj *)(a1))->p_15C + 0x590);
 }
 
-/* kept local: this TU's uses of LocalizeDirectionOrient do not fit the prototype in geometryManager.h */
-extern void LocalizeDirectionOrient(char *a0, void *a1);
 extern void sceVu0Normalize(int *a0, int *a1);
 
 void SetMotionDirection(void *a0, float *a1)
@@ -273,16 +259,11 @@ void SetMotionDirection(void *a0, float *a1)
     LocalizeDirectionOrient(a0, ctrl);
 }
 
-/* kept local: this TU's uses of GetGlobalDirectionOrient do not fit the prototype in geometryManager.h */
-extern void GetGlobalDirectionOrient();
-
 void _GetMotionDirection(int a0, int a1)
 {
     GetGlobalDirectionOrient(a0, a1, (int)((GObj *)(a1))->p_15C + 0x520);
 }
 
-/* kept local: this TU's uses of GetRootQuaternion do not fit the prototype in geometryManager.h */
-extern void GetRootQuaternion(float *dst, void *self);
 /* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in quaternion.h */
 extern void GetInverseQuaternion(float *dst, float *src);
 /* kept local: this TU's uses of GetMatrixFromQuaternion do not fit the prototype in quaternion.h */
@@ -290,7 +271,6 @@ extern void GetMatrixFromQuaternion(float *m, float *q);
 extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
 /* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
 extern void RotQuaternionY(void *q, short ang);
-extern float atan2f(float y, float x);
 /* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
 extern float ZUnitVector[];
 
@@ -377,8 +357,6 @@ typedef struct {
 } MotAttr12;
 
 extern void sceVu0CopyVector();
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition();
 
 /* static inline in the ROM: inlined into AdjustMotionHeightToNearestField and
  * InitMotionGeoInfo, no out-of-line copy, so the name is ours. */
@@ -405,7 +383,6 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos)
     return 1;
 }
 
-extern void memset(void *a0, int a1, int a2);
 /* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(void *q, short ang);
 /* RotQuaternionZ's second parameter is `int`, not `short`: calcFootIK's dev line
@@ -658,8 +635,6 @@ void DispSkelton(GObj *self, int a1)
     }
 }
 
-/* kept local: this TU's uses of GetRootMatrix do not fit the prototype in geometryManager.h */
-extern void GetRootMatrix(void *m, GObj *self);
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector();
 /* kept local: this TU's uses of GetYProjectionOfPlane do not fit the prototype in fieldCollision.h */
@@ -889,10 +864,6 @@ extern void _OuterProduct(float *dst, float *a, float *b);
 extern float _InnerProduct(float *a, float *b);
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(float *dst, float *a, float *b, float t);
-/* kept local: this TU's uses of GetProjectionOfPlane do not fit the prototype in geometryManager.h */
-extern void GetProjectionOfPlane(float *dst, float *plane, float *pos);
-/* kept local: this TU's uses of GetProjectionOfPlaneWithKeepAway do not fit the prototype in geometryManager.h */
-extern float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float t);
 extern float D_00290690[];
 /* kept local: this TU's uses of YUnitVector do not fit the prototype in matrixDrive.h */
 extern float YUnitVector[];
@@ -1201,7 +1172,6 @@ void _getMotion(void *dst, void *m, int node, int frame)
     }
 }
 
-extern void memset(void *a0, int a1, int a2);
 /* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
 extern void CopyQuaternion();
 /* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
@@ -1516,10 +1486,6 @@ int GetCollisionOfLastActiveField(char *self)
 extern int GetFloorAttribute();
 /* kept local: this TU's uses of CompareAttribute do not fit the prototype in fieldCollision.h */
 extern int CompareAttribute();
-/* kept local: this TU's uses of GetPoolGlobalHeight do not fit the prototype in pool.h */
-extern float GetPoolGlobalHeight(int pool);
-/* kept local: this TU's uses of SetFallDownSplash do not fit the prototype in pool.h */
-extern void SetFallDownSplash(int pool, void *self);
 
 int CheckFieldContact(char *info, char *self, float *pos, float lim)
 {
@@ -1917,9 +1883,6 @@ void SetMotionNodeFixModeParameter(char *self, char *obj, float x, float y, floa
     *(float *)(*(int *)(self + 0x15C) + 0x450) = w;
 }
 
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition();
-
 void GetRootProjectionPosOfGObj(int a0, int a1)
 {
     GetRootPosition(a0, a1);
@@ -2079,12 +2042,6 @@ void UnlockForceGroundParent(int gobj) {}
 
 /* kept local: this TU's uses of GetGlobalWallPlane do not fit the prototype in fieldCollision.h */
 extern void GetGlobalWallPlane(void *a0, void *a1);
-/* kept local: this TU's uses of GetProjectionOfPlaneWithKeepAway do not fit the prototype in geometryManager.h */
-extern float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float t);
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
-extern void GetRootPosition(void *a0, void *a1);
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
-extern void SetDirectRootPosition(void *a0, void *a1);
 
 void GetOutOutsideOfWall(void *obj, float threshold)
 {
@@ -2107,7 +2064,6 @@ void GetOutOutsideOfWall(void *obj, float threshold)
 
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *a0);
-extern void memset(void *a0, int a1, int a2);
 
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f)
 {

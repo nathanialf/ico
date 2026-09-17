@@ -21,6 +21,14 @@
 #include "cage.h"
 #include "particleEffect.h"
 #include "spider.h"
+#include <string.h>
+#include <stdlib.h>
+#include "StageManager.h"
+#include "act.h"
+#include "motionOrientManager.h"
+#include "typedef.h"
+#include "torch.h"
+#include "matrixDrive.h"
 
 struct DQW {
     float f0, f4, f8, fc, f10, f14;
@@ -38,11 +46,6 @@ struct SVF {
     int b;
 };
 
-typedef union {
-    float f[4];
-    int i[4];
-} Vec4u;
-
 /* the 16-byte primitive colour record the debug wire-draws copy out of
    .rodata before overriding the first word */
 typedef struct Blob16 {
@@ -51,25 +54,15 @@ typedef struct Blob16 {
 
 /* the 16-byte work vector scpSekizou reuses for the motion direction and
    for the stone-statue SE position it copies out of .rodata */
-typedef union Vec16 {
-    float f[4];
-    long long ll[2];
-} Vec16;
 
 /* MUST be above the TU's first call site: with the implicit `int` return the
    call SETs $2 and global-alloc picks different scratch registers. */
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
 
 /* ACT+0x20 / ACT+0x18 are the 64-bit actor status words.  The dev header
    declares them as a UNION (cf. `union ActStatus` in src/st13c.c and
    src/st04a.c), not as a bare `unsigned long long`: a union-member access has
    alias set 0, so a store through it aliases every other load -- which is why
    ROM re-loads `gobj->0x164` after a status store. */
-typedef union ActStatus {
-    unsigned long long ll;
-    int i[2];
-} ActStatus;
 
 /* the two-slot ADPCM play-request table at D_006E5950 (2 x 0x18 bytes) */
 typedef struct AdpcmReq {
@@ -103,8 +96,6 @@ struct S {
     int b;
 };
 
-/* kept local: this TU's uses of LightTorchOn do not fit the prototype in torch.h */
-extern void LightTorchOn(void *a0);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj();
 
@@ -116,8 +107,6 @@ void scpTorchLightOn(void)
     }
 }
 
-/* kept local: this TU's uses of LightTorchOff do not fit the prototype in torch.h */
-extern void LightTorchOff();
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj();
 
@@ -177,13 +166,8 @@ extern char *D_00639EA4;
 extern char *D_00639EA8;
 /* kept local: this TU's uses of isysGObjSearchFromObjLayoutID do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjLayoutID();
-/* kept local: this TU's uses of InitMotionOrient do not fit the prototype in motionOrientManager.h */
-extern void InitMotionOrient(char *self, int a1, int a2, int a3, int a4, int mot);
-/* kept local: this TU's uses of ControlMotionOrient do not fit the prototype in commonact.h */
-extern void ControlMotionOrient(int id, int mot);
-/* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
-extern int SetMotionRequest(char *self, int a1, char *a2);
 
+/* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
 void scpPlayMot(char *self, int mot)
 {
     char *act = *(char **)(self + 0x164);
@@ -247,15 +231,7 @@ extern int D_0063B150;
 extern char D_00554550[];
 extern void sceVu0SubVector(float *d, float *a, float *b);
 extern float sceVu0InnerProduct(float *a, float *b);
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_TransMatrixV(float *v);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
@@ -761,8 +737,6 @@ void scpWoodSrh(char *self, struct WoodBoxEnt *w)
     }
 }
 
-/* kept local: this TU's uses of stgmgrNextStagePreLoadDistBoyMode do not fit the prototype in StageManager.h */
-extern void stgmgrNextStagePreLoadDistBoyMode(void);
 /* kept local: this TU's uses of ReviveAllCarryableItemsWithNonSleepFrame do not fit the prototype in item.h */
 extern void ReviveAllCarryableItemsWithNonSleepFrame(int frames);
 /* kept local: this TU's uses of iosPadActRequest do not fit the prototype in pad.h */
@@ -781,8 +755,6 @@ extern char *D_0063AA1C;
 extern int D_0063AA28;
 extern unsigned char D_0063AA2C;
 extern char D_005547F0[];
-/* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
-extern void stgmgrNextStagePreLoadForceStageSet(int val);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
 /* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
@@ -938,14 +910,14 @@ typedef struct {
     char _074[0x0C];    /* 0x74 */
     struct WallCol res; /* 0x80 */
     char _08C[0x34];    /* 0x8C */
-} ClipWork;             /* 0xC0 */
+} ClipWorkScript;       /* 0xC0 */
 
 /* INTERIM stand-in.  scpGetWallCollision is a real TU function with its own
    ROM slot (below); the compiler inlines it here. */
 static inline struct WallCol *scpGetWallCollisionInline(float x0, float y0, float z0, float x1,
                                                         float y1, float z1)
 {
-    ClipWork work;
+    ClipWorkScript work;
 
     work.p0[0] = x0;
     work.p0[1] = y0;
@@ -996,8 +968,6 @@ void _SCPMoveCharactorByWay_Cancel(char *a0)
 extern char *D_00639EA8;
 extern char *D_00639EA4;
 extern int stage_no;
-/* kept local: this TU's uses of CheckPoint do not fit the prototype in StageManager.h */
-extern void CheckPoint(void);
 
 void scpSekizouCheckPoint(void)
 {
@@ -1072,10 +1042,6 @@ struct StgRow {
 extern struct StgEnt D_0055C518[];
 extern struct StgRow D_005F5D50[];
 extern int stage_no;
-/* kept local: this TU's uses of stgmgrNextStagePreLoadForceNoCancel do not fit the prototype in StageManager.h */
-extern void stgmgrNextStagePreLoadForceNoCancel(int val);
-/* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
-extern void stgmgrNextStagePreLoadForceStageSet(int val);
 
 void preload(int idx)
 {
@@ -1200,7 +1166,7 @@ void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, 
 
 struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x1, float y1, float z1)
 {
-    ClipWork work;
+    ClipWorkScript work;
 
     work.p0[0] = x0;
     work.p0[1] = y0;
@@ -1329,8 +1295,6 @@ extern char D_005546E0[];
 extern char *D_0063AA10;
 extern float D_0063AA0C;
 extern int startStagePauseDisableTimer;
-/* kept local: this TU's uses of actCreateSubThread do not fit the prototype in act.h */
-extern void actCreateSubThread(void (*func)(volatile int), int a1);
 /* kept local: this TU's uses of scpSubAdpcmPlay do not fit the prototype in script.h */
 extern void scpSubAdpcmPlay(volatile int a0);
 
@@ -1385,8 +1349,6 @@ void scpGirlHintVoiceCancel(void)
     }
 }
 
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
 extern struct WoodBoxEnt D_002A51F0[11];
 
 void scpWoodBox(volatile int a0)
@@ -1406,9 +1368,6 @@ void scpWoodBox(volatile int a0)
 found:
     scpWoodSrh(a0, p);
 }
-
-/* kept local: this TU's uses of IsTorchLightOn do not fit the prototype in torch.h */
-extern int IsTorchLightOn(int a0);
 
 int scpIsTorchLightOn(int a0)
 {
@@ -1537,15 +1496,7 @@ extern int D_0063B150;
 extern char D_00554550[];
 extern void sceVu0SubVector(float *d, float *a, float *b);
 extern float sceVu0InnerProduct(float *a, float *b);
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_TransMatrixV(float *v);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
@@ -1852,7 +1803,6 @@ int scpSearchGobj(int id)
 /* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, void *a4, float f12,
                                           float f13, float f14, float f15);
-extern void memset(void *a0, int a1, int a2);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(char *a0, int a1);
 
@@ -1924,8 +1874,6 @@ extern char *D_00639EA8;
 extern void ACTGame_StageChangeGObj(char *g, int no);
 /* kept local: this TU's uses of BoyInfoUpdate_StageChange do not fit the prototype in boyact.h */
 extern void BoyInfoUpdate_StageChange(void);
-/* kept local: this TU's uses of stgmgrForceSwitchWithFadeColor do not fit the prototype in StageManager.h */
-extern void stgmgrForceSwitchWithFadeColor(int id, float speed, float wait, int r, int gr, int b);
 
 int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wait, unsigned char r,
                                 unsigned char gr, unsigned char b)
@@ -2080,9 +2028,6 @@ out:
 extern struct DQW D_002A5400;
 /* kept local: this TU's uses of WakeUpAP1 do not fit the prototype in act_a_p_1.h */
 extern void WakeUpAP1(int a0);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
-extern int rand(void);
 
 void scpBornSpider(int n, float a, float b, float c, float d)
 {
@@ -2140,9 +2085,6 @@ int scpActStatusDeathFall(char *self)
     return 1;
 }
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector(int a0, void *a1);
-
 void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
 {
     Vec4u v;
@@ -2157,15 +2099,7 @@ extern char D_00554810[];
 extern int D_0063B150;
 /* kept local: this TU's uses of ReviveCarryableItemsWithBoundary do not fit the prototype in item.h */
 extern int ReviveCarryableItemsWithBoundary(float *pos, float r);
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
 extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_TransMatrixV(float *v);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
@@ -2393,8 +2327,6 @@ void scpDoorTypeUpMain(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of actInitialize do not fit the prototype in act.h */
-extern int actInitialize(volatile int a0);
 /* the flag is the LAST parameter: the EE ABI hands ints and floats separate
    argument registers, so ($a0 name, $a1 flag, $f12..$f17 the six scroll
    values) is the same register assignment either way, but ROM emits the flag

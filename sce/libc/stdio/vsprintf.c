@@ -1,27 +1,19 @@
 /* libc.a member vsprintf.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
-
-typedef struct PObjBlk {
-    char pad0[4];
-    unsigned int size; /* 0x4 */
-} PObjBlk;
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <reent.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
 
-typedef struct {
-    char *pos; /* 0x0 */
-    int len;   /* 0x4 */
-} StreamBuf;
-
 extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
-extern long long strtol(void *a0, int a1, int a2);
-extern int vfprintf();
 extern int strtok_r(int a0, int a1, int a2);
 
 int vsprintf(void *out, void *a1, void *a2)
@@ -42,8 +34,6 @@ int vsprintf(void *out, void *a1, void *a2)
 extern int __sread(void *a0, int a1, int a2);
 extern long __swrite(void *a0, int a1, int a2);
 extern long __sseek(void *a0, int a1, int a2);
-extern void memset(void *a0, int a1, int a2);
-extern int memcpy(char *a0, char *a1, int a2);
 extern int *_multadd(void *a0, int *a1, int a2, int a3);
 extern int _read_r(int *self, int a1, int a2, int a3);
 extern int _lseek_r(int *self, int a1, int a2, int a3);

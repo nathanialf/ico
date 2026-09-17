@@ -12,7 +12,12 @@
 #ifndef DELAYFREEMANAGER_H
 #define DELAYFREEMANAGER_H
 
-void EntryDelayFree(void *p);
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order delayFreeManager.c's inline tail has. */
 void InitDelayFree(void);
+void ExecDelayFree(void);
+
+void EntryDelayFree(void *p);
 
 #endif /* DELAYFREEMANAGER_H */

@@ -3,6 +3,7 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include "common.h"
+#include <stdio.h>
 
 extern int D_0054A320[];
 
@@ -80,8 +81,6 @@ typedef struct DmaChan {
     int pad2[3];
     int tadr; /* 0x30 */
 } DmaChan;
-
-extern int printf(const char *fmt, ...);
 
 void sceDmaSend(DmaChan *ch, unsigned int addr)
 {

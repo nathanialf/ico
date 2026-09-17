@@ -10,6 +10,8 @@
 #include "lineManager.h"
 #include "motionManager2.h"
 #include "quaternion.h"
+#include <libvu0.h>
+#include <stdlib.h>
 
 typedef struct {
     float v[4];
@@ -19,11 +21,6 @@ typedef struct {
 
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-
-typedef struct {
-    float x, y, z, w;
-} __attribute__((aligned(16))) VECTOR;
-
 /* Both colour constants live in the shared .rodata run
    (asm/data/src/cod/51DD44.rodata.s), so they are `const` objects: the
    qualifier is the recovered type, and it is what lets sched2 place the
@@ -32,8 +29,6 @@ extern const VECTOR D_0061F220;
 extern const VECTOR D_0061F230;
 /* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
-extern void sceVu0UnitMatrix(void *m);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
@@ -107,12 +102,6 @@ extern int D_0028F4C0[];
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void SubVectorXYZ(void *dst, void *a, void *b);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
-extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern void sceVu0InterVector(void *dst, void *a, void *b, float t);
-extern void sceVu0ScaleVector(void *dst, void *src, float k);
-extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float k);
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(void *v);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
@@ -450,7 +439,6 @@ extern void _ApplyMatrix(void *dst, void *m, void *src);
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(void *out, void *pos);
-extern int rand(void);
 
 /* One entry of the four-corner anchor table the cloth is pinned to: the
    middle vector is the local-space anchor position _ApplyMatrix transforms
@@ -592,9 +580,6 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, voi
 
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
-extern void sceVu0Normalize(void *dst, void *src);
-extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
-extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern char D_004E6ED0[];
 extern char D_004E6EF0[];
 extern float D_0063B758;
@@ -902,7 +887,6 @@ void DispClothMesh(int *a0, void *a1, void *a2)
 
 /* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern void *MatrixDrive_GetMatrix(void);
-extern void sceVu0UnitMatrix(void *m);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
 /* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
@@ -1007,7 +991,6 @@ extern void CopyMatrix(void *dst, void *src);
 /* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void SubVectorXYZ(void *a0, void *a1, void *a2);
 extern void *memset(void *a0, int a1, int a2);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
 
 void getCloth4D_postProcess(int *a0, int **a1)
 {
@@ -1173,7 +1156,6 @@ typedef struct {
 } Cloth4DCfg;
 
 extern int buffer_ID;
-extern void sceVu0UnitMatrix(void *m);
 /* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
@@ -1512,8 +1494,6 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
 
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
-extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
-extern void sceVu0SubVector(void *dst, void *a, void *b);
 
 void getCrossPoint(void *out, void *seg, void *plane)
 {

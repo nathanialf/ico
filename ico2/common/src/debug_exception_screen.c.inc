@@ -1,17 +1,19 @@
+#include <string.h>
+#include <stdio.h>
+#include <libdma.h>
+#include <libvu0.h>
+#include <eekernel.h>
+
 /* debug_exception_screen.c.inc -- the debug screen primitives (Vif1 direct packets, GS draw environments, the 26x256 text
  * screen, sprite/font blits). #included once at the top of debug_exception.c: the PAL listing (SRCFILE.TXT) names
  * this file for these functions and MAIN.MAP lists them under debug_exception.o; debug.c calls them as externs.
  * The three Vif1/GIF helpers are inline (they inline into drawSprite/PutFont and their out-of-line copies close the
  * object); the rest are ordinary functions emitted in this order. */
-extern int strlen();
-extern void vsprintf();
 extern int D_0028F4F0[];
 extern void sceVif1PkCloseDirectCode();
 extern void sceVif1PkCloseGifTag();
 extern void sceVif1PkEnd();
 extern void sceVif1PkTerminate();
-extern int sceDmaGetChan(unsigned a0);
-extern void sceDmaSend();
 extern void sceGsSyncPath();
 extern int sceGsSetDefTexEnv();
 extern int sceGsSetDefAlphaEnv();
@@ -55,10 +57,7 @@ extern int D_0063B380;
 extern int D_0063B384;
 extern const unsigned char D_0061C590[];
 extern u128_dbgscr D_004DA760[];
-extern void sceDmaReset(int a0);
-extern void sceDmaSync(int *a0, int a1, int a2);
 extern void sceGsResetPath(void);
-extern void sceVpu0Reset();
 
 typedef struct {
     int col;
@@ -83,7 +82,6 @@ extern int D_0063B39C;
 extern int buffer_ID;
 extern int odd_even;
 extern int frame_count;
-extern void FlushCache(int a0);
 extern void sceGsSwapDBuff(void *a0, int a1);
 extern int sceGsSyncV(int a0);
 

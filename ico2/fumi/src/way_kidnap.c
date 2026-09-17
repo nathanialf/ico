@@ -8,6 +8,8 @@
 #include "way_sys.h"
 #include "way_util.h"
 #include "geometryManager.h"
+#include <libvu0.h>
+#include <stdlib.h>
 
 extern int D_0063BD64;
 extern int D_0063BD60;
@@ -34,7 +36,6 @@ typedef struct WpPosEntry {
 
 extern WpPosEntry D_007292C0[];
 extern float D_00728AC0[][4];
-extern void sceVu0CopyVector(float *dst, float *src);
 
 void add_wp_pos(WayPoint *wp, float *pos, float len)
 {
@@ -159,7 +160,6 @@ found:
 }
 
 static int wpsort_compfnc(float *a, float *b);
-extern void qsort(void *base, int n, int size, int (*cmp)());
 
 /* INTERIM: the PAL listing inlines the public NumOfWpPos into
  * WayPointWithRangeFromPos.  Its out-of-line definition keeps its own ROM slot

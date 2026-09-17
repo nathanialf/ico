@@ -10,26 +10,7 @@
 #include "gflag.h"
 #include "StageAnimation.h"
 #include "motionManager2.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef struct Act {
-    char unk00[0xD0];  /* 0x00 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    int act;           /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
+#include "typedef.h"
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
@@ -63,13 +44,6 @@ static ActMail chainSwitch_mes[2] = {{430}, {429}};
 
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float r);
-
-typedef struct PadState {
-    int unk00;        /* 0x00 */
-    int flags;        /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} PadState;
-
 extern PadState D_0028F8F0[];
 extern int D_00639EA4;
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
@@ -133,10 +107,6 @@ void actSt19aOriUp(volatile int a0)
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
-typedef union {
-    float f[4];
-    long long d[2];
-} ConstVec;
 
 static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}};
 

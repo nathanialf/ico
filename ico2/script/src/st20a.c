@@ -16,33 +16,7 @@
 #include "gflag.h"
 #include "script.h"
 #include "StageAnimation.h"
-
-typedef struct ActMail {
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
-    int unk08;                  /* 0x08 */
-    int unk0C;                  /* 0x0C */
-} ActMail;
-
-typedef union ActStatus {
-    unsigned long long ll;
-    int i[2];
-} ActStatus;
-
-typedef struct Act {
-    char unk00[0x20];  /* 0x00 */
-    ActStatus flags20; /* 0x20 */
-    char unk28[0xA8];  /* 0x28 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} Act;
-
-typedef struct PObjGObj {
-    char pad00[0x164]; /* 0x000 */
-    int act;           /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObj;
+#include "typedef.h"
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (430 = the actor's own wake-up post, 429 = the trailing
