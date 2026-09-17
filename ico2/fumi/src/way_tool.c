@@ -313,13 +313,13 @@ inline int play_way(void)
         switch (D_0063BD9C) {
         case 0:
             while (g != 0) {
-                *(int *)(*(char **)(g + 0x164) + 0x350) = 1;
+                GOBJ_ACT(g)->f_350 = 1;
                 g = isysGObjSearchFromObjKindID_next(g);
             }
             break;
         case 1:
             while (g != 0) {
-                *(int *)(*(char **)(g + 0x164) + 0x350) = 0;
+                GOBJ_ACT(g)->f_350 = 0;
                 g = isysGObjSearchFromObjKindID_next(g);
             }
             break;
@@ -860,14 +860,14 @@ int debug_WayTool(void)
 
 inline void cursor_control(volatile int a0)
 {
-    char *w = *(char **)(a0 + 0x164);
+    Act *w = GOBJ_ACT(a0);
 
-    iosPadConnect(w + 0x2D8, 0, 0, iosPadConfDefault);
+    iosPadConnect((char *)w + 0x2D8, 0, 0, iosPadConfDefault);
 
     while (1) {
-        iosPadRead(w + 0x2D8);
+        iosPadRead((char *)w + 0x2D8);
 
-        if (a0 == D_00639EC0 && (*(int *)(w + 0x2E4) & 1)) {
+        if (a0 == D_00639EC0 && (w->unk2E4 & 1)) {
             ACTDebugMove(a0, 1);
         }
         _ACTWait(1);

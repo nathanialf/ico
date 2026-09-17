@@ -305,9 +305,9 @@ void actSt04aGateChk(volatile int a0)
         scpPlayMot(D_00639EA4, 0);
         scpPlayMot(D_00639EA8, 532);
 
-        *(int *)(*(int *)(D_00639EA4 + 0x15C) + 0x514) =
+        GOBJ_SUB(D_00639EA4)->f_514 =
             (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
-        *(int *)(*(int *)(D_00639EA8 + 0x15C) + 0x514) =
+        GOBJ_SUB(D_00639EA8)->f_514 =
             (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
 
         sceVu0SubVector(dir, test_CURRENTROOT((int)D_00639EA8), test_CURRENTROOT((int)D_00639EA4));
@@ -919,9 +919,9 @@ void actConte09(volatile int a0)
     }
     _ACTWait(1);
 
-    *(int *)(*(int *)(D_00639EA4 + 0x15C) + 0x514) =
+    GOBJ_SUB(D_00639EA4)->f_514 =
         (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
-    *(int *)(*(int *)(D_00639EA8 + 0x15C) + 0x514) =
+    GOBJ_SUB(D_00639EA8)->f_514 =
         (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
 
     demoEnd = 1;
@@ -2017,12 +2017,12 @@ void finishCallBackFunc(int a0)
     Vec4St04A v;
     int i;
 
-    _ApplyMatrix((int)&v, *(int *)(*(int *)(a0 + 0x15C) + 0xC), (int)YUnitVector);
+    _ApplyMatrix((int)&v, GOBJ_SUB(a0)->f_C, (int)YUnitVector);
     v.m[1] = 0.0f;
-    _NormalizeVector(*(int *)(a0 + 0x15C) + 0x520, (int)&v);
+    _NormalizeVector((int)GOBJ_SUB(a0) + 0x520, (int)&v);
 
-    for (i = 0; i < *(int *)(*(int *)(a0 + 0x15C) + 0x88); i++) {
-        *(Mtx44 *)(*(int *)(*(int *)(a0 + 0x15C) + 0x80C) + i * 64) = D_004F8610;
+    for (i = 0; i < GOBJ_SUB(a0)->f_88; i++) {
+        *(Mtx44 *)(*(int *)((int)GOBJ_SUB(a0) + 0x80C) + i * 64) = D_004F8610;
     }
 }
 

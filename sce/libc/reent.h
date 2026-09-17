@@ -28,7 +28,30 @@ typedef struct {
     int len;   /* 0x4 */
 } StreamBuf;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the reentrancy record every member
+ * of this archive reaches through the stream record's data field.  Only the one
+ * field the members read is named. */
+struct Reent;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the chain of stream record blocks
+ * the reentrancy record heads. */
+typedef struct Glue {
+    struct Glue *next; /* 0x0 */
+    int niobs;         /* 0x4 */
+    struct Fil *iobs;  /* 0x8 */
+} Glue;
+
+typedef struct Reent {
+    int err;           /* 0x000, the errno this reentrancy record carries */
+    char pad004[0x34]; /* 0x004 */
+    int sdidinit;      /* 0x038 */
+    void *cleanup;     /* 0x03C */
+    char pad040[0x198]; /* 0x040 */
+    Glue glue;         /* 0x1D8 */
+} Reent;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for the archive's stream
+ * members, which carried six divergent local copies of it. */
 typedef struct Fil {
     unsigned char *p;      /* 0x00 */
     int r;                 /* 0x04 */
@@ -37,7 +60,11 @@ typedef struct Fil {
     short file;            /* 0x0E */
     Sbuf bf;               /* 0x10 */
     int lbfsize;           /* 0x18 */
-    char pad1C[0x14];      /* 0x1C */
+    void *cookie;          /* 0x1C, the argument the four stream calls below take */
+    int (*read)(void *cookie, char *buf, int n);  /* 0x20 */
+    int (*write)(void *cookie, char *buf, int n); /* 0x24 */
+    int (*seek)(void *cookie, int off, int whence); /* 0x28 */
+    int (*close)(void *cookie);                     /* 0x2C */
     Sbuf ub;               /* 0x30 */
     unsigned char *up;     /* 0x38 */
     int ur;                /* 0x3C */
@@ -46,7 +73,7 @@ typedef struct Fil {
     Sbuf lb;               /* 0x44 */
     int blksize;           /* 0x4C */
     int offset;            /* 0x50 */
-    void *data;            /* 0x54 */
+    Reent *data;           /* 0x54 */
 } Fil;
 
 #endif /* SCE_LIBC_REENT_H */

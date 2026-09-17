@@ -171,8 +171,7 @@ void scpPlayMotDirSmz(char *self, float *dir)
     sceVu0Normalize(dir, dir);
     SetMotionDirectionSmooze(
         self, dir,
-        (float)((struct MotTblRec *)(*(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194 +
-                                     (char *)D_0055FE58))
+        (float)((struct MotTblRec *)(GOBJ_SUB(self)->f_4A0 * 0x194 + (char *)D_0055FE58))
             ->smzAngle);
 }
 
@@ -184,7 +183,7 @@ extern int isysGObjSearchFromObjLayoutID();
 /* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
 void scpPlayMot(char *self, int mot)
 {
-    char *act = *(char **)(self + 0x164);
+    Act *act = GOBJ_ACT(self);
     int id = -1;
 
     if (self == D_00639EA4) {
@@ -202,7 +201,7 @@ void scpPlayMot(char *self, int mot)
         return;
     }
     ControlMotionOrient(id, mot);
-    *(int *)(act + 0x130) = SetMotionRequest(self, 0x10C, act + 0x620);
+    *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x10C, (char *)act + 0x620);
 }
 
 void scpPlayJump(char *a0, int a1)
@@ -383,19 +382,20 @@ static inline void scpTransLinearInline(void *obj, int axis, float target, float
 
 void scpDoorTypeUpDown(volatile int a0)
 {
-    char *act = *(char **)(a0 + 0x164);
+    Act *act = GOBJ_ACT(a0);
 
-    if (*(int *)(act + 0x46C) != 0) {
-        Camctrl_SetTarget(*(int *)(act + 0x46C), 0, 3);
-        if (*(int *)(act + 0x464) != 0) {
-            _ACTWait(*(int *)(act + 0x464));
+    if (*(int *)((char *)act + 0x46C) != 0) {
+        Camctrl_SetTarget(*(int *)((char *)act + 0x46C), 0, 3);
+        if (*(int *)((char *)act + 0x464) != 0) {
+            _ACTWait(*(int *)((char *)act + 0x464));
         }
     }
     debug_StdPrintfDummy(D_00554590);
-    gflagOff(*(int *)(act + 0x454));
-    scpTransLinearInline((void *)a0, 1, *(float *)(act + 0x458), *(float *)(act + 0x45C));
-    if (*(int *)(act + 0x468) != 0) {
-        _ACTWait(*(int *)(act + 0x468));
+    gflagOff(*(int *)((char *)act + 0x454));
+    scpTransLinearInline((void *)a0, 1, *(float *)((char *)act + 0x458),
+                         *(float *)((char *)act + 0x45C));
+    if (*(int *)((char *)act + 0x468) != 0) {
+        _ACTWait(*(int *)((char *)act + 0x468));
     }
     Camctrl_ExitEveRock();
     D_002A51B0[0].func = scpDoorTypeUpMain;
@@ -409,19 +409,20 @@ extern struct ScpMail D_002A51D0[];
 
 void scpDoorTypeUpUp(volatile int a0)
 {
-    char *act = *(char **)(a0 + 0x164);
+    Act *act = GOBJ_ACT(a0);
 
-    if (*(int *)(act + 0x46C) != 0) {
-        Camctrl_SetTarget(*(int *)(act + 0x46C), 0, 3);
-        if (*(int *)(act + 0x464) != 0) {
-            _ACTWait(*(int *)(act + 0x464));
+    if (*(int *)((char *)act + 0x46C) != 0) {
+        Camctrl_SetTarget(*(int *)((char *)act + 0x46C), 0, 3);
+        if (*(int *)((char *)act + 0x464) != 0) {
+            _ACTWait(*(int *)((char *)act + 0x464));
         }
     }
     debug_StdPrintfDummy(D_005545A8);
-    gflagOn(*(int *)(act + 0x454));
-    scpTransLinearInline((void *)a0, 1, -*(float *)(act + 0x458), *(float *)(act + 0x45C));
-    if (*(int *)(act + 0x468) != 0) {
-        _ACTWait(*(int *)(act + 0x468));
+    gflagOn(*(int *)((char *)act + 0x454));
+    scpTransLinearInline((void *)a0, 1, -*(float *)((char *)act + 0x458),
+                         *(float *)((char *)act + 0x45C));
+    if (*(int *)((char *)act + 0x468) != 0) {
+        _ACTWait(*(int *)((char *)act + 0x468));
     }
     Camctrl_ExitEveRock();
     D_002A51D0[0].func = scpDoorTypeUpMain;
@@ -801,8 +802,8 @@ static inline void scpPlayPosSetInline(void *a0, float f12, float f13, float f14
 
 static inline void scpPlayWaitMotEndInline(char *a0)
 {
-    char *p = *(char **)(a0 + 0x164);
-    while ((*(int *)(*(char **)(p + 0x130) + 0x5C) & 1) == 0) {
+    Act *p = GOBJ_ACT(a0);
+    while ((*(int *)(*(char **)((char *)p + 0x130) + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
 }
@@ -973,11 +974,9 @@ void scpSekizouCheckPoint(void)
     int was;
 
     if (D_00639EA8 != 0) {
-        gamesysObjInfoPosSetStage((int *)D_00639EA8,
-                                  *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x444), 0, stage_no);
+        gamesysObjInfoPosSetStage((int *)D_00639EA8, GOBJ_ACT(D_00639EA8)->f_444, 0, stage_no);
     }
-    gamesysObjInfoPosSetStage((int *)D_00639EA4, *(int *)(*(char **)(D_00639EA4 + 0x164) + 0x444),
-                              0, stage_no);
+    gamesysObjInfoPosSetStage((int *)D_00639EA4, GOBJ_ACT(D_00639EA4)->f_444, 0, stage_no);
     was = gflagChk(381);
     gflagOn(381);
     CheckPoint();
@@ -1180,11 +1179,12 @@ extern struct ScpMail D_002A5150[];
 
 void scpDoorTypeUp(volatile int a0)
 {
-    char *act = *(char **)(a0 + 0x164);
+    Act *act = GOBJ_ACT(a0);
 
-    if (gflagChk(*(int *)(act + 0x454)) != 0) {
+    if (gflagChk(*(int *)((char *)act + 0x454)) != 0) {
         int self = a0;
-        scpTransLinearInline((void *)self, 1, -*(float *)(act + 0x458), *(float *)(act + 0x458));
+        scpTransLinearInline((void *)self, 1, -*(float *)((char *)act + 0x458),
+                             *(float *)((char *)act + 0x458));
     }
     D_002A5150[0].func = scpDoorTypeUpMain;
     ((struct ScpAct *)act)->mail = D_002A5150;
@@ -1534,9 +1534,9 @@ static inline int scpTriggerIgnoreInline(char *self)
 
     while (D_00554570[i] != -1) {
         if (*(int *)(self + 0xC) == D_00554570[i]) {
-            char *sub = *(char **)(self + 0x15C);
-            if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x560) ||
-                *(int *)(*(char **)(self + 0x164) + 0x34) == 0x16) {
+            Sub15C *sub = GOBJ_SUB(self);
+            if (_ACTGame_GetParamF(2) < *(float *)((char *)sub + 0x560) ||
+                GOBJ_ACT(self)->unk34 == 0x16) {
                 return 1;
             }
         }
@@ -1760,12 +1760,12 @@ int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float scale,
 
 void _SCPCharacterStop(char *self)
 {
-    char *p = *(char **)(self + 0x164);
-    *(int *)(p + 0x120) = 0;
-    *(int *)(p + 0x124) = 0;
-    *(int *)(p + 0x128) = 0;
-    *(int *)(p + 0x338) = *(int *)(p + 0x33C) = 0x7F;
-    *(int *)(p + 0x34C) = 0;
+    Act *p = GOBJ_ACT(self);
+    *(int *)((char *)p + 0x120) = 0;
+    *(int *)((char *)p + 0x124) = 0;
+    *(int *)((char *)p + 0x128) = 0;
+    *(int *)((char *)p + 0x338) = *(int *)((char *)p + 0x33C) = 0x7F;
+    p->f_34C = 0;
 }
 
 int scpSearchGobj(int id)
@@ -1790,8 +1790,8 @@ void scpPlayMotNode(void *a0, int a1, void *a2, int a3)
 
 void scpPlayMotReq(char *a0, int a1)
 {
-    char *p = *(char **)(a0 + 0x164);
-    *(int *)(p + 0x130) = SetMotionRequest(a0, a1, p + 0x620);
+    Act *p = GOBJ_ACT(a0);
+    *(int *)((char *)p + 0x130) = SetMotionRequest(a0, a1, (char *)p + 0x620);
 }
 
 void scpPlayPosSet(void *a0, float f12, float f13, float f14)
@@ -1807,8 +1807,8 @@ void scpPlayPosSet(void *a0, float f12, float f13, float f14)
 
 void scpPlayWaitMotEnd(char *a0)
 {
-    char *p = *(char **)(a0 + 0x164);
-    while ((*(int *)(*(char **)(p + 0x130) + 0x5C) & 1) == 0) {
+    Act *p = GOBJ_ACT(a0);
+    while ((*(int *)(*(char **)((char *)p + 0x130) + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
 }
@@ -2028,17 +2028,17 @@ int scpActStatusDeathFall(char *self)
         return 0;
     }
 
-    sub = *(char **)(self + 0x15C);
+    sub = (char *)GOBJ_SUB(self);
     if (stage_no == 0x22) {
         if (_ACTGame_GetParamF(2) - 200.0f < *(float *)(sub + 0x560)) {
             return 1;
         }
-        sub = *(char **)(self + 0x15C);
+        sub = (char *)GOBJ_SUB(self);
     }
     if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x560)) {
         return 1;
     }
-    sub = *(char **)(self + 0x15C);
+    sub = (char *)GOBJ_SUB(self);
     if (!(_ACTGame_GetParamF(2) < *(float *)(sub + 0x55C))) {
         return 0;
     }
@@ -2052,7 +2052,7 @@ void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
     v.f[1] = y;
     v.f[2] = z;
     v.i[3] = 0;
-    CopyVector(*(int *)(a0 + 0x15C) + 0x670, &v);
+    CopyVector((int)GOBJ_SUB(a0) + 0x670, &v);
 }
 
 extern char D_00554810[];
@@ -2249,11 +2249,11 @@ int scpTriggerIgnore(char *self)
 
     while (D_00554570[i] != -1) {
         if (*(int *)(self + 0xC) == D_00554570[i]) {
-            char *sub = *(char **)(self + 0x15C);
-            if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x560)) {
+            Sub15C *sub = GOBJ_SUB(self);
+            if (_ACTGame_GetParamF(2) < *(float *)((char *)sub + 0x560)) {
                 return 1;
             }
-            if (*(int *)(*(char **)(self + 0x164) + 0x34) == 0x16) {
+            if (GOBJ_ACT(self)->unk34 == 0x16) {
                 return 1;
             }
         }
@@ -2264,8 +2264,8 @@ int scpTriggerIgnore(char *self)
 
 void scpDoorTypeUpMain(volatile int a0)
 {
-    char *p = *(char **)(a0 + 0x164);
-    *(int *)(p + 0xD0) = *(int *)(p + 0x460);
+    Act *p = GOBJ_ACT(a0);
+    *(int *)((char *)p + 0xD0) = *(int *)((char *)p + 0x460);
     for (;;) {
         _ACTWait(1);
     }

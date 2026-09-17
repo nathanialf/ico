@@ -172,7 +172,7 @@ static inline int GetAttackKindIndex(char *p)
 static inline void GetFocusNodePos(char *gobj, int node, float *out)
 {
     int idx = GetSkeltonFocusNode(gobj, node);
-    float *m = (float *)((idx << 6) + *(int *)(*(char **)(gobj + 0x15C) + 0xC));
+    float *m = (float *)((idx << 6) + GOBJ_SUB(gobj)->f_C);
 
     out[0] = m[12];
     out[1] = m[13];
@@ -188,7 +188,7 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
     int wk;
 
     ext = *(char **)(gobj + 0x164);
-    k = GetAttackKindIndex(*(char **)(gobj + 0x15C));
+    k = GetAttackKindIndex((char *)GOBJ_SUB(gobj));
     *pack = attackPackInit;
     pack->actor = gobj;
     if (k == 0) {
@@ -250,7 +250,7 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
                 pack->radius1 = pack->radius1 * 4.0f;
             }
             if (*(int *)(gobj + 0xC) == 4) {
-                if ((*(int *)(*(int *)(*(char **)(gobj + 0x164) + 0x680) + 0x210) & 1) != 0) {
+                if ((*(int *)(GOBJ_ACT(gobj)->f_680 + 0x210) & 1) != 0) {
                     pack->f01 = 1;
                 }
             }
@@ -437,7 +437,7 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
     float rad;
     float t;
 
-    sk = *(char **)(gobj + 0x15C);
+    sk = (char *)GOBJ_SUB(gobj);
     n = *(int *)(sk + 0x88);
     if (n == 0) {
         n = 1;
@@ -474,7 +474,7 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
         break;
 
     case 4:
-        hitR = (int)(*(float *)(*(int *)(*(char **)(gobj + 0x164) + 0x680) + 0x1E0) * 30.0f);
+        hitR = (int)(*(float *)(GOBJ_ACT(gobj)->f_680 + 0x1E0) * 30.0f);
         i = 0;
         break;
 

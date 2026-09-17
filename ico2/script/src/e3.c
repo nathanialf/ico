@@ -660,7 +660,7 @@ void actE3CageFallDemo(volatile int a0)
     {
         int self = D_00639EA8;
 
-        *(int *)(*(int *)((char *)self + 0x15C) + 0x514) =
+        GOBJ_SUB(self)->f_514 =
             (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 30.0f);
 
         scpPlayEnd(self);

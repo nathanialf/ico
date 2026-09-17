@@ -293,14 +293,14 @@ inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, 
     int dobj = CSVSYSTEM_InitDObj(a1, a4);
     int (*fn)(char *, int);
 
-    *(int *)(gobj + 0x15C) = dobj;
-    *(int *)(dobj + 0x844) = a2;
+    *(int *)&((GObj *)gobj)->p_15C = dobj;
+    ((Sub15C *)dobj)->f_844 = a2;
 
     light_AddLight(gobj, a3, 1);
 
     fn = layout->create;
     if (fn != 0) {
-        *(int *)(*(int *)(gobj + 0x15C) + 0x830) = fn(gobj, a4);
+        GOBJ_SUB(gobj)->f_830 = fn(gobj, a4);
     }
     return gobj;
 }

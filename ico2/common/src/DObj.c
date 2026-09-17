@@ -482,12 +482,12 @@ inline void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1)
 {
     PackedLL_19CAF0 *p;
     LocalizeGeometry(a0, a1);
-    p = *(PackedLL_19CAF0 **)((char *)a0 + 0x15C);
+    p = (PackedLL_19CAF0 *)GOBJ_SUB(a0);
     *p = *a1;
 }
 
 inline void UnlinkParentOfDObj(void *a0)
 {
     GlobalizeGeometry(a0);
-    *(DObjBlk8 *)(*(char **)((char *)a0 + 0x15C)) = D_0063A810;
+    *(DObjBlk8 *)GOBJ_SUB(a0) = D_0063A810;
 }

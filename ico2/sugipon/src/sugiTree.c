@@ -20,20 +20,20 @@ inline short *InitSugiLeafGeo(void)
 
 inline void SugiLeafGeo(void *gobj)
 {
-    char *p = *(char **)((char *)gobj + 0x15C);
-    short *ang = *(short **)(p + 0x830);
+    Sub15C *p = GOBJ_SUB(gobj);
+    short *ang = *(short **)((char *)p + 0x830);
 
-    CopyMatrix(MatrixDrive_GetMatrix(), p + 0x20);
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)p + 0x20);
     MatrixDrive_RotMatrixY(GetTableSin(*ang) * 256.0f);
     MatrixDrive_RotMatrixX(GetTableSin(*ang * 2) * 256.0f);
-    CopyMatrix(*(void **)(p + 0xC), MatrixDrive_GetMatrix());
+    CopyMatrix(*(void **)((char *)p + 0xC), MatrixDrive_GetMatrix());
     *ang += 0x80;
 }
 
 inline short *InitSugiLeafGeo2(void *gobj)
 {
-    char *p = *(char **)((char *)gobj + 0x15C);
-    int n = *(signed char *)(*(char **)(p + 0x854) + 0x2E);
+    Sub15C *p = GOBJ_SUB(gobj);
+    int n = *(signed char *)(*(char **)((char *)p + 0x854) + 0x2E);
     short *buf = iosMallocDebug(D_0063A438, n * 2, (void *)"src/sugiTree.c", 35);
     int i;
 
@@ -45,26 +45,26 @@ inline short *InitSugiLeafGeo2(void *gobj)
 
 void SugiLeafGeo2(void *gobj)
 {
-    char *p = *(char **)((char *)gobj + 0x15C);
-    int n = *(signed char *)(*(char **)(p + 0x854) + 0x2E);
-    short *ang = *(short **)(p + 0x830);
+    Sub15C *p = GOBJ_SUB(gobj);
+    int n = *(signed char *)(*(char **)((char *)p + 0x854) + 0x2E);
+    short *ang = *(short **)((char *)p + 0x830);
     int i;
 
     for (i = 0; i < n; i++) {
         if (i == n - 1) {
-            CopyMatrix(*(char **)(p + 0xC) + i * 0x40, p + 0x20);
+            CopyMatrix(*(char **)((char *)p + 0xC) + i * 0x40, (char *)p + 0x20);
         } else {
-            CopyMatrix(*(char **)(p + 0xC) + i * 0x40, p + 0x20);
+            CopyMatrix(*(char **)((char *)p + 0xC) + i * 0x40, (char *)p + 0x20);
             CopyMatrix(MatrixDrive_GetMatrix(),
-                       *(char **)(*(char **)(p + 0x854) + 0x40) + i * 0x180 + 0x130);
-            *(int *)(*(char **)(p + 0x870) + i * 0x50) =
+                       *(char **)(*(char **)((char *)p + 0x854) + 0x40) + i * 0x180 + 0x130);
+            *(int *)(*(char **)((char *)p + 0x870) + i * 0x50) =
                 (int)(GetTableCos((short)((ang[i / 3] * 9 + i) * 10)) * 768.0f);
-            *(int *)(*(char **)(p + 0x870) + i * 0x50 + 4) =
+            *(int *)(*(char **)((char *)p + 0x870) + i * 0x50 + 4) =
                 (int)(GetTableSin((short)((ang[i / 3] * 6 + i) * 16)) * 768.0f);
-            MatrixDrive_RotMatrixY(*(short *)(*(char **)(p + 0x870) + i * 0x50 + 4));
-            MatrixDrive_RotMatrixX(*(short *)(*(char **)(p + 0x870) + i * 0x50));
-            sceVu0MulMatrix(*(char **)(p + 0xC) + i * 0x40, *(char **)(p + 0xC) + i * 0x40,
-                            MatrixDrive_GetMatrix());
+            MatrixDrive_RotMatrixY(*(short *)(*(char **)((char *)p + 0x870) + i * 0x50 + 4));
+            MatrixDrive_RotMatrixX(*(short *)(*(char **)((char *)p + 0x870) + i * 0x50));
+            sceVu0MulMatrix(*(char **)((char *)p + 0xC) + i * 0x40,
+                            *(char **)((char *)p + 0xC) + i * 0x40, MatrixDrive_GetMatrix());
             ang[i / 3]++;
         }
     }
@@ -72,19 +72,19 @@ void SugiLeafGeo2(void *gobj)
 
 void SugiLeafDL2(void *gobj)
 {
-    char *p = *(char **)((char *)gobj + 0x15C);
-    int n = *(signed char *)(*(char **)(p + 0x854) + 0x2E);
+    Sub15C *p = GOBJ_SUB(gobj);
+    int n = *(signed char *)(*(char **)((char *)p + 0x854) + 0x2E);
     char save[n][0x40];
     int i;
 
     for (i = 0; i < n; i++) {
-        char *m = *(char **)(*(char **)(p + 0x854) + 0x40) + i * 0x180;
+        char *m = *(char **)(*(char **)((char *)p + 0x854) + 0x40) + i * 0x180;
 
         CopyMatrix(save[i], m + 0x130);
     }
     p2o_DispVU1Default(gobj);
     for (i = 0; i < n; i++) {
-        char *m = *(char **)(*(char **)(p + 0x854) + 0x40) + i * 0x180 + 0x130;
+        char *m = *(char **)(*(char **)((char *)p + 0x854) + 0x40) + i * 0x180 + 0x130;
 
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrix(0.0f, -0.5f, 0.0f);
@@ -93,6 +93,6 @@ void SugiLeafDL2(void *gobj)
         sceVu0MulMatrix(m, MatrixDrive_GetMatrix(), m);
     }
     for (i = 0; i < n; i++) {
-        CopyMatrix(*(char **)(*(char **)(p + 0x854) + 0x40) + i * 0x180 + 0x130, save[i]);
+        CopyMatrix(*(char **)(*(char **)((char *)p + 0x854) + 0x40) + i * 0x180 + 0x130, save[i]);
     }
 }

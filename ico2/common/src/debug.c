@@ -1126,6 +1126,8 @@ typedef struct {
     char name47C[0x24]; /* 0x47C */
     char _4A0[0x20];    /* 0x4A0 */
     McDirEnt dir[8];    /* 0x4C0 -- sceMcTblGetDir records, 0x40 each */
+    char _6C0[0x300];
+    long long blockFlags; /* 0x9C0 -- one bit per save block, set where a block holds data */
 } McReq;
 
 extern int D_0028F8F4[];
@@ -1261,7 +1263,7 @@ int debug_selectFile(McReq *mc)
     case 6:
         for (i = 0; i < mc->num; i++) {
             debug_StdPrintfDummy(D_0061BE08, mc->dir[i].name,
-                                 *(int *)((char *)mc + (i << 6) + 0x4D0));
+                                 ((McDirEnt *)((char *)mc + (i << 6) + 0x4C0))->size);
         }
         D_0063AFB8++;
         break;
@@ -1420,7 +1422,7 @@ int debug_mcLoadMainBlock(McReq *mc)
         }
         break;
     case 4:
-        if (((1 << mc->sel) & *(long long *)((char *)mc + 0x9C0)) == 0) {
+        if (((1 << mc->sel) & mc->blockFlags) == 0) {
             D_0063AFE8 = 99;
             break;
         }
@@ -1630,8 +1632,7 @@ int debug_SETest(int reset)
     r = debug_SelectCsvWindowWithLineColor_inl(D_0063B048, 0xA, 0x3C, 0xA, (int)D_005D6DB0, 0x3C, 0,
                                                0, 0x592, &D_0063B040, debug_SETest_color);
     if (r > 0) {
-        D_0063B044 =
-            soundSeDefPlay(D_0063B040, 0, *(int *)(*(int *)(D_00639EA4 + 0x15C) + 0xC) + 0x30, 1);
+        D_0063B044 = soundSeDefPlay(D_0063B040, 0, GOBJ_SUB(D_00639EA4)->f_C + 0x30, 1);
         return 0;
     }
     if (r < 0) {
@@ -2321,7 +2322,7 @@ extern char D_0063AFD0[];
 
 void *debug_saveNumFunc(int a0, void *a1)
 {
-    if ((1 << a0) & *(long long *)((char *)a1 + 0x9C0)) {
+    if ((1 << a0) & ((McReq *)a1)->blockFlags) {
         return D_0063AFC8;
     }
     return D_0063AFD0;

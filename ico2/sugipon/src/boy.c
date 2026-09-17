@@ -35,18 +35,18 @@ extern LightLineExt *llExtGeo;
 
 void dispClothes(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     char *x;
 
-    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    x = (char *)GOBJ_SUB(gobj)->p_874;
     DispCloth4D(*(void **)(w + 0x20), x + 0x40, x);
-    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    x = (char *)GOBJ_SUB(gobj)->p_874;
     DispCloth4D(*(void **)(w + 0x24), x + 0x40, x);
-    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    x = (char *)GOBJ_SUB(gobj)->p_874;
     DispCloth4D(*(void **)(w + 0x2C), x + 0x40, x);
-    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    x = (char *)GOBJ_SUB(gobj)->p_874;
     DispCloth4D(*(void **)(w + 0x28), x + 0x40, x);
-    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    x = (char *)GOBJ_SUB(gobj)->p_874;
     DispCloth4D(*(void **)(w + 0x30), x + 0x40, x);
 }
 
@@ -110,7 +110,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/boy", LightLineDL);
 
 inline void SelectBoyCrown(char *a0, int a1)
 {
-    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x0) = a1;
+    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x0) = a1;
 }
 
 /* The display-list record's 0x38 word carries single bits set and cleared with
@@ -238,18 +238,18 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
     if (D_00639EA8 != 0) {
         p = D_00533FC0;
         for (i = 0; i < 5; i++) {
-            if (*(int *)(*(char **)(D_00639EA8 + 0x15C) + 0x4A0) == p->girl) {
+            if (GOBJ_SUB(D_00639EA8)->f_4A0 == p->girl) {
                 okA = 1;
             }
-            if (*(int *)(*(char **)(gobj + 0x15C) + 0x4A0) == p->boy) {
+            if (GOBJ_SUB(gobj)->f_4A0 == p->boy) {
                 okB = 1;
             }
             p++;
         }
         if (okA != 0 && okB != 0) {
-            _InterVectorXYZ(v, *(char **)(D_00639EA8 + 0x15C) + 0x100,
-                            *(char **)(gobj + 0x15C) + 0x100, 0.9f);
-            _SubVectorXYZ(d, v, *(char **)(D_00639EA8 + 0x15C) + 0x100);
+            _InterVectorXYZ(v, (char *)GOBJ_SUB(D_00639EA8) + 0x100, (char *)GOBJ_SUB(gobj) + 0x100,
+                            0.9f);
+            _SubVectorXYZ(d, v, (char *)GOBJ_SUB(D_00639EA8) + 0x100);
             d[1] = 0.0f;
             GetRootPosition(v, D_00639EA8);
             _AddVectorXYZ(v, v, d);
@@ -258,10 +258,10 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
                 gif_StartPacketPri(0xB);
                 gif_SetAlpha(1, 5, 0x80);
                 _UnitMatrix(MatrixDrive_GetMatrix());
-                MatrixDrive_TransMatrixV(*(char **)(D_00639EA8 + 0x15C) + 0x100);
+                MatrixDrive_TransMatrixV((char *)GOBJ_SUB(D_00639EA8) + 0x100);
                 prim_DispWireSphere(10.0f, D_004E6DF0, 0x10, 8);
                 _UnitMatrix(MatrixDrive_GetMatrix());
-                MatrixDrive_TransMatrixV(*(char **)(gobj + 0x15C) + 0x100);
+                MatrixDrive_TransMatrixV((char *)GOBJ_SUB(gobj) + 0x100);
                 prim_DispWireSphere(10.0f, D_004E6E00, 0x10, 8);
                 gif_EndPacket();
             }
@@ -276,7 +276,7 @@ void actionOfWater(char *gobj)
     int node;
 
     ExecWaterDot(*(int *)(w + 0x54));
-    if (*(int *)(*(char **)(gobj + 0x15C) + 0x4D8) == 0xB) {
+    if (GOBJ_SUB(gobj)->f_4D8 == 0xB) {
         *(int *)(w + 0x58) = 1;
         *(float *)(w + 0x5C) = 5.0f;
         *(float *)(w + 0x60) = 0.0f;
@@ -286,13 +286,13 @@ void actionOfWater(char *gobj)
         *(float *)(w + 0x60) = *(float *)(w + 0x60) + *(float *)(w + 0x5C);
         if (1.0f < *(float *)(w + 0x60)) {
             node = GetSkeltonFocusNode(gobj, 0x16);
-            CopyVector(pos, *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6) + 0x30);
+            CopyVector(pos, (char *)GOBJ_SUB(gobj)->f_C + (node << 6) + 0x30);
             EntryWaterDot(*(int *)(w + 0x54), pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x6);
-            CopyVector(pos, *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6) + 0x30);
+            CopyVector(pos, (char *)GOBJ_SUB(gobj)->f_C + (node << 6) + 0x30);
             EntryWaterDot(*(int *)(w + 0x54), pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x2C);
-            CopyVector(pos, *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6) + 0x30);
+            CopyVector(pos, (char *)GOBJ_SUB(gobj)->f_C + (node << 6) + 0x30);
             EntryWaterDot(*(int *)(w + 0x54), pos, ZeroVector, 10.0f);
             *(float *)(w + 0x60) = 0.0f;
         }
@@ -327,14 +327,14 @@ void dispSubParts(char *gobj)
 
     a = *(char **)(w + 0x4);
     node = GetSkeltonFocusNode(gobj, 0x23);
-    CopyMatrix(*(char **)(a + 0xC), *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6));
+    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
     p2o_DispVU1DObj(*(char **)(w + 0x4));
     a = *(char **)(w + 0x8);
     node = GetSkeltonFocusNode(gobj, 0x14);
-    CopyMatrix(*(char **)(a + 0xC), *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6));
+    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
     c = *(char **)(*(char **)(w + 0x8) + 0xC) + 0x40;
     node = GetSkeltonFocusNode(gobj, 0x4);
-    CopyMatrix(c, *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6));
+    CopyMatrix(c, (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
     p2o_DispVU1DObjMulti(*(char **)(w + 0x8));
 }
 
@@ -355,19 +355,19 @@ void dispCrown(char *gobj)
         obj = *(char **)(w + 0xC);
         break;
     }
-    CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (node << 6));
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
     MatrixDrive_RotMatrixX(-0x8000);
     CopyMatrix(*(char **)(obj + 0xC), MatrixDrive_GetMatrix());
-    reg_DispAccessoryWithShadow(obj, *(char **)(gobj + 0x15C));
+    reg_DispAccessoryWithShadow(obj, (char *)GOBJ_SUB(gobj));
 }
 
 inline void SetBoyStonizedVisual(char *a0)
 {
-    char *crown = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
+    char *crown = (char *)GOBJ_SUB(a0)->f_830;
     AdjustMotionHeightToNearestField(a0);
     *(int *)(crown + 0x18) = 1;
     *(int *)(crown + 0x1C) = 0;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x62C) = 0;
+    *(int *)((int)GOBJ_SUB(a0) + 0x62C) = 0;
 }
 
 extern int stage_no;
@@ -401,10 +401,9 @@ void BoyDL(char *gobj)
         dispCrown(gobj);
         dispClothes(gobj);
     }
-    if (stage_no == 0x27 && 20.0f < *(float *)(*(char **)(gobj + 0x15C) + 0x644) &&
-        *(int *)(*(char **)(gobj + 0x15C) + 0x648) != 0 &&
-        CheckPoolHasGridMesh(*(char **)(*(char **)(gobj + 0x15C) + 0x648)) == 0) {
-        sub = *(char **)(gobj + 0x15C);
+    if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->f_644 && GOBJ_SUB(gobj)->f_648 != 0 &&
+        CheckPoolHasGridMesh((char *)GOBJ_SUB(gobj)->f_648) == 0) {
+        sub = (char *)GOBJ_SUB(gobj);
         m = *(char **)(sub + 0x830) + 0x34;
         SetLimitedPoolReflactionMesh(m, *(int *)(sub + 0x648), gobj);
         DispLimitedPoolReflactionMesh(m);

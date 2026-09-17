@@ -91,8 +91,8 @@ typedef struct {
 
 void birdBeforeFunc(char *self)
 {
-    char *act = *(char **)(self + 0x164);
-    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    Act *act = GOBJ_ACT(self);
+    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
     float there[4];
     float here[4];
     int i;
@@ -115,47 +115,47 @@ void birdBeforeFunc(char *self)
 
         case 0x1A8:
             if (len < 250.0f) {
-                *(int *)(act + 0x130) = SetMotionRequest(self, 0x141, act + 0x620);
+                *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
             }
             break;
 
         case 0xA: {
-            int st = *(int *)(*(int *)(self + 0x15C) + 0x4A0);
+            int st = GOBJ_SUB(self)->f_4A0;
 
             if (st >= 0x473 && st <= 0x475) {
-                *(int *)(act + 0x130) = SetMotionRequest(self, 0x142, act + 0x620);
+                *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x142, (char *)act + 0x620);
             }
             break;
         }
 
         case 0x7:
-            *(int *)(act + 0x130) = SetMotionRequest(self, 0x141, act + 0x620);
+            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
             break;
 
         case 0x1A:
         case 0x1B:
-            *(int *)(act + 0x130) = SetMotionRequest(self, 0x141, act + 0x620);
+            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
             break;
 
         case 0x1A3:
-            *(int *)(act + 0x130) = SetMotionRequest(self, 0x141, act + 0x620);
+            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
             break;
 
         case 0x1A4:
-            *(int *)(act + 0x130) = SetMotionRequest(self, 0x141, act + 0x620);
+            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
             break;
 
         case 0x1A5:
-            *(int *)(act + 0x130) = SetMotionRequest(self, 0x141, act + 0x620);
+            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
             break;
 
         case 0x1A6:
-            *(int *)(act + 0x130) = SetMotionRequest(self, 0x141, act + 0x620);
+            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
             break;
         }
     }
     q->num = 0;
-    *(BirdMotBlock *)(act + 0x620) = *(BirdMotBlock *)(*(int *)(self + 0x15C) + 0x180);
+    *(BirdMotBlock *)((char *)act + 0x620) = *(BirdMotBlock *)((int)GOBJ_SUB(self) + 0x180);
 }
 
 /* --- act_bird.c's own small helpers, census rows 74-107 -----------------
@@ -241,24 +241,6 @@ void trans_bird(void *self, float *w)
     SetRootPosition(self, pos);
 }
 
-/* The wall/floor clip request this TU hands to ClipWall and ClipFloor: the
- * same 0xC0 record the other actor TUs carry, with the two result words the
- * bird reads and the contact normal at 0xA0. */
-typedef struct BirdClipWork {
-    /* 0x00 */ float from[4];
-    /* 0x10 */ float to[4];
-    /* 0x20 */ float pos[4];
-    /* 0x30 */ char _30[0x40];
-    /* 0x70 */ float radius;
-    /* 0x74 */ char _74[0x14];
-    /* 0x88 */ int wallHit;
-    /* 0x8C */ char _8c[0x08];
-    /* 0x94 */ int floorHit;
-    /* 0x98 */ char _98[0x08];
-    /* 0xA0 */ float normal[4];
-    /* 0xB0 */ char _b0[0x10];
-} BirdClipWork;
-
 extern void ClipWall(void *w);
 extern void ClipFloor(void *w);
 extern int GetFloorAttribute(void *w);
@@ -326,7 +308,7 @@ void subBirdBrainMain(void *volatile gobj)
     float hover;
     float travel;
 
-    bw = *(char **)(*(char **)((char *)gobj + 0x15C) + 0x830);
+    bw = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     frames = 0;
 
     lastHit = 0;
@@ -348,13 +330,13 @@ void subBirdBrainMain(void *volatile gobj)
     GetRootPosition(startPos, gobj);
     GetRootPosition(lastPos, gobj);
 
-    lastState = *(int *)(*(int *)((char *)gobj + 0x15C) + 0x4A0);
+    lastState = GOBJ_SUB(gobj)->f_4A0;
     /* Vestigial in the shipped build: the loop opens by reading the same field
        into `state`, so everything but the volatile GObj load is dead here.  The
        ROM keeps that load (act_bird.c:349 in SRCFILE.TXT, the second
        `lw $v1,0($sp)` of the loop preheader), which is what proves the second
        read was written. */
-    state = *(int *)(*(int *)((char *)gobj + 0x15C) + 0x4A0);
+    state = GOBJ_SUB(gobj)->f_4A0;
     while (1) {
         int changed;
         int hit;
@@ -363,9 +345,9 @@ void subBirdBrainMain(void *volatile gobj)
         int noAvoid;
         float phase;
 
-        state = *(int *)(*(int *)((char *)gobj + 0x15C) + 0x4A0);
-        phase = *(float *)(*(int *)((char *)gobj + 0x15C) + 0x4AC);
-        hit = *(int *)(*(int *)((char *)gobj + 0x15C) + 0x4CC);
+        state = GOBJ_SUB(gobj)->f_4A0;
+        phase = GOBJ_SUB(gobj)->f_4AC;
+        hit = *(int *)((int)GOBJ_SUB(gobj) + 0x4CC);
 
         changed = 0;
 
@@ -406,14 +388,14 @@ void subBirdBrainMain(void *volatile gobj)
         }
 
         if (noAvoid == 0 && state != 1134 && state != 1138) {
-            BirdClipWork wf;
+            ClipWork wf;
 
             float len = 100.0f;
 
             float rad = 50.0f;
             float fwd;
-            BirdClipWork wr;
-            BirdClipWork wl;
+            ClipWork wr;
+            ClipWork wl;
             float tr[4];
             float tl[4];
             float avoid[4];
@@ -429,21 +411,21 @@ void subBirdBrainMain(void *volatile gobj)
             }
 
             wf.radius = rad;
-            CopyVector(wf.from, pos);
-            sceVu0ScaleVectorXYZ(wf.to, mtx[2], fwd);
-            sceVu0AddVector(wf.to, wf.to, pos);
+            CopyVector(wf.a, pos);
+            sceVu0ScaleVectorXYZ(wf.b, mtx[2], fwd);
+            sceVu0AddVector(wf.b, wf.b, pos);
             ClipWall(&wf);
 
             wr.radius = rad;
-            CopyVector(wr.from, pos);
+            CopyVector(wr.a, pos);
             sceVu0ScaleVectorXYZ(tr, mtx[0], len);
-            sceVu0AddVector(wr.to, pos, tr);
+            sceVu0AddVector(wr.b, pos, tr);
             ClipWall(&wr);
 
             wl.radius = rad;
-            CopyVector(wl.from, pos);
+            CopyVector(wl.a, pos);
             sceVu0ScaleVectorXYZ(tl, mtx[0], -len);
-            sceVu0AddVector(wl.to, pos, tl);
+            sceVu0AddVector(wl.b, pos, tl);
             ClipWall(&wl);
 
             if (wf.wallHit != 0 || wr.wallHit != 0 || wl.wallHit != 0) {
@@ -538,9 +520,7 @@ void subBirdBrainMain(void *volatile gobj)
             } else {
                 char buf[1024];
 
-                sprintf(buf, "STOP NO FIN %d,%1.1f",
-                        *(int *)(*(int *)((char *)gobj + 0x15C) + 0x4A0),
-                        *(float *)(*(int *)((char *)gobj + 0x15C) + 0x4AC));
+                sprintf(buf, "STOP NO FIN %d,%1.1f", GOBJ_SUB(gobj)->f_4A0, GOBJ_SUB(gobj)->f_4AC);
                 Debug_WireString_Bird(pos, buf);
                 break;
             }
@@ -675,7 +655,7 @@ void subBirdBrainMain(void *volatile gobj)
             {
                 float up[4];
                 float ahead[4];
-                BirdClipWork cf;
+                ClipWork cf;
                 float sv[4];
                 float im[4][4];
                 float p2[4];
@@ -688,9 +668,9 @@ void subBirdBrainMain(void *volatile gobj)
                 up[1] = 180.0f;
 
                 sceVu0ScaleVector(ahead, dir, 100.0f);
-                CopyVector(cf.from, pos);
-                sceVu0AddVector(cf.to, cf.from, up);
-                sceVu0AddVector(cf.to, cf.to, ahead);
+                CopyVector(cf.a, pos);
+                sceVu0AddVector(cf.b, cf.a, up);
+                sceVu0AddVector(cf.b, cf.b, ahead);
                 ClipFloor(&cf);
                 attr = GetFloorAttribute(&cf);
                 if (cf.floorHit != 0 && attr != 64 && attr != 80) {
@@ -748,7 +728,7 @@ void subBirdBrainMain(void *volatile gobj)
         case 1142: {
             float p[4];
             float q[4];
-            BirdClipWork cd;
+            ClipWork cd;
 
             Debug_WireString_Bird(pos, "FLY E2");
             if (changed != 0) {
@@ -761,9 +741,9 @@ void subBirdBrainMain(void *volatile gobj)
             }
 
             GetRootPosition(p, gobj);
-            CopyVector(cd.from, p);
-            GetRootPosition(cd.to, gobj);
-            cd.to[1] = cd.to[1] + 50.0f;
+            CopyVector(cd.a, p);
+            GetRootPosition(cd.b, gobj);
+            cd.b[1] = cd.b[1] + 50.0f;
             ClipFloor(&cd);
             if (cd.floorHit != 0) {
                 float lim = -6.0f;
@@ -793,10 +773,10 @@ void subBirdBrainMain(void *volatile gobj)
         if (state != 1139) {
             float rp[4];
 
-            if ((*(int *)(*(int *)((char *)gobj + 0x15C) + 0x484) & 0x400) ||
-                CheckFloorAttribute(gobj, 64) || CheckFloorAttribute(gobj, 80)) {
+            if ((*(int *)((int)GOBJ_SUB(gobj) + 0x484) & 0x400) || CheckFloorAttribute(gobj, 64) ||
+                CheckFloorAttribute(gobj, 80)) {
                 GetRootPosition(rp, gobj);
-                rp[1] = *(float *)(*(int *)((char *)gobj + 0x15C) + 0x640);
+                rp[1] = GOBJ_SUB(gobj)->f_640;
                 SetDirectRootPositionNoFitting(gobj, rp);
                 *(int *)(act + 0x130) = SetMotionRequest(gobj, 172, act + 0x620);
                 EntryStageMultiBgaManager(498, rp, IdentityQuaternion);
@@ -891,24 +871,24 @@ extern int CorrectStickInfo(void *dir, void *stick);
 void Debug_StickControl(char *self)
 {
     float dir[4];
-    char *ext = *(char **)(self + 0x164);
+    Act *ext = GOBJ_ACT(self);
 
     if (self == D_00639EC0) {
-        char *pad = ext + 0x2D8;
-        char *stick = ext + 0x338;
+        char *pad = (char *)ext + 0x2D8;
+        char *stick = (char *)ext + 0x338;
 
-        iosPadConnect(pad, 0, 0, ext + 0x1E8);
+        iosPadConnect(pad, 0, 0, (char *)ext + 0x1E8);
         iosPadRead(pad);
         iosPadGetStick(pad, stick, 0, 2, 2, 0);
         _GetMotionDirection(dir, self);
-        *(int *)(ext + 0x340) = CorrectStickInfo(dir, stick);
-        if (*(float *)(ext + 0x34C) > 0.001f) {
-            ConvertStickToAbsCoord(ext + 0x120, stick);
+        *(int *)((char *)ext + 0x340) = CorrectStickInfo(dir, stick);
+        if (*(float *)((char *)ext + 0x34C) > 0.001f) {
+            ConvertStickToAbsCoord((char *)ext + 0x120, stick);
         }
     } else if (self == D_00639ED0) {
-        iosPadConnect(ext + 0x2D8, 0, 1, ext + 0x1E8);
+        iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);
     } else {
-        iosPadConnect(ext + 0x2D8, 0, 1, ext + 0x1E8);
+        iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);
     }
 }
 
@@ -925,7 +905,7 @@ void BirdDL(void *gobj)
     char *w;
 
     p2o_DispVU1Default(gobj);
-    w = *(char **)(*(char **)((char *)gobj + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     if (*(int *)(w + 0x30) != 0) {
         if (stage_DispBgAnimation(w + 0x30) != 0) {
             *(int *)(w + 0x30) = 0;
@@ -946,14 +926,13 @@ inline char *InitBirdGeo(char *a0, void *a1)
     w[0x10] = 0;
     InitMotionOrient(a0, 0x975, 0x9A3, -1, -1, 0x46E);
 
-    *(int *)(*(int *)(a0 + 0x15C) + 0x544) = 1;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x54C) = 0;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x548) = 1;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x550) = 0;
-    ((IntFloat *)(*(int *)(a0 + 0x15C) + 0x4AC))->f = random_unit() * 100.0f;
-    ((IntFloat *)(*(int *)(a0 + 0x15C) + 0x4B0))->f =
-        ((IntFloat *)(*(int *)(a0 + 0x15C) + 0x4AC))->f;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x4C4) = 0;
+    *(int *)((int)GOBJ_SUB(a0) + 0x544) = 1;
+    *(int *)((int)GOBJ_SUB(a0) + 0x54C) = 0;
+    *(int *)((int)GOBJ_SUB(a0) + 0x548) = 1;
+    *(int *)((int)GOBJ_SUB(a0) + 0x550) = 0;
+    ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4AC))->f = random_unit() * 100.0f;
+    ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4B0))->f = ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4AC))->f;
+    *(int *)((int)GOBJ_SUB(a0) + 0x4C4) = 0;
     SetLodLevel(a0, 3);
     return w;
 }

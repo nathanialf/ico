@@ -62,14 +62,14 @@ static inline void releaseWeaponHolder(char *w)
 
 void ReleaseWeaponWithFumbleTargetPos(char *g, void *pos, void *quat, void *rot, float t)
 {
-    char *p = *(char **)(g + 0x15C);
-    char *w = *(char **)(p + 0x830);
+    Sub15C *p = GOBJ_SUB(g);
+    char *w = *(char **)((char *)p + 0x830);
 
     releaseWeaponHolder(w);
     *(int *)(w + 0x4) = 2;
     *(int *)(w + 0x8) = 0;
     if (rot != 0) {
-        CopyQuaternion(p + 0x150, rot);
+        CopyQuaternion((char *)p + 0x150, rot);
     }
     *(int *)(w + 0x60) = (int)((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * t);
     *(int *)(w + 0x64) = 0;
@@ -131,10 +131,10 @@ static inline void subWeaponPathOffset(char *p, char *rp, float d)
 
 int calcDynamicPathGeometry(char *g)
 {
-    char *p = *(char **)(g + 0x15C);
-    char *w = *(char **)(p + 0x830);
+    Sub15C *p = GOBJ_SUB(g);
+    char *w = *(char **)((char *)p + 0x830);
     float d = D_00318EB8[*(int *)w].f04;
-    char *rp = p + 0xA0;
+    char *rp = (char *)p + 0xA0;
     float a;
     float b;
     float t;
@@ -145,14 +145,14 @@ int calcDynamicPathGeometry(char *g)
     t = a / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
     _InterVectorXYZ(rp, w + 128, w + 112, a / b);
     *(float *)(rp + 4) = *(float *)(w + 0x74) + *(float *)(w + 0x68) * t + t * 490.0f * t;
-    MultiQuaternion(p + 0xD0, p + 0xD0, p + 0x150);
+    MultiQuaternion((char *)p + 0xD0, (char *)p + 0xD0, (char *)p + 0x150);
     subWeaponPathOffset(p, rp, d);
     *(int *)(w + 0x64) = *(int *)(w + 0x64) + 1;
     if (*(int *)(w + 0x64) >= *(int *)(w + 0x60)) {
         *(int *)(w + 0x4) = 0;
         CopyVector(rp, w + 128);
-        CopyVector(p + 0x130, ZeroVector);
-        CopyQuaternion(p + 0xD0, w + 144);
+        CopyVector((char *)p + 0x130, ZeroVector);
+        CopyQuaternion((char *)p + 0xD0, w + 144);
         UpdateRootMatrix(g);
         weaponStickSE((int)g);
         return 1;
@@ -176,16 +176,16 @@ extern void MatrixDrive_TransMatrix(float x, float y, float z);
    own out-of-line copy at its ROM slot further down this file. */
 static inline void setWeaponOffsetMode(char *g, int v)
 {
-    *(int *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 0xC0) = v;
+    *(int *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 0xC0) = v;
 }
 
 void getGeometry(char *g)
 {
     float pos[4];
     float quat[4];
-    char *p = *(char **)(g + 0x15C);
-    char *w = *(char **)(p + 0x830);
-    char *rp = p + 0xA0;
+    Sub15C *p = GOBJ_SUB(g);
+    char *w = *(char **)((char *)p + 0x830);
+    char *rp = (char *)p + 0xA0;
 
     if (*(char **)(w + 0x8) != 0) {
         char *d = *(char **)(*(char **)(w + 0x8) + 0x15C);
@@ -199,11 +199,11 @@ void getGeometry(char *g)
             22) {
             RotQuaternionY(quat, -32768);
         }
-        sceVu0SubVector(p + 0x130, pos, rp);
+        sceVu0SubVector((char *)p + 0x130, pos, rp);
         {
-            char *rq = p + 0xD0;
+            char *rq = (char *)p + 0xD0;
 
-            DivQuaternion(p + 0x150, quat, rq);
+            DivQuaternion((char *)p + 0x150, quat, rq);
             CopyVector(rp, pos);
             CopyQuaternion(rq, quat);
         }
@@ -225,7 +225,7 @@ void getGeometry(char *g)
 
 void WeaponCurPos(char *a0, void *a1, void *a2, void *a3)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     CopyVector(a1, p + 0x20);
     CopyVector(a2, p + 0x30);
     CopyVector(a3, p + 0x40);
@@ -233,7 +233,7 @@ void WeaponCurPos(char *a0, void *a1, void *a2, void *a3)
 
 void WeaponHitEffect(char *a0, void *a1)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     CheckEnemyHit(a1, p + 0x20, p + 0x30, p + 0x40);
 }
 
@@ -258,26 +258,26 @@ void checkHit(char *g)
     float quat[4];
     float v0[4];
     float v1[4];
-    char *p = *(char **)(g + 0x15C);
-    char *w = *(char **)(p + 0x830);
+    Sub15C *p = GOBJ_SUB(g);
+    char *w = *(char **)((char *)p + 0x830);
 
     if (*(char **)(w + 0x8) == 0) {
         return;
     }
     MatrixDrive_PushMatrix();
-    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), p + 0xD0, p + 0xA0);
+    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), (char *)p + 0xD0, (char *)p + 0xA0);
     MatrixDrive_TransMatrixV(D_004ED300);
     CopyVector(v0, (char *)MatrixDrive_GetMatrix() + 0x30);
-    GetInverseQuaternion(quat, p + 0x150);
-    MultiQuaternion(quat, p + 0xD0, quat);
-    SubVectorXYZ(pos, p + 0xA0, p + 0x130);
+    GetInverseQuaternion(quat, (char *)p + 0x150);
+    MultiQuaternion(quat, (char *)p + 0xD0, quat);
+    SubVectorXYZ(pos, (char *)p + 0xA0, (char *)p + 0x130);
     GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), quat, pos);
     MatrixDrive_TransMatrixV(D_004ED300);
     CopyVector(v1, (char *)MatrixDrive_GetMatrix() + 0x30);
     MatrixDrive_PopMatrix();
     CopyVector(w + 0x20, v0);
     CopyVector(w + 0x30, v1);
-    CopyVector(w + 0x40, p + 0xA0);
+    CopyVector(w + 0x40, (char *)p + 0xA0);
 }
 
 /* The parent-link record CreateLayoutedGObj's caller hands to LinkParentOfDObj:
@@ -303,7 +303,7 @@ extern void LinkParentOfDObj(void *gobj, void *link);
 
 void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
 {
-    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     QSwordLink lnk = {(int)g, index};
     QSwordLayout r;
     QSwordLayout r2;
@@ -321,14 +321,14 @@ void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
         D_004ED310[2] = D_00318EB8[*(int *)w].f00 * (float)i / 0.0f;
         o = CreateLayoutedGObj(10, 75, -1, i == 0, &r, -1, 7, 0);
         LinkParentOfDObj(o, &lnk);
-        CopyVector(*(char **)(o + 0x15C) + 0xA0, D_004ED310);
+        CopyVector((char *)GOBJ_SUB(o) + 0xA0, D_004ED310);
         (*(int **)(w + 0x54))[i] = (int)o;
     }
 
     r2 = *lay;
     r2.kind = 13;
     o2 = CreateLayoutedGObj(46, 11, -1, 0, &r2, -1, 7, 0);
-    *(QSwordLink *)*(char **)(o2 + 0x15C) = lnk;
+    *(QSwordLink *)(char *)GOBJ_SUB(o2) = lnk;
     *(char **)(w + 0x5C) = o2;
 }
 
@@ -339,11 +339,11 @@ extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
 
 void dispLaserSword(char *g, float t)
 {
-    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
     p2o_DispVU1(g);
     if (1.0f < t) {
-        CopyMatrix(MatrixDrive_GetMatrix(), *(void **)(*(char **)(g + 0x15C) + 0xC));
+        CopyMatrix(MatrixDrive_GetMatrix(), *(void **)((char *)GOBJ_SUB(g) + 0xC));
         MatrixDrive_TransMatrix(0.0f, 0.0f, 7.5f);
         MatrixDrive_ScaleMatrix(1.0f, 1.0f, t / 100.0f);
         CopyMatrix(*(void **)(*(char **)(w + 0xB4) + 0xC), MatrixDrive_GetMatrix());
@@ -367,7 +367,7 @@ void dispInsectNet(char *g)
 {
     int i;
 
-    CopyMatrix(MatrixDrive_GetMatrix(), *(void **)(*(char **)(g + 0x15C) + 0xC));
+    CopyMatrix(MatrixDrive_GetMatrix(), *(void **)((char *)GOBJ_SUB(g) + 0xC));
     gif_StartPacketPri(11);
     gif_SetZTest(1);
     gif_SetZWrite(1);
@@ -411,7 +411,7 @@ extern void gif_DrawStripF(void *p, GifColor c, int n, int f);
 
 void dispBlur(char *g)
 {
-    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
     if (D_00318EB8[*(int *)w].w[3] != -1) {
         char *e = (char *)D_00318EB8 + *(int *)w * 36;
@@ -476,8 +476,8 @@ void calcBlur(char *g, float t)
     float b[4];    /* 0xA0 */
     float sub[4];  /* 0xB0 */
     float tmp[4];  /* 0xC0 */
-    char *e = *(char **)(g + 0x15C);
-    char *w = *(char **)(e + 0x830);
+    Sub15C *e = GOBJ_SUB(g);
+    char *w = *(char **)((char *)e + 0x830);
     char *base;
     char *vtx;
     char *q;
@@ -491,16 +491,16 @@ void calcBlur(char *g, float t)
     float ang;
     float r;
 
-    GetInverseQuaternion(q1, e + 0x150);
-    MultiQuaternion(q1, e + 0xD0, q1);
-    SubVectorXYZ(d, e + 0xA0, e + 0x130);
+    GetInverseQuaternion(q1, (char *)e + 0x150);
+    MultiQuaternion(q1, (char *)e + 0xD0, q1);
+    SubVectorXYZ(d, (char *)e + 0xA0, (char *)e + 0x130);
     if (D_00318EB8[*(int *)w].w[3] == -1) {
         return;
     }
     base = *(char **)(w + 0x58);
     GetMatrixFromQuaternion(m, q1);
     _ApplyMatrix(a, m, ZUnitVector);
-    GetMatrixFromQuaternion(m, e + 0xD0);
+    GetMatrixFromQuaternion(m, (char *)e + 0xD0);
     _ApplyMatrix(b, m, ZUnitVector);
     _OuterProduct(n, b, a);
     _NormalizeVector(n, n);
@@ -511,7 +511,7 @@ void calcBlur(char *g, float t)
         float rr = (float)i / 10.0f;
 
         SetQuaternionByAxisRotateVWithNoRegularize(q2, (short)(ang * (float)i / 10.0f), n);
-        sceVu0InterVector(p, e + 0xA0, d, rr);
+        sceVu0InterVector(p, (char *)e + 0xA0, d, rr);
         GetMatrixFromQuaternionPos(m, q2, p);
         CopyVector(base + i * 32, (char *)m + 0x30);
         sceVu0ApplyMatrix(base + (i * 32 + 0x10), m, a);
@@ -523,7 +523,7 @@ void calcBlur(char *g, float t)
         return;
     }
     if (t > 12.0f) {
-        h = SetParticleEffect(50, e + 0xA0, IdentityQuaternion);
+        h = SetParticleEffect(50, (char *)e + 0xA0, IdentityQuaternion);
         if (h != -1) {
             pd = GetParticleEffectData(h);
             vtx = *(char **)(pd + 0x24);
@@ -574,7 +574,7 @@ typedef union {
 
 void WeaponGeo(char *g)
 {
-    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     int kind;
     int i;
     int n;
@@ -626,13 +626,13 @@ void WeaponGeo(char *g)
         stage_SetLoopFlag(473, 1);
         if (t > 1.0f) {
             n = (int)stage_PlayBgAnimation(473, (float)*(int *)(w + 0xBC),
-                                           *(char **)(*(char **)(g + 0x15C) + 0xC) + 0x30,
+                                           *(char **)((char *)GOBJ_SUB(g) + 0xC) + 0x30,
                                            IdentityQuaternion);
             if (D_0028F4D4[0] == 0) {
                 *(int *)(w + 0xBC) = n;
             }
         } else {
-            stage_PlayBgAnimation(473, 0.0f, *(char **)(*(char **)(g + 0x15C) + 0xC) + 0x30,
+            stage_PlayBgAnimation(473, 0.0f, *(char **)((char *)GOBJ_SUB(g) + 0xC) + 0x30,
                                   IdentityQuaternion);
             *(int *)(w + 0xBC) = 0;
         }
@@ -649,13 +649,13 @@ void WeaponGeo(char *g)
         a = -atan2f(v[1], _Sqrt(1.0f - v[1] * v[1]));
         ((WeaponMatrix *)MatrixDrive_GetMatrix())->f[3][1] -=
             GetTableSin((short)(a * 10430.378f)) * 70.0f;
-        CopyMatrix(*(char **)(*(char **)(g + 0x15C) + 0xC), MatrixDrive_GetMatrix());
+        CopyMatrix(*(char **)((char *)GOBJ_SUB(g) + 0xC), MatrixDrive_GetMatrix());
     }
 }
 
 void WeaponDL(char *g)
 {
-    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
     switch (*(int *)w) {
     default:
@@ -679,11 +679,11 @@ void WeaponDL(char *g)
 
 void PickupWeapon(char *a0, char *a1, int a2)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
 
     *(char **)(p + 0x8) = a1;
     *(int *)(p + 0xC) = GetSkeltonFocusNode(a1, a2);
-    *(int *)(*(int *)(a1 + 0x15C) + 0x630) = (int)a0;
+    GOBJ_SUB(a1)->f_630 = (int)a0;
 }
 
 extern int stage_no;
@@ -705,7 +705,7 @@ char *CheckSwapableWeapon(char *a0, float dist)
         if (g == a0)
             continue;
 
-        w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+        w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
         if (*(int *)w == 0)
             continue;
 
@@ -730,7 +730,7 @@ char *CheckSwapableWeapon(char *a0, float dist)
 
 void ReleaseWeapon(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     if (*(char **)(p + 0x8)) {
         *(int *)(*(char **)(*(char **)(p + 0x8) + 0x15C) + 0x630) = 0;
     }
@@ -741,12 +741,12 @@ void ReleaseWeapon(char *a0)
 
 int CheckWeaponKind(char *a0)
 {
-    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830));
+    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830));
 }
 
 void LightTorchOnOfWeapon(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     int i;
 
     if (*(int *)(p + 0x50)) {
@@ -759,7 +759,7 @@ void LightTorchOnOfWeapon(char *a0)
 
 void LightTorchOnOfWeaponWithNoSE(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     int i;
 
     if (*(int *)(p + 0x50)) {
@@ -772,7 +772,7 @@ void LightTorchOnOfWeaponWithNoSE(char *a0)
 
 void LightTorchOffOfWeapon(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     int i;
 
     for (i = 0; i < *(int *)(p + 0x50); i++) {
@@ -782,7 +782,7 @@ void LightTorchOffOfWeapon(char *a0)
 
 int GetTorchGObjOfWeapon(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     if (*(int *)(p + 0x50)) {
         return **(int **)(p + 0x54);
     }
@@ -797,9 +797,9 @@ int GetTorchGObjOfWeapon(char *a0)
  * weapon.c:173-177); their shared form is decided at layout. */
 void ReleaseWeaponWithFumble(char *a0, void *a1, void *a2)
 {
-    char *e = *(char **)(a0 + 0x15C);
-    char *w = *(char **)(e + 0x830);
-    char *f = e + 0xA0;
+    Sub15C *e = GOBJ_SUB(a0);
+    char *w = *(char **)((char *)e + 0x830);
+    char *f = (char *)e + 0xA0;
 
     if (*(char **)(w + 0x8)) {
         *(int *)(*(char **)(*(char **)(w + 0x8) + 0x15C) + 0x630) = 0;
@@ -809,21 +809,21 @@ void ReleaseWeaponWithFumble(char *a0, void *a1, void *a2)
     *(int *)(w + 0x4) = 1;
 
     if (a2) {
-        CopyQuaternion(e + 0x150, a2);
+        CopyQuaternion((char *)e + 0x150, a2);
     }
-    CopyVector(e + 0x130, a1);
+    CopyVector((char *)e + 0x130, a1);
     *(int *)(f + 0x9C) = 0;
 }
 
 int InitWeaponFumbleSequence(char *a0)
 {
-    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xA0) = 0;
+    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0xA0) = 0;
     return 1;
 }
 
 float GetWeaponWeight(char *a0)
 {
-    return (float)D_00318EB8[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830))].w[1];
+    return (float)D_00318EB8[*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830))].w[1];
 }
 
 void SetWeaponTorchChainReactionFlagAll(int a0)
@@ -833,7 +833,7 @@ void SetWeaponTorchChainReactionFlagAll(int a0)
     int i;
 
     for (g = isysGObjSearchFromObjKindID_begin(14); g; g = isysGObjSearchFromObjKindID_next(g)) {
-        w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+        w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
         if (*(int *)w == 1) {
             for (i = 0; i < *(int *)(w + 0x50); i++) {
                 SetTorchChainReactionFlag(*(char **)(*(char **)(w + 0x54) + i * 4), a0);
@@ -855,9 +855,9 @@ void *InitDemoQueensSword(char *a0, void *a1)
     int i;
 
     w = (DemoQueenSwordWork *)iosMallocDebug(D_0063A438, 0xE0, D_006214E0, 802);
-    *(DemoQueenSwordWork **)(*(char **)(a0 + 0x15C) + 0x830) = w;
+    *(DemoQueenSwordWork **)((char *)GOBJ_SUB(a0) + 0x830) = w;
     *w = D_004ED1F0;
-    for (i = 0; i < *(int *)(*(char **)(a0 + 0x15C) + 0x8); i++) {
+    for (i = 0; i < GOBJ_SUB(a0)->f_8; i++) {
         initializeQueenzSword(a0, i, a1);
     }
     return w;
@@ -865,12 +865,12 @@ void *InitDemoQueensSword(char *a0, void *a1)
 
 void ExecDemoQueensSword(char *a0)
 {
-    char *e = *(char **)(a0 + 0x15C);
-    char *p = *(char **)(e + 0x830);
-    *(int *)(*(char **)(p + 0x5C) + 0x16C) = *(int *)(e + 0x74);
+    Sub15C *e = GOBJ_SUB(a0);
+    char *p = *(char **)((char *)e + 0x830);
+    *(int *)(*(char **)(p + 0x5C) + 0x16C) = e->f_74;
 }
 
 void SetWeaponOffsetMode(char *a0, int a1)
 {
-    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC0) = a1;
+    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0xC0) = a1;
 }

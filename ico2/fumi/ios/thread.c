@@ -126,9 +126,9 @@ extern void iosThreadSetPri(int *a0, int a1);
 void iosThreadMain(int a0)
 {
     int idx = GetThreadId();
-    int *obj = (int *)iosThreadTable[idx];
-    (*(void (**)(int))((char *)obj + 0x38))(a0);
-    if (*(int *)((char *)obj + 0x40) == 0) {
+    IOSThread *obj = (IOSThread *)iosThreadTable[idx];
+    (*(void (*)(int))obj->func)(a0);
+    if (obj->sleeping == 0) {
         iosThreadSetPri((int *)obj, 33);
     } else {
         iosThreadSetPri((int *)obj, 34);
@@ -335,30 +335,30 @@ extern void *D_0063A428;
 
 void iosThreadMessage(int a0)
 {
-    void *obj = (void *)iosThreadTable[GetThreadId()];
+    IOSThread *obj = (IOSThread *)iosThreadTable[GetThreadId()];
     int q;
-    if (*(int *)((char *)obj + 0x48) == 0) {
+    if (obj->hasQueue == 0) {
         void *r;
-        *(int *)((char *)obj + 0x48) = 1;
+        obj->hasQueue = 1;
         r = iosMallocDebug(D_0063A428, 0x50, __FILE__, 478);
-        *(void **)((char *)obj + 0x4C) = r;
+        obj->queue = r;
         iosMsgQueueCreate(r, (char *)r + 0x30, 8);
     }
-    q = iosMsgSend((char *)*(void **)((char *)obj + 0x4C), a0, 0);
+    q = iosMsgSend((char *)obj->queue, a0, 0);
     debug_StdPrintfDummy("th:msg %d\n", q);
 }
 
 inline int iosThreadJoin(void *a0)
 {
     int buf[4];
-    if (*(int *)((char *)a0 + 0x48) == 0) {
+    if (((IOSThread *)a0)->hasQueue == 0) {
         void *r;
-        *(int *)((char *)a0 + 0x48) = 1;
+        ((IOSThread *)a0)->hasQueue = 1;
         r = iosMallocDebug(D_0063A428, 0x50, __FILE__, 506);
-        *(void **)((char *)a0 + 0x4C) = r;
+        ((IOSThread *)a0)->queue = r;
         iosMsgQueueCreate(r, (char *)r + 0x30, 8);
     }
-    iosMsgRecv(*(void **)((char *)a0 + 0x4C), buf, 1);
+    iosMsgRecv(((IOSThread *)a0)->queue, buf, 1);
     debug_StdPrintfDummy("th:thread joined\n");
     return buf[0];
 }

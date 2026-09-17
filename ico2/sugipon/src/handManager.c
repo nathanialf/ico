@@ -44,7 +44,7 @@ void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
      * it to 0(sp). */
     void getBone(float *out, char *o)
     {
-        int sub = *(int *)(o + 0x15C);
+        int sub = (int)GOBJ_SUB(o);
         float scale = *(float *)(*(int *)(sub + 0x870) + 0x20);
         int nodes = *(int *)(sub + 0x8C);
         float a;
@@ -97,19 +97,19 @@ void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
     getBone(b1, tgt);
     sa = b0[0] + b0[1];
     sb = b1[0] + b1[1];
-    _SubVector(d, (char *)*(int *)(*(int *)(obj + 0x15C) + 0xC) + (na << 6) + 0x30,
-               (char *)*(int *)(*(int *)(tgt + 0x15C) + 0xC) + (nc << 6) + 0x30);
+    _SubVector(d, (char *)GOBJ_SUB(obj)->f_C + (na << 6) + 0x30,
+               (char *)GOBJ_SUB(tgt)->f_C + (nc << 6) + 0x30);
     len = VectorLength(d);
     CopyVector(n, d);
     n[1] = 0.0f;
     _NormalizeVector(n, n);
     _OuterProduct(ax, n, YUnitVector);
     if (sa + sb < len) {
-        _SubVector(u, (char *)*(int *)(*(int *)(tgt + 0x15C) + 0xC) + (nb << 6) + 0x30,
-                   (char *)*(int *)(*(int *)(obj + 0x15C) + 0xC) + (na << 6) + 0x30);
+        _SubVector(u, (char *)GOBJ_SUB(tgt)->f_C + (nb << 6) + 0x30,
+                   (char *)GOBJ_SUB(obj)->f_C + (na << 6) + 0x30);
         _NormalizeVector(u, u);
         _ScaleVector(u, u, sb);
-        _SubVector(hw + 0x30, (char *)*(int *)(*(int *)(tgt + 0x15C) + 0xC) + (nb << 6) + 0x30, u);
+        _SubVector(hw + 0x30, (char *)GOBJ_SUB(tgt)->f_C + (nb << 6) + 0x30, u);
     } else {
         float ex = (sa + sb - len) * 0.0f;
         float l = len - ex * 0.0f;
@@ -123,8 +123,8 @@ void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
         sa = s;
         SetQuaternionByAxisRotateV(q, GetTableArcCos((ll + ss - tt) / (l2 * sa)), ax);
         GetMatrixFromQuaternion(m, q);
-        _SubVector(v, (char *)*(int *)(*(int *)(tgt + 0x15C) + 0xC) + (nb << 6) + 0x30,
-                   (char *)*(int *)(*(int *)(obj + 0x15C) + 0xC) + (na << 6) + 0x30);
+        _SubVector(v, (char *)GOBJ_SUB(tgt)->f_C + (nb << 6) + 0x30,
+                   (char *)GOBJ_SUB(obj)->f_C + (na << 6) + 0x30);
         sb = v[0] * v[0] + v[2] * v[2];
         _NormalizeVector(v, v);
         _ScaleVector(v, v, sa);
@@ -138,7 +138,7 @@ void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
             _ScaleVectorXYZ(v, v, len);
             v[1] = _Sqrt(ss - sb);
         }
-        _AddVector(hw + 0x30, (char *)*(int *)(*(int *)(obj + 0x15C) + 0xC) + (na << 6) + 0x30, v);
+        _AddVector(hw + 0x30, (char *)GOBJ_SUB(obj)->f_C + (na << 6) + 0x30, v);
     }
 }
 
@@ -194,12 +194,11 @@ static inline int SetHandOnWall(char *obj, char *hw, char *vec, char *ref, int n
 {
     Vec4 plane;
 
-    if (*(int *)(*(int *)(obj + 0x15C) + 0x188) == 0) {
+    if (GOBJ_SUB(obj)->f_188 == 0) {
         return 0;
     }
-    GetGlobalWallPlane(&plane, (char *)*(int *)(obj + 0x15C) + 0x180);
-    GetProjectionOfPlane(hw + 0x30, &plane,
-                         (char *)*(int *)(*(int *)(obj + 0x15C) + 0xC) + (node << 6) + 0x30);
+    GetGlobalWallPlane(&plane, (char *)(int)GOBJ_SUB(obj) + 0x180);
+    GetProjectionOfPlane(hw + 0x30, &plane, (char *)GOBJ_SUB(obj)->f_C + (node << 6) + 0x30);
     SetHandQuaternion(hw, vec, ref);
     return 1;
 }
@@ -265,10 +264,10 @@ extern char XUnitVector[];
 
 static inline void ResetHandTarget(char *obj, int off)
 {
-    char *h = (char *)*(int *)(obj + 0x15C) + off;
+    char *h = (char *)(int)GOBJ_SUB(obj) + off;
     *(int *)(h + 0x20) = 0;
     *(int *)(h + 0x24) = 0;
-    ((IntFloat *)(h + 0x50))->f = *(float *)(*(int *)(obj + 0x15C) + 0x460);
+    ((IntFloat *)(h + 0x50))->f = *(float *)((int)GOBJ_SUB(obj) + 0x460);
 }
 
 void HandManager(char *obj)
@@ -278,16 +277,15 @@ void HandManager(char *obj)
     if (D_0063B198 == 0) {
         ResetHandTarget(obj, 0x310);
         ResetHandTarget(obj, 0x2B0);
-        if (*(int *)(*(int *)(obj + 0x15C) + 0x400) != 0) {
-            char *rec = D_0055FE58 + *(int *)(*(int *)(obj + 0x15C) + 0x4A0) * 0x194;
-            _handManager(obj, (char *)*(int *)(obj + 0x15C) + 0x310,
+        if (*(int *)((int)GOBJ_SUB(obj) + 0x400) != 0) {
+            char *rec = D_0055FE58 + GOBJ_SUB(obj)->f_4A0 * 0x194;
+            _handManager(obj, (char *)(int)GOBJ_SUB(obj) + 0x310,
                          D_005D1208 + ((*(unsigned int *)(rec + 0x188) >> 8) & 0xF0), XUnitVector,
                          GetSkeltonFocusNode(obj, 0x13));
-            t = _handManager(obj, (char *)*(int *)(obj + 0x15C) + 0x2B0,
+            t = _handManager(obj, (char *)(int)GOBJ_SUB(obj) + 0x2B0,
                              D_005D1208 + ((*(unsigned int *)(rec + 0x188) >> 4) & 0xF0),
                              XUnitVector, GetSkeltonFocusNode(obj, 3));
         }
-        *(float *)(*(int *)(obj + 0x15C) + 0xF4) +=
-            (t - *(float *)(*(int *)(obj + 0x15C) + 0xF4)) * 0.1f;
+        *(float *)((int)GOBJ_SUB(obj) + 0xF4) += (t - *(float *)((int)GOBJ_SUB(obj) + 0xF4)) * 0.1f;
     }
 }

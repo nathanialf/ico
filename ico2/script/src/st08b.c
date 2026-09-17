@@ -196,7 +196,7 @@ void actSt08bKurenSwitch(volatile int a0)
             } else {
                 p2.ll[0] = kurenSwitch2Pos.d[0];
                 p2.ll[1] = kurenSwitch2Pos.d[1];
-                p2.f[1] += *(float *)(*(int *)(*(int *)(D_00639EA8 + 0x15C) + 0x8C) + 0x14);
+                p2.f[1] += *(float *)(*(int *)((int)GOBJ_SUB(D_00639EA8) + 0x8C) + 0x14);
                 SetDirectRootPosition(D_00639EA8, &p2);
             }
         }
@@ -205,7 +205,7 @@ void actSt08bKurenSwitch(volatile int a0)
 
     if (D_00639EA8 != 0) {
         GetRootPosition(&p1, D_00639EA8);
-        *(float *)(*(int *)(D_00639EA8 + 0x15C) + 0x254) = p1.f[1];
+        *(float *)((int)GOBJ_SUB(D_00639EA8) + 0x254) = p1.f[1];
     }
 
     while (stage_CheckAnimationFrame(370, frame, 1) == 0) {

@@ -35,7 +35,7 @@ static void execClothes(char *gobj)
     int n;
 
     n = GetSkeltonFocusNode(gobj, 35);
-    w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     SetQuaternionByAxisRotateV(q, -D_0063B258 * 16, ZUnitVector);
     if (*(void **)(w + 0x18) != 0) {
         *(int *)(*(char **)(w + 0x18) + 0x2F8) = D_0063B25C;
@@ -51,7 +51,7 @@ static void execClothes(char *gobj)
         }
         if (*(void **)(w + 0x18) != 0) {
             GetCloth4DWithTight(*(void **)(w + 0x18), D_0063B254 * 0.002f, 1.0f, D_0063B250 * 0.01f,
-                                1.0f, *(char **)(*(char **)(gobj + 0x15C) + 0x10) + n * 16, q);
+                                1.0f, *(char **)((char *)GOBJ_SUB(gobj) + 0x10) + n * 16, q);
         }
         break;
     case 2:
@@ -63,7 +63,7 @@ static void execClothes(char *gobj)
         }
         if (*(void **)(w + 0x18) != 0) {
             GetCloth4DWithTight(*(void **)(w + 0x18), D_0063B254 * 0.002f, 1.0f, D_0063B250 * 0.01f,
-                                1.0f, *(char **)(*(char **)(gobj + 0x15C) + 0x10) + n * 16, q);
+                                1.0f, *(char **)((char *)GOBJ_SUB(gobj) + 0x10) + n * 16, q);
         }
         break;
     case 0:
@@ -88,18 +88,18 @@ static void dispCrown(char *gobj, char *acc)
     char *w;
     int n;
 
-    w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     n = GetSkeltonFocusNode(gobj, 35);
-    CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(*(char **)(gobj + 0x15C) + 0xC) + n * 0x40);
+    CopyMatrix(MatrixDrive_GetMatrix(), *(char **)((char *)GOBJ_SUB(gobj) + 0xC) + n * 0x40);
     MatrixDrive_ScaleMatrix(1.1111112f, 1.1111112f, 1.1111112f);
     if (*(int *)(w + 0x28) != 0) {
         CopyMatrix(*(char **)(*(char **)(w + 0x2C) + 0xC), MatrixDrive_GetMatrix());
         CopyMatrix(*(char **)(*(char **)(w + 0x30) + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow(*(char **)(w + 0x30), *(char **)(gobj + 0x15C));
-        reg_DispAccessoryWithShadow(*(char **)(w + 0x2C), *(char **)(gobj + 0x15C));
+        reg_DispAccessoryWithShadow(*(char **)(w + 0x30), (char *)GOBJ_SUB(gobj));
+        reg_DispAccessoryWithShadow(*(char **)(w + 0x2C), (char *)GOBJ_SUB(gobj));
     } else {
         CopyMatrix(*(char **)(acc + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow(acc, *(char **)(gobj + 0x15C));
+        reg_DispAccessoryWithShadow(acc, (char *)GOBJ_SUB(gobj));
     }
 }
 
@@ -113,8 +113,8 @@ static void dispClothes(char *gobj)
     char *x;
     char *y;
 
-    w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
-    x = *(char **)(*(char **)(gobj + 0x15C) + 0x874);
+    w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    x = (char *)GOBJ_SUB(gobj)->p_874;
     y = x + 0x40;
     if (*(int *)(w + 0x24) != 0) {
         dispCrown(gobj, *(char **)(w + 0x24));
@@ -143,8 +143,8 @@ static void dispClothes(char *gobj)
         /* Two separate tests, not `>= 642 || < 639`: gcc's fold_range_test
          * merges a disjunction over one operand into `(unsigned)(v - 639) < 3`,
          * which ROM does not have, ROM keeps both `slti`s. */
-        if (*(int *)(*(char **)(gobj + 0x15C) + 0x4A0) < 642) {
-            if (*(int *)(*(char **)(gobj + 0x15C) + 0x4A0) >= 639) {
+        if (GOBJ_SUB(gobj)->f_4A0 < 642) {
+            if (GOBJ_SUB(gobj)->f_4A0 >= 639) {
                 goto skip;
             }
         }
@@ -200,7 +200,7 @@ extern char D_004EB380[];
    ROM has them, while their string constants stay at this point of the run. */
 inline void SetGirlClothDispSwitch(char *a0, int a1, int a2)
 {
-    char *cloth = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cloth = (char *)GOBJ_SUB(a0)->f_830;
     switch (a1) {
     case 0:
         *(int *)(cloth + 0x4) = a2;
@@ -216,7 +216,7 @@ inline void SetGirlClothDispSwitch(char *a0, int a1, int a2)
 
 inline void SetGirlHairDispSwitch(char *a0, int a1)
 {
-    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x28) = a1;
+    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x28) = a1;
 }
 
 typedef struct {
@@ -257,7 +257,7 @@ void *InitGirlGeo(char *gobj, char *csv)
     int kind;
 
     w = iosMallocDebug(D_0063A438, 0x44, __FILE__, 892);
-    p = *(int *)(gobj + 0x15C);
+    p = (int)GOBJ_SUB(gobj);
     w->f38 = 0;
     w->f34 = 0;
     w->f40 = 0;
@@ -274,7 +274,7 @@ void *InitGirlGeo(char *gobj, char *csv)
     w->f8 = 0;
     w->f10 = 0;
     w->f0 = kind;
-    *(int *)(*(int *)(gobj + 0x15C) + 0x830) = (int)w;
+    GOBJ_SUB(gobj)->f_830 = (int)w;
     switch (kind) {
     case 1:
         w->f10 = (int)InitCloth4D(gobj, D_004E9C40, 0);
@@ -294,9 +294,9 @@ void *InitGirlGeo(char *gobj, char *csv)
         w->f30 = (int)CSVSYSTEM_InitDObj(0xE, csv);
         break;
     }
-    *(int *)(*(int *)(*(int *)(gobj + 0x15C) + 0x830) + 0x4) = 1;
-    *(int *)(*(int *)(*(int *)(gobj + 0x15C) + 0x830) + 0xC) = 1;
-    *(int *)(*(int *)(*(int *)(gobj + 0x15C) + 0x830) + 0x1C) = 1;
+    *(int *)(GOBJ_SUB(gobj)->f_830 + 0x4) = 1;
+    *(int *)(GOBJ_SUB(gobj)->f_830 + 0xC) = 1;
+    *(int *)(GOBJ_SUB(gobj)->f_830 + 0x1C) = 1;
     InitMotionOrient(gobj, 0x503, 0x84A, 0xC, 0x18, 0x214);
     SetLodLevel(gobj, 2);
     return w;
@@ -323,12 +323,12 @@ void GirlGeo(char *a0)
         iosOmSendMail(a0, 6, a0);
         GirlAct_BoyAndMeCollisionMail(a0);
     } else {
-        w = *(char **)(a0 + 0x15C);
+        w = (char *)GOBJ_SUB(a0);
         if (*(int *)(w + 0x310) == 4 && *(int *)(w + 0x7C) != 0 && *(int *)(w + 0x3C8) != 0) {
             n0 = GetSkeltonFocusNode(D_00639EA4, 6);
             n1 = GetSkeltonFocusNode(a0, 0x16);
-            sceVu0SubVector(v, *(char **)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + n0 * 64 + 0x30,
-                            *(char **)(*(char **)(a0 + 0x15C) + 0xC) + n1 * 64 + 0x30);
+            sceVu0SubVector(v, *(char **)((char *)GOBJ_SUB(D_00639EA4) + 0xC) + n0 * 64 + 0x30,
+                            *(char **)((char *)GOBJ_SUB(a0) + 0xC) + n1 * 64 + 0x30);
             len = FSqrt(sceVu0InnerProduct(v, v));
             if (10.0f < len) {
                 ratio = 1.0f - len / 50.0f;
@@ -342,10 +342,10 @@ void GirlGeo(char *a0)
 
 void GirlAI(char *a0)
 {
-    char *work = *(char **)(a0 + 0x15C);
-    int mode = *(int *)(work + 0x4A0);
-    char *cloth = *(char **)(work + 0x830);
-    int hint = *(int *)(work + 0x4C8);
+    Sub15C *work = GOBJ_SUB(a0);
+    int mode = work->f_4A0;
+    char *cloth = *(char **)((char *)work + 0x830);
+    int hint = *(int *)((char *)work + 0x4C8);
 
     if (mode == 0x297) {
         if (hint != 0) {
@@ -358,7 +358,7 @@ void GirlAI(char *a0)
             debug_StdPrintfDummy("hint1 voice ready\n");
         }
         if (*(int *)(cloth + 0x34) != 0 && *(int *)(cloth + 0x3C) == 0 &&
-            47.0f < *(float *)(*(char **)(a0 + 0x15C) + 0x4AC)) {
+            47.0f < GOBJ_SUB(a0)->f_4AC) {
             scpGirlHintVoicePlay();
             *(int *)(cloth + 0x3C) = 1;
             debug_StdPrintfDummy("hint1 voice play\n");
@@ -375,7 +375,7 @@ void GirlAI(char *a0)
             debug_StdPrintfDummy("hint2 voice ready\n");
         }
         if (*(int *)(cloth + 0x38) != 0 && *(int *)(cloth + 0x40) == 0 &&
-            107.0f < *(float *)(*(char **)(a0 + 0x15C) + 0x4AC)) {
+            107.0f < GOBJ_SUB(a0)->f_4AC) {
             scpGirlHintVoicePlay();
             *(int *)(cloth + 0x40) = 1;
             debug_StdPrintfDummy("hint2 voice play\n");
@@ -406,7 +406,7 @@ extern char *D_004EB420[];
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
 static inline int *getGirlCloth(char *gobj)
 {
-    return *(int **)(*(char **)(gobj + 0x15C) + 0x830);
+    return *(int **)((char *)GOBJ_SUB(gobj) + 0x830);
 }
 
 void debugWireStringGirl(char *a0)

@@ -76,8 +76,8 @@ void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float
 {
     int ret = GetSkeltonFocusNode(a1, a2);
     if (ret != -1) {
-        char *p = *(char **)(a1 + 0x15C);
-        int r = SetParticleEffectActiveSensing((int)a0, *(int *)(p + 0xC) + ret * 0x40 + 0x30,
+        Sub15C *p = GOBJ_SUB(a1);
+        int r = SetParticleEffectActiveSensing((int)a0, p->f_C + ret * 0x40 + 0x30,
                                                (int)IdentityQuaternion);
         SetParticleEffectUpperLimit(r, f);
     }
@@ -87,7 +87,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", SetFallDownSplash);
 
 void GetPoolGlobalDrainVector(void *dst, char *a0)
 {
-    CopyVector(dst, *(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10);
+    CopyVector(dst, *(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x10);
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", InitPoolGeo);
@@ -227,7 +227,7 @@ void updatePoolGeo(char *self)
     float tmp[4];
     float pos[4];
     float sub[4];
-    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
     char *mesh0 = *(char **)(w + 0x40);
     char *mesh1 = *(char **)(w + 0x44);
     float step = *(float *)(w + 0x3C);
@@ -390,7 +390,7 @@ void dispPool(char *self)
     char m2[0x40];
     char m3[0x40];
     char m4[0x40];
-    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
 
     gif_StartPacketPri(4);
     copyToWork(4);
@@ -409,8 +409,8 @@ void dispPool(char *self)
 
     prim_DispMesh3D(*(int *)(w + 0x44), D_002906E0, D_00290720, -1);
 
-    CopyMatrix(*(char **)(*(char **)(self + 0x15C) + 0x874) + 0x40, D_00290760);
-    CopyMatrix(*(char **)(*(char **)(self + 0x15C) + 0x874), D_002907A0);
+    CopyMatrix((char *)GOBJ_SUB(self)->p_874 + 0x40, D_00290760);
+    CopyMatrix((char *)GOBJ_SUB(self)->p_874, D_002907A0);
 
     gif_StartPacketPri(4);
     flushWork(4);
@@ -433,8 +433,8 @@ void dispPool(char *self)
     gif_EndPacket();
 
     _UnitMatrix(MatrixDrive_GetMatrix());
-    CopyMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC), MatrixDrive_GetMatrix());
-    reg_RenderReflection(*(char **)(self + 0x15C), 4);
+    CopyMatrix(*(char **)((char *)GOBJ_SUB(self) + 0xC), MatrixDrive_GetMatrix());
+    reg_RenderReflection((char *)GOBJ_SUB(self), 4);
 
     if (*(int *)(w + 0xD0) != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(w + 0xD0) + 0x20);
@@ -502,7 +502,7 @@ void dispPool(char *self)
 
 void PoolDL(char *self)
 {
-    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
 
     DispMultiBgaManagerWithKind(0x1F2, *(int *)(w + 0x2C), 10);
     DispMultiBgaManagerWithKind(0x1F3, *(int *)(w + 0x24), 2);
@@ -609,7 +609,7 @@ extern void _InterVectorXYZ(void *dst, void *p0, void *p1, float t);
 
 void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
 {
-    char *w = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(a1) + 0x830);
     float pos[4];
     float v1[4];
     float v2[4];
@@ -641,7 +641,7 @@ void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
     CopyVector(v1, pos);
     v1[1] = *(float *)(w + 4);
     CopyVector(v2, pos);
-    v2[1] += *(float *)(*(char **)(a2 + 0x15C) + 0x270);
+    v2[1] += GOBJ_SUB(a2)->f_270;
 
     pos[1] = (v1[1] + v2[1]) * 0.5f;
     _InterVectorXYZ(pos, pos, (char *)(matrixptr + 944),
@@ -713,12 +713,12 @@ void PoolGeo(void) {}
 
 float GetPoolGlobalHeight(char *a0)
 {
-    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4);
+    return *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 4);
 }
 
 float GetPoolGlobalHeightDetail(char *a0, float *pos)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     float inv;
     int ix;
     int iz;
@@ -737,7 +737,7 @@ float GetPoolGlobalHeightDetail(char *a0, float *pos)
 
 int CheckPoolHasGridMesh(char *a0)
 {
-    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x30) != 0;
+    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x30) != 0;
 }
 
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
@@ -766,9 +766,9 @@ void InitLayoutedPoolReflactionMesh(char *a0, char *a1)
 
 int poolRideFunc(char **a0, char *a1)
 {
-    char *e = *(char **)(a1 + 0x15C);
+    Sub15C *e = GOBJ_SUB(a1);
     char *p = *(char **)(*(char **)(a0[0] + 0x15C) + 0x830);
-    *(float *)(e + 0x644) = *(float *)(e + 0xA4) - *(float *)(p + 4);
+    e->f_644 = e->f_A4 - *(float *)(p + 4);
     return 1;
 }
 

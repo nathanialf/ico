@@ -114,7 +114,7 @@ static void effect_end_func(int no)
     char *weapon = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
 
     if (g != 0) {
-        *(int *)(*(int *)(*(int *)(g + 0x15C) + 0x830) + 4) += 1;
+        *(int *)(GOBJ_SUB(g)->f_830 + 4) += 1;
     }
     if (weapon != 0) {
         LightTorchOnOfWeapon(weapon);
@@ -188,8 +188,8 @@ void queenBeforeFunc(char *g)
     QVec pos;
     QVec target;
     QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
-    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
-    char *act = *(char **)(g + 0x164);
+    char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
+    Act *act = GOBJ_ACT(g);
     int i;
 
     for (i = 0; i < q->num; i++) {
@@ -210,7 +210,7 @@ void queenBeforeFunc(char *g)
                 *(char *)(w + 2) = 1;
                 o = isysGObjSearchFromObjKindID_begin(53);
                 if (o != 0) {
-                    *(char *)(*(char **)(*(char **)(o + 0x15C) + 0x830) + 0x1A) = 1;
+                    *(char *)(*(char **)((char *)GOBJ_SUB(o) + 0x830) + 0x1A) = 1;
                 }
             }
             break;
@@ -229,7 +229,7 @@ void queenBeforeFunc(char *g)
         }
     }
     q->num = 0;
-    *(QMotBlock *)(act + 0x620) = *(QMotBlock *)(*(int *)(g + 0x15C) + 0x180);
+    *(QMotBlock *)((char *)act + 0x620) = *(QMotBlock *)((int)GOBJ_SUB(g) + 0x180);
 }
 
 /* PAL listing: queen.c lines 300-385 (the disc's objdump -dl line map). */
@@ -263,7 +263,7 @@ void gene_enemy(volatile int g)
         int i[4];
     } pos;
 
-    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     const QueenGenTable *tbl;
     char *o;
     char *c;
@@ -277,7 +277,7 @@ void gene_enemy(volatile int g)
     char *obj;
 
     o = isysGObjSearchFromObjKindID_begin(54);
-    num = (o != 0) ? *(int *)(*(char **)(*(char **)(o + 0x15C) + 0x830) + 0x18) : 0;
+    num = (o != 0) ? *(int *)(*(char **)((char *)GOBJ_SUB(o) + 0x830) + 0x18) : 0;
     tbl = (stage_no == 0x25) ? &genEnemyTable[0] : &genEnemyTable[1];
 
     timer = 0;
@@ -396,9 +396,9 @@ static inline void QueenStatusUpdate(char *g, QueenStatus *st)
     st->prevRatio.f = st->ratio.f;
     st->prevStep = st->step;
 
-    st->motion = *(int *)(*(int *)(g + 0x15C) + 0x4A0);
-    st->ratio.f = *(float *)(*(int *)(g + 0x15C) + 0x4AC);
-    st->step = *(int *)(*(int *)(g + 0x15C) + 0x4CC);
+    st->motion = GOBJ_SUB(g)->f_4A0;
+    st->ratio.f = GOBJ_SUB(g)->f_4AC;
+    st->step = *(int *)((int)GOBJ_SUB(g) + 0x4CC);
     st->changed = 0;
     if (st->motion != st->prevMotion) {
         st->count = 1;
@@ -430,11 +430,11 @@ static inline void QueenStartAttack_inl(int flag)
     char *g;
 
     g = isysGObjSearchFromObjKindID_begin(47);
-    *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 1) = flag;
+    *(char *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 1) = flag;
 
     g = isysGObjSearchFromObjKindID_begin(54);
     while (g != 0) {
-        *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 0x12) = 1;
+        *(char *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 0x12) = 1;
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
@@ -466,7 +466,7 @@ void subQueenBrainMain(volatile int g)
     QueenUVScroll *uv;
 
     ext = *(char **)(g + 0x164);
-    w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
     motionOk = 0;
     first = 1;
@@ -490,12 +490,12 @@ void subQueenBrainMain(volatile int g)
         }
         if ((*(int *)w & 0xFF0000FF) == 0 && *(signed char *)(w + 1) != 0 && bar != 0 &&
             ball != 0) {
-            qw = *(char **)(*(char **)(g + 0x15C) + 0x830);
+            qw = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
             GetRootPosition(&rootPos, (char *)g);
             _GetMotionDirection(&dir, (char *)g);
-            barw = *(char **)(*(char **)(bar + 0x15C) + 0x830);
-            ballw = *(char **)(*(char **)(ball + 0x15C) + 0x830);
+            barw = *(char **)((char *)GOBJ_SUB(bar) + 0x830);
+            ballw = *(char **)((char *)GOBJ_SUB(ball) + 0x830);
 
             if (*(signed char *)(qw + 2) != 0 && *(signed char *)(ballw + 0x12) == 0) {
                 *(char *)(qw + 3) = 1;
@@ -509,18 +509,18 @@ void subQueenBrainMain(volatile int g)
                 }
             }
 
-            switch (*(int *)(*(char **)(g + 0x15C) + 0x4A0)) {
+            switch (GOBJ_SUB(g)->f_4A0) {
             case 0x430:
             case 0x435:
             case 0x436:
                 GetRootPosition(&target, D_00639EA4);
-                ((QueenLookAt *)(*(char **)(g + 0x15C) + 0x380))->pos.f[0] = target.v[0];
-                ((QueenLookAt *)(*(char **)(g + 0x15C) + 0x380))->pos.f[1] = target.v[1];
-                ((QueenLookAt *)(*(char **)(g + 0x15C) + 0x380))->pos.f[2] = target.v[2];
-                ((QueenLookAt *)(*(char **)(g + 0x15C) + 0x380))->on.i = 1;
+                ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->pos.f[0] = target.v[0];
+                ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->pos.f[1] = target.v[1];
+                ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->pos.f[2] = target.v[2];
+                ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->on.i = 1;
             }
 
-            switch (*(int *)(*(char **)(g + 0x15C) + 0x4A0)) {
+            switch (GOBJ_SUB(g)->f_4A0) {
             case 0x431:
             case 0x432:
             case 0x433:
@@ -554,8 +554,8 @@ void subQueenBrainMain(volatile int g)
 
             case 0x436:
                 ((QueenVal *)(ext + 0x130))->i = SetMotionRequest((char *)g, 1, ext + 0x620);
-                if (*(float *)(*(char **)(g + 0x15C) + 0x4AC) > 15.0f &&
-                    *(signed char *)(barw + 0x10) == 0 && motionOk != 0) {
+                if (GOBJ_SUB(g)->f_4AC > 15.0f && *(signed char *)(barw + 0x10) == 0 &&
+                    motionOk != 0) {
                     uv = (stage_no == 0x25) ? &ballUVScrollSt25[*(int *)(ballw + 0x18)]
                                             : &ballUVScrollDefault[*(int *)(ballw + 0x18)];
 
@@ -591,7 +591,7 @@ void subQueenBrainMain(volatile int g)
             GetRootPosition(&target, boy);
             ParticleEffects_SetAllGoal(&target);
         }
-        *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 2) = 0;
+        *(char *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 2) = 0;
         _ACTWait(1);
     }
 }
@@ -625,30 +625,30 @@ static const char queenBallAttackedMsg[] = "queen ball attacked\n";
 static void Debug_StickControl(char *self)
 {
     QVec dir;
-    char *ext = *(char **)(self + 0x164);
+    Act *ext = GOBJ_ACT(self);
 
     if (self == D_00639EC0) {
-        char *pad = ext + 0x2D8;
-        char *stick = ext + 0x338;
+        char *pad = (char *)ext + 0x2D8;
+        char *stick = (char *)ext + 0x338;
 
-        iosPadConnect(pad, 0, 0, ext + 0x1E8);
+        iosPadConnect(pad, 0, 0, (char *)ext + 0x1E8);
         iosPadRead(pad);
         iosPadGetStick(pad, stick, 0, 2, 2, 0);
         _GetMotionDirection(&dir, self);
-        *(int *)(ext + 0x340) = CorrectStickInfo(&dir, stick);
-        if (*(float *)(ext + 0x34C) > 0.001f) {
-            ConvertStickToAbsCoord(ext + 0x120, stick);
+        *(int *)((char *)ext + 0x340) = CorrectStickInfo(&dir, stick);
+        if (*(float *)((char *)ext + 0x34C) > 0.001f) {
+            ConvertStickToAbsCoord((char *)ext + 0x120, stick);
         }
     } else if (self == D_00639ED0) {
-        iosPadConnect(ext + 0x2D8, 0, 1, ext + 0x1E8);
+        iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);
     } else {
-        iosPadConnect(ext + 0x2D8, 0, 1, ext + 0x1E8);
+        iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);
     }
 }
 
 void *InitQueenGeo(char *g)
 {
-    char *ext = *(char **)(g + 0x15C);
+    Sub15C *ext = GOBJ_SUB(g);
     char *w;
     int i;
 
@@ -660,7 +660,7 @@ void *InitQueenGeo(char *g)
     *(int *)(w + 0xC) = 1;
     *(int *)(w + 0x10) = InitCloth4D(g, D_002A60B0, D_002A7740);
     *(int *)(w + 0x14) = InitCloth4D(g, D_002A6BB0, 0);
-    *(char **)(ext + 0x830) = w;
+    *(char **)((char *)ext + 0x830) = w;
     InitMotionOrient(g, 0x967, 0x975, 0xC, 0x18, 0x430);
     SetLodLevel(g, 2);
     actInitialize(g);
@@ -677,7 +677,7 @@ void QueenGeo(char *g)
     }
     ExecMotionOrient(g);
     SetActressLight(g, 0x23, 0x2C, 0x1D8);
-    w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     if (*(int *)(w + 0xC) != 0) {
         GetCloth4D(*(void **)(w + 0x10), 3.0f, 0.98f);
         GetCloth4D(*(void **)(w + 0x14), 5.0f, 0.9f);
@@ -694,13 +694,13 @@ void QueenDL(char *g)
     }
     p2o_SetDefaultEnviroment();
     p2o_DispVU1(g);
-    w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     if (*(int *)(w + 0xC) != 0) {
-        DispCloth4D(*(void **)(w + 0x10), *(char **)(*(char **)(g + 0x15C) + 0x874) + 0x40,
-                    *(char **)(*(char **)(g + 0x15C) + 0x874));
+        DispCloth4D(*(void **)(w + 0x10), (char *)GOBJ_SUB(g)->p_874 + 0x40,
+                    (char *)GOBJ_SUB(g)->p_874);
     }
-    DispCloth4D(*(void **)(w + 0x14), *(char **)(*(char **)(g + 0x15C) + 0x874) + 0x40,
-                *(char **)(*(char **)(g + 0x15C) + 0x874));
+    DispCloth4D(*(void **)(w + 0x14), (char *)GOBJ_SUB(g)->p_874 + 0x40,
+                (char *)GOBJ_SUB(g)->p_874);
 }
 
 /* PAL listing rows 871-873 belong to a static angle-wrap helper. */
@@ -735,9 +735,9 @@ void QueenBarrierGeo(char *g)
 
     memset(&pos, 0, sizeof(pos));
     pos.f[1] = 2000.0f;
-    w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     queen = isysGObjSearchFromObjKindID_begin(47);
-    qw = *(char **)(*(char **)(queen + 0x15C) + 0x830);
+    qw = *(char **)((char *)GOBJ_SUB(queen) + 0x830);
     if (stage_no == 0x25) {
         tbl = barrierLayoutSt25;
     } else {
@@ -753,7 +753,7 @@ void QueenBarrierGeo(char *g)
         if (o == 0) {
             continue;
         }
-        if (*(signed char *)(*(char **)(*(char **)(o + 0x15C) + 0x830) + 0x12) != 0) {
+        if (*(signed char *)(*(char **)((char *)GOBJ_SUB(o) + 0x830) + 0x12) != 0) {
             continue;
         }
         break;
@@ -770,7 +770,7 @@ void QueenBarrierGeo(char *g)
         (*(int *)qw & 0xFF0000FF) != 0 || *(signed char *)(qw + 1) == 0) {
         GetRootMatrix(&m1, g);
         sceVu0CopyVector(&m1.w, &pos);
-        CopyMatrix(*(void **)(*(char **)(g + 0x15C) + 0xC), &m1);
+        CopyMatrix(*(void **)((char *)GOBJ_SUB(g) + 0xC), &m1);
     } else {
         axis.f[0] = 0.05235987901687622f;
         axis.f[1] = 0.0872664675116539f;
@@ -786,7 +786,7 @@ void QueenBarrierGeo(char *g)
         *(float *)(w + 0x28) = WrapRad(*(float *)(w + 0x28));
         UnitMatrix33(&rot);
         sceVu0CopyVector(&trans, w);
-        CopyMatrix(*(void **)(*(char **)(g + 0x15C) + 0xC), &rot);
+        CopyMatrix(*(void **)((char *)GOBJ_SUB(g) + 0xC), &rot);
     }
     if (*(signed char *)(w + 0x10) != 0 && mine == found - 1) {
         void *weapon;
@@ -802,7 +802,7 @@ void QueenBarrierGeo(char *g)
         if (*(int *)(w + 0x18) >= 5) {
             GetRootMatrix(&m3, g);
             sceVu0CopyVector(&m3.w, &pos);
-            CopyMatrix(*(void **)(*(char **)(g + 0x15C) + 0xC), &m3);
+            CopyMatrix(*(void **)((char *)GOBJ_SUB(g) + 0xC), &m3);
             *(char *)(w + 0x12) = 0;
             ExecuteSEPackage((int)D_00639EA4, 0x62);
         }
@@ -816,7 +816,7 @@ void QueenBarrierGeo(char *g)
 
 void QueenBarrierDL(char *g)
 {
-    char *b = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *b = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     if (*(signed char *)(b + 0x12)) {
         queen_barrier_disp_proc(1.0f - *(int *)(b + 0x18) / 5.0f);
     }
@@ -939,9 +939,9 @@ void QueenBallGeo(char *g)
     int hit;
     float r;
 
-    w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     ball = isysGObjSearchFromObjKindID_begin(54);
-    num = (ball != 0) ? *(int *)(*(char **)(*(char **)(ball + 0x15C) + 0x830) + 0x18) : 0;
+    num = (ball != 0) ? *(int *)(*(char **)((char *)GOBJ_SUB(ball) + 0x830) + 0x18) : 0;
     r = *(float *)(w + 0x14) * 100.0f;
     weapon = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
     GetRootMatrix(m, g);
@@ -975,9 +975,9 @@ void QueenBallGeo(char *g)
         }
     }
     if (hit) {
-        *(int *)(*(char **)(g + 0x15C) + 0x74) = 0;
+        GOBJ_SUB(g)->f_74 = 0;
     } else {
-        *(int *)(*(char **)(g + 0x15C) + 0x74) = 1;
+        GOBJ_SUB(g)->f_74 = 1;
     }
     if (*(signed char *)(w + 0x18) != 0) {
         *(char *)(w + 0x18) = 0;
@@ -995,7 +995,7 @@ void QueenBallGeo(char *g)
     if (*(signed char *)(w + 0x11) != 0) {
         UnitMatrix33((QMat3 *)m);
         scale_m34((LVec *)m, m, *(float *)(w + 0x14));
-        CopyMatrix(*(void **)(*(char **)(g + 0x15C) + 0xC), m);
+        CopyMatrix(*(void **)((char *)GOBJ_SUB(g) + 0xC), m);
         if (hit == 0 && *(signed char *)(w + 0x19) == 0 &&
             _AttackCenter(g, 0x10, m[3], 0, r, 0) != 0) {
             *(char *)(w + 0x19) = 1;
@@ -1027,7 +1027,7 @@ void QueenBallGeo(char *g)
         m[3][1] = 4294967296.0f;
         m[3][2] = 4294967296.0f;
         m[3][3] = 0.0f;
-        CopyMatrix(*(void **)(*(char **)(g + 0x15C) + 0xC), m);
+        CopyMatrix(*(void **)((char *)GOBJ_SUB(g) + 0xC), m);
     }
 }
 
@@ -1044,7 +1044,7 @@ void QueenBallDL(char *g)
     int *q;
     int i;
 
-    w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     if (*(signed char *)(w + 0x11) != 0) {
         GetRootPosition(&ballPos, g);
         SetupDarkVolume(&ballPos, *(float *)(w + 0x14) * 100.0f, 10.0f);
@@ -1090,7 +1090,7 @@ void actQueenStart(char *g)
     actCreateSubThread(subQueenControl, 21);
     actCreateSubThread(gene_enemy, 21);
     *(int *)(sub + 0x130) = SetMotionRequest(g, 0x10E, sub + 0x620);
-    *(int *)(*(int *)(g + 0x15C) + 0x7C) = 1;
+    GOBJ_SUB(g)->f_7C = 1;
 }
 
 void QueenStartAttack(void)
@@ -1098,11 +1098,11 @@ void QueenStartAttack(void)
     char *g;
 
     g = isysGObjSearchFromObjKindID_begin(47);
-    *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 1) = 1;
+    *(char *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 1) = 1;
 
     g = isysGObjSearchFromObjKindID_begin(54);
     while (g != 0) {
-        *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 0x12) = 1;
+        *(char *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 0x12) = 1;
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
@@ -1110,18 +1110,18 @@ void QueenStartAttack(void)
 int QueenInqDead(void)
 {
     char *g = isysGObjSearchFromObjKindID_begin(47);
-    return *(signed char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 3);
+    return *(signed char *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 3);
 }
 
 int QueenBoysWeaponPower(void)
 {
     char *g = isysGObjSearchFromObjKindID_begin(47);
-    return *(int *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 4);
+    return *(int *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 4);
 }
 
 float QueenBarrierRadius(char *a0)
 {
-    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14);
+    return *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x14);
 }
 
 int QueenBarrierInqBreakable(void)
@@ -1139,7 +1139,7 @@ int QueenBarrierInqBreakable(void)
 void queenBarrierBeforeFunc(char *g)
 {
     QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
-    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     char *other;
     int i;
 
@@ -1152,7 +1152,7 @@ void queenBarrierBeforeFunc(char *g)
             *(char *)(w + 0x11) = 1;
             other = isysGObjSearchFromObjKindID_begin(53);
             if (other != 0) {
-                *(char *)(*(char **)(*(char **)(other + 0x15C) + 0x830) + 0x1A) = 1;
+                *(char *)(*(char **)((char *)GOBJ_SUB(other) + 0x830) + 0x1A) = 1;
             }
             queen_barrier_set_damage();
         }
@@ -1167,7 +1167,7 @@ int InqQueenBarrierExist(void)
 
     g = isysGObjSearchFromObjKindID_begin(54);
     if (g != 0) {
-        exist = *(int *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 0x18) < 5;
+        exist = *(int *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 0x18) < 5;
     }
     return exist;
 }
@@ -1176,11 +1176,11 @@ void *InitQueenBarrierGeo(char *g)
 {
     char *w;
 
-    char *ext = *(char **)(g + 0x15C);
+    Sub15C *ext = GOBJ_SUB(g);
 
     w = (char *)iosMallocDebug(D_0063A438, 0x30, queenFile, 991);
     memset(w, 0, 0x30);
-    *(char **)(ext + 0x830) = w;
+    *(char **)((char *)ext + 0x830) = w;
     *(float *)(w + 0x14) = 300.0f;
     GetRootPosition(w, g);
     actInitialize(g);
@@ -1191,7 +1191,7 @@ void *InitQueenBarrierGeo(char *g)
 
 float QueenBallRadius(char *a0)
 {
-    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14) * 100.0f;
+    return *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x14) * 100.0f;
 }
 
 float GetQueenBallThickness(void)
@@ -1202,7 +1202,7 @@ float GetQueenBallThickness(void)
 void queenBallBeforeFunc(char *g)
 {
     QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
-    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     int i;
 
     for (i = 0; i < q->num; i++) {
@@ -1223,10 +1223,10 @@ void *InitQueenBallGeo(char *g)
 {
     char *w;
 
-    char *ext = *(char **)(g + 0x15C);
+    Sub15C *ext = GOBJ_SUB(g);
 
     w = (char *)iosMallocDebug(D_0063A438, 0x20, queenFile, 1284);
-    *(char **)(ext + 0x830) = w;
+    *(char **)((char *)ext + 0x830) = w;
     memset(w, 0, 0x20);
     *(float *)(w + 0x14) = 0.0f;
     GetRootPosition(w, g);
@@ -1237,7 +1237,7 @@ void *InitQueenBallGeo(char *g)
 
 void subQueenControl(volatile int g)
 {
-    signed char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    signed char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
     _ACTWait(1);
     for (;;) {

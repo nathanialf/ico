@@ -53,7 +53,7 @@ static inline float getAlign(float v, float g)
 static inline void alignPosition(char *self, float *dst, float *src, float grid)
 {
     float npos[4];
-    char *n = (char *)*(int *)(self + 0x15C);
+    char *n = (char *)(int)GOBJ_SUB(self);
     float cx = *(float *)(n + 0x50);
     float cz = *(float *)(n + 0x58);
 
@@ -75,10 +75,10 @@ int AlignBox(char *a0, float grid)
 {
     float pos[4];
     float quat[4];
-    char *sub = *(char **)(a0 + 0x15C);
-    char *q = *(char **)(sub + 0x830);
+    Sub15C *sub = GOBJ_SUB(a0);
+    char *q = *(char **)((char *)sub + 0x830);
 
-    GetInverseQuaternion(quat, sub + 0x60);
+    GetInverseQuaternion(quat, (char *)sub + 0x60);
     SetRootQuaternion(a0, quat);
     GetRootPosition(pos, a0);
     alignPosition(a0, pos, pos, grid);
@@ -121,17 +121,17 @@ extern void CopyQuaternion(void *dst, void *src);
 
 void initFloating(char *a0)
 {
-    char *p = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
 
-    *(int *)(*(int *)(a0 + 0x15C) + 0x70) = *(int *)(*(int *)(p + 0x160) + 0x70);
-    *(int *)(*(int *)(a0 + 0x15C) + 0x78) = 1;
-    CopyQuaternion((char *)*(int *)(a0 + 0x15C) + 0xC0, IdentityQuaternion);
+    GOBJ_SUB(a0)->f_70 = *(int *)(*(int *)(p + 0x160) + 0x70);
+    GOBJ_SUB(a0)->f_78 = 1;
+    CopyQuaternion((char *)(int)GOBJ_SUB(a0) + 0xC0, IdentityQuaternion);
     SetRootQuaternion(a0, IdentityQuaternion);
     CopyVector(p + 0xE0, ZeroVector);
     CopyVector(p + 0xC0, ZeroVector);
     CopyVector(p + 0xD0, ZeroVector);
     GetRootPosition(p + 0x100, a0);
-    CopyVector((char *)*(int *)(a0 + 0x15C) + 0x520, D_004E62A0);
+    CopyVector((char *)(int)GOBJ_SUB(a0) + 0x520, D_004E62A0);
     *(short *)(p + 0x118) = 0;
     execFloating(a0);
 }
@@ -143,7 +143,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", inertiaMove);
 
 inline int IsThisBoxTruck(char *a0)
 {
-    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x58);
+    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x58);
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", action);
@@ -162,7 +162,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", GetBoxHoldPoint);
 
 inline int CanHoldBox(char *a0)
 {
-    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20) == 0;
+    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x20) == 0;
 }
 
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
@@ -449,7 +449,7 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
     float hp[4];
     float pos[4];
     float mv[4];
-    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *q = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     int idx;
     int hit;
     float dot;
@@ -465,16 +465,15 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
     SetSimplePlane(plane, nv[0], nv[1], nv[2], -dot);
 
     idx = GetSkeltonFocusNode(a2, a3);
-    dist =
-        GetDistanceFromPlane(plane, *(char **)(*(char **)(a2 + 0x15C) + 0xC) + (idx << 6) + 0x30);
+    dist = GetDistanceFromPlane(plane, *(char **)((char *)GOBJ_SUB(a2) + 0xC) + (idx << 6) + 0x30);
 
     sceVu0ScaleVector(mv, nv, dist);
 
-    if (*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x58) != 0) {
+    if (*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x58) != 0) {
         float m[16];
 
         _ScaleVector(mv, mv, 0.05f);
-        MatrixDrive_SetTransposeMatrix(m, *(void **)(*(char **)(a0 + 0x15C) + 0xC));
+        MatrixDrive_SetTransposeMatrix(m, *(void **)((char *)GOBJ_SUB(a0) + 0xC));
         sceVu0ApplyMatrix(mv, m, mv);
         AddVectorXYZ(q + 0x40, q + 0x40, mv);
         if (onPath(a0) != 0) {
@@ -489,8 +488,7 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
     } else if (checkCharGObjs(a0, a2, a4) && checkBoxStopWall(a0, a4) &&
                CheckGeneratorCollision(a0, a4) && checkItemHit(a0, a4)) {
         *(int *)(q + 0x30) = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] *
-                             (GetNbMotionFrames(*(int *)(*(char **)(a2 + 0x15C) + 0x4A0)) - 1) /
-                             0x1E;
+                             (GetNbMotionFrames(GOBJ_SUB(a2)->f_4A0) - 1) / 0x1E;
         _ScaleVectorXYZ(q + 0x40, a4, 100.0f / (float)*(int *)(q + 0x30));
 
         hit = checkMoveWall(a0, a4);
@@ -510,8 +508,8 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
             CopyVector(*(char **)(*(char **)(*(char **)(q + 0x180) + 0x15C) + 0xC) + 0x30, npos);
             *(int *)(*(char **)(q + 0x180) + 0x16C) = 1;
         }
-        if (*(int *)(*(char **)(a2 + 0x15C) + 0x56C) != 0) {
-            *(BoxVec3 *)(q + 0x60) = *(BoxVec3 *)(*(char **)(a2 + 0x15C) + 0x190);
+        if (GOBJ_SUB(a2)->f_56C != 0) {
+            *(BoxVec3 *)(q + 0x60) = *(BoxVec3 *)((char *)GOBJ_SUB(a2) + 0x190);
         }
     } else {
         return 0;
@@ -527,15 +525,15 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
 inline int BoxRideFunc(int *a0, char *a1)
 {
     char *obj = (char *)*a0;
-    char *p15c = *(char **)(obj + 0x15C);
-    char *s0 = *(char **)(p15c + 0x830);
+    Sub15C *p15c = GOBJ_SUB(obj);
+    char *s0 = *(char **)((char *)p15c + 0x830);
     char buf[0x20];
     if (*(int *)(s0 + 0x20) != 5) {
         return 0;
     }
-    *(float *)(p15c + 0x134) += 0.5f;
+    p15c->f_134 += 0.5f;
     GetRootPosition(buf + 0x10, obj);
-    CopyVector(buf, *(char **)(a1 + 0x15C) + 0xA0);
+    CopyVector(buf, (char *)GOBJ_SUB(a1) + 0xA0);
     *(int *)(buf + 4) = 0;
     sceVu0AddVector(s0 + 0xD0, s0 + 0xD0, buf);
     return 1;
@@ -543,7 +541,7 @@ inline int BoxRideFunc(int *a0, char *a1)
 
 inline void ExecBoxMoveStartReaction(char *a0, int a1)
 {
-    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *q = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     if (*(int *)(q + 0x58) != 0) {
         if (*(int *)(q + 0x110) != 0) {
             goto end;
@@ -562,7 +560,7 @@ end:
 
 inline void ExecBoxMoveEndReaction(char *a0)
 {
-    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *q = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     if (*(int *)(q + 0x58) == 0 || *(int *)(q + 0x110) != 0) {
         StopSEPackage((int)a0);
         StopSEPackageWithGroupVariation((int)a0, 1);
@@ -582,14 +580,14 @@ extern char D_0061F138[];
 
 void ReInitBoxGeo(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
 
     debug_StdPrintfDummy(D_0061F0A0);
-    *(int *)(*(char **)(a0 + 0x15C) + 0x70) = *(int *)(p + 0x2C);
+    GOBJ_SUB(a0)->f_70 = *(int *)(p + 0x2C);
     if (checkFieldContact(a0, 100000.0f) == 0) {
         debug_StdPrintfDummy(D_0061F0B0);
     } else {
-        int m = *(int *)(*(char **)(a0 + 0x15C) + 0x5F8);
+        int m = GOBJ_SUB(a0)->f_5F8;
 
         if (m == 0x40 || m == 0x50) {
             initFloating(a0);
@@ -609,7 +607,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", InitBoxGeo);
 
 void BoxGeo(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
 
     action(a0);
     UpdateRootMatrix(a0);
@@ -627,7 +625,7 @@ extern int D_0028F4D4[];
 
 inline void BoxDL(char *a0)
 {
-    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *q = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     p2o_SetDefaultEnviroment((int)a0);
     p2o_DispVU1(a0);
     if (*(int *)(q + 0x58) != 0) {
@@ -635,7 +633,7 @@ inline void BoxDL(char *a0)
     }
     if (D_0028F4D4[0] != 0) {
         StopSEPackageWithGroupVariation((int)a0, 1);
-        *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x138) = 0;
+        *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x138) = 0;
     }
 }
 
@@ -665,5 +663,5 @@ inline int BoxMemoryFunc(void)
 
 int GetBoxMode(char *a0)
 {
-    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20);
+    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x20);
 }

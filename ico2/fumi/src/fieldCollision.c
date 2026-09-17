@@ -56,7 +56,7 @@ void MakeCollisionDependGObjList(void)
 
     D_0063A818 = 0;
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next()) {
-        sub = *(char **)(g + 0x15C);
+        sub = (char *)GOBJ_SUB(g);
         if (sub != 0 && *(int *)(sub + 0x70) != 0 && *(int *)(g + 0x16C) != 0 &&
             *(int *)(g + 0x4) == 1 && *(int *)(g + 0x8) >= 0 && *(int *)(sub + 0x74) != 0) {
             D_006C0CC0[D_0063A818] = g;
@@ -245,19 +245,19 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", _Clip);
 
 extern FcBlk8 D_0063A810;
 
-void __ClipWall(char *a0, int a1)
+void __ClipWall(ClipWork *a0, int a1)
 {
-    *(int *)(a0 + 0xB0) = 0;
-    *(int *)(a0 + 0x94) = 0;
-    *(int *)(a0 + 0x88) = 0;
-    *(FcBlk8 *)(a0 + 0x80) = D_0063A810;
+    a0->f_B0 = 0;
+    a0->floorHit = 0;
+    a0->wallHit = 0;
+    *(FcBlk8 *)a0->wallSrc = D_0063A810;
     _Clip(a0, a1);
 }
 
-void __ClipFloor(void *a0, int a1)
+void __ClipFloor(ClipWork *a0, int a1)
 {
-    *(int *)((char *)a0 + 0x94) = 0;
-    *(FcBlk8 *)((char *)a0 + 0x8C) = D_0063A810;
+    a0->floorHit = 0;
+    *(FcBlk8 *)a0->floorSrc = D_0063A810;
     _Clip(a0, a1);
 }
 
@@ -371,17 +371,17 @@ void DrawGObjFloorCollision(char *gobj, int col)
     int j;
 
     n = 1;
-    if (*(int *)(*(char **)(gobj + 0x15C) + 0x80) != 0) {
-        n = *(int *)(*(char **)(gobj + 0x15C) + 0x8);
+    if (GOBJ_SUB(gobj)->f_80 != 0) {
+        n = GOBJ_SUB(gobj)->f_8;
     }
-    cd = *(char **)(*(char **)(gobj + 0x15C) + 0x70);
+    cd = *(char **)((char *)GOBJ_SUB(gobj) + 0x70);
     gif_StartPacketPri(11);
     MatrixDrive_PushMatrix();
     gif_SetAlpha(1, 5, 0);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     for (i = 0; i < n; i++) {
-        CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(*(char **)(gobj + 0x15C) + 0xC) + (i << 6));
-        if (*(int *)(*(char **)(gobj + 0x15C) + 0x78) == 0) {
+        CopyMatrix(MatrixDrive_GetMatrix(), *(char **)((char *)GOBJ_SUB(gobj) + 0xC) + (i << 6));
+        if (GOBJ_SUB(gobj)->f_78 == 0) {
             UnitRotation(MatrixDrive_GetMatrix());
         }
         for (j = 0; j < *(int *)(cd + 0xC); j++) {
@@ -721,12 +721,12 @@ void GetOrientOfWall(void *a0, void *a1, int *a2)
     }
     *(int *)&buf[3] = 0;
     {
-        int *temp_3 = (int *)*(int *)((char *)obj + 0x15C);
+        int *temp_3 = (int *)(int)GOBJ_SUB(obj);
         if (temp_3 != 0 && *(int *)((char *)temp_3 + 0xC) != 0) {
             if (*(int *)((char *)temp_3 + 0x78) != 0) {
                 int *p5 = (int *)a2[0];
                 int idx = a2[1];
-                int *o3 = (int *)*(int *)((char *)p5 + 0x15C);
+                int *o3 = (int *)(int)GOBJ_SUB(p5);
                 sceVu0ApplyMatrix(a0, (void *)(*(int *)((char *)o3 + 0xC) + (idx << 6)), buf);
                 return;
             }
@@ -873,7 +873,7 @@ extern int D_0063C234;
 extern FuzioCtx *D_0063C238;
 extern short D_006C10C0[];
 
-int _clipWDebug(void *arg0, int arg1, int arg2)
+int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -884,10 +884,10 @@ int _clipWDebug(void *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 int e = D_0063C238->unk10 + (int)*p * 0x50;
                 if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                    *(int *)((char *)arg0 + 0x88) = e;
+                    arg0->wallHit = e;
                     ret = 1;
-                    *(int *)((char *)arg0 + 0x80) = arg1;
-                    *(int *)((char *)arg0 + 0x84) = arg2;
+                    arg0->wallSrc[0] = arg1;
+                    arg0->wallSrc[1] = arg2;
                 }
                 p++;
             }
@@ -896,7 +896,7 @@ int _clipWDebug(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipW(void *arg0, int arg1, int arg2)
+int _clipW(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -910,10 +910,10 @@ int _clipW(void *arg0, int arg1, int arg2)
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
                         if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                            *(int *)((char *)arg0 + 0x88) = e;
+                            arg0->wallHit = e;
                             ret = 1;
-                            *(int *)((char *)arg0 + 0x80) = arg1;
-                            *(int *)((char *)arg0 + 0x84) = arg2;
+                            arg0->wallSrc[0] = arg1;
+                            arg0->wallSrc[1] = arg2;
                         }
                     }
                 }
@@ -924,7 +924,7 @@ int _clipW(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipWE(void *arg0, int arg1, int arg2)
+int _clipWE(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -937,14 +937,13 @@ int _clipWE(void *arg0, int arg1, int arg2)
                 int val = *(int *)(e + 0x48);
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
-                        if (arg1 != *(int *)((char *)arg0 + 0x74) ||
-                            arg2 != *(int *)((char *)arg0 + 0x78) ||
-                            e != *(int *)((char *)arg0 + 0x7C)) {
+                        if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] ||
+                            e != arg0->skipElem) {
                             if (clip_wall_1(arg0, e, 0, 0) != 0) {
-                                *(int *)((char *)arg0 + 0x88) = e;
+                                arg0->wallHit = e;
                                 ret = 1;
-                                *(int *)((char *)arg0 + 0x80) = arg1;
-                                *(int *)((char *)arg0 + 0x84) = arg2;
+                                arg0->wallSrc[0] = arg1;
+                                arg0->wallSrc[1] = arg2;
                             }
                         }
                     }
@@ -956,7 +955,7 @@ int _clipWE(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipWEField(void *arg0, int arg1, int arg2)
+int _clipWEField(ClipWork *arg0, int arg1, int arg2)
 {
     int found = 0;
     int i;
@@ -967,14 +966,13 @@ int _clipWEField(void *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 int e = D_0063C238->unk10 + (int)*p * 0x50;
                 if ((*(int *)(e + 0x48) & 0xF0000000) == 0) {
-                    if (arg1 != *(int *)((char *)arg0 + 0x74) ||
-                        arg2 != *(int *)((char *)arg0 + 0x78) ||
-                        e != *(int *)((char *)arg0 + 0x7C)) {
+                    if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] ||
+                        e != arg0->skipElem) {
                         if (clip_wall_1(arg0, e, 0, 0) != 0) {
-                            *(int *)((char *)arg0 + 0x88) = e;
+                            arg0->wallHit = e;
                             found = 1;
-                            *(int *)((char *)arg0 + 0x80) = arg1;
-                            *(int *)((char *)arg0 + 0x84) = arg2;
+                            arg0->wallSrc[0] = arg1;
+                            arg0->wallSrc[1] = arg2;
                         }
                     }
                 }
@@ -985,7 +983,7 @@ int _clipWEField(void *arg0, int arg1, int arg2)
     return found;
 }
 
-int _clipWR(void *arg0, int arg1, int arg2)
+int _clipWR(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -999,10 +997,10 @@ int _clipWR(void *arg0, int arg1, int arg2)
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
                         if (clip_wall_1(arg0, e, 1, 1) != 0) {
-                            *(int *)((char *)arg0 + 0x88) = e;
+                            arg0->wallHit = e;
                             ret = 1;
-                            *(int *)((char *)arg0 + 0x80) = arg1;
-                            *(int *)((char *)arg0 + 0x84) = arg2;
+                            arg0->wallSrc[0] = arg1;
+                            arg0->wallSrc[1] = arg2;
                         }
                     }
                 }
@@ -1013,7 +1011,7 @@ int _clipWR(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipWField(void *arg0, int arg1, int arg2)
+int _clipWField(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -1025,10 +1023,10 @@ int _clipWField(void *arg0, int arg1, int arg2)
                 int e = D_0063C238->unk10 + (int)*p * 0x50;
                 if ((*(int *)(e + 0x48) & 0xF0000000) == 0) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                        *(int *)((char *)arg0 + 0x88) = e;
+                        arg0->wallHit = e;
                         ret = 1;
-                        *(int *)((char *)arg0 + 0x80) = arg1;
-                        *(int *)((char *)arg0 + 0x84) = arg2;
+                        arg0->wallSrc[0] = arg1;
+                        arg0->wallSrc[1] = arg2;
                     }
                 }
                 p++;
@@ -1038,7 +1036,7 @@ int _clipWField(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipWDitchHangWalkStop(void *arg0, int arg1, int arg2)
+int _clipWDitchHangWalkStop(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -1050,10 +1048,10 @@ int _clipWDitchHangWalkStop(void *arg0, int arg1, int arg2)
                 int e = D_0063C238->unk10 + (int)*p * 0x50;
                 if ((*(int *)(e + 0x48) & 0x30000000) != 0) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                        *(int *)((char *)arg0 + 0x88) = e;
+                        arg0->wallHit = e;
                         ret = 1;
-                        *(int *)((char *)arg0 + 0x80) = arg1;
-                        *(int *)((char *)arg0 + 0x84) = arg2;
+                        arg0->wallSrc[0] = arg1;
+                        arg0->wallSrc[1] = arg2;
                     }
                 }
                 p++;
@@ -1063,7 +1061,7 @@ int _clipWDitchHangWalkStop(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipWWaveForce(void *arg0, int arg1, int arg2)
+int _clipWWaveForce(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -1075,10 +1073,10 @@ int _clipWWaveForce(void *arg0, int arg1, int arg2)
                 int e = D_0063C238->unk10 + (int)*p * 0x50;
                 if ((*(int *)(e + 0x48) & 0xC0000000) == 0x40000000) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                        *(int *)((char *)arg0 + 0x88) = e;
+                        arg0->wallHit = e;
                         ret = 1;
-                        *(int *)((char *)arg0 + 0x80) = arg1;
-                        *(int *)((char *)arg0 + 0x84) = arg2;
+                        arg0->wallSrc[0] = arg1;
+                        arg0->wallSrc[1] = arg2;
                     }
                 }
                 p++;
@@ -1088,7 +1086,7 @@ int _clipWWaveForce(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipWBoxStop(void *arg0, int arg1, int arg2)
+int _clipWBoxStop(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -1102,10 +1100,10 @@ int _clipWBoxStop(void *arg0, int arg1, int arg2)
                 if ((val & 0x70000000) == 0) {
                     if ((val & 0xF0000) != 0x10000 || (val & 0xC0000000) == 0x80000000) {
                         if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                            *(int *)((char *)arg0 + 0x88) = e;
+                            arg0->wallHit = e;
                             ret = 1;
-                            *(int *)((char *)arg0 + 0x80) = arg1;
-                            *(int *)((char *)arg0 + 0x84) = arg2;
+                            arg0->wallSrc[0] = arg1;
+                            arg0->wallSrc[1] = arg2;
                         }
                     }
                 }
@@ -1116,7 +1114,7 @@ int _clipWBoxStop(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipWAdjustPos(void *arg0, int arg1, int arg2)
+int _clipWAdjustPos(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -1128,10 +1126,10 @@ int _clipWAdjustPos(void *arg0, int arg1, int arg2)
                 int e = D_0063C238->unk10 + (int)*p * 0x50;
                 if ((*(int *)(e + 0x48) & 0xC0000000) == 0xC0000000) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                        *(int *)((char *)arg0 + 0x88) = e;
+                        arg0->wallHit = e;
                         ret = 1;
-                        *(int *)((char *)arg0 + 0x80) = arg1;
-                        *(int *)((char *)arg0 + 0x84) = arg2;
+                        arg0->wallSrc[0] = arg1;
+                        arg0->wallSrc[1] = arg2;
                     }
                 }
                 p++;
@@ -1141,7 +1139,7 @@ int _clipWAdjustPos(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipF(void *arg0, int arg1, int arg2)
+int _clipF(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -1152,11 +1150,11 @@ int _clipF(void *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 int e = D_0063C238->unk14 + (int)*p * 0x70;
                 if (clip_floor_1(arg0, e, 0) != 0) {
-                    *(int *)((char *)arg0 + 0x94) = e;
+                    arg0->floorHit = e;
                     ret = 1;
-                    *(int *)((char *)arg0 + 0x8C) = arg1;
-                    *(int *)((char *)arg0 + 0x90) = arg2;
-                    *(int *)((char *)arg0 + 0x88) = 0;
+                    arg0->floorSrc[0] = arg1;
+                    arg0->floorSrc[1] = arg2;
+                    arg0->wallHit = 0;
                 }
                 p++;
             }
@@ -1165,7 +1163,7 @@ int _clipF(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipFE(void *arg0, int arg1, int arg2)
+int _clipFE(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -1175,14 +1173,13 @@ int _clipFE(void *arg0, int arg1, int arg2)
         if (p != 0) {
             while (*p >= 0) {
                 int e = D_0063C238->unk14 + (int)*p * 0x70;
-                if (arg1 != *(int *)((char *)arg0 + 0x74) ||
-                    arg2 != *(int *)((char *)arg0 + 0x78) || e != *(int *)((char *)arg0 + 0x7C)) {
+                if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] || e != arg0->skipElem) {
                     if (clip_floor_1(arg0, e, 0) != 0) {
-                        *(int *)((char *)arg0 + 0x94) = e;
+                        arg0->floorHit = e;
                         ret = 1;
-                        *(int *)((char *)arg0 + 0x8C) = arg1;
-                        *(int *)((char *)arg0 + 0x90) = arg2;
-                        *(int *)((char *)arg0 + 0x88) = 0;
+                        arg0->floorSrc[0] = arg1;
+                        arg0->floorSrc[1] = arg2;
+                        arg0->wallHit = 0;
                     }
                 }
                 p++;
@@ -1192,7 +1189,7 @@ int _clipFE(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipFIH(void *arg0, int arg1, int arg2)
+int _clipFIH(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -1204,11 +1201,11 @@ int _clipFIH(void *arg0, int arg1, int arg2)
                 int e = D_0063C238->unk14 + (int)*p * 0x70;
                 if ((*(int *)(e + 0x60) & 0xF0000) != 0x20000) {
                     if (clip_floor_1(arg0, e, 0) != 0) {
-                        *(int *)((char *)arg0 + 0x94) = e;
+                        arg0->floorHit = e;
                         ret = 1;
-                        *(int *)((char *)arg0 + 0x8C) = arg1;
-                        *(int *)((char *)arg0 + 0x90) = arg2;
-                        *(int *)((char *)arg0 + 0x88) = 0;
+                        arg0->floorSrc[0] = arg1;
+                        arg0->floorSrc[1] = arg2;
+                        arg0->wallHit = 0;
                     }
                 }
                 p++;
@@ -1218,7 +1215,7 @@ int _clipFIH(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-int _clipFR(void *arg0, int arg1, int arg2)
+int _clipFR(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -1229,11 +1226,11 @@ int _clipFR(void *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 int e = D_0063C238->unk14 + (int)*p * 0x70;
                 if (clip_floor_1(arg0, e, 1) != 0) {
-                    *(int *)((char *)arg0 + 0x94) = e;
+                    arg0->floorHit = e;
                     ret = 1;
-                    *(int *)((char *)arg0 + 0x8C) = arg1;
-                    *(int *)((char *)arg0 + 0x90) = arg2;
-                    *(int *)((char *)arg0 + 0x88) = 0;
+                    arg0->floorSrc[0] = arg1;
+                    arg0->floorSrc[1] = arg2;
+                    arg0->wallHit = 0;
                 }
                 p++;
             }

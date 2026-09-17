@@ -214,7 +214,7 @@ void actSt17aHasiChk(volatile int a0)
         scpPlayWaitMotEnd(D_00639EA8);
 
         scpPlayMot(D_00639EA8, 532);
-        *(int *)(*(int *)((char *)D_00639EA8 + 0x15C) + 0x514) =
+        GOBJ_SUB(D_00639EA8)->f_514 =
             (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
 
         scpPlayEnd(D_00639EA8);
@@ -241,7 +241,7 @@ void actSt17aHasiChk(volatile int a0)
 
         scpPlayMot(D_00639EA4, 0);
         scpPlayMot(D_00639EA8, 532);
-        *(int *)(*(int *)((char *)D_00639EA8 + 0x15C) + 0x514) =
+        GOBJ_SUB(D_00639EA8)->f_514 =
             (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
     }
 

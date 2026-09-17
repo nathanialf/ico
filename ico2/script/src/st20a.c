@@ -578,12 +578,12 @@ void actSt20aBridgeDownSub(volatile int a0)
 
 void actSt20aGondolaMain(volatile int a0)
 {
-    char *p = *(char **)(a0 + 0x164);
+    Act *p = GOBJ_ACT(a0);
 
     lt_switch_layout(54);
     D_0063AA08 = 0;
     scpWakeupEnemyAll();
-    *(char **)(p + 0xD0) = (char *)gondolaMain_mes;
+    *(char **)((char *)p + 0xD0) = (char *)gondolaMain_mes;
     while (1) {
         _ACTWait(1);
     }

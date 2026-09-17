@@ -24,7 +24,7 @@ int CageRideFunc(char **self, char *rider)
     float t;
 
     w = *(char **)(*(char **)(*self + 0x15C) + 0x830);
-    CopyVector(v, *(char **)(rider + 0x15C) + 0xA0);
+    CopyVector(v, (char *)GOBJ_SUB(rider) + 0xA0);
     v[1] = v[1] - 250.0f;
     sceVu0Normalize(n, v);
     d = FSqrt(n[0] * n[0] + n[2] * n[2]) * 50.0f;
@@ -48,7 +48,7 @@ int CageRideFunc(char **self, char *rider)
 
 void SetCageFixGeometry(char *self, void *pos, void *dir)
 {
-    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
 
     CopyVector(*(char **)(*(char **)(w + 0x20)) + 0x20, pos);
     CopyVector(w + 0x10, dir);
@@ -56,7 +56,7 @@ void SetCageFixGeometry(char *self, void *pos, void *dir)
 
 inline int GetCageChainPoint(char *a0, char *a1, char *a2)
 {
-    char *w = *(char **)(*(char **)(a2 + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(a2) + 0x830);
     CopyVector(a0, *(char **)(*(char **)(*(char **)(w + 0x20) + 8)));
     CopyVector(a1, *(char **)(*(char **)(*(char **)(w + 0x20) + 8)) + 0x10);
     *(float *)(a0 + 4) = *(float *)(a0 + 4) + 50.0f;
@@ -68,7 +68,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/cage", InitCageGeo);
 
 inline void SetCageChainHangableFlag(char *a0, int a1)
 {
-    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x40) = a1;
+    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x40) = a1;
 }
 
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
@@ -76,7 +76,7 @@ extern char ZeroVector[];
 
 void HotInitCageGeo(char *self)
 {
-    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
 
     CopyVector((void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
                ZeroVector);
@@ -119,7 +119,7 @@ inline void StabilizeAllLayoutedCage(void)
 
 inline void SetCageVelocityFriction(char *a0, float a1)
 {
-    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x3C) = a1;
+    *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x3C) = a1;
 }
 
 /* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
@@ -174,7 +174,7 @@ void CageGeo(char *self)
     char *n1;
     int i;
 
-    w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
 
     n0 = *(char **)(*(char **)(w + 0x20) + 8) + (*(int *)(w + 0x24) * 80 + 16);
     n1 = *(char **)(*(char **)(w + 0x20) + 8) + (*(int *)(w + 0x28) * 80 + 16);
@@ -217,18 +217,18 @@ void CageGeo(char *self)
         *(float *)(w + 0x3C));
 
     SetCageChainQuaternion(
-        *(char **)(*(char **)(self + 0x15C) + 0x10),
+        *(char **)((char *)GOBJ_SUB(self) + 0x10),
         (void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30),
         (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30));
-    RotQuaternionY(*(char **)(*(char **)(self + 0x15C) + 0x10), *(short *)(w + 0x34));
-    MultiQuaternion(*(char **)(*(char **)(self + 0x15C) + 0x10),
-                    *(char **)(*(char **)(self + 0x15C) + 0x10), w + 0x10);
-    RegularizeQuaternion(*(char **)(*(char **)(self + 0x15C) + 0x10));
+    RotQuaternionY(*(char **)((char *)GOBJ_SUB(self) + 0x10), *(short *)(w + 0x34));
+    MultiQuaternion(*(char **)((char *)GOBJ_SUB(self) + 0x10),
+                    *(char **)((char *)GOBJ_SUB(self) + 0x10), w + 0x10);
+    RegularizeQuaternion(*(char **)((char *)GOBJ_SUB(self) + 0x10));
     GetMatrixFromQuaternionPos(
-        MatrixDrive_GetMatrix(), *(char **)(*(char **)(self + 0x15C) + 0x10),
+        MatrixDrive_GetMatrix(), *(char **)((char *)GOBJ_SUB(self) + 0x10),
         (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30));
     MatrixDrive_TransMatrix(0.0f, 0.0f, 0.0f);
-    CopyMatrix(*(char **)(*(char **)(self + 0x15C) + 0x0C), MatrixDrive_GetMatrix());
+    CopyMatrix(*(char **)((char *)GOBJ_SUB(self) + 0x0C), MatrixDrive_GetMatrix());
 
     {
         float q[4];
@@ -253,7 +253,7 @@ void CageGeo(char *self)
 
 void CageDL(char *self)
 {
-    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
 
     p2o_DispVU1(self);
     p2o_DispVU1DObjMulti(*(void **)w);

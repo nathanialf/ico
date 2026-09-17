@@ -11,12 +11,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-/* newlib's reentrancy structure: only the init flag is read in this member. */
-struct _reent {
-    char pad00[0x38]; /* 0x00 */
-    int __sdidinit;   /* 0x38 */
-};
-
 extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern void fiprintf();
@@ -27,41 +21,12 @@ extern int __sfvwrite();
 
 /* The stdio stream, as this libc lays it out: __sbprintf builds one on its own
    stack so a line-buffered stream is written through a full-size buffer. */
-struct __sbuf {
-    unsigned char *_base; /* 0x0 */
-    int _size;            /* 0x4 */
-};
-
-typedef struct __sFILE {
-    unsigned char *_p;      /* 0x00 */
-    int _r;                 /* 0x04 */
-    int _w;                 /* 0x08 */
-    short _flags;           /* 0x0C */
-    short _file;            /* 0x0E */
-    struct __sbuf _bf;      /* 0x10 */
-    int _lbfsize;           /* 0x18 */
-    void *_cookie;          /* 0x1C */
-    int (*_read)();         /* 0x20 */
-    int (*_write)();        /* 0x24 */
-    int (*_seek)();         /* 0x28 */
-    int (*_close)();        /* 0x2C */
-    struct __sbuf _ub;      /* 0x30 */
-    unsigned char *_up;     /* 0x38 */
-    int _ur;                /* 0x3C */
-    unsigned char _ubuf[3]; /* 0x40 */
-    unsigned char _nbuf[1]; /* 0x43 */
-    struct __sbuf _lb;      /* 0x44 */
-    int _blksize;           /* 0x4C */
-    int _offset;            /* 0x50 */
-    struct _reent *_data;   /* 0x54 */
-} FILE;
-
 #define __SNBF 0x0002
 #define __SERR 0x0040
 #define BUFSIZ 1024
 #define EOF (-1)
 
-extern int fflush(FILE *fp);
+extern int fflush(Fil *fp);
 
 /* fvwrite.h */
 struct __siov {
@@ -78,7 +43,7 @@ struct __suio {
 /* census __sprint, a file static (sce/libc/stdio/vfiprintf holds the global);
    _vfprintf_r's stub calls it and the same-object definition binds first. */
 static int __sprint(fp, uio)
-FILE *fp;
+Fil *fp;
 
 register struct __suio *uio;
 
@@ -98,30 +63,30 @@ register struct __suio *uio;
 /* census __sbprintf, a file static (sce/libc/stdio/vfiprintf holds the global
    at 0x00280160); _vfprintf_r's stub calls it and the same-object definition
    binds first. */
-static int __sbprintf(FILE *fp, const char *fmt, void *ap)
+static int __sbprintf(Fil *fp, const char *fmt, void *ap)
 {
     int ret;
-    FILE fake;
+    Fil fake;
     unsigned char buf[BUFSIZ];
 
     /* copy the important variables */
-    fake._data = fp->_data;
-    fake._flags = fp->_flags & ~__SNBF;
-    fake._file = fp->_file;
-    fake._cookie = fp->_cookie;
-    fake._write = fp->_write;
+    fake.data = fp->data;
+    fake.flags = fp->flags & ~__SNBF;
+    fake.file = fp->file;
+    fake.cookie = fp->cookie;
+    fake.write = fp->write;
 
     /* set up the buffer */
-    fake._bf._base = fake._p = buf;
-    fake._bf._size = fake._w = sizeof(buf);
-    fake._lbfsize = 0;
+    fake.bf.base = fake.p = buf;
+    fake.bf.size = fake.w = sizeof(buf);
+    fake.lbfsize = 0;
 
     /* do the work, then copy any error status */
     ret = vfprintf(&fake, fmt, ap);
     if (ret >= 0 && fflush(&fake))
         ret = EOF;
-    if (fake._flags & __SERR)
-        fp->_flags |= __SERR;
+    if (fake.flags & __SERR)
+        fp->flags |= __SERR;
     return ret;
 }
 
@@ -150,14 +115,14 @@ typedef int wchar_t;
 #define __SERR 0x0040
 #define NULL 0
 
-extern int __sfvwrite(FILE *fp, struct __suio *uio);
-extern int __swsetup(FILE *fp);
-extern void __sinit(struct _reent *ptr);
-extern int _mbtowc_r(struct _reent *ptr, wchar_t *pwc, const char *s, int n, int *state);
+extern int __sfvwrite(Fil *fp, struct __suio *uio);
+extern int __swsetup(Fil *fp);
+extern void __sinit(Reent *ptr);
+extern int _mbtowc_r(Reent *ptr, wchar_t *pwc, const char *s, int n, int *state);
 extern void *memchr(const void *s, int c, int n);
 extern int isinf(double d);
 extern int isnan(double d);
-extern char *_dtoa_r(struct _reent *ptr, double d, int mode, int ndigits, int *decpt, int *sign,
+extern char *_dtoa_r(Reent *ptr, double d, int mode, int ndigits, int *decpt, int *sign,
                      char **rve);
 
 /* locale.h: only the first member is read here. */
@@ -170,16 +135,16 @@ extern struct lconv *localeconv(void);
 extern int D_0054CEB0;
 
 #define MB_CUR_MAX D_0054CEB0
-#define _REENT ((struct _reent *)D_0054CEAC[0])
+#define _REENT ((Reent *)D_0054CEAC[0])
 #define CHECK_INIT(fp)                                                                             \
     do {                                                                                           \
-        if ((fp)->_data == 0)                                                                      \
-            (fp)->_data = _REENT;                                                                  \
-        if (!(fp)->_data->__sdidinit)                                                              \
-            __sinit((fp)->_data);                                                                  \
+        if ((fp)->data == 0)                                                                       \
+            (fp)->data = _REENT;                                                                   \
+        if (!(fp)->data->sdidinit)                                                                 \
+            __sinit((fp)->data);                                                                   \
     } while (0)
-#define cantwrite(fp) ((((fp)->_flags & __SWR) == 0 || (fp)->_bf._base == NULL) && __swsetup(fp))
-#define __sferror(p) ((p)->_flags & __SERR)
+#define cantwrite(fp) ((((fp)->flags & __SWR) == 0 || (fp)->bf.base == NULL) && __swsetup(fp))
+#define __sferror(p) ((p)->flags & __SERR)
 #define to_digit(c) ((c) - '0')
 #define is_digit(c) ((unsigned)to_digit(c) <= 9)
 #define to_char(n) ((n) + '0')
@@ -202,13 +167,13 @@ union double_union {
 #define word0(x) (x.i[1])
 #define Sign_bit ((unsigned int)0x80000000L)
 
-static char *cvt(struct _reent *data, double value, int ndigits, int flags, char *sign, int *decpt,
-                 int ch, int *length);
+static char *cvt(Reent *data, double value, int ndigits, int flags, char *sign, int *decpt, int ch,
+                 int *length);
 
 static int exponent(char *p0, int exp, int fmtch);
 
 int vfprintf(fp, fmt0, ap)
-FILE *fp;
+Fil *fp;
 
 const char *fmt0;
 
@@ -216,13 +181,13 @@ va_list ap;
 
 {
     CHECK_INIT(fp);
-    return _vfprintf_r(fp->_data, fp, fmt0, ap);
+    return _vfprintf_r(fp->data, fp, fmt0, ap);
 }
 
 int _vfprintf_r(data, fp, fmt0, ap)
-struct _reent *data;
+Reent *data;
 
-FILE *fp;
+Fil *fp;
 
 const char *fmt0;
 
@@ -313,7 +278,7 @@ va_list ap;
         return (EOF);
 
     /* optimise fprintf(stderr) (and other unbuffered Unix files) */
-    if ((fp->_flags & (__SNBF | __SWR | __SRW)) == (__SNBF | __SWR) && fp->_file >= 0)
+    if ((fp->flags & (__SNBF | __SWR | __SRW)) == (__SNBF | __SWR) && fp->file >= 0)
         return (__sbprintf(fp, fmt0, ap));
 
     fmt = (char *)fmt0;
@@ -698,7 +663,7 @@ error:
 }
 
 static char *cvt(data, value, ndigits, flags, sign, decpt, ch, length)
-struct _reent *data;
+Reent *data;
 
 double value;
 

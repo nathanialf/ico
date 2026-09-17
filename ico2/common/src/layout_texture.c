@@ -47,7 +47,8 @@ typedef struct LtProperty {
     unsigned int fade_cancel : 1;
     unsigned int f6C_b3 : 1;
     unsigned int f6C_b4 : 1;
-    unsigned int f6C_b5 : 27;
+    unsigned int f6C_b5 : 1;
+    unsigned int f6C_b6 : 26;
 } LtProperty;
 
 extern LtProperty D_0030CFF8[];
@@ -321,14 +322,14 @@ void default_item_select(int no)
 
 static inline void lt_reset_property_chain(int no)
 {
-    int *p = (int *)((char *)D_00533FE8 + no * 0x38);
-    int i = p[0xC];
+    LtProp *p = &D_00533FE8[no];
+    int i = p->link;
 
     while (i >= 0) {
-        p = (int *)((char *)D_00533FE8 + i * 0x38);
-        p[0xB] = p[0xA];
-        p[9] = 1;
-        i = p[0xC];
+        p = &D_00533FE8[i];
+        p->f2C = p->f28;
+        p->f24 = 1;
+        i = p->link;
     }
 }
 
@@ -467,9 +468,9 @@ void exec_layout_texture(void)
     p = &D_00533FE8[D_0063B60C];
     for (;;) {
         for (j = p->first; j < p->last; j++) {
-            int *e = (int *)((char *)D_0030CFF8 + j * 0x70);
+            LtProperty *e = &D_0030CFF8[j];
 
-            e[0x1B] = (e[0x1B] & ~0x10) | (((unsigned int)e[0x1B] >> 1) & 0x10);
+            e->f6C_b4 = e->f6C_b5;
         }
         if (p->link >= 0) {
             list[n++] = p->link;
@@ -681,14 +682,14 @@ inline int lt_next_layout(int stage)
 
 inline void lt_mask_property(int idx, int flag)
 {
-    int *p = (int *)((char *)D_0030CFF8 + idx * 0x70);
-    p[0x1B] = (p[0x1B] & ~0x10) | ((flag & 1) << 4);
+    LtProperty *p = &D_0030CFF8[idx];
+    p->f6C_b4 = flag & 1;
 }
 
 inline void lt_default_mask_property(int idx, int flag)
 {
-    int *p = (int *)((char *)D_0030CFF8 + idx * 0x70);
-    p[0x1B] = (p[0x1B] & ~0x20) | ((flag & 1) << 5);
+    LtProperty *p = &D_0030CFF8[idx];
+    p->f6C_b5 = flag & 1;
 }
 
 inline int lt_fade_status(void)

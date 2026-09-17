@@ -838,7 +838,7 @@ void GetTargetOffset(char *gobj, float *v, unsigned char flag)
             D_002A5E60[2] = 0.0f;
         }
         _ApplyRyGV(ofs, (float)n * 3.1415927f / 180.0f);
-        p = *(char **)(gobj + 0x15C);
+        p = (char *)GOBJ_SUB(gobj);
         if (3.0f < FSqrt(*(float *)(p + 0x130) * *(float *)(p + 0x130) +
                          *(float *)(p + 0x138) * *(float *)(p + 0x138))) {
             sceVu0SubVector(w, ofs, D_002A5E60);

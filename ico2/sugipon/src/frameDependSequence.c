@@ -173,7 +173,7 @@ void playEff(int no)
         } else {
             GetRootQuaternion(q, D_0063B8AC);
             CopyMatrix(MatrixDrive_GetMatrix(),
-                       *(char **)(*(char **)(D_0063B8AC + 0x15C) + 0xC) + (node << 6));
+                       *(char **)((char *)GOBJ_SUB(D_0063B8AC) + 0xC) + (node << 6));
         }
     }
     MatrixDrive_TransMatrix(-D_00626278[no].x, -D_00626278[no].y, -D_00626278[no].z);
@@ -187,7 +187,7 @@ void playEff(int no)
     p = &D_00626278[no];
     flags = p->flags;
     if ((flags >> 1) & 1) {
-        pos[1] = *(float *)(*(char **)(D_0063B8AC + 0x15C) + 0x640);
+        pos[1] = GOBJ_SUB(D_0063B8AC)->f_640;
     }
     if (flags & 1) {
         EntryStageMultiBgaManager(D_00626278[no].eff, pos, q);
@@ -341,7 +341,7 @@ void ExecFrameDependSequence(void *gobj)
     char *p;
     int i;
 
-    w = *(char **)((char *)gobj + 0x15C);
+    w = (char *)GOBJ_SUB(gobj);
     p = w + 0x470;
     D_0063B8AC = gobj;
     D_0063B8A4 = p;
@@ -372,7 +372,7 @@ void ExecFrameDependSequence(void *gobj)
             }
         }
     }
-    if (*(int *)(*(char **)((char *)gobj + 0x15C) + 0x630) != 0) {
+    if (GOBJ_SUB(gobj)->f_630 != 0) {
         if (((FDSFlags *)D_0063B89C)->weaponDone == 0) {
             fireFDSSlot(((FDSRecord *)D_0063B8A8)->weapon.t, 0, 0,
                         &((FDSFlags *)D_0063B89C)->weaponDone, execWeaponLightOff);
@@ -504,7 +504,7 @@ extern void soundSeGroupStop(int a0);
 
 void StopSEPackageWithGroupVariation(int a0, int a1)
 {
-    int *p = *(int **)((char *)a0 + 0x15C);
+    int *p = (int *)GOBJ_SUB(a0);
     p += a1;
     soundSeGroupStop(p[0x187]);
 }
@@ -564,19 +564,19 @@ void StopFDSVibration(void *a0)
 
 inline int checkWaterDepth(void *a0, int a1)
 {
-    int *p = *(int **)((char *)a0 + 0x15C);
+    int *p = (int *)GOBJ_SUB(a0);
     return (int)(*(float *)((char *)p + 0x644)) < a1;
 }
 
 inline int checkModelDataID(void *a0, int a1)
 {
-    int *p = *(int **)((char *)a0 + 0x15C);
+    int *p = (int *)GOBJ_SUB(a0);
     return p[0x21] == a1;
 }
 
 inline int checkWeaponType(void *a0, int a1)
 {
-    int *p = *(int **)((char *)a0 + 0x15C);
+    int *p = (int *)GOBJ_SUB(a0);
     char *w = (char *)p[0x630 / 4];
     if (w != 0 && CheckWeaponKind(w) == a1) {
         return 1;

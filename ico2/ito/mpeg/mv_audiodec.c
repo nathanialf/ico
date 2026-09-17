@@ -21,59 +21,59 @@ extern int SgStPcmOpen(int *param);
 extern void SgStPcmSetEffect(int a0);
 extern int SgStPcmIopReadAddr(int ch);
 
-int audioDecCreate(int *self, int a1, int a2)
+int audioDecCreate(AudioDec *self, int a1, int a2)
 {
     int pcm[4];
     int p;
     int size = 0x6000;
     int bufsize = 0xC000;
 
-    *(char *)((char *)self + 0x60) = 0;
-    *(char *)((char *)self + 0x62) = 0;
-    *(char *)((char *)self + 0x61) = 0;
+    self->pcmInited = 0;
+    self->ch1Open = 0;
+    self->ch0Open = 0;
 
     p = alloc_zeroed(bufsize, 0x40);
     if (p == 0) {
         return -1;
     }
 
-    self[0] = 0;
-    self[0x2C / 4] = 0;
-    self[0x30 / 4] = p;
-    self[0x3C / 4] = bufsize;
-    self[0x34 / 4] = 0;
-    self[0x38 / 4] = 0;
-    self[0x40 / 4] = 0;
-    self[0x54 / 4] = 0;
-    self[0x48 / 4] = size;
-    self[0x4C / 4] = 0;
-    self[0x50 / 4] = 0;
+    self->state = 0;
+    self->headerBytes = 0;
+    self->ring = p;
+    self->ringSize = bufsize;
+    self->writePos = 0;
+    self->filled = 0;
+    self->putTotal = 0;
+    self->sentTotal = 0;
+    self->iopSize = size;
+    self->iopPos = 0;
+    self->f50 = 0;
 
-    self[0x44 / 4] = sceSifAllocIopHeap(size);
-    if (self[0x44 / 4] == 0) {
+    self->iopBuf = sceSifAllocIopHeap(size);
+    if (self->iopBuf == 0) {
         debug_StdPrintfDummy("Cannot allocate IOP memory\n");
         return 0;
     }
-    debug_StdPrintfDummy("Allocate IOP memory 0x%08x\n", self[0x44 / 4]);
+    debug_StdPrintfDummy("Allocate IOP memory 0x%08x\n", self->iopBuf);
 
-    *(char *)((char *)self + 0x58) = a1;
-    self[0x5C / 4] = a2;
+    self->mono = a1;
+    self->volume = a2;
     SgStPcmInit();
-    *(char *)((char *)self + 0x60) = 1;
+    self->pcmInited = 1;
 
     pcm[0] = 0;
     pcm[1] = 0x10400;
-    pcm[2] = self[0x44 / 4];
+    pcm[2] = self->iopBuf;
     pcm[3] = size;
-    if ((*(char *)((char *)self + 0x61) = (SgStPcmOpen(pcm) == 0)) == 0) {
+    if ((self->ch0Open = (SgStPcmOpen(pcm) == 0)) == 0) {
         return -1;
     }
 
     pcm[0] = 1;
     pcm[1] = 0x10400;
-    pcm[2] = self[0x44 / 4] + 0x200;
+    pcm[2] = self->iopBuf + 0x200;
     pcm[3] = size;
-    if ((*(char *)((char *)self + 0x62) = (SgStPcmOpen(pcm) == 0)) == 0) {
+    if ((self->ch1Open = (SgStPcmOpen(pcm) == 0)) == 0) {
         return -1;
     }
 
@@ -81,55 +81,55 @@ int audioDecCreate(int *self, int a1, int a2)
     return 0;
 }
 
-inline int audioDecDelete(int *self)
+inline int audioDecDelete(AudioDec *self)
 {
-    if (self[0x44 / 4]) {
-        if (sceSifFreeIopHeap(self[0x44 / 4]) < 0) {
-            debug_StdPrintfDummy("iop heap free failed 0x%08x\n", self[0x44 / 4]);
+    if (self->iopBuf) {
+        if (sceSifFreeIopHeap(self->iopBuf) < 0) {
+            debug_StdPrintfDummy("iop heap free failed 0x%08x\n", self->iopBuf);
         }
-        debug_StdPrintfDummy("free iop heap 0x%08x\n", self[0x44 / 4]);
-        self[0x44 / 4] = 0;
+        debug_StdPrintfDummy("free iop heap 0x%08x\n", self->iopBuf);
+        self->iopBuf = 0;
     }
-    if (*(signed char *)((char *)self + 0x61)) {
+    if (self->ch0Open) {
         SgStPcmClose(0);
     }
-    if (*(signed char *)((char *)self + 0x62)) {
+    if (self->ch1Open) {
         SgStPcmClose(1);
     }
-    if (*(signed char *)((char *)self + 0x60)) {
+    if (self->pcmInited) {
         SgStPcmQuit();
     }
     return 1;
 }
 
-inline void audioDecReset(int *self)
+inline void audioDecReset(AudioDec *self)
 {
     SgStPcmVolume(3, 0, 0);
     SgStPcmStop(3);
-    *(volatile int *)((char *)self + 0x50) = 0;
-    *(volatile int *)((char *)self + 0) = 0;
-    *(volatile int *)((char *)self + 0x2C) = 0;
-    *(volatile int *)((char *)self + 0x34) = 0;
-    *(volatile int *)((char *)self + 0x38) = 0;
-    *(volatile int *)((char *)self + 0x40) = 0;
-    *(volatile int *)((char *)self + 0x54) = 0;
-    *(volatile int *)((char *)self + 0x4C) = 0;
+    *(volatile int *)&self->f50 = 0;
+    *(volatile int *)&self->state = 0;
+    *(volatile int *)&self->headerBytes = 0;
+    *(volatile int *)&self->writePos = 0;
+    *(volatile int *)&self->filled = 0;
+    *(volatile int *)&self->putTotal = 0;
+    *(volatile int *)&self->sentTotal = 0;
+    *(volatile int *)&self->iopPos = 0;
 }
 
-void audioDecEndPut(int *self, int n)
+void audioDecEndPut(AudioDec *self, int n)
 {
     unsigned int k;
     unsigned int cnt;
     unsigned int room;
 
-    if (self[0] == 0) {
-        cnt = self[0x2C / 4];
+    if (self->state == 0) {
+        cnt = self->headerBytes;
         room = 40 - cnt;
         k = (room < n) ? room : n;
         cnt += k;
-        self[0x2C / 4] = cnt;
+        self->headerBytes = cnt;
         if (cnt >= 40) {
-            self[0] = 1;
+            self->state = 1;
             debug_StdPrintfDummy("-------- audio information --------------------\n");
             debug_StdPrintfDummy(
                 "[%c%c%c%c]\nheader size:                            %d\ntype(0:PCM big, 1:PCM "
@@ -137,41 +137,38 @@ void audioDecEndPut(int *self, int n)
                 "                          %d\ninterleave size:                        "
                 "%d\ninterleave start block address:         %d\ninterleave end block address:     "
                 "      %d\n",
-                *(signed char *)((char *)self + 4), *(signed char *)((char *)self + 5),
-                *(signed char *)((char *)self + 6), *(signed char *)((char *)self + 7), self[8 / 4],
-                self[0xC / 4], self[0x10 / 4], self[0x14 / 4], self[0x18 / 4], self[0x1C / 4],
-                self[0x20 / 4]);
+                self->id[0], self->id[1], self->id[2], self->id[3], self->headerSize, self->type,
+                self->sampleRate, self->channels, self->interleaveSize, self->interleaveStart,
+                self->interleaveEnd);
             debug_StdPrintfDummy("[%c%c%c%c]\ndata size:                              %d\n",
-                                 *(signed char *)((char *)self + 0x24),
-                                 *(signed char *)((char *)self + 0x25),
-                                 *(signed char *)((char *)self + 0x26),
-                                 *(signed char *)((char *)self + 0x27), self[0x28 / 4]);
+                                 self->dataId[0], self->dataId[1], self->dataId[2], self->dataId[3],
+                                 self->dataSize);
         }
         n -= k;
     }
-    self[0x34 / 4] = (self[0x34 / 4] + n) % self[0x3C / 4];
-    self[0x38 / 4] += n;
-    self[0x40 / 4] += n;
+    self->writePos = (self->writePos + n) % self->ringSize;
+    self->filled += n;
+    self->putTotal += n;
 }
 
-inline int audioDecIsPreset(int *self)
+inline int audioDecIsPreset(AudioDec *self)
 {
-    return *(int *)((char *)self + 0x54) >= *(int *)((char *)self + 0x48);
+    return self->sentTotal >= self->iopSize;
 }
 
-inline void audioDecStart(int *self)
+inline void audioDecStart(AudioDec *self)
 {
     SgStPcmLseek(0, 0);
     SgStPcmLseek(1, 0);
-    if (*(signed char *)((char *)self + 0x58)) {
-        int half = self[0x5C / 4] / 2;
+    if (self->mono) {
+        int half = self->volume / 2;
         SgStPcmVolume(3, half, half);
     } else {
-        SgStPcmVolume(1, 0, self[0x5C / 4]);
-        SgStPcmVolume(2, self[0x5C / 4], 0);
+        SgStPcmVolume(1, 0, self->volume);
+        SgStPcmVolume(2, self->volume, 0);
     }
     SgStPcmPlay(3);
-    self[0] = 2;
+    self->state = 2;
 }
 
 /* mv_audiodec.c:375-392 */
@@ -223,7 +220,7 @@ int sendToIOP2area(char *p0, int n0, char *p1, int n1, char *q0, int m0, char *q
     return total;
 }
 
-int audioDecSendToIOP(int *self)
+int audioDecSendToIOP(AudioDec *self)
 {
     char *p0;
     int n0;
@@ -239,19 +236,19 @@ int audioDecSendToIOP(int *self)
     int off;
     int lim;
 
-    switch (self[0]) {
+    switch (self->state) {
     case 0:
         return 0;
     case 1:
-        n0 = self[0x48 / 4] - self[0x54 / 4];
+        n0 = self->iopSize - self->sentTotal;
         p1 = 0;
         n1 = 0;
-        p0 = (char *)(self[0x44 / 4] + self[0x54 / 4] % self[0x48 / 4]);
+        p0 = (char *)(self->iopBuf + self->sentTotal % self->iopSize);
         break;
     case 2: {
         int rd = SgStPcmIopReadAddr(0);
-        int sz = self[0x48 / 4];
-        int cur = self[0x4C / 4];
+        int sz = self->iopSize;
+        int cur = self->iopPos;
         int want = (rd + sz - cur - 1024) % sz;
         int tail = sz - cur;
 
@@ -261,12 +258,12 @@ int audioDecSendToIOP(int *self)
             n0 = want;
             p1 = 0;
             n1 = 0;
-            p0 = (char *)(self[0x44 / 4] + cur);
+            p0 = (char *)(self->iopBuf + cur);
         } else {
             n0 = tail;
             n1 = want - n0;
-            p0 = (char *)(self[0x44 / 4] + cur);
-            p1 = (char *)self[0x44 / 4];
+            p0 = (char *)(self->iopBuf + cur);
+            p1 = (char *)self->iopBuf;
         }
         break;
     }
@@ -274,37 +271,37 @@ int audioDecSendToIOP(int *self)
         return 0;
     }
 
-    len = self[0x38 / 4];
-    rsz = self[0x3C / 4];
-    off = (self[0x34 / 4] - len + rsz) % rsz;
+    len = self->filled;
+    rsz = self->ringSize;
+    off = (self->writePos - len + rsz) % rsz;
     lim = len / 1024 * 1024;
     m0 = rsz - off;
-    q0 = (char *)(self[0x30 / 4] + off);
+    q0 = (char *)(self->ring + off);
     if (lim < m0) {
         m0 = lim;
     }
     m1 = lim - m0;
-    q1 = (char *)self[0x30 / 4];
+    q1 = (char *)self->ring;
 
     if (n0 + n1 >= 1024 && m0 + m1 >= 1024) {
         n = sendToIOP2area(p0, n0, p1, n1, q0, m0, q1, m1);
     }
 
-    self[0x38 / 4] = self[0x38 / 4] - n;
-    self[0x54 / 4] += n;
-    self[0x4C / 4] = (self[0x4C / 4] + n) % self[0x48 / 4];
+    self->filled = self->filled - n;
+    self->sentTotal += n;
+    self->iopPos = (self->iopPos + n) % self->iopSize;
     return n;
 }
 
-inline int audioDecPause(int a0)
+inline int audioDecPause(AudioDec *self)
 {
-    *(int *)a0 = 3;
+    self->state = 3;
     SgStPcmVolume(3, 0, 0);
     SgStPcmStop(3);
     return 0;
 }
 
-inline void audioDecResume(int *self)
+inline void audioDecResume(AudioDec *self)
 {
     audioDecStart(self);
 }
@@ -316,7 +313,7 @@ int pcmCallback(int a0, int *pkt, int *ctx)
     char *p1;
     int n1;
     int *b = (int *)ctx[0];
-    int *ad = (int *)ctx[1];
+    AudioDec *ad = (AudioDec *)ctx[1];
     unsigned int rd = pkt[2];
     int base = b[0];
     int n;
@@ -338,25 +335,25 @@ int pcmCallback(int a0, int *pkt, int *ctx)
     /* INTERIM: the listing inlines the mv_audiodec.c:205-232 begin-put helper
        here; written out because a pointer-output helper forces its four results
        into stack slots that ROM does not have */
-    if (ad[0] == 0) {
-        p0 = (char *)ad + (ad[0x2C / 4] + 4);
-        n0 = 40 - ad[0x2C / 4];
-        p1 = (char *)ad[0x30 / 4];
-        n1 = ad[0x3C / 4];
+    if (ad->state == 0) {
+        p0 = (char *)ad + (ad->headerBytes + 4);
+        n0 = 40 - ad->headerBytes;
+        p1 = (char *)ad->ring;
+        n1 = ad->ringSize;
     } else {
-        int room = ad[0x3C / 4] - ad[0x38 / 4];
-        int wr = ad[0x34 / 4];
-        int tail = ad[0x3C / 4] - wr;
+        int room = ad->ringSize - ad->filled;
+        int wr = ad->writePos;
+        int tail = ad->ringSize - wr;
 
         if (tail >= room) {
             tail = room;
             p1 = 0;
             n1 = 0;
-            p0 = (char *)(ad[0x30 / 4] + wr);
+            p0 = (char *)(ad->ring + wr);
         } else {
             n1 = room - tail;
-            p0 = (char *)(ad[0x30 / 4] + wr);
-            p1 = (char *)ad[0x30 / 4];
+            p0 = (char *)(ad->ring + wr);
+            p1 = (char *)ad->ring;
         }
         n0 = tail;
     }

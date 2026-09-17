@@ -48,14 +48,14 @@ void SetFlag4PointFixID(char *self, int a1, int id)
     char *w;
     short ang;
 
-    w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
     *(int *)(w + 0x10) = a1;
     _UnitMatrix(MatrixDrive_GetMatrix());
     ang = -a1 * 0x4000;
     MatrixDrive_RotMatrixZ(ang);
-    _ApplyMatrix(*(char **)(self + 0x15C) + 0xA0, MatrixDrive_GetMatrix(),
-                 *(char **)(self + 0x15C) + 0xA0);
-    RotQuaternionZ(*(char **)(self + 0x15C) + 0xD0, ang);
+    _ApplyMatrix((char *)GOBJ_SUB(self) + 0xA0, MatrixDrive_GetMatrix(),
+                 (char *)GOBJ_SUB(self) + 0xA0);
+    RotQuaternionZ((char *)GOBJ_SUB(self) + 0xD0, ang);
     setFlag4PointMesh(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), *(char **)(w + 0x8),
                       a1 * 0.25f, id);
     prim_UpdateMesh3D(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 0);
@@ -78,10 +78,10 @@ void FlagGeo(char *self)
     char *gd;
     char *o;
 
-    gd = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    gd = *(char **)((char *)GOBJ_SUB(self) + 0x830);
     o = *(char **)(gd + 0x4);
-    if (*(char **)(*(char **)(self + 0x15C)) != 0 &&
-        *(int *)(*(char **)(*(char **)(self + 0x15C)) + 0x16C) == 0) {
+    if (*(char **)((char *)GOBJ_SUB(self)) != 0 &&
+        *(int *)(*(char **)((char *)GOBJ_SUB(self)) + 0x16C) == 0) {
         return;
     }
     GetRootMatrix(MatrixDrive_GetMatrix(), self);
@@ -126,10 +126,10 @@ void FlagDL(char *self)
     int i;
     int n;
 
-    gd = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    gd = *(char **)((char *)GOBJ_SUB(self) + 0x830);
     o = *(char **)(gd + 0x4);
-    if (*(char **)(*(char **)(self + 0x15C)) != 0 &&
-        *(int *)(*(char **)(*(char **)(self + 0x15C)) + 0x16C) == 0) {
+    if (*(char **)((char *)GOBJ_SUB(self)) != 0 &&
+        *(int *)(*(char **)((char *)GOBJ_SUB(self)) + 0x16C) == 0) {
         return;
     }
     switch (*(int *)gd) {
@@ -147,20 +147,19 @@ void FlagDL(char *self)
             GetDifferencialQuaternionWithNoRegularize(&l40, &l30, &l10);
             MultiQuaternion(&l0, &l40, &l0);
             CopyVector(&l10, &l30);
-            GetMatrixFromQuaternionPos(*(char **)(*(char **)(self + 0x15C) + 0xC) +
-                                           (i * 0x40 - 0x40),
+            GetMatrixFromQuaternionPos(*(char **)((char *)GOBJ_SUB(self) + 0xC) + (i * 0x40 - 0x40),
                                        &l0, base + (i * 0x10 - 0x10));
         }
         p2o_DispVU1Multi(self);
         break;
     case 0:
-        light_MakeLightMatrix(*(char **)(self + 0x15C), 0);
-        m = *(char **)(*(char **)(self + 0x15C) + 0x874);
+        light_MakeLightMatrix((char *)GOBJ_SUB(self), 0);
+        m = (char *)GOBJ_SUB(self)->p_874;
         DispClothMesh(*(char **)(o + 0x4), m + 0x40, m);
         break;
     case 4:
-        light_MakeLightMatrix(*(char **)(self + 0x15C), 0);
-        m = *(char **)(*(char **)(self + 0x15C) + 0x874);
+        light_MakeLightMatrix((char *)GOBJ_SUB(self), 0);
+        m = (char *)GOBJ_SUB(self)->p_874;
         DispClothMesh(*(char **)(o + 0x4), m + 0x40, m);
         break;
     }

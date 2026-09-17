@@ -51,7 +51,7 @@ inline int SearchActiveGenerator(void)
 
     g = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
-        char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+        char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
         if (*(int *)(g + 0x16C) != 0) {
             if (*(int *)(w + 0x50) == 1) {
@@ -81,7 +81,7 @@ int CheckGeneratorCollision(char *gobj, float *dir)
     sceVu0AddVector(pos, pos, tmp);
 
     for (; g != 0; g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+        char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
         if (*(int *)(g + 0x16C) == 0) {
             continue;
@@ -181,7 +181,7 @@ extern int D_0028F4C0[];
 void switch_MainStatus(char *gobj, unsigned char st)
 {
     float pos[4];
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
 
     if (st == *(int *)(w + 0x50)) {
         return;
@@ -227,7 +227,7 @@ typedef struct GenBga {
    listing gives endfunc_BGA rows 468-478, outside its own 489-505 span. */
 static inline char *ResetCurrentBga(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
 
     if (*(int *)(w + 0x58) != -1) {
         char *e = w + *(int *)(w + 0x58) * 8;
@@ -251,7 +251,7 @@ static inline void EntryBga(char *gobj, char *w, int slot)
 
 void endfunc_BGA(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
 
     switch (*(int *)(w + 0x58)) {
     case 0: {
@@ -286,7 +286,7 @@ void endfunc_BGA(char *gobj)
 
 char *IsNeedGeneratorHard(char *mother)
 {
-    char *w = *(char **)(*(char **)(mother + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(mother) + 0x830);
     char *g;
     int count = 0;
     int isCalling = (*(int *)(w + 0x50) == 1);
@@ -310,9 +310,9 @@ char *IsNeedGeneratorHard(char *mother)
 
     for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        char *p = *(char **)(g + 0x164);
+        Act *p = GOBJ_ACT(g);
 
-        if ((unsigned int)(*(unsigned long long *)(p + 0x18) >> 34) & 1) {
+        if ((unsigned int)(*(unsigned long long *)((char *)p + 0x18) >> 34) & 1) {
             continue;
         }
         if (mother == 0 || (*(int *)(mother + 8) != GetMotherGeneratorLabelAskEnemy(g) &&
@@ -332,20 +332,20 @@ char *IsNeedGeneratorHard(char *mother)
 
     for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        char *p = *(char **)(g + 0x164);
+        Act *p = GOBJ_ACT(g);
 
-        count += (int)(*(unsigned long long *)(p + 0x18) >> 32) & 1;
+        count += (int)(*(unsigned long long *)((char *)p + 0x18) >> 32) & 1;
     }
 
     for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        char *p = *(char **)(g + 0x164);
+        Act *p = GOBJ_ACT(g);
         GVGeo2 *gv = &D_002C2DC8[*(int *)(g + 8)];
 
         if (*(int *)(g + 8) == 0xEAD) {
             continue;
         }
-        if ((unsigned int)(*(unsigned long long *)(p + 0x18) >> 34) & 1) {
+        if ((unsigned int)(*(unsigned long long *)((char *)p + 0x18) >> 34) & 1) {
             if (count < 5) {
                 continue;
             }
@@ -400,7 +400,7 @@ inline void *IsEnableCallEnemy(char *self)
 
     for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        char *p = *(char **)(g + 0x164);
+        Act *p = GOBJ_ACT(g);
         int no = *(int *)(g + 8);
         GVGeo2 *gg = &D_002C2DC8[no];
 
@@ -410,7 +410,7 @@ inline void *IsEnableCallEnemy(char *self)
         if (D_002C2DC8[no].f44 != 0 && self != 0 && D_002C2DC8[no].f44 != *(int *)(self + 8)) {
             continue;
         }
-        if ((unsigned int)(*(unsigned long long *)(p + 0x18) >> 34) & 1) {
+        if ((unsigned int)(*(unsigned long long *)((char *)p + 0x18) >> 34) & 1) {
             continue;
         }
         if ((gg->f48 >> 21) & 1) {
@@ -487,7 +487,7 @@ inline void RestoreReviveCount(char *gobj)
 
 void Generator_QuickCall(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
 
     *(int *)(w + 0x50) = 1;
     gamesysObjInfoUniqDataSet(gobj);
@@ -496,22 +496,22 @@ void Generator_QuickCall(char *gobj)
 
 inline void Generator_Call(char *a0)
 {
-    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) += 1;
+    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8) += 1;
 }
 
 inline void Generator_ResetCount(char *a0)
 {
-    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x12) = 1;
+    *(char *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x12) = 1;
 }
 
 inline void Generator_Mask(char *a0)
 {
-    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10) = 1;
+    *(char *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x10) = 1;
 }
 
 inline void Generator_MaskOff(char *a0)
 {
-    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x10) = 0;
+    *(char *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x10) = 0;
 }
 
 void Generator_Delete(void *a0)
@@ -720,7 +720,7 @@ inline int RestoreGeneratorGeo(float *dst, float *src)
 
 inline int RestoreGeneratorExtGeo(char *a0, short *a1)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     *(int *)(p + 0x50) = a1[0x18];
     *(int *)(p + 8) = a1[0x19];
     if (a1[0x18] == 1) {
@@ -732,7 +732,7 @@ inline int RestoreGeneratorExtGeo(char *a0, short *a1)
 
 inline int MemoryGenerator(short *a0, char *a1)
 {
-    char *p = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a1) + 0x830);
     a0[0] = *(unsigned short *)(p + 0x50);
     a0[1] = *(unsigned short *)(p + 8);
     return 1;
@@ -754,7 +754,7 @@ typedef struct GenReq {
 
 void generatorBeforeFunc(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     GenReq *q = (GenReq *)(gobj + 0x54);
     int i;
 
@@ -839,7 +839,7 @@ extern char *D_00639EA8;
    GeneratorGeo the rows 1262-1268, outside its own 1274-1410 span. */
 static inline void SetGeneratorAimVector(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     float m[16];
     float v[4];
 
@@ -872,7 +872,7 @@ static inline unsigned char IsGeneratorCalling(void)
 
     g = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
-        char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+        char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
         if (*(int *)(g + 0x16C) != 0) {
             if (*(int *)(w + 0xC) != 0) {
@@ -890,7 +890,7 @@ static inline unsigned char IsGeneratorCalling(void)
    GeneratorGeo the rows 761-776. */
 static inline void CallEnemyFromGenerator(char *gobj, float *pos, float *dir)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
 
     if (CallEnemy(gobj, pos, dir, *(int *)(w + 0x14)) != 0) {
         float mtx[4];
@@ -903,7 +903,7 @@ static inline void CallEnemyFromGenerator(char *gobj, float *pos, float *dir)
 
 void GeneratorGeo(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     int hard = 0;
     StgPre *sd = &D_005F5D50[stage_no];
     int noBoy = ((sd->flags >> 1) & 1) && D_00639EA8 == 0;
@@ -1042,7 +1042,7 @@ static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl)
 
 void GeneratorDL(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     GenBga *tbl = (GenBga *)(w + 0x30);
     int idx;
 
@@ -1069,12 +1069,12 @@ void GeneratorDL(char *gobj)
 
 inline int GeneratorWorkEnd(char *a0)
 {
-    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) == 0;
+    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8) == 0;
 }
 
 inline int IsOpenGenerator(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     int ret = 0;
     if (*(int *)(w + 0x50) == 1) {
         GVGeo2 *g = (GVGeo2 *)(*(int *)(gobj + 8) * sizeof(GVGeo2) + (char *)D_002C2DC8);

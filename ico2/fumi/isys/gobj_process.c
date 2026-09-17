@@ -1,14 +1,21 @@
 #include "common.h"
 #include "debug.h"
 #include "memory.h"
+#include "typedef.h"
 
 /* one process node: 0x4 owner GObj, 0x8 prev, 0xC next; the owner keeps the
    list head at +0x2C and the tail at +0x30 */
 typedef struct GProc {
-    char _p0[0x4];
-    char *owner;        /* 0x04 */
-    struct GProc *prev; /* 0x08 */
-    struct GProc *next; /* 0x0C */
+    struct GProc *self;    /* 0x00, the node itself while the entry is in use, 0 when free */
+    char *owner;           /* 0x04 */
+    struct GProc *prev;    /* 0x08 */
+    struct GProc *next;    /* 0x0C */
+    int noThread;          /* 0x10, set when the process runs inline instead of on a thread */
+    unsigned int priority; /* 0x14, the list is kept in ascending priority order */
+    int active;            /* 0x18 */
+    int func;              /* 0x1C, the body of an inline process */
+    char _p20[0x4];
+    char thread[0x70]; /* 0x24, the IOSThread a threaded process runs on */
 } GProc;
 
 extern void cut_gobj_process_link(GProc *p);
@@ -36,7 +43,7 @@ inline void isysGObjProcessAlloc(unsigned int a0)
     procMax = a0;
     procPool = (char *)ret;
     for (i = 0; i < a0; i++) {
-        *(int *)(procPool + i * 0x94) = 0;
+        ((GProc *)(procPool + i * 0x94))->self = 0;
     }
 }
 
@@ -46,7 +53,7 @@ static inline GProc *alloc_gobj_process(void)
     unsigned int j;
 
     for (i = 0; i < procMax; i++) {
-        if (*(int *)(procPool + i * 0x94) == 0) {
+        if (((GProc *)(procPool + i * 0x94))->self == 0) {
             break;
         }
     }
@@ -54,8 +61,8 @@ static inline GProc *alloc_gobj_process(void)
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         for (j = 0; j < procMax; j++) {
-            debug_StdPrintfDummy("id %d %x %x \n", *(int *)(procPool + j * 0x94),
-                                 *(int *)(procPool + j * 0x94 + 0x1C),
+            debug_StdPrintfDummy("id %d %x %x \n", ((GProc *)(procPool + j * 0x94))->self,
+                                 ((GProc *)(procPool + j * 0x94))->func,
                                  *(int *)(procPool + j * 0x94 + 0x5C));
         }
         return 0;
@@ -77,38 +84,38 @@ int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5)
         debug_StdPrintfDummy("isys:not enough memory for GObjProcess\n");
         return 0;
     }
-    *(GProc **)p = p;
+    p->self = p;
     if (a3 == 0) {
-        iosThreadCreateS((char *)p + 0x24, 1, a2, a1 ? a1 : (int)p, D_0063A430, a5, a4);
-        iosThreadStart((char *)p + 0x24);
-        *(int *)((char *)p + 0x1C) = 0;
+        iosThreadCreateS(p->thread, 1, a2, a1 ? a1 : (int)p, D_0063A430, a5, a4);
+        iosThreadStart(p->thread);
+        p->func = 0;
     } else {
-        *(int *)((char *)p + 0x1C) = a2;
+        p->func = a2;
     }
-    *(int *)((char *)p + 0x10) = a3;
+    p->noThread = a3;
     p->owner = (char *)a0;
-    *(int *)((char *)p + 0x18) = 1;
-    *(int *)((char *)p + 0x14) = a4;
-    h = *(GProc **)((char *)a0 + 0x2C);
+    p->active = 1;
+    p->priority = a4;
+    h = ((GObj *)a0)->procHead;
     if (h == 0) {
-        *(GProc **)((char *)p + 0xC) = 0;
-        *(GProc **)((char *)p + 0x8) = 0;
-        *(GProc **)((char *)a0 + 0x2C) = p;
-        *(GProc **)((char *)a0 + 0x30) = p;
-    } else if ((unsigned int)a4 < *(unsigned int *)((char *)h + 0x14)) {
-        *(GProc **)((char *)p + 0xC) = 0;
-        *(GProc **)((char *)p + 0x8) = *(GProc **)((char *)a0 + 0x2C);
+        p->next = 0;
+        p->prev = 0;
+        ((GObj *)a0)->procHead = p;
+        ((GObj *)a0)->procTail = p;
+    } else if ((unsigned int)a4 < h->priority) {
+        p->next = 0;
+        p->prev = ((GObj *)a0)->procHead;
         p->prev->next = p;
-        *(GProc **)((char *)a0 + 0x2C) = p;
+        ((GObj *)a0)->procHead = p;
     } else {
-        t = *(GProc **)((char *)a0 + 0x30);
-        if (!((unsigned int)a4 < *(unsigned int *)((char *)t + 0x14))) {
+        t = ((GObj *)a0)->procTail;
+        if (!((unsigned int)a4 < t->priority)) {
             p->next = t;
             p->prev = 0;
             t->prev = p;
-            *(GProc **)((char *)a0 + 0x30) = p;
+            ((GObj *)a0)->procTail = p;
         } else {
-            while (!((unsigned int)a4 < *(unsigned int *)((char *)h->prev + 0x14))) {
+            while (!((unsigned int)a4 < h->prev->priority)) {
                 h = h->prev;
             }
             p->next = h;
@@ -142,59 +149,59 @@ inline int isysGObjProcAddSGOppArg(int a, int b, int c, int d, int e)
 
 inline void isysGObjProcPause(char *self)
 {
-    *(int *)(self + 0x18) = 0;
+    ((GProc *)self)->active = 0;
 }
 
 inline void isysGObjProcPauseAll(int *p)
 {
-    int *cur = (int *)p[0x2C / 4];
+    GProc *cur = ((GObj *)p)->procHead;
     if (cur != 0) {
         do {
-            cur[0x18 / 4] = 0;
-            cur = (int *)cur[0x8 / 4];
+            cur->active = 0;
+            cur = cur->prev;
         } while (cur != 0);
     }
 }
 
 inline void isysGObjProcPausePtr(void *a0, int a1)
 {
-    int *p = *(int **)((char *)a0 + 0x2C);
+    GProc *p = ((GObj *)a0)->procHead;
     while (p != 0) {
-        if (*(int *)((char *)p + 0x1C) == a1) {
-            *(int *)((char *)p + 0x18) = 0;
+        if (p->func == a1) {
+            p->active = 0;
         }
-        p = *(int **)((char *)p + 0x8);
+        p = p->prev;
     }
 }
 
 inline void isysGObjProcActive(char *self)
 {
-    *(int *)(self + 0x18) = 1;
+    ((GProc *)self)->active = 1;
 }
 
 inline void isysGObjProcActiveAll(void *a0)
 {
-    int *p = *(int **)((char *)a0 + 0x2C);
+    GProc *p = ((GObj *)a0)->procHead;
     while (p != 0) {
-        *(int *)((char *)p + 0x18) = 1;
-        p = *(int **)((char *)p + 0x8);
+        p->active = 1;
+        p = p->prev;
     }
 }
 
 inline void isysGObjProcActivePtr(void *a0, int a1)
 {
-    int *p = *(int **)((char *)a0 + 0x2C);
+    GProc *p = ((GObj *)a0)->procHead;
     while (p != 0) {
-        if (*(int *)((char *)p + 0x1C) == a1) {
-            *(int *)((char *)p + 0x18) = 1;
+        if (p->func == a1) {
+            p->active = 1;
         }
-        p = *(int **)((char *)p + 0x8);
+        p = p->prev;
     }
 }
 
 inline void free_gobj_process_resource(char *self)
 {
-    *(int *)(self + 0x0) = 0;
+    ((GProc *)self)->self = 0;
 }
 
 void cut_gobj_process_link(GProc *p)
@@ -213,11 +220,11 @@ void cut_gobj_process_link(GProc *p)
             p->prev->next = p->next;
         }
     }
-    if (p == *(GProc **)(p->owner + 0x2C)) {
-        *(GProc **)(p->owner + 0x2C) = p->prev;
+    if (p == ((GObj *)p->owner)->procHead) {
+        ((GObj *)p->owner)->procHead = p->prev;
     }
-    if (p == *(GProc **)(p->owner + 0x30)) {
-        *(GProc **)(p->owner + 0x30) = p->next;
+    if (p == ((GObj *)p->owner)->procTail) {
+        ((GObj *)p->owner)->procTail = p->next;
     }
 }
 
@@ -235,10 +242,10 @@ void isysGObjProcRemove(int *a0)
 
 inline void isysGObjProcRemoveAll(void *a0)
 {
-    void *p = *(void **)((char *)a0 + 0x2C);
+    GProc *p = ((GObj *)a0)->procHead;
     while (p != 0) {
-        isysGObjProcRemove(p);
-        p = *(void **)((char *)p + 0x8);
+        isysGObjProcRemove((int *)p);
+        p = p->prev;
     }
 }
 

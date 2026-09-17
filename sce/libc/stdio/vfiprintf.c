@@ -31,68 +31,41 @@ int __sprint(int a0, int *a1)
 }
 
 /* newlib's struct __sFILE for this build; the tail padding is what puts
-   __sbprintf's 0x400-byte buffer at sp+0x60 behind the fake FILE at sp+0. */
-typedef struct {
-    char *_p;               /* 0x0 */
-    int _r;                 /* 0x4 */
-    int _w;                 /* 0x8 */
-    short _flags;           /* 0xC */
-    short _file;            /* 0xE */
-    char *_bf_base;         /* 0x10 */
-    int _bf_size;           /* 0x14 */
-    int _lbfsize;           /* 0x18 */
-    void *_cookie;          /* 0x1C */
-    int _read;              /* 0x20 */
-    int _write;             /* 0x24 */
-    int _seek;              /* 0x28 */
-    int _close;             /* 0x2C */
-    char *_ub_base;         /* 0x30 */
-    int _ub_size;           /* 0x34 */
-    char *_up;              /* 0x38 */
-    int _ur;                /* 0x3C */
-    unsigned char _ubuf[3]; /* 0x40 */
-    unsigned char _nbuf[1]; /* 0x43 */
-    char *_lb_base;         /* 0x44 */
-    int _lb_size;           /* 0x48 */
-    int _blksize;           /* 0x4C */
-    int _offset;            /* 0x50 */
-    void *_data;            /* 0x54 */
-} FileS;
-
+   __sbprintf's 0x400-byte buffer at sp+0x60 behind the fake Fil at sp+0. */
 extern int fflush();
 extern int vfiprintf(char *fp, char *fmt, void *ap);
 
-int __sbprintf(FileS *fp, char *fmt, void *ap)
+int __sbprintf(Fil *fp, char *fmt, void *ap)
 {
-    FileS fake;
+    Fil fake;
     unsigned char buf[0x400];
     int ret;
 
     /* copy the important variables */
-    fake._data = fp->_data;
-    fake._flags = fp->_flags & ~2;
-    fake._file = fp->_file;
-    fake._cookie = fp->_cookie;
-    fake._write = fp->_write;
+    fake.data = fp->data;
+    fake.flags = fp->flags & ~2;
+    fake.file = fp->file;
+    fake.cookie = fp->cookie;
+    fake.write = fp->write;
 
     /* set up the buffer */
-    fake._bf_base = fake._p = (char *)buf;
-    fake._bf_size = fake._w = sizeof(buf);
-    fake._lbfsize = 0;
+    fake.bf.base = fake.p = (char *)buf;
+    fake.bf.size = fake.w = sizeof(buf);
+    fake.lbfsize = 0;
 
     /* do the work, then copy any error status */
     ret = vfiprintf((char *)&fake, fmt, ap);
     if (ret >= 0 && fflush(&fake)) {
         ret = -1;
     }
-    if (fake._flags & 0x40) {
-        fp->_flags |= 0x40;
+    if (fake.flags & 0x40) {
+        fp->flags |= 0x40;
     }
     return ret;
 }
 
 extern void __sinit(void *r);
-extern int _vfiprintf_r(void *r, FileS *fp, const char *fmt, char *ap);
+extern int _vfiprintf_r(void *r, Fil *fp, const char *fmt, char *ap);
 
 int vfiprintf(char *fp, char *fmt0, void *ap)
 {
@@ -103,7 +76,7 @@ int vfiprintf(char *fp, char *fmt0, void *ap)
         if (*(int *)(*(char **)(fp + 0x54) + 0x38) == 0)
             __sinit(*(char **)(fp + 0x54));
     } while (0);
-    return _vfiprintf_r(*(char **)(fp + 0x54), (FileS *)fp, fmt0, ap);
+    return _vfiprintf_r(*(char **)(fp + 0x54), (Fil *)fp, fmt0, ap);
 }
 
 /* newlib's vfprintf.c built INTEGER_ONLY (so the entry point is
@@ -128,7 +101,7 @@ struct __suio {
     int uio_resid;          /* 0x8 */
 };
 
-extern int __swsetup(FileS *fp);
+extern int __swsetup(Fil *fp);
 extern int _mbtowc_r(void *r, int *pwc, const char *s, int n, int *state);
 extern char *memchr(const char *s, int c, int n);
 extern int D_0054CEB0; /* __mb_cur_max */
@@ -170,7 +143,7 @@ static const char blanks[PADSIZE] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
 static const char zeroes[PADSIZE] = {'0', '0', '0', '0', '0', '0', '0', '0',
                                      '0', '0', '0', '0', '0', '0', '0', '0'};
 
-int _vfiprintf_r(void *data, FileS *fp, const char *fmt0, char *ap)
+int _vfiprintf_r(void *data, Fil *fp, const char *fmt0, char *ap)
 {
     register const char *fmt;     /* format string */
     register int ch;              /* character from fmt */
@@ -244,13 +217,13 @@ int _vfiprintf_r(void *data, FileS *fp, const char *fmt0, char *ap)
     state = 0;
 
     /* sorry, fprintf(read_only_file, "") returns EOF, not 0 */
-    if ((fp->_flags & 0x8) == 0 || fp->_bf_base == NULL) {
+    if ((fp->flags & 0x8) == 0 || fp->bf.base == NULL) {
         if (__swsetup(fp))
             return -1;
     }
 
     /* optimise fprintf(stderr) (and other unbuffered Unix files) */
-    if ((fp->_flags & (0x2 | 0x8 | 0x10)) == (0x2 | 0x8) && fp->_file >= 0)
+    if ((fp->flags & (0x2 | 0x8 | 0x10)) == (0x2 | 0x8) && fp->file >= 0)
         return __sbprintf(fp, (char *)fmt0, ap);
 
     fmt = fmt0;
@@ -580,7 +553,7 @@ int _vfiprintf_r(void *data, FileS *fp, const char *fmt0, char *ap)
 done:
     FLUSH();
 error:
-    return (fp->_flags & 0x40) ? -1 : ret;
+    return (fp->flags & 0x40) ? -1 : ret;
     /* NOTREACHED */
 }
 

@@ -11,9 +11,9 @@ struct D520 {
 
 extern void fiprintf();
 extern void abort(void);
-extern int __srefill(StreamBuf *s);
+extern int __srefill(Fil *s);
 
-int fread(char *dst, int size, int count, StreamBuf *s)
+int fread(char *dst, int size, int count, Fil *s)
 {
     unsigned int total = count * size;
     int len;
@@ -24,9 +24,9 @@ int fread(char *dst, int size, int count, StreamBuf *s)
     if (total == 0) {
         return 0;
     }
-    len = s->len;
+    len = s->r;
     if (len < 0) {
-        s->len = 0;
+        s->r = 0;
         len = 0;
     }
     avail = len;
@@ -34,18 +34,18 @@ int fread(char *dst, int size, int count, StreamBuf *s)
     p = dst;
     if (avail < total) {
         do {
-            memcpy(p, s->pos, avail);
+            memcpy(p, s->p, avail);
             total -= avail;
             p += avail;
-            s->pos += avail;
+            s->p += avail;
             if (__srefill(s) != 0) {
                 return (total_orig - total) / size;
             }
-            avail = s->len;
+            avail = s->r;
         } while (avail < total);
     }
-    memcpy(p, s->pos, total);
-    s->len -= total;
-    s->pos += total;
+    memcpy(p, s->p, total);
+    s->r -= total;
+    s->p += total;
     return count;
 }

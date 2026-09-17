@@ -140,18 +140,17 @@ void outerProcess(int act)
 
     if ((D_0028F8F0[1].flags & 0x20) != 0) {
         n = GetSkeltonFocusNode(D_00639EA4, 22);
-        GetWormRoute(
-            act, (WormVec *)(*(char **)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + n * 0x40 + 0x30));
+        GetWormRoute(act,
+                     (WormVec *)(*(char **)((char *)GOBJ_SUB(D_00639EA4) + 0xC) + n * 0x40 + 0x30));
         SetWormReduceRatio(act, 1.0f);
     }
 
     if ((D_0028F8F0[1].unk00 & 0x40) != 0) {
         n = GetSkeltonFocusNode(D_00639EA4, 22);
         SetDirectWormTargetPos(act,
-                               *(char **)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + n * 0x40 + 0x30);
-        GetWormCaptureVector(v, (void *)act,
-                             *(char **)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + n * 0x40 + 0x30,
-                             5.0f);
+                               *(char **)((char *)GOBJ_SUB(D_00639EA4) + 0xC) + n * 0x40 + 0x30);
+        GetWormCaptureVector(
+            v, (void *)act, *(char **)((char *)GOBJ_SUB(D_00639EA4) + 0xC) + n * 0x40 + 0x30, 5.0f);
         GetRootPosition(p, D_00639EA4);
         sceVu0AddVector(p, p, v);
         SetDirectRootPosition(D_00639EA4, p);
@@ -222,7 +221,7 @@ void simulate(WormVec *v, int n, float len)
 void getAnimation(int act)
 {
     float tmp[4];
-    WormWork *w = *(WormWork **)(*(int *)(act + 0x15C) + 0x830);
+    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
     WormRoute *r = w->route;
     int i, j;
 
@@ -255,7 +254,7 @@ void disp(void *act)
 {
     unsigned short ax;
     unsigned short az;
-    WormWork *w = *(WormWork **)(*(int *)((char *)act + 0x15C) + 0x830);
+    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
     WormRoute *r = w->route;
     int i;
     int j;
@@ -278,7 +277,7 @@ void disp(void *act)
             MatrixDrive_PushMatrix();
             MatrixDrive_ScaleMatrix(2.0f, len[j - 1] * 0.02f, 2.0f);
             MatrixDrive_RotMatrixX(-0x8000);
-            CopyMatrix(*(char **)(*(int *)((char *)act + 0x15C) + 0xC) + (j * 0x40 - 0x40),
+            CopyMatrix(*(char **)((int)GOBJ_SUB(act) + 0xC) + (j * 0x40 - 0x40),
                        MatrixDrive_GetMatrix());
             MatrixDrive_PopMatrix();
 
@@ -305,7 +304,7 @@ void disp(void *act)
                 gif_EndPacket();
             }
         }
-        p2o_DispVU1DObjMulti(*(char **)((char *)act + 0x15C));
+        p2o_DispVU1DObjMulti((char *)GOBJ_SUB(act));
     }
 }
 
@@ -320,13 +319,13 @@ typedef union {
 
 inline void SetWormReduceRatio(int a0, float f12)
 {
-    ((WormFI *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8))->f = f12;
+    ((WormFI *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8))->f = f12;
 }
 
 void GetWormRoute(int act, WormVec *target)
 {
     WormVec d;
-    WormWork *w = *(WormWork **)(*(int *)(act + 0x15C) + 0x830);
+    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
     WormRoute *r = w->route;
     int i;
     int j;
@@ -357,7 +356,7 @@ void GetWormRoute(int act, WormVec *target)
 
 inline void SetDirectWormTargetPos(int act, void *pos)
 {
-    WormWork *w = *(WormWork **)(*(int *)(act + 0x15C) + 0x830);
+    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
     WormRoute *r = w->route;
     int i;
 
@@ -371,7 +370,7 @@ inline void SetDirectWormTargetPos(int act, void *pos)
 
 inline void TraceWormRoute(int act, float t)
 {
-    WormWork *w = *(WormWork **)(*(int *)(act + 0x15C) + 0x830);
+    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
     WormRoute *r = w->route;
     int i, j;
     float step = t * 8.99999f;
@@ -412,7 +411,7 @@ static inline void ResetWormRoute(int act, WormWork *w)
 
 void *InitWormGeo(int act, WormInit *ini)
 {
-    char *d = *(char **)(act + 0x15C);
+    Sub15C *d = GOBJ_SUB(act);
     WormWork *w;
     WormSeg *seg;
     int nseg;
@@ -452,63 +451,63 @@ void *InitWormGeo(int act, WormInit *ini)
     w->ratio = 1.0f;
     w->route = (WormRoute *)InitChains((char *)seg);
 
-    *(float *)(*(char **)(d + 0x870) + 0x8) = 0.0f;
-    *(float *)(*(char **)(d + 0x870) + 0x4) = 0.0f;
-    *(float *)(*(char **)(d + 0x870) + 0x0) = 0.0f;
+    *(float *)(*(char **)((char *)d + 0x870) + 0x8) = 0.0f;
+    *(float *)(*(char **)((char *)d + 0x870) + 0x4) = 0.0f;
+    *(float *)(*(char **)((char *)d + 0x870) + 0x0) = 0.0f;
 
-    *(float *)(*(char **)(d + 0x870) + 0x28) = 1.0f;
-    *(float *)(*(char **)(d + 0x870) + 0x24) = 1.0f;
-    *(float *)(*(char **)(d + 0x870) + 0x20) = 1.0f;
+    *(float *)(*(char **)((char *)d + 0x870) + 0x28) = 1.0f;
+    *(float *)(*(char **)((char *)d + 0x870) + 0x24) = 1.0f;
+    *(float *)(*(char **)((char *)d + 0x870) + 0x20) = 1.0f;
 
-    if (*(int *)(d + 0xC) != 0) {
-        iosFree(*(int *)(d + 0xC) & 0xFFFFFFF);
+    if (d->f_C != 0) {
+        iosFree(d->f_C & 0xFFFFFFF);
     }
-    if (*(int *)(d + 0x10) != 0) {
-        iosFree(*(int *)(d + 0x10) & 0xFFFFFFF);
+    if (d->f_10 != 0) {
+        iosFree(d->f_10 & 0xFFFFFFF);
     }
-    *(int *)(d + 0xC) = 0;
-    *(int *)(d + 0x10) = 0;
-    *(int *)(d + 0xC) = (int)iosMallocDebug(D_0063A44C, num * 0x40, __FILE__, 367);
-    *(int *)(d + 0x10) = (int)iosMallocDebug(D_0063A44C, num * 0x10, __FILE__, 367);
-    *(int *)(d + 0x8) = num;
-    if (*(int *)(d + 0x870) != 0) {
-        iosFree(*(int *)(d + 0x870) & 0xFFFFFFF);
+    d->f_C = 0;
+    d->f_10 = 0;
+    d->f_C = (int)iosMallocDebug(D_0063A44C, num * 0x40, __FILE__, 367);
+    d->f_10 = (int)iosMallocDebug(D_0063A44C, num * 0x10, __FILE__, 367);
+    d->f_8 = num;
+    if (*(int *)((char *)d + 0x870) != 0) {
+        iosFree(*(int *)((char *)d + 0x870) & 0xFFFFFFF);
     }
-    *(int *)(d + 0x870) = (int)iosMallocDebug(D_0063A44C, num * 0x50, __FILE__, 367);
+    *(int *)((char *)d + 0x870) = (int)iosMallocDebug(D_0063A44C, num * 0x50, __FILE__, 367);
     {
         int n;
 
         for (n = 0; n < num; n++) {
-            ((WormFlag *)(*(char **)(d + 0x870) + n * 0x50 + 0x38))->ll &= ~1;
-            ((WormFlag *)(*(char **)(d + 0x870) + n * 0x50 + 0x38))->ll &= ~2;
-            *(float *)(*(char **)(d + 0x870) + n * 0x50 + 0x40) = 0.0f;
-            *(float *)(*(char **)(d + 0x870) + n * 0x50 + 0x44) = 0.0f;
-            *(float *)(*(char **)(d + 0x870) + n * 0x50 + 0x48) = 0.0f;
-            *(float *)(*(char **)(d + 0x870) + n * 0x50 + 0x4C) = 1.0f;
-            ((WormFlag *)(*(char **)(d + 0x870) + n * 0x50 + 0x38))->ll &= ~4;
-            *(int *)(*(char **)(d + 0x870) + n * 0x50 + 0x30) = 0;
-            *(float *)(*(char **)(d + 0x870) + n * 0x50 + 0x34) = 1.0f;
-            *(short *)(*(char **)(d + 0x870) + n * 0x50 + 0x3A) = 0;
-            *(float *)(*(char **)(d + 0x870) + n * 0x50 + 0x20) = 1.0f;
-            *(float *)(*(char **)(d + 0x870) + n * 0x50 + 0x24) = 1.0f;
-            *(float *)(*(char **)(d + 0x870) + n * 0x50 + 0x28) = 1.0f;
+            ((WormFlag *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x38))->ll &= ~1;
+            ((WormFlag *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x38))->ll &= ~2;
+            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x40) = 0.0f;
+            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x44) = 0.0f;
+            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x48) = 0.0f;
+            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x4C) = 1.0f;
+            ((WormFlag *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x38))->ll &= ~4;
+            *(int *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x30) = 0;
+            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x34) = 1.0f;
+            *(short *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x3A) = 0;
+            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x20) = 1.0f;
+            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x24) = 1.0f;
+            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x28) = 1.0f;
         }
     }
-    *(short *)(d + 0x84C) = 2;
+    *(short *)((char *)d + 0x84C) = 2;
 
     return w;
 }
 
 void GetWormCaptureVector(void *out, void *act, void *node, float scale)
 {
-    sceVu0SubVector(out, (void *)(*(int *)((char *)act + 0x15C) + 0x50), node);
+    sceVu0SubVector(out, (void *)((int)GOBJ_SUB(act) + 0x50), node);
     sceVu0Normalize(out, out);
     sceVu0ScaleVector(out, out, scale);
 }
 
 void WormGeo(int act)
 {
-    WormWork *w = *(WormWork **)(*(int *)(act + 0x15C) + 0x830);
+    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
 
     if (D_0063BC80 != 0) {
         ResetWormRoute(act, w);

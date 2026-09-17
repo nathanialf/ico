@@ -102,6 +102,10 @@
  * Use this accessor for 0x15C; keep p_15C in the struct for layout only. */
 #define GOBJ_SUB(o)  ((Sub15C *)*(int *)&((GObj *)(o))->p_15C)
 
+/* The 0x164 actor slot, the companion of GOBJ_SUB: the action-state object the
+ * per-object functions run their state machines out of. */
+#define GOBJ_ACT(o)  ((Act *)((GObj *)(o))->p_164)
+
 typedef struct GObj    GObj;
 typedef struct Sub15C  Sub15C;   /* *(GObj   + 0x15C), per-object sub state */
 typedef struct Obj7F0  Obj7F0;   /* *(Sub15C + 0x7F0), shared geometry/model obj (~25 TUs) */
@@ -121,7 +125,10 @@ struct GObj {
     int     f_8;              /* 0x8   */
     int     kind;             /* 0xC, the object-kind id, -1 when the object has
                                  none; it indexes the ObjKindEnt table */
-    char    _pad10[0x30];     /* 0x10 .. 0x3F */
+    char    _pad10[0x1C];     /* 0x10 .. 0x2B */
+    struct GProc *procHead;   /* 0x2C, head of the object's process list */
+    struct GProc *procTail;   /* 0x30, tail of the same list */
+    char    _pad34[0xC];      /* 0x34 .. 0x3F */
     int     f40;              /* 0x40  */
     char    _pad44[0x4];
     int     f48;              /* 0x48  */
@@ -133,8 +140,10 @@ struct GObj {
     char    _pad64[0xF8];     /* 0x64 .. 0x15B */
     Sub15C *p_15C;            /* 0x15C, sub-object pointer */
     char    _pad160[0x4];
-    void   *p_164;           /* 0x164, actor/action-state object (engine-wide,
-                                polymorphic target; type each TU's view locally) */
+    void   *p_164;           /* 0x164, actor/action-state object.  The actor and
+                                script translation units read it as Act, through
+                                GOBJ_ACT below; it stays void * because other
+                                translation units hang their own record there */
     char    _pad168[0x4];
     int     f_16C;            /* 0x16C */
 };
@@ -144,7 +153,8 @@ struct Sub15C {
     int     f_4; /* 0x4 */
     int     f_8; /* 0x8 */
     int     f_C; /* 0xC */
-    char    _pad10[0x8];
+    int     f_10; /* 0x10 */
+    char    _pad14[0x4];
     int     f_18; /* 0x18 */
     int     f_1C; /* 0x1C */
     int     f_20; /* 0x20 */
@@ -158,23 +168,31 @@ struct Sub15C {
     int     f_44; /* 0x44 */
     char    _pad48[0x8];
     int     f_50; /* 0x50 */
-    int     f_54; /* 0x54 */
+    float   f_54; /* 0x54 */
     int     f_58; /* 0x58 */
     char    _pad5C[0x10];
     char    f_6C; /* 0x6C */
     char    _pad6D[0x3];
     int     f_70; /* 0x70 */
     int     f_74; /* 0x74 */
-    char    _pad78[0x4];
+    int     f_78; /* 0x78 */
     int     f_7C; /* 0x7C */
-    char    _pad80[0x4];
+    int     f_80; /* 0x80 */
     int     f_84; /* 0x84 */
     int     f_88; /* 0x88 */
-    char    _pad8C[0x44];
+    char    _pad8C[0x18];
+    float   f_A4; /* 0xA4 */
+    char    _padA8[0x28];
     int     f_D0; /* 0xD0 */
-    char    _padD4[0xAC];
+    char    _padD4[0x5C];
+    float   f_130; /* 0x130 */
+    float   f_134; /* 0x134 */
+    float   f_138; /* 0x138 */
+    char    _pad13C[0x44];
     int     f_180; /* 0x180 */
-    char    _pad184[0x10];
+    char    _pad184[0x4];
+    int     f_188; /* 0x188 */
+    char    _pad18C[0x8];
     int     f_194; /* 0x194 */
     int     f_198; /* 0x198 */
     int     f_19C; /* 0x19C */
@@ -184,40 +202,110 @@ struct Sub15C {
     char    _pad1CC[0x14];
     int     f_1E0; /* 0x1E0 */
     char    _pad1E4[0x8C];
-    int     f_270; /* 0x270 */
+    float   f_270; /* 0x270 */
     int     f_274; /* 0x274 */
     int     f_278; /* 0x278 */
-    char    _pad27C[0xF4];
+    char    _pad27C[0x34];
+    int     f_2B0; /* 0x2B0 */
+    int     f_2B4; /* 0x2B4 */
+    int     f_2B8; /* 0x2B8 */
+    char    _pad2BC[0x4];
+    float   f_2C0; /* 0x2C0 */
+    float   f_2C4; /* 0x2C4 */
+    float   f_2C8; /* 0x2C8 */
+    char    _pad2CC[0x44];
+    int     f_310; /* 0x310 */
+    int     f_314; /* 0x314 */
+    int     f_318; /* 0x318 */
+    char    _pad31C[0x4];
+    float   f_320; /* 0x320 */
+    float   f_324; /* 0x324 */
+    float   f_328; /* 0x328 */
+    char    _pad32C[0x44];
     int     f_370; /* 0x370 */
-    char    _pad374[0x64];
+    char    _pad374[0xC];
+    int     f_380; /* 0x380 */
+    char    _pad384[0xC];
+    float   f_390; /* 0x390 */
+    float   f_394; /* 0x394 */
+    float   f_398; /* 0x398 */
+    char    _pad39C[0x1C];
+    int     f_3B8; /* 0x3B8 */
+    int     f_3BC; /* 0x3BC */
+    char    _pad3C0[0x18];
     int     f_3D8; /* 0x3D8 */
-    char    _pad3DC[0xB4];
+    char    _pad3DC[0x44];
+    int     f_420; /* 0x420 */
+    char    _pad424[0x38];
+    float   f_45C; /* 0x45C */
+    char    _pad460[0x4];
+    float   f_464; /* 0x464 */
+    float   f_468; /* 0x468 */
+    char    _pad46C[0x24];
     int     f_490; /* 0x490, char-status index */
     char    _pad494[0xC];
     int     f_4A0; /* 0x4A0 index */
     char    _pad4A4[0x8];
-    int     f_4AC; /* 0x4AC */
+    float   f_4AC; /* 0x4AC */
     char    _pad4B0[0x8];
-    int     f_4B8; /* 0x4B8 */
+    float   f_4B8; /* 0x4B8 */
     char    _pad4BC[0x1C];
     int     f_4D8; /* 0x4D8 */
     char    _pad4DC[0x8];
     int     f_4E4; /* 0x4E4 */
-    char    _pad4E8[0x44];
+    char    _pad4E8[0x4];
+    int     f_4EC; /* 0x4EC */
+    char    _pad4F0[0x8];
+    int     f_4F8; /* 0x4F8 */
+    char    _pad4FC[0x18];
+    int     f_514; /* 0x514 */
+    char    _pad518[0x14];
     int     f_52C; /* 0x52C */
     char    _pad530[0x4];
     int     f_534; /* 0x534 */
     int     f_538; /* 0x538 */
     int     f_53C; /* 0x53C */
     int     f_540; /* 0x540 */
-    char    _pad544[0xC4];
+    char    _pad544[0x10];
+    int     f_554; /* 0x554 */
+    char    _pad558[0x14];
+    int     f_56C; /* 0x56C */
+    char    _pad570[0x78];
+    float   f_5E8; /* 0x5E8 */
+    char    _pad5EC[0x8];
+    int     f_5F4; /* 0x5F4 */
+    int     f_5F8; /* 0x5F8 */
+    char    _pad5FC[0x4];
+    int     f_600; /* 0x600 */
+    int     f_604; /* 0x604 */
     float   f_608; /* 0x608 */
-    char    _pad60C[0x1E4];
+    char    _pad60C[0x18];
+    int     f_624; /* 0x624 */
+    int     f_628; /* 0x628 */
+    char    _pad62C[0x4];
+    int     f_630; /* 0x630 */
+    int     f_634; /* 0x634 */
+    char    _pad638[0x8];
+    float   f_640; /* 0x640 */
+    float   f_644; /* 0x644 */
+    int     f_648; /* 0x648 */
+    char    _pad64C[0x1A4];
     Obj7F0 *p_7F0; /* 0x7F0, cage-fix geometry */
     char    _pad7F4[0xC];
     void   *p_800; /* 0x800, untyped (no consumers yet) */
     char    _pad804[0x10];
     int     f_814; /* 0x814 */
+    char    _pad818[0x4];
+    int     f_81C; /* 0x81C */
+    char    _pad820[0x10];
+    int     f_830; /* 0x830, the actor's own work record; each actor TU casts it to its own shape */
+    int     f_834; /* 0x834 */
+    int     f_838; /* 0x838 */
+    char    _pad83C[0x8];
+    int     f_844; /* 0x844 */
+    char    _pad848[0x28];
+    void   *p_870; /* 0x870 */
+    void   *p_874; /* 0x874 */
 };
 
 /* Geometry/model object hanging off Sub15C + 0x7F0. The p_7F0 field is read
@@ -616,12 +704,18 @@ typedef struct {
     float b[4];   /* 0x10 end point     */
     float pos[4]; /* 0x20 clipped point */
     char _30[0x40];
-    float f_70;
-    char _74[0x14];
-    int f_88;
-    char _8c[0x08];
-    int f_94;
-    char _98[0x28];
+    float radius;    /* 0x70 clip radius */
+    int skipSrc[2];  /* 0x74 the pair _Clip passes with an element, for the element
+                        the search must skip */
+    int skipElem;    /* 0x7C */
+    int wallSrc[2];  /* 0x80 the same pair for the wall the search hit */
+    int wallHit;     /* 0x88 */
+    int floorSrc[2]; /* 0x8C the same pair for the floor the search hit */
+    int floorHit;    /* 0x94 */
+    char _98[0x8];
+    float normal[4]; /* 0xA0 */
+    int f_B0;        /* 0xB0 */
+    char _b4[0xC];
 } ClipWork;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
@@ -697,7 +791,10 @@ typedef struct PObjGObj {
     int f04;         /* 0x004 */
     int f08;         /* 0x008 */
     int kind;        /* 0x00C, the object-kind id, -1 when the object has none */
-    char pad10[0x30];
+    char pad10[0x1C];
+    struct GProc *procHead; /* 0x02C, head of the object's process list */
+    struct GProc *procTail; /* 0x030, tail of the same list */
+    char pad34[0xC];
     int f40; /* 0x040 */
     char pad44[0x4];
     int f48; /* 0x048 */
@@ -716,17 +813,70 @@ typedef struct PObjGObj {
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct Act {
-    char unk00[0x20];  /* 0x00 */
-    ActStatus flags20; /* 0x20 */
-    char unk28[0xC];   /* 0x28 */
-    int unk34;         /* 0x34 */
-    char unk38[0x68];  /* 0x38 */
-    long long flags;   /* 0xA0 */
-    char unkA8[0x28];  /* 0xA8 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-    char unkD8[0x20C]; /* 0xD8 */
-    int unk2E4;        /* 0x2E4 */
+    char _pad0[0x10];
+    int           f_10; /* 0x10 */
+    int           f_14; /* 0x14 */
+    char _pad18[0x8];
+    ActStatus     flags20; /* 0x20 */
+    char _pad28[0x8];
+    int           f_30; /* 0x30 */
+    int           unk34; /* 0x34 */
+    unsigned int  f_38; /* 0x38 */
+    char _pad3C[0x8];
+    int           f_44; /* 0x44 */
+    char _pad48[0x48];
+    long long     f_90; /* 0x90 */
+    char _pad98[0x8];
+    long long     flags; /* 0xA0 */
+    int           f_A8; /* 0xA8 */
+    int           f_AC; /* 0xAC */
+    char _padB0[0x20];
+    ActMail       *mainMail; /* 0xD0 */
+    ActMail       *mail; /* 0xD4 */
+    char _padD8[0x8];
+    int           f_E0; /* 0xE0 */
+    char _padE4[0x3C];
+    float         f_120; /* 0x120 */
+    float         f_124; /* 0x124 */
+    float         f_128; /* 0x128 */
+    char _pad12C[0x8];
+    int           f_134; /* 0x134 */
+    char _pad138[0x2];
+    short         f_13A; /* 0x13A */
+    char _pad13C[0x8];
+    int           f_144; /* 0x144 */
+    int           f_148; /* 0x148 */
+    char _pad14C[0x4];
+    int           f_150; /* 0x150 */
+    char _pad154[0x3C];
+    int           f_190; /* 0x190 */
+    char _pad194[0x2C];
+    float         f_1C0; /* 0x1C0 */
+    float         f_1C4; /* 0x1C4 */
+    float         f_1C8; /* 0x1C8 */
+    char _pad1CC[0x4];
+    int           f_1D0; /* 0x1D0 */
+    int           f_1D4; /* 0x1D4 */
+    char          f_1D8; /* 0x1D8 */
+    char          f_1D9; /* 0x1D9 */
+    char          f_1DA; /* 0x1DA */
+    char          f_1DB; /* 0x1DB */
+    char _pad1DC[0x4];
+    float         f_1E0; /* 0x1E0 */
+    char _pad1E4[0x100];
+    int           unk2E4; /* 0x2E4 */
+    char _pad2E8[0x64];
+    int           f_34C; /* 0x34C */
+    int           f_350; /* 0x350 */
+    char _pad354[0xEC];
+    int           f_440; /* 0x440 */
+    int           f_444; /* 0x444 */
+    char _pad448[0x1B4];
+    int           f_5FC; /* 0x5FC */
+    char _pad600[0x80];
+    int           f_680; /* 0x680 */
+    int           f_684; /* 0x684 */
+    int           f_688; /* 0x688 */
 } Act;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */

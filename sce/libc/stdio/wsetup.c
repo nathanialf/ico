@@ -15,44 +15,43 @@ extern void __sinit(void *a0);
 extern void _free_r(void *a0, void *a1);
 extern void __smakebuf(void *a0);
 
-int __swsetup(void *fp)
+int __swsetup(Fil *fp)
 {
     do {
-        if (*(char **)((char *)fp + 0x54) == 0) {
-            *(char **)((char *)fp + 0x54) = (char *)D_0054CEAC[0];
+        if (fp->data == 0) {
+            fp->data = (char *)D_0054CEAC[0];
         }
-        if (*(int *)(*(char **)((char *)fp + 0x54) + 0x38) == 0) {
-            __sinit(*(char **)((char *)fp + 0x54));
+        if (*(int *)((char *)fp->data + 0x38) == 0) {
+            __sinit(fp->data);
         }
     } while (0);
 
-    if ((*(short *)((char *)fp + 0xC) & 8) == 0) {
-        if ((*(short *)((char *)fp + 0xC) & 0x10) == 0) {
+    if ((fp->flags & 8) == 0) {
+        if ((fp->flags & 0x10) == 0) {
             return -1;
         }
-        if (*(short *)((char *)fp + 0xC) & 4) {
-            if (*(char **)((char *)fp + 0x30) != 0) {
-                if (*(char **)((char *)fp + 0x30) != (char *)fp + 0x40) {
-                    _free_r(*(void **)((char *)fp + 0x54), *(void **)((char *)fp + 0x30));
+        if (fp->flags & 4) {
+            if (fp->ub.base != 0) {
+                if (fp->ub.base != fp->ubuf) {
+                    _free_r(fp->data, fp->ub.base);
                 }
-                *(char **)((char *)fp + 0x30) = 0;
+                fp->ub.base = 0;
             }
-            *(short *)((char *)fp + 0xC) &= ~0x24;
-            *(int *)((char *)fp + 4) = 0;
-            *(char **)fp = *(char **)((char *)fp + 0x10);
+            fp->flags &= ~0x24;
+            fp->r = 0;
+            fp->p = fp->bf.base;
         }
-        *(short *)((char *)fp + 0xC) |= 8;
+        fp->flags |= 8;
     }
 
-    if (*(char **)((char *)fp + 0x10) == 0) {
+    if (fp->bf.base == 0) {
         __smakebuf(fp);
     }
-    if (*(short *)((char *)fp + 0xC) & 1) {
-        *(int *)((char *)fp + 8) = 0;
-        *(int *)((char *)fp + 0x18) = -*(int *)((char *)fp + 0x14);
+    if (fp->flags & 1) {
+        fp->w = 0;
+        fp->lbfsize = -fp->bf.size;
     } else {
-        *(int *)((char *)fp + 8) =
-            (*(short *)((char *)fp + 0xC) & 2) ? 0 : *(int *)((char *)fp + 0x14);
+        fp->w = (fp->flags & 2) ? 0 : fp->bf.size;
     }
     return 0;
 }

@@ -29,49 +29,48 @@ extern int SgStAdpcmIopReadAddr(int addr);
 
 void adpcmTickProc2(int *a0)
 {
-    int *self = (int *)a0[11];
+    AdpcmStream *self = (AdpcmStream *)a0[11];
     int i;
 
     if (iosCdvdDiskStatusGet() == 0 && D_0063C1C8 == 0) {
-        for (i = 0; i < self[1]; i++) {
-            char *ch = (char *)(self + 2);
+        for (i = 0; i < self->n; i++) {
+            char *ch = (char *)self->ch;
             int ofs = i * 4;
             int no = *(unsigned short *)a0;
             SgStAdpcmChannelPitch(1LL << *(int *)(ch + ofs), D_00559D50[no].pitch);
         }
     } else {
-        for (i = 0; i < self[1]; i++) {
-            char *ch = (char *)(self + 2);
+        for (i = 0; i < self->n; i++) {
+            char *ch = (char *)self->ch;
             int ofs = i * 4;
             SgStAdpcmChannelPitch(1LL << *(int *)(ch + ofs), 0);
         }
         return;
     }
-    if (*(short *)((char *)self + 0x46) != 0) {
-        int addr = SgStAdpcmIopReadAddr(self[2]);
+    if (self->f46 != 0) {
+        int addr = SgStAdpcmIopReadAddr(self->ch[0]);
         int delta;
 
-        if (addr >= self[19]) {
-            delta = addr - self[19];
+        if (addr >= self->f4C) {
+            delta = addr - self->f4C;
         } else {
-            delta = self[7] - self[19] + addr;
+            delta = self->f1C - self->f4C + addr;
         }
-        self[19] = addr;
+        self->f4C = addr;
         if (delta != 0) {
-            self[20] -= delta;
-            if (self[20] <= 0) {
-                *(short *)((char *)self + 0x48) += 1;
-                self[20] += self[9] - self[8];
+            self->f50 -= delta;
+            if (self->f50 <= 0) {
+                self->f48 += 1;
+                self->f50 += self->f24 - self->f20;
             }
-            if (*(short *)((char *)self + 0x46) != 0 &&
-                *(short *)((char *)self + 0x48) >= *(short *)((char *)self + 0x46)) {
+            if (self->f46 != 0 && self->f48 >= self->f46) {
                 soundDataClose(a0);
                 return;
             }
         }
     }
-    if (*(short *)((char *)self + 0x44) != 0) {
-        int d = AdpcmVolumeGet((char *)a0) - *(short *)((char *)self + 0x44);
+    if (self->f44 != 0) {
+        int d = AdpcmVolumeGet((char *)a0) - self->f44;
 
         if (d < 0) {
             d = 0;
@@ -83,47 +82,6 @@ void adpcmTickProc2(int *a0)
         AdpcmVolumeSet((int)a0, d);
     }
 }
-
-struct AdpcmStreamTag;
-
-typedef struct {
-    char _0[0x2C];
-    struct AdpcmStreamTag *stream; /* 0x2C */
-} AdpcmObj;
-
-typedef struct {
-    int ch;  /* 0x00 */
-    int f4;  /* 0x04 */
-    int f8;  /* 0x08 */
-    int fC;  /* 0x0C */
-    int f10; /* 0x10 */
-    int f14; /* 0x14 */
-} AdpcmChReq;
-
-typedef struct AdpcmStreamTag {
-    int used;       /* 0x00 */
-    int n;          /* 0x04 */
-    int ch[2];      /* 0x08 */
-    int f10;        /* 0x10 */
-    int f14;        /* 0x14 */
-    int f18;        /* 0x18 */
-    int f1C;        /* 0x1C */
-    int f20;        /* 0x20 */
-    int f24;        /* 0x24 */
-    int f28;        /* 0x28 */
-    int f2C;        /* 0x2C */
-    long long mask; /* 0x30 */
-    int f38;        /* 0x38 */
-    short f3C[2];   /* 0x3C */
-    short f40[2];   /* 0x40 */
-    short f44;      /* 0x44 */
-    short f46;      /* 0x46 */
-    short f48;      /* 0x48 */
-    short f4A;      /* 0x4A */
-    int f4C;        /* 0x4C */
-    int f50;        /* 0x50 */
-    int f54;        /* 0x54 */
-} AdpcmStream;
 
 extern int D_006BF498[];
 extern int D_006BF548[];
@@ -275,36 +233,36 @@ extern char D_0063A638[];
 extern int iosCdvdBackGroundMgrAdd(char *name, void *proc, void *self, void *notready, int a4,
                                    void *a5, int a6, int a7);
 
-void AdpcmOpen(int *self, int no, int a2, int a3)
+void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
 {
     int req;
 
     debug_StdPrintfDummy("AdpcmOpen id%d \n", no);
     req = (no & 0xFFFF) | 0x110000;
     if (soundDataAreaSearch(&req) != 0) {
-        self[5] = 0;
+        self->bg = 0;
         return;
     }
-    self[2] = a2;
-    self[1] = no;
-    self[3] = AdpcmIopBuffAlloc();
-    if (self[3] != 0) {
-        self[5] = iosCdvdBackGroundMgrAdd((char *)&D_00559D50[no], adpcmOpenProc, self,
-                                          adpcmOpenDiskNotReady, 0, self, 0, 0);
+    self->ch = a2;
+    self->id = no;
+    self->iopBuf = AdpcmIopBuffAlloc();
+    if (self->iopBuf != 0) {
+        self->bg = iosCdvdBackGroundMgrAdd((char *)&D_00559D50[no], adpcmOpenProc, self,
+                                           adpcmOpenDiskNotReady, 0, self, 0, 0);
     } else {
-        self[5] = 0;
+        self->bg = 0;
         debug_StdPrintfDummy(D_0063A638, (char *)&D_00559D50[no]);
     }
-    self[4] = a3;
+    self->f10 = a3;
 }
 
 /* kept local: this TU's uses of iosCdvdBackGroundMgrDelete do not fit the prototype in cdvd.h */
 extern void iosCdvdBackGroundMgrDelete(int handle);
 extern int SgStAdpcmClose(int ch);
 
-static inline void AdpcmIopBuffFree(int *self)
+static inline void AdpcmIopBuffFree(AdpcmStream *self)
 {
-    int adr = self[6];
+    int adr = self->f18;
     int no = (adr - D_0063C1B8) / 0x5C000;
 
     if (no >= 3) {
@@ -316,16 +274,16 @@ static inline void AdpcmIopBuffFree(int *self)
 
 void AdpcmClose(int *a0)
 {
-    int *self = (int *)a0[11];
+    AdpcmStream *self = (AdpcmStream *)a0[11];
     int i;
     int j;
 
-    if (self != 0 && self[10] != 0) {
-        iosCdvdBackGroundMgrDelete(self[10]);
-        self[10] = 0;
+    if (self != 0 && self->f28 != 0) {
+        iosCdvdBackGroundMgrDelete(self->f28);
+        self->f28 = 0;
         AdpcmStop((int)self);
-        for (i = 0; i < self[1]; i++) {
-            char *ch = (char *)(self + 2);
+        for (i = 0; i < self->n; i++) {
+            char *ch = (char *)self->ch;
             int ofs = i * 4;
             SgStAdpcmClose(*(int *)(ch + ofs));
         }
@@ -341,7 +299,7 @@ void AdpcmClose(int *a0)
         __assert(adpcmFile, 605, D_0063A630);
     found:
         *(int *)((char *)D_006BF498 + j * 0x58) = 0;
-        *(long long *)(self + 12) = 0;
+        self->mask = 0;
     }
 }
 
@@ -477,20 +435,20 @@ inline int AdpcmNotUseIopAreaFree(void)
 /* kept local: this TU's uses of iosCdvdBackGroundMgrDelete do not fit the prototype in cdvd.h */
 extern void iosCdvdBackGroundMgrDelete(int x);
 
-inline int *AdpcmOpenSync(int *self)
+inline int *AdpcmOpenSync(AdpcmOpenReq *self)
 {
     int *r;
     debug_StdPrintfDummy("AdpcmOpensync\n");
-    if (self[5] != 0)
+    if (self->bg != 0)
         goto body;
     return 0;
 body:
-    if (((int *)self[5])[0x40] != 0) {
+    if (((int *)self->bg)[0x40] != 0) {
         return (int *)-1;
     }
     debug_StdPrintfDummy("AdpcmOpensync done\n");
-    iosCdvdBackGroundMgrDelete(self[5]);
-    r = adpcmDataSet(0, self[1], 0x11, self[2], 0, self[3], self[4]);
+    iosCdvdBackGroundMgrDelete(self->bg);
+    r = adpcmDataSet(0, self->id, 0x11, self->ch, 0, self->iopBuf, self->f10);
     iosCdvdBackGroundMgrSeek(((int *)r[11])[10], 0x5C000);
     return r;
 }

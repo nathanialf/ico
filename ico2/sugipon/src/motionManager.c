@@ -546,7 +546,7 @@ void _checkCliffAndWall(void)
                 *(float *)(D_0063C494 + 0x134) += 30.0f;
             }
         }
-        if (D_0063B93C == D_00639EA4 && *(int *)(*(int *)(D_0063B93C + 0x15C) + 0x568) == 0) {
+        if (D_0063B93C == D_00639EA4 && *(int *)((int)GOBJ_SUB(D_0063B93C) + 0x568) == 0) {
             _SubVectorXYZ(v, D_0063C490, D_0063C490 + 0x150);
             v[1] = 0.0f;
             d = VectorLengthSquare(v);
@@ -580,8 +580,7 @@ void _checkCliffAndWall(void)
             DrawGObjWallCollision(*(int *)(D_0063C490 + 0xE0), 0);
         }
     }
-    if (*(int *)(*(int *)(D_0063B93C + 0x15C) + 0x564) != 0 &&
-        *(int *)(*(int *)(D_0063B93C + 0x15C) + 0x188) == 0) {
+    if (*(int *)((int)GOBJ_SUB(D_0063B93C) + 0x564) != 0 && GOBJ_SUB(D_0063B93C)->f_188 == 0) {
         debug_assertMessage(D_0061FDC0, 822, D_0061FDD8);
         __assert(D_0061FDC0, 822, D_0063B920);
     }
@@ -627,7 +626,7 @@ void dispActNode(int id)
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     CopyVector((void *)(MatrixDrive_GetMatrix() + 0x30),
-               (void *)(*(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + id * 0x40 + 0x30));
+               (void *)(*(char **)((char *)GOBJ_SUB(D_0063B93C) + 0xC) + id * 0x40 + 0x30));
     MatrixDrive_ScaleMatrix(5.0f, 5.0f, 5.0f);
     dispSquare(0xFF);
     MatrixDrive_PopMatrix();
@@ -788,9 +787,9 @@ inline void getGeometryOfMotion(void)
     ShiftBlk buf;
     int x, y;
     char *p;
-    buf = *(ShiftBlk *)(*(char **)((char *)D_0063B93C + 0x15C) + 0x180);
+    buf = *(ShiftBlk *)((char *)GOBJ_SUB(D_0063B93C) + 0x180);
     _getGeometryOfMotion((MotShift *)x, y);
-    p = *(char **)((char *)D_0063B93C + 0x15C);
+    p = (char *)GOBJ_SUB(D_0063B93C);
     if (*(int *)(p + 0x634) != 0) {
         *(ShiftBlk *)(p + 0x180) = buf;
     }
@@ -803,7 +802,7 @@ void execPositionReserver(char *self, MotShift m)
     float buf2[4];
     int flg;
 
-    ext = *(int *)(self + 0x15C);
+    ext = (int)GOBJ_SUB(self);
     if (*(int *)(ext + 0x4F0) == 1) {
         if (*(int *)(ext + 0x4EC) == 0 || *(int *)(ext + 0x4EC) != *(int *)(ext + 0x4F0)) {
             if (m.a != 0) {
@@ -822,7 +821,7 @@ void execPositionReserver(char *self, MotShift m)
         }
     }
     *(int *)(D_0063C494 + 0x88) = 1;
-    if (*(int *)(*(int *)(self + 0x15C) + 0x4EC) == 1) {
+    if (GOBJ_SUB(self)->f_4EC == 1) {
         if (m.a != 0) {
             CopyVector(buf, D_0063C490 + 0x70);
             _ApplyMatrix(buf, (int)(*(char **)(*(char **)(m.a + 0x15C) + 0xC) + m.b * 0x40),
@@ -838,7 +837,7 @@ void execPositionReserver(char *self, MotShift m)
             m.b != *(int *)(D_0063C490 + 0x84) ||
             (*(int *)(D_0063C494 + 0x1BC) != 0 && (*(int *)(D_0063C494 + 0x188) & 0xF00000)) ||
             (flg & 2)) {
-            *(int *)(*(int *)(self + 0x15C) + 0x4EC) = 0;
+            GOBJ_SUB(self)->f_4EC = 0;
         } else if (*(int *)(D_0063C494 + 0x84) != 0) {
             _InterVectorXYZ(D_0063C490, D_0063C490 + 0x70, D_0063C490,
                             1.0f - (float)*(int *)(D_0063C494 + 0x84) * 0.5f);
@@ -854,7 +853,7 @@ void execPositionReserver(char *self, MotShift m)
                              (char *)buf2);
                 MatrixDrive_TransMatrixV(buf2);
                 gif_StartPacketPri(0xB);
-                if (*(int *)(*(int *)(self + 0x15C) + 0x4EC) == 1) {
+                if (GOBJ_SUB(self)->f_4EC == 1) {
                     prim_DispWireSphere(D_004ECB50, 0x10, 8, 50.0f);
                 } else {
                     prim_DispWireSphere(D_004ECB60, 0x10, 8, 50.0f);
@@ -888,12 +887,12 @@ void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
        stored just below, and gcc can no longer issue every load ahead of the
        nine gp stores the way ROM does. */
     D_0063C478 = tbl;
-    D_0063C480 = (char *)*(int *)(*(int *)(self + 0x15C) + 0x10);
-    D_0063B938 = (char *)*(int *)(*(int *)(self + 0x15C) + 0x8C);
-    D_0063B900 = *(float *)(*(int *)(*(int *)(self + 0x15C) + 0x870) + 0x20);
-    D_0063C490 = (char *)(*(int *)(self + 0x15C) + 0xA0);
-    D_0063C494 = (char *)(*(int *)(self + 0x15C) + 0x470);
-    D_0063C48C = *(int *)(*(int *)(self + 0x15C) + 0x88);
+    D_0063C480 = (char *)GOBJ_SUB(self)->f_10;
+    D_0063B938 = (char *)*(int *)((int)GOBJ_SUB(self) + 0x8C);
+    D_0063B900 = *(float *)(*(int *)((int)GOBJ_SUB(self) + 0x870) + 0x20);
+    D_0063C490 = (char *)((int)GOBJ_SUB(self) + 0xA0);
+    D_0063C494 = (char *)((int)GOBJ_SUB(self) + 0x470);
+    D_0063C48C = GOBJ_SUB(self)->f_88;
     D_0063C498 = D_002C2DC8[*(GenGeoKind *)(self + 8) * 0x4C + 0x46];
     D_0063B93C = (int)self;
     MatrixDrive_PushMatrix();
@@ -924,7 +923,7 @@ void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
 
     AddVectorXYZ(w, ofs, v);
     for (i = 0; i < D_0063C48C; i++) {
-        char *nd = *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + i * 0x40;
+        char *nd = *(char **)((char *)GOBJ_SUB(D_0063B93C) + 0xC) + i * 0x40;
         char *pos = nd + 0x30;
         sceVu0MulMatrix((int)nd, (int)nd, (int)D_004ECB80);
         AddVectorXYZ(pos, pos, w);
@@ -942,7 +941,7 @@ void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         gif_StartPacketPri(0xB);
         n = GetSkeltonFocusNode(self, 0x23);
-        CopyVector(w, *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + n * 0x40 + 0x30);
+        CopyVector(w, *(char **)((char *)GOBJ_SUB(D_0063B93C) + 0xC) + n * 0x40 + 0x30);
         CopyVector(p1, D_0063C490 + 0x2F0);
         _SubVector(p2, p1, w);
         _NormalizeVector(p2, p2);
@@ -1018,7 +1017,7 @@ void dispSkelton()
 
 void SkelTest(char *a0)
 {
-    int sub = *(int *)(a0 + 0x15C);
+    int sub = (int)GOBJ_SUB(a0);
     int v;
     D_0063B93C = (int)a0;
     v = *(int *)(sub + 0x8C);
@@ -1033,7 +1032,7 @@ void SkelTest(char *a0)
 
 void SkelTestGeo(char *a0)
 {
-    int sub = *(int *)(a0 + 0x15C);
+    int sub = (int)GOBJ_SUB(a0);
     int v;
     int i;
     D_0063B93C = (int)a0;
@@ -1043,12 +1042,12 @@ void SkelTestGeo(char *a0)
         int s2;
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_RotMatrixX(-0x8000);
-        getInitialMatrix(*(int *)(a0 + 0x15C), 0);
-        s2 = *(int *)(a0 + 0x15C);
+        getInitialMatrix((int)GOBJ_SUB(a0), 0);
+        s2 = (int)GOBJ_SUB(a0);
         for (i = 0; i < *(int *)(s2 + 0x88); i++) {
             int e = *(int *)(s2 + 0xC) + i * 0x40;
             sceVu0MulMatrix(e, s2 + 0x20, e);
-            s2 = *(int *)(a0 + 0x15C);
+            s2 = (int)GOBJ_SUB(a0);
         }
         if (D_0063B148 != 0) {
             dispSkelton(a0);

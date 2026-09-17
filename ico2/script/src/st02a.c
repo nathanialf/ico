@@ -214,14 +214,12 @@ void actSt02WaterFallBoySplashCheck(volatile int a0)
     buf[3] = D_00622740[3];
     for (;;) {
         idx = GetSkeltonFocusNode(D_00639EA4, 0x23);
-        CopyVector(buf2,
-                   (float *)(*(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + (idx << 6) + 0x30));
+        CopyVector(buf2, (float *)(GOBJ_SUB(D_00639EA4)->f_C + (idx << 6) + 0x30));
         if (scpTriggerPosBall(&buf[0], buf2, 100.0f))
             scpEffectStart(buf2, 0x2F);
         _ACTWait(10);
         idx = GetSkeltonFocusNode(D_00639EA4, 0x23);
-        CopyVector(buf2,
-                   (float *)(*(int *)(*(char **)(D_00639EA4 + 0x15C) + 0xC) + (idx << 6) + 0x30));
+        CopyVector(buf2, (float *)(GOBJ_SUB(D_00639EA4)->f_C + (idx << 6) + 0x30));
         if (scpTriggerPosBall(&buf[2], buf2, 100.0f))
             scpEffectStart(buf2, 0x2F);
         _ACTWait(10);

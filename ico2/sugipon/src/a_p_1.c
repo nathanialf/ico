@@ -29,7 +29,7 @@ static inline void applyPartOrients(char *g)
 {
     char *tbl = D_004E5670;
     Mtx44 m;
-    char *q = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    char *q = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     int i;
 
     GetRootMatrix(&m, g);
@@ -94,7 +94,7 @@ char *InitAP1(char *self, char *arg)
     int i;
 
     p = iosMallocDebug(D_0063A438, 0x280, D_0061EE30, 0xE4);
-    *(char **)(*(int *)(self + 0x15C) + 0x830) = p;
+    *(char **)((int)GOBJ_SUB(self) + 0x830) = p;
     *(int *)p = *(int *)(arg + 0x30);
     *(int *)(p + 0x4) = 1;
     *(int *)(p + 0x16C) = 0;
@@ -309,7 +309,7 @@ int walkMot(char *a0)
     Mtx44 m;
     Mtx44 tm;
     Vec4A_P_1 out;
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     int ret = fitToCol(a0, 1);
     int i;
     int n;
@@ -327,13 +327,13 @@ int walkMot(char *a0)
         }
     }
     _ScaleVector(&v, &v, ((float)n * 0.25f + 0.5f) * 0.5f);
-    _ScaleVector(*(char **)(a0 + 0x15C) + 0x130, *(char **)(a0 + 0x15C) + 0x130, 0.8f);
-    _AddVectorXYZ(*(char **)(a0 + 0x15C) + 0x130, *(char **)(a0 + 0x15C) + 0x130, &v);
+    _ScaleVector((char *)GOBJ_SUB(a0) + 0x130, (char *)GOBJ_SUB(a0) + 0x130, 0.8f);
+    _AddVectorXYZ((char *)GOBJ_SUB(a0) + 0x130, (char *)GOBJ_SUB(a0) + 0x130, &v);
     MatrixDrive_SetTransposeMatrix(&tm, &m);
-    _ApplyMatrix((int)&out, (int)&tm, (int)(*(char **)(a0 + 0x15C) + 0x130));
+    _ApplyMatrix((int)&out, (int)&tm, (int)((char *)GOBJ_SUB(a0) + 0x130));
     ((AP1Val *)(p + 0x1C4))->f = out.m[0];
-    ((AP1Val *)(p + 0x1C0))->f = VectorLength(*(char **)(a0 + 0x15C) + 0x130) * 0.1f;
-    _AddVectorXYZ(&pos, &pos, *(char **)(a0 + 0x15C) + 0x130);
+    ((AP1Val *)(p + 0x1C0))->f = VectorLength((char *)GOBJ_SUB(a0) + 0x130) * 0.1f;
+    _AddVectorXYZ(&pos, &pos, (char *)GOBJ_SUB(a0) + 0x130);
     SetRootPosition(a0, &pos);
     *(int *)(p + 0x1C8) = 0;
     return 1;
@@ -373,22 +373,22 @@ int rolling(char *a0)
 {
     AP1ColHit info;
 
-    if (*(int *)(*(char **)(a0 + 0x15C)) != 0) {
+    if (*(int *)((char *)GOBJ_SUB(a0)) != 0) {
         UnlinkParentOfDObj(a0);
     }
-    ((AP1Val *)(*(char **)(a0 + 0x15C) + 0x134))->f +=
+    ((AP1Val *)((char *)GOBJ_SUB(a0) + 0x134))->f +=
         60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
         (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-    _AddVectorXYZ(*(char **)(a0 + 0x15C) + 0xA0, *(char **)(a0 + 0x15C) + 0xA0,
-                  *(char **)(a0 + 0x15C) + 0x130);
+    _AddVectorXYZ((char *)GOBJ_SUB(a0) + 0xA0, (char *)GOBJ_SUB(a0) + 0xA0,
+                  (char *)GOBJ_SUB(a0) + 0x130);
     {
         char *col = D_004E57A0;
-        CopyVector(col, *(char **)(a0 + 0x15C) + 0x1F0);
-        CopyVector(col + 0x10, *(char **)(a0 + 0x15C) + 0xA0);
+        CopyVector(col, (char *)GOBJ_SUB(a0) + 0x1F0);
+        CopyVector(col + 0x10, (char *)GOBJ_SUB(a0) + 0xA0);
         *(float *)(col + 4) -= 50.0f;
         if (clipAndTakeHit(&info, col)) {
-            CopyVector(*(char **)(a0 + 0x15C) + 0xA0, D_004E57C0);
-            CopyVector(*(char **)(a0 + 0x15C) + 0x130, ZeroVector);
+            CopyVector((char *)GOBJ_SUB(a0) + 0xA0, D_004E57C0);
+            CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
             yAxisRotFitting((int *)a0, (int)(D_004E57C0 + 0x80));
             LinkParentOfDObj(a0, &info);
             UpdateRootMatrix(a0);
@@ -396,11 +396,10 @@ int rolling(char *a0)
             {
                 char *col = D_004E57A0;
                 if (*(int *)(col + 0x88) != 0) {
-                    *(int *)(*(char **)(a0 + 0x15C) + 0x5F8) = GetWallAttribute(col);
+                    GOBJ_SUB(a0)->f_5F8 = GetWallAttribute(col);
                 }
                 if (CheckWallAttribute(a0, 0x50) != 0) {
-                    if (GetPoolGlobalHeight(*(int *)(col + 0x80)) <
-                        *(float *)(*(char **)(a0 + 0x15C) + 0xA4) + 50.0f) {
+                    if (GetPoolGlobalHeight(*(int *)(col + 0x80)) < GOBJ_SUB(a0)->f_A4 + 50.0f) {
                         iosOmSendMail(a0, 0x26, a0);
                     }
                 }
@@ -408,10 +407,10 @@ int rolling(char *a0)
             {
                 char *col = D_004E57A0;
                 if (*(int *)(col + 0x94) != 0) {
-                    *(int *)(*(char **)(a0 + 0x15C) + 0x5F8) = GetFloorAttribute(col);
+                    GOBJ_SUB(a0)->f_5F8 = GetFloorAttribute(col);
                     if (CheckFloorAttribute(a0, 0x50) != 0) {
                         if (GetPoolGlobalHeight(*(int *)(col + 0x8C)) <
-                            *(float *)(*(char **)(a0 + 0x15C) + 0xA4) + 50.0f) {
+                            GOBJ_SUB(a0)->f_A4 + 50.0f) {
                             iosOmSendMail(a0, 0x26, a0);
                         }
                     }
@@ -424,8 +423,8 @@ int rolling(char *a0)
         char *col = D_004E57A0;
         *(float *)(col + 0x14) += 500.0f;
         ClipFloor(col);
-        if (CheckFieldContact(col, a0, *(char **)(a0 + 0x15C) + 0xA0, 50.0f) == 2) {
-            CopyVector(*(char **)(a0 + 0x15C) + 0x130, ZeroVector);
+        if (CheckFieldContact(col, a0, (char *)GOBJ_SUB(a0) + 0xA0, 50.0f) == 2) {
+            CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
             iosOmSendMail(a0, 0x1A, a0);
         }
     }
@@ -465,7 +464,7 @@ static inline short armCosine(float a, float b, float c)
 
 void calcSubMission(char *self)
 {
-    char *p = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(self) + 0x830);
     Vec4A_P_1 base;
     Vec4A_P_1 axis;
     Vec4A_P_1 rq;
@@ -559,7 +558,7 @@ void calcSubMission(char *self)
         CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, &save);
 
         if (*(int *)(p + 4) != 0) {
-            _MulMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC) +
+            _MulMatrix(*(char **)((char *)GOBJ_SUB(self) + 0xC) +
                            (*(int *)(p + 0x174 + i * 8) << 6),
                        MatrixDrive_GetMatrix(), D_004E5860);
         } else {
@@ -587,7 +586,7 @@ void calcSubMission(char *self)
         }
 
         if (*(int *)(p + 4) != 0) {
-            _MulMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC) +
+            _MulMatrix(*(char **)((char *)GOBJ_SUB(self) + 0xC) +
                            (*(int *)(p + 0x178 + i * 8) << 6),
                        MatrixDrive_GetMatrix(), D_004E5860);
         } else {
@@ -615,11 +614,11 @@ void updateMatrix(char *a0)
     float pos[4];
     float quat[4];
     float mtx[16];
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
 
-    CopyVector(*(char **)(a0 + 0x15C) + 0x1F0, *(char **)(a0 + 0x15C) + 0xA0);
+    CopyVector((char *)GOBJ_SUB(a0) + 0x1F0, (char *)GOBJ_SUB(a0) + 0xA0);
     UpdateRootMatrix(a0);
-    CopyMatrix(p + 0x230, *(void **)(*(char **)(a0 + 0x15C) + 0xC));
+    CopyMatrix(p + 0x230, *(void **)((char *)GOBJ_SUB(a0) + 0xC));
 
     D_004E58E0[1] = ((float)*(int *)(p + 0x270) * 0.03125f < 0.5f)
                         ? ((float)*(int *)(p + 0x270) * 0.03125f) * 2.0f * 5.0f + -10.0f
@@ -638,12 +637,12 @@ void updateMatrix(char *a0)
     _InterVectorXYZ(p + 0x1E0, pos, p + 0x1E0, 0.5f);
     GetSlerpQuaternion(p + 0x1D0, quat, p + 0x1D0, 0.1f);
     GetMatrixFromQuaternionPos(p + 0x1F0, p + 0x1D0, p + 0x1E0);
-    _MulMatrix(*(void **)(*(char **)(a0 + 0x15C) + 0xC), p + 0x1F0, D_004E58F0);
+    _MulMatrix(*(void **)((char *)GOBJ_SUB(a0) + 0xC), p + 0x1F0, D_004E58F0);
 }
 
 void resetPositionInfo(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     GetRootPosition(p + 0x1E0, a0);
     GetRootQuaternion(p + 0x1D0, a0);
     ResetEnemyEye(*(int *)(p + 0x19C));
@@ -658,7 +657,7 @@ extern char D_0061EE70[];
  * into AP1Geo, so this name is ours. */
 static inline void stepAP1BlinkTimer(char *g)
 {
-    char *q = (char *)*(int *)(*(int *)(g + 0x15C) + 0x830);
+    char *q = (char *)GOBJ_SUB(g)->f_830;
     int t = *(int *)(q + 0x270) + 1;
 
     *(int *)(q + 0x270) = t;
@@ -669,7 +668,7 @@ static inline void stepAP1BlinkTimer(char *g)
 
 void AP1Geo(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     float d;
 
     switch (*(int *)(p + 8)) {
@@ -699,25 +698,24 @@ void AP1Geo(char *a0)
     }
     updateMatrix(a0);
     calcSubMission(a0);
-    _MulMatrix(MatrixDrive_GetMatrix(), *(void **)(*(char **)(a0 + 0x15C) + 0xC), D_004E5970);
+    _MulMatrix(MatrixDrive_GetMatrix(), *(void **)((char *)GOBJ_SUB(a0) + 0xC), D_004E5970);
     UpdateEnemyEye(*(int *)(p + 0x19C), MatrixDrive_GetMatrix(), 1.0f);
     if (*(int *)(p + 4) != 0) {
-        CopyMatrix(MatrixDrive_GetMatrix(), *(void **)(*(char **)(a0 + 0x15C) + 0xC));
+        CopyMatrix(MatrixDrive_GetMatrix(), *(void **)((char *)GOBJ_SUB(a0) + 0xC));
         MatrixDrive_RotMatrixZ(0x4000);
         MatrixDrive_RotMatrixX(0x4000);
-        _MulMatrix(*(void **)(*(char **)(a0 + 0x15C) + 0xC), MatrixDrive_GetMatrix(), D_004E59F0);
+        _MulMatrix(*(void **)((char *)GOBJ_SUB(a0) + 0xC), MatrixDrive_GetMatrix(), D_004E59F0);
     }
-    d = *(float *)(*(char **)(a0 + 0x15C) + 0x54) -
-        *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0xC) + 0x34);
+    d = GOBJ_SUB(a0)->f_54 - *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0xC) + 0x34);
     if ((d < 0.0f) ? ((d = -d) > 10000.0f) : (d > 10000.0f)) {
-        *(int *)(*(char **)(a0 + 0x15C) + 0x5F8) = 0x800;
+        GOBJ_SUB(a0)->f_5F8 = 0x800;
         debug_StdPrintfDummy(D_0061EE70);
     }
 }
 
 void AP1DL(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
 
     if (*(int *)(p + 8) < 5) {
         if (*(int *)(p + 0x278) != 0) {
@@ -734,12 +732,12 @@ void AP1DL(char *a0)
 
 int GetAP1SpecType(char *a0)
 {
-    return **(int **)(*(char **)(a0 + 0x15C) + 0x830);
+    return **(int **)((char *)GOBJ_SUB(a0) + 0x830);
 }
 
 void SetAP1VisualState(char *a0, int a1)
 {
-    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x278) = a1;
+    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x278) = a1;
 }
 
 /* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
@@ -750,7 +748,7 @@ extern void RegularizeQuaternion(int q);
 int AP1Turn(char *a0, short a1)
 {
     Vec4A_P_1 q;
-    int s = *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8);
+    int s = *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8);
     if (s < 6) {
         if (s >= 2)
             goto out;
@@ -767,7 +765,7 @@ out:
 
 int AP1MotReqForce(char *a0, int a1)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
 
     *(int *)(p + 8) = a1;
     if (motFuncList[a1][0] != 0) {
@@ -778,7 +776,7 @@ int AP1MotReqForce(char *a0, int a1)
 
 int AP1MotReq(char *a0, int a1)
 {
-    int s = *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8);
+    int s = *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8);
     if (s < 6) {
         if (s >= 2)
             return 0;
@@ -790,8 +788,8 @@ int AP1MotReq(char *a0, int a1)
 int AP1JumpReq(char *a0, int a1, void *a2)
 {
     int flag;
-    char *p = *(char **)(a0 + 0x15C);
-    char *q = *(char **)(p + 0x830);
+    Sub15C *p = GOBJ_SUB(a0);
+    char *q = *(char **)((char *)p + 0x830);
     if (*(int *)(q + 8) < 6) {
         if (*(int *)(q + 8) >= 2) {
             flag = 0;
@@ -802,9 +800,9 @@ int AP1JumpReq(char *a0, int a1, void *a2)
     flag = 1;
 check:
     if (flag != 0) {
-        char *pp = *(char **)(a0 + 0x15C);
-        char *qq = *(char **)(pp + 0x830);
-        _ApplyMatrix((int)(pp + 0x130), (int)(qq + 0x230), (int)a2);
+        Sub15C *pp = GOBJ_SUB(a0);
+        char *qq = *(char **)((char *)pp + 0x830);
+        _ApplyMatrix((int)((char *)pp + 0x130), (int)(qq + 0x230), (int)a2);
         return 1;
     }
     return 0;
@@ -819,12 +817,12 @@ extern int D_004E5520[];
 
 int GetAP1Mode(char *a0)
 {
-    return D_004E5520[*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8)];
+    return D_004E5520[*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8)];
 }
 
 int standMot(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     int ret = fitToCol(a0, 0);
     if (ret != -1)
         return ret;
@@ -836,7 +834,7 @@ int standMot(char *a0)
 
 int rollingMot(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     int ret = rolling(a0);
     if (ret != -1)
         return ret;
@@ -875,7 +873,7 @@ void attackMotInit(char *a0)
     Vec4A_P_1 pos;
     Mtx44 mtx;
     Vec4A_P_1 dir;
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
 
     GetRootPosition(&pos, (void *)D_00639EA4);
     MatrixDrive_SetTransposeMatrix(&mtx, p + 0x230);
@@ -886,7 +884,7 @@ void attackMotInit(char *a0)
 
 int attackMot(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     int ret = fitToCol(a0, 0);
     if (ret != -1)
         return ret;

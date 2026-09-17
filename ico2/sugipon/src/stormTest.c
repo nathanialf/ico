@@ -312,11 +312,11 @@ inline int *InitStormTestGeo(int a0, int *a1)
 
 void StormTestGeo(char *a0)
 {
-    UpdateStormPackage(*(StormPackage **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20));
+    UpdateStormPackage(*(StormPackage **)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x20));
 }
 
 void StormTestDL(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     DispStormPackage(*(StormPackage **)(p + 0x20), p + 0x10);
 }

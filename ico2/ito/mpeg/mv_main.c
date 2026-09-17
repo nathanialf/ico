@@ -186,7 +186,7 @@ static int mpegReadBuf[4];
 
 static int videoDec[50];
 
-static int audioDec[26];
+static AudioDec audioDec;
 
 static MvThreadArg decThreadArg;
 
@@ -205,13 +205,13 @@ void switchThread(void)
 
 void proceedAudio(void)
 {
-    audioDecSendToIOP(audioDec);
+    audioDecSendToIOP(&audioDec);
 }
 
 /* mv_main.c:55-57 */
 static inline int audioIsPreset(void)
 {
-    return D_0063AC70 ? audioDecIsPreset(audioDec) : 1;
+    return D_0063AC70 ? audioDecIsPreset(&audioDec) : 1;
 }
 
 int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
@@ -239,12 +239,12 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
             if (D_0063AC74 == 1) {
                 startDisplay(1);
                 if (D_0063AC70 != 0) {
-                    audioDecResume(audioDec);
+                    audioDecResume(&audioDec);
                 }
             } else if (D_0063AC74 == 30) {
                 endDisplay();
                 if (D_0063AC70 != 0) {
-                    audioDecPause(audioDec);
+                    audioDecPause(&audioDec);
                 }
             }
             if (D_0063AC74 > 0) {
@@ -275,7 +275,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
         if (started == 0 && voBufIsFull(&voBuf) && audioIsPreset()) {
             startDisplay(1);
             if (D_0063AC70 != 0) {
-                audioDecStart(audioDec);
+                audioDecStart(&audioDec);
             }
             started = 1;
         }
@@ -292,7 +292,7 @@ term:
     gsb_ClearFrameBuffer();
     endDisplay();
     if (D_0063AC70 != 0) {
-        audioDecReset(audioDec);
+        audioDecReset(&audioDec);
     }
     return abort;
 }
@@ -327,7 +327,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
         return -1;
     }
     if (D_0063AC70 != 0) {
-        if (audioDecCreate(audioDec, p5, p6) != 0) {
+        if (audioDecCreate(&audioDec, p5, p6) != 0) {
             return -1;
         }
     }
@@ -337,7 +337,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     videoDecSetStream(videoDec, 0, 0, videoCallback, &videoCbMgr);
     if (D_0063AC70 != 0) {
         pcmCbMgr = (int)mpegReadBuf;
-        pcmCbStream = (int)audioDec;
+        pcmCbStream = (int)&audioDec;
         videoDecSetStream(videoDec, 2, 0, pcmCallback, &pcmCbMgr);
     }
 
@@ -408,7 +408,7 @@ void termAll(void)
     readBufDelete(mpegReadBuf);
     voBufDelete(&voBuf);
     videoDecDelete(videoDec);
-    audioDecDelete(audioDec);
+    audioDecDelete(&audioDec);
     dispDelete(&D_002A7978);
     *(volatile unsigned int *)0x1000E000 = savedDmaCtrl;
 }

@@ -12,24 +12,6 @@ struct D520 {
 extern void fiprintf();
 extern void abort(void);
 
-typedef struct {
-    unsigned char *_p; /* 0x00 */
-    int _r;            /* 0x04 */
-    int _w;            /* 0x08 */
-    short _flags;      /* 0x0C */
-    short _file;       /* 0x0E */
-
-    struct {
-        unsigned char *_base; /* 0x10 */
-        int _size;            /* 0x14 */
-    } _bf;
-
-    int _lbfsize;                             /* 0x18 */
-    void *_cookie;                            /* 0x1C */
-    int (*_read)(void *, char *, int);        /* 0x20 */
-    int (*_write)(void *, const char *, int); /* 0x24 */
-} FILE;
-
 struct __siov {
     const char *iov_base; /* 0x0 */
     int iov_len;          /* 0x4 */
@@ -49,12 +31,12 @@ struct __suio {
 #define EOF (-1)
 #define BUFSIZ 1024
 
-extern int __swsetup(FILE *fp);
-extern int fflush(FILE *fp);
+extern int __swsetup(Fil *fp);
+extern int fflush(Fil *fp);
 extern void *memchr(const void *s, int c, int n);
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define COPY(n) (void)memmove((void *)fp->_p, (void *)p, (int)(n))
+#define COPY(n) (void)memmove((void *)fp->p, (void *)p, (int)(n))
 #define GETIOV(extra_work)                                                                         \
     while (len == 0) {                                                                             \
         extra_work;                                                                                \
@@ -63,7 +45,7 @@ extern void *memchr(const void *s, int c, int n);
         iov++;                                                                                     \
     }
 
-int __sfvwrite(FILE *fp, struct __suio *uio)
+int __sfvwrite(Fil *fp, struct __suio *uio)
 {
     unsigned int len;
     const char *p;
@@ -75,51 +57,51 @@ int __sfvwrite(FILE *fp, struct __suio *uio)
     if ((len = uio->uio_resid) == 0) {
         return 0;
     }
-    if (((fp->_flags & __SWR) == 0 || fp->_bf._base == 0) && __swsetup(fp)) {
+    if (((fp->flags & __SWR) == 0 || fp->bf.base == 0) && __swsetup(fp)) {
         return EOF;
     }
 
     iov = uio->uio_iov;
     len = 0;
     w = 0;
-    if (fp->_flags & __SNBF) {
+    if (fp->flags & __SNBF) {
         do {
             GETIOV(;);
-            w = (*fp->_write)(fp->_cookie, p, MIN(len, BUFSIZ));
+            w = (*fp->write)(fp->cookie, p, MIN(len, BUFSIZ));
             if (w <= 0) {
                 goto err;
             }
             p += w;
             len -= w;
         } while ((uio->uio_resid -= w) != 0);
-    } else if ((fp->_flags & __SLBF) == 0) {
+    } else if ((fp->flags & __SLBF) == 0) {
         do {
             GETIOV(;);
-            w = fp->_w;
-            if (fp->_flags & __SSTR) {
+            w = fp->w;
+            if (fp->flags & __SSTR) {
                 if (len < w) {
                     w = len;
                 }
                 COPY(w);
-                fp->_w -= w;
-                fp->_p += w;
+                fp->w -= w;
+                fp->p += w;
                 w = len;
-            } else if (fp->_p > fp->_bf._base && len > w) {
+            } else if (fp->p > fp->bf.base && len > w) {
                 COPY(w);
-                fp->_p += w;
+                fp->p += w;
                 if (fflush(fp)) {
                     goto err;
                 }
-            } else if (len >= (w = fp->_bf._size)) {
-                w = (*fp->_write)(fp->_cookie, p, w);
+            } else if (len >= (w = fp->bf.size)) {
+                w = (*fp->write)(fp->cookie, p, w);
                 if (w <= 0) {
                     goto err;
                 }
             } else {
                 w = len;
                 COPY(w);
-                fp->_w -= w;
-                fp->_p += w;
+                fp->w -= w;
+                fp->p += w;
             }
             p += w;
             len -= w;
@@ -134,23 +116,23 @@ int __sfvwrite(FILE *fp, struct __suio *uio)
                 nlknown = 1;
             }
             s = MIN(len, nldist);
-            w = fp->_w + fp->_bf._size;
-            if (fp->_p > fp->_bf._base && s > w) {
+            w = fp->w + fp->bf.size;
+            if (fp->p > fp->bf.base && s > w) {
                 COPY(w);
-                fp->_p += w;
+                fp->p += w;
                 if (fflush(fp)) {
                     goto err;
                 }
-            } else if (s >= (w = fp->_bf._size)) {
-                w = (*fp->_write)(fp->_cookie, p, w);
+            } else if (s >= (w = fp->bf.size)) {
+                w = (*fp->write)(fp->cookie, p, w);
                 if (w <= 0) {
                     goto err;
                 }
             } else {
                 w = s;
                 COPY(w);
-                fp->_w -= w;
-                fp->_p += w;
+                fp->w -= w;
+                fp->p += w;
             }
             if ((nldist -= w) == 0) {
                 if (fflush(fp)) {
@@ -165,6 +147,6 @@ int __sfvwrite(FILE *fp, struct __suio *uio)
     return 0;
 
 err:
-    fp->_flags |= __SERR;
+    fp->flags |= __SERR;
     return EOF;
 }

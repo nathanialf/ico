@@ -55,51 +55,49 @@ extern void __sinit(void *r);
 extern int fflush();
 extern int __submore(char *fp);
 
-int ungetc(int c, char *fp)
+int ungetc(int c, Fil *fp)
 {
     if (c == -1)
         return -1;
     /* newlib's CHECK_INIT(fp), a do-while-zero macro wrapper */
     do {
-        if (*(char **)(fp + 0x54) == 0)
-            *(char **)(fp + 0x54) = (char *)D_0054CEAC[0];
-        if (*(int *)(*(char **)(fp + 0x54) + 0x38) == 0)
-            __sinit(*(char **)(fp + 0x54));
+        if (fp->data == 0)
+            fp->data = (char *)D_0054CEAC[0];
+        if (fp->data->sdidinit == 0)
+            __sinit(fp->data);
     } while (0);
-    *(short *)(fp + 0xC) = *(unsigned short *)(fp + 0xC) & ~0x20;
-    if ((*(unsigned short *)(fp + 0xC) & 4) == 0) {
-        if ((*(unsigned short *)(fp + 0xC) & 0x10) == 0)
+    fp->flags &= ~0x20;
+    if ((fp->flags & 4) == 0) {
+        if ((fp->flags & 0x10) == 0)
             return -1;
-        if (*(unsigned short *)(fp + 0xC) & 8) {
+        if (fp->flags & 8) {
             if (fflush(fp))
                 return -1;
-            *(short *)(fp + 0xC) = *(unsigned short *)(fp + 0xC) & ~8;
-            *(int *)(fp + 0x8) = 0;
-            *(int *)(fp + 0x18) = 0;
+            fp->flags &= ~8;
+            fp->w = 0;
+            fp->lbfsize = 0;
         }
-        *(short *)(fp + 0xC) = *(unsigned short *)(fp + 0xC) | 4;
+        fp->flags |= 4;
     }
     c = (unsigned char)c;
-    if (*(char **)(fp + 0x30) != 0) {
-        if (*(int *)(fp + 0x4) >= *(int *)(fp + 0x34) && __submore(fp))
+    if (fp->ub.base != 0) {
+        if (fp->r >= fp->ub.size && __submore(fp))
             return -1;
-        *--*(unsigned char **)(fp + 0x0) = c;
-        *(int *)(fp + 0x4) += 1;
+        *--fp->p = c;
+        fp->r += 1;
         return c;
     }
-    if (*(char **)(fp + 0x10) != 0 &&
-        *(unsigned char **)(fp + 0x0) > *(unsigned char **)(fp + 0x10) &&
-        (*(unsigned char **)(fp + 0x0))[-1] == c) {
-        *(unsigned char **)(fp + 0x0) -= 1;
-        *(int *)(fp + 0x4) += 1;
+    if (fp->bf.base != 0 && fp->p > fp->bf.base && fp->p[-1] == c) {
+        fp->p -= 1;
+        fp->r += 1;
         return c;
     }
-    *(int *)(fp + 0x3C) = *(int *)(fp + 0x4);
-    *(char **)(fp + 0x38) = *(char **)(fp + 0x0);
-    *(char **)(fp + 0x30) = fp + 0x40;
-    *(int *)(fp + 0x34) = 3;
-    *(char *)(fp + 0x42) = c;
-    *(char **)(fp + 0x0) = fp + 0x42;
-    *(int *)(fp + 0x4) = 1;
+    fp->ur = fp->r;
+    fp->up = fp->p;
+    fp->ub.base = fp->ubuf;
+    fp->ub.size = 3;
+    fp->ubuf[2] = c;
+    fp->p = &fp->ubuf[2];
+    fp->r = 1;
     return c;
 }
