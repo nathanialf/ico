@@ -535,9 +535,28 @@ typedef struct StageSetting {
     float flatLightDir[3][4]; /* 0x000 */
     float flatLightCol[3][4]; /* 0x030 */
     float ambientCol[4];      /* 0x060 */
-    char pad070[0x84];        /* 0x070 */
+    char pad070[0x60];        /* 0x070 */
+    /* RECONSTRUCTION: the reduction tint used while no sub target is current,
+       and the per sub target row whose fourth word is the film grain tint
+       ico2/seki/src/GsBase.c reads at 0x13C. */
+    int reductionCol[3];      /* 0x0D0 */
+    char pad0DC[0x18];        /* 0x0DC */
     int motionBlur;           /* 0x0F4 */
-    char pad0F8[0xC4];        /* 0x0F8 */
+    char pad0F8[0x4];         /* 0x0F8 */
+    int f0FC;                 /* 0x0FC */
+    int f100;                 /* 0x100 */
+    char pad104[0x2C];        /* 0x104 */
+    struct {
+        int r;
+        int g;
+        int b;
+        int a;
+    } targetCol[4];           /* 0x130 */
+    char pad170[0x2C];        /* 0x170 */
+    struct {
+        int a;
+        int b;
+    } f19C[4];                /* 0x19C */
     int subMotionBlur[5];     /* 0x1BC */
 } StageSetting;
 

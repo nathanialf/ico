@@ -2037,6 +2037,18 @@ int E3_LeverCheck(char *a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", actCommonBecarry);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", subCommonIdle);
+/* Reverted to asm 2026-09-17 (chain 3 pass 17): 81 of 81 instructions and
+ * every instruction in ROM's order; the residual is eight words of hard
+ * register naming (ROM colours the work chain $3 and $4 and the two compared
+ * counters $8 and $9, the built code a1, a0, v0 and v1) with no instruction,
+ * operand order or scheduling difference left.  Derived body:
+ * tails/seeds/commonact.c3p17_ContinueCorrectPosition_81of81_strict8_TU.c.
+ * LEVER MEASURED: the work chain must be spelled with INT dereferences
+ * (`*(int *)(*(int *)(*(int *)((char *)obj + 0x164) + 0x680) + 0xB4)`), not
+ * the `*(char **)` form the rest of this TU uses, because the counter store
+ * has to ALIAS the chain loads: with the char pointer spelling strict
+ * aliasing lets gcse keep the chain across the store and the function comes
+ * out three instructions short (78 of 81, 74 differing rows). */
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", ContinueCorrectPosition);
 
 void actCommonTurn(volatile int a0)

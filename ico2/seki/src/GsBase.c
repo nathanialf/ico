@@ -95,6 +95,28 @@ void gsb_Init(void *db)
     D_00639F8C = 1.0f;
 }
 
+/* Reverted to asm 2026-09-17 (chain 3 pass 17): 337 of 337 instructions, only
+ * the three per target tint reads differ (10 words) and the whole packet
+ * build, the DMA kick and the default tint arms are word for word.  The body
+ * is derived: one `long long pk[44]` local whose 44 element initialiser is the
+ * 22 qword GIF packet (gcc 2.9 builds a 352 byte initialiser in a temporary
+ * and block copies it, which is ROM's ld/sd loop), then sceGsSyncPath,
+ * FlushCache, the three volatile GIF channel registers at 0x1000A020,
+ * 0x1000A010 and 0x1000A000 and a second sceGsSyncPath.  MEASURED RESIDUAL:
+ * ROM composes the tint row address as index plus base (`addu idx, base` with
+ * 0x130 as the load displacement), which expr.c's both_summands rule ("put a
+ * multiplication first") only produces when the address is an explicit
+ * pointer sum whose offset RTL is still a MULT; the struct member spelling
+ * `D_0028F720.targetCol[i - 1].r` goes through the handled component path,
+ * which emits base plus index.  Casting the base to the record type
+ * (`((StageSetting *)((char *)&D_0028F720 + ((i - 1) << 4)))->targetCol[0].r`)
+ * reproduces ROM's three address words exactly but costs the tail: ROM's two
+ * branches share one `addiu $2, $0, 0x80` block and the cast spelling leaves
+ * the third arm's result in the other register, so the cross jump does not
+ * merge (45 strict rows against 16).  A plain cast deref with the 0x130 in
+ * the address folds the offset onto the symbol (%lo(D_0028F720) + 304), which
+ * is a different word.  Derived body:
+ * tails/seeds/GsBase.c3p17_gsb_Reduction_337of337_strict16_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_Reduction);
 
 extern unsigned char D_00639F98;
@@ -783,8 +805,276 @@ void appendLogFile(void)
     debug_StdPrintfDummy(D_0067BA88);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_FilmNoiseTool);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_StageSettingTool);
+/* one row of the film noise debug menu (the same shape ico2/seki/src/ZFog.c
+   carries for the fog tool): a label, the word it edits, whether that word is
+   a float, its range, its default and its step, and the callback to run once
+   the value has moved. */
+typedef struct GsbToolItem {
+    char *name;   /* 0x00 */
+    void *val;    /* 0x04 */
+    int isFloat;  /* 0x08 */
+    float min;    /* 0x0C */
+    float max;    /* 0x10 */
+    float def;    /* 0x14 */
+    float step;   /* 0x18 */
+    void (*fn)(); /* 0x1C */
+} GsbToolItem;
+
+/* .rodata, VMA 0x0054E5B8..0x0054E938: the four pages of seven rows, one page
+   per render target, each row naming a word of the stage record. */
+extern const GsbToolItem D_0054E5B8[4][7];
+/* .rodata, VMA 0x0054E9E0: the unselected and selected row colours. */
+extern unsigned int D_0054E9E0[];
+extern char D_0054E9E8[];  /* "Film Noise Pattern %d" */
+extern char D_0054EA00[];  /* "StageSetting %s => %s\n" */
+extern char D_0054EA18[];  /* "StageSetting %s => %d\n" */
+extern char D_0054EA30[];  /* "StageSetting %s => %f\n" */
+extern char D_0063A018[];  /* "%s : %s" */
+extern char D_0063A020[];  /* "%s : %d" */
+extern char D_0063A028[];  /* "%s : %f" */
+extern char *D_00290810[]; /* "Off" and "On" */
+extern int D_0063A014;     /* the highlighted row */
+extern GsbPad D_0028F8F0[];
+extern double fptodp(float v);
+
+/* The film noise page of the debug menu: seven editable words of the stage
+ * record for the target this page names, the pad keys that walk and change
+ * them, the key that dumps the page to the log, and the key that copies this
+ * target's tint and blur over the main ones. */
+int gsb_FilmNoiseTool(int target)
+{
+    int i;
+    int ret = 0;
+    int page = target;
+
+    debug_PrintfDummy(10, 30, 0xFF800000, D_0054E9E8, target);
+
+    for (i = 0; i < 7; i++) {
+        if (D_0054E5B8[target][i].min == 0.0f && D_0054E5B8[target][i].max == 1.0f &&
+            D_0054E5B8[target][i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054E9E0[(D_0063A014 == i) ? 1 : 0],
+                              D_0063A018, D_0054E5B8[target][i].name,
+                              D_00290810[*(int *)D_0054E5B8[target][i].val]);
+        } else if (D_0054E5B8[target][i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054E9E0[(D_0063A014 == i) ? 1 : 0],
+                              D_0063A020, D_0054E5B8[target][i].name,
+                              *(int *)D_0054E5B8[target][i].val);
+        } else {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054E9E0[(D_0063A014 == i) ? 1 : 0],
+                              D_0063A028, D_0054E5B8[target][i].name,
+                              fptodp(*(float *)D_0054E5B8[target][i].val));
+        }
+    }
+
+    if (D_0028F8F0[0].rep & 0x4000) {
+        if (++D_0063A014 >= 7) {
+            D_0063A014 = 0;
+        }
+    }
+    if (D_0028F8F0[0].rep & 0x1000) {
+        if (--D_0063A014 < 0) {
+            D_0063A014 = 6;
+        }
+    }
+    if (D_0028F8F0[0].rep & 0x2000) {
+        if (D_0054E5B8[page][D_0063A014].isFloat == 0) {
+            int v =
+                (float)*(int *)D_0054E5B8[page][D_0063A014].val + D_0054E5B8[page][D_0063A014].step;
+
+            *(int *)D_0054E5B8[page][D_0063A014].val = v;
+            if (D_0054E5B8[page][D_0063A014].max < (float)v) {
+                *(int *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].min;
+            }
+        } else {
+            float v =
+                *(float *)D_0054E5B8[page][D_0063A014].val + D_0054E5B8[page][D_0063A014].step;
+
+            *(float *)D_0054E5B8[page][D_0063A014].val = v;
+            if (D_0054E5B8[page][D_0063A014].max < v) {
+                *(float *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].min;
+            }
+        }
+        if (D_0054E5B8[page][D_0063A014].fn != 0) {
+            D_0054E5B8[page][D_0063A014].fn(0);
+        }
+    }
+    if (D_0028F8F0[0].rep & 0x8000) {
+        if (D_0054E5B8[page][D_0063A014].isFloat == 0) {
+            int v =
+                (float)*(int *)D_0054E5B8[page][D_0063A014].val - D_0054E5B8[page][D_0063A014].step;
+
+            *(int *)D_0054E5B8[page][D_0063A014].val = v;
+            if ((float)v < D_0054E5B8[page][D_0063A014].min) {
+                *(int *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].max;
+            }
+        } else {
+            float v =
+                *(float *)D_0054E5B8[page][D_0063A014].val - D_0054E5B8[page][D_0063A014].step;
+
+            *(float *)D_0054E5B8[page][D_0063A014].val = v;
+            if (v < D_0054E5B8[page][D_0063A014].min) {
+                *(float *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].max;
+            }
+        }
+        if (D_0054E5B8[page][D_0063A014].fn != 0) {
+            D_0054E5B8[page][D_0063A014].fn(0);
+        }
+    }
+    if (D_0028F8F0[0].trg & 0x10) {
+        if (D_0054E5B8[page][D_0063A014].isFloat == 0) {
+            *(int *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].def;
+        } else {
+            *(float *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].def;
+        }
+    }
+    if (D_0028F8F0[0].trg & 0x20) {
+        for (i = 0; i < 7; i++) {
+            if (D_0054E5B8[page][i].min == 0.0f && D_0054E5B8[page][i].max == 1.0f &&
+                D_0054E5B8[page][i].isFloat == 0) {
+                debug_StdPrintfDummy(D_0054EA00, D_0054E5B8[page][i].name,
+                                     D_00290810[*(int *)D_0054E5B8[page][i].val]);
+            } else if (D_0054E5B8[page][i].isFloat == 0) {
+                debug_StdPrintfDummy(D_0054EA18, D_0054E5B8[page][i].name,
+                                     *(int *)D_0054E5B8[page][i].val);
+            } else {
+                debug_StdPrintfDummy(D_0054EA30, D_0054E5B8[page][i].name,
+                                     fptodp(*(float *)D_0054E5B8[page][i].val));
+            }
+        }
+        ret = 1;
+    }
+    if (D_0028F8F0[0].trg & 0x80) {
+        char *st = (char *)&D_0028F720;
+
+        *(int *)(st + (target << 4) + 0x130) = D_0028F720.reductionCol[0];
+        *(int *)(st + (target << 4) + 0x134) = D_0028F720.reductionCol[1];
+        *(int *)(st + (target << 4) + 0x138) = D_0028F720.reductionCol[2];
+        D_0028F720.subMotionBlur[target] = D_0028F720.motionBlur;
+        D_0028F720.f19C[target].a = D_0028F720.f0FC;
+        D_0028F720.f19C[target].b = D_0028F720.f100;
+    }
+    if (D_0028F8F0[0].trg & 0x40) {
+        ret = -1;
+    }
+    if (ret != 0) {
+        D_0063A014 = 0;
+    }
+    return ret;
+}
+
+/* .rodata, VMA 0x0054EA48..0x0054ECE8: the twenty one rows of the stage
+   setting page, each naming a word of the stage record. */
+extern const GsbToolItem D_0054EA48[21];
+/* .rodata, VMA 0x0054EEE0: the unselected and selected row colours. */
+extern unsigned int D_0054EEE0[];
+extern char D_0054EEE8[];  /* "StageSetting" */
+extern char *D_00290818[]; /* "Off" and "On" */
+extern int D_0063A030;     /* the highlighted row */
+
+/* The stage setting page of the debug menu: twenty one editable words of the
+ * stage record, the pad keys that walk and change them, and the key that dumps
+ * the page to the log. */
+int gsb_StageSettingTool(void)
+{
+    int i;
+    int ret = 0;
+
+    debug_PrintfDummy(10, 30, 0xFF800000, D_0054EEE8);
+
+    for (i = 0; i < 21; i++) {
+        if (D_0054EA48[i].min == 0.0f && D_0054EA48[i].max == 1.0f && D_0054EA48[i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054EEE0[(D_0063A030 == i) ? 1 : 0],
+                              D_0063A018, D_0054EA48[i].name,
+                              D_00290818[*(int *)D_0054EA48[i].val]);
+        } else if (D_0054EA48[i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054EEE0[(D_0063A030 == i) ? 1 : 0],
+                              D_0063A020, D_0054EA48[i].name, *(int *)D_0054EA48[i].val);
+        } else {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054EEE0[(D_0063A030 == i) ? 1 : 0],
+                              D_0063A028, D_0054EA48[i].name, fptodp(*(float *)D_0054EA48[i].val));
+        }
+    }
+
+    if (D_0028F8F0[0].rep & 0x4000) {
+        if (++D_0063A030 >= 21) {
+            D_0063A030 = 0;
+        }
+    }
+    if (D_0028F8F0[0].rep & 0x1000) {
+        if (--D_0063A030 < 0) {
+            D_0063A030 = 20;
+        }
+    }
+    if (D_0028F8F0[0].rep & 0x2000) {
+        if (D_0054EA48[D_0063A030].isFloat == 0) {
+            int v = (float)*(int *)D_0054EA48[D_0063A030].val + D_0054EA48[D_0063A030].step;
+
+            *(int *)D_0054EA48[D_0063A030].val = v;
+            if (D_0054EA48[D_0063A030].max < (float)v) {
+                *(int *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].min;
+            }
+        } else {
+            float v = *(float *)D_0054EA48[D_0063A030].val + D_0054EA48[D_0063A030].step;
+
+            *(float *)D_0054EA48[D_0063A030].val = v;
+            if (D_0054EA48[D_0063A030].max < v) {
+                *(float *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].min;
+            }
+        }
+        if (D_0054EA48[D_0063A030].fn != 0) {
+            D_0054EA48[D_0063A030].fn(0);
+        }
+    }
+    if (D_0028F8F0[0].rep & 0x8000) {
+        if (D_0054EA48[D_0063A030].isFloat == 0) {
+            int v = (float)*(int *)D_0054EA48[D_0063A030].val - D_0054EA48[D_0063A030].step;
+
+            *(int *)D_0054EA48[D_0063A030].val = v;
+            if ((float)v < D_0054EA48[D_0063A030].min) {
+                *(int *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].max;
+            }
+        } else {
+            float v = *(float *)D_0054EA48[D_0063A030].val - D_0054EA48[D_0063A030].step;
+
+            *(float *)D_0054EA48[D_0063A030].val = v;
+            if (v < D_0054EA48[D_0063A030].min) {
+                *(float *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].max;
+            }
+        }
+        if (D_0054EA48[D_0063A030].fn != 0) {
+            D_0054EA48[D_0063A030].fn(0);
+        }
+    }
+    if (D_0028F8F0[0].trg & 0x10) {
+        if (D_0054EA48[D_0063A030].isFloat == 0) {
+            *(int *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].def;
+        } else {
+            *(float *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].def;
+        }
+    }
+    if (D_0028F8F0[0].trg & 0x20) {
+        for (i = 0; i < 21; i++) {
+            if (D_0054EA48[i].min == 0.0f && D_0054EA48[i].max == 1.0f &&
+                D_0054EA48[i].isFloat == 0) {
+                debug_StdPrintfDummy(D_0054EA00, D_0054EA48[i].name,
+                                     D_00290818[*(int *)D_0054EA48[i].val]);
+            } else if (D_0054EA48[i].isFloat == 0) {
+                debug_StdPrintfDummy(D_0054EA18, D_0054EA48[i].name, *(int *)D_0054EA48[i].val);
+            } else {
+                debug_StdPrintfDummy(D_0054EA30, D_0054EA48[i].name,
+                                     fptodp(*(float *)D_0054EA48[i].val));
+            }
+        }
+        ret = 1;
+    }
+    if (D_0028F8F0[0].trg & 0x40) {
+        ret = -1;
+    }
+    if (ret != 0) {
+        D_0063A030 = 0;
+    }
+    return ret;
+}
 
 extern int D_00639F78;
 extern char D_0054EF00[];
@@ -877,7 +1167,6 @@ typedef struct {
     int arg;     /* 0x8 */
 } GsbMenuItem;
 
-extern GsbPad D_0028F8F0[];
 extern GsbMenuItem D_00290820[];
 extern GsbMenuItem D_00290830[];
 extern int D_0054F078[];
