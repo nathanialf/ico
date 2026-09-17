@@ -537,7 +537,29 @@ void tex_initTM2(Tim2Picture *pic, CdvdRec *t)
     tex_setRegisters(pic, t);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_convertClutCSM2ToCSM1);
+void tex_convertClutCSM2ToCSM1(Tim2Picture *pic)
+{
+    int buf[8][2][2][8];
+    int *clut = (int *)((char *)pic + pic->headerSize + pic->imageSize);
+    int *top = clut;
+    int i, j, k, l;
+
+    if ((pic->clutType >> 7) != 0) {
+        for (i = 0; i < 8; i++) {
+            for (j = 0; j < 2; j++) {
+                for (k = 0; k < 2; k++) {
+                    for (l = 0; l < 8; l++) {
+                        buf[i][k][j][l] = *clut++;
+                    }
+                }
+            }
+        }
+        clut = top;
+        for (i = 0; i < 256; i++) {
+            *clut++ = ((int *)buf)[i];
+        }
+    }
+}
 
 /* PUBLIC SDK NAMING RUNG: the two transfer packets libgraph fills in. Only
  * their sizes are read from the ROM: sceGsSetDefLoadImage's last store is the
@@ -678,7 +700,6 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
 
 extern int mipmap_header_size[];
 extern int sprintf(char *buf, const char *fmt, ...);
-extern void tex_convertClutCSM2ToCSM1(Tim2Picture *pic);
 extern void debug_DispQW(void *p, int n);
 extern void debug_StdPrintfDummy();
 extern void debug_assert(char *file, int line);
