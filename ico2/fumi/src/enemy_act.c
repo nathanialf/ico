@@ -76,6 +76,8 @@ typedef struct {
     int battleType;
     char pad1F0[0x210 - 0x1F0];
     EnemyStatusFlags flags;
+    char pad218[0x228 - 0x218];
+    int slowTimer;
 } EnemyBattleWork;
 
 typedef struct {
@@ -294,7 +296,169 @@ end:
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyControl);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyCollision);
+
+extern int stage_no;
+extern int D_00639EA0;
+/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
+extern int _RotyGV(float *a0, void *a1);
+extern void ACTGame_CommonLoop(void *self);
+/* kept local: enemy_act.c does not carry multiBgaManager.h, and this TU reads
+   only the display list pointer it hands the manager. */
+extern void DispMultiBgaManagerWithKind(int kind, void *base, int n);
+/* The pad record layout_texture.c reconstructs as LtPad; this TU reads only its
+   button word at +0, and the incomplete array type is what keeps ROM's %hi/%lo
+   pair where a small scalar would go gp-relative under -G 8. */
+extern int D_0028F8F0[];
+extern void ACTParaStatus_Exec(void *self);
+extern float GetEnemyDefParaIndex(void *self);
+extern void afterCommonCarry(volatile int a0);
+extern int FlyMail(void *a0);
+
+/* static inline of the 2001 source: the disc listing attributes rows
+   1642-1663 -- which lie outside every function's own line span -- to the
+   bodies of EnemyUtil_TurnToBoy, _ApproachTarget_Boss and subEnemyCollision
+   alike, so this is a helper defined above them and inlined at each call.
+   Name is descriptive, not recovered. */
+static inline unsigned char enemyCheckTurnAngle(char *self)
+{
+    float mot[4];
+    float cur[4];
+    char *s = *(char **)(self + 0x164);
+    int limit = (*(int *)(s + 0x34) == 3) ? 0x5A : 0x69;
+    int ang;
+    int aang;
+
+    cur[0] = *(float *)(s + 0x120);
+    cur[1] = *(float *)(s + 0x124);
+    cur[2] = *(float *)(s + 0x128);
+    GetRootMotionOrient(mot, self);
+    ang = _RotyGV(mot, cur);
+    aang = ang < 0 ? -ang : ang;
+    if (limit < aang) {
+        *(float *)(s + 0x5C0) = cur[0];
+        *(float *)(s + 0x5C4) = cur[1];
+        *(float *)(s + 0x5C8) = cur[2];
+        if (ang > 0) {
+            ACTSendMailCorrect(self, 0xE8);
+        } else {
+            ACTSendMailCorrect(self, 0xE7);
+        }
+        return 1;
+    } else if (aang < 0xF) {
+        ACTSendMailCorrect(self, 0xF1);
+    }
+    return 0;
+}
+
+/* Static inline helper of the 2001 source at enemy_act.c:816-826 (it has no
+   symbol of its own and no census row; the disc listing shows its lines inlined
+   here and in subEnemyBrain_Irregular).  Name is descriptive, not recovered. */
+static inline unsigned char isEnemyCarriedByGirl(int self)
+{
+    char *gsub;
+    if (*(int *)(*(char **)(self + 0x164) + 0x148) == 0 || D_00639EA8 == 0) {
+        return 0;
+    }
+    gsub = *(char **)(D_00639EA8 + 0x164);
+    if (gsub == 0 || *(int *)(gsub + 0x34) != 0x6F) {
+        return 0;
+    }
+    if (*(int *)(gsub + 0x144) == self) {
+        return 1;
+    }
+    return 0;
+}
+
+void subEnemyCollision(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    int idx;
+
+    while (*(int *)(sub + 0x130) == 0) {
+        _ACTWait(1);
+    }
+    while (1) {
+        float *dir = (float *)(sub + 0x120);
+        if (actEnemyFlagCheckActive((int *)a0) != 0) {
+            *(long long *)(sub + 0x18) = *(long long *)(sub + 0x18) | (1LL << 32);
+        } else {
+            *(long long *)(sub + 0x18) = *(long long *)(sub + 0x18) & ~(1LL << 32);
+        }
+        if ((((int)(*(long long *)(sub + 0x18) >> 32)) & 1) == 0 && *(int *)(sub + 0x34) != 0x16) {
+            *(long long *)(sub + 0x18) = *(long long *)(sub + 0x18) & ~(1LL << 33);
+        } else {
+            *(long long *)(sub + 0x18) = *(long long *)(sub + 0x18) | (1LL << 33);
+        }
+        if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1F0) != 0) {
+            _ACTParaStatus_Set((char *)a0,
+                               *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1F0));
+        }
+        if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1E4) == 3) {
+            ((EnemyBattleGObj *)a0)->sub->enemy->slowTimer -= 1;
+            if (0 < *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x228)) {
+                float rate =
+                    (60 - *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x228)) / 60.0f;
+                float speed = (rate < 0.1f) ? 0.1f : ((1.0f < rate) ? 1.0f : rate);
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((char *)a0, speed, 8);
+            }
+        }
+        ACTGame_CommonLoop((void *)a0);
+        CommonAttackCenter((char *)a0);
+        if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1E4) == 3) {
+            boss_effect_process((char *)a0);
+        }
+        if (*(int *)(sub + 0x34) == 5 && 400.0f < *(float *)(*(char **)(a0 + 0x15C) + 0x560)) {
+            FlyMail((void *)a0);
+        }
+        if (*(float *)(sub + 0x34C) != 0.0f) {
+            enemyCheckTurnAngle((char *)a0);
+        }
+        if ((stage_no == 19 || stage_no == 28) && *(int *)(sub + 0x34) == 6) {
+        } else if (0.1f < *(float *)(sub + 0x34C) && *(int *)(sub + 0x34) != 0x73) {
+            SetMotionDirectionSmooze(
+                (void *)a0, dir,
+                (float)((a0 == (int)D_00639EA8 && D_00639EA0 != 0)
+                            ? D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f182
+                            : D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f186));
+        }
+        if (actEnemyFlagCheckDead((int *)a0) == 0) {
+            ACTGame_SaveActorInformation((char *)a0);
+        }
+        if (*(int *)(sub + 0x34) != 0x70) {
+            /* The January listing's rows 1761-1770 emit no instruction at all;
+               the only word left of this block is the volatile reload of the
+               actor-entry parameter that its dropped body read. */
+            int self = a0;
+        }
+        if (*(int *)(sub + 0x34) != 0x16) {
+            if (0x16 < *(unsigned int *)(sub + 0x34)) {
+                if (*(int *)(sub + 0x34) == 0x1C) {
+                    if (0.1f < *(float *)(sub + 0x34C) &&
+                        (*(int *)(sub + 0x340) < -134 || 134 < *(int *)(sub + 0x340))) {
+                        ACTSendMailCorrect((void *)a0, 0xE2);
+                    } else if (0.1f < *(float *)(sub + 0x34C) &&
+                               (-45 <= *(int *)(sub + 0x340) && *(int *)(sub + 0x340) <= 45)) {
+                        if ((D_0028F8F0[0] & 4) == 0) {
+                            ACTSendMailCorrect((void *)a0, 0xC7);
+                        }
+                    }
+                    ACTSendMailCorrect((void *)a0, 0x150);
+                }
+            }
+        }
+        DispMultiBgaManagerWithKind(0x1FA,
+                                    *(void **)(*(int *)(*(int *)(a0 + 0x164) + 0x688) + 0x378), 1);
+        idx = (int)GetEnemyDefParaIndex((void *)a0);
+        if ((unsigned int)(idx - 1) < 4) {
+            _ACTParaStatus_Set((char *)a0, idx + 0x1C);
+        }
+        ACTParaStatus_Exec((void *)a0);
+        if (isEnemyActive((int *)a0) == 0 && isEnemyCarriedByGirl(a0)) {
+            afterCommonCarry(a0);
+        }
+        _ACTWait(1);
+    }
+}
 
 /* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
 extern void _OrientXZGV(float *dst, float *a, float *b);
@@ -348,7 +512,6 @@ void actEnemyAttack(volatile int a0)
     }
 }
 
-extern int stage_no;
 /* kept local: this TU's uses of InitMotionGeoInfo do not fit the prototype in motionManager2.h */
 extern void InitMotionGeoInfo(char *p, float x, float y, float z, float a, float b, float c);
 extern int D_0063AA00;
@@ -527,12 +690,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapEnd);
 
 /* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
-/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
-extern int _RotyGV(float *a0, void *a1);
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(float *v, float ang);
 extern void sceVu0ScaleVector(float *dst, float *src, float s);
-extern int D_00639EA0;
 
 /* Static inline of the 2001 source: the listing attributes rows 2609-2614 to a
    body inside actEnemyKidnapBegin's ROM range but above its own lines, the same
@@ -1289,42 +1449,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToBoy);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", ChangeBrain_ToKidnap);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToGirl);
 
-/* static inline of the 2001 source: the disc listing attributes rows
-   1643-1660 -- which lie outside every function's own line span -- to the
-   bodies of EnemyUtil_TurnToBoy, _ApproachTarget_Boss and subEnemyCollision
-   alike, so this is a helper defined above them and inlined at each call.
-   Name is descriptive, not recovered. */
-static inline unsigned char enemyCheckTurnAngle(char *self)
-{
-    float mot[4];
-    float cur[4];
-    char *s = *(char **)(self + 0x164);
-    int limit = (*(int *)(s + 0x34) == 3) ? 0x5A : 0x69;
-    int ang;
-    int aang;
-
-    cur[0] = *(float *)(s + 0x120);
-    cur[1] = *(float *)(s + 0x124);
-    cur[2] = *(float *)(s + 0x128);
-    GetRootMotionOrient(mot, self);
-    ang = _RotyGV(mot, cur);
-    aang = ang < 0 ? -ang : ang;
-    if (limit < aang) {
-        *(float *)(s + 0x5C0) = cur[0];
-        *(float *)(s + 0x5C4) = cur[1];
-        *(float *)(s + 0x5C8) = cur[2];
-        if (ang > 0) {
-            ACTSendMailCorrect(self, 0xE8);
-        } else {
-            ACTSendMailCorrect(self, 0xE7);
-        }
-        return 1;
-    } else if (aang < 0xF) {
-        ACTSendMailCorrect(self, 0xF1);
-    }
-    return 0;
-}
-
 int _ApproachTarget_Boss(char *self, void *tgt, void *pos, void *fn, float range,
                          unsigned char flag)
 {
@@ -1416,7 +1540,177 @@ end:
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", _ApproachTarget_Way);
+/* kept local: enemy_act.c carries none of these owners' headers, and the ROM
+   proves gif_StartPacketPri takes the packet priority its GifPacket.h
+   prototype does not name. */
+extern int IsSelectID_EnemyCtrl(int a0);
+extern int ACTWayMove_BeginDetail(char *self, float *goal, float *from, void *tgt, void *e,
+                                  unsigned char sub);
+extern int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
+                                 unsigned char e);
+extern unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3);
+extern int ACTWay_IsMustWalkFromWay(char *a0);
+extern int GetFlyLimitClearance(void *pos);
+extern int CheckFloorAttribute(char *self, int attr);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_TransMatrixV(char *a0);
+extern void _UnitMatrix(void *p0);
+extern void gif_StartPacketPri(int pri);
+extern void gif_EndPacket(void);
+extern void prim_DispWireSphere(void *col, int nu, int nv, float r);
+extern unsigned char D_0029D1C0[];
+extern int D_0063B234;
+
+/* static inline of the 2001 source, listing rows 4654-4660: FlyMail is `inline`
+   there -- the listing expands its body inside _ApproachTarget_Way three times
+   -- while its out-of-line copy keeps its own ROM slot below.  Same deal as
+   _BrainMode_SetDirect_INTERIM. */
+static inline int FlyMail_INTERIM(void *a0)
+{
+    int x = *(int *)(*(char **)((char *)a0 + 0x164) + 0x10);
+    if (x < 0xC) {
+        return -1;
+    }
+    return flyMailCore(a0);
+}
+
+/* static inline of the 2001 source, listing rows 4681-4689, which lie outside
+   every function's own line span; the listing expands them twice inside
+   _ApproachTarget_Way.  Name is descriptive, not recovered. */
+static inline unsigned char waitEnemyFly(char *self)
+{
+    char *sub = *(char **)(self + 0x164);
+
+    while (*(int *)(sub + 0x34) != 6) {
+        if (FlyMail_INTERIM(self) == 0) {
+            return 0;
+        }
+        _ACTWait(1);
+    }
+    return 1;
+}
+
+/* static inline of the 2001 source, listing rows 4665-4672.  Name is
+   descriptive, not recovered. */
+static inline int flyLimitMail(char *self, float *rp)
+{
+    char *sub = *(char **)(self + 0x164);
+
+    if (*(int *)(sub + 0x10) < 0xC) {
+        return 0;
+    }
+    GetRootPosition(rp, self);
+    if (GetFlyLimitClearance(rp) == 0) {
+        return 0;
+    }
+    flyMailCore(self);
+    return 1;
+}
+
+int _ApproachTarget_Way(char *self, void *tgt, void *pos, void *fn, float range, unsigned char flag)
+{
+    float p0[4];
+    float p1[4];
+    float rp[4];
+    char *sub = *(char **)(self + 0x164);
+    int i;
+    int ret;
+
+    GetRootProjectionPosOfGObj(p0, (char *)tgt);
+    GetRootProjectionPosOfGObj(p1, self);
+    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 40 / 60; i++) {
+        if (IsSelectID_EnemyCtrl(*(int *)(self + 8)) != 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    ret = ACTWayMove_BeginDetail(self, p1, p0, tgt, 0, 0);
+    if (ret == 0) {
+        ret = waitEnemyFly(self);
+        if (ret == 0) {
+            return 0;
+        }
+    }
+    while (1) {
+        GetRootProjectionPosOfGObj(p0, (char *)tgt);
+        GetRootProjectionPosOfGObj(p1, self);
+        if (!(_DistSqGV(p1, p0) < 1440000.0f) ||
+            140.0f < ((p1[1] - p0[1] < 0.0f) ? -(p1[1] - p0[1]) : (p1[1] - p0[1]))) {
+            flyLimitMail(self, rp);
+        }
+        if (fn != 0) {
+            ((void (*)(char *, void *, float))fn)(
+                self, tgt, _DistGV(test_CURRENTROOT((int)self), test_CURRENTROOT((int)tgt)));
+        }
+        if (*(int *)(sub + 0x34) == 6) {
+            _ACTWait(1);
+            continue;
+        }
+        if (ACTWayMove_NextDetail(self, pos, p0, 0, 0) == 0) {
+            if (waitEnemyFly(self) == 0) {
+                return 0;
+            }
+        }
+        *(float *)((char *)pos + 0) = *(float *)(sub + 0x3E0);
+        *(float *)((char *)pos + 4) = *(float *)(sub + 0x3E4);
+        *(float *)((char *)pos + 8) = *(float *)(sub + 0x3E8);
+        if (((int)(((ActStatusWord *)(sub + 0x3F0))->q >> 17)) & 1) {
+            if (D_0063B234 != 0) {
+                MatrixDrive_PushMatrix();
+                GetRootPosition(rp, self);
+                _UnitMatrix(MatrixDrive_GetMatrix());
+                MatrixDrive_TransMatrixV((char *)rp);
+                gif_StartPacketPri(11);
+                prim_DispWireSphere(D_0029D1C0, 4, 4, 100.0f);
+                gif_EndPacket();
+                MatrixDrive_PopMatrix();
+            }
+            FlyMail_INTERIM(self);
+        }
+        if (*(int *)(self + 8) == 0xEAD &&
+            (((int)(*(unsigned long long *)(sub + 0x20) >> 39)) & 1)) {
+            FlyMail_INTERIM(self);
+        }
+        if (stage_no == 9 && CheckFloorAttribute(self, 0x100000) != 0 &&
+            (tgt == D_00639EA4 || tgt == (void *)D_00639EA8) &&
+            _DistxzSqGV((float *)test_CURRENTROOT((int)self), (float *)test_CURRENTROOT((int)tgt)) <
+                40000.0f &&
+            ((((float *)test_CURRENTROOT((int)self))[1] - ((float *)test_CURRENTROOT((int)tgt))[1] <
+              0.0f)
+                 ? -(((float *)test_CURRENTROOT((int)self))[1] -
+                     ((float *)test_CURRENTROOT((int)tgt))[1])
+                 : (((float *)test_CURRENTROOT((int)self))[1] -
+                    ((float *)test_CURRENTROOT((int)tgt))[1])) < 150.0f) {
+            return 1;
+        }
+        if (tgt == (void *)D_00639EA8 && _DistxzSqGV(p1, p0) < 10000.0f &&
+            ((p1[1] - p0[1] < 0.0f) ? -(p1[1] - p0[1]) : (p1[1] - p0[1])) < 50.0f &&
+            WayMove_CheckCollis(p1, p0, 0, 0) == 0) {
+            return 1;
+        }
+        if ((((int)(((ActStatusWord *)(sub + 0x3F0))->q >> 17)) & 1) == 0 &&
+            *(float *)(sub + 0x3F8) < range && *(float *)(sub + 0x3FC) < 100.0f &&
+            ((*(float *)(sub + 0x3FC) < 0.0f) ? -*(float *)(sub + 0x3FC)
+                                              : *(float *)(sub + 0x3FC)) < 200.0f) {
+            return 1;
+        }
+        if (*(float *)(sub + 0x3F8) < 200.0f) {
+            *(float *)(sub + 0x34C) = 0.5f;
+        } else if (ACTWay_IsMustWalkFromWay(self) != 0) {
+            *(float *)(sub + 0x34C) = 0.5f;
+        } else {
+            *(float *)(sub + 0x34C) = 1.0f;
+        }
+        if (flag != 0) {
+            SetMotionDirection(self, (float *)(sub + 0x120));
+            flag = 0;
+        }
+        _ACTWait(1);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyStart);
 
 void subEnemyBrain_Attack(volatile int a0)
@@ -1873,25 +2167,6 @@ void subEnemyBrain_Bodyslam(volatile int a0)
         _ACTWait(120);
         _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
     }
-}
-
-/* Static inline helper of the 2001 source at enemy_act.c:816-826 (it has no
-   symbol of its own and no census row; the disc listing shows its lines inlined
-   here and in subEnemyCollision).  Name is descriptive, not recovered. */
-static inline unsigned char isEnemyCarriedByGirl(int self)
-{
-    char *gsub;
-    if (*(int *)(*(char **)(self + 0x164) + 0x148) == 0 || D_00639EA8 == 0) {
-        return 0;
-    }
-    gsub = *(char **)(D_00639EA8 + 0x164);
-    if (gsub == 0 || *(int *)(gsub + 0x34) != 0x6F) {
-        return 0;
-    }
-    if (*(int *)(gsub + 0x144) == self) {
-        return 1;
-    }
-    return 0;
 }
 
 typedef struct {
