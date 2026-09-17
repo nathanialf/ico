@@ -217,7 +217,11 @@ extern void *D_00639EA4;
 typedef struct {
     char pad00[0x100];
     int f100;
-    char pad104[0x18C - 0x104];
+    char pad104[0x182 - 0x104];
+    short f182;
+    char pad184[2];
+    short f186;
+    char pad188[0x18C - 0x188];
     unsigned int flags18C;
     char pad190[4];
 } EnemyParaRow;
@@ -520,7 +524,6 @@ int actEnemyForceSwitchToCarry(void *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapEnd);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapBegin);
 
 /* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
@@ -529,6 +532,79 @@ extern int _RotyGV(float *a0, void *a1);
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(float *v, float ang);
 extern void sceVu0ScaleVector(float *dst, float *src, float s);
+extern int D_00639EA0;
+
+/* Static inline of the 2001 source: the listing attributes rows 2609-2614 to a
+   body inside actEnemyKidnapBegin's ROM range but above its own lines, the same
+   construction as enemyPickupCheckGirl above.  Rows 2605-2608 emit nothing and
+   ROM's frame is 0xB0 with a 16-byte slot at sp+0x10 that nothing reads, so a
+   second vector is declared ahead of buf: drop it and the frame is 0xA0. */
+static inline int enemyKidnapCheckGirl(int self)
+{
+    float pos[4];
+    float buf[4];
+    int ang;
+    int mode;
+
+    if (_ACTGame_SearchGObj(self, D_00639EA8, 60.0f, 100.0f, 45, buf) != 0) {
+        ang = _RotyGV(buf, test_CURRENTORIENT((int)D_00639EA8));
+        ang = (ang < 0) ? -ang : ang;
+        mode = 2;
+        if (ang <= 89) {
+            mode = 1;
+        }
+    } else {
+        mode = 0;
+    }
+    return mode;
+}
+
+void actEnemyKidnapBegin(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    float *dir = (float *)(sub + 0x120);
+    int mail = 0x163;
+    int mode;
+
+    while (1) {
+        if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) == 0x3AA) {
+            _OrientXZGV(dir, (float *)test_CURRENTROOT((int)D_00639EA8),
+                        (float *)test_CURRENTROOT(a0));
+            if (0.1f < *(float *)(sub + 0x34C) && *(int *)(sub + 0x34) != 0x73) {
+                SetMotionDirectionSmooze(
+                    (void *)a0, dir,
+                    (float)((a0 == (int)D_00639EA8 && D_00639EA0 != 0)
+                                ? D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f182
+                                : D_0055FE58[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f186));
+            }
+            mode = enemyKidnapCheckGirl(a0);
+            switch (mode) {
+            case 1:
+                mail = 0x164;
+                /* fallthrough */
+            case 2:
+                if (actEnemyForceSwitchToCarry((void *)a0) != 0) {
+                    if (mode == 1) {
+                        sceVu0ScaleVector((float *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x120),
+                                          (float *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x120),
+                                          -1.0f);
+                        SetMotionDirection(
+                            (void *)D_00639EA8,
+                            (float *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x120));
+                    }
+                    ACTGame_InsertCamera_GirlIsPinch();
+                    while (1) {
+                        ACTSendMailCorrect((void *)a0, mail);
+                        _ACTWait(1);
+                    }
+                }
+                break;
+            }
+            ACTSendMailCorrect((void *)a0, 0x165);
+        }
+        _ACTWait(1);
+    }
+}
 
 void MoveChestForCatchBoy(char *self)
 {
@@ -1472,8 +1548,8 @@ void actEnemyBodyslamFail(volatile int a0)
     }
 }
 
-extern char *D_0063A61C;
 extern char D_00553500[];
+extern char *D_0063A61C;
 
 void actEnemyNest(volatile int a0)
 {
