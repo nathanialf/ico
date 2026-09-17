@@ -6,6 +6,7 @@
 #include "frameDependSequence.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
+#include "tableSin.h"
 
 extern int D_004E7470[];
 extern float D_0063B7D4;
@@ -17,9 +18,115 @@ extern int D_0063B7C4;
 extern int D_0063B7C8;
 extern float D_0063B7CC;
 
+/* The colour draw and drawHT take by value: four bytes in one register, which
+   is why every call site masks the parameter home to 32 bits. */
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} DVColor;
+
+void draw(void *v, int n, DVColor col, int neg);
+void drawHT(void *v, int n, DVColor col, int neg);
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", draw);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", drawHT);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", renderViewCoordZSphere);
+
+extern float D_0071EEF0[];
+extern float D_0071FFF0[];
+extern float D_00720010[];
+extern float D_00720030[];
+extern float D_00720050[];
+extern int D_0028FF00[];
+extern char *matrixptr;
+void _SetCurrentMatrix(void *m);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
+extern void _ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
+extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+extern float D_0071ECD0[];
+
+/* listing lines 62-65: load the VU0 screen clamp limits vmaxx and vminix read
+   out of vf13 and vf12 in the projection block at line 80. */
+static __inline__ void setScreenClamp(float hi, float lo)
+{
+    __asm__ __volatile__("mfc1 $8, %0\n\t"
+                         "qmtc2.ni $8, $vf12\n\t"
+                         "mfc1 $8, %1\n\t"
+                         "qmtc2.ni $8, $vf13"
+                         :
+                         : "f"(hi), "f"(lo)
+                         : "$8");
+}
+
+/* listing line 117: dst = base + v * s over xyz, keeping base's w. */
+static __inline__ void addScaledVectorXYZ(void *dst, const void *base, const void *v, float s)
+{
+    __asm__ __volatile__("lqc2 $vf14, 0x0(%1)\n\t"
+                         "lqc2 $vf15, 0x0(%2)\n\t"
+                         "mfc1 $8, %3\n\t"
+                         "qmtc2.ni $8, $vf16\n\t"
+                         "vmulx.xyz $vf15, $vf15, $vf16x\n\t"
+                         "vadd.xyz $vf14, $vf14, $vf15\n\t"
+                         "sqc2 $vf14, 0x0(%0)"
+                         :
+                         : "r"(dst), "r"(base), "r"(v), "f"(s)
+                         : "$8");
+}
+
+/* listing lines 242-293: project the view-space sphere around pos, splitting each
+   of the 8 rings at the near plane. The first arm's counter is not read in its
+   body, so loop.c reverses that loop and the ROM counts it down with bgez; the
+   second and third read n and stay ascending. */
+void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
+{
+    float v[4];
+    int i;
+    int n;
+    float *p;
+    float *q;
+
+    _ApplyMatrix(v, matrixptr + 0x80, pos);
+    if (v[2] + r * D_00720010[0] < 1.0f) {
+        return;
+    }
+    _SetCurrentMatrix(matrixptr + 0xC0);
+    setScreenClamp(4095.0f, 0.0f);
+    for (i = 0; i < 8; i++) {
+        float z0 = v[2] + r * D_0071FFF0[i];
+        float z1 = v[2] + r * D_00720010[i];
+
+        p = &D_0071EEF0[i * 136];
+        q = D_0071ECD0;
+        if (1.0f < z0) {
+            for (n = 0; n < 34; n++, p += 4, q += 4) {
+                addScaledVectorXYZ(q, v, p, r);
+            }
+            drawHT(D_0071ECD0, 34, col, neg);
+        } else {
+            float t = (z1 - 1.0f) / (z1 - z0);
+
+            for (n = 0; n < 34; n++, p += 4, q += 4) {
+                addScaledVectorXYZ(q, v, p, r);
+                if (n & 1) {
+                    _InterVectorXYZ(q, q, q - 4, t);
+                }
+            }
+            drawHT(D_0071ECD0, 34, col, neg);
+            q = D_0071ECD0;
+            for (n = 0; n < 34; n++, q += 4) {
+                if (n & 1) {
+                    CopyVector(q - 4, q);
+                    CopyVector(q, v);
+                    D_0071ECD0[n * 4 + 2] = 1.0f;
+                }
+            }
+            draw(D_0071ECD0, 34, col, neg);
+            return;
+        }
+    }
+}
 
 inline void ExecGameOverEffect(void) {}
 
@@ -128,7 +235,54 @@ void GetGameOverEffectCenterPosition(int a0)
     CopyVector(a0, D_004E7460);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", InitGameOverEffect);
+/* listing lines 647-676: build the 8 by 17 sphere vertex table renderViewCoordZSphere
+   walks 34 vectors at a time, then reset the effect state. Each entry is the pair
+   of vectors for ring i and ring i+1, so the row holds 17 pairs of 8 floats and the
+   ring stride is 136 floats. Angles are the 16 bit binary turn the sin and cos
+   tables take, 0x1000 per step. */
+void InitGameOverEffect(void)
+{
+    int i;
+    int j;
+    float ca;
+    float sa;
+    float cb;
+    float sb;
+
+    for (i = 0; i < 8; i++) {
+        short a = i * 0x1000;
+        short b = (i + 1) * 0x1000;
+
+        ca = GetTableCos(a);
+        sa = GetTableSin(a);
+        cb = GetTableCos(b);
+        sb = GetTableSin(b);
+        D_00720010[i] = ca;
+        D_0071FFF0[i] = cb;
+        D_00720050[i] = sa;
+        D_00720030[i] = sb;
+        for (j = 0; j < 17; j++) {
+            float *p = &D_0071EEF0[i * 136 + j * 8];
+            float *q = p + 4;
+            short k = j * 0x1000;
+            float s = GetTableSin(k);
+            float c = GetTableCos(k);
+
+            p[0] = sa * s;
+            p[1] = sa * c;
+            p[2] = ca;
+            p[3] = 1.0f;
+            q[0] = sb * s;
+            q[1] = sb * c;
+            q[2] = cb;
+            q[3] = 1.0f;
+        }
+    }
+    ResetGameOverEffect();
+    D_0063B7D0 = 0;
+    D_0063B7D4 = 0;
+    CopyVector(D_004E7470, ZeroPoint);
+}
 
 inline int InitDarkVolumeGeo(char *a0)
 {
