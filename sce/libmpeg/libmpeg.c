@@ -1534,7 +1534,41 @@ void _copyAddRefImage(void *a0, void *a1, void *a2)
                              : "$2", "$8", "$9", "$10", "$11", "$12", "$13", "memory");
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _copyRefImage);
+/* The saturating pack _copyAddRefImage does without the add: 24 rounds of two
+ * quadwords of signed halfword samples clamped into 0..255 and packed down to
+ * bytes. Whole-function assembly under the MMI exception, and the 16 byte
+ * clamp mask its sibling reads as D_0026E920 lives in this function's own
+ * text, aligned to a quadword, with the two pad instructions the alignment
+ * leaves behind. */
+void _copyRefImage(void *a0, void *a1)
+{
+    __asm__ __volatile__(".set noreorder\n"
+                         "addiu $12, $0, 0x18\n"
+                         "lui $10, %%hi(D_0026E920)\n"
+                         "addiu $10, $10, %%lo(D_0026E920)\n"
+                         "lq $11, 0x0($10)\n"
+                         "1:\n"
+                         "lq $8, 0x0($5)\n"
+                         "addi $12, $12, -0x1\n"
+                         "pminh $8, $8, $11\n"
+                         "lq $9, 0x10($5)\n"
+                         "pmaxh $8, $8, $0\n"
+                         "pminh $9, $9, $11\n"
+                         "addiu $5, $5, 0x20\n"
+                         "pmaxh $9, $9, $0\n"
+                         "addiu $4, $4, 0x10\n"
+                         "ppacb $10, $9, $8\n"
+                         "bnez $12, 1b\n"
+                         "sq $10, -0x10($4)\n"
+                         ".align 4\n"
+                         "D_0026E920:\n"
+                         ".word 0x00FF00FF\n"
+                         ".word 0x00FF00FF\n"
+                         ".word 0x00FF00FF\n"
+                         ".word 0x00FF00FF\n"
+                         ".set reorder\n" ::
+                             : "$8", "$9", "$10", "$11", "$12", "memory");
+}
 
 void _ipuSetMPEG1(int a0)
 {
