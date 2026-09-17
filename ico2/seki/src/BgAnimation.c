@@ -1022,7 +1022,217 @@ void bga_CalcAnimation(char *p, int a1, int a2)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcSdfCamera);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_addLightning);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_DispLightning);
+
+/* The lightning record bga_addLightning allocates: ten 0x20-byte segments,
+   the live segment count, the two flags, the frame, the definition it was
+   built from and the list link.  Field names are ours. */
+typedef struct BgaLightningSeg {
+    /* 0x00 */ float v[4];
+    /* 0x10 */ int key;
+    /* 0x14 */ int f14;
+    /* 0x18 */ int f18;
+    /* 0x1C */ int f1C;
+} BgaLightningSeg;
+
+/* The lightning definition the BGA file carries: the kind at +0x02 picks the
+   object the bolt is drawn against, the four bytes at +0x04 are its colour
+   and the ten floats from +0x08 are DrawLightningN's shape parameters. */
+typedef struct BgaLightningDef {
+    /* 0x00 */ short f00;
+    /* 0x02 */ short kind;
+    /* 0x04 */ unsigned char col[4];
+    /* 0x08 */ float f08;
+    /* 0x0C */ float f0C;
+    /* 0x10 */ float f10;
+    /* 0x14 */ float f14;
+    /* 0x18 */ float f18;
+    /* 0x1C */ float f1C;
+    /* 0x20 */ float f20;
+    /* 0x24 */ float f24;
+    /* 0x28 */ float f28;
+    /* 0x2C */ short f2C;
+    /* 0x2E */ short f2E;
+} BgaLightningDef;
+
+typedef struct BgaLightning {
+    /* 0x000 */ BgaLightningSeg seg[10];
+    /* 0x140 */ int n;
+    /* 0x144 */ int f144;
+    /* 0x148 */ int f148;
+    /* 0x14C */ float frame;
+    /* 0x150 */ BgaLightningDef *def;
+    /* 0x154 */ struct BgaLightning *next;
+} BgaLightning;
+
+/* DrawLightningN reads the colour as four words, so it is a 16-byte record
+   here and not four separate ints. */
+typedef struct BgaLightningCol {
+    unsigned int c[4];
+} __attribute__((aligned(16))) BgaLightningCol;
+
+/* The kind table isys keeps beside the gobj records: 0x4C bytes each, the
+   object kind first. */
+typedef struct BgaObjKind {
+    /* 0x00 */ int kind;
+    /* 0x04 */ char pad04[0x48];
+} BgaObjKind;
+
+extern BgaObjKind D_002C2DF4[];
+extern int D_0063BCCC;
+extern char D_00621800[];
+/* kept local: this TU does not include gobj.h or enemy_act.h, and its uses of
+   DrawLightningN and _CopyVector do not fit the prototypes in lightning.h and
+   Matrix.h */
+extern void _CopyVector(void *dst, void *src);
+extern void *isysGObjSearchFromObjKindID_begin(int kind);
+extern void *isysGObjSearchFromObjKindID_next(void *g);
+extern void *isysGObjGetExist_begin(void);
+extern void *isysGObjGetExist_next(void *g);
+extern int isEnemyHyde(void *g);
+
+/* Listing line 3069: the definition's four colour bytes widened into the
+   16-byte record DrawLightningN reads.  The name is ours. */
+static inline BgaLightningCol bga_lightningColor(BgaLightningDef *g)
+{
+    BgaLightningCol c;
+
+    c.c[0] = g->col[0];
+    c.c[1] = g->col[1];
+    c.c[2] = g->col[2];
+    c.c[3] = g->col[3];
+    return c;
+}
+
+extern void DrawLightningN(int num, void *v, void *col, float f0, float f1, float f2, float f3,
+                           float f4, float f5, float f6, float f7, float f8, float f9, int c);
+
+void bga_DispLightning(void)
+{
+    BgaLightning *p;
+    BgaLightningDef *g;
+    void *o;
+    int cnt;
+    int i;
+    int num;
+    int k;
+    float z;
+    BgaLightning *list[100];
+    BgaLightningCol col;
+
+    cnt = 0;
+    num = 0;
+    for (p = (BgaLightning *)D_0063BCCC; p != 0; p = p->next) {
+        if (p->def->kind == 0) {
+            list[num++] = p;
+        }
+    }
+    if (num > 0) {
+        z = 0.0f;
+        i = 0;
+        for (o = isysGObjSearchFromObjKindID_begin(4); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o)) {
+            if (isEnemyHyde(o) != 0) {
+                continue;
+            }
+            if (*(int *)((char *)o + 0x16C) == 0) {
+                continue;
+            }
+            cnt++;
+            if (cnt >= 5) {
+                continue;
+            }
+            p = list[i++];
+            i %= num;
+            g = p->def;
+            if (D_0028F4C0[5] == 0) {
+                k = p->n;
+                if (k < 10) {
+                    p->n = k + 1;
+                    _CopyVector(&p->seg[k], (char *)*(int *)(*(int *)((char *)o + 0x15C) + 0xC) +
+                                                (g->f2C << 6) + 0x30);
+                }
+            }
+            col.c[0] = g->col[0];
+            col.c[1] = g->col[1];
+            col.c[2] = g->col[2];
+            col.c[3] = g->col[3];
+            DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C, g->f20,
+                           g->f24, g->f28, p->frame + z, g->f2E);
+            z += 0.01f;
+        }
+    }
+    for (p = (BgaLightning *)D_0063BCCC; p != 0; p = p->next) {
+        g = p->def;
+        if (g == 0) {
+            debug_StdPrintfDummy(D_00621800);
+            debug_assert(D_00621598, 3067);
+            __assert(D_00621598, 3067, D_0063BCE8);
+            continue;
+        }
+        col = bga_lightningColor(g);
+        if (p->f148 != 0) {
+            continue;
+        }
+        switch (g->kind) {
+        case 1:
+            o = isysGObjSearchFromObjKindID_begin(2);
+            if (o == 0) {
+                continue;
+            }
+            if (D_0028F4C0[5] == 0) {
+                k = p->n;
+                if (k < 10) {
+                    p->n = k + 1;
+                    _CopyVector(&p->seg[k], (char *)*(int *)(*(int *)((char *)o + 0x15C) + 0xC) +
+                                                (g->f2C << 6) + 0x30);
+                }
+            }
+            DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C, g->f20,
+                           g->f24, g->f28, p->frame, g->f2E);
+            break;
+        case 2:
+            for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
+                if (D_002C2DF4[*(int *)((char *)o + 8)].kind == 71) {
+                    if (D_0028F4C0[5] == 0) {
+                        k = p->n;
+                        if (k < 10) {
+                            p->n = k + 1;
+                            _CopyVector(&p->seg[k],
+                                        (char *)*(int *)(*(int *)((char *)o + 0x15C) + 0xC) +
+                                            (g->f2C << 6) + 0x30);
+                        }
+                    }
+                    DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C,
+                                   g->f20, g->f24, g->f28, p->frame, g->f2E);
+                }
+            }
+            break;
+        case 3:
+            for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
+                if (D_002C2DF4[*(int *)((char *)o + 8)].kind == 74) {
+                    if (D_0028F4C0[5] == 0) {
+                        k = p->n;
+                        if (k < 10) {
+                            p->n = k + 1;
+                            _CopyVector(&p->seg[k],
+                                        (char *)*(int *)(*(int *)((char *)o + 0x15C) + 0xC) +
+                                            (g->f2C << 6) + 0x30);
+                        }
+                    }
+                    DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C,
+                                   g->f20, g->f24, g->f28, p->frame, g->f2E);
+                }
+            }
+            break;
+        case 0:
+            break;
+        default:
+            DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C, g->f20,
+                           g->f24, g->f28, p->frame, g->f2E);
+            break;
+        }
+    }
+}
 
 void bga_ResetCamera(void)
 {
