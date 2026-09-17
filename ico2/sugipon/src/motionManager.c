@@ -130,6 +130,7 @@ extern MotShift rootUpdateHang(int a0, int a1, int a2);
 extern MotShift rootUpdateSwim(void);
 extern MotShift rootUpdateNodeFix(void);
 extern MotShift rootUpdateY(void);
+extern MotShift rootUpdateY_Rope(int a0);
 extern MotShift rootUpdateTrueMotion(int a0);
 extern MotShift rootUpdateDirectPlay(int a0);
 extern MotShift rootUpdateFly(void);

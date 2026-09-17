@@ -18,7 +18,6 @@
 void SetHitCollisionDisplay(int a, int b);
 int ResetMotionProgramInterpInfo(char *a0, int a1);
 int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f);
-
 void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char *tbl, int k);
 void _checkCliffAndWall(void);
 void _getFinalMatrix(int id);
@@ -31,6 +30,5 @@ void clearCollisionStatus(void);
 int findActPoint(int *list);
 void func_001ECE40();
 void getFinalMatrixWithNaturalGeometry(int id);
-void rootUpdateY_Rope(int a0);
 
 #endif /* MOTIONMANAGER_H */

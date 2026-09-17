@@ -4,7 +4,7 @@
 extern int ClipFloorE(void *a0);
 extern int GetFloorAttribute(void *a0);
 extern int CompareAttribute(unsigned int a, unsigned int b);
-extern float GetPoolGlobalHeight(int a0);
+extern float GetPoolGlobalHeight(char *obj);
 /* kept local: this TU's uses of GetTableArcTan2 do not fit the prototype in tableSin.h */
 extern short GetTableArcTan2(float f12, float f13);
 extern void RotQuaternionX(void *q, short ang);
@@ -18,6 +18,12 @@ extern char ZeroPoint[];
 extern float D_007201F0[];
 extern char D_00720210[];
 extern MotShift D_0063A810;
+extern MotShift D_0063B930[];
+extern float D_0063B940;
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+/* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
+extern void _InterGV(void *elem, void *base, void *v, float a, float b);
+extern void _wallHitReaction(void *w, void *p, void *q, int flag);
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 /* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
@@ -73,6 +79,41 @@ void _wallCollisionPreProcess(char *w, void *p, void *q, float dy)
     }
 }
 
+/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into its
+ * callers (rows 306-320, above wallCollisionAndReact's 331), so it carries no
+ * symbol in MAIN.MAP. */
+static inline void wallCollisionAndFloorFit(char *cur, char *last, float dy)
+{
+    ClipBuf w;
+    Vec16 t;
+
+    _wallCollisionPreProcess((char *)&w, cur, last, dy);
+    if (*(int *)((char *)&w + 0x88) != 0) {
+        _wallHitReaction(&w, cur, last, 0);
+    } else if (*(int *)((char *)&w + 0x94) != 0) {
+        CopyVector(&t, (char *)&w + 0x20);
+        t.f[1] = t.f[1] - dy;
+        CopyVector(cur, &t);
+        CopyVector(last, &t);
+    }
+}
+
+/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into its
+ * callers (rows 331-335), so it carries no symbol in MAIN.MAP.  Row 331 is
+ * where the two work-block locals are attributed, and dy is a parameter: row
+ * 331 carries the caller's constant. */
+static inline void wallCollisionAndReact(float dy)
+{
+    ClipBuf w;
+    char *g = D_0063C490;
+    char *last = g + 0x150;
+
+    _wallCollisionPreProcess((char *)&w, g, last, dy);
+    if (*(int *)((char *)&w + 0x88) != 0) {
+        _wallHitReaction(&w, g, last, 0);
+    }
+}
+
 inline int upperFieldCheck(char *a0, float f)
 {
     char buf[0xC0] __attribute__((aligned(16)));
@@ -88,9 +129,11 @@ inline int upperFieldCheck(char *a0, float f)
  * 407), so neither carries a symbol in MAIN.MAP. */
 static inline void setPoolHeightOfFloor(char *w)
 {
-    int obj = *(int *)(w + 0x8C);
+    /* w+0x8C is the floor's owning object: ico2/sugipon/src/box.c reads the
+     * same word of the same work block as `char **`. */
+    char *obj = *(char **)(w + 0x8C);
 
-    *(int *)(D_0063C494 + 0x1D8) = obj;
+    *(char **)(D_0063C494 + 0x1D8) = obj;
     *(float *)(D_0063C494 + 0x1D0) = GetPoolGlobalHeight(obj);
     *(float *)(D_0063C494 + 0x1D4) = *(float *)(w + 0x24) - *(float *)(D_0063C494 + 0x1D0);
 }
@@ -133,6 +176,28 @@ int getFieldCollision(char *w)
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", setIKAndAdjustRootHeight);
 
 /* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
+ * rootUpdateFly and rootUpdateEnemyFly (rows 736-756, which sit between
+ * setIKAndAdjustRootHeight's def line 548 and landingFieldAction's 809), so it
+ * carries no symbol in MAIN.MAP. */
+static inline int getFlyFieldCollision(char *w)
+{
+    float y;
+
+    y = *(float *)(D_0063C4A8 + 0x120);
+    if (y < -0.5f) {
+        return 0;
+    }
+    *(int *)(w + 0x70) = 0;
+    CopyVector(w, D_0063C490);
+    *(float *)(w + 4) = *(float *)(D_0063C490 + 0x164);
+    CopyVector(w + 0x10, D_0063C490);
+    *(float *)(w + 0x14) = *(float *)(w + 0x14) + 10000.0f;
+    ClipFloor(w);
+    return CheckFieldContact(w, (char *)D_0063B93C, (float *)D_0063C490,
+                             *(float *)(D_0063C490 + 0x1D0));
+}
+
+/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
  * landingFieldAction (rows 787-801, above its def line 809), so it carries no
  * symbol in MAIN.MAP.  Row 787 is the declaration line, which is where the
  * caller's `w + 0xA0` address arithmetic is attributed. */
@@ -169,6 +234,16 @@ void landingFieldAction(char *w)
     CopyVector(D_0063C490 + 0x1B0, D_0063C490);
     *(float *)(D_0063C490 + 0x1B4) = *(float *)(w + 0x24);
     *(int *)(D_0063C494 + 0x14) |= 8;
+}
+
+/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
+ * rootUpdateFly and rootUpdateEnemyFly (row 832 followed by
+ * setPoolHeightOfFloor's rows 381-383), between landingFieldAction's def line
+ * 809 and floorFitting's 861, so it carries no symbol in MAIN.MAP. */
+static inline void markPoolContact(char *w)
+{
+    *(int *)(D_0063C494 + 0x14) |= 0x400;
+    setPoolHeightOfFloor(w);
 }
 
 void floorFitting(int kind)
@@ -506,6 +581,85 @@ MotShift rootUpdateNodeFix(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateY);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateY_Rope);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateFly);
+
+/* The parameter is unused: the ROM overwrites $4 with the first load. */
+MotShift rootUpdateY_Rope(int a0)
+{
+    float mtx[16];
+    Vec16 dir;
+    Vec16 pos;
+    Vec16 v;
+    Vec16 cur;
+    float save;
+    int mode;
+
+    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
+    mode = *(int *)(D_0063C490 + 0x380);
+    if (mode >= 2) {
+        GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
+        sceVu0ApplyMatrix((int *)&dir, (int)mtx, (char *)D_007201F0);
+        sceVu0AddVector(&pos, D_0063C490 + 0x370, &dir);
+        *(float *)D_0063C490 = pos.f[0];
+        *(float *)(D_0063C490 + 8) = pos.f[2];
+    } else if (mode != 0) {
+        int node = GetSkeltonFocusNode((char *)D_0063B93C, 22);
+
+        v.f[0] = *(float *)D_0063C490;
+        v.f[1] = *(float *)(D_0063C490 + 4);
+        v.f[2] = *(float *)(D_0063C490 + 8);
+        _SubVector(D_0063C490, D_0063C490 + 0x370, D_0063C488 + node * 0x10);
+        if (*(int *)(D_0063C490 + 0x380) < 0) {
+            _InterGV(D_0063C490, &v, D_0063C490, D_0063B940, 1.0f);
+        }
+    }
+    save = *(float *)(D_0063C490 + 0x338);
+    CopyVector(&cur, D_0063C490);
+    CopyVector(&v, D_0063C490 + 0x150);
+    *(float *)(D_0063C490 + 0x338) = 60.0f;
+    wallCollisionAndFloorFit((char *)&cur, (char *)&v, 5.0f);
+    *(float *)(D_0063C490 + 0x338) = save;
+    /* 0xEC is the float landingFieldAction and rootUpdateFly write. */
+    *(float *)(D_0063C494 + 0xEC) = 0.0f;
+    *(int *)(D_0063C490 + 0xC0) = 0;
+    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
+    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
+    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    *(int *)(D_0063C490 + 0x180) = -1;
+    return D_0063A810;
+}
+
+MotShift rootUpdateFly(void)
+{
+    MotShift shift = D_0063B930[0];
+    char w[0xC0] __attribute__((aligned(16)));
+    int contact;
+    float h;
+    float d;
+
+    *(int *)(D_0063C494 + 0x188) = 0;
+    contact = getFlyFieldCollision(w);
+    switch (contact) {
+    case 1:
+        *(int *)(D_0063C494 + 0x14) |= 8;
+        h = *(float *)(D_0063C490 + 0x1B4);
+        CopyVector(D_0063C490 + 0x130, w + 0xA0);
+        d = GetYProjectionOfPlane((int)(w + 0xA0), (int)D_0063C490);
+        d = d - h;
+        *(float *)(D_0063C494 + 0xEC) = d;
+        break;
+    case 2:
+        markPoolContact(w);
+        break;
+    }
+    wallCollisionAndReact(*(float *)(D_0063B938 + 0x14));
+    *(int *)(D_0063C490 + 0xC0) = 0;
+    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
+    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    CopyVector(D_0063C490 + 0x90, ZeroVector);
+    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    *(int *)(D_0063C490 + 0x180) = -1;
+    return shift;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateEnemyFly);
