@@ -71,10 +71,13 @@ void debug_LogPrintf(const char *fmt, ...)
 
 /* the debug-option table: 76 records of 0x1C bytes */
 typedef struct {
-    char *name;
-    int _4;
-    int *val;
-    char _C[0x10];
+    /* 0x00 */ char *name;
+    /* 0x04 */ unsigned int col;
+    /* 0x08 */ int *val;
+    /* 0x0C */ int min;
+    /* 0x10 */ int max;
+    /* 0x14 */ char **strs;
+    /* 0x18 */ void (*func)(int);
 } DbgOpt;
 
 extern DbgOpt D_0061A4D0[];
@@ -775,7 +778,52 @@ void debug_Printf2(int a, int b, unsigned int c, int x, ...)
     debug_PrintFont(a, b, c, buf);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_PrintFontWindow);
+/* the on-screen font window's line table: 27 records of 0x38 bytes, the colour
+   word at +0 and the text at +4 (the strncpy below bounds it at 50) */
+typedef struct {
+    int col;
+    char text[52];
+} DbgFontLine;
+
+extern DbgFontLine D_007082D0[];
+extern int D_0063AEB4;
+
+void debug_PrintFontWindow(int col, char *fmt, ...)
+{
+    char buf[0x100];
+    char *p = buf;
+    int nl = 0;
+    int i;
+
+    vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x30);
+    if (buf[0] == '\n') {
+        D_0063AE64++;
+        p = &buf[1];
+    }
+    if (D_0063AE64 == D_0063AEB4) {
+        for (i = 0; i < D_0063AEB4 - 1; i++) {
+            D_007082D0[i] = D_007082D0[i + 1];
+        }
+        D_0063AE64--;
+        D_007082D0[D_0063AEB4 - 1].text[0] = 0;
+    }
+    if (p[strlen(p) - 1] == '\n') {
+        p[strlen(p) - 1] = 0;
+        nl = 1;
+    }
+    strncpy(D_007082D0[D_0063AE64].text, p, 50);
+    D_007082D0[D_0063AE64].col = col;
+    if (nl) {
+        D_0063AE64++;
+    }
+    if (D_0063AE64 == D_0063AEB4) {
+        for (i = 0; i < D_0063AEB4 - 1; i++) {
+            D_007082D0[i] = D_007082D0[i + 1];
+        }
+        D_0063AE64--;
+        D_007082D0[D_0063AEB4 - 1].text[0] = 0;
+    }
+}
 
 void debug_PrintfDummy(int a0, int a1, unsigned int a2, int a3, ...) {}
 
@@ -905,6 +953,15 @@ void debug_DispVu1FReg(int no, int mode)
     }
 }
 
+typedef struct {
+    int _0;
+    int hold;
+    int _8;
+    int trg;
+} DbgReverbPad;
+
+extern DbgReverbPad D_0028F8F0[];
+
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_Mode);
 
 extern char D_0061BC38[];
@@ -945,14 +1002,6 @@ void getBuffer(int a0)
     sprintf(a0, D_0063AF80);
 }
 
-typedef struct {
-    int _0;
-    int hold;
-    int _8;
-    int trg;
-} DbgReverbPad;
-
-extern DbgReverbPad D_0028F8F0[];
 extern int D_0063AF7C;
 extern int D_0028F4C4[];
 extern char D_0063AF88[];
@@ -1098,7 +1147,16 @@ int debug_SelectStageMain(int ret, int stage)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_SelectStage);
+extern char D_0061BC88[];
+extern int D_0063AE6C;
+
+int debug_SelectStage(void)
+{
+    return debug_SelectStageMain(_debug_SelectCsvWindow_inl(D_0061BC88, 10, 80, 11, (int)D_005F5D50,
+                                                            404, 0x20, 0, 106, &D_0063AE6C,
+                                                            getLineBuffer, 0),
+                                 D_0063AE6C);
+}
 
 /* memory-card request block */
 /* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
@@ -1756,8 +1814,219 @@ int debug_SelectActGobj(int reset)
     return (r == -1) ? -1 : 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_DispBox);
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_DispBall);
+/* one editable row of the debug box: its label and the value shown */
+typedef struct {
+    char *name;
+    int val;
+} DbgBoxVal;
+
+extern float D_007048E0[]; /* the box centre */
+extern float D_007048F0[]; /* its half extents */
+extern int D_0063C378;     /* the selected row */
+extern void DebugDispBox(float *centre, float *width);
+/* The literals these two functions read stay blob-owned by address until the
+   stubs between them land and the TU's plain .rodata and .sdata runs close
+   up: the object's plain sections must stay contiguous with the ROM's. */
+extern char D_0061C240[]; /* ">>%8s = %d\n" */
+extern char D_0061C250[]; /* "  %8s = %d\n" */
+extern char D_0061C260[]; /* "[%s] %4d %4d %4d" */
+extern char D_0063B088[]; /* "centerX" */
+extern char D_0063B090[]; /* "centerY" */
+extern char D_0063B098[]; /* "centerZ" */
+extern char D_0063B0A0[]; /* " widthX" */
+extern char D_0063B0A8[]; /* " widthY" */
+extern char D_0063B0B0[]; /* " widthZ" */
+extern char D_0063B0B8[]; /* "center" */
+extern char D_0063B0C0[]; /* " width" */
+extern char D_0063B0D0[]; /* " radius" */
+
+int debug_DispBox(int on)
+{
+    int i;
+    int step;
+    int num;
+
+    if (on) {
+        if (D_00639EA4 != 0) {
+            GetRootPosition(D_007048E0, D_00639EA4);
+        } else {
+            D_007048E0[0] = 0.0f;
+            D_007048E0[1] = 0.0f;
+            D_007048E0[2] = 0.0f;
+        }
+        D_007048F0[0] = 100.0f;
+        D_007048F0[1] = 100.0f;
+        D_007048F0[2] = 100.0f;
+        D_0063C378 = 0;
+    }
+    if (D_0028F8F0[0].trg & 0x1000) {
+        D_0063C378--;
+    }
+    if (D_0028F8F0[0].trg & 0x4000) {
+        D_0063C378++;
+    }
+    num = 6;
+    D_0063C378 = (D_0063C378 + num) % num;
+    step = (D_0028F8F0[0].trg & 0x2000) ? 100 : 0;
+    if (D_0028F8F0[0].trg & 0x8000) {
+        step = -100;
+    }
+    switch (D_0063C378) {
+    case 0:
+        D_007048E0[0] += (float)step;
+        break;
+    case 1:
+        D_007048E0[1] += (float)step;
+        break;
+    case 2:
+        D_007048E0[2] += (float)step;
+        break;
+    case 3:
+        D_007048F0[0] += (float)step;
+        break;
+    case 4:
+        D_007048F0[1] += (float)step;
+        break;
+    case 5:
+        D_007048F0[2] += (float)step;
+        break;
+    }
+    {
+        DbgBoxVal list[6] = {
+            {D_0063B088, (int)D_007048E0[0]}, {D_0063B090, (int)D_007048E0[1]},
+            {D_0063B098, (int)D_007048E0[2]}, {D_0063B0A0, (int)D_007048F0[0]},
+            {D_0063B0A8, (int)D_007048F0[1]}, {D_0063B0B0, (int)D_007048F0[2]},
+        };
+
+        for (i = 0; i < 6; i++) {
+            if (i == D_0063C378) {
+                debug_PrintfDummy(10, i * 10 + 80, 0xFFFFFF00u, (int)D_0061C240, (int)list[i].name,
+                                  list[i].val);
+            } else {
+                debug_PrintfDummy(10, i * 10 + 80, 0xFFFFFF00u, (int)D_0061C250, (int)list[i].name,
+                                  list[i].val);
+            }
+        }
+    }
+    CameraSetMode(1);
+    DebugDispBox(D_007048E0, D_007048F0);
+    if (D_0063B13C & 1) {
+        debug_Printf(10, 150, 0xFFFFFF00u, (int)D_0061C260, (int)D_0063B0B8, (int)D_007048E0[0],
+                     (int)D_007048E0[1], (int)D_007048E0[2]);
+    }
+    if (D_0063B13C & 1) {
+        debug_Printf(10, 160, 0xFFFFFF00u, (int)D_0061C260, (int)D_0063B0C0, (int)D_007048F0[0],
+                     (int)D_007048F0[1], (int)D_007048F0[2]);
+    }
+    return (D_0028F8F0[0].hold & 0x40) ? -1 : 0;
+}
+
+/* one editable value of the debug ball: its label and the cell it moves */
+typedef struct {
+    char *name;
+    float *val;
+} DbgBallVal;
+
+typedef struct {
+    DbgBallVal v[4];
+} DbgBallList;
+
+/* the four-row initialiser template (centerX, centerY, centerZ, radius), blob-owned
+   by address until the TU's plain .rodata run closes up */
+extern const DbgBallList D_0061C298;
+extern Col4 D_0061C2C0;    /* { 0, 0x10, 0x20, 0x80 } : wire sphere colour */
+extern float D_00704900[]; /* the ball's centre */
+extern float D_0063B0C8;   /* its radius */
+extern int D_0063C37C;     /* the selected row */
+extern void GetRootPosition(void *a0, char *outer);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void MatrixDrive_TransMatrixV(void *a0);
+extern void sceVu0UnitMatrix(void *m);
+extern void prim_DispWireSphere(void *col, int nu, int nv, float r);
+extern int scpTriggerPosBall(float *pos, float *target, float r);
+
+int debug_DispBall(int on)
+{
+    DbgBallList list = D_0061C298;
+    float pos[4];
+    Col4 col;
+    int i;
+    int hit;
+    int step;
+    int num;
+
+    num = 4;
+    hit = 0;
+    if (on) {
+        if (D_00639EA4 != 0) {
+            GetRootPosition(D_00704900, D_00639EA4);
+        } else {
+            D_00704900[0] = 0.0f;
+            D_00704900[1] = 0.0f;
+            D_00704900[2] = 0.0f;
+        }
+        D_0063B0C8 = 100.0f;
+        D_0063C37C = 0;
+    }
+    if (D_0028F8F0[0].trg & 0x1000) {
+        D_0063C37C--;
+    }
+    if (D_0028F8F0[0].trg & 0x4000) {
+        D_0063C37C++;
+    }
+    D_0063C37C = (D_0063C37C + num) % num;
+    step = (D_0028F8F0[0].trg & 0x2000) ? 10 : 0;
+    if (D_0028F8F0[0].trg & 0x8000) {
+        step = -10;
+    }
+    switch (D_0063C37C) {
+    case 0:
+        D_00704900[0] += (float)step;
+        break;
+    case 1:
+        D_00704900[1] += (float)step;
+        break;
+    case 2:
+        D_00704900[2] += (float)step;
+        break;
+    case 3:
+        D_0063B0C8 += (float)step;
+        break;
+    }
+    for (i = 0; i < num; i++) {
+        if (i == D_0063C37C) {
+            if (D_0063B13C & 1) {
+                debug_Printf(10, i * 10 + 80, 0xFFFFFF00u, (int)D_0061C240, (int)list.v[i].name,
+                             (int)*list.v[i].val);
+            }
+        } else {
+            if (D_0063B13C & 1) {
+                debug_Printf(10, i * 10 + 80, 0xFFFFFF00u, (int)D_0061C250, (int)list.v[i].name,
+                             (int)*list.v[i].val);
+            }
+        }
+    }
+    CameraSetMode(1);
+    if (D_00639EA4 != 0) {
+        GetRootPosition(pos, D_00639EA4);
+        hit = scpTriggerPosBall(pos, D_00704900, D_0063B0C8);
+    }
+    MatrixDrive_PushMatrix();
+    col = D_0061C2C0;
+    if (hit) {
+        col.c[0] = 255;
+    }
+    gif_StartPacketPri(11);
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrixV(D_00704900);
+    prim_DispWireSphere(&col, 16, 8, D_0063B0C8);
+    gif_EndPacket();
+    MatrixDrive_PopMatrix();
+    return (D_0028F8F0[0].hold & 0x40) ? -1 : 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_CollisionTest);
 
 /* one debug-menu entry: the label the selector prints, the handler, and a
@@ -1905,11 +2174,9 @@ float debug_GetTimerCount(void)
     return (float)(*(volatile unsigned int *)0x10000800);
 }
 
-extern char D_007082D0[];
-
 void debug_ClearFontWindow(void)
 {
-    char *p = D_007082D0;
+    char *p = (char *)D_007082D0;
     int i;
     p += 0x5B4;
     for (i = 0x1A; i >= 0; i--) {
@@ -1918,8 +2185,6 @@ void debug_ClearFontWindow(void)
     }
     D_0063AE64 = 0;
 }
-
-extern int D_0063AEB4;
 
 void debug_ResizeFontWindowHeight(int val)
 {

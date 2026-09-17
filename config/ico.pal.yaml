@@ -775,6 +775,8 @@ segments:
       - [0x51C0F4, rodata, cod/51C0F4]   # .rodata blob resume (the pad word after mcDeleteFile's table)
       - [0x51C0F8, .rodata, ico2/common/src/debug]  # plain-rodata: debug_MemoryCard's initialiser templates and strings (menu table, state captions), VMA 0x61C0F8..0x61C1A8
       - [0x51C1A8, rodata, cod/51C1A8]   # .rodata blob resume (strings)
+      - [0x51C280, .rodata, ico2/common/src/debug]  # carved jtbl_0061C280 (debug_DispBox, 6 arms, section .rodata.0x0061C280), VMA 0x61C280..0x61C298; the TU's strings and DispBall's initialiser template around it stay in the blob until the plain .rodata run closes
+      - [0x51C298, rodata, cod/51C298]     # .rodata blob resume
       - [0x51CF00, .rodata, ico2/common/src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
       - [0x51CF14, rodata, cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x51D2B0, .rodata, ico2/common/src/debug_menu]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61D2B0..0x61D6F0, 1088 B

@@ -27,7 +27,7 @@ void debug_Init(void);
 void debug_MakeFont(void);
 void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz);
 void debug_PrintFont(int a0, int a1, int a2, char *a3);
-void debug_PrintFontWindow();
+void debug_PrintFontWindow(int col, char *fmt, ...);
 void debug_Printf(int a, int b, unsigned int c, int x, ...);
 void debug_PrintfDummy(int a0, int a1, unsigned int a2, int a3, ...);
 int debug_SETest_color(int idx);
