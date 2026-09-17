@@ -573,7 +573,9 @@ segments:
       - [0x3EE5F0, .data, ico2/seki/src/DisplayFont]  # carved D_004EE5F0 (VMA 0x4EE5F0..0x4EE6F0, 256 B, 1 sym): font kerning table, referenced only by still-asm font_Print via %hi/%lo
       - [0x3EE6F0, data, cod/3EE6F0]     # .data blob resume
       - [0x3F1D60, .data, ico2/fumi/src/act-env]  # carved D_004F1D60..D_004F1E00 (VMA 0x4F1D60..0x4F1E10, 176 B, 11 float[4] tables), all referenced only by still-asm getDitchDistTbl via %hi/%lo
-      - [0x3F1E10, data, cod/3F1E10]     # .data blob resume
+      - [0x3F1E10, data, cod/3F1E10]     # .data blob resume (DetourCheck's angle table {75, -75, 0, 0}, 16 B, until it lands)
+      - [0x3F1E20, .data, ico2/fumi/src/act-way]  # syms: wayWorkClear,wayStepClear  the two clear templates (128 B + 32 B) ACTWayMove_BeginDetail copies from, VMA 0x4F1E20..0x4F1EC0
+      - [0x3F1EC0, data, cod/3F1EC0]     # .data blob resume
       - [0x3F76A0, .data, ico2/fumi/src/way_tool]  # syms: wayWorkPos,debugWayGroupSelect,wayColorSelected,wayColorLinked,wayColorBlink,wayColorCursor,wayColorOpenCurrent,wayColorOpenOther,wayColorClosedCurrent,wayColorClosedOther,wayColorBridge,debugWayMenu  the whole way_tool.o .data run (MAIN.MAP 0x2E8, retail 0x2E8): the work vector, the 64 group-select menu lines, nine colour packets and the nine-entry way menu whose function pointers include this TU's static group_select, VMA 0x4F76A0..0x4F7988, 744 B
       - [0x3F7988, .data, ico2/script/src/deja]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F7988..0x4F7FB0, 1576 B
       - [0x3F79D0, .data, ico2/script/src/e3]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F79D0..0x4F7FB0, 1504 B
@@ -807,6 +809,8 @@ segments:
       - [0x521960, rodata, cod/521960]     # rodata blob resume
       - [0x521970, .rodata, ico2/fumi/isys/gobj_cam_dl]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621970..0x6229B0, 4160 B
       - [0x521A00, rodata, cod/521A00]     # rodata blob resume
+      - [0x521B50, .rodata, ico2/fumi/src/act-way]  # ACTWayMove_NextDetail's EUC-JP "no route" trace string (20 B), VMA 0x621B50..0x621B64; DetourCheck's four strings after it stay in the blob
+      - [0x521B64, rodata, cod/521B64]     # rodata blob resume
       - [0x521D40, .rodata, ico2/fumi/src/seMail]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621D40..0x6229B0, 3184 B
       - [0x521D58, rodata, cod/521D58]     # rodata blob resume
       - [0x521EC0, .rodata, ico2/fumi/src/way_tool]  # the TU's whole .rodata run as source (data pass 2): 92 string literals, including the 64 way-group selector lines that gcc flushes LIFO out of debugWayGroupSelect's initialiser; VMA 0x621EC0..0x6224D9 + 7 B link pad
@@ -988,7 +992,9 @@ segments:
       - [0x539710, .lit4, ico2/sugipon/src/worm]  # carved D_00639710..D_00639720 (5 slots: getAnimation 0.8f, disp 0.02f, WormGeo 0.05f + 8.99999f, TraceWormRoute 8.99999f), VMA 0x639710..0x639724, 20 B; the TU's whole pool
       - [0x539724, .lit4, ico2/seki/src/BgAnimation]  # carved D_00639724..D_006397E4 (49 slots, bga_GetMotion..bga_CheckSdfCameraFrameIn; the TU's whole pool, right after worm's), VMA 0x639724..0x6397E8
       - [0x5397E8, .lit4, ico2/fumi/src/act-env]  # carved D_006397E8..D_00639834 (20 words: -3000.0f and pi as literals in the matched environment test, then eighteen slots beside the still-asm ACTGetEnvironment, one per use site in ROM order 4900 pi/2 40000 3000 3000 355 455 10000 -pi/2 pi/2 -pi/2 pi/2 10000 40000 pi/2 4900 22500 12100; the TU's whole pool), VMA 0x6397E8..0x639838, 80 B
-      - [0x539838, lit4, cod/539838]     # .lit4 blob resume (words before way_kidnap's carve)
+      - [0x539838, lit4, cod/539838]     # .lit4 blob resume (DetourCheck's pi, one word)
+      - [0x53983C, .lit4, ico2/fumi/src/act-way]  # 40000.0f, 10000.0f, 40000.0f, 40000.0f from ACTWayMove_BeginDetail and NextDetail, VMA 0x63983C..0x63984C
+      - [0x53984C, lit4, cod/53984C]     # .lit4 blob resume (words before way_kidnap's carve)
       - [0x539860, .lit4, ico2/fumi/src/way_kidnap]  # carved D_00639860 (1.0e10f, NearestEnemyFromGirl's initial minimum, written as a literal), the TU's whole .lit4 run, VMA 0x639860..0x639864; 0x63985C is act's, 0x639864 way_tool's
       - [0x539864, .lit4, ico2/fumi/src/way_tool]  # carved D_00639864..D_00639868 (2 slots, both 0.116355285f: draw_way_group's own literal and one slot for the still-asm way_toolDL; the TU's whole pool), VMA 0x639864..0x63986C, 8 B
       - [0x53986C, .lit4, ico2/script/src/deja]  # carved D_0063986C (1 word, 0.025f, the stage-change fade rate actDejaChk passes, written as a literal; the TU's whole pool, between way_tool's carve and e3's), VMA 0x63986C..0x639870, 4 B

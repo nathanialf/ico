@@ -321,11 +321,12 @@ inline int DeleteWayPoint(int pno)
     return 0;
 }
 
-extern WpNode D_004F1E8C;
+/* the begin iterators start one record before the way-group table (the ROM
+   folds that base to 0x4F1E8C) and step before the first test */
 
 inline WpNode *WayGroup_begin(void)
 {
-    WpNode *p = &D_004F1E8C;
+    WpNode *p = (WpNode *)D_004F1EC0 - 1;
     WpNode *end = p + 94;
     if (p != 0 && p != end) {
         do {
@@ -355,7 +356,7 @@ inline WpNode *WayGroup_next(WpNode *p)
 
 inline WpNode *WayBridge_begin(void)
 {
-    WpNode *p = &D_004F1E8C;
+    WpNode *p = (WpNode *)D_004F1EC0 - 1;
     WpNode *end = p + 94;
     if (p != 0 && p != end) {
         do {
@@ -383,7 +384,7 @@ inline WpNode *WayBridge_next(WpNode *p)
 
 inline WpNode *WayBridgeAll_begin(void)
 {
-    WpNode *p = &D_004F1E8C;
+    WpNode *p = (WpNode *)D_004F1EC0 - 1;
     WpNode *end = p + 94;
     if (p != 0 && p != end) {
         do {
@@ -411,8 +412,8 @@ inline WpNode *WayBridgeAll_next(WpNode *p)
 
 inline void *WayBridgeVar_begin(void)
 {
-    WayRec *p = (WayRec *)&D_004F1E8C;
-    WayRec *end = (WayRec *)&D_004F1E8C + 94;
+    WayRec *p = D_004F1EC0 - 1;
+    WayRec *end = D_004F1EC0 - 1 + 94;
     if (p == 0)
         goto ret0;
     if (p == end)
