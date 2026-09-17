@@ -477,9 +477,473 @@ static inline void bga_hermite(float t, float *h0, float *h1, float *h2, float *
     *h2 = *h3 - s + t;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_GetMotion);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_GetMotionParticle);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_GetMotionLightning);
+/* The particle motion's key: a position, a rotation in degrees, the three
+   colour weights, the two tangent weights, the linear flag and the frame the
+   key sits on.  Field names are ours.  bga_GetMotion, bga_GetMotionParticle
+   and bga_GetMotionLightning all read this 0x34-byte record. */
+typedef struct BgaPtKey {
+    /* 0x00 */ float pos[3];
+    /* 0x0C */ float rot[3];
+    /* 0x18 */ float col[3];
+    /* 0x24 */ float f24;
+    /* 0x28 */ float f28;
+    /* 0x2C */ int linear;
+    /* 0x30 */ int time;
+} BgaPtKey;
+
+typedef struct BgaPtMotion {
+    /* 0x00 */ BgaPtKey *key;
+    /* 0x04 */ int n;
+    /* 0x08 */ unsigned int len;
+    /* 0x0C */ float frame;
+} BgaPtMotion;
+
+static inline int bga_findPtKey(BgaPtKey *k, int n, float f)
+{
+    int lo = 0;
+    int hi = n - 1;
+
+    if (f < (float)k[0].time) {
+        return 0;
+    }
+    if (hi < 2) {
+        return 0;
+    }
+    while (lo < hi) {
+        int mid = (lo + hi) >> 1;
+
+        if ((float)k[mid].time <= f && f < (float)k[mid + 1].time) {
+            return mid;
+        }
+        if ((float)k[mid + 1].time <= f) {
+            lo = mid + 1;
+        } else if (f <= (float)k[mid].time) {
+            hi = mid - 1;
+        }
+        if (lo == hi) {
+            return lo;
+        }
+    }
+    return 0;
+}
+
+void bga_GetMotion(float *pos, int *rot, float *col, BgaPtMotion *m)
+{
+    BgaPtKey *k;
+    BgaPtKey *k1;
+    float f;
+    float u;
+    float s0;
+    float s1;
+    float dv;
+    float m0;
+    float m1;
+    int i;
+    int d;
+
+    f = m->frame;
+    if (D_0028F4C0[0]) {
+        f *= 1.2075409f;
+    }
+
+    if (m->n == 1) {
+        BgaPtKey *p = m->key;
+
+        pos[0] = p->pos[0];
+        pos[1] = p->pos[1];
+        pos[2] = p->pos[2];
+        pos[3] = 1.0f;
+        rot[0] = (short)(p->rot[0] * (65536.0f / 360.0f));
+        rot[1] = (short)(p->rot[1] * (65536.0f / 360.0f));
+        rot[2] = (short)(p->rot[2] * (65536.0f / 360.0f));
+        col[0] = p->col[0];
+        col[1] = p->col[1];
+        col[2] = p->col[2];
+        return;
+    }
+
+    k = m->key;
+    s0 = 0.0f;
+    s1 = 0.0f;
+    k = &k[bga_findPtKey(k, m->n, f)];
+    k1 = k + 1;
+    f -= (float)k->time;
+    d = k1->time - k->time;
+    u = f / (float)d;
+
+    if (k1->linear == 0) {
+        float h00;
+        float h01;
+        float h10;
+        float h11;
+        float ta;
+        float tb;
+        float tc;
+        float td;
+
+        ta = (1.0f - k->f24) * (k->f28 + 1.0f);
+        tb = (1.0f - k->f24) * (1.0f - k->f28);
+        tc = (1.0f - k1->f24) * (1.0f - k1->f28);
+        td = (1.0f - k1->f24) * (k1->f28 + 1.0f);
+        bga_hermite(u, &h00, &h01, &h10, &h11);
+        if (k->time != 0) {
+            s0 = (float)d / (float)(k1->time - k[-1].time);
+        }
+        if (k1->time < m->len) {
+            s1 = (float)d / (float)(k1[1].time - k->time);
+        }
+
+        for (i = 0; i < 3; i++) {
+            dv = k1->pos[i] - k->pos[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->pos[i] - k[-1].pos[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].pos[i] - k1->pos[i]));
+            }
+            pos[i] = k->pos[i] * h00 + k1->pos[i] * h01 + m0 * h10 + m1 * h11;
+        }
+        for (i = 0; i < 3; i++) {
+            dv = k1->rot[i] - k->rot[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->rot[i] - k[-1].rot[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].rot[i] - k1->rot[i]));
+            }
+            rot[i] = (short)((k->rot[i] * h00 + k1->rot[i] * h01 + m0 * h10 + m1 * h11) *
+                             (65536.0f / 360.0f));
+        }
+        for (i = 0; i < 3; i++) {
+            dv = k1->col[i] - k->col[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->col[i] - k[-1].col[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].col[i] - k1->col[i]));
+            }
+            col[i] = k->col[i] * h00 + k1->col[i] * h01 + m0 * h10 + m1 * h11;
+        }
+    } else {
+        for (i = 0; i < 3; i++) {
+            if (k->rot[i] < 0.0f ? -k->rot[i] < 0.1f : k->rot[i] < 0.1f) {
+                k->rot[i] = 0.0f;
+            }
+            if (k1->rot[i] < 0.0f ? -k1->rot[i] < 0.1f : k1->rot[i] < 0.1f) {
+                k1->rot[i] = 0.0f;
+            }
+            dv = k1->pos[i] - k->pos[i];
+            pos[i] = k->pos[i] + u * dv;
+            dv = k1->rot[i] - k->rot[i];
+            rot[i] = (short)((k->rot[i] + (180.0f < u * dv
+                                               ? u * dv - 360.0f
+                                               : (u * dv < -180.0f ? u * dv + 360.0f : u * dv))) *
+                             (65536.0f / 360.0f));
+            dv = k1->col[i] - k->col[i];
+            col[i] = k->col[i] + u * dv;
+        }
+    }
+    pos[3] = 1.0f;
+    col[3] = 1.0f;
+}
+
+void bga_GetMotionParticle(float *pos, int *rot, float *col, BgaPtMotion *m)
+{
+    BgaPtKey *k;
+    BgaPtKey *k1;
+    float f;
+    float u;
+    float s0;
+    float s1;
+    float dv;
+    float m0;
+    float m1;
+    int i;
+    int d;
+    float w[2][4];
+
+    f = m->frame;
+    if (D_0028F4C0[0]) {
+        f *= 1.2075409f;
+    }
+
+    if (m->n == 1) {
+        BgaPtKey *p = m->key;
+
+        pos[0] = p->pos[0];
+        pos[1] = p->pos[1];
+        pos[2] = p->pos[2];
+        pos[3] = 1.0f;
+        rot[0] = (short)(p->rot[0] * (65536.0f / 360.0f));
+        rot[1] = (short)(p->rot[1] * (65536.0f / 360.0f));
+        rot[2] = (short)(p->rot[2] * (65536.0f / 360.0f));
+        col[0] = p->col[0];
+        col[1] = p->col[1];
+        col[2] = p->col[2];
+        return;
+    }
+
+    k = m->key;
+    s0 = 0.0f;
+    s1 = 0.0f;
+    k = &k[bga_findPtKey(k, m->n, f)];
+    k1 = k + 1;
+    f -= (float)k->time;
+    d = k1->time - k->time;
+    u = f / (float)d;
+
+    {
+        float *q = &w[0][0];
+        BgaPtKey *e = k;
+
+        for (i = 0; i < 2; i++) {
+            float s = e->col[0] + e->col[1] + e->col[2];
+
+            if (4.0f < s) {
+                q[1] = 1.0f;
+                q[0] = q[2] = 0.0f;
+            } else if (0.0f < s && s <= 4.0f) {
+                q[0] = 1.0f;
+                q[2] = 0.0f;
+                q[1] = 0.0f;
+            } else {
+                q[0] = q[1] = q[2] = 0.0f;
+            }
+            q += 4;
+            e++;
+        }
+    }
+
+    if (k1->linear == 0) {
+        float h00;
+        float h01;
+        float h10;
+        float h11;
+        float ta;
+        float tb;
+        float tc;
+        float td;
+
+        ta = (1.0f - k->f24) * (k->f28 + 1.0f);
+        tb = (1.0f - k->f24) * (1.0f - k->f28);
+        tc = (1.0f - k1->f24) * (1.0f - k1->f28);
+        td = (1.0f - k1->f24) * (k1->f28 + 1.0f);
+        bga_hermite(u, &h00, &h01, &h10, &h11);
+        if (k->time != 0) {
+            s0 = (float)d / (float)(k1->time - k[-1].time);
+        }
+        if (k1->time < m->len) {
+            s1 = (float)d / (float)(k1[1].time - k->time);
+        }
+
+        for (i = 0; i < 3; i++) {
+            dv = k1->pos[i] - k->pos[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->pos[i] - k[-1].pos[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].pos[i] - k1->pos[i]));
+            }
+            pos[i] = k->pos[i] * h00 + k1->pos[i] * h01 + m0 * h10 + m1 * h11;
+        }
+        for (i = 0; i < 3; i++) {
+            dv = k1->rot[i] - k->rot[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->rot[i] - k[-1].rot[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].rot[i] - k1->rot[i]));
+            }
+            rot[i] = (short)((k->rot[i] * h00 + k1->rot[i] * h01 + m0 * h10 + m1 * h11) *
+                             (65536.0f / 360.0f));
+        }
+        for (i = 0; i < 3; i++) {
+            dv = w[1][i] - w[0][i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (w[0][i] - k[-1].col[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].col[i] - w[1][i]));
+            }
+            col[i] = w[0][i] * h00 + w[1][i] * h01 + m0 * h10 + m1 * h11;
+        }
+    } else {
+        for (i = 0; i < 3; i++) {
+            dv = k1->pos[i] - k->pos[i];
+            pos[i] = k->pos[i] + u * dv;
+            dv = k1->rot[i] - k->rot[i];
+            rot[i] = (short)((k->rot[i] + u * dv) * (65536.0f / 360.0f));
+            dv = w[1][i] - w[0][i];
+            col[i] = w[0][i] + u * dv;
+        }
+    }
+    pos[3] = 1.0f;
+    col[3] = 1.0f;
+}
+
+void bga_GetMotionLightning(float *pos, int *rot, float *col, BgaPtMotion *m)
+{
+    BgaPtKey *k;
+    BgaPtKey *k1;
+    float f;
+    float u;
+    float s0;
+    float s1;
+    float dv;
+    float m0;
+    float m1;
+    int i;
+    int d;
+
+    f = m->frame;
+    if (D_0028F4C0[0]) {
+        f *= 1.2075409f;
+    }
+
+    if (m->n == 1) {
+        BgaPtKey *p = m->key;
+
+        pos[0] = p->pos[0];
+        pos[1] = p->pos[1];
+        pos[2] = p->pos[2];
+        pos[3] = 1.0f;
+        rot[0] = (short)(p->rot[0] * (65536.0f / 360.0f));
+        rot[1] = (short)(p->rot[1] * (65536.0f / 360.0f));
+        rot[2] = (short)(p->rot[2] * (65536.0f / 360.0f));
+        col[0] = p->col[0];
+        col[1] = p->col[1];
+        col[2] = p->col[2];
+        return;
+    }
+
+    k = m->key;
+    s0 = 0.0f;
+    s1 = 0.0f;
+    k = &k[bga_findPtKey(k, m->n, f)];
+    k1 = k + 1;
+    f -= (float)k->time;
+    d = k1->time - k->time;
+    u = f / (float)d;
+
+    if (k1->linear == 0) {
+        float h00;
+        float h01;
+        float h10;
+        float h11;
+        float ta;
+        float tb;
+        float tc;
+        float td;
+
+        ta = (1.0f - k->f24) * (k->f28 + 1.0f);
+        tb = (1.0f - k->f24) * (1.0f - k->f28);
+        tc = (1.0f - k1->f24) * (1.0f - k1->f28);
+        td = (1.0f - k1->f24) * (k1->f28 + 1.0f);
+        bga_hermite(u, &h00, &h01, &h10, &h11);
+        if (k->time != 0) {
+            s0 = (float)d / (float)(k1->time - k[-1].time);
+        }
+        if (k1->time < m->len) {
+            s1 = (float)d / (float)(k1[1].time - k->time);
+        }
+
+        for (i = 0; i < 3; i++) {
+            dv = k1->pos[i] - k->pos[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->pos[i] - k[-1].pos[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].pos[i] - k1->pos[i]));
+            }
+            pos[i] = k->pos[i] * h00 + k1->pos[i] * h01 + m0 * h10 + m1 * h11;
+        }
+        for (i = 0; i < 3; i++) {
+            dv = k1->rot[i] - k->rot[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->rot[i] - k[-1].rot[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].rot[i] - k1->rot[i]));
+            }
+            rot[i] = (short)((k->rot[i] * h00 + k1->rot[i] * h01 + m0 * h10 + m1 * h11) *
+                             (65536.0f / 360.0f));
+        }
+        for (i = 0; i < 3; i++) {
+            dv = k1->col[i] - k->col[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->col[i] - k[-1].col[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].col[i] - k1->col[i]));
+            }
+            col[i] = k->col[i] * h00 + k1->col[i] * h01 + m0 * h10 + m1 * h11;
+        }
+    } else {
+        for (i = 0; i < 3; i++) {
+            if (k->rot[i] < 0.0f ? -k->rot[i] < 0.1f : k->rot[i] < 0.1f) {
+                k->rot[i] = 0.0f;
+            }
+            if (k1->rot[i] < 0.0f ? -k1->rot[i] < 0.1f : k1->rot[i] < 0.1f) {
+                k1->rot[i] = 0.0f;
+            }
+            dv = k1->pos[i] - k->pos[i];
+            pos[i] = k->pos[i] + u * dv;
+            dv = k1->rot[i] - k->rot[i];
+            rot[i] = (short)((k->rot[i] + (180.0f < u * dv
+                                               ? u * dv - 360.0f
+                                               : (u * dv < -180.0f ? u * dv + 360.0f : u * dv))) *
+                             (65536.0f / 360.0f));
+            col[i] = k->col[i];
+        }
+    }
+    pos[3] = 1.0f;
+    col[3] = 1.0f;
+}
 
 typedef struct BgaExtKey {
     /* 0x00 */ float f00;

@@ -136,35 +136,6 @@ void initFloating(char *a0)
     execFloating(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", _checkItemBreak);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", initLanding);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFallDown);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", inertiaMove);
-
-inline int IsThisBoxTruck(char *a0)
-{
-    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x58);
-}
-
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", action);
-
-/* kept local: this TU's uses of GetRootMatrix do not fit the prototype in geometryManager.h */
-extern void GetRootMatrix();
-
-inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
-{
-    float buf[16];
-    GetRootMatrix(buf, a1);
-    sceVu0ApplyMatrix(a0, buf, a2);
-}
-
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", GetBoxHoldPoint);
-
-inline int CanHoldBox(char *a0)
-{
-    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x20) == 0;
-}
-
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
@@ -196,6 +167,59 @@ extern int moveZMinus(float *a0, float f12, float f13, float f14);
 extern int stage_no;
 extern int D_0028F4C0[];
 extern char D_0061F080[];
+
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", _checkItemBreak);
+
+void initLanding(char *a0)
+{
+    float pos[4];
+    float plane[4];
+    float v[4];
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+
+    GetRootPosition(pos, a0);
+    CopyVector(&GOBJ_SUB(a0)->f_130, ZeroVector);
+    *(int *)&GOBJ_SUB(a0)->f_4AC = 0;
+    GOBJ_SUB(a0)->f_4A0 = 1144;
+    if (*(char **)(p + 0x68) != 0) {
+        float d;
+
+        GetPureVerticalPlane(0, plane, 0, (int *)(p + 0x60), 1);
+        d = GetDistanceFromPlane(plane, pos);
+        plane[3] = 0.0f;
+        sceVu0ScaleVectorXYZ(v, plane, -(d - 50.0f));
+        AddVectorXYZ(pos, pos, v);
+    }
+    _checkItemBreak(pos);
+    GetMatrixFromQuaternionPos(p + 0x70, (char *)GOBJ_SUB(a0) + 0xC0, (char *)pos);
+}
+
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFallDown);
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", inertiaMove);
+
+inline int IsThisBoxTruck(char *a0)
+{
+    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x58);
+}
+
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", action);
+
+/* kept local: this TU's uses of GetRootMatrix do not fit the prototype in geometryManager.h */
+extern void GetRootMatrix();
+
+inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
+{
+    float buf[16];
+    GetRootMatrix(buf, a1);
+    sceVu0ApplyMatrix(a0, buf, a2);
+}
+
+INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", GetBoxHoldPoint);
+
+inline int CanHoldBox(char *a0)
+{
+    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x20) == 0;
+}
 
 typedef struct {
     float x, y, z;

@@ -119,7 +119,22 @@ inline void SetSwitchState(char *a0, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", FloorLeverTriStateGeo);
+void FloorLeverTriStateGeo(char *a0)
+{
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+
+    if (*(int *)(p + 4) != -1 && *(int *)(p + 4) != 1) {
+        if (*(int *)(p + 0x1C) != 0) {
+            (*(void (**)(int, int))(p + 0x1C))(**(int **)(a0 + 0x15C), 0);
+        }
+    } else {
+        if (*(int *)(p + 0x1C) != 0) {
+            (*(void (**)(int, int))(p + 0x1C))(**(int **)(a0 + 0x15C), *(int *)(p + 4));
+        }
+    }
+    UpdateRootMatrix(a0);
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", FloorLeverGeo);
 
 inline int GetFloorLeverAngle(char *a0)
@@ -127,8 +142,29 @@ inline int GetFloorLeverAngle(char *a0)
     return *(short *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", FloorLeverDL);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", GetWallLeverGlobalHoldPoint);
+void FloorLeverDL(char *a0)
+{
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+
+    p2o_DispVU1(a0);
+    MatrixDrive_PushMatrix();
+    GetRootMatrix(MatrixDrive_GetMatrix(), a0);
+    MatrixDrive_RotMatrixZ(*(short *)(p + 2));
+    MatrixDrive_RotMatrixX(*(short *)p);
+    CopyMatrix(*(void **)(*(char **)(p + 0x10) + 0xC), MatrixDrive_GetMatrix());
+    p2o_DispVU1DObj(*(void **)(p + 0x10));
+    MatrixDrive_PopMatrix();
+}
+
+void GetWallLeverGlobalHoldPoint(void *dst, void *lev)
+{
+    char *p = *(char **)(*(char **)((char *)lev + 0x15C) + 0x830);
+
+    GetRootMatrix(MatrixDrive_GetMatrix(), lev);
+    MatrixDrive_RotMatrixZ(*(short *)(p + 2));
+    MatrixDrive_TransMatrix(-50.0f, 0.0f, 0.0f);
+    CopyVector(dst, (char *)MatrixDrive_GetMatrix() + 0x30);
+}
 
 inline void SetWallLeverWithNodePoint(char *a0, char *a1, int a2)
 {
