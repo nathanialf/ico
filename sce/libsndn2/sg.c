@@ -76,6 +76,10 @@ void *_SgGetPacketCntext(int a0, int a1)
     return (void *)(a0 * 0x1000 + (int)p);
 }
 
+/* Reverted to asm 2026-09-17 (chain 3 pass 15): 305 of 312 instructions, the
+ * whole shape derived; the residual is the emission order of the status-nibble
+ * switch arms.  Body and mechanism:
+ * tails/seeds/sg.c3p15_SgCalledTickProc_305of312_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgCalledTickProc);
 
 /* The EE to IOP packet ring in the common context: c[0xF] is the page the ring
@@ -100,7 +104,15 @@ int _SgSetPkAdd(int a0, int a1, int a2, int a3)
     return *n;
 }
 
+/* Reverted to asm 2026-09-17 (chain 3 pass 15): 262 of 263 instructions, the
+ * whole callee-saved colouring and every other word identical.  The one
+ * residual is a gcse PRE edge insertion; the mechanism and the derived body
+ * are in tails/seeds/sg.c3p15_SgSeMain_262of263_strict94_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeMain);
+/* Reverted to asm 2026-09-17 (chain 3 pass 15): 295 of 295 instructions with
+ * fifteen differing words, all of them inside the note-count dispatch at the
+ * head of the function.  The derived body and the mechanism are in
+ * tails/seeds/sg.c3p15_SgBgmMain_295of295_strict15_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgBgmMain);
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetRealtimeTickProc);
 
@@ -212,7 +224,81 @@ int _SgSeqKeyOnSlot(void)
     return best_idx;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeKeyOnSlot);
+/* Pick a voice slot for an SE key-on.  Pass one looks for a slot already
+ * keyed by this sound (state 2) with the same 0x53 owner and 0x54 key, pass
+ * two for a free slot, and the last pass steals the cheapest slot: a keyed-off
+ * slot (state 1) wins over a sounding one (state 2), and a sounding slot is
+ * only stolen when its 0x52 priority is at or below the caller's.  The
+ * rotating cursor mgr[0xC] is what spreads the search over the 48 slots. */
+int _SgSeKeyOnSlot(int a0, int a1, int a2)
+{
+    int *mgr = _SgGetComContext();
+    int off_idx = -1;
+    int off_val = -1;
+    int on_idx = -1;
+    int on_val = -1;
+    int i;
+    int idx;
+    unsigned char *obj;
+    int divisor;
+    int one;
+    int two;
+
+    if (a0 != 0) {
+        i = 0;
+        do {
+            idx = (unsigned int)mgr[0xC] % 0x30;
+            obj = _SgGetSlotContext(idx);
+            if ((*(int *)obj & 0x100) == 0 && obj[0x51] == 2 && obj[0x53] == a0 &&
+                obj[0x54] == a2) {
+                return idx;
+            }
+            mgr[0xC]++;
+        } while (++i < 0x30);
+    }
+    i = 0;
+    do {
+        idx = (unsigned int)mgr[0xC] % 0x30;
+        obj = _SgGetSlotContext(idx);
+        if ((*(int *)obj & 0x100) == 0 && obj[0x51] == 0) {
+            return idx;
+        }
+        mgr[0xC]++;
+    } while (++i < 0x30);
+    divisor = 0x30;
+    one = 1;
+    two = 2;
+    i = 0x2F;
+    do {
+        idx = (unsigned int)mgr[0xC] % divisor;
+        obj = _SgGetSlotContext(idx);
+        if ((*(int *)obj & 0x100) == 0) {
+            if (obj[0x51] == one) {
+                int v = *(int *)(obj + 4);
+                if ((unsigned int)v < (unsigned int)off_val) {
+                    off_idx = idx;
+                    off_val = v;
+                }
+            } else if (obj[0x51] == two) {
+                if (obj[0x52] <= a1) {
+                    int v = *(int *)(obj + 4);
+                    if ((unsigned int)v < (unsigned int)on_val) {
+                        on_idx = idx;
+                        on_val = v;
+                    }
+                }
+            }
+        }
+        mgr[0xC]++;
+    } while (--i >= 0);
+    if (off_idx != -1) {
+        return off_idx;
+    }
+    if (on_idx != -1) {
+        return on_idx;
+    }
+    return -1;
+}
 
 extern void *_SgGetHeadContext(void);
 
@@ -655,7 +741,141 @@ void _SgContSeLoop(int *a0)
     a0[1] += 5;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContParam);
+extern void SgSetReverbType(int a0, int a1);
+extern void SgSetReverbDepth(int a0, int a1, int a2);
+extern void SgSetReverbDelaytime(int a0, int a1);
+extern void SgSetReverbFeedback(int a0, int a1);
+
+/* Parameter controller: the event's 0x2A selector picks one of the SPU voice
+ * register fields in the head context's register block at head[1], packs the
+ * event byte into it and then pushes the two packed words to every voice the
+ * sequence holds through _SgSetPkAdd command 2.  The selectors that touch the
+ * global reverb, and the one that only latches the 0x26 value, do not touch
+ * any voice and just advance the cursor.  Every field is cleared by storing
+ * the masked halfword back before the new bits are ORed in. */
+void _SgContParam(int *a0)
+{
+    int *head = _SgGetHeadContext();
+    unsigned char *s = _SgGetSlotContext(0);
+    int i;
+
+    switch (*(unsigned short *)((char *)a0 + 0x2A)) {
+    case 0: {
+        unsigned char *e = (unsigned char *)head[4];
+
+        *(short *)((char *)a0 + 0x26) = e[2];
+        *(short *)((char *)a0 + 0x2A) = 0;
+        goto end;
+    }
+    case 4: {
+        unsigned char *r = (unsigned char *)head[1];
+        unsigned char *e = (unsigned char *)head[4];
+
+        *(short *)(r + 6) = *(unsigned short *)(r + 6) & 0xFF;
+        *(short *)(r + 6) = *(unsigned short *)(r + 6) | ((0x7F - e[2]) << 8);
+        break;
+    }
+    case 5: {
+        unsigned char *r = (unsigned char *)head[1];
+        unsigned char *e = (unsigned char *)head[4];
+
+        *(short *)(r + 6) = *(unsigned short *)(r + 6) & 0xFF;
+        *(short *)(r + 6) = (*(unsigned short *)(r + 6) | ((0x7F - e[2]) << 8)) | 0x8000;
+        break;
+    }
+    case 6: {
+        unsigned char *r = (unsigned char *)head[1];
+        unsigned char *e = (unsigned char *)head[4];
+
+        *(short *)(r + 6) = *(unsigned short *)(r + 6) & 0xFF0F;
+        *(short *)(r + 6) = *(unsigned short *)(r + 6) | (((0x7F - e[2]) >> 3) << 4);
+        break;
+    }
+    case 7: {
+        unsigned char *r = (unsigned char *)head[1];
+        unsigned char *e = (unsigned char *)head[4];
+
+        *(short *)(r + 6) = *(unsigned short *)(r + 6) & 0xFFF0;
+        *(short *)(r + 6) = *(unsigned short *)(r + 6) | (e[2] >> 3);
+        break;
+    }
+    case 8: {
+        unsigned char *r = (unsigned char *)head[1];
+        unsigned char *e = (unsigned char *)head[4];
+
+        *(short *)(r + 8) = *(unsigned short *)(r + 8) & 0x3F;
+        *(short *)(r + 8) = *(unsigned short *)(r + 8) | ((0x7F - e[2]) << 6);
+        *(short *)(r + 8) =
+            *(unsigned short *)(r + 8) | (0x4000 - *(unsigned short *)((char *)a0 + 0x2E));
+        break;
+    }
+    case 9: {
+        unsigned char *r = (unsigned char *)head[1];
+        unsigned char *e = (unsigned char *)head[4];
+
+        *(short *)(r + 8) = *(unsigned short *)(r + 8) & 0x3F;
+        *(short *)(r + 8) = *(unsigned short *)(r + 8) | ((0x7F - e[2]) << 6) | 0x8000u;
+        *(short *)(r + 8) =
+            *(unsigned short *)(r + 8) | (0x4000 - *(unsigned short *)((char *)a0 + 0x2E));
+        break;
+    }
+    case 10: {
+        unsigned char *r = (unsigned char *)head[1];
+        unsigned char *e = (unsigned char *)head[4];
+
+        *(short *)(r + 8) = *(unsigned short *)(r + 8) & 0xFFC0;
+        *(short *)(r + 8) = *(unsigned short *)(r + 8) | ((0x7F - e[2]) >> 2);
+        break;
+    }
+    case 11: {
+        unsigned char *r = (unsigned char *)head[1];
+        unsigned char *e = (unsigned char *)head[4];
+
+        *(short *)(r + 8) = *(unsigned short *)(r + 8) & 0xFFC0;
+        *(short *)(r + 8) = (*(unsigned short *)(r + 8) | ((0x7F - e[2]) >> 2)) | 0x20;
+        break;
+    }
+    case 12: {
+        unsigned char *e = (unsigned char *)head[4];
+
+        if (e[2] >= 0x41) {
+            *(short *)((char *)a0 + 0x2E) = 0x4000;
+        } else {
+            *(short *)((char *)a0 + 0x2E) = 0;
+        }
+        break;
+    }
+    case 15:
+        SgSetReverbType(0, *(unsigned char *)(head[4] + 2));
+        SgSetReverbType(1, *(unsigned char *)(head[4] + 2));
+        goto end;
+    case 16:
+        SgSetReverbDepth(0, *(unsigned char *)(head[4] + 2), *(unsigned char *)(head[4] + 2));
+        SgSetReverbDepth(1, *(unsigned char *)(head[4] + 2), *(unsigned char *)(head[4] + 2));
+        goto end;
+    case 17:
+        SgSetReverbFeedback(0, *(unsigned char *)(head[4] + 2));
+        SgSetReverbFeedback(1, *(unsigned char *)(head[4] + 2));
+        goto end;
+    case 18:
+    case 19:
+        SgSetReverbDelaytime(0, *(unsigned char *)(head[4] + 2));
+        SgSetReverbDelaytime(1, *(unsigned char *)(head[4] + 2));
+        goto end;
+    }
+    for (i = 0; i < 0x30; i++, s += 0x58) {
+        if (s[0x51] == 1 && s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
+            s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) &&
+            (*(unsigned short *)((char *)a0 + 0x2C) == 0xFF ||
+             *(unsigned short *)(s + 0xC) == *(unsigned short *)((char *)a0 + 0x2C))) {
+            unsigned char *r = (unsigned char *)head[1];
+
+            _SgSetPkAdd(2, i, *(unsigned short *)(r + 6), *(unsigned short *)(r + 8));
+        }
+    }
+end:
+    a0[1] += 3;
+}
 
 void _SgContLoopCount(void *a0)
 {
@@ -740,6 +960,7 @@ void _SgContLoop(int *a0)
         *(short *)((char *)a0 + 0x2C) = 0xFF;
         break;
     }
+end:
     a0[1] += 3;
 }
 
