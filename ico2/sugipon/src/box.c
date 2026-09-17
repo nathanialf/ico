@@ -9,6 +9,7 @@
 #include "item.h"
 #include "motionManager2.h"
 #include "motionOrientManager.h"
+#include "tableSin.h"
 #include <libvu0.h>
 #include <string.h>
 
@@ -37,10 +38,166 @@ void wallHitSE(int a0)
     ExecuteSEPackage(a0, 0x1E);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", initFallDown);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", checkFieldContact);
+void initFallDown(char *a0)
+{
+    float pos[4];
+    float pts[16];
+    float n[4];
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+
+    GetRootPosition(pos, a0);
+    GOBJ_SUB(a0)->f_78 = 0;
+    *(int *)&GOBJ_SUB(a0)->f_4AC = 0;
+    if (*(char **)(p + 0x68) != 0) {
+        GetWallGlobalInfo((char *)pts, n, *(char **)(p + 0x68),
+                          (char *)GOBJ_SUB(*(char **)(p + 0x60))->f_C + (*(int *)(p + 0x64) << 6));
+        n[1] = 0.0f;
+        sceVu0Normalize(n, n);
+        SetIdentityQuaternion((char *)GOBJ_SUB(a0) + 0xC0);
+        RotQuaternionY((char *)GOBJ_SUB(a0) + 0xC0, GetTableArcTan2(n[0], n[2]));
+        GetRootQuaternion((int)((char *)GOBJ_SUB(a0) + 0xE0), (int)a0);
+        DivQuaternion((int)((char *)GOBJ_SUB(a0) + 0xE0), (int)((char *)GOBJ_SUB(a0) + 0xE0),
+                      (int)((char *)GOBJ_SUB(a0) + 0xC0));
+        GetMatrixFromQuaternionPos(p + 0x70, (char *)GOBJ_SUB(a0) + 0xC0, (char *)pos);
+        GOBJ_SUB(a0)->f_4A0 = 1143;
+    } else {
+        GOBJ_SUB(a0)->f_4A0 = 1143;
+        GetRootQuaternion((int)((char *)GOBJ_SUB(a0) + 0xC0), (int)a0);
+    }
+}
+
+/* kept local: this TU does not include matrixDrive.h, whose FSqrt and
+   AddVectorXYZ prototypes do not fit this TU's uses of them. */
+extern void CopyVector(void *dst, void *src);
+extern void GetLowerPlaneCollision(void *work, void *pos);
+extern int GetFloorAttribute(void *work);
+
+int checkFieldContact(char *a0, float lim)
+{
+    char w[0xC0];
+    float pos[4];
+    float v[4];
+    int r;
+
+    GetRootPosition(pos, a0);
+    CopyVector(v, pos);
+    v[1] -= GOBJ_SUB(a0)->f_134;
+    GetLowerPlaneCollision(w, v);
+    r = CheckFieldContact(w, a0, pos, lim);
+    if (*(int *)GOBJ_SUB(a0) != 0) {
+        UnlinkParentOfDObj(a0);
+    }
+    *(int *)((char *)GOBJ_SUB(a0) + 0x5F8) = 0;
+    switch (r) {
+    case 1:
+        if (a0 != *(char **)(w + 0x8C)) {
+            if (*(char **)GOBJ_SUB(a0) != *(char **)(w + 0x8C) ||
+                *(int *)((char *)GOBJ_SUB(a0) + 4) != *(int *)(w + 0x90)) {
+                LinkParentOfDObj(a0, (PackedLL_19CAF0 *)(w + 0x8C));
+                *(int *)((char *)GOBJ_SUB(a0) + 0x5F8) = GetFloorAttribute(w);
+            }
+        }
+        *(float *)(w + 0x14) = *(float *)(w + 0x24) - 50.0f;
+        SetDirectRootPosition(a0, w + 0x10);
+        return 1;
+    case 2:
+        *(int *)((char *)GOBJ_SUB(a0) + 0x5F8) = GetFloorAttribute(w);
+        return 2;
+    }
+    return 0;
+}
+
+/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
+extern void SetDirectRootPosition(void *obj, void *pos);
+/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
+extern void _ScaleVector(void *dst, void *src, float k);
+/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
+extern void AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of ClipWallBoxStop do not fit the prototype in fieldCollision.h */
+extern void ClipWallBoxStop(void *a0);
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
+extern void _AddVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+extern void _NormalizeVector(void *dst, void *src);
+/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
+extern void ClipWall(void *a0);
+/* kept local: this TU does not include geometryManager.h, whose GetRootMatrix and
+   GetCharGObjList prototypes do not fit this TU's uses of them. */
+extern void SetRootPosition(void *obj, void *pos);
+
+/* box.c:343-360 in the listing: inlined into execNormalMove twice (once with
+   ClipWall, once with ClipWallBoxStop) and into inertiaMove once, so it is a
+   static inline here; it has no symbol of its own in the ROM and no census
+   row, and the name is descriptive.  The two constant arguments fold, which is
+   why each inlining carries only one of the two clip calls. */
+static inline int checkBoxWallHit(char *self, float *pos, int stop)
+{
+    char w[0xC0];
+    float base[4];
+    char *p = (char *)GOBJ_SUB(self)->f_830;
+
+    GetRootPosition(base, self);
+    if (pos != 0) {
+        CopyVector(pos, base);
+    }
+    *(float *)(w + 0x70) = (*(float *)(p + 0x24) < *(float *)(p + 0x28) ? *(float *)(p + 0x24)
+                                                                        : *(float *)(p + 0x28)) *
+                               50.0f -
+                           5.0f;
+    base[1] += 40.0f;
+    CopyVector(w, base);
+    CopyVector(w + 0x10, base);
+    if (stop != 0) {
+        ClipWallBoxStop(w);
+    } else {
+        ClipWall(w);
+    }
+    *(float *)(w + 0x24) -= 40.0f;
+    return *(int *)(w + 0x88);
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execNormalMove);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execAutoMove);
+
+/* box.c:461-478 in the listing: inlined once, into execAutoMove, so it has no
+   symbol of its own in the ROM and no census row; the name is descriptive. */
+static inline void setBoxStopWallFlag(char *self, float *vel)
+{
+    char w[0xC0];
+    float dir[4];
+    char *p = (char *)GOBJ_SUB(self)->f_830;
+
+    memset(w, 0, 0xC0);
+    _NormalizeVector(dir, vel);
+    _ScaleVector(dir, dir,
+                 (*(float *)(p + 0x24) < *(float *)(p + 0x28) ? *(float *)(p + 0x24)
+                                                              : *(float *)(p + 0x28)) *
+                         50.0f +
+                     25.0f);
+    GetRootPosition(w, self);
+    AddVectorXYZ(w + 0x10, w, dir);
+    ClipWallBoxStop(w);
+    if (*(int *)(w + 0x88) != 0) {
+        *(int *)(p + 0x140) = 1;
+    } else {
+        *(int *)(p + 0x140) = 0;
+    }
+}
+
+int execAutoMove(char *a0)
+{
+    float pos[4];
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+
+    GetRootPosition(pos, a0);
+    _AddVector(pos, pos, p + 0x40);
+    SetDirectRootPosition(a0, pos);
+    execNormalMove(a0, 0);
+    setBoxStopWallFlag(a0, (float *)(p + 0x40));
+    if (--*(int *)(p + 0x30) <= 0) {
+        *(int *)(p + 0x20) = 0;
+    }
+    return 1;
+}
 
 static inline float getAlign(float v, float g)
 {
@@ -68,8 +225,6 @@ static inline void alignPosition(char *self, float *dst, float *src, float grid)
 extern void GetInverseQuaternion(void *dst, void *src);
 /* kept local: this TU's uses of SetRootQuaternion do not fit the prototype in geometryManager.h */
 extern void SetRootQuaternion(void *obj, void *q);
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
-extern void SetDirectRootPosition(void *obj, void *pos);
 
 int AlignBox(char *a0, float grid)
 {
@@ -88,6 +243,21 @@ int AlignBox(char *a0, float grid)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", initWheels);
+
+/* box.c:567-572 in the listing: inlined once, into action's case 0, so it is a
+   static inline here; it has no symbol of its own in the ROM and no census row,
+   and the name is descriptive.  10430.3779f is 65536 / (2 * pi), the repo's
+   spelling of the radian-to-angle-table factor (ico2/seki/src/Primitive.c). */
+static inline void updateBoxWheelAngle(char *self)
+{
+    char *p = (char *)GOBJ_SUB(self)->f_830;
+
+    if (*(int *)(p + 0x11C) != 0) {
+        *(short *)(p + 0x120) = (short)((float)*(short *)(p + 0x120) -
+                                        *(float *)(p + 0x48) * 10430.3779f / *(float *)(p + 0x124));
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", dispWheels);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", getNearestPosition);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPathInitialize);
@@ -106,9 +276,102 @@ inline float GetDistanceOfGObj(void *a0, void *a1)
     return FSqrt(sceVu0InnerProduct(v, v));
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", playAnimationCore);
+extern int *D_004EB758[];
+extern void GetFloatingMotion(void *mot, void *dir, int *m, int a3, int t0, int t1, float t);
+
+int playAnimationCore(char *a0)
+{
+    float mot[4];
+    float rot[4];
+    float dir[4];
+    float pos[4];
+    float q[4];
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+
+    GetFloatingMotion(mot, dir, D_004EB758[GOBJ_SUB(a0)->f_4A0], 1, 0, 0, GOBJ_SUB(a0)->f_4AC);
+    dir[3] = 1.0f;
+    sceVu0ApplyMatrix(pos, p + 0x70, dir);
+    CopyQuaternion(q, (char *)GOBJ_SUB(a0) + 0xC0);
+    MultiQuaternion(q, q, rot);
+    RotQuaternionX(q, -32768);
+    RotQuaternionY(q, -16384);
+    MultiQuaternion(q, q, (char *)GOBJ_SUB(a0) + 0xE0);
+    SetRootQuaternion(a0, q);
+    sceVu0SubVector(&GOBJ_SUB(a0)->f_130, pos, (char *)GOBJ_SUB(a0) + 0x1F0);
+    CopyVector((char *)GOBJ_SUB(a0) + 0x1F0, pos);
+    SetRootPosition(a0, pos);
+    ExecFrameDependSequence(a0);
+    return UpdateFrameCounter(a0);
+}
+
+extern int D_0028F4C0[];
+/* kept local: this TU's uses of LimitExistGeometry do not fit the prototype in geometryManager.h */
+extern int LimitExistGeometry(void *pos, void *vel);
+
+/* box.c:867-877 in the listing: inlined once, into execFallDown's case 3, so it
+   is a static inline here; it has no symbol of its own in the ROM and no census
+   row, and the name is descriptive.  The frame-rate divisor is the one
+   moveBoxAutoMatic uses, written twice and shared by cse. */
+static inline void execBoxFall(char *self)
+{
+    float v[4];
+
+    GetRootPosition(v, self);
+    ((IntFloat *)(*(char **)(self + 0x15C) + 0x134))->f +=
+        60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
+        (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+    AddVectorXYZ(v, v, *(char **)(self + 0x15C) + 0x130);
+    SetRootPosition(self, v);
+    if (LimitExistGeometry(v, *(char **)(self + 0x15C) + 0x130) != 0) {
+        *(int *)((char *)GOBJ_SUB(self)->f_830 + 0x20) = -1;
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", MoveFloatingBox);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", avoidCharGObj);
+
+/* kept local: this TU's uses of ClipWallE do not fit the prototype in fieldCollision.h */
+extern void ClipWallE(void *a0);
+extern int GetCylinderCollisionWithExceptOwnCollision(char *self, int target, float r, float h,
+                                                      float s, float t, int ctrl);
+
+void avoidCharGObj(char *a0, char *a1)
+{
+    char w[0xC0];
+    float pos[4];
+    int hit;
+
+    *(float *)(w + 0x70) = (30.0f < *(float *)((char *)GOBJ_SUB(a1) + 0x3D8))
+                               ? *(float *)((char *)GOBJ_SUB(a1) + 0x3D8)
+                               : 30.0f;
+    GetRootPosition(pos, a1);
+    pos[1] += *(float *)((char *)GOBJ_SUB(a1) + 0x270) + 10.0f;
+    CopyVector(w, pos);
+    CopyVector(w + 0x10, pos);
+    *(char **)(w + 0x74) = a0;
+    *(int *)(w + 0x78) = -1;
+    *(int *)(w + 0x7C) = 0;
+    ClipWallE(w);
+    if (*(int *)(w + 0x88) != 0) {
+        switch (*(int *)((char *)GOBJ_SUB(a1) + 0x4D8)) {
+        case 7:
+        case 8:
+        case 10:
+        case 15:
+        case 16:
+            hit = *(char **)((char *)GOBJ_SUB(a1) + 0x180) == a0;
+            break;
+        default:
+            hit = 1;
+            break;
+        }
+        if (hit != 0) {
+            GetCylinderCollisionWithExceptOwnCollision(
+                a0, (int)a1, (*(float *)(w + 0x70) + 50.0f) * 1.414f, 100.0f, 0.5f, 0.0f, 1);
+            UpdateRootMatrix(a0);
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFloating);
 
 /* kept local: this TU's uses of IdentityQuaternion do not fit the prototype in quaternion.h */
@@ -136,14 +399,10 @@ void initFloating(char *a0)
     execFloating(a0);
 }
 
-/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
-extern void AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *dst, void *src, float k);
 /* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
 /* kept local: this TU's uses of SetSimplePlane do not fit the prototype in fieldCollision.h */
@@ -156,8 +415,7 @@ extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 extern char **GetCharGObjList(void);
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *a0);
-/* kept local: this TU's uses of ClipWallBoxStop do not fit the prototype in fieldCollision.h */
-extern void ClipWallBoxStop(void *a0);
+extern char D_0061F048[];
 /* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
 extern void UpdateRootMatrix(void *a0);
 extern int moveXPlus(float *a0, float f12, float f13, float f14);
@@ -165,7 +423,6 @@ extern int moveXMinus(float *a0, float f12, float f13, float f14);
 extern int moveZPlus(float *a0, float f12, float f13, float f14);
 extern int moveZMinus(float *a0, float f12, float f13, float f14);
 extern int stage_no;
-extern int D_0028F4C0[];
 extern char D_0061F080[];
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", _checkItemBreak);
@@ -194,15 +451,148 @@ void initLanding(char *a0)
     GetMatrixFromQuaternionPos(p + 0x70, (char *)GOBJ_SUB(a0) + 0xC0, (char *)pos);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFallDown);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", inertiaMove);
+/* box.c:1308-1313 and 1315-1321 in the listing: both are inlined once, into
+   action's case 4 (the inner one inside the outer one), so they are static
+   inlines here; neither has a symbol of its own in the ROM or a census row, and
+   the names are descriptive. */
+static inline void resetBoxRootQuaternion(char *self, float *q)
+{
+    GetInverseQuaternion(q, (char *)GOBJ_SUB(self) + 0x60);
+    SetRootQuaternion(self, q);
+    GOBJ_SUB(self)->f_78 = 1;
+}
+
+static inline void playBoxAnimation(char *self, float *q)
+{
+    if (playAnimationCore(self) != 0) {
+        char *p = (char *)GOBJ_SUB(self)->f_830;
+
+        *(int *)(p + 0x20) = 0;
+        resetBoxRootQuaternion(self, q);
+    }
+}
+
+/* kept local: this TU's uses of AttackCenter_WithDir do not fit the prototype in attackhit.h */
+extern void AttackCenter_WithDir(char *self, int kind, void *pos, void *dir, float r);
+
+/* box.c:1325-1339 in the listing: inlined once, into execFallDown, so it is a
+   static inline here; it has no symbol of its own in the ROM and no census row,
+   and the name is descriptive. */
+static inline void attackBoxFallCenter(char *self)
+{
+    float plane[4];
+    float pos[4];
+    char *q = (char *)GOBJ_SUB(self)->f_830;
+
+    if (*(char **)(q + 0x68) != 0) {
+        GetPureVerticalPlane(0, plane, 0, (int *)(q + 0x60), 1);
+        plane[3] = 0.0f;
+        GetRootPosition(pos, self);
+        pos[1] += 50.0f;
+        AttackCenter_WithDir(self, 17, pos, plane, 60.0f);
+    }
+}
+
+void execFallDown(char *a0)
+{
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+
+    switch (*(int *)(p + 0x20)) {
+    case 2:
+        if (playAnimationCore(a0) != 0) {
+            *(int *)(p + 0x20) = 3;
+        }
+        break;
+    case 3:
+        execBoxFall(a0);
+        break;
+    }
+    attackBoxFallCenter(a0);
+    switch (checkFieldContact(a0, 50.0f)) {
+    case 1:
+        initLanding(a0);
+        *(int *)(p + 0x20) = 4;
+        landingSE((int)a0);
+        break;
+    case 2:
+        initFloating(a0);
+        *(int *)(p + 0x20) = 5;
+        landingSE((int)a0);
+        break;
+    }
+}
+
+void inertiaMove(char *a0)
+{
+    float pos[4];
+    float tmp[4];
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+
+    if (onPath(a0) != 0) {
+        CopyVector(p + 0x40, ZeroVector);
+    }
+    GetRootPosition(pos, a0);
+    sceVu0ScaleVectorXYZ(p + 0x40, p + 0x40, *(float *)(p + 0x134));
+    sceVu0ApplyMatrix(tmp, (void *)GOBJ_SUB(a0)->f_C, p + 0x40);
+    sceVu0AddVector(pos, pos, tmp);
+    SetRootPosition(a0, pos);
+    if (checkBoxWallHit(a0, pos, 1) != 0) {
+        SetRootPosition(a0, pos);
+        CopyVector(p + 0x40, ZeroVector);
+    }
+}
 
 inline int IsThisBoxTruck(char *a0)
 {
     return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x58);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", action);
+void action(char *a0)
+{
+    /* the float view carries the up vector; the union is what the ROM's
+       schedule needs, its alias-set-0 store keeping the matrix read after it */
+    Vec4u v;
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+
+    switch (*(int *)(p + 0x20)) {
+    case 0:
+        if (*(int *)(p + 0x58) != 0) {
+            inertiaMove(a0);
+            updateBoxWheelAngle(a0);
+            memset(&v, 0, 16);
+            v.f[2] = 1.0f;
+            _ApplyMatrix((char *)GOBJ_SUB(a0) + 0x520, (void *)GOBJ_SUB(a0)->f_C, &v);
+        }
+        CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+        break;
+    case 1:
+    case 6:
+        execAutoMove(a0);
+        CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+        break;
+    case 2:
+    case 3:
+        execFallDown(a0);
+        break;
+    case 4:
+        playBoxAnimation(a0, v.f);
+        CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+        break;
+    case 5:
+        execFloating(a0);
+        break;
+    case -1:
+    default:
+        debug_StdPrintfDummy(D_0061F048);
+        CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+        break;
+    }
+    if (*(int *)(p + 0x20) != 6) {
+        if (*(int *)(*(int *)(p + 0x180) + 0x16C) != 0) {
+            *(int *)(*(int *)(p + 0x180) + 0x16C) = 0;
+        }
+    }
+}
 
 /* kept local: this TU's uses of GetRootMatrix do not fit the prototype in geometryManager.h */
 extern void GetRootMatrix();
@@ -464,7 +854,48 @@ static inline int checkItemHit(char *obj, float *dir)
     return _checkItemCollision(to);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", moveBoxAutoMatic);
+int moveBoxAutoMatic(char *a0, int a1)
+{
+    float v[4];
+    float v2[4];
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    float t = 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    float w = t * t;
+    int r;
+
+    switch (a1) {
+    default:
+        *(float *)(p + 0x134) = 0.85f;
+        AddVectorXYZ(p + 0x40, p + 0x40, ZeroVector);
+        break;
+    case 1:
+        memset(v, 0, 16);
+        v[2] = w * 0.5f;
+        *(float *)(p + 0x134) = 0.98f;
+        AddVectorXYZ(p + 0x40, p + 0x40, v);
+        break;
+    case -1:
+        memset(v2, 0, 16);
+        v2[2] = w * -0.5f;
+        *(float *)(p + 0x134) = 0.98f;
+        AddVectorXYZ(p + 0x40, p + 0x40, v2);
+        break;
+    }
+    if (*(int *)(p + 0x138) != a1) {
+        StopSEPackageWithGroupVariation((int)a0, 1);
+        if (a1 != 0) {
+            ExecuteSEPackageWithGroupVariation(a0, 29, 1);
+        }
+    }
+    *(int *)(p + 0x138) = a1;
+    if (onPath(a0) != 0) {
+        CopyVector(p + 0x40, ZeroVector);
+    }
+    UpdateRootMatrix(a0);
+    r = execNormalMove(a0, 1);
+    UpdateRootMatrix(a0);
+    return r;
+}
 
 int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
 {

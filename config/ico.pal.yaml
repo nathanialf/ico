@@ -803,6 +803,10 @@ segments:
       - [0x51EE30, .rodata, ico2/sugipon/src/a_p_1]  # the TU's whole .rodata run as source (completeness pass 6), VMA 0x61EE30..0x61EE98, 98 B emitted
       - [0x51EE98, .rodata, ico2/sugipon/src/act_a_p_1]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP act_a_p_1.o .rodata 0x2A), VMA 0x61EE98..0x61EEC2, 42 B
       - [0x51EEC2, rodata, cod/51EEC2]     # rodata blob resume
+      - [0x51F020, .rodata, ico2/sugipon/src/box]  # carved jtbl_0061F020 (avoidCharGObj, section .rodata.0x0061F020), VMA 0x61F020..0x61F048
+      - [0x51F048, rodata, cod/51F048]     # .rodata blob resume
+      - [0x51F060, .rodata, ico2/sugipon/src/box]  # carved jtbl_0061F060 (action, section .rodata.0x0061F060), VMA 0x61F060..0x61F080
+      - [0x51F080, rodata, cod/51F080]     # .rodata blob resume
       - [0x51F158, .rodata, ico2/sugipon/src/boy]  # the TU's whole .rodata run as source (completeness pass 7): the mesh texture name and strings, VMA 0x61F158..0x61F182
       - [0x51F182, rodata, cod/51F182]     # .rodata blob resume
       - [0x51F198, .rodata, ico2/sugipon/src/candle]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x61F198..0x61F1D0, 55 B emitted

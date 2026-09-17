@@ -241,4 +241,34 @@ void WallLeverDL(char *a0)
     MatrixDrive_PopMatrix();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", CheckReadyAllSwitches);
+/* switch.c:414-421 in the listing: the poll loop is inlined at all four call
+   sites below, so it is a static inline helper here; it has no symbol of its
+   own in the ROM and no census row, and the name is descriptive. */
+static inline int checkReadySwitchKind(int kind)
+{
+    char *o;
+
+    for (o = isysGObjSearchFromObjKindID_begin(kind); o != 0;
+         o = isysGObjSearchFromObjKindID_next(o)) {
+        char *p = *(char **)(*(char **)(o + 0x15C) + 0x830);
+
+        if (*(int *)(p + 0x14) == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int CheckReadyAllSwitches(void)
+{
+    if (checkReadySwitchKind(22) == 0) {
+        return 0;
+    }
+    if (checkReadySwitchKind(23) == 0) {
+        return 0;
+    }
+    if (checkReadySwitchKind(24) == 0) {
+        return 0;
+    }
+    return checkReadySwitchKind(25);
+}
