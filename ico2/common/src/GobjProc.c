@@ -8,8 +8,11 @@
 #include "gobj_process.h"
 
 extern int D_0063C0C8;
-extern int D_0072A2C0[];
-extern char D_0063C0D0[];
+
+/* .bss, owned by GobjProc.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the table of created game objects, 208 entries. */
+static PObjGObj *gobj_table[208];
+
 /* kept local: the declaration in gobj_cam_dl.h changes this TU codegen */
 extern void isysGObjLinkCameraDL(void *a0, int a1, int a2, int a3, unsigned int a4);
 
@@ -25,14 +28,14 @@ int GetMaxGObj(void)
 
 int GetGObjP(int idx)
 {
-    return D_0072A2C0[idx];
+    return (int)gobj_table[idx];
 }
 
 int GetGObjId(int a0)
 {
     int i;
     for (i = 0; i < D_0063C0C8; i++) {
-        if (a0 == D_0072A2C0[i]) {
+        if (a0 == (int)gobj_table[i]) {
             return i;
         }
     }
@@ -43,8 +46,8 @@ void PrintGObjID(int a0)
 {
     int i;
     for (i = 0; i < D_0063C0C8; i++) {
-        if (a0 == D_0072A2C0[i]) {
-            debug_StdPrintfDummy(D_0063C0D0, i);
+        if (a0 == (int)gobj_table[i]) {
+            debug_StdPrintfDummy("%d\n", i);
         }
     }
 }
@@ -82,7 +85,7 @@ inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int
     g->f08 = -1;
     g->f0C = -1;
     g->f16C = 1;
-    ((PObjGObj **)D_0072A2C0)[D_0063C0C8++] = g;
+    gobj_table[D_0063C0C8++] = g;
     isysGObjProcAdd(g, a1, 1, 0x16);
     isysGObjProcAdd(g, a2, 1, 0x17);
     isysGObjProcAdd(g, a3, 1, 0x18);

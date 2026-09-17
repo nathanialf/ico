@@ -2,8 +2,14 @@
 #include "debug.h"
 #include "motionFileManager.h"
 
-extern int D_0063C46C;
-extern int D_0063C470;
+/* .sbss, owned by motionFileManager.o and reached only from this file
+   (MAIN.MAP names no symbol in the run), in the ROM's run order: the two
+   running totals AddMotionMemorySize keeps, one per motion class (its second
+   argument picks the class; the second total is the one the node_id 4 reset
+   clears). */
+static int motionMemorySize;
+
+static int motionMemorySizeStatic2;
 
 typedef struct {
     char pad[0x134];
@@ -22,7 +28,7 @@ inline void ResetDynamicMotionManager(void)
             D_004EB758[i] = 0;
         }
     }
-    D_0063C470 = 0;
+    motionMemorySizeStatic2 = 0;
 }
 
 inline void ResetStatic2MotionManager(int a0)
@@ -97,24 +103,24 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionFileManager", InitMotionFil
 
 void InitMotionMemorySize(void)
 {
-    D_0063C46C = 0;
-    D_0063C470 = 0;
+    motionMemorySize = 0;
+    motionMemorySizeStatic2 = 0;
 }
 
 int AddMotionMemorySize(int a0, int a1)
 {
     int v0;
     if (a1 != 0) {
-        v0 = D_0063C470 + a0;
-        D_0063C470 = v0;
+        v0 = motionMemorySizeStatic2 + a0;
+        motionMemorySizeStatic2 = v0;
     } else {
-        v0 = D_0063C46C + a0;
-        D_0063C46C = v0;
+        v0 = motionMemorySize + a0;
+        motionMemorySize = v0;
     }
     return v0;
 }
 
 int GetMotionMemorySize(int a0)
 {
-    return a0 ? D_0063C470 : D_0063C46C;
+    return a0 ? motionMemorySizeStatic2 : motionMemorySize;
 }

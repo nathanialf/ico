@@ -59,11 +59,41 @@ static int (*ap1ModeAI[])() = {standAI, walkAI, jumpAI, attackAI, 0, 0};
 static char *ap1ModeName[] = {D_0063B728, D_0063B720, D_0063B718,
                               D_0063B710, D_0063B708, D_0063B700};
 
-extern float D_0063C440;
-extern short D_0063C444;
-extern short D_0063C446;
-extern float D_0063C450;
-extern short D_0063C454;
+/* .sbss and .bss, owned by act_a_p_1.o and reached only from this file
+   (MAIN.MAP names no symbol in either run), each in the ROM's run order.
+   The AI's view of the boy and of the object it is watching, refreshed once a
+   frame by the sense pass and read by every mode routine. */
+static float boyDist; /* distance to the boy */
+
+static short boyPitch; /* vertical angle to the boy */
+
+static short boyYaw; /* heading to the boy in local space */
+
+static short boyYawBack; /* the opposite heading, boyYaw - 32768 */
+
+static int boySafe; /* the boy is not in danger */
+
+static float lookDist; /* distance to the object being watched */
+
+static short lookYaw; /* heading to it in local space */
+
+static AP1Vec boyLocalDir; /* direction to the boy, in local space */
+
+static AP1Vec boyLocalFlat; /* the same with y removed and normalised */
+
+static AP1Vec boyDelta; /* the boy's offset in world space */
+
+static AP1Vec boyDeltaFlat; /* the same with y removed */
+
+static AP1Vec lookDelta; /* the watched object's offset in world space */
+
+static AP1Vec lookLocalDir; /* direction to it, in local space */
+
+static AP1Vec lookLocalFlat; /* the same with y removed and normalised */
+
+static AP1Vec lookDeltaFlat; /* lookDelta with y removed */
+
+static AP1Vec selfPos; /* this actor's own root position */
 
 int standAI(char *self)
 {
@@ -75,23 +105,23 @@ int standAI(char *self)
     char *p = *(char **)(self + 0x164);
 
     if ((int)(((U *)(p + 0x20))->ll >> 21) & 1) {
-        short r = D_0063C446;
+        short r = boyYaw;
         r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
         AP1Turn(self, r);
         return -1;
     }
 
-    if (D_0063C440 < 500.0f) {
+    if (boyDist < 500.0f) {
         if (*(int *)(p + 0xAC) != 0) {
             if (AP1MotReq(self, 1))
                 return 1;
         }
-        if (D_0063C450 > 100.0f) {
+        if (lookDist > 100.0f) {
             if (AP1MotReq(self, 1))
                 return 1;
         }
-        if (D_0063C444 < 16384 && D_0063C440 > 300.0f) {
-            short r = D_0063C446;
+        if (boyPitch < 16384 && boyDist > 300.0f) {
+            short r = boyYaw;
             r = r > 4096 ? 4096 : (r < -4096 ? -4096 : r);
             AP1Turn(self, r);
             return -1;
@@ -101,8 +131,8 @@ int standAI(char *self)
     }
 
     if (*(int *)(p + 0xAC) != 0) {
-        if (D_0063C450 < 50.0f) {
-            short r = D_0063C454;
+        if (lookDist < 50.0f) {
+            short r = lookYaw;
             r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
             AP1Turn(self, r);
             return -1;
@@ -111,8 +141,8 @@ int standAI(char *self)
             return 1;
     }
 
-    if (D_0063C450 < 100.0f) {
-        short r = D_0063C446;
+    if (lookDist < 100.0f) {
+        short r = boyYaw;
         r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
         AP1Turn(self, r);
         return -1;
@@ -121,12 +151,6 @@ int standAI(char *self)
     return AP1MotReq(self, 1) ? 1 : -1;
 }
 
-extern short D_0063C448;
-extern int D_0063C44C;
-extern float D_0071EC64[];
-extern float D_0071EC70[];
-extern float D_0071EC84[];
-extern float D_0071ECB0[];
 /* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(void *v);
 
@@ -144,28 +168,28 @@ int walkAI(char *self)
             return 0;
     }
 
-    if (D_0063C440 < 300.0f) {
-        if (*(int *)(p + 0xDC) == 0 || D_0063C44C == 0 || D_0063C444 < 16384) {
+    if (boyDist < 300.0f) {
+        if (*(int *)(p + 0xDC) == 0 || boySafe == 0 || boyPitch < 16384) {
             short r;
 
             if (*(int *)(p + 0x4C) >= 31) {
-                AP1Turn(self, D_0063C446);
+                AP1Turn(self, boyYaw);
                 if (AP1JumpReq(self, 2, p + 0xF0)) {
                     *(int *)(p + 0x4C) = 0;
                     return 2;
                 }
             }
-            r = D_0063C448;
+            r = boyYawBack;
             r = r > 12288 ? 12288 : (r < -12288 ? -12288 : r);
             AP1Turn(self, r);
             return -1;
         }
     }
 
-    if (*(int *)(p + 0xDC) != 0 && D_0063C44C != 0) {
-        if ((D_0063C446 < 0 ? -D_0063C446 : D_0063C446) < 8192) {
-            if (D_0063C440 < 150.0f) {
-                short r = D_0063C446;
+    if (*(int *)(p + 0xDC) != 0 && boySafe != 0) {
+        if ((boyYaw < 0 ? -boyYaw : boyYaw) < 8192) {
+            if (boyDist < 150.0f) {
+                short r = boyYaw;
 
                 r = r > 4096 ? 4096 : (r < -4096 ? -4096 : r);
                 AP1Turn(self, r);
@@ -175,8 +199,8 @@ int walkAI(char *self)
         }
     }
 
-    if (D_0071EC64[0] > 100.0f) {
-        if (VectorLengthSquare(D_0071EC70) < 10000.0f) {
+    if (boyDelta.y > 100.0f) {
+        if (VectorLengthSquare(&boyDeltaFlat) < 10000.0f) {
             if (AP1JumpReq(self, 2, &ap1BoxedInJump)) {
                 *(int *)(p + 0x4C) = 0;
                 return 2;
@@ -184,8 +208,8 @@ int walkAI(char *self)
         }
     }
 
-    if (D_0071EC84[0] > 100.0f) {
-        if (VectorLengthSquare(D_0071ECB0) < 10000.0f) {
+    if (lookDelta.y > 100.0f) {
+        if (VectorLengthSquare(&lookDeltaFlat) < 10000.0f) {
             if (AP1JumpReq(self, 2, &ap1BoxedInJump)) {
                 *(int *)(p + 0x4C) = 0;
                 return 2;
@@ -194,31 +218,31 @@ int walkAI(char *self)
     }
 
     if (*(int *)(p + 0xAC) != 0) {
-        short r = D_0063C454;
+        short r = lookYaw;
 
         r = r > 4096 ? 4096 : (r < -4096 ? -4096 : r);
         AP1Turn(self, r);
-        if (D_0063C450 < 50.0f) {
+        if (lookDist < 50.0f) {
             if (AP1MotReq(self, 0))
                 return 0;
         }
         return AP1MotReq(self, 1) == 0 ? -1 : 1;
     }
 
-    if (D_0063C450 < 100.0f) {
+    if (lookDist < 100.0f) {
         if (AP1MotReq(self, 0))
             return 0;
     }
 
-    if (*(int *)(p + 0xDC) != 0 && D_0063C44C != 0 && D_0063C440 < 300.0f) {
-        short r = D_0063C446;
+    if (*(int *)(p + 0xDC) != 0 && boySafe != 0 && boyDist < 300.0f) {
+        short r = boyYaw;
 
         r = r > 512 ? 512 : (r < -512 ? -512 : r);
         AP1Turn(self, r);
     }
 
     {
-        short r = D_0063C454;
+        short r = lookYaw;
 
         r = r > 512 ? 512 : (r < -512 ? -512 : r);
         AP1Turn(self, r);
@@ -324,13 +348,6 @@ static inline void AP1ToLocal(char *self, AP1Vec *v)
     _ApplyMatrix(v, &m, v);
 }
 
-extern AP1Vec D_0071EC40;
-extern AP1Vec D_0071EC50;
-extern AP1Vec D_0071EC60;
-extern AP1Vec D_0071EC80;
-extern AP1Vec D_0071EC90;
-extern AP1Vec D_0071ECA0;
-extern AP1Vec D_0071ECC0;
 extern int D_00639EA4;
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
@@ -361,20 +378,20 @@ void subAP1BrainMain(volatile int self)
 
     while (1) {
         boyObj = (char *)D_00639EA4;
-        GetRootPosition(&D_0071ECC0, (char *)self);
+        GetRootPosition(&selfPos, (char *)self);
         GetRootPosition(&boy, boyObj);
         boy.y -= *(float *)(*(int *)(boyObj + 0x15C) + 0x160) - 10.0f;
-        D_0063C440 = AP1GetDirection(&D_0071EC40, &D_0071EC60, &boy, &D_0071ECC0);
-        D_0063C444 = AP1GetVerticalAngle(boyObj, &D_0071EC40);
-        AP1ToLocal((char *)self, &D_0071EC40);
-        CopyVector(&D_0071EC50, &D_0071EC40);
-        D_0071EC50.y = 0.0f;
-        _NormalizeVector(&D_0071EC50, &D_0071EC50);
-        D_0063C446 = GetTableArcTan2(D_0071EC50.x, D_0071EC50.z);
-        D_0063C448 = D_0063C446 - 32768;
-        CopyVector(D_0071EC70, &D_0071EC60);
-        D_0071EC70[1] = 0.0f;
-        D_0063C44C = IsBoyStatus_NotDanger() == 0;
+        boyDist = AP1GetDirection(&boyLocalDir, &boyDelta, &boy, &selfPos);
+        boyPitch = AP1GetVerticalAngle(boyObj, &boyLocalDir);
+        AP1ToLocal((char *)self, &boyLocalDir);
+        CopyVector(&boyLocalFlat, &boyLocalDir);
+        boyLocalFlat.y = 0.0f;
+        _NormalizeVector(&boyLocalFlat, &boyLocalFlat);
+        boyYaw = GetTableArcTan2(boyLocalFlat.x, boyLocalFlat.z);
+        boyYawBack = boyYaw - 32768;
+        CopyVector(&boyDeltaFlat, &boyDelta);
+        boyDeltaFlat.y = 0.0f;
+        boySafe = IsBoyStatus_NotDanger() == 0;
 
         host = *(char **)(p + 0xA8);
         if (host != 0) {
@@ -408,14 +425,14 @@ void subAP1BrainMain(volatile int self)
             hold = 0;
         }
 
-        D_0063C450 = AP1GetDirection(&D_0071EC90, &D_0071EC80, &look, &D_0071ECC0);
-        AP1ToLocal((char *)self, &D_0071EC90);
-        CopyVector(&D_0071ECA0, &D_0071EC90);
-        D_0071ECA0.y = 0.0f;
-        _NormalizeVector(&D_0071ECA0, &D_0071ECA0);
-        D_0063C454 = GetTableArcTan2(D_0071ECA0.x, D_0071ECA0.z);
-        CopyVector(D_0071ECB0, &D_0071EC80);
-        D_0071ECB0[1] = 0.0f;
+        lookDist = AP1GetDirection(&lookLocalDir, &lookDelta, &look, &selfPos);
+        AP1ToLocal((char *)self, &lookLocalDir);
+        CopyVector(&lookLocalFlat, &lookLocalDir);
+        lookLocalFlat.y = 0.0f;
+        _NormalizeVector(&lookLocalFlat, &lookLocalFlat);
+        lookYaw = GetTableArcTan2(lookLocalFlat.x, lookLocalFlat.z);
+        CopyVector(&lookDeltaFlat, &lookDelta);
+        lookDeltaFlat.y = 0.0f;
 
         if (ap1ModeAI[*(int *)(p + 0x34)] != 0) {
             r = ap1ModeAI[*(int *)(p + 0x34)]((int)self);

@@ -11,7 +11,10 @@ struct GObj__p4 {
     char pad2[0x14];
 };
 
-extern char *D_006BF380[];
+/* .bss, owned by gobj.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the head of the free list for each of the 70 object
+   kinds. */
+static char *gobjKindHead[70];
 
 /* Deferred-`inline` tail: ee-gcc 2.9 emits a plain-`inline` function's
    out-of-line copy at the END of the object in PROTOTYPE order while its
@@ -39,7 +42,7 @@ inline void isysGObjActiveDlLink(int a0, int a1);
 
 void isysGObjKindTableInit(void)
 {
-    memset(D_006BF380, 0, 0x118);
+    memset(gobjKindHead, 0, sizeof(gobjKindHead));
 }
 
 extern char D_0029C4F0[];
@@ -63,18 +66,23 @@ void isysGObjInit(int n)
     isysGObjKindTableInit();
 }
 
-extern struct GObj__pn *D_0063C1A8;
-extern unsigned int D_0063C1AC;
 extern int D_0063A430;
+
+/* .sbss, owned by gobj.o and reached only from this file (MAIN.MAP names no
+   symbol in the run), in the ROM's run order: the object table and how many
+   0x174-byte entries isysGObjAlloc gave it. */
+static struct GObj__pn *gobjTable;
+
+static unsigned int gobjMax;
 
 inline void isysGObjAlloc(int n)
 {
     struct GObj__p4 *tbl;
     unsigned int i;
 
-    D_0063C1A8 = iosMallocDebug(D_0063A430, n * sizeof(struct GObj__p4), __FILE__, 174);
-    D_0063C1AC = n;
-    tbl = (struct GObj__p4 *)D_0063C1A8;
+    gobjTable = iosMallocDebug(D_0063A430, n * sizeof(struct GObj__p4), __FILE__, 174);
+    gobjMax = n;
+    tbl = (struct GObj__p4 *)gobjTable;
     for (i = 0; i < n; i++) {
         tbl[i].unk0 = 0;
         tbl[i].unk15C = 0;
@@ -120,8 +128,6 @@ void cut_gobj_link(int a0)
     }
 }
 
-extern struct GObj__pn *D_0063C1A8;
-extern unsigned int D_0063C1AC;
 extern char D_0063A608[];
 
 /* INTERIM: the listing inlines isysGObjRemove here (its own lines 225-231 and,
@@ -135,9 +141,9 @@ static __inline__ void removeGObjEntry(char *g)
     char *proc = *(char **)(g + 0x2C);
     char *p;
     if ((unsigned int)(kind - 1) < 0x45) {
-        p = D_006BF380[kind];
+        p = gobjKindHead[kind];
         if (p == g) {
-            D_006BF380[kind] = *(char **)(g + 0x3C);
+            gobjKindHead[kind] = *(char **)(g + 0x3C);
         } else if (p != 0) {
             while (*(char **)(p + 0x3C) != g) {
                 if (p == 0) {
@@ -161,9 +167,9 @@ void isysGObjRemoveAll(void)
 {
     unsigned int i;
 
-    for (i = 0; i < D_0063C1AC; i++) {
-        if (*(int *)((char *)D_0063C1A8 + i * 0x174) != 0)
-            removeGObjEntry((char *)D_0063C1A8 + i * 0x174);
+    for (i = 0; i < gobjMax; i++) {
+        if (*(int *)((char *)gobjTable + i * 0x174) != 0)
+            removeGObjEntry((char *)gobjTable + i * 0x174);
     }
     isysGObjKindTableInit();
 }
@@ -282,9 +288,6 @@ void isysGObjMoveHead(int a0, int a1, int a2)
     return add_gobj_to_head(a0, s1, new_var);
 }
 
-extern struct GObj__pn *D_0063C1A8;
-extern unsigned int D_0063C1AC;
-
 /* static helper the listing places at gobj.c lines 360-369; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
 static __inline__ void linkGObjAfter(GLNode *g, GLNode *other)
@@ -306,16 +309,16 @@ static __inline__ char *allocGObjEntry(void)
     unsigned int i;
     char *g;
 
-    for (i = 0; i < D_0063C1AC; i++) {
-        if (*(int *)((char *)D_0063C1A8 + i * 0x174) == 0) {
+    for (i = 0; i < gobjMax; i++) {
+        if (*(int *)((char *)gobjTable + i * 0x174) == 0) {
             break;
         }
     }
-    if (i == D_0063C1AC) {
+    if (i == gobjMax) {
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
-    g = (char *)(i * 0x174 + (int)D_0063C1A8);
+    g = (char *)(i * 0x174 + (int)gobjTable);
     *(int *)(g + 0x164) = 0;
     *(int *)(g + 0x170) = 0;
     return g;
@@ -384,15 +387,14 @@ int isysGetNbAllocedGObjs(void)
 {
     int result = 0;
     unsigned int i;
-    for (i = 0; i < D_0063C1AC; i++) {
-        if (*(int *)((char *)D_0063C1A8 + i * 0x174) != 0) {
+    for (i = 0; i < gobjMax; i++) {
+        if (*(int *)((char *)gobjTable + i * 0x174) != 0) {
             result++;
         }
     }
     return result;
 }
 
-extern char *D_006BF380[];
 extern char D_0063A608[];
 
 inline void isysGObjRemove(char *g)
@@ -401,9 +403,9 @@ inline void isysGObjRemove(char *g)
     char *proc = *(char **)(g + 0x2C);
     char *p;
     if ((unsigned int)(kind - 1) < 0x45) {
-        p = D_006BF380[kind];
+        p = gobjKindHead[kind];
         if (p == g) {
-            D_006BF380[kind] = *(char **)(g + 0x3C);
+            gobjKindHead[kind] = *(char **)(g + 0x3C);
         } else if (p != 0) {
             while (*(char **)(p + 0x3C) != g) {
                 if (p == 0) {
@@ -448,10 +450,10 @@ inline void isysGObjKindTableAdd(char *g, int kind)
     }
     *(int *)(g + 0xC) = kind;
     if ((unsigned int)kind < 0x46) {
-        if (D_006BF380[kind] == 0) {
-            D_006BF380[kind] = g;
+        if (gobjKindHead[kind] == 0) {
+            gobjKindHead[kind] = g;
         } else {
-            p = D_006BF380[kind];
+            p = gobjKindHead[kind];
             while (*(char **)(p + 0x3C) != 0) {
                 p = *(char **)(p + 0x3C);
             }
@@ -461,7 +463,6 @@ inline void isysGObjKindTableAdd(char *g, int kind)
     }
 }
 
-extern char *D_006BF380[];
 extern char D_0063A608[];
 
 inline void isysGObjKindTableRemove(char *g)
@@ -469,9 +470,9 @@ inline void isysGObjKindTableRemove(char *g)
     int kind = *(int *)(g + 0xC);
     char *p;
     if ((unsigned int)(kind - 1) < 0x45) {
-        p = D_006BF380[kind];
+        p = gobjKindHead[kind];
         if (p == g) {
-            D_006BF380[kind] = *(char **)(g + 0x3C);
+            gobjKindHead[kind] = *(char **)(g + 0x3C);
             return;
         }
         if (p == 0)
@@ -572,8 +573,8 @@ inline char *isysGObjAddHead(char *owner, int a1, int a2)
 inline void *isysGObjSearchFromObjLayoutID(int a0)
 {
     unsigned int i;
-    for (i = 0; i < D_0063C1AC; i++) {
-        char *e = (char *)D_0063C1A8 + i * 0x174;
+    for (i = 0; i < gobjMax; i++) {
+        char *e = (char *)gobjTable + i * 0x174;
         if (*(int *)e != 0 && *(int *)(e + 4) == 1 && *(int *)(e + 8) == a0)
             return e;
     }
@@ -584,7 +585,7 @@ inline void *isysGObjSearchFromObjLayoutID(int a0)
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
 static __inline__ void *searchGObjOfObjKind(char *p, int kind)
 {
-    char *end = (char *)D_0063C1A8 + (D_0063C1AC * 0x174 - 0x174);
+    char *end = (char *)gobjTable + (gobjMax * 0x174 - 0x174);
 
     while (p != end) {
         p += 0x174;
@@ -597,10 +598,10 @@ static __inline__ void *searchGObjOfObjKind(char *p, int kind)
 inline void *isysGObjSearchFromObjKindID_begin(int kind)
 {
     if (D_0063A600 != 0) {
-        return searchGObjOfObjKind((char *)D_0063C1A8 - 0x174, kind);
+        return searchGObjOfObjKind((char *)gobjTable - 0x174, kind);
     }
     if ((unsigned int)(kind - 1) < 0x45) {
-        return D_006BF380[kind];
+        return gobjKindHead[kind];
     }
     return 0;
 }
@@ -616,8 +617,8 @@ inline void *isysGObjSearchFromObjKindID_next(char *g)
 inline void *isysGObjSearchFromLabelTypeID(int a0)
 {
     unsigned int i;
-    for (i = 0; i < D_0063C1AC; i++) {
-        char *e = (char *)D_0063C1A8 + i * 0x174;
+    for (i = 0; i < gobjMax; i++) {
+        char *e = (char *)gobjTable + i * 0x174;
         if (*(int *)e != 0 && *(int *)(e + 4) == a0)
             return e;
     }
@@ -626,8 +627,8 @@ inline void *isysGObjSearchFromLabelTypeID(int a0)
 
 inline struct GObj__p4 *isysGObjGetExist_begin(void)
 {
-    struct GObj__p4 *start = (struct GObj__p4 *)D_0063C1A8 - 1;
-    struct GObj__p4 *end = (struct GObj__p4 *)((char *)D_0063C1A8 + (D_0063C1AC * 0x174 - 0x174));
+    struct GObj__p4 *start = (struct GObj__p4 *)gobjTable - 1;
+    struct GObj__p4 *end = (struct GObj__p4 *)((char *)gobjTable + (gobjMax * 0x174 - 0x174));
     while (start != end) {
         start++;
         if (start->unk0 != 0) {
@@ -639,7 +640,7 @@ inline struct GObj__p4 *isysGObjGetExist_begin(void)
 
 inline struct GObj__p4 *isysGObjGetExist_next(struct GObj__p4 *start)
 {
-    struct GObj__p4 *end = (struct GObj__p4 *)((char *)D_0063C1A8 + (D_0063C1AC * 0x174 - 0x174));
+    struct GObj__p4 *end = (struct GObj__p4 *)((char *)gobjTable + (gobjMax * 0x174 - 0x174));
     while (start != end) {
         start++;
         if (start->unk0 != 0) {

@@ -382,17 +382,23 @@ void actE3Capsule(volatile int a0)
 extern void scpAdpcmCloseFunc(int *h);
 /* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
-extern int D_0063C4E0;
-extern int D_0063C4E4;
+
+/* .sbss, owned by e3.o and reached only from this file (MAIN.MAP names no
+   symbol in the run), in the ROM's run order: the capsule demo's sub-thread
+   and the flag that thread raises when the demo has finished. */
+static int capsuleDemoThread;
+
+static int demoEnd;
+
 extern int e3capsule;
 
 void actE3CapsuleDemoCancel(volatile int a0)
 {
-    while (D_0063C4E4 == 0 || (D_0028F8F0[0].flags & 0x800) == 0) {
+    while (demoEnd == 0 || (D_0028F8F0[0].flags & 0x800) == 0) {
         _ACTWait(1);
     }
 
-    iosThreadSetPri(D_0063C4E0 + 0x24, 0x22);
+    iosThreadSetPri(capsuleDemoThread + 0x24, 0x22);
 
     scpFadeOut(8.0f, 0, 0, 0);
     while (scpFadeChk() != 0) {
@@ -426,7 +432,7 @@ void actE3CapsuleDemo(volatile int a0)
     D_0063AA08 = 1;
     scpPlayStart(D_00639EA4);
 
-    D_0063C4E4 = 1;
+    demoEnd = 1;
     actCreateSubThread(actE3CapsuleDemoCancel, 0x15);
 
     stage_SetAnimation(0x252, 1, 0);
@@ -476,7 +482,7 @@ void actE3CapsuleDemo(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063C4E4 = 0;
+    demoEnd = 0;
     actCreateSubThread(actE3CapsuleDemoEnd, 0x15);
 }
 
@@ -1447,7 +1453,6 @@ extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
 extern int e3capsule;
-extern int D_0063C4E0;
 
 void actE3CapsuleChk(volatile int a0)
 {
@@ -1462,7 +1467,7 @@ void actE3CapsuleChk(volatile int a0)
 
     scpFadeIn(6.0f);
 
-    D_0063C4E0 = actCreateSubThread(actE3CapsuleDemo, 0x15);
+    capsuleDemoThread = actCreateSubThread(actE3CapsuleDemo, 0x15);
 }
 
 extern int D_0063AA08;

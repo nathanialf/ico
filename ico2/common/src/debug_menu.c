@@ -15,7 +15,18 @@ extern int *D_0063B408;
 extern int D_0063B40C;
 extern int D_0063B410;
 extern int D_00639EC0;
-extern int D_0063C390;
+
+/* .sbss, owned by debug_menu.o and reached only from this file (MAIN.MAP names
+   no symbol in the run), in the ROM's run order.  init_debug_menu writes the
+   first two and nothing in the ROM ever reads them (checked over every
+   gp-relative access in .text), so those two names are positional, ours; the
+   third is the index the "object target" menu edits. */
+static int debugMenuFlag0;
+
+static int debugMenuFlag1;
+
+static int targetGObjIdx;
+
 char *debug_TargetGObj_Func(void);
 
 int debug_TargetGObj(int reset)
@@ -28,20 +39,20 @@ int debug_TargetGObj(int reset)
         int t = CameraGetTarget();
         D_0063B408 = 0;
         D_0063B404 = t;
-        D_0063C390 = GetGObjId(t);
+        targetGObjIdx = GetGObjId(t);
     }
-    ret = debug_SelectCsvWindowVal((int)"object target", 0xA, 0x3C, 0xA, n, (int)&D_0063C390,
+    ret = debug_SelectCsvWindowVal((int)"object target", 0xA, 0x3C, 0xA, n, (int)&targetGObjIdx,
                                    (int (*)(int, int))debug_TargetGObj_Func, 0);
-    if (D_0063B408 != (int *)GetGObjP(D_0063C390)) {
+    if (D_0063B408 != (int *)GetGObjP(targetGObjIdx)) {
         CameraSetMode(2);
-        CameraChangeTargetParallel((int)D_0063B408, GetGObjP(D_0063C390));
+        CameraChangeTargetParallel((int)D_0063B408, GetGObjP(targetGObjIdx));
         if (D_0063B408 != 0) {
             D_0063B408[0x14] = D_0063B40C;
         }
-        D_0063B408 = (int *)GetGObjP(D_0063C390);
+        D_0063B408 = (int *)GetGObjP(targetGObjIdx);
         D_0063B40C = D_0063B408[0x14];
     }
-    D_0063B408 = (int *)GetGObjP(D_0063C390);
+    D_0063B408 = (int *)GetGObjP(targetGObjIdx);
     D_00639EC0 = (int)D_0063B408;
     Camctrl_SetTarget((int)D_0063B408, 0, 3);
     debug_PrintfDummy(0x10, 0x10, 0xFFFFFFFF, "GObj address:%p", D_00639EC0);
@@ -58,14 +69,11 @@ int debug_TargetGObj(int reset)
     return ret;
 }
 
-extern int D_0063C388;
-extern int D_0063C38C;
-
 void init_debug_menu(void)
 {
-    D_0063C388 = 0;
-    D_0063C38C = 1;
-    D_0063C390 = 0;
+    debugMenuFlag0 = 0;
+    debugMenuFlag1 = 1;
+    targetGObjIdx = 0;
 }
 
 extern int D_002C1270[];

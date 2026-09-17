@@ -39,6 +39,10 @@ typedef struct {
     int f18; /* 0x18 */
     int f1C; /* 0x1C */
     int f20; /* 0x20 */
+    /* the product block iosMcLoadProductBlock reads into.  Its length is the
+       ROM's own: the run this object owns is 0xA00 bytes and nothing in the
+       ROM forms an address inside it, so the tail is one buffer. */
+    char block[0xA00 - 0x24];
 } McReq;
 
 typedef struct {
@@ -53,7 +57,10 @@ typedef struct {
     int f1EC; /* 0x1EC */
 } KanbanStageRec;
 
-extern McReq D_0071CF00;
+/* .bss, owned by kanbanBoot.o and reached only from this file (MAIN.MAP names
+   no symbol in the run): the boot-time memory-card request block. */
+static McReq bootMcReq;
+
 extern KanbanStageRec D_0029B5F0[];
 extern int D_00534010[];
 extern int D_0028F4C0[];
@@ -62,11 +69,19 @@ extern int D_0063A054;
 extern int D_0063B4C0;
 extern int D_0063B4C8;
 extern int D_0063B4CC;
-extern KanbanReq *D_0063C3A0;
-extern KanbanReq *D_0063C3A4;
-extern int D_0063C3A8;
-extern int D_0063C3AC;
-extern int D_0063C3B0;
+
+/* .sbss, owned by kanbanBoot.o and reached only from this file (MAIN.MAP names
+   no symbol in the run), in the ROM's run order. */
+static KanbanReq *bootKanban; /* the sign the boot sequence is showing */
+
+static KanbanReq *bootKanbanSub; /* the second sign shown beside it */
+
+static int mcKanbanId; /* the sign id the card check picked: 3 none, 0 ok, 4 full, -1 clear */
+
+static int mcPort; /* the card slot being checked, 0 then 1 */
+
+static int bootVideoMode; /* the video mode in force when the sign went up */
+
 extern int NonLinearCameraMove;
 /* kept local: this TU's uses of iosMcChdirProduct do not fit the prototype in mcard.h */
 extern void iosMcChdirProduct(McReq *mc);
@@ -80,7 +95,7 @@ extern KanbanReq *kanbanReqAdd(int a0, int a1);
 
 int kanbanBootMcCheck(void)
 {
-    McReq *mc = &D_0071CF00;
+    McReq *mc = &bootMcReq;
     KanbanStageRec *r;
     int *lp;
     int lang;
@@ -88,16 +103,16 @@ int kanbanBootMcCheck(void)
 
     switch (D_0063B4C0) {
     case 0:
-        D_0063C3A4 = 0;
+        bootKanbanSub = 0;
         /* fallthrough */
     case 1:
-        D_0063C3AC = 0;
-        D_0063C3A8 = 3;
+        mcPort = 0;
+        mcKanbanId = 3;
         D_0063B4C0++;
         /* fallthrough */
     case 2:
         D_0063A054 = 1;
-        mc->f8 = D_0063C3AC;
+        mc->f8 = mcPort;
         mc->fC = 0;
         mc->f0.ll &= ~2;
         iosMcChdirProduct(mc);
@@ -110,7 +125,7 @@ int kanbanBootMcCheck(void)
         break;
     case 4:
         if (mc->f14 == 2) {
-            D_0063C3A8 = 0;
+            mcKanbanId = 0;
             if (mc->f10 == 0 && D_0063B4CC == 0) {
                 D_0063B4C0 = 95;
                 break;
@@ -119,17 +134,17 @@ int kanbanBootMcCheck(void)
                 D_0063B4C0 = 100;
                 break;
             }
-            D_0063C3A8 = 4;
+            mcKanbanId = 4;
         }
-        if (D_0063C3AC == 0) {
-            D_0063C3AC = 1;
+        if (mcPort == 0) {
+            mcPort = 1;
             D_0063B4C0 = 2;
         } else {
             D_0063B4C0 = 90;
         }
         break;
     case 90:
-        if (D_0063C3A8 == 3) {
+        if (mcKanbanId == 3) {
             if (--D_0063B4C8 > 0) {
                 D_0063B4C0 = 1;
                 break;
@@ -173,7 +188,7 @@ int kanbanBootMcCheck(void)
             D_0063B4C0 = 300;
             break;
         }
-        D_0063C3A8 = -1;
+        mcKanbanId = -1;
         lang = sceScfGetLanguage();
         lp = D_00534010;
         switch (lang) {
@@ -193,14 +208,14 @@ int kanbanBootMcCheck(void)
             *lp = 29;
             break;
         }
-        D_0063C3A0 = kanbanReqAdd(0, 2);
+        bootKanban = kanbanReqAdd(0, 2);
         D_0063B4C0++;
         break;
     case 102:
-        if (D_0063C3A0->f8 != 1) {
+        if (bootKanban->f8 != 1) {
             break;
         }
-        switch (D_0063C3A0->obj[11]) {
+        switch (bootKanban->obj[11]) {
         case 26:
             NonLinearCameraMove = 2;
             break;
@@ -217,7 +232,7 @@ int kanbanBootMcCheck(void)
             NonLinearCameraMove = 6;
             break;
         }
-        kanbanReqDelFade(D_0063C3A0);
+        kanbanReqDelFade(bootKanban);
         D_0063B4C0 = 190;
         D_0063B4CC = 1;
         break;
@@ -236,7 +251,7 @@ int kanbanBootMcCheck(void)
         if (D_0028F4D8[0] != 0) {
             break;
         }
-        if (D_0063C3A8 != 0) {
+        if (mcKanbanId != 0) {
             D_0063B4C0 = 200;
         } else {
             D_0063B4C0 = 300;
@@ -244,12 +259,12 @@ int kanbanBootMcCheck(void)
         isysGObjActiveLink(0, 1);
         break;
     case 200:
-        D_0063C3A0 = kanbanReqAdd(1, 2);
-        D_0063C3B0 = D_0028F4C0[0];
+        bootKanban = kanbanReqAdd(1, 2);
+        bootVideoMode = D_0028F4C0[0];
         D_0063B4C0++;
         break;
     case 201:
-        switch (D_0063C3A0->obj[11]) {
+        switch (bootKanban->obj[11]) {
         case 33:
             D_0028F4C0[0] = 1;
             break;
@@ -257,18 +272,18 @@ int kanbanBootMcCheck(void)
             D_0028F4C0[0] = 0;
             break;
         }
-        if (D_0063C3B0 != D_0028F4C0[0]) {
-            D_0063C3B0 = D_0028F4C0[0];
+        if (bootVideoMode != D_0028F4C0[0]) {
+            bootVideoMode = D_0028F4C0[0];
             gsResetFunc(0);
         }
-        if (D_0063C3A0->f8 != 1) {
+        if (bootKanban->f8 != 1) {
             break;
         }
-        kanbanReqDelFade(D_0063C3A0);
+        kanbanReqDelFade(bootKanban);
         D_0063B4C0++;
         break;
     case 202:
-        if (D_0063C3A8 != 0) {
+        if (mcKanbanId != 0) {
             D_0063B4C0 = 1;
         } else {
             D_0063B4C0 = 300;
@@ -276,7 +291,7 @@ int kanbanBootMcCheck(void)
         isysGObjActiveLink(0, 1);
         break;
     case 300:
-        if (D_0063C3A8 == 0) {
+        if (mcKanbanId == 0) {
             D_0063B4C0 = -1;
             break;
         }
@@ -285,25 +300,25 @@ int kanbanBootMcCheck(void)
     case 301:
         D_0063A054 = 0;
         fadeStatus = 0;
-        D_0063C3A0 = kanbanReqAdd(5, 2);
-        if (D_0063C3A4 != 0) {
-            kanbanReqDel(D_0063C3A4);
+        bootKanban = kanbanReqAdd(5, 2);
+        if (bootKanbanSub != 0) {
+            kanbanReqDel(bootKanbanSub);
         }
-        D_0063C3A4 = kanbanReqAdd(D_0063C3A8, 1);
+        bootKanbanSub = kanbanReqAdd(mcKanbanId, 1);
         D_0063B4C0++;
         break;
     case 302:
-        if (D_0063C3A0->f8 != 1) {
+        if (bootKanban->f8 != 1) {
             break;
         }
-        if (D_0063C3A0->obj[11] == 41) {
+        if (bootKanban->obj[11] == 41) {
             D_0063B4C0 = -1;
-            kanbanReqDelFade(D_0063C3A4);
-            kanbanReqDelFade(D_0063C3A0);
+            kanbanReqDelFade(bootKanbanSub);
+            kanbanReqDelFade(bootKanban);
             break;
         }
-        kanbanReqDelFade(D_0063C3A4);
-        kanbanReqDelFade(D_0063C3A0);
+        kanbanReqDelFade(bootKanbanSub);
+        kanbanReqDelFade(bootKanban);
         D_0063B4C0 = 1;
         break;
     default:
@@ -316,8 +331,10 @@ int kanbanBootMcCheck(void)
 }
 
 extern int D_0028F4D4[];
-extern KanbanReq *D_0063C3B4;
-extern int D_0063C3B8;
+
+static KanbanReq *waitKanban; /* the "please wait" sign */
+
+static int waitTimer; /* frames left on that sign */
 
 void kanbanBootMain(void)
 {
@@ -338,16 +355,16 @@ void kanbanBootMain(void)
             return;
         }
         kanbanReqAllDelFade();
-        D_0063C3B4 = kanbanReqAdd(2, 1);
+        waitKanban = kanbanReqAdd(2, 1);
         D_0063B4BC++;
         break;
     case 3:
-        D_0063C3B8 = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5;
+        waitTimer = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5;
         D_0063B4BC++;
         /* fallthrough */
     case 4:
-        D_0063C3B8--;
-        if (D_0063C3B8 != -1) {
+        waitTimer--;
+        if (waitTimer != -1) {
             break;
         }
         D_0063B4BC++;
@@ -363,7 +380,7 @@ void kanbanBootMain(void)
         D_0063B4BC++;
         break;
     case 7:
-        if (D_0063C3B4->obj != 0) {
+        if (waitKanban->obj != 0) {
             return;
         }
         D_0063B4D0 = 1;

@@ -29,7 +29,12 @@ static ActMail after_mes[2] = {{430}, {429}};
 
 extern char *D_00639EA4;
 extern PadState D_0028F8F0[];
-extern int D_0063C4DC;
+
+/* .sbss, owned by deja.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the handler the wait
+   loop below is spinning for. */
+static int demoEnd;
+
 void actDejaDemo(volatile int a0);
 extern int stage_no;
 
@@ -104,12 +109,11 @@ void actDejaChk(volatile int a0)
     while (fightSoundPlayChk() != 0) {
         _ACTWait(1);
     }
-    D_0063C4DC = 0;
-    while (D_0063C4DC == 0 &&
-           ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    demoEnd = 0;
+    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
-    if (D_0063C4DC == 0 && deja != 0) {
+    if (demoEnd == 0 && deja != 0) {
         shadow_DispCancel(0x4A, 0);
         scpAdpcmFadeCloseFunc(&deja, 0x80);
         deja = 0;
@@ -195,7 +199,7 @@ void actDejaDemo(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    D_0063C4DC = 1;
+    demoEnd = 1;
 }
 
 void actDejaAfter(volatile int a0)

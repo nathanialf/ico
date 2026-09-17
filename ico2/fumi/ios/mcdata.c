@@ -13,7 +13,12 @@ struct McIconWork {
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
 extern int D_0063A368;
-extern int D_0063C18C;
+
+/* .sbss, owned by mcdata.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the flag the mcard thread raises when the request the
+   caller is spinning on has finished. */
+static int mcDataDone;
+
 /* kept local: this TU's uses of iosMcMgrSync do not fit the prototype in mcard.h */
 extern void iosMcMgrSync(int self);
 /* kept local: this TU's uses of iosMcHandlerWrite do not fit the prototype in mcard.h */
@@ -39,10 +44,10 @@ static inline int _iosMcIconWriteIconsys(int self, struct McIconWork *p)
         if (p->remain <= 0)
             loop = 0;
         D_0063A368 = 1;
-        D_0063C18C = 0;
+        mcDataDone = 0;
         do {
             iosThreadSleep();
-        } while (D_0063C18C == 0);
+        } while (mcDataDone == 0);
         D_0063A368 = 0;
     } while (loop);
 
@@ -74,7 +79,7 @@ inline int iosMcIconWriteIconsys(int self, int *p)
             len = size;
         }
         iosMcHandlerWrite(self, work.buf, len);
-        D_0063C18C = 1;
+        mcDataDone = 1;
     }
     iosCdvdBackGroundMgrDelete(hdl);
     return 0;

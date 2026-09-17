@@ -1037,6 +1037,98 @@ segments:
       - [0x53AC58, sdata, cod/53AC58]     # .sdata blob resume
       - [0x53B008, .sdata, ico2/common/src/debug]  # carved debug_MemoryCard's short menu labels ("LOAD".."MENU", -G 8 puts them in small data), VMA 0x63B008..0x63B040
       - [0x53B040, sdata, cod/53B040]    # .sdata blob resume
+      - [0x53C0D0, .sdata, ico2/common/src/GobjProc]  # the TU's .sdata: one anonymous string literal ("%d\n", 4 B), VMA 0x63C0D0..0x63C0D4; completeness pass 1
+      - [0x53C0D4, sdata, cod/53C0D4]     # .sdata blob resume
       - { type: sbss, vram: 0x0063C100, name: cod/0063C100, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
+      - { type: .sbss, vram: 0x0063C140, name: ico2/seki/src/MicroCode }  # the TU's own .sbss, 0x4 B, VMA 0x63C140..0x63C144; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C144, name: cod/0063C144 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C18C, name: ico2/fumi/ios/mcdata }  # the TU's own .sbss, 0x4 B, VMA 0x63C18C..0x63C190; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C190, name: cod/0063C190 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C1A0, name: ico2/fumi/ios/thread }  # the TU's own .sbss, 0x8 B, VMA 0x63C1A0..0x63C1A8; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C1A8, name: ico2/fumi/isys/gobj }  # the TU's own .sbss, 0x8 B, VMA 0x63C1A8..0x63C1B0; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C1B0, name: ico2/fumi/isys/gobj_process }  # the TU's own .sbss, 0x8 B, VMA 0x63C1B0..0x63C1B8; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C1B8, name: cod/0063C1B8 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C24C, name: ico2/script/src/script }  # the TU's own .sbss, 0x4 B, VMA 0x63C24C..0x63C250; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C250, name: ico2/script/src/st25a }  # the TU's own .sbss, 0x8 B, VMA 0x63C250..0x63C258; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C258, name: ico2/script/src/warpGirl }  # the TU's own .sbss, 0x4 B, VMA 0x63C258..0x63C25C; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C25C, name: cod/0063C25C }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C2C4, name: ico2/omori/src/ebrain }  # the TU's own .sbss, 0x10 B, VMA 0x63C2C4..0x63C2D4; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C2D4, name: ico2/omori/src/enemy-control }  # the TU's own .sbss, 0xC B, VMA 0x63C2D4..0x63C2E0; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C2E0, name: cod/0063C2E0 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C350, name: ico2/common/src/backStage }  # the TU's own .sbss, 0x28 B, VMA 0x63C350..0x63C378; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C378, name: cod/0063C378 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C388, name: ico2/common/src/debug_menu }  # the TU's own .sbss, 0xC B, VMA 0x63C388..0x63C394; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C394, name: ico2/common/src/icoMisc }  # the TU's own .sbss, 0x4 B, VMA 0x63C394..0x63C398; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C398, name: ico2/common/src/kanban }  # the TU's own .sbss, 0x8 B, VMA 0x63C398..0x63C3A0; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C3A0, name: ico2/common/src/kanbanBoot }  # the TU's own .sbss, 0x1C B, VMA 0x63C3A0..0x63C3BC; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C3BC, name: cod/0063C3BC }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C414, name: ico2/common/src/sceneManager }  # the TU's own .sbss, 0xC B, VMA 0x63C414..0x63C420; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C420, name: ico2/common/src/staffroll }  # the TU's own .sbss, 0x20 B, VMA 0x63C420..0x63C440; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C440, name: ico2/sugipon/src/act_a_p_1 }  # the TU's own .sbss, 0x16 B, VMA 0x63C440..0x63C456; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C456, name: cod/0063C456 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C46C, name: ico2/sugipon/src/motionFileManager }  # the TU's own .sbss, 0x8 B, VMA 0x63C46C..0x63C474; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C474, name: cod/0063C474 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C4B0, name: ico2/sugipon/src/staticBlur }  # the TU's own .sbss, 0x4 B, VMA 0x63C4B0..0x63C4B4; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C4B4, name: cod/0063C4B4 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C4BC, name: ico2/seki/src/DisplayList }  # the TU's own .sbss, 0x8 B, VMA 0x63C4BC..0x63C4C4; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C4C4, name: cod/0063C4C4 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C4DC, name: ico2/script/src/deja }  # the TU's own .sbss, 0x4 B, VMA 0x63C4DC..0x63C4E0; completeness pass 1 (static definitions in ROM run order)
+      - { type: .sbss, vram: 0x0063C4E0, name: ico2/script/src/e3 }  # the TU's own .sbss, 0x8 B, VMA 0x63C4E0..0x63C4E8; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C4E8, name: cod/0063C4E8 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C590, name: ico2/script/src/st13c }  # the TU's own .sbss, 0x8 B, VMA 0x63C590..0x63C598; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C598, name: cod/0063C598 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C5C4, name: ico2/ito/mpeg/mv_disp }  # the TU's own .sbss, 0x4 B, VMA 0x63C5C4..0x63C5C8; completeness pass 1 (static definitions in ROM run order)
+      - { type: sbss, vram: 0x0063C5C8, name: cod/0063C5C8 }  # .sbss blob resume
       - { type: bss,  vram: 0x0063C600, name: cod/0063C600, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
+      - { type: .bss, vram: 0x00667340, name: ico2/sugipon/src/delayFreeManager }  # the TU's own .bss, 0x1200 B, VMA 0x667340..0x668540; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x00668540, name: ico2/sugipon/src/geometryManager }  # the TU's own .bss, 0x100 B, VMA 0x668540..0x668640; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x00668640, name: ico2/sugipon/src/matrixDrive }  # the TU's own .bss, 0x1000 B, VMA 0x668640..0x669640; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x00669640, name: ico2/sugipon/src/quaternion }  # the TU's own .bss, 0x400 B, VMA 0x669640..0x669A40; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x00669A40, name: ico2/sugipon/src/tableSin }  # the TU's own .bss, 0x12012 B, VMA 0x669A40..0x67BA52; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x0067BA52, name: cod/0067BA52 }  # .bss blob resume
+      - { type: .bss, vram: 0x0067BFD0, name: ico2/seki/src/MicroCode }  # the TU's own .bss, 0x40 B, VMA 0x67BFD0..0x67C010; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x0067C010, name: cod/0067C010 }  # .bss blob resume
+      - { type: .bss, vram: 0x006BC860, name: ico2/fumi/ios/ios }  # the TU's own .bss, 0x60 B, VMA 0x6BC860..0x6BC8C0; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x006BC8C0, name: ico2/fumi/ios/mcard }  # the TU's own .bss, 0x58 B, VMA 0x6BC8C0..0x6BC918; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x006BC918, name: cod/006BC918 }  # .bss blob resume
+      - { type: .bss, vram: 0x006BC938, name: ico2/fumi/ios/message }  # the TU's own .bss, 0x400 B, VMA 0x6BC938..0x6BCD38; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x006BCD38, name: cod/006BCD38 }  # .bss blob resume
+      - { type: .bss, vram: 0x006BCEE0, name: ico2/fumi/ios/thread }  # the TU's own .bss, 0x24A0 B, VMA 0x6BCEE0..0x6BF380; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x006BF380, name: ico2/fumi/isys/gobj }  # the TU's own .bss, 0x118 B, VMA 0x6BF380..0x6BF498; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x006BF498, name: cod/006BF498 }  # .bss blob resume
+      - { type: .bss, vram: 0x006C0470, name: ico2/fumi/src/act-game }  # the TU's own .bss, 0x4B8 B, VMA 0x6C0470..0x6C0928; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x006C0928, name: ico2/fumi/src/act-parallel-control }  # the TU's own .bss, 0x158 B, VMA 0x6C0928..0x6C0A80; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x006C0A80, name: cod/006C0A80 }  # .bss blob resume
+      - { type: .bss, vram: 0x006C0BA0, name: ico2/fumi/src/commonact }  # the TU's own .bss, 0x20 B, VMA 0x6C0BA0..0x6C0BC0; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x006C0BC0, name: cod/006C0BC0 }  # .bss blob resume
+      - { type: .bss, vram: 0x006E5940, name: ico2/script/src/script }  # the TU's own .bss, 0x50 B, VMA 0x6E5940..0x6E5990; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x006E5990, name: cod/006E5990 }  # .bss blob resume
+      - { type: .bss, vram: 0x006E6750, name: ico2/omori/src/ebrain }  # the TU's own .bss, 0x480 B, VMA 0x6E6750..0x6E6BD0; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x006E6BD0, name: ico2/omori/src/enemy-control }  # the TU's own .bss, 0x190 B, VMA 0x6E6BD0..0x6E6D60; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x006E6D60, name: ico2/omori/src/fightSound }  # the TU's own .bss, 0x20 B, VMA 0x6E6D60..0x6E6D80; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x006E6D80, name: cod/006E6D80 }  # .bss blob resume
+      - { type: .bss, vram: 0x006EA7F0, name: ico2/ito/src/queen }  # the TU's own .bss, 0x10 B, VMA 0x6EA7F0..0x6EA800; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x006EA800, name: ico2/ito/src/stage_orient }  # the TU's own .bss, 0x100 B, VMA 0x6EA800..0x6EA900; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x006EA900, name: cod/006EA900 }  # .bss blob resume
+      - { type: .bss, vram: 0x006FACF0, name: ico2/common/src/backStage }  # the TU's own .bss, 0x10 B, VMA 0x6FACF0..0x6FAD00; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x006FAD00, name: cod/006FAD00 }  # .bss blob resume
+      - { type: .bss, vram: 0x0071CB10, name: ico2/common/src/kanban }  # the TU's own .bss, 0x3C0 B, VMA 0x71CB10..0x71CED0; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x0071CED0, name: cod/0071CED0 }  # .bss blob resume
+      - { type: .bss, vram: 0x0071CF00, name: ico2/common/src/kanbanBoot }  # the TU's own .bss, 0xA00 B, VMA 0x71CF00..0x71D900; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x0071D900, name: cod/0071D900 }  # .bss blob resume
+      - { type: .bss, vram: 0x0071D980, name: ico2/common/src/staffroll }  # the TU's own .bss, 0x12C0 B, VMA 0x71D980..0x71EC40; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x0071EC40, name: ico2/sugipon/src/act_a_p_1 }  # the TU's own .bss, 0x90 B, VMA 0x71EC40..0x71ECD0; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x0071ECD0, name: cod/0071ECD0 }  # .bss blob resume
+      - { type: .bss, vram: 0x00720070, name: ico2/sugipon/src/effectTool }  # the TU's own .bss, 0x110 B, VMA 0x720070..0x720180; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x00720180, name: cod/00720180 }  # .bss blob resume
+      - { type: .bss, vram: 0x00720220, name: ico2/sugipon/src/particleEffect }  # the TU's own .bss, 0x3420 B, VMA 0x720220..0x723640; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x00723640, name: cod/00723640 }  # .bss blob resume
+      - { type: .bss, vram: 0x007240A0, name: ico2/sugipon/src/stageMultiBgaManager }  # the TU's own .bss, 0x9D8 B, VMA 0x7240A0..0x724A78; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x00724A78, name: cod/00724A78 }  # .bss blob resume
+      - { type: .bss, vram: 0x00728310, name: ico2/seki/src/DisplayList }  # the TU's own .bss, 0x290 B, VMA 0x728310..0x7285A0; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x007285A0, name: cod/007285A0 }  # .bss blob resume
+      - { type: .bss, vram: 0x00729E30, name: ico2/omori/src/access }  # the TU's own .bss, 0x210 B, VMA 0x729E30..0x72A040; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x0072A040, name: ico2/ito/mpeg/mv_disp }  # the TU's own .bss, 0x280 B, VMA 0x72A040..0x72A2C0; completeness pass 1 (static definitions in ROM run order)
+      - { type: .bss, vram: 0x0072A2C0, name: ico2/common/src/GobjProc }  # the TU's own .bss, 0x340 B, VMA 0x72A2C0..0x72A600; completeness pass 1 (static definitions in ROM run order)
+      - { type: bss, vram: 0x0072A600, name: cod/0072A600 }  # .bss blob resume
   - [0x53C0F6]

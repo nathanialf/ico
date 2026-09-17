@@ -13,7 +13,10 @@ extern char D_0063C098[]; /* "DFDATAS" */
 extern char D_0063C0A0[]; /* "DF" */
 extern char D_0063C0A8[]; /* "DATAS" */
 extern char D_0063C0B0[]; /* "BIN" */
-extern char D_00729E30[];
+
+/* .bss, owned by access.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the path sprintf builds and this file hands back. */
+static char accessPath[528];
 
 int GetDataFileName(int a0)
 {
@@ -44,7 +47,7 @@ char *GetDataFileName2(char *name, int isDF)
         sprintf(ext, D_0063C0B0);
     }
 
-    sprintf(D_00729E30, "%s/%s.%s", dir, name, ext);
+    sprintf(accessPath, "%s/%s.%s", dir, name, ext);
 
-    return D_00729E30;
+    return accessPath;
 }

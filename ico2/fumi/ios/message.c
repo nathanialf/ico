@@ -62,7 +62,11 @@ extern int EnableIntc(int ch);
 extern int signal_handler(int a0);
 extern int D_0063A42C;
 extern int *D_0063A530;
-extern int D_006BC938[];
+
+/* .bss, owned by message.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the queue registered against each semaphore id. */
+static int msgQueueTable[256];
+
 extern char D_0063A510[];
 extern char D_0063A518[];
 extern char D_0063A520[];
@@ -96,7 +100,7 @@ void iosMsgQueueCreate(IosMsgQueue *q, int *buf, int size)
         debug_assert("ios/message.c", 120);
         __assert("ios/message.c", 120, D_0063A510);
     }
-    ((IosMsgQueue **)D_006BC938)[q->sema] = q;
+    ((IosMsgQueue **)msgQueueTable)[q->sema] = q;
     debug_StdPrintfDummy("sema[%d] = %p\n", q->sema, q);
 }
 
@@ -107,7 +111,7 @@ void iosMsgQueueDestroy(IosMsgQueue *q)
         debug_assert("ios/message.c", 136);
         __assert("ios/message.c", 136, D_0063A510);
     }
-    ((IosMsgQueue **)D_006BC938)[q->sema] = 0;
+    ((IosMsgQueue **)msgQueueTable)[q->sema] = 0;
     DeleteSema(q->sema);
 }
 
@@ -175,11 +179,9 @@ void iosMsgSetEvent(int intc, IosMsgQueue *q, int val)
     debug_StdPrintfDummy("evt:signal added\n");
 }
 
-extern int D_006BC938[];
-
 void iosMsgInit(void)
 {
-    int *p = D_006BC938;
+    int *p = msgQueueTable;
     int i;
     p += 0xFF;
     for (i = 0xFF; i >= 0; i--) {
@@ -245,7 +247,7 @@ void iosMsgQueueDestroyAll(void)
 {
     int *p;
     int i;
-    int **q = (int **)D_006BC938;
+    int **q = (int **)msgQueueTable;
     i = 0xFF;
     do {
         p = *q++;

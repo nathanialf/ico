@@ -149,7 +149,13 @@ typedef union {
 } EffVal;
 
 extern int D_0063B850;
-extern int D_00720070[];
+
+/* .bss, owned by effectTool.o and reached only from this file (MAIN.MAP names
+   no symbol in the run), in the ROM's run order: a change flag per tool row,
+   then the position the tool's effect is placed at. */
+static int effectToolDirty[64];
+
+static float effectToolPos[4];
 
 int editParam(int id, int sel)
 {
@@ -256,7 +262,7 @@ int editParam(int id, int sel)
         break;
     }
     if (changed) {
-        D_00720070[id] |= 1;
+        effectToolDirty[id] |= 1;
     }
     return (changed && e->step != 0) || (D_0028F8F0[0].trg & 0x20) || (D_0028F8F0[1].trg & 0x20);
 }
@@ -362,7 +368,6 @@ void setQ(int *self)
     RotQuaternionX(self, -D_0063B85A);
 }
 
-extern float D_00720170[];
 extern short D_0063B858;
 extern short D_0063B85A;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
@@ -391,7 +396,7 @@ void dispEffectToolField(int idx)
     gif_SetZTest(1);
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    MatrixDrive_TransMatrix(D_00720170[0], D_00720170[1], D_00720170[2]);
+    MatrixDrive_TransMatrix(effectToolPos[0], effectToolPos[1], effectToolPos[2]);
     dispXZYZCircle(50.0f, -0x8000, 0x8000, 0x1000);
     MultiMatrixByQuaternion(q);
     dispCircle2(50.0f, (*(unsigned short *)((char *)pkg + 0xC) << 14) / 180, 0x1000);
@@ -412,14 +417,13 @@ void dispEffectToolField(int idx)
 
     MatrixDrive_PopMatrix();
     gif_EndPacket();
-    debug_PrintfDummy(450, 58, 0xFFFFFF00, "POS-X:%4.3f", fptodp(-D_00720170[0]));
-    debug_PrintfDummy(450, 66, 0xFFFFFF00, "POS-Y:%4.3f", fptodp(-D_00720170[1]));
-    debug_PrintfDummy(450, 74, 0xFFFFFF00, "POS-Z:%4.3f", fptodp(-D_00720170[2]));
+    debug_PrintfDummy(450, 58, 0xFFFFFF00, "POS-X:%4.3f", fptodp(-effectToolPos[0]));
+    debug_PrintfDummy(450, 66, 0xFFFFFF00, "POS-Y:%4.3f", fptodp(-effectToolPos[1]));
+    debug_PrintfDummy(450, 74, 0xFFFFFF00, "POS-Z:%4.3f", fptodp(-effectToolPos[2]));
     debug_PrintfDummy(450, 88, 0xFFFFFF00, "ROT-Y:%4.3f", fptodp(D_0063B858 * -180.0f / 32768.0f));
     debug_PrintfDummy(450, 96, 0xFFFFFF00, "ROT-X:%4.3f", fptodp(D_0063B85A * -180.0f / 32768.0f));
 }
 
-extern float D_00720170[];
 extern int D_0063B854;
 extern int D_0063B85C;
 extern int D_0063B864;
@@ -466,7 +470,7 @@ int EditTarget(int id)
     if (editParam(id, D_0063B864) != 0) {
         ResetParticleEffectPackages(GetParticleEffectPackage(id));
         DeleteParticleEffect(D_0063B854);
-        D_0063B854 = SetParticleEffect(D_0063B85C, D_00720170, q);
+        D_0063B854 = SetParticleEffect(D_0063B85C, effectToolPos, q);
     }
     dispEffectParams(id, D_0063B864);
     if ((D_0028F8F0[0].rep & 0x1000) || (D_0028F8F0[1].rep & 0x1000)) {
@@ -489,8 +493,6 @@ int EditTarget(int id)
 
 extern int D_0063AA08;
 extern int D_0063B86C;
-extern float D_00720170[];
-extern int D_00720070[];
 /* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
@@ -504,14 +506,14 @@ static inline void initEffectTool(void)
 
     setQ(q);
     D_0063B86C = CameraGetTarget();
-    GetRootPosition(D_00720170, D_0063B86C);
-    D_00720170[3] = 1.0f;
+    GetRootPosition(effectToolPos, D_0063B86C);
+    effectToolPos[3] = 1.0f;
     GetRootQuaternion(q, D_0063B86C);
     CameraSetMode(1);
     D_0063AA08 = 1;
     debug_StdPrintfDummy("initialize\n");
     for (i = 0x3C; i >= 0; i--) {
-        D_00720070[i] = 0;
+        effectToolDirty[i] = 0;
     }
 }
 
@@ -550,7 +552,6 @@ int saveEffectData(int id)
 }
 
 extern char iosPadConfDefault[];
-extern float D_00720170[];
 extern int D_0063B854;
 
 /* iosPadGetStick's output block (camera-ico2.c's IosPadStick, extended): the
@@ -580,12 +581,12 @@ void moveEffectToolGeometry(int idx)
     iosPadGetStick(padCtx, &st1, 1, 2, 2, 0);
     iosPadStickCameraCoord(v, (float *)&st0);
     if (st0.mag > 0.001f) {
-        D_00720170[0] += v[0] * st0.mag * 16.0f;
-        D_00720170[2] += v[2] * st0.mag * 16.0f;
+        effectToolPos[0] += v[0] * st0.mag * 16.0f;
+        effectToolPos[2] += v[2] * st0.mag * 16.0f;
     }
     if (st1.mag > 0.001f) {
         if (padCtx[2] & 2) {
-            D_00720170[1] += st1.fz * st1.mag * 16.0f;
+            effectToolPos[1] += st1.fz * st1.mag * 16.0f;
         } else {
             D_0063B858 = D_0063B858 + st1.fx * 256.0f * st1.mag;
             D_0063B85A = D_0063B85A + st1.fz * 256.0f * st1.mag;
@@ -600,12 +601,11 @@ void moveEffectToolGeometry(int idx)
     pkg = GetParticleEffectPackage(idx);
     if (pkg[1] != 0) {
         setQ(q);
-        SetParticleEffectGeometry(D_0063B854, D_00720170, q);
+        SetParticleEffectGeometry(D_0063B854, effectToolPos, q);
     }
 }
 
 extern char D_0062A278[];
-extern float D_00720170[];
 extern int targetMemo;
 extern int D_0063B854;
 extern int D_0063B85C;
@@ -631,7 +631,7 @@ int execEffectTool(void)
             if (D_0063B854 != -1) {
                 DeleteParticleEffect(D_0063B854);
             }
-            D_0063B854 = SetParticleEffect(D_0063B85C, D_00720170, q);
+            D_0063B854 = SetParticleEffect(D_0063B85C, effectToolPos, q);
             D_0063B860 = D_0063B85C;
             D_0063B864 = 0;
         }

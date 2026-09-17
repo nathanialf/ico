@@ -13,8 +13,13 @@ typedef struct GProc {
 
 extern void cut_gobj_process_link(GProc *p);
 extern int D_0063A430;
-extern char *D_0063C1B0;
-extern int D_0063C1B4;
+
+/* .sbss, owned by gobj_process.o and reached only from this file (MAIN.MAP
+   names no symbol in the run), in the ROM's run order: the process pool and
+   how many 0x94-byte entries it holds. */
+static char *procPool;
+
+static int procMax;
 
 #include "gobj_process.h"
 #include "thread.h"
@@ -28,10 +33,10 @@ inline void isysGObjProcessAlloc(unsigned int a0)
 {
     int ret = iosMallocDebug(D_0063A430, a0 * 0x94, "isys/gobj_process.c", 73);
     unsigned int i;
-    D_0063C1B4 = a0;
-    D_0063C1B0 = (char *)ret;
+    procMax = a0;
+    procPool = (char *)ret;
     for (i = 0; i < a0; i++) {
-        *(int *)(D_0063C1B0 + i * 0x94) = 0;
+        *(int *)(procPool + i * 0x94) = 0;
     }
 }
 
@@ -40,22 +45,22 @@ static inline GProc *alloc_gobj_process(void)
     unsigned int i;
     unsigned int j;
 
-    for (i = 0; i < D_0063C1B4; i++) {
-        if (*(int *)(D_0063C1B0 + i * 0x94) == 0) {
+    for (i = 0; i < procMax; i++) {
+        if (*(int *)(procPool + i * 0x94) == 0) {
             break;
         }
     }
-    if (i == D_0063C1B4) {
+    if (i == procMax) {
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
-        for (j = 0; j < D_0063C1B4; j++) {
-            debug_StdPrintfDummy("id %d %x %x \n", *(int *)(D_0063C1B0 + j * 0x94),
-                                 *(int *)(D_0063C1B0 + j * 0x94 + 0x1C),
-                                 *(int *)(D_0063C1B0 + j * 0x94 + 0x5C));
+        for (j = 0; j < procMax; j++) {
+            debug_StdPrintfDummy("id %d %x %x \n", *(int *)(procPool + j * 0x94),
+                                 *(int *)(procPool + j * 0x94 + 0x1C),
+                                 *(int *)(procPool + j * 0x94 + 0x5C));
         }
         return 0;
     }
-    return (GProc *)(D_0063C1B0 + i * 0x94);
+    return (GProc *)(procPool + i * 0x94);
 }
 
 int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5)

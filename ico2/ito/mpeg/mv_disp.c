@@ -27,13 +27,24 @@ int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3);
 int *setTRXPOS(int *a0, long long a1, int a2, int a3);
 void *setTRXREG(int *a0, int a1, int a2);
 void *setTRXDIR(char *a0, unsigned int a1);
-extern int D_0072A040[];
+
+/* .bss, owned by mv_disp.o and reached only from this file (MAIN.MAP names no
+   symbol in the run), in the ROM's run order: the two GIF packets this file
+   builds, one per display path. */
+static int mvDispPacket[80];
+
+static int mvClearPacket[80];
+
 extern int sceGsPutDispEnv();
 extern char voBuf[];
 extern int D_0063C0BC;
 extern int D_0063C0B4;
 extern int D_0063C0B8;
-extern int D_0063C5C4;
+
+/* .sbss, owned by mv_disp.o and reached only from this file: the frame
+   counter the display loop keeps. */
+static int mvFrameCount;
+
 extern int sceGsSyncV(int a0);
 
 inline void loadImage(int a0)
@@ -43,7 +54,6 @@ inline void loadImage(int a0)
     *(volatile unsigned int *)0x1000A000 = 0x105;
 }
 
-extern int D_0072A180[];
 extern int sceGsSyncPath(int a0, int a1);
 
 typedef struct MvRect {
@@ -86,10 +96,10 @@ void dispClear(int *self, unsigned int col)
     r.w = self[0x30 / 4] << 4;
     r.h = ((self[0x34 / 4] + 31) / 32 * 64 + self[0x34 / 4] * 2) << 4;
 
-    p = setGIFtag((int *)uncached_accel_addr((int)D_0072A180), 14, 1, 0, 0, 0, 1, 4);
+    p = setGIFtag((int *)uncached_accel_addr((int)mvClearPacket), 14, 1, 0, 0, 0, 1, 4);
     setClearSprite(p, &r, col);
 
-    *(volatile unsigned int *)0x1000A010 = phys_addr((int)D_0072A180);
+    *(volatile unsigned int *)0x1000A010 = phys_addr((int)mvClearPacket);
     *(volatile unsigned int *)0x1000A020 = 5;
     *(volatile unsigned int *)0x1000A000 = 0x101;
 
@@ -117,7 +127,7 @@ void setDispEnv(int *self, int a1, int a2, int a3, int a4)
     self[0x14 / 4] = (self[0x14 / 4] & 0xFFC007FF) | ((a4 & 0x7FF) << 11);
     self[0x10 / 4] = (self[0x10 / 4] & ~0x7E00) | 0x1800;
 
-    p = setGIFtag((int *)uncached_accel_addr((int)D_0072A040), 14, 1, 0, 0, 0, 1, 6);
+    p = setGIFtag((int *)uncached_accel_addr((int)mvDispPacket), 14, 1, 0, 0, 0, 1, 6);
     p = setPRMODECONT(p, 1);
     p = setFRAME_1(p, 0, (self[0x30 / 4] + 63) / 64, 0, 0);
     p = setTEST_1(p, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -138,7 +148,7 @@ void setImageSize(int *self, int a1, int a2, int a3, int a4)
 void sendDispEnv(void *a0)
 {
     sceGsPutDispEnv(a0);
-    a0 = (void *)phys_addr((int)D_0072A040);
+    a0 = (void *)phys_addr((int)mvDispPacket);
     *(volatile unsigned int *)0x1000A010 = (unsigned int)a0;
     *(volatile unsigned int *)0x1000A020 = 7;
     *(volatile unsigned int *)0x1000A000 = 0x101;
@@ -248,7 +258,6 @@ void dispSwitch(int *a0, int flag)
 }
 
 extern int D_002A7978[];
-extern int D_0063C5C4;
 
 int vblankHandler(void)
 {
@@ -264,7 +273,7 @@ int vblankHandler(void)
         if (*(volatile int *)&D_0063C0C4 == 0) {
             tag = voBufGetTag(voBuf);
             if (tag == 0) {
-                D_0063C5C4++;
+                mvFrameCount++;
                 SYNC();
                 EI();
                 return 0;
@@ -302,14 +311,14 @@ inline void startDisplay(int a0)
     while (sceGsSyncV(0) == a0)
         ;
     *(volatile int *)&D_0063C0B8 = 1;
-    D_0063C5C4 = 0;
+    mvFrameCount = 0;
     *(volatile int *)&D_0063C0B4 = 0;
 }
 
 inline void endDisplay(void)
 {
     D_0063C0B8 = 0;
-    D_0063C5C4 = 0;
+    mvFrameCount = 0;
 }
 
 inline void *setDMAscTag(void *a0, int a1, unsigned int a2, int a3, int p4, int p5, int p6)

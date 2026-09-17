@@ -214,8 +214,14 @@ extern char D_00618E70[];
 extern int D_0028F8F4[];
 extern int conte12;
 extern int sd2;
-extern int D_0063C250;
-extern int D_0063C254;
+
+/* .sbss, owned by st25a.o and reached only from this file (MAIN.MAP names no
+   symbol in the run), in the ROM's run order: the flag the demo raises when it
+   is over, and the one its inner event raises when that has run. */
+static int demoEnd;
+
+static int eventDone;
+
 /* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
 extern void scpPlayMotReq(int a0, int mot);
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
@@ -275,14 +281,14 @@ void actSt25aQueenTalkChk(volatile int a0)
     th1 = actCreateSubThread(actConte12, 0x15);
     th2 = actCreateSubThread(actConte12Jimaku, 0x15);
 
-    D_0063C250 = 0;
-    D_0063C254 = 0;
+    demoEnd = 0;
+    eventDone = 0;
 
-    while (D_0063C250 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    cancel = D_0063C250 ^ 1;
+    cancel = demoEnd ^ 1;
 
     if (cancel != 0) {
         scpAdpcmFadeCloseFunc(&conte12, 0x100);
@@ -323,7 +329,7 @@ void actSt25aQueenTalkChk(volatile int a0)
         w.v[0] = cancelBoyPos;
         SetDirectRootPosition(D_00639EA4, &w.v[0]);
 
-        if (D_0063C254 == 0) {
+        if (eventDone == 0) {
             QueenStartAttack();
             gflagOn(0x14E);
         }
@@ -477,7 +483,7 @@ void actConte12(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063C254 = 1;
+    eventDone = 1;
     QueenStartAttack();
     gflagOn(0x14E);
 
@@ -488,7 +494,7 @@ void actConte12(volatile int a0)
     }
     _ACTWait(1);
 
-    D_0063C250 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 

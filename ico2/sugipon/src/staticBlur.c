@@ -99,8 +99,12 @@ extern int GlobalTimer;
 extern SprUV D_00620DF0;
 extern SprUV D_00620E00;
 extern SprUV D_00620E10;
-extern SprCol D_0063C4B0;
-extern unsigned char D_0063C4B3;
+
+/* .sbss, owned by staticBlur.o and reached only from this file (MAIN.MAP names
+   no symbol in the run): the blur sprite's RGBA, whose alpha byte the ROM also
+   addresses on its own. */
+static SprCol blurCol;
+
 extern float D_0063BB30;
 extern int matrixptr;
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
@@ -151,7 +155,7 @@ void auraInspireAfter(int mode)
         gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 0, 0);
 
         gif_SetAlpha(1, 7, 0);
-        gif_SpriteSensitiveOrg(rect, 0, suv, &D_0063C4B0, 1);
+        gif_SpriteSensitiveOrg(rect, 0, suv, &blurCol, 1);
     }
 
     void copyCurrentFBToFeedBackArea(void)
@@ -189,8 +193,8 @@ void auraInspireAfter(int mode)
 
             gif_SetDrawEnviroment(D_004ED020[1], 0, D_0063A064, D_0063A068, 0, 0);
 
-            gif_SetAlpha(1, 0, D_0063C4B3);
-            gif_SpriteSensitiveOrg(srect, 0, &a, &D_0063C4B0, 1);
+            gif_SetAlpha(1, 0, blurCol.f[3]);
+            gif_SpriteSensitiveOrg(srect, 0, &a, &blurCol, 1);
         }
 
         inline void copyFeedBackAreaToWork0(void)
@@ -1113,10 +1117,10 @@ void FullScreenEffectBefore(void)
     D_0063BB0C = D_0028F720.field_E8;
     D_0063BB18 = D_0028F720.field_104;
 
-    D_0063C4B0.f[0] = D_0028F720.field_110;
-    D_0063C4B0.f[1] = D_0028F720.field_114;
-    D_0063C4B0.f[2] = D_0028F720.field_118;
-    D_0063C4B0.f[3] = D_0028F720.field_11C;
+    blurCol.f[0] = D_0028F720.field_110;
+    blurCol.f[1] = D_0028F720.field_114;
+    blurCol.f[2] = D_0028F720.field_118;
+    blurCol.f[3] = D_0028F720.field_11C;
 
     if (D_0063BB08 != D_0063BB0C) {
         D_0063BB08 = D_0063BB0C;

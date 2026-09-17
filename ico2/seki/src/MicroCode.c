@@ -4,8 +4,14 @@
 #include "typedef.h"
 
 extern int D_00290B20[];
-extern int D_0063C140;
-extern int D_0067BFD0[];
+
+/* .sbss and .bss, owned by MicroCode.o and reached only from this file
+   (MAIN.MAP names no symbol in either run): the count of microprogram uploads
+   this frame, and the program currently resident in each of the 13 VU1
+   priority banks. */
+static int mcUploadCount;
+
+static int mcResident[16];
 
 /* The display-list packet builder state and one 64-bit packet slot; same
    objects src/GifPacket.c builds its packets in. */
@@ -84,13 +90,13 @@ inline void mc_TransMicroCode(int a0, int a1)
     int i;
     for (i = 0; i < 0xD; i++) {
         if ((a1 >> i) & 1) {
-            if (a0 != D_0067BFD0[i]) {
-                D_0063C140++;
+            if (a0 != mcResident[i]) {
+                mcUploadCount++;
                 mc_setBaseOffset(a0, i);
                 dl_SetDLPriority(i);
                 dl_OpenDma(5, *q, 0);
                 dl_CloseDma();
-                D_0067BFD0[i] = a0;
+                mcResident[i] = a0;
             }
         }
     }
@@ -100,9 +106,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/MicroCode", mc_SetMicroCode);
 
 inline void mc_Init(void)
 {
-    int *p = D_0067BFD0;
+    int *p = mcResident;
     int i = 0xC;
-    D_0063C140 = 0;
+    mcUploadCount = 0;
     p += 0xC;
     do {
         *p = 0;
@@ -113,9 +119,9 @@ inline void mc_Init(void)
 
 inline void mc_Reset(void)
 {
-    int *p = D_0067BFD0;
+    int *p = mcResident;
     int i = 0xC;
-    D_0063C140 = 0;
+    mcUploadCount = 0;
     p += 0xC;
     do {
         *p = 0;

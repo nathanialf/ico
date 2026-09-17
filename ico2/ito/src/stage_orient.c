@@ -56,7 +56,11 @@ static const StageOrientDef stageOrientDefs[41] = {
     {"E3_st13b", 3.14159f, {-24850.0f, -430.0f, 450.0f}, {-24850.0f, -900.0f, 450.0f}},
 };
 
-extern short D_006EA800[];
+/* .bss, owned by stage_orient.o and reached only from this file (MAIN.MAP
+   names no symbol in the run): the orient index each stage resolves to, -1
+   where the stage has none. */
+static short stageOrientIdx[128];
+
 extern char D_0063AC68[];
 extern void sceVu0Normalize(VECTOR *out, VECTOR *in);
 extern void sceVu0UnitMatrix(float *m);
@@ -75,10 +79,10 @@ inline void StageOrientInit(void)
 
     for (i = 0; i < 106; i++) {
         sscanf(D_005F5D70[i], D_0063AC68, buf);
-        D_006EA800[i] = -1;
+        stageOrientIdx[i] = -1;
         for (j = 0; j < sizeof(stageOrientDefs) / sizeof(stageOrientDefs[0]); j++) {
             if (strcmp(buf, stageOrientDefs[j].name) == 0) {
-                D_006EA800[i] = j;
+                stageOrientIdx[i] = j;
                 break;
             }
         }
@@ -115,8 +119,8 @@ static inline void MakeStageOrientMatrix(float *m, StageOrientDef *p)
 
 int GetStageDifferenceMatrix(float *out, int stA, int stB)
 {
-    int a = D_006EA800[stA];
-    int b = D_006EA800[stB];
+    int a = stageOrientIdx[stA];
+    int b = stageOrientIdx[stB];
     StageOrientDef *pa;
     StageOrientDef *pb;
     float m1[16];
@@ -141,8 +145,8 @@ int GetStageDifferenceMatrix(float *out, int stA, int stB)
 
 inline int StageOrientGet(VECTOR *ret, int stA, int stB)
 {
-    int a = D_006EA800[stA];
-    int b = D_006EA800[stB];
+    int a = stageOrientIdx[stA];
+    int b = stageOrientIdx[stB];
 
     if (a < 0 || b < 0) {
         ret->x = 1.0f;
@@ -173,8 +177,8 @@ extern void sceVu0SubVector(VECTOR *out, VECTOR *a, VECTOR *b);
 
 int StageOrientGet2(VECTOR *ret, int stA, VECTOR *posA, int stB, VECTOR *posB)
 {
-    int a = D_006EA800[stA];
-    int b = D_006EA800[stB];
+    int a = stageOrientIdx[stA];
+    int b = stageOrientIdx[stB];
 
     if (a < 0 || b < 0) {
         ret->x = 1.0f;
@@ -224,8 +228,8 @@ int StageOrientGet2(VECTOR *ret, int stA, VECTOR *posA, int stB, VECTOR *posB)
 
 int OtherStagePositionGet(VECTOR *ret, int stA, int stB, VECTOR *pos)
 {
-    int a = D_006EA800[stA];
-    int b = D_006EA800[stB];
+    int a = stageOrientIdx[stA];
+    int b = stageOrientIdx[stB];
 
     if (a < 0 || b < 0) {
         ret->x = 0.0f;

@@ -9,10 +9,6 @@
 static int staffRollArea[4] = {-5120, -1792, 10240, 3584};
 
 extern int staffRollAlpha;
-extern int D_0063C42C;
-extern float D_0063C430;
-extern float D_0063C434;
-extern int D_0063C438;
 
 typedef struct {
     unsigned char b[4];
@@ -26,29 +22,46 @@ typedef struct {
     char pad[3];      /* 0x0D */
 } StaffRollEntry;     /* 0x10 */
 
-extern StaffRollEntry D_0071D980[];
+/* .sbss, owned by staffroll.o and reached only from this file (MAIN.MAP names
+   no symbol in the run), in the ROM's run order. */
+static float rollSpeed; /* lines the roll climbs per frame */
+
+static float rollOffset; /* how far it has climbed so far */
+
+static int rollNameIdx; /* the next entry of staffRollNameData to post */
+
+static int rollWidth; /* the roll's right edge, closing in on 640 */
+
+static float areaStep; /* per-frame close of the display area */
+
+static float widthStep; /* per-frame close of rollWidth */
+
+static int closing; /* the area is closing */
+
+static int rollStep; /* the roll's own sequence step */
+
+/* .bss, owned by staffroll.o and reached only from this file: the posted
+   lines, 0x12C0 bytes of StaffRollEntry. */
+static StaffRollEntry rollLines[300];
+
 extern int D_0028F4C0[];
 extern int staffRollStartFlag;
-extern float D_0063C420;
-extern float D_0063C424;
-extern int D_0063C428;
-extern int D_0063C43C;
 extern float staffRollCenterOffsetX;
 extern float staffRollCenterOffsetXDest;
 
 void staffRollStart(float t, int alpha)
 {
     staffRollStartFlag = 1;
-    D_0063C420 = (t + t) * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    rollSpeed = (t + t) * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
     staffRollAlpha = alpha;
-    D_0063C428 = 0;
-    D_0063C424 = 0.0f;
-    D_0063C43C = 0;
-    D_0063C42C = 0;
-    D_0063C438 = 0;
-    staffRollCenterOffsetX = staffRollCenterOffsetXDest = D_0063C424;
+    rollNameIdx = 0;
+    rollOffset = 0.0f;
+    rollStep = 0;
+    rollWidth = 0;
+    closing = 0;
+    staffRollCenterOffsetX = staffRollCenterOffsetXDest = rollOffset;
     staffRollArea[0] = 0x500;
-    memset(D_0071D980, 0, 0x12C0);
+    memset(rollLines, 0, sizeof(rollLines));
 }
 
 extern void font_Print(unsigned int attr, char *str, int size, StaffRollCol col, float x, float y);
@@ -57,7 +70,7 @@ extern void font_Print(unsigned int attr, char *str, int size, StaffRollCol col,
    at every use site: that is what keeps the entry address a giv of the byte
    counter with no separate index multiply, so loop.c can drop the counter
    itself and compare the cursor against base + 0x12C0. */
-#define SROLL(off) ((StaffRollEntry *)((char *)D_0071D980 + (off)))
+#define SROLL(off) ((StaffRollEntry *)((char *)rollLines + (off)))
 
 int staffRollScroll(void)
 {
@@ -68,14 +81,14 @@ int staffRollScroll(void)
 
     count = 0;
 
-    D_0063C424 += D_0063C420;
+    rollOffset += rollSpeed;
     for (i = 0; i < 300 * 16; i += 16) {
         if (SROLL(i)->str == 0) {
             continue;
         }
         count++;
 
-        SROLL(i)->y -= D_0063C420;
+        SROLL(i)->y -= rollSpeed;
         t = SROLL(i)->y - 112.0f;
         a = (int)(184.0f - (t < 0.0f ? -t : t) * 120.0f / 112.0f);
         if (a < 0) {
@@ -86,7 +99,7 @@ int staffRollScroll(void)
         }
         if ((float)(-(font_GetHeight() + 449)) < SROLL(i)->y) {
             font_Print(a | 0x70707000, *SROLL(i)->str, SROLL(i)->size, SROLL(i)->col,
-                       (float)D_0063C42C, SROLL(i)->y);
+                       (float)rollWidth, SROLL(i)->y);
         } else {
             SROLL(i)->str = 0;
         }
@@ -107,9 +120,9 @@ int staffRollNameOut(void)
     char **s;
     int i;
 
-    if (D_0063C424 / (float)(font_GetHeight() + 1) >= (float)D_0063C428) {
+    if (rollOffset / (float)(font_GetHeight() + 1) >= (float)rollNameIdx) {
         for (i = 0; i < 300; i++) {
-            if (D_0071D980[i].str == 0)
+            if (rollLines[i].str == 0)
                 goto found;
         }
         /* staff roll: out of area */
@@ -118,15 +131,15 @@ int staffRollNameOut(void)
         __assert(__FILE__, 0xC0, D_0063B660);
     found:
 
-        e = &D_0071D980[i];
-        s = &staffRollNameData[D_0063C428++];
+        e = &rollLines[i];
+        s = &staffRollNameData[rollNameIdx++];
         if (*s != 0)
             e->str = s;
 
         e->y = (float)(font_GetHeight() + 449);
         e->size = font_CheckAlign(&e->col, *e->str);
     }
-    return D_0063C428 >= D_0063B674;
+    return rollNameIdx >= D_0063B674;
 }
 
 extern unsigned char D_0063B66B;
@@ -136,20 +149,20 @@ void staffRollMain(void)
     int a;
     int n;
 
-    if (D_0063C438 != 0) {
+    if (closing != 0) {
         n = 0;
-        staffRollArea[0] = (int)((float)staffRollArea[0] - D_0063C430);
+        staffRollArea[0] = (int)((float)staffRollArea[0] - areaStep);
         if (staffRollArea[0] < -0x1400) {
             staffRollArea[0] = -0x1400;
             n = 1;
         }
-        D_0063C42C = (int)((float)D_0063C42C - D_0063C434);
-        if (D_0063C42C < 0x280) {
-            D_0063C42C = 0x280;
+        rollWidth = (int)((float)rollWidth - widthStep);
+        if (rollWidth < 0x280) {
+            rollWidth = 0x280;
             n++;
         }
         if (n == 2) {
-            D_0063C438 = 0;
+            closing = 0;
         }
     }
 
@@ -183,39 +196,39 @@ void staffRollMain(void)
         }
     }
 
-    switch (D_0063C43C) {
+    switch (rollStep) {
     case 0:
         font_Init();
         D_0063B66B = 0;
-        D_0063C43C++;
+        rollStep++;
         /* fallthrough */
     case 1:
         staffRollCenterOffsetXDest = 0.0f;
         if (D_0063B66B == staffRollAlpha && staffRollCenterOffsetX == staffRollCenterOffsetXDest) {
-            D_0063C43C++;
+            rollStep++;
         }
         break;
     case 2:
         staffRollScroll();
         if (staffRollNameOut() != 0) {
-            D_0063C43C++;
+            rollStep++;
         }
         break;
     case 3:
         if (staffRollScroll() == 0) {
-            D_0063C43C++;
+            rollStep++;
         }
         break;
     case 4:
         staffRollAlpha = 0;
         staffRollCenterOffsetXDest = 0.0f;
         if (D_0063B66B == 0) {
-            D_0063C43C++;
+            rollStep++;
         }
         break;
     case 5:
         if (staffRollCenterOffsetX == 0.0f) {
-            D_0063C43C++;
+            rollStep++;
         }
         break;
     case 6:
@@ -226,8 +239,8 @@ void staffRollMain(void)
 
 void staffRollWide(void)
 {
-    D_0063C438 = 1;
-    D_0063C430 = (float)((staffRollArea[0] + 0x1400) / 30);
-    D_0063C434 = (float)((D_0063C42C - 0x280) / 30);
+    closing = 1;
+    areaStep = (float)((staffRollArea[0] + 0x1400) / 30);
+    widthStep = (float)((rollWidth - 0x280) / 30);
     staffRollAlpha = 0xFF;
 }

@@ -12,9 +12,22 @@
 
 extern int eBrainBoyChaseCount;
 extern int eBrainGirlChaseCount;
-extern void *D_0063C2CC;
-extern int D_0063C2D0;
-extern int D_006E6750[];
+
+/* .sbss and .bss, owned by ebrain.o and reached only from this file (MAIN.MAP
+   names no symbol in either run), each in the ROM's run order: how many
+   enemies are registered against the boy and against the girl, the enemy
+   holding the girl, and whether the boy's state makes every enemy wait; then
+   the slot pool and the two registration lists. */
+static int boyTargetNum;
+
+static int girlTargetNum;
+
+static void *girlHolder;
+
+static int enemiesWait;
+
+static int ebrainSlots[224];
+
 extern StageLabelRange D_005F5D50[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
@@ -50,24 +63,24 @@ static inline EBSlot *eBrainGetPacket(void *gop)
     int i;
 
     for (i = 0; i < 0x20; i++) {
-        if (((EBSlot *)D_006E6750)[i].f18 == gop)
+        if (((EBSlot *)ebrainSlots)[i].f18 == gop)
             break;
     }
     if (i == 0x20)
         return 0;
     else
-        return &((EBSlot *)D_006E6750)[i];
+        return &((EBSlot *)ebrainSlots)[i];
 }
 
 inline void eBrainInit(void)
 {
-    int *p = D_006E6750;
+    int *p = ebrainSlots;
     int i;
     eBrainGirlChaseCount = 0;
     eBrainBoyChaseCount = 0;
-    D_0063C2CC = 0;
+    girlHolder = 0;
     p = (int *)((char *)p + 0x37C);
-    D_0063C2D0 = 0;
+    enemiesWait = 0;
     i = 0x1F;
     do {
         *p = 0;
@@ -83,11 +96,11 @@ inline int eBrainStatusSet(void *a0, int a1)
     if (a1 != 4)
         return 0;
     for (i = 0; i < 0x20; i++) {
-        if (((EBSlot *)D_006E6750)[i].f18 == 0)
+        if (((EBSlot *)ebrainSlots)[i].f18 == 0)
             break;
     }
     if (i < 0x20)
-        slot = &((EBSlot *)D_006E6750)[i];
+        slot = &((EBSlot *)ebrainSlots)[i];
     else
         slot = 0;
     if (slot == 0) {
@@ -102,10 +115,10 @@ inline int eBrainStatusSet(void *a0, int a1)
 
 extern void *D_00639EA4;
 extern void *D_00639EA8;
-extern int D_0063C2C4;
-extern int D_0063C2C8;
-extern EBSlot *D_006E6AD0[];
-extern EBSlot *D_006E6B50[];
+
+static EBSlot *boyTargets[32];
+
+static EBSlot *girlTargets[32];
 
 static inline void eBrainRegistTarget(EBSlot **list, int n, EBSlot *e, int w)
 {
@@ -137,14 +150,14 @@ void eBrainProcess(void)
     EBSlot *s;
     int i;
 
-    D_0063C2C8 = 0;
-    D_0063C2C4 = 0;
+    girlTargetNum = 0;
+    boyTargetNum = 0;
 
     if (D_00639EA4 == 0) {
         if (D_00639EA8 == 0)
             return;
     } else {
-        D_0063C2D0 = IsBoyStatus_EnemyMustWait();
+        enemiesWait = IsBoyStatus_EnemyMustWait();
         GetRootPosition(bpos, D_00639EA4);
     }
 
@@ -153,7 +166,7 @@ void eBrainProcess(void)
     }
 
     for (i = 0; i < 0x20; i++) {
-        s = &((EBSlot *)D_006E6750)[i];
+        s = &((EBSlot *)ebrainSlots)[i];
         if (s->f18 == 0)
             continue;
 
@@ -165,12 +178,12 @@ void eBrainProcess(void)
 
         if (s->f0 == 0) {
             if (D_00639EA4 != 0) {
-                eBrainRegistTarget(D_006E6AD0, D_0063C2C4, s, 0);
-                D_0063C2C4 = D_0063C2C4 + 1;
+                eBrainRegistTarget(boyTargets, boyTargetNum, s, 0);
+                boyTargetNum = boyTargetNum + 1;
             }
             if (D_00639EA8 != 0) {
-                eBrainRegistTarget(D_006E6B50, D_0063C2C8, s, 1);
-                D_0063C2C8 = D_0063C2C8 + 1;
+                eBrainRegistTarget(girlTargets, girlTargetNum, s, 1);
+                girlTargetNum = girlTargetNum + 1;
             }
         } else if (s->f0 == 1) {
             s->f14++;
@@ -318,7 +331,7 @@ EBSlot *eBrainGetTarget(void *gop)
         break;
     }
     p->f10 = 0;
-    if (D_0063C2D0 != 0 && p->f0 == 1) {
+    if (enemiesWait != 0 && p->f0 == 1) {
         eBrainSetStatus(p, 8);
     }
 
@@ -334,8 +347,8 @@ EBSlot *eBrainGetTarget(void *gop)
 
             found = 0;
             cnt = 0;
-            for (n = 0; n < D_0063C2C4; n++) {
-                EBSlot *e = D_006E6AD0[n];
+            for (n = 0; n < boyTargetNum; n++) {
+                EBSlot *e = boyTargets[n];
                 if (p == e) {
                     found = 1;
                     break;
@@ -348,8 +361,8 @@ EBSlot *eBrainGetTarget(void *gop)
                 boyIdx = n;
             found = 0;
             cnt = 0;
-            for (n = 0; n < D_0063C2C8; n++) {
-                EBSlot *e = D_006E6B50[n];
+            for (n = 0; n < girlTargetNum; n++) {
+                EBSlot *e = girlTargets[n];
                 if (p == e) {
                     found = 1;
                     break;
@@ -369,7 +382,7 @@ EBSlot *eBrainGetTarget(void *gop)
                 i = 0;
                 if (boyIdx >= 0) {
                     if (girlIdx >= 0) {
-                        if (D_006E6AD0[boyIdx]->dist[0] < D_006E6B50[girlIdx]->dist[1]) {
+                        if (boyTargets[boyIdx]->dist[0] < girlTargets[girlIdx]->dist[1]) {
                             order[0] = 1;
                             order[1] = 2;
                         } else {
@@ -397,7 +410,7 @@ EBSlot *eBrainGetTarget(void *gop)
                 }
             }
             if (p->f0 != 0) {
-                D_006E6AD0[boyIdx] = D_006E6B50[girlIdx] = 0;
+                boyTargets[boyIdx] = girlTargets[girlIdx] = 0;
                 changed = 1;
             }
             break;
@@ -424,7 +437,7 @@ EBSlot *eBrainGetTarget(void *gop)
                     changed = 1;
                 }
             }
-            if (D_0063C2CC == 0) {
+            if (girlHolder == 0) {
                 eBrainSetStatus(p, 1);
                 changed = 1;
             }
@@ -444,14 +457,14 @@ EBSlot *eBrainGetTarget(void *gop)
             break;
         case 8:
             p->f04 = D_00639EA4;
-            if (D_0063C2D0 == 0) {
+            if (enemiesWait == 0) {
                 eBrainSetStatus(p, 0);
             }
             break;
         }
     } while (changed);
 
-    if (D_0063C2CC != 0 && D_0063C2CC != gop && p->f0 == 2) {
+    if (girlHolder != 0 && girlHolder != gop && p->f0 == 2) {
         eBrainSetStatus(p, 5);
     }
     return p;
@@ -464,17 +477,17 @@ inline void eBrainSendMes(void *gop, int mes)
     p->f10 = mes;
     switch (mes) {
     case 9:
-        D_0063C2CC = gop;
+        girlHolder = gop;
         break;
     case 10:
-        if (D_0063C2CC == gop)
-            D_0063C2CC = 0;
+        if (girlHolder == gop)
+            girlHolder = 0;
         eBrainSetStatus(p, 7);
         break;
     case 4:
     case 5:
-        if (D_0063C2CC == gop)
-            D_0063C2CC = 0;
+        if (girlHolder == gop)
+            girlHolder = 0;
         break;
     }
 }

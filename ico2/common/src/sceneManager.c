@@ -20,9 +20,17 @@ extern char D_002C1270[];
 extern int *isysGObjGetExist_begin(int a0);
 /* kept local: this TU's uses of isysGObjGetExist_next do not fit the prototype in gobj.h */
 extern int *isysGObjGetExist_next(int *a0);
-extern int D_0063C414;
-extern int D_0063C418;
-extern int D_0063C41C;
+
+/* .sbss, owned by sceneManager.o and reached only from this file (MAIN.MAP
+   names no symbol in the run), in the ROM's run order: the three frame counts
+   GetStageStartInfo hands back, which boyact's stage-entry action waits out in
+   turn (before the motion, during it, after it). */
+static int stageStartWait1;
+
+static int stageStartWait2;
+
+static int stageStartWait3;
+
 extern char D_0063B640;
 extern int D_0063B644;
 extern float D_0071D960[];
@@ -38,9 +46,9 @@ inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int 
     D_0071D960[0] = a0[0];
     D_0071D960[1] = a0[1];
     D_0071D960[2] = a0[2];
-    D_0063C414 = a2;
-    D_0063C418 = a3;
-    D_0063C41C = a4;
+    stageStartWait1 = a2;
+    stageStartWait2 = a3;
+    stageStartWait3 = a4;
     D_0063B644 = a5;
     D_0071D970[0] = a1[0];
     D_0071D970[1] = a1[1];
@@ -50,9 +58,9 @@ inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int 
 
 inline void test_nextstage_firstwalk_set(int unused, int a, int b, int c)
 {
-    D_0063C414 = a;
-    D_0063C418 = b;
-    D_0063C41C = c;
+    stageStartWait1 = a;
+    stageStartWait2 = b;
+    stageStartWait3 = c;
 }
 
 inline int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r)
@@ -63,9 +71,9 @@ inline int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r)
         *q = 1;
         *p = 1;
     } else {
-        *p = D_0063C414;
-        *q = D_0063C418;
-        *r = D_0063C41C;
+        *p = stageStartWait1;
+        *q = stageStartWait2;
+        *r = stageStartWait3;
         if (*q == 0)
             ret = 0;
         if (*p == 0)
@@ -82,13 +90,13 @@ inline int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r)
 inline void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0)
 {
     if (a2 >= 0) {
-        D_0063C414 = a2;
+        stageStartWait1 = a2;
     }
     if (a3 >= 0) {
-        D_0063C418 = a3;
+        stageStartWait2 = a3;
     }
     if (t0 >= 0) {
-        D_0063C41C = t0;
+        stageStartWait3 = t0;
     }
 }
 

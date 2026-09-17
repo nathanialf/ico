@@ -26,17 +26,23 @@ typedef union {
 #include "message.h"
 #include "typedef.h"
 
-extern int D_006BC8C0[];
+/* .bss, owned by mcard.o and reached only from this file (MAIN.MAP names no
+   symbol in the run), in the ROM's run order: the semaphore descriptor the
+   card lock is created from, then the manager queue's 16-slot message ring. */
+static int mcLockSemaParam[6];
+
+static int mcMsgRing[16];
+
 extern char D_0063A490[];
 extern int D_0063A47C;
 extern int D_0063A488;
 
 inline void iosMcMgrSync(void *mp)
 {
-    D_006BC8C0[4] = 1;
-    D_006BC8C0[2] = 0;
-    D_006BC8C0[1] = 1;
-    D_0063A47C = CreateSema(D_006BC8C0);
+    mcLockSemaParam[4] = 1;
+    mcLockSemaParam[2] = 0;
+    mcLockSemaParam[1] = 1;
+    D_0063A47C = CreateSema(mcLockSemaParam);
     debug_StdPrintfDummy(D_0063A490, D_0063A47C);
     do {
         WaitSema(D_0063A47C);
@@ -821,7 +827,6 @@ extern char D_0063A4B8[];
 extern char D_0063A4C0[];
 extern char D_0063A4C8[];
 extern char D_0063A4D0[];
-extern int D_006BC8D8[];
 
 /* ios/mcard.c:1042-1053, 1109-1115 and 1127-1133: the three file-static block
    helpers the manager dispatch inlines. None has a ROM symbol of its own. */
@@ -866,7 +871,7 @@ void iosMcManager(void)
     McMgr **pp;
 
     sceMcInit();
-    iosMsgQueueCreate(D_0029B9E8, D_006BC8D8, 16);
+    iosMsgQueueCreate(D_0029B9E8, mcMsgRing, 16);
     pp = &mp;
 
     for (;;) {

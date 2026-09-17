@@ -19,10 +19,19 @@ typedef struct {
     int f_24;                /* 0x24 */
 } DlEntry;
 
-extern int D_0063C4BC;
-extern int D_0063C4C0;
-extern DlEntry D_00728310[];
-extern int D_00728518[2][13];
+/* .sbss and .bss, owned by DisplayList.o and reached only from this file
+   (MAIN.MAP names no symbol in either run), each in the ROM's run order: the
+   bank the list is built into and the priority it is building at, then the 13
+   list entries, the two banks of 13 buffer heads they are reloaded from, and
+   the eight-deep priority stack. */
+static int dlBank;
+
+static int dlPriority;
+
+static DlEntry dlEntries[13];
+
+static int dlBufferHead[2][13];
+
 extern int D_0063A054;
 extern int dmaVif;
 extern int D_006218E0[];
@@ -31,7 +40,9 @@ extern int D_0063A43C;
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern int D_0063BD20;
-extern int D_00728580[];
+
+static int dlPriorityStack[8];
+
 extern char D_00621878[];
 extern char D_00621890[];
 extern char D_006218B8[];
@@ -42,18 +53,18 @@ void dl_Init(void)
 {
     int i;
     int j;
-    D_0063C4C0 = 0;
+    dlPriority = 0;
     D_0063BD20 = 0;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 13; j++) {
-            D_00728518[i][j] =
+            dlBufferHead[i][j] =
                 (int)iosMallocDebug(D_0063A43C, D_00621840[j], D_00621878, 393) | 0x30000000;
         }
     }
-    D_0063C4BC = 0;
+    dlBank = 0;
     for (i = 0; i < 13; i++) {
-        D_00728310[i].pad_20 = D_00728310[i].f_24 = D_00728518[0][i];
-        D_00728310[i].f_0 = 0;
+        dlEntries[i].pad_20 = dlEntries[i].f_24 = dlBufferHead[0][i];
+        dlEntries[i].f_0 = 0;
     }
     dpk_Init();
     dl_Clear();
@@ -63,7 +74,7 @@ inline void dl_Out(void)
 {
     int i;
     for (i = 0; i < 2; i++) {
-        int *p = (int *)((char *)D_00728518 + i * 0x34);
+        int *p = (int *)((char *)dlBufferHead + i * 0x34);
         int j;
         for (j = 0xC; j >= 0; j--) {
             iosFree(*p);
@@ -74,12 +85,12 @@ inline void dl_Out(void)
 
 void dl_Clear(void)
 {
-    int flag = D_0063C4BC ^ 1;
-    int *src = (int *)((char *)D_00728518 + flag * 0x34);
-    char *dst = (char *)D_00728310;
+    int flag = dlBank ^ 1;
+    int *src = (int *)((char *)dlBufferHead + flag * 0x34);
+    char *dst = (char *)dlEntries;
     int i;
-    D_0063C4BC = flag;
-    D_0063C4C0 = 0;
+    dlBank = flag;
+    dlPriority = 0;
     for (i = 0xC; i >= 0; i--) {
         int v = *src;
         *(int *)dst = 0;
@@ -106,16 +117,16 @@ void dl_Swap(void)
         DlEntry *e;
         dl_SetDLPriority(i);
         j = i + 1;
-        e = (DlEntry *)((char *)D_00728310 + j * stride);
+        e = (DlEntry *)((char *)dlEntries + j * stride);
         dl_OpenDma(1, e->pad_20 & 0xFFFFFFF, 0);
         dl_CloseDma();
         i = j;
     } while (j < 0xC);
     FlushCache(0);
     if (D_0063A054) {
-        sceDmaSend(dmaVif, D_00728310[11].pad_20 & 0xFFFFFFF);
+        sceDmaSend(dmaVif, dlEntries[11].pad_20 & 0xFFFFFFF);
     } else {
-        sceDmaSend(dmaVif, D_00728310[0].pad_20 & 0xFFFFFFF);
+        sceDmaSend(dmaVif, dlEntries[0].pad_20 & 0xFFFFFFF);
     }
     dl_Clear();
 }
@@ -123,11 +134,11 @@ void dl_Swap(void)
 inline void dl_SetDLPriority(int a0)
 {
     if (a0 < 0) {
-        D_0063C4C0 = 0;
+        dlPriority = 0;
     } else if (a0 >= 0xD) {
-        D_0063C4C0 = 0xC;
+        dlPriority = 0xC;
     } else {
-        D_0063C4C0 = a0;
+        dlPriority = a0;
     }
 }
 
@@ -135,7 +146,7 @@ void dl_PushPriority(void)
 {
     if (D_0063BD20 < 7) {
         D_0063BD20 = D_0063BD20 + 1;
-        D_00728580[D_0063BD20 - 1] = D_0063C4C0;
+        dlPriorityStack[D_0063BD20 - 1] = dlPriority;
     } else {
         debug_StdPrintfDummy(D_00621890);
         debug_assert(D_00621878, 0x216);
@@ -146,7 +157,7 @@ void dl_PushPriority(void)
 void dl_PopPriority(void)
 {
     if (D_0063BD20 > 0) {
-        D_0063C4C0 = D_00728580[D_0063BD20 - 1];
+        dlPriority = dlPriorityStack[D_0063BD20 - 1];
         D_0063BD20--;
     } else {
         debug_StdPrintfDummy(D_006218B8);
@@ -157,12 +168,12 @@ void dl_PopPriority(void)
 
 inline int dl_GetPri(void)
 {
-    return D_0063C4C0;
+    return dlPriority;
 }
 
 void dl_Debug(void)
 {
-    int *entry = (int *)D_00728310 + D_0063C4C0 * 10;
+    int *entry = (int *)dlEntries + dlPriority * 10;
     unsigned int end = entry[9];
     unsigned int start = entry[1];
     unsigned int count = (end - start) >> 4;
@@ -171,7 +182,7 @@ void dl_Debug(void)
 
 inline void dl_OpenDma(int a0, int a1, int a2)
 {
-    int *entry = (int *)&D_00728310[D_0063C4C0];
+    int *entry = (int *)&dlEntries[dlPriority];
     int old;
     if (entry[0]) {
         dl_CloseDma();
@@ -187,7 +198,7 @@ inline void dl_OpenDma(int a0, int a1, int a2)
 
 void dl_CloseDma(void)
 {
-    DlEntry *e = &D_00728310[D_0063C4C0];
+    DlEntry *e = &dlEntries[dlPriority];
     long long addr = (e->f_8 & 0x7FFFFFFF) << 32;
     long long qwc;
     long long *p;

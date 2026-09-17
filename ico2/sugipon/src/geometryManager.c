@@ -465,7 +465,13 @@ loop:
 }
 
 extern int D_0028FEB8[];
-extern int D_00668540[];
+
+/* .bss, owned by geometryManager.o and reached only from this file (MAIN.MAP
+   names no symbol in the run; its geometryManager.o .bss size 0x100 fixes the
+   length, and matrixDrive's 0x1000 and quaternion's 0x400 tile the rest of the
+   region exactly).  The live character objects the cylinder check walks. */
+static int charGObjList[64];
+
 extern int D_00639EFC;
 extern char D_0054D7C8[];
 
@@ -493,7 +499,7 @@ void MakeCharGObjList(void)
     D_00639EFC = 0;
     while (o != 0) {
         if (isCharGObj(o) != 0) {
-            D_00668540[D_00639EFC++] = (int)o;
+            charGObjList[D_00639EFC++] = (int)o;
             if (D_00639EFC >= 0x41) {
                 debug_assertMessage(D_0054D750, 0x22E, D_0054D7C8);
                 __assert(D_0054D750, 0x22E, D_00639EF0);
@@ -501,7 +507,7 @@ void MakeCharGObjList(void)
         }
         o = isysGObjGetExist_next(o);
     }
-    D_00668540[D_00639EFC] = 0;
+    charGObjList[D_00639EFC] = 0;
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/geometryManager", cylinderCollisionCheck);
@@ -523,7 +529,6 @@ void LocalizeDirectionOrient(int *self, int *a1)
     ((GObj *)((char *)self))->p_15C->f_52C = 0;
 }
 
-extern int D_00668540[];
 extern int D_00639EFC;
 
 /* INTERIM: ROM inlines GetRootPosition into both cylinder-collision walkers and
@@ -581,7 +586,7 @@ static __inline__ int CylinderCollisionWithControlDynamics_i(char *self, int gro
     }
     GetRootPosition_ic(pos, self);
     rr = r * r;
-    for (i = 0, o = (char *)D_00668540[0]; i < D_00639EFC; i++, o = (char *)D_00668540[i]) {
+    for (i = 0, o = (char *)charGObjList[0]; i < D_00639EFC; i++, o = (char *)charGObjList[i]) {
         if (*(int *)(o + 0xC) != group)
             continue;
         if (o == self)
@@ -618,7 +623,7 @@ int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float 
     }
     GetRootPosition_ic(pos, self);
     rr = r * r;
-    for (i = 0, o = (char *)D_00668540[0]; i < D_00639EFC; i++, o = (char *)D_00668540[i]) {
+    for (i = 0, o = (char *)charGObjList[0]; i < D_00639EFC; i++, o = (char *)charGObjList[i]) {
         if (*(int *)(o + 0xC) != group)
             continue;
         if (o == self)
@@ -935,11 +940,11 @@ float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f)
     return dot;
 }
 
-extern int D_00668540[];
+extern int charGObjList[];
 
 int *GetCharGObjList(void)
 {
-    return D_00668540;
+    return charGObjList;
 }
 
 /* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */

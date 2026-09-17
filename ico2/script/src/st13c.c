@@ -130,7 +130,14 @@ extern void scpSekizouCheckPoint(void);
 /* kept local: this TU's uses of jimakuJump do not fit the prototype in jimaku.h */
 extern void jimakuJump(int a0);
 extern int D_00639EA4;
-extern int D_0063C590;
+
+/* .sbss, owned by st13c.o and reached only from this file (MAIN.MAP names no
+   symbol in the run), in the ROM's run order: the flag each demo raises when
+   it is over, and the generator the boss fight calls through. */
+static int demoEnd;
+
+static int bossGenerator;
+
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];
 extern JimakuArg jimaku_msg;
@@ -179,7 +186,6 @@ extern int D_0063C010;
 extern int D_0063C000;
 extern int D_0063C004;
 extern int D_0063C00C;
-extern int D_0063C594;
 extern int D_00639EA8;
 
 void actSt13cInit(void)
@@ -298,13 +304,13 @@ void actSt13cBmg1Chk(volatile int a0)
     th1 = actCreateSubThread(actSt13cConte04, 0x15);
     th2 = actCreateSubThread(actSt13cConte04Jimaku, 0x15);
 
-    D_0063C590 = 0;
+    demoEnd = 0;
 
-    while (D_0063C590 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    if (D_0063C590 == 0) {
+    if (demoEnd == 0) {
         scpAdpcmFadeCloseFunc(&bmg, 0x100);
 
         scpFadeOut(16.0f, 0, 0, 0);
@@ -372,7 +378,7 @@ void actSt13cConte04(volatile int a0)
     }
     _ACTWait(1);
 
-    D_0063C590 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -426,17 +432,17 @@ void actSt13cCage1stDownDemoCancel(volatile int a0)
     float dir[4];
     int *th;
 
-    D_0063C590 = 0;
+    demoEnd = 0;
 
     th = (int *)(actCreateSubThread(actSt13cCage1stDownDemo, 0x15) + 0x24);
 
-    while (D_0063C590 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
     iosThreadSetPri(th, 0x22);
 
-    if (D_0063C590 == 0) {
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
         while (scpFadeChk() != 0) {
@@ -450,7 +456,7 @@ void actSt13cCage1stDownDemoCancel(volatile int a0)
     scpPlayMot(D_00639EA4, 0x13A);
     scpPlayWaitMotEnd(D_00639EA4);
 
-    if (D_0063C590 == 0) {
+    if (demoEnd == 0) {
         scpFadeIn(3.0f);
     }
 
@@ -606,13 +612,13 @@ void actSt13cCageFallChk(volatile int a0)
     stage_SetAnimation(0x4B, 1, 0);
     stage_SetAnimation(0x4C, 1, 0);
 
-    D_0063C590 = 0;
+    demoEnd = 0;
 
-    while (D_0063C590 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    cancel = D_0063C590 ^ 1;
+    cancel = demoEnd ^ 1;
 
     if (cancel) {
         scpAdpcmFadeCloseFunc(&D_0063C004, 0x100);
@@ -646,12 +652,12 @@ void actSt13cCageFallChk(volatile int a0)
         gflagOn(0x17);
         _ACTWait(0xA);
 
-        Generator_QuickCall(D_0063C594);
-        Generator_MaskOff(D_0063C594);
+        Generator_QuickCall(bossGenerator);
+        Generator_MaskOff(bossGenerator);
 
         if (isEnemyActive(scpSearchGobj(0x96)) == 0) {
             memset(&w, 0, 0x10);
-            DirectCallEnemy(scpSearchGobj(0x96), D_0063C594, &w, &w, 0);
+            DirectCallEnemy(scpSearchGobj(0x96), bossGenerator, &w, &w, 0);
             iosOmSendMail(scpSearchGobj(0x96), 0x102, scpSearchGobj(0x96));
             _ACTWait(1);
         }
@@ -679,7 +685,7 @@ void actSt13cCageFallChk(volatile int a0)
         scpTorchLightOff(0x90);
         scpFadeIn(3.0f);
     } else {
-        Generator_MaskOff(D_0063C594);
+        Generator_MaskOff(bossGenerator);
     }
 
     scpPlayMot(D_00639EA8, 0x2E0);
@@ -865,7 +871,7 @@ void actSt13cConte05(volatile int a0)
 
     fightSoundProcessRequestStart();
 
-    D_0063C590 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -1172,16 +1178,16 @@ void actSt13cHandChk(volatile int a0)
     th1 = actCreateSubThread(actSt13cHandJimaku, 0x15);
     th2 = actCreateSubThread(actSt13cHandSub, 0x15);
 
-    D_0063C590 = 0;
+    demoEnd = 0;
 
-    while (D_0063C590 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
     iosThreadSetPri((int *)(th2 + 0x24), 0x22);
     iosThreadSetPri((int *)(th1 + 0x24), 0x22);
 
-    if (D_0063C590 == 0) {
+    if (demoEnd == 0) {
         scpAdpcmFadeCloseFunc(&D_0063C00C, 0x200);
 
         scpFadeOut(16.0f, 0, 0, 0);
@@ -1324,7 +1330,7 @@ void actSt13cEnemy(volatile int a0)
 
     _ACTWait(1);
 
-    D_0063C594 = a0;
+    bossGenerator = a0;
     Generator_Mask(a0);
 
     while (gflagChk(0x17) == 0) {
@@ -1535,7 +1541,7 @@ void actSt13cCage1stDownDemo(volatile int a0)
     scpPlayMot(D_00639EA4, 0x139);
     scpPlayWaitMotEnd(D_00639EA4);
     _ACTWait(0xF0);
-    D_0063C590 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -1637,7 +1643,7 @@ void actSt13cHandSub(volatile int a0)
 {
     _ACTWait(100);
     scpPlayWaitMotEnd(D_00639EA4);
-    D_0063C590 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 

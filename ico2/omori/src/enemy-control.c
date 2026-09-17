@@ -2,42 +2,49 @@
 #include "sugiCommon.h"
 #include "enemy-control.h"
 
-extern int D_0063C2D4;
-extern int D_0063C2D8;
-extern int D_0063C2DC;
-extern int D_006E6BD0[];
+/* .sbss and .bss, owned by enemy-control.o and reached only from this file
+   (MAIN.MAP names no symbol in either run), each in the ROM's run order: how
+   many enemies asked to act this round, which one was picked, the round
+   counter, and the ids that asked. */
+static int enemyReqNum;
+
+static int enemyPicked;
+
+static int enemyRound;
+
+static int enemyReqIds[100];
 
 inline int InitEnemyCtrlGeo(void)
 {
-    D_0063C2D4 = 0;
-    D_0063C2D8 = -1;
-    D_0063C2DC = 0;
+    enemyReqNum = 0;
+    enemyPicked = -1;
+    enemyRound = 0;
     return 0;
 }
 
 void EnemyCtrlBeforeFunc(void)
 {
-    if (D_0063C2D4 > 0) {
-        D_0063C2D8 = D_006E6BD0[(int)(random_unit() * 10.0f) % D_0063C2D4];
+    if (enemyReqNum > 0) {
+        enemyPicked = enemyReqIds[(int)(random_unit() * 10.0f) % enemyReqNum];
     } else {
-        D_0063C2D8 = -1;
+        enemyPicked = -1;
     }
-    D_0063C2DC++;
-    D_0063C2D4 = 0;
+    enemyRound++;
+    enemyReqNum = 0;
 }
 
 inline int IsSelectID_EnemyCtrl(int a0)
 {
-    if (D_0063C2D8 < 0)
+    if (enemyPicked < 0)
         goto init;
-    if (a0 != D_0063C2D8)
+    if (a0 != enemyPicked)
         goto append;
     return 1;
 init:
-    D_0063C2D8 = a0;
+    enemyPicked = a0;
     return 1;
 append:
-    D_006E6BD0[D_0063C2D4] = a0;
-    D_0063C2D4++;
+    enemyReqIds[enemyReqNum] = a0;
+    enemyReqNum++;
     return 0;
 }

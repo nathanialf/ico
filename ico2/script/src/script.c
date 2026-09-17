@@ -64,7 +64,24 @@ typedef struct Blob16 {
    alias set 0, so a store through it aliases every other load -- which is why
    ROM re-loads `gobj->0x164` after a status store. */
 
-/* the two-slot ADPCM play-request table at D_006E5950 (2 x 0x18 bytes) */
+/* the wall-collision result scpWallCollision and its sibling hand back; the
+   record leads script.o's .bss run, so it is defined ahead of the ADPCM table */
+struct WallColPos {
+    int f00, f04;
+};
+
+struct WallCol {
+    struct WallColPos pos;
+    int f08;
+};
+
+/* .bss, owned by script.o and reached only from this file (MAIN.MAP names no
+   symbol in the run), in the ROM's run order: the wall-collision result, the
+   two-slot ADPCM play-request table (2 x 0x18 bytes), and the camera target
+   the script last asked for. */
+static struct WallCol wallColResult;
+
+/* the two-slot ADPCM play-request table */
 typedef struct AdpcmReq {
     int kind;  /* 0x00, 0 == slot free */
     char **id; /* 0x04: the caller's handle variable */
@@ -74,7 +91,9 @@ typedef struct AdpcmReq {
     int unk14; /* 0x14 */
 } AdpcmReq;
 
-extern AdpcmReq D_006E5950[2];
+static AdpcmReq adpcmReq[2];
+
+static float scriptCameraTarget[4];
 
 /* the PAL listing's static helper at script.c:1636-1644 (inlined into
    scpAdpcmCloseChkFunc, scpGirlHintVoiceCancel, ... -- it has no MAIN.MAP
@@ -83,7 +102,7 @@ static inline int scpAdpcmRequestSlot(char **id)
 {
     int i;
     for (i = 0; i < 2; i++) {
-        if (D_006E5950[i].kind != 0 && D_006E5950[i].id == id)
+        if (adpcmReq[i].kind != 0 && adpcmReq[i].id == id)
             goto found;
     }
     i = -1;
@@ -441,9 +460,9 @@ void scpSubAdpcmPlay(volatile int a0)
     int i;
     char *h;
 
-    memset(D_006E5950, 0, sizeof(D_006E5950));
+    memset(adpcmReq, 0, sizeof(adpcmReq));
     for (;;) {
-        AdpcmReq *tbl = D_006E5950;
+        AdpcmReq *tbl = adpcmReq;
         for (i = 0; i < 2; i++) {
             if (tbl[i].kind != 0) {
                 AdpcmReq *p = &tbl[i];
@@ -494,8 +513,8 @@ static inline void scpAdpcmRequestClose(char **id)
 {
     int i;
     for (i = 0; i < 2; i++)
-        if (D_006E5950[i].kind != 0 && D_006E5950[i].id == id) {
-            D_006E5950[i].unk14 = 1;
+        if (adpcmReq[i].kind != 0 && adpcmReq[i].id == id) {
+            adpcmReq[i].unk14 = 1;
             break;
         }
 }
@@ -533,19 +552,19 @@ static inline void scpAdpcmPlayRequestFuncInline(int kind, char **id, int a2, in
         *id = 0;
     }
     for (i = 0; i < 2; i++) {
-        if (D_006E5950[i].kind == 0) {
+        if (adpcmReq[i].kind == 0) {
             goto found;
         }
     }
     return;
 
 found:
-    D_006E5950[i].kind = kind;
-    D_006E5950[i].id = id;
-    D_006E5950[i].unk08 = a3;
-    D_006E5950[i].unk0C = a2;
-    D_006E5950[i].unk10 = a4;
-    D_006E5950[i].unk14 = 0;
+    adpcmReq[i].kind = kind;
+    adpcmReq[i].id = id;
+    adpcmReq[i].unk08 = a3;
+    adpcmReq[i].unk0C = a2;
+    adpcmReq[i].unk10 = a4;
+    adpcmReq[i].unk14 = 0;
 }
 
 void scpGirlHintVoiceReady(int kind)
@@ -891,16 +910,6 @@ extern const char D_005544E0[];
 extern void ClipWall(void *w);
 
 /* the wall-collision result the ClipWall work area hands back at +0x80 */
-struct WallColPos {
-    int f00, f04;
-};
-
-struct WallCol {
-    struct WallColPos pos;
-    int f08;
-};
-
-extern struct WallCol D_006E5940;
 
 typedef struct {
     float p0[4];        /* 0x00 */
@@ -929,12 +938,12 @@ static inline struct WallCol *scpGetWallCollisionInline(float x0, float y0, floa
     work.p1[3] = 1.0f;
     work.f70 = 0.0f;
     ClipWall(&work);
-    D_006E5940.f08 = work.res.f08;
-    D_006E5940.pos = work.res.pos;
+    wallColResult.f08 = work.res.f08;
+    wallColResult.pos = work.res.pos;
     if (work.res.f08 == 0) {
         debug_StdPrintfDummy(D_005544E0, x0, y0, z0, x1, y1, z1);
     }
-    return &D_006E5940;
+    return &wallColResult;
 }
 
 extern void sceVu0ScaleVector(float *dst, float *src, float scale);
@@ -1178,12 +1187,12 @@ struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x1, floa
     work.p1[3] = 1.0f;
     work.f70 = 0.0f;
     ClipWall(&work);
-    D_006E5940.f08 = work.res.f08;
-    D_006E5940.pos = work.res.pos;
+    wallColResult.f08 = work.res.f08;
+    wallColResult.pos = work.res.pos;
     if (work.res.f08 == 0) {
         debug_StdPrintfDummy(D_005544E0, x0, y0, z0, x1, y1, z1);
     }
-    return &D_006E5940;
+    return &wallColResult;
 }
 
 extern struct ScpMail D_002A5150[];
@@ -1234,19 +1243,19 @@ void scpAdpcmPlayRequestFunc(int kind, char **id, int a2, int a3, int a4)
         *id = 0;
     }
     for (i = 0; i < 2; i++) {
-        if (D_006E5950[i].kind == 0) {
+        if (adpcmReq[i].kind == 0) {
             goto found;
         }
     }
     return;
 
 found:
-    D_006E5950[i].kind = kind;
-    D_006E5950[i].id = id;
-    D_006E5950[i].unk08 = a3;
-    D_006E5950[i].unk0C = a2;
-    D_006E5950[i].unk10 = a4;
-    D_006E5950[i].unk14 = 0;
+    adpcmReq[i].kind = kind;
+    adpcmReq[i].id = id;
+    adpcmReq[i].unk08 = a3;
+    adpcmReq[i].unk0C = a2;
+    adpcmReq[i].unk10 = a4;
+    adpcmReq[i].unk14 = 0;
 }
 
 int scpAdpcmPlayRequestNum(void)
@@ -1254,7 +1263,7 @@ int scpAdpcmPlayRequestNum(void)
     int i;
     int n = 0;
     for (i = 0; i < 2; i++) {
-        if (D_006E5950[i].kind != 0) {
+        if (adpcmReq[i].kind != 0) {
             n++;
         }
     }
@@ -1845,11 +1854,13 @@ void scpPlayWaitMotEnd(char *a0)
     }
 }
 
-extern int D_0063C24C;
+/* .sbss, owned by script.o and reached only from this file: a stage change has
+   been requested and no further one is accepted. */
+static int stageChangeReq;
 
 void InitStageChange(void)
 {
-    D_0063C24C = 0;
+    stageChangeReq = 0;
 }
 
 /* EABI: the six int parameters land in $a0..$t1 and the two floats in
@@ -1884,7 +1895,7 @@ int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wa
 
     next = D_005F5D50[stage_no].next[no - 1];
     ret = 0;
-    if (D_00639EB4 == 0 && D_0063C24C == 0 && next != 0) {
+    if (D_00639EB4 == 0 && stageChangeReq == 0 && next != 0) {
         if (g != 0) {
             act = *(char **)(g + 0x164);
             ACTGame_StageChangeGObj(g, next);
@@ -1901,13 +1912,12 @@ int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wa
         }
         stgmgrForceSwitchWithFadeColor(D_0055C518[next].id, speed, wait, r, gr, b);
         ret = 1;
-        D_0063C24C = 1;
+        stageChangeReq = 1;
     }
     return ret;
 }
 
 extern int D_00639EB4;
-extern int D_0063C24C;
 /* kept local: this TU's uses of stgmgrForceSwitchWithFadeColor do not fit the prototype in StageManager.h */
 extern void stgmgrForceSwitchWithFadeColor();
 
@@ -1918,9 +1928,9 @@ int RequestStageChangeSimple(int a0, int a1, int a2, int a3)
     a2 = a2 & 0xFF;
     a3 = a3 & 0xFF;
     if (D_00639EB4 == 0) {
-        if (D_0063C24C == 0) {
+        if (stageChangeReq == 0) {
             stgmgrForceSwitchWithFadeColor(a0, a1, a2, a3);
-            D_0063C24C = 1;
+            stageChangeReq = 1;
             ret = 1;
         }
     }
@@ -2135,8 +2145,6 @@ int scpCheckReadyAllObjects(void)
     return CheckReadyAllSwitches() != 0;
 }
 
-extern float D_006E5980[];
-
 void ScpCallCameraSetTarget(float x, float y, float z)
 {
     /* the camera target is the NEGATED point, as a homogeneous vector; the
@@ -2148,19 +2156,17 @@ void ScpCallCameraSetTarget(float x, float y, float z)
     if (g != 0) {
         ActStatus *st = (ActStatus *)(*(char **)(g + 0x164) + 0x20);
         st->ll = (st->ll & ~(3ULL << 24)) | (1ULL << 24);
-        D_006E5980[0] = pos[0];
-        D_006E5980[1] = pos[1];
-        D_006E5980[2] = pos[2];
+        scriptCameraTarget[0] = pos[0];
+        scriptCameraTarget[1] = pos[1];
+        scriptCameraTarget[2] = pos[2];
     }
 }
 
-extern float D_006E5980[];
-
 void ScpCallCameraGetTarget(float *dst)
 {
-    dst[0] = D_006E5980[0];
-    dst[1] = D_006E5980[1];
-    dst[2] = D_006E5980[2];
+    dst[0] = scriptCameraTarget[0];
+    dst[1] = scriptCameraTarget[1];
+    dst[2] = scriptCameraTarget[2];
 }
 
 void ScpCallCameraOff(void)

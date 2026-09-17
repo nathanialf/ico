@@ -1,6 +1,10 @@
 #include "common.h"
 
-extern int D_006C0928[];
+/* .bss, owned by act-parallel-control.o and reached only from this file
+   (MAIN.MAP names no symbol in the run): the parallel-action ids copied out of
+   the layout table. */
+static int parallelIds[86];
+
 extern char D_003089C0[];
 
 static const int actPara_MakeTblTbl[100] = {
@@ -63,13 +67,13 @@ void ActPara_InitSystem(void)
 {
     int i;
     for (i = 0; i <= 0x55; i++) {
-        D_006C0928[i] = *(int *)(D_003089C0 + i * 0xB0);
+        parallelIds[i] = *(int *)(D_003089C0 + i * 0xB0);
     }
 }
 
 int *ActPara_GetDefTbl(void)
 {
-    return D_006C0928;
+    return parallelIds;
 }
 
 int ActPara_StatusToFlag(int a0, int a1)

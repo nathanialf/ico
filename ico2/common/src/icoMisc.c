@@ -100,7 +100,11 @@ extern int D_0063B450;
 extern int D_0063B454;
 extern int D_0063B458;
 extern int D_0063B0D8;
-extern int D_0063C394;
+
+/* .sbss, owned by icoMisc.o (MAIN.MAP does not name it: the member has no
+   named sbss symbols); the frame stamp the load-time report below prints. */
+static int load_time;
+
 extern void *D_0063A448;
 extern char D_004DA788[];
 extern char D_004DD700[];
@@ -194,7 +198,7 @@ void InitIcoMisc(int *arg)
     InitStageLight(stage);
     enemy_Initialize();
     debug_StdPrintfDummy(D_0061D480);
-    D_0063C394 = frame_count;
+    load_time = frame_count;
     if (D_0063B450 == 0) {
         InitCharFileManager();
     } else {
@@ -239,7 +243,7 @@ void InitIcoMisc(int *arg)
     debug_StdPrintfDummy(D_0061D508);
     debugCdvdLoadInfoSegInit(1);
     iosCdvdLoadPackFile(pack, GetDataFileName(stage, pack), 1);
-    D_0063C394 = frame_count - D_0063C394;
+    load_time = frame_count - load_time;
     debug_StdPrintfDummy(D_0061D520);
     InitWayPointSystem();
     debug_StdPrintfDummy(D_0061D538);
@@ -284,7 +288,7 @@ void InitIcoMisc(int *arg)
     ObjAction_Init();
     InitStageChange();
     graphics_ready = 0;
-    debug_StdPrintfDummy(D_0061D658, D_0063C394 / 60.0f);
+    debug_StdPrintfDummy(D_0061D658, load_time / 60.0f);
     sndInit(stage);
     iosPadActInit();
     if (D_005F5D50[stage_no].initproc != 0) {

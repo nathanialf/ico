@@ -33,14 +33,22 @@ typedef struct SemaParam {
     int initCount; /* 0x04 */
     int maxCount;  /* 0x08 */
     char _pC[0x4];
-    int attr; /* 0x10 */
-    char _p14[0xC];
+    int attr;       /* 0x10 */
+    char _p14[0x4]; /* 0x14: the record is 0x18 bytes, which is the stride
+                        between the four descriptors in the ROM's .bss run */
 } SemaParam;
 
-extern SemaParam D_006BC860;
-extern SemaParam D_006BC878;
-extern SemaParam D_006BC890;
-extern SemaParam D_006BC8A8;
+/* .bss, owned by ios.o and reached only from this file (MAIN.MAP names no
+   symbol in the run), in the ROM's run order: the four semaphore descriptors
+   iosInit fills in and hands to CreateSema. */
+static SemaParam cdLockSemaParam;
+
+static SemaParam faultSemaParam;
+
+static SemaParam sndLockSemaParam;
+
+static SemaParam stgMgrLockSemaParam;
+
 extern int IosCdLock;
 extern int IosSndLock;
 extern int systemFault;
@@ -54,22 +62,22 @@ extern void SgSndn2RemoteInit(void);
 
 void ios_init_plus(void)
 {
-    D_006BC860.attr = 1;
-    D_006BC860.initCount = 1;
-    D_006BC860.maxCount = 0;
-    IosCdLock = CreateSema(&D_006BC860);
-    D_006BC890.attr = 1;
-    D_006BC890.initCount = 1;
-    D_006BC890.maxCount = 0;
-    IosSndLock = CreateSema(&D_006BC890);
-    D_006BC878.attr = 1;
-    D_006BC878.initCount = 1;
-    D_006BC878.maxCount = 0;
-    systemFault = CreateSema(&D_006BC878);
-    D_006BC8A8.attr = 1;
-    D_006BC8A8.initCount = 1;
-    D_006BC8A8.maxCount = 0;
-    IosStgMgrLock = CreateSema(&D_006BC8A8);
+    cdLockSemaParam.attr = 1;
+    cdLockSemaParam.initCount = 1;
+    cdLockSemaParam.maxCount = 0;
+    IosCdLock = CreateSema(&cdLockSemaParam);
+    sndLockSemaParam.attr = 1;
+    sndLockSemaParam.initCount = 1;
+    sndLockSemaParam.maxCount = 0;
+    IosSndLock = CreateSema(&sndLockSemaParam);
+    faultSemaParam.attr = 1;
+    faultSemaParam.initCount = 1;
+    faultSemaParam.maxCount = 0;
+    systemFault = CreateSema(&faultSemaParam);
+    stgMgrLockSemaParam.attr = 1;
+    stgMgrLockSemaParam.initCount = 1;
+    stgMgrLockSemaParam.maxCount = 0;
+    IosStgMgrLock = CreateSema(&stgMgrLockSemaParam);
     D_00639ED8 = 0;
     InitKeyInput(0);
     debug_StdPrintfDummy("SgSndn2RemoteInit()\n");

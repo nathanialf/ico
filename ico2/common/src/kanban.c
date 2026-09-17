@@ -24,9 +24,17 @@ typedef union {
     char b[16];
 } Pkt16;
 
-extern int *D_0063C398;
-extern int D_0063C39C;
-extern int D_0071CB10[];
+/* .sbss and .bss, owned by kanban.o and reached only from this file (MAIN.MAP
+   names no symbol in either run).  The list head and the sign the layout key
+   follows are the .sbss run in the ROM's order; the pool is the head of the
+   .bss run, thirty Node entries of 0x20 bytes, which is the count both
+   kanbanReqAdd and kanbanReqAllDel walk.  The run's last 0x30 bytes are not
+   this pool and nothing in the ROM reads them: they stay in the blob. */
+static int *kanbanList;
+
+static int kanbanCurrent;
+
+static int kanbanNodes[30 * 8];
 
 /* kanban.o's whole .rodata run opens with these two named objects: the
    overflow message is printed far down the file and the sprite packet is
@@ -217,10 +225,10 @@ inline void kanbanReqAllDel(void)
 {
     int i;
     for (i = 0x1D; i >= 0; i--) {
-        D_0071CB10[i * 8] = 0;
+        kanbanNodes[i * 8] = 0;
     }
-    D_0063C398 = 0;
-    D_0063C39C = 0;
+    kanbanList = 0;
+    kanbanCurrent = 0;
 }
 
 Node *kanbanReqAdd(int no, int pri)
@@ -230,7 +238,7 @@ Node *kanbanReqAdd(int no, int pri)
     Node *cur;
     int i;
 
-    p = (Node *)D_0071CB10;
+    p = (Node *)kanbanNodes;
     pr = &D_00533FE8[no];
     for (i = 0; i < 30; i++, p++) {
         if (p->f0 == 0)
@@ -247,13 +255,13 @@ found:
     p->f10 = 0;
     p->f14 = D_0063B4A0;
     p->f4 = pri;
-    cur = (Node *)D_0063C398;
+    cur = (Node *)kanbanList;
     if (cur != 0) {
         if (pri < cur->f4) {
             cur->f1C = p;
             p->f18 = cur;
             p->f1C = 0;
-            D_0063C398 = (int *)p;
+            kanbanList = (int *)p;
         } else {
             for (;;) {
                 if (cur->f18 == 0) {
@@ -274,13 +282,13 @@ found:
             p->f18 = 0;
         }
     } else {
-        D_0063C398 = (int *)p;
+        kanbanList = (int *)p;
         p->f1C = 0;
         p->f18 = 0;
     }
 done:
     if (pr->f28 != -1) {
-        D_0063C39C = (int)p;
+        kanbanCurrent = (int)p;
     }
     return p;
 }
@@ -290,7 +298,7 @@ inline void kanbanReqDel(int *self)
     int *next = (int *)self[0x1C / 4];
     int *prev = (int *)self[0x18 / 4];
     if (next == 0) {
-        D_0063C398 = prev;
+        kanbanList = prev;
         if (prev != 0) {
             prev[0x1C / 4] = 0;
         }
@@ -305,16 +313,16 @@ inline void kanbanReqDel(int *self)
 
 inline void kanbanReqDelFade(int a0)
 {
-    int v1 = D_0063C39C;
+    int v1 = kanbanCurrent;
     *(int *)(a0 + 0xC) |= 1;
     if (a0 == v1) {
-        D_0063C39C = 0;
+        kanbanCurrent = 0;
     }
 }
 
 inline void kanbanReqAllDelFade(void)
 {
-    int *p = D_0071CB10;
+    int *p = kanbanNodes;
     int i = 0x1D;
     do {
         if (p[0] != 0) {
@@ -459,7 +467,7 @@ void display_layout(Node *k)
     pr = k->f0;
 
     k->f8 = 0;
-    if (D_0063C39C != 0 && ((Node *)D_0063C39C)->f0 == pr && (k->fC & 1) == 0) {
+    if (kanbanCurrent != 0 && ((Node *)kanbanCurrent)->f0 == pr && (k->fC & 1) == 0) {
         k->f8 = kanban_layout_key(pr);
     }
 
@@ -478,8 +486,8 @@ inline void kanbanExec(void)
     unsigned char col[4];
     Pkt16 pkt;
 
-    if (D_0063C398 != 0) {
-        int o = (int)((Node *)D_0063C398)->f0;
+    if (kanbanList != 0) {
+        int o = (int)((Node *)kanbanList)->f0;
         col[0] = (int)(*(float *)(o + 0x10) * 255.0f);
         col[1] = (int)(*(float *)(o + 0x14) * 255.0f);
         col[2] = (int)(*(float *)(o + 0x18) * 255.0f);
@@ -494,7 +502,7 @@ inline void kanbanExec(void)
         gif_SetZTest(1);
         gif_EndPacket();
     }
-    k = (Node *)D_0063C398;
+    k = (Node *)kanbanList;
     if (k != 0) {
         do {
             display_layout(k);

@@ -238,7 +238,11 @@ typedef struct {
     int cur;         /* 0x4B4 */
 } ActGameViewTbl;
 
-extern ActGameViewTbl D_006C0470;
+/* .bss, owned by act-game.o: the view table described below.  It is the TAIL
+   of act-game.o's .bss run; the 0x440 bytes before it are not reached from
+   anywhere in the ROM and stay in the blob. */
+static ActGameViewTbl actGameView;
+
 /* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern int *test_CURRENTROOT(int *a0);
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
@@ -257,18 +261,18 @@ void ACTGameView_Loop(char *self)
     float pos[4];
     int i;
 
-    i = D_006C0470.cur;
-    if (D_006C0470.simple[i] != 0) {
-        GetRootPosition(pos, D_006C0470.obj[i]);
-        D_006C0470.view[i] = ACTCheckView(self, D_006C0470.obj[i], pos, (void *)0x96, 300.0f);
+    i = actGameView.cur;
+    if (actGameView.simple[i] != 0) {
+        GetRootPosition(pos, actGameView.obj[i]);
+        actGameView.view[i] = ACTCheckView(self, actGameView.obj[i], pos, (void *)0x96, 300.0f);
     } else {
-        D_006C0470.view[i] = 0;
+        actGameView.view[i] = 0;
     }
 
     switch (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800)) {
     case 0:
         if (5000.0f <
-            _DistGV(test_CURRENTROOT((int *)self), test_CURRENTROOT((int *)D_006C0470.obj[i]))) {
+            _DistGV(test_CURRENTROOT((int *)self), test_CURRENTROOT((int *)actGameView.obj[i]))) {
             *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 6;
         } else {
             *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 1;
@@ -276,11 +280,11 @@ void ACTGameView_Loop(char *self)
         break;
     case 1:
         *(void (**)(void *))(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F4) = ClipWall;
-        *(char **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F0) = D_006C0470.obj[i];
+        *(char **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F0) = actGameView.obj[i];
         *(void **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7A0) = 0;
         GetSkeltonPosition((float *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x730), self,
                            (void *)0x23);
-        GetRootPosition(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x740, D_006C0470.obj[i]);
+        GetRootPosition(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x740, actGameView.obj[i]);
         RequestClipCollision(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720);
         *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 2;
         break;
@@ -295,11 +299,11 @@ void ACTGameView_Loop(char *self)
         break;
     case 3:
         *(void (**)(void *))(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F4) = ClipFloor;
-        *(char **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F0) = D_006C0470.obj[i];
+        *(char **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F0) = actGameView.obj[i];
         *(void **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7A0) = 0;
         GetSkeltonPosition((float *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x730), self,
                            (void *)0x23);
-        GetRootPosition(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x740, D_006C0470.obj[i]);
+        GetRootPosition(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x740, actGameView.obj[i]);
         RequestClipCollision(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720);
         *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 4;
         break;
@@ -313,17 +317,17 @@ void ACTGameView_Loop(char *self)
         }
         break;
     case 5:
-        D_006C0470.simple[i] = 1;
+        actGameView.simple[i] = 1;
         *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 7;
         break;
     case 6:
-        D_006C0470.simple[i] = 0;
+        actGameView.simple[i] = 0;
         *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 7;
         break;
     case 7:
-        D_006C0470.cur++;
-        if (!(D_006C0470.cur < D_006C0470.num)) {
-            D_006C0470.cur = 0;
+        actGameView.cur++;
+        if (!(actGameView.cur < actGameView.num)) {
+            actGameView.cur = 0;
         }
         *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 0;
         break;
@@ -2373,12 +2377,10 @@ void SetDirectRootPositionWithNodePointLimit(void *a0, void *a1, void *a2, float
     SetDirectRootPositionNoFittingWithNodePoint(a0, a1, a2, farg0);
 }
 
-extern ActGameViewTbl D_006C0470;
-
 void ACTGameView_Init(void)
 {
-    D_006C0470.num = 0;
-    D_006C0470.cur = 0;
+    actGameView.num = 0;
+    actGameView.cur = 0;
 }
 
 void ACTCharctrl_Lock(char *a0)
@@ -2847,15 +2849,15 @@ extern int *isysGObjSearchFromObjKindID_next(int *);
    Collapses to one `inline` definition at layout. */
 static inline void actGameView_Add(char *a0, char *a1)
 {
-    int n = D_006C0470.num++;
+    int n = actGameView.num++;
     if (n >= 100) {
         debug_StdPrintfDummy(D_00552400);
         debug_assert(D_00552420, 0x6FF);
         __assert(D_00552420, 0x6FF, D_0063A698);
     }
-    D_006C0470.obj[n] = a1;
-    D_006C0470.view[n] = 0;
-    D_006C0470.simple[n] = 0;
+    actGameView.obj[n] = a1;
+    actGameView.view[n] = 0;
+    actGameView.simple[n] = 0;
 }
 
 void ACTGameView_FirstSet(void)
@@ -2875,30 +2877,30 @@ extern char D_0063A698[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
-/* D_006C0470 is one table: a 100-entry object list at +0x000, two parallel
+/* actGameView is one table: a 100-entry object list at +0x000, two parallel
    100-entry int arrays at +0x190 and +0x320, and the entry count at +0x4B0.
    The list slot holds a pointer, so its store is in a different alias set
    from the two int stores -- that is what lets ROM schedule the +0x190
    address ahead of the list address. */
 void ACTGameView_Add(char *a0, char *a1)
 {
-    int n = D_006C0470.num++;
+    int n = actGameView.num++;
     if (n >= 100) {
         debug_StdPrintfDummy(D_00552400);
         debug_assert(D_00552420, 0x6FF);
         __assert(D_00552420, 0x6FF, D_0063A698);
     }
-    D_006C0470.obj[n] = a1;
-    D_006C0470.view[n] = 0;
-    D_006C0470.simple[n] = 0;
+    actGameView.obj[n] = a1;
+    actGameView.view[n] = 0;
+    actGameView.simple[n] = 0;
 }
 
 int ACTGameView_Check(int a0, int a1)
 {
     int i;
-    for (i = 0; i < D_006C0470.num; i++) {
-        if ((int)D_006C0470.obj[i] == a1) {
-            return *(unsigned char *)&D_006C0470.view[i];
+    for (i = 0; i < actGameView.num; i++) {
+        if ((int)actGameView.obj[i] == a1) {
+            return *(unsigned char *)&actGameView.view[i];
         }
     }
     return 0;
@@ -2907,9 +2909,9 @@ int ACTGameView_Check(int a0, int a1)
 int ACTGameViewSimple_Check(int a0, int a1)
 {
     int i;
-    for (i = 0; i < D_006C0470.num; i++) {
-        if ((int)D_006C0470.obj[i] == a1) {
-            return *(unsigned char *)&D_006C0470.simple[i];
+    for (i = 0; i < actGameView.num; i++) {
+        if ((int)actGameView.obj[i] == a1) {
+            return *(unsigned char *)&actGameView.simple[i];
         }
     }
     return 0;

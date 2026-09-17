@@ -60,7 +60,11 @@ typedef struct QueenMailQueue {
 extern int D_0063A438;
 extern int stage_no;
 extern int D_0063B13C;
-extern int D_006EA7F0[];
+
+/* .bss, owned by queen.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the queen's four ball-ring animations. */
+static int queenBga[4];
+
 extern int D_002A60B0[];
 extern int D_002A7740[];
 extern int D_002A6BB0[];
@@ -647,7 +651,7 @@ void *InitQueenGeo(char *g)
     w = (char *)iosMallocDebug(D_0063A438, 0x18, queenFile, 732);
     memset(w, 0, 0x18);
     for (i = 3; i >= 0; i--) {
-        D_006EA7F0[i] = 0;
+        queenBga[i] = 0;
     }
     *(int *)(w + 0xC) = 1;
     *(int *)(w + 0x10) = InitCloth4D(g, D_002A60B0, D_002A7740);
@@ -948,7 +952,7 @@ void QueenBallGeo(char *g)
 
             GetRootPosition(&objPos, o);
             hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 130, 300.0f, -120, 600.0f);
-            bga = &D_006EA7F0[i];
+            bga = &queenBga[i];
             CheckQueenBallRing(bga, 0x1E2, (QVec *)m[3], &objPos, r);
             if (*bga != 0) {
                 SetQueenBallOrient((char *)*bga, (QVec *)m[3], &objPos);
@@ -962,7 +966,7 @@ void QueenBallGeo(char *g)
                 GetRootPosition(&objPos, sword);
                 hit |=
                     CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 75, 300.0f, -150, 500.0f);
-                CheckQueenBallRing(&D_006EA7F0[2], 0x1E4, (QVec *)m[3], &objPos, r);
+                CheckQueenBallRing(&queenBga[2], 0x1E4, (QVec *)m[3], &objPos, r);
             }
         }
     }
@@ -1057,7 +1061,7 @@ void QueenBallDL(char *g)
     }
     GetRootPosition(&selfPos, g);
     GetRootPosition(&queenPos, D_00639EA4);
-    q = D_006EA7F0;
+    q = queenBga;
     for (i = 0; i < 4; i++, q++) {
         if ((o = (char *)*q) != 0) {
             long long id = *(long long *)o & 0x3FFF;

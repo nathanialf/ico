@@ -52,7 +52,11 @@ typedef union Vec16 {
 extern StageRec D_004DA980[];
 extern WarpRec girlWarpList[];
 extern int stage_no;
-extern int D_0063C258;
+
+/* .sbss, owned by warpGirl.o and reached only from this file (MAIN.MAP names
+   no symbol in the run): set when a warp destination has been found. */
+static int warpFound;
+
 extern int D_00639EA8;
 extern char D_0063AA58[];
 extern char D_0063AA60[];
@@ -65,7 +69,7 @@ static inline void warpGirlOutSet(int id, int noSet)
         return;
     }
     warpGirlId = id;
-    D_0063C258 = 1;
+    warpFound = 1;
 }
 
 void warpGirlOutStage(int stage, int noSet)
@@ -103,8 +107,8 @@ void warpGirlOutStage(int stage, int noSet)
     if (hit != 0) {
         return;
     }
-    D_0063C258 = 0;
-    for (i = 1; i < 25 && D_0063C258 == 0; i++) {
+    warpFound = 0;
+    for (i = 1; i < 25 && warpFound == 0; i++) {
         WarpRec *w = &girlWarpList[i];
 
         if (w->from != stage) {

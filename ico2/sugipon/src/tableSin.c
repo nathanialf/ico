@@ -2,8 +2,19 @@
 #include <math.h>
 #include "tableSin.h"
 
-extern float D_00669A40[];
-extern unsigned short D_00679A50[];
+/* .bss, owned by tableSin.o and reached only from this file (MAIN.MAP names no
+   symbol in the run; its tableSin.o .bss size 0x12012 is exactly these two
+   tables), in the ROM's run order: a quarter-turn of sine at 16385 steps, then
+   the arc-sine table at 4097 steps.  The ROM puts the arc-sine table 0x10010
+   bytes on and MAIN.MAP sizes tableSin.o's .bss at 0x12012, which is that
+   0x10010 plus the arc-sine table's own 0x2002; gcc's own padding after a
+   0x4001-entry table only reaches 0x10008, so the sine table's DECLARED bound
+   is 0x4004 even though the loop below fills 0x4001 entries.  The bound is
+   inferred from those two sizes, not read off any ROM byte. */
+static float sinTable[16388];
+
+static unsigned short arcSinTable[4097];
+
 extern int D_00639F40;
 
 static inline void makeSinTable(void)
@@ -12,7 +23,7 @@ static inline void makeSinTable(void)
     float m = 1.5707964f;
     float d = 16385.0f;
     for (i = 0; i < 0x4001; i++) {
-        D_00669A40[i] = sinf((float)i * m / d);
+        sinTable[i] = sinf((float)i * m / d);
     }
 }
 
@@ -22,7 +33,7 @@ static inline void makeArcSinTable(void)
     float k = 0.000244140625f;
     float s = 10430.378f;
     for (i = 0; i < 0x1001; i++) {
-        D_00679A50[i] = (int)(asinf((float)i * k) * s);
+        arcSinTable[i] = (int)(asinf((float)i * k) * s);
     }
 }
 
@@ -65,7 +76,7 @@ inline int GetTableArcSin(float x)
     int hi;
 
     arcClamp(&x, &neg);
-    hi = ((short *)D_00679A50)[(int)(x * 4096.0f)];
+    hi = ((short *)arcSinTable)[(int)(x * 4096.0f)];
     return (short)(neg ? -hi : hi);
 }
 
@@ -75,7 +86,7 @@ inline int GetTableArcCos(float x)
     int hi;
 
     arcClamp(&x, &neg);
-    hi = (short)(D_00679A50[(int)(x * 4096.0f)] + 0x4000);
+    hi = (short)(arcSinTable[(int)(x * 4096.0f)] + 0x4000);
     if (neg == 0) {
         return (short)(0x8000 - hi);
     }
@@ -91,7 +102,7 @@ inline float GetTableSin(short a0)
     if (idx >= 0x4000) {
         idx = 0x8000 - idx;
     }
-    v = D_00669A40[idx];
+    v = sinTable[idx];
     if (s == 0)
         goto done;
     v = -v;

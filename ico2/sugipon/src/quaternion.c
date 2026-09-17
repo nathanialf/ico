@@ -4,41 +4,45 @@
 #include "quaternion.h"
 
 extern int D_00639F3C;
-extern int D_00669640[];
+
+/* .bss, owned by quaternion.o and reached only from this file (MAIN.MAP names
+   no symbol in the run; its quaternion.o .bss size 0x400 fixes the length).
+   The 64-deep quaternion stack; GetLastQuaternion reads one slot below the
+   current one, which is the ROM's second %hi/%lo base. */
+static int quatStack[64 * 4];
 
 void MultiCurrentQuaternion(void *a0)
 {
-    int *q = &D_00669640[D_00639F3C * 4];
+    int *q = &quatStack[D_00639F3C * 4];
     MultiQuaternion(q, q, a0);
 }
 
 extern int D_00639F3C;
-extern int D_00669640[];
 
 void InvertCurrentQuaternion(void)
 {
-    int *p = &D_00669640[D_00639F3C * 4];
+    int *p = &quatStack[D_00639F3C * 4];
     GetInverseQuaternion(p, p);
 }
 
 void SetCurrentQuaternion(int a0)
 {
-    CopyQuaternion(&D_00669640[D_00639F3C * 4], a0);
+    CopyQuaternion(&quatStack[D_00639F3C * 4], a0);
 }
 
 void RotCurrentQuaternionX(short a0)
 {
-    RotQuaternionX(&D_00669640[D_00639F3C * 4], a0);
+    RotQuaternionX(&quatStack[D_00639F3C * 4], a0);
 }
 
 void RotCurrentQuaternionY(short a0)
 {
-    RotQuaternionY(&D_00669640[D_00639F3C * 4], a0);
+    RotQuaternionY(&quatStack[D_00639F3C * 4], a0);
 }
 
 void RotCurrentQuaternionZ(short a0)
 {
-    RotQuaternionZ(&D_00669640[D_00639F3C * 4], a0);
+    RotQuaternionZ(&quatStack[D_00639F3C * 4], a0);
 }
 
 void PushQuaternion(void)
@@ -58,14 +62,14 @@ void PushQuaternion(void)
     }
     {
         int idx = *(volatile int *)&D_00639F3C;
-        CopyQuaternion(&D_00669640[idx * 4], &D_00669640[idx * 4 - 4]);
+        CopyQuaternion(&quatStack[idx * 4], &quatStack[idx * 4 - 4]);
     }
 }
 
 void InitQuaternionDrive(void)
 {
     D_00639F3C = 0;
-    SetIdentityQuaternion(D_00669640);
+    SetIdentityQuaternion(quatStack);
 }
 
 /* quaternion.o's whole .data run, in source order.  MAIN.MAP names the
@@ -286,14 +290,12 @@ void GetSlerpQuaternion(int a0)
 
 inline int *GetCurrentQuaternion(void)
 {
-    return &D_00669640[D_00639F3C * 4];
+    return &quatStack[D_00639F3C * 4];
 }
-
-extern int D_00669630[];
 
 inline int *GetLastQuaternion(void)
 {
-    return &D_00669630[D_00639F3C * 4];
+    return &quatStack[D_00639F3C * 4 - 4];
 }
 
 inline void PushQuaternionWithNoCopy(void)

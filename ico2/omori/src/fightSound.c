@@ -5,7 +5,12 @@
 #include "act-game.h"
 
 extern int D_0063ABE8;
-extern int D_006E6D60[];
+
+/* .bss, owned by fightSound.o and reached only from this file (MAIN.MAP names
+   no symbol in the run): the fight loop's ADPCM handle at [0], its volume at
+   [1] and the open request at [2]. */
+static int fightSnd[8];
+
 extern int D_0063ABEC;
 extern int D_0028F4C0[];
 extern int D_0063ABF0;
@@ -20,9 +25,9 @@ void fightSoundProcessMain(void)
     int step;
 
     req = 0x110001;
-    D_006E6D60[0] = soundDataAreaSearch(&req);
-    if (D_006E6D60[0] == 0) {
-        D_006E6D60[1] = 0;
+    fightSnd[0] = soundDataAreaSearch(&req);
+    if (fightSnd[0] == 0) {
+        fightSnd[1] = 0;
         if (D_0063ABE8 == 1) {
             return;
         }
@@ -48,17 +53,17 @@ void fightSoundProcessMain(void)
         D_0063ABF0 = 0;
         cond = 0;
     }
-    if (D_006E6D60[0] == 0) {
+    if (fightSnd[0] == 0) {
         if (cond != 0 || D_0063ABF0 != 0) {
             if (D_0028F4C0[6] == 0) {
-                soundDataOpen(&D_006E6D60[2], 2, 1, 2, 0);
-                if (D_006E6D60[5] != 0) {
+                soundDataOpen(&fightSnd[2], 2, 1, 2, 0);
+                if (fightSnd[5] != 0) {
                     D_0063ABEC = 1;
                 }
             }
         }
     }
-    if (D_006E6D60[0] == 0) {
+    if (fightSnd[0] == 0) {
         return;
     }
     step = 96;
@@ -66,18 +71,18 @@ void fightSoundProcessMain(void)
         step = 1024;
     }
     if (cond == 0 && D_0063ABF0 == 0) {
-        D_006E6D60[1] -= step;
-        if (D_006E6D60[1] < 0) {
-            D_006E6D60[1] = 0;
+        fightSnd[1] -= step;
+        if (fightSnd[1] < 0) {
+            fightSnd[1] = 0;
         }
     } else {
-        D_006E6D60[1] += step;
-        if (D_006E6D60[1] > 6144) {
-            D_006E6D60[1] = 6144;
+        fightSnd[1] += step;
+        if (fightSnd[1] > 6144) {
+            fightSnd[1] = 6144;
         }
     }
-    AdpcmVolumeSet(D_006E6D60[0], D_006E6D60[1]);
-    if (D_006E6D60[1] == 0) {
+    AdpcmVolumeSet(fightSnd[0], fightSnd[1]);
+    if (fightSnd[1] == 0) {
         D_0063ABEC = 2;
     }
 }
@@ -95,8 +100,8 @@ void fightSoundProcess(void)
         fightSoundProcessMain();
         break;
     case 1:
-        h = soundDataOpenSync(&D_006E6D60[2]);
-        D_006E6D60[0] = (int)h;
+        h = soundDataOpenSync(&fightSnd[2]);
+        fightSnd[0] = (int)h;
         if (h != (int *)-1) {
             if (h != 0) {
                 AdpcmPlay(h[0x2C / 4]);
@@ -105,10 +110,10 @@ void fightSoundProcess(void)
         }
         break;
     case 2:
-        if (D_006E6D60[0] != 0) {
-            soundDataClose(D_006E6D60[0]);
+        if (fightSnd[0] != 0) {
+            soundDataClose(fightSnd[0]);
         }
-        D_006E6D60[0] = 0;
+        fightSnd[0] = 0;
         D_0063ABEC = 0;
         break;
     default:
@@ -124,9 +129,9 @@ void fightSoundProcessRequestPause(void)
 
 void fightSoundClose(void)
 {
-    if (D_006E6D60[0] != 0) {
-        soundDataClose(D_006E6D60[0]);
-        D_006E6D60[0] = 0;
+    if (fightSnd[0] != 0) {
+        soundDataClose(fightSnd[0]);
+        fightSnd[0] = 0;
     }
 }
 
@@ -142,5 +147,5 @@ int fightSoundProcessRequestStatus(void)
 
 int fightSoundPlayChk(void)
 {
-    return D_006E6D60[0];
+    return fightSnd[0];
 }

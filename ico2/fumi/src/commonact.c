@@ -3310,15 +3310,21 @@ int _ACTMotReqResult(char *a0, int a1)
     return *(int *)(r + 0xC) != 0;
 }
 
-extern char D_006C0BA0[];
+/* .bss, owned by commonact.o and reached only from this file (MAIN.MAP names
+   no symbol in the run), in the ROM's run order: the orient and the position
+   these two accessors hand back. */
+static char commonOrient[16];
+
+static float commonPos[4];
+
 /* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in motionManager2.h */
 extern void _GetMotionDirection(void *a0, void *a1);
 
 void *test_CURRENTORIENT(char *a0)
 {
     if (a0 != D_00639EA4 && a0 != D_00639EA8 && *(int *)(a0 + 0xC) != 4) {
-        GetRootOrient(D_006C0BA0, a0);
-        return D_006C0BA0;
+        GetRootOrient(commonOrient, a0);
+        return commonOrient;
     }
     {
         char *p = *(char **)(a0 + 0x164) + 0xF0;
@@ -3327,7 +3333,6 @@ void *test_CURRENTORIENT(char *a0)
     }
 }
 
-extern float D_006C0BB0[];
 extern float D_0063A790[];
 
 void *test_CURRENTROOT(void *a0)
@@ -3345,16 +3350,16 @@ void *test_CURRENTROOT(void *a0)
         GetRootPosition(p, a0);
         return p;
     case 0x2C:
-        if (GetCageChainPoint(D_006C0BB0, buf, a0) == 0) {
+        if (GetCageChainPoint(commonPos, buf, a0) == 0) {
             v = D_0063A790[0];
-            D_006C0BB0[0] = v;
-            D_006C0BB0[1] = v;
-            D_006C0BB0[2] = v;
+            commonPos[0] = v;
+            commonPos[1] = v;
+            commonPos[2] = v;
         }
-        return D_006C0BB0;
+        return commonPos;
     default:
-        GetRootPosition(D_006C0BB0, a0);
-        return D_006C0BB0;
+        GetRootPosition(commonPos, a0);
+        return commonPos;
     }
 }
 
