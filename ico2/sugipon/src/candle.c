@@ -32,8 +32,6 @@ typedef struct CandleWork {
 #include "candle.h"
 
 extern int D_0063A438;
-extern char D_0061F198[];
-extern char D_0061F1A8[];
 
 int InitCandleGeo(void *self, void *mtx)
 {
@@ -42,7 +40,7 @@ int InitCandleGeo(void *self, void *mtx)
     int i;
 
     if (w->num >= 2) {
-        flame = (CandleFlame *)iosMallocDebug(D_0063A438, w->num * 8, D_0061F198, 0x18);
+        flame = (CandleFlame *)iosMallocDebug(D_0063A438, w->num * 8, "src/candle.c", 24);
         for (i = 0; i < w->num; i++) {
             CopyMatrix(MatrixDrive_GetMatrix(), w->mtx + i * 0x40);
             MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
@@ -51,11 +49,11 @@ int InitCandleGeo(void *self, void *mtx)
             flame[i].off = 0;
         }
     } else {
-        flame = (CandleFlame *)iosMallocDebug(D_0063A438, 8, D_0061F198, 0x23);
+        flame = (CandleFlame *)iosMallocDebug(D_0063A438, 8, "src/candle.c", 35);
         flame->effect = SetParticleEffect(4, mtx, IdentityQuaternion);
         flame->off = 0;
     }
-    debug_StdPrintfDummy(D_0061F1A8);
+    debug_StdPrintfDummy("\x1b[33mInitialize candle geometries.\x1b[m\n");
     return (int)flame;
 }
 

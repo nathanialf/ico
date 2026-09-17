@@ -526,18 +526,28 @@ segments:
       # --- per-TU .data carves (PAL phase 2; see docs/carve_ledger.md).
       - [0x18F4B0, .data, sce/libkernl/thread]  # syms: kernEventThreadId  the member's one .data word (data pass 3), VMA 0x28F4B0..0x28F4B4, 4 B
       - [0x18F4B4, data, cod/18F4B4]     # data blob resume
+      - [0x18FEB8, .data, ico2/sugipon/src/geometryManager]  # the TU's whole .data run as source (completeness pass 5), VMA 0x28FEB8..0x28FED0, 20 B emitted
       - [0x18FED0, .data, ico2/sugipon/src/keyInput]  # the TU's whole .data run as source (data pass 3): the pad device descriptor, VMA 0x28FED0..0x28FEE8, 24 B
       - [0x18FEE8, data, cod/18FEE8]     # data blob resume
       - [0x18FEF0, .data, ico2/sugipon/src/matrixDrive]  # syms: ZeroVector ZeroPoint XUnitVector YUnitVector ZUnitVector InitialMatrix rotXWorkMatrix rotYWorkMatrix rotZWorkMatrix scaleWorkMatrix  the TU's whole .data run as source (data pass 4; = MAIN.MAP matrixDrive.o .data 0x190), the six map-named vectors then four work-matrix templates, VMA 0x28FEF0..0x290080, 400 B
       - [0x190080, data, cod/190080]     # data blob resume
+      - [0x1906E0, .data, ico2/sugipon/src/pool]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2906E0..0x2907E0, 256 B emitted
       - [0x1907E0, .data, ico2/sugipon/src/quaternion]  # syms: IdentityQuaternion quatToMatrixScale nxt  the TU's whole .data run as source (data pass 4; = MAIN.MAP quaternion.o .data 0x2C), VMA 0x2907E0..0x29080C, 44 B
       - [0x19080C, data, cod/19080C]     # data blob resume
+      - [0x1908B8, .data, ico2/seki/src/Light]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2908B8..0x2908E0, 28 B emitted
       - [0x1908E0, .data, ico2/seki/src/Matrix]  # syms: scaleWorkMatrix  the unit matrix the scale routines work in (data pass 3), VMA 0x2908E0..0x290920, 64 B
       - [0x190920, data, cod/190920]     # data blob resume
+      - [0x190B20, .data, ico2/seki/src/MicroCode]  # the TU's whole .data run as source (completeness pass 5), VMA 0x290B20..0x290B3C, 28 B emitted
+      - [0x190B3C, data, cod/190B3C]     # .data blob resume
+      - [0x19B430, .data, ico2/fumi/ios/inflate]  # the TU's whole .data run as source (completeness pass 5), VMA 0x29B430..0x29B57C, 332 B emitted
+      - [0x19B57C, data, cod/19B57C]     # .data blob resume
       - [0x1A50C0, .data, ico2/script/src/gflag]  # the story flag bitmap (data pass 3), VMA 0x2A50C0..0x2A50F2, 50 B; the 14 zero bytes to 0x2A5100 are the next input's alignment pad
-      - [0x1A5100, data, cod/1A5100]     # data blob resume
+      - [0x1A5100, .data, ico2/script/src/script]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2A5100..0x2A5400, 768 B emitted
+      - [0x1A5400, data, cod/1A5400]     # .data blob resume
       - [0x1A5440, .data, ico2/script/src/st25a]  # the TU's whole .data run as source (data pass 5), VMA 0x2A5440..0x2A5580, 320 B
       - [0x1A5580, data, cod/1A5580]     # data blob resume
+      - [0x1A5E60, .data, ico2/omori/src/camera-ico2]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2A5E60..0x2A5E70, 12 B emitted
+      - [0x1A5E70, data, cod/1A5E70]     # .data blob resume
       - [0x1A6030, .data, ico2/omori/src/poly-flat]  # the TU's whole .data run as source (data pass 6), VMA 0x2A6030..0x2A6070, 64 B
       - [0x1A6070, data, cod/1A6070]     # data blob resume
       - [0x1A7920, .data, ico2/ito/mpeg/mv_main]  # the TU's whole .data run as source (data pass 6; = MAIN.MAP mv_main.o .data 0x98 with voBuf at 0x40 and display at 0x58), VMA 0x2A7920..0x2A79B8, 152 B
@@ -546,6 +556,8 @@ segments:
       - [0x219A00, data, cod/219A00]     # data blob resume
       - [0x3D9C10, .data, ico2/common/src/charFileManager]  # the TU's .data (data pass 6), VMA 0x4D9C10..0x4D9C28, 24 B
       - [0x3D9C28, data, cod/3D9C28]     # data blob resume
+      - [0x3DA770, .data, ico2/common/src/gamesys]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4DA770..0x4DA788, 18 B emitted
+      - [0x3DA788, data, cod/3DA788]     # .data blob resume
       - [0x3E4600, .data, ico2/common/src/staffroll]  # the TU's .data (data pass 5; = MAIN.MAP staffroll.o .data 0x10), VMA 0x4E4600..0x4E4610, 16 B
       - [0x3E4610, data, cod/3E4610]     # data blob resume
       - [0x3E5A30, .data, ico2/sugipon/src/act_a_p_1]  # the TU's whole .data run as source (data pass 6), abutting attackCheckBoundary's row, VMA 0x4E5A30..0x4E5A90, 96 B
@@ -554,17 +566,20 @@ segments:
       - [0x3E7060, .data, ico2/sugipon/src/clothTest]  # the TU's whole .data run as source (data pass 3): twenty anchors and the two cloth configurations, VMA 0x4E7060..0x4E7458, 1016 B
       - [0x3E7458, data, cod/3E7458]     # data blob resume
       - [0x3E7480, .data, ico2/sugipon/src/effectTool]  # the TU's whole .data run as source (data pass 6): the parameter table its rodata names are reached through, VMA 0x4E7480..0x4E78A0, 1056 B
-      - [0x3E78A0, data, cod/3E78A0]     # data blob resume
+      - [0x3E78A0, .data, ico2/sugipon/src/enemy]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4E78A0..0x4E78E0, 64 B emitted
       - [0x3E78E0, .data, ico2/sugipon/src/enemyParts]  # the TU's whole .data run as source (data pass 3): eight part templates, VMA 0x4E78E0..0x4E7A20, 320 B
       - [0x3E7A20, data, cod/3E7A20]     # data blob resume
       - [0x3EB440, .data, ico2/sugipon/src/item]  # the TU's whole .data run as source (data pass 5), abutting lodManager's, VMA 0x4EB440..0x4EB5E0, 416 B
       - [0x3EB5E0, .data, ico2/sugipon/src/lodManager]  # the TU's whole .data run as source (data pass 5; = MAIN.MAP lodManager.o .data 0x178), VMA 0x4EB5E0..0x4EB758, 376 B
       - [0x3EB758, data, cod/3EB758]     # data blob resume
+      - [0x3ECCF0, .data, ico2/sugipon/src/particleEffect]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ECCF0..0x4ECDEC, 252 B emitted
+      - [0x3ECDEC, data, cod/3ECDEC]     # .data blob resume
+      - [0x3ECF90, .data, ico2/sugipon/src/rotObject]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ECF90..0x4ECFA0, 16 B emitted
       - [0x3ECFA0, .data, ico2/sugipon/src/spider]  # the TU's .data (data pass 5), abutting spiderGroupManager's run, VMA 0x4ECFA0..0x4ECFB0, 16 B
       - [0x3ECFB0, .data, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .data run as source (data pass 3): seven RGBA tints, VMA 0x4ECFB0..0x4ED020, 112 B
       - [0x3ED020, data, cod/3ED020]     # data blob resume
       - [0x3ED0F0, .data, ico2/sugipon/src/stormTest]  # the TU's whole .data run as source (data pass 3): the clip plane, VMA 0x4ED0F0..0x4ED100, 16 B
-      - [0x3ED100, data, cod/3ED100]     # data blob resume
+      - [0x3ED100, .data, ico2/sugipon/src/streamMotionManager]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ED100..0x4ED120, 28 B emitted
       - [0x3ED120, .data, ico2/sugipon/src/torch]  # the TU's whole .data run as source (data pass 5), VMA 0x4ED120..0x4ED170, 80 B
       - [0x3ED170, .data, ico2/sugipon/src/waterDot]  # syms: initWaterDotWork,initWaterDot,initWaterDot2  the three static templates AllocWaterDot copies from (0x1C + pad, 0x30, 0x30), VMA 0x4ED170..0x4ED1F0
       - [0x3ED1F0, data, cod/3ED1F0]     # .data blob resume
@@ -580,7 +595,8 @@ segments:
       - [0x3F7988, .data, ico2/script/src/deja]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F7988..0x4F7FB0, 1576 B
       - [0x3F79D0, .data, ico2/script/src/e3]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F79D0..0x4F7FB0, 1504 B
       - [0x3F7BD0, .data, ico2/script/src/end]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F7BD0..0x4F7FB0, 992 B
-      - [0x3F7E10, data, cod/3F7E10]     # data blob resume
+      - [0x3F7E10, .data, ico2/script/src/op]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4F7E10..0x4F7E50, 64 B emitted
+      - [0x3F7E50, data, cod/3F7E50]     # .data blob resume
       - [0x3F7FB0, .data, ico2/script/src/st01b]  # syms: ene_mes,floor_mes,way_mes,way_on_mes,way_off_mes  the TU's whole .data run, five mail records (VMA 0x4F7FB0..0x4F8050, 0xA0 = MAIN.MAP st01b.o .data); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3F8050, data, cod/3F8050]     # .data blob resume
       - [0x3F8270, .data, ico2/script/src/st02a]  # syms: way_on_mail  actSt02aWayOnChk mail record (VMA 0x4F8270..0x4F8290); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
@@ -635,7 +651,7 @@ segments:
       - [0x44D380, .rodata, sce/libkernl/thread]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D380..0x54D850, 1232 B
       - [0x44D3B0, rodata, cod/44D3B0]     # rodata blob resume
       - [0x44D6F8, .rodata, ico2/sugipon/src/delayFreeManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D6F8..0x54D850, 344 B
-      - [0x44D750, rodata, cod/44D750]     # rodata blob resume
+      - [0x44D750, .rodata, ico2/sugipon/src/geometryManager]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x54D750..0x54D7F8, 166 B emitted
       - [0x44D7F8, .rodata, ico2/sugipon/src/keyInput]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D7F8..0x54D850, 88 B
       # --- per-TU .rodata carves (PAL phase 2; see docs/carve_ledger.md).
       - [0x44D850, .rodata, ico2/sugipon/src/motionManager2]  # the TU's whole .rodata run as source (data pass 5): the constant run, the EUC-JP strings and the switch table in one row, VMA 0x54D850..0x54DA48, VMA 0x54D850..0x54DA48, 504 B
@@ -656,6 +672,8 @@ segments:
       - [0x44F424, rodata, cod/44F424]   # .rodata blob resume
       - [0x44F9E8, .rodata, ico2/seki/src/Primitive]  # carved D_0054F9E8 (VMA 0x54F9E8..0x54FA48, 96 B, align 8): prim_DispWireBox's twelve cube edges as int[12][2], emitted by the compiled function
       - [0x44FA48, rodata, cod/44FA48]   # .rodata blob resume (eight zero bytes before the next TU's string at 0x54FA50)
+      - [0x450AE8, .rodata, ico2/seki/src/ZFog]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x550AE8..0x550C07, 287 B emitted
+      - [0x450C07, rodata, cod/450C07]     # .rodata blob resume
       - [0x451058, .rodata, ico2/fumi/ios/ios]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551058..0x551430, 984 B
       - [0x4510F8, .rodata, ico2/fumi/ios/mblock]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x5510F8..0x551430, 824 B
       - [0x451110, rodata, cod/451110]     # rodata blob resume
@@ -760,11 +778,13 @@ segments:
       - [0x51DF5C, rodata, cod/51DF5C]     # rodata blob resume
       - [0x51EE98, .rodata, ico2/sugipon/src/act_a_p_1]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP act_a_p_1.o .rodata 0x2A), VMA 0x61EE98..0x61EEC2, 42 B
       - [0x51EEC2, rodata, cod/51EEC2]     # rodata blob resume
+      - [0x51F198, .rodata, ico2/sugipon/src/candle]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x61F198..0x61F1D0, 55 B emitted
       - [0x51F1D0, .rodata, ico2/sugipon/src/clipCollisionManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP clipCollisionManager.o .rodata 0x48), VMA 0x61F1D0..0x61F218, 72 B
       - [0x51F218, rodata, cod/51F218]     # rodata blob resume
+      - [0x51F220, .rodata, ico2/sugipon/src/clothAnimation]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x61F220..0x61F2A0, 127 B emitted
       - [0x51F2A0, .rodata, ico2/sugipon/src/clothTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F2A0..0x61F7D0, 1328 B
       - [0x51F2B0, .rodata, ico2/sugipon/src/effectTool]  # the TU's whole .rodata run as source (data pass 6); the last string carries one byte 0x82 that is not EUC-JP, written as an octal escape, VMA 0x61F2B0..0x61F650, 928 B
-      - [0x51F650, rodata, cod/51F650]     # rodata blob resume
+      - [0x51F650, .rodata, ico2/sugipon/src/enemy]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x61F650..0x61F710, 189 B emitted
       - [0x51F710, .rodata, ico2/sugipon/src/enemyParts]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F710..0x61F7D0, 192 B
       - [0x51F728, rodata, cod/51F728]     # rodata blob resume
       - [0x51F7D0, .rodata, ico2/sugipon/src/frameDependSequence]  # carved jtbl_0061F7D0 (VMA 0x61F7D0..0x61F7E4, 20 B, 5 arms): playSEConditionID's switch table, emitted by the compiled function
@@ -818,7 +838,8 @@ segments:
       - [0x5224F0, .rodata, ico2/script/src/e3]  # the TU's whole .rodata run as source (data pass 3), in definition order, VMA 0x6224F0..0x6225F4, 260 B
       - [0x5225F4, rodata, cod/5225F4]     # rodata blob resume
       - [0x522600, .rodata, ico2/script/src/end]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622600..0x6229B0, 944 B
-      - [0x522630, rodata, cod/522630]     # rodata blob resume
+      - [0x522630, .rodata, ico2/script/src/op]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x622630..0x6226A0, 109 B emitted
+      - [0x5226A0, rodata, cod/5226A0]     # .rodata blob resume
       - [0x522700, .rodata, ico2/script/src/st01b]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622700..0x6229B0, 688 B
       - [0x522710, rodata, cod/522710]     # rodata blob resume
       - [0x522820, .rodata, ico2/script/src/st03t]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622820..0x6229B0, 400 B
@@ -1131,6 +1152,8 @@ segments:
       - { type: .bss, vram: 0x00669640, name: ico2/sugipon/src/quaternion }  # the TU's own .bss, 0x400 B, VMA 0x669640..0x669A40; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00669A40, name: ico2/sugipon/src/tableSin }  # the TU's own .bss, 0x12012 B, VMA 0x669A40..0x67BA52; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0067BA52, name: cod/0067BA52 }  # .bss blob resume
+      - { type: .bss, vram: 0x0067BCE0, name: ico2/seki/src/Light }  # the TU's own .bss, 0xF0 B, VMA 0x67BCE0..0x67BDD0; static definitions in ROM run order (completeness pass)
+      - { type: bss, vram: 0x0067BDD0, name: cod/0067BDD0 }  # .bss blob resume
       - { type: .bss, vram: 0x0067BFD0, name: ico2/seki/src/MicroCode }  # the TU's own .bss, 0x40 B, VMA 0x67BFD0..0x67C010; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0067C010, name: cod/0067C010 }  # .bss blob resume
       - { type: .bss, vram: 0x006BC860, name: ico2/fumi/ios/ios }  # the TU's own .bss, 0x60 B, VMA 0x6BC860..0x6BC8C0; static definitions in ROM run order (completeness pass)
@@ -1149,6 +1172,8 @@ segments:
       - { type: bss, vram: 0x006C0BC0, name: cod/006C0BC0 }  # .bss blob resume
       - { type: .bss, vram: 0x006E5940, name: ico2/script/src/script }  # the TU's own .bss, 0x50 B, VMA 0x6E5940..0x6E5990; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x006E5990, name: cod/006E5990 }  # .bss blob resume
+      - { type: .bss, vram: 0x006E6190, name: ico2/omori/src/camera-ico2 }  # the TU's own .bss, 0x510 B, VMA 0x6E6190..0x6E66A0; static definitions in ROM run order (completeness pass)
+      - { type: bss, vram: 0x006E66A0, name: cod/006E66A0 }  # .bss blob resume
       - { type: .bss, vram: 0x006E6750, name: ico2/omori/src/ebrain }  # the TU's own .bss, 0x480 B, VMA 0x6E6750..0x6E6BD0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E6BD0, name: ico2/omori/src/enemy-control }  # the TU's own .bss, 0x190 B, VMA 0x6E6BD0..0x6E6D60; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E6D60, name: ico2/omori/src/fightSound }  # the TU's own .bss, 0x20 B, VMA 0x6E6D60..0x6E6D80; static definitions in ROM run order (completeness pass)

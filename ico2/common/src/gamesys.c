@@ -458,15 +458,18 @@ void gamesysMemoryLoad(void **tbl, int a1, void *a2)
     gflagOn(394);
 }
 
-extern int D_004DA770[];
+/* .data, owned by gamesys.o and read only here: the build stamp written into
+   the save area, compared against the one the card holds. */
+static char gamesysVersion[] = "12/12/01 17:53:37";
+
 extern int gamesysVersionDiff;
 extern int strcmp(int *p, int *buf);
 
 void gamesysVersionLoad(int *self)
 {
     int buf[8];
-    gamesysMemoryHandlerRead(self, buf, 0x12);
-    if (strcmp(D_004DA770, buf) != 0) {
+    gamesysMemoryHandlerRead(self, buf, 18);
+    if (strcmp((int *)gamesysVersion, buf) != 0) {
         gamesysVersionDiff = 1;
     } else {
         gamesysVersionDiff = 0;
@@ -476,12 +479,12 @@ void gamesysVersionLoad(int *self)
 void gamesysVersionSave(int a0)
 {
     if (gamesysVersionDiff == 0) {
-        gamesysMemoryHandlerWrite((int *)a0, (int)D_004DA770, 0x12);
+        gamesysMemoryHandlerWrite((int *)a0, (int)gamesysVersion, 18);
         return;
     }
     {
         char buf[0x20];
-        memset(buf, 0, 0x12);
-        gamesysMemoryHandlerWrite((int *)a0, (int)buf, 0x12);
+        memset(buf, 0, 18);
+        gamesysMemoryHandlerWrite((int *)a0, (int)buf, 18);
     }
 }

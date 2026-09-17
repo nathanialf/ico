@@ -22,4 +22,8 @@ void mc_Init(void);
 void mc_SetMicroCode();
 void mc_setBaseOffset(int base, int pri);
 
+/* MicroCode.c's one .data object (MAIN.MAP line 5804), read from
+   DisplayP2O.c as well: the VU1 microprogram address per microprogram id. */
+extern int MicroCodeAddress[];
+
 #endif /* MICROCODE_H */

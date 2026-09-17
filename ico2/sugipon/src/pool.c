@@ -362,10 +362,40 @@ void updatePoolGeo(char *self)
     prim_UpdateMesh3D(mesh0, 9, buffer_ID);
 }
 
-extern char D_00290760[];
-extern char D_002907A0[];
-extern char D_002906E0[];
-extern char D_00290720[];
+/* .data, owned by pool.o and read only here (MAIN.MAP names no symbol in the
+   run).  The fixed lighting the pool surface is drawn under, in the two
+   matrices light_MakeLightMatrix otherwise builds at +0x40 and +0x00 of the
+   object's light work: a colour matrix (a row per colour channel, a column per
+   light) and a normal matrix (a column per light direction).  The first pair
+   goes straight to prim_DispMesh3D, the second is copied into the work. */
+static float dispLightColor[4][4] = {
+    {1.0f, 0.0f, 0.0f, 0.0f},
+    {1.0f, 0.0f, 0.0f, 0.0f},
+    {1.0f, 0.0f, 0.0f, 0.0f},
+    {1.0f, 1.0f, 1.0f, 0.0f},
+};
+
+static float dispLightNormal[4][4] = {
+    {1.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 1.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 1.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+};
+
+static float workLightColor[4][4] = {
+    {0.707f, 0.707f, 0.0f, 0.0f},
+    {0.707f, 0.707f, 0.0f, 0.0f},
+    {0.707f, 0.707f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f},
+};
+
+static float workLightNormal[4][4] = {
+    {1.0f, 1.0f, 1.0f, 0.0f},
+    {1.0f, 1.0f, 1.0f, 0.0f},
+    {1.0f, 1.0f, 1.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+};
+
 extern int D_0028F4D4[];
 extern int D_00639F94;
 extern int D_0063A07C;
@@ -407,10 +437,10 @@ void dispPool(char *self)
 
     _SetCurrentMatrix(matrixptr + 0x100);
 
-    prim_DispMesh3D(*(int *)(w + 0x44), D_002906E0, D_00290720, -1);
+    prim_DispMesh3D(*(int *)(w + 0x44), dispLightColor, dispLightNormal, -1);
 
-    CopyMatrix((char *)GOBJ_SUB(self)->p_874 + 0x40, D_00290760);
-    CopyMatrix((char *)GOBJ_SUB(self)->p_874, D_002907A0);
+    CopyMatrix((char *)GOBJ_SUB(self)->p_874 + 0x40, workLightColor);
+    CopyMatrix((char *)GOBJ_SUB(self)->p_874, workLightNormal);
 
     gif_StartPacketPri(4);
     flushWork(4);
@@ -483,7 +513,7 @@ void dispPool(char *self)
 
     _SetCurrentMatrix(matrixptr + 0x100);
 
-    prim_DispMesh3D(*(int *)(w + 0x40), D_002906E0, D_00290720, -1);
+    prim_DispMesh3D(*(int *)(w + 0x40), dispLightColor, dispLightNormal, -1);
 
     gif_StartPacketPri(4);
     gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
@@ -703,7 +733,7 @@ void DispLimitedPoolReflactionMesh(int *a0)
     gif_SetAlpha(0, 4, 0x80);
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
-    prim_DispMesh3D(a0[4], D_002906E0, D_00290720, -1);
+    prim_DispMesh3D(a0[4], dispLightColor, dispLightNormal, -1);
     if (D_0063B148 != 0) {
         DispMeshWire((int *)a0[6], a0[0], a0[1]);
     }

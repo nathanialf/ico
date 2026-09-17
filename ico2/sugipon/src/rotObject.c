@@ -173,7 +173,9 @@ float GetRotObjectRotCount(char *a0)
     return (float)*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x24) * (1.0f / 65536.0f);
 }
 
-extern char D_004ECF90[];
+/* .data, the whole of rotObject.o's run (MAIN.MAP sizes the member 0x10): the
+   +Z unit vector the drive matrix is applied to. */
+static float zPlusVector[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
 int GetRotObjectZPlusDirection(void *gobj)
 {
@@ -181,7 +183,7 @@ int GetRotObjectZPlusDirection(void *gobj)
     float v[4];
 
     getRotObjectDriveMatrix(gobj, m);
-    sceVu0ApplyMatrix(v, m, D_004ECF90);
+    sceVu0ApplyMatrix(v, m, zPlusVector);
     v[1] = 0.0f;
     sceVu0Normalize(v, v);
     return GetTableArcTan2(v[0], v[2]);

@@ -39,10 +39,6 @@ extern EnemyDef D_00624880[];
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
 extern void __assert(char *file, int line, char *mes);
 extern int D_0063A438;
-extern char D_0061F650[];
-extern char D_0061F660[];
-extern char D_0061F670[];
-extern char D_0061F6A0[];
 extern char D_0063B888[];
 
 typedef struct {
@@ -61,6 +57,17 @@ static inline void clearEnemyParticleFlags(int *p, int n)
     for (i = 0; i < n; i++)
         p[i] = 0;
 }
+
+/* .data, the whole of enemy.o's run (MAIN.MAP sizes the member 0x40): a unit
+   matrix with the translation (10, 0, 0).  No instruction in the retail ELF
+   reaches it and MAIN.MAP names no symbol in the run, so the role is not
+   recoverable; the object itself is, and this is where the member emits it. */
+static float offsetMatrix[4][4] = {
+    {1.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 1.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 1.0f, 0.0f},
+    {10.0f, 0.0f, 0.0f, 1.0f},
+};
 
 void setEnemyParticleObject(char *self, int pid)
 {
@@ -82,9 +89,9 @@ void setEnemyParticleObject(char *self, int pid)
 
     size = (*(float *)(p + 0x20) + *(float *)(p + 0x24) + *(float *)(p + 0x28)) * 32.0f * 0.33333f *
            0.5f * 10.0f;
-    parts = (int *)iosMallocDebug(D_0063A438, n * 4, D_0061F650, 130);
+    parts = (int *)iosMallocDebug(D_0063A438, n * 4, "src/enemy.c", 130);
     *(int **)(w + 0x10) = parts;
-    fl = (int *)iosMallocDebug(D_0063A438, n * 4, D_0061F650, 132);
+    fl = (int *)iosMallocDebug(D_0063A438, n * 4, "src/enemy.c", 132);
     *(int **)(w + 0x30) = fl;
     clearEnemyParticleFlags(fl, n);
     for (i = 0; i < n; i++) {
@@ -105,11 +112,12 @@ void setEnemyParticleObject(char *self, int pid)
             num = 80;
         else
             num = cnt;
-        parts[i] = prim_InitParticle(size, 0.5f, 0.5f, num, 1, D_0061F660, 0);
+        parts[i] = prim_InitParticle(size, 0.5f, 0.5f, num, 1, "enemy_sprite", 0);
         if (parts[i] == 0) {
-            debug_StdPrintfDummy(D_0061F670);
-            debug_assertMessage(D_0061F650, 177, D_0061F6A0);
-            __assert(D_0061F650, 177, D_0063B888);
+            /* EUC-JP: "cannot reserve the memory for the enemy soldier particles" */
+            debug_StdPrintfDummy("敵兵のパーティクルのメモリを確保できません\n");
+            debug_assertMessage("src/enemy.c", 177, "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n");
+            __assert("src/enemy.c", 177, D_0063B888);
         }
         for (cnt = 0; q->w > -1.0f && cnt < 80; cnt++, q++) {
             n4 = rand() % 4;
@@ -146,8 +154,6 @@ typedef struct {
 
 extern EnemyKindRange D_00624F68[];
 extern int D_00625018[];
-extern char D_0061F6C8[];
-extern char D_0061F6F0[];
 extern char D_0063B890[];
 
 /* static helper the listing places at enemy.c lines 223-233, expanded only into
@@ -159,7 +165,7 @@ static inline int enemyRandomizeID(int kind, int *ctr)
     int n = D_00624F68[kind - 0x10000].last - lo;
     int id = lo + *ctr;
 
-    debug_StdPrintfDummy(D_0061F6C8, *ctr, id);
+    debug_StdPrintfDummy("\x1b[36mRANDOMIZE COUNT: %d > RID: %d\x1b[m\n", *ctr, id);
     *ctr = *ctr + 1;
     if (*ctr >= n) {
         *ctr = 0;
@@ -200,7 +206,7 @@ retry:
     if (pid != -1) {
         setEnemyParticleObject(self, pid);
     }
-    debug_StdPrintfDummy(D_0061F6F0, kind);
+    debug_StdPrintfDummy("\x1b[36mENEMY DESIGN ID: %d\x1b[m\n", kind);
     return kind;
 }
 
@@ -232,7 +238,7 @@ static inline int enemyInitPartsList(char *self, char *param)
      * view of the slot produces (evidence rung: ROM bytes). */
     w = (char *)*(int *)(SUBOF(self) + 0x830);
 
-    parts = (int *)iosMallocDebug(D_0063A438, n * 4, D_0061F650, 285);
+    parts = (int *)iosMallocDebug(D_0063A438, n * 4, "src/enemy.c", 285);
     *(int **)(w + 0x14) = parts;
     clearEnemyParticleFlags(parts, n);
     *(int *)(w + 0x0) = kind;
@@ -246,7 +252,7 @@ void *InitEnemyGeo(char *self, char *param)
     int kind;
     int no;
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x54, D_0061F650, 641);
+    w = (char *)iosMallocDebug(D_0063A438, 0x54, "src/enemy.c", 641);
     *(char **)(SUBOF(self) + 0x830) = w;
     *(int *)(w + 0x1C) = 0;
     *(void **)(w + 0x18) = InitEnemyEye(10, 0, 10);
@@ -272,8 +278,6 @@ void *InitEnemyGeo(char *self, char *param)
     SetLodLevel(self, 2);
     return w;
 }
-
-extern char D_004E78A0[];
 
 void EnemyGeo(char *self)
 {
@@ -327,11 +331,11 @@ void EnemyGeo(char *self)
 
     _MulMatrix(MatrixDrive_GetMatrix(),
                *(char **)((int)GOBJ_SUB(self) + 0xC) + GetSkeltonFocusNode(self, 0x24) * 0x40,
-               D_004E78A0);
+               (char *)offsetMatrix);
     UpdateEnemyEye(*(char **)(w + 0x18), MatrixDrive_GetMatrix(), ratio);
     _MulMatrix(MatrixDrive_GetMatrix(),
                *(char **)((int)GOBJ_SUB(self) + 0xC) + GetSkeltonFocusNode(self, 0x25) * 0x40,
-               D_004E78A0);
+               (char *)offsetMatrix);
     UpdateEnemyEye(*(char **)(w + 0x20), MatrixDrive_GetMatrix(), ratio);
 }
 

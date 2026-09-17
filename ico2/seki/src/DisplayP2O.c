@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "Packet.h"
 #include "RegistPacket.h"
+#include "MicroCode.h"
 #include <libdma.h>
 
 /* kept local: this TU's uses of shadow_Render do not fit the prototype in Shadow.h */
@@ -16,7 +17,6 @@ static const char dispObjFormat[32] = "display object = %d";
 
 extern int D_00639F44;
 extern int D_0063B160;
-extern int D_00290B24[];
 extern int dmaVif;
 
 void p2o_MakePacket(char *a0)
@@ -72,5 +72,5 @@ void p2o_DispVU1Default(GObj *self)
 
 void p2o_TransMicroProgram(void)
 {
-    sceDmaSend(dmaVif, D_00290B24[0]);
+    sceDmaSend(dmaVif, MicroCodeAddress[1]);
 }

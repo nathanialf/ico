@@ -124,22 +124,20 @@ void actTitleShortCut(volatile int a0)
     _ACTWait(0);
 }
 
-extern ActMail D_004F7E10[];
-extern ActMail D_004F7E30[];
+/* .data, the whole of op.o's run: the two demo mail pairs, each the mail the
+   demo thread answers and the 429 end marker. */
+static ActMail opDemo02_mes[2] = {{430}, {429}};
+
+static ActMail opDemo03_mes[2] = {{430}, {429}};
+
 extern int D_0063AA08;
 extern int D_0028F4C0[];
 /* the retail build's printf stub; the 2001 declaration was unprototyped, which
    is why the extra arguments still travel in $a1/$a2 rather than on the stack */
 extern int frame_count;
-extern char D_00622630[];
-extern char D_00622648[];
-extern char D_00622658[];
-extern char D_00622668[];
 extern int D_0063C4EC;
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
-extern char D_00622680[];
-extern char D_00622690[];
 extern PadState D_0028F8F0[];
 extern int stage_no;
 
@@ -185,7 +183,7 @@ inline void actSubMpegReturnPreload(volatile int a0)
 
 void actTitleReadTimeDemo0(volatile int a0)
 {
-    debug_StdPrintfDummy(D_00622630, frame_count);
+    debug_StdPrintfDummy("realtime demo %d\n", frame_count);
 
     stage_SetAnimation(2, 0, -1);
 
@@ -346,9 +344,9 @@ void actTitleReadTimeDemo0(volatile int a0)
     scpPlayMot(scpSearchGobj(60), 1064);
     scpPlayMot(scpSearchGobj(61), 1071);
 
-    debug_StdPrintfDummy(D_00622648, frame_count);
+    debug_StdPrintfDummy("finish anim %d\n", frame_count);
 
-    debug_StdPrintfDummy(D_00622658, frame_count);
+    debug_StdPrintfDummy("frame anim %d\n", frame_count);
 
     _ACTWait(900);
 
@@ -362,7 +360,7 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     D_0063ABA8 = 1;
 
-    debug_StdPrintfDummy(D_00622668, frame_count, gflagChk(386));
+    debug_StdPrintfDummy("game mode %d %d\n", frame_count, gflagChk(386));
 
     lt_switch_layout(12);
 
@@ -382,9 +380,9 @@ inline void actSt26aConte01_1_newgame(volatile int a0)
         _ACTWait(1);
     }
 
-    debug_StdPrintfDummy(D_00622680);
+    debug_StdPrintfDummy("newgame demo\n");
 
-    debug_StdPrintfDummy(D_00622690);
+    debug_StdPrintfDummy("demo layout\n");
 
     gflagOn(2);
 
@@ -529,8 +527,8 @@ void actOpDemo02(volatile int a0)
         scpAdpcmPlayRequestFunc(10, &D_0063BE60, 0, 1, 1);
     }
 
-    D_004F7E10[0].func = actOpDemo02Chk;
-    self->mail = D_004F7E10;
+    opDemo02_mes[0].func = actOpDemo02Chk;
+    self->mail = opDemo02_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -695,8 +693,8 @@ inline void actOpDemo03(volatile int a0)
     stage_SetAnimation(176, 0, 0);
     stage_SetAnimation(172, 0, 0);
 
-    D_004F7E30[0].func = actOpDemo03Chk;
-    self->mail = D_004F7E30;
+    opDemo03_mes[0].func = actOpDemo03Chk;
+    self->mail = opDemo03_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

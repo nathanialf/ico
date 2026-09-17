@@ -29,7 +29,7 @@ typedef union ChainVal {
 int UpdateRootPosition(char *gobj)
 {
     float pos[4];
-    char *cw = *(char **)(*(int *)(gobj + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
     ChainNode *nd;
     int moved = 0;
 
@@ -75,7 +75,7 @@ extern float D_0063ABC0[];
  * layout. */
 static inline void initPendulum(char *gobj)
 {
-    char *cw = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
     float a = (float)D_0063B214 * -0.2f + 2.0f;
     float y;
 
@@ -102,7 +102,7 @@ float *pos;
 
 {
     float d[4];
-    char *cw = *(char **)(*(int *)(gobj + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
     int best = -1;
     float min = D_0063ABC0[0];
     int i;
@@ -161,7 +161,7 @@ int collisionCheck(char *gobj)
 {
     ChainClipWork w;
     float v[4];
-    char *cw = *(char **)(*(int *)(gobj + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
 
     if (*(unsigned char *)(cw + 0x50)) {
         v[0] = *(float *)(cw + 0x20);
@@ -182,7 +182,7 @@ int collisionCheck(char *gobj)
     ClipWall(&w);
     if (w.hit) {
         if (D_0063B13C & 1) {
-            D_0063C2C0 = D_0063C2C0 + 0xA;
+            D_0063C2C0 = D_0063C2C0 + 10;
             debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_005551E0);
         }
         return 1;
@@ -226,7 +226,7 @@ static inline void ChainPendulumSwing(float *dst, char *cw, float *orient)
 void chain_simulate_term_simple(int a0)
 {
     float pos[4];
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     pendulum_Process(cw + 0x20, collisionCheck((char *)a0));
     ChainPendulumSwing(pos, cw, (float *)(cw + 0x20));
@@ -242,10 +242,10 @@ extern void chain_simulate_term_simple(int a0);
 
 void chain_simulate_term_ropeturn(int a0)
 {
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_005551F0);
     }
     *(float *)(cw + 0x44) = -0.4f;
@@ -256,10 +256,10 @@ extern char D_00555210[];
 
 void chain_simulate_term_loop(int a0)
 {
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555210);
     }
     if (*(float *)(cw + 0x34) < 0.5) {
@@ -277,10 +277,10 @@ extern char D_00555230[];
 
 void chain_simulate_term_swingready(int a0)
 {
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555230);
     }
     if (*(float *)(cw + 0x34) < 0.5) {
@@ -298,15 +298,15 @@ extern char D_00555250[];
 
 void chain_simulate_term_swingstart(int a0)
 {
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
     float h;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555250);
     }
 
-    h = *(float *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0x4AC);
+    h = GOBJ_SUB(D_00639EA4)->f_4AC;
 
     if (h < 20.0f) {
         if (*(float *)(cw + 0x34) < 0.3) {
@@ -339,11 +339,11 @@ void chain_simulate_term_moveup(int a0)
 {
     float w[4];
     float v[4];
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
     float h;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_moveup\n");
     }
     if (*(float *)(cw + 0x34) < 1.0f) {
@@ -355,7 +355,7 @@ void chain_simulate_term_moveup(int a0)
         *(float *)(cw + 0x44) = -0.15f;
     }
     chain_simulate_term_simple(a0);
-    h = *(float *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0x4AC);
+    h = GOBJ_SUB(D_00639EA4)->f_4AC;
     v[0] = *(float *)(cw + 0x20);
     v[1] = *(float *)(cw + 0x24);
     v[2] = *(float *)(cw + 0x28);
@@ -368,10 +368,10 @@ void chain_simulate_term_moveup(int a0)
 
 void chain_simulate_term_free(int a0)
 {
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_free\n");
     }
     if (*(float *)(cw + 0x34) < 0.5) {
@@ -388,15 +388,15 @@ void chain_simulate_term_down(int a0)
 {
     float w[4];
     float v[4];
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
     ChainNode *nd;
     ChainNode *next;
     float h;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         /* a 2001 copy and paste: this arm prints the sibling term's name */
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_free\n");
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_free\n");
     }
     if (*(float *)(cw + 0x34) < 0.5) {
         *(float *)(cw + 0x44) = -0.01f;
@@ -406,7 +406,7 @@ void chain_simulate_term_down(int a0)
         *(float *)(cw + 0x44) = -0.15f;
     }
     chain_simulate_term_simple(a0);
-    h = *(float *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0x4AC);
+    h = GOBJ_SUB(D_00639EA4)->f_4AC;
     v[0] = *(float *)(cw + 0x20);
     v[1] = *(float *)(cw + 0x24);
     v[2] = *(float *)(cw + 0x28);
@@ -428,10 +428,10 @@ extern char D_005552E0[];
 
 void chain_simulate_hangstart(int a0)
 {
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_005552E0);
     }
     *(float *)(cw + 0x44) = -1.5f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
@@ -443,7 +443,7 @@ extern char D_00555300[];
 void chain_simulate_term(int a0)
 {
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555300);
     }
     chain_simulate_term_simple(a0);
@@ -469,11 +469,11 @@ extern char D_00555318[];
 
 void chain_simulate_stop(int a0)
 {
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     ResetChainNodes(cw, (float *)(cw + 0x10));
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555318);
     }
 }
@@ -482,11 +482,11 @@ extern char D_00555330[];
 
 void chain_simulate_free(int a0)
 {
-    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
     int i;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 0xA;
+        D_0063C2C0 = D_0063C2C0 + 10;
         debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555330);
     }
     chain_sub_simulate(a0, *(ChainNode **)(cw + 0xD0), 0, *(int *)(cw + 0x74), 1, 0, 10.0f, 50.0f,
@@ -572,19 +572,19 @@ unsigned char flag;
     up = w->f24 > 0.0f ? 1 : 0;
 
     if (D_0063B13C & 1) {
-        debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555348, w->f18);
+        debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555348, w->f18);
         if (D_0063B13C & 1) {
-            debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555358, w->f10);
+            debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555358, w->f10);
             if (D_0063B13C & 1) {
-                debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555368, w->f14);
+                debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555368, w->f14);
                 if (D_0063B13C & 1) {
-                    debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555378, w->f28);
+                    debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555378, w->f28);
                     if (D_0063B13C & 1) {
-                        debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555388, w->f20);
+                        debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555388, w->f20);
                         if (D_0063B13C & 1) {
-                            debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555398, w->f1C);
+                            debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555398, w->f1C);
                             if (D_0063B13C & 1) {
-                                debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_005553A8, up);
+                                debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_005553A8, up);
                             }
                         }
                     }
@@ -858,7 +858,7 @@ char *InitChainGeo(char *gobj, ChainGeoReq *req)
 void chain_set_charachara(char *gobj, float amp)
 {
     float v[4];
-    char *cw = *(char **)(*(int *)(gobj + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
     int deg;
     int idx;
     float c;
@@ -904,7 +904,7 @@ void ChainDL(char *gobj)
     char d[0x10];
     char n[0x10];
     char dq[0x10];
-    char *ext = *(char **)(gobj + 0x15C);
+    char *ext = (char *)GOBJ_SUB(gobj);
     char *cw = *(char **)(ext + 0x830);
     int i;
 
@@ -922,7 +922,7 @@ void ChainDL(char *gobj)
         GetDifferencialQuaternionWithNoRegularize(dq, n, up);
         MultiQuaternion(q, dq, q);
         CopyVector(up, n);
-        GetMatrixFromQuaternionPos(*(char **)(*(int *)(gobj + 0x15C) + 0xC) + (i << 6), q, p);
+        GetMatrixFromQuaternionPos((char *)GOBJ_SUB(gobj)->f_C + (i << 6), q, p);
     }
     p2o_DispVU1DObjMulti(ext);
 }
@@ -946,7 +946,7 @@ void GetPositionOnTheChain(float *out, char *gobj, float *pos)
     float b[4];
     int i0;
     int i1;
-    char *cw = *(char **)(*(int *)(gobj + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
     ChainNode *nd;
 
     ChainNodeSpan(cw, pos, &i0, &i1);
@@ -976,7 +976,7 @@ extern float D_0063ABD4[];
 void PlumbPointUpdateChain(char *gobj, float *pos)
 {
     float d[4];
-    char *cw = *(char **)(*(int *)(gobj + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
     char *owner;
     int best = -1;
     float min = D_0063ABD4[0];
@@ -1014,10 +1014,10 @@ INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", TestChainUpDown);
 
 void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
 {
-    *(int *)(*(int *)(gobj + 0x15C) + 0x420) = mode;
-    ((ChainVal *)(*(int *)(gobj + 0x15C) + 0x410))->f = pos[0];
-    ((ChainVal *)(*(int *)(gobj + 0x15C) + 0x414))->f = pos[1];
-    ((ChainVal *)(*(int *)(gobj + 0x15C) + 0x418))->f = pos[2];
+    GOBJ_SUB(gobj)->f_420 = mode;
+    ((ChainVal *)((int)GOBJ_SUB(gobj) + 0x410))->f = pos[0];
+    ((ChainVal *)((int)GOBJ_SUB(gobj) + 0x414))->f = pos[1];
+    ((ChainVal *)((int)GOBJ_SUB(gobj) + 0x418))->f = pos[2];
     if (mode == 3) {
         SetDirectRootPositionNoFittingWithNodePoint(gobj, 0x16, pos, 1.0f);
     }
@@ -1025,19 +1025,19 @@ void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
 
 void HoldChain(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
     StartPendulum(a0);
     *(char *)(p + 0x60) = 1;
 }
 
 void ReleaseChain(char *a0)
 {
-    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x60) = 0;
+    *(char *)((char *)GOBJ_SUB(a0)->f_830 + 0x60) = 0;
 }
 
 void GetChainPendulum(char *a0, float *a, float *b, float *c)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
     *a = *(float *)(p + 0x30);
     *b = *(float *)(p + 0x34);
     if (*(float *)(p + 0x48) < *(float *)(p + 0x34)) {
@@ -1048,20 +1048,19 @@ void GetChainPendulum(char *a0, float *a, float *b, float *c)
 
 void IncreasePdlChain(char *a0)
 {
-    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x44) = 0.1f;
+    *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x44) = 0.1f;
 }
 
 extern int D_0063B218;
 
 void DecreasePdlChain(char *a0)
 {
-    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x44) =
-        (float)D_0063B218 * 0.5f * -0.1f;
+    *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x44) = (float)D_0063B218 * 0.5f * -0.1f;
 }
 
 void PlumbOrientUpdateChain(char *a0, float *src)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
     *(float *)(p + 0x20) = src[0];
     *(float *)(p + 0x24) = src[1];
     *(float *)(p + 0x28) = src[2];
@@ -1069,18 +1068,18 @@ void PlumbOrientUpdateChain(char *a0, float *src)
 
 int isBottomOfChain(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
     return *(int *)(p + 0x68) == *(int *)(p + 0x74) - 1;
 }
 
 int isStopChain(char *a0)
 {
-    return *(unsigned char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC0);
+    return *(unsigned char *)((char *)GOBJ_SUB(a0)->f_830 + 0xC0);
 }
 
 void GetChainClimbOrient(float *dst, char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
     dst[0] = *(float *)(p + 0xB0);
     dst[1] = *(float *)(p + 0xB4);
     dst[2] = *(float *)(p + 0xB8);
@@ -1088,7 +1087,7 @@ void GetChainClimbOrient(float *dst, char *a0)
 
 int CheckChainClimbablePos(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
 
     if (*(unsigned char *)(p + 0xA0) != 0 && *(int *)(p + 0x68) < 3)
         return 1;
@@ -1101,12 +1100,12 @@ typedef struct {
 
 void GetChainClimbCollision(ClimbCol *dst, char *a0)
 {
-    *dst = *(ClimbCol *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xA4);
+    *dst = *(ClimbCol *)((char *)GOBJ_SUB(a0)->f_830 + 0xA4);
 }
 
 void SetChainParentGObj(char *a0, void *a1)
 {
-    *(void **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) = a1;
+    *(void **)((char *)GOBJ_SUB(a0)->f_830) = a1;
 }
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
@@ -1116,14 +1115,14 @@ void SetChainParentGObj(char *a0, void *a1)
  * inlines the static stand-in getChainDirCorrectVal, which collapses at layout. */
 int GetChainDirCorrectVal(char *a0, int *a1)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
     *a1 = (int)(*(float *)(p + 0x70) * 180.0f / 3.1415927f);
     return *(unsigned char *)(p + 0x6C);
 }
 
 static inline int getChainDirCorrectVal(char *a0, int *a1)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
     *a1 = (int)(*(float *)(p + 0x70) * 180.0f / 3.1415927f);
     return *(unsigned char *)(p + 0x6C);
 }
@@ -1141,7 +1140,7 @@ void GetRootPositionHandExtra(void *a0, float *a1)
 
 void InitPendulum(char *a0)
 {
-    char *cw = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
     float a = (float)D_0063B214 * -0.2f + 2.0f;
     float y;
 
@@ -1161,43 +1160,43 @@ void InitPendulum(char *a0)
 
 void LockChainGeo(char *a0)
 {
-    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCC) = 1;
+    *(char *)((char *)GOBJ_SUB(a0)->f_830 + 0xCC) = 1;
 }
 
 void UnLockChainGeo(char *a0)
 {
-    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCC) = 0;
+    *(char *)((char *)GOBJ_SUB(a0)->f_830 + 0xCC) = 0;
 }
 
 float GetChainHangRange(char *a0)
 {
-    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC8);
+    return *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0xC8);
 }
 
 float GetChainLength(char *a0)
 {
-    return (float)(*(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x74) - 1) * 50.0f;
+    return (float)(*(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x74) - 1) * 50.0f;
 }
 
 void EnableChainHang(char *a0)
 {
-    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD) = 1;
+    *(char *)((char *)GOBJ_SUB(a0)->f_830 + 0xCD) = 1;
 }
 
 void UnableChainHang(char *a0)
 {
-    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD) = 0;
+    *(char *)((char *)GOBJ_SUB(a0)->f_830 + 0xCD) = 0;
 }
 
 int IsAbleChainHang(char *a0)
 {
-    return *(unsigned char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xCD);
+    return *(unsigned char *)((char *)GOBJ_SUB(a0)->f_830 + 0xCD);
 }
 
 void ChainPositionReset(char *a0)
 {
     float pos[4];
-    char *cw = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     UpdateRootMatrix(a0);
     GetRootPosition(pos, a0);
@@ -1294,7 +1293,7 @@ extern float D_0063ABD8[];
 
 int GetChainNearestNodePosition(float *out, char *gobj, float *p)
 {
-    char *cw = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
 
     float best = D_0063ABD8[0];
     int ret = 0;

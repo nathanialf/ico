@@ -95,15 +95,33 @@ typedef struct FogToolItem {
 } FogToolItem;
 
 extern GsbPad D_0028F8F0[];
-extern char *D_00290C08[];        /* "Off" / "On" */
-extern FogToolItem D_00550AE8[];  /* 9 rows */
-extern unsigned int D_00550C08[]; /* unselected / selected text colour */
-extern char D_00550C10[];         /* "Fog Tool" */
-extern char D_00550C20[];         /* "Fog %s => %s\n" */
-extern char D_00550C30[];         /* "Fog %s => %d\n" */
-extern int D_0063A354;            /* highlighted row */
-extern char D_0063A358[];         /* "%s : %s" */
-extern char D_0063A360[];         /* "%s : %d" */
+extern char *D_00290C08[]; /* "Off" / "On" */
+/* .rodata, the head of ZFog.o's run, VMA 0x550AE8..0x550C08: the
+   fog tool's nine rows and their names.  Each row names the stage
+   setting word it edits; the first row is the only 0/1 one, which is what the
+   tool tests to decide between the text and the number format. */
+extern char D_00550C10[]; /* "Fog Tool" */
+extern char D_00550C20[]; /* "Fog %s => %s\n" */
+extern char D_00550C30[]; /* "Fog %s => %d\n" */
+
+static const FogToolItem fogToolItems[9] = {
+    {" Fog On/Off   ", &D_0028F720[0x80 / 4], 0, 1},
+    {" Fog Color R  ", &D_0028F720[0x90 / 4], 0, 255},
+    {" Fog Color G  ", &D_0028F720[0x94 / 4], 0, 255},
+    {" Fog Color B  ", &D_0028F720[0x98 / 4], 0, 255},
+    {" Fog Color A  ", &D_0028F720[0x9C / 4], 0, 255},
+    {" Fog Offset A ", &D_0028F720[0xA0 / 4], 0, 255},
+    {" Fog Near     ", &D_0028F720[0xA4 / 4], 0, 255},
+    {" Fog Far      ", &D_0028F720[0xA8 / 4], 0, 255},
+    {" Fog Strength ", &D_0028F720[0x120 / 4], 0, 255},
+};
+
+extern unsigned int fogRowColor[]; /* unselected / selected row colour, 8 B at
+                                      VMA 0x550C08: an 8-byte object compiles to
+                                      .sdata under -G 8, so it stays in the blob */
+extern int D_0063A354;             /* highlighted row */
+extern char D_0063A358[];          /* "%s : %s" */
+extern char D_0063A360[];          /* "%s : %d" */
 
 int fog_FogTool(void)
 {
@@ -115,12 +133,12 @@ int fog_FogTool(void)
     debug_PrintfDummy(10, 50, 0xFF800000, D_00550C10);
 
     for (i = 0; i < 9; i++) {
-        if (D_00550AE8[i].min == 0 && D_00550AE8[i].max == 1) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, D_00550C08[(D_0063A354 == i) ? 1 : 0],
-                              D_0063A358, D_00550AE8[i].name, D_00290C08[*D_00550AE8[i].val]);
+        if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(D_0063A354 == i) ? 1 : 0],
+                              D_0063A358, fogToolItems[i].name, D_00290C08[*fogToolItems[i].val]);
         } else {
-            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, D_00550C08[(D_0063A354 == i) ? 1 : 0],
-                              D_0063A360, D_00550AE8[i].name, *D_00550AE8[i].val);
+            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(D_0063A354 == i) ? 1 : 0],
+                              D_0063A360, fogToolItems[i].name, *fogToolItems[i].val);
         }
     }
 
@@ -137,24 +155,24 @@ int fog_FogTool(void)
         }
     }
     if (D_0028F8F0[0].rep & 0x2000) {
-        v = ++*D_00550AE8[D_0063A354].val;
-        if (D_00550AE8[D_0063A354].max < v) {
-            *D_00550AE8[D_0063A354].val = D_00550AE8[D_0063A354].min;
+        v = ++*fogToolItems[D_0063A354].val;
+        if (fogToolItems[D_0063A354].max < v) {
+            *fogToolItems[D_0063A354].val = fogToolItems[D_0063A354].min;
         }
     }
     if (D_0028F8F0[0].rep & 0x8000) {
-        v = --*D_00550AE8[D_0063A354].val;
-        if (v < D_00550AE8[D_0063A354].min) {
-            *D_00550AE8[D_0063A354].val = D_00550AE8[D_0063A354].max;
+        v = --*fogToolItems[D_0063A354].val;
+        if (v < fogToolItems[D_0063A354].min) {
+            *fogToolItems[D_0063A354].val = fogToolItems[D_0063A354].max;
         }
     }
     if (D_0028F8F0[0].trg & 0x20) {
         for (i = 0; i < 9; i++) {
-            if (D_00550AE8[i].min == 0 && D_00550AE8[i].max == 1) {
-                debug_StdPrintfDummy(D_00550C20, D_00550AE8[i].name,
-                                     D_00290C08[*D_00550AE8[i].val]);
+            if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
+                debug_StdPrintfDummy(D_00550C20, fogToolItems[i].name,
+                                     D_00290C08[*fogToolItems[i].val]);
             } else {
-                debug_StdPrintfDummy(D_00550C30, D_00550AE8[i].name, *D_00550AE8[i].val);
+                debug_StdPrintfDummy(D_00550C30, fogToolItems[i].name, *fogToolItems[i].val);
             }
         }
         ret = 1;

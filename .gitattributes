@@ -35,6 +35,7 @@ ico2/fumi/src/act-way.c working-tree-encoding=EUC-JP
 ico2/script/src/warpGirl.c working-tree-encoding=EUC-JP
 ico2/sugipon/src/act_a_p_1.c working-tree-encoding=EUC-JP
 ico2/sugipon/src/clipCollisionManager.c working-tree-encoding=EUC-JP
+ico2/sugipon/src/enemy.c working-tree-encoding=EUC-JP
 ico2/sugipon/src/item.c working-tree-encoding=EUC-JP
 ico2/sugipon/src/lodManager.c working-tree-encoding=EUC-JP
 ico2/sugipon/src/motionManager2.c working-tree-encoding=EUC-JP

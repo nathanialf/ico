@@ -98,7 +98,12 @@ typedef struct StageSetting {
 } StageSetting;
 
 extern StageSetting D_0028F720;
-extern int D_002908B8[];
+
+/* .data, owned by Light.o and read only here (MAIN.MAP names no symbol in the
+   run).  The three flat lights light_AddLight registers, kept so
+   light_resetFlatLight can reload them from the stage setting. */
+static int flatLightSlot[3] = {0, 0, 0};
+
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
@@ -109,7 +114,12 @@ extern char D_0054F118[];
 extern int D_0063A44C;
 /* kept local: this TU's uses of light_resetFlatLight do not fit the prototype in Light.h */
 extern void light_resetFlatLight(void);
-extern Light D_0067BCE0[];
+
+/* .bss, owned by Light.o and reached only from this file (MAIN.MAP names no
+   symbol in the run; its Light.o .bss size 0xF0 is exactly these three).  The
+   three flat lights the stage setting is reloaded into. */
+static Light flatLight[3];
+
 extern float D_005D3DC8[][4];
 extern int D_0063C13C;
 
@@ -142,7 +152,7 @@ Light *light_AddLight(char *self, int b, int kind)
             return 0;
         }
         for (i = 0; i < 3; i++) {
-            l = &D_0067BCE0[i];
+            l = &flatLight[i];
             _CopyVector(l->f_20, D_0028F720.flatLightCol[i]);
             _NormalizeVector(l->f_10, D_0028F720.flatLightDir[i]);
             l->f_30 = 1.0f;
@@ -154,7 +164,7 @@ Light *light_AddLight(char *self, int b, int kind)
             }
             l->f_3C = d;
             light_setLinkLight(l);
-            D_002908B8[(*(int *)D_0063A088)++] = (int)l;
+            flatLightSlot[(*(int *)D_0063A088)++] = (int)l;
         }
         return 0;
     }
@@ -391,7 +401,7 @@ inline void light_resetFlatLight(void)
     Light *l;
 
     for (i = 0; i < 3; i++) {
-        l = (Light *)D_002908B8[i];
+        l = (Light *)flatLightSlot[i];
         if (l != 0) {
             _CopyVector(l->f_20, D_0028F720.flatLightCol[i]);
             _NormalizeVector(l->f_10, D_0028F720.flatLightDir[i]);
@@ -609,7 +619,11 @@ void light_DrawCursor(float *dir, int mode)
    unsigned constant: masked with a plain int 0x1F, gcc knows the value fits
    0..31 and picks slti, while the ROM has sltiu at all six sites.
    light_resetFlatLight is expanded at the tail (listing rows 1388-1406). */
-extern int D_002908C8[];
+/* .data, owned by Light.o and read only here.  One idle flag per editor page
+   (0 colour, 1 vector, 2 ambient): 1 while the page is only being shown, 0
+   while the analog sticks are driving that page's values. */
+static int pageIdle[3] = {1, 1, 1};
+
 extern int D_0063A0A4; /* the editor page: 0 colour, 1 vector, 2 ambient */
 extern int D_0063A0A8; /* the selected component: 0 x/r, 1 y/g, 2 z/b, 3 all */
 extern int D_0063A0AC; /* the selected flat light: 0..2 */
@@ -656,22 +670,22 @@ int light_Tool(void)
         }
     }
     if (D_0028F8F0[0].trg & 0x100) {
-        D_002908C8[0] = D_002908C8[1] = D_002908C8[2] = 1;
+        pageIdle[0] = pageIdle[1] = pageIdle[2] = 1;
         ret = -1;
     }
-    if (D_002908C8[1] == 0 && D_0063A0A4 == 1) {
+    if (pageIdle[1] == 0 && D_0063A0A4 == 1) {
         light_DrawCursor(dir, 0);
     } else {
         light_DrawCursor(dir, 1);
     }
     switch (D_0063A0A4) {
     case 0:
-        D_002908C8[1] = D_002908C8[2] = 1;
+        pageIdle[1] = pageIdle[2] = 1;
         light_GetColorAnalog(col1);
         if ((D_0028F8F0[0].trg & 0x400) && D_0063A0A8 == 3) {
-            D_002908C8[0] ^= 1;
+            pageIdle[0] ^= 1;
         }
-        if (D_002908C8[0] == 0 && D_0063A0A8 == 3) {
+        if (pageIdle[0] == 0 && D_0063A0A8 == 3) {
             /* The row pointer is into flatLightDir, so the three stores keep
                the +0x30 to flatLightCol in the store displacement off one
                base; spelling the destination as flatLightCol[idx][n] at each
@@ -714,11 +728,11 @@ int light_Tool(void)
         }
         break;
     case 1:
-        D_002908C8[0] = D_002908C8[2] = 1;
+        pageIdle[0] = pageIdle[2] = 1;
         if ((D_0028F8F0[0].trg & 0x400) && D_0063A0A8 == 3) {
-            D_002908C8[1] ^= 1;
+            pageIdle[1] ^= 1;
         }
-        if (D_002908C8[1] == 0 && D_0063A0A8 == 3) {
+        if (pageIdle[1] == 0 && D_0063A0A8 == 3) {
             _CopyVector(D_0028F720.flatLightDir[D_0063A0AC], dir);
             break;
         }
@@ -756,12 +770,12 @@ int light_Tool(void)
                             D_0028F720.flatLightDir[D_0063A0AC]);
         break;
     case 2:
-        D_002908C8[0] = D_002908C8[1] = 1;
+        pageIdle[0] = pageIdle[1] = 1;
         light_GetColorAnalog(col2);
         if ((D_0028F8F0[0].trg & 0x400) && D_0063A0A8 == 3) {
-            D_002908C8[2] ^= 1;
+            pageIdle[2] ^= 1;
         }
-        if (D_002908C8[2] == 0 && D_0063A0A8 == 3) {
+        if (pageIdle[2] == 0 && D_0063A0A8 == 3) {
             D_0028F720.ambientCol[0] = col2[0] / 255.0f;
             D_0028F720.ambientCol[1] = col2[1] / 255.0f;
             D_0028F720.ambientCol[2] = col2[2] / 255.0f;
@@ -801,33 +815,33 @@ int light_Tool(void)
     debug_PrintfDummy(10, 46, 0xFF800000, "PUSH R2 SELECT LIGHT (%d/3) ('SELECT'RETURN MENU)",
                       D_0063A0AC + 1);
     col = (D_0063A0A4 == 0) ? 0xFFC0C000 : 0xFFFFFF00;
-    if (D_002908C8[0] != 0 || (frame_count & 0x1FU) < 20) {
+    if (pageIdle[0] != 0 || (frame_count & 0x1FU) < 20) {
         debug_PrintfDummy(10, 56, col, D_0063A0C8);
     }
     for (i = 0; i < 3; i++) {
-        if (D_002908C8[0] == 0 || D_0063A0A4 != 0 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
+        if (pageIdle[0] == 0 || D_0063A0A4 != 0 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
             (frame_count & 0x1FU) < 20) {
             debug_PrintfDummy(46 + i * 168, 56, col, D_0063A0D0, name[i],
                               D_0028F720.flatLightCol[D_0063A0AC][i] * 128.0f);
         }
     }
     col = (D_0063A0A4 == 1) ? 0xFFC0C000 : 0xFFFFFF00;
-    if (D_002908C8[1] != 0 || (frame_count & 0x1FU) < 20) {
+    if (pageIdle[1] != 0 || (frame_count & 0x1FU) < 20) {
         debug_PrintfDummy(10, 66, col, D_0063A0D8);
     }
     for (i = 0; i < 3; i++) {
-        if (D_002908C8[1] == 0 || D_0063A0A4 != 1 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
+        if (pageIdle[1] == 0 || D_0063A0A4 != 1 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
             (frame_count & 0x1FU) < 20) {
             debug_PrintfDummy(46 + i * 168, 66, col, D_0063A0D0, name[i],
                               D_0028F720.flatLightDir[D_0063A0AC][i]);
         }
     }
     col = (D_0063A0A4 == 2) ? 0xFFC0C000 : 0xFFFFFF00;
-    if (D_002908C8[2] != 0 || (frame_count & 0x1FU) < 20) {
+    if (pageIdle[2] != 0 || (frame_count & 0x1FU) < 20) {
         debug_PrintfDummy(10, 76, col, D_0063A0E0);
     }
     for (i = 0; i < 3; i++) {
-        if (D_002908C8[2] == 0 || D_0063A0A4 != 2 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
+        if (pageIdle[2] == 0 || D_0063A0A4 != 2 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
             (frame_count & 0x1FU) < 20) {
             debug_PrintfDummy(46 + i * 168, 76, col, D_0063A0D0, name[i],
                               D_0028F720.ambientCol[i] * 255.0f);

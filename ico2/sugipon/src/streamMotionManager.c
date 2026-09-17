@@ -41,7 +41,11 @@ typedef struct {
 } SMotion;
 
 extern SMotion D_00724AA8[];
-extern SMotion D_004ED100;
+
+/* .data, the whole of streamMotionManager.o's run: the cleared entry every
+   slot is reset to. */
+static SMotion emptyEntry = {{0, 0, -1, -1, -1, 0, 0}};
+
 extern int D_0063BBF0;
 extern int D_0063BBF8;
 extern int D_0063BC00;
@@ -68,7 +72,7 @@ void _deleteStreamMotionManager(void)
         D_0063BBF0 = 0;
     }
     for (i = 0; i < 10; i++) {
-        D_00724AA8[i] = D_004ED100;
+        D_00724AA8[i] = emptyEntry;
     }
     D_0063BBF4 = 0;
     D_0063BBF8 = 0;

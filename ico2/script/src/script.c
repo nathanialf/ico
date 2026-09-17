@@ -325,22 +325,39 @@ extern void scpDoorTypeUpMain(volatile int a0);
 /* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
 extern void ACTSendMailCorrect(int a0, int mail);
 
-/* the 0x20-byte door "mail" records in .data; the slot at +4 is the actor
-   thread the mail starts. */
-struct ScpMail {
-    int mail;
-    void (*func)(volatile int);
-    char _08[0x18];
-};
+/* .data, first in script.o's run: the colour packet prim_DispWireBox draws the
+   debug trigger box with.  Declared as the whole 4-word record so gcc reaches
+   it with a %hi/%lo pair rather than gp-relative (-G 8). */
+static int wireBoxColor[4] = {0, 16, 32, 128};
 
-extern struct ScpMail D_002A51B0[];
+/* kept local: script.c does not include script.h, and the two exported mail
+   tables below need this address before scpDoorTypeUpSwitch is defined. */
+extern void scpDoorTypeUpSwitch(volatile int a0);
+
+/* .data.  MAIN.MAP line 5865/5866 names the two exported door tables at +0x10
+   and +0x30 of script.o's run; the five below it are read only here.  Each is
+   the usual actor mail pair: the mail the door thread answers, then the 429
+   end marker act.c walks to. */
+ActMail scpInterDoorUpLever1[2] = {{406, scpDoorTypeUpSwitch}, {429}};
+
+ActMail scpInterDoorUpLever2[2] = {{407, scpDoorTypeUpSwitch}, {429}};
+
+static ActMail doorTypeUp_mes[2] = {{430}, {429}};
+
+static ActMail doorTypeUpSwitchDown_mes[2] = {{430}, {429}};
+
+static ActMail doorTypeUpSwitchUp_mes[2] = {{430}, {429}};
+
+static ActMail doorTypeUpDown_mes[2] = {{430}, {429}};
+
+static ActMail doorTypeUpUp_mes[2] = {{430}, {429}};
 
 struct ScpAct {
     char _000[0x18];
     ActStatus st18; /* 0x18 -- the 64-bit actor status word */
     char _020[0xB0];
-    struct ScpMail *mainMail; /* 0xD0 */
-    struct ScpMail *mail;     /* 0xD4 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
 };
 
 /* one linear step of *p toward TARGET; returns non-zero once it arrives */
@@ -398,14 +415,13 @@ void scpDoorTypeUpDown(volatile int a0)
         _ACTWait(*(int *)((char *)act + 0x468));
     }
     Camctrl_ExitEveRock();
-    D_002A51B0[0].func = scpDoorTypeUpMain;
-    ((struct ScpAct *)act)->mail = D_002A51B0;
+    doorTypeUpDown_mes[0].func = scpDoorTypeUpMain;
+    ((struct ScpAct *)act)->mail = doorTypeUpDown_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 extern const char D_005545A8[];
-extern struct ScpMail D_002A51D0[];
 
 void scpDoorTypeUpUp(volatile int a0)
 {
@@ -425,8 +441,8 @@ void scpDoorTypeUpUp(volatile int a0)
         _ACTWait(*(int *)((char *)act + 0x468));
     }
     Camctrl_ExitEveRock();
-    D_002A51D0[0].func = scpDoorTypeUpMain;
-    ((struct ScpAct *)act)->mail = D_002A51D0;
+    doorTypeUpUp_mes[0].func = scpDoorTypeUpMain;
+    ((struct ScpAct *)act)->mail = doorTypeUpUp_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -613,7 +629,7 @@ void scpGirlHintVoicePlay(void)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/script", scpGirlHintVoiceTickProc);
 
-/* the 0x30-byte wood-bridge table entry at D_002A51F0: an object id, the
+/* the 0x30-byte wood-bridge table entry at woodBoxTbl: an object id, the
    trigger `kind` that selects which axis test runs, the bridge end offset the
    way group is built from, and the four axis bounds the tests read. */
 struct WoodBoxEnt {
@@ -1175,8 +1191,6 @@ struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x1, floa
     return &wallColResult;
 }
 
-extern struct ScpMail D_002A5150[];
-
 void scpDoorTypeUp(volatile int a0)
 {
     Act *act = GOBJ_ACT(a0);
@@ -1186,14 +1200,12 @@ void scpDoorTypeUp(volatile int a0)
         scpTransLinearInline((void *)self, 1, -*(float *)((char *)act + 0x458),
                              *(float *)((char *)act + 0x458));
     }
-    D_002A5150[0].func = scpDoorTypeUpMain;
-    ((struct ScpAct *)act)->mail = D_002A5150;
+    doorTypeUp_mes[0].func = scpDoorTypeUpMain;
+    ((struct ScpAct *)act)->mail = doorTypeUp_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
-extern struct ScpMail D_002A5170[];
-extern struct ScpMail D_002A5190[];
 /* kept local: this TU's uses of scpDoorTypeUpDown do not fit the prototype in script.h */
 extern void scpDoorTypeUpDown(volatile int a0);
 /* kept local: this TU's uses of scpDoorTypeUpUp do not fit the prototype in script.h */
@@ -1205,13 +1217,13 @@ void scpDoorTypeUpSwitch(volatile int a0)
 
     act->mainMail = 0;
     if (gflagChk(*(int *)((char *)act + 0x454)) != 0) {
-        D_002A5170[0].func = scpDoorTypeUpDown;
-        act->mail = D_002A5170;
+        doorTypeUpSwitchDown_mes[0].func = scpDoorTypeUpDown;
+        act->mail = doorTypeUpSwitchDown_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
-    D_002A5190[0].func = scpDoorTypeUpUp;
-    act->mail = D_002A5190;
+    doorTypeUpSwitchUp_mes[0].func = scpDoorTypeUpUp;
+    act->mail = doorTypeUpSwitchUp_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1338,7 +1350,21 @@ void scpGirlHintVoiceCancel(void)
     }
 }
 
-extern struct WoodBoxEnt D_002A51F0[11];
+/* .data, last in script.o's run: the wood-bridge trigger table, one row per
+   bridge object, walked by object id. */
+static struct WoodBoxEnt woodBoxTbl[11] = {
+    {276, 6, {0}, {0.0f, -100.0f, 100.0f, 0.0f}, 1068.0f, -135.0f, 200.0f, 580.0f},
+    {1710, 0, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -1410.0f, 1000.0f, 0.0f, 0.0f},
+    {1705, 6, {0}, {0.0f, -200.0f, 100.0f, 0.0f}, 807.0f, 2000.0f, 570.0f, 1027.0f},
+    {1707, 6, {0}, {0.0f, -200.0f, 100.0f, 0.0f}, 807.0f, 2000.0f, 570.0f, 1027.0f},
+    {363, 1, {0}, {0.0f, -200.0f, -100.0f, 0.0f}, 740.0f, -3600.0f, 0.0f, 0.0f},
+    {988, 6, {0}, {0.0f, -200.0f, 100.0f, 0.0f}, -1431.0f, 105.0f, -470.0f, -259.0f},
+    {865, 8, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -350.0f, -285.0f, -450.0f, -280.0f},
+    {866, 8, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -350.0f, -285.0f, -450.0f, -280.0f},
+    {1773, 7, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
+    {1626, 1, {0}, {100.0f, -200.0f, 0.0f, 0.0f}, 680.0f, 230.0f, 0.0f, 0.0f},
+    {3294, 9, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
+};
 
 void scpWoodBox(volatile int a0)
 {
@@ -1347,7 +1373,7 @@ void scpWoodBox(volatile int a0)
 
     _ACTWait(10);
 
-    for (i = 0, p = D_002A51F0; i < 11; i++, p++) {
+    for (i = 0, p = woodBoxTbl; i < 11; i++, p++) {
         if (p->id == *(int *)(a0 + 8)) {
             goto found;
         }
@@ -1598,10 +1624,6 @@ int scpTriggerFloorAttrTargetMan(char *self, int attr)
     return hit;
 }
 
-/* the 16-byte wire-box colour packet; declared as the full 4-word record so
-   gcc addresses it with a %hi/%lo pair rather than gp-relative (-G 8). */
-extern int D_002A5100[4];
-
 int scpTriggerPosBox(float *p, float *pos, float *size)
 {
     int hit = 0;
@@ -1613,14 +1635,14 @@ int scpTriggerPosBox(float *p, float *pos, float *size)
     if (D_0063B150 != 0) {
         MatrixDrive_PushMatrix();
         if (hit != 0) {
-            D_002A5100[0] = 0xFF;
+            wireBoxColor[0] = 0xFF;
         } else {
-            D_002A5100[0] = 0;
+            wireBoxColor[0] = 0;
         }
         gif_StartPacketPri(0xB);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV(pos);
-        prim_DispWireBox(size, D_002A5100);
+        prim_DispWireBox(size, wireBoxColor);
         gif_EndPacket();
         MatrixDrive_PopMatrix();
     }
@@ -2275,7 +2297,7 @@ void scpDoorTypeUpMain(volatile int a0)
    argument registers, so ($a0 name, $a1 flag, $f12..$f17 the six scroll
    values) is the same register assignment either way, but ROM emits the flag
    move after every float move -- i.e. it is declared last. */
-extern struct ScpMail queen_appear_mes[];
+extern ActMail queen_appear_mes[];
 
 void actSubSekizoSe(volatile int a0)
 {

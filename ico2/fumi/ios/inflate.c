@@ -67,10 +67,24 @@ static int fill_inbuf();
         k -= (j);                                                                                  \
     }
 
-extern unsigned short D_0029B430[]; /* cplens */
-extern unsigned short D_0029B470[]; /* cplext */
-extern unsigned short D_0029B4B0[]; /* cpdist */
-extern unsigned short D_0029B4F0[]; /* cpdext */
+/* .data, the first four objects of inflate.o's run (MAIN.MAP sizes the member
+   0x14C, which is exactly these four plus the border table below, each one
+   8-aligned).  The deflate code tables: copy length and extra-bit count per
+   literal code 257..285, then copy offset and extra-bit count per distance
+   code 0..29.  99 marks an invalid code. */
+static unsigned short cplens[31] = {3,  4,   5,   6,   7,   8,   9,   10, 11, 13, 15,
+                                    17, 19,  23,  27,  31,  35,  43,  51, 59, 67, 83,
+                                    99, 115, 131, 163, 195, 227, 258, 0,  0};
+
+static unsigned short cplext[31] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,  2, 2,
+                                    3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 99, 99};
+
+static unsigned short cpdist[30] = {1,    2,    3,    4,    5,    7,    9,    13,    17,    25,
+                                    33,   49,   65,   97,   129,  193,  257,  385,   513,   769,
+                                    1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577};
+
+static unsigned short cpdext[30] = {0, 0, 0, 0, 1, 1, 2, 2,  3,  3,  4,  4,  5,  5,  6,
+                                    6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
 
 #define BMAX 16
 #define N_MAX 288
@@ -267,7 +281,7 @@ long long inflate_fixed(void *w, unsigned char *out, long long outlen)
         for (; i < 288; i++)
             l[i] = 8;
         IWORK(w)->bl = 7;
-        if ((i = huft_build(l, 288, 257, D_0029B430, D_0029B470, &IWORK(w)->tl, &IWORK(w)->bl,
+        if ((i = huft_build(l, 288, 257, cplens, cplext, &IWORK(w)->tl, &IWORK(w)->bl,
                             (void *)0)) != 0) {
             IWORK(w)->tl = (struct huft *)0;
             return -1;
@@ -275,8 +289,7 @@ long long inflate_fixed(void *w, unsigned char *out, long long outlen)
         for (i = 0; i < 30; i++)
             l[i] = 5;
         IWORK(w)->bd = 5;
-        if (huft_build(l, 30, 0, D_0029B4B0, D_0029B4F0, &IWORK(w)->td, &IWORK(w)->bd, (void *)0) >
-            1) {
+        if (huft_build(l, 30, 0, cpdist, cpdext, &IWORK(w)->td, &IWORK(w)->bd, (void *)0) > 1) {
             huft_free((char *)IWORK(w)->tl);
             IWORK(w)->tl = (struct huft *)0;
             return -1;
@@ -289,7 +302,10 @@ long long inflate_fixed(void *w, unsigned char *out, long long outlen)
     return inflate_codes(w, out, outlen);
 }
 
-extern int D_0029B530[]; /* border: order of the bit length code lengths */
+/* .data, the last object of inflate.o's run: the order the bit length code
+   lengths arrive in. */
+static int border[19] = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+
 extern char D_00551000[];
 extern char D_00551020[];
 
@@ -333,11 +349,11 @@ int inflate_dynamic(void *w, unsigned char *out, long long outlen)
 
     for (j = 0; j < nb; j++) {
         NEEDBITS(w, 3)
-        ll[D_0029B530[j]] = (unsigned int)(b & 7);
+        ll[border[j]] = (unsigned int)(b & 7);
         DUMPBITS(3)
     }
     for (; j < 19; j++)
-        ll[D_0029B530[j]] = 0;
+        ll[border[j]] = 0;
 
     bl = 7;
     if ((i = huft_build(ll, 19, 19, (unsigned short *)0, (unsigned short *)0, &tl, &bl, IMB(w))) !=
@@ -400,7 +416,7 @@ int inflate_dynamic(void *w, unsigned char *out, long long outlen)
     reuse_mblock(IMB(w));
 
     bl = 9;
-    i = huft_build(ll, nl, 257, D_0029B430, D_0029B470, &tl, &bl, IMB(w));
+    i = huft_build(ll, nl, 257, cplens, cplext, &tl, &bl, IMB(w));
     if (bl == 0)
         i = 1;
     if (i != 0) {
@@ -411,7 +427,7 @@ int inflate_dynamic(void *w, unsigned char *out, long long outlen)
     }
 
     bd = 6;
-    i = huft_build(ll + nl, nd, 0, D_0029B4B0, D_0029B4F0, &td, &bd, IMB(w));
+    i = huft_build(ll + nl, nd, 0, cpdist, cpdext, &td, &bd, IMB(w));
     if (bd == 0 && nl > 257) {
         debug_StdPrintfDummy(D_00551020);
         reuse_mblock(IMB(w));

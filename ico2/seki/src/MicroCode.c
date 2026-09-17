@@ -3,7 +3,27 @@
 #include "DisplayList.h"
 #include "typedef.h"
 
-extern int D_00290B20[];
+/* The five VU1 microprograms this table hands to the DMA; MAIN.MAP pulls
+   cluster.o, mesh.o, normal_c.o, normal_l.o and particle.o into the link
+   for exactly these names (map lines 42-46). */
+extern void ClusterMicroProgram();
+extern void MeshMicroProgram();
+extern void NormalCMicroProgram();
+extern void NormalLMicroProgram();
+extern void ParticleMicroProgram();
+
+/* .data, the whole of MicroCode.o's run (MAIN.MAP line 5804 names it at the
+   run base and sizes the member 0x1C).  Indexed by the microprogram id the
+   mesh and shadow paths pass around; slots 0 and 6 are unused. */
+int MicroCodeAddress[7] = {
+    0,
+    (int)NormalCMicroProgram,
+    (int)NormalLMicroProgram,
+    (int)ClusterMicroProgram,
+    (int)MeshMicroProgram,
+    (int)ParticleMicroProgram,
+    0,
+};
 
 /* .sbss and .bss, owned by MicroCode.o and reached only from this file
    (MAIN.MAP names no symbol in either run): the count of microprogram uploads
@@ -86,7 +106,7 @@ void mc_setBaseOffset(int base, int pri)
 
 inline void mc_TransMicroCode(int a0, int a1)
 {
-    int *q = &D_00290B20[a0];
+    int *q = &MicroCodeAddress[a0];
     int i;
     for (i = 0; i < 13; i++) {
         if ((a1 >> i) & 1) {

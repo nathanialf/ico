@@ -49,12 +49,9 @@ void setParticleEffectGeometry(int a0, int a1, int a2)
     CopyQuaternion(a0 + 0x10, a2);
 }
 
-/* The two file-static staging records this function fills before block-copying
-   the finished particle into the caller's slot. D_004ECCF0 is the 0x70-byte
-   particle record itself; D_004ECE90 is the scratch vector the spread offset is
-   written into and the current matrix is applied to. Both still live in the
-   uncarved .data blob. */
-/* the 0x70-byte particle record this function fills and then copies whole */
+/* D_004ECE90 is the scratch vector the spread offset is written into and the
+   current matrix is applied to; it follows the PE160 template in the run and
+   stays in the uncarved .data blob. */
 typedef struct {
     int unk_00;
     int spin; /* 0x04 */
@@ -77,7 +74,57 @@ typedef struct {
     int unk_6C;
 } PEPartRec;
 
-extern PEPartRec D_004ECCF0;
+/* .data, the head of particleEffect.o's run, VMA 0x4ECCF0..0x4ECDF0, in the
+   ROM's run order: the staging record makeParticle fills before copying it
+   whole into the caller's slot, the blank particle peSetVtx writes for an
+   unused vertex, and the cleared effect slot InitParticleEffects fills the
+   table with. */
+static PEPartRec particleWork = {
+    1,                        /* unk_00 */
+    0,                        /* spin */
+    0,                        /* unk_08 */
+    {0.0f, 0.0f, 0.0f, 1.0f}, /* pos */
+    {0.0f, 0.0f, 0.0f, 0.0f}, /* vel */
+    0,
+    0,    /* spinX, spinY */
+    1.0f, /* size */
+    0.1f, /* sizeStep */
+    1.0f, /* alpha */
+    1.0f, /* alphaStep */
+    60,   /* life */
+    0,
+    0,
+    {128, 128, 128, 128}, /* col */
+    0.0f,
+    0.0f, /* u, v */
+    0,
+    0,
+};
+
+static PEPartRec blankParticle = {
+    1,
+    0,
+    0,
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    0,
+    0,
+    0.0f,
+    0.1f,
+    1.0f,
+    1.0f,
+    60,
+    0,
+    0,
+    {0, 0, 0, 0},
+    0.0f,
+    0.0f,
+    0,
+    0,
+};
+
+static PEffect emptyEffect = {0, 0, 1, 0, 0, 0, 0};
+
 extern float D_004ECE90[4];
 extern float _GetRandom(void);
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
@@ -110,7 +157,7 @@ void _setParticleEffect(char *out, char *pkg, char *m, float k)
     int n;
     float span;
 
-    w = &D_004ECCF0;
+    w = &particleWork;
     CopyVector(w->pos, m + 0x30);
     D_004ECE90[2] = *(float *)(pkg + 0x10) * (*(float *)(pkg + 0x14) * sugiSignedRandom() + 1.0f);
     CopyMatrix(MatrixDrive_GetMatrix(), m);
@@ -144,7 +191,7 @@ void _setParticleEffect(char *out, char *pkg, char *m, float k)
     CopyIVector(w->col, pkg + 0x70);
     w->u = (float)*(int *)(pkg + 0x80) * 0.25f;
     w->v = (float)*(int *)(pkg + 0x84) * 0.25f;
-    *(PEPartRec *)out = D_004ECCF0;
+    *(PEPartRec *)out = particleWork;
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/particleEffect", setParticleEffect);
@@ -185,8 +232,6 @@ static inline void peSetVtx(char *dst, char *pt)
     *(float *)(dst + 0x18) = 128.0f;
 }
 
-/* the blank particle template, the 0x70-byte record that follows D_004ECCF0 */
-extern char D_004ECD60[];
 /* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(int a0, void *v);
 /* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
@@ -283,7 +328,7 @@ int execParticleEffect(void *a0)
             peSetVtx(d0, (char *)0x70000000);
             *(PEPartRec *)part = PEWORK;
         } else {
-            peSetVtx(d0, D_004ECD60);
+            peSetVtx(d0, (char *)&blankParticle);
             flags |= 1;
         }
     }
@@ -585,14 +630,12 @@ void SetParticleEffectPackage(int a0, int *a1, int a2)
     memcpy(((unsigned char *)particleParams + a0 * 0xA0), a1, a2);
 }
 
-extern PEffect D_004ECDD0;
-
 void InitParticleEffects(void)
 {
     int i;
 
     for (i = 0; i < 128; i++) {
-        particleEffects[i] = D_004ECDD0;
+        particleEffects[i] = emptyEffect;
     }
 }
 

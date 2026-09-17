@@ -253,8 +253,6 @@ void SetDirectRootPositionWithNodePoint(char *gobj, int node, float *pos, float 
     AdjustMotionHeightToNearestField(gobj);
 }
 
-extern char D_0054D750[];
-extern char D_0054D768[];
 extern char D_00639EF0[];
 extern char D_00639EF8[];
 extern void __assert(char *file, int line, char *expr);
@@ -297,10 +295,12 @@ void LocalizeGeometry(char *gobj, int *dobj)
 
     m = sub + 0xA0;
     if (*(int *)sub != 0) {
-        debug_assertMessage(D_0054D750, 371, D_0054D768);
-        __assert(D_0054D750, 371, D_00639EF0);
-        debug_assert(D_0054D750, 372);
-        __assert(D_0054D750, 372, D_00639EF8);
+        debug_assertMessage(
+            "src/geometryManager.c", 371,
+            "Fatal error! Geometry localize function called with GObj\n    that already have parent.\nExit...\n");
+        __assert("src/geometryManager.c", 371, D_00639EF0);
+        debug_assert("src/geometryManager.c", 372);
+        __assert("src/geometryManager.c", 372, D_00639EF8);
     }
 
     *(float *)(m + 0xC) = 1.0f;
@@ -454,7 +454,10 @@ loop:
     MatrixDrive_PopMatrix();
 }
 
-extern int D_0028FEB8[];
+/* .data, owned by geometryManager.o and read only here (MAIN.MAP names no
+   symbol in the run; its geometryManager.o .data size 0x14 fixes the length).
+   The object kinds the character list builder accepts, -1 terminated. */
+static int charGObjKinds[5] = {1, 2, 4, 47, -1};
 
 /* .bss, owned by geometryManager.o and reached only from this file (MAIN.MAP
    names no symbol in the run; its geometryManager.o .bss size 0x100 fixes the
@@ -463,7 +466,6 @@ extern int D_0028FEB8[];
 static int charGObjList[64];
 
 extern int D_00639EFC;
-extern char D_0054D7C8[];
 
 /* listing lines 540-547: the kind test the list builder runs on every live
    object; inlined at its single call site. */
@@ -472,8 +474,8 @@ static inline int isCharGObj(char *o)
     int i;
 
     if (*(int *)(o + 0x4) == 1 && *(int *)(o + 0x16C) != 0) {
-        for (i = 0; D_0028FEB8[i] != -1; i++) {
-            if (*(int *)(o + 0xC) == D_0028FEB8[i]) {
+        for (i = 0; charGObjKinds[i] != -1; i++) {
+            if (*(int *)(o + 0xC) == charGObjKinds[i]) {
                 return 1;
             }
         }
@@ -491,8 +493,9 @@ void MakeCharGObjList(void)
         if (isCharGObj(o) != 0) {
             charGObjList[D_00639EFC++] = (int)o;
             if (D_00639EFC >= 0x41) {
-                debug_assertMessage(D_0054D750, 0x22E, D_0054D7C8);
-                __assert(D_0054D750, 0x22E, D_00639EF0);
+                debug_assertMessage("src/geometryManager.c", 558,
+                                    "TOO MANY CHARACTERS EXIST ON THIS STAGE(>64)\n");
+                __assert("src/geometryManager.c", 558, D_00639EF0);
             }
         }
         o = isysGObjGetExist_next(o);
