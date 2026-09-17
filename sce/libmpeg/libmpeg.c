@@ -1642,7 +1642,26 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _slice0);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _skipMB0);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _decMB0);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _decode_motion_vector);
+
+void _decode_motion_vector(int *pred, int r_size, int motion_code, int motion_r, int full_pel)
+{
+    int lim = 16 << r_size;
+    int vec = full_pel ? (*pred >> 1) : *pred;
+
+    if (motion_code > 0) {
+        vec += ((motion_code - 1) << r_size) + motion_r + 1;
+        if (vec >= lim) {
+            vec -= lim + lim;
+        }
+    } else if (motion_code < 0) {
+        vec -= ((-motion_code - 1) << r_size) + motion_r + 1;
+        if (vec < -lim) {
+            vec += lim + lim;
+        }
+    }
+    *pred = full_pel ? vec * 2 : vec;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _motionVectors);
 
 extern void _decode_motion_vector();
